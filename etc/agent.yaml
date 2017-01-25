@@ -1,0 +1,10 @@
+interval: 10
+observer: 
+        name: docker
+        configuration:
+                hostUrl: "unix:///var/run/docker.sock"
+monitor: 
+        name: collectd
+        configuration:
+                confFile: "/etc/collectd/collectd.conf"
+
