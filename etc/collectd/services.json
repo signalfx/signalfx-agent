@@ -1,0 +1,20 @@
+{
+    "name": "signalfx-defaults",
+    "signatures": [
+    {
+        "name": "apache-default",
+        "rules": [
+        {
+            "comparator": "contains",
+            "path": "ContainerImage",
+            "value": "apache"
+        },
+        {
+            "comparator": "nexists",
+            "path": "ContainerLabel-monitor",
+            "value": ""
+        }
+        ]
+    }
+    ]
+}

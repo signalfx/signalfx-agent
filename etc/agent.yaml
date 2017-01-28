@@ -7,4 +7,6 @@ monitor:
         name: collectd
         configuration:
                 confFile: "/etc/collectd/collectd.conf"
+                servicesFile: "/etc/signalfx/collectd/services.yaml"
+                templatesDir: "/etc/signalfx/collectd/templates" 
 

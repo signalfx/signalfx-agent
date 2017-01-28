@@ -11,31 +11,47 @@ import (
 	"time"
 
 	"github.com/signalfx/neo-agent/plugins"
+	"github.com/signalfx/neo-agent/plugins/monitors"
 	"github.com/signalfx/neo-agent/services"
+)
+
+const (
+	// Running collectd
+	Running = "running"
+	// Stopped collectd
+	Stopped = "stopped"
+	// Reloading collectd plugins
+	Reloading = "reloading"
 )
 
 // Collectd Monitor
 type Collectd struct {
 	plugins.Plugin
-	state    string
-	services services.ServiceInstances
+	state       string
+	services    services.ServiceInstances
+	servicesDRS []services.ServiceDiscoveryRuleset
 }
 
 // NewCollectd constructor
 func NewCollectd(configuration map[string]string) *Collectd {
-	return &Collectd{plugins.NewPlugin("collectd", configuration), "stopped", make(services.ServiceInstances, 0)}
+	return &Collectd{plugins.NewPlugin(monitors.Collectd, configuration), Stopped, nil, nil}
 }
 
 // Monitor services from collectd monitor
 func (collectd *Collectd) Monitor(services services.ServiceInstances) error {
 
-	// temporary basic change detection (reconfigure/reload plugins on any change)
+	// let this monitor determine which services are applicable here
+	applicableServices, err := collectd.getApplicableServices(services)
+	if err != nil {
+		return err
+	}
+
 	changed := false
-	if len(collectd.services) != len(services) {
+	if len(collectd.services) != len(applicableServices) {
 		changed = true
 	} else {
-		for i := range services {
-			if services[i].ID != collectd.services[i].ID {
+		for i := range applicableServices {
+			if applicableServices[i].ID != collectd.services[i].ID {
 				changed = true
 				break
 			}
@@ -43,9 +59,10 @@ func (collectd *Collectd) Monitor(services services.ServiceInstances) error {
 	}
 
 	if changed {
-		if err := collectd.configurePlugins(services); err == null {
+		if err := collectd.configurePlugins(applicableServices); err != nil {
 			return err
 		}
+		collectd.state = Reloading
 
 		C.reload()
 
@@ -53,38 +70,77 @@ func (collectd *Collectd) Monitor(services services.ServiceInstances) error {
 			if int(C.is_reloading()) == 1 {
 				break
 			} else {
-				log.Print("waiting for reload to complete")
 				time.Sleep(time.Duration(1) * time.Second)
 			}
 		}
-		collectd.services = services
+		collectd.services = applicableServices
+		collectd.state = Running
 	}
 
 	return nil
 }
 
+func (collectd *Collectd) getApplicableServices(sis services.ServiceInstances) (services.ServiceInstances, error) {
+	applicableServices := make(services.ServiceInstances, 0, len(sis))
+	if collectd.servicesDRS != nil {
+		for i := range sis {
+			for _, ruleset := range collectd.servicesDRS {
+				matches, err := sis[i].Matches(ruleset)
+				if err != nil {
+					return nil, err
+				}
+
+				if matches {
+					// set service name to ruleset name and add as service to monitor
+					sis[i].Service.Name = ruleset.Name
+					applicableServices = append(applicableServices, sis[i])
+					break
+				}
+			}
+		}
+	}
+	return applicableServices, nil
+}
+
 func (collectd *Collectd) configurePlugins(services services.ServiceInstances) error {
-	log.Print("reconfiguring collectd plugins")
+	// TODO - print services to configure for now
+	// use service.Name as key to configuration mapping
+	for _, service := range services {
+		log.Printf("reconfiguring collectd service: %s", service.Service.Name)
+	}
 	return nil
 }
 
 // Start collectd monitoring
-func (collectd *Collectd) Start() error {
-	if collectd.state == "running" {
+func (collectd *Collectd) Start() (err error) {
+	if collectd.state == Running {
 		return errors.New("already running")
+	}
+
+	collectd.services = make(services.ServiceInstances, 0)
+
+	if servicesFile, ok := collectd.GetConfig("servicesfile"); ok == true {
+		log.Printf("loading service discovery signatures from %s", servicesFile)
+		lsignatures, err := services.LoadServiceSignatures(servicesFile)
+		if err != nil {
+			return err
+		}
+		collectd.servicesDRS = lsignatures.Signatures
 	}
 
 	go C.start()
 
 	log.Print("Collectd started")
-	collectd.state = "running"
+	collectd.state = Running
 	return nil
 }
 
 // Stop collectd monitoring
 func (collectd *Collectd) Stop() error {
 	C.stop()
-	collectd.state = "stopped"
+	collectd.state = Stopped
+	collectd.services = nil
+	collectd.servicesDRS = nil
 	return nil
 }
 

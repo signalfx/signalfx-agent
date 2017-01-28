@@ -8,6 +8,7 @@ import (
 	"github.com/docker/engine-api/client"
 	"github.com/docker/engine-api/types"
 	"github.com/signalfx/neo-agent/plugins"
+	"github.com/signalfx/neo-agent/plugins/observers"
 	"github.com/signalfx/neo-agent/services"
 	"golang.org/x/net/context"
 )
@@ -25,7 +26,7 @@ type Docker struct {
 
 // NewDocker constructor
 func NewDocker(configuration map[string]string) *Docker {
-	return &Docker{plugins.NewPlugin("docker", configuration)}
+	return &Docker{plugins.NewPlugin(observers.Docker, configuration)}
 }
 
 // Discover services from querying docker api
@@ -51,12 +52,15 @@ func (docker *Docker) Discover() (services.ServiceInstances, error) {
 	instances := make(services.ServiceInstances, 0)
 
 	for _, c := range containers {
-		serviceContainer := services.NewServiceContainer(c.ID, c.Names, c.Image, "", c.Command, c.State, c.Labels)
-		for _, port := range c.Ports {
-			servicePort := services.NewServicePort(port.IP, port.Type, uint16(port.PrivatePort), uint16(port.PublicPort))
-			id := docker.String() + c.ID + "-" + strconv.Itoa(port.PrivatePort)
-			si := services.NewServiceInstance(id, nil, serviceContainer, nil, servicePort, time.Now())
-			instances = append(instances, *si)
+		if c.State == "running" {
+			serviceContainer := services.NewServiceContainer(c.ID, c.Names, c.Image, "", c.Command, c.State, c.Labels)
+			for _, port := range c.Ports {
+				servicePort := services.NewServicePort(port.IP, port.Type, uint16(port.PrivatePort), uint16(port.PublicPort))
+				id := docker.String() + c.ID + "-" + strconv.Itoa(port.PrivatePort)
+				service := services.NewService(id)
+				si := services.NewServiceInstance(id, service, serviceContainer, nil, servicePort, time.Now())
+				instances = append(instances, *si)
+			}
 		}
 	}
 
