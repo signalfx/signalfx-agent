@@ -80,12 +80,6 @@ RUN sed -i -e '/^deb-src/d' /etc/apt/sources.list \
 LABEL go_version="1.7.4" \
       java_version="1.8"
 
-# base
-COPY image-scripts/*.sh /opt/signalfx-imaging/
-
-RUN chmod +x /opt/signalfx-imaging/*.sh
-
-# java
 # golang
 RUN cd /tmp \
     && wget https://storage.googleapis.com/golang/go1.7.4.linux-amd64.tar.gz \
@@ -95,11 +89,10 @@ RUN cd /tmp \
     && mkdir -p /var/opt/signalfx-agent-workspace/lib \
     && mkdir -p /var/opt/signalfx-agent-workspace/bin
 
-# collectd-build
 # collectd-all-cleanup
 RUN apt-get remove -y --purge build-essential software-properties-common python-software-properties python-pip \
     && apt-get autoremove -y --purge \
     && rm -rf /var/lib/apt/lists/*
 
 # default startup command
-CMD ["/opt/signalfx-imaging/supervisor.sh"]
+CMD ["tail -f /dev/null"]

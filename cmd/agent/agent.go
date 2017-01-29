@@ -50,7 +50,7 @@ func (agent *Agent) Configure(configfile string) error {
 	viper.SetDefault("interval", DefaultInterval)
 
 	viper.SetConfigFile(configfile)
-	if err := viper.ReadInConfig(); err == null {
+	if err := viper.ReadInConfig(); err != nil {
 		return err
 	}
 
@@ -103,7 +103,10 @@ func main() {
 	cwc, cancel := context.WithCancel(context.Background())
 
 	agent := NewAgent()
-	agent.Configure(*agentConfig)
+	if err := agent.Configure(*agentConfig); err != nil {
+		fmt.Printf("failed to configure agent - %s", err)
+		os.Exit(1)
+	}
 
 	exitCh := make(chan struct{})
 	go func(ctx context.Context) {
@@ -112,7 +115,9 @@ func main() {
 
 		for _, mon := range agent.Monitors {
 			log.Printf("starting monitor %s", mon.String())
-			mon.Start()
+			if err := mon.Start(); err != nil {
+				log.Printf("failed to start monitor %s", mon.String())
+			}
 		}
 
 		for {
@@ -126,7 +131,10 @@ func main() {
 
 			for _, v := range result {
 				for _, mon := range agent.Monitors {
-					mon.Monitor(v)
+					// TODO - send cloned observer results to each monitor
+					if err := mon.Monitor(v); err != nil {
+						log.Printf("failed to monitor observed services - %s", err)
+					}
 				}
 			}
 
