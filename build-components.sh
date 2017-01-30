@@ -1,12 +1,17 @@
 #!/bin/bash
 set -xe
 
+if [ -z "$1" ]; then
+  BASE_DIR=`mktemp -d`
+else
+  BASE_DIR="$1"
+fi
+
 AGENT_VERSION="1.0.0-beta"
-BASE_DIR=`mktemp -d`
 BASE_PACKAGE="github.com/signalfx/neo-agent"
 BUILD_TIME=`date +%FT%T%z`
-COLLECTD_INCLUDE_DIR="/usr/include/collectd"
-COLLECTD_LIB_DIR="/usr/lib/collectd"
+COLLECTD_INCLUDE_DIR="/usr/local/include/collectd"
+COLLECTD_LIB_DIR="/usr/local/lib/collectd"
 COLLECTD_STATE_DIR="/var"
 COLLECTD_SYSCONF_DIR="/etc/collectd"
 COLLECTD_VERSION="5.7.0-sfx0"
@@ -22,8 +27,6 @@ PACKAGES=(
    )
 
 if [ "$(uname)" == "Darwin" ]; then
-  COLLECTD_LIB_DIR="/usr/local/lib/collectd"
-  COLLECTD_INCLUDE_DIR="/usr/local/include/collectd"
   LIB_DIR="/usr/local/lib"
   MS="''"
 fi
@@ -60,7 +63,7 @@ if [ -z $SKIP_LIBCOLLECTD_BUILD ]; then
 
   cd ${COLLECTD_LIB_DIR}
 
-  gcc -Wl,--no-as-needed -shared -o libcollectd.so collectd-collectd.o collectd-meta_data.o collectd-utils_cache.o collectd-utils_llist.o collectd-utils_threshold.o collectd-configfile.o collectd-plugin.o collectd-utils_complain.o collectd-utils_random.o collectd-utils_time.o utils_avltree.o collectd-filter_chain.o collectd-types_list.o collectd-utils_ignorelist.o collectd-utils_subst.o common.o utils_heap.o oconfig.o parser.o scanner.o -ldl -lltdl -lpthread -lm
+  gcc -shared -o libcollectd.so collectd-collectd.o collectd-meta_data.o collectd-utils_cache.o collectd-utils_llist.o collectd-utils_threshold.o collectd-configfile.o collectd-plugin.o collectd-utils_complain.o collectd-utils_random.o collectd-utils_time.o utils_avltree.o collectd-filter_chain.o collectd-types_list.o collectd-utils_ignorelist.o collectd-utils_subst.o common.o utils_heap.o oconfig.o parser.o scanner.o -ldl -lltdl -lpthread -lm
 
   mkdir -p ${PROJECT_DIR}/.bin
   cp ${COLLECTD_LIB_DIR}/libcollectd.so $PROJECT_DIR/.bin/libcollectd.so
