@@ -1,0 +1,29 @@
+# Commented values reflect the defaults that are used if no value is specified.
+
+# interval:             10
+# timeout:              2
+# readThreads:          5
+# writeQueueLimitHigh:  500000
+# writeQueueLimitLow:   400000
+# collectInternalStats: true
+
+plugins:
+- plugin: signalfx
+  name: signalfx
+  signalfx:
+    # REQUIRED: Configure this value with your SignalFx API token.
+    apiToken:
+    # ingestUrl: https://ingest.signalfx.com
+# - plugin: redis
+#   name: redis
+#   host: localhost
+#   port: 6379
+#   templates: [redis-master.conf.tmpl]
+# - plugin: apache
+#   name: apache
+#   host: localhost
+#   port: 80
+#   templates: [apache.conf.tmpl]
+
+# templates:
+# Maybe specify template overrides here.
