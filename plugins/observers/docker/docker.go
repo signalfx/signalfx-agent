@@ -57,7 +57,7 @@ func (docker *Docker) Discover() (services.ServiceInstances, error) {
 			for _, port := range c.Ports {
 				servicePort := services.NewServicePort(port.IP, port.Type, uint16(port.PrivatePort), uint16(port.PublicPort))
 				id := docker.String() + c.ID + "-" + strconv.Itoa(port.PrivatePort)
-				service := services.NewService(id)
+				service := services.NewService(id, "unknown")
 				si := services.NewServiceInstance(id, service, serviceContainer, nil, servicePort, time.Now())
 				instances = append(instances, *si)
 			}

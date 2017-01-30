@@ -26,6 +26,7 @@ const (
 // Service that can be discovered and monitored
 type Service struct {
 	Name string
+	Type string
 }
 
 // ServicePort network information
@@ -68,8 +69,8 @@ type ServiceInstance struct {
 }
 
 // NewService constructor
-func NewService(name string) *Service {
-	return &Service{name}
+func NewService(name string, serviceType string) *Service {
+	return &Service{name, serviceType}
 }
 
 // NewServicePort constructor
@@ -162,12 +163,13 @@ func NewServiceDiscoveryRule(comparator string, path string, value interface{}) 
 // ServiceDiscoveryRuleset that names a set of service discovery rules
 type ServiceDiscoveryRuleset struct {
 	Name  string
+	Type  string
 	Rules []ServiceDiscoveryRule
 }
 
 // NewServiceDiscoveryRuleset constructor
-func NewServiceDiscoveryRuleset(name string) *ServiceDiscoveryRuleset {
-	return &ServiceDiscoveryRuleset{name, make([]ServiceDiscoveryRule, 0)}
+func NewServiceDiscoveryRuleset(name string, t string) *ServiceDiscoveryRuleset {
+	return &ServiceDiscoveryRuleset{name, t, make([]ServiceDiscoveryRule, 0)}
 }
 
 // ServiceDiscoverySignatures with name
