@@ -3,6 +3,7 @@
     "signatures": [
     {
         "name": "apache-default",
+        "type": "apache",
         "rules": [
         {
             "comparator": "contains",

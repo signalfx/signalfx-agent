@@ -1,7 +1,5 @@
 # collectd plugin configuration template
 LoadPlugin "apache"
 <Plugin "apache">
-   <Instance "apache-default">
-       URL "http://%%%Network.IP%%%:%%%Network.Port%%%/mod_status?auto"
-   </Instance>
+   <%= @ServiceInstances %>
 </Plugin>

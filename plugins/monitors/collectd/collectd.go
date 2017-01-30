@@ -93,6 +93,7 @@ func (collectd *Collectd) getApplicableServices(sis services.ServiceInstances) (
 				if matches {
 					// set service name to ruleset name and add as service to monitor
 					sis[i].Service.Name = ruleset.Name
+					sis[i].Service.Type = ruleset.Type
 					applicableServices = append(applicableServices, sis[i])
 					break
 				}
