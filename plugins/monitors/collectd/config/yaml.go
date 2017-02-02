@@ -52,7 +52,7 @@ func LoadYamlConfig(configFile string) (*AppConfig, error) {
 			return nil, err
 		}
 
-		if err := loadPluginConfig(pluginConfig, pluginType, pluginStruct); err == nil {
+		if err := LoadPluginConfig(pluginConfig, pluginType, pluginStruct); err == nil {
 			plugins = append(plugins, pluginStruct)
 		} else {
 			return nil, err
@@ -64,7 +64,7 @@ func LoadYamlConfig(configFile string) (*AppConfig, error) {
 
 // Load a plugin's configuration. If the configuration can't be loaded an error
 // is returned.
-func loadPluginConfig(config map[string]interface{}, plugin string, configStruct interface{}) error {
+func LoadPluginConfig(config map[string]interface{}, plugin string, configStruct interface{}) error {
 	log.Infof("Configuring %s plugin.", plugin)
 
 	// We pluck the plugin configuration from the main config then marshal it

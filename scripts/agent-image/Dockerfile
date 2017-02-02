@@ -105,6 +105,9 @@ RUN apt-get remove -y --purge build-essential software-properties-common python-
     && apt-get autoremove -y --purge \
     && rm -rf /var/lib/apt/lists/*
 
+# Have signalfx-collectd-plugin share same location as the rest of the plugins.
+RUN ln -s /opt/signalfx-collectd-plugin /usr/share/collectd
+
 # signalfx-agent
 ARG signalfx_agent_version=0.0.1-beta
 ARG signalfx_agent_configurations=etc

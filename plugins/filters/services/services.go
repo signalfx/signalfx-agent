@@ -144,7 +144,8 @@ func (filter *RuleFilter) Map(sis services.ServiceInstances) (services.ServiceIn
 			if matches {
 				// set service name to ruleset name and add as service to monitor
 				sis[i].Service.Name = ruleset.Name
-				sis[i].Service.Type = ruleset.Type
+				// FIXME: what if it's not a known service type?
+				sis[i].Service.Type = services.ServiceType(ruleset.Type)
 				applicableServices = append(applicableServices, sis[i])
 				break
 			}

@@ -3,12 +3,18 @@ package config
 import (
 	"bytes"
 	"fmt"
+	"os"
 	"path"
+	"runtime"
 	"text/template"
 )
 
 // RenderCollectdConf renders a collectd.conf config from the given app configuration.
-func RenderCollectdConf(templatesDir string, appConfig *AppConfig) (string, error) {
+func RenderCollectdConf(pluginRoot string, templatesDir string, appConfig *AppConfig) (string, error) {
+	if _, err := os.Stat(pluginRoot); os.IsNotExist(err) {
+		return "", fmt.Errorf("plugin root directory %s does not exist", pluginRoot)
+	}
+
 	output := bytes.Buffer{}
 	tmpl := template.New("collectd.conf.tmpl")
 
@@ -20,6 +26,12 @@ func RenderCollectdConf(templatesDir string, appConfig *AppConfig) (string, erro
 					return "", err
 				}
 				return buf.String(), nil
+			},
+			"Globals": func() map[string]string {
+				return map[string]string{
+					"PluginRoot": pluginRoot,
+					"Platform":   runtime.GOOS,
+				}
 			},
 		}).
 		ParseGlob(path.Join(templatesDir, "*.tmpl")); err != nil {
