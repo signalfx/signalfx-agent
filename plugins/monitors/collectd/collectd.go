@@ -3,6 +3,7 @@ package collectd
 // #cgo CFLAGS: -I/usr/include/collectd -I/usr/include -I/usr/local/include/collectd -I/usr/local/include -DSIGNALFX_EIM=1
 // #cgo LDFLAGS: /usr/local/lib/collectd/libcollectd.so
 // #include <stdint.h>
+// #include <stdlib.h>
 // #include "collectd.h"
 import "C"
 import (
@@ -129,7 +130,11 @@ func (collectd *Collectd) Start() (err error) {
 		collectd.servicesDRS = lsignatures.Signatures
 	}
 
-	go C.start()
+	go func() {
+		confFile := C.CString("collectd.conf")
+		defer C.free(confFile)
+		C.start(nil, confFile)
+	}()
 
 	log.Print("Collectd started")
 	collectd.state = Running

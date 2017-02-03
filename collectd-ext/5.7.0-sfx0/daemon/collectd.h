@@ -317,7 +317,7 @@ extern cdtime_t interval_g;
 extern int timeout_g;
 
 #ifdef SIGNALFX_EIM
-void start(void);
+void start(const char *, char *);
 void stop(void);
 void reload(void);
 int is_reloading(void);

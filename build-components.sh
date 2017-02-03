@@ -4,6 +4,7 @@ set -xe
 if [ -z "$1" ]; then
   BASE_DIR=`mktemp -d`
 else
+  # Note: must be absolute path.
   BASE_DIR="$1"
 fi
 
@@ -19,7 +20,7 @@ ENABLE_DEBUG=true
 GOPATH="${BASE_DIR}/go"
 LIB_DIR="/usr/lib"
 MS=""
-PROJECT_DIR="${HOME}/work/neo-agent"
+PROJECT_DIR="${PWD}"
 PACKAGES=(
      'cmd'
      'plugins'
@@ -29,6 +30,12 @@ PACKAGES=(
 if [ "$(uname)" == "Darwin" ]; then
   LIB_DIR="/usr/local/lib"
   MS="''"
+fi
+
+if [ `id -u` != 0 ]; then
+  SUDO=sudo
+else
+  SUDO=""
 fi
 
 # build collectd shared library
@@ -41,29 +48,29 @@ if [ -z $SKIP_LIBCOLLECTD_BUILD ]; then
 
   cd ${BASE_DIR}
 
-  wget https://github.com/signalfx/collectd/archive/collectd-${COLLECTD_VERSION}.tar.gz
+  [ -e collectd-${COLLECTD_VERSION}.tar.gz ] || curl -OL https://github.com/signalfx/collectd/archive/collectd-${COLLECTD_VERSION}.tar.gz
 
-  tar -xvf collectd-${COLLECTD_VERSION}.tar.gz
+  [ -d collectd-collectd-${COLLECTD_VERSION} ] || tar -xvf collectd-${COLLECTD_VERSION}.tar.gz
 
   cd ${BASE_DIR}/collectd-collectd-${COLLECTD_VERSION}
 
   cp ${PROJECT_DIR}/collectd-ext/${COLLECTD_VERSION}/plugins/* ${BASE_DIR}/collectd-collectd-${COLLECTD_VERSION}/src/
   cp ${PROJECT_DIR}/collectd-ext/${COLLECTD_VERSION}/daemon/* ${BASE_DIR}/collectd-collectd-${COLLECTD_VERSION}/src/daemon/
 
-  ./build.sh
-  ./configure --libdir="${LIB_DIR}" --localstatedir="${COLLECTD_STATE_DIR}" --sysconfdir="${COLLECTD_SYSCONF_DIR}"
+  [ -e configure ] || ./build.sh
+  [ -e Makefile ] || ./configure --libdir="${LIB_DIR}" --localstatedir="${COLLECTD_STATE_DIR}" --sysconfdir="${COLLECTD_SYSCONF_DIR}"
 
-  make AM_CFLAGS="-Wall -fPIC -DSIGNALFX_EIM=1" AM_CXXFLAGS="-Wall -fPIC -DSIGNALFX_EIM=1"
+  make -j4 AM_CFLAGS="-Wall -fPIC -DSIGNALFX_EIM=1" AM_CXXFLAGS="-Wall -fPIC -DSIGNALFX_EIM=1"
 
-  cp ${BASE_DIR}/collectd-collectd-${COLLECTD_VERSION}/src/daemon/*.h ${COLLECTD_INCLUDE_DIR}
-  cp ${BASE_DIR}/collectd-collectd-${COLLECTD_VERSION}/src/liboconfig/*.h ${COLLECTD_INCLUDE_DIR}/liboconfig
+  $SUDO cp ${BASE_DIR}/collectd-collectd-${COLLECTD_VERSION}/src/daemon/*.h ${COLLECTD_INCLUDE_DIR}
+  $SUDO cp ${BASE_DIR}/collectd-collectd-${COLLECTD_VERSION}/src/liboconfig/*.h ${COLLECTD_INCLUDE_DIR}/liboconfig
 
-  cp ${BASE_DIR}/collectd-collectd-${COLLECTD_VERSION}/src/daemon/*.o ${COLLECTD_LIB_DIR}
-  cp ${BASE_DIR}/collectd-collectd-${COLLECTD_VERSION}/src/liboconfig/*.o ${COLLECTD_LIB_DIR}
+  $SUDO cp ${BASE_DIR}/collectd-collectd-${COLLECTD_VERSION}/src/daemon/*.o ${COLLECTD_LIB_DIR}
+  $SUDO cp ${BASE_DIR}/collectd-collectd-${COLLECTD_VERSION}/src/liboconfig/*.o ${COLLECTD_LIB_DIR}
 
   cd ${COLLECTD_LIB_DIR}
 
-  gcc -shared -o libcollectd.so collectd-collectd.o collectd-meta_data.o collectd-utils_cache.o collectd-utils_llist.o collectd-utils_threshold.o collectd-configfile.o collectd-plugin.o collectd-utils_complain.o collectd-utils_random.o collectd-utils_time.o utils_avltree.o collectd-filter_chain.o collectd-types_list.o collectd-utils_ignorelist.o collectd-utils_subst.o common.o utils_heap.o oconfig.o parser.o scanner.o -ldl -lltdl -lpthread -lm
+  $SUDO gcc -shared -o libcollectd.so collectd-collectd.o collectd-meta_data.o collectd-utils_cache.o collectd-utils_llist.o collectd-utils_threshold.o collectd-configfile.o collectd-plugin.o collectd-utils_complain.o collectd-utils_random.o collectd-utils_time.o utils_avltree.o collectd-filter_chain.o collectd-types_list.o collectd-utils_ignorelist.o collectd-utils_subst.o common.o utils_heap.o oconfig.o parser.o scanner.o -ldl -lltdl -lpthread -lm
 
   mkdir -p ${PROJECT_DIR}/.bin
   cp ${COLLECTD_LIB_DIR}/libcollectd.so $PROJECT_DIR/.bin/libcollectd.so
