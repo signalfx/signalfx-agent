@@ -700,11 +700,8 @@ int main(int argc, char **argv) {
 
 #ifdef SIGNALFX_EIM
 
-void start(void) 
+void start(const char *basedir, char *configfile)
 {
-  const char *configfile = CONFIGFILE;
-  const char *basedir;
-
   struct sigaction sig_usr1_action = {.sa_handler = sig_usr1_handler};
 
   if (0 != sigaction(SIGUSR1, &sig_usr1_action, NULL)) {
@@ -717,32 +714,34 @@ void start(void)
 
   INFO("collectd - init global variables");
   init_global_variables();
- 
+
   INFO("collectd - init plugin context");
   plugin_init_ctx();
- 
+
   if (cf_read(configfile)) {
     fprintf(stderr, "Error: Reading the config file failed!\n"
                     "Read the syslog for details.\n");
   }
- 
-  if ((basedir = global_option_get("BaseDir")) == NULL) {
+
+  if (basedir == NULL && (basedir = global_option_get("BaseDir")) == NULL) {
     fprintf(stderr,
             "Don't have a basedir to use. This should not happen. Ever.");
-  } else if (change_basedir(basedir)) {
+  }
+
+  if (basedir && change_basedir(basedir)) {
     fprintf(stderr, "Error: Unable to change to directory `%s'.\n", basedir);
   }
- 
+
   if (do_init() != 0) {
     ERROR("Error: one or more plugin init callbacks failed.");
   }
- 
+
   INFO("collectd - finished init plugin context, entering read-loop.");
- 
+
   while (loop == 0) {
       do_loop();
       pthread_mutex_lock(&reload_lock);
-      if (reload_plugins == 0) 
+      if (reload_plugins == 0)
       {
           INFO("collectd - reloading plugins");
           INFO("collectd - shutting down plugins");
@@ -759,9 +758,9 @@ void start(void)
       }
       pthread_mutex_unlock(&reload_lock);
   }
- 
+
   INFO("collectd - exiting");
- 
+
   if (do_shutdown() != 0) {
     ERROR("Error: one or more plugin shutdown callbacks failed.");
   }
