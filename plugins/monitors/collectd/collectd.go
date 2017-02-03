@@ -12,7 +12,6 @@ import (
 	"time"
 
 	"github.com/signalfx/neo-agent/plugins"
-	"github.com/signalfx/neo-agent/plugins/monitors"
 	"github.com/signalfx/neo-agent/services"
 	"github.com/spf13/viper"
 )
@@ -29,35 +28,27 @@ const (
 // Collectd Monitor
 type Collectd struct {
 	plugins.Plugin
-	state       string
-	services    services.ServiceInstances
-	servicesDRS []services.ServiceDiscoveryRuleset
+	state    string
+	services services.ServiceInstances
 }
 
 // NewCollectd constructor
-func NewCollectd(config *viper.Viper) (*Collectd, error) {
-	plugin, err := plugins.NewPlugin(monitors.Collectd, config)
+func NewCollectd(name string, config *viper.Viper) (*Collectd, error) {
+	plugin, err := plugins.NewPlugin(name, config)
 	if err != nil {
 		return nil, err
 	}
-	return &Collectd{plugin, Stopped, nil, nil}, nil
+	return &Collectd{plugin, Stopped, nil}, nil
 }
 
 // Monitor services from collectd monitor
-func (collectd *Collectd) Monitor(services services.ServiceInstances) error {
-
-	// let this monitor determine which services are applicable here
-	applicableServices, err := collectd.getApplicableServices(services)
-	if err != nil {
-		return err
-	}
-
+func (collectd *Collectd) Write(services services.ServiceInstances) error {
 	changed := false
-	if len(collectd.services) != len(applicableServices) {
+	if len(collectd.services) != len(services) {
 		changed = true
 	} else {
-		for i := range applicableServices {
-			if applicableServices[i].ID != collectd.services[i].ID {
+		for i := range services {
+			if services[i].ID != collectd.services[i].ID {
 				changed = true
 				break
 			}
@@ -65,7 +56,7 @@ func (collectd *Collectd) Monitor(services services.ServiceInstances) error {
 	}
 
 	if changed {
-		if err := collectd.configurePlugins(applicableServices); err != nil {
+		if err := collectd.configurePlugins(services); err != nil {
 			return err
 		}
 		collectd.state = Reloading
@@ -79,34 +70,11 @@ func (collectd *Collectd) Monitor(services services.ServiceInstances) error {
 				time.Sleep(time.Duration(1) * time.Second)
 			}
 		}
-		collectd.services = applicableServices
+		collectd.services = services
 		collectd.state = Running
 	}
 
 	return nil
-}
-
-func (collectd *Collectd) getApplicableServices(sis services.ServiceInstances) (services.ServiceInstances, error) {
-	applicableServices := make(services.ServiceInstances, 0, len(sis))
-	if collectd.servicesDRS != nil {
-		for i := range sis {
-			for _, ruleset := range collectd.servicesDRS {
-				matches, err := sis[i].Matches(ruleset)
-				if err != nil {
-					return nil, err
-				}
-
-				if matches {
-					// set service name to ruleset name and add as service to monitor
-					sis[i].Service.Name = ruleset.Name
-					sis[i].Service.Type = ruleset.Type
-					applicableServices = append(applicableServices, sis[i])
-					break
-				}
-			}
-		}
-	}
-	return applicableServices, nil
 }
 
 func (collectd *Collectd) configurePlugins(services services.ServiceInstances) error {
@@ -120,20 +88,12 @@ func (collectd *Collectd) configurePlugins(services services.ServiceInstances) e
 
 // Start collectd monitoring
 func (collectd *Collectd) Start() (err error) {
+	println("starting collectd")
 	if collectd.state == Running {
 		return errors.New("already running")
 	}
 
 	collectd.services = make(services.ServiceInstances, 0)
-
-	if servicesFile := collectd.Config.GetString("servicesfile"); servicesFile != "" {
-		log.Printf("loading service discovery signatures from %s", servicesFile)
-		lsignatures, err := services.LoadServiceSignatures(servicesFile)
-		if err != nil {
-			return err
-		}
-		collectd.servicesDRS = lsignatures.Signatures
-	}
 
 	go func() {
 		confFile := C.CString("collectd.conf")
@@ -147,12 +107,10 @@ func (collectd *Collectd) Start() (err error) {
 }
 
 // Stop collectd monitoring
-func (collectd *Collectd) Stop() error {
+func (collectd *Collectd) Stop() {
 	C.stop()
 	collectd.state = Stopped
 	collectd.services = nil
-	collectd.servicesDRS = nil
-	return nil
 }
 
 // Status for collectd monitoring

@@ -6,13 +6,18 @@ import (
 	"log"
 	"os"
 	"os/signal"
+	"strings"
 	"time"
 
+	"github.com/signalfx/neo-agent/pipelines"
+	"github.com/signalfx/neo-agent/plugins"
+	"github.com/signalfx/neo-agent/plugins/filters"
+	"github.com/signalfx/neo-agent/plugins/filters/services"
 	"github.com/signalfx/neo-agent/plugins/monitors"
 	"github.com/signalfx/neo-agent/plugins/monitors/collectd"
 	"github.com/signalfx/neo-agent/plugins/observers"
 	"github.com/signalfx/neo-agent/plugins/observers/docker"
-	"github.com/signalfx/neo-agent/services"
+	"github.com/signalfx/neo-agent/utils"
 	"github.com/spf13/viper"
 	"golang.org/x/net/context"
 )
@@ -33,20 +38,64 @@ const DefaultInterval = 10
 type Agent struct {
 	// Interval to observer service activity
 	Interval int
-	// Observers used to discover services
-	Observers []observers.Observer
-	// Monitors that collect metrics
-	Monitors []monitors.Monitor
+	plugins  []plugins.IPlugin
+	pipeline *pipelines.Pipeline
 }
 
 // NewAgent with defaults
 func NewAgent() *Agent {
-	return &Agent{DefaultInterval, make([]observers.Observer, 0), make([]monitors.Monitor, 0)}
+	return &Agent{DefaultInterval, nil, nil}
+}
+
+// pluginConfig is just a holder for a plugin name and type when loading
+type pluginConfig struct {
+	Name string
+	Type string
+}
+
+// Loads subconfigs from configuration file. The given name should be a map
+// whose keys are the name of a plugin. That map should itself have a key `type`
+// that is the plugin type.
+func loadSubConfigs(name string) (map[pluginConfig]*viper.Viper, error) {
+	sub := viper.Sub(name)
+	if sub == nil {
+		return nil, fmt.Errorf("no %ss have been configured", name)
+	}
+
+	var keys []string
+
+	for _, key := range sub.AllKeys() {
+		idx := strings.Index(key, ".")
+		if idx < 1 {
+			return nil, fmt.Errorf("key %s is missing '.'", key)
+		}
+		keys = append(keys, key[0:idx])
+	}
+
+	keys = utils.UniqueStrings(keys)
+	ret := map[pluginConfig]*viper.Viper{}
+
+	for _, key := range keys {
+		viperKey := fmt.Sprintf("%s.%s", name, key)
+		s := viper.Sub(viperKey)
+		if s == nil {
+			return nil, fmt.Errorf("missing key %s", viperKey)
+		}
+
+		typ := s.GetString("type")
+		if typ == "" {
+			return nil, fmt.Errorf("%s is missing type", viperKey)
+		}
+
+		config := s.Sub("configuration")
+		ret[pluginConfig{key, typ}] = config
+	}
+
+	return ret, nil
 }
 
 // Configure an agent using configuration file
 func (agent *Agent) Configure(configfile string) error {
-
 	viper.SetDefault("interval", DefaultInterval)
 
 	viper.SetConfigFile(configfile)
@@ -56,46 +105,62 @@ func (agent *Agent) Configure(configfile string) error {
 
 	agent.Interval = viper.GetInt("interval")
 
-	observer := viper.GetString("observer.name")
-	observerConfig := viper.Sub("observer.configuration")
-	switch observer {
-	case observers.Docker:
-		if dockerObserver, err := docker.NewDocker(observerConfig); err == nil {
-			agent.Observers = append(agent.Observers, dockerObserver)
-		} else {
-			return err
+	loaded, err := loadSubConfigs("observers")
+	if err != nil {
+		return err
+	}
+
+	for plugin, configuration := range loaded {
+		switch plugin.Type {
+		case observers.Docker:
+			if observer, err := docker.NewDocker(plugin.Name, configuration); err == nil {
+				agent.plugins = append(agent.plugins, observer)
+			} else {
+				return err
+			}
 		}
 	}
 
-	monitor := viper.GetString("monitor.name")
-	monitorConfig := viper.Sub("monitor.configuration")
-	switch monitor {
-	case monitors.Collectd:
-		if collectdMonitor, err := collectd.NewCollectd(monitorConfig); err == nil {
-			agent.Monitors = append(agent.Monitors, collectdMonitor)
-		} else {
-			return err
+	loaded, err = loadSubConfigs("monitors")
+	if err != nil {
+		return err
+	}
+
+	for plugin, configuration := range loaded {
+		switch plugin.Type {
+		case monitors.Collectd:
+			if monitor, err := collectd.NewCollectd(plugin.Name, configuration); err == nil {
+				agent.plugins = append(agent.plugins, monitor)
+			} else {
+				return err
+			}
 		}
+	}
+
+	loaded, err = loadSubConfigs("filters")
+	if err != nil {
+		return err
+	}
+
+	for plugin, configuration := range loaded {
+		switch plugin.Type {
+		case filters.ServiceRules:
+			if filter, err := services.NewRuleFilter(plugin.Name, configuration); err == nil {
+				agent.plugins = append(agent.plugins, filter)
+			} else {
+				return err
+			}
+		}
+	}
+
+	if agent.pipeline, err = pipelines.NewPipeline("default", viper.GetStringSlice("pipeline.default"), agent.plugins); err != nil {
+		return err
 	}
 
 	return nil
 }
 
-// Discover running services by the configured observers
-func (agent *Agent) Discover() (map[observers.Observer]services.ServiceInstances, error) {
-	result := make(map[observers.Observer]services.ServiceInstances)
-	for _, observers := range agent.Observers {
-		serviceInstances, err := observers.Discover()
-		if err != nil {
-			return nil, err
-		}
-		result[observers] = serviceInstances
-	}
-	return result, nil
-}
-
 func main() {
-
 	var agentConfig = flag.String("config", "/etc/signalfx/agent.yaml", "agent config file")
 	var version = flag.Bool("version", false, "print agent version")
 
@@ -110,50 +175,40 @@ func main() {
 
 	agent := NewAgent()
 	if err := agent.Configure(*agentConfig); err != nil {
-		fmt.Printf("failed to configure agent - %s", err)
+		log.Printf("failed to configure agent: %s", err)
 		os.Exit(1)
 	}
 
 	exitCh := make(chan struct{})
 	go func(ctx context.Context) {
+		log.Print("agent started")
 
-		fmt.Printf("agent started\n")
-
-		for _, mon := range agent.Monitors {
-			log.Printf("starting monitor %s", mon.String())
-			if err := mon.Start(); err != nil {
-				log.Printf("failed to start monitor %s: %s", mon.String(), err)
+		for _, plugin := range agent.plugins {
+			log.Printf("starting plugin %s", plugin.String())
+			if err := plugin.Start(); err != nil {
+				log.Printf("failed to start plugin %s: %s", plugin.String(), err)
 			}
 		}
 
 		for {
-			time.Sleep(time.Duration(agent.Interval) * time.Second)
+			log.Print("executing pipeline")
 
-			result, err := agent.Discover()
-			if err != nil {
-				log.Printf("failed to discover services- %s", err)
-				continue
-			}
-
-			for _, v := range result {
-				for _, mon := range agent.Monitors {
-					// TODO - send cloned observer results to each monitor
-					if err := mon.Monitor(v); err != nil {
-						log.Printf("failed to monitor observed services - %s", err)
-					}
-				}
+			if err := agent.pipeline.Execute(); err != nil {
+				log.Printf("pipeline execute failed: %s", err)
 			}
 
 			select {
 			case <-ctx.Done():
-				for _, mon := range agent.Monitors {
-					log.Printf("stopping monitor %s", mon.String())
-					mon.Stop()
+				for _, plugin := range agent.plugins {
+					log.Printf("stopping plugin %s", plugin.String())
+					plugin.Stop()
 				}
 				exitCh <- struct{}{}
 				return
 			default:
 			}
+
+			time.Sleep(time.Duration(agent.Interval) * time.Second)
 		}
 	}(cwc)
 
@@ -162,7 +217,7 @@ func main() {
 	go func() {
 		select {
 		case <-signalCh:
-			fmt.Println(" stopping agent ..")
+			log.Print("stopping agent ...")
 			cancel()
 			return
 		}
