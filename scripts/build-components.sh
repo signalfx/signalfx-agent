@@ -16,7 +16,6 @@ COLLECTD_LIB_DIR="/usr/local/lib/collectd"
 COLLECTD_STATE_DIR="/var"
 COLLECTD_SYSCONF_DIR="/etc/collectd"
 COLLECTD_VERSION="5.7.0-sfx0"
-ENABLE_DEBUG=true
 GOPATH="${BASE_DIR}/go"
 LIB_DIR="/usr/lib"
 MS=""
@@ -100,5 +99,3 @@ if [ -z $SKIP_AGENT_BUILD ]; then
   mkdir -p ${PROJECT_DIR}/.bin
   cp $GOPATH/bin/agent $PROJECT_DIR/.bin/signalfx-agent
 fi
-
-echo "done!"
