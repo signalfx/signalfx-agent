@@ -16,6 +16,21 @@
             "value": ""
         }
         ]
+    }, {
+        "name": "redis-default",
+        "type": "redis",
+        "rules": [
+        {
+            "comparator": "eq",
+            "path": "ContainerImage",
+            "value": "redis"
+        },
+        {
+            "comparator": "nexists",
+            "path": "ContainerLabel-monitor",
+            "value": ""
+        }
+        ]
     }
     ]
 }

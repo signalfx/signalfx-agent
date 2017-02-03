@@ -1,12 +1,26 @@
 interval: 10
-observer: 
-        name: docker
-        configuration:
-                hostUrl: "unix:///var/run/docker.sock"
-monitor: 
-        name: collectd
-        configuration:
-                confFile: "/etc/collectd/collectd.conf"
-                servicesFile: "/etc/signalfx/collectd/services.yaml"
-                templatesDir: "/etc/signalfx/collectd/templates" 
 
+observers:
+    local-docker:
+        type: docker
+        configuration:
+            hostUrl: unix:///var/run/docker.sock
+
+monitors:
+    collectd:
+        type: collectd
+        configuration:
+            confFile: /etc/collectd/collectd.conf
+            templatesDir: /etc/signalfx/collectd/templates
+
+filters:
+    service-mapping:
+        type: services
+        configuration:
+            servicesFile: /etc/signalfx/collectd/services.json
+
+pipeline:
+    default:
+    - local-docker
+    - service-mapping
+    - collectd
