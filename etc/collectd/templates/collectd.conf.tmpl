@@ -1,0 +1,32 @@
+TypesDB "/usr/share/collectd/types.db"
+
+#   If you use the Hostname parameter, you
+#   must quote ("...") the second argument
+### Hostname "<YOUR_HOSTNAME_HERE>"
+# %%%HOSTNAME%%%
+
+FQDNLookup true
+Interval {{ .AgentConfig.Interval }}
+Timeout {{ .AgentConfig.Timeout }}
+ReadThreads {{ .AgentConfig.ReadThreads }}
+WriteQueueLimitHigh {{ .AgentConfig.WriteQueueLimitHigh }}
+WriteQueueLimitLow  {{ .AgentConfig.WriteQueueLimitLow }}
+CollectInternalStats {{ .AgentConfig.CollectInternalStats }}
+
+LoadPlugin logfile
+
+<Plugin logfile>
+        LogLevel "stdout"
+        Timestamp true
+        PrintSeverity false
+</Plugin>
+
+{{template "default-plugins.conf.tmpl"}}
+
+{{range $i1, $plugin := .Plugins}}
+# ================ Begin plugin {{$i1}} ================
+{{range $i2, $template := .GetTemplates}}
+{{RenderTemplate $template $plugin}}
+{{end}}
+# ================ End plugin {{$i1}} ================
+{{end}}

@@ -1,0 +1,40 @@
+LoadPlugin cpu
+LoadPlugin cpufreq
+LoadPlugin df
+LoadPlugin disk
+
+<Plugin "disk">
+  Disk "/^loop\d+$/"
+  Disk "/^dm-\d+$/"
+  IgnoreSelected "true"
+</Plugin>
+
+LoadPlugin interface
+<Plugin "interface">
+  Interface "/^lo\d*$/"
+  Interface "/^docker.*/"
+  Interface "/^t(un|ap)\d*$/"
+  Interface "/^veth.*$/"
+  IgnoreSelected "true"
+</Plugin>
+
+LoadPlugin load
+LoadPlugin memory
+LoadPlugin protocols
+<Plugin "protocols">
+  Value "Icmp:InDestUnreachs"
+  Value "Tcp:CurrEstab"
+  Value "Tcp:OutSegs"
+  Value "Tcp:RetransSegs"
+  Value "TcpExt:DelayedACKs"
+  Value "/Tcp:.*Opens/"
+  Value "/^TcpExt:.*Octets/"
+  IgnoreSelected false
+</Plugin>
+
+LoadPlugin vmem
+<Plugin vmem>
+  Verbose false
+</Plugin>
+
+LoadPlugin uptime
