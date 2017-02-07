@@ -1,11 +1,12 @@
 #!/bin/bash
-set -x
-set +e
+set -ex -o pipefail
 
 AGENT_IMAGE_BUILD_DIR=`mktemp -d`
 BUILD_CONTAINER_ID=""
 BUILD_IMAGE_NAME="agent-builder:latest"
-DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+SRC_ROOT="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+BUILD_BRANCH=${BUILD_BRANCH:-$USER}
+
 LOCAL_BIN="${AGENT_IMAGE_BUILD_DIR}/scripts/agent-image/bin"
 REMOTE_PROJECT="/root/work/neo-agent"
 REMOTE_BIN="$REMOTE_PROJECT/.bin"
@@ -14,6 +15,8 @@ GO_PACKAGES=(
      'plugins'
      'services'
    )
+
+trap cleanup_build_containers EXIT
 
 function run_build_container(){
     BUILD_CONTAINER_ID=$(docker run \
@@ -26,8 +29,8 @@ function run_build_container(){
 function stop_build_container(){
 
   if [ "$BUILD_CONTAINER_ID" != "" ]; then
-    if [[ $(docker ps | grep "$BUILD_CONTAINER_ID") ]]; then
-     docker stop $BUILD_CONTAINER_ID
+    if docker ps | grep -q "$BUILD_CONTAINER_ID"; then
+     docker stop -t 0 $BUILD_CONTAINER_ID
      echo "container $BUILD_CONTAINER_ID stopped"
     else
      echo "container $BUILD_CONTAINER_ID not running (stop_buld_container)"
@@ -40,7 +43,7 @@ function stop_build_container(){
 function remove_build_container(){
 
   if [ "$BUILD_CONTAINER_ID" != "" ]; then
-    if [[ $(docker ps -a | grep "$BUILD_CONTAINER_ID") ]]; then
+    if docker ps -a | grep -q "$BUILD_CONTAINER_ID"; then
      docker rm -f $BUILD_CONTAINER_ID
      echo "container $BUILD_CONTAINER_ID removed"
     else
@@ -70,13 +73,13 @@ function setup_build_container(){
 
   run_build_container
 
-  $(docker cp ${DIR}/scripts/build-components.sh $BUILD_CONTAINER_ID:/tmp/build-components.sh)
-  $(docker exec $BUILD_CONTAINER_ID chmod +x /tmp/build-components.sh)
-  $(docker exec $BUILD_CONTAINER_ID mkdir -p $REMOTE_PROJECT)
-  $(docker cp ${DIR}/collectd-ext $BUILD_CONTAINER_ID:$REMOTE_PROJECT/collectd-ext)
+  docker cp ${SRC_ROOT}/scripts/build-components.sh $BUILD_CONTAINER_ID:/tmp/build-components.sh
+  docker exec $BUILD_CONTAINER_ID chmod +x /tmp/build-components.sh
+  docker exec $BUILD_CONTAINER_ID mkdir -p $REMOTE_PROJECT
+  docker cp ${SRC_ROOT}/collectd-ext $BUILD_CONTAINER_ID:$REMOTE_PROJECT/collectd-ext
 
   for pkg in ${GO_PACKAGES[@]}; do
-    $(docker cp ${DIR}/$pkg $BUILD_CONTAINER_ID:$REMOTE_PROJECT/)
+    docker cp ${SRC_ROOT}/$pkg $BUILD_CONTAINER_ID:$REMOTE_PROJECT/
   done
 }
 
@@ -86,9 +89,9 @@ function download_built_artifacts(){
     mkdir -p $LOCAL_BIN
   fi
 
-  $(docker cp $BUILD_CONTAINER_ID:${REMOTE_BIN}/libcollectd.so ${LOCAL_BIN}/libcollectd.so)
-  $(docker cp $BUILD_CONTAINER_ID:${REMOTE_BIN}/python.so ${LOCAL_BIN}/python.so)
-  $(docker cp $BUILD_CONTAINER_ID:${REMOTE_BIN}/signalfx-agent ${LOCAL_BIN}/signalfx-agent)
+  docker cp $BUILD_CONTAINER_ID:${REMOTE_BIN}/libcollectd.so ${LOCAL_BIN}/libcollectd.so
+  docker cp $BUILD_CONTAINER_ID:${REMOTE_BIN}/python.so ${LOCAL_BIN}/python.so
+  docker cp $BUILD_CONTAINER_ID:${REMOTE_BIN}/signalfx-agent ${LOCAL_BIN}/signalfx-agent
 }
 
 function build(){
@@ -96,8 +99,8 @@ function build(){
   echo "starting build"
 
   # setup build dir
-  cp -r ${DIR}/scripts $AGENT_IMAGE_BUILD_DIR/
-  cp -r ${DIR}/etc ${AGENT_IMAGE_BUILD_DIR}/scripts/agent-image/
+  cp -r ${SRC_ROOT}/scripts $AGENT_IMAGE_BUILD_DIR/
+  cp -r ${SRC_ROOT}/etc ${AGENT_IMAGE_BUILD_DIR}/scripts/agent-image/
 
   # build agent build image
   ${AGENT_IMAGE_BUILD_DIR}/scripts/agent-builder-image/build-image.sh
@@ -106,7 +109,7 @@ function build(){
   setup_build_container
 
   # build components
-  $(docker exec $BUILD_CONTAINER_ID /tmp/build-components.sh)
+  docker exec $BUILD_CONTAINER_ID bash -c "PROJECT_DIR=${REMOTE_PROJECT} /tmp/build-components.sh"
 
   # put built artifacts in bin for agent image build
   download_built_artifacts
@@ -114,8 +117,16 @@ function build(){
   # remove build containers
   cleanup_build_containers
 
+  local build_args=(
+    -t "${BUILD_BRANCH}"
+  )
+
+  if [ "$BUILD_PUBLISH" = "True" ]; then
+    build_args+=(--publish)
+  fi
+
   # build the agent image
-  ${AGENT_IMAGE_BUILD_DIR}/scripts/agent-image/build-image.sh
+  ${AGENT_IMAGE_BUILD_DIR}/scripts/agent-image/build-image.sh ${build_args[@]}
 
   echo "done"
 }
