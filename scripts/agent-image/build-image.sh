@@ -1,5 +1,5 @@
 #!/bin/bash
-set -xe
+set -xe -o pipefail
 
 BUILD_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 DOCKERFILE="Dockerfile"
@@ -10,34 +10,37 @@ IMAGE_TAGNAME="dev-latest"
 SIGNALFX_AGENT_BIN="bin"
 SIGNALFX_AGENT_CONFIGURATIONS="etc"
 SIGNALFX_AGENT_VERSION="dev-latest"
+BUILD_PUBLISH=0
 
 function build_image(){
   IMAGE_NAME="${IMAGE_REGISTRYHOST}/${IMAGE_REPOSITORY}:${IMAGE_TAGNAME}"
   IMAGE_ID=$(docker images -q $IMAGE_NAME)
   if [ "$IMAGE_ID" != "" ]; then
     remove_image
-  fi  
+  fi
 
   cd $BUILD_DIR
-  IMAGE_ID=$(docker build -f $DOCKERFILE \
-             --build-arg signalfx_agent_bin="$SIGNALFX_AGENT_BIN" \
-             --build-arg signalfx_agent_configurations="$SIGNALFX_AGENT_CONFIGURATIONS" \
-             --build-arg signalfx_agent_version="$SIGNALFX_AGENT_VERSION" \
-             --tag ${IMAGE_NAME} .)
-  echo "$IMAGE_ID"
+  docker build -f $DOCKERFILE \
+    --build-arg signalfx_agent_bin="$SIGNALFX_AGENT_BIN" \
+    --build-arg signalfx_agent_configurations="$SIGNALFX_AGENT_CONFIGURATIONS" \
+    --build-arg signalfx_agent_version="$SIGNALFX_AGENT_VERSION" \
+    --tag ${IMAGE_NAME} .
+  if [ "$BUILD_PUBLISH" = 1 ]; then
+    docker push ${IMAGE_NAME}
+  fi
 }
 
 function remove_image(){
   if [ "$IMAGE_ID" != "" ]; then
-    if [[ $(docker images | grep "$IMAGE_ID") ]]; then
+    if docker images | grep -q "$IMAGE_ID"; then
      docker rmi $IMAGE_ID
      echo "image $IMAGE_ID removed"
     else
      echo "image $IMAGE_ID not found (remove_image)"
     fi
   else
-    echo "WARN: image id not set (remove_image)"    
-  fi  
+    echo "WARN: image id not set (remove_image)"
+  fi
 }
 
 while [[  "$#" -gt "0" ]]
@@ -67,6 +70,9 @@ do
     -v|--agent-version)
       shift
       SIGNALFX_AGENT_VERSION="$1"
+      ;;
+    -p|--publish)
+      BUILD_PUBLISH=1
       ;;
     *)
       echo "Unknown Option"

@@ -1,5 +1,5 @@
 #!/bin/bash
-set -xe
+set -xe -o pipefail
 
 BUILD_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 DOCKERFILE="Dockerfile"
@@ -10,9 +10,8 @@ function build_image(){
   IMAGE_ID=$(docker images -q $IMAGE_NAME)
   if [ "$IMAGE_ID" == "" ]; then
     cd $BUILD_DIR
-    IMAGE_ID=$(docker build -f $DOCKERFILE --tag ${IMAGE_NAME} .)
-    echo "$IMAGE_ID"
-  fi  
+    docker build -f $DOCKERFILE --tag ${IMAGE_NAME} .
+  fi
 }
 
 while [[  "$#" -gt "0" ]]

@@ -1,5 +1,5 @@
 #!/bin/bash
-set -xe
+set -ex -o pipefail
 
 if [ -z "$1" ]; then
   BASE_DIR=`mktemp -d`
@@ -19,7 +19,7 @@ COLLECTD_VERSION="5.7.0-sfx0"
 GOPATH="${BASE_DIR}/go"
 LIB_DIR="/usr/lib"
 MS=""
-PROJECT_DIR="${PWD}"
+PROJECT_DIR=${PROJECT_DIR:-${PWD}}
 PACKAGES=(
      'cmd'
      'plugins'
