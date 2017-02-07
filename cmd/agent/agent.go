@@ -57,19 +57,25 @@ func (agent *Agent) Configure(configfile string) error {
 	agent.Interval = viper.GetInt("interval")
 
 	observer := viper.GetString("observer.name")
-	observerConfig := viper.GetStringMapString("observer.configuration")
+	observerConfig := viper.Sub("observer.configuration")
 	switch observer {
 	case observers.Docker:
-		dockerObserver := docker.NewDocker(observerConfig)
-		agent.Observers = append(agent.Observers, dockerObserver)
+		if dockerObserver, err := docker.NewDocker(observerConfig); err == nil {
+			agent.Observers = append(agent.Observers, dockerObserver)
+		} else {
+			return err
+		}
 	}
 
 	monitor := viper.GetString("monitor.name")
-	monitorConfig := viper.GetStringMapString("monitor.configuration")
+	monitorConfig := viper.Sub("monitor.configuration")
 	switch monitor {
 	case monitors.Collectd:
-		collectdMonitor := collectd.NewCollectd(monitorConfig)
-		agent.Monitors = append(agent.Monitors, collectdMonitor)
+		if collectdMonitor, err := collectd.NewCollectd(monitorConfig); err == nil {
+			agent.Monitors = append(agent.Monitors, collectdMonitor)
+		} else {
+			return err
+		}
 	}
 
 	return nil
@@ -116,7 +122,7 @@ func main() {
 		for _, mon := range agent.Monitors {
 			log.Printf("starting monitor %s", mon.String())
 			if err := mon.Start(); err != nil {
-				log.Printf("failed to start monitor %s", mon.String())
+				log.Printf("failed to start monitor %s: %s", mon.String(), err)
 			}
 		}
 

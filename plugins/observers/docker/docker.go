@@ -10,6 +10,7 @@ import (
 	"github.com/signalfx/neo-agent/plugins"
 	"github.com/signalfx/neo-agent/plugins/observers"
 	"github.com/signalfx/neo-agent/services"
+	"github.com/spf13/viper"
 	"golang.org/x/net/context"
 )
 
@@ -25,8 +26,12 @@ type Docker struct {
 }
 
 // NewDocker constructor
-func NewDocker(configuration map[string]string) *Docker {
-	return &Docker{plugins.NewPlugin(observers.Docker, configuration)}
+func NewDocker(config *viper.Viper) (*Docker, error) {
+	plugin, err := plugins.NewPlugin(observers.Docker, config)
+	if err != nil {
+		return nil, err
+	}
+	return &Docker{plugin}, nil
 }
 
 // Discover services from querying docker api
@@ -34,7 +39,7 @@ func (docker *Docker) Discover() (services.ServiceInstances, error) {
 
 	defaultHeaders := map[string]string{"User-Agent": userAgent}
 	hostURL := defaultHostURL
-	if configVal, ok := docker.GetConfig("hosturl"); ok {
+	if configVal := docker.Config.GetString("hosturl"); configVal != "" {
 		hostURL = configVal
 	}
 
