@@ -1,23 +1,26 @@
 package plugins
 
+import (
+	"errors"
+
+	"github.com/spf13/viper"
+)
+
 // Plugin type
 type Plugin struct {
-	name          string
-	configuration map[string]string
+	name   string
+	Config *viper.Viper
 }
 
 // NewPlugin constructor
-func NewPlugin(name string, configuration map[string]string) Plugin {
-	return Plugin{name, configuration}
+func NewPlugin(name string, config *viper.Viper) (Plugin, error) {
+	if config == nil {
+		return Plugin{}, errors.New("config cannot be nil")
+	}
+	return Plugin{name, config}, nil
 }
 
 // String name of plugin
 func (plugin *Plugin) String() string {
 	return plugin.name
-}
-
-// GetConfig value from plugin configuration
-func (plugin *Plugin) GetConfig(key string) (string, bool) {
-	val, ok := plugin.configuration[key]
-	return val, ok
 }

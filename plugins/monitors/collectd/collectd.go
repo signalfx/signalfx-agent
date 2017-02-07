@@ -14,6 +14,7 @@ import (
 	"github.com/signalfx/neo-agent/plugins"
 	"github.com/signalfx/neo-agent/plugins/monitors"
 	"github.com/signalfx/neo-agent/services"
+	"github.com/spf13/viper"
 )
 
 const (
@@ -34,8 +35,12 @@ type Collectd struct {
 }
 
 // NewCollectd constructor
-func NewCollectd(configuration map[string]string) *Collectd {
-	return &Collectd{plugins.NewPlugin(monitors.Collectd, configuration), Stopped, nil, nil}
+func NewCollectd(config *viper.Viper) (*Collectd, error) {
+	plugin, err := plugins.NewPlugin(monitors.Collectd, config)
+	if err != nil {
+		return nil, err
+	}
+	return &Collectd{plugin, Stopped, nil, nil}, nil
 }
 
 // Monitor services from collectd monitor
@@ -121,7 +126,7 @@ func (collectd *Collectd) Start() (err error) {
 
 	collectd.services = make(services.ServiceInstances, 0)
 
-	if servicesFile, ok := collectd.GetConfig("servicesfile"); ok == true {
+	if servicesFile := collectd.Config.GetString("servicesfile"); servicesFile != "" {
 		log.Printf("loading service discovery signatures from %s", servicesFile)
 		lsignatures, err := services.LoadServiceSignatures(servicesFile)
 		if err != nil {

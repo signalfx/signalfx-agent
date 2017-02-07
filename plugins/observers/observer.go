@@ -12,6 +12,5 @@ const (
 // Observer type
 type Observer interface {
 	Discover() (services.ServiceInstances, error)
-	GetConfig(key string) (string, bool)
 	String() string
 }

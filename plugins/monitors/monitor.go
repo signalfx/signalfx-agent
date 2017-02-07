@@ -11,7 +11,6 @@ const (
 
 // Monitor type
 type Monitor interface {
-	GetConfig(key string) (string, bool)
 	Monitor(services services.ServiceInstances) error
 	Start() error
 	Stop() error
