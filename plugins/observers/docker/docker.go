@@ -8,7 +8,6 @@ import (
 	"github.com/docker/engine-api/client"
 	"github.com/docker/engine-api/types"
 	"github.com/signalfx/neo-agent/plugins"
-	"github.com/signalfx/neo-agent/plugins/observers"
 	"github.com/signalfx/neo-agent/services"
 	"github.com/spf13/viper"
 	"golang.org/x/net/context"
@@ -26,8 +25,8 @@ type Docker struct {
 }
 
 // NewDocker constructor
-func NewDocker(config *viper.Viper) (*Docker, error) {
-	plugin, err := plugins.NewPlugin(observers.Docker, config)
+func NewDocker(name string, config *viper.Viper) (*Docker, error) {
+	plugin, err := plugins.NewPlugin(name, config)
 	if err != nil {
 		return nil, err
 	}
@@ -35,8 +34,7 @@ func NewDocker(config *viper.Viper) (*Docker, error) {
 }
 
 // Discover services from querying docker api
-func (docker *Docker) Discover() (services.ServiceInstances, error) {
-
+func (docker *Docker) Read() (services.ServiceInstances, error) {
 	defaultHeaders := map[string]string{"User-Agent": userAgent}
 	hostURL := defaultHostURL
 	if configVal := docker.Config.GetString("hosturl"); configVal != "" {
