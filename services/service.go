@@ -1,13 +1,6 @@
 package services
 
-import (
-	"encoding/json"
-	"io/ioutil"
-	"strconv"
-	"time"
-
-	"github.com/hopkinsth/go-ruler"
-)
+import "time"
 
 // OrchestrationType of service
 type OrchestrationType int
@@ -93,43 +86,6 @@ func NewServiceInstance(id string, service *Service, container *ServiceContainer
 	return &ServiceInstance{id, service, container, orchestration, port, discovered}
 }
 
-// Matches if service instance satisfies rules
-func (si *ServiceInstance) Matches(ruleset ServiceDiscoveryRuleset) (bool, error) {
-
-	jsonRules, err := json.Marshal(ruleset.Rules)
-	if err != nil {
-		return false, err
-	}
-
-	engine, err := ruler.NewRulerWithJson(jsonRules)
-	if err != nil {
-		return false, err
-	}
-
-	sm := make(map[string]interface{})
-	sm["ContainerID"] = si.Container.ID
-	sm["ContainerName"] = si.Container.Names[0]
-	sm["ContainerImage"] = si.Container.Image
-	sm["ContainerPod"] = si.Container.Pod
-	sm["ContainerCommand"] = si.Container.Command
-	sm["ContainerState"] = si.Container.State
-
-	for key, val := range si.Container.Labels {
-		sm["ContainerLabel-"+key] = val
-	}
-
-	sm["NetworkIP"] = si.Port.IP
-	sm["NetworkPublicPort"] = strconv.FormatUint(uint64(si.Port.PublicPort), 10)
-	sm["NetworkPrivatePort"] = strconv.FormatUint(uint64(si.Port.PrivatePort), 10)
-	sm["NetworkType"] = si.Port.Type
-
-	for key, val := range si.Port.Labels {
-		sm["NetworkLabel-"+key] = val
-	}
-
-	return engine.Test(sm), nil
-}
-
 // ServiceInstances type containing sorted set of services
 type ServiceInstances []ServiceInstance
 
@@ -146,54 +102,4 @@ func (svcs ServiceInstances) Swap(i, j int) {
 // Less for serviceinstances sort
 func (svcs ServiceInstances) Less(i, j int) bool {
 	return svcs[i].ID < svcs[j].ID
-}
-
-// ServiceDiscoveryRule to use as criteria for service identification
-type ServiceDiscoveryRule struct {
-	Comparator string
-	Path       string
-	Value      interface{}
-}
-
-// NewServiceDiscoveryRule constructor
-func NewServiceDiscoveryRule(comparator string, path string, value interface{}) *ServiceDiscoveryRule {
-	return &ServiceDiscoveryRule{comparator, path, value}
-}
-
-// ServiceDiscoveryRuleset that names a set of service discovery rules
-type ServiceDiscoveryRuleset struct {
-	Name  string
-	Type  string
-	Rules []ServiceDiscoveryRule
-}
-
-// NewServiceDiscoveryRuleset constructor
-func NewServiceDiscoveryRuleset(name string, t string) *ServiceDiscoveryRuleset {
-	return &ServiceDiscoveryRuleset{name, t, make([]ServiceDiscoveryRule, 0)}
-}
-
-// ServiceDiscoverySignatures with name
-type ServiceDiscoverySignatures struct {
-	Name       string
-	Signatures []ServiceDiscoveryRuleset
-}
-
-// NewServiceDiscoverySignatures constructor
-func NewServiceDiscoverySignatures(name string, signatures []ServiceDiscoveryRuleset) *ServiceDiscoverySignatures {
-	return &ServiceDiscoverySignatures{name, signatures}
-}
-
-// LoadServiceSignatures reads discovery rules from file
-func LoadServiceSignatures(servicesFile string) (ServiceDiscoverySignatures, error) {
-
-	var signatures ServiceDiscoverySignatures
-	jsonContent, err := ioutil.ReadFile(servicesFile)
-	if err != nil {
-		return signatures, err
-	}
-
-	if err := json.Unmarshal(jsonContent, &signatures); err != nil {
-		return signatures, err
-	}
-	return signatures, nil
 }
