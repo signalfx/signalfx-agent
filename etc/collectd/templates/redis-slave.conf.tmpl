@@ -3,7 +3,7 @@
 </LoadPlugin>
 
 <Plugin python>
-  ModulePath "/usr/share/collectd/redis-collectd-plugin"
+  ModulePath "{{Globals.PluginRoot}}/redis-collectd-plugin"
   Import "redis_info"
 
   <Module {{.Name}}>

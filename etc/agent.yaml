@@ -12,6 +12,12 @@ monitors:
         configuration:
             confFile: /etc/collectd/collectd.conf
             templatesDir: /etc/signalfx/collectd/templates
+            pluginsDir: /usr/share/collectd
+            staticPlugins:
+                - name: signalfx-default
+                  type: signalfx
+                  configuration:
+                      apiToken: <API TOKEN>
 
 filters:
     service-mapping:

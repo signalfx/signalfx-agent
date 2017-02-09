@@ -1,4 +1,4 @@
-TypesDB "/usr/share/collectd/types.db"
+TypesDB "{{Globals.PluginRoot}}/types.db"
 
 #   If you use the Hostname parameter, you
 #   must quote ("...") the second argument
@@ -16,7 +16,7 @@ CollectInternalStats {{ .AgentConfig.CollectInternalStats }}
 LoadPlugin logfile
 
 <Plugin logfile>
-        LogLevel "stdout"
+        LogLevel "info"
         Timestamp true
         PrintSeverity false
 </Plugin>

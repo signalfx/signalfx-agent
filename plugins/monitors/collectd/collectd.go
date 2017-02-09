@@ -8,10 +8,16 @@ package collectd
 import "C"
 import (
 	"errors"
+	"fmt"
 	"log"
 	"time"
 
+	"path/filepath"
+
+	"io/ioutil"
+
 	"github.com/signalfx/neo-agent/plugins"
+	"github.com/signalfx/neo-agent/plugins/monitors/collectd/config"
 	"github.com/signalfx/neo-agent/services"
 	"github.com/spf13/viper"
 )
@@ -28,8 +34,11 @@ const (
 // Collectd Monitor
 type Collectd struct {
 	plugins.Plugin
-	state    string
-	services services.ServiceInstances
+	state        string
+	services     services.ServiceInstances
+	templatesDir string
+	confFile     string
+	pluginsDir   string
 }
 
 // NewCollectd constructor
@@ -38,7 +47,33 @@ func NewCollectd(name string, config *viper.Viper) (*Collectd, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &Collectd{plugin, Stopped, nil}, nil
+
+	// Convert to absolute paths since our cwd can get changed.
+	templatesDir := plugin.Config.GetString("templatesdir")
+	if templatesDir == "" {
+		return nil, errors.New("configuration missing templatesDir entry")
+	}
+	templatesDir, err = filepath.Abs(templatesDir)
+	if err != nil {
+		return nil, err
+	}
+
+	confFile := plugin.Config.GetString("conffile")
+	if confFile == "" {
+		return nil, errors.New("configuration missing confFile entry")
+	}
+
+	confFile, err = filepath.Abs(confFile)
+	if err != nil {
+		return nil, err
+	}
+
+	pluginsDir := plugin.Config.GetString("pluginsDir")
+	if err != nil {
+		return nil, err
+	}
+
+	return &Collectd{plugin, Stopped, nil, templatesDir, confFile, pluginsDir}, nil
 }
 
 // Monitor services from collectd monitor
@@ -56,34 +91,124 @@ func (collectd *Collectd) Write(services services.ServiceInstances) error {
 	}
 
 	if changed {
-		if err := collectd.configurePlugins(services); err != nil {
+		servicePlugins, err := collectd.createPluginsFromServices(services)
+		if err != nil {
 			return err
 		}
-		collectd.state = Reloading
 
-		C.reload()
-
-		for {
-			if int(C.is_reloading()) == 1 {
-				break
-			} else {
-				time.Sleep(time.Duration(1) * time.Second)
-			}
+		plugins, err := collectd.getStaticPlugins()
+		if err != nil {
+			return err
 		}
+
 		collectd.services = services
-		collectd.state = Running
+
+		plugins = append(plugins, servicePlugins...)
+		if err := collectd.writePlugins(plugins); err != nil {
+			return err
+		}
+
+		collectd.reload()
 	}
 
 	return nil
 }
 
-func (collectd *Collectd) configurePlugins(services services.ServiceInstances) error {
-	// TODO - print services to configure for now
-	// use service.Name as key to configuration mapping
-	for _, service := range services {
-		log.Printf("reconfiguring collectd service: %s", service.Service.Name)
+// reload reloads collectd configuration
+func (collectd *Collectd) reload() {
+	log.Println("reloading collectd plugins")
+	collectd.state = Reloading
+
+	C.reload()
+
+	for {
+		if int(C.is_reloading()) == 1 {
+			break
+		} else {
+			time.Sleep(time.Duration(1) * time.Second)
+		}
 	}
+
+	collectd.state = Running
+}
+
+// writePlugins takes a list of plugin instances and generates a collectd.conf
+// formatted configuration.
+func (collectd *Collectd) writePlugins(plugins []config.IPlugin) error {
+	config, err := config.RenderCollectdConf(collectd.pluginsDir, collectd.templatesDir, &config.AppConfig{
+		AgentConfig: config.NewCollectdConfig(),
+		Plugins:     plugins,
+	})
+
+	if err != nil {
+		return err
+	}
+
+	if err := ioutil.WriteFile(collectd.confFile, []byte(config), 0644); err != nil {
+		return fmt.Errorf("failed to write collectd config: %s", err)
+	}
+
 	return nil
+}
+
+// getStaticPlugins returns a list of plugins specified in the agent config
+func (collectd *Collectd) getStaticPlugins() ([]config.IPlugin, error) {
+	static := struct {
+		StaticPlugins []struct {
+			Name          string
+			Type          string
+			Configuration map[string]interface{}
+		}
+	}{}
+
+	if err := collectd.Config.Unmarshal(&static); err != nil {
+		return nil, err
+	}
+
+	var plugins []config.IPlugin
+
+	for _, plugin := range static.StaticPlugins {
+		pluginInstance, err := config.NewPlugin(plugin.Type, plugin.Name)
+		if err != nil {
+			return nil, err
+		}
+		if err := config.LoadPluginConfig(plugin.Configuration, plugin.Type, pluginInstance); err != nil {
+			return nil, err
+		}
+
+		plugins = append(plugins, pluginInstance)
+	}
+
+	return plugins, nil
+}
+
+func (collectd *Collectd) createPluginsFromServices(sis services.ServiceInstances) ([]config.IPlugin, error) {
+	log.Printf("Configuring collectd plugins for %+v", sis)
+	var plugins []config.IPlugin
+
+	for _, service := range sis {
+		log.Printf("reconfiguring collectd service: %s (%s)", service.Service.Name, service.Service.Type)
+
+		var plugin config.IPlugin
+
+		switch service.Service.Type {
+		case services.REDIS:
+			r := config.NewRedisConfig(service.Service.Name)
+			r.Host = service.Port.IP
+			r.Port = service.Port.PrivatePort
+			plugin = r
+		default:
+			log.Printf("unsupported service %s for collectd", service.Service.Type)
+		}
+
+		if plugin != nil {
+			plugins = append(plugins, plugin)
+		}
+	}
+
+	fmt.Printf("Configured plugins: %+v\n", plugins)
+
+	return plugins, nil
 }
 
 // Start collectd monitoring
@@ -93,12 +218,22 @@ func (collectd *Collectd) Start() (err error) {
 		return errors.New("already running")
 	}
 
-	collectd.services = make(services.ServiceInstances, 0)
+	collectd.services = nil
+
+	log.Println("configuring static collectd plugins before first start")
+	plugins, err := collectd.getStaticPlugins()
+	if err != nil {
+		return err
+	}
+
+	if err := collectd.writePlugins(plugins); err != nil {
+		return err
+	}
 
 	go func() {
-		confFile := C.CString("collectd.conf")
-		defer C.free(confFile)
-		C.start(nil, confFile)
+		cConfFile := C.CString(collectd.confFile)
+		defer C.free(cConfFile)
+		C.start(nil, cConfFile)
 	}()
 
 	log.Print("Collectd started")

@@ -1,7 +1,7 @@
 LoadPlugin python
-TypesDB "/opt/signalfx-collectd-plugin/types.db.plugin"
+TypesDB "{{Globals.PluginRoot}}/signalfx-collectd-plugin/types.db.plugin"
 <Plugin python>
-  ModulePath "/opt/signalfx-collectd-plugin"
+  ModulePath "{{Globals.PluginRoot}}/signalfx-collectd-plugin"
   LogTraces true
   Interactive false
   Import "signalfx_metadata"

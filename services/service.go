@@ -5,6 +5,24 @@ import "time"
 // OrchestrationType of service
 type OrchestrationType int
 
+// PortType An IP port type
+type PortType string
+
+// ServiceType A service/plugin type
+type ServiceType string
+
+const (
+	// REDIS Redis server
+	REDIS ServiceType = "redis"
+)
+
+const (
+	// UDP port type
+	UDP PortType = "UDP"
+	// TCP port type
+	TCP PortType = "TCP"
+)
+
 const (
 	// KUBERNETES orchestrator
 	KUBERNETES OrchestrationType = 1 + iota
@@ -21,7 +39,7 @@ const (
 // Service that can be discovered and monitored
 type Service struct {
 	Name string
-	Type string
+	Type ServiceType
 }
 
 // ServicePort network information
@@ -62,7 +80,7 @@ type ServiceInstance struct {
 }
 
 // NewService constructor
-func NewService(name string, serviceType string) *Service {
+func NewService(name string, serviceType ServiceType) *Service {
 	return &Service{name, serviceType}
 }
 

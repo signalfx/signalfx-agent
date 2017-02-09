@@ -1,5 +1,7 @@
 LoadPlugin cpu
+{{if eq Globals.Platform "linux"}}
 LoadPlugin cpufreq
+{{end}}
 LoadPlugin df
 LoadPlugin disk
 
@@ -20,6 +22,8 @@ LoadPlugin interface
 
 LoadPlugin load
 LoadPlugin memory
+
+{{if eq Globals.Platform "linux"}}
 LoadPlugin protocols
 <Plugin "protocols">
   Value "Icmp:InDestUnreachs"
@@ -31,6 +35,7 @@ LoadPlugin protocols
   Value "/^TcpExt:.*Octets/"
   IgnoreSelected false
 </Plugin>
+{{end}}
 
 LoadPlugin vmem
 <Plugin vmem>
