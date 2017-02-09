@@ -2,6 +2,8 @@ package config
 
 import (
 	"fmt"
+
+	"github.com/signalfx/neo-agent/services"
 )
 
 type Plugin struct {
@@ -16,22 +18,38 @@ type IPlugin interface {
 	GetTemplates() []string
 }
 
+// IHostPort can be used for plugins that take a host and port number
+type IHostPort interface {
+	SetHost(host string)
+	SetPort(port uint16)
+}
+
 func (plugin *Plugin) GetTemplates() []string {
 	return plugin.Templates
 }
 
 // NewPlugin constructs a plugin-specific instance of IPlugin.
-func NewPlugin(pluginType, pluginName string) (IPlugin, error) {
+func NewPlugin(pluginType services.ServiceType, pluginName string) (IPlugin, error) {
 	switch pluginType {
-	case "signalfx":
+	case services.SIGNALFX:
 		return NewSignalFxConfig(pluginName), nil
-	case "redis":
+	case services.REDIS:
 		return NewRedisConfig(pluginName), nil
-	case "apache":
+	case services.APACHE:
 		return NewApacheConfig(pluginName), nil
 	default:
 		return nil, fmt.Errorf("plugin %s is unsupported", pluginType)
 	}
+}
+
+// SetHost sets hostname
+func (hp *HostPort) SetHost(host string) {
+	hp.Host = host
+}
+
+// SetPort sets port number
+func (hp *HostPort) SetPort(port uint16) {
+	hp.Port = port
 }
 
 type CollectdConfig struct {
@@ -44,16 +62,19 @@ type CollectdConfig struct {
 	Plugins              []map[string]interface{}
 }
 
+type HostPort struct {
+	Host string
+	Port uint16
+}
+
 type RedisConfig struct {
-	Plugin `yaml:",inline"`
-	Host   string
-	Port   uint16
+	Plugin   `yaml:",inline"`
+	HostPort `yaml:",inline"`
 }
 
 type ApacheConfig struct {
-	Plugin `yaml:",inline"`
-	Host   string
-	Port   uint16
+	Plugin   `yaml:",inline"`
+	HostPort `yaml:",inline"`
 }
 
 type SignalFxConfig struct {
@@ -82,11 +103,12 @@ func NewCollectdConfig() *CollectdConfig {
 
 func NewRedisConfig(pluginName string) *RedisConfig {
 	return &RedisConfig{
-		Host: "localhost",
-		Port: 6379,
-		Plugin: Plugin{
+		Plugin{
 			Templates: []string{"redis-master.conf.tmpl"},
 			Name:      pluginName},
+		HostPort{
+			Host: "localhost",
+			Port: 6379},
 	}
 }
 
@@ -101,10 +123,11 @@ func NewSignalFxConfig(pluginName string) *SignalFxConfig {
 
 func NewApacheConfig(pluginName string) *ApacheConfig {
 	return &ApacheConfig{
-		Host: "localhost",
-		Port: 80,
-		Plugin: Plugin{
+		Plugin{
 			Templates: []string{"apache.conf.tmpl"},
 			Name:      pluginName},
+		HostPort{
+			Host: "localhost",
+			Port: 80},
 	}
 }

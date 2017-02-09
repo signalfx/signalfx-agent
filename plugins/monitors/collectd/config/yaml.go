@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 
 	log "github.com/Sirupsen/logrus"
+	"github.com/signalfx/neo-agent/services"
 	yaml "gopkg.in/yaml.v2"
 )
 
@@ -47,7 +48,7 @@ func LoadYamlConfig(configFile string) (*AppConfig, error) {
 			return nil, errors.New("plugin name not of type string")
 		}
 
-		pluginStruct, err := NewPlugin(pluginType, pluginName)
+		pluginStruct, err := NewPlugin(services.ServiceType(pluginType), pluginName)
 		if err != nil {
 			return nil, err
 		}

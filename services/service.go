@@ -14,8 +14,10 @@ type ServiceType string
 const (
 	// REDIS Redis server
 	REDIS ServiceType = "redis"
-	// APACHE
+	// APACHE Apache web server
 	APACHE ServiceType = "apache"
+	// SIGNALFX SignalFx plugins
+	SIGNALFX ServiceType = "signalfx"
 )
 
 const (
