@@ -141,9 +141,6 @@ static long write_limit_low = 0;
 static derive_t stats_values_dropped = 0;
 static _Bool record_statistics = 0;
 
-// DGRIFF
-static _Bool eim_loaded_once = 0;
-
 /*
  * Static functions
  */
@@ -2597,7 +2594,7 @@ int plugin_thread_create(pthread_t *thread, const pthread_attr_t *attr,
 /* vim: set sw=8 ts=8 noet fdm=marker : */
 
 
-// DGRIFF - start
+#ifdef SIGNALFX_EIM
 
 void start_read_threads_clean(int num) {
     read_loop = 1;
@@ -2706,7 +2703,6 @@ void shutdown_clean(void) {
     stats_values_dropped = 0;
     record_statistics = 0;
 
-    eim_loaded_once = 1;
     INFO("done with shutdown clean");
   if (ret != 0) {
         ERROR("error");
@@ -2824,4 +2820,4 @@ int plugin_reinit_all(void) {
   return ret;
 } /* void plugin_reinit_all */
 
-// DGRIFF - end
+#endif /* SIGNALFX_EIM */

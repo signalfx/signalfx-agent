@@ -12,8 +12,10 @@ REMOTE_PROJECT="/root/work/neo-agent"
 REMOTE_BIN="$REMOTE_PROJECT/.bin"
 GO_PACKAGES=(
      'cmd'
+     'pipelines'
      'plugins'
      'services'
+     'utils'
    )
 
 trap cleanup_build_containers EXIT
