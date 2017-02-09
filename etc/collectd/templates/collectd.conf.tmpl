@@ -21,7 +21,9 @@ LoadPlugin logfile
         PrintSeverity false
 </Plugin>
 
+{{/* Temporarily disable default plugins.
 {{template "default-plugins.conf.tmpl"}}
+*/}}
 
 {{range $i1, $plugin := .Plugins}}
 # ================ Begin plugin {{$i1}} ================
