@@ -192,6 +192,11 @@ func (collectd *Collectd) createPluginsFromServices(sis services.ServiceInstance
 		var plugin config.IPlugin
 
 		switch service.Service.Type {
+		case services.APACHE:
+			r := config.NewApacheConfig(service.Service.Name)
+			r.Host = service.Port.IP
+			r.Port = service.Port.PrivatePort
+			plugin = r
 		case services.REDIS:
 			r := config.NewRedisConfig(service.Service.Name)
 			r.Host = service.Port.IP

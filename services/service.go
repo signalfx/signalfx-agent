@@ -14,6 +14,8 @@ type ServiceType string
 const (
 	// REDIS Redis server
 	REDIS ServiceType = "redis"
+	// APACHE
+	APACHE ServiceType = "apache"
 )
 
 const (
