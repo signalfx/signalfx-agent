@@ -22,8 +22,10 @@ MS=""
 PROJECT_DIR=${PROJECT_DIR:-${PWD}}
 PACKAGES=(
      'cmd'
+     'pipelines'
      'plugins'
      'services'
+     'utils'
    )
 
 if [ "$(uname)" == "Darwin" ]; then

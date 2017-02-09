@@ -61,7 +61,12 @@ func (docker *Docker) Read() (services.ServiceInstances, error) {
 				servicePort := services.NewServicePort(port.IP, port.Type, uint16(port.PrivatePort), uint16(port.PublicPort))
 				id := docker.String() + c.ID + "-" + strconv.Itoa(port.PrivatePort)
 				service := services.NewService(id, "unknown")
-				si := services.NewServiceInstance(id, service, serviceContainer, nil, servicePort, time.Now())
+				dims := map[string]string{
+					"container_name":  c.Names[0],
+					"container_image": c.Image,
+				}
+				orchestration := services.NewServiceOrchestration("docker", services.DOCKER, dims)
+				si := services.NewServiceInstance(id, service, serviceContainer, orchestration, servicePort, time.Now())
 				instances = append(instances, *si)
 			}
 		}

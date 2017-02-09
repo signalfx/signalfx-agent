@@ -12,6 +12,8 @@ const (
 	MESOS
 	// SWARM orchestrator
 	SWARM
+	// DOCKER orchestrator
+	DOCKER
 	// NONE orchestrator
 	NONE
 )
@@ -33,11 +35,9 @@ type ServicePort struct {
 
 // ServiceOrchestration information
 type ServiceOrchestration struct {
-	ID        string
-	Name      string
-	Type      OrchestrationType
-	AgentID   string
-	AgentName string
+	ID   string
+	Type OrchestrationType
+	Dims map[string]string
 }
 
 // ServiceContainer information
@@ -72,8 +72,8 @@ func NewServicePort(ip string, portType string, privatePort uint16, publicPort u
 }
 
 // NewServiceOrchestration constructor
-func NewServiceOrchestration(id string, name string, orchType OrchestrationType, agentID string, agentName string) *ServiceOrchestration {
-	return &ServiceOrchestration{id, name, orchType, agentID, agentName}
+func NewServiceOrchestration(id string, orchType OrchestrationType, dims map[string]string) *ServiceOrchestration {
+	return &ServiceOrchestration{id, orchType, dims}
 }
 
 // NewServiceContainer constructor
