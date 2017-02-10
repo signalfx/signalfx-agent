@@ -7,6 +7,8 @@ import (
 	"path"
 	"runtime"
 	"text/template"
+
+	"github.com/signalfx/neo-agent/secrets"
 )
 
 // RenderCollectdConf renders a collectd.conf config from the given app configuration.
@@ -32,6 +34,17 @@ func RenderCollectdConf(pluginRoot string, templatesDir string, appConfig *AppCo
 					"PluginRoot": pluginRoot,
 					"Platform":   runtime.GOOS,
 				}
+			},
+			"Secret": func(name string) (string, error) {
+				// Try all secret keepers until either one succeeds or none
+				// contain our secret.
+				for _, keeper := range secrets.SecretKeepers {
+					if val, err := keeper(name); err == nil {
+						return val, nil
+					}
+				}
+
+				return "", fmt.Errorf("unable to find secret for %s", name)
 			},
 		}).
 		ParseGlob(path.Join(templatesDir, "*.tmpl")); err != nil {
