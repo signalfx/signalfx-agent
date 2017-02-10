@@ -37,19 +37,54 @@ TODO
 
 TODO
 
-### Local Docker
+### Local Docker - for development only
 
-The default configuration supports monitoring the local docker engine for services/containers and using embedded collectd as the monitoring agent.
-
-Run signalfx-agent with the default configuration with the following command:
+Here is an example of running signalfx-agent for local-docker using a docker compose file to start container and configure agent.
+You need to set the apiToken (and change the ingestUrl if not sending to lab). 
 ```
-docker run --privileged \
-  --net="host" \
-  -e "SIGNALFX_API_TOKEN=XXXXXXXXXXXXXXXXXXXXXX" \
-  -v /:/hostfs:ro \
-  -v /etc/hostname:/mnt/hostname:ro \
-  -v /etc:/mnt/etc:ro \
-  -v /proc:/mnt/proc:ro \
-  -v /var/run/docker.sock:/var/run/docker.sock \
-  quay.io/signalfuse/signalfx-agent
+version: '2'
+services:
+  signalfx-agent:
+    container_name: signalfx-agent
+    image: quay.io/signalfuse/signalfx-agent
+    privileged: true
+    network_mode: host
+    volumes:
+     - /:/hostfs:ro
+     - /etc/hostname:/mnt/hostname:ro
+     - /etc:/mnt/etc:ro
+     - /proc:/mnt/proc:ro
+     - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+     SET_FILE: /etc/signalfx/agent.yaml
+     SET_FILE_CONTENT: |
+      interval: 10
+      observers:
+          local-docker:
+              type: docker
+              configuration:
+                  hostUrl: unix:///var/run/docker.sock
+      monitors:
+          collectd:
+              type: collectd
+              configuration:
+                  confFile: /etc/collectd/collectd.conf
+                  templatesDir: /etc/signalfx/collectd/templates
+                  pluginsDir: /usr/share/collectd
+                  staticPlugins:
+                      - name: signalfx-default
+                        type: signalfx
+                        configuration:
+                            apiToken: <API Token>
+                            ingestUrl: http://lab-ingest.corp.signalfuse.com:8080
+      filters:
+          service-mapping:
+              type: service-rules
+              configuration:
+                  servicesFile: /etc/signalfx/collectd/services.json
+      pipeline:
+          default:
+          - local-docker
+          - service-mapping
+          - collectd
 ```
