@@ -3,9 +3,9 @@
 </LoadPlugin>
 <Plugin "write_http">
   <Node "SignalFx">
-    URL "{{.IngestUrl}}/v1/collectd{{.ExtraDimensions}}"
+    URL "{{.Config.ingestUrl}}/v1/collectd"
     User "auth"
-    Password "{{.ApiToken}}"
+    Password "{{Secret "SIGNALFX_API_TOKEN"}}"
     Format "JSON"
     Timeout 9000
     BufferSize 65536

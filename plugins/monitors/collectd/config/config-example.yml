@@ -11,9 +11,10 @@ plugins:
 - plugin: signalfx
   name: signalfx
   signalfx:
-    # REQUIRED: Configure this value with your SignalFx API token.
-    apiToken:
-    # ingestUrl: https://ingest.signalfx.com
+    config:
+      # REQUIRED: Configure this value with your SignalFx API token.
+      apiToken:
+      # ingestUrl: https://ingest.signalfx.com
 # - plugin: redis
 #   name: redis
 #   host: localhost

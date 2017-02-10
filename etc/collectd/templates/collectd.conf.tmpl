@@ -25,11 +25,9 @@ LoadPlugin logfile
 {{template "default-plugins.conf.tmpl"}}
 */}}
 
-{{template "docker.conf.tmpl"}}
-
 {{range $i1, $plugin := .Plugins}}
 # ================ Begin plugin {{$i1}} ================
-{{range $i2, $template := .GetTemplates}}
+{{range $i2, $template := .Templates}}
 {{RenderTemplate $template $plugin}}
 {{end}}
 # ================ End plugin {{$i1}} ================

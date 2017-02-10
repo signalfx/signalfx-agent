@@ -41,7 +41,7 @@ func main() {
 
 	for _, p := range appConfig.Plugins {
 		println("plugin")
-		for _, tmp := range p.GetTemplates() {
+		for _, tmp := range p.Templates {
 			fmt.Printf("   %s\n", tmp)
 		}
 	}

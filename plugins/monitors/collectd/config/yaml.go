@@ -25,7 +25,7 @@ func LoadYamlConfig(configFile string) (*AppConfig, error) {
 
 	log.Infof("Loaded main config:\n%+v", config)
 
-	var plugins []IPlugin
+	var plugins []*Plugin
 
 	for _, pluginConfig := range config.Plugins {
 		yamlPluginType, ok := pluginConfig["plugin"]
@@ -63,8 +63,8 @@ func LoadYamlConfig(configFile string) (*AppConfig, error) {
 	return &AppConfig{AgentConfig: config, Plugins: plugins}, nil
 }
 
-// Load a plugin's configuration. If the configuration can't be loaded an error
-// is returned.
+// LoadPluginConfig loads a plugin's configuration. If the configuration can't
+// be loaded an error is returned.
 func LoadPluginConfig(config map[string]interface{}, plugin string, configStruct interface{}) error {
 	log.Infof("Configuring %s plugin.", plugin)
 

@@ -3,20 +3,20 @@ interval: 10
 observers:
     local-docker:
         type: docker
-        configuration:
+        config:
             hostUrl: unix:///var/run/docker.sock
 
 monitors:
     collectd:
         type: collectd
-        configuration:
+        config:
             confFile: /etc/collectd/collectd.conf
             templatesDir: /etc/signalfx/collectd/templates
             pluginsDir: /usr/share/collectd
             staticPlugins:
                 - name: signalfx-default
                   type: signalfx
-                  configuration:
+                  config:
                       apiToken: <API TOKEN>
                 - name: docker-default
                   type: docker
@@ -25,7 +25,7 @@ monitors:
 filters:
     service-mapping:
         type: service-rules
-        configuration:
+        config:
             servicesFile: /etc/signalfx/collectd/services.json
 
 pipeline:

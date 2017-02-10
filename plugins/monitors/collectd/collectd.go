@@ -134,7 +134,7 @@ func (collectd *Collectd) reload() {
 
 // writePlugins takes a list of plugin instances and generates a collectd.conf
 // formatted configuration.
-func (collectd *Collectd) writePlugins(plugins []config.IPlugin) error {
+func (collectd *Collectd) writePlugins(plugins []*config.Plugin) error {
 	config, err := config.RenderCollectdConf(collectd.pluginsDir, collectd.templatesDir, &config.AppConfig{
 		AgentConfig: config.NewCollectdConfig(),
 		Plugins:     plugins,
@@ -152,12 +152,12 @@ func (collectd *Collectd) writePlugins(plugins []config.IPlugin) error {
 }
 
 // getStaticPlugins returns a list of plugins specified in the agent config
-func (collectd *Collectd) getStaticPlugins() ([]config.IPlugin, error) {
+func (collectd *Collectd) getStaticPlugins() ([]*config.Plugin, error) {
 	static := struct {
 		StaticPlugins []struct {
-			Name          string
-			Type          string
-			Configuration map[string]interface{}
+			Name   string
+			Type   string
+			Config map[string]interface{}
 		}
 	}{}
 
@@ -165,14 +165,16 @@ func (collectd *Collectd) getStaticPlugins() ([]config.IPlugin, error) {
 		return nil, err
 	}
 
-	var plugins []config.IPlugin
+	var plugins []*config.Plugin
 
 	for _, plugin := range static.StaticPlugins {
 		pluginInstance, err := config.NewPlugin(services.ServiceType(plugin.Type), plugin.Name)
 		if err != nil {
 			return nil, err
 		}
-		if err := config.LoadPluginConfig(plugin.Configuration, plugin.Type, pluginInstance); err != nil {
+
+		if err := config.LoadPluginConfig(map[string]interface{}{"config": plugin.Config},
+			plugin.Type, pluginInstance); err != nil {
 			return nil, err
 		}
 
@@ -182,9 +184,9 @@ func (collectd *Collectd) getStaticPlugins() ([]config.IPlugin, error) {
 	return plugins, nil
 }
 
-func (collectd *Collectd) createPluginsFromServices(sis services.ServiceInstances) ([]config.IPlugin, error) {
+func (collectd *Collectd) createPluginsFromServices(sis services.ServiceInstances) ([]*config.Plugin, error) {
 	log.Printf("Configuring collectd plugins for %+v", sis)
-	var plugins []config.IPlugin
+	var plugins []*config.Plugin
 
 	for _, service := range sis {
 		log.Printf("reconfiguring collectd service: %s (%s)", service.Service.Name, service.Service.Type)
@@ -196,11 +198,8 @@ func (collectd *Collectd) createPluginsFromServices(sis services.ServiceInstance
 			continue
 		}
 
-		switch t := plugin.(type) {
-		case config.IHostPort:
-			t.SetHost(service.Port.IP)
-			t.SetPort(service.Port.PrivatePort)
-		}
+		plugin.Host = service.Port.IP
+		plugin.Port = service.Port.PrivatePort
 
 		plugins = append(plugins, plugin)
 	}

@@ -1,12 +1,12 @@
-TypesDB "/usr/share/collectd/docker-collectd-plugin/dockerplugin.db"
+TypesDB "{{Globals.PluginRoot}}/docker-collectd-plugin/dockerplugin.db"
 LoadPlugin python
 
 <Plugin python>
-  ModulePath "/usr/share/collectd/docker-collectd-plugin"
+  ModulePath "{{Globals.PluginRoot}}/docker-collectd-plugin"
   Import "dockerplugin"
 
   <Module dockerplugin>
-    BaseURL "{{.HostUrl}}"
+    BaseURL "{{.Config.hostUrl}}"
     Timeout 3
     Verbose false
   </Module>
