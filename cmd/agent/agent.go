@@ -59,7 +59,7 @@ type pluginConfig struct {
 func loadSubConfigs(name string) (map[pluginConfig]*viper.Viper, error) {
 	sub := viper.Sub(name)
 	if sub == nil {
-		return nil, fmt.Errorf("no %ss have been configured", name)
+		return nil, fmt.Errorf("no %s have been configured", name)
 	}
 
 	var keys []string
@@ -180,6 +180,9 @@ func main() {
 	}
 
 	exitCh := make(chan struct{})
+
+	timer := time.NewTimer(time.Duration(agent.Interval) * time.Second)
+
 	go func(ctx context.Context) {
 		log.Print("agent started")
 
@@ -190,13 +193,18 @@ func main() {
 			}
 		}
 
-		for {
+		tick := func() {
 			log.Print("executing pipeline")
 
 			if err := agent.pipeline.Execute(); err != nil {
 				log.Printf("pipeline execute failed: %s", err)
 			}
+		}
 
+		// Run once at the start before the timer fires.
+		tick()
+
+		for {
 			select {
 			case <-ctx.Done():
 				for _, plugin := range agent.plugins {
@@ -205,10 +213,9 @@ func main() {
 				}
 				exitCh <- struct{}{}
 				return
-			default:
+			case <-timer.C:
+				tick()
 			}
-
-			time.Sleep(time.Duration(agent.Interval) * time.Second)
 		}
 	}(cwc)
 
@@ -218,6 +225,7 @@ func main() {
 		select {
 		case <-signalCh:
 			log.Print("stopping agent ...")
+			timer.Stop()
 			cancel()
 			return
 		}
