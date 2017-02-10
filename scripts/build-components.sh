@@ -24,6 +24,7 @@ PACKAGES=(
      'cmd'
      'pipelines'
      'plugins'
+     'secrets'
      'services'
      'utils'
    )

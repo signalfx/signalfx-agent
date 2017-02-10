@@ -14,6 +14,7 @@ GO_PACKAGES=(
      'cmd'
      'pipelines'
      'plugins'
+     'secrets'
      'services'
      'utils'
    )
