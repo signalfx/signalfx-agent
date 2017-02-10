@@ -77,7 +77,7 @@ if [ -z $SKIP_LIBCOLLECTD_BUILD ]; then
   mkdir -p ${PROJECT_DIR}/.bin
   cp ${COLLECTD_LIB_DIR}/libcollectd.so $PROJECT_DIR/.bin/libcollectd.so
   cp ${BASE_DIR}/collectd-collectd-${COLLECTD_VERSION}/src/.libs/python.so $PROJECT_DIR/.bin/python.so
-
+  $SUDO cp ${BASE_DIR}/collectd-collectd-${COLLECTD_VERSION}/src/.libs/python.so ${COLLECTD_LIB_DIR}
 fi
 
 # build agent
