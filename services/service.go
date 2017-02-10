@@ -12,12 +12,14 @@ type PortType string
 type ServiceType string
 
 const (
-	// REDIS Redis server
-	REDIS ServiceType = "redis"
-	// APACHE Apache web server
-	APACHE ServiceType = "apache"
-	// SIGNALFX SignalFx plugins
-	SIGNALFX ServiceType = "signalfx"
+	// ApacheService Apache web server
+	ApacheService ServiceType = "apache"
+	// DockerService Docker container engine
+	DockerService ServiceType = "docker"
+	// RedisService Redis server
+	RedisService ServiceType = "redis"
+	// SignalfxService SignalFx plugins
+	SignalfxService ServiceType = "signalfx"
 )
 
 const (

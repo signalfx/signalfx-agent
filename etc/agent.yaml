@@ -18,7 +18,10 @@ monitors:
                   type: signalfx
                   configuration:
                       apiToken: <API TOKEN>
-
+                - name: docker-default
+                  type: docker
+                  configuration:
+                      hostUrl: unix:///var/run/docker.sock
 filters:
     service-mapping:
         type: service-rules
