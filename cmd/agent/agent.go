@@ -181,7 +181,7 @@ func main() {
 
 	exitCh := make(chan struct{})
 
-	timer := time.NewTimer(time.Duration(agent.Interval) * time.Second)
+	ticker := time.NewTicker(time.Duration(agent.Interval) * time.Second)
 
 	go func(ctx context.Context) {
 		log.Print("agent started")
@@ -201,7 +201,7 @@ func main() {
 			}
 		}
 
-		// Run once at the start before the timer fires.
+		// Run once at the start before the ticker fires.
 		tick()
 
 		for {
@@ -213,7 +213,7 @@ func main() {
 				}
 				exitCh <- struct{}{}
 				return
-			case <-timer.C:
+			case <-ticker.C:
 				tick()
 			}
 		}
@@ -225,7 +225,7 @@ func main() {
 		select {
 		case <-signalCh:
 			log.Print("stopping agent ...")
-			timer.Stop()
+			ticker.Stop()
 			cancel()
 			return
 		}
