@@ -31,12 +31,14 @@ func (plugin *Plugin) GetTemplates() []string {
 // NewPlugin constructs a plugin-specific instance of IPlugin.
 func NewPlugin(pluginType services.ServiceType, pluginName string) (IPlugin, error) {
 	switch pluginType {
-	case services.SIGNALFX:
-		return NewSignalFxConfig(pluginName), nil
-	case services.REDIS:
-		return NewRedisConfig(pluginName), nil
-	case services.APACHE:
+	case services.ApacheService:
 		return NewApacheConfig(pluginName), nil
+	case services.DockerService:
+		return NewDockerConfig(pluginName), nil
+	case services.RedisService:
+		return NewRedisConfig(pluginName), nil
+	case services.SignalfxService:
+		return NewSignalFxConfig(pluginName), nil
 	default:
 		return nil, fmt.Errorf("plugin %s is unsupported", pluginType)
 	}
@@ -67,12 +69,17 @@ type HostPort struct {
 	Port uint16
 }
 
-type RedisConfig struct {
+type ApacheConfig struct {
 	Plugin   `yaml:",inline"`
 	HostPort `yaml:",inline"`
 }
 
-type ApacheConfig struct {
+type DockerConfig struct {
+	Plugin  `yaml:",inline"`
+	HostUrl string `yaml:"hostUrl"`
+}
+
+type RedisConfig struct {
 	Plugin   `yaml:",inline"`
 	HostPort `yaml:",inline"`
 }
@@ -101,6 +108,26 @@ func NewCollectdConfig() *CollectdConfig {
 	}
 }
 
+func NewApacheConfig(pluginName string) *ApacheConfig {
+	return &ApacheConfig{
+		Plugin{
+			Templates: []string{"apache.conf.tmpl"},
+			Name:      pluginName},
+		HostPort{
+			Host: "localhost",
+			Port: 80},
+	}
+}
+
+func NewDockerConfig(pluginName string) *DockerConfig {
+	return &DockerConfig{
+		HostUrl: "unix:///var/run/docker.sock",
+		Plugin: Plugin{
+			Templates: []string{"docker.conf.tmpl"},
+			Name:      pluginName},
+	}
+}
+
 func NewRedisConfig(pluginName string) *RedisConfig {
 	return &RedisConfig{
 		Plugin{
@@ -118,16 +145,5 @@ func NewSignalFxConfig(pluginName string) *SignalFxConfig {
 		Plugin: Plugin{
 			Templates: []string{"signalfx.conf.tmpl", "write-http.conf.tmpl"},
 			Name:      pluginName},
-	}
-}
-
-func NewApacheConfig(pluginName string) *ApacheConfig {
-	return &ApacheConfig{
-		Plugin{
-			Templates: []string{"apache.conf.tmpl"},
-			Name:      pluginName},
-		HostPort{
-			Host: "localhost",
-			Port: 80},
 	}
 }
