@@ -168,7 +168,7 @@ func (collectd *Collectd) getStaticPlugins() ([]config.IPlugin, error) {
 	var plugins []config.IPlugin
 
 	for _, plugin := range static.StaticPlugins {
-		pluginInstance, err := config.NewPlugin(plugin.Type, plugin.Name)
+		pluginInstance, err := config.NewPlugin(services.ServiceType(plugin.Type), plugin.Name)
 		if err != nil {
 			return nil, err
 		}
@@ -189,26 +189,20 @@ func (collectd *Collectd) createPluginsFromServices(sis services.ServiceInstance
 	for _, service := range sis {
 		log.Printf("reconfiguring collectd service: %s (%s)", service.Service.Name, service.Service.Type)
 
-		var plugin config.IPlugin
-
-		switch service.Service.Type {
-		case services.APACHE:
-			r := config.NewApacheConfig(service.Service.Name)
-			r.Host = service.Port.IP
-			r.Port = service.Port.PrivatePort
-			plugin = r
-		case services.REDIS:
-			r := config.NewRedisConfig(service.Service.Name)
-			r.Host = service.Port.IP
-			r.Port = service.Port.PrivatePort
-			plugin = r
-		default:
+		// TODO: Name is not unique, not sure what to use here.
+		plugin, err := config.NewPlugin(service.Service.Type, service.Service.Name)
+		if err != nil {
 			log.Printf("unsupported service %s for collectd", service.Service.Type)
+			continue
 		}
 
-		if plugin != nil {
-			plugins = append(plugins, plugin)
+		switch t := plugin.(type) {
+		case config.IHostPort:
+			t.SetHost(service.Port.IP)
+			t.SetPort(service.Port.PrivatePort)
 		}
+
+		plugins = append(plugins, plugin)
 	}
 
 	fmt.Printf("Configured plugins: %+v\n", plugins)
