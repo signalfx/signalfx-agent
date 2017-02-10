@@ -6,54 +6,62 @@ import (
 	"github.com/signalfx/neo-agent/services"
 )
 
+// Plugin describes a collectd plugin
 type Plugin struct {
-	Templates []string
 	Name      string
+	Host      string
+	Port      uint16
+	Templates []string
+	Config    map[string]interface{}
 }
 
-type IPlugin interface {
-	// Normally in Go this would just be `Templates()` but that would
-	// collide with the field `Templates` which has to be public for
-	// YAML's sake.
-	GetTemplates() []string
+// PLUGINS is a mapping to create plugin instances with defaults
+var PLUGINS = map[services.ServiceType]func(string) *Plugin{
+	services.RedisService: func(pluginName string) *Plugin {
+		return &Plugin{
+			Templates: []string{"redis-master.conf.tmpl"},
+			Name:      pluginName,
+			Host:      "localhost",
+			Port:      6379,
+		}
+	},
+	services.ApacheService: func(pluginName string) *Plugin {
+		return &Plugin{
+			Templates: []string{"apache.conf.tmpl"},
+			Name:      pluginName,
+			Host:      "localhost",
+			Port:      80}
+	},
+	services.SignalfxService: func(pluginName string) *Plugin {
+		return &Plugin{
+			Templates: []string{
+				"signalfx.conf.tmpl",
+				"write-http.conf.tmpl"},
+			Config: map[string]interface{}{
+				"ingestUrl": "https://ingest.signalfx.com",
+			},
+			Name: pluginName}
+	},
+	services.DockerService: func(pluginName string) *Plugin {
+		return &Plugin{
+			Templates: []string{"docker.conf.tmpl"},
+			Name:      pluginName,
+			Config: map[string]interface{}{
+				"hostUrl": "unix:///var/run/docker.sock",
+			},
+		}
+	},
 }
 
-// IHostPort can be used for plugins that take a host and port number
-type IHostPort interface {
-	SetHost(host string)
-	SetPort(port uint16)
-}
-
-func (plugin *Plugin) GetTemplates() []string {
-	return plugin.Templates
-}
-
-// NewPlugin constructs a plugin-specific instance of IPlugin.
-func NewPlugin(pluginType services.ServiceType, pluginName string) (IPlugin, error) {
-	switch pluginType {
-	case services.ApacheService:
-		return NewApacheConfig(pluginName), nil
-	case services.DockerService:
-		return NewDockerConfig(pluginName), nil
-	case services.RedisService:
-		return NewRedisConfig(pluginName), nil
-	case services.SignalfxService:
-		return NewSignalFxConfig(pluginName), nil
-	default:
-		return nil, fmt.Errorf("plugin %s is unsupported", pluginType)
+// NewPlugin constructs a plugin with default values depending on the service type
+func NewPlugin(pluginType services.ServiceType, pluginName string) (*Plugin, error) {
+	if create, ok := PLUGINS[pluginType]; ok {
+		return create(pluginName), nil
 	}
+	return nil, fmt.Errorf("plugin %s is unsupported", pluginType)
 }
 
-// SetHost sets hostname
-func (hp *HostPort) SetHost(host string) {
-	hp.Host = host
-}
-
-// SetPort sets port number
-func (hp *HostPort) SetPort(port uint16) {
-	hp.Port = port
-}
-
+// CollectdConfig are global collectd settings
 type CollectdConfig struct {
 	Interval             uint
 	Timeout              uint
@@ -64,39 +72,13 @@ type CollectdConfig struct {
 	Plugins              []map[string]interface{}
 }
 
-type HostPort struct {
-	Host string
-	Port uint16
-}
-
-type ApacheConfig struct {
-	Plugin   `yaml:",inline"`
-	HostPort `yaml:",inline"`
-}
-
-type DockerConfig struct {
-	Plugin  `yaml:",inline"`
-	HostUrl string `yaml:"hostUrl"`
-}
-
-type RedisConfig struct {
-	Plugin   `yaml:",inline"`
-	HostPort `yaml:",inline"`
-}
-
-type SignalFxConfig struct {
-	Plugin          `yaml:",inline"`
-	IngestUrl       string `yaml:"ingestUrl"`
-	ApiToken        string `yaml:"apiToken"`
-	ExtraDimensions string `yaml:"extraDimensions`
-}
-
 // AppConfig is the top-level configuration object consumed by templates.
 type AppConfig struct {
 	AgentConfig *CollectdConfig
-	Plugins     []IPlugin
+	Plugins     []*Plugin
 }
 
+// NewCollectdConfig creates a default collectd config instance
 func NewCollectdConfig() *CollectdConfig {
 	return &CollectdConfig{
 		Interval:             15,
@@ -105,45 +87,5 @@ func NewCollectdConfig() *CollectdConfig {
 		WriteQueueLimitHigh:  500000,
 		WriteQueueLimitLow:   400000,
 		CollectInternalStats: true,
-	}
-}
-
-func NewApacheConfig(pluginName string) *ApacheConfig {
-	return &ApacheConfig{
-		Plugin{
-			Templates: []string{"apache.conf.tmpl"},
-			Name:      pluginName},
-		HostPort{
-			Host: "localhost",
-			Port: 80},
-	}
-}
-
-func NewDockerConfig(pluginName string) *DockerConfig {
-	return &DockerConfig{
-		HostUrl: "unix:///var/run/docker.sock",
-		Plugin: Plugin{
-			Templates: []string{"docker.conf.tmpl"},
-			Name:      pluginName},
-	}
-}
-
-func NewRedisConfig(pluginName string) *RedisConfig {
-	return &RedisConfig{
-		Plugin{
-			Templates: []string{"redis-master.conf.tmpl"},
-			Name:      pluginName},
-		HostPort{
-			Host: "localhost",
-			Port: 6379},
-	}
-}
-
-func NewSignalFxConfig(pluginName string) *SignalFxConfig {
-	return &SignalFxConfig{
-		IngestUrl: "https://ingest.signalfx.com",
-		Plugin: Plugin{
-			Templates: []string{"signalfx.conf.tmpl", "write-http.conf.tmpl"},
-			Name:      pluginName},
 	}
 }

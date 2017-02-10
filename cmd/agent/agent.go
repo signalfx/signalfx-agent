@@ -87,7 +87,7 @@ func loadSubConfigs(name string) (map[pluginConfig]*viper.Viper, error) {
 			return nil, fmt.Errorf("%s is missing type", viperKey)
 		}
 
-		config := s.Sub("configuration")
+		config := s.Sub("config")
 		ret[pluginConfig{key, typ}] = config
 	}
 

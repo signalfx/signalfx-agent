@@ -40,7 +40,7 @@ TODO
 ### Local Docker - for development only
 
 Here is an example of running signalfx-agent for local-docker using a docker compose file to start container and configure agent.
-You need to set the apiToken (and change the ingestUrl if not sending to lab). 
+You need to set the apiToken (and change the ingestUrl if not sending to lab).
 ```
 version: '2'
 services:
@@ -62,25 +62,25 @@ services:
       observers:
           local-docker:
               type: docker
-              configuration:
+              config:
                   hostUrl: unix:///var/run/docker.sock
       monitors:
           collectd:
               type: collectd
-              configuration:
+              config:
                   confFile: /etc/collectd/collectd.conf
                   templatesDir: /etc/signalfx/collectd/templates
                   pluginsDir: /usr/share/collectd
                   staticPlugins:
                       - name: signalfx-default
                         type: signalfx
-                        configuration:
+                        config:
                             apiToken: <API Token>
                             ingestUrl: http://lab-ingest.corp.signalfuse.com:8080
       filters:
           service-mapping:
               type: service-rules
-              configuration:
+              config:
                   servicesFile: /etc/signalfx/collectd/services.json
       pipeline:
           default:
