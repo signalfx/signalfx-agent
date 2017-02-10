@@ -1,36 +1,329 @@
 {
-    "name": "signalfx-defaults",
-    "signatures": [
+  "name": "signalfx-defaults",
+  "signatures": [
     {
-        "name": "apache-default",
-        "type": "apache",
-        "rules": [
+      "name": "apache-image-default",
+      "type": "apache",
+      "rules": [
         {
-            "comparator": "contains",
-            "path": "ContainerImage",
-            "value": "apache"
+          "comparator": "contains",
+          "path": "ContainerImage",
+          "value": "apache"
         },
         {
-            "comparator": "nexists",
-            "path": "ContainerLabel-monitor",
-            "value": ""
+          "comparator": "nexists",
+          "path": "ContainerLabel-signalfx-integration",
+          "value": ""
         }
-        ]
-    }, {
-        "name": "redis-default",
-        "type": "redis",
-        "rules": [
+      ]
+    },
+    {
+      "name": "apache-labeled-default",
+      "type": "apache",
+      "rules": [
         {
-            "comparator": "eq",
-            "path": "ContainerImage",
-            "value": "redis"
+          "comparator": "eq",
+          "path": "ContainerLabel-signalfx-integration",
+          "value": "apache"
+        }
+      ]
+    },
+    {
+      "name": "cassandra-image-default",
+      "type": "cassandra",
+      "rules": [
+        {
+          "comparator": "contains",
+          "path": "ContainerImage",
+          "value": "cassandra"
         },
         {
-            "comparator": "nexists",
-            "path": "ContainerLabel-monitor",
-            "value": ""
+          "comparator": "nexists",
+          "path": "ContainerLabel-signalfx-integration",
+          "value": ""
         }
-        ]
+      ]
+    },
+    {
+      "name": "cassandra-labeled-default",
+      "type": "cassandra",
+      "rules": [
+        {
+          "comparator": "eq",
+          "path": "ContainerLabel-signalfx-integration",
+          "value": "cassandra"
+        }
+      ]
+    },
+    {
+      "name": "elasticsearch-image-default",
+      "type": "elasticsearch",
+      "rules": [
+        {
+          "comparator": "contains",
+          "path": "ContainerImage",
+          "value": "elasticsearch"
+        },
+        {
+          "comparator": "nexists",
+          "path": "ContainerLabel-signalfx-integration",
+          "value": ""
+        }
+      ]
+    },
+    {
+      "name": "elasticsearch-labeled-default",
+      "type": "elasticsearch",
+      "rules": [
+        {
+          "comparator": "eq",
+          "path": "ContainerLabel-signalfx-integration",
+          "value": "elasticsearch"
+        }
+      ]
+    },
+    {
+      "name": "kafka-image-default",
+      "type": "kafka",
+      "rules": [
+        {
+          "comparator": "contains",
+          "path": "ContainerImage",
+          "value": "kafka"
+        },
+        {
+          "comparator": "nexists",
+          "path": "ContainerLabel-signalfx-integration",
+          "value": ""
+        }
+      ]
+    },
+    {
+      "name": "kafka-labeled-default",
+      "type": "kafka",
+      "rules": [
+        {
+          "comparator": "eq",
+          "path": "ContainerLabel-signalfx-integration",
+          "value": "kafka"
+        }
+      ]
+    },
+    {
+      "name": "memcached-image-default",
+      "type": "memcached",
+      "rules": [
+        {
+          "comparator": "contains",
+          "path": "ContainerImage",
+          "value": "memcached"
+        },
+        {
+          "comparator": "nexists",
+          "path": "ContainerLabel-signalfx-integration",
+          "value": ""
+        }
+      ]
+    },
+    {
+      "name": "memcached-labeled-default",
+      "type": "memcached",
+      "rules": [
+        {
+          "comparator": "eq",
+          "path": "ContainerLabel-signalfx-integration",
+          "value": "memcached"
+        }
+      ]
+    },
+    {
+      "name": "mongodb-image-default",
+      "type": "mongodb",
+      "rules": [
+        {
+          "comparator": "contains",
+          "path": "ContainerImage",
+          "value": "mongodb"
+        },
+        {
+          "comparator": "nexists",
+          "path": "ContainerLabel-signalfx-integration",
+          "value": ""
+        }
+      ]
+    },
+    {
+      "name": "mongodb-labeled-default",
+      "type": "mongodb",
+      "rules": [
+        {
+          "comparator": "eq",
+          "path": "ContainerLabel-signalfx-integration",
+          "value": "mongodb"
+        }
+      ]
+    },
+    {
+      "name": "mysql-image-default",
+      "type": "mysql",
+      "rules": [
+        {
+          "comparator": "contains",
+          "path": "ContainerImage",
+          "value": "mysql"
+        },
+        {
+          "comparator": "nexists",
+          "path": "ContainerLabel-signalfx-integration",
+          "value": ""
+        }
+      ]
+    },
+    {
+      "name": "mysql-labeled-default",
+      "type": "mysql",
+      "rules": [
+        {
+          "comparator": "eq",
+          "path": "ContainerLabel-signalfx-integration",
+          "value": "mysql"
+        }
+      ]
+    },
+    {
+      "name": "nginx-image-default",
+      "type": "nginx",
+      "rules": [
+        {
+          "comparator": "contains",
+          "path": "ContainerImage",
+          "value": "nginx"
+        },
+        {
+          "comparator": "nexists",
+          "path": "ContainerLabel-signalfx-integration",
+          "value": ""
+        }
+      ]
+    },
+    {
+      "name": "nginx-labeled-default",
+      "type": "nginx",
+      "rules": [
+        {
+          "comparator": "eq",
+          "path": "ContainerLabel-signalfx-integration",
+          "value": "nginx"
+        }
+      ]
+    },
+    {
+      "name": "rabbitmq-image-default",
+      "type": "rabbitmq",
+      "rules": [
+        {
+          "comparator": "contains",
+          "path": "ContainerImage",
+          "value": "rabbitmq"
+        },
+        {
+          "comparator": "nexists",
+          "path": "ContainerLabel-signalfx-integration",
+          "value": ""
+        }
+      ]
+    },
+    {
+      "name": "rabbitmq-labeled-default",
+      "type": "rabbitmq",
+      "rules": [
+        {
+          "comparator": "eq",
+          "path": "ContainerLabel-signalfx-integration",
+          "value": "rabbitmq"
+        }
+      ]
+    },
+    {
+      "name": "redis-image-default",
+      "type": "redis",
+      "rules": [
+        {
+          "comparator": "contains",
+          "path": "ContainerImage",
+          "value": "redis"
+        },
+        {
+          "comparator": "nexists",
+          "path": "ContainerLabel-signalfx-integration",
+          "value": ""
+        }
+      ]
+    },
+    {
+      "name": "redis-labeled-default",
+      "type": "redis",
+      "rules": [
+        {
+          "comparator": "eq",
+          "path": "ContainerLabel-signalfx-integration",
+          "value": "redis"
+        }
+      ]
+    },
+    {
+      "name": "varnish-image-default",
+      "type": "varnish",
+      "rules": [
+        {
+          "comparator": "contains",
+          "path": "ContainerImage",
+          "value": "varnish"
+        },
+        {
+          "comparator": "nexists",
+          "path": "ContainerLabel-signalfx-integration",
+          "value": ""
+        }
+      ]
+    },
+    {
+      "name": "varnish-labeled-default",
+      "type": "varnish",
+      "rules": [
+        {
+          "comparator": "eq",
+          "path": "ContainerLabel-signalfx-integration",
+          "value": "varnish"
+        }
+      ]
+    },
+    {
+      "name": "zookeeper-image-default",
+      "type": "zookeeper",
+      "rules": [
+        {
+          "comparator": "contains",
+          "path": "ContainerImage",
+          "value": "zookeeper"
+        },
+        {
+          "comparator": "nexists",
+          "path": "ContainerLabel-signalfx-integration",
+          "value": ""
+        }
+      ]
+    },
+    {
+      "name": "zookeeper-labeled-default",
+      "type": "zookeeper",
+      "rules": [
+        {
+          "comparator": "eq",
+          "path": "ContainerLabel-signalfx-integration",
+          "value": "zookeeper"
+        }
+      ]
     }
-    ]
+  ]
 }
