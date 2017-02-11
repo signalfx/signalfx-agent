@@ -13,6 +13,7 @@ RUN sed -i -e '/^deb-src/d' /etc/apt/sources.list \
     && apt-get install -y wget \
     && apt-get install -y net-tools \
     && apt-get install -y openjdk-8-jre-headless \
+    && add-apt-repository ppa:masterminds/glide \
     && apt-get update \
     && apt-get install -y autoconf \
     && apt-get install -y automake \
@@ -29,6 +30,7 @@ RUN sed -i -e '/^deb-src/d' /etc/apt/sources.list \
     && apt-get install -y flex \
     && apt-get install -y gcc \
     && apt-get install -y git-core \
+    && apt-get install -y glide \
     && apt-get install -y iptables-dev \
     && apt-get install -y libatasmart-dev \
     && apt-get install -y libcurl4-gnutls-dev \

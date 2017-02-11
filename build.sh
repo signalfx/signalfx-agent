@@ -84,6 +84,9 @@ function setup_build_container(){
   for pkg in ${GO_PACKAGES[@]}; do
     docker cp ${SRC_ROOT}/$pkg $BUILD_CONTAINER_ID:$REMOTE_PROJECT/
   done
+
+  docker cp ${SRC_ROOT}/glide.lock $BUILD_CONTAINER_ID:$REMOTE_PROJECT/
+  docker cp ${SRC_ROOT}/glide.yaml $BUILD_CONTAINER_ID:$REMOTE_PROJECT/
 }
 
 function download_built_artifacts(){
