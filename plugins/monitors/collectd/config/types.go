@@ -17,6 +17,29 @@ type Plugin struct {
 
 // PLUGINS is a mapping to create plugin instances with defaults
 var PLUGINS = map[services.ServiceType]func(string) *Plugin{
+	services.ApacheService: func(pluginName string) *Plugin {
+		return &Plugin{
+			Templates: []string{"apache.conf.tmpl"},
+			Name:      pluginName,
+			Host:      "localhost",
+			Port:      80}
+	},
+	services.DockerService: func(pluginName string) *Plugin {
+		return &Plugin{
+			Templates: []string{"docker.conf.tmpl"},
+			Name:      pluginName,
+			Config: map[string]interface{}{
+				"hostUrl": "unix:///var/run/docker.sock",
+			},
+		}
+	},
+	services.MongoDBService: func(pluginName string) *Plugin {
+		return &Plugin{
+			Templates: []string{"mongodb.conf.tmpl"},
+			Name:      pluginName,
+			Host:      "localhost",
+			Port:      27017}
+	},
 	services.RedisService: func(pluginName string) *Plugin {
 		return &Plugin{
 			Templates: []string{"redis-master.conf.tmpl"},
@@ -24,13 +47,6 @@ var PLUGINS = map[services.ServiceType]func(string) *Plugin{
 			Host:      "localhost",
 			Port:      6379,
 		}
-	},
-	services.ApacheService: func(pluginName string) *Plugin {
-		return &Plugin{
-			Templates: []string{"apache.conf.tmpl"},
-			Name:      pluginName,
-			Host:      "localhost",
-			Port:      80}
 	},
 	services.SignalfxService: func(pluginName string) *Plugin {
 		return &Plugin{
@@ -42,14 +58,12 @@ var PLUGINS = map[services.ServiceType]func(string) *Plugin{
 			},
 			Name: pluginName}
 	},
-	services.DockerService: func(pluginName string) *Plugin {
+	services.ZookeeperService: func(pluginName string) *Plugin {
 		return &Plugin{
-			Templates: []string{"docker.conf.tmpl"},
+			Templates: []string{"zookeeper.conf.tmpl"},
 			Name:      pluginName,
-			Config: map[string]interface{}{
-				"hostUrl": "unix:///var/run/docker.sock",
-			},
-		}
+			Host:      "localhost",
+			Port:      2181}
 	},
 }
 

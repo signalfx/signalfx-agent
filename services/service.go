@@ -14,12 +14,32 @@ type ServiceType string
 const (
 	// ApacheService Apache web server
 	ApacheService ServiceType = "apache"
+	// CassandraService Cassandra database
+	CassandraService ServiceType = "cassandra"
+	// ElasticSearchService ElasticSearch server
+	ElasticSearchService ServiceType = "elasticsearch"
 	// DockerService Docker container engine
 	DockerService ServiceType = "docker"
+	// KafkaService Kafka message broker
+	KafkaService ServiceType = "kafka"
+	// MemcachedService Memcached memory object store
+	MemcachedService ServiceType = "memcached"
+	// MongoDBService MongoDB database
+	MongoDBService ServiceType = "mongodb"
+	// MysqlService Mysql database
+	MysqlService ServiceType = "mysql"
+	// NginxService Nginx server
+	NginxService ServiceType = "nginx"
 	// RedisService Redis server
 	RedisService ServiceType = "redis"
+	// RabbitmqService Rabbitmq server
+	RabbitmqService ServiceType = "rabbitmq"
 	// SignalfxService SignalFx plugins
 	SignalfxService ServiceType = "signalfx"
+	// VarnishService Varnish cache
+	VarnishService ServiceType = "varnish"
+	// ZookeeperService Zookeeper server
+	ZookeeperService ServiceType = "zookeeper"
 )
 
 const (
