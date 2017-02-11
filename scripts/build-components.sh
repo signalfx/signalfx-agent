@@ -91,10 +91,13 @@ if [ -z $SKIP_AGENT_BUILD ]; then
     cp -r ${PROJECT_DIR}/$pkg ${GOPATH}/src/${BASE_PACKAGE}/
   done
 
+  cp ${PROJECT_DIR}/glide.lock ${GOPATH}/src/${BASE_PACKAGE}/
+  cp ${PROJECT_DIR}/glide.yaml ${GOPATH}/src/${BASE_PACKAGE}/
+
   export GOPATH=$GOPATH
 
   cd $GOPATH/src/${BASE_PACKAGE}
-  go get -d ./...
+  glide install
 
   cd $GOPATH
   go install -ldflags "-X main.Version=${AGENT_VERSION} -X main.CollectdVersion=${COLLECTD_VERSION} -X main.BuiltTime=${BUILD_TIME}" ${BASE_PACKAGE}/cmd/agent
