@@ -1,8 +1,6 @@
 FROM ubuntu:16.04
 
 ENV DEBIAN_FRONTEND noninteractive
-ENV GOROOT /usr/local/go
-ENV PATH /usr/local/go/bin:$PATH
 
 RUN sed -i -e '/^deb-src/d' /etc/apt/sources.list \
     && apt-get update \
@@ -75,9 +73,7 @@ RUN sed -i -e '/^deb-src/d' /etc/apt/sources.list \
     && apt-get install -y python-pip \
     && apt-get install -y python-virtualenv \
     && apt-get install -y quilt \
-    && apt-get update \
-    && apt-get clean \
-    && apt-get update
+    && apt-get clean
 
 LABEL go_version="1.7.4" \
       java_version="1.8"
@@ -86,15 +82,31 @@ LABEL go_version="1.7.4" \
 RUN cd /tmp \
     && wget https://storage.googleapis.com/golang/go1.7.4.linux-amd64.tar.gz \
     && tar -C /usr/local -xzf go1.7.4.linux-amd64.tar.gz \
-    && rm -f go1.7.4.linux-amd64.tar.gz \
-    && mkdir -p /var/opt/signalfx-agent-workspace/src \
-    && mkdir -p /var/opt/signalfx-agent-workspace/lib \
-    && mkdir -p /var/opt/signalfx-agent-workspace/bin
+    && rm -f go1.7.4.linux-amd64.tar.gz
+ENV GOROOT /usr/local/go
+ENV PATH /usr/local/go/bin:$PATH
+ENV GOPATH /opt/go
 
-# collectd-all-cleanup
-RUN apt-get remove -y --purge build-essential software-properties-common python-software-properties python-pip \
-    && apt-get autoremove -y --purge \
-    && rm -rf /var/lib/apt/lists/*
+# Build collectd.
+RUN mkdir -p /opt/src
+ADD build-collectd.sh /opt/src
+ADD VERSIONS /opt/src
+ADD collectd-ext /opt/src/collectd-ext
+RUN PROJECT_DIR=/opt/src /opt/src/build-collectd.sh
 
-# default startup command
-CMD ["tail -f /dev/null"]
+# Build agent.
+WORKDIR $GOPATH/src/github.com/signalfx/neo-agent
+
+# Go dependencies get their own layer so that they're cached separately.
+COPY glide.yaml glide.lock ./
+RUN glide install
+
+COPY src .
+
+ARG agent_version
+ARG collectd_version
+ARG build_time
+
+RUN go install \
+    -ldflags "-X main.Version=${agent_version} -X main.CollectdVersion=${collectd_version} -X main.BuiltTime=${build_time}" \
+    github.com/signalfx/neo-agent/cmd/agent
