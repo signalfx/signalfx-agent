@@ -4,7 +4,10 @@ package collectd
 // #cgo LDFLAGS: /usr/local/lib/collectd/libcollectd.so
 // #include <stdint.h>
 // #include <stdlib.h>
+// #include <string.h>
 // #include "collectd.h"
+// #include "configfile.h"
+// #include "plugin.h"
 import "C"
 import (
 	"errors"
@@ -39,6 +42,8 @@ type Collectd struct {
 	templatesDir string
 	confFile     string
 	pluginsDir   string
+	reloadChan   chan int
+	stopChan     chan int
 }
 
 // NewCollectd constructor
@@ -73,7 +78,7 @@ func NewCollectd(name string, config *viper.Viper) (*Collectd, error) {
 		return nil, err
 	}
 
-	return &Collectd{plugin, Stopped, nil, templatesDir, confFile, pluginsDir}, nil
+	return &Collectd{plugin, Stopped, nil, templatesDir, confFile, pluginsDir, make(chan int), make(chan int)}, nil
 }
 
 // Monitor services from collectd monitor
@@ -116,20 +121,13 @@ func (collectd *Collectd) Write(services services.ServiceInstances) error {
 
 // reload reloads collectd configuration
 func (collectd *Collectd) reload() {
-	log.Println("reloading collectd plugins")
-	collectd.state = Reloading
-
-	C.reload()
-
-	for {
-		if int(C.is_reloading()) == 1 {
-			break
-		} else {
+	if collectd.state == Running {
+		collectd.setState(Reloading)
+		collectd.reloadChan <- 1
+		for collectd.Status() == Reloading {
 			time.Sleep(time.Duration(1) * time.Second)
 		}
 	}
-
-	collectd.state = Running
 }
 
 // writePlugins takes a list of plugin instances and generates a collectd.conf
@@ -228,25 +226,72 @@ func (collectd *Collectd) Start() (err error) {
 		return err
 	}
 
-	go func() {
-		cConfFile := C.CString(collectd.confFile)
-		defer C.free(cConfFile)
-		C.start(nil, cConfFile)
-	}()
+	go collectd.run()
 
-	log.Print("Collectd started")
-	collectd.state = Running
 	return nil
 }
 
 // Stop collectd monitoring
 func (collectd *Collectd) Stop() {
-	C.stop()
-	collectd.state = Stopped
-	collectd.services = nil
+	if collectd.state != Stopped {
+		collectd.stopChan <- 0
+	}
 }
 
 // Status for collectd monitoring
 func (collectd *Collectd) Status() string {
 	return collectd.state
+}
+
+// Status for collectd monitoring
+func (collectd *Collectd) setState(state string) {
+	collectd.state = state
+}
+
+func (collectd *Collectd) run() {
+
+	collectd.setState(Running)
+	defer collectd.setState(Stopped)
+
+	// TODO - global collectd interval should be configurable
+	interval := time.Duration(10 * time.Second)
+	cConfFile := C.CString(collectd.confFile)
+	defer C.free(cConfFile)
+
+	C.plugin_init_ctx()
+
+	C.init_collectd()
+	C.interval_g = C.cf_get_default_interval()
+
+	C.cf_read(cConfFile)
+
+	C.plugin_init_all()
+
+	for {
+		t := time.Now()
+
+		C.plugin_read_all()
+
+		remainingTime := interval - time.Since(t)
+		if remainingTime > 0 {
+			time.Sleep(remainingTime)
+		}
+
+		select {
+		case <-collectd.stopChan:
+			log.Println("stop collectd requested")
+			C.plugin_shutdown_all()
+			return
+		case <-collectd.reloadChan:
+			log.Println("reload collectd plugins requested")
+			collectd.setState(Reloading)
+
+			C.shutdown_clean()
+			C.plugin_init_ctx()
+			C.cf_read(cConfFile)
+			C.plugin_reinit_all()
+
+			collectd.setState(Running)
+		}
+	}
 }

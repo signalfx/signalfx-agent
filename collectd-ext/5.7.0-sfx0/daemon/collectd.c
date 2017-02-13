@@ -59,11 +59,6 @@ kstat_ctl_t *kc;
 
 static int loop = 0;
 
-#ifdef SIGNALFX_EIM
-static pthread_mutex_t reload_lock = PTHREAD_MUTEX_INITIALIZER;
-static int reload_plugins = 1;
-#endif /* SIGNALFX_EIM */
-
 static void *do_flush(void __attribute__((unused)) * arg) {
   INFO("Flushing all data.");
   plugin_flush(/* plugin = */ NULL,
@@ -337,15 +332,6 @@ static int do_loop(void) {
         return (-1);
       }
     }
-
-    #ifdef SIGNALFX_EIM
-    pthread_mutex_lock(&reload_lock);
-    if (reload_plugins == 0) {
-        loop = 1;
-    }
-    pthread_mutex_unlock(&reload_lock);
-    #endif /* SIGANLFX_EIM */
-
   } /* while (loop == 0) */
 
   return (0);
@@ -700,90 +686,18 @@ int main(int argc, char **argv) {
 
 #ifdef SIGNALFX_EIM
 
-void start(const char *basedir, char *configfile)
-{
-  struct sigaction sig_usr1_action = {.sa_handler = sig_usr1_handler};
+void init_collectd(void) {
+    struct sigaction sig_usr1_action = {.sa_handler = sig_usr1_handler};
 
-  if (0 != sigaction(SIGUSR1, &sig_usr1_action, NULL)) {
-    char errbuf[1024];
-    ERROR("Error: Failed to install a signal handler for signal USR1: %s",
-          sstrerror(errno, errbuf, sizeof(errbuf)));
-  }
-  // SA_ONSTACK needed by cgo
-  sig_usr1_action.sa_flags = SA_SIGINFO | SA_ONSTACK;
+    if (0 != sigaction(SIGUSR1, &sig_usr1_action, NULL)) {
+      char errbuf[1024];
+      ERROR("Error: Failed to install a signal handler for signal USR1: %s",
+            sstrerror(errno, errbuf, sizeof(errbuf)));
+    }
+    // SA_ONSTACK needed by cgo
+    sig_usr1_action.sa_flags = SA_SIGINFO | SA_ONSTACK;
 
-  INFO("collectd - init global variables");
-  init_global_variables();
-
-  INFO("collectd - init plugin context");
-  plugin_init_ctx();
-
-  if (cf_read(configfile)) {
-    fprintf(stderr, "Error: Reading the config file failed!\n"
-                    "Read the syslog for details.\n");
-  }
-
-  if (basedir == NULL && (basedir = global_option_get("BaseDir")) == NULL) {
-    fprintf(stderr,
-            "Don't have a basedir to use. This should not happen. Ever.");
-  }
-
-  if (basedir && change_basedir(basedir)) {
-    fprintf(stderr, "Error: Unable to change to directory `%s'.\n", basedir);
-  }
-
-  if (do_init() != 0) {
-    ERROR("Error: one or more plugin init callbacks failed.");
-  }
-
-  INFO("collectd - finished init plugin context, entering read-loop.");
-
-  while (loop == 0) {
-      do_loop();
-      pthread_mutex_lock(&reload_lock);
-      if (reload_plugins == 0)
-      {
-          INFO("collectd - reloading plugins");
-          INFO("collectd - shutting down plugins");
-          shutdown_clean();
-          INFO("collectd - init plugin context");
-          plugin_init_ctx();
-          INFO("collectd - reloading configuration files");
-          cf_read(configfile);
-          INFO("collectd - init all plugins");
-          plugin_reinit_all();
-          reload_plugins = 1;
-          loop = 0;
-          INFO("collectd - finished reloading plugins");
-      }
-      pthread_mutex_unlock(&reload_lock);
-  }
-
-  INFO("collectd - exiting");
-
-  if (do_shutdown() != 0) {
-    ERROR("Error: one or more plugin shutdown callbacks failed.");
-  }
-}
-
-void reload(void) {
-    INFO("collectd - requesting plugin reload");
-    pthread_mutex_lock(&reload_lock);
-    reload_plugins = 0;
-    pthread_mutex_unlock(&reload_lock);
-}
-
-int is_reloading(void) {
-    return reload_plugins;
-}
-
-void stop(void) {
-    INFO("collectd - requesting stop");
-    pthread_mutex_lock(&reload_lock);
-    reload_plugins = 1;
-    pthread_mutex_unlock(&reload_lock);
-
-    loop = 1;
+    init_global_variables();
 }
 
 #endif /* SIGNALFX_EIM */
