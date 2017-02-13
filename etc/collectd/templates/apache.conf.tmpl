@@ -1,6 +1,6 @@
 LoadPlugin "apache"
 <Plugin "apache">
-   <Instance "{{.Name}}">
+   <Instance "{{.Name}}[{{.Dims}}]">
        URL "http://{{.Host}}:{{.Port}}/mod_status?auto"
    </Instance>
 </Plugin>

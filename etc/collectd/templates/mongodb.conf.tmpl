@@ -2,7 +2,7 @@ LoadPlugin python
 <Plugin "python">
   ModulePath "{{Globals.PluginRoot}}/mongodb-collectd-plugin"
   Import "mongodb"
-  <Module "{{.Name}}"> 
+  <Module "{{.Name}}[{{.Dims}}]"> 
     Host "{{.Host}}"
     Port "{{.Port}}"
     User "{{Secret "SIGNALFX_MONITOR_USER"}}"

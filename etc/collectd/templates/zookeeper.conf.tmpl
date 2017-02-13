@@ -4,7 +4,7 @@
 <Plugin python>
   ModulePath "{{Globals.PluginRoot}}/zookeeper-collectd-plugin"
   Import "zk-collectd"
-  <Module "{{.Name}}">
+  <Module "{{.Name}}[{{.Dims}}]">
     Hosts "{{.Host}}"
     Port {{.Port}}
   </Module>
