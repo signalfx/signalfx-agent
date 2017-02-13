@@ -8,6 +8,9 @@ type OrchestrationType int
 // PortType An IP port type
 type PortType string
 
+// PortPreference public or private
+type PortPreference int
+
 // ServiceType A service/plugin type
 type ServiceType string
 
@@ -47,6 +50,10 @@ const (
 	UDP PortType = "UDP"
 	// TCP port type
 	TCP PortType = "TCP"
+	// PRIVATE Port preference
+	PRIVATE PortPreference = 1 + iota
+	// PUBLIC Port preference
+	PUBLIC
 )
 
 const (
@@ -82,6 +89,7 @@ type ServiceOrchestration struct {
 	ID   string
 	Type OrchestrationType
 	Dims map[string]string
+	PortPref PortPreference 
 }
 
 // ServiceContainer information
@@ -116,8 +124,8 @@ func NewServicePort(ip string, portType string, privatePort uint16, publicPort u
 }
 
 // NewServiceOrchestration constructor
-func NewServiceOrchestration(id string, orchType OrchestrationType, dims map[string]string) *ServiceOrchestration {
-	return &ServiceOrchestration{id, orchType, dims}
+func NewServiceOrchestration(id string, orchType OrchestrationType, dims map[string]string, portPref PortPreference) *ServiceOrchestration {
+	return &ServiceOrchestration{id, orchType, dims, portPref}
 }
 
 // NewServiceContainer constructor
