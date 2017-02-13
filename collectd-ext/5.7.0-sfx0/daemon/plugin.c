@@ -2682,9 +2682,6 @@ void shutdown_clean(void) {
     INFO("plugin_free_data_sets();");
     plugin_free_data_sets();
 
-    // check for cache items
-    clean_internal_cache();
-
     // cleanup variables
     read_loop = 1;
     plugins_loaded = NULL;
@@ -2706,23 +2703,6 @@ void shutdown_clean(void) {
     INFO("done with shutdown clean");
   if (ret != 0) {
         ERROR("error");
-    }
-}
-
-void clean_internal_cache(void) {
-    INFO("IN clean_internal_cache");
-    uc_iter_t *iter;
-    if ((iter = uc_get_iterator()) != NULL) {
-        char *name = NULL;
-        while (uc_iterator_next(iter, &name) == 0) {
-            INFO("internal cached name: %s", name);
-            value_list_t vl;
-              if (parse_identifier_vl(name, &vl) == 0) {
-                  INFO("value");
-                  //uc_meta_data_delete(&vl, name);
-              }
-        }
-        uc_iterator_destroy(iter);
     }
 }
 
