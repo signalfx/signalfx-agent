@@ -428,7 +428,6 @@ void stop_read_threads_clean(void);
 void shutdown_clean(void);
 void plugin_unload(char *plugin_name);
 int plugin_reinit_all(void);
-void clean_internal_cache(void);
 // SIGNALFX_EIM_END
 
 /*
