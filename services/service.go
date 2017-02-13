@@ -86,10 +86,10 @@ type ServicePort struct {
 
 // ServiceOrchestration information
 type ServiceOrchestration struct {
-	ID   string
-	Type OrchestrationType
-	Dims map[string]string
-	PortPref PortPreference 
+	ID       string
+	Type     OrchestrationType
+	Dims     map[string]string
+	PortPref PortPreference
 }
 
 // ServiceContainer information

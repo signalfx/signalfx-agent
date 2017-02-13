@@ -9,6 +9,7 @@ import (
 // Plugin describes a collectd plugin
 type Plugin struct {
 	Name      string
+	Dims      string
 	Host      string
 	Port      uint16
 	Templates []string
@@ -56,7 +57,8 @@ var PLUGINS = map[services.ServiceType]func(string) *Plugin{
 			Config: map[string]interface{}{
 				"ingestUrl": "https://ingest.signalfx.com",
 			},
-			Name: pluginName}
+			Name: pluginName,
+		}
 	},
 	services.ZookeeperService: func(pluginName string) *Plugin {
 		return &Plugin{

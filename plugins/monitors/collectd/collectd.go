@@ -229,6 +229,14 @@ func (collectd *Collectd) createPluginsFromServices(sis services.ServiceInstance
 			continue
 		}
 
+		for key, val := range service.Orchestration.Dims {
+			dim := key + "=" + val
+			if len(plugin.Dims) > 0 {
+				plugin.Dims = plugin.Dims + ","
+			}
+			plugin.Dims = plugin.Dims + dim
+		}
+
 		plugin.Host = service.Port.IP
 		if service.Orchestration.PortPref == services.PRIVATE {
 			plugin.Port = service.Port.PrivatePort
