@@ -41,8 +41,13 @@ TODO
 
 Here is an example of running signalfx-agent for local-docker using a docker compose file to start container and configure the agent.
 
-You must to set the <SignalFx API TOKEN> (and change the ingestUrl if not sending to lab).
-And either set the <Generic Monitor User> and <Generic Monitor Password> to something appropriate for your testing or remove them from your docker-compose.yml.
+Modify the example to work in your dev/test env
+* Set the SIGNALFX_API_TOKEN
+* Change the ingestUrl if you don't want lab
+* Set the SIGNALFX_MONITOR_USER to a test username.  or set to "".
+* Set the SIGNALFX_MONITOR_PASSWORD to a test user password.  or set to "".
+
+docker-compose.yml.
 ```
 version: '2'
 services:
