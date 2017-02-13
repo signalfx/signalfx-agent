@@ -5,8 +5,8 @@ LoadPlugin python
   <Module "{{.Name}}"> 
     Host "{{.Host}}"
     Port "{{.Port}}"
-    User "{{Secret "SIGNALFX_MONGODB_USER"}}"
-    Password "{{Secret "SIGNALFX_MONGODB_PASSWORD"}}"
+    User "{{Secret "SIGNALFX_MONITOR_USER"}}"
+    Password "{{Secret "SIGNALFX_MONITOR_PASSWORD"}}"
     Database "admin"
   </Module>
 </Plugin>
