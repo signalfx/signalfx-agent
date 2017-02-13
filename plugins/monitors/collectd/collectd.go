@@ -19,6 +19,8 @@ import (
 
 	"io/ioutil"
 
+	"encoding/json"
+
 	"github.com/signalfx/neo-agent/plugins"
 	"github.com/signalfx/neo-agent/plugins/monitors/collectd/config"
 	"github.com/signalfx/neo-agent/services"
@@ -44,6 +46,7 @@ type Collectd struct {
 	pluginsDir   string
 	reloadChan   chan int
 	stopChan     chan int
+	templatesMap map[string][]string
 }
 
 // NewCollectd constructor
@@ -56,7 +59,7 @@ func NewCollectd(name string, config *viper.Viper) (*Collectd, error) {
 	// Convert to absolute paths since our cwd can get changed.
 	templatesDir := plugin.Config.GetString("templatesdir")
 	if templatesDir == "" {
-		return nil, errors.New("configuration missing templatesDir entry")
+		return nil, errors.New("config missing templatesDir entry")
 	}
 	templatesDir, err = filepath.Abs(templatesDir)
 	if err != nil {
@@ -65,7 +68,7 @@ func NewCollectd(name string, config *viper.Viper) (*Collectd, error) {
 
 	confFile := plugin.Config.GetString("conffile")
 	if confFile == "" {
-		return nil, errors.New("configuration missing confFile entry")
+		return nil, errors.New("config missing confFile entry")
 	}
 
 	confFile, err = filepath.Abs(confFile)
@@ -78,7 +81,37 @@ func NewCollectd(name string, config *viper.Viper) (*Collectd, error) {
 		return nil, err
 	}
 
-	return &Collectd{plugin, Stopped, nil, templatesDir, confFile, pluginsDir, make(chan int), make(chan int)}, nil
+	templatesMapPath := plugin.Config.GetString("templatesMap")
+	if templatesMapPath == "" {
+		return nil, errors.New("config missing templatesMap entry")
+	}
+
+	templatesMap := map[string][]string{}
+	if err := loadTemplatesMap(templatesMapPath, templatesMap); err != nil {
+		return nil, err
+	}
+
+	return &Collectd{plugin, Stopped, nil, templatesDir, confFile, pluginsDir,
+		make(chan int), make(chan int), templatesMap}, nil
+}
+
+// loadTemplatesMap loads template mapping file from path into templatesMap
+func loadTemplatesMap(path string, templatesMap map[string][]string) error {
+	path, err := filepath.Abs(path)
+	if err != nil {
+		return err
+	}
+
+	data, err := ioutil.ReadFile(path)
+	if err != nil {
+		return err
+	}
+
+	if err = json.Unmarshal(data, &templatesMap); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 // Monitor services from collectd monitor
@@ -198,6 +231,11 @@ func (collectd *Collectd) createPluginsFromServices(sis services.ServiceInstance
 
 		plugin.Host = service.Port.IP
 		plugin.Port = service.Port.PrivatePort
+
+		if templates, ok := collectd.templatesMap[service.Service.Name]; ok {
+			log.Printf("Replacing templates %s with %s for %s", plugin.Templates, templates, service.Service.Name)
+			plugin.Templates = templates
+		}
 
 		plugins = append(plugins, plugin)
 	}
