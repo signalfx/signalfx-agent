@@ -21,7 +21,7 @@ monitors:
                       apiToken: <API TOKEN>
                 - name: docker-default
                   type: docker
-                  configuration:
+                  config:
                       hostUrl: unix:///var/run/docker.sock
 filters:
     service-mapping:
