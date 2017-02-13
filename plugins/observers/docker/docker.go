@@ -65,7 +65,7 @@ func (docker *Docker) Read() (services.ServiceInstances, error) {
 					"container_name":  c.Names[0],
 					"container_image": c.Image,
 				}
-				orchestration := services.NewServiceOrchestration("docker", services.DOCKER, dims)
+				orchestration := services.NewServiceOrchestration("docker", services.DOCKER, dims, services.PUBLIC)
 				si := services.NewServiceInstance(id, service, serviceContainer, orchestration, servicePort, time.Now())
 				instances = append(instances, *si)
 			}

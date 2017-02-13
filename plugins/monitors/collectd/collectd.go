@@ -230,7 +230,11 @@ func (collectd *Collectd) createPluginsFromServices(sis services.ServiceInstance
 		}
 
 		plugin.Host = service.Port.IP
-		plugin.Port = service.Port.PrivatePort
+		if service.Orchestration.PortPref == services.PRIVATE {
+			plugin.Port = service.Port.PrivatePort
+		} else {
+			plugin.Port = service.Port.PublicPort
+		}
 
 		if templates, ok := collectd.templatesMap[service.Service.Name]; ok {
 			log.Printf("Replacing templates %s with %s for %s", plugin.Templates, templates, service.Service.Name)
