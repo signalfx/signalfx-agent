@@ -58,7 +58,7 @@ func (docker *Docker) Read() (services.ServiceInstances, error) {
 		if c.State == "running" {
 			serviceContainer := services.NewServiceContainer(c.ID, c.Names, c.Image, "", c.Command, c.State, c.Labels)
 			for _, port := range c.Ports {
-				servicePort := services.NewServicePort(port.IP, port.Type, uint16(port.PrivatePort), uint16(port.PublicPort))
+				servicePort := services.NewServicePort(port.IP, services.PortType(port.Type), uint16(port.PrivatePort), uint16(port.PublicPort))
 				id := docker.String() + c.ID + "-" + strconv.Itoa(port.PrivatePort)
 				service := services.NewService(id, "unknown")
 				dims := map[string]string{

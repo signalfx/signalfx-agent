@@ -1,0 +1,27 @@
+{
+  "name": "signalfx-defaults",
+  "signatures": [
+    {
+      "name": "apache-image-default",
+      "type": "apache",
+      "rules": [
+        {
+          "comparator": "contains",
+          "path": "ContainerImage",
+          "value": "apache"
+        }
+      ]
+    },
+    {
+      "name": "redis-labeled-default",
+      "type": "redis",
+      "rules": [
+        {
+          "comparator": "eq",
+          "path": "ContainerLabel-signalfx-integration",
+          "value": "redis"
+        }
+      ]
+    }
+  ]
+}

@@ -27,7 +27,9 @@ filters:
     service-mapping:
         type: service-rules
         config:
-            servicesFile: /etc/signalfx/collectd/services.json
+            servicesFiles:
+            - /etc/signalfx/collectd/custom-services.json
+            - /etc/signalfx/collectd/services.json
 
 pipeline:
     default:
