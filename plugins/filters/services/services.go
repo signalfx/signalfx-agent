@@ -13,28 +13,16 @@ import (
 	"github.com/spf13/viper"
 )
 
-// ServiceDiscoveryRule to use as criteria for service identification
-type ServiceDiscoveryRule struct {
-	Comparator string
-	Path       string
-	Value      interface{}
-}
-
-// NewServiceDiscoveryRule constructor
-func NewServiceDiscoveryRule(comparator string, path string, value interface{}) *ServiceDiscoveryRule {
-	return &ServiceDiscoveryRule{comparator, path, value}
-}
-
 // ServiceDiscoveryRuleset that names a set of service discovery rules
 type ServiceDiscoveryRuleset struct {
-	Name  string
-	Type  string
-	Rules []ServiceDiscoveryRule
-}
-
-// NewServiceDiscoveryRuleset constructor
-func NewServiceDiscoveryRuleset(name string, t string) *ServiceDiscoveryRuleset {
-	return &ServiceDiscoveryRuleset{name, t, make([]ServiceDiscoveryRule, 0)}
+	Name string
+	Type string
+	// Rules are criteria for service identification
+	Rules []struct {
+		Comparator string
+		Path       string
+		Value      interface{}
+	}
 }
 
 // ServiceDiscoverySignatures with name
@@ -43,9 +31,39 @@ type ServiceDiscoverySignatures struct {
 	Signatures []ServiceDiscoveryRuleset
 }
 
-// NewServiceDiscoverySignatures constructor
-func NewServiceDiscoverySignatures(name string, signatures []ServiceDiscoveryRuleset) *ServiceDiscoverySignatures {
-	return &ServiceDiscoverySignatures{name, signatures}
+// RuleFilter filters instances based on rules
+type RuleFilter struct {
+	plugins.Plugin
+	serviceRules []*ServiceDiscoverySignatures
+}
+
+// NewRuleFilter creates a new instance
+func NewRuleFilter(name string, config *viper.Viper) (*RuleFilter, error) {
+	var (
+		signatures    []*ServiceDiscoverySignatures
+		servicesFiles []string
+		err           error
+	)
+
+	plugin, err := plugins.NewPlugin(name, config)
+	if err != nil {
+		return nil, err
+	}
+
+	if servicesFiles = plugin.Config.GetStringSlice("servicesfiles"); len(servicesFiles) == 0 {
+		return nil, errors.New("servicesFiles configuration value missing")
+	}
+
+	for _, servicesFile := range servicesFiles {
+		log.Printf("loading service discovery signatures from %s", servicesFile)
+		loaded, err := loadServiceSignatures(servicesFile)
+		if err != nil {
+			return nil, err
+		}
+		signatures = append(signatures, loaded)
+	}
+
+	return &RuleFilter{plugin, signatures}, nil
 }
 
 // loadServiceSignatures reads discovery rules from file
@@ -60,37 +78,6 @@ func loadServiceSignatures(servicesFile string) (*ServiceDiscoverySignatures, er
 		return &signatures, err
 	}
 	return &signatures, nil
-}
-
-// RuleFilter filters instances based on rules
-type RuleFilter struct {
-	plugins.Plugin
-	serviceRules *ServiceDiscoverySignatures
-}
-
-// NewRuleFilter creates a new instance
-func NewRuleFilter(name string, config *viper.Viper) (*RuleFilter, error) {
-	var (
-		signatures   *ServiceDiscoverySignatures
-		servicesFile string
-		err          error
-	)
-
-	plugin, err := plugins.NewPlugin(name, config)
-	if err != nil {
-		return nil, err
-	}
-
-	if servicesFile = plugin.Config.GetString("servicesfile"); servicesFile == "" {
-		return nil, errors.New("servicesFile configuration value missing")
-	}
-
-	log.Printf("loading service discovery signatures from %s", servicesFile)
-	if signatures, err = loadServiceSignatures(servicesFile); err != nil {
-		return nil, err
-	}
-
-	return &RuleFilter{plugin, signatures}, nil
 }
 
 // Matches if service instance satisfies rules
@@ -131,23 +118,27 @@ func matches(si *services.ServiceInstance, ruleset ServiceDiscoveryRuleset) (boo
 
 // Map matches discovered service instances to a plugin type.
 func (filter *RuleFilter) Map(sis services.ServiceInstances) (services.ServiceInstances, error) {
-	servicesDRS := filter.serviceRules.Signatures
-
 	applicableServices := make(services.ServiceInstances, 0, len(sis))
-	for i := range sis {
-		for _, ruleset := range servicesDRS {
-			matches, err := matches(&sis[i], ruleset)
-			if err != nil {
-				return nil, err
-			}
 
-			if matches {
-				// set service name to ruleset name and add as service to monitor
-				sis[i].Service.Name = ruleset.Name
-				// FIXME: what if it's not a known service type?
-				sis[i].Service.Type = services.ServiceType(ruleset.Type)
-				applicableServices = append(applicableServices, sis[i])
-				break
+	// Find the first rule that matches each service instance.
+OUTER:
+	for i := range sis {
+		for _, signature := range filter.serviceRules {
+			for _, ruleset := range signature.Signatures {
+				matches, err := matches(&sis[i], ruleset)
+				if err != nil {
+					return nil, err
+				}
+
+				if matches {
+					// set service name to ruleset name and add as service to monitor
+					sis[i].Service.Name = ruleset.Name
+					// FIXME: what if it's not a known service type?
+					sis[i].Service.Type = services.ServiceType(ruleset.Type)
+					applicableServices = append(applicableServices, sis[i])
+					// Rule found, continue to next service instance.
+					continue OUTER
+				}
 			}
 		}
 	}

@@ -1,0 +1,16 @@
+{
+  "name": "signalfx-custom",
+  "signatures": [
+    {
+      "name": "apache-custom",
+      "type": "apache",
+      "rules": [
+        {
+          "comparator": "contains",
+          "path": "ContainerImage",
+          "value": "apache"
+        }
+      ]
+    }
+  ]
+}

@@ -78,7 +78,7 @@ type Service struct {
 // ServicePort network information
 type ServicePort struct {
 	IP          string
-	Type        string
+	Type        PortType
 	PrivatePort uint16
 	PublicPort  uint16
 	Labels      map[string]string
@@ -119,7 +119,7 @@ func NewService(name string, serviceType ServiceType) *Service {
 }
 
 // NewServicePort constructor
-func NewServicePort(ip string, portType string, privatePort uint16, publicPort uint16) *ServicePort {
+func NewServicePort(ip string, portType PortType, privatePort uint16, publicPort uint16) *ServicePort {
 	return &ServicePort{ip, portType, privatePort, publicPort, make(map[string]string)}
 }
 
