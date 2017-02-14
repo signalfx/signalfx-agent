@@ -110,14 +110,11 @@ RUN ln -s /opt/signalfx-collectd-plugin /usr/share/collectd
 
 # signalfx-agent
 ARG signalfx_agent_version=0.0.1-beta
-ARG signalfx_agent_configurations=etc
-ARG signalfx_agent_bin=bin
 
-COPY $signalfx_agent_configurations/collectd /etc/signalfx/collectd
-COPY $signalfx_agent_configurations/agent.yaml /etc/signalfx/agent.yaml
-COPY $signalfx_agent_bin/signalfx-agent /usr/sbin/signalfx-agent
-COPY $signalfx_agent_bin/libcollectd.so /usr/local/lib/collectd/libcollectd.so
-COPY $signalfx_agent_bin/python.so /usr/lib/collectd/python.so
+COPY etc /etc/signalfx/collectd/
+COPY agent /usr/sbin/signalfx-agent
+COPY libcollectd.so /usr/local/lib/collectd/libcollectd.so
+COPY python.so /usr/lib/collectd/python.so
 
 RUN chmod +x /usr/sbin/signalfx-agent \
     && rm -f /etc/collectd/collectd.conf \
@@ -126,4 +123,3 @@ RUN chmod +x /usr/sbin/signalfx-agent \
 
 # default startup command
 CMD ["/opt/signalfx-imaging/signalfx-agent.sh"]
-

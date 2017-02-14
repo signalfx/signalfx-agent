@@ -1,140 +1,66 @@
 #!/bin/bash
+
 set -ex -o pipefail
 
-AGENT_IMAGE_BUILD_DIR=`mktemp -d`
-BUILD_CONTAINER_ID=""
-BUILD_IMAGE_NAME="agent-builder:latest"
-SRC_ROOT="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-BUILD_BRANCH=${BUILD_BRANCH:-$USER}
-
-LOCAL_BIN="${AGENT_IMAGE_BUILD_DIR}/scripts/agent-image/bin"
-REMOTE_PROJECT="/root/work/neo-agent"
-REMOTE_BIN="$REMOTE_PROJECT/.bin"
+. VERSIONS
+BUILD_TIME=`date +%FT%T%z`
+AGENT_IMAGE_NAME="quay.io/signalfuse/signalfx-agent"
+BUILDER_IMAGE_NAME="agent-builder-image"
 GO_PACKAGES=(
-     'cmd'
-     'pipelines'
-     'plugins'
-     'secrets'
-     'services'
-     'utils'
-   )
+    cmd
+    pipelines
+    plugins
+    secrets
+    services
+    utils
+)
 
-trap cleanup_build_containers EXIT
+# For Jenkins.
+if [ -n "${BASE_DIR}" ] && [ -n "${JOB_NAME}" ]; then
+    SRC_ROOT=${BASE_DIR}/${JOB_NAME}/neo-agent
+else
+    SRC_ROOT=${PWD}
+fi
 
-function run_build_container(){
-    BUILD_CONTAINER_ID=$(docker run \
-    -d \
-    $BUILD_IMAGE_NAME tail -f /dev/null)
+if [ -n "${BUILD_BRANCH}" ]; then
+    TAG=${BUILD_BRANCH}
+else
+    TAG=${USER}
+fi
 
-  echo "$BUILD_CONTAINER_ID"
-}
+BUILD_ROOT=.build
+BUILDER_IMAGE_ROOT=${BUILD_ROOT}/builder-image
+AGENT_IMAGE_ROOT=${BUILD_ROOT}/agent-image
+rm -rf ${BUILD_ROOT}
 
-function stop_build_container(){
+# Create build image with collectd, Go dependencies, and agent build.
+mkdir -p ${BUILDER_IMAGE_ROOT}
+cp scripts/agent-builder-image/Dockerfile ${BUILDER_IMAGE_ROOT}
+cp -r scripts/build-collectd.sh collectd-ext VERSIONS ${BUILDER_IMAGE_ROOT}
 
-  if [ "$BUILD_CONTAINER_ID" != "" ]; then
-    if docker ps | grep -q "$BUILD_CONTAINER_ID"; then
-     docker stop -t 0 $BUILD_CONTAINER_ID
-     echo "container $BUILD_CONTAINER_ID stopped"
-    else
-     echo "container $BUILD_CONTAINER_ID not running (stop_buld_container)"
-    fi
-  else
-    echo "WARN: build container id not set (stop_build_container)"
-  fi
-}
+mkdir -p ${BUILDER_IMAGE_ROOT}/src
+cp glide.{yaml,lock} ${BUILDER_IMAGE_ROOT}
+cp -r ${GO_PACKAGES[@]} ${BUILDER_IMAGE_ROOT}/src
 
-function remove_build_container(){
+# Build the builder image.
+(cd ${BUILDER_IMAGE_ROOT} && docker build \
+    --tag ${BUILDER_IMAGE_NAME}:${TAG} \
+    --build-arg collectd_version="${COLLECTD_VERSION}" \
+    --build-arg build_time="${BUILD_TIME}" .)
 
-  if [ "$BUILD_CONTAINER_ID" != "" ]; then
-    if docker ps -a | grep -q "$BUILD_CONTAINER_ID"; then
-     docker rm -f $BUILD_CONTAINER_ID
-     echo "container $BUILD_CONTAINER_ID removed"
-    else
-     echo "container $BUILD_CONTAINER_ID not found (remove_build_container)"
-    fi
-  else
-    echo "WARN: container id not set (remove_build_container)"
-  fi
-}
+mkdir -p ${AGENT_IMAGE_ROOT}
+# Copy collectd and Go agent binaries into the agent-image staging directory.
+docker run --rm -v ${SRC_ROOT}/${AGENT_IMAGE_ROOT}:/opt/build ${BUILDER_IMAGE_NAME}:${TAG} \
+    bash -c "cp /usr/local/lib/collectd/{libcollectd,python}.so /opt/go/bin/agent /opt/build"
 
-function cleanup_build_containers(){
+cp scripts/agent-image/* ${AGENT_IMAGE_ROOT}
+cp -r etc ${AGENT_IMAGE_ROOT}
 
-  CONTAINERS=$(docker ps -a --filter=ancestor=${BUILD_IMAGE_NAME})
-  while read -r line;
-  do
-    BUILD_CONTAINER_ID=`echo "$line" | awk '{ print $1 }'`
-    if [ "$BUILD_CONTAINER_ID" != "CONTAINER" ]; then
-      stop_build_container
-      remove_build_container
-    fi
-  done <<< "$CONTAINERS"
+# Build final neo-agent image.
+(cd ${AGENT_IMAGE_ROOT} && docker build \
+    --build-arg signalfx_agent_version="$SIGNALFX_AGENT_VERSION" \
+    --tag ${AGENT_IMAGE_NAME}:${TAG} .)
 
-  echo "cleanup completed"
-}
-
-function setup_build_container(){
-
-  run_build_container
-
-  docker cp ${SRC_ROOT}/scripts/build-components.sh $BUILD_CONTAINER_ID:/tmp/build-components.sh
-  docker exec $BUILD_CONTAINER_ID chmod +x /tmp/build-components.sh
-  docker exec $BUILD_CONTAINER_ID mkdir -p $REMOTE_PROJECT
-  docker cp ${SRC_ROOT}/collectd-ext $BUILD_CONTAINER_ID:$REMOTE_PROJECT/collectd-ext
-
-  for pkg in ${GO_PACKAGES[@]}; do
-    docker cp ${SRC_ROOT}/$pkg $BUILD_CONTAINER_ID:$REMOTE_PROJECT/
-  done
-
-  docker cp ${SRC_ROOT}/glide.lock $BUILD_CONTAINER_ID:$REMOTE_PROJECT/
-  docker cp ${SRC_ROOT}/glide.yaml $BUILD_CONTAINER_ID:$REMOTE_PROJECT/
-}
-
-function download_built_artifacts(){
-
-  if [ ! -d "$LOCAL_BIN" ]; then
-    mkdir -p $LOCAL_BIN
-  fi
-
-  docker cp $BUILD_CONTAINER_ID:${REMOTE_BIN}/libcollectd.so ${LOCAL_BIN}/libcollectd.so
-  docker cp $BUILD_CONTAINER_ID:${REMOTE_BIN}/python.so ${LOCAL_BIN}/python.so
-  docker cp $BUILD_CONTAINER_ID:${REMOTE_BIN}/signalfx-agent ${LOCAL_BIN}/signalfx-agent
-}
-
-function build(){
-
-  echo "starting build"
-
-  # setup build dir
-  cp -r ${SRC_ROOT}/scripts $AGENT_IMAGE_BUILD_DIR/
-  cp -r ${SRC_ROOT}/etc ${AGENT_IMAGE_BUILD_DIR}/scripts/agent-image/
-
-  # build agent build image
-  ${AGENT_IMAGE_BUILD_DIR}/scripts/agent-builder-image/build-image.sh
-
-  # setup container for component builds
-  setup_build_container
-
-  # build components
-  docker exec $BUILD_CONTAINER_ID bash -c "PROJECT_DIR=${REMOTE_PROJECT} /tmp/build-components.sh"
-
-  # put built artifacts in bin for agent image build
-  download_built_artifacts
-
-  # remove build containers
-  cleanup_build_containers
-
-  local build_args=(
-    -t "${BUILD_BRANCH}"
-  )
-
-  if [ "$BUILD_PUBLISH" = "True" ]; then
-    build_args+=(--publish)
-  fi
-
-  # build the agent image
-  ${AGENT_IMAGE_BUILD_DIR}/scripts/agent-image/build-image.sh ${build_args[@]}
-
-  echo "done"
-}
-
-build
+if [ "$BUILD_PUBLISH" = True ]; then
+    docker push ${AGENT_IMAGE_NAME}:${TAG}
+fi
