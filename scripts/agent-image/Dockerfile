@@ -111,7 +111,7 @@ RUN ln -s /opt/signalfx-collectd-plugin /usr/share/collectd
 # signalfx-agent
 ARG signalfx_agent_version=0.0.1-beta
 
-COPY etc /etc/signalfx/collectd/
+COPY etc /etc/signalfx/
 COPY agent /usr/sbin/signalfx-agent
 COPY libcollectd.so /usr/local/lib/collectd/libcollectd.so
 COPY python.so /usr/lib/collectd/python.so

@@ -239,10 +239,12 @@ static pthread_t main_thread;
 static PyOS_sighandler_t python_sigint_handler;
 static _Bool do_interactive = 0;
 
-// SIGNALFX_EIM_START
-static _Bool is_eim = 1;
+#ifdef SIGNALFX_EIM
+static _Bool is_reloadable = 1;
 static llist_t *list_loadedmodules;
-// SIGNALFX_EIM_END
+#else
+static _Bool is_reloadable = 0;
+#endif /* SIGNALFX_EIM */
 
 /* This is our global thread state. Python saves some stuff in thread-local
  * storage. So if we allow the interpreter to run in the background
@@ -1408,10 +1410,10 @@ static int cpy_config(oconfig_item_t *ci) {
   return (status);
 }
 
-// SIGNALFX_EIM_START
+// SIGNALFX_EIM start
 
-static int cpy_eim_shutdown(void) {
-  INFO("IN cpy_eim_shutdown");
+static int cpy_reloadable_shutdown(void) {
+  INFO("IN cpy_reloadable_shutdown");
 
   PyObject *ret;
 
@@ -1439,8 +1441,8 @@ static int cpy_eim_shutdown(void) {
   return 0;
 }
 
-static int cpy_eim_init(void) {
-  INFO("IN cpy_eim_init");
+static int cpy_reloadable_init(void) {
+  INFO("IN cpy_reloadable_init");
 
   PyObject *ret;
 
@@ -1464,8 +1466,8 @@ static int cpy_eim_init(void) {
   return 0;
 }
 
-static int cpy_eim_init_python(void) {
-  INFO("IN cpy_eim_init_python");
+static int cpy_reloadable_init_python(void) {
+  INFO("IN cpy_reloadable_init_python");
 
   PyObject *sys;
   PyObject *module;
@@ -1543,8 +1545,8 @@ static int cpy_eim_init_python(void) {
   return 0;
 }
 
-static int cpy_eim_config(oconfig_item_t *ci) {
-  INFO("IN cpy_eim_config");
+static int cpy_reloadable_config(oconfig_item_t *ci) {
+  INFO("IN cpy_reloadable_config");
 
   PyObject *tb;
   int status = 0;
@@ -1556,7 +1558,7 @@ static int cpy_eim_config(oconfig_item_t *ci) {
    * the interpreter here. */
   /* Do *not* use the python "thread" module at this point! */
 
-  if (!Py_IsInitialized() && cpy_eim_init_python())
+  if (!Py_IsInitialized() && cpy_reloadable_init_python())
     return 1;
 
   CPY_LOCK_THREADS
@@ -1760,18 +1762,16 @@ static int cpy_eim_config(oconfig_item_t *ci) {
   return (status);
 }
 
-// SIGNALFX_EIM_END
+// SIGNALFX_EIM end
 
 void module_register(void) {
-    if (is_eim == 1) {
-      // SIGNALFX_EIM
-      plugin_register_complex_config("python", cpy_eim_config);
-      plugin_register_init("python", cpy_eim_init);
-      plugin_register_shutdown("python", cpy_eim_shutdown);
+    if (is_reloadable) {
+        plugin_register_complex_config("python", cpy_reloadable_config);
+        plugin_register_init("python", cpy_reloadable_init);
+        plugin_register_shutdown("python", cpy_reloadable_shutdown);
     } else {
-      // STANDARD
-      plugin_register_complex_config("python", cpy_config);
-      plugin_register_init("python", cpy_init);
-      plugin_register_shutdown("python", cpy_shutdown);
+        plugin_register_complex_config("python", cpy_config);
+        plugin_register_init("python", cpy_init);
+        plugin_register_shutdown("python", cpy_shutdown);
     }
 }
