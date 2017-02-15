@@ -37,6 +37,7 @@ rm -rf ${BUILD_ROOT}
 mkdir -p ${BUILDER_IMAGE_ROOT}
 cp scripts/agent-builder-image/Dockerfile ${BUILDER_IMAGE_ROOT}
 cp -r scripts/build-collectd.sh collectd-ext VERSIONS ${BUILDER_IMAGE_ROOT}
+rm -rf ${BUILDER_IMAGE_ROOT}/collectd-ext/stub
 
 mkdir -p ${BUILDER_IMAGE_ROOT}/src
 cp glide.{yaml,lock} ${BUILDER_IMAGE_ROOT}
