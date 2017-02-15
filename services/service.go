@@ -45,6 +45,8 @@ const (
 	WriteHttpService ServiceType = "writehttp"
 	// ZookeeperService Zookeeper server
 	ZookeeperService ServiceType = "zookeeper"
+	// UnknownService Unknown service
+	UnknownService ServiceType = ""
 )
 
 const (

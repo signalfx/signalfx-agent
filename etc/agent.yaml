@@ -5,6 +5,10 @@ observers:
         type: docker
         config:
             hostUrl: unix:///var/run/docker.sock
+    kubernetes:
+        type: kubernetes
+        config:
+            hostUrl: http://localhost:10250
 
 monitors:
     collectd:
