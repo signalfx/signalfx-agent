@@ -422,13 +422,10 @@ int plugin_notification_meta_copy(notification_t *dst,
 
 int plugin_notification_meta_free(notification_meta_t *n);
 
-// SIGNALFX_EIM_START
-void start_read_threads_clean(int num);
-void stop_read_threads_clean(void);
-void shutdown_clean(void);
-void plugin_unload(char *plugin_name);
-int plugin_reinit_all(void);
-// SIGNALFX_EIM_END
+#ifdef SIGNALFX_EIM
+void plugin_shutdown_for_reload(void);
+int plugin_init_for_reload(void);
+#endif /* SIGNALFX_EIM */
 
 /*
  * Plugin context management.

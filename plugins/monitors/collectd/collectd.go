@@ -336,10 +336,10 @@ func (collectd *Collectd) run() {
 			log.Println("reload collectd plugins requested")
 			collectd.setState(Reloading)
 
-			C.shutdown_clean()
+			C.plugin_shutdown_for_reload()
 			C.plugin_init_ctx()
 			C.cf_read(cConfFile)
-			C.plugin_reinit_all()
+			C.plugin_init_for_reload()
 
 			collectd.setState(Running)
 		}

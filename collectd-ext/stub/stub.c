@@ -11,7 +11,7 @@ void plugin_init_ctx() {}
 int plugin_init_all() { return 0; }
 void plugin_read_all() {}
 int plugin_shutdown_all() { return 0; }
-void shutdown_clean() {}
-int plugin_reinit_all() { return 0; }
+void plugin_shutdown_for_reload() {}
+int plugin_init_for_reload() { return 0; }
 cdtime_t cf_get_default_interval() { return DOUBLE_TO_CDTIME_T(10.0); }
 int cf_read(const char *filename) { return 0; }

@@ -2596,17 +2596,7 @@ int plugin_thread_create(pthread_t *thread, const pthread_attr_t *attr,
 
 #ifdef SIGNALFX_EIM
 
-void start_read_threads_clean(int num) {
-    read_loop = 1;
-    start_read_threads(num);
-}
-
-void stop_read_threads_clean(void) {
-    stop_read_threads();
-    read_threads = NULL;
-}
-
-void shutdown_clean(void) {
+void plugin_shutdown_for_reload(void) {
 
     llentry_t *le;
     int ret = 0; // Assume success.
@@ -2661,25 +2651,16 @@ void shutdown_clean(void) {
      * the free_function to NULL when registering the flush callback and to
      * the real free function when registering the write callback. This way
      * the data isn't freed twice. */
-    INFO("destroy_all_callbacks(&list_flush);");
     destroy_all_callbacks(&list_flush);
-    INFO("destroy_all_callbacks(&list_missing);");
     destroy_all_callbacks(&list_missing);
-    INFO("destroy_all_callbacks(&list_write);");
     destroy_all_callbacks(&list_write);
 
-    INFO("destroy_all_callbacks(&list_notification);");
     destroy_all_callbacks(&list_notification);
-    INFO("destroy_all_callbacks(&list_shutdown);");
     destroy_all_callbacks(&list_shutdown);
-    //INFO("destroy_all_callbacks(&list_log);");
     //destroy_all_callbacks(&list_log);
-    INFO("destroy_all_callbacks(&list_init);");
     destroy_all_callbacks(&list_init);
 
-    INFO("plugin_free_loaded();");
     plugin_free_loaded();
-    INFO("plugin_free_data_sets();");
     plugin_free_data_sets();
 
     // cleanup variables
@@ -2700,17 +2681,22 @@ void shutdown_clean(void) {
     stats_values_dropped = 0;
     record_statistics = 0;
 
-    INFO("done with shutdown clean");
+    fc_destroy_all();
+    uc_destroy();
+    cf_destroy_all();
+
   if (ret != 0) {
         ERROR("error");
     }
 }
 
-int plugin_reinit_all(void) {
+int plugin_init_for_reload(void) {
   char const *chain_name;
   llentry_t *le;
   int status;
   int ret = 0;
+
+  uc_init();
 
   if (IS_TRUE(global_option_get("CollectInternalStats")))
     record_statistics = 1;
