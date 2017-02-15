@@ -6,6 +6,7 @@ set -ex -o pipefail
 BUILD_TIME=`date +%FT%T%z`
 AGENT_IMAGE_NAME="quay.io/signalfuse/signalfx-agent"
 BUILDER_IMAGE_NAME="agent-builder-image"
+PROJECT_DIR=${PROJECT_DIR:-${PWD}}
 GO_PACKAGES=(
     cmd
     pipelines
@@ -35,8 +36,8 @@ rm -rf ${BUILD_ROOT}
 
 # Create build image with collectd, Go dependencies, and agent build.
 mkdir -p ${BUILDER_IMAGE_ROOT}
-cp scripts/agent-builder-image/Dockerfile ${BUILDER_IMAGE_ROOT}
-cp -r scripts/build-collectd.sh collectd-ext VERSIONS ${BUILDER_IMAGE_ROOT}
+cp ${PROJECT_DIR}/scripts/agent-builder-image/Dockerfile ${BUILDER_IMAGE_ROOT}
+cp -r ${PROJECT_DIR}/scripts/build-collectd.sh collectd-ext VERSIONS ${BUILDER_IMAGE_ROOT}
 rm -rf ${BUILDER_IMAGE_ROOT}/collectd-ext/stub
 
 mkdir -p ${BUILDER_IMAGE_ROOT}/src
@@ -54,7 +55,7 @@ mkdir -p ${AGENT_IMAGE_ROOT}
 docker run --rm -v ${SRC_ROOT}/${AGENT_IMAGE_ROOT}:/opt/build ${BUILDER_IMAGE_NAME}:${TAG} \
     bash -c "cp /usr/local/lib/collectd/{libcollectd,python}.so /opt/go/bin/agent /opt/build"
 
-cp scripts/agent-image/* ${AGENT_IMAGE_ROOT}
+cp ${PROJECT_DIR}/scripts/agent-image/* ${AGENT_IMAGE_ROOT}
 cp -r etc ${AGENT_IMAGE_ROOT}
 
 # Build final neo-agent image.

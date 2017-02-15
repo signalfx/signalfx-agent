@@ -6,7 +6,7 @@ test:
 
 .PHONY: image
 image:
-	./build.sh
+	./scripts/build.sh
 
 .PHONY: run-image
 run-image:

@@ -14,7 +14,7 @@ system identifiers.
 
 ## Build Image From Source
 
-Run `build.sh`
+Run `make image`
 
 
 ## Run Agent Container
@@ -95,7 +95,9 @@ services:
           service-mapping:
               type: service-rules
               config:
-                  servicesFile: /etc/signalfx/collectd/services.json
+                  servicesFiles:
+                  - /etc/signalfx/collectd/custom-services.json
+                  - /etc/signalfx/collectd/services.json
       pipeline:
           default:
           - local-docker
@@ -103,4 +105,4 @@ services:
           - collectd
 ```
 
-Note: Make sure to expose your local-docker container ports so they can be reached (required for local-docker only). 
+Note: Make sure to expose your local-docker container ports so they can be reached (required for local-docker only).
