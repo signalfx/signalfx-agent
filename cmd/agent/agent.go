@@ -12,6 +12,7 @@ import (
 	"github.com/signalfx/neo-agent/pipelines"
 	"github.com/signalfx/neo-agent/plugins"
 	"github.com/signalfx/neo-agent/plugins/filters"
+	"github.com/signalfx/neo-agent/plugins/filters/debug"
 	"github.com/signalfx/neo-agent/plugins/filters/services"
 	"github.com/signalfx/neo-agent/plugins/monitors"
 	"github.com/signalfx/neo-agent/plugins/monitors/collectd"
@@ -146,6 +147,12 @@ func (agent *Agent) Configure(configfile string) error {
 		switch plugin.Type {
 		case filters.ServiceRules:
 			if filter, err := services.NewRuleFilter(plugin.Name, configuration); err == nil {
+				agent.plugins = append(agent.plugins, filter)
+			} else {
+				return err
+			}
+		case filters.Debug:
+			if filter, err := debug.NewDebugFilter(plugin.Name, configuration); err == nil {
 				agent.plugins = append(agent.plugins, filter)
 			} else {
 				return err
