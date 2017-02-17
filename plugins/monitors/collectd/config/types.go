@@ -66,7 +66,7 @@ var PLUGINS = map[services.ServiceType]func(string) *Plugin{
 			Host:      "localhost",
 			Port:      2181}
 	},
-	services.WriteHttpService: func(pluginName string) *Plugin {
+	services.WriteHTTPService: func(pluginName string) *Plugin {
 		return &Plugin{
 			Templates: []string{
 				"write-http.conf.tmpl"},
