@@ -15,6 +15,10 @@ monitors:
             templatesMap: /etc/signalfx/collectd/templates.json
             pluginsDir: /usr/share/collectd
             staticPlugins:
+                - name: writehttp-default
+                  type: writehttp
+                  config:
+                      apiToken: <API TOKEN>
                 - name: signalfx-default
                   type: signalfx
                   config:

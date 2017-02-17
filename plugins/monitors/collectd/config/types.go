@@ -52,8 +52,7 @@ var PLUGINS = map[services.ServiceType]func(string) *Plugin{
 	services.SignalfxService: func(pluginName string) *Plugin {
 		return &Plugin{
 			Templates: []string{
-				"signalfx.conf.tmpl",
-				"write-http.conf.tmpl"},
+				"signalfx.conf.tmpl"},
 			Config: map[string]interface{}{
 				"ingestUrl": "https://ingest.signalfx.com",
 			},
@@ -66,6 +65,16 @@ var PLUGINS = map[services.ServiceType]func(string) *Plugin{
 			Name:      pluginName,
 			Host:      "localhost",
 			Port:      2181}
+	},
+	services.WriteHttpService: func(pluginName string) *Plugin {
+		return &Plugin{
+			Templates: []string{
+				"write-http.conf.tmpl"},
+			Config: map[string]interface{}{
+				"ingestUrl": "https://ingest.signalfx.com",
+			},
+			Name: pluginName,
+		}
 	},
 }
 

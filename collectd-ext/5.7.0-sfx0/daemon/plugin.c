@@ -2681,7 +2681,6 @@ void plugin_shutdown_for_reload(void) {
     stats_values_dropped = 0;
     record_statistics = 0;
 
-    fc_destroy_all();
     uc_destroy();
     cf_destroy_all();
 

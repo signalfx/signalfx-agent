@@ -201,8 +201,6 @@ func main() {
 		}
 
 		tick := func() {
-			log.Print("executing pipeline")
-
 			if err := agent.pipeline.Execute(); err != nil {
 				log.Printf("pipeline execute failed: %s", err)
 			}

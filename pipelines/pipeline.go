@@ -5,8 +5,6 @@ import (
 
 	"fmt"
 
-	"log"
-
 	"github.com/signalfx/neo-agent/plugins"
 	"github.com/signalfx/neo-agent/services"
 )
@@ -73,17 +71,14 @@ func (pipeline *Pipeline) Execute() error {
 		// TODO - send cloned observer results to each sink/source?
 		switch t := s.(type) {
 		case Source:
-			log.Printf("reading source %s", t)
 			if services, err = t.Read(); err != nil {
 				return err
 			}
 		case Sink:
-			log.Printf("writing source %s", t)
 			if err := t.Write(services); err != nil {
 				return err
 			}
 		case SourceSink:
-			log.Printf("reading/writing source %s", t)
 			if services, err = t.Map(services); err != nil {
 				return err
 			}
