@@ -83,6 +83,10 @@ services:
                   templatesMap: /etc/signalfx/collectd/templates.json
                   pluginsDir: /usr/share/collectd
                   staticPlugins:
+                      - name: writehttp-default
+                        type: writehttp
+                        config:
+                            ingestUrl: http://lab-ingest.corp.signalfuse.com:8080
                       - name: signalfx-default
                         type: signalfx
                         config:

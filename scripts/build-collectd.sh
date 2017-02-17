@@ -59,3 +59,4 @@ cd ${COLLECTD_LIB_DIR}
 
 $SUDO gcc -shared -o libcollectd.so collectd-collectd.o collectd-meta_data.o collectd-utils_cache.o collectd-utils_llist.o collectd-utils_threshold.o collectd-configfile.o collectd-plugin.o collectd-utils_complain.o collectd-utils_random.o collectd-utils_time.o utils_avltree.o collectd-filter_chain.o collectd-types_list.o collectd-utils_ignorelist.o collectd-utils_subst.o common.o utils_heap.o oconfig.o parser.o scanner.o -ldl -lltdl -lpthread -lm
 $SUDO cp ${BASE_DIR}/collectd-collectd-${COLLECTD_VERSION}/src/.libs/python.so ${COLLECTD_LIB_DIR}
+$SUDO cp ${BASE_DIR}/collectd-collectd-${COLLECTD_VERSION}/src/.libs/aggregation.so ${COLLECTD_LIB_DIR}

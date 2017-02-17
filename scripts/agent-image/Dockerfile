@@ -115,6 +115,7 @@ COPY etc /etc/signalfx/
 COPY agent /usr/sbin/signalfx-agent
 COPY libcollectd.so /usr/local/lib/collectd/libcollectd.so
 COPY python.so /usr/lib/collectd/python.so
+COPY aggregation.so /usr/lib/collectd/aggregation.so
 
 RUN chmod +x /usr/sbin/signalfx-agent \
     && rm -f /etc/collectd/collectd.conf \

@@ -41,6 +41,8 @@ const (
 	SignalfxService ServiceType = "signalfx"
 	// VarnishService Varnish cache
 	VarnishService ServiceType = "varnish"
+	// WriteHttpService Write http
+	WriteHttpService ServiceType = "writehttp"
 	// ZookeeperService Zookeeper server
 	ZookeeperService ServiceType = "zookeeper"
 )
