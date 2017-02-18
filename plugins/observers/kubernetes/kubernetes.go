@@ -83,7 +83,7 @@ func NewKubernetes(name string, config *viper.Viper) (*Kubernetes, error) {
 }
 
 // Map adds additional data from the kubelet into instances
-func (k *Kubernetes) Map(sis services.ServiceInstances) (services.ServiceInstances, error) {
+func (k *Kubernetes) Map(sis services.Instances) (services.Instances, error) {
 	transport := &http.Transport{
 		TLSClientConfig: &tls.Config{
 			InsecureSkipVerify: k.Config.GetBool("ignoretlsverify"),
@@ -128,8 +128,8 @@ func (k *Kubernetes) Map(sis services.ServiceInstances) (services.ServiceInstanc
 
 // doMap takes a list of service instance and applies information discovered
 // from Kubernetes for matching containers
-func (k *Kubernetes) doMap(sis services.ServiceInstances, pods *pods) (services.ServiceInstances, error) {
-	var instances services.ServiceInstances
+func (k *Kubernetes) doMap(sis services.Instances, pods *pods) (services.Instances, error) {
+	var instances services.Instances
 
 	for _, pod := range pods.Items {
 		podIP := pod.Status.PodIP
@@ -150,7 +150,7 @@ func (k *Kubernetes) doMap(sis services.ServiceInstances, pods *pods) (services.
 				"kubernetes_pod_namespace": pod.Metadata.Namespace,
 				"kubernetes_node":          pod.Spec.NodeName,
 			}
-			orchestration := services.NewServiceOrchestration("kubernetes", services.KUBERNETES, dims, services.PRIVATE)
+			orchestration := services.NewOrchestration("kubernetes", services.KUBERNETES, dims, services.PRIVATE)
 
 			for _, port := range container.Ports {
 				for _, status := range pod.Status.ContainerStatuses {
@@ -168,11 +168,11 @@ func (k *Kubernetes) doMap(sis services.ServiceInstances, pods *pods) (services.
 
 					id := fmt.Sprintf("%s-%s-%d", k.String(), pod.Metadata.Name, port.ContainerPort)
 					service := services.NewService(id, services.UnknownService)
-					servicePort := services.NewServicePort(podIP, port.Protocol, port.ContainerPort, 0)
-					container := services.NewServiceContainer(status.ContainerID,
+					servicePort := services.NewPort(podIP, port.Protocol, port.ContainerPort, 0)
+					container := services.NewContainer(status.ContainerID,
 						[]string{status.Name}, container.Image, pod.Metadata.Name, "",
 						containerState, pod.Metadata.Labels)
-					instances = append(instances, *services.NewServiceInstance(id, service, container,
+					instances = append(instances, *services.NewInstance(id, service, container,
 						orchestration, servicePort, now()))
 				}
 			}

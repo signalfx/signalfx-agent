@@ -11,17 +11,17 @@ import (
 
 // Source is an interface that only produces service instances
 type Source interface {
-	Read() (services.ServiceInstances, error)
+	Read() (services.Instances, error)
 }
 
 // Sink is an interface that only consumes service instances
 type Sink interface {
-	Write(services.ServiceInstances) error
+	Write(services.Instances) error
 }
 
 // SourceSink is an interface that consumes and products service instances
 type SourceSink interface {
-	Map(services.ServiceInstances) (services.ServiceInstances, error)
+	Map(services.Instances) (services.Instances, error)
 }
 
 // Pipeline is a series of sink/source plugins to execute in a specific order
@@ -55,7 +55,7 @@ func NewPipeline(name string, pluginNames []string, plugins []plugins.IPlugin) (
 
 // Execute runs steps sequentially in the pipeline (returns after all stages have been run once)
 func (pipeline *Pipeline) Execute() error {
-	var services services.ServiceInstances
+	var services services.Instances
 	var err error
 
 	for i, s := range pipeline.plugins {

@@ -25,7 +25,7 @@ func NewFilter(name string, config *viper.Viper) (*Filter, error) {
 }
 
 // Map prints the input
-func (d *Filter) Map(sis services.ServiceInstances) (services.ServiceInstances, error) {
+func (d *Filter) Map(sis services.Instances) (services.Instances, error) {
 	if bytes, err := json.MarshalIndent(sis, "", "  "); err == nil {
 		log.Printf("Debug:\n%s", string(bytes))
 	}

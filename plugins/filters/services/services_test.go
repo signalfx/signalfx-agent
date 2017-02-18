@@ -9,17 +9,17 @@ import (
 )
 
 // May want to share these fixtures in the future with new tests.
-var discoveredApache = services.ServiceInstance{
+var discoveredApache = services.Instance{
 	ID: "test-instance",
 	Service: &services.Service{
 		Name: "default",
 	},
-	Container: &services.ServiceContainer{
+	Container: &services.Container{
 		Names:  []string{"apache"},
 		Image:  "apache",
 		Labels: map[string]string{},
 	},
-	Port: &services.ServicePort{
+	Port: &services.Port{
 		IP:          "localhost",
 		Type:        services.TCP,
 		PrivatePort: 80,
@@ -27,17 +27,17 @@ var discoveredApache = services.ServiceInstance{
 	},
 }
 
-var discoveredRedis = services.ServiceInstance{
+var discoveredRedis = services.Instance{
 	ID: "test-instance",
 	Service: &services.Service{
 		Name: "default",
 	},
-	Container: &services.ServiceContainer{
+	Container: &services.Container{
 		Names:  []string{"redis"},
 		Image:  "unknown",
 		Labels: map[string]string{"signalfx-integration": "redis"},
 	},
-	Port: &services.ServicePort{
+	Port: &services.Port{
 		IP:          "localhost",
 		Type:        services.TCP,
 		PrivatePort: 3689,
@@ -102,7 +102,7 @@ func TestNewRuleFilter(t *testing.T) {
 
 func TestRuleFilter_Map(t *testing.T) {
 	// Has to be an empty slice and not just nil for the DeepEqual comparison to work.
-	sis := make(services.ServiceInstances, 0)
+	sis := make(services.Instances, 0)
 
 	makeFilter := func(files ...string) *RuleFilter {
 		v := viper.New()
@@ -120,20 +120,20 @@ func TestRuleFilter_Map(t *testing.T) {
 	defaultRules := makeFilter("testdata/defaults.json")
 
 	type args struct {
-		sis services.ServiceInstances
+		sis services.Instances
 	}
 	tests := []struct {
 		name    string
 		filter  *RuleFilter
 		args    args
-		want    services.ServiceInstances
+		want    services.Instances
 		wantErr bool
 	}{
 		{"empty rules", emptyRules, args{sis}, sis, false},
-		{"custom rule wins", customRules, args{services.ServiceInstances{discoveredApache}},
-			services.ServiceInstances{apacheCustom}, false},
-		{"default rules match", defaultRules, args{services.ServiceInstances{discoveredApache, discoveredRedis}},
-			services.ServiceInstances{apacheImageMapped, redisLabelMapped}, false},
+		{"custom rule wins", customRules, args{services.Instances{discoveredApache}},
+			services.Instances{apacheCustom}, false},
+		{"default rules match", defaultRules, args{services.Instances{discoveredApache, discoveredRedis}},
+			services.Instances{apacheImageMapped, redisLabelMapped}, false},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
