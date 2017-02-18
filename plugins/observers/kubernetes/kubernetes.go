@@ -83,11 +83,9 @@ func NewKubernetes(name string, config *viper.Viper) (*Kubernetes, error) {
 
 // Map adds additional data from the kubelet into instances
 func (k *Kubernetes) Map(sis services.ServiceInstances) (services.ServiceInstances, error) {
-	// TODO: check that this is the right way to configure TLS
 	transport := &http.Transport{
 		TLSClientConfig: &tls.Config{
-			// FIXME: Configure CA certs
-			InsecureSkipVerify: true,
+			InsecureSkipVerify: k.Config.GetBool("ignoretlsverify"),
 		},
 	}
 	client := http.Client{

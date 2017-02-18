@@ -9,6 +9,8 @@ observers:
         type: kubernetes
         config:
             hostUrl: http://localhost:10250
+            # Whether to ignore SSL certification validation errors.
+            # ignoreTLSVerify: false
 
 monitors:
     collectd:
