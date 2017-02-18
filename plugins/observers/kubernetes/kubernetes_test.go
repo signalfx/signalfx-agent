@@ -52,10 +52,17 @@ func Test_load(t *testing.T) {
 }
 
 func TestKubernetes_doMap(t *testing.T) {
-	var input *pods
+	var running, nonRunningContainer *pods
 	var expected services.ServiceInstances
-	neotest.LoadJSON(t, "testdata/pods.json", &input)
+	neotest.LoadJSON(t, "testdata/pods.json", &running)
+	neotest.LoadJSON(t, "testdata/pods.json", &nonRunningContainer)
 	neotest.LoadJSON(t, "testdata/2-discovered.json", &expected)
+
+	// Make container non-running
+	nonRunningContainer.Items = nonRunningContainer.Items[:1]
+	containerState := nonRunningContainer.Items[0].Status.ContainerStatuses[0].State
+	containerState["waiting"] = struct{}{}
+	delete(containerState, "running")
 
 	// Set time.Now() to fixed value.
 	now = neotest.FixedTime
@@ -84,7 +91,8 @@ func TestKubernetes_doMap(t *testing.T) {
 		wantErr  bool
 	}{
 		{"zero instances", k, args{nil, &pods{}}, nil, false},
-		{"two kubernetes only instances", k, args{nil, input}, expected, false},
+		{"two kubernetes only instances", k, args{nil, running}, expected, false},
+		{"container status is not running", k, args{nil, nonRunningContainer}, nil, false},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

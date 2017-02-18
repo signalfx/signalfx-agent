@@ -13,7 +13,7 @@
       "Image": "gcr.io/google_containers/kubernetes-dashboard-amd64:v1.5.1",
       "Pod": "kubernetes-dashboard-v1.5.1-5zg3f",
       "Command": "",
-      "State": "Running",
+      "State": "running",
       "Labels": {
         "k8s-app": "kubernetes-dashboard",
         "kubernetes.io/cluster-service": "true",
@@ -55,7 +55,7 @@
       "Image": "redis:latest",
       "Pod": "redis-3165242388-n1vc7",
       "Command": "",
-      "State": "Running",
+      "State": "running",
       "Labels": {
         "app": "redis",
         "pod-template-hash": "3165242388",

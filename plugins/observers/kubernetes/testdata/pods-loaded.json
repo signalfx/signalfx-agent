@@ -32,7 +32,10 @@
                 "ContainerStatuses": [
                     {
                         "Name": "redis",
-                        "ContainerID": "docker://e4e642986f4117063b5dd3bfeb72f7229eb25da94d4d7040c67c40b26877872e"
+                        "ContainerID": "docker://e4e642986f4117063b5dd3bfeb72f7229eb25da94d4d7040c67c40b26877872e",
+                        "State": {
+                            "running": {}
+                        }
                     }
                 ]
             }
@@ -69,7 +72,10 @@
                 "ContainerStatuses": [
                     {
                         "Name": "kubernetes-dashboard",
-                        "ContainerID": "docker://972b75d8b5c0216a7abe599f9f0e4005143f0aa1bfad265762297f4639058763"
+                        "ContainerID": "docker://972b75d8b5c0216a7abe599f9f0e4005143f0aa1bfad265762297f4639058763",
+                        "State": {
+                            "running": {}
+                        }
                     }
                 ]
             }

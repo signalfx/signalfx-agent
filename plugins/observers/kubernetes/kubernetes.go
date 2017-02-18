@@ -62,6 +62,7 @@ type pods struct {
 			ContainerStatuses []struct {
 				Name        string
 				ContainerID string
+				State       map[string]struct{}
 			}
 		}
 	}
@@ -132,12 +133,12 @@ func (k *Kubernetes) doMap(sis services.ServiceInstances, pods *pods) (services.
 
 	for _, pod := range pods.Items {
 		podIP := pod.Status.PodIP
-		if len(podIP) == 0 {
-			log.Printf("error: %s missing pod IP", pod.Metadata.Name)
+		if pod.Status.Phase != runningPhase {
 			continue
 		}
 
-		if pod.Status.Phase != runningPhase {
+		if len(podIP) == 0 {
+			log.Printf("error: %s missing pod IP", pod.Metadata.Name)
 			continue
 		}
 
@@ -153,7 +154,15 @@ func (k *Kubernetes) doMap(sis services.ServiceInstances, pods *pods) (services.
 
 			for _, port := range container.Ports {
 				for _, status := range pod.Status.ContainerStatuses {
+					// Could possibly be made more efficient by creating maps
+					// keyed by name to match up container status and ports.
 					if container.Name != status.Name {
+						continue
+					}
+
+					containerState := "running"
+					if _, ok := status.State[containerState]; !ok {
+						// Container is not running.
 						continue
 					}
 
@@ -162,15 +171,12 @@ func (k *Kubernetes) doMap(sis services.ServiceInstances, pods *pods) (services.
 					servicePort := services.NewServicePort(podIP, port.Protocol, port.ContainerPort, 0)
 					container := services.NewServiceContainer(status.ContainerID,
 						[]string{status.Name}, container.Image, pod.Metadata.Name, "",
-						// XXX: Might not be the right status (there's container status and pod status)
-						string(pod.Status.Phase), pod.Metadata.Labels)
-
-					// XXX: * doesn't seem right...
-					instances = append(instances, *services.NewServiceInstance(id, service, container, orchestration, servicePort, now()))
+						containerState, pod.Metadata.Labels)
+					instances = append(instances, *services.NewServiceInstance(id, service, container,
+						orchestration, servicePort, now()))
 				}
 			}
 		}
-
 	}
 
 	sort.Sort(instances)
