@@ -59,12 +59,10 @@ func (pipeline *Pipeline) Execute() error {
 	var err error
 
 	for i, s := range pipeline.plugins {
-		// Verify that the first entry in the pipeline is a source.
+		// Verify that the first entry in the pipeline isn't a a sink.
 		if i == 0 {
-			switch s.(type) {
-			case Source:
-			default:
-				return errors.New("first entry in pipeline must be a source")
+			if _, ok := s.(Sink); ok {
+				return errors.New("first entry in pipeline must be a source or a source/sink")
 			}
 		}
 

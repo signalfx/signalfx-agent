@@ -4,6 +4,10 @@ RUN_CONTAINER := neo-agent-tmp
 test:
 	go test `glide novendor`
 
+.PHONY: lint
+lint:
+	golint -set_exit_status `glide novendor`
+
 .PHONY: image
 image:
 	./scripts/build.sh

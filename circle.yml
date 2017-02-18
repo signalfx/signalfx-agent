@@ -20,7 +20,4 @@ dependencies:
 
 test:
     override:
-    - go get github.com/tebeka/go2xunit
-    - mkdir -p $CIRCLE_TEST_REPORTS/reports
-    - go test -v `glide novendor` | go2xunit > $CIRCLE_TEST_REPORTS/reports/unit.xml:
-        pwd: ../.go_workspace/src/github.com/signalfx/neo-agent
+    - scripts/circle.sh test

@@ -29,9 +29,9 @@ else
 fi
 
 mkdir -p ${BASE_DIR}
-mkdir -p ${COLLECTD_LIB_DIR}
-mkdir -p ${COLLECTD_INCLUDE_DIR}
-mkdir -p ${COLLECTD_INCLUDE_DIR}/liboconfig
+$SUDO mkdir -p ${COLLECTD_LIB_DIR}
+$SUDO mkdir -p ${COLLECTD_INCLUDE_DIR}
+$SUDO mkdir -p ${COLLECTD_INCLUDE_DIR}/liboconfig
 
 cd ${BASE_DIR}
 

@@ -18,6 +18,7 @@ import (
 	"github.com/signalfx/neo-agent/plugins/monitors/collectd"
 	"github.com/signalfx/neo-agent/plugins/observers"
 	"github.com/signalfx/neo-agent/plugins/observers/docker"
+	"github.com/signalfx/neo-agent/plugins/observers/kubernetes"
 	"github.com/signalfx/neo-agent/utils"
 	"github.com/spf13/viper"
 	"golang.org/x/net/context"
@@ -119,6 +120,12 @@ func (agent *Agent) Configure(configfile string) error {
 			} else {
 				return err
 			}
+		case observers.Kubernetes:
+			if observer, err := kubernetes.NewKubernetes(plugin.Name, configuration); err == nil {
+				agent.plugins = append(agent.plugins, observer)
+			} else {
+				return err
+			}
 		}
 	}
 
@@ -152,7 +159,7 @@ func (agent *Agent) Configure(configfile string) error {
 				return err
 			}
 		case filters.Debug:
-			if filter, err := debug.NewDebugFilter(plugin.Name, configuration); err == nil {
+			if filter, err := debug.NewFilter(plugin.Name, configuration); err == nil {
 				agent.plugins = append(agent.plugins, filter)
 			} else {
 				return err
