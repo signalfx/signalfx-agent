@@ -10,3 +10,5 @@ import:
 - package: golang.org/x/net
   subpackages:
   - context
+testImport:
+- package: github.com/kr/pretty

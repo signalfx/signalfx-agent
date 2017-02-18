@@ -1,5 +1,5 @@
-hash: 33aa5fdfdf4af41a8207c1c66ea059059ed7bb5cf843130e2b311e82068ec3ba
-updated: 2017-01-30T01:42:33.204972234-05:00
+hash: 0ab1fea884a7bc90b0407e817c15832af3f7d30d9e21b4ed7c3a4e4ac1e6cf38
+updated: 2017-02-17T20:11:51.345934183-05:00
 imports:
 - name: github.com/docker/distribution
   version: fb0bebc4b64e3881cc52a2478d749845ed76d2a8
@@ -91,4 +91,8 @@ imports:
   - unicode/norm
 - name: gopkg.in/yaml.v2
   version: 4c78c975fe7c825c6d1466c42be594d1d6f3aba6
-testImports: []
+testImports:
+- name: github.com/kr/pretty
+  version: cfb55aafdaf3ec08f0db22699ab822c50091b1c4
+- name: github.com/kr/text
+  version: 7cafcd837844e784b526369c9bce262804aebc60
