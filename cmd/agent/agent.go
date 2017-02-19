@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"flag"
 	"fmt"
 	"log"
@@ -31,10 +32,20 @@ var (
 	BuiltTime string
 	// CollectdVersion embedded in agent
 	CollectdVersion string
+
+	// envReplacer replaces . and - with _
+	envReplacer = strings.NewReplacer(".", "_", "-", "_")
 )
 
-// DefaultInterval is used if not configured
-const DefaultInterval = 10
+const (
+	// DefaultInterval is used if not configured
+	DefaultInterval = 10
+	// DefaultPipeline is used if not configured
+	DefaultPipeline = "docker"
+
+	// envPrefix is the environment variable prefix
+	envPrefix = "SFX"
+)
 
 // Agent for monitoring host/service metrics
 type Agent struct {
@@ -89,7 +100,15 @@ func loadSubConfigs(name string) (map[pluginConfig]*viper.Viper, error) {
 			return nil, fmt.Errorf("%s is missing type", viperKey)
 		}
 
+		// This allows a configuration variable foo.bar to be overridable by
+		// SFX_FOO_BAR=value.
 		config := s.Sub("config")
+		config.AutomaticEnv()
+		config.SetEnvKeyReplacer(envReplacer)
+		config.SetEnvPrefix(envReplacer.Replace(
+			strings.ToUpper(
+				fmt.Sprintf("%s_%s.%s", envPrefix, viperKey, "config"))))
+
 		ret[pluginConfig{key, typ}] = config
 	}
 
@@ -99,8 +118,13 @@ func loadSubConfigs(name string) (map[pluginConfig]*viper.Viper, error) {
 // Configure an agent using configuration file
 func (agent *Agent) Configure(configfile string) error {
 	viper.SetDefault("interval", DefaultInterval)
+	viper.SetDefault("pipeline", DefaultPipeline)
 
+	viper.AutomaticEnv()
+	viper.SetEnvKeyReplacer(envReplacer)
+	viper.SetEnvPrefix(envPrefix)
 	viper.SetConfigFile(configfile)
+
 	if err := viper.ReadInConfig(); err != nil {
 		return err
 	}
@@ -167,9 +191,19 @@ func (agent *Agent) Configure(configfile string) error {
 		}
 	}
 
-	if agent.pipeline, err = pipelines.NewPipeline("default", viper.GetStringSlice("pipeline.default"), agent.plugins); err != nil {
+	pipelineName := viper.GetString("pipeline")
+	if len(pipelineName) == 0 {
+		return errors.New("pipeline not set")
+	}
+	pipeline := viper.GetStringSlice("pipelines." + pipelineName)
+	if len(pipeline) == 0 {
+		return fmt.Errorf("%s pipeline is missing or empty", pipelineName)
+	}
+
+	if agent.pipeline, err = pipelines.NewPipeline(pipelineName, pipeline, agent.plugins); err != nil {
 		return err
 	}
+	log.Printf("configured %s pipeline", pipelineName)
 
 	return nil
 }
