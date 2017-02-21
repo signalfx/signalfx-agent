@@ -6,9 +6,10 @@
   ModulePath "{{Globals.PluginRoot}}/redis-collectd-plugin"
   Import "redis_info"
 
-  <Module "{{.Name}}[{{.Dims}}"]>
+  <Module redis_info>
     Host "{{.Host}}"
     Port {{.Port}}
+    Instance "{{.Name}}[{{.Dims}}]"
     # Un-comment to use AUTH
     #Auth "1234"
     Verbose false
