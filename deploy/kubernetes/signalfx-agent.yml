@@ -1,0 +1,42 @@
+apiVersion: extensions/v1beta1
+kind: DaemonSet
+metadata:
+    name: signalfx-agent
+    labels:
+        version: v0.1.0
+        app: signalfx-agent
+spec:
+    selector:
+        matchLabels:
+            app: signalfx-agent
+    template:
+        metadata:
+            labels:
+                app: signalfx-agent
+                version: v0.1.0
+        spec:
+            imagePullSecrets:
+            - name: quay-pull-secret
+            containers:
+            - name: signalfx-agent
+              # XXX: This has to be Always when a tag that isn't latest is
+              # changed, such as with dev builds. For released versions tags
+              # never change so the image never needs to be repulled.
+              imagePullPolicy: Always
+              image: quay.io/signalfuse/signalfx-agent:master
+              env:
+              - name: KUBERNETES_NODE_NAME
+                valueFrom:
+                    fieldRef:
+                        fieldPath: spec.nodeName
+              - name: SFX_OBSERVERS_KUBERNETES_CONFIG_HOSTURL
+                value: https://$(KUBERNETES_NODE_NAME):10250
+              - name: SIGNALFX_API_TOKEN
+                valueFrom:
+                    secretKeyRef:
+                        name: signalfx
+                        key: apiToken
+              - name: SFX_OBSERVERS_KUBERNETES_CONFIG_IGNORETLSVERIFY
+                value: "1"
+              - name: SFX_PIPELINE
+                value: kubernetes

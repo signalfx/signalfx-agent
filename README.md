@@ -26,9 +26,20 @@ This configuration can be set as an environment variable and should be based on 
 Here are examples of running agent:
 
 ### Kubernetes
-```
-TODO
-```
+* Configure secrets
+    * Add a secret named `signalfx` that has a key `apiToken` that is your SignalFX API token.
+    * Because the Quay repository is currently private you have to configure Docker registry authentication. Create a `docker-registry` type secret with name `quay-pull-secret` and in the data section set `.dockerconfigjson` to the base64 encoded contents of `~/.docker/config.json` (assuming you have already logged in with `docker login`)
+* Deploy the agent daemonset
+    `kubectl create -f deploy/kubernetes/signalfx-agent.yml`
+
+#### Updating
+Until we have an update script the easiest way to update the agents to a new version is to:
+
+* `kubectl edit deploy signalfx-agent`
+* Change the version numbers if applicable
+* Change the Docker image property (`.spec.template.spec.containers.image`) to the desired image
+* Delete all agent pods (`kubectl delete pod -l app=signalfx-agent`) and they'll be automatically recreated
+
 ### Mesos
 ```
 TODO
