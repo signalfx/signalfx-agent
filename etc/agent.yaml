@@ -1,4 +1,5 @@
-interval: 10
+# interval: 10
+# pipeline: docker
 
 observers:
     local-docker:
@@ -23,12 +24,8 @@ monitors:
             staticPlugins:
                 - name: writehttp-default
                   type: writehttp
-                  config:
-                      apiToken: <API TOKEN>
                 - name: signalfx-default
                   type: signalfx
-                  config:
-                      apiToken: <API TOKEN>
                 - name: docker-default
                   type: docker
                   config:
@@ -41,8 +38,13 @@ filters:
             - /etc/signalfx/collectd/custom-services.json
             - /etc/signalfx/collectd/services.json
 
-pipeline:
-    default:
+pipelines:
+    kubernetes:
+    - kubernetes
+    - service-mapping
+    - collectd
+
+    docker:
     - local-docker
     - service-mapping
     - collectd
