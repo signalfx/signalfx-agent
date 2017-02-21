@@ -8,6 +8,10 @@ test:
 lint:
 	golint -set_exit_status `glide novendor`
 
+.PHONY: collectd
+collectd:
+	./scripts/build-collectd.sh
+
 .PHONY: image
 image:
 	./scripts/build.sh
