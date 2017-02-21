@@ -40,7 +40,7 @@ const (
 type Collectd struct {
 	plugins.Plugin
 	state        string
-	services     services.ServiceInstances
+	services     services.Instances
 	templatesDir string
 	confFile     string
 	pluginsDir   string
@@ -115,7 +115,7 @@ func loadTemplatesMap(path string, templatesMap map[string][]string) error {
 }
 
 // Monitor services from collectd monitor
-func (collectd *Collectd) Write(services services.ServiceInstances) error {
+func (collectd *Collectd) Write(services services.Instances) error {
 	changed := false
 	if len(collectd.services) != len(services) {
 		changed = true
@@ -215,7 +215,7 @@ func (collectd *Collectd) getStaticPlugins() ([]*config.Plugin, error) {
 	return plugins, nil
 }
 
-func (collectd *Collectd) createPluginsFromServices(sis services.ServiceInstances) ([]*config.Plugin, error) {
+func (collectd *Collectd) createPluginsFromServices(sis services.Instances) ([]*config.Plugin, error) {
 	log.Printf("Configuring collectd plugins for %+v", sis)
 	var plugins []*config.Plugin
 

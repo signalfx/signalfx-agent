@@ -53,7 +53,7 @@ func Test_load(t *testing.T) {
 
 func TestKubernetes_doMap(t *testing.T) {
 	var running, nonRunningContainer *pods
-	var expected services.ServiceInstances
+	var expected services.Instances
 	neotest.LoadJSON(t, "testdata/pods.json", &running)
 	neotest.LoadJSON(t, "testdata/pods.json", &nonRunningContainer)
 	neotest.LoadJSON(t, "testdata/2-discovered.json", &expected)
@@ -80,14 +80,14 @@ func TestKubernetes_doMap(t *testing.T) {
 		hostURL string
 	}
 	type args struct {
-		sis  services.ServiceInstances
+		sis  services.Instances
 		pods *pods
 	}
 	tests := []struct {
 		name     string
 		instance *Kubernetes
 		args     args
-		want     services.ServiceInstances
+		want     services.Instances
 		wantErr  bool
 	}{
 		{"zero instances", k, args{nil, &pods{}}, nil, false},

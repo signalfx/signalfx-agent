@@ -11,6 +11,6 @@ const (
 
 // Observer type
 type Observer interface {
-	Discover() (services.ServiceInstances, error)
+	Discover() (services.Instances, error)
 	String() string
 }

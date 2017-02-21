@@ -79,8 +79,8 @@ type Service struct {
 	Type ServiceType
 }
 
-// ServicePort network information
-type ServicePort struct {
+// Port network information
+type Port struct {
 	IP          string
 	Type        PortType
 	PrivatePort uint16
@@ -88,16 +88,16 @@ type ServicePort struct {
 	Labels      map[string]string
 }
 
-// ServiceOrchestration information
-type ServiceOrchestration struct {
+// Orchestration information
+type Orchestration struct {
 	ID       string
 	Type     OrchestrationType
 	Dims     map[string]string
 	PortPref PortPreference
 }
 
-// ServiceContainer information
-type ServiceContainer struct {
+// Container information
+type Container struct {
 	ID      string
 	Names   []string
 	Image   string
@@ -107,13 +107,13 @@ type ServiceContainer struct {
 	Labels  map[string]string
 }
 
-// ServiceInstance information for single instance of a discovered service
-type ServiceInstance struct {
+// Instance information for single instance of a discovered service
+type Instance struct {
 	ID            string
 	Service       *Service
-	Container     *ServiceContainer
-	Orchestration *ServiceOrchestration
-	Port          *ServicePort
+	Container     *Container
+	Orchestration *Orchestration
+	Port          *Port
 	Discovered    time.Time
 }
 
@@ -122,40 +122,40 @@ func NewService(name string, serviceType ServiceType) *Service {
 	return &Service{name, serviceType}
 }
 
-// NewServicePort constructor
-func NewServicePort(ip string, portType PortType, privatePort uint16, publicPort uint16) *ServicePort {
-	return &ServicePort{ip, portType, privatePort, publicPort, make(map[string]string)}
+// NewPort constructor
+func NewPort(ip string, portType PortType, privatePort uint16, publicPort uint16) *Port {
+	return &Port{ip, portType, privatePort, publicPort, make(map[string]string)}
 }
 
-// NewServiceOrchestration constructor
-func NewServiceOrchestration(id string, orchType OrchestrationType, dims map[string]string, portPref PortPreference) *ServiceOrchestration {
-	return &ServiceOrchestration{id, orchType, dims, portPref}
+// NewOrchestration constructor
+func NewOrchestration(id string, orchType OrchestrationType, dims map[string]string, portPref PortPreference) *Orchestration {
+	return &Orchestration{id, orchType, dims, portPref}
 }
 
-// NewServiceContainer constructor
-func NewServiceContainer(id string, names []string, image string, pod string, command string, state string, labels map[string]string) *ServiceContainer {
-	return &ServiceContainer{id, names, image, pod, command, state, labels}
+// NewContainer constructor
+func NewContainer(id string, names []string, image string, pod string, command string, state string, labels map[string]string) *Container {
+	return &Container{id, names, image, pod, command, state, labels}
 }
 
-// NewServiceInstance constructor
-func NewServiceInstance(id string, service *Service, container *ServiceContainer, orchestration *ServiceOrchestration, port *ServicePort, discovered time.Time) *ServiceInstance {
-	return &ServiceInstance{id, service, container, orchestration, port, discovered}
+// NewInstance constructor
+func NewInstance(id string, service *Service, container *Container, orchestration *Orchestration, port *Port, discovered time.Time) *Instance {
+	return &Instance{id, service, container, orchestration, port, discovered}
 }
 
-// ServiceInstances type containing sorted set of services
-type ServiceInstances []ServiceInstance
+// Instances type containing sorted set of services
+type Instances []Instance
 
 // Len for serviceinstances sort
-func (svcs ServiceInstances) Len() int {
+func (svcs Instances) Len() int {
 	return len(svcs)
 }
 
 // Swap for serviceinstances sort
-func (svcs ServiceInstances) Swap(i, j int) {
+func (svcs Instances) Swap(i, j int) {
 	svcs[i], svcs[j] = svcs[j], svcs[i]
 }
 
 // Less for serviceinstances sort
-func (svcs ServiceInstances) Less(i, j int) bool {
+func (svcs Instances) Less(i, j int) bool {
 	return svcs[i].ID < svcs[j].ID
 }

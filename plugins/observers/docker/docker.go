@@ -34,7 +34,7 @@ func NewDocker(name string, config *viper.Viper) (*Docker, error) {
 }
 
 // Discover services from querying docker api
-func (docker *Docker) Read() (services.ServiceInstances, error) {
+func (docker *Docker) Read() (services.Instances, error) {
 	defaultHeaders := map[string]string{"User-Agent": userAgent}
 	hostURL := defaultHostURL
 	if configVal := docker.Config.GetString("hosturl"); configVal != "" {
@@ -52,21 +52,21 @@ func (docker *Docker) Read() (services.ServiceInstances, error) {
 		return nil, err
 	}
 
-	instances := make(services.ServiceInstances, 0)
+	instances := make(services.Instances, 0)
 
 	for _, c := range containers {
 		if c.State == "running" {
-			serviceContainer := services.NewServiceContainer(c.ID, c.Names, c.Image, "", c.Command, c.State, c.Labels)
+			serviceContainer := services.NewContainer(c.ID, c.Names, c.Image, "", c.Command, c.State, c.Labels)
 			for _, port := range c.Ports {
-				servicePort := services.NewServicePort(port.IP, services.PortType(port.Type), uint16(port.PrivatePort), uint16(port.PublicPort))
+				servicePort := services.NewPort(port.IP, services.PortType(port.Type), uint16(port.PrivatePort), uint16(port.PublicPort))
 				id := docker.String() + c.ID + "-" + strconv.Itoa(port.PrivatePort)
 				service := services.NewService(id, services.UnknownService)
 				dims := map[string]string{
 					"container_name":  c.Names[0],
 					"container_image": c.Image,
 				}
-				orchestration := services.NewServiceOrchestration("docker", services.DOCKER, dims, services.PUBLIC)
-				si := services.NewServiceInstance(id, service, serviceContainer, orchestration, servicePort, time.Now())
+				orchestration := services.NewOrchestration("docker", services.DOCKER, dims, services.PUBLIC)
+				si := services.NewInstance(id, service, serviceContainer, orchestration, servicePort, time.Now())
 				instances = append(instances, *si)
 			}
 		}

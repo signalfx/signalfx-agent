@@ -13,8 +13,8 @@ import (
 	"github.com/spf13/viper"
 )
 
-// ServiceDiscoveryRuleset that names a set of service discovery rules
-type ServiceDiscoveryRuleset struct {
+// DiscoveryRuleset that names a set of service discovery rules
+type DiscoveryRuleset struct {
 	Name string
 	Type string
 	// Rules are criteria for service identification
@@ -25,22 +25,22 @@ type ServiceDiscoveryRuleset struct {
 	}
 }
 
-// ServiceDiscoverySignatures with name
-type ServiceDiscoverySignatures struct {
+// DiscoverySignatures with name
+type DiscoverySignatures struct {
 	Name       string
-	Signatures []ServiceDiscoveryRuleset
+	Signatures []DiscoveryRuleset
 }
 
 // RuleFilter filters instances based on rules
 type RuleFilter struct {
 	plugins.Plugin
-	serviceRules []*ServiceDiscoverySignatures
+	serviceRules []*DiscoverySignatures
 }
 
 // NewRuleFilter creates a new instance
 func NewRuleFilter(name string, config *viper.Viper) (*RuleFilter, error) {
 	var (
-		signatures    []*ServiceDiscoverySignatures
+		signatures    []*DiscoverySignatures
 		servicesFiles []string
 		err           error
 	)
@@ -67,8 +67,8 @@ func NewRuleFilter(name string, config *viper.Viper) (*RuleFilter, error) {
 }
 
 // loadServiceSignatures reads discovery rules from file
-func loadServiceSignatures(servicesFile string) (*ServiceDiscoverySignatures, error) {
-	var signatures ServiceDiscoverySignatures
+func loadServiceSignatures(servicesFile string) (*DiscoverySignatures, error) {
+	var signatures DiscoverySignatures
 	jsonContent, err := ioutil.ReadFile(servicesFile)
 	if err != nil {
 		return &signatures, err
@@ -81,7 +81,7 @@ func loadServiceSignatures(servicesFile string) (*ServiceDiscoverySignatures, er
 }
 
 // Matches if service instance satisfies rules
-func matches(si *services.ServiceInstance, ruleset ServiceDiscoveryRuleset) (bool, error) {
+func matches(si *services.Instance, ruleset DiscoveryRuleset) (bool, error) {
 	jsonRules, err := json.Marshal(ruleset.Rules)
 	if err != nil {
 		return false, err
@@ -117,8 +117,8 @@ func matches(si *services.ServiceInstance, ruleset ServiceDiscoveryRuleset) (boo
 }
 
 // Map matches discovered service instances to a plugin type.
-func (filter *RuleFilter) Map(sis services.ServiceInstances) (services.ServiceInstances, error) {
-	applicableServices := make(services.ServiceInstances, 0, len(sis))
+func (filter *RuleFilter) Map(sis services.Instances) (services.Instances, error) {
+	applicableServices := make(services.Instances, 0, len(sis))
 
 	// Find the first rule that matches each service instance.
 OUTER:
