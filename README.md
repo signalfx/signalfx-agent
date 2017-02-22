@@ -53,10 +53,10 @@ TODO
 Here is an example of running signalfx-agent for local-docker using a docker compose file to start container and configure the agent.
 
 Modify the example to work in your dev/test env
-* Set the SIGNALFX_API_TOKEN
+* Set the SFX_API_TOKEN
 * Change the ingestUrl if you don't want lab
-* Set the SIGNALFX_MONITOR_USER to a test username.  or set to "".
-* Set the SIGNALFX_MONITOR_PASSWORD to a test user password.  or set to "".
+* Set the SFX_MONITOR_USER to a test username.  or set to "".
+* Set the SFX_MONITOR_PASSWORD to a test user password.  or set to "".
 
 docker-compose.yml.
 ```
@@ -74,9 +74,9 @@ services:
      - /proc:/mnt/proc:ro
      - /var/run/docker.sock:/var/run/docker.sock
     environment:
-     SIGNALFX_API_TOKEN: <SignalFx API Token>
-     SIGNALFX_MONITOR_USER: <Generic Monitor User>
-     SIGNALFX_MONITOR_PASSWORD: <Generic Monitor Password>
+     SFX_API_TOKEN: <SignalFx API Token>
+     SFX_MONITOR_USER: <Generic Monitor User>
+     SFX_MONITOR_PASSWORD: <Generic Monitor Password>
      SET_FILE: /etc/signalfx/agent.yaml
      SET_FILE_CONTENT: |
       interval: 10
