@@ -12,7 +12,7 @@ import (
 var discoveredApache = services.Instance{
 	ID: "test-instance",
 	Service: &services.Service{
-		Name: "default",
+		Name: "apache-6789",
 	},
 	Container: &services.Container{
 		Names:  []string{"apache"},
@@ -30,7 +30,7 @@ var discoveredApache = services.Instance{
 var discoveredRedis = services.Instance{
 	ID: "test-instance",
 	Service: &services.Service{
-		Name: "default",
+		Name: "redis-1234",
 	},
 	Container: &services.Container{
 		Names:  []string{"redis"},
@@ -57,16 +57,16 @@ var redisLabelMapped = discoveredRedis
 func init() {
 	// Customize cloned service instances.
 	apacheImageMapped.Service = &services.Service{
-		Name: "apache-image-default",
+		Name: "apache-6789",
 		Type: services.ApacheService,
 	}
 	apacheCustom.Service = &services.Service{
-		Name: "apache-custom",
+		Name: "apache-6789",
 		Type: services.ApacheService,
 	}
 
 	redisLabelMapped.Service = &services.Service{
-		Name: "redis-labeled-default",
+		Name: "redis-1234",
 		Type: services.RedisService,
 	}
 }
