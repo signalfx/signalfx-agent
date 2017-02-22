@@ -9,7 +9,7 @@ observers:
     kubernetes:
         type: kubernetes
         config:
-            hostUrl: http://localhost:10250
+            hostUrl: https://localhost:10250
             # Whether to ignore SSL certification validation errors.
             # ignoreTLSVerify: false
 
@@ -17,6 +17,8 @@ monitors:
     collectd:
         type: collectd
         config:
+            # If hostname is unset collectd determines the hostname at runtime.
+            # hostname:
             confFile: /etc/collectd/collectd.conf
             templatesDir: /etc/signalfx/collectd/templates
             templatesMap: /etc/signalfx/collectd/templates.json
@@ -31,6 +33,9 @@ monitors:
                   config:
                       hostUrl: unix:///var/run/docker.sock
 filters:
+    debug:
+        type: debug
+        config: {}
     service-mapping:
         type: service-rules
         config:

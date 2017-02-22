@@ -40,3 +40,5 @@ spec:
                 value: "1"
               - name: SFX_PIPELINE
                 value: kubernetes
+              - name: SFX_MONITORS_COLLECTD_CONFIG_HOSTNAME
+                value: $(KUBERNETES_NODE_NAME)

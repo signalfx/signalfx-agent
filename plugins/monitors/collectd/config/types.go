@@ -94,6 +94,7 @@ type CollectdConfig struct {
 	WriteQueueLimitHigh  uint `yaml:"writeQueueLimitHigh"`
 	WriteQueueLimitLow   uint `yaml:"writeQueueLimitLow"`
 	CollectInternalStats bool
+	Hostname             string
 	Plugins              []map[string]interface{}
 }
 
