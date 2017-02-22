@@ -5,7 +5,7 @@
   <Node "SignalFx">
     URL "{{.Config.ingestUrl}}/v1/collectd"
     User "auth"
-    Password "{{Secret "SIGNALFX_API_TOKEN"}}"
+    Password "{{Secret "SFX_API_TOKEN"}}"
     Format "JSON"
     Timeout 9000
     BufferSize 65536

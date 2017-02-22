@@ -2,11 +2,11 @@ LoadPlugin python
 <Plugin "python">
   ModulePath "{{Globals.PluginRoot}}/mongodb-collectd-plugin"
   Import "mongodb"
-  <Module "{{.Name}}[{{.Dims}}]"> 
+  <Module "{{.Name}}[{{.Dims}}]">
     Host "{{.Host}}"
     Port "{{.Port}}"
-    User "{{Secret "SIGNALFX_MONITOR_USER"}}"
-    Password "{{Secret "SIGNALFX_MONITOR_PASSWORD"}}"
+    User "{{Secret "SFX_MONITOR_USER"}}"
+    Password "{{Secret "SFX_MONITOR_PASSWORD"}}"
     Database "admin"
   </Module>
 </Plugin>

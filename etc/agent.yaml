@@ -1,5 +1,7 @@
 # interval: 10
 # pipeline: docker
+# If hostname is unset collectd determines the hostname at runtime.
+# hostname:
 
 observers:
     local-docker:

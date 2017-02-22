@@ -22,7 +22,7 @@ run-image:
 # Setup: cp -r etc local-etc and make any changes necessary to agent.yaml.
 	docker run -it --rm \
 		--name $(RUN_CONTAINER) \
-		-e SIGNALFX_API_TOKEN=$(SIGNALFX_API_TOKEN) \
+		-e SFX_API_TOKEN=$(SFX_API_TOKEN) \
 		--privileged \
 		--net host \
 		-v $(PWD)/local-etc:/etc/signalfx \

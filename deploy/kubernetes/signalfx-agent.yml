@@ -31,7 +31,7 @@ spec:
                         fieldPath: spec.nodeName
               - name: SFX_OBSERVERS_KUBERNETES_CONFIG_HOSTURL
                 value: https://$(KUBERNETES_NODE_NAME):10250
-              - name: SIGNALFX_API_TOKEN
+              - name: SFX_API_TOKEN
                 valueFrom:
                     secretKeyRef:
                         name: signalfx
@@ -40,5 +40,5 @@ spec:
                 value: "1"
               - name: SFX_PIPELINE
                 value: kubernetes
-              - name: SFX_MONITORS_COLLECTD_CONFIG_HOSTNAME
+              - name: SFX_HOSTNAME
                 value: $(KUBERNETES_NODE_NAME)

@@ -168,7 +168,7 @@ func (collectd *Collectd) reload() {
 func (collectd *Collectd) writePlugins(plugins []*config.Plugin) error {
 	collectdConfig := config.NewCollectdConfig()
 	// If this is empty then collectd determines hostname.
-	collectdConfig.Hostname = collectd.Config.GetString("hostname")
+	collectdConfig.Hostname = viper.GetString("hostname")
 
 	config, err := config.RenderCollectdConf(collectd.pluginsDir, collectd.templatesDir, &config.AppConfig{
 		AgentConfig: collectdConfig,
