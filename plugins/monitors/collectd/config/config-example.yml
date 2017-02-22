@@ -6,6 +6,7 @@
 # writeQueueLimitHigh:  500000
 # writeQueueLimitLow:   400000
 # collectInternalStats: true
+# hostname: <dynamic>
 
 plugins:
 - plugin: signalfx

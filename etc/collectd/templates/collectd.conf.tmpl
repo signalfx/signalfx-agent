@@ -1,17 +1,19 @@
 TypesDB "{{Globals.PluginRoot}}/types.db"
 
-#   If you use the Hostname parameter, you
-#   must quote ("...") the second argument
-### Hostname "<YOUR_HOSTNAME_HERE>"
-# %%%HOSTNAME%%%
-
+{{- with .AgentConfig -}}
+{{if .Hostname}}
+Hostname "{{.Hostname}}"
+FQDNLookup false
+{{else}}
 FQDNLookup true
-Interval {{ .AgentConfig.Interval }}
-Timeout {{ .AgentConfig.Timeout }}
-ReadThreads {{ .AgentConfig.ReadThreads }}
-WriteQueueLimitHigh {{ .AgentConfig.WriteQueueLimitHigh }}
-WriteQueueLimitLow  {{ .AgentConfig.WriteQueueLimitLow }}
-CollectInternalStats {{ .AgentConfig.CollectInternalStats }}
+{{end}}
+Interval {{ .Interval }}
+Timeout {{ .Timeout }}
+ReadThreads {{ .ReadThreads }}
+WriteQueueLimitHigh {{ .WriteQueueLimitHigh }}
+WriteQueueLimitLow  {{ .WriteQueueLimitLow }}
+CollectInternalStats {{ .CollectInternalStats }}
+{{end}}
 
 LoadPlugin logfile
 

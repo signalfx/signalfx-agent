@@ -166,8 +166,12 @@ func (collectd *Collectd) reload() {
 // writePlugins takes a list of plugin instances and generates a collectd.conf
 // formatted configuration.
 func (collectd *Collectd) writePlugins(plugins []*config.Plugin) error {
+	collectdConfig := config.NewCollectdConfig()
+	// If this is empty then collectd determines hostname.
+	collectdConfig.Hostname = collectd.Config.GetString("hostname")
+
 	config, err := config.RenderCollectdConf(collectd.pluginsDir, collectd.templatesDir, &config.AppConfig{
-		AgentConfig: config.NewCollectdConfig(),
+		AgentConfig: collectdConfig,
 		Plugins:     plugins,
 	})
 
