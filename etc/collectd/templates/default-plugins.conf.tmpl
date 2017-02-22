@@ -3,8 +3,11 @@ LoadPlugin cpu
 LoadPlugin cpufreq
 {{end}}
 LoadPlugin df
-LoadPlugin disk
+<Plugin "df">
+  ChangeRoot "/hostfs"
+</Plugin>
 
+LoadPlugin disk
 <Plugin "disk">
   Disk "/^loop\d+$/"
   Disk "/^dm-\d+$/"
