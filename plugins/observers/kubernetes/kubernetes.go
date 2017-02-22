@@ -148,7 +148,6 @@ func (k *Kubernetes) doMap(sis services.Instances, pods *pods) (services.Instanc
 				"container_image":          container.Image,
 				"kubernetes_pod_name":      pod.Metadata.Name,
 				"kubernetes_pod_namespace": pod.Metadata.Namespace,
-				"kubernetes_node":          pod.Spec.NodeName,
 			}
 			orchestration := services.NewOrchestration("kubernetes", services.KUBERNETES, dims, services.PRIVATE)
 

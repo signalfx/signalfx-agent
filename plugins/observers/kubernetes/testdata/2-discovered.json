@@ -25,7 +25,6 @@
       "Type": 1,
       "Dims": {
         "kubernetes_pod_namespace": "kube-system",
-        "kubernetes_node": "ip-10-0-0-96.us-west-2.compute.internal",
         "kubernetes_pod_name": "kubernetes-dashboard-v1.5.1-5zg3f",
         "container_image": "gcr.io/google_containers/kubernetes-dashboard-amd64:v1.5.1",
         "container_name": "kubernetes-dashboard"
@@ -66,7 +65,6 @@
       "ID": "kubernetes",
       "Type": 1,
       "Dims": {
-        "kubernetes_node": "ip-10-0-0-96.us-west-2.compute.internal",
         "kubernetes_pod_namespace": "default",
         "kubernetes_pod_name": "redis-3165242388-n1vc7",
         "container_image": "redis:latest",
