@@ -2,7 +2,7 @@
   {
     "ID": "kubernetes-kubernetes-dashboard-v1.5.1-5zg3f-9090",
     "Service": {
-      "Name": "kubernetes-kubernetes-dashboard-v1.5.1-5zg3f-9090",
+      "Name": "kubernetes-dashboard-v1.5.1-5zg3f",
       "Type": ""
     },
     "Container": {
@@ -44,7 +44,7 @@
   {
     "ID": "kubernetes-redis-3165242388-n1vc7-6379",
     "Service": {
-      "Name": "kubernetes-redis-3165242388-n1vc7-6379",
+      "Name": "redis-3165242388-n1vc7",
       "Type": ""
     },
     "Container": {

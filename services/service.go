@@ -118,6 +118,7 @@ type Instance struct {
 }
 
 // NewService constructor
+// name should be unique enough for using as an id (host, instance, etc.)
 func NewService(name string, serviceType ServiceType) *Service {
 	return &Service{name, serviceType}
 }
