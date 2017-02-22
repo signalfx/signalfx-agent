@@ -314,10 +314,10 @@ func (collectd *Collectd) run() {
 
 	C.plugin_init_ctx()
 
+	C.cf_read(cConfFile)
+
 	C.init_collectd()
 	C.interval_g = C.cf_get_default_interval()
-
-	C.cf_read(cConfFile)
 
 	C.plugin_init_all()
 
