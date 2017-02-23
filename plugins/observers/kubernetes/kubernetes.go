@@ -68,8 +68,12 @@ type pods struct {
 	}
 }
 
+func init() {
+	plugins.Register("observers/kubernetes", NewKubernetes)
+}
+
 // NewKubernetes constructor
-func NewKubernetes(name string, config *viper.Viper) (*Kubernetes, error) {
+func NewKubernetes(name string, config *viper.Viper) (plugins.IPlugin, error) {
 	plugin, err := plugins.NewPlugin(name, config)
 	if err != nil {
 		return nil, err

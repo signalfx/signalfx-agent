@@ -15,6 +15,8 @@ spec:
                 app: signalfx-agent
                 version: v0.1.0
         spec:
+            nodeSelector:
+              signalfx-monitor: ""
             imagePullSecrets:
             - name: quay-pull-secret
             containers:
@@ -27,6 +29,8 @@ spec:
               securityContext:
                 privileged: true
               volumeMounts:
+                - mountPath: /mnt/config
+                  name: config
                 - mountPath: /hostfs
                   name: hostfs
                   readOnly: true
@@ -47,70 +51,23 @@ spec:
                 valueFrom:
                     fieldRef:
                         fieldPath: spec.nodeName
-              - name: SFX_OBSERVERS_KUBERNETES_CONFIG_HOSTURL
+              - name: SFX_PLUGINS_KUBERNETES_HOSTURL
                 value: https://$(KUBERNETES_NODE_NAME):10250
               - name: SFX_API_TOKEN
                 valueFrom:
                     secretKeyRef:
                         name: signalfx
                         key: apiToken
-              - name: SFX_OBSERVERS_KUBERNETES_CONFIG_IGNORETLSVERIFY
-                value: "1"
               - name: SFX_PIPELINE
                 value: kubernetes
               - name: SFX_HOSTNAME
                 value: $(KUBERNETES_NODE_NAME)
-              - name: SET_FILE
-                value: /etc/signalfx/agent.yaml
-              - name: SET_FILE_CONTENT
-                value: |
-                 observers:
-                    local-docker:
-                        type: docker
-                        config:
-                            hostUrl: unix:///var/run/docker.sock
-                    kubernetes:
-                        type: kubernetes
-                        config:
-                            hostUrl: https://localhost:10250
-                            # Whether to ignore SSL certification validation errors.
-                            # ignoreTLSVerify: false
-                 monitors:
-                     collectd:
-                         type: collectd
-                         config:
-                             confFile: /etc/collectd/collectd.conf
-                             templatesDir: /etc/signalfx/collectd/templates
-                             templatesMap: /etc/signalfx/collectd/templates.json
-                             pluginsDir: /usr/share/collectd
-                             staticPlugins:
-                                 - name: writehttp-default
-                                   type: writehttp
-                                   config:
-                                     dimensions: sfxdim_kubernetes_cluster=test_cluster
-                                 - name: signalfx-default
-                                   type: signalfx
-                                 - name: docker-default
-                                   type: docker
-                                   config:
-                                       hostUrl: unix:///var/run/docker.sock
-                 filters:
-                     service-mapping:
-                         type: service-rules
-                         config:
-                             servicesFiles:
-                             - /etc/signalfx/collectd/custom-services.json
-                             - /etc/signalfx/collectd/services.json
-                 pipelines:
-                     kubernetes:
-                     - kubernetes
-                     - service-mapping
-                     - collectd
-                     docker:
-                     - local-docker
-                     - service-mapping
-                     - collectd
+              - name: SFX_MERGE_CONFIG
+                value: /mnt/config/merge.yml
             volumes:
+              - name: config
+                configMap:
+                  name: signalfx-agent
               - hostPath:
                   path: /
                 name: hostfs

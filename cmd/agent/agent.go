@@ -12,15 +12,7 @@ import (
 
 	"github.com/signalfx/neo-agent/pipelines"
 	"github.com/signalfx/neo-agent/plugins"
-	"github.com/signalfx/neo-agent/plugins/filters"
-	"github.com/signalfx/neo-agent/plugins/filters/debug"
-	"github.com/signalfx/neo-agent/plugins/filters/services"
-	"github.com/signalfx/neo-agent/plugins/monitors"
-	"github.com/signalfx/neo-agent/plugins/monitors/collectd"
-	"github.com/signalfx/neo-agent/plugins/observers"
-	"github.com/signalfx/neo-agent/plugins/observers/docker"
-	"github.com/signalfx/neo-agent/plugins/observers/kubernetes"
-	"github.com/signalfx/neo-agent/utils"
+	_ "github.com/signalfx/neo-agent/plugins/all"
 	"github.com/spf13/viper"
 	"golang.org/x/net/context"
 )
@@ -44,7 +36,8 @@ const (
 	DefaultPipeline = "docker"
 
 	// envPrefix is the environment variable prefix
-	envPrefix = "SFX"
+	envPrefix      = "SFX"
+	envMergeConfig = "SFX_MERGE_CONFIG"
 )
 
 // Agent for monitoring host/service metrics
@@ -66,55 +59,6 @@ type pluginConfig struct {
 	Type string
 }
 
-// Loads subconfigs from configuration file. The given name should be a map
-// whose keys are the name of a plugin. That map should itself have a key `type`
-// that is the plugin type.
-func loadSubConfigs(name string) (map[pluginConfig]*viper.Viper, error) {
-	sub := viper.Sub(name)
-	if sub == nil {
-		return nil, fmt.Errorf("no %s have been configured", name)
-	}
-
-	var keys []string
-
-	for _, key := range sub.AllKeys() {
-		idx := strings.Index(key, ".")
-		if idx < 1 {
-			return nil, fmt.Errorf("key %s is missing '.'", key)
-		}
-		keys = append(keys, key[0:idx])
-	}
-
-	keys = utils.UniqueStrings(keys)
-	ret := map[pluginConfig]*viper.Viper{}
-
-	for _, key := range keys {
-		viperKey := fmt.Sprintf("%s.%s", name, key)
-		s := viper.Sub(viperKey)
-		if s == nil {
-			return nil, fmt.Errorf("missing key %s", viperKey)
-		}
-
-		typ := s.GetString("type")
-		if typ == "" {
-			return nil, fmt.Errorf("%s is missing type", viperKey)
-		}
-
-		// This allows a configuration variable foo.bar to be overridable by
-		// SFX_FOO_BAR=value.
-		config := s.Sub("config")
-		config.AutomaticEnv()
-		config.SetEnvKeyReplacer(envReplacer)
-		config.SetEnvPrefix(envReplacer.Replace(
-			strings.ToUpper(
-				fmt.Sprintf("%s_%s.%s", envPrefix, viperKey, "config"))))
-
-		ret[pluginConfig{key, typ}] = config
-	}
-
-	return ret, nil
-}
-
 // Configure an agent using configuration file
 func (agent *Agent) Configure(configfile string) error {
 	viper.SetDefault("interval", DefaultInterval)
@@ -129,65 +73,47 @@ func (agent *Agent) Configure(configfile string) error {
 		return err
 	}
 
+	if merge := os.Getenv(envMergeConfig); len(merge) > 1 {
+		if file, err := os.Open(merge); err == nil {
+			defer file.Close()
+			log.Printf("merging config %s", merge)
+			if err := viper.MergeConfig(file); err != nil {
+				return err
+			}
+		}
+	}
+
 	agent.Interval = viper.GetInt("interval")
 
-	loaded, err := loadSubConfigs("observers")
-	if err != nil {
-		return err
-	}
+	// Load plugins.
+	pluginsConfig := viper.GetStringMap("plugins")
 
-	for plugin, configuration := range loaded {
-		switch plugin.Type {
-		case observers.Docker:
-			if observer, err := docker.NewDocker(plugin.Name, configuration); err == nil {
-				agent.plugins = append(agent.plugins, observer)
-			} else {
-				return err
-			}
-		case observers.Kubernetes:
-			if observer, err := kubernetes.NewKubernetes(plugin.Name, configuration); err == nil {
-				agent.plugins = append(agent.plugins, observer)
-			} else {
-				return err
-			}
+	for pluginName := range pluginsConfig {
+		pluginType := viper.GetString(fmt.Sprintf("plugins.%s.plugin", pluginName))
+
+		if len(pluginType) < 1 {
+			return fmt.Errorf("plugin %s missing plugin key", pluginName)
 		}
-	}
 
-	loaded, err = loadSubConfigs("monitors")
-	if err != nil {
-		return err
-	}
+		if create, ok := plugins.Plugins[pluginType]; ok {
+			log.Printf("loading plugin %s (%s)", pluginType, pluginName)
 
-	for plugin, configuration := range loaded {
-		switch plugin.Type {
-		case monitors.Collectd:
-			if monitor, err := collectd.NewCollectd(plugin.Name, configuration); err == nil {
-				agent.plugins = append(agent.plugins, monitor)
-			} else {
+			config := viper.Sub("plugins." + pluginName)
+			// This allows a configuration variable foo.bar to be overridable by
+			// SFX_FOO_BAR=value.
+			config.AutomaticEnv()
+			config.SetEnvKeyReplacer(envReplacer)
+			config.SetEnvPrefix(strings.ToUpper(
+				fmt.Sprintf("%s_plugins_%s", envPrefix, pluginName)))
+
+			pluginInst, err := create(pluginName, config)
+			if err != nil {
 				return err
 			}
-		}
-	}
 
-	loaded, err = loadSubConfigs("filters")
-	if err != nil {
-		return err
-	}
-
-	for plugin, configuration := range loaded {
-		switch plugin.Type {
-		case filters.ServiceRules:
-			if filter, err := services.NewRuleFilter(plugin.Name, configuration); err == nil {
-				agent.plugins = append(agent.plugins, filter)
-			} else {
-				return err
-			}
-		case filters.Debug:
-			if filter, err := debug.NewFilter(plugin.Name, configuration); err == nil {
-				agent.plugins = append(agent.plugins, filter)
-			} else {
-				return err
-			}
+			agent.plugins = append(agent.plugins, pluginInst)
+		} else {
+			return fmt.Errorf("unknown plugin %s", pluginName)
 		}
 	}
 
@@ -200,6 +126,7 @@ func (agent *Agent) Configure(configfile string) error {
 		return fmt.Errorf("%s pipeline is missing or empty", pipelineName)
 	}
 
+	var err error
 	if agent.pipeline, err = pipelines.NewPipeline(pipelineName, pipeline, agent.plugins); err != nil {
 		return err
 	}

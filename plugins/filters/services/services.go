@@ -37,8 +37,12 @@ type RuleFilter struct {
 	serviceRules []*DiscoverySignatures
 }
 
+func init() {
+	plugins.Register("filters/service-rules", NewRuleFilter)
+}
+
 // NewRuleFilter creates a new instance
-func NewRuleFilter(name string, config *viper.Viper) (*RuleFilter, error) {
+func NewRuleFilter(name string, config *viper.Viper) (plugins.IPlugin, error) {
 	var (
 		signatures    []*DiscoverySignatures
 		servicesFiles []string

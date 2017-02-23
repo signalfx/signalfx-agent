@@ -6,6 +6,12 @@ import (
 	"github.com/spf13/viper"
 )
 
+// CreatePlugin is the function definition for creating a plugin
+type CreatePlugin func(string, *viper.Viper) (IPlugin, error)
+
+// Plugins is a mapping of plugin names available to a creation function
+var Plugins = map[string]CreatePlugin{}
+
 // Plugin type
 type Plugin struct {
 	name   string
@@ -45,4 +51,12 @@ func (plugin *Plugin) Start() error {
 
 // Stop default stop (no-op)
 func (plugin *Plugin) Stop() {
+}
+
+// Register registers a plugin
+func Register(name string, create CreatePlugin) {
+	if _, ok := Plugins[name]; ok {
+		panic("plugin " + name + " already registered")
+	}
+	Plugins[name] = create
 }

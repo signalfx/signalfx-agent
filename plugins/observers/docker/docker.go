@@ -24,8 +24,12 @@ type Docker struct {
 	plugins.Plugin
 }
 
+func init() {
+	plugins.Register("observers/docker", NewDocker)
+}
+
 // NewDocker constructor
-func NewDocker(name string, config *viper.Viper) (*Docker, error) {
+func NewDocker(name string, config *viper.Viper) (plugins.IPlugin, error) {
 	plugin, err := plugins.NewPlugin(name, config)
 	if err != nil {
 		return nil, err
