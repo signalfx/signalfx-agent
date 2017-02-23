@@ -143,7 +143,7 @@
         {
           "comparator": "contains",
           "path": "ContainerImage",
-          "value": "mongodb"
+          "value": "mongo"
         },
         {
           "comparator": "nexists",

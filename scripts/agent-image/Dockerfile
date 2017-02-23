@@ -81,11 +81,11 @@ RUN mkdir -p /usr/share/collectd/mesos-collectd-plugin \
 
 # collectd-mongodb
 RUN mkdir -p /usr/share/collectd/mongodb-collectd-plugin \
-    && curl -L "https://github.com/signalfx/collectd-mongodb/archive/v1.0.9.tar.gz" --output /usr/share/collectd/mongodb-collectd-plugin/v1.0.9.tar.gz \
-    && tar -zxvf /usr/share/collectd/mongodb-collectd-plugin/v1.0.9.tar.gz -C /usr/share/collectd/mongodb-collectd-plugin/ \
-    && cp /usr/share/collectd/mongodb-collectd-plugin/collectd-mongodb-1.0.9/* /usr/share/collectd/mongodb-collectd-plugin/ \
-    && rm -f /usr/share/collectd/mongodb-collectd-plugin/v1.0.9.tar.gz \
-    && rm -rf /usr/share/collectd/mongodb-collectd-plugin/collectd-mongodb-1.0.9 \
+    && curl -L "https://github.com/signalfx/collectd-mongodb/archive/v1.1.0.tar.gz" --output /usr/share/collectd/mongodb-collectd-plugin/v1.1.0.tar.gz \
+    && tar -zxvf /usr/share/collectd/mongodb-collectd-plugin/v1.1.0.tar.gz -C /usr/share/collectd/mongodb-collectd-plugin/ \
+    && cp /usr/share/collectd/mongodb-collectd-plugin/collectd-mongodb-1.1.0/* /usr/share/collectd/mongodb-collectd-plugin/ \
+    && rm -f /usr/share/collectd/mongodb-collectd-plugin/v1.1.0.tar.gz \
+    && rm -rf /usr/share/collectd/mongodb-collectd-plugin/collectd-mongodb-1.1.0 \
     && pip install pymongo==3.1.1
 
 # collectd-redis
