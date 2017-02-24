@@ -74,6 +74,7 @@ func TestKubernetes_doMap(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	kub := k.(*Kubernetes)
 
 	type fields struct {
 		Plugin  plugins.Plugin
@@ -90,14 +91,14 @@ func TestKubernetes_doMap(t *testing.T) {
 		want     services.Instances
 		wantErr  bool
 	}{
-		{"zero instances", k, args{nil, &pods{}}, nil, false},
-		{"two kubernetes only instances", k, args{nil, running}, expected, false},
-		{"container status is not running", k, args{nil, nonRunningContainer}, nil, false},
+		{"zero instances", kub, args{nil, &pods{}}, nil, false},
+		{"two kubernetes only instances", kub, args{nil, running}, expected, false},
+		{"container status is not running", kub, args{nil, nonRunningContainer}, nil, false},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 
-			got, err := k.doMap(tt.args.sis, tt.args.pods)
+			got, err := kub.doMap(tt.args.sis, tt.args.pods)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("Kubernetes.doMap() error = %v, wantErr %v", err, tt.wantErr)
 				return

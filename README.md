@@ -29,6 +29,7 @@ Here are examples of running agent:
 * Configure secrets
     * Add a secret named `signalfx` that has a key `apiToken` that is your SignalFX API token.
     * Because the Quay repository is currently private you have to configure Docker registry authentication. Create a `docker-registry` type secret with name `quay-pull-secret` and in the data section set `.dockerconfigjson` to the base64 encoded contents of `~/.docker/config.json` (assuming you have already logged in with `docker login`)
+* Create config map with `kubectl create -f deploy/kubernetes/signalfx-agent-configmap.yml` then edit it as needed
 * Deploy the agent daemonset
     `kubectl create -f deploy/kubernetes/signalfx-agent.yml`
 

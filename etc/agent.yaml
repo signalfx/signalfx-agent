@@ -3,47 +3,40 @@
 # If hostname is unset collectd determines the hostname at runtime.
 # hostname:
 
-observers:
+plugins:
     local-docker:
-        type: docker
-        config:
-            hostUrl: unix:///var/run/docker.sock
-    kubernetes:
-        type: kubernetes
-        config:
-            hostUrl: https://localhost:10250
-            # Whether to ignore SSL certification validation errors.
-            # ignoreTLSVerify: false
+        plugin: observers/docker
+        hostUrl: unix:///var/run/docker.sock
 
-monitors:
+    kubernetes:
+        plugin: observers/kubernetes
+        hostUrl: https://localhost:10250
+        # Whether to ignore SSL certification validation errors.
+        # ignoreTLSVerify: false
+
     collectd:
-        type: collectd
-        config:
-            # If hostname is unset collectd determines the hostname at runtime.
-            # hostname:
-            confFile: /etc/collectd/collectd.conf
-            templatesDir: /etc/signalfx/collectd/templates
-            templatesMap: /etc/signalfx/collectd/templates.json
-            pluginsDir: /usr/share/collectd
-            staticPlugins:
-                - name: writehttp-default
-                  type: writehttp
-                - name: signalfx-default
-                  type: signalfx
-                - name: docker-default
-                  type: docker
-                  config:
-                      hostUrl: unix:///var/run/docker.sock
-filters:
+        plugin: monitors/collectd
+        confFile: /etc/collectd/collectd.conf
+        templatesDir: /etc/signalfx/collectd/templates
+        templatesMap: /etc/signalfx/collectd/templates.json
+        pluginsDir: /usr/share/collectd
+        staticPlugins:
+            writehttp-default:
+                plugin: writehttp
+            signalfx-default:
+                plugin: signalfx
+            docker-default:
+                plugin: docker
+                hostUrl: unix:///var/run/docker.sock
+
     debug:
-        type: debug
-        config: {}
+        plugin: filters/debug
+
     service-mapping:
-        type: service-rules
-        config:
-            servicesFiles:
-            - /etc/signalfx/collectd/custom-services.json
-            - /etc/signalfx/collectd/services.json
+        plugin: filters/service-rules
+        servicesFiles:
+        - /etc/signalfx/collectd/custom-services.json
+        - /etc/signalfx/collectd/services.json
 
 pipelines:
     kubernetes:

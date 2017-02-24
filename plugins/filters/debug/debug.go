@@ -14,8 +14,12 @@ type Filter struct {
 	plugins.Plugin
 }
 
+func init() {
+	plugins.Register("filters/debug", NewFilter)
+}
+
 // NewFilter creates a new instance
-func NewFilter(name string, config *viper.Viper) (*Filter, error) {
+func NewFilter(name string, config *viper.Viper) (plugins.IPlugin, error) {
 	plugin, err := plugins.NewPlugin(name, config)
 	if err != nil {
 		return nil, err

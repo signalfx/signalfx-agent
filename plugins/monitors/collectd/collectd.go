@@ -49,8 +49,12 @@ type Collectd struct {
 	templatesMap map[string][]string
 }
 
+func init() {
+	plugins.Register("monitors/collectd", NewCollectd)
+}
+
 // NewCollectd constructor
-func NewCollectd(name string, config *viper.Viper) (*Collectd, error) {
+func NewCollectd(name string, config *viper.Viper) (plugins.IPlugin, error) {
 	plugin, err := plugins.NewPlugin(name, config)
 	if err != nil {
 		return nil, err
@@ -189,10 +193,8 @@ func (collectd *Collectd) writePlugins(plugins []*config.Plugin) error {
 // getStaticPlugins returns a list of plugins specified in the agent config
 func (collectd *Collectd) getStaticPlugins() ([]*config.Plugin, error) {
 	static := struct {
-		StaticPlugins []struct {
-			Name   string
-			Type   string
-			Config map[string]interface{}
+		StaticPlugins map[string]struct {
+			Plugin string
 		}
 	}{}
 
@@ -202,14 +204,14 @@ func (collectd *Collectd) getStaticPlugins() ([]*config.Plugin, error) {
 
 	var plugins []*config.Plugin
 
-	for _, plugin := range static.StaticPlugins {
-		pluginInstance, err := config.NewPlugin(services.ServiceType(plugin.Type), plugin.Name)
+	for pluginName, plugin := range static.StaticPlugins {
+		pluginInstance, err := config.NewPlugin(services.ServiceType(plugin.Plugin), pluginName)
 		if err != nil {
 			return nil, err
 		}
 
-		if err := config.LoadPluginConfig(map[string]interface{}{"config": plugin.Config},
-			plugin.Type, pluginInstance); err != nil {
+		if err := config.LoadPluginConfig(map[string]interface{}{"config": plugin},
+			plugin.Plugin, pluginInstance); err != nil {
 			return nil, err
 		}
 

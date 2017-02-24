@@ -112,7 +112,7 @@ func TestRuleFilter_Map(t *testing.T) {
 		if err != nil {
 			t.Errorf("NewRuleFilter() failed: %s", err)
 		}
-		return filter
+		return filter.(*RuleFilter)
 	}
 
 	emptyRules := makeFilter("testdata/zero-signatures.json")
