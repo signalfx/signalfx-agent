@@ -5,7 +5,6 @@ data:
     #   kubernetes:
     #     # Set to true to ignore certificate verification checks connecting to kubelet.
     #     ignoreTLSVerify: false
-    # plugins:
     #   collectd:
     #     staticPlugins:
     #       writehttp-default:
