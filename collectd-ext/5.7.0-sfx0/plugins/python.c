@@ -1644,23 +1644,6 @@ static int cpy_reloadable_config(oconfig_item_t *ci) {
       }
       Py_DECREF(dir_object);
       free(dir);
-    } else if (strcasecmp(item->key, "ImportX") == 0) {
-        char *module_name = NULL;
-        PyObject *module;
-
-        if (cf_util_get_string(item, &module_name) != 0) {
-          status = 1;
-          continue;
-        }
-        module = PyImport_ImportModule(module_name); /* New reference. */
-        if (module == NULL) {
-          ERROR("python plugin: Error importing module \"%s\".", module_name);
-          cpy_log_exception("importing module");
-          status = 1;
-        }
-        free(module_name);
-        Py_XDECREF(module);
-
     } else if (strcasecmp(item->key, "Import") == 0) {
       char *module_name = NULL;
       PyObject *module;
