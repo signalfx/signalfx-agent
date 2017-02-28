@@ -236,8 +236,6 @@ func (collectd *Collectd) createPluginsFromServices(sis services.Instances) ([]*
 	var plugins []*config.Plugin
 
 	for _, service := range sis {
-		log.Printf("reconfiguring collectd service: %s (%s)", service.Service.Name, service.Service.Type)
-
 		// TODO: Name is not unique, not sure what to use here.
 		plugin, err := config.NewPlugin(service.Service.Type, service.Service.Name)
 		if err != nil {
@@ -259,6 +257,12 @@ func (collectd *Collectd) createPluginsFromServices(sis services.Instances) ([]*
 		} else {
 			plugin.Port = service.Port.PublicPort
 		}
+
+		if plugin.Port == 0 {
+			continue
+		}
+
+		log.Printf("reconfiguring collectd service: %s (%s)", service.Service.Name, service.Service.Type)
 
 		if templates, ok := collectd.templatesMap[service.Service.Name]; ok {
 			log.Printf("Replacing templates %s with %s for %s", plugin.Templates, templates, service.Service.Name)
