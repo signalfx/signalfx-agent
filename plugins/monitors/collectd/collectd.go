@@ -193,9 +193,9 @@ func (collectd *Collectd) writePlugins(plugins []*config.Plugin) error {
 // getStaticPlugins returns a list of plugins specified in the agent config
 func (collectd *Collectd) getStaticPlugins() ([]*config.Plugin, error) {
 	static := struct {
-		StaticPlugins map[string]struct {
-			Plugin string
-		}
+		// This could possibly be cleaned up to use inline annotation but
+		// haven't figured out how to make it work.
+		StaticPlugins map[string]map[string]interface{}
 	}{}
 
 	if err := collectd.Config.Unmarshal(&static); err != nil {
@@ -205,13 +205,23 @@ func (collectd *Collectd) getStaticPlugins() ([]*config.Plugin, error) {
 	var plugins []*config.Plugin
 
 	for pluginName, plugin := range static.StaticPlugins {
-		pluginInstance, err := config.NewPlugin(services.ServiceType(plugin.Plugin), pluginName)
+		yamlPluginType, ok := plugin["plugin"]
+		if !ok {
+			return nil, fmt.Errorf("static plugin %s missing plugin type", pluginName)
+		}
+
+		pluginType, ok := yamlPluginType.(string)
+		if !ok {
+			return nil, fmt.Errorf("static plugin %s is not a string", pluginName)
+		}
+
+		pluginInstance, err := config.NewPlugin(services.ServiceType(pluginType), pluginName)
 		if err != nil {
 			return nil, err
 		}
 
 		if err := config.LoadPluginConfig(map[string]interface{}{"config": plugin},
-			plugin.Plugin, pluginInstance); err != nil {
+			pluginType, pluginInstance); err != nil {
 			return nil, err
 		}
 
