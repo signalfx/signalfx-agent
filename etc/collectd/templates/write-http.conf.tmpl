@@ -3,7 +3,7 @@
 </LoadPlugin>
 <Plugin "write_http">
   <Node "SignalFx">
-    URL "{{.Config.ingestUrl}}/v1/collectd{{if .Config.dimensions}}?{{end}}{{.Config.dimensions}}"
+    URL "{{.Config.url}}/v1/collectd{{if .Config.dimensions}}?{{end}}{{.Config.dimensions}}"
     User "auth"
     Password "{{Secret "SFX_API_TOKEN"}}"
     Format "JSON"

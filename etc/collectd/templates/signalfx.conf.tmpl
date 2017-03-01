@@ -7,7 +7,7 @@ TypesDB "{{Globals.PluginRoot}}/signalfx-collectd-plugin/types.db.plugin"
   Import "signalfx_metadata"
   <Module signalfx_metadata>
     Notifications true
-    URL "{{.Config.ingestUrl}}/v1/collectd"
+    URL "{{.Config.url}}/v1/collectd"
     Token "{{Secret "SFX_API_TOKEN"}}"
     NotifyLevel "OKAY"
   </Module>

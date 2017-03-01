@@ -6,7 +6,7 @@
 plugins:
     local-docker:
         plugin: observers/docker
-        hostUrl: unix:///var/run/docker.sock
+        url: unix:///var/run/docker.sock
 
     kubernetes:
         plugin: observers/kubernetes
