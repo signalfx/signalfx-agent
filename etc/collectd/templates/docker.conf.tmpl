@@ -9,6 +9,9 @@ LoadPlugin python
     BaseURL "{{.Config.url}}"
     Timeout 3
     Verbose false
+    {{range $key, $value := .Config.extradimensions -}}
+    Dimension "{{$key}}" "{{$value}}"
+    {{end -}}
   </Module>
 </Plugin>
 
