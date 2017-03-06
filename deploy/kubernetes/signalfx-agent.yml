@@ -58,12 +58,10 @@ spec:
                     secretKeyRef:
                         name: signalfx
                         key: apiToken
-              - name: SFX_PIPELINE
-                value: kubernetes
               - name: SFX_HOSTNAME
                 value: $(KUBERNETES_NODE_NAME)
               - name: SFX_MERGE_CONFIG
-                value: /mnt/config/merge.yml
+                value: /etc/signalfx/kubernetes-defaults.yaml:/mnt/config/merge.yml
             volumes:
               - name: config
                 configMap:

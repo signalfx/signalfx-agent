@@ -1,0 +1,11 @@
+pipeline: kubernetes
+
+plugins:
+  collectd:
+    staticPlugins:
+      docker-default:
+        extraDimensions:
+          container_image: inspect:Config.Image
+          container_name: inspect:Config.Labels['io.kubernetes.container.name']
+          kubernetes_pod_name: inspect:Config.Labels['io.kubernetes.pod.name']
+          kubernetes_pod_namespace: inspect:Config.Labels['io.kubernetes.pod.namespace']

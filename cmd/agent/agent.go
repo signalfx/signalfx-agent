@@ -74,11 +74,13 @@ func (agent *Agent) Configure(configfile string) error {
 	}
 
 	if merge := os.Getenv(envMergeConfig); len(merge) > 1 {
-		if file, err := os.Open(merge); err == nil {
-			defer file.Close()
-			log.Printf("merging config %s", merge)
-			if err := viper.MergeConfig(file); err != nil {
-				return err
+		for _, mergeFile := range strings.Split(merge, ":") {
+			if file, err := os.Open(mergeFile); err == nil {
+				defer file.Close()
+				log.Printf("merging config %s", mergeFile)
+				if err := viper.MergeConfig(file); err != nil {
+					return err
+				}
 			}
 		}
 	}
