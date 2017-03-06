@@ -30,7 +30,7 @@ var PLUGINS = map[services.ServiceType]func(string) *Plugin{
 			Templates: []string{"docker.conf.tmpl"},
 			Name:      pluginName,
 			Config: map[string]interface{}{
-				"hostUrl": "unix:///var/run/docker.sock",
+				"url": "unix:///var/run/docker.sock",
 			},
 		}
 	},
@@ -54,7 +54,7 @@ var PLUGINS = map[services.ServiceType]func(string) *Plugin{
 			Templates: []string{
 				"signalfx.conf.tmpl"},
 			Config: map[string]interface{}{
-				"ingestUrl": "https://ingest.signalfx.com",
+				"url": "https://ingest.signalfx.com",
 			},
 			Name: pluginName,
 		}
@@ -71,7 +71,7 @@ var PLUGINS = map[services.ServiceType]func(string) *Plugin{
 			Templates: []string{
 				"write-http.conf.tmpl"},
 			Config: map[string]interface{}{
-				"ingestUrl": "https://ingest.signalfx.com",
+				"url": "https://ingest.signalfx.com",
 			},
 			Name: pluginName,
 		}
