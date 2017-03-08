@@ -2,10 +2,13 @@ package services
 
 import (
 	"encoding/json"
-	"errors"
 	"io/ioutil"
 	"log"
 	"strconv"
+
+	"sync"
+
+	"fmt"
 
 	ruler "github.com/hopkinsth/go-ruler"
 	"github.com/signalfx/neo-agent/plugins"
@@ -38,6 +41,7 @@ type DiscoverySignatures struct {
 // RuleFilter filters instances based on rules
 type RuleFilter struct {
 	plugins.Plugin
+	mutex        sync.Mutex
 	serviceRules []*DiscoverySignatures
 }
 
@@ -47,45 +51,46 @@ func init() {
 
 // NewRuleFilter creates a new instance
 func NewRuleFilter(name string, config *viper.Viper) (plugins.IPlugin, error) {
-	var (
-		signatures    []*DiscoverySignatures
-		servicesFiles []string
-		err           error
-	)
-
 	plugin, err := plugins.NewPlugin(name, pluginType, config)
 	if err != nil {
 		return nil, err
 	}
 
-	if servicesFiles = plugin.Config.GetStringSlice("servicesfiles"); len(servicesFiles) == 0 {
-		return nil, errors.New("servicesFiles configuration value missing")
+	filter := &RuleFilter{Plugin: plugin}
+	if err := filter.load(); err != nil {
+		// Don't return an error as user may fix configuration and reload will fix it.
+		log.Printf("failed to load initial service files: %s", err)
 	}
 
-	for _, servicesFile := range servicesFiles {
-		log.Printf("loading service discovery signatures from %s", servicesFile)
-		loaded, err := loadServiceSignatures(servicesFile)
-		if err != nil {
-			return nil, err
-		}
-		signatures = append(signatures, loaded)
-	}
+	return filter, nil
+}
 
-	return &RuleFilter{plugin, signatures}, nil
+// GetWatchPaths returns list of files that when changed will trigger reload.
+func (filter *RuleFilter) GetWatchPaths(config *viper.Viper) []string {
+	return config.GetStringSlice("servicesfiles")
 }
 
 // loadServiceSignatures reads discovery rules from file
-func loadServiceSignatures(servicesFile string) (*DiscoverySignatures, error) {
-	var signatures DiscoverySignatures
-	jsonContent, err := ioutil.ReadFile(servicesFile)
-	if err != nil {
-		return &signatures, err
-	}
+func loadServiceSignatures(servicesFiles []string) ([]*DiscoverySignatures, error) {
+	var serviceRules []*DiscoverySignatures
 
-	if err := json.Unmarshal(jsonContent, &signatures); err != nil {
-		return &signatures, err
+	for _, servicesFile := range servicesFiles {
+		log.Printf("loading service discovery signatures from %s", servicesFile)
+
+		var signatures *DiscoverySignatures
+		jsonContent, err := ioutil.ReadFile(servicesFile)
+
+		if err != nil {
+			return serviceRules, fmt.Errorf("reading %s failed: %s", servicesFile, err)
+		}
+
+		if err := json.Unmarshal(jsonContent, &signatures); err != nil {
+			return serviceRules, fmt.Errorf("unmarshaling %s failed: %s", servicesFile, err)
+		}
+
+		serviceRules = append(serviceRules, signatures)
 	}
-	return &signatures, nil
+	return serviceRules, nil
 }
 
 // Matches if service instance satisfies rules
@@ -126,6 +131,9 @@ func matches(si *services.Instance, ruleset DiscoveryRuleset) (bool, error) {
 
 // Map matches discovered service instances to a plugin type.
 func (filter *RuleFilter) Map(sis services.Instances) (services.Instances, error) {
+	filter.mutex.Lock()
+	defer filter.mutex.Unlock()
+
 	applicableServices := make(services.Instances, 0, len(sis))
 
 	// Find the first rule that matches each service instance.
@@ -151,4 +159,26 @@ OUTER:
 	}
 
 	return applicableServices, nil
+}
+
+// load the filter rules
+func (filter *RuleFilter) load() error {
+	files := filter.Config.GetStringSlice("servicesfiles")
+	serviceRules, err := loadServiceSignatures(files)
+
+	if err != nil {
+		return err
+	}
+
+	filter.serviceRules = serviceRules
+	return nil
+}
+
+// Reload plugin
+func (filter *RuleFilter) Reload(config *viper.Viper) error {
+	filter.mutex.Lock()
+	defer filter.mutex.Unlock()
+
+	filter.Config = config
+	return filter.load()
 }

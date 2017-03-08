@@ -26,6 +26,7 @@ type PollingWatcher struct {
 	stopChan chan struct{}
 	cb       func(changed []string) error
 	mutex    sync.Mutex
+	wg       sync.WaitGroup
 }
 
 // reset is called when a file is not found or unable to be read during polling.
@@ -56,6 +57,7 @@ func NewPollingWatcher(cb func(changed []string) error, delay time.Duration) *Po
 
 // Start begins the polling process in the background
 func (w *PollingWatcher) Start() {
+	w.wg.Add(1)
 	ticker := time.NewTicker(w.delay)
 
 	go func() {
@@ -64,6 +66,7 @@ func (w *PollingWatcher) Start() {
 		for {
 			select {
 			case <-w.stopChan:
+				w.wg.Done()
 				return
 			case <-ticker.C:
 				w.poll()
@@ -99,6 +102,8 @@ func (w *PollingWatcher) Watch(files ...string) {
 // Close stops the watcher
 func (w *PollingWatcher) Close() {
 	w.stopChan <- struct{}{}
+	// Wait for poll to stop.
+	w.wg.Wait()
 }
 
 // read returns whether the file was changed or not (and updates entry state)

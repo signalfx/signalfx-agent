@@ -3,6 +3,7 @@ package plugins
 import (
 	"errors"
 
+	"github.com/signalfx/neo-agent/watchers"
 	"github.com/spf13/viper"
 )
 
@@ -16,6 +17,7 @@ var Plugins = map[string]CreatePlugin{}
 type Plugin struct {
 	name       string
 	pluginType string
+	watcher    *watchers.PollingWatcher
 	Config     *viper.Viper
 }
 
@@ -27,6 +29,9 @@ type IPlugin interface {
 	Reload(config *viper.Viper) error
 	String() string
 	Type() string
+	Watcher() *watchers.PollingWatcher
+	SetWatcher(*watchers.PollingWatcher)
+	GetWatchPaths(config *viper.Viper) []string
 }
 
 // NewPlugin constructor
@@ -34,7 +39,7 @@ func NewPlugin(name, pluginType string, config *viper.Viper) (Plugin, error) {
 	if config == nil {
 		return Plugin{}, errors.New("config cannot be nil")
 	}
-	return Plugin{name, pluginType, config}, nil
+	return Plugin{name: name, pluginType: pluginType, Config: config}, nil
 }
 
 // Name is name of plugin
@@ -71,6 +76,23 @@ func (plugin *Plugin) Reload(config *viper.Viper) error {
 	// config replacement.
 	plugin.Config = config
 	return nil
+}
+
+// GetWatchPaths returns list of files or directories that when changed will
+// trigger reload. This will be called *before* a plugin is reloaded with the
+// new configuration values that may contain a different set of files to watch.
+func (plugin *Plugin) GetWatchPaths(config *viper.Viper) []string {
+	return nil
+}
+
+// Watcher returns the watcher instance
+func (plugin *Plugin) Watcher() *watchers.PollingWatcher {
+	return plugin.watcher
+}
+
+// SetWatcher sets watcher instance
+func (plugin *Plugin) SetWatcher(watcher *watchers.PollingWatcher) {
+	plugin.watcher = watcher
 }
 
 // Register registers a plugin
