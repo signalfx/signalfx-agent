@@ -171,7 +171,7 @@ func (k *Kubernetes) doMap(sis services.Instances, pods *pods) (services.Instanc
 
 					id := fmt.Sprintf("%s-%s-%d", k.String(), pod.Metadata.Name, port.ContainerPort)
 					service := services.NewService(pod.Metadata.Name, services.UnknownService)
-					servicePort := services.NewPort(podIP, port.Protocol, port.ContainerPort, 0)
+					servicePort := services.NewPort(port.Name, podIP, port.Protocol, port.ContainerPort, 0)
 					container := services.NewContainer(status.ContainerID,
 						[]string{status.Name}, container.Image, pod.Metadata.Name, "",
 						containerState, pod.Metadata.Labels)

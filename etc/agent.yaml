@@ -14,6 +14,9 @@ plugins:
         # Whether to ignore SSL certification validation errors.
         # ignoreTLSVerify: false
 
+    mesosphere:
+        plugin: observers/mesosphere
+
     collectd:
         plugin: monitors/collectd
         confFile: /etc/collectd/collectd.conf
@@ -39,6 +42,11 @@ plugins:
         - /etc/signalfx/collectd/services.json
 
 pipelines:
+    mesosphere:
+    - mesosphere
+    - service-mapping
+    - collectd
+
     kubernetes:
     - kubernetes
     - service-mapping
