@@ -32,6 +32,7 @@
       "PortPref": 3
     },
     "Port": {
+      "Name": "",
       "IP": "10.2.83.13",
       "Type": "TCP",
       "PrivatePort": 9090,
@@ -73,6 +74,7 @@
       "PortPref": 3
     },
     "Port": {
+      "Name": "redis-tcp",
       "IP": "10.2.83.18",
       "Type": "TCP",
       "PrivatePort": 6379,

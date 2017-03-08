@@ -81,6 +81,7 @@ type Service struct {
 
 // Port network information
 type Port struct {
+	Name        string
 	IP          string
 	Type        PortType
 	PrivatePort uint16
@@ -124,8 +125,8 @@ func NewService(name string, serviceType ServiceType) *Service {
 }
 
 // NewPort constructor
-func NewPort(ip string, portType PortType, privatePort uint16, publicPort uint16) *Port {
-	return &Port{ip, portType, privatePort, publicPort, make(map[string]string)}
+func NewPort(name string, ip string, portType PortType, privatePort uint16, publicPort uint16) *Port {
+	return &Port{name, ip, portType, privatePort, publicPort, make(map[string]string)}
 }
 
 // NewOrchestration constructor

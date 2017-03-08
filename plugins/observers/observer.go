@@ -7,6 +7,8 @@ const (
 	Docker = "docker"
 	// Kubernetes Observer plugin name
 	Kubernetes = "kubernetes"
+	// Mesosphere Observer plugin name
+	Mesosphere = "mesosphere"
 )
 
 // Observer type
