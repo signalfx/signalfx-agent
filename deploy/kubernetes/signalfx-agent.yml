@@ -29,6 +29,8 @@ spec:
               securityContext:
                 privileged: true
               volumeMounts:
+                - mountPath: /mnt/templates
+                  name: templates
                 - mountPath: /mnt/config
                   name: config
                 - mountPath: /hostfs
@@ -63,6 +65,9 @@ spec:
               - name: SFX_MERGE_CONFIG
                 value: /etc/signalfx/kubernetes-defaults.yaml:/mnt/config/merge.yml
             volumes:
+              - name: templates
+                configMap:
+                  name: signalfx-templates
               - name: config
                 configMap:
                   name: signalfx-agent

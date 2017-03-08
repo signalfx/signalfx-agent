@@ -20,7 +20,8 @@ plugins:
     collectd:
         plugin: monitors/collectd
         confFile: /etc/collectd/collectd.conf
-        templatesDir: /etc/signalfx/collectd/templates
+        templatesDirs:
+        - /etc/signalfx/collectd/templates
         templatesMap: /etc/signalfx/collectd/templates.json
         pluginsDir: /usr/share/collectd
         staticPlugins:
