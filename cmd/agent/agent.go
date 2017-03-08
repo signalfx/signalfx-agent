@@ -10,11 +10,11 @@ import (
 	"sync"
 	"time"
 
-	"github.com/fsnotify/fsnotify"
 	"github.com/signalfx/neo-agent/config"
 	"github.com/signalfx/neo-agent/pipelines"
 	"github.com/signalfx/neo-agent/plugins"
 	_ "github.com/signalfx/neo-agent/plugins/all"
+	"github.com/signalfx/neo-agent/watchers"
 	"github.com/spf13/viper"
 	"golang.org/x/net/context"
 )
@@ -37,23 +37,19 @@ type Agent struct {
 	// configMutex for locking during async config reloads
 	configMutex sync.Mutex
 	configfile  string
-	fsWatcher   *fsnotify.Watcher
 }
 
 // NewAgent with defaults
 func NewAgent(configfile string) (*Agent, error) {
-	watcher, err := fsnotify.NewWatcher()
-	if err != nil {
-		return nil, err
-	}
-
-	return &Agent{Interval: config.DefaultInterval, configfile: configfile, fsWatcher: watcher}, nil
+	return &Agent{Interval: config.DefaultInterval, configfile: configfile}, nil
 }
 
 // Configure an agent by populating the viper config and loading plugins
-func (agent *Agent) Configure() error {
+func (agent *Agent) Configure(changed []string) error {
 	agent.configMutex.Lock()
 	defer agent.configMutex.Unlock()
+
+	log.Printf("reconfiguring due to changed files: %v", changed)
 
 	if err := config.Load(agent.configfile); err != nil {
 		// This is likely a significant error (can't read one or more
@@ -117,14 +113,30 @@ func main() {
 		os.Exit(1)
 	}
 
-	if watch {
-		if err := config.WatchForChanges(agent.fsWatcher, *agentConfig, agent.Configure); err != nil {
-			log.Printf("failed to start watching for changes: %s", err)
-			os.Exit(1)
-		}
+	// We load here to get the polling interval. We need this value to create
+	// the watcher. We will reload after the watcher is setup in Configure().
+	// (Otherwise changes could be missed.)
+	if err := config.Load(agent.configfile); err != nil {
+		log.Printf("failed loading config: %s", err)
+		os.Exit(1)
 	}
 
-	if err := agent.Configure(); err != nil {
+	var fsWatcher *watchers.PollingWatcher
+
+	if watch {
+		pollingInterval := viper.GetFloat64("pollinginterval")
+		if pollingInterval <= 0 {
+			log.Printf("pollingInterval must greater than zero")
+			os.Exit(1)
+		}
+
+		duration := time.Duration(pollingInterval * float64(time.Second))
+		fsWatcher = watchers.NewPollingWatcher(agent.Configure, duration)
+		log.Printf("watching for changes every %f seconds", duration.Seconds())
+		config.WatchForChanges(fsWatcher, *agentConfig)
+	}
+
+	if err := agent.Configure(nil); err != nil {
 		log.Printf("failed to configure agent: %s", err)
 		if !watch {
 			// If config reloading is enabled then a configuration change can
@@ -179,7 +191,9 @@ func main() {
 		case <-signalCh:
 			log.Print("stopping agent ...")
 			ticker.Stop()
-			agent.fsWatcher.Close()
+			if fsWatcher != nil {
+				fsWatcher.Close()
+			}
 			cancel()
 			return
 		}

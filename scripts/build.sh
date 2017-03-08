@@ -15,6 +15,7 @@ GO_PACKAGES=(
     secrets
     services
     utils
+    watchers
 )
 
 # For Jenkins.

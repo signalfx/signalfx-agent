@@ -14,3 +14,5 @@ import:
   version: ~1.4.2
 testImport:
 - package: github.com/kr/pretty
+- package: github.com/smartystreets/goconvey
+  version: ^1.6.2
