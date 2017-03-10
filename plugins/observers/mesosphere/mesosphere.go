@@ -16,6 +16,8 @@ import (
 )
 
 const (
+	pluginType = "observers/mesosphere"
+
 	// DefaultPort of the task state api
 	DefaultPort = 5051
 	// RunningState string for a currently running task
@@ -80,12 +82,12 @@ type tasks struct {
 }
 
 func init() {
-	plugins.Register("observers/mesosphere", NewMesosphere)
+	plugins.Register(pluginType, NewMesosphere)
 }
 
 // NewMesosphere observer
 func NewMesosphere(name string, config *viper.Viper) (plugins.IPlugin, error) {
-	plugin, err := plugins.NewPlugin(name, config)
+	plugin, err := plugins.NewPlugin(name, pluginType, config)
 	if err != nil {
 		return nil, err
 	}

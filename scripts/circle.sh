@@ -8,6 +8,6 @@ if [ "$1" = "test" ]; then
     mkdir -p $CIRCLE_TEST_REPORTS/reports
 
     cd ../.go_workspace/src/github.com/signalfx/neo-agent
-    make lint
+    make lint vet
     go test -v `glide novendor` | go2xunit > $CIRCLE_TEST_REPORTS/reports/unit.xml
 fi

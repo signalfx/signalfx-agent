@@ -9,18 +9,22 @@ import (
 	"github.com/spf13/viper"
 )
 
+const (
+	pluginType = "filters/debug"
+)
+
 // Filter prints the input and passes
 type Filter struct {
 	plugins.Plugin
 }
 
 func init() {
-	plugins.Register("filters/debug", NewFilter)
+	plugins.Register(pluginType, NewFilter)
 }
 
 // NewFilter creates a new instance
 func NewFilter(name string, config *viper.Viper) (plugins.IPlugin, error) {
-	plugin, err := plugins.NewPlugin(name, config)
+	plugin, err := plugins.NewPlugin(name, pluginType, config)
 	if err != nil {
 		return nil, err
 	}

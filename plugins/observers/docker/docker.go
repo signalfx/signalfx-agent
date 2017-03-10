@@ -14,6 +14,7 @@ import (
 )
 
 const (
+	pluginType     = "observers/docker"
 	defaultHostURL = "unix:///var/run/docker.sock"
 	userAgent      = "signalfx-agent"
 	version        = "v1.22"
@@ -25,12 +26,12 @@ type Docker struct {
 }
 
 func init() {
-	plugins.Register("observers/docker", NewDocker)
+	plugins.Register(pluginType, NewDocker)
 }
 
 // NewDocker constructor
 func NewDocker(name string, config *viper.Viper) (plugins.IPlugin, error) {
-	plugin, err := plugins.NewPlugin(name, config)
+	plugin, err := plugins.NewPlugin(name, pluginType, config)
 	if err != nil {
 		return nil, err
 	}

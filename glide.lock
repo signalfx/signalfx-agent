@@ -1,5 +1,5 @@
-hash: 0ab1fea884a7bc90b0407e817c15832af3f7d30d9e21b4ed7c3a4e4ac1e6cf38
-updated: 2017-02-17T20:11:51.345934183-05:00
+hash: fbd55cf0c05968bbc57350d85b11e6cadeb7fee196904daa40ab43a03f466558
+updated: 2017-03-13T11:33:04.136215205-04:00
 imports:
 - name: github.com/docker/distribution
   version: fb0bebc4b64e3881cc52a2478d749845ed76d2a8
@@ -32,7 +32,7 @@ imports:
 - name: github.com/docker/go-units
   version: 0dadbb0345b35ec7ef35e228dabb8de89a65bf52
 - name: github.com/fsnotify/fsnotify
-  version: a904159b9206978bb6d53fcc7a769e5cd726c737
+  version: 629574ca2a5df945712d3079857300b5e4da0236
 - name: github.com/hashicorp/hcl
   version: db4f0768927a665a06c32855186e1bc762bcc8f5
   subpackages:

@@ -26,6 +26,7 @@ var now = time.Now
 type phase string
 
 const (
+	pluginType = "observers/kubernetes"
 	// RunningPhase Kubernetes running phase
 	runningPhase phase = "Running"
 )
@@ -69,12 +70,12 @@ type pods struct {
 }
 
 func init() {
-	plugins.Register("observers/kubernetes", NewKubernetes)
+	plugins.Register(pluginType, NewKubernetes)
 }
 
 // NewKubernetes constructor
 func NewKubernetes(name string, config *viper.Viper) (plugins.IPlugin, error) {
-	plugin, err := plugins.NewPlugin(name, config)
+	plugin, err := plugins.NewPlugin(name, pluginType, config)
 	if err != nil {
 		return nil, err
 	}
