@@ -9,6 +9,7 @@ BUILDER_IMAGE_NAME="agent-builder-image"
 PROJECT_DIR=${PROJECT_DIR:-${PWD}}
 GO_PACKAGES=(
     cmd
+    config
     pipelines
     plugins
     secrets
