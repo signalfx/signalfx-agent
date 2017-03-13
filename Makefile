@@ -1,12 +1,21 @@
 RUN_CONTAINER := neo-agent-tmp
 
+go_pkgs := $(shell glide novendor)
+
+.PHONY: check
+check: lint vet test
+
 .PHONY: test
 test:
-	go test `glide novendor`
+	go test $(go_pkgs)
+
+.PHONY: vet
+vet:
+	go vet $(go_pkgs)
 
 .PHONY: lint
 lint:
-	golint -set_exit_status `glide novendor`
+	golint -set_exit_status $(go_pkgs)
 
 .PHONY: collectd
 collectd:

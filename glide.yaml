@@ -10,5 +10,7 @@ import:
 - package: golang.org/x/net
   subpackages:
   - context
+- package: github.com/fsnotify/fsnotify
+  version: ~1.4.2
 testImport:
 - package: github.com/kr/pretty

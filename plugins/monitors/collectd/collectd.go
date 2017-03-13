@@ -13,6 +13,7 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"sync"
 	"time"
 
 	"path/filepath"
@@ -28,6 +29,8 @@ import (
 )
 
 const (
+	pluginType = "monitors/collectd"
+
 	// Running collectd
 	Running = "running"
 	// Stopped collectd
@@ -47,15 +50,17 @@ type Collectd struct {
 	reloadChan   chan int
 	stopChan     chan int
 	templatesMap map[string][]string
+	configMutex  sync.Mutex
+	configDirty  bool
 }
 
 func init() {
-	plugins.Register("monitors/collectd", NewCollectd)
+	plugins.Register(pluginType, NewCollectd)
 }
 
 // NewCollectd constructor
 func NewCollectd(name string, config *viper.Viper) (plugins.IPlugin, error) {
-	plugin, err := plugins.NewPlugin(name, config)
+	plugin, err := plugins.NewPlugin(name, pluginType, config)
 	if err != nil {
 		return nil, err
 	}
@@ -96,7 +101,7 @@ func NewCollectd(name string, config *viper.Viper) (plugins.IPlugin, error) {
 	}
 
 	return &Collectd{plugin, Stopped, nil, templatesDir, confFile, pluginsDir,
-		make(chan int), make(chan int), templatesMap}, nil
+		make(chan int), make(chan int), templatesMap, sync.Mutex{}, false}, nil
 }
 
 // loadTemplatesMap loads template mapping file from path into templatesMap
@@ -120,8 +125,19 @@ func loadTemplatesMap(path string, templatesMap map[string][]string) error {
 
 // Monitor services from collectd monitor
 func (collectd *Collectd) Write(services services.Instances) error {
+	collectd.configMutex.Lock()
+	defer collectd.configMutex.Unlock()
+
 	changed := false
-	if len(collectd.services) != len(services) {
+
+	if collectd.configDirty {
+		changed = true
+		collectd.configDirty = false
+	}
+
+	if changed {
+		log.Print("reloading config due to dirty flag")
+	} else if len(collectd.services) != len(services) {
 		changed = true
 	} else {
 		for i := range services {
@@ -306,6 +322,16 @@ func (collectd *Collectd) Stop() {
 	if collectd.state != Stopped {
 		collectd.stopChan <- 0
 	}
+}
+
+// Reload collectd config
+func (collectd *Collectd) Reload(config *viper.Viper) error {
+	collectd.configMutex.Lock()
+	defer collectd.configMutex.Unlock()
+
+	collectd.Config = config
+	collectd.configDirty = true
+	return nil
 }
 
 // Status for collectd monitoring

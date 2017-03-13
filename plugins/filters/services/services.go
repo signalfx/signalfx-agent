@@ -13,6 +13,10 @@ import (
 	"github.com/spf13/viper"
 )
 
+const (
+	pluginType = "filters/service-rules"
+)
+
 // DiscoveryRuleset that names a set of service discovery rules
 type DiscoveryRuleset struct {
 	Name string
@@ -38,7 +42,7 @@ type RuleFilter struct {
 }
 
 func init() {
-	plugins.Register("filters/service-rules", NewRuleFilter)
+	plugins.Register(pluginType, NewRuleFilter)
 }
 
 // NewRuleFilter creates a new instance
@@ -49,7 +53,7 @@ func NewRuleFilter(name string, config *viper.Viper) (plugins.IPlugin, error) {
 		err           error
 	)
 
-	plugin, err := plugins.NewPlugin(name, config)
+	plugin, err := plugins.NewPlugin(name, pluginType, config)
 	if err != nil {
 		return nil, err
 	}
