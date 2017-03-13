@@ -44,11 +44,11 @@ RUN mkdir -p /etc/collectd/managed_config \
 # collectd-cpu
 # collectd-docker
 RUN mkdir -p /usr/share/collectd/docker-collectd-plugin \
-    && curl -L "https://github.com/signalfx/docker-collectd-plugin/archive/v1.0.0.tar.gz" --output /usr/share/collectd/docker-collectd-plugin/v1.0.0.tar.gz \
-    && tar -zxvf /usr/share/collectd/docker-collectd-plugin/v1.0.0.tar.gz -C /usr/share/collectd/docker-collectd-plugin/ \
-    && cp /usr/share/collectd/docker-collectd-plugin/docker-collectd-plugin-1.0.0/* /usr/share/collectd/docker-collectd-plugin/ \
-    && rm -f /usr/share/collectd/docker-collectd-plugin/v1.0.0.tar.gz \
-    && rm -rf /usr/share/collectd/docker-collectd-plugin/docker-collectd-plugin-1.0.0 \
+    && curl -L "https://github.com/signalfx/docker-collectd-plugin/archive/v1.0.1.tar.gz" --output /usr/share/collectd/docker-collectd-plugin/v1.0.1.tar.gz \
+    && tar -zxvf /usr/share/collectd/docker-collectd-plugin/v1.0.1.tar.gz -C /usr/share/collectd/docker-collectd-plugin/ \
+    && cp /usr/share/collectd/docker-collectd-plugin/docker-collectd-plugin-1.0.1/* /usr/share/collectd/docker-collectd-plugin/ \
+    && rm -f /usr/share/collectd/docker-collectd-plugin/v1.0.1.tar.gz \
+    && rm -rf /usr/share/collectd/docker-collectd-plugin/docker-collectd-plugin-1.0.1 \
     && pip install -r /usr/share/collectd/docker-collectd-plugin/requirements.txt
 
 # collectd-elasticsearch

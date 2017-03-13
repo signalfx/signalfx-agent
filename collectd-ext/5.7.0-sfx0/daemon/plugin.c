@@ -2657,8 +2657,8 @@ void plugin_shutdown_for_reload(void) {
 
     destroy_all_callbacks(&list_notification);
     destroy_all_callbacks(&list_shutdown);
-    //destroy_all_callbacks(&list_log);
     destroy_all_callbacks(&list_init);
+    destroy_all_callbacks(&list_log);
 
     plugin_free_loaded();
     plugin_free_data_sets();
