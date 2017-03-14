@@ -3,6 +3,7 @@ package config
 import (
 	"bytes"
 	"fmt"
+	"log"
 	"os"
 	"path"
 	"runtime"
@@ -12,16 +13,15 @@ import (
 )
 
 // RenderCollectdConf renders a collectd.conf config from the given app configuration.
-func RenderCollectdConf(pluginRoot string, templatesDir string, appConfig *AppConfig) (string, error) {
+func RenderCollectdConf(pluginRoot string, templatesDirs []string, appConfig *AppConfig) (string, error) {
 	if _, err := os.Stat(pluginRoot); os.IsNotExist(err) {
 		return "", fmt.Errorf("plugin root directory %s does not exist", pluginRoot)
 	}
 
 	output := bytes.Buffer{}
 	tmpl := template.New("collectd.conf.tmpl")
-
-	if tmpl, err := tmpl.
-		Funcs(template.FuncMap{
+	tmpl.Funcs(
+		template.FuncMap{
 			"RenderTemplate": func(name string, data interface{}) (string, error) {
 				buf := bytes.Buffer{}
 				if err := tmpl.ExecuteTemplate(&buf, name, data); err != nil {
@@ -46,10 +46,16 @@ func RenderCollectdConf(pluginRoot string, templatesDir string, appConfig *AppCo
 
 				return "", fmt.Errorf("unable to find secret for %s", name)
 			},
-		}).
-		ParseGlob(path.Join(templatesDir, "*.tmpl")); err != nil {
-		return "", fmt.Errorf("Failed to load templates: %s", err)
-	} else if err := tmpl.Execute(&output, appConfig); err != nil {
+		})
+
+	for i := len(templatesDirs) - 1; i >= 0; i-- {
+		log.Printf("loading templates from %s", templatesDirs[i])
+		if _, err := tmpl.ParseGlob(path.Join(templatesDirs[i], "*.tmpl")); err != nil {
+			return "", fmt.Errorf("Failed to load templates: %s", err)
+		}
+	}
+
+	if err := tmpl.Execute(&output, appConfig); err != nil {
 		return "", fmt.Errorf("Failed to execute template: %s", err)
 	}
 

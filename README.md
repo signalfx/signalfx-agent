@@ -29,9 +29,15 @@ Here are examples of running agent:
 * Configure secrets
     * Add a secret named `signalfx` that has a key `apiToken` that is your SignalFX API token.
     * Because the Quay repository is currently private you have to configure Docker registry authentication. Create a `docker-registry` type secret with name `quay-pull-secret` and in the data section set `.dockerconfigjson` to the base64 encoded contents of `~/.docker/config.json` (assuming you have already logged in with `docker login`)
-* Create config map with `kubectl create -f deploy/kubernetes/signalfx-agent-configmap.yml` then edit it as needed
+* Create config maps:
+
+        kubectl create -f deploy/kubernetes/signalfx-agent-configmap.yml \
+                       -f deploy/kubernetes/signalfx-templates.yml
+ then edit it as needed.
 * Deploy the agent daemonset
     `kubectl create -f deploy/kubernetes/signalfx-agent.yml`
+
+To override collectd templates modify the `signalfx-templates` config map.
 
 #### Updating
 Until we have an update script the easiest way to update the agents to a new version is to:
@@ -91,7 +97,8 @@ services:
               type: collectd
               config:
                   confFile: /etc/collectd/collectd.conf
-                  templatesDir: /etc/signalfx/collectd/templates
+                  templatesDirs:
+                  - /etc/signalfx/collectd/templates
                   templatesMap: /etc/signalfx/collectd/templates.json
                   pluginsDir: /usr/share/collectd
                   staticPlugins:

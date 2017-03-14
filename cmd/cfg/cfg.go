@@ -23,7 +23,7 @@ func main() {
 		fmt.Printf("Loading yaml failed: %s\n", err)
 		os.Exit(1)
 	}
-	if output, err := config.RenderCollectdConf("/opt/collectd-plugins", "etc/collectd/templates", appConfig); err != nil {
+	if output, err := config.RenderCollectdConf("/opt/collectd-plugins", []string{"etc/collectd/templates"}, appConfig); err != nil {
 		fmt.Printf("Rendering collectd failed: %s\n", err)
 		os.Exit(1)
 	} else {

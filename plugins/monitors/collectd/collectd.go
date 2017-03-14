@@ -42,16 +42,16 @@ const (
 // Collectd Monitor
 type Collectd struct {
 	plugins.Plugin
-	state        string
-	services     services.Instances
-	templatesDir string
-	confFile     string
-	pluginsDir   string
-	reloadChan   chan int
-	stopChan     chan int
-	templatesMap map[string][]string
-	configMutex  sync.Mutex
-	configDirty  bool
+	state         string
+	services      services.Instances
+	templatesDirs []string
+	confFile      string
+	pluginsDir    string
+	reloadChan    chan int
+	stopChan      chan int
+	templatesMap  map[string][]string
+	configMutex   sync.Mutex
+	configDirty   bool
 }
 
 func init() {
@@ -64,44 +64,68 @@ func NewCollectd(name string, config *viper.Viper) (plugins.IPlugin, error) {
 	if err != nil {
 		return nil, err
 	}
-
-	// Convert to absolute paths since our cwd can get changed.
-	templatesDir := plugin.Config.GetString("templatesdir")
-	if templatesDir == "" {
-		return nil, errors.New("config missing templatesDir entry")
-	}
-	templatesDir, err = filepath.Abs(templatesDir)
-	if err != nil {
+	c := &Collectd{
+		Plugin:     plugin,
+		state:      Stopped,
+		reloadChan: make(chan int),
+		stopChan:   make(chan int)}
+	if err := c.load(plugin.Config); err != nil {
 		return nil, err
 	}
 
-	confFile := plugin.Config.GetString("conffile")
+	return c, nil
+}
+
+// load collectd plugin config from the provided config
+func (collectd *Collectd) load(config *viper.Viper) error {
+	var err error
+
+	templatesDirs := config.GetStringSlice("templatesdirs")
+	if len(templatesDirs) == 0 {
+		return errors.New("config missing templatesDirs entry")
+	}
+
+	// Convert to absolute paths since our cwd can get changed.
+	for i := range templatesDirs {
+		absTemplateDir, err := filepath.Abs(templatesDirs[i])
+		if err != nil {
+			return err
+		}
+		templatesDirs[i] = absTemplateDir
+	}
+
+	confFile := config.GetString("conffile")
 	if confFile == "" {
-		return nil, errors.New("config missing confFile entry")
+		return errors.New("config missing confFile entry")
 	}
 
 	confFile, err = filepath.Abs(confFile)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
-	pluginsDir := plugin.Config.GetString("pluginsDir")
+	pluginsDir := config.GetString("pluginsDir")
 	if err != nil {
-		return nil, err
+		return err
 	}
 
-	templatesMapPath := plugin.Config.GetString("templatesMap")
+	templatesMapPath := config.GetString("templatesMap")
 	if templatesMapPath == "" {
-		return nil, errors.New("config missing templatesMap entry")
+		return errors.New("config missing templatesMap entry")
 	}
 
 	templatesMap := map[string][]string{}
 	if err := loadTemplatesMap(templatesMapPath, templatesMap); err != nil {
-		return nil, err
+		return err
 	}
 
-	return &Collectd{plugin, Stopped, nil, templatesDir, confFile, pluginsDir,
-		make(chan int), make(chan int), templatesMap, sync.Mutex{}, false}, nil
+	// Set values once everything passes muster.
+	collectd.templatesDirs = templatesDirs
+	collectd.confFile = confFile
+	collectd.pluginsDir = pluginsDir
+	collectd.templatesMap = templatesMap
+
+	return nil
 }
 
 // loadTemplatesMap loads template mapping file from path into templatesMap
@@ -190,7 +214,7 @@ func (collectd *Collectd) writePlugins(plugins []*config.Plugin) error {
 	// If this is empty then collectd determines hostname.
 	collectdConfig.Hostname = viper.GetString("hostname")
 
-	config, err := config.RenderCollectdConf(collectd.pluginsDir, collectd.templatesDir, &config.AppConfig{
+	config, err := config.RenderCollectdConf(collectd.pluginsDir, collectd.templatesDirs, &config.AppConfig{
 		AgentConfig: collectdConfig,
 		Plugins:     plugins,
 	})
@@ -329,6 +353,10 @@ func (collectd *Collectd) Reload(config *viper.Viper) error {
 	collectd.configMutex.Lock()
 	defer collectd.configMutex.Unlock()
 
+	if err := collectd.load(config); err != nil {
+		return err
+	}
+
 	collectd.Config = config
 	collectd.configDirty = true
 	return nil
@@ -345,7 +373,6 @@ func (collectd *Collectd) setState(state string) {
 }
 
 func (collectd *Collectd) run() {
-
 	collectd.setState(Running)
 	defer collectd.setState(Stopped)
 
