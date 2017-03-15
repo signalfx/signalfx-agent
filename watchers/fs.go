@@ -14,8 +14,9 @@ import (
 )
 
 type entry struct {
-	callback func() error
-	hash     []byte
+	callback     func() error
+	hash         []byte
+	modifiedTime time.Time
 }
 
 // PollingWatcher watches for changes to files by polling
@@ -25,6 +26,24 @@ type PollingWatcher struct {
 	stopChan chan struct{}
 	cb       func(changed []string) error
 	mutex    sync.Mutex
+}
+
+// reset is called when a file is not found or unable to be read during polling.
+// Returns true if the entry was reset or false if it was already zeroed out.
+func (entry *entry) reset() bool {
+	changed := false
+
+	if entry.hash != nil {
+		entry.hash = nil
+		changed = true
+	}
+
+	if !entry.modifiedTime.IsZero() {
+		entry.modifiedTime = time.Time{}
+		changed = true
+	}
+
+	return changed
 }
 
 // NewPollingWatcher creates a new polling watcher instance
@@ -82,38 +101,38 @@ func (w *PollingWatcher) Close() {
 	w.stopChan <- struct{}{}
 }
 
-func resetHash(entry *entry) bool {
-	if entry.hash != nil {
-		// File has been removed, reset hash in case it's readded.
-		entry.hash = nil
-		return true
-	}
-	return false
-}
-
 // read returns whether the file was changed or not (and updates entry state)
 func read(fileName string, entry *entry) bool {
 	stat, err := os.Stat(fileName)
 	if os.IsNotExist(err) {
-		return resetHash(entry)
+		return entry.reset()
 	}
 
 	if stat.IsDir() {
 		panic("unimplemented")
 	} else {
+		// If the file modified time is equal to or before our recorded modified
+		// skip further checks. This also accounts for the initial case where
+		// modifiedTime is initialized to its zero value.
+		if !stat.ModTime().After(entry.modifiedTime) {
+			return false
+		}
+
+		entry.modifiedTime = stat.ModTime()
+
 		ck := md5.New()
 
 		f, err := os.OpenFile(fileName, os.O_RDONLY, 0)
 		if err != nil {
 			// File was possibly removed between stat and open.
-			return resetHash(entry)
+			return entry.reset()
 		}
 		defer f.Close()
 
 		// Compute file hash.
 		if _, err := io.Copy(ck, f); err != nil {
 			log.Printf("failed to copy file %s to buffer: %s", fileName, err)
-			return resetHash(entry)
+			return entry.reset()
 		}
 
 		newHash := ck.Sum(nil)
