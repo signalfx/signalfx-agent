@@ -1,5 +1,7 @@
 # interval: 10
 # pipeline: docker
+# Number of seconds before polling configuration files for changes.
+# pollingInterval: 5
 # If hostname is unset collectd determines the hostname at runtime.
 # hostname:
 

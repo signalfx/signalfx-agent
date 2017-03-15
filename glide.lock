@@ -1,5 +1,5 @@
-hash: fbd55cf0c05968bbc57350d85b11e6cadeb7fee196904daa40ab43a03f466558
-updated: 2017-03-13T11:33:04.136215205-04:00
+hash: 161635b45fe353f0d66f280e7a621a651727c82ce124af161f1ad7270166a10a
+updated: 2017-03-15T14:32:10.850634769-04:00
 imports:
 - name: github.com/docker/distribution
   version: fb0bebc4b64e3881cc52a2478d749845ed76d2a8
@@ -58,6 +58,8 @@ imports:
   version: df1e16fde7fc330a0ca68167c23bf7ed6ac31d6d
 - name: github.com/pelletier/go-toml
   version: a1f048ba24490f9b0674a67e1ce995d685cddf4a
+- name: github.com/rjeczalik/notify
+  version: 41a86457b5eea072a7e6f40bbfaf94c8df41d3aa
 - name: github.com/Sirupsen/logrus
   version: 61e43dc76f7ee59a82bdf3d71033dc12bea4c77d
 - name: github.com/spf13/afero
@@ -92,7 +94,24 @@ imports:
 - name: gopkg.in/yaml.v2
   version: 4c78c975fe7c825c6d1466c42be594d1d6f3aba6
 testImports:
+- name: github.com/gopherjs/gopherjs
+  version: 0cc212b4ef1943b61e894a7d56490575b3216439
+  subpackages:
+  - js
+- name: github.com/jtolds/gls
+  version: bb0351aa7eb6f322f32667d51375f26a2bca6628
 - name: github.com/kr/pretty
   version: cfb55aafdaf3ec08f0db22699ab822c50091b1c4
 - name: github.com/kr/text
   version: 7cafcd837844e784b526369c9bce262804aebc60
+- name: github.com/smartystreets/assertions
+  version: c9ee7d9e9a2aeec0bee7c4a516f3e0ad7cb7e558
+  subpackages:
+  - internal/go-render/render
+  - internal/oglematchers
+- name: github.com/smartystreets/goconvey
+  version: d4c757aa9afd1e2fc1832aaab209b5794eb336e1
+  subpackages:
+  - convey
+  - convey/gotest
+  - convey/reporting
