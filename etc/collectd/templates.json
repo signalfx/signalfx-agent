@@ -1,22 +1,8 @@
 {
-    "apache-labeled-default": [
-        "apache.conf.tmpl"
-    ],
-    "apache-image-default": [
-        "apache.conf.tmpl"
-    ],
-
-    "mongodb-labeled-default": [
-        "mongodb.conf.tmpl"
-    ],
-    "mongodb-image-default": [
-        "mongodb.conf.tmpl"
-    ],
-
-    "zookeeper-labeled-default": [
-        "zookeeper.conf.tmpl"
-    ],
-    "zookeeper-image-default": [
-        "zookeeper.conf.tmpl"
-    ]
+    "apache-labeled-default": "apache.default.conf.tmpl",
+    "apache-image-default": "apache.default.conf.tmpl",
+    "mongodb-labeled-default": "mongodb.default.conf.tmpl",
+    "mongodb-image-default": "mongodb.default.conf.tmpl",
+    "zookeeper-labeled-default": "zookeeper.default.conf.tmpl",
+    "zookeeper-image-default": "zookeeper.default.conf.tmpl"
 }

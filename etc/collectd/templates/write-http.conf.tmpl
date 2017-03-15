@@ -1,9 +1,11 @@
+{{define "write-http"}}
 <LoadPlugin "write_http">
    FlushInterval 10
 </LoadPlugin>
 <Plugin "write_http">
+  {{range $instance := .}}
   <Node "SignalFx">
-    URL "{{.Config.url}}/v1/collectd{{if .Config.dimensions}}?{{.Config.dimensions}}{{end}}"
+    URL "{{$instance.Config.url}}/v1/collectd{{if $instance.Config.dimensions}}?{{$instance.Config.dimensions}}{{end}}"
     User "auth"
     Password "{{Secret "SFX_API_TOKEN"}}"
     Format "JSON"
@@ -11,4 +13,6 @@
     BufferSize 65536
     LogHttpError true
   </Node>
+  {{end}}
 </Plugin>
+{{end}}

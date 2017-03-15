@@ -1,15 +1,10 @@
+{{define "mongodb"}}
 LoadPlugin python
 <Plugin "python">
   ModulePath "{{Globals.PluginRoot}}/mongodb-collectd-plugin"
   Import "mongodb"
-  <Module mongodb>
-    Host "{{.Host}}"
-    Port {{.Port}}
-    {{if Secret "SFX_MONITOR_USER"}}
-    User "{{Secret "SFX_MONITOR_USER"}}"
-    Password "{{Secret "SFX_MONITOR_PASSWORD"}}"
-    {{end}}
-    Database "admin"
-    Dimensions "{{.Dims}}"
-  </Module>
+  {{range $instance := .}}
+  	{{RenderTemplate $instance.Template $instance}}
+  {{end}}
 </Plugin>
+{{end}}

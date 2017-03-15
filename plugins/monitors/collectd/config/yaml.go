@@ -60,7 +60,9 @@ func LoadYamlConfig(configFile string) (*AppConfig, error) {
 		}
 	}
 
-	return &AppConfig{AgentConfig: config, Plugins: plugins}, nil
+	instancesMap := GroupByPlugin(plugins)
+
+	return &AppConfig{AgentConfig: config, Plugins: instancesMap}, nil
 }
 
 // LoadPluginConfig loads a plugin's configuration. If the configuration can't

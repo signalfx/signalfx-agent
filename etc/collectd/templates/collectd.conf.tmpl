@@ -25,10 +25,6 @@ LoadPlugin logfile
 
 {{template "default-plugins.conf.tmpl"}}
 
-{{range $i1, $plugin := .Plugins}}
-# ================ Begin plugin {{$i1}} ================
-{{range $i2, $template := .Templates}}
-{{RenderTemplate $template $plugin}}
-{{end}}
-# ================ End plugin {{$i1}} ================
+{{range $plugin, $instances := .Plugins}}
+{{RenderTemplate $plugin $instances}}
 {{end}}
