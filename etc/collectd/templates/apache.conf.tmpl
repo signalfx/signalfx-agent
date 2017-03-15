@@ -1,7 +1,8 @@
+{{define "apache"}}
 LoadPlugin "apache"
 <Plugin "apache">
-   <Instance "{{.Name}}[{{.Dims}}]">
-       URL "http://{{.Host}}:{{.Port}}/mod_status?auto"
-   </Instance>
+  {{range $instance := .}}
+  	{{RenderTemplate $instance.Template $instance}}
+  {{end}}
 </Plugin>
-
+{{end}}

@@ -1,3 +1,4 @@
+{{define "docker"}}
 TypesDB "{{Globals.PluginRoot}}/docker-collectd-plugin/dockerplugin.db"
 LoadPlugin python
 
@@ -5,14 +6,17 @@ LoadPlugin python
   ModulePath "{{Globals.PluginRoot}}/docker-collectd-plugin"
   Import "dockerplugin"
 
+  {{range $instance := .}}
   <Module dockerplugin>
-    BaseURL "{{.Config.url}}"
+    BaseURL "{{$instance.Config.url}}"
     Timeout 3
     Verbose false
-    {{range $key, $value := .Config.extradimensions -}}
+    {{range $key, $value := $instance.Config.extradimensions -}}
     Dimension "{{$key}}" "{{$value}}"
     {{end -}}
   </Module>
+  {{end}}
+
 </Plugin>
 
 LoadPlugin match_regex
@@ -57,3 +61,4 @@ LoadPlugin match_regex
 
   Target "stop"
 </Chain>
+{{end}}

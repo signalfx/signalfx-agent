@@ -1,0 +1,13 @@
+{{define "redis"}}
+<LoadPlugin python>
+  Globals true
+</LoadPlugin>
+
+<Plugin python>
+  ModulePath "{{Globals.PluginRoot}}/redis-collectd-plugin"
+  Import "redis_info"
+  {{range $instance := .}}
+  	{{RenderTemplate $instance.Template $instance}}
+  {{end}}
+</Plugin>
+{{end}}

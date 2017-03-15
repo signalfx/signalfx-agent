@@ -49,7 +49,7 @@ type Collectd struct {
 	pluginsDir    string
 	reloadChan    chan int
 	stopChan      chan int
-	templatesMap  map[string][]string
+	templatesMap  map[string]string
 	configMutex   sync.Mutex
 	configDirty   bool
 }
@@ -114,7 +114,7 @@ func (collectd *Collectd) load(config *viper.Viper) error {
 		return errors.New("config missing templatesMap entry")
 	}
 
-	templatesMap := map[string][]string{}
+	templatesMap := map[string]string{}
 	if err := loadTemplatesMap(templatesMapPath, templatesMap); err != nil {
 		return err
 	}
@@ -129,7 +129,7 @@ func (collectd *Collectd) load(config *viper.Viper) error {
 }
 
 // loadTemplatesMap loads template mapping file from path into templatesMap
-func loadTemplatesMap(path string, templatesMap map[string][]string) error {
+func loadTemplatesMap(path string, templatesMap map[string]string) error {
 	path, err := filepath.Abs(path)
 	if err != nil {
 		return err
@@ -214,11 +214,13 @@ func (collectd *Collectd) writePlugins(plugins []*config.Plugin) error {
 	// If this is empty then collectd determines hostname.
 	collectdConfig.Hostname = viper.GetString("hostname")
 
+	// group instances by plugin
+	instancesMap := config.GroupByPlugin(plugins)
+
 	config, err := config.RenderCollectdConf(collectd.pluginsDir, collectd.templatesDirs, &config.AppConfig{
 		AgentConfig: collectdConfig,
-		Plugins:     plugins,
+		Plugins:     instancesMap,
 	})
-
 	if err != nil {
 		return err
 	}
@@ -305,8 +307,8 @@ func (collectd *Collectd) createPluginsFromServices(sis services.Instances) ([]*
 		log.Printf("reconfiguring collectd service: %s (%s)", service.Service.Name, service.Service.Type)
 
 		if templates, ok := collectd.templatesMap[service.Service.Name]; ok {
-			log.Printf("Replacing templates %s with %s for %s", plugin.Templates, templates, service.Service.Name)
-			plugin.Templates = templates
+			log.Printf("Replacing template %s with %s for %s", plugin.Template, templates, service.Service.Name)
+			plugin.Template = templates
 		}
 
 		plugins = append(plugins, plugin)

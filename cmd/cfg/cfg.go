@@ -39,10 +39,10 @@ func main() {
 	fmt.Printf("%+v\n", appConfig.AgentConfig)
 	fmt.Printf("%+v\n", appConfig.Plugins)
 
-	for _, p := range appConfig.Plugins {
-		println("plugin")
-		for _, tmp := range p.Templates {
-			fmt.Printf("   %s\n", tmp)
+	for plugin, instances := range appConfig.Plugins {
+		fmt.Printf("plugin %s\n", plugin)
+		for _, instance := range instances {
+			fmt.Printf("instance %s template: %s\n", instance.Name, instance.Template)
 		}
 	}
 }
