@@ -99,6 +99,7 @@ func main() {
 	flag.Parse()
 
 	watch := !*noWatch
+	viper.SetDefault("filewatching", watch)
 
 	if *version {
 		fmt.Printf("agent-version: %s, collectd-version: %s, built-time: %s\n", Version, CollectdVersion, BuiltTime)

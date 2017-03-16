@@ -22,8 +22,20 @@ func configurePlugin(pluginName string, c *viper.Viper) {
 		fmt.Sprintf("%s_plugins_%s", config.EnvPrefix, pluginName)))
 }
 
-// configureWatchig creates and/or updates the file watch list for a plugin
+// configureWatching creates and/or updates the file watch list for a plugin
 func configureWatching(plugin IPlugin, pluginConfig *viper.Viper, configLock *sync.Mutex) {
+	if !viper.GetBool("filewatching") {
+		return
+	}
+
+	pollingInterval := viper.GetFloat64("pollinginterval")
+	if pollingInterval <= 0 {
+		log.Printf("pollingInterval must greater than zero")
+		return
+	}
+
+	duration := time.Duration(pollingInterval * float64(time.Second))
+
 	watcher := plugin.Watcher()
 	paths := plugin.GetWatchPaths(pluginConfig)
 	if watcher == nil && len(paths) > 0 {
@@ -37,7 +49,7 @@ func configureWatching(plugin IPlugin, pluginConfig *viper.Viper, configLock *sy
 				log.Printf("error reloading plugin %s: %s", plugin.Name(), err)
 			}
 			return nil
-		}, 5*time.Second)
+		}, duration)
 		plugin.SetWatcher(watcher)
 		watcher.Start()
 
