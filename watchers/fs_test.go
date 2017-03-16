@@ -51,16 +51,48 @@ func Test_PollingWatcher_Poll(t *testing.T) {
 			So(changed, ShouldHaveLength, 0)
 		})
 
-		Convey("Given a watched file", func() {
+		Convey("Given a watched file modified in the past", func() {
+			d, err := time.Parse(time.UnixDate, "Mon Jan 2 15:04:05 MST 2006")
+			if err != nil {
+				t.Fatal(err)
+			}
+			Must(t, os.Chtimes("dir/file1", time.Now(), d))
 			w.Watch("dir/file1")
 
-			Convey("The file is truncated with new contents", func() {
+			Convey("And the contents have changed", func() {
 				Must(t, ioutil.WriteFile("dir/file1", []byte("changed"), 0644))
-				w.poll()
 
-				So(changed, ShouldResemble, [][]string{
-					[]string{"dir/file1"},
+				Convey("Modification time before file modification at time of watch", func() {
+					// Set mtime to an old date.
+					Must(t, os.Chtimes("dir/file1", time.Now(), d))
+					w.poll()
+					So(changed, ShouldHaveLength, 0)
 				})
+
+				Convey("Modification time is in the future", func() {
+					Must(t, os.Chtimes("dir/file1", time.Now(), time.Now().Add(1*time.Hour)))
+					w.poll()
+					So(changed, ShouldHaveLength, 1)
+				})
+
+				Convey("Modification time equal to last polled time", func() {
+					Must(t, os.Chtimes("dir/file1", time.Now(), w.files["dir/file1"].modifiedTime))
+					w.poll()
+					So(changed, ShouldHaveLength, 0)
+				})
+
+				Convey("The file is considered changed", func() {
+					w.poll()
+
+					So(changed, ShouldResemble, [][]string{
+						[]string{"dir/file1"},
+					})
+				})
+			})
+
+			Convey("The file modified time is changed but not its contents", func() {
+				Must(t, os.Chtimes("dir/file1", time.Now(), time.Now().Add(1*time.Hour)))
+				So(changed, ShouldHaveLength, 0)
 			})
 
 			Convey("The file is modified once but polled twice", func() {
