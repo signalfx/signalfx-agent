@@ -51,7 +51,7 @@ func RenderCollectdConf(pluginRoot string, templatesDirs []string, appConfig *Ap
 	for i := len(templatesDirs) - 1; i >= 0; i-- {
 		log.Printf("loading templates from %s", templatesDirs[i])
 		if _, err := tmpl.ParseGlob(path.Join(templatesDirs[i], "*.tmpl")); err != nil {
-			return "", fmt.Errorf("Failed to load templates: %s", err)
+			log.Printf("Failed to load templates: %s", err)
 		}
 	}
 
