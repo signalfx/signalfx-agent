@@ -60,3 +60,16 @@ func Must(t *testing.T, err error) {
 		t.Fatal(err)
 	}
 }
+
+// Dump i to stdout using JSON
+func Dump(t *testing.T, i interface{}) {
+	if data, err := json.MarshalIndent(i, "", "  "); err != nil {
+		if t != nil {
+			t.Fatal(err)
+		} else {
+			panic(err)
+		}
+	} else {
+		println(string(data))
+	}
+}

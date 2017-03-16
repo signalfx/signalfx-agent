@@ -34,7 +34,7 @@ func WatchForChanges(watcher *watchers.PollingWatcher, configfile string) {
 	configFiles := append(getMergeConfigs(), configfile)
 	log.Printf("watching for changes to %v", configFiles)
 
-	watcher.Watch(configFiles...)
+	watcher.Watch(nil, configFiles)
 	watcher.Start()
 }
 

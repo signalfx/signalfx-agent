@@ -65,8 +65,8 @@ func NewRuleFilter(name string, config *viper.Viper) (plugins.IPlugin, error) {
 	return filter, nil
 }
 
-// GetWatchPaths returns list of files that when changed will trigger reload.
-func (filter *RuleFilter) GetWatchPaths(config *viper.Viper) []string {
+// GetWatchFiles returns list of files that when changed will trigger reload.
+func (filter *RuleFilter) GetWatchFiles(config *viper.Viper) []string {
 	return config.GetStringSlice("servicesfiles")
 }
 
