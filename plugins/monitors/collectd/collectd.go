@@ -364,6 +364,12 @@ func (collectd *Collectd) Reload(config *viper.Viper) error {
 	return nil
 }
 
+// GetWatchPaths returns list of files and directories that when changed will trigger reload
+func (collectd *Collectd) GetWatchPaths(config *viper.Viper) []string {
+	return append(config.GetStringSlice("templatesmap"))
+	// TODO: watch config.GetStringSlice("templatesdirs")...) once dir watching is implemented
+}
+
 // Status for collectd monitoring
 func (collectd *Collectd) Status() string {
 	return collectd.state

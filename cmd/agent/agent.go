@@ -57,7 +57,7 @@ func (agent *Agent) Configure(changed []string) error {
 		return err
 	}
 
-	pluginList, err := plugins.Load(agent.plugins)
+	pluginList, err := plugins.Load(agent.plugins, &agent.configMutex)
 	if err == nil {
 		log.Printf("replacing plugin set %v with %v", agent.plugins, pluginList)
 		agent.plugins = pluginList
@@ -99,6 +99,7 @@ func main() {
 	flag.Parse()
 
 	watch := !*noWatch
+	viper.SetDefault("filewatching", watch)
 
 	if *version {
 		fmt.Printf("agent-version: %s, collectd-version: %s, built-time: %s\n", Version, CollectdVersion, BuiltTime)

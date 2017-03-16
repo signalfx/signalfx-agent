@@ -4,8 +4,12 @@ import (
 	"fmt"
 	"log"
 	"strings"
+	"sync"
+
+	"time"
 
 	"github.com/signalfx/neo-agent/config"
+	"github.com/signalfx/neo-agent/watchers"
 	"github.com/spf13/viper"
 )
 
@@ -18,8 +22,52 @@ func configurePlugin(pluginName string, c *viper.Viper) {
 		fmt.Sprintf("%s_plugins_%s", config.EnvPrefix, pluginName)))
 }
 
+// configureWatching creates and/or updates the file watch list for a plugin
+func configureWatching(plugin IPlugin, pluginConfig *viper.Viper, configLock *sync.Mutex) {
+	if !viper.GetBool("filewatching") {
+		return
+	}
+
+	pollingInterval := viper.GetFloat64("pollinginterval")
+	if pollingInterval <= 0 {
+		log.Printf("pollingInterval must greater than zero")
+		return
+	}
+
+	duration := time.Duration(pollingInterval * float64(time.Second))
+
+	watcher := plugin.Watcher()
+	paths := plugin.GetWatchPaths(pluginConfig)
+	if watcher == nil && len(paths) > 0 {
+		log.Printf("creating watcher for plugin %s", plugin.Name())
+		watcher = watchers.NewPollingWatcher(func(changed []string) error {
+			configLock.Lock()
+			defer configLock.Unlock()
+
+			log.Printf("%v changed for plugin %s", changed, plugin.Name())
+			if err := plugin.Reload(pluginConfig); err != nil {
+				log.Printf("error reloading plugin %s: %s", plugin.Name(), err)
+			}
+			return nil
+		}, duration)
+		plugin.SetWatcher(watcher)
+		watcher.Start()
+
+		// Need to reload plugin after starting watchers in case file changed
+		// between plugin creation and starting watcher. XXX: This might be
+		// better by having plugin constructors not initialize state but require
+		// that be done in Start().
+		if err := plugin.Reload(pluginConfig); err != nil {
+			log.Printf("failed to reload plugin %s post-watch: %s", plugin.Name(), err)
+		}
+	}
+	if watcher != nil {
+		watcher.Watch(paths...)
+	}
+}
+
 // Load an agent using configuration file
-func Load(currentPlugins []IPlugin) ([]IPlugin, error) {
+func Load(currentPlugins []IPlugin, configLock *sync.Mutex) ([]IPlugin, error) {
 	// Load plugins.
 	pluginsConfig := viper.GetStringMap("plugins")
 
@@ -50,6 +98,7 @@ func Load(currentPlugins []IPlugin) ([]IPlugin, error) {
 				pluginConfig := viper.Sub("plugins." + pluginName)
 				configurePlugin(pluginName, pluginConfig)
 				pluginInst, err := create(pluginName, pluginConfig)
+				configureWatching(pluginInst, pluginConfig, configLock)
 				if err != nil {
 					return nil, err
 				}
@@ -76,6 +125,13 @@ func Load(currentPlugins []IPlugin) ([]IPlugin, error) {
 	// Stop removed plugins.
 	for _, plugin := range removedPlugins {
 		log.Printf("stopping plugin %s", plugin.Name())
+		w := plugin.Watcher()
+		if w != nil {
+			log.Printf("stopping watcher for %s", plugin.Name())
+			// Close is synchronous so the stopped plugin shouldn't get any more
+			// file change notifications.
+			w.Close()
+		}
 		plugin.Stop()
 	}
 
@@ -98,6 +154,8 @@ func Load(currentPlugins []IPlugin) ([]IPlugin, error) {
 		}
 
 		configurePlugin(plugin.Name(), pluginConfig)
+		configureWatching(plugin, pluginConfig, configLock)
+
 		if err := plugin.Reload(pluginConfig); err != nil {
 			log.Printf("reloading %s plugin failed: %s", plugin.Name(), err)
 		}

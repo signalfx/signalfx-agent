@@ -2,6 +2,8 @@
 # pipeline: docker
 # Number of seconds before polling configuration files for changes.
 # pollingInterval: 5
+# Whether to poll plugin configuration files for changes.
+# fileWatching: true
 # If hostname is unset collectd determines the hostname at runtime.
 # hostname:
 

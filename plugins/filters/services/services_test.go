@@ -86,7 +86,7 @@ func TestNewRuleFilter(t *testing.T) {
 		args    args
 		wantErr bool
 	}{
-		{"configuration missing", args{"services", configMissing}, true},
+		{"configuration missing", args{"services", configMissing}, false},
 		{"configuration present", args{"services", configPresent}, false},
 	}
 	for _, tt := range tests {
