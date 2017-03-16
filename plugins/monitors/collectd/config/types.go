@@ -37,6 +37,15 @@ var PLUGINS = map[services.ServiceType]func(string) *Plugin{
 			},
 		}
 	},
+	services.KafkaService: func(instanceName string) *Plugin {
+		return &Plugin{
+			Plugin:   "jmx",
+			Template: "kafka.default.conf.tmpl",
+			Name:      instanceName,
+			Host:      "localhost",
+			Port:      7099,
+		}
+	},
 	services.MongoDBService: func(instanceName string) *Plugin {
 		return &Plugin{
 			Plugin:   "mongodb",
