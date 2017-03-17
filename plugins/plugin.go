@@ -31,7 +31,8 @@ type IPlugin interface {
 	Type() string
 	Watcher() *watchers.PollingWatcher
 	SetWatcher(*watchers.PollingWatcher)
-	GetWatchPaths(config *viper.Viper) []string
+	GetWatchFiles(config *viper.Viper) []string
+	GetWatchDirs(config *viper.Viper) []string
 }
 
 // NewPlugin constructor
@@ -78,10 +79,17 @@ func (plugin *Plugin) Reload(config *viper.Viper) error {
 	return nil
 }
 
-// GetWatchPaths returns list of files or directories that when changed will
-// trigger reload. This will be called *before* a plugin is reloaded with the
-// new configuration values that may contain a different set of files to watch.
-func (plugin *Plugin) GetWatchPaths(config *viper.Viper) []string {
+// GetWatchFiles returns list of files that when changed will trigger reload.
+// This will be called *before* a plugin is reloaded with the new configuration
+// values that may contain a different set of files to watch.
+func (plugin *Plugin) GetWatchFiles(config *viper.Viper) []string {
+	return nil
+}
+
+// GetWatchDirs returns list of directories that when changed will trigger
+// reload. This will be called *before* a plugin is reloaded with the new
+// configuration values that may contain a different set of files to watch.
+func (plugin *Plugin) GetWatchDirs(config *viper.Viper) []string {
 	return nil
 }
 

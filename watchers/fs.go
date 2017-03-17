@@ -5,10 +5,13 @@ import (
 	"io"
 	"log"
 	"os"
+	"path"
 	"sync"
 	"time"
 
 	"bytes"
+
+	"io/ioutil"
 
 	"github.com/signalfx/neo-agent/utils"
 )
@@ -22,6 +25,7 @@ type entry struct {
 // PollingWatcher watches for changes to files by polling
 type PollingWatcher struct {
 	files    map[string]*entry
+	dirs     map[string]map[string]*entry
 	delay    time.Duration
 	stopChan chan struct{}
 	cb       func(changed []string) error
@@ -51,7 +55,8 @@ func (entry *entry) reset() bool {
 func NewPollingWatcher(cb func(changed []string) error, delay time.Duration) *PollingWatcher {
 	// Make it buffered by one so sending will never be blocked in case polling
 	// stopped before send to stopChan.
-	w := &PollingWatcher{files: map[string]*entry{}, cb: cb, delay: delay, stopChan: make(chan struct{}, 1)}
+	w := &PollingWatcher{files: map[string]*entry{}, dirs: map[string]map[string]*entry{},
+		cb: cb, delay: delay, stopChan: make(chan struct{}, 1)}
 	return w
 }
 
@@ -75,11 +80,50 @@ func (w *PollingWatcher) Start() {
 	}()
 }
 
-// Watch sets the list of files to poll
-func (w *PollingWatcher) Watch(files ...string) {
+// watchDirs watches directories for changes
+func (w *PollingWatcher) watchDirs(dirs ...string) {
+	dirSet := utils.StringSliceToMap(dirs)
+
+	for dir := range dirSet {
+		if _, ok := w.dirs[dir]; !ok {
+			// Added
+			files := map[string]*entry{}
+			dircon, err := ioutil.ReadDir(dir)
+
+			if err == nil {
+				for _, file := range dircon {
+					e := &entry{}
+					read(path.Join(dir, file.Name()), e)
+					files[file.Name()] = e
+				}
+			} else {
+				// Nothing to do about it, just initializes to empty.
+				log.Printf("watch directory didn't exist: %s", err)
+			}
+
+			w.dirs[dir] = files
+		}
+	}
+
+	for dir := range w.dirs {
+		if !dirSet[dir] {
+			// Directory removed.
+			delete(w.dirs, dir)
+		}
+	}
+}
+
+// Watch watches files and directories for changes
+func (w *PollingWatcher) Watch(dirs []string, files []string) {
 	w.mutex.Lock()
 	defer w.mutex.Unlock()
 
+	w.watchDirs(dirs...)
+	w.watchFiles(files...)
+}
+
+// watchFiles sets the list of paths to poll
+func (w *PollingWatcher) watchFiles(files ...string) {
 	fileSet := utils.StringSliceToMap(files)
 
 	for file := range fileSet {
@@ -93,7 +137,7 @@ func (w *PollingWatcher) Watch(files ...string) {
 
 	for file := range w.files {
 		if !fileSet[file] {
-			// Removed
+			// File removed.
 			delete(w.files, file)
 		}
 	}
@@ -114,38 +158,38 @@ func read(fileName string, entry *entry) bool {
 	}
 
 	if stat.IsDir() {
-		panic("unimplemented")
-	} else {
-		// If the file modified time is equal to or before our recorded modified
-		// skip further checks. This also accounts for the initial case where
-		// modifiedTime is initialized to its zero value.
-		if !stat.ModTime().After(entry.modifiedTime) {
-			return false
-		}
+		return entry.reset()
+	}
 
-		entry.modifiedTime = stat.ModTime()
+	// If the file modified time is equal to or before our recorded modified
+	// skip further checks. This also accounts for the initial case where
+	// modifiedTime is initialized to its zero value.
+	if !stat.ModTime().After(entry.modifiedTime) {
+		return false
+	}
 
-		ck := md5.New()
+	entry.modifiedTime = stat.ModTime()
 
-		f, err := os.OpenFile(fileName, os.O_RDONLY, 0)
-		if err != nil {
-			// File was possibly removed between stat and open.
-			return entry.reset()
-		}
-		defer f.Close()
+	ck := md5.New()
 
-		// Compute file hash.
-		if _, err := io.Copy(ck, f); err != nil {
-			log.Printf("failed to copy file %s to buffer: %s", fileName, err)
-			return entry.reset()
-		}
+	f, err := os.OpenFile(fileName, os.O_RDONLY, 0)
+	if err != nil {
+		// File was possibly removed between stat and open.
+		return entry.reset()
+	}
+	defer f.Close()
 
-		newHash := ck.Sum(nil)
-		if !bytes.Equal(entry.hash, newHash) {
-			// If the file hashes differ the file is changed.
-			entry.hash = newHash
-			return true
-		}
+	// Compute file hash.
+	if _, err := io.Copy(ck, f); err != nil {
+		log.Printf("failed to copy file %s to buffer: %s", fileName, err)
+		return entry.reset()
+	}
+
+	newHash := ck.Sum(nil)
+	if !bytes.Equal(entry.hash, newHash) {
+		// If the file hashes differ the file is changed.
+		entry.hash = newHash
+		return true
 	}
 
 	return false
@@ -158,6 +202,49 @@ func (w *PollingWatcher) poll() {
 
 	var changed []string
 
+	for dirName, entries := range w.dirs {
+		files, err := ioutil.ReadDir(dirName)
+
+		if os.IsNotExist(err) {
+			w.dirs[dirName] = map[string]*entry{}
+			changed = append(changed, dirName)
+			continue
+		}
+
+		// Index directory file names.
+		fileSet := map[string]bool{}
+		for _, file := range files {
+			fileSet[file.Name()] = true
+		}
+
+		// Files added to directory.
+		for file := range fileSet {
+			dirPath := path.Join(dirName, file)
+
+			if _, ok := entries[file]; ok {
+				// File entry already present, update.
+				if read(dirPath, entries[file]) {
+					changed = append(changed, dirPath)
+				}
+			} else {
+				// File added.
+				changed = append(changed, dirPath)
+				e := &entry{}
+				entries[file] = e
+				read(dirPath, e)
+			}
+		}
+
+		// Files removed from directory.
+		for file := range entries {
+			if _, ok := fileSet[file]; !ok {
+				changed = append(changed, path.Join(dirName, file))
+				delete(entries, file)
+			}
+		}
+	}
+
+	// Check watched files for changes.
 	for fileName, entry := range w.files {
 		if read(fileName, entry) {
 			changed = append(changed, fileName)

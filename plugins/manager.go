@@ -24,7 +24,14 @@ func configurePlugin(pluginName string, c *viper.Viper) {
 
 // configureWatching creates and/or updates the file watch list for a plugin
 func configureWatching(plugin IPlugin, pluginConfig *viper.Viper, configLock *sync.Mutex) {
+	watcher := plugin.Watcher()
+
 	if !viper.GetBool("filewatching") {
+		// Stop watcher if file watching was turned on before.
+		if watcher != nil {
+			watcher.Close()
+			plugin.SetWatcher(nil)
+		}
 		return
 	}
 
@@ -36,9 +43,10 @@ func configureWatching(plugin IPlugin, pluginConfig *viper.Viper, configLock *sy
 
 	duration := time.Duration(pollingInterval * float64(time.Second))
 
-	watcher := plugin.Watcher()
-	paths := plugin.GetWatchPaths(pluginConfig)
-	if watcher == nil && len(paths) > 0 {
+	watchFiles := plugin.GetWatchFiles(pluginConfig)
+	watchDirs := plugin.GetWatchDirs(pluginConfig)
+
+	if watcher == nil && (len(watchFiles) > 0 || len(watchDirs) > 0) {
 		log.Printf("creating watcher for plugin %s", plugin.Name())
 		watcher = watchers.NewPollingWatcher(func(changed []string) error {
 			configLock.Lock()
@@ -62,7 +70,7 @@ func configureWatching(plugin IPlugin, pluginConfig *viper.Viper, configLock *sy
 		}
 	}
 	if watcher != nil {
-		watcher.Watch(paths...)
+		watcher.Watch(watchDirs, watchFiles)
 	}
 }
 
