@@ -114,6 +114,7 @@ ARG signalfx_agent_version=0.0.1-beta
 COPY etc /etc/signalfx/
 COPY agent /usr/sbin/signalfx-agent
 COPY libcollectd.so /usr/local/lib/collectd/libcollectd.so
+COPY java.so /usr/lib/collectd/java.so
 COPY python.so /usr/lib/collectd/python.so
 COPY aggregation.so /usr/lib/collectd/aggregation.so
 
