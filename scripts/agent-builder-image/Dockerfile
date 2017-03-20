@@ -10,7 +10,7 @@ RUN sed -i -e '/^deb-src/d' /etc/apt/sources.list \
     && apt-get install -y curl \
     && apt-get install -y wget \
     && apt-get install -y net-tools \
-    && apt-get install -y openjdk-8-jre-headless \
+    && apt-get install -y openjdk-8-jdk \
     && add-apt-repository ppa:masterminds/glide \
     && apt-get update \
     && apt-get install -y autoconf \
