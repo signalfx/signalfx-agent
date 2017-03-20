@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"io/ioutil"
 	"log"
-	"strconv"
 
 	"sync"
 
@@ -114,8 +113,8 @@ func matches(si *services.Instance, ruleset DiscoveryRuleset) (bool, error) {
 		"ContainerState":     si.Container.State,
 		"NetworkIP":          si.Port.IP,
 		"NetworkType":        si.Port.Type,
-		"NetworkPublicPort":  strconv.FormatUint(uint64(si.Port.PublicPort), 10),
-		"NetworkPrivatePort": strconv.FormatUint(uint64(si.Port.PrivatePort), 10),
+		"NetworkPublicPort":  float64(si.Port.PublicPort),
+		"NetworkPrivatePort": float64(si.Port.PrivatePort),
 	}
 
 	for key, val := range si.Container.Labels {
