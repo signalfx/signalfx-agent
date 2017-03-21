@@ -19,6 +19,15 @@ type Plugin struct {
 
 // PLUGINS is a mapping to create plugin instances with defaults
 var PLUGINS = map[services.ServiceType]func(string) *Plugin{
+	services.ActiveMQService: func(instanceName string) *Plugin {
+		return &Plugin{
+			Plugin:   "jmx",
+			Template: "activemq.default.conf.tmpl",
+			Name:      instanceName,
+			Host:      "localhost",
+			Port:      1099,
+		}
+	},
 	services.ApacheService: func(instanceName string) *Plugin {
 		return &Plugin{
 			Plugin:   "apache",
@@ -26,6 +35,15 @@ var PLUGINS = map[services.ServiceType]func(string) *Plugin{
 			Name:      instanceName,
 			Host:      "localhost",
 			Port:      80}
+	},
+	services.CassandraService: func(instanceName string) *Plugin {
+		return &Plugin{
+			Plugin:   "jmx",
+			Template: "cassandra.default.conf.tmpl",
+			Name:      instanceName,
+			Host:      "localhost",
+			Port:      7199,
+		}
 	},
 	services.DockerService: func(instanceName string) *Plugin {
 		return &Plugin{
@@ -35,6 +53,15 @@ var PLUGINS = map[services.ServiceType]func(string) *Plugin{
 			Config: map[string]interface{}{
 				"url": "unix:///var/run/docker.sock",
 			},
+		}
+	},
+	services.GenericJMXService: func(instanceName string) *Plugin {
+		return &Plugin{
+			Plugin:   "jmx",
+			Template: "jmx.default.conf.tmpl",
+			Name:      instanceName,
+			Host:      "localhost",
+			Port:      1099,
 		}
 	},
 	services.KafkaService: func(instanceName string) *Plugin {

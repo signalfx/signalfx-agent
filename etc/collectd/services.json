@@ -2,6 +2,43 @@
   "name": "signalfx-defaults",
   "signatures": [
     {
+      "name": "activemq-image-default",
+      "type": "activemq",
+      "rules": [
+        {
+          "comparator": "contains",
+          "path": "ContainerImage",
+          "value": "activemq"
+        },
+        {
+          "comparator": "eq",
+          "path": "NetworkPrivatePort",
+          "value": 1099
+        },
+        {
+          "comparator": "nexists",
+          "path": "ContainerLabel-signalfx-integration",
+          "value": ""
+        }
+      ]
+    },
+    {
+      "name": "activemq-labeled-default",
+      "type": "activemq",
+      "rules": [
+        {
+          "comparator": "eq",
+          "path": "NetworkPrivatePort",
+          "value": 1099
+        },
+        {
+          "comparator": "eq",
+          "path": "ContainerLabel-signalfx-integration",
+          "value": "activemq"
+        }
+      ]
+    },
+    {
       "name": "apache-image-default",
       "type": "apache",
       "rules": [
