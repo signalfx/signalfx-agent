@@ -3,6 +3,7 @@ FROM ubuntu:16.04
 ENV DEBIAN_FRONTEND noninteractive
 ENV SIGNALFX_CONFIGURE_MONITORING_COMMANDS /opt/signalfx-imaging/signalfx-agent-setup.sh
 ENV SIGNALFX_LAUNCH_MONITORING_COMMANDS /usr/sbin/signalfx-agent
+ENV LD_LIBRARY_PATH /usr/lib:/usr/lib/collectd:/usr/lib/jvm/java-8-openjdk-amd64/jre/lib/amd64/server
 
 RUN sed -i -e '/^deb-src/d' /etc/apt/sources.list \
     && apt-get update \
@@ -23,13 +24,8 @@ RUN sed -i -e '/^deb-src/d' /etc/apt/sources.list \
     && apt-get install -y signalfx-collectd-plugin \
     && apt-get install -y openjdk-8-jre-headless
 
-LABEL com.signalfx.agent.version="$signalfx_agent_version" \
-      com.signalfx.plugin.docker.version="1.0.0" \
-      com.signalfx.plugin.elasticsearch.version="1.2.0" \
-      com.signalfx.plugin.mesos.version="1.1.0" \
-      com.signalfx.plugin.mongodb.version="1.0.9" \
-      com.signalfx.plugin.zookeeper.version="0.0.2" \
-      java_version="1.8"
+LABEL agent.version="$signalfx_agent_version" \
+      app="signalfx-agent"
 
 # base
 COPY *.sh /opt/signalfx-imaging/
