@@ -15,6 +15,8 @@ type PortPreference int
 type ServiceType string
 
 const (
+	// ActiveMQService messaging service
+	ActiveMQService ServiceType = "activemq"
 	// ApacheService Apache web server
 	ApacheService ServiceType = "apache"
 	// CassandraService Cassandra database
@@ -23,6 +25,8 @@ const (
 	ElasticSearchService ServiceType = "elasticsearch"
 	// DockerService Docker container engine
 	DockerService ServiceType = "docker"
+	// GenericJMXService custom jmx service
+	GenericJMXService ServiceType = "genericjmx"
 	// KafkaService Kafka message broker
 	KafkaService ServiceType = "kafka"
 	// MemcachedService Memcached memory object store
