@@ -39,7 +39,7 @@ Here are examples of running agent:
 
 To override collectd templates modify the `signalfx-templates` config map.
 
-#### Updating
+##### Updating
 Until we have an update script the easiest way to update the agents to a new version is to:
 
 * `kubectl edit deploy signalfx-agent`
@@ -51,17 +51,15 @@ Until we have an update script the easiest way to update the agents to a new ver
 ```
 TODO
 ```
-### Swarm
-```
-TODO
-```
+
 ### Local Docker - for development only
 
 Here is an example of running signalfx-agent for local-docker using a docker compose file to start container and configure the agent.
 
 Modify the example to work in your dev/test env
-* Set the SFX_API_TOKEN
-* Change the ingestUrl if you don't want lab
+* Set the SFX_API_TOKEN envvar *required
+* Add the SFX_HOSTNAME envvar to set the hostname (otherwise uses default behavior)
+* Change the ingestUrls if you don't want to send to lab
 * Set the SFX_MONITOR_USER to a test username.  or set to "".
 * Set the SFX_MONITOR_PASSWORD to a test user password.  or set to "".
 
@@ -71,7 +69,7 @@ version: '2'
 services:
   signalfx-agent:
     container_name: signalfx-agent
-    image: quay.io/signalfuse/signalfx-agent
+    image: quay.io/signalfuse/signalfx-agent:master
     privileged: true
     network_mode: host
     volumes:
@@ -81,51 +79,49 @@ services:
      - /proc:/mnt/proc:ro
      - /var/run/docker.sock:/var/run/docker.sock
     environment:
-     SFX_API_TOKEN: <SignalFx API Token>
-     SFX_MONITOR_USER: <Generic Monitor User>
-     SFX_MONITOR_PASSWORD: <Generic Monitor Password>
+     SFX_API_TOKEN: ${SFX_API_TOKEN}
+     SFX_MONITOR_USER: ""
+     SFX_MONITOR_PASSWORD: ""
      SET_FILE: /etc/signalfx/agent.yaml
      SET_FILE_CONTENT: |
-      interval: 10
-      observers:
-          local-docker:
-              type: docker
-              config:
-                  hostUrl: unix:///var/run/docker.sock
-      monitors:
-          collectd:
-              type: collectd
-              config:
-                  confFile: /etc/collectd/collectd.conf
-                  templatesDirs:
-                  - /etc/signalfx/collectd/templates
-                  templatesMap: /etc/signalfx/collectd/templates.json
-                  pluginsDir: /usr/share/collectd
-                  staticPlugins:
-                      - name: writehttp-default
-                        type: writehttp
-                        config:
-                            ingestUrl: http://lab-ingest.corp.signalfuse.com:8080
-                      - name: signalfx-default
-                        type: signalfx
-                        config:
-                            ingestUrl: http://lab-ingest.corp.signalfuse.com:8080
-                      - name: docker-default
-                        type: docker
-                        config:
-                            hostUrl: unix:///var/run/docker.sock
-      filters:
-          service-mapping:
-              type: service-rules
-              config:
-                  servicesFiles:
-                  - /etc/signalfx/collectd/custom-services.json
-                  - /etc/signalfx/collectd/services.json
-      pipeline:
-          default:
-          - local-docker
-          - service-mapping
-          - collectd
+        plugins:
+            local-docker:
+                plugin: observers/docker
+                url: unix:///var/run/docker.sock
+
+            collectd:
+                plugin: monitors/collectd
+                confFile: /etc/collectd/collectd.conf
+                templatesDirs:
+                - /etc/signalfx/collectd/templates
+                templatesMap: /etc/signalfx/collectd/templates.json
+                pluginsDir: /usr/share/collectd
+                staticPlugins:
+                    writehttp-default:
+                        plugin: writehttp
+                        url: http://lab-ingest.corp.signalfuse.com:8080
+                    signalfx-default:
+                        plugin: signalfx
+                        url: http://lab-ingest.corp.signalfuse.com:8080
+                    docker-default:
+                        plugin: docker
+                        hostUrl: unix:///var/run/docker.sock
+
+            debug:
+                plugin: filters/debug
+
+            service-mapping:
+                plugin: filters/service-rules
+                servicesFiles:
+                - /etc/signalfx/collectd/custom-services.json
+                - /etc/signalfx/collectd/services.json
+
+        pipelines:
+            docker:
+            - local-docker
+            - service-mapping
+            - collectd
 ```
 
-Note: Make sure to expose your local-docker container ports so they can be reached (required for local-docker only).
+Note: Make sure to expose any container ports needed for monitoring to the host so they can be reached (required for local-docker only).
+example: ```docker run -d -p 7099:7099 kafka```
