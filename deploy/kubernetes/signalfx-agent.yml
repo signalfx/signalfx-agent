@@ -15,6 +15,7 @@ spec:
                 app: signalfx-agent
                 version: v0.1.0
         spec:
+            hostNetwork: true
             nodeSelector:
               signalfx-monitor: ""
             imagePullSecrets:
@@ -49,19 +50,13 @@ spec:
                   name: etc
                   readOnly: true
               env:
-              - name: KUBERNETES_NODE_NAME
-                valueFrom:
-                    fieldRef:
-                        fieldPath: spec.nodeName
               - name: SFX_PLUGINS_KUBERNETES_HOSTURL
-                value: https://$(KUBERNETES_NODE_NAME):10250
+                value: https://localhost:10250
               - name: SFX_API_TOKEN
                 valueFrom:
                     secretKeyRef:
                         name: signalfx
                         key: api-token
-              - name: SFX_HOSTNAME
-                value: $(KUBERNETES_NODE_NAME)
               - name: SFX_MERGE_CONFIG
                 value: /etc/signalfx/kubernetes-defaults.yaml:/mnt/config/merge.yml
             volumes:
