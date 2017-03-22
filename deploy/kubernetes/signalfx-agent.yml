@@ -59,7 +59,7 @@ spec:
                 valueFrom:
                     secretKeyRef:
                         name: signalfx
-                        key: apiToken
+                        key: api-token
               - name: SFX_HOSTNAME
                 value: $(KUBERNETES_NODE_NAME)
               - name: SFX_MERGE_CONFIG
