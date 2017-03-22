@@ -44,7 +44,7 @@ func (c *Cadvisor) Start() error {
 		return err
 	}
 
-	ingestURL := c.Config.GetString("ingesturl")
+	ingestURL := viper.GetString("ingesturl")
 	if ingestURL == "" {
 		return errors.New("ingestURL cannot be empty")
 	}
@@ -54,15 +54,13 @@ func (c *Cadvisor) Start() error {
 		return errors.New("dataSendRate cannot be zero or less")
 	}
 
-	clusterName := c.Config.GetString("clusterName")
-	if clusterName == "" {
-		return errors.New("clusterName cannot be empty")
-	}
-
 	cadvisorURL := c.Config.GetString("cadvisorurl")
 	if cadvisorURL == "" {
 		return errors.New("cadvisorURL cannot be empty")
 	}
+
+	dimensions := viper.GetStringMapString("dimensions")
+	clusterName := dimensions["kubernetes_cluster"]
 
 	forwarder := poller.NewSfxClient(ingestURL, apiToken)
 	cfg := &poller.Config{
@@ -76,6 +74,7 @@ func (c *Cadvisor) Start() error {
 		KubernetesUsername:     "",
 		CadvisorURL:            []string{cadvisorURL},
 		KubernetesPassword:     "",
+		DefaultDimensions:      dimensions,
 	}
 
 	if c.stop, c.stopped, err = poller.MonitorNode(cfg, forwarder, time.Duration(dataSendRate)*time.Second); err != nil {
