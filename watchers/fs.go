@@ -96,12 +96,13 @@ func (w *PollingWatcher) watchDirs(dirs ...string) {
 					read(path.Join(dir, file.Name()), e)
 					files[file.Name()] = e
 				}
+				w.dirs[dir] = files
 			} else {
 				// Nothing to do about it, just initializes to empty.
 				log.Printf("watch directory didn't exist: %s", err)
+				w.dirs[dir] = nil
 			}
 
-			w.dirs[dir] = files
 		}
 	}
 
@@ -153,7 +154,7 @@ func (w *PollingWatcher) Close() {
 // read returns whether the file was changed or not (and updates entry state)
 func read(fileName string, entry *entry) bool {
 	stat, err := os.Stat(fileName)
-	if os.IsNotExist(err) {
+	if err != nil {
 		return entry.reset()
 	}
 
@@ -167,8 +168,6 @@ func read(fileName string, entry *entry) bool {
 	if !stat.ModTime().After(entry.modifiedTime) {
 		return false
 	}
-
-	entry.modifiedTime = stat.ModTime()
 
 	ck := md5.New()
 
@@ -184,6 +183,13 @@ func read(fileName string, entry *entry) bool {
 		log.Printf("failed to copy file %s to buffer: %s", fileName, err)
 		return entry.reset()
 	}
+
+	// Don't set modified time until *after* the hash has been successfully
+	// computed. In the case where a file is unreadable (e.g. permission denied)
+	// we don't want to set modified time earlier then reset. In that case reset
+	// would always return true, signalling that the file has changed when
+	// really we just couldn't read it.
+	entry.modifiedTime = stat.ModTime()
 
 	newHash := ck.Sum(nil)
 	if !bytes.Equal(entry.hash, newHash) {
@@ -205,9 +211,14 @@ func (w *PollingWatcher) poll() {
 	for dirName, entries := range w.dirs {
 		files, err := ioutil.ReadDir(dirName)
 
-		if os.IsNotExist(err) {
-			w.dirs[dirName] = map[string]*entry{}
-			changed = append(changed, dirName)
+		if err != nil {
+			// Directory doesn't exist or can't be read.
+
+			if entries != nil {
+				// Directory was just removed, report as change and null out.
+				changed = append(changed, dirName)
+				w.dirs[dirName] = nil
+			}
 			continue
 		}
 
@@ -215,6 +226,12 @@ func (w *PollingWatcher) poll() {
 		fileSet := map[string]bool{}
 		for _, file := range files {
 			fileSet[file.Name()] = true
+		}
+
+		if entries == nil {
+			entries = map[string]*entry{}
+			w.dirs[dirName] = entries
+			changed = append(changed, dirName)
 		}
 
 		// Files added to directory.
