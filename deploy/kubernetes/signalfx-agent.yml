@@ -16,8 +16,6 @@ spec:
                 version: v0.1.0
         spec:
             hostNetwork: true
-            nodeSelector:
-              signalfx-monitor: ""
             imagePullSecrets:
             - name: quay-pull-secret
             containers:
