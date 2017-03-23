@@ -21,7 +21,7 @@ func Test_PollingwatchFileser_Poll(t *testing.T) {
 		changed := [][]string{}
 
 		// Create empty directory since we can't check it into git.
-		Must(t, os.Mkdir("dir/empty-dir", 0))
+		Must(t, os.Mkdir("dir/empty-dir", 0755))
 
 		cb := func(files []string) error {
 			sort.Strings(files)
@@ -45,8 +45,55 @@ func Test_PollingwatchFileser_Poll(t *testing.T) {
 			})
 		})
 
+		Convey("Given a watched directory that doesn't exist", func() {
+			w.watchDirs("does-not-exist")
+			So(changed, ShouldBeEmpty)
+
+			w.poll()
+			So(changed, ShouldBeEmpty)
+
+			Convey("Create non-existent directory", func() {
+				Must(t, os.Mkdir("does-not-exist", 0755))
+				w.poll()
+
+				So(changed, ShouldResemble, [][]string{
+					[]string{"does-not-exist"},
+				})
+
+				Convey("Create file in previously missing directory", func() {
+					Must(t, ioutil.WriteFile("does-not-exist/new-file", []byte("new file"), 0644))
+					w.poll()
+
+					So(changed, ShouldResemble, [][]string{
+						[]string{"does-not-exist"},
+						[]string{"does-not-exist/new-file"},
+					})
+
+				})
+			})
+		})
+
+		Convey("Given an unreadable watched directory", func() {
+			Must(t, os.Mkdir("unreadable-dir", 0))
+			w.watchDirs("unreadable-dir")
+			w.poll()
+
+			So(changed, ShouldBeEmpty)
+		})
+
 		Convey("Give a watched directory", func() {
 			w.watchDirs("dir")
+
+			Convey("Contains an unreadable file", func() {
+				Must(t, ioutil.WriteFile("dir/new-file", []byte("unreadable file"), 0))
+				// Poll twice to make sure not notified multiple times.
+				w.poll()
+				w.poll()
+
+				So(changed, ShouldResemble, [][]string{
+					[]string{"dir/new-file"},
+				})
+			})
 
 			Convey("A directory is added", func() {
 				Must(t, os.Mkdir("dir/new-dir", 0644))
@@ -186,6 +233,7 @@ func Test_PollingwatchFileser_Poll(t *testing.T) {
 
 		Convey("Given a watched file that doesn't exist", func() {
 			w.watchFiles("dir/file-does-not-exist")
+			w.poll()
 			So(changed, ShouldBeEmpty)
 		})
 
