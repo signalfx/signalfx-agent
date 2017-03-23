@@ -1,11 +1,24 @@
+# How often to execute the pipeline.
 # interval: 10
+
+# Default pipeline to run.
 # pipeline: docker
+
 # Number of seconds before polling configuration files for changes.
 # pollingInterval: 5
+
 # Whether to poll plugin configuration files for changes.
 # fileWatching: true
+
 # If hostname is unset collectd determines the hostname at runtime.
 # hostname:
+
+# Extra dimensions to be included when reporting metrics.
+# dimensions:
+#   name: value
+
+# Metric ingest URL.
+# ingestURL: https://ingest.signalfx.com
 
 plugins:
     local-docker:

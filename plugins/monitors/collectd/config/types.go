@@ -3,7 +3,10 @@ package config
 import (
 	"fmt"
 
+	"net/url"
+
 	"github.com/signalfx/neo-agent/services"
+	"github.com/spf13/viper"
 )
 
 // Plugin describes a collectd plugin
@@ -23,33 +26,33 @@ var PLUGINS = map[services.ServiceType]func(string) *Plugin{
 		return &Plugin{
 			Plugin:   "jmx",
 			Template: "activemq.default.conf.tmpl",
-			Name:      instanceName,
-			Host:      "localhost",
-			Port:      1099,
+			Name:     instanceName,
+			Host:     "localhost",
+			Port:     1099,
 		}
 	},
 	services.ApacheService: func(instanceName string) *Plugin {
 		return &Plugin{
 			Plugin:   "apache",
 			Template: "apache.default.conf.tmpl",
-			Name:      instanceName,
-			Host:      "localhost",
-			Port:      80}
+			Name:     instanceName,
+			Host:     "localhost",
+			Port:     80}
 	},
 	services.CassandraService: func(instanceName string) *Plugin {
 		return &Plugin{
 			Plugin:   "jmx",
 			Template: "cassandra.default.conf.tmpl",
-			Name:      instanceName,
-			Host:      "localhost",
-			Port:      7199,
+			Name:     instanceName,
+			Host:     "localhost",
+			Port:     7199,
 		}
 	},
 	services.DockerService: func(instanceName string) *Plugin {
 		return &Plugin{
 			Plugin:   "docker",
 			Template: "docker.conf.tmpl",
-			Name:      instanceName,
+			Name:     instanceName,
 			Config: map[string]interface{}{
 				"url": "unix:///var/run/docker.sock",
 			},
@@ -59,43 +62,45 @@ var PLUGINS = map[services.ServiceType]func(string) *Plugin{
 		return &Plugin{
 			Plugin:   "jmx",
 			Template: "jmx.default.conf.tmpl",
-			Name:      instanceName,
-			Host:      "localhost",
-			Port:      1099,
+			Name:     instanceName,
+			Host:     "localhost",
+			Port:     1099,
 		}
 	},
 	services.KafkaService: func(instanceName string) *Plugin {
 		return &Plugin{
 			Plugin:   "jmx",
 			Template: "kafka.default.conf.tmpl",
-			Name:      instanceName,
-			Host:      "localhost",
-			Port:      7099,
+			Name:     instanceName,
+			Host:     "localhost",
+			Port:     7099,
 		}
 	},
 	services.MongoDBService: func(instanceName string) *Plugin {
 		return &Plugin{
 			Plugin:   "mongodb",
 			Template: "mongodb.default.conf.tmpl",
-			Name:      instanceName,
-			Host:      "localhost",
-			Port:      27017}
+			Name:     instanceName,
+			Host:     "localhost",
+			Port:     27017}
 	},
 	services.RedisService: func(instanceName string) *Plugin {
 		return &Plugin{
 			Plugin:   "redis",
 			Template: "redis.default.conf.tmpl",
-			Name:      instanceName,
-			Host:      "localhost",
-			Port:      6379,
+			Name:     instanceName,
+			Host:     "localhost",
+			Port:     6379,
 		}
 	},
 	services.SignalfxService: func(instanceName string) *Plugin {
+		// XXX: Super hacky. Ideally this should have no knowledge of the global
+		// viper.
 		return &Plugin{
 			Plugin:   "signalfx",
 			Template: "signalfx.conf.tmpl",
 			Config: map[string]interface{}{
-				"url": "https://ingest.signalfx.com",
+				"url": viper.GetString("ingesturl"),
 			},
 			Name: instanceName,
 		}
@@ -104,19 +109,30 @@ var PLUGINS = map[services.ServiceType]func(string) *Plugin{
 		return &Plugin{
 			Plugin:   "zookeeper",
 			Template: "zookeeper.default.conf.tmpl",
-			Name:      instanceName,
-			Host:      "localhost",
-			Port:      2181}
+			Name:     instanceName,
+			Host:     "localhost",
+			Port:     2181}
 	},
 	services.WriteHTTPService: func(instanceName string) *Plugin {
-		return &Plugin{
+		// XXX: Super hacky. Ideally this should have no knowledge of the global
+		// viper.
+		query := url.Values{}
+
+		for k, v := range viper.GetStringMapString("dimensions") {
+			query["sfxdim_"+k] = []string{v}
+		}
+
+		plugin := &Plugin{
 			Plugin:   "write-http",
 			Template: "write-http.conf.tmpl",
 			Config: map[string]interface{}{
-				"url": "https://ingest.signalfx.com",
+				"url":        viper.GetString("ingesturl"),
+				"dimensions": query.Encode(),
 			},
 			Name: instanceName,
 		}
+
+		return plugin
 	},
 }
 

@@ -58,6 +58,7 @@ func Load(configfile string) error {
 	viper.SetDefault("interval", DefaultInterval)
 	viper.SetDefault("pipeline", DefaultPipeline)
 	viper.SetDefault("pollingInterval", DefaultPollingInterval)
+	viper.SetDefault("ingesturl", "https://ingest.signalfx.com")
 
 	viper.AutomaticEnv()
 	viper.SetEnvKeyReplacer(EnvReplacer)

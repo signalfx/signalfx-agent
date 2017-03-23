@@ -12,3 +12,8 @@ plugins:
           container_name: inspect:Config.Labels['io.kubernetes.container.name']
           kubernetes_pod_name: inspect:Config.Labels['io.kubernetes.pod.name']
           kubernetes_pod_namespace: inspect:Config.Labels['io.kubernetes.pod.namespace']
+
+  cadvisor:
+    plugin: monitors/cadvisor
+    dataSendRate: 30
+    cadvisorURL: http://localhost:4194
