@@ -4,6 +4,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"os"
 	"sort"
 	"time"
 
@@ -29,6 +30,8 @@ const (
 	pluginType = "observers/kubernetes"
 	// RunningPhase Kubernetes running phase
 	runningPhase phase = "Running"
+	// DefaultPort of kubelet
+	DefaultPort = 10250
 )
 
 // Kubernetes observer plugin
@@ -78,6 +81,10 @@ func NewKubernetes(name string, config *viper.Viper) (plugins.IPlugin, error) {
 	plugin, err := plugins.NewPlugin(name, pluginType, config)
 	if err != nil {
 		return nil, err
+	}
+
+	if hostname, err := os.Hostname(); err == nil {
+		config.SetDefault("hosturl", fmt.Sprintf("https://%s:%d", hostname, DefaultPort))
 	}
 
 	hostURL := config.GetString("hosturl")
