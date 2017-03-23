@@ -1,5 +1,5 @@
-hash: 8413bcd0db72feae91112beec3ef87b5c1fb1e41fad779a8469d4fa21a0b326d
-updated: 2017-03-23T12:24:31.981729129-04:00
+hash: bc5559779f84a32c25a2ea2eedac579db621e6641a10aca6aca600c76b90afa6
+updated: 2017-03-23T16:31:35.887018878-04:00
 imports:
 - name: github.com/blang/semver
   version: aea32c919a18e5ef4537bbd283ff29594b1b0165
@@ -179,7 +179,7 @@ imports:
 - name: github.com/rjeczalik/notify
   version: 41a86457b5eea072a7e6f40bbfaf94c8df41d3aa
 - name: github.com/signalfx/cadvisor-integration
-  version: ddbde0c725e76a38b756f33e284598314544f560
+  version: 1ddd40f1c18522d98eec2e72c4c7c8cb4785a04f
   subpackages:
   - converter
   - poller
