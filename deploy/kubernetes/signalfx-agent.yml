@@ -48,8 +48,14 @@ spec:
                   name: etc
                   readOnly: true
               env:
+              # Please remove this environment variable for Kubernetes versions prior to v1.4
+              - name: KUBERNETES_NODE_NAME		
+                valueFrom:		
+                    fieldRef:		
+                        fieldPath: spec.nodeName
+              # Please remove this environment variable for Kubernetes versions prior to v1.4
               - name: SFX_PLUGINS_KUBERNETES_HOSTURL
-                value: https://localhost:10250
+                value: https://$(KUBERNETES_NODE_NAME):10250
               - name: SFX_API_TOKEN
                 valueFrom:
                     secretKeyRef:
