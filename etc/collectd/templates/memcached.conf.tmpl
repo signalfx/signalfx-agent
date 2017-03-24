@@ -1,0 +1,8 @@
+{{define "memcached"}}
+LoadPlugin "memcached"
+<Plugin "memcached">
+  {{range $instance := .}}
+  	{{RenderTemplate $instance.Template $instance}}
+  {{end}}
+</Plugin>
+{{end}}
