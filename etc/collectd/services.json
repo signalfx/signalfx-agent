@@ -70,7 +70,7 @@
     {
       "config": "elasticsearch.default.conf.tmpl",
       "type": "elasticsearch",
-      "enabled": true,
+      "enabled": false,
       "rules": [
         {
           "comparator": "eq",
@@ -150,7 +150,7 @@
     {
       "config": "mysql.default.conf.tmpl",
       "type": "mysql",
-      "enabled": true,
+      "enabled": false,
       "rules": [
         {
           "comparator": "eq",
@@ -184,7 +184,7 @@
     {
       "config": "rabbitmq.default.conf.tmpl",
       "type": "rabbitmq",
-      "enabled": true,
+      "enabled": false,
       "rules": [
         {
           "comparator": "eq",
