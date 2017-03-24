@@ -48,8 +48,12 @@ spec:
                   name: etc
                   readOnly: true
               env:
+              - name: KUBERNETES_NODE_NAME		
+                valueFrom:		
+                    fieldRef:		
+                        fieldPath: spec.nodeName
               - name: SFX_PLUGINS_KUBERNETES_HOSTURL
-                value: https://localhost:10250
+                value: https://$(KUBERNETES_NODE_NAME):10250
               - name: SFX_API_TOKEN
                 valueFrom:
                     secretKeyRef:
