@@ -120,6 +120,7 @@ type Instance struct {
 	Orchestration *Orchestration
 	Port          *Port
 	Discovered    time.Time
+	Config        string
 }
 
 // NewService constructor
@@ -145,7 +146,7 @@ func NewContainer(id string, names []string, image string, pod string, command s
 
 // NewInstance constructor
 func NewInstance(id string, service *Service, container *Container, orchestration *Orchestration, port *Port, discovered time.Time) *Instance {
-	return &Instance{id, service, container, orchestration, port, discovered}
+	return &Instance{id, service, container, orchestration, port, discovered, ""}
 }
 
 // Instances type containing sorted set of services

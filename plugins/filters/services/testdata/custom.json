@@ -2,8 +2,9 @@
   "name": "signalfx-custom",
   "signatures": [
     {
-      "name": "apache-custom",
+      "config": "apache.default.conf.tmpl",
       "type": "apache",
+      "enabled": true,
       "rules": [
         {
           "comparator": "contains",

@@ -20,8 +20,6 @@ import (
 
 	"io/ioutil"
 
-	"encoding/json"
-
 	"github.com/signalfx/neo-agent/plugins"
 	"github.com/signalfx/neo-agent/plugins/monitors/collectd/config"
 	"github.com/signalfx/neo-agent/services"
@@ -49,7 +47,6 @@ type Collectd struct {
 	pluginsDir    string
 	reloadChan    chan int
 	stopChan      chan int
-	templatesMap  map[string]string
 	configMutex   sync.Mutex
 	configDirty   bool
 }
@@ -109,40 +106,10 @@ func (collectd *Collectd) load(config *viper.Viper) error {
 		return err
 	}
 
-	templatesMapPath := config.GetString("templatesMap")
-	if templatesMapPath == "" {
-		return errors.New("config missing templatesMap entry")
-	}
-
-	templatesMap := map[string]string{}
-	if err := loadTemplatesMap(templatesMapPath, templatesMap); err != nil {
-		return err
-	}
-
 	// Set values once everything passes muster.
 	collectd.templatesDirs = templatesDirs
 	collectd.confFile = confFile
 	collectd.pluginsDir = pluginsDir
-	collectd.templatesMap = templatesMap
-
-	return nil
-}
-
-// loadTemplatesMap loads template mapping file from path into templatesMap
-func loadTemplatesMap(path string, templatesMap map[string]string) error {
-	path, err := filepath.Abs(path)
-	if err != nil {
-		return err
-	}
-
-	data, err := ioutil.ReadFile(path)
-	if err != nil {
-		return err
-	}
-
-	if err = json.Unmarshal(data, &templatesMap); err != nil {
-		return err
-	}
 
 	return nil
 }
@@ -304,12 +271,9 @@ func (collectd *Collectd) createPluginsFromServices(sis services.Instances) ([]*
 			continue
 		}
 
-		log.Printf("reconfiguring collectd service: %s (%s)", service.Service.Name, service.Service.Type)
+		log.Printf("reconfiguring collectd service: %s (%s) to use template %s", service.Service.Name, service.Service.Type, service.Config)
 
-		if templates, ok := collectd.templatesMap[service.Service.Name]; ok {
-			log.Printf("Replacing template %s with %s for %s", plugin.Template, templates, service.Service.Name)
-			plugin.Template = templates
-		}
+		plugin.Template = service.Config
 
 		plugins = append(plugins, plugin)
 	}
@@ -362,11 +326,6 @@ func (collectd *Collectd) Reload(config *viper.Viper) error {
 	collectd.Config = config
 	collectd.configDirty = true
 	return nil
-}
-
-// GetWatchFiles returns list of files that when changed will trigger reload
-func (collectd *Collectd) GetWatchFiles(config *viper.Viper) []string {
-	return config.GetStringSlice("templatesmap")
 }
 
 // GetWatchDirs returns list of directories that when changed will trigger reload
