@@ -25,6 +25,7 @@ var discoveredApache = services.Instance{
 		PrivatePort: 80,
 		PublicPort:  8080,
 	},
+	Config: "apache.default.conf.tmpl",
 }
 
 var discoveredRedis = services.Instance{
@@ -43,6 +44,7 @@ var discoveredRedis = services.Instance{
 		PrivatePort: 3689,
 		PublicPort:  3689,
 	},
+	Config: "redis.default.conf.tmpl",
 }
 
 // Service instance that has been mapped to Apache service type.

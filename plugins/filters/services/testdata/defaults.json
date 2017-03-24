@@ -2,8 +2,9 @@
   "name": "signalfx-defaults",
   "signatures": [
     {
-      "name": "apache-image-default",
+      "config": "apache.default.conf.tmpl",
       "type": "apache",
+      "enabled": true,
       "rules": [
         {
           "comparator": "contains",
@@ -13,8 +14,9 @@
       ]
     },
     {
-      "name": "redis-labeled-default",
+      "config": "redis.default.conf.tmpl",
       "type": "redis",
+      "enabled": true,
       "rules": [
         {
           "comparator": "eq",

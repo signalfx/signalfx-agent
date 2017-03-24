@@ -21,8 +21,9 @@ const (
 
 // DiscoveryRuleset that names a set of service discovery rules
 type DiscoveryRuleset struct {
-	Name string
+	Config string
 	Type string
+	Enabled bool
 	// Rules are criteria for service identification
 	Rules []struct {
 		Comparator string
@@ -140,18 +141,21 @@ OUTER:
 	for i := range sis {
 		for _, signature := range filter.serviceRules {
 			for _, ruleset := range signature.Signatures {
-				matches, err := matches(&sis[i], ruleset)
-				if err != nil {
-					return nil, err
-				}
+				if ruleset.Enabled {
+					matches, err := matches(&sis[i], ruleset)
+					if err != nil {
+						return nil, err
+					}
 
-				if matches {
-					// add as service to monitor
-					// FIXME: what if it's not a known service type?
-					sis[i].Service.Type = services.ServiceType(ruleset.Type)
-					applicableServices = append(applicableServices, sis[i])
-					// Rule found, continue to next service instance.
-					continue OUTER
+					if matches {
+						// add as service to monitor
+						// FIXME: what if it's not a known service type?
+						sis[i].Service.Type = services.ServiceType(ruleset.Type)
+						sis[i].Config = ruleset.Config
+						applicableServices = append(applicableServices, sis[i])
+						// Rule found, continue to next service instance.
+						continue OUTER
+					}
 				}
 			}
 		}

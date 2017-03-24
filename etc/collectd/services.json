@@ -2,8 +2,9 @@
   "name": "signalfx-defaults",
   "signatures": [
     {
-      "name": "activemq-image-default",
+      "config": "activemq.default.conf.tmpl",
       "type": "activemq",
+      "enabled": true,
       "rules": [
         {
           "comparator": "contains",
@@ -23,24 +24,9 @@
       ]
     },
     {
-      "name": "activemq-labeled-default",
-      "type": "activemq",
-      "rules": [
-        {
-          "comparator": "eq",
-          "path": "NetworkPrivatePort",
-          "value": 1099
-        },
-        {
-          "comparator": "eq",
-          "path": "ContainerLabel-signalfx-integration",
-          "value": "activemq"
-        }
-      ]
-    },
-    {
-      "name": "apache-image-default",
+      "config": "apache.default.conf.tmpl",
       "type": "apache",
+      "enabled": true,
       "rules": [
         {
           "comparator": "contains",
@@ -60,24 +46,9 @@
       ]
     },
     {
-      "name": "apache-labeled-default",
-      "type": "apache",
-      "rules": [
-        {
-          "comparator": "eq",
-          "path": "NetworkPrivatePort",
-          "value": 80
-        },
-        {
-          "comparator": "eq",
-          "path": "ContainerLabel-signalfx-integration",
-          "value": "apache"
-        }
-      ]
-    },
-    {
-      "name": "cassandra-image-default",
+      "config": "cassandra.default.conf.tmpl",
       "type": "cassandra",
+      "enabled": true,
       "rules": [
         {
           "comparator": "contains",
@@ -97,61 +68,21 @@
       ]
     },
     {
-      "name": "cassandra-labeled-default",
-      "type": "cassandra",
-      "rules": [
-        {
-          "comparator": "eq",
-          "path": "NetworkPrivatePort",
-          "value": 7199
-        },
-        {
-          "comparator": "eq",
-          "path": "ContainerLabel-signalfx-integration",
-          "value": "cassandra"
-        }
-      ]
-    },
-    {
-      "name": "elasticsearch-image-default",
+      "config": "elasticsearch.default.conf.tmpl",
       "type": "elasticsearch",
-      "rules": [
-        {
-          "comparator": "contains",
-          "path": "ContainerImage",
-          "value": "elasticsearch"
-        },
-        {
-          "comparator": "eq",
-          "path": "NetworkPrivatePort",
-          "value": 9200
-        },
-        {
-          "comparator": "nexists",
-          "path": "ContainerLabel-signalfx-integration",
-          "value": ""
-        }
-      ]
-    },
-    {
-      "name": "elasticsearch-labeled-default",
-      "type": "elasticsearch",
+      "enabled": true,
       "rules": [
         {
           "comparator": "eq",
           "path": "NetworkPrivatePort",
           "value": 9200
-        },
-        {
-          "comparator": "eq",
-          "path": "ContainerLabel-signalfx-integration",
-          "value": "elasticsearch"
         }
       ]
     },
     {
-      "name": "kafka-image-default",
+      "config": "kafka.default.conf.tmpl",
       "type": "kafka",
+      "enabled": true,
       "rules": [
         {
           "comparator": "contains",
@@ -171,8 +102,9 @@
       ]
     },
     {
-      "name": "kafka-labeled-default",
+      "config": "kafka.default.conf.tmpl",
       "type": "kafka",
+      "enabled": true,
       "rules": [
         {
           "comparator": "eq",
@@ -187,71 +119,21 @@
       ]
     },
     {
-      "name": "memcached-image-default",
+      "config": "memcached.default.conf.tmpl",
       "type": "memcached",
-      "rules": [
-        {
-          "comparator": "contains",
-          "path": "ContainerImage",
-          "value": "memcached"
-        },
-        {
-          "comparator": "eq",
-          "path": "NetworkPrivatePort",
-          "value": 11211
-        },
-        {
-          "comparator": "nexists",
-          "path": "ContainerLabel-signalfx-integration",
-          "value": ""
-        }
-      ]
-    },
-    {
-      "name": "memcached-labeled-default",
-      "type": "memcached",
+      "enabled": true,
       "rules": [
         {
           "comparator": "eq",
           "path": "NetworkPrivatePort",
           "value": 11211
-        },
-        {
-          "comparator": "eq",
-          "path": "ContainerLabel-signalfx-integration",
-          "value": "memcached"
         }
       ]
     },
     {
-      "name": "mongodb-image-default",
+      "config": "mongodb.default.conf.tmpl",
       "type": "mongodb",
-      "rules": [
-        {
-          "comparator": "contains",
-          "path": "ContainerImage",
-          "value": "mongo"
-        },
-        {
-          "comparator": "gte",
-          "path": "NetworkPrivatePort",
-          "value": 27017
-        },
-        {
-          "comparator": "lte",
-          "path": "NetworkPrivatePort",
-          "value": 27019
-        },
-        {
-          "comparator": "nexists",
-          "path": "ContainerLabel-signalfx-integration",
-          "value": ""
-        }
-      ]
-    },
-    {
-      "name": "mongodb-labeled-default",
-      "type": "mongodb",
+      "enabled": true,
       "rules": [
         {
           "comparator": "gte",
@@ -262,54 +144,25 @@
           "comparator": "lte",
           "path": "NetworkPrivatePort",
           "value": 27019
-        },
-        {
-          "comparator": "eq",
-          "path": "ContainerLabel-signalfx-integration",
-          "value": "mongodb"
         }
       ]
     },
     {
-      "name": "mysql-image-default",
+      "config": "mysql.default.conf.tmpl",
       "type": "mysql",
-      "rules": [
-        {
-          "comparator": "contains",
-          "path": "ContainerImage",
-          "value": "mysql"
-        },
-        {
-          "comparator": "eq",
-          "path": "NetworkPrivatePort",
-          "value": 3306
-        },
-        {
-          "comparator": "nexists",
-          "path": "ContainerLabel-signalfx-integration",
-          "value": ""
-        }
-      ]
-    },
-    {
-      "name": "mysql-labeled-default",
-      "type": "mysql",
+      "enabled": true,
       "rules": [
         {
           "comparator": "eq",
           "path": "NetworkPrivatePort",
           "value": 3306
-        },
-        {
-          "comparator": "eq",
-          "path": "ContainerLabel-signalfx-integration",
-          "value": "mysql"
         }
       ]
     },
     {
-      "name": "nginx-image-default",
+      "config": "nginx.default.conf.tmpl",
       "type": "nginx",
+      "enabled": false,
       "rules": [
         {
           "comparator": "contains",
@@ -329,129 +182,38 @@
       ]
     },
     {
-      "name": "nginx-labeled-default",
-      "type": "nginx",
-      "rules": [
-        {
-          "comparator": "eq",
-          "path": "NetworkPrivatePort",
-          "value": 80
-        },
-        {
-          "comparator": "eq",
-          "path": "ContainerLabel-signalfx-integration",
-          "value": "nginx"
-        }
-      ]
-    },
-    {
-      "name": "rabbitmq-image-default",
+      "config": "rabbitmq.default.conf.tmpl",
       "type": "rabbitmq",
-      "rules": [
-        {
-          "comparator": "contains",
-          "path": "ContainerImage",
-          "value": "rabbitmq"
-        },
-        {
-          "comparator": "eq",
-          "path": "NetworkPrivatePort",
-          "value": 5672
-        },
-        {
-          "comparator": "nexists",
-          "path": "ContainerLabel-signalfx-integration",
-          "value": ""
-        }
-      ]
-    },
-    {
-      "name": "rabbitmq-labeled-default",
-      "type": "rabbitmq",
+      "enabled": true,
       "rules": [
         {
           "comparator": "eq",
           "path": "NetworkPrivatePort",
           "value": 5672
-        },
-        {
-          "comparator": "eq",
-          "path": "ContainerLabel-signalfx-integration",
-          "value": "rabbitmq"
         }
       ]
     },
     {
-      "name": "redis-image-default",
+      "config": "redis.default.conf.tmpl",
       "type": "redis",
-      "rules": [
-        {
-          "comparator": "contains",
-          "path": "ContainerImage",
-          "value": "redis"
-        },
-        {
-          "comparator": "eq",
-          "path": "NetworkPrivatePort",
-          "value": 6379
-        },
-        {
-          "comparator": "nexists",
-          "path": "ContainerLabel-signalfx-integration",
-          "value": ""
-        }
-      ]
-    },
-    {
-      "name": "redis-labeled-default",
-      "type": "redis",
+      "enabled": true,
       "rules": [
         {
           "comparator": "eq",
           "path": "NetworkPrivatePort",
           "value": 6379
-        },
-        {
-          "comparator": "eq",
-          "path": "ContainerLabel-signalfx-integration",
-          "value": "redis"
         }
       ]
     },
     {
-      "name": "zookeeper-image-default",
+      "config": "zookeeper.default.conf.tmpl",
       "type": "zookeeper",
-      "rules": [
-        {
-          "comparator": "contains",
-          "path": "ContainerImage",
-          "value": "zookeeper"
-        },
-        {
-          "comparator": "eq",
-          "path": "NetworkPrivatePort",
-          "value": 2181
-        },
-        {
-          "comparator": "nexists",
-          "path": "ContainerLabel-signalfx-integration",
-          "value": ""
-        }
-      ]
-    },
-    {
-      "name": "zookeeper-labeled-default",
-      "type": "zookeeper",
+      "enabled": true,
       "rules": [
         {
           "comparator": "eq",
           "path": "NetworkPrivatePort",
           "value": 2181
-        },
-        {
-          "comparator": "eq",
-          "path": "ContainerLabel-signalfx-integration",
-          "value": "zookeeper"
         }
       ]
     }
