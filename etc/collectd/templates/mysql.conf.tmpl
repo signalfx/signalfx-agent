@@ -1,0 +1,8 @@
+{{define "mysql"}}
+LoadPlugin mysql
+<Plugin mysql>
+  {{range $instance := .}}
+  	{{RenderTemplate $instance.Template $instance}}
+  {{end}}
+</Plugin>
+{{end}}

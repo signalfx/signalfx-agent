@@ -1,10 +1,6 @@
 <Module mongodb>
   Host "{{.Host}}"
   Port {{.Port}}
-  {{if Secret "SFX_MONITOR_USER"}}
-  User "{{Secret "SFX_MONITOR_USER"}}"
-  Password "{{Secret "SFX_MONITOR_PASSWORD"}}"
-  {{end}}
   Database "admin"
   Dimensions "{{.Dims}}"
 </Module>
