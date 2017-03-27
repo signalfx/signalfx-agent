@@ -5,6 +5,7 @@
       "config": "apache.default.conf.tmpl",
       "type": "apache",
       "enabled": true,
+      "labels": ["app"],
       "rules": [
         {
           "comparator": "contains",
@@ -17,6 +18,7 @@
       "config": "redis.default.conf.tmpl",
       "type": "redis",
       "enabled": true,
+      "labels": ["app"],
       "rules": [
         {
           "comparator": "eq",

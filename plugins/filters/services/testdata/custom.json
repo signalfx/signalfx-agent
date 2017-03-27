@@ -5,6 +5,7 @@
       "config": "apache.default.conf.tmpl",
       "type": "apache",
       "enabled": true,
+      "labels": ["app"],
       "rules": [
         {
           "comparator": "contains",

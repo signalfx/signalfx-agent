@@ -5,6 +5,7 @@
       "config": "activemq.default.conf.tmpl",
       "type": "activemq",
       "enabled": true,
+      "labels": ["app"],
       "rules": [
         {
           "comparator": "contains",
@@ -27,6 +28,7 @@
       "config": "apache.default.conf.tmpl",
       "type": "apache",
       "enabled": true,
+      "labels": ["app"],
       "rules": [
         {
           "comparator": "contains",
@@ -49,6 +51,7 @@
       "config": "cassandra.default.conf.tmpl",
       "type": "cassandra",
       "enabled": true,
+      "labels": ["app"],
       "rules": [
         {
           "comparator": "contains",
@@ -71,6 +74,7 @@
       "config": "elasticsearch.default.conf.tmpl",
       "type": "elasticsearch",
       "enabled": false,
+      "labels": ["app"],
       "rules": [
         {
           "comparator": "eq",
@@ -83,6 +87,7 @@
       "config": "kafka.default.conf.tmpl",
       "type": "kafka",
       "enabled": true,
+      "labels": ["app"],
       "rules": [
         {
           "comparator": "contains",
@@ -105,6 +110,7 @@
       "config": "kafka.default.conf.tmpl",
       "type": "kafka",
       "enabled": true,
+      "labels": ["app"],
       "rules": [
         {
           "comparator": "eq",
@@ -122,6 +128,7 @@
       "config": "memcached.default.conf.tmpl",
       "type": "memcached",
       "enabled": true,
+      "labels": ["app"],
       "rules": [
         {
           "comparator": "eq",
@@ -134,6 +141,7 @@
       "config": "mongodb.default.conf.tmpl",
       "type": "mongodb",
       "enabled": true,
+      "labels": ["app"],
       "rules": [
         {
           "comparator": "gte",
@@ -151,6 +159,7 @@
       "config": "mysql.default.conf.tmpl",
       "type": "mysql",
       "enabled": false,
+      "labels": ["app"],
       "rules": [
         {
           "comparator": "eq",
@@ -163,6 +172,7 @@
       "config": "nginx.default.conf.tmpl",
       "type": "nginx",
       "enabled": false,
+      "labels": ["app"],
       "rules": [
         {
           "comparator": "contains",
@@ -185,6 +195,7 @@
       "config": "rabbitmq.default.conf.tmpl",
       "type": "rabbitmq",
       "enabled": false,
+      "labels": ["app"],
       "rules": [
         {
           "comparator": "eq",
@@ -197,6 +208,7 @@
       "config": "redis.default.conf.tmpl",
       "type": "redis",
       "enabled": true,
+      "labels": ["app"],
       "rules": [
         {
           "comparator": "eq",
@@ -209,6 +221,7 @@
       "config": "zookeeper.default.conf.tmpl",
       "type": "zookeeper",
       "enabled": true,
+      "labels": ["app"],
       "rules": [
         {
           "comparator": "eq",
