@@ -37,7 +37,8 @@ var PLUGINS = map[services.ServiceType]func(string) *Plugin{
 			Template: "apache.default.conf.tmpl",
 			Name:     instanceName,
 			Host:     "localhost",
-			Port:     80}
+			Port:     80,
+		}
 	},
 	services.CassandraService: func(instanceName string) *Plugin {
 		return &Plugin{
@@ -82,7 +83,17 @@ var PLUGINS = map[services.ServiceType]func(string) *Plugin{
 			Template: "mongodb.default.conf.tmpl",
 			Name:     instanceName,
 			Host:     "localhost",
-			Port:     27017}
+			Port:     27017,
+		}
+	},
+	services.MysqlService: func(instanceName string) *Plugin {
+		return &Plugin{
+			Plugin:   "mysql",
+			Template: "mysql.default.conf.tmpl",
+			Name:     instanceName,
+			Host:     "localhost",
+			Port:     3306,
+		}
 	},
 	services.RedisService: func(instanceName string) *Plugin {
 		return &Plugin{
@@ -111,7 +122,8 @@ var PLUGINS = map[services.ServiceType]func(string) *Plugin{
 			Template: "zookeeper.default.conf.tmpl",
 			Name:     instanceName,
 			Host:     "localhost",
-			Port:     2181}
+			Port:     2181,
+		}
 	},
 	services.WriteHTTPService: func(instanceName string) *Plugin {
 		// XXX: Super hacky. Ideally this should have no knowledge of the global
