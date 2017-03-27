@@ -24,6 +24,7 @@ type DiscoveryRuleset struct {
 	Config string
 	Type string
 	Enabled bool
+	Labels []string
 	// Rules are criteria for service identification
 	Rules []struct {
 		Comparator string
@@ -152,6 +153,11 @@ OUTER:
 						// FIXME: what if it's not a known service type?
 						sis[i].Service.Type = services.ServiceType(ruleset.Type)
 						sis[i].Config = ruleset.Config
+						for _, label := range ruleset.Labels {
+							if val, ok := sis[i].Container.Labels[label]; ok {
+								sis[i].Orchestration.Dims[label] = val
+							}
+						}
 						applicableServices = append(applicableServices, sis[i])
 						// Rule found, continue to next service instance.
 						continue OUTER
