@@ -13,7 +13,7 @@ import:
 - package: github.com/fsnotify/fsnotify
   version: ~1.4.2
 - package: github.com/signalfx/cadvisor-integration
-  version: 2c234fd80d1dd43baf2564695e4a1e2a8d5d565d
+  version: 9ec4dcf2f98f9e35da31adb3b1bccaf368b02585
 testImport:
 - package: github.com/kr/pretty
 - package: github.com/smartystreets/goconvey
