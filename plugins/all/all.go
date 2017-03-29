@@ -7,6 +7,7 @@ import (
 	_ "github.com/signalfx/neo-agent/plugins/monitors/cadvisor"
 	_ "github.com/signalfx/neo-agent/plugins/monitors/collectd"
 	_ "github.com/signalfx/neo-agent/plugins/observers/docker"
+	_ "github.com/signalfx/neo-agent/plugins/observers/file"
 	_ "github.com/signalfx/neo-agent/plugins/observers/kubernetes"
 	_ "github.com/signalfx/neo-agent/plugins/observers/mesosphere"
 )

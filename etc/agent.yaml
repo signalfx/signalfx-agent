@@ -21,6 +21,10 @@
 # ingestURL: https://ingest.signalfx.com
 
 plugins:
+    file:
+        plugin: observers/file
+        path: /etc/signalfx/service_instances.json
+
     local-docker:
         plugin: observers/docker
         url: unix:///var/run/docker.sock
@@ -72,4 +76,8 @@ pipelines:
     docker:
     - local-docker
     - service-mapping
+    - collectd
+
+    file:
+    - file
     - collectd
