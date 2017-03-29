@@ -13,6 +13,11 @@ plugins:
           kubernetes_pod_name: inspect:Config.Labels['io.kubernetes.pod.name']
           kubernetes_pod_namespace: inspect:Config.Labels['io.kubernetes.pod.namespace']
 
+  service-mapping:
+    servicesFiles:
+    - /mnt/services/custom-services.json
+    - /etc/signalfx/collectd/services.json
+
   cadvisor:
     plugin: monitors/cadvisor
     dataSendRate: 30
