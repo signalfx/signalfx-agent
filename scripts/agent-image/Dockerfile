@@ -15,14 +15,12 @@ RUN sed -i -e '/^deb-src/d' /etc/apt/sources.list \
     && apt-get install -y libcurl4-openssl-dev \
     && apt-get install -y wget \
     && apt-get install -y net-tools \
-    && add-apt-repository -y ppa:signalfx/collectd-release \
-    && apt-get update \
-    && apt-get install -y --no-install-recommends collectd \
     && apt-get install -y libpython2.7 \
     && apt-get install -y python-pip \
-    && apt-get install -y python-pip \
+    && add-apt-repository -y ppa:signalfx/collectd-release \
     && add-apt-repository -y ppa:signalfx/collectd-plugin-release \
     && apt-get update \
+    && apt-get install -y --no-install-recommends collectd \
     && apt-get install -y signalfx-collectd-plugin \
     && apt-get install -y openjdk-8-jre-headless
 
@@ -41,62 +39,69 @@ RUN mkdir -p /etc/collectd/managed_config \
 
 # collectd-cpu
 # collectd-docker
+ENV DOCKER_COLLECTD_PLUGIN_V=1.0.2
 RUN mkdir -p /usr/share/collectd/docker-collectd-plugin \
-    && curl -L "https://github.com/signalfx/docker-collectd-plugin/archive/v1.0.1.tar.gz" --output /usr/share/collectd/docker-collectd-plugin/v1.0.1.tar.gz \
-    && tar -zxvf /usr/share/collectd/docker-collectd-plugin/v1.0.1.tar.gz -C /usr/share/collectd/docker-collectd-plugin/ \
-    && cp /usr/share/collectd/docker-collectd-plugin/docker-collectd-plugin-1.0.1/* /usr/share/collectd/docker-collectd-plugin/ \
-    && rm -f /usr/share/collectd/docker-collectd-plugin/v1.0.1.tar.gz \
-    && rm -rf /usr/share/collectd/docker-collectd-plugin/docker-collectd-plugin-1.0.1 \
+    && curl -L "https://github.com/signalfx/docker-collectd-plugin/archive/v${DOCKER_COLLECTD_PLUGIN_V}.tar.gz" --output /usr/share/collectd/docker-collectd-plugin/v${DOCKER_COLLECTD_PLUGIN_V}.tar.gz \
+    && tar -zxvf /usr/share/collectd/docker-collectd-plugin/v${DOCKER_COLLECTD_PLUGIN_V}.tar.gz -C /usr/share/collectd/docker-collectd-plugin/ \
+    && cp /usr/share/collectd/docker-collectd-plugin/docker-collectd-plugin-${DOCKER_COLLECTD_PLUGIN_V}/* /usr/share/collectd/docker-collectd-plugin/ \
+    && rm -f /usr/share/collectd/docker-collectd-plugin/v${DOCKER_COLLECTD_PLUGIN_V}.tar.gz \
+    && rm -rf /usr/share/collectd/docker-collectd-plugin/docker-collectd-plugin-${DOCKER_COLLECTD_PLUGIN_V} \
     && pip install -r /usr/share/collectd/docker-collectd-plugin/requirements.txt
 
 # collectd-elasticsearch
+ENV ELASTICSEARCH_COLLECTD_PLUGIN_V=1.2.0
 RUN mkdir -p /usr/share/collectd/elasticsearch-collectd-plugin \
-    && curl -L "https://github.com/signalfx/collectd-elasticsearch/archive/v1.2.0.tar.gz" --output /usr/share/collectd/elasticsearch-collectd-plugin/v1.2.0.tar.gz \
-    && tar -zxvf /usr/share/collectd/elasticsearch-collectd-plugin/v1.2.0.tar.gz -C /usr/share/collectd/elasticsearch-collectd-plugin/ \
-    && cp -r /usr/share/collectd/elasticsearch-collectd-plugin/collectd-elasticsearch-1.2.0/* /usr/share/collectd/elasticsearch-collectd-plugin/ \
-    && rm -f /usr/share/collectd/elasticsearch-collectd-plugin/v1.2.0.tar.gz \
-    && rm -rf /usr/share/collectd/elasticsearch-collectd-plugin/collectd-elasticsearch-1.2.0
+    && curl -L "https://github.com/signalfx/collectd-elasticsearch/archive/v${ELASTICSEARCH_COLLECTD_PLUGIN_V}.tar.gz" --output /usr/share/collectd/elasticsearch-collectd-plugin/v${ELASTICSEARCH_COLLECTD_PLUGIN_V}.tar.gz \
+    && tar -zxvf /usr/share/collectd/elasticsearch-collectd-plugin/v${ELASTICSEARCH_COLLECTD_PLUGIN_V}.tar.gz -C /usr/share/collectd/elasticsearch-collectd-plugin/ \
+    && cp -r /usr/share/collectd/elasticsearch-collectd-plugin/collectd-elasticsearch-${ELASTICSEARCH_COLLECTD_PLUGIN_V}/* /usr/share/collectd/elasticsearch-collectd-plugin/ \
+    && rm -f /usr/share/collectd/elasticsearch-collectd-plugin/v${ELASTICSEARCH_COLLECTD_PLUGIN_V}.tar.gz \
+    && rm -rf /usr/share/collectd/elasticsearch-collectd-plugin/collectd-elasticsearch-${ELASTICSEARCH_COLLECTD_PLUGIN_V}
 
 # collectd-java
 RUN mkdir -p /usr/share/collectd/java \
     && echo "jmx_memory      value:GAUGE:0:U" > /usr/share/collectd/java/signalfx_types_db
 
 # collectd-mesos
+ENV MESOS_AGENT_COLLECTD_PLUGIN_V=1.1.0
 RUN mkdir -p /usr/share/collectd/mesos-collectd-plugin \
-    && curl -L "https://github.com/signalfx/collectd-mesos/archive/v1.1.0.tar.gz" --output /usr/share/collectd/mesos-collectd-plugin/v1.1.0.tar.gz \
-    && tar -zxvf /usr/share/collectd/mesos-collectd-plugin/v1.1.0.tar.gz -C /usr/share/collectd/mesos-collectd-plugin/ \
-    && cp /usr/share/collectd/mesos-collectd-plugin/collectd-mesos-1.1.0/* /usr/share/collectd/mesos-collectd-plugin/ \
-    && rm -f /usr/share/collectd/mesos-collectd-plugin/v1.1.0.tar.gz \
-    && rm -rf /usr/share/collectd/mesos-collectd-plugin/collectd-mesos-1.1.0
+    && curl -L "https://github.com/signalfx/collectd-mesos/archive/v${MESOS_AGENT_COLLECTD_PLUGIN_V}.tar.gz" --output /usr/share/collectd/mesos-collectd-plugin/v${MESOS_AGENT_COLLECTD_PLUGIN_V}.tar.gz \
+    && tar -zxvf /usr/share/collectd/mesos-collectd-plugin/v${MESOS_AGENT_COLLECTD_PLUGIN_V}.tar.gz -C /usr/share/collectd/mesos-collectd-plugin/ \
+    && cp /usr/share/collectd/mesos-collectd-plugin/collectd-mesos-${MESOS_AGENT_COLLECTD_PLUGIN_V}/* /usr/share/collectd/mesos-collectd-plugin/ \
+    && rm -f /usr/share/collectd/mesos-collectd-plugin/v${MESOS_AGENT_COLLECTD_PLUGIN_V}.tar.gz \
+    && rm -rf /usr/share/collectd/mesos-collectd-plugin/collectd-mesos-${MESOS_AGENT_COLLECTD_PLUGIN_V}
 
 # collectd-mesos-master
+ENV MESOS_MASTER_COLLECTD_PLUGIN_V=1.1.0
 RUN mkdir -p /usr/share/collectd/mesos-collectd-plugin \
-    && curl -L "https://github.com/signalfx/collectd-mesos/archive/v1.1.0.tar.gz" --output /usr/share/collectd/mesos-collectd-plugin/v1.1.0.tar.gz \
-    && tar -zxvf /usr/share/collectd/mesos-collectd-plugin/v1.1.0.tar.gz -C /usr/share/collectd/mesos-collectd-plugin/ \
-    && cp /usr/share/collectd/mesos-collectd-plugin/collectd-mesos-1.1.0/* /usr/share/collectd/mesos-collectd-plugin/ \
-    && rm -f /usr/share/collectd/mesos-collectd-plugin/v1.1.0.tar.gz \
-    && rm -rf /usr/share/collectd/mesos-collectd-plugin/collectd-mesos-1.1.0
+    && curl -L "https://github.com/signalfx/collectd-mesos/archive/v${MESOS_MASTER_COLLECTD_PLUGIN_V}.tar.gz" --output /usr/share/collectd/mesos-collectd-plugin/v${MESOS_MASTER_COLLECTD_PLUGIN_V}.tar.gz \
+    && tar -zxvf /usr/share/collectd/mesos-collectd-plugin/v${MESOS_MASTER_COLLECTD_PLUGIN_V}.tar.gz -C /usr/share/collectd/mesos-collectd-plugin/ \
+    && cp /usr/share/collectd/mesos-collectd-plugin/collectd-mesos-${MESOS_MASTER_COLLECTD_PLUGIN_V}/* /usr/share/collectd/mesos-collectd-plugin/ \
+    && rm -f /usr/share/collectd/mesos-collectd-plugin/v${MESOS_MASTER_COLLECTD_PLUGIN_V}.tar.gz \
+    && rm -rf /usr/share/collectd/mesos-collectd-plugin/collectd-mesos-${MESOS_MASTER_COLLECTD_PLUGIN_V}
 
 # collectd-mongodb
+ENV MONGODB_COLLECTD_PLUGIN_V=1.1.1
+ENV PYMONGO_V=3.1.1
 RUN mkdir -p /usr/share/collectd/mongodb-collectd-plugin \
-    && curl -L "https://github.com/signalfx/collectd-mongodb/archive/v1.1.1.tar.gz" --output /usr/share/collectd/mongodb-collectd-plugin/v1.1.1.tar.gz \
-    && tar -zxvf /usr/share/collectd/mongodb-collectd-plugin/v1.1.1.tar.gz -C /usr/share/collectd/mongodb-collectd-plugin/ \
-    && cp /usr/share/collectd/mongodb-collectd-plugin/collectd-mongodb-1.1.1/* /usr/share/collectd/mongodb-collectd-plugin/ \
-    && rm -f /usr/share/collectd/mongodb-collectd-plugin/v1.1.1.tar.gz \
-    && rm -rf /usr/share/collectd/mongodb-collectd-plugin/collectd-mongodb-1.1.1 \
-    && pip install pymongo==3.1.1
+    && curl -L "https://github.com/signalfx/collectd-mongodb/archive/v${MONGODB_COLLECTD_PLUGIN_V}.tar.gz" --output /usr/share/collectd/mongodb-collectd-plugin/v${MONGODB_COLLECTD_PLUGIN_V}.tar.gz \
+    && tar -zxvf /usr/share/collectd/mongodb-collectd-plugin/v${MONGODB_COLLECTD_PLUGIN_V}.tar.gz -C /usr/share/collectd/mongodb-collectd-plugin/ \
+    && cp /usr/share/collectd/mongodb-collectd-plugin/collectd-mongodb-${MONGODB_COLLECTD_PLUGIN_V}/* /usr/share/collectd/mongodb-collectd-plugin/ \
+    && rm -f /usr/share/collectd/mongodb-collectd-plugin/v${MONGODB_COLLECTD_PLUGIN_V}.tar.gz \
+    && rm -rf /usr/share/collectd/mongodb-collectd-plugin/collectd-mongodb-${MONGODB_COLLECTD_PLUGIN_V} \
+    && pip install pymongo==${PYMONGO_V}
 
 # collectd-redis
 RUN mkdir -p /usr/share/collectd/redis-collectd-plugin \
     && curl -L https://raw.githubusercontent.com/signalfx/redis-collectd-plugin/master/redis_info.py --output /usr/share/collectd/redis-collectd-plugin/redis_info.py
 
 # collectd-zookeeper
+ENV ZOOKEEPER_COLLECTD_PLUGIN_V=0.0.2
 RUN mkdir -p /usr/share/collectd/zookeeper-collectd-plugin \
-    && curl -L "https://github.com/signalfx/collectd-zookeeper/archive/v0.0.2.tar.gz" --output /usr/share/collectd/zookeeper-collectd-plugin/v0.0.2.tar.gz \
-    && tar -zxvf /usr/share/collectd/zookeeper-collectd-plugin/v0.0.2.tar.gz -C /usr/share/collectd/zookeeper-collectd-plugin/ \
-    && cp /usr/share/collectd/zookeeper-collectd-plugin/collectd-zookeeper-0.0.2/* /usr/share/collectd/zookeeper-collectd-plugin/ \
-    && rm -f /usr/share/collectd/zookeeper-collectd-plugin/v0.0.2.tar.gz \
-    && rm -rf /usr/share/collectd/zookeeper-collectd-plugin/collectd-zookeeper-0.0.2
+    && curl -L "https://github.com/signalfx/collectd-zookeeper/archive/v${ZOOKEEPER_COLLECTD_PLUGIN_V}.tar.gz" --output /usr/share/collectd/zookeeper-collectd-plugin/v${ZOOKEEPER_COLLECTD_PLUGIN_V}.tar.gz \
+    && tar -zxvf /usr/share/collectd/zookeeper-collectd-plugin/v${ZOOKEEPER_COLLECTD_PLUGIN_V}.tar.gz -C /usr/share/collectd/zookeeper-collectd-plugin/ \
+    && cp /usr/share/collectd/zookeeper-collectd-plugin/collectd-zookeeper-${ZOOKEEPER_COLLECTD_PLUGIN_V}/* /usr/share/collectd/zookeeper-collectd-plugin/ \
+    && rm -f /usr/share/collectd/zookeeper-collectd-plugin/v${ZOOKEEPER_COLLECTD_PLUGIN_V}.tar.gz \
+    && rm -rf /usr/share/collectd/zookeeper-collectd-plugin/collectd-zookeeper-${ZOOKEEPER_COLLECTD_PLUGIN_V}
 
 # collectd-all-cleanup
 RUN apt-get remove -y --purge build-essential software-properties-common python-software-properties python-pip \
