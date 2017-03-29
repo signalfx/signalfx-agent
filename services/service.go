@@ -1,6 +1,7 @@
 package services
 
 import "time"
+import "reflect"
 
 // OrchestrationType of service
 type OrchestrationType int
@@ -147,6 +148,21 @@ func NewContainer(id string, names []string, image string, pod string, command s
 // NewInstance constructor
 func NewInstance(id string, service *Service, container *Container, orchestration *Orchestration, port *Port, discovered time.Time) *Instance {
 	return &Instance{id, service, container, orchestration, port, discovered, ""}
+}
+
+// Equivalent determine if rhs and lhs and roughly equal (ignores Discovered time)
+func (lhs *Instance) Equivalent(rhs *Instance) bool {
+	// Quick check before doing DeepEqual.
+	if lhs.ID != rhs.ID {
+		return false
+	}
+
+	rhsCopy := *rhs
+	// Ignore discovered time.
+	rhsCopy.Discovered = lhs.Discovered
+	// Have to take address of rhsCopy so that it's comparing pointers to
+	// pointers.
+	return reflect.DeepEqual(lhs, &rhsCopy)
 }
 
 // Instances type containing sorted set of services

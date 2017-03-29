@@ -132,7 +132,11 @@ func (collectd *Collectd) Write(services services.Instances) error {
 		changed = true
 	} else {
 		for i := range services {
-			if services[i].ID != collectd.services[i].ID {
+			// Checks if the services are either completely different (i.e. a
+			// service has been added or removed) or if the service's
+			// configuration has changed such as mapping to a different
+			// template.
+			if !services[i].Equivalent(&collectd.services[i]) {
 				changed = true
 				break
 			}
