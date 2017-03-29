@@ -11,6 +11,8 @@ RUN sed -i -e '/^deb-src/d' /etc/apt/sources.list \
     && apt-get install -y python-software-properties \
     && apt-get install -y dpkg \
     && apt-get install -y curl \
+    && apt-get install -y libcurl4-gnutls-dev \
+    && apt-get install -y libcurl4-openssl-dev \
     && apt-get install -y wget \
     && apt-get install -y net-tools \
     && add-apt-repository -y ppa:signalfx/collectd-release \
@@ -111,6 +113,7 @@ COPY etc /etc/signalfx/
 COPY agent /usr/sbin/signalfx-agent
 COPY libcollectd.so /usr/local/lib/collectd/libcollectd.so
 COPY java.so /usr/lib/collectd/java.so
+COPY nginx.so /usr/lib/collectd/nginx.so
 COPY python.so /usr/lib/collectd/python.so
 COPY aggregation.so /usr/lib/collectd/aggregation.so
 

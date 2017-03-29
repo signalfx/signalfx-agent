@@ -144,14 +144,9 @@
       "labels": ["app"],
       "rules": [
         {
-          "comparator": "gte",
+          "comparator": "eq",
           "path": "NetworkPrivatePort",
           "value": 27017
-        },
-        {
-          "comparator": "lte",
-          "path": "NetworkPrivatePort",
-          "value": 27019
         }
       ]
     },
@@ -171,7 +166,7 @@
     {
       "config": "nginx.default.conf.tmpl",
       "type": "nginx",
-      "enabled": false,
+      "enabled": true,
       "labels": ["app"],
       "rules": [
         {
