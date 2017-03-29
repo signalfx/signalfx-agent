@@ -95,6 +95,15 @@ var PLUGINS = map[services.ServiceType]func(string) *Plugin{
 			Port:     3306,
 		}
 	},
+	services.NginxService: func(instanceName string) *Plugin {
+		return &Plugin{
+			Plugin:   "nginx",
+			Template: "nginx.default.conf.tmpl",
+			Name:     instanceName,
+			Host:     "localhost",
+			Port:     80,
+		}
+	},
 	services.RedisService: func(instanceName string) *Plugin {
 		return &Plugin{
 			Plugin:   "redis",
