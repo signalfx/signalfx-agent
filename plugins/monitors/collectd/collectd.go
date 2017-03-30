@@ -48,6 +48,7 @@ type Collectd struct {
 	reloadChan    chan int
 	stopChan      chan int
 	configMutex   sync.Mutex
+	stateMutex    sync.Mutex
 	configDirty   bool
 }
 
@@ -169,10 +170,10 @@ func (collectd *Collectd) Write(services services.Instances) error {
 
 // reload reloads collectd configuration
 func (collectd *Collectd) reload() {
-	if collectd.state == Running {
+	if collectd.State() == Running {
 		collectd.setState(Reloading)
 		collectd.reloadChan <- 1
-		for collectd.Status() == Reloading {
+		for collectd.State() == Reloading {
 			time.Sleep(time.Duration(1) * time.Second)
 		}
 	}
@@ -289,8 +290,9 @@ func (collectd *Collectd) createPluginsFromServices(sis services.Instances) ([]*
 
 // Start collectd monitoring
 func (collectd *Collectd) Start() (err error) {
-	println("starting collectd")
-	if collectd.state == Running {
+	log.Println("starting collectd")
+
+	if collectd.State() == Running {
 		return errors.New("already running")
 	}
 
@@ -313,7 +315,7 @@ func (collectd *Collectd) Start() (err error) {
 
 // Stop collectd monitoring
 func (collectd *Collectd) Stop() {
-	if collectd.state != Stopped {
+	if collectd.State() != Stopped {
 		collectd.stopChan <- 0
 	}
 }
@@ -337,14 +339,19 @@ func (collectd *Collectd) GetWatchDirs(config *viper.Viper) []string {
 	return config.GetStringSlice("templatesdirs")
 }
 
-// Status for collectd monitoring
-func (collectd *Collectd) Status() string {
-	return collectd.state
+// State for collectd monitoring
+func (collectd *Collectd) State() string {
+	collectd.stateMutex.Lock()
+	state := collectd.state
+	collectd.stateMutex.Unlock()
+	return state
 }
 
-// Status for collectd monitoring
+// setState sets state for collectd monitoring
 func (collectd *Collectd) setState(state string) {
+	collectd.stateMutex.Lock()
 	collectd.state = state
+	collectd.stateMutex.Unlock()
 }
 
 func (collectd *Collectd) run() {
