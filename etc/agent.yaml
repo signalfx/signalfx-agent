@@ -56,6 +56,9 @@ plugins:
     debug:
         plugin: filters/debug
 
+    proxy:
+        plugin: filters/proxy
+
     service-mapping:
         plugin: filters/service-rules
         servicesFiles:
@@ -66,18 +69,22 @@ pipelines:
     mesosphere:
     - mesosphere
     - service-mapping
+    - proxy
     - collectd
 
     kubernetes:
     - kubernetes
     - service-mapping
+    - proxy
     - collectd
 
     docker:
     - local-docker
     - service-mapping
+    - proxy
     - collectd
 
     file:
     - file
+    - proxy
     - collectd
