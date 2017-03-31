@@ -3,6 +3,7 @@ package all
 import (
 	// Include all plugin packages so that init is called for registration.
 	_ "github.com/signalfx/neo-agent/plugins/filters/debug"
+	_ "github.com/signalfx/neo-agent/plugins/filters/proxy"
 	_ "github.com/signalfx/neo-agent/plugins/filters/services"
 	_ "github.com/signalfx/neo-agent/plugins/monitors/cadvisor"
 	_ "github.com/signalfx/neo-agent/plugins/monitors/collectd"
