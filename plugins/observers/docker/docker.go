@@ -23,6 +23,7 @@ const (
 // Docker observer plugin
 type Docker struct {
 	plugins.Plugin
+	client *client.Client
 }
 
 func init() {
@@ -35,24 +36,36 @@ func NewDocker(name string, config *viper.Viper) (plugins.IPlugin, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &Docker{plugin}, nil
+
+	docker := &Docker{plugin, nil}
+	if err := docker.load(); err != nil {
+		return nil, err
+	}
+
+	return docker, nil
 }
 
-// Discover services from querying docker api
-func (docker *Docker) Read() (services.Instances, error) {
+// Reload the docker client
+func (docker *Docker) Reload(config *viper.Viper) error {
+	docker.Config = config
+	return docker.load()
+}
+
+func (docker *Docker) load() (err error) {
 	defaultHeaders := map[string]string{"User-Agent": userAgent}
 	hostURL := defaultHostURL
 	if configVal := docker.Config.GetString("hosturl"); configVal != "" {
 		hostURL = configVal
 	}
 
-	cli, err := client.NewClient(hostURL, version, nil, defaultHeaders)
-	if err != nil {
-		return nil, err
-	}
+	docker.client, err = client.NewClient(hostURL, version, nil, defaultHeaders)
+	return err
+}
 
+// Discover services from querying docker api
+func (docker *Docker) Read() (services.Instances, error) {
 	options := types.ContainerListOptions{All: true}
-	containers, err := cli.ContainerList(context.Background(), options)
+	containers, err := docker.client.ContainerList(context.Background(), options)
 	if err != nil {
 		return nil, err
 	}
