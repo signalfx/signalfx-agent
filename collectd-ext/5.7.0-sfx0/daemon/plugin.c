@@ -2683,6 +2683,7 @@ void plugin_shutdown_for_reload(void) {
 
     uc_destroy();
     cf_destroy_all();
+    fc_destroy_all();
 
   if (ret != 0) {
         ERROR("error");

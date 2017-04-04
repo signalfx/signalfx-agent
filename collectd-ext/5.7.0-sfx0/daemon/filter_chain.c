@@ -726,6 +726,36 @@ static int fc_init_once(void) /* {{{ */
   return (0);
 } /* }}} int fc_init_once */
 
+static int fc_reset(void) /* {{{ */
+{
+  target_proc_t tproc = {0};
+
+  tproc.create = fc_bit_jump_create;
+  tproc.destroy = fc_bit_jump_destroy;
+  tproc.invoke = fc_bit_jump_invoke;
+  fc_register_target("jump", tproc);
+
+  memset(&tproc, 0, sizeof(tproc));
+  tproc.create = NULL;
+  tproc.destroy = NULL;
+  tproc.invoke = fc_bit_stop_invoke;
+  fc_register_target("stop", tproc);
+
+  memset(&tproc, 0, sizeof(tproc));
+  tproc.create = NULL;
+  tproc.destroy = NULL;
+  tproc.invoke = fc_bit_return_invoke;
+  fc_register_target("return", tproc);
+
+  memset(&tproc, 0, sizeof(tproc));
+  tproc.create = fc_bit_write_create;
+  tproc.destroy = fc_bit_write_destroy;
+  tproc.invoke = fc_bit_write_invoke;
+  fc_register_target("write", tproc);
+
+  return (0);
+} /* }}} int fc_reset */
+
 /*
  * Public functions
  */
@@ -959,6 +989,8 @@ void fc_destroy_all(void)
         fc_free_chains(chain_list_head);
         chain_list_head = NULL;
     }
+
+    fc_reset();
 }
 
 /* vim: set sw=2 sts=2 et fdm=marker : */
