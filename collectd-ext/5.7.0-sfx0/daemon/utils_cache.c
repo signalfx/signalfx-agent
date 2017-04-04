@@ -944,12 +944,27 @@ int uc_meta_data_exists(const value_list_t *vl,
 #ifdef SIGNALFX_EIM
 
 int uc_destroy(void) {
-  if (cache_tree != NULL)
-    c_avl_destroy(cache_tree);
 
-  cache_tree = NULL;
+    if (cache_tree != NULL) {
+        pthread_mutex_lock(&cache_lock);
 
-  return (0);
+        c_avl_iterator_t *iter = c_avl_get_iterator(cache_tree);
+        char *key = NULL;
+        cache_entry_t *ce = NULL;
+
+        while (c_avl_iterator_next(iter, (void *)&key, (void *)&ce) == 0) {
+            sfree(key);
+            cache_free(ce);
+        }
+
+        c_avl_iterator_destroy(iter);
+        c_avl_destroy(cache_tree);
+        cache_tree = NULL;
+
+        pthread_mutex_unlock(&cache_lock);
+    }
+
+    return (0);
 } /* int uc_destroy */
 
 #endif /* SIGNALFX_EIM */
