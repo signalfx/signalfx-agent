@@ -229,12 +229,12 @@ func (collectd *Collectd) getStaticPlugins() ([]*config.Plugin, error) {
 			return nil, fmt.Errorf("static plugin %s is not a string", pluginName)
 		}
 
-		pluginInstance, err := config.NewPlugin(services.ServiceType(pluginType), pluginName)
+		pluginInstance, err := config.NewPlugin(config.PluginType(pluginType), pluginName)
 		if err != nil {
 			return nil, err
 		}
 
-		if err := config.LoadPluginConfig(map[string]interface{}{"config": plugin},
+		if err := config.LoadPluginConfig(map[string]interface{}{"vars": plugin},
 			pluginType, pluginInstance); err != nil {
 			return nil, err
 		}
@@ -251,7 +251,7 @@ func (collectd *Collectd) createPluginsFromServices(sis services.Instances) ([]*
 
 	for _, service := range sis {
 		// TODO: Name is not unique, not sure what to use here.
-		plugin, err := config.NewPlugin(service.Service.Type, service.Service.Name)
+		plugin, err := config.NewInstancePlugin(service.Service.Plugin, service.Service.Name)
 		if err != nil {
 			log.Printf("unsupported service %s for collectd", service.Service.Type)
 			continue
@@ -276,9 +276,10 @@ func (collectd *Collectd) createPluginsFromServices(sis services.Instances) ([]*
 			continue
 		}
 
-		log.Printf("reconfiguring collectd service: %s (%s) to use template %s", service.Service.Name, service.Service.Type, service.Config)
-
-		plugin.Template = service.Config
+		plugin.Template = service.Template
+		for k, v := range service.Vars {
+			plugin.Vars[k] = v
+		}
 
 		plugins = append(plugins, plugin)
 	}

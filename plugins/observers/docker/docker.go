@@ -78,7 +78,7 @@ func (docker *Docker) Read() (services.Instances, error) {
 			for _, port := range c.Ports {
 				servicePort := services.NewPort("", "127.0.0.1", services.PortType(port.Type), uint16(port.PrivatePort), uint16(port.PublicPort))
 				id := docker.String() + c.ID + "-" + strconv.Itoa(port.PrivatePort)
-				service := services.NewService(id, services.UnknownService)
+				service := services.NewService(id, services.UnknownService, "")
 				dims := map[string]string{
 					"container_name":  c.Names[0],
 					"container_image": c.Image,

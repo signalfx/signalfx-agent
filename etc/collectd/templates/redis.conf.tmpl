@@ -7,7 +7,7 @@
   ModulePath "{{Globals.PluginRoot}}/redis-collectd-plugin"
   Import "redis_info"
   {{range $instance := .}}
-  	{{RenderTemplate $instance.Template $instance}}
+    {{RenderPlugin $instance}}
   {{end}}
 </Plugin>
 {{end}}

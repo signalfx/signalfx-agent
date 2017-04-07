@@ -1,69 +1,11 @@
 package config
 
 import (
-	"errors"
 	"fmt"
-	"io/ioutil"
 
 	log "github.com/Sirupsen/logrus"
-	"github.com/signalfx/neo-agent/services"
 	yaml "gopkg.in/yaml.v2"
 )
-
-// LoadYamlConfig parses a YAML file into an in-memory representation.
-func LoadYamlConfig(configFile string) (*AppConfig, error) {
-	config := NewCollectdConfig()
-	data, err := ioutil.ReadFile(configFile)
-
-	if err != nil {
-		return nil, fmt.Errorf("Failed to read config file: %s", err)
-	}
-
-	if err = yaml.Unmarshal(data, &config); err != nil {
-		return nil, fmt.Errorf("Failed to unmarshal main config: %s", err)
-	}
-
-	log.Infof("Loaded main config:\n%+v", config)
-
-	var plugins []*Plugin
-
-	for _, pluginConfig := range config.Plugins {
-		yamlPluginType, ok := pluginConfig["plugin"]
-		if !ok || yamlPluginType == nil {
-			return nil, errors.New("plugin instance is missing the `plugin` key")
-		}
-
-		pluginType, ok := yamlPluginType.(string)
-		if !ok {
-			return nil, errors.New("plugin type not of type string")
-		}
-
-		// TODO: Check for name collissions.
-		yamlPluginName, ok := pluginConfig["name"]
-		if !ok || yamlPluginName == nil {
-			return nil, errors.New("plugin instance is missing name `name` key")
-		}
-		pluginName, ok := yamlPluginName.(string)
-		if !ok {
-			return nil, errors.New("plugin name not of type string")
-		}
-
-		pluginStruct, err := NewPlugin(services.ServiceType(pluginType), pluginName)
-		if err != nil {
-			return nil, err
-		}
-
-		if err := LoadPluginConfig(pluginConfig, pluginType, pluginStruct); err == nil {
-			plugins = append(plugins, pluginStruct)
-		} else {
-			return nil, err
-		}
-	}
-
-	instancesMap := GroupByPlugin(plugins)
-
-	return &AppConfig{AgentConfig: config, Plugins: instancesMap}, nil
-}
 
 // LoadPluginConfig loads a plugin's configuration. If the configuration can't
 // be loaded an error is returned.

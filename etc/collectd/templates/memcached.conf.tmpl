@@ -2,7 +2,7 @@
 LoadPlugin "memcached"
 <Plugin "memcached">
   {{range $instance := .}}
-  	{{RenderTemplate $instance.Template $instance}}
+    {{RenderPlugin $instance}}
   {{end}}
 </Plugin>
 {{end}}

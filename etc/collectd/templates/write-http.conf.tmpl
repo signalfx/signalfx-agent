@@ -5,7 +5,7 @@
 <Plugin "write_http">
   {{range $instance := .}}
   <Node "SignalFx">
-    URL "{{$instance.Config.url}}/v1/collectd{{if $instance.Config.dimensions}}?{{$instance.Config.dimensions}}{{end}}"
+    URL "{{$instance.Vars.url}}/v1/collectd{{if $instance.Vars.dimensions}}?{{$instance.Vars.dimensions}}{{end}}"
     User "auth"
     Password "{{Secret "SFX_API_TOKEN"}}"
     Format "JSON"

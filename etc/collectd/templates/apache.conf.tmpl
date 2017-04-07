@@ -2,7 +2,7 @@
 LoadPlugin "apache"
 <Plugin "apache">
   {{range $instance := .}}
-  	{{RenderTemplate $instance.Template $instance}}
+    {{RenderPlugin $instance}}
   {{end}}
 </Plugin>
 {{end}}

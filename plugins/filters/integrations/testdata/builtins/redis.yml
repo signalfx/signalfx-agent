@@ -1,0 +1,7 @@
+integrations:
+  redis:
+    vars:
+      # Redis auth password.
+      # Auth: password
+    rule: ContainerImage =~ "redis" && NetworkPrivatePort == 6379 && !Contains(ContainerLabels, "signalfx-integration")
+    template: builtin-template

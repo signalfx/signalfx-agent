@@ -2,139 +2,50 @@ package config
 
 import (
 	"fmt"
-
 	"net/url"
 
-	"github.com/signalfx/neo-agent/services"
 	"github.com/spf13/viper"
 )
 
 // Plugin describes a collectd plugin
 type Plugin struct {
-	Plugin   string
-	Name     string
-	Template string
-	Dims     string
-	Host     string
-	Port     uint16
-	Config   map[string]interface{}
+	Plugin       string
+	Name         string
+	Template     string
+	TemplateFile string
+	Dims         string
+	Host         string
+	Port         uint16
+	Vars         map[string]interface{}
 }
 
+// PluginType is a type for collectd plugins
+type PluginType string
+
+const (
+	// SignalFx plugin
+	SignalFx PluginType = "signalfx"
+	// WriteHTTP plugin
+	WriteHTTP PluginType = "writehttp"
+	// Docker plugin
+	Docker PluginType = "docker"
+)
+
 // PLUGINS is a mapping to create plugin instances with defaults
-var PLUGINS = map[services.ServiceType]func(string) *Plugin{
-	services.ActiveMQService: func(instanceName string) *Plugin {
-		return &Plugin{
-			Plugin:   "jmx",
-			Template: "activemq.default.conf.tmpl",
-			Name:     instanceName,
-			Host:     "localhost",
-			Port:     1099,
-		}
-	},
-	services.ApacheService: func(instanceName string) *Plugin {
-		return &Plugin{
-			Plugin:   "apache",
-			Template: "apache.default.conf.tmpl",
-			Name:     instanceName,
-			Host:     "localhost",
-			Port:     80,
-		}
-	},
-	services.CassandraService: func(instanceName string) *Plugin {
-		return &Plugin{
-			Plugin:   "jmx",
-			Template: "cassandra.default.conf.tmpl",
-			Name:     instanceName,
-			Host:     "localhost",
-			Port:     7199,
-		}
-	},
-	services.DockerService: func(instanceName string) *Plugin {
-		return &Plugin{
-			Plugin:   "docker",
-			Template: "docker.conf.tmpl",
-			Name:     instanceName,
-			Config: map[string]interface{}{
-				"url": "unix:///var/run/docker.sock",
-			},
-		}
-	},
-	services.GenericJMXService: func(instanceName string) *Plugin {
-		return &Plugin{
-			Plugin:   "jmx",
-			Template: "jmx.default.conf.tmpl",
-			Name:     instanceName,
-			Host:     "localhost",
-			Port:     1099,
-		}
-	},
-	services.KafkaService: func(instanceName string) *Plugin {
-		return &Plugin{
-			Plugin:   "jmx",
-			Template: "kafka.default.conf.tmpl",
-			Name:     instanceName,
-			Host:     "localhost",
-			Port:     7099,
-		}
-	},
-	services.MongoDBService: func(instanceName string) *Plugin {
-		return &Plugin{
-			Plugin:   "mongodb",
-			Template: "mongodb.default.conf.tmpl",
-			Name:     instanceName,
-			Host:     "localhost",
-			Port:     27017,
-		}
-	},
-	services.MysqlService: func(instanceName string) *Plugin {
-		return &Plugin{
-			Plugin:   "mysql",
-			Template: "mysql.default.conf.tmpl",
-			Name:     instanceName,
-			Host:     "localhost",
-			Port:     3306,
-		}
-	},
-	services.NginxService: func(instanceName string) *Plugin {
-		return &Plugin{
-			Plugin:   "nginx",
-			Template: "nginx.default.conf.tmpl",
-			Name:     instanceName,
-			Host:     "localhost",
-			Port:     80,
-		}
-	},
-	services.RedisService: func(instanceName string) *Plugin {
-		return &Plugin{
-			Plugin:   "redis",
-			Template: "redis.default.conf.tmpl",
-			Name:     instanceName,
-			Host:     "localhost",
-			Port:     6379,
-		}
-	},
-	services.SignalfxService: func(instanceName string) *Plugin {
+var PLUGINS = map[PluginType]func(string) *Plugin{
+	SignalFx: func(instanceName string) *Plugin {
 		// XXX: Super hacky. Ideally this should have no knowledge of the global
 		// viper.
 		return &Plugin{
-			Plugin:   "signalfx",
-			Template: "signalfx.conf.tmpl",
-			Config: map[string]interface{}{
+			Plugin:       "signalfx",
+			TemplateFile: "signalfx.conf.tmpl",
+			Vars: map[string]interface{}{
 				"url": viper.GetString("ingesturl"),
 			},
 			Name: instanceName,
 		}
 	},
-	services.ZookeeperService: func(instanceName string) *Plugin {
-		return &Plugin{
-			Plugin:   "zookeeper",
-			Template: "zookeeper.default.conf.tmpl",
-			Name:     instanceName,
-			Host:     "localhost",
-			Port:     2181,
-		}
-	},
-	services.WriteHTTPService: func(instanceName string) *Plugin {
+	WriteHTTP: func(instanceName string) *Plugin {
 		// XXX: Super hacky. Ideally this should have no knowledge of the global
 		// viper.
 		query := url.Values{}
@@ -144,9 +55,9 @@ var PLUGINS = map[services.ServiceType]func(string) *Plugin{
 		}
 
 		plugin := &Plugin{
-			Plugin:   "write-http",
-			Template: "write-http.conf.tmpl",
-			Config: map[string]interface{}{
+			Plugin:       "write-http",
+			TemplateFile: "write-http.conf.tmpl",
+			Vars: map[string]interface{}{
 				"url":        viper.GetString("ingesturl"),
 				"dimensions": query.Encode(),
 			},
@@ -155,24 +66,42 @@ var PLUGINS = map[services.ServiceType]func(string) *Plugin{
 
 		return plugin
 	},
+	Docker: func(instanceName string) *Plugin {
+		return &Plugin{
+			Plugin:       "docker",
+			TemplateFile: "docker.conf.tmpl",
+			Name:         instanceName,
+			Vars: map[string]interface{}{
+				"url": "unix:///var/run/docker.sock",
+			},
+		}
+	},
 }
 
 // NewPlugin constructs a plugin with default values depending on the service type
-func NewPlugin(pluginType services.ServiceType, pluginName string) (*Plugin, error) {
+func NewPlugin(pluginType PluginType, pluginName string) (*Plugin, error) {
 	if create, ok := PLUGINS[pluginType]; ok {
 		return create(pluginName), nil
 	}
 	return nil, fmt.Errorf("plugin %s is unsupported", pluginType)
 }
 
+// NewInstancePlugin creates a plugin for a supported service type
+func NewInstancePlugin(pluginType string, pluginName string) (*Plugin, error) {
+	// TODO: Maintain a list of supported service types for collectd if not all monitors support the same ones.
+	return &Plugin{Plugin: pluginType, Name: pluginName, Vars: map[string]interface{}{}}, nil
+}
+
 // GroupByPlugin creates a map of instances by plugin
 func GroupByPlugin(instances []*Plugin) map[string][]*Plugin {
 	pluginMap := map[string][]*Plugin{}
 	for _, instance := range instances {
-		if val, ok := pluginMap[instance.Plugin]; ok {
-			pluginMap[instance.Plugin] = append(val, instance)
+		plugin := instance.Plugin
+
+		if val, ok := pluginMap[plugin]; ok {
+			pluginMap[plugin] = append(val, instance)
 		} else {
-			pluginMap[instance.Plugin] = []*Plugin{instance}
+			pluginMap[plugin] = []*Plugin{instance}
 		}
 	}
 	return pluginMap

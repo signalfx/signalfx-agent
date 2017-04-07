@@ -78,7 +78,7 @@ LoadPlugin java
 </Plugin>
 
 {{range $instance := .}}
-{{RenderTemplate $instance.Template $instance}}
+{{RenderPlugin $instance}}
 {{end}}
 
 {{end}}

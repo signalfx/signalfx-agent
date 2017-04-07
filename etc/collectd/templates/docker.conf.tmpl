@@ -8,10 +8,10 @@ LoadPlugin python
 
   {{range $instance := .}}
   <Module dockerplugin>
-    BaseURL "{{$instance.Config.url}}"
+    BaseURL "{{$instance.Vars.url}}"
     Timeout 3
     Verbose false
-    {{range $key, $value := $instance.Config.extradimensions -}}
+    {{range $key, $value := $instance.Vars.extradimensions -}}
     Dimension "{{$key}}" "{{$value}}"
     {{end -}}
   </Module>

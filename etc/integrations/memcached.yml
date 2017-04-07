@@ -1,0 +1,8 @@
+integrations:
+  memcached:
+    rule: NetworkPrivatePort == 11211
+    template: |
+      <Instance "{{.Name}}[{{.Dims}}]">
+        Host "{{.Host}}"
+        Port "{{.Port}}"
+      </Instance>

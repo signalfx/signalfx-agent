@@ -2,8 +2,8 @@ package mesosphere
 
 import (
 	"encoding/json"
-	"fmt"
 	"errors"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"os"
@@ -29,7 +29,7 @@ const (
 type Mesosphere struct {
 	plugins.Plugin
 	hostURL string
-	client http.Client
+	client  http.Client
 }
 
 // PortMappings for a task
@@ -120,7 +120,7 @@ func (mesos *Mesosphere) load() error {
 	mesos.hostURL = hostURL
 
 	mesos.client = http.Client{
-		Timeout:   10 * time.Second,
+		Timeout: 10 * time.Second,
 	}
 	return nil
 }
@@ -148,7 +148,7 @@ func (mesos *Mesosphere) Read() (services.Instances, error) {
 					continue
 				}
 
-				service := services.NewService(task.ID, services.UnknownService)
+				service := services.NewService(task.ID, services.UnknownService, "")
 
 				dims := map[string]string{
 					"mesos_agent":          taskInfo.ID,

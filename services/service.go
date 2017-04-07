@@ -42,12 +42,8 @@ const (
 	RedisService ServiceType = "redis"
 	// RabbitmqService Rabbitmq server
 	RabbitmqService ServiceType = "rabbitmq"
-	// SignalfxService SignalFx plugins
-	SignalfxService ServiceType = "signalfx"
 	// VarnishService Varnish cache
 	VarnishService ServiceType = "varnish"
-	// WriteHTTPService Write http
-	WriteHTTPService ServiceType = "writehttp"
 	// ZookeeperService Zookeeper server
 	ZookeeperService ServiceType = "zookeeper"
 	// UnknownService Unknown service
@@ -80,8 +76,9 @@ const (
 
 // Service that can be discovered and monitored
 type Service struct {
-	Name string
-	Type ServiceType
+	Name   string
+	Type   ServiceType
+	Plugin string
 }
 
 // Port network information
@@ -121,13 +118,14 @@ type Instance struct {
 	Orchestration *Orchestration
 	Port          *Port
 	Discovered    time.Time
-	Config        string
+	Vars          map[string]interface{}
+	Template      string
 }
 
 // NewService constructor
 // name should be unique enough for using as an id (host, instance, etc.)
-func NewService(name string, serviceType ServiceType) *Service {
-	return &Service{name, serviceType}
+func NewService(name string, serviceType ServiceType, plugin string) *Service {
+	return &Service{name, serviceType, plugin}
 }
 
 // NewPort constructor
@@ -147,7 +145,7 @@ func NewContainer(id string, names []string, image string, pod string, command s
 
 // NewInstance constructor
 func NewInstance(id string, service *Service, container *Container, orchestration *Orchestration, port *Port, discovered time.Time) *Instance {
-	return &Instance{id, service, container, orchestration, port, discovered, ""}
+	return &Instance{id, service, container, orchestration, port, discovered, nil, ""}
 }
 
 // Equivalent determine if rhs and lhs and roughly equal (ignores Discovered time)

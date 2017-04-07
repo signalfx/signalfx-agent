@@ -1,0 +1,7 @@
+integrations:
+  redis:
+    rule: ContainerImage =~ "redis" && NetworkPrivatePort == 6379
+    configurations:
+      production:
+        rule: Get(ContainerLabels, "env") == "production"
+        template: production-template

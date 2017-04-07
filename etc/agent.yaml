@@ -29,12 +29,6 @@ plugins:
         plugin: observers/docker
         url: unix:///var/run/docker.sock
 
-    kubernetes:
-        plugin: observers/kubernetes
-        hostUrl: https://localhost:10250
-        # Whether to ignore SSL certification validation errors.
-        # ignoreTLSVerify: false
-
     mesosphere:
         plugin: observers/mesosphere
 
@@ -59,28 +53,21 @@ plugins:
     proxy:
         plugin: filters/proxy
 
-    service-mapping:
-        plugin: filters/service-rules
-        servicesFiles:
-        - /etc/signalfx/collectd/custom-services.json
-        - /etc/signalfx/collectd/services.json
+    integrations:
+        plugin: filters/integrations
+        builtins: /etc/signalfx/integrations
+        overrides: /etc/signalfx/overrides
 
 pipelines:
     mesosphere:
     - mesosphere
-    - service-mapping
-    - proxy
-    - collectd
-
-    kubernetes:
-    - kubernetes
-    - service-mapping
+    - integrations
     - proxy
     - collectd
 
     docker:
     - local-docker
-    - service-mapping
+    - integrations
     - proxy
     - collectd
 
