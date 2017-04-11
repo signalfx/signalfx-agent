@@ -38,6 +38,7 @@ const (
 type Kubernetes struct {
 	plugins.Plugin
 	hostURL string
+	client http.Client
 }
 
 // pod structure from kubelet
@@ -83,29 +84,46 @@ func NewKubernetes(name string, config *viper.Viper) (plugins.IPlugin, error) {
 		return nil, err
 	}
 
-	if hostname, err := os.Hostname(); err == nil {
-		config.SetDefault("hosturl", fmt.Sprintf("https://%s:%d", hostname, DefaultPort))
+	k := &Kubernetes{plugin, "", http.Client{}}
+	if err := k.load(); err != nil {
+		return nil, err
 	}
 
-	hostURL := config.GetString("hosturl")
-	if len(hostURL) == 0 {
-		return nil, errors.New("hostURL config value missing")
-	}
-	return &Kubernetes{plugin, hostURL}, nil
+	return k, nil
 }
 
-// Map adds additional data from the kubelet into instances
-func (k *Kubernetes) Map(sis services.Instances) (services.Instances, error) {
+// Reload the kubernetes observer/client
+func (k *Kubernetes) Reload(config *viper.Viper) error {
+	k.Config = config
+	return k.load()
+}
+
+func (k *Kubernetes) load() error {
+	if hostname, err := os.Hostname(); err == nil {
+		k.Config.SetDefault("hosturl", fmt.Sprintf("https://%s:%d", hostname, DefaultPort))
+	}
+
+	hostURL := k.Config.GetString("hosturl")
+	if len(hostURL) == 0 {
+		return errors.New("hostURL config value missing")
+	}
+	k.hostURL = hostURL
+
 	transport := &http.Transport{
 		TLSClientConfig: &tls.Config{
 			InsecureSkipVerify: k.Config.GetBool("ignoretlsverify"),
 		},
 	}
-	client := http.Client{
+	k.client = http.Client{
 		Timeout:   10 * time.Second,
 		Transport: transport,
 	}
-	resp, err := client.Get(fmt.Sprintf("%s/pods", k.hostURL))
+	return nil
+}
+
+// Map adds additional data from the kubelet into instances
+func (k *Kubernetes) Map(sis services.Instances) (services.Instances, error) {
+	resp, err := k.client.Get(fmt.Sprintf("%s/pods", k.hostURL))
 	if err != nil {
 		return nil, fmt.Errorf("kubelet request failed: %s", err)
 	}
