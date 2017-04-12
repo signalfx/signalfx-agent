@@ -3,6 +3,7 @@ package mesosphere
 import (
 	"encoding/json"
 	"fmt"
+	"errors"
 	"io/ioutil"
 	"net/http"
 	"os"
@@ -28,6 +29,7 @@ const (
 type Mesosphere struct {
 	plugins.Plugin
 	hostURL string
+	client http.Client
 }
 
 // PortMappings for a task
@@ -92,13 +94,35 @@ func NewMesosphere(name string, config *viper.Viper) (plugins.IPlugin, error) {
 		return nil, err
 	}
 
-	hostname, err := os.Hostname()
-	if err == nil {
-		config.SetDefault("hosturl", fmt.Sprintf("http://%s:%d", hostname, DefaultPort))
+	m := &Mesosphere{plugin, "", http.Client{}}
+	if err := m.load(); err != nil {
+		return nil, err
 	}
-	hostURL := config.GetString("hosturl")
 
-	return &Mesosphere{plugin, hostURL}, nil
+	return m, nil
+}
+
+// Reload the mesosphere observer/client
+func (mesos *Mesosphere) Reload(config *viper.Viper) error {
+	mesos.Config = config
+	return mesos.load()
+}
+
+func (mesos *Mesosphere) load() error {
+	if hostname, err := os.Hostname(); err == nil {
+		mesos.Config.SetDefault("hosturl", fmt.Sprintf("http://%s:%d", hostname, DefaultPort))
+	}
+
+	hostURL := mesos.Config.GetString("hosturl")
+	if len(hostURL) == 0 {
+		return errors.New("hostURL config value missing")
+	}
+	mesos.hostURL = hostURL
+
+	mesos.client = http.Client{
+		Timeout:   10 * time.Second,
+	}
+	return nil
 }
 
 // Read services from mesosphere
@@ -145,6 +169,8 @@ func (mesos *Mesosphere) Read() (services.Instances, error) {
 						containerLabels[label.Key] = label.Value
 					}
 					serviceContainer = services.NewContainer(executor.Container, []string{containerName}, containerImage, "", "", "running", containerLabels)
+				} else {
+					continue
 				}
 
 				orchestration := services.NewOrchestration("mesosphere", services.MESOS, dims, services.PUBLIC)
@@ -184,11 +210,7 @@ func (mesos *Mesosphere) Read() (services.Instances, error) {
 
 // getTasks from mesosphere state api
 func (mesos *Mesosphere) getTasks() (*tasks, error) {
-	client := http.Client{
-		Timeout: 10 * time.Second,
-	}
-
-	resp, err := client.Get(fmt.Sprintf("%s/state", mesos.hostURL))
+	resp, err := mesos.client.Get(fmt.Sprintf("%s/state", mesos.hostURL))
 	if err != nil {
 		return nil, err
 	}
