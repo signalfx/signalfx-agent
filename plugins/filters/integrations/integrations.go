@@ -198,7 +198,7 @@ func resolveVars(vars map[string]interface{}) {
 // applied to
 func buildConfigurations(builtins, overrides []configFile) ([]*configuration, error) {
 	var configs []*configuration
-	// Build map of builtins.
+
 	builtinsMap, err := loadBuiltins(builtins)
 	if err != nil {
 		return nil, err
@@ -305,9 +305,7 @@ func buildConfigurations(builtins, overrides []configFile) ([]*configuration, er
 	}
 
 	// Now load builtin configurations if the integration wasn't previously configured.
-	// TODO: untested
-
-	log.Printf("User-configured integrations: %v", reflect.ValueOf(configured).MapKeys())
+	log.Printf("user-configured integrations: %v", reflect.ValueOf(configured).MapKeys())
 
 	disabled := map[services.ServiceType]bool{}
 	for _, config := range overrides {
@@ -349,17 +347,17 @@ func (f *Filter) load(config *viper.Viper) error {
 		return err
 	}
 
-	builtins2, err := loadConfigs(builtins)
+	bultinConfigs, err := loadConfigs(builtins)
 	if err != nil {
 		return err
 	}
 
-	overrides2, err := loadConfigs(overrides)
+	overrideConfigs, err := loadConfigs(overrides)
 	if err != nil {
 		return err
 	}
 
-	configs, err := buildConfigurations(builtins2, overrides2)
+	configs, err := buildConfigurations(bultinConfigs, overrideConfigs)
 	if err != nil {
 		return err
 	}
