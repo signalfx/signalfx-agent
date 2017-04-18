@@ -2,7 +2,7 @@
 LoadPlugin "nginx"
 <Plugin "nginx">
   {{range $instance := .}}
-  	{{RenderTemplate $instance.Template $instance}}
+    {{RenderPlugin $instance}}
   {{end}}
 </Plugin>
 {{end}}

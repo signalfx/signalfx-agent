@@ -1,6 +1,15 @@
 pipeline: kubernetes
 
 plugins:
+  kubernetes:
+      plugin: observers/kubernetes
+      hostUrl: https://localhost:10250
+      # Whether to ignore SSL certification validation errors.
+      # ignoreTLSVerify: false
+
+  integrations:
+    overrides: /mnt/integrations
+
   collectd:
     templatesDirs:
     - /mnt/templates
@@ -13,12 +22,14 @@ plugins:
           kubernetes_pod_name: inspect:Config.Labels['io.kubernetes.pod.name']
           kubernetes_pod_namespace: inspect:Config.Labels['io.kubernetes.pod.namespace']
 
-  service-mapping:
-    servicesFiles:
-    - /mnt/services/custom-services.json
-    - /etc/signalfx/collectd/services.json
-
   cadvisor:
     plugin: monitors/cadvisor
     dataSendRate: 30
     cadvisorURL: http://localhost:4194
+
+pipelines:
+    kubernetes:
+    - kubernetes
+    - integrations
+    - proxy
+    - collectd

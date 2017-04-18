@@ -1,0 +1,6 @@
+integrations:
+  redis:
+    vars:
+      Auth:
+        env: REDIS_AUTH
+      Username: static

@@ -106,10 +106,10 @@ func Load(currentPlugins []IPlugin, configLock *sync.Mutex) ([]IPlugin, error) {
 				pluginConfig := viper.Sub("plugins." + pluginName)
 				configurePlugin(pluginName, pluginConfig)
 				pluginInst, err := create(pluginName, pluginConfig)
-				configureWatching(pluginInst, pluginConfig, configLock)
 				if err != nil {
 					return nil, err
 				}
+				configureWatching(pluginInst, pluginConfig, configLock)
 
 				newPlugins = append(newPlugins, pluginInst)
 			} else {

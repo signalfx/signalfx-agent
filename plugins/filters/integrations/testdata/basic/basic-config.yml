@@ -1,0 +1,6 @@
+integrations:
+  redis:
+    vars:
+      Auth: password
+    rule: ContainerImage =~ "redis"
+    template: override-template
