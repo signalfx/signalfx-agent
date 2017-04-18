@@ -49,7 +49,7 @@ RUN mkdir -p /usr/share/collectd/docker-collectd-plugin \
     && pip install -r /usr/share/collectd/docker-collectd-plugin/requirements.txt
 
 # collectd-elasticsearch
-ENV ELASTICSEARCH_COLLECTD_PLUGIN_V=1.2.0
+ENV ELASTICSEARCH_COLLECTD_PLUGIN_V=1.2.3
 RUN mkdir -p /usr/share/collectd/elasticsearch-collectd-plugin \
     && curl -L "https://github.com/signalfx/collectd-elasticsearch/archive/v${ELASTICSEARCH_COLLECTD_PLUGIN_V}.tar.gz" --output /usr/share/collectd/elasticsearch-collectd-plugin/v${ELASTICSEARCH_COLLECTD_PLUGIN_V}.tar.gz \
     && tar -zxvf /usr/share/collectd/elasticsearch-collectd-plugin/v${ELASTICSEARCH_COLLECTD_PLUGIN_V}.tar.gz -C /usr/share/collectd/elasticsearch-collectd-plugin/ \
