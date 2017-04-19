@@ -1,5 +1,7 @@
 integrations:
     apache:
+        labels:
+        - app
         vars:
             Username:
             Password:

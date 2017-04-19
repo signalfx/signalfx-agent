@@ -1,5 +1,7 @@
 integrations:
   cassandra:
+    labels:
+    - app
     plugin: jmx
     vars:
       Username:

@@ -1,5 +1,7 @@
 integrations:
   mongodb:
+    labels:
+    - app
     rule: NetworkPrivatePort == 27017
     vars:
       Username:

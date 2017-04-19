@@ -1,5 +1,7 @@
 integrations:
   memcached:
+    labels:
+    - app
     rule: NetworkPrivatePort == 11211
     template: |
       <Instance "{{.Name}}[{{.Dims}}]">

@@ -1,5 +1,7 @@
 integrations:
   kafka:
+    labels:
+    - app
     plugin: jmx
     vars:
       Username:
