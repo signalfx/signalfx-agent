@@ -6,6 +6,7 @@ import (
 	"log"
 	"os"
 	"reflect"
+	"sort"
 	"strconv"
 	"testing"
 
@@ -23,6 +24,12 @@ func init() {
 	log.SetOutput(ioutil.Discard)
 }
 
+func makeOrchestration() *services.Orchestration {
+	return &services.Orchestration{
+		Dims: map[string]string{},
+	}
+}
+
 var discovered = services.Instances{
 	services.Instance{
 		ID: "redis-abcd",
@@ -34,6 +41,7 @@ var discovered = services.Instances{
 			Image:  "redis:3.2.4",
 			Labels: map[string]string{"app": "redis"},
 		},
+		Orchestration: makeOrchestration(),
 		Port: &services.Port{
 			IP:          "192.168.1.1",
 			Type:        services.TCP,
@@ -50,6 +58,7 @@ var discovered = services.Instances{
 			Image:  "redis:3.2.4",
 			Labels: map[string]string{"app": "redis", "env": "production"},
 		},
+		Orchestration: makeOrchestration(),
 		Port: &services.Port{
 			IP:          "192.168.1.2",
 			Type:        services.TCP,
@@ -66,6 +75,7 @@ var discovered = services.Instances{
 			Image:  "redis:3.2.4",
 			Labels: map[string]string{"app": "redis", "env": "production"},
 		},
+		Orchestration: makeOrchestration(),
 		Port: &services.Port{
 			IP:          "192.168.1.3",
 			Type:        services.TCP,
@@ -82,6 +92,7 @@ var discovered = services.Instances{
 			Image:  "other:3.5.0",
 			Labels: map[string]string{"app": "other", "env": "production"},
 		},
+		Orchestration: makeOrchestration(),
 		Port: &services.Port{
 			IP:          "192.168.1.4",
 			Type:        services.TCP,
@@ -95,6 +106,7 @@ type InstancePatch struct {
 	Type     services.ServiceType
 	template string
 	vars     map[string]interface{}
+	labels   map[string]string
 }
 
 func patchInstances(patches []InstancePatch) services.Instances {
@@ -108,10 +120,102 @@ func patchInstances(patches []InstancePatch) services.Instances {
 		inst.Service.Type = patch.Type
 		inst.Template = patch.template
 		inst.Vars = patch.vars
+		orch := *inst.Orchestration
+		orch.Dims = patch.labels
+		inst.Orchestration = &orch
 		mapped = append(mapped, inst)
 	}
 
 	return mapped
+}
+
+func TestLabels(t *testing.T) {
+	// test merging/override of labels
+
+	builtin := `
+    integrations:
+        redis:
+            rule: true
+            template: a
+`
+
+	override := `
+    integrations:
+        redis:
+            configurations:
+`
+
+	builtinConfig, err := loadConfigs([][]byte{[]byte(builtin)})
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	overrideConfig, err := loadConfigs([][]byte{[]byte(override)})
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// Test the cross product of the 3 levels (builtin, integration,
+	// configuration) and the template being set or unset.
+	type setType struct {
+		builtin       []string
+		integration   *[]string
+		configuration []*[]string
+		wantErr       bool
+		want          []string
+	}
+	tests := []struct {
+		name string
+		sets []setType
+	}{
+		{"one configuration", []setType{
+			{nil, nil, []*[]string{nil}, false, nil},
+			{[]string{"a"}, nil, []*[]string{nil}, false, []string{"a"}},
+			{[]string{"a"}, &[]string{"b"}, []*[]string{nil}, false, []string{"b"}},
+			{[]string{"a"}, &[]string{"b"}, []*[]string{&[]string{"c"}}, false, []string{"b", "c"}},
+			{nil, &[]string{"b"}, []*[]string{nil}, false, []string{"b"}},
+			{nil, &[]string{"b"}, []*[]string{&[]string{"c"}}, false, []string{"b", "c"}},
+			{nil, nil, []*[]string{&[]string{"c"}}, false, []string{"c"}},
+			{[]string{"a"}, nil, []*[]string{&[]string{"c"}}, false, []string{"c"}},
+		},
+		},
+		{"zero configurations", []setType{
+			{nil, nil, nil, false, nil},
+			{[]string{"a"}, nil, nil, false, []string{"a"}},
+			{[]string{"a"}, &[]string{"b"}, nil, false, []string{"b"}},
+			{nil, &[]string{"b"}, nil, false, []string{"b"}},
+			{[]string{"a"}, &[]string{}, nil, false, nil},
+		},
+		},
+	}
+
+	Convey("Test label override/merging", t, func() {
+		for _, tt := range tests {
+			Convey(tt.name, func() {
+				for _, set := range tt.sets {
+					Convey(fmt.Sprintf("%+v", set), func() {
+						builtinConfig[0].Integrations["redis"].Labels = &set.builtin
+						overrideConfig[0].Integrations["redis"].Labels = set.integration
+						overrideConfig[0].Integrations["redis"].Configurations = map[string]*integConfig{}
+
+						for i, c := range set.configuration {
+							overrideConfig[0].Integrations["redis"].Configurations[strconv.Itoa(i)] = &integConfig{Labels: c, Rule: "true"}
+						}
+
+						got, err := buildConfigurations(builtinConfig, overrideConfig)
+						if set.wantErr {
+							So(err, ShouldNotBeNil)
+						} else {
+							So(err, ShouldBeNil)
+							So(got, ShouldHaveLength, 1)
+							sort.Strings(got[0].labels)
+							So(got[0].labels, ShouldResemble, set.want)
+						}
+					})
+				}
+			})
+		}
+	})
 }
 
 func TestTemplates(t *testing.T) {
@@ -329,15 +433,15 @@ func TestVariables(t *testing.T) {
 
 func TestMap(t *testing.T) {
 	s1 := []InstancePatch{
-		{services.RedisService, "override-template", map[string]interface{}{"Auth": "password"}},
-		{services.RedisService, "override-template", map[string]interface{}{"Auth": "password"}},
-		{services.RedisService, "override-template", map[string]interface{}{"Auth": "password"}},
+		{services.RedisService, "override-template", map[string]interface{}{"Auth": "password"}, map[string]string{"app": "redis"}},
+		{services.RedisService, "override-template", map[string]interface{}{"Auth": "password"}, map[string]string{"app": "redis"}},
+		{services.RedisService, "override-template", map[string]interface{}{"Auth": "password"}, map[string]string{"app": "redis"}},
 	}
 
 	s2 := []InstancePatch{
 		{},
-		{services.RedisService, "production-template", map[string]interface{}{}},
-		{services.RedisService, "production-template", map[string]interface{}{}},
+		{services.RedisService, "production-template", map[string]interface{}{}, map[string]string{"app": "redis"}},
+		{services.RedisService, "production-template", map[string]interface{}{}, map[string]string{"app": "redis"}},
 		{},
 	}
 

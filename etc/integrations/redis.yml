@@ -1,5 +1,7 @@
 integrations:
   redis:
+    labels:
+    - app
     vars:
       Auth:
     rule: ContainerImage =~ "redis" && NetworkPrivatePort == 6379 && !Contains(ContainerLabels, "signalfx-integration")

@@ -1,5 +1,7 @@
 integrations:
   redis:
+    labels:
+    - app
     vars:
       Auth: password
     rule: ContainerImage =~ "redis"

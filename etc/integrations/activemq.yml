@@ -1,5 +1,7 @@
 integrations:
   activemq:
+    labels:
+    - app
     plugin: jmx
     vars:
       Username:

@@ -76,6 +76,7 @@ type integConfig struct {
 	Rule     string
 	Template string
 	Vars     map[string]interface{}
+	Labels   *[]string
 }
 
 type configFile struct {
@@ -85,6 +86,7 @@ type configFile struct {
 		Rule           string
 		Template       string
 		Vars           map[string]interface{}
+		Labels         *[]string
 		Configurations map[string]*integConfig
 	}
 }
@@ -97,6 +99,7 @@ type configuration struct {
 	template    string
 	// plugin is the (currently collectd) plugin to be used
 	plugin string
+	labels []string
 }
 
 // Filter filters instances based on rules and maps service configuration
@@ -148,6 +151,7 @@ func loadBuiltins(builtins []configFile) (map[services.ServiceType]*configuratio
 		for integName, integ := range builtin.Integrations {
 			var rule *govaluate.EvaluableExpression
 			var err error
+			var labels []string
 
 			if len(integ.Configurations) != 0 {
 				return nil, fmt.Errorf("found unexpected configuration in builtin %s", integName)
@@ -173,7 +177,12 @@ func loadBuiltins(builtins []configFile) (map[services.ServiceType]*configuratio
 				plugin = string(integName)
 			}
 
-			builtinsMap[integName] = &configuration{integName, integ.Rule, rule, integ.Vars, integ.Template, plugin}
+			if integ.Labels != nil {
+				labels = *integ.Labels
+			}
+
+			builtinsMap[integName] = &configuration{integName, integ.Rule, rule, integ.Vars, integ.Template,
+				plugin, labels}
 		}
 	}
 
@@ -216,6 +225,7 @@ func buildConfigurations(builtins, overrides []configFile) ([]*configuration, er
 
 			if len(integ.Configurations) == 0 {
 				var template, ruleText string
+				var labels []string
 
 				if ruleText = utils.FirstNonEmpty(integ.Rule, builtinInteg.ruleText); ruleText == "" {
 					return nil, fmt.Errorf("rule is required for integration %s", integName)
@@ -242,12 +252,19 @@ func buildConfigurations(builtins, overrides []configFile) ([]*configuration, er
 					plugin = string(integName)
 				}
 
+				if integ.Labels != nil {
+					labels = append(labels, *integ.Labels...)
+				} else {
+					labels = builtinInteg.labels
+				}
+
 				// TODO: check that it's a supported service
 				configs = append(configs, &configuration{services.ServiceType(integName), ruleText, rule,
-					vars, template, plugin})
+					vars, template, plugin, labels})
 			} else {
 				for configName, config := range integ.Configurations {
 					var template, ruleText string
+					var labels []string
 
 					// Rule merging. If the configuration doesn't specify a rule
 					// and the integration it's a part of doesn't specify a rule
@@ -288,6 +305,21 @@ func buildConfigurations(builtins, overrides []configFile) ([]*configuration, er
 						return nil, fmt.Errorf("error constructing rule for %s: %s", integName, err)
 					}
 
+					// Labels merging. Merge the configuration and integration
+					// labels if present. If neither specify labels then default
+					// to the builtin.
+					if integ.Labels == nil && config.Labels == nil {
+						labels = builtinInteg.labels
+					} else {
+						if integ.Labels != nil {
+							labels = *integ.Labels
+						}
+
+						if config.Labels != nil {
+							labels = append(labels, *config.Labels...)
+						}
+					}
+
 					// If an integration specifies a specific plugin name use that.
 					// Otherwise use the integration name/type. This is used for JMX
 					// integrations that are separate integrations but all get grouped
@@ -298,7 +330,7 @@ func buildConfigurations(builtins, overrides []configFile) ([]*configuration, er
 					}
 
 					configs = append(configs, &configuration{services.ServiceType(integName), ruleText, rule,
-						vars, template, plugin})
+						vars, template, plugin, labels})
 				}
 			}
 		}
@@ -443,6 +475,12 @@ Outer:
 				si.Template = config.template
 				si.Service.Type = config.serviceType
 				si.Service.Plugin = config.plugin
+				for _, label := range config.labels {
+					if val, ok := si.Container.Labels[label]; ok {
+						si.Orchestration.Dims[label] = val
+					}
+				}
+				//si.Orchestration.Dims
 				instances = append(instances, si)
 				continue Outer
 			}

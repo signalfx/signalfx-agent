@@ -1,5 +1,7 @@
 integrations:
   genericjmx:
+    labels:
+    - app
     plugin: jmx
     rule:
     template: |

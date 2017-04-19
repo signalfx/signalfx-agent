@@ -1,5 +1,7 @@
 integrations:
   nginx:
+    labels:
+    - app
     vars:
       Username:
       Password:
