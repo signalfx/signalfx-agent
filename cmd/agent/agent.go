@@ -7,7 +7,6 @@ import (
 	"log"
 	"os"
 	"os/signal"
-	"sync"
 	"time"
 
 	"github.com/signalfx/neo-agent/config"
@@ -31,12 +30,10 @@ var (
 // Agent for monitoring host/service metrics
 type Agent struct {
 	// Interval to observer service activity
-	Interval int
-	plugins  []plugins.IPlugin
-	pipeline *pipelines.Pipeline
-	// configMutex for locking during async config reloads
-	configMutex sync.Mutex
-	configfile  string
+	Interval   int
+	pipeline   *pipelines.Pipeline
+	configfile string
+	plugins    plugins.Manager
 }
 
 // NewAgent with defaults
@@ -46,9 +43,6 @@ func NewAgent(configfile string) (*Agent, error) {
 
 // Configure an agent by populating the viper config and loading plugins
 func (agent *Agent) Configure(changed []string) error {
-	agent.configMutex.Lock()
-	defer agent.configMutex.Unlock()
-
 	log.Printf("reconfiguring due to changed files: %v", changed)
 
 	if err := config.Load(agent.configfile); err != nil {
@@ -57,10 +51,8 @@ func (agent *Agent) Configure(changed []string) error {
 		return err
 	}
 
-	pluginList, err := plugins.Load(agent.plugins, &agent.configMutex)
+	pluginList, err := agent.plugins.Load()
 	if err == nil {
-		log.Printf("replacing plugin set %v with %v", agent.plugins, pluginList)
-		agent.plugins = pluginList
 		// Reset pipeline which has a reference to the current plugin set.
 		log.Println("resetting pipeline")
 		agent.pipeline = nil
@@ -82,7 +74,7 @@ func (agent *Agent) Configure(changed []string) error {
 		return fmt.Errorf("%s pipeline is missing or empty", pipelineName)
 	}
 
-	agent.pipeline, err = pipelines.NewPipeline(pipelineName, pipelineConfig, agent.plugins)
+	agent.pipeline, err = pipelines.NewPipeline(pipelineName, pipelineConfig, pluginList)
 	if err != nil {
 		return fmt.Errorf("failed creating pipeline: %s", err)
 	}
@@ -155,8 +147,8 @@ func main() {
 
 		tick := func() {
 			// Acquire lock so plugins aren't reloaded during execution.
-			agent.configMutex.Lock()
-			defer agent.configMutex.Unlock()
+			agent.plugins.Lock()
+			defer agent.plugins.Unlock()
 
 			if agent.pipeline == nil {
 				return
@@ -173,10 +165,7 @@ func main() {
 		for {
 			select {
 			case <-ctx.Done():
-				for _, plugin := range agent.plugins {
-					log.Printf("stopping plugin %s", plugin.String())
-					plugin.Stop()
-				}
+				agent.plugins.Stop()
 				exitCh <- struct{}{}
 				return
 			case <-ticker.C:

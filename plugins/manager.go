@@ -13,6 +13,17 @@ import (
 	"github.com/spf13/viper"
 )
 
+// Manager of plugins
+type Manager struct {
+	plugins    []IPlugin
+	configLock sync.Mutex
+}
+
+// Plugins returns list of loaded plugins
+func (m *Manager) Plugins() []IPlugin {
+	return m.plugins
+}
+
 func configurePlugin(pluginName string, c *viper.Viper) {
 	// This allows a configuration variable foo.bar to be overridable by
 	// SFX_FOO_BAR=value.
@@ -23,7 +34,7 @@ func configurePlugin(pluginName string, c *viper.Viper) {
 }
 
 // configureWatching creates and/or updates the file watch list for a plugin
-func configureWatching(plugin IPlugin, pluginConfig *viper.Viper, configLock *sync.Mutex) {
+func (m *Manager) configureWatching(plugin IPlugin, pluginConfig *viper.Viper) {
 	watcher := plugin.Watcher()
 
 	if !viper.GetBool("filewatching") {
@@ -49,8 +60,8 @@ func configureWatching(plugin IPlugin, pluginConfig *viper.Viper, configLock *sy
 	if watcher == nil && (len(watchFiles) > 0 || len(watchDirs) > 0) {
 		log.Printf("creating watcher for plugin %s", plugin.Name())
 		watcher = watchers.NewPollingWatcher(func(changed []string) error {
-			configLock.Lock()
-			defer configLock.Unlock()
+			m.configLock.Lock()
+			defer m.configLock.Unlock()
 
 			log.Printf("%v changed for plugin %s", changed, plugin.Name())
 			if err := plugin.Reload(pluginConfig); err != nil {
@@ -74,13 +85,26 @@ func configureWatching(plugin IPlugin, pluginConfig *viper.Viper, configLock *sy
 	}
 }
 
+// Lock instance
+func (m *Manager) Lock() {
+	m.configLock.Lock()
+}
+
+// Unlock instance
+func (m *Manager) Unlock() {
+	m.configLock.Unlock()
+}
+
 // Load an agent using configuration file
-func Load(currentPlugins []IPlugin, configLock *sync.Mutex) ([]IPlugin, error) {
+func (m *Manager) Load() ([]IPlugin, error) {
+	m.Lock()
+	defer m.Unlock()
+
 	// Load plugins.
 	pluginsConfig := viper.GetStringMap("plugins")
 
 	currentPluginSet := map[string]IPlugin{}
-	for _, plugin := range currentPlugins {
+	for _, plugin := range m.plugins {
 		currentPluginSet[plugin.Name()] = plugin
 	}
 
@@ -109,7 +133,7 @@ func Load(currentPlugins []IPlugin, configLock *sync.Mutex) ([]IPlugin, error) {
 				if err != nil {
 					return nil, err
 				}
-				configureWatching(pluginInst, pluginConfig, configLock)
+				m.configureWatching(pluginInst, pluginConfig)
 
 				newPlugins = append(newPlugins, pluginInst)
 			} else {
@@ -124,7 +148,7 @@ func Load(currentPlugins []IPlugin, configLock *sync.Mutex) ([]IPlugin, error) {
 	// foos running.
 
 	// Find removed plugins (in loaded plugins but not the new config).
-	for _, plugin := range currentPlugins {
+	for _, plugin := range m.plugins {
 		if pluginsConfig[plugin.Name()] == nil {
 			removedPlugins = append(removedPlugins, plugin)
 		}
@@ -162,7 +186,7 @@ func Load(currentPlugins []IPlugin, configLock *sync.Mutex) ([]IPlugin, error) {
 		}
 
 		configurePlugin(plugin.Name(), pluginConfig)
-		configureWatching(plugin, pluginConfig, configLock)
+		m.configureWatching(plugin, pluginConfig)
 
 		if err := plugin.Reload(pluginConfig); err != nil {
 			log.Printf("reloading %s plugin failed: %s", plugin.Name(), err)
@@ -177,5 +201,16 @@ func Load(currentPlugins []IPlugin, configLock *sync.Mutex) ([]IPlugin, error) {
 		}
 	}
 
-	return append(reloadPlugins, newPlugins...), nil
+	plugins := append(reloadPlugins, newPlugins...)
+	log.Printf("replacing plugin set %v with %v", m.plugins, plugins)
+	m.plugins = plugins
+	return m.plugins, nil
+}
+
+// Stop plugins
+func (m *Manager) Stop() {
+	for _, plugin := range m.plugins {
+		log.Printf("stopping plugin %s", plugin.String())
+		plugin.Stop()
+	}
 }
