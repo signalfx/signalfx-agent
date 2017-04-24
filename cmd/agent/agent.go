@@ -9,11 +9,12 @@ import (
 	"os/signal"
 	"time"
 
+	"sync"
+
 	"github.com/signalfx/neo-agent/config"
 	"github.com/signalfx/neo-agent/pipelines"
 	"github.com/signalfx/neo-agent/plugins"
 	_ "github.com/signalfx/neo-agent/plugins/all"
-	"github.com/signalfx/neo-agent/watchers"
 	"github.com/spf13/viper"
 	"golang.org/x/net/context"
 )
@@ -42,12 +43,14 @@ func NewAgent(configfile string) (*Agent, error) {
 }
 
 // Configure an agent by populating the viper config and loading plugins
-func (agent *Agent) Configure(changed []string) error {
-	log.Printf("reconfiguring due to changed files: %v", changed)
+func (agent *Agent) Configure() error {
+	sourceConfig := viper.Sub("stores")
+	if sourceConfig == nil {
+		return errors.New("stores config missing")
+	}
 
-	if err := config.Load(agent.configfile); err != nil {
-		// This is likely a significant error (can't read one or more
-		// configuration files) so we don't want to proceed.
+	// Reconfigure stores.
+	if err := config.Stores.Config(sourceConfig); err != nil {
 		return err
 	}
 
@@ -106,36 +109,19 @@ func main() {
 		os.Exit(1)
 	}
 
+	reload := make(chan struct{})
+	var configMutex sync.Mutex
+
 	// We load here to get the polling interval. We need this value to create
 	// the watcher. We will reload after the watcher is setup in Configure().
 	// (Otherwise changes could be missed.)
-	if err := config.Load(agent.configfile); err != nil {
+	if err := config.Init(agent.configfile, reload, &configMutex); err != nil {
 		log.Printf("failed loading config: %s", err)
 		os.Exit(1)
 	}
 
-	var fsWatcher *watchers.PollingWatcher
-
-	if watch {
-		pollingInterval := viper.GetFloat64("pollinginterval")
-		if pollingInterval <= 0 {
-			log.Printf("pollingInterval must greater than zero")
-			os.Exit(1)
-		}
-
-		duration := time.Duration(pollingInterval * float64(time.Second))
-		fsWatcher = watchers.NewPollingWatcher(agent.Configure, duration)
-		log.Printf("watching for changes every %f seconds", duration.Seconds())
-		config.WatchForChanges(fsWatcher, *agentConfig)
-	}
-
-	if err := agent.Configure(nil); err != nil {
-		log.Printf("failed to configure agent: %s", err)
-		if !watch {
-			// If config reloading is enabled then a configuration change can
-			// fix these issues. Otherwise just exit.
-			os.Exit(1)
-		}
+	if err := agent.Configure(); err != nil {
+		log.Printf("error configuring agent: %s", err)
 	}
 
 	exitCh := make(chan struct{})
@@ -146,9 +132,10 @@ func main() {
 		log.Print("agent started")
 
 		tick := func() {
-			// Acquire lock so plugins aren't reloaded during execution.
-			agent.plugins.Lock()
-			defer agent.plugins.Unlock()
+			// Acquire lock so viper instance (thread unsafe) isn't modified
+			// mid-flight.
+			configMutex.Lock()
+			defer configMutex.Unlock()
 
 			if agent.pipeline == nil {
 				return
@@ -164,6 +151,11 @@ func main() {
 
 		for {
 			select {
+			case <-reload:
+				log.Print("reconfiguring agent from changed configuration")
+				if err := agent.Configure(); err != nil {
+					log.Printf("error reconfiguring agent: %s", err)
+				}
 			case <-ctx.Done():
 				agent.plugins.Stop()
 				exitCh <- struct{}{}
@@ -181,12 +173,12 @@ func main() {
 		case <-signalCh:
 			log.Print("stopping agent ...")
 			ticker.Stop()
-			if fsWatcher != nil {
-				fsWatcher.Close()
-			}
 			cancel()
 			return
 		}
 	}()
 	<-exitCh
+	log.Print("stopping stores")
+	// TODO: can't call yet because fs source close isn't fully implemented and hangs
+	// config.Stores.Close()
 }

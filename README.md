@@ -11,11 +11,15 @@ can be automatically monitored. The agent will also include a set of dimensions
 for each metric sent that associate each datapoint with the managing orchestration
 system identifiers.
 
+## Dependencies
+
+Go dependencies are specified in `glide.yaml`. Of note the version of docker/libkv is currently a forked version from https://github.com/cohodata/libkv that has a ZooKeeper fix for watch events.
+
+Run `glide install` to pull down dependencies.
 
 ## Build Image From Source
 
 Run `make image`
-
 
 ## Run Agent Container
 
