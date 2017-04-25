@@ -27,7 +27,26 @@ type source interface {
 	Get(string) (*store.KVPair, error)
 	Watch(string, <-chan struct{}) (<-chan *store.KVPair, error)
 	WatchTree(string, <-chan struct{}) (<-chan []*store.KVPair, error)
+	Exists(string) (bool, error)
+	Put(key string, value []byte, opts *store.WriteOptions) error
 	Close()
+}
+
+// EnsureExists creates an empty file if it doesn't already exist
+func EnsureExists(src source, path string) error {
+	exists, err := src.Exists(path)
+	if err != nil {
+		return err
+	}
+
+	if !exists {
+		// XXX: Should make this atomic.
+		if err := src.Put(path, []byte(""), nil); err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
 type fs struct {
@@ -41,12 +60,24 @@ func newFs() *fs {
 	return f
 }
 
+func (f *fs) Put(key string, value []byte, opts *store.WriteOptions) error {
+	return ioutil.WriteFile(key, value, 0644)
+}
+
 func (f *fs) Get(path string) (*store.KVPair, error) {
 	data, err := ioutil.ReadFile(path)
 	if err != nil {
 		return nil, err
 	}
 	return &store.KVPair{Key: path, Value: data, LastIndex: 0}, nil
+}
+
+func (f *fs) Exists(path string) (bool, error) {
+	_, err := os.Stat(path)
+	if err != nil {
+		return false, err
+	}
+	return true, nil
 }
 
 func (f *fs) Watch(path string, stopCh <-chan struct{}) (<-chan *store.KVPair, error) {
