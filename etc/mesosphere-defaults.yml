@@ -1,0 +1,12 @@
+pipeline: mesosphere
+
+plugins:
+    mesosphere:
+        plugin: observers/mesosphere
+
+pipelines:
+    mesosphere:
+    - mesosphere
+    - integrations
+    - proxy
+    - collectd
