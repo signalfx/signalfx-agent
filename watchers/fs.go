@@ -34,7 +34,7 @@ type dirState struct {
 }
 
 type watcher interface {
-	check(notify bool)
+	check(first bool)
 }
 
 type fileState struct {
@@ -43,8 +43,8 @@ type fileState struct {
 	entry    *entry
 }
 
-func (f *fileState) check(notify bool) {
-	if pair, changed := read(f.entry); changed && notify {
+func (f *fileState) check(first bool) {
+	if pair, changed := read(f.entry); changed || first {
 		f.notifyCh <- pair
 	}
 }
@@ -56,7 +56,7 @@ func pair(key string, value []byte) *store.KVPair {
 	return &store.KVPair{Key: key, Value: value, LastIndex: 0}
 }
 
-func (d *dirState) check(notify bool) {
+func (d *dirState) check(first bool) {
 	var changed bool
 
 	files, err := ioutil.ReadDir(d.dirName)
@@ -69,8 +69,8 @@ func (d *dirState) check(notify bool) {
 			d.files = nil
 			changed = true
 		}
-		if changed && notify {
-			d.notifyCh <- nil
+		if changed || first {
+			d.notifyCh <- Pairs{}
 		}
 		return
 	}
@@ -113,8 +113,8 @@ func (d *dirState) check(notify bool) {
 		}
 	}
 
-	if changed && notify {
-		var pairs Pairs
+	if changed {
+		pairs := Pairs{}
 		for _, f := range files {
 			dirPath := path.Join(d.dirName, f.Name())
 
@@ -165,9 +165,14 @@ func (entry *entry) reset() bool {
 func NewPollingWatcher(delay time.Duration) *PollingWatcher {
 	// Make it buffered by one so sending will never be blocked in case polling
 	// stopped before send to stopChan.
-	w := &PollingWatcher{delay: delay, stopChan: make(chan struct{}, 1), watches: map[watcher]bool{}}
-	w.wg.Add(1)
+	w := &PollingWatcher{delay: delay, stopChan: make(chan struct{}), watches: map[watcher]bool{}}
+	return w
+}
+
+// Start polling
+func (w *PollingWatcher) Start() {
 	ticker := time.NewTicker(w.delay)
+	w.wg.Add(1)
 
 	go func() {
 		defer ticker.Stop()
@@ -182,7 +187,6 @@ func NewPollingWatcher(delay time.Duration) *PollingWatcher {
 			}
 		}
 	}()
-	return w
 }
 
 // WatchTree watches directories for changes
@@ -195,15 +199,14 @@ func (w *PollingWatcher) WatchTree(dir string, stopCh <-chan struct{}) (<-chan [
 	dw.check(true)
 
 	w.watches[dw] = true
-	w.wg.Add(1)
 
 	go func() {
 		select {
 		case <-stopCh:
 			w.mutex.Lock()
+			close(notifyCh)
 			delete(w.watches, dw)
 			w.mutex.Unlock()
-			w.wg.Done()
 		}
 	}()
 
@@ -220,15 +223,14 @@ func (w *PollingWatcher) Watch(file string, stopCh <-chan struct{}) (<-chan *sto
 	fw.check(true)
 
 	w.watches[fw] = true
-	w.wg.Add(1)
 
 	go func() {
 		select {
 		case <-stopCh:
 			w.mutex.Lock()
+			close(notifyCh)
 			delete(w.watches, fw)
 			w.mutex.Unlock()
-			w.wg.Done()
 		}
 	}()
 
@@ -237,9 +239,8 @@ func (w *PollingWatcher) Watch(file string, stopCh <-chan struct{}) (<-chan *sto
 
 // Close stops the watcher
 func (w *PollingWatcher) Close() {
+	// Waits for polling to finish.
 	w.stopChan <- struct{}{}
-	// TODO: close notify channel on stop??
-	// Wait for poll to stop.
 	w.wg.Wait()
 }
 
@@ -303,6 +304,6 @@ func (w *PollingWatcher) poll() {
 	defer w.mutex.Unlock()
 
 	for watch := range w.watches {
-		watch.check(true)
+		watch.check(false)
 	}
 }

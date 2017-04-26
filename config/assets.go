@@ -36,7 +36,9 @@ type fs struct {
 
 func newFs() *fs {
 	// TODO: configurable polling interval
-	return &fs{watchers.NewPollingWatcher(5 * time.Second)}
+	f := &fs{watchers.NewPollingWatcher(5 * time.Second)}
+	f.watcher.Start()
+	return f
 }
 
 func (f *fs) Get(path string) (*store.KVPair, error) {
