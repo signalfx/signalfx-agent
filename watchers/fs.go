@@ -13,19 +13,129 @@ import (
 
 	"io/ioutil"
 
-	"github.com/signalfx/neo-agent/utils"
+	"github.com/docker/libkv/store"
 )
 
+type base struct {
+	stopCh <-chan struct{}
+}
+
 type entry struct {
-	callback     func() error
+	fileName     string
 	hash         []byte
 	modifiedTime time.Time
 }
 
+type dirState struct {
+	base
+	notifyCh chan<- []*store.KVPair
+	dirName  string
+	files    map[string]*entry
+}
+
+type watcher interface {
+	check(notify bool)
+}
+
+type fileState struct {
+	base
+	notifyCh chan<- *store.KVPair
+	entry    *entry
+}
+
+func (f *fileState) check(notify bool) {
+	if pair, changed := read(f.entry); changed && notify {
+		f.notifyCh <- pair
+	}
+}
+
+// Pairs is an array of KVPairs
+type Pairs []*store.KVPair
+
+func pair(key string, value []byte) *store.KVPair {
+	return &store.KVPair{Key: key, Value: value, LastIndex: 0}
+}
+
+func (d *dirState) check(notify bool) {
+	var changed bool
+
+	files, err := ioutil.ReadDir(d.dirName)
+
+	if err != nil {
+		// Directory doesn't exist or can't be read.
+
+		if d.files != nil {
+			// Directory was just removed, report as change and null out.
+			d.files = nil
+			changed = true
+		}
+		if changed && notify {
+			d.notifyCh <- nil
+		}
+		return
+	}
+
+	// Index directory file names.
+	fileSet := map[string]bool{}
+	for _, file := range files {
+		fileSet[file.Name()] = true
+	}
+
+	if d.files == nil {
+		d.files = map[string]*entry{}
+		changed = true
+	}
+
+	// Files added to directory.
+	for file := range fileSet {
+		dirPath := path.Join(d.dirName, file)
+
+		if _, ok := d.files[file]; ok {
+			// File entry already present, update.
+			_, readChanged := read(d.files[file])
+			if readChanged {
+				changed = true
+			}
+		} else {
+			// File added.
+			changed = true
+			e := &entry{fileName: dirPath}
+			d.files[file] = e
+			read(e)
+		}
+	}
+
+	// Files removed from directory.
+	for file := range d.files {
+		if _, ok := fileSet[file]; !ok {
+			changed = true
+			delete(d.files, file)
+		}
+	}
+
+	if changed && notify {
+		var pairs Pairs
+		for _, f := range files {
+			dirPath := path.Join(d.dirName, f.Name())
+
+			if f.IsDir() {
+				pairs = append(pairs, pair(dirPath, nil))
+			} else {
+				data, err := ioutil.ReadFile(dirPath)
+				if err != nil {
+					log.Printf("failed to read %s: %s", dirPath, err)
+					continue
+				}
+				pairs = append(pairs, pair(dirPath, data))
+			}
+		}
+		d.notifyCh <- pairs
+	}
+}
+
 // PollingWatcher watches for changes to files by polling
 type PollingWatcher struct {
-	files    map[string]*entry
-	dirs     map[string]map[string]*entry
+	watches  map[watcher]bool
 	delay    time.Duration
 	stopChan chan struct{}
 	cb       func(changed []string) error
@@ -52,16 +162,10 @@ func (entry *entry) reset() bool {
 }
 
 // NewPollingWatcher creates a new polling watcher instance
-func NewPollingWatcher(cb func(changed []string) error, delay time.Duration) *PollingWatcher {
+func NewPollingWatcher(delay time.Duration) *PollingWatcher {
 	// Make it buffered by one so sending will never be blocked in case polling
 	// stopped before send to stopChan.
-	w := &PollingWatcher{files: map[string]*entry{}, dirs: map[string]map[string]*entry{},
-		cb: cb, delay: delay, stopChan: make(chan struct{}, 1)}
-	return w
-}
-
-// Start begins the polling process in the background
-func (w *PollingWatcher) Start() {
+	w := &PollingWatcher{delay: delay, stopChan: make(chan struct{}, 1), watches: map[watcher]bool{}}
 	w.wg.Add(1)
 	ticker := time.NewTicker(w.delay)
 
@@ -78,110 +182,102 @@ func (w *PollingWatcher) Start() {
 			}
 		}
 	}()
+	return w
 }
 
-// watchDirs watches directories for changes
-func (w *PollingWatcher) watchDirs(dirs ...string) {
-	dirSet := utils.StringSliceToMap(dirs)
-
-	for dir := range dirSet {
-		if _, ok := w.dirs[dir]; !ok {
-			// Added
-			files := map[string]*entry{}
-			dircon, err := ioutil.ReadDir(dir)
-
-			if err == nil {
-				for _, file := range dircon {
-					e := &entry{}
-					read(path.Join(dir, file.Name()), e)
-					files[file.Name()] = e
-				}
-				w.dirs[dir] = files
-			} else {
-				// Nothing to do about it, just initializes to empty.
-				log.Printf("watch directory didn't exist: %s", err)
-				w.dirs[dir] = nil
-			}
-
-		}
-	}
-
-	for dir := range w.dirs {
-		if !dirSet[dir] {
-			// Directory removed.
-			delete(w.dirs, dir)
-		}
-	}
-}
-
-// Watch watches files and directories for changes
-func (w *PollingWatcher) Watch(dirs []string, files []string) {
+// WatchTree watches directories for changes
+func (w *PollingWatcher) WatchTree(dir string, stopCh <-chan struct{}) (<-chan []*store.KVPair, error) {
 	w.mutex.Lock()
 	defer w.mutex.Unlock()
 
-	w.watchDirs(dirs...)
-	w.watchFiles(files...)
+	notifyCh := make(chan []*store.KVPair, 1)
+	dw := &dirState{dirName: dir, base: base{stopCh: stopCh}, notifyCh: notifyCh}
+	dw.check(true)
+
+	w.watches[dw] = true
+	w.wg.Add(1)
+
+	go func() {
+		select {
+		case <-stopCh:
+			w.mutex.Lock()
+			delete(w.watches, dw)
+			w.mutex.Unlock()
+			w.wg.Done()
+		}
+	}()
+
+	return notifyCh, nil
 }
 
-// watchFiles sets the list of paths to poll
-func (w *PollingWatcher) watchFiles(files ...string) {
-	fileSet := utils.StringSliceToMap(files)
+// Watch sets the list of paths to poll
+func (w *PollingWatcher) Watch(file string, stopCh <-chan struct{}) (<-chan *store.KVPair, error) {
+	w.mutex.Lock()
+	defer w.mutex.Unlock()
 
-	for file := range fileSet {
-		if _, ok := w.files[file]; !ok {
-			// Added, initialize hash.
-			e := &entry{}
-			read(file, e)
-			w.files[file] = e
-		}
-	}
+	notifyCh := make(chan *store.KVPair, 1)
+	fw := &fileState{entry: &entry{fileName: file}, base: base{stopCh: stopCh}, notifyCh: notifyCh}
+	fw.check(true)
 
-	for file := range w.files {
-		if !fileSet[file] {
-			// File removed.
-			delete(w.files, file)
+	w.watches[fw] = true
+	w.wg.Add(1)
+
+	go func() {
+		select {
+		case <-stopCh:
+			w.mutex.Lock()
+			delete(w.watches, fw)
+			w.mutex.Unlock()
+			w.wg.Done()
 		}
-	}
+	}()
+
+	return notifyCh, nil
 }
 
 // Close stops the watcher
 func (w *PollingWatcher) Close() {
 	w.stopChan <- struct{}{}
+	// TODO: close notify channel on stop??
 	// Wait for poll to stop.
 	w.wg.Wait()
 }
 
-// read returns whether the file was changed or not (and updates entry state)
-func read(fileName string, entry *entry) bool {
+// read returns whether the file was changed or not (and updates entry state).
+// If it has been updated it returns the file contents.
+func read(entry *entry) (*store.KVPair, bool) {
+	fileName := entry.fileName
+
 	stat, err := os.Stat(fileName)
 	if err != nil {
-		return entry.reset()
+		return pair(fileName, nil), entry.reset()
 	}
 
 	if stat.IsDir() {
-		return entry.reset()
+		return pair(fileName, nil), entry.reset()
 	}
 
 	// If the file modified time is equal to or before our recorded modified
 	// skip further checks. This also accounts for the initial case where
 	// modifiedTime is initialized to its zero value.
 	if !stat.ModTime().After(entry.modifiedTime) {
-		return false
+		return pair(fileName, nil), false
 	}
 
 	ck := md5.New()
 
-	f, err := os.OpenFile(fileName, os.O_RDONLY, 0)
+	contents, err := ioutil.ReadFile(fileName)
 	if err != nil {
 		// File was possibly removed between stat and open.
-		return entry.reset()
+		return pair(fileName, nil), entry.reset()
 	}
-	defer f.Close()
+
+	reader := bytes.NewReader(contents)
 
 	// Compute file hash.
-	if _, err := io.Copy(ck, f); err != nil {
+	if _, err := io.Copy(ck, reader); err != nil {
 		log.Printf("failed to copy file %s to buffer: %s", fileName, err)
-		return entry.reset()
+		return pair(fileName, nil), entry.reset()
 	}
 
 	// Don't set modified time until *after* the hash has been successfully
@@ -195,10 +291,10 @@ func read(fileName string, entry *entry) bool {
 	if !bytes.Equal(entry.hash, newHash) {
 		// If the file hashes differ the file is changed.
 		entry.hash = newHash
-		return true
+		return pair(fileName, contents), true
 	}
 
-	return false
+	return pair(fileName, nil), false
 }
 
 // poll checks for file changes
@@ -206,71 +302,7 @@ func (w *PollingWatcher) poll() {
 	w.mutex.Lock()
 	defer w.mutex.Unlock()
 
-	var changed []string
-
-	for dirName, entries := range w.dirs {
-		files, err := ioutil.ReadDir(dirName)
-
-		if err != nil {
-			// Directory doesn't exist or can't be read.
-
-			if entries != nil {
-				// Directory was just removed, report as change and null out.
-				changed = append(changed, dirName)
-				w.dirs[dirName] = nil
-			}
-			continue
-		}
-
-		// Index directory file names.
-		fileSet := map[string]bool{}
-		for _, file := range files {
-			fileSet[file.Name()] = true
-		}
-
-		if entries == nil {
-			entries = map[string]*entry{}
-			w.dirs[dirName] = entries
-			changed = append(changed, dirName)
-		}
-
-		// Files added to directory.
-		for file := range fileSet {
-			dirPath := path.Join(dirName, file)
-
-			if _, ok := entries[file]; ok {
-				// File entry already present, update.
-				if read(dirPath, entries[file]) {
-					changed = append(changed, dirPath)
-				}
-			} else {
-				// File added.
-				changed = append(changed, dirPath)
-				e := &entry{}
-				entries[file] = e
-				read(dirPath, e)
-			}
-		}
-
-		// Files removed from directory.
-		for file := range entries {
-			if _, ok := fileSet[file]; !ok {
-				changed = append(changed, path.Join(dirName, file))
-				delete(entries, file)
-			}
-		}
-	}
-
-	// Check watched files for changes.
-	for fileName, entry := range w.files {
-		if read(fileName, entry) {
-			changed = append(changed, fileName)
-		}
-	}
-
-	if len(changed) > 0 {
-		if err := w.cb(changed); err != nil {
-			log.Printf("error during change callback of files %s: %s", changed, err)
-		}
+	for watch := range w.watches {
+		watch.check(true)
 	}
 }

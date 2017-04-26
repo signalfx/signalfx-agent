@@ -1,5 +1,5 @@
-hash: ca239a2daeef2d50c5d5980c00cc0931f8e2f9437c9342e5d963f98b58eceaba
-updated: 2017-04-12T16:53:39.251419125-04:00
+hash: dbd180b61bb1eab08905a4c10ace48654d8ef72a4f8f04dc90da37fc65acf06e
+updated: 2017-04-25T16:04:21.869528371-04:00
 imports:
 - name: github.com/blang/semver
   version: aea32c919a18e5ef4537bbd283ff29594b1b0165
@@ -52,6 +52,12 @@ imports:
   - tlsconfig
 - name: github.com/docker/go-units
   version: 0bbddae09c5a5419a8c6dcdd7ff90da3d450393b
+- name: github.com/docker/libkv
+  version: a9894d135ee6319a13e5388c5ef4acac56138175
+  repo: https://github.com/signalfx/libkv.git
+  subpackages:
+  - store
+  - store/zookeeper
 - name: github.com/emicklei/go-restful
   version: 09691a3b6378b740595c1002f40c34dd5f218a22
   subpackages:
@@ -178,6 +184,10 @@ imports:
   version: 5bd2802263f21d8788851d5305584c82a5c75d7e
 - name: github.com/rjeczalik/notify
   version: 41a86457b5eea072a7e6f40bbfaf94c8df41d3aa
+- name: github.com/samuel/go-zookeeper
+  version: 1d7be4effb13d2d908342d349d71a284a7542693
+  subpackages:
+  - zk
 - name: github.com/signalfx/cadvisor-integration
   version: 9ec4dcf2f98f9e35da31adb3b1bccaf368b02585
   subpackages:

@@ -4,9 +4,6 @@
 # Default pipeline to run.
 # pipeline: docker
 
-# Number of seconds before polling configuration files for changes.
-# pollingInterval: 5
-
 # Whether to poll plugin configuration files for changes.
 # fileWatching: true
 
@@ -20,17 +17,16 @@
 # Metric ingest URL.
 # ingestURL: https://ingest.signalfx.com
 
+stores:
+    fs:
+        type: filesystem
+        # Number of seconds before polling configuration files for changes.
+        interval: 5
+
 plugins:
     file:
         plugin: observers/file
         path: /etc/signalfx/service_instances.json
-
-    local-docker:
-        plugin: observers/docker
-        url: unix:///var/run/docker.sock
-
-    mesosphere:
-        plugin: observers/mesosphere
 
     collectd:
         plugin: monitors/collectd
@@ -59,18 +55,6 @@ plugins:
         overrides: /etc/signalfx/overrides
 
 pipelines:
-    mesosphere:
-    - mesosphere
-    - integrations
-    - proxy
-    - collectd
-
-    docker:
-    - local-docker
-    - integrations
-    - proxy
-    - collectd
-
     file:
     - file
     - proxy

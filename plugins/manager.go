@@ -6,10 +6,7 @@ import (
 	"strings"
 	"sync"
 
-	"time"
-
 	"github.com/signalfx/neo-agent/config"
-	"github.com/signalfx/neo-agent/watchers"
 	"github.com/spf13/viper"
 )
 
@@ -52,37 +49,37 @@ func (m *Manager) configureWatching(plugin IPlugin, pluginConfig *viper.Viper) {
 		return
 	}
 
-	duration := time.Duration(pollingInterval * float64(time.Second))
+	// duration := time.Duration(pollingInterval * float64(time.Second))
 
-	watchFiles := plugin.GetWatchFiles(pluginConfig)
-	watchDirs := plugin.GetWatchDirs(pluginConfig)
+	// watchFiles := plugin.GetWatchFiles(pluginConfig)
+	// watchDirs := plugin.GetWatchDirs(pluginConfig)
 
-	if watcher == nil && (len(watchFiles) > 0 || len(watchDirs) > 0) {
-		log.Printf("creating watcher for plugin %s", plugin.Name())
-		watcher = watchers.NewPollingWatcher(func(changed []string) error {
-			m.configLock.Lock()
-			defer m.configLock.Unlock()
+	// if watcher == nil && (len(watchFiles) > 0 || len(watchDirs) > 0) {
+	// 	log.Printf("creating watcher for plugin %s", plugin.Name())
+	// 	watcher = watchers.NewPollingWatcher(func(changed []string) error {
+	// 		m.configLock.Lock()
+	// 		defer m.configLock.Unlock()
 
-			log.Printf("%v changed for plugin %s", changed, plugin.Name())
-			if err := plugin.Reload(pluginConfig); err != nil {
-				log.Printf("error reloading plugin %s: %s", plugin.Name(), err)
-			}
-			return nil
-		}, duration)
-		plugin.SetWatcher(watcher)
-		watcher.Start()
+	// 		log.Printf("%v changed for plugin %s", changed, plugin.Name())
+	// 		if err := plugin.Reload(pluginConfig); err != nil {
+	// 			log.Printf("error reloading plugin %s: %s", plugin.Name(), err)
+	// 		}
+	// 		return nil
+	// 	}, duration)
+	// 	plugin.SetWatcher(watcher)
+	// 	watcher.Start()
 
-		// Need to reload plugin after starting watchers in case file changed
-		// between plugin creation and starting watcher. XXX: This might be
-		// better by having plugin constructors not initialize state but require
-		// that be done in Start().
-		if err := plugin.Reload(pluginConfig); err != nil {
-			log.Printf("failed to reload plugin %s post-watch: %s", plugin.Name(), err)
-		}
-	}
-	if watcher != nil {
-		watcher.Watch(watchDirs, watchFiles)
-	}
+	// 	// Need to reload plugin after starting watchers in case file changed
+	// 	// between plugin creation and starting watcher. XXX: This might be
+	// 	// better by having plugin constructors not initialize state but require
+	// 	// that be done in Start().
+	// 	if err := plugin.Reload(pluginConfig); err != nil {
+	// 		log.Printf("failed to reload plugin %s post-watch: %s", plugin.Name(), err)
+	// 	}
+	// }
+	// if watcher != nil {
+	// 	watcher.Watch(watchDirs, watchFiles)
+	// }
 }
 
 // Lock instance

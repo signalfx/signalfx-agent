@@ -1,5 +1,8 @@
 package: github.com/signalfx/neo-agent
 import:
+- package: github.com/docker/libkv
+  repo: https://github.com/signalfx/libkv.git
+  version: a9894d135ee6319a13e5388c5ef4acac56138175
 - package: github.com/docker/engine-api
   version: ~0.4.0
   subpackages:
