@@ -48,6 +48,9 @@ type userConfig struct {
 		Role            string
 		Cluster         string
 	}
+	Mesosphere *struct {
+		Cluster string
+	}
 }
 
 // getMergeConfigs returns list of config files to merge from the environment
@@ -84,6 +87,10 @@ func Init(configfile string, reload chan<- struct{}, mutex *sync.Mutex) error {
 
 	source, path, err := Stores.Get(configfile)
 	if err != nil {
+		return err
+	}
+
+	if err := EnsureExists(source, path); err != nil {
 		return err
 	}
 
@@ -138,6 +145,10 @@ func Init(configfile string, reload chan<- struct{}, mutex *sync.Mutex) error {
 			return err
 		}
 
+		if err := EnsureExists(source, path); err != nil {
+			return err
+		}
+
 		ch, err := source.Watch(path, nil)
 		if err != nil {
 			return err
@@ -182,6 +193,10 @@ func Init(configfile string, reload chan<- struct{}, mutex *sync.Mutex) error {
 			return err
 		}
 
+		if err := EnsureExists(source, path); err != nil {
+			return err
+		}
+
 		ch, err := source.Watch(path, nil)
 		if err != nil {
 			return err
@@ -195,8 +210,14 @@ func Init(configfile string, reload chan<- struct{}, mutex *sync.Mutex) error {
 
 			plugins := map[string]interface{}{}
 
+			dims := map[string]string{}
 			v := map[string]interface{}{
-				"plugins": plugins,
+				"plugins":    plugins,
+				"dimensions": dims,
+			}
+
+			if usercon.Kubernetes != nil && usercon.Mesosphere != nil {
+				return errors.New("mesosphere and kubernetes cannot both be set")
 			}
 
 			if kube := usercon.Kubernetes; kube != nil {
@@ -206,14 +227,13 @@ func Init(configfile string, reload chan<- struct{}, mutex *sync.Mutex) error {
 				if kube.Role != "worker" && kube.Role != "master" {
 					return errors.New("kubernetes.role must be worker or master")
 				}
-				dims := map[string]string{}
 				kubernetes := map[string]interface{}{}
 
 				dims["kubernetes_cluster"] = kube.Cluster
 				dims["kubernetes_role"] = kube.Role
 				kubernetes["ignoretlsverify"] = kube.IgnoreTLSVerify
 				plugins["kubernetes"] = kubernetes
-				v["dimensions"] = dims
+
 			}
 
 			if proxy := usercon.Proxy; proxy != nil {
@@ -222,6 +242,13 @@ func Init(configfile string, reload chan<- struct{}, mutex *sync.Mutex) error {
 				proxyConfig["plugins.proxy.https"] = proxy.HTTPS
 				proxyConfig["plugins.proxy.skip"] = proxy.Skip
 				plugins["proxy"] = proxyConfig
+			}
+
+			if mesos := usercon.Mesosphere; mesos != nil {
+				if mesos.Cluster == "" {
+					return errors.New("mesosphere.cluster must be set")
+				}
+				dims["mesos_cluster"] = mesos.Cluster
 			}
 
 			data, err := yaml.Marshal(v)
