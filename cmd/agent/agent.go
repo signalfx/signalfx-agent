@@ -179,6 +179,5 @@ func main() {
 	}()
 	<-exitCh
 	log.Print("stopping stores")
-	// TODO: can't call yet because fs source close isn't fully implemented and hangs
-	// config.Stores.Close()
+	config.Stores.Close()
 }
