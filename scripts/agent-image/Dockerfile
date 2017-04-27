@@ -39,7 +39,7 @@ RUN mkdir -p /etc/collectd/managed_config \
 
 # collectd-cpu
 # collectd-docker
-ENV DOCKER_COLLECTD_PLUGIN_V=1.0.3
+ENV DOCKER_COLLECTD_PLUGIN_V=1.0.4
 RUN mkdir -p /usr/share/collectd/docker-collectd-plugin \
     && curl -L "https://github.com/signalfx/docker-collectd-plugin/archive/v${DOCKER_COLLECTD_PLUGIN_V}.tar.gz" --output /usr/share/collectd/docker-collectd-plugin/v${DOCKER_COLLECTD_PLUGIN_V}.tar.gz \
     && tar -zxvf /usr/share/collectd/docker-collectd-plugin/v${DOCKER_COLLECTD_PLUGIN_V}.tar.gz -C /usr/share/collectd/docker-collectd-plugin/ \
