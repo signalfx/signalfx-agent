@@ -23,12 +23,16 @@ var Stores = newStores()
 
 const defaultScheme = "fs"
 
+// reconnectTime is time between store reconnect attempts
+var reconnectTime = 30 * time.Second
+
 type source interface {
 	Get(string) (*store.KVPair, error)
 	Watch(string, <-chan struct{}) (<-chan *store.KVPair, error)
 	WatchTree(string, <-chan struct{}) (<-chan []*store.KVPair, error)
 	Exists(string) (bool, error)
 	Put(key string, value []byte, opts *store.WriteOptions) error
+	AtomicPut(key string, value []byte, previous *store.KVPair, _ *store.WriteOptions) (bool, *store.KVPair, error)
 	Close()
 }
 
@@ -40,8 +44,8 @@ func EnsureExists(src source, path string) error {
 	}
 
 	if !exists {
-		// XXX: Should make this atomic.
-		if err := src.Put(path, []byte(""), nil); err != nil {
+		log.Printf("creating empty file %s", path)
+		if _, _, err := src.AtomicPut(path, nil, nil, nil); err != nil {
 			return err
 		}
 	}
@@ -64,6 +68,20 @@ func (f *fs) Put(key string, value []byte, opts *store.WriteOptions) error {
 	return ioutil.WriteFile(key, value, 0644)
 }
 
+func (f *fs) AtomicPut(key string, value []byte, previous *store.KVPair, _ *store.WriteOptions) (bool, *store.KVPair, error) {
+	if previous != nil {
+		return false, nil, fmt.Errorf("only empty atomic put is supported for filesystems")
+	}
+	file, err := os.OpenFile(key, os.O_CREATE, 0644)
+	if err != nil {
+		return false, nil, err
+	}
+
+	file.Close()
+
+	return true, &store.KVPair{Key: key, Value: value, LastIndex: 0}, nil
+}
+
 func (f *fs) Get(path string) (*store.KVPair, error) {
 	data, err := ioutil.ReadFile(path)
 	if err != nil {
@@ -74,10 +92,7 @@ func (f *fs) Get(path string) (*store.KVPair, error) {
 
 func (f *fs) Exists(path string) (bool, error) {
 	_, err := os.Stat(path)
-	if err != nil {
-		return false, err
-	}
-	return true, nil
+	return os.IsExist(err), nil
 }
 
 func (f *fs) Watch(path string, stopCh <-chan struct{}) (<-chan *store.KVPair, error) {
@@ -90,6 +105,65 @@ func (f *fs) WatchTree(path string, stopCh <-chan struct{}) (<-chan []*store.KVP
 
 func (f *fs) Close() {
 	f.watcher.Close()
+}
+
+// reconnectWatch returns a reliable channel that hides the underlying libkv
+// watch because it will fail when files go away
+func reconnectWatch(source source, path string, stop <-chan struct{}) (<-chan *store.KVPair, error) {
+	retCh := make(chan *store.KVPair)
+
+	go func() {
+		state := WatchInitial
+		var stopCh chan struct{}
+		var ch <-chan *store.KVPair
+		var err error
+
+		for {
+			switch state {
+			case WatchFailed:
+				// TODO: make this nonblocking?
+				log.Printf("WatchFailed: sleeping for %d seconds for %T:%s", int(reconnectTime.Seconds()), source, path)
+				time.Sleep(reconnectTime)
+				state = WatchInitial
+			case WatchInitial:
+				log.Printf("WatchInitial: %T:%s", source, path)
+				if stopCh != nil {
+					close(stopCh)
+				}
+				ch = nil
+
+				stopCh = make(chan struct{}, 1)
+
+				ch, err = source.Watch(path, stopCh)
+				if err != nil {
+					log.Printf("failed watching for changes to %T:%s: %s", source, path, err)
+					state = WatchFailed
+				} else {
+					state = Watching
+				}
+			case Watching:
+				log.Printf("Watching: %T:%s", source, path)
+
+				select {
+				case pair := <-ch:
+					if pair == nil {
+						log.Printf("nil pair returned, restarting watch")
+						state = WatchFailed
+						// TODO: should this send an empty pair???
+					} else {
+						retCh <- pair
+					}
+				case <-stop:
+					log.Printf("stopping watch for %T:%s", source, path)
+					stopCh <- struct{}{}
+					return
+				}
+
+			}
+		}
+	}()
+
+	return retCh, nil
 }
 
 type metaStore struct {
