@@ -184,7 +184,7 @@ func load(path string, reload chan<- struct{}, cb func(pair *store.KVPair) error
 	return fmt.Errorf("failed ensuring %s exists", path)
 
 Success:
-	ch, err := reconnectWatch(source, path, nil)
+	ch, err := ReconnectWatch(source, path, nil)
 
 	if err != nil {
 		return err

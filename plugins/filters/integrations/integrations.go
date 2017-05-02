@@ -2,18 +2,19 @@ package integrations
 
 import (
 	"errors"
-	"io/ioutil"
 	"log"
-	"path"
 	"reflect"
-
-	"path/filepath"
+	"sync"
 
 	"fmt"
 
 	"os"
 
+	"strings"
+
 	"github.com/Knetic/govaluate"
+	"github.com/docker/libkv/store"
+	"github.com/signalfx/neo-agent/config"
 	"github.com/signalfx/neo-agent/plugins"
 	"github.com/signalfx/neo-agent/services"
 	"github.com/signalfx/neo-agent/utils"
@@ -106,26 +107,25 @@ type configuration struct {
 type Filter struct {
 	plugins.Plugin
 	configurations []*configuration
+	// builtins       configs
+	// overrides      configs
+	assets *config.AssetSyncer
+	mutex  sync.Mutex
 }
 
 func init() {
 	plugins.Register(pluginType, NewFilter)
 }
 
-// readConfigs reads *.yml from the configPath into a an array of byte arrays
-func readConfigs(configPath string) ([][]byte, error) {
+// readConfigs reads *.yml from key pairs into a an array of byte arrays
+func readConfigs(configs []*store.KVPair) ([][]byte, error) {
 	var configFiles [][]byte
-	files, err := filepath.Glob(path.Join(configPath, "*.yml"))
-	if err != nil {
-		return nil, err
-	}
 
-	for _, file := range files {
-		data, err := ioutil.ReadFile(file)
-		if err != nil {
-			return nil, err
+	for _, pair := range configs {
+		if !strings.HasSuffix(pair.Key, ".yml") {
+			continue
 		}
-		configFiles = append(configFiles, data)
+		configFiles = append(configFiles, pair.Value)
 	}
 
 	return configFiles, nil
@@ -361,35 +361,40 @@ func buildConfigurations(builtins, overrides []configFile) ([]*configuration, er
 	return configs, nil
 }
 
-func (f *Filter) load(config *viper.Viper) error {
-	builtin := config.GetString("builtins")
-	override := config.GetString("overrides")
+func (f *Filter) load(assets *config.AssetsView) error {
+	var builtinConfigs, overrideConfigs []configFile
 
-	if builtin == "" {
-		return errors.New("builtins cannot be empty")
+	// TODO: make sure that both are present (even if empty)?
+
+	if builtins, ok := assets.Dirs["builtins"]; ok {
+		builtins, err := readConfigs(builtins)
+		if err != nil {
+			return err
+		}
+
+		builtinConfigs, err = loadConfigs(builtins)
+		if err != nil {
+			return err
+		}
+	} else {
+		return errors.New("integration builtins are required")
 	}
 
-	builtins, err := readConfigs(builtin)
-	if err != nil {
-		return err
+	if overrides, ok := assets.Dirs["overrides"]; ok {
+		overrides, err := readConfigs(overrides)
+		if err != nil {
+			return err
+		}
+		overrideConfigs, err = loadConfigs(overrides)
+
+		if err != nil {
+			return err
+		}
+	} else {
+		log.Printf("no integrations overrides were provided")
 	}
 
-	overrides, err := readConfigs(override)
-	if err != nil {
-		return err
-	}
-
-	bultinConfigs, err := loadConfigs(builtins)
-	if err != nil {
-		return err
-	}
-
-	overrideConfigs, err := loadConfigs(overrides)
-	if err != nil {
-		return err
-	}
-
-	configs, err := buildConfigurations(bultinConfigs, overrideConfigs)
+	configs, err := buildConfigurations(builtinConfigs, overrideConfigs)
 	if err != nil {
 		return err
 	}
@@ -400,35 +405,12 @@ func (f *Filter) load(config *viper.Viper) error {
 }
 
 // NewFilter creates a new instance
-func NewFilter(name string, config *viper.Viper) (plugins.IPlugin, error) {
-	plugin, err := plugins.NewPlugin(name, pluginType, config)
+func NewFilter(name string, cfg *viper.Viper) (plugins.IPlugin, error) {
+	plugin, err := plugins.NewPlugin(name, pluginType, cfg)
 	if err != nil {
 		return nil, err
 	}
-	filter := &Filter{Plugin: plugin}
-
-	// Don't return failure as the plugin should still be started. Configuration
-	// will get loaded during reload.
-	if err := filter.load(config); err != nil {
-		log.Printf("failed to load integration filters: %s", err)
-	}
-
-	return filter, nil
-}
-
-// GetWatchDirs returns list of directories to watch
-func (f *Filter) GetWatchDirs(config *viper.Viper) []string {
-	var dirs []string
-
-	for _, dir := range []string{
-		config.GetString("overrides"),
-		config.GetString("builtins")} {
-		if dir != "" {
-			dirs = append(dirs, dir)
-		}
-	}
-
-	return dirs
+	return &Filter{Plugin: plugin, assets: config.NewAssetSyncer()}, nil
 }
 
 // Matches if service instance satisfies rules
@@ -463,6 +445,25 @@ func matches(si *services.Instance, expr *govaluate.EvaluableExpression) bool {
 	return false
 }
 
+// Start filter
+func (f *Filter) Start() error {
+	f.assets.Start(func(assets *config.AssetsView) {
+		f.mutex.Lock()
+		defer f.mutex.Unlock()
+
+		if err := f.load(assets); err != nil {
+			log.Printf("failed loading integrations config: %s", err)
+		}
+	})
+
+	return nil
+}
+
+// Stop filter
+func (f *Filter) Stop() {
+	f.assets.Stop()
+}
+
 // Map takes discovered service instances and applies integration-specific configurations
 func (f *Filter) Map(sis services.Instances) (services.Instances, error) {
 	var instances services.Instances
@@ -480,7 +481,6 @@ Outer:
 						si.Orchestration.Dims[label] = val
 					}
 				}
-				//si.Orchestration.Dims
 				instances = append(instances, si)
 				continue Outer
 			}
@@ -490,11 +490,24 @@ Outer:
 	return instances, nil
 }
 
-// Reload the filter
-func (f *Filter) Reload(config *viper.Viper) error {
-	// TODO: need mutex or not?
-	if err := f.load(config); err != nil {
-		return err
+// Configure the filter
+func (f *Filter) Configure(cfg *viper.Viper) error {
+	f.mutex.Lock()
+	defer f.mutex.Unlock()
+
+	f.Config = cfg
+
+	ws := config.NewAssetSpec()
+	for _, dir := range []string{"overrides", "builtins"} {
+		path := cfg.GetString(dir)
+		if path != "" {
+			ws.Dirs[dir] = path
+		}
+	}
+	log.Printf("%+v", ws)
+
+	if err := f.assets.Update(ws); err != nil {
+		log.Printf("error updating watches for %s: %s", f.Name(), err)
 	}
 
 	return nil

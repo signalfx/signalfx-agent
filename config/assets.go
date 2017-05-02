@@ -6,7 +6,9 @@ import (
 	"io/ioutil"
 	"log"
 	"net/url"
+	"path"
 	"strings"
+	"sync"
 	"time"
 
 	"os"
@@ -26,14 +28,247 @@ const defaultScheme = "fs"
 // reconnectTime is time between store reconnect attempts
 var reconnectTime = 30 * time.Second
 
+// AssetSpec specifies assets to sync
+type AssetSpec struct {
+	Files map[string]string
+	Dirs  map[string]string
+}
+
+// NewAssetSpec creates a new AssetSpec
+func NewAssetSpec() *AssetSpec {
+	return &AssetSpec{map[string]string{}, map[string]string{}}
+}
+
+// AssetSyncer maintains a set of assets from any number of different sources
+// and keeps them up-to-date. Notifications can be sent when any of them change.
+// Notification includes all of the assets in the syncer, not just the changed
+// ones.
+type AssetSyncer struct {
+	mutex   sync.Mutex
+	wg      sync.WaitGroup
+	changed chan changeNotification
+	dirs    map[string]*dirTracker
+	stop    chan struct{}
+}
+
+// NewAssetSyncer creates a new instance
+func NewAssetSyncer() *AssetSyncer {
+	return &AssetSyncer{stop: make(chan struct{}), dirs: map[string]*dirTracker{}, changed: make(chan changeNotification)}
+}
+
+// AssetsView is a read-only view
+type AssetsView struct {
+	Dirs map[string][]*store.KVPair
+}
+type assetTracker struct {
+	uri  string
+	stop chan struct{}
+}
+
+type fileTracker struct {
+	assetTracker
+	files *store.KVPair
+}
+
+type dirTracker struct {
+	assetTracker
+	dirs         []*store.KVPair
+	reloadChStop chan struct{}
+}
+
+type changeNotification struct {
+	pairs []*store.KVPair
+	name  string
+}
+
+func (a *AssetSyncer) add(name, dir string) error {
+	// added
+	stopWatcher := make(chan struct{})
+	stopAsset := make(chan struct{})
+	var reloadCh <-chan *store.KVPair
+	var stopReload chan struct{}
+
+	source, path, err := Stores.Get(dir)
+	if err != nil {
+		return err
+	}
+	ch, err := ReconnectWatchTree(source, path, stopWatcher)
+	if err != nil {
+		return err
+	}
+
+	// Only send reload notification for ZooKeeper since other backends don't
+	// need it.
+	if _, ok := source.(*zookeeper.Zookeeper); ok {
+		reloadPath := path + "/.reload"
+		log.Printf("watching for reloads at %s", reloadPath)
+
+		if err := EnsureExists(source, path); err != nil {
+			stopWatcher <- struct{}{}
+			return err
+		}
+
+		stopReload = make(chan struct{})
+
+		reloadCh, err = ReconnectWatch(source, reloadPath, stopReload)
+
+		if err != nil {
+			stopWatcher <- struct{}{}
+			return err
+		}
+	}
+
+	a.dirs[name] = &dirTracker{assetTracker{dir, stopAsset}, nil, stopReload}
+
+	go func() {
+		if stopReload != nil {
+			defer close(stopReload)
+		}
+		defer close(stopWatcher)
+		defer close(stopAsset)
+
+		for {
+			select {
+			case pair := <-reloadCh:
+				if pair == nil {
+					log.Printf("unexpected reload channel returned nil")
+					continue
+				}
+
+				pairs, err := source.List(path)
+				if err != nil {
+					log.Printf("unable to list from reload: %s", err)
+					continue
+				}
+				select {
+				// Select on both changed and stop so that if the notify channel
+				// is full we don't fail to stop.
+				case a.changed <- changeNotification{name: name, pairs: pairs}:
+				case <-stopAsset:
+					return
+				}
+			case pairs := <-ch:
+				if pairs == nil {
+					log.Printf("error: unexpected stopping asset sync for %s", dir)
+					return
+				}
+				select {
+				// Select on both changed and stop so that if the notify channel
+				// is full we don't fail to stop.
+				case a.changed <- changeNotification{name: name, pairs: pairs}:
+				case <-stopAsset:
+					return
+				}
+			case <-stopAsset:
+				log.Printf("stopping asset sync for %s", name)
+				stopWatcher <- struct{}{}
+				return
+			}
+		}
+	}()
+
+	return nil
+}
+
+func (tracker *dirTracker) stopWatch() {
+	tracker.stop <- struct{}{}
+	if tracker.reloadChStop != nil {
+		tracker.reloadChStop <- struct{}{}
+	}
+}
+
+// Update assets to watch
+func (a *AssetSyncer) Update(w *AssetSpec) error {
+	a.mutex.Lock()
+	defer a.mutex.Unlock()
+
+	if w == nil {
+		for name, tracker := range a.dirs {
+			tracker.stopWatch()
+			delete(a.dirs, name)
+		}
+		return nil
+	}
+	for name, dir := range w.Dirs {
+		if tracker, ok := a.dirs[dir]; ok {
+			if dir != tracker.uri {
+				// changed
+				log.Printf("changing %s from %s to %s", name, tracker.uri, dir)
+				tracker.stopWatch()
+				if err := a.add(name, dir); err != nil {
+					return err
+				}
+			}
+		} else {
+			// added
+			if err := a.add(name, dir); err != nil {
+				return err
+			}
+		}
+	}
+
+	for dir, tracker := range a.dirs {
+		if _, ok := w.Dirs[dir]; !ok {
+			// removed
+			tracker.stopWatch()
+			delete(a.dirs, dir)
+		}
+	}
+
+	return nil
+}
+
+// Start the sync
+func (a *AssetSyncer) Start(cb func(view *AssetsView)) {
+	a.wg.Add(1)
+
+	go func() {
+		for {
+			select {
+			case notif := <-a.changed:
+				func() {
+					a.mutex.Lock()
+
+					tracker, ok := a.dirs[notif.name]
+					if !ok {
+						log.Printf("missing entry for %s", notif.name)
+						a.mutex.Unlock()
+						return
+					}
+
+					tracker.dirs = notif.pairs
+
+					view := &AssetsView{Dirs: map[string][]*store.KVPair{}}
+					for key, value := range a.dirs {
+						view.Dirs[key] = value.dirs
+					}
+					a.mutex.Unlock()
+					cb(view)
+				}()
+			case <-a.stop:
+				a.Update(nil)
+				a.wg.Done()
+				return
+			}
+		}
+	}()
+}
+
+// Stop the sync
+func (a *AssetSyncer) Stop() {
+	a.stop <- struct{}{}
+	a.wg.Wait()
+}
+
 type source interface {
-	Get(string) (*store.KVPair, error)
-	Watch(string, <-chan struct{}) (<-chan *store.KVPair, error)
-	WatchTree(string, <-chan struct{}) (<-chan []*store.KVPair, error)
-	Exists(string) (bool, error)
-	Put(key string, value []byte, opts *store.WriteOptions) error
 	AtomicPut(key string, value []byte, previous *store.KVPair, _ *store.WriteOptions) (bool, *store.KVPair, error)
 	Close()
+	Exists(string) (bool, error)
+	Get(string) (*store.KVPair, error)
+	List(directory string) ([]*store.KVPair, error)
+	Put(key string, value []byte, opts *store.WriteOptions) error
+	Watch(string, <-chan struct{}) (<-chan *store.KVPair, error)
+	WatchTree(string, <-chan struct{}) (<-chan []*store.KVPair, error)
 }
 
 // EnsureExists creates an empty file if it doesn't already exist
@@ -62,6 +297,26 @@ func newFs() *fs {
 	f := &fs{watchers.NewPollingWatcher(5 * time.Second)}
 	f.watcher.Start()
 	return f
+}
+
+func (f *fs) List(dir string) ([]*store.KVPair, error) {
+	files, err := ioutil.ReadDir(dir)
+	var ret []*store.KVPair
+
+	if err != nil {
+		return nil, err
+	}
+
+	for _, f := range files {
+		fullPath := path.Join(dir, f.Name())
+		bytes, err := ioutil.ReadFile(fullPath)
+		if err != nil {
+			continue
+		}
+		ret = append(ret, &store.KVPair{Key: fullPath, Value: bytes, LastIndex: 0})
+	}
+
+	return ret, nil
 }
 
 func (f *fs) Put(key string, value []byte, opts *store.WriteOptions) error {
@@ -107,9 +362,9 @@ func (f *fs) Close() {
 	f.watcher.Close()
 }
 
-// reconnectWatch returns a reliable channel that hides the underlying libkv
+// ReconnectWatch returns a reliable channel that hides the underlying libkv
 // watch because it will fail when files go away
-func reconnectWatch(source source, path string, stop <-chan struct{}) (<-chan *store.KVPair, error) {
+func ReconnectWatch(source source, path string, stop <-chan struct{}) (<-chan *store.KVPair, error) {
 	retCh := make(chan *store.KVPair)
 
 	go func() {
@@ -151,7 +406,78 @@ func reconnectWatch(source source, path string, stop <-chan struct{}) (<-chan *s
 						state = WatchFailed
 						// TODO: should this send an empty pair???
 					} else {
-						retCh <- pair
+						// Select on both notify and stop so that if the notify
+						// channel is full we don't fail to stop.
+						select {
+						case retCh <- pair:
+						case <-stop:
+							return
+						}
+					}
+				case <-stop:
+					log.Printf("stopping watch for %T:%s", source, path)
+					stopCh <- struct{}{}
+					return
+				}
+
+			}
+		}
+	}()
+
+	return retCh, nil
+}
+
+// ReconnectWatchTree returns a reliable channel that hides the underlying libkv
+// watch because it will fail when files go away
+func ReconnectWatchTree(source source, path string, stop <-chan struct{}) (<-chan []*store.KVPair, error) {
+	retCh := make(chan []*store.KVPair)
+
+	go func() {
+		state := WatchInitial
+		var stopCh chan struct{}
+		var ch <-chan []*store.KVPair
+		var err error
+
+		for {
+			switch state {
+			case WatchFailed:
+				// TODO: make this nonblocking?
+				log.Printf("WatchFailed: sleeping for %d seconds for %T:%s", int(reconnectTime.Seconds()), source, path)
+				time.Sleep(reconnectTime)
+				state = WatchInitial
+			case WatchInitial:
+				log.Printf("WatchInitial: %T:%s", source, path)
+				if stopCh != nil {
+					close(stopCh)
+				}
+				ch = nil
+
+				stopCh = make(chan struct{}, 1)
+
+				ch, err = source.WatchTree(path, stopCh)
+				if err != nil {
+					log.Printf("failed watching for changes to %T:%s: %s", source, path, err)
+					state = WatchFailed
+				} else {
+					state = Watching
+				}
+			case Watching:
+				log.Printf("Watching: %T:%s", source, path)
+
+				select {
+				case pairs := <-ch:
+					if pairs == nil {
+						log.Printf("nil pairs returned, restarting watch")
+						state = WatchFailed
+						// TODO: should this send an empty pair???
+					} else {
+						// Select on both notify and stop so that if the notify
+						// channel is full we don't fail to stop.
+						select {
+						case retCh <- pairs:
+						case <-stop:
+							return
+						}
 					}
 				case <-stop:
 					log.Printf("stopping watch for %T:%s", source, path)

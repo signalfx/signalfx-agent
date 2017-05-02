@@ -9,6 +9,9 @@ plugins:
             mesos:
                 plugin: mesos-agent
 
+    integrations:
+        overrides: zk://signalfx/agent/integrations
+
 pipelines:
     mesosphere:
     - mesosphere
