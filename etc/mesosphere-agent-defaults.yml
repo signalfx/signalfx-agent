@@ -4,6 +4,11 @@ plugins:
     mesosphere:
         plugin: observers/mesosphere
 
+    collectd:
+        staticPlugins:
+            mesos-default:
+                plugin: mesos-agent
+
 pipelines:
     mesosphere:
     - mesosphere

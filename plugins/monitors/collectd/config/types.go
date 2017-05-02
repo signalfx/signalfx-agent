@@ -22,6 +22,7 @@ type Plugin struct {
 // PluginType is a type for collectd plugins
 type PluginType string
 
+// Define static collectd plugins
 const (
 	// SignalFx plugin
 	SignalFx PluginType = "signalfx"
@@ -29,6 +30,12 @@ const (
 	WriteHTTP PluginType = "writehttp"
 	// Docker plugin
 	Docker PluginType = "docker"
+	// MesosMaster plugin
+	MesosMaster PluginType = "mesos-master"
+	// MesosAgent plugin
+	MesosAgent PluginType = "mesos-agent"
+	// Marathon plugin
+	Marathon PluginType = "marathon"
 )
 
 // PLUGINS is a mapping to create plugin instances with defaults
@@ -73,6 +80,48 @@ var PLUGINS = map[PluginType]func(string) *Plugin{
 			Name:         instanceName,
 			Vars: map[string]interface{}{
 				"url": "unix:///var/run/docker.sock",
+			},
+		}
+	},
+	MesosMaster: func(instanceName string) *Plugin {
+		return &Plugin{
+			Plugin:       "mesos-master",
+			TemplateFile: "mesos-master.conf.tmpl",
+			Name:         instanceName,
+			Vars: map[string]interface{}{
+				"host":         "localhost",
+				"port":         "5050",
+				"cluster":      "cluster-0",
+				"instance":     "master-0",
+				"systemHealth": "false",
+				"verbose":      "false",
+			},
+		}
+	},
+	MesosAgent: func(instanceName string) *Plugin {
+		return &Plugin{
+			Plugin:       "mesos-agent",
+			TemplateFile: "mesos-agent.conf.tmpl",
+			Name:         instanceName,
+			Vars: map[string]interface{}{
+				"host":     "localhost",
+				"port":     "5051",
+				"cluster":  "cluster-0",
+				"instance": "agent-0",
+				"verbose":  "false",
+			},
+		}
+	},
+	Marathon: func(instanceName string) *Plugin {
+		return &Plugin{
+			Plugin:       "marathon",
+			TemplateFile: "marathon.conf.tmpl",
+			Name:         instanceName,
+			Vars: map[string]interface{}{
+				"host":     "localhost",
+				"port":     "8080",
+				"username": "",
+				"password": "",
 			},
 		}
 	},

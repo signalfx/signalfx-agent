@@ -62,22 +62,22 @@ RUN mkdir -p /usr/share/collectd/java \
     && echo "jmx_memory      value:GAUGE:0:U" > /usr/share/collectd/java/signalfx_types_db
 
 # collectd-mesos
-ENV MESOS_AGENT_COLLECTD_PLUGIN_V=1.1.0
+ENV MESOS_COLLECTD_PLUGIN_V=1.1.0
 RUN mkdir -p /usr/share/collectd/mesos-collectd-plugin \
-    && curl -L "https://github.com/signalfx/collectd-mesos/archive/v${MESOS_AGENT_COLLECTD_PLUGIN_V}.tar.gz" --output /usr/share/collectd/mesos-collectd-plugin/v${MESOS_AGENT_COLLECTD_PLUGIN_V}.tar.gz \
-    && tar -zxvf /usr/share/collectd/mesos-collectd-plugin/v${MESOS_AGENT_COLLECTD_PLUGIN_V}.tar.gz -C /usr/share/collectd/mesos-collectd-plugin/ \
-    && cp /usr/share/collectd/mesos-collectd-plugin/collectd-mesos-${MESOS_AGENT_COLLECTD_PLUGIN_V}/* /usr/share/collectd/mesos-collectd-plugin/ \
-    && rm -f /usr/share/collectd/mesos-collectd-plugin/v${MESOS_AGENT_COLLECTD_PLUGIN_V}.tar.gz \
-    && rm -rf /usr/share/collectd/mesos-collectd-plugin/collectd-mesos-${MESOS_AGENT_COLLECTD_PLUGIN_V}
+    && curl -L "https://github.com/signalfx/collectd-mesos/archive/v${MESOS_COLLECTD_PLUGIN_V}.tar.gz" --output /usr/share/collectd/mesos-collectd-plugin/v${MESOS_COLLECTD_PLUGIN_V}.tar.gz \
+    && tar -zxvf /usr/share/collectd/mesos-collectd-plugin/v${MESOS_COLLECTD_PLUGIN_V}.tar.gz -C /usr/share/collectd/mesos-collectd-plugin/ \
+    && cp /usr/share/collectd/mesos-collectd-plugin/collectd-mesos-${MESOS_COLLECTD_PLUGIN_V}/* /usr/share/collectd/mesos-collectd-plugin/ \
+    && rm -f /usr/share/collectd/mesos-collectd-plugin/v${MESOS_COLLECTD_PLUGIN_V}.tar.gz \
+    && rm -rf /usr/share/collectd/mesos-collectd-plugin/collectd-mesos-${MESOS_COLLECTD_PLUGIN_V}
 
-# collectd-mesos-master
-ENV MESOS_MASTER_COLLECTD_PLUGIN_V=1.1.0
-RUN mkdir -p /usr/share/collectd/mesos-collectd-plugin \
-    && curl -L "https://github.com/signalfx/collectd-mesos/archive/v${MESOS_MASTER_COLLECTD_PLUGIN_V}.tar.gz" --output /usr/share/collectd/mesos-collectd-plugin/v${MESOS_MASTER_COLLECTD_PLUGIN_V}.tar.gz \
-    && tar -zxvf /usr/share/collectd/mesos-collectd-plugin/v${MESOS_MASTER_COLLECTD_PLUGIN_V}.tar.gz -C /usr/share/collectd/mesos-collectd-plugin/ \
-    && cp /usr/share/collectd/mesos-collectd-plugin/collectd-mesos-${MESOS_MASTER_COLLECTD_PLUGIN_V}/* /usr/share/collectd/mesos-collectd-plugin/ \
-    && rm -f /usr/share/collectd/mesos-collectd-plugin/v${MESOS_MASTER_COLLECTD_PLUGIN_V}.tar.gz \
-    && rm -rf /usr/share/collectd/mesos-collectd-plugin/collectd-mesos-${MESOS_MASTER_COLLECTD_PLUGIN_V}
+# collectd-marathon
+ENV MARATHON_COLLECTD_PLUGIN_V=1.0.1
+RUN mkdir -p /usr/share/collectd/marathon-collectd-plugin \
+    && curl -L "https://github.com/signalfx/collectd-marathon/archive/v${MARATHON_COLLECTD_PLUGIN_V}.tar.gz" --output /usr/share/collectd/marathon-collectd-plugin/v${MARATHON_COLLECTD_PLUGIN_V}.tar.gz \
+    && tar -zxvf /usr/share/collectd/marathon-collectd-plugin/v${MARATHON_COLLECTD_PLUGIN_V}.tar.gz -C /usr/share/collectd/marathon-collectd-plugin/ \
+    && cp /usr/share/collectd/marathon-collectd-plugin/collectd-marathon-${MARATHON_COLLECTD_PLUGIN_V}/* /usr/share/collectd/marathon-collectd-plugin/ \
+    && rm -f /usr/share/collectd/marathon-collectd-plugin/v${MARATHON_COLLECTD_PLUGIN_V}.tar.gz \
+    && rm -rf /usr/share/collectd/marathon-collectd-plugin/collectd-marathon-${MARATHON_COLLECTD_PLUGIN_V}
 
 # collectd-mongodb
 ENV MONGODB_COLLECTD_PLUGIN_V=1.1.1

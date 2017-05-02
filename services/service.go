@@ -24,8 +24,6 @@ const (
 	CassandraService ServiceType = "cassandra"
 	// ElasticSearchService ElasticSearch server
 	ElasticSearchService ServiceType = "elasticsearch"
-	// DockerService Docker container engine
-	DockerService ServiceType = "docker"
 	// GenericJMXService custom jmx service
 	GenericJMXService ServiceType = "genericjmx"
 	// KafkaService Kafka message broker
