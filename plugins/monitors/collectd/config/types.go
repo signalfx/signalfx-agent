@@ -2,7 +2,9 @@ package config
 
 import (
 	"fmt"
+	"log"
 	"net/url"
+	"os"
 
 	"github.com/spf13/viper"
 )
@@ -89,7 +91,7 @@ var PLUGINS = map[PluginType]func(string) *Plugin{
 			TemplateFile: "mesos-master.conf.tmpl",
 			Name:         instanceName,
 			Vars: map[string]interface{}{
-				"host":         "localhost",
+				"host":         getHostname(),
 				"port":         "5050",
 				"cluster":      "cluster-0",
 				"instance":     "master-0",
@@ -104,7 +106,7 @@ var PLUGINS = map[PluginType]func(string) *Plugin{
 			TemplateFile: "mesos-agent.conf.tmpl",
 			Name:         instanceName,
 			Vars: map[string]interface{}{
-				"host":     "localhost",
+				"host":     getHostname(),
 				"port":     "5051",
 				"cluster":  "cluster-0",
 				"instance": "agent-0",
@@ -113,12 +115,13 @@ var PLUGINS = map[PluginType]func(string) *Plugin{
 		}
 	},
 	Marathon: func(instanceName string) *Plugin {
+
 		return &Plugin{
 			Plugin:       "marathon",
 			TemplateFile: "marathon.conf.tmpl",
 			Name:         instanceName,
 			Vars: map[string]interface{}{
-				"host":     "localhost",
+				"host":     getHostname(),
 				"port":     "8080",
 				"username": "",
 				"password": "",
@@ -184,4 +187,15 @@ func NewCollectdConfig() *CollectdConfig {
 		WriteQueueLimitLow:   400000,
 		CollectInternalStats: true,
 	}
+}
+
+// getHostname - returns the hostname or logs and error and returns "localhost"
+func getHostname() string {
+	var hostname string
+	var err error
+	if hostname, err = os.Hostname(); err != nil {
+		log.Print(err)
+		hostname = "localhost"
+	}
+	return hostname
 }
