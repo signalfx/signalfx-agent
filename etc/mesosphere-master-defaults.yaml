@@ -1,0 +1,10 @@
+pipeline: file
+
+plugins:
+  collectd:
+    staticPlugins:
+      marathon:
+        plugin: marathon
+      mesos-master:
+        plugin: mesos-master
+
