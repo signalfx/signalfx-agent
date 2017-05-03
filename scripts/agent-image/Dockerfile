@@ -62,7 +62,7 @@ RUN mkdir -p /usr/share/collectd/java \
     && echo "jmx_memory      value:GAUGE:0:U" > /usr/share/collectd/java/signalfx_types_db
 
 # collectd-mesos
-ENV MESOS_COLLECTD_PLUGIN_V=1.1.0
+ENV MESOS_COLLECTD_PLUGIN_V=1.1.1
 RUN mkdir -p /usr/share/collectd/mesos-collectd-plugin \
     && curl -L "https://github.com/signalfx/collectd-mesos/archive/v${MESOS_COLLECTD_PLUGIN_V}.tar.gz" --output /usr/share/collectd/mesos-collectd-plugin/v${MESOS_COLLECTD_PLUGIN_V}.tar.gz \
     && tar -zxvf /usr/share/collectd/mesos-collectd-plugin/v${MESOS_COLLECTD_PLUGIN_V}.tar.gz -C /usr/share/collectd/mesos-collectd-plugin/ \
