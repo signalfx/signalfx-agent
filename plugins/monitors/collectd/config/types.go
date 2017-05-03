@@ -94,7 +94,7 @@ var PLUGINS = map[PluginType]func(string) *Plugin{
 				"host":         getHostname(),
 				"port":         "5050",
 				"cluster":      "cluster-0",
-				"instance":     "master-0",
+				"instance":     fmt.Sprintf("master-%s", getHostname()),
 				"systemHealth": "false",
 				"verbose":      "false",
 			},
@@ -109,7 +109,7 @@ var PLUGINS = map[PluginType]func(string) *Plugin{
 				"host":     getHostname(),
 				"port":     "5051",
 				"cluster":  "cluster-0",
-				"instance": "agent-0",
+				"instance": fmt.Sprintf("agent-%s", getHostname()),
 				"verbose":  "false",
 			},
 		}
