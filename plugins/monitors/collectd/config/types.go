@@ -191,11 +191,10 @@ func NewCollectdConfig() *CollectdConfig {
 
 // getHostname - returns the hostname or logs and error and returns "localhost"
 func getHostname() string {
-	var hostname string
-	var err error
-	if hostname, err = os.Hostname(); err != nil {
+	hostname, err := os.Hostname()
+	if err != nil {
 		log.Print(err)
-		hostname = "localhost"
+		return "localhost"
 	}
 	return hostname
 }
