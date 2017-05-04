@@ -12,17 +12,17 @@ import (
 
 const (
 	pluginType = "filters/proxy"
-	httpProxy = "http_proxy"
-	httpsProxy = "http_proxy"
-	noProxy = "no_proxy"
+	httpProxy  = "http_proxy"
+	httpsProxy = "https_proxy"
+	noProxy    = "no_proxy"
 )
 
 // Proxy manages the proxy environment variables
 type Proxy struct {
 	plugins.Plugin
-	http string
+	http  string
 	https string
-	skip string
+	skip  string
 }
 
 func init() {
