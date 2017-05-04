@@ -32,23 +32,6 @@ func configurePlugin(pluginName string, c *viper.Viper) {
 
 // configureWatching creates and/or updates the file watch list for a plugin
 func (m *Manager) configureWatching(plugin IPlugin, pluginConfig *viper.Viper) {
-	watcher := plugin.Watcher()
-
-	if !viper.GetBool("filewatching") {
-		// Stop watcher if file watching was turned on before.
-		if watcher != nil {
-			watcher.Close()
-			plugin.SetWatcher(nil)
-		}
-		return
-	}
-
-	pollingInterval := viper.GetFloat64("pollinginterval")
-	if pollingInterval <= 0 {
-		log.Printf("pollingInterval must greater than zero")
-		return
-	}
-
 	// duration := time.Duration(pollingInterval * float64(time.Second))
 
 	// watchFiles := plugin.GetWatchFiles(pluginConfig)
