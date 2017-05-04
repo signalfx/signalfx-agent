@@ -56,6 +56,7 @@ type userConfig struct {
 		IgnoreTLSVerify bool `yaml:"ignoreTLSVerify,omitempty"`
 		Role            string
 		Cluster         string
+		CAdvisorURL     string `yaml:"cadvisorURL,omitempty"`
 	}
 	Mesosphere *struct {
 		Cluster string
@@ -101,6 +102,16 @@ func loadUserConfig(pair *store.KVPair) error {
 		if kube.Role != "worker" && kube.Role != "master" {
 			return errors.New("kubernetes.role must be worker or master")
 		}
+
+		if kube.CAdvisorURL != "" {
+			// create cadvisor configuration map
+			cadvisor := map[string]interface{}{}
+			// add the config from user config to cadvisor plugin config
+			cadvisor["cadvisorurl"] = kube.CAdvisorURL
+			// add config to plugins config
+			plugins["cadvisor"] = cadvisor
+		}
+
 		kubernetes := map[string]interface{}{}
 
 		dims["kubernetes_cluster"] = kube.Cluster
