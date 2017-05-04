@@ -1,5 +1,5 @@
-hash: c61b8c086cfb67278d92bde894a3c46722823cd37ebb853e5bee199f733c7e62
-updated: 2017-03-28T15:01:07.763338837-04:00
+hash: 160cbe2f2aa26966e16eed6a2ff5edfe13d64d13f34dd7c0b315b9f0f5528b47
+updated: 2017-05-04T13:54:49.964000418-04:00
 imports:
 - name: github.com/blang/semver
   version: aea32c919a18e5ef4537bbd283ff29594b1b0165
@@ -52,6 +52,10 @@ imports:
   - tlsconfig
 - name: github.com/docker/go-units
   version: 0bbddae09c5a5419a8c6dcdd7ff90da3d450393b
+- name: github.com/docker/libkv
+  version: aabc039ad04deb721e234f99cd1b4aa28ac71a40
+  subpackages:
+  - store
 - name: github.com/emicklei/go-restful
   version: 09691a3b6378b740595c1002f40c34dd5f218a22
   subpackages:
@@ -176,10 +180,8 @@ imports:
   version: 8a290539e2e8629dbc4e6bad948158f790ec31f4
 - name: github.com/PuerkitoBio/urlesc
   version: 5bd2802263f21d8788851d5305584c82a5c75d7e
-- name: github.com/rjeczalik/notify
-  version: 41a86457b5eea072a7e6f40bbfaf94c8df41d3aa
 - name: github.com/signalfx/cadvisor-integration
-  version: 9ec4dcf2f98f9e35da31adb3b1bccaf368b02585
+  version: c6060385f0a3fb1377e69f90f610c87946fe3f6f
   subpackages:
   - converter
   - poller
