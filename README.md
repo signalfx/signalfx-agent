@@ -31,7 +31,7 @@ Here are examples of running agent:
 
 ### Kubernetes
 * Configure secrets
-    * Add a secret named `signalfx` that has a key `api-token` that is your SignalFX API token.
+    * Add a secret named `signalfx` that has a key `access-token` that is your SignalFX Access token.
     * Because the Quay repository is currently private you have to configure Docker registry authentication. Create a `docker-registry` type secret with name `quay-pull-secret` and in the data section set `.dockerconfigjson` to the base64 encoded contents of `~/.docker/config.json` (assuming you have already logged in with `docker login`)
 * Create config maps:
 
@@ -61,7 +61,7 @@ TODO
 Here is an example of running signalfx-agent for local-docker using a docker compose file to start container and configure the agent.
 
 Modify the example to work in your dev/test env
-* Set the SFX_API_TOKEN envvar *required
+* Set the SFX_ACCESS_TOKEN envvar *required
 * Add the SFX_HOSTNAME envvar to set the hostname (otherwise uses default behavior)
 * Change the ingestUrls if you don't want to send to lab
 * Set the SFX_MONITOR_USER to a test username.  or set to "".
@@ -83,7 +83,7 @@ services:
      - /proc:/mnt/proc:ro
      - /var/run/docker.sock:/var/run/docker.sock
     environment:
-     SFX_API_TOKEN: ${SFX_API_TOKEN}
+     SFX_ACCESS_TOKEN: ${SFX_ACCESS_TOKEN}
      SFX_MONITOR_USER: ""
      SFX_MONITOR_PASSWORD: ""
      SET_FILE: /etc/signalfx/agent.yaml

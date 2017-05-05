@@ -39,7 +39,7 @@ func NewCadvisor(name string, config *viper.Viper) (plugins.IPlugin, error) {
 
 // Start cadvisor plugin
 func (c *Cadvisor) Start() error {
-	apiToken, err := secrets.EnvSecret("SFX_API_TOKEN")
+	apiToken, err := secrets.EnvSecret("SFX_ACCESS_TOKEN")
 	if err != nil {
 		return err
 	}
