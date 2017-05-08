@@ -7,7 +7,6 @@ import (
 	"os"
 	"reflect"
 	"sort"
-	"strconv"
 	"testing"
 
 	"github.com/kr/pretty"
@@ -196,10 +195,11 @@ func TestLabels(t *testing.T) {
 					Convey(fmt.Sprintf("%+v", set), func() {
 						builtinConfig[0].Integrations["redis"].Labels = &set.builtin
 						overrideConfig[0].Integrations["redis"].Labels = set.integration
-						overrideConfig[0].Integrations["redis"].Configurations = map[string]*integConfig{}
+						overrideConfig[0].Integrations["redis"].Configurations = []*integConfig{}
 
-						for i, c := range set.configuration {
-							overrideConfig[0].Integrations["redis"].Configurations[strconv.Itoa(i)] = &integConfig{Labels: c, Rule: "true"}
+						for _, c := range set.configuration {
+							overrideConfig[0].Integrations["redis"].Configurations =
+								append(overrideConfig[0].Integrations["redis"].Configurations, &integConfig{Labels: c, Rule: "true"})
 						}
 
 						got, err := buildConfigurations(builtinConfig, overrideConfig)
@@ -282,10 +282,11 @@ func TestTemplates(t *testing.T) {
 					Convey(fmt.Sprintf("%+v", set), func() {
 						builtinConfig[0].Integrations["redis"].Template = set.builtin
 						overrideConfig[0].Integrations["redis"].Template = set.integration
-						overrideConfig[0].Integrations["redis"].Configurations = map[string]*integConfig{}
+						overrideConfig[0].Integrations["redis"].Configurations = []*integConfig{}
 
-						for i, c := range set.configuration {
-							overrideConfig[0].Integrations["redis"].Configurations[strconv.Itoa(i)] = &integConfig{Template: c, Rule: "true"}
+						for _, c := range set.configuration {
+							overrideConfig[0].Integrations["redis"].Configurations =
+								append(overrideConfig[0].Integrations["redis"].Configurations, &integConfig{Template: c, Rule: "true"})
 						}
 
 						got, err := buildConfigurations(builtinConfig, overrideConfig)
@@ -367,10 +368,10 @@ func TestRules(t *testing.T) {
 					Convey(fmt.Sprintf("%+v", set), func() {
 						builtinConfig[0].Integrations["redis"].Rule = set.builtin
 						overrideConfig[0].Integrations["redis"].Rule = set.integration
-						overrideConfig[0].Integrations["redis"].Configurations = map[string]*integConfig{}
+						overrideConfig[0].Integrations["redis"].Configurations = []*integConfig{}
 
-						for i, c := range set.configuration {
-							overrideConfig[0].Integrations["redis"].Configurations[strconv.Itoa(i)] = &integConfig{Rule: c, Template: "template"}
+						for _, c := range set.configuration {
+							overrideConfig[0].Integrations["redis"].Configurations = append(overrideConfig[0].Integrations["redis"].Configurations, &integConfig{Rule: c, Template: "template"})
 						}
 
 						got, err := buildConfigurations(builtinConfig, overrideConfig)
@@ -451,8 +452,8 @@ func TestMap(t *testing.T) {
 	tests := []struct {
 		name      string
 		args      args
-		builtins  string
-		overrides string
+		builtins  string // directories in ./testdata
+		overrides string // directories in ./testdata
 		patches   []InstancePatch
 		wantErr   bool
 	}{
