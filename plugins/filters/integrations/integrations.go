@@ -87,7 +87,7 @@ type configFile struct {
 		Template       string
 		Vars           map[string]interface{}
 		Labels         *[]string
-		Configurations map[string]*integConfig
+		Configurations []*integConfig
 	}
 }
 
@@ -282,7 +282,7 @@ func buildConfigurations(builtins, overrides []configFile) ([]*configuration, er
 					// configurations should just have an explicit order
 					// instead.
 					if config.Rule == "" {
-						return nil, fmt.Errorf("integration %s configuration %s is missing rule", integName, configName)
+						return nil, fmt.Errorf("integration %s configuration index #%d is missing rule", integName, configName)
 					} else if config.Rule != "" && integ.Rule != "" {
 						ruleText = fmt.Sprintf("(%s) && (%s)", integ.Rule, config.Rule)
 					} else {
