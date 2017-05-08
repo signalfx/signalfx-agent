@@ -21,27 +21,6 @@ CONFIGURE_COMMANDS="/opt/signalfx-imaging/signalfx-agent-setup.sh"
 LAUNCH_COMMANDS="/usr/sbin/signalfx-agent"
 
 
-mount_host_release() {
-  # remove existing release files
-  rm -f /etc/*-release
-  # iterate over each release file in /hostfs/etc
-  for i in $(ls /hostfs/etc/*-release); do
-    # create a file to mount over
-    touch ${i#/hostfs}
-    # create a read only mount for each release file in container's /etc
-    mount -o bind $i ${i#/hostfs}
-  done
-}
-
-
-mount_host_proc() {
-  # unmount container's proc from /proc
-  umount /proc
-  # mount hostfs proc to /proc
-  mount -o bind,ro /hostfs/proc /proc
-}
-
-
 configure() {
   if [ -n "$CONFIGURE_COMMANDS" ]; then
     echo "configuring ..."
@@ -122,8 +101,15 @@ done
 
 # remap host resources
 if [ -d "/hostfs" ]; then
-  mount_host_release
-  mount_host_proc
+  # remove existing release files
+  rm -f /etc/*-release
+  # iterate over each release file in /hostfs/etc
+  for i in $(ls /hostfs/etc/*-release); do
+    # create a file to mount over
+    touch ${i#/hostfs}
+    # create a read only mount for each release file in container's /etc
+    mount -o bind $i ${i#/hostfs}
+  done
 fi
 
 # configure monitoring
