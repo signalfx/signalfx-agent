@@ -84,7 +84,13 @@ func loadUserConfig(pair *store.KVPair) error {
 		return err
 	}
 
-	plugins := map[string]interface{}{}
+	staticPlugins := map[string]interface{}{}
+
+	plugins := map[string]interface{}{
+		"collectd": map[string]interface{}{
+			"staticPlugins": staticPlugins,
+		},
+	}
 
 	dims := map[string]string{}
 	v := map[string]interface{}{
@@ -139,9 +145,9 @@ func loadUserConfig(pair *store.KVPair) error {
 
 		// Set the cluster name for the mesos default plugin config
 		collectd := map[string]interface{}{}
-		collectd["staticPlugins"] = map[string]interface{}{}
-		collectd["staticPlugins"].(map[string]interface{})["mesos"] = map[string]interface{}{}
-		collectd["staticPlugins"].(map[string]interface{})["mesos"].(map[string]interface{})["cluster"] = mesos.Cluster
+		staticPlugins["mesos"] = map[string]interface{}{
+			"cluster": mesos.Cluster,
+		}
 
 		// Assign collectd static config to plugins
 		plugins["collectd"] = collectd
