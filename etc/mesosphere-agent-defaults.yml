@@ -6,7 +6,7 @@ plugins:
 
     collectd:
         staticPlugins:
-            mesos-default:
+            mesos:
                 plugin: mesos-agent
 
 pipelines:
