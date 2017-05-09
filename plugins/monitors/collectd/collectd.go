@@ -20,6 +20,7 @@ import (
 
 	"io/ioutil"
 
+	cfg "github.com/signalfx/neo-agent/config"
 	"github.com/signalfx/neo-agent/plugins"
 	"github.com/signalfx/neo-agent/plugins/monitors/collectd/config"
 	"github.com/signalfx/neo-agent/services"
@@ -40,16 +41,17 @@ const (
 // Collectd Monitor
 type Collectd struct {
 	plugins.Plugin
-	state         string
-	services      services.Instances
-	templatesDirs []string
-	confFile      string
-	pluginsDir    string
-	reloadChan    chan int
-	stopChan      chan int
-	configMutex   sync.Mutex
-	stateMutex    sync.Mutex
-	configDirty   bool
+	state       string
+	services    services.Instances
+	assetSyncer *cfg.AssetSyncer
+	assets      *cfg.AssetsView
+	confFile    string
+	pluginsDir  string
+	reloadChan  chan int
+	stopChan    chan int
+	configMutex sync.Mutex
+	stateMutex  sync.Mutex
+	configDirty bool
 }
 
 func init() {
@@ -63,29 +65,23 @@ func NewCollectd(name string, config *viper.Viper) (plugins.IPlugin, error) {
 		return nil, err
 	}
 	return &Collectd{
-		Plugin:     plugin,
-		state:      Stopped,
-		reloadChan: make(chan int),
-		stopChan:   make(chan int)}, nil
+		Plugin:      plugin,
+		state:       Stopped,
+		reloadChan:  make(chan int),
+		stopChan:    make(chan int),
+		assetSyncer: cfg.NewAssetSyncer()}, nil
 }
 
 // load collectd plugin config from the provided config
 func (collectd *Collectd) load(config *viper.Viper) error {
 	var err error
 
-	templatesDirs := config.GetStringSlice("templatesdirs")
-	if len(templatesDirs) == 0 {
-		return errors.New("config missing templatesDirs entry")
+	builtins := config.GetString("templates.builtins")
+	if builtins == "" {
+		return errors.New("config missing templates.builtins entry")
 	}
 
-	// Convert to absolute paths since our cwd can get changed.
-	for i := range templatesDirs {
-		absTemplateDir, err := filepath.Abs(templatesDirs[i])
-		if err != nil {
-			return err
-		}
-		templatesDirs[i] = absTemplateDir
-	}
+	overrides := config.GetString("templates.overrides")
 
 	confFile := config.GetString("conffile")
 	if confFile == "" {
@@ -103,7 +99,15 @@ func (collectd *Collectd) load(config *viper.Viper) error {
 	}
 
 	// Set values once everything passes muster.
-	collectd.templatesDirs = templatesDirs
+	ws := cfg.NewAssetSpec()
+	ws.Dirs["builtins"] = builtins
+	if overrides != "" {
+		ws.Dirs["overrides"] = overrides
+	}
+	if err := collectd.assetSyncer.Update(ws); err != nil {
+		return err
+	}
+
 	collectd.confFile = confFile
 	collectd.pluginsDir = pluginsDir
 
@@ -177,6 +181,16 @@ func (collectd *Collectd) reload() {
 // writePlugins takes a list of plugin instances and generates a collectd.conf
 // formatted configuration.
 func (collectd *Collectd) writePlugins(plugins []*config.Plugin) error {
+	if collectd.assets == nil {
+		return errors.New("collectd plugin assets not yet loaded")
+	}
+	builtins, ok := collectd.assets.Dirs["builtins"]
+	if !ok {
+		return fmt.Errorf("builtins missing for collectd")
+	}
+
+	overrides := collectd.assets.Dirs["overrides"]
+
 	collectdConfig := config.NewCollectdConfig()
 	// If this is empty then collectd determines hostname.
 	collectdConfig.Hostname = viper.GetString("hostname")
@@ -184,10 +198,11 @@ func (collectd *Collectd) writePlugins(plugins []*config.Plugin) error {
 	// group instances by plugin
 	instancesMap := config.GroupByPlugin(plugins)
 
-	config, err := config.RenderCollectdConf(collectd.pluginsDir, collectd.templatesDirs, &config.AppConfig{
-		AgentConfig: collectdConfig,
-		Plugins:     instancesMap,
-	})
+	config, err := config.RenderCollectdConf(collectd.pluginsDir, builtins, overrides,
+		&config.AppConfig{
+			AgentConfig: collectdConfig,
+			Plugins:     instancesMap,
+		})
 	if err != nil {
 		return err
 	}
@@ -292,6 +307,16 @@ func (collectd *Collectd) createPluginsFromServices(sis services.Instances) ([]*
 func (collectd *Collectd) Start() (err error) {
 	log.Println("starting collectd")
 
+	collectd.assetSyncer.Start(func(view *cfg.AssetsView) {
+		collectd.configMutex.Lock()
+		defer collectd.configMutex.Unlock()
+
+		log.Printf("assets changed for collectd, setting configDirty to true")
+
+		collectd.assets = view
+		collectd.configDirty = true
+	})
+
 	if collectd.State() == Running {
 		return errors.New("already running")
 	}
@@ -315,6 +340,8 @@ func (collectd *Collectd) Start() (err error) {
 
 // Stop collectd monitoring
 func (collectd *Collectd) Stop() {
+	collectd.assetSyncer.Stop()
+
 	if collectd.State() != Stopped {
 		collectd.stopChan <- 0
 	}
@@ -332,11 +359,6 @@ func (collectd *Collectd) Configure(config *viper.Viper) error {
 	collectd.Config = config
 	collectd.configDirty = true
 	return nil
-}
-
-// GetWatchDirs returns list of directories that when changed will trigger reload
-func (collectd *Collectd) GetWatchDirs(config *viper.Viper) []string {
-	return config.GetStringSlice("templatesdirs")
 }
 
 // State for collectd monitoring

@@ -5,6 +5,8 @@ plugins:
         plugin: observers/mesosphere
 
     collectd:
+        templates:
+            overrides: zk://signalfx/agent/templates
         staticPlugins:
             mesos:
                 plugin: mesos-agent
