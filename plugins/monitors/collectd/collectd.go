@@ -234,6 +234,10 @@ func (collectd *Collectd) getStaticPlugins() ([]*config.Plugin, error) {
 			return nil, err
 		}
 
+		// This block takes configurations for a static plugin and makes the
+		// available in templates under ".Vars"
+		// TODO: Look for sensetivity to camel casing
+		// in yaml files (staticPlugins vs staticplugins)
 		if err := config.LoadPluginConfig(map[string]interface{}{"vars": plugin},
 			pluginType, pluginInstance); err != nil {
 			return nil, err

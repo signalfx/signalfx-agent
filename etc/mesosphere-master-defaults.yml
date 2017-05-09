@@ -5,6 +5,6 @@ plugins:
     staticPlugins:
       marathon:
         plugin: marathon
-      mesos-master:
+      mesos:
         plugin: mesos-master
 

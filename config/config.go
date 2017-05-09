@@ -60,6 +60,7 @@ type userConfig struct {
 	}
 	Mesosphere *struct {
 		Cluster string
+		Role    string
 	}
 }
 
@@ -83,7 +84,13 @@ func loadUserConfig(pair *store.KVPair) error {
 		return err
 	}
 
-	plugins := map[string]interface{}{}
+	staticPlugins := map[string]interface{}{}
+
+	plugins := map[string]interface{}{
+		"collectd": map[string]interface{}{
+			"staticPlugins": staticPlugins,
+		},
+	}
 
 	dims := map[string]string{}
 	v := map[string]interface{}{
@@ -123,9 +130,9 @@ func loadUserConfig(pair *store.KVPair) error {
 
 	if proxy := usercon.Proxy; proxy != nil {
 		proxyConfig := map[string]string{}
-		proxyConfig["plugins.proxy.http"] = proxy.HTTP
-		proxyConfig["plugins.proxy.https"] = proxy.HTTPS
-		proxyConfig["plugins.proxy.skip"] = proxy.Skip
+		proxyConfig["http"] = proxy.HTTP
+		proxyConfig["https"] = proxy.HTTPS
+		proxyConfig["skip"] = proxy.Skip
 		plugins["proxy"] = proxyConfig
 	}
 
@@ -134,6 +141,16 @@ func loadUserConfig(pair *store.KVPair) error {
 			return errors.New("mesosphere.cluster must be set")
 		}
 		dims["mesos_cluster"] = mesos.Cluster
+		dims["mesos_role"] = mesos.Role
+
+		// Set the cluster name for the mesos default plugin config
+		collectd := map[string]interface{}{}
+		staticPlugins["mesos"] = map[string]interface{}{
+			"cluster": mesos.Cluster,
+		}
+
+		// Assign collectd static config to plugins
+		plugins["collectd"] = collectd
 	}
 
 	data, err := yaml.Marshal(v)
