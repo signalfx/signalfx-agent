@@ -11,9 +11,9 @@ plugins:
     overrides: /mnt/integrations
 
   collectd:
-    templatesDirs:
-    - /mnt/templates
-    - /etc/signalfx/collectd/templates
+    templates:
+      builtins: /etc/signalfx/collectd/templates
+      overrides: /mnt/templates
     staticPlugins:
       docker-default:
         extraDimensions:

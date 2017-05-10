@@ -6,15 +6,43 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"path"
 	"runtime"
 	"text/template"
 
+	"path"
+
+	"strings"
+
+	"github.com/docker/libkv/store"
 	"github.com/signalfx/neo-agent/secrets"
 )
 
+// loadTemplates loads templates from the stores data
+func loadTemplates(t *template.Template, files []*store.KVPair) error {
+	for _, file := range files {
+		name := path.Base(file.Key)
+		if !strings.HasSuffix(name, ".tmpl") {
+			continue
+		}
+
+		var tmpl *template.Template
+
+		if t.Name() == name {
+			tmpl = t
+		} else {
+			tmpl = t.New(name)
+		}
+
+		if _, err := tmpl.Parse(string(file.Value)); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
 // RenderCollectdConf renders a collectd.conf config from the given app configuration.
-func RenderCollectdConf(pluginRoot string, templatesDirs []string, appConfig *AppConfig) (string, error) {
+func RenderCollectdConf(pluginRoot string, builtins, overrides []*store.KVPair, appConfig *AppConfig) (string, error) {
 	if _, err := os.Stat(pluginRoot); os.IsNotExist(err) {
 		return "", fmt.Errorf("plugin root directory %s does not exist", pluginRoot)
 	}
@@ -72,11 +100,16 @@ func RenderCollectdConf(pluginRoot string, templatesDirs []string, appConfig *Ap
 			},
 		})
 
-	for i := len(templatesDirs) - 1; i >= 0; i-- {
-		log.Printf("loading templates from %s", templatesDirs[i])
-		if _, err := tmpl.ParseGlob(path.Join(templatesDirs[i], "*.tmpl")); err != nil {
-			log.Printf("Failed to load templates: %s", err)
-		}
+	log.Printf("loading %d builtin templates", len(builtins))
+
+	if err := loadTemplates(tmpl, builtins); err != nil {
+		return "", fmt.Errorf("failed to load builtin templates: %s", err)
+	}
+
+	log.Printf("loading %d override templates", len(overrides))
+
+	if err := loadTemplates(tmpl, overrides); err != nil {
+		return "", fmt.Errorf("failed to load override templates: %s", err)
 	}
 
 	if err := tmpl.Execute(&output, appConfig); err != nil {

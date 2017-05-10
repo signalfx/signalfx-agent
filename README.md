@@ -96,8 +96,8 @@ services:
             collectd:
                 plugin: monitors/collectd
                 confFile: /etc/collectd/collectd.conf
-                templatesDirs:
-                - /etc/signalfx/collectd/templates
+                templates:
+                    builtins: /etc/signalfx/collectd/templates
                 pluginsDir: /usr/share/collectd
                 staticPlugins:
                     writehttp-default:

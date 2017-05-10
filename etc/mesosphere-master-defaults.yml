@@ -2,6 +2,8 @@ pipeline: file
 
 plugins:
   collectd:
+    templates:
+      overrides: zk://signalfx/agent/templates
     staticPlugins:
       marathon:
         plugin: marathon
