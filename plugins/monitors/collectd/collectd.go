@@ -330,7 +330,8 @@ func (collectd *Collectd) Start() (err error) {
 	}
 
 	if err := collectd.writePlugins(plugins); err != nil {
-		return err
+		// Assets may not be loaded yet, will be rewritten when they're ready.
+		log.Printf("unable to write plugins on start: %s", err)
 	}
 
 	go collectd.run()
