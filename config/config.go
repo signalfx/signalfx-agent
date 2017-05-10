@@ -59,8 +59,10 @@ type userConfig struct {
 		CAdvisorURL     string `yaml:"cadvisorURL,omitempty"`
 	}
 	Mesosphere *struct {
-		Cluster string
-		Role    string
+		Cluster      string
+		Role         string
+		SystemHealth bool `yaml:"systemHealth,omitempty"`
+		Verbose      bool `yaml:"verbose,omitempty"`
 	}
 }
 
@@ -145,7 +147,9 @@ func loadUserConfig(pair *store.KVPair) error {
 
 		// Set the cluster name for the mesos default plugin config
 		staticPlugins["mesos"] = map[string]interface{}{
-			"cluster": mesos.Cluster,
+			"cluster":      mesos.Cluster,
+			"systemhealth": mesos.SystemHealth,
+			"verbose":      mesos.Verbose,
 		}
 	}
 
