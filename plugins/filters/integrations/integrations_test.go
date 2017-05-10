@@ -8,8 +8,11 @@ import (
 	"reflect"
 	"sort"
 	"testing"
+	"time"
 
+	"github.com/docker/libkv/store"
 	"github.com/kr/pretty"
+	"github.com/signalfx/neo-agent/config"
 	. "github.com/signalfx/neo-agent/neotest"
 	"github.com/signalfx/neo-agent/pipelines"
 	"github.com/signalfx/neo-agent/services"
@@ -390,15 +393,36 @@ func TestRules(t *testing.T) {
 }
 
 func TestDisabled(t *testing.T) {
-	config := viper.New()
-	config.Set("builtins", "testdata/builtins")
-	config.Set("overrides", "testdata/redis-disabled")
-	filter, err := NewFilter("filter", config)
+	cfg := viper.New()
+	filter, err := NewFilter("filter", cfg)
 	if err != nil {
 		t.Fatal(err)
 	}
+
+	source, path, err := config.Stores.Get("testdata/builtins")
+	if err != nil {
+		t.Fatal(err)
+	}
+	builtins, err := source.List(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	source, path, err = config.Stores.Get("testdata/redis-disabled")
+	if err != nil {
+		t.Fatal(err)
+	}
+	overrides, err := source.List(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	assets := &config.AssetsView{Dirs: map[string][]*store.KVPair{
+		"builtins":  builtins,
+		"overrides": overrides,
+	}}
 	f := filter.(*Filter)
-	Must(t, f.load(config))
+	Must(t, f.load(assets))
 	Convey("Test disabling builtins", t, func() {
 		So(f.configurations, ShouldHaveLength, 1)
 		So(f.configurations[0].serviceType, ShouldEqual, services.ApacheService)
@@ -417,6 +441,9 @@ func TestVariables(t *testing.T) {
 		t.Fatal(err)
 	}
 	f := filter.(*Filter)
+	Must(t, filter.Start())
+	Must(t, f.Configure(config))
+	time.Sleep(50 * time.Millisecond)
 
 	Convey("Variables are resolved", t, func() {
 		So(f.configurations, ShouldHaveLength, 2)
@@ -469,6 +496,9 @@ func TestMap(t *testing.T) {
 			t.Fatal(err)
 		}
 		ss := filter.(pipelines.SourceSink)
+		Must(t, filter.Start())
+		Must(t, filter.Configure(config))
+		time.Sleep(50 * time.Millisecond)
 
 		t.Run(tt.name, func(t *testing.T) {
 			got, err := ss.Map(tt.args.services)

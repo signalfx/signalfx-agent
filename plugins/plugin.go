@@ -3,7 +3,6 @@ package plugins
 import (
 	"errors"
 
-	"github.com/signalfx/neo-agent/watchers"
 	"github.com/spf13/viper"
 )
 
@@ -17,7 +16,6 @@ var Plugins = map[string]CreatePlugin{}
 type Plugin struct {
 	name       string
 	pluginType string
-	watcher    *watchers.PollingWatcher
 	Config     *viper.Viper
 }
 
@@ -26,13 +24,9 @@ type IPlugin interface {
 	Name() string
 	Start() error
 	Stop()
-	Reload(config *viper.Viper) error
+	Configure(config *viper.Viper) error
 	String() string
 	Type() string
-	Watcher() *watchers.PollingWatcher
-	SetWatcher(*watchers.PollingWatcher)
-	GetWatchFiles(config *viper.Viper) []string
-	GetWatchDirs(config *viper.Viper) []string
 }
 
 // NewPlugin constructor
@@ -67,40 +61,9 @@ func (plugin *Plugin) Type() string {
 	return plugin.pluginType
 }
 
-// Reload replaces the config with the newly loaded conifg. Plugins that need to
-// do anything special should implement their own reload.
-func (plugin *Plugin) Reload(config *viper.Viper) error {
-	// Need to be careful about when this Reload function gets called so as to
-	// avoid any data race issues with plugins. Right now reload is called
-	// before an execution is run so most plugins won't have any code running in
-	// other goroutines. If they do they should take care to synchronize the
-	// config replacement.
-	plugin.Config = config
+// Configure configures the plugin on start and reload
+func (plugin *Plugin) Configure(c *viper.Viper) error {
 	return nil
-}
-
-// GetWatchFiles returns list of files that when changed will trigger reload.
-// This will be called *before* a plugin is reloaded with the new configuration
-// values that may contain a different set of files to watch.
-func (plugin *Plugin) GetWatchFiles(config *viper.Viper) []string {
-	return nil
-}
-
-// GetWatchDirs returns list of directories that when changed will trigger
-// reload. This will be called *before* a plugin is reloaded with the new
-// configuration values that may contain a different set of files to watch.
-func (plugin *Plugin) GetWatchDirs(config *viper.Viper) []string {
-	return nil
-}
-
-// Watcher returns the watcher instance
-func (plugin *Plugin) Watcher() *watchers.PollingWatcher {
-	return plugin.watcher
-}
-
-// SetWatcher sets watcher instance
-func (plugin *Plugin) SetWatcher(watcher *watchers.PollingWatcher) {
-	plugin.watcher = watcher
 }
 
 // Register registers a plugin

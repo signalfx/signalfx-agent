@@ -94,16 +94,11 @@ func NewMesosphere(name string, config *viper.Viper) (plugins.IPlugin, error) {
 		return nil, err
 	}
 
-	m := &Mesosphere{plugin, "", http.Client{}}
-	if err := m.load(); err != nil {
-		return nil, err
-	}
-
-	return m, nil
+	return &Mesosphere{plugin, "", http.Client{}}, nil
 }
 
-// Reload the mesosphere observer/client
-func (mesos *Mesosphere) Reload(config *viper.Viper) error {
+// Configure the mesosphere observer/client
+func (mesos *Mesosphere) Configure(config *viper.Viper) error {
 	mesos.Config = config
 	return mesos.load()
 }

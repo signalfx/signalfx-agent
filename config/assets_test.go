@@ -1,9 +1,14 @@
 package config
 
 import (
+	"io/ioutil"
+	"log"
+	"os"
+	"path"
 	"testing"
 
 	"github.com/docker/libkv/store"
+	. "github.com/signalfx/neo-agent/neotest"
 	. "github.com/smartystreets/goconvey/convey"
 )
 
@@ -14,10 +19,6 @@ func init() {
 type GetSpec struct {
 	pair *store.KVPair
 	err  error
-}
-type WatchSpec struct {
-	ch  <-chan *store.KVPair
-	err error
 }
 
 type FakeStore struct {
@@ -56,6 +57,9 @@ func (f *FakeStore) Put(key string, value []byte, opts *store.WriteOptions) erro
 func (f *FakeStore) AtomicPut(key string, value []byte, previous *store.KVPair, _ *store.WriteOptions) (bool, *store.KVPair, error) {
 	panic("AtomicPut unimplemented")
 }
+func (f *FakeStore) List(dir string) ([]*store.KVPair, error) {
+	panic("List unimplemented")
+}
 
 func (f *FakeStore) Close() {}
 
@@ -86,11 +90,11 @@ func (f *FakeWatchFailStore) Watch(path string, stop <-chan struct{}) (<-chan *s
 	return ch, nil
 }
 
-func Test_reconnectWatch(t *testing.T) {
+func Test_ReconnectWatch(t *testing.T) {
 	Convey("Test that initial watch works", t, func() {
 		stop := make(chan struct{})
 		source := &FakeWatchSuccessStore{watchCh: make(chan *store.KVPair)}
-		ch, err := reconnectWatch(source, "foo", stop)
+		ch, err := ReconnectWatch(source, "foo", stop)
 		So(err, ShouldBeNil)
 
 		pair := <-ch
@@ -109,7 +113,7 @@ func Test_reconnectWatch(t *testing.T) {
 		stop := make(chan struct{})
 		source := &FakeWatchFailStore{}
 
-		ch, err := reconnectWatch(source, "foo", stop)
+		ch, err := ReconnectWatch(source, "foo", stop)
 		So(err, ShouldBeNil)
 
 		pair := <-ch
@@ -126,5 +130,78 @@ func Test_reconnectWatch(t *testing.T) {
 		So(pair.Value, ShouldResemble, []byte("changed"))
 
 		stop <- struct{}{}
+	})
+}
+
+func Test_AssetSyncer(t *testing.T) {
+	Convey("Test start stop", t, func() {
+		assets := NewAssetSyncer()
+		assets.Start(func(view *AssetsView) {
+		})
+		assets.Stop()
+	})
+
+	Convey("Watch directory", t, func() {
+		assets := NewAssetSyncer()
+		ch := make(chan *AssetsView, 3)
+		assets.Start(func(view *AssetsView) {
+			log.Printf("view: %+v", view)
+			ch <- view
+		})
+
+		tmpdir1, err := ioutil.TempDir("", "asset-sync")
+		Must(t, err)
+
+		tmpdir2, err := ioutil.TempDir("", "asset-sync")
+		Must(t, err)
+
+		ws := NewAssetSpec()
+		ws.Dirs["first"] = tmpdir1
+		Must(t, assets.Update(ws))
+
+		So(assets.dirs, ShouldHaveLength, 1)
+
+		newFile := path.Join(tmpdir1, "new-file")
+
+		// It will first send an empty set for the empty directory.
+		view := <-ch
+		So(view.Dirs["first"], ShouldBeEmpty)
+
+		Must(t, ioutil.WriteFile(newFile, []byte("bar"), 0644))
+
+		view = <-ch
+		So(view.Dirs["first"], ShouldResemble, []*store.KVPair{
+			&store.KVPair{Key: newFile, Value: []byte("bar"), LastIndex: 0},
+		})
+
+		Reset(func() {
+			assets.Stop()
+			Must(t, os.RemoveAll(tmpdir1))
+			Must(t, os.RemoveAll(tmpdir2))
+		})
+
+		Convey("Test directory changed", func() {
+			ws.Dirs["first"] = tmpdir2
+			assets.Update(ws)
+			So(assets.dirs, ShouldHaveLength, 1)
+			So(assets.dirs["first"].uri, ShouldEqual, tmpdir2)
+		})
+
+		Convey("Watch another directory", func() {
+			ws.Dirs["second"] = tmpdir2
+			Must(t, assets.Update(ws))
+			So(assets.dirs, ShouldHaveLength, 2)
+
+			Convey("Unwatch directory", func() {
+				delete(ws.Dirs, "second")
+				Must(t, assets.Update(ws))
+				So(assets.dirs, ShouldHaveLength, 1)
+			})
+
+			Convey("Unwatch all directories", func() {
+				assets.Update(nil)
+				So(assets.dirs, ShouldBeEmpty)
+			})
+		})
 	})
 }

@@ -38,7 +38,7 @@ const (
 type Kubernetes struct {
 	plugins.Plugin
 	hostURL string
-	client http.Client
+	client  http.Client
 }
 
 // pod structure from kubelet
@@ -84,16 +84,11 @@ func NewKubernetes(name string, config *viper.Viper) (plugins.IPlugin, error) {
 		return nil, err
 	}
 
-	k := &Kubernetes{plugin, "", http.Client{}}
-	if err := k.load(); err != nil {
-		return nil, err
-	}
-
-	return k, nil
+	return &Kubernetes{plugin, "", http.Client{}}, nil
 }
 
-// Reload the kubernetes observer/client
-func (k *Kubernetes) Reload(config *viper.Viper) error {
+// Configure the kubernetes observer/client
+func (k *Kubernetes) Configure(config *viper.Viper) error {
 	k.Config = config
 	return k.load()
 }

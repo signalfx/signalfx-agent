@@ -30,41 +30,6 @@ func configurePlugin(pluginName string, c *viper.Viper) {
 		fmt.Sprintf("%s_plugins_%s", config.EnvPrefix, pluginName)))
 }
 
-// configureWatching creates and/or updates the file watch list for a plugin
-func (m *Manager) configureWatching(plugin IPlugin, pluginConfig *viper.Viper) {
-	// duration := time.Duration(pollingInterval * float64(time.Second))
-
-	// watchFiles := plugin.GetWatchFiles(pluginConfig)
-	// watchDirs := plugin.GetWatchDirs(pluginConfig)
-
-	// if watcher == nil && (len(watchFiles) > 0 || len(watchDirs) > 0) {
-	// 	log.Printf("creating watcher for plugin %s", plugin.Name())
-	// 	watcher = watchers.NewPollingWatcher(func(changed []string) error {
-	// 		m.configLock.Lock()
-	// 		defer m.configLock.Unlock()
-
-	// 		log.Printf("%v changed for plugin %s", changed, plugin.Name())
-	// 		if err := plugin.Reload(pluginConfig); err != nil {
-	// 			log.Printf("error reloading plugin %s: %s", plugin.Name(), err)
-	// 		}
-	// 		return nil
-	// 	}, duration)
-	// 	plugin.SetWatcher(watcher)
-	// 	watcher.Start()
-
-	// 	// Need to reload plugin after starting watchers in case file changed
-	// 	// between plugin creation and starting watcher. XXX: This might be
-	// 	// better by having plugin constructors not initialize state but require
-	// 	// that be done in Start().
-	// 	if err := plugin.Reload(pluginConfig); err != nil {
-	// 		log.Printf("failed to reload plugin %s post-watch: %s", plugin.Name(), err)
-	// 	}
-	// }
-	// if watcher != nil {
-	// 	watcher.Watch(watchDirs, watchFiles)
-	// }
-}
-
 // Lock instance
 func (m *Manager) Lock() {
 	m.configLock.Lock()
@@ -113,7 +78,10 @@ func (m *Manager) Load() ([]IPlugin, error) {
 				if err != nil {
 					return nil, err
 				}
-				m.configureWatching(pluginInst, pluginConfig)
+
+				if err := pluginInst.Configure(pluginConfig); err != nil {
+					log.Printf("error configuring plugin %s: %s", pluginName, err)
+				}
 
 				newPlugins = append(newPlugins, pluginInst)
 			} else {
@@ -137,13 +105,6 @@ func (m *Manager) Load() ([]IPlugin, error) {
 	// Stop removed plugins.
 	for _, plugin := range removedPlugins {
 		log.Printf("stopping plugin %s", plugin.Name())
-		w := plugin.Watcher()
-		if w != nil {
-			log.Printf("stopping watcher for %s", plugin.Name())
-			// Close is synchronous so the stopped plugin shouldn't get any more
-			// file change notifications.
-			w.Close()
-		}
 		plugin.Stop()
 	}
 
@@ -166,10 +127,9 @@ func (m *Manager) Load() ([]IPlugin, error) {
 		}
 
 		configurePlugin(plugin.Name(), pluginConfig)
-		m.configureWatching(plugin, pluginConfig)
 
-		if err := plugin.Reload(pluginConfig); err != nil {
-			log.Printf("reloading %s plugin failed: %s", plugin.Name(), err)
+		if err := plugin.Configure(pluginConfig); err != nil {
+			log.Printf("reconfiguring %s plugin failed: %s", plugin.Name(), err)
 		}
 	}
 

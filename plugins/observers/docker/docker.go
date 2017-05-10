@@ -37,16 +37,11 @@ func NewDocker(name string, config *viper.Viper) (plugins.IPlugin, error) {
 		return nil, err
 	}
 
-	docker := &Docker{plugin, nil}
-	if err := docker.load(); err != nil {
-		return nil, err
-	}
-
-	return docker, nil
+	return &Docker{plugin, nil}, nil
 }
 
-// Reload the docker client
-func (docker *Docker) Reload(config *viper.Viper) error {
+// Configure the docker client
+func (docker *Docker) Configure(config *viper.Viper) error {
 	docker.Config = config
 	return docker.load()
 }

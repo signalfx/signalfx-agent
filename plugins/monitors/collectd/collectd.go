@@ -62,16 +62,11 @@ func NewCollectd(name string, config *viper.Viper) (plugins.IPlugin, error) {
 	if err != nil {
 		return nil, err
 	}
-	c := &Collectd{
+	return &Collectd{
 		Plugin:     plugin,
 		state:      Stopped,
 		reloadChan: make(chan int),
-		stopChan:   make(chan int)}
-	if err := c.load(plugin.Config); err != nil {
-		return nil, err
-	}
-
-	return c, nil
+		stopChan:   make(chan int)}, nil
 }
 
 // load collectd plugin config from the provided config
@@ -325,8 +320,8 @@ func (collectd *Collectd) Stop() {
 	}
 }
 
-// Reload collectd config
-func (collectd *Collectd) Reload(config *viper.Viper) error {
+// Configure collectd config
+func (collectd *Collectd) Configure(config *viper.Viper) error {
 	collectd.configMutex.Lock()
 	defer collectd.configMutex.Unlock()
 
