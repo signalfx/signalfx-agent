@@ -144,13 +144,9 @@ func loadUserConfig(pair *store.KVPair) error {
 		dims["mesos_role"] = mesos.Role
 
 		// Set the cluster name for the mesos default plugin config
-		collectd := map[string]interface{}{}
 		staticPlugins["mesos"] = map[string]interface{}{
 			"cluster": mesos.Cluster,
 		}
-
-		// Assign collectd static config to plugins
-		plugins["collectd"] = collectd
 	}
 
 	data, err := yaml.Marshal(v)
