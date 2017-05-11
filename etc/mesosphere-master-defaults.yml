@@ -3,7 +3,7 @@ pipeline: file
 plugins:
   collectd:
     templates:
-      overrides: zk://signalfx/agent/templates
+      overrides: /etc/signalfx/templates
     staticPlugins:
       marathon:
         plugin: marathon
