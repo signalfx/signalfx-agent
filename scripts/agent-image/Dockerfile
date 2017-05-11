@@ -16,6 +16,7 @@ RUN sed -i -e '/^deb-src/d' /etc/apt/sources.list \
     && apt-get install -y wget \
     && apt-get install -y net-tools \
     && apt-get install -y libpython2.7 \
+    && apt-get install -y libmysqlclient-dev \
     && apt-get install -y python-pip \
     && add-apt-repository -y ppa:signalfx/collectd-release \
     && add-apt-repository -y ppa:signalfx/collectd-plugin-release \
