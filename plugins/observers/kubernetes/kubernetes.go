@@ -15,6 +15,7 @@ import (
 	"encoding/json"
 
 	"crypto/tls"
+	"crypto/x509"
 
 	"github.com/signalfx/neo-agent/plugins"
 	"github.com/signalfx/neo-agent/services"
@@ -94,9 +95,11 @@ func (k *Kubernetes) Configure(config *viper.Viper) error {
 }
 
 func (k *Kubernetes) load() error {
-	if hostname, err := os.Hostname(); err == nil {
-		k.Config.SetDefault("hosturl", fmt.Sprintf("https://%s:%d", hostname, DefaultPort))
+	hostname, err := os.Hostname()
+	if err != nil {
+		hostname = "localhost"
 	}
+	k.Config.SetDefault("hosturl", fmt.Sprintf("https://%s:%d", hostname, DefaultPort))
 
 	hostURL := k.Config.GetString("hosturl")
 	if len(hostURL) == 0 {
@@ -104,10 +107,49 @@ func (k *Kubernetes) load() error {
 	}
 	k.hostURL = hostURL
 
+	skipVerify := k.Config.GetBool("tls.skipverify")
+	caCert := k.Config.GetString("tls.cacert")
+	clientCert := k.Config.GetString("tls.clientcert")
+	clientKey := k.Config.GetString("tls.clientkey")
+
+	certs, err := x509.SystemCertPool()
+	if err != nil {
+		return err
+	}
+
+	if caCert != "" {
+		bytes, err := ioutil.ReadFile(caCert)
+		if err != nil {
+			return fmt.Errorf("unable to read CA certificate: %s", err)
+		}
+		if !certs.AppendCertsFromPEM(bytes) {
+			return fmt.Errorf("unable to add %s to certs", caCert)
+		}
+		log.Printf("configured TLS cert from %s", caCert)
+	}
+
+	var clientCerts []tls.Certificate
+
+	if clientCert != "" && clientKey != "" {
+		cert, err := tls.LoadX509KeyPair(clientCert, clientKey)
+		if err != nil {
+			return err
+		}
+		clientCerts = append(clientCerts, cert)
+		log.Printf("configured TLS client cert %s with key %s", clientCert, clientKey)
+	}
+
+	tlsConfig := &tls.Config{
+		Certificates:       clientCerts,
+		InsecureSkipVerify: skipVerify,
+		RootCAs:            certs,
+	}
+	tlsConfig.BuildNameToCertificate()
+
+	log.Printf("configured InsecureSkipVerify=%t", skipVerify)
+
 	transport := &http.Transport{
-		TLSClientConfig: &tls.Config{
-			InsecureSkipVerify: k.Config.GetBool("ignoretlsverify"),
-		},
+		TLSClientConfig: tlsConfig,
 	}
 	k.client = http.Client{
 		Timeout:   10 * time.Second,
