@@ -9,7 +9,7 @@ integrations:
             EnableClusterHealth: true # report on the cluster health
             EnableIndexStats: true # report metrics about indexes
             Indexes: # nested sequence of index names to report on
-            - "_all"
+            - _all
             # An interval in seconds at which the plugin will report index stats
             # must be greater than or equal, and divisible by the Interval configuration
             IndexInterval: 300 
@@ -19,8 +19,8 @@ integrations:
             Password: # password used to access elasticsearch stats api
             Protocol: # override the protocol used http or https
             ThreadPools: # nested sequence of thread pool names to report on
-            - "search"
-            - "index"
+            - search
+            - index
             Verbose: false # enable verbose logging
             Version: # enable verbose logging (true/false)
 
