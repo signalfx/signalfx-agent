@@ -21,7 +21,7 @@ const (
 	// DefaultInterval is used if not configured
 	DefaultInterval = 10
 	// DefaultPipeline is used if not configured
-	DefaultPipeline = "docker"
+	DefaultPipeline = "file"
 	// DefaultPollingInterval is the interval in seconds between checking configuration files for changes
 	DefaultPollingInterval = 5
 	// EnvPrefix is the environment variable prefix
@@ -112,22 +112,22 @@ func loadUserConfig(pair *store.KVPair) error {
 			return errors.New("kubernetes.role must be worker or master")
 		}
 
-		if kube.CAdvisorURL != "" {
-			// create cadvisor configuration map
-			cadvisor := map[string]interface{}{}
-			// add the config from user config to cadvisor plugin config
-			cadvisor["cadvisorurl"] = kube.CAdvisorURL
-			// add config to plugins config
-			plugins["cadvisor"] = cadvisor
-		}
-
-		kubernetes := map[string]interface{}{}
-
 		dims["kubernetes_cluster"] = kube.Cluster
 		dims["kubernetes_role"] = kube.Role
-		kubernetes["ignoretlsverify"] = kube.IgnoreTLSVerify
-		plugins["kubernetes"] = kubernetes
 
+		if kube.Role == "worker" {
+			if kube.CAdvisorURL != "" {
+				// create cadvisor configuration map
+				cadvisor := map[string]interface{}{}
+				// add the config from user config to cadvisor plugin config
+				cadvisor["cadvisorurl"] = kube.CAdvisorURL
+				// add config to plugins config
+				plugins["cadvisor"] = cadvisor
+			}
+			kubernetes := map[string]interface{}{}
+			kubernetes["ignoretlsverify"] = kube.IgnoreTLSVerify
+			plugins["kubernetes"] = kubernetes
+		}
 	}
 
 	if proxy := usercon.Proxy; proxy != nil {
