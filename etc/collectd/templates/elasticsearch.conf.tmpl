@@ -1,7 +1,7 @@
 {{define "elasticsearch"}}
 LoadPlugin python
 <Plugin "python">
-  ModulePath "{{Globals.PluginRoot}}/collectd-elasticsearch-plugin"
+  ModulePath "{{Globals.PluginRoot}}/elasticsearch-collectd-plugin"
   Import "elasticsearch_collectd"
   {{range $instance := .}}
     {{RenderPlugin $instance}}
