@@ -91,6 +91,15 @@ RUN mkdir -p /usr/share/collectd/mongodb-collectd-plugin \
     && rm -rf /usr/share/collectd/mongodb-collectd-plugin/collectd-mongodb-${MONGODB_COLLECTD_PLUGIN_V} \
     && pip install pymongo==${PYMONGO_V}
 
+# collectd-rabbitmq
+ENV RABBITMQ_COLLECTD_PLUGIN_V=1.0.0
+RUN mkdir -p /usr/share/collectd/rabbitmq-collectd-plugin \
+    && curl -L "https://github.com/signalfx/collectd-rabbitmq/archive/v${RABBITMQ_COLLECTD_PLUGIN_V}.tar.gz" --output /usr/share/collectd/rabbitmq-collectd-plugin/v${RABBITMQ_COLLECTD_PLUGIN_V}.tar.gz \
+    && tar -zxvf /usr/share/collectd/rabbitmq-collectd-plugin/v${RABBITMQ_COLLECTD_PLUGIN_V}.tar.gz -C /usr/share/collectd/rabbitmq-collectd-plugin/ \
+    && cp -r /usr/share/collectd/rabbitmq-collectd-plugin/collectd-rabbitmq-${RABBITMQ_COLLECTD_PLUGIN_V}/* /usr/share/collectd/rabbitmq-collectd-plugin/ \
+    && rm -f /usr/share/collectd/rabbitmq-collectd-plugin/v${RABBITMQ_COLLECTD_PLUGIN_V}.tar.gz \
+    && rm -rf /usr/share/collectd/rabbitmq-collectd-plugin/collectd-rabbitmq-${RABBITMQ_COLLECTD_PLUGIN_V}
+
 # collectd-redis
 RUN mkdir -p /usr/share/collectd/redis-collectd-plugin \
     && curl -L https://raw.githubusercontent.com/signalfx/redis-collectd-plugin/master/redis_info.py --output /usr/share/collectd/redis-collectd-plugin/redis_info.py
