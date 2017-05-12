@@ -4,7 +4,6 @@ integrations:
         - app
         vars:
             AdditionalMetrics: # nested sequence of metric names to report on
-            Username: # username used to access elasticsearch stats api
             DetailedMetrics: true # Turns on additional metric time series
             EnableClusterHealth: true # report on the cluster health
             EnableIndexStats: true # report metrics about indexes
@@ -21,6 +20,7 @@ integrations:
             ThreadPools: # nested sequence of thread pool names to report on
             - search
             - index
+            Username: # username used to access elasticsearch stats api
             Verbose: false # enable verbose logging
             Version: # enable verbose logging (true/false)
 
