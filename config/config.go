@@ -53,10 +53,15 @@ type userConfig struct {
 		Skip  string
 	}
 	Kubernetes *struct {
-		IgnoreTLSVerify bool `yaml:"ignoreTLSVerify,omitempty"`
-		Role            string
-		Cluster         string
-		CAdvisorURL     string `yaml:"cadvisorURL,omitempty"`
+		TLS struct {
+			SkipVerify bool   `yaml:"skipVerify"`
+			ClientCert string `yaml:"clientCert"`
+			ClientKey  string `yaml:"clientKey"`
+			CACert     string `yaml:"caCert"`
+		} `yaml:"tls"`
+		Role        string
+		Cluster     string
+		CAdvisorURL string `yaml:"cadvisorURL,omitempty"`
 	}
 	Mesosphere *struct {
 		Cluster      string
@@ -125,7 +130,15 @@ func loadUserConfig(pair *store.KVPair) error {
 				plugins["cadvisor"] = cadvisor
 			}
 			kubernetes := map[string]interface{}{}
-			kubernetes["ignoretlsverify"] = kube.IgnoreTLSVerify
+
+			tls := kube.TLS
+			tlsConfig := map[string]interface{}{
+				"caCert":     tls.CACert,
+				"skipVerify": tls.SkipVerify,
+				"clientCert": tls.ClientCert,
+				"clientKey":  tls.ClientKey,
+			}
+			kubernetes["tls"] = tlsConfig
 			plugins["kubernetes"] = kubernetes
 		}
 	}
