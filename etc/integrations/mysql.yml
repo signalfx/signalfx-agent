@@ -7,8 +7,8 @@ integrations:
       Username:
       Password:
       Databases:
-      # - database1
-      # - database2
+      # - exampledatabase123 # specify the name of a database to monitor
+      # - exampledatabase321 # specify the name of a database to monitor
     template: |
       {{range $database := .Vars.Databases}}
       <Database "{{$.Name}}[{{$.Dims}}]">
