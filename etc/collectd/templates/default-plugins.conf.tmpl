@@ -21,7 +21,10 @@ LoadPlugin df
   FSType "securityfs"
   FSType "pstore"
   FSType "binfmt_misc"
+  FSType "autofs"
   MountPoint "/^/hostfs/var/lib/rkt/pods/"
+  MountPoint "/^/hostfs/net//"
+  MountPoint "/^/hostfs/smb//"
 </Plugin>
 
 LoadPlugin disk
