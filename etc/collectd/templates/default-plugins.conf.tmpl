@@ -5,6 +5,23 @@ LoadPlugin cpufreq
 LoadPlugin df
 <Plugin "df">
   ChangeRoot "/hostfs"
+  IgnoreSelected true
+  FSType "overlay"
+  FSType "tmpfs"
+  FSType "proc"
+  FSType "sysfs"
+  FSType "nsfs"
+  FSType "cgroup"
+  FSType "devpts"
+  FSType "selinuxfs"
+  FSType "devtmpfs"
+  FSType "debugfs"
+  FSType "mqueue"
+  FSType "hugetlbfs"
+  FSType "securityfs"
+  FSType "pstore"
+  FSType "binfmt_misc"
+  MountPoint "/^/hostfs/var/lib/rkt/pods/"
 </Plugin>
 
 LoadPlugin disk
