@@ -131,6 +131,7 @@ COPY java.so /usr/lib/collectd/java.so
 COPY nginx.so /usr/lib/collectd/nginx.so
 COPY python.so /usr/lib/collectd/python.so
 COPY aggregation.so /usr/lib/collectd/aggregation.so
+COPY generic-jmx.jar /usr/share/collectd/java/generic-jmx.jar
 
 RUN chmod +x /usr/sbin/signalfx-agent \
     && rm -f /etc/collectd/collectd.conf \

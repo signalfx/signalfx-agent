@@ -222,10 +222,12 @@ integrations:
 
           <Connection>
             ServiceURL "service:jmx:rmi:///jndi/rmi://{{.Host}}:{{.Port}}/jmxrmi"
-            Host "{{.Name}}[hostHasService=activemq,{{.Dims}}]"
-            {{with .Vars.Username}}
+            InstanceSuffix "{{.Name}}[{{.Dims}}]"
+            ServiceName "activemq"
+
+            {{- with .Vars.Username}}
             User "{{.}}"
-            {{end}}
+            {{end -}}
 
             {{with .Vars.Password}}
             Password "{{.}}"

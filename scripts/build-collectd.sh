@@ -41,8 +41,7 @@ cd ${BASE_DIR}
 
 cd ${BASE_DIR}/collectd-collectd-${COLLECTD_VERSION}
 
-cp ${PROJECT_DIR}/collectd-ext/${COLLECTD_VERSION}/plugins/* ${BASE_DIR}/collectd-collectd-${COLLECTD_VERSION}/src/
-cp ${PROJECT_DIR}/collectd-ext/${COLLECTD_VERSION}/daemon/* ${BASE_DIR}/collectd-collectd-${COLLECTD_VERSION}/src/daemon/
+cp -r ${PROJECT_DIR}/collectd-ext/${COLLECTD_VERSION}/* ${BASE_DIR}/collectd-collectd-${COLLECTD_VERSION}/
 
 [ -e configure ] || ./build.sh
 [ -e Makefile ] || ./configure --libdir="${LIB_DIR}" --localstatedir="${COLLECTD_STATE_DIR}" --sysconfdir="${COLLECTD_SYSCONF_DIR}"
@@ -62,3 +61,4 @@ $SUDO cp ${BASE_DIR}/collectd-collectd-${COLLECTD_VERSION}/src/.libs/java.so ${C
 $SUDO cp ${BASE_DIR}/collectd-collectd-${COLLECTD_VERSION}/src/.libs/nginx.so ${COLLECTD_LIB_DIR}
 $SUDO cp ${BASE_DIR}/collectd-collectd-${COLLECTD_VERSION}/src/.libs/python.so ${COLLECTD_LIB_DIR}
 $SUDO cp ${BASE_DIR}/collectd-collectd-${COLLECTD_VERSION}/src/.libs/aggregation.so ${COLLECTD_LIB_DIR}
+$SUDO cp ${BASE_DIR}/collectd-collectd-${COLLECTD_VERSION}/bindings/java/.libs/generic-jmx.jar ${COLLECTD_LIB_DIR}
