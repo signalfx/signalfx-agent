@@ -55,7 +55,7 @@ cp -r ${GO_PACKAGES[@]} ${BUILDER_IMAGE_ROOT}/src
 mkdir -p ${AGENT_IMAGE_ROOT}
 # Copy collectd and Go agent binaries into the agent-image staging directory.
 docker run --rm -v ${SRC_ROOT}/${AGENT_IMAGE_ROOT}:/opt/build ${BUILDER_IMAGE_NAME}:${TAG} \
-    bash -c "cp /usr/local/lib/collectd/{libcollectd,java,nginx,python,aggregation}.so /opt/go/bin/agent /opt/build"
+    bash -c "cp /usr/local/lib/collectd/{libcollectd,java,nginx,python,aggregation}.so /usr/local/lib/collectd/generic-jmx.jar /opt/go/bin/agent /opt/build"
 
 cp ${PROJECT_DIR}/scripts/agent-image/* ${AGENT_IMAGE_ROOT}
 cp -r etc ${AGENT_IMAGE_ROOT}
