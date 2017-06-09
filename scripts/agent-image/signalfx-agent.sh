@@ -99,19 +99,6 @@ do
   shift
 done
 
-# remap host resources
-if [ -d "/hostfs" ]; then
-  # remove existing release files
-  rm -f /etc/*-release
-  # iterate over each release file in /hostfs/etc
-  for i in $(ls /hostfs/etc/*-release); do
-    # create a file to mount over
-    touch ${i#/hostfs}
-    # create a read only mount for each release file in container's /etc
-    mount -o bind $i ${i#/hostfs}
-  done
-fi
-
 # configure monitoring
 configure
 
