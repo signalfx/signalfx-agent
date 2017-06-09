@@ -12,6 +12,7 @@ TypesDB "{{Globals.PluginRoot}}/signalfx-collectd-plugin/types.db.plugin"
     URL "{{$instance.Vars.url}}/v1/collectd"
     Token "{{Secret "SFX_ACCESS_TOKEN"}}"
     NotifyLevel "OKAY"
+    ProcPath "/hostfs/proc"
   </Module>
   {{end}}
 </Plugin>
