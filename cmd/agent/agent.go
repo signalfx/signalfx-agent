@@ -91,13 +91,24 @@ func main() {
 	var version = flag.Bool("version", false, "print agent version")
 	var noWatch = flag.Bool("no-watch", false, "disable watch for changes")
 
+	versionLine := fmt.Sprintf("agent-version: %s, collectd-version: %s, built-time: %s\n",
+	                           Version, CollectdVersion, BuiltTime)
+
+	// Override Usage to support the signalfx-metadata plugin, which expects a
+	// line with the collectd version from the -h flag.
+	flag.Usage = func() {
+		fmt.Fprintf(os.Stderr, "Usage of %s:\n", os.Args[0])
+		flag.PrintDefaults()
+		fmt.Fprintf(os.Stderr, versionLine)
+	}
+
 	flag.Parse()
 
 	watch := !*noWatch
 	viper.SetDefault("filewatching", watch)
 
 	if *version {
-		fmt.Printf("agent-version: %s, collectd-version: %s, built-time: %s\n", Version, CollectdVersion, BuiltTime)
+		fmt.Printf(versionLine)
 		os.Exit(0)
 	}
 

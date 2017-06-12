@@ -7,23 +7,25 @@ ENV LD_LIBRARY_PATH /usr/lib:/usr/lib/collectd:/usr/lib/jvm/java-8-openjdk-amd64
 
 RUN sed -i -e '/^deb-src/d' /etc/apt/sources.list \
     && apt-get update \
-    && apt-get install -y software-properties-common \
-    && apt-get install -y python-software-properties \
-    && apt-get install -y dpkg \
-    && apt-get install -y curl \
-    && apt-get install -y libcurl4-gnutls-dev \
+    && apt-get install -y \
+      software-properties-common \
+      python-software-properties \
+      curl \
+      libcurl4-gnutls-dev \
+      wget \
+      net-tools \
+      libpython2.7 \
+      libmysqlclient-dev \
+      python-pip \
     && apt-get install -y libcurl4-openssl-dev \
-    && apt-get install -y wget \
-    && apt-get install -y net-tools \
-    && apt-get install -y libpython2.7 \
-    && apt-get install -y libmysqlclient-dev \
-    && apt-get install -y python-pip \
     && add-apt-repository -y ppa:signalfx/collectd-release \
     && add-apt-repository -y ppa:signalfx/collectd-plugin-release \
     && apt-get update \
     && apt-get install -y --no-install-recommends collectd \
-    && apt-get install -y signalfx-collectd-plugin \
-    && apt-get install -y openjdk-8-jre-headless
+    && apt-get install -y \
+        signalfx-collectd-plugin \
+        openjdk-8-jre-headless \
+        vim  # Get a text editor on there for easier debug
 
 LABEL agent.version="$signalfx_agent_version" \
       app="signalfx-agent"
