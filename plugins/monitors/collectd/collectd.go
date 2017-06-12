@@ -13,12 +13,11 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"os"
 	"sync"
 	"time"
 
 	"path/filepath"
-
-	"io/ioutil"
 
 	cfg "github.com/signalfx/neo-agent/config"
 	"github.com/signalfx/neo-agent/plugins"
@@ -207,8 +206,22 @@ func (collectd *Collectd) writePlugins(plugins []*config.Plugin) error {
 		return err
 	}
 
-	if err := ioutil.WriteFile(collectd.confFile, []byte(config), 0644); err != nil {
+	f, err := os.Create(collectd.confFile)
+	if err != nil {
+		return fmt.Errorf("failed to truncate collectd config: %s", err)
+	}
+	defer f.Close()
+
+	_, err = f.Write([]byte(config))
+	if err != nil {
 		return fmt.Errorf("failed to write collectd config: %s", err)
+	}
+
+	// We need to sync here since collectd might be restarted very quickly
+	// after writing this.
+	err = f.Sync()
+	if err != nil {
+		return fmt.Errorf("failed to sync collectd config file to disk: %s", err)
 	}
 
 	return nil
