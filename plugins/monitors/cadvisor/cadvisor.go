@@ -3,9 +3,9 @@ package cadvisor
 import (
 	"errors"
 	"log"
-	"time"
-
+	"regexp"
 	"strconv"
+	"time"
 
 	"github.com/signalfx/cadvisor-integration/poller"
 	"github.com/signalfx/neo-agent/plugins"
@@ -37,6 +37,40 @@ func NewCadvisor(name string, config *viper.Viper) (plugins.IPlugin, error) {
 	return &Cadvisor{Plugin: plugin}, nil
 }
 
+// getLabelFilter - parses viper config and returns label filter
+func (c *Cadvisor) getLabelFilter() [][]*regexp.Regexp {
+	var exlabels = [][]*regexp.Regexp{}
+	labels := viper.GetStringMapString("excluded_labels")
+	for key, val := range labels {
+		kcomp, _ := regexp.Compile(key)
+		vcomp, _ := regexp.Compile(val)
+		exlabels = append(exlabels, []*regexp.Regexp{kcomp, vcomp})
+	}
+	return exlabels
+}
+
+// getImageFilter - parses viper config and returns image filter
+func (c *Cadvisor) getImageFilter() []*regexp.Regexp {
+	var eximages = []*regexp.Regexp{}
+	images := viper.GetStringSlice("excluded_images")
+	for _, image := range images {
+		comp, _ := regexp.Compile(image)
+		eximages = append(eximages, comp)
+	}
+	return eximages
+}
+
+// getNameFilter - parses viper config and returns name filter
+func (c *Cadvisor) getNameFilter() []*regexp.Regexp {
+	var exnames = []*regexp.Regexp{}
+	names := viper.GetStringSlice("excluded_names")
+	for _, name := range names {
+		comp, _ := regexp.Compile(name)
+		exnames = append(exnames, comp)
+	}
+	return exnames
+}
+
 // Start cadvisor plugin
 func (c *Cadvisor) Start() error {
 	apiToken, err := secrets.EnvSecret("SFX_ACCESS_TOKEN")
@@ -61,7 +95,6 @@ func (c *Cadvisor) Start() error {
 
 	dimensions := viper.GetStringMapString("dimensions")
 	clusterName := dimensions["kubernetes_cluster"]
-
 	forwarder := poller.NewSfxClient(ingestURL, apiToken)
 	cfg := &poller.Config{
 		IngestURL:              ingestURL,
@@ -75,6 +108,9 @@ func (c *Cadvisor) Start() error {
 		CadvisorURL:            []string{cadvisorURL},
 		KubernetesPassword:     "",
 		DefaultDimensions:      dimensions,
+		ExcludedImages:         c.getImageFilter(),
+		ExcludedNames:          c.getNameFilter(),
+		ExcludedLabels:         c.getLabelFilter(),
 	}
 
 	if c.stop, c.stopped, err = poller.MonitorNode(cfg, forwarder, time.Duration(dataSendRate)*time.Second); err != nil {
