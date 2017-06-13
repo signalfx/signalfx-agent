@@ -152,11 +152,32 @@ func loadUserConfig(pair *store.KVPair) error {
 	}
 
 	if mesos := usercon.Mesosphere; mesos != nil {
+		var mesosPort int
+		var mesosIdDimName string
+		var mesosId string
+
+		client, _ := NewMesosClient(viper.GetViper())
+		if mesos.Role == "master" {
+			mesosPort = 5050
+			mesosIdDimName = "mesos_master"
+		} else if mesos.Role == "worker" {
+			mesosIdDimName = "mesos_agent"
+			mesosPort = 5051
+		} else {
+			return errors.New("mesosphere role must be specified")
+		}
+
+		client.Configure(viper.GetViper(), mesosPort)
+
+		ID, _ := client.GetID()
+		mesosId = ID.ID
+
 		if mesos.Cluster == "" {
 			return errors.New("mesosphere.cluster must be set")
 		}
 		dims["mesos_cluster"] = mesos.Cluster
 		dims["mesos_role"] = mesos.Role
+		dims[mesosIdDimName] = mesosId
 
 		// Set the cluster name for the mesos default plugin config
 		staticPlugins["mesos"] = map[string]interface{}{
