@@ -17,7 +17,7 @@ type MesosId struct {
 	ID string
 }
 
-// Mesosphere observer plugin
+// MesosphereClient - client for interacting with mesos api
 type MesosClient struct {
 	Config   *viper.Viper
 	hostURL  string
