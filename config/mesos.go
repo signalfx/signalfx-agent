@@ -12,8 +12,8 @@ import (
 	"github.com/spf13/viper"
 )
 
-// MesosId - struct for storing mesos id
-type MesosId struct {
+// MesosID - struct for storing mesos id
+type MesosID struct {
 	ID string
 }
 
@@ -31,7 +31,7 @@ func NewMesosClient(config *viper.Viper) (*MesosClient, error) {
 }
 
 // GetID - retrieves the mesos id for the node
-func (mesos *MesosClient) GetID() (*MesosId, error) {
+func (mesos *MesosClient) GetID() (*MesosID, error) {
 	resp, err := mesos.client.Get(fmt.Sprintf("%s/state", mesos.hostURL))
 	if err != nil {
 		return nil, err
@@ -49,7 +49,7 @@ func (mesos *MesosClient) GetID() (*MesosId, error) {
 			resp.StatusCode, body[:512])
 	}
 
-	id := &MesosId{}
+	id := &MesosID{}
 	if err := json.Unmarshal(body, id); err != nil {
 		return nil, err
 	}
