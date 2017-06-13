@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/signalfx/cadvisor-integration/poller"
+	"github.com/signalfx/neo-agent/config"
 	"github.com/signalfx/neo-agent/plugins"
 	"github.com/signalfx/neo-agent/secrets"
 	"github.com/spf13/viper"
@@ -40,19 +41,26 @@ func NewCadvisor(name string, config *viper.Viper) (plugins.IPlugin, error) {
 // getLabelFilter - parses viper config and returns label filter
 func (c *Cadvisor) getLabelFilter() [][]*regexp.Regexp {
 	var exlabels = [][]*regexp.Regexp{}
-	labels := viper.GetStringMapString("excluded_labels")
-	for key, val := range labels {
-		kcomp, _ := regexp.Compile(key)
-		vcomp, _ := regexp.Compile(val)
+	var labels []*config.Label
+	c.Config.UnmarshalKey("excludedLabels", labels)
+	for _, label := range labels {
+		var vcomp *regexp.Regexp
+		kcomp, _ := regexp.Compile(label.Key)
+		if label.Value != "" {
+			vcomp, _ = regexp.Compile(label.Value)
+		} else {
+			vcomp, _ = regexp.Compile(".*")
+		}
 		exlabels = append(exlabels, []*regexp.Regexp{kcomp, vcomp})
 	}
+
 	return exlabels
 }
 
 // getImageFilter - parses viper config and returns image filter
 func (c *Cadvisor) getImageFilter() []*regexp.Regexp {
 	var eximages = []*regexp.Regexp{}
-	images := viper.GetStringSlice("excluded_images")
+	images := c.Config.GetStringSlice("excludedImages")
 	for _, image := range images {
 		comp, _ := regexp.Compile(image)
 		eximages = append(eximages, comp)
@@ -63,7 +71,7 @@ func (c *Cadvisor) getImageFilter() []*regexp.Regexp {
 // getNameFilter - parses viper config and returns name filter
 func (c *Cadvisor) getNameFilter() []*regexp.Regexp {
 	var exnames = []*regexp.Regexp{}
-	names := viper.GetStringSlice("excluded_names")
+	names := c.Config.GetStringSlice("excludedNames")
 	for _, name := range names {
 		comp, _ := regexp.Compile(name)
 		exnames = append(exnames, comp)

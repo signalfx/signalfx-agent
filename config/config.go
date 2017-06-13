@@ -46,7 +46,19 @@ var (
 	configTimeout = 10 * time.Second
 )
 
+// Label -
+type Label struct {
+	Key   string `yaml:"key"`
+	Value string `yaml:"value,omitempty"`
+}
+
 type userConfig struct {
+	Filter *struct {
+		Names      []string `yaml:"names,omitempty"`
+		Images     []string `yaml:"images,omitempty"`
+		Labels     []*Label `yaml:"labels,omitempty"`
+		Namespaces []string `yaml:"namespaces,omitempty"`
+	} `yaml:"containerMetricFilter,omitempty"`
 	Proxy *struct {
 		HTTP  string
 		HTTPS string
@@ -90,16 +102,29 @@ func loadUserConfig(pair *store.KVPair) error {
 	if err := yaml.Unmarshal(pair.Value, &usercon); err != nil {
 		return err
 	}
+	// create cadvisor configuration map
+	cadvisor := map[string]interface{}{}
 
+	// create docker-default configuration map
+	dockerDefaults := map[string]interface{}{}
+
+	// create staticplugins configuration map
 	staticPlugins := map[string]interface{}{}
 
-	plugins := map[string]interface{}{
-		"collectd": map[string]interface{}{
-			"staticPlugins": staticPlugins,
-		},
+	// create collectd configuration map
+	collectd := map[string]interface{}{
+		"staticPlugins": staticPlugins,
 	}
 
+	// create plugins configuration map
+	plugins := map[string]interface{}{
+		"collectd": collectd,
+	}
+
+	// create dims plugin configuration map
 	dims := map[string]string{}
+
+	// create viper configuration map
 	v := map[string]interface{}{
 		"plugins":    plugins,
 		"dimensions": dims,
@@ -107,6 +132,25 @@ func loadUserConfig(pair *store.KVPair) error {
 
 	if usercon.Kubernetes != nil && usercon.Mesosphere != nil {
 		return errors.New("mesosphere and kubernetes cannot both be set")
+	}
+
+	// configure filters
+	if filters := usercon.Filter; filters != nil {
+		// must define type since staticPlugins is map[string]interface{}
+		if filters.Images != nil {
+			dockerDefaults["excludedImages"] = filters.Images
+			cadvisor["excludedImages"] = filters.Images
+		}
+		if filters.Labels != nil {
+			dockerDefaults["excludedLabels"] = filters.Labels
+			cadvisor["excludedLabels"] = filters.Labels
+		}
+		if filters.Names != nil {
+			dockerDefaults["excludedNames"] = filters.Names
+			cadvisor["excludedNames"] = filters.Images
+		}
+		// Since the filters are set let's set docker-default
+		staticPlugins["docker-default"] = dockerDefaults
 	}
 
 	if kube := usercon.Kubernetes; kube != nil {
@@ -122,8 +166,6 @@ func loadUserConfig(pair *store.KVPair) error {
 
 		if kube.Role == "worker" {
 			if kube.CAdvisorURL != "" {
-				// create cadvisor configuration map
-				cadvisor := map[string]interface{}{}
 				// add the config from user config to cadvisor plugin config
 				cadvisor["cadvisorurl"] = kube.CAdvisorURL
 				// add config to plugins config
