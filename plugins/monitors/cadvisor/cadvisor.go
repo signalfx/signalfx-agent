@@ -42,7 +42,7 @@ func NewCadvisor(name string, config *viper.Viper) (plugins.IPlugin, error) {
 func (c *Cadvisor) getLabelFilter() [][]*regexp.Regexp {
 	var exlabels = [][]*regexp.Regexp{}
 	var labels []*config.Label
-	c.Config.UnmarshalKey("excludedLabels", labels)
+	c.Config.UnmarshalKey("excludedLabels", &labels)
 	for _, label := range labels {
 		var vcomp *regexp.Regexp
 		kcomp, _ := regexp.Compile(label.Key)
