@@ -14,6 +14,15 @@ LoadPlugin python
     {{range $key, $value := $instance.Vars.extradimensions -}}
     Dimension "{{$key}}" "{{$value}}"
     {{end -}}
+    {{range $image := $instance.Vars.excludedimages -}}
+    ExcludeImage "{{$image}}"
+    {{end -}}
+    {{range $name := $instance.Vars.excludednames -}}
+    ExcludeName "{{$name}}"
+    {{end -}}
+    {{range $label := $instance.Vars.excludedlabels -}}
+    ExcludeLabel "{{$label.key}}" {{with $label.value}}"{{$label.value}}"{{end}}
+    {{end -}}
   </Module>
   {{end}}
 

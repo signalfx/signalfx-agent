@@ -46,7 +46,21 @@ var (
 	configTimeout = 10 * time.Second
 )
 
+// Label -
+type Label struct {
+	Key   string `yaml:"key"`
+	Value string `yaml:"value,omitempty"`
+}
+
 type userConfig struct {
+	Filter *struct {
+		DockerContainerNames     []string `yaml:"dockerContainerNames,omitempty"`
+		Images                   []string `yaml:"images,omitempty,omitempty"`
+		KubernetesContainerNames []string `yaml:"kubernetesContainerNames,omitempty"`
+		KubernetesPodNames       []string `yaml:"kubernetesPodNames,omitempty"`
+		KubernetesNamespaces     []string `yaml:"kubernetesNamespaces,omitemtpy"`
+		Labels                   []*Label `yaml:"labels,omitempty"`
+	} `yaml:"filterContianerMetrics,omitempty"`
 	Proxy *struct {
 		HTTP  string
 		HTTPS string
@@ -90,16 +104,29 @@ func loadUserConfig(pair *store.KVPair) error {
 	if err := yaml.Unmarshal(pair.Value, &usercon); err != nil {
 		return err
 	}
+	// create cadvisor configuration map
+	cadvisor := map[string]interface{}{}
 
+	// create docker-default configuration map
+	dockerDefaults := map[string]interface{}{}
+
+	// create staticplugins configuration map
 	staticPlugins := map[string]interface{}{}
 
-	plugins := map[string]interface{}{
-		"collectd": map[string]interface{}{
-			"staticPlugins": staticPlugins,
-		},
+	// create collectd configuration map
+	collectd := map[string]interface{}{
+		"staticPlugins": staticPlugins,
 	}
 
+	// create plugins configuration map
+	plugins := map[string]interface{}{
+		"collectd": collectd,
+	}
+
+	// create dims plugin configuration map
 	dims := map[string]string{}
+
+	// create viper configuration map
 	v := map[string]interface{}{
 		"plugins":    plugins,
 		"dimensions": dims,
@@ -107,6 +134,45 @@ func loadUserConfig(pair *store.KVPair) error {
 
 	if usercon.Kubernetes != nil && usercon.Mesosphere != nil {
 		return errors.New("mesosphere and kubernetes cannot both be set")
+	}
+
+	// configure filters
+	if filters := usercon.Filter; filters != nil {
+		// assign image filters
+		if len(filters.Images) != 0 {
+			dockerDefaults["excludedImages"] = filters.Images
+			cadvisor["excludedImages"] = filters.Images
+		}
+		// assign docker container name filter
+		if len(filters.DockerContainerNames) != 0 {
+			dockerDefaults["excludedNames"] = filters.DockerContainerNames
+			cadvisor["excludedNames"] = filters.DockerContainerNames
+		}
+		// configure the label filters
+		if len(filters.Labels) != 0 || len(filters.KubernetesNamespaces) != 0 || len(filters.KubernetesContainerNames) != 0 || len(filters.KubernetesPodNames) != 0 {
+			// assign namespaces to labels because k8s namespace is actually a label
+			for _, namespace := range filters.KubernetesNamespaces {
+				filters.Labels = append(filters.Labels, &Label{Key: "^io.kubernetes.pod.namespace$", Value: namespace})
+			}
+			// assign k8s container name to labels because k8s container name is actually a label
+			for _, containerName := range filters.KubernetesContainerNames {
+				filters.Labels = append(filters.Labels, &Label{Key: "^io.kubernetes.container.name$", Value: containerName})
+			}
+
+			// assign k8s pod name to labels because k8s podname is actually a label
+			for _, podName := range filters.KubernetesPodNames {
+				filters.Labels = append(filters.Labels, &Label{Key: "^io.kubernetes.pod.name$", Value: podName})
+			}
+
+			// if there are labels add them
+			if len(filters.Labels) != 0 {
+				// append the lables filter
+				dockerDefaults["excludedLabels"] = filters.Labels
+				cadvisor["excludedLabels"] = filters.Labels
+			}
+		}
+		// Since the filters are set let's set docker-default
+		staticPlugins["docker-default"] = dockerDefaults
 	}
 
 	if kube := usercon.Kubernetes; kube != nil {
@@ -122,8 +188,6 @@ func loadUserConfig(pair *store.KVPair) error {
 
 		if kube.Role == "worker" {
 			if kube.CAdvisorURL != "" {
-				// create cadvisor configuration map
-				cadvisor := map[string]interface{}{}
 				// add the config from user config to cadvisor plugin config
 				cadvisor["cadvisorurl"] = kube.CAdvisorURL
 				// add config to plugins config
@@ -152,11 +216,34 @@ func loadUserConfig(pair *store.KVPair) error {
 	}
 
 	if mesos := usercon.Mesosphere; mesos != nil {
+		var mesosPort int
+		var mesosIDDimName string
+		var mesosID string
+
+		client := NewMesosClient(viper.GetViper())
+		if mesos.Role == "master" {
+			mesosPort = 5050
+			mesosIDDimName = "mesos_master"
+		} else if mesos.Role == "worker" {
+			mesosIDDimName = "mesos_agent"
+			mesosPort = 5051
+		} else {
+			return errors.New("mesosphere role must be specified")
+		}
+
+		if err := client.Configure(viper.GetViper(), mesosPort); err != nil {
+			return fmt.Errorf("unable to configure mesos client at configuration time: %s", err)
+		}
+
+		ID, _ := client.GetID()
+		mesosID = ID.ID
+
 		if mesos.Cluster == "" {
 			return errors.New("mesosphere.cluster must be set")
 		}
 		dims["mesos_cluster"] = mesos.Cluster
 		dims["mesos_role"] = mesos.Role
+		dims[mesosIDDimName] = mesosID
 
 		// Set the cluster name for the mesos default plugin config
 		staticPlugins["mesos"] = map[string]interface{}{

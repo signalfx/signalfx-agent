@@ -1,5 +1,5 @@
-hash: 9237370998fa924a79c425adf498d980c149d4d1c16a95733f2acce822ea1044
-updated: 2017-05-04T13:59:50.746443432-04:00
+hash: 813701849f44a2e51f8ffe5827cf98470f62ea28fbba80f9c491d84b8641f4a8
+updated: 2017-06-14T16:50:26.074773713-04:00
 imports:
 - name: github.com/blang/semver
   version: aea32c919a18e5ef4537bbd283ff29594b1b0165
@@ -187,7 +187,7 @@ imports:
   subpackages:
   - zk
 - name: github.com/signalfx/cadvisor-integration
-  version: c6060385f0a3fb1377e69f90f610c87946fe3f6f
+  version: e7e58e81a08e5672e9ccf00ee69b130dc7adaaa6
   subpackages:
   - converter
   - poller

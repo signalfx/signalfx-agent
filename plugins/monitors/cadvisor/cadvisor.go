@@ -3,11 +3,12 @@ package cadvisor
 import (
 	"errors"
 	"log"
+	"regexp"
+	"strconv"
 	"time"
 
-	"strconv"
-
 	"github.com/signalfx/cadvisor-integration/poller"
+	"github.com/signalfx/neo-agent/config"
 	"github.com/signalfx/neo-agent/plugins"
 	"github.com/signalfx/neo-agent/secrets"
 	"github.com/spf13/viper"
@@ -37,6 +38,61 @@ func NewCadvisor(name string, config *viper.Viper) (plugins.IPlugin, error) {
 	return &Cadvisor{Plugin: plugin}, nil
 }
 
+// getLabelFilter - parses viper config and returns label filter
+func (c *Cadvisor) getLabelFilter() [][]*regexp.Regexp {
+	var exlabels = [][]*regexp.Regexp{}
+	var labels []*config.Label
+	c.Config.UnmarshalKey("excludedLabels", &labels)
+	for _, label := range labels {
+		var kcomp *regexp.Regexp
+		var vcomp *regexp.Regexp
+		var value = ".*"
+		var err error
+		if kcomp, err = regexp.Compile(label.Key); err != nil {
+			log.Printf("Unable to compile regex pattern '%s' for label '%s' : '%s'}", label.Key, label.Key, label.Value)
+			continue
+		}
+		if label.Value != "" {
+			value = label.Value
+		}
+		if vcomp, err = regexp.Compile(value); err != nil {
+			log.Printf("Unable to compile regex pattern '%s' for label '%s' : '%s'}", value, label.Key, value)
+			continue
+		}
+		exlabels = append(exlabels, []*regexp.Regexp{kcomp, vcomp})
+	}
+
+	return exlabels
+}
+
+// getImageFilter - parses viper config and returns image filter
+func (c *Cadvisor) getImageFilter() []*regexp.Regexp {
+	var eximages = []*regexp.Regexp{}
+	images := c.Config.GetStringSlice("excludedImages")
+	for _, image := range images {
+		if comp, err := regexp.Compile(image); err != nil {
+			eximages = append(eximages, comp)
+		} else {
+			log.Printf("Unable to compile regex pattern '%s' for image", image)
+		}
+	}
+	return eximages
+}
+
+// getNameFilter - parses viper config and returns name filter
+func (c *Cadvisor) getNameFilter() []*regexp.Regexp {
+	var exnames = []*regexp.Regexp{}
+	names := c.Config.GetStringSlice("excludedNames")
+	for _, name := range names {
+		if comp, err := regexp.Compile(name); err != nil {
+			exnames = append(exnames, comp)
+		} else {
+			log.Printf("Unable to copmile regex pattern '%s' for name", name)
+		}
+	}
+	return exnames
+}
+
 // Start cadvisor plugin
 func (c *Cadvisor) Start() error {
 	apiToken, err := secrets.EnvSecret("SFX_ACCESS_TOKEN")
@@ -61,7 +117,6 @@ func (c *Cadvisor) Start() error {
 
 	dimensions := viper.GetStringMapString("dimensions")
 	clusterName := dimensions["kubernetes_cluster"]
-
 	forwarder := poller.NewSfxClient(ingestURL, apiToken)
 	cfg := &poller.Config{
 		IngestURL:              ingestURL,
@@ -75,6 +130,9 @@ func (c *Cadvisor) Start() error {
 		CadvisorURL:            []string{cadvisorURL},
 		KubernetesPassword:     "",
 		DefaultDimensions:      dimensions,
+		ExcludedImages:         c.getImageFilter(),
+		ExcludedNames:          c.getNameFilter(),
+		ExcludedLabels:         c.getLabelFilter(),
 	}
 
 	if c.stop, c.stopped, err = poller.MonitorNode(cfg, forwarder, time.Duration(dataSendRate)*time.Second); err != nil {
