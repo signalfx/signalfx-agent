@@ -83,7 +83,7 @@ RUN mkdir -p /usr/share/collectd/marathon-collectd-plugin \
     && rm -rf /usr/share/collectd/marathon-collectd-plugin/collectd-marathon-${MARATHON_COLLECTD_PLUGIN_V}
 
 # collectd-mongodb
-ENV MONGODB_COLLECTD_PLUGIN_V=1.1.1
+ENV MONGODB_COLLECTD_PLUGIN_V=1.1.2
 ENV PYMONGO_V=3.1.1
 RUN mkdir -p /usr/share/collectd/mongodb-collectd-plugin \
     && curl -L "https://github.com/signalfx/collectd-mongodb/archive/v${MONGODB_COLLECTD_PLUGIN_V}.tar.gz" --output /usr/share/collectd/mongodb-collectd-plugin/v${MONGODB_COLLECTD_PLUGIN_V}.tar.gz \
