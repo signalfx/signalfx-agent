@@ -163,7 +163,7 @@ func (mesos *Mesosphere) Read() (services.Instances, error) {
 					for _, label := range task.Labels {
 						containerLabels[label.Key] = label.Value
 					}
-					serviceContainer = services.NewContainer(executor.Container, []string{containerName}, containerImage, "", "", "running", containerLabels)
+					serviceContainer = services.NewContainer(executor.Container, []string{containerName}, containerImage, "", "", "running", containerLabels, "")
 				} else {
 					continue
 				}

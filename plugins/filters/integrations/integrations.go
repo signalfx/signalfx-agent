@@ -422,6 +422,7 @@ func matches(si *services.Instance, expr *govaluate.EvaluableExpression) bool {
 		"ContainerPod":       si.Container.Pod,
 		"ContainerCommand":   si.Container.Command,
 		"ContainerState":     si.Container.State,
+		"ContainerNamespace": si.Container.Namespace,
 		"NetworkIP":          si.Port.IP,
 		"NetworkType":        si.Port.Type,
 		"NetworkPublicPort":  float64(si.Port.PublicPort),
