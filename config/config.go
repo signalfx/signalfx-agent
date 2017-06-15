@@ -220,7 +220,7 @@ func loadUserConfig(pair *store.KVPair) error {
 		var mesosIDDimName string
 		var mesosID string
 
-		client, _ := NewMesosClient(viper.GetViper())
+		client := NewMesosClient(viper.GetViper())
 		if mesos.Role == "master" {
 			mesosPort = 5050
 			mesosIDDimName = "mesos_master"
@@ -231,7 +231,9 @@ func loadUserConfig(pair *store.KVPair) error {
 			return errors.New("mesosphere role must be specified")
 		}
 
-		client.Configure(viper.GetViper(), mesosPort)
+		if err := client.Configure(viper.GetViper(), mesosPort); err != nil {
+			return errors.New("unable to configure mesos client at configuration time")
+		}
 
 		ID, _ := client.GetID()
 		mesosID = ID.ID

@@ -26,8 +26,8 @@ type MesosClient struct {
 }
 
 // NewMesosClient client
-func NewMesosClient(config *viper.Viper) (*MesosClient, error) {
-	return &MesosClient{config, "", 5051, http.Client{}}, nil
+func NewMesosClient(config *viper.Viper) *MesosClient {
+	return &MesosClient{config, "", 5051, http.Client{}}
 }
 
 // GetID - retrieves the mesos id for the node
