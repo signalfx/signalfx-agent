@@ -2,6 +2,7 @@ package cadvisor
 
 import (
 	"errors"
+	"fmt"
 	"log"
 	"regexp"
 	"strconv"
@@ -44,12 +45,20 @@ func (c *Cadvisor) getLabelFilter() [][]*regexp.Regexp {
 	var labels []*config.Label
 	c.Config.UnmarshalKey("excludedLabels", &labels)
 	for _, label := range labels {
+		var kcomp *regexp.Regexp
 		var vcomp *regexp.Regexp
-		kcomp, _ := regexp.Compile(label.Key)
+		var value = ".*"
+		var err error
+		if kcomp, err = regexp.Compile(label.Key); err != nil {
+			log.Println(fmt.Sprintf("Unable to compile regex pattern '%s' for label '%s' : '%s'}", label.Key, label.Key, label.Value))
+			continue
+		}
 		if label.Value != "" {
-			vcomp, _ = regexp.Compile(label.Value)
-		} else {
-			vcomp, _ = regexp.Compile(".*")
+			value = label.Value
+		}
+		if vcomp, err = regexp.Compile(value); err != nil {
+			log.Println(fmt.Sprintf("Unable to compile regex pattern '%s' for label '%s' : '%s'}", value, label.Key, value))
+			continue
 		}
 		exlabels = append(exlabels, []*regexp.Regexp{kcomp, vcomp})
 	}
@@ -62,8 +71,11 @@ func (c *Cadvisor) getImageFilter() []*regexp.Regexp {
 	var eximages = []*regexp.Regexp{}
 	images := c.Config.GetStringSlice("excludedImages")
 	for _, image := range images {
-		comp, _ := regexp.Compile(image)
-		eximages = append(eximages, comp)
+		if comp, err := regexp.Compile(image); err != nil {
+			eximages = append(eximages, comp)
+		} else {
+			log.Println(fmt.Sprintf("Unable to compile regex pattern '%s' for image", image))
+		}
 	}
 	return eximages
 }
@@ -73,8 +85,11 @@ func (c *Cadvisor) getNameFilter() []*regexp.Regexp {
 	var exnames = []*regexp.Regexp{}
 	names := c.Config.GetStringSlice("excludedNames")
 	for _, name := range names {
-		comp, _ := regexp.Compile(name)
-		exnames = append(exnames, comp)
+		if comp, err := regexp.Compile(name); err != nil {
+			exnames = append(exnames, comp)
+		} else {
+			log.Println(fmt.Sprintf("Unable to copmile regex pattern '%s' for name", name))
+		}
 	}
 	return exnames
 }
