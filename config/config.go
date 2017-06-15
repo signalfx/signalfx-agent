@@ -52,34 +52,40 @@ type Label struct {
 	Value string `yaml:"value,omitempty"`
 }
 
-// Collectd - struct for storing collectd specific configuraitons
-type Collectd struct {
-	Interval int `yaml:"interval,omitempty"`
+// Filter - specifies filters to exclude containers from docker plugin and cadvisor
+type Filter struct {
+	DockerContainerNames     []string `yaml:"dockerContainerNames,omitempty"`
+	Images                   []string `yaml:"images,omitempty,omitempty"`
+	KubernetesContainerNames []string `yaml:"kubernetesContainerNames,omitempty"`
+	KubernetesPodNames       []string `yaml:"kubernetesPodNames,omitempty"`
+	KubernetesNamespaces     []string `yaml:"kubernetesNamespaces,omitemtpy"`
+	Labels                   []*Label `yaml:"labels,omitempty"`
 }
 
+// Proxy - stores proxy configurations
+type Proxy struct {
+	HTTP  string
+	HTTPS string
+	Skip  string
+}
+
+// TLS - stores tls configurations
+type TLS struct {
+	SkipVerify bool   `yaml:"skipVerify"`
+	ClientCert string `yaml:"clientCert"`
+	ClientKey  string `yaml:"clientKey"`
+	CACert     string `yaml:"caCert"`
+}
+
+// userConfig - top level user configuration struct
 type userConfig struct {
-	IngestURL string    `yaml:"ingestURL,omitempty"`
-	Collectd  *Collectd `yaml:"collectd,omitempty"`
-	Filter    *struct {
-		DockerContainerNames     []string `yaml:"dockerContainerNames,omitempty"`
-		Images                   []string `yaml:"images,omitempty,omitempty"`
-		KubernetesContainerNames []string `yaml:"kubernetesContainerNames,omitempty"`
-		KubernetesPodNames       []string `yaml:"kubernetesPodNames,omitempty"`
-		KubernetesNamespaces     []string `yaml:"kubernetesNamespaces,omitemtpy"`
-		Labels                   []*Label `yaml:"labels,omitempty"`
-	} `yaml:"filterContianerMetrics,omitempty"`
-	Proxy *struct {
-		HTTP  string
-		HTTPS string
-		Skip  string
-	}
+	Collectd *struct {
+		Interval int `yaml:"interval,omitempty"`
+	} `yaml:"collectd,omitempty"`
+	Filter     *Filter `yaml:"filterContianerMetrics,omitempty"`
+	IngestURL  string  `yaml:"ingestURL,omitempty"`
 	Kubernetes *struct {
-		TLS struct {
-			SkipVerify bool   `yaml:"skipVerify"`
-			ClientCert string `yaml:"clientCert"`
-			ClientKey  string `yaml:"clientKey"`
-			CACert     string `yaml:"caCert"`
-		} `yaml:"tls"`
+		TLS                  *TLS `yaml:"tls"`
 		Role                 string
 		Cluster              string
 		CAdvisorURL          string   `yaml:"cadvisorURL,omitempty"`
@@ -92,6 +98,7 @@ type userConfig struct {
 		SystemHealth bool `yaml:"systemHealth,omitempty"`
 		Verbose      bool `yaml:"verbose,omitempty"`
 	}
+	Proxy *Proxy
 }
 
 // getMergeConfigs returns list of config files to merge from the environment
