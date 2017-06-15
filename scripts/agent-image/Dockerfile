@@ -107,7 +107,7 @@ RUN mkdir -p /usr/share/collectd/redis-collectd-plugin \
     && curl -L https://raw.githubusercontent.com/signalfx/redis-collectd-plugin/master/redis_info.py --output /usr/share/collectd/redis-collectd-plugin/redis_info.py
 
 # collectd-zookeeper
-ENV ZOOKEEPER_COLLECTD_PLUGIN_V=0.0.2
+ENV ZOOKEEPER_COLLECTD_PLUGIN_V=0.0.3
 RUN mkdir -p /usr/share/collectd/zookeeper-collectd-plugin \
     && curl -L "https://github.com/signalfx/collectd-zookeeper/archive/v${ZOOKEEPER_COLLECTD_PLUGIN_V}.tar.gz" --output /usr/share/collectd/zookeeper-collectd-plugin/v${ZOOKEEPER_COLLECTD_PLUGIN_V}.tar.gz \
     && tar -zxvf /usr/share/collectd/zookeeper-collectd-plugin/v${ZOOKEEPER_COLLECTD_PLUGIN_V}.tar.gz -C /usr/share/collectd/zookeeper-collectd-plugin/ \
