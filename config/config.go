@@ -54,12 +54,12 @@ type Label struct {
 
 type userConfig struct {
 	Filter *struct {
-		DockerContainerNames     []string `yaml:"dockerContainerNames,omitempty"`
+		DockerContainerNames     []string `yaml:"dockerContainerNames"`
 		Images                   []string `yaml:"images,omitempty"`
-		KubernetesContainerNames []string `yaml:"kubernetesContainerNames,omitempty"`
-		KubernetesPodNames       []string `yaml:"kubernetesPodNames,omitempty"`
-		KubernetesNamespaces     []string `yaml:"kubernetesNamespaces,omitempty"`
-		Labels                   []*Label `yaml:"labels,omitempty"`
+		KubernetesContainerNames []string `yaml:"kubernetesContainerNames"`
+		KubernetesPodNames       []string `yaml:"kubernetesPodNames"`
+		KubernetesNamespaces     []string `yaml:"kubernetesNamespaces"`
+		Labels                   []*Label `yaml:"labels"`
 	} `yaml:"filterContianerMetrics,omitempty"`
 	Proxy *struct {
 		HTTP  string
@@ -139,42 +139,37 @@ func loadUserConfig(pair *store.KVPair) error {
 	// configure filters
 	if filters := usercon.Filter; filters != nil {
 		// assign image filters
-		if filters.Images != nil {
+		if len(filters.Images) != 0 {
 			dockerDefaults["excludedImages"] = filters.Images
 			cadvisor["excludedImages"] = filters.Images
 		}
 		// assign docker container name filter
-		if filters.DockerContainerNames != nil {
+		if len(filters.DockerContainerNames) != 0 {
 			dockerDefaults["excludedNames"] = filters.DockerContainerNames
 			cadvisor["excludedNames"] = filters.DockerContainerNames
 		}
 		// configure the label filters
-		if filters.Labels != nil || filters.KubernetesNamespaces != nil || filters.KubernetesContainerNames != nil || filters.KubernetesPodNames != nil {
-			// create filters.Labels if it doesn't exist because everything goes there
-			if filters.Labels == nil {
-				filters.Labels = []*Label{}
-			}
+		if len(filters.Labels) != 0 || len(filters.KubernetesNamespaces) != 0 || len(filters.KubernetesContainerNames) != 0 || len(filters.KubernetesPodNames) != 0 {
 			// assign namespaces to labels because k8s namespace is actually a label
-			if filters.KubernetesNamespaces != nil {
-				for _, namespace := range filters.KubernetesNamespaces {
-					filters.Labels = append(filters.Labels, &Label{Key: "^io.kubernetes.pod.namespace$", Value: namespace})
-				}
+			for _, namespace := range filters.KubernetesNamespaces {
+				filters.Labels = append(filters.Labels, &Label{Key: "^io.kubernetes.pod.namespace$", Value: namespace})
 			}
 			// assign k8s container name to labels because k8s container name is actually a label
-			if filters.KubernetesContainerNames != nil {
-				for _, containerName := range filters.KubernetesContainerNames {
-					filters.Labels = append(filters.Labels, &Label{Key: "^io.kubernetes.container.name$", Value: containerName})
-				}
+			for _, containerName := range filters.KubernetesContainerNames {
+				filters.Labels = append(filters.Labels, &Label{Key: "^io.kubernetes.container.name$", Value: containerName})
 			}
+
 			// assign k8s pod name to labels because k8s podname is actually a label
-			if filters.KubernetesPodNames != nil {
-				for _, podName := range filters.KubernetesPodNames {
-					filters.Labels = append(filters.Labels, &Label{Key: "^io.kubernetes.pod.name$", Value: podName})
-				}
+			for _, podName := range filters.KubernetesPodNames {
+				filters.Labels = append(filters.Labels, &Label{Key: "^io.kubernetes.pod.name$", Value: podName})
 			}
-			// append the lables filter
-			dockerDefaults["excludedLabels"] = filters.Labels
-			cadvisor["excludedLabels"] = filters.Labels
+
+			// if there are labels add them
+			if len(filters.Labels) != 0 {
+				// append the lables filter
+				dockerDefaults["excludedLabels"] = filters.Labels
+				cadvisor["excludedLabels"] = filters.Labels
+			}
 		}
 		// Since the filters are set let's set docker-default
 		staticPlugins["docker-default"] = dockerDefaults
