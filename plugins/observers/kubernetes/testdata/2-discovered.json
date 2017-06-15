@@ -11,6 +11,7 @@
         "kubernetes-dashboard"
       ],
       "Image": "gcr.io/google_containers/kubernetes-dashboard-amd64:v1.5.1",
+      "Namespace": "kube-system",
       "Pod": "kubernetes-dashboard-v1.5.1-5zg3f",
       "Command": "",
       "State": "running",
@@ -53,6 +54,7 @@
         "redis"
       ],
       "Image": "redis:latest",
+      "Namespace": "default",
       "Pod": "redis-3165242388-n1vc7",
       "Command": "",
       "State": "running",
