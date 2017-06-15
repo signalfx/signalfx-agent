@@ -93,6 +93,12 @@ func (c *Cadvisor) getNameFilter() []*regexp.Regexp {
 	return exnames
 }
 
+func (c *Cadvisor) getMetricFilter() map[string]bool {
+	var filters map[string]bool
+	c.Config.UnmarshalKey("excludedMetrics", &filters)
+	return filters
+}
+
 // Start cadvisor plugin
 func (c *Cadvisor) Start() error {
 	apiToken, err := secrets.EnvSecret("SFX_ACCESS_TOKEN")
@@ -133,6 +139,7 @@ func (c *Cadvisor) Start() error {
 		ExcludedImages:         c.getImageFilter(),
 		ExcludedNames:          c.getNameFilter(),
 		ExcludedLabels:         c.getLabelFilter(),
+		ExcludedMetrics:        c.getMetricFilter(),
 	}
 
 	if c.stop, c.stopped, err = poller.MonitorNode(cfg, forwarder, time.Duration(dataSendRate)*time.Second); err != nil {
