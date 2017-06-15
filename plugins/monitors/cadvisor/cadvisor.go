@@ -2,7 +2,6 @@ package cadvisor
 
 import (
 	"errors"
-	"fmt"
 	"log"
 	"regexp"
 	"strconv"
@@ -74,7 +73,7 @@ func (c *Cadvisor) getImageFilter() []*regexp.Regexp {
 		if comp, err := regexp.Compile(image); err != nil {
 			eximages = append(eximages, comp)
 		} else {
-			log.Println(fmt.Sprintf("Unable to compile regex pattern '%s' for image", image))
+			log.Printf("Unable to compile regex pattern '%s' for image", image)
 		}
 	}
 	return eximages
@@ -88,7 +87,7 @@ func (c *Cadvisor) getNameFilter() []*regexp.Regexp {
 		if comp, err := regexp.Compile(name); err != nil {
 			exnames = append(exnames, comp)
 		} else {
-			log.Println(fmt.Sprintf("Unable to copmile regex pattern '%s' for name", name))
+			log.Printf("Unable to copmile regex pattern '%s' for name", name)
 		}
 	}
 	return exnames
