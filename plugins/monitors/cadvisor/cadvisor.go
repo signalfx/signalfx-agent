@@ -50,14 +50,14 @@ func (c *Cadvisor) getLabelFilter() [][]*regexp.Regexp {
 		var value = ".*"
 		var err error
 		if kcomp, err = regexp.Compile(label.Key); err != nil {
-			log.Println(fmt.Sprintf("Unable to compile regex pattern '%s' for label '%s' : '%s'}", label.Key, label.Key, label.Value))
+			log.Printf("Unable to compile regex pattern '%s' for label '%s' : '%s'}", label.Key, label.Key, label.Value)
 			continue
 		}
 		if label.Value != "" {
 			value = label.Value
 		}
 		if vcomp, err = regexp.Compile(value); err != nil {
-			log.Println(fmt.Sprintf("Unable to compile regex pattern '%s' for label '%s' : '%s'}", value, label.Key, value))
+			log.Printf("Unable to compile regex pattern '%s' for label '%s' : '%s'}", value, label.Key, value)
 			continue
 		}
 		exlabels = append(exlabels, []*regexp.Regexp{kcomp, vcomp})

@@ -54,12 +54,12 @@ type Label struct {
 
 type userConfig struct {
 	Filter *struct {
-		DockerContainerNames     []string `yaml:"dockerContainerNames"`
-		Images                   []string `yaml:"images,omitempty"`
-		KubernetesContainerNames []string `yaml:"kubernetesContainerNames"`
-		KubernetesPodNames       []string `yaml:"kubernetesPodNames"`
-		KubernetesNamespaces     []string `yaml:"kubernetesNamespaces"`
-		Labels                   []*Label `yaml:"labels"`
+		DockerContainerNames     []string `yaml:"dockerContainerNames,omitempty"`
+		Images                   []string `yaml:"images,omitempty,omitempty"`
+		KubernetesContainerNames []string `yaml:"kubernetesContainerNames,omitempty"`
+		KubernetesPodNames       []string `yaml:"kubernetesPodNames,omitempty"`
+		KubernetesNamespaces     []string `yaml:"kubernetesNamespaces,omitemtpy"`
+		Labels                   []*Label `yaml:"labels,omitempty"`
 	} `yaml:"filterContianerMetrics,omitempty"`
 	Proxy *struct {
 		HTTP  string
@@ -232,7 +232,7 @@ func loadUserConfig(pair *store.KVPair) error {
 		}
 
 		if err := client.Configure(viper.GetViper(), mesosPort); err != nil {
-			return errors.New("unable to configure mesos client at configuration time")
+			return fmt.Errorf("unable to configure mesos client at configuration time: %s", err)
 		}
 
 		ID, _ := client.GetID()
