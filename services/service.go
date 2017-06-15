@@ -99,13 +99,14 @@ type Orchestration struct {
 
 // Container information
 type Container struct {
-	ID      string
-	Names   []string
-	Image   string
-	Pod     string
-	Command string
-	State   string
-	Labels  map[string]string
+	ID        string
+	Names     []string
+	Image     string
+	Pod       string
+	Command   string
+	State     string
+	Labels    map[string]string
+	Namespace string
 }
 
 // Instance information for single instance of a discovered service
@@ -137,8 +138,8 @@ func NewOrchestration(id string, orchType OrchestrationType, dims map[string]str
 }
 
 // NewContainer constructor
-func NewContainer(id string, names []string, image string, pod string, command string, state string, labels map[string]string) *Container {
-	return &Container{id, names, image, pod, command, state, labels}
+func NewContainer(id string, names []string, image string, pod string, command string, state string, labels map[string]string, namespace string) *Container {
+	return &Container{id, names, image, pod, command, state, labels, namespace}
 }
 
 // NewInstance constructor

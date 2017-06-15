@@ -237,7 +237,7 @@ func (k *Kubernetes) doMap(sis services.Instances, pods *pods) (services.Instanc
 					servicePort := services.NewPort(port.Name, podIP, port.Protocol, port.ContainerPort, 0)
 					container := services.NewContainer(status.ContainerID,
 						[]string{status.Name}, container.Image, pod.Metadata.Name, "",
-						containerState, pod.Metadata.Labels)
+						containerState, pod.Metadata.Labels, pod.Metadata.Namespace)
 					instances = append(instances, *services.NewInstance(id, service, container,
 						orchestration, servicePort, now()))
 				}
