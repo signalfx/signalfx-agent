@@ -58,7 +58,7 @@ type Filter struct {
 	Images                   []string `yaml:"images,omitempty,omitempty"`
 	KubernetesContainerNames []string `yaml:"kubernetesContainerNames,omitempty"`
 	KubernetesPodNames       []string `yaml:"kubernetesPodNames,omitempty"`
-	KubernetesNamespaces     []string `yaml:"kubernetesNamespaces,omitemtpy"`
+	KubernetesNamespaces     []string `yaml:"kubernetesNamespaces,omitempty"`
 	Labels                   []*Label `yaml:"labels,omitempty"`
 }
 
