@@ -80,11 +80,11 @@ type TLS struct {
 // userConfig - top level user configuration struct
 type userConfig struct {
 	Collectd *struct {
-		Interval             int   `yaml:"interval,omitempty"`
-		Timeout              int   `yaml:"timeout,omitempty"`
-		ReadThreads          int   `yaml:"readThreads,omitempty"`
-		WriteQueueLimitHigh  int   `yaml:"writeQueueLimitHigh,omitempty"`
-		WriteQueueLimitLow   int   `yaml:"writeQueueLimitLow,omitempty"`
+		Interval             *int  `yaml:"interval,omitempty"`
+		Timeout              *int  `yaml:"timeout,omitempty"`
+		ReadThreads          *int  `yaml:"readThreads,omitempty"`
+		WriteQueueLimitHigh  *int  `yaml:"writeQueueLimitHigh,omitempty"`
+		WriteQueueLimitLow   *int  `yaml:"writeQueueLimitLow,omitempty"`
 		CollectInternalStats *bool `yaml:"collectInternalStats,omitempty"`
 	} `yaml:"collectd,omitempty"`
 	Filter     *Filter `yaml:"filterContianerMetrics,omitempty"`
@@ -161,20 +161,20 @@ func loadUserConfig(pair *store.KVPair) error {
 	// Parse collectd specific configurations
 	if collectdConf := usercon.Collectd; collectdConf != nil {
 		// Parse the interval used for collectd
-		if collectdConf.Interval != 0 {
-			collectd["interval"] = collectdConf.Interval
+		if collectdConf.Interval != nil {
+			collectd["interval"] = *collectdConf.Interval
 		}
-		if collectdConf.Timeout != 0 {
-			collectd["timeout"] = collectdConf.Timeout
+		if collectdConf.Timeout != nil {
+			collectd["timeout"] = *collectdConf.Timeout
 		}
-		if collectdConf.ReadThreads != 0 {
-			collectd["readThreads"] = collectdConf.ReadThreads
+		if collectdConf.ReadThreads != nil {
+			collectd["readThreads"] = *collectdConf.ReadThreads
 		}
-		if collectdConf.WriteQueueLimitHigh != 0 {
-			collectd["writeQueueLimitHigh"] = collectdConf.WriteQueueLimitHigh
+		if collectdConf.WriteQueueLimitHigh != nil {
+			collectd["writeQueueLimitHigh"] = *collectdConf.WriteQueueLimitHigh
 		}
-		if collectdConf.WriteQueueLimitLow != 0 {
-			collectd["writeQueueLimitLow"] = collectdConf.WriteQueueLimitLow
+		if collectdConf.WriteQueueLimitLow != nil {
+			collectd["writeQueueLimitLow"] = *collectdConf.WriteQueueLimitLow
 		}
 		if collectdConf.CollectInternalStats != nil {
 			collectd["collectInternalStats"] = *collectdConf.CollectInternalStats
@@ -239,7 +239,7 @@ func loadUserConfig(pair *store.KVPair) error {
 			if kube.CAdvisorURL != "" || len(kube.CAdvisorMetricFilter) > 0 || kube.CAdvisorDataSendRate != 0 {
 				// parse metric names for cadvisor to not collect
 				if len(kube.CAdvisorMetricFilter) > 0 {
-					var filters = make(map[string]bool)
+					var filters = map[string]bool{}
 					for _, metric := range kube.CAdvisorMetricFilter {
 						filters[metric] = true
 					}
