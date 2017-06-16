@@ -80,7 +80,12 @@ type TLS struct {
 // userConfig - top level user configuration struct
 type userConfig struct {
 	Collectd *struct {
-		Interval int `yaml:"interval,omitempty"`
+		Interval             int   `yaml:"interval,omitempty"`
+		Timeout              int   `yaml:"timeout,omitempty"`
+		ReadThreads          int   `yaml:"readThreads,omitempty"`
+		WriteQueueLimitHigh  int   `yaml:"writeQueueLimitHigh,omitempty"`
+		WriteQueueLimitLow   int   `yaml:"writeQueueLimitLow,omitempty"`
+		CollectInternalStats *bool `yaml:"collectInternalStats,omitempty"`
 	} `yaml:"collectd,omitempty"`
 	Filter     *Filter `yaml:"filterContianerMetrics,omitempty"`
 	IngestURL  string  `yaml:"ingestURL,omitempty"`
@@ -154,10 +159,25 @@ func loadUserConfig(pair *store.KVPair) error {
 	}
 
 	// Parse collectd specific configurations
-	if collectd := usercon.Collectd; collectd != nil {
+	if collectdConf := usercon.Collectd; collectdConf != nil {
 		// Parse the interval used for collectd
-		if collectd.Interval != 0 {
-			v["interval"] = collectd.Interval
+		if collectdConf.Interval != 0 {
+			collectd["interval"] = collectdConf.Interval
+		}
+		if collectdConf.Timeout != 0 {
+			collectd["timeout"] = collectdConf.Timeout
+		}
+		if collectdConf.ReadThreads != 0 {
+			collectd["readThreads"] = collectdConf.ReadThreads
+		}
+		if collectdConf.WriteQueueLimitHigh != 0 {
+			collectd["writeQueueLimitHigh"] = collectdConf.WriteQueueLimitHigh
+		}
+		if collectdConf.WriteQueueLimitLow != 0 {
+			collectd["writeQueueLimitLow"] = collectdConf.WriteQueueLimitLow
+		}
+		if collectdConf.CollectInternalStats != nil {
+			collectd["collectInternalStats"] = *collectdConf.CollectInternalStats
 		}
 	}
 
