@@ -46,36 +46,56 @@ var (
 	configTimeout = 10 * time.Second
 )
 
-// Label -
+// Label - stores labels and label values
 type Label struct {
 	Key   string `yaml:"key"`
 	Value string `yaml:"value,omitempty"`
 }
 
+// Filter - specifies filters to exclude containers from docker plugin and cadvisor
+type Filter struct {
+	DockerContainerNames     []string `yaml:"dockerContainerNames,omitempty"`
+	Images                   []string `yaml:"images,omitempty,omitempty"`
+	KubernetesContainerNames []string `yaml:"kubernetesContainerNames,omitempty"`
+	KubernetesPodNames       []string `yaml:"kubernetesPodNames,omitempty"`
+	KubernetesNamespaces     []string `yaml:"kubernetesNamespaces,omitempty"`
+	Labels                   []*Label `yaml:"labels,omitempty"`
+}
+
+// Proxy - stores proxy configurations
+type Proxy struct {
+	HTTP  string
+	HTTPS string
+	Skip  string
+}
+
+// TLS - stores tls configurations
+type TLS struct {
+	SkipVerify bool   `yaml:"skipVerify"`
+	ClientCert string `yaml:"clientCert"`
+	ClientKey  string `yaml:"clientKey"`
+	CACert     string `yaml:"caCert"`
+}
+
+// userConfig - top level user configuration struct
 type userConfig struct {
-	Filter *struct {
-		DockerContainerNames     []string `yaml:"dockerContainerNames,omitempty"`
-		Images                   []string `yaml:"images,omitempty,omitempty"`
-		KubernetesContainerNames []string `yaml:"kubernetesContainerNames,omitempty"`
-		KubernetesPodNames       []string `yaml:"kubernetesPodNames,omitempty"`
-		KubernetesNamespaces     []string `yaml:"kubernetesNamespaces,omitemtpy"`
-		Labels                   []*Label `yaml:"labels,omitempty"`
-	} `yaml:"filterContianerMetrics,omitempty"`
-	Proxy *struct {
-		HTTP  string
-		HTTPS string
-		Skip  string
-	}
+	Collectd *struct {
+		Interval             *int  `yaml:"interval,omitempty"`
+		Timeout              *int  `yaml:"timeout,omitempty"`
+		ReadThreads          *int  `yaml:"readThreads,omitempty"`
+		WriteQueueLimitHigh  *int  `yaml:"writeQueueLimitHigh,omitempty"`
+		WriteQueueLimitLow   *int  `yaml:"writeQueueLimitLow,omitempty"`
+		CollectInternalStats *bool `yaml:"collectInternalStats,omitempty"`
+	} `yaml:"collectd,omitempty"`
+	Filter     *Filter `yaml:"filterContianerMetrics,omitempty"`
+	IngestURL  string  `yaml:"ingestURL,omitempty"`
 	Kubernetes *struct {
-		TLS struct {
-			SkipVerify bool   `yaml:"skipVerify"`
-			ClientCert string `yaml:"clientCert"`
-			ClientKey  string `yaml:"clientKey"`
-			CACert     string `yaml:"caCert"`
-		} `yaml:"tls"`
-		Role        string
-		Cluster     string
-		CAdvisorURL string `yaml:"cadvisorURL,omitempty"`
+		TLS                  *TLS `yaml:"tls"`
+		Role                 string
+		Cluster              string
+		CAdvisorURL          string   `yaml:"cadvisorURL,omitempty"`
+		CAdvisorMetricFilter []string `yaml:"cadvisorDisabledMetrics,omitempty"`
+		CAdvisorDataSendRate int      `yaml:"cadvisorSendRate,omitempty"`
 	}
 	Mesosphere *struct {
 		Cluster      string
@@ -83,6 +103,7 @@ type userConfig struct {
 		SystemHealth bool `yaml:"systemHealth,omitempty"`
 		Verbose      bool `yaml:"verbose,omitempty"`
 	}
+	Proxy *Proxy
 }
 
 // getMergeConfigs returns list of config files to merge from the environment
@@ -130,6 +151,34 @@ func loadUserConfig(pair *store.KVPair) error {
 	v := map[string]interface{}{
 		"plugins":    plugins,
 		"dimensions": dims,
+	}
+
+	// Parse the and override the default ingest url
+	if usercon.IngestURL != "" {
+		v["ingesturl"] = usercon.IngestURL
+	}
+
+	// Parse collectd specific configurations
+	if collectdConf := usercon.Collectd; collectdConf != nil {
+		// Parse the interval used for collectd
+		if collectdConf.Interval != nil {
+			collectd["interval"] = *collectdConf.Interval
+		}
+		if collectdConf.Timeout != nil {
+			collectd["timeout"] = *collectdConf.Timeout
+		}
+		if collectdConf.ReadThreads != nil {
+			collectd["readThreads"] = *collectdConf.ReadThreads
+		}
+		if collectdConf.WriteQueueLimitHigh != nil {
+			collectd["writeQueueLimitHigh"] = *collectdConf.WriteQueueLimitHigh
+		}
+		if collectdConf.WriteQueueLimitLow != nil {
+			collectd["writeQueueLimitLow"] = *collectdConf.WriteQueueLimitLow
+		}
+		if collectdConf.CollectInternalStats != nil {
+			collectd["collectInternalStats"] = *collectdConf.CollectInternalStats
+		}
 	}
 
 	if usercon.Kubernetes != nil && usercon.Mesosphere != nil {
@@ -187,9 +236,24 @@ func loadUserConfig(pair *store.KVPair) error {
 		dims["kubernetes_role"] = kube.Role
 
 		if kube.Role == "worker" {
-			if kube.CAdvisorURL != "" {
-				// add the config from user config to cadvisor plugin config
-				cadvisor["cadvisorurl"] = kube.CAdvisorURL
+			if kube.CAdvisorURL != "" || len(kube.CAdvisorMetricFilter) > 0 || kube.CAdvisorDataSendRate != 0 {
+				// parse metric names for cadvisor to not collect
+				if len(kube.CAdvisorMetricFilter) > 0 {
+					var filters = map[string]bool{}
+					for _, metric := range kube.CAdvisorMetricFilter {
+						filters[metric] = true
+					}
+					cadvisor["excludedMetrics"] = filters
+				}
+				if kube.CAdvisorURL != "" {
+					// add the config from user config to cadvisor plugin config
+					cadvisor["cadvisorurl"] = kube.CAdvisorURL
+				}
+				// set the data send rate for cadvisor
+				if kube.CAdvisorDataSendRate != 0 {
+					cadvisor["dataSendRate"] = kube.CAdvisorDataSendRate
+				}
+
 				// add config to plugins config
 				plugins["cadvisor"] = cadvisor
 			}

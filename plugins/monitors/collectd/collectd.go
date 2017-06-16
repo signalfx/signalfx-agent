@@ -194,6 +194,26 @@ func (collectd *Collectd) writePlugins(plugins []*config.Plugin) error {
 	// If this is empty then collectd determines hostname.
 	collectdConfig.Hostname = viper.GetString("hostname")
 
+	// Set other collectd configurations from viper if they're set
+	if viper.IsSet("plugins.collectd.interval") {
+		collectdConfig.Interval = uint(viper.GetInt("plugins.collectd.interval"))
+	}
+	if viper.IsSet("plugins.collectd.readThreads") {
+		collectdConfig.ReadThreads = uint(viper.GetInt("plugins.collectd.readThreads"))
+	}
+	if viper.IsSet("plugins.collectd.writeQueueLimitHigh") {
+		collectdConfig.WriteQueueLimitHigh = uint(viper.GetInt("plugins.collectd.writeQueueLimitHigh"))
+	}
+	if viper.IsSet("plugins.collectd.writeQueueLimitLow") {
+		collectdConfig.WriteQueueLimitLow = uint(viper.GetInt("plugins.collectd.writeQueueLimitLow"))
+	}
+	if viper.IsSet("plugins.collectd.timeout") {
+		collectdConfig.Timeout = uint(viper.GetInt("plugins.collectd.timeout"))
+	}
+	if viper.IsSet("plugins.collectd.collectInternalStats") {
+		collectdConfig.CollectInternalStats = viper.GetBool("plugins.collectd.collectInternalStats")
+	}
+
 	// group instances by plugin
 	instancesMap := config.GroupByPlugin(plugins)
 
