@@ -9,9 +9,14 @@ integrations:
       Databases:
       # - exampledatabase123 # specify the name of a database to monitor
       # - exampledatabase321 # specify the name of a database to monitor
+
+      # This option indicates whether to report the hostname (pod ip) of the mysql container as host, 
+      # or to not report it and use the hostname discovered by collectd
+      ReportHost: false
     template: |
       {{range $database := .Vars.Databases}}
       <Database "{{$.Name}}[{{$.Dims}}]">
+        ReportHost "{{$.Vars.ReportHost}}"
         Host "{{$.Host}}"
         Port {{$.Port}}
         User "{{$.Vars.Username}}"

@@ -57,7 +57,7 @@ struct mysql_database_s /* {{{ */
   char *socket;
   int port;
   int timeout;
-
+  _Bool report_host;
   _Bool master_stats;
   _Bool slave_stats;
   _Bool innodb_stats;
@@ -149,7 +149,7 @@ static int mysql_config_database(oconfig_item_t *ci) /* {{{ */
   /* trigger a notification, if it's not running */
   db->slave_io_running = 1;
   db->slave_sql_running = 1;
-
+  db->report_host = 1;
   status = cf_util_get_string(ci, &db->instance);
   if (status != 0) {
     sfree(db);
@@ -201,6 +201,8 @@ static int mysql_config_database(oconfig_item_t *ci) /* {{{ */
       status = cf_util_get_boolean(child, &db->innodb_stats);
     else if (strcasecmp("WsrepStats", child->key) == 0)
       status = cf_util_get_boolean(child, &db->wsrep_stats);
+    else if (strcasecmp("ReportHost", child->key) == 0)
+      status = cf_util_get_boolean(child, &db->report_host);
     else {
       WARNING("mysql plugin: Option `%s' not allowed here.", child->key);
       status = -1;
@@ -323,7 +325,10 @@ static void submit(const char *type, const char *type_instance, value_t *values,
   vl.values = values;
   vl.values_len = values_len;
 
-  set_host(db, vl.host, sizeof(vl.host));
+  /* only report hostname for the database if it configured behavior */
+  if (db->report_host == 1) {
+    set_host(db, vl.host, sizeof(vl.host));
+  }
 
   sstrncpy(vl.plugin, "mysql", sizeof(vl.plugin));
 
@@ -487,7 +492,10 @@ static int mysql_read_slave_stats(mysql_database_t *db, MYSQL *con) {
     io = row[SLAVE_IO_RUNNING_IDX];
     sql = row[SLAVE_SQL_RUNNING_IDX];
 
-    set_host(db, n.host, sizeof(n.host));
+    /* only report hostname for the database if it configured behavior */
+    if (db->report_host == 1) {
+      set_host(db, n.host, sizeof(n.host));
+    }
 
     /* Assured by "mysql_config_database" */
     assert(db->instance != NULL);
