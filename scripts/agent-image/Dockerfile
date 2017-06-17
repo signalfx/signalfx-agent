@@ -94,7 +94,7 @@ RUN mkdir -p /usr/share/collectd/mongodb-collectd-plugin \
     && pip install pymongo==${PYMONGO_V}
 
 # collectd-rabbitmq
-ENV RABBITMQ_COLLECTD_PLUGIN_V=1.0.0
+ENV RABBITMQ_COLLECTD_PLUGIN_V=1.0.1
 RUN mkdir -p /usr/share/collectd/rabbitmq-collectd-plugin \
     && curl -L "https://github.com/signalfx/collectd-rabbitmq/archive/v${RABBITMQ_COLLECTD_PLUGIN_V}.tar.gz" --output /usr/share/collectd/rabbitmq-collectd-plugin/v${RABBITMQ_COLLECTD_PLUGIN_V}.tar.gz \
     && tar -zxvf /usr/share/collectd/rabbitmq-collectd-plugin/v${RABBITMQ_COLLECTD_PLUGIN_V}.tar.gz -C /usr/share/collectd/rabbitmq-collectd-plugin/ \
@@ -130,6 +130,7 @@ COPY etc /etc/signalfx/
 COPY agent /usr/sbin/signalfx-agent
 COPY libcollectd.so /usr/local/lib/collectd/libcollectd.so
 COPY java.so /usr/lib/collectd/java.so
+COPY mysql.so /usr/lib/collectd/mysql.so
 COPY nginx.so /usr/lib/collectd/nginx.so
 COPY python.so /usr/lib/collectd/python.so
 COPY aggregation.so /usr/lib/collectd/aggregation.so
