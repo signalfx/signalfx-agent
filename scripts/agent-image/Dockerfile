@@ -12,18 +12,17 @@ RUN sed -i -e '/^deb-src/d' /etc/apt/sources.list \
       python-software-properties \
       curl \
       libcurl4-gnutls-dev \
+      openjdk-8-jre-headless \
       wget \
       net-tools \
       libpython2.7 \
       libmysqlclient-dev \
+      vim \
       python-pip \
-    && apt-get install -y libcurl4-openssl-dev \
-    && add-apt-repository -y ppa:signalfx/collectd-release \
-    && add-apt-repository -y ppa:signalfx/collectd-plugin-release \
+    && apt-get install -y libcurl4-openssl-dev
+RUN add-apt-repository -y ppa:signalfx/collectd-release \
     && apt-get update \
-    && apt-get install -y --no-install-recommends collectd \
-    && apt-get install -y openjdk-8-jre-headless \
-        vim  # Get a text editor on there for easier debug
+    && apt-get install -y --no-install-recommends collectd
 
 LABEL agent.version="$signalfx_agent_version" \
       app="signalfx-agent"
@@ -137,7 +136,7 @@ RUN apt-get remove -y --purge build-essential software-properties-common python-
     && rm -rf /var/lib/apt/lists/*
 
 # signalfx-agent
-ARG signalfx_agent_version=0.0.1-beta
+ARG signalfx_agent_version=1.0.0-beta-9
 
 COPY etc /etc/signalfx/
 COPY agent /usr/sbin/signalfx-agent
