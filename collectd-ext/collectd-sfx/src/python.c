@@ -1692,7 +1692,6 @@ static int cpy_reloadable_config(oconfig_item_t *ci) {
               } else {
                   llist_append(list_loadedmodules, loadedmodule);
               }
-              //Py_XDECREF(loadedmodule->value);
           }
       }
 

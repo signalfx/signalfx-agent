@@ -46,7 +46,17 @@ cp -r ${PROJECT_DIR}/collectd-ext/collectd-sfx/* ${BASE_DIR}/collectd-collectd-$
 [ -e configure ] || ./build.sh
 [ -e Makefile ] || ./configure --libdir="${LIB_DIR}" --localstatedir="${COLLECTD_STATE_DIR}" --sysconfdir="${COLLECTD_SYSCONF_DIR}"
 
-make -j4 AM_CFLAGS="-Wall -fPIC -DSIGNALFX_EIM=1" AM_CXXFLAGS="-Wall -fPIC -DSIGNALFX_EIM=1"
+AM_CFLAGS="-Wall -fPIC -DSIGNALFX_EIM=1"
+
+if [[ $DEBUG == "true" ]]
+then
+  AM_CFLAGS="$AM_CFLAGS -g -O0"
+else
+  AM_CFLAGS="$AM_CFLAGS -O2"
+fi
+
+# Why do we have C++ flags in here??
+make -j4 AM_CFLAGS="$AM_CFLAGS" AM_CXXFLAGS="-Wall -fPIC -DSIGNALFX_EIM=1"
 
 $SUDO cp ${BASE_DIR}/collectd-collectd-${COLLECTD_VERSION}/src/daemon/*.h ${COLLECTD_INCLUDE_DIR}
 $SUDO cp ${BASE_DIR}/collectd-collectd-${COLLECTD_VERSION}/src/liboconfig/*.h ${COLLECTD_INCLUDE_DIR}/liboconfig
