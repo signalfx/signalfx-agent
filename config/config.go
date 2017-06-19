@@ -4,7 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"log"
-	"os"
+	os "os"
 	"strings"
 	"time"
 
@@ -151,6 +151,11 @@ func loadUserConfig(pair *store.KVPair) error {
 	v := map[string]interface{}{
 		"plugins":    plugins,
 		"dimensions": dims,
+	}
+
+	// Parse and override the default ingest url via environment variable
+	if url := os.Getenv("SFX_INGEST_URL"); url != "" {
+		v["ingesturl"] = url
 	}
 
 	// Parse the and override the default ingest url

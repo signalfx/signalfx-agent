@@ -1,0 +1,39 @@
+pipeline: test
+
+plugins:
+    local-docker:
+        plugin: observers/docker
+        url: unix:///var/run/docker.sock
+
+    collectd:
+        plugin: monitors/collectd
+        confFile: /etc/collectd/collectd.conf
+        templates:
+            builtins: /etc/signalfx/collectd/templates
+        pluginsDir: /usr/share/collectd
+        staticPlugins:
+            writehttp-default:
+                plugin: writehttp
+            signalfx-default:
+                plugin: signalfx
+            docker-default:
+                plugin: docker
+                hostUrl: unix:///var/run/docker.sock
+
+    debug:
+        plugin: filters/debug
+
+    proxy:
+        plugin: filters/proxy
+
+    integrations:
+        plugin: filters/integrations
+        builtins: /etc/signalfx/integrations
+        overrides: /etc/signalfx/overrides
+
+pipelines:
+    test:
+    - local-docker
+    - integrations
+    - proxy
+    - collectd
