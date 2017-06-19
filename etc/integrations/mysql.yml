@@ -16,7 +16,7 @@ integrations:
     template: |
       {{range $database := .Vars.Databases}}
       <Database "{{$.Name}}[{{$.Dims}}]">
-        ReportHost "{{$.Vars.ReportHost}}"
+        ReportHost {{$.Vars.ReportHost}}
         Host "{{$.Host}}"
         Port {{$.Port}}
         User "{{$.Vars.Username}}"
