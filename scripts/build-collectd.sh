@@ -41,7 +41,7 @@ cd ${BASE_DIR}
 
 cd ${BASE_DIR}/collectd-collectd-${COLLECTD_VERSION}
 
-cp -r ${PROJECT_DIR}/collectd-ext/${COLLECTD_VERSION}/* ${BASE_DIR}/collectd-collectd-${COLLECTD_VERSION}/
+cp -r ${PROJECT_DIR}/collectd-ext/collectd-sfx/* ${BASE_DIR}/collectd-collectd-${COLLECTD_VERSION}/
 
 [ -e configure ] || ./build.sh
 [ -e Makefile ] || ./configure --libdir="${LIB_DIR}" --localstatedir="${COLLECTD_STATE_DIR}" --sysconfdir="${COLLECTD_SYSCONF_DIR}"
