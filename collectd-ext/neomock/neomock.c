@@ -1,3 +1,4 @@
+#include <semaphore.h>
 #include <stdio.h>
 #include <signal.h>
 #include <stdint.h>
@@ -10,17 +11,10 @@
 
 static const char *conf_file = "/etc/collectd/collectd.conf";
 
-void reload() {
-	printf("reload collectd plugins requested\n");
-
-	plugin_shutdown_for_reload();
-	plugin_init_ctx();
-	cf_read(conf_file);
-	plugin_init_for_reload();
-}
+sem_t reload_sem;
 
 void handle_hup(int sig) {
-	reload();
+	sem_post(&reload_sem);
 }
 
 void start() {
@@ -35,6 +29,16 @@ void start() {
 	plugin_read_all();
 }
 
+void reload() {
+	printf("reload collectd plugins requested\n");
+
+	plugin_shutdown_for_reload();
+	plugin_init_ctx();
+	cf_read(conf_file);
+	plugin_init_for_reload();
+}
+
+
 void main(int argc, char *argv[]) {
 	// Handle the metadata plugin trying to call this proc with the -h flag to
 	// get version.  If we don't do this the process spawns recursively until
@@ -47,15 +51,19 @@ void main(int argc, char *argv[]) {
 
 	start();
 
+	// Init to zero (locked) and let the signal handler unlock it
+	sem_init(&reload_sem, 0, 0);
+
 	if (signal(SIGHUP, handle_hup) == SIG_ERR) {
 		printf("Error attaching reload signal handler");
 		exit(1);
 	}
 
-	sigset_t mask;
-	sigemptyset(&mask);
-
-	// Suspend between signals
-	while (1) sigsuspend(&mask);
+	while (1) {
+		sem_wait(&reload_sem);
+		reload();
+		// We could get back-to-back reloads here if multiple HUPs were sent in
+		// quick succession but they will always be done in serial order.
+	}
 }
 
