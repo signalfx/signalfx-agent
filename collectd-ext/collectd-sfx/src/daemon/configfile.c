@@ -138,6 +138,7 @@ void cf_destroy_all(void) {
     cf_complex_callback_t *ccf_next;
     for (ccf_this = complex_callback_head; ccf_this != NULL; ccf_this = ccf_next) {
         ccf_next = ccf_this->next;
+        free(ccf_this->type);
         free(ccf_this);
     }
     complex_callback_head = NULL;

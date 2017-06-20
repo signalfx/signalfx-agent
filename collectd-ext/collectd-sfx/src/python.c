@@ -1682,6 +1682,9 @@ static int cpy_reloadable_config(oconfig_item_t *ci) {
             status = 1;
           } else {
               llist_remove(list_loadedmodules, loadedmodule);
+              // 'key' is the module_name alloc'ed by the cf_util_get_string call
+              // above
+              free(loadedmodule->key);
               llentry_destroy(loadedmodule);
               loadedmodule = llentry_create(module_name, module);
               if (loadedmodule == NULL) {
