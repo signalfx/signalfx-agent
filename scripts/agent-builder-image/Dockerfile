@@ -94,7 +94,7 @@ RUN mkdir -p /opt/src
 COPY build-collectd.sh /opt/src
 COPY VERSIONS /opt/src
 ARG collectd_version
-ADD collectd-ext/${collectd_version} /opt/src/collectd-ext/${collectd_version}
+COPY collectd-ext/collectd-sfx /opt/src/collectd-ext/collectd-sfx
 
 RUN PROJECT_DIR=/opt/src /opt/src/build-collectd.sh
 
