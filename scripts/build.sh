@@ -49,13 +49,15 @@ cp -r ${GO_PACKAGES[@]} ${BUILDER_IMAGE_ROOT}/src
 # Build the builder image.
 (cd ${BUILDER_IMAGE_ROOT} && docker build \
     --tag ${BUILDER_IMAGE_NAME}:${TAG} \
+    --build-arg DEBUG=$DEBUG \
     --build-arg collectd_version="${COLLECTD_VERSION}" \
     --build-arg build_time="${BUILD_TIME}" .)
 
 mkdir -p ${AGENT_IMAGE_ROOT}
+
 # Copy collectd and Go agent binaries into the agent-image staging directory.
 docker run --rm -v ${SRC_ROOT}/${AGENT_IMAGE_ROOT}:/opt/build ${BUILDER_IMAGE_NAME}:${TAG} \
-    bash -c "cp /usr/local/lib/collectd/{libcollectd,java,mysql,nginx,python,aggregation}.so /usr/local/lib/collectd/generic-jmx.jar /opt/go/bin/agent /opt/build"
+    bash -c "cp -r /usr/local/lib/collectd/{libcollectd,java,mysql,nginx,python,aggregation}.so /usr/local/lib/collectd/generic-jmx.jar /opt/neomock/neomock /opt/collectd-src /opt/go/bin/agent /opt/build"
 
 cp ${PROJECT_DIR}/scripts/agent-image/* ${AGENT_IMAGE_ROOT}
 cp -r etc ${AGENT_IMAGE_ROOT}
@@ -63,6 +65,7 @@ cp -r etc ${AGENT_IMAGE_ROOT}
 # Build final neo-agent image.
 (cd ${AGENT_IMAGE_ROOT} && docker build \
     --build-arg signalfx_agent_version="$SIGNALFX_AGENT_VERSION" \
+    --build-arg DEBUG=$DEBUG \
     --tag ${AGENT_IMAGE_NAME}:${TAG} .)
 
 if [ "$BUILD_PUBLISH" = True ]; then
