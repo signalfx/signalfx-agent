@@ -158,8 +158,8 @@ static int plugin_update_internal_statistics(void) { /* {{{ */
 
   /* Initialize `vl' */
   value_list_t vl = VALUE_LIST_INIT;
-  vl.interval = cf_get_default_interval();
   sstrncpy(vl.plugin, "collectd", sizeof(vl.plugin));
+  vl.interval = plugin_get_interval();
 
   /* Write queue */
   sstrncpy(vl.plugin_instance, "write_queue", sizeof(vl.plugin_instance));
