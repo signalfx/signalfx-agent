@@ -14,20 +14,17 @@ RUN sed -i -e '/^deb-src/d' /etc/apt/sources.list \
       python-software-properties \
       curl \
       libcurl4-gnutls-dev \
+      openjdk-8-jre-headless \
       wget \
       net-tools \
       libpython2.7 \
       libmysqlclient-dev \
+      vim \
       python-pip \
-    && apt-get install -y libcurl4-openssl-dev \
-    && add-apt-repository -y ppa:signalfx/collectd-release \
-    && add-apt-repository -y ppa:signalfx/collectd-plugin-release \
+    && apt-get install -y libcurl4-openssl-dev
+RUN add-apt-repository -y ppa:signalfx/collectd-release \
     && apt-get update \
-    && apt-get install -y --no-install-recommends collectd \
-    && apt-get install -y \
-        signalfx-collectd-plugin \
-        openjdk-8-jre-headless \
-        vim
+    && apt-get install -y --no-install-recommends collectd
 
 COPY debug.sh /opt/debug.sh
 RUN bash -ec 'if [[ $DEBUG == 'true' ]]; then bash /opt/debug.sh; fi'
@@ -108,8 +105,26 @@ RUN mkdir -p /usr/share/collectd/rabbitmq-collectd-plugin \
     && rm -rf /usr/share/collectd/rabbitmq-collectd-plugin/collectd-rabbitmq-${RABBITMQ_COLLECTD_PLUGIN_V}
 
 # collectd-redis
+ENV REDIS_COLLECTD_PLUGIN_V=1.0.0
 RUN mkdir -p /usr/share/collectd/redis-collectd-plugin \
-    && curl -L https://raw.githubusercontent.com/signalfx/redis-collectd-plugin/master/redis_info.py --output /usr/share/collectd/redis-collectd-plugin/redis_info.py
+    && curl -L "https://github.com/signalfx/redis-collectd-plugin/archive/v${REDIS_COLLECTD_PLUGIN_V}.tar.gz" --output /usr/share/collectd/redis-collectd-plugin/v${REDIS_COLLECTD_PLUGIN_V}.tar.gz \
+    && tar -zxvf /usr/share/collectd/redis-collectd-plugin/v${REDIS_COLLECTD_PLUGIN_V}.tar.gz -C /usr/share/collectd/redis-collectd-plugin/ \
+    && cp -r /usr/share/collectd/redis-collectd-plugin/redis-collectd-plugin-${REDIS_COLLECTD_PLUGIN_V}/* /usr/share/collectd/redis-collectd-plugin/ \
+    && rm -f /usr/share/collectd/redis-collectd-plugin/v${REDIS_COLLECTD_PLUGIN_V}.tar.gz \
+    && rm -rf /usr/share/collectd/redis-collectd-plugin/redis-collectd-plugin-${REDIS_COLLECTD_PLUGIN_V} \
+    && rm -rf /usr/share/collectd/redis-collectd-plugin/{screenshots,redis.conf}
+
+# signalfx-collectd-plugin
+ENV SIGNALFX_COLLECTD_PLUGIN_V=0.0.31
+RUN mkdir -p /usr/share/collectd/signalfx-collectd-plugin \
+    && curl -L "https://github.com/signalfx/signalfx-collectd-plugin/archive/v${SIGNALFX_COLLECTD_PLUGIN_V}.tar.gz" --output /usr/share/collectd/signalfx-collectd-plugin/v${SIGNALFX_COLLECTD_PLUGIN_V}.tar.gz \
+    && tar -zxvf /usr/share/collectd/signalfx-collectd-plugin/v${SIGNALFX_COLLECTD_PLUGIN_V}.tar.gz -C /usr/share/collectd/signalfx-collectd-plugin/ \
+    && cp /usr/share/collectd/signalfx-collectd-plugin/signalfx-collectd-plugin-${SIGNALFX_COLLECTD_PLUGIN_V}/requirements.txt /usr/share/collectd/signalfx-collectd-plugin/ \
+    && cp /usr/share/collectd/signalfx-collectd-plugin/signalfx-collectd-plugin-${SIGNALFX_COLLECTD_PLUGIN_V}/types.db.plugin /usr/share/collectd/signalfx-collectd-plugin/ \
+    && cp /usr/share/collectd/signalfx-collectd-plugin/signalfx-collectd-plugin-${SIGNALFX_COLLECTD_PLUGIN_V}/src/* /usr/share/collectd/signalfx-collectd-plugin/ \
+    && rm -f /usr/share/collectd/signalfx-collectd-plugin/v${SIGNALFX_COLLECTD_PLUGIN_V}.tar.gz \
+    && rm -rf /usr/share/collectd/signalfx-collectd-plugin/signalfx-collectd-plugin-${SIGNALFX_COLLECTD_PLUGIN_V} \
+    && pip install -r /usr/share/collectd/signalfx-collectd-plugin/requirements.txt
 
 # collectd-zookeeper
 ENV ZOOKEEPER_COLLECTD_PLUGIN_V=0.0.3
@@ -125,11 +140,8 @@ RUN apt-get remove -y --purge build-essential software-properties-common python-
     && apt-get autoremove -y --purge \
     && rm -rf /var/lib/apt/lists/*
 
-# Have signalfx-collectd-plugin share same location as the rest of the plugins.
-RUN ln -s /opt/signalfx-collectd-plugin /usr/share/collectd
-
 # signalfx-agent
-ARG signalfx_agent_version=0.0.1-beta
+ARG signalfx_agent_version=1.0.0-beta-9
 
 COPY etc /etc/signalfx/
 COPY agent /usr/sbin/signalfx-agent
