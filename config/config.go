@@ -4,7 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"log"
-	os "os"
+	"os"
 	"strings"
 	"time"
 
