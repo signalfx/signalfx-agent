@@ -115,7 +115,7 @@ RUN mkdir -p /usr/share/collectd/redis-collectd-plugin \
     && rm -rf /usr/share/collectd/redis-collectd-plugin/{screenshots,redis.conf}
 
 # signalfx-collectd-plugin
-ENV SIGNALFX_COLLECTD_PLUGIN_V=0.0.32
+ENV SIGNALFX_COLLECTD_PLUGIN_V=0.0.31
 RUN mkdir -p /usr/share/collectd/signalfx-collectd-plugin \
     && curl -L "https://github.com/signalfx/signalfx-collectd-plugin/archive/v${SIGNALFX_COLLECTD_PLUGIN_V}.tar.gz" --output /usr/share/collectd/signalfx-collectd-plugin/v${SIGNALFX_COLLECTD_PLUGIN_V}.tar.gz \
     && tar -zxvf /usr/share/collectd/signalfx-collectd-plugin/v${SIGNALFX_COLLECTD_PLUGIN_V}.tar.gz -C /usr/share/collectd/signalfx-collectd-plugin/ \
