@@ -136,10 +136,7 @@ static void agg_instance_destroy(agg_instance_t *inst) /* {{{ */
   sfree(inst->state_max);
   sfree(inst->state_stddev);
 
-  memset(inst, 0, sizeof(*inst));
-  inst->ds_type = -1;
-  inst->min = NAN;
-  inst->max = NAN;
+  free(inst);
 } /* }}} void agg_instance_destroy */
 
 static int agg_instance_create_name(agg_instance_t *inst, /* {{{ */
@@ -748,18 +745,10 @@ static int agg_write(data_set_t const *ds, value_list_t const *vl, /* {{{ */
 } /* }}} int agg_write */
 
 static int agg_shutdown(void) {
-    INFO("agg_shutdown called!");
-    agg_instance_t *ai_this;
-    agg_instance_t *ai_next;
-    for (ai_this = agg_instance_list_head; ai_this != NULL; ai_this = ai_next) {
-        ai_next = ai_this->next;
-        agg_instance_destroy(ai_this);
-        free(ai_this);
-    }
-    agg_instance_list_head = NULL;
+  INFO("agg_shutdown called!");
 
-    free(lookup);
-    lookup = NULL;
+  lookup_destroy(lookup);
+  lookup = NULL;
 
   return 0;
 } /* }}} int agg_shutdown */

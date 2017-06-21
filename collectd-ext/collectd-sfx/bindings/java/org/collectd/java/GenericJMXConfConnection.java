@@ -99,7 +99,7 @@ class GenericJMXConfConnection
       host = Collectd.getHostname();
     }
 
-    Collectd.logInfo("GenericJMXConfConnection: Using hostname of " + host);
+    Collectd.logDebug("GenericJMXConfConnection: Using hostname of " + host);
     return host;
   } /* }}} String getHost */
 
@@ -194,8 +194,10 @@ class GenericJMXConfConnection
       else if (child.getKey ().equalsIgnoreCase ("ServiceName"))
       {
         String tmp = getConfigString (child);
-        if (tmp != null)
+        if (tmp != null) {
           this._service_name = tmp;
+          Collectd.logInfo("GenericJMXConfConnection: Using ServiceName '" + this._service_name + "'. Metrics will report using the hostname configured by collectd");
+        }
       }
       else if (child.getKey ().equalsIgnoreCase ("User"))
       {

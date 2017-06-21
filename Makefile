@@ -25,6 +25,9 @@ collectd:
 image:
 	./scripts/build.sh
 
+image-debug:
+	DEBUG=true ./scripts/build.sh
+
 .PHONY: run-image
 run-image:
 # Run a pre-built image locally. When the agent terminates or you ctrl-c the container is removed.

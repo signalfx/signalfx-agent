@@ -87,12 +87,19 @@ ENV GOROOT /usr/local/go
 ENV PATH /usr/local/go/bin:$PATH
 ENV GOPATH /opt/go
 
+ARG DEBUG=false
+
 # Build collectd.
 RUN mkdir -p /opt/src
-ADD build-collectd.sh /opt/src
-ADD VERSIONS /opt/src
-ADD collectd-ext /opt/src/collectd-ext
+COPY build-collectd.sh /opt/src
+COPY VERSIONS /opt/src
+ARG collectd_version
+COPY collectd-ext/collectd-sfx /opt/src/collectd-ext/collectd-sfx
+
 RUN PROJECT_DIR=/opt/src /opt/src/build-collectd.sh
+
+COPY collectd-ext/neomock /opt/neomock
+RUN cd opt/neomock && make
 
 # Build agent.
 WORKDIR $GOPATH/src/github.com/signalfx/neo-agent
@@ -104,7 +111,6 @@ RUN glide install
 COPY src .
 
 ARG agent_version
-ARG collectd_version
 ARG build_time
 
 RUN go install \

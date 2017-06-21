@@ -5,6 +5,8 @@ ENV SIGNALFX_CONFIGURE_MONITORING_COMMANDS /opt/signalfx-imaging/signalfx-agent-
 ENV SIGNALFX_LAUNCH_MONITORING_COMMANDS /usr/sbin/signalfx-agent
 ENV LD_LIBRARY_PATH /usr/lib:/usr/lib/collectd:/usr/lib/jvm/java-8-openjdk-amd64/jre/lib/amd64/server
 
+ARG DEBUG=false
+
 RUN sed -i -e '/^deb-src/d' /etc/apt/sources.list \
     && apt-get update \
     && apt-get install -y \
@@ -23,6 +25,9 @@ RUN sed -i -e '/^deb-src/d' /etc/apt/sources.list \
 RUN add-apt-repository -y ppa:signalfx/collectd-release \
     && apt-get update \
     && apt-get install -y --no-install-recommends collectd
+
+COPY debug.sh /opt/debug.sh
+RUN bash -ec 'if [[ $DEBUG == 'true' ]]; then bash /opt/debug.sh; fi'
 
 LABEL agent.version="$signalfx_agent_version" \
       app="signalfx-agent"
@@ -147,6 +152,8 @@ COPY nginx.so /usr/lib/collectd/nginx.so
 COPY python.so /usr/lib/collectd/python.so
 COPY aggregation.so /usr/lib/collectd/aggregation.so
 COPY generic-jmx.jar /usr/share/collectd/java/generic-jmx.jar
+COPY neomock /usr/local/bin/neomock
+COPY collectd-src /opt/collectd-src
 
 RUN chmod +x /usr/sbin/signalfx-agent \
     && rm -f /etc/collectd/collectd.conf \
