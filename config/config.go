@@ -460,10 +460,5 @@ func Init(configfile string, reload chan<- struct{}, mutex *sync.Mutex) error {
 		}
 	}
 
-	// Parse and override the default ingest url via environment variable
-	if url := os.Getenv("SFX_INGEST_URL"); url != "" {
-		viper.Set("ingesturl", url)
-	}
-
 	return nil
 }
