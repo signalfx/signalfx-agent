@@ -48,5 +48,4 @@ integrations:
         TLSClientKeyPassphrase "{{.}}"
         {{- end}}
         {{end}}
-
       </Module>
