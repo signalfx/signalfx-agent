@@ -20,9 +20,9 @@ integrations:
         Host "{{$.Host}}"
         Port {{$.Port}}
         User "{{$.Vars.Username}}"
-        {{with $.Vars.Password}}
+        {{with $.Vars.Password -}}
         Password "{{.}}"
-        {{end}}
+        {{- end }}
         Database "{{$database}}"
       </Database>
       {{end}}
