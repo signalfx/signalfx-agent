@@ -22,7 +22,7 @@ integrations:
         User "{{$.Vars.Username}}"
         {{with $.Vars.Password -}}
         Password "{{.}}"
-        {{- end }}
+        {{- end}}
         Database "{{$database}}"
       </Database>
       {{end}}
