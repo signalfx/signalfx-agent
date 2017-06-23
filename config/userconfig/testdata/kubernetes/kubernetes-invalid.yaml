@@ -1,0 +1,12 @@
+tls:
+  skipVerify: true
+  clientCert: "/path/to/cert"
+  clientKey: "/path/to/key"
+  caCert: "/path/to/ca"
+role: test
+cluster: kubernetes-cluster
+cadvisorURL: http://localhost:4493
+cadvisorDisabledMetrics:
+- container_cpu_utilization
+- container_cpu_utilization_per_core
+cadvisorSendRate: 30

@@ -1,0 +1,12 @@
+tls:
+  skipVerify: true
+  clientCert: "/path/to/certAlt"
+  clientKey: "/path/to/keyAlt"
+  caCert: "/path/to/caAlt"
+role: worker
+cluster: kubernetes-cluster
+cadvisorURL: http://localhost:8080
+cadvisorDisabledMetrics:
+- container_cpu_utilization
+- container_cpu_utilization_per_core
+cadvisorSendRate: 30

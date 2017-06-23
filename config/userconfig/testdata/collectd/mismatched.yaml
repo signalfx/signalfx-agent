@@ -1,0 +1,6 @@
+interval: 1
+timeout: 2
+readThreads: 3
+writeQueueLimitHigh: 4
+writeQueueLimitLow: 6
+collectInternalStats: true
