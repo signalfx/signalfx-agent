@@ -14,7 +14,7 @@ type TLS struct {
 	CACert     string `yaml:"caCert"`
 }
 
-// LoadYaml - load yaml file
+// LoadYAML - load yaml file
 func (t *TLS) LoadYAML(path string) error {
 	var err error
 	var file []byte

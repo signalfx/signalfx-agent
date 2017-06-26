@@ -13,7 +13,7 @@ type Proxy struct {
 	Skip  string
 }
 
-// LoadYaml - load yaml file
+// LoadYAML - load yaml file
 func (p *Proxy) LoadYAML(path string) error {
 	var err error
 	var file []byte

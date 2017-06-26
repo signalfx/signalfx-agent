@@ -15,6 +15,7 @@ const (
 	mesosMaster = "master"
 )
 
+// Mesosphere - mesosphere user configuration
 type Mesosphere struct {
 	Cluster      string
 	Role         string
@@ -22,7 +23,7 @@ type Mesosphere struct {
 	Verbose      bool `yaml:"verbose,omitempty"`
 }
 
-// LoadYaml - load yaml file
+// LoadYAML - load yaml file
 func (m *Mesosphere) LoadYAML(path string) error {
 	var err error
 	var file []byte
@@ -59,6 +60,7 @@ func (m *Mesosphere) Parse(mesos map[string]interface{}) error {
 	return nil
 }
 
+// ParseDimensions -
 func (m *Mesosphere) ParseDimensions(dims map[string]string) error {
 	var mesosPort int
 	var mesosIDDimName string

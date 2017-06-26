@@ -16,7 +16,7 @@ type UserConfig struct {
 	Proxy      *Proxy
 }
 
-// LoadYaml - load yaml file
+// LoadYAML - load yaml file
 func (u *UserConfig) LoadYAML(path string) error {
 	var err error
 	var file []byte

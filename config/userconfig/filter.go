@@ -16,7 +16,7 @@ type Filter struct {
 	Labels                   []*Label `yaml:"labels,omitempty"`
 }
 
-// LoadYaml - load yaml file
+// LoadYAML - load yaml file
 func (f *Filter) LoadYAML(path string) error {
 	var err error
 	var file []byte
@@ -29,7 +29,7 @@ func (f *Filter) LoadYAML(path string) error {
 	return err
 }
 
-// ParseConfig -
+// Parse -
 func (f *Filter) Parse(store map[string]interface{}) error {
 	// assign image filters
 	if len(f.Images) != 0 {

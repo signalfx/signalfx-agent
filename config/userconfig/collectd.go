@@ -16,7 +16,7 @@ type Collectd struct {
 	CollectInternalStats *bool `yaml:"collectInternalStats,omitempty"`
 }
 
-// LoadYaml - load yaml file
+// LoadYAML - load yaml file
 func (c *Collectd) LoadYAML(path string) error {
 	var err error
 	var file []byte
@@ -29,7 +29,7 @@ func (c *Collectd) LoadYAML(path string) error {
 	return err
 }
 
-// ParseConfig - parse configurations
+// Parse - parse configurations
 func (c *Collectd) Parse(collectd map[string]interface{}) error {
 	// Parse the interval used for collectd
 	if c.Interval != nil {
