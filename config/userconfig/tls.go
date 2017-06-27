@@ -6,7 +6,7 @@ import (
 	yaml "gopkg.in/yaml.v2"
 )
 
-// TLS - stores tls configurations
+// TLS stores tls configurations
 type TLS struct {
 	SkipVerify bool   `yaml:"skipVerify"`
 	ClientCert string `yaml:"clientCert"`
@@ -14,7 +14,7 @@ type TLS struct {
 	CACert     string `yaml:"caCert"`
 }
 
-// LoadYAML - load yaml file
+// LoadYAML loads a yaml file
 func (t *TLS) LoadYAML(path string) error {
 	var err error
 	var file []byte
@@ -27,7 +27,7 @@ func (t *TLS) LoadYAML(path string) error {
 	return err
 }
 
-// Parse -
+// Parse parses the configuration into a supplied map
 func (t *TLS) Parse(tls map[string]interface{}) error {
 	tls["caCert"] = t.CACert
 	tls["skipVerify"] = t.SkipVerify

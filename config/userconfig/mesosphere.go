@@ -15,7 +15,7 @@ const (
 	mesosMaster = "master"
 )
 
-// Mesosphere - mesosphere user configuration
+// Mesosphere mesosphere user configuration
 type Mesosphere struct {
 	Cluster      string
 	Role         string
@@ -23,7 +23,7 @@ type Mesosphere struct {
 	Verbose      bool `yaml:"verbose,omitempty"`
 }
 
-// LoadYAML - load yaml file
+// LoadYAML loads a yaml file
 func (m *Mesosphere) LoadYAML(path string) error {
 	var err error
 	var file []byte
@@ -36,7 +36,7 @@ func (m *Mesosphere) LoadYAML(path string) error {
 	return err
 }
 
-// IsValid -
+// IsValid determines if the configuration is valid
 func (m *Mesosphere) IsValid() (bool, error) {
 	if m.Cluster == "" {
 		return false, errors.New("mesosphere.cluster must be set")
@@ -47,7 +47,7 @@ func (m *Mesosphere) IsValid() (bool, error) {
 	return true, nil
 }
 
-// Parse -
+// Parse parses the configuration into a supplied map
 func (m *Mesosphere) Parse(mesos map[string]interface{}) error {
 	if ok, err := m.IsValid(); !ok {
 		return err
@@ -60,7 +60,7 @@ func (m *Mesosphere) Parse(mesos map[string]interface{}) error {
 	return nil
 }
 
-// ParseDimensions -
+// ParseDimensions parses the dimensions into the supplied map
 func (m *Mesosphere) ParseDimensions(dims map[string]string) error {
 	var mesosPort int
 	var mesosIDDimName string

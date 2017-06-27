@@ -9,7 +9,7 @@ import (
 
 const k8sWorker = "worker"
 
-// Kubernetes - user configuration struct for kubernetes
+// Kubernetes user configuration struct for kubernetes
 type Kubernetes struct {
 	TLS                  *TLS `yaml:"tls"`
 	Role                 string
@@ -19,7 +19,7 @@ type Kubernetes struct {
 	CAdvisorDataSendRate int      `yaml:"cadvisorSendRate,omitempty"`
 }
 
-// LoadYAML - load yaml file
+// LoadYAML loads a yaml file
 func (k *Kubernetes) LoadYAML(path string) error {
 	var err error
 	var file []byte
@@ -32,7 +32,7 @@ func (k *Kubernetes) LoadYAML(path string) error {
 	return err
 }
 
-// IsValid - checks whether the kubernetes cluster is set and has a valid role
+// IsValid checks whether the kubernetes cluster is set and has a valid role
 func (k *Kubernetes) IsValid() (bool, error) {
 	if k.Cluster == "" {
 		return false, errors.New("kubernetes.cluster missing")
@@ -43,7 +43,7 @@ func (k *Kubernetes) IsValid() (bool, error) {
 	return true, nil
 }
 
-// Parse - parses the configuration
+// Parse parses the configuration into a supplied map
 func (k *Kubernetes) Parse(kubernetes map[string]interface{}) error {
 	if ok, err := k.IsValid(); !ok {
 		return err
@@ -58,7 +58,7 @@ func (k *Kubernetes) Parse(kubernetes map[string]interface{}) error {
 	return nil
 }
 
-// ParseDimensions - parses dimensions
+// ParseDimensions parses dimensions into the supplied map
 func (k *Kubernetes) ParseDimensions(dims map[string]string) error {
 	if ok, err := k.IsValid(); !ok {
 		return err
@@ -70,7 +70,7 @@ func (k *Kubernetes) ParseDimensions(dims map[string]string) error {
 	return nil
 }
 
-// ParseCAdvisor - parses cadvisor configuration options
+// ParseCAdvisor parses cadvisor configurations into the supplied map
 func (k *Kubernetes) ParseCAdvisor(cadvisor map[string]interface{}) error {
 	if ok, err := k.IsValid(); !ok {
 		return err

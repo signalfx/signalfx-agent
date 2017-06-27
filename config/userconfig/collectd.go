@@ -6,7 +6,7 @@ import (
 	yaml "gopkg.in/yaml.v2"
 )
 
-// Collectd - struct for collectd configurations
+// Collectd struct for collectd configurations
 type Collectd struct {
 	Interval             *int  `yaml:"interval,omitempty"`
 	Timeout              *int  `yaml:"timeout,omitempty"`
@@ -16,7 +16,7 @@ type Collectd struct {
 	CollectInternalStats *bool `yaml:"collectInternalStats,omitempty"`
 }
 
-// LoadYAML - load yaml file
+// LoadYAML loads a yaml file
 func (c *Collectd) LoadYAML(path string) error {
 	var err error
 	var file []byte
@@ -29,7 +29,7 @@ func (c *Collectd) LoadYAML(path string) error {
 	return err
 }
 
-// Parse - parse configurations
+// Parse parses the configuration into a supplied map
 func (c *Collectd) Parse(collectd map[string]interface{}) error {
 	// Parse the interval used for collectd
 	if c.Interval != nil {

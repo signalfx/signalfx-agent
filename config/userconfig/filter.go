@@ -6,7 +6,7 @@ import (
 	yaml "gopkg.in/yaml.v2"
 )
 
-// Filter - specifies filters to exclude containers from docker plugin and cadvisor
+// Filter specifies filters to exclude containers from docker plugin and cadvisor
 type Filter struct {
 	DockerContainerNames     []string `yaml:"dockerContainerNames,omitempty"`
 	Images                   []string `yaml:"images,omitempty,omitempty"`
@@ -16,7 +16,7 @@ type Filter struct {
 	Labels                   []*Label `yaml:"labels,omitempty"`
 }
 
-// LoadYAML - load yaml file
+// LoadYAML load yaml file
 func (f *Filter) LoadYAML(path string) error {
 	var err error
 	var file []byte
@@ -29,7 +29,7 @@ func (f *Filter) LoadYAML(path string) error {
 	return err
 }
 
-// Parse -
+// Parse parses the configuration into a supplied map
 func (f *Filter) Parse(store map[string]interface{}) error {
 	// assign image filters
 	if len(f.Images) != 0 {
@@ -48,7 +48,7 @@ func (f *Filter) Parse(store map[string]interface{}) error {
 	return nil
 }
 
-// GetLabels -
+// GetLabels returns a map with all label filters
 func (f *Filter) GetLabels() []*Label {
 	var labels = []*Label{}
 

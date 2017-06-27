@@ -6,14 +6,14 @@ import (
 	yaml "gopkg.in/yaml.v2"
 )
 
-// Proxy - stores proxy configurations
+// Proxy stores proxy configurations
 type Proxy struct {
 	HTTP  string
 	HTTPS string
 	Skip  string
 }
 
-// LoadYAML - load yaml file
+// LoadYAML loads a yaml file
 func (p *Proxy) LoadYAML(path string) error {
 	var err error
 	var file []byte
@@ -26,7 +26,7 @@ func (p *Proxy) LoadYAML(path string) error {
 	return err
 }
 
-// Parse -
+// Parse parses the configuration into a supplied map
 func (p *Proxy) Parse(proxy map[string]string) error {
 	proxy["http"] = p.HTTP
 	proxy["https"] = p.HTTPS

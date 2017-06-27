@@ -6,7 +6,7 @@ import (
 	yaml "gopkg.in/yaml.v2"
 )
 
-// UserConfig - top level user configuration struct
+// UserConfig is the top level user configuration struct
 type UserConfig struct {
 	Collectd   *Collectd `yaml:"collectd,omitempty"`
 	Filter     *Filter   `yaml:"filterContianerMetrics,omitempty"`
@@ -16,7 +16,7 @@ type UserConfig struct {
 	Proxy      *Proxy
 }
 
-// LoadYAML - load yaml file
+// LoadYAML loads yaml file
 func (u *UserConfig) LoadYAML(path string) error {
 	var err error
 	var file []byte
