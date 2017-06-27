@@ -8,7 +8,7 @@ import (
 	"time"
 
 	"github.com/signalfx/cadvisor-integration/poller"
-	"github.com/signalfx/neo-agent/config"
+	"github.com/signalfx/neo-agent/config/userconfig"
 	"github.com/signalfx/neo-agent/plugins"
 	"github.com/signalfx/neo-agent/secrets"
 	"github.com/spf13/viper"
@@ -41,7 +41,7 @@ func NewCadvisor(name string, config *viper.Viper) (plugins.IPlugin, error) {
 // getLabelFilter - parses viper config and returns label filter
 func (c *Cadvisor) getLabelFilter() [][]*regexp.Regexp {
 	var exlabels = [][]*regexp.Regexp{}
-	var labels []*config.Label
+	var labels []*userconfig.Label
 	c.Config.UnmarshalKey("excludedLabels", &labels)
 	for _, label := range labels {
 		var kcomp *regexp.Regexp

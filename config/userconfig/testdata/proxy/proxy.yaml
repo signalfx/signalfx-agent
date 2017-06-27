@@ -1,0 +1,3 @@
+http: "http://www.notarealproxy.com"
+https: "https://www.notarealproxy.com"
+skip: "http://www.skipthis.com"

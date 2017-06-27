@@ -1,0 +1,16 @@
+dockerContainerNames:
+- "^somethingsnarky$"
+images:
+- "^elasticsearch:*"
+- "^mysql:*"
+kubernetesContainerNames:
+- "^redis:*"
+kubernetesPodNames:
+- "^podNameOne$"
+kubernetesNamespaces:
+- "^default$"
+labels:
+- key: "^environment$"
+  value: "^dev$"
+- key: "^environment$"
+  value: "^test$"  

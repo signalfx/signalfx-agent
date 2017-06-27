@@ -13,6 +13,7 @@ import (
 	"sync"
 
 	"github.com/docker/libkv/store"
+	"github.com/signalfx/neo-agent/config/userconfig"
 	"github.com/spf13/viper"
 	yaml "gopkg.in/yaml.v2"
 )
@@ -46,66 +47,6 @@ var (
 	configTimeout = 10 * time.Second
 )
 
-// Label - stores labels and label values
-type Label struct {
-	Key   string `yaml:"key"`
-	Value string `yaml:"value,omitempty"`
-}
-
-// Filter - specifies filters to exclude containers from docker plugin and cadvisor
-type Filter struct {
-	DockerContainerNames     []string `yaml:"dockerContainerNames,omitempty"`
-	Images                   []string `yaml:"images,omitempty,omitempty"`
-	KubernetesContainerNames []string `yaml:"kubernetesContainerNames,omitempty"`
-	KubernetesPodNames       []string `yaml:"kubernetesPodNames,omitempty"`
-	KubernetesNamespaces     []string `yaml:"kubernetesNamespaces,omitempty"`
-	Labels                   []*Label `yaml:"labels,omitempty"`
-}
-
-// Proxy - stores proxy configurations
-type Proxy struct {
-	HTTP  string
-	HTTPS string
-	Skip  string
-}
-
-// TLS - stores tls configurations
-type TLS struct {
-	SkipVerify bool   `yaml:"skipVerify"`
-	ClientCert string `yaml:"clientCert"`
-	ClientKey  string `yaml:"clientKey"`
-	CACert     string `yaml:"caCert"`
-}
-
-// userConfig - top level user configuration struct
-type userConfig struct {
-	Collectd *struct {
-		Interval             *int  `yaml:"interval,omitempty"`
-		Timeout              *int  `yaml:"timeout,omitempty"`
-		ReadThreads          *int  `yaml:"readThreads,omitempty"`
-		WriteQueueLimitHigh  *int  `yaml:"writeQueueLimitHigh,omitempty"`
-		WriteQueueLimitLow   *int  `yaml:"writeQueueLimitLow,omitempty"`
-		CollectInternalStats *bool `yaml:"collectInternalStats,omitempty"`
-	} `yaml:"collectd,omitempty"`
-	Filter     *Filter `yaml:"filterContianerMetrics,omitempty"`
-	IngestURL  string  `yaml:"ingestURL,omitempty"`
-	Kubernetes *struct {
-		TLS                  *TLS `yaml:"tls"`
-		Role                 string
-		Cluster              string
-		CAdvisorURL          string   `yaml:"cadvisorURL,omitempty"`
-		CAdvisorMetricFilter []string `yaml:"cadvisorDisabledMetrics,omitempty"`
-		CAdvisorDataSendRate int      `yaml:"cadvisorSendRate,omitempty"`
-	}
-	Mesosphere *struct {
-		Cluster      string
-		Role         string
-		SystemHealth bool `yaml:"systemHealth,omitempty"`
-		Verbose      bool `yaml:"verbose,omitempty"`
-	}
-	Proxy *Proxy
-}
-
 // getMergeConfigs returns list of config files to merge from the environment
 // variable
 func getMergeConfigs() []string {
@@ -121,10 +62,22 @@ func getMergeConfigs() []string {
 }
 
 func loadUserConfig(pair *store.KVPair) error {
-	var usercon userConfig
+	var usercon userconfig.UserConfig
 	if err := yaml.Unmarshal(pair.Value, &usercon); err != nil {
 		return err
 	}
+
+	// Check that Kubernetes and Mesosphere are not both configured
+	if usercon.Kubernetes != nil && usercon.Mesosphere != nil {
+		return errors.New("mesosphere and kubernetes cannot both be set")
+	}
+
+	// create kubernetes configuration map
+	kubernetes := map[string]interface{}{}
+
+	/// create mesosphere configuration map
+	mesosphere := map[string]interface{}{}
+
 	// create cadvisor configuration map
 	cadvisor := map[string]interface{}{}
 
@@ -158,162 +111,62 @@ func loadUserConfig(pair *store.KVPair) error {
 		v["ingesturl"] = usercon.IngestURL
 	}
 
-	// Parse collectd specific configurations
+	// parse collectd specific configurations
 	if collectdConf := usercon.Collectd; collectdConf != nil {
-		// Parse the interval used for collectd
-		if collectdConf.Interval != nil {
-			collectd["interval"] = *collectdConf.Interval
-		}
-		if collectdConf.Timeout != nil {
-			collectd["timeout"] = *collectdConf.Timeout
-		}
-		if collectdConf.ReadThreads != nil {
-			collectd["readThreads"] = *collectdConf.ReadThreads
-		}
-		if collectdConf.WriteQueueLimitHigh != nil {
-			collectd["writeQueueLimitHigh"] = *collectdConf.WriteQueueLimitHigh
-		}
-		if collectdConf.WriteQueueLimitLow != nil {
-			collectd["writeQueueLimitLow"] = *collectdConf.WriteQueueLimitLow
-		}
-		if collectdConf.CollectInternalStats != nil {
-			collectd["collectInternalStats"] = *collectdConf.CollectInternalStats
-		}
+		usercon.Collectd.Parse(collectd)
 	}
 
-	if usercon.Kubernetes != nil && usercon.Mesosphere != nil {
-		return errors.New("mesosphere and kubernetes cannot both be set")
-	}
-
-	// configure filters
+	// parse filter configurations
 	if filters := usercon.Filter; filters != nil {
-		// assign image filters
-		if len(filters.Images) != 0 {
-			dockerDefaults["excludedImages"] = filters.Images
-			cadvisor["excludedImages"] = filters.Images
-		}
-		// assign docker container name filter
-		if len(filters.DockerContainerNames) != 0 {
-			dockerDefaults["excludedNames"] = filters.DockerContainerNames
-			cadvisor["excludedNames"] = filters.DockerContainerNames
-		}
-		// configure the label filters
-		if len(filters.Labels) != 0 || len(filters.KubernetesNamespaces) != 0 || len(filters.KubernetesContainerNames) != 0 || len(filters.KubernetesPodNames) != 0 {
-			// assign namespaces to labels because k8s namespace is actually a label
-			for _, namespace := range filters.KubernetesNamespaces {
-				filters.Labels = append(filters.Labels, &Label{Key: "^io.kubernetes.pod.namespace$", Value: namespace})
-			}
-			// assign k8s container name to labels because k8s container name is actually a label
-			for _, containerName := range filters.KubernetesContainerNames {
-				filters.Labels = append(filters.Labels, &Label{Key: "^io.kubernetes.container.name$", Value: containerName})
-			}
-
-			// assign k8s pod name to labels because k8s podname is actually a label
-			for _, podName := range filters.KubernetesPodNames {
-				filters.Labels = append(filters.Labels, &Label{Key: "^io.kubernetes.pod.name$", Value: podName})
-			}
-
-			// if there are labels add them
-			if len(filters.Labels) != 0 {
-				// append the lables filter
-				dockerDefaults["excludedLabels"] = filters.Labels
-				cadvisor["excludedLabels"] = filters.Labels
-			}
-		}
+		// configure cadvisor filters
+		usercon.Filter.Parse(cadvisor)
+		// configure docker filters
+		usercon.Filter.Parse(dockerDefaults)
 		// Since the filters are set let's set docker-default
 		staticPlugins["docker-default"] = dockerDefaults
 	}
 
 	if kube := usercon.Kubernetes; kube != nil {
-		if kube.Cluster == "" {
-			return errors.New("kubernetes.cluster missing")
+		if ok, err := kube.IsValid(); !ok {
+			return err
 		}
-		if kube.Role != "worker" && kube.Role != "master" {
-			return errors.New("kubernetes.role must be worker or master")
-		}
+		// parse dimensions from kubernetes configuration
+		kube.ParseDimensions(dims)
 
-		dims["kubernetes_cluster"] = kube.Cluster
-		dims["kubernetes_role"] = kube.Role
-
-		if kube.Role == "worker" {
-			if kube.CAdvisorURL != "" || len(kube.CAdvisorMetricFilter) > 0 || kube.CAdvisorDataSendRate != 0 {
-				// parse metric names for cadvisor to not collect
-				if len(kube.CAdvisorMetricFilter) > 0 {
-					var filters = map[string]bool{}
-					for _, metric := range kube.CAdvisorMetricFilter {
-						filters[metric] = true
-					}
-					cadvisor["excludedMetrics"] = filters
-				}
-				if kube.CAdvisorURL != "" {
-					// add the config from user config to cadvisor plugin config
-					cadvisor["cadvisorurl"] = kube.CAdvisorURL
-				}
-				// set the data send rate for cadvisor
-				if kube.CAdvisorDataSendRate != 0 {
-					cadvisor["dataSendRate"] = kube.CAdvisorDataSendRate
-				}
-
-				// add config to plugins config
-				plugins["cadvisor"] = cadvisor
-			}
-			kubernetes := map[string]interface{}{}
-
-			tls := kube.TLS
-			tlsConfig := map[string]interface{}{
-				"caCert":     tls.CACert,
-				"skipVerify": tls.SkipVerify,
-				"clientCert": tls.ClientCert,
-				"clientKey":  tls.ClientKey,
-			}
-			kubernetes["tls"] = tlsConfig
+		// parse kubernetes configurations
+		kube.Parse(kubernetes)
+		if len(kubernetes) > 0 {
 			plugins["kubernetes"] = kubernetes
 		}
+
+		// cadvisor configurations come out of the kubernetes config
+		kube.ParseCAdvisor(cadvisor)
+		if len(cadvisor) > 0 {
+			plugins["cadvisor"] = cadvisor
+		}
 	}
 
+	// parse proxy configurations
 	if proxy := usercon.Proxy; proxy != nil {
 		proxyConfig := map[string]string{}
-		proxyConfig["http"] = proxy.HTTP
-		proxyConfig["https"] = proxy.HTTPS
-		proxyConfig["skip"] = proxy.Skip
-		plugins["proxy"] = proxyConfig
+		usercon.Proxy.Parse(proxyConfig)
+		if len(proxyConfig) > 0 {
+			plugins["proxy"] = proxyConfig
+		}
 	}
 
+	// Parse mesosphere configuration
 	if mesos := usercon.Mesosphere; mesos != nil {
-		var mesosPort int
-		var mesosIDDimName string
-		var mesosID string
-
-		client := NewMesosClient(viper.GetViper())
-		if mesos.Role == "master" {
-			mesosPort = 5050
-			mesosIDDimName = "mesos_master"
-		} else if mesos.Role == "worker" {
-			mesosIDDimName = "mesos_agent"
-			mesosPort = 5051
-		} else {
-			return errors.New("mesosphere role must be specified")
+		if ok, err := mesos.IsValid(); !ok {
+			return err
 		}
 
-		if err := client.Configure(viper.GetViper(), mesosPort); err != nil {
-			return fmt.Errorf("unable to configure mesos client at configuration time: %s", err)
-		}
+		mesos.ParseDimensions(dims)
 
-		ID, _ := client.GetID()
-		mesosID = ID.ID
-
-		if mesos.Cluster == "" {
-			return errors.New("mesosphere.cluster must be set")
-		}
-		dims["mesos_cluster"] = mesos.Cluster
-		dims["mesos_role"] = mesos.Role
-		dims[mesosIDDimName] = mesosID
-
-		// Set the cluster name for the mesos default plugin config
-		staticPlugins["mesos"] = map[string]interface{}{
-			"cluster":      mesos.Cluster,
-			"systemhealth": mesos.SystemHealth,
-			"verbose":      mesos.Verbose,
+		// parse mesos configurations
+		mesos.Parse(mesosphere)
+		if len(mesosphere) > 0 {
+			plugins["mesosphere"] = mesosphere
 		}
 	}
 
@@ -326,7 +179,6 @@ func loadUserConfig(pair *store.KVPair) error {
 	if err := viper.MergeConfig(r); err != nil {
 		return err
 	}
-
 	return nil
 }
 

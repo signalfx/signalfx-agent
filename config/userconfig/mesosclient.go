@@ -1,4 +1,4 @@
-package config
+package userconfig
 
 import (
 	"encoding/json"
@@ -12,12 +12,12 @@ import (
 	"github.com/spf13/viper"
 )
 
-// MesosID - struct for storing mesos id
+// MesosID struct for storing mesos id
 type MesosID struct {
 	ID string
 }
 
-// MesosClient - client for interacting with mesos api
+// MesosClient client for interacting with mesos api
 type MesosClient struct {
 	Config   *viper.Viper
 	hostURL  string
@@ -25,12 +25,12 @@ type MesosClient struct {
 	client   http.Client
 }
 
-// NewMesosClient client
+// NewMesosClient returns a new mesos client
 func NewMesosClient(config *viper.Viper) *MesosClient {
 	return &MesosClient{config, "", 5051, http.Client{}}
 }
 
-// GetID - retrieves the mesos id for the node
+// GetID retrieves the mesos id for the node
 func (mesos *MesosClient) GetID() (*MesosID, error) {
 	resp, err := mesos.client.Get(fmt.Sprintf("%s/state", mesos.hostURL))
 	if err != nil {
