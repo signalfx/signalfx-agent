@@ -15,7 +15,7 @@ import:
 - package: github.com/fsnotify/fsnotify
   version: ~1.4.2
 - package: github.com/signalfx/cadvisor-integration
-  version: c92ab75677331d149ba39fa79e76d2c1f64f31d6
+  version: 6957668bb9bb4263c25d8bfc7832a1e26a80eaa7
 - package: github.com/Knetic/govaluate
   version: 2.3.0
 testImport:
