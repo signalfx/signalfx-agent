@@ -75,14 +75,15 @@ RUN sed -i -e '/^deb-src/d' /etc/apt/sources.list \
     && apt-get install -y quilt \
     && apt-get clean
 
-LABEL go_version="1.7.4" \
+LABEL go_version="1.8.3" \
       java_version="1.8"
 
 # golang
+ENV GO_VERSION=1.8.3
 RUN cd /tmp \
-    && wget https://storage.googleapis.com/golang/go1.7.4.linux-amd64.tar.gz \
-    && tar -C /usr/local -xzf go1.7.4.linux-amd64.tar.gz \
-    && rm -f go1.7.4.linux-amd64.tar.gz
+    && wget https://storage.googleapis.com/golang/go${GO_VERSION}.linux-amd64.tar.gz \
+    && tar -C /usr/local -xzf go${GO_VERSION}.linux-amd64.tar.gz \
+    && rm -f go${GO_VERSION}.linux-amd64.tar.gz
 ENV GOROOT /usr/local/go
 ENV PATH /usr/local/go/bin:$PATH
 ENV GOPATH /opt/go

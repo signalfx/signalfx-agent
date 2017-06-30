@@ -17,6 +17,7 @@ type Kubernetes struct {
 	CAdvisorURL          string   `yaml:"cadvisorURL,omitempty"`
 	CAdvisorMetricFilter []string `yaml:"cadvisorDisabledMetrics,omitempty"`
 	CAdvisorDataSendRate int      `yaml:"cadvisorSendRate,omitempty"`
+	AlwaysReport         bool
 }
 
 // LoadYAML loads a yaml file
@@ -96,4 +97,9 @@ func (k *Kubernetes) ParseCAdvisor(cadvisor map[string]interface{}) error {
 		}
 	}
 	return nil
+}
+
+// This has nothing to do with parsing and so should not be called Parse*
+func (k *Kubernetes) PopulateMonitorConfig(subconf map[string]interface{}) {
+	subconf["alwaysReport"] = k.AlwaysReport
 }

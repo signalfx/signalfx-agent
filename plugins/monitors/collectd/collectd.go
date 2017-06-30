@@ -16,6 +16,7 @@ import (
 	"os"
 	"sync"
 	"time"
+	"unsafe"
 
 	"path/filepath"
 
@@ -417,7 +418,8 @@ func (collectd *Collectd) run() {
 	// TODO - global collectd interval should be configurable
 	interval := time.Duration(10 * time.Second)
 	cConfFile := C.CString(collectd.confFile)
-	defer C.free(cConfFile)
+	// See https://blog.golang.org/c-go-cgo#TOC_2. 
+	defer C.free(unsafe.Pointer(cConfFile))
 
 	C.plugin_init_ctx()
 

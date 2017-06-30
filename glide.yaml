@@ -1,8 +1,8 @@
 package: github.com/signalfx/neo-agent
 import:
 - package: github.com/docker/libkv
-  repo: https://github.com/signalfx/libkv.git
   version: a9894d135ee6319a13e5388c5ef4acac56138175
+  repo: https://github.com/signalfx/libkv.git
 - package: github.com/docker/engine-api
   version: ~0.4.0
   subpackages:
@@ -18,6 +18,10 @@ import:
   version: c92ab75677331d149ba39fa79e76d2c1f64f31d6
 - package: github.com/Knetic/govaluate
   version: 2.3.0
+- package: k8s.io/client-go
+  version: v2.0.0
+- package: github.com/onsi/ginkgo
+  version: ~1.3.1
 testImport:
 - package: github.com/kr/pretty
 - package: github.com/smartystreets/goconvey
