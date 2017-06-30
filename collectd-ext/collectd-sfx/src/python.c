@@ -1651,7 +1651,7 @@ static int cpy_reloadable_config(oconfig_item_t *ci) {
 
       llentry_t *loadedmodule = llist_search(list_loadedmodules, module_name);
       if (loadedmodule == NULL) {
-        INFO("importing module: %s", module_name);
+        DEBUG("importing module: %s", module_name);
         module = PyImport_ImportModule(module_name); /* New reference. */
         if (module == NULL) {
           ERROR("python plugin: Error importing module \"%s\".", module_name);
@@ -1665,12 +1665,12 @@ static int cpy_reloadable_config(oconfig_item_t *ci) {
               cpy_log_exception("importing module");
               status = 1;
             } else {
-                INFO("appended module %s", loadedmodule->key);
+                INFO("plugin_load: python module \"%s\" successfully loaded.", loadedmodule->key);
                 llist_append(list_loadedmodules, loadedmodule);
             }
         }
       } else {
-          INFO("reloading module: %s", module_name);
+          INFO("plugin_load: python module \"%s\" successfully reloaded." , module_name);
           module = PyImport_ReloadModule(loadedmodule->value);
           if (module == NULL) {
             ERROR("python plugin: Error reimporting module \"%s\".", module_name);
