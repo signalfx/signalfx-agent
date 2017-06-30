@@ -16,7 +16,6 @@ import (
 // This makes extensive use of the K8s client's "informer" framework, which is
 // fairly poorly documented but seems to work pretty well and is well suited to
 // our use case.
-
 type ClusterState struct {
 	clientset   *k8s.Clientset
 	indexers    map[string]cache.Indexer

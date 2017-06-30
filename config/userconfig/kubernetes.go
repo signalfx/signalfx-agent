@@ -99,7 +99,7 @@ func (k *Kubernetes) ParseCAdvisor(cadvisor map[string]interface{}) error {
 	return nil
 }
 
-// This has nothing to do with parsing and so should not be called Parse*
+// PopulateMonitorConfig This has nothing to do with parsing and so should not be called Parse*
 func (k *Kubernetes) PopulateMonitorConfig(subconf map[string]interface{}) {
 	subconf["alwaysReport"] = k.AlwaysReport
 }

@@ -1,6 +1,7 @@
 package kubernetes
 
 import (
+	"fmt"
 	"log"
 	"net/url"
 	"os"
@@ -10,7 +11,10 @@ import (
 	"github.com/spf13/viper"
 	"k8s.io/client-go/pkg/api/unversioned"
 	"k8s.io/client-go/pkg/api/v1"
+	"k8s.io/client-go/pkg/apis/extensions/v1beta1"
 	"k8s.io/client-go/pkg/watch"
+
+    sfxproto "github.com/signalfx/com_signalfx_metrics_protobuf"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -56,9 +60,22 @@ var _ = Describe("Kubernetes Monitor", func() {
 		monitor.Stop()
 	})
 
-	It("Sends pod phase metrics", func() {
-		defer GinkgoRecover()
+	// Making an int literal pointer requires a helper
+	intp := func(n int32) *int32 { return &n }
 
+	expectIntMetric := func(dps []*sfxproto.DataPoint, uidField, objUid string, metricName string, metricValue int) {
+		matched := false
+		for _, dp := range dps {
+			dims := ProtoDimensionsToMap(dp.GetDimensions())
+			if dp.GetMetric() == metricName && dims[uidField] == objUid {
+				Expect(dp.GetValue().GetIntValue()).To(Equal(int64(metricValue)))
+				matched = true
+			}
+		}
+		Expect(matched).To(Equal(true), fmt.Sprintf("%s %s %d", objUid, metricName, metricValue))
+	}
+
+	It("Sends pod phase metrics", func() {
 		doSetup(true, "")
 
 		fakeK8s.SetInitialList([]*v1.Pod{
@@ -81,7 +98,7 @@ var _ = Describe("Kubernetes Monitor", func() {
 
 		monitor.Start()
 
-		dps := fakeSignalFx.GetIngestedDatapoints()
+		dps := fakeSignalFx.PopIngestedDatapoints()
 
 		Expect(dps).To(HaveLen(2))
 
@@ -110,17 +127,9 @@ var _ = Describe("Kubernetes Monitor", func() {
 			},
 		}}
 
-		dps = fakeSignalFx.GetIngestedDatapoints()
+		dps = fakeSignalFx.PopIngestedDatapoints()
 		Expect(dps).To(HaveLen(4))
-		matched := false
-		for _, dp := range dps {
-			dims := ProtoDimensionsToMap(dp.GetDimensions())
-			if dp.GetMetric() == "kubernetes.container_restart_count" && dims["pod_uid"] == "1234" {
-				Expect(dp.GetValue().GetIntValue()).To(Equal(int64(0)))
-				matched = true
-			}
-		}
-		Expect(matched).To(Equal(true))
+		expectIntMetric(dps, "pod_uid", "1234", "kubernetes.container_restart_count", 0)
 
 		fakeK8s.EventInput <- WatchEvent{watch.Modified, &v1.Pod{
 			TypeMeta: unversioned.TypeMeta{
@@ -142,17 +151,9 @@ var _ = Describe("Kubernetes Monitor", func() {
 			},
 		}}
 
-		dps = fakeSignalFx.GetIngestedDatapoints()
+		dps = fakeSignalFx.PopIngestedDatapoints()
 		Expect(dps).To(HaveLen(4))
-		matched = false
-		for _, dp := range dps {
-			dims := ProtoDimensionsToMap(dp.GetDimensions())
-			if dp.GetMetric() == "kubernetes.container_restart_count" && dims["pod_uid"] == "1234" {
-				Expect(dp.GetValue().GetIntValue()).To(Equal(int64(2)))
-				matched = true
-			}
-		}
-		Expect(matched).To(Equal(true))
+		expectIntMetric(dps, "pod_uid", "1234", "kubernetes.container_restart_count", 2)
 
 		fakeK8s.EventInput <- WatchEvent{watch.Deleted, &v1.Pod{
 			TypeMeta: unversioned.TypeMeta{
@@ -174,13 +175,91 @@ var _ = Describe("Kubernetes Monitor", func() {
 			},
 		}}
 
-		dps = fakeSignalFx.GetIngestedDatapoints()
+		dps = fakeSignalFx.PopIngestedDatapoints()
 		Expect(dps).To(HaveLen(2))
 
 	}, 5)
 
-	//It("Sends Deployment metrics", func() {
-	//})
+	It("Sends Deployment metrics", func() {
+		doSetup(true, "")
+
+		fakeK8s.SetInitialList([]*v1.Pod{
+			&v1.Pod{
+				ObjectMeta: v1.ObjectMeta{
+					Name: "test1",
+					UID:  "1234",
+				},
+				Status: v1.PodStatus{
+					Phase: v1.PodRunning,
+				},
+			},
+		})
+
+		fakeK8s.SetInitialList([]*v1beta1.Deployment{
+			&v1beta1.Deployment{
+				ObjectMeta: v1.ObjectMeta{
+					Name: "deploy1",
+					UID:  "abcd",
+				},
+				Spec: v1beta1.DeploymentSpec{
+					Replicas: intp(int32(10)),
+				},
+				Status: v1beta1.DeploymentStatus{
+					AvailableReplicas: 5,
+				},
+			},
+			&v1beta1.Deployment{
+				ObjectMeta: v1.ObjectMeta{
+					Name: "deploy2",
+					UID:  "efgh",
+				},
+				Spec: v1beta1.DeploymentSpec{
+					Replicas: intp(int32(1)),
+				},
+				Status: v1beta1.DeploymentStatus{
+					AvailableReplicas: 1,
+				},
+			},
+		})
+
+		monitor.Start()
+
+		var dps []*sfxproto.DataPoint
+		Eventually(func() int {
+			dps = fakeSignalFx.PopIngestedDatapoints()
+			return len(dps)
+		}, 5).Should(BeNumerically(">", 2))
+
+		By("Reporting on existing deployments")
+		expectIntMetric(dps, "uid", "abcd", "kubernetes.deployment.desired", 10)
+		expectIntMetric(dps, "uid", "abcd", "kubernetes.deployment.available", 5)
+		expectIntMetric(dps, "uid", "efgh", "kubernetes.deployment.desired", 1)
+		expectIntMetric(dps, "uid", "efgh", "kubernetes.deployment.available", 1)
+
+		fakeK8s.EventInput <- WatchEvent{watch.Modified, &v1beta1.Deployment{
+			TypeMeta: unversioned.TypeMeta{
+				Kind:       "Deployment",
+				APIVersion: "extensions/v1beta1",
+			},
+			ObjectMeta: v1.ObjectMeta{
+				Name: "deploy2",
+				UID:  "efgh",
+			},
+			Spec: v1beta1.DeploymentSpec{
+				Replicas: intp(int32(1)),
+			},
+			Status: v1beta1.DeploymentStatus{
+				AvailableReplicas: 0,
+			},
+		}}
+
+		dps = fakeSignalFx.PopIngestedDatapoints()
+		By("Responding to events pushed on the watch API")
+		expectIntMetric(dps, "uid", "abcd", "kubernetes.deployment.desired", 10)
+		expectIntMetric(dps, "uid", "abcd", "kubernetes.deployment.available", 5)
+		expectIntMetric(dps, "uid", "efgh", "kubernetes.deployment.desired", 1)
+		expectIntMetric(dps, "uid", "efgh", "kubernetes.deployment.available", 0)
+	})
 
 	//It("Filters out unwanted namespaces and metrics", func() {
 	//})
@@ -216,7 +295,7 @@ var _ = Describe("Kubernetes Monitor", func() {
 
 		monitor.Start()
 
-		dps := fakeSignalFx.GetIngestedDatapoints()
+		dps := fakeSignalFx.PopIngestedDatapoints()
 
 		Expect(dps).To(HaveLen(2))
 	})
@@ -253,5 +332,56 @@ var _ = Describe("Kubernetes Monitor", func() {
 		monitor.Start()
 
 		fakeSignalFx.EnsureNoDatapoints()
+	})
+
+	It("Starts reporting if later becomes first in pod list", func() {
+		doSetup(false, "agent-2")
+		fakeK8s.SetInitialList([]*v1.Pod{
+			&v1.Pod{
+				ObjectMeta: v1.ObjectMeta{
+					Name: "agent-1",
+					UID:  "abcd",
+					Labels: map[string]string{
+						"app": "signalfx-agent",
+					},
+				},
+				Status: v1.PodStatus{
+					Phase: v1.PodRunning,
+				},
+			},
+			&v1.Pod{
+				ObjectMeta: v1.ObjectMeta{
+					Name: "agent-2",
+					UID:  "efgh",
+					Labels: map[string]string{
+						"app": "signalfx-agent",
+					},
+				},
+				Status: v1.PodStatus{
+					Phase: v1.PodRunning,
+				},
+			},
+		})
+
+		monitor.Start()
+
+		fakeSignalFx.EnsureNoDatapoints()
+
+		fakeK8s.EventInput <- WatchEvent{watch.Deleted, &v1.Pod{
+			TypeMeta: unversioned.TypeMeta{
+				Kind:       "Pod",
+				APIVersion: "v1",
+			},
+			ObjectMeta: v1.ObjectMeta{
+				Name: "agent-1",
+				UID:  "abcd",
+			},
+			Status: v1.PodStatus{
+				Phase: v1.PodRunning,
+			},
+		}}
+
+		dps := fakeSignalFx.PopIngestedDatapoints()
+		Expect(dps).To(HaveLen(1))
 	})
 })

@@ -65,6 +65,7 @@ func NewDatapointCache() *DatapointCache {
 
 // Mutex must be held throughout use of the returned datapoint slice unless you
 // make a copy of all datapoints!!
+// TODO: figure out how to make this more automatic and less verbose
 func (dc *DatapointCache) AllDatapoints() []*datapoint.Datapoint {
 	dps := make([]*datapoint.Datapoint, 0, dc.roughDatapointCount)
 
@@ -74,6 +75,25 @@ func (dc *DatapointCache) AllDatapoints() []*datapoint.Datapoint {
 
 	for _, dp := range dc.ContainerRestartCount {
 		dps = append(dps, dp)
+	}
+
+	for _, dsdps := range dc.DaemonSets {
+		dps = append(dps, []*datapoint.Datapoint{
+			dsdps.CurrentNumberScheduled,
+			dsdps.DesiredNumberScheduled,
+			dsdps.NumberMisscheduled,
+			dsdps.NumberReady,
+		}...)
+	}
+
+	replicaMaps := []map[types.UID]ReplicaDPs{dc.Deployments, dc.ReplicationControllers, dc.ReplicaSets}
+	for _, reps := range replicaMaps {
+		for _, rdps := range reps {
+			dps = append(dps, []*datapoint.Datapoint{
+				rdps.DesiredReplicas,
+				rdps.AvailableReplicas,
+			}...)
+		}
 	}
 
 	dc.roughDatapointCount = len(dps)
@@ -197,8 +217,8 @@ func (dc *DatapointCache) addDaemonSetDps(obj runtime.Object) {
 	dimensions := map[string]string{
 		"metric_source":            "kubernetes",
 		"kubernetes_pod_namespace": ds.Namespace,
-		"uid":             string(ds.UID),
-		"kubernetes_name": ds.Name,
+		"uid":                      string(ds.UID),
+		"kubernetes_name":          ds.Name,
 	}
 	dc.DaemonSets[ds.UID] = DaemonSetDPs{
 		CurrentNumberScheduled: &datapoint.Datapoint{

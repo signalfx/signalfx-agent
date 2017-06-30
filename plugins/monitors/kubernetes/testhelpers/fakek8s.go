@@ -8,6 +8,7 @@ import (
 	"sync"
 
     "k8s.io/client-go/pkg/api/v1"
+	"k8s.io/client-go/pkg/apis/extensions/v1beta1"
 	"k8s.io/client-go/pkg/api/unversioned"
 	"k8s.io/client-go/pkg/types"
     //"k8s.io/client-go/pkg/watch"
@@ -72,9 +73,31 @@ func (f *FakeK8s) URL() string {
 
 func (f *FakeK8s) SetInitialList(l interface{}) {
 	var resType ResourceType
+	// Trying to do this more generically locks up on the type assertion from
+	// interface{} without errors, not sure why
 	switch v := l.(type) {
 	case []*v1.Pod:
 		resType = PODS
+		for _, r := range v {
+			f.addToState(resType, r.UID, r)
+		}
+	case []*v1beta1.Deployment:
+		resType = DEPLOYMENTS
+		for _, r := range v {
+			f.addToState(resType, r.UID, r)
+		}
+	case []*v1beta1.ReplicaSet:
+		resType = REPLICA_SETS
+		for _, r := range v {
+			f.addToState(resType, r.UID, r)
+		}
+	case []*v1beta1.DaemonSet:
+		resType = DAEMON_SETS
+		for _, r := range v {
+			f.addToState(resType, r.UID, r)
+		}
+	case []*v1.ReplicationController:
+		resType = REPLICATION_CONTROLLERS
 		for _, r := range v {
 			f.addToState(resType, r.UID, r)
 		}
@@ -96,6 +119,18 @@ func (f *FakeK8s) acceptEvents(stopper <-chan struct{}) {
 			switch v := e.Object.(type) {
 			case *v1.Pod:
 				resType = PODS
+				uid = v.UID
+			case *v1.ReplicationController:
+				resType = REPLICATION_CONTROLLERS
+				uid = v.UID
+			case *v1beta1.Deployment:
+				resType = DEPLOYMENTS
+				uid = v.UID
+			case *v1beta1.DaemonSet:
+				resType = DAEMON_SETS
+				uid = v.UID
+			case *v1beta1.ReplicaSet:
+				resType = REPLICA_SETS
 				uid = v.UID
 			default:
 				log.Printf("Unknown resource type for %#v", e)
@@ -210,9 +245,9 @@ func (f *FakeK8s) sendList(resType ResourceType, rw http.ResponseWriter) {
 	}
 
 	l := v1.List{
-		typeMeta(resType),
-		unversioned.ListMeta{},
-		items,
+		TypeMeta: typeMeta(resType),
+		ListMeta: unversioned.ListMeta{},
+		Items:    items,
 	}
 
 	d, _ := json.Marshal(l)

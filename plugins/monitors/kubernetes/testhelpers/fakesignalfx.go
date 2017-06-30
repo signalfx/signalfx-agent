@@ -1,10 +1,12 @@
 package testhelpers
 
 import (
+	"fmt"
     "io"
     "io/ioutil"
     "net/http"
     "net/http/httptest"
+	"sync"
 
     sfxproto "github.com/signalfx/com_signalfx_metrics_protobuf"
     "github.com/gogo/protobuf/proto"
@@ -14,12 +16,13 @@ import (
 
 type FakeSignalFx struct {
     server           *httptest.Server
-    ReceivedContents chan []byte
+    received         []*sfxproto.DataPoint
+	lock             sync.Mutex
 }
 
 func NewFakeSignalFx() *FakeSignalFx {
     return &FakeSignalFx{
-        ReceivedContents: make(chan []byte, 100),
+        received: make([]*sfxproto.DataPoint, 0),
     }
 }
 
@@ -30,9 +33,6 @@ func (f *FakeSignalFx) Start() {
 
 func (f *FakeSignalFx) Close() {
     f.server.Close()
-	for len(f.ReceivedContents) > 0 {
-		<-f.ReceivedContents
-	}
 }
 
 func (f *FakeSignalFx) URL() string {
@@ -46,21 +46,32 @@ func (f *FakeSignalFx) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
     io.WriteString(rw, "\"OK\"")
 
     go func() {
-        f.ReceivedContents <- contents
+		dpUpload := &sfxproto.DataPointUploadMessage{}
+		err := proto.Unmarshal(contents, dpUpload)
+		if err != nil {
+			panic(fmt.Sprintf("Bad datapoint sent to SignalFx (%s): %#v", err, dpUpload))
+		}
+
+		f.lock.Lock()
+		f.received = append(f.received, dpUpload.GetDatapoints()...)
+		f.lock.Unlock()
     }()
 }
 
-func (f *FakeSignalFx) GetIngestedDatapoints() []*sfxproto.DataPoint {
-    var contents []byte
-    Eventually(f.ReceivedContents, 5).Should(Receive(&contents))
+func (f *FakeSignalFx) PopIngestedDatapoints() []*sfxproto.DataPoint {
+    Eventually(func() int { return len(f.received) }, 5).Should(BeNumerically(">", 0))
 
-    dpUpload := &sfxproto.DataPointUploadMessage{}
-    err := proto.Unmarshal(contents, dpUpload)
-    Expect(err).ToNot(HaveOccurred())
+	f.lock.Lock()
+	defer f.lock.Unlock()
 
-    return dpUpload.GetDatapoints()
+	ret := make([]*sfxproto.DataPoint, 0, len(f.received))
+	for _, dp := range f.received {
+		ret = append(ret, dp)
+	}
+	f.received = f.received[:0]
+    return ret
 }
 
 func (f *FakeSignalFx) EnsureNoDatapoints() {
-    Consistently(f.ReceivedContents, 4).ShouldNot(Receive())
+    Consistently(func() int { return len(f.received) }, 4).Should(Equal(0))
 }
