@@ -1413,7 +1413,6 @@ static int cpy_config(oconfig_item_t *ci) {
 // SIGNALFX_EIM start
 
 static int cpy_reloadable_shutdown(void) {
-  INFO("IN cpy_reloadable_shutdown");
 
   PyObject *ret;
 
@@ -1442,7 +1441,6 @@ static int cpy_reloadable_shutdown(void) {
 }
 
 static int cpy_reloadable_init(void) {
-  INFO("IN cpy_reloadable_init");
 
   PyObject *ret;
 
@@ -1467,7 +1465,6 @@ static int cpy_reloadable_init(void) {
 }
 
 static int cpy_reloadable_init_python(void) {
-  INFO("IN cpy_reloadable_init_python");
 
   PyObject *sys;
   PyObject *module;
@@ -1546,7 +1543,6 @@ static int cpy_reloadable_init_python(void) {
 }
 
 static int cpy_reloadable_config(oconfig_item_t *ci) {
-  INFO("IN cpy_reloadable_config");
 
   PyObject *tb;
   int status = 0;
