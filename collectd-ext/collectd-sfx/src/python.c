@@ -1413,7 +1413,6 @@ static int cpy_config(oconfig_item_t *ci) {
 // SIGNALFX_EIM start
 
 static int cpy_reloadable_shutdown(void) {
-  INFO("IN cpy_reloadable_shutdown");
 
   PyObject *ret;
 
@@ -1442,7 +1441,6 @@ static int cpy_reloadable_shutdown(void) {
 }
 
 static int cpy_reloadable_init(void) {
-  INFO("IN cpy_reloadable_init");
 
   PyObject *ret;
 
@@ -1467,7 +1465,6 @@ static int cpy_reloadable_init(void) {
 }
 
 static int cpy_reloadable_init_python(void) {
-  INFO("IN cpy_reloadable_init_python");
 
   PyObject *sys;
   PyObject *module;
@@ -1546,7 +1543,6 @@ static int cpy_reloadable_init_python(void) {
 }
 
 static int cpy_reloadable_config(oconfig_item_t *ci) {
-  INFO("IN cpy_reloadable_config");
 
   PyObject *tb;
   int status = 0;
@@ -1655,7 +1651,7 @@ static int cpy_reloadable_config(oconfig_item_t *ci) {
 
       llentry_t *loadedmodule = llist_search(list_loadedmodules, module_name);
       if (loadedmodule == NULL) {
-        INFO("importing module: %s", module_name);
+        DEBUG("importing module: %s", module_name);
         module = PyImport_ImportModule(module_name); /* New reference. */
         if (module == NULL) {
           ERROR("python plugin: Error importing module \"%s\".", module_name);
@@ -1669,12 +1665,12 @@ static int cpy_reloadable_config(oconfig_item_t *ci) {
               cpy_log_exception("importing module");
               status = 1;
             } else {
-                INFO("appended module %s", loadedmodule->key);
+                INFO("plugin_load: python module \"%s\" successfully loaded.", loadedmodule->key);
                 llist_append(list_loadedmodules, loadedmodule);
             }
         }
       } else {
-          INFO("reloading module: %s", module_name);
+          INFO("plugin_load: python module \"%s\" successfully reloaded." , module_name);
           module = PyImport_ReloadModule(loadedmodule->value);
           if (module == NULL) {
             ERROR("python plugin: Error reimporting module \"%s\".", module_name);
