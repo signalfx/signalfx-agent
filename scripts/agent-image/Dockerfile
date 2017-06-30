@@ -147,6 +147,7 @@ COPY etc /etc/signalfx/
 COPY agent /usr/sbin/signalfx-agent
 COPY libcollectd.so /usr/local/lib/collectd/libcollectd.so
 COPY java.so /usr/lib/collectd/java.so
+COPY memcached.so /usr/lib/collectd/memcached.so
 COPY mysql.so /usr/lib/collectd/mysql.so
 COPY nginx.so /usr/lib/collectd/nginx.so
 COPY python.so /usr/lib/collectd/python.so
