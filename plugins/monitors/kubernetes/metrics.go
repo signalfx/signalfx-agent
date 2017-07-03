@@ -13,16 +13,18 @@ import (
 	"k8s.io/client-go/pkg/types"
 )
 
-type ContainerId string
+// ContainerID is some type of unique id for containers
+type ContainerID string
 
-// Relevant datapoints for replication resources.  There are other metrics we
-// could pull that give a more fine-grained view into non-available replicas,
-// but these two should suffice for most users needs to start.
+// ReplicaDPs hold datapoints for replication resources.  There are other
+// metrics we could pull that give a more fine-grained view into non-available
+// replicas, but these two should suffice for most users needs to start.
 type ReplicaDPs struct {
 	DesiredReplicas   *datapoint.Datapoint
 	AvailableReplicas *datapoint.Datapoint
 }
 
+// DaemonSetDPs hold datapoints relevant to Daemon Sets
 type DaemonSetDPs struct {
 	CurrentNumberScheduled *datapoint.Datapoint
 	DesiredNumberScheduled *datapoint.Datapoint
@@ -30,16 +32,15 @@ type DaemonSetDPs struct {
 	NumberReady            *datapoint.Datapoint
 }
 
-// Maintain an up to date set of datapoints at all times and just send them on
-// demand.
-// All count metrics (e.g. pod/container/deployment counts) should be derived
-// from other metrics to cut down on DPM.
+// DatapointCache maintains an up to date set of datapoints at all times and
+// just send them on demand. All count metrics (e.g. pod/container/deployment
+// counts) should be derived from other metrics to cut down on DPM.
 type DatapointCache struct {
 	// Int value of the datapoint.Datapoint corresponds to the phase (see `phaseToInt` below)
 	PodPhases map[types.UID]*datapoint.Datapoint
 	// These will cap at 5 according to
 	// https://kubernetes.io/docs/api-reference/v1.5/#containerstatus-v1
-	ContainerRestartCount  map[ContainerId]*datapoint.Datapoint
+	ContainerRestartCount  map[ContainerID]*datapoint.Datapoint
 	DaemonSets             map[types.UID]DaemonSetDPs
 	Deployments            map[types.UID]ReplicaDPs
 	ReplicationControllers map[types.UID]ReplicaDPs
@@ -50,10 +51,10 @@ type DatapointCache struct {
 	roughDatapointCount int
 }
 
-func NewDatapointCache() *DatapointCache {
+func newDatapointCache() *DatapointCache {
 	return &DatapointCache{
 		PodPhases:              make(map[types.UID]*datapoint.Datapoint),
-		ContainerRestartCount:  make(map[ContainerId]*datapoint.Datapoint),
+		ContainerRestartCount:  make(map[ContainerID]*datapoint.Datapoint),
 		DaemonSets:             make(map[types.UID]DaemonSetDPs),
 		Deployments:            make(map[types.UID]ReplicaDPs),
 		ReplicationControllers: make(map[types.UID]ReplicaDPs),
@@ -63,8 +64,9 @@ func NewDatapointCache() *DatapointCache {
 	}
 }
 
-// Mutex must be held throughout use of the returned datapoint slice unless you
-// make a copy of all datapoints!!
+// AllDatapoints returns all of the datapoints as a slice.  Mutex must be held
+// throughout use of the returned datapoint slice unless you make a copy of all
+// datapoints!!
 // TODO: figure out how to make this more automatic and less verbose
 func (dc *DatapointCache) AllDatapoints() []*datapoint.Datapoint {
 	dps := make([]*datapoint.Datapoint, 0, dc.roughDatapointCount)
@@ -101,6 +103,8 @@ func (dc *DatapointCache) AllDatapoints() []*datapoint.Datapoint {
 	return dps
 }
 
+// HandleChange updates the datapoint cache when called with the old and new
+// resources.  Delete only includes the old, and adds only includes the new.
 func (dc *DatapointCache) HandleChange(oldObj, newObj runtime.Object) {
 	dc.Mutex.Lock()
 	defer dc.Mutex.Unlock()
@@ -163,8 +167,8 @@ func phaseToInt(phase v1.PodPhase) int64 {
 }
 
 // Container Id is not guaranteed to exist, so make our own
-func makeContUID(podUID types.UID, name string) ContainerId {
-	return ContainerId(string(podUID) + ":" + name)
+func makeContUID(podUID types.UID, name string) ContainerID {
+	return ContainerID(string(podUID) + ":" + name)
 }
 
 // Assumes mutex is held by caller

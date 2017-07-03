@@ -42,11 +42,11 @@ import (
 //
 // This plugin requires read-only access to the K8s API.
 
-// Make a distinction between the plugin and the monitor itself for less
-// coupling to neo-agent in case we split it out at some point
-type KubernetesMonitorPlugin struct {
+// Plugin makes a distinction between the plugin and the monitor
+// itself for less coupling to neo-agent in case we split it out at some point
+type Plugin struct {
 	plugins.Plugin
-	monitor *KubernetesMonitor
+	monitor *Kubernetes
 }
 
 const (
@@ -54,16 +54,17 @@ const (
 )
 
 func init() {
-	plugins.Register(pluginType, NewKubernetesMonitorPlugin)
+	plugins.Register(pluginType, NewPlugin)
 }
 
-func NewKubernetesMonitorPlugin(name string, config *viper.Viper) (plugins.IPlugin, error) {
+// NewPlugin makes a new instance of the plugin
+func NewPlugin(name string, config *viper.Viper) (plugins.IPlugin, error) {
 	plugin, err := plugins.NewPlugin(name, pluginType, config)
 	if err != nil {
 		return nil, err
 	}
 
-	kmp := &KubernetesMonitorPlugin{
+	kmp := &Plugin{
 		Plugin:  plugin,
 		monitor: nil, // This gets set in Configure
 	}
@@ -113,7 +114,8 @@ func makeK8sClient(config *viper.Viper) (*k8s.Clientset, error) {
 	return client, nil
 }
 
-func (kmp *KubernetesMonitorPlugin) Configure(config *viper.Viper) error {
+// Configure is called by the plugin framework when configuration changes
+func (kmp *Plugin) Configure(config *viper.Viper) error {
 	kmp.Stop()
 
 	kmp.Config = config
@@ -134,18 +136,18 @@ func (kmp *KubernetesMonitorPlugin) Configure(config *viper.Viper) error {
 	}
 	sfxClient.AuthToken = sfxAccessToken
 
-	sfxIngestUrl := config.GetString("ingesturl")
-	if sfxIngestUrl != "" {
-		baseUrl, err := url.Parse(sfxIngestUrl)
+	sfxIngestURL := config.GetString("ingesturl")
+	if sfxIngestURL != "" {
+		baseURL, err := url.Parse(sfxIngestURL)
 		if err != nil {
 			return fmt.Errorf("Could not parse SignalFx ingest url: %s", err)
 		}
 
-		endpointUrl, err := baseUrl.Parse("v2/datapoint")
+		endpointURL, err := baseURL.Parse("v2/datapoint")
 		if err != nil {
 			return fmt.Errorf("Something went horribly wrong: %s", err)
 		}
-		sfxClient.DatapointEndpoint = endpointUrl.String()
+		sfxClient.DatapointEndpoint = endpointURL.String()
 	}
 
 	alwaysReport := config.GetBool("alwaysReport")
@@ -161,21 +163,23 @@ func (kmp *KubernetesMonitorPlugin) Configure(config *viper.Viper) error {
 		}
 	}
 
-	kmp.monitor = NewKubernetesMonitor(k8sClient, sfxClient, interval, alwaysReport, thisPodName)
+	kmp.monitor = NewKubernetes(k8sClient, sfxClient, interval, alwaysReport, thisPodName)
 
-	kmp.monitor.MetricFilter = NewFilterSet(config.GetStringSlice("metricFilter"))
-	kmp.monitor.NamespaceFilter = NewFilterSet(config.GetStringSlice("namespaceFilter"))
+	kmp.monitor.MetricFilter = newFilterSet(config.GetStringSlice("metricFilter"))
+	kmp.monitor.NamespaceFilter = newFilterSet(config.GetStringSlice("namespaceFilter"))
 
 	return nil
 }
 
-func (kmp *KubernetesMonitorPlugin) Stop() {
+// Stop halts everything that is syncing
+func (kmp *Plugin) Stop() {
 	if kmp.monitor != nil {
 		kmp.monitor.Stop()
 	}
 }
 
-func (kmp *KubernetesMonitorPlugin) Start() error {
+// Start begins the data collection
+func (kmp *Plugin) Start() error {
 	kmp.monitor.Start()
 	return nil
 }

@@ -15,15 +15,19 @@ import (
     "k8s.io/client-go/pkg/runtime"
 )
 
+// ResourceType is an enum
 type ResourceType int
+// Enum values for ResourceType
 const (
-	PODS ResourceType = iota
-	DEPLOYMENTS
-	REPLICATION_CONTROLLERS
-	DAEMON_SETS
-	REPLICA_SETS
+	Pods ResourceType = iota
+	Deployments
+	ReplicationControllers
+	DaemonSets
+	ReplicaSets
 )
 
+// FakeK8s is a mock K8s API server.  It can serve both list and watch
+// requests.
 type FakeK8s struct {
     server           *httptest.Server
 	// Resources that have been inserted on the ResourceInput channel
@@ -41,6 +45,7 @@ type FakeK8s struct {
 	stoppers         map[ResourceType]chan struct{}
 }
 
+// NewFakeK8s makes a new FakeK8s
 func NewFakeK8s() *FakeK8s {
     return &FakeK8s{
 		state:         make(map[ResourceType]map[types.UID]runtime.Object),
@@ -50,6 +55,7 @@ func NewFakeK8s() *FakeK8s {
     }
 }
 
+// Start creates the server and starts it
 func (f *FakeK8s) Start() {
     f.server = httptest.NewUnstartedServer(f)
     f.server.StartTLS()
@@ -58,6 +64,7 @@ func (f *FakeK8s) Start() {
 	go f.acceptEvents(f.eventStopper)
 }
 
+// Close stops the server and all watchers
 func (f *FakeK8s) Close() {
     f.server.Close()
 
@@ -67,37 +74,40 @@ func (f *FakeK8s) Close() {
 	}
 }
 
+// URL is the of the mock server to point your objects under test to
 func (f *FakeK8s) URL() string {
     return f.server.URL
 }
 
+// SetInitialList adds resources to the server state that are served when doing
+// list requests.  l can be a list of any of the supported resource types.
 func (f *FakeK8s) SetInitialList(l interface{}) {
 	var resType ResourceType
 	// Trying to do this more generically locks up on the type assertion from
 	// interface{} without errors, not sure why
 	switch v := l.(type) {
 	case []*v1.Pod:
-		resType = PODS
+		resType = Pods
 		for _, r := range v {
 			f.addToState(resType, r.UID, r)
 		}
 	case []*v1beta1.Deployment:
-		resType = DEPLOYMENTS
+		resType = Deployments
 		for _, r := range v {
 			f.addToState(resType, r.UID, r)
 		}
 	case []*v1beta1.ReplicaSet:
-		resType = REPLICA_SETS
+		resType = ReplicaSets
 		for _, r := range v {
 			f.addToState(resType, r.UID, r)
 		}
 	case []*v1beta1.DaemonSet:
-		resType = DAEMON_SETS
+		resType = DaemonSets
 		for _, r := range v {
 			f.addToState(resType, r.UID, r)
 		}
 	case []*v1.ReplicationController:
-		resType = REPLICATION_CONTROLLERS
+		resType = ReplicationControllers
 		for _, r := range v {
 			f.addToState(resType, r.UID, r)
 		}
@@ -118,19 +128,19 @@ func (f *FakeK8s) acceptEvents(stopper <-chan struct{}) {
 
 			switch v := e.Object.(type) {
 			case *v1.Pod:
-				resType = PODS
+				resType = Pods
 				uid = v.UID
 			case *v1.ReplicationController:
-				resType = REPLICATION_CONTROLLERS
+				resType = ReplicationControllers
 				uid = v.UID
 			case *v1beta1.Deployment:
-				resType = DEPLOYMENTS
+				resType = Deployments
 				uid = v.UID
 			case *v1beta1.DaemonSet:
-				resType = DAEMON_SETS
+				resType = DaemonSets
 				uid = v.UID
 			case *v1beta1.ReplicaSet:
-				resType = REPLICA_SETS
+				resType = ReplicaSets
 				uid = v.UID
 			default:
 				log.Printf("Unknown resource type for %#v", e)
@@ -156,39 +166,40 @@ func (f *FakeK8s) addToState(resType ResourceType, uid types.UID, resource runti
 	f.state[resType][uid] = resource
 }
 
+// ServeHTTP handles a single request
 func (f *FakeK8s) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 	log.Printf("Request: %s", r.URL.String())
 
 	rw.Header().Add("Content-Type", "application/json")
 
 	var resource ResourceType
-	var isWatch bool = false
+	var isWatch = false
 	switch r.URL.Path {
 	case "/api/v1/watch/pods":
 		isWatch = true
 		fallthrough
 	case "/api/v1/pods":
-		resource = PODS
+		resource = Pods
 	case "/api/v1/watch/replicationcontrollers":
 		isWatch = true
 		fallthrough
 	case "/api/v1/replicationcontrollers":
-		resource = REPLICATION_CONTROLLERS
+		resource = ReplicationControllers
 	case "/apis/extensions/v1beta1/watch/replicasets":
 		isWatch = true
 		fallthrough
 	case "/apis/extensions/v1beta1/replicasets":
-		resource = REPLICA_SETS
+		resource = ReplicaSets
 	case "/apis/extensions/v1beta1/watch/daemonsets":
 		isWatch = true
 		fallthrough
 	case "/apis/extensions/v1beta1/daemonsets":
-		resource = DAEMON_SETS
+		resource = DaemonSets
 	case "/apis/extensions/v1beta1/watch/deployments":
 		isWatch = true
 		fallthrough
 	case "/apis/extensions/v1beta1/deployments":
-		resource = DEPLOYMENTS
+		resource = Deployments
 	default:
 		log.Printf("API Resource Not Implemented: %s", r.URL.String())
 		rw.WriteHeader(http.StatusNotFound)
@@ -258,15 +269,15 @@ func (f *FakeK8s) sendList(resType ResourceType, rw http.ResponseWriter) {
 
 func typeMeta(rt ResourceType) unversioned.TypeMeta {
 	switch rt {
-	case PODS:
+	case Pods:
 		return unversioned.TypeMeta{"PodList", "v1"}
-	case REPLICATION_CONTROLLERS:
+	case ReplicationControllers:
 		return unversioned.TypeMeta{"ReplicationControllerList", "v1"}
-	case DEPLOYMENTS:
+	case Deployments:
 		return unversioned.TypeMeta{"DeploymentList", "extensions/v1beta1"}
-	case DAEMON_SETS:
+	case DaemonSets:
 		return unversioned.TypeMeta{"DaemonSetList", "extensions/v1beta1"}
-	case REPLICA_SETS:
+	case ReplicaSets:
 		return unversioned.TypeMeta{"ReplicaSetList", "extensions/v1beta1"}
 	default:
 		panic("Unknown resource type: " + string(rt))

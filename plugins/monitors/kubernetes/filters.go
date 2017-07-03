@@ -2,7 +2,7 @@ package kubernetes
 
 import "strings"
 
-// Describes both positive and negative filtration of string values.  
+// FilterSet describes both positive and negative filtration of string values.
 type FilterSet struct {
 	inclusions map[string]bool
 	exclusions map[string]bool
@@ -13,7 +13,7 @@ type FilterSet struct {
 // everything not in the exclusion filter will pass.  If there are inclusion
 // filters, then a string must be in the inclusion filter and not in the
 // exclusion filter to pass.
-func NewFilterSet(ss []string) *FilterSet {
+func newFilterSet(ss []string) *FilterSet {
 	exclusions := make(map[string]bool)
 	inclusions := make(map[string]bool)
 	for _, s := range ss {
@@ -29,11 +29,10 @@ func NewFilterSet(ss []string) *FilterSet {
 	}
 }
 
-// Returns whether the string should be filtered out
+// IsExcluded says whether the string should be filtered out
 func (fs FilterSet) IsExcluded(s string) bool {
 	if len(fs.inclusions) > 0 {
 		return !fs.inclusions[s] || fs.exclusions[s]
-	} else {
-		return fs.exclusions[s]
 	}
+	return fs.exclusions[s]
 }

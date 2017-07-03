@@ -13,9 +13,9 @@ import (
 	"github.com/signalfx/golib/sfxclient"
 )
 
-// Make a distinction between the plugin type and the acutal monitor for easier
-// testing
-type KubernetesMonitor struct {
+// Kubernetes is distinct from the plugin type for less coupling to
+// neo-agent
+type Kubernetes struct {
 	sfxClient        *sfxclient.HTTPSink
 	// How often to report metrics to SignalFx
 	intervalSeconds  uint
@@ -34,17 +34,18 @@ type KubernetesMonitor struct {
 	NamespaceFilter *FilterSet
 }
 
-func NewKubernetesMonitor(k8sClient *k8s.Clientset,
+// NewKubernetes creates a new monitor instance
+func NewKubernetes(k8sClient *k8s.Clientset,
 	sfxClient *sfxclient.HTTPSink,
 	interval uint,
 	alwaysReport bool,
-	thisPodName string) *KubernetesMonitor {
-	datapointCache := NewDatapointCache()
+	thisPodName string) *Kubernetes {
+	datapointCache := newDatapointCache()
 
-	clusterState := NewClusterState(k8sClient)
+	clusterState := newClusterState(k8sClient)
 	clusterState.ChangeFunc = datapointCache.HandleChange
 
-	return &KubernetesMonitor{
+	return &Kubernetes{
 		sfxClient:       sfxClient,
 		datapointCache:  datapointCache,
 		clusterState:    clusterState,
@@ -55,7 +56,8 @@ func NewKubernetesMonitor(k8sClient *k8s.Clientset,
 	}
 }
 
-func (km *KubernetesMonitor) Start() error {
+// Start starts syncing resources and sending datapoints to ingest
+func (km *Kubernetes) Start() error {
 	km.clusterState.StartSyncing(&v1.Pod{})
 
 	ticker := time.NewTicker(time.Second * time.Duration(km.intervalSeconds))
@@ -79,7 +81,7 @@ func (km *KubernetesMonitor) Start() error {
 }
 
 // Timestamps are updated in place
-func UpdateTimestamps(dps []*datapoint.Datapoint) []*datapoint.Datapoint {
+func updateTimestamps(dps []*datapoint.Datapoint) []*datapoint.Datapoint {
 	// Update timestamp
 	now := time.Now()
 	for _, dp := range dps {
@@ -89,7 +91,7 @@ func UpdateTimestamps(dps []*datapoint.Datapoint) []*datapoint.Datapoint {
 	return dps
 }
 
-func (km *KubernetesMonitor) filterDatapoints(dps []*datapoint.Datapoint) []*datapoint.Datapoint {
+func (km *Kubernetes) filterDatapoints(dps []*datapoint.Datapoint) []*datapoint.Datapoint {
 	newDps := make([]*datapoint.Datapoint, 0, len(dps))
 	for _, dp := range dps {
 		metricNamePasses := !km.MetricFilter.IsExcluded(dp.Metric)
@@ -105,11 +107,11 @@ func (km *KubernetesMonitor) filterDatapoints(dps []*datapoint.Datapoint) []*dat
 }
 
 // Synchonously send all of the cached datapoints to ingest
-func (km *KubernetesMonitor) sendLatestDatapoints() {
+func (km *Kubernetes) sendLatestDatapoints() {
 	km.datapointCache.Mutex.Lock()
 	defer km.datapointCache.Mutex.Unlock()
 
-	dps := UpdateTimestamps(km.filterDatapoints(km.datapointCache.AllDatapoints()))
+	dps := updateTimestamps(km.filterDatapoints(km.datapointCache.AllDatapoints()))
 	log.Printf("Pushing %d metrics to SignalFx", len(dps))
 
 	// This sends synchonously despite what the first param might seem to
@@ -121,7 +123,8 @@ func (km *KubernetesMonitor) sendLatestDatapoints() {
 	}
 }
 
-func (km *KubernetesMonitor) Stop() {
+// Stop halts all syncing and sending of metrics to ingest
+func (km *Kubernetes) Stop() {
 	km.stop <- struct{}{}
 	km.clusterState.Stop()
 }
@@ -131,7 +134,7 @@ func (km *KubernetesMonitor) Stop() {
 // another (for simplified setup).  About the simplest way to do that is to
 // have it be the agent with the pod name that is first when all of the names
 // are sorted ascending.
-func (km *KubernetesMonitor) isReporter() bool {
+func (km *Kubernetes) isReporter() bool {
 	if km.alwaysReport {
 		return true
 	} else if km.thisPodName != "" {

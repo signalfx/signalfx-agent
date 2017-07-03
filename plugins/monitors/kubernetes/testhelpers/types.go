@@ -5,6 +5,10 @@ import (
     "k8s.io/client-go/pkg/runtime"
 )
 
+// WatchEvent is a copy of watch event from the main k8s package, used by the
+// mock k8s server to serialize watch events.  This is duplicated here in order
+// to avoid importing a large dependency that has disparate different types
+// from the go-client library for k8s.
 type WatchEvent struct {
 	// The type of the watch event; added, modified, deleted, or error.
 	// +optional

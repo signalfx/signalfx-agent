@@ -40,12 +40,12 @@ var _ = Describe("Kubernetes plugin", func() {
 
 		fakeK8s = NewFakeK8s()
 		fakeK8s.Start()
-		k8sUrl, _ := url.Parse(fakeK8s.URL())
+		K8sURL, _ := url.Parse(fakeK8s.URL())
 
 		// The k8s go library picks these up -- they are set automatically in
 		// containers running in a real k8s env
-		os.Setenv("KUBERNETES_SERVICE_HOST", k8sUrl.Hostname())
-		os.Setenv("KUBERNETES_SERVICE_PORT", k8sUrl.Port())
+		os.Setenv("KUBERNETES_SERVICE_HOST", K8sURL.Hostname())
+		os.Setenv("KUBERNETES_SERVICE_PORT", K8sURL.Port())
 
 	})
 
@@ -56,7 +56,7 @@ var _ = Describe("Kubernetes plugin", func() {
 		os.Setenv("SFX_ACCESS_TOKEN", "deadbeef")
 
 		var err error
-		plugin, err = NewKubernetesMonitorPlugin("monitors/kubernetes", config)
+		plugin, err = NewPlugin("monitors/kubernetes", config)
 		log.Printf("plugin: %p; %s", plugin, err)
 		if err != nil {
 			Fail(err.Error())

@@ -13,9 +13,9 @@ import (
 	"k8s.io/client-go/tools/cache"
 )
 
-// This makes extensive use of the K8s client's "informer" framework, which is
-// fairly poorly documented but seems to work pretty well and is well suited to
-// our use case.
+// ClusterState makes extensive use of the K8s client's "informer" framework,
+// which is fairly poorly documented but seems to work pretty well and is well
+// suited to our use case.
 type ClusterState struct {
 	clientset   *k8s.Clientset
 	indexers    map[string]cache.Indexer
@@ -25,7 +25,7 @@ type ClusterState struct {
 	ChangeFunc func(runtime.Object, runtime.Object)
 }
 
-func NewClusterState(clientset *k8s.Clientset) *ClusterState {
+func newClusterState(clientset *k8s.Clientset) *ClusterState {
 	return &ClusterState{
 		clientset:   clientset,
 		indexers:    make(map[string]cache.Indexer),
@@ -34,6 +34,7 @@ func NewClusterState(clientset *k8s.Clientset) *ClusterState {
 	}
 }
 
+// Stop all running goroutines.
 func (cs *ClusterState) Stop() {
 	for k, s := range cs.stoppers {
 		if s != nil {
@@ -43,6 +44,7 @@ func (cs *ClusterState) Stop() {
 	}
 }
 
+// EnsureAllStarted starts syncing any resource that isn't already being synced
 func (cs *ClusterState) EnsureAllStarted() {
 	if cs.indexers["pods"] == nil {
 		cs.StartSyncing(&v1.Pod{})
@@ -61,6 +63,8 @@ func (cs *ClusterState) EnsureAllStarted() {
 	}
 }
 
+// GetAgentPods returns only running SignalFx agent pods, or error if pods
+// haven't been synced yet
 func (cs *ClusterState) GetAgentPods() ([]*v1.Pod, error) {
 	if cs.indexers["pods"] == nil {
 		return nil, fmt.Errorf("Pods have not been synced yet")
@@ -79,6 +83,8 @@ func (cs *ClusterState) GetAgentPods() ([]*v1.Pod, error) {
 	return pods, nil
 }
 
+// StartSyncing starts syncing a single resource.  Useful to only sync pods to
+// determine if an instance is a reporter or not.
 func (cs *ClusterState) StartSyncing(resType runtime.Object) {
 	var resName string
 	var indexers cache.Indexers = map[string]cache.IndexFunc{}
@@ -94,9 +100,8 @@ func (cs *ClusterState) StartSyncing(resType runtime.Object) {
 				// Ignore non-running agents
 				if pod.Status.Phase == v1.PodRunning {
 					return []string{pod.Labels["app"]}, nil
-				} else {
-					return []string{}, nil
 				}
+				return []string{}, nil
 			},
 		}
 	case *v1.ReplicationController:

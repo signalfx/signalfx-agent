@@ -7,7 +7,7 @@ import (
 	"testing"
 )
 
-func TestKubernetesMonitor(t *testing.T) {
+func TestKubernetes(t *testing.T) {
 	RegisterFailHandler(Fail)
 	RunSpecs(t, "Kubernetes Monitor Suite")
 }

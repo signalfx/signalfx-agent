@@ -5,6 +5,8 @@ import (
 )
 
 
+// ProtoDimensionsToMap takes a slice of protobuf dimensions and turns them
+// into a regular map for easier testing.
 func ProtoDimensionsToMap(dims []*sfxproto.Dimension) (m map[string]string) {
     m = make(map[string]string)
 
