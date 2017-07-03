@@ -270,15 +270,15 @@ func (f *FakeK8s) sendList(resType ResourceType, rw http.ResponseWriter) {
 func typeMeta(rt ResourceType) unversioned.TypeMeta {
 	switch rt {
 	case Pods:
-		return unversioned.TypeMeta{"PodList", "v1"}
+		return unversioned.TypeMeta{Kind: "PodList", APIVersion: "v1"}
 	case ReplicationControllers:
-		return unversioned.TypeMeta{"ReplicationControllerList", "v1"}
+		return unversioned.TypeMeta{Kind: "ReplicationControllerList", APIVersion: "v1"}
 	case Deployments:
-		return unversioned.TypeMeta{"DeploymentList", "extensions/v1beta1"}
+		return unversioned.TypeMeta{Kind: "DeploymentList", APIVersion: "extensions/v1beta1"}
 	case DaemonSets:
-		return unversioned.TypeMeta{"DaemonSetList", "extensions/v1beta1"}
+		return unversioned.TypeMeta{Kind: "DaemonSetList", APIVersion: "extensions/v1beta1"}
 	case ReplicaSets:
-		return unversioned.TypeMeta{"ReplicaSetList", "extensions/v1beta1"}
+		return unversioned.TypeMeta{Kind: "ReplicaSetList", APIVersion: "extensions/v1beta1"}
 	default:
 		panic("Unknown resource type: " + string(rt))
 	}

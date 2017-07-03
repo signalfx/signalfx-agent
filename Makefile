@@ -11,7 +11,7 @@ test:
 
 .PHONY: vet
 vet:
-	go tool vet -composites=false $(go_pkgs)
+	go vet $(go_pkgs)
 
 .PHONY: lint
 lint:
