@@ -380,7 +380,7 @@ func (f *Filter) load(assets *config.AssetsView) error {
 
 	// Ensure that builtins have loaded before loading overrides
 	if len(builtinConfigs) <= 0 {
-		log.Printf("waiting for builtins to load before loading overrides")
+		log.Printf("waiting for built in configurations to load before loading overrides")
 	} else if overrides, ok := assets.Dirs["overrides"]; ok {
 
 		overrides, err := readConfigs(overrides)
