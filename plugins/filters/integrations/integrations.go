@@ -364,8 +364,6 @@ func buildConfigurations(builtins, overrides []configFile) ([]*configuration, er
 func (f *Filter) load(assets *config.AssetsView) error {
 	var builtinConfigs, overrideConfigs []configFile
 
-	// TODO: make sure that both are present (even if empty)?
-
 	if builtins, ok := assets.Dirs["builtins"]; ok {
 		builtins, err := readConfigs(builtins)
 		if err != nil {
@@ -380,7 +378,11 @@ func (f *Filter) load(assets *config.AssetsView) error {
 		return errors.New("integration builtins are required")
 	}
 
-	if overrides, ok := assets.Dirs["overrides"]; ok {
+	// Ensure that builtins have loaded before loading overrides
+	if len(builtinConfigs) <= 0 {
+		log.Printf("waiting for builtins to load before loading overrides")
+	} else if overrides, ok := assets.Dirs["overrides"]; ok {
+
 		overrides, err := readConfigs(overrides)
 		if err != nil {
 			return err
@@ -499,7 +501,7 @@ func (f *Filter) Configure(cfg *viper.Viper) error {
 	f.Config = cfg
 
 	ws := config.NewAssetSpec()
-	for _, dir := range []string{"overrides", "builtins"} {
+	for _, dir := range []string{"builtins", "overrides"} {
 		path := cfg.GetString(dir)
 		if path != "" {
 			ws.Dirs[dir] = path
