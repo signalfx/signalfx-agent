@@ -209,7 +209,7 @@ func (f *FakeK8s) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 }
 
 // Start a long running routine that will send everything received on the
-// `ResourceInput` channel as JSON back to the client
+// `EventInput` channel as JSON back to the client
 func (f *FakeK8s) startWatcher(resType ResourceType, rw http.ResponseWriter, stopper <-chan struct{}) {
 	// There could be multiple watchers starting simultaneously
 	f.subsMutex.Lock()

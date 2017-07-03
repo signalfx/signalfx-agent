@@ -16,22 +16,22 @@ import (
 // Make a distinction between the plugin type and the acutal monitor for easier
 // testing
 type KubernetesMonitor struct {
-	sfxClient *sfxclient.HTTPSink
+	sfxClient        *sfxclient.HTTPSink
 	// How often to report metrics to SignalFx
-	intervalSeconds uint
+	intervalSeconds  uint
 	// Since most datapoints will stay the same or only slightly different
 	// across reporting intervals, reuse them
-	datapointCache *DatapointCache
-	clusterState   *ClusterState
+	datapointCache  *DatapointCache
+	clusterState    *ClusterState
 	// If true will definitely report K8s metrics, if false will fall back to
 	// checking pod name
-	alwaysReport bool
+	alwaysReport    bool
 	// If running inside K8s, the name of the current pod, otherwise empty string
-	thisPodName string
+	thisPodName     string
 	// Used to stop the main loop
-	stop                chan struct{}
-	MetricsToExclude    ExclusionSet
-	NamespacesToExclude ExclusionSet
+	stop            chan struct{}
+	MetricFilter    *FilterSet
+	NamespaceFilter *FilterSet
 }
 
 func NewKubernetesMonitor(k8sClient *k8s.Clientset,
@@ -92,10 +92,10 @@ func UpdateTimestamps(dps []*datapoint.Datapoint) []*datapoint.Datapoint {
 func (km *KubernetesMonitor) filterDatapoints(dps []*datapoint.Datapoint) []*datapoint.Datapoint {
 	newDps := make([]*datapoint.Datapoint, 0, len(dps))
 	for _, dp := range dps {
-		metricNamePasses := !km.MetricsToExclude.IsExcluded(dp.Metric)
+		metricNamePasses := !km.MetricFilter.IsExcluded(dp.Metric)
 		ns, nsGiven := dp.Dimensions["kubernetes_pod_namespace"]
 		// If namespace isn't defined just let it through
-		namespacePasses := !nsGiven || !km.NamespacesToExclude.IsExcluded(ns)
+		namespacePasses := !nsGiven || !km.NamespaceFilter.IsExcluded(ns)
 
 		if metricNamePasses && namespacePasses {
 			newDps = append(newDps, dp)

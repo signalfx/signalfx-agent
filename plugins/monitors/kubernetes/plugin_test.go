@@ -21,16 +21,16 @@ import (
 	. "github.com/signalfx/neo-agent/plugins/monitors/kubernetes/testhelpers"
 )
 
-var _ = Describe("Kubernetes Monitor", func() {
+var _ = Describe("Kubernetes plugin", func() {
+	var config *viper.Viper
 	var fakeSignalFx *FakeSignalFx
 	var fakeK8s *FakeK8s
-	var monitor plugins.IPlugin
+	var plugin plugins.IPlugin
 
-	doSetup := func(alwaysReport bool, thisPodName string) {
-		config := viper.New()
+
+	BeforeEach(func() {
+		config = viper.New()
 		config.Set("intervalSeconds", 1)
-		config.Set("alwaysReport", alwaysReport)
-		os.Setenv("MY_POD_NAME", thisPodName)
 		config.Set("authType", "none")
 		config.Set("tls.skipVerify", true)
 
@@ -46,18 +46,25 @@ var _ = Describe("Kubernetes Monitor", func() {
 		// containers running in a real k8s env
 		os.Setenv("KUBERNETES_SERVICE_HOST", k8sUrl.Hostname())
 		os.Setenv("KUBERNETES_SERVICE_PORT", k8sUrl.Port())
+
+	})
+
+	doSetup := func(alwaysReport bool, thisPodName string) {
+		config.Set("alwaysReport", alwaysReport)
+		os.Setenv("MY_POD_NAME", thisPodName)
+
 		os.Setenv("SFX_ACCESS_TOKEN", "deadbeef")
 
 		var err error
-		monitor, err = NewKubernetesMonitorPlugin("monitors/kubernetes", config)
-		log.Printf("monitor: %p; %s", monitor, err)
+		plugin, err = NewKubernetesMonitorPlugin("monitors/kubernetes", config)
+		log.Printf("plugin: %p; %s", plugin, err)
 		if err != nil {
 			Fail(err.Error())
 		}
 	}
 
 	AfterEach(func() {
-		monitor.Stop()
+		plugin.Stop()
 	})
 
 	// Making an int literal pointer requires a helper
@@ -96,7 +103,7 @@ var _ = Describe("Kubernetes Monitor", func() {
 			},
 		})
 
-		monitor.Start()
+		plugin.Start()
 
 		dps := fakeSignalFx.PopIngestedDatapoints()
 
@@ -222,7 +229,7 @@ var _ = Describe("Kubernetes Monitor", func() {
 			},
 		})
 
-		monitor.Start()
+		plugin.Start()
 
 		var dps []*sfxproto.DataPoint
 		Eventually(func() int {
@@ -261,8 +268,91 @@ var _ = Describe("Kubernetes Monitor", func() {
 		expectIntMetric(dps, "uid", "efgh", "kubernetes.deployment.available", 0)
 	})
 
-	//It("Filters out unwanted namespaces and metrics", func() {
-	//})
+	Describe("Filtering", func() {
+		BeforeEach(func() {
+			fakeK8s.SetInitialList([]*v1.Pod{
+				&v1.Pod{
+					ObjectMeta: v1.ObjectMeta{
+						Name: "test1",
+						Namespace: "default",
+						UID:  "abcd",
+					},
+					Status: v1.PodStatus{
+						Phase: v1.PodRunning,
+						ContainerStatuses: []v1.ContainerStatus{
+							v1.ContainerStatus{
+								Name:         "container1",
+								RestartCount: 5,
+							},
+						},
+					},
+				},
+			})
+
+			fakeK8s.SetInitialList([]*v1beta1.Deployment{
+				&v1beta1.Deployment{
+					ObjectMeta: v1.ObjectMeta{
+						Name: "deploy1",
+						UID:  "abcd",
+					},
+					Spec: v1beta1.DeploymentSpec{
+						Replicas: intp(int32(10)),
+					},
+					Status: v1beta1.DeploymentStatus{
+						AvailableReplicas: 5,
+					},
+				},
+			})
+		})
+
+		It("Filters out excluded metrics", func() {
+			config.Set("metricFilter", []string{"!kubernetes.pod_phase"})
+			doSetup(true, "")
+
+			plugin.Start()
+
+			dps := fakeSignalFx.PopIngestedDatapoints()
+
+			metrics := make([]string, 0, len(dps))
+			for _, dp := range dps {
+				metrics = append(metrics, dp.GetMetric())
+			}
+			Expect(metrics).To(Not(ContainElement("kubernetes.pod_phase")))
+			Expect(metrics).To(ContainElement("kubernetes.container_restart_count"))
+		})
+
+		It("Filters out non-included metrics", func() {
+			config.Set("metricFilter", []string{"kubernetes.pod_phase"})
+			doSetup(true, "")
+
+			plugin.Start()
+
+			dps := fakeSignalFx.PopIngestedDatapoints()
+
+			metrics := make([]string, 0, len(dps))
+			for _, dp := range dps {
+				metrics = append(metrics, dp.GetMetric())
+			}
+			Expect(metrics).To(ContainElement("kubernetes.pod_phase"))
+			Expect(metrics).To(Not(ContainElement("kubernetes.container_restart_count")))
+		})
+
+		It("Filters out excluded namespaces", func() {
+			config.Set("namespaceFilter", []string{"!default"})
+			doSetup(true, "")
+
+			plugin.Start()
+
+			dps := fakeSignalFx.PopIngestedDatapoints()
+
+			metrics := make([]string, 0, len(dps))
+			for _, dp := range dps {
+				metrics = append(metrics, dp.GetMetric())
+			}
+			Expect(metrics).To(Not(ContainElement("kubernetes.pod_phase")))
+			Expect(metrics).To(ContainElement("kubernetes.deployment.desired"))
+		})
+	})
 
 	It("Reports if first in pod list", func() {
 		doSetup(false, "agent-1")
@@ -293,7 +383,7 @@ var _ = Describe("Kubernetes Monitor", func() {
 			},
 		})
 
-		monitor.Start()
+		plugin.Start()
 
 		dps := fakeSignalFx.PopIngestedDatapoints()
 
@@ -329,7 +419,7 @@ var _ = Describe("Kubernetes Monitor", func() {
 			},
 		})
 
-		monitor.Start()
+		plugin.Start()
 
 		fakeSignalFx.EnsureNoDatapoints()
 	})
@@ -363,7 +453,7 @@ var _ = Describe("Kubernetes Monitor", func() {
 			},
 		})
 
-		monitor.Start()
+		plugin.Start()
 
 		fakeSignalFx.EnsureNoDatapoints()
 

@@ -163,8 +163,8 @@ func (kmp *KubernetesMonitorPlugin) Configure(config *viper.Viper) error {
 
 	kmp.monitor = NewKubernetesMonitor(k8sClient, sfxClient, interval, alwaysReport, thisPodName)
 
-	kmp.monitor.MetricsToExclude = NewExclusionSet(config.GetStringSlice("metricsToExclude"))
-	kmp.monitor.NamespacesToExclude = NewExclusionSet(config.GetStringSlice("namespacesToInclude"))
+	kmp.monitor.MetricFilter = NewFilterSet(config.GetStringSlice("metricFilter"))
+	kmp.monitor.NamespaceFilter = NewFilterSet(config.GetStringSlice("namespaceFilter"))
 
 	return nil
 }
