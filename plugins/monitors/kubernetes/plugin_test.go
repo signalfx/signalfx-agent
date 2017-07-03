@@ -14,7 +14,7 @@ import (
 	"k8s.io/client-go/pkg/apis/extensions/v1beta1"
 	"k8s.io/client-go/pkg/watch"
 
-    sfxproto "github.com/signalfx/com_signalfx_metrics_protobuf"
+	sfxproto "github.com/signalfx/com_signalfx_metrics_protobuf"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -26,7 +26,6 @@ var _ = Describe("Kubernetes plugin", func() {
 	var fakeSignalFx *FakeSignalFx
 	var fakeK8s *FakeK8s
 	var plugin plugins.IPlugin
-
 
 	BeforeEach(func() {
 		config = viper.New()
@@ -49,8 +48,8 @@ var _ = Describe("Kubernetes plugin", func() {
 
 	})
 
-	doSetup := func(alwaysReport bool, thisPodName string) {
-		config.Set("alwaysReport", alwaysReport)
+	doSetup := func(isClusterReporter bool, thisPodName string) {
+		config.Set("isClusterReporter", isClusterReporter)
 		os.Setenv("MY_POD_NAME", thisPodName)
 
 		os.Setenv("SFX_ACCESS_TOKEN", "deadbeef")
@@ -273,9 +272,9 @@ var _ = Describe("Kubernetes plugin", func() {
 			fakeK8s.SetInitialList([]*v1.Pod{
 				&v1.Pod{
 					ObjectMeta: v1.ObjectMeta{
-						Name: "test1",
+						Name:      "test1",
 						Namespace: "default",
-						UID:  "abcd",
+						UID:       "abcd",
 					},
 					Status: v1.PodStatus{
 						Phase: v1.PodRunning,

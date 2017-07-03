@@ -221,8 +221,8 @@ func (dc *DatapointCache) addDaemonSetDps(obj runtime.Object) {
 	dimensions := map[string]string{
 		"metric_source":            "kubernetes",
 		"kubernetes_pod_namespace": ds.Namespace,
-		"uid":                      string(ds.UID),
-		"kubernetes_name":          ds.Name,
+		"uid":             string(ds.UID),
+		"kubernetes_name": ds.Name,
 	}
 	dc.DaemonSets[ds.UID] = DaemonSetDPs{
 		CurrentNumberScheduled: &datapoint.Datapoint{

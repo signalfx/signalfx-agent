@@ -16,18 +16,18 @@ import (
 // Kubernetes is distinct from the plugin type for less coupling to
 // neo-agent
 type Kubernetes struct {
-	sfxClient        *sfxclient.HTTPSink
+	sfxClient *sfxclient.HTTPSink
 	// How often to report metrics to SignalFx
-	intervalSeconds  uint
+	intervalSeconds uint
 	// Since most datapoints will stay the same or only slightly different
 	// across reporting intervals, reuse them
-	datapointCache  *DatapointCache
-	clusterState    *ClusterState
+	datapointCache *DatapointCache
+	clusterState   *ClusterState
 	// If true will definitely report K8s metrics, if false will fall back to
 	// checking pod name
-	alwaysReport    bool
+	isClusterReporter bool
 	// If running inside K8s, the name of the current pod, otherwise empty string
-	thisPodName     string
+	thisPodName string
 	// Used to stop the main loop
 	stop            chan struct{}
 	MetricFilter    *FilterSet
@@ -38,7 +38,7 @@ type Kubernetes struct {
 func NewKubernetes(k8sClient *k8s.Clientset,
 	sfxClient *sfxclient.HTTPSink,
 	interval uint,
-	alwaysReport bool,
+	isClusterReporter bool,
 	thisPodName string) *Kubernetes {
 	datapointCache := newDatapointCache()
 
@@ -46,13 +46,13 @@ func NewKubernetes(k8sClient *k8s.Clientset,
 	clusterState.ChangeFunc = datapointCache.HandleChange
 
 	return &Kubernetes{
-		sfxClient:       sfxClient,
-		datapointCache:  datapointCache,
-		clusterState:    clusterState,
-		intervalSeconds: interval,
-		alwaysReport:    alwaysReport,
-		thisPodName:     thisPodName,
-		stop:            make(chan struct{}),
+		sfxClient:         sfxClient,
+		datapointCache:    datapointCache,
+		clusterState:      clusterState,
+		intervalSeconds:   interval,
+		isClusterReporter: isClusterReporter,
+		thisPodName:       thisPodName,
+		stop:              make(chan struct{}),
 	}
 }
 
@@ -135,7 +135,7 @@ func (km *Kubernetes) Stop() {
 // have it be the agent with the pod name that is first when all of the names
 // are sorted ascending.
 func (km *Kubernetes) isReporter() bool {
-	if km.alwaysReport {
+	if km.isClusterReporter {
 		return true
 	} else if km.thisPodName != "" {
 		agentPods, err := km.clusterState.GetAgentPods()

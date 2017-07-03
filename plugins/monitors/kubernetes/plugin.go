@@ -119,7 +119,7 @@ func (kmp *Plugin) Configure(config *viper.Viper) error {
 	kmp.Stop()
 
 	kmp.Config = config
-	kmp.Config.SetDefault("alwaysReport", false)
+	kmp.Config.SetDefault("isClusterReporter", false)
 	kmp.Config.SetDefault("intervalSeconds", 10)
 
 	k8sClient, err := makeK8sClient(config)
@@ -150,11 +150,11 @@ func (kmp *Plugin) Configure(config *viper.Viper) error {
 		sfxClient.DatapointEndpoint = endpointURL.String()
 	}
 
-	alwaysReport := config.GetBool("alwaysReport")
+	isClusterReporter := config.GetBool("isClusterReporter")
 
 	var thisPodName string
 	// We need to know the pod name if we aren't always reporting
-	if !alwaysReport {
+	if !isClusterReporter {
 		var ok bool
 		thisPodName, ok = os.LookupEnv("MY_POD_NAME")
 		if !ok {
@@ -163,7 +163,7 @@ func (kmp *Plugin) Configure(config *viper.Viper) error {
 		}
 	}
 
-	kmp.monitor = NewKubernetes(k8sClient, sfxClient, interval, alwaysReport, thisPodName)
+	kmp.monitor = NewKubernetes(k8sClient, sfxClient, interval, isClusterReporter, thisPodName)
 
 	kmp.monitor.MetricFilter = newFilterSet(config.GetStringSlice("metricFilter"))
 	kmp.monitor.NamespaceFilter = newFilterSet(config.GetStringSlice("namespaceFilter"))
