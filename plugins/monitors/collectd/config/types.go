@@ -9,8 +9,8 @@ import (
 	"github.com/spf13/viper"
 )
 
-// Plugin describes a collectd plugin
-type Plugin struct {
+// Instance describes a collectd plugin
+type Instance struct {
 	Plugin       string
 	Name         string
 	Template     string
@@ -41,11 +41,11 @@ const (
 )
 
 // PLUGINS is a mapping to create plugin instances with defaults
-var PLUGINS = map[PluginType]func(string) *Plugin{
-	SignalFx: func(instanceName string) *Plugin {
+var PLUGINS = map[PluginType]func(string) *Instance{
+	SignalFx: func(instanceName string) *Instance {
 		// XXX: Super hacky. Ideally this should have no knowledge of the global
 		// viper.
-		return &Plugin{
+		return &Instance{
 			Plugin:       "signalfx",
 			TemplateFile: "signalfx.conf.tmpl",
 			Vars: map[string]interface{}{
@@ -54,7 +54,7 @@ var PLUGINS = map[PluginType]func(string) *Plugin{
 			Name: instanceName,
 		}
 	},
-	WriteHTTP: func(instanceName string) *Plugin {
+	WriteHTTP: func(instanceName string) *Instance {
 		// XXX: Super hacky. Ideally this should have no knowledge of the global
 		// viper.
 		query := url.Values{}
@@ -63,7 +63,7 @@ var PLUGINS = map[PluginType]func(string) *Plugin{
 			query["sfxdim_"+k] = []string{v}
 		}
 
-		plugin := &Plugin{
+		plugin := &Instance{
 			Plugin:       "write-http",
 			TemplateFile: "write-http.conf.tmpl",
 			Vars: map[string]interface{}{
@@ -75,8 +75,8 @@ var PLUGINS = map[PluginType]func(string) *Plugin{
 
 		return plugin
 	},
-	Docker: func(instanceName string) *Plugin {
-		return &Plugin{
+	Docker: func(instanceName string) *Instance {
+		return &Instance{
 			Plugin:       "docker",
 			TemplateFile: "docker.conf.tmpl",
 			Name:         instanceName,
@@ -85,8 +85,8 @@ var PLUGINS = map[PluginType]func(string) *Plugin{
 			},
 		}
 	},
-	MesosMaster: func(instanceName string) *Plugin {
-		return &Plugin{
+	MesosMaster: func(instanceName string) *Instance {
+		return &Instance{
 			Plugin:       "mesos-master",
 			TemplateFile: "mesos-master.conf.tmpl",
 			Name:         instanceName,
@@ -100,8 +100,8 @@ var PLUGINS = map[PluginType]func(string) *Plugin{
 			},
 		}
 	},
-	MesosAgent: func(instanceName string) *Plugin {
-		return &Plugin{
+	MesosAgent: func(instanceName string) *Instance {
+		return &Instance{
 			Plugin:       "mesos-agent",
 			TemplateFile: "mesos-agent.conf.tmpl",
 			Name:         instanceName,
@@ -114,9 +114,9 @@ var PLUGINS = map[PluginType]func(string) *Plugin{
 			},
 		}
 	},
-	Marathon: func(instanceName string) *Plugin {
+	Marathon: func(instanceName string) *Instance {
 
-		return &Plugin{
+		return &Instance{
 			Plugin:       "marathon",
 			TemplateFile: "marathon.conf.tmpl",
 			Name:         instanceName,
@@ -131,7 +131,7 @@ var PLUGINS = map[PluginType]func(string) *Plugin{
 }
 
 // NewPlugin constructs a plugin with default values depending on the service type
-func NewPlugin(pluginType PluginType, pluginName string) (*Plugin, error) {
+func NewPlugin(pluginType PluginType, pluginName string) (*Instance, error) {
 	if create, ok := PLUGINS[pluginType]; ok {
 		return create(pluginName), nil
 	}
@@ -139,22 +139,22 @@ func NewPlugin(pluginType PluginType, pluginName string) (*Plugin, error) {
 }
 
 // NewInstancePlugin creates a plugin for a supported service type
-func NewInstancePlugin(pluginType string, pluginName string) (*Plugin, error) {
+func NewInstancePlugin(pluginType string, pluginName string) (*Instance, error) {
 	// TODO: Maintain a list of supported service types for collectd if not all monitors support the same ones.
-	return &Plugin{Plugin: pluginType, Name: pluginName, Vars: map[string]interface{}{}}, nil
+	return &Instance{Plugin: pluginType, Name: pluginName, Vars: map[string]interface{}{}}, nil
 }
 
 // GroupByPlugin creates a map of instances by plugin
-func GroupByPlugin(instances []*Plugin) map[string]*PluginData {
-	pluginMap := map[string]*PluginData{}
+func GroupByPlugin(instances []*Instance) map[string]*Plugin {
+	pluginMap := map[string]*Plugin{}
 	for _, instance := range instances {
 		plugin := instance.Plugin
 
 		if val, ok := pluginMap[plugin]; ok {
 			pluginMap[plugin].Instances = append(val.Instances, instance)
 		} else {
-			pluginMap[plugin] = &PluginData{
-				Instances: []*Plugin{instance},
+			pluginMap[plugin] = &Plugin{
+				Instances: []*Instance{instance},
 				Vars: map[string]interface{}{
 					"Interval": 30,
 				},
@@ -179,13 +179,13 @@ type CollectdConfig struct {
 // AppConfig is the top-level configuration object consumed by templates.
 type AppConfig struct {
 	AgentConfig *CollectdConfig
-	Plugins     map[string]*PluginData //[]*Plugin
+	Plugins     map[string]*Plugin //[]*Plugin
 }
 
-// PluginData is the top level configuration object for a given plugin.
-type PluginData struct {
+// Plugin is the top level configuration object for a given plugin.
+type Plugin struct {
 	Vars      map[string]interface{}
-	Instances []*Plugin
+	Instances []*Instance
 }
 
 // NewCollectdConfig creates a default collectd config instance

@@ -59,7 +59,7 @@ func RenderCollectdConf(pluginRoot string, builtins, overrides []*store.KVPair, 
 				}
 				return buf.String(), nil
 			},
-			"RenderPlugin": func(plugin *Plugin) (string, error) {
+			"RenderPlugin": func(plugin *Instance) (string, error) {
 				buf := bytes.Buffer{}
 				if plugin.Template != "" {
 					tmp, err := template.New("_sfx_render_template").Parse(plugin.Template)

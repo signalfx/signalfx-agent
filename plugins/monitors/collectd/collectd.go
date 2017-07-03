@@ -179,7 +179,7 @@ func (collectd *Collectd) reload() {
 
 // writePlugins takes a list of plugin instances and generates a collectd.conf
 // formatted configuration.
-func (collectd *Collectd) writePlugins(plugins []*config.Plugin) error {
+func (collectd *Collectd) writePlugins(instances []*config.Instance) error {
 	if collectd.assets == nil {
 		return errors.New("collectd plugin assets not yet loaded")
 	}
@@ -215,7 +215,7 @@ func (collectd *Collectd) writePlugins(plugins []*config.Plugin) error {
 	}
 
 	// group instances by plugin
-	instancesMap := config.GroupByPlugin(plugins)
+	instancesMap := config.GroupByPlugin(instances)
 
 	config, err := config.RenderCollectdConf(collectd.pluginsDir, builtins, overrides,
 		&config.AppConfig{
@@ -248,7 +248,7 @@ func (collectd *Collectd) writePlugins(plugins []*config.Plugin) error {
 }
 
 // getStaticPlugins returns a list of plugins specified in the agent config
-func (collectd *Collectd) getStaticPlugins() ([]*config.Plugin, error) {
+func (collectd *Collectd) getStaticPlugins() ([]*config.Instance, error) {
 	static := struct {
 		// This could possibly be cleaned up to use inline annotation but
 		// haven't figured out how to make it work.
@@ -259,7 +259,7 @@ func (collectd *Collectd) getStaticPlugins() ([]*config.Plugin, error) {
 		return nil, err
 	}
 
-	var plugins []*config.Plugin
+	var plugins []*config.Instance
 
 	for pluginName, plugin := range static.StaticPlugins {
 		yamlPluginType, ok := plugin["plugin"]
@@ -292,9 +292,9 @@ func (collectd *Collectd) getStaticPlugins() ([]*config.Plugin, error) {
 	return plugins, nil
 }
 
-func (collectd *Collectd) createPluginsFromServices(sis services.Instances) ([]*config.Plugin, error) {
+func (collectd *Collectd) createPluginsFromServices(sis services.Instances) ([]*config.Instance, error) {
 	log.Printf("Configuring collectd plugins for %+v", sis)
-	var plugins []*config.Plugin
+	var plugins []*config.Instance
 
 	for _, service := range sis {
 		// TODO: Name is not unique, not sure what to use here.
