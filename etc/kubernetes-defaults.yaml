@@ -8,6 +8,9 @@ plugins:
       #   # Whether to ignore SSL certification validation errors.
       #   skipVerify: false
 
+  k8sMonitor:
+    plugin: monitors/kubernetes
+
   integrations:
     overrides: /mnt/integrations
 
@@ -31,6 +34,7 @@ plugins:
 pipelines:
     kubernetes:
     - kubernetes
+    - k8sMonitor
     - integrations
     - proxy
     - collectd

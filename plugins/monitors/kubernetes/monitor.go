@@ -25,7 +25,7 @@ type Kubernetes struct {
 	clusterState   *ClusterState
 	// If true will definitely report K8s metrics, if false will fall back to
 	// checking pod name
-	isClusterReporter bool
+	alwaysClusterReporter bool
 	// If running inside K8s, the name of the current pod, otherwise empty string
 	thisPodName string
 	// Used to stop the main loop
@@ -38,7 +38,7 @@ type Kubernetes struct {
 func NewKubernetes(k8sClient *k8s.Clientset,
 	sfxClient *sfxclient.HTTPSink,
 	interval uint,
-	isClusterReporter bool,
+	alwaysClusterReporter bool,
 	thisPodName string) *Kubernetes {
 	datapointCache := newDatapointCache()
 
@@ -50,7 +50,7 @@ func NewKubernetes(k8sClient *k8s.Clientset,
 		datapointCache:    datapointCache,
 		clusterState:      clusterState,
 		intervalSeconds:   interval,
-		isClusterReporter: isClusterReporter,
+		alwaysClusterReporter: alwaysClusterReporter,
 		thisPodName:       thisPodName,
 		stop:              make(chan struct{}),
 	}
@@ -135,7 +135,7 @@ func (km *Kubernetes) Stop() {
 // have it be the agent with the pod name that is first when all of the names
 // are sorted ascending.
 func (km *Kubernetes) isReporter() bool {
-	if km.isClusterReporter {
+	if km.alwaysClusterReporter {
 		return true
 	} else if km.thisPodName != "" {
 		agentPods, err := km.clusterState.GetAgentPods()

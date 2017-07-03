@@ -34,7 +34,7 @@ import (
 // reporter.  This method requires one long-running connection to the K8s API
 // server per node (assuming the agent is running on all nodes).
 //
-// 2) You can simply pass a config flag `isClusterReporter` with value of
+// 2) You can simply pass a config flag `alwaysClusterReporter` with value of
 // `true` to this plugin and it will always report cluster metrics.  This
 // method uses less cluster resources (e.g. network sockets, watches on the api
 // server) but requires special case configuration for a single agent in the
@@ -119,7 +119,7 @@ func (kmp *Plugin) Configure(config *viper.Viper) error {
 	kmp.Stop()
 
 	kmp.Config = config
-	kmp.Config.SetDefault("isClusterReporter", false)
+	kmp.Config.SetDefault("alwaysClusterReporter", false)
 	kmp.Config.SetDefault("intervalSeconds", 10)
 
 	k8sClient, err := makeK8sClient(config)
@@ -150,11 +150,11 @@ func (kmp *Plugin) Configure(config *viper.Viper) error {
 		sfxClient.DatapointEndpoint = endpointURL.String()
 	}
 
-	isClusterReporter := config.GetBool("isClusterReporter")
+	alwaysClusterReporter := config.GetBool("alwaysClusterReporter")
 
 	var thisPodName string
 	// We need to know the pod name if we aren't always reporting
-	if !isClusterReporter {
+	if !alwaysClusterReporter {
 		var ok bool
 		thisPodName, ok = os.LookupEnv("MY_POD_NAME")
 		if !ok {
@@ -163,10 +163,10 @@ func (kmp *Plugin) Configure(config *viper.Viper) error {
 		}
 	}
 
-	kmp.monitor = NewKubernetes(k8sClient, sfxClient, interval, isClusterReporter, thisPodName)
+	kmp.monitor = NewKubernetes(k8sClient, sfxClient, interval, alwaysClusterReporter, thisPodName)
 
-	kmp.monitor.MetricFilter = newFilterSet(config.GetStringSlice("metricFilter"))
-	kmp.monitor.NamespaceFilter = newFilterSet(config.GetStringSlice("namespaceFilter"))
+	kmp.monitor.MetricFilter = newFilterSet(config.GetStringSlice("clusterMetricFilter"))
+	kmp.monitor.NamespaceFilter = newFilterSet(config.GetStringSlice("clusterNamespaceFilter"))
 
 	return nil
 }

@@ -17,7 +17,10 @@ type Kubernetes struct {
 	CAdvisorURL          string   `yaml:"cadvisorURL,omitempty"`
 	CAdvisorMetricFilter []string `yaml:"cadvisorDisabledMetrics,omitempty"`
 	CAdvisorDataSendRate int      `yaml:"cadvisorSendRate,omitempty"`
-	AlwaysReport         bool
+	IsClusterReporter    bool     `yaml:"isClusterReporter,omitempty"`
+	ClusterNamespaceFilter []string
+	ClusterMetricFilter  []string
+	IntervalSeconds      int
 }
 
 // LoadYAML loads a yaml file
@@ -56,6 +59,11 @@ func (k *Kubernetes) Parse(kubernetes map[string]interface{}) error {
 			kubernetes["tls"] = tls
 		}
 	}
+
+	kubernetes["alwaysClusterReporter"] = k.IsClusterReporter
+	kubernetes["clusterMetricFilter"] = k.ClusterMetricFilter
+	kubernetes["clusterNamespaceFilter"] = k.ClusterNamespaceFilter
+	kubernetes["intervalSeconds"] = k.IntervalSeconds
 	return nil
 }
 
@@ -97,9 +105,4 @@ func (k *Kubernetes) ParseCAdvisor(cadvisor map[string]interface{}) error {
 		}
 	}
 	return nil
-}
-
-// PopulateMonitorConfig This has nothing to do with parsing and so should not be called Parse*
-func (k *Kubernetes) PopulateMonitorConfig(subconf map[string]interface{}) {
-	subconf["alwaysReport"] = k.AlwaysReport
 }
