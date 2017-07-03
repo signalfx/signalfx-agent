@@ -1,9 +1,13 @@
 {{define "rabbitmq"}}
-LoadPlugin python
+<LoadPlugin "python">
+  {{ range $key, $value := .Vars -}}
+  {{$key}} {{$value}}
+  {{ end -}}
+</LoadPlugin>
 <Plugin "python">
   ModulePath "{{Globals.PluginRoot}}/rabbitmq-collectd-plugin"
   Import "rabbitmq"
-  {{range $instance := .}}
+  {{range $instance := .Instances}}
     {{RenderPlugin $instance}}
   {{end}}
 </Plugin>

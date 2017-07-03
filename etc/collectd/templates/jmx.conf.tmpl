@@ -1,6 +1,10 @@
 {{define "jmx"}}
 TypesDB "/usr/share/collectd/java/signalfx_types_db"
-LoadPlugin java
+<LoadPlugin "java">
+  {{ range $key, $value := .Vars -}}
+  {{$key}} {{$value}}
+  {{ end -}}
+</LoadPlugin>
 
 <Plugin java>
     JVMArg "-verbose:jni"
@@ -77,7 +81,7 @@ LoadPlugin java
     </Plugin>
 </Plugin>
 
-{{range $instance := .}}
+{{range $instance := .Instances}}
 {{RenderPlugin $instance}}
 {{end}}
 

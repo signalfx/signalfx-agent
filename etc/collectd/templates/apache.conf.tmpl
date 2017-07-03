@@ -1,7 +1,11 @@
 {{define "apache"}}
-LoadPlugin "apache"
+<LoadPlugin "apache">
+  {{ range $key, $value := .Vars -}}
+  {{$key}} {{$value}}
+  {{ end -}}
+</LoadPlugin>
 <Plugin "apache">
-  {{range $instance := .}}
+  {{range $instance := .Instances}}
     {{RenderPlugin $instance}}
   {{end}}
 </Plugin>

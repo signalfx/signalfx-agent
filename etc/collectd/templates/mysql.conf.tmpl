@@ -1,7 +1,11 @@
 {{define "mysql"}}
-LoadPlugin mysql
+<LoadPlugin "mysql">
+  {{ range $key, $value := .Vars -}}
+  {{$key}} {{$value}}
+  {{ end -}}
+</LoadPlugin>
 <Plugin mysql>
-  {{range $instance := .}}
+  {{range $instance := .Instances}}
     {{RenderPlugin $instance}}
   {{end}}
 </Plugin>

@@ -1,12 +1,16 @@
 {{define "docker"}}
 TypesDB "{{Globals.PluginRoot}}/docker-collectd-plugin/dockerplugin.db"
-LoadPlugin python
+<LoadPlugin "python">
+  {{ range $key, $value := .Vars -}}
+  {{$key}} {{$value}}
+  {{ end -}}
+</LoadPlugin>
 
 <Plugin python>
   ModulePath "{{Globals.PluginRoot}}/docker-collectd-plugin"
   Import "dockerplugin"
 
-  {{range $instance := .}}
+  {{range $instance := .Instances}}
   <Module dockerplugin>
     BaseURL "{{$instance.Vars.url}}"
     Timeout 30

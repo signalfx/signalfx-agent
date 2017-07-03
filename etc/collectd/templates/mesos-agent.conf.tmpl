@@ -1,13 +1,16 @@
 {{define "mesos-agent"}}
 <LoadPlugin "python">
   Globals true
+  {{ range $key, $value := .Vars -}}
+  {{$key}} {{$value}}
+  {{ end -}}
 </LoadPlugin>
 
 <Plugin "python">
   ModulePath "{{Globals.PluginRoot}}/mesos-collectd-plugin"
 
   Import "mesos-slave"
-  {{range $instance := .}}
+  {{range $instance := .Instances}}
   <Module "mesos-slave">
     Cluster "{{$instance.Vars.cluster}}"
     Instance "{{$instance.Vars.instance}}"

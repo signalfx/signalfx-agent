@@ -145,15 +145,20 @@ func NewInstancePlugin(pluginType string, pluginName string) (*Plugin, error) {
 }
 
 // GroupByPlugin creates a map of instances by plugin
-func GroupByPlugin(instances []*Plugin) map[string][]*Plugin {
-	pluginMap := map[string][]*Plugin{}
+func GroupByPlugin(instances []*Plugin) map[string]*PluginData {
+	pluginMap := map[string]*PluginData{}
 	for _, instance := range instances {
 		plugin := instance.Plugin
 
 		if val, ok := pluginMap[plugin]; ok {
-			pluginMap[plugin] = append(val, instance)
+			pluginMap[plugin].Instances = append(val.Instances, instance)
 		} else {
-			pluginMap[plugin] = []*Plugin{instance}
+			pluginMap[plugin] = &PluginData{
+				Instances: []*Plugin{instance},
+				Vars: map[string]interface{}{
+					"Interval": 30,
+				},
+			}
 		}
 	}
 	return pluginMap
@@ -174,7 +179,13 @@ type CollectdConfig struct {
 // AppConfig is the top-level configuration object consumed by templates.
 type AppConfig struct {
 	AgentConfig *CollectdConfig
-	Plugins     map[string][]*Plugin
+	Plugins     map[string]*PluginData //[]*Plugin
+}
+
+// PluginData is the top level configuration object for a given plugin.
+type PluginData struct {
+	Vars      map[string]interface{}
+	Instances []*Plugin
 }
 
 // NewCollectdConfig creates a default collectd config instance

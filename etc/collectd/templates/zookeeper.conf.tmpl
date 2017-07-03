@@ -1,9 +1,13 @@
 {{define "zookeeper"}}
-LoadPlugin python
+<LoadPlugin "python">
+  {{ range $key, $value := .Vars -}}
+  {{$key}} {{$value}}
+  {{ end -}}
+</LoadPlugin>
 <Plugin python>
   ModulePath "{{Globals.PluginRoot}}/zookeeper-collectd-plugin"
   Import "zk-collectd"
-  {{range $instance := .}}
+  {{range $instance := .Instances}}
     {{RenderPlugin $instance}}
   {{end}}
 </Plugin>

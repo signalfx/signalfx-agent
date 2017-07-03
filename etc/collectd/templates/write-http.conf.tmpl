@@ -3,7 +3,7 @@
    FlushInterval 10
 </LoadPlugin>
 <Plugin "write_http">
-  {{range $instance := .}}
+  {{range $instance := .Instances}}
   <Node "SignalFx">
     URL "{{$instance.Vars.url}}/v1/collectd{{if $instance.Vars.dimensions}}?{{$instance.Vars.dimensions}}{{end}}"
     User "auth"
