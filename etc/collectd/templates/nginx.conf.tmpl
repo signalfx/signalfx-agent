@@ -1,8 +1,8 @@
 {{define "nginx"}}
 <LoadPlugin "nginx">
-  {{ range $key, $value := .Vars -}}
+{{- range $key, $value := .Vars }}
   {{$key}} {{$value}}
-  {{ end -}}
+{{- end }}
 </LoadPlugin>
 <Plugin "nginx">
   {{range $instance := .Instances}}

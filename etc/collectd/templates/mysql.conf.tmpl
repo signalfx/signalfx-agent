@@ -1,8 +1,8 @@
 {{define "mysql"}}
 <LoadPlugin "mysql">
-  {{ range $key, $value := .Vars -}}
+{{- range $key, $value := .Vars }}
   {{$key}} {{$value}}
-  {{ end -}}
+{{- end }}
 </LoadPlugin>
 <Plugin mysql>
   {{range $instance := .Instances}}

@@ -8,12 +8,13 @@ import (
 
 // Collectd struct for collectd configurations
 type Collectd struct {
-	Interval             *int  `yaml:"interval,omitempty"`
-	Timeout              *int  `yaml:"timeout,omitempty"`
-	ReadThreads          *int  `yaml:"readThreads,omitempty"`
-	WriteQueueLimitHigh  *int  `yaml:"writeQueueLimitHigh,omitempty"`
-	WriteQueueLimitLow   *int  `yaml:"writeQueueLimitLow,omitempty"`
-	CollectInternalStats *bool `yaml:"collectInternalStats,omitempty"`
+	Interval             *int           `yaml:"interval,omitempty"`
+	Timeout              *int           `yaml:"timeout,omitempty"`
+	ReadThreads          *int           `yaml:"readThreads,omitempty"`
+	WriteQueueLimitHigh  *int           `yaml:"writeQueueLimitHigh,omitempty"`
+	WriteQueueLimitLow   *int           `yaml:"writeQueueLimitLow,omitempty"`
+	CollectInternalStats *bool          `yaml:"collectInternalStats,omitempty"`
+	PluginIntervals      map[string]int `yaml:"pluginIntervals,omitempty"`
 }
 
 // LoadYAML loads a yaml file
@@ -49,6 +50,9 @@ func (c *Collectd) Parse(collectd map[string]interface{}) error {
 	}
 	if c.CollectInternalStats != nil {
 		collectd["collectInternalStats"] = *c.CollectInternalStats
+	}
+	if c.PluginIntervals != nil {
+		collectd["pluginIntervals"] = c.PluginIntervals
 	}
 	return nil
 }

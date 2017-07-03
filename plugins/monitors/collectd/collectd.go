@@ -195,32 +195,38 @@ func (collectd *Collectd) writePlugins(instances []*config.Instance) error {
 	collectdConfig.Hostname = viper.GetString("hostname")
 
 	// Set other collectd configurations from viper if they're set
-	if viper.IsSet("plugins.collectd.interval") {
-		collectdConfig.Interval = uint(viper.GetInt("plugins.collectd.interval"))
+	if collectd.Config.IsSet("interval") {
+		collectdConfig.Interval = uint(collectd.Config.GetInt("interval"))
 	}
-	if viper.IsSet("plugins.collectd.readThreads") {
-		collectdConfig.ReadThreads = uint(viper.GetInt("plugins.collectd.readThreads"))
+	if collectd.Config.IsSet("readThreads") {
+		collectdConfig.ReadThreads = uint(collectd.Config.GetInt("readThreads"))
 	}
-	if viper.IsSet("plugins.collectd.writeQueueLimitHigh") {
-		collectdConfig.WriteQueueLimitHigh = uint(viper.GetInt("plugins.collectd.writeQueueLimitHigh"))
+	if collectd.Config.IsSet("writeQueueLimitHigh") {
+		collectdConfig.WriteQueueLimitHigh = uint(collectd.Config.GetInt("writeQueueLimitHigh"))
 	}
-	if viper.IsSet("plugins.collectd.writeQueueLimitLow") {
-		collectdConfig.WriteQueueLimitLow = uint(viper.GetInt("plugins.collectd.writeQueueLimitLow"))
+	if collectd.Config.IsSet("writeQueueLimitLow") {
+		collectdConfig.WriteQueueLimitLow = uint(collectd.Config.GetInt("writeQueueLimitLow"))
 	}
-	if viper.IsSet("plugins.collectd.timeout") {
-		collectdConfig.Timeout = uint(viper.GetInt("plugins.collectd.timeout"))
+	if collectd.Config.IsSet("timeout") {
+		collectdConfig.Timeout = uint(collectd.Config.GetInt("timeout"))
 	}
-	if viper.IsSet("plugins.collectd.collectInternalStats") {
-		collectdConfig.CollectInternalStats = viper.GetBool("plugins.collectd.collectInternalStats")
+	if collectd.Config.IsSet("collectInternalStats") {
+		collectdConfig.CollectInternalStats = collectd.Config.GetBool("collectInternalStats")
 	}
 
 	// group instances by plugin
-	instancesMap := config.GroupByPlugin(instances)
+	pluginsMap := config.GroupByPlugin(instances)
+
+	for key, instance := range pluginsMap {
+		if collectd.Config.IsSet("pluginIntervals." + key) {
+			instance.Vars["Interval"] = collectd.Config.Get("pluginIntervals." + key)
+		}
+	}
 
 	config, err := config.RenderCollectdConf(collectd.pluginsDir, builtins, overrides,
 		&config.AppConfig{
 			AgentConfig: collectdConfig,
-			Plugins:     instancesMap,
+			Plugins:     pluginsMap,
 		})
 	if err != nil {
 		return err

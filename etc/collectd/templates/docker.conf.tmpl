@@ -1,9 +1,9 @@
 {{define "docker"}}
 TypesDB "{{Globals.PluginRoot}}/docker-collectd-plugin/dockerplugin.db"
 <LoadPlugin "python">
-  {{ range $key, $value := .Vars -}}
+{{- range $key, $value := .Vars }}
   {{$key}} {{$value}}
-  {{ end -}}
+{{- end }}
 </LoadPlugin>
 
 <Plugin python>

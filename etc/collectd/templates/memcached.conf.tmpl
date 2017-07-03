@@ -1,8 +1,8 @@
 {{define "memcached"}}
 <LoadPlugin "memcached">
-  {{ range $key, $value := .Vars -}}
+{{- range $key, $value := .Vars }}
   {{$key}} {{$value}}
-  {{ end -}}
+{{- end }}
 </LoadPlugin>
 <Plugin "memcached">
   {{range $instance := .Instances}}

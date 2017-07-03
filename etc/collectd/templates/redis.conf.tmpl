@@ -1,9 +1,9 @@
 {{define "redis"}}
 <LoadPlugin python>
   Globals true
-  {{ range $key, $value := .Vars -}}
+{{- range $key, $value := .Vars }}
   {{$key}} {{$value}}
-  {{ end -}}
+{{- end }}
 </LoadPlugin>
 
 <Plugin python>

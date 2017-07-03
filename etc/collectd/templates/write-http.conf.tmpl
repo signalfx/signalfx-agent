@@ -1,6 +1,9 @@
 {{define "write-http"}}
 <LoadPlugin "write_http">
    FlushInterval 10
+{{- range $key, $value := .Vars }}
+  {{$key}} {{$value}}
+{{- end }}
 </LoadPlugin>
 <Plugin "write_http">
   {{range $instance := .Instances}}

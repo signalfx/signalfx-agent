@@ -1,8 +1,8 @@
 {{define "apache"}}
 <LoadPlugin "apache">
-  {{ range $key, $value := .Vars -}}
+{{- range $key, $value := .Vars }}
   {{$key}} {{$value}}
-  {{ end -}}
+{{- end }}
 </LoadPlugin>
 <Plugin "apache">
   {{range $instance := .Instances}}

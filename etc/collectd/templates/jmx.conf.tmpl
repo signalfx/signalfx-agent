@@ -1,9 +1,9 @@
 {{define "jmx"}}
 TypesDB "/usr/share/collectd/java/signalfx_types_db"
 <LoadPlugin "java">
-  {{ range $key, $value := .Vars -}}
+{{- range $key, $value := .Vars }}
   {{$key}} {{$value}}
-  {{ end -}}
+{{- end }}
 </LoadPlugin>
 
 <Plugin java>

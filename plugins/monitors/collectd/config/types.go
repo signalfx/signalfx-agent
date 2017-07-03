@@ -155,9 +155,7 @@ func GroupByPlugin(instances []*Instance) map[string]*Plugin {
 		} else {
 			pluginMap[plugin] = &Plugin{
 				Instances: []*Instance{instance},
-				Vars: map[string]interface{}{
-					"Interval": 30,
-				},
+				Vars:      map[string]interface{}{},
 			}
 		}
 	}

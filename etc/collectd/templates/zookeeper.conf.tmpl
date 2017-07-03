@@ -1,8 +1,8 @@
 {{define "zookeeper"}}
 <LoadPlugin "python">
-  {{ range $key, $value := .Vars -}}
+{{- range $key, $value := .Vars }}
   {{$key}} {{$value}}
-  {{ end -}}
+{{- end }}
 </LoadPlugin>
 <Plugin python>
   ModulePath "{{Globals.PluginRoot}}/zookeeper-collectd-plugin"
