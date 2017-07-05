@@ -12,6 +12,9 @@ TypesDB "{{Globals.PluginRoot}}/signalfx-collectd-plugin/types.db.plugin"
   Import "signalfx_metadata"
   {{range $instance := .Instances}}
   <Module signalfx_metadata>
+    {{if $instance.Vars.interval}}
+    Interval {{$instance.Vars.interval}}
+    {{ end }}
     Notifications true
     URL "{{$instance.Vars.url}}/v1/collectd"
     Token "{{Secret "SFX_ACCESS_TOKEN"}}"

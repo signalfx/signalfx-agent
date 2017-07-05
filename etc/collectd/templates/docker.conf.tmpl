@@ -12,6 +12,9 @@ TypesDB "{{Globals.PluginRoot}}/docker-collectd-plugin/dockerplugin.db"
 
   {{range $instance := .Instances}}
   <Module dockerplugin>
+    {{if $instance.Vars.interval}}
+    Interval {{$instance.Vars.interval}}
+    {{ end }}
     BaseURL "{{$instance.Vars.url}}"
     Timeout 30
     Verbose false
