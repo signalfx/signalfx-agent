@@ -242,7 +242,7 @@ func (collectd *Collectd) writePlugins(instances []*config.Instance) error {
 			// set the interval for each instance from user/easy config
 			if _, ok := includeItervalInInstances[key]; ok {
 				for _, instance := range plugin.Instances {
-					instance.Vars["interval"] = collectd.Config.Get("pluginIntervals." + key)
+					instance.Vars["Interval"] = collectd.Config.Get("pluginIntervals." + key)
 				}
 			} else {
 				// set the interval for the plugin load block
