@@ -11,16 +11,16 @@ const k8sWorker = "worker"
 
 // Kubernetes user configuration struct for kubernetes
 type Kubernetes struct {
-	TLS                  *TLS `yaml:"tls"`
-	Role                 string
-	Cluster              string
-	CAdvisorURL          string   `yaml:"cadvisorURL,omitempty"`
-	CAdvisorMetricFilter []string `yaml:"cadvisorDisabledMetrics,omitempty"`
-	CAdvisorDataSendRate int      `yaml:"cadvisorSendRate,omitempty"`
-	IsClusterReporter    bool     `yaml:"isClusterReporter,omitempty"`
-	ClusterNamespaceFilter []string
-	ClusterMetricFilter  []string
-	IntervalSeconds      int
+	TLS                    *TLS `yaml:"tls"`
+	Role                   string
+	Cluster                string
+	CAdvisorURL            string   `yaml:"cadvisorURL,omitempty"`
+	CAdvisorMetricFilter   []string `yaml:"cadvisorDisabledMetrics,omitempty"`
+	CAdvisorDataSendRate   int      `yaml:"cadvisorSendRate,omitempty"`
+	IsClusterReporter      *bool    `yaml:"alwaysClusterReporter,omitempty"`
+	ClusterNamespaceFilter []string `yaml:"clusterNamespaceFilter,omitempty"`
+	ClusterMetricFilter    []string `yaml:"clusterMetricFilter,omitempty"`
+	IntervalSeconds        *int     `yaml:"intervalSeconds,omitempty"`
 }
 
 // LoadYAML loads a yaml file
@@ -60,10 +60,18 @@ func (k *Kubernetes) Parse(kubernetes map[string]interface{}) error {
 		}
 	}
 
-	kubernetes["alwaysClusterReporter"] = k.IsClusterReporter
-	kubernetes["clusterMetricFilter"] = k.ClusterMetricFilter
-	kubernetes["clusterNamespaceFilter"] = k.ClusterNamespaceFilter
-	kubernetes["intervalSeconds"] = k.IntervalSeconds
+	if k.IsClusterReporter != nil {
+		kubernetes["alwaysClusterReporter"] = *k.IsClusterReporter
+	}
+	if len(k.ClusterMetricFilter) >= 0 {
+		kubernetes["clusterMetricFilter"] = k.ClusterMetricFilter
+	}
+	if len(k.ClusterNamespaceFilter) >= 0 {
+		kubernetes["clusterNamespaceFilter"] = k.ClusterNamespaceFilter
+	}
+	if k.IntervalSeconds != nil {
+		kubernetes["intervalSeconds"] = *k.IntervalSeconds
+	}
 	return nil
 }
 

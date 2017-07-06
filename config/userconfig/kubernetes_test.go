@@ -9,12 +9,16 @@ import (
 
 func TestKubernetes_IsValid(t *testing.T) {
 	type fields struct {
-		TLS                  *TLS
-		Role                 string
-		Cluster              string
-		CAdvisorURL          string
-		CAdvisorMetricFilter []string
-		CAdvisorDataSendRate int
+		TLS                    *TLS
+		Role                   string
+		Cluster                string
+		CAdvisorURL            string
+		CAdvisorMetricFilter   []string
+		CAdvisorDataSendRate   int
+		IsClusterReporter      *bool    `yaml:"isClusterReporter,omitempty"`
+		ClusterNamespaceFilter []string `yaml:"clusterNamespaceFilter,omitempty"`
+		ClusterMetricFilter    []string `yaml:"clusterMetricFilter,omitempty"`
+		IntervalSeconds        *int     `yaml:"intervalSeconds,omitempty"`
 	}
 	tests := []struct {
 		name         string
@@ -55,13 +59,19 @@ func TestKubernetes_IsValid(t *testing.T) {
 }
 
 func TestKubernetes_Parse(t *testing.T) {
+	var f = false
+	var thirtyFive = 35
 	type fields struct {
-		TLS                  *TLS
-		Role                 string
-		Cluster              string
-		CAdvisorURL          string
-		CAdvisorMetricFilter []string
-		CAdvisorDataSendRate int
+		TLS                    *TLS
+		Role                   string
+		Cluster                string
+		CAdvisorURL            string
+		CAdvisorMetricFilter   []string
+		CAdvisorDataSendRate   int
+		IsClusterReporter      *bool    `yaml:"alwaysClusterReporter,omitempty"`
+		ClusterNamespaceFilter []string `yaml:"clusterNamespaceFilter,omitempty"`
+		ClusterMetricFilter    []string `yaml:"clusterMetricFilter,omitempty"`
+		IntervalSeconds        *int     `yaml:"intervalSeconds,omitempty"`
 	}
 	type args struct {
 		testData   string
@@ -91,6 +101,16 @@ func TestKubernetes_Parse(t *testing.T) {
 					"container_cpu_utilization_per_core",
 				},
 				CAdvisorDataSendRate: 29,
+				IsClusterReporter:    &f,
+				ClusterNamespaceFilter: []string{
+					"testNamespace",
+					"testNamespace2",
+				},
+				ClusterMetricFilter: []string{
+					"filterMetric1",
+					"filterMetric2",
+				},
+				IntervalSeconds: &thirtyFive,
 			},
 			map[string]interface{}{
 				"tls": map[string]interface{}{
@@ -99,6 +119,16 @@ func TestKubernetes_Parse(t *testing.T) {
 					"clientKey":  "/path/to/key",
 					"caCert":     "/path/to/ca",
 				},
+				"alwaysClusterReporter": false,
+				"clusterNamespaceFilter": []string{
+					"testNamespace",
+					"testNamespace2",
+				},
+				"clusterMetricFilter": []string{
+					"filterMetric1",
+					"filterMetric2",
+				},
+				"intervalSeconds": 35,
 			},
 			args{
 				testData:   "testdata/kubernetes/kubernetes-valid-worker.yaml",
@@ -111,11 +141,11 @@ func TestKubernetes_Parse(t *testing.T) {
 			fields{
 				TLS: &TLS{
 					SkipVerify: true,
-					ClientCert: "/path/to/certAlt",
-					ClientKey:  "/path/to/keyAlt",
-					CACert:     "/path/to/caAlt",
+					ClientCert: "/path/to/certMaster",
+					ClientKey:  "/path/to/keyMaster",
+					CACert:     "/path/to/caMaster",
 				},
-				Role:        "worker",
+				Role:        "master",
 				Cluster:     "kubernetes-cluster",
 				CAdvisorURL: "http://localhost:8080",
 				CAdvisorMetricFilter: []string{
@@ -123,17 +153,37 @@ func TestKubernetes_Parse(t *testing.T) {
 					"container_cpu_utilization_per_core",
 				},
 				CAdvisorDataSendRate: 30,
+				IsClusterReporter:    &f,
+				ClusterNamespaceFilter: []string{
+					"testNamespace",
+					"testNamespace2",
+				},
+				ClusterMetricFilter: []string{
+					"filterMetric1",
+					"filterMetric2",
+				},
+				IntervalSeconds: &thirtyFive,
 			},
 			map[string]interface{}{
-				"tls": map[string]interface{}{
-					"skipVerify": true,
-					"clientCert": "/path/to/certAlt",
-					"clientKey":  "/path/to/keyAlt",
-					"caCert":     "/path/to/caAlt",
+				// "tls": map[string]interface{}{
+				// 	"skipVerify": true,
+				// 	"clientCert": "/path/to/certAlt",
+				// 	"clientKey":  "/path/to/keyAlt",
+				// 	"caCert":     "/path/to/caAlt",
+				// },
+				"alwaysClusterReporter": false,
+				"clusterNamespaceFilter": []string{
+					"testNamespace",
+					"testNamespace2",
 				},
+				"clusterMetricFilter": []string{
+					"filterMetric1",
+					"filterMetric2",
+				},
+				"intervalSeconds": 35,
 			},
 			args{
-				testData:   "testdata/kubernetes/kubernetes-valid-alt-worker.yaml",
+				testData:   "testdata/kubernetes/kubernetes-valid-master.yaml",
 				kubernetes: map[string]interface{}{},
 			},
 			false,
@@ -142,12 +192,16 @@ func TestKubernetes_Parse(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			k := &Kubernetes{
-				TLS:                  tt.fields.TLS,
-				Role:                 tt.fields.Role,
-				Cluster:              tt.fields.Cluster,
-				CAdvisorURL:          tt.fields.CAdvisorURL,
-				CAdvisorMetricFilter: tt.fields.CAdvisorMetricFilter,
-				CAdvisorDataSendRate: tt.fields.CAdvisorDataSendRate,
+				TLS:                    tt.fields.TLS,
+				Role:                   tt.fields.Role,
+				Cluster:                tt.fields.Cluster,
+				CAdvisorURL:            tt.fields.CAdvisorURL,
+				CAdvisorMetricFilter:   tt.fields.CAdvisorMetricFilter,
+				CAdvisorDataSendRate:   tt.fields.CAdvisorDataSendRate,
+				IsClusterReporter:      tt.fields.IsClusterReporter,
+				ClusterNamespaceFilter: tt.fields.ClusterNamespaceFilter,
+				ClusterMetricFilter:    tt.fields.ClusterMetricFilter,
+				IntervalSeconds:        tt.fields.IntervalSeconds,
 			}
 			var kubernetes = &Kubernetes{}
 			var err error
@@ -169,13 +223,19 @@ func TestKubernetes_Parse(t *testing.T) {
 }
 
 func TestKubernetes_ParseDimensions(t *testing.T) {
+	var f = false
+	var thirtyFive = 35
 	type fields struct {
-		TLS                  *TLS
-		Role                 string
-		Cluster              string
-		CAdvisorURL          string
-		CAdvisorMetricFilter []string
-		CAdvisorDataSendRate int
+		TLS                    *TLS
+		Role                   string
+		Cluster                string
+		CAdvisorURL            string
+		CAdvisorMetricFilter   []string
+		CAdvisorDataSendRate   int
+		IsClusterReporter      *bool `yaml:"isClusterReporter,omitempty"`
+		ClusterNamespaceFilter []string
+		ClusterMetricFilter    []string
+		IntervalSeconds        *int
 	}
 	type args struct {
 		testData string
@@ -205,6 +265,16 @@ func TestKubernetes_ParseDimensions(t *testing.T) {
 					"container_cpu_utilization_per_core",
 				},
 				CAdvisorDataSendRate: 29,
+				IsClusterReporter:    &f,
+				ClusterNamespaceFilter: []string{
+					"testNamespace",
+					"testNamespace2",
+				},
+				ClusterMetricFilter: []string{
+					"filterMetric1",
+					"filterMetric2",
+				},
+				IntervalSeconds: &thirtyFive,
 			},
 			map[string]string{
 				"kubernetes_cluster": "kubernetes-cluster",
@@ -233,6 +303,16 @@ func TestKubernetes_ParseDimensions(t *testing.T) {
 					"container_cpu_utilization_per_core",
 				},
 				CAdvisorDataSendRate: 30,
+				IsClusterReporter:    &f,
+				ClusterNamespaceFilter: []string{
+					"testNamespace",
+					"testNamespace2",
+				},
+				ClusterMetricFilter: []string{
+					"filterMetric1",
+					"filterMetric2",
+				},
+				IntervalSeconds: &thirtyFive,
 			},
 			map[string]string{
 				"kubernetes_cluster": "kubernetes-cluster",
@@ -248,12 +328,16 @@ func TestKubernetes_ParseDimensions(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			k := &Kubernetes{
-				TLS:                  tt.fields.TLS,
-				Role:                 tt.fields.Role,
-				Cluster:              tt.fields.Cluster,
-				CAdvisorURL:          tt.fields.CAdvisorURL,
-				CAdvisorMetricFilter: tt.fields.CAdvisorMetricFilter,
-				CAdvisorDataSendRate: tt.fields.CAdvisorDataSendRate,
+				TLS:                    tt.fields.TLS,
+				Role:                   tt.fields.Role,
+				Cluster:                tt.fields.Cluster,
+				CAdvisorURL:            tt.fields.CAdvisorURL,
+				CAdvisorMetricFilter:   tt.fields.CAdvisorMetricFilter,
+				CAdvisorDataSendRate:   tt.fields.CAdvisorDataSendRate,
+				IsClusterReporter:      tt.fields.IsClusterReporter,
+				ClusterNamespaceFilter: tt.fields.ClusterNamespaceFilter,
+				ClusterMetricFilter:    tt.fields.ClusterMetricFilter,
+				IntervalSeconds:        tt.fields.IntervalSeconds,
 			}
 
 			var kubernetes = &Kubernetes{}
@@ -278,13 +362,19 @@ func TestKubernetes_ParseDimensions(t *testing.T) {
 }
 
 func TestKubernetes_ParseCAdvisor(t *testing.T) {
+	var f = false
+	var thirtyFive = 35
 	type fields struct {
-		TLS                  *TLS
-		Role                 string
-		Cluster              string
-		CAdvisorURL          string
-		CAdvisorMetricFilter []string
-		CAdvisorDataSendRate int
+		TLS                    *TLS
+		Role                   string
+		Cluster                string
+		CAdvisorURL            string
+		CAdvisorMetricFilter   []string
+		CAdvisorDataSendRate   int
+		IsClusterReporter      *bool `yaml:"isClusterReporter,omitempty"`
+		ClusterNamespaceFilter []string
+		ClusterMetricFilter    []string
+		IntervalSeconds        *int
 	}
 	type args struct {
 		testData string
@@ -314,6 +404,16 @@ func TestKubernetes_ParseCAdvisor(t *testing.T) {
 					"container_cpu_utilization_per_core",
 				},
 				CAdvisorDataSendRate: 29,
+				IsClusterReporter:    &f,
+				ClusterNamespaceFilter: []string{
+					"testNamespace",
+					"testNamespace2",
+				},
+				ClusterMetricFilter: []string{
+					"filterMetric1",
+					"filterMetric2",
+				},
+				IntervalSeconds: &thirtyFive,
 			},
 			map[string]interface{}{
 				"excludedMetrics": map[string]bool{
@@ -346,6 +446,16 @@ func TestKubernetes_ParseCAdvisor(t *testing.T) {
 					"container_cpu_utilization_per_core",
 				},
 				CAdvisorDataSendRate: 30,
+				IsClusterReporter:    &f,
+				ClusterNamespaceFilter: []string{
+					"testNamespace",
+					"testNamespace2",
+				},
+				ClusterMetricFilter: []string{
+					"filterMetric1",
+					"filterMetric2",
+				},
+				IntervalSeconds: &thirtyFive,
 			},
 			map[string]interface{}{
 				"excludedMetrics": map[string]bool{
@@ -365,12 +475,16 @@ func TestKubernetes_ParseCAdvisor(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			k := &Kubernetes{
-				TLS:                  tt.fields.TLS,
-				Role:                 tt.fields.Role,
-				Cluster:              tt.fields.Cluster,
-				CAdvisorURL:          tt.fields.CAdvisorURL,
-				CAdvisorMetricFilter: tt.fields.CAdvisorMetricFilter,
-				CAdvisorDataSendRate: tt.fields.CAdvisorDataSendRate,
+				TLS:                    tt.fields.TLS,
+				Role:                   tt.fields.Role,
+				Cluster:                tt.fields.Cluster,
+				CAdvisorURL:            tt.fields.CAdvisorURL,
+				CAdvisorMetricFilter:   tt.fields.CAdvisorMetricFilter,
+				CAdvisorDataSendRate:   tt.fields.CAdvisorDataSendRate,
+				IsClusterReporter:      tt.fields.IsClusterReporter,
+				ClusterNamespaceFilter: tt.fields.ClusterNamespaceFilter,
+				ClusterMetricFilter:    tt.fields.ClusterMetricFilter,
+				IntervalSeconds:        tt.fields.IntervalSeconds,
 			}
 
 			var kubernetes = &Kubernetes{}
