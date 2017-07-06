@@ -1,5 +1,5 @@
-hash: c89654a9c84608f2069ea8f74558779fe3bb88e0481e8e27b8f5b9d5710357bb
-updated: 2017-06-29T22:48:32.674089737-04:00
+hash: 53bd85e6a34594628fe72e12b9af3fa2eaf14da35b0713de2fb15ec1f7a5629d
+updated: 2017-07-06T12:46:38.64457562-04:00
 imports:
 - name: cloud.google.com/go
   version: 3b1ae45394a234c385be014e9a488f2bb6eef821
@@ -208,7 +208,7 @@ imports:
   subpackages:
   - zk
 - name: github.com/signalfx/cadvisor-integration
-  version: c92ab75677331d149ba39fa79e76d2c1f64f31d6
+  version: 015a785a38a0a54758f01f4ba2934fc7e70bd44c
   subpackages:
   - converter
   - poller
@@ -316,45 +316,6 @@ imports:
   version: ac4c579c437a23e1a15814c867ccb82122fb383b
 - name: gopkg.in/yaml.v2
   version: 53feefa2559fb8dfa8d81baad31be332c97d6c77
-- name: k8s.io/apimachinery
-  version: c1c4a7fe832857c75cc1d79c8e40d71d5da15fc6
-  subpackages:
-  - pkg/api/errors
-  - pkg/api/meta
-  - pkg/api/resource
-  - pkg/apimachinery
-  - pkg/apimachinery/announced
-  - pkg/apimachinery/registered
-  - pkg/apis/meta/v1
-  - pkg/apis/meta/v1/unstructured
-  - pkg/conversion
-  - pkg/conversion/queryparams
-  - pkg/fields
-  - pkg/labels
-  - pkg/openapi
-  - pkg/runtime
-  - pkg/runtime/schema
-  - pkg/runtime/serializer
-  - pkg/runtime/serializer/json
-  - pkg/runtime/serializer/protobuf
-  - pkg/runtime/serializer/recognizer
-  - pkg/runtime/serializer/versioning
-  - pkg/selection
-  - pkg/types
-  - pkg/util/errors
-  - pkg/util/framer
-  - pkg/util/intstr
-  - pkg/util/json
-  - pkg/util/net
-  - pkg/util/rand
-  - pkg/util/runtime
-  - pkg/util/sets
-  - pkg/util/validation
-  - pkg/util/validation/field
-  - pkg/util/wait
-  - pkg/util/yaml
-  - pkg/watch
-  - third_party/forked/golang/reflect
 - name: k8s.io/client-go
   version: e121606b0d09b2e1c467183ee46217fa85a6b672
   subpackages:
@@ -465,67 +426,6 @@ imports:
   - tools/clientcmd/api
   - tools/metrics
   - transport
-- name: k8s.io/kubernetes
-  version: 2b6e318ea0a7846284edcc928d87e0424d8714b2
-  subpackages:
-  - pkg/api
-  - pkg/api/install
-  - pkg/api/v1
-  - pkg/apis/apps
-  - pkg/apis/apps/install
-  - pkg/apis/apps/v1beta1
-  - pkg/apis/authentication
-  - pkg/apis/authentication/install
-  - pkg/apis/authentication/v1
-  - pkg/apis/authentication/v1beta1
-  - pkg/apis/authorization
-  - pkg/apis/authorization/install
-  - pkg/apis/authorization/v1
-  - pkg/apis/authorization/v1beta1
-  - pkg/apis/autoscaling
-  - pkg/apis/autoscaling/install
-  - pkg/apis/autoscaling/v1
-  - pkg/apis/autoscaling/v2alpha1
-  - pkg/apis/batch
-  - pkg/apis/batch/install
-  - pkg/apis/batch/v1
-  - pkg/apis/batch/v2alpha1
-  - pkg/apis/certificates
-  - pkg/apis/certificates/install
-  - pkg/apis/certificates/v1beta1
-  - pkg/apis/componentconfig
-  - pkg/apis/componentconfig/install
-  - pkg/apis/componentconfig/v1alpha1
-  - pkg/apis/extensions
-  - pkg/apis/extensions/install
-  - pkg/apis/extensions/v1beta1
-  - pkg/apis/policy
-  - pkg/apis/policy/install
-  - pkg/apis/policy/v1beta1
-  - pkg/apis/rbac
-  - pkg/apis/rbac/install
-  - pkg/apis/rbac/v1alpha1
-  - pkg/apis/rbac/v1beta1
-  - pkg/apis/settings
-  - pkg/apis/settings/install
-  - pkg/apis/settings/v1alpha1
-  - pkg/apis/storage
-  - pkg/apis/storage/install
-  - pkg/apis/storage/v1
-  - pkg/apis/storage/v1beta1
-  - pkg/client/clientset_generated/internalclientset/scheme
-  - pkg/client/clientset_generated/internalclientset/typed/apps/internalversion
-  - pkg/client/clientset_generated/internalclientset/typed/batch/internalversion
-  - pkg/client/clientset_generated/internalclientset/typed/core/internalversion
-  - pkg/client/clientset_generated/internalclientset/typed/extensions/internalversion
-  - pkg/client/unversioned
-  - pkg/fields
-  - pkg/kubelet/qos
-  - pkg/kubelet/types
-  - pkg/labels
-  - pkg/master/ports
-  - pkg/util
-  - pkg/util/parsers
 testImports:
 - name: github.com/gopherjs/gopherjs
   version: 19e100e9652485a76176bc5fd2669f57d3a2743c
