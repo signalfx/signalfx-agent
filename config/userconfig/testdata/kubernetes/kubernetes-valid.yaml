@@ -10,7 +10,7 @@ cadvisorDisabledMetrics:
 - container_cpu_utilization
 - container_cpu_utilization_per_core
 cadvisorSendRate: 30
-isClusterReporter: false
+alwaysClusterReporter: false
 clusterNamespaceFilter:
 - testNamespace
 - testNamespace2

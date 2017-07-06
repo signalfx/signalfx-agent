@@ -48,8 +48,8 @@ var _ = Describe("Kubernetes plugin", func() {
 
 	})
 
-	doSetup := func(isClusterReporter bool, thisPodName string) {
-		config.Set("isClusterReporter", isClusterReporter)
+	doSetup := func(alwaysClusterReporter bool, thisPodName string) {
+		config.Set("alwaysClusterReporter", alwaysClusterReporter)
 		os.Setenv("MY_POD_NAME", thisPodName)
 
 		os.Setenv("SFX_ACCESS_TOKEN", "deadbeef")
@@ -305,7 +305,7 @@ var _ = Describe("Kubernetes plugin", func() {
 		})
 
 		It("Filters out excluded metrics", func() {
-			config.Set("metricFilter", []string{"!kubernetes.pod_phase"})
+			config.Set("clusterMetricFilter", []string{"!kubernetes.pod_phase"})
 			doSetup(true, "")
 
 			plugin.Start()
@@ -321,7 +321,7 @@ var _ = Describe("Kubernetes plugin", func() {
 		})
 
 		It("Filters out non-included metrics", func() {
-			config.Set("metricFilter", []string{"kubernetes.pod_phase"})
+			config.Set("clusterMetricFilter", []string{"kubernetes.pod_phase"})
 			doSetup(true, "")
 
 			plugin.Start()
@@ -337,7 +337,7 @@ var _ = Describe("Kubernetes plugin", func() {
 		})
 
 		It("Filters out excluded namespaces", func() {
-			config.Set("namespaceFilter", []string{"!default"})
+			config.Set("clusterNamespaceFilter", []string{"!default"})
 			doSetup(true, "")
 
 			plugin.Start()
