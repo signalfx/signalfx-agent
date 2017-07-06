@@ -1,19 +1,27 @@
 {{define "signalfx"}}
-LoadPlugin python
+<LoadPlugin "python">
+{{- range $key, $value := .Vars }}
+  {{$key}} {{$value}}
+{{- end }}
+</LoadPlugin>
 TypesDB "{{Globals.PluginRoot}}/signalfx-collectd-plugin/types.db.plugin"
 <Plugin python>
   ModulePath "{{Globals.PluginRoot}}/signalfx-collectd-plugin"
   LogTraces true
   Interactive false
   Import "signalfx_metadata"
-  {{range $instance := .}}
+  {{range $instance := .Instances}}
   <Module signalfx_metadata>
+    {{if $instance.Vars.Interval}}
+    Interval {{$instance.Vars.Interval}}
+    {{ end }}
     Notifications true
     URL "{{$instance.Vars.url}}/v1/collectd"
     Token "{{Secret "SFX_ACCESS_TOKEN"}}"
     NotifyLevel "OKAY"
     ProcPath "/hostfs/proc"
     EtcPath "/hostfs/etc"
+    PersistencePath "/var/lib/misc"
   </Module>
   {{end}}
 </Plugin>

@@ -1,9 +1,12 @@
 {{define "write-http"}}
 <LoadPlugin "write_http">
    FlushInterval 10
+{{- range $key, $value := .Vars }}
+  {{$key}} {{$value}}
+{{- end }}
 </LoadPlugin>
 <Plugin "write_http">
-  {{range $instance := .}}
+  {{range $instance := .Instances}}
   <Node "SignalFx">
     URL "{{$instance.Vars.url}}/v1/collectd{{if $instance.Vars.dimensions}}?{{$instance.Vars.dimensions}}{{end}}"
     User "auth"

@@ -1,9 +1,13 @@
 {{define "elasticsearch"}}
-LoadPlugin python
+<LoadPlugin "python">
+{{- range $key, $value := .Vars }}
+  {{$key}} {{$value}}
+{{- end }}
+</LoadPlugin>
 <Plugin "python">
   ModulePath "{{Globals.PluginRoot}}/elasticsearch-collectd-plugin"
   Import "elasticsearch_collectd"
-  {{range $instance := .}}
+  {{range $instance := .Instances}}
     {{RenderPlugin $instance}}
   {{end}}
 </Plugin>

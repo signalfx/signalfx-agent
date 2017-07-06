@@ -115,7 +115,7 @@ RUN mkdir -p /usr/share/collectd/redis-collectd-plugin \
     && rm -rf /usr/share/collectd/redis-collectd-plugin/{screenshots,redis.conf}
 
 # signalfx-collectd-plugin
-ENV SIGNALFX_COLLECTD_PLUGIN_V=0.0.31
+ENV SIGNALFX_COLLECTD_PLUGIN_V=0.0.32
 RUN mkdir -p /usr/share/collectd/signalfx-collectd-plugin \
     && curl -L "https://github.com/signalfx/signalfx-collectd-plugin/archive/v${SIGNALFX_COLLECTD_PLUGIN_V}.tar.gz" --output /usr/share/collectd/signalfx-collectd-plugin/v${SIGNALFX_COLLECTD_PLUGIN_V}.tar.gz \
     && tar -zxvf /usr/share/collectd/signalfx-collectd-plugin/v${SIGNALFX_COLLECTD_PLUGIN_V}.tar.gz -C /usr/share/collectd/signalfx-collectd-plugin/ \
@@ -147,6 +147,7 @@ COPY etc /etc/signalfx/
 COPY agent /usr/sbin/signalfx-agent
 COPY libcollectd.so /usr/local/lib/collectd/libcollectd.so
 COPY java.so /usr/lib/collectd/java.so
+COPY memcached.so /usr/lib/collectd/memcached.so
 COPY mysql.so /usr/lib/collectd/mysql.so
 COPY nginx.so /usr/lib/collectd/nginx.so
 COPY python.so /usr/lib/collectd/python.so

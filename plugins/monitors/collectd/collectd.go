@@ -180,7 +180,7 @@ func (collectd *Collectd) reload() {
 
 // writePlugins takes a list of plugin instances and generates a collectd.conf
 // formatted configuration.
-func (collectd *Collectd) writePlugins(plugins []*config.Plugin) error {
+func (collectd *Collectd) writePlugins(instances []*config.Instance) error {
 	if collectd.assets == nil {
 		return errors.New("collectd plugin assets not yet loaded")
 	}
@@ -196,32 +196,66 @@ func (collectd *Collectd) writePlugins(plugins []*config.Plugin) error {
 	collectdConfig.Hostname = viper.GetString("hostname")
 
 	// Set other collectd configurations from viper if they're set
-	if viper.IsSet("plugins.collectd.interval") {
-		collectdConfig.Interval = uint(viper.GetInt("plugins.collectd.interval"))
+	if collectd.Config.IsSet("interval") {
+		collectdConfig.Interval = uint(collectd.Config.GetInt("interval"))
 	}
-	if viper.IsSet("plugins.collectd.readThreads") {
-		collectdConfig.ReadThreads = uint(viper.GetInt("plugins.collectd.readThreads"))
+	if collectd.Config.IsSet("readThreads") {
+		collectdConfig.ReadThreads = uint(collectd.Config.GetInt("readThreads"))
 	}
-	if viper.IsSet("plugins.collectd.writeQueueLimitHigh") {
-		collectdConfig.WriteQueueLimitHigh = uint(viper.GetInt("plugins.collectd.writeQueueLimitHigh"))
+	if collectd.Config.IsSet("writeQueueLimitHigh") {
+		collectdConfig.WriteQueueLimitHigh = uint(collectd.Config.GetInt("writeQueueLimitHigh"))
 	}
-	if viper.IsSet("plugins.collectd.writeQueueLimitLow") {
-		collectdConfig.WriteQueueLimitLow = uint(viper.GetInt("plugins.collectd.writeQueueLimitLow"))
+	if collectd.Config.IsSet("writeQueueLimitLow") {
+		collectdConfig.WriteQueueLimitLow = uint(collectd.Config.GetInt("writeQueueLimitLow"))
 	}
-	if viper.IsSet("plugins.collectd.timeout") {
-		collectdConfig.Timeout = uint(viper.GetInt("plugins.collectd.timeout"))
+	if collectd.Config.IsSet("timeout") {
+		collectdConfig.Timeout = uint(collectd.Config.GetInt("timeout"))
 	}
-	if viper.IsSet("plugins.collectd.collectInternalStats") {
-		collectdConfig.CollectInternalStats = viper.GetBool("plugins.collectd.collectInternalStats")
+	if collectd.Config.IsSet("collectInternalStats") {
+		collectdConfig.CollectInternalStats = collectd.Config.GetBool("collectInternalStats")
 	}
 
 	// group instances by plugin
-	instancesMap := config.GroupByPlugin(plugins)
+	pluginsMap := config.GroupByPlugin(instances)
+	includeItervalInInstances := map[string]bool{
+		string(config.Docker):                 true,
+		string(services.ElasticSearchService): true,
+		string(config.SignalFx):               true,
+	}
+	unableToSetInterval := map[string]bool{
+		string(services.ActiveMQService):  true,
+		string(services.CassandraService): true,
+		string(services.KafkaService):     true,
+		string(config.Marathon):           true,
+		string(config.MesosAgent):         true,
+		string(config.MesosMaster):        true,
+		string(services.MongoDBService):   true,
+		string(services.RabbitmqService):  true,
+		string(services.RedisService):     true,
+		string(services.ZookeeperService): true,
+	}
+	for key, plugin := range pluginsMap {
+		if collectd.Config.IsSet("pluginIntervals." + key) {
+			if _, ok := unableToSetInterval[key]; ok {
+				log.Printf("intervals are not currently supported for plugin [%s]", key)
+				continue
+			}
+			// set the interval for each instance from user/easy config
+			if _, ok := includeItervalInInstances[key]; ok {
+				for _, instance := range plugin.Instances {
+					instance.Vars["Interval"] = collectd.Config.Get("pluginIntervals." + key)
+				}
+			} else {
+				// set the interval for the plugin load block
+				plugin.Vars["Interval"] = collectd.Config.Get("pluginIntervals." + key)
+			}
+		}
+	}
 
 	config, err := config.RenderCollectdConf(collectd.pluginsDir, builtins, overrides,
 		&config.AppConfig{
 			AgentConfig: collectdConfig,
-			Plugins:     instancesMap,
+			Plugins:     pluginsMap,
 		})
 	if err != nil {
 		return err
@@ -249,7 +283,7 @@ func (collectd *Collectd) writePlugins(plugins []*config.Plugin) error {
 }
 
 // getStaticPlugins returns a list of plugins specified in the agent config
-func (collectd *Collectd) getStaticPlugins() ([]*config.Plugin, error) {
+func (collectd *Collectd) getStaticPlugins() ([]*config.Instance, error) {
 	static := struct {
 		// This could possibly be cleaned up to use inline annotation but
 		// haven't figured out how to make it work.
@@ -260,7 +294,7 @@ func (collectd *Collectd) getStaticPlugins() ([]*config.Plugin, error) {
 		return nil, err
 	}
 
-	var plugins []*config.Plugin
+	var plugins []*config.Instance
 
 	for pluginName, plugin := range static.StaticPlugins {
 		yamlPluginType, ok := plugin["plugin"]
@@ -293,9 +327,9 @@ func (collectd *Collectd) getStaticPlugins() ([]*config.Plugin, error) {
 	return plugins, nil
 }
 
-func (collectd *Collectd) createPluginsFromServices(sis services.Instances) ([]*config.Plugin, error) {
+func (collectd *Collectd) createPluginsFromServices(sis services.Instances) ([]*config.Instance, error) {
 	log.Printf("Configuring collectd plugins for %+v", sis)
-	var plugins []*config.Plugin
+	var plugins []*config.Instance
 
 	for _, service := range sis {
 		// TODO: Name is not unique, not sure what to use here.

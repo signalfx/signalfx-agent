@@ -2,9 +2,12 @@ integrations:
   memcached:
     labels:
     - app
+    vars:
+      ReportHost: false
     rule: NetworkPrivatePort == 11211
     template: |
       <Instance "{{.Name}}[{{.Dims}}]">
+        ReportHost {{$.Vars.ReportHost}}
         Host "{{.Host}}"
         Port "{{.Port}}"
       </Instance>
