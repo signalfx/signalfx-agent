@@ -217,21 +217,21 @@ func (collectd *Collectd) writePlugins(instances []*config.Instance) error {
 	// group instances by plugin
 	pluginsMap := config.GroupByPlugin(instances)
 	includeItervalInInstances := map[string]bool{
-		"docker":        true,
-		"elasticsearch": true,
-		"signalfx":      true,
+		string(config.Docker):                 true,
+		string(services.ElasticSearchService): true,
+		string(config.SignalFx):               true,
 	}
 	unableToSetInterval := map[string]bool{
-		"activemq":     true,
-		"cassandra":    true,
-		"kafka":        true,
-		"marathon":     true,
-		"mesos-agent":  true,
-		"mesos-master": true,
-		"mongodb":      true,
-		"rabbitmq":     true,
-		"redis":        true,
-		"zookeeper":    true,
+		string(services.ActiveMQService):  true,
+		string(services.CassandraService): true,
+		string(services.KafkaService):     true,
+		string(config.Marathon):           true,
+		string(config.MesosAgent):         true,
+		string(config.MesosMaster):        true,
+		string(services.MongoDBService):   true,
+		string(services.RabbitmqService):  true,
+		string(services.RedisService):     true,
+		string(services.ZookeeperService): true,
 	}
 	for key, plugin := range pluginsMap {
 		if collectd.Config.IsSet("pluginIntervals." + key) {
