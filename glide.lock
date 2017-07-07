@@ -1,13 +1,10 @@
-hash: 53bd85e6a34594628fe72e12b9af3fa2eaf14da35b0713de2fb15ec1f7a5629d
-updated: 2017-07-06T12:46:38.64457562-04:00
+hash: 3b042115ce4c7ca8b7dfac86b010696cdd8961f1bf180d73abd6b45eea334884
+updated: 2017-07-06T18:26:10.43229953-04:00
 imports:
-- name: cloud.google.com/go
-  version: 3b1ae45394a234c385be014e9a488f2bb6eef821
-  subpackages:
-  - compute/metadata
-  - internal
 - name: github.com/blang/semver
-  version: 31b736133b98f26d5e078ec9eb591666edfd091f
+  version: aea32c919a18e5ef4537bbd283ff29594b1b0165
+- name: github.com/codegangsta/cli
+  version: 4b90d79a682b4bf685762c7452db20f2a676ecb2
 - name: github.com/coreos/go-oidc
   version: 5644a2f50e2d2d5ba0b474bc5bc55fea1925936d
   subpackages:
@@ -17,8 +14,9 @@ imports:
   - oauth2
   - oidc
 - name: github.com/coreos/pkg
-  version: fa29b1d70f0beaddd4c7021607cc3c3be8ce94b8
+  version: 7f080b6c11ac2d2347c3cd7521e810207ea1a041
   subpackages:
+  - dlopen
   - health
   - httputil
   - timeutil
@@ -27,7 +25,7 @@ imports:
   subpackages:
   - spew
 - name: github.com/docker/distribution
-  version: cd27f179f2c10c5d300e6d09025b538c475b0d51
+  version: c6f63e298ebb1dd0a2ce5ada0c0d39e248132634
   subpackages:
   - digest
   - reference
@@ -55,7 +53,7 @@ imports:
   - sockets
   - tlsconfig
 - name: github.com/docker/go-units
-  version: e30f1e79f3cd72542f2026ceec18d3bd67ab859c
+  version: 0bbddae09c5a5419a8c6dcdd7ff90da3d450393b
 - name: github.com/docker/libkv
   version: a9894d135ee6319a13e5388c5ef4acac56138175
   repo: https://github.com/signalfx/libkv.git
@@ -89,11 +87,11 @@ imports:
 - name: github.com/golang/glog
   version: fca8c8854093a154ff1eb580aae10276ad6b1b5f
 - name: github.com/golang/protobuf
-  version: b982704f8bb716bb608144408cff30e15fbde841
+  version: bf531ff1a004f24ee53329dfd5ce0b41bfdc17df
   subpackages:
   - proto
 - name: github.com/google/cadvisor
-  version: 17543becf9053e7e80806a57b05002a88c79ec8a
+  version: d19cc94b760cd8f150a0a5d95b404dec39a121a1
   subpackages:
   - client
   - info/v1
@@ -190,7 +188,7 @@ imports:
   - libcontainer/user
   - libcontainer/utils
 - name: github.com/pborman/uuid
-  version: ca53cad383cad2479bbba7f7a1a05797ec1386e4
+  version: cccd189d45f7ac3368a0d127efb7f4d08ae0b655
 - name: github.com/pelletier/go-buffruneio
   version: df1e16fde7fc330a0ca68167c23bf7ed6ac31d6d
 - name: github.com/pelletier/go-toml
@@ -207,17 +205,12 @@ imports:
   version: 1d7be4effb13d2d908342d349d71a284a7542693
   subpackages:
   - zk
-- name: github.com/signalfx/cadvisor-integration
-  version: 015a785a38a0a54758f01f4ba2934fc7e70bd44c
-  subpackages:
-  - converter
-  - poller
 - name: github.com/signalfx/com_signalfx_metrics_protobuf
   version: 1477d7f5730360be99fcaf7e7d7c56e03be2eabc
 - name: github.com/signalfx/gohistogram
-  version: 1ccfd2ff508314074672f4450a917011a2060408
+  version: 9127bf9764d9d26d3b3457d3540bdd39417b2001
 - name: github.com/signalfx/golib
-  version: ddf42090f324cc1f632ad5e9bc2f974037c23670
+  version: cb7680940d605b817db79790c241eed2a00fa6e6
   subpackages:
   - datapoint
   - datapoint/dpsink
@@ -249,7 +242,7 @@ imports:
 - name: github.com/spf13/jwalterweatherman
   version: fa7ca7e836cf3a8bb4ebf799f472c12d7e903d66
 - name: github.com/spf13/pflag
-  version: 9ff6c6923cfffbcd502984b8e0c80539a94968b7
+  version: 5ccb023bc27df288a957c5e994cd44fd19619465
 - name: github.com/spf13/viper
   version: 5ed0fc31f7f453625df314d8e66b9791e8d13003
 - name: github.com/ugorji/go
@@ -263,17 +256,15 @@ imports:
   - ssh
   - ssh/terminal
 - name: golang.org/x/net
-  version: e90d6d0afc4c315a0d87a568ae68577cc15149a0
+  version: 5627bad10b821d907ac4dc81fb3535ec7dd81c2b
   subpackages:
   - context
-  - context/ctxhttp
   - http2
   - http2/hpack
   - idna
-  - lex/httplex
   - proxy
 - name: golang.org/x/oauth2
-  version: 3c3a985cb79f52a3190fbc056984415ca6763d01
+  version: ca8a464d23d55afd32571475db223e065ffd8a52
   subpackages:
   - google
   - internal
@@ -308,6 +299,13 @@ imports:
   - internal/remote_api
   - internal/urlfetch
   - urlfetch
+- name: google.golang.org/cloud
+  version: 975617b05ea8a58727e6c1a06b6161ff4185a9f2
+  subpackages:
+  - compute/metadata
+  - internal
+  - internal/opts
+  - storage
 - name: gopkg.in/inf.v0
   version: 3887ee99ecf07df5b447e9b00d9c0b2adaa9f3e4
 - name: gopkg.in/logfmt.v0

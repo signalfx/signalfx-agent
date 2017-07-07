@@ -137,6 +137,7 @@ func loadUserConfig(pair *store.KVPair) error {
 		kube.Parse(kubernetes)
 		if len(kubernetes) > 0 {
 			plugins["kubernetes"] = kubernetes
+			//plugins["k8sMonitor"] = kubernetes
 		}
 
 		// cadvisor configurations come out of the kubernetes config

@@ -1,5 +1,9 @@
 package: github.com/signalfx/neo-agent
 import:
+- package: github.com/codegangsta/cli
+- package: github.com/goinggo/workpool
+- package: github.com/google/cadvisor
+  version: v0.26.1
 - package: github.com/docker/libkv
   version: a9894d135ee6319a13e5388c5ef4acac56138175
   repo: https://github.com/signalfx/libkv.git
@@ -14,8 +18,16 @@ import:
   - context
 - package: github.com/fsnotify/fsnotify
   version: ~1.4.2
-- package: github.com/signalfx/cadvisor-integration
-  version: 015a785a38a0a54758f01f4ba2934fc7e70bd44c
+- package: github.com/golang/protobuf
+  version: bf531ff1a004f24ee53329dfd5ce0b41bfdc17df
+  subpackages:
+  - proto
+- package: github.com/signalfx/com_signalfx_metrics_protobuf
+  version: 1477d7f5730360be99fcaf7e7d7c56e03be2eabc
+- package: github.com/signalfx/golib
+  version: cb7680940d605b817db79790c241eed2a00fa6e6
+- package: github.com/signalfx/metricproxy
+  version: v0.9.18
 - package: github.com/Knetic/govaluate
   version: 2.3.0
 - package: k8s.io/client-go
