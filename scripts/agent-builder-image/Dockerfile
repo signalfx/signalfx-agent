@@ -75,7 +75,7 @@ RUN sed -i -e '/^deb-src/d' /etc/apt/sources.list \
     && apt-get install -y quilt \
     && apt-get clean
 
-LABEL go_version="1.8.3" \
+LABEL go_version="1.7.4" \
       java_version="1.8"
 
 # golang
@@ -107,7 +107,7 @@ WORKDIR $GOPATH/src/github.com/signalfx/neo-agent
 
 # Go dependencies get their own layer so that they're cached separately.
 COPY glide.yaml glide.lock ./
-RUN glide install
+RUN glide install --strip-vendor
 
 COPY src .
 
