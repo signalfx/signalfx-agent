@@ -1,8 +1,28 @@
-tls:
-  skipVerify: true
-  clientCert: "/path/to/cert"
-  clientKey: "/path/to/key"
-  caCert: "/path/to/ca"
+kubeletAPI:
+  tls:
+    # Set to true to ignore certificate verification checks connecting to kubelet.
+    skipVerify: true
+
+    # Set to file path of CA certificate used for signing kubelet TLS certificate.
+    caCert: "/path/to/ca"
+
+    # Set to file path of client certificate used to authenticate with kubelet.
+    clientCert: "/path/to/cert"
+
+    # Set to file path of client private key used to authenticate with kubelet.
+    clientKey: "/path/to/key"
+
+kubernetesAPI:
+  tls:
+    # Set to file path of CA certificate used for signing kubelet TLS certificate.
+    caCert: "/path/to/ca"
+
+    # Set to file path of client certificate used to authenticate with kubelet.
+    clientCert: "/path/to/cert"
+
+    # Set to file path of client private key used to authenticate with kubelet.
+    clientKey: "/path/to/key"
+
 role: worker
 cluster: kubernetes-cluster
 cadvisorURL: http://localhost:4493
@@ -10,11 +30,12 @@ cadvisorDisabledMetrics:
 - container_cpu_utilization
 - container_cpu_utilization_per_core
 cadvisorSendRate: 29
-alwaysClusterReporter: false
-clusterNamespaceFilter:
-  - testNamespace
-  - testNamespace2
-clusterMetricFilter:
-  - filterMetric1
-  - filterMetric2
-intervalSeconds: 35
+clusterMetrics:
+  alwaysClusterReporter: false
+  clusterNamespaceFilter:
+    - testNamespace
+    - testNamespace2
+  clusterMetricFilter:
+    - filterMetric1
+    - filterMetric2
+  intervalSeconds: 35

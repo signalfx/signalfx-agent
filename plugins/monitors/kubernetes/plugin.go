@@ -10,6 +10,8 @@ import (
 	k8s "k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
 
+	"sync"
+
 	"github.com/signalfx/golib/sfxclient"
 	"github.com/signalfx/neo-agent/plugins"
 	"github.com/signalfx/neo-agent/secrets"
@@ -47,6 +49,7 @@ import (
 type Plugin struct {
 	plugins.Plugin
 	monitor *Kubernetes
+	lock    sync.Mutex
 }
 
 const (
@@ -71,16 +74,17 @@ func NewPlugin(name string, config *viper.Viper) (plugins.IPlugin, error) {
 
 	err = kmp.Configure(config)
 	if err != nil {
+		log.Printf("k8sMonitor: %v", err)
 		return nil, err
 	}
-
+	log.Println("FLAG: k8sMonitor: NewPlugin() complete")
 	return kmp, nil
 }
 
 // This can take configuration if needed for other types of auth
 func makeK8sClient(config *viper.Viper) (*k8s.Clientset, error) {
 	authType := config.GetString("authType")
-	noVerify := config.GetBool("tls.skipVerify")
+	noVerify := false // config.GetBool("tls.skipVerify")
 
 	var authConf *rest.Config
 	var err error
@@ -116,7 +120,12 @@ func makeK8sClient(config *viper.Viper) (*k8s.Clientset, error) {
 
 // Configure is called by the plugin framework when configuration changes
 func (kmp *Plugin) Configure(config *viper.Viper) error {
-	kmp.Stop()
+	kmp.lock.Lock()
+	defer kmp.lock.Unlock()
+	if kmp.monitor != nil {
+		// lock on configure
+		kmp.Stop()
+	}
 
 	kmp.Config = config
 	kmp.Config.SetDefault("alwaysClusterReporter", false)
@@ -136,7 +145,8 @@ func (kmp *Plugin) Configure(config *viper.Viper) error {
 	}
 	sfxClient.AuthToken = sfxAccessToken
 
-	sfxIngestURL := config.GetString("ingesturl")
+	// TODO: make ingesturl accessible in a better way, right now it's a global viper variable
+	sfxIngestURL := viper.GetString("ingesturl")
 	if sfxIngestURL != "" {
 		baseURL, err := url.Parse(sfxIngestURL)
 		if err != nil {
@@ -167,6 +177,9 @@ func (kmp *Plugin) Configure(config *viper.Viper) error {
 
 	kmp.monitor.MetricFilter = newFilterSet(config.GetStringSlice("clusterMetricFilter"))
 	kmp.monitor.NamespaceFilter = newFilterSet(config.GetStringSlice("clusterNamespaceFilter"))
+	log.Printf("FLAG: completed configuration of k8s monitor")
+
+	kmp.monitor.Start()
 
 	return nil
 }
@@ -180,6 +193,5 @@ func (kmp *Plugin) Stop() {
 
 // Start begins the data collection
 func (kmp *Plugin) Start() error {
-	kmp.monitor.Start()
 	return nil
 }

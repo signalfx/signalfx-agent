@@ -11,16 +11,18 @@ const k8sWorker = "worker"
 
 // Kubernetes user configuration struct for kubernetes
 type Kubernetes struct {
-	TLS                    *TLS `yaml:"tls"`
-	Role                   string
-	Cluster                string
-	CAdvisorURL            string   `yaml:"cadvisorURL,omitempty"`
-	CAdvisorMetricFilter   []string `yaml:"cadvisorDisabledMetrics,omitempty"`
-	CAdvisorDataSendRate   int      `yaml:"cadvisorSendRate,omitempty"`
-	IsClusterReporter      *bool    `yaml:"alwaysClusterReporter,omitempty"`
-	ClusterNamespaceFilter []string `yaml:"clusterNamespaceFilter,omitempty"`
-	ClusterMetricFilter    []string `yaml:"clusterMetricFilter,omitempty"`
-	IntervalSeconds        *int     `yaml:"intervalSeconds,omitempty"`
+	Role                 string
+	Cluster              string
+	CAdvisorURL          string          `yaml:"cadvisorURL,omitempty"`
+	CAdvisorMetricFilter []string        `yaml:"cadvisorDisabledMetrics,omitempty"`
+	CAdvisorDataSendRate int             `yaml:"cadvisorSendRate,omitempty"`
+	ClusterMetrics       *ClusterMetrics `yaml:"clusterMetrics,omitempty"`
+	KubeletAPI           *struct {
+		TLS *TLS `yaml:"tls,omitempty"`
+	} `yaml:"kubeletAPI,omitempty"`
+	KubernetesAPI *struct {
+		TLS *TLS `yaml:"tls,omitempty"`
+	} `yaml:"kubernetesAPI,omitempty"`
 }
 
 // LoadYAML loads a yaml file
@@ -53,25 +55,17 @@ func (k *Kubernetes) Parse(kubernetes map[string]interface{}) error {
 		return err
 	}
 	if k.Role == k8sWorker {
-		var tls = map[string]interface{}{}
-		k.TLS.Parse(tls)
-		if len(tls) > 0 {
-			kubernetes["tls"] = tls
+		if k.KubeletAPI != nil {
+			var tls = map[string]interface{}{}
+			if k.KubeletAPI.TLS != nil {
+				k.KubeletAPI.TLS.Parse(tls)
+			}
+			if len(tls) > 0 {
+				kubernetes["tls"] = tls
+			}
 		}
 	}
 
-	if k.IsClusterReporter != nil {
-		kubernetes["alwaysClusterReporter"] = *k.IsClusterReporter
-	}
-	if len(k.ClusterMetricFilter) >= 0 {
-		kubernetes["clusterMetricFilter"] = k.ClusterMetricFilter
-	}
-	if len(k.ClusterNamespaceFilter) >= 0 {
-		kubernetes["clusterNamespaceFilter"] = k.ClusterNamespaceFilter
-	}
-	if k.IntervalSeconds != nil {
-		kubernetes["intervalSeconds"] = *k.IntervalSeconds
-	}
 	return nil
 }
 
@@ -84,6 +78,24 @@ func (k *Kubernetes) ParseDimensions(dims map[string]string) error {
 	dims["kubernetes_cluster"] = k.Cluster
 	dims["kubernetes_role"] = k.Role
 
+	return nil
+}
+
+// ParseClusterMetrics parses configurations for the cluster metrics collector
+func (k *Kubernetes) ParseClusterMetrics(clusterMetrics map[string]interface{}) error {
+	if ok, err := k.IsValid(); !ok {
+		return err
+	}
+	if k.ClusterMetrics != nil {
+		k.ClusterMetrics.Parse(clusterMetrics)
+	}
+	if k.KubernetesAPI != nil {
+		var tls = map[string]interface{}{}
+		k.KubernetesAPI.TLS.Parse(tls)
+		if len(tls) > 0 {
+			clusterMetrics["tls"] = tls
+		}
+	}
 	return nil
 }
 
