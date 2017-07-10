@@ -272,6 +272,7 @@ func makeReplicaDPs(resource string, dimensions map[string]string, desired, avai
 		},
 	}
 }
+
 func (dc *DatapointCache) addRcDps(obj runtime.Object) {
 	rc := obj.(*v1.ReplicationController)
 	dimensions := map[string]string{
@@ -287,6 +288,7 @@ func (dc *DatapointCache) addRcDps(obj runtime.Object) {
 	dc.ReplicationControllers[rc.UID] = makeReplicaDPs("replication_controller", dimensions,
 		*rc.Spec.Replicas, rc.Status.AvailableReplicas)
 }
+
 func (dc *DatapointCache) removeRcDps(obj runtime.Object) {
 	rc := obj.(*v1.ReplicationController)
 	delete(dc.ReplicationControllers, rc.UID)

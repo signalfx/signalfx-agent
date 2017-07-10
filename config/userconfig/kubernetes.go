@@ -21,7 +21,8 @@ type Kubernetes struct {
 		TLS *TLS `yaml:"tls,omitempty"`
 	} `yaml:"kubeletAPI,omitempty"`
 	KubernetesAPI *struct {
-		TLS *TLS `yaml:"tls,omitempty"`
+		AuthType string   `yaml:"authType,omitempty"`
+		TLS      *TLS     `yaml:"tls,omitempty"`
 	} `yaml:"kubernetesAPI,omitempty"`
 }
 
@@ -89,11 +90,20 @@ func (k *Kubernetes) ParseClusterMetrics(clusterMetrics map[string]interface{}) 
 	if k.ClusterMetrics != nil {
 		k.ClusterMetrics.Parse(clusterMetrics)
 	}
+	if k.Cluster != "" {
+		clusterMetrics["clusterName"] = k.Cluster
+	}
 	if k.KubernetesAPI != nil {
+		if k.KubernetesAPI.AuthType != "" {
+			clusterMetrics["authType"] = k.KubernetesAPI.AuthType
+		}
+
 		var tls = map[string]interface{}{}
-		k.KubernetesAPI.TLS.Parse(tls)
-		if len(tls) > 0 {
-			clusterMetrics["tls"] = tls
+		if k.KubernetesAPI.TLS != nil {
+			k.KubernetesAPI.TLS.Parse(tls)
+			if len(tls) > 0 {
+				clusterMetrics["tls"] = tls
+			}
 		}
 	}
 	return nil

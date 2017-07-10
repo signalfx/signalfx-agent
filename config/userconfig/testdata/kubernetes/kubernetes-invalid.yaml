@@ -14,6 +14,7 @@ kubeletAPI:
     clientKey: "/path/to/key"
 
 kubernetesAPI:
+  authType: "tls"
   tls:
     # Set to file path of CA certificate used for signing kubelet TLS certificate.
     caCert: "/path/to/ca"

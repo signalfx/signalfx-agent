@@ -12,7 +12,6 @@ import (
 
 	"sync"
 
-	"github.com/signalfx/golib/sfxclient"
 	"github.com/signalfx/neo-agent/plugins"
 	"github.com/signalfx/neo-agent/secrets"
 	"github.com/spf13/viper"
@@ -84,20 +83,36 @@ func NewPlugin(name string, config *viper.Viper) (plugins.IPlugin, error) {
 // This can take configuration if needed for other types of auth
 func makeK8sClient(config *viper.Viper) (*k8s.Clientset, error) {
 	authType := config.GetString("authType")
-	noVerify := false // config.GetBool("tls.skipVerify")
 
 	var authConf *rest.Config
 	var err error
 
+	host, port := os.Getenv("KUBERNETES_SERVICE_HOST"), os.Getenv("KUBERNETES_SERVICE_PORT")
+	if len(host) == 0 || len(port) == 0 {
+		return nil, fmt.Errorf("unable to load k8s config, KUBERNETES_SERVICE_HOST and KUBERNETES_SERVICE_PORT must be defined")
+	}
+	k8sHost := "https://" + net.JoinHostPort(host, port)
+
 	switch authType {
 	// Mainly for testing purposes
 	case "none":
-		host, port := os.Getenv("KUBERNETES_SERVICE_HOST"), os.Getenv("KUBERNETES_SERVICE_PORT")
-		if len(host) == 0 || len(port) == 0 {
-			return nil, fmt.Errorf("unable to load k8s config, KUBERNETES_SERVICE_HOST and KUBERNETES_SERVICE_PORT must be defined")
+		authConf = &rest.Config{
+			Host: k8sHost,
+		}
+		authConf.Insecure = true
+	case "tls":
+		if !config.IsSet("tls.clientCert") || !config.IsSet("tls.clientKey") {
+			return nil, fmt.Errorf("For TLS auth, you must set both the "+
+			"kubernetesAPI.tls.clientCert and kubernetesAPI.tls.clientKey "+
+			"config values")
 		}
 		authConf = &rest.Config{
-			Host: "https://" + net.JoinHostPort(host, port),
+			Host: k8sHost,
+			TLSClientConfig: rest.TLSClientConfig{
+				CertFile: config.GetString("tls.clientCert"),
+				KeyFile: config.GetString("tls.clientKey"),
+				CAFile: config.GetString("tls.caCert"),
+			},
 		}
 	default:
 		log.Print("No k8s API auth specified, defaulting to service accounts")
@@ -107,8 +122,6 @@ func makeK8sClient(config *viper.Viper) (*k8s.Clientset, error) {
 			return nil, err
 		}
 	}
-
-	authConf.Insecure = noVerify
 
 	client, err := k8s.NewForConfig(authConf)
 	if err != nil {
@@ -138,7 +151,10 @@ func (kmp *Plugin) Configure(config *viper.Viper) error {
 
 	interval := uint(config.GetInt("intervalSeconds"))
 
-	sfxClient := sfxclient.NewHTTPSink()
+	sfxClient := NewSFXClient(map[string]string{
+		"metric_source": "kubernetes",
+		"kubernetes_cluster": config.GetString("clusterName"),
+	})
 	sfxAccessToken, err := secrets.EnvSecret("SFX_ACCESS_TOKEN")
 	if err != nil {
 		return err
@@ -175,9 +191,10 @@ func (kmp *Plugin) Configure(config *viper.Viper) error {
 
 	kmp.monitor = NewKubernetes(k8sClient, sfxClient, interval, alwaysClusterReporter, thisPodName)
 
-	kmp.monitor.MetricFilter = newFilterSet(config.GetStringSlice("clusterMetricFilter"))
-	kmp.monitor.NamespaceFilter = newFilterSet(config.GetStringSlice("clusterNamespaceFilter"))
-	log.Printf("FLAG: completed configuration of k8s monitor")
+	kmp.monitor.MetricFilter = newFilterSet(config.GetStringSlice("metricFilter"))
+	kmp.monitor.NamespaceFilter = newFilterSet(config.GetStringSlice("namespaceFilter"))
+	log.Printf("K8s Cluster Metric Filters: %#v", config.GetStringSlice("metricFilter"))
+	log.Printf("K8s Cluster Namespace Filters: %#v", config.GetStringSlice("namespaceFilter"))
 
 	kmp.monitor.Start()
 

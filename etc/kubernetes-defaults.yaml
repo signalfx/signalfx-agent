@@ -34,7 +34,6 @@ plugins:
 pipelines:
     kubernetes:
     - kubernetes
-    - k8smonitor
     - integrations
     - proxy
     - collectd

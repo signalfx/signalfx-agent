@@ -75,7 +75,7 @@ RUN sed -i -e '/^deb-src/d' /etc/apt/sources.list \
     && apt-get install -y quilt \
     && apt-get clean
 
-LABEL go_version="1.7.4" \
+LABEL go_version="1.8.3" \
       java_version="1.8"
 
 # golang

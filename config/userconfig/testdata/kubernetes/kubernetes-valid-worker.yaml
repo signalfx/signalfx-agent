@@ -13,6 +13,7 @@ kubeletAPI:
     clientKey: "/path/to/key"
 
 kubernetesAPI:
+  authType: "tls"
   tls:
     # Set to file path of CA certificate used for signing kubelet TLS certificate.
     caCert: "/path/to/ca"
@@ -32,10 +33,10 @@ cadvisorDisabledMetrics:
 cadvisorSendRate: 29
 clusterMetrics:
   alwaysClusterReporter: false
-  clusterNamespaceFilter:
+  namespaceFilter:
     - testNamespace
     - testNamespace2
-  clusterMetricFilter:
+  metricFilter:
     - filterMetric1
     - filterMetric2
   intervalSeconds: 35

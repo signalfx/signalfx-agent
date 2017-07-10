@@ -8,10 +8,10 @@ import (
 
 // ClusterMetrics struct for storing cluster metric configurations
 type ClusterMetrics struct {
-	IsClusterReporter      *bool    `yaml:"alwaysClusterReporter,omitempty"`
-	ClusterNamespaceFilter []string `yaml:"clusterNamespaceFilter,omitempty"`
-	ClusterMetricFilter    []string `yaml:"clusterMetricFilter,omitempty"`
-	IntervalSeconds        *int     `yaml:"intervalSeconds,omitempty"`
+	IsClusterReporter  *bool    `yaml:"alwaysClusterReporter,omitempty"`
+	NamespaceFilter   []string `yaml:"namespaceFilter,omitempty"`
+	MetricFilter      []string `yaml:"metricFilter,omitempty"`
+	IntervalSeconds    *int     `yaml:"intervalSeconds,omitempty"`
 }
 
 // LoadYAML loads a yaml file
@@ -27,16 +27,16 @@ func (c *ClusterMetrics) LoadYAML(path string) error {
 	return err
 }
 
-// Parses cluster metric configurations
+// Parse aggregates cluster metric configurations
 func (c *ClusterMetrics) Parse(clusterMetrics map[string]interface{}) error {
 	if c.IsClusterReporter != nil {
 		clusterMetrics["alwaysClusterReporter"] = *c.IsClusterReporter
 	}
-	if len(c.ClusterMetricFilter) >= 0 {
-		clusterMetrics["clusterMetricFilter"] = c.ClusterMetricFilter
+	if len(c.MetricFilter) >= 0 {
+		clusterMetrics["metricFilter"] = c.MetricFilter
 	}
-	if len(c.ClusterNamespaceFilter) >= 0 {
-		clusterMetrics["clusterNamespaceFilter"] = c.ClusterNamespaceFilter
+	if len(c.NamespaceFilter) >= 0 {
+		clusterMetrics["namespaceFilter"] = c.NamespaceFilter
 	}
 	if c.IntervalSeconds != nil {
 		clusterMetrics["intervalSeconds"] = *c.IntervalSeconds

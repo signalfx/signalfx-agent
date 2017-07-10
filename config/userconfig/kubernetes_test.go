@@ -74,6 +74,7 @@ func TestKubernetes_Parse(t *testing.T) {
 			TLS *TLS `yaml:"tls,omitempty"`
 		} `yaml:"kubeletAPI,omitempty"`
 		KubernetesAPI *struct {
+			AuthType string `yaml:"authType,omitempty"`
 			TLS *TLS `yaml:"tls,omitempty"`
 		} `yaml:"kubernetesAPI,omitempty"`
 	}
@@ -102,8 +103,10 @@ func TestKubernetes_Parse(t *testing.T) {
 					},
 				},
 				KubernetesAPI: &struct {
+					AuthType string `yaml:"authType,omitempty"`
 					TLS *TLS `yaml:"tls,omitempty"`
 				}{
+					AuthType: "tls",
 					TLS: &TLS{
 						SkipVerify: false,
 						ClientCert: "/path/to/cert",
@@ -121,11 +124,11 @@ func TestKubernetes_Parse(t *testing.T) {
 				CAdvisorDataSendRate: 29,
 				ClusterMetrics: &ClusterMetrics{
 					IsClusterReporter: &f,
-					ClusterNamespaceFilter: []string{
+					NamespaceFilter: []string{
 						"testNamespace",
 						"testNamespace2",
 					},
-					ClusterMetricFilter: []string{
+					MetricFilter: []string{
 						"filterMetric1",
 						"filterMetric2",
 					},
@@ -177,11 +180,11 @@ func TestKubernetes_Parse(t *testing.T) {
 				CAdvisorDataSendRate: 30,
 				ClusterMetrics: &ClusterMetrics{
 					IsClusterReporter: &f,
-					ClusterNamespaceFilter: []string{
+					NamespaceFilter: []string{
 						"testNamespace",
 						"testNamespace2",
 					},
-					ClusterMetricFilter: []string{
+					MetricFilter: []string{
 						"filterMetric1",
 						"filterMetric2",
 					},
@@ -198,8 +201,10 @@ func TestKubernetes_Parse(t *testing.T) {
 					},
 				},
 				KubernetesAPI: &struct {
+					AuthType string `yaml:"authType,omitempty"`
 					TLS *TLS `yaml:"tls,omitempty"`
 				}{
+					AuthType: "tls",
 					TLS: &TLS{
 						SkipVerify: false,
 						ClientCert: "/path/to/certMaster",
@@ -280,6 +285,7 @@ func TestKubernetes_ParseDimensions(t *testing.T) {
 			TLS *TLS `yaml:"tls,omitempty"`
 		} `yaml:"kubeletAPI,omitempty"`
 		KubernetesAPI *struct {
+			AuthType string `yaml:"authType,omitempty"`
 			TLS *TLS `yaml:"tls,omitempty"`
 		} `yaml:"kubernetesAPI,omitempty"`
 	}
@@ -308,8 +314,10 @@ func TestKubernetes_ParseDimensions(t *testing.T) {
 					},
 				},
 				KubernetesAPI: &struct {
+					AuthType string `yaml:"authType,omitempty"`
 					TLS *TLS `yaml:"tls,omitempty"`
 				}{
+					AuthType: "tls",
 					TLS: &TLS{
 						SkipVerify: false,
 						ClientCert: "/path/to/cert",
@@ -327,11 +335,11 @@ func TestKubernetes_ParseDimensions(t *testing.T) {
 				CAdvisorDataSendRate: 29,
 				ClusterMetrics: &ClusterMetrics{
 					IsClusterReporter: &f,
-					ClusterNamespaceFilter: []string{
+					NamespaceFilter: []string{
 						"testNamespace",
 						"testNamespace2",
 					},
-					ClusterMetricFilter: []string{
+					MetricFilter: []string{
 						"filterMetric1",
 						"filterMetric2",
 					},
@@ -362,8 +370,10 @@ func TestKubernetes_ParseDimensions(t *testing.T) {
 					},
 				},
 				KubernetesAPI: &struct {
+					AuthType string `yaml:"authType,omitempty"`
 					TLS *TLS `yaml:"tls,omitempty"`
 				}{
+					AuthType: "tls",
 					TLS: &TLS{
 						SkipVerify: false,
 						ClientCert: "/path/to/certMaster",
@@ -381,11 +391,11 @@ func TestKubernetes_ParseDimensions(t *testing.T) {
 				CAdvisorDataSendRate: 30,
 				ClusterMetrics: &ClusterMetrics{
 					IsClusterReporter: &f,
-					ClusterNamespaceFilter: []string{
+					NamespaceFilter: []string{
 						"testNamespace",
 						"testNamespace2",
 					},
-					ClusterMetricFilter: []string{
+					MetricFilter: []string{
 						"filterMetric1",
 						"filterMetric2",
 					},
@@ -451,6 +461,7 @@ func TestKubernetes_ParseCAdvisor(t *testing.T) {
 			TLS *TLS `yaml:"tls,omitempty"`
 		} `yaml:"kubeletAPI,omitempty"`
 		KubernetesAPI *struct {
+			AuthType string `yaml:"authType,omitempty"`
 			TLS *TLS `yaml:"tls,omitempty"`
 		} `yaml:"kubernetesAPI,omitempty"`
 	}
@@ -479,8 +490,10 @@ func TestKubernetes_ParseCAdvisor(t *testing.T) {
 					},
 				},
 				KubernetesAPI: &struct {
+					AuthType string `yaml:"authType,omitempty"`
 					TLS *TLS `yaml:"tls,omitempty"`
 				}{
+					AuthType: "tls",
 					TLS: &TLS{
 						SkipVerify: false,
 						ClientCert: "/path/to/cert",
@@ -498,11 +511,11 @@ func TestKubernetes_ParseCAdvisor(t *testing.T) {
 				CAdvisorDataSendRate: 29,
 				ClusterMetrics: &ClusterMetrics{
 					IsClusterReporter: &f,
-					ClusterNamespaceFilter: []string{
+					NamespaceFilter: []string{
 						"testNamespace",
 						"testNamespace2",
 					},
-					ClusterMetricFilter: []string{
+					MetricFilter: []string{
 						"filterMetric1",
 						"filterMetric2",
 					},
@@ -537,8 +550,10 @@ func TestKubernetes_ParseCAdvisor(t *testing.T) {
 					},
 				},
 				KubernetesAPI: &struct {
+					AuthType string `yaml:"authType,omitempty"`
 					TLS *TLS `yaml:"tls,omitempty"`
 				}{
+					AuthType: "tls",
 					TLS: &TLS{
 						SkipVerify: false,
 						ClientCert: "/path/to/certAlt",
@@ -556,11 +571,11 @@ func TestKubernetes_ParseCAdvisor(t *testing.T) {
 				CAdvisorDataSendRate: 30,
 				ClusterMetrics: &ClusterMetrics{
 					IsClusterReporter: &f,
-					ClusterNamespaceFilter: []string{
+					NamespaceFilter: []string{
 						"testNamespace",
 						"testNamespace2",
 					},
-					ClusterMetricFilter: []string{
+					MetricFilter: []string{
 						"filterMetric1",
 						"filterMetric2",
 					},
@@ -630,6 +645,7 @@ func TestKubernetes_ParseClusterMetrics(t *testing.T) {
 			TLS *TLS `yaml:"tls,omitempty"`
 		} `yaml:"kubeletAPI,omitempty"`
 		KubernetesAPI *struct {
+			AuthType string `yaml:"authType,omitempty"`
 			TLS *TLS `yaml:"tls,omitempty"`
 		} `yaml:"kubernetesAPI,omitempty"`
 	}
@@ -658,8 +674,10 @@ func TestKubernetes_ParseClusterMetrics(t *testing.T) {
 					},
 				},
 				KubernetesAPI: &struct {
+					AuthType string `yaml:"authType,omitempty"`
 					TLS *TLS `yaml:"tls,omitempty"`
 				}{
+					AuthType: "tls",
 					TLS: &TLS{
 						SkipVerify: false,
 						ClientCert: "/path/to/cert",
@@ -677,11 +695,11 @@ func TestKubernetes_ParseClusterMetrics(t *testing.T) {
 				CAdvisorDataSendRate: 29,
 				ClusterMetrics: &ClusterMetrics{
 					IsClusterReporter: &f,
-					ClusterNamespaceFilter: []string{
+					NamespaceFilter: []string{
 						"testNamespace",
 						"testNamespace2",
 					},
-					ClusterMetricFilter: []string{
+					MetricFilter: []string{
 						"filterMetric1",
 						"filterMetric2",
 					},
@@ -689,6 +707,8 @@ func TestKubernetes_ParseClusterMetrics(t *testing.T) {
 				},
 			},
 			map[string]interface{}{
+				"clusterName": "kubernetes-cluster",
+				"authType": "tls",
 				"tls": map[string]interface{}{
 					"skipVerify": false,
 					"clientCert": "/path/to/cert",
@@ -696,11 +716,11 @@ func TestKubernetes_ParseClusterMetrics(t *testing.T) {
 					"caCert":     "/path/to/ca",
 				},
 				"alwaysClusterReporter": false,
-				"clusterNamespaceFilter": []string{
+				"namespaceFilter": []string{
 					"testNamespace",
 					"testNamespace2",
 				},
-				"clusterMetricFilter": []string{
+				"metricFilter": []string{
 					"filterMetric1",
 					"filterMetric2",
 				},
@@ -725,11 +745,11 @@ func TestKubernetes_ParseClusterMetrics(t *testing.T) {
 				CAdvisorDataSendRate: 30,
 				ClusterMetrics: &ClusterMetrics{
 					IsClusterReporter: &f,
-					ClusterNamespaceFilter: []string{
+					NamespaceFilter: []string{
 						"testNamespace",
 						"testNamespace2",
 					},
-					ClusterMetricFilter: []string{
+					MetricFilter: []string{
 						"filterMetric1",
 						"filterMetric2",
 					},
@@ -746,8 +766,10 @@ func TestKubernetes_ParseClusterMetrics(t *testing.T) {
 					},
 				},
 				KubernetesAPI: &struct {
+					AuthType string `yaml:"authType,omitempty"`
 					TLS *TLS `yaml:"tls,omitempty"`
 				}{
+					AuthType: "tls",
 					TLS: &TLS{
 						SkipVerify: false,
 						ClientCert: "/path/to/certMaster",
@@ -757,6 +779,8 @@ func TestKubernetes_ParseClusterMetrics(t *testing.T) {
 				},
 			},
 			map[string]interface{}{
+				"clusterName": "kubernetes-cluster",
+				"authType": "tls",
 				"tls": map[string]interface{}{
 					"skipVerify": false,
 					"clientCert": "/path/to/certMaster",
@@ -764,11 +788,11 @@ func TestKubernetes_ParseClusterMetrics(t *testing.T) {
 					"caCert":     "/path/to/caMaster",
 				},
 				"alwaysClusterReporter": false,
-				"clusterNamespaceFilter": []string{
+				"namespaceFilter": []string{
 					"testNamespace",
 					"testNamespace2",
 				},
-				"clusterMetricFilter": []string{
+				"metricFilter": []string{
 					"filterMetric1",
 					"filterMetric2",
 				},

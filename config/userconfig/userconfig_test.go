@@ -86,6 +86,7 @@ func TestUserConfig_LoadYAML(t *testing.T) {
 					},
 					CAdvisorDataSendRate: 25,
 					KubernetesAPI: &struct {
+						AuthType string `yaml:"authType,omitempty"`
 						TLS *TLS `yaml:"tls,omitempty"`
 					}{
 						TLS: &TLS{

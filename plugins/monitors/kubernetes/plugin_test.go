@@ -32,10 +32,12 @@ var _ = Describe("Kubernetes plugin", func() {
 		config.Set("intervalSeconds", 1)
 		config.Set("authType", "none")
 		config.Set("tls.skipVerify", true)
+		config.Set("clusterName", "test-cluster")
 
 		fakeSignalFx = NewFakeSignalFx()
 		fakeSignalFx.Start()
-		config.Set("ingesturl", fakeSignalFx.URL())
+		// This has to go on the global viper config until config is fixed
+		viper.Set("ingesturl", fakeSignalFx.URL())
 
 		fakeK8s = NewFakeK8s()
 		fakeK8s.Start()
@@ -112,6 +114,10 @@ var _ = Describe("Kubernetes plugin", func() {
 		Expect(dps[0].GetValue().GetIntValue()).To(Equal(int64(2)))
 		Expect(dps[1].GetMetric()).To(Equal("kubernetes.container_restart_count"))
 		Expect(dps[1].GetValue().GetIntValue()).To(Equal(int64(5)))
+
+		dims := ProtoDimensionsToMap(dps[0].GetDimensions())
+		Expect(dims["metric_source"]).To(Equal("kubernetes"))
+		Expect(dims["kubernetes_cluster"]).To(Equal("test-cluster"))
 
 		fakeK8s.EventInput <- WatchEvent{watch.Added, &v1.Pod{
 			TypeMeta: unversioned.TypeMeta{
@@ -305,7 +311,7 @@ var _ = Describe("Kubernetes plugin", func() {
 		})
 
 		It("Filters out excluded metrics", func() {
-			config.Set("clusterMetricFilter", []string{"!kubernetes.pod_phase"})
+			config.Set("metricFilter", []string{"!kubernetes.pod_phase"})
 			doSetup(true, "")
 
 			plugin.Start()
@@ -321,7 +327,7 @@ var _ = Describe("Kubernetes plugin", func() {
 		})
 
 		It("Filters out non-included metrics", func() {
-			config.Set("clusterMetricFilter", []string{"kubernetes.pod_phase"})
+			config.Set("metricFilter", []string{"kubernetes.pod_phase"})
 			doSetup(true, "")
 
 			plugin.Start()
@@ -337,7 +343,7 @@ var _ = Describe("Kubernetes plugin", func() {
 		})
 
 		It("Filters out excluded namespaces", func() {
-			config.Set("clusterNamespaceFilter", []string{"!default"})
+			config.Set("namespaceFilter", []string{"!default"})
 			doSetup(true, "")
 
 			plugin.Start()

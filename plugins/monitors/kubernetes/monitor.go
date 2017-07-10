@@ -10,13 +10,12 @@ import (
 	"k8s.io/client-go/pkg/api/v1"
 
 	"github.com/signalfx/golib/datapoint"
-	"github.com/signalfx/golib/sfxclient"
 )
 
 // Kubernetes is distinct from the plugin type for less coupling to
 // neo-agent
 type Kubernetes struct {
-	sfxClient *sfxclient.HTTPSink
+	sfxClient *SFXClient
 	// How often to report metrics to SignalFx
 	intervalSeconds uint
 	// Since most datapoints will stay the same or only slightly different
@@ -36,7 +35,7 @@ type Kubernetes struct {
 
 // NewKubernetes creates a new monitor instance
 func NewKubernetes(k8sClient *k8s.Clientset,
-	sfxClient *sfxclient.HTTPSink,
+	sfxClient *SFXClient,
 	interval uint,
 	alwaysClusterReporter bool,
 	thisPodName string) *Kubernetes {
@@ -112,7 +111,6 @@ func (km *Kubernetes) sendLatestDatapoints() {
 	defer km.datapointCache.Mutex.Unlock()
 
 	dps := updateTimestamps(km.filterDatapoints(km.datapointCache.AllDatapoints()))
-	log.Printf("Pushing %d metrics to SignalFx", len(dps))
 
 	// This sends synchonously despite what the first param might seem to
 	// indicate
