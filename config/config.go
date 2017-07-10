@@ -75,6 +75,9 @@ func loadUserConfig(pair *store.KVPair) error {
 	// create kubernetes configuration map
 	kubernetes := map[string]interface{}{}
 
+	// create cluster metrics configuration map
+	clusterMetrics := map[string]interface{}{}
+
 	/// create mesosphere configuration map
 	mesosphere := map[string]interface{}{}
 
@@ -137,6 +140,10 @@ func loadUserConfig(pair *store.KVPair) error {
 		kube.Parse(kubernetes)
 		if len(kubernetes) > 0 {
 			plugins["kubernetes"] = kubernetes
+		}
+		kube.ParseClusterMetrics(clusterMetrics)
+		if len(clusterMetrics) > 0 {
+			plugins["k8smonitor"] = clusterMetrics
 		}
 
 		// cadvisor configurations come out of the kubernetes config

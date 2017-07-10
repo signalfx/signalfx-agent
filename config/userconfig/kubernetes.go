@@ -11,12 +11,19 @@ const k8sWorker = "worker"
 
 // Kubernetes user configuration struct for kubernetes
 type Kubernetes struct {
-	TLS                  *TLS `yaml:"tls"`
 	Role                 string
 	Cluster              string
-	CAdvisorURL          string   `yaml:"cadvisorURL,omitempty"`
-	CAdvisorMetricFilter []string `yaml:"cadvisorDisabledMetrics,omitempty"`
-	CAdvisorDataSendRate int      `yaml:"cadvisorSendRate,omitempty"`
+	CAdvisorURL          string          `yaml:"cadvisorURL,omitempty"`
+	CAdvisorMetricFilter []string        `yaml:"cadvisorDisabledMetrics,omitempty"`
+	CAdvisorDataSendRate int             `yaml:"cadvisorSendRate,omitempty"`
+	ClusterMetrics       *ClusterMetrics `yaml:"clusterMetrics,omitempty"`
+	KubeletAPI           *struct {
+		TLS *TLS `yaml:"tls,omitempty"`
+	} `yaml:"kubeletAPI,omitempty"`
+	KubernetesAPI *struct {
+		AuthType string   `yaml:"authType,omitempty"`
+		TLS      *TLS     `yaml:"tls,omitempty"`
+	} `yaml:"kubernetesAPI,omitempty"`
 }
 
 // LoadYAML loads a yaml file
@@ -49,12 +56,17 @@ func (k *Kubernetes) Parse(kubernetes map[string]interface{}) error {
 		return err
 	}
 	if k.Role == k8sWorker {
-		var tls = map[string]interface{}{}
-		k.TLS.Parse(tls)
-		if len(tls) > 0 {
-			kubernetes["tls"] = tls
+		if k.KubeletAPI != nil {
+			var tls = map[string]interface{}{}
+			if k.KubeletAPI.TLS != nil {
+				k.KubeletAPI.TLS.Parse(tls)
+			}
+			if len(tls) > 0 {
+				kubernetes["tls"] = tls
+			}
 		}
 	}
+
 	return nil
 }
 
@@ -67,6 +79,33 @@ func (k *Kubernetes) ParseDimensions(dims map[string]string) error {
 	dims["kubernetes_cluster"] = k.Cluster
 	dims["kubernetes_role"] = k.Role
 
+	return nil
+}
+
+// ParseClusterMetrics parses configurations for the cluster metrics collector
+func (k *Kubernetes) ParseClusterMetrics(clusterMetrics map[string]interface{}) error {
+	if ok, err := k.IsValid(); !ok {
+		return err
+	}
+	if k.ClusterMetrics != nil {
+		k.ClusterMetrics.Parse(clusterMetrics)
+	}
+	if k.Cluster != "" {
+		clusterMetrics["clusterName"] = k.Cluster
+	}
+	if k.KubernetesAPI != nil {
+		if k.KubernetesAPI.AuthType != "" {
+			clusterMetrics["authType"] = k.KubernetesAPI.AuthType
+		}
+
+		var tls = map[string]interface{}{}
+		if k.KubernetesAPI.TLS != nil {
+			k.KubernetesAPI.TLS.Parse(tls)
+			if len(tls) > 0 {
+				clusterMetrics["tls"] = tls
+			}
+		}
+	}
 	return nil
 }
 

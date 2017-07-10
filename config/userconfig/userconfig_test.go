@@ -77,12 +77,6 @@ func TestUserConfig_LoadYAML(t *testing.T) {
 					CollectInternalStats: &tru,
 				},
 				Kubernetes: &Kubernetes{
-					TLS: &TLS{
-						SkipVerify: true,
-						ClientCert: "/path/to/cert",
-						ClientKey:  "/path/to/key",
-						CACert:     "/path/to/ca",
-					},
 					Role:        "worker",
 					Cluster:     "kubernetes-cluster",
 					CAdvisorURL: "http://localhost:4493",
@@ -91,6 +85,27 @@ func TestUserConfig_LoadYAML(t *testing.T) {
 						"container_cpu_utilization_per_core",
 					},
 					CAdvisorDataSendRate: 25,
+					KubernetesAPI: &struct {
+						AuthType string `yaml:"authType,omitempty"`
+						TLS *TLS `yaml:"tls,omitempty"`
+					}{
+						TLS: &TLS{
+							SkipVerify: false,
+							ClientCert: "/path/to/cert",
+							ClientKey:  "/path/to/key",
+							CACert:     "/path/to/ca",
+						},
+					},
+					KubeletAPI: &struct {
+						TLS *TLS `yaml:"tls,omitempty"`
+					}{
+						TLS: &TLS{
+							SkipVerify: true,
+							ClientCert: "/path/to/cert",
+							ClientKey:  "/path/to/key",
+							CACert:     "/path/to/ca",
+						},
+					},
 				},
 				Mesosphere: nil,
 			},
