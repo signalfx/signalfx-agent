@@ -5,6 +5,7 @@ import (
 	"log"
 	"regexp"
 	"strconv"
+	"sync"
 	"time"
 
 	"github.com/signalfx/cadvisor-integration/poller"
@@ -25,6 +26,7 @@ func init() {
 // Cadvisor plugin struct
 type Cadvisor struct {
 	plugins.Plugin
+	lock    sync.Mutex
 	stop    chan bool
 	stopped chan bool
 }
@@ -100,7 +102,18 @@ func (c *Cadvisor) getMetricFilter() map[string]bool {
 }
 
 // Start cadvisor plugin
-func (c *Cadvisor) Start() error {
+func (c *Cadvisor) Configure(config *viper.Viper) error {
+	// Lock for reconfiguring the plugin
+	c.lock.Lock()
+	defer c.lock.Unlock()
+
+	// Stop if cadvisor was previously running
+	c.Stop()
+
+	c.Config = config
+	c.stop = nil
+	c.stopped = nil
+
 	apiToken, err := secrets.EnvSecret("SFX_ACCESS_TOKEN")
 	if err != nil {
 		return err
@@ -153,21 +166,12 @@ func (c *Cadvisor) Start() error {
 
 // Stop cadvisor plugin
 func (c *Cadvisor) Stop() {
+	// tell cadvisor to stop
 	if c.stop != nil {
 		c.stop <- true
 	}
-}
-
-// Reload cadvisor plugin
-func (c *Cadvisor) Reload(config *viper.Viper) error {
-	if c.stop != nil {
-		c.stop <- true
-	}
+	// read the stopped signal from cadvisor
 	if c.stopped != nil {
 		<-c.stopped
 	}
-	c.Config = config
-	c.stop = nil
-	c.stopped = nil
-	return c.Start()
 }
