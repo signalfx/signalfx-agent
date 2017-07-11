@@ -107,10 +107,10 @@ func (k *Kubernetes) load() error {
 	}
 	k.hostURL = hostURL
 
-	skipVerify := k.Config.GetBool("tls.skipverify")
-	caCert := k.Config.GetString("tls.cacert")
-	clientCert := k.Config.GetString("tls.clientcert")
-	clientKey := k.Config.GetString("tls.clientkey")
+	skipVerify := k.Config.GetBool("tls.skipVerify")
+	caCert := k.Config.GetString("tls.caCert")
+	clientCert := k.Config.GetString("tls.clientCert")
+	clientKey := k.Config.GetString("tls.clientKey")
 
 	certs, err := x509.SystemCertPool()
 	if err != nil {

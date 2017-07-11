@@ -2,3 +2,4 @@
 .build
 /vendor
 test-build
+build/

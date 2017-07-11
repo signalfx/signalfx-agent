@@ -8,9 +8,9 @@ import (
 	"sync"
 	"time"
 
-	"github.com/signalfx/cadvisor-integration/poller"
 	"github.com/signalfx/neo-agent/config/userconfig"
 	"github.com/signalfx/neo-agent/plugins"
+	"github.com/signalfx/neo-agent/plugins/monitors/cadvisor/poller"
 	"github.com/signalfx/neo-agent/secrets"
 	"github.com/spf13/viper"
 )
