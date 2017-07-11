@@ -40,7 +40,7 @@ func (f *Filter) Parse(store map[string]interface{}) error {
 		store["excludedNames"] = f.DockerContainerNames
 	}
 	// if there are labels add them
-	if labels := f.GetLabels(); len(labels) > 0 {
+	if labels := f.GetLabelsAsAList(); len(labels) > 0 {
 		// append the lables filter
 		store["excludedLabels"] = labels
 	}
@@ -73,4 +73,20 @@ func (f *Filter) GetLabels() []*Label {
 		}
 	}
 	return labels
+}
+
+// GetLabelsAsAList returns the labels as a list
+func (f *Filter) GetLabelsAsAList() (listOfLists [][]string) {
+	var labels = f.GetLabels()
+	for _, label := range labels {
+		var group = []string{}
+		if label.Key != "" {
+			group = append(group, label.Key)
+		}
+		if label.Value != "" {
+			group = append(group, label.Value)
+		}
+		listOfLists = append(listOfLists, group)
+	}
+	return
 }

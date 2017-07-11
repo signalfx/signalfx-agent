@@ -28,7 +28,7 @@ TypesDB "{{Globals.PluginRoot}}/docker-collectd-plugin/dockerplugin.db"
     ExcludeName "{{$name}}"
     {{end -}}
     {{range $label := $instance.Vars.excludedlabels -}}
-    ExcludeLabel "{{$label.key}}" {{with $label.value}}"{{$label.value}}"{{end}}
+    ExcludeLabel {{range $elem := $label}}"{{$elem}}" {{end}} 
     {{end -}}
   </Module>
   {{end}}
