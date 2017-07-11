@@ -13,6 +13,7 @@ import:
   - client
   - types
 - package: github.com/spf13/viper
+  version: c1de95864d73a5465492829d7cb2dd422b19ac96
 - package: golang.org/x/net
   subpackages:
   - context
