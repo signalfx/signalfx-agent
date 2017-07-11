@@ -115,7 +115,7 @@ func (c *Cadvisor) getMetricFilter() map[string]bool {
 	return filterMap
 }
 
-// Start cadvisor plugin
+// Configure and start/restart cadvisor plugin
 func (c *Cadvisor) Configure(config *viper.Viper) error {
 	// Lock for reconfiguring the plugin
 	c.lock.Lock()
