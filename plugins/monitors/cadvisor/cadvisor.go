@@ -11,6 +11,7 @@ import (
 	"github.com/signalfx/neo-agent/plugins"
 	"github.com/signalfx/neo-agent/plugins/monitors/cadvisor/poller"
 	"github.com/signalfx/neo-agent/secrets"
+	"github.com/signalfx/neo-agent/utils"
 	"github.com/spf13/viper"
 )
 
@@ -107,10 +108,7 @@ func (c *Cadvisor) getMetricFilter() map[string]bool {
 	var filters = c.Config.GetStringSlice("excludedMetrics")
 
 	// convert the config into a map so we don't have to iterate over and over
-	var filterMap = map[string]bool{}
-	for _, metric := range filters {
-		filterMap[metric] = true
-	}
+	var filterMap = utils.StringSliceToMap(filters)
 
 	return filterMap
 }
