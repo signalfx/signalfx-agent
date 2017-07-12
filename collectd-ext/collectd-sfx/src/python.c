@@ -1631,12 +1631,14 @@ static int cpy_reloadable_config(oconfig_item_t *ci) {
         status = 1;
         continue;
       }
-      if (PyList_Insert(sys_path, 0, dir_object) != 0) {
-        ERROR("python plugin: Unable to prepend \"%s\" to "
-              "python module path.",
-              dir);
-        cpy_log_exception("python initialization");
-        status = 1;
+      if (!PySequence_Contains(sys_path, dir_object)) {
+        if (PyList_Insert(sys_path, 0, dir_object) != 0) {
+          ERROR("python plugin: Unable to prepend \"%s\" to "
+                "python module path.",
+                dir);
+          cpy_log_exception("python initialization");
+          status = 1;
+        }
       }
       Py_DECREF(dir_object);
       free(dir);
