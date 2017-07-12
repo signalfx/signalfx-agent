@@ -5,12 +5,13 @@ import (
 	"log"
 	"regexp"
 	"strconv"
+	"sync"
 	"time"
 
-	"github.com/signalfx/neo-agent/config/userconfig"
 	"github.com/signalfx/neo-agent/plugins"
 	"github.com/signalfx/neo-agent/plugins/monitors/cadvisor/poller"
 	"github.com/signalfx/neo-agent/secrets"
+	"github.com/signalfx/neo-agent/utils"
 	"github.com/spf13/viper"
 )
 
@@ -25,6 +26,7 @@ func init() {
 // Cadvisor plugin struct
 type Cadvisor struct {
 	plugins.Plugin
+	lock    sync.Mutex
 	stop    chan bool
 	stopped chan bool
 }
@@ -41,22 +43,31 @@ func NewCadvisor(name string, config *viper.Viper) (plugins.IPlugin, error) {
 // getLabelFilter - parses viper config and returns label filter
 func (c *Cadvisor) getLabelFilter() [][]*regexp.Regexp {
 	var exlabels = [][]*regexp.Regexp{}
-	var labels []*userconfig.Label
-	c.Config.UnmarshalKey("excludedLabels", &labels)
+	var labels [][]string
+	c.Config.UnmarshalKey("excludedLabels", labels)
 	for _, label := range labels {
 		var kcomp *regexp.Regexp
 		var vcomp *regexp.Regexp
 		var value = ".*"
 		var err error
-		if kcomp, err = regexp.Compile(label.Key); err != nil {
-			log.Printf("Unable to compile regex pattern '%s' for label {'%s' : '%s'}: '%v'", label.Key, label.Key, label.Value, err)
+		if len(label) >= 1 {
+			if kcomp, err = regexp.Compile(label[0]); err != nil {
+				log.Printf("Unable to compile regex pattern '%s' for label: '%v'", label[0], err)
+				continue
+			}
+		} else {
+			// this is probably a bug if it is ever encountered
+			log.Printf("Unable to compile regex pattern because label criteria was empty.")
 			continue
 		}
-		if label.Value != "" {
-			value = label.Value
+
+		if len(label) == 2 {
+			if label[1] != "" {
+				value = label[1]
+			}
 		}
 		if vcomp, err = regexp.Compile(value); err != nil {
-			log.Printf("Unable to compile regex pattern '%s' for label {'%s' : '%s'}: '%v'", value, label.Key, value, err)
+			log.Printf("Unable to compile regex pattern '%s' for label {'%s' : '%s'}: '%v'", value, label[0], value, err)
 			continue
 		}
 		exlabels = append(exlabels, []*regexp.Regexp{kcomp, vcomp})
@@ -94,13 +105,27 @@ func (c *Cadvisor) getNameFilter() []*regexp.Regexp {
 }
 
 func (c *Cadvisor) getMetricFilter() map[string]bool {
-	var filters map[string]bool
-	c.Config.UnmarshalKey("excludedMetrics", &filters)
-	return filters
+	var filters = c.Config.GetStringSlice("excludedMetrics")
+
+	// convert the config into a map so we don't have to iterate over and over
+	var filterMap = utils.StringSliceToMap(filters)
+
+	return filterMap
 }
 
-// Start cadvisor plugin
-func (c *Cadvisor) Start() error {
+// Configure and start/restart cadvisor plugin
+func (c *Cadvisor) Configure(config *viper.Viper) error {
+	// Lock for reconfiguring the plugin
+	c.lock.Lock()
+	defer c.lock.Unlock()
+
+	// Stop if cadvisor was previously running
+	c.Stop()
+
+	c.Config = config
+	c.stop = nil
+	c.stopped = nil
+
 	apiToken, err := secrets.EnvSecret("SFX_ACCESS_TOKEN")
 	if err != nil {
 		return err
@@ -153,21 +178,12 @@ func (c *Cadvisor) Start() error {
 
 // Stop cadvisor plugin
 func (c *Cadvisor) Stop() {
+	// tell cadvisor to stop
 	if c.stop != nil {
 		c.stop <- true
 	}
-}
-
-// Reload cadvisor plugin
-func (c *Cadvisor) Reload(config *viper.Viper) error {
-	if c.stop != nil {
-		c.stop <- true
-	}
+	// read the stopped signal from cadvisor
 	if c.stopped != nil {
 		<-c.stopped
 	}
-	c.Config = config
-	c.stop = nil
-	c.stopped = nil
-	return c.Start()
 }

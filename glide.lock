@@ -1,5 +1,5 @@
 hash: 3b042115ce4c7ca8b7dfac86b010696cdd8961f1bf180d73abd6b45eea334884
-updated: 2017-07-06T18:26:10.43229953-04:00
+updated: 2017-07-11T13:49:24.580027927-04:00
 imports:
 - name: github.com/blang/semver
   version: aea32c919a18e5ef4537bbd283ff29594b1b0165
@@ -244,7 +244,7 @@ imports:
 - name: github.com/spf13/pflag
   version: 5ccb023bc27df288a957c5e994cd44fd19619465
 - name: github.com/spf13/viper
-  version: 5ed0fc31f7f453625df314d8e66b9791e8d13003
+  version: c1de95864d73a5465492829d7cb2dd422b19ac96
 - name: github.com/ugorji/go
   version: f1f1a805ed361a0e078bb537e4ea78cd37dcf065
   subpackages:

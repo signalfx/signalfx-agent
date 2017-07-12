@@ -21,8 +21,8 @@ type Kubernetes struct {
 		TLS *TLS `yaml:"tls,omitempty"`
 	} `yaml:"kubeletAPI,omitempty"`
 	KubernetesAPI *struct {
-		AuthType string   `yaml:"authType,omitempty"`
-		TLS      *TLS     `yaml:"tls,omitempty"`
+		AuthType string `yaml:"authType,omitempty"`
+		TLS      *TLS   `yaml:"tls,omitempty"`
 	} `yaml:"kubernetesAPI,omitempty"`
 }
 
@@ -118,11 +118,7 @@ func (k *Kubernetes) ParseCAdvisor(cadvisor map[string]interface{}) error {
 		if k.CAdvisorURL != "" || len(k.CAdvisorMetricFilter) > 0 || k.CAdvisorDataSendRate != 0 {
 			// parse metric names for cadvisor to not collect
 			if len(k.CAdvisorMetricFilter) > 0 {
-				var filters = map[string]bool{}
-				for _, metric := range k.CAdvisorMetricFilter {
-					filters[metric] = true
-				}
-				cadvisor["excludedMetrics"] = filters
+				cadvisor["excludedMetrics"] = k.CAdvisorMetricFilter
 			}
 			if k.CAdvisorURL != "" {
 				// add the config from user config to cadvisor plugin config

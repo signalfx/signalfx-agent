@@ -75,7 +75,7 @@ func TestKubernetes_Parse(t *testing.T) {
 		} `yaml:"kubeletAPI,omitempty"`
 		KubernetesAPI *struct {
 			AuthType string `yaml:"authType,omitempty"`
-			TLS *TLS `yaml:"tls,omitempty"`
+			TLS      *TLS   `yaml:"tls,omitempty"`
 		} `yaml:"kubernetesAPI,omitempty"`
 	}
 	type args struct {
@@ -104,7 +104,7 @@ func TestKubernetes_Parse(t *testing.T) {
 				},
 				KubernetesAPI: &struct {
 					AuthType string `yaml:"authType,omitempty"`
-					TLS *TLS `yaml:"tls,omitempty"`
+					TLS      *TLS   `yaml:"tls,omitempty"`
 				}{
 					AuthType: "tls",
 					TLS: &TLS{
@@ -202,7 +202,7 @@ func TestKubernetes_Parse(t *testing.T) {
 				},
 				KubernetesAPI: &struct {
 					AuthType string `yaml:"authType,omitempty"`
-					TLS *TLS `yaml:"tls,omitempty"`
+					TLS      *TLS   `yaml:"tls,omitempty"`
 				}{
 					AuthType: "tls",
 					TLS: &TLS{
@@ -286,7 +286,7 @@ func TestKubernetes_ParseDimensions(t *testing.T) {
 		} `yaml:"kubeletAPI,omitempty"`
 		KubernetesAPI *struct {
 			AuthType string `yaml:"authType,omitempty"`
-			TLS *TLS `yaml:"tls,omitempty"`
+			TLS      *TLS   `yaml:"tls,omitempty"`
 		} `yaml:"kubernetesAPI,omitempty"`
 	}
 	type args struct {
@@ -315,7 +315,7 @@ func TestKubernetes_ParseDimensions(t *testing.T) {
 				},
 				KubernetesAPI: &struct {
 					AuthType string `yaml:"authType,omitempty"`
-					TLS *TLS `yaml:"tls,omitempty"`
+					TLS      *TLS   `yaml:"tls,omitempty"`
 				}{
 					AuthType: "tls",
 					TLS: &TLS{
@@ -371,7 +371,7 @@ func TestKubernetes_ParseDimensions(t *testing.T) {
 				},
 				KubernetesAPI: &struct {
 					AuthType string `yaml:"authType,omitempty"`
-					TLS *TLS `yaml:"tls,omitempty"`
+					TLS      *TLS   `yaml:"tls,omitempty"`
 				}{
 					AuthType: "tls",
 					TLS: &TLS{
@@ -462,7 +462,7 @@ func TestKubernetes_ParseCAdvisor(t *testing.T) {
 		} `yaml:"kubeletAPI,omitempty"`
 		KubernetesAPI *struct {
 			AuthType string `yaml:"authType,omitempty"`
-			TLS *TLS `yaml:"tls,omitempty"`
+			TLS      *TLS   `yaml:"tls,omitempty"`
 		} `yaml:"kubernetesAPI,omitempty"`
 	}
 	type args struct {
@@ -491,7 +491,7 @@ func TestKubernetes_ParseCAdvisor(t *testing.T) {
 				},
 				KubernetesAPI: &struct {
 					AuthType string `yaml:"authType,omitempty"`
-					TLS *TLS `yaml:"tls,omitempty"`
+					TLS      *TLS   `yaml:"tls,omitempty"`
 				}{
 					AuthType: "tls",
 					TLS: &TLS{
@@ -523,9 +523,9 @@ func TestKubernetes_ParseCAdvisor(t *testing.T) {
 				},
 			},
 			map[string]interface{}{
-				"excludedMetrics": map[string]bool{
-					"container_cpu_utilization":          true,
-					"container_cpu_utilization_per_core": true,
+				"excludedMetrics": []string{
+					"container_cpu_utilization",
+					"container_cpu_utilization_per_core",
 				},
 				"cadvisorurl":  "http://localhost:4493",
 				"dataSendRate": 29,
@@ -551,7 +551,7 @@ func TestKubernetes_ParseCAdvisor(t *testing.T) {
 				},
 				KubernetesAPI: &struct {
 					AuthType string `yaml:"authType,omitempty"`
-					TLS *TLS `yaml:"tls,omitempty"`
+					TLS      *TLS   `yaml:"tls,omitempty"`
 				}{
 					AuthType: "tls",
 					TLS: &TLS{
@@ -583,9 +583,9 @@ func TestKubernetes_ParseCAdvisor(t *testing.T) {
 				},
 			},
 			map[string]interface{}{
-				"excludedMetrics": map[string]bool{
-					"container_cpu_utilization":          true,
-					"container_cpu_utilization_per_core": true,
+				"excludedMetrics": []string{
+					"container_cpu_utilization",
+					"container_cpu_utilization_per_core",
 				},
 				"cadvisorurl":  "http://localhost:8080",
 				"dataSendRate": 30,
@@ -646,7 +646,7 @@ func TestKubernetes_ParseClusterMetrics(t *testing.T) {
 		} `yaml:"kubeletAPI,omitempty"`
 		KubernetesAPI *struct {
 			AuthType string `yaml:"authType,omitempty"`
-			TLS *TLS `yaml:"tls,omitempty"`
+			TLS      *TLS   `yaml:"tls,omitempty"`
 		} `yaml:"kubernetesAPI,omitempty"`
 	}
 	type args struct {
@@ -675,7 +675,7 @@ func TestKubernetes_ParseClusterMetrics(t *testing.T) {
 				},
 				KubernetesAPI: &struct {
 					AuthType string `yaml:"authType,omitempty"`
-					TLS *TLS `yaml:"tls,omitempty"`
+					TLS      *TLS   `yaml:"tls,omitempty"`
 				}{
 					AuthType: "tls",
 					TLS: &TLS{
@@ -708,7 +708,7 @@ func TestKubernetes_ParseClusterMetrics(t *testing.T) {
 			},
 			map[string]interface{}{
 				"clusterName": "kubernetes-cluster",
-				"authType": "tls",
+				"authType":    "tls",
 				"tls": map[string]interface{}{
 					"skipVerify": false,
 					"clientCert": "/path/to/cert",
@@ -767,7 +767,7 @@ func TestKubernetes_ParseClusterMetrics(t *testing.T) {
 				},
 				KubernetesAPI: &struct {
 					AuthType string `yaml:"authType,omitempty"`
-					TLS *TLS `yaml:"tls,omitempty"`
+					TLS      *TLS   `yaml:"tls,omitempty"`
 				}{
 					AuthType: "tls",
 					TLS: &TLS{
@@ -780,7 +780,7 @@ func TestKubernetes_ParseClusterMetrics(t *testing.T) {
 			},
 			map[string]interface{}{
 				"clusterName": "kubernetes-cluster",
-				"authType": "tls",
+				"authType":    "tls",
 				"tls": map[string]interface{}{
 					"skipVerify": false,
 					"clientCert": "/path/to/certMaster",

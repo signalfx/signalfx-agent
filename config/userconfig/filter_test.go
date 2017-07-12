@@ -65,26 +65,26 @@ func TestFilter_Parse(t *testing.T) {
 				"excludedNames": []string{
 					"^somethingsnarky$",
 				},
-				"excludedLabels": []*Label{
-					&Label{
-						Key:   "^environment$",
-						Value: "^dev$",
+				"excludedLabels": [][]string{
+					[]string{
+						"^environment$",
+						"^dev$",
 					},
-					&Label{
-						Key:   "^environment$",
-						Value: "^test$",
+					[]string{
+						"^environment$",
+						"^test$",
 					},
-					&Label{
-						Key:   "^io.kubernetes.pod.namespace$",
-						Value: "^default$",
+					[]string{
+						"^io.kubernetes.pod.namespace$",
+						"^default$",
 					},
-					&Label{
-						Key:   "^io.kubernetes.container.name$",
-						Value: "^redis:*",
+					[]string{
+						"^io.kubernetes.container.name$",
+						"^redis:*",
 					},
-					&Label{
-						Key:   "^io.kubernetes.pod.name$",
-						Value: "^podNameOne$",
+					[]string{
+						"^io.kubernetes.pod.name$",
+						"^podNameOne$",
 					},
 				},
 			},
