@@ -146,6 +146,7 @@ ARG signalfx_agent_version=1.0.0-beta-9
 COPY etc /etc/signalfx/
 COPY agent /usr/sbin/signalfx-agent
 COPY libcollectd.so /usr/local/lib/collectd/libcollectd.so
+COPY match_regex.so /usr/lib/collectd/match_regex.so
 COPY java.so /usr/lib/collectd/java.so
 COPY memcached.so /usr/lib/collectd/memcached.so
 COPY mysql.so /usr/lib/collectd/mysql.so

@@ -57,7 +57,7 @@ mkdir -p ${AGENT_IMAGE_ROOT}
 
 # Copy collectd and Go agent binaries into the agent-image staging directory.
 docker run --rm -v ${SRC_ROOT}/${AGENT_IMAGE_ROOT}:/opt/build ${BUILDER_IMAGE_NAME}:${TAG} \
-    bash -c "cp -r /usr/local/lib/collectd/{libcollectd,java,memcached,mysql,nginx,python,aggregation}.so /usr/local/lib/collectd/generic-jmx.jar /opt/neomock/neomock /opt/collectd-src /opt/go/bin/agent /opt/build"
+    bash -c "cp -r /usr/local/lib/collectd/{libcollectd,java,match_regex,memcached,mysql,nginx,python,aggregation}.so /usr/local/lib/collectd/generic-jmx.jar /opt/neomock/neomock /opt/collectd-src /opt/go/bin/agent /opt/build"
 
 cp ${PROJECT_DIR}/scripts/agent-image/* ${AGENT_IMAGE_ROOT}
 cp -r etc ${AGENT_IMAGE_ROOT}

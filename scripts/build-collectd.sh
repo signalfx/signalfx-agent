@@ -71,6 +71,7 @@ $SUDO cp ${src_dir}/src/liboconfig/*.o ${COLLECTD_LIB_DIR}
 cd ${COLLECTD_LIB_DIR}
 
 $SUDO gcc -shared -o libcollectd.so collectd-collectd.o collectd-meta_data.o collectd-utils_cache.o collectd-utils_llist.o collectd-utils_threshold.o collectd-configfile.o collectd-plugin.o collectd-utils_complain.o collectd-utils_random.o collectd-utils_time.o utils_avltree.o collectd-filter_chain.o collectd-types_list.o collectd-utils_ignorelist.o collectd-utils_subst.o common.o utils_heap.o oconfig.o parser.o scanner.o -ldl -lltdl -lpthread -lm
+$SUDO cp ${src_dir}/src/.libs/match_regex.so ${COLLECTD_LIB_DIR}
 $SUDO cp ${src_dir}/src/.libs/java.so ${COLLECTD_LIB_DIR}
 $SUDO cp ${src_dir}/src/.libs/memcached.so ${COLLECTD_LIB_DIR}
 $SUDO cp ${src_dir}/src/.libs/mysql.so ${COLLECTD_LIB_DIR}
