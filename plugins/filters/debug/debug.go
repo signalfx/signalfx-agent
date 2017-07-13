@@ -6,7 +6,6 @@ import (
 
 	"github.com/signalfx/neo-agent/plugins"
 	"github.com/signalfx/neo-agent/services"
-	"github.com/spf13/viper"
 )
 
 const (
@@ -14,22 +13,10 @@ const (
 )
 
 // Filter prints the input and passes
-type Filter struct {
-	plugins.Plugin
-}
+type Filter struct {}
 
 func init() {
-	plugins.Register(pluginType, NewFilter)
-}
-
-// NewFilter creates a new instance
-func NewFilter(name string, config *viper.Viper) (plugins.IPlugin, error) {
-	plugin, err := plugins.NewPlugin(name, pluginType, config)
-	if err != nil {
-		return nil, err
-	}
-
-	return &Filter{plugin}, nil
+	plugins.Register(pluginType, func() interface{} { return &Filter{} })
 }
 
 // Map prints the input

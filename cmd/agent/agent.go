@@ -54,7 +54,7 @@ func (agent *Agent) Configure() error {
 		return err
 	}
 
-	pluginList, err := agent.plugins.Load()
+	plugins, err := agent.plugins.Load()
 	if err == nil {
 		// Reset pipeline which has a reference to the current plugin set.
 		log.Println("resetting pipeline")
@@ -77,7 +77,7 @@ func (agent *Agent) Configure() error {
 		return fmt.Errorf("%s pipeline is missing or empty", pipelineName)
 	}
 
-	agent.pipeline, err = pipelines.NewPipeline(pipelineName, pipelineConfig, pluginList)
+	agent.pipeline, err = pipelines.NewPipeline(pipelineName, pipelineConfig, plugins)
 	if err != nil {
 		return fmt.Errorf("failed creating pipeline: %s", err)
 	}
@@ -168,7 +168,7 @@ func main() {
 					log.Printf("error reconfiguring agent: %s", err)
 				}
 			case <-ctx.Done():
-				agent.plugins.Stop()
+				agent.plugins.Shutdown()
 				exitCh <- struct{}{}
 				return
 			case <-ticker.C:
