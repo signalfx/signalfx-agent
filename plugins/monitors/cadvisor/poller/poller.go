@@ -36,7 +36,7 @@ import (
 )
 
 func init() {
-	re = regexp.MustCompile(`^k8s_(?P<kubernetes_container_name>[^_\.]+)[^_]+_(?P<kubernetes_pod_name>[^_]+)_(?P<kubernetes_namespace>[^_]+)`)
+	re = regexp.MustCompile(`^k8s_(?P<container_name>[^_\.]+)[^_]+_(?P<kubernetes_pod_name>[^_]+)_(?P<kubernetes_pod_namespace>[^_]+)`)
 	reCaptureNames = re.SubexpNames()
 }
 
