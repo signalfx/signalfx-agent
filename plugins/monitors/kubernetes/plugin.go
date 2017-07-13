@@ -47,7 +47,6 @@ import (
 // Plugin makes a distinction between the plugin and the monitor
 // itself for less coupling to neo-agent in case we split it out at some point
 type Plugin struct {
-	plugins.Plugin
 	monitor *Kubernetes
 	lock    sync.Mutex
 }
@@ -57,28 +56,7 @@ const (
 )
 
 func init() {
-	plugins.Register(pluginType, NewPlugin)
-}
-
-// NewPlugin makes a new instance of the plugin
-func NewPlugin(name string, config *viper.Viper) (plugins.IPlugin, error) {
-	plugin, err := plugins.NewPlugin(name, pluginType, config)
-	if err != nil {
-		return nil, err
-	}
-
-	kmp := &Plugin{
-		Plugin:  plugin,
-		monitor: nil, // This gets set in Configure
-	}
-
-	err = kmp.Configure(config)
-	if err != nil {
-		log.Printf("k8sMonitor: %v", err)
-		return nil, err
-	}
-	log.Println("FLAG: k8sMonitor: NewPlugin() complete")
-	return kmp, nil
+	plugins.Register(pluginType, func() interface{} { return &Plugin{} })
 }
 
 // This can take configuration if needed for other types of auth
@@ -147,12 +125,11 @@ func (kmp *Plugin) Configure(config *viper.Viper) error {
 	defer kmp.lock.Unlock()
 	if kmp.monitor != nil {
 		// lock on configure
-		kmp.Stop()
+		kmp.Shutdown()
 	}
 
-	kmp.Config = config
-	kmp.Config.SetDefault("alwaysClusterReporter", false)
-	kmp.Config.SetDefault("intervalSeconds", 10)
+	config.SetDefault("alwaysClusterReporter", false)
+	config.SetDefault("intervalSeconds", 10)
 
 	k8sClient, err := makeK8sClient(config)
 	if err != nil {
@@ -211,14 +188,9 @@ func (kmp *Plugin) Configure(config *viper.Viper) error {
 	return nil
 }
 
-// Stop halts everything that is syncing
-func (kmp *Plugin) Stop() {
+// Shutdown halts everything that is syncing
+func (kmp *Plugin) Shutdown() {
 	if kmp.monitor != nil {
 		kmp.monitor.Stop()
 	}
-}
-
-// Start begins the data collection
-func (kmp *Plugin) Start() error {
-	return nil
 }

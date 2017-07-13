@@ -18,22 +18,19 @@ const (
 
 // File observer plugin
 type File struct {
-	plugins.Plugin
 	path string
 }
 
 func init() {
-	plugins.Register(pluginType, NewFile)
+	plugins.Register(pluginType, func() interface{} { return &File{} })
 }
 
-// NewFile constructor
-func NewFile(name string, config *viper.Viper) (plugins.IPlugin, error) {
-	plugin, err := plugins.NewPlugin(name, pluginType, config)
-	if err != nil {
-		return nil, err
-	}
-	config.SetDefault("path", "/etc/signalfx/service_instances.json");
-	return &File{plugin, config.GetString("path")}, nil
+// Configure callback
+func (file *File) Configure(config *viper.Viper) error {
+	config.SetDefault("path", "/etc/signalfx/service_instances.json")
+	file.path = config.GetString("path")
+
+	return nil
 }
 
 // Discover services from a file
