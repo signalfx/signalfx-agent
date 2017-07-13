@@ -211,10 +211,10 @@ func (k *Kubernetes) doMap(sis services.Instances, pods *pods) (services.Instanc
 
 		for _, container := range pod.Spec.Containers {
 			dims := map[string]string{
-				"container_name":           container.Name,
-				"container_image":          container.Image,
-				"kubernetes_pod_name":      pod.Metadata.Name,
-				"kubernetes_pod_namespace": pod.Metadata.Namespace,
+				"container_name":       container.Name,
+				"container_image":      container.Image,
+				"kubernetes_pod_name":  pod.Metadata.Name,
+				"kubernetes_namespace": pod.Metadata.Namespace,
 			}
 			orchestration := services.NewOrchestration("kubernetes", services.KUBERNETES, dims, services.PRIVATE)
 

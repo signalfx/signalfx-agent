@@ -178,10 +178,10 @@ func (dc *DatapointCache) addPodDps(obj runtime.Object) {
 		"metric_source": "kubernetes",
 		// Try and be consistent with other plugin dimensions, despite
 		// verbosity
-		"kubernetes_pod_namespace": pod.Namespace,
-		"pod_uid":                  string(pod.UID),
-		"kubernetes_pod_name":      pod.Name,
-		"kubernetes_node":          pod.Spec.NodeName,
+		"kubernetes_namespace": pod.Namespace,
+		"pod_uid":              string(pod.UID),
+		"kubernetes_pod_name":  pod.Name,
+		"kubernetes_node":      pod.Spec.NodeName,
 	}
 	for name, value := range pod.Labels {
 		dimensions["label_"+name] = value
@@ -219,8 +219,8 @@ func (dc *DatapointCache) addDaemonSetDps(obj runtime.Object) {
 	ds := obj.(*v1beta1.DaemonSet)
 
 	dimensions := map[string]string{
-		"metric_source":            "kubernetes",
-		"kubernetes_pod_namespace": ds.Namespace,
+		"metric_source":        "kubernetes",
+		"kubernetes_namespace": ds.Namespace,
 		"uid":             string(ds.UID),
 		"kubernetes_name": ds.Name,
 	}
