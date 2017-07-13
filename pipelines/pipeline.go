@@ -27,27 +27,19 @@ type SourceSink interface {
 // Pipeline is a series of sink/source plugins to execute in a specific order
 type Pipeline struct {
 	name    string
-	plugins []plugins.IPlugin
+	plugins []*plugins.Plugin
 }
 
 // NewPipeline creates a Pipeline instance
-func NewPipeline(name string, pluginNames []string, plugins []plugins.IPlugin) (*Pipeline, error) {
+func NewPipeline(name string, pluginNames []string, plugins map[string]*plugins.Plugin) (*Pipeline, error) {
 	pipeline := &Pipeline{name, nil}
 
-	// TODO: Should probably have a map of name -> plugin instance.
 	for _, pluginName := range pluginNames {
-		found := false
-		for _, pluginInstance := range plugins {
-			if pluginName == pluginInstance.Name() {
-				pipeline.plugins = append(pipeline.plugins, pluginInstance)
-				found = true
-				break
-			}
-		}
-
-		if !found {
+		pi, ok := plugins[pluginName]
+		if !ok {
 			return nil, fmt.Errorf("unable to find plugin instance for %s", pluginName)
 		}
+		pipeline.plugins = append(pipeline.plugins, pi)
 	}
 
 	return pipeline, nil
@@ -61,13 +53,13 @@ func (pipeline *Pipeline) Execute() error {
 	for i, s := range pipeline.plugins {
 		// Verify that the first entry in the pipeline isn't a a sink.
 		if i == 0 {
-			if _, ok := s.(Sink); ok {
+			if _, ok := s.Instance.(Sink); ok {
 				return errors.New("first entry in pipeline must be a source or a source/sink")
 			}
 		}
 
 		// TODO - send cloned observer results to each sink/source?
-		switch t := s.(type) {
+		switch t := s.Instance.(type) {
 		case Source:
 			if services, err = t.Read(); err != nil {
 				return err

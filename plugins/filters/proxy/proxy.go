@@ -19,23 +19,13 @@ const (
 
 // Proxy manages the proxy environment variables
 type Proxy struct {
-	plugins.Plugin
 	http  string
 	https string
 	skip  string
 }
 
 func init() {
-	plugins.Register(pluginType, NewProxy)
-}
-
-// NewProxy creates a new instance
-func NewProxy(name string, config *viper.Viper) (plugins.IPlugin, error) {
-	plugin, err := plugins.NewPlugin(name, pluginType, config)
-	if err != nil {
-		return nil, err
-	}
-	return &Proxy{plugin, config.GetString("http"), config.GetString("https"), config.GetString("skip")}, nil
+	plugins.Register(pluginType, func() interface{} { return &Proxy{} })
 }
 
 func setEnvVar(key string, value string, logMessage bool) {
@@ -46,11 +36,10 @@ func setEnvVar(key string, value string, logMessage bool) {
 	os.Setenv(strings.ToUpper(key), value)
 }
 
-// Reload the config and environment variables
-func (proxy *Proxy) Reload(config *viper.Viper) error {
+// Configure the proxy environment variables
+func (proxy *Proxy) Configure(config *viper.Viper) error {
 	log.Println("reloading proxy filter")
 
-	proxy.Config = config
 	proxy.http = config.GetString("http")
 	proxy.https = config.GetString("https")
 	proxy.skip = config.GetString("skip")
@@ -70,27 +59,8 @@ func (proxy *Proxy) Reload(config *viper.Viper) error {
 	return nil
 }
 
-// Start sets the proxy related environment variables
-func (proxy *Proxy) Start() (err error) {
-	log.Println("starting proxy filter")
-
-	if len(proxy.http) > 0 {
-		setEnvVar(httpProxy, proxy.http, true)
-	}
-
-	if len(proxy.https) > 0 {
-		setEnvVar(httpsProxy, proxy.https, true)
-	}
-
-	if len(proxy.skip) > 0 {
-		setEnvVar(noProxy, proxy.skip, true)
-	}
-
-	return nil
-}
-
-// Stop resets no_proxy environment variable
-func (proxy *Proxy) Stop() {
+// Shutdown resets the no_proxy environment variable
+func (proxy *Proxy) Shutdown() {
 	log.Println("stopping proxy filter")
 	if len(proxy.skip) > 0 {
 		setEnvVar(noProxy, proxy.skip, true)

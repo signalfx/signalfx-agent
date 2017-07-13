@@ -15,6 +15,7 @@ import (
 	"github.com/signalfx/neo-agent/config"
 	. "github.com/signalfx/neo-agent/neotest"
 	"github.com/signalfx/neo-agent/pipelines"
+	"github.com/signalfx/neo-agent/plugins"
 	"github.com/signalfx/neo-agent/services"
 	. "github.com/smartystreets/goconvey/convey"
 	"github.com/spf13/viper"
@@ -393,11 +394,7 @@ func TestRules(t *testing.T) {
 }
 
 func TestDisabled(t *testing.T) {
-	cfg := viper.New()
-	filter, err := NewFilter("filter", cfg)
-	if err != nil {
-		t.Fatal(err)
-	}
+	filter := plugins.MakePlugin(pluginType).(*Filter)
 
 	source, path, err := config.Stores.Get("testdata/builtins")
 	if err != nil {
@@ -421,11 +418,10 @@ func TestDisabled(t *testing.T) {
 		"builtins":  builtins,
 		"overrides": overrides,
 	}}
-	f := filter.(*Filter)
-	Must(t, f.load(assets))
+	Must(t, filter.load(assets))
 	Convey("Test disabling builtins", t, func() {
-		So(f.configurations, ShouldHaveLength, 1)
-		So(f.configurations[0].serviceType, ShouldEqual, services.ApacheService)
+		So(filter.configurations, ShouldHaveLength, 1)
+		So(filter.configurations[0].serviceType, ShouldEqual, services.ApacheService)
 	})
 }
 
@@ -436,12 +432,8 @@ func TestVariables(t *testing.T) {
 	config := viper.New()
 	config.Set("builtins", "testdata/builtins")
 	config.Set("overrides", "testdata/config-var-template")
-	filter, err := NewFilter("filter", config)
-	if err != nil {
-		t.Fatal(err)
-	}
-	f := filter.(*Filter)
-	Must(t, filter.Start())
+	f := plugins.MakePlugin(pluginType).(*Filter)
+
 	Must(t, f.Configure(config))
 	time.Sleep(50 * time.Millisecond)
 
@@ -491,12 +483,10 @@ func TestMap(t *testing.T) {
 		config := viper.New()
 		config.Set("builtins", tt.builtins)
 		config.Set("overrides", tt.overrides)
-		filter, err := NewFilter("filter", config)
-		if err != nil {
-			t.Fatal(err)
-		}
-		ss := filter.(pipelines.SourceSink)
-		Must(t, filter.Start())
+		inst := plugins.MakePlugin(pluginType)
+		filter := inst.(*Filter)
+		ss := inst.(pipelines.SourceSink)
+
 		Must(t, filter.Configure(config))
 		time.Sleep(50 * time.Millisecond)
 

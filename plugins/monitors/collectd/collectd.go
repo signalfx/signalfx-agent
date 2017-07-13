@@ -40,7 +40,7 @@ const (
 
 // Collectd Monitor
 type Collectd struct {
-	plugins.Plugin
+	config      *viper.Viper
 	state       string
 	services    services.Instances
 	assetSyncer *cfg.AssetSyncer
@@ -55,21 +55,14 @@ type Collectd struct {
 }
 
 func init() {
-	plugins.Register(pluginType, NewCollectd)
-}
-
-// NewCollectd constructor
-func NewCollectd(name string, config *viper.Viper) (plugins.IPlugin, error) {
-	plugin, err := plugins.NewPlugin(name, pluginType, config)
-	if err != nil {
-		return nil, err
-	}
-	return &Collectd{
-		Plugin:      plugin,
-		state:       Stopped,
-		reloadChan:  make(chan int),
-		stopChan:    make(chan int),
-		assetSyncer: cfg.NewAssetSyncer()}, nil
+	plugins.Register(pluginType, func() interface{} {
+		return &Collectd{
+			state:       Stopped,
+			reloadChan:  make(chan int),
+			stopChan:    make(chan int),
+			assetSyncer: cfg.NewAssetSyncer(),
+		}
+	})
 }
 
 // load collectd plugin config from the provided config
@@ -196,23 +189,23 @@ func (collectd *Collectd) writePlugins(instances []*config.Instance) error {
 	collectdConfig.Hostname = viper.GetString("hostname")
 
 	// Set other collectd configurations from viper if they're set
-	if collectd.Config.IsSet("interval") {
-		collectdConfig.Interval = uint(collectd.Config.GetInt("interval"))
+	if collectd.config.IsSet("interval") {
+		collectdConfig.Interval = uint(collectd.config.GetInt("interval"))
 	}
-	if collectd.Config.IsSet("readThreads") {
-		collectdConfig.ReadThreads = uint(collectd.Config.GetInt("readThreads"))
+	if collectd.config.IsSet("readThreads") {
+		collectdConfig.ReadThreads = uint(collectd.config.GetInt("readThreads"))
 	}
-	if collectd.Config.IsSet("writeQueueLimitHigh") {
-		collectdConfig.WriteQueueLimitHigh = uint(collectd.Config.GetInt("writeQueueLimitHigh"))
+	if collectd.config.IsSet("writeQueueLimitHigh") {
+		collectdConfig.WriteQueueLimitHigh = uint(collectd.config.GetInt("writeQueueLimitHigh"))
 	}
-	if collectd.Config.IsSet("writeQueueLimitLow") {
-		collectdConfig.WriteQueueLimitLow = uint(collectd.Config.GetInt("writeQueueLimitLow"))
+	if collectd.config.IsSet("writeQueueLimitLow") {
+		collectdConfig.WriteQueueLimitLow = uint(collectd.config.GetInt("writeQueueLimitLow"))
 	}
-	if collectd.Config.IsSet("timeout") {
-		collectdConfig.Timeout = uint(collectd.Config.GetInt("timeout"))
+	if collectd.config.IsSet("timeout") {
+		collectdConfig.Timeout = uint(collectd.config.GetInt("timeout"))
 	}
-	if collectd.Config.IsSet("collectInternalStats") {
-		collectdConfig.CollectInternalStats = collectd.Config.GetBool("collectInternalStats")
+	if collectd.config.IsSet("collectInternalStats") {
+		collectdConfig.CollectInternalStats = collectd.config.GetBool("collectInternalStats")
 	}
 
 	// group instances by plugin
@@ -235,7 +228,7 @@ func (collectd *Collectd) writePlugins(instances []*config.Instance) error {
 		string(services.ZookeeperService): true,
 	}
 	for key, plugin := range pluginsMap {
-		if collectd.Config.IsSet("pluginIntervals." + key) {
+		if collectd.config.IsSet("pluginIntervals." + key) {
 			if _, ok := unableToSetInterval[key]; ok {
 				log.Printf("intervals are not currently supported for plugin [%s]", key)
 				continue
@@ -243,11 +236,11 @@ func (collectd *Collectd) writePlugins(instances []*config.Instance) error {
 			// set the interval for each instance from user/easy config
 			if _, ok := includeItervalInInstances[key]; ok {
 				for _, instance := range plugin.Instances {
-					instance.Vars["Interval"] = collectd.Config.Get("pluginIntervals." + key)
+					instance.Vars["Interval"] = collectd.config.Get("pluginIntervals." + key)
 				}
 			} else {
 				// set the interval for the plugin load block
-				plugin.Vars["Interval"] = collectd.Config.Get("pluginIntervals." + key)
+				plugin.Vars["Interval"] = collectd.config.Get("pluginIntervals." + key)
 			}
 		}
 	}
@@ -290,7 +283,7 @@ func (collectd *Collectd) getStaticPlugins() ([]*config.Instance, error) {
 		StaticPlugins map[string]map[string]interface{}
 	}{}
 
-	if err := collectd.Config.Unmarshal(&static); err != nil {
+	if err := collectd.config.Unmarshal(&static); err != nil {
 		return nil, err
 	}
 
@@ -371,8 +364,30 @@ func (collectd *Collectd) createPluginsFromServices(sis services.Instances) ([]*
 	return plugins, nil
 }
 
-// Start collectd monitoring
-func (collectd *Collectd) Start() (err error) {
+// Configure collectd config
+func (collectd *Collectd) Configure(config *viper.Viper) error {
+	collectd.configMutex.Lock()
+	defer collectd.configMutex.Unlock()
+
+	if err := collectd.load(config); err != nil {
+		return err
+	}
+
+	collectd.config = config
+
+	if collectd.State() == Stopped {
+		err := collectd.start()
+		if err != nil {
+			return err
+		}
+	} else {
+		collectd.configDirty = true
+	}
+
+	return nil
+}
+
+func (collectd *Collectd) start() (err error) {
 	log.Println("starting collectd")
 
 	collectd.assetSyncer.Start(func(view *cfg.AssetsView) {
@@ -384,10 +399,6 @@ func (collectd *Collectd) Start() (err error) {
 		collectd.assets = view
 		collectd.configDirty = true
 	})
-
-	if collectd.State() == Running {
-		return errors.New("already running")
-	}
 
 	collectd.services = nil
 
@@ -402,6 +413,7 @@ func (collectd *Collectd) Start() (err error) {
 		log.Printf("unable to write plugins on start: %s", err)
 	}
 
+	// Run the actual collectd agent
 	go collectd.run()
 
 	return nil
@@ -414,20 +426,6 @@ func (collectd *Collectd) Stop() {
 	if collectd.State() != Stopped {
 		collectd.stopChan <- 0
 	}
-}
-
-// Configure collectd config
-func (collectd *Collectd) Configure(config *viper.Viper) error {
-	collectd.configMutex.Lock()
-	defer collectd.configMutex.Unlock()
-
-	if err := collectd.load(config); err != nil {
-		return err
-	}
-
-	collectd.Config = config
-	collectd.configDirty = true
-	return nil
 }
 
 // State for collectd monitoring

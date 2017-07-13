@@ -27,7 +27,7 @@ const (
 
 // Mesosphere observer plugin
 type Mesosphere struct {
-	plugins.Plugin
+	config  *viper.Viper
 	hostURL string
 	client  http.Client
 }
@@ -84,31 +84,21 @@ type tasks struct {
 }
 
 func init() {
-	plugins.Register(pluginType, NewMesosphere)
-}
-
-// NewMesosphere observer
-func NewMesosphere(name string, config *viper.Viper) (plugins.IPlugin, error) {
-	plugin, err := plugins.NewPlugin(name, pluginType, config)
-	if err != nil {
-		return nil, err
-	}
-
-	return &Mesosphere{plugin, "", http.Client{}}, nil
+	plugins.Register(pluginType, func() interface{} { return &Mesosphere{} })
 }
 
 // Configure the mesosphere observer/client
 func (mesos *Mesosphere) Configure(config *viper.Viper) error {
-	mesos.Config = config
+	mesos.config = config
 	return mesos.load()
 }
 
 func (mesos *Mesosphere) load() error {
 	if hostname, err := os.Hostname(); err == nil {
-		mesos.Config.SetDefault("hosturl", fmt.Sprintf("http://%s:%d", hostname, DefaultPort))
+		mesos.config.SetDefault("hosturl", fmt.Sprintf("http://%s:%d", hostname, DefaultPort))
 	}
 
-	hostURL := mesos.Config.GetString("hosturl")
+	hostURL := mesos.config.GetString("hosturl")
 	if len(hostURL) == 0 {
 		return errors.New("hostURL config value missing")
 	}

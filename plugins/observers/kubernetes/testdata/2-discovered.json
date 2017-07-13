@@ -1,6 +1,6 @@
 [
   {
-    "ID": "kubernetes-kubernetes-dashboard-v1.5.1-5zg3f-9090",
+    "ID": "POINTER-kubernetes-dashboard-v1.5.1-5zg3f-9090",
     "Service": {
       "Name": "kubernetes-dashboard-v1.5.1-5zg3f",
       "Type": ""
@@ -43,7 +43,7 @@
     "Discovered": "2016-01-05T15:04:05-06:00"
   },
   {
-    "ID": "kubernetes-redis-3165242388-n1vc7-6379",
+    "ID": "POINTER-redis-3165242388-n1vc7-6379",
     "Service": {
       "Name": "redis-3165242388-n1vc7",
       "Type": ""

@@ -12,16 +12,11 @@ import (
 
 // Manager of plugins
 type Manager struct {
-	plugins    []IPlugin
+	plugins    map[string]*Plugin
 	configLock sync.Mutex
 }
 
-// Plugins returns list of loaded plugins
-func (m *Manager) Plugins() []IPlugin {
-	return m.plugins
-}
-
-func configurePlugin(pluginName string, c *viper.Viper) {
+func addEnvVarOverrides(pluginName string, c *viper.Viper) {
 	// This allows a configuration variable foo.bar to be overridable by
 	// SFX_FOO_BAR=value.
 	c.AutomaticEnv()
@@ -41,116 +36,82 @@ func (m *Manager) Unlock() {
 }
 
 // Load an agent using configuration file
-func (m *Manager) Load() ([]IPlugin, error) {
+func (m *Manager) Load() (map[string]*Plugin, error) {
 	m.Lock()
 	defer m.Unlock()
+
+	if m.plugins == nil {
+		m.plugins = make(map[string]*Plugin)
+	}
 
 	// Load plugins.
 	pluginsConfig := viper.GetStringMap("plugins")
 
-	currentPluginSet := map[string]IPlugin{}
-	for _, plugin := range m.plugins {
-		currentPluginSet[plugin.Name()] = plugin
-	}
-
-	var newPlugins []IPlugin
-	var removedPlugins []IPlugin
-	var reloadPlugins []IPlugin
+	m.shutdownUnconfiguredPlugins(pluginsConfig)
 
 	for pluginName := range pluginsConfig {
-		pluginType := viper.GetString(fmt.Sprintf("plugins.%s.plugin", pluginName))
+		conf := viper.Sub("plugins." + pluginName)
 
+		pluginType := conf.GetString("plugin")
 		if len(pluginType) < 1 {
-			return nil, fmt.Errorf("plugin %s missing plugin key", pluginName)
-		}
-
-		if plugin := currentPluginSet[pluginName]; plugin != nil {
-			// Already exists, just reload.
-			reloadPlugins = append(reloadPlugins, plugin)
-		} else {
-			// New plugin
-			if create, ok := Plugins[pluginType]; ok {
-				log.Printf("configuring plugin %s (%s)", pluginType, pluginName)
-
-				pluginConfig := viper.Sub("plugins." + pluginName)
-				configurePlugin(pluginName, pluginConfig)
-				pluginInst, err := create(pluginName, pluginConfig)
-				if err != nil {
-					return nil, err
-				}
-
-				if err := pluginInst.Configure(pluginConfig); err != nil {
-					log.Printf("error configuring plugin %s: %s", pluginName, err)
-				}
-
-				newPlugins = append(newPlugins, pluginInst)
-			} else {
-				return nil, fmt.Errorf("unknown plugin %s", pluginType)
-			}
-		}
-	}
-
-	// NOTE: By this point we can't return errors with an unmodified plugin list
-	// as some new plugins may have been started. If there's an old plugin 'foo'
-	// and we start a new 'foo' but return an old plugin set there might be two
-	// foos running.
-
-	// Find removed plugins (in loaded plugins but not the new config).
-	for _, plugin := range m.plugins {
-		if pluginsConfig[plugin.Name()] == nil {
-			removedPlugins = append(removedPlugins, plugin)
-		}
-	}
-
-	// Stop removed plugins.
-	for _, plugin := range removedPlugins {
-		log.Printf("stopping plugin %s", plugin.Name())
-		plugin.Stop()
-	}
-
-	// Reload existing plugins.
-	for _, plugin := range reloadPlugins {
-		log.Printf("reloading plugin %s", plugin.Name())
-		pluginConfig := viper.Sub("plugins." + plugin.Name())
-
-		if pluginConfig == nil {
-			log.Printf("%s plugin unexpectedly missing config", plugin.Name())
+			log.Printf("Plugin %s missing plugin name value", pluginName)
 			continue
 		}
 
-		pluginType := pluginConfig.GetString("plugin")
-
-		if pluginType != plugin.Type() {
-			log.Printf("%s plugin is currently type %s but changed to %s, skipping",
-				plugin.Name(), plugin.Type(), pluginType)
+		pluginInst, err := m.ensurePluginExists(pluginName, pluginType)
+		if err != nil {
+			log.Printf("%s", err)
 			continue
 		}
 
-		configurePlugin(plugin.Name(), pluginConfig)
+		log.Printf("Configuring plugin %s (type %s)", pluginName, pluginType)
 
-		if err := plugin.Configure(pluginConfig); err != nil {
-			log.Printf("reconfiguring %s plugin failed: %s", plugin.Name(), err)
+		addEnvVarOverrides(pluginName, conf)
+
+		err = pluginInst.Configure(conf)
+		if err != nil {
+			log.Printf("Error configuring plugin %s: %s", pluginName, err)
+			continue
 		}
 	}
 
-	// Start new plugins.
-	for _, plugin := range newPlugins {
-		log.Printf("starting plugin %s", plugin.String())
-		if err := plugin.Start(); err != nil {
-			log.Printf("failed to start plugin %s: %s", plugin.String(), err)
-		}
-	}
-
-	plugins := append(reloadPlugins, newPlugins...)
-	log.Printf("replacing plugin set %v with %v", m.plugins, plugins)
-	m.plugins = plugins
 	return m.plugins, nil
 }
 
-// Stop plugins
-func (m *Manager) Stop() {
-	for _, plugin := range m.plugins {
-		log.Printf("stopping plugin %s", plugin.String())
-		plugin.Stop()
+func (m *Manager) shutdownUnconfiguredPlugins(config map[string]interface{}) {
+	for name, plugin := range m.plugins {
+		if _, ok := config[name]; !ok {
+			log.Printf("Plugin '%s' is no longer configured -- shutting down", name)
+			plugin.Shutdown()
+		}
+	}
+}
+
+func (m *Manager) ensurePluginExists(name string, _type string) (*Plugin, error) {
+	if inst, ok := m.plugins[name]; ok {
+		return inst, nil
+	}
+
+	inst := MakePlugin(_type)
+	if inst == nil {
+		return nil, fmt.Errorf("Unknown plugin type: %s; did you register it "+
+		"with RegisterFactory in the plugin module's init hook?", _type)
+	}
+
+	plugin := &Plugin{
+		name: name,
+		_type: _type,
+		Instance: inst,
+	}
+
+	m.plugins[name] = plugin
+	return plugin, nil
+}
+
+// Shutdown all plugins
+func (m *Manager) Shutdown() {
+	for name, plugin := range m.plugins {
+		log.Printf("Shutting down plugin %s", name)
+		plugin.Shutdown()
 	}
 }

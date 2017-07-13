@@ -105,7 +105,6 @@ type configuration struct {
 
 // Filter filters instances based on rules and maps service configuration
 type Filter struct {
-	plugins.Plugin
 	configurations []*configuration
 	// builtins       configs
 	// overrides      configs
@@ -114,7 +113,11 @@ type Filter struct {
 }
 
 func init() {
-	plugins.Register(pluginType, NewFilter)
+	plugins.Register(pluginType, func() interface{} {
+		f := &Filter{assets: config.NewAssetSyncer()}
+		f.assets.Start(f.onAssetChange)
+		return f
+	})
 }
 
 // readConfigs reads *.yml from key pairs into a an array of byte arrays
@@ -361,6 +364,36 @@ func buildConfigurations(builtins, overrides []configFile) ([]*configuration, er
 	return configs, nil
 }
 
+// Configure the filter
+func (f *Filter) Configure(cfg *viper.Viper) error {
+	f.mutex.Lock()
+	defer f.mutex.Unlock()
+
+	ws := config.NewAssetSpec()
+	for _, dir := range []string{"builtins", "overrides"} {
+		path := cfg.GetString(dir)
+		if path != "" {
+			ws.Dirs[dir] = path
+		}
+	}
+	log.Printf("%+v", ws)
+
+	if err := f.assets.Update(ws); err != nil {
+		log.Printf("error updating watches: %s", err)
+	}
+
+	return nil
+}
+
+func (f *Filter) onAssetChange(assets *config.AssetsView) {
+	f.mutex.Lock()
+	defer f.mutex.Unlock()
+
+	if err := f.load(assets); err != nil {
+		log.Printf("failed loading integrations config: %s", err)
+	}
+}
+
 func (f *Filter) load(assets *config.AssetsView) error {
 	var builtinConfigs, overrideConfigs []configFile
 
@@ -406,15 +439,6 @@ func (f *Filter) load(assets *config.AssetsView) error {
 	return nil
 }
 
-// NewFilter creates a new instance
-func NewFilter(name string, cfg *viper.Viper) (plugins.IPlugin, error) {
-	plugin, err := plugins.NewPlugin(name, pluginType, cfg)
-	if err != nil {
-		return nil, err
-	}
-	return &Filter{Plugin: plugin, assets: config.NewAssetSyncer()}, nil
-}
-
 // Matches if service instance satisfies rules
 func matches(si *services.Instance, expr *govaluate.EvaluableExpression) bool {
 	sm := map[string]interface{}{
@@ -448,22 +472,8 @@ func matches(si *services.Instance, expr *govaluate.EvaluableExpression) bool {
 	return false
 }
 
-// Start filter
-func (f *Filter) Start() error {
-	f.assets.Start(func(assets *config.AssetsView) {
-		f.mutex.Lock()
-		defer f.mutex.Unlock()
-
-		if err := f.load(assets); err != nil {
-			log.Printf("failed loading integrations config: %s", err)
-		}
-	})
-
-	return nil
-}
-
-// Stop filter
-func (f *Filter) Stop() {
+// Shutdown filter
+func (f *Filter) Shutdown() {
 	f.assets.Stop()
 }
 
@@ -493,25 +503,3 @@ Outer:
 	return instances, nil
 }
 
-// Configure the filter
-func (f *Filter) Configure(cfg *viper.Viper) error {
-	f.mutex.Lock()
-	defer f.mutex.Unlock()
-
-	f.Config = cfg
-
-	ws := config.NewAssetSpec()
-	for _, dir := range []string{"builtins", "overrides"} {
-		path := cfg.GetString(dir)
-		if path != "" {
-			ws.Dirs[dir] = path
-		}
-	}
-	log.Printf("%+v", ws)
-
-	if err := f.assets.Update(ws); err != nil {
-		log.Printf("error updating watches for %s: %s", f.Name(), err)
-	}
-
-	return nil
-}

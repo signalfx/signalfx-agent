@@ -1,75 +1,75 @@
 package plugins
 
 import (
-	"errors"
-
 	"github.com/spf13/viper"
 )
 
-// CreatePlugin is the function definition for creating a plugin
-type CreatePlugin func(string, *viper.Viper) (IPlugin, error)
+// PluginFactory creates an unconfigured instance of a plugin
+type PluginFactory func() interface{}
 
-// Plugins is a mapping of plugin names available to a creation function
-var Plugins = map[string]CreatePlugin{}
-
-// Plugin type
-type Plugin struct {
-	name       string
-	pluginType string
-	Config     *viper.Viper
-}
-
-// IPlugin plugin interface
-type IPlugin interface {
-	Name() string
-	Start() error
-	Stop()
-	Configure(config *viper.Viper) error
-	String() string
-	Type() string
-}
-
-// NewPlugin constructor
-func NewPlugin(name, pluginType string, config *viper.Viper) (Plugin, error) {
-	if config == nil {
-		return Plugin{}, errors.New("config cannot be nil")
-	}
-	return Plugin{name: name, pluginType: pluginType, Config: config}, nil
-}
-
-// Name is name of plugin
-func (plugin *Plugin) Name() string {
-	return plugin.name
-}
-
-// String name of plugin
-func (plugin *Plugin) String() string {
-	return plugin.name
-}
-
-// Start default start (no-op)
-func (plugin *Plugin) Start() error {
-	return nil
-}
-
-// Stop default stop (no-op)
-func (plugin *Plugin) Stop() {
-}
-
-// Type returns the plugin type
-func (plugin *Plugin) Type() string {
-	return plugin.pluginType
-}
-
-// Configure configures the plugin on start and reload
-func (plugin *Plugin) Configure(c *viper.Viper) error {
-	return nil
-}
+// PluginFactories is a mapping of plugin names available to a creation function
+var PluginFactories = map[string]PluginFactory{}
 
 // Register registers a plugin
-func Register(name string, create CreatePlugin) {
-	if _, ok := Plugins[name]; ok {
-		panic("plugin " + name + " already registered")
+func Register(pluginType string, factory PluginFactory) {
+	if _, ok := PluginFactories[pluginType]; ok {
+		panic("plugin type '" + pluginType + "' already registered")
 	}
-	Plugins[name] = create
+	PluginFactories[pluginType] = factory
+}
+
+// MakePlugin creates a plugin from the registered factories.  Returns nil if
+// plugin type was not registered.
+func MakePlugin(pluginType string) interface{} {
+	factory, ok := PluginFactories[pluginType]
+	if !ok {
+		return nil
+	}
+	return factory()
+}
+
+// Configurable can be implemented by plugin instances if they want to receive
+// configuration
+type Configurable interface {
+	Configure(*viper.Viper) error
+}
+
+// Shutdownable can be implemented by plugin instances if they need to clean up
+// resources on shutdown
+type Shutdownable interface {
+	Shutdown()
+}
+
+// Plugin is a wrapper around the actual plugin instances.  This is better than
+// embedding the plugin type (as was previously done) because it keeps the
+// plugin implementations as simple as possible.
+type Plugin struct {
+	name     string
+	_type    string
+	Instance interface{}
+}
+
+// Name of the plugin (based on key in config file)
+func (p *Plugin) Name() string {
+	return p.name
+}
+
+// Type of plugin, defined by the plugin itself
+func (p *Plugin) Type() string {
+	return p._type
+}
+
+// Configure the plugin if it is configurable
+func (p *Plugin) Configure(config *viper.Viper) error {
+	if c, ok := p.Instance.(Configurable); ok {
+		return c.Configure(config)
+	}
+	return nil
+}
+
+// Shutdown the plugin if it supports that
+func (p *Plugin) Shutdown() {
+	if s, ok := p.Instance.(Shutdownable); ok {
+		s.Shutdown()
+	}
 }

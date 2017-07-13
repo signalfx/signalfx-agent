@@ -37,7 +37,7 @@ const (
 
 // Kubernetes observer plugin
 type Kubernetes struct {
-	plugins.Plugin
+	config  *viper.Viper
 	hostURL string
 	client  http.Client
 }
@@ -75,22 +75,12 @@ type pods struct {
 }
 
 func init() {
-	plugins.Register(pluginType, NewKubernetes)
-}
-
-// NewKubernetes constructor
-func NewKubernetes(name string, config *viper.Viper) (plugins.IPlugin, error) {
-	plugin, err := plugins.NewPlugin(name, pluginType, config)
-	if err != nil {
-		return nil, err
-	}
-
-	return &Kubernetes{plugin, "", http.Client{}}, nil
+	plugins.Register(pluginType, func() interface{} { return &Kubernetes{} })
 }
 
 // Configure the kubernetes observer/client
 func (k *Kubernetes) Configure(config *viper.Viper) error {
-	k.Config = config
+	k.config = config
 	return k.load()
 }
 
@@ -99,18 +89,18 @@ func (k *Kubernetes) load() error {
 	if err != nil {
 		hostname = "localhost"
 	}
-	k.Config.SetDefault("hosturl", fmt.Sprintf("https://%s:%d", hostname, DefaultPort))
+	k.config.SetDefault("hosturl", fmt.Sprintf("https://%s:%d", hostname, DefaultPort))
 
-	hostURL := k.Config.GetString("hosturl")
+	hostURL := k.config.GetString("hosturl")
 	if len(hostURL) == 0 {
 		return errors.New("hostURL config value missing")
 	}
 	k.hostURL = hostURL
 
-	skipVerify := k.Config.GetBool("tls.skipVerify")
-	caCert := k.Config.GetString("tls.caCert")
-	clientCert := k.Config.GetString("tls.clientCert")
-	clientKey := k.Config.GetString("tls.clientKey")
+	skipVerify := k.config.GetBool("tls.skipVerify")
+	caCert := k.config.GetString("tls.caCert")
+	clientCert := k.config.GetString("tls.clientCert")
+	clientKey := k.config.GetString("tls.clientKey")
 
 	certs, err := x509.SystemCertPool()
 	if err != nil {
@@ -232,7 +222,7 @@ func (k *Kubernetes) doMap(sis services.Instances, pods *pods) (services.Instanc
 						continue
 					}
 
-					id := fmt.Sprintf("%s-%s-%d", k.String(), pod.Metadata.Name, port.ContainerPort)
+					id := fmt.Sprintf("%p-%s-%d", k, pod.Metadata.Name, port.ContainerPort)
 					service := services.NewService(pod.Metadata.Name, services.UnknownService, "")
 					servicePort := services.NewPort(port.Name, podIP, port.Protocol, port.ContainerPort, 0)
 					container := services.NewContainer(status.ContainerID,
