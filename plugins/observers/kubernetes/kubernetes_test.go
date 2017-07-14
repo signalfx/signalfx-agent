@@ -1,8 +1,10 @@
 package kubernetes
 
 import (
+	"fmt"
 	"io/ioutil"
 	"reflect"
+	"strings"
 	"testing"
 	"time"
 
@@ -70,11 +72,11 @@ func TestKubernetes_doMap(t *testing.T) {
 
 	config := viper.New()
 	config.Set("hosturl", "unused")
-	k, err := NewKubernetes("kubernetes", config)
-	if err != nil {
-		t.Fatal(err)
+	kub := plugins.MakePlugin(pluginType).(*Kubernetes)
+
+	for i := range expected {
+		expected[i].ID = strings.Replace(expected[i].ID, "POINTER", fmt.Sprintf("%p", kub), 1)
 	}
-	kub := k.(*Kubernetes)
 
 	type fields struct {
 		Plugin  plugins.Plugin

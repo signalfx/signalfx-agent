@@ -1,6 +1,7 @@
 package docker
 
 import (
+	"fmt"
 	"sort"
 	"strconv"
 	"time"
@@ -22,34 +23,24 @@ const (
 
 // Docker observer plugin
 type Docker struct {
-	plugins.Plugin
 	client *client.Client
+	config *viper.Viper
 }
 
 func init() {
-	plugins.Register(pluginType, NewDocker)
-}
-
-// NewDocker constructor
-func NewDocker(name string, config *viper.Viper) (plugins.IPlugin, error) {
-	plugin, err := plugins.NewPlugin(name, pluginType, config)
-	if err != nil {
-		return nil, err
-	}
-
-	return &Docker{plugin, nil}, nil
+	plugins.Register(pluginType, func() interface{} { return &Docker{} })
 }
 
 // Configure the docker client
 func (docker *Docker) Configure(config *viper.Viper) error {
-	docker.Config = config
+	docker.config = config
 	return docker.load()
 }
 
 func (docker *Docker) load() (err error) {
 	defaultHeaders := map[string]string{"User-Agent": userAgent}
 	hostURL := defaultHostURL
-	if configVal := docker.Config.GetString("hosturl"); configVal != "" {
+	if configVal := docker.config.GetString("hosturl"); configVal != "" {
 		hostURL = configVal
 	}
 
@@ -72,7 +63,8 @@ func (docker *Docker) Read() (services.Instances, error) {
 			serviceContainer := services.NewContainer(c.ID, c.Names, c.Image, "", c.Command, c.State, c.Labels, "")
 			for _, port := range c.Ports {
 				servicePort := services.NewPort("", "127.0.0.1", services.PortType(port.Type), uint16(port.PrivatePort), uint16(port.PublicPort))
-				id := docker.String() + c.ID + "-" + strconv.Itoa(port.PrivatePort)
+				// instance address should never change within a single run of agent
+				id := fmt.Sprintf("%p-", docker) + c.ID + "-" + strconv.Itoa(port.PrivatePort)
 				service := services.NewService(id, services.UnknownService, "")
 				dims := map[string]string{
 					"container_name":  c.Names[0],

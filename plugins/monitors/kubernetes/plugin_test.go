@@ -25,7 +25,7 @@ var _ = Describe("Kubernetes plugin", func() {
 	var config *viper.Viper
 	var fakeSignalFx *FakeSignalFx
 	var fakeK8s *FakeK8s
-	var plugin plugins.IPlugin
+	var plugin *Plugin
 
 	BeforeEach(func() {
 		config = viper.New()
@@ -57,15 +57,17 @@ var _ = Describe("Kubernetes plugin", func() {
 		os.Setenv("SFX_ACCESS_TOKEN", "deadbeef")
 
 		var err error
-		plugin, err = NewPlugin("monitors/kubernetes", config)
+		plugin = plugins.MakePlugin(pluginType).(*Plugin)
 		log.Printf("plugin: %p; %s", plugin, err)
 		if err != nil {
 			Fail(err.Error())
 		}
+
+		plugin.Configure(config)
 	}
 
 	AfterEach(func() {
-		plugin.Stop()
+		plugin.Shutdown()
 	})
 
 	// Making an int literal pointer requires a helper
@@ -84,8 +86,6 @@ var _ = Describe("Kubernetes plugin", func() {
 	}
 
 	It("Sends pod phase metrics", func() {
-		doSetup(true, "")
-
 		fakeK8s.SetInitialList([]*v1.Pod{
 			&v1.Pod{
 				ObjectMeta: v1.ObjectMeta{
@@ -104,7 +104,7 @@ var _ = Describe("Kubernetes plugin", func() {
 			},
 		})
 
-		plugin.Start()
+		doSetup(true, "")
 
 		dps := fakeSignalFx.PopIngestedDatapoints()
 
@@ -193,8 +193,6 @@ var _ = Describe("Kubernetes plugin", func() {
 	}, 5)
 
 	It("Sends Deployment metrics", func() {
-		doSetup(true, "")
-
 		fakeK8s.SetInitialList([]*v1.Pod{
 			&v1.Pod{
 				ObjectMeta: v1.ObjectMeta{
@@ -234,7 +232,7 @@ var _ = Describe("Kubernetes plugin", func() {
 			},
 		})
 
-		plugin.Start()
+		doSetup(true, "")
 
 		var dps []*sfxproto.DataPoint
 		Eventually(func() int {
@@ -314,8 +312,6 @@ var _ = Describe("Kubernetes plugin", func() {
 			config.Set("metricFilter", []string{"!kubernetes.pod_phase"})
 			doSetup(true, "")
 
-			plugin.Start()
-
 			dps := fakeSignalFx.PopIngestedDatapoints()
 
 			metrics := make([]string, 0, len(dps))
@@ -329,8 +325,6 @@ var _ = Describe("Kubernetes plugin", func() {
 		It("Filters out non-included metrics", func() {
 			config.Set("metricFilter", []string{"kubernetes.pod_phase"})
 			doSetup(true, "")
-
-			plugin.Start()
 
 			dps := fakeSignalFx.PopIngestedDatapoints()
 
@@ -346,8 +340,6 @@ var _ = Describe("Kubernetes plugin", func() {
 			config.Set("namespaceFilter", []string{"!default"})
 			doSetup(true, "")
 
-			plugin.Start()
-
 			dps := fakeSignalFx.PopIngestedDatapoints()
 
 			metrics := make([]string, 0, len(dps))
@@ -360,7 +352,6 @@ var _ = Describe("Kubernetes plugin", func() {
 	})
 
 	It("Reports if first in pod list", func() {
-		doSetup(false, "agent-1")
 		fakeK8s.SetInitialList([]*v1.Pod{
 			&v1.Pod{
 				ObjectMeta: v1.ObjectMeta{
@@ -388,7 +379,7 @@ var _ = Describe("Kubernetes plugin", func() {
 			},
 		})
 
-		plugin.Start()
+		doSetup(false, "agent-1")
 
 		dps := fakeSignalFx.PopIngestedDatapoints()
 
@@ -396,7 +387,6 @@ var _ = Describe("Kubernetes plugin", func() {
 	})
 
 	It("Doesn't report if not first in pod list", func() {
-		doSetup(false, "agent-2")
 		fakeK8s.SetInitialList([]*v1.Pod{
 			&v1.Pod{
 				ObjectMeta: v1.ObjectMeta{
@@ -424,13 +414,12 @@ var _ = Describe("Kubernetes plugin", func() {
 			},
 		})
 
-		plugin.Start()
+		doSetup(false, "agent-2")
 
 		fakeSignalFx.EnsureNoDatapoints()
 	})
 
 	It("Starts reporting if later becomes first in pod list", func() {
-		doSetup(false, "agent-2")
 		fakeK8s.SetInitialList([]*v1.Pod{
 			&v1.Pod{
 				ObjectMeta: v1.ObjectMeta{
@@ -458,7 +447,7 @@ var _ = Describe("Kubernetes plugin", func() {
 			},
 		})
 
-		plugin.Start()
+		doSetup(false, "agent-2")
 
 		fakeSignalFx.EnsureNoDatapoints()
 

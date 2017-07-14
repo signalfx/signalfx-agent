@@ -20,31 +20,22 @@ const (
 )
 
 func init() {
-	plugins.Register(pluginType, NewCadvisor)
+	plugins.Register(pluginType, func() interface{} { return &Cadvisor{} })
 }
 
 // Cadvisor plugin struct
 type Cadvisor struct {
-	plugins.Plugin
+	config  *viper.Viper
 	lock    sync.Mutex
 	stop    chan bool
 	stopped chan bool
-}
-
-// NewCadvisor creates a new plugin instance
-func NewCadvisor(name string, config *viper.Viper) (plugins.IPlugin, error) {
-	plugin, err := plugins.NewPlugin(name, pluginType, config)
-	if err != nil {
-		return nil, err
-	}
-	return &Cadvisor{Plugin: plugin}, nil
 }
 
 // getLabelFilter - parses viper config and returns label filter
 func (c *Cadvisor) getLabelFilter() [][]*regexp.Regexp {
 	var exlabels = [][]*regexp.Regexp{}
 	var labels [][]string
-	c.Config.UnmarshalKey("excludedLabels", labels)
+	c.config.UnmarshalKey("excludedLabels", labels)
 	for _, label := range labels {
 		var kcomp *regexp.Regexp
 		var vcomp *regexp.Regexp
@@ -79,7 +70,7 @@ func (c *Cadvisor) getLabelFilter() [][]*regexp.Regexp {
 // getImageFilter - parses viper config and returns image filter
 func (c *Cadvisor) getImageFilter() []*regexp.Regexp {
 	var eximages = []*regexp.Regexp{}
-	images := c.Config.GetStringSlice("excludedImages")
+	images := c.config.GetStringSlice("excludedImages")
 	for _, image := range images {
 		if comp, err := regexp.Compile(image); err != nil {
 			log.Printf("Unable to compile regex pattern '%s' for image: '%v'", image, err)
@@ -93,7 +84,7 @@ func (c *Cadvisor) getImageFilter() []*regexp.Regexp {
 // getNameFilter - parses viper config and returns name filter
 func (c *Cadvisor) getNameFilter() []*regexp.Regexp {
 	var exnames = []*regexp.Regexp{}
-	names := c.Config.GetStringSlice("excludedNames")
+	names := c.config.GetStringSlice("excludedNames")
 	for _, name := range names {
 		if comp, err := regexp.Compile(name); err != nil {
 			log.Printf("Unable to copmile regex pattern '%s' for name: '%v'", name, err)
@@ -105,7 +96,7 @@ func (c *Cadvisor) getNameFilter() []*regexp.Regexp {
 }
 
 func (c *Cadvisor) getMetricFilter() map[string]bool {
-	var filters = c.Config.GetStringSlice("excludedMetrics")
+	var filters = c.config.GetStringSlice("excludedMetrics")
 
 	// convert the config into a map so we don't have to iterate over and over
 	var filterMap = utils.StringSliceToMap(filters)
@@ -120,9 +111,9 @@ func (c *Cadvisor) Configure(config *viper.Viper) error {
 	defer c.lock.Unlock()
 
 	// Stop if cadvisor was previously running
-	c.Stop()
+	c.Shutdown()
 
-	c.Config = config
+	c.config = config
 	c.stop = nil
 	c.stopped = nil
 
@@ -136,12 +127,12 @@ func (c *Cadvisor) Configure(config *viper.Viper) error {
 		return errors.New("ingestURL cannot be empty")
 	}
 
-	dataSendRate := c.Config.GetInt("dataSendRate")
+	dataSendRate := c.config.GetInt("dataSendRate")
 	if dataSendRate <= 0 {
 		return errors.New("dataSendRate cannot be zero or less")
 	}
 
-	cadvisorURL := c.Config.GetString("cadvisorurl")
+	cadvisorURL := c.config.GetString("cadvisorurl")
 	if cadvisorURL == "" {
 		return errors.New("cadvisorURL cannot be empty")
 	}
@@ -176,8 +167,8 @@ func (c *Cadvisor) Configure(config *viper.Viper) error {
 	return nil
 }
 
-// Stop cadvisor plugin
-func (c *Cadvisor) Stop() {
+// Shutdown cadvisor plugin
+func (c *Cadvisor) Shutdown() {
 	// tell cadvisor to stop
 	if c.stop != nil {
 		c.stop <- true
