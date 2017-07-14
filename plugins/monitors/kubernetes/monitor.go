@@ -1,10 +1,11 @@
 package kubernetes
 
 import (
-	"golang.org/x/net/context"
 	"log"
 	"sort"
 	"time"
+
+	"golang.org/x/net/context"
 
 	k8s "k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/pkg/api/v1"
@@ -45,13 +46,13 @@ func NewKubernetes(k8sClient *k8s.Clientset,
 	clusterState.ChangeFunc = datapointCache.HandleChange
 
 	return &Kubernetes{
-		sfxClient:         sfxClient,
-		datapointCache:    datapointCache,
-		clusterState:      clusterState,
-		intervalSeconds:   interval,
+		sfxClient:             sfxClient,
+		datapointCache:        datapointCache,
+		clusterState:          clusterState,
+		intervalSeconds:       interval,
 		alwaysClusterReporter: alwaysClusterReporter,
-		thisPodName:       thisPodName,
-		stop:              make(chan struct{}),
+		thisPodName:           thisPodName,
+		stop:                  make(chan struct{}),
 	}
 }
 
@@ -94,7 +95,7 @@ func (km *Kubernetes) filterDatapoints(dps []*datapoint.Datapoint) []*datapoint.
 	newDps := make([]*datapoint.Datapoint, 0, len(dps))
 	for _, dp := range dps {
 		metricNamePasses := !km.MetricFilter.IsExcluded(dp.Metric)
-		ns, nsGiven := dp.Dimensions["kubernetes_pod_namespace"]
+		ns, nsGiven := dp.Dimensions["kubernetes_namespace"]
 		// If namespace isn't defined just let it through
 		namespacePasses := !nsGiven || !km.NamespaceFilter.IsExcluded(ns)
 

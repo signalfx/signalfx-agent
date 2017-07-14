@@ -721,12 +721,12 @@ func (c *CadvisorCollector) collectContainersInfo(ch chan<- datapoint.Datapoint)
 		name := id
 		if len(container.Aliases) > 0 {
 			name = container.Aliases[0]
-			dims["name"] = name
+			dims["container_name"] = name
 		}
 
 		image := container.Spec.Image
 		if len(image) > 0 {
-			dims["image"] = image
+			dims["container_image"] = image
 		}
 
 		if c.containerNameToLabels != nil {

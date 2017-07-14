@@ -36,7 +36,7 @@ import (
 )
 
 func init() {
-	re = regexp.MustCompile(`^k8s_(?P<kubernetes_container_name>[^_\.]+)[^_]+_(?P<kubernetes_pod_name>[^_]+)_(?P<kubernetes_namespace>[^_]+)`)
+	re = regexp.MustCompile(`^k8s_(?P<container_name>[^_\.]+)[^_]+_(?P<kubernetes_pod_name>[^_]+)_(?P<kubernetes_namespace>[^_]+)`)
 	reCaptureNames = re.SubexpNames()
 }
 
@@ -611,16 +611,16 @@ func (swc *scrapWorkCache) waitAndForward() {
 		dims := dp.Dimensions
 
 		// filter POD level metrics
-		if dims["kubernetes_container_name"] == "POD" {
+		if dims["container_name"] == "POD" {
 			matched, _ := regexp.MatchString("^pod_network_.*", dp.Metric)
 			if !matched {
 				continue
 			}
-			delete(dims, "kubernetes_container_name")
+			delete(dims, "container_name")
 		}
 
 		dims["metric_source"] = dataSourceType
-		dims["cluster"] = swc.cfg.ClusterName
+		dims["kubernetes_cluster"] = swc.cfg.ClusterName
 
 		swc.fillNodeDims(chosen, dims)
 
