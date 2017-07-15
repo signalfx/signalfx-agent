@@ -1,0 +1,7 @@
+.git/**
+.build/**
+agent
+vendor/**
+tmp/**
+local-etc/**
+build/**

@@ -5,3 +5,4 @@ test-build
 build/
 local-etc/
 /agent
+scripts/go_packages.tar

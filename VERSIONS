@@ -1,2 +1,4 @@
 COLLECTD_VERSION="5.7.2-sfx0"
 SIGNALFX_AGENT_VERSION="1.0.0-beta"
+
+[[ -n $1 ]] && echo -n ${!1}

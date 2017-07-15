@@ -1,5 +1,5 @@
 {{define "docker"}}
-TypesDB "{{Globals.PluginRoot}}/docker-collectd-plugin/dockerplugin.db"
+TypesDB "{{Globals.PluginRoot}}/docker/dockerplugin.db"
 <LoadPlugin "python">
 {{- range $key, $value := .Vars }}
   {{$key}} {{$value}}
@@ -7,7 +7,7 @@ TypesDB "{{Globals.PluginRoot}}/docker-collectd-plugin/dockerplugin.db"
 </LoadPlugin>
 
 <Plugin python>
-  ModulePath "{{Globals.PluginRoot}}/docker-collectd-plugin"
+  ModulePath "{{Globals.PluginRoot}}/docker"
   Import "dockerplugin"
 
   {{range $instance := .Instances}}
