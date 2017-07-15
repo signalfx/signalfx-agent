@@ -5,7 +5,7 @@
 {{- end }}
 </LoadPlugin>
 <Plugin "python">
-  ModulePath "{{Globals.PluginRoot}}/mongodb-collectd-plugin"
+  ModulePath "{{Globals.PluginRoot}}/mongodb"
   Import "mongodb"
   {{range $instance := .Instances}}
     {{RenderPlugin $instance}}

@@ -5,7 +5,7 @@
 {{- end }}
 </LoadPlugin>
 <Plugin python>
-  ModulePath "{{Globals.PluginRoot}}/zookeeper-collectd-plugin"
+  ModulePath "{{Globals.PluginRoot}}/zookeeper"
   Import "zk-collectd"
   {{range $instance := .Instances}}
     {{RenderPlugin $instance}}
