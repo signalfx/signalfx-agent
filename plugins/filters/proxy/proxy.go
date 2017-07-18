@@ -35,7 +35,9 @@ func NewProxy(name string, config *viper.Viper) (plugins.IPlugin, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &Proxy{plugin, config.GetString("http"), config.GetString("https"), config.GetString("skip")}, nil
+	p := &Proxy{plugin, config.GetString("http"), config.GetString("https"), config.GetString("skip")}
+	p.Start()
+	return p, nil
 }
 
 func setEnvVar(key string, value string, logMessage bool) {
