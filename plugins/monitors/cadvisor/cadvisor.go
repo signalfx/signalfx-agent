@@ -131,6 +131,7 @@ func (c *Cadvisor) Configure(config *viper.Viper) error {
 		return err
 	}
 
+	hostname := viper.GetString("hostname")
 	ingestURL := viper.GetString("ingesturl")
 	if ingestURL == "" {
 		return errors.New("ingestURL cannot be empty")
@@ -146,8 +147,10 @@ func (c *Cadvisor) Configure(config *viper.Viper) error {
 		return errors.New("cadvisorURL cannot be empty")
 	}
 
-	dimensions := viper.GetStringMapString("dimensions")
+	dimensions := utils.CloneStringMap(viper.GetStringMapString("dimensions"))
 	clusterName := dimensions["kubernetes_cluster"]
+	dimensions["host"] = hostname
+
 	forwarder := poller.NewSfxClient(ingestURL, apiToken)
 	cfg := &poller.Config{
 		IngestURL:              ingestURL,
