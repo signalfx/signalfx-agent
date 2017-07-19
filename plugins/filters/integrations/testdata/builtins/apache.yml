@@ -1,4 +1,0 @@
-integrations:
-  apache:
-    rule: ContainerImage =~ "apache" && NetworkPrivatePort == 80 && !Contains(ContainerLabels, "signalfx-integration")
-    template: builtin-template

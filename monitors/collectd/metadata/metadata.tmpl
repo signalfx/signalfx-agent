@@ -1,0 +1,21 @@
+LoadPlugin "python"
+TypesDB "{{Globals.PluginRoot}}/signalfx/types.db.plugin"
+<Plugin python>
+  ModulePath "{{Globals.PluginRoot}}/signalfx/src"
+  LogTraces true
+  Interactive false
+
+  Import "signalfx_metadata"
+  <Module signalfx_metadata>
+  {{with .interval -}}
+    Interval {{.}}
+  {{- end}}
+    Notifications true
+    URL "{{.ingestURL}}/v1/collectd"
+    Token "{{.accessToken}}"
+    NotifyLevel "OKAY"
+    ProcPath "/hostfs/proc"
+    EtcPath "/hostfs/etc"
+    PersistencePath "/var/lib/misc"
+  </Module>
+</Plugin>

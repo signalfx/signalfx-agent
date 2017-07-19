@@ -157,8 +157,13 @@ RUN apt update &&\
 
 WORKDIR /go/src/github.com/signalfx/neo-agent
 COPY glide.yaml glide.lock ./
-RUN glide install --strip-vendor &&\
-	cp -r vendor/* /go/src/
+
+# Sed command is a hack to fix a renaming issue with the logrus package
+# See https://github.com/sirupsen/logrus/issues/566
+RUN glide install --strip-vendor
+
+RUN sed -i -e 's/Sirupsen/sirupsen/' $(grep -lR Sirupsen vendor) &&\
+    cp -r vendor/* /go/src/
 # Parse glide.lock to get go dep packages and precompile them so later agent
 # build is blazing fast
 RUN cat glide.lock | tail -n+3 | yq -r '.imports[] | .name' >> /tmp/packages &&\
@@ -176,8 +181,7 @@ RUN apt update &&\
 
 COPY --from=godeps /go/src/github.com/signalfx/neo-agent/vendor src/github.com/signalfx/neo-agent/vendor
 COPY --from=godeps /go/pkg /go/pkg
-COPY --from=collectd /usr/src/collectd/src/daemon/*.h /usr/local/include/collectd/
-COPY --from=collectd /usr/src/collectd/src/liboconfig/*.h /usr/local/include/collectd/liboconfig/
+COPY --from=collectd /usr/src/collectd/ /usr/src/collectd
 COPY --from=collectd /usr/src/collectd/libcollectd.so /usr/local/lib/libcollectd.so
 ADD scripts/go_packages.tar src/github.com/signalfx/neo-agent/
 
@@ -186,7 +190,7 @@ ARG collectd_version
 RUN go build \
     -ldflags "-X main.Version=$agent_version -X main.CollectdVersion=$collectd_version -X main.BuiltTime=$(date +%FT%T%z)" \
 	-o signalfx-agent \
-    github.com/signalfx/neo-agent/cmd/agent &&\
+    github.com/signalfx/neo-agent &&\
 	cp signalfx-agent /usr/bin/signalfx-agent
 
 
@@ -208,7 +212,7 @@ RUN bash /opt/get-collectd-plugins.sh
 
 
 ###### Final Agent Image #######
-FROM ubuntu:16.04
+FROM ubuntu:16.04 as final-image
 
 ENV DEBIAN_FRONTEND noninteractive
 ENV LD_LIBRARY_PATH /usr/lib:/usr/local/lib/collectd:/usr/lib/jvm/java-8-openjdk-amd64/jre/lib/amd64/server

@@ -1,39 +1,79 @@
-pipeline: test
+---
+signalFxAuthToken: abcd1234
 
-plugins:
-    local-docker:
-        plugin: observers/docker
-        url: unix:///var/run/docker.sock
+extraDimensions:
+  kubernetes_cluster: 'my-cluster'
 
-    collectd:
-        plugin: monitors/collectd
-        confFile: /etc/collectd/collectd.conf
-        templates:
-            builtins: /etc/signalfx/collectd/templates
-        pluginsDir: /usr/share/collectd
-        staticPlugins:
-            writehttp-default:
-                plugin: writehttp
-            signalfx-default:
-                plugin: signalfx
-            docker-default:
-                plugin: docker
-                hostUrl: unix:///var/run/docker.sock
+observers:
+  - type: docker
+    url: unix:///var/run/docker.sock
 
-    debug:
-        plugin: filters/debug
+  - type: kubernetes
+    role: worker
+    kubeletAuth: none
 
-    proxy:
-        plugin: filters/proxy
+config:
+  esAuth: &esAuth
+    username: adsf
 
-    integrations:
-        plugin: filters/integrations
-        builtins: /etc/signalfx/integrations
-        overrides: /etc/signalfx/overrides
+monitors:
+  - type: signalfx-metadata
 
-pipelines:
-    test:
-    - local-docker
-    - integrations
-    - proxy
-    - collectd
+  - type: cadvisor
+    url: http://localhost:4194
+    intervalSeconds: 30
+
+  - type: kubernetes-cluster-metrics
+    intervalSeconds: 15
+    alwaysClusterReporter: false
+
+  - type: collectd/docker
+    hostUrl: unix:///var/run/docker.sock
+
+  - type: collectd/kafka
+    discoveryRule: ContainerImage =~ "kafka" && NetworkPrivatePort == 7099 && !Contains(ContainerLabels, "signalfx-integration")
+    # configPath: /path/to/config.yaml
+    username:
+    password:
+
+  - type: collectd/activemq
+    discoveryRule: ContainerImage =~ "activemq" && NetworkPrivatePort == 1099
+
+  - <<: *esAuth
+    type: collectd/apache
+    discoveryRule: ContainerImage =~ "apache" && NetworkPrivatePort == 80
+
+
+  - type: collectd/redis
+    discoveryRule: ContainerImage =~ "redis" && NetworkPrivatePort == 6379 && !Contains(ContainerLabels, "signalfx-integration")
+
+  - type: collectd/custom
+    discoveryRule: ...
+    templatePath: /path/to/template.tmpl
+    # OR
+    templateText: |
+      ...
+
+transformers:
+  - type: signalfx-metadata
+
+metricsToExclude:
+  - metricNames:
+    - activemq.messages_total
+    dimensions:
+      queue_name:
+      - test-*
+
+  - dimensions:
+      container_name:
+      # Simple string
+      - pause
+      # Regex
+      - /^test[0-9]+/
+      # Shell-style globbing
+      - test-*
+
+  - monitorType: cadvisor
+    metricName: cpu.utilization
+  - metricName: container.*
+

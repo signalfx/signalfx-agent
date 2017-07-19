@@ -1,0 +1,43 @@
+
+<Plugin java>
+  <Plugin "GenericJMX">
+    {{range $name, $mBean := .MBeans}}
+      <MBean "{{$name}}">
+          ObjectName "{{$mBean.ObjectName}}"
+        {{with $mBean.instancePrefix -}}
+          InstancePrefix "{{.}}"
+        {{-end-}}
+        {{range $value := $mBean.Values -}}
+          <Value>
+            {{with $value.InstancePrefix -}}
+              InstancePrefix "{{.}}"
+            {{end-}}
+              Type "{{$value.Type}}"
+              Table {{or $value.Table "false"}}
+              Attribute "{{$value.Attribute}}"
+          </Value>
+        {{end}}
+      </MBean>
+    {{end}}
+
+    {{range $conn := .Connections}}
+      <Connection>
+          ServiceURL "{{$conn.ServiceURL}}"
+          InstanceSuffix "{{$conn.InstanceSuffix}}"
+          ServiceName "{{$conn.ServiceName}}"
+
+        {{with $conn.Username -}}
+          User "{{.}}"
+        {{- end}}
+
+        {{with $conn.Password -}}
+          Password "{{.}}"
+        {{- end}}
+
+        {{range $mbean := $conn.Collect -}}
+          Collect "{{$mbean}}"
+        {{end}}
+      </Connection>
+    {{end}}
+  </Plugin>
+</Plugin>

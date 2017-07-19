@@ -1,6 +1,6 @@
 .git/**
 .build/**
-agent
+neo-agent
 vendor/**
 tmp/**
 local-etc/**

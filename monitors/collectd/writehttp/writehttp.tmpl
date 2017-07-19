@@ -1,0 +1,14 @@
+<LoadPlugin "write_http">
+   FlushInterval 10
+</LoadPlugin>
+<Plugin "write_http">
+  <Node "SignalFx">
+    URL "{{.ingestURL}}/v1/collectd{{EncodeDimsAsQueryString .GetDimensions}}"
+    User "auth"
+    Password "{{.accessToken}}"
+    Format "JSON"
+    Timeout 9000
+    BufferSize 65536
+    LogHttpError true
+  </Node>
+</Plugin>
