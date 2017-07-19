@@ -82,7 +82,41 @@ TypesDB "/usr/share/collectd/java/signalfx_types_db"
 </Plugin>
 
 {{range $instance := .Instances}}
-{{RenderPlugin $instance}}
+<Plugin java>
+  <Plugin "GenericJMX">
+    {{range $mbean := .mbeans}}
+    <MBean "kafka-all-bytes-out">
+    ObjectName "{{$mbean.objectName}}"
+        InstancePrefix "all"
+        <Value>
+            InstancePrefix "kafka-bytes-out"
+            Type "counter"
+            Table false
+            Attribute "Count"
+        </Value>
+    </MBean>
+
+    <MBean "kafka-log-flush">
+        ObjectName "kafka.log:type=LogFlushStats,name=LogFlushRateAndTimeMs"
+        <Value>
+            Type "counter"
+            Table false
+            Attribute "Count"
+            InstancePrefix "kafka-log-flushes"
+        </Value>
+        <Value>
+            Type "gauge"
+            Table false
+            Attribute "Mean"
+            InstancePrefix "kafka-log-flush-time-ms"
+        </Value>
+        <Value>
+            Type "gauge"
+            Table false
+            Attribute "95thPercentile"
+            InstancePrefix "kafka-log-flush-time-ms-p95"
+        </Value>
+    </MBean>
 {{end}}
 
 {{end}}

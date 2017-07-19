@@ -1,8 +1,8 @@
 package utils
 
 // MergeMaps merges n maps with a later map's keys overriding earlier maps
-func MergeMaps(maps ...map[string]interface{}) map[string]interface{} {
-	ret := map[string]interface{}{}
+func MergeStringMaps(maps ...map[string]string) map[string]string {
+	ret := map[string]string{}
 
 	for _, m := range maps {
 		for k, v := range m {

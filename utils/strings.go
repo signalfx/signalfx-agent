@@ -10,3 +10,12 @@ func FirstNonEmpty(s ...string) string {
 
 	return ""
 }
+
+func FirstNonZero(ns ...int) int {
+	for _, n := range ns {
+		if n != 0 {
+			return n
+		}
+	}
+	return 0
+}

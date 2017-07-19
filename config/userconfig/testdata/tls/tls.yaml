@@ -1,4 +1,0 @@
-skipVerify: true
-clientCert: "/path/to/cert"
-clientKey: "/path/to/key"
-caCert: "/path/to/ca"
