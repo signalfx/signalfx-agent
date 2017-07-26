@@ -1,5 +1,5 @@
-hash: 3b042115ce4c7ca8b7dfac86b010696cdd8961f1bf180d73abd6b45eea334884
-updated: 2017-07-11T13:49:24.580027927-04:00
+hash: d35b58d1ffe072bb414f027db97af4611713acd4e33972b19f0d61d8e728229c
+updated: 2017-07-19T09:00:08.514615446-04:00
 imports:
 - name: github.com/blang/semver
   version: aea32c919a18e5ef4537bbd283ff29594b1b0165
@@ -205,6 +205,8 @@ imports:
   version: 1d7be4effb13d2d908342d349d71a284a7542693
   subpackages:
   - zk
+- name: github.com/ShowMax/go-fqdn
+  version: 2501cdd51ef4c60dd727c58b2199e1a09466b10f
 - name: github.com/signalfx/com_signalfx_metrics_protobuf
   version: 1477d7f5730360be99fcaf7e7d7c56e03be2eabc
 - name: github.com/signalfx/gohistogram

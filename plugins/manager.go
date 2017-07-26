@@ -57,7 +57,19 @@ func (m *Manager) Load() ([]IPlugin, error) {
 	var removedPlugins []IPlugin
 	var reloadPlugins []IPlugin
 
+	pluginNames := make([]string, 0)
+	// Dirty, dirty hack to get proxy initialized before everything else.  This
+	// will be fixed when config is overhauled shortly to make proxying built
+	// into the core agent and not a plugin
 	for pluginName := range pluginsConfig {
+		if pluginName == "proxy" {
+			pluginNames = append([]string{pluginName}, pluginNames...)
+			continue
+		}
+		pluginNames = append(pluginNames, pluginName)
+	}
+
+	for _, pluginName := range pluginNames {
 		pluginType := viper.GetString(fmt.Sprintf("plugins.%s.plugin", pluginName))
 
 		if len(pluginType) < 1 {

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"net"
+	"net/http"
 	"net/url"
 	"os"
 
@@ -121,6 +122,15 @@ func makeK8sClient(config *viper.Viper) (*k8s.Clientset, error) {
 		if err != nil {
 			return nil, err
 		}
+	}
+
+	authConf.WrapTransport = func(rt http.RoundTripper) http.RoundTripper {
+		// Don't use system proxy settings since the API is local to the
+		// cluster
+		if t, ok := rt.(*http.Transport); ok {
+			t.Proxy = nil
+		}
+		return rt
 	}
 
 	client, err := k8s.NewForConfig(authConf)

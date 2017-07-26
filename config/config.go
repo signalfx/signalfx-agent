@@ -12,6 +12,7 @@ import (
 
 	"sync"
 
+	"github.com/ShowMax/go-fqdn"
 	"github.com/docker/libkv/store"
 	"github.com/signalfx/neo-agent/config/userconfig"
 	"github.com/spf13/viper"
@@ -255,6 +256,14 @@ func Init(configfile string, reload chan<- struct{}, mutex *sync.Mutex) error {
 	viper.SetDefault("pipeline", DefaultPipeline)
 	viper.SetDefault("pollingInterval", DefaultPollingInterval)
 	viper.SetDefault("ingesturl", "https://ingest.signalfx.com")
+
+	fqdn := fqdn.Get()
+	if fqdn == "unknown" {
+		log.Printf("Error getting hostname")
+	} else {
+		log.Printf("Using hostname '%s'", fqdn)
+		viper.SetDefault("hostname", fqdn)
+	}
 
 	viper.AutomaticEnv()
 	viper.SetEnvKeyReplacer(EnvReplacer)
