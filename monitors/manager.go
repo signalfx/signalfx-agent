@@ -4,6 +4,8 @@ import (
 	"reflect"
 	"sync"
 
+	"github.com/signalfx/golib/datapoint"
+	"github.com/signalfx/golib/event"
 	"github.com/signalfx/neo-agent/core/config"
 	"github.com/signalfx/neo-agent/observers"
 	log "github.com/sirupsen/logrus"
@@ -28,6 +30,8 @@ type MonitorManager struct {
 	// is hot-reconfigured with monitors whose discovery rule will now match
 	// one of these services.
 	orphanedServices map[observers.ServiceID]*observers.ServiceInstance
+	dpChannel        chan<- *datapoint.Datapoint
+	eventChannel     chan<- *event.Event
 }
 
 type ActiveMonitor struct {
@@ -59,9 +63,16 @@ func (mm *MonitorManager) ensureInit() {
 	}
 }
 
-func (mm *MonitorManager) Configure(confs []config.MonitorConfig) {
+func (mm *MonitorManager) Configure(
+	confs []config.MonitorConfig,
+	dpChannel chan<- *datapoint.Datapoint,
+	eventChannel chan<- *event.Event) {
+
 	mm.lock.Lock()
 	defer mm.lock.Unlock()
+
+	mm.dpChannel = dpChannel
+	mm.eventChannel = eventChannel
 
 	mm.ensureInit()
 	mm.monitorConfigs = make([]*config.MonitorConfig, 0, len(confs))
@@ -252,10 +263,15 @@ func (mm *MonitorManager) ensureCompatibleServiceMonitorExists(config *config.Mo
 
 func (mm *MonitorManager) createAndConfigureNewMonitor(config *config.MonitorConfig) *ActiveMonitor {
 	instance := newMonitor(config.Type)
+
+	mm.injectDatapointChannelIfNeeded(instance)
+	mm.injectEventsChannelIfNeeded(instance)
+
 	monConfig := getCustomConfigForMonitor(config)
 	if monConfig == nil {
 		return nil
 	}
+
 	if !configureMonitor(instance, monConfig) {
 		return nil
 	}
@@ -272,6 +288,45 @@ func (mm *MonitorManager) createAndConfigureNewMonitor(config *config.MonitorCon
 	}).Debug("Creating new monitor")
 
 	return am
+}
+
+// Sets the `DPs` field on a monitor if it is present to the datapoint channel.
+// Returns whether the field was actually set.
+func (mm *MonitorManager) injectDatapointChannelIfNeeded(instance interface{}) bool {
+	instanceValue := reflect.Indirect(reflect.ValueOf(instance))
+	dpsValue := instanceValue.FieldByName("DPs")
+	if !dpsValue.IsValid() {
+		return false
+	}
+	if dpsValue.Type() != reflect.ChanOf(reflect.SendDir, reflect.TypeOf(&datapoint.Datapoint{})) {
+		log.WithFields(log.Fields{
+			"pkgPath": instanceValue.Type().PkgPath(),
+		}).Error("Monitor instance has 'DPs' member but is not of type 'chan<- *datapoint.Datapoint'")
+		return false
+	}
+	dpsValue.Set(reflect.ValueOf(mm.dpChannel))
+
+	return true
+}
+
+// Sets the `Events` field on a monitor if it is present to the events channel.
+// Returns whether the field was actually set.
+func (mm *MonitorManager) injectEventsChannelIfNeeded(instance interface{}) bool {
+	instanceValue := reflect.Indirect(reflect.ValueOf(instance))
+	eventsValue := instanceValue.FieldByName("Events")
+	if !eventsValue.IsValid() {
+		return false
+	}
+
+	if eventsValue.Type() != reflect.ChanOf(reflect.SendDir, reflect.TypeOf(&event.Event{})) {
+		log.WithFields(log.Fields{
+			"pkgPath": instanceValue.Type().PkgPath(),
+		}).Error("Monitor instance has 'Events' member but is not of type 'chan<- *event.Event'")
+		return false
+	}
+	eventsValue.Set(reflect.ValueOf(mm.eventChannel))
+
+	return true
 }
 
 func injectServiceToMonitorInstance(monitor *ActiveMonitor, service *observers.ServiceInstance) bool {

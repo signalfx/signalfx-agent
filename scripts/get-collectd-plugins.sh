@@ -22,7 +22,7 @@ do
   git clone --branch $version --depth 1 --single-branch https://github.com/${repo}.git $plugin_dir
   rm -rf $plugin_dir/.git
 
-  pip_install='pip install --target=/opt/collectd-py'
+  pip_install='pip install'
 
   if $(y ".[$i] | has(\"pip_packages\")")
   then
