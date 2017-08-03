@@ -40,10 +40,11 @@ import:
   version: 9aa7601a1185e3bc8a0d3f87b1a55b05df0102e4
 - package: github.com/Sirupsen/logrus
   version: 9aa7601a1185e3bc8a0d3f87b1a55b05df0102e4
-  repo: git@github.com:/sirupsen/logrus
+  repo: https://github.com/sirupsen/logrus
   vcs: git
 - package: gopkg.in/fatih/set.v0
   version: ~0.1.0
+- package: github.com/pebbe/zmq4
 testImport:
 - package: github.com/kr/pretty
 - package: github.com/smartystreets/goconvey

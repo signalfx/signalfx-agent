@@ -8,8 +8,10 @@ import (
 
 	"github.com/signalfx/neo-agent/core/config"
 	"github.com/signalfx/neo-agent/core/config/stores"
+	"github.com/signalfx/neo-agent/core/writer"
 	"github.com/signalfx/neo-agent/monitors"
 	"github.com/signalfx/neo-agent/monitors/collectd"
+	"github.com/signalfx/neo-agent/monitors/neopy"
 	"github.com/signalfx/neo-agent/observers"
 )
 
@@ -43,9 +45,23 @@ func (a *Agent) Configure(conf *config.Config) {
 	}
 	log.Infof("Using log level %s", log.GetLevel().String())
 
+	writer, err := writer.New(conf.IngestURLAsURL(), conf.SignalFxAccessToken)
+	if err != nil {
+		// There isn't really much we can do at this point so return and wait
+		// for another configuration to come in.
+		log.WithFields(log.Fields{
+			"error": err,
+		}).Error("Could not create SignalFx datapoint writer, unable to start up")
+		os.Exit(4)
+	}
+	writer.ListenForDatapoints()
+
+	neopy.GetInstance().Configure()
+	neopy.GetInstance().EnsureMonitorsRegistered()
+
 	// The order of Configure calls is very important!
 	collectd.CollectdSingleton.Configure(&conf.Collectd)
-	a.monitors.Configure(conf.Monitors)
+	a.monitors.Configure(conf.Monitors, writer.DPChannel(), writer.EventChannel())
 	a.observers.Configure(conf.Observers)
 }
 
@@ -62,6 +78,7 @@ func (a *Agent) Shutdown() {
 	a.observers.Shutdown()
 	a.monitors.Shutdown()
 	collectd.CollectdSingleton.Shutdown()
+	neopy.GetInstance().Shutdown()
 }
 
 // Startup the agent.  Returns a function that can be called to shutdown the

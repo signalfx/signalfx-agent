@@ -14,6 +14,8 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
+type MonitorID string
+
 // MonitorFactory creates an unconfigured instance of an monitor
 type MonitorFactory func() interface{}
 

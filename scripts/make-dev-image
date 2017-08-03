@@ -35,6 +35,8 @@ RUN cp -ra /tmp/usr-collectd/* /usr/ &&\
 
 RUN cp /tmp/usr-godeps/bin/jq /tmp/usr-godeps/bin/glide /usr/bin/
 
+RUN pip install ipython==5
+
 ENV PATH=$PATH:/usr/local/go/bin GOPATH=/go
 
 WORKDIR /go/src/github.com/signalfx/neo-agent

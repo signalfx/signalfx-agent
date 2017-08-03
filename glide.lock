@@ -1,5 +1,5 @@
-hash: ad363dbc000e23aa233694420d3ef2287df105f18f5121863be559dd1bd07d65
-updated: 2017-07-29T16:49:48.970551328-04:00
+hash: 0fee54c08e00bb4c71241e1fd0a94085a30ffbf0475523512556644afcf03426
+updated: 2017-08-02T18:28:22.455953134Z
 imports:
 - name: github.com/blang/semver
   version: aea32c919a18e5ef4537bbd283ff29594b1b0165
@@ -131,7 +131,7 @@ imports:
   - jlexer
   - jwriter
 - name: github.com/mattn/go-colorable
-  version: 5ffa492f0a052801e332fdc7eb2ad8dcac2d1aa4
+  version: 6c0fd4aa6ec5818d5e3ea9e03ae436972a6c5a9a
 - name: github.com/mattn/go-isatty
   version: fc9e8d8ef48496124e79ae0df75490096eccf6fe
 - name: github.com/mgutz/ansi
@@ -195,6 +195,8 @@ imports:
   - libcontainer/utils
 - name: github.com/pborman/uuid
   version: cccd189d45f7ac3368a0d127efb7f4d08ae0b655
+- name: github.com/pebbe/zmq4
+  version: 651d7b11cd31b16fb4c76741c234e258b6a8039b
 - name: github.com/pelletier/go-toml
   version: 69d355db5304c0f7f809a2edc054553e7142f016
 - name: github.com/PuerkitoBio/purell
@@ -232,12 +234,12 @@ imports:
   - protocol/collectd
   - protocol/filtering
   - protocol/signalfx
-- name: github.com/Sirupsen/logrus
-  version: 9aa7601a1185e3bc8a0d3f87b1a55b05df0102e4
-  repo: git@github.com:/sirupsen/logrus
-  vcs: git
 - name: github.com/sirupsen/logrus
   version: 9aa7601a1185e3bc8a0d3f87b1a55b05df0102e4
+- name: github.com/Sirupsen/logrus
+  version: 9aa7601a1185e3bc8a0d3f87b1a55b05df0102e4
+  repo: https://github.com/sirupsen/logrus
+  vcs: git
 - name: github.com/spf13/afero
   version: 9be650865eab0c12963d8753212f4f9c66cdcf12
   subpackages:
@@ -255,7 +257,11 @@ imports:
   subpackages:
   - codec
 - name: github.com/x-cray/logrus-prefixed-formatter
-  version: 3abfd71dc493273c45baaef839877f9625ed9d4b
+  version: bb2702d423886830dee131692131d35648c382e2
+- name: golang.org/x/crypto
+  version: d172538b2cfce0c13cee31e647d0367aa8cd2486
+  subpackages:
+  - ssh/terminal
 - name: golang.org/x/net
   version: 5627bad10b821d907ac4dc81fb3535ec7dd81c2b
   subpackages:

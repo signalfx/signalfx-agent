@@ -38,6 +38,7 @@ type Config struct {
 	// Configure the underlying collectd daemon
 	Collectd         CollectdConfig `yaml:"collectd,omitempty" default:"{}"`
 	MetricsToExclude []MetricFilter `yaml:"metricsToExclude,omitempty" default:"[]"`
+	ProcFSPath       string         `yaml:"procFSPath,omitempty" default:"/proc"`
 }
 
 func (c *Config) setDefaultHostname() {
@@ -52,13 +53,26 @@ func (c *Config) setDefaultHostname() {
 
 func (c *Config) Initialize() (*Config, error) {
 	c.overrideFromEnv()
+
 	c.setDefaultHostname()
+
 	if !c.validate() {
 		return nil, fmt.Errorf("Configuration did not validate!")
 	}
+
 	c.propagateValuesDown()
+	for i := range c.Monitors {
+		c.Monitors[i].EnsureID()
+	}
 
 	return c, nil
+}
+
+func (c *Config) IngestURLAsURL() *url.URL {
+	if url, err := url.Parse(c.IngestURL); err == nil {
+		return url
+	}
+	return nil
 }
 
 // Support overridding a few config options with envvars.  No need to allow
@@ -117,6 +131,7 @@ func (c *Config) propagateValuesDown() {
 		c.Monitors[i].SignalFxAccessToken = c.SignalFxAccessToken
 		c.Monitors[i].Hostname = c.Hostname
 		c.Monitors[i].Filter = filterSet
+		c.Monitors[i].ProcFSPath = c.ProcFSPath
 		// Top level interval serves as a default
 		c.Monitors[i].IntervalSeconds = utils.FirstNonZero(c.Monitors[i].IntervalSeconds, c.IntervalSeconds)
 	}
@@ -145,18 +160,20 @@ func (lc *LogConfig) LogrusLevel() *log.Level {
 	return nil
 }
 
+type MonitorID string
+
 type MonitorConfig struct {
 	Type string `yaml:"type,omitempty"`
 	// Id can be used to uniquely identify monitors so that they can be
 	// reconfigured in place instead of destroyed and recreated
-	Id              string            `yaml:"id,omitempty"`
+	Id              MonitorID         `yaml:"id,omitempty"`
 	DiscoveryRule   string            `yaml:"discoveryRule,omitempty"`
 	ExtraDimensions map[string]string `yaml:"extraDimensions,omitempty" default:"{}"`
 	// K8s pod label keys to send as dimensions
 	K8sLabelDimensions []string `yaml:"labelDimensions,omitempty" default:"[]"`
 	// If unset or 0, will default to the top-level IntervalSeconds value
 	IntervalSeconds int                    `yaml:"intervalSeconds,omitempty" default:"0"`
-	OtherConfig     map[string]interface{} `yaml:",inline" default:"{}"`
+	OtherConfig     map[string]interface{} `yaml:",inline" default:"{}" json:"-"`
 	// The remaining are propagated from the top-level config and cannot be set
 	// by the user directly on the monitor
 	IngestURL           *url.URL           `yaml:"-"`
@@ -165,10 +182,17 @@ type MonitorConfig struct {
 	Filter              *filters.FilterSet `yaml:"-"`
 	// Most monitors can ignore this
 	GlobalDimensions map[string]string `yaml:"-" default:"{}"`
+	ProcFSPath       string            `yaml:"-"`
 }
 
 func (mc *MonitorConfig) GetOtherConfig() map[string]interface{} {
 	return mc.OtherConfig
+}
+
+func (mc *MonitorConfig) EnsureID() {
+	if len(mc.Id) == 0 {
+		mc.Id = MonitorID(fmt.Sprintf("%s-%d", mc.Type, getNextIdFor(mc.Type)))
+	}
 }
 
 type ObserverConfig struct {
@@ -254,3 +278,11 @@ var (
 	EnvReplacer   = strings.NewReplacer(".", "_", "-", "_")
 	configTimeout = 10 * time.Second
 )
+
+var _ids = map[string]int{}
+
+// Used to ensure unique IDs for monitors and observers
+func getNextIdFor(name string) int {
+	_ids[name] += 1
+	return _ids[name]
+}
