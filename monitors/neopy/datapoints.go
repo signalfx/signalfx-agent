@@ -11,6 +11,7 @@ import (
 )
 
 const datapointsSocketPath = "ipc:///tmp/signalfx-datapoints.ipc"
+const datapointsTopic = "datapoints"
 
 type DatapointMessage struct {
 	MonitorID config.MonitorID `json:"monitor_id"`
@@ -23,7 +24,7 @@ type DatapointsQueue struct {
 	mutex  sync.Mutex
 }
 
-func NewDatapointsQueue() *DatapointsQueue {
+func newDatapointsQueue() *DatapointsQueue {
 	subSock, err := zmq4.NewSocket(zmq4.SUB)
 	if err != nil {
 		panic("Could not create datapoints zmq socket: " + err.Error())
@@ -34,26 +35,30 @@ func NewDatapointsQueue() *DatapointsQueue {
 	}
 }
 
-func (dq *DatapointsQueue) Start() error {
-	if err := dq.socket.Bind(datapointsSocketPath); err != nil {
+func (dq *DatapointsQueue) start() error {
+	if err := dq.socket.Bind(dq.socketPath()); err != nil {
 		return err
 	}
-	if err := dq.socket.SetSubscribe("datapoints"); err != nil {
+	if err := dq.socket.SetSubscribe(datapointsTopic); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (mq *DatapointsQueue) SocketPath() string {
+func (dq *DatapointsQueue) socketPath() string {
 	return datapointsSocketPath
 }
 
-func (mq *DatapointsQueue) ListenForDatapoints() <-chan *DatapointMessage {
+func (dq *DatapointsQueue) listenForDatapoints() <-chan *DatapointMessage {
+	dq.mutex.Lock()
+
 	ch := make(chan *DatapointMessage)
 	go func() {
+		defer dq.mutex.Unlock()
+
 		for {
 			log.Debug("waiting for datapoints")
-			message, err := mq.socket.RecvMessageBytes(0)
+			message, err := dq.socket.RecvMessageBytes(0)
 			log.Debug("got datapoint")
 			if err != nil {
 				log.WithFields(log.Fields{
@@ -71,7 +76,8 @@ func (mq *DatapointsQueue) ListenForDatapoints() <-chan *DatapointMessage {
 			err = json.Unmarshal(message[1], &msg)
 			if err != nil {
 				log.WithFields(log.Fields{
-					"error": err,
+					"error":   err,
+					"message": message,
 				}).Error("Could not deserialize datapoint message from NeoPy")
 				continue
 			}

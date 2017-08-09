@@ -5,6 +5,7 @@ import (
 	. "github.com/onsi/gomega"
 	"github.com/signalfx/neo-agent/core/config"
 	"github.com/signalfx/neo-agent/observers"
+	log "github.com/sirupsen/logrus"
 )
 
 var id = 0
@@ -24,7 +25,7 @@ func newService(imageName string, publicPort int) *observers.ServiceInstance {
 
 var _ = Describe("Monitor Manager", func() {
 	var manager *MonitorManager
-	var getMonitors func() []BaseMonitor
+	var getMonitors func() []MockMonitor
 
 	BeforeEach(func() {
 		DeregisterAll()
@@ -47,7 +48,7 @@ var _ = Describe("Monitor Manager", func() {
 
 		Expect(len(getMonitors())).To(Equal(1))
 		mon := getMonitors()[0]
-		Expect(mon.(*Static1).Conf.Type).To(Equal("static1"))
+		Expect(mon.GetConfig().Type).To(Equal("static1"))
 	})
 
 	It("Shuts down static monitors when removed from config", func() {
@@ -243,5 +244,64 @@ var _ = Describe("Monitor Manager", func() {
 
 		mons = findMonitorsByType(getMonitors(), "dynamic1")
 		Expect(len(mons)).To(Equal(0))
+	})
+
+	It("Monitors the same service on multiple monitors", func() {
+		log.SetLevel(log.DebugLevel)
+		manager.Configure([]config.MonitorConfig{
+			config.MonitorConfig{
+				Type: "static1",
+			},
+			config.MonitorConfig{
+				Type:          "dynamic1",
+				DiscoveryRule: `ContainerImage =~ "my-service"`,
+			},
+		})
+
+		manager.ServiceAdded(newService("my-service", 5000))
+
+		mons := findMonitorsByType(getMonitors(), "dynamic1")
+		Expect(len(mons)).To(Equal(1))
+
+		manager.Configure([]config.MonitorConfig{
+			config.MonitorConfig{
+				Type: "static1",
+			},
+			config.MonitorConfig{
+				Type:          "dynamic1",
+				DiscoveryRule: `ContainerImage =~ "my-service"`,
+			},
+			config.MonitorConfig{
+				Type:          "dynamic2",
+				DiscoveryRule: `ContainerImage =~ "my-service"`,
+			},
+		})
+
+		mons = findMonitorsByType(getMonitors(), "dynamic1")
+		Expect(len(mons)).To(Equal(1))
+
+		mons = findMonitorsByType(getMonitors(), "dynamic2")
+		Expect(len(mons)).To(Equal(1))
+
+		// Test restarting and making sure it still only monitors one service
+		// each
+		manager.Configure([]config.MonitorConfig{
+			config.MonitorConfig{
+				Type:          "dynamic1",
+				DiscoveryRule: `ContainerImage =~ "my-service"`,
+			},
+			config.MonitorConfig{
+				Type:          "dynamic2",
+				DiscoveryRule: `ContainerImage =~ "my-service"`,
+			},
+		})
+
+		mons = findMonitorsByType(getMonitors(), "dynamic1")
+		Expect(len(mons)).To(Equal(1))
+		Expect(len(mons[0].GetServices())).To(Equal(1))
+
+		mons = findMonitorsByType(getMonitors(), "dynamic2")
+		Expect(len(mons)).To(Equal(1))
+		Expect(len(mons[0].GetServices())).To(Equal(1))
 	})
 })

@@ -7,16 +7,18 @@ import (
 	"time"
 )
 
-// OrchestrationType of service
+// OrchestrationType represents the type of orchestration the service is
+// deployed under.
 type OrchestrationType int
 
 // ServiceID uniquely identifies a service instance
 type ServiceID string
 
-// PortType An IP port type
+// PortType represents the transport protocol used to communicate with this port
 type PortType string
 
-// PortPreference public or private
+// PortPreference describes whether the public or private port should be preferred
+// when connecting to the service
 type PortPreference int
 
 const (
@@ -62,7 +64,8 @@ func (p *Port) String() string {
 	return fmt.Sprintf("%#v", p)
 }
 
-// Orchestration information
+// Orchestration contains information about the orchestrator that the service
+// is deployed on (see OrchestrationType)
 type Orchestration struct {
 	ID       string
 	Type     OrchestrationType
@@ -91,6 +94,8 @@ type Container struct {
 	Namespace string
 }
 
+// PrimaryName is the first container name, with all slashes stripped from the
+// beginning.
 func (c *Container) PrimaryName() string {
 	if len(c.Names) > 0 {
 		return strings.TrimLeft(c.Names[0], "/")
@@ -107,7 +112,10 @@ func NewContainer(id string, names []string, image string, pod string, command s
 	return &Container{id, names, image, pod, command, state, labels, namespace}
 }
 
-// ServiceInstance information for single instance of a discovered service
+// ServiceInstance contains information for single container/orchestration/port
+// combination of a discovered service.  A single real-world "service" could have
+// multiple distinct instances if it exposes multiple ports or is discovered by
+// more than one observer.
 type ServiceInstance struct {
 	ID            ServiceID
 	Container     *Container
@@ -117,7 +125,7 @@ type ServiceInstance struct {
 	Vars          map[string]interface{}
 }
 
-// NewInstance constructor
+// NewServiceInstance creates a new ServiceInstance
 func NewServiceInstance(id string, container *Container, orchestration *Orchestration, port *Port, discovered time.Time) *ServiceInstance {
 	return &ServiceInstance{ServiceID(id), container, orchestration, port, discovered, nil}
 }

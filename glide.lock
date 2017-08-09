@@ -1,5 +1,5 @@
-hash: 0fee54c08e00bb4c71241e1fd0a94085a30ffbf0475523512556644afcf03426
-updated: 2017-08-02T18:28:22.455953134Z
+hash: c9a30a884826a4adfab9491a1bab2d8a1f31314b5a58fad1963643ef8e46c6be
+updated: 2017-08-05T11:43:19.246212775-04:00
 imports:
 - name: github.com/blang/semver
   version: aea32c919a18e5ef4537bbd283ff29594b1b0165
@@ -122,6 +122,8 @@ imports:
   version: 4598e72a5762f7e683b840482a8bf9d19b1eb5e2
 - name: github.com/kr/logfmt
   version: b84e30acd515aadc4b783ad4ff83aff3299bdfe0
+- name: github.com/logrusorgru/aurora
+  version: 962a6974312dde57d1f6f5738b4f83e1af9f38a4
 - name: github.com/magiconair/properties
   version: be5ece7dd465ab0765a9682137865547526d1dfb
 - name: github.com/mailru/easyjson
@@ -131,7 +133,7 @@ imports:
   - jlexer
   - jwriter
 - name: github.com/mattn/go-colorable
-  version: 6c0fd4aa6ec5818d5e3ea9e03ae436972a6c5a9a
+  version: 5ffa492f0a052801e332fdc7eb2ad8dcac2d1aa4
 - name: github.com/mattn/go-isatty
   version: fc9e8d8ef48496124e79ae0df75490096eccf6fe
 - name: github.com/mgutz/ansi
@@ -234,12 +236,12 @@ imports:
   - protocol/collectd
   - protocol/filtering
   - protocol/signalfx
-- name: github.com/sirupsen/logrus
-  version: 9aa7601a1185e3bc8a0d3f87b1a55b05df0102e4
 - name: github.com/Sirupsen/logrus
   version: 9aa7601a1185e3bc8a0d3f87b1a55b05df0102e4
   repo: https://github.com/sirupsen/logrus
   vcs: git
+- name: github.com/sirupsen/logrus
+  version: 9aa7601a1185e3bc8a0d3f87b1a55b05df0102e4
 - name: github.com/spf13/afero
   version: 9be650865eab0c12963d8753212f4f9c66cdcf12
   subpackages:
@@ -257,11 +259,7 @@ imports:
   subpackages:
   - codec
 - name: github.com/x-cray/logrus-prefixed-formatter
-  version: bb2702d423886830dee131692131d35648c382e2
-- name: golang.org/x/crypto
-  version: d172538b2cfce0c13cee31e647d0367aa8cd2486
-  subpackages:
-  - ssh/terminal
+  version: 3abfd71dc493273c45baaef839877f9625ed9d4b
 - name: golang.org/x/net
   version: 5627bad10b821d907ac4dc81fb3535ec7dd81c2b
   subpackages:

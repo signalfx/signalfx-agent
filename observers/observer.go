@@ -1,11 +1,11 @@
 // Observers are what observe the environment to discover running services. An
-// Observer must only implement one method, Configure, which receives the
+// Observer only has to implement one method, Configure, which receives the
 // configuration for that observer.  That Configure method might be called
 // multiple times, so an observer should be prepared for its config to change
 // and take appropriate steps.
 //
-// The ultimate output of an observer are service instances
-// (services.Instance), which represent the discovered services.
+// The ultimate output of an observer are ServiceInstances, which represent the
+// discovered services.
 package observers
 
 import (
@@ -27,6 +27,9 @@ var observerFactories = map[string]ObserverFactory{}
 // particular observer type.
 var configTemplates = map[string]interface{}{}
 
+// Register an observer of _type with the agent.  configTemplate should be a
+// zero-valued struct that is of the same type that is accepted by the
+// Configure method of the observer.
 func Register(_type string, factory ObserverFactory, configTemplate interface{}) {
 	if _, ok := observerFactories[_type]; ok {
 		log.WithFields(log.Fields{

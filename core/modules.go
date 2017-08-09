@@ -5,6 +5,8 @@ package core
 
 import (
 	_ "github.com/signalfx/neo-agent/monitors/cadvisor"
+	_ "github.com/signalfx/neo-agent/monitors/collectd/custom"
+	_ "github.com/signalfx/neo-agent/monitors/collectd/healthchecker"
 	_ "github.com/signalfx/neo-agent/monitors/collectd/metadata"
 	_ "github.com/signalfx/neo-agent/monitors/collectd/redis"
 	_ "github.com/signalfx/neo-agent/monitors/collectd/writehttp"

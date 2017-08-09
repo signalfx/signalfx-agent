@@ -1,11 +1,13 @@
 import logging
 
 from . import datadog
+from .scheduler import IntervalScheduler
 
 
 class Monitors(object):
     def __init__(self, send_datapoint):
         self.monitors_by_id = dict()
+        self.scheduler = IntervalScheduler()
         self.send_datapoint = send_datapoint
 
     @property
@@ -22,7 +24,8 @@ class Monitors(object):
     def configure(self, config):
         logging.info("Configuring monitor: %s" % config)
         monitor_id = config['Id']
-        if config['Id'] in self.monitors_by_id:
+
+        if monitor_id in self.monitors_by_id:
             self.shutdown_and_remove(monitor_id)
 
         instance = self.create_instance(config)
@@ -33,7 +36,7 @@ class Monitors(object):
 
     def create_instance(self, config):
         if config['Type'].startswith(datadog.MONITOR_TYPE_PREFIX):
-            return datadog.DataDogMonitorWrapper(config, self.send_datapoint)
+            return datadog.DataDogMonitorWrapper(config, self.scheduler, self.send_datapoint)
 
     def shutdown_and_remove(self, monitor_id):
         if monitor_id not in self.monitors_by_id:

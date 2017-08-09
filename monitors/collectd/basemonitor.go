@@ -79,6 +79,7 @@ func (bm *BaseMonitor) SetConfigurationAndRun(conf config.MonitorConfig) bool {
 
 func (bm *BaseMonitor) WriteConfigForPluginAndRestart() bool {
 	pluginConfigText := bytes.Buffer{}
+
 	err := bm.Template.Execute(&pluginConfigText, bm.Context)
 	if err != nil {
 		log.WithFields(log.Fields{

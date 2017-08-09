@@ -56,6 +56,10 @@
   version: master
   repo: signalfx/vmstat-collectd
 
+- name: health_checker
+  version: v0.0.1
+  repo: signalfx/collectd-health_checker
+
 #- name: timestats
   #version: latest
   #repo: signalfx/collectd-timestats

@@ -10,18 +10,21 @@ import (
 
 const registerSocketPath = "ipc:///tmp/signalfx-register.ipc"
 
-// RegisterResponse should contain all of the plugins the neopy process wants
-// to register with neo-agent
+// RegisterResponse should contain all of the monitor types that the neopy
+// process wants to register with neo-agent
 type RegisterResponse struct {
 	Monitors []string
 }
 
+// RegisterQueue wraps and manages the zmq socket for doing monitor type
+// registration.  This socket is meant to be used as a basic REQ/REP pair, with
+// the neo-agent doing the request to NeoPy for its list of moinitor types.
 type RegisterQueue struct {
 	socket *zmq4.Socket
 	mutex  sync.Mutex
 }
 
-func NewRegisterQueue() *RegisterQueue {
+func newRegisterQueue() *RegisterQueue {
 	registerSock, err := zmq4.NewSocket(zmq4.REQ)
 	if err != nil {
 		panic("Could not create register queue zmq socket: " + err.Error())
@@ -32,18 +35,19 @@ func NewRegisterQueue() *RegisterQueue {
 	}
 }
 
-func (rq *RegisterQueue) Start() error {
+func (rq *RegisterQueue) start() error {
 	if err := rq.socket.Bind(registerSocketPath); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (rq *RegisterQueue) SocketPath() string {
+func (rq *RegisterQueue) socketPath() string {
 	return registerSocketPath
 }
 
-func (rq *RegisterQueue) GetMonitorList() []string {
+// getMonitorTypeList queries NeoPy for a list of monitors that it knows about
+func (rq *RegisterQueue) getMonitorTypeList() []string {
 	rq.mutex.Lock()
 	defer rq.mutex.Unlock()
 

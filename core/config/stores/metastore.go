@@ -1,3 +1,5 @@
+// Logic for generic access to various configuration sources (e.g. filesystem,
+// zookeeper, etc.).
 package stores
 
 import (
@@ -15,11 +17,12 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
+// MetaStore is a higher-order store that delegates to the appropriate store implementation
 type MetaStore struct {
 	stores map[string]source
 }
 
-// newStores creates a new metastore instance with a default filesystem source
+// NewMetaStore creates a new metastore instance with a default filesystem source
 func NewMetaStore() *MetaStore {
 	store := &MetaStore{map[string]source{
 		"file": file.New(),
@@ -41,7 +44,7 @@ func (ms *MetaStore) ConfigureFromEnv() {
 	ms.Configure(conf)
 }
 
-// Config a metastore.
+// Configure a metastore and the associated sub-stores.
 func (s *MetaStore) Configure(conf map[string]map[string]interface{}) error {
 	for name, storeConf := range conf {
 		switch name {
@@ -140,10 +143,10 @@ func (s *MetaStore) Close() {
 // WatchPath will watch the provided uri (or a plain filesystem path) and send
 // both the initial load and updates to the returned channel.  The key of the
 // KVPair will be the filename and the Value will be the file contents.
-func (ms *MetaStore) WatchPath(uri string) (<-chan *store.KVPair, error) {
+func (ms *MetaStore) WatchPath(uri string) (<-chan *store.KVPair, func(), error) {
 	source, path, err := ms.GetSourceAndPath(uri)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
 	// TODO: figure out exactly why this commented code was necessary and
@@ -167,10 +170,20 @@ func (ms *MetaStore) WatchPath(uri string) (<-chan *store.KVPair, error) {
 		break
 	}*/
 
-	ch, err := WatchRobust(source, path, nil)
+	stopCh := make(chan struct{})
+	stopCalled := false
+
+	ch, err := WatchRobust(source, path, stopCh)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
-	return ch, nil
+	stop := func() {
+		if !stopCalled {
+			stopCalled = true
+			stopCh <- struct{}{}
+		}
+	}
+
+	return ch, stop, nil
 }

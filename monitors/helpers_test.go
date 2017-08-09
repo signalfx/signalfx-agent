@@ -11,68 +11,69 @@ type Config struct {
 	MySlice []string
 }
 
-type MonBase struct {
-	Conf          *Config
-	shutdownHooks []func()
+type MockMonitor interface {
+	GetConfig() *Config
+	AddShutdownHook(fn func())
+	GetServices() map[observers.ServiceID]*observers.ServiceInstance
 }
 
-func (mb *MonBase) Configure(conf *Config) bool {
+type _MockMonitor struct {
+	Conf          *Config
+	shutdownHooks []func()
+	Services      map[observers.ServiceID]*observers.ServiceInstance
+}
+
+func (mb *_MockMonitor) Configure(conf *Config) bool {
 	print("Configure called ", conf.Type)
 	mb.Conf = conf
 	return true
 }
 
-func (mb *MonBase) GetConfig() *Config {
+func (mb *_MockMonitor) GetConfig() *Config {
 	return mb.Conf
 }
 
-func (mb *MonBase) AddShutdownHook(fn func()) {
+func (mb *_MockMonitor) AddShutdownHook(fn func()) {
 	mb.shutdownHooks = append(mb.shutdownHooks, fn)
 }
 
-func (mb *MonBase) Shutdown() {
+func (mb *_MockMonitor) Shutdown() {
 	for _, hook := range mb.shutdownHooks {
 		hook()
 	}
 }
 
-type DynamicBase struct {
-	MonBase
-	Services map[observers.ServiceID]*observers.ServiceInstance
-}
-
-func (db *DynamicBase) AddService(service *observers.ServiceInstance) {
-	if db.Services == nil {
-		db.Services = make(map[observers.ServiceID]*observers.ServiceInstance)
+func (mb *_MockMonitor) AddService(service *observers.ServiceInstance) {
+	if mb.Services == nil {
+		mb.Services = make(map[observers.ServiceID]*observers.ServiceInstance)
 	}
-	db.Services[service.ID] = service
+	mb.Services[service.ID] = service
 }
 
-func (db *DynamicBase) RemoveService(service *observers.ServiceInstance) {
-	delete(db.Services, service.ID)
+func (mb *_MockMonitor) RemoveService(service *observers.ServiceInstance) {
+	delete(mb.Services, service.ID)
 }
 
-type BaseMonitor interface {
-	AddShutdownHook(func())
-	GetConfig() *Config
+func (mb *_MockMonitor) GetServices() map[observers.ServiceID]*observers.ServiceInstance {
+	return mb.Services
 }
 
-type Static1 struct{ MonBase }
-type Static2 struct{ MonBase }
-type Dynamic1 struct{ DynamicBase }
-type Dynamic2 struct{ DynamicBase }
+type Static1 struct{ _MockMonitor }
+type Static2 struct{ _MockMonitor }
+type Dynamic1 struct{ _MockMonitor }
+type Dynamic2 struct{ _MockMonitor }
 
-func RegisterFakeMonitors() func() []BaseMonitor {
+func RegisterFakeMonitors() func() []MockMonitor {
 	lastId := 0
-	instances := map[int]interface{}{}
+	instances := map[int]MockMonitor{}
 
 	track := func(factory func() interface{}) func() interface{} {
 		return func() interface{} {
 			mon := factory()
 			id := lastId
 			lastId++
-			instances[id] = mon
-			mon.(BaseMonitor).AddShutdownHook(func() {
+			instances[id] = mon.(MockMonitor)
+			mon.(MockMonitor).AddShutdownHook(func() {
 				delete(instances, id)
 			})
 
@@ -85,17 +86,17 @@ func RegisterFakeMonitors() func() []BaseMonitor {
 	Register("dynamic1", track(func() interface{} { return &Dynamic1{} }), &Config{})
 	Register("dynamic2", track(func() interface{} { return &Dynamic2{} }), &Config{})
 
-	return func() []BaseMonitor {
-		slice := []BaseMonitor{}
+	return func() []MockMonitor {
+		slice := []MockMonitor{}
 		for i := range instances {
-			slice = append(slice, instances[i].(BaseMonitor))
+			slice = append(slice, instances[i].(MockMonitor))
 		}
 		return slice
 	}
 }
 
-func findMonitorsByType(monitors []BaseMonitor, _type string) []BaseMonitor {
-	mons := []BaseMonitor{}
+func findMonitorsByType(monitors []MockMonitor, _type string) []MockMonitor {
+	mons := []MockMonitor{}
 	for i := range monitors {
 		if monitors[i].GetConfig().Type == _type {
 			mons = append(mons, monitors[i])

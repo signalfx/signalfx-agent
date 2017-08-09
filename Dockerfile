@@ -203,7 +203,9 @@ RUN pip install yq &&\
     wget -O /usr/bin/jq https://github.com/stedolan/jq/releases/download/jq-1.5/jq-linux64 &&\
     chmod +x /usr/bin/jq
 
-COPY scripts/get-collectd-plugins.sh scripts/collectd-plugins.yaml /opt/
+# Mirror the same dir structure that exists in the original source
+COPY scripts/get-collectd-plugins.sh /opt/scripts/
+COPY collectd-plugins.yaml /opt/
 
 RUN mkdir -p /usr/share/collectd/java \
     && echo "jmx_memory      value:GAUGE:0:U" > /usr/share/collectd/java/signalfx_types_db
@@ -279,6 +281,7 @@ RUN sed -i -e '/^deb-src/d' /etc/apt/sources.list \
       libxml2 \
       libyajl2 \
 	  libzmq5 \
+	  netcat-openbsd \
       net-tools \
       openjdk-8-jre-headless \
       vim \
@@ -310,4 +313,7 @@ COPY --from=collectd /usr/src/collectd/bindings/java/.libs/*.jar /usr/share/coll
 COPY --from=collectd /usr/src/neomock/neomock /usr/bin/neomock
 
 COPY --from=agent-builder /usr/bin/signalfx-agent /usr/bin/signalfx-agent
+
+COPY neopy /usr/local/lib/neopy
+COPY scripts/agent-status /usr/bin/agent-status
 RUN chmod +x /usr/bin/signalfx-agent

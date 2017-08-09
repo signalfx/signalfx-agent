@@ -1,3 +1,4 @@
+// A monitor wrapping the write_http collectd plugin
 package writehttp
 
 //go:generate collectd-template-to-go writehttp.tmpl

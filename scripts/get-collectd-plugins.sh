@@ -7,7 +7,7 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 y() {
   filter=$1
   # yq is like jq for yaml
-  cat $SCRIPT_DIR/collectd-plugins.yaml | yq -r "$filter"
+  cat $SCRIPT_DIR/../collectd-plugins.yaml | yq -r "$filter"
 }
 
 mkdir -p /usr/share/collectd

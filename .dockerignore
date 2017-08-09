@@ -1,4 +1,5 @@
 .git/**
+.glide/**
 .build/**
 neo-agent
 vendor/**
