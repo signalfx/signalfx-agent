@@ -35,7 +35,9 @@ RUN cp -ra /tmp/usr-collectd/* /usr/ &&\
 
 RUN cp /tmp/usr-godeps/bin/jq /tmp/usr-godeps/bin/glide /usr/bin/
 
-RUN pip install ipython==5
+RUN pip install ipython==5 ipdb
+
+RUN apt install -y libzmq5-dev
 
 ENV PATH=$PATH:/usr/local/go/bin GOPATH=/go
 

@@ -45,6 +45,7 @@ import:
 - package: gopkg.in/fatih/set.v0
   version: ~0.1.0
 - package: github.com/pebbe/zmq4
+- package: github.com/logrusorgru/aurora
 testImport:
 - package: github.com/kr/pretty
 - package: github.com/smartystreets/goconvey

@@ -1,3 +1,4 @@
+// Watcher that polls the local filesystem for changes
 package watcher
 
 import (

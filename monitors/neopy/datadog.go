@@ -43,7 +43,7 @@ func (ddc *DDCheck) Configure(config *DDConfig) bool {
 	ddc.config.AgentConfig["procfs_path"] = config.ProcFSPath
 	ddc.config.AgentConfig["version"] = "0.0.0-signalfx"
 
-	GetInstance().SendDatapointsForMonitorTo(config.Id, ddc.DPs)
+	Instance().SendDatapointsForMonitorTo(config.Id, ddc.DPs)
 
 	if len(config.InstancesOverride) == 0 && config.DiscoveryRule == "" {
 		log.WithFields(log.Fields{
@@ -63,14 +63,16 @@ func (ddc *DDCheck) Configure(config *DDConfig) bool {
 	config.FinalInstances = append(ddc.instancesFromServices(), config.InstancesOverride...)
 
 	if len(config.FinalInstances) > 0 {
-		return GetInstance().ConfigureInPython(config)
+		return Instance().ConfigureInPython(config)
 	}
 	return true
 }
 
-// TODO: Allow dynamic configuration of "instances" upon service discovery
 func (ddc *DDCheck) AddService(service *observers.ServiceInstance) {
 	ddc.serviceSet[service.ID] = service
+	// We just reconfigured the whole python instance, which will ultimately
+	// destroy and recreate the check since DD checks have no
+	// hot-reloading capabilities
 	ddc.Configure(ddc.config)
 }
 
@@ -79,10 +81,14 @@ func (ddc *DDCheck) RemoveService(service *observers.ServiceInstance) {
 	ddc.Configure(ddc.config)
 }
 
+// This creates the "instances" config for the DD check.  It renders the
+// templates in `InstanceTemplate` using go templates.
 func (ddc *DDCheck) instancesFromServices() []map[string]interface{} {
 	instances := make([]map[string]interface{}, 0)
+
 	for _, service := range ddc.serviceSet {
 		inst := make(map[string]interface{})
+
 		for k, v := range ddc.config.InstanceTemplate {
 			val, err := ddc.renderInstanceTemplateValue(v, service)
 			if err != nil {
@@ -91,6 +97,7 @@ func (ddc *DDCheck) instancesFromServices() []map[string]interface{} {
 					"service":               service,
 					"error":                 err,
 				}).Error("Could not render DataDog instance template for service")
+
 				return nil
 			}
 			inst[k] = val
@@ -124,5 +131,5 @@ func RegisterDDCheck(_type string) {
 }
 
 func (dc *DDCheck) Shutdown() {
-	GetInstance().ShutdownMonitor(dc.config.Id)
+	Instance().ShutdownMonitor(dc.config.Id)
 }

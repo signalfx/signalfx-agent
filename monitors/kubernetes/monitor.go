@@ -33,6 +33,7 @@ import (
 
 	log "github.com/sirupsen/logrus"
 
+	"github.com/signalfx/golib/datapoint"
 	"github.com/signalfx/neo-agent/core/config"
 	"github.com/signalfx/neo-agent/monitors"
 
@@ -86,6 +87,7 @@ type Monitor struct {
 	config  *Config
 	monitor *Kubernetes
 	lock    sync.Mutex
+	DPs     chan<- *datapoint.Datapoint
 }
 
 func init() {
@@ -164,22 +166,6 @@ func (m *Monitor) Configure(config *Config) bool {
 		return false
 	}
 
-	sfxClient := NewSFXClient(map[string]string{
-		"metric_source":      "kubernetes",
-		"kubernetes_cluster": config.ClusterName,
-	})
-
-	sfxClient.AuthToken = config.SignalFxAccessToken
-
-	endpointURL, err := config.IngestURL.Parse("v2/datapoint")
-	if err != nil {
-		logger.WithFields(log.Fields{
-			"error": err,
-		}).Error("Could not construct ingest URL for kubernetes cluster monitor")
-		return false
-	}
-	sfxClient.DatapointEndpoint = endpointURL.String()
-
 	var thisPodName string
 	// We need to know the pod name if we aren't always reporting
 	if !config.AlwaysClusterReporter {
@@ -194,7 +180,7 @@ func (m *Monitor) Configure(config *Config) bool {
 
 	m.monitor = NewKubernetes(
 		k8sClient,
-		sfxClient,
+		m.DPs,
 		uint(config.IntervalSeconds),
 		config.AlwaysClusterReporter,
 		thisPodName)

@@ -1,3 +1,4 @@
+// Misc utility functions for the project
 package utils
 
 // MergeMaps merges n maps with a later map's keys overriding earlier maps

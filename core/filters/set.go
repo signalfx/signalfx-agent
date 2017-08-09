@@ -6,9 +6,9 @@ type FilterSet struct {
 	Filters []*Filter
 }
 
-func (fs *FilterSet) Matches(dp *datapoint.Datapoint, monitorType string) bool {
+func (fs *FilterSet) Matches(dp *datapoint.Datapoint) bool {
 	for _, f := range fs.Filters {
-		if !f.Matches(dp, monitorType) {
+		if !f.Matches(dp) {
 			return false
 		}
 	}

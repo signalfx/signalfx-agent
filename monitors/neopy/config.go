@@ -10,17 +10,21 @@ import (
 
 const configureSocketPath = "ipc:///tmp/signalfx-configure.ipc"
 
+// ConfigureResponse is what we expect to be sent by NeoPy to indicate whether
+// configuration was successful or not.
 type ConfigureResponse struct {
 	Success bool
 	Error   string
 }
 
+// ConfigQueue wraps and manages the zmq REQ socket that sends configuration of
+// monitors to NeoPy.
 type ConfigQueue struct {
 	socket *zmq4.Socket
 	mutex  sync.Mutex
 }
 
-func NewConfigQueue() *ConfigQueue {
+func newConfigQueue() *ConfigQueue {
 	configureSock, err := zmq4.NewSocket(zmq4.REQ)
 	if err != nil {
 		panic("Couldn't create zmq socket")
@@ -31,18 +35,18 @@ func NewConfigQueue() *ConfigQueue {
 	}
 }
 
-func (cq *ConfigQueue) Start() error {
-	if err := cq.socket.Bind(configureSocketPath); err != nil {
+func (cq *ConfigQueue) start() error {
+	if err := cq.socket.Bind(cq.socketPath()); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (cq *ConfigQueue) SocketPath() string {
+func (cq *ConfigQueue) socketPath() string {
 	return configureSocketPath
 }
 
-func (cq *ConfigQueue) Configure(conf interface{}) bool {
+func (cq *ConfigQueue) configure(conf interface{}) bool {
 	cq.mutex.Lock()
 	defer cq.mutex.Unlock()
 

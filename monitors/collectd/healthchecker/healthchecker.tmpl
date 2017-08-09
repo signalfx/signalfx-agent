@@ -1,0 +1,14 @@
+LoadPlugin "python"
+<Plugin python>
+  ModulePath "{{Globals.PluginRoot}}/health_checker"
+
+  Import "health_checker"
+{{range $service := .GetServices}}
+  <Module health_checker>
+    URL "{{RenderValue $.URL $ $service}}"
+    Instance "{{$service.ID}}[{{EncodeDimsForPluginInstance $.GetDimensions}}]"
+    JSONKey "{{$.JSONKey}}"
+    JSONVal "{{$.JSONVal}}"
+  </Module>
+{{end}}
+</Plugin>

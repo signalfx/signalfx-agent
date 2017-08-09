@@ -1,3 +1,4 @@
+// The core framing of the agent that hooks up the various subsystems.
 package core
 
 import (
@@ -15,11 +16,12 @@ import (
 	"github.com/signalfx/neo-agent/observers"
 )
 
-// Agent is what hooks up observers and monitors
+// Agent is what hooks up observers, monitors, and the datapoint writer.
 type Agent struct {
-	observers        *observers.ObserverManager
-	monitors         *monitors.MonitorManager
-	lastCollectdConf config.CollectdConfig
+	observers  *observers.ObserverManager
+	monitors   *monitors.MonitorManager
+	writer     *writer.SignalFxWriter
+	lastConfig *config.Config
 }
 
 // New creates a agent instance
@@ -33,7 +35,11 @@ func NewAgent() *Agent {
 		},
 	}
 
-	agent.monitors = &monitors.MonitorManager{}
+	agent.writer = writer.New()
+	agent.monitors = &monitors.MonitorManager{
+		DPChannel:    agent.writer.DPChannel(),
+		EventChannel: agent.writer.EventChannel(),
+	}
 
 	return &agent
 }
@@ -45,24 +51,25 @@ func (a *Agent) Configure(conf *config.Config) {
 	}
 	log.Infof("Using log level %s", log.GetLevel().String())
 
-	writer, err := writer.New(conf.IngestURLAsURL(), conf.SignalFxAccessToken)
-	if err != nil {
-		// There isn't really much we can do at this point so return and wait
-		// for another configuration to come in.
-		log.WithFields(log.Fields{
-			"error": err,
-		}).Error("Could not create SignalFx datapoint writer, unable to start up")
+	ok := a.writer.Configure(&conf.Writer)
+	if !ok {
+		// This is a catastrophic error if we can't write datapoints.
+		log.Error("Could not configure SignalFx datapoint writer, unable to start up")
 		os.Exit(4)
 	}
-	writer.ListenForDatapoints()
 
-	neopy.GetInstance().Configure()
-	neopy.GetInstance().EnsureMonitorsRegistered()
+	if conf.PythonEnabled {
+		neopy.Instance().Configure()
+		neopy.Instance().EnsureMonitorsRegistered()
+	} else if a.lastConfig != nil && a.lastConfig.PythonEnabled {
+		neopy.Instance().Shutdown()
+	}
 
 	// The order of Configure calls is very important!
 	collectd.CollectdSingleton.Configure(&conf.Collectd)
-	a.monitors.Configure(conf.Monitors, writer.DPChannel(), writer.EventChannel())
+	a.monitors.Configure(conf.Monitors)
 	a.observers.Configure(conf.Observers)
+	a.lastConfig = conf
 }
 
 func (a *Agent) ServiceAdded(service *observers.ServiceInstance) {
@@ -78,7 +85,7 @@ func (a *Agent) Shutdown() {
 	a.observers.Shutdown()
 	a.monitors.Shutdown()
 	collectd.CollectdSingleton.Shutdown()
-	neopy.GetInstance().Shutdown()
+	neopy.Instance().Shutdown()
 }
 
 // Startup the agent.  Returns a function that can be called to shutdown the
@@ -95,7 +102,7 @@ func Startup(configPath string) (context.CancelFunc, <-chan struct{}) {
 	// a non-fs based config store.
 	metaStore.ConfigureFromEnv()
 
-	configLoads, err := metaStore.WatchPath(configPath)
+	configLoads, stop, err := metaStore.WatchPath(configPath)
 	if err != nil {
 		log.WithFields(log.Fields{
 			"error":      err,
@@ -107,6 +114,8 @@ func Startup(configPath string) (context.CancelFunc, <-chan struct{}) {
 	agent := NewAgent()
 
 	exitedCh := make(chan struct{})
+
+	agent.serveDiagnosticInfo()
 
 	go func(ctx context.Context) {
 		for {
@@ -126,7 +135,7 @@ func Startup(configPath string) (context.CancelFunc, <-chan struct{}) {
 					os.Exit(1)
 				}
 
-				conf, err := config.LoadConfigFromContent(configKVPair.Value)
+				conf, err := config.LoadConfigFromContent(configKVPair.Value, metaStore)
 				if err != nil || conf == nil {
 					log.WithFields(log.Fields{
 						"path": configPath,
@@ -139,6 +148,7 @@ func Startup(configPath string) (context.CancelFunc, <-chan struct{}) {
 
 			case <-ctx.Done():
 				agent.Shutdown()
+				stop()
 				metaStore.Close()
 				exitedCh <- struct{}{}
 				return

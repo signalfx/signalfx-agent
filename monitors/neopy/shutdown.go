@@ -23,7 +23,7 @@ type ShutdownQueue struct {
 	mutex  sync.Mutex
 }
 
-func NewShutdownQueue() *ShutdownQueue {
+func newShutdownQueue() *ShutdownQueue {
 	pubSock, err := zmq4.NewSocket(zmq4.PUB)
 	if err != nil {
 		panic("Could not create shutdown zmq socket: " + err.Error())
@@ -34,18 +34,18 @@ func NewShutdownQueue() *ShutdownQueue {
 	}
 }
 
-func (sq *ShutdownQueue) Start() error {
-	if err := sq.socket.Bind(shutdownSocketPath); err != nil {
+func (sq *ShutdownQueue) start() error {
+	if err := sq.socket.Bind(sq.socketPath()); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (sq *ShutdownQueue) SocketPath() string {
+func (sq *ShutdownQueue) socketPath() string {
 	return shutdownSocketPath
 }
 
-func (sq *ShutdownQueue) SendShutdownForMonitor(monitorID config.MonitorID) bool {
+func (sq *ShutdownQueue) sendShutdownForMonitor(monitorID config.MonitorID) bool {
 	sq.mutex.Lock()
 	defer sq.mutex.Unlock()
 

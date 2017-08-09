@@ -6,10 +6,11 @@ import (
 	yaml "gopkg.in/yaml.v2"
 
 	"github.com/creasty/defaults"
+	"github.com/signalfx/neo-agent/core/config/stores"
 )
 
 // LoadConfigFromContent transforms yaml to a Config struct
-func LoadConfigFromContent(fileContent []byte) (*Config, error) {
+func LoadConfigFromContent(fileContent []byte, metaStore *stores.MetaStore) (*Config, error) {
 	config := &Config{}
 
 	if err := defaults.Set(config); err != nil {
@@ -21,5 +22,5 @@ func LoadConfigFromContent(fileContent []byte) (*Config, error) {
 		return nil, err
 	}
 
-	return config.Initialize()
+	return config.Initialize(metaStore)
 }

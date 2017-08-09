@@ -5,8 +5,6 @@ import (
 	"sort"
 	"time"
 
-	"golang.org/x/net/context"
-
 	k8s "k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/pkg/api/v1"
 
@@ -17,7 +15,7 @@ import (
 // Kubernetes is distinct from the plugin type for less coupling to
 // neo-agent
 type Kubernetes struct {
-	sfxClient *SFXClient
+	dpChan chan<- *datapoint.Datapoint
 	// How often to report metrics to SignalFx
 	intervalSeconds uint
 	// Since most datapoints will stay the same or only slightly different
@@ -36,7 +34,7 @@ type Kubernetes struct {
 
 // NewKubernetes creates a new monitor instance
 func NewKubernetes(k8sClient *k8s.Clientset,
-	sfxClient *SFXClient,
+	dpChan chan<- *datapoint.Datapoint,
 	interval uint,
 	alwaysClusterReporter bool,
 	thisPodName string) *Kubernetes {
@@ -46,7 +44,7 @@ func NewKubernetes(k8sClient *k8s.Clientset,
 	clusterState.ChangeFunc = datapointCache.HandleChange
 
 	return &Kubernetes{
-		sfxClient:             sfxClient,
+		dpChan:                dpChan,
 		datapointCache:        datapointCache,
 		clusterState:          clusterState,
 		intervalSeconds:       interval,
@@ -94,7 +92,8 @@ func updateTimestamps(dps []*datapoint.Datapoint) []*datapoint.Datapoint {
 func (km *Kubernetes) filterDatapoints(dps []*datapoint.Datapoint) []*datapoint.Datapoint {
 	newDps := make([]*datapoint.Datapoint, 0, len(dps))
 	for _, dp := range dps {
-		if km.Filter != nil && !km.Filter.Matches(dp, monitorType) {
+		dp.Meta["monitorType"] = monitorType
+		if km.Filter != nil && !km.Filter.Matches(dp) {
 			newDps = append(newDps, dp)
 		}
 	}
@@ -110,10 +109,8 @@ func (km *Kubernetes) sendLatestDatapoints() {
 
 	// This sends synchonously despite what the first param might seem to
 	// indicate
-	err := km.sfxClient.AddDatapoints(context.Background(), dps)
-	if err != nil {
-		log.Print("Error shipping datapoints to SignalFx: ", err)
-		// If there is an error sending datapoints then just forget about them.
+	for i := range dps {
+		km.dpChan <- dps[i]
 	}
 }
 

@@ -50,9 +50,21 @@ def load_check_class(dirpath):
     module = imp.load_source(os.path.basename(dirpath), os.path.join(dirpath, 'check.py'))
     classes = inspect.getmembers(module, inspect.isclass)
 
+    check_classes = []
     for _, cls in classes:
-        if issubclass(cls, AgentCheck) and AgentCheck in cls.__bases__:
-            return cls
+        if issubclass(cls, AgentCheck) and cls != AgentCheck:
+            check_classes.append(cls)
+
+    # If len is > 1 here, it means the actual check is a grandchild of the
+    # AgentCheck class.  Figure out which one doesn't directly derive from
+    # AgentCheck.
+    class_count = len(check_classes)
+    if class_count > 0:
+        for c in check_classes:
+            if class_count == 1 or AgentCheck not in c.__bases__:
+                return c
+        logging.error("Could not determine check class in file %s" % dirpath)
+
     return None
 
 def get_check_dirs():
@@ -96,8 +108,8 @@ class DataDogCheckFactory(object):
 check_factory = DataDogCheckFactory()
 
 class DataDogMonitorWrapper(MonitorWrapper):
-    def __init__(self, config, send_datapoint):
-        super(DataDogMonitorWrapper, self).__init__(config, send_datapoint)
+    def __init__(self, config, scheduler, send_datapoint):
+        super(DataDogMonitorWrapper, self).__init__(config, scheduler, send_datapoint)
 
         # We assume all datadog monitor types start with "dd/..."
         check_name = config['Type'].split('/')[1]

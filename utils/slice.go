@@ -1,5 +1,6 @@
 package utils
 
+// MakeRange creates an int slice containing all ints between `min` and `max`
 func MakeRange(min, max int) []int {
 	a := make([]int, max-min+1)
 	for i := range a {
@@ -8,6 +9,9 @@ func MakeRange(min, max int) []int {
 	return a
 }
 
+// InterfaceSliceToStringSlice returns a new slice that contains the elements
+// of `is` as strings.  Returns nil if any of the elements of `is` are not
+// strings.
 func InterfaceSliceToStringSlice(is []interface{}) []string {
 	var ss []string
 	for _, intf := range is {

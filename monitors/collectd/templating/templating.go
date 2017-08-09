@@ -1,6 +1,8 @@
+// Misc functions that facilitate templating of collectd config files.
 package templating
 
 import (
+	"bytes"
 	"net/url"
 	"os"
 	"path"
@@ -66,6 +68,22 @@ func InjectTemplateFuncs(tmpl *template.Template) *template.Template {
 					"PluginRoot": pluginDir,
 					"Platform":   runtime.GOOS,
 				}
+			},
+			"RenderValue": func(templateText string, context map[string]interface{}, service interface{}) (string, error) {
+				template, err := template.New("nested").Parse(templateText)
+				if err != nil {
+					return "", err
+				}
+
+				context["service"] = service
+
+				out := bytes.Buffer{}
+				err = template.Execute(&out, context)
+				if err != nil {
+					return "", err
+				}
+
+				return out.String(), nil
 			},
 		})
 	return tmpl
