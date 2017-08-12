@@ -5,7 +5,7 @@ import (
 	"time"
 )
 
-// Call a zero arg function on the trailing edge of every `duration`.
+// Debounce0 calls a zero arg function on the trailing edge of every `duration`.
 func Debounce0(fn func(), duration time.Duration) (func(), chan<- struct{}) {
 	lock := &sync.Mutex{}
 

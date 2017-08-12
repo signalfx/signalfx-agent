@@ -1,4 +1,5 @@
-// Configuration structures and helper logic for all agent components.
+// Package config contains configuration structures and related helper logic for all
+// agent components.
 package config
 
 import (
@@ -16,6 +17,7 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
+// Config is the top level config struct that everything goes under
 type Config struct {
 	// TODO: Consider whether to allow store configuration from the main config
 	// file.  There is a major chicken/egg problem with this and reloading
@@ -42,6 +44,9 @@ type Config struct {
 	MetricsToExclude []MetricFilter `yaml:"metricsToExclude" default:"[]"`
 	ProcFSPath       string         `yaml:"procFSPath" default:"/proc"`
 	PythonEnabled    bool           `yaml:"pythonEnabled" default:"false"`
+	// This exists purely to give the user a place to put common yaml values to
+	// reference in other parts of the config file.
+	Scratch interface{} `yaml:"scratch"`
 }
 
 func (c *Config) setDefaultHostname() {
@@ -54,29 +59,22 @@ func (c *Config) setDefaultHostname() {
 	}
 }
 
-func (c *Config) Initialize(metaStore *stores.MetaStore) (*Config, error) {
+func (c *Config) initialize(metaStore *stores.MetaStore) (*Config, error) {
 	c.overrideFromEnv()
 
 	c.setDefaultHostname()
 
 	if !c.validate() {
-		return nil, fmt.Errorf("Configuration did not validate!")
+		return nil, fmt.Errorf("configuration is invalid")
 	}
 
 	c.propagateValuesDown(metaStore)
-	idGenerator := newIdGenerator()
+	idGenerator := newIDGenerator()
 	for i := range c.Monitors {
-		c.Monitors[i].EnsureID(idGenerator)
+		c.Monitors[i].ensureID(idGenerator)
 	}
 
 	return c, nil
-}
-
-func (c *Config) IngestURLAsURL() *url.URL {
-	if url, err := url.Parse(c.IngestURL); err == nil {
-		return url
-	}
-	return nil
 }
 
 // Support overridding a few config options with envvars.  No need to allow
@@ -111,7 +109,7 @@ func (c *Config) validate() bool {
 }
 
 func (c *Config) makeFilterSet() *filters.FilterSet {
-	fs := make([]*filters.Filter, 0)
+	fs := make([]filters.Filter, 0)
 	for _, mte := range c.MetricsToExclude {
 		dims := mte.ConvertDimensionsMapForSliceValues()
 		mte.ConvertMetricNameToSlice()
@@ -133,9 +131,16 @@ func (c *Config) propagateValuesDown(metaStore *stores.MetaStore) {
 		panic("IngestURL was supposed to be validated already")
 	}
 
+	c.Collectd.Hostname = c.Hostname
+	c.Collectd.IntervalSeconds = c.IntervalSeconds
+	c.Collectd.Filter = filterSet
+	c.Collectd.IngestURL = c.IngestURL
+	c.Collectd.SignalFxAccessToken = c.SignalFxAccessToken
+	c.Collectd.GlobalDimensions = c.GlobalDimensions
+
 	for i := range c.Monitors {
+		c.Monitors[i].CollectdConf = &c.Collectd
 		c.Monitors[i].IngestURL = ingestURL
-		c.Monitors[i].GlobalDimensions = c.GlobalDimensions
 		c.Monitors[i].SignalFxAccessToken = c.SignalFxAccessToken
 		c.Monitors[i].Hostname = c.Hostname
 		c.Monitors[i].Filter = filterSet
@@ -145,20 +150,20 @@ func (c *Config) propagateValuesDown(metaStore *stores.MetaStore) {
 		c.Monitors[i].MetaStore = metaStore
 	}
 
-	c.Collectd.Hostname = c.Hostname
-	c.Collectd.IntervalSeconds = c.IntervalSeconds
-	c.Collectd.Filter = filterSet
-
 	c.Writer.IngestURL = ingestURL
 	c.Writer.Filter = filterSet
 	c.Writer.SignalFxAccessToken = c.SignalFxAccessToken
+	c.Writer.GlobalDimensions = c.GlobalDimensions
 }
 
+// LogConfig contains configuration related to logging
 type LogConfig struct {
 	Level string `yaml:"level,omitempty" default:"info"`
 	// TODO: Support log file output and other log targets
 }
 
+// LogrusLevel returns a logrus log level based on the configured level in
+// LogConfig.
 func (lc *LogConfig) LogrusLevel() *log.Level {
 	if lc.Level != "" {
 		level, err := log.ParseLevel(lc.Level)
@@ -173,29 +178,38 @@ func (lc *LogConfig) LogrusLevel() *log.Level {
 	return nil
 }
 
+// CustomConfigurable should be implemented by config structs that have the
+// concept of generic other config that is initially deserialized into a
+// map[string]interface{} to be later transformed to another form.
 type CustomConfigurable interface {
 	GetOtherConfig() map[string]interface{}
 }
 
-// Collectd high-level configurations
+// CollectdConfig high-level configurations
 type CollectdConfig struct {
 	DisableCollectd      bool   `yaml:"disableCollectd,omitempty" default:"false"`
-	IntervalSeconds      int    `yaml:"intervalSeconds,omitempty" default:"10"`
 	Timeout              int    `yaml:"timeout,omitempty" default:"40"`
 	ReadThreads          int    `yaml:"readThreads,omitempty" default:"5"`
 	WriteQueueLimitHigh  int    `yaml:"writeQueueLimitHigh,omitempty" default:"500000"`
 	WriteQueueLimitLow   int    `yaml:"writeQueueLimitLow,omitempty" default:"400000"`
-	CollectInternalStats bool   `yaml:"collectInternalStats,omitempty" default:"false"`
+	CollectInternalStats bool   `yaml:"collectInternalStats,omitempty" default:"true"`
 	LogLevel             string `yaml:"logLevel,omitempty" default:"notice"`
 	// The following are propagated from the top-level config
-	Hostname string             `yaml:"-"`
-	Filter   *filters.FilterSet `yaml:"-"`
+	IntervalSeconds     int                `yaml:"-"`
+	Hostname            string             `yaml:"-"`
+	Filter              *filters.FilterSet `yaml:"-"`
+	SignalFxAccessToken string             `yaml:"-"`
+	IngestURL           string             `yaml:"-"`
+	GlobalDimensions    map[string]string  `yaml:"-"`
 }
 
+// StoreConfig holds configuration related to config stores (e.g. filesystem,
+// zookeeper, etc)
 type StoreConfig struct {
 	OtherConfig map[string]interface{} `yaml:",inline,omitempty" default:"{}"`
 }
 
+// GetOtherConfig returns generic config as a map
 func (sc *StoreConfig) GetOtherConfig() map[string]interface{} {
 	return sc.OtherConfig
 }
@@ -207,11 +221,11 @@ var (
 )
 
 // Used to ensure unique IDs for monitors and observers
-func newIdGenerator() func(string) int {
+func newIDGenerator() func(string) int {
 	ids := map[string]int{}
 
 	return func(name string) int {
-		ids[name] += 1
+		ids[name]++
 		return ids[name]
 	}
 }

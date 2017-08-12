@@ -3,12 +3,12 @@ LoadPlugin "python"
   ModulePath "{{Globals.PluginRoot}}/health_checker"
 
   Import "health_checker"
-{{range $service := .GetServices}}
+{{range .Endpoints}}
   <Module health_checker>
-    URL "{{RenderValue $.URL $ $service}}"
-    Instance "{{$service.ID}}[{{EncodeDimsForPluginInstance $.GetDimensions}}]"
-    JSONKey "{{$.JSONKey}}"
-    JSONVal "{{$.JSONVal}}"
+    URL "{{renderValue .url .}}"
+    Instance "{{withDefault .name .id}}[{{encodeDimsForPluginInstance .dimensions}}]"
+    JSONKey "{{.jsonKey}}"
+    JSONVal "{{.jsonVal}}"
   </Module>
 {{end}}
 </Plugin>

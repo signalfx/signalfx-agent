@@ -22,7 +22,9 @@ const (
 	Watching
 )
 
-type source interface {
+// Source is a data source that has a set of common operations to get and
+// manipulate data.
+type Source interface {
 	AtomicPut(key string, value []byte, previous *store.KVPair, _ *store.WriteOptions) (bool, *store.KVPair, error)
 	Close()
 	Exists(string) (bool, error)
@@ -34,7 +36,7 @@ type source interface {
 }
 
 // EnsureExists creates an empty file if it doesn't already exist
-func EnsureExists(src source, path string) error {
+func EnsureExists(src Source, path string) error {
 	exists, err := src.Exists(path)
 	if err != nil {
 		return err
@@ -52,7 +54,7 @@ func EnsureExists(src source, path string) error {
 
 // WatchRobust returns a reliable channel that hides the underlying libkv
 // watch because it will fail when files go away
-func WatchRobust(source source, path string, stop <-chan struct{}) (<-chan *store.KVPair, error) {
+func WatchRobust(source Source, path string, stop <-chan struct{}) (<-chan *store.KVPair, error) {
 	retCh := make(chan *store.KVPair)
 
 	go func() {
@@ -117,7 +119,7 @@ func WatchRobust(source source, path string, stop <-chan struct{}) (<-chan *stor
 
 // WatchTreeRobust returns a reliable channel that hides the underlying libkv
 // watch because it will fail when files go away
-func WatchTreeRobust(source source, path string, stop <-chan struct{}) (<-chan []*store.KVPair, error) {
+func WatchTreeRobust(source Source, path string, stop <-chan struct{}) (<-chan []*store.KVPair, error) {
 	retCh := make(chan []*store.KVPair)
 
 	go func() {

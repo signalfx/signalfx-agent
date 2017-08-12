@@ -6,19 +6,21 @@ import (
 
 	"github.com/pebbe/zmq4"
 	"github.com/signalfx/golib/datapoint"
-	"github.com/signalfx/neo-agent/core/config"
+	"github.com/signalfx/neo-agent/core/config/types"
 	log "github.com/sirupsen/logrus"
 )
 
 const datapointsSocketPath = "ipc:///tmp/signalfx-datapoints.ipc"
 const datapointsTopic = "datapoints"
 
+// DatapointMessage represents the message sent by python with a datapoint
 type DatapointMessage struct {
-	MonitorID config.MonitorID `json:"monitor_id"`
+	MonitorID types.MonitorID `json:"monitor_id"`
 	// Will be deserialized by the golib method by itself
 	Datapoint *datapoint.Datapoint
 }
 
+// DatapointsQueue wraps the zmq socket used to get datapoints back from python
 type DatapointsQueue struct {
 	socket *zmq4.Socket
 	mutex  sync.Mutex
@@ -68,7 +70,7 @@ func (dq *DatapointsQueue) listenForDatapoints() <-chan *DatapointMessage {
 			}
 
 			var msg struct {
-				MonitorID config.MonitorID `json:"monitor_id"`
+				MonitorID types.MonitorID `json:"monitor_id"`
 				// Will be deserialized by the golib method by itself
 				Datapoint *json.RawMessage
 			}

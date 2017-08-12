@@ -23,6 +23,7 @@ import (
 	"gopkg.in/fatih/set.v0"
 
 	"github.com/signalfx/neo-agent/core/config"
+	"github.com/signalfx/neo-agent/core/config/types"
 	"github.com/signalfx/neo-agent/monitors/collectd/templating"
 	"github.com/signalfx/neo-agent/utils"
 )
@@ -45,7 +46,9 @@ const (
 
 var validLogLevels = set.NewNonTS("debug", "info", "notice", "warning", "err")
 
-type CollectdManager struct {
+// Manager coordinates the collectd conf file and running the embedded collectd
+// library.
+type Manager struct {
 	state    string
 	confFile string
 	// triggers a reload of the collectd daemon
@@ -56,12 +59,19 @@ type CollectdManager struct {
 	conf                 *config.CollectdConfig
 	restartDebounced     func()
 	restartDebouncedStop chan<- struct{}
+	activeMonitors       map[types.MonitorID]bool
 }
 
-var CollectdSingleton = CollectdManager{
-	state:      Stopped,
-	reloadChan: make(chan int),
-	stopChan:   make(chan int),
+var collectdSingleton = &Manager{
+	state:          Stopped,
+	reloadChan:     make(chan int),
+	stopChan:       make(chan int),
+	activeMonitors: make(map[types.MonitorID]bool),
+}
+
+// Instance returns the singleton instance of the collectd manager
+func Instance() *Manager {
+	return collectdSingleton
 }
 
 // Restart collectd, or start it if it hasn't been.  The restart will be
@@ -69,7 +79,7 @@ var CollectdSingleton = CollectdManager{
 // but will wait for `restartDebounceDuration` in case multiple monitors
 // request a restart.  Unfortunately we don't have any way of selectively
 // restarting certain plugins at this point.
-func (cm *CollectdManager) Restart() {
+func (cm *Manager) Restart() {
 	if cm.restartDebounced == nil {
 		cm.restartDebounced, cm.restartDebouncedStop = utils.Debounce0(func() {
 			if cm.State() == Stopped {
@@ -85,9 +95,17 @@ func (cm *CollectdManager) Restart() {
 	cm.restartDebounced()
 }
 
-func (cm *CollectdManager) Configure(conf *config.CollectdConfig) bool {
+// ConfigureFromMonitor configures collectd, renders the collectd.conf file,
+// and queues a (re)start.  Individual collectd-based monitors write their own
+// config files and should queue restarts when they have rendered their own
+// config files.  The monitorID is passed in so that we can keep track of what
+// monitors are actively using collectd.  When a monitor is done (i.e.
+// shutdown) it should call MonitorDidShutdown.
+func (cm *Manager) ConfigureFromMonitor(monitorID types.MonitorID, conf *config.CollectdConfig) bool {
 	cm.configMutex.Lock()
 	defer cm.configMutex.Unlock()
+
+	cm.activeMonitors[monitorID] = true
 
 	// Delete existing config on the first call
 	if cm.conf == nil {
@@ -109,7 +127,7 @@ func (cm *CollectdManager) Configure(conf *config.CollectdConfig) bool {
 	return true
 }
 
-func (cm *CollectdManager) validateConfig(conf *config.CollectdConfig) bool {
+func (cm *Manager) validateConfig(conf *config.CollectdConfig) bool {
 	valid := true
 
 	if !validLogLevels.Has(conf.LogLevel) {
@@ -123,8 +141,8 @@ func (cm *CollectdManager) validateConfig(conf *config.CollectdConfig) bool {
 	return valid
 }
 
-// Stop collectd monitoring
-func (cm *CollectdManager) Shutdown() {
+// Shutdown collectd and all associated resources
+func (cm *Manager) Shutdown() {
 	log.Debug("Shutting down collectd")
 	if cm.State() != Stopped {
 		cm.stopChan <- 0
@@ -132,8 +150,22 @@ func (cm *CollectdManager) Shutdown() {
 	}
 }
 
+// MonitorDidShutdown should be called by any monitor that uses collectd when
+// it is shutdown.
+func (cm *Manager) MonitorDidShutdown(monitorID types.MonitorID) {
+	cm.configMutex.Lock()
+	defer cm.configMutex.Unlock()
+
+	delete(cm.activeMonitors, monitorID)
+	if len(cm.activeMonitors) == 0 {
+		cm.Shutdown()
+	} else {
+		cm.Restart()
+	}
+}
+
 // State for collectd monitoring
-func (cm *CollectdManager) State() string {
+func (cm *Manager) State() string {
 	cm.stateMutex.Lock()
 	defer cm.stateMutex.Unlock()
 
@@ -141,14 +173,14 @@ func (cm *CollectdManager) State() string {
 }
 
 // setState sets state for collectd monitoring
-func (cm *CollectdManager) setState(state string) {
+func (cm *Manager) setState(state string) {
 	cm.stateMutex.Lock()
 	defer cm.stateMutex.Unlock()
 
 	cm.state = state
 }
 
-func (cm *CollectdManager) rerenderConf() bool {
+func (cm *Manager) rerenderConf() bool {
 	output := bytes.Buffer{}
 
 	log.WithFields(log.Fields{
@@ -165,7 +197,7 @@ func (cm *CollectdManager) rerenderConf() bool {
 	return templating.WriteConfFile(output.String(), collectdConfPath)
 }
 
-func (cm *CollectdManager) runCollectd() {
+func (cm *Manager) runCollectd() {
 	cm.setState(Running)
 	defer cm.setState(Stopped)
 
@@ -207,7 +239,7 @@ func (cm *CollectdManager) runCollectd() {
 
 // Delete existing config in case there were plugins configured before that won't
 // be configured on this run.
-func (cm *CollectdManager) deleteExistingConfig() {
+func (cm *Manager) deleteExistingConfig() {
 	log.Debug("Deleting existing config")
 	os.RemoveAll(managedConfigDir)
 	os.Remove(collectdConfPath)

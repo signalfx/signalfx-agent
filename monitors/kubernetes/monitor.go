@@ -1,10 +1,12 @@
+// Package kubernetes contains a Kubernetes monitor.
+//
 // This plugin collects high level metrics about a K8s cluster and sends them
 // to SignalFx.  The basic technique is to pull data from the K8s API and keep
 // up-to-date copies of datapoints for each metric that we collect and then
 // ship them off at the end of each reporting interval.  The K8s streaming
 // watch API is used to effeciently maintain the state between read intervals
 // (see `clusterstate.go`).
-
+//
 // This plugin should only be run at one place in the cluster, or else metrics
 // would be duplicated.  This plugin supports two ways of ensuring that:
 //
@@ -44,32 +46,39 @@ import (
 )
 
 const (
-	monitorType = "kubernetes-cluster-metrics"
+	monitorType = "kubernetes-cluster"
 )
 
 var logger = log.WithFields(log.Fields{"monitorType": monitorType})
 
+// AuthType describes the type of authentication to use for the K8s API
 type AuthType string
 
 const (
-	AuthTypeNone           AuthType = "none"
-	AuthTypeTLS            AuthType = "tls"
+	// AuthTypeNone means no auth is required
+	AuthTypeNone AuthType = "none"
+	// AuthTypeTLS means to use client TLS certs
+	AuthTypeTLS AuthType = "tls"
+	// AuthTypeServiceAccount means to use the built-in service account that
+	// K8s automatically provisions for each pod.
 	AuthTypeServiceAccount AuthType = "serviceAccount"
 )
 
+// Config for the K8s monitor
 type Config struct {
 	config.MonitorConfig
-	AlwaysClusterReporter bool
-	ClusterName           string `default:"default-cluster"`
+	AlwaysClusterReporter bool   `yaml:"alwaysClusterReporter"`
+	ClusterName           string `yaml:"clusterName" default:"default-cluster"`
 
 	KubernetesAPI struct {
-		AuthType       AuthType `default:"serviceAccount"`
-		ClientCertPath string
-		ClientKeyPath  string
-		CACertPath     string `yaml:"caCertPath,omitempty"`
-	} `yaml:"kubernetesAPI"`
+		AuthType       AuthType `yaml:"authType" default:"serviceAccount"`
+		ClientCertPath string   `yaml:"clientCertPath"`
+		ClientKeyPath  string   `yaml:"clientKeyPath"`
+		CACertPath     string   `yaml:"caCertPath"`
+	} `yaml:"kubernetesAPI" default:"{}"`
 }
 
+// Validate the k8s-specific config
 func (c *Config) Validate() bool {
 	valid := true
 	apiConf := c.KubernetesAPI

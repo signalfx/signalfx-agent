@@ -1,0 +1,12 @@
+<LoadPlugin "memcached">
+  Interval {{.IntervalSeconds}}
+</LoadPlugin>
+<Plugin "memcached">
+  {{range .Endpoints}}
+  <Instance "{{withDefault .name .id}}[{{encodeDimsForPluginInstance .dimensions}}]">
+    ReportHost {{withDefault .reportHost "false"}}
+    Host "{{.host}}"
+    Port "{{.port}}"
+  </Instance>
+{{end}}
+</Plugin>

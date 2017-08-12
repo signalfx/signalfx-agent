@@ -42,6 +42,8 @@ import:
   version: 9aa7601a1185e3bc8a0d3f87b1a55b05df0102e4
   repo: https://github.com/sirupsen/logrus
   vcs: git
+- package: gopkg.in/yaml.v2
+  version: eb3733d160e74a9c7e442f435eb3bea458e1d19f
 - package: gopkg.in/fatih/set.v0
   version: ~0.1.0
 - package: github.com/pebbe/zmq4

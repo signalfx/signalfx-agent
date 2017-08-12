@@ -7,7 +7,7 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-// MetricFiltering describes a set of subtractive filters applied to datapoints
+// MetricFilter describes a set of subtractive filters applied to datapoints
 // right before they are sent.
 type MetricFilter struct {
 	// Can map to either a []string or simple string
@@ -17,6 +17,9 @@ type MetricFilter struct {
 	MonitorType string                 `yaml:"monitorType,omitempty"`
 }
 
+// ConvertDimensionsMapForSliceValues handles converting the Dimensions field
+// to a map[string][]string.  That field can be specified in yaml as either a
+// []string or plain string for flexibility.
 func (mf *MetricFilter) ConvertDimensionsMapForSliceValues() map[string][]string {
 	dims := make(map[string][]string)
 	for k, d := range mf.Dimensions {
@@ -41,6 +44,8 @@ func (mf *MetricFilter) ConvertDimensionsMapForSliceValues() map[string][]string
 	return dims
 }
 
+// ConvertMetricNameToSlice moves any single value in MetricName to MetricNames
+// so that filters can worry about only that field
 func (mf *MetricFilter) ConvertMetricNameToSlice() {
 	if mf.MetricName != "" {
 		mf.MetricNames = append(mf.MetricNames, mf.MetricName)

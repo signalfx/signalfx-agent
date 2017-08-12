@@ -3,7 +3,7 @@ package writer
 import (
 	"fmt"
 
-	. "github.com/logrusorgru/aurora"
+	au "github.com/logrusorgru/aurora"
 )
 
 func (s state) String() string {
@@ -20,7 +20,7 @@ func (s state) String() string {
 // human.
 func (sw *SignalFxWriter) DiagnosticText() string {
 	return fmt.Sprintf(
-		Bold("Writer Status:\n").String()+
+		au.Bold("Writer Status:\n").String()+
 			"State:                    %s\n"+
 			"DPs Sent:                 %d\n"+
 			"Events Sent:              %d\n"+
@@ -28,15 +28,15 @@ func (sw *SignalFxWriter) DiagnosticText() string {
 			"Events Buffered:          %d\n"+
 			"DPs Channel (len/cap) :   %d/%d\n"+
 			"Events Channel (len/cap): %d/%d\n",
-		Bold(sw.state.String()),
-		Bold(sw.dpsSent),
-		Bold(sw.eventsSent),
-		Bold(len(sw.dpBuffer)),
-		Bold(len(sw.eventBuffer)),
-		Bold(len(sw.dpChan)),
-		Bold(cap(sw.dpChan)),
-		Bold(len(sw.eventChan)),
-		Bold(cap(sw.eventChan)))
+		au.Bold(sw.state.String()),
+		au.Bold(sw.dpsSent),
+		au.Bold(sw.eventsSent),
+		au.Bold(len(sw.dpBuffer)),
+		au.Bold(len(sw.eventBuffer)),
+		au.Bold(len(sw.dpChan)),
+		au.Bold(cap(sw.dpChan)),
+		au.Bold(len(sw.eventChan)),
+		au.Bold(cap(sw.eventChan)))
 }
 
 //func (sw *SignalFxWriter) InternalDatapoints() []*datapoint.Datapoint {

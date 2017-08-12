@@ -57,7 +57,7 @@
   repo: signalfx/vmstat-collectd
 
 - name: health_checker
-  version: v0.0.1
+  version: multi-instance #v0.0.1
   repo: signalfx/collectd-health_checker
 
 #- name: timestats

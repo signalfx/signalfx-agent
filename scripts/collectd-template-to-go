@@ -15,6 +15,7 @@ package $package
 import "text/template"
 import "github.com/signalfx/neo-agent/monitors/collectd/templating"
 
+// CollectdTemplate is a template for a $package collectd config file
 var CollectdTemplate = template.Must(templating.InjectTemplateFuncs(template.New("$package")).Parse(\`
 $(cat $template_filename)
 \`)).Option("missingkey=error")

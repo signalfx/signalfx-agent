@@ -4,8 +4,10 @@ import (
 	"reflect"
 	"strings"
 
+	yaml "gopkg.in/yaml.v2"
+
 	"github.com/creasty/defaults"
-	"github.com/mitchellh/mapstructure"
+	"github.com/davecgh/go-spew/spew"
 	"github.com/signalfx/neo-agent/utils"
 	log "github.com/sirupsen/logrus"
 )
@@ -16,22 +18,18 @@ import (
 // an error since the user provided config that will not be used and probably
 // thought would.  Any errors decoding will cause `out` to be nil.
 func DecodeOtherConfig(in CustomConfigurable, out interface{}) error {
-	strictDecoder, err := mapstructure.NewDecoder(&mapstructure.DecoderConfig{
-		Metadata:    nil,
-		Result:      out,
-		ErrorUnused: true,
-	})
+	pkgPaths := strings.Split(reflect.Indirect(reflect.ValueOf(out)).Type().PkgPath(), "/")
+
+	otherYaml, err := yaml.Marshal(in.GetOtherConfig())
 	if err != nil {
 		return err
 	}
 
-	pkgPaths := strings.Split(reflect.Indirect(reflect.ValueOf(out)).Type().PkgPath(), "/")
-
-	err = strictDecoder.Decode(in.GetOtherConfig())
+	err = yaml.UnmarshalStrict(otherYaml, out)
 	if err != nil {
 		log.WithFields(log.Fields{
 			"package":     pkgPaths[len(pkgPaths)-1],
-			"otherConfig": in,
+			"otherConfig": spew.Sdump(in.GetOtherConfig()),
 			"error":       err,
 		}).Error("Invalid module-specific configuration")
 		return err
@@ -41,13 +39,14 @@ func DecodeOtherConfig(in CustomConfigurable, out interface{}) error {
 		log.WithFields(log.Fields{
 			"package": pkgPaths[len(pkgPaths)-1],
 			"error":   err,
+			"out":     spew.Sdump(out),
 		}).Error("Could not set defaults on module-specific config")
 		return err
 	}
 	return nil
 }
 
-// SetupConfigTemplate takes a config template value that a monitor/observer
+// FillInConfigTemplate takes a config template value that a monitor/observer
 // provided and fills it in dynamically from the provided conf
 func FillInConfigTemplate(embeddedFieldName string, configTemplate interface{}, conf CustomConfigurable) bool {
 	templateValue := reflect.ValueOf(configTemplate)

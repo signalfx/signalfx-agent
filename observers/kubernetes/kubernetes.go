@@ -5,13 +5,15 @@ import (
 	"crypto/x509"
 	"encoding/json"
 	"fmt"
-	log "github.com/sirupsen/logrus"
 	"io/ioutil"
 	"net/http"
 	"os"
 	"time"
 
+	log "github.com/sirupsen/logrus"
+
 	"github.com/signalfx/neo-agent/core/config"
+	"github.com/signalfx/neo-agent/core/services"
 	"github.com/signalfx/neo-agent/observers"
 )
 
@@ -28,27 +30,53 @@ const (
 
 var logger = log.WithFields(log.Fields{"observerType": observerType})
 
+// AuthType to use when connecting to kubelet
 type AuthType string
 
 const (
+	// AuthTypeNone means there is no authentication to kubelet
 	AuthTypeNone AuthType = "none"
-	AuthTypeTLS  AuthType = "tls"
+	// AuthTypeTLS indicates that client TLS auth is desired
+	AuthTypeTLS AuthType = "tls"
 )
 
+// Config for Kubernetes observer
 type Config struct {
 	config.ObserverConfig
-	PollIntervalSeconds int `default:"10"`
+	PollIntervalSeconds int `yaml:"pollIntervalSeconds" default:"10"`
 	KubeletAPI          struct {
-		URL            string   `yaml:"url,omitempty"`
-		AuthType       AuthType `default: "none"`
-		SkipVerify     bool     `default: "false"`
-		CACertPath     string   `yaml:"caCertPath,omitempty"`
-		ClientCertPath string
-		ClientKeyPath  string
-	}
+		URL            string   `yaml:"url"`
+		AuthType       AuthType `yaml:"authType" default:"none"`
+		SkipVerify     bool     `yaml:"skipVerify" default:"false"`
+		CACertPath     string   `yaml:"caCertPath"`
+		ClientCertPath string   `yaml:"clientCertPath"`
+		ClientKeyPath  string   `yaml:"clientKeyPath"`
+	} `yaml:"kubeletAPI" default:"{}"`
 }
 
-// Kubernetes observer plugin
+// Validate the observer-specific config
+func (c *Config) Validate() bool {
+	if c.PollIntervalSeconds < 1 {
+		logger.WithFields(log.Fields{
+			"pollIntervalSeconds": c.PollIntervalSeconds,
+		}).Error("pollIntervalSeconds must be greater than 0")
+		return false
+	}
+
+	if (c.KubeletAPI.CACertPath != "" ||
+		c.KubeletAPI.ClientCertPath != "" ||
+		c.KubeletAPI.ClientKeyPath != "") &&
+		c.KubeletAPI.AuthType != AuthTypeTLS {
+		logger.WithFields(log.Fields{
+			"kubeletAuthType": c.KubeletAPI.AuthType,
+		}).Warn("Kubelet TLS client auth config keys are set while authType is not 'tls'")
+		// Does not render invalid, but warn user nonetheless
+	}
+
+	return true
+}
+
+// Kubernetes observer
 type Kubernetes struct {
 	config           *Config
 	client           http.Client
@@ -72,7 +100,7 @@ type pods struct {
 				Ports []struct {
 					Name          string
 					ContainerPort uint16
-					Protocol      observers.PortType
+					Protocol      services.PortType
 				}
 			}
 		}
@@ -104,15 +132,6 @@ func (k *Kubernetes) Configure(config *Config) bool {
 			hostname = "localhost"
 		}
 		config.KubeletAPI.URL = fmt.Sprintf("https://%s:10250", hostname)
-	}
-
-	if (config.KubeletAPI.CACertPath != "" ||
-		config.KubeletAPI.ClientCertPath != "" ||
-		config.KubeletAPI.ClientKeyPath != "") &&
-		config.KubeletAPI.AuthType != AuthTypeTLS {
-		logger.WithFields(log.Fields{
-			"kubeletAuthType": config.KubeletAPI.AuthType,
-		}).Warn("Kubelet TLS client auth config keys are set while authType is not 'tls'")
 	}
 
 	certs, err := x509.SystemCertPool()
@@ -174,11 +193,8 @@ func (k *Kubernetes) Configure(config *Config) bool {
 		Transport: transport,
 	}
 
-	if config.PollIntervalSeconds < 1 {
-		logger.WithFields(log.Fields{
-			"pollIntervalSeconds": config.PollIntervalSeconds,
-		}).Error("pollIntervalSeconds must be greater than 0")
-		return false
+	if k.serviceDiffer != nil {
+		k.serviceDiffer.Stop()
 	}
 
 	k.serviceDiffer = &observers.ServiceDiffer{
@@ -213,14 +229,14 @@ func (k *Kubernetes) getPods() (*pods, error) {
 	}
 
 	// Load pods list.
-	pods, err := loadJson(body)
+	pods, err := loadJSON(body)
 	if err != nil {
 		return nil, fmt.Errorf("failed to load pods list: %s", err)
 	}
 	return pods, nil
 }
 
-func loadJson(body []byte) (*pods, error) {
+func loadJSON(body []byte) (*pods, error) {
 	pods := &pods{}
 	if err := json.Unmarshal(body, pods); err != nil {
 		return nil, err
@@ -229,8 +245,8 @@ func loadJson(body []byte) (*pods, error) {
 	return pods, nil
 }
 
-func (k *Kubernetes) discover() []*observers.ServiceInstance {
-	var instances []*observers.ServiceInstance
+func (k *Kubernetes) discover() []services.Endpoint {
+	var instances []services.Endpoint
 
 	pods, err := k.getPods()
 	if err != nil {
@@ -261,7 +277,7 @@ func (k *Kubernetes) discover() []*observers.ServiceInstance {
 				"kubernetes_pod_name":      pod.Metadata.Name,
 				"kubernetes_pod_namespace": pod.Metadata.Namespace,
 			}
-			orchestration := observers.NewOrchestration("kubernetes", observers.KUBERNETES, dims, observers.PRIVATE)
+			orchestration := services.NewOrchestration("kubernetes", services.KUBERNETES, dims, services.PRIVATE)
 
 			for _, port := range container.Ports {
 				for _, status := range pod.Status.ContainerStatuses {
@@ -277,17 +293,40 @@ func (k *Kubernetes) discover() []*observers.ServiceInstance {
 						continue
 					}
 
-					id := fmt.Sprintf("%p-%s-%d", k, pod.Metadata.Name, port.ContainerPort)
-					servicePort := observers.NewPort(port.Name, podIP, port.Protocol, port.ContainerPort, 0)
-					container := observers.NewContainer(status.ContainerID,
-						[]string{status.Name}, container.Image, pod.Metadata.Name, "",
-						containerState, pod.Metadata.Labels, pod.Metadata.Namespace)
-					instances = append(instances, observers.NewServiceInstance(id, container,
-						orchestration, servicePort, now()))
+					id := fmt.Sprintf("%s-%s-%d", pod.Metadata.Name, status.ContainerID[:12], port.ContainerPort)
+
+					endpoint := services.NewEndpointCore(id, port.Name, now())
+					endpoint.Host = podIP
+					endpoint.PortType = port.Protocol
+					endpoint.Port = port.ContainerPort
+
+					container := &services.Container{
+						ID:        status.ContainerID,
+						Names:     []string{status.Name},
+						Image:     container.Image,
+						Command:   "",
+						State:     containerState,
+						Labels:    pod.Metadata.Labels,
+						Pod:       pod.Metadata.Name,
+						Namespace: pod.Metadata.Namespace,
+					}
+					instances = append(instances, &services.ContainerEndpoint{
+						EndpointCore:  *endpoint,
+						AltPort:       0,
+						Container:     *container,
+						Orchestration: *orchestration,
+					})
 				}
 			}
 		}
 	}
 
 	return instances
+}
+
+// Shutdown the service differ routine
+func (k *Kubernetes) Shutdown() {
+	if k.serviceDiffer != nil {
+		k.serviceDiffer.Stop()
+	}
 }

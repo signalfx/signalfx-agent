@@ -1,7 +1,6 @@
 package kubernetes
 
 import (
-	"log"
 	"sort"
 	"time"
 
@@ -10,6 +9,7 @@ import (
 
 	"github.com/signalfx/golib/datapoint"
 	"github.com/signalfx/neo-agent/core/filters"
+	log "github.com/sirupsen/logrus"
 )
 
 // Kubernetes is distinct from the plugin type for less coupling to
@@ -107,8 +107,6 @@ func (km *Kubernetes) sendLatestDatapoints() {
 
 	dps := updateTimestamps(km.filterDatapoints(km.datapointCache.AllDatapoints()))
 
-	// This sends synchonously despite what the first param might seem to
-	// indicate
 	for i := range dps {
 		km.dpChan <- dps[i]
 	}
@@ -131,7 +129,7 @@ func (km *Kubernetes) isReporter() bool {
 	} else if km.thisPodName != "" {
 		agentPods, err := km.clusterState.GetAgentPods()
 		if err != nil {
-			log.Print("Unexpected error getting agent pods: ", err)
+			log.WithError(err).Error("Unexpected error getting agent pods")
 			return false
 		}
 
