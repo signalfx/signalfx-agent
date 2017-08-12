@@ -5,13 +5,15 @@ import (
 	"sync"
 
 	"github.com/pebbe/zmq4"
-	"github.com/signalfx/neo-agent/core/config"
+	"github.com/signalfx/neo-agent/core/config/types"
 	log "github.com/sirupsen/logrus"
 )
 
 const shutdownSocketPath = "ipc:///tmp/signalfx-shutdown.ipc"
 const shutdownTopic = "shutdown"
 
+// ShutdownRequest represents the message sent to python to tell it to shutdown
+// a monitor
 type ShutdownRequest struct {
 	MonitorID string `json:"monitor_id"`
 }
@@ -45,11 +47,11 @@ func (sq *ShutdownQueue) socketPath() string {
 	return shutdownSocketPath
 }
 
-func (sq *ShutdownQueue) sendShutdownForMonitor(monitorID config.MonitorID) bool {
+func (sq *ShutdownQueue) sendShutdownForMonitor(monitorID types.MonitorID) bool {
 	sq.mutex.Lock()
 	defer sq.mutex.Unlock()
 
-	reqJson, err := json.Marshal(ShutdownRequest{
+	reqJSON, err := json.Marshal(ShutdownRequest{
 		MonitorID: string(monitorID),
 	})
 	if err != nil {
@@ -60,11 +62,11 @@ func (sq *ShutdownQueue) sendShutdownForMonitor(monitorID config.MonitorID) bool
 		return false
 	}
 
-	_, err = sq.socket.SendMessage(shutdownTopic, reqJson)
+	_, err = sq.socket.SendMessage(shutdownTopic, reqJSON)
 	if err != nil {
 		log.WithFields(log.Fields{
 			"error":   err,
-			"reqJson": reqJson,
+			"reqJson": reqJSON,
 		}).Error("Could not send shutdown notice to neopy")
 		return false
 	}

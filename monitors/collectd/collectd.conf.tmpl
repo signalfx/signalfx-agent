@@ -183,4 +183,19 @@ LoadPlugin match_regex
 {{- end*/}}
 </Chain>
 
+<LoadPlugin "write_http">
+   FlushInterval 10
+</LoadPlugin>
+<Plugin "write_http">
+  <Node "SignalFx">
+    URL "{{.IngestURL}}/v1/collectd{{encodeDimsAsQueryString .GlobalDimensions}}"
+    User "auth"
+    Password "{{.SignalFxAccessToken}}"
+    Format "JSON"
+    Timeout 9000
+    BufferSize 65536
+    LogHttpError true
+  </Node>
+</Plugin>
+
 Include "/etc/collectd/managed_config/*.conf"

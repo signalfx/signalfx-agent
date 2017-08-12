@@ -7,7 +7,7 @@ import (
 	"github.com/signalfx/golib/datapoint"
 	"github.com/signalfx/golib/event"
 	"github.com/signalfx/neo-agent/core/config"
-	"github.com/signalfx/neo-agent/observers"
+	"github.com/signalfx/neo-agent/core/services"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -17,29 +17,15 @@ import (
 // rule (a "static" monitor), it will be started immediately (as soon as
 // Configure is called).
 type MonitorManager struct {
-	monitorConfigs []*config.MonitorConfig
+	monitorConfigs []config.MonitorCustomConfig
 	// Keep track of which services go with which monitor
 	activeMonitors []*ActiveMonitor
 	lock           sync.Mutex
 	// Map of services that are being actively monitored
-	discoveredServices map[observers.ServiceID]*observers.ServiceInstance
+	discoveredServices map[services.ID]services.Endpoint
 
-	DPChannel    chan<- *datapoint.Datapoint
-	EventChannel chan<- *event.Event
-}
-
-type ActiveMonitor struct {
-	instance   interface{}
-	config     *config.MonitorConfig
-	serviceSet map[observers.ServiceID]bool
-	// Is the monitor marked for deletion?
-	doomed bool
-}
-
-func (am *ActiveMonitor) Shutdown() {
-	if sh, ok := am.instance.(Shutdownable); ok {
-		sh.Shutdown()
-	}
+	dpChan    chan<- *datapoint.Datapoint
+	eventChan chan<- *event.Event
 }
 
 func (mm *MonitorManager) ensureInit() {
@@ -47,16 +33,21 @@ func (mm *MonitorManager) ensureInit() {
 		mm.activeMonitors = make([]*ActiveMonitor, 0)
 	}
 	if mm.discoveredServices == nil {
-		mm.discoveredServices = make(map[observers.ServiceID]*observers.ServiceInstance)
+		mm.discoveredServices = make(map[services.ID]services.Endpoint)
 	}
 }
 
+// Configure receives a list of monitor configurations.  It will start up any
+// static monitors and watch discovered services to see if any match dynamic
+// monitors.
 func (mm *MonitorManager) Configure(confs []config.MonitorConfig) {
 	mm.lock.Lock()
 	defer mm.lock.Unlock()
 
 	mm.ensureInit()
-	mm.monitorConfigs = make([]*config.MonitorConfig, 0, len(confs))
+	mm.monitorConfigs = make([]config.MonitorCustomConfig, 0, len(confs))
+
+	requireSoloTrue := anyMarkedSolo(confs)
 
 	// All monitors are marked for deletion at first.  They can be saved and
 	// reused by having a compatible config in the newly provided config
@@ -70,38 +61,44 @@ func (mm *MonitorManager) Configure(confs []config.MonitorConfig) {
 			continue
 		}
 
+		if requireSoloTrue && !conf.Solo {
+			log.Infof("Solo mode is active, skipping monitor of type %s", conf.Type)
+			continue
+		}
+
 		configMatchedActive := false
 		for i := range mm.activeMonitors {
 			am := mm.activeMonitors[i]
 			if am.doomed {
-				configEqual := reflect.DeepEqual(*am.config, *conf)
-				monitorsCompatible := am.config.Type == conf.Type && am.config.DiscoveryRule == conf.DiscoveryRule
+				coreConfig := am.config.CoreConfig()
+				configEqual := reflect.DeepEqual(coreConfig, *conf)
+				monitorsCompatible := coreConfig.Type == conf.Type && coreConfig.DiscoveryRule == conf.DiscoveryRule
 				if monitorsCompatible {
-					am.doomed = false
 					configMatchedActive = true
-
 					log.WithFields(log.Fields{
 						"configEqual":   configEqual,
-						"monitorType":   am.config.Type,
-						"discoveryRule": am.config.DiscoveryRule,
+						"monitorType":   coreConfig.Type,
+						"discoveryRule": coreConfig.DiscoveryRule,
 					}).Debug("Reconfiguration found a compatible monitor that will be reused")
 
 					if !configEqual {
-						am.config = conf
-						configureMonitor(am.instance, monConfig)
+						if !am.configureMonitor(monConfig) {
+							continue
+						}
 					}
+					am.doomed = false
 				}
 			}
 		}
 
 		// No discovery rule means that the monitor should run from the start
 		if conf.DiscoveryRule == "" && !configMatchedActive {
-			if mm.createAndConfigureNewMonitor(conf) == nil {
+			if mm.createAndConfigureNewMonitor(monConfig) == nil {
 				continue
 			}
 		}
 
-		mm.monitorConfigs = append(mm.monitorConfigs, conf)
+		mm.monitorConfigs = append(mm.monitorConfigs, monConfig)
 	}
 
 	mm.deleteDoomedMonitors()
@@ -110,6 +107,32 @@ func (mm *MonitorManager) Configure(confs []config.MonitorConfig) {
 		mm.findMonitorsForDiscoveredServices(mm.monitorConfigs[i])
 	}
 
+}
+
+// SetDPChannel allows you to inject a new datapoint channel to the manager and
+// have it propagated to all active monitors
+func (mm *MonitorManager) SetDPChannel(dpChan chan<- *datapoint.Datapoint) {
+	mm.lock.Lock()
+	defer mm.lock.Unlock()
+
+	mm.dpChan = dpChan
+
+	for i := range mm.activeMonitors {
+		mm.activeMonitors[i].injectDatapointChannelIfNeeded(dpChan)
+	}
+}
+
+// SetEventChannel allows you to inject a new event channel to the manager and
+// have it propagated to all active monitors
+func (mm *MonitorManager) SetEventChannel(eventChan chan<- *event.Event) {
+	mm.lock.Lock()
+	defer mm.lock.Unlock()
+
+	mm.eventChan = eventChan
+
+	for i := range mm.activeMonitors {
+		mm.activeMonitors[i].injectEventChannelIfNeeded(eventChan)
+	}
 }
 
 func (mm *MonitorManager) markAllMonitorsAsDoomed() {
@@ -126,8 +149,8 @@ func (mm *MonitorManager) deleteDoomedMonitors() {
 		if am.doomed {
 			log.WithFields(log.Fields{
 				"serviceSet":    am.serviceSet,
-				"monitorType":   am.config.Type,
-				"discoveryRule": am.config.DiscoveryRule,
+				"monitorType":   am.config.CoreConfig().Type,
+				"discoveryRule": am.config.CoreConfig().DiscoveryRule,
 			}).Debug("Shutting down doomed monitor")
 
 			am.Shutdown()
@@ -139,36 +162,31 @@ func (mm *MonitorManager) deleteDoomedMonitors() {
 	mm.activeMonitors = newActiveMonitors
 }
 
-// Does some reflection magic to pass the right type to the Configure method of
-// each monitor
-func configureMonitor(monitor interface{}, conf interface{}) bool {
-	return config.CallConfigure(monitor, conf)
-}
-
-func (mm *MonitorManager) findMonitorsForDiscoveredServices(conf *config.MonitorConfig) {
+func (mm *MonitorManager) findMonitorsForDiscoveredServices(conf config.MonitorCustomConfig) {
 	log.WithFields(log.Fields{
 		"discoveredServices": mm.discoveredServices,
 	}).Debug("Finding monitors for discovered services")
 
 	for _, service := range mm.discoveredServices {
 		log.WithFields(log.Fields{
-			"monitorType":   conf.Type,
-			"discoveryRule": conf.DiscoveryRule,
+			"monitorType":   conf.CoreConfig().Type,
+			"discoveryRule": conf.CoreConfig().DiscoveryRule,
 			"service":       service,
 		}).Debug("Trying to find config that matches discovered service")
 
 		if mm.monitorServiceIfRuleMatches(conf, service) {
 			log.WithFields(log.Fields{
-				"service":       service,
-				"monitorConfig": *conf,
+				"serviceID":   service.ID(),
+				"serviceHost": service.Hostname(),
+				"monitorType": conf.CoreConfig().Type,
 			}).Info("Now monitoring discovered service")
 		}
 	}
 }
 
 // Returns true is the service is now monitored
-func (mm *MonitorManager) monitorServiceIfRuleMatches(config *config.MonitorConfig, service *observers.ServiceInstance) bool {
-	if config.DiscoveryRule == "" || !doesServiceMatchRule(service, config.DiscoveryRule) {
+func (mm *MonitorManager) monitorServiceIfRuleMatches(config config.MonitorCustomConfig, service services.Endpoint) bool {
+	if config.CoreConfig().DiscoveryRule == "" || !services.DoesServiceMatchRule(service, config.CoreConfig().DiscoveryRule) {
 		return false
 	}
 	monitor := mm.ensureCompatibleServiceMonitorExists(config)
@@ -176,28 +194,27 @@ func (mm *MonitorManager) monitorServiceIfRuleMatches(config *config.MonitorConf
 		return false
 	}
 
-	if _, ok := monitor.serviceSet[service.ID]; ok {
+	if _, ok := monitor.serviceSet[service.ID()]; ok {
 		// Already monitoring this service so don't inject it again to the
 		// monitor
 		return true
 	}
 
-	if !injectServiceToMonitorInstance(monitor, service) {
+	if !monitor.injectServiceToMonitorInstance(service) {
 		monitor.doomed = true
 		mm.deleteDoomedMonitors()
 		return false
 	}
-
-	monitor.serviceSet[service.ID] = true
 	return true
 }
 
 // ServiceAdded should be called when a new service is discovered
-func (mm *MonitorManager) ServiceAdded(service *observers.ServiceInstance) {
+func (mm *MonitorManager) ServiceAdded(service services.Endpoint) {
 	mm.lock.Lock()
 	defer mm.lock.Unlock()
 
-	mm.discoveredServices[service.ID] = service
+	ensureProxyingDisabledForService(service)
+	mm.discoveredServices[service.ID()] = service
 
 	watching := false
 	for _, config := range mm.monitorConfigs {
@@ -206,22 +223,22 @@ func (mm *MonitorManager) ServiceAdded(service *observers.ServiceInstance) {
 
 	if !watching {
 		log.WithFields(log.Fields{
-			"service": *service,
+			"service": service,
 		}).Debug("Service added that doesn't match any discovery rules")
 	}
 }
 
 // This ensures a monitor for a particular discovery rule and type exists.  It
 // is not meant to be used for static monitors.
-func (mm *MonitorManager) ensureCompatibleServiceMonitorExists(config *config.MonitorConfig) *ActiveMonitor {
+func (mm *MonitorManager) ensureCompatibleServiceMonitorExists(config config.MonitorCustomConfig) *ActiveMonitor {
 	// See if we can find an existing compatible monitor
 	for i := range mm.activeMonitors {
 		am := mm.activeMonitors[i]
-		if am.config.Type == config.Type && am.config.DiscoveryRule == config.DiscoveryRule {
+		if am.config.CoreConfig().Type == config.CoreConfig().Type && am.config.CoreConfig().DiscoveryRule == config.CoreConfig().DiscoveryRule {
 			log.WithFields(log.Fields{
-				"monitorType":   config.Type,
-				"activeMonRule": am.config.DiscoveryRule,
-				"inputRule":     config.DiscoveryRule,
+				"monitorType":   config.CoreConfig().Type,
+				"activeMonRule": am.config.CoreConfig().DiscoveryRule,
+				"inputRule":     config.CoreConfig().DiscoveryRule,
 			}).Debug("Compatible monitor found, returning")
 
 			return am
@@ -232,111 +249,58 @@ func (mm *MonitorManager) ensureCompatibleServiceMonitorExists(config *config.Mo
 	return mm.createAndConfigureNewMonitor(config)
 }
 
-func (mm *MonitorManager) createAndConfigureNewMonitor(config *config.MonitorConfig) *ActiveMonitor {
-	instance := newMonitor(config.Type)
-
-	mm.injectDatapointChannelIfNeeded(instance)
-	mm.injectEventsChannelIfNeeded(instance)
-
-	monConfig := getCustomConfigForMonitor(config)
-	if monConfig == nil {
+func (mm *MonitorManager) createAndConfigureNewMonitor(config config.MonitorCustomConfig) *ActiveMonitor {
+	instance := newMonitor(config.CoreConfig().Type)
+	if instance == nil {
 		return nil
 	}
 
-	if !configureMonitor(instance, monConfig) {
-		return nil
-	}
 	am := &ActiveMonitor{
 		instance:   instance,
-		serviceSet: make(map[observers.ServiceID]bool),
-		config:     config,
+		serviceSet: make(map[services.ID]services.Endpoint),
+	}
+
+	am.injectDatapointChannelIfNeeded(mm.dpChan)
+	am.injectEventChannelIfNeeded(mm.eventChan)
+
+	if !am.configureMonitor(config) {
+		return nil
 	}
 	mm.activeMonitors = append(mm.activeMonitors, am)
 
 	log.WithFields(log.Fields{
-		"monitorType":   config.Type,
-		"discoveryRule": config.DiscoveryRule,
+		"monitorType":   config.CoreConfig().Type,
+		"discoveryRule": config.CoreConfig().DiscoveryRule,
 	}).Debug("Creating new monitor")
 
 	return am
 }
 
-// Sets the `DPs` field on a monitor if it is present to the datapoint channel.
-// Returns whether the field was actually set.
-func (mm *MonitorManager) injectDatapointChannelIfNeeded(instance interface{}) bool {
-	instanceValue := reflect.Indirect(reflect.ValueOf(instance))
-	dpsValue := instanceValue.FieldByName("DPs")
-	if !dpsValue.IsValid() {
-		return false
-	}
-	if dpsValue.Type() != reflect.ChanOf(reflect.SendDir, reflect.TypeOf(&datapoint.Datapoint{})) {
-		log.WithFields(log.Fields{
-			"pkgPath": instanceValue.Type().PkgPath(),
-		}).Error("Monitor instance has 'DPs' member but is not of type 'chan<- *datapoint.Datapoint'")
-		return false
-	}
-	dpsValue.Set(reflect.ValueOf(mm.DPChannel))
-
-	return true
-}
-
-// Sets the `Events` field on a monitor if it is present to the events channel.
-// Returns whether the field was actually set.
-func (mm *MonitorManager) injectEventsChannelIfNeeded(instance interface{}) bool {
-	instanceValue := reflect.Indirect(reflect.ValueOf(instance))
-	eventsValue := instanceValue.FieldByName("Events")
-	if !eventsValue.IsValid() {
-		return false
-	}
-
-	if eventsValue.Type() != reflect.ChanOf(reflect.SendDir, reflect.TypeOf(&event.Event{})) {
-		log.WithFields(log.Fields{
-			"pkgPath": instanceValue.Type().PkgPath(),
-		}).Error("Monitor instance has 'Events' member but is not of type 'chan<- *event.Event'")
-		return false
-	}
-	eventsValue.Set(reflect.ValueOf(mm.EventChannel))
-
-	return true
-}
-
-func injectServiceToMonitorInstance(monitor *ActiveMonitor, service *observers.ServiceInstance) bool {
-	if inst, ok := monitor.instance.(InjectableMonitor); ok {
-		inst.AddService(service)
-		return true
-	}
-
-	log.WithFields(log.Fields{
-		"monitor": monitor.instance,
-	}).Error("Monitor does not provide the service injection methods!")
-	return false
-}
-
-func (mm *MonitorManager) monitorsForServiceID(id observers.ServiceID) (out []*ActiveMonitor) {
+func (mm *MonitorManager) monitorsForServiceID(id services.ID) (out []*ActiveMonitor) {
 	for i := range mm.activeMonitors {
-		if mm.activeMonitors[i].serviceSet[id] {
+		if mm.activeMonitors[i].serviceSet[id] != nil {
 			out = append(out, mm.activeMonitors[i])
 		}
 	}
 	return // Named return value
 }
 
-func (mm *MonitorManager) ServiceRemoved(service *observers.ServiceInstance) {
+// ServiceRemoved should be called by observers when a service endpoint was
+// removed.
+func (mm *MonitorManager) ServiceRemoved(service services.Endpoint) {
 	mm.lock.Lock()
 	defer mm.lock.Unlock()
 
-	delete(mm.discoveredServices, service.ID)
+	delete(mm.discoveredServices, service.ID())
 
-	monitors := mm.monitorsForServiceID(service.ID)
+	monitors := mm.monitorsForServiceID(service.ID())
 	for _, am := range monitors {
-		removeServiceFromMonitor(am, service)
-
-		delete(am.serviceSet, service.ID)
+		am.removeServiceFromMonitor(service)
 
 		if len(am.serviceSet) == 0 {
 			log.WithFields(log.Fields{
-				"monitorType":   am.config.Type,
-				"discoveryRule": am.config.DiscoveryRule,
+				"monitorType":   am.config.CoreConfig().Type,
+				"discoveryRule": am.config.CoreConfig().DiscoveryRule,
 			}).Info("Monitor no longer has active services, shutting down")
 
 			am.doomed = true
@@ -345,27 +309,16 @@ func (mm *MonitorManager) ServiceRemoved(service *observers.ServiceInstance) {
 	mm.deleteDoomedMonitors()
 
 	log.WithFields(log.Fields{
-		"service": *service,
+		"service": service,
 	}).Info("No longer monitoring service")
 }
 
-func removeServiceFromMonitor(monitor *ActiveMonitor, service *observers.ServiceInstance) bool {
-	if inst, ok := monitor.instance.(InjectableMonitor); ok {
-		inst.RemoveService(service)
-		return true
-	}
-
-	log.WithFields(log.Fields{
-		"service": service,
-	}).Error("Monitor does not provide the service injection methods!")
-	return false
-}
-
-func (mm *MonitorManager) isServiceMonitored(service *observers.ServiceInstance) bool {
-	monitors := mm.monitorsForServiceID(service.ID)
+func (mm *MonitorManager) isServiceMonitored(service services.Endpoint) bool {
+	monitors := mm.monitorsForServiceID(service.ID())
 	return len(monitors) > 0
 }
 
+// Shutdown will shutdown all managed monitors and deinitialize the manager.
 func (mm *MonitorManager) Shutdown() {
 	mm.lock.Lock()
 	defer mm.lock.Unlock()

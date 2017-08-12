@@ -1,19 +1,24 @@
-// Observers are what observe the environment to discover running services. An
-// Observer only has to implement one method, Configure, which receives the
-// configuration for that observer.  That Configure method might be called
-// multiple times, so an observer should be prepared for its config to change
-// and take appropriate steps.
+// Package observers contains the core logic for observers, which are what
+// observe the environment to discover running services. An Observer only has
+// to implement one method, Configure, which receives the configuration for
+// that observer.  That Configure method might be called multiple times, so an
+// observer should be prepared for its config to change and take appropriate
+// steps.
 //
-// The ultimate output of an observer are ServiceInstances, which represent the
-// discovered services.
+// The ultimate output of an observer are objects that implement
+// services.Endpoint, which represent the discovered service endpoints.
 package observers
 
 import (
 	"github.com/signalfx/neo-agent/core/config"
+	"github.com/signalfx/neo-agent/core/services"
 	"github.com/signalfx/neo-agent/utils"
 	log "github.com/sirupsen/logrus"
 )
 
+// Shutdownable describes an observer that has a shutdown routine.  Observers
+// should implement this if they spin up any goroutines that need to be
+// stopped.
 type Shutdownable interface {
 	Shutdown()
 }
@@ -44,8 +49,8 @@ func Register(_type string, factory ObserverFactory, configTemplate interface{})
 // ServiceCallbacks are a set of functions that the observers call upon
 // detecting new services and disappearing services.
 type ServiceCallbacks struct {
-	Added   func(*ServiceInstance)
-	Removed func(*ServiceInstance)
+	Added   func(services.Endpoint)
+	Removed func(services.Endpoint)
 }
 
 func configureObserver(observer interface{}, conf *config.ObserverConfig) bool {
@@ -57,6 +62,10 @@ func configureObserver(observer interface{}, conf *config.ObserverConfig) bool {
 
 	config.FillInConfigTemplate("ObserverConfig", finalConfig, conf)
 	if finalConfig == nil {
+		return false
+	}
+
+	if !config.ValidateCustomConfig(finalConfig) {
 		return false
 	}
 

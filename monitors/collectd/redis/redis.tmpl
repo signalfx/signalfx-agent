@@ -3,12 +3,12 @@ LoadPlugin "python"
   ModulePath "{{Globals.PluginRoot}}/redis"
 
   Import "redis_info"
-  {{range $service := .GetServices}}
+  {{range $endpoint := .Endpoints}}
       <Module redis_info>
-        Host "{{$service.Host}}"
-        Port {{$service.PreferredPort}}
-        Instance "{{$service.ID}}[{{EncodeDimsForPluginInstance $.GetDimensions}}]"
-        {{with $.auth}}
+        Host "{{.host}}"
+        Port {{.port}}
+        Instance "{{withDefault .name .id}}[{{encodeDimsForPluginInstance .dimensions}}]"
+        {{with .auth}}
         Auth "{{.}}"
         {{end}}
         Verbose false

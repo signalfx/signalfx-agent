@@ -1,5 +1,5 @@
-// A custom collectd plugin monitor, for which you can specify your own config
-// template and parameters.
+// Package custom contains a custom collectd plugin monitor, for which you can
+// specify your own config template and parameters.
 package custom
 
 import (
@@ -18,19 +18,21 @@ const monitorType = "collectd/custom"
 
 func init() {
 	monitors.Register(monitorType, func() interface{} {
-		return &CustomMonitor{
+		return &Monitor{
 			ServiceMonitorCore: *collectd.NewServiceMonitorCore(template.New("custom")),
 		}
 	}, &Config{})
 }
 
+// Config is the configuration for the collectd custom monitor
 type Config struct {
 	config.MonitorConfig
-	TemplateText    string
-	TemplatePath    string
-	TemplateContext map[string]interface{}
+	TemplateText    string                 `yaml:"templateText,omitempty"`
+	TemplatePath    string                 `yaml:"templatePath,omitempty"`
+	TemplateContext map[string]interface{} `yaml:"templateContext"`
 }
 
+// Validate will check the config that is specific to this monitor
 func (c *Config) Validate() bool {
 	if (c.TemplateText == "") == (c.TemplatePath == "") {
 		log.WithFields(log.Fields{
@@ -74,20 +76,24 @@ func templateFromText(templateText string) *template.Template {
 		log.WithFields(log.Fields{
 			"monitorType":  monitorType,
 			"templateText": templateText,
+			"error":        err,
 		}).Error("Template text failed to parse!")
 		return nil
 	}
 	return template
 }
 
-type CustomMonitor struct {
+// Monitor is the core monitor object that gets instantiated by the agent
+type Monitor struct {
 	collectd.ServiceMonitorCore
 	// Used to stop watching if we are loading the template from a path
 	stopWatchCh chan struct{}
 	lock        sync.Mutex
 }
 
-func (cm *CustomMonitor) Configure(conf *Config) bool {
+// Configure will render the custom collectd config and queue a collectd
+// restart.
+func (cm *Monitor) Configure(conf *Config) bool {
 	cm.lock.Lock()
 	defer cm.lock.Unlock()
 
@@ -103,10 +109,10 @@ func (cm *CustomMonitor) Configure(conf *Config) bool {
 		return cm.watchTemplatePath(conf)
 	}
 
-	return cm.SetConfigurationAndRun(conf.MonitorConfig)
+	return cm.SetConfigurationAndRun(&conf.MonitorConfig, nil)
 }
 
-func (cm *CustomMonitor) watchTemplatePath(conf *Config) bool {
+func (cm *Monitor) watchTemplatePath(conf *Config) bool {
 	templateLoads, stopWatch, err := conf.MetaStore.WatchPath(conf.TemplatePath)
 	if err != nil {
 		log.WithFields(log.Fields{
@@ -131,7 +137,7 @@ func (cm *CustomMonitor) watchTemplatePath(conf *Config) bool {
 				if cm.Template == nil {
 					continue
 				}
-				cm.SetConfigurationAndRun(conf.MonitorConfig)
+				cm.SetConfigurationAndRun(&conf.MonitorConfig, nil)
 
 				cm.lock.Unlock()
 			}
@@ -140,7 +146,8 @@ func (cm *CustomMonitor) watchTemplatePath(conf *Config) bool {
 	return true
 }
 
-func (cm *CustomMonitor) Shutdown() {
+// Shutdown stops the file watching if using a template path
+func (cm *Monitor) Shutdown() {
 	if cm.stopWatchCh != nil {
 		cm.stopWatchCh <- struct{}{}
 	}

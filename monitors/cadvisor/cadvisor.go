@@ -14,7 +14,7 @@ import (
 )
 
 const (
-	_type = "monitors/cadvisor"
+	_type = "cadvisor"
 )
 
 var logger = log.WithFields(log.Fields{"monitorType": _type})
@@ -23,23 +23,17 @@ func init() {
 	monitors.Register(_type, func() interface{} { return &Cadvisor{} }, &Config{})
 }
 
+// Config that is specific to the cAdvisor monitor
 type Config struct {
 	config.MonitorConfig
-	CAdvisorURL     string
-	ExcludedLabels  [][]string
-	ExcludedImages  []string
-	ExcludedNames   []string
-	ExcludedMetrics []string
-
-	KubernetesAPI struct {
-		AuthType       string `default:"serviceAccount"`
-		ClientCertPath string
-		ClientKeyPath  string
-		CACertPath     string `yaml:"caCertPath,omitempty"`
-	} `yaml:"kubernetesAPI"`
+	CAdvisorURL     string     `yaml:"cadvisorURL" default:"http://localhost:4194"`
+	ExcludedLabels  [][]string `yaml:"excludedLabels"`
+	ExcludedImages  []string   `yaml:"excludedImages"`
+	ExcludedNames   []string   `yaml:"excludedNames"`
+	ExcludedMetrics []string   `yaml:"excludedMetrics"`
 }
 
-// Cadvisor plugin struct
+// Cadvisor pulls metrics from the cAdvisor endpoint
 type Cadvisor struct {
 	config  *Config
 	lock    sync.Mutex
@@ -122,6 +116,8 @@ func (c *Cadvisor) Configure(conf *Config) bool {
 	// Stop if cadvisor was previously running
 	c.Shutdown()
 
+	c.config = conf
+
 	c.stop = nil
 	c.stopped = nil
 
@@ -151,8 +147,6 @@ func (c *Cadvisor) Configure(conf *Config) bool {
 		log.Errorf("monitoring cadvisor node failed: %s", err)
 		return false
 	}
-
-	c.config = conf
 
 	return true
 }

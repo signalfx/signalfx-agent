@@ -1,5 +1,5 @@
-// Logic for generic access to various configuration sources (e.g. filesystem,
-// zookeeper, etc.).
+// Package stores holds logic for generic access to various configuration
+// sources (e.g. filesystem, zookeeper, etc.).
 package stores
 
 import (
@@ -19,12 +19,12 @@ import (
 
 // MetaStore is a higher-order store that delegates to the appropriate store implementation
 type MetaStore struct {
-	stores map[string]source
+	stores map[string]Source
 }
 
 // NewMetaStore creates a new metastore instance with a default filesystem source
 func NewMetaStore() *MetaStore {
-	store := &MetaStore{map[string]source{
+	store := &MetaStore{map[string]Source{
 		"file": file.New(),
 	}}
 
@@ -45,7 +45,7 @@ func (ms *MetaStore) ConfigureFromEnv() {
 }
 
 // Configure a metastore and the associated sub-stores.
-func (s *MetaStore) Configure(conf map[string]map[string]interface{}) error {
+func (ms *MetaStore) Configure(conf map[string]map[string]interface{}) error {
 	for name, storeConf := range conf {
 		switch name {
 		case "filesystem":
@@ -58,8 +58,8 @@ func (s *MetaStore) Configure(conf map[string]map[string]interface{}) error {
 				return err
 			}
 			// TODO: reconfigure if already present
-			if _, ok := s.stores[name]; !ok {
-				s.stores[name] = file.New()
+			if _, ok := ms.stores[name]; !ok {
+				ms.stores[name] = file.New()
 			}
 		case "zookeeper":
 			log.Debug("Configuring zookeeper store")
@@ -70,7 +70,7 @@ func (s *MetaStore) Configure(conf map[string]map[string]interface{}) error {
 			if err := mapstructure.Decode(storeConf, &zk); err != nil {
 				return err
 			}
-			if _, ok := s.stores[name]; !ok {
+			if _, ok := ms.stores[name]; !ok {
 				// TODO: reconfigure
 				log.Infof("Added new store for %s", name)
 				config := store.Config{}
@@ -98,7 +98,7 @@ func (s *MetaStore) Configure(conf map[string]map[string]interface{}) error {
 				if err != nil {
 					return err
 				}
-				s.stores[name] = store
+				ms.stores[name] = store
 			}
 
 		default:
@@ -109,9 +109,9 @@ func (s *MetaStore) Configure(conf map[string]map[string]interface{}) error {
 	return nil
 }
 
-// Get returns a source instance and the parsed out path if it's valid and
-// the source exists, otherwise err is set
-func (s *MetaStore) GetSourceAndPath(uri string) (source source, path string, err error) {
+// GetSourceAndPath returns a source instance and the parsed out path if it's
+// valid and the source exists, otherwise err is set
+func (ms *MetaStore) GetSourceAndPath(uri string) (source Source, path string, err error) {
 	u, err := url.Parse(uri)
 	if err != nil {
 		return nil, "", err
@@ -122,7 +122,7 @@ func (s *MetaStore) GetSourceAndPath(uri string) (source source, path string, er
 		scheme = filesystemScheme
 	}
 
-	if s, ok := s.stores[scheme]; ok {
+	if s, ok := ms.stores[scheme]; ok {
 		if u.Host != "" {
 			return s, u.Host + u.Path, nil
 		}
@@ -134,8 +134,8 @@ func (s *MetaStore) GetSourceAndPath(uri string) (source source, path string, er
 }
 
 // Close closes all the underlying sources
-func (s *MetaStore) Close() {
-	for _, source := range s.stores {
+func (ms *MetaStore) Close() {
+	for _, source := range ms.stores {
 		source.Close()
 	}
 }

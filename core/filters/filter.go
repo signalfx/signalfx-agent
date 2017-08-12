@@ -1,6 +1,6 @@
-// A filter is what filters out unwanted metrics.  It is configured from the
-// agent configuration file and is intended to be passed into each monitor for
-// use if it sends datapoints on its own..
+// Package filters has logic describing the filtering of unwanted metrics.  Filters
+// are configured from the agent configuration file and is intended to be passed
+// into each monitor for use if it sends datapoints on its own.
 package filters
 
 import (
@@ -10,7 +10,18 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-type Filter struct {
+// Filter describes any datapoint filter
+type Filter interface {
+	// Matches takes a datapoint and returns whether it is matched by the
+	// filter
+	Matches(*datapoint.Datapoint) bool
+}
+
+// BasicFilter is an exclusionary filter that is designed to filter SignalFx
+// datapoint objects.  It can filter based on the monitor type, dimensions, or
+// the metric name.  It supports both static, globbed, and regex patterns for
+// filter values.
+type BasicFilter struct {
 	monitorType string
 	// These are all exclusion filters
 	staticDimensionSet map[string]bool
@@ -19,7 +30,8 @@ type Filter struct {
 	metricRegexps      []*regexp.Regexp
 }
 
-func New(monitorType string, metricNames []string, dimensions map[string][]string) *Filter {
+// New returns a new filter with the given configuration
+func New(monitorType string, metricNames []string, dimensions map[string][]string) *BasicFilter {
 	staticDimensionSet := make(map[string]bool)
 	dimensionRegexps := make(map[string][]*regexp.Regexp)
 
@@ -81,7 +93,7 @@ func New(monitorType string, metricNames []string, dimensions map[string][]strin
 		}
 	}
 
-	return &Filter{
+	return &BasicFilter{
 		staticMetricSet:    staticMetricSet,
 		dimensionRegexps:   dimensionRegexps,
 		staticDimensionSet: staticDimensionSet,
@@ -93,7 +105,10 @@ func dimKeyName(dimName, value string) string {
 	return dimName + ":" + value
 }
 
-func (f *Filter) Matches(dp *datapoint.Datapoint) bool {
+// Matches tests a datapoint to see whether it is excluded by this filter.  In
+// order to match on monitor type, the datapoint should have the "monitorType"
+// key set in it's Meta field.
+func (f *BasicFilter) Matches(dp *datapoint.Datapoint) bool {
 	if f.monitorType != "" && dp.Meta["monitorType"] != f.monitorType {
 		return false
 	}

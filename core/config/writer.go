@@ -6,6 +6,7 @@ import (
 	"github.com/signalfx/neo-agent/core/filters"
 )
 
+// WriterConfig holds configuration for the datapoint writer.
 type WriterConfig struct {
 	// These are soft limits and affect how much memory will be initially
 	// allocated for datapoints, not the maximum memory allowed.

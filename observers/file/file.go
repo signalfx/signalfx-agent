@@ -1,6 +1,6 @@
-// This observer is primarily meant for development and test purposes.  It will
-// watch a json file, which should consist of an array of serialized service
-// instances.
+// Package file is a file-based observer that is primarily meant for
+// development and test purposes.  It will watch a json file, which should
+// consist of an array of serialized service instances.
 package file
 
 import (
@@ -9,6 +9,7 @@ import (
 	"os"
 
 	"github.com/signalfx/neo-agent/core/config"
+	"github.com/signalfx/neo-agent/core/services"
 	"github.com/signalfx/neo-agent/observers"
 	log "github.com/sirupsen/logrus"
 )
@@ -19,6 +20,7 @@ const (
 
 var logger = log.WithFields(log.Fields{"observerType": observerType})
 
+// Config for the file observer
 type Config struct {
 	config.ObserverConfig
 	Path string `default:"/etc/signalfx/service_instances.json"`
@@ -42,6 +44,11 @@ func init() {
 // Configure the docker client
 func (file *File) Configure(config *Config) bool {
 	file.config = config
+
+	if file.serviceDiffer != nil {
+		file.serviceDiffer.Stop()
+	}
+
 	file.serviceDiffer = &observers.ServiceDiffer{
 		DiscoveryFn:     file.discover,
 		IntervalSeconds: 5,
@@ -49,16 +56,16 @@ func (file *File) Configure(config *Config) bool {
 	}
 	file.serviceDiffer.Start()
 
-	return file.config == nil
+	return true
 }
 
 // Discover services from a file
-func (file *File) discover() []*observers.ServiceInstance {
+func (file *File) discover() []services.Endpoint {
 	if _, err := os.Stat(file.config.Path); err != nil {
 		return nil
 	}
 
-	var instances []*observers.ServiceInstance
+	var instances []*services.ContainerEndpoint
 
 	jsonContent, err := ioutil.ReadFile(file.config.Path)
 	if err != nil {
@@ -76,9 +83,16 @@ func (file *File) discover() []*observers.ServiceInstance {
 		}).Error("Could not parse service json")
 	}
 
-	return instances
+	var out []services.Endpoint
+	for i := range instances {
+		out = append(out, services.Endpoint(instances[i]))
+	}
+	return out
 }
 
+// Shutdown the service differ routine
 func (file *File) Shutdown() {
-	file.serviceDiffer.Stop()
+	if file.serviceDiffer != nil {
+		file.serviceDiffer.Stop()
+	}
 }

@@ -1,5 +1,5 @@
-hash: c9a30a884826a4adfab9491a1bab2d8a1f31314b5a58fad1963643ef8e46c6be
-updated: 2017-08-05T11:43:19.246212775-04:00
+hash: 4000be77adc98149a1f66ccfe05075221642f468534d119ab151b5ac41f7ffe9
+updated: 2017-08-12T16:55:58.535591765Z
 imports:
 - name: github.com/blang/semver
   version: aea32c919a18e5ef4537bbd283ff29594b1b0165
@@ -133,7 +133,7 @@ imports:
   - jlexer
   - jwriter
 - name: github.com/mattn/go-colorable
-  version: 5ffa492f0a052801e332fdc7eb2ad8dcac2d1aa4
+  version: 6c0fd4aa6ec5818d5e3ea9e03ae436972a6c5a9a
 - name: github.com/mattn/go-isatty
   version: fc9e8d8ef48496124e79ae0df75490096eccf6fe
 - name: github.com/mgutz/ansi
@@ -236,12 +236,12 @@ imports:
   - protocol/collectd
   - protocol/filtering
   - protocol/signalfx
+- name: github.com/sirupsen/logrus
+  version: 9aa7601a1185e3bc8a0d3f87b1a55b05df0102e4
 - name: github.com/Sirupsen/logrus
   version: 9aa7601a1185e3bc8a0d3f87b1a55b05df0102e4
   repo: https://github.com/sirupsen/logrus
   vcs: git
-- name: github.com/sirupsen/logrus
-  version: 9aa7601a1185e3bc8a0d3f87b1a55b05df0102e4
 - name: github.com/spf13/afero
   version: 9be650865eab0c12963d8753212f4f9c66cdcf12
   subpackages:
@@ -259,7 +259,11 @@ imports:
   subpackages:
   - codec
 - name: github.com/x-cray/logrus-prefixed-formatter
-  version: 3abfd71dc493273c45baaef839877f9625ed9d4b
+  version: bb2702d423886830dee131692131d35648c382e2
+- name: golang.org/x/crypto
+  version: d172538b2cfce0c13cee31e647d0367aa8cd2486
+  subpackages:
+  - ssh/terminal
 - name: golang.org/x/net
   version: 5627bad10b821d907ac4dc81fb3535ec7dd81c2b
   subpackages:
@@ -334,7 +338,7 @@ imports:
 - name: gopkg.in/stack.v1
   version: ac4c579c437a23e1a15814c867ccb82122fb383b
 - name: gopkg.in/yaml.v2
-  version: 53feefa2559fb8dfa8d81baad31be332c97d6c77
+  version: eb3733d160e74a9c7e442f435eb3bea458e1d19f
 - name: k8s.io/client-go
   version: e121606b0d09b2e1c467183ee46217fa85a6b672
   subpackages:

@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/kr/pretty"
+	"github.com/signalfx/neo-agent/core/services"
 	"github.com/signalfx/neo-agent/neotest"
 	"github.com/spf13/viper"
 )
@@ -53,7 +54,7 @@ func Test_load(t *testing.T) {
 
 func TestKubernetes_doMap(t *testing.T) {
 	var running, nonRunningContainer *pods
-	var expected services.Instances
+	var expected services.Endpoints
 	neotest.LoadJSON(t, "testdata/pods.json", &running)
 	neotest.LoadJSON(t, "testdata/pods.json", &nonRunningContainer)
 	neotest.LoadJSON(t, "testdata/2-discovered.json", &expected)
@@ -81,14 +82,14 @@ func TestKubernetes_doMap(t *testing.T) {
 		hostURL string
 	}
 	type args struct {
-		sis  services.Instances
+		sis  services.Endpoints
 		pods *pods
 	}
 	tests := []struct {
 		name     string
 		instance *Kubernetes
 		args     args
-		want     services.Instances
+		want     services.Endpoints
 		wantErr  bool
 	}{
 		{"zero instances", kub, args{nil, &pods{}}, nil, false},

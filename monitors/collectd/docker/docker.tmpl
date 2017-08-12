@@ -1,0 +1,78 @@
+TypesDB "{{Globals.PluginRoot}}/docker/dockerplugin.db"
+LoadPlugin "python"
+
+<Plugin python>
+  ModulePath "{{Globals.PluginRoot}}/docker"
+  Import "dockerplugin"
+
+  {{range .Endpoints}}
+  <Module dockerplugin>
+    Interval {{$.IntervalSeconds}}
+    BaseURL "{{.dockerURL}}"
+    Timeout 30
+    Verbose false
+    {{range $key, $value := .dimensions -}}
+    Dimension "{{$key}}" "{{$value}}"
+    {{end -}}
+  {{with .excludedImages}}
+    {{range $image := . -}}
+    ExcludeImage "{{$image}}"
+    {{end -}}
+  {{end}}
+  {{with .excludedNames}}
+    {{range .excludedNames -}}
+    ExcludeName "{{.}}"
+    {{end -}}
+  {{end -}}
+  {{with .excludedLabels}}
+    {{range .excludedLabels -}}
+    ExcludeLabel {{range $elem := .}}"{{$elem}}" {{end}} 
+    {{end -}}
+  {{end -}}
+  </Module>
+  {{end}}
+
+</Plugin>
+
+LoadPlugin match_regex
+<Chain "PostCache">
+  <Rule>
+    <Match "regex">
+      Plugin "^docker$"
+    </Match>
+    <Target "jump">
+      Chain "FilterOutDetailedDockerStats"
+    </Target>
+  </Rule>
+
+  Target "write"
+</Chain>
+<Chain "FilterOutDetailedDockerStats">
+  <Rule "CpuUsage">
+    <Match "regex">
+      Type "^cpu.usage$"
+    </Match>
+    Target "return"
+  </Rule>
+  <Rule "MemoryUsage">
+    <Match "regex">
+      Type "^memory.usage$"
+    </Match>
+    Target "return"
+  </Rule>
+  <Rule "NetworkUsage">
+    <Match "regex">
+      Type "^network.usage$"
+    </Match>
+    Target "return"
+  </Rule>
+  <Rule "BlockIO">
+    <Match "regex">
+      Type "^blkio$"
+      TypeInstance "^io_service_bytes_recursive*"
+    </Match>
+    Target "return"
+  </Rule>
+
+  Target "stop"
+</Chain>

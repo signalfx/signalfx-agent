@@ -7,7 +7,7 @@ import (
 
 	yaml "gopkg.in/yaml.v2"
 
-	. "github.com/logrusorgru/aurora"
+	au "github.com/logrusorgru/aurora"
 	"github.com/signalfx/neo-agent/core/config"
 	"github.com/signalfx/neo-agent/utils"
 	log "github.com/sirupsen/logrus"
@@ -51,9 +51,9 @@ func (a *Agent) serveDiagnosticInfo() error {
 // DiagnosticText returns a simple textual output of the agent's status
 func (a *Agent) DiagnosticText() string {
 	return fmt.Sprintf(
-		Bold("NeoAgent Status").String()+
+		au.Bold("NeoAgent Status").String()+
 			"\n===============\n"+
-			Bold("\nAgent Configuration:").String()+
+			au.Bold("\nAgent Configuration:").String()+
 			"\n%s\n\n"+
 			"%s\n"+
 			"%s\n"+

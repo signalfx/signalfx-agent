@@ -1,6 +1,8 @@
-// The writer is responsible for sending datapoints and events to SignalFx
-// ingest.  Ideally all data would flow through here, but right now a lot of it
-// is written to ingest by collectd.
+// Package writer contains the SignalFx writer.  The writer is responsible for
+// sending datapoints and events to SignalFx ingest.  Ideally all data would
+// flow through here, but right now a lot of it is written to ingest by
+// collectd.
+//
 // The writer provides a channel that all monitors can submit datapoints on.
 // All monitors should include the "monitorType" key in the `Meta` map of the
 // datapoint for use in filtering.
@@ -30,6 +32,9 @@ const (
 	listening
 )
 
+// SignalFxWriter is what sends events and datapoints to SignalFx ingest.  It
+// receives events/datapoints on two buffered channels and writes them to
+// SignalFx on a regular interval.
 type SignalFxWriter struct {
 	client *sfxclient.HTTPSink
 	// Monitors should send datapoints to this
@@ -50,6 +55,7 @@ type SignalFxWriter struct {
 	eventsSent  uint64
 }
 
+// New creates a new un-configured writer
 func New() *SignalFxWriter {
 	return &SignalFxWriter{
 		state:  stopped,
@@ -57,6 +63,8 @@ func New() *SignalFxWriter {
 	}
 }
 
+// Configure configures and starts up a routine that writes any datapoints or
+// events that come in on the exposed channels.
 func (sw *SignalFxWriter) Configure(conf *config.WriterConfig) bool {
 	sw.lock.Lock()
 	defer sw.lock.Unlock()
@@ -97,7 +105,7 @@ func (sw *SignalFxWriter) filterAndSendDatapoints(dps []*datapoint.Datapoint) er
 
 	// This sends synchonously despite what the first param might seem to
 	// indicate
-	err := sw.client.AddDatapoints(context.Background(), dps)
+	err := sw.client.AddDatapoints(context.Background(), finalDps)
 	if err != nil {
 		log.WithFields(log.Fields{
 			"error": err,
@@ -106,6 +114,7 @@ func (sw *SignalFxWriter) filterAndSendDatapoints(dps []*datapoint.Datapoint) er
 		return err
 	}
 	sw.dpsSent += uint64(len(dps))
+	log.Infof("Sending %d datapoints to SignalFx", len(dps))
 	return nil
 }
 
@@ -119,11 +128,21 @@ func (sw *SignalFxWriter) addGlobalDimsToDatapoint(dp *datapoint.Datapoint) {
 	}
 }
 
+// DPChannel returns a channel that datapoints can be fed into that will be
+// sent to SignalFx ingest.
 func (sw *SignalFxWriter) DPChannel() chan<- *datapoint.Datapoint {
+	if sw.dpChan == nil {
+		panic("You must call Configure on the writer before getting the datapoint channel")
+	}
 	return sw.dpChan
 }
 
+// EventChannel returns a channel that events can be fed into that will be
+// sent to SignalFx ingest.
 func (sw *SignalFxWriter) EventChannel() chan<- *event.Event {
+	if sw.dpChan == nil {
+		panic("You must call Configure on the writer before getting the event channel")
+	}
 	return sw.eventChan
 }
 
@@ -181,6 +200,7 @@ func (sw *SignalFxWriter) listenForDatapoints() {
 
 		case <-dpTicker.C:
 			if len(sw.dpBuffer) > 0 {
+				log.Infof("Sending %d datapoints to SignalFx", len(sw.dpBuffer))
 				go sw.filterAndSendDatapoints(sw.dpBuffer)
 				initDPBuffer()
 			}
@@ -195,6 +215,7 @@ func (sw *SignalFxWriter) listenForDatapoints() {
 	}
 }
 
+// Shutdown the writer and stop sending datapoints
 func (sw *SignalFxWriter) Shutdown() {
 	sw.lock.Lock()
 	defer sw.lock.Unlock()

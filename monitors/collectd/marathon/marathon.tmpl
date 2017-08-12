@@ -1,0 +1,12 @@
+LoadPlugin "python"
+<Plugin "python">
+  ModulePath "{{Globals.PluginRoot}}/marathon"
+  Import "marathon"
+  LogTraces true
+  <Module "marathon">
+    {{range .Endpoints}}
+    host  ["{{.host}}", "{{.port}}", "{{.username}}", "{{.password}}"]
+    {{end}}
+    verbose False
+  </Module>
+</Plugin>

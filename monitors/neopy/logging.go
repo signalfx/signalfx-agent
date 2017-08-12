@@ -11,15 +11,18 @@ import (
 const loggingSocketPath = "ipc:///tmp/signalfx-logs.ipc"
 const loggingTopic = "logs"
 
+// LogMessage represents the log message that comes back from python
 type LogMessage struct {
-	Message     string
-	Level       string
-	Logger      string
+	Message     string  `json:"message"`
+	Level       string  `json:"level"`
+	Logger      string  `json:"logger"`
 	SourcePath  string  `json:"source_path"`
 	LineNumber  string  `json:"lineno"`
 	CreatedTime float64 `json:"created"`
 }
 
+// LoggingQueue wraps the zmq socket used to get log messages back from the
+// python runner.
 type LoggingQueue struct {
 	socket *zmq4.Socket
 	mutex  sync.Mutex

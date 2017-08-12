@@ -8,6 +8,7 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
+// ObserverWrapper represents an active observer
 type ObserverWrapper struct {
 	instance interface{}
 	_type    string
@@ -18,12 +19,15 @@ type ObserverWrapper struct {
 	doomed bool
 }
 
+// Shutdown calls Shutdown on the underlying observer instance if it implements
+// it.
 func (ow *ObserverWrapper) Shutdown() {
 	if sh, ok := ow.instance.(Shutdownable); ok {
 		sh.Shutdown()
 	}
 }
 
+// ObserverManager instantiates and manages the configured observers
 type ObserverManager struct {
 	observers []*ObserverWrapper
 	lock      sync.Mutex
@@ -31,12 +35,12 @@ type ObserverManager struct {
 	CallbackTargets *ServiceCallbacks
 }
 
-func (om *ObserverManager) MakeWrappedObserver(config *config.ObserverConfig) *ObserverWrapper {
+func (om *ObserverManager) makeWrappedObserver(config *config.ObserverConfig) *ObserverWrapper {
 	factory, ok := observerFactories[config.Type]
 	if !ok {
 		log.WithFields(log.Fields{
 			"observerType": config.Type,
-			"id":           config.Id,
+			"id":           config.ID,
 		}).Error("Observer type not recognized")
 		return nil
 	}
@@ -51,7 +55,7 @@ func (om *ObserverManager) MakeWrappedObserver(config *config.ObserverConfig) *O
 		instance:   factory(om.CallbackTargets),
 		lastConfig: config,
 		_type:      config.Type,
-		id:         config.Id,
+		id:         config.ID,
 		doomed:     false,
 	}
 }
@@ -98,7 +102,7 @@ OUTER:
 		}
 
 		// Couldn't reuse an existing observer so make a new one
-		observer := om.MakeWrappedObserver(cfg)
+		observer := om.makeWrappedObserver(cfg)
 		if observer == nil {
 			continue
 		}
@@ -132,6 +136,7 @@ func (om *ObserverManager) deleteDoomed() {
 	om.observers = savedObservers
 }
 
+// Shutdown all of the managed observers
 func (om *ObserverManager) Shutdown() {
 	for i := range om.observers {
 		om.observers[i].Shutdown()

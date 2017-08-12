@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"sync"
+	"time"
 
 	"github.com/signalfx/golib/datapoint"
 	"github.com/signalfx/neo-agent/utils"
@@ -187,23 +188,23 @@ func (dc *DatapointCache) addPodDps(obj runtime.Object) {
 		dimensions["label_"+name] = value
 	}
 
-	dc.PodPhases[pod.UID] = &datapoint.Datapoint{
-		Metric:     "kubernetes.pod_phase",
-		Dimensions: dimensions,
-		Value:      datapoint.NewIntValue(phaseToInt(pod.Status.Phase)),
-		MetricType: datapoint.Gauge,
-	}
+	dc.PodPhases[pod.UID] = datapoint.New(
+		"kubernetes.pod_phase",
+		dimensions,
+		datapoint.NewIntValue(phaseToInt(pod.Status.Phase)),
+		datapoint.Gauge,
+		time.Now())
 
 	for _, cs := range pod.Status.ContainerStatuses {
 		contDims := utils.CloneStringMap(dimensions)
 		contDims["container_name"] = cs.Name
 		contDims["container_image"] = cs.Image
-		dc.ContainerRestartCount[makeContUID(pod.UID, cs.Name)] = &datapoint.Datapoint{
-			Metric:     "kubernetes.container_restart_count",
-			Dimensions: dimensions,
-			Value:      datapoint.NewIntValue(int64(cs.RestartCount)),
-			MetricType: datapoint.Gauge,
-		}
+		dc.ContainerRestartCount[makeContUID(pod.UID, cs.Name)] = datapoint.New(
+			"kubernetes.container_restart_count",
+			dimensions,
+			datapoint.NewIntValue(int64(cs.RestartCount)),
+			datapoint.Gauge,
+			time.Now())
 	}
 }
 
@@ -225,30 +226,30 @@ func (dc *DatapointCache) addDaemonSetDps(obj runtime.Object) {
 		"kubernetes_name": ds.Name,
 	}
 	dc.DaemonSets[ds.UID] = DaemonSetDPs{
-		CurrentNumberScheduled: &datapoint.Datapoint{
-			Metric:     "kubernetes.daemon_set.current_scheduled",
-			Dimensions: dimensions,
-			Value:      datapoint.NewIntValue(int64(ds.Status.CurrentNumberScheduled)),
-			MetricType: datapoint.Gauge,
-		},
-		DesiredNumberScheduled: &datapoint.Datapoint{
-			Metric:     "kubernetes.daemon_set.desired_scheduled",
-			Dimensions: dimensions,
-			Value:      datapoint.NewIntValue(int64(ds.Status.DesiredNumberScheduled)),
-			MetricType: datapoint.Gauge,
-		},
-		NumberMisscheduled: &datapoint.Datapoint{
-			Metric:     "kubernetes.daemon_set.misscheduled",
-			Dimensions: dimensions,
-			Value:      datapoint.NewIntValue(int64(ds.Status.NumberMisscheduled)),
-			MetricType: datapoint.Gauge,
-		},
-		NumberReady: &datapoint.Datapoint{
-			Metric:     "kubernetes.daemon_set.ready",
-			Dimensions: dimensions,
-			Value:      datapoint.NewIntValue(int64(ds.Status.NumberReady)),
-			MetricType: datapoint.Gauge,
-		},
+		CurrentNumberScheduled: datapoint.New(
+			"kubernetes.daemon_set.current_scheduled",
+			dimensions,
+			datapoint.NewIntValue(int64(ds.Status.CurrentNumberScheduled)),
+			datapoint.Gauge,
+			time.Now()),
+		DesiredNumberScheduled: datapoint.New(
+			"kubernetes.daemon_set.desired_scheduled",
+			dimensions,
+			datapoint.NewIntValue(int64(ds.Status.DesiredNumberScheduled)),
+			datapoint.Gauge,
+			time.Now()),
+		NumberMisscheduled: datapoint.New(
+			"kubernetes.daemon_set.misscheduled",
+			dimensions,
+			datapoint.NewIntValue(int64(ds.Status.NumberMisscheduled)),
+			datapoint.Gauge,
+			time.Now()),
+		NumberReady: datapoint.New(
+			"kubernetes.daemon_set.ready",
+			dimensions,
+			datapoint.NewIntValue(int64(ds.Status.NumberReady)),
+			datapoint.Gauge,
+			time.Now()),
 	}
 }
 func (dc *DatapointCache) removeDaemonSetDps(obj runtime.Object) {
@@ -258,18 +259,18 @@ func (dc *DatapointCache) removeDaemonSetDps(obj runtime.Object) {
 
 func makeReplicaDPs(resource string, dimensions map[string]string, desired, available int32) ReplicaDPs {
 	return ReplicaDPs{
-		DesiredReplicas: &datapoint.Datapoint{
-			Metric:     fmt.Sprintf("kubernetes.%s.desired", resource),
-			Dimensions: dimensions,
-			Value:      datapoint.NewIntValue(int64(desired)),
-			MetricType: datapoint.Gauge,
-		},
-		AvailableReplicas: &datapoint.Datapoint{
-			Metric:     fmt.Sprintf("kubernetes.%s.available", resource),
-			Dimensions: dimensions,
-			Value:      datapoint.NewIntValue(int64(available)),
-			MetricType: datapoint.Gauge,
-		},
+		DesiredReplicas: datapoint.New(
+			fmt.Sprintf("kubernetes.%s.desired", resource),
+			dimensions,
+			datapoint.NewIntValue(int64(desired)),
+			datapoint.Gauge,
+			time.Now()),
+		AvailableReplicas: datapoint.New(
+			fmt.Sprintf("kubernetes.%s.available", resource),
+			dimensions,
+			datapoint.NewIntValue(int64(available)),
+			datapoint.Gauge,
+			time.Now()),
 	}
 }
 

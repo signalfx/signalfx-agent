@@ -4,7 +4,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/signalfx/neo-agent/observers"
+	"github.com/signalfx/neo-agent/core/services"
 )
 
 const (
@@ -29,10 +29,11 @@ func getNoProxyEnvvar() string {
 	return noProxy
 }
 
-// DisableServices sets the service IPs in the no_proxy environment variable
-func EnsureProxyingDisabledForService(service *observers.ServiceInstance) {
-	if isProxying() && len(service.Port.IP) > 0 {
-		serviceIP := service.Port.IP
+// sets the service IPs/hostnames in the no_proxy environment variable
+func ensureProxyingDisabledForService(service services.Endpoint) {
+	host := service.Hostname()
+	if isProxying() && len(host) > 0 {
+		serviceIP := host
 		noProxy := getNoProxyEnvvar()
 
 		for _, existingIP := range strings.Split(noProxy, ",") {

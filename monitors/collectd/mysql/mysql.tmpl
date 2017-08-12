@@ -1,0 +1,17 @@
+<LoadPlugin "mysql">
+  Interval {{.IntervalSeconds}}
+</LoadPlugin>
+<Plugin mysql>
+  {{range .Endpoints}}
+  <Database "{{withDefault .name .id}}[{{encodeDimsForPluginInstance .dimensions}}]">
+    ReportHost {{withDefault .reportHost "true"}}
+    Host "{{.host}}"
+    Port {{.port}}
+    Database "{{.database | required}}"
+    User "{{.username | required}}"
+    {{with .password -}}
+    Password "{{.}}"
+    {{- end}}
+  </Database>
+  {{end}}
+</Plugin>

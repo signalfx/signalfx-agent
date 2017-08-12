@@ -1,10 +1,6 @@
 package stores
 
 import (
-	"io/ioutil"
-	"log"
-	"os"
-	"path"
 	"testing"
 
 	"github.com/docker/libkv/store"
