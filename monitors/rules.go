@@ -132,23 +132,3 @@ func doesServiceMatchRule(si *observers.ServiceInstance, ruleText string) bool {
 
 	return exprVal
 }
-
-// Map takes discovered service instances and applies integration-specific configurations
-// TODO: figure out what that label/dim logic does
-/*func (f *Filter) Map(sis services.Instances) (services.Instances, error) {
-	var instances services.Instances
-
-	for _, si := range sis {
-		if doesServiceMatchRule(&si, config.rule) {
-			for _, label := range config.labels {
-				if val, ok := si.Container.Labels[label]; ok {
-					si.Orchestration.Dims[label] = val
-				}
-			}
-			instances = append(instances, si)
-			continue
-		}
-	}
-
-	return instances, nil
-}*/

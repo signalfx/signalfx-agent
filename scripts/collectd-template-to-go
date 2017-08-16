@@ -17,5 +17,5 @@ import "github.com/signalfx/neo-agent/monitors/collectd/templating"
 
 var CollectdTemplate = template.Must(templating.InjectTemplateFuncs(template.New("$package")).Parse(\`
 $(cat $template_filename)
-\`))
+\`)).Option("missingkey=error")
 EOH

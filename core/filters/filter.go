@@ -93,8 +93,8 @@ func dimKeyName(dimName, value string) string {
 	return dimName + ":" + value
 }
 
-func (f *Filter) Matches(dp *datapoint.Datapoint, monitorType string) bool {
-	if f.monitorType != "" && monitorType != f.monitorType {
+func (f *Filter) Matches(dp *datapoint.Datapoint) bool {
+	if f.monitorType != "" && dp.Meta["monitorType"] != f.monitorType {
 		return false
 	}
 

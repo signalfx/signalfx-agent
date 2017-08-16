@@ -10,3 +10,5 @@ monitors/**/template.go
 monitors/collectd/collectd.conf.go
 /neo-agent
 scripts/.Dockerfile*
+.glide/
+*.pyc

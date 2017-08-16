@@ -1,15 +1,16 @@
+// Configuration structures and helper logic for all agent components.
 package config
 
 import (
 	"fmt"
 	"net/url"
 	"os"
-	"reflect"
 	"strconv"
 	"strings"
 	"time"
 
 	fqdn "github.com/ShowMax/go-fqdn"
+	"github.com/signalfx/neo-agent/core/config/stores"
 	"github.com/signalfx/neo-agent/core/filters"
 	"github.com/signalfx/neo-agent/utils"
 	log "github.com/sirupsen/logrus"
@@ -21,23 +22,26 @@ type Config struct {
 	// stores is very tricky.  Right now, stores can only be configured via
 	// envvars and I think it is best to keep it that way.
 	//Stores              map[string]StoreConfig `yaml:"stores,omitempty" default:"{}"`
-	SignalFxAccessToken string `yaml:"signalFxAccessToken,omitempty"`
+	SignalFxAccessToken string `yaml:"signalFxAccessToken"`
 	// The ingest URL for SignalFx, without the path
-	IngestURL string `yaml:"ingestUrl,omitempty" default:"https://ingest.signalfx.com"`
+	IngestURL string `yaml:"ingestUrl" default:"https://ingest.signalfx.com"`
 	// The hostname that will be reported as the "host" dimension on metrics
 	// for which host applies
-	Hostname string `yaml:"hostname,omitempty"`
+	Hostname string `yaml:"hostname"`
 	// How often to send metrics to SignalFx.  Monitors can't override this
 	// individually.
-	IntervalSeconds int `yaml:"intervalSeconds,omitempty" default:"10"`
+	IntervalSeconds int `yaml:"intervalSeconds" default:"10"`
 	// Dimensions that will be automatically added to all metrics reported
-	GlobalDimensions map[string]string `yaml:"globalDimensions,omitempty" default:"{}"`
-	Observers        []ObserverConfig  `yaml:"observers,omitempty" default:"[]"`
-	Monitors         []MonitorConfig   `yaml:"monitors,omitempty" default:"[]"`
-	Logging          LogConfig         `yaml:"logging,omitempty" default:"{}"`
+	GlobalDimensions map[string]string `yaml:"globalDimensions" default:"{}"`
+	Observers        []ObserverConfig  `yaml:"observers" default:"[]"`
+	Monitors         []MonitorConfig   `yaml:"monitors" default:"[]"`
+	Writer           WriterConfig      `yaml:"writer" default:"{}"`
+	Logging          LogConfig         `yaml:"logging" default:"{}"`
 	// Configure the underlying collectd daemon
-	Collectd         CollectdConfig `yaml:"collectd,omitempty" default:"{}"`
-	MetricsToExclude []MetricFilter `yaml:"metricsToExclude,omitempty" default:"[]"`
+	Collectd         CollectdConfig `yaml:"collectd" default:"{}"`
+	MetricsToExclude []MetricFilter `yaml:"metricsToExclude" default:"[]"`
+	ProcFSPath       string         `yaml:"procFSPath" default:"/proc"`
+	PythonEnabled    bool           `yaml:"pythonEnabled" default:"false"`
 }
 
 func (c *Config) setDefaultHostname() {
@@ -50,15 +54,29 @@ func (c *Config) setDefaultHostname() {
 	}
 }
 
-func (c *Config) Initialize() (*Config, error) {
+func (c *Config) Initialize(metaStore *stores.MetaStore) (*Config, error) {
 	c.overrideFromEnv()
+
 	c.setDefaultHostname()
+
 	if !c.validate() {
 		return nil, fmt.Errorf("Configuration did not validate!")
 	}
-	c.propagateValuesDown()
+
+	c.propagateValuesDown(metaStore)
+	idGenerator := newIdGenerator()
+	for i := range c.Monitors {
+		c.Monitors[i].EnsureID(idGenerator)
+	}
 
 	return c, nil
+}
+
+func (c *Config) IngestURLAsURL() *url.URL {
+	if url, err := url.Parse(c.IngestURL); err == nil {
+		return url
+	}
+	return nil
 }
 
 // Support overridding a few config options with envvars.  No need to allow
@@ -107,23 +125,33 @@ func (c *Config) makeFilterSet() *filters.FilterSet {
 
 // Send values from the top of the config down to nested configs that might
 // need them
-func (c *Config) propagateValuesDown() {
+func (c *Config) propagateValuesDown(metaStore *stores.MetaStore) {
 	filterSet := c.makeFilterSet()
+
+	ingestURL, err := url.Parse(c.IngestURL)
+	if err != nil {
+		panic("IngestURL was supposed to be validated already")
+	}
+
 	for i := range c.Monitors {
-		if url, err := url.Parse(c.IngestURL); err == nil {
-			c.Monitors[i].IngestURL = url
-		}
+		c.Monitors[i].IngestURL = ingestURL
 		c.Monitors[i].GlobalDimensions = c.GlobalDimensions
 		c.Monitors[i].SignalFxAccessToken = c.SignalFxAccessToken
 		c.Monitors[i].Hostname = c.Hostname
 		c.Monitors[i].Filter = filterSet
+		c.Monitors[i].ProcFSPath = c.ProcFSPath
 		// Top level interval serves as a default
 		c.Monitors[i].IntervalSeconds = utils.FirstNonZero(c.Monitors[i].IntervalSeconds, c.IntervalSeconds)
+		c.Monitors[i].MetaStore = metaStore
 	}
 
 	c.Collectd.Hostname = c.Hostname
 	c.Collectd.IntervalSeconds = c.IntervalSeconds
 	c.Collectd.Filter = filterSet
+
+	c.Writer.IngestURL = ingestURL
+	c.Writer.Filter = filterSet
+	c.Writer.SignalFxAccessToken = c.SignalFxAccessToken
 }
 
 type LogConfig struct {
@@ -145,100 +173,23 @@ func (lc *LogConfig) LogrusLevel() *log.Level {
 	return nil
 }
 
-type MonitorConfig struct {
-	Type string `yaml:"type,omitempty"`
-	// Id can be used to uniquely identify monitors so that they can be
-	// reconfigured in place instead of destroyed and recreated
-	Id              string            `yaml:"id,omitempty"`
-	DiscoveryRule   string            `yaml:"discoveryRule,omitempty"`
-	ExtraDimensions map[string]string `yaml:"extraDimensions,omitempty" default:"{}"`
-	// K8s pod label keys to send as dimensions
-	K8sLabelDimensions []string `yaml:"labelDimensions,omitempty" default:"[]"`
-	// If unset or 0, will default to the top-level IntervalSeconds value
-	IntervalSeconds int                    `yaml:"intervalSeconds,omitempty" default:"0"`
-	OtherConfig     map[string]interface{} `yaml:",inline" default:"{}"`
-	// The remaining are propagated from the top-level config and cannot be set
-	// by the user directly on the monitor
-	IngestURL           *url.URL           `yaml:"-"`
-	SignalFxAccessToken string             `yaml:"-"`
-	Hostname            string             `yaml:"-"`
-	Filter              *filters.FilterSet `yaml:"-"`
-	// Most monitors can ignore this
-	GlobalDimensions map[string]string `yaml:"-" default:"{}"`
-}
-
-func (mc *MonitorConfig) GetOtherConfig() map[string]interface{} {
-	return mc.OtherConfig
-}
-
-type ObserverConfig struct {
-	Type string `yaml:"type,omitempty"`
-	// Id can be used to uniquely identify observers so that they can be
-	// reconfigured in place instead of destroyed and recreated
-	Id          string                 `yaml:"id,omitempty"`
-	OtherConfig map[string]interface{} `yaml:",inline" default:"{}"`
-}
-
-func (oc *ObserverConfig) GetOtherConfig() map[string]interface{} {
-	return oc.OtherConfig
-}
-
 type CustomConfigurable interface {
 	GetOtherConfig() map[string]interface{}
 }
 
 // Collectd high-level configurations
 type CollectdConfig struct {
-	DisableCollectd      bool               `yaml:"disableCollectd,omitempty" default:"false"`
-	IntervalSeconds      int                `yaml:"intervalSeconds,omitempty" default:"10"`
-	Timeout              int                `yaml:"timeout,omitempty" default:"40"`
-	ReadThreads          int                `yaml:"readThreads,omitempty" default:"5"`
-	WriteQueueLimitHigh  int                `yaml:"writeQueueLimitHigh,omitempty" default:"500000"`
-	WriteQueueLimitLow   int                `yaml:"writeQueueLimitLow,omitempty" default:"400000"`
-	CollectInternalStats bool               `yaml:"collectInternalStats,omitempty" default:"false"`
-	LogLevel             string             `yaml:"logLevel,omitempty" default:"notice"`
-	Hostname             string             `yaml:"-"`
-	Filter               *filters.FilterSet `yaml:"-"`
-}
-
-// MetricFiltering describes a set of subtractive filters applied to datapoints
-// right before they are sent.
-type MetricFilter struct {
-	// Can map to either a []string or simple string
-	Dimensions  map[string]interface{} `default:"{}"`
-	MetricNames []string               `default:"[]"`
-	MetricName  string
-	MonitorType string
-}
-
-func (mf *MetricFilter) ConvertDimensionsMapForSliceValues() map[string][]string {
-	dims := make(map[string][]string)
-	for k, d := range mf.Dimensions {
-		if s, ok := d.(string); ok {
-			dims[k] = []string{s}
-		} else if interfaceSlice, ok := d.([]interface{}); ok {
-			ss := utils.InterfaceSliceToStringSlice(interfaceSlice)
-			if ss != nil {
-				dims[k] = ss
-			}
-		}
-
-		if dims[k] == nil {
-			log.WithFields(log.Fields{
-				"dimensionFilter": k,
-				"value":           d,
-				"type":            reflect.ValueOf(d).Type(),
-			}).Error("Invalid dimension filter")
-			return nil
-		}
-	}
-	return dims
-}
-
-func (mf *MetricFilter) ConvertMetricNameToSlice() {
-	if mf.MetricName != "" {
-		mf.MetricNames = append(mf.MetricNames, mf.MetricName)
-	}
+	DisableCollectd      bool   `yaml:"disableCollectd,omitempty" default:"false"`
+	IntervalSeconds      int    `yaml:"intervalSeconds,omitempty" default:"10"`
+	Timeout              int    `yaml:"timeout,omitempty" default:"40"`
+	ReadThreads          int    `yaml:"readThreads,omitempty" default:"5"`
+	WriteQueueLimitHigh  int    `yaml:"writeQueueLimitHigh,omitempty" default:"500000"`
+	WriteQueueLimitLow   int    `yaml:"writeQueueLimitLow,omitempty" default:"400000"`
+	CollectInternalStats bool   `yaml:"collectInternalStats,omitempty" default:"false"`
+	LogLevel             string `yaml:"logLevel,omitempty" default:"notice"`
+	// The following are propagated from the top-level config
+	Hostname string             `yaml:"-"`
+	Filter   *filters.FilterSet `yaml:"-"`
 }
 
 type StoreConfig struct {
@@ -254,3 +205,13 @@ var (
 	EnvReplacer   = strings.NewReplacer(".", "_", "-", "_")
 	configTimeout = 10 * time.Second
 )
+
+// Used to ensure unique IDs for monitors and observers
+func newIdGenerator() func(string) int {
+	ids := map[string]int{}
+
+	return func(name string) int {
+		ids[name] += 1
+		return ids[name]
+	}
+}

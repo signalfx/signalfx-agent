@@ -84,12 +84,19 @@ Until we have an update script the easiest way to update the agents to a new ver
 
 * `kubectl edit deploy signalfx-agent`
 * Change the Docker image property (`.spec.template.spec.containers.image`) to the desired image
-* Delete all agent pods (`kubectl delete pod -l app=signalfx-agent`) and they'll be automatically recreated
+* Delete all agent pods (`kubectl delete pod -l app=signalfx-agent`) and they will be automatically recreated
 
 ### Mesos
 ```
 TODO
 ```
+
+## Diagnostics
+The agent serves diagnostic information on a unix domain socket at
+`/var/run/signalfx.sock`.  The socket takes no input, but simply dumps it's
+current status back upon connection.  There is a small helper script
+`agent-status` that is on the system PATH in the container that will call it
+for you.
 
 ## Development
 
@@ -103,7 +110,5 @@ Go dependencies are specified in `glide.yaml`. Of note the version of
 docker/libkv is currently a forked version from
 https://github.com/cohodata/libkv that has a ZooKeeper fix for watch events.
 
-Run `glide install` to pull down dependencies.
-
-### Local Docker - for development only
+Run `make vendor` to pull down dependencies.
 

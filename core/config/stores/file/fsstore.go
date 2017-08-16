@@ -1,3 +1,4 @@
+// A store that uses the local filesystem
 package file
 
 import (

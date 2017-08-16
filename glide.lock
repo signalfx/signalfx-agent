@@ -1,5 +1,5 @@
-hash: ad363dbc000e23aa233694420d3ef2287df105f18f5121863be559dd1bd07d65
-updated: 2017-07-29T16:49:48.970551328-04:00
+hash: c9a30a884826a4adfab9491a1bab2d8a1f31314b5a58fad1963643ef8e46c6be
+updated: 2017-08-05T11:43:19.246212775-04:00
 imports:
 - name: github.com/blang/semver
   version: aea32c919a18e5ef4537bbd283ff29594b1b0165
@@ -122,6 +122,8 @@ imports:
   version: 4598e72a5762f7e683b840482a8bf9d19b1eb5e2
 - name: github.com/kr/logfmt
   version: b84e30acd515aadc4b783ad4ff83aff3299bdfe0
+- name: github.com/logrusorgru/aurora
+  version: 962a6974312dde57d1f6f5738b4f83e1af9f38a4
 - name: github.com/magiconair/properties
   version: be5ece7dd465ab0765a9682137865547526d1dfb
 - name: github.com/mailru/easyjson
@@ -195,6 +197,8 @@ imports:
   - libcontainer/utils
 - name: github.com/pborman/uuid
   version: cccd189d45f7ac3368a0d127efb7f4d08ae0b655
+- name: github.com/pebbe/zmq4
+  version: 651d7b11cd31b16fb4c76741c234e258b6a8039b
 - name: github.com/pelletier/go-toml
   version: 69d355db5304c0f7f809a2edc054553e7142f016
 - name: github.com/PuerkitoBio/purell
@@ -234,7 +238,7 @@ imports:
   - protocol/signalfx
 - name: github.com/Sirupsen/logrus
   version: 9aa7601a1185e3bc8a0d3f87b1a55b05df0102e4
-  repo: git@github.com:/sirupsen/logrus
+  repo: https://github.com/sirupsen/logrus
   vcs: git
 - name: github.com/sirupsen/logrus
   version: 9aa7601a1185e3bc8a0d3f87b1a55b05df0102e4

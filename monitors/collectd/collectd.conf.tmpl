@@ -165,22 +165,22 @@ LoadPlugin match_regex
 </Chain>
 
 <Chain "PreCache">
-{{range $filter := .filters -}}
+{{/*range $filter := .filters -}}
   <Rule "neoagent_exclusion_filters">
     <Match "regex">
-    {{with $filter..monitorType-}}
+    {{with $filter.monitorType -}}
       Plugin '{{.}}'
-    {{-end}}
-    {{with $filter.metricNames-}}
+    {{- end}}
+    {{with $filter.metricNames -}}
       TypeInstance '^{{StringsJoin . "|"}}'
-    {{-end}}
+    {{- end}}
     {{with $filter.dimNames -}}
       PluginInstance '^.*\[.*({{StringsJoin . "|"}})=.*$'
-    {{-end}}
+    {{- end}}
     </Match>
     Target "stop"
   </Rule>
-{{-end}}
+{{- end*/}}
 </Chain>
 
 Include "/etc/collectd/managed_config/*.conf"

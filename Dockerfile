@@ -177,7 +177,7 @@ FROM golang:1.8.3-stretch as agent-builder
 
 # Cgo requires dep libraries present to link in libcollectd
 RUN apt update &&\
-    apt install -y libltdl-dev
+    apt install -y libltdl-dev libzmq5-dev
 
 COPY --from=godeps /go/src/github.com/signalfx/neo-agent/vendor src/github.com/signalfx/neo-agent/vendor
 COPY --from=godeps /go/pkg /go/pkg
@@ -195,7 +195,7 @@ RUN go build \
 
 
 ###### Python Plugin Image ######
-FROM ubuntu:16.04 as collectd-plugins
+FROM ubuntu:16.04 as python-plugins
 
 RUN apt update &&\
     apt install -y git python-pip wget
@@ -203,12 +203,28 @@ RUN pip install yq &&\
     wget -O /usr/bin/jq https://github.com/stedolan/jq/releases/download/jq-1.5/jq-linux64 &&\
     chmod +x /usr/bin/jq
 
-COPY scripts/get-collectd-plugins.sh scripts/collectd-plugins.yaml /opt/
+# Mirror the same dir structure that exists in the original source
+COPY scripts/get-collectd-plugins.sh /opt/scripts/
+COPY collectd-plugins.yaml /opt/
 
 RUN mkdir -p /usr/share/collectd/java \
     && echo "jmx_memory      value:GAUGE:0:U" > /usr/share/collectd/java/signalfx_types_db
 
 RUN bash /opt/get-collectd-plugins.sh
+
+RUN apt install -y libffi-dev libssl-dev build-essential python-dev libcurl4-openssl-dev
+
+COPY scripts/install-dd-plugin-deps.sh /opt/
+
+RUN mkdir -p /opt/dd &&\
+    cd /opt/dd &&\
+    git clone --depth 1 --single-branch https://github.com/DataDog/dd-agent.git &&\
+	git clone --depth 1 --single-branch https://github.com/DataDog/integrations-core.git
+
+RUN bash /opt/install-dd-plugin-deps.sh
+
+COPY neopy/requirements.txt /tmp/requirements.txt
+RUN pip install -r /tmp/requirements.txt
 
 
 ###### Final Agent Image #######
@@ -264,6 +280,8 @@ RUN sed -i -e '/^deb-src/d' /etc/apt/sources.list \
       libxen-4.6 \
       libxml2 \
       libyajl2 \
+	  libzmq5 \
+	  netcat-openbsd \
       net-tools \
       openjdk-8-jre-headless \
       vim \
@@ -281,11 +299,12 @@ RUN mkdir -p /etc/collectd/managed_config /etc/collectd/filtering_config
 
 COPY etc /etc/signalfx/
 # Pull in non-C collectd plugins
-COPY --from=collectd-plugins /usr/share/collectd /usr/share/collectd
+COPY --from=python-plugins /usr/share/collectd /usr/share/collectd
+COPY --from=python-plugins /opt/dd/dd-agent /opt/dd/dd-agent
+COPY --from=python-plugins /opt/dd/integrations-core /opt/dd/integrations-core
 COPY --from=collectd /usr/src/collectd/src/types.db /usr/share/collectd/types.db
 # Grab pip dependencies too
-COPY --from=collectd-plugins /opt/collectd-py /opt/collectd-py
-ENV PYTHONPATH=/opt/collectd-py
+COPY --from=python-plugins /usr/local/lib/python2.7/dist-packages /usr/local/lib/python2.7/dist-packages
 
 COPY --from=collectd /usr/src/collectd/libcollectd.so /usr/local/lib
 # All the built-in collectd plugins
@@ -294,4 +313,7 @@ COPY --from=collectd /usr/src/collectd/bindings/java/.libs/*.jar /usr/share/coll
 COPY --from=collectd /usr/src/neomock/neomock /usr/bin/neomock
 
 COPY --from=agent-builder /usr/bin/signalfx-agent /usr/bin/signalfx-agent
+
+COPY neopy /usr/local/lib/neopy
+COPY scripts/agent-status /usr/bin/agent-status
 RUN chmod +x /usr/bin/signalfx-agent

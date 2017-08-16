@@ -1,6 +1,7 @@
 package docker
 
 import (
+	"strconv"
 	"time"
 
 	log "github.com/sirupsen/logrus"
@@ -96,7 +97,7 @@ func (docker *Docker) discover() []*observers.ServiceInstance {
 			for _, port := range c.Ports {
 				servicePort := observers.NewPort("", "127.0.0.1", observers.PortType(port.Type), uint16(port.PrivatePort), uint16(port.PublicPort))
 
-				id := serviceContainer.PrimaryName() + "-" + c.ID[:12]
+				id := serviceContainer.PrimaryName() + "-" + c.ID[:12] + "-" + strconv.Itoa(port.PrivatePort)
 
 				dims := map[string]string{
 					"container_name":  serviceContainer.PrimaryName(),

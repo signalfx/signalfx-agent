@@ -7,7 +7,7 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 y() {
   filter=$1
   # yq is like jq for yaml
-  cat $SCRIPT_DIR/collectd-plugins.yaml | yq -r "$filter"
+  cat $SCRIPT_DIR/../collectd-plugins.yaml | yq -r "$filter"
 }
 
 mkdir -p /usr/share/collectd
@@ -22,7 +22,7 @@ do
   git clone --branch $version --depth 1 --single-branch https://github.com/${repo}.git $plugin_dir
   rm -rf $plugin_dir/.git
 
-  pip_install='pip install --target=/opt/collectd-py'
+  pip_install='pip install'
 
   if $(y ".[$i] | has(\"pip_packages\")")
   then
