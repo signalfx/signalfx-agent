@@ -50,7 +50,6 @@ var logger = log.WithFields(log.Fields{"monitorType": monitorType})
 type Config struct {
 	config.MonitorConfig
 	AlwaysClusterReporter bool                            `yaml:"alwaysClusterReporter"`
-	ClusterName           string                          `yaml:"clusterName" default:"default-cluster"`
 	KubernetesAPI         *kubernetes.KubernetesAPIConfig `yaml:"kubernetesAPI" default:"{}"`
 }
 
@@ -110,8 +109,6 @@ func (m *Monitor) Configure(config *Config) bool {
 		uint(config.IntervalSeconds),
 		config.AlwaysClusterReporter,
 		thisPodName)
-
-	m.monitor.Filter = config.Filter
 
 	m.monitor.Start()
 

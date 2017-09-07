@@ -20,11 +20,6 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-const (
-	dpSendInterval    = 5 * time.Second
-	eventSendInterval = 5 * time.Second
-)
-
 type state int
 
 const (
@@ -97,7 +92,7 @@ func (sw *SignalFxWriter) Configure(conf *config.WriterConfig) bool {
 func (sw *SignalFxWriter) filterAndSendDatapoints(dps []*datapoint.Datapoint) error {
 	finalDps := make([]*datapoint.Datapoint, 0, len(dps))
 	for i := range dps {
-		if !sw.conf.Filter.Matches(dps[i]) {
+		if sw.conf.Filter == nil || !sw.conf.Filter.Matches(dps[i]) {
 			sw.addGlobalDimsToDatapoint(dps[i])
 			finalDps = append(finalDps, dps[i])
 		}
@@ -160,10 +155,10 @@ func (sw *SignalFxWriter) ensureListeningForDatapoints() {
 // events to come in on the provided channels.  That goroutine also sends data
 // to ingest at regular intervals.
 func (sw *SignalFxWriter) listenForDatapoints() {
-	dpTicker := time.NewTicker(dpSendInterval)
+	dpTicker := time.NewTicker(time.Duration(sw.conf.DatapointSendIntervalSeconds) * time.Second)
 	defer dpTicker.Stop()
 
-	eventTicker := time.NewTicker(eventSendInterval)
+	eventTicker := time.NewTicker(time.Duration(sw.conf.EventSendIntervalSeconds) * time.Second)
 	defer eventTicker.Stop()
 
 	initDPBuffer := func() {

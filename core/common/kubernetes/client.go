@@ -26,6 +26,7 @@ const (
 
 type KubernetesAPIConfig struct {
 	AuthType       AuthType `yaml:"authType" default:"serviceAccount"`
+	SkipVerify     bool     `yaml:"skipVerify" default:"false"`
 	ClientCertPath string   `yaml:"clientCertPath"`
 	ClientKeyPath  string   `yaml:"clientKeyPath"`
 	CACertPath     string   `yaml:"caCertPath"`
@@ -85,6 +86,8 @@ func MakeClient(apiConf *KubernetesAPIConfig) (*k8s.Clientset, error) {
 		}
 		return rt
 	}
+
+	authConf.Insecure = apiConf.SkipVerify
 
 	client, err := k8s.NewForConfig(authConf)
 	if err != nil {

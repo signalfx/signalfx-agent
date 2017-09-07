@@ -8,7 +8,6 @@ import (
 	"k8s.io/client-go/pkg/api/v1"
 
 	"github.com/signalfx/golib/datapoint"
-	"github.com/signalfx/neo-agent/core/filters"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -28,8 +27,7 @@ type Kubernetes struct {
 	// If running inside K8s, the name of the current pod, otherwise empty string
 	thisPodName string
 	// Used to stop the main loop
-	stop   chan struct{}
-	Filter *filters.FilterSet
+	stop chan struct{}
 }
 
 // NewKubernetes creates a new monitor instance
@@ -89,23 +87,12 @@ func updateTimestamps(dps []*datapoint.Datapoint) []*datapoint.Datapoint {
 	return dps
 }
 
-func (km *Kubernetes) filterDatapoints(dps []*datapoint.Datapoint) []*datapoint.Datapoint {
-	newDps := make([]*datapoint.Datapoint, 0, len(dps))
-	for _, dp := range dps {
-		dp.Meta["monitorType"] = monitorType
-		if km.Filter != nil && !km.Filter.Matches(dp) {
-			newDps = append(newDps, dp)
-		}
-	}
-	return newDps
-}
-
 // Synchonously send all of the cached datapoints to ingest
 func (km *Kubernetes) sendLatestDatapoints() {
 	km.datapointCache.Mutex.Lock()
 	defer km.datapointCache.Mutex.Unlock()
 
-	dps := updateTimestamps(km.filterDatapoints(km.datapointCache.AllDatapoints()))
+	dps := updateTimestamps(km.datapointCache.AllDatapoints())
 
 	for i := range dps {
 		km.dpChan <- dps[i]
