@@ -24,12 +24,14 @@ var IPAddrRegexp = regexp.MustCompile(`\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}`)
 
 // EndpointCore represents an exposed network port
 type EndpointCore struct {
-	MID              ID        `yaml:"id"`
-	Name             string    `yaml:"name"`
-	Host             string    `yaml:"host"`
-	PortType         PortType  `yaml:"portType"`
-	Port             uint16    `yaml:"port"`
-	MDiscovered      time.Time `yaml:"discovered"`
+	MID         ID        `yaml:"id"`
+	Name        string    `yaml:"name"`
+	Host        string    `yaml:"host"`
+	PortType    PortType  `yaml:"portType"`
+	Port        uint16    `yaml:"port"`
+	MDiscovered time.Time `yaml:"discovered"`
+	// The observer that discovered this endpoint
+	MDiscoveredBy    string `yaml:"discoveredBy"`
 	matchingMonitors map[types.MonitorID]bool
 	MDimensions      map[string]string `yaml:"dimensions"`
 	mlock            *sync.Mutex
@@ -47,11 +49,12 @@ func (e *EndpointCore) DerivedFields() map[string]interface{} {
 }
 
 // NewEndpointCore returns a new initialized endpoint core struct
-func NewEndpointCore(id string, name string, discovered time.Time) *EndpointCore {
+func NewEndpointCore(id string, name string, discovered time.Time, discoveredBy string) *EndpointCore {
 	return &EndpointCore{
 		MID:              ID(id),
 		Name:             name,
 		MDiscovered:      discovered,
+		MDiscoveredBy:    discoveredBy,
 		matchingMonitors: make(map[types.MonitorID]bool),
 		MDimensions:      make(map[string]string),
 	}
@@ -73,6 +76,11 @@ func (e *EndpointCore) Hostname() string {
 // Discovered returns the time that this endpoint was first observed
 func (e *EndpointCore) Discovered() time.Time {
 	return e.MDiscovered
+}
+
+// DiscoveredBy returns the name of the observer that discovered this endpoint
+func (e *EndpointCore) DiscoveredBy() string {
+	return e.MDiscoveredBy
 }
 
 // Dimensions returns a map of dimensions set on this endpoint

@@ -1,4 +1,4 @@
-package kubernetes
+package kubelet
 
 import (
 	"crypto/tls"
@@ -23,7 +23,7 @@ var now = time.Now
 type phase string
 
 const (
-	observerType = "kubernetes"
+	observerType = "k8s-kubelet"
 	// RunningPhase Kubernetes running phase
 	runningPhase phase = "Running"
 )
@@ -295,7 +295,7 @@ func (k *Kubernetes) discover() []services.Endpoint {
 
 					id := fmt.Sprintf("%s-%s-%d", pod.Metadata.Name, status.ContainerID[:12], port.ContainerPort)
 
-					endpoint := services.NewEndpointCore(id, port.Name, now())
+					endpoint := services.NewEndpointCore(id, port.Name, now(), observerType)
 					endpoint.Host = podIP
 					endpoint.PortType = port.Protocol
 					endpoint.Port = port.ContainerPort

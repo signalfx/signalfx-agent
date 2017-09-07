@@ -117,7 +117,7 @@ func (docker *Docker) discover() []services.Endpoint {
 			for _, port := range c.Ports {
 				id := serviceContainer.PrimaryName() + "-" + c.ID[:12] + "-" + strconv.Itoa(port.PrivatePort)
 
-				endpoint := services.NewEndpointCore(id, "", time.Now())
+				endpoint := services.NewEndpointCore(id, "", time.Now(), observerType)
 				endpoint.Host = "127.0.0.1"
 				endpoint.PortType = services.PortType(port.Type)
 				endpoint.Port = uint16(port.PublicPort)

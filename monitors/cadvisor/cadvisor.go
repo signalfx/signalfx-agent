@@ -6,6 +6,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/signalfx/golib/datapoint"
 	"github.com/signalfx/neo-agent/core/config"
 	"github.com/signalfx/neo-agent/monitors"
 	"github.com/signalfx/neo-agent/monitors/cadvisor/poller"
@@ -36,6 +37,7 @@ type Config struct {
 // Cadvisor pulls metrics from the cAdvisor endpoint
 type Cadvisor struct {
 	config  *Config
+	DPs     chan<- *datapoint.Datapoint
 	lock    sync.Mutex
 	stop    chan bool
 	stopped chan bool
@@ -122,13 +124,8 @@ func (c *Cadvisor) Configure(conf *Config) bool {
 	c.stopped = nil
 
 	dimensions := conf.ExtraDimensions
-	clusterName := conf.ExtraDimensions["kubernetes_cluster"]
-	forwarder := poller.NewSfxClient(conf.IngestURL.String(), conf.SignalFxAccessToken)
 	cfg := &poller.Config{
-		IngestURL:              conf.IngestURL.String(),
-		APIToken:               conf.SignalFxAccessToken,
 		DataSendRate:           strconv.Itoa(conf.IntervalSeconds),
-		ClusterName:            clusterName,
 		NodeServiceRefreshRate: "",
 		CadvisorPort:           0,
 		KubernetesURL:          "",
@@ -143,7 +140,7 @@ func (c *Cadvisor) Configure(conf *Config) bool {
 	}
 
 	var err error
-	if c.stop, c.stopped, err = poller.MonitorNode(cfg, forwarder, time.Duration(conf.IntervalSeconds)*time.Second); err != nil {
+	if c.stop, c.stopped, err = poller.MonitorNode(cfg, c.DPs, time.Duration(conf.IntervalSeconds)*time.Second); err != nil {
 		log.Errorf("monitoring cadvisor node failed: %s", err)
 		return false
 	}
