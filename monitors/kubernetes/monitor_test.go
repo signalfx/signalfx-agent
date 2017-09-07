@@ -2,19 +2,19 @@ package kubernetes
 
 import (
 	"fmt"
-	"log"
 	"net/url"
 	"os"
 
 	//"github.com/davecgh/go-spew/spew"
 
-	"github.com/spf13/viper"
 	"k8s.io/client-go/pkg/api/unversioned"
 	"k8s.io/client-go/pkg/api/v1"
 	"k8s.io/client-go/pkg/apis/extensions/v1beta1"
 	"k8s.io/client-go/pkg/watch"
 
-	sfxproto "github.com/signalfx/com_signalfx_metrics_protobuf"
+	"github.com/signalfx/golib/datapoint"
+	"github.com/signalfx/neo-agent/core/common/kubernetes"
+	log "github.com/sirupsen/logrus"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -22,22 +22,19 @@ import (
 )
 
 var _ = Describe("Kubernetes plugin", func() {
-	var config *viper.Viper
-	var fakeSignalFx *FakeSignalFx
+	var config *Config
 	var fakeK8s *FakeK8s
-	var plugin *Plugin
+	var monitor *Monitor
+	var dpChan chan *datapoint.Datapoint
 
 	BeforeEach(func() {
-		config = viper.New()
-		config.Set("intervalSeconds", 1)
-		config.Set("authType", "none")
-		config.Set("tls.skipVerify", true)
-		config.Set("clusterName", "test-cluster")
-
-		fakeSignalFx = NewFakeSignalFx()
-		fakeSignalFx.Start()
-		// This has to go on the global viper config until config is fixed
-		viper.Set("ingesturl", fakeSignalFx.URL())
+		dpChan = make(chan *datapoint.Datapoint, 100)
+		config = &Config{}
+		config.IntervalSeconds = 1
+		config.KubernetesAPI = &kubernetes.KubernetesAPIConfig{
+			AuthType:   "none",
+			SkipVerify: true,
+		}
 
 		fakeK8s = NewFakeK8s()
 		fakeK8s.Start()
@@ -51,41 +48,68 @@ var _ = Describe("Kubernetes plugin", func() {
 	})
 
 	doSetup := func(alwaysClusterReporter bool, thisPodName string) {
-		config.Set("alwaysClusterReporter", alwaysClusterReporter)
+		config.AlwaysClusterReporter = alwaysClusterReporter
 		os.Setenv("MY_POD_NAME", thisPodName)
 
 		os.Setenv("SFX_ACCESS_TOKEN", "deadbeef")
 
-		var err error
-		plugin = plugins.MakePlugin(pluginType).(*Plugin)
-		log.Printf("plugin: %p; %s", plugin, err)
-		if err != nil {
-			Fail(err.Error())
-		}
+		monitor = &Monitor{}
+		monitor.DPs = dpChan
 
-		plugin.Configure(config)
+		success := monitor.Configure(config)
+		if !success {
+			panic("K8s monitor config failed")
+		}
 	}
 
 	AfterEach(func() {
-		plugin.Shutdown()
+		monitor.Shutdown()
 	})
 
 	// Making an int literal pointer requires a helper
 	intp := func(n int32) *int32 { return &n }
+	intValue := func(v datapoint.Value) int64 {
+		return v.(datapoint.IntValue).Int()
+	}
 
-	expectIntMetric := func(dps []*sfxproto.DataPoint, uidField, objUid string, metricName string, metricValue int) {
+	waitForDatapoints := func(expected int) []*datapoint.Datapoint {
+		dps := make([]*datapoint.Datapoint, 0)
+		for {
+			dp := &datapoint.Datapoint{}
+			Eventually(dpChan, 2).Should(Receive(&dp))
+			dps = append(dps, dp)
+			if len(dps) >= expected {
+				break
+			}
+		}
+		return dps
+	}
+
+	expectIntMetric := func(dps []*datapoint.Datapoint, uidField, objUid string, metricName string, metricValue int) {
 		matched := false
 		for _, dp := range dps {
-			dims := ProtoDimensionsToMap(dp.GetDimensions())
-			if dp.GetMetric() == metricName && dims[uidField] == objUid {
-				Expect(dp.GetValue().GetIntValue()).To(Equal(int64(metricValue)))
+			dims := dp.Dimensions
+			if dp.Metric == metricName && dims[uidField] == objUid {
+				Expect(intValue(dp.Value)).To(Equal(int64(metricValue)), fmt.Sprintf("%s %s", objUid, metricName))
 				matched = true
 			}
 		}
 		Expect(matched).To(Equal(true), fmt.Sprintf("%s %s %d", objUid, metricName, metricValue))
 	}
 
+	expectIntMetricMissing := func(dps []*datapoint.Datapoint, uidField, objUid string, metricName string) {
+		matched := false
+		for _, dp := range dps {
+			dims := dp.Dimensions
+			if dp.Metric == metricName && dims[uidField] == objUid {
+				matched = true
+			}
+		}
+		Expect(matched).To(Equal(false), fmt.Sprintf("%s %s", objUid, metricName))
+	}
+
 	It("Sends pod phase metrics", func() {
+		log.SetLevel(log.DebugLevel)
 		fakeK8s.SetInitialList([]*v1.Pod{
 			&v1.Pod{
 				ObjectMeta: v1.ObjectMeta{
@@ -106,18 +130,15 @@ var _ = Describe("Kubernetes plugin", func() {
 
 		doSetup(true, "")
 
-		dps := fakeSignalFx.PopIngestedDatapoints()
+		dps := waitForDatapoints(2)
 
-		Expect(dps).To(HaveLen(2))
+		Expect(dps[0].Metric).To(Equal("kubernetes.pod_phase"))
+		Expect(intValue(dps[0].Value)).To(Equal(int64(2)))
+		Expect(dps[1].Metric).To(Equal("kubernetes.container_restart_count"))
+		Expect(intValue(dps[1].Value)).To(Equal(int64(5)))
 
-		Expect(dps[0].GetMetric()).To(Equal("kubernetes.pod_phase"))
-		Expect(dps[0].GetValue().GetIntValue()).To(Equal(int64(2)))
-		Expect(dps[1].GetMetric()).To(Equal("kubernetes.container_restart_count"))
-		Expect(dps[1].GetValue().GetIntValue()).To(Equal(int64(5)))
-
-		dims := ProtoDimensionsToMap(dps[0].GetDimensions())
+		dims := dps[0].Dimensions
 		Expect(dims["metric_source"]).To(Equal("kubernetes"))
-		Expect(dims["kubernetes_cluster"]).To(Equal("test-cluster"))
 
 		fakeK8s.EventInput <- WatchEvent{watch.Added, &v1.Pod{
 			TypeMeta: unversioned.TypeMeta{
@@ -139,8 +160,7 @@ var _ = Describe("Kubernetes plugin", func() {
 			},
 		}}
 
-		dps = fakeSignalFx.PopIngestedDatapoints()
-		Expect(dps).To(HaveLen(4))
+		dps = waitForDatapoints(4)
 		expectIntMetric(dps, "pod_uid", "1234", "kubernetes.container_restart_count", 0)
 
 		fakeK8s.EventInput <- WatchEvent{watch.Modified, &v1.Pod{
@@ -163,8 +183,7 @@ var _ = Describe("Kubernetes plugin", func() {
 			},
 		}}
 
-		dps = fakeSignalFx.PopIngestedDatapoints()
-		Expect(dps).To(HaveLen(4))
+		dps = waitForDatapoints(4)
 		expectIntMetric(dps, "pod_uid", "1234", "kubernetes.container_restart_count", 2)
 
 		fakeK8s.EventInput <- WatchEvent{watch.Deleted, &v1.Pod{
@@ -187,8 +206,8 @@ var _ = Describe("Kubernetes plugin", func() {
 			},
 		}}
 
-		dps = fakeSignalFx.PopIngestedDatapoints()
-		Expect(dps).To(HaveLen(2))
+		dps = waitForDatapoints(2)
+		expectIntMetricMissing(dps, "pod_uid", "1234", "kubernetes.container_restart_count")
 
 	}, 5)
 
@@ -234,11 +253,7 @@ var _ = Describe("Kubernetes plugin", func() {
 
 		doSetup(true, "")
 
-		var dps []*sfxproto.DataPoint
-		Eventually(func() int {
-			dps = fakeSignalFx.PopIngestedDatapoints()
-			return len(dps)
-		}, 5).Should(BeNumerically(">", 2))
+		dps := waitForDatapoints(6)
 
 		By("Reporting on existing deployments")
 		expectIntMetric(dps, "uid", "abcd", "kubernetes.deployment.desired", 10)
@@ -263,7 +278,7 @@ var _ = Describe("Kubernetes plugin", func() {
 			},
 		}}
 
-		dps = fakeSignalFx.PopIngestedDatapoints()
+		dps = waitForDatapoints(6)
 		By("Responding to events pushed on the watch API")
 		expectIntMetric(dps, "uid", "abcd", "kubernetes.deployment.desired", 10)
 		expectIntMetric(dps, "uid", "abcd", "kubernetes.deployment.available", 5)
@@ -308,47 +323,6 @@ var _ = Describe("Kubernetes plugin", func() {
 			})
 		})
 
-		It("Filters out excluded metrics", func() {
-			config.Set("metricFilter", []string{"!kubernetes.pod_phase"})
-			doSetup(true, "")
-
-			dps := fakeSignalFx.PopIngestedDatapoints()
-
-			metrics := make([]string, 0, len(dps))
-			for _, dp := range dps {
-				metrics = append(metrics, dp.GetMetric())
-			}
-			Expect(metrics).To(Not(ContainElement("kubernetes.pod_phase")))
-			Expect(metrics).To(ContainElement("kubernetes.container_restart_count"))
-		})
-
-		It("Filters out non-included metrics", func() {
-			config.Set("metricFilter", []string{"kubernetes.pod_phase"})
-			doSetup(true, "")
-
-			dps := fakeSignalFx.PopIngestedDatapoints()
-
-			metrics := make([]string, 0, len(dps))
-			for _, dp := range dps {
-				metrics = append(metrics, dp.GetMetric())
-			}
-			Expect(metrics).To(ContainElement("kubernetes.pod_phase"))
-			Expect(metrics).To(Not(ContainElement("kubernetes.container_restart_count")))
-		})
-
-		It("Filters out excluded namespaces", func() {
-			config.Set("namespaceFilter", []string{"!default"})
-			doSetup(true, "")
-
-			dps := fakeSignalFx.PopIngestedDatapoints()
-
-			metrics := make([]string, 0, len(dps))
-			for _, dp := range dps {
-				metrics = append(metrics, dp.GetMetric())
-			}
-			Expect(metrics).To(Not(ContainElement("kubernetes.pod_phase")))
-			Expect(metrics).To(ContainElement("kubernetes.deployment.desired"))
-		})
 	})
 
 	It("Reports if first in pod list", func() {
@@ -381,8 +355,7 @@ var _ = Describe("Kubernetes plugin", func() {
 
 		doSetup(false, "agent-1")
 
-		dps := fakeSignalFx.PopIngestedDatapoints()
-
+		dps := waitForDatapoints(2)
 		Expect(dps).To(HaveLen(2))
 	})
 
@@ -416,7 +389,7 @@ var _ = Describe("Kubernetes plugin", func() {
 
 		doSetup(false, "agent-2")
 
-		fakeSignalFx.EnsureNoDatapoints()
+		Expect(dpChan).ShouldNot(Receive())
 	})
 
 	It("Starts reporting if later becomes first in pod list", func() {
@@ -449,7 +422,7 @@ var _ = Describe("Kubernetes plugin", func() {
 
 		doSetup(false, "agent-2")
 
-		fakeSignalFx.EnsureNoDatapoints()
+		Expect(dpChan).ShouldNot(Receive())
 
 		fakeK8s.EventInput <- WatchEvent{watch.Deleted, &v1.Pod{
 			TypeMeta: unversioned.TypeMeta{
@@ -465,7 +438,7 @@ var _ = Describe("Kubernetes plugin", func() {
 			},
 		}}
 
-		dps := fakeSignalFx.PopIngestedDatapoints()
+		dps := waitForDatapoints(1)
 		Expect(dps).To(HaveLen(1))
 	})
 })

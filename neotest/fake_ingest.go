@@ -1,4 +1,4 @@
-package testhelpers
+package neotest
 
 import (
 	"fmt"
@@ -6,10 +6,14 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
+	"net/url"
 	"sync"
 
 	"github.com/gogo/protobuf/proto"
 	sfxproto "github.com/signalfx/com_signalfx_metrics_protobuf"
+
+	"github.com/signalfx/neo-agent/core/config"
+	"github.com/signalfx/neo-agent/core/writer"
 
 	"github.com/onsi/gomega"
 )
@@ -42,8 +46,12 @@ func (f *FakeSignalFx) Close() {
 }
 
 // URL is the of the mock server to point your objects under test to
-func (f *FakeSignalFx) URL() string {
-	return f.server.URL
+func (f *FakeSignalFx) URL() *url.URL {
+	url, err := url.Parse(f.server.URL)
+	if err != nil {
+		panic("Bad URL " + url.String())
+	}
+	return url
 }
 
 // ServeHTTP handles a single request
@@ -69,8 +77,6 @@ func (f *FakeSignalFx) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 // PopIngestedDatapoints returns all currently received datapoints and removes
 // them from the server state so that they won't be returned again.
 func (f *FakeSignalFx) PopIngestedDatapoints() []*sfxproto.DataPoint {
-	gomega.Eventually(func() int { return len(f.received) }, 5).Should(gomega.BeNumerically(">", 0))
-
 	f.lock.Lock()
 	defer f.lock.Unlock()
 
@@ -86,4 +92,15 @@ func (f *FakeSignalFx) PopIngestedDatapoints() []*sfxproto.DataPoint {
 // seconds.
 func (f *FakeSignalFx) EnsureNoDatapoints() {
 	gomega.Consistently(func() int { return len(f.received) }, 4).Should(gomega.Equal(0))
+}
+
+// Writer returns a SignalFxWriter that is configured to use this fake ingest
+func (f *FakeSignalFx) Writer() *writer.SignalFxWriter {
+	w := &writer.SignalFxWriter{}
+	w.Configure(&config.WriterConfig{
+		IngestURL:                    f.URL(),
+		DatapointSendIntervalSeconds: 1,
+		EventSendIntervalSeconds:     1,
+	})
+	return w
 }

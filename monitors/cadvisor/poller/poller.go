@@ -19,8 +19,6 @@ import (
 	kubeLabels "k8s.io/client-go/pkg/labels"
 	"k8s.io/client-go/rest"
 
-	"os"
-
 	"github.com/google/cadvisor/client"
 	info "github.com/google/cadvisor/info/v1"
 )
@@ -380,12 +378,6 @@ func (swc *scrapWorkCache) fillNodeDims(chosen int, dims map[string]string) {
 		dims["node_kubelet_version"] = node.Status.NodeInfo.KubeletVersion
 		dims["node_os_image"] = node.Status.NodeInfo.OSImage
 		dims["node_kubeproxy_version"] = node.Status.NodeInfo.KubeProxyVersion
-	} else {
-		// This should only happen when doing MonitorNode().
-		// TODO: Add rest of dimensions above.
-		if hostname, err := os.Hostname(); err == nil {
-			dims["host"] = hostname
-		}
 	}
 }
 

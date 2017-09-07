@@ -2,12 +2,12 @@ package kubernetes
 
 import (
 	"fmt"
-	"log"
 	"sync"
 	"time"
 
 	"github.com/signalfx/golib/datapoint"
 	"github.com/signalfx/neo-agent/utils"
+	log "github.com/sirupsen/logrus"
 	"k8s.io/client-go/pkg/api/v1"
 	"k8s.io/client-go/pkg/apis/extensions/v1beta1"
 	"k8s.io/client-go/pkg/runtime"
@@ -137,7 +137,9 @@ func (dc *DatapointCache) HandleChange(oldObj, newObj runtime.Object) {
 		removeFunc = dc.removeReplicaSetDps
 		addFunc = dc.addReplicaSetDps
 	default:
-		log.Printf("Unknown object type in HandleChange: %#v", objToTest)
+		log.WithFields(log.Fields{
+			"objectType": objToTest,
+		}).Error("Unknown object type in HandleChange")
 		return
 	}
 
