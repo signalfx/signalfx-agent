@@ -59,8 +59,8 @@ func (rq *RegisterQueue) getMonitorTypeList() []string {
 		return nil
 	}
 
-	respJson, err := rq.socket.RecvBytes(0)
-	log.Infof("Received register response %s", respJson)
+	respJSON, err := rq.socket.RecvBytes(0)
+	log.Infof("Received register response %s", respJSON)
 	if err != nil {
 		log.WithFields(log.Fields{
 			"error": err,
@@ -69,7 +69,7 @@ func (rq *RegisterQueue) getMonitorTypeList() []string {
 	}
 
 	var resp RegisterResponse
-	err = json.Unmarshal(respJson, &resp)
+	err = json.Unmarshal(respJSON, &resp)
 	if err != nil {
 		log.WithFields(log.Fields{
 			"error": err,

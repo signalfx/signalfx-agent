@@ -1,5 +1,3 @@
-// This package holds datadog-specific logic that helps configure and adapt
-// their plugins to our system.
 package neopy
 
 import (
@@ -8,34 +6,42 @@ import (
 
 	"github.com/signalfx/golib/datapoint"
 	"github.com/signalfx/neo-agent/core/config"
+	"github.com/signalfx/neo-agent/core/services"
 	"github.com/signalfx/neo-agent/monitors"
-	"github.com/signalfx/neo-agent/observers"
 	log "github.com/sirupsen/logrus"
 )
 
+// DDMonitorTypePrefix is the prefix for all DataDog monitor type strings
 const DDMonitorTypePrefix = "dd/"
 
+// DDConfig is a generic config struct that allows configuration of DataDog
+// checks.  DD checks accept three types of config: agent config (global agent
+// config), init config (check-specific but applied across all instances of the
+// monitored service), and instance config (specifying the individual instances
+// that are being monitored).
 type DDConfig struct {
 	config.MonitorConfig
 	// These next three correspond to the three parameters for the __init__
 	// method of DD Check classes.
-	InitConfig          map[string]interface{} `mapstructure:"init_config" default:"{}" json:"init_config"`
-	AgentConfig         map[string]interface{} `json:"agentConfig"`
-	AgentConfigOverride map[string]interface{} `mapstructure:"agentConfig" default:"{}"`
+	AgentConfig       map[string]interface{}   `json:"agentConfig"`
+	InitConfig        map[string]interface{}   `yaml:"init_config" default:"{}" json:"init_config"`
+	InstancesOverride []map[string]interface{} `yaml:"instances" default:"[]"`
 
-	InstancesOverride []map[string]interface{} `mapstructure:"instances" default:"[]"`
-	InstanceTemplate  map[string]string        `default:"{}"`
-	FinalInstances    []map[string]interface{} `json:"instances"`
+	AgentConfigOverride map[string]interface{}   `yaml:"agentConfig" default:"{}"`
+	InstanceTemplate    map[string]string        `yaml:"instanceTemplate" default:"{}"`
+	FinalInstances      []map[string]interface{} `json:"instances"`
 }
 
-// Represents a datadog check that may or may not be configured via service
-// discovery.
+// DDCheck represents a Datadog check that may or may not be configured via
+// service discovery.
 type DDCheck struct {
-	serviceSet map[observers.ServiceID]*observers.ServiceInstance
+	serviceSet map[services.ID]services.Endpoint
 	DPs        chan<- *datapoint.Datapoint
 	config     *DDConfig
 }
 
+// Configure the DD check.  This will update the python runner with the
+// configured services.
 func (ddc *DDCheck) Configure(config *DDConfig) bool {
 	ddc.config = config
 
@@ -43,7 +49,7 @@ func (ddc *DDCheck) Configure(config *DDConfig) bool {
 	ddc.config.AgentConfig["procfs_path"] = config.ProcFSPath
 	ddc.config.AgentConfig["version"] = "0.0.0-signalfx"
 
-	Instance().SendDatapointsForMonitorTo(config.Id, ddc.DPs)
+	Instance().sendDatapointsForMonitorTo(config.ID, ddc.DPs)
 
 	if len(config.InstancesOverride) == 0 && config.DiscoveryRule == "" {
 		log.WithFields(log.Fields{
@@ -68,16 +74,20 @@ func (ddc *DDCheck) Configure(config *DDConfig) bool {
 	return true
 }
 
-func (ddc *DDCheck) AddService(service *observers.ServiceInstance) {
-	ddc.serviceSet[service.ID] = service
+// AddService adds a service endpoint to the Python runner.  This is only
+// called by the monitor manager.
+func (ddc *DDCheck) AddService(service services.Endpoint) {
+	ddc.serviceSet[service.ID()] = service
 	// We just reconfigured the whole python instance, which will ultimately
 	// destroy and recreate the check since DD checks have no
 	// hot-reloading capabilities
 	ddc.Configure(ddc.config)
 }
 
-func (ddc *DDCheck) RemoveService(service *observers.ServiceInstance) {
-	delete(ddc.serviceSet, service.ID)
+// RemoveService removes a service endpoint from Python.  This is only called
+// by the monitor manager.
+func (ddc *DDCheck) RemoveService(service services.Endpoint) {
+	delete(ddc.serviceSet, service.ID())
 	ddc.Configure(ddc.config)
 }
 
@@ -107,7 +117,7 @@ func (ddc *DDCheck) instancesFromServices() []map[string]interface{} {
 	return instances
 }
 
-func (ddc *DDCheck) renderInstanceTemplateValue(t string, service *observers.ServiceInstance) (string, error) {
+func (ddc *DDCheck) renderInstanceTemplateValue(t string, service services.Endpoint) (string, error) {
 	tmpl, err := template.New("instanceValue").Parse(t)
 	if err != nil {
 		return "", err
@@ -122,14 +132,15 @@ func (ddc *DDCheck) renderInstanceTemplateValue(t string, service *observers.Ser
 	return output.String(), nil
 }
 
-func RegisterDDCheck(_type string) {
+func registerDDCheck(_type string) {
 	monitors.Register(_type, func() interface{} {
 		return &DDCheck{
-			serviceSet: make(map[observers.ServiceID]*observers.ServiceInstance),
+			serviceSet: make(map[services.ID]services.Endpoint),
 		}
 	}, &DDConfig{})
 }
 
-func (dc *DDCheck) Shutdown() {
-	Instance().ShutdownMonitor(dc.config.Id)
+// Shutdown the instance both in neo-agent and python
+func (ddc *DDCheck) Shutdown() {
+	Instance().ShutdownMonitor(ddc.config.ID)
 }

@@ -1,4 +1,5 @@
-// Watcher that polls the local filesystem for changes
+// Package watcher contains logic for watching the local filesystem for changes via
+// polling.
 package watcher
 
 import (

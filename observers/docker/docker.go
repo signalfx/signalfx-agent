@@ -1,3 +1,5 @@
+// Package docker is an observer that watches a docker daemon and reports
+// container ports as service endpoints.
 package docker
 
 import (
@@ -11,6 +13,7 @@ import (
 	"golang.org/x/net/context"
 
 	"github.com/signalfx/neo-agent/core/config"
+	"github.com/signalfx/neo-agent/core/services"
 	"github.com/signalfx/neo-agent/observers"
 )
 
@@ -29,11 +32,23 @@ type Docker struct {
 	config           *Config
 }
 
+// Config specific to the Docker observer
 type Config struct {
 	config.ObserverConfig
-	DockerURL string `default:"unix:///var/run/docker.sock"`
+	DockerURL string `yaml:"dockerURL" default:"unix:///var/run/docker.sock"`
 	// How often to poll the docker API
 	PollIntervalSeconds int `default:"10"`
+}
+
+// Validate the docker-specific config
+func (c *Config) Validate() bool {
+	if c.PollIntervalSeconds < 1 {
+		logger.WithFields(log.Fields{
+			"pollIntervalSeconds": c.PollIntervalSeconds,
+		}).Error("pollIntervalSeconds must be greater than 0")
+		return false
+	}
+	return true
 }
 
 func init() {
@@ -57,11 +72,8 @@ func (docker *Docker) Configure(config *Config) bool {
 		return false
 	}
 
-	if config.PollIntervalSeconds < 1 {
-		logger.WithFields(log.Fields{
-			"pollIntervalSeconds": config.PollIntervalSeconds,
-		}).Error("pollIntervalSeconds must be greater than 0")
-		return false
+	if docker.serviceDiffer != nil {
+		docker.serviceDiffer.Stop()
 	}
 
 	docker.serviceDiffer = &observers.ServiceDiffer{
@@ -77,7 +89,7 @@ func (docker *Docker) Configure(config *Config) bool {
 }
 
 // Discover services by querying docker api
-func (docker *Docker) discover() []*observers.ServiceInstance {
+func (docker *Docker) discover() []services.Endpoint {
 	options := types.ContainerListOptions{All: true}
 	containers, err := docker.client.ContainerList(context.Background(), options)
 	if err != nil {
@@ -89,24 +101,40 @@ func (docker *Docker) discover() []*observers.ServiceInstance {
 		return nil
 	}
 
-	instances := make([]*observers.ServiceInstance, 0)
+	instances := make([]services.Endpoint, 0)
 
 	for _, c := range containers {
 		if c.State == "running" {
-			serviceContainer := observers.NewContainer(c.ID, c.Names, c.Image, "", c.Command, c.State, c.Labels, "")
-			for _, port := range c.Ports {
-				servicePort := observers.NewPort("", "127.0.0.1", observers.PortType(port.Type), uint16(port.PrivatePort), uint16(port.PublicPort))
+			serviceContainer := &services.Container{
+				ID:      c.ID,
+				Names:   c.Names,
+				Image:   c.Image,
+				Command: c.Command,
+				State:   c.State,
+				Labels:  c.Labels,
+			}
 
+			for _, port := range c.Ports {
 				id := serviceContainer.PrimaryName() + "-" + c.ID[:12] + "-" + strconv.Itoa(port.PrivatePort)
+
+				endpoint := services.NewEndpointCore(id, "", time.Now(), observerType)
+				endpoint.Host = "127.0.0.1"
+				endpoint.PortType = services.PortType(port.Type)
+				endpoint.Port = uint16(port.PublicPort)
 
 				dims := map[string]string{
 					"container_name":  serviceContainer.PrimaryName(),
 					"container_image": c.Image,
 				}
 
-				orchestration := observers.NewOrchestration("docker", observers.DOCKER, dims, observers.PUBLIC)
+				orchestration := services.NewOrchestration("docker", services.DOCKER, dims, services.PUBLIC)
 
-				si := observers.NewServiceInstance(id, serviceContainer, orchestration, servicePort, time.Now())
+				si := &services.ContainerEndpoint{
+					EndpointCore:  *endpoint,
+					AltPort:       uint16(port.PrivatePort),
+					Container:     *serviceContainer,
+					Orchestration: *orchestration,
+				}
 
 				instances = append(instances, si)
 			}
@@ -116,6 +144,9 @@ func (docker *Docker) discover() []*observers.ServiceInstance {
 	return instances
 }
 
+// Shutdown the service differ routine
 func (docker *Docker) Shutdown() {
-	docker.serviceDiffer.Stop()
+	if docker.serviceDiffer != nil {
+		docker.serviceDiffer.Stop()
+	}
 }

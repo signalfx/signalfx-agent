@@ -78,7 +78,7 @@ class IntervalScheduler(object):
                     if f == func:
                         del self.heap[i]
                         heapq.heapify(self.heap)
-                        cancel_was_called = True
+                        cancel.was_called = True
                         return
                 else:
                     # If the func wasn't in the heap, then it must be currently

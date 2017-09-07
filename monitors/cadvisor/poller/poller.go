@@ -4,24 +4,14 @@ import (
 	"fmt"
 	"reflect"
 	"regexp"
-	"strings"
 	//"sort"
-	"errors"
+
 	"sync"
 	"time"
 
-	"net/url"
-
-	"encoding/json"
 	"log"
-	"runtime"
 
-	"golang.org/x/net/context"
-
-	"github.com/goinggo/workpool"
 	"github.com/signalfx/golib/datapoint"
-	"github.com/signalfx/golib/pointer"
-	"github.com/signalfx/metricproxy/protocol/signalfx"
 	"github.com/signalfx/neo-agent/monitors/cadvisor/converter"
 	corev1 "k8s.io/client-go/kubernetes/typed/core/v1"
 	"k8s.io/client-go/pkg/api/v1"
@@ -63,12 +53,6 @@ type Config struct {
 	ExcludedImages         []*regexp.Regexp
 	ExcludedLabels         [][]*regexp.Regexp
 	ExcludedMetrics        map[string]bool
-}
-
-// PrometheusScraper scrapper for prometheus
-type PrometheusScraper struct {
-	Forwarder *signalfx.Forwarder
-	Cfg       *Config
 }
 
 // workProxy will call work.DoWork and then callback
@@ -137,25 +121,6 @@ const dataSourceType = "kubernetes"
 
 func printVersion() {
 	log.Printf("git build commit: %v\n", ToolVersion)
-}
-
-// NewSfxClient creates a new sfx client
-func NewSfxClient(ingestURL, authToken string) (forwarder *signalfx.Forwarder) {
-	// url string, timeout time.Duration,defaultAuthToken string, drainingThreads uint32, defaultSource string, sourceDimensions string, proxyVersion string
-
-	//strings.Join([]string{ingestURL, "v2/datapoint"}, "/"), time.Second*10, authToken, 10, "", "", ""
-	var config = &signalfx.ForwarderConfig{
-		DatapointURL: pointer.String(strings.Join([]string{ingestURL, "v2/datapoint"}, "/")),
-		EventURL:     pointer.String(strings.Join([]string{ingestURL, "v2/EventURL/"}, "/")),
-		Timeout:      pointer.Duration(time.Second * 10),
-		AuthToken:    pointer.String(authToken),
-		MaxIdleConns: pointer.Int64(10),
-	}
-	forwarder, err := signalfx.NewForwarder(config) //http://lab-ingest.corp.signalfuse.com:8080
-	if err != nil {
-		log.Println("Error buildling signalfx forwarder")
-	}
-	return
 }
 
 func nameToLabel(name string) map[string]string {
@@ -257,8 +222,8 @@ func newKubeClient(config *Config) (restClient *corev1.CoreV1Client, err error) 
 }
 
 // MonitorNode collects metrics from a single node
-func MonitorNode(cfg *Config, forwarder *signalfx.Forwarder, dataSendRate time.Duration) (stop chan bool, stopped chan bool, err error) {
-	swc := newScrapWorkCache(cfg, forwarder)
+func MonitorNode(cfg *Config, dpChan chan<- *datapoint.Datapoint, dataSendRate time.Duration) (stop chan bool, stopped chan bool, err error) {
+	swc := newScrapWorkCache(cfg, dpChan)
 	cadvisorClient, err := client.NewClient(cfg.CadvisorURL[0])
 	if err != nil {
 		return nil, nil, err
@@ -305,109 +270,6 @@ func MonitorNode(cfg *Config, forwarder *signalfx.Forwarder, dataSendRate time.D
 	return stop, stopped, nil
 }
 
-// Main main function of PrometheusScraper
-func (p *PrometheusScraper) Main(paramDataSendRate, paramNodeServiceDiscoveryRate time.Duration) (err error) {
-
-	kubeClient, err := newKubeClient(p.Cfg)
-	if err != nil {
-		return err
-	}
-
-	podToServiceMap := updateServices(kubeClient)
-	hostIPtoNameMap, nodeIPs := updateNodes(kubeClient, p.Cfg.CadvisorPort)
-	p.Cfg.CadvisorURL = nodeIPs
-
-	cadvisorServers := make([]*url.URL, len(p.Cfg.CadvisorURL))
-	for i, serverURL := range p.Cfg.CadvisorURL {
-		cadvisorServers[i], err = url.Parse(serverURL)
-		if err != nil {
-			return err
-		}
-	}
-
-	printVersion()
-	cfg, _ := json.MarshalIndent(p.Cfg, "", "  ")
-	log.Printf("Scrapper started with following params:\n%v\n", string(cfg))
-
-	scrapWorkCache := newScrapWorkCache(p.Cfg, p.Forwarder)
-	stop := make(chan error, 1)
-
-	scrapWorkCache.setPodToServiceMap(podToServiceMap)
-	scrapWorkCache.setHostIPtoNameMap(hostIPtoNameMap)
-
-	scrapWorkCache.buildWorkList(p.Cfg.CadvisorURL)
-
-	// Wait on channel input and forward datapoints to SignalFx
-	go func() {
-		scrapWorkCache.waitAndForward()                // Blocking call!
-		stop <- errors.New("all channels were closed") // Stop all timers
-	}()
-
-	workPool := workpool.New(runtime.NumCPU(), int32(len(p.Cfg.CadvisorURL)+1))
-
-	// Collect data from nodes
-	scrapWorkTicker := time.NewTicker(paramDataSendRate)
-	go func() {
-		for range scrapWorkTicker.C {
-
-			scrapWorkCache.foreachWork(func(i int, w *scrapWork2) bool {
-				workPool.PostWork("CollectDataWork", w)
-				return true
-			})
-		}
-	}()
-
-	// New nodes and services discovery
-	updateNodeAndPodTimer := time.NewTicker(paramNodeServiceDiscoveryRate)
-	go func() {
-
-		for range updateNodeAndPodTimer.C {
-
-			podMap := updateServices(kubeClient)
-			hostMap, _ := updateNodes(kubeClient, p.Cfg.CadvisorPort)
-
-			hostMapCopy := make(map[string]v1.Node)
-			for k, v := range hostMap {
-				hostMapCopy[k] = v
-			}
-
-			// Remove known nodes
-			scrapWorkCache.foreachWork(func(i int, w *scrapWork2) bool {
-				delete(hostMapCopy, w.serverURL)
-				return true
-			})
-
-			if len(hostMapCopy) != 0 {
-				scrapWorkCache.setHostIPtoNameMap(hostMap)
-
-				// Add new(remaining) nodes to monitoring
-				for serverURL := range hostMapCopy {
-					cadvisorClient, localERR := client.NewClient(serverURL)
-					if localERR != nil {
-						log.Printf("Failed connect to server: %v\n", localERR)
-						continue
-					}
-
-					scrapWorkCache.addWork(&scrapWork2{
-						serverURL:  serverURL,
-						collector:  converter.NewCadvisorCollector(newCadvisorInfoProvider(cadvisorClient), nameToLabel, []*regexp.Regexp{}, []*regexp.Regexp{}, [][]*regexp.Regexp{}, map[string]bool{}),
-						chRecvOnly: make(chan datapoint.Datapoint),
-					})
-				}
-			}
-
-			scrapWorkCache.setPodToServiceMap(podMap)
-		}
-	}()
-
-	err = <-stop // Block here till stopped
-
-	updateNodeAndPodTimer.Stop()
-	scrapWorkTicker.Stop()
-
-	return
-}
-
 type responseChannel *chan bool
 
 type scrapWorkCache struct {
@@ -416,17 +278,17 @@ type scrapWorkCache struct {
 	flushChan       chan responseChannel
 	podToServiceMap map[string]string
 	hostIPtoNameMap map[string]v1.Node
-	forwarder       *signalfx.Forwarder
+	dpChan          chan<- *datapoint.Datapoint
 	cfg             *Config
 	mutex           *sync.Mutex
 }
 
-func newScrapWorkCache(cfg *Config, forwarder *signalfx.Forwarder) *scrapWorkCache {
+func newScrapWorkCache(cfg *Config, dpChan chan<- *datapoint.Datapoint) *scrapWorkCache {
 	return &scrapWorkCache{
 		workCache: make([]*scrapWork2, 0, 1),
 		cases:     make([]reflect.SelectCase, 0, 1),
 		flushChan: make(chan responseChannel, 1),
-		forwarder: forwarder,
+		dpChan:    dpChan,
 		cfg:       cfg,
 		mutex:     &sync.Mutex{},
 	}
@@ -541,8 +403,6 @@ func (swc *scrapWorkCache) waitAndForward() {
 	remaining := len(swc.cases)
 	swc.mutex.Unlock()
 
-	ctx := context.Background()
-
 	// localMutex used to sync i access
 	localMutex := &sync.Mutex{}
 	i := 0
@@ -559,7 +419,9 @@ func (swc *scrapWorkCache) waitAndForward() {
 
 			if i > 0 {
 				min := min(i, maxDatapoints)
-				swc.forwarder.AddDatapoints(ctx, ret[:min])
+				for i := 0; i < min; i++ {
+					swc.dpChan <- ret[i]
+				}
 				i = 0
 			}
 		}()
@@ -620,7 +482,6 @@ func (swc *scrapWorkCache) waitAndForward() {
 		}
 
 		dims["metric_source"] = dataSourceType
-		dims["kubernetes_cluster"] = swc.cfg.ClusterName
 
 		swc.fillNodeDims(chosen, dims)
 

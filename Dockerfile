@@ -173,21 +173,26 @@ RUN for pkg in $(cat /tmp/packages); do go install github.com/signalfx/neo-agent
 
 
 ###### Neoagent Build Image ########
-FROM golang:1.8.3-stretch as agent-builder
+FROM ubuntu:16.04 as agent-builder
 
 # Cgo requires dep libraries present to link in libcollectd
 RUN apt update &&\
-    apt install -y libltdl-dev libzmq5-dev
+    apt install -y libltdl-dev libzmq5-dev wget pkg-config
 
-COPY --from=godeps /go/src/github.com/signalfx/neo-agent/vendor src/github.com/signalfx/neo-agent/vendor
+ENV GO_VERSION=1.8.3 PATH=$PATH:/usr/local/go/bin
+RUN cd /tmp &&\
+    wget https://storage.googleapis.com/golang/go${GO_VERSION}.linux-amd64.tar.gz &&\
+	tar -C /usr/local -xf go*.tar.gz
+
+COPY --from=godeps /go/src/github.com/signalfx/neo-agent/vendor /go/src/github.com/signalfx/neo-agent/vendor
 COPY --from=godeps /go/pkg /go/pkg
 COPY --from=collectd /usr/src/collectd/ /usr/src/collectd
 COPY --from=collectd /usr/src/collectd/libcollectd.so /usr/local/lib/libcollectd.so
-ADD scripts/go_packages.tar src/github.com/signalfx/neo-agent/
+ADD scripts/go_packages.tar /go/src/github.com/signalfx/neo-agent/
 
 ARG agent_version
 ARG collectd_version
-RUN go build \
+RUN GOPATH=/go go build \
     -ldflags "-X main.Version=$agent_version -X main.CollectdVersion=$collectd_version -X main.BuiltTime=$(date +%FT%T%z)" \
 	-o signalfx-agent \
     github.com/signalfx/neo-agent &&\
@@ -210,7 +215,7 @@ COPY collectd-plugins.yaml /opt/
 RUN mkdir -p /usr/share/collectd/java \
     && echo "jmx_memory      value:GAUGE:0:U" > /usr/share/collectd/java/signalfx_types_db
 
-RUN bash /opt/get-collectd-plugins.sh
+RUN bash /opt/scripts/get-collectd-plugins.sh
 
 RUN apt install -y libffi-dev libssl-dev build-essential python-dev libcurl4-openssl-dev
 
@@ -280,7 +285,7 @@ RUN sed -i -e '/^deb-src/d' /etc/apt/sources.list \
       libxen-4.6 \
       libxml2 \
       libyajl2 \
-	  libzmq5 \
+	  libzmq5-dev \
 	  netcat-openbsd \
       net-tools \
       openjdk-8-jre-headless \

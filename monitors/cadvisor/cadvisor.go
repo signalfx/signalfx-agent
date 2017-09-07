@@ -6,6 +6,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/signalfx/golib/datapoint"
 	"github.com/signalfx/neo-agent/core/config"
 	"github.com/signalfx/neo-agent/monitors"
 	"github.com/signalfx/neo-agent/monitors/cadvisor/poller"
@@ -14,7 +15,7 @@ import (
 )
 
 const (
-	_type = "monitors/cadvisor"
+	_type = "cadvisor"
 )
 
 var logger = log.WithFields(log.Fields{"monitorType": _type})
@@ -23,25 +24,20 @@ func init() {
 	monitors.Register(_type, func() interface{} { return &Cadvisor{} }, &Config{})
 }
 
+// Config that is specific to the cAdvisor monitor
 type Config struct {
 	config.MonitorConfig
-	CAdvisorURL     string
-	ExcludedLabels  [][]string
-	ExcludedImages  []string
-	ExcludedNames   []string
-	ExcludedMetrics []string
-
-	KubernetesAPI struct {
-		AuthType       string `default:"serviceAccount"`
-		ClientCertPath string
-		ClientKeyPath  string
-		CACertPath     string `yaml:"caCertPath,omitempty"`
-	} `yaml:"kubernetesAPI"`
+	CAdvisorURL     string     `yaml:"cadvisorURL" default:"http://localhost:4194"`
+	ExcludedLabels  [][]string `yaml:"excludedLabels"`
+	ExcludedImages  []string   `yaml:"excludedImages"`
+	ExcludedNames   []string   `yaml:"excludedNames"`
+	ExcludedMetrics []string   `yaml:"excludedMetrics"`
 }
 
-// Cadvisor plugin struct
+// Cadvisor pulls metrics from the cAdvisor endpoint
 type Cadvisor struct {
 	config  *Config
+	DPs     chan<- *datapoint.Datapoint
 	lock    sync.Mutex
 	stop    chan bool
 	stopped chan bool
@@ -122,17 +118,14 @@ func (c *Cadvisor) Configure(conf *Config) bool {
 	// Stop if cadvisor was previously running
 	c.Shutdown()
 
+	c.config = conf
+
 	c.stop = nil
 	c.stopped = nil
 
 	dimensions := conf.ExtraDimensions
-	clusterName := conf.ExtraDimensions["kubernetes_cluster"]
-	forwarder := poller.NewSfxClient(conf.IngestURL.String(), conf.SignalFxAccessToken)
 	cfg := &poller.Config{
-		IngestURL:              conf.IngestURL.String(),
-		APIToken:               conf.SignalFxAccessToken,
 		DataSendRate:           strconv.Itoa(conf.IntervalSeconds),
-		ClusterName:            clusterName,
 		NodeServiceRefreshRate: "",
 		CadvisorPort:           0,
 		KubernetesURL:          "",
@@ -147,12 +140,10 @@ func (c *Cadvisor) Configure(conf *Config) bool {
 	}
 
 	var err error
-	if c.stop, c.stopped, err = poller.MonitorNode(cfg, forwarder, time.Duration(conf.IntervalSeconds)*time.Second); err != nil {
+	if c.stop, c.stopped, err = poller.MonitorNode(cfg, c.DPs, time.Duration(conf.IntervalSeconds)*time.Second); err != nil {
 		log.Errorf("monitoring cadvisor node failed: %s", err)
 		return false
 	}
-
-	c.config = conf
 
 	return true
 }

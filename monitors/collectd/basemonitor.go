@@ -5,85 +5,80 @@ import (
 	"fmt"
 	"os"
 	"path"
+	"sync"
 	"text/template"
 
+	"github.com/davecgh/go-spew/spew"
 	"github.com/signalfx/neo-agent/core/config"
+	"github.com/signalfx/neo-agent/core/config/types"
 	"github.com/signalfx/neo-agent/monitors/collectd/templating"
-	"github.com/signalfx/neo-agent/observers"
 	"github.com/signalfx/neo-agent/utils"
 	log "github.com/sirupsen/logrus"
 )
 
-type TemplateContext map[string]interface{}
-
-func NewTemplateContext() TemplateContext {
-	tc := TemplateContext(map[string]interface{}{})
-	tc["services"] = make([]*observers.ServiceInstance, 0)
-	tc["dimensions"] = make(map[string]string)
-
-	return tc
-}
-
-func (tc TemplateContext) SetServices(services []*observers.ServiceInstance) {
-	tc["services"] = services
-}
-
-func (tc TemplateContext) GetServices() []*observers.ServiceInstance {
-	if ss, ok := tc["services"].([]*observers.ServiceInstance); ok {
-		return ss
-	}
-	return nil
-}
-
-func (tc TemplateContext) SetDimensions(dims map[string]string) {
-	tc["dimensions"] = dims
-}
-
-func (tc TemplateContext) GetDimensions() map[string]string {
-	if dims, ok := tc["dimensions"].(map[string]string); ok {
-		return dims
-	}
-	return nil
-}
-
+// BaseMonitor contains common data/logic for collectd monitors, mainly
+// stuff related to templating of the plugin config files.  This should
+// generally not be used directly, but rather one of the structs that embeds
+// this: StaticMonitorCore or ServiceMonitorCore.
 type BaseMonitor struct {
 	Template *template.Template
 	// The object that gets passed to the template execution
-	Context TemplateContext
+	Context templating.TemplateContext
 	// Where to write the plugin config to on the filesystem
 	ConfigFilename string
+	isRunning      bool
+	monitorID      types.MonitorID
+	lock           sync.Mutex
 }
 
+// NewBaseMonitor creates a new initialized but unconfigured BaseMonitor with
+// the given template.
 func NewBaseMonitor(template *template.Template) *BaseMonitor {
 	name := template.Name()
 	templating.InjectTemplateFuncs(template)
 
 	return &BaseMonitor{
 		Template:       template,
-		Context:        NewTemplateContext(),
-		ConfigFilename: fmt.Sprintf("20-%s.%d.conf", name, getNextIdFor(name)),
+		Context:        templating.NewTemplateContext(),
+		ConfigFilename: fmt.Sprintf("20-%s.%d.conf", name, getNextIDFor(name)),
+		isRunning:      false,
 	}
 }
 
-func (bm *BaseMonitor) SetConfigurationAndRun(conf config.MonitorConfig) bool {
-	bm.Context["interval"] = conf.IntervalSeconds
-	bm.Context["ingestURL"] = conf.IngestURL.String()
-	bm.Context["accessToken"] = conf.SignalFxAccessToken
-	//customTemplatePath := conf.OtherConfig["collectdTemplatePath"]
+// SetConfiguration adds various fields from the config to the template context
+// but does not render the config.
+func (bm *BaseMonitor) SetConfiguration(conf *config.MonitorConfig) bool {
+	bm.lock.Lock()
+	defer bm.lock.Unlock()
+
+	bm.Context["IntervalSeconds"] = conf.IntervalSeconds
+	bm.Context["IngestURL"] = conf.IngestURL.String()
+	bm.Context["SignalFxAccessToken"] = conf.SignalFxAccessToken
 
 	bm.Context.SetDimensions(
-		utils.MergeStringMaps(bm.Context.GetDimensions(), conf.ExtraDimensions))
+		utils.MergeStringMaps(bm.Context.Dimensions(), conf.ExtraDimensions))
+	log.Debugf("Setting dimensions on %s to: %s", conf.Type, utils.MergeStringMaps(bm.Context.Dimensions(), conf.ExtraDimensions))
 
-	return bm.WriteConfigForPluginAndRestart()
+	bm.monitorID = conf.ID
+	if !Instance().ConfigureFromMonitor(conf.ID, conf.CollectdConf) {
+		return false
+	}
+
+	return true
 }
 
+// WriteConfigForPluginAndRestart will render the config template to the
+// filesystem and queue a collectd restart
 func (bm *BaseMonitor) WriteConfigForPluginAndRestart() bool {
+	bm.lock.Lock()
+	defer bm.lock.Unlock()
+
 	pluginConfigText := bytes.Buffer{}
 
 	err := bm.Template.Execute(&pluginConfigText, bm.Context)
 	if err != nil {
 		log.WithFields(log.Fields{
-			"context":      bm.Context,
+			"context":      spew.Sdump(bm.Context),
 			"templateName": bm.Template.Name(),
 			"error":        err,
 		}).Error("Could not render collectd config file")
@@ -99,7 +94,9 @@ func (bm *BaseMonitor) WriteConfigForPluginAndRestart() bool {
 		return false
 	}
 
-	CollectdSingleton.Restart()
+	Instance().Restart()
+
+	bm.isRunning = true
 
 	return true
 }
@@ -108,16 +105,17 @@ func (bm *BaseMonitor) renderPath() string {
 	return path.Join(managedConfigDir, bm.ConfigFilename)
 }
 
+// Shutdown removes the config file and restarts collectd
 func (bm *BaseMonitor) Shutdown() {
 	os.Remove(bm.renderPath())
-	CollectdSingleton.Restart()
+	Instance().MonitorDidShutdown(bm.monitorID)
 }
 
 var _ids = map[string]int{}
 
 // Used to ensure unique filenames for distinct plugin templates that configure
 // the same service/plugin
-func getNextIdFor(name string) int {
-	_ids[name] += 1
+func getNextIDFor(name string) int {
+	_ids[name]++
 	return _ids[name]
 }

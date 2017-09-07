@@ -1,3 +1,9 @@
+// Package neopy holds the logic for managing Python plugins using a subprocess
+// running Python. Currently there is only a DataDog monitor type, but we will
+// support collectd Python plugins.  Communiation between this program and the
+// Python runner is done through ZeroMQ IPC sockets.
+//
+// These Python monitors are configured the same as other monitors.
 package neopy
 
 import (
@@ -8,16 +14,20 @@ import (
 	"time"
 
 	"github.com/signalfx/golib/datapoint"
-	"github.com/signalfx/neo-agent/core/config"
+	"github.com/signalfx/neo-agent/core/config/types"
 	log "github.com/sirupsen/logrus"
 )
 
+// NeoPy is the adapter to the NeoPy Python monitor runner process.  It
+// communiates with Python using ZeroMQ IPC sockets.  Each general type of
+// Python plugin (e.g. Datadog, collectd, etc.) should get its own generic
+// monitor type that uses this adapter.
 type NeoPy struct {
 	subproc        *exec.Cmd
 	subprocCancel  func()
 	registered     bool
 	shouldShutdown bool
-	dpChannels     map[config.MonitorID]chan<- *datapoint.Datapoint
+	dpChannels     map[types.MonitorID]chan<- *datapoint.Datapoint
 	dpChannelsLock sync.RWMutex
 	mainDPChan     <-chan *DatapointMessage
 
@@ -33,16 +43,17 @@ type NeoPy struct {
 	loggingQueue *LoggingQueue
 }
 
-var neoPySingleton = NewInstance()
+var neoPySingleton = newInstance()
 
+// Instance returns the singleton NeoPy adapter instance
 func Instance() *NeoPy {
 	return neoPySingleton
 }
 
-func NewInstance() *NeoPy {
+func newInstance() *NeoPy {
 	return &NeoPy{
 		shouldShutdown: false,
-		dpChannels:     make(map[config.MonitorID]chan<- *datapoint.Datapoint),
+		dpChannels:     make(map[types.MonitorID]chan<- *datapoint.Datapoint),
 		registerQueue:  newRegisterQueue(),
 		configQueue:    newConfigQueue(),
 		shutdownQueue:  newShutdownQueue(),
@@ -100,6 +111,9 @@ func (npy *NeoPy) Configure() bool {
 	return true
 }
 
+// EnsureMonitorsRegistered will ask the Python subproc for a list of
+// monitors that it supports.  It then registers those monitors using the
+// standard register callback that all monitors use.
 func (npy *NeoPy) EnsureMonitorsRegistered() {
 	if npy.registered {
 		return
@@ -111,16 +125,16 @@ func (npy *NeoPy) EnsureMonitorsRegistered() {
 			"monitorType": _type,
 		}).Debug("Registering Python monitor")
 		if strings.HasPrefix(_type, DDMonitorTypePrefix) {
-			RegisterDDCheck(_type)
+			registerDDCheck(_type)
 		}
 	}
 	npy.registered = true
 }
 
-func (npy *NeoPy) SendDatapointsForMonitorTo(monitorId config.MonitorID, dpChan chan<- *datapoint.Datapoint) {
+func (npy *NeoPy) sendDatapointsForMonitorTo(monitorID types.MonitorID, dpChan chan<- *datapoint.Datapoint) {
 	npy.dpChannelsLock.Lock()
 	defer npy.dpChannelsLock.Unlock()
-	npy.dpChannels[monitorId] = dpChan
+	npy.dpChannels[monitorID] = dpChan
 }
 
 func (npy *NeoPy) sendDatapointsToMonitors() {
@@ -142,13 +156,16 @@ func (npy *NeoPy) sendDatapointsToMonitors() {
 	}
 }
 
+// ConfigureInPython sends the given config to the python subproc and returns
+// whether configuration was successful
 func (npy *NeoPy) ConfigureInPython(config interface{}) bool {
 	return npy.configQueue.configure(config)
 }
 
-func (npy *NeoPy) ShutdownMonitor(monitorId config.MonitorID) {
-	npy.shutdownQueue.sendShutdownForMonitor(monitorId)
-	delete(npy.dpChannels, monitorId)
+// ShutdownMonitor will shutdown the given monitor id in the python subprocess
+func (npy *NeoPy) ShutdownMonitor(monitorID types.MonitorID) {
+	npy.shutdownQueue.sendShutdownForMonitor(monitorID)
+	delete(npy.dpChannels, monitorID)
 }
 
 // Shutdown the whole NeoPy child process, not just individual monitors

@@ -3,21 +3,23 @@ package observers
 import (
 	"time"
 
+	"github.com/signalfx/neo-agent/core/services"
 	log "github.com/sirupsen/logrus"
 )
 
-// ServiceDiffer will run the `DiscoveryFn` every `IntervalSeconds` and report
-// any new or removed services to the provided `Callbacks`.
+// ServiceDiffer will run the DiscoveryFn every IntervalSeconds and report
+// any new or removed services to the provided Callbacks.
 type ServiceDiffer struct {
-	DiscoveryFn     func() []*ServiceInstance
+	DiscoveryFn     func() []services.Endpoint
 	IntervalSeconds int
 	Callbacks       *ServiceCallbacks
-	serviceSet      map[ServiceID]*ServiceInstance
+	serviceSet      map[services.ID]services.Endpoint
 	stop            chan struct{}
 }
 
+// Start polling the DiscoveryFn on a regular interval
 func (sd *ServiceDiffer) Start() {
-	sd.serviceSet = make(map[ServiceID]*ServiceInstance)
+	sd.serviceSet = make(map[services.ID]services.Endpoint)
 	sd.stop = make(chan struct{})
 
 	ticker := time.NewTicker(time.Duration(sd.IntervalSeconds) * time.Second)
@@ -45,23 +47,23 @@ func (sd *ServiceDiffer) runDiscovery() {
 
 	// Assume a service is inactive until told otherwise by the
 	// discovery function
-	activeSet := map[ServiceID]bool{}
+	activeSet := map[services.ID]bool{}
 	for sid := range sd.serviceSet {
 		activeSet[sid] = false
 	}
 
 	for i := range latestServices {
 		service := latestServices[i]
-		_, seen := sd.serviceSet[service.ID]
+		_, seen := sd.serviceSet[service.ID()]
 		if !seen {
 			log.WithFields(log.Fields{
-				"serviceID": service.ID,
+				"serviceID": service.ID(),
 			}).Debug("ServiceDiffer: adding service")
 
 			sd.Callbacks.Added(service)
 		}
-		sd.serviceSet[service.ID] = service
-		activeSet[service.ID] = true
+		sd.serviceSet[service.ID()] = service
+		activeSet[service.ID()] = true
 	}
 
 	// Remove any that are no longer reported by discovery
@@ -73,6 +75,7 @@ func (sd *ServiceDiffer) runDiscovery() {
 	}
 }
 
+// Stop polling the DiscoveryFn
 func (sd *ServiceDiffer) Stop() {
 	if sd.stop != nil {
 		sd.stop <- struct{}{}

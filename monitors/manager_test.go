@@ -1,26 +1,24 @@
 package monitors
 
 import (
+	"time"
+
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"github.com/signalfx/neo-agent/core/config"
-	"github.com/signalfx/neo-agent/observers"
-	log "github.com/sirupsen/logrus"
+	"github.com/signalfx/neo-agent/core/services"
 )
 
 var id = 0
 
-func newService(imageName string, publicPort int) *observers.ServiceInstance {
+func newService(imageName string, publicPort int) services.Endpoint {
 	id++
-	return &observers.ServiceInstance{
-		ID: observers.ServiceID(id),
-		Container: &observers.Container{
-			Image: imageName,
-		},
-		Port: &observers.Port{
-			PublicPort: uint16(publicPort),
-		},
-	}
+
+	endpoint := services.NewEndpointCore(string(id), "", time.Now())
+	endpoint.Port = uint16(publicPort)
+
+	return services.NewContainerEndpoint(
+		endpoint, 0, &services.Container{Image: imageName}, &services.Orchestration{})
 }
 
 var _ = Describe("Monitor Manager", func() {
@@ -42,7 +40,7 @@ var _ = Describe("Monitor Manager", func() {
 			},
 			config.MonitorConfig{
 				Type:          "dynamic1",
-				DiscoveryRule: `ContainerImage =~ "my-service"`,
+				DiscoveryRule: `containerImage =~ "my-service"`,
 			},
 		})
 
@@ -58,7 +56,7 @@ var _ = Describe("Monitor Manager", func() {
 			},
 			config.MonitorConfig{
 				Type:          "dynamic1",
-				DiscoveryRule: `ContainerImage =~ "my-service"`,
+				DiscoveryRule: `containerImage =~ "my-service"`,
 			},
 		})
 
@@ -67,7 +65,7 @@ var _ = Describe("Monitor Manager", func() {
 		manager.Configure([]config.MonitorConfig{
 			config.MonitorConfig{
 				Type:          "dynamic1",
-				DiscoveryRule: `ContainerImage =~ "my-service"`,
+				DiscoveryRule: `containerImage =~ "my-service"`,
 			},
 		})
 
@@ -81,7 +79,7 @@ var _ = Describe("Monitor Manager", func() {
 			},
 			config.MonitorConfig{
 				Type:          "dynamic1",
-				DiscoveryRule: `ContainerImage =~ "my-service"`,
+				DiscoveryRule: `containerImage =~ "my-service"`,
 			},
 		})
 
@@ -102,7 +100,7 @@ var _ = Describe("Monitor Manager", func() {
 			},
 			config.MonitorConfig{
 				Type:          "dynamic1",
-				DiscoveryRule: `ContainerImage =~ "my-service"`,
+				DiscoveryRule: `containerImage =~ "my-service"`,
 			},
 		})
 
@@ -131,7 +129,7 @@ var _ = Describe("Monitor Manager", func() {
 			},
 			config.MonitorConfig{
 				Type:          "dynamic1",
-				DiscoveryRule: `ContainerImage =~ "my-service"`,
+				DiscoveryRule: `containerImage =~ "my-service"`,
 			},
 		})
 
@@ -168,7 +166,7 @@ var _ = Describe("Monitor Manager", func() {
 			},
 			config.MonitorConfig{
 				Type:          "dynamic1",
-				DiscoveryRule: `ContainerImage =~ "my-service"`,
+				DiscoveryRule: `containerImage =~ "my-service"`,
 			},
 		}
 		manager.Configure(goodConfig)
@@ -184,7 +182,7 @@ var _ = Describe("Monitor Manager", func() {
 			},
 			config.MonitorConfig{
 				Type:          "dynamic1",
-				DiscoveryRule: `ContainerImage =~ "my-service"`,
+				DiscoveryRule: `containerImage =~ "my-service"`,
 				OtherConfig:   map[string]interface{}{"invalid": true},
 			},
 		})
@@ -202,7 +200,7 @@ var _ = Describe("Monitor Manager", func() {
 		manager.Configure([]config.MonitorConfig{
 			config.MonitorConfig{
 				Type:          "dynamic1",
-				DiscoveryRule: `ContainerImage =~ "their-service"`,
+				DiscoveryRule: `containerImage =~ "their-service"`,
 			},
 		})
 
@@ -214,7 +212,7 @@ var _ = Describe("Monitor Manager", func() {
 		manager.Configure([]config.MonitorConfig{
 			config.MonitorConfig{
 				Type:          "dynamic1",
-				DiscoveryRule: `ContainerImage =~ "my-service"`,
+				DiscoveryRule: `containerImage =~ "my-service"`,
 			},
 		})
 
@@ -226,7 +224,7 @@ var _ = Describe("Monitor Manager", func() {
 		manager.Configure([]config.MonitorConfig{
 			config.MonitorConfig{
 				Type:          "dynamic1",
-				DiscoveryRule: `ContainerImage =~ "my-service"`,
+				DiscoveryRule: `containerImage =~ "my-service"`,
 			},
 		})
 
@@ -238,7 +236,7 @@ var _ = Describe("Monitor Manager", func() {
 		manager.Configure([]config.MonitorConfig{
 			config.MonitorConfig{
 				Type:          "dynamic1",
-				DiscoveryRule: `ContainerImage =~ "their-service"`,
+				DiscoveryRule: `containerImage =~ "their-service"`,
 			},
 		})
 
@@ -247,14 +245,13 @@ var _ = Describe("Monitor Manager", func() {
 	})
 
 	It("Monitors the same service on multiple monitors", func() {
-		log.SetLevel(log.DebugLevel)
 		manager.Configure([]config.MonitorConfig{
 			config.MonitorConfig{
 				Type: "static1",
 			},
 			config.MonitorConfig{
 				Type:          "dynamic1",
-				DiscoveryRule: `ContainerImage =~ "my-service"`,
+				DiscoveryRule: `containerImage =~ "my-service"`,
 			},
 		})
 
@@ -269,11 +266,11 @@ var _ = Describe("Monitor Manager", func() {
 			},
 			config.MonitorConfig{
 				Type:          "dynamic1",
-				DiscoveryRule: `ContainerImage =~ "my-service"`,
+				DiscoveryRule: `containerImage =~ "my-service"`,
 			},
 			config.MonitorConfig{
 				Type:          "dynamic2",
-				DiscoveryRule: `ContainerImage =~ "my-service"`,
+				DiscoveryRule: `containerImage =~ "my-service"`,
 			},
 		})
 
@@ -288,11 +285,11 @@ var _ = Describe("Monitor Manager", func() {
 		manager.Configure([]config.MonitorConfig{
 			config.MonitorConfig{
 				Type:          "dynamic1",
-				DiscoveryRule: `ContainerImage =~ "my-service"`,
+				DiscoveryRule: `containerImage =~ "my-service"`,
 			},
 			config.MonitorConfig{
 				Type:          "dynamic2",
-				DiscoveryRule: `ContainerImage =~ "my-service"`,
+				DiscoveryRule: `containerImage =~ "my-service"`,
 			},
 		})
 
@@ -303,5 +300,77 @@ var _ = Describe("Monitor Manager", func() {
 		mons = findMonitorsByType(getMonitors(), "dynamic2")
 		Expect(len(mons)).To(Equal(1))
 		Expect(len(mons[0].GetServices())).To(Equal(1))
+	})
+
+	It("Adds manually configured services to monitors", func() {
+		manager.Configure([]config.MonitorConfig{
+			config.MonitorConfig{
+				Type: "static1",
+			},
+			config.MonitorConfig{
+				Type: "dynamic1",
+				OtherConfig: map[string]interface{}{
+					"serviceEndpoints": []map[string]interface{}{
+						map[string]interface{}{
+							"serviceURL": "http://testing",
+						},
+						map[string]interface{}{
+							"serviceURL": "http://testing2",
+						},
+					},
+				},
+			},
+		})
+
+		mons := findMonitorsByType(getMonitors(), "dynamic1")
+		Expect(len(mons)).To(Equal(1))
+		Expect(len(mons[0].GetServices())).To(Equal(2))
+	})
+
+	It("Removes manually configured services from monitors", func() {
+		manager.Configure([]config.MonitorConfig{
+			config.MonitorConfig{
+				Type: "static1",
+			},
+			config.MonitorConfig{
+				Type: "dynamic1",
+				OtherConfig: map[string]interface{}{
+					"serviceEndpoints": []map[string]interface{}{
+						map[string]interface{}{
+							"serviceURL": "http://testing",
+						},
+						map[string]interface{}{
+							"serviceURL": "http://testing2",
+						},
+					},
+				},
+			},
+		})
+
+		mons := findMonitorsByType(getMonitors(), "dynamic1")
+		Expect(len(mons)).To(Equal(1))
+		Expect(len(mons[0].GetServices())).To(Equal(2))
+
+		manager.Configure([]config.MonitorConfig{
+			config.MonitorConfig{
+				Type: "static1",
+			},
+			config.MonitorConfig{
+				Type: "dynamic1",
+				OtherConfig: map[string]interface{}{
+					"serviceEndpoints": []map[string]interface{}{
+						map[string]interface{}{
+							"id":         "abcdef",
+							"serviceURL": "http://testing",
+						},
+					},
+				},
+			},
+		})
+
+		mons = findMonitorsByType(getMonitors(), "dynamic1")
+		Expect(len(mons)).To(Equal(1))
+		Expect(len(mons[0].GetServices())).To(Equal(1))
+		Expect(mons[0].GetServices()["abcdef"]).To(Not(BeNil()))
 	})
 })

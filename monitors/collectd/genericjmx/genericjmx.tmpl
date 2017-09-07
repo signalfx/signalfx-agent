@@ -1,43 +1,56 @@
+TypesDB "{{Globals.PluginRoot}}/java/signalfx_types_db"
+LoadPlugin "java"
 
 <Plugin java>
+  JVMArg "-verbose:jni"
+  JVMArg "-Djava.class.path=/usr/share/collectd/java/collectd-api.jar:/usr/share/collectd/java/generic-jmx.jar"
+
+  LoadPlugin "org.collectd.java.GenericJMX"
   <Plugin "GenericJMX">
-    {{range $name, $mBean := .MBeans}}
-      <MBean "{{$name}}">
-          ObjectName "{{$mBean.ObjectName}}"
-        {{with $mBean.instancePrefix -}}
-          InstancePrefix "{{.}}"
-        {{-end-}}
-        {{range $value := $mBean.Values -}}
-          <Value>
-            {{with $value.InstancePrefix -}}
-              InstancePrefix "{{.}}"
-            {{end-}}
-              Type "{{$value.Type}}"
-              Table {{or $value.Table "false"}}
-              Attribute "{{$value.Attribute}}"
-          </Value>
-        {{end}}
-      </MBean>
+
+    {{range $name, $_ := .mBeanDefinitions}}
+    <MBean "{{$name}}">
+      ObjectName "{{.ObjectName}}"
+      {{with .InstancePrefix -}}
+      InstancePrefix "{{.}}"
+      {{end -}}
+      {{range .Values -}}
+      <Value>
+        {{with .InstancePrefix -}}
+        InstancePrefix "{{.}}"
+        {{end -}}
+        Type "{{.Type}}"
+        Table {{withDefault .Table "false"}}
+        Attribute "{{.Attribute}}"
+      </Value>
+      {{end}}
+    </MBean>
     {{end}}
 
-    {{range $conn := .Connections}}
-      <Connection>
-          ServiceURL "{{$conn.ServiceURL}}"
-          InstanceSuffix "{{$conn.InstanceSuffix}}"
-          ServiceName "{{$conn.ServiceName}}"
-
-        {{with $conn.Username -}}
-          User "{{.}}"
-        {{- end}}
-
-        {{with $conn.Password -}}
-          Password "{{.}}"
-        {{- end}}
-
-        {{range $mbean := $conn.Collect -}}
-          Collect "{{$mbean}}"
-        {{end}}
-      </Connection>
+    {{range $endpoint := .Endpoints}}
+    {{with merge (toMap (index .configForEndpoint (toServiceID .id)).Common) .}}
+    <Connection>
+      {{with .serviceURL}}
+      ServiceURL "{{renderValue . $endpoint}}"
+      {{- else -}}
+      ServiceURL "service:jmx:rmi:///jndi/rmi://{{.host}}:{{.port}}/jmxrmi"
+      {{- end}}
+      InstanceSuffix "{{withDefault .name .id}}[{{encodeDimsForPluginInstance .dimensions}}]"
+      {{- with .instancePrefix}}
+      InstancePrefix "{{.}}"
+      {{- end}}
+      ServiceName "{{.serviceName}}"
+      {{- with .username}}
+      User "{{.}}"
+      {{- end}}
+      {{- with .password}}
+      Password "{{.}}"
+      {{- end}}
+      {{range .mBeansToCollect}}
+      Collect "{{.}}"
+      {{- end}}
+    </Connection>
+    {{end}}
     {{end}}
   </Plugin>
 </Plugin>

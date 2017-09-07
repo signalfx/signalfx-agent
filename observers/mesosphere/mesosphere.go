@@ -109,14 +109,14 @@ func (mesos *Mesosphere) load() error {
 }
 
 // Read services from mesosphere
-func (mesos *Mesosphere) Read() (services.Instances, error) {
+func (mesos *Mesosphere) Read() (services.Endpoints, error) {
 
 	taskInfo, err := mesos.getTasks()
 	if err != nil {
 		return nil, fmt.Errorf("failed to get tasks: %s", err)
 	}
 
-	var instances services.Instances
+	var instances services.Endpoints
 	for _, framework := range taskInfo.Frameworks {
 		for _, executor := range framework.Executors {
 			for _, task := range executor.Tasks {

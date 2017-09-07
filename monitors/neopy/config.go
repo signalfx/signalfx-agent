@@ -50,7 +50,7 @@ func (cq *ConfigQueue) configure(conf interface{}) bool {
 	cq.mutex.Lock()
 	defer cq.mutex.Unlock()
 
-	confJson, err := json.Marshal(conf)
+	confJSON, err := json.Marshal(conf)
 	if err != nil {
 		log.WithFields(log.Fields{
 			"error":  err,
@@ -59,16 +59,16 @@ func (cq *ConfigQueue) configure(conf interface{}) bool {
 		return false
 	}
 
-	_, err = cq.socket.SendMessage(confJson)
+	_, err = cq.socket.SendMessage(confJSON)
 	if err != nil {
 		log.WithFields(log.Fields{
 			"error":    err,
-			"confJson": confJson,
+			"confJSON": confJSON,
 		}).Error("Could not send configuration to neopy")
 		return false
 	}
 
-	respJson, err := cq.socket.RecvBytes(0)
+	respJSON, err := cq.socket.RecvBytes(0)
 	if err != nil {
 		log.WithFields(log.Fields{
 			"error": err,
@@ -78,7 +78,7 @@ func (cq *ConfigQueue) configure(conf interface{}) bool {
 	}
 
 	var resp ConfigureResponse
-	err = json.Unmarshal(respJson, &resp)
+	err = json.Unmarshal(respJSON, &resp)
 	if err != nil {
 		log.WithFields(log.Fields{
 			"error": err,

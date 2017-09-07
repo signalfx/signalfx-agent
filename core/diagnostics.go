@@ -7,13 +7,15 @@ import (
 
 	yaml "gopkg.in/yaml.v2"
 
-	. "github.com/logrusorgru/aurora"
+	au "github.com/logrusorgru/aurora"
 	"github.com/signalfx/neo-agent/core/config"
 	"github.com/signalfx/neo-agent/utils"
 	log "github.com/sirupsen/logrus"
 )
 
 const diagnosticSocketPath = "/var/run/signalfx.sock"
+
+var VersionLine string
 
 // Serves the diagnostic status on the domain socket
 func (a *Agent) serveDiagnosticInfo() error {
@@ -51,13 +53,15 @@ func (a *Agent) serveDiagnosticInfo() error {
 // DiagnosticText returns a simple textual output of the agent's status
 func (a *Agent) DiagnosticText() string {
 	return fmt.Sprintf(
-		Bold("NeoAgent Status").String()+
+		au.Bold("NeoAgent Status").String()+
 			"\n===============\n"+
-			Bold("\nAgent Configuration:").String()+
+			"\nVersion: %s"+
+			au.Bold("\nAgent Configuration:").String()+
 			"\n%s\n\n"+
 			"%s\n"+
 			"%s\n"+
 			"%s",
+		VersionLine,
 		utils.IndentLines(configAsDiagnosticText(a.lastConfig), 2),
 		a.writer.DiagnosticText(),
 		a.observers.DiagnosticText(),

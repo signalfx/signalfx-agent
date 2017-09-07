@@ -2,38 +2,30 @@ package monitors
 
 import (
 	"fmt"
-	"strings"
 
-	"github.com/signalfx/neo-agent/observers"
+	"github.com/signalfx/neo-agent/core/services"
 	"github.com/signalfx/neo-agent/utils"
 
-	. "github.com/logrusorgru/aurora"
+	au "github.com/logrusorgru/aurora"
 )
 
-func serviceToDiagnosticText(service *observers.ServiceInstance, isMonitored bool) string {
+func serviceToDiagnosticText(service services.Endpoint, isMonitored bool) string {
 	var containerInfo string
-	if service.Container != nil {
-		containerInfo = "Container Name (ID): "
-		containerInfo += strings.Join(service.Container.Names, "; ")
-		containerInfo += " (" + Bold(service.Container.ID[:12]).String() + ")\n"
-		containerInfo += "Image: " + Bold(service.Container.Image).String() + "\n"
+	for k, v := range services.EndpointAsMap(service) {
+		containerInfo += fmt.Sprintf("%s: %s\n", k, au.Bold(v))
 	}
 	var unmonitoredText string
 	if !isMonitored {
-		unmonitoredText = "(Unmonitored)"
+		unmonitoredText = au.Red("(Unmonitored)").String()
 	}
 
 	text := fmt.Sprintf(
-		"- Internal ID: %s %s\n"+
-			"%s",
-		Bold(service.ID),
-		Bold(unmonitoredText),
+		au.Bold("- ").String()+"Internal ID: %s %s\n"+
+			"%s\n",
+		au.Bold(service.ID()),
+		au.Bold(unmonitoredText),
 		utils.IndentLines(containerInfo, 2))
-	if isMonitored {
-		return text
-	} else {
-		return Red(text).String()
-	}
+	return text
 
 }
 
@@ -46,23 +38,23 @@ func (mm *MonitorManager) DiagnosticText() string {
 	for i := range mm.activeMonitors {
 		am := mm.activeMonitors[i]
 
-		var serviceStats string
-		if am.config.DiscoveryRule != "" {
+		serviceStats := "Service Endpoints: None\n"
+		if len(am.serviceSet) > 0 {
 			serviceText := ""
 			for id := range am.serviceSet {
-				serviceText += serviceToDiagnosticText(mm.discoveredServices[id], true)
+				serviceText += serviceToDiagnosticText(am.serviceSet[id], true)
 			}
-			serviceStats = utils.IndentLines(fmt.Sprintf(
+			serviceStats = fmt.Sprintf(
 				"Discovery Rule: %s\nServices:\n%s",
-				Bold(am.config.DiscoveryRule), serviceText), 4)
+				au.Bold(am.config.CoreConfig().DiscoveryRule), serviceText)
 		}
 		activeMonText += fmt.Sprintf(
 			"%2d. %s\n"+
 				"    Reporting Interval (seconds): %d\n"+
 				"%s\n",
-			i+1, Bold(am.config.Type),
-			Bold(am.config.IntervalSeconds),
-			serviceStats)
+			i+1, au.Bold(am.config.CoreConfig().Type),
+			au.Bold(am.config.CoreConfig().IntervalSeconds),
+			utils.IndentLines(serviceStats, 4))
 		i++
 	}
 
@@ -75,9 +67,9 @@ func (mm *MonitorManager) DiagnosticText() string {
 	}
 
 	return fmt.Sprintf(
-		Bold("Active Monitors:\n").String()+
+		au.Bold("Active Monitors:\n").String()+
 			"%s"+
-			Bold("Discovered Services:\n").String()+
+			au.Bold("Discovered Endpoints:\n").String()+
 			"%s\n",
 		activeMonText,
 		discoveredServicesText)

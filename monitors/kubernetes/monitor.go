@@ -1,10 +1,12 @@
+// Package kubernetes contains a Kubernetes monitor.
+//
 // This plugin collects high level metrics about a K8s cluster and sends them
 // to SignalFx.  The basic technique is to pull data from the K8s API and keep
 // up-to-date copies of datapoints for each metric that we collect and then
 // ship them off at the end of each reporting interval.  The K8s streaming
 // watch API is used to effeciently maintain the state between read intervals
 // (see `clusterstate.go`).
-
+//
 // This plugin should only be run at one place in the cluster, or else metrics
 // would be duplicated.  This plugin supports two ways of ensuring that:
 //
@@ -26,59 +28,38 @@
 package kubernetes
 
 import (
-	"fmt"
-	"net"
-	"net/http"
 	"os"
 
 	log "github.com/sirupsen/logrus"
 
 	"github.com/signalfx/golib/datapoint"
+	"github.com/signalfx/neo-agent/core/common/kubernetes"
 	"github.com/signalfx/neo-agent/core/config"
 	"github.com/signalfx/neo-agent/monitors"
-
-	k8s "k8s.io/client-go/kubernetes"
-	"k8s.io/client-go/rest"
 
 	"sync"
 )
 
 const (
-	monitorType = "kubernetes-cluster-metrics"
+	monitorType = "kubernetes-cluster"
 )
 
 var logger = log.WithFields(log.Fields{"monitorType": monitorType})
 
-type AuthType string
-
-const (
-	AuthTypeNone           AuthType = "none"
-	AuthTypeTLS            AuthType = "tls"
-	AuthTypeServiceAccount AuthType = "serviceAccount"
-)
-
+// Config for the K8s monitor
 type Config struct {
 	config.MonitorConfig
-	AlwaysClusterReporter bool
-	ClusterName           string `default:"default-cluster"`
-
-	KubernetesAPI struct {
-		AuthType       AuthType `default:"serviceAccount"`
-		ClientCertPath string
-		ClientKeyPath  string
-		CACertPath     string `yaml:"caCertPath,omitempty"`
-	} `yaml:"kubernetesAPI"`
+	AlwaysClusterReporter bool                            `yaml:"alwaysClusterReporter"`
+	ClusterName           string                          `yaml:"clusterName" default:"default-cluster"`
+	KubernetesAPI         *kubernetes.KubernetesAPIConfig `yaml:"kubernetesAPI" default:"{}"`
 }
 
+// Validate the k8s-specific config
 func (c *Config) Validate() bool {
-	valid := true
-	apiConf := c.KubernetesAPI
-	if apiConf.AuthType == AuthTypeTLS && (apiConf.ClientCertPath == "" || apiConf.ClientKeyPath == "") {
-		logger.Error("For TLS auth, you must set both the kubernetesAPI.clientCertPath " +
-			"and kubernetesAPI.clientKeyPath config values")
-		valid = false
+	if !c.KubernetesAPI.Validate() {
+		return false
 	}
-	return valid
+	return true
 }
 
 // Monitor makes a distinction between the plugin and the monitor
@@ -94,61 +75,6 @@ func init() {
 	monitors.Register(monitorType, func() interface{} { return &Monitor{} }, &Config{})
 }
 
-// This can take configuration if needed for other types of auth
-func makeK8sClient(config *Config) (*k8s.Clientset, error) {
-	apiConf := config.KubernetesAPI
-	authType := apiConf.AuthType
-
-	var authConf *rest.Config
-	var err error
-
-	host, port := os.Getenv("KUBERNETES_SERVICE_HOST"), os.Getenv("KUBERNETES_SERVICE_PORT")
-	if len(host) == 0 || len(port) == 0 {
-		return nil, fmt.Errorf("unable to load k8s config, KUBERNETES_SERVICE_HOST and KUBERNETES_SERVICE_PORT must be defined")
-	}
-	k8sHost := "https://" + net.JoinHostPort(host, port)
-
-	switch authType {
-	// Mainly for testing purposes
-	case AuthTypeNone:
-		authConf = &rest.Config{
-			Host: k8sHost,
-		}
-		authConf.Insecure = true
-	case AuthTypeTLS:
-		authConf = &rest.Config{
-			Host: k8sHost,
-			TLSClientConfig: rest.TLSClientConfig{
-				CertFile: apiConf.ClientCertPath,
-				KeyFile:  apiConf.ClientKeyPath,
-				CAFile:   apiConf.CACertPath,
-			},
-		}
-	case AuthTypeServiceAccount:
-		// This should work for most clusters but other auth types can be added
-		authConf, err = rest.InClusterConfig()
-		if err != nil {
-			return nil, err
-		}
-	}
-
-	authConf.WrapTransport = func(rt http.RoundTripper) http.RoundTripper {
-		// Don't use system proxy settings since the API is local to the
-		// cluster
-		if t, ok := rt.(*http.Transport); ok {
-			t.Proxy = nil
-		}
-		return rt
-	}
-
-	client, err := k8s.NewForConfig(authConf)
-	if err != nil {
-		return nil, err
-	}
-
-	return client, nil
-}
-
 // Configure is called by the plugin framework when configuration changes
 func (m *Monitor) Configure(config *Config) bool {
 	m.lock.Lock()
@@ -158,7 +84,7 @@ func (m *Monitor) Configure(config *Config) bool {
 		m.Shutdown()
 	}
 
-	k8sClient, err := makeK8sClient(config)
+	k8sClient, err := kubernetes.MakeClient(config.KubernetesAPI)
 	if err != nil {
 		logger.WithFields(log.Fields{
 			"error": err,

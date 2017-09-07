@@ -1,4 +1,5 @@
-// The core framing of the agent that hooks up the various subsystems.
+// Package core contains the central frame of the agent that hooks up the
+// various subsystems.
 package core
 
 import (
@@ -9,9 +10,9 @@ import (
 
 	"github.com/signalfx/neo-agent/core/config"
 	"github.com/signalfx/neo-agent/core/config/stores"
+	"github.com/signalfx/neo-agent/core/services"
 	"github.com/signalfx/neo-agent/core/writer"
 	"github.com/signalfx/neo-agent/monitors"
-	"github.com/signalfx/neo-agent/monitors/collectd"
 	"github.com/signalfx/neo-agent/monitors/neopy"
 	"github.com/signalfx/neo-agent/observers"
 )
@@ -24,39 +25,38 @@ type Agent struct {
 	lastConfig *config.Config
 }
 
-// New creates a agent instance
+// NewAgent creates an unconfigured agent instance
 func NewAgent() *Agent {
 	agent := Agent{}
 
 	agent.observers = &observers.ObserverManager{
 		CallbackTargets: &observers.ServiceCallbacks{
-			Added:   agent.ServiceAdded,
-			Removed: agent.ServiceRemoved,
+			Added:   agent.serviceAdded,
+			Removed: agent.serviceRemoved,
 		},
 	}
 
 	agent.writer = writer.New()
-	agent.monitors = &monitors.MonitorManager{
-		DPChannel:    agent.writer.DPChannel(),
-		EventChannel: agent.writer.EventChannel(),
-	}
+	agent.monitors = &monitors.MonitorManager{}
 
 	return &agent
 }
 
-func (a *Agent) Configure(conf *config.Config) {
+func (a *Agent) configure(conf *config.Config) {
 	level := conf.Logging.LogrusLevel()
 	if level != nil {
 		log.SetLevel(*level)
 	}
 	log.Infof("Using log level %s", log.GetLevel().String())
 
-	ok := a.writer.Configure(&conf.Writer)
-	if !ok {
+	if ok := a.writer.Configure(&conf.Writer); !ok {
 		// This is a catastrophic error if we can't write datapoints.
 		log.Error("Could not configure SignalFx datapoint writer, unable to start up")
 		os.Exit(4)
 	}
+
+	a.monitors.SetDPChannel(a.writer.DPChannel())
+	a.monitors.SetEventChannel(a.writer.EventChannel())
 
 	if conf.PythonEnabled {
 		neopy.Instance().Configure()
@@ -66,25 +66,22 @@ func (a *Agent) Configure(conf *config.Config) {
 	}
 
 	// The order of Configure calls is very important!
-	collectd.CollectdSingleton.Configure(&conf.Collectd)
 	a.monitors.Configure(conf.Monitors)
 	a.observers.Configure(conf.Observers)
 	a.lastConfig = conf
 }
 
-func (a *Agent) ServiceAdded(service *observers.ServiceInstance) {
-	monitors.EnsureProxyingDisabledForService(service)
+func (a *Agent) serviceAdded(service services.Endpoint) {
 	a.monitors.ServiceAdded(service)
 }
 
-func (a *Agent) ServiceRemoved(service *observers.ServiceInstance) {
+func (a *Agent) serviceRemoved(service services.Endpoint) {
 	a.monitors.ServiceRemoved(service)
 }
 
-func (a *Agent) Shutdown() {
+func (a *Agent) shutdown() {
 	a.observers.Shutdown()
 	a.monitors.Shutdown()
-	collectd.CollectdSingleton.Shutdown()
 	neopy.Instance().Shutdown()
 }
 
@@ -92,7 +89,7 @@ func (a *Agent) Shutdown() {
 // agent, as well as a channel that will be notified when the agent has
 // shutdown.
 func Startup(configPath string) (context.CancelFunc, <-chan struct{}) {
-	log.Debug("Starting up agent")
+	log.Info("Starting up agent")
 
 	cwc, cancel := context.WithCancel(context.Background())
 
@@ -121,7 +118,7 @@ func Startup(configPath string) (context.CancelFunc, <-chan struct{}) {
 		for {
 			select {
 			case configKVPair := <-configLoads:
-				log.Debug("Config loaded")
+				log.Info("New config loaded")
 
 				if configKVPair.Value == nil {
 					log.WithFields(log.Fields{
@@ -143,11 +140,11 @@ func Startup(configPath string) (context.CancelFunc, <-chan struct{}) {
 					os.Exit(2)
 				}
 
-				log.Debug("Configuring agent")
-				agent.Configure(conf)
+				agent.configure(conf)
+				log.Info("Done configuring agent")
 
 			case <-ctx.Done():
-				agent.Shutdown()
+				agent.shutdown()
 				stop()
 				metaStore.Close()
 				exitedCh <- struct{}{}

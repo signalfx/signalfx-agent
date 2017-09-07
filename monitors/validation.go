@@ -2,35 +2,32 @@ package monitors
 
 import (
 	"github.com/signalfx/neo-agent/core/config"
+	"github.com/signalfx/neo-agent/core/services"
 	log "github.com/sirupsen/logrus"
 )
 
 // Used to validate configuration that is common to all monitors up front
 func validateCommonConfig(conf *config.MonitorConfig) bool {
 	result := true
+
 	// Validate discovery rules
 	if conf.DiscoveryRule != "" {
-		expr, err := parseRuleText(conf.DiscoveryRule)
-		if err != nil {
+		if !services.ValidateDiscoveryRule(conf.DiscoveryRule) {
 			log.WithFields(log.Fields{
-				"rule":        conf.DiscoveryRule,
 				"monitorType": conf.Type,
-			}).Error("Syntax error in discovery rule")
+			}).Error("Could not validate discovery rule for monitor")
 
 			result = false
 		}
 
-		variables := expr.Vars()
-		for _, v := range variables {
-			if !validRuleIdentifiers[v] {
-				log.WithFields(log.Fields{
-					"rule":        conf.DiscoveryRule,
-					"monitorType": conf.Type,
-					"variable":    v,
-				}).Error("Unknown variable in discovery rule")
+		manualEndpoints := conf.OtherConfig["serviceEndpoints"]
+		if manualEndpoints != nil && len(manualEndpoints.([]interface{})) > 0 {
+			log.WithFields(log.Fields{
+				"monitorType": conf.Type,
+			}).Error("Cannot have a monitor with discoveryRule and serviceEndpoints.  " +
+				"Please split your config into two separate monitors.")
 
-				result = false
-			}
+			result = false
 		}
 	}
 
@@ -45,17 +42,10 @@ func validateCommonConfig(conf *config.MonitorConfig) bool {
 	return result
 }
 
-type Validatable interface {
-	Validate() bool
-}
+// ValidateEndpointConfig accepts both the common configuration as well as the
+// service endpoints defined for a service and validates that any requiredFields
+// are present.
+func ValidateEndpointConfig(common services.Endpoint) bool {
 
-// validate monitor-specific config ahead of time for a specific monitor
-// configuration.  This way, the Configure method of monitors will be
-// guaranteed to receive valid configuration.  The monitor-specific
-// configuration struct must implement the Validate method that returns a bool.
-func validateCustomConfig(conf interface{}) bool {
-	if v, ok := conf.(Validatable); ok {
-		return v.Validate()
-	}
 	return true
 }
