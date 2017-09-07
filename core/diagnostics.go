@@ -15,6 +15,8 @@ import (
 
 const diagnosticSocketPath = "/var/run/signalfx.sock"
 
+var VersionLine string
+
 // Serves the diagnostic status on the domain socket
 func (a *Agent) serveDiagnosticInfo() error {
 	os.Remove(diagnosticSocketPath)
@@ -53,11 +55,13 @@ func (a *Agent) DiagnosticText() string {
 	return fmt.Sprintf(
 		au.Bold("NeoAgent Status").String()+
 			"\n===============\n"+
+			"\nVersion: %s"+
 			au.Bold("\nAgent Configuration:").String()+
 			"\n%s\n\n"+
 			"%s\n"+
 			"%s\n"+
 			"%s",
+		VersionLine,
 		utils.IndentLines(configAsDiagnosticText(a.lastConfig), 2),
 		a.writer.DiagnosticText(),
 		a.observers.DiagnosticText(),

@@ -3,6 +3,7 @@ package writer
 import (
 	"fmt"
 
+	"github.com/davecgh/go-spew/spew"
 	au "github.com/logrusorgru/aurora"
 )
 
@@ -21,6 +22,7 @@ func (s state) String() string {
 func (sw *SignalFxWriter) DiagnosticText() string {
 	return fmt.Sprintf(
 		au.Bold("Writer Status:\n").String()+
+			"Global Dims:              %s\n"+
 			"State:                    %s\n"+
 			"DPs Sent:                 %d\n"+
 			"Events Sent:              %d\n"+
@@ -28,6 +30,7 @@ func (sw *SignalFxWriter) DiagnosticText() string {
 			"Events Buffered:          %d\n"+
 			"DPs Channel (len/cap) :   %d/%d\n"+
 			"Events Channel (len/cap): %d/%d\n",
+		au.Bold(spew.Sdump(sw.conf.GlobalDimensions)),
 		au.Bold(sw.state.String()),
 		au.Bold(sw.dpsSent),
 		au.Bold(sw.eventsSent),

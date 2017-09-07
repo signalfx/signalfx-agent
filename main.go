@@ -35,7 +35,7 @@ func main() {
 	version := flag.Bool("version", false, "print agent version")
 	debug := flag.Bool("debug", false, "print debugging output")
 
-	versionLine := fmt.Sprintf("agent-version: %s, collectd-version: %s, built-time: %s\n",
+	core.VersionLine = fmt.Sprintf("agent-version: %s, collectd-version: %s, built-time: %s\n",
 		Version, CollectdVersion, BuiltTime)
 
 	// Override Usage to support the signalfx-metadata plugin, which expects a
@@ -43,7 +43,7 @@ func main() {
 	flag.Usage = func() {
 		fmt.Fprintf(os.Stderr, "Usage of %s:\n", os.Args[0])
 		flag.PrintDefaults()
-		fmt.Fprintf(os.Stderr, versionLine)
+		fmt.Fprintf(os.Stderr, core.VersionLine)
 	}
 
 	flag.Parse()
@@ -53,7 +53,7 @@ func main() {
 	}
 
 	if *version {
-		fmt.Printf(versionLine)
+		fmt.Printf(core.VersionLine)
 		os.Exit(0)
 	}
 

@@ -22,6 +22,8 @@ type Endpoint interface {
 	Hostname() string
 	// Discovered is the time that the endpoint was discovered by the agent
 	Discovered() time.Time
+	// DiscoveredBy is the name of the observer that discovered this endpoint
+	DiscoveredBy() string
 	// String is just the string representation of the endpoint
 	String() string
 
