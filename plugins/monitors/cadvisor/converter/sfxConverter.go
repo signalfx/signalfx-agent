@@ -11,6 +11,8 @@ import (
 	"github.com/signalfx/golib/datapoint"
 )
 
+const nanoSecondsToJiffies = 10000000
+
 // This will usually be manager.Manager, but can be swapped out for testing.
 type infoProvider interface {
 	// Get information about all subcontainers of the specified container (includes self).
@@ -126,22 +128,22 @@ func getContainerMetrics(excludedMetrics map[string]bool) []containerMetric {
 		},
 		{
 			name:      "container_cpu_utilization",
-			help:      "Cumulative cpu utilization in percentages.",
+			help:      "Cumulative cpu utilization in jiffies.",
 			valueType: datapoint.Counter,
 			getValues: func(s *info.ContainerStats) metricValues {
-				return metricValues{{value: datapoint.NewIntValue(int64(s.Cpu.Usage.Total / 10000000))}}
+				return metricValues{{value: datapoint.NewIntValue(int64(s.Cpu.Usage.Total / nanoSecondsToJiffies))}}
 			},
 		},
 		{
 			name:        "container_cpu_utilization_per_core",
-			help:        "Cumulative cpu utilization in percentages per core",
+			help:        "Cumulative cpu utilization jiffies per core",
 			valueType:   datapoint.Counter,
 			extraLabels: []string{"cpu"},
 			getValues: func(s *info.ContainerStats) metricValues {
 				metricValues := make(metricValues, len(s.Cpu.Usage.PerCpu))
 				for index, coreUsage := range s.Cpu.Usage.PerCpu {
 					if coreUsage > 0 {
-						metricValues[index] = metricValue{value: datapoint.NewIntValue(int64(coreUsage / 10000000)), labels: []string{"cpu" + strconv.Itoa(index)}}
+						metricValues[index] = metricValue{value: datapoint.NewIntValue(int64(coreUsage / nanoSecondsToJiffies)), labels: []string{"cpu" + strconv.Itoa(index)}}
 					} else {
 						metricValues[index] = metricValue{value: datapoint.NewIntValue(int64(0)), labels: []string{strconv.Itoa(index)}}
 					}
