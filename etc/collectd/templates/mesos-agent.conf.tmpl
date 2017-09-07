@@ -7,7 +7,7 @@
 </LoadPlugin>
 
 <Plugin "python">
-  ModulePath "{{Globals.PluginRoot}}/mesos-collectd-plugin"
+  ModulePath "{{Globals.PluginRoot}}/mesos"
 
   Import "mesos-slave"
   {{range $instance := .Instances}}

@@ -4,9 +4,9 @@
   {{$key}} {{$value}}
 {{- end }}
 </LoadPlugin>
-TypesDB "{{Globals.PluginRoot}}/signalfx-collectd-plugin/types.db.plugin"
+TypesDB "{{Globals.PluginRoot}}/signalfx/types.db.plugin"
 <Plugin python>
-  ModulePath "{{Globals.PluginRoot}}/signalfx-collectd-plugin"
+  ModulePath "{{Globals.PluginRoot}}/signalfx/src"
   LogTraces true
   Interactive false
   Import "signalfx_metadata"

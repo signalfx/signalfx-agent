@@ -1,7 +1,7 @@
 package collectd
 
-// #cgo CFLAGS: -I/usr/include/collectd -I/usr/include -I/usr/local/include/collectd -I/usr/local/include -DSIGNALFX_EIM=1
-// #cgo LDFLAGS: /usr/local/lib/collectd/libcollectd.so
+// #cgo CFLAGS: -I/usr/local/include/collectd -I/usr/local/include -DSIGNALFX_EIM=1
+// #cgo LDFLAGS: /usr/local/lib/libcollectd.so
 // #include <stdint.h>
 // #include <stdlib.h>
 // #include <string.h>
