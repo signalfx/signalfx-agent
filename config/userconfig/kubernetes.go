@@ -18,7 +18,8 @@ type Kubernetes struct {
 	CAdvisorDataSendRate int             `yaml:"cadvisorSendRate,omitempty"`
 	ClusterMetrics       *ClusterMetrics `yaml:"clusterMetrics,omitempty"`
 	KubeletAPI           *struct {
-		TLS *TLS `yaml:"tls,omitempty"`
+		Host string `yaml:"host,omitempty"`
+		TLS  *TLS   `yaml:"tls,omitempty"`
 	} `yaml:"kubeletAPI,omitempty"`
 	KubernetesAPI *struct {
 		AuthType string `yaml:"authType,omitempty"`
@@ -64,6 +65,7 @@ func (k *Kubernetes) Parse(kubernetes map[string]interface{}) error {
 			if len(tls) > 0 {
 				kubernetes["tls"] = tls
 			}
+			kubernetes["host"] = k.KubeletAPI.Host
 		}
 	}
 
