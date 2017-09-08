@@ -14,7 +14,7 @@ make_go_package_tar() {
 
   # A hack to simplify Dockerfile since Dockerfile doesn't support copying
   # multiple directories without flattening them out
-  (cd $SCRIPT_DIR/.. && tar -cf $SCRIPT_DIR/go_packages.tar main.go ${GO_PACKAGES[@]})
+  (cd $SCRIPT_DIR/.. && tar -cf $SCRIPT_DIR/go_packages.tar main.go scripts/{make-templates,collectd-template-to-go} ${GO_PACKAGES[@]})
 }
 
 extra_cflags_build_arg() {

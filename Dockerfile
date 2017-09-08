@@ -192,6 +192,9 @@ ADD scripts/go_packages.tar /go/src/github.com/signalfx/neo-agent/
 
 ARG agent_version
 ARG collectd_version
+ENV GOPATH=/go
+WORKDIR /go/src/github.com/signalfx/neo-agent
+RUN scripts/make-templates
 RUN GOPATH=/go go build \
     -ldflags "-X main.Version=$agent_version -X main.CollectdVersion=$collectd_version -X main.BuiltTime=$(date +%FT%T%z)" \
 	-o signalfx-agent \

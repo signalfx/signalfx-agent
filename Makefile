@@ -22,7 +22,7 @@ collectd:
 	./scripts/build-collectd.sh
 
 templates:
-	PATH=$$(pwd)/scripts:$$PATH go generate ./monitors/...
+	scripts/make-templates
 
 .PHONY: image
 image:
