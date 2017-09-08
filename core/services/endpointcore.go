@@ -50,7 +50,7 @@ func (e *EndpointCore) DerivedFields() map[string]interface{} {
 
 // NewEndpointCore returns a new initialized endpoint core struct
 func NewEndpointCore(id string, name string, discovered time.Time, discoveredBy string) *EndpointCore {
-	return &EndpointCore{
+	ec := &EndpointCore{
 		MID:              ID(id),
 		Name:             name,
 		MDiscovered:      discovered,
@@ -58,13 +58,21 @@ func NewEndpointCore(id string, name string, discovered time.Time, discoveredBy 
 		matchingMonitors: make(map[types.MonitorID]bool),
 		MDimensions:      make(map[string]string),
 	}
+	ec.EnsureID()
+
+	return ec
+}
+
+// EnsureID assigns the endpoint an ID if it doesn't already have one
+func (e *EndpointCore) EnsureID() {
+	// Ensure there is always a valid id
+	if e.MID == "" {
+		e.MID = ID(fmt.Sprintf("%p", e))
+	}
 }
 
 // ID returns a unique id for this endpoint
 func (e *EndpointCore) ID() ID {
-	if len(e.MID) == 0 {
-		e.MID = ID(fmt.Sprintf("%p", e))
-	}
 	return e.MID
 }
 

@@ -102,6 +102,8 @@ func ServiceEndpointsFromConfig(conf MonitorCustomConfig) []services.Endpoint {
 		// Letting it blow up on errors gives an error message with information
 		// that can't be easily gotten otherwise
 		e := seField.Index(i).Addr().Interface().(services.Endpoint)
+
+		e.EnsureID()
 		endpoints[i] = e
 	}
 
