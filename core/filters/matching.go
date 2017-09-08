@@ -35,6 +35,8 @@ func convertGlobToRegexp(g string) (*regexp.Regexp, error) {
 			reText += "\\("
 		} else if ch == ')' {
 			reText += "\\)"
+		} else if ch == '.' {
+			reText += "\\."
 		} else {
 			reText += string(ch)
 		}
