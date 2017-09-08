@@ -92,7 +92,7 @@ func (c *Cadvisor) getNameFilter() []*regexp.Regexp {
 	var exnames = []*regexp.Regexp{}
 	for _, name := range c.config.ExcludedNames {
 		if comp, err := regexp.Compile(name); err != nil {
-			log.Printf("Unable to copmile regex pattern '%s' for name: '%v'", name, err)
+			log.Printf("Unable to compile regex pattern '%s' for name: '%v'", name, err)
 		} else {
 			exnames = append(exnames, comp)
 		}

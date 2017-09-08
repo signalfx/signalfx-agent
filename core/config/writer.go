@@ -16,6 +16,7 @@ type WriterConfig struct {
 	EventSendIntervalSeconds     int  `yaml:"eventSendIntervalSeconds" default:"5"`
 	// The following are propagated from the top level config
 	IngestURL           *url.URL           `yaml:"-"`
+	Hostname            string             `yaml:"-"`
 	SignalFxAccessToken string             `yaml:"-"`
 	GlobalDimensions    map[string]string  `yaml:"-"`
 	Filter              *filters.FilterSet `yaml:"-"`
