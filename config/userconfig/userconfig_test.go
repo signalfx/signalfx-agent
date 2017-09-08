@@ -87,7 +87,7 @@ func TestUserConfig_LoadYAML(t *testing.T) {
 					CAdvisorDataSendRate: 25,
 					KubernetesAPI: &struct {
 						AuthType string `yaml:"authType,omitempty"`
-						TLS *TLS `yaml:"tls,omitempty"`
+						TLS      *TLS   `yaml:"tls,omitempty"`
 					}{
 						TLS: &TLS{
 							SkipVerify: false,
@@ -97,8 +97,10 @@ func TestUserConfig_LoadYAML(t *testing.T) {
 						},
 					},
 					KubeletAPI: &struct {
-						TLS *TLS `yaml:"tls,omitempty"`
+						Host string `yaml:"host,omitempty"`
+						TLS  *TLS   `yaml:"tls,omitempty"`
 					}{
+						Host: "",
 						TLS: &TLS{
 							SkipVerify: true,
 							ClientCert: "/path/to/cert",

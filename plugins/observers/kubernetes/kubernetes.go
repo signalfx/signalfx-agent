@@ -95,10 +95,17 @@ func (k *Kubernetes) Configure(config *viper.Viper) error {
 }
 
 func (k *Kubernetes) load() error {
-	hostname, err := os.Hostname()
-	if err != nil {
-		hostname = "localhost"
+	var hostname string
+	if k.Config.GetString("host") != "" {
+		hostname = k.Config.GetString("host")
+	} else {
+		var err error
+		hostname, err = os.Hostname()
+		if err != nil {
+			hostname = "localhost"
+		}
 	}
+
 	k.Config.SetDefault("hosturl", fmt.Sprintf("https://%s:%d", hostname, DefaultPort))
 
 	hostURL := k.Config.GetString("hosturl")
