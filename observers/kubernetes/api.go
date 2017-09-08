@@ -7,6 +7,7 @@ package kubernetes
 import (
 	"fmt"
 	"os"
+	"strings"
 	"time"
 
 	log "github.com/sirupsen/logrus"
@@ -126,20 +127,22 @@ func (o *Observer) changeHandler(oldPod *v1.Pod, newPod *v1.Pod) {
 	// If it is an update, there will be a remove and immediately subsequent
 	// add.
 	if oldPod != nil && oldPod.Spec.NodeName == o.thisNode {
-		service := podToService(oldPod)
-		if service != nil {
-			o.serviceCallbacks.Removed(service)
+		endpoints := endpointsInPod(oldPod)
+		for i := range endpoints {
+			o.serviceCallbacks.Removed(endpoints[i])
 		}
 	}
 	if newPod != nil && newPod.Spec.NodeName == o.thisNode {
-		service := podToService(newPod)
-		if service != nil {
-			o.serviceCallbacks.Added(service)
+		endpoints := endpointsInPod(newPod)
+		for i := range endpoints {
+			o.serviceCallbacks.Added(endpoints[i])
 		}
 	}
 }
 
-func podToService(pod *v1.Pod) services.Endpoint {
+func endpointsInPod(pod *v1.Pod) []services.Endpoint {
+	endpoints := make([]services.Endpoint, 0)
+
 	podIP := pod.Status.PodIP
 	if pod.Status.Phase != runningPhase {
 		return nil
@@ -175,7 +178,9 @@ func podToService(pod *v1.Pod) services.Endpoint {
 					continue
 				}
 
-				id := fmt.Sprintf("%s-%s-%d", pod.Name, status.ContainerID[:12], port.ContainerPort)
+				cid := strings.Replace(status.ContainerID, "docker://", "", 1)
+
+				id := fmt.Sprintf("%s-%s-%d", pod.Name, cid[:12], port.ContainerPort)
 
 				endpoint := services.NewEndpointCore(id, port.Name, now(), observerType)
 				endpoint.Host = podIP
@@ -192,14 +197,14 @@ func podToService(pod *v1.Pod) services.Endpoint {
 					Pod:       pod.Name,
 					Namespace: pod.Namespace,
 				}
-				return &services.ContainerEndpoint{
+				endpoints = append(endpoints, &services.ContainerEndpoint{
 					EndpointCore:  *endpoint,
 					AltPort:       0,
 					Container:     *container,
 					Orchestration: *orchestration,
-				}
+				})
 			}
 		}
 	}
-	return nil
+	return endpoints
 }
