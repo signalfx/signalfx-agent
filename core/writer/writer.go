@@ -115,6 +115,10 @@ func (sw *SignalFxWriter) filterAndSendDatapoints(dps []*datapoint.Datapoint) er
 
 // mutates datapoint in place to add global dimensions
 func (sw *SignalFxWriter) addGlobalDimsToDatapoint(dp *datapoint.Datapoint) {
+	if _, ok := dp.Dimensions["host"]; !ok {
+		dp.Dimensions["host"] = sw.conf.Hostname
+	}
+
 	for name, value := range sw.conf.GlobalDimensions {
 		// If the dimensions is already set, don't override.
 		if _, ok := dp.Dimensions[name]; !ok {
