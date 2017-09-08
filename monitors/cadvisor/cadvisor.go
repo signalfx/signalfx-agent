@@ -131,6 +131,7 @@ func (c *Cadvisor) Configure(conf *Config) bool {
 		KubernetesURL:          "",
 		KubernetesUsername:     "",
 		CadvisorURL:            []string{conf.CAdvisorURL},
+		Hostname:               conf.Hostname,
 		KubernetesPassword:     "",
 		DefaultDimensions:      dimensions,
 		ExcludedImages:         c.getImageFilter(),

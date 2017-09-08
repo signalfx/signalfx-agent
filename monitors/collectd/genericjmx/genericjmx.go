@@ -19,13 +19,13 @@ import (
 
 type serviceEndpoint struct {
 	services.EndpointCore `yaml:",inline"`
-	ServiceName           *string  `yaml:"serviceName"`
-	ServiceURL            *string  `yaml:"serviceURL"`
-	InstancePrefix        *string  `yaml:"instancePrefix"`
-	Username              *string  `yaml:"username"`
-	Password              *string  `yaml:"password"`
-	MBeansToCollect       []string `yaml:"mBeansToCollect"`
-	MBeanDefinitions      MBeanMap `yaml:"mBeanDefinitions"`
+	ServiceName           *string   `yaml:"serviceName"`
+	ServiceURL            *string   `yaml:"serviceURL"`
+	InstancePrefix        *string   `yaml:"instancePrefix"`
+	Username              *string   `yaml:"username"`
+	Password              *string   `yaml:"password"`
+	MBeansToCollect       *[]string `yaml:"mBeansToCollect"`
+	MBeanDefinitions      MBeanMap  `yaml:"mBeanDefinitions"`
 }
 
 type connection struct {
@@ -88,8 +88,8 @@ func (gmc *MonitorCore) AddConfiguration(conf *Config) {
 		allMBeanNames = append(allMBeanNames, k)
 	}
 
-	if len(conf.Common.MBeansToCollect) == 0 {
-		conf.Common.MBeansToCollect = allMBeanNames
+	if conf.Common.MBeansToCollect == nil || len(*conf.Common.MBeansToCollect) == 0 {
+		conf.Common.MBeansToCollect = &allMBeanNames
 	}
 
 	gmc.configs[conf.ID] = conf
@@ -122,6 +122,7 @@ func (gmc *MonitorCore) AddService(service services.Endpoint) {
 	for id, config := range gmc.configs {
 		serviceMatchesConfig = service.MatchingMonitors()[id]
 		if serviceMatchesConfig {
+			log.Debugf("Service matches config: %s\n%s", spew.Sdump(service), config)
 			gmc.configForEndpoint[service.ID()] = config
 
 			for dim, value := range config.ExtraDimensions {

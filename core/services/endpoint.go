@@ -18,6 +18,8 @@ type ID string
 type Endpoint interface {
 	// ID should be unique across all endpoints, determined by the discovering observer
 	ID() ID
+	// EnsureID should set an ID on the endpoint if one doesn't already exist
+	EnsureID()
 	// Hostname is the hostname or IP address of the endpoint
 	Hostname() string
 	// Discovered is the time that the endpoint was discovered by the agent

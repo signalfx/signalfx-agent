@@ -152,7 +152,6 @@ func (c *Config) propagateValuesDown(metaStore *stores.MetaStore) {
 
 	c.Writer.IngestURL = ingestURL
 	c.Writer.Filter = filterSet
-	c.Writer.Hostname = c.Hostname
 	c.Writer.SignalFxAccessToken = c.SignalFxAccessToken
 	c.Writer.GlobalDimensions = c.GlobalDimensions
 }

@@ -46,6 +46,7 @@ type Config struct {
 	KubernetesURL          string
 	KubernetesUsername     string
 	KubernetesPassword     string
+	Hostname               string
 	DefaultDimensions      map[string]string
 	ExcludedNames          []*regexp.Regexp
 	ExcludedImages         []*regexp.Regexp
@@ -474,6 +475,7 @@ func (swc *scrapWorkCache) waitAndForward() {
 		}
 
 		dims["metric_source"] = dataSourceType
+		dims["host"] = swc.cfg.Hostname
 
 		swc.fillNodeDims(chosen, dims)
 
