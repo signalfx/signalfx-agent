@@ -113,10 +113,16 @@ func (f *BasicFilter) Matches(dp *datapoint.Datapoint) bool {
 		return false
 	}
 
-	metricNamesMatch := !f.staticMetricSet[dp.Metric] && !anyRegexMatches(dp.Metric, f.metricRegexps)
+	metricNamesMatch := true
+	if len(f.staticMetricSet) > 0 || len(f.metricRegexps) > 0 {
+		metricNamesMatch = f.staticMetricSet[dp.Metric] || anyRegexMatches(dp.Metric, f.metricRegexps)
+	}
 
-	dimensionsMatch := false
+	dimensionsMatch := true
 	for dimName, value := range dp.Dimensions {
+		// dimensionsMatch will stay true if no dims were specified in the
+		// filter
+		dimensionsMatch = false
 		staticNameExcluded := f.staticDimensionSet[dimKeyName(dimName, value)]
 		regexpNameExcluded := anyRegexMatches(value, f.dimensionRegexps[dimName])
 		if staticNameExcluded || regexpNameExcluded {
