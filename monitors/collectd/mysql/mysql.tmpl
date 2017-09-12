@@ -2,16 +2,18 @@
   Interval {{.IntervalSeconds}}
 </LoadPlugin>
 <Plugin mysql>
-  {{range .Endpoints}}
-  <Database "{{withDefault .name .id}}[{{encodeDimsForPluginInstance .dimensions}}]">
-    ReportHost {{withDefault .reportHost "true"}}
-    Host "{{.host}}"
-    Port {{.port}}
-    Database "{{.database | required}}"
-    User "{{.username | required}}"
-    {{with .password -}}
+  {{range $endpoint := .Endpoints}}
+  {{range $db := .databases}}
+  <Database "{{withDefault $endpoint.name $endpoint.id}}_{{$db.name}}[{{encodeDimsForPluginInstance $endpoint.dimensions}}]">
+    ReportHost {{withDefault $endpoint.reportHost "true"}}
+    Host "{{$endpoint.host}}"
+    Port {{$endpoint.port}}
+    Database "{{$db.name}}"
+    User "{{(withDefault $db.username $endpoint.username) | required}}"
+    {{with withDefault $db.password $endpoint.password -}}
     Password "{{.}}"
     {{- end}}
   </Database>
+  {{end}}
   {{end}}
 </Plugin>
