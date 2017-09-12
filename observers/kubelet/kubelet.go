@@ -19,12 +19,12 @@ import (
 
 var now = time.Now
 
-// phase Kubernetes pod phase
+// phase is the pod's phase
 type phase string
 
 const (
 	observerType = "k8s-kubelet"
-	// RunningPhase Kubernetes running phase
+	// RunningPhase running phase
 	runningPhase phase = "Running"
 )
 
@@ -40,18 +40,21 @@ const (
 	AuthTypeTLS AuthType = "tls"
 )
 
-// Config for Kubernetes observer
+// KubeletAPIConfig contains config specific to the KubeletAPI
+type kubeletAPIConfig struct {
+	URL            string   `yaml:"url"`
+	AuthType       AuthType `yaml:"authType" default:"none"`
+	SkipVerify     bool     `yaml:"skipVerify" default:"false"`
+	CACertPath     string   `yaml:"caCertPath"`
+	ClientCertPath string   `yaml:"clientCertPath"`
+	ClientKeyPath  string   `yaml:"clientKeyPath"`
+}
+
+// Config for Kubelet observer
 type Config struct {
 	config.ObserverConfig
-	PollIntervalSeconds int `yaml:"pollIntervalSeconds" default:"10"`
-	KubeletAPI          struct {
-		URL            string   `yaml:"url"`
-		AuthType       AuthType `yaml:"authType" default:"none"`
-		SkipVerify     bool     `yaml:"skipVerify" default:"false"`
-		CACertPath     string   `yaml:"caCertPath"`
-		ClientCertPath string   `yaml:"clientCertPath"`
-		ClientKeyPath  string   `yaml:"clientKeyPath"`
-	} `yaml:"kubeletAPI" default:"{}"`
+	PollIntervalSeconds int              `yaml:"pollIntervalSeconds" default:"10"`
+	KubeletAPI          kubeletAPIConfig `yaml:"kubeletAPI" default:"{}"`
 }
 
 // Validate the observer-specific config
@@ -76,8 +79,8 @@ func (c *Config) Validate() bool {
 	return true
 }
 
-// Kubernetes observer
-type Kubernetes struct {
+// Observer for kubelet
+type Observer struct {
 	config           *Config
 	client           http.Client
 	serviceDiffer    *observers.ServiceDiffer
@@ -89,6 +92,7 @@ type pods struct {
 	Items []struct {
 		Metadata struct {
 			Name      string
+			UID       string `json:"uid,omitempty"`
 			Namespace string
 			Labels    map[string]string
 		}
@@ -118,14 +122,14 @@ type pods struct {
 
 func init() {
 	observers.Register(observerType, func(cbs *observers.ServiceCallbacks) interface{} {
-		return &Kubernetes{
+		return &Observer{
 			serviceCallbacks: cbs,
 		}
 	}, &Config{})
 }
 
 // Configure the kubernetes observer/client
-func (k *Kubernetes) Configure(config *Config) bool {
+func (k *Observer) Configure(config *Config) bool {
 	if config.KubeletAPI.URL == "" {
 		hostname, err := os.Hostname()
 		if err != nil {
@@ -210,7 +214,7 @@ func (k *Kubernetes) Configure(config *Config) bool {
 }
 
 // Map adds additional data from the kubelet into instances
-func (k *Kubernetes) getPods() (*pods, error) {
+func (k *Observer) getPods() (*pods, error) {
 	resp, err := k.client.Get(fmt.Sprintf("%s/pods", k.config.KubeletAPI.URL))
 	if err != nil {
 		return nil, fmt.Errorf("kubelet request failed: %s", err)
@@ -245,7 +249,7 @@ func loadJSON(body []byte) (*pods, error) {
 	return pods, nil
 }
 
-func (k *Kubernetes) discover() []services.Endpoint {
+func (k *Observer) discover() []services.Endpoint {
 	var instances []services.Endpoint
 
 	pods, err := k.getPods()
@@ -271,13 +275,7 @@ func (k *Kubernetes) discover() []services.Endpoint {
 		}
 
 		for _, container := range pod.Spec.Containers {
-			dims := map[string]string{
-				"container_name":           container.Name,
-				"container_image":          container.Image,
-				"kubernetes_pod_name":      pod.Metadata.Name,
-				"kubernetes_pod_namespace": pod.Metadata.Namespace,
-			}
-			orchestration := services.NewOrchestration("kubernetes", services.KUBERNETES, dims, services.PRIVATE)
+			orchestration := services.NewOrchestration("kubernetes", services.KUBERNETES, nil, services.PRIVATE)
 
 			for _, port := range container.Ports {
 				for _, status := range pod.Status.ContainerStatuses {
@@ -293,7 +291,7 @@ func (k *Kubernetes) discover() []services.Endpoint {
 						continue
 					}
 
-					id := fmt.Sprintf("%s-%s-%d", pod.Metadata.Name, status.ContainerID[:12], port.ContainerPort)
+					id := fmt.Sprintf("%s-%s-%d", pod.Metadata.Name, pod.Metadata.UID[:7], port.ContainerPort)
 
 					endpoint := services.NewEndpointCore(id, port.Name, now(), observerType)
 					endpoint.Host = podIP
@@ -308,6 +306,7 @@ func (k *Kubernetes) discover() []services.Endpoint {
 						State:     containerState,
 						Labels:    pod.Metadata.Labels,
 						Pod:       pod.Metadata.Name,
+						PodUID:    pod.Metadata.UID,
 						Namespace: pod.Metadata.Namespace,
 					}
 					instances = append(instances, &services.ContainerEndpoint{
@@ -325,7 +324,7 @@ func (k *Kubernetes) discover() []services.Endpoint {
 }
 
 // Shutdown the service differ routine
-func (k *Kubernetes) Shutdown() {
+func (k *Observer) Shutdown() {
 	if k.serviceDiffer != nil {
 		k.serviceDiffer.Stop()
 	}

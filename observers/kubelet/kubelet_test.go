@@ -1,23 +1,23 @@
 package kubelet
 
 import (
-	"fmt"
 	"io/ioutil"
 	"reflect"
-	"strings"
 	"testing"
-	"time"
 
 	"github.com/kr/pretty"
 	"github.com/signalfx/neo-agent/core/services"
 	"github.com/signalfx/neo-agent/neotest"
-	"github.com/spf13/viper"
+	kubelet_test "github.com/signalfx/neo-agent/neotest/kubelet"
+	"github.com/signalfx/neo-agent/observers"
+
+	. "github.com/onsi/gomega"
 )
 
 // Test_load verifies that the raw Kubelet JSON transforms into the expected Go
 // struct.
 func Test_load(t *testing.T) {
-	podsJSON, err := ioutil.ReadFile("testdata/pods.json")
+	podsJSON, err := ioutil.ReadFile("testdata/pods-two-running.json")
 	if err != nil {
 		t.Fatal("failed loading pods.json")
 	}
@@ -39,7 +39,7 @@ func Test_load(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := load(tt.args.body)
+			got, err := loadJSON(tt.args.body)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("load() error = %v, wantErr %v", err, tt.wantErr)
 				return
@@ -52,62 +52,69 @@ func Test_load(t *testing.T) {
 	}
 }
 
-func TestKubernetes_doMap(t *testing.T) {
-	var running, nonRunningContainer *pods
-	var expected services.Endpoints
-	neotest.LoadJSON(t, "testdata/pods.json", &running)
-	neotest.LoadJSON(t, "testdata/pods.json", &nonRunningContainer)
-	neotest.LoadJSON(t, "testdata/2-discovered.json", &expected)
+func TestNoPods(t *testing.T) {
 
-	// Make container non-running
-	nonRunningContainer.Items = nonRunningContainer.Items[:1]
-	containerState := nonRunningContainer.Items[0].Status.ContainerStatuses[0].State
-	containerState["waiting"] = struct{}{}
-	delete(containerState, "running")
+	fakeKubelet := kubelet_test.NewFakeKubelet()
+	fakeKubelet.Start()
 
-	// Set time.Now() to fixed value.
-	now = neotest.FixedTime
-	defer func() { now = time.Now }()
-
-	config := viper.New()
-	config.Set("hosturl", "unused")
-	kub := plugins.MakePlugin(pluginType).(*Kubernetes)
-
-	for i := range expected {
-		expected[i].ID = strings.Replace(expected[i].ID, "POINTER", fmt.Sprintf("%p", kub), 1)
+	config := &Config{
+		PollIntervalSeconds: 1,
+		KubeletAPI: KubeletAPIConfig{
+			URL: fakeKubelet.URL().String(),
+		},
 	}
 
-	type fields struct {
-		Plugin  plugins.Plugin
-		hostURL string
-	}
-	type args struct {
-		sis  services.Endpoints
-		pods *pods
-	}
-	tests := []struct {
-		name     string
-		instance *Kubernetes
-		args     args
-		want     services.Endpoints
-		wantErr  bool
-	}{
-		{"zero instances", kub, args{nil, &pods{}}, nil, false},
-		{"two kubernetes only instances", kub, args{nil, running}, expected, false},
-		{"container status is not running", kub, args{nil, nonRunningContainer}, nil, false},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
+	var kub *Observer
+	var endpoints map[services.ID]services.Endpoint
 
-			got, err := kub.doMap(tt.args.sis, tt.args.pods)
-			if (err != nil) != tt.wantErr {
-				t.Errorf("Kubernetes.doMap() error = %v, wantErr %v", err, tt.wantErr)
-				return
-			}
-			if !reflect.DeepEqual(got, tt.want) {
-				pretty.Ldiff(t, got, tt.want)
-				t.Error("Differences detected")
-			}
-		})
+	setup := func(podJSONPath string) {
+		fakeKubelet.PodJSON, _ = ioutil.ReadFile(podJSONPath)
+
+		endpoints = make(map[services.ID]services.Endpoint)
+
+		if kub != nil {
+			kub.Shutdown()
+		}
+
+		kub = &Observer{
+			serviceCallbacks: &observers.ServiceCallbacks{
+				Added:   func(se services.Endpoint) { endpoints[se.ID()] = se },
+				Removed: func(se services.Endpoint) { delete(endpoints, se.ID()) },
+			},
+		}
+		kub.Configure(config)
 	}
+
+	t.Run("No pods at all", func(t *testing.T) {
+		RegisterTestingT(t)
+		setup("testdata/pods-no-pods.json")
+		Consistently(func() int { return len(endpoints) }).Should(Equal(0))
+	})
+
+	t.Run("Two running pods", func(t *testing.T) {
+		RegisterTestingT(t)
+		setup("testdata/pods-two-running.json")
+		Eventually(func() int { return len(endpoints) }).Should(Equal(3))
+
+		re := endpoints[services.ID("redis-3165242388-n1vc7-2fafcdf-6379")].(*services.ContainerEndpoint)
+		Expect(re.Port).To(Equal(uint16(6379)))
+		Expect(re.Host).To(Equal("10.2.83.18"))
+		Expect(re.Container.Image).To(Equal("redis:latest"))
+		Expect(re.Container.PodUID).To(Equal("2fafcdfe-f3a7-11e6-99cc-066fe1d5e5f9"))
+		Expect(re.Dimensions()["kubernetes_pod_name"]).To(Equal("redis-3165242388-n1vc7"))
+
+		re2 := endpoints[services.ID("redis-3165242388-n1vc7-2fafcdf-7379")].(*services.ContainerEndpoint)
+		Expect(re2.Port).To(Equal(uint16(7379)))
+		Expect(re2.Host).To(Equal("10.2.83.18"))
+		Expect(re2.Container.Image).To(Equal("redis:latest"))
+		Expect(re2.Container.PodUID).To(Equal("2fafcdfe-f3a7-11e6-99cc-066fe1d5e5f9"))
+	})
+
+	t.Run("No running pods", func(t *testing.T) {
+		RegisterTestingT(t)
+		setup("testdata/pods-none-running.json")
+		Consistently(func() int { return len(endpoints) }).Should(Equal(0))
+	})
+
+	fakeKubelet.Close()
 }

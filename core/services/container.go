@@ -15,6 +15,7 @@ type Container struct {
 	Labels  map[string]string `yaml:"containerLabels"`
 	// K8s specific
 	Pod       string `yaml:"pod"`
+	PodUID    string `yaml:"podUID"`
 	Namespace string `yaml:"namespace"`
 }
 

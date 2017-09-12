@@ -49,8 +49,8 @@ var logger = log.WithFields(log.Fields{"monitorType": monitorType})
 // Config for the K8s monitor
 type Config struct {
 	config.MonitorConfig
-	AlwaysClusterReporter bool                            `yaml:"alwaysClusterReporter"`
-	KubernetesAPI         *kubernetes.KubernetesAPIConfig `yaml:"kubernetesAPI" default:"{}"`
+	AlwaysClusterReporter bool                  `yaml:"alwaysClusterReporter"`
+	KubernetesAPI         *kubernetes.APIConfig `yaml:"kubernetesAPI" default:"{}"`
 }
 
 // Validate the k8s-specific config

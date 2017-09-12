@@ -4,7 +4,6 @@ import (
 	"testing"
 
 	"github.com/docker/libkv/store"
-	. "github.com/signalfx/neo-agent/neotest"
 	. "github.com/smartystreets/goconvey/convey"
 )
 

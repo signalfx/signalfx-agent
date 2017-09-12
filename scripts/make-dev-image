@@ -39,7 +39,7 @@ RUN pip install ipython==5 ipdb
 
 RUN apt install -y libzmq5-dev
 
-ENV PATH=$PATH:/usr/local/go/bin GOPATH=/go
+ENV PATH=$PATH:/usr/local/go/bin:/go/bin GOPATH=/go
 
 WORKDIR /go/src/github.com/signalfx/neo-agent
 

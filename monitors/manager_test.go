@@ -14,11 +14,15 @@ var id = 0
 func newService(imageName string, publicPort int) services.Endpoint {
 	id++
 
-	endpoint := services.NewEndpointCore(string(id), "", time.Now())
+	endpoint := services.NewEndpointCore(string(id), "", time.Now(), "test")
 	endpoint.Port = uint16(publicPort)
 
-	return services.NewContainerEndpoint(
-		endpoint, 0, &services.Container{Image: imageName}, &services.Orchestration{})
+	return &services.ContainerEndpoint{
+		EndpointCore:  *endpoint,
+		AltPort:       0,
+		Container:     services.Container{Image: imageName},
+		Orchestration: services.Orchestration{},
+	}
 }
 
 var _ = Describe("Monitor Manager", func() {
