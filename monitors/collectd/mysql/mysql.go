@@ -21,10 +21,16 @@ func init() {
 
 type serviceEndpoint struct {
 	services.EndpointCore `yaml:",inline"`
-	Database              *string `yaml:"database" required:"true"`
-	Username              string  `yaml:"username" required:"true"`
-	Password              *string `yaml:"password"`
-	ReportHost            *bool   `yaml:"reportHost"`
+	Databases             []struct {
+		Name     string  `yaml:"name"`
+		Username string  `yaml:"username"`
+		Password *string `yaml:"password"`
+	} `yaml:"databases" required:"true"`
+	// These credentials serve as defaults for all databases if not overridden
+	Username string  `yaml:"username"`
+	Password *string `yaml:"password"`
+
+	ReportHost *bool `yaml:"reportHost"`
 }
 
 // Config is the monitor-specific config with the generic config embedded
