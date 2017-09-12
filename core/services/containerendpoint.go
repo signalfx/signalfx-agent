@@ -49,7 +49,14 @@ func (ce *ContainerEndpoint) DerivedFields() map[string]interface{} {
 
 // Dimensions returns the dimensions associated with this endpoint
 func (ce *ContainerEndpoint) Dimensions() map[string]string {
-	return utils.MergeStringMaps(ce.EndpointCore.Dimensions(), ce.Orchestration.Dimensions)
+	return utils.MergeStringMaps(ce.EndpointCore.Dimensions(), ce.Orchestration.Dimensions, map[string]string{
+		"container_name":           ce.Container.PrimaryName(),
+		"container_image":          ce.Container.Image,
+		"kubernetes_pod_name":      ce.Container.Pod,
+		"kubernetes_pod_namespace": ce.Container.Namespace,
+		// This is essential as it is the only unique dim for a pod.
+		"kubernetes_pod_uid": ce.Container.PodUID,
+	})
 }
 
 func (ce *ContainerEndpoint) String() string {

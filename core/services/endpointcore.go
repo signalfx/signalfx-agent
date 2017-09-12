@@ -20,7 +20,7 @@ const (
 	// PRIVATE Port preference
 )
 
-var IPAddrRegexp = regexp.MustCompile(`\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}`)
+var ipAddrRegexp = regexp.MustCompile(`\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}`)
 
 // EndpointCore represents an exposed network port
 type EndpointCore struct {
@@ -42,7 +42,7 @@ func (e *EndpointCore) DerivedFields() map[string]interface{} {
 	out := map[string]interface{}{
 		"networkPort": e.Port,
 	}
-	if IPAddrRegexp.MatchString(e.Host) {
+	if ipAddrRegexp.MatchString(e.Host) {
 		out["ipAddress"] = e.Host
 	}
 	return out

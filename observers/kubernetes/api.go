@@ -7,7 +7,6 @@ package kubernetes
 import (
 	"fmt"
 	"os"
-	"strings"
 	"time"
 
 	log "github.com/sirupsen/logrus"
@@ -44,7 +43,7 @@ func init() {
 // Config for Kubernetes API observer
 type Config struct {
 	config.ObserverConfig
-	KubernetesAPI *kubernetes.KubernetesAPIConfig `yaml:"kubernetesAPI" default:"{}"`
+	KubernetesAPI *kubernetes.APIConfig `yaml:"kubernetesAPI" default:"{}"`
 }
 
 // Validate the observer-specific config
@@ -78,6 +77,7 @@ type Observer struct {
 	stopper          chan struct{}
 }
 
+// Configure configures and starts watching for endpoints
 func (o *Observer) Configure(config *Config) bool {
 	o.thisNamespace = os.Getenv(namespaceEnvVar)
 	o.thisNode = os.Getenv(nodeEnvVar)
@@ -178,9 +178,7 @@ func endpointsInPod(pod *v1.Pod) []services.Endpoint {
 					continue
 				}
 
-				cid := strings.Replace(status.ContainerID, "docker://", "", 1)
-
-				id := fmt.Sprintf("%s-%s-%d", pod.Name, cid[:12], port.ContainerPort)
+				id := fmt.Sprintf("%s-%s-%d", pod.Name, pod.UID[:7], port.ContainerPort)
 
 				endpoint := services.NewEndpointCore(id, port.Name, now(), observerType)
 				endpoint.Host = podIP
@@ -195,6 +193,7 @@ func endpointsInPod(pod *v1.Pod) []services.Endpoint {
 					State:     containerState,
 					Labels:    pod.Labels,
 					Pod:       pod.Name,
+					PodUID:    string(pod.UID),
 					Namespace: pod.Namespace,
 				}
 				endpoints = append(endpoints, &services.ContainerEndpoint{

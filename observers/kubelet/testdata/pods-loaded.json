@@ -4,6 +4,7 @@
             "Metadata": {
                 "Name": "redis-3165242388-n1vc7",
                 "Namespace": "default",
+                "UID": "2fafcdfe-f3a7-11e6-99cc-066fe1d5e5f9",
                 "Labels": {
                     "app": "redis",
                     "pod-template-hash": "3165242388",
@@ -20,6 +21,11 @@
                             {
                                 "Name": "redis-tcp",
                                 "ContainerPort": 6379,
+                                "Protocol": "TCP"
+                            },
+                            {
+                                "Name": "management-tcp",
+                                "ContainerPort": 7379,
                                 "Protocol": "TCP"
                             }
                         ]
@@ -44,6 +50,7 @@
             "Metadata": {
                 "Name": "kubernetes-dashboard-v1.5.1-5zg3f",
                 "Namespace": "kube-system",
+                "UID": "67f4cbd5-e72d-11e6-99cc-066fe1d5e5f9",
                 "Labels": {
                     "k8s-app": "kubernetes-dashboard",
                     "kubernetes.io/cluster-service": "true",

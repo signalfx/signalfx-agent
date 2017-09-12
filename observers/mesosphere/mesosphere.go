@@ -2,20 +2,24 @@ package mesosphere
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io/ioutil"
 	"net/http"
 	"os"
-	"sort"
 	"strings"
 	"time"
 
-	"github.com/spf13/viper"
+	log "github.com/sirupsen/logrus"
+
+	"github.com/signalfx/neo-agent/core/config"
+	"github.com/signalfx/neo-agent/core/services"
+	"github.com/signalfx/neo-agent/observers"
 )
 
+var now = time.Now
+
 const (
-	pluginType = "observers/mesosphere"
+	observerType = "observers/mesosphere"
 
 	// DefaultPort of the task state api
 	DefaultPort = 5051
@@ -23,11 +27,20 @@ const (
 	RunningState = "TASK_RUNNING"
 )
 
+// Config for the Mesos observer
+type Config struct {
+	config.ObserverConfig
+	PollIntervalSeconds int    `yaml:"pollIntervalSeconds" default:"10"`
+	HostURL             string `yaml:"hostURL"`
+}
+
 // Mesosphere observer plugin
 type Mesosphere struct {
-	config  *viper.Viper
-	hostURL string
-	client  http.Client
+	config           *Config
+	hostURL          string
+	client           http.Client
+	serviceCallbacks *observers.ServiceCallbacks
+	serviceDiffer    *observers.ServiceDiffer
 }
 
 // PortMappings for a task
@@ -82,41 +95,56 @@ type tasks struct {
 }
 
 func init() {
-	plugins.Register(pluginType, func() interface{} { return &Mesosphere{} })
+	observers.Register(observerType, func(cbs *observers.ServiceCallbacks) interface{} {
+		return &Mesosphere{
+			serviceCallbacks: cbs,
+		}
+	}, &Config{})
 }
 
 // Configure the mesosphere observer/client
-func (mesos *Mesosphere) Configure(config *viper.Viper) error {
+func (mesos *Mesosphere) Configure(config *Config) bool {
 	mesos.config = config
-	return mesos.load()
-}
 
-func (mesos *Mesosphere) load() error {
-	if hostname, err := os.Hostname(); err == nil {
-		mesos.config.SetDefault("hosturl", fmt.Sprintf("http://%s:%d", hostname, DefaultPort))
+	if mesos.config.HostURL == "" {
+		hostname, err := os.Hostname()
+		if err == nil {
+			mesos.config.HostURL = fmt.Sprintf("http://%s:%d", hostname, DefaultPort)
+		} else {
+			log.WithError(err).Error("Could not set default Mesos host URL")
+			return false
+		}
 	}
-
-	hostURL := mesos.config.GetString("hosturl")
-	if len(hostURL) == 0 {
-		return errors.New("hostURL config value missing")
-	}
-	mesos.hostURL = hostURL
 
 	mesos.client = http.Client{
 		Timeout: 10 * time.Second,
 	}
-	return nil
+
+	if mesos.serviceDiffer != nil {
+		mesos.serviceDiffer.Stop()
+	}
+
+	mesos.serviceDiffer = &observers.ServiceDiffer{
+		DiscoveryFn:     mesos.discover,
+		IntervalSeconds: config.PollIntervalSeconds,
+		Callbacks:       mesos.serviceCallbacks,
+	}
+
+	mesos.serviceDiffer.Start()
+
+	return true
 }
 
 // Read services from mesosphere
-func (mesos *Mesosphere) Read() (services.Endpoints, error) {
+func (mesos *Mesosphere) discover() []services.Endpoint {
 
 	taskInfo, err := mesos.getTasks()
 	if err != nil {
-		return nil, fmt.Errorf("failed to get tasks: %s", err)
+		log.WithError(err).Error("Failed to get Mesos tasks")
+		return nil
 	}
 
-	var instances services.Endpoints
+	var instances []services.Endpoint
 	for _, framework := range taskInfo.Frameworks {
 		for _, executor := range framework.Executors {
 			for _, task := range executor.Tasks {
@@ -131,32 +159,29 @@ func (mesos *Mesosphere) Read() (services.Endpoints, error) {
 					continue
 				}
 
-				service := services.NewService(task.ID, services.UnknownService, "")
-
-				dims := map[string]string{
-					"mesos_agent":          taskInfo.ID,
-					"mesos_framework_id":   framework.ID,
-					"mesos_framework_name": framework.Name,
-					"mesos_task_id":        task.ID,
-					"mesos_task_name":      task.Name,
-				}
-
-				var serviceContainer *services.Container
+				var serviceContainer services.Container
 				if len(task.Container.Docker.Image) > 0 {
 					containerName := fmt.Sprintf("mesos-%s.%s", task.ID, executor.Container)
 					containerImage := task.Container.Docker.Image
-					dims["container_name"] = containerName
-					dims["container_image"] = containerImage
 					containerLabels := map[string]string{}
 					for _, label := range task.Labels {
 						containerLabels[label.Key] = label.Value
 					}
-					serviceContainer = services.NewContainer(executor.Container, []string{containerName}, containerImage, "", "", "running", containerLabels, "")
+					serviceContainer = services.Container{
+						ID:        executor.Container,
+						Names:     []string{containerName},
+						Image:     containerImage,
+						Pod:       "",
+						Command:   "",
+						State:     "running",
+						Labels:    containerLabels,
+						Namespace: "",
+					}
 				} else {
 					continue
 				}
 
-				orchestration := services.NewOrchestration("mesosphere", services.MESOS, dims, services.PUBLIC)
+				orchestration := services.NewOrchestration("mesosphere", services.MESOS, nil, services.PUBLIC)
 
 				for _, port := range task.Discovery.Ports.Ports {
 					portName := task.Discovery.Name
@@ -174,26 +199,39 @@ func (mesos *Mesosphere) Read() (services.Endpoints, error) {
 						}
 					}
 
-					servicePort := services.NewPort(portName, portIP, portType, privatePort, publicPort)
+					id := fmt.Sprintf("%s-%d", taskInfo.ID, publicPort)
+					endpoint := services.ContainerEndpoint{
+						AltPort:       privatePort,
+						EndpointCore:  *services.NewEndpointCore(id, portName, now(), observerType),
+						Container:     serviceContainer,
+						Orchestration: *orchestration,
+					}
+					endpoint.Host = portIP
+					endpoint.PortType = portType
+					endpoint.Port = publicPort
+
 					for _, label := range port.Labels.Labels {
-						servicePort.Labels[label.Key] = label.Value
+						endpoint.PortLabels[label.Key] = label.Value
 					}
 
-					id := fmt.Sprintf("%s-%d", taskInfo.ID, publicPort)
-					si := services.NewInstance(id, service, serviceContainer, orchestration, servicePort, time.Now())
-					instances = append(instances, *si)
+					endpoint.AddDimension("mesos_agent", taskInfo.ID)
+					endpoint.AddDimension("mesos_framework_id", framework.ID)
+					endpoint.AddDimension("mesos_framework_name", framework.Name)
+					endpoint.AddDimension("mesos_task_id", task.ID)
+					endpoint.AddDimension("mesos_task_name", task.Name)
+
+					instances = append(instances, &endpoint)
 				}
 			}
 		}
 	}
 
-	sort.Sort(instances)
-	return instances, nil
+	return instances
 }
 
 // getTasks from mesosphere state api
 func (mesos *Mesosphere) getTasks() (*tasks, error) {
-	resp, err := mesos.client.Get(fmt.Sprintf("%s/state", mesos.hostURL))
+	resp, err := mesos.client.Get(fmt.Sprintf("%s/state", mesos.config.HostURL))
 	if err != nil {
 		return nil, err
 	}

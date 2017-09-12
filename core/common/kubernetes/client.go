@@ -24,7 +24,8 @@ const (
 	AuthTypeServiceAccount AuthType = "serviceAccount"
 )
 
-type KubernetesAPIConfig struct {
+// APIConfig contains options relevant to connecting to the K8s API
+type APIConfig struct {
 	AuthType       AuthType `yaml:"authType" default:"serviceAccount"`
 	SkipVerify     bool     `yaml:"skipVerify" default:"false"`
 	ClientCertPath string   `yaml:"clientCertPath"`
@@ -32,7 +33,8 @@ type KubernetesAPIConfig struct {
 	CACertPath     string   `yaml:"caCertPath"`
 }
 
-func (c *KubernetesAPIConfig) Validate() bool {
+// Validate validates the K8s API config
+func (c *APIConfig) Validate() bool {
 	if c.AuthType == AuthTypeTLS && (c.ClientCertPath == "" || c.ClientKeyPath == "") {
 		log.Error("For TLS auth, you must set both the kubernetesAPI.clientCertPath " +
 			"and kubernetesAPI.clientKeyPath config values")
@@ -41,8 +43,8 @@ func (c *KubernetesAPIConfig) Validate() bool {
 	return true
 }
 
-// This can take configuration if needed for other types of auth
-func MakeClient(apiConf *KubernetesAPIConfig) (*k8s.Clientset, error) {
+// MakeClient can take configuration if needed for other types of auth
+func MakeClient(apiConf *APIConfig) (*k8s.Clientset, error) {
 	authType := apiConf.AuthType
 
 	var authConf *rest.Config

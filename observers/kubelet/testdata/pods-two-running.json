@@ -51,6 +51,11 @@
                 "name": "redis-tcp",
                 "containerPort": 6379,
                 "protocol": "TCP"
+              },
+              {
+                "name": "management-tcp",
+                "containerPort": 7379,
+                "protocol": "TCP"
               }
             ],
             "resources": {},
