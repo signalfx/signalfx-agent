@@ -9,7 +9,7 @@ import (
 	"sync"
 	"time"
 
-	"log"
+	log "github.com/sirupsen/logrus"
 
 	"github.com/signalfx/golib/datapoint"
 	"github.com/signalfx/neo-agent/monitors/cadvisor/converter"
@@ -68,7 +68,7 @@ func (wp *workProxy) DoWork(workRoutine int) {
 type scrapWork2 struct {
 	serverURL  string
 	collector  *converter.CadvisorCollector
-	chRecvOnly chan datapoint.Datapoint
+	chRecvOnly chan *datapoint.Datapoint
 }
 
 func (scrapWork *scrapWork2) DoWork(workRoutine int) {
@@ -119,7 +119,7 @@ const maxDatapoints = 50
 const dataSourceType = "kubernetes"
 
 func printVersion() {
-	log.Printf("git build commit: %v\n", ToolVersion)
+	log.Debugf("git build commit: %v\n", ToolVersion)
 }
 
 func nameToLabel(name string) map[string]string {
@@ -141,7 +141,7 @@ func updateNodes(kubeClient *corev1.CoreV1Client, cPort int) (hostIPtoNodeMap ma
 		FieldSelector: kubeFields.Everything().String(),
 	})
 	if apiErr != nil {
-		log.Printf("Failed to list kubernetes nodes. Error: %v\n", apiErr)
+		log.Errorf("Failed to list kubernetes nodes. Error: %v\n", apiErr)
 	} else {
 		for _, node := range nodeList.Items {
 			var hostIP string
@@ -172,7 +172,7 @@ func updateServices(kubeClient *corev1.CoreV1Client) (podToServiceMap map[string
 		FieldSelector: kubeFields.Everything().String(),
 	})
 	if apiErr != nil {
-		log.Printf("Failed to list kubernetes services. Error: %v\n", apiErr)
+		log.Errorf("Failed to list kubernetes services. Error: %v\n", apiErr)
 		return nil
 	}
 
@@ -183,7 +183,7 @@ func updateServices(kubeClient *corev1.CoreV1Client) (podToServiceMap map[string
 			FieldSelector: kubeFields.Everything().String(),
 		})
 		if apiErr != nil {
-			log.Printf("Failed to list kubernetes pods. Error: %v\n", apiErr)
+			log.Errorf("Failed to list kubernetes pods. Error: %v\n", apiErr)
 		} else {
 			for _, pod := range podList.Items {
 				//fmt.Printf("%v -> %v\n", pod.ObjectMeta.Name, service.ObjectMeta.Name)
@@ -199,7 +199,7 @@ func newKubeClient(config *Config) (restClient *corev1.CoreV1Client, err error) 
 	if config.KubernetesURL == "" {
 		kubeConfig, err = rest.InClusterConfig()
 		if err != nil {
-			log.Printf("Failed to create kubernetes client config. Error: %v\n", err)
+			log.Errorf("Failed to create kubernetes client config. Error: %v\n", err)
 		}
 	} else {
 		kubeConfig = &rest.Config{
@@ -213,7 +213,7 @@ func newKubeClient(config *Config) (restClient *corev1.CoreV1Client, err error) 
 	restClient, err = corev1.NewForConfig(kubeConfig)
 
 	if err != nil {
-		log.Printf("Failed to create kubernetes client. Error: %v\n", err)
+		log.Errorf("Failed to create kubernetes client. Error: %v\n", err)
 		return nil, err
 	}
 
@@ -237,7 +237,7 @@ func MonitorNode(cfg *Config, dpChan chan<- *datapoint.Datapoint, dataSendRate t
 		// I think only used for swc.HostIPToNameMap lookup
 		serverURL:  "",
 		collector:  collector,
-		chRecvOnly: make(chan datapoint.Datapoint),
+		chRecvOnly: make(chan *datapoint.Datapoint),
 	}
 
 	swc.addWork(sw2)
@@ -250,12 +250,14 @@ func MonitorNode(cfg *Config, dpChan chan<- *datapoint.Datapoint, dataSendRate t
 		for {
 			select {
 			case <-stop:
-				log.Println("stopping collection")
+				log.Info("Stopping cAdvisor collection")
 				ticker.Stop()
 				close(sw2.chRecvOnly)
 				return
 			case <-ticker.C:
+				log.Info("Starting collection of cadvisor metrics")
 				collector.Collect(sw2.chRecvOnly)
+				log.Info("Done with collection of cadvisor metrics")
 			}
 		}
 	}()
@@ -263,7 +265,6 @@ func MonitorNode(cfg *Config, dpChan chan<- *datapoint.Datapoint, dataSendRate t
 	go func() {
 		swc.waitAndForward()
 		stopped <- true
-		log.Println("waitAndForward returned")
 	}()
 
 	return stop, stopped, nil
@@ -307,14 +308,14 @@ func (swc *scrapWorkCache) buildWorkList(URLList []string) {
 	for _, serverURL := range URLList {
 		cadvisorClient, localERR := client.NewClient(serverURL)
 		if localERR != nil {
-			log.Printf("Failed connect to server: %v\n", localERR)
+			log.Errorf("Failed connect to server: %v\n", localERR)
 			continue
 		}
 
 		swc.addWork(&scrapWork2{
 			serverURL:  serverURL,
 			collector:  converter.NewCadvisorCollector(newCadvisorInfoProvider(cadvisorClient), nameToLabel, []*regexp.Regexp{}, []*regexp.Regexp{}, [][]*regexp.Regexp{}, map[string]bool{}),
-			chRecvOnly: make(chan datapoint.Datapoint),
+			chRecvOnly: make(chan *datapoint.Datapoint),
 		})
 	}
 }
@@ -364,7 +365,7 @@ func (swc *scrapWorkCache) fillNodeDims(chosen int, dims map[string]string) {
 		defer func() {
 			swc.mutex.Unlock()
 			if r := recover(); r != nil {
-				log.Println("Recovered in fillNodeDims: ", r)
+				log.Error("Recovered in fillNodeDims: ", r)
 			}
 		}()
 
@@ -396,61 +397,8 @@ func (swc *scrapWorkCache) waitAndForward() {
 	remaining := len(swc.cases)
 	swc.mutex.Unlock()
 
-	// localMutex used to sync i access
-	localMutex := &sync.Mutex{}
-	i := 0
-
-	// ret is buffer that accumulates datapoints to be send to SignalFx
-	ret := make([]*datapoint.Datapoint, maxDatapoints)
-
-	autoFlushTimer := time.NewTimer(autoFlushTimerDuration)
-	stopFlusher := make(chan bool, 1)
-	flushFunc := func(respChan responseChannel) {
-		func() {
-			localMutex.Lock()
-			defer localMutex.Unlock()
-
-			if i > 0 {
-				min := min(i, maxDatapoints)
-				for i := 0; i < min; i++ {
-					swc.dpChan <- ret[i]
-				}
-				i = 0
-			}
-		}()
-
-		if respChan != nil {
-			*respChan <- true
-		}
-	}
-
-	resetMutex := &sync.Mutex{}
-	resetFlushTimer := func() {
-		resetMutex.Lock()
-		defer resetMutex.Unlock()
-		autoFlushTimer.Reset(autoFlushTimerDuration)
-	}
-
-	// This thread will flush ret buffer if requested
-	// Also it will auto flush it in 500 milliseconds
-	go func() {
-		for true {
-			select {
-			case respChan := <-swc.flushChan:
-				flushFunc(respChan)
-			case <-autoFlushTimer.C:
-				flushFunc(nil)
-				resetFlushTimer()
-			case <-stopFlusher:
-				return
-			}
-		}
-	}()
-
 	for remaining > 0 {
-		resetFlushTimer()
 		chosen, value, ok := reflect.Select(swc.cases)
-		autoFlushTimer.Stop()
 		if !ok {
 			// The chosen channel has been closed, so remove the case and work
 			swc.mutex.Lock()
@@ -462,7 +410,7 @@ func (swc *scrapWorkCache) waitAndForward() {
 			continue
 		}
 
-		dp := value.Interface().(datapoint.Datapoint)
+		dp := value.Interface().(*datapoint.Datapoint)
 		dims := dp.Dimensions
 
 		// filter POD level metrics
@@ -487,23 +435,6 @@ func (swc *scrapWorkCache) waitAndForward() {
 		delete(dims, "id")
 		delete(dims, "name")
 
-		func() {
-			localMutex.Lock()
-			defer localMutex.Unlock()
-
-			ret[i] = &dp
-			i++
-			if i == maxDatapoints {
-				//sort.Sort(sortableDatapoint(ret))
-
-				func() {
-					localMutex.Unlock()
-					defer localMutex.Lock()
-
-					swc.flush()
-				}()
-			}
-		}()
+		swc.dpChan <- dp
 	}
-	stopFlusher <- true
 }

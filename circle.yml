@@ -15,7 +15,7 @@ dependencies:
     override:
     - mkdir -p ~/.go_workspace/src/github.com/signalfx
     - ln -s ~/neo-agent ~/.go_workspace/src/github.com/signalfx/neo-agent
-    - glide install:
+    - make vendor:
         pwd: ../.go_workspace/src/github.com/signalfx/neo-agent
     - make install:
         pwd: collectd-ext/stub

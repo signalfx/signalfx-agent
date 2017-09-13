@@ -27,7 +27,7 @@ The observers we currently support are (follow links for more information):
 
  - **[File](./plugins/observers/file/file.go)**
  - **[Kubernetes](./plugins/observers/kubernetes/kubernetes.go)**
- - **[Mesosphere](./plugins/observers/mesosphere/mesosphere.go)**
+ - **[Mesosphere (Alpha)](./plugins/observers/mesosphere/mesosphere.go)**
  - **[Stand-alone Docker](./plugins/observers/docker/docker.go)**
 
 ### Monitors

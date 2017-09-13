@@ -109,7 +109,8 @@ func (sw *SignalFxWriter) filterAndSendDatapoints(dps []*datapoint.Datapoint) er
 		return err
 	}
 	sw.dpsSent += uint64(len(dps))
-	log.Infof("Sending %d datapoints to SignalFx", len(dps))
+	log.Debugf("Sent %d datapoints to SignalFx", len(dps))
+
 	return nil
 }
 
@@ -195,7 +196,6 @@ func (sw *SignalFxWriter) listenForDatapoints() {
 
 		case <-dpTicker.C:
 			if len(sw.dpBuffer) > 0 {
-				log.Infof("Sending %d datapoints to SignalFx", len(sw.dpBuffer))
 				go sw.filterAndSendDatapoints(sw.dpBuffer)
 				initDPBuffer()
 			}

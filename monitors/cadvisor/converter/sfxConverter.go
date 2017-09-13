@@ -5,7 +5,7 @@ import (
 	"strconv"
 	"time"
 
-	"log"
+	log "github.com/sirupsen/logrus"
 
 	info "github.com/google/cadvisor/info/v1"
 	"github.com/signalfx/golib/datapoint"
@@ -638,7 +638,7 @@ func NewCadvisorCollector(infoProvider infoProvider, f ContainerNameToLabelsFunc
 
 // Collect fetches the stats from all containers and delivers them as
 // Prometheus metrics. It implements prometheus.PrometheusCollector.
-func (c *CadvisorCollector) Collect(ch chan<- datapoint.Datapoint) {
+func (c *CadvisorCollector) Collect(ch chan<- *datapoint.Datapoint) {
 	c.collectMachineInfo(ch)
 	c.collectVersionInfo(ch)
 	c.collectContainersInfo(ch)
@@ -703,11 +703,11 @@ func (c *CadvisorCollector) isExcluded(container info.ContainerInfo) bool {
 	return c.isExcludedImage(container) || c.isExcludedName(container) || c.isExcludedLabel(container)
 }
 
-func (c *CadvisorCollector) collectContainersInfo(ch chan<- datapoint.Datapoint) {
+func (c *CadvisorCollector) collectContainersInfo(ch chan<- *datapoint.Datapoint) {
 	containers, err := c.infoProvider.SubcontainersInfo("/")
 	if err != nil {
 		//c.errors.Set(1)
-		log.Printf("Couldn't get containers: %s", err)
+		log.Errorf("Couldn't get containers: %s", err)
 		return
 	}
 	for _, container := range containers {
@@ -747,7 +747,7 @@ func (c *CadvisorCollector) collectContainersInfo(ch chan<- datapoint.Datapoint)
 					newDims[label] = metricValue.labels[i]
 				}
 
-				ch <- *datapoint.New(cm.name, newDims, metricValue.value, cm.valueType, tt)
+				ch <- datapoint.New(cm.name, newDims, metricValue.value, cm.valueType, tt)
 			}
 		}
 
@@ -761,7 +761,7 @@ func (c *CadvisorCollector) collectContainersInfo(ch chan<- datapoint.Datapoint)
 						newDims[label] = metricValue.labels[i]
 					}
 
-					ch <- *datapoint.New(cm.name, newDims, metricValue.value, cm.valueType, tt)
+					ch <- datapoint.New(cm.name, newDims, metricValue.value, cm.valueType, tt)
 				}
 			}
 		}
@@ -776,7 +776,7 @@ func (c *CadvisorCollector) collectContainersInfo(ch chan<- datapoint.Datapoint)
 						newDims[label] = metricValue.labels[i]
 					}
 
-					ch <- *datapoint.New(cm.name, newDims, metricValue.value, cm.valueType, tt)
+					ch <- datapoint.New(cm.name, newDims, metricValue.value, cm.valueType, tt)
 				}
 			}
 		}
@@ -796,20 +796,20 @@ func (c *CadvisorCollector) collectContainersInfo(ch chan<- datapoint.Datapoint)
 						newDims[label] = metricValue.labels[i]
 					}
 
-					ch <- *datapoint.New(cm.name, newDims, metricValue.value, cm.valueType, stat.Timestamp)
+					ch <- datapoint.New(cm.name, newDims, metricValue.value, cm.valueType, stat.Timestamp)
 				}
 			}
 		}
 	}
 }
 
-func (c *CadvisorCollector) collectVersionInfo(ch chan<- datapoint.Datapoint) {}
+func (c *CadvisorCollector) collectVersionInfo(ch chan<- *datapoint.Datapoint) {}
 
-func (c *CadvisorCollector) collectMachineInfo(ch chan<- datapoint.Datapoint) {
+func (c *CadvisorCollector) collectMachineInfo(ch chan<- *datapoint.Datapoint) {
 	machineInfo, err := c.infoProvider.GetMachineInfo()
 	if err != nil {
 		//c.errors.Set(1)
-		log.Printf("Couldn't get machine info: %s", err)
+		log.Errorf("Couldn't get machine info: %s", err)
 		return
 	}
 	dims := make(map[string]string)
@@ -824,7 +824,7 @@ func (c *CadvisorCollector) collectMachineInfo(ch chan<- datapoint.Datapoint) {
 				newDims[label] = metricValue.labels[i]
 			}
 
-			ch <- *datapoint.New(cm.name, newDims, metricValue.value, cm.valueType, tt)
+			ch <- datapoint.New(cm.name, newDims, metricValue.value, cm.valueType, tt)
 		}
 	}
 }
