@@ -796,7 +796,7 @@ func (c *CadvisorCollector) collectContainersInfo(ch chan<- *datapoint.Datapoint
 						newDims[label] = metricValue.labels[i]
 					}
 
-					ch <- datapoint.New(cm.name, newDims, metricValue.value, cm.valueType, stat.Timestamp)
+					ch <- datapoint.New(cm.name, newDims, metricValue.value, cm.valueType, tt)
 				}
 			}
 		}
