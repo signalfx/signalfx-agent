@@ -34,7 +34,7 @@ image-debug:
 .PHONY: vendor
 vendor:
 	glide update --strip-vendor
-	sed -i '' -e 's/Sirupsen/sirupsen/' $$(grep -lR Sirupsen vendor)
+	sed -i '' -e 's/Sirupsen/sirupsen/' $$(grep -lR Sirupsen vendor) || true
 
 .PHONY: run-image
 run-image:

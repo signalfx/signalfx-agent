@@ -222,14 +222,14 @@ RUN bash /opt/scripts/get-collectd-plugins.sh
 
 RUN apt install -y libffi-dev libssl-dev build-essential python-dev libcurl4-openssl-dev
 
-COPY scripts/install-dd-plugin-deps.sh /opt/
+#COPY scripts/install-dd-plugin-deps.sh /opt/
 
-RUN mkdir -p /opt/dd &&\
-    cd /opt/dd &&\
-    git clone --depth 1 --single-branch https://github.com/DataDog/dd-agent.git &&\
-	git clone --depth 1 --single-branch https://github.com/DataDog/integrations-core.git
+#RUN mkdir -p /opt/dd &&\
+    #cd /opt/dd &&\
+    #git clone --depth 1 --single-branch https://github.com/DataDog/dd-agent.git &&\
+	#git clone --depth 1 --single-branch https://github.com/DataDog/integrations-core.git
 
-RUN bash /opt/install-dd-plugin-deps.sh
+#RUN bash /opt/install-dd-plugin-deps.sh
 
 COPY neopy/requirements.txt /tmp/requirements.txt
 RUN pip install -r /tmp/requirements.txt
@@ -308,8 +308,8 @@ RUN mkdir -p /etc/collectd/managed_config /etc/collectd/filtering_config
 COPY etc /etc/signalfx/
 # Pull in non-C collectd plugins
 COPY --from=python-plugins /usr/share/collectd /usr/share/collectd
-COPY --from=python-plugins /opt/dd/dd-agent /opt/dd/dd-agent
-COPY --from=python-plugins /opt/dd/integrations-core /opt/dd/integrations-core
+#COPY --from=python-plugins /opt/dd/dd-agent /opt/dd/dd-agent
+#COPY --from=python-plugins /opt/dd/integrations-core /opt/dd/integrations-core
 COPY --from=collectd /usr/src/collectd/src/types.db /usr/share/collectd/types.db
 # Grab pip dependencies too
 COPY --from=python-plugins /usr/local/lib/python2.7/dist-packages /usr/local/lib/python2.7/dist-packages

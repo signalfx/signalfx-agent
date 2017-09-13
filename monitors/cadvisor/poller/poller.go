@@ -425,8 +425,6 @@ func (swc *scrapWorkCache) waitAndForward() {
 		dims["metric_source"] = dataSourceType
 		dims["host"] = swc.cfg.Hostname
 
-		swc.fillNodeDims(chosen, dims)
-
 		for k, v := range swc.cfg.DefaultDimensions {
 			dims[k] = v
 		}
