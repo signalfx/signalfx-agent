@@ -1,4 +1,8 @@
 ---
+- name: couchbase
+  version: master
+  repo: signalfx/collectd-couchbase
+
 - name: docker
   version: v1.0.6
   repo: signalfx/docker-collectd-plugin
@@ -8,6 +12,14 @@
   repo: signalfx/collectd-elasticsearch
   can_remove:
     - tests
+
+- name: haproxy
+  version: master
+  repo: signalfx/collectd-haproxy
+
+- name: health_checker
+  version: multi-instance #v0.0.1
+  repo: signalfx/collectd-health_checker
 
 - name: mesos
   version: v1.1.1
@@ -44,21 +56,10 @@
   version: v0.0.3
   repo: signalfx/collectd-zookeeper
 
-- name: haproxy
-  version: master
-  repo: signalfx/collectd-haproxy
-
-- name: couchbase
-  version: master
-  repo: signalfx/collectd-couchbase
-
 - name: vmstat
   version: master
   repo: signalfx/vmstat-collectd
 
-- name: health_checker
-  version: multi-instance #v0.0.1
-  repo: signalfx/collectd-health_checker
 
 #- name: timestats
   #version: latest
