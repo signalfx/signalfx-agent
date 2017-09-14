@@ -130,11 +130,11 @@ func (c *Config) propagateValuesDown(metaStore *stores.MetaStore) {
 	}
 
 	c.Collectd.Hostname = c.Hostname
-	c.Collectd.IntervalSeconds = c.IntervalSeconds
 	c.Collectd.Filter = filterSet
 	c.Collectd.IngestURL = c.IngestURL
 	c.Collectd.SignalFxAccessToken = c.SignalFxAccessToken
 	c.Collectd.GlobalDimensions = c.GlobalDimensions
+	c.Collectd.IntervalSeconds = utils.FirstNonZero(c.Collectd.IntervalSeconds, c.IntervalSeconds)
 
 	for i := range c.Monitors {
 		c.Monitors[i].CollectdConf = &c.Collectd
@@ -192,8 +192,8 @@ type CollectdConfig struct {
 	WriteQueueLimitLow   int    `yaml:"writeQueueLimitLow,omitempty" default:"400000"`
 	CollectInternalStats bool   `yaml:"collectInternalStats,omitempty" default:"true"`
 	LogLevel             string `yaml:"logLevel,omitempty" default:"notice"`
+	IntervalSeconds      int    `yaml:"intervalSeconds" default:"0"`
 	// The following are propagated from the top-level config
-	IntervalSeconds     int                `yaml:"-"`
 	Hostname            string             `yaml:"-"`
 	Filter              *filters.FilterSet `yaml:"-"`
 	SignalFxAccessToken string             `yaml:"-"`

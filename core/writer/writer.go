@@ -185,7 +185,6 @@ func (sw *SignalFxWriter) listenForDatapoints() {
 			return
 
 		case dp := <-sw.dpChan:
-			log.Debugf("Buffering datapoint: %s", dp.String())
 			sw.dpBuffer = append(sw.dpBuffer, dp)
 			// TODO: perhaps flush the buffer more frequently than the
 			// dpSendInterval if we exceed the initial buffer capacity OR

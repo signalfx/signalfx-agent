@@ -23,14 +23,6 @@ import (
 	info "github.com/google/cadvisor/info/v1"
 )
 
-func init() {
-	re = regexp.MustCompile(`^k8s_(?P<container_name>[^_]+)_(?P<kubernetes_pod_name>[^_]+)_(?P<kubernetes_namespace>[^_]+)`)
-	reCaptureNames = re.SubexpNames()
-}
-
-var re *regexp.Regexp
-var reCaptureNames []string
-
 // ToolVersion set by build system
 var ToolVersion = "NOT SET"
 
@@ -120,17 +112,6 @@ const dataSourceType = "kubernetes"
 
 func printVersion() {
 	log.Debugf("git build commit: %v\n", ToolVersion)
-}
-
-func nameToLabel(name string) map[string]string {
-	extraLabels := map[string]string{}
-	matches := re.FindStringSubmatch(name)
-	for i, match := range matches {
-		if len(reCaptureNames[i]) > 0 {
-			extraLabels[re.SubexpNames()[i]] = match
-		}
-	}
-	return extraLabels
 }
 
 func updateNodes(kubeClient *corev1.CoreV1Client, cPort int) (hostIPtoNodeMap map[string]v1.Node, nodeIPs []string) {
@@ -228,7 +209,7 @@ func MonitorNode(cfg *Config, dpChan chan<- *datapoint.Datapoint, dataSendRate t
 		return nil, nil, err
 	}
 
-	collector := converter.NewCadvisorCollector(newCadvisorInfoProvider(cadvisorClient), nameToLabel, cfg.ExcludedImages, cfg.ExcludedNames, cfg.ExcludedLabels, cfg.ExcludedMetrics)
+	collector := converter.NewCadvisorCollector(newCadvisorInfoProvider(cadvisorClient), cfg.ExcludedImages, cfg.ExcludedNames, cfg.ExcludedLabels, cfg.ExcludedMetrics)
 
 	// TODO: fill in if we want node dimensions but that requires contacting apiserver.
 	// swc.hostIPtoNameMap[]
@@ -314,7 +295,7 @@ func (swc *scrapWorkCache) buildWorkList(URLList []string) {
 
 		swc.addWork(&scrapWork2{
 			serverURL:  serverURL,
-			collector:  converter.NewCadvisorCollector(newCadvisorInfoProvider(cadvisorClient), nameToLabel, []*regexp.Regexp{}, []*regexp.Regexp{}, [][]*regexp.Regexp{}, map[string]bool{}),
+			collector:  converter.NewCadvisorCollector(newCadvisorInfoProvider(cadvisorClient), []*regexp.Regexp{}, []*regexp.Regexp{}, [][]*regexp.Regexp{}, map[string]bool{}),
 			chRecvOnly: make(chan *datapoint.Datapoint),
 		})
 	}

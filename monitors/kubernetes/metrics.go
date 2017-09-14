@@ -182,7 +182,7 @@ func (dc *DatapointCache) addPodDps(obj runtime.Object) {
 		// Try and be consistent with other plugin dimensions, despite
 		// verbosity
 		"kubernetes_namespace": pod.Namespace,
-		"pod_uid":              string(pod.UID),
+		"kubernetes_pod_uid":   string(pod.UID),
 		"kubernetes_pod_name":  pod.Name,
 		"kubernetes_node":      pod.Spec.NodeName,
 	}

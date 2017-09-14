@@ -50,9 +50,6 @@ type machineInfoMetric struct {
 	getValues func(s *info.MachineInfo) metricValues
 }
 
-// ContainerNameToLabelsFunc converter function
-type ContainerNameToLabelsFunc func(containerName string) map[string]string
-
 // CadvisorCollector metric collector and converter
 type CadvisorCollector struct {
 	infoProvider            infoProvider
@@ -60,7 +57,6 @@ type CadvisorCollector struct {
 	containerSpecMetrics    []containerSpecMetric
 	containerSpecMemMetrics []containerSpecMetric
 	containerSpecCPUMetrics []containerSpecMetric
-	containerNameToLabels   ContainerNameToLabelsFunc
 	excludedImages          []*regexp.Regexp
 	excludedNames           []*regexp.Regexp
 	excludedLabels          [][]*regexp.Regexp
@@ -621,13 +617,12 @@ func getContainerSpecMetrics(excludedMetrics map[string]bool) []containerSpecMet
 }
 
 // NewCadvisorCollector creates new CadvisorCollector
-func NewCadvisorCollector(infoProvider infoProvider, f ContainerNameToLabelsFunc, excludedImages []*regexp.Regexp, excludedNames []*regexp.Regexp, excludedLabels [][]*regexp.Regexp, excludedMetrics map[string]bool) *CadvisorCollector {
+func NewCadvisorCollector(infoProvider infoProvider, excludedImages []*regexp.Regexp, excludedNames []*regexp.Regexp, excludedLabels [][]*regexp.Regexp, excludedMetrics map[string]bool) *CadvisorCollector {
 	return &CadvisorCollector{
 		excludedImages:          excludedImages,
 		excludedNames:           excludedNames,
 		excludedLabels:          excludedLabels,
 		infoProvider:            infoProvider,
-		containerNameToLabels:   f,
 		containerMetrics:        getContainerMetrics(excludedMetrics),
 		containerSpecCPUMetrics: getContainerSpecCPUMetrics(excludedMetrics),
 		containerSpecMemMetrics: getContainerSpecMemMetrics(excludedMetrics),
@@ -729,12 +724,10 @@ func (c *CadvisorCollector) collectContainersInfo(ch chan<- *datapoint.Datapoint
 			dims["container_image"] = image
 		}
 
-		if c.containerNameToLabels != nil {
-			newLabels := c.containerNameToLabels(name)
-			for k, v := range newLabels {
-				dims[k] = v
-			}
-		}
+		dims["kubernetes_pod_uid"] = container.Spec.Labels["io.kubernetes.pod.uid"]
+		dims["container_name"] = container.Spec.Labels["io.kubernetes.container.name"]
+		dims["kubernetes_pod_name"] = container.Spec.Labels["io.kubernetes.pod.name"]
+		dims["kubernetes_namespace"] = container.Spec.Labels["io.kubernetes.pod.namespace"]
 
 		tt := time.Now()
 		// Container spec
