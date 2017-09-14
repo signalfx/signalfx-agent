@@ -111,9 +111,7 @@ func (c *Config) validate() bool {
 func (c *Config) makeFilterSet() *filters.FilterSet {
 	fs := make([]filters.Filter, 0)
 	for _, mte := range c.MetricsToExclude {
-		dims := mte.ConvertDimensionsMapForSliceValues()
-		mte.ConvertMetricNameToSlice()
-		fs = append(fs, filters.New(mte.MonitorType, mte.MetricNames, dims))
+		fs = append(fs, mte.MakeFilter())
 	}
 
 	return &filters.FilterSet{

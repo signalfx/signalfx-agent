@@ -13,6 +13,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/davecgh/go-spew/spew"
 	"github.com/signalfx/golib/datapoint"
 	"github.com/signalfx/golib/event"
 	"github.com/signalfx/golib/sfxclient"
@@ -93,6 +94,10 @@ func (sw *SignalFxWriter) filterAndSendDatapoints(dps []*datapoint.Datapoint) er
 	finalDps := make([]*datapoint.Datapoint, 0, len(dps))
 	for i := range dps {
 		if sw.conf.Filter == nil || !sw.conf.Filter.Matches(dps[i]) {
+			log.WithFields(log.Fields{
+				"dp": spew.Sdump(dps[i]),
+			}).Debug("Sending datapoint")
+
 			sw.addGlobalDimsToDatapoint(dps[i])
 			finalDps = append(finalDps, dps[i])
 		}

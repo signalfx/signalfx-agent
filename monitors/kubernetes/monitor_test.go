@@ -31,7 +31,7 @@ var _ = Describe("Kubernetes plugin", func() {
 		dpChan = make(chan *datapoint.Datapoint, 100)
 		config = &Config{}
 		config.IntervalSeconds = 1
-		config.KubernetesAPI = &kubernetes.KubernetesAPIConfig{
+		config.KubernetesAPI = &kubernetes.APIConfig{
 			AuthType:   "none",
 			SkipVerify: true,
 		}

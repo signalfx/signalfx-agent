@@ -59,7 +59,7 @@ func TestNoPods(t *testing.T) {
 
 	config := &Config{
 		PollIntervalSeconds: 1,
-		KubeletAPI: KubeletAPIConfig{
+		KubeletAPI: kubeletAPIConfig{
 			URL: fakeKubelet.URL().String(),
 		},
 	}
