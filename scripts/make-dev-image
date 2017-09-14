@@ -41,6 +41,8 @@ RUN apt install -y libzmq5-dev
 
 ENV PATH=$PATH:/usr/local/go/bin:/go/bin GOPATH=/go
 
+RUN go get -u github.com/golang/lint/golint
+
 WORKDIR /go/src/github.com/signalfx/neo-agent
 
 CMD ["/bin/bash"]
