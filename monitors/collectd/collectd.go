@@ -2,22 +2,13 @@ package collectd
 
 //go:generate collectd-template-to-go collectd.conf.tmpl collectd.conf.go
 
-// #cgo CFLAGS: -I/usr/src/collectd/src/daemon -I/usr/src/collectd/src -I/usr/local/include -DSIGNALFX_EIM=1
-// #cgo LDFLAGS: /usr/local/lib/libcollectd.so
-// #include <stdint.h>
-// #include <stdlib.h>
-// #include <string.h>
-// #include "collectd.h"
-// #include "configfile.h"
-// #include "plugin.h"
-import "C"
 import (
 	"bytes"
 	"os"
+	"os/exec"
 	"reflect"
 	"sync"
 	"time"
-	"unsafe"
 
 	log "github.com/sirupsen/logrus"
 	"gopkg.in/fatih/set.v0"
@@ -40,8 +31,10 @@ const (
 	Running = "running"
 	// Stopped collectd
 	Stopped = "stopped"
-	// Reloading collectd plugins
-	Reloading = "reloading"
+	// ShuttingDown collectd
+	ShuttingDown = "shutting-down"
+	// Restarting
+	Restarting = "restarting"
 )
 
 var validLogLevels = set.NewNonTS("debug", "info", "notice", "warning", "err")
@@ -56,6 +49,8 @@ type Manager struct {
 	stopChan             chan int
 	configMutex          sync.Mutex
 	stateMutex           sync.Mutex
+	cmdMutex             sync.Mutex
+	cmd                  *exec.Cmd
 	conf                 *config.CollectdConfig
 	restartDebounced     func()
 	restartDebouncedStop chan<- struct{}
@@ -169,6 +164,7 @@ func (cm *Manager) State() string {
 	cm.stateMutex.Lock()
 	defer cm.stateMutex.Unlock()
 
+	log.Infof("Setting state to %s", cm.state)
 	return cm.state
 }
 
@@ -198,42 +194,75 @@ func (cm *Manager) rerenderConf() bool {
 }
 
 func (cm *Manager) runCollectd() {
-	cm.setState(Running)
-	defer cm.setState(Stopped)
+	stoppedCh := make(chan struct{}, 1)
 
-	cConfFile := C.CString(collectdConfPath)
-	// See https://blog.golang.org/c-go-cgo#TOC_2.
-	defer C.free(unsafe.Pointer(cConfFile))
-
-	C.plugin_init_ctx()
-
-	C.cf_read(cConfFile)
-
-	C.init_collectd()
-	C.interval_g = C.cf_get_default_interval()
-
-	C.plugin_init_all()
+	go cm.runAsChildProc(stoppedCh)
 
 	for {
-		C.plugin_read_all()
-
 		select {
 		case <-cm.stopChan:
-			log.Info("Stopping Collectd")
-			C.plugin_shutdown_all()
+			cm.setState(ShuttingDown)
+			cm.killChildProc()
 			cm.setState(Stopped)
 			return
 		case <-cm.reloadChan:
-			log.Info("Restarting Collectd")
-			cm.setState(Reloading)
-
-			C.plugin_shutdown_for_reload()
-			C.plugin_init_ctx()
-			C.cf_read(cConfFile)
-			C.plugin_init_for_reload()
-
+			cm.setState(Restarting)
+			cm.killChildProc()
+			<-stoppedCh
+			go cm.runAsChildProc(stoppedCh)
 			cm.setState(Running)
 		}
+	}
+}
+
+func (cm *Manager) killChildProc() {
+	cm.cmdMutex.Lock()
+	if cm.cmd.Process != nil {
+		log.Info("Killing old Collectd process")
+		cm.cmd.Process.Kill()
+		cm.cmd.Wait()
+	}
+	cm.cmdMutex.Unlock()
+}
+
+func (cm *Manager) runAsChildProc(stoppedCh chan<- struct{}) {
+	restartDelay := 2 * time.Second
+	for {
+		log.Info("Starting Collectd child process")
+
+		cm.cmdMutex.Lock()
+		cm.cmd = exec.Command("collectd", "-f", "-C", collectdConfPath)
+
+		cm.cmd.Stdout = os.Stdout
+		cm.cmd.Stderr = os.Stderr
+
+		err := cm.cmd.Start()
+		if err != nil {
+			log.WithError(err).Error("Could not start Collectd child process!")
+			stoppedCh <- struct{}{}
+			return
+		}
+
+		cm.setState(Running)
+
+		cm.cmdMutex.Unlock()
+		cm.cmd.Wait()
+
+		log.Infof("State is %s", cm.state)
+		// This should always be set whenever we call the cancel func
+		// corresponding to the `ctx` so that we can know whether the proc died
+		// on purpose or not.
+		if cm.state != Running {
+			log.Info("Not restarting Collectd because it is not supposed to be running")
+			stoppedCh <- struct{}{}
+			return
+		} else {
+			log.WithFields(log.Fields{
+				"error": err,
+			}).Error("Collectd child process died, restarting...")
+		}
+
+		time.Sleep(restartDelay)
 	}
 }
 

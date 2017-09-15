@@ -84,7 +84,7 @@ RUN cd /tmp &&\
 WORKDIR /usr/src/collectd
 
 ARG extra_cflags="-O2"
-ENV CFLAGS "-Wall -fPIC -DSIGNALFX_EIM=1 $extra_cflags"
+ENV CFLAGS "-Wall -fPIC -DSIGNALFX_EIM=0 $extra_cflags"
 ENV CXXFLAGS $CFLAGS
 
 RUN ./build.sh &&\
@@ -126,19 +126,6 @@ COPY collectd-ext/collectd-sfx/ .
 
 # Compile all of collectd first, including plugins
 RUN make -j4
-
-# Make our library version of collectd
-RUN gcc -shared -o libcollectd.so \
-  src/daemon/collectd-*.o \
-  src/daemon/common.o \
-  src/daemon/utils_heap.o \
-  src/daemon/utils_avltree.o \
-  src/liboconfig/*.o \
-  -ldl -lltdl -lpthread -lm
-
-# Build our mock of neoagent for testing purposes
-COPY collectd-ext/neomock /usr/src/neomock
-RUN mkdir -p /usr/local/lib/collectd && cd /usr/src/neomock && make
 
 
 ###### Glide Dependencies Image ######
@@ -187,7 +174,6 @@ RUN cd /tmp &&\
 COPY --from=godeps /go/src/github.com/signalfx/neo-agent/vendor /go/src/github.com/signalfx/neo-agent/vendor
 COPY --from=godeps /go/pkg /go/pkg
 COPY --from=collectd /usr/src/collectd/ /usr/src/collectd
-COPY --from=collectd /usr/src/collectd/libcollectd.so /usr/local/lib/libcollectd.so
 ADD scripts/go_packages.tar /go/src/github.com/signalfx/neo-agent/
 
 ARG agent_version
@@ -314,11 +300,10 @@ COPY --from=collectd /usr/src/collectd/src/types.db /usr/share/collectd/types.db
 # Grab pip dependencies too
 COPY --from=python-plugins /usr/local/lib/python2.7/dist-packages /usr/local/lib/python2.7/dist-packages
 
-COPY --from=collectd /usr/src/collectd/libcollectd.so /usr/local/lib
+COPY --from=collectd /usr/src/collectd/src/daemon/collectd /usr/bin
 # All the built-in collectd plugins
 COPY --from=collectd /usr/src/collectd/src/.libs/*.so /usr/local/lib/collectd/
 COPY --from=collectd /usr/src/collectd/bindings/java/.libs/*.jar /usr/share/collectd/java/
-COPY --from=collectd /usr/src/neomock/neomock /usr/bin/neomock
 
 COPY --from=agent-builder /usr/bin/signalfx-agent /usr/bin/signalfx-agent
 
