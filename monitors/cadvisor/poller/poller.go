@@ -236,9 +236,7 @@ func MonitorNode(cfg *Config, dpChan chan<- *datapoint.Datapoint, dataSendRate t
 				close(sw2.chRecvOnly)
 				return
 			case <-ticker.C:
-				log.Info("Starting collection of cadvisor metrics")
 				collector.Collect(sw2.chRecvOnly)
-				log.Info("Done with collection of cadvisor metrics")
 			}
 		}
 	}()
