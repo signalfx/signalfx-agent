@@ -91,7 +91,7 @@ func (sw *SignalFxWriter) Configure(conf *config.WriterConfig) bool {
 }
 
 func (sw *SignalFxWriter) filterAndSendDatapoints(dps []*datapoint.Datapoint) error {
-	finalDps := make([]*datapoint.Datapoint, 0, len(dps))
+	finalDps := make([]*datapoint.Datapoint, 0)
 	for i := range dps {
 		if sw.conf.Filter == nil || !sw.conf.Filter.Matches(dps[i]) {
 			log.WithFields(log.Fields{
@@ -113,8 +113,8 @@ func (sw *SignalFxWriter) filterAndSendDatapoints(dps []*datapoint.Datapoint) er
 		// If there is an error sending datapoints then just forget about them.
 		return err
 	}
-	sw.dpsSent += uint64(len(dps))
-	log.Debugf("Sent %d datapoints to SignalFx", len(dps))
+	sw.dpsSent += uint64(len(finalDps))
+	log.Debugf("Sent %d datapoints to SignalFx", len(finalDps))
 
 	return nil
 }

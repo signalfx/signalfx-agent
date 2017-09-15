@@ -724,8 +724,8 @@ func (c *CadvisorCollector) collectContainersInfo(ch chan<- *datapoint.Datapoint
 			dims["container_image"] = image
 		}
 
+		dims["container_spec_name"] = container.Spec.Labels["io.kubernetes.container.name"]
 		dims["kubernetes_pod_uid"] = container.Spec.Labels["io.kubernetes.pod.uid"]
-		dims["container_name"] = container.Spec.Labels["io.kubernetes.container.name"]
 		dims["kubernetes_pod_name"] = container.Spec.Labels["io.kubernetes.pod.name"]
 		dims["kubernetes_namespace"] = container.Spec.Labels["io.kubernetes.pod.namespace"]
 
