@@ -36,10 +36,7 @@ func newConfigQueue() *ConfigQueue {
 }
 
 func (cq *ConfigQueue) start() error {
-	if err := cq.socket.Bind(cq.socketPath()); err != nil {
-		return err
-	}
-	return nil
+	return cq.socket.Bind(cq.socketPath())
 }
 
 func (cq *ConfigQueue) socketPath() string {

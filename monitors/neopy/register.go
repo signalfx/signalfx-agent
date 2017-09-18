@@ -36,10 +36,7 @@ func newRegisterQueue() *RegisterQueue {
 }
 
 func (rq *RegisterQueue) start() error {
-	if err := rq.socket.Bind(registerSocketPath); err != nil {
-		return err
-	}
-	return nil
+	return rq.socket.Bind(registerSocketPath)
 }
 
 func (rq *RegisterQueue) socketPath() string {

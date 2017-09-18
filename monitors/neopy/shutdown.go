@@ -37,10 +37,7 @@ func newShutdownQueue() *ShutdownQueue {
 }
 
 func (sq *ShutdownQueue) start() error {
-	if err := sq.socket.Bind(sq.socketPath()); err != nil {
-		return err
-	}
-	return nil
+	return sq.socket.Bind(sq.socketPath())
 }
 
 func (sq *ShutdownQueue) socketPath() string {

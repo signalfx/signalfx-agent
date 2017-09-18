@@ -41,10 +41,7 @@ func (dq *DatapointsQueue) start() error {
 	if err := dq.socket.Bind(dq.socketPath()); err != nil {
 		return err
 	}
-	if err := dq.socket.SetSubscribe(datapointsTopic); err != nil {
-		return err
-	}
-	return nil
+	return dq.socket.SetSubscribe(datapointsTopic)
 }
 
 func (dq *DatapointsQueue) socketPath() string {

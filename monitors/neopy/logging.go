@@ -43,10 +43,7 @@ func (lq *LoggingQueue) start() error {
 	if err := lq.socket.Bind(lq.socketPath()); err != nil {
 		return err
 	}
-	if err := lq.socket.SetSubscribe(loggingTopic); err != nil {
-		return err
-	}
-	return nil
+	return lq.socket.SetSubscribe(loggingTopic)
 }
 
 func (lq *LoggingQueue) socketPath() string {
