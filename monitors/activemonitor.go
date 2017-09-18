@@ -7,6 +7,7 @@ import (
 	"github.com/signalfx/golib/event"
 	"github.com/signalfx/neo-agent/core/config"
 	"github.com/signalfx/neo-agent/core/services"
+	"github.com/signalfx/neo-agent/core/writer"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -121,6 +122,25 @@ func (am *ActiveMonitor) injectEventChannelIfNeeded(eventChan chan<- *event.Even
 		return false
 	}
 	eventsValue.Set(reflect.ValueOf(eventChan))
+
+	return true
+}
+
+// Sets the `DimProps` field on a monitor if it is present to the dimension
+// properties channel. Returns whether the field was actually set.
+func (am *ActiveMonitor) injectDimPropertiesChannelIfNeeded(dimPropChan chan<- *writer.DimProperties) bool {
+	instanceValue := reflect.Indirect(reflect.ValueOf(am.instance))
+	dpsValue := instanceValue.FieldByName("DimProps")
+	if !dpsValue.IsValid() {
+		return false
+	}
+	if dpsValue.Type() != reflect.ChanOf(reflect.SendDir, reflect.TypeOf(&writer.DimProperties{})) {
+		log.WithFields(log.Fields{
+			"pkgPath": instanceValue.Type().PkgPath(),
+		}).Error("Monitor instance has 'DimProps' member but is not of type 'chan<- *writer.DimProperties'")
+		return false
+	}
+	dpsValue.Set(reflect.ValueOf(dimPropChan))
 
 	return true
 }

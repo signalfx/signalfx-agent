@@ -162,9 +162,9 @@ RUN for pkg in $(cat /tmp/packages); do go install github.com/signalfx/neo-agent
 ###### Neoagent Build Image ########
 FROM ubuntu:16.04 as agent-builder
 
-# Cgo requires dep libraries present to link in libcollectd
+# Cgo requires dep libraries present
 RUN apt update &&\
-    apt install -y libltdl-dev libzmq5-dev wget pkg-config
+    apt install -y libzmq5-dev wget pkg-config
 
 ENV GO_VERSION=1.8.3 PATH=$PATH:/usr/local/go/bin
 RUN cd /tmp &&\

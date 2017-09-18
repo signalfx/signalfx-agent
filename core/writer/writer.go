@@ -32,11 +32,13 @@ const (
 // receives events/datapoints on two buffered channels and writes them to
 // SignalFx on a regular interval.
 type SignalFxWriter struct {
-	client *sfxclient.HTTPSink
+	client        *sfxclient.HTTPSink
+	dimPropClient *dimensionPropertyClient
 	// Monitors should send datapoints to this
 	dpChan chan *datapoint.Datapoint
 	// Monitors should send events to this
-	eventChan chan *event.Event
+	eventChan    chan *event.Event
+	propertyChan chan *DimProperties
 
 	stopCh chan struct{}
 
@@ -54,8 +56,10 @@ type SignalFxWriter struct {
 // New creates a new un-configured writer
 func New() *SignalFxWriter {
 	return &SignalFxWriter{
-		state:  stopped,
-		stopCh: make(chan struct{}),
+		state:         stopped,
+		stopCh:        make(chan struct{}),
+		client:        sfxclient.NewHTTPSink(),
+		dimPropClient: newDimensionPropertyClient(),
 	}
 }
 
@@ -67,10 +71,10 @@ func (sw *SignalFxWriter) Configure(conf *config.WriterConfig) bool {
 
 	sw.dpChan = make(chan *datapoint.Datapoint, conf.DatapointBufferCapacity)
 	sw.eventChan = make(chan *event.Event, conf.EventBufferCapacity)
+	sw.propertyChan = make(chan *DimProperties, 100)
 
-	client := sfxclient.NewHTTPSink()
-
-	client.AuthToken = conf.SignalFxAccessToken
+	sw.client.AuthToken = conf.SignalFxAccessToken
+	sw.dimPropClient.Token = conf.SignalFxAccessToken
 
 	endpointURL, err := conf.IngestURL.Parse("v2/datapoint")
 	if err != nil {
@@ -80,9 +84,8 @@ func (sw *SignalFxWriter) Configure(conf *config.WriterConfig) bool {
 		}).Error("Could not construct ingest URL")
 		return false
 	}
-	client.DatapointEndpoint = endpointURL.String()
+	sw.client.DatapointEndpoint = endpointURL.String()
 
-	sw.client = client
 	sw.conf = conf
 
 	sw.ensureListeningForDatapoints()
@@ -147,6 +150,15 @@ func (sw *SignalFxWriter) EventChannel() chan<- *event.Event {
 	return sw.eventChan
 }
 
+// DimPropertiesChannel returns a channel that datapoints can be fed into that will be
+// sent to SignalFx ingest.
+func (sw *SignalFxWriter) DimPropertiesChannel() chan<- *DimProperties {
+	if sw.propertyChan == nil {
+		panic("You must call Configure on the writer before getting the properties channel")
+	}
+	return sw.propertyChan
+}
+
 // ensureListeningForDatapoints will make sure the writer is accepting
 // datapoints if it is not already.  This method is idempotent.
 // ASSUMES LOCK IS HELD WHEN CALLED.
@@ -209,6 +221,14 @@ func (sw *SignalFxWriter) listenForDatapoints() {
 				// TODO: actually send events to SignalFx
 				// go sw.sendEvents(eventBuffer)
 				initEventBuffer()
+			}
+		case dimProps := <-sw.propertyChan:
+			err := sw.dimPropClient.SetPropertiesOnDimension(dimProps)
+			if err != nil {
+				log.WithFields(log.Fields{
+					"error":    err,
+					"dimProps": dimProps,
+				}).Error("Could not sync properties to dimension")
 			}
 		}
 	}

@@ -710,21 +710,17 @@ func (c *CadvisorCollector) collectContainersInfo(ch chan<- *datapoint.Datapoint
 			continue
 		}
 		dims := make(map[string]string)
-		id := container.Name
-		dims["id"] = id
-
-		name := id
-		if len(container.Aliases) > 0 {
-			name = container.Aliases[0]
-			dims["container_name"] = name
-		}
 
 		image := container.Spec.Image
 		if len(image) > 0 {
 			dims["container_image"] = image
 		}
 
+		dims["container_id"] = container.Id
 		dims["container_spec_name"] = container.Spec.Labels["io.kubernetes.container.name"]
+		// TODO: Remove this once everybody is migrated to neoagent v2 and
+		// change built-in dashboards to use container_spec_name
+		dims["container_name"] = container.Spec.Labels["io.kubernetes.container.name"]
 		dims["kubernetes_pod_uid"] = container.Spec.Labels["io.kubernetes.pod.uid"]
 		dims["kubernetes_pod_name"] = container.Spec.Labels["io.kubernetes.pod.name"]
 		dims["kubernetes_namespace"] = container.Spec.Labels["io.kubernetes.pod.namespace"]

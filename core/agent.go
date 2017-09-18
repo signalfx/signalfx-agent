@@ -57,6 +57,7 @@ func (a *Agent) configure(conf *config.Config) {
 
 	a.monitors.SetDPChannel(a.writer.DPChannel())
 	a.monitors.SetEventChannel(a.writer.EventChannel())
+	a.monitors.SetDimPropChannel(a.writer.DimPropertiesChannel())
 
 	if conf.PythonEnabled {
 		neopy.Instance().Configure()

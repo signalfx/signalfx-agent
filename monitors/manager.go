@@ -8,6 +8,7 @@ import (
 	"github.com/signalfx/golib/event"
 	"github.com/signalfx/neo-agent/core/config"
 	"github.com/signalfx/neo-agent/core/services"
+	"github.com/signalfx/neo-agent/core/writer"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -24,8 +25,9 @@ type MonitorManager struct {
 	// Map of services that are being actively monitored
 	discoveredServices map[services.ID]services.Endpoint
 
-	dpChan    chan<- *datapoint.Datapoint
-	eventChan chan<- *event.Event
+	dpChan      chan<- *datapoint.Datapoint
+	eventChan   chan<- *event.Event
+	dimPropChan chan<- *writer.DimProperties
 }
 
 func (mm *MonitorManager) ensureInit() {
@@ -132,6 +134,19 @@ func (mm *MonitorManager) SetEventChannel(eventChan chan<- *event.Event) {
 
 	for i := range mm.activeMonitors {
 		mm.activeMonitors[i].injectEventChannelIfNeeded(eventChan)
+	}
+}
+
+// SetDimPropChannel allows you to inject a new dimension property channel to
+// the manager and have it propagated to all active monitors
+func (mm *MonitorManager) SetDimPropChannel(dimPropChan chan<- *writer.DimProperties) {
+	mm.lock.Lock()
+	defer mm.lock.Unlock()
+
+	mm.dimPropChan = dimPropChan
+
+	for i := range mm.activeMonitors {
+		mm.activeMonitors[i].injectDimPropertiesChannelIfNeeded(dimPropChan)
 	}
 }
 
@@ -262,6 +277,7 @@ func (mm *MonitorManager) createAndConfigureNewMonitor(config config.MonitorCust
 
 	am.injectDatapointChannelIfNeeded(mm.dpChan)
 	am.injectEventChannelIfNeeded(mm.eventChan)
+	am.injectDimPropertiesChannelIfNeeded(mm.dimPropChan)
 
 	if !am.configureMonitor(config) {
 		return nil

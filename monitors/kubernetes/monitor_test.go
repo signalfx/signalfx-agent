@@ -161,7 +161,7 @@ var _ = Describe("Kubernetes plugin", func() {
 		}}
 
 		dps = waitForDatapoints(4)
-		expectIntMetric(dps, "pod_uid", "1234", "kubernetes.container_restart_count", 0)
+		expectIntMetric(dps, "kubernetes_pod_uid", "1234", "kubernetes.container_restart_count", 0)
 
 		fakeK8s.EventInput <- WatchEvent{watch.Modified, &v1.Pod{
 			TypeMeta: unversioned.TypeMeta{
@@ -184,7 +184,7 @@ var _ = Describe("Kubernetes plugin", func() {
 		}}
 
 		dps = waitForDatapoints(4)
-		expectIntMetric(dps, "pod_uid", "1234", "kubernetes.container_restart_count", 2)
+		expectIntMetric(dps, "kubernetes_pod_uid", "1234", "kubernetes.container_restart_count", 2)
 
 		fakeK8s.EventInput <- WatchEvent{watch.Deleted, &v1.Pod{
 			TypeMeta: unversioned.TypeMeta{
@@ -207,7 +207,8 @@ var _ = Describe("Kubernetes plugin", func() {
 		}}
 
 		dps = waitForDatapoints(2)
-		expectIntMetricMissing(dps, "pod_uid", "1234", "kubernetes.container_restart_count")
+
+		expectIntMetricMissing(dps, "kubernetes_pod_uid", "1234", "kubernetes.container_restart_count")
 
 	}, 5)
 

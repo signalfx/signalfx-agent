@@ -33,7 +33,7 @@ const (
 	Stopped = "stopped"
 	// ShuttingDown collectd
 	ShuttingDown = "shutting-down"
-	// Restarting
+	// Restarting collectd
 	Restarting = "restarting"
 )
 
@@ -256,11 +256,11 @@ func (cm *Manager) runAsChildProc(stoppedCh chan<- struct{}) {
 			log.Info("Not restarting Collectd because it is not supposed to be running")
 			stoppedCh <- struct{}{}
 			return
-		} else {
-			log.WithFields(log.Fields{
-				"error": err,
-			}).Error("Collectd child process died, restarting...")
 		}
+
+		log.WithFields(log.Fields{
+			"error": err,
+		}).Error("Collectd child process died, restarting...")
 
 		time.Sleep(restartDelay)
 	}

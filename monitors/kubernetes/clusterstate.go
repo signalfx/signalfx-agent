@@ -3,6 +3,8 @@ package kubernetes
 import (
 	"fmt"
 
+	log "github.com/sirupsen/logrus"
+
 	k8s "k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/pkg/api"
 	"k8s.io/client-go/pkg/api/v1"
@@ -36,6 +38,7 @@ func newClusterState(clientset *k8s.Clientset) *ClusterState {
 
 // Stop all running goroutines.
 func (cs *ClusterState) Stop() {
+	log.Info("Stopping all K8s API resource sync")
 	for k, s := range cs.stoppers {
 		if s != nil {
 			s <- struct{}{}

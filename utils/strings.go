@@ -1,6 +1,9 @@
 package utils
 
-import "strings"
+import (
+	"strings"
+	"unicode"
+)
 
 // FirstNonEmpty returns the first string that is not empty, otherwise ""
 func FirstNonEmpty(s ...string) string {
@@ -36,4 +39,12 @@ func IndentLines(ss string, spaces int) string {
 		}
 	}
 	return output
+}
+
+// LowercaseFirstChar make the first character of a string lowercase
+func LowercaseFirstChar(s string) string {
+	for i, v := range s {
+		return string(unicode.ToLower(v)) + s[i+1:]
+	}
+	return ""
 }
