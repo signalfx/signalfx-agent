@@ -1,6 +1,6 @@
 ---
 - name: couchbase
-  version: master
+  version: v1.0.0
   repo: signalfx/collectd-couchbase
 
 - name: docker
@@ -49,7 +49,7 @@
     - redis.conf
 
 - name: signalfx
-  version: v0.0.32
+  version: neoagent-version
   repo: signalfx/signalfx-collectd-plugin
 
 - name: zookeeper
