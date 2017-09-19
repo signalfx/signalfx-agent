@@ -38,9 +38,6 @@ func (pm *podMetrics) Add(obj runtime.Object) {
 		"kubernetes_pod_name":  pod.Name,
 		"host":                 pod.Spec.NodeName,
 	}
-	for name, value := range pod.Labels {
-		dimensions["label_"+name] = value
-	}
 
 	pm.podPhases[pod.UID] = datapoint.New(
 		"kubernetes.pod_phase",
@@ -66,8 +63,10 @@ func (pm *podMetrics) Add(obj runtime.Object) {
 func (pm *podMetrics) Remove(obj runtime.Object) {
 	pod := obj.(*v1.Pod)
 	delete(pm.podPhases, pod.UID)
-	for _, cs := range pod.Status.ContainerStatuses {
-		delete(pm.containerRestartCount, makeContUID(pod.UID, cs.Name))
+	for key := range pm.containerRestartCount {
+		if strings.HasPrefix(string(key), string(pod.UID)+":") {
+			delete(pm.containerRestartCount, key)
+		}
 	}
 }
 

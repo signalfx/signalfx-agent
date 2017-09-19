@@ -29,6 +29,7 @@ package kubernetes
 
 import (
 	"os"
+	"regexp"
 	"sort"
 	"time"
 
@@ -207,21 +208,31 @@ func (m *Monitor) isReporter() bool {
 	return agentPods[0].Name == m.thisPodName
 }
 
+var propNameSanitizer = regexp.MustCompile(`[./]`)
+
 // SyncResource will accept a resource and set any properties on dimensions
 // that do not already have them (at least as far as the agent knows from it's
 // cache, it does not actually query the SignalFx API to discover this).
 func (m *Monitor) syncResourceProperties(obj runtime.Object) {
 	switch res := obj.(type) {
 	case *v1.Pod:
+		props := make(map[string]string)
+
+		for label, value := range res.Labels {
+			props[propNameSanitizer.ReplaceAllLiteralString(label, "_")] = value
+		}
+
 		for _, or := range res.OwnerReferences {
+			props[utils.LowercaseFirstChar(or.Kind)] = or.Name
+		}
+
+		if len(props) > 0 {
 			m.DimProps <- &writer.DimProperties{
 				Dimension: writer.Dimension{
 					Name:  "kubernetes_pod_uid",
 					Value: string(res.UID),
 				},
-				Properties: map[string]string{
-					utils.LowercaseFirstChar(or.Kind): or.Name,
-				},
+				Properties: props,
 			}
 		}
 	}

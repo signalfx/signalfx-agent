@@ -164,7 +164,7 @@ func (cm *Manager) State() string {
 	cm.stateMutex.Lock()
 	defer cm.stateMutex.Unlock()
 
-	log.Infof("Setting state to %s", cm.state)
+	log.Infof("Setting collectd state to %s", cm.state)
 	return cm.state
 }
 
