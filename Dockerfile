@@ -81,6 +81,11 @@ RUN cd /tmp &&\
 	mkdir -p /usr/src/ &&\
 	mv collectd-collectd* /usr/src/collectd
 
+# Hack to get our custom version compiled into collectd
+RUN echo "#!/bin/bash" > /usr/src/collectd/version-gen.sh &&\
+    echo "collectd_version=$collectd_version" >> /usr/src/collectd/version-gen.sh &&\
+    echo "printf \${collectd_version//-/.}" >> /usr/src/collectd/version-gen.sh
+
 WORKDIR /usr/src/collectd
 
 ARG extra_cflags="-O2"
