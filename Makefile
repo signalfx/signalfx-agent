@@ -1,13 +1,17 @@
 RUN_CONTAINER := neo-agent-tmp
 
-go_pkgs := $(if $(shell glide novendor), $(shell glide novendor), $(error glide command failed))
+go_pkgs := $(shell glide novendor)
 
 .PHONY: check
 check: lint vet test
 
 .PHONY: test
 test:
-	go test $(go_pkgs)
+	@if [ "$(go_pkgs)" = "" ]; then\
+		echo 'Go packages could not be determined' && exit 1;\
+	else\
+		go test $(go_pkgs);\
+	fi
 
 .PHONY: vet
 vet:
