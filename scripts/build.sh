@@ -7,7 +7,12 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 . $SCRIPT_DIR/common.sh
 
 AGENT_IMAGE_NAME="quay.io/signalfuse/signalfx-agent"
-TAG=${TAG:-$USER}
+
+if [ -n "${BUILD_BRANCH}" ]; then
+  TAG=${TAG:-$BUILD_BRANCH}
+else
+  TAG=${TAG:-$USER}
+fi
 
 do_docker_build ${AGENT_IMAGE_NAME}:${TAG} $SCRIPT_DIR/../Dockerfile
 
