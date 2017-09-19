@@ -291,7 +291,6 @@ LABEL app="signalfx-agent"
 
 RUN mkdir -p /etc/collectd/managed_config /etc/collectd/filtering_config
 
-COPY etc /etc/signalfx/
 # Pull in non-C collectd plugins
 COPY --from=python-plugins /usr/share/collectd /usr/share/collectd
 #COPY --from=python-plugins /opt/dd/dd-agent /opt/dd/dd-agent
