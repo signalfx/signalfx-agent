@@ -1,6 +1,7 @@
 .git/**
+.glide/**
 .build/**
-agent
+neo-agent
 vendor/**
 tmp/**
 local-etc/**

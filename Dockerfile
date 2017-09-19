@@ -81,10 +81,15 @@ RUN cd /tmp &&\
 	mkdir -p /usr/src/ &&\
 	mv collectd-collectd* /usr/src/collectd
 
+# Hack to get our custom version compiled into collectd
+RUN echo "#!/bin/bash" > /usr/src/collectd/version-gen.sh &&\
+    echo "collectd_version=$collectd_version" >> /usr/src/collectd/version-gen.sh &&\
+    echo "printf \${collectd_version//-/.}" >> /usr/src/collectd/version-gen.sh
+
 WORKDIR /usr/src/collectd
 
 ARG extra_cflags="-O2"
-ENV CFLAGS "-Wall -fPIC -DSIGNALFX_EIM=1 $extra_cflags"
+ENV CFLAGS "-Wall -fPIC -DSIGNALFX_EIM=0 $extra_cflags"
 ENV CXXFLAGS $CFLAGS
 
 RUN ./build.sh &&\
@@ -127,19 +132,6 @@ COPY collectd-ext/collectd-sfx/ .
 # Compile all of collectd first, including plugins
 RUN make -j4
 
-# Make our library version of collectd
-RUN gcc -shared -o libcollectd.so \
-  src/daemon/collectd-*.o \
-  src/daemon/common.o \
-  src/daemon/utils_heap.o \
-  src/daemon/utils_avltree.o \
-  src/liboconfig/*.o \
-  -ldl -lltdl -lpthread -lm
-
-# Build our mock of neoagent for testing purposes
-COPY collectd-ext/neomock /usr/src/neomock
-RUN mkdir -p /usr/local/lib/collectd && cd /usr/src/neomock && make
-
 
 ###### Glide Dependencies Image ######
 FROM golang:1.8.3-stretch as godeps
@@ -157,8 +149,13 @@ RUN apt update &&\
 
 WORKDIR /go/src/github.com/signalfx/neo-agent
 COPY glide.yaml glide.lock ./
-RUN glide install --strip-vendor &&\
-	cp -r vendor/* /go/src/
+
+# Sed command is a hack to fix a renaming issue with the logrus package
+# See https://github.com/sirupsen/logrus/issues/566
+RUN glide install --strip-vendor
+
+RUN sed -i -e 's/Sirupsen/sirupsen/' $(grep -lR Sirupsen vendor) &&\
+    cp -r vendor/* /go/src/
 # Parse glide.lock to get go dep packages and precompile them so later agent
 # build is blazing fast
 RUN cat glide.lock | tail -n+3 | yq -r '.imports[] | .name' >> /tmp/packages &&\
@@ -168,30 +165,36 @@ RUN for pkg in $(cat /tmp/packages); do go install github.com/signalfx/neo-agent
 
 
 ###### Neoagent Build Image ########
-FROM golang:1.8.3-stretch as agent-builder
+FROM ubuntu:16.04 as agent-builder
 
-# Cgo requires dep libraries present to link in libcollectd
+# Cgo requires dep libraries present
 RUN apt update &&\
-    apt install -y libltdl-dev
+    apt install -y libzmq5-dev wget pkg-config
 
-COPY --from=godeps /go/src/github.com/signalfx/neo-agent/vendor src/github.com/signalfx/neo-agent/vendor
+ENV GO_VERSION=1.8.3 PATH=$PATH:/usr/local/go/bin
+RUN cd /tmp &&\
+    wget https://storage.googleapis.com/golang/go${GO_VERSION}.linux-amd64.tar.gz &&\
+	tar -C /usr/local -xf go*.tar.gz
+
+COPY --from=godeps /go/src/github.com/signalfx/neo-agent/vendor /go/src/github.com/signalfx/neo-agent/vendor
 COPY --from=godeps /go/pkg /go/pkg
-COPY --from=collectd /usr/src/collectd/src/daemon/*.h /usr/local/include/collectd/
-COPY --from=collectd /usr/src/collectd/src/liboconfig/*.h /usr/local/include/collectd/liboconfig/
-COPY --from=collectd /usr/src/collectd/libcollectd.so /usr/local/lib/libcollectd.so
-ADD scripts/go_packages.tar src/github.com/signalfx/neo-agent/
+COPY --from=collectd /usr/src/collectd/ /usr/src/collectd
+ADD scripts/go_packages.tar /go/src/github.com/signalfx/neo-agent/
 
 ARG agent_version
 ARG collectd_version
-RUN go build \
+ENV GOPATH=/go
+WORKDIR /go/src/github.com/signalfx/neo-agent
+RUN scripts/make-templates
+RUN GOPATH=/go go build \
     -ldflags "-X main.Version=$agent_version -X main.CollectdVersion=$collectd_version -X main.BuiltTime=$(date +%FT%T%z)" \
 	-o signalfx-agent \
-    github.com/signalfx/neo-agent/cmd/agent &&\
+    github.com/signalfx/neo-agent &&\
 	cp signalfx-agent /usr/bin/signalfx-agent
 
 
 ###### Python Plugin Image ######
-FROM ubuntu:16.04 as collectd-plugins
+FROM ubuntu:16.04 as python-plugins
 
 RUN apt update &&\
     apt install -y git python-pip wget
@@ -199,16 +202,32 @@ RUN pip install yq &&\
     wget -O /usr/bin/jq https://github.com/stedolan/jq/releases/download/jq-1.5/jq-linux64 &&\
     chmod +x /usr/bin/jq
 
-COPY scripts/get-collectd-plugins.sh scripts/collectd-plugins.yaml /opt/
+# Mirror the same dir structure that exists in the original source
+COPY scripts/get-collectd-plugins.sh /opt/scripts/
+COPY collectd-plugins.yaml /opt/
 
 RUN mkdir -p /usr/share/collectd/java \
     && echo "jmx_memory      value:GAUGE:0:U" > /usr/share/collectd/java/signalfx_types_db
 
-RUN bash /opt/get-collectd-plugins.sh
+RUN bash /opt/scripts/get-collectd-plugins.sh
+
+RUN apt install -y libffi-dev libssl-dev build-essential python-dev libcurl4-openssl-dev
+
+#COPY scripts/install-dd-plugin-deps.sh /opt/
+
+#RUN mkdir -p /opt/dd &&\
+    #cd /opt/dd &&\
+    #git clone --depth 1 --single-branch https://github.com/DataDog/dd-agent.git &&\
+	#git clone --depth 1 --single-branch https://github.com/DataDog/integrations-core.git
+
+#RUN bash /opt/install-dd-plugin-deps.sh
+
+COPY neopy/requirements.txt /tmp/requirements.txt
+RUN pip install -r /tmp/requirements.txt
 
 
 ###### Final Agent Image #######
-FROM ubuntu:16.04
+FROM ubuntu:16.04 as final-image
 
 ENV DEBIAN_FRONTEND noninteractive
 ENV LD_LIBRARY_PATH /usr/lib:/usr/local/lib/collectd:/usr/lib/jvm/java-8-openjdk-amd64/jre/lib/amd64/server
@@ -260,6 +279,8 @@ RUN sed -i -e '/^deb-src/d' /etc/apt/sources.list \
       libxen-4.6 \
       libxml2 \
       libyajl2 \
+	  libzmq5-dev \
+	  netcat-openbsd \
       net-tools \
       openjdk-8-jre-headless \
       vim \
@@ -275,19 +296,21 @@ LABEL app="signalfx-agent"
 
 RUN mkdir -p /etc/collectd/managed_config /etc/collectd/filtering_config
 
-COPY etc /etc/signalfx/
 # Pull in non-C collectd plugins
-COPY --from=collectd-plugins /usr/share/collectd /usr/share/collectd
+COPY --from=python-plugins /usr/share/collectd /usr/share/collectd
+#COPY --from=python-plugins /opt/dd/dd-agent /opt/dd/dd-agent
+#COPY --from=python-plugins /opt/dd/integrations-core /opt/dd/integrations-core
 COPY --from=collectd /usr/src/collectd/src/types.db /usr/share/collectd/types.db
 # Grab pip dependencies too
-COPY --from=collectd-plugins /opt/collectd-py /opt/collectd-py
-ENV PYTHONPATH=/opt/collectd-py
+COPY --from=python-plugins /usr/local/lib/python2.7/dist-packages /usr/local/lib/python2.7/dist-packages
 
-COPY --from=collectd /usr/src/collectd/libcollectd.so /usr/local/lib
+COPY --from=collectd /usr/src/collectd/src/daemon/collectd /usr/bin
 # All the built-in collectd plugins
 COPY --from=collectd /usr/src/collectd/src/.libs/*.so /usr/local/lib/collectd/
 COPY --from=collectd /usr/src/collectd/bindings/java/.libs/*.jar /usr/share/collectd/java/
-COPY --from=collectd /usr/src/neomock/neomock /usr/bin/neomock
 
 COPY --from=agent-builder /usr/bin/signalfx-agent /usr/bin/signalfx-agent
+
+COPY neopy /usr/local/lib/neopy
+COPY scripts/agent-status /usr/bin/agent-status
 RUN chmod +x /usr/bin/signalfx-agent

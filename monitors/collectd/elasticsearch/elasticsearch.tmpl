@@ -1,0 +1,40 @@
+LoadPlugin "python"
+<Plugin "python">
+  ModulePath "{{Globals.PluginRoot}}/elasticsearch"
+  Import "elasticsearch_collectd"
+
+  {{range .Endpoints}}
+  <Module "elasticsearch_collectd">
+    {{with .additionalMetrics -}}
+    AdditionalMetrics ["{{stringsJoin . "\", \""}}"]
+    {{- end}}
+    DetailedMetrics {{withDefault .detailedMetrics "true"}}
+    Dimensions "{{encodeDimsForPluginInstance .dimensions}}"
+    EnableClusterHealth {{withDefault .enableClusterHealth "true"}}
+    EnableIndexStats {{withDefault .enableIndexStats "true"}}
+    Host {{.host}}
+    {{with withDefault .indexes (sliceOf "_all") -}}
+    Indexes ["{{stringsJoin . "\", \""}}"]
+    {{- end}}
+    IndexInterval {{or .indexInterval "300"}}
+    IndexStatsMasterOnly {{withDefault .indexStatsMasterOnly "true"}}
+    IndexSummaryOnly {{withDefault .indexSummaryOnly "false"}}
+    Interval {{$.IntervalSeconds}}
+    {{with .password -}}
+    Password "{{.}}"
+    {{- end}}
+    Port {{.port}}
+    {{with .protocol -}}
+    Protocol {{.}}
+    {{- end}}
+    {{with .username -}}
+    Username "{{.}}"
+    {{- end}}
+    ThreadPools ["{{stringsJoin (withDefault .threadPools (sliceOf "search" "index")) "\", \""}}"]
+    Verbose false
+    {{with .version -}}
+    Version {{.}}
+    {{- end}}
+  </Module>
+  {{end}}
+</Plugin>
