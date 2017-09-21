@@ -1,0 +1,6 @@
+#!/bin/bash
+
+# Connects to the neoagent diagnostic socket that will dump information about
+# the current state of the agent.
+
+nc.openbsd -U /var/run/signalfx.sock

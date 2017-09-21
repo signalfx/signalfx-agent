@@ -1,0 +1,51 @@
+#!/bin/bash
+
+set -ex
+
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+. $SCRIPT_DIR/common.sh
+
+dockerfile=$SCRIPT_DIR/.Dockerfile.neoagent-dev
+
+cat $SCRIPT_DIR/../Dockerfile > $dockerfile
+
+cat <<-EOH >> $dockerfile
+
+FROM final-image
+
+COPY --from=godeps /go/src/github.com/signalfx/neo-agent/vendor src/github.com/signalfx/neo-agent/vendor
+COPY --from=godeps /go/pkg /go/pkg
+COPY --from=collectd /usr/src/collectd/src/daemon/*.h /usr/local/include/collectd/
+COPY --from=collectd /usr/src/collectd/src/liboconfig/*.h /usr/local/include/collectd/liboconfig/
+
+COPY --from=agent-builder /usr/ /tmp/usr-agent-buider
+COPY --from=godeps /usr/ /tmp/usr-godeps
+COPY --from=collectd /usr/ /tmp/usr-collectd
+COPY --from=collectd /etc/ /tmp/etc-collectd
+
+WORKDIR /tmp
+RUN wget https://storage.googleapis.com/golang/go1.8.3.linux-amd64.tar.gz &&\
+    tar -xf go1.8.3* &&\
+    mv go /usr/local
+
+RUN cp -ra /tmp/usr-collectd/* /usr/ &&\
+    cd /usr/src/collectd &&\
+    make install
+
+RUN cp /tmp/usr-godeps/bin/jq /tmp/usr-godeps/bin/glide /usr/bin/
+
+RUN pip install ipython==5 ipdb
+
+RUN apt install -y libzmq5-dev
+
+ENV PATH=$PATH:/usr/local/go/bin:/go/bin GOPATH=/go
+
+RUN go get -u github.com/golang/lint/golint
+
+WORKDIR /go/src/github.com/signalfx/neo-agent
+
+CMD ["/bin/bash"]
+EOH
+
+do_docker_build neoagent-dev $dockerfile

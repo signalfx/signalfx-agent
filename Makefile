@@ -7,7 +7,11 @@ check: lint vet test
 
 .PHONY: test
 test:
-	go test $(go_pkgs)
+	@if [ "$(go_pkgs)" = "" ]; then\
+		echo 'Go packages could not be determined' && exit 1;\
+	else\
+		go test $(go_pkgs);\
+	fi
 
 .PHONY: vet
 vet:
@@ -21,12 +25,20 @@ lint:
 collectd:
 	./scripts/build-collectd.sh
 
+templates:
+	scripts/make-templates
+
 .PHONY: image
 image:
 	./scripts/build.sh
 
 image-debug:
 	DEBUG=true ./scripts/build.sh
+
+.PHONY: vendor
+vendor:
+	glide update --strip-vendor
+	sed -i '' -e 's/Sirupsen/sirupsen/' $$(grep -lR Sirupsen vendor) || true
 
 .PHONY: run-image
 run-image:
@@ -49,3 +61,20 @@ run-image:
 run-shell:
 # Attach to the running container kicked off by `make run-image`.
 	docker exec -it $(RUN_CONTAINER) bash
+
+.PHONY: dev-image
+dev-image:
+	scripts/make-dev-image
+
+.PHONY: run-dev-image
+run-dev-image:
+	docker run --rm -it \
+		--privileged \
+		--net host \
+		-v $(PWD)/local-etc:/etc/signalfx \
+		-v /:/hostfs:ro \
+		-v /etc:/mnt/etc:ro \
+		-v /proc:/mnt/proc:ro \
+		-v $(PWD):/go/src/github.com/signalfx/neo-agent \
+		-v /var/run/docker.sock:/var/run/docker.sock \
+		neoagent-dev /bin/bash
