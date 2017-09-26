@@ -4,7 +4,7 @@
   repo: signalfx/collectd-couchbase
 
 - name: docker
-  version: v1.0.6
+  version: v2.0.2
   repo: signalfx/docker-collectd-plugin
 
 - name: elasticsearch
