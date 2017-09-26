@@ -142,6 +142,7 @@ func (cm *Manager) Shutdown() {
 	if cm.State() != Stopped {
 		cm.stopChan <- 0
 		cm.restartDebouncedStop <- struct{}{}
+		cm.restartDebouncedStop = nil
 	}
 }
 
@@ -196,19 +197,23 @@ func (cm *Manager) rerenderConf() bool {
 func (cm *Manager) runCollectd() {
 	stoppedCh := make(chan struct{}, 1)
 
+	stop := func() {
+		cm.killChildProc()
+		<-stoppedCh
+	}
+
 	go cm.runAsChildProc(stoppedCh)
 
 	for {
 		select {
 		case <-cm.stopChan:
 			cm.setState(ShuttingDown)
-			cm.killChildProc()
+			stop()
 			cm.setState(Stopped)
 			return
 		case <-cm.reloadChan:
 			cm.setState(Restarting)
-			cm.killChildProc()
-			<-stoppedCh
+			stop()
 			go cm.runAsChildProc(stoppedCh)
 			cm.setState(Running)
 		}
