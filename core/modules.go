@@ -9,6 +9,7 @@ import (
 	_ "github.com/signalfx/neo-agent/monitors/collectd/activemq"
 	_ "github.com/signalfx/neo-agent/monitors/collectd/apache"
 	_ "github.com/signalfx/neo-agent/monitors/collectd/cassandra"
+	_ "github.com/signalfx/neo-agent/monitors/collectd/consul"
 	_ "github.com/signalfx/neo-agent/monitors/collectd/custom"
 	_ "github.com/signalfx/neo-agent/monitors/collectd/docker"
 	_ "github.com/signalfx/neo-agent/monitors/collectd/elasticsearch"
