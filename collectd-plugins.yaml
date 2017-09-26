@@ -22,7 +22,7 @@
   repo: signalfx/collectd-etcd
 
 - name: haproxy
-  version: master
+  version: v1.0.1
   repo: signalfx/collectd-haproxy
 
 - name: health_checker
