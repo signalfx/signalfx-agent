@@ -3,6 +3,7 @@ package monitors
 import (
 	"reflect"
 
+	"github.com/davecgh/go-spew/spew"
 	"github.com/signalfx/golib/datapoint"
 	"github.com/signalfx/golib/event"
 	"github.com/signalfx/neo-agent/core/config"
@@ -32,22 +33,21 @@ func (am *ActiveMonitor) configureMonitor(monConfig config.MonitorCustomConfig) 
 		return false
 	}
 
-	if len(config.ServiceEndpointsFromConfig(monConfig)) > 0 {
-		return am.injectAndRemoveManualServices()
-	}
-	return true
+	return am.injectAndRemoveManualServices()
 }
 
 // Add new services and remove old ones that are no longer configured
 func (am *ActiveMonitor) injectAndRemoveManualServices() bool {
-	for k := range am.serviceSet {
-		am.removeServiceFromMonitor(am.serviceSet[k])
-	}
-
 	ses := config.ServiceEndpointsFromConfig(am.config)
-	for i := range ses {
-		if !am.injectServiceToMonitorInstance(ses[i]) {
-			return false
+	if len(ses) > 0 {
+		for k := range am.serviceSet {
+			am.removeServiceFromMonitor(am.serviceSet[k])
+		}
+
+		for i := range ses {
+			if !am.injectServiceToMonitorInstance(ses[i]) {
+				return false
+			}
 		}
 	}
 

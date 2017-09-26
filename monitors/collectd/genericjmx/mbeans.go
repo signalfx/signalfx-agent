@@ -17,7 +17,17 @@ func (m MBeanMap) MergeWith(m2 MBeanMap) MBeanMap {
 	return out
 }
 
-var defaultMBeans MBeanMap
+func (m MBeanMap) MBeanNames() []string {
+	names := make([]string, 0)
+	for n := range m {
+		names = append(names, n)
+	}
+	return names
+}
+
+// DefaultMBeans are basic JVM memory and threading metrics that are common to
+// all JMX applications
+var DefaultMBeans MBeanMap
 
 const defaultMBeanYAML = `
 garbage_collector:

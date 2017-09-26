@@ -8,7 +8,8 @@ LoadPlugin "java"
   LoadPlugin "org.collectd.java.GenericJMX"
   <Plugin "GenericJMX">
 
-    {{range $name, $_ := .mBeanDefinitions}}
+    {{range $conf := .C.ByMonitorID}}
+    {{range $name, $_ := .MBeanDefinitions}}
     <MBean "{{$name}}">
       ObjectName "{{.ObjectName}}"
       {{with .InstancePrefix -}}
@@ -18,7 +19,7 @@ LoadPlugin "java"
       <Value>
         {{with .InstancePrefix -}}
         InstancePrefix "{{.}}"
-        {{end -}}
+        {{- end}}
         Type "{{.Type}}"
         Table {{withDefault .Table "false"}}
         Attribute "{{.Attribute}}"
@@ -26,27 +27,28 @@ LoadPlugin "java"
       {{end}}
     </MBean>
     {{end}}
+    {{end}}
 
     {{range $endpoint := .Endpoints}}
-    {{with merge (toMap (index .configForEndpoint (toServiceID .id)).Common) .}}
+    {{with (index $.C.ByEndpointID .ID)}}
     <Connection>
-      {{with .serviceURL}}
-      ServiceURL "{{renderValue . $endpoint}}"
+      {{with .ServiceURL}}
+      ServiceURL "{{renderValue . (toMap $endpoint)}}"
       {{- else -}}
-      ServiceURL "service:jmx:rmi:///jndi/rmi://{{.host}}:{{.port}}/jmxrmi"
+      ServiceURL "service:jmx:rmi:///jndi/rmi://{{$endpoint.Host}}:{{$endpoint.Port}}/jmxrmi"
       {{- end}}
-      InstanceSuffix "{{withDefault .name .id}}[{{encodeDimsForPluginInstance .dimensions}}]"
-      {{- with .instancePrefix}}
+      InstanceSuffix "{{withDefault $endpoint.Name $endpoint.ID}}[{{encodeDimsForPluginInstance .ExtraDimensions $endpoint.Dimensions}}]"
+      {{with .InstancePrefix -}}
       InstancePrefix "{{.}}"
       {{- end}}
-      ServiceName "{{.serviceName}}"
-      {{- with .username}}
+      ServiceName "{{.ServiceName}}"
+      {{with .Username -}}
       User "{{.}}"
       {{- end}}
-      {{- with .password}}
+      {{- with .Password}}
       Password "{{.}}"
       {{- end}}
-      {{range .mBeansToCollect}}
+      {{range .MBeansToCollect}}
       Collect "{{.}}"
       {{- end}}
     </Connection>

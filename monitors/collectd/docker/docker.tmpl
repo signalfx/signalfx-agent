@@ -5,32 +5,24 @@ LoadPlugin "python"
   ModulePath "{{Globals.PluginRoot}}/docker"
   Import "dockerplugin"
 
-  {{range .Endpoints}}
   <Module dockerplugin>
-    Interval {{$.IntervalSeconds}}
-    BaseURL "{{.dockerURL}}"
+    Interval {{.C.IntervalSeconds}}
+    BaseURL "{{.C.DockerURL}}"
     Timeout 30
     Verbose false
-    {{range $key, $value := .dimensions -}}
+    {{range $key, $value := .C.ExtraDimensions -}}
     Dimension "{{$key}}" "{{$value}}"
     {{end -}}
-  {{with .excludedImages}}
-    {{range $image := . -}}
-    ExcludeImage "{{$image}}"
-    {{end -}}
+  {{range .C.ExcludedImages}}
+    ExcludeImage "{{.}}"
   {{end}}
-  {{with .excludedNames}}
-    {{range .excludedNames -}}
+  {{range .C.ExcludedNames}}
     ExcludeName "{{.}}"
-    {{end -}}
   {{end -}}
-  {{with .excludedLabels}}
-    {{range .excludedLabels -}}
+  {{with .C.ExcludedLabels}}
     ExcludeLabel {{range $elem := .}}"{{$elem}}" {{end}} 
-    {{end -}}
   {{end -}}
   </Module>
-  {{end}}
 
 </Plugin>
 

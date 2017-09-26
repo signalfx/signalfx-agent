@@ -87,7 +87,3 @@ func EndpointsAsSliceOfMap(endpoints interface{}) []map[string]interface{} {
 	}
 	return out
 }
-
-/*func MergeCommonConfigToEndpoint(common Endpoint, endpoint Endpoint) Endpoint {
-
-}*/

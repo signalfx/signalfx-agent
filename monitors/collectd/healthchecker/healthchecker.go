@@ -21,17 +21,16 @@ func init() {
 
 type serviceEndpoint struct {
 	services.EndpointCore `yaml:",inline"`
-	URL                   *string `yaml:"url"`
-	// This can be either a string or numeric type
-	JSONVal *interface{} `yaml:"jsonVal"`
-	JSONKey *string      `yaml:"jsonKey"`
 }
 
 // Config is the monitor-specific config with the generic config embedded
 type Config struct {
 	config.MonitorConfig
-	CommonEndpointConfig serviceEndpoint   `yaml:",inline" default:"{}"`
-	ServiceEndpoints     []serviceEndpoint `yaml:"serviceEndpoints" default:"[]"`
+	URL *string `yaml:"url"`
+	// This can be either a string or numeric type
+	JSONVal          *interface{}            `yaml:"jsonVal"`
+	JSONKey          *string                 `yaml:"jsonKey"`
+	ServiceEndpoints []services.EndpointCore `yaml:"serviceEndpoints" default:"[]"`
 }
 
 // Monitor is the main type that represents the monitor
@@ -41,5 +40,5 @@ type Monitor struct {
 
 // Configure configures and runs the plugin in collectd
 func (rm *Monitor) Configure(conf *Config) bool {
-	return rm.SetConfigurationAndRun(&conf.MonitorConfig, &conf.CommonEndpointConfig)
+	return rm.SetConfigurationAndRun(conf)
 }

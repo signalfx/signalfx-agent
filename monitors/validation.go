@@ -41,11 +41,3 @@ func validateCommonConfig(conf *config.MonitorConfig) bool {
 
 	return result
 }
-
-// ValidateEndpointConfig accepts both the common configuration as well as the
-// service endpoints defined for a service and validates that any requiredFields
-// are present.
-func ValidateEndpointConfig(common services.Endpoint) bool {
-
-	return true
-}

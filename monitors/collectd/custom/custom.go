@@ -16,6 +16,8 @@ import (
 
 const monitorType = "collectd/custom"
 
+type TemplateContext map[string]interface{}
+
 func init() {
 	monitors.Register(monitorType, func() interface{} {
 		return &Monitor{
@@ -27,9 +29,9 @@ func init() {
 // Config is the configuration for the collectd custom monitor
 type Config struct {
 	config.MonitorConfig
-	TemplateText    string                 `yaml:"templateText,omitempty"`
-	TemplatePath    string                 `yaml:"templatePath,omitempty"`
-	TemplateContext map[string]interface{} `yaml:"templateContext"`
+	TemplateContext `yaml:",inline"`
+	TemplateText    string `yaml:"templateText"`
+	TemplatePath    string `yaml:"templatePath"`
 }
 
 // Validate will check the config that is specific to this monitor
@@ -97,9 +99,6 @@ func (cm *Monitor) Configure(conf *Config) bool {
 	cm.lock.Lock()
 	defer cm.lock.Unlock()
 
-	for k, v := range conf.TemplateContext {
-		cm.Context[k] = v
-	}
 	cm.Template = conf.getTemplate()
 	if cm.Template == nil {
 		return false
@@ -109,7 +108,7 @@ func (cm *Monitor) Configure(conf *Config) bool {
 		return cm.watchTemplatePath(conf)
 	}
 
-	return cm.SetConfigurationAndRun(&conf.MonitorConfig, nil)
+	return cm.SetConfigurationAndRun(conf)
 }
 
 func (cm *Monitor) watchTemplatePath(conf *Config) bool {
@@ -137,7 +136,7 @@ func (cm *Monitor) watchTemplatePath(conf *Config) bool {
 				if cm.Template == nil {
 					continue
 				}
-				cm.SetConfigurationAndRun(&conf.MonitorConfig, nil)
+				cm.SetConfigurationAndRun(conf)
 
 				cm.lock.Unlock()
 			}

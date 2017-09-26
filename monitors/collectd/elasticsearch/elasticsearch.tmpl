@@ -5,34 +5,34 @@ LoadPlugin "python"
 
   {{range .Endpoints}}
   <Module "elasticsearch_collectd">
-    {{with .additionalMetrics -}}
+    {{with $.C.AdditionalMetrics -}}
     AdditionalMetrics ["{{stringsJoin . "\", \""}}"]
     {{- end}}
-    DetailedMetrics {{withDefault .detailedMetrics "true"}}
-    Dimensions "{{encodeDimsForPluginInstance .dimensions}}"
-    EnableClusterHealth {{withDefault .enableClusterHealth "true"}}
-    EnableIndexStats {{withDefault .enableIndexStats "true"}}
-    Host {{.host}}
-    {{with withDefault .indexes (sliceOf "_all") -}}
+    DetailedMetrics {{$.C.DetailedMetrics}}
+    Dimensions "{{encodeDimsForPluginInstance $.C.ExtraDimensions .Dimensions}}"
+    EnableClusterHealth {{$.C.EnableClusterHealth}}
+    EnableIndexStats {{$.C.EnableIndexStats}}
+    Host {{.Host}}
+    {{with $.C.Indexes -}}
     Indexes ["{{stringsJoin . "\", \""}}"]
     {{- end}}
-    IndexInterval {{or .indexInterval "300"}}
-    IndexStatsMasterOnly {{withDefault .indexStatsMasterOnly "true"}}
-    IndexSummaryOnly {{withDefault .indexSummaryOnly "false"}}
-    Interval {{$.IntervalSeconds}}
-    {{with .password -}}
+    IndexInterval {{$.C.IndexInterval}}
+    IndexStatsMasterOnly {{$.C.IndexStatsMasterOnly}}
+    IndexSummaryOnly {{$.C.IndexSummaryOnly}}
+    Interval {{$.C.IntervalSeconds}}
+    {{with $.C.Password -}}
     Password "{{.}}"
     {{- end}}
-    Port {{.port}}
-    {{with .protocol -}}
+    Port {{.Port}}
+    {{with $.C.Protocol -}}
     Protocol {{.}}
     {{- end}}
-    {{with .username -}}
+    {{with $.C.Username -}}
     Username "{{.}}"
     {{- end}}
-    ThreadPools ["{{stringsJoin (withDefault .threadPools (sliceOf "search" "index")) "\", \""}}"]
+    ThreadPools ["{{stringsJoin $.C.ThreadPools "\", \""}}"]
     Verbose false
-    {{with .version -}}
+    {{with $.C.Version -}}
     Version {{.}}
     {{- end}}
   </Module>

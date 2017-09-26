@@ -4,9 +4,9 @@ LoadPlugin "python"
   Import "zk-collectd"
   {{range .Endpoints}}
   <Module "zk-collectd">
-    Hosts "{{.host}}"
-    Port {{.port}}
-    Instance "{{withDefault .name .id}}[{{encodeDimsForPluginInstance .dimensions}}]"
+    Hosts "{{.Host}}"
+    Port {{.Port}}
+    Instance "{{withDefault .Name .ID}}[{{encodeDimsForPluginInstance $.C.ExtraDimensions .Dimensions}}]"
   </Module>
   {{end}}
 </Plugin>

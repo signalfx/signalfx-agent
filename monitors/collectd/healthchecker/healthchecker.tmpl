@@ -5,10 +5,10 @@ LoadPlugin "python"
   Import "health_checker"
 {{range .Endpoints}}
   <Module health_checker>
-    URL "{{renderValue .url .}}"
-    Instance "{{withDefault .name .id}}[{{encodeDimsForPluginInstance .dimensions}}]"
-    JSONKey "{{.jsonKey}}"
-    JSONVal "{{.jsonVal}}"
+    URL "{{renderValue $.C.URL .}}"
+    Instance "{{withDefault .Name .ID}}[{{encodeDimsForPluginInstance $.C.ExtraDimensions .Dimensions}}]"
+    JSONKey "{{$.C.JSONKey}}"
+    JSONVal "{{$.C.JSONVal}}"
   </Module>
 {{end}}
 </Plugin>

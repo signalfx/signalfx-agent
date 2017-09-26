@@ -1,14 +1,14 @@
 <LoadPlugin "apache">
-  Interval {{.IntervalSeconds}}
+  Interval {{.C.IntervalSeconds}}
 </LoadPlugin>
 <Plugin "apache">
   {{range .Endpoints}}
-  <Instance "{{withDefault .name .id}}[{{encodeDimsForPluginInstance .dimensions}}]">
-    URL "http://{{.host}}:{{.port}}/mod_status?auto"
-    {{with .username -}}
+  <Instance "{{withDefault .Name .ID}}[{{encodeDimsForPluginInstance $.C.ExtraDimensions .Dimensions}}]">
+    URL "http://{{.Host}}:{{.Port}}/mod_status?auto"
+    {{with $.C.Username -}}
     User "{{.}}"
     {{end}}
-    {{with .password}}
+    {{with $.C.Password}}
     Password "{{.}}"
     {{end}}
   </Instance>

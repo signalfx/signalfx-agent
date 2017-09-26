@@ -19,16 +19,11 @@ func init() {
 	}, &Config{})
 }
 
-type serviceEndpoint struct {
-	services.EndpointCore `yaml:",inline"`
-	Auth                  *string `yaml:"auth"`
-}
-
 // Config is the monitor-specific config with the generic config embedded
 type Config struct {
 	config.MonitorConfig
-	CommonEndpointConfig serviceEndpoint   `yaml:",inline" default:"{}"`
-	ServiceEndpoints     []serviceEndpoint `yaml:"serviceEndpoints" default:"[]"`
+	Auth             *string                 `yaml:"auth"`
+	ServiceEndpoints []services.EndpointCore `yaml:"serviceEndpoints" default:"[]"`
 }
 
 // Monitor is the main type that represents the monitor
@@ -38,5 +33,5 @@ type Monitor struct {
 
 // Configure configures and runs the plugin in collectd
 func (rm *Monitor) Configure(conf *Config) bool {
-	return rm.SetConfigurationAndRun(&conf.MonitorConfig, &conf.CommonEndpointConfig)
+	return rm.SetConfigurationAndRun(conf)
 }
