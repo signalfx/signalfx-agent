@@ -3,11 +3,12 @@ package mongodb
 //go:generate collectd-template-to-go mongodb.tmpl
 
 import (
+	"errors"
+
 	"github.com/signalfx/neo-agent/core/config"
 	"github.com/signalfx/neo-agent/core/services"
 	"github.com/signalfx/neo-agent/monitors"
 	"github.com/signalfx/neo-agent/monitors/collectd"
-	log "github.com/sirupsen/logrus"
 )
 
 const monitorType = "collectd/mongodb"
@@ -34,16 +35,15 @@ type Config struct {
 	ServiceEndpoints       []services.EndpointCore `yaml:"serviceEndpoints" default:"[]"`
 }
 
-func (c *Config) Validate() bool {
+// Validate will check the config for correctness.
+func (c *Config) Validate() error {
 	if len(c.Databases) == 0 {
-		log.Error("You must specify at least one database for MongoDB")
-		return false
+		return errors.New("You must specify at least one database for MongoDB")
 	}
 	if c.Username == "" {
-		log.Error("You must specify a username for MongoDB")
-		return false
+		return errors.New("You must specify a username for MongoDB")
 	}
-	return true
+	return nil
 }
 
 // Monitor is the main type that represents the monitor

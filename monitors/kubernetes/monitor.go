@@ -63,11 +63,8 @@ type Config struct {
 }
 
 // Validate the k8s-specific config
-func (c *Config) Validate() bool {
-	if !c.KubernetesAPI.Validate() {
-		return false
-	}
-	return true
+func (c *Config) Validate() error {
+	return c.KubernetesAPI.Validate()
 }
 
 // Monitor for K8s Cluster Metrics.  Also handles syncing certain properties

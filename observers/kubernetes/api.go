@@ -47,23 +47,19 @@ type Config struct {
 }
 
 // Validate the observer-specific config
-func (c *Config) Validate() bool {
-	if !c.KubernetesAPI.Validate() {
-		return false
+func (c *Config) Validate() error {
+	if err := c.KubernetesAPI.Validate(); err != nil {
+		return err
 	}
 
 	if os.Getenv(namespaceEnvVar) == "" {
-		logger.Error(fmt.Sprintf("K8s namespace was not provided in the %s envvar",
-			namespaceEnvVar))
-		return false
+		return fmt.Errorf("K8s namespace was not provided in the %s envvar", namespaceEnvVar)
 	}
 
 	if os.Getenv(nodeEnvVar) == "" {
-		logger.Error(fmt.Sprintf("K8s node name was not provided in the %s envvar",
-			nodeEnvVar))
-		return false
+		return fmt.Errorf("K8s node name was not provided in the %s envvar", nodeEnvVar)
 	}
-	return true
+	return nil
 }
 
 // Observer that watches the Kubernetes API for new pods pertaining to this

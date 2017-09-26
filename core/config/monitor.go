@@ -38,6 +38,9 @@ type MonitorConfig struct {
 	Solo bool `yaml:"solo,omitempty" default:"false"`
 	// OtherConfig is everything else that is custom to a particular monitor
 	OtherConfig map[string]interface{} `yaml:",inline" default:"[]" json:"-"`
+	// ValidationError is where a message concerning validation issues can go
+	// so that diagnostics can output it.
+	ValidationError string `yaml:"-"`
 	// The remaining are propagated from the top-level config and cannot be set
 	// by the user directly on the monitor
 	IngestURL           *url.URL           `yaml:"-"`

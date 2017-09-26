@@ -4,6 +4,7 @@ import (
 	"crypto/tls"
 	"crypto/x509"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -58,12 +59,9 @@ type Config struct {
 }
 
 // Validate the observer-specific config
-func (c *Config) Validate() bool {
+func (c *Config) Validate() error {
 	if c.PollIntervalSeconds < 1 {
-		logger.WithFields(log.Fields{
-			"pollIntervalSeconds": c.PollIntervalSeconds,
-		}).Error("pollIntervalSeconds must be greater than 0")
-		return false
+		return errors.New("pollIntervalSeconds must be greater than 0")
 	}
 
 	if (c.KubeletAPI.CACertPath != "" ||
@@ -76,7 +74,7 @@ func (c *Config) Validate() bool {
 		// Does not render invalid, but warn user nonetheless
 	}
 
-	return true
+	return nil
 }
 
 // Observer for kubelet

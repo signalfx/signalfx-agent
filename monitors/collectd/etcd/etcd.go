@@ -3,6 +3,8 @@ package etcd
 //go:generate collectd-template-to-go etcd.tmpl
 
 import (
+	"errors"
+
 	"github.com/signalfx/neo-agent/core/config"
 	"github.com/signalfx/neo-agent/core/services"
 	"github.com/signalfx/neo-agent/monitors"
@@ -33,12 +35,12 @@ type Config struct {
 	ServiceEndpoints  []services.EndpointCore `yaml:"serviceEndpoints" default:"[]"`
 }
 
-func (c *Config) Validate() bool {
+// Validate will check the config before the monitor is instantiated
+func (c *Config) Validate() error {
 	if c.ClusterName == "" {
-		log.Error("Etcd monitor config requires a clusterName")
-		return false
+		return errors.New("Etcd monitor config requires a clusterName")
 	}
-	return true
+	return nil
 }
 
 // Monitor is the main type that represents the monitor

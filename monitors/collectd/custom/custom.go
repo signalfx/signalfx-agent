@@ -3,6 +3,8 @@
 package custom
 
 import (
+	"errors"
+	"fmt"
 	"sync"
 	"text/template"
 
@@ -29,47 +31,38 @@ func init() {
 // Config is the configuration for the collectd custom monitor
 type Config struct {
 	config.MonitorConfig
-	TemplateContext `yaml:",inline"`
-	TemplateText    string `yaml:"templateText"`
-	TemplatePath    string `yaml:"templatePath"`
+	TemplateText     string                  `yaml:"templateText"`
+	TemplatePath     string                  `yaml:"templatePath"`
+	ServiceEndpoints []services.EndpointCore `yaml:"serviceEndpoints" default:"[]"`
 }
 
 // Validate will check the config that is specific to this monitor
-func (c *Config) Validate() bool {
+func (c *Config) Validate() error {
 	if (c.TemplateText == "") == (c.TemplatePath == "") {
-		log.WithFields(log.Fields{
-			"monitorType": monitorType,
-			"config":      *c,
-		}).Error("Exactly one of either templateText or templatePath must be set")
-		return false
+		return errors.New("Exactly one of either templateText or templatePath must be set")
 	}
-	return c.getTemplate() != nil
+	if _, err := c.getTemplate(); err != nil {
+		return err
+	}
+	return nil
 }
 
-func (c *Config) getTemplate() *template.Template {
+func (c *Config) getTemplate() (*template.Template, error) {
 	var templateText string
 	if c.TemplatePath != "" {
 		source, path, err := c.MetaStore.GetSourceAndPath(c.TemplatePath)
 		if err != nil {
-			log.WithFields(log.Fields{
-				"error":        err,
-				"templatePath": c.TemplatePath,
-			}).Error("Template path type is unrecognized")
-			return nil
+			return nil, fmt.Errorf("Template path type '%s' is unrecognized: %s", c.TemplatePath, err)
 		}
 		kv, err := source.Get(path)
 		if err != nil {
-			log.WithFields(log.Fields{
-				"error":        err,
-				"templatePath": c.TemplatePath,
-			}).Error("Could not access template path")
-			return nil
+			return nil, fmt.Errorf("Could not access template path %s: %s", c.TemplatePath, err)
 		}
 		templateText = string(kv.Value)
 	} else {
 		templateText = c.TemplateText
 	}
-	return templateFromText(templateText)
+	return templateFromText(templateText), nil
 }
 
 func templateFromText(templateText string) *template.Template {
@@ -99,7 +92,7 @@ func (cm *Monitor) Configure(conf *Config) bool {
 	cm.lock.Lock()
 	defer cm.lock.Unlock()
 
-	cm.Template = conf.getTemplate()
+	cm.Template, _ = conf.getTemplate()
 	if cm.Template == nil {
 		return false
 	}

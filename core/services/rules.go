@@ -2,6 +2,7 @@ package services
 
 import (
 	"errors"
+	"fmt"
 
 	"github.com/signalfx/neo-agent/utils"
 	log "github.com/sirupsen/logrus"
@@ -128,28 +129,17 @@ func DoesServiceMatchRule(si Endpoint, ruleText string) bool {
 // can be determined to be invalid.  It does not guarantee validity but can be
 // used to give upfront feedback to the user if there are syntax errors or
 // unknown variables in the rule.
-func ValidateDiscoveryRule(rule string) bool {
-	result := true
+func ValidateDiscoveryRule(rule string) error {
 	expr, err := parseRuleText(rule)
 	if err != nil {
-		log.WithFields(log.Fields{
-			"rule":  rule,
-			"error": err,
-		}).Error("Syntax error in discovery rule")
-
-		result = false
+		return fmt.Errorf("Syntax error in discovery rule '%s': %s", rule, err.Error())
 	}
 
 	variables := expr.Vars()
 	for _, v := range variables {
 		if !validRuleIdentifiers[v] {
-			log.WithFields(log.Fields{
-				"rule":     rule,
-				"variable": v,
-			}).Error("Unknown variable in discovery rule")
-
-			result = false
+			return fmt.Errorf("Unknown variable in discovery rule '%s': %s", rule, v)
 		}
 	}
-	return result
+	return nil
 }

@@ -3,11 +3,12 @@ package spark
 //go:generate collectd-template-to-go spark.tmpl
 
 import (
+	"errors"
+
 	"github.com/signalfx/neo-agent/core/config"
 	"github.com/signalfx/neo-agent/core/services"
 	"github.com/signalfx/neo-agent/monitors"
 	"github.com/signalfx/neo-agent/monitors/collectd"
-	log "github.com/sirupsen/logrus"
 )
 
 const monitorType = "collectd/spark"
@@ -39,14 +40,12 @@ type Config struct {
 	ServiceEndpoints          []services.EndpointCore `yaml:"serviceEndpoints" default:"[]"`
 }
 
-func (c *Config) Validate() bool {
+// Validate will check the config for correctness.
+func (c *Config) Validate() error {
 	if c.CollectApplicationMetrics && !c.IsMaster {
-		log.WithFields(log.Fields{
-			"monitorType": monitorType,
-		}).Error("Cannot collect application metrics from non-master endpoint")
-		return false
+		return errors.New("Cannot collect application metrics from non-master endpoint")
 	}
-	return true
+	return nil
 }
 
 // Monitor is the main type that represents the monitor

@@ -3,11 +3,12 @@ package mysql
 //go:generate collectd-template-to-go mysql.tmpl
 
 import (
+	"errors"
+
 	"github.com/signalfx/neo-agent/core/config"
 	"github.com/signalfx/neo-agent/core/services"
 	"github.com/signalfx/neo-agent/monitors"
 	"github.com/signalfx/neo-agent/monitors/collectd"
-	log "github.com/sirupsen/logrus"
 )
 
 const monitorType = "collectd/mysql"
@@ -35,19 +36,18 @@ type Config struct {
 	ServiceEndpoints []services.EndpointCore `yaml:"serviceEndpoints" default:"[]"`
 }
 
-func (c *Config) Validate() bool {
+// Validate will check the config for correctness.
+func (c *Config) Validate() error {
 	if len(c.Databases) == 0 {
-		log.Error("You must specify at least one database for MySQL")
-		return false
+		return errors.New("You must specify at least one database for MySQL")
 	}
 
 	for _, db := range c.Databases {
 		if db.Username == "" && c.Username == "" {
-			log.Error("Username is required for MySQL monitoring")
-			return false
+			return errors.New("Username is required for MySQL monitoring")
 		}
 	}
-	return true
+	return nil
 }
 
 // Monitor is the main type that represents the monitor

@@ -3,6 +3,7 @@
 package docker
 
 import (
+	"errors"
 	"strconv"
 	"time"
 
@@ -41,14 +42,11 @@ type Config struct {
 }
 
 // Validate the docker-specific config
-func (c *Config) Validate() bool {
+func (c *Config) Validate() error {
 	if c.PollIntervalSeconds < 1 {
-		logger.WithFields(log.Fields{
-			"pollIntervalSeconds": c.PollIntervalSeconds,
-		}).Error("pollIntervalSeconds must be greater than 0")
-		return false
+		return errors.New("pollIntervalSeconds must be greater than 0")
 	}
-	return true
+	return nil
 }
 
 func init() {
