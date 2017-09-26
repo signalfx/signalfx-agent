@@ -1,6 +1,6 @@
 #!/bin/bash
 
 collectd_version="5.7.2-sfx0"
-agent_version="2.0.0"
+agent_version="2.1.0"
 
 [[ -n $1 ]] && echo -n ${!1}
