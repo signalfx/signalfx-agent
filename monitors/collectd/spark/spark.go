@@ -16,8 +16,8 @@ const monitorType = "collectd/spark"
 type sparkClusterType string
 
 const (
-	sparkStandalone sparkClusterType = "standalone"
-	sparkMesos                       = "mesos"
+	sparkStandalone sparkClusterType = "Standalone"
+	sparkMesos                       = "Mesos"
 )
 
 func init() {
@@ -32,7 +32,7 @@ func init() {
 type Config struct {
 	config.MonitorConfig
 	IsMaster                  bool                    `yaml:"isMaster" default:"false"`
-	ClusterType               sparkClusterType        `yaml:"clusterType" required:"true"`
+	ClusterType               sparkClusterType        `yaml:"clusterType"`
 	CollectApplicationMetrics bool                    `yaml:"collectApplicationMetrics" default:"false"`
 	EnhancedMetrics           bool                    `yaml:"enhancedMetrics" default:"false"`
 	MetricsToInclude          []string                `yaml:"metricsToInclude" default:"[]"`
@@ -44,6 +44,10 @@ type Config struct {
 func (c *Config) Validate() error {
 	if c.CollectApplicationMetrics && !c.IsMaster {
 		return errors.New("Cannot collect application metrics from non-master endpoint")
+	}
+
+	if c.ClusterType == "" {
+		return errors.New("clusterType is required for Spark monitors")
 	}
 	return nil
 }

@@ -10,7 +10,7 @@ LoadPlugin python
     Port "{{.Port}}"
     Interval {{$.C.IntervalSeconds}}
     Cluster "{{$.C.ClusterName}}"
-    {{range $key, $value := (mergeStringMaps $.C.ExtraDimensions .Dimensions) -}}
+    {{range $key, $value := (mergeStringMaps $.C.ExtraDimensions .Dimensions)}}
     Dimension "{{$key}}" "{{$value}}"
     {{- end}}
     {{with $.C.SSLKeyFile -}}
@@ -25,10 +25,10 @@ LoadPlugin python
     ssl_cert_validation {{if $.C.SSLCertValidation}}"True"{{else}}"False"{{end}}
     EnhancedMetrics {{if $.C.EnhancedMetrics}}"True"{{else}}"False"{{end}}
     {{range $.C.MetricsToInclude}}
-    IncludeMetric {{.}}
+    IncludeMetric "{{.}}"
     {{end}}
     {{range $.C.MetricsToExclude}}
-    ExcludeMetric {{.}}
+    ExcludeMetric "{{.}}"
     {{end}}
   </Module>
   {{end}}

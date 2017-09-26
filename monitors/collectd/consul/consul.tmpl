@@ -17,11 +17,20 @@ LoadPlugin "python"
     AclToken "{{.}}"
     {{- end}}
     SfxToken "{{$.C.SignalFxAccessToken}}"
-    {{range $key, $value := (mergeStringMaps $.C.ExtraDimensions .Dimensions) -}}
+    {{range $key, $value := (mergeStringMaps $.C.ExtraDimensions .Dimensions)}}
     Dimension "{{$key}}" "{{$value}}"
     {{- end}}
 
     EnhancedMetrics {{if $.C.EnhancedMetrics}}true{{else}}false{{end}}
+    {{with $.C.CACertificate -}}
+    CaCertificate "{{.}}"
+    {{- end}}
+    {{with $.C.ClientCertificate}}
+    ClientCertificate "{{.}}"
+    {{- end}}
+    {{with $.C.ClientKey -}}
+    ClientKey "{{.}}"
+  {{- end}}
   </Module>
   {{end}}
 </Plugin>

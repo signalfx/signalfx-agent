@@ -81,12 +81,14 @@ func main() {
 	hupCh := make(chan os.Signal, 1)
 	signal.Notify(hupCh, syscall.SIGHUP)
 	go func() {
-		select {
-		case <-hupCh:
-			log.Info("Forcing agent reset")
-			shutdown()
-			<-shutdownComplete
-			init()
+		for {
+			select {
+			case <-hupCh:
+				log.Info("Forcing agent reset")
+				shutdown()
+				<-shutdownComplete
+				init()
+			}
 		}
 	}()
 

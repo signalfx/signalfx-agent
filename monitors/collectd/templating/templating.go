@@ -114,6 +114,10 @@ func InjectTemplateFuncs(tmpl *template.Template) *template.Template {
 			"toServiceID": func(s string) services.ID {
 				return services.ID(s)
 			},
+			"toStringMap": utils.InterfaceMapToStringMap,
+			"spew": func(obj interface{}) string {
+				return spew.Sdump(obj)
+			},
 			// Renders a subtemplate using the provided context, and optionally
 			// a service, which will be added to the context as "service"
 			"renderValue": func(templateText string, context map[string]interface{}) (string, error) {

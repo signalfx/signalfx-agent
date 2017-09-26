@@ -16,7 +16,7 @@ LoadPlugin "python"
     {{range $.C.ExcludedMetrics -}}
     ExcludeMetric '{{.}}'
     {{- end }}
-    {{range $key, $value := (mergeStringMaps $.C.ExtraDimensions .Dimensions) -}}
+    {{range $key, $value := (mergeStringMaps $.C.ExtraDimensions .Dimensions)}}
     Dimension {{$key}} {{$value}}
     {{- end}}
   </Module>

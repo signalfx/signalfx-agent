@@ -1,8 +1,6 @@
 package services
 
 import (
-	"fmt"
-
 	"github.com/signalfx/neo-agent/utils"
 )
 
@@ -57,9 +55,4 @@ func (ce *ContainerEndpoint) Dimensions() map[string]string {
 		// This is essential as it is the only unique dim for a pod.
 		"kubernetes_pod_uid": ce.Container.PodUID,
 	})
-}
-
-func (ce *ContainerEndpoint) String() string {
-	return fmt.Sprintf("<Container Endpoint [%s]: %s; container: %s; orchestration: %s; discovered: %s",
-		ce.ID(), ce.EndpointCore.String(), ce.Container.String(), ce.Orchestration.String(), ce.Discovered())
 }

@@ -15,7 +15,7 @@ LoadPlugin "java"
       {{with .InstancePrefix -}}
       InstancePrefix "{{.}}"
       {{end -}}
-      {{range .Values -}}
+      {{range .Values}}
       <Value>
         {{with .InstancePrefix -}}
         InstancePrefix "{{.}}"

@@ -43,7 +43,7 @@ vendor:
 signalfx-agent: templates
 	go build \
 		-ldflags "-X main.Version=$$(./VERSIONS agent_version) -X main.CollectdVersion=$$(./VERSIONS collectd_version) -X main.BuiltTime=$$(date +%FT%T%z)" \
-		-o signalfx-agent \
+		-i -o signalfx-agent \
 		github.com/signalfx/neo-agent
 
 .PHONY: run-image
@@ -77,6 +77,7 @@ run-dev-image:
 	docker run --rm -it \
 		--privileged \
 		--net host \
+		--name neoagent-dev \
 		-v $(PWD)/local-etc:/etc/signalfx \
 		-v /:/hostfs:ro \
 		-v /etc:/mnt/etc:ro \

@@ -17,6 +17,7 @@ func (m MBeanMap) MergeWith(m2 MBeanMap) MBeanMap {
 	return out
 }
 
+// MBeanNames returns a list of the MBean names (the key values of the map)
 func (m MBeanMap) MBeanNames() []string {
 	names := make([]string, 0)
 	for n := range m {

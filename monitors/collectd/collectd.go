@@ -253,7 +253,7 @@ func (cm *Manager) runAsChildProc(stoppedCh chan<- struct{}) {
 		cm.cmdMutex.Unlock()
 		cm.cmd.Wait()
 
-		log.Infof("State is %s", cm.state)
+		log.Infof("Collectd state is %s", cm.state)
 		// This should always be set whenever we call the cancel func
 		// corresponding to the `ctx` so that we can know whether the proc died
 		// on purpose or not.

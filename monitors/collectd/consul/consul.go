@@ -22,10 +22,13 @@ func init() {
 // Config is the monitor-specific config with the generic config embedded
 type Config struct {
 	config.MonitorConfig
-	ACLToken         *string                 `yaml:"aclToken"`
-	UseHTTPS         bool                    `yaml:"useHTTPS" default:"false"`
-	EnhancedMetrics  bool                    `yaml:"enhancedMetrics" default:"false"`
-	ServiceEndpoints []services.EndpointCore `yaml:"serviceEndpoints" default:"[]"`
+	ACLToken          *string                 `yaml:"aclToken"`
+	UseHTTPS          bool                    `yaml:"useHTTPS" default:"false"`
+	EnhancedMetrics   bool                    `yaml:"enhancedMetrics" default:"false"`
+	CACertificate     *string                 `yaml:"caCertificate"`
+	ClientCertificate *string                 `yaml:"clientCertificate"`
+	ClientKey         *string                 `yaml:"clientKey"`
+	ServiceEndpoints  []services.EndpointCore `yaml:"serviceEndpoints" default:"[]"`
 }
 
 // Monitor is the main type that represents the monitor

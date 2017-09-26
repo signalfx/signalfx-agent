@@ -3,7 +3,6 @@ package monitors
 import (
 	"reflect"
 
-	"github.com/davecgh/go-spew/spew"
 	"github.com/signalfx/golib/datapoint"
 	"github.com/signalfx/golib/event"
 	"github.com/signalfx/neo-agent/core/config"

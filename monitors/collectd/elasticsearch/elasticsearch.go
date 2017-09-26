@@ -25,19 +25,19 @@ type Config struct {
 	// AdditionalMetrics to report on
 	AdditionalMetrics []string `yaml:"additionalMetrics"`
 	// DetailedMetrics turns on additional metric time series
-	DetailedMetrics *bool `yaml:"detailedMetrics" default:"true"`
+	DetailedMetrics bool `yaml:"detailedMetrics" default:"true"`
 	// EnableClusterHealth enables reporting on the cluster health
-	EnableClusterHealth *bool `yaml:"enableClusterHealth" default:"true"`
+	EnableClusterHealth bool `yaml:"enableClusterHealth" default:"true"`
 	// EnableIndexStats reports metrics about indexes
-	EnableIndexStats *bool `yaml:"enableIndexStats" default:"true"`
+	EnableIndexStats bool `yaml:"enableIndexStats" default:"true"`
 	// Indexes to report on
 	Indexes []string `yaml:"indexes" default:"[\"_all\"]"`
 	// IndexInterval is an interval in seconds at which the plugin will report index stats.
 	// It must be greater than or equal, and divisible by the Interval configuration
-	IndexInterval *uint `yaml:"indexInterval" default:"300"`
+	IndexInterval uint `yaml:"indexInterval" default:"300"`
 	// IndexStatsMasterOnly sends index stats from the master only
-	IndexStatsMasterOnly *bool `yaml:"indexStatsMasterOnly" default:"true"`
-	IndexSummaryOnly     *bool `yaml:"indexSummaryOnly" default:"false"`
+	IndexStatsMasterOnly bool `yaml:"indexStatsMasterOnly" default:"false"`
+	IndexSummaryOnly     bool `yaml:"indexSummaryOnly" default:"false"`
 	// Password used to access elasticsearch stats api
 	Password *string `yaml:"password"`
 	// Protocol used to connect: http or https

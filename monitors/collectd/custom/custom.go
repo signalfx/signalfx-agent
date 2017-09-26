@@ -11,14 +11,13 @@ import (
 	log "github.com/sirupsen/logrus"
 
 	"github.com/signalfx/neo-agent/core/config"
+	"github.com/signalfx/neo-agent/core/services"
 	"github.com/signalfx/neo-agent/monitors"
 	"github.com/signalfx/neo-agent/monitors/collectd"
 	"github.com/signalfx/neo-agent/monitors/collectd/templating"
 )
 
 const monitorType = "collectd/custom"
-
-type TemplateContext map[string]interface{}
 
 func init() {
 	monitors.Register(monitorType, func() interface{} {
