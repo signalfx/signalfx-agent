@@ -1,9 +1,5 @@
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
-v() {
-  bash $SCRIPT_DIR/../VERSIONS $1
-}
-
 make_go_package_tar() {
   GO_PACKAGES=(
     core
@@ -14,7 +10,7 @@ make_go_package_tar() {
 
   # A hack to simplify Dockerfile since Dockerfile doesn't support copying
   # multiple directories without flattening them out
-  (cd $SCRIPT_DIR/.. && tar -cf $SCRIPT_DIR/go_packages.tar main.go scripts/{make-templates,collectd-template-to-go} ${GO_PACKAGES[@]})
+  (cd $SCRIPT_DIR/.. && tar -cf $SCRIPT_DIR/go_packages.tar main.go Makefile scripts/{make-templates,collectd-template-to-go} ${GO_PACKAGES[@]})
 }
 
 extra_cflags_build_arg() {
@@ -34,11 +30,9 @@ do_docker_build() {
   docker build \
     -t $tag \
     -f $dockerfile \
-    --label agent.version=$(v SIGNALFX_AGENT_VERSION) \
-    --label collectd.version=$(v COLLECTD_VERSION) \
+    --label agent.version=$($SCRIPT_DIR/../VERSIONS agent_version) \
+    --label collectd.version=$($SCRIPT_DIR/../VERSIONS collectd_version) \
     --build-arg DEBUG=$DEBUG \
-    --build-arg collectd_version=$(v COLLECTD_VERSION) \
-    --build-arg agent_version=$(v SIGNALFX_AGENT_VERSION) \
     $(extra_cflags_build_arg) \
     $SCRIPT_DIR/.. 
 }
