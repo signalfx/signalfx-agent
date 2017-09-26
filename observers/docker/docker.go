@@ -115,6 +115,14 @@ func (docker *Docker) discover() []services.Endpoint {
 			}
 
 			for _, port := range c.Ports {
+				if port.PublicPort == 0 {
+					log.WithFields(log.Fields{
+						"containerName": serviceContainer.PrimaryName(),
+						"privatePort":   port.PrivatePort,
+					}).Debugf("Docker container does not expose port publically, not discovering")
+					continue
+				}
+
 				id := serviceContainer.PrimaryName() + "-" + c.ID[:12] + "-" + strconv.Itoa(port.PrivatePort)
 
 				endpoint := services.NewEndpointCore(id, "", time.Now(), observerType)
