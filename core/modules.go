@@ -13,6 +13,7 @@ import (
 	_ "github.com/signalfx/neo-agent/monitors/collectd/custom"
 	_ "github.com/signalfx/neo-agent/monitors/collectd/docker"
 	_ "github.com/signalfx/neo-agent/monitors/collectd/elasticsearch"
+	_ "github.com/signalfx/neo-agent/monitors/collectd/etcd"
 	_ "github.com/signalfx/neo-agent/monitors/collectd/healthchecker"
 	_ "github.com/signalfx/neo-agent/monitors/collectd/kafka"
 	_ "github.com/signalfx/neo-agent/monitors/collectd/marathon"
