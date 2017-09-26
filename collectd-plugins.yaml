@@ -60,6 +60,11 @@
   version: neoagent-version
   repo: signalfx/signalfx-collectd-plugin
 
+- name: spark
+  version: v1.0.0
+  repo: signalfx/collectd-spark
+
+
 - name: zookeeper
   version: v0.0.3
   repo: signalfx/collectd-zookeeper

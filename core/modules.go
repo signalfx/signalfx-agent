@@ -25,6 +25,7 @@ import (
 	_ "github.com/signalfx/neo-agent/monitors/collectd/nginx"
 	_ "github.com/signalfx/neo-agent/monitors/collectd/rabbitmq"
 	_ "github.com/signalfx/neo-agent/monitors/collectd/redis"
+	_ "github.com/signalfx/neo-agent/monitors/collectd/spark"
 	_ "github.com/signalfx/neo-agent/monitors/collectd/zookeeper"
 	_ "github.com/signalfx/neo-agent/monitors/kubernetes"
 	_ "github.com/signalfx/neo-agent/observers/docker"
