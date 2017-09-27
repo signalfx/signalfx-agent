@@ -196,10 +196,13 @@ func (cm *Manager) rerenderConf() bool {
 
 func (cm *Manager) runCollectd() {
 	stoppedCh := make(chan struct{}, 1)
+	restartDelay := 2 * time.Second
 
 	stop := func() {
+		cm.setState(ShuttingDown)
 		cm.killChildProc()
 		<-stoppedCh
+		cm.setState(Stopped)
 	}
 
 	go cm.runAsChildProc(stoppedCh)
@@ -207,15 +210,22 @@ func (cm *Manager) runCollectd() {
 	for {
 		select {
 		case <-cm.stopChan:
-			cm.setState(ShuttingDown)
+			log.Info("Stopping collectd")
 			stop()
-			cm.setState(Stopped)
 			return
 		case <-cm.reloadChan:
-			cm.setState(Restarting)
 			stop()
+			log.Info("Collectd stopped, restarting")
 			go cm.runAsChildProc(stoppedCh)
-			cm.setState(Running)
+		case <-stoppedCh:
+			if cm.state == Running {
+				log.Error("Collectd died when it was supposed to be running, restarting...")
+			} else {
+				log.Warn("Collectd stopped in an unexpected way")
+				continue
+			}
+			time.Sleep(restartDelay)
+			go cm.runAsChildProc(stoppedCh)
 		}
 	}
 }
@@ -231,44 +241,27 @@ func (cm *Manager) killChildProc() {
 }
 
 func (cm *Manager) runAsChildProc(stoppedCh chan<- struct{}) {
-	restartDelay := 2 * time.Second
-	for {
-		log.Info("Starting Collectd child process")
+	log.Info("Starting Collectd child process")
 
-		cm.cmdMutex.Lock()
-		cm.cmd = exec.Command("collectd", "-f", "-C", collectdConfPath)
+	cm.cmdMutex.Lock()
+	cm.cmd = exec.Command("collectd", "-f", "-C", collectdConfPath)
 
-		cm.cmd.Stdout = os.Stdout
-		cm.cmd.Stderr = os.Stderr
+	cm.cmd.Stdout = os.Stdout
+	cm.cmd.Stderr = os.Stderr
 
-		err := cm.cmd.Start()
-		if err != nil {
-			log.WithError(err).Error("Could not start Collectd child process!")
-			stoppedCh <- struct{}{}
-			return
-		}
-
-		cm.setState(Running)
-
-		cm.cmdMutex.Unlock()
-		cm.cmd.Wait()
-
-		log.Infof("Collectd state is %s", cm.state)
-		// This should always be set whenever we call the cancel func
-		// corresponding to the `ctx` so that we can know whether the proc died
-		// on purpose or not.
-		if cm.state != Running {
-			log.Info("Not restarting Collectd because it is not supposed to be running")
-			stoppedCh <- struct{}{}
-			return
-		}
-
-		log.WithFields(log.Fields{
-			"error": err,
-		}).Error("Collectd child process died, restarting...")
-
-		time.Sleep(restartDelay)
+	err := cm.cmd.Start()
+	if err != nil {
+		log.WithError(err).Error("Could not start Collectd child process!")
+		stoppedCh <- struct{}{}
+		return
 	}
+
+	cm.setState(Running)
+
+	cm.cmdMutex.Unlock()
+	cm.cmd.Wait()
+
+	stoppedCh <- struct{}{}
 }
 
 // Delete existing config in case there were plugins configured before that won't
