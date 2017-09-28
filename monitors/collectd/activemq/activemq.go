@@ -25,9 +25,9 @@ func init() {
 
 // Configure configures and runs the plugin in collectd
 func (km *Monitor) Configure(conf *genericjmx.Config) bool {
-	conf.Common.ServiceName = &serviceName
+	conf.ServiceName = &serviceName
 
-	conf.Common.MBeanDefinitions = conf.Common.MBeanDefinitions.MergeWith(defaultMBeans)
+	conf.MBeanDefinitions = conf.MBeanDefinitions.MergeWith(defaultMBeans)
 	km.AddConfiguration(conf)
 	return true
 }

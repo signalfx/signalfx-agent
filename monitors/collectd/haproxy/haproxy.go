@@ -1,6 +1,6 @@
-package rabbitmq
+package haproxy
 
-//go:generate collectd-template-to-go rabbitmq.tmpl
+//go:generate collectd-template-to-go haproxy.tmpl
 
 import (
 	"github.com/signalfx/neo-agent/core/config"
@@ -9,7 +9,7 @@ import (
 	"github.com/signalfx/neo-agent/monitors/collectd"
 )
 
-const monitorType = "collectd/rabbitmq"
+const monitorType = "collectd/haproxy"
 
 func init() {
 	monitors.Register(monitorType, func() interface{} {
@@ -22,14 +22,9 @@ func init() {
 // Config is the monitor-specific config with the generic config embedded
 type Config struct {
 	config.MonitorConfig
-	CollectChannels  *bool                   `yaml:"collectChannels"`
-	CollectExchanges *bool                   `yaml:"collectExchanges"`
-	CollectNodes     *bool                   `yaml:"collectNodes"`
-	CollectQueues    *bool                   `yaml:"collectQueues"`
-	HTTPTimeout      *int                    `yaml:"httpTimeout"`
-	VerbosityLevel   *string                 `yaml:"verbosityLevel"`
-	Username         *string                 `yaml:"username"`
-	Password         *string                 `yaml:"password"`
+	ProxiesToMonitor []string                `yaml:"proxiesToMonitor"`
+	ExcludedMetrics  []string                `yaml:"excludedMetrics" default:"[]"`
+	EnhancedMetrics  *bool                   `yaml:"enhancedMetrics" default:"false"`
 	ServiceEndpoints []services.EndpointCore `yaml:"serviceEndpoints" default:"[]"`
 }
 
@@ -39,6 +34,6 @@ type Monitor struct {
 }
 
 // Configure configures and runs the plugin in collectd
-func (am *Monitor) Configure(conf *Config) bool {
-	return am.SetConfigurationAndRun(conf)
+func (mm *Monitor) Configure(conf *Config) bool {
+	return mm.SetConfigurationAndRun(conf)
 }

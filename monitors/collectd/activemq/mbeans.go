@@ -5,7 +5,7 @@ import (
 	yaml "gopkg.in/yaml.v2"
 )
 
-var defaultMBeans map[string]genericjmx.MBean
+var defaultMBeans genericjmx.MBeanMap
 
 var defaultMBeanYAML = `
 activemq-broker:
@@ -162,4 +162,5 @@ func init() {
 	if err != nil {
 		panic("YAML for GenericJMX MBeans is invalid: " + err.Error())
 	}
+	defaultMBeans = defaultMBeans.MergeWith(genericjmx.DefaultMBeans)
 }

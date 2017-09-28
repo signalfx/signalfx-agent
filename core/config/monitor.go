@@ -38,6 +38,9 @@ type MonitorConfig struct {
 	Solo bool `yaml:"solo,omitempty" default:"false"`
 	// OtherConfig is everything else that is custom to a particular monitor
 	OtherConfig map[string]interface{} `yaml:",inline" default:"[]" json:"-"`
+	// ValidationError is where a message concerning validation issues can go
+	// so that diagnostics can output it.
+	ValidationError string `yaml:"-"`
 	// The remaining are propagated from the top-level config and cannot be set
 	// by the user directly on the monitor
 	IngestURL           *url.URL           `yaml:"-"`
@@ -79,21 +82,21 @@ type MonitorCustomConfig interface {
 }
 
 // ServiceEndpointsFromConfig returns the manually defined service endpoints in
-// a monitor config.  Returns nil if ServiceEndpoints is not defined (or
-// improperly defined) on a monitor's custom config and returns an empty slice
-// if it is properly defined but empty.
+// a monitor config.  Returns nil if ServiceEndpoints is invalidly defined on a
+// monitor's custom config and returns an empty slice if it is either not
+// defined at all or properly defined but empty.
 func ServiceEndpointsFromConfig(conf MonitorCustomConfig) []services.Endpoint {
 	val := reflect.Indirect(reflect.ValueOf(conf))
 
 	seField := val.FieldByName("ServiceEndpoints")
 	if !seField.IsValid() {
-		return nil
+		return make([]services.Endpoint, 0)
 	}
 
 	if seField.Kind() != reflect.Slice {
 		log.WithFields(log.Fields{
 			"type": seField.Type(),
-		}).Error("ServiceEndpoints on monitor should be a slice")
+		}).Error("ServiceEndpoints on monitor struct should be a slice")
 		return nil
 	}
 

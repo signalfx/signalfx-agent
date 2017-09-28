@@ -1,12 +1,12 @@
 package kubernetes
 
 import (
+	"errors"
 	"fmt"
 	"net"
 	"net/http"
 	"os"
 
-	log "github.com/sirupsen/logrus"
 	k8s "k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
 )
@@ -34,13 +34,12 @@ type APIConfig struct {
 }
 
 // Validate validates the K8s API config
-func (c *APIConfig) Validate() bool {
+func (c *APIConfig) Validate() error {
 	if c.AuthType == AuthTypeTLS && (c.ClientCertPath == "" || c.ClientKeyPath == "") {
-		log.Error("For TLS auth, you must set both the kubernetesAPI.clientCertPath " +
+		return errors.New("For TLS auth, you must set both the kubernetesAPI.clientCertPath " +
 			"and kubernetesAPI.clientKeyPath config values")
-		return false
 	}
-	return true
+	return nil
 }
 
 // MakeClient can take configuration if needed for other types of auth

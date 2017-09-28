@@ -1,51 +1,42 @@
 package monitors
 
 import (
+	"errors"
+	"fmt"
+
 	"github.com/signalfx/neo-agent/core/config"
 	"github.com/signalfx/neo-agent/core/services"
-	log "github.com/sirupsen/logrus"
 )
 
 // Used to validate configuration that is common to all monitors up front
-func validateCommonConfig(conf *config.MonitorConfig) bool {
-	result := true
+func validateConfig(monConfig config.MonitorCustomConfig) error {
+	conf := monConfig.CoreConfig()
+
+	if _, ok := MonitorFactories[conf.Type]; !ok {
+		return errors.New("Monitor type not recognized")
+	}
+
+	manualEndpoints := conf.OtherConfig["serviceEndpoints"]
+	hasManualEndpoints := manualEndpoints != nil && len(manualEndpoints.([]interface{})) > 0
+
+	inst := newMonitor(conf.Type)
+	_, takesServices := inst.(InjectableMonitor)
+	if takesServices && conf.DiscoveryRule == "" && !hasManualEndpoints {
+		return fmt.Errorf("Monitor %s takes services but did not specify any discovery rule or manually defined services", conf.Type)
+	}
 
 	// Validate discovery rules
 	if conf.DiscoveryRule != "" {
-		if !services.ValidateDiscoveryRule(conf.DiscoveryRule) {
-			log.WithFields(log.Fields{
-				"monitorType": conf.Type,
-			}).Error("Could not validate discovery rule for monitor")
-
-			result = false
+		err := services.ValidateDiscoveryRule(conf.DiscoveryRule)
+		if err != nil {
+			return errors.New("Could not validate discovery rule: " + err.Error())
 		}
 
-		manualEndpoints := conf.OtherConfig["serviceEndpoints"]
-		if manualEndpoints != nil && len(manualEndpoints.([]interface{})) > 0 {
-			log.WithFields(log.Fields{
-				"monitorType": conf.Type,
-			}).Error("Cannot have a monitor with discoveryRule and serviceEndpoints.  " +
+		if hasManualEndpoints {
+			return errors.New("Cannot have a monitor with discoveryRule and serviceEndpoints. " +
 				"Please split your config into two separate monitors.")
-
-			result = false
 		}
 	}
 
-	if _, ok := MonitorFactories[conf.Type]; !ok {
-		log.WithFields(log.Fields{
-			"monitorType": conf.Type,
-		}).Error("Monitor type not recognized")
-
-		result = false
-	}
-
-	return result
-}
-
-// ValidateEndpointConfig accepts both the common configuration as well as the
-// service endpoints defined for a service and validates that any requiredFields
-// are present.
-func ValidateEndpointConfig(common services.Endpoint) bool {
-
-	return true
+	return config.ValidateCustomConfig(monConfig)
 }

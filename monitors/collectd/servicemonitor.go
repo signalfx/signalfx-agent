@@ -28,13 +28,7 @@ func NewServiceMonitorCore(template *template.Template) *ServiceMonitorCore {
 
 // SetConfigurationAndRun sets the configuration to be used when rendering
 // templates, and writes config before queueing a collectd restart.
-func (smc *ServiceMonitorCore) SetConfigurationAndRun(conf *config.MonitorConfig, commonEndpointConfig interface{}) bool {
-	if commonEndpointConfig != nil {
-		if ok := smc.Context.InjectConfigStruct(commonEndpointConfig); !ok {
-			return false
-		}
-	}
-
+func (smc *ServiceMonitorCore) SetConfigurationAndRun(conf config.MonitorCustomConfig) bool {
 	if !smc.BaseMonitor.SetConfiguration(conf) {
 		return false
 	}
@@ -51,12 +45,12 @@ func (smc *ServiceMonitorCore) AddService(service services.Endpoint) {
 
 	smc.ServiceSet[service.ID()] = service
 
-	smc.Context.SetEndpointInstances(append([]services.Endpoint{service}, smc.Context.EndpointInstances()...))
+	smc.Context.Endpoints = append(smc.Context.Endpoints, service)
 
 	log.WithFields(log.Fields{
 		"serviceEndpoint":     service,
 		"monitorTemplateName": smc.Template.Name(),
-		"allEndpoints":        spew.Sdump(smc.Context.EndpointInstances()),
+		"allEndpoints":        spew.Sdump(smc.Context.Endpoints),
 	}).Debug("Collectd monitor got service")
 
 	smc.WriteConfigForPluginAndRestart()
@@ -67,10 +61,10 @@ func (smc *ServiceMonitorCore) AddService(service services.Endpoint) {
 func (smc *ServiceMonitorCore) RemoveService(service services.Endpoint) {
 	delete(smc.ServiceSet, service.ID())
 
-	services := smc.Context.EndpointInstances()
+	services := smc.Context.Endpoints
 	for i := range services {
 		if services[i].ID() == service.ID() {
-			smc.Context.SetEndpointInstances(append(services[:i], services[i+1:]...))
+			smc.Context.Endpoints = append(services[:i], services[i+1:]...)
 			break
 		}
 	}

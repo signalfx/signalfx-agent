@@ -1,6 +1,6 @@
 RUN_CONTAINER := neo-agent-tmp
 
-go_pkgs := $(shell glide novendor)
+go_pkgs := $(shell glide novendor 2>/dev/null)
 
 .PHONY: check
 check: lint vet test
@@ -40,6 +40,12 @@ vendor:
 	glide update --strip-vendor
 	sed -i '' -e 's/Sirupsen/sirupsen/' $$(grep -lR Sirupsen vendor) || true
 
+signalfx-agent: templates
+	go build \
+		-ldflags "-X main.Version=$$(./VERSIONS agent_version) -X main.CollectdVersion=$$(./VERSIONS collectd_version) -X main.BuiltTime=$$(date +%FT%T%z)" \
+		-i -o signalfx-agent \
+		github.com/signalfx/neo-agent
+
 .PHONY: run-image
 run-image:
 # Run a pre-built image locally. When the agent terminates or you ctrl-c the container is removed.
@@ -71,6 +77,7 @@ run-dev-image:
 	docker run --rm -it \
 		--privileged \
 		--net host \
+		--name neoagent-dev \
 		-v $(PWD)/local-etc:/etc/signalfx \
 		-v /:/hostfs:ro \
 		-v /etc:/mnt/etc:ro \

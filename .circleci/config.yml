@@ -12,19 +12,24 @@ jobs:
 
        - run: |
           export PATH=/usr/local/go/bin:/go/bin:$PATH
-           proj_dir=$(pwd)
+          proj_dir=$(pwd)
 
-           apt-get update
-           apt-get install -y libzmq5-dev curl build-essential git pkg-config
-           cd /tmp
-           curl -o $GODIST https://storage.googleapis.com/golang/$GODIST
-           tar -C /usr/local -xzf $GODIST
-           mkdir -p /go/src/github.com/signalfx /go/bin
-           curl https://glide.sh/get | sh
+          mkdir ~/testresults
 
-           ln -s $proj_dir /go/src/github.com/signalfx/neo-agent
+          apt-get update
+          apt-get install -y libzmq5-dev curl build-essential git pkg-config
+          cd /tmp
+          curl -o $GODIST https://storage.googleapis.com/golang/$GODIST
+          tar -C /usr/local -xzf $GODIST
+          mkdir -p /go/src/github.com/signalfx /go/bin
+          curl https://glide.sh/get | sh
 
-           ls -al /go/src/github.com/signalfx
-           cd /go/src/github.com/signalfx/neo-agent
-           make vendor
-           scripts/circle.sh test
+          ln -s $proj_dir /go/src/github.com/signalfx/neo-agent
+
+          ls -al /go/src/github.com/signalfx
+          cd /go/src/github.com/signalfx/neo-agent
+          make vendor
+          scripts/circle.sh test
+
+       - store_test_results:
+           path: ~/testresults

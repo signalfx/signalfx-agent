@@ -1,10 +1,14 @@
 ---
+- name: consul
+  version: v1.0.0
+  repo: signalfx/collectd-consul
+
 - name: couchbase
   version: v1.0.0
   repo: signalfx/collectd-couchbase
 
 - name: docker
-  version: v1.0.6
+  version: v2.0.2
   repo: signalfx/docker-collectd-plugin
 
 - name: elasticsearch
@@ -13,12 +17,16 @@
   can_remove:
     - tests
 
+- name: etcd
+  version: v1.0.0
+  repo: signalfx/collectd-etcd
+
 - name: haproxy
-  version: master
+  version: v1.0.1
   repo: signalfx/collectd-haproxy
 
 - name: health_checker
-  version: multi-instance #v0.0.1
+  version: multi-instance  #v1.0.0
   repo: signalfx/collectd-health_checker
 
 - name: mesos
@@ -51,6 +59,11 @@
 - name: signalfx
   version: neoagent-version
   repo: signalfx/signalfx-collectd-plugin
+
+- name: spark
+  version: v1.0.0
+  repo: signalfx/collectd-spark
+
 
 - name: zookeeper
   version: v0.0.3

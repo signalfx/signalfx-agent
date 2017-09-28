@@ -104,6 +104,14 @@ The agent can be built from a single multi-stage Dockerfile. This requires
 Docker 17.06+.  Run `make image` to build the image using the build script
 wrapper (`scripts/build.sh`).
 
+There is a dev image that can be built for more convenient local development.
+Run `make dev-image` to build it and `make run-dev-image` to run it.  It
+basically just extends the standard agent image with some dev tools.  Within
+this image, you can build the agent with `make signalfx-agent` and then run the
+agent with `./signalfx-agent`.  You can put agent config in the `local-etc` dir
+of this repo and it will be shared into the container (along with everything
+else in this dir).
+
 ## Dependencies
 
 Go dependencies are specified in `glide.yaml`. Of note the version of

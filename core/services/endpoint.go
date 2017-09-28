@@ -26,8 +26,6 @@ type Endpoint interface {
 	Discovered() time.Time
 	// DiscoveredBy is the name of the observer that discovered this endpoint
 	DiscoveredBy() string
-	// String is just the string representation of the endpoint
-	String() string
 
 	// Dimensions that are specific to this endpoint (e.g. container name)
 	Dimensions() map[string]string
@@ -87,7 +85,3 @@ func EndpointsAsSliceOfMap(endpoints interface{}) []map[string]interface{} {
 	}
 	return out
 }
-
-/*func MergeCommonConfigToEndpoint(common Endpoint, endpoint Endpoint) Endpoint {
-
-}*/

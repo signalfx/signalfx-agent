@@ -1,6 +1,6 @@
-package rabbitmq
+package consul
 
-//go:generate collectd-template-to-go rabbitmq.tmpl
+//go:generate collectd-template-to-go consul.tmpl
 
 import (
 	"github.com/signalfx/neo-agent/core/config"
@@ -9,7 +9,7 @@ import (
 	"github.com/signalfx/neo-agent/monitors/collectd"
 )
 
-const monitorType = "collectd/rabbitmq"
+const monitorType = "collectd/consul"
 
 func init() {
 	monitors.Register(monitorType, func() interface{} {
@@ -22,15 +22,13 @@ func init() {
 // Config is the monitor-specific config with the generic config embedded
 type Config struct {
 	config.MonitorConfig
-	CollectChannels  *bool                   `yaml:"collectChannels"`
-	CollectExchanges *bool                   `yaml:"collectExchanges"`
-	CollectNodes     *bool                   `yaml:"collectNodes"`
-	CollectQueues    *bool                   `yaml:"collectQueues"`
-	HTTPTimeout      *int                    `yaml:"httpTimeout"`
-	VerbosityLevel   *string                 `yaml:"verbosityLevel"`
-	Username         *string                 `yaml:"username"`
-	Password         *string                 `yaml:"password"`
-	ServiceEndpoints []services.EndpointCore `yaml:"serviceEndpoints" default:"[]"`
+	ACLToken          *string                 `yaml:"aclToken"`
+	UseHTTPS          bool                    `yaml:"useHTTPS" default:"false"`
+	EnhancedMetrics   bool                    `yaml:"enhancedMetrics" default:"false"`
+	CACertificate     *string                 `yaml:"caCertificate"`
+	ClientCertificate *string                 `yaml:"clientCertificate"`
+	ClientKey         *string                 `yaml:"clientKey"`
+	ServiceEndpoints  []services.EndpointCore `yaml:"serviceEndpoints" default:"[]"`
 }
 
 // Monitor is the main type that represents the monitor

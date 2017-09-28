@@ -1,0 +1,35 @@
+LoadPlugin python
+<Plugin python>
+  ModulePath "{{Globals.PluginRoot}}/etcd"
+
+  Import "etcd_plugin"
+
+  {{range .Endpoints}}
+  <Module etcd_plugin>
+    Host "{{.Host}}"
+    Port "{{.Port}}"
+    Interval {{$.C.IntervalSeconds}}
+    Cluster "{{$.C.ClusterName}}"
+    {{range $key, $value := (mergeStringMaps $.C.ExtraDimensions .Dimensions)}}
+    Dimension "{{$key}}" "{{$value}}"
+    {{- end}}
+    {{with $.C.SSLKeyFile -}}
+    ssl_keyfile "{{.}}"
+    {{- end}}
+    {{with $.C.SSLCertificate -}}
+    ssl_certificate "{{.}}"
+    {{- end}}
+    {{with $.C.SSLCACerts -}}
+    ssl_ca_certs "{{.}}"
+    {{- end}}
+    ssl_cert_validation {{if $.C.SSLCertValidation}}"True"{{else}}"False"{{end}}
+    EnhancedMetrics {{if $.C.EnhancedMetrics}}"True"{{else}}"False"{{end}}
+    {{range $.C.MetricsToInclude}}
+    IncludeMetric "{{.}}"
+    {{end}}
+    {{range $.C.MetricsToExclude}}
+    ExcludeMetric "{{.}}"
+    {{end}}
+  </Module>
+  {{end}}
+</Plugin>
