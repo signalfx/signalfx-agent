@@ -11,8 +11,9 @@ import (
 	"github.com/signalfx/golib/datapoint"
 )
 
-// This will usually be manager.Manager, but can be swapped out for testing.
-type infoProvider interface {
+// InfoProvider provides a swappable interface to actually get the cAdvisor
+// metrics
+type InfoProvider interface {
 	// Get information about all subcontainers of the specified container (includes self).
 	SubcontainersInfo(containerName string) ([]info.ContainerInfo, error)
 	// Get information about the machine.
@@ -52,7 +53,7 @@ type machineInfoMetric struct {
 
 // CadvisorCollector metric collector and converter
 type CadvisorCollector struct {
-	infoProvider            infoProvider
+	infoProvider            InfoProvider
 	containerMetrics        []containerMetric
 	containerSpecMetrics    []containerSpecMetric
 	containerSpecMemMetrics []containerSpecMetric
@@ -61,6 +62,9 @@ type CadvisorCollector struct {
 	excludedNames           []*regexp.Regexp
 	excludedLabels          [][]*regexp.Regexp
 	machineInfoMetrics      []machineInfoMetric
+	dpChan                  chan<- *datapoint.Datapoint
+	hostname                string
+	defaultDimensions       map[string]string
 }
 
 // fsValues is a helper method for assembling per-filesystem stats.
@@ -617,7 +621,16 @@ func getContainerSpecMetrics(excludedMetrics map[string]bool) []containerSpecMet
 }
 
 // NewCadvisorCollector creates new CadvisorCollector
-func NewCadvisorCollector(infoProvider infoProvider, excludedImages []*regexp.Regexp, excludedNames []*regexp.Regexp, excludedLabels [][]*regexp.Regexp, excludedMetrics map[string]bool) *CadvisorCollector {
+func NewCadvisorCollector(
+	infoProvider InfoProvider,
+	dpChan chan<- *datapoint.Datapoint,
+	hostname string,
+	defaultDimensions map[string]string,
+	excludedImages []*regexp.Regexp,
+	excludedNames []*regexp.Regexp,
+	excludedLabels [][]*regexp.Regexp,
+	excludedMetrics map[string]bool) *CadvisorCollector {
+
 	return &CadvisorCollector{
 		excludedImages:          excludedImages,
 		excludedNames:           excludedNames,
@@ -628,16 +641,44 @@ func NewCadvisorCollector(infoProvider infoProvider, excludedImages []*regexp.Re
 		containerSpecMemMetrics: getContainerSpecMemMetrics(excludedMetrics),
 		containerSpecMetrics:    getContainerSpecMetrics(excludedMetrics),
 		machineInfoMetrics:      getMachineInfoMetrics(excludedMetrics),
+		dpChan:                  dpChan,
+		hostname:                hostname,
+		defaultDimensions:       defaultDimensions,
 	}
 }
 
 // Collect fetches the stats from all containers and delivers them as
 // Prometheus metrics. It implements prometheus.PrometheusCollector.
-func (c *CadvisorCollector) Collect(ch chan<- *datapoint.Datapoint) {
-	c.collectMachineInfo(ch)
-	c.collectVersionInfo(ch)
-	c.collectContainersInfo(ch)
-	//c.errors.Collect(ch)
+func (c *CadvisorCollector) Collect() {
+	c.collectMachineInfo()
+	c.collectVersionInfo()
+	c.collectContainersInfo()
+}
+
+func (c *CadvisorCollector) sendDatapoint(dp *datapoint.Datapoint) {
+	dims := dp.Dimensions
+
+	// filter POD level metrics
+	if dims["container_name"] == "POD" {
+		matched, _ := regexp.MatchString("^pod_network_.*", dp.Metric)
+		if !matched {
+			return
+		}
+		delete(dims, "container_name")
+	}
+
+	dims["metric_source"] = "kubernetes"
+	dims["host"] = c.hostname
+
+	for k, v := range c.defaultDimensions {
+		dims[k] = v
+	}
+
+	// remove high cardinality dimensions
+	delete(dims, "id")
+	delete(dims, "name")
+
+	c.dpChan <- dp
 }
 
 func copyDims(dims map[string]string) map[string]string {
@@ -698,11 +739,11 @@ func (c *CadvisorCollector) isExcluded(container info.ContainerInfo) bool {
 	return c.isExcludedImage(container) || c.isExcludedName(container) || c.isExcludedLabel(container)
 }
 
-func (c *CadvisorCollector) collectContainersInfo(ch chan<- *datapoint.Datapoint) {
+func (c *CadvisorCollector) collectContainersInfo() {
 	containers, err := c.infoProvider.SubcontainersInfo("/")
 	if err != nil {
 		//c.errors.Set(1)
-		log.Errorf("Couldn't get containers: %s", err)
+		log.WithError(err).Error("Couldn't get cAdvisor container stats")
 		return
 	}
 	for _, container := range containers {
@@ -736,7 +777,7 @@ func (c *CadvisorCollector) collectContainersInfo(ch chan<- *datapoint.Datapoint
 					newDims[label] = metricValue.labels[i]
 				}
 
-				ch <- datapoint.New(cm.name, newDims, metricValue.value, cm.valueType, tt)
+				c.sendDatapoint(datapoint.New(cm.name, newDims, metricValue.value, cm.valueType, tt))
 			}
 		}
 
@@ -750,7 +791,7 @@ func (c *CadvisorCollector) collectContainersInfo(ch chan<- *datapoint.Datapoint
 						newDims[label] = metricValue.labels[i]
 					}
 
-					ch <- datapoint.New(cm.name, newDims, metricValue.value, cm.valueType, tt)
+					c.sendDatapoint(datapoint.New(cm.name, newDims, metricValue.value, cm.valueType, tt))
 				}
 			}
 		}
@@ -765,7 +806,7 @@ func (c *CadvisorCollector) collectContainersInfo(ch chan<- *datapoint.Datapoint
 						newDims[label] = metricValue.labels[i]
 					}
 
-					ch <- datapoint.New(cm.name, newDims, metricValue.value, cm.valueType, tt)
+					c.sendDatapoint(datapoint.New(cm.name, newDims, metricValue.value, cm.valueType, tt))
 				}
 			}
 		}
@@ -785,22 +826,26 @@ func (c *CadvisorCollector) collectContainersInfo(ch chan<- *datapoint.Datapoint
 						newDims[label] = metricValue.labels[i]
 					}
 
-					ch <- datapoint.New(cm.name, newDims, metricValue.value, cm.valueType, tt)
+					c.sendDatapoint(datapoint.New(cm.name, newDims, metricValue.value, cm.valueType, tt))
 				}
 			}
 		}
 	}
 }
 
-func (c *CadvisorCollector) collectVersionInfo(ch chan<- *datapoint.Datapoint) {}
+func (c *CadvisorCollector) collectVersionInfo() {}
 
-func (c *CadvisorCollector) collectMachineInfo(ch chan<- *datapoint.Datapoint) {
+func (c *CadvisorCollector) collectMachineInfo() {
 	machineInfo, err := c.infoProvider.GetMachineInfo()
 	if err != nil {
 		//c.errors.Set(1)
 		log.Errorf("Couldn't get machine info: %s", err)
 		return
 	}
+	if machineInfo == nil {
+		return
+	}
+
 	dims := make(map[string]string)
 	tt := time.Now()
 
@@ -813,7 +858,7 @@ func (c *CadvisorCollector) collectMachineInfo(ch chan<- *datapoint.Datapoint) {
 				newDims[label] = metricValue.labels[i]
 			}
 
-			ch <- datapoint.New(cm.name, newDims, metricValue.value, cm.valueType, tt)
+			c.sendDatapoint(datapoint.New(cm.name, newDims, metricValue.value, cm.valueType, tt))
 		}
 	}
 }

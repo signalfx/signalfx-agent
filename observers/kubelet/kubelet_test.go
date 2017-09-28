@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/kr/pretty"
+	"github.com/signalfx/neo-agent/core/common/kubelet"
 	"github.com/signalfx/neo-agent/core/services"
 	"github.com/signalfx/neo-agent/neotest"
 	kubelet_test "github.com/signalfx/neo-agent/neotest/kubelet"
@@ -59,7 +60,7 @@ func TestNoPods(t *testing.T) {
 
 	config := &Config{
 		PollIntervalSeconds: 1,
-		KubeletAPI: kubeletAPIConfig{
+		KubeletAPI: kubelet.APIConfig{
 			URL: fakeKubelet.URL().String(),
 		},
 	}

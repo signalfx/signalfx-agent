@@ -13,6 +13,7 @@ import (
 
 	log "github.com/sirupsen/logrus"
 
+	"github.com/signalfx/neo-agent/core/common/kubelet"
 	"github.com/signalfx/neo-agent/core/config"
 	"github.com/signalfx/neo-agent/core/services"
 	"github.com/signalfx/neo-agent/observers"
@@ -31,31 +32,11 @@ const (
 
 var logger = log.WithFields(log.Fields{"observerType": observerType})
 
-// AuthType to use when connecting to kubelet
-type AuthType string
-
-const (
-	// AuthTypeNone means there is no authentication to kubelet
-	AuthTypeNone AuthType = "none"
-	// AuthTypeTLS indicates that client TLS auth is desired
-	AuthTypeTLS AuthType = "tls"
-)
-
-// KubeletAPIConfig contains config specific to the KubeletAPI
-type kubeletAPIConfig struct {
-	URL            string   `yaml:"url"`
-	AuthType       AuthType `yaml:"authType" default:"none"`
-	SkipVerify     bool     `yaml:"skipVerify" default:"false"`
-	CACertPath     string   `yaml:"caCertPath"`
-	ClientCertPath string   `yaml:"clientCertPath"`
-	ClientKeyPath  string   `yaml:"clientKeyPath"`
-}
-
 // Config for Kubelet observer
 type Config struct {
 	config.ObserverConfig
-	PollIntervalSeconds int              `yaml:"pollIntervalSeconds" default:"10"`
-	KubeletAPI          kubeletAPIConfig `yaml:"kubeletAPI" default:"{}"`
+	PollIntervalSeconds int               `yaml:"pollIntervalSeconds" default:"10"`
+	KubeletAPI          kubelet.APIConfig `yaml:"kubeletAPI" default:"{}"`
 }
 
 // Validate the observer-specific config
@@ -67,7 +48,7 @@ func (c *Config) Validate() error {
 	if (c.KubeletAPI.CACertPath != "" ||
 		c.KubeletAPI.ClientCertPath != "" ||
 		c.KubeletAPI.ClientKeyPath != "") &&
-		c.KubeletAPI.AuthType != AuthTypeTLS {
+		c.KubeletAPI.AuthType != kubelet.AuthTypeTLS {
 		logger.WithFields(log.Fields{
 			"kubeletAuthType": c.KubeletAPI.AuthType,
 		}).Warn("Kubelet TLS client auth config keys are set while authType is not 'tls'")
