@@ -1,14 +1,11 @@
 package kubelet
 
 import (
-	"crypto/tls"
-	"crypto/x509"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"io/ioutil"
 	"net/http"
-	"os"
 	"time"
 
 	log "github.com/sirupsen/logrus"
@@ -109,71 +106,13 @@ func init() {
 
 // Configure the kubernetes observer/client
 func (k *Observer) Configure(config *Config) bool {
-	if config.KubeletAPI.URL == "" {
-		hostname, err := os.Hostname()
-		if err != nil {
-			hostname = "localhost"
-		}
-		config.KubeletAPI.URL = fmt.Sprintf("https://%s:10250", hostname)
+	kubeletAPI := config.KubeletAPI
+	if kubeletAPI.URL == "" {
+		kubeletAPI.URL = fmt.Sprintf("https://%s:10250", config.Hostname)
 	}
-
-	certs, err := x509.SystemCertPool()
-	if err != nil {
-		logger.WithFields(log.Fields{
-			"error": err,
-		}).Error("Could not get TLS system CA list")
+	client := kubelet.NewClient(&kubeletAPI)
+	if client == nil {
 		return false
-	}
-
-	if config.KubeletAPI.CACertPath != "" {
-		bytes, err := ioutil.ReadFile(config.KubeletAPI.CACertPath)
-		if err != nil {
-			logger.WithFields(log.Fields{
-				"error":      err,
-				"caCertPath": config.KubeletAPI.CACertPath,
-			}).Error("CA cert path could not be read")
-			return false
-		}
-		if !certs.AppendCertsFromPEM(bytes) {
-			logger.WithFields(log.Fields{
-				"error":      err,
-				"caCertPath": config.KubeletAPI.CACertPath,
-			}).Error("CA cert file is not the right format")
-			return false
-		}
-	}
-
-	var clientCerts []tls.Certificate
-
-	clientCertPath := config.KubeletAPI.ClientCertPath
-	clientKeyPath := config.KubeletAPI.ClientKeyPath
-	if clientCertPath != "" && clientKeyPath != "" {
-		cert, err := tls.LoadX509KeyPair(clientCertPath, clientKeyPath)
-		if err != nil {
-			logger.WithFields(log.Fields{
-				"error":          err,
-				"clientKeyPath":  clientKeyPath,
-				"clientCertPath": clientCertPath,
-			}).Error("Kubelet client cert/key could not be loaded")
-			return false
-		}
-		clientCerts = append(clientCerts, cert)
-		logger.Infof("Configured TLS client cert in %s with key %s", clientCertPath, clientKeyPath)
-	}
-
-	tlsConfig := &tls.Config{
-		Certificates:       clientCerts,
-		InsecureSkipVerify: config.KubeletAPI.SkipVerify,
-		RootCAs:            certs,
-	}
-	tlsConfig.BuildNameToCertificate()
-
-	transport := &http.Transport{
-		TLSClientConfig: tlsConfig,
-	}
-	k.client = http.Client{
-		Timeout:   10 * time.Second,
-		Transport: transport,
 	}
 
 	if k.serviceDiffer != nil {

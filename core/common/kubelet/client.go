@@ -109,6 +109,8 @@ func NewClient(kubeletAPI *APIConfig) *Client {
 			Transport: t,
 			token:     string(token),
 		}
+
+		log.Debug("Using service account authentication for Kubelet")
 	} else {
 		transport.(*http.Transport).TLSClientConfig = tlsConfig
 	}

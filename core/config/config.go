@@ -148,6 +148,10 @@ func (c *Config) propagateValuesDown(metaStore *stores.MetaStore) {
 		c.Monitors[i].MetaStore = metaStore
 	}
 
+	for i := range c.Observers {
+		c.Observers[i].Hostname = c.Hostname
+	}
+
 	c.Writer.IngestURL = ingestURL
 	c.Writer.Filter = filterSet
 	c.Writer.SignalFxAccessToken = c.SignalFxAccessToken
