@@ -9,8 +9,8 @@
     Host "{{$endpoint.Host}}"
     Port {{$endpoint.Port}}
     Database "{{$db.Name}}"
-    User "{{$db.Username}}"
-    {{with $db.Password -}}
+    User "{{$.C.Username}}"
+    {{with $.C.Password -}}
     Password "{{.}}"
     {{- end}}
   </Database>
