@@ -106,11 +106,10 @@ func init() {
 
 // Configure the kubernetes observer/client
 func (k *Observer) Configure(config *Config) bool {
-	kubeletAPI := config.KubeletAPI
-	if kubeletAPI.URL == "" {
-		kubeletAPI.URL = fmt.Sprintf("https://%s:10250", config.Hostname)
+	if config.KubeletAPI.URL == "" {
+		config.KubeletAPI.URL = fmt.Sprintf("https://%s:10250", config.Hostname)
 	}
-	client := kubelet.NewClient(&kubeletAPI)
+	client := kubelet.NewClient(&config.KubeletAPI)
 	if client == nil {
 		return false
 	}
