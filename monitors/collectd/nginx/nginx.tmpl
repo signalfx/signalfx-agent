@@ -3,13 +3,13 @@
 </LoadPlugin>
 <Plugin "nginx">
   {{range .Endpoints}}
-  <Instance "{{withDefault .name .id}}[{{encodeDimsForPluginInstance .dimensions}}]">
-      URL "http://{{.host}}:{{.port}}/nginx_status"
-      Timeout {{withDefault .timeout 10}}
-      {{with .username -}}
+  <Instance "{{withDefault .Name .ID}}[{{encodeDimsForPluginInstance $.C.ExtraDimensions .Dimensions}}]">
+      URL "http://{{.Host}}:{{.Port}}/nginx_status"
+      Timeout {{withDefault $.C.Timeout 10}}
+      {{with $.C.Username -}}
       User "{{.}}"
       {{- end}}
-      {{with .password -}}
+      {{with $.C.Password -}}
       Password "{{.}}"
       {{- end}}
   </Instance>

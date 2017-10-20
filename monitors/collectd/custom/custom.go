@@ -3,12 +3,15 @@
 package custom
 
 import (
+	"errors"
+	"fmt"
 	"sync"
 	"text/template"
 
 	log "github.com/sirupsen/logrus"
 
 	"github.com/signalfx/neo-agent/core/config"
+	"github.com/signalfx/neo-agent/core/services"
 	"github.com/signalfx/neo-agent/monitors"
 	"github.com/signalfx/neo-agent/monitors/collectd"
 	"github.com/signalfx/neo-agent/monitors/collectd/templating"
@@ -27,47 +30,38 @@ func init() {
 // Config is the configuration for the collectd custom monitor
 type Config struct {
 	config.MonitorConfig
-	TemplateText    string                 `yaml:"templateText,omitempty"`
-	TemplatePath    string                 `yaml:"templatePath,omitempty"`
-	TemplateContext map[string]interface{} `yaml:"templateContext"`
+	TemplateText     string                  `yaml:"templateText"`
+	TemplatePath     string                  `yaml:"templatePath"`
+	ServiceEndpoints []services.EndpointCore `yaml:"serviceEndpoints" default:"[]"`
 }
 
 // Validate will check the config that is specific to this monitor
-func (c *Config) Validate() bool {
+func (c *Config) Validate() error {
 	if (c.TemplateText == "") == (c.TemplatePath == "") {
-		log.WithFields(log.Fields{
-			"monitorType": monitorType,
-			"config":      *c,
-		}).Error("Exactly one of either templateText or templatePath must be set")
-		return false
+		return errors.New("Exactly one of either templateText or templatePath must be set")
 	}
-	return c.getTemplate() != nil
+	if _, err := c.getTemplate(); err != nil {
+		return err
+	}
+	return nil
 }
 
-func (c *Config) getTemplate() *template.Template {
+func (c *Config) getTemplate() (*template.Template, error) {
 	var templateText string
 	if c.TemplatePath != "" {
 		source, path, err := c.MetaStore.GetSourceAndPath(c.TemplatePath)
 		if err != nil {
-			log.WithFields(log.Fields{
-				"error":        err,
-				"templatePath": c.TemplatePath,
-			}).Error("Template path type is unrecognized")
-			return nil
+			return nil, fmt.Errorf("Template path type '%s' is unrecognized: %s", c.TemplatePath, err)
 		}
 		kv, err := source.Get(path)
 		if err != nil {
-			log.WithFields(log.Fields{
-				"error":        err,
-				"templatePath": c.TemplatePath,
-			}).Error("Could not access template path")
-			return nil
+			return nil, fmt.Errorf("Could not access template path %s: %s", c.TemplatePath, err)
 		}
 		templateText = string(kv.Value)
 	} else {
 		templateText = c.TemplateText
 	}
-	return templateFromText(templateText)
+	return templateFromText(templateText), nil
 }
 
 func templateFromText(templateText string) *template.Template {
@@ -97,10 +91,7 @@ func (cm *Monitor) Configure(conf *Config) bool {
 	cm.lock.Lock()
 	defer cm.lock.Unlock()
 
-	for k, v := range conf.TemplateContext {
-		cm.Context[k] = v
-	}
-	cm.Template = conf.getTemplate()
+	cm.Template, _ = conf.getTemplate()
 	if cm.Template == nil {
 		return false
 	}
@@ -109,7 +100,7 @@ func (cm *Monitor) Configure(conf *Config) bool {
 		return cm.watchTemplatePath(conf)
 	}
 
-	return cm.SetConfigurationAndRun(&conf.MonitorConfig, nil)
+	return cm.SetConfigurationAndRun(conf)
 }
 
 func (cm *Monitor) watchTemplatePath(conf *Config) bool {
@@ -137,7 +128,7 @@ func (cm *Monitor) watchTemplatePath(conf *Config) bool {
 				if cm.Template == nil {
 					continue
 				}
-				cm.SetConfigurationAndRun(&conf.MonitorConfig, nil)
+				cm.SetConfigurationAndRun(conf)
 
 				cm.lock.Unlock()
 			}

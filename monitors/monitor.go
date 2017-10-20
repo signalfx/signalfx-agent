@@ -89,27 +89,28 @@ type Shutdownable interface {
 // populate a clone of the config template that was registered for the monitor
 // type specified in conf.  This will also validate the config and return nil
 // if validation fails.
-func getCustomConfigForMonitor(conf *config.MonitorConfig) config.MonitorCustomConfig {
+func getCustomConfigForMonitor(conf *config.MonitorConfig) (config.MonitorCustomConfig, bool) {
 	confTemplate, ok := configTemplates[conf.Type]
 	if !ok {
 		log.WithFields(log.Fields{
 			"monitorType": conf.Type,
 		}).Error("Unknown monitor type")
-		return nil
+		return nil, false
 	}
 	monConfig := utils.CloneInterface(confTemplate).(config.MonitorCustomConfig)
 
 	if ok := config.FillInConfigTemplate("MonitorConfig", monConfig, conf); !ok {
-		return nil
+		return nil, false
 	}
 
-	if !validateCommonConfig(conf) || !config.ValidateCustomConfig(&monConfig) {
-		log.WithFields(log.Fields{
-			"monitorType": conf.Type,
-		}).Error("Monitor config is invalid, not enabling")
-		return nil
+	// These methods will set state inside the config such that conf.IsValid
+	// will return true or false
+	if err := validateConfig(monConfig); err != nil {
+		monConfig.CoreConfig().ValidationError = err.Error()
+		return monConfig, false
 	}
-	return monConfig
+
+	return monConfig, true
 }
 
 func anyMarkedSolo(confs []config.MonitorConfig) bool {

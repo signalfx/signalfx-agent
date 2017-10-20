@@ -16,8 +16,6 @@ FROM final-image
 
 COPY --from=godeps /go/src/github.com/signalfx/neo-agent/vendor src/github.com/signalfx/neo-agent/vendor
 COPY --from=godeps /go/pkg /go/pkg
-COPY --from=collectd /usr/src/collectd/src/daemon/*.h /usr/local/include/collectd/
-COPY --from=collectd /usr/src/collectd/src/liboconfig/*.h /usr/local/include/collectd/liboconfig/
 
 COPY --from=agent-builder /usr/ /tmp/usr-agent-buider
 COPY --from=godeps /usr/ /tmp/usr-godeps

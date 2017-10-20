@@ -1,17 +1,16 @@
 package kubelet
 
 import (
-	"crypto/tls"
-	"crypto/x509"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"net/http"
-	"os"
 	"time"
 
 	log "github.com/sirupsen/logrus"
 
+	"github.com/signalfx/neo-agent/core/common/kubelet"
 	"github.com/signalfx/neo-agent/core/config"
 	"github.com/signalfx/neo-agent/core/services"
 	"github.com/signalfx/neo-agent/observers"
@@ -30,53 +29,30 @@ const (
 
 var logger = log.WithFields(log.Fields{"observerType": observerType})
 
-// AuthType to use when connecting to kubelet
-type AuthType string
-
-const (
-	// AuthTypeNone means there is no authentication to kubelet
-	AuthTypeNone AuthType = "none"
-	// AuthTypeTLS indicates that client TLS auth is desired
-	AuthTypeTLS AuthType = "tls"
-)
-
-// KubeletAPIConfig contains config specific to the KubeletAPI
-type kubeletAPIConfig struct {
-	URL            string   `yaml:"url"`
-	AuthType       AuthType `yaml:"authType" default:"none"`
-	SkipVerify     bool     `yaml:"skipVerify" default:"false"`
-	CACertPath     string   `yaml:"caCertPath"`
-	ClientCertPath string   `yaml:"clientCertPath"`
-	ClientKeyPath  string   `yaml:"clientKeyPath"`
-}
-
 // Config for Kubelet observer
 type Config struct {
 	config.ObserverConfig
-	PollIntervalSeconds int              `yaml:"pollIntervalSeconds" default:"10"`
-	KubeletAPI          kubeletAPIConfig `yaml:"kubeletAPI" default:"{}"`
+	PollIntervalSeconds int               `yaml:"pollIntervalSeconds" default:"10"`
+	KubeletAPI          kubelet.APIConfig `yaml:"kubeletAPI" default:"{}"`
 }
 
 // Validate the observer-specific config
-func (c *Config) Validate() bool {
+func (c *Config) Validate() error {
 	if c.PollIntervalSeconds < 1 {
-		logger.WithFields(log.Fields{
-			"pollIntervalSeconds": c.PollIntervalSeconds,
-		}).Error("pollIntervalSeconds must be greater than 0")
-		return false
+		return errors.New("pollIntervalSeconds must be greater than 0")
 	}
 
 	if (c.KubeletAPI.CACertPath != "" ||
 		c.KubeletAPI.ClientCertPath != "" ||
 		c.KubeletAPI.ClientKeyPath != "") &&
-		c.KubeletAPI.AuthType != AuthTypeTLS {
+		c.KubeletAPI.AuthType != kubelet.AuthTypeTLS {
 		logger.WithFields(log.Fields{
 			"kubeletAuthType": c.KubeletAPI.AuthType,
 		}).Warn("Kubelet TLS client auth config keys are set while authType is not 'tls'")
 		// Does not render invalid, but warn user nonetheless
 	}
 
-	return true
+	return nil
 }
 
 // Observer for kubelet
@@ -130,71 +106,13 @@ func init() {
 
 // Configure the kubernetes observer/client
 func (k *Observer) Configure(config *Config) bool {
-	if config.KubeletAPI.URL == "" {
-		hostname, err := os.Hostname()
-		if err != nil {
-			hostname = "localhost"
-		}
-		config.KubeletAPI.URL = fmt.Sprintf("https://%s:10250", hostname)
+	kubeletAPI := config.KubeletAPI
+	if kubeletAPI.URL == "" {
+		kubeletAPI.URL = fmt.Sprintf("https://%s:10250", config.Hostname)
 	}
-
-	certs, err := x509.SystemCertPool()
-	if err != nil {
-		logger.WithFields(log.Fields{
-			"error": err,
-		}).Error("Could not get TLS system CA list")
+	client := kubelet.NewClient(&kubeletAPI)
+	if client == nil {
 		return false
-	}
-
-	if config.KubeletAPI.CACertPath != "" {
-		bytes, err := ioutil.ReadFile(config.KubeletAPI.CACertPath)
-		if err != nil {
-			logger.WithFields(log.Fields{
-				"error":      err,
-				"caCertPath": config.KubeletAPI.CACertPath,
-			}).Error("CA cert path could not be read")
-			return false
-		}
-		if !certs.AppendCertsFromPEM(bytes) {
-			logger.WithFields(log.Fields{
-				"error":      err,
-				"caCertPath": config.KubeletAPI.CACertPath,
-			}).Error("CA cert file is not the right format")
-			return false
-		}
-	}
-
-	var clientCerts []tls.Certificate
-
-	clientCertPath := config.KubeletAPI.ClientCertPath
-	clientKeyPath := config.KubeletAPI.ClientKeyPath
-	if clientCertPath != "" && clientKeyPath != "" {
-		cert, err := tls.LoadX509KeyPair(clientCertPath, clientKeyPath)
-		if err != nil {
-			logger.WithFields(log.Fields{
-				"error":          err,
-				"clientKeyPath":  clientKeyPath,
-				"clientCertPath": clientCertPath,
-			}).Error("Kubelet client cert/key could not be loaded")
-			return false
-		}
-		clientCerts = append(clientCerts, cert)
-		logger.Infof("Configured TLS client cert in %s with key %s", clientCertPath, clientKeyPath)
-	}
-
-	tlsConfig := &tls.Config{
-		Certificates:       clientCerts,
-		InsecureSkipVerify: config.KubeletAPI.SkipVerify,
-		RootCAs:            certs,
-	}
-	tlsConfig.BuildNameToCertificate()
-
-	transport := &http.Transport{
-		TLSClientConfig: tlsConfig,
-	}
-	k.client = http.Client{
-		Timeout:   10 * time.Second,
-		Transport: transport,
 	}
 
 	if k.serviceDiffer != nil {

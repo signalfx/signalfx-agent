@@ -21,6 +21,7 @@ type MonitorManager struct {
 	monitorConfigs []config.MonitorCustomConfig
 	// Keep track of which services go with which monitor
 	activeMonitors []*ActiveMonitor
+	badConfigs     []config.MonitorCustomConfig
 	lock           sync.Mutex
 	// Map of services that are being actively monitored
 	discoveredServices map[services.ID]services.Endpoint
@@ -37,6 +38,7 @@ func (mm *MonitorManager) ensureInit() {
 	if mm.discoveredServices == nil {
 		mm.discoveredServices = make(map[services.ID]services.Endpoint)
 	}
+	mm.badConfigs = make([]config.MonitorCustomConfig, 0)
 }
 
 // Configure receives a list of monitor configurations.  It will start up any
@@ -58,8 +60,15 @@ func (mm *MonitorManager) Configure(confs []config.MonitorConfig) {
 	for i := range confs {
 		conf := &confs[i]
 
-		monConfig := getCustomConfigForMonitor(conf)
+		monConfig, isValid := getCustomConfigForMonitor(conf)
 		if monConfig == nil {
+			continue
+		} else if !isValid {
+			log.WithFields(log.Fields{
+				"monitorType": conf.Type,
+				"error":       monConfig.CoreConfig().ValidationError,
+			}).Error("Monitor config is invalid, not enabling")
+			mm.badConfigs = append(mm.badConfigs, monConfig)
 			continue
 		}
 

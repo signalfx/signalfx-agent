@@ -2,26 +2,24 @@ LoadPlugin "python"
 <Plugin "python">
   ModulePath "{{Globals.PluginRoot}}/rabbitmq"
   Import "rabbitmq"
-  {{range .Endpoint}}
+  {{range .Endpoints}}
   <Module "rabbitmq">
-    CollectChannels {{.collectChannels}}
-    CollectConnections {{.collectConnections}}
-    CollectExchanges {{.collectExchanges}}
-    CollectNodes {{.collectNodes}}
-    CollectQueues {{.collectQueues}}
-    {{with .dimensions -}}
-    Dimensions "{{encodeDimsForPluginInstance .}}"
-    {{- end}}
-    Host {{.host}}
-    HTTPTimeout {{.httpTimeout}}
-    {{with .password -}}
+    CollectChannels {{$.C.CollectChannels}}
+    CollectConnections {{$.C.CollectConnections}}
+    CollectExchanges {{$.C.CollectExchanges}}
+    CollectNodes {{$.C.CollectNodes}}
+    CollectQueues {{$.C.CollectQueues}}
+    Dimensions "{{encodeDimsForPluginInstance $.C.ExtraDimensions .Dimensions}}"
+    Host {{.Host}}
+    HTTPTimeout {{$.C.HTTPTimeout}}
+    {{with $.C.Password -}}
     Password "{{.}}"
     {{- end}}
-    Port "{{.port}}"
-    {{with .username -}}
+    Port "{{.Port}}"
+    {{with $.C.Username -}}
     Username "{{.}}"
     {{- end}}
-    {{with .verbosityLevel -}}
+    {{with $.C.VerbosityLevel -}}
     VerbosityLevel "{{.}}"
     {{- end}}
   </Module>

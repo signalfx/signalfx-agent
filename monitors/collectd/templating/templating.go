@@ -3,7 +3,6 @@ package templating
 
 import (
 	"bytes"
-	"errors"
 	"net/url"
 	"os"
 	"path"
@@ -77,20 +76,6 @@ func InjectTemplateFuncs(tmpl *template.Template) *template.Template {
 				}
 				return value
 			},
-			"required": func(values ...interface{}) (interface{}, error) {
-				if len(values) > 1 {
-					panic("Incorrect use of template func 'required'")
-				}
-				if len(values) == 0 || values[0] == nil {
-					return nil, errors.New("Template variable is required")
-				}
-				if s, ok := values[0].(string); ok {
-					if len(s) == 0 {
-						return nil, errors.New("Template variable is required")
-					}
-				}
-				return values[0], nil
-			},
 			// Makes a slice of the given values
 			"sliceOf": func(values ...interface{}) []interface{} {
 				return values
@@ -114,8 +99,8 @@ func InjectTemplateFuncs(tmpl *template.Template) *template.Template {
 				}
 				return "?" + query.Encode(), nil
 			},
-			"stringsJoin": func(ss []interface{}, joiner string) string {
-				return strings.Join(utils.InterfaceSliceToStringSlice(ss), joiner)
+			"stringsJoin": func(ss []string, joiner string) string {
+				return strings.Join(ss, joiner)
 			},
 			// Tells whether the key is present in the context map.  Says
 			// nothing about whether it is a zero-value or not.
@@ -123,10 +108,15 @@ func InjectTemplateFuncs(tmpl *template.Template) *template.Template {
 				_, ok := context[key]
 				return ok
 			},
-			"merge": utils.MergeInterfaceMaps,
-			"toMap": utils.ConvertToMapViaYAML,
+			"merge":           utils.MergeInterfaceMaps,
+			"mergeStringMaps": utils.MergeStringMaps,
+			"toMap":           utils.ConvertToMapViaYAML,
 			"toServiceID": func(s string) services.ID {
 				return services.ID(s)
+			},
+			"toStringMap": utils.InterfaceMapToStringMap,
+			"spew": func(obj interface{}) string {
+				return spew.Sdump(obj)
 			},
 			// Renders a subtemplate using the provided context, and optionally
 			// a service, which will be added to the context as "service"

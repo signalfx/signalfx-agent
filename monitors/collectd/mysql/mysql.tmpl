@@ -1,16 +1,16 @@
 <LoadPlugin "mysql">
-  Interval {{.IntervalSeconds}}
+  Interval {{.C.IntervalSeconds}}
 </LoadPlugin>
 <Plugin mysql>
   {{range $endpoint := .Endpoints}}
-  {{range $db := .databases}}
-  <Database "{{withDefault $endpoint.name $endpoint.id}}_{{$db.name}}[{{encodeDimsForPluginInstance $endpoint.dimensions}}]">
-    ReportHost {{withDefault $endpoint.reportHost "true"}}
-    Host "{{$endpoint.host}}"
-    Port {{$endpoint.port}}
-    Database "{{$db.name}}"
-    User "{{(withDefault $db.username $endpoint.username) | required}}"
-    {{with withDefault $db.password $endpoint.password -}}
+  {{range $db := $.C.Databases}}
+  <Database "{{withDefault $endpoint.Name $endpoint.ID}}_{{$db.Name}}[{{encodeDimsForPluginInstance $.C.ExtraDimensions $endpoint.Dimensions}}]">
+    ReportHost {{$.C.ReportHost}}
+    Host "{{$endpoint.Host}}"
+    Port {{$endpoint.Port}}
+    Database "{{$db.Name}}"
+    User "{{$.C.Username}}"
+    {{with $.C.Password -}}
     Password "{{.}}"
     {{- end}}
   </Database>

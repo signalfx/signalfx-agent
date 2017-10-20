@@ -110,10 +110,6 @@ func (e *EndpointCore) RemoveDimension(k string) {
 	delete(e.MDimensions, k)
 }
 
-func (e *EndpointCore) String() string {
-	return fmt.Sprintf("%#v", EndpointAsMap(e))
-}
-
 // MatchingMonitors returns a set of monitor ids that are monitoring this
 // endpoint
 func (e *EndpointCore) MatchingMonitors() map[types.MonitorID]bool {

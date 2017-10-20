@@ -30,5 +30,5 @@ type Monitor struct {
 
 // Configure configures and runs the plugin in collectd
 func (m *Monitor) Configure(conf *Config) bool {
-	return m.SetConfigurationAndRun(&conf.MonitorConfig)
+	return m.SetConfigurationAndRun(conf)
 }

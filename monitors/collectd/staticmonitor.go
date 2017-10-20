@@ -23,7 +23,7 @@ func NewStaticMonitorCore(template *template.Template) *StaticMonitorCore {
 
 // SetConfigurationAndRun sets the configuration to be used when rendering
 // templates, and writes config before queueing a collectd restart.
-func (smc *StaticMonitorCore) SetConfigurationAndRun(conf *config.MonitorConfig) bool {
+func (smc *StaticMonitorCore) SetConfigurationAndRun(conf config.MonitorCustomConfig) bool {
 	if !smc.SetConfiguration(conf) {
 		return false
 	}

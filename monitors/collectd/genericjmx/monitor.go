@@ -21,7 +21,7 @@ func init() {
 
 // Configure configures and runs the plugin in collectd
 func (m *Monitor) Configure(conf *Config) bool {
-	conf.Common.MBeanDefinitions = conf.Common.MBeanDefinitions.MergeWith(defaultMBeans)
+	conf.MBeanDefinitions = conf.MBeanDefinitions.MergeWith(DefaultMBeans)
 	m.AddConfiguration(conf)
 	return true
 }

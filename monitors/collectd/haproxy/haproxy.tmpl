@@ -1,0 +1,24 @@
+LoadPlugin "python"
+
+<Plugin "python">
+  ModulePath "{{Globals.PluginRoot}}/haproxy"
+
+  Import "haproxy"
+
+  {{range .Endpoints}}
+  <Module "haproxy">
+    Socket "{{.Host}}:{{.Port}}"
+    Interval {{$.C.IntervalSeconds}}
+    {{range $.C.ProxiesToMonitor -}}
+    ProxyMonitor "{{.}}"
+    {{- end }}
+    EnhancedMetrics {{if $.C.EnhancedMetrics}}'True'{{else}}'False'{{end}}
+    {{range $.C.ExcludedMetrics -}}
+    ExcludeMetric '{{.}}'
+    {{- end }}
+    {{range $key, $value := (mergeStringMaps $.C.ExtraDimensions .Dimensions)}}
+    Dimension {{$key}} {{$value}}
+    {{- end}}
+  </Module>
+{{end}}
+</Plugin>

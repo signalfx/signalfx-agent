@@ -3,6 +3,7 @@ package monitors
 import (
 	"fmt"
 
+	"github.com/signalfx/neo-agent/core/config"
 	"github.com/signalfx/neo-agent/core/services"
 	"github.com/signalfx/neo-agent/utils"
 
@@ -38,7 +39,7 @@ func (mm *MonitorManager) DiagnosticText() string {
 	for i := range mm.activeMonitors {
 		am := mm.activeMonitors[i]
 
-		serviceStats := "Service Endpoints: None\n"
+		serviceStats := "\n"
 		if len(am.serviceSet) > 0 {
 			serviceText := ""
 			for id := range am.serviceSet {
@@ -63,14 +64,30 @@ func (mm *MonitorManager) DiagnosticText() string {
 		discoveredServicesText += serviceToDiagnosticText(service, mm.isServiceMonitored(service))
 	}
 	if len(discoveredServicesText) == 0 {
-		discoveredServicesText = "None"
+		discoveredServicesText = "None\n"
 	}
 
 	return fmt.Sprintf(
 		au.Bold("Active Monitors:\n").String()+
 			"%s"+
 			au.Bold("Discovered Endpoints:\n").String()+
+			"%s\n"+
+			au.Bold("Bad Monitor Configurations:\n").String()+
 			"%s\n",
 		activeMonText,
-		discoveredServicesText)
+		discoveredServicesText,
+		badConfigText(mm.badConfigs))
+}
+
+func badConfigText(confs []config.MonitorCustomConfig) string {
+	if len(confs) > 0 {
+		var text string
+		for i := range confs {
+			conf := confs[i].CoreConfig()
+			text += fmt.Sprintf("Type: %s\nError: %s\n\n",
+				conf.Type, conf.ValidationError)
+		}
+		return text
+	}
+	return "None"
 }

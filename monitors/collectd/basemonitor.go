@@ -11,8 +11,8 @@ import (
 	"github.com/davecgh/go-spew/spew"
 	"github.com/signalfx/neo-agent/core/config"
 	"github.com/signalfx/neo-agent/core/config/types"
+	"github.com/signalfx/neo-agent/core/services"
 	"github.com/signalfx/neo-agent/monitors/collectd/templating"
-	"github.com/signalfx/neo-agent/utils"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -23,7 +23,10 @@ import (
 type BaseMonitor struct {
 	Template *template.Template
 	// The object that gets passed to the template execution
-	Context templating.TemplateContext
+	Context struct {
+		C         config.MonitorCustomConfig
+		Endpoints []services.Endpoint
+	}
 	// Where to write the plugin config to on the filesystem
 	ConfigFilename string
 	isRunning      bool
@@ -39,7 +42,6 @@ func NewBaseMonitor(template *template.Template) *BaseMonitor {
 
 	return &BaseMonitor{
 		Template:       template,
-		Context:        templating.NewTemplateContext(),
 		ConfigFilename: fmt.Sprintf("20-%s.%d.conf", name, getNextIDFor(name)),
 		isRunning:      false,
 	}
@@ -47,20 +49,14 @@ func NewBaseMonitor(template *template.Template) *BaseMonitor {
 
 // SetConfiguration adds various fields from the config to the template context
 // but does not render the config.
-func (bm *BaseMonitor) SetConfiguration(conf *config.MonitorConfig) bool {
+func (bm *BaseMonitor) SetConfiguration(conf config.MonitorCustomConfig) bool {
 	bm.lock.Lock()
 	defer bm.lock.Unlock()
 
-	bm.Context["IntervalSeconds"] = conf.IntervalSeconds
-	bm.Context["IngestURL"] = conf.IngestURL.String()
-	bm.Context["SignalFxAccessToken"] = conf.SignalFxAccessToken
+	bm.Context.C = conf
 
-	bm.Context.SetDimensions(
-		utils.MergeStringMaps(bm.Context.Dimensions(), conf.ExtraDimensions))
-	log.Debugf("Setting dimensions on %s to: %s", conf.Type, utils.MergeStringMaps(bm.Context.Dimensions(), conf.ExtraDimensions))
-
-	bm.monitorID = conf.ID
-	if !Instance().ConfigureFromMonitor(conf.ID, conf.CollectdConf) {
+	bm.monitorID = conf.CoreConfig().ID
+	if !Instance().ConfigureFromMonitor(conf.CoreConfig().ID, conf.CoreConfig().CollectdConf) {
 		return false
 	}
 

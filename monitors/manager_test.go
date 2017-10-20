@@ -3,10 +3,12 @@ package monitors
 import (
 	"time"
 
+	"github.com/davecgh/go-spew/spew"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"github.com/signalfx/neo-agent/core/config"
 	"github.com/signalfx/neo-agent/core/services"
+	log "github.com/sirupsen/logrus"
 )
 
 var id = 0
@@ -38,6 +40,7 @@ var _ = Describe("Monitor Manager", func() {
 	})
 
 	It("Starts up static monitors immediately", func() {
+		log.SetLevel(log.DebugLevel)
 		manager.Configure([]config.MonitorConfig{
 			config.MonitorConfig{
 				Type: "static1",
@@ -48,6 +51,7 @@ var _ = Describe("Monitor Manager", func() {
 			},
 		})
 
+		spew.Dump(getMonitors())
 		Expect(len(getMonitors())).To(Equal(1))
 		mon := getMonitors()[0]
 		Expect(mon.GetConfig().Type).To(Equal("static1"))
@@ -299,11 +303,11 @@ var _ = Describe("Monitor Manager", func() {
 
 		mons = findMonitorsByType(getMonitors(), "dynamic1")
 		Expect(len(mons)).To(Equal(1))
-		Expect(len(mons[0].GetServices())).To(Equal(1))
+		Expect(len(mons[0].(MockServiceMonitor).(MockServiceMonitor).GetServices())).To(Equal(1))
 
 		mons = findMonitorsByType(getMonitors(), "dynamic2")
 		Expect(len(mons)).To(Equal(1))
-		Expect(len(mons[0].GetServices())).To(Equal(1))
+		Expect(len(mons[0].(MockServiceMonitor).(MockServiceMonitor).GetServices())).To(Equal(1))
 	})
 
 	It("Adds manually configured services to monitors", func() {
@@ -314,12 +318,14 @@ var _ = Describe("Monitor Manager", func() {
 			config.MonitorConfig{
 				Type: "dynamic1",
 				OtherConfig: map[string]interface{}{
-					"serviceEndpoints": []map[string]interface{}{
-						map[string]interface{}{
-							"serviceURL": "http://testing",
+					"serviceEndpoints": []interface{}{
+						services.EndpointCore{
+							Host: "myhost",
+							Port: 5000,
 						},
-						map[string]interface{}{
-							"serviceURL": "http://testing2",
+						services.EndpointCore{
+							Host: "myhost2",
+							Port: 5002,
 						},
 					},
 				},
@@ -328,7 +334,7 @@ var _ = Describe("Monitor Manager", func() {
 
 		mons := findMonitorsByType(getMonitors(), "dynamic1")
 		Expect(len(mons)).To(Equal(1))
-		Expect(len(mons[0].GetServices())).To(Equal(2))
+		Expect(len(mons[0].(MockServiceMonitor).GetServices())).To(Equal(2))
 	})
 
 	It("Removes manually configured services from monitors", func() {
@@ -339,12 +345,14 @@ var _ = Describe("Monitor Manager", func() {
 			config.MonitorConfig{
 				Type: "dynamic1",
 				OtherConfig: map[string]interface{}{
-					"serviceEndpoints": []map[string]interface{}{
-						map[string]interface{}{
-							"serviceURL": "http://testing",
+					"serviceEndpoints": []interface{}{
+						services.EndpointCore{
+							Host: "myhost",
+							Port: 5000,
 						},
-						map[string]interface{}{
-							"serviceURL": "http://testing2",
+						services.EndpointCore{
+							Host: "myhost2",
+							Port: 5002,
 						},
 					},
 				},
@@ -353,7 +361,7 @@ var _ = Describe("Monitor Manager", func() {
 
 		mons := findMonitorsByType(getMonitors(), "dynamic1")
 		Expect(len(mons)).To(Equal(1))
-		Expect(len(mons[0].GetServices())).To(Equal(2))
+		Expect(len(mons[0].(MockServiceMonitor).GetServices())).To(Equal(2))
 
 		manager.Configure([]config.MonitorConfig{
 			config.MonitorConfig{
@@ -362,10 +370,10 @@ var _ = Describe("Monitor Manager", func() {
 			config.MonitorConfig{
 				Type: "dynamic1",
 				OtherConfig: map[string]interface{}{
-					"serviceEndpoints": []map[string]interface{}{
-						map[string]interface{}{
-							"id":         "abcdef",
-							"serviceURL": "http://testing",
+					"serviceEndpoints": []interface{}{
+						services.EndpointCore{
+							MID:  "abcdef",
+							Host: "myhost",
 						},
 					},
 				},
@@ -374,7 +382,8 @@ var _ = Describe("Monitor Manager", func() {
 
 		mons = findMonitorsByType(getMonitors(), "dynamic1")
 		Expect(len(mons)).To(Equal(1))
-		Expect(len(mons[0].GetServices())).To(Equal(1))
-		Expect(mons[0].GetServices()["abcdef"]).To(Not(BeNil()))
+		Expect(len(mons[0].(MockServiceMonitor).GetServices())).To(Equal(1))
+		Expect(mons[0].(MockServiceMonitor).GetServices()["abcdef"]).To(Not(BeNil()))
 	})
+
 })

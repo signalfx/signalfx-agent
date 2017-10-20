@@ -1,8 +1,6 @@
 package services
 
 import (
-	"fmt"
-
 	"github.com/signalfx/neo-agent/utils"
 )
 
@@ -49,17 +47,15 @@ func (ce *ContainerEndpoint) DerivedFields() map[string]interface{} {
 
 // Dimensions returns the dimensions associated with this endpoint
 func (ce *ContainerEndpoint) Dimensions() map[string]string {
-	return utils.MergeStringMaps(ce.EndpointCore.Dimensions(), ce.Orchestration.Dimensions, map[string]string{
-		"container_name":           ce.Container.PrimaryName(),
-		"container_image":          ce.Container.Image,
-		"kubernetes_pod_name":      ce.Container.Pod,
-		"kubernetes_pod_namespace": ce.Container.Namespace,
-		// This is essential as it is the only unique dim for a pod.
-		"kubernetes_pod_uid": ce.Container.PodUID,
-	})
-}
-
-func (ce *ContainerEndpoint) String() string {
-	return fmt.Sprintf("<Container Endpoint [%s]: %s; container: %s; orchestration: %s; discovered: %s",
-		ce.ID(), ce.EndpointCore.String(), ce.Container.String(), ce.Orchestration.String(), ce.Discovered())
+	return utils.MergeStringMaps(
+		ce.EndpointCore.Dimensions(),
+		ce.Orchestration.Dimensions,
+		utils.RemoveEmptyMapValues(map[string]string{
+			"container_name":           ce.Container.PrimaryName(),
+			"container_image":          ce.Container.Image,
+			"kubernetes_pod_name":      ce.Container.Pod,
+			"kubernetes_pod_namespace": ce.Container.Namespace,
+			// This is essential as it is the only unique dim for a pod.
+			"kubernetes_pod_uid": ce.Container.PodUID,
+		}))
 }

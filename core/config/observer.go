@@ -7,6 +7,9 @@ type ObserverConfig struct {
 	// reconfigured in place instead of destroyed and recreated
 	ID          string                 `yaml:"id,omitempty"`
 	OtherConfig map[string]interface{} `yaml:",inline" default:"{}"`
+	// The following are propagated down from the main config and cannot be set
+	// by the user on the observer config.
+	Hostname string `yaml:"-"`
 }
 
 // GetOtherConfig returns generic config as a map

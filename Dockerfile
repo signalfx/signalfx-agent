@@ -74,16 +74,19 @@ RUN sed -i -e '/^deb-src/d' /etc/apt/sources.list &&\
 
 RUN apt install -y libcurl4-gnutls-dev
 
-ARG collectd_version
+COPY VERSIONS .
+# TODO: once neoagent-changes branch in collectd gets merged, change "collectd_file_base"
+# below to "$(./VERSIONS collectd_version)" and remove the former build arg.
+ARG collectd_file_base=neoagent-changes
 RUN cd /tmp &&\
-    wget https://github.com/signalfx/collectd/archive/collectd-${collectd_version}.tar.gz &&\
-	tar -xvf collectd-${collectd_version}.tar.gz &&\
+    wget https://github.com/signalfx/collectd/archive/${collectd_file_base}.tar.gz &&\
+	tar -xvf ${collectd_file_base}.tar.gz &&\
 	mkdir -p /usr/src/ &&\
-	mv collectd-collectd* /usr/src/collectd
+	mv collectd-${collectd_file_base}* /usr/src/collectd
 
 # Hack to get our custom version compiled into collectd
 RUN echo "#!/bin/bash" > /usr/src/collectd/version-gen.sh &&\
-    echo "collectd_version=$collectd_version" >> /usr/src/collectd/version-gen.sh &&\
+    echo "collectd_version=$(./VERSIONS collectd_version)" >> /usr/src/collectd/version-gen.sh &&\
     echo "printf \${collectd_version//-/.}" >> /usr/src/collectd/version-gen.sh
 
 WORKDIR /usr/src/collectd
@@ -125,9 +128,6 @@ RUN ./build.sh &&\
 	  --disable-write_riemann \
 	  --disable-xmms \
 	  --disable-zone
-
-# Overlay our extensions on top of the collectd source
-COPY collectd-ext/collectd-sfx/ .
 
 # Compile all of collectd first, including plugins
 RUN make -j4
@@ -181,15 +181,10 @@ COPY --from=godeps /go/pkg /go/pkg
 COPY --from=collectd /usr/src/collectd/ /usr/src/collectd
 ADD scripts/go_packages.tar /go/src/github.com/signalfx/neo-agent/
 
-ARG agent_version
-ARG collectd_version
 ENV GOPATH=/go
 WORKDIR /go/src/github.com/signalfx/neo-agent
-RUN scripts/make-templates
-RUN GOPATH=/go go build \
-    -ldflags "-X main.Version=$agent_version -X main.CollectdVersion=$collectd_version -X main.BuiltTime=$(date +%FT%T%z)" \
-	-o signalfx-agent \
-    github.com/signalfx/neo-agent &&\
+COPY VERSIONS .
+RUN GOPATH=/go make signalfx-agent &&\
 	cp signalfx-agent /usr/bin/signalfx-agent
 
 

@@ -32,22 +32,21 @@ func (am *ActiveMonitor) configureMonitor(monConfig config.MonitorCustomConfig) 
 		return false
 	}
 
-	if len(config.ServiceEndpointsFromConfig(monConfig)) > 0 {
-		return am.injectAndRemoveManualServices()
-	}
-	return true
+	return am.injectAndRemoveManualServices()
 }
 
 // Add new services and remove old ones that are no longer configured
 func (am *ActiveMonitor) injectAndRemoveManualServices() bool {
-	for k := range am.serviceSet {
-		am.removeServiceFromMonitor(am.serviceSet[k])
-	}
-
 	ses := config.ServiceEndpointsFromConfig(am.config)
-	for i := range ses {
-		if !am.injectServiceToMonitorInstance(ses[i]) {
-			return false
+	if len(ses) > 0 {
+		for k := range am.serviceSet {
+			am.removeServiceFromMonitor(am.serviceSet[k])
+		}
+
+		for i := range ses {
+			if !am.injectServiceToMonitorInstance(ses[i]) {
+				return false
+			}
 		}
 	}
 

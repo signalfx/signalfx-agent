@@ -107,6 +107,12 @@ LoadPlugin aggregation
 
 LoadPlugin match_regex
 
+LoadPlugin processes
+<Plugin "processes">
+  Process "collectd"
+  Process "signalfx-agent"
+</Plugin>
+
 <Chain "PostCache">
   <Rule>
     <Match regex>

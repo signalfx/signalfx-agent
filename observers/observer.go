@@ -65,7 +65,11 @@ func configureObserver(observer interface{}, conf *config.ObserverConfig) bool {
 		return false
 	}
 
-	if !config.ValidateCustomConfig(finalConfig) {
+	if err := config.ValidateCustomConfig(finalConfig); err != nil {
+		log.WithFields(log.Fields{
+			"observerType": conf.Type,
+			"error":        err,
+		}).Error("Observer config is invalid")
 		return false
 	}
 

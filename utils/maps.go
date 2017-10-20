@@ -18,6 +18,18 @@ func MergeStringMaps(maps ...map[string]string) map[string]string {
 	return ret
 }
 
+// RemoveEmptyMapValues will strip a map of any key/value pairs for which the
+// value is the empty string.
+func RemoveEmptyMapValues(m map[string]string) map[string]string {
+	out := map[string]string{}
+	for k, v := range m {
+		if v != "" {
+			out[k] = v
+		}
+	}
+	return out
+}
+
 // MergeInterfaceMaps merges any number of map[string]interface{} with a later
 // map's keys overriding earlier maps.  Nil values do not override earlier
 // values.
