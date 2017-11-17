@@ -31,8 +31,7 @@ image-debug:
 
 .PHONY: vendor
 vendor:
-	glide update --strip-vendor
-	sed -i '' -e 's/Sirupsen/sirupsen/' $$(grep -lR Sirupsen vendor) || true
+	dep ensure
 
 signalfx-agent: templates
 	go build \
@@ -68,7 +67,7 @@ dev-image:
 
 .PHONY: run-dev-image
 run-dev-image:
-	docker run --rm -it \
+	docker exec -it signalfx-agent-dev bash || docker run --rm -it \
 		--privileged \
 		--net host \
 		--name neoagent-dev \
@@ -77,5 +76,6 @@ run-dev-image:
 		-v /etc:/mnt/etc:ro \
 		-v /proc:/mnt/proc:ro \
 		-v $(PWD):/go/src/github.com/signalfx/neo-agent \
+		-v $(PWD)/collectd:/usr/src/collectd \
 		-v /var/run/docker.sock:/var/run/docker.sock \
-		neoagent-dev /bin/bash
+		signalfx-agent-dev /bin/bash

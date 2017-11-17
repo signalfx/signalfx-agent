@@ -1,7 +1,7 @@
 .git/**
 .glide/**
 .build/**
-neo-agent
+signalfx-agent
 vendor/**
 tmp/**
 local-etc/**

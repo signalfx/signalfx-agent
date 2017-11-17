@@ -13,3 +13,4 @@ monitors/collectd/collectd.conf.go
 scripts/.Dockerfile*
 .glide/
 *.pyc
+collectd

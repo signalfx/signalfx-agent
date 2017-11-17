@@ -6,7 +6,7 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 . $SCRIPT_DIR/common.sh
 
-dockerfile=$SCRIPT_DIR/.Dockerfile.neoagent-dev
+dockerfile=$SCRIPT_DIR/.Dockerfile.signalfx-agent-dev
 
 cat $SCRIPT_DIR/../Dockerfile > $dockerfile
 
@@ -31,11 +31,17 @@ RUN cp -ra /tmp/usr-collectd/* /usr/ &&\
     cd /usr/src/collectd &&\
     make install
 
-RUN cp /tmp/usr-godeps/bin/jq /tmp/usr-godeps/bin/glide /usr/bin/
+RUN cp /tmp/usr-godeps/bin/dep /usr/bin/
 
 RUN pip install ipython==5 ipdb
 
-RUN apt install -y libzmq5-dev
+RUN apt install -y \
+      libzmq5-dev \
+      autoconf \
+      automake \
+      autotools-dev \
+      bison \
+      build-essential
 
 ENV PATH=$PATH:/usr/local/go/bin:/go/bin GOPATH=/go
 
@@ -46,4 +52,4 @@ WORKDIR /go/src/github.com/signalfx/neo-agent
 CMD ["/bin/bash"]
 EOH
 
-do_docker_build neoagent-dev $dockerfile
+do_docker_build signalfx-agent-dev $dockerfile
