@@ -1,5 +1,5 @@
-hash: 8034a7331f92a6b8413adc39b8ed33753d6dcbed3f6838df5da4be41a5ac1dbf
-updated: 2017-09-08T20:28:54.992514005Z
+hash: fa683c65a434ba0a399996d61113e98247edab9703dff67ff23277b36ccccb84
+updated: 2017-11-17T02:13:53.524344864Z
 imports:
 - name: cloud.google.com/go
   version: 3b1ae45394a234c385be014e9a488f2bb6eef821
@@ -9,7 +9,7 @@ imports:
 - name: github.com/blang/semver
   version: 31b736133b98f26d5e078ec9eb591666edfd091f
 - name: github.com/codegangsta/cli
-  version: f017f86fccc5a039a98f23311f34fdf78b014f78
+  version: 7ace96b43d4bdc46f81d0d1219742b2469874cf6
 - name: github.com/coreos/go-oidc
   version: 5644a2f50e2d2d5ba0b474bc5bc55fea1925936d
   subpackages:
@@ -103,17 +103,10 @@ imports:
   - info/v1
 - name: github.com/google/gofuzz
   version: bbcb9da2d746f8bdbd6a936686a0a6067ada0ec5
-- name: github.com/hashicorp/hcl
-  version: 8f6b1344a92ff8877cf24a5de9177bf7d0a2a187
-  subpackages:
-  - hcl/ast
-  - hcl/parser
-  - hcl/scanner
-  - hcl/strconv
-  - hcl/token
-  - json/parser
-  - json/scanner
-  - json/token
+- name: github.com/gorilla/context
+  version: a8d44e7d8e4d532b6a27a02dd82abb31cc1b01bd
+- name: github.com/gorilla/mux
+  version: 0eeaf8392f5b04950925b8a69fe70f110fa7cbfc
 - name: github.com/jonboulle/clockwork
   version: 72f9bd7c4e0c2a40055ab3d0f09654f730cce982
 - name: github.com/juju/ratelimit
@@ -124,8 +117,6 @@ imports:
   version: b84e30acd515aadc4b783ad4ff83aff3299bdfe0
 - name: github.com/logrusorgru/aurora
   version: b9c3722b64a1976e0624448ee7f5a0744b8cf629
-- name: github.com/magiconair/properties
-  version: 8d7837e64d3c1ee4e54a880c5a920ab4316fc90a
 - name: github.com/mailru/easyjson
   version: d5b7844b561a7bc640052f1b935f7b800330d7e0
   subpackages:
@@ -133,15 +124,15 @@ imports:
   - jlexer
   - jwriter
 - name: github.com/mattn/go-colorable
-  version: ad5389df28cdac544c99bd7b9161a0b5b6ca9d1b
+  version: 6fcc0c1fd9b620311d821b106a400b35dc95c497
 - name: github.com/mattn/go-isatty
-  version: fc9e8d8ef48496124e79ae0df75490096eccf6fe
+  version: 6ca4dbf54d38eea1a992b3c722a76a5d1c4cb25c
 - name: github.com/mgutz/ansi
   version: 9520e82c474b0a04dd04f8a40959027271bab992
 - name: github.com/Microsoft/go-winio
   version: 862b6557927a5c5c81e411c12aa6de7e566cbb7a
 - name: github.com/mitchellh/mapstructure
-  version: d0303fe809921458f417bcf828397a65db30a7e4
+  version: 06020f85339e21b2478f756a78e295255ffa4d6a
 - name: github.com/onsi/ginkgo
   version: 77a8c1e5c40d6bb6c5eb4dd4bdce9763564f6298
   subpackages:
@@ -163,7 +154,7 @@ imports:
   - reporters/stenographer/support/go-isatty
   - types
 - name: github.com/onsi/gomega
-  version: dcabb60a477c2b6f456df65037cb6708210fbb02
+  version: 1eecca0ba8e6f5ea5a431ce21d3aee2af0b4c90b
   subpackages:
   - format
   - internal/assertion
@@ -198,15 +189,13 @@ imports:
 - name: github.com/pborman/uuid
   version: ca53cad383cad2479bbba7f7a1a05797ec1386e4
 - name: github.com/pebbe/zmq4
-  version: 3e878cfae003d133d19e06df97778f49478e8ed5
-- name: github.com/pelletier/go-toml
-  version: 1d6b12b7cb290426e27e6b4e38b89fcda3aeef03
+  version: 90d69e412a09549f2e90bac70fbb449081f1e5c1
 - name: github.com/PuerkitoBio/purell
   version: 8a290539e2e8629dbc4e6bad948158f790ec31f4
 - name: github.com/PuerkitoBio/urlesc
   version: 5bd2802263f21d8788851d5305584c82a5c75d7e
 - name: github.com/samuel/go-zookeeper
-  version: e6b59f6144beb8570562539c1898a0b1fea34b41
+  version: 9a96098268ef555eb1f04d8b1ee813d0a87e5089
   subpackages:
   - zk
 - name: github.com/ShowMax/go-fqdn
@@ -219,28 +208,26 @@ imports:
   version: cb7680940d605b817db79790c241eed2a00fa6e6
   subpackages:
   - datapoint
+  - datapoint/dpsink
   - errors
   - event
   - eventcounter
   - log
+  - pointer
   - sfxclient
   - timekeeper
+  - web
 - name: github.com/signalfx/metricproxy
   version: 899fc479300dbeac5cd6c5eb93c933dfc7d65710
-- name: github.com/sirupsen/logrus
-  version: 9aa7601a1185e3bc8a0d3f87b1a55b05df0102e4
+  subpackages:
+  - protocol
+  - protocol/collectd
 - name: github.com/Sirupsen/logrus
   version: 9aa7601a1185e3bc8a0d3f87b1a55b05df0102e4
   repo: https://github.com/sirupsen/logrus
   vcs: git
-- name: github.com/spf13/afero
-  version: ee1bd8ee15a1306d1f9201acc41ef39cd9f99a1b
-  subpackages:
-  - mem
-- name: github.com/spf13/cast
-  version: acbeb36b902d72a7a4c18e8f3241075e7ab763e4
-- name: github.com/spf13/jwalterweatherman
-  version: 12bd96e66386c1960ab0f74ced1362f66f552f7b
+- name: github.com/sirupsen/logrus
+  version: 9aa7601a1185e3bc8a0d3f87b1a55b05df0102e4
 - name: github.com/spf13/pflag
   version: 5ccb023bc27df288a957c5e994cd44fd19619465
 - name: github.com/spf13/viper
@@ -280,7 +267,7 @@ imports:
   - jws
   - jwt
 - name: golang.org/x/sys
-  version: 5513e650ab47a692d3a036d49be8fa52ddd09b65
+  version: bf42f188b9bc6f2cf5b8ee5a912ef1aedd0eba4c
   subpackages:
   - unix
   - windows
@@ -327,7 +314,7 @@ imports:
 - name: gopkg.in/logfmt.v0
   version: 390ab7935ee28ec6b286364bba9b4dd6410cb3d5
 - name: gopkg.in/stack.v1
-  version: 817915b46b97fd7bb80e8ab6b69f01a53ac3eebf
+  version: 259ab82a6cad3992b4e21ff5cac294ccb06474bc
 - name: gopkg.in/yaml.v2
   version: eb3733d160e74a9c7e442f435eb3bea458e1d19f
 - name: k8s.io/client-go
@@ -442,11 +429,11 @@ imports:
   - transport
 testImports:
 - name: github.com/gopherjs/gopherjs
-  version: b40cd48c38f9a18eb3db20d163bad78de12cf0b7
+  version: 19e100e9652485a76176bc5fd2669f57d3a2743c
   subpackages:
   - js
 - name: github.com/jtolds/gls
-  version: 77f18212c9c7edc9bd6a33d383a7b545ce62f064
+  version: 8ddce2a84170772b95dd5d576c48d517b22cac63
 - name: github.com/kr/pretty
   version: cfb55aafdaf3ec08f0db22699ab822c50091b1c4
 - name: github.com/kr/text
@@ -456,7 +443,7 @@ testImports:
   subpackages:
   - difflib
 - name: github.com/smartystreets/assertions
-  version: 9c0ea8acbc1d8ad689f9e6fe0c1fa5838e0cabc2
+  version: ff1918e1e5a13a74014644ae7c1e0ba2f791364d
   subpackages:
   - internal/go-render/render
   - internal/oglematchers
