@@ -23,8 +23,8 @@ COPY --from=collectd /usr/ /tmp/usr-collectd
 COPY --from=collectd /etc/ /tmp/etc-collectd
 
 WORKDIR /tmp
-RUN wget https://storage.googleapis.com/golang/go1.8.3.linux-amd64.tar.gz &&\
-    tar -xf go1.8.3* &&\
+RUN wget https://storage.googleapis.com/golang/go1.9.2.linux-amd64.tar.gz &&\
+    tar -xf go1.9.2* &&\
     mv go /usr/local
 
 RUN cp -ra /tmp/usr-collectd/* /usr/ &&\

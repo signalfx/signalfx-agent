@@ -134,7 +134,7 @@ RUN make -j4
 
 
 ###### Glide Dependencies Image ######
-FROM golang:1.8.3-stretch as godeps
+FROM golang:1.9.2-stretch as godeps
 
 RUN cd /tmp && \
     wget https://github.com/Masterminds/glide/releases/download/v0.12.3/glide-v0.12.3-linux-amd64.tar.gz &&\
@@ -171,7 +171,7 @@ FROM ubuntu:16.04 as agent-builder
 RUN apt update &&\
     apt install -y libzmq5-dev wget pkg-config
 
-ENV GO_VERSION=1.8.3 PATH=$PATH:/usr/local/go/bin
+ENV GO_VERSION=1.9.2 PATH=$PATH:/usr/local/go/bin
 RUN cd /tmp &&\
     wget https://storage.googleapis.com/golang/go${GO_VERSION}.linux-amd64.tar.gz &&\
 	tar -C /usr/local -xf go*.tar.gz

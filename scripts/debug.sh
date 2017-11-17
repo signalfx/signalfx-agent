@@ -42,7 +42,7 @@ EOH
 chmod +x /usr/bin/neomock-valgrind
 
 cd /tmp
-GO_VERSION=1.8.3
+GO_VERSION=1.9.2
 wget https://storage.googleapis.com/golang/go${GO_VERSION}.linux-amd64.tar.gz
 tar -C /usr/local -xzf go${GO_VERSION}.linux-amd64.tar.gz
 rm -f go${GO_VERSION}.linux-amd64.tar.gz
