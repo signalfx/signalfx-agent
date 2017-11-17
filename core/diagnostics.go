@@ -1,64 +1,49 @@
 package core
 
 import (
+	"encoding/json"
 	"fmt"
 	"net"
-	"os"
+	"time"
 
 	yaml "gopkg.in/yaml.v2"
 
-	au "github.com/logrusorgru/aurora"
+	"github.com/signalfx/golib/datapoint"
 	"github.com/signalfx/neo-agent/core/config"
 	"github.com/signalfx/neo-agent/utils"
+	"github.com/signalfx/neo-agent/utils/network"
 	log "github.com/sirupsen/logrus"
 )
-
-const diagnosticSocketPath = "/var/run/signalfx.sock"
 
 // VersionLine should be populated by the startup logic to contain version
 // information that can be reported in diagnostics.
 var VersionLine string
 
 // Serves the diagnostic status on the domain socket
-func (a *Agent) serveDiagnosticInfo() error {
-	os.Remove(diagnosticSocketPath)
-	sock, err := net.Listen("unix", diagnosticSocketPath)
-	if err != nil {
-		log.WithFields(log.Fields{
-			"error": err,
-		}).Error("Could not bind to diagnostic endpoint")
-		return err
+func (a *Agent) serveDiagnosticInfo(socketPath string) error {
+	if a.diagnosticSocketStop != nil {
+		a.diagnosticSocketStop()
 	}
 
-	go func() {
-		for {
-			conn, err := sock.Accept()
-			if err != nil {
-				log.WithFields(log.Fields{
-					"error": err,
-				}).Error("Problem accepting diagnostic socket request")
-				continue
-			}
-
-			_, err = conn.Write([]byte(a.DiagnosticText()))
-			if err != nil {
-				log.WithFields(log.Fields{
-					"error": err,
-				}).Error("Could not write diagnostic information")
-			}
-			conn.Close()
-		}
-	}()
-	return nil
+	var err error
+	a.diagnosticSocketStop, err = network.RunSimpleSocketServer(socketPath, func(_ net.Conn) string {
+		return a.DiagnosticText()
+	}, func(err error) {
+		log.WithFields(log.Fields{
+			"path":  socketPath,
+			"error": err,
+		}).Error("Problem with diagnostic socket")
+	})
+	return err
 }
 
 // DiagnosticText returns a simple textual output of the agent's status
 func (a *Agent) DiagnosticText() string {
 	return fmt.Sprintf(
-		au.Bold("NeoAgent Status").String()+
+		"NeoAgent Status"+
 			"\n===============\n"+
 			"\nVersion: %s"+
-			au.Bold("\nAgent Configuration:").String()+
+			"\nAgent Configuration:"+
 			"\n%s\n\n"+
 			"%s\n"+
 			"%s\n"+
@@ -75,4 +60,43 @@ func (a *Agent) DiagnosticText() string {
 func configAsDiagnosticText(conf *config.Config) string {
 	s, _ := yaml.Marshal(conf)
 	return string(s)
+}
+
+func (a *Agent) serveInternalMetrics(socketPath string) error {
+	if a.internalMetricsSocketStop != nil {
+		a.internalMetricsSocketStop()
+	}
+
+	var err error
+	a.internalMetricsSocketStop, err = network.RunSimpleSocketServer(socketPath, func(_ net.Conn) string {
+		jsonOut, err := json.MarshalIndent(a.InternalMetrics(), "", "  ")
+		if err != nil {
+			log.WithError(err).Error("Could not serialize internal metrics to JSON")
+			return "[]"
+		}
+		return string(jsonOut)
+	}, func(err error) {
+		log.WithFields(log.Fields{
+			"path":  socketPath,
+			"error": err,
+		}).Error("Problem with internal metrics socket")
+	})
+	return err
+}
+
+func (a *Agent) InternalMetrics() []*datapoint.Datapoint {
+	out := make([]*datapoint.Datapoint, 0)
+	out = append(out, a.writer.InternalMetrics()...)
+	out = append(out, a.observers.InternalMetrics()...)
+	out = append(out, a.monitors.InternalMetrics()...)
+
+	for i := range out {
+		if out[i].Dimensions == nil {
+			out[i].Dimensions = make(map[string]string)
+		}
+
+		out[i].Dimensions["host"] = a.lastConfig.Hostname
+		out[i].Timestamp = time.Now()
+	}
+	return out
 }

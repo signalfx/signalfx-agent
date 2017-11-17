@@ -3,17 +3,24 @@ package observers
 import (
 	"fmt"
 
-	au "github.com/logrusorgru/aurora"
+	"github.com/signalfx/golib/datapoint"
+	"github.com/signalfx/golib/sfxclient"
 )
 
 // DiagnosticText outputs human-readable text about the active observers.
 func (om *ObserverManager) DiagnosticText() string {
 	var out string
-	out += au.Bold("Observers:\n").String()
+	out += "Observers:\n"
 	for i := range om.observers {
 		out += fmt.Sprintf(
 			" - %s\n",
-			au.Bold(om.observers[i]._type))
+			om.observers[i]._type)
 	}
 	return out
+}
+
+func (om *ObserverManager) InternalMetrics() []*datapoint.Datapoint {
+	return []*datapoint.Datapoint{
+		sfxclient.Gauge("sfxagent.active_observers", nil, int64(len(om.observers))),
+	}
 }

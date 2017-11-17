@@ -4,7 +4,8 @@ import (
 	"fmt"
 
 	"github.com/davecgh/go-spew/spew"
-	au "github.com/logrusorgru/aurora"
+	"github.com/signalfx/golib/datapoint"
+	"github.com/signalfx/golib/sfxclient"
 )
 
 func (s state) String() string {
@@ -21,7 +22,7 @@ func (s state) String() string {
 // human.
 func (sw *SignalFxWriter) DiagnosticText() string {
 	return fmt.Sprintf(
-		au.Bold("Writer Status:\n").String()+
+		"Writer Status:\n"+
 			"Global Dims:              %s\n"+
 			"State:                    %s\n"+
 			"DPs Sent:                 %d\n"+
@@ -30,17 +31,23 @@ func (sw *SignalFxWriter) DiagnosticText() string {
 			"Events Buffered:          %d\n"+
 			"DPs Channel (len/cap) :   %d/%d\n"+
 			"Events Channel (len/cap): %d/%d\n",
-		au.Bold(spew.Sdump(sw.conf.GlobalDimensions)),
-		au.Bold(sw.state.String()),
-		au.Bold(sw.dpsSent),
-		au.Bold(sw.eventsSent),
-		au.Bold(len(sw.dpBuffer)),
-		au.Bold(len(sw.eventBuffer)),
-		au.Bold(len(sw.dpChan)),
-		au.Bold(cap(sw.dpChan)),
-		au.Bold(len(sw.eventChan)),
-		au.Bold(cap(sw.eventChan)))
+		spew.Sdump(sw.conf.GlobalDimensions),
+		sw.state.String(),
+		sw.dpsSent,
+		sw.eventsSent,
+		len(sw.dpBuffer),
+		len(sw.eventBuffer),
+		len(sw.dpChan),
+		cap(sw.dpChan),
+		len(sw.eventChan),
+		cap(sw.eventChan))
 }
 
-//func (sw *SignalFxWriter) InternalDatapoints() []*datapoint.Datapoint {
-//}
+func (sw *SignalFxWriter) InternalMetrics() []*datapoint.Datapoint {
+	return []*datapoint.Datapoint{
+		sfxclient.Cumulative("sfxagent.datapoints_sent", nil, int64(sw.dpsSent)),
+		sfxclient.Cumulative("sfxagent.events_sent", nil, int64(sw.eventsSent)),
+		sfxclient.Gauge("sfxagent.datapoints_buffered", nil, int64(len(sw.dpBuffer))),
+		sfxclient.Gauge("sfxagent.events_buffered", nil, int64(len(sw.eventBuffer))),
+	}
+}

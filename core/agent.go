@@ -23,6 +23,9 @@ type Agent struct {
 	monitors   *monitors.MonitorManager
 	writer     *writer.SignalFxWriter
 	lastConfig *config.Config
+
+	diagnosticSocketStop      func()
+	internalMetricsSocketStop func()
 }
 
 // NewAgent creates an unconfigured agent instance
@@ -113,8 +116,6 @@ func Startup(configPath string) (context.CancelFunc, <-chan struct{}) {
 
 	exitedCh := make(chan struct{})
 
-	agent.serveDiagnosticInfo()
-
 	go func(ctx context.Context) {
 		for {
 			select {
@@ -143,6 +144,13 @@ func Startup(configPath string) (context.CancelFunc, <-chan struct{}) {
 
 				agent.configure(conf)
 				log.Info("Done configuring agent")
+
+				if err := agent.serveDiagnosticInfo(conf.DiagnosticsSocketPath); err != nil {
+					log.WithError(err).Error("Could not start diagnostic socket")
+				}
+				if err := agent.serveInternalMetrics(conf.InternalMetricsSocketPath); err != nil {
+					log.WithError(err).Error("Could not start internal metrics socket")
+				}
 
 			case <-ctx.Done():
 				agent.shutdown()
