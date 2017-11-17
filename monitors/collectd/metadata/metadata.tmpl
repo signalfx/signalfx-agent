@@ -11,7 +11,7 @@ TypesDB "{{Globals.PluginRoot}}/signalfx/types.db.plugin"
     Interval {{.}}
   {{- end}}
     Notifications true
-    URL "{{.C.IngestURL}}/v1/collectd"
+    URL "{{.C.CollectdConf.WriteServerURL}}"
     Token "{{.C.SignalFxAccessToken}}"
     NotifyLevel "OKAY"
     ProcPath "/hostfs/proc"

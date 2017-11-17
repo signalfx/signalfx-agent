@@ -19,7 +19,7 @@ func validateConfig(monConfig config.MonitorCustomConfig) error {
 	manualEndpoints := conf.OtherConfig["serviceEndpoints"]
 	hasManualEndpoints := manualEndpoints != nil && len(manualEndpoints.([]interface{})) > 0
 
-	inst := newMonitor(conf.Type)
+	inst := newUninitializedMonitor(conf.Type)
 	_, takesServices := inst.(InjectableMonitor)
 	if takesServices && conf.DiscoveryRule == "" && !hasManualEndpoints {
 		return fmt.Errorf("Monitor %s takes services but did not specify any discovery rule or manually defined services", conf.Type)

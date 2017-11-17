@@ -30,3 +30,29 @@ func GetStructFieldNames(s interface{}) []string {
 
 	return out
 }
+
+// FindFieldWithEmbeddedStructs will look for a field with the given name,
+// recursing down into embedded structs if there are any.
+func FindFieldWithEmbeddedStructs(st interface{}, name string, type_ reflect.Type) reflect.Value {
+	instanceValue := reflect.Indirect(reflect.ValueOf(st))
+	fieldValue := instanceValue.FieldByName(name)
+
+	if !fieldValue.IsValid() || fieldValue.Type() != type_ {
+		embeddedValues := make([]reflect.Value, 0)
+
+		for i := 0; i < instanceValue.Type().NumField(); i++ {
+			field := instanceValue.Type().Field(i)
+			if field.Type.Kind() == reflect.Struct && field.Anonymous && instanceValue.Field(i).CanSet() {
+				embeddedValues = append(embeddedValues,
+					FindFieldWithEmbeddedStructs(instanceValue.Field(i).Interface(), name, type_))
+			}
+		}
+		for _, v := range embeddedValues {
+			if v.IsValid() {
+				return v
+			}
+		}
+		return reflect.ValueOf(nil)
+	}
+	return fieldValue
+}

@@ -200,12 +200,18 @@ type CollectdConfig struct {
 	CollectInternalStats bool   `yaml:"collectInternalStats,omitempty" default:"true"`
 	LogLevel             string `yaml:"logLevel,omitempty" default:"notice"`
 	IntervalSeconds      int    `yaml:"intervalSeconds" default:"0"`
+	WriteServerIPAddr    string `yaml:"writeServerIPAddr" default:"127.9.8.7"`
+	WriteServerPort      uint16 `yaml:"writeServerPort" default:"14839"`
 	// The following are propagated from the top-level config
 	Hostname            string             `yaml:"-"`
 	Filter              *filters.FilterSet `yaml:"-"`
 	SignalFxAccessToken string             `yaml:"-"`
 	IngestURL           string             `yaml:"-"`
 	GlobalDimensions    map[string]string  `yaml:"-"`
+}
+
+func (cc *CollectdConfig) WriteServerURL() string {
+	return fmt.Sprintf("http://%s:%d/", cc.WriteServerIPAddr, cc.WriteServerPort)
 }
 
 // StoreConfig holds configuration related to config stores (e.g. filesystem,

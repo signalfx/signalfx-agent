@@ -194,9 +194,7 @@ LoadPlugin processes
 </LoadPlugin>
 <Plugin "write_http">
   <Node "SignalFx">
-    URL "{{.IngestURL}}/v1/collectd{{encodeDimsAsQueryString .GlobalDimensions}}"
-    User "auth"
-    Password "{{.SignalFxAccessToken}}"
+    URL "{{.WriteServerURL}}"
     Format "JSON"
     Timeout 9000
     BufferSize 65536

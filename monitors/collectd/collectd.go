@@ -13,9 +13,12 @@ import (
 	log "github.com/sirupsen/logrus"
 	"gopkg.in/fatih/set.v0"
 
+	"github.com/signalfx/golib/datapoint"
+	"github.com/signalfx/golib/event"
 	"github.com/signalfx/neo-agent/core/config"
 	"github.com/signalfx/neo-agent/core/config/types"
 	"github.com/signalfx/neo-agent/monitors/collectd/templating"
+	"github.com/signalfx/neo-agent/monitors/collectd/write"
 	"github.com/signalfx/neo-agent/utils"
 )
 
@@ -55,6 +58,8 @@ type Manager struct {
 	restartDebounced     func()
 	restartDebouncedStop chan<- struct{}
 	activeMonitors       map[types.MonitorID]bool
+	// The local server that collectd sends its datapoints to
+	writeServer *write.Server
 }
 
 var collectdSingleton = &Manager{
@@ -81,6 +86,7 @@ func (cm *Manager) Restart() {
 				log.Info("Starting collectd")
 				go cm.runCollectd()
 			} else {
+				log.Debug("Sending signal to collectd reload channel")
 				cm.reloadChan <- 1
 			}
 		}, restartDebounceDuration)
@@ -96,7 +102,9 @@ func (cm *Manager) Restart() {
 // config files.  The monitorID is passed in so that we can keep track of what
 // monitors are actively using collectd.  When a monitor is done (i.e.
 // shutdown) it should call MonitorDidShutdown.
-func (cm *Manager) ConfigureFromMonitor(monitorID types.MonitorID, conf *config.CollectdConfig) bool {
+func (cm *Manager) ConfigureFromMonitor(monitorID types.MonitorID, conf *config.CollectdConfig,
+	dpChan chan<- *datapoint.Datapoint, eventChan chan<- *event.Event) bool {
+
 	cm.configMutex.Lock()
 	defer cm.configMutex.Unlock()
 
@@ -118,8 +126,27 @@ func (cm *Manager) ConfigureFromMonitor(monitorID types.MonitorID, conf *config.
 	cm.conf = conf
 	cm.rerenderConf()
 
+	err := cm.ensureWriteServerRunning(conf.WriteServerIPAddr, conf.WriteServerPort, dpChan, eventChan)
+	if err != nil {
+		log.WithError(err).Error("Could not start up collectd write server")
+		return false
+	}
+
 	cm.Restart()
 	return true
+}
+
+func (cm *Manager) ensureWriteServerRunning(ipAddr string, port uint16, dpChan chan<- *datapoint.Datapoint, eventChan chan<- *event.Event) error {
+	if cm.writeServer == nil {
+		var err error
+		cm.writeServer, err = write.NewServer(ipAddr, port, dpChan, eventChan)
+		if err != nil {
+			return err
+		}
+		log.WithFields(log.Fields{"ipAddr": ipAddr, "port": port}).Info("Started collectd write server")
+	}
+
+	return nil
 }
 
 func (cm *Manager) validateConfig(conf *config.CollectdConfig) bool {
@@ -143,6 +170,14 @@ func (cm *Manager) Shutdown() {
 		cm.stopChan <- 0
 		cm.restartDebouncedStop <- struct{}{}
 		cm.restartDebouncedStop = nil
+		cm.restartDebounced = nil
+
+	}
+	if cm.writeServer != nil {
+		if err := cm.writeServer.Close(); err != nil {
+			log.WithError(err).Warn("Could not shutdown collectd write server")
+		}
+		cm.writeServer = nil
 	}
 }
 

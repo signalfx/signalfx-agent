@@ -10,6 +10,8 @@ import (
 type WriterConfig struct {
 	// These are soft limits and affect how much memory will be initially
 	// allocated for datapoints, not the maximum memory allowed.
+	// Both capacity options get applied at startup and subsequent changes
+	// require an agent restart.
 	DatapointBufferCapacity      uint `yaml:"datapointBufferCapacity" default:"1000"`
 	EventBufferCapacity          uint `yaml:"eventBufferCapacity" default:"1000"`
 	DatapointSendIntervalSeconds int  `yaml:"datapointSendIntervalSeconds" default:"5"`
