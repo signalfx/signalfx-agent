@@ -74,19 +74,18 @@ RUN sed -i -e '/^deb-src/d' /etc/apt/sources.list &&\
 
 RUN apt install -y libcurl4-gnutls-dev
 
-COPY VERSIONS .
+COPY VERSIONS /tmp
 # TODO: once neoagent-changes branch in collectd gets merged, change "collectd_file_base"
 # below to "$(./VERSIONS collectd_version)" and remove the former build arg.
-ARG collectd_file_base=neoagent-changes
 RUN cd /tmp &&\
-    wget https://github.com/signalfx/collectd/archive/${collectd_file_base}.tar.gz &&\
-	tar -xvf ${collectd_file_base}.tar.gz &&\
+    wget https://github.com/signalfx/collectd/archive/`./VERSIONS collectd_commit`.tar.gz &&\
+	tar -xvf `./VERSIONS collectd_commit`.tar.gz &&\
 	mkdir -p /usr/src/ &&\
-	mv collectd-${collectd_file_base}* /usr/src/collectd
+	mv collectd-`./VERSIONS collectd_commit`* /usr/src/collectd
 
 # Hack to get our custom version compiled into collectd
 RUN echo "#!/bin/bash" > /usr/src/collectd/version-gen.sh &&\
-    echo "collectd_version=$(./VERSIONS collectd_version)" >> /usr/src/collectd/version-gen.sh &&\
+    echo "collectd_version=$(/tmp/VERSIONS collectd_version)" >> /usr/src/collectd/version-gen.sh &&\
     echo "printf \${collectd_version//-/.}" >> /usr/src/collectd/version-gen.sh
 
 WORKDIR /usr/src/collectd
