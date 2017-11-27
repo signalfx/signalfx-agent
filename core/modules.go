@@ -23,6 +23,7 @@ import (
 	_ "github.com/signalfx/neo-agent/monitors/collectd/mongodb"
 	_ "github.com/signalfx/neo-agent/monitors/collectd/mysql"
 	_ "github.com/signalfx/neo-agent/monitors/collectd/nginx"
+	_ "github.com/signalfx/neo-agent/monitors/collectd/processes"
 	_ "github.com/signalfx/neo-agent/monitors/collectd/rabbitmq"
 	_ "github.com/signalfx/neo-agent/monitors/collectd/redis"
 	_ "github.com/signalfx/neo-agent/monitors/collectd/spark"
