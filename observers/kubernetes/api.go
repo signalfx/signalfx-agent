@@ -111,16 +111,13 @@ func (o *Observer) watchPods() {
 func (o *Observer) stopIfRunning() {
 	// Stop previous informers
 	if o.stopper != nil {
-		o.stopper <- struct{}{}
+		close(o.stopper)
 		o.stopper = nil
 	}
 }
 
 // Handles notifications of changes to pods from the API server
 func (o *Observer) changeHandler(oldPod *v1.Pod, newPod *v1.Pod) {
-	if o.stopper == nil {
-		return
-	}
 	// If it is an update, there will be a remove and immediately subsequent
 	// add.
 	if oldPod != nil && oldPod.Spec.NodeName == o.thisNode {
