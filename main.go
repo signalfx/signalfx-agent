@@ -74,6 +74,7 @@ func main() {
 		case <-interruptCh:
 			log.Info("Interrupt signal received, stopping agent")
 			shutdown()
+			<-shutdownComplete
 			exit <- struct{}{}
 		}
 	}()
