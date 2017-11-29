@@ -26,6 +26,7 @@ type Agent struct {
 
 	diagnosticSocketStop      func()
 	internalMetricsSocketStop func()
+	profileServerRunning      bool
 }
 
 // NewAgent creates an unconfigured agent instance
@@ -51,6 +52,10 @@ func (a *Agent) configure(conf *config.Config) {
 		log.SetLevel(*level)
 	}
 	log.Infof("Using log level %s", log.GetLevel().String())
+
+	if conf.EnableProfiling {
+		a.ensureProfileServerRunning()
+	}
 
 	if ok := a.writer.Configure(&conf.Writer); !ok {
 		// This is a catastrophic error if we can't write datapoints.

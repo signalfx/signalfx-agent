@@ -46,6 +46,7 @@ type Config struct {
 	PythonEnabled             bool           `yaml:"pythonEnabled" default:"false"`
 	DiagnosticsSocketPath     string         `yaml:"diagnosticsSocketPath" default:"/var/run/signalfx.sock"`
 	InternalMetricsSocketPath string         `yaml:"internalMetricsSocketPath" default:"/var/run/signalfx-agent-metrics.sock"`
+	EnableProfiling           bool           `yaml:"profiling" default:"false"`
 	// This exists purely to give the user a place to put common yaml values to
 	// reference in other parts of the config file.
 	Scratch interface{} `yaml:"scratch"`
