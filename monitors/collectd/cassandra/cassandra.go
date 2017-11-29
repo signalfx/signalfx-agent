@@ -3,6 +3,7 @@ package cassandra
 import (
 	"github.com/signalfx/neo-agent/monitors"
 	"github.com/signalfx/neo-agent/monitors/collectd/genericjmx"
+	yaml "gopkg.in/yaml.v2"
 )
 
 const monitorType = "collectd/cassandra"
@@ -15,18 +16,16 @@ type Monitor struct {
 }
 
 func init() {
+	var defaultMBeans genericjmx.MBeanMap
+	err := yaml.Unmarshal([]byte(defaultMBeanYAML), &defaultMBeans)
+	if err != nil {
+		panic("YAML for GenericJMX MBeans is invalid: " + err.Error())
+	}
+	defaultMBeans = defaultMBeans.MergeWith(genericjmx.DefaultMBeans)
+
 	monitors.Register(monitorType, func() interface{} {
-		return &Monitor{
-			genericjmx.Instance(),
+		return Monitor{
+			genericjmx.NewMonitorCore(defaultMBeans, serviceName),
 		}
 	}, &genericjmx.Config{})
-}
-
-// Configure configures and runs the plugin in collectd
-func (km *Monitor) Configure(conf *genericjmx.Config) bool {
-	conf.ServiceName = &serviceName
-
-	conf.MBeanDefinitions = conf.MBeanDefinitions.MergeWith(defaultMBeans)
-	km.AddConfiguration(conf)
-	return true
 }

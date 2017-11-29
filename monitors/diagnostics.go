@@ -3,28 +3,28 @@ package monitors
 import (
 	"fmt"
 
+	"github.com/signalfx/golib/datapoint"
+	"github.com/signalfx/golib/sfxclient"
 	"github.com/signalfx/neo-agent/core/config"
 	"github.com/signalfx/neo-agent/core/services"
 	"github.com/signalfx/neo-agent/utils"
-
-	au "github.com/logrusorgru/aurora"
 )
 
 func serviceToDiagnosticText(service services.Endpoint, isMonitored bool) string {
 	var containerInfo string
 	for k, v := range services.EndpointAsMap(service) {
-		containerInfo += fmt.Sprintf("%s: %s\n", k, au.Bold(v))
+		containerInfo += fmt.Sprintf("%s: %s\n", k, v)
 	}
 	var unmonitoredText string
 	if !isMonitored {
-		unmonitoredText = au.Red("(Unmonitored)").String()
+		unmonitoredText = "(Unmonitored)"
 	}
 
 	text := fmt.Sprintf(
-		au.Bold("- ").String()+"Internal ID: %s %s\n"+
+		"- Internal ID: %s %s\n"+
 			"%s\n",
-		au.Bold(service.ID()),
-		au.Bold(unmonitoredText),
+		service.ID(),
+		unmonitoredText,
 		utils.IndentLines(containerInfo, 2))
 	return text
 
@@ -47,14 +47,14 @@ func (mm *MonitorManager) DiagnosticText() string {
 			}
 			serviceStats = fmt.Sprintf(
 				"Discovery Rule: %s\nServices:\n%s",
-				au.Bold(am.config.CoreConfig().DiscoveryRule), serviceText)
+				am.config.CoreConfig().DiscoveryRule, serviceText)
 		}
 		activeMonText += fmt.Sprintf(
 			"%2d. %s\n"+
 				"    Reporting Interval (seconds): %d\n"+
 				"%s\n",
-			i+1, au.Bold(am.config.CoreConfig().Type),
-			au.Bold(am.config.CoreConfig().IntervalSeconds),
+			i+1, am.config.CoreConfig().Type,
+			am.config.CoreConfig().IntervalSeconds,
 			utils.IndentLines(serviceStats, 4))
 		i++
 	}
@@ -68,15 +68,25 @@ func (mm *MonitorManager) DiagnosticText() string {
 	}
 
 	return fmt.Sprintf(
-		au.Bold("Active Monitors:\n").String()+
+		"Active Monitors:\n"+
 			"%s"+
-			au.Bold("Discovered Endpoints:\n").String()+
+			"Discovered Endpoints:\n"+
 			"%s\n"+
-			au.Bold("Bad Monitor Configurations:\n").String()+
+			"Bad Monitor Configurations:\n"+
 			"%s\n",
 		activeMonText,
 		discoveredServicesText,
 		badConfigText(mm.badConfigs))
+}
+
+// InternalMetrics returns a list of datapoints about the internal status of
+// the monitors
+func (mm *MonitorManager) InternalMetrics() []*datapoint.Datapoint {
+	return []*datapoint.Datapoint{
+		sfxclient.Gauge("sfxagent.active_monitors", nil, int64(len(mm.activeMonitors))),
+		sfxclient.Gauge("sfxagent.configured_monitors", nil, int64(len(mm.monitorConfigs))),
+		sfxclient.Gauge("sfxagent.discovered_endpoints", nil, int64(len(mm.discoveredServices))),
+	}
 }
 
 func badConfigText(confs []config.MonitorCustomConfig) string {

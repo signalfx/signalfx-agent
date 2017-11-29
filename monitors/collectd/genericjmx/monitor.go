@@ -2,6 +2,7 @@ package genericjmx
 
 import (
 	"github.com/signalfx/neo-agent/monitors"
+	yaml "gopkg.in/yaml.v2"
 )
 
 const monitorType = "collectd/genericjmx"
@@ -12,16 +13,14 @@ type Monitor struct {
 }
 
 func init() {
+	err := yaml.Unmarshal([]byte(defaultMBeanYAML), &DefaultMBeans)
+	if err != nil {
+		panic("YAML for GenericJMX MBeans is invalid: " + err.Error())
+	}
+
 	monitors.Register(monitorType, func() interface{} {
-		return &Monitor{
-			Instance(),
+		return Monitor{
+			NewMonitorCore(DefaultMBeans, "java"),
 		}
 	}, &Config{})
-}
-
-// Configure configures and runs the plugin in collectd
-func (m *Monitor) Configure(conf *Config) bool {
-	conf.MBeanDefinitions = conf.MBeanDefinitions.MergeWith(DefaultMBeans)
-	m.AddConfiguration(conf)
-	return true
 }

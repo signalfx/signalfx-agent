@@ -66,9 +66,7 @@ func DeregisterAll() {
 	}
 }
 
-// Creates a new, unconfigured instance of a monitor of _type.  Returns nil if
-// the monitor type is not registered.
-func newMonitor(_type string) interface{} {
+func newUninitializedMonitor(_type string) interface{} {
 	if factory, ok := MonitorFactories[_type]; ok {
 		return factory()
 	}
@@ -77,6 +75,31 @@ func newMonitor(_type string) interface{} {
 		"monitorType": _type,
 	}).Error("Monitor type not supported")
 	return nil
+}
+
+// Creates a new, unconfigured instance of a monitor of _type.  Returns nil if
+// the monitor type is not registered.
+func newMonitor(_type string) interface{} {
+	mon := newUninitializedMonitor(_type)
+	if initMon, ok := mon.(Initializable); ok {
+		if err := initMon.Init(); err != nil {
+			log.WithFields(log.Fields{
+				"error":       err,
+				"monitorType": _type,
+			}).Error("Could not initialize monitor")
+			return nil
+		}
+	}
+	return mon
+
+}
+
+// Initializable represents a monitor that has a distinct InitMonitor method.
+// This should be called once after the monitor is created and before any of
+// its other methods are called.  It is useful for things that are not
+// appropriate to do in the monitor factory function.
+type Initializable interface {
+	Init() error
 }
 
 // Shutdownable should be implemented by all monitors that need to clean up

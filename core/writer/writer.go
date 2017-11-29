@@ -69,9 +69,16 @@ func (sw *SignalFxWriter) Configure(conf *config.WriterConfig) bool {
 	sw.lock.Lock()
 	defer sw.lock.Unlock()
 
-	sw.dpChan = make(chan *datapoint.Datapoint, conf.DatapointBufferCapacity)
-	sw.eventChan = make(chan *event.Event, conf.EventBufferCapacity)
-	sw.propertyChan = make(chan *DimProperties, 100)
+	// The capacity configuration options are only set once on agent startup
+	if sw.dpChan == nil {
+		sw.dpChan = make(chan *datapoint.Datapoint, conf.DatapointBufferCapacity)
+	}
+	if sw.eventChan == nil {
+		sw.eventChan = make(chan *event.Event, conf.EventBufferCapacity)
+	}
+	if sw.propertyChan == nil {
+		sw.propertyChan = make(chan *DimProperties, 100)
+	}
 
 	sw.client.AuthToken = conf.SignalFxAccessToken
 	sw.dimPropClient.Token = conf.SignalFxAccessToken
@@ -88,6 +95,8 @@ func (sw *SignalFxWriter) Configure(conf *config.WriterConfig) bool {
 
 	sw.conf = conf
 
+	// Do a shutdown in case some of our config values changed
+	sw.shutdownIfRunning()
 	sw.ensureListeningForDatapoints()
 
 	return true
@@ -97,12 +106,12 @@ func (sw *SignalFxWriter) filterAndSendDatapoints(dps []*datapoint.Datapoint) er
 	finalDps := make([]*datapoint.Datapoint, 0)
 	for i := range dps {
 		if sw.conf.Filter == nil || !sw.conf.Filter.Matches(dps[i]) {
+			dps[i].Dimensions = sw.addGlobalDims(dps[i].Dimensions)
+			finalDps = append(finalDps, dps[i])
+
 			log.WithFields(log.Fields{
 				"dp": spew.Sdump(dps[i]),
 			}).Debug("Sending datapoint")
-
-			sw.addGlobalDimsToDatapoint(dps[i])
-			finalDps = append(finalDps, dps[i])
 		}
 	}
 
@@ -122,14 +131,38 @@ func (sw *SignalFxWriter) filterAndSendDatapoints(dps []*datapoint.Datapoint) er
 	return nil
 }
 
-// mutates datapoint in place to add global dimensions
-func (sw *SignalFxWriter) addGlobalDimsToDatapoint(dp *datapoint.Datapoint) {
+func (sw *SignalFxWriter) sendEvents(events []*event.Event) error {
+	for i := range events {
+		events[i].Dimensions = sw.addGlobalDims(events[i].Dimensions)
+		log.WithFields(log.Fields{
+			"event": spew.Sdump(events[i]),
+		}).Debug("Sending event")
+	}
+
+	err := sw.client.AddEvents(context.Background(), events)
+	if err != nil {
+		log.WithError(err).Error("Error shipping events to SignalFx")
+		return err
+	}
+	sw.eventsSent += uint64(len(events))
+	log.Debugf("Sent %d events to SignalFx", len(events))
+
+	return nil
+}
+
+// mutates datapoint in place to add global dimensions.  Also returns dims in
+// case they were nil to begin with.
+func (sw *SignalFxWriter) addGlobalDims(dims map[string]string) map[string]string {
+	if dims == nil {
+		dims = make(map[string]string)
+	}
 	for name, value := range sw.conf.GlobalDimensions {
 		// If the dimensions is already set, don't override.
-		if _, ok := dp.Dimensions[name]; !ok {
-			dp.Dimensions[name] = value
+		if _, ok := dims[name]; !ok {
+			dims[name] = value
 		}
 	}
+	return dims
 }
 
 // DPChannel returns a channel that datapoints can be fed into that will be
@@ -164,6 +197,7 @@ func (sw *SignalFxWriter) DimPropertiesChannel() chan<- *DimProperties {
 // ASSUMES LOCK IS HELD WHEN CALLED.
 func (sw *SignalFxWriter) ensureListeningForDatapoints() {
 	if sw.state != listening {
+		log.Debug("Starting datapoint writer listener")
 		go sw.listenForDatapoints()
 		sw.state = listening
 	}
@@ -193,6 +227,9 @@ func (sw *SignalFxWriter) listenForDatapoints() {
 		select {
 
 		case <-sw.stopCh:
+			go sw.filterAndSendDatapoints(sw.dpBuffer)
+			go sw.sendEvents(sw.eventBuffer)
+
 			close(sw.stopCh)
 			return
 
@@ -206,10 +243,6 @@ func (sw *SignalFxWriter) listenForDatapoints() {
 		case event := <-sw.eventChan:
 			sw.eventBuffer = append(sw.eventBuffer, event)
 
-			log.WithFields(log.Fields{
-				"event": *event,
-			}).Info("Event received")
-
 		case <-dpTicker.C:
 			if len(sw.dpBuffer) > 0 {
 				go sw.filterAndSendDatapoints(sw.dpBuffer)
@@ -219,7 +252,7 @@ func (sw *SignalFxWriter) listenForDatapoints() {
 		case <-eventTicker.C:
 			if len(sw.eventBuffer) > 0 {
 				// TODO: actually send events to SignalFx
-				// go sw.sendEvents(eventBuffer)
+				go sw.sendEvents(sw.eventBuffer)
 				initEventBuffer()
 			}
 		case dimProps := <-sw.propertyChan:
@@ -234,13 +267,22 @@ func (sw *SignalFxWriter) listenForDatapoints() {
 	}
 }
 
+// Assumes lock if held when called
+func (sw *SignalFxWriter) shutdownIfRunning() {
+	if sw.state != stopped {
+		sw.stopCh <- struct{}{}
+		<-sw.stopCh
+		sw.stopCh = make(chan struct{})
+
+		sw.state = stopped
+		log.Debug("Stopped datapoint writer")
+	}
+}
+
 // Shutdown the writer and stop sending datapoints
 func (sw *SignalFxWriter) Shutdown() {
 	sw.lock.Lock()
 	defer sw.lock.Unlock()
 
-	if sw.state != stopped {
-		sw.stopCh <- struct{}{}
-		sw.state = stopped
-	}
+	sw.shutdownIfRunning()
 }

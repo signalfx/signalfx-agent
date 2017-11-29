@@ -170,38 +170,29 @@ LoadPlugin processes
   Target "stop"
 </Chain>
 
-<Chain "PreCache">
-{{/*range $filter := .filters -}}
-  <Rule "neoagent_exclusion_filters">
-    <Match "regex">
-    {{with $filter.monitorType -}}
-      Plugin '{{.}}'
-    {{- end}}
-    {{with $filter.metricNames -}}
-      TypeInstance '^{{StringsJoin . "|"}}'
-    {{- end}}
-    {{with $filter.dimNames -}}
-      PluginInstance '^.*\[.*({{StringsJoin . "|"}})=.*$'
-    {{- end}}
-    </Match>
-    Target "stop"
-  </Rule>
-{{- end*/}}
-</Chain>
-
 <LoadPlugin "write_http">
    FlushInterval 10
 </LoadPlugin>
 <Plugin "write_http">
   <Node "SignalFx">
-    URL "{{.IngestURL}}/v1/collectd{{encodeDimsAsQueryString .GlobalDimensions}}"
-    User "auth"
-    Password "{{.SignalFxAccessToken}}"
+    URL "{{.WriteServerURL}}"
     Format "JSON"
     Timeout 9000
     BufferSize 65536
     LogHttpError true
   </Node>
 </Plugin>
+
+{{if .HasGenericJMXMonitor}}
+TypesDB "{{Globals.PluginRoot}}/java/signalfx_types_db"
+LoadPlugin "java"
+
+<Plugin java>
+  #JVMArg "-verbose:jni"
+  JVMArg "-Djava.class.path=/usr/share/collectd/java/collectd-api.jar:/usr/share/collectd/java/generic-jmx.jar"
+
+  LoadPlugin "org.collectd.java.GenericJMX"
+</Plugin>
+{{end}}
 
 Include "/etc/collectd/managed_config/*.conf"

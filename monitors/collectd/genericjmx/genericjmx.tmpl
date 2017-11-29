@@ -1,15 +1,7 @@
-TypesDB "{{Globals.PluginRoot}}/java/signalfx_types_db"
-LoadPlugin "java"
-
 <Plugin java>
-  JVMArg "-verbose:jni"
-  JVMArg "-Djava.class.path=/usr/share/collectd/java/collectd-api.jar:/usr/share/collectd/java/generic-jmx.jar"
-
-  LoadPlugin "org.collectd.java.GenericJMX"
   <Plugin "GenericJMX">
 
-    {{range $conf := .C.ByMonitorID}}
-    {{range $name, $_ := .MBeanDefinitions}}
+    {{range $name, $_ := .C.MBeanDefinitions}}
     <MBean "{{$name}}">
       ObjectName "{{.ObjectName}}"
       {{with .InstancePrefix -}}
@@ -27,32 +19,29 @@ LoadPlugin "java"
       {{end}}
     </MBean>
     {{end}}
-    {{end}}
 
     {{range $endpoint := .Endpoints}}
-    {{with (index $.C.ByEndpointID .ID)}}
     <Connection>
-      {{with .ServiceURL}}
+      {{with $.C.ServiceURL}}
       ServiceURL "{{renderValue . (toMap $endpoint)}}"
       {{- else -}}
       ServiceURL "service:jmx:rmi:///jndi/rmi://{{$endpoint.Host}}:{{$endpoint.Port}}/jmxrmi"
       {{- end}}
-      InstanceSuffix "{{withDefault $endpoint.Name $endpoint.ID}}[{{encodeDimsForPluginInstance .ExtraDimensions $endpoint.Dimensions}}]"
-      {{with .InstancePrefix -}}
+      InstanceSuffix "{{withDefault $endpoint.Name $endpoint.ID}}[{{encodeDimsForPluginInstance $.C.ExtraDimensions $endpoint.Dimensions}}]"
+      {{with $.C.InstancePrefix -}}
       InstancePrefix "{{.}}"
       {{- end}}
-      ServiceName "{{.ServiceName}}"
-      {{with .Username -}}
+      ServiceName "{{$.C.ServiceName}}"
+      {{with $.C.Username -}}
       User "{{.}}"
       {{- end}}
-      {{- with .Password}}
+      {{- with $.C.Password}}
       Password "{{.}}"
       {{- end}}
-      {{range .MBeansToCollect}}
+      {{range $.C.MBeansToCollect}}
       Collect "{{.}}"
       {{- end}}
     </Connection>
-    {{end}}
     {{end}}
   </Plugin>
 </Plugin>

@@ -40,9 +40,6 @@ func (c *Config) Validate() error {
 	if len(c.Databases) == 0 {
 		return errors.New("You must specify at least one database for MongoDB")
 	}
-	if c.Username == "" {
-		return errors.New("You must specify a username for MongoDB")
-	}
 	return nil
 }
 

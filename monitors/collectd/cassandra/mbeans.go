@@ -2,7 +2,6 @@ package cassandra
 
 import (
 	"github.com/signalfx/neo-agent/monitors/collectd/genericjmx"
-	yaml "gopkg.in/yaml.v2"
 )
 
 var defaultMBeans genericjmx.MBeanMap
@@ -146,11 +145,3 @@ cassandra-compaction-total-completed:
     instancePrefix: cassandra.Compaction.TotalCompactionsCompleted.Count
     attribute: Count
 `
-
-func init() {
-	err := yaml.Unmarshal([]byte(defaultMBeanYAML), &defaultMBeans)
-	if err != nil {
-		panic("YAML for GenericJMX MBeans is invalid: " + err.Error())
-	}
-	defaultMBeans = defaultMBeans.MergeWith(genericjmx.DefaultMBeans)
-}

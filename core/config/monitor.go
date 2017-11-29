@@ -43,13 +43,14 @@ type MonitorConfig struct {
 	ValidationError string `yaml:"-"`
 	// The remaining are propagated from the top-level config and cannot be set
 	// by the user directly on the monitor
-	IngestURL           *url.URL           `yaml:"-"`
-	SignalFxAccessToken string             `yaml:"-"`
-	Hostname            string             `yaml:"-"`
-	Filter              *filters.FilterSet `yaml:"-"`
-	ProcFSPath          string             `yaml:"-"`
-	MetaStore           *stores.MetaStore  `yaml:"-"`
-	CollectdConf        *CollectdConfig    `yaml:"-"`
+	IngestURL                 *url.URL           `yaml:"-"`
+	SignalFxAccessToken       string             `yaml:"-"`
+	Hostname                  string             `yaml:"-"`
+	Filter                    *filters.FilterSet `yaml:"-"`
+	ProcFSPath                string             `yaml:"-"`
+	MetaStore                 *stores.MetaStore  `yaml:"-"`
+	CollectdConf              *CollectdConfig    `yaml:"-"`
+	InternalMetricsSocketPath string             `yaml:"-"`
 }
 
 // GetOtherConfig returns generic config as a map

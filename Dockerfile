@@ -132,35 +132,20 @@ RUN ./build.sh &&\
 RUN make -j4
 
 
-###### Glide Dependencies Image ######
-FROM golang:1.8.3-stretch as godeps
+###### Golang Dependencies Image ######
+FROM golang:1.9.2-stretch as godeps
 
-RUN cd /tmp && \
-    wget https://github.com/Masterminds/glide/releases/download/v0.12.3/glide-v0.12.3-linux-amd64.tar.gz &&\
-	tar -xf glide-* &&\
-	cp linux-amd64/glide /usr/bin/glide
-
-RUN apt update &&\
-    apt install -y git python-pip &&\
-	pip install yq &&\
-    wget -O /usr/bin/jq https://github.com/stedolan/jq/releases/download/jq-1.5/jq-linux64 &&\
-    chmod +x /usr/bin/jq
+RUN wget -O /usr/bin/dep https://github.com/golang/dep/releases/download/v0.3.2/dep-linux-amd64 &&\
+    chmod +x /usr/bin/dep
 
 WORKDIR /go/src/github.com/signalfx/neo-agent
-COPY glide.yaml glide.lock ./
+COPY Gopkg.toml Gopkg.lock ./
 
-# Sed command is a hack to fix a renaming issue with the logrus package
-# See https://github.com/sirupsen/logrus/issues/566
-RUN glide install --strip-vendor
+RUN dep ensure -vendor-only
 
-RUN sed -i -e 's/Sirupsen/sirupsen/' $(grep -lR Sirupsen vendor) &&\
-    cp -r vendor/* /go/src/
-# Parse glide.lock to get go dep packages and precompile them so later agent
-# build is blazing fast
-RUN cat glide.lock | tail -n+3 | yq -r '.imports[] | .name' >> /tmp/packages &&\
-    cat glide.lock | tail -n+3  | yq -r '.imports[] | select(.subpackages) as $e | .subpackages[] | $e.name + "/" + .' >> /tmp/packages
-# A bunch of these fail for some reason, but a lot do compile
-RUN for pkg in $(cat /tmp/packages); do go install github.com/signalfx/neo-agent/vendor/$pkg 2>/dev/null; done || true
+# Precompile and cache vendor objects so that building the app is faster
+# A bunch of these fail because dep pulls in more than necessary, but a lot do compile
+RUN cd vendor && for p in $(find . -type d -not -empty | grep -v '\btest'); do go install $p 2>/dev/null; done || true
 
 
 ###### Neoagent Build Image ########
@@ -170,7 +155,7 @@ FROM ubuntu:16.04 as agent-builder
 RUN apt update &&\
     apt install -y libzmq5-dev wget pkg-config
 
-ENV GO_VERSION=1.8.3 PATH=$PATH:/usr/local/go/bin
+ENV GO_VERSION=1.9.2 PATH=$PATH:/usr/local/go/bin
 RUN cd /tmp &&\
     wget https://storage.googleapis.com/golang/go${GO_VERSION}.linux-amd64.tar.gz &&\
 	tar -C /usr/local -xf go*.tar.gz
@@ -178,12 +163,14 @@ RUN cd /tmp &&\
 COPY --from=godeps /go/src/github.com/signalfx/neo-agent/vendor /go/src/github.com/signalfx/neo-agent/vendor
 COPY --from=godeps /go/pkg /go/pkg
 COPY --from=collectd /usr/src/collectd/ /usr/src/collectd
+# The agent source files are tarred up because otherwise we would have to have
+# a separate ADD/COPY layer for every top-level package dir.
 ADD scripts/go_packages.tar /go/src/github.com/signalfx/neo-agent/
 
 ENV GOPATH=/go
 WORKDIR /go/src/github.com/signalfx/neo-agent
 COPY VERSIONS .
-RUN GOPATH=/go make signalfx-agent &&\
+RUN make signalfx-agent &&\
 	cp signalfx-agent /usr/bin/signalfx-agent
 
 

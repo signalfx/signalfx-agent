@@ -42,7 +42,6 @@ func (smc *ServiceMonitorCore) SetConfigurationAndRun(conf config.MonitorCustomC
 // AddService adds a service to the monitor, rerenders the collectd conf for
 // the monitor and queus a collectd restart.
 func (smc *ServiceMonitorCore) AddService(service services.Endpoint) {
-
 	smc.ServiceSet[service.ID()] = service
 
 	smc.Context.Endpoints = append(smc.Context.Endpoints, service)

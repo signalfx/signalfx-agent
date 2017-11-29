@@ -6,7 +6,7 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 . $SCRIPT_DIR/common.sh
 
-dockerfile=$SCRIPT_DIR/.Dockerfile.neoagent-dev
+dockerfile=$SCRIPT_DIR/.Dockerfile.signalfx-agent-dev
 
 cat $SCRIPT_DIR/../Dockerfile > $dockerfile
 
@@ -23,20 +23,19 @@ COPY --from=collectd /usr/ /tmp/usr-collectd
 COPY --from=collectd /etc/ /tmp/etc-collectd
 
 WORKDIR /tmp
-RUN wget https://storage.googleapis.com/golang/go1.8.3.linux-amd64.tar.gz &&\
-    tar -xf go1.8.3* &&\
+RUN wget https://storage.googleapis.com/golang/go1.9.2.linux-amd64.tar.gz &&\
+    tar -xf go1.9.2* &&\
     mv go /usr/local
 
 RUN cp -ra /tmp/usr-collectd/* /usr/ &&\
     cd /usr/src/collectd &&\
     make install
 
-RUN cp /tmp/usr-godeps/bin/jq /tmp/usr-godeps/bin/glide /usr/bin/
+RUN cp /tmp/usr-godeps/bin/dep /usr/bin/
 
 RUN pip install ipython==5 ipdb
 
-RUN apt update &&\
-    apt install -y \
+RUN apt install -y \
       libzmq5-dev \
       autoconf \
       automake \
@@ -53,4 +52,4 @@ WORKDIR /go/src/github.com/signalfx/neo-agent
 CMD ["/bin/bash"]
 EOH
 
-do_docker_build neoagent-dev $dockerfile
+do_docker_build signalfx-agent-dev $dockerfile

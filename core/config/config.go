@@ -40,10 +40,12 @@ type Config struct {
 	Writer           WriterConfig      `yaml:"writer" default:"{}"`
 	Logging          LogConfig         `yaml:"logging" default:"{}"`
 	// Configure the underlying collectd daemon
-	Collectd         CollectdConfig `yaml:"collectd" default:"{}"`
-	MetricsToExclude []MetricFilter `yaml:"metricsToExclude" default:"[]"`
-	ProcFSPath       string         `yaml:"procFSPath" default:"/proc"`
-	PythonEnabled    bool           `yaml:"pythonEnabled" default:"false"`
+	Collectd                  CollectdConfig `yaml:"collectd" default:"{}"`
+	MetricsToExclude          []MetricFilter `yaml:"metricsToExclude" default:"[]"`
+	ProcFSPath                string         `yaml:"procFSPath" default:"/proc"`
+	PythonEnabled             bool           `yaml:"pythonEnabled" default:"false"`
+	DiagnosticsSocketPath     string         `yaml:"diagnosticsSocketPath" default:"/var/run/signalfx.sock"`
+	InternalMetricsSocketPath string         `yaml:"internalMetricsSocketPath" default:"/var/run/signalfx-agent-metrics.sock"`
 	// This exists purely to give the user a place to put common yaml values to
 	// reference in other parts of the config file.
 	Scratch interface{} `yaml:"scratch"`
@@ -146,6 +148,7 @@ func (c *Config) propagateValuesDown(metaStore *stores.MetaStore) {
 		// Top level interval serves as a default
 		c.Monitors[i].IntervalSeconds = utils.FirstNonZero(c.Monitors[i].IntervalSeconds, c.IntervalSeconds)
 		c.Monitors[i].MetaStore = metaStore
+		c.Monitors[i].InternalMetricsSocketPath = c.InternalMetricsSocketPath
 	}
 
 	for i := range c.Observers {
@@ -197,12 +200,19 @@ type CollectdConfig struct {
 	CollectInternalStats bool   `yaml:"collectInternalStats,omitempty" default:"true"`
 	LogLevel             string `yaml:"logLevel,omitempty" default:"notice"`
 	IntervalSeconds      int    `yaml:"intervalSeconds" default:"0"`
+	WriteServerIPAddr    string `yaml:"writeServerIPAddr" default:"127.9.8.7"`
+	WriteServerPort      uint16 `yaml:"writeServerPort" default:"14839"`
 	// The following are propagated from the top-level config
-	Hostname            string             `yaml:"-"`
-	Filter              *filters.FilterSet `yaml:"-"`
-	SignalFxAccessToken string             `yaml:"-"`
-	IngestURL           string             `yaml:"-"`
-	GlobalDimensions    map[string]string  `yaml:"-"`
+	Hostname             string             `yaml:"-"`
+	Filter               *filters.FilterSet `yaml:"-"`
+	SignalFxAccessToken  string             `yaml:"-"`
+	IngestURL            string             `yaml:"-"`
+	GlobalDimensions     map[string]string  `yaml:"-"`
+	HasGenericJMXMonitor bool               `yaml:"-"`
+}
+
+func (cc *CollectdConfig) WriteServerURL() string {
+	return fmt.Sprintf("http://%s:%d/", cc.WriteServerIPAddr, cc.WriteServerPort)
 }
 
 // StoreConfig holds configuration related to config stores (e.g. filesystem,

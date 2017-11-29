@@ -1,25 +1,19 @@
 RUN_CONTAINER := neo-agent-tmp
 
-go_pkgs := $(shell glide novendor 2>/dev/null)
-
 .PHONY: check
 check: lint vet test
 
 .PHONY: test
 test:
-	@if [ "$(go_pkgs)" = "" ]; then\
-		echo 'Go packages could not be determined' && exit 1;\
-	else\
-		go test $(go_pkgs);\
-	fi
+	go test ./...
 
 .PHONY: vet
 vet:
-	go vet $(go_pkgs)
+	go vet ./...
 
 .PHONY: lint
 lint:
-	golint -set_exit_status $(go_pkgs)
+	golint -set_exit_status utils observers monitors core neotest
 
 .PHONY: collectd
 collectd:
@@ -37,8 +31,7 @@ image-debug:
 
 .PHONY: vendor
 vendor:
-	glide update --strip-vendor
-	sed -i '' -e 's/Sirupsen/sirupsen/' $$(grep -lR Sirupsen vendor) || true
+	dep ensure
 
 signalfx-agent: templates
 	go build \
@@ -74,14 +67,15 @@ dev-image:
 
 .PHONY: run-dev-image
 run-dev-image:
-	docker run --rm -it \
+	docker exec -it signalfx-agent-dev bash 2>/dev/null || docker run --rm -it \
 		--privileged \
 		--net host \
-		--name neoagent-dev \
+		--name signalfx-agent-dev \
 		-v $(PWD)/local-etc:/etc/signalfx \
 		-v /:/hostfs:ro \
 		-v /etc:/mnt/etc:ro \
 		-v /proc:/mnt/proc:ro \
 		-v $(PWD):/go/src/github.com/signalfx/neo-agent \
+		-v $(PWD)/collectd:/usr/src/collectd \
 		-v /var/run/docker.sock:/var/run/docker.sock \
-		neoagent-dev /bin/bash
+		signalfx-agent-dev /bin/bash

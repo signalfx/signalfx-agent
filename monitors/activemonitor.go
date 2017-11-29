@@ -8,6 +8,7 @@ import (
 	"github.com/signalfx/neo-agent/core/config"
 	"github.com/signalfx/neo-agent/core/services"
 	"github.com/signalfx/neo-agent/core/writer"
+	"github.com/signalfx/neo-agent/utils"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -89,37 +90,27 @@ func (am *ActiveMonitor) removeServiceFromMonitor(service services.Endpoint) boo
 // Sets the `DPs` field on a monitor if it is present to the datapoint channel.
 // Returns whether the field was actually set.
 func (am *ActiveMonitor) injectDatapointChannelIfNeeded(dpChan chan<- *datapoint.Datapoint) bool {
-	instanceValue := reflect.Indirect(reflect.ValueOf(am.instance))
-	dpsValue := instanceValue.FieldByName("DPs")
+	dpsValue := utils.FindFieldWithEmbeddedStructs(am.instance, "DPs",
+		reflect.ChanOf(reflect.SendDir, reflect.TypeOf(&datapoint.Datapoint{})))
+
 	if !dpsValue.IsValid() {
 		return false
 	}
-	if dpsValue.Type() != reflect.ChanOf(reflect.SendDir, reflect.TypeOf(&datapoint.Datapoint{})) {
-		log.WithFields(log.Fields{
-			"pkgPath": instanceValue.Type().PkgPath(),
-		}).Error("Monitor instance has 'DPs' member but is not of type 'chan<- *datapoint.Datapoint'")
-		return false
-	}
-	dpsValue.Set(reflect.ValueOf(dpChan))
 
+	dpsValue.Set(reflect.ValueOf(dpChan))
 	return true
 }
 
 // Sets the `Events` field on a monitor if it is present to the events channel.
 // Returns whether the field was actually set.
 func (am *ActiveMonitor) injectEventChannelIfNeeded(eventChan chan<- *event.Event) bool {
-	instanceValue := reflect.Indirect(reflect.ValueOf(am.instance))
-	eventsValue := instanceValue.FieldByName("Events")
+	eventsValue := utils.FindFieldWithEmbeddedStructs(am.instance, "Events",
+		reflect.ChanOf(reflect.SendDir, reflect.TypeOf(&event.Event{})))
+
 	if !eventsValue.IsValid() {
 		return false
 	}
 
-	if eventsValue.Type() != reflect.ChanOf(reflect.SendDir, reflect.TypeOf(&event.Event{})) {
-		log.WithFields(log.Fields{
-			"pkgPath": instanceValue.Type().PkgPath(),
-		}).Error("Monitor instance has 'Events' member but is not of type 'chan<- *event.Event'")
-		return false
-	}
 	eventsValue.Set(reflect.ValueOf(eventChan))
 
 	return true
@@ -128,18 +119,14 @@ func (am *ActiveMonitor) injectEventChannelIfNeeded(eventChan chan<- *event.Even
 // Sets the `DimProps` field on a monitor if it is present to the dimension
 // properties channel. Returns whether the field was actually set.
 func (am *ActiveMonitor) injectDimPropertiesChannelIfNeeded(dimPropChan chan<- *writer.DimProperties) bool {
-	instanceValue := reflect.Indirect(reflect.ValueOf(am.instance))
-	dpsValue := instanceValue.FieldByName("DimProps")
-	if !dpsValue.IsValid() {
+	dimPropsValue := utils.FindFieldWithEmbeddedStructs(am.instance, "DimProps",
+		reflect.ChanOf(reflect.SendDir, reflect.TypeOf(&writer.DimProperties{})))
+
+	if !dimPropsValue.IsValid() {
 		return false
 	}
-	if dpsValue.Type() != reflect.ChanOf(reflect.SendDir, reflect.TypeOf(&writer.DimProperties{})) {
-		log.WithFields(log.Fields{
-			"pkgPath": instanceValue.Type().PkgPath(),
-		}).Error("Monitor instance has 'DimProps' member but is not of type 'chan<- *writer.DimProperties'")
-		return false
-	}
-	dpsValue.Set(reflect.ValueOf(dimPropChan))
+
+	dimPropsValue.Set(reflect.ValueOf(dimPropChan))
 
 	return true
 }

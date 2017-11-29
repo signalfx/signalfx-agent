@@ -9,6 +9,8 @@ import (
 	"text/template"
 
 	"github.com/davecgh/go-spew/spew"
+	"github.com/signalfx/golib/datapoint"
+	"github.com/signalfx/golib/event"
 	"github.com/signalfx/neo-agent/core/config"
 	"github.com/signalfx/neo-agent/core/config/types"
 	"github.com/signalfx/neo-agent/core/services"
@@ -28,23 +30,30 @@ type BaseMonitor struct {
 		Endpoints []services.Endpoint
 	}
 	// Where to write the plugin config to on the filesystem
-	ConfigFilename string
+	configFilename string
 	isRunning      bool
 	monitorID      types.MonitorID
 	lock           sync.Mutex
+	DPs            chan<- *datapoint.Datapoint
+	Events         chan<- *event.Event
+	UsesGenericJMX bool
 }
 
 // NewBaseMonitor creates a new initialized but unconfigured BaseMonitor with
 // the given template.
 func NewBaseMonitor(template *template.Template) *BaseMonitor {
-	name := template.Name()
-	templating.InjectTemplateFuncs(template)
-
 	return &BaseMonitor{
-		Template:       template,
-		ConfigFilename: fmt.Sprintf("20-%s.%d.conf", name, getNextIDFor(name)),
-		isRunning:      false,
+		Template:  template,
+		isRunning: false,
 	}
+}
+
+func (bm *BaseMonitor) Init() error {
+	name := bm.Template.Name()
+	bm.configFilename = fmt.Sprintf("20-%s.%d.conf", name, getNextIDFor(name))
+	templating.InjectTemplateFuncs(bm.Template)
+
+	return nil
 }
 
 // SetConfiguration adds various fields from the config to the template context
@@ -56,7 +65,7 @@ func (bm *BaseMonitor) SetConfiguration(conf config.MonitorCustomConfig) bool {
 	bm.Context.C = conf
 
 	bm.monitorID = conf.CoreConfig().ID
-	if !Instance().ConfigureFromMonitor(conf.CoreConfig().ID, conf.CoreConfig().CollectdConf) {
+	if !Instance().ConfigureFromMonitor(conf.CoreConfig().ID, conf.CoreConfig().CollectdConf, bm.DPs, bm.Events, bm.UsesGenericJMX) {
 		return false
 	}
 
@@ -98,7 +107,7 @@ func (bm *BaseMonitor) WriteConfigForPluginAndRestart() bool {
 }
 
 func (bm *BaseMonitor) renderPath() string {
-	return path.Join(managedConfigDir, bm.ConfigFilename)
+	return path.Join(managedConfigDir, bm.configFilename)
 }
 
 // Shutdown removes the config file and restarts collectd
