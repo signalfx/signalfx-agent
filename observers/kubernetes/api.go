@@ -24,10 +24,9 @@ import (
 var now = time.Now
 
 const (
-	observerType    = "k8s-api"
-	nodeEnvVar      = "MY_NODE_NAME"
-	namespaceEnvVar = "MY_NAMESPACE"
-	runningPhase    = "Running"
+	observerType = "k8s-api"
+	nodeEnvVar   = "MY_NODE_NAME"
+	runningPhase = "Running"
 )
 
 var logger = log.WithFields(log.Fields{"observerType": observerType})
@@ -52,10 +51,6 @@ func (c *Config) Validate() error {
 		return err
 	}
 
-	if os.Getenv(namespaceEnvVar) == "" {
-		return fmt.Errorf("K8s namespace was not provided in the %s envvar", namespaceEnvVar)
-	}
-
 	if os.Getenv(nodeEnvVar) == "" {
 		return fmt.Errorf("K8s node name was not provided in the %s envvar", nodeEnvVar)
 	}
@@ -67,7 +62,6 @@ func (c *Config) Validate() error {
 type Observer struct {
 	config           *Config
 	clientset        *k8s.Clientset
-	thisNamespace    string
 	thisNode         string
 	serviceCallbacks *observers.ServiceCallbacks
 	stopper          chan struct{}
@@ -75,7 +69,6 @@ type Observer struct {
 
 // Configure configures and starts watching for endpoints
 func (o *Observer) Configure(config *Config) bool {
-	o.thisNamespace = os.Getenv(namespaceEnvVar)
 	o.thisNode = os.Getenv(nodeEnvVar)
 
 	var err error
@@ -84,11 +77,7 @@ func (o *Observer) Configure(config *Config) bool {
 		return false
 	}
 
-	// Stop previous informers
-	if o.stopper != nil {
-		o.stopper <- struct{}{}
-	}
-
+	o.stopIfRunning()
 	o.watchPods()
 
 	return true
@@ -98,7 +87,7 @@ func (o *Observer) watchPods() {
 	o.stopper = make(chan struct{})
 
 	client := o.clientset.Core().RESTClient()
-	watchList := cache.NewListWatchFromClient(client, "pods", o.thisNamespace, fields.Everything())
+	watchList := cache.NewListWatchFromClient(client, "pods", "", fields.Everything())
 
 	_, controller := cache.NewInformer(
 		watchList,
@@ -119,7 +108,19 @@ func (o *Observer) watchPods() {
 	go controller.Run(o.stopper)
 }
 
+func (o *Observer) stopIfRunning() {
+	// Stop previous informers
+	if o.stopper != nil {
+		o.stopper <- struct{}{}
+		o.stopper = nil
+	}
+}
+
+// Handles notifications of changes to pods from the API server
 func (o *Observer) changeHandler(oldPod *v1.Pod, newPod *v1.Pod) {
+	if o.stopper == nil {
+		return
+	}
 	// If it is an update, there will be a remove and immediately subsequent
 	// add.
 	if oldPod != nil && oldPod.Spec.NodeName == o.thisNode {
@@ -202,4 +203,9 @@ func endpointsInPod(pod *v1.Pod) []services.Endpoint {
 		}
 	}
 	return endpoints
+}
+
+// Shutdown the service differ routine
+func (o *Observer) Shutdown() {
+	o.stopIfRunning()
 }
