@@ -19,8 +19,8 @@ LoadPlugin "python"
   {{range .C.ExcludedNames}}
     ExcludeName "{{.}}"
   {{end -}}
-  {{with .C.ExcludedLabels}}
-    ExcludeLabel {{range $elem := .}}"{{$elem}}" {{end}} 
+  {{range $key, $value := .C.ExcludedLabels}}
+    ExcludeLabel "{{$key}}" "{{$value}}"
   {{end -}}
   </Module>
 
