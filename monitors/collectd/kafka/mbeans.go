@@ -1,12 +1,5 @@
 package kafka
 
-import (
-	"github.com/signalfx/neo-agent/monitors/collectd/genericjmx"
-	yaml "gopkg.in/yaml.v2"
-)
-
-var defaultMBeans genericjmx.MBeanMap
-
 var defaultMBeanYAML = `
 kafka-all-messages:
   objectName: "kafka.server:type=BrokerTopicMetrics,name=MessagesInPerSec"
@@ -34,22 +27,6 @@ kafka-all-bytes-out:
     type: "counter"
     table: false
     attribute: "Count"
-
-kafka-log-flush:
-  objectName: "kafka.log:type=LogFlushStats,name=LogFlushRateAndTimeMs"
-  values:
-  - type: "counter"
-    table: false
-    attribute: "Count"
-    instancePrefix: "kafka-log-flushes"
-  - type: "gauge"
-    table: false
-    attribute: "Mean"
-    instancePrefix: "kafka-log-flush-time-ms"
-  - type: "gauge"
-    table: false
-    attribute: "95thPercentile"
-    instancePrefix: "kafka-log-flush-time-ms-p95"
 
 kafka-active-controllers:
   objectName: "kafka.controller:type=KafkaController,name=ActiveControllerCount"
@@ -131,11 +108,3 @@ kafka.produce.total-time:
     attribute: "99thPercentile"
     instancePrefix: "kafka.fetchproducetotal-time.99th"
 `
-
-func init() {
-	err := yaml.Unmarshal([]byte(defaultMBeanYAML), &defaultMBeans)
-	if err != nil {
-		panic("YAML for GenericJMX MBeans is invalid: " + err.Error())
-	}
-	defaultMBeans = defaultMBeans.MergeWith(genericjmx.DefaultMBeans)
-}

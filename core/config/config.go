@@ -203,11 +203,12 @@ type CollectdConfig struct {
 	WriteServerIPAddr    string `yaml:"writeServerIPAddr" default:"127.9.8.7"`
 	WriteServerPort      uint16 `yaml:"writeServerPort" default:"14839"`
 	// The following are propagated from the top-level config
-	Hostname            string             `yaml:"-"`
-	Filter              *filters.FilterSet `yaml:"-"`
-	SignalFxAccessToken string             `yaml:"-"`
-	IngestURL           string             `yaml:"-"`
-	GlobalDimensions    map[string]string  `yaml:"-"`
+	Hostname             string             `yaml:"-"`
+	Filter               *filters.FilterSet `yaml:"-"`
+	SignalFxAccessToken  string             `yaml:"-"`
+	IngestURL            string             `yaml:"-"`
+	GlobalDimensions     map[string]string  `yaml:"-"`
+	HasGenericJMXMonitor bool               `yaml:"-"`
 }
 
 func (cc *CollectdConfig) WriteServerURL() string {

@@ -36,6 +36,7 @@ type BaseMonitor struct {
 	lock           sync.Mutex
 	DPs            chan<- *datapoint.Datapoint
 	Events         chan<- *event.Event
+	UsesGenericJMX bool
 }
 
 // NewBaseMonitor creates a new initialized but unconfigured BaseMonitor with
@@ -64,7 +65,7 @@ func (bm *BaseMonitor) SetConfiguration(conf config.MonitorCustomConfig) bool {
 	bm.Context.C = conf
 
 	bm.monitorID = conf.CoreConfig().ID
-	if !Instance().ConfigureFromMonitor(conf.CoreConfig().ID, conf.CoreConfig().CollectdConf, bm.DPs, bm.Events) {
+	if !Instance().ConfigureFromMonitor(conf.CoreConfig().ID, conf.CoreConfig().CollectdConf, bm.DPs, bm.Events, bm.UsesGenericJMX) {
 		return false
 	}
 

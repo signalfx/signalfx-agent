@@ -6,7 +6,6 @@ import (
 	"bytes"
 	"os"
 	"os/exec"
-	"reflect"
 	"sync"
 	"time"
 
@@ -45,11 +44,9 @@ var validLogLevels = set.NewNonTS("debug", "info", "notice", "warning", "err")
 // Manager coordinates the collectd conf file and running the embedded collectd
 // library.
 type Manager struct {
-	state    string
-	confFile string
-	// triggers a reload of the collectd daemon
-	reloadChan           chan int
-	stopChan             chan int
+	state                string
+	confFile             string
+	stoppedCh            chan struct{}
 	configMutex          sync.Mutex
 	stateMutex           sync.Mutex
 	cmdMutex             sync.Mutex
@@ -58,15 +55,15 @@ type Manager struct {
 	restartDebounced     func()
 	restartDebouncedStop chan<- struct{}
 	activeMonitors       map[types.MonitorID]bool
+	genericJMXUsers      map[types.MonitorID]bool
 	// The local server that collectd sends its datapoints to
 	writeServer *write.Server
 }
 
 var collectdSingleton = &Manager{
-	state:          Stopped,
-	reloadChan:     make(chan int),
-	stopChan:       make(chan int),
-	activeMonitors: make(map[types.MonitorID]bool),
+	state:           Stopped,
+	activeMonitors:  make(map[types.MonitorID]bool),
+	genericJMXUsers: make(map[types.MonitorID]bool),
 }
 
 // Instance returns the singleton instance of the collectd manager
@@ -86,8 +83,7 @@ func (cm *Manager) Restart() {
 				log.Info("Starting collectd")
 				go cm.runCollectd()
 			} else {
-				log.Debug("Sending signal to collectd reload channel")
-				cm.reloadChan <- 1
+				cm.reload()
 			}
 		}, restartDebounceDuration)
 	}
@@ -103,20 +99,24 @@ func (cm *Manager) Restart() {
 // monitors are actively using collectd.  When a monitor is done (i.e.
 // shutdown) it should call MonitorDidShutdown.
 func (cm *Manager) ConfigureFromMonitor(monitorID types.MonitorID, conf *config.CollectdConfig,
-	dpChan chan<- *datapoint.Datapoint, eventChan chan<- *event.Event) bool {
+	dpChan chan<- *datapoint.Datapoint, eventChan chan<- *event.Event, usesGenericJMX bool) bool {
 
 	cm.configMutex.Lock()
 	defer cm.configMutex.Unlock()
 
 	cm.activeMonitors[monitorID] = true
 
+	// This is kind of ugly having to keep track of this but it allows us to
+	// load the GenericJMX plugin in a central place and then have each
+	// GenericJMX monitor render its own config file and not have to worry
+	// about reinitializing GenericJMX and causing errors to be thrown.
+	if usesGenericJMX {
+		cm.genericJMXUsers[monitorID] = true
+	}
+
 	// Delete existing config on the first call
 	if cm.conf == nil {
 		cm.deleteExistingConfig()
-	}
-
-	if reflect.DeepEqual(conf, cm.conf) {
-		return true
 	}
 
 	if !cm.validateConfig(conf) {
@@ -163,44 +163,11 @@ func (cm *Manager) validateConfig(conf *config.CollectdConfig) bool {
 	return valid
 }
 
-// Shutdown collectd and all associated resources
-func (cm *Manager) Shutdown() {
-	log.Debug("Shutting down collectd")
-	if cm.State() != Stopped {
-		cm.stopChan <- 0
-		cm.restartDebouncedStop <- struct{}{}
-		cm.restartDebouncedStop = nil
-		cm.restartDebounced = nil
-
-	}
-	if cm.writeServer != nil {
-		if err := cm.writeServer.Close(); err != nil {
-			log.WithError(err).Warn("Could not shutdown collectd write server")
-		}
-		cm.writeServer = nil
-	}
-}
-
-// MonitorDidShutdown should be called by any monitor that uses collectd when
-// it is shutdown.
-func (cm *Manager) MonitorDidShutdown(monitorID types.MonitorID) {
-	cm.configMutex.Lock()
-	defer cm.configMutex.Unlock()
-
-	delete(cm.activeMonitors, monitorID)
-	if len(cm.activeMonitors) == 0 {
-		cm.Shutdown()
-	} else {
-		cm.Restart()
-	}
-}
-
 // State for collectd monitoring
 func (cm *Manager) State() string {
 	cm.stateMutex.Lock()
 	defer cm.stateMutex.Unlock()
 
-	log.Infof("Setting collectd state to %s", cm.state)
 	return cm.state
 }
 
@@ -210,6 +177,7 @@ func (cm *Manager) setState(state string) {
 	defer cm.stateMutex.Unlock()
 
 	cm.state = state
+	log.Infof("Setting collectd state to %s", cm.state)
 }
 
 func (cm *Manager) rerenderConf() bool {
@@ -219,6 +187,7 @@ func (cm *Manager) rerenderConf() bool {
 		"context": cm.conf,
 	}).Debug("Rendering main collectd.conf template")
 
+	cm.conf.HasGenericJMXMonitor = len(cm.genericJMXUsers) > 0
 	if err := CollectdTemplate.Execute(&output, cm.conf); err != nil {
 		log.WithFields(log.Fields{
 			"error": err,
@@ -230,52 +199,26 @@ func (cm *Manager) rerenderConf() bool {
 }
 
 func (cm *Manager) runCollectd() {
-	stoppedCh := make(chan struct{}, 1)
+	cm.stoppedCh = make(chan struct{}, 1)
 	restartDelay := 2 * time.Second
 
-	stop := func() {
-		cm.setState(ShuttingDown)
-		cm.killChildProc()
-		<-stoppedCh
-		cm.setState(Stopped)
-	}
-
-	go cm.runAsChildProc(stoppedCh)
+	go cm.runAsChildProc()
 
 	for {
 		select {
-		case <-cm.stopChan:
-			log.Info("Stopping collectd")
-			stop()
-			return
-		case <-cm.reloadChan:
-			stop()
-			log.Info("Collectd stopped, restarting")
-			go cm.runAsChildProc(stoppedCh)
-		case <-stoppedCh:
-			if cm.state == Running {
-				log.Error("Collectd died when it was supposed to be running, restarting...")
-			} else {
-				log.Warn("Collectd stopped in an unexpected way")
-				continue
+		case <-cm.stoppedCh:
+			if cm.state != Running {
+				return
 			}
+
+			log.Error("Collectd died when it was supposed to be running, restarting...")
 			time.Sleep(restartDelay)
-			go cm.runAsChildProc(stoppedCh)
+			go cm.runAsChildProc()
 		}
 	}
 }
 
-func (cm *Manager) killChildProc() {
-	cm.cmdMutex.Lock()
-	if cm.cmd.Process != nil {
-		log.Info("Killing old Collectd process")
-		cm.cmd.Process.Kill()
-		cm.cmd.Wait()
-	}
-	cm.cmdMutex.Unlock()
-}
-
-func (cm *Manager) runAsChildProc(stoppedCh chan<- struct{}) {
+func (cm *Manager) runAsChildProc() {
 	log.Info("Starting Collectd child process")
 
 	cm.cmdMutex.Lock()
@@ -286,8 +229,8 @@ func (cm *Manager) runAsChildProc(stoppedCh chan<- struct{}) {
 
 	err := cm.cmd.Start()
 	if err != nil {
-		log.WithError(err).Error("Could not start Collectd child process!")
-		stoppedCh <- struct{}{}
+		log.WithError(err).Error("Could not start collectd child process!")
+		close(cm.stoppedCh)
 		return
 	}
 
@@ -296,7 +239,38 @@ func (cm *Manager) runAsChildProc(stoppedCh chan<- struct{}) {
 	cm.cmdMutex.Unlock()
 	cm.cmd.Wait()
 
-	stoppedCh <- struct{}{}
+	close(cm.stoppedCh)
+}
+
+func (cm *Manager) stop() {
+	if cm.state != Running {
+		log.Error("Collectd was told to stop but isn't running")
+		return
+	}
+
+	cm.setState(ShuttingDown)
+	cm.killChildProc()
+	<-cm.stoppedCh
+
+	cm.setState(Stopped)
+}
+
+func (cm *Manager) reload() {
+	log.Info("Reloading collectd")
+	cm.stop()
+	log.Info("Collectd stopped, restarting")
+	go cm.runCollectd()
+}
+
+func (cm *Manager) killChildProc() {
+	cm.cmdMutex.Lock()
+	defer cm.cmdMutex.Unlock()
+
+	if cm.cmd.Process != nil {
+		cm.cmd.Process.Kill()
+		cm.cmd.Wait()
+		log.Info("Old collectd process killed")
+	}
 }
 
 // Delete existing config in case there were plugins configured before that won't
@@ -305,4 +279,42 @@ func (cm *Manager) deleteExistingConfig() {
 	log.Debug("Deleting existing config")
 	os.RemoveAll(managedConfigDir)
 	os.Remove(collectdConfPath)
+}
+
+// MonitorDidShutdown should be called by any monitor that uses collectd when
+// it is shutdown.
+func (cm *Manager) MonitorDidShutdown(monitorID types.MonitorID) {
+	cm.configMutex.Lock()
+	defer cm.configMutex.Unlock()
+
+	delete(cm.activeMonitors, monitorID)
+	delete(cm.genericJMXUsers, monitorID)
+	if len(cm.activeMonitors) == 0 {
+		cm.Shutdown()
+	} else {
+		cm.rerenderConf()
+		cm.Restart()
+	}
+}
+
+// Shutdown collectd and all associated resources
+func (cm *Manager) Shutdown() {
+	log.Debug("Shutting down collectd")
+	if cm.State() != Stopped {
+		cm.stop()
+		cm.restartDebouncedStop <- struct{}{}
+		cm.restartDebouncedStop = nil
+		cm.restartDebounced = nil
+	}
+
+	cm.conf = nil
+
+	if cm.writeServer != nil {
+		if err := cm.writeServer.Close(); err != nil {
+			log.WithError(err).Warn("Could not shutdown collectd write server")
+		} else {
+			log.Info("Shut down collectd write server")
+		}
+		cm.writeServer = nil
+	}
 }

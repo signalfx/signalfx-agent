@@ -87,6 +87,7 @@ func (a *Agent) shutdown() {
 	a.observers.Shutdown()
 	a.monitors.Shutdown()
 	neopy.Instance().Shutdown()
+	a.writer.Shutdown()
 }
 
 // Startup the agent.  Returns a function that can be called to shutdown the

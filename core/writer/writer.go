@@ -197,6 +197,7 @@ func (sw *SignalFxWriter) DimPropertiesChannel() chan<- *DimProperties {
 // ASSUMES LOCK IS HELD WHEN CALLED.
 func (sw *SignalFxWriter) ensureListeningForDatapoints() {
 	if sw.state != listening {
+		log.Debug("Starting datapoint writer listener")
 		go sw.listenForDatapoints()
 		sw.state = listening
 	}
@@ -274,6 +275,7 @@ func (sw *SignalFxWriter) shutdownIfRunning() {
 		sw.stopCh = make(chan struct{})
 
 		sw.state = stopped
+		log.Debug("Stopped datapoint writer")
 	}
 }
 
