@@ -6,7 +6,9 @@ LoadPlugin "python"
   <Module mongodb>
     Host "{{.Host}}"
     Port {{.Port}}
-    User "{{$.C.Username}}"
+    {{with $.C.Username -}}
+    User "{{.}}"
+    {{- end}}
     {{with $.C.Password -}}
     Password "{{.}}"
     {{- end}}
