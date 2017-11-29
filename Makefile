@@ -67,10 +67,10 @@ dev-image:
 
 .PHONY: run-dev-image
 run-dev-image:
-	docker exec -it signalfx-agent-dev bash || docker run --rm -it \
+	docker exec -it signalfx-agent-dev bash 2>/dev/null || docker run --rm -it \
 		--privileged \
 		--net host \
-		--name neoagent-dev \
+		--name signalfx-agent-dev \
 		-v $(PWD)/local-etc:/etc/signalfx \
 		-v /:/hostfs:ro \
 		-v /etc:/mnt/etc:ro \
