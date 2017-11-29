@@ -19,6 +19,8 @@ func (om *ObserverManager) DiagnosticText() string {
 	return out
 }
 
+// InternalMetrics returns a list of datapoints relevant to the internal status
+// of Observers
 func (om *ObserverManager) InternalMetrics() []*datapoint.Datapoint {
 	return []*datapoint.Datapoint{
 		sfxclient.Gauge("sfxagent.active_observers", nil, int64(len(om.observers))),

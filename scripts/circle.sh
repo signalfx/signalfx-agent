@@ -9,5 +9,5 @@ if [ "$1" = "test" ]; then
 
     cd /go/src/github.com/signalfx/neo-agent
     make lint vet templates
-    go test -v $(glide novendor) | go2xunit > ~/testresults/unit.xml
+    go test -v ./... | go2xunit > ~/testresults/unit.xml
 fi

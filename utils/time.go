@@ -39,8 +39,8 @@ func Debounce0(fn func(), duration time.Duration) (func(), chan<- struct{}) {
 	}, stop
 }
 
-// Runs the given fn once every interval.  Returns a function that can be
-// called to stop running the function.
+// RunOnInterval the given fn once every interval.  Returns a function that can
+// be called to stop running the function.
 func RunOnInterval(fn func(), interval time.Duration) func() {
 	stopped := false
 	stop := make(chan struct{})

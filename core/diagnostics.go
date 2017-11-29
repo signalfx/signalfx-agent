@@ -84,6 +84,8 @@ func (a *Agent) serveInternalMetrics(socketPath string) error {
 	return err
 }
 
+// InternalMetrics aggregates internal metrics from subcomponents and returns a
+// list of datapoints that represent the instaneous state of the agent
 func (a *Agent) InternalMetrics() []*datapoint.Datapoint {
 	out := make([]*datapoint.Datapoint, 0)
 	out = append(out, a.writer.InternalMetrics()...)

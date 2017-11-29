@@ -13,7 +13,7 @@ vet:
 
 .PHONY: lint
 lint:
-	golint -set_exit_status ./...
+	golint -set_exit_status utils observers monitors core neotest
 
 .PHONY: collectd
 collectd:

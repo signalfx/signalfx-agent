@@ -79,6 +79,8 @@ func (mm *MonitorManager) DiagnosticText() string {
 		badConfigText(mm.badConfigs))
 }
 
+// InternalMetrics returns a list of datapoints about the internal status of
+// the monitors
 func (mm *MonitorManager) InternalMetrics() []*datapoint.Datapoint {
 	return []*datapoint.Datapoint{
 		sfxclient.Gauge("sfxagent.active_monitors", nil, int64(len(mm.activeMonitors))),
