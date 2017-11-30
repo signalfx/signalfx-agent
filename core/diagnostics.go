@@ -4,9 +4,13 @@ import (
 	"encoding/json"
 	"fmt"
 	"net"
+	"net/http"
 	"time"
 
 	yaml "gopkg.in/yaml.v2"
+
+	// Import for side-effect of registering http handler
+	_ "net/http/pprof"
 
 	"github.com/signalfx/golib/datapoint"
 	"github.com/signalfx/neo-agent/core/config"
@@ -101,4 +105,15 @@ func (a *Agent) InternalMetrics() []*datapoint.Datapoint {
 		out[i].Timestamp = time.Now()
 	}
 	return out
+}
+
+func (a *Agent) ensureProfileServerRunning() {
+	if !a.profileServerRunning {
+		go func() {
+			a.profileServerRunning = true
+			// This is very difficult to access from the host on mac without
+			// exposing it on all interfaces
+			log.Println(http.ListenAndServe("0.0.0.0:6060", nil))
+		}()
+	}
 }

@@ -41,7 +41,7 @@ func (cs *ClusterState) Stop() {
 	log.Info("Stopping all K8s API resource sync")
 	for k, s := range cs.stoppers {
 		if s != nil {
-			s <- struct{}{}
+			close(s)
 			cs.stoppers[k] = nil
 		}
 	}
@@ -123,10 +123,10 @@ func (cs *ClusterState) StartSyncing(resType runtime.Object) {
 
 	// Stop previous informers
 	if cs.stoppers[resName] != nil {
-		cs.stoppers[resName] <- struct{}{}
-	} else {
-		cs.stoppers[resName] = make(chan struct{})
+		close(cs.stoppers[resName])
 	}
+
+	cs.stoppers[resName] = make(chan struct{})
 
 	watchList := cache.NewListWatchFromClient(client, resName, api.NamespaceAll, fields.Everything())
 

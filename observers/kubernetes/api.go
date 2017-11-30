@@ -7,6 +7,7 @@ package kubernetes
 import (
 	"fmt"
 	"os"
+	"reflect"
 	"time"
 
 	log "github.com/sirupsen/logrus"
@@ -69,6 +70,14 @@ type Observer struct {
 
 // Configure configures and starts watching for endpoints
 func (o *Observer) Configure(config *Config) bool {
+	// There is a bug/limitation in the k8s go client's Controller where
+	// goroutines are leaked even when using the stop channel properly.  So we
+	// should avoid going through a shutdown/startup cycle here if nothing is
+	// different in the config.
+	if reflect.DeepEqual(config, o.config) {
+		return true
+	}
+
 	o.thisNode = os.Getenv(nodeEnvVar)
 
 	var err error
@@ -79,6 +88,8 @@ func (o *Observer) Configure(config *Config) bool {
 
 	o.stopIfRunning()
 	o.watchPods()
+
+	o.config = config
 
 	return true
 }
@@ -111,16 +122,13 @@ func (o *Observer) watchPods() {
 func (o *Observer) stopIfRunning() {
 	// Stop previous informers
 	if o.stopper != nil {
-		o.stopper <- struct{}{}
+		close(o.stopper)
 		o.stopper = nil
 	}
 }
 
 // Handles notifications of changes to pods from the API server
 func (o *Observer) changeHandler(oldPod *v1.Pod, newPod *v1.Pod) {
-	if o.stopper == nil {
-		return
-	}
 	// If it is an update, there will be a remove and immediately subsequent
 	// add.
 	if oldPod != nil && oldPod.Spec.NodeName == o.thisNode {
@@ -208,4 +216,5 @@ func endpointsInPod(pod *v1.Pod) []services.Endpoint {
 // Shutdown the service differ routine
 func (o *Observer) Shutdown() {
 	o.stopIfRunning()
+	o.config = nil
 }
