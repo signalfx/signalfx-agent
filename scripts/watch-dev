@@ -1,0 +1,38 @@
+#!/bin/bash
+
+set -e
+
+function curtime() {
+  date +%s
+}
+
+last_start=0
+
+dirs="core monitors observers utils"
+
+inotifywait -q \
+  --exclude '.*~$' \
+  -r \
+  -e modify \
+  -e create \
+  -m \
+  --format '%w%f %T' \
+  --timefmt '%s' \
+  $dirs \
+  | while read path ts
+do
+  if [ "$((ts - last_start))" -lt "2" ]
+  then
+    continue
+  fi
+
+  echo "$path changed"
+  echo
+
+  last_start=$(curtime)
+
+  golint ./$path
+  errcheck ./$(dirname $path)
+  go vet ./$path
+
+done 
