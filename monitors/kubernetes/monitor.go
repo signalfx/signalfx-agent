@@ -29,6 +29,7 @@ package kubernetes
 
 import (
 	"os"
+	"reflect"
 	"regexp"
 	"sort"
 	"time"
@@ -91,9 +92,18 @@ func (m *Monitor) Configure(config *Config) bool {
 	m.lock.Lock()
 	defer m.lock.Unlock()
 
+	// There is a bug/limitation in the k8s go client's Controller where
+	// goroutines are leaked even when using the stop channel properly.  So we
+	// should avoid going through a shutdown/startup cycle here if nothing is
+	// different in the config.
+	// See https://github.com/kubernetes/client-go/blob/v2.0.0/tools/cache/controller.go#L125
+	if reflect.DeepEqual(config, m.config) {
+		return true
+	}
+
 	m.config = config
 
-	m.Shutdown()
+	m.stopIfRunning()
 
 	k8sClient, err := kubernetes.MakeClient(config.KubernetesAPI)
 	if err != nil {
@@ -131,11 +141,11 @@ func (m *Monitor) Configure(config *Config) bool {
 func (m *Monitor) Start(intervalSeconds int) error {
 	m.clusterState.StartSyncing(&v1.Pod{})
 
+	m.stop = make(chan struct{})
 	ticker := time.NewTicker(time.Second * time.Duration(intervalSeconds))
 
 	go func() {
 		defer ticker.Stop()
-		m.stop = make(chan struct{})
 
 		for {
 			select {
@@ -235,12 +245,20 @@ func (m *Monitor) syncResourceProperties(obj runtime.Object) {
 	}
 }
 
-// Shutdown halts everything that is syncing
-func (m *Monitor) Shutdown() {
+func (m *Monitor) stopIfRunning() {
 	if m.stop != nil {
 		m.stop <- struct{}{}
 	}
 	if m.clusterState != nil {
 		m.clusterState.Stop()
 	}
+}
+
+// Shutdown halts everything that is syncing
+func (m *Monitor) Shutdown() {
+	m.lock.Lock()
+	defer m.lock.Unlock()
+
+	m.stopIfRunning()
+	m.config = nil
 }
