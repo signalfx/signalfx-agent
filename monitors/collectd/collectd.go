@@ -202,20 +202,18 @@ func (cm *Manager) runCollectd() {
 	cm.stoppedCh = make(chan struct{}, 1)
 	restartDelay := 2 * time.Second
 
-	go cm.runAsChildProc()
-
 	for {
-		select {
-		case <-cm.stoppedCh:
-			if cm.state != Running {
-				return
-			}
+		cm.runAsChildProc()
 
-			log.Error("Collectd died when it was supposed to be running, restarting...")
-			time.Sleep(restartDelay)
-			go cm.runAsChildProc()
+		if cm.state != Running {
+			break
 		}
+
+		log.Error("Collectd died when it was supposed to be running, restarting...")
+		time.Sleep(restartDelay)
 	}
+
+	close(cm.stoppedCh)
 }
 
 func (cm *Manager) runAsChildProc() {
@@ -230,7 +228,6 @@ func (cm *Manager) runAsChildProc() {
 	err := cm.cmd.Start()
 	if err != nil {
 		log.WithError(err).Error("Could not start collectd child process!")
-		close(cm.stoppedCh)
 		return
 	}
 
@@ -238,8 +235,6 @@ func (cm *Manager) runAsChildProc() {
 
 	cm.cmdMutex.Unlock()
 	cm.cmd.Wait()
-
-	close(cm.stoppedCh)
 }
 
 func (cm *Manager) stop() {
