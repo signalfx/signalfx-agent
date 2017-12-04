@@ -25,6 +25,8 @@ var (
 	CollectdVersion string
 )
 
+const standaloneHostMount = "/hostfs"
+
 func init() {
 	log.SetFormatter(&prefixed.TextFormatter{})
 	log.SetLevel(log.InfoLevel)
@@ -32,6 +34,7 @@ func init() {
 
 func main() {
 	configPath := flag.String("config", "/etc/signalfx/agent.yaml", "agent config path")
+	isStandalone := flag.Bool("standalone", false, "set this if the agent is running outside of a container")
 	version := flag.Bool("version", false, "print agent version")
 	debug := flag.Bool("debug", false, "print debugging output")
 
@@ -55,6 +58,10 @@ func main() {
 	if *version {
 		fmt.Printf(core.VersionLine)
 		os.Exit(0)
+	}
+
+	if *isStandalone {
+		*configPath = standaloneHostMount + "/" + *configPath
 	}
 
 	exit := make(chan struct{})

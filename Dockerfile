@@ -94,10 +94,9 @@ ARG extra_cflags="-O2"
 ENV CFLAGS "-Wall -fPIC -DSIGNALFX_EIM=0 $extra_cflags"
 ENV CXXFLAGS $CFLAGS
 
-RUN ./build.sh &&\
+RUN autoreconf -vif &&\
     ./configure \
-	  --includedir="/usr/local/include/collectd" \
-	  --libdir="/usr/local/lib" \
+	  --prefix="/usr" \
 	  --localstatedir="/var" \
 	  --sysconfdir="/etc/collectd" \
 	  --enable-all-plugins \
@@ -126,11 +125,20 @@ RUN ./build.sh &&\
 	  --disable-write_redis \
 	  --disable-write_riemann \
 	  --disable-xmms \
-	  --disable-zone
+	  --disable-zone \
+      --without-included-ltdl \
+      --without-libstatgrab \
+      --disable-silent-rules \
+      --disable-static
 
 # Compile all of collectd first, including plugins
-RUN make -j4
+RUN make -j6 &&\
+    make install
 
+COPY scripts/collect-libs /opt/collect-libs
+RUN /opt/collect-libs /opt/deps /usr/sbin/collectd /usr/lib/collectd/
+
+RUN rm -rf /usr/lib/jvm/java-8-openjdk-amd64/man /usr/lib/jvm/java-8-openjdk-amd64/docs /usr/lib/jvm/java-8-openjdk-amd64/include
 
 ###### Golang Dependencies Image ######
 FROM golang:1.9.2-stretch as godeps
@@ -153,7 +161,7 @@ FROM ubuntu:16.04 as agent-builder
 
 # Cgo requires dep libraries present
 RUN apt update &&\
-    apt install -y libzmq5-dev wget pkg-config
+    apt install -y wget pkg-config
 
 ENV GO_VERSION=1.9.2 PATH=$PATH:/usr/local/go/bin
 RUN cd /tmp &&\
@@ -170,8 +178,12 @@ ADD scripts/go_packages.tar /go/src/github.com/signalfx/neo-agent/
 ENV GOPATH=/go
 WORKDIR /go/src/github.com/signalfx/neo-agent
 COPY VERSIONS .
+
 RUN make signalfx-agent &&\
 	cp signalfx-agent /usr/bin/signalfx-agent
+
+COPY scripts/collect-libs /opt/collect-libs
+RUN /opt/collect-libs /opt/deps /usr/bin/signalfx-agent
 
 
 ###### Python Plugin Image ######
@@ -206,92 +218,56 @@ RUN apt install -y libffi-dev libssl-dev build-essential python-dev libcurl4-ope
 COPY neopy/requirements.txt /tmp/requirements.txt
 RUN pip install -r /tmp/requirements.txt
 
+# Delete all compiled python to save space
+RUN find /usr/lib/python2.7 /usr/local/lib/python2.7/dist-packages -name "*.pyc" | xargs rm
+
+####### Extra packages to make things easier to work with ########
+FROM ubuntu:16.04 as extra-packages
+
+RUN apt update &&\
+    apt install -y \
+	  netcat.openbsd \
+	  curl \
+	  vim
+
+COPY scripts/collect-libs /opt/collect-libs
+RUN /opt/collect-libs /opt/deps /bin /usr/bin/vim /usr/bin/curl /usr/bin/du
+
 
 ###### Final Agent Image #######
-FROM ubuntu:16.04 as final-image
-
-ENV DEBIAN_FRONTEND noninteractive
-ENV LD_LIBRARY_PATH /usr/lib:/usr/local/lib/collectd:/usr/lib/jvm/java-8-openjdk-amd64/jre/lib/amd64/server
-
-RUN sed -i -e '/^deb-src/d' /etc/apt/sources.list \
-    && apt-get update \
-    && apt-get install -y \
-      curl \
-      debconf \
-      default-jre-headless \
-      iptables \
-      libatasmart4 \
-      libc6 \
-      libcurl3-gnutls \
-      libcurl4-gnutls-dev \
-      libdbi1 \
-      libesmtp6 \
-      libganglia1 \
-      libgcrypt20 \
-      libglib2.0-0 \
-      libldap-2.4-2 \
-      libltdl7 \
-      liblvm2app2.2 \
-      libmemcached11 \
-      libmicrohttpd10 \
-      libmnl0 \
-      libmodbus5 \
-      libmysqlclient-dev \
-      libmysqlclient20 \
-      libnotify4 \
-      libopenipmi0 \
-      liboping0 \
-      libowcapi-3.1-1 \
-      libpcap0.8 \
-      libperl5.22 \
-      libpq5 \
-      libprotobuf-c1 \
-      libpython2.7 \
-      librabbitmq4 \
-      librdkafka1 \
-      librrd4 \
-      libsensors4 \
-      libsnmp30 \
-      libtokyotyrant3 \
-      libudev1 \
-      libupsclient4 \
-      libvarnishapi1 \
-      libvirt0 \
-      libxen-4.6 \
-      libxml2 \
-      libyajl2 \
-	  libzmq5-dev \
-	  netcat-openbsd \
-      net-tools \
-      openjdk-8-jre-headless \
-      vim \
-      wget
-
-CMD ["/usr/bin/signalfx-agent"]
-
-COPY scripts/debug.sh /opt/debug.sh
-ARG DEBUG=false
-RUN bash -ec 'if [[ $DEBUG == 'true' ]]; then bash /opt/debug.sh; fi'
-
-LABEL app="signalfx-agent"
-
-RUN mkdir -p /etc/collectd/managed_config /etc/collectd/filtering_config
+FROM scratch as final-image
 
 # Pull in non-C collectd plugins
-COPY --from=python-plugins /usr/share/collectd /usr/share/collectd
+COPY --from=python-plugins /usr/share/collectd/ /usr/share/collectd
 #COPY --from=python-plugins /opt/dd/dd-agent /opt/dd/dd-agent
 #COPY --from=python-plugins /opt/dd/integrations-core /opt/dd/integrations-core
-COPY --from=collectd /usr/src/collectd/src/types.db /usr/share/collectd/types.db
 # Grab pip dependencies too
-COPY --from=python-plugins /usr/local/lib/python2.7/dist-packages /usr/local/lib/python2.7/dist-packages
+COPY --from=python-plugins /usr/lib/python2.7/ /usr/lib/python2.7
+COPY --from=python-plugins /usr/local/lib/python2.7/ /usr/local/lib/python2.7
 
-COPY --from=collectd /usr/src/collectd/src/daemon/collectd /usr/bin
 # All the built-in collectd plugins
-COPY --from=collectd /usr/src/collectd/src/.libs/*.so /usr/local/lib/collectd/
 COPY --from=collectd /usr/src/collectd/bindings/java/.libs/*.jar /usr/share/collectd/java/
 
+# Get lib dependencies for collectd and agent
+COPY --from=collectd /opt/deps/ /
+COPY --from=extra-packages /opt/deps/ /
+
+COPY --from=collectd /usr/lib/jvm/ /usr/lib/jvm
+COPY --from=collectd /lib64/ /lib64
+COPY --from=collectd /lib/ /lib
+COPY --from=collectd /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt
+COPY --from=collectd /usr/src/collectd/src/types.db /usr/share/collectd/types.db
+
+COPY --from=agent-builder /opt/deps/ /
 COPY --from=agent-builder /usr/bin/signalfx-agent /usr/bin/signalfx-agent
 
-COPY neopy /usr/local/lib/neopy
+COPY neopy /usr/lib/neopy
 COPY scripts/agent-status /usr/bin/agent-status
+
+RUN mkdir -p \
+      /var/lib/collectd \
+	  /var/run \
+	  /etc/collectd/managed_config \
+	  /etc/collectd/filtering_config &&\
+	rm /.dockerenv
 RUN chmod +x /usr/bin/signalfx-agent

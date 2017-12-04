@@ -9,7 +9,7 @@ scripts/go_packages.tar
 monitors/**/template.go
 monitors/collectd/collectd.conf.go
 /neo-agent
-/signalfx-agent
+/signalfx-agent*
 scripts/.Dockerfile*
 .glide/
 *.pyc

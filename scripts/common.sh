@@ -32,7 +32,6 @@ do_docker_build() {
     -f $dockerfile \
     --label agent.version=$($SCRIPT_DIR/../VERSIONS agent_version) \
     --label collectd.version=$($SCRIPT_DIR/../VERSIONS collectd_version) \
-    --build-arg DEBUG=$DEBUG \
     $(extra_cflags_build_arg) \
     $SCRIPT_DIR/.. 
 }

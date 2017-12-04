@@ -12,44 +12,74 @@ cat $SCRIPT_DIR/../Dockerfile > $dockerfile
 
 cat <<-EOH >> $dockerfile
 
-FROM final-image
+FROM ubuntu:16.04 as dev-extras
 
-COPY --from=godeps /go/src/github.com/signalfx/neo-agent/vendor src/github.com/signalfx/neo-agent/vendor
-COPY --from=godeps /go/pkg /go/pkg
-
-COPY --from=agent-builder /usr/ /tmp/usr-agent-buider
-COPY --from=godeps /usr/ /tmp/usr-godeps
-COPY --from=collectd /usr/ /tmp/usr-collectd
-COPY --from=collectd /etc/ /tmp/etc-collectd
-
-WORKDIR /tmp
-RUN wget https://storage.googleapis.com/golang/go1.9.2.linux-amd64.tar.gz &&\
-    tar -xf go1.9.2* &&\
-    mv go /usr/local
-
-RUN cp -ra /tmp/usr-collectd/* /usr/ &&\
-    cd /usr/src/collectd &&\
-    make install
-
-RUN cp /tmp/usr-godeps/bin/dep /usr/bin/
-
-RUN pip install ipython==5 ipdb
-
-RUN apt install -y \
-      libzmq5-dev \
+RUN apt update &&\
+    apt install -y libcurl4-openssl-dev &&\
+    apt install -y \
       autoconf \
       automake \
       autotools-dev \
       bison \
-      build-essential
+      build-essential \
+      flex \
+      git \
+      libtool \
+      pkg-config \
+      python-pip
 
-ENV PATH=$PATH:/usr/local/go/bin:/go/bin GOPATH=/go
+RUN pip install ipython==5 ipdb
 
-RUN go get -u github.com/golang/lint/golint
+COPY scripts/collect-libs /opt/collect-libs
+# Collect all of the collectd and agent build tools
+
+RUN /opt/collect-libs /opt/deps \
+      /usr/bin/aclocal \
+      /usr/bin/autoconf \
+      /usr/bin/autoheader \
+      /usr/bin/automake \
+      /usr/bin/basename \
+      /usr/bin/bison \
+      /usr/bin/dirname \
+      /usr/bin/find \
+      /usr/bin/g++ \
+      /usr/bin/gcc \
+      /usr/bin/git \
+      /usr/bin/ld \
+      /usr/bin/lex \
+      /usr/bin/libtoolize \
+      /usr/bin/make \
+      /usr/bin/perl \
+      /usr/bin/pkg-config \
+      /usr/bin/xargs \
+      /usr/lib/git-core \
+      /usr/local/bin/ipdb \
+      /usr/local/bin/ipython \
+      /usr/share/git-core \
+      /usr/share/libtool 
+
+
+FROM final-image
 
 WORKDIR /go/src/github.com/signalfx/neo-agent
-
 CMD ["/bin/bash"]
+ENV PATH=$PATH:/usr/local/go/bin:/go/bin GOPATH=/go
+
+COPY --from=agent-builder /usr/local/go/ /usr/local/go
+COPY --from=godeps /usr/bin/dep /usr/bin/dep
+
+COPY --from=dev-extras /usr/local/lib/python2.7/ /usr/local/lib/python2.7
+
+COPY --from=collectd /usr/src/collectd/ /usr/src/collectd
+
+COPY --from=dev-extras /opt/deps/ /
+
+RUN mkdir /tmp && go get -u github.com/golang/lint/golint
+RUN go get github.com/derekparker/delve/cmd/dlv
+
+COPY --from=godeps /go/src/github.com/signalfx/neo-agent/vendor src/github.com/signalfx/neo-agent/vendor
+COPY --from=godeps /go/pkg /go/pkg
+
 EOH
 
 do_docker_build signalfx-agent-dev $dockerfile
