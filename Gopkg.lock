@@ -266,6 +266,12 @@
   revision = "9a96098268ef555eb1f04d8b1ee813d0a87e5089"
 
 [[projects]]
+  name = "github.com/shirou/gopsutil"
+  packages = ["."]
+  revision = "bfe3c2e8f406bf352bc8df81f98c752224867349"
+  version = "v2.17.11"
+
+[[projects]]
   name = "github.com/signalfx/com_signalfx_metrics_protobuf"
   packages = ["."]
   revision = "1477d7f5730360be99fcaf7e7d7c56e03be2eabc"
@@ -396,6 +402,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "cce40d6c95666f319583878b40b5ccc810ad071e61892de323695770155dcc13"
+  inputs-digest = "28a07149ed8d01c59ddaf0743974c7b3bedb9a1870967137dfa0da077ca91b0d"
   solver-name = "gps-cdcl"
   solver-version = 1
