@@ -33,6 +33,7 @@ import (
 	_ "github.com/signalfx/neo-agent/monitors/kubernetes"
 	_ "github.com/signalfx/neo-agent/observers/docker"
 	_ "github.com/signalfx/neo-agent/observers/file"
+	_ "github.com/signalfx/neo-agent/observers/host"
 	_ "github.com/signalfx/neo-agent/observers/kubelet"
 	_ "github.com/signalfx/neo-agent/observers/kubernetes"
 )

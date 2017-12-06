@@ -14,6 +14,7 @@ import (
 // evaluating it.  MAKE SURE TO UPDATE THIS IF ADDING OR REMOVING METADATA TO
 // ENDPOINT/INSTANCES
 var validRuleIdentifiers = map[string]bool{
+	"name":             true,
 	"host":             true,
 	"port":             true,
 	"networkPort":      true,
@@ -96,6 +97,15 @@ func DoesServiceMatchRule(si Endpoint, ruleText string) bool {
 	}
 
 	asMap := EndpointAsMap(si)
+	if !endpointMapHasAllVars(asMap, rule.Vars()) {
+		log.WithFields(log.Fields{
+			"discoveryRule":   rule.String(),
+			"values":          asMap,
+			"serviceInstance": si,
+		}).Debug("Endpoint does not include some variables used in rule, assuming does not match")
+		return false
+	}
+
 	ret, err := rule.Evaluate(asMap)
 	if err != nil {
 		log.WithFields(log.Fields{
@@ -142,4 +152,13 @@ func ValidateDiscoveryRule(rule string) error {
 		}
 	}
 	return nil
+}
+
+func endpointMapHasAllVars(endpointParams map[string]interface{}, vars []string) bool {
+	for _, v := range vars {
+		if _, ok := endpointParams[v]; !ok {
+			return false
+		}
+	}
+	return true
 }
