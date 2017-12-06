@@ -151,9 +151,10 @@ COPY Gopkg.toml Gopkg.lock ./
 
 RUN dep ensure -vendor-only
 
+RUN apt update && apt install -y parallel
 # Precompile and cache vendor objects so that building the app is faster
 # A bunch of these fail because dep pulls in more than necessary, but a lot do compile
-RUN cd vendor && for p in $(find . -type d -not -empty | grep -v '\btest'); do go install $p 2>/dev/null; done || true
+RUN cd vendor && find . -type d -not -empty | grep -v '\btest' | parallel go install {} 2>/dev/null || true
 
 
 ###### Neoagent Build Image ########
