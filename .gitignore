@@ -14,3 +14,4 @@ scripts/.Dockerfile*
 .glide/
 *.pyc
 /collectd
+.vagrant
