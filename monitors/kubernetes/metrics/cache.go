@@ -28,6 +28,7 @@ type DatapointCache struct {
 	deploymentMetrics            resourceMetrics
 	replicationControllerMetrics resourceMetrics
 	replicaSetMetrics            resourceMetrics
+	nodeMetrics                  resourceMetrics
 
 	Mutex sync.Mutex
 	// Used to optimize slice creation when collecting all datapoints
@@ -42,6 +43,7 @@ func NewDatapointCache() *DatapointCache {
 		deploymentMetrics:            newDeploymentMetrics(),
 		replicationControllerMetrics: newReplicationControllerMetrics(),
 		replicaSetMetrics:            newReplicaSetMetrics(),
+		nodeMetrics:                  newNodeMetrics(),
 	}
 }
 
@@ -57,6 +59,7 @@ func (dc *DatapointCache) AllDatapoints() []*datapoint.Datapoint {
 	dps = append(dps, dc.deploymentMetrics.Datapoints()...)
 	dps = append(dps, dc.replicationControllerMetrics.Datapoints()...)
 	dps = append(dps, dc.replicaSetMetrics.Datapoints()...)
+	dps = append(dps, dc.nodeMetrics.Datapoints()...)
 
 	return dps
 }
@@ -87,6 +90,8 @@ func (dc *DatapointCache) HandleChange(oldObj, newObj runtime.Object) {
 		handler = dc.deploymentMetrics
 	case *v1beta1.ReplicaSet:
 		handler = dc.replicaSetMetrics
+	case *v1.Node:
+		handler = dc.nodeMetrics
 	default:
 		log.WithFields(log.Fields{
 			"objectType": objToTest,
