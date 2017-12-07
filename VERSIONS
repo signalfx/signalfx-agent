@@ -2,6 +2,6 @@
 
 collectd_commit="245be19b7026358921e3995e48d9306b9674ccc7"
 collectd_version="5.7.2-sfx0"
-agent_version="2.2.1"
+agent_version="2.2.2"
 
 [[ -n $1 ]] && echo -n ${!1}
