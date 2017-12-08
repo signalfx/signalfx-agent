@@ -172,6 +172,7 @@ RUN cd /tmp &&\
 COPY --from=godeps /go/src/github.com/signalfx/neo-agent/vendor /go/src/github.com/signalfx/neo-agent/vendor
 COPY --from=godeps /go/pkg /go/pkg
 COPY --from=collectd /usr/src/collectd/ /usr/src/collectd
+
 # The agent source files are tarred up because otherwise we would have to have
 # a separate ADD/COPY layer for every top-level package dir.
 ADD scripts/go_packages.tar /go/src/github.com/signalfx/neo-agent/
@@ -182,9 +183,6 @@ COPY VERSIONS .
 
 RUN make signalfx-agent &&\
 	cp signalfx-agent /usr/bin/signalfx-agent
-
-COPY scripts/collect-libs /opt/collect-libs
-RUN /opt/collect-libs /opt/deps /usr/bin/signalfx-agent
 
 
 ###### Python Plugin Image ######
@@ -246,24 +244,15 @@ COPY --from=python-plugins /usr/share/collectd/ /usr/share/collectd
 COPY --from=python-plugins /usr/lib/python2.7/ /usr/lib/python2.7
 COPY --from=python-plugins /usr/local/lib/python2.7/ /usr/local/lib/python2.7
 
-# All the built-in collectd plugins
-COPY --from=collectd /usr/src/collectd/bindings/java/.libs/*.jar /usr/share/collectd/java/
-
-# Get lib dependencies for collectd and agent
-COPY --from=collectd /opt/deps/ /
 COPY --from=extra-packages /opt/deps/ /
 
+COPY scripts/agent-status /usr/bin/agent-status
+
+# Get lib dependencies for collectd
+COPY --from=collectd /opt/deps/ /
 COPY --from=collectd /usr/lib/jvm/ /usr/lib/jvm
 COPY --from=collectd /lib64/ /lib64
 COPY --from=collectd /lib/ /lib
-COPY --from=collectd /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt
-COPY --from=collectd /usr/src/collectd/src/types.db /usr/share/collectd/types.db
-
-COPY --from=agent-builder /opt/deps/ /
-COPY --from=agent-builder /usr/bin/signalfx-agent /usr/bin/signalfx-agent
-
-COPY neopy /usr/lib/neopy
-COPY scripts/agent-status /usr/bin/agent-status
 
 RUN mkdir -p \
       /var/lib/collectd \
@@ -271,4 +260,13 @@ RUN mkdir -p \
 	  /etc/collectd/managed_config \
 	  /etc/collectd/filtering_config &&\
 	rm /.dockerenv
+
+COPY --from=collectd /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt
+COPY --from=collectd /usr/src/collectd/src/types.db /usr/share/collectd/types.db
+# All the built-in collectd plugins
+COPY --from=collectd /usr/src/collectd/bindings/java/.libs/*.jar /usr/share/collectd/java/
+
+COPY neopy /usr/lib/neopy
+COPY --from=agent-builder /usr/bin/signalfx-agent /usr/bin/signalfx-agent
+
 RUN chmod +x /usr/bin/signalfx-agent

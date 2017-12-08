@@ -10,7 +10,7 @@ dockerfile=$SCRIPT_DIR/.Dockerfile.signalfx-agent-dev
 
 cat $SCRIPT_DIR/../Dockerfile > $dockerfile
 
-cat <<-EOH >> $dockerfile
+cat <<-'EOH' >> $dockerfile
 
 FROM ubuntu:16.04 as dev-extras
 
