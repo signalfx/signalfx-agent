@@ -11,6 +11,7 @@ import (
 	"text/template"
 
 	"github.com/davecgh/go-spew/spew"
+	"github.com/pkg/errors"
 	"github.com/signalfx/neo-agent/core/services"
 	"github.com/signalfx/neo-agent/utils"
 	log "github.com/sirupsen/logrus"
@@ -22,29 +23,21 @@ const pluginDir = "/usr/share/collectd"
 
 // WriteConfFile writes a file to the given filePath, ensuring that the
 // containing directory exists.
-func WriteConfFile(content, filePath string) bool {
+func WriteConfFile(content, filePath string) error {
 	log.Debugf("Writing file %s", filePath)
 
 	os.MkdirAll(path.Dir(filePath), 0755)
 	f, err := os.Create(filePath)
 	if err != nil {
-		log.WithFields(log.Fields{
-			"error": err,
-			"path":  filePath,
-		}).Error("failed to create/truncate collectd config file")
-		return false
+		return errors.Wrapf(err, "failed to create/truncate collectd config file at %s", filePath)
 	}
 	defer f.Close()
 
 	_, err = f.Write([]byte(content))
 	if err != nil {
-		log.WithFields(log.Fields{
-			"error": err,
-			"path":  filePath,
-		}).Error("failed to write collectd config file")
-		return false
+		return errors.Wrapf(err, "Failed to write collectd config file at %s", filePath)
 	}
-	return true
+	return nil
 }
 
 // InjectTemplateFuncs injects some helper functions into our templates.
@@ -120,7 +113,7 @@ func InjectTemplateFuncs(tmpl *template.Template) *template.Template {
 			},
 			// Renders a subtemplate using the provided context, and optionally
 			// a service, which will be added to the context as "service"
-			"renderValue": func(templateText string, context map[string]interface{}) (string, error) {
+			"renderValue": func(templateText string, context interface{}) (string, error) {
 				if templateText == "" {
 					return "", nil
 				}

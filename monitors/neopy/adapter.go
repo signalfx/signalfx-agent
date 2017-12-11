@@ -14,7 +14,7 @@ import (
 	"time"
 
 	"github.com/signalfx/golib/datapoint"
-	"github.com/signalfx/neo-agent/core/config/types"
+	"github.com/signalfx/neo-agent/monitors"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -27,7 +27,7 @@ type NeoPy struct {
 	subprocCancel  func()
 	registered     bool
 	shouldShutdown bool
-	dpChannels     map[types.MonitorID]chan<- *datapoint.Datapoint
+	dpChannels     map[monitors.MonitorID]chan<- *datapoint.Datapoint
 	dpChannelsLock sync.RWMutex
 	mainDPChan     <-chan *DatapointMessage
 
@@ -53,7 +53,7 @@ func Instance() *NeoPy {
 func newInstance() *NeoPy {
 	return &NeoPy{
 		shouldShutdown: false,
-		dpChannels:     make(map[types.MonitorID]chan<- *datapoint.Datapoint),
+		dpChannels:     make(map[monitors.MonitorID]chan<- *datapoint.Datapoint),
 		registerQueue:  newRegisterQueue(),
 		configQueue:    newConfigQueue(),
 		shutdownQueue:  newShutdownQueue(),
@@ -131,7 +131,7 @@ func (npy *NeoPy) EnsureMonitorsRegistered() {
 	npy.registered = true
 }
 
-func (npy *NeoPy) sendDatapointsForMonitorTo(monitorID types.MonitorID, dpChan chan<- *datapoint.Datapoint) {
+func (npy *NeoPy) sendDatapointsForMonitorTo(monitorID monitors.MonitorID, dpChan chan<- *datapoint.Datapoint) {
 	npy.dpChannelsLock.Lock()
 	defer npy.dpChannelsLock.Unlock()
 	npy.dpChannels[monitorID] = dpChan
@@ -163,7 +163,7 @@ func (npy *NeoPy) ConfigureInPython(config interface{}) bool {
 }
 
 // ShutdownMonitor will shutdown the given monitor id in the python subprocess
-func (npy *NeoPy) ShutdownMonitor(monitorID types.MonitorID) {
+func (npy *NeoPy) ShutdownMonitor(monitorID monitors.MonitorID) {
 	npy.shutdownQueue.sendShutdownForMonitor(monitorID)
 	delete(npy.dpChannels, monitorID)
 }

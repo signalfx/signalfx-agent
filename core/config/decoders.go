@@ -16,10 +16,6 @@ import (
 func LoadConfigFromContent(fileContent []byte, metaStore *stores.MetaStore) (*Config, error) {
 	config := &Config{}
 
-	if err := defaults.Set(config); err != nil {
-		panic(fmt.Sprintf("Config defaults are wrong types: %s", err))
-	}
-
 	preprocessedContent := preprocessConfig(fileContent)
 	log.Debugf("Pre: %s", preprocessedContent)
 
@@ -27,6 +23,10 @@ func LoadConfigFromContent(fileContent []byte, metaStore *stores.MetaStore) (*Co
 	if err != nil {
 		log.WithError(err).Error("Could not unmarshal config file")
 		return nil, err
+	}
+
+	if err := defaults.Set(config); err != nil {
+		panic(fmt.Sprintf("Config defaults are wrong types: %s", err))
 	}
 
 	return config.initialize(metaStore)

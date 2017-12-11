@@ -12,9 +12,9 @@ import (
 const monitorType = "collectd/health_checker"
 
 func init() {
-	monitors.Register(monitorType, func() interface{} {
+	monitors.Register(monitorType, func(id monitors.MonitorID) interface{} {
 		return &Monitor{
-			*collectd.NewServiceMonitorCore(CollectdTemplate),
+			*collectd.NewMonitorCore(id, CollectdTemplate),
 		}
 	}, &Config{})
 }
@@ -25,20 +25,24 @@ type serviceEndpoint struct {
 
 // Config is the monitor-specific config with the generic config embedded
 type Config struct {
-	config.MonitorConfig
+	config.MonitorConfig `acceptsEndpoints:"true"`
+
+	Host string `yaml:"host"`
+	Port uint16 `yaml:"port"`
+	Name string `yaml:"name"`
+
 	URL *string `yaml:"url"`
 	// This can be either a string or numeric type
-	JSONVal          *interface{}            `yaml:"jsonVal"`
-	JSONKey          *string                 `yaml:"jsonKey"`
-	ServiceEndpoints []services.EndpointCore `yaml:"serviceEndpoints" default:"[]"`
+	JSONVal *interface{} `yaml:"jsonVal"`
+	JSONKey *string      `yaml:"jsonKey"`
 }
 
 // Monitor is the main type that represents the monitor
 type Monitor struct {
-	collectd.ServiceMonitorCore
+	collectd.MonitorCore
 }
 
 // Configure configures and runs the plugin in collectd
-func (rm *Monitor) Configure(conf *Config) bool {
+func (rm *Monitor) Configure(conf *Config) error {
 	return rm.SetConfigurationAndRun(conf)
 }

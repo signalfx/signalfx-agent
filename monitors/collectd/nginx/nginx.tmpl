@@ -1,17 +1,17 @@
 <LoadPlugin "nginx">
-  Interval {{.C.IntervalSeconds}}
+  Interval {{.IntervalSeconds}}
 </LoadPlugin>
 <Plugin "nginx">
-  {{range .Endpoints}}
-  <Instance "{{withDefault .Name .ID}}[{{encodeDimsForPluginInstance $.C.ExtraDimensions .Dimensions}}]">
-      URL "http://{{.Host}}:{{.Port}}/nginx_status"
-      Timeout {{withDefault $.C.Timeout 10}}
-      {{with $.C.Username -}}
+  <Instance "{{.Name}}[{{encodeDimsForPluginInstance .ExtraDimensions}}]">
+      {{with .URL}}
+      URL "{{renderValue . $ }}"
+      {{end}}
+      Timeout {{withDefault .Timeout 5000}}
+      {{with .Username -}}
       User "{{.}}"
       {{- end}}
-      {{with $.C.Password -}}
+      {{with .Password -}}
       Password "{{.}}"
       {{- end}}
   </Instance>
-  {{end}}
 </Plugin>

@@ -2,11 +2,10 @@ LoadPlugin "python"
 <Plugin python>
   ModulePath "{{Globals.PluginRoot}}/zookeeper"
   Import "zk-collectd"
-  {{range .Endpoints}}
+
   <Module "zk-collectd">
     Hosts "{{.Host}}"
     Port {{.Port}}
-    Instance "{{withDefault .Name .ID}}[{{encodeDimsForPluginInstance $.C.ExtraDimensions .Dimensions}}]"
+    Instance "{{.Name}}[{{encodeDimsForPluginInstance .ExtraDimensions}}]"
   </Module>
-  {{end}}
 </Plugin>

@@ -9,6 +9,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -42,11 +43,10 @@ type Client struct {
 }
 
 // NewClient creates a new client with the given config
-func NewClient(kubeletAPI *APIConfig) *Client {
+func NewClient(kubeletAPI *APIConfig) (*Client, error) {
 	certs, err := x509.SystemCertPool()
 	if err != nil {
-		log.WithError(err).Error("Could not load system x509 cert pool")
-		return nil
+		return nil, errors.Wrapf(err, "Could not load system x509 cert pool")
 	}
 
 	tlsConfig := &tls.Config{
@@ -56,9 +56,8 @@ func NewClient(kubeletAPI *APIConfig) *Client {
 	var transport http.RoundTripper = &(*http.DefaultTransport.(*http.Transport))
 	if kubeletAPI.AuthType == AuthTypeTLS {
 		if kubeletAPI.CACertPath != "" {
-			augmentCertPoolFromCAFile(certs, kubeletAPI.CACertPath)
-			if certs == nil {
-				return nil
+			if err := augmentCertPoolFromCAFile(certs, kubeletAPI.CACertPath); err != nil {
+				return nil, err
 			}
 		}
 
@@ -69,12 +68,8 @@ func NewClient(kubeletAPI *APIConfig) *Client {
 		if clientCertPath != "" && clientKeyPath != "" {
 			cert, err := tls.LoadX509KeyPair(clientCertPath, clientKeyPath)
 			if err != nil {
-				log.WithFields(log.Fields{
-					"error":          err,
-					"clientKeyPath":  clientKeyPath,
-					"clientCertPath": clientCertPath,
-				}).Error("Kubelet client cert/key could not be loaded")
-				return nil
+				return nil, errors.Wrapf(err, "Kubelet client cert/key could not be loaded from %s/%s",
+					clientKeyPath, clientCertPath)
 			}
 			clientCerts = append(clientCerts, cert)
 			log.Infof("Configured TLS client cert in %s with key %s", clientCertPath, clientKeyPath)
@@ -88,17 +83,13 @@ func NewClient(kubeletAPI *APIConfig) *Client {
 
 		token, err := ioutil.ReadFile("/var/run/secrets/kubernetes.io/serviceaccount/token")
 		if err != nil {
-			log.WithFields(log.Fields{
-				"error": err,
-			}).Error("Could not read service account token at default location, are " +
+			return nil, errors.Wrap(err, "Could not read service account token at default location, are "+
 				"you sure service account tokens are mounted into your containers by default?")
-			return nil
 		}
 
 		rootCAFile := "/var/run/secrets/kubernetes.io/serviceaccount/ca.crt"
-		if ok := augmentCertPoolFromCAFile(certs, rootCAFile); !ok {
-			log.Errorf("Expected to load root CA config from %s, but got err: %v", rootCAFile, err)
-			return nil
+		if err := augmentCertPoolFromCAFile(certs, rootCAFile); err != nil {
+			return nil, errors.Wrapf(err, "Could not load root CA config from %s", rootCAFile)
 		}
 
 		tlsConfig.RootCAs = certs
@@ -121,7 +112,7 @@ func NewClient(kubeletAPI *APIConfig) *Client {
 			Transport: transport,
 		},
 		config: kubeletAPI,
-	}
+	}, nil
 }
 
 // NewRequest is used to provide a base URL to which paths can be appended.

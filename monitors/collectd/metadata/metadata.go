@@ -11,9 +11,9 @@ import (
 const monitorType = "collectd/signalfx-metadata"
 
 func init() {
-	monitors.Register(monitorType, func() interface{} {
+	monitors.Register(monitorType, func(id monitors.MonitorID) interface{} {
 		return &Monitor{
-			*collectd.NewStaticMonitorCore(CollectdTemplate),
+			*collectd.NewMonitorCore(id, CollectdTemplate),
 		}
 	}, &Config{})
 }
@@ -25,10 +25,10 @@ type Config struct {
 
 // Monitor is the main type that represents the monitor
 type Monitor struct {
-	collectd.StaticMonitorCore
+	collectd.MonitorCore
 }
 
 // Configure configures and runs the plugin in collectd
-func (m *Monitor) Configure(conf *Config) bool {
+func (m *Monitor) Configure(conf *Config) error {
 	return m.SetConfigurationAndRun(conf)
 }

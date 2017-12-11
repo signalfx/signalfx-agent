@@ -79,8 +79,8 @@ func TestNoPods(t *testing.T) {
 
 		kub = &Observer{
 			serviceCallbacks: &observers.ServiceCallbacks{
-				Added:   func(se services.Endpoint) { endpoints[se.ID()] = se },
-				Removed: func(se services.Endpoint) { delete(endpoints, se.ID()) },
+				Added:   func(se services.Endpoint) { endpoints[se.Core().ID] = se },
+				Removed: func(se services.Endpoint) { delete(endpoints, se.Core().ID) },
 			},
 		}
 		kub.Configure(config)

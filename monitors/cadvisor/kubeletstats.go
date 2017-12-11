@@ -27,7 +27,7 @@ const (
 )
 
 func init() {
-	monitors.Register(kubeletStatsType, func() interface{} { return &KubeletStatsMonitor{} }, &KubeletStatsConfig{})
+	monitors.Register(kubeletStatsType, func(id monitors.MonitorID) interface{} { return &KubeletStatsMonitor{} }, &KubeletStatsConfig{})
 }
 
 // KubeletStatsConfig respresents config for the Kubelet stats monitor
@@ -49,14 +49,14 @@ type KubeletStatsMonitor struct {
 }
 
 // Configure the Kubelet Stats monitor
-func (ks *KubeletStatsMonitor) Configure(conf *KubeletStatsConfig) bool {
+func (ks *KubeletStatsMonitor) Configure(conf *KubeletStatsConfig) error {
 	kubeletAPI := conf.KubeletAPI
 	if kubeletAPI.URL == "" {
 		kubeletAPI.URL = fmt.Sprintf("https://%s:10250", conf.Hostname)
 	}
-	client := kubelet.NewClient(&kubeletAPI)
-	if client == nil {
-		return false
+	client, err := kubelet.NewClient(&kubeletAPI)
+	if err != nil {
+		return err
 	}
 
 	return ks.Monitor.Configure(&conf.Config, &conf.MonitorConfig, ks.DPs, newKubeletInfoProvider(client))

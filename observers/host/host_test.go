@@ -39,8 +39,8 @@ func Test_HostObserver(t *testing.T) {
 
 		o = &Observer{
 			serviceCallbacks: &observers.ServiceCallbacks{
-				Added:   func(se services.Endpoint) { endpoints[se.ID()] = se },
-				Removed: func(se services.Endpoint) { delete(endpoints, se.ID()) },
+				Added:   func(se services.Endpoint) { endpoints[se.Core().ID] = se },
+				Removed: func(se services.Endpoint) { delete(endpoints, se.Core().ID) },
 			},
 			hostInfoProvider: &fakeHostInfoProvider{
 				connectionStats: parseConnectionStatJson(connectionStatJson),

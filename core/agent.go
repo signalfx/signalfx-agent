@@ -34,13 +34,13 @@ func NewAgent() *Agent {
 
 	agent.observers = &observers.ObserverManager{
 		CallbackTargets: &observers.ServiceCallbacks{
-			Added:   agent.serviceAdded,
-			Removed: agent.serviceRemoved,
+			Added:   agent.endpointAdded,
+			Removed: agent.endpointRemoved,
 		},
 	}
 
 	agent.writer = writer.New()
-	agent.monitors = &monitors.MonitorManager{}
+	agent.monitors = monitors.NewMonitorManager()
 
 	return &agent
 }
@@ -79,12 +79,12 @@ func (a *Agent) configure(conf *config.Config) {
 	a.lastConfig = conf
 }
 
-func (a *Agent) serviceAdded(service services.Endpoint) {
-	a.monitors.ServiceAdded(service)
+func (a *Agent) endpointAdded(service services.Endpoint) {
+	a.monitors.EndpointAdded(service)
 }
 
-func (a *Agent) serviceRemoved(service services.Endpoint) {
-	a.monitors.ServiceRemoved(service)
+func (a *Agent) endpointRemoved(service services.Endpoint) {
+	a.monitors.EndpointRemoved(service)
 }
 
 func (a *Agent) shutdown() {

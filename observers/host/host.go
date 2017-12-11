@@ -45,7 +45,7 @@ func init() {
 }
 
 // Configure the host observer
-func (o *Observer) Configure(config *Config) bool {
+func (o *Observer) Configure(config *Config) error {
 	if o.serviceDiffer != nil {
 		o.serviceDiffer.Stop()
 	}
@@ -59,7 +59,7 @@ func (o *Observer) Configure(config *Config) bool {
 
 	o.serviceDiffer.Start()
 
-	return true
+	return nil
 }
 
 var portTypeMap = map[uint32]services.PortType{

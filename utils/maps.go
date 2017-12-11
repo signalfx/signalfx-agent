@@ -3,6 +3,7 @@ package utils
 
 import (
 	"fmt"
+	"sort"
 )
 
 // MergeStringMaps merges n maps with a later map's keys overriding earlier maps
@@ -65,4 +66,15 @@ func InterfaceMapToStringMap(m map[interface{}]interface{}) map[string]string {
 		out[fmt.Sprintf("%v", k)] = fmt.Sprintf("%v", v)
 	}
 	return out
+}
+
+// SortMapKeys returns a slice of all of the keys of a map sorted
+// alphabetically ascending.
+func SortMapKeys(m map[string]interface{}) []string {
+	var keys []string
+	for k := range m {
+		keys = append(keys, k)
+	}
+	sort.Strings(keys)
+	return keys
 }

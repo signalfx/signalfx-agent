@@ -2,33 +2,31 @@ LoadPlugin "python"
 <Plugin "python">
   ModulePath "{{Globals.PluginRoot}}/mongodb"
   Import "mongodb"
-  {{range .Endpoints}}
   <Module mongodb>
     Host "{{.Host}}"
     Port {{.Port}}
-    {{with $.C.Username -}}
+    {{with .Username -}}
     User "{{.}}"
     {{- end}}
-    {{with $.C.Password -}}
+    {{with .Password -}}
     Password "{{.}}"
     {{- end}}
-    Database {{range $.C.Databases}} "{{.}}" {{end}}
-    Dimensions "{{encodeDimsForPluginInstance $.C.ExtraDimensions .Dimensions}}"
-    {{with $.C.UseTLS -}}
+    Database {{range .Databases}} "{{.}}" {{end}}
+    Dimensions "{{encodeDimsForPluginInstance .ExtraDimensions}}"
+    {{with .UseTLS -}}
     UseTLS {{.}}
     {{- end}}
-    {{with $.C.CACerts -}}
+    {{with .CACerts -}}
     CACerts "{{.}}"
     {{- end}}
-    {{with $.C.TLSClientCert -}}
+    {{with .TLSClientCert -}}
     TLSClientCert {{.}}
     {{- end}}
-    {{with $.C.TLSClientKey -}}
+    {{with .TLSClientKey -}}
     TLSClientKey {{.}}
     {{- end}}
-    {{with $.C.TLSClientKeyPassPhrase -}}
+    {{with .TLSClientKeyPassPhrase -}}
     TLSClientKeyPassphrase "{{.}}"
     {{- end}}
   </Module>
-  {{end}}
 </Plugin>

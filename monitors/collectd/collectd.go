@@ -9,13 +9,14 @@ import (
 	"sync"
 	"time"
 
+	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
 	"gopkg.in/fatih/set.v0"
 
 	"github.com/signalfx/golib/datapoint"
 	"github.com/signalfx/golib/event"
 	"github.com/signalfx/neo-agent/core/config"
-	"github.com/signalfx/neo-agent/core/config/types"
+	"github.com/signalfx/neo-agent/monitors"
 	"github.com/signalfx/neo-agent/monitors/collectd/templating"
 	"github.com/signalfx/neo-agent/monitors/collectd/write"
 	"github.com/signalfx/neo-agent/utils"
@@ -54,16 +55,16 @@ type Manager struct {
 	conf                 *config.CollectdConfig
 	restartDebounced     func()
 	restartDebouncedStop chan<- struct{}
-	activeMonitors       map[types.MonitorID]bool
-	genericJMXUsers      map[types.MonitorID]bool
+	activeMonitors       map[monitors.MonitorID]bool
+	genericJMXUsers      map[monitors.MonitorID]bool
 	// The local server that collectd sends its datapoints to
 	writeServer *write.Server
 }
 
 var collectdSingleton = &Manager{
 	state:           Stopped,
-	activeMonitors:  make(map[types.MonitorID]bool),
-	genericJMXUsers: make(map[types.MonitorID]bool),
+	activeMonitors:  make(map[monitors.MonitorID]bool),
+	genericJMXUsers: make(map[monitors.MonitorID]bool),
 }
 
 // Instance returns the singleton instance of the collectd manager
@@ -98,8 +99,8 @@ func (cm *Manager) Restart() {
 // config files.  The monitorID is passed in so that we can keep track of what
 // monitors are actively using collectd.  When a monitor is done (i.e.
 // shutdown) it should call MonitorDidShutdown.
-func (cm *Manager) ConfigureFromMonitor(monitorID types.MonitorID, conf *config.CollectdConfig,
-	dpChan chan<- *datapoint.Datapoint, eventChan chan<- *event.Event, usesGenericJMX bool) bool {
+func (cm *Manager) ConfigureFromMonitor(monitorID monitors.MonitorID, conf *config.CollectdConfig,
+	dpChan chan<- *datapoint.Datapoint, eventChan chan<- *event.Event, usesGenericJMX bool) error {
 
 	cm.configMutex.Lock()
 	defer cm.configMutex.Unlock()
@@ -119,8 +120,8 @@ func (cm *Manager) ConfigureFromMonitor(monitorID types.MonitorID, conf *config.
 		cm.deleteExistingConfig()
 	}
 
-	if !cm.validateConfig(conf) {
-		return false
+	if err := cm.validateConfig(conf); err != nil {
+		return err
 	}
 
 	cm.conf = conf
@@ -128,12 +129,11 @@ func (cm *Manager) ConfigureFromMonitor(monitorID types.MonitorID, conf *config.
 
 	err := cm.ensureWriteServerRunning(conf.WriteServerIPAddr, conf.WriteServerPort, dpChan, eventChan)
 	if err != nil {
-		log.WithError(err).Error("Could not start up collectd write server")
-		return false
+		return errors.Wrap(err, "Could not start up collectd write server")
 	}
 
 	cm.Restart()
-	return true
+	return nil
 }
 
 func (cm *Manager) ensureWriteServerRunning(ipAddr string, port uint16, dpChan chan<- *datapoint.Datapoint, eventChan chan<- *event.Event) error {
@@ -149,18 +149,14 @@ func (cm *Manager) ensureWriteServerRunning(ipAddr string, port uint16, dpChan c
 	return nil
 }
 
-func (cm *Manager) validateConfig(conf *config.CollectdConfig) bool {
-	valid := true
-
+func (cm *Manager) validateConfig(conf *config.CollectdConfig) error {
 	if !validLogLevels.Has(conf.LogLevel) {
-		log.WithFields(log.Fields{
-			"validLevels": validLogLevels.String(),
-			"level":       conf.LogLevel,
-		}).Error("Invalid collectd log level")
-		valid = false
+		return errors.Errorf("Invalid collectd log level %s.  Valid choices are %v",
+			conf.LogLevel,
+			validLogLevels)
 	}
 
-	return valid
+	return nil
 }
 
 // State for collectd monitoring
@@ -180,7 +176,7 @@ func (cm *Manager) setState(state string) {
 	log.Infof("Setting collectd state to %s", cm.state)
 }
 
-func (cm *Manager) rerenderConf() bool {
+func (cm *Manager) rerenderConf() error {
 	output := bytes.Buffer{}
 
 	log.WithFields(log.Fields{
@@ -189,10 +185,7 @@ func (cm *Manager) rerenderConf() bool {
 
 	cm.conf.HasGenericJMXMonitor = len(cm.genericJMXUsers) > 0
 	if err := CollectdTemplate.Execute(&output, cm.conf); err != nil {
-		log.WithFields(log.Fields{
-			"error": err,
-		}).Error("Failed to render collectd template")
-		return false
+		return errors.Wrapf(err, "Failed to render collectd template")
 	}
 
 	return templating.WriteConfFile(output.String(), collectdConfPath)
@@ -278,7 +271,7 @@ func (cm *Manager) deleteExistingConfig() {
 
 // MonitorDidShutdown should be called by any monitor that uses collectd when
 // it is shutdown.
-func (cm *Manager) MonitorDidShutdown(monitorID types.MonitorID) {
+func (cm *Manager) MonitorDidShutdown(monitorID monitors.MonitorID) {
 	cm.configMutex.Lock()
 	defer cm.configMutex.Unlock()
 

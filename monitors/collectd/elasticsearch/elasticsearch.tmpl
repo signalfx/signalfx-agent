@@ -3,38 +3,36 @@ LoadPlugin "python"
   ModulePath "{{Globals.PluginRoot}}/elasticsearch"
   Import "elasticsearch_collectd"
 
-  {{range .Endpoints}}
   <Module "elasticsearch_collectd">
-    {{with $.C.AdditionalMetrics -}}
+    {{with .AdditionalMetrics -}}
     AdditionalMetrics ["{{stringsJoin . "\", \""}}"]
     {{- end}}
-    DetailedMetrics {{$.C.DetailedMetrics}}
-    Dimensions "{{encodeDimsForPluginInstance $.C.ExtraDimensions .Dimensions}}"
-    EnableClusterHealth {{$.C.EnableClusterHealth}}
-    EnableIndexStats {{$.C.EnableIndexStats}}
+    DetailedMetrics {{.DetailedMetrics}}
+    Dimensions "{{encodeDimsForPluginInstance .ExtraDimensions}}"
+    EnableClusterHealth {{.EnableClusterHealth}}
+    EnableIndexStats {{.EnableIndexStats}}
     Host {{.Host}}
-    {{with $.C.Indexes -}}
+    {{with .Indexes -}}
     Indexes ["{{stringsJoin . "\", \""}}"]
     {{- end}}
-    IndexInterval {{$.C.IndexInterval}}
-    IndexStatsMasterOnly {{$.C.IndexStatsMasterOnly}}
-    IndexSummaryOnly {{$.C.IndexSummaryOnly}}
-    Interval {{$.C.IntervalSeconds}}
-    {{with $.C.Password -}}
+    IndexInterval {{.IndexInterval}}
+    IndexStatsMasterOnly {{.IndexStatsMasterOnly}}
+    IndexSummaryOnly {{.IndexSummaryOnly}}
+    Interval {{.IntervalSeconds}}
+    {{with .Password -}}
     Password "{{.}}"
     {{- end}}
     Port {{.Port}}
-    {{with $.C.Protocol -}}
+    {{with .Protocol -}}
     Protocol {{.}}
     {{- end}}
-    {{with $.C.Username -}}
+    {{with .Username -}}
     Username "{{.}}"
     {{- end}}
-    ThreadPools ["{{stringsJoin $.C.ThreadPools "\", \""}}"]
+    ThreadPools ["{{stringsJoin .ThreadPools "\", \""}}"]
     Verbose false
-    {{with $.C.Version -}}
+    {{with .Version -}}
     Version {{.}}
     {{- end}}
   </Module>
-  {{end}}
 </Plugin>

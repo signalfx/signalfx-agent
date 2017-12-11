@@ -37,6 +37,7 @@ import (
 	"k8s.io/client-go/pkg/api/v1"
 	"k8s.io/client-go/pkg/runtime"
 
+	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
 
 	"github.com/signalfx/golib/datapoint"
@@ -84,11 +85,11 @@ type Monitor struct {
 }
 
 func init() {
-	monitors.Register(monitorType, func() interface{} { return &Monitor{} }, &Config{})
+	monitors.Register(monitorType, func(id monitors.MonitorID) interface{} { return &Monitor{} }, &Config{})
 }
 
 // Configure is called by the plugin framework when configuration changes
-func (m *Monitor) Configure(config *Config) bool {
+func (m *Monitor) Configure(config *Config) error {
 	m.lock.Lock()
 	defer m.lock.Unlock()
 
@@ -98,7 +99,7 @@ func (m *Monitor) Configure(config *Config) bool {
 	// different in the config.
 	// See https://github.com/kubernetes/client-go/blob/v2.0.0/tools/cache/controller.go#L125
 	if reflect.DeepEqual(config, m.config) {
-		return true
+		return nil
 	}
 
 	m.config = config
@@ -107,10 +108,7 @@ func (m *Monitor) Configure(config *Config) bool {
 
 	k8sClient, err := kubernetes.MakeClient(config.KubernetesAPI)
 	if err != nil {
-		logger.WithFields(log.Fields{
-			"error": err,
-		}).Error("Could not create K8s API client")
-		return false
+		return errors.Wrapf(err, "Could not create K8s API client")
 	}
 
 	// We need to know the pod name if we aren't always reporting
@@ -118,9 +116,8 @@ func (m *Monitor) Configure(config *Config) bool {
 		var ok bool
 		m.thisPodName, ok = os.LookupEnv("MY_POD_NAME")
 		if !ok {
-			logger.Error("This pod's name is not known! Please inject the envvar MY_POD_NAME " +
+			return errors.New("This pod's name is not known! Please inject the envvar MY_POD_NAME " +
 				"via a config fieldRef in your K8s agent resource config")
-			return false
 		}
 	}
 
@@ -134,7 +131,7 @@ func (m *Monitor) Configure(config *Config) bool {
 
 	m.Start(config.IntervalSeconds)
 
-	return true
+	return nil
 }
 
 // Start starts syncing resources and sending datapoints to ingest

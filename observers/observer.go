@@ -10,6 +10,7 @@
 package observers
 
 import (
+	"github.com/pkg/errors"
 	"github.com/signalfx/neo-agent/core/config"
 	"github.com/signalfx/neo-agent/core/services"
 	"github.com/signalfx/neo-agent/utils"
@@ -53,24 +54,19 @@ type ServiceCallbacks struct {
 	Removed func(services.Endpoint)
 }
 
-func configureObserver(observer interface{}, conf *config.ObserverConfig) bool {
+func configureObserver(observer interface{}, conf *config.ObserverConfig) error {
 	log.WithFields(log.Fields{
 		"config": *conf,
 	}).Debug("Configuring observer")
 
 	finalConfig := utils.CloneInterface(configTemplates[conf.Type])
 
-	config.FillInConfigTemplate("ObserverConfig", finalConfig, conf)
-	if finalConfig == nil {
-		return false
+	if err := config.FillInConfigTemplate("ObserverConfig", finalConfig, conf); err != nil {
+		return err
 	}
 
 	if err := config.ValidateCustomConfig(finalConfig); err != nil {
-		log.WithFields(log.Fields{
-			"observerType": conf.Type,
-			"error":        err,
-		}).Error("Observer config is invalid")
-		return false
+		return errors.Wrap(err, "Observer config is invalid")
 	}
 
 	return config.CallConfigure(observer, finalConfig)

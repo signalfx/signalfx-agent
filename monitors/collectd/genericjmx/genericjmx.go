@@ -12,7 +12,7 @@ import (
 	yaml "gopkg.in/yaml.v2"
 
 	"github.com/signalfx/neo-agent/core/config"
-	"github.com/signalfx/neo-agent/core/services"
+	"github.com/signalfx/neo-agent/monitors"
 	"github.com/signalfx/neo-agent/monitors/collectd"
 )
 
@@ -26,45 +26,46 @@ type connection struct {
 // Config has configuration that is specific to GenericJMX. This config should
 // be used by a monitors that use the generic JMX collectd plugin.
 type Config struct {
-	config.MonitorConfig
-	ServiceName      *string                 `yaml:"serviceName"`
-	ServiceURL       *string                 `yaml:"serviceURL"`
-	InstancePrefix   *string                 `yaml:"instancePrefix"`
-	Username         *string                 `yaml:"username"`
-	Password         *string                 `yaml:"password"`
-	MBeansToCollect  []string                `yaml:"mBeansToCollect"`
-	MBeanDefinitions MBeanMap                `yaml:"mBeanDefinitions"`
-	ServiceEndpoints []services.EndpointCore `yaml:"serviceEndpoints" default:"[]"`
+	config.MonitorConfig `acceptsEndpoints:"true"`
+
+	Host string  `yaml:"host"`
+	Port uint16  `yaml:"port"`
+	Name *string `yaml:"name"`
+
+	ServiceName      *string  `yaml:"serviceName"`
+	ServiceURL       *string  `yaml:"serviceURL"`
+	InstancePrefix   *string  `yaml:"instancePrefix"`
+	Username         *string  `yaml:"username"`
+	Password         *string  `yaml:"password"`
+	MBeansToCollect  []string `yaml:"mBeansToCollect"`
+	MBeanDefinitions MBeanMap `yaml:"mBeanDefinitions"`
 }
 
 // MonitorCore should be embedded by all monitors that use the
 // collectd GenericJMX plugin.  It has most of the logic they will need.  The
 // individual monitors mainly just need to provide their set of default mBean
 // definitions.
-type MonitorCore struct {
-	collectd.ServiceMonitorCore
+type JMXMonitorCore struct {
+	collectd.MonitorCore
 
 	defaultMBeans      MBeanMap
 	defaultServiceName string
 	lock               sync.Mutex
 }
 
-func NewMonitorCore(defaultMBeans MBeanMap, defaultServiceName string) *MonitorCore {
-	mc := &MonitorCore{
-		ServiceMonitorCore: *collectd.NewServiceMonitorCore(CollectdTemplate),
+func NewJMXMonitorCore(id monitors.MonitorID, defaultMBeans MBeanMap, defaultServiceName string) *JMXMonitorCore {
+	mc := &JMXMonitorCore{
+		MonitorCore:        *collectd.NewMonitorCore(id, CollectdTemplate),
 		defaultMBeans:      defaultMBeans,
 		defaultServiceName: defaultServiceName,
 	}
 
-	// This is pretty hacky reaching through two intermediate objects but it
-	// would be very verbose trying to propagate it through
-	// constructors/setters.
-	mc.ServiceMonitorCore.BaseMonitor.UsesGenericJMX = true
+	mc.MonitorCore.UsesGenericJMX = true
 	return mc
 }
 
 // Configure configures and runs the plugin in collectd
-func (m *MonitorCore) Configure(conf *Config) bool {
+func (m *JMXMonitorCore) Configure(conf *Config) error {
 	if conf.MBeanDefinitions == nil {
 		conf.MBeanDefinitions = m.defaultMBeans
 	}

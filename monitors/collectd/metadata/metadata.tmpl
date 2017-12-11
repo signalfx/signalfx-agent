@@ -7,14 +7,14 @@ TypesDB "{{Globals.PluginRoot}}/signalfx/types.db.plugin"
 
   Import "signalfx_metadata"
   <Module signalfx_metadata>
-  {{with .C.IntervalSeconds -}}
+  {{with .IntervalSeconds -}}
     Interval {{.}}
   {{- end}}
     Notifications true
-    URL "{{.C.CollectdConf.WriteServerURL}}"
-    Token "{{.C.SignalFxAccessToken}}"
+    URL "{{.CollectdConf.WriteServerURL}}"
+    Token "{{.SignalFxAccessToken}}"
     NotifyLevel "OKAY"
-    ProcPath "{{ .C.ProcFSPath }}"
+    ProcPath "{{ .ProcFSPath }}"
     EtcPath "/hostfs/etc"
     PersistencePath "/var/lib/misc"
   </Module>

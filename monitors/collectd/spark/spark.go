@@ -6,7 +6,6 @@ import (
 	"errors"
 
 	"github.com/signalfx/neo-agent/core/config"
-	"github.com/signalfx/neo-agent/core/services"
 	"github.com/signalfx/neo-agent/monitors"
 	"github.com/signalfx/neo-agent/monitors/collectd"
 )
@@ -21,23 +20,26 @@ const (
 )
 
 func init() {
-	monitors.Register(monitorType, func() interface{} {
+	monitors.Register(monitorType, func(id monitors.MonitorID) interface{} {
 		return &Monitor{
-			*collectd.NewServiceMonitorCore(CollectdTemplate),
+			*collectd.NewMonitorCore(id, CollectdTemplate),
 		}
 	}, &Config{})
 }
 
 // Config is the monitor-specific config with the generic config embedded
 type Config struct {
-	config.MonitorConfig
-	IsMaster                  bool                    `yaml:"isMaster" default:"false"`
-	ClusterType               sparkClusterType        `yaml:"clusterType"`
-	CollectApplicationMetrics bool                    `yaml:"collectApplicationMetrics" default:"false"`
-	EnhancedMetrics           bool                    `yaml:"enhancedMetrics" default:"false"`
-	MetricsToInclude          []string                `yaml:"metricsToInclude" default:"[]"`
-	MetricsToExclude          []string                `yaml:"metricsToExclude" default:"[]"`
-	ServiceEndpoints          []services.EndpointCore `yaml:"serviceEndpoints" default:"[]"`
+	config.MonitorConfig `acceptsEndpoints:"true"`
+
+	Host                      string           `yaml:"host"`
+	Port                      uint16           `yaml:"port"`
+	Name                      string           `yaml:"name"`
+	IsMaster                  bool             `yaml:"isMaster" default:"false"`
+	ClusterType               sparkClusterType `yaml:"clusterType"`
+	CollectApplicationMetrics bool             `yaml:"collectApplicationMetrics" default:"false"`
+	EnhancedMetrics           bool             `yaml:"enhancedMetrics" default:"false"`
+	MetricsToInclude          []string         `yaml:"metricsToInclude" default:"[]"`
+	MetricsToExclude          []string         `yaml:"metricsToExclude" default:"[]"`
 }
 
 // Validate will check the config for correctness.
@@ -54,10 +56,10 @@ func (c *Config) Validate() error {
 
 // Monitor is the main type that represents the monitor
 type Monitor struct {
-	collectd.ServiceMonitorCore
+	collectd.MonitorCore
 }
 
 // Configure configures and runs the plugin in collectd
-func (am *Monitor) Configure(conf *Config) bool {
+func (am *Monitor) Configure(conf *Config) error {
 	return am.SetConfigurationAndRun(conf)
 }

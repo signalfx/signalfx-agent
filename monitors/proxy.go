@@ -31,7 +31,7 @@ func getNoProxyEnvvar() string {
 
 // sets the service IPs/hostnames in the no_proxy environment variable
 func ensureProxyingDisabledForService(service services.Endpoint) {
-	host := service.Hostname()
+	host := service.Core().Host
 	if isProxying() && len(host) > 0 {
 		serviceIP := host
 		noProxy := getNoProxyEnvvar()

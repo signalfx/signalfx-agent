@@ -2,10 +2,8 @@ package services
 
 import (
 	"reflect"
-	"time"
 
 	"github.com/davecgh/go-spew/spew"
-	"github.com/signalfx/neo-agent/core/config/types"
 	"github.com/signalfx/neo-agent/utils"
 	log "github.com/sirupsen/logrus"
 )
@@ -16,16 +14,10 @@ type ID string
 // Endpoint is the generic interface that all types of service instances should
 // implement.  All consumers of services should use this interface only.
 type Endpoint interface {
-	// ID should be unique across all endpoints, determined by the discovering observer
-	ID() ID
-	// EnsureID should set an ID on the endpoint if one doesn't already exist
-	EnsureID()
-	// Hostname is the hostname or IP address of the endpoint
-	Hostname() string
-	// Discovered is the time that the endpoint was discovered by the agent
-	Discovered() time.Time
-	// DiscoveredBy is the name of the observer that discovered this endpoint
-	DiscoveredBy() string
+	// Core returns the EndpointCore that all endpoints are required to have
+	Core() *EndpointCore
+
+	ExtraConfig() map[string]interface{}
 
 	// Dimensions that are specific to this endpoint (e.g. container name)
 	Dimensions() map[string]string
@@ -33,15 +25,6 @@ type Endpoint interface {
 	AddDimension(string, string)
 	// RemoveDimension removes a single dimension from the endpoint
 	RemoveDimension(string)
-
-	// AddMatchingMonitor will add metadata about what monitors the endpoint
-	// has been matched to.  This is useful for generic monitor helpers that could
-	// receive multiple types of endpoints (e.g. GenericJMX).
-	AddMatchingMonitor(types.MonitorID)
-	// RemoveMatchingMonitor reverses what AddMatchingMonitor does
-	RemoveMatchingMonitor(types.MonitorID)
-	// MatchingMonitors returns a set of the currently matched monitors
-	MatchingMonitors() map[types.MonitorID]bool
 }
 
 // HasDerivedFields is an interface with a single method that can be called to

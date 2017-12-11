@@ -56,8 +56,8 @@ var _ = Describe("Kubernetes plugin", func() {
 		monitor = &Monitor{}
 		monitor.DPs = dpChan
 
-		success := monitor.Configure(config)
-		if !success {
+		err := monitor.Configure(config)
+		if err != nil {
 			panic("K8s monitor config failed")
 		}
 	}

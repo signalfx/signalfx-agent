@@ -12,7 +12,7 @@ type ObserverConfig struct {
 	Hostname string `yaml:"-"`
 }
 
-// GetOtherConfig returns generic config as a map
-func (oc *ObserverConfig) GetOtherConfig() map[string]interface{} {
+// ExtraConfig returns generic config as a map
+func (oc *ObserverConfig) ExtraConfig() map[string]interface{} {
 	return oc.OtherConfig
 }

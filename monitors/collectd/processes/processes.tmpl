@@ -1,13 +1,13 @@
 <LoadPlugin "processes">
-  Interval {{.C.IntervalSeconds}}
+  Interval {{.IntervalSeconds}}
 </LoadPlugin>
 <Plugin processes>
-  {{range .C.Processes -}}
+  {{range .Processes -}}
   Process "{{.}}"
   {{end}}
-  {{range $name, $regex := .C.ProcessMatch -}}
+  {{range $name, $regex := .ProcessMatch -}}
   ProcessMatch "{{$name}}" "{{$regex}}"
   {{end}}
-  CollectContextSwitch {{.C.CollectContextSwitch}}
-  ProcFSPath "{{.C.ProcFSPath}}"
+  CollectContextSwitch {{.CollectContextSwitch}}
+  ProcFSPath "{{.ProcFSPath}}"
 </Plugin>

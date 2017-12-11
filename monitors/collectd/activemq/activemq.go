@@ -13,7 +13,7 @@ var serviceName = "activemq"
 
 // Monitor is the main type that represents the monitor
 type Monitor struct {
-	*genericjmx.MonitorCore
+	*genericjmx.JMXMonitorCore
 }
 
 func init() {
@@ -24,9 +24,9 @@ func init() {
 	}
 	defaultMBeans = defaultMBeans.MergeWith(genericjmx.DefaultMBeans)
 
-	monitors.Register(monitorType, func() interface{} {
+	monitors.Register(monitorType, func(id monitors.MonitorID) interface{} {
 		return Monitor{
-			genericjmx.NewMonitorCore(defaultMBeans, serviceName),
+			genericjmx.NewJMXMonitorCore(id, defaultMBeans, serviceName),
 		}
 	}, &genericjmx.Config{})
 }

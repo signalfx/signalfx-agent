@@ -252,6 +252,7 @@ COPY --from=extra-packages /opt/deps/ /
 
 COPY scripts/agent-status /usr/bin/agent-status
 
+COPY --from=collectd /etc/passwd /etc/passwd
 # Get lib dependencies for collectd
 COPY --from=collectd /opt/deps/ /
 COPY --from=collectd /usr/lib/jvm/ /usr/lib/jvm

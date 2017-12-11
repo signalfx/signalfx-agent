@@ -35,6 +35,7 @@ type DDConfig struct {
 // DDCheck represents a Datadog check that may or may not be configured via
 // service discovery.
 type DDCheck struct {
+	id         monitors.MonitorID
 	serviceSet map[services.ID]services.Endpoint
 	DPs        chan<- *datapoint.Datapoint
 	config     *DDConfig
@@ -133,9 +134,10 @@ func (ddc *DDCheck) renderInstanceTemplateValue(t string, service services.Endpo
 }
 
 func registerDDCheck(_type string) {
-	monitors.Register(_type, func() interface{} {
+	monitors.Register(_type, func(id monitors.MonitorID) interface{} {
 		return &DDCheck{
 			serviceSet: make(map[services.ID]services.Endpoint),
+			id:         id,
 		}
 	}, &DDConfig{})
 }

@@ -3,10 +3,10 @@
 package docker
 
 import (
-	"errors"
 	"strconv"
 	"time"
 
+	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
 
 	"github.com/docker/engine-api/client"
@@ -58,16 +58,13 @@ func init() {
 }
 
 // Configure the docker client
-func (docker *Docker) Configure(config *Config) bool {
+func (docker *Docker) Configure(config *Config) error {
 	defaultHeaders := map[string]string{"User-Agent": "signalfx-agent"}
 
 	var err error
 	docker.client, err = client.NewClient(config.DockerURL, dockerAPIVersion, nil, defaultHeaders)
 	if err != nil {
-		log.WithFields(log.Fields{
-			"error": err,
-		}).Error("Could not create docker client")
-		return false
+		return errors.Wrapf(err, "Could not create docker client")
 	}
 
 	if docker.serviceDiffer != nil {
@@ -83,7 +80,7 @@ func (docker *Docker) Configure(config *Config) bool {
 
 	docker.serviceDiffer.Start()
 
-	return true
+	return nil
 }
 
 // Discover services by querying docker api
@@ -113,31 +110,28 @@ func (docker *Docker) discover() []services.Endpoint {
 			}
 
 			for _, port := range c.Ports {
-				if port.PublicPort == 0 {
-					log.WithFields(log.Fields{
-						"containerName": serviceContainer.PrimaryName(),
-						"privatePort":   port.PrivatePort,
-					}).Debugf("Docker container does not expose port publically, not discovering")
-					continue
-				}
-
 				id := serviceContainer.PrimaryName() + "-" + c.ID[:12] + "-" + strconv.Itoa(port.PrivatePort)
 
 				endpoint := services.NewEndpointCore(id, "", time.Now(), observerType)
-				endpoint.Host = "127.0.0.1"
+				// Use the IP Address of the first network we iterate over.
+				// This can be made configurable if so desired.
+				for _, n := range c.NetworkSettings.Networks {
+					endpoint.Host = n.IPAddress
+					break
+				}
 				endpoint.PortType = services.PortType(port.Type)
-				endpoint.Port = uint16(port.PublicPort)
+				endpoint.Port = uint16(port.PrivatePort)
 
 				dims := map[string]string{
 					"container_name":  serviceContainer.PrimaryName(),
 					"container_image": c.Image,
 				}
 
-				orchestration := services.NewOrchestration("docker", services.DOCKER, dims, services.PUBLIC)
+				orchestration := services.NewOrchestration("docker", services.DOCKER, dims, services.PRIVATE)
 
 				si := &services.ContainerEndpoint{
 					EndpointCore:  *endpoint,
-					AltPort:       uint16(port.PrivatePort),
+					AltPort:       uint16(port.PublicPort),
 					Container:     *serviceContainer,
 					Orchestration: *orchestration,
 				}

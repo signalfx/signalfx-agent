@@ -5,20 +5,18 @@ LoadPlugin "python"
 
   Import "haproxy"
 
-  {{range .Endpoints}}
   <Module "haproxy">
     Socket "{{.Host}}:{{.Port}}"
-    Interval {{$.C.IntervalSeconds}}
-    {{range $.C.ProxiesToMonitor -}}
+    Interval {{.IntervalSeconds}}
+    {{range .ProxiesToMonitor -}}
     ProxyMonitor "{{.}}"
     {{- end }}
-    EnhancedMetrics {{if $.C.EnhancedMetrics}}'True'{{else}}'False'{{end}}
-    {{range $.C.ExcludedMetrics -}}
+    EnhancedMetrics {{if .EnhancedMetrics}}'True'{{else}}'False'{{end}}
+    {{range .ExcludedMetrics -}}
     ExcludeMetric '{{.}}'
     {{- end }}
-    {{range $key, $value := (mergeStringMaps $.C.ExtraDimensions .Dimensions)}}
+    {{range $key, $value := .ExtraDimensions}}
     Dimension {{$key}} {{$value}}
     {{- end}}
   </Module>
-{{end}}
 </Plugin>

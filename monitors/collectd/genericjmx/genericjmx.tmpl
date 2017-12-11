@@ -1,7 +1,7 @@
 <Plugin java>
   <Plugin "GenericJMX">
 
-    {{range $name, $_ := .C.MBeanDefinitions}}
+    {{range $name, $_ := .MBeanDefinitions}}
     <MBean "{{$name}}">
       ObjectName "{{.ObjectName}}"
       {{with .InstancePrefix -}}
@@ -20,28 +20,26 @@
     </MBean>
     {{end}}
 
-    {{range $endpoint := .Endpoints}}
     <Connection>
-      {{with $.C.ServiceURL}}
-      ServiceURL "{{renderValue . (toMap $endpoint)}}"
+      {{with .ServiceURL}}
+      ServiceURL "{{renderValue . $}}"
       {{- else -}}
-      ServiceURL "service:jmx:rmi:///jndi/rmi://{{$endpoint.Host}}:{{$endpoint.Port}}/jmxrmi"
+      ServiceURL "service:jmx:rmi:///jndi/rmi://{{.Host}}:{{.Port}}/jmxrmi"
       {{- end}}
-      InstanceSuffix "{{withDefault $endpoint.Name $endpoint.ID}}[{{encodeDimsForPluginInstance $.C.ExtraDimensions $endpoint.Dimensions}}]"
-      {{with $.C.InstancePrefix -}}
+      InstanceSuffix "{{.Name}}[{{encodeDimsForPluginInstance .ExtraDimensions}}]"
+      {{with .InstancePrefix -}}
       InstancePrefix "{{.}}"
       {{- end}}
-      ServiceName "{{$.C.ServiceName}}"
-      {{with $.C.Username -}}
+      ServiceName "{{.ServiceName}}"
+      {{with .Username -}}
       User "{{.}}"
       {{- end}}
-      {{- with $.C.Password}}
+      {{- with .Password}}
       Password "{{.}}"
       {{- end}}
-      {{range $.C.MBeansToCollect}}
+      {{range .MBeansToCollect}}
       Collect "{{.}}"
       {{- end}}
     </Connection>
-    {{end}}
   </Plugin>
 </Plugin>

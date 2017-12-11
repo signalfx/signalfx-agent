@@ -72,10 +72,6 @@ func (c *Config) initialize(metaStore *stores.MetaStore) (*Config, error) {
 	}
 
 	c.propagateValuesDown(metaStore)
-	idGenerator := newIDGenerator()
-	for i := range c.Monitors {
-		c.Monitors[i].ensureID(idGenerator)
-	}
 
 	return c, nil
 }
@@ -93,7 +89,7 @@ func (c *Config) overrideFromEnv() {
 	}
 }
 
-// Validate everything except for Observers and Monitors
+// Validate everything that we can about the main config
 func (c *Config) validate() bool {
 	valid := true
 
@@ -188,7 +184,7 @@ func (lc *LogConfig) LogrusLevel() *log.Level {
 // concept of generic other config that is initially deserialized into a
 // map[string]interface{} to be later transformed to another form.
 type CustomConfigurable interface {
-	GetOtherConfig() map[string]interface{}
+	ExtraConfig() map[string]interface{}
 }
 
 // CollectdConfig high-level configurations
@@ -212,6 +208,8 @@ type CollectdConfig struct {
 	HasGenericJMXMonitor bool               `yaml:"-"`
 }
 
+// WriteServerURL is the local address served by the agent where collect should
+// write datapoints
 func (cc *CollectdConfig) WriteServerURL() string {
 	return fmt.Sprintf("http://%s:%d/", cc.WriteServerIPAddr, cc.WriteServerPort)
 }
@@ -222,8 +220,8 @@ type StoreConfig struct {
 	OtherConfig map[string]interface{} `yaml:",inline,omitempty" default:"{}"`
 }
 
-// GetOtherConfig returns generic config as a map
-func (sc *StoreConfig) GetOtherConfig() map[string]interface{} {
+// ExtraConfig returns generic config as a map
+func (sc *StoreConfig) ExtraConfig() map[string]interface{} {
 	return sc.OtherConfig
 }
 
@@ -232,13 +230,3 @@ var (
 	EnvReplacer   = strings.NewReplacer(".", "_", "-", "_")
 	configTimeout = 10 * time.Second
 )
-
-// Used to ensure unique IDs for monitors and observers
-func newIDGenerator() func(string) int {
-	ids := map[string]int{}
-
-	return func(name string) int {
-		ids[name]++
-		return ids[name]
-	}
-}

@@ -24,6 +24,7 @@ RUN apt update &&\
       build-essential \
       flex \
       git \
+      inotify-tools \
       libtool \
       pkg-config \
       python-pip
@@ -32,9 +33,9 @@ RUN pip install ipython==5 ipdb
 
 COPY scripts/collect-libs /opt/collect-libs
 # Collect all of the collectd and agent build tools
-
 RUN /opt/collect-libs /opt/deps \
       /usr/bin/aclocal \
+      /usr/bin/as \
       /usr/bin/autoconf \
       /usr/bin/autoheader \
       /usr/bin/automake \
@@ -45,6 +46,7 @@ RUN /opt/collect-libs /opt/deps \
       /usr/bin/g++ \
       /usr/bin/gcc \
       /usr/bin/git \
+      /usr/bin/inotifywait \
       /usr/bin/ld \
       /usr/bin/lex \
       /usr/bin/libtoolize \
@@ -52,12 +54,9 @@ RUN /opt/collect-libs /opt/deps \
       /usr/bin/perl \
       /usr/bin/pkg-config \
       /usr/bin/xargs \
-      /usr/lib/git-core \
       /usr/local/bin/ipdb \
-      /usr/local/bin/ipython \
-      /usr/share/git-core \
-      /usr/share/libtool 
-
+      /usr/local/bin/ipython &&\
+    cp -R --parents -a /usr/lib/ /usr/include /usr/share /opt/deps
 
 FROM final-image
 
