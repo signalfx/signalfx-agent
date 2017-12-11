@@ -101,3 +101,7 @@
 [[constraint]]
   name = "k8s.io/client-go"
   version = "2.0.0"
+
+[[constraint]]
+  name = "github.com/shirou/gopsutil"
+  version = "2.17.11"

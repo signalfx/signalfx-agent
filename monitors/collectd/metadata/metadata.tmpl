@@ -14,7 +14,7 @@ TypesDB "{{Globals.PluginRoot}}/signalfx/types.db.plugin"
     URL "{{.C.CollectdConf.WriteServerURL}}"
     Token "{{.C.SignalFxAccessToken}}"
     NotifyLevel "OKAY"
-    ProcPath "/hostfs/proc"
+    ProcPath "{{ .C.ProcFSPath }}"
     EtcPath "/hostfs/etc"
     PersistencePath "/var/lib/misc"
   </Module>

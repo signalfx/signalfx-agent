@@ -13,7 +13,6 @@ import (
 	"github.com/signalfx/neo-agent/core/services"
 	"github.com/signalfx/neo-agent/core/writer"
 	"github.com/signalfx/neo-agent/monitors"
-	"github.com/signalfx/neo-agent/monitors/neopy"
 	"github.com/signalfx/neo-agent/observers"
 )
 
@@ -67,12 +66,12 @@ func (a *Agent) configure(conf *config.Config) {
 	a.monitors.SetEventChannel(a.writer.EventChannel())
 	a.monitors.SetDimPropChannel(a.writer.DimPropertiesChannel())
 
-	if conf.PythonEnabled {
-		neopy.Instance().Configure()
-		neopy.Instance().EnsureMonitorsRegistered()
-	} else if a.lastConfig != nil && a.lastConfig.PythonEnabled {
-		neopy.Instance().Shutdown()
-	}
+	//if conf.PythonEnabled {
+	//neopy.Instance().Configure()
+	//neopy.Instance().EnsureMonitorsRegistered()
+	//} else if a.lastConfig != nil && a.lastConfig.PythonEnabled {
+	//neopy.Instance().Shutdown()
+	//}
 
 	// The order of Configure calls is very important!
 	a.monitors.Configure(conf.Monitors)
@@ -91,7 +90,7 @@ func (a *Agent) serviceRemoved(service services.Endpoint) {
 func (a *Agent) shutdown() {
 	a.observers.Shutdown()
 	a.monitors.Shutdown()
-	neopy.Instance().Shutdown()
+	//neopy.Instance().Shutdown()
 	a.writer.Shutdown()
 }
 

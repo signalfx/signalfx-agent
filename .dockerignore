@@ -1,8 +1,10 @@
 .git/**
 .glide/**
 .build/**
-signalfx-agent
+signalfx-agent*
 vendor/**
 tmp/**
 local-etc/**
 build/**
+monitors/**/template.go
+monitors/collectd/collectd.conf.go

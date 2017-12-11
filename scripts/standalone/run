@@ -1,0 +1,47 @@
+#!/bin/bash
+
+set -e
+
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+is_mounted() {
+  findmnt $1 2>&1 > /dev/null
+}
+
+ensure_bind_mounted_ro() {
+  local source=$1
+  local target=$2
+  if ! is_mounted $target
+  then
+    test -d $source && mkdir -p $target
+    mount --rbind -o ro $source $target
+  fi
+}
+
+
+hostfs_bind_target=$SCRIPT_DIR/hostfs
+proc_target=$SCRIPT_DIR/proc
+
+ensure_bind_mounted_ro / $hostfs_bind_target
+ensure_bind_mounted_ro /proc $proc_target
+
+trap "umount -R $hostfs_bind_target $proc_target" EXIT
+
+make_char_dev() {
+  local path=${SCRIPT_DIR}${1}
+  local major=$2
+  local minor=$3
+  if ! test -c ${path}
+  then
+    mknod ${path} c $major $minor
+    chmod 666 ${path}
+  fi
+}
+
+# We need some special devs for collectd
+make_char_dev /dev/null 1 3
+make_char_dev /dev/urandom 1 9
+
+ln -sf /hostfs/etc/resolv.conf $SCRIPT_DIR/etc/resolv.conf
+
+chroot $SCRIPT_DIR /usr/bin/signalfx-agent -standalone $@

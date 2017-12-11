@@ -15,19 +15,15 @@ vet:
 lint:
 	golint -set_exit_status utils observers monitors core neotest
 
-.PHONY: collectd
-collectd:
-	./scripts/build-collectd.sh
-
 templates:
+	# Delete old template files in case they are malformed
+	find monitors -type f -name "template.go" | xargs rm -f
+	rm -f monitors/collectd/collectd.conf.go
 	scripts/make-templates
 
 .PHONY: image
 image:
 	./scripts/build.sh
-
-image-debug:
-	DEBUG=true ./scripts/build.sh
 
 .PHONY: vendor
 vendor:
@@ -38,6 +34,10 @@ signalfx-agent: templates
 		-ldflags "-X main.Version=$$(./VERSIONS agent_version) -X main.CollectdVersion=$$(./VERSIONS collectd_version) -X main.BuiltTime=$$(date +%FT%T%z)" \
 		-i -o signalfx-agent \
 		github.com/signalfx/neo-agent
+
+.PHONY: bundle
+bundle:
+	scripts/standalone/make-bundle
 
 .PHONY: attach-image
 run-shell:
