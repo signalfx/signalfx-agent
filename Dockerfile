@@ -96,42 +96,42 @@ ENV CXXFLAGS $CFLAGS
 
 RUN autoreconf -vif &&\
     ./configure \
-	  --prefix="/usr" \
-	  --localstatedir="/var" \
-	  --sysconfdir="/etc/collectd" \
-	  --enable-all-plugins \
-	  --disable-apple_sensors \
-	  --disable-aquaero \
-	  --disable-barometer \
-	  --disable-dpdkstat \
-      --disable-dpdkevents \
-	  --disable-gps \
-	  --disable-grpc \
-      --disable-intel_pmu \
-	  --disable-intel_rdt \
-	  --disable-lpar \
-	  --disable-lua \
-	  --disable-lvm \
-	  --disable-mic \
-	  --disable-mqtt \
-	  --disable-netapp \
-	  --disable-nut \
-	  --disable-oracle \
-	  --disable-pf \
-	  --disable-redis \
-	  --disable-routeros \
-	  --disable-sigrok \
-	  --disable-tape \
-	  --disable-tokyotyrant \
-	  --disable-write_mongodb \
-	  --disable-write_redis \
-	  --disable-write_riemann \
-	  --disable-xmms \
-	  --disable-zone \
-      --without-included-ltdl \
-      --without-libstatgrab \
-      --disable-silent-rules \
-      --disable-static
+        --prefix="/usr" \
+        --localstatedir="/var" \
+        --sysconfdir="/etc/collectd" \
+        --enable-all-plugins \
+        --disable-apple_sensors \
+        --disable-aquaero \
+        --disable-barometer \
+        --disable-dpdkstat \
+        --disable-dpdkevents \
+        --disable-gps \
+        --disable-grpc \
+        --disable-intel_pmu \
+        --disable-intel_rdt \
+        --disable-lpar \
+        --disable-lua \
+        --disable-lvm \
+        --disable-mic \
+        --disable-mqtt \
+        --disable-netapp \
+        --disable-nut \
+        --disable-oracle \
+        --disable-pf \
+        --disable-redis \
+        --disable-routeros \
+        --disable-sigrok \
+        --disable-tape \
+        --disable-tokyotyrant \
+        --disable-write_mongodb \
+        --disable-write_redis \
+        --disable-write_riemann \
+        --disable-xmms \
+        --disable-zone \
+        --without-included-ltdl \
+        --without-libstatgrab \
+        --disable-silent-rules \
+        --disable-static
 
 # Compile all of collectd first, including plugins
 RUN make -j6 &&\
