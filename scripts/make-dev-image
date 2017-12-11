@@ -37,6 +37,7 @@ RUN pip install ipython==5 ipdb
 
 RUN apt install -y \
       libzmq5-dev \
+      inotify-tools \
       autoconf \
       automake \
       autotools-dev \
@@ -46,6 +47,7 @@ RUN apt install -y \
 ENV PATH=$PATH:/usr/local/go/bin:/go/bin GOPATH=/go
 
 RUN go get -u github.com/golang/lint/golint
+RUN go get -u github.com/kisielk/errcheck
 
 WORKDIR /go/src/github.com/signalfx/neo-agent
 
