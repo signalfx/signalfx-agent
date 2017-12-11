@@ -104,8 +104,10 @@ RUN autoreconf -vif &&\
 	  --disable-aquaero \
 	  --disable-barometer \
 	  --disable-dpdkstat \
+      --disable-dpdkevents \
 	  --disable-gps \
 	  --disable-grpc \
+      --disable-intel_pmu \
 	  --disable-intel_rdt \
 	  --disable-lpar \
 	  --disable-lua \
