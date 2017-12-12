@@ -266,7 +266,7 @@ RUN mkdir -p \
 COPY --from=collectd /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt
 COPY --from=collectd /usr/src/collectd/src/types.db /usr/share/collectd/types.db
 # All the built-in collectd plugins
-COPY --from=collectd /usr/src/collectd/bindings/java/.libs/*.jar /usr/share/collectd/java/
+COPY --from=collectd /usr/share/collectd/java/*.jar /usr/share/collectd/java/
 
 COPY neopy /usr/lib/neopy
 COPY --from=agent-builder /usr/bin/signalfx-agent /usr/bin/signalfx-agent
