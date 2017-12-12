@@ -238,6 +238,8 @@ RUN /opt/collect-libs /opt/deps /bin /usr/bin/vim /usr/bin/curl /usr/bin/du
 ###### Final Agent Image #######
 FROM scratch as final-image
 
+CMD ["/usr/bin/signalfx-agent"]
+
 # Pull in non-C collectd plugins
 COPY --from=python-plugins /usr/share/collectd/ /usr/share/collectd
 #COPY --from=python-plugins /opt/dd/dd-agent /opt/dd/dd-agent
