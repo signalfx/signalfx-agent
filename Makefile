@@ -13,7 +13,7 @@ vet:
 
 .PHONY: lint
 lint:
-	golint -set_exit_status utils observers monitors core neotest
+	golint -set_exit_status ./utils/... ./observers/... ./monitors/... ./core/... ./neotest/...
 
 templates:
 	# Delete old template files in case they are malformed

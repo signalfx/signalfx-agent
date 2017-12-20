@@ -43,6 +43,8 @@ func (sw *SignalFxWriter) DiagnosticText() string {
 		cap(sw.eventChan))
 }
 
+// InternalMetrics returns a set of metrics showing how the writer is currently
+// doing.
 func (sw *SignalFxWriter) InternalMetrics() []*datapoint.Datapoint {
 	return []*datapoint.Datapoint{
 		sfxclient.Cumulative("sfxagent.datapoints_sent", nil, int64(sw.dpsSent)),

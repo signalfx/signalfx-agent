@@ -11,7 +11,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-const basicConnectionStatJson = `[
+const basicConnectionStatJSON = `[
  {"fd":3,"family":2,"type":1,"localaddr":{"ip":"127.9.8.7","port":14839},"remoteaddr":{"ip":"0.0.0.0","port":0},"status":"LISTEN","uids":[0,0,0,0],"pid":12780}
 ,{"fd":7,"family":2,"type":1,"localaddr":{"ip":"127.9.8.7","port":14839},"remoteaddr":{"ip":"127.0.0.1","port":55128},"status":"ESTABLISHED","uids":[0,0,0,0],"pid":12780}
 ,{"fd":0,"family":2,"type":1,"localaddr":{"ip":"127.9.8.7","port":14839},"remoteaddr":{"ip":"127.0.0.1","port":55264},"status":"TIME_WAIT","uids":[],"pid":0} 
@@ -34,7 +34,7 @@ func Test_HostObserver(t *testing.T) {
 	var o *Observer
 	var endpoints map[services.ID]services.Endpoint
 
-	setup := func(connectionStatJson string, processNameMap map[int32]string) {
+	setup := func(connectionStatJSON string, processNameMap map[int32]string) {
 		endpoints = make(map[services.ID]services.Endpoint)
 
 		o = &Observer{
@@ -43,7 +43,7 @@ func Test_HostObserver(t *testing.T) {
 				Removed: func(se services.Endpoint) { delete(endpoints, se.Core().ID) },
 			},
 			hostInfoProvider: &fakeHostInfoProvider{
-				connectionStats: parseConnectionStatJson(connectionStatJson),
+				connectionStats: parseConnectionStatJSON(connectionStatJSON),
 				processNameMap:  processNameMap,
 			},
 		}
@@ -51,7 +51,7 @@ func Test_HostObserver(t *testing.T) {
 	}
 
 	t.Run("Basic connections", func(t *testing.T) {
-		setup(basicConnectionStatJson, map[int32]string{12780: "agent", 12768: "service"})
+		setup(basicConnectionStatJSON, map[int32]string{12780: "agent", 12768: "service"})
 
 		assert.Len(t, endpoints, 4)
 
@@ -81,7 +81,7 @@ func Test_HostObserver(t *testing.T) {
 	})
 
 	t.Run("PID missing (due to race)", func(t *testing.T) {
-		setup(basicConnectionStatJson, map[int32]string{12768: "service"})
+		setup(basicConnectionStatJSON, map[int32]string{12768: "service"})
 
 		assert.Len(t, endpoints, 2)
 	})
@@ -93,7 +93,7 @@ func Test_HostObserver(t *testing.T) {
 	})
 }
 
-func parseConnectionStatJson(jsonStr string) []net.ConnectionStat {
+func parseConnectionStatJSON(jsonStr string) []net.ConnectionStat {
 	var res []net.ConnectionStat
 	err := json.Unmarshal([]byte(jsonStr), &res)
 	if err != nil {
@@ -113,8 +113,7 @@ func (f *fakeHostInfoProvider) AllConnectionStats() ([]net.ConnectionStat, error
 
 func (f *fakeHostInfoProvider) ProcessNameFromPID(pid int32) (string, error) {
 	if name, ok := f.processNameMap[pid]; !ok {
-		return "", errors.New("No process name in map!")
-	} else {
-		return name, nil
+		return "", errors.New("no process name in map")
 	}
+	return name, nil
 }

@@ -43,7 +43,7 @@ func (n *nodeMetrics) Remove(obj runtime.Object) {
 	delete(n.nodes, node.UID)
 }
 
-var NodeConditionValues = map[v1.ConditionStatus]int64{
+var nodeConditionValues = map[v1.ConditionStatus]int64{
 	v1.ConditionTrue:    1,
 	v1.ConditionFalse:   0,
 	v1.ConditionUnknown: -1,
@@ -57,7 +57,7 @@ func nodeConditionValue(node *v1.Node, condType v1.NodeConditionType) int64 {
 			break
 		}
 	}
-	return NodeConditionValues[status]
+	return nodeConditionValues[status]
 }
 
 func firstNodeHostname(node *v1.Node) string {

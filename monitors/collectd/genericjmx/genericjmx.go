@@ -41,10 +41,9 @@ type Config struct {
 	MBeanDefinitions MBeanMap `yaml:"mBeanDefinitions"`
 }
 
-// MonitorCore should be embedded by all monitors that use the
-// collectd GenericJMX plugin.  It has most of the logic they will need.  The
-// individual monitors mainly just need to provide their set of default mBean
-// definitions.
+// JMXMonitorCore should be embedded by all monitors that use the collectd
+// GenericJMX plugin.  It has most of the logic they will need.  The individual
+// monitors mainly just need to provide their set of default mBean definitions.
 type JMXMonitorCore struct {
 	collectd.MonitorCore
 
@@ -53,6 +52,7 @@ type JMXMonitorCore struct {
 	lock               sync.Mutex
 }
 
+// NewJMXMonitorCore makes a new JMX core as well as the underlying MonitorCore
 func NewJMXMonitorCore(id monitors.MonitorID, defaultMBeans MBeanMap, defaultServiceName string) *JMXMonitorCore {
 	mc := &JMXMonitorCore{
 		MonitorCore:        *collectd.NewMonitorCore(id, CollectdTemplate),

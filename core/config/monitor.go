@@ -41,6 +41,9 @@ type MonitorConfig struct {
 	InternalMetricsSocketPath string             `yaml:"-"`
 }
 
+// Equals tests if two monitor configs are sufficiently equal to each other.
+// Two monitors should only be equal if it doesn't make sense for two
+// configurations to be active at the same time.
 func (mc *MonitorConfig) Equals(other *MonitorConfig) bool {
 	return mc.Type == other.Type && mc.DiscoveryRule == other.DiscoveryRule &&
 		reflect.DeepEqual(mc.OtherConfig, other.OtherConfig)

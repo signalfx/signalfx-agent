@@ -13,7 +13,7 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-// DecodeExtraConfigLax will pull out any config values from 'in' and put them
+// DecodeExtraConfigStrict will pull out any config values from 'in' and put them
 // on the 'out' struct, returning an error if anything in 'in' isn't in 'out'.
 func DecodeExtraConfigStrict(in CustomConfigurable, out interface{}) error {
 	return decodeExtraConfig(in, out, true)
