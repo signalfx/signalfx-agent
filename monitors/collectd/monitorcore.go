@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"os"
-	"path"
+	"path/filepath"
 	"sync"
 	"text/template"
 
@@ -93,10 +93,14 @@ func (bm *MonitorCore) WriteConfigForPluginAndRestart() error {
 	}).Debug("Writing collectd plugin config file")
 
 	if err := templating.WriteConfFile(pluginConfigText.String(), bm.renderPath()); err != nil {
+		log.WithFields(log.Fields{
+			"error": err,
+			"path":  bm.renderPath(),
+		}).Error("Could not render collectd plugin config")
 		return err
 	}
 
-	Instance().Restart()
+	Instance().RequestRestart()
 
 	bm.isRunning = true
 
@@ -104,11 +108,15 @@ func (bm *MonitorCore) WriteConfigForPluginAndRestart() error {
 }
 
 func (bm *MonitorCore) renderPath() string {
-	return path.Join(managedConfigDir, bm.configFilename)
+	return filepath.Join(managedConfigDir, bm.configFilename)
 }
 
 // Shutdown removes the config file and restarts collectd
 func (bm *MonitorCore) Shutdown() {
+	log.WithFields(log.Fields{
+		"path": bm.renderPath(),
+	}).Debug("Removing collectd plugin config")
+
 	os.Remove(bm.renderPath())
 	Instance().MonitorDidShutdown(bm.monitorID)
 }

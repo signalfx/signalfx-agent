@@ -10,7 +10,10 @@ import (
 	"strings"
 	"time"
 
+	set "gopkg.in/fatih/set.v0"
+
 	fqdn "github.com/ShowMax/go-fqdn"
+	"github.com/pkg/errors"
 	"github.com/signalfx/neo-agent/core/config/stores"
 	"github.com/signalfx/neo-agent/core/filters"
 	"github.com/signalfx/neo-agent/utils"
@@ -67,8 +70,8 @@ func (c *Config) initialize(metaStore *stores.MetaStore) (*Config, error) {
 
 	c.setDefaultHostname()
 
-	if !c.validate() {
-		return nil, fmt.Errorf("configuration is invalid")
+	if err := c.validate(); err != nil {
+		return nil, errors.Wrap(err, "configuration is invalid")
 	}
 
 	c.propagateValuesDown(metaStore)
@@ -90,21 +93,16 @@ func (c *Config) overrideFromEnv() {
 }
 
 // Validate everything that we can about the main config
-func (c *Config) validate() bool {
-	valid := true
-
+func (c *Config) validate() error {
 	if c.SignalFxAccessToken == "" {
-		log.Error("signalFxAccessToken must be set!")
-		valid = false
-	}
-	if _, err := url.Parse(c.IngestURL); err != nil {
-		log.WithFields(log.Fields{
-			"ingestURL": c.IngestURL,
-			"error":     err,
-		}).Error("ingestURL is not a valid URL")
+		return errors.New("signalFxAccessToken must be set")
 	}
 
-	return valid
+	if _, err := url.Parse(c.IngestURL); err != nil {
+		return errors.Wrapf(err, "%s is not a valid ingest URL", c.IngestURL)
+	}
+
+	return c.Collectd.Validate()
 }
 
 func (c *Config) makeFilterSet() *filters.FilterSet {
@@ -187,6 +185,8 @@ type CustomConfigurable interface {
 	ExtraConfig() map[string]interface{}
 }
 
+var validCollectdLogLevels = set.NewNonTS("debug", "info", "notice", "warning", "err")
+
 // CollectdConfig high-level configurations
 type CollectdConfig struct {
 	DisableCollectd      bool   `yaml:"disableCollectd,omitempty" default:"false"`
@@ -206,6 +206,16 @@ type CollectdConfig struct {
 	IngestURL            string             `yaml:"-"`
 	GlobalDimensions     map[string]string  `yaml:"-"`
 	HasGenericJMXMonitor bool               `yaml:"-"`
+}
+
+// Validate the collectd specific config
+func (cc *CollectdConfig) Validate() error {
+	if !validCollectdLogLevels.Has(cc.LogLevel) {
+		return errors.Errorf("Invalid collectd log level %s.  Valid choices are %v",
+			cc.LogLevel, validCollectdLogLevels)
+	}
+
+	return nil
 }
 
 // WriteServerURL is the local address served by the agent where collect should

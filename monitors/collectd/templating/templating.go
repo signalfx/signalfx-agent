@@ -5,7 +5,7 @@ import (
 	"bytes"
 	"net/url"
 	"os"
-	"path"
+	"path/filepath"
 	"reflect"
 	"runtime"
 	"text/template"
@@ -19,24 +19,33 @@ import (
 	"strings"
 )
 
-const pluginDir = "/usr/share/collectd"
+const pluginDir = "usr/share/collectd"
 
 // WriteConfFile writes a file to the given filePath, ensuring that the
 // containing directory exists.
 func WriteConfFile(content, filePath string) error {
-	log.Debugf("Writing file %s", filePath)
+	if err := os.MkdirAll(filepath.Dir(filePath), 0700); err != nil {
+		return errors.Wrapf(err, "failed to create collectd config dir at %s", filepath.Dir(filePath))
+	}
 
-	os.MkdirAll(path.Dir(filePath), 0755)
 	f, err := os.Create(filePath)
 	if err != nil {
 		return errors.Wrapf(err, "failed to create/truncate collectd config file at %s", filePath)
 	}
 	defer f.Close()
 
+	// Lock the file down since it could contain credentials
+	if err := f.Chmod(0600); err != nil {
+		return errors.Wrapf(err, "failed to restrict permissions on collectd config file at %s", filePath)
+	}
+
 	_, err = f.Write([]byte(content))
 	if err != nil {
 		return errors.Wrapf(err, "Failed to write collectd config file at %s", filePath)
 	}
+
+	log.Debugf("Wrote file %s", filePath)
+
 	return nil
 }
 
