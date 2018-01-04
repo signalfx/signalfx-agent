@@ -27,6 +27,8 @@ type Config struct {
 	SignalFxAccessToken string `yaml:"signalFxAccessToken"`
 	// The ingest URL for SignalFx, without the path
 	IngestURL string `yaml:"ingestUrl" default:"https://ingest.signalfx.com"`
+	// The SignalFx API base URL
+	APIURL string `yaml:"apiUrl" default:"https://api.signalfx.com"`
 	// The hostname that will be reported as the "host" dimension on metrics
 	// for which host applies
 	Hostname string `yaml:"hostname"`
@@ -132,6 +134,11 @@ func (c *Config) propagateValuesDown(metaStore *stores.MetaStore) {
 		panic("IngestURL was supposed to be validated already")
 	}
 
+	apiURL, err := url.Parse(c.APIURL)
+	if err != nil {
+		panic("apiUrl was supposed to be validated already")
+	}
+
 	c.Collectd.Hostname = c.Hostname
 	c.Collectd.Filter = filterSet
 	c.Collectd.IngestURL = c.IngestURL
@@ -157,6 +164,7 @@ func (c *Config) propagateValuesDown(metaStore *stores.MetaStore) {
 	}
 
 	c.Writer.IngestURL = ingestURL
+	c.Writer.APIURL = apiURL
 	c.Writer.Filter = filterSet
 	c.Writer.SignalFxAccessToken = c.SignalFxAccessToken
 	c.Writer.GlobalDimensions = c.GlobalDimensions

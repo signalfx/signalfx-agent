@@ -82,6 +82,7 @@ func (sw *SignalFxWriter) Configure(conf *config.WriterConfig) bool {
 
 	sw.client.AuthToken = conf.SignalFxAccessToken
 	sw.dimPropClient.Token = conf.SignalFxAccessToken
+	sw.dimPropClient.APIURL = conf.APIURL
 
 	dpEndpointURL, err := conf.IngestURL.Parse("v2/datapoint")
 	if err != nil {
