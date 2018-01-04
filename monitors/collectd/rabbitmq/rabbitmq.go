@@ -22,15 +22,16 @@ func init() {
 // Config is the monitor-specific config with the generic config embedded
 type Config struct {
 	config.MonitorConfig
-	CollectChannels  *bool                   `yaml:"collectChannels"`
-	CollectExchanges *bool                   `yaml:"collectExchanges"`
-	CollectNodes     *bool                   `yaml:"collectNodes"`
-	CollectQueues    *bool                   `yaml:"collectQueues"`
-	HTTPTimeout      *int                    `yaml:"httpTimeout"`
-	VerbosityLevel   *string                 `yaml:"verbosityLevel"`
-	Username         *string                 `yaml:"username"`
-	Password         *string                 `yaml:"password"`
-	ServiceEndpoints []services.EndpointCore `yaml:"serviceEndpoints" default:"[]"`
+	CollectChannels    *bool                   `yaml:"collectChannels"`
+	CollectConnections *bool                   `yaml:"collectConnections"`
+	CollectExchanges   *bool                   `yaml:"collectExchanges"`
+	CollectNodes       *bool                   `yaml:"collectNodes"`
+	CollectQueues      *bool                   `yaml:"collectQueues"`
+	HTTPTimeout        *int                    `yaml:"httpTimeout"`
+	VerbosityLevel     *string                 `yaml:"verbosityLevel"`
+	Username           *string                 `yaml:"username"`
+	Password           *string                 `yaml:"password"`
+	ServiceEndpoints   []services.EndpointCore `yaml:"serviceEndpoints" default:"[]"`
 }
 
 // Monitor is the main type that represents the monitor
