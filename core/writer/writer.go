@@ -109,9 +109,11 @@ func (sw *SignalFxWriter) filterAndSendDatapoints(dps []*datapoint.Datapoint) er
 			dps[i].Dimensions = sw.addGlobalDims(dps[i].Dimensions)
 			finalDps = append(finalDps, dps[i])
 
-			log.WithFields(log.Fields{
-				"dp": spew.Sdump(dps[i]),
-			}).Debug("Sending datapoint")
+			if sw.conf.LogDatapoints {
+				log.WithFields(log.Fields{
+					"dp": spew.Sdump(dps[i]),
+				}).Debug("Sending datapoint")
+			}
 		}
 	}
 
@@ -134,9 +136,12 @@ func (sw *SignalFxWriter) filterAndSendDatapoints(dps []*datapoint.Datapoint) er
 func (sw *SignalFxWriter) sendEvents(events []*event.Event) error {
 	for i := range events {
 		events[i].Dimensions = sw.addGlobalDims(events[i].Dimensions)
-		log.WithFields(log.Fields{
-			"event": spew.Sdump(events[i]),
-		}).Debug("Sending event")
+
+		if sw.conf.LogEvents {
+			log.WithFields(log.Fields{
+				"event": spew.Sdump(events[i]),
+			}).Debug("Sending event")
+		}
 	}
 
 	err := sw.client.AddEvents(context.Background(), events)
