@@ -45,10 +45,10 @@ type Config struct {
 	// Configure the underlying collectd daemon
 	Collectd                  CollectdConfig `yaml:"collectd" default:"{}"`
 	MetricsToExclude          []MetricFilter `yaml:"metricsToExclude" default:"[]"`
-	ProcFSPath                string         `yaml:"procFSPath" default:"/proc"`
+	ProcFSPath                string         `yaml:"procFSPath" default:"./hostfs/proc"`
 	PythonEnabled             bool           `yaml:"pythonEnabled" default:"false"`
-	DiagnosticsSocketPath     string         `yaml:"diagnosticsSocketPath" default:"/var/run/signalfx.sock"`
-	InternalMetricsSocketPath string         `yaml:"internalMetricsSocketPath" default:"/var/run/signalfx-agent-metrics.sock"`
+	DiagnosticsSocketPath     string         `yaml:"diagnosticsSocketPath" default:"./run/signalfx.sock"`
+	InternalMetricsSocketPath string         `yaml:"internalMetricsSocketPath" default:"./run/signalfx-agent-metrics.sock"`
 	EnableProfiling           bool           `yaml:"profiling" default:"false"`
 	// This exists purely to give the user a place to put common yaml values to
 	// reference in other parts of the config file.

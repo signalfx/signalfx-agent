@@ -22,14 +22,15 @@ extra_cflags_build_arg() {
 }
 
 do_docker_build() {
-  local tag=$1
-  local dockerfile=$2
+  local image_name=$1
+  local target_stage=$2
 
   make_go_package_tar
 
   docker build \
-    -t $tag \
-    -f $dockerfile \
+    -t $image_name \
+    -f $SCRIPT_DIR/../Dockerfile \
+    --target $target_stage \
     --label agent.version=$($SCRIPT_DIR/../VERSIONS agent_version) \
     --label collectd.version=$($SCRIPT_DIR/../VERSIONS collectd_version) \
     $(extra_cflags_build_arg) \

@@ -19,7 +19,7 @@ import (
 	"strings"
 )
 
-const pluginDir = "usr/share/collectd"
+const pluginDir = "./plugins/collectd"
 
 // WriteConfFile writes a file to the given filePath, ensuring that the
 // containing directory exists.

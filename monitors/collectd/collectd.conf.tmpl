@@ -1,4 +1,7 @@
-TypesDB "{{Globals.PluginRoot}}/types.db"
+BaseDir "."
+PIDFile "./run/pid"
+TypesDB "./plugins/collectd/types.db"
+PluginDir "./plugins/collectd"
 
 {{if .Hostname}}
 Hostname "{{.Hostname}}"
@@ -27,7 +30,7 @@ LoadPlugin cpufreq
 {{end}}
 LoadPlugin df
 <Plugin "df">
-  ChangeRoot "/hostfs"
+  ChangeRoot "./hostfs"
   IgnoreSelected true
   FSType "overlay"
   FSType "tmpfs"
@@ -189,10 +192,10 @@ LoadPlugin "java"
 
 <Plugin java>
   #JVMArg "-verbose:jni"
-  JVMArg "-Djava.class.path=/usr/share/collectd/java/collectd-api.jar:/usr/share/collectd/java/generic-jmx.jar"
+  JVMArg "-Djava.class.path={{Globals.PluginRoot}}/java/collectd-api.jar:{{Globals.PluginRoot}}/java/generic-jmx.jar"
 
   LoadPlugin "org.collectd.java.GenericJMX"
 </Plugin>
 {{end}}
 
-Include "/etc/collectd/managed_config/*.conf"
+Include "./tmp/managed_config/*.conf"

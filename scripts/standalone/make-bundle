@@ -2,16 +2,29 @@
 
 set -ex
 
-SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+script_dir() {
+  cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd
+}
 
-output=${output:-signalfx-agent.tar.gz}
-output_tar=$(basename $output .gz)
+. $(script_dir)/../common.sh
 
-TAG=standalone make image
+OUTPUT=${OUTPUT:-signalfx-agent.tar.gz}
 
-cid=$(docker create quay.io/signalfuse/signalfx-agent:standalone true)
-trap "docker rm -f $cid; rm -f $output_tar" EXIT
+if [ -n "${BUILD_BRANCH}" ]; then
+  TAG=${TAG:-$BUILD_BRANCH}
+else
+  TAG=${TAG:-$USER}
+fi
 
-docker export $cid > $output_tar
-tar -C $SCRIPT_DIR -rf $output_tar run
-gzip $output_tar
+image=signalfx-agent-standalone:$TAG
+output_tar=$(basename $OUTPUT .gz)
+
+do_docker_build $image standalone
+
+cid=$(docker create $image true)
+tmpdir=$(mktemp -d)
+trap "docker rm -f $cid; rm -rf $tmpdir; rm -f $output_tar" EXIT
+
+docker export $cid | tar -C $tmpdir -xf -
+rm -rf $tmpdir/{proc,sys,dev,etc} $tmpdir/.dockerenv
+tar -C $tmpdir -zcf $output_tar.gz .

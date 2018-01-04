@@ -24,8 +24,8 @@ import (
 const (
 	pluginType = "monitors/collectd"
 
-	collectdConfPath = "/etc/collectd/collectd.conf"
-	managedConfigDir = "/etc/collectd/managed_config/"
+	collectdConfPath = "./tmp/collectd.conf"
+	managedConfigDir = "./tmp/managed_config/"
 
 	// How long to wait for back-to-back (re)starts before actually (re)starting
 	restartDelay = 3 * time.Second
@@ -287,7 +287,7 @@ func (cm *Manager) rerenderConf() error {
 }
 
 func (cm *Manager) makeChildCommand() *exec.Cmd {
-	cmd := exec.Command("collectd", "-f", "-C", collectdConfPath)
+	cmd := exec.Command("lib64/ld-linux-x86-64.so.2", "bin/collectd", "-f", "-C", collectdConfPath)
 
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr

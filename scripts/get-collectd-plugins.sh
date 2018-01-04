@@ -3,6 +3,7 @@
 set -exo pipefail
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+TARGET_DIR=${1:-/usr/share/collectd}
 
 y() {
   filter=$1
@@ -17,10 +18,11 @@ do
   plugin_name=$(y ".[$i].name")
   version=$(y ".[$i].version")
   repo=$(y ".[$i].repo")
-  plugin_dir=/usr/share/collectd/${plugin_name}
+  plugin_dir=${TARGET_DIR}/${plugin_name}
 
-  git clone --branch $version --depth 1 --single-branch https://github.com/${repo}.git $plugin_dir
-  rm -rf $plugin_dir/.git
+  mkdir -p $plugin_dir
+  curl -Lo - https://github.com/${repo}/archive/${version}.tar.gz | \
+    tar -C $plugin_dir --strip-components=1 -zxf -
 
   pip_install='pip install'
 

@@ -91,8 +91,12 @@ RUN echo "#!/bin/bash" > /usr/src/collectd/version-gen.sh &&\
 WORKDIR /usr/src/collectd
 
 ARG extra_cflags="-O2"
-ENV CFLAGS "-Wall -fPIC -DSIGNALFX_EIM=0 $extra_cflags"
+ENV CFLAGS "-Wall -fPIC $extra_cflags"
 ENV CXXFLAGS $CFLAGS
+
+# In the bundle, the java plugin will live in /plugins/collectd and the JVM
+# exists at /jvm
+ENV JAVA_LDFLAGS "-Wl,-rpath -Wl,\$\$\ORIGIN/../../jvm/jre/lib/amd64/server"
 
 RUN autoreconf -vif &&\
     ./configure \
@@ -134,13 +138,11 @@ RUN autoreconf -vif &&\
         --disable-static
 
 # Compile all of collectd first, including plugins
-RUN make -j6 &&\
+RUN make -j8 &&\
     make install
 
 COPY scripts/collect-libs /opt/collect-libs
 RUN /opt/collect-libs /opt/deps /usr/sbin/collectd /usr/lib/collectd/
-
-RUN rm -rf /usr/lib/jvm/java-8-openjdk-amd64/man /usr/lib/jvm/java-8-openjdk-amd64/docs /usr/lib/jvm/java-8-openjdk-amd64/include
 
 ###### Golang Dependencies Image ######
 FROM golang:1.9.2-stretch as godeps
@@ -164,7 +166,7 @@ FROM ubuntu:16.04 as agent-builder
 
 # Cgo requires dep libraries present
 RUN apt update &&\
-    apt install -y wget pkg-config
+    apt install -y curl wget pkg-config
 
 ENV GO_VERSION=1.9.2 PATH=$PATH:/usr/local/go/bin
 RUN cd /tmp &&\
@@ -184,14 +186,16 @@ WORKDIR /go/src/github.com/signalfx/neo-agent
 COPY VERSIONS .
 
 RUN make signalfx-agent &&\
-	cp signalfx-agent /usr/bin/signalfx-agent
+	mv signalfx-agent /usr/bin/signalfx-agent
+	# compressing the binary causes segfaults when run in standalone mode
+	#/tmp/upx --lzma /usr/bin/signalfx-agent
 
 
 ###### Python Plugin Image ######
 FROM ubuntu:16.04 as python-plugins
 
 RUN apt update &&\
-    apt install -y git python-pip wget
+    apt install -y git python-pip wget curl
 RUN pip install yq &&\
     wget -O /usr/bin/jq https://github.com/stedolan/jq/releases/download/jq-1.5/jq-linux64 &&\
     chmod +x /usr/bin/jq
@@ -200,10 +204,8 @@ RUN pip install yq &&\
 COPY scripts/get-collectd-plugins.sh /opt/scripts/
 COPY collectd-plugins.yaml /opt/
 
-RUN mkdir -p /usr/share/collectd/java \
-    && echo "jmx_memory      value:GAUGE:0:U" > /usr/share/collectd/java/signalfx_types_db
-
-RUN bash /opt/scripts/get-collectd-plugins.sh
+RUN mkdir -p /opt/collectd-python &&\
+    bash /opt/scripts/get-collectd-plugins.sh /opt/collectd-python
 
 RUN apt install -y libffi-dev libssl-dev build-essential python-dev libcurl4-openssl-dev
 
@@ -222,7 +224,7 @@ RUN pip install -r /tmp/requirements.txt
 # Delete all compiled python to save space
 RUN find /usr/lib/python2.7 /usr/local/lib/python2.7/dist-packages -name "*.pyc" | xargs rm
 
-####### Extra packages to make things easier to work with ########
+####### Extra packages that don't make sense to pull down in any other stage ########
 FROM ubuntu:16.04 as extra-packages
 
 RUN apt update &&\
@@ -231,47 +233,116 @@ RUN apt update &&\
 	  curl \
 	  vim
 
-COPY scripts/collect-libs /opt/collect-libs
-RUN /opt/collect-libs /opt/deps /bin /usr/bin/vim /usr/bin/curl /usr/bin/du
+RUN apt install -y openjdk-8-jre-headless &&\
+    cp -rL /usr/lib/jvm/java-8-openjdk-amd64 /opt/jvm &&\
+	rm -rf /opt/jvm/docs &&\
+	rm -rf /opt/jvm/man
 
+RUN curl -Lo /opt/signalfx_types_db https://raw.githubusercontent.com/signalfx/integrations/master/collectd-java/signalfx_types_db
+
+COPY scripts/collect-libs /opt/collect-libs
+RUN /opt/collect-libs /opt/deps /usr/bin/vim /usr/bin/curl /bin
 
 ###### Final Agent Image #######
+# This build stage is meant as the final target when running the agent in a
+# container environment (e.g. directly with Docker or on K8s).  The stages
+# below this are special-purpose.
 FROM scratch as final-image
 
 CMD ["/usr/bin/signalfx-agent"]
 
 # Pull in non-C collectd plugins
-COPY --from=python-plugins /usr/share/collectd/ /usr/share/collectd
+COPY --from=python-plugins /opt/collectd-python/ /plugins/collectd
 #COPY --from=python-plugins /opt/dd/dd-agent /opt/dd/dd-agent
 #COPY --from=python-plugins /opt/dd/integrations-core /opt/dd/integrations-core
 # Grab pip dependencies too
-COPY --from=python-plugins /usr/lib/python2.7/ /usr/lib/python2.7
-COPY --from=python-plugins /usr/local/lib/python2.7/ /usr/local/lib/python2.7
+COPY --from=python-plugins /usr/lib/python2.7/ /lib/python2.7
+COPY --from=python-plugins /usr/local/lib/python2.7/ /lib/python2.7
 
-COPY --from=extra-packages /opt/deps/ /
+COPY --from=extra-packages /lib/x86_64-linux-gnu/ld-2.23.so /lib64/ld-linux-x86-64.so.2
+COPY --from=extra-packages /opt/deps/ /lib
+COPY --from=extra-packages /usr/bin/vim /bin/vim
+COPY --from=extra-packages /usr/bin/curl /bin/curl
+COPY --from=extra-packages /bin/ /bin
+COPY --from=extra-packages /opt/jvm/ /jvm
+COPY --from=extra-packages /opt/signalfx_types_db /plugins/collectd/java/
 
-COPY scripts/agent-status /usr/bin/agent-status
+RUN mkdir /run
 
-COPY --from=collectd /etc/passwd /etc/passwd
-# Get lib dependencies for collectd
-COPY --from=collectd /opt/deps/ /
-COPY --from=collectd /usr/lib/jvm/ /usr/lib/jvm
-COPY --from=collectd /lib64/ /lib64
-COPY --from=collectd /lib/ /lib
+COPY scripts/agent-status /bin/agent-status
 
-RUN mkdir -p \
-      /var/lib/collectd \
-	  /var/run \
-	  /etc/collectd/managed_config \
-	  /etc/collectd/filtering_config &&\
-	rm /.dockerenv
+COPY --from=collectd /usr/sbin/collectd /bin/collectd
+COPY --from=collectd /opt/deps/ /lib
 
 COPY --from=collectd /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt
-COPY --from=collectd /usr/src/collectd/src/types.db /usr/share/collectd/types.db
+COPY --from=collectd /usr/share/collectd/types.db /plugins/collectd/types.db
 # All the built-in collectd plugins
-COPY --from=collectd /usr/share/collectd/java/*.jar /usr/share/collectd/java/
+COPY --from=collectd /usr/lib/collectd/*.so /plugins/collectd/
+COPY --from=collectd /usr/share/collectd/java/ /plugins/collectd/java/
 
-COPY neopy /usr/lib/neopy
-COPY --from=agent-builder /usr/bin/signalfx-agent /usr/bin/signalfx-agent
+COPY neopy /neopy
+COPY --from=agent-builder /usr/bin/signalfx-agent /bin/signalfx-agent
 
-RUN chmod +x /usr/bin/signalfx-agent
+# The current directory of the agent is important since it uses a lot of
+# relative paths to make it very easily relocated within the filesystem in
+# standalone.
+WORKDIR /
+
+###### Standalone Image Filesystem ########
+# This is an image almost identical to the normal one above except that it has
+# the runc binary and config for running the agent apart from docker (but still
+# using containers).  This image is meant to be dumped to a tar file and run
+# standalone.
+FROM scratch as standalone
+
+COPY --from=final-image / /bundle
+
+COPY scripts/standalone/run-agent /run-agent
+
+
+####### Dev Image ########
+# This is an image to facilitate development of the agent.  It installs all of
+# the build tools for building collectd and the go agent, along with some other
+# useful utilities.  The agent image is copied from the final-image stage to
+# the /agent dir in here, and should be run with a chroot jail to closely
+# mimick the way the agent is normally run.  There are targets in the Makefile
+# to assist with running it in the chroot jail.
+FROM ubuntu:16.04 as dev-extras
+
+RUN apt update &&\
+    apt install -y libcurl4-openssl-dev &&\
+    apt install -y \
+      autoconf \
+      automake \
+      autotools-dev \
+      bison \
+      build-essential \
+      flex \
+      git \
+      inotify-tools \
+      libtool \
+      pkg-config \
+      python-pip \
+	  vim \
+	  curl \
+	  wget
+
+RUN pip install ipython==5 ipdb
+
+WORKDIR /go/src/github.com/signalfx/neo-agent
+CMD ["/bin/bash"]
+ENV PATH=$PATH:/usr/local/go/bin:/go/bin GOPATH=/go
+
+COPY --from=agent-builder /usr/local/go/ /usr/local/go
+COPY --from=godeps /usr/bin/dep /usr/bin/dep
+COPY --from=collectd /usr/src/collectd/ /usr/src/collectd
+
+RUN go get -u github.com/golang/lint/golint
+RUN go get github.com/derekparker/delve/cmd/dlv &&\
+    cp /go/bin/dlv /agent/usr/bin/dlv
+
+COPY --from=godeps /go/src/github.com/signalfx/neo-agent/vendor src/github.com/signalfx/neo-agent/vendor
+COPY --from=godeps /go/pkg /go/pkg
+
+COPY --from=final-image / /bundle/
+COPY scripts/standalone/run-agent /

@@ -55,10 +55,19 @@ run-dev-image:
 		-p 6060:6060 \
 		--name signalfx-agent-dev \
 		-v $(PWD)/local-etc:/etc/signalfx \
-		-v /:/hostfs:ro \
-		-v /etc:/mnt/etc:ro \
-		-v /proc:/mnt/proc:ro \
+		-v /:/agent/hostfs:ro \
 		-v $(PWD):/go/src/github.com/signalfx/neo-agent \
 		-v $(PWD)/collectd:/usr/src/collectd \
-		-v /var/run/docker.sock:/var/run/docker.sock \
+		-v /var/run/docker.sock:/docker.sock \
 		signalfx-agent-dev /bin/bash
+
+.PHONY: run-agent-dev
+run-agent-dev:
+	cp -f signalfx-agent /bundle/bin/signalfx-agent
+	/run-agent
+
+.PHONY: debug-agent
+debug-agent: setup-dev-chroot
+	dlv run /bin/signalfx-agent
+
+
