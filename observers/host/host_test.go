@@ -112,8 +112,11 @@ func (f *fakeHostInfoProvider) AllConnectionStats() ([]net.ConnectionStat, error
 }
 
 func (f *fakeHostInfoProvider) ProcessNameFromPID(pid int32) (string, error) {
-	if name, ok := f.processNameMap[pid]; !ok {
+	name, ok := f.processNameMap[pid]
+
+	if !ok {
 		return "", errors.New("no process name in map")
 	}
+
 	return name, nil
 }

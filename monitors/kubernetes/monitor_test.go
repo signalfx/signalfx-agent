@@ -356,8 +356,8 @@ var _ = Describe("Kubernetes plugin", func() {
 
 		doSetup(false, "agent-1")
 
-		dps := waitForDatapoints(2)
-		Expect(dps).To(HaveLen(2))
+		dps := waitForDatapoints(3)
+		Expect(len(dps)).To(BeNumerically(">=", 2))
 	})
 
 	It("Doesn't report if not first in pod list", func() {
