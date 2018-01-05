@@ -1,7 +1,0 @@
-#!/bin/bash
-
-collectd_commit="37654bc7cac3138fdacdabfab02dc6c5a11cb676"
-collectd_version="5.8.0-sfx0"
-agent_version="2.2.2"
-
-[[ -n $1 ]] && echo -n ${!1}

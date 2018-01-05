@@ -1,0 +1,28 @@
+#!/bin/bash
+
+# Consumes a new version number, tags the repo with that version, and builds
+# a image for that version in the production quay repo.
+# If the envvar BUILD_PUBLISH=True, the tag and image are both pushed
+
+new_version=$1
+
+if test -z $new_version
+then
+  echo "Usage: $0 x.y.z" >&2
+  exit 1
+fi
+
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+echo "Tagging repo with v${new_version}"
+git tag v${new_version}
+
+if [ "$BUILD_PUBLISH" = True ]
+then
+  git push --tags
+else
+  echo "Not pushing tag"
+fi
+
+echo "Building image quay.io/signalfx/signalfx-agent:$new_version"
+AGENT_IMAGE_NAME=quay.io/signalfx/signalfx-agent VERSION=$new_version make -C $SCRIPT_DIR/.. image

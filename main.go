@@ -22,8 +22,6 @@ var (
 	Version string
 	// BuiltTime for the agent
 	BuiltTime string
-	// CollectdVersion embedded in agent
-	CollectdVersion string
 )
 
 func init() {
@@ -57,8 +55,8 @@ func main() {
 	version := flag.Bool("version", false, "print agent version")
 	debug := flag.Bool("debug", false, "print debugging output")
 
-	core.VersionLine = fmt.Sprintf("agent-version: %s, collectd-version: %s, built-time: %s\n",
-		Version, CollectdVersion, BuiltTime)
+	core.VersionLine = fmt.Sprintf("agent-version: %s, built-time: %s\n",
+		Version, BuiltTime)
 
 	// Override Usage to support the signalfx-metadata plugin, which expects a
 	// line with the collectd version from the -h flag.

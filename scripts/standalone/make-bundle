@@ -10,18 +10,14 @@ script_dir() {
 
 OUTPUT=${OUTPUT:-signalfx-agent.tar.gz}
 
-if [ -n "${BUILD_BRANCH}" ]; then
-  TAG=${TAG:-$BUILD_BRANCH}
-else
-  TAG=${TAG:-$USER}
-fi
+TAG=${VERSION:-$($(script_dir)/../current-version)}
 
-image=signalfx-agent-standalone:$TAG
+image=signalfx-agent-standalone
 output_tar=$(basename $OUTPUT .gz)
 
-do_docker_build $image standalone
+do_docker_build $image $TAG standalone
 
-cid=$(docker create $image true)
+cid=$(docker create $image:$TAG true)
 tmpdir=$(mktemp -d)
 trap "docker rm -f $cid; rm -rf $tmpdir; rm -f $output_tar" EXIT
 

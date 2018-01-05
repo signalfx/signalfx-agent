@@ -31,7 +31,7 @@ vendor:
 
 signalfx-agent: templates
 	go build \
-		-ldflags "-X main.Version=$$(./VERSIONS agent_version) -X main.CollectdVersion=$$(./VERSIONS collectd_version) -X main.BuiltTime=$$(date +%FT%T%z)" \
+		-ldflags "-X main.Version=$(VERSION) -X main.BuiltTime=$$(date +%FT%T%z)" \
 		-i -o signalfx-agent \
 		github.com/signalfx/neo-agent
 
@@ -69,5 +69,4 @@ run-agent-dev:
 .PHONY: debug-agent
 debug-agent: setup-dev-chroot
 	dlv run /bin/signalfx-agent
-
 

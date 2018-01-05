@@ -74,18 +74,17 @@ RUN sed -i -e '/^deb-src/d' /etc/apt/sources.list &&\
 
 RUN apt install -y libcurl4-gnutls-dev
 
-COPY VERSIONS /tmp
-# TODO: once neoagent-changes branch in collectd gets merged, change "collectd_file_base"
-# below to "$(./VERSIONS collectd_version)" and remove the former build arg.
+ENV collectd_commit="c3647e4bf3d75805dc67de021bdd7f9b9294899f"
+ENV collectd_version="5.8.0-sfx0"
+
 RUN cd /tmp &&\
-    wget https://github.com/signalfx/collectd/archive/`./VERSIONS collectd_commit`.tar.gz &&\
-	tar -xvf `./VERSIONS collectd_commit`.tar.gz &&\
+    wget https://github.com/signalfx/collectd/archive/${collectd_commit}.tar.gz &&\
+	tar -xvf ${collectd_commit}.tar.gz &&\
 	mkdir -p /usr/src/ &&\
-	mv collectd-`./VERSIONS collectd_commit`* /usr/src/collectd
+	mv collectd-${collectd_commit}* /usr/src/collectd
 
 # Hack to get our custom version compiled into collectd
 RUN echo "#!/bin/bash" > /usr/src/collectd/version-gen.sh &&\
-    echo "collectd_version=$(/tmp/VERSIONS collectd_version)" >> /usr/src/collectd/version-gen.sh &&\
     echo "printf \${collectd_version//-/.}" >> /usr/src/collectd/version-gen.sh
 
 WORKDIR /usr/src/collectd
@@ -177,15 +176,16 @@ COPY --from=godeps /go/src/github.com/signalfx/neo-agent/vendor /go/src/github.c
 COPY --from=godeps /go/pkg /go/pkg
 COPY --from=collectd /usr/src/collectd/ /usr/src/collectd
 
+ARG agent_version
+
 # The agent source files are tarred up because otherwise we would have to have
 # a separate ADD/COPY layer for every top-level package dir.
 ADD scripts/go_packages.tar /go/src/github.com/signalfx/neo-agent/
 
 ENV GOPATH=/go
 WORKDIR /go/src/github.com/signalfx/neo-agent
-COPY VERSIONS .
 
-RUN make signalfx-agent &&\
+RUN VERSION=${agent_version} make signalfx-agent &&\
 	mv signalfx-agent /usr/bin/signalfx-agent
 	# compressing the binary causes segfaults when run in standalone mode
 	#/tmp/upx --lzma /usr/bin/signalfx-agent
@@ -241,7 +241,27 @@ RUN apt install -y openjdk-8-jre-headless &&\
 RUN curl -Lo /opt/signalfx_types_db https://raw.githubusercontent.com/signalfx/integrations/master/collectd-java/signalfx_types_db
 
 COPY scripts/collect-libs /opt/collect-libs
-RUN /opt/collect-libs /opt/deps /usr/bin/vim /usr/bin/curl /bin
+
+ENV useful_bins=" \
+  /usr/bin/curl \
+  /usr/bin/vim \
+  /bin/sh \
+  /bin/rm \
+  /bin/ln \
+  /bin/ls \
+  /bin/bash \
+  /bin/nc.openbsd \
+  /bin/kill \
+  /bin/mkdir \
+  /bin/echo \
+  /bin/grep \
+  /bin/date \
+  /bin/cat \
+  "
+RUN /opt/collect-libs /opt/deps ${useful_bins}
+
+RUN mkdir -p /opt/bins &&\
+    cp $useful_bins /opt/bins
 
 ###### Final Agent Image #######
 # This build stage is meant as the final target when running the agent in a
@@ -249,7 +269,9 @@ RUN /opt/collect-libs /opt/deps /usr/bin/vim /usr/bin/curl /bin
 # below this are special-purpose.
 FROM scratch as final-image
 
-CMD ["/usr/bin/signalfx-agent"]
+CMD ["/bin/signalfx-agent"]
+
+COPY --from=collectd /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt
 
 # Pull in non-C collectd plugins
 COPY --from=python-plugins /opt/collectd-python/ /plugins/collectd
@@ -260,12 +282,10 @@ COPY --from=python-plugins /usr/lib/python2.7/ /lib/python2.7
 COPY --from=python-plugins /usr/local/lib/python2.7/ /lib/python2.7
 
 COPY --from=extra-packages /lib/x86_64-linux-gnu/ld-2.23.so /lib64/ld-linux-x86-64.so.2
-COPY --from=extra-packages /opt/deps/ /lib
-COPY --from=extra-packages /usr/bin/vim /bin/vim
-COPY --from=extra-packages /usr/bin/curl /bin/curl
-COPY --from=extra-packages /bin/ /bin
 COPY --from=extra-packages /opt/jvm/ /jvm
 COPY --from=extra-packages /opt/signalfx_types_db /plugins/collectd/java/
+COPY --from=extra-packages /opt/deps/ /lib
+COPY --from=extra-packages /opt/bins/ /bin
 
 RUN mkdir /run
 
@@ -274,7 +294,6 @@ COPY scripts/agent-status /bin/agent-status
 COPY --from=collectd /usr/sbin/collectd /bin/collectd
 COPY --from=collectd /opt/deps/ /lib
 
-COPY --from=collectd /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt
 COPY --from=collectd /usr/share/collectd/types.db /plugins/collectd/types.db
 # All the built-in collectd plugins
 COPY --from=collectd /usr/lib/collectd/*.so /plugins/collectd/
