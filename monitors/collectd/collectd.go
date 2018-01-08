@@ -133,7 +133,7 @@ func (cm *Manager) RequestRestart() {
 
 // Manage the subprocess with a basic state machine.  This is a bit tricky
 // since we have config coming in asynchronously from multiple sources.  This
-// function blocks until everything is completely stopped.
+// function should never return.
 func (cm *Manager) manageCollectd() {
 	state := Uninitialized
 	var cmd *exec.Cmd

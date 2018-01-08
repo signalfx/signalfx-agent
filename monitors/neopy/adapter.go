@@ -1,3 +1,5 @@
+// +build ignore
+
 // Package neopy holds the logic for managing Python plugins using a subprocess
 // running Python. Currently there is only a DataDog monitor type, but we will
 // support collectd Python plugins.  Communiation between this program and the
