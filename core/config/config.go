@@ -55,13 +55,20 @@ type Config struct {
 }
 
 func (c *Config) setDefaultHostname() {
-	fqdn := fqdn.Get()
-	if fqdn == "unknown" {
-		log.Info("Error getting fully qualified hostname")
-	} else {
-		log.Infof("Using hostname %s", fqdn)
-		c.Hostname = fqdn
+	host := fqdn.Get()
+	if host == "unknown" || host == "localhost" {
+		log.Info("Error getting fully qualified hostname, using plain hostname")
+
+		var err error
+		host, err = os.Hostname()
+		if err != nil {
+			log.Error("Error getting system simple hostname, cannot set hostname")
+			return
+		}
 	}
+
+	log.Infof("Using hostname %s", host)
+	c.Hostname = host
 }
 
 func (c *Config) initialize(metaStore *stores.MetaStore) (*Config, error) {
