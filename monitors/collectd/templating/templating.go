@@ -5,12 +5,13 @@ import (
 	"bytes"
 	"net/url"
 	"os"
-	"path"
+	"path/filepath"
 	"reflect"
 	"runtime"
 	"text/template"
 
 	"github.com/davecgh/go-spew/spew"
+	"github.com/pkg/errors"
 	"github.com/signalfx/neo-agent/core/services"
 	"github.com/signalfx/neo-agent/utils"
 	log "github.com/sirupsen/logrus"
@@ -18,33 +19,34 @@ import (
 	"strings"
 )
 
-const pluginDir = "/usr/share/collectd"
+const pluginDir = "./plugins/collectd"
 
 // WriteConfFile writes a file to the given filePath, ensuring that the
 // containing directory exists.
-func WriteConfFile(content, filePath string) bool {
-	log.Debugf("Writing file %s", filePath)
+func WriteConfFile(content, filePath string) error {
+	if err := os.MkdirAll(filepath.Dir(filePath), 0700); err != nil {
+		return errors.Wrapf(err, "failed to create collectd config dir at %s", filepath.Dir(filePath))
+	}
 
-	os.MkdirAll(path.Dir(filePath), 0755)
 	f, err := os.Create(filePath)
 	if err != nil {
-		log.WithFields(log.Fields{
-			"error": err,
-			"path":  filePath,
-		}).Error("failed to create/truncate collectd config file")
-		return false
+		return errors.Wrapf(err, "failed to create/truncate collectd config file at %s", filePath)
 	}
 	defer f.Close()
 
+	// Lock the file down since it could contain credentials
+	if err := f.Chmod(0600); err != nil {
+		return errors.Wrapf(err, "failed to restrict permissions on collectd config file at %s", filePath)
+	}
+
 	_, err = f.Write([]byte(content))
 	if err != nil {
-		log.WithFields(log.Fields{
-			"error": err,
-			"path":  filePath,
-		}).Error("failed to write collectd config file")
-		return false
+		return errors.Wrapf(err, "Failed to write collectd config file at %s", filePath)
 	}
-	return true
+
+	log.Debugf("Wrote file %s", filePath)
+
+	return nil
 }
 
 // InjectTemplateFuncs injects some helper functions into our templates.
@@ -120,7 +122,7 @@ func InjectTemplateFuncs(tmpl *template.Template) *template.Template {
 			},
 			// Renders a subtemplate using the provided context, and optionally
 			// a service, which will be added to the context as "service"
-			"renderValue": func(templateText string, context map[string]interface{}) (string, error) {
+			"renderValue": func(templateText string, context interface{}) (string, error) {
 				if templateText == "" {
 					return "", nil
 				}

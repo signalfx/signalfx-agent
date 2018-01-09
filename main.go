@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"os"
 	"os/signal"
+	"path/filepath"
 	"syscall"
 
 	log "github.com/sirupsen/logrus"
@@ -21,25 +22,41 @@ var (
 	Version string
 	// BuiltTime for the agent
 	BuiltTime string
-	// CollectdVersion embedded in agent
-	CollectdVersion string
 )
-
-const standaloneHostMount = "/hostfs"
 
 func init() {
 	log.SetFormatter(&prefixed.TextFormatter{})
 	log.SetLevel(log.InfoLevel)
 }
 
+// We always want the current dir of the agent to be the base of the bundle.  A
+// lot of stuff depends on relative paths from here so that the agent is more
+// easily relocated.
+// This assumes the agent binary is in the bin dir in the root of the bundle.
+func setCurrentDir() {
+	exePath, err := os.Executable()
+	if err != nil {
+		panic("Cannot determine agent executable path, cannot continue")
+	}
+	os.Chdir(filepath.Join(filepath.Dir(exePath), ".."))
+}
+
+// Set an envvar with the agent's version so that plugins can have easy access
+// to it (e.g. metadata plugin).
+func setVersionEnvvar() {
+	os.Setenv("SIGNALFX_AGENT_VERSION", Version)
+}
+
 func main() {
+	setCurrentDir()
+	setVersionEnvvar()
+
 	configPath := flag.String("config", "/etc/signalfx/agent.yaml", "agent config path")
-	isStandalone := flag.Bool("standalone", false, "set this if the agent is running outside of a container")
 	version := flag.Bool("version", false, "print agent version")
 	debug := flag.Bool("debug", false, "print debugging output")
 
-	core.VersionLine = fmt.Sprintf("agent-version: %s, collectd-version: %s, built-time: %s\n",
-		Version, CollectdVersion, BuiltTime)
+	core.VersionLine = fmt.Sprintf("agent-version: %s, built-time: %s\n",
+		Version, BuiltTime)
 
 	// Override Usage to support the signalfx-metadata plugin, which expects a
 	// line with the collectd version from the -h flag.
@@ -58,10 +75,6 @@ func main() {
 	if *version {
 		fmt.Printf(core.VersionLine)
 		os.Exit(0)
-	}
-
-	if *isStandalone {
-		*configPath = standaloneHostMount + "/" + *configPath
 	}
 
 	exit := make(chan struct{})

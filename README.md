@@ -66,30 +66,21 @@ agent will automatically manipulate the `NO_PROXY` envvar to not use the proxy
 for local services.
 
 ### Kubernetes
-* Configure secrets
-    * Add a secret named `signalfx` that has a key `access-token` that is your SignalFX Access token.
-    * Because the Quay repository is currently private you have to configure Docker registry authentication. Create a `docker-registry` type secret with name `quay-pull-secret` and in the data section set `.dockerconfigjson` to the base64 encoded contents of `~/.docker/config.json` (assuming you have already logged in with `docker login`)
-* Create config maps:
 
-        kubectl create -f deploy/kubernetes/signalfx-agent-configmap.yml \
-                       -f deploy/kubernetes/signalfx-templates.yml
+* Add a secret named `signalfx` that has a key `access-token` that is your SignalFX Access token.
+
+* Create the config maps:
+
+	kubectl create -f ./deployments/k8s/signalfx-agent.configmap.yml
+
  then edit it as needed.
-* Deploy the agent daemonset
-    `kubectl create -f deploy/kubernetes/signalfx-agent.yml`
+
+* Deploy the agent daemonset:
+
+    kubectl create -f ./deployments/k8s/signalfx-agent.daemonset.yml
 
 To override collectd templates modify the `signalfx-templates` config map.
 
-##### Updating
-Until we have an update script the easiest way to update the agents to a new version is to:
-
-* `kubectl edit deploy signalfx-agent`
-* Change the Docker image property (`.spec.template.spec.containers.image`) to the desired image
-* Delete all agent pods (`kubectl delete pod -l app=signalfx-agent`) and they will be automatically recreated
-
-### Mesos
-```
-TODO
-```
 
 ## Diagnostics
 The agent serves diagnostic information on a unix domain socket at
@@ -105,18 +96,32 @@ Docker 17.06+.  Run `make image` to build the image using the build script
 wrapper (`scripts/build.sh`).
 
 There is a dev image that can be built for more convenient local development.
-Run `make dev-image` to build it and `make run-dev-image` to run it.  It
-basically just extends the standard agent image with some dev tools.  Within
-this image, you can build the agent with `make signalfx-agent` and then run the
-agent with `./signalfx-agent`.  You can put agent config in the `local-etc` dir
-of this repo and it will be shared into the container (along with everything
-else in this dir).
+Run `make dev-image` to build it and `make run-dev-image` to run it.  Inside
+this dev image, the agent bundle is at `/bundle` and the rest of the image
+contains useful tools for development, such as a golang build environment.
+
+Within this image, you can build the agent with `make signalfx-agent` and then run the
+agent with `make run-agent-dev` (this handles copying the built binary into the
+bundle dir and invoking it with the standalone run script).  The code directory
+will be mounted in the container at the right place in the go path so that it
+can be built with no extra setup.
+
+You can put agent config in the `local-etc` dir of this repo and it will be
+shared into the container at the default place that the agent looks for config.
+
+### Development in Kubernetes (K8s)
+
+* Because the Quay repository is currently private you have to configure Docker registry authentication. Create a `docker-registry` type secret with name `quay-pull-secret` and in the data section set `.dockerconfigjson` to the base64 encoded contents of `~/.docker/config.json` (assuming you have already logged in with `docker login`)
+
+* `kubectl edit deploy signalfx-agent`
+* Change the Docker image property (`.spec.template.spec.containers.image`) to the desired image
+* Delete all agent pods (`kubectl delete pod -l app=signalfx-agent`) and they will be automatically recreated
+
 
 ## Dependencies
 
-Go dependencies are specified in `glide.yaml`. Of note the version of
-docker/libkv is currently a forked version from
-https://github.com/cohodata/libkv that has a ZooKeeper fix for watch events.
+We are using [dep](https://github.com/golang/dep) to manage dependencies.  It
+isn't quite GA yet but seems to meet our needs sufficiently.
 
 Run `make vendor` to pull down dependencies.
 

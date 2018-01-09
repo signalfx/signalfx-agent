@@ -10,7 +10,10 @@ import (
 	"strings"
 	"time"
 
+	set "gopkg.in/fatih/set.v0"
+
 	fqdn "github.com/ShowMax/go-fqdn"
+	"github.com/pkg/errors"
 	"github.com/signalfx/neo-agent/core/config/stores"
 	"github.com/signalfx/neo-agent/core/filters"
 	"github.com/signalfx/neo-agent/utils"
@@ -44,10 +47,10 @@ type Config struct {
 	// Configure the underlying collectd daemon
 	Collectd                  CollectdConfig `yaml:"collectd" default:"{}"`
 	MetricsToExclude          []MetricFilter `yaml:"metricsToExclude" default:"[]"`
-	ProcFSPath                string         `yaml:"procFSPath" default:"/proc"`
+	ProcFSPath                string         `yaml:"procFSPath" default:"./hostfs/proc"`
 	PythonEnabled             bool           `yaml:"pythonEnabled" default:"false"`
-	DiagnosticsSocketPath     string         `yaml:"diagnosticsSocketPath" default:"/var/run/signalfx.sock"`
-	InternalMetricsSocketPath string         `yaml:"internalMetricsSocketPath" default:"/var/run/signalfx-agent-metrics.sock"`
+	DiagnosticsSocketPath     string         `yaml:"diagnosticsSocketPath" default:"./run/signalfx.sock"`
+	InternalMetricsSocketPath string         `yaml:"internalMetricsSocketPath" default:"./run/signalfx-agent-metrics.sock"`
 	EnableProfiling           bool           `yaml:"profiling" default:"false"`
 	// This exists purely to give the user a place to put common yaml values to
 	// reference in other parts of the config file.
@@ -76,15 +79,11 @@ func (c *Config) initialize(metaStore *stores.MetaStore) (*Config, error) {
 
 	c.setDefaultHostname()
 
-	if !c.validate() {
-		return nil, fmt.Errorf("configuration is invalid")
+	if err := c.validate(); err != nil {
+		return nil, errors.Wrap(err, "configuration is invalid")
 	}
 
 	c.propagateValuesDown(metaStore)
-	idGenerator := newIDGenerator()
-	for i := range c.Monitors {
-		c.Monitors[i].ensureID(idGenerator)
-	}
 
 	return c, nil
 }
@@ -102,22 +101,17 @@ func (c *Config) overrideFromEnv() {
 	}
 }
 
-// Validate everything except for Observers and Monitors
-func (c *Config) validate() bool {
-	valid := true
-
+// Validate everything that we can about the main config
+func (c *Config) validate() error {
 	if c.SignalFxAccessToken == "" {
-		log.Error("signalFxAccessToken must be set!")
-		valid = false
-	}
-	if _, err := url.Parse(c.IngestURL); err != nil {
-		log.WithFields(log.Fields{
-			"ingestURL": c.IngestURL,
-			"error":     err,
-		}).Error("ingestURL is not a valid URL")
+		return errors.New("signalFxAccessToken must be set")
 	}
 
-	return valid
+	if _, err := url.Parse(c.IngestURL); err != nil {
+		return errors.Wrapf(err, "%s is not a valid ingest URL", c.IngestURL)
+	}
+
+	return c.Collectd.Validate()
 }
 
 func (c *Config) makeFilterSet() *filters.FilterSet {
@@ -203,8 +197,10 @@ func (lc *LogConfig) LogrusLevel() *log.Level {
 // concept of generic other config that is initially deserialized into a
 // map[string]interface{} to be later transformed to another form.
 type CustomConfigurable interface {
-	GetOtherConfig() map[string]interface{}
+	ExtraConfig() map[string]interface{}
 }
+
+var validCollectdLogLevels = set.NewNonTS("debug", "info", "notice", "warning", "err")
 
 // CollectdConfig high-level configurations
 type CollectdConfig struct {
@@ -227,6 +223,18 @@ type CollectdConfig struct {
 	HasGenericJMXMonitor bool               `yaml:"-"`
 }
 
+// Validate the collectd specific config
+func (cc *CollectdConfig) Validate() error {
+	if !validCollectdLogLevels.Has(cc.LogLevel) {
+		return errors.Errorf("Invalid collectd log level %s.  Valid choices are %v",
+			cc.LogLevel, validCollectdLogLevels)
+	}
+
+	return nil
+}
+
+// WriteServerURL is the local address served by the agent where collect should
+// write datapoints
 func (cc *CollectdConfig) WriteServerURL() string {
 	return fmt.Sprintf("http://%s:%d/", cc.WriteServerIPAddr, cc.WriteServerPort)
 }
@@ -237,8 +245,8 @@ type StoreConfig struct {
 	OtherConfig map[string]interface{} `yaml:",inline,omitempty" default:"{}"`
 }
 
-// GetOtherConfig returns generic config as a map
-func (sc *StoreConfig) GetOtherConfig() map[string]interface{} {
+// ExtraConfig returns generic config as a map
+func (sc *StoreConfig) ExtraConfig() map[string]interface{} {
 	return sc.OtherConfig
 }
 
@@ -247,13 +255,3 @@ var (
 	EnvReplacer   = strings.NewReplacer(".", "_", "-", "_")
 	configTimeout = 10 * time.Second
 )
-
-// Used to ensure unique IDs for monitors and observers
-func newIDGenerator() func(string) int {
-	ids := map[string]int{}
-
-	return func(name string) int {
-		ids[name]++
-		return ids[name]
-	}
-}

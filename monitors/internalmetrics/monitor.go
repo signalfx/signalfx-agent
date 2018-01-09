@@ -30,11 +30,11 @@ type Monitor struct {
 }
 
 func init() {
-	monitors.Register(monitorType, func() interface{} { return &Monitor{} }, &Config{})
+	monitors.Register(monitorType, func(id monitors.MonitorID) interface{} { return &Monitor{} }, &Config{})
 }
 
 // Configure and kick off internal metric collection
-func (m *Monitor) Configure(conf *Config) bool {
+func (m *Monitor) Configure(conf *Config) error {
 	m.Shutdown()
 
 	m.stop = utils.RunOnInterval(func() {
@@ -68,7 +68,7 @@ func (m *Monitor) Configure(conf *Config) bool {
 		}
 	}, time.Duration(conf.IntervalSeconds)*time.Second)
 
-	return true
+	return nil
 }
 
 // Shutdown the internal metric collection

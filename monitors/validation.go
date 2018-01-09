@@ -3,6 +3,9 @@ package monitors
 import (
 	"errors"
 	"fmt"
+	"reflect"
+
+	validator "gopkg.in/go-playground/validator.v9"
 
 	"github.com/signalfx/neo-agent/core/config"
 	"github.com/signalfx/neo-agent/core/services"
@@ -16,13 +19,9 @@ func validateConfig(monConfig config.MonitorCustomConfig) error {
 		return errors.New("Monitor type not recognized")
 	}
 
-	manualEndpoints := conf.OtherConfig["serviceEndpoints"]
-	hasManualEndpoints := manualEndpoints != nil && len(manualEndpoints.([]interface{})) > 0
-
-	inst := newUninitializedMonitor(conf.Type)
-	_, takesServices := inst.(InjectableMonitor)
-	if takesServices && conf.DiscoveryRule == "" && !hasManualEndpoints {
-		return fmt.Errorf("Monitor %s takes services but did not specify any discovery rule or manually defined services", conf.Type)
+	takesEndpoints := configAcceptsEndpoints(monConfig)
+	if !takesEndpoints && conf.DiscoveryRule != "" {
+		return fmt.Errorf("Monitor %s does not support discovery but has a discovery rule", conf.Type)
 	}
 
 	// Validate discovery rules
@@ -31,12 +30,30 @@ func validateConfig(monConfig config.MonitorCustomConfig) error {
 		if err != nil {
 			return errors.New("Could not validate discovery rule: " + err.Error())
 		}
-
-		if hasManualEndpoints {
-			return errors.New("Cannot have a monitor with discoveryRule and serviceEndpoints. " +
-				"Please split your config into two separate monitors.")
-		}
 	}
 
 	return config.ValidateCustomConfig(monConfig)
+}
+
+func configAcceptsEndpoints(monConfig config.MonitorCustomConfig) bool {
+	confVal := reflect.Indirect(reflect.ValueOf(monConfig))
+	coreConfField, ok := confVal.Type().FieldByName("MonitorConfig")
+	if !ok {
+		return false
+	}
+	return coreConfField.Tag.Get("acceptsEndpoints") == "true"
+}
+
+func validateFields(monConfig config.MonitorCustomConfig) error {
+	validate := validator.New()
+	return validate.Struct(monConfig)
+}
+
+func isConfigUnique(conf *config.MonitorConfig, otherConfs []config.MonitorConfig) bool {
+	for _, c := range otherConfs {
+		if c.CoreConfig().Equals(conf) {
+			return true
+		}
+	}
+	return false
 }

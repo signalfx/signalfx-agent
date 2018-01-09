@@ -69,13 +69,13 @@ type Observer struct {
 }
 
 // Configure configures and starts watching for endpoints
-func (o *Observer) Configure(config *Config) bool {
+func (o *Observer) Configure(config *Config) error {
 	// There is a bug/limitation in the k8s go client's Controller where
 	// goroutines are leaked even when using the stop channel properly.  So we
 	// should avoid going through a shutdown/startup cycle here if nothing is
 	// different in the config.
 	if reflect.DeepEqual(config, o.config) {
-		return true
+		return nil
 	}
 
 	o.thisNode = os.Getenv(nodeEnvVar)
@@ -83,7 +83,7 @@ func (o *Observer) Configure(config *Config) bool {
 	var err error
 	o.clientset, err = kubernetes.MakeClient(config.KubernetesAPI)
 	if err != nil {
-		return false
+		return err
 	}
 
 	o.stopIfRunning()
@@ -91,7 +91,7 @@ func (o *Observer) Configure(config *Config) bool {
 
 	o.config = config
 
-	return true
+	return nil
 }
 
 func (o *Observer) watchPods() {

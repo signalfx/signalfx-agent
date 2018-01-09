@@ -3,27 +3,25 @@ LoadPlugin "python"
   ModulePath "{{Globals.PluginRoot}}/spark"
   Import "spark_plugin"
 
-  {{range .Endpoints}}
   <Module spark_plugin>
     MetricsURL "http://{{.Host}}"
-    {{if $.C.IsMaster -}}
+    {{if .IsMaster -}}
     Master "http://{{.Host}}:{{.Port}}"
     MasterPort {{.Port}}
     {{else}}
     WorkerPorts {{.Port}}
     {{- end}}
-    Applications "{{if $.C.CollectApplicationMetrics}}True{{else}}False{{end}}"
-    EnhancedMetrics "{{if $.C.EnhancedMetrics}}True{{else}}False{{end}}"
-    {{range $.C.MetricsToInclude}}
+    Applications "{{if .CollectApplicationMetrics}}True{{else}}False{{end}}"
+    EnhancedMetrics "{{if .EnhancedMetrics}}True{{else}}False{{end}}"
+    {{range .MetricsToInclude}}
     IncludeMetric {{.}}
     {{- end}}
-    {{range $.C.MetricsToExclude}}
+    {{range .MetricsToExclude}}
     ExcludeMetric {{.}}
     {{- end}}
-    Cluster "{{$.C.ClusterType}}"
-    {{range $key, $value := mergeStringMaps $.C.ExtraDimensions .Dimensions}}
+    Cluster "{{.ClusterType}}"
+    {{range $key, $value := .ExtraDimensions}}
     Dimension "{{$key}}={{$value}}"
     {{- end}}
   </Module>
-  {{end}}
 </Plugin>

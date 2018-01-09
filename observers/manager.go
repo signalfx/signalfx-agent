@@ -84,9 +84,10 @@ OUTER:
 				configEqual := reflect.DeepEqual(*obs.lastConfig, *cfg)
 
 				if !configEqual {
-					ok := configureObserver(obs.instance, cfg)
-					if !ok {
+					err := configureObserver(obs.instance, cfg)
+					if err != nil {
 						log.WithFields(log.Fields{
+							"error":        err,
 							"observerType": cfg.Type,
 							"config":       cfg,
 						}).Error("Could not configure observer")
@@ -107,8 +108,12 @@ OUTER:
 			continue
 		}
 
-		if !configureObserver(observer.instance, cfg) {
-			continue
+		if err := configureObserver(observer.instance, cfg); err != nil {
+			log.WithFields(log.Fields{
+				"error":        err,
+				"observerType": cfg.Type,
+				"config":       cfg,
+			}).Error("Could not configure observer")
 		}
 
 		om.observers = append(om.observers, observer)

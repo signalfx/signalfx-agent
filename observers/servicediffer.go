@@ -54,16 +54,16 @@ func (sd *ServiceDiffer) runDiscovery() {
 
 	for i := range latestServices {
 		service := latestServices[i]
-		_, seen := sd.serviceSet[service.ID()]
+		_, seen := sd.serviceSet[service.Core().ID]
 		if !seen {
 			log.WithFields(log.Fields{
-				"serviceID": service.ID(),
+				"serviceID": service.Core().ID,
 			}).Debug("ServiceDiffer: adding service")
 
 			sd.Callbacks.Added(service)
 		}
-		sd.serviceSet[service.ID()] = service
-		activeSet[service.ID()] = true
+		sd.serviceSet[service.Core().ID] = service
+		activeSet[service.Core().ID] = true
 	}
 
 	// Remove any that are no longer reported by discovery

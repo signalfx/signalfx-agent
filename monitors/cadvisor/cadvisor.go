@@ -5,10 +5,10 @@ import (
 
 	"github.com/google/cadvisor/client"
 	info "github.com/google/cadvisor/info/v1"
+	"github.com/pkg/errors"
 	"github.com/signalfx/golib/datapoint"
 	"github.com/signalfx/neo-agent/core/config"
 	"github.com/signalfx/neo-agent/monitors"
-	log "github.com/sirupsen/logrus"
 )
 
 const (
@@ -16,7 +16,7 @@ const (
 )
 
 func init() {
-	monitors.Register(cadvisorType, func() interface{} { return &Cadvisor{} }, &CHTTPConfig{})
+	monitors.Register(cadvisorType, func(id monitors.MonitorID) interface{} { return &Cadvisor{} }, &CHTTPConfig{})
 }
 
 // CHTTPConfig is the monitor-specific config for cAdvisor
@@ -34,13 +34,10 @@ type Cadvisor struct {
 }
 
 // Configure the cAdvisor monitor
-func (c *Cadvisor) Configure(conf *CHTTPConfig) bool {
+func (c *Cadvisor) Configure(conf *CHTTPConfig) error {
 	cadvisorClient, err := client.NewClient(conf.CAdvisorURL)
 	if err != nil {
-		log.WithFields(log.Fields{
-			"error": err,
-		}).Error("Could not create cAdvisor client")
-		return false
+		return errors.Wrap(err, "Could not create cAdvisor client")
 	}
 
 	return c.Monitor.Configure(&conf.Config, &conf.MonitorConfig, c.DPs, newCadvisorInfoProvider(cadvisorClient))

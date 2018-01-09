@@ -42,7 +42,7 @@ func init() {
 }
 
 // Configure the docker client
-func (file *File) Configure(config *Config) bool {
+func (file *File) Configure(config *Config) error {
 	file.config = config
 
 	if file.serviceDiffer != nil {
@@ -56,7 +56,7 @@ func (file *File) Configure(config *Config) bool {
 	}
 	file.serviceDiffer.Start()
 
-	return true
+	return nil
 }
 
 // Discover services from a file

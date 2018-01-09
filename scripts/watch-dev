@@ -1,0 +1,59 @@
+#!/bin/bash
+
+function curtime() {
+  date +%s
+}
+
+last_start=0
+
+dirs="core monitors observers utils"
+pid=
+
+inotifywait -q \
+  --exclude '.*~$' \
+  --exclude '.*template.go' \
+  --exclude 'monitors/collectd/collectd.conf.go' \
+  -r \
+  -e modify \
+  -e create \
+  -m \
+  --format '%w%f %T' \
+  --timefmt '%s' \
+  $dirs \
+  | while read path ts
+do
+  if [ "$((ts - last_start))" -lt "2" ]
+  then
+    continue
+  fi
+
+  echo "$path changed"
+  echo
+
+  if [[ -n $pid && -d /proc/$pid ]]; then
+    echo 'Stopping previous build!'
+    kill -9 $pid
+    while test -d /proc/$pid; do sleep 0.01; done
+    pid=
+  fi
+
+  last_start=$(curtime)
+
+  (
+    make signalfx-agent
+    if [[ $? != 0 ]]; then
+      exit
+    fi
+    echo 'Done Building!'
+
+    if [[ "$path" == *.go ]]; then
+      golint ./$path
+      #errcheck ./$(dirname $path)
+      go vet ./$path
+    fi
+  ) &
+  pid=$!
+
+  echo
+
+done 

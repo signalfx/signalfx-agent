@@ -8,28 +8,38 @@ import (
 
 	"github.com/creasty/defaults"
 	"github.com/davecgh/go-spew/spew"
+	"github.com/pkg/errors"
 	"github.com/signalfx/neo-agent/utils"
 	log "github.com/sirupsen/logrus"
 )
 
-// DecodeOtherConfig will pull out the OtherConfig values from both
+// DecodeExtraConfigStrict will pull out any config values from 'in' and put them
+// on the 'out' struct, returning an error if anything in 'in' isn't in 'out'.
+func DecodeExtraConfigStrict(in CustomConfigurable, out interface{}) error {
+	return decodeExtraConfig(in, out, true)
+}
+
+// DecodeExtraConfig will pull out the OtherConfig values from both
 // ObserverConfig and MonitorConfig and decode them to a struct that is
-// provided in the `out` arg.  If any values are not decoded, it is considered
-// an error since the user provided config that will not be used and probably
-// thought would.  Any errors decoding will cause `out` to be nil.
-func DecodeOtherConfig(in CustomConfigurable, out interface{}) error {
+// provided in the `out` arg.  Whether all fields have to be in 'out' is
+// determined by the 'strict' flag.  Any errors decoding will cause `out` to be nil.
+func decodeExtraConfig(in CustomConfigurable, out interface{}, strict bool) error {
 	pkgPaths := strings.Split(reflect.Indirect(reflect.ValueOf(out)).Type().PkgPath(), "/")
 
-	otherYaml, err := yaml.Marshal(in.GetOtherConfig())
+	otherYaml, err := yaml.Marshal(in.ExtraConfig())
 	if err != nil {
 		return err
 	}
 
-	err = yaml.UnmarshalStrict(otherYaml, out)
+	if strict {
+		err = yaml.UnmarshalStrict(otherYaml, out)
+	} else {
+		err = yaml.Unmarshal(otherYaml, out)
+	}
 	if err != nil {
 		log.WithFields(log.Fields{
 			"package":     pkgPaths[len(pkgPaths)-1],
-			"otherConfig": spew.Sdump(in.GetOtherConfig()),
+			"otherConfig": spew.Sdump(in.ExtraConfig()),
 			"error":       err,
 		}).Error("Invalid module-specific configuration")
 		return err
@@ -48,43 +58,30 @@ func DecodeOtherConfig(in CustomConfigurable, out interface{}) error {
 
 // FillInConfigTemplate takes a config template value that a monitor/observer
 // provided and fills it in dynamically from the provided conf
-func FillInConfigTemplate(embeddedFieldName string, configTemplate interface{}, conf CustomConfigurable) bool {
+func FillInConfigTemplate(embeddedFieldName string, configTemplate interface{}, conf CustomConfigurable) error {
 	templateValue := reflect.ValueOf(configTemplate)
 	pkg := templateValue.Type().PkgPath()
 
 	if templateValue.Kind() != reflect.Ptr || templateValue.Elem().Kind() != reflect.Struct {
-		log.WithFields(log.Fields{
-			"package": pkg,
-			"kind":    templateValue.Kind(),
-			"type":    templateValue.Type(),
-		}).Error("Config template must be a pointer to a struct")
-		return false
+		return errors.Errorf("Config template must be a pointer to a struct, got %s of kind/type %s/%s",
+			pkg, templateValue.Kind(), templateValue.Type())
 	}
 
 	embeddedField := templateValue.Elem().FieldByName(embeddedFieldName)
 	if !embeddedField.IsValid() {
-		log.WithFields(log.Fields{
-			"fieldName": embeddedFieldName,
-			"fields":    utils.GetStructFieldNames(templateValue),
-		}).Error("Could not find embedded field in config")
-		return false
+		return errors.Errorf("Could not find field %s in config.  Available fields: %v",
+			embeddedFieldName, utils.GetStructFieldNames(templateValue))
 	}
 	embeddedField.Set(reflect.Indirect(reflect.ValueOf(conf)))
 
-	if err := DecodeOtherConfig(conf, configTemplate); err != nil {
-		return false
-	}
-	if configTemplate == nil {
-		return false
-	}
-	return true
+	return DecodeExtraConfigStrict(conf, configTemplate)
 }
 
 // CallConfigure will call the Configure method on an observer or monitor with
 // a `conf` object, typed to the correct type.  This allows monitors/observers
 // to set the type of the config object to their own config and not have to
 // worry about casting or converting.
-func CallConfigure(instance, conf interface{}) bool {
+func CallConfigure(instance, conf interface{}) error {
 	instanceVal := reflect.ValueOf(instance)
 	_type := instanceVal.Type().PkgPath()
 
@@ -92,29 +89,23 @@ func CallConfigure(instance, conf interface{}) bool {
 
 	method := instanceVal.MethodByName("Configure")
 	if !method.IsValid() {
-		log.WithFields(log.Fields{
-			"observerType": _type,
-		}).Error("No Configure method found!")
-		return false
+		return errors.Errorf("No Configure method found for type %s", _type)
 	}
 
 	if method.Type().NumIn() != 1 {
-		log.WithFields(log.Fields{
-			"observerType": _type,
-			"numIn":        method.Type().NumIn(),
-			"methodInType": method.Type().In(0),
-			"confValType":  confVal.Type(),
-		}).Error("Configure method should take exactly one argument that matches " +
-			"the type of the config template provided in the Register function!")
-		return false
+		return errors.Errorf("Configure method of %s should take exactly one argument that matches "+
+			"the type of the config template provided in the Register function! It has %d arguments.",
+			_type, method.Type().NumIn())
 	}
 
-	if method.Type().NumOut() != 1 || method.Type().Out(0).Kind() != reflect.Bool {
-		log.WithFields(log.Fields{
-			"observerType": _type,
-		}).Error("Configure method should return a bool")
-		return false
+	errorIntf := reflect.TypeOf((*error)(nil)).Elem()
+	if method.Type().NumOut() != 1 || !method.Type().Out(0).Implements(errorIntf) {
+		return errors.Errorf("Configure method for type %s should return an error", _type)
 	}
 
-	return method.Call([]reflect.Value{confVal})[0].Bool()
+	ret := method.Call([]reflect.Value{confVal})[0]
+	if ret.IsNil() {
+		return nil
+	}
+	return ret.Interface().(error)
 }

@@ -10,10 +10,13 @@ import (
 	"github.com/signalfx/neo-agent/utils"
 )
 
-func serviceToDiagnosticText(service services.Endpoint, isMonitored bool) string {
+func serviceToDiagnosticText(endpoint services.Endpoint, isMonitored bool) string {
 	var containerInfo string
-	for k, v := range services.EndpointAsMap(service) {
-		containerInfo += fmt.Sprintf("%s: %s\n", k, v)
+	endpointMap := services.EndpointAsMap(endpoint)
+	sortedKeys := utils.SortMapKeys(endpointMap)
+	for _, k := range sortedKeys {
+		val := endpointMap[k]
+		containerInfo += fmt.Sprintf("%s: %v\n", k, val)
 	}
 	var unmonitoredText string
 	if !isMonitored {
@@ -23,7 +26,7 @@ func serviceToDiagnosticText(service services.Endpoint, isMonitored bool) string
 	text := fmt.Sprintf(
 		"- Internal ID: %s %s\n"+
 			"%s\n",
-		service.ID(),
+		endpoint.Core().ID,
 		unmonitoredText,
 		utils.IndentLines(containerInfo, 2))
 	return text
@@ -40,13 +43,10 @@ func (mm *MonitorManager) DiagnosticText() string {
 		am := mm.activeMonitors[i]
 
 		serviceStats := "\n"
-		if len(am.serviceSet) > 0 {
-			serviceText := ""
-			for id := range am.serviceSet {
-				serviceText += serviceToDiagnosticText(am.serviceSet[id], true)
-			}
+		if am.endpoint != nil {
+			serviceText := serviceToDiagnosticText(am.endpoint, true)
 			serviceStats = fmt.Sprintf(
-				"Discovery Rule: %s\nServices:\n%s",
+				"Discovery Rule: %s\nService:\n%s",
 				am.config.CoreConfig().DiscoveryRule, serviceText)
 		}
 		activeMonText += fmt.Sprintf(
@@ -60,8 +60,8 @@ func (mm *MonitorManager) DiagnosticText() string {
 	}
 
 	var discoveredServicesText string
-	for _, service := range mm.discoveredServices {
-		discoveredServicesText += serviceToDiagnosticText(service, mm.isServiceMonitored(service))
+	for _, endpoint := range mm.discoveredEndpoints {
+		discoveredServicesText += serviceToDiagnosticText(endpoint, mm.isEndpointMonitored(endpoint))
 	}
 	if len(discoveredServicesText) == 0 {
 		discoveredServicesText = "None\n"
@@ -85,15 +85,15 @@ func (mm *MonitorManager) InternalMetrics() []*datapoint.Datapoint {
 	return []*datapoint.Datapoint{
 		sfxclient.Gauge("sfxagent.active_monitors", nil, int64(len(mm.activeMonitors))),
 		sfxclient.Gauge("sfxagent.configured_monitors", nil, int64(len(mm.monitorConfigs))),
-		sfxclient.Gauge("sfxagent.discovered_endpoints", nil, int64(len(mm.discoveredServices))),
+		sfxclient.Gauge("sfxagent.discovered_endpoints", nil, int64(len(mm.discoveredEndpoints))),
 	}
 }
 
-func badConfigText(confs []config.MonitorCustomConfig) string {
+func badConfigText(confs []*config.MonitorConfig) string {
 	if len(confs) > 0 {
 		var text string
 		for i := range confs {
-			conf := confs[i].CoreConfig()
+			conf := confs[i]
 			text += fmt.Sprintf("Type: %s\nError: %s\n\n",
 				conf.Type, conf.ValidationError)
 		}

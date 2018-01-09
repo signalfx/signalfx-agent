@@ -4,9 +4,7 @@ LoadPlugin "python"
   Import "marathon"
   LogTraces true
   <Module "marathon">
-    {{range .Endpoints}}
-    host  ["{{.Host}}", "{{.Port}}", "{{$.C.Username}}", "{{$.C.Password}}"]
-    {{end}}
+    host  ["{{.Host}}", "{{.Port}}", "{{.Username}}", "{{.Password}}"]
     verbose False
   </Module>
 </Plugin>

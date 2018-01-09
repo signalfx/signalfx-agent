@@ -3,36 +3,38 @@
 package custom
 
 import (
-	"errors"
 	"fmt"
 	"sync"
 	"text/template"
 
-	log "github.com/sirupsen/logrus"
-
+	"github.com/pkg/errors"
 	"github.com/signalfx/neo-agent/core/config"
-	"github.com/signalfx/neo-agent/core/services"
 	"github.com/signalfx/neo-agent/monitors"
 	"github.com/signalfx/neo-agent/monitors/collectd"
 	"github.com/signalfx/neo-agent/monitors/collectd/templating"
+	log "github.com/sirupsen/logrus"
 )
 
 const monitorType = "collectd/custom"
 
 func init() {
-	monitors.Register(monitorType, func() interface{} {
+	monitors.Register(monitorType, func(id monitors.MonitorID) interface{} {
 		return &Monitor{
-			ServiceMonitorCore: *collectd.NewServiceMonitorCore(template.New("custom")),
+			MonitorCore: *collectd.NewMonitorCore(id, template.New("custom")),
 		}
 	}, &Config{})
 }
 
 // Config is the configuration for the collectd custom monitor
 type Config struct {
-	config.MonitorConfig
-	TemplateText     string                  `yaml:"templateText"`
-	TemplatePath     string                  `yaml:"templatePath"`
-	ServiceEndpoints []services.EndpointCore `yaml:"serviceEndpoints" default:"[]"`
+	config.MonitorConfig `acceptsEndpoints:"true"`
+
+	Host string  `yaml:"host"`
+	Port uint16  `yaml:"port"`
+	Name *string `yaml:"name"`
+
+	TemplateText string `yaml:"templateText"`
+	TemplatePath string `yaml:"templatePath"`
 }
 
 // Validate will check the config that is specific to this monitor
@@ -61,25 +63,20 @@ func (c *Config) getTemplate() (*template.Template, error) {
 	} else {
 		templateText = c.TemplateText
 	}
-	return templateFromText(templateText), nil
+	return templateFromText(templateText)
 }
 
-func templateFromText(templateText string) *template.Template {
+func templateFromText(templateText string) (*template.Template, error) {
 	template, err := templating.InjectTemplateFuncs(template.New("custom")).Parse(templateText)
 	if err != nil {
-		log.WithFields(log.Fields{
-			"monitorType":  monitorType,
-			"templateText": templateText,
-			"error":        err,
-		}).Error("Template text failed to parse!")
-		return nil
+		return nil, errors.Wrapf(err, "Template text failed to parse: \n%s", templateText)
 	}
-	return template
+	return template, nil
 }
 
 // Monitor is the core monitor object that gets instantiated by the agent
 type Monitor struct {
-	collectd.ServiceMonitorCore
+	collectd.MonitorCore
 	// Used to stop watching if we are loading the template from a path
 	stopWatchCh chan struct{}
 	lock        sync.Mutex
@@ -87,13 +84,14 @@ type Monitor struct {
 
 // Configure will render the custom collectd config and queue a collectd
 // restart.
-func (cm *Monitor) Configure(conf *Config) bool {
+func (cm *Monitor) Configure(conf *Config) error {
 	cm.lock.Lock()
 	defer cm.lock.Unlock()
 
-	cm.Template, _ = conf.getTemplate()
-	if cm.Template == nil {
-		return false
+	var err error
+	cm.Template, err = conf.getTemplate()
+	if err != nil {
+		return err
 	}
 
 	if conf.TemplatePath != "" {
@@ -103,14 +101,10 @@ func (cm *Monitor) Configure(conf *Config) bool {
 	return cm.SetConfigurationAndRun(conf)
 }
 
-func (cm *Monitor) watchTemplatePath(conf *Config) bool {
+func (cm *Monitor) watchTemplatePath(conf *Config) error {
 	templateLoads, stopWatch, err := conf.MetaStore.WatchPath(conf.TemplatePath)
 	if err != nil {
-		log.WithFields(log.Fields{
-			"error":        err,
-			"templatePath": conf.TemplatePath,
-		}).Error("Could not watch template path for custom collectd monitor")
-		return false
+		return errors.Wrapf(err, "Could not watch template path %s for custom collectd monitor", conf.TemplatePath)
 	}
 
 	cm.stopWatchCh = make(chan struct{})
@@ -124,8 +118,12 @@ func (cm *Monitor) watchTemplatePath(conf *Config) bool {
 			case templateKV := <-templateLoads:
 				cm.lock.Lock()
 
-				cm.Template = templateFromText(string(templateKV.Value))
-				if cm.Template == nil {
+				cm.Template, err = templateFromText(string(templateKV.Value))
+				if err != nil {
+					log.WithFields(log.Fields{
+						"error": err,
+						"text":  templateKV.Value,
+					}).Error("Could not load template from text")
 					continue
 				}
 				cm.SetConfigurationAndRun(conf)
@@ -134,7 +132,7 @@ func (cm *Monitor) watchTemplatePath(conf *Config) bool {
 			}
 		}
 	}()
-	return true
+	return nil
 }
 
 // Shutdown stops the file watching if using a template path

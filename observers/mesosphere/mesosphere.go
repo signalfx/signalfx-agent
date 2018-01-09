@@ -9,6 +9,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
 
 	"github.com/signalfx/neo-agent/core/config"
@@ -103,7 +104,7 @@ func init() {
 }
 
 // Configure the mesosphere observer/client
-func (mesos *Mesosphere) Configure(config *Config) bool {
+func (mesos *Mesosphere) Configure(config *Config) error {
 	mesos.config = config
 
 	if mesos.config.HostURL == "" {
@@ -111,8 +112,7 @@ func (mesos *Mesosphere) Configure(config *Config) bool {
 		if err == nil {
 			mesos.config.HostURL = fmt.Sprintf("http://%s:%d", hostname, DefaultPort)
 		} else {
-			log.WithError(err).Error("Could not set default Mesos host URL")
-			return false
+			return errors.Wrapf(err, "Could not set default Mesos host URL")
 		}
 	}
 
@@ -132,7 +132,7 @@ func (mesos *Mesosphere) Configure(config *Config) bool {
 
 	mesos.serviceDiffer.Start()
 
-	return true
+	return nil
 }
 
 // Read services from mesosphere

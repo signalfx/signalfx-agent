@@ -4,7 +4,6 @@ package elasticsearch
 
 import (
 	"github.com/signalfx/neo-agent/core/config"
-	"github.com/signalfx/neo-agent/core/services"
 	"github.com/signalfx/neo-agent/monitors"
 	"github.com/signalfx/neo-agent/monitors/collectd"
 )
@@ -12,16 +11,22 @@ import (
 const monitorType = "collectd/elasticsearch"
 
 func init() {
-	monitors.Register(monitorType, func() interface{} {
+	monitors.Register(monitorType, func(id monitors.MonitorID) interface{} {
 		return &Monitor{
-			*collectd.NewServiceMonitorCore(CollectdTemplate),
+			*collectd.NewMonitorCore(id, CollectdTemplate),
 		}
 	}, &Config{})
 }
 
 // Config is the monitor-specific config with the generic config embedded
 type Config struct {
-	config.MonitorConfig
+	config.MonitorConfig `acceptsEndpoints:"true"`
+
+	// Hostname of the ES instance
+	Host string `yaml:"host"`
+	// Port of the ES instance
+	Port uint16 `yaml:"port"`
+	Name string `yaml:"name"`
 	// AdditionalMetrics to report on
 	AdditionalMetrics []string `yaml:"additionalMetrics"`
 	// DetailedMetrics turns on additional metric time series
@@ -45,17 +50,16 @@ type Config struct {
 	// ThreadPools to report on
 	ThreadPools []string `yaml:"threadPools" default:"[\"search\", \"index\"]"`
 	// Username used to access elasticsearch stats api
-	Username         *string                 `yaml:"username"`
-	Version          *string                 `yaml:"version"`
-	ServiceEndpoints []services.EndpointCore `yaml:"serviceEndpoints" default:"[]"`
+	Username *string `yaml:"username"`
+	Version  *string `yaml:"version"`
 }
 
 // Monitor is the main type that represents the monitor
 type Monitor struct {
-	collectd.ServiceMonitorCore
+	collectd.MonitorCore
 }
 
 // Configure configures and runs the plugin in collectd
-func (em *Monitor) Configure(conf *Config) bool {
-	return em.SetConfigurationAndRun(conf)
+func (m *Monitor) Configure(conf *Config) error {
+	return m.SetConfigurationAndRun(conf)
 }

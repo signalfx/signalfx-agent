@@ -57,7 +57,7 @@
     - redis.conf
 
 - name: signalfx
-  version: neoagent-version
+  version: 8e9ba13bd573a88cc54fe9c652cbfd1614c2cd58
   repo: signalfx/signalfx-collectd-plugin
 
 - name: spark

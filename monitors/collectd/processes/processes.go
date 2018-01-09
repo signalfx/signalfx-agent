@@ -11,9 +11,9 @@ import (
 const monitorType = "collectd/processes"
 
 func init() {
-	monitors.Register(monitorType, func() interface{} {
+	monitors.Register(monitorType, func(id monitors.MonitorID) interface{} {
 		return &Monitor{
-			*collectd.NewStaticMonitorCore(CollectdTemplate),
+			*collectd.NewMonitorCore(id, CollectdTemplate),
 		}
 	}, &Config{})
 }
@@ -34,11 +34,11 @@ func (c *Config) Validate() error {
 
 // Monitor is the main type that represents the monitor
 type Monitor struct {
-	collectd.StaticMonitorCore
+	collectd.MonitorCore
 }
 
 // Configure configures and runs the plugin in collectd
-func (am *Monitor) Configure(conf *Config) bool {
+func (am *Monitor) Configure(conf *Config) error {
 	// ProcFSPath is a global config setting that gets propagated to each
 	// monitor config, but allow overriding it if desired.
 	if conf.ProcFSPath == "" {

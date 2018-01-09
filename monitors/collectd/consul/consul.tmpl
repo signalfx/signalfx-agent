@@ -3,34 +3,32 @@ LoadPlugin "python"
   ModulePath "{{Globals.PluginRoot}}/consul/plugin"
   Import "consul_collectd"
 
-  {{range .Endpoints}}
   <Module consul_collectd>
     ApiHost "{{.Host}}"
     ApiPort "{{.Port}}"
-    ApiProtocol "{{if $.C.UseHTTPS}}https{{else}}http{{end}}"
+    ApiProtocol "{{if .UseHTTPS}}https{{else}}http{{end}}"
     TelemetryServer false
     # This is tough to support in a containerized env because this agent would
     # have to dynamically expose this port for consul to access.
     #TelemetryHost "localhost"
     #TelemetryPort "8125"
-    {{with $.C.ACLToken -}}
+    {{with .ACLToken -}}
     AclToken "{{.}}"
     {{- end}}
-    SfxToken "{{$.C.SignalFxAccessToken}}"
-    {{range $key, $value := (mergeStringMaps $.C.ExtraDimensions .Dimensions)}}
+    SfxToken "{{.SignalFxAccessToken}}"
+    {{range $key, $value := .ExtraDimensions}}
     Dimension "{{$key}}" "{{$value}}"
     {{- end}}
 
-    EnhancedMetrics {{if $.C.EnhancedMetrics}}true{{else}}false{{end}}
-    {{with $.C.CACertificate -}}
+    EnhancedMetrics {{if .EnhancedMetrics}}true{{else}}false{{end}}
+    {{with .CACertificate -}}
     CaCertificate "{{.}}"
     {{- end}}
-    {{with $.C.ClientCertificate}}
+    {{with .ClientCertificate}}
     ClientCertificate "{{.}}"
     {{- end}}
-    {{with $.C.ClientKey -}}
+    {{with .ClientKey -}}
     ClientKey "{{.}}"
-  {{- end}}
+    {{- end}}
   </Module>
-  {{end}}
 </Plugin>

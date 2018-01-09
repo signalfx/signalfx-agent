@@ -18,15 +18,19 @@
 package monitors
 
 import (
+	"github.com/pkg/errors"
 	"github.com/signalfx/neo-agent/core/config"
 	"github.com/signalfx/neo-agent/core/services"
 	"github.com/signalfx/neo-agent/utils"
 	log "github.com/sirupsen/logrus"
 )
 
+// MonitorID is a unique identifier for a specific instance of a monitor
+type MonitorID string
+
 // MonitorFactory is a niladic function that creates an unconfigured instance
 // of a monitor.
-type MonitorFactory func() interface{}
+type MonitorFactory func(MonitorID) interface{}
 
 // MonitorFactories holds all of the registered monitor factories
 var MonitorFactories = map[string]MonitorFactory{}
@@ -66,9 +70,9 @@ func DeregisterAll() {
 	}
 }
 
-func newUninitializedMonitor(_type string) interface{} {
+func newUninitializedMonitor(_type string, id MonitorID) interface{} {
 	if factory, ok := MonitorFactories[_type]; ok {
-		return factory()
+		return factory(id)
 	}
 
 	log.WithFields(log.Fields{
@@ -79,8 +83,8 @@ func newUninitializedMonitor(_type string) interface{} {
 
 // Creates a new, unconfigured instance of a monitor of _type.  Returns nil if
 // the monitor type is not registered.
-func newMonitor(_type string) interface{} {
-	mon := newUninitializedMonitor(_type)
+func newMonitor(_type string, id MonitorID) interface{} {
+	mon := newUninitializedMonitor(_type, id)
 	if initMon, ok := mon.(Initializable); ok {
 		if err := initMon.Init(); err != nil {
 			log.WithFields(log.Fields{
@@ -112,28 +116,24 @@ type Shutdownable interface {
 // populate a clone of the config template that was registered for the monitor
 // type specified in conf.  This will also validate the config and return nil
 // if validation fails.
-func getCustomConfigForMonitor(conf *config.MonitorConfig) (config.MonitorCustomConfig, bool) {
+func getCustomConfigForMonitor(conf *config.MonitorConfig) (config.MonitorCustomConfig, error) {
 	confTemplate, ok := configTemplates[conf.Type]
 	if !ok {
-		log.WithFields(log.Fields{
-			"monitorType": conf.Type,
-		}).Error("Unknown monitor type")
-		return nil, false
+		return nil, errors.Errorf("Unknown monitor type %s", conf.Type)
 	}
 	monConfig := utils.CloneInterface(confTemplate).(config.MonitorCustomConfig)
 
-	if ok := config.FillInConfigTemplate("MonitorConfig", monConfig, conf); !ok {
-		return nil, false
+	if err := config.FillInConfigTemplate("MonitorConfig", monConfig, conf); err != nil {
+		return nil, err
 	}
 
 	// These methods will set state inside the config such that conf.IsValid
 	// will return true or false
 	if err := validateConfig(monConfig); err != nil {
-		monConfig.CoreConfig().ValidationError = err.Error()
-		return monConfig, false
+		return monConfig, err
 	}
 
-	return monConfig, true
+	return monConfig, nil
 }
 
 func anyMarkedSolo(confs []config.MonitorConfig) bool {

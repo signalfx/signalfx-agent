@@ -1,7 +1,11 @@
 package monitors
 
 import (
+	"fmt"
 	"reflect"
+
+	"github.com/creasty/defaults"
+	"github.com/pkg/errors"
 
 	"github.com/signalfx/golib/datapoint"
 	"github.com/signalfx/golib/event"
@@ -9,7 +13,6 @@ import (
 	"github.com/signalfx/neo-agent/core/services"
 	"github.com/signalfx/neo-agent/core/writer"
 	"github.com/signalfx/neo-agent/utils"
-	log "github.com/sirupsen/logrus"
 )
 
 // ActiveMonitor is a wrapper for an actual monitor instance that keeps some
@@ -17,74 +20,40 @@ import (
 // the monitor, as well as a copy of its configuration.  It exposes a lot of
 // methods to help manage the monitor as well.
 type ActiveMonitor struct {
-	instance   interface{}
-	config     config.MonitorCustomConfig
-	serviceSet map[services.ID]services.Endpoint
+	instance interface{}
+	id       MonitorID
+	config   config.MonitorCustomConfig
+	endpoint services.Endpoint
 	// Is the monitor marked for deletion?
 	doomed bool
 }
 
 // Does some reflection magic to pass the right type to the Configure method of
 // each monitor
-func (am *ActiveMonitor) configureMonitor(monConfig config.MonitorCustomConfig) bool {
+func (am *ActiveMonitor) configureMonitor(monConfig config.MonitorCustomConfig) error {
+	monConfig = utils.CloneInterface(monConfig).(config.MonitorCustomConfig)
+
+	if err := defaults.Set(monConfig.CoreConfig()); err != nil {
+		// This is only caused by a programming bug, not bad user input
+		panic(fmt.Sprintf("Config defaults are wrong types: %s", err))
+	}
+
+	if am.endpoint != nil {
+		err := config.DecodeExtraConfigStrict(am.endpoint, monConfig)
+		if err != nil {
+			return errors.Wrap(err, "Could not inject endpoint config into monitor config")
+		}
+		for k, v := range am.endpoint.Dimensions() {
+			monConfig.CoreConfig().ExtraDimensions[k] = v
+		}
+	}
+
 	am.config = monConfig
 
-	if !config.CallConfigure(am.instance, monConfig) {
-		return false
+	if err := validateFields(monConfig); err != nil {
+		return err
 	}
-
-	return am.injectAndRemoveManualServices()
-}
-
-// Add new services and remove old ones that are no longer configured
-func (am *ActiveMonitor) injectAndRemoveManualServices() bool {
-	ses := config.ServiceEndpointsFromConfig(am.config)
-	if len(ses) > 0 {
-		for k := range am.serviceSet {
-			am.removeServiceFromMonitor(am.serviceSet[k])
-		}
-
-		for i := range ses {
-			if !am.injectServiceToMonitorInstance(ses[i]) {
-				return false
-			}
-		}
-	}
-
-	return true
-}
-
-func (am *ActiveMonitor) injectServiceToMonitorInstance(service services.Endpoint) bool {
-	if inst, ok := am.instance.(InjectableMonitor); ok {
-		// Make sure this is done before injecting service to monitor!
-		service.AddMatchingMonitor(am.config.CoreConfig().ID)
-
-		inst.AddService(service)
-		am.serviceSet[service.ID()] = service
-
-		return true
-	}
-
-	log.WithFields(log.Fields{
-		"monitorType": am.config.CoreConfig().Type,
-	}).Error("Monitor does not provide the service injection methods!")
-	return false
-}
-
-func (am *ActiveMonitor) removeServiceFromMonitor(service services.Endpoint) bool {
-	if inst, ok := am.instance.(InjectableMonitor); ok {
-		// Make sure this is done before removing service from monitor!
-		service.RemoveMatchingMonitor(am.config.CoreConfig().ID)
-		inst.RemoveService(service)
-		delete(am.serviceSet, service.ID())
-
-		return true
-	}
-
-	log.WithFields(log.Fields{
-		"service": service,
-	}).Error("Monitor does not provide the service injection methods!")
-	return false
+	return config.CallConfigure(am.instance, monConfig)
 }
 
 // Sets the `DPs` field on a monitor if it is present to the datapoint channel.
@@ -99,6 +68,13 @@ func (am *ActiveMonitor) injectDatapointChannelIfNeeded(dpChan chan<- *datapoint
 
 	dpsValue.Set(reflect.ValueOf(dpChan))
 	return true
+}
+
+func (am *ActiveMonitor) endpointID() services.ID {
+	if am.endpoint == nil {
+		return ""
+	}
+	return am.endpoint.Core().ID
 }
 
 // Sets the `Events` field on a monitor if it is present to the events channel.

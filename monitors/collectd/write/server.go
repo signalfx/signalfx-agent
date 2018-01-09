@@ -33,6 +33,7 @@ func adaptLogs(keyvals ...interface{}) {
 	}
 }
 
+// NewServer creates and starts a write server
 func NewServer(ipAddr string, port uint16, dpChan chan<- *datapoint.Datapoint, eventChan chan<- *event.Event) (*Server, error) {
 	server := &Server{
 		dpChan:    dpChan,
@@ -60,10 +61,12 @@ func NewServer(ipAddr string, port uint16, dpChan chan<- *datapoint.Datapoint, e
 	return server, nil
 }
 
+// Close stops the write server
 func (s *Server) Close() error {
 	return s.listener.Close()
 }
 
+// AddDatapoints is called by the listener when new datapoints come in
 func (s *Server) AddDatapoints(ctx context.Context, dps []*datapoint.Datapoint) error {
 	for _, dp := range dps {
 		s.dpChan <- dp
@@ -71,6 +74,7 @@ func (s *Server) AddDatapoints(ctx context.Context, dps []*datapoint.Datapoint) 
 	return nil
 }
 
+// AddEvents is called by the listener when new events come in
 func (s *Server) AddEvents(ctx context.Context, events []*event.Event) error {
 	for _, event := range events {
 		s.eventChan <- event

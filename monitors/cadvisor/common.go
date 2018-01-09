@@ -99,7 +99,7 @@ func (m *Monitor) getMetricFilter(filters []string) map[string]bool {
 }
 
 // Configure and start/restart cadvisor plugin
-func (m *Monitor) Configure(conf *Config, monConfig *config.MonitorConfig, dpChan chan<- *datapoint.Datapoint, statProvider converter.InfoProvider) bool {
+func (m *Monitor) Configure(conf *Config, monConfig *config.MonitorConfig, dpChan chan<- *datapoint.Datapoint, statProvider converter.InfoProvider) error {
 	// Lock for reconfiguring the plugin
 	m.lock.Lock()
 	defer m.lock.Unlock()
@@ -121,7 +121,7 @@ func (m *Monitor) Configure(conf *Config, monConfig *config.MonitorConfig, dpCha
 
 	m.stop, m.stopped = monitorNode(monConfig.IntervalSeconds, collector)
 
-	return true
+	return nil
 }
 
 func monitorNode(intervalSeconds int, collector *converter.CadvisorCollector) (stop chan bool, stopped chan bool) {

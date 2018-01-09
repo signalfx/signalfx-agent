@@ -1,3 +1,5 @@
+// +build ignore
+
 package neopy
 
 import (
@@ -6,7 +8,7 @@ import (
 
 	"github.com/pebbe/zmq4"
 	"github.com/signalfx/golib/datapoint"
-	"github.com/signalfx/neo-agent/core/config/types"
+	"github.com/signalfx/neo-agent/monitors"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -15,7 +17,7 @@ const datapointsTopic = "datapoints"
 
 // DatapointMessage represents the message sent by python with a datapoint
 type DatapointMessage struct {
-	MonitorID types.MonitorID `json:"monitor_id"`
+	MonitorID monitors.MonitorID `json:"monitor_id"`
 	// Will be deserialized by the golib method by itself
 	Datapoint *datapoint.Datapoint
 }
@@ -67,7 +69,7 @@ func (dq *DatapointsQueue) listenForDatapoints() <-chan *DatapointMessage {
 			}
 
 			var msg struct {
-				MonitorID types.MonitorID `json:"monitor_id"`
+				MonitorID monitors.MonitorID `json:"monitor_id"`
 				// Will be deserialized by the golib method by itself
 				Datapoint *json.RawMessage
 			}

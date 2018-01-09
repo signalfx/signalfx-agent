@@ -11,12 +11,13 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-var id = 0
+var serviceID = 0
 
 func newService(imageName string, publicPort int) services.Endpoint {
-	id++
+	serviceID++
 
-	endpoint := services.NewEndpointCore(string(id), "", time.Now(), "test")
+	endpoint := services.NewEndpointCore(string(serviceID), "", time.Now(), "test")
+	endpoint.Host = "example.com"
 	endpoint.Port = uint16(publicPort)
 
 	return &services.ContainerEndpoint{
@@ -29,18 +30,17 @@ func newService(imageName string, publicPort int) services.Endpoint {
 
 var _ = Describe("Monitor Manager", func() {
 	var manager *MonitorManager
-	var getMonitors func() []MockMonitor
+	var getMonitors func() map[MonitorID]MockMonitor
 
 	BeforeEach(func() {
 		DeregisterAll()
 
 		getMonitors = RegisterFakeMonitors()
 
-		manager = &MonitorManager{}
+		manager = NewMonitorManager()
 	})
 
 	It("Starts up static monitors immediately", func() {
-		log.SetLevel(log.DebugLevel)
 		manager.Configure([]config.MonitorConfig{
 			config.MonitorConfig{
 				Type: "static1",
@@ -53,8 +53,9 @@ var _ = Describe("Monitor Manager", func() {
 
 		spew.Dump(getMonitors())
 		Expect(len(getMonitors())).To(Equal(1))
-		mon := getMonitors()[0]
-		Expect(mon.GetConfig().Type).To(Equal("static1"))
+		for _, mon := range getMonitors() {
+			Expect(mon.Type()).To(Equal("static1"))
+		}
 	})
 
 	It("Shuts down static monitors when removed from config", func() {
@@ -93,7 +94,7 @@ var _ = Describe("Monitor Manager", func() {
 
 		Expect(len(getMonitors())).To(Equal(1))
 
-		manager.ServiceAdded(newService("my-service", 5000))
+		manager.EndpointAdded(newService("my-service", 5000))
 
 		Expect(len(getMonitors())).To(Equal(2))
 
@@ -101,7 +102,7 @@ var _ = Describe("Monitor Manager", func() {
 		Expect(len(mons)).To(Equal(1))
 	})
 
-	It("Shuts down dynamic monitors upon only service removed", func() {
+	It("Shuts down dynamic monitors upon service removed", func() {
 		manager.Configure([]config.MonitorConfig{
 			config.MonitorConfig{
 				Type: "static1",
@@ -113,24 +114,26 @@ var _ = Describe("Monitor Manager", func() {
 		})
 
 		service := newService("my-service", 5000)
-		manager.ServiceAdded(service)
+		manager.EndpointAdded(service)
 
 		mons := findMonitorsByType(getMonitors(), "dynamic1")
 		Expect(len(mons)).To(Equal(1))
 
-		shutdownCalled := false
-		mons[0].AddShutdownHook(func() {
-			shutdownCalled = true
-		})
+		shutdownCallCount := 0
+		for i := range mons {
+			mons[i].AddShutdownHook(func() {
+				shutdownCallCount++
+			})
+		}
 
-		manager.ServiceRemoved(service)
+		manager.EndpointRemoved(service)
 
 		mons = findMonitorsByType(getMonitors(), "dynamic1")
 		Expect(len(mons)).To(Equal(0))
-		Expect(shutdownCalled).To(Equal(true))
+		Expect(shutdownCallCount).To(Equal(1))
 	})
 
-	It("Shuts down dynamic monitor after multiple services removed", func() {
+	It("Starts and stops multiple monitors for multiple endpoints of same monitor type", func() {
 		manager.Configure([]config.MonitorConfig{
 			config.MonitorConfig{
 				Type: "static1",
@@ -143,31 +146,34 @@ var _ = Describe("Monitor Manager", func() {
 
 		service := newService("my-service", 5000)
 		service2 := newService("my-service", 5001)
-		manager.ServiceAdded(service)
-		manager.ServiceAdded(service2)
+		manager.EndpointAdded(service)
+		manager.EndpointAdded(service2)
 
 		mons := findMonitorsByType(getMonitors(), "dynamic1")
-		Expect(len(mons)).To(Equal(1))
+		Expect(len(mons)).To(Equal(2))
 
-		shutdownCalled := false
-		mons[0].AddShutdownHook(func() {
-			shutdownCalled = true
-		})
+		shutdownCallCount := 0
+		for i := range mons {
+			mons[i].AddShutdownHook(func() {
+				shutdownCallCount++
+			})
+		}
 
-		manager.ServiceRemoved(service)
+		manager.EndpointRemoved(service)
 
 		mons = findMonitorsByType(getMonitors(), "dynamic1")
 		Expect(len(mons)).To(Equal(1))
-		Expect(shutdownCalled).To(Equal(false))
+		Expect(shutdownCallCount).To(Equal(1))
 
-		manager.ServiceRemoved(service2)
+		manager.EndpointRemoved(service2)
 
 		mons = findMonitorsByType(getMonitors(), "dynamic1")
 		Expect(len(mons)).To(Equal(0))
-		Expect(shutdownCalled).To(Equal(true))
+		Expect(shutdownCallCount).To(Equal(2))
 	})
 
 	It("Re-monitors service if monitor is removed temporarily", func() {
+		log.SetLevel(log.DebugLevel)
 		goodConfig := []config.MonitorConfig{
 			config.MonitorConfig{
 				Type: "static1",
@@ -179,7 +185,7 @@ var _ = Describe("Monitor Manager", func() {
 		}
 		manager.Configure(goodConfig)
 
-		manager.ServiceAdded(newService("my-service", 5000))
+		manager.EndpointAdded(newService("my-service", 5000))
 
 		mons := findMonitorsByType(getMonitors(), "dynamic1")
 		Expect(len(mons)).To(Equal(1))
@@ -212,7 +218,7 @@ var _ = Describe("Monitor Manager", func() {
 			},
 		})
 
-		manager.ServiceAdded(newService("my-service", 5000))
+		manager.EndpointAdded(newService("my-service", 5000))
 
 		mons := findMonitorsByType(getMonitors(), "dynamic1")
 		Expect(len(mons)).To(Equal(0))
@@ -236,7 +242,7 @@ var _ = Describe("Monitor Manager", func() {
 			},
 		})
 
-		manager.ServiceAdded(newService("my-service", 5000))
+		manager.EndpointAdded(newService("my-service", 5000))
 
 		mons := findMonitorsByType(getMonitors(), "dynamic1")
 		Expect(len(mons)).To(Equal(1))
@@ -263,7 +269,7 @@ var _ = Describe("Monitor Manager", func() {
 			},
 		})
 
-		manager.ServiceAdded(newService("my-service", 5000))
+		manager.EndpointAdded(newService("my-service", 5000))
 
 		mons := findMonitorsByType(getMonitors(), "dynamic1")
 		Expect(len(mons)).To(Equal(1))
@@ -283,13 +289,14 @@ var _ = Describe("Monitor Manager", func() {
 		})
 
 		mons = findMonitorsByType(getMonitors(), "dynamic1")
+		spew.Dump(mons)
+		spew.Dump(getMonitors())
 		Expect(len(mons)).To(Equal(1))
 
 		mons = findMonitorsByType(getMonitors(), "dynamic2")
 		Expect(len(mons)).To(Equal(1))
 
-		// Test restarting and making sure it still only monitors one service
-		// each
+		// Test restarting and making sure it sticks
 		manager.Configure([]config.MonitorConfig{
 			config.MonitorConfig{
 				Type:          "dynamic1",
@@ -303,87 +310,43 @@ var _ = Describe("Monitor Manager", func() {
 
 		mons = findMonitorsByType(getMonitors(), "dynamic1")
 		Expect(len(mons)).To(Equal(1))
-		Expect(len(mons[0].(MockServiceMonitor).(MockServiceMonitor).GetServices())).To(Equal(1))
 
 		mons = findMonitorsByType(getMonitors(), "dynamic2")
 		Expect(len(mons)).To(Equal(1))
-		Expect(len(mons[0].(MockServiceMonitor).(MockServiceMonitor).GetServices())).To(Equal(1))
 	})
 
-	It("Adds manually configured services to monitors", func() {
+	It("Validates required fields", func() {
 		manager.Configure([]config.MonitorConfig{
 			config.MonitorConfig{
 				Type: "static1",
 			},
 			config.MonitorConfig{
-				Type: "dynamic1",
+				Type: "dynamic2",
 				OtherConfig: map[string]interface{}{
-					"serviceEndpoints": []interface{}{
-						services.EndpointCore{
-							Host: "myhost",
-							Port: 5000,
-						},
-						services.EndpointCore{
-							Host: "myhost2",
-							Port: 5002,
-						},
-					},
+					"host": "example.com",
+					// Port is missing but required
 				},
 			},
 		})
 
-		mons := findMonitorsByType(getMonitors(), "dynamic1")
-		Expect(len(mons)).To(Equal(1))
-		Expect(len(mons[0].(MockServiceMonitor).GetServices())).To(Equal(2))
-	})
-
-	It("Removes manually configured services from monitors", func() {
-		manager.Configure([]config.MonitorConfig{
-			config.MonitorConfig{
-				Type: "static1",
-			},
-			config.MonitorConfig{
-				Type: "dynamic1",
-				OtherConfig: map[string]interface{}{
-					"serviceEndpoints": []interface{}{
-						services.EndpointCore{
-							Host: "myhost",
-							Port: 5000,
-						},
-						services.EndpointCore{
-							Host: "myhost2",
-							Port: 5002,
-						},
-					},
-				},
-			},
-		})
-
-		mons := findMonitorsByType(getMonitors(), "dynamic1")
-		Expect(len(mons)).To(Equal(1))
-		Expect(len(mons[0].(MockServiceMonitor).GetServices())).To(Equal(2))
+		mons := findMonitorsByType(getMonitors(), "dynamic2")
+		Expect(len(mons)).To(Equal(0))
 
 		manager.Configure([]config.MonitorConfig{
 			config.MonitorConfig{
 				Type: "static1",
 			},
 			config.MonitorConfig{
-				Type: "dynamic1",
+				Type: "dynamic2",
 				OtherConfig: map[string]interface{}{
-					"serviceEndpoints": []interface{}{
-						services.EndpointCore{
-							MID:  "abcdef",
-							Host: "myhost",
-						},
-					},
+					"host": "example.com",
+					"port": 80,
 				},
 			},
 		})
 
-		mons = findMonitorsByType(getMonitors(), "dynamic1")
+		mons = findMonitorsByType(getMonitors(), "dynamic2")
 		Expect(len(mons)).To(Equal(1))
-		Expect(len(mons[0].(MockServiceMonitor).GetServices())).To(Equal(1))
-		Expect(mons[0].(MockServiceMonitor).GetServices()["abcdef"]).To(Not(BeNil()))
 	})
 
 })

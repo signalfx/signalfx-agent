@@ -13,9 +13,9 @@ import (
 const monitorType = "collectd/docker"
 
 func init() {
-	monitors.Register(monitorType, func() interface{} {
+	monitors.Register(monitorType, func(id monitors.MonitorID) interface{} {
 		return &Monitor{
-			*collectd.NewStaticMonitorCore(CollectdTemplate),
+			*collectd.NewMonitorCore(id, CollectdTemplate),
 		}
 	}, &Config{})
 }
@@ -39,10 +39,10 @@ func (c *Config) Validate() error {
 
 // Monitor is the main type that represents the monitor
 type Monitor struct {
-	collectd.StaticMonitorCore
+	collectd.MonitorCore
 }
 
 // Configure configures and runs the plugin in collectd
-func (rm *Monitor) Configure(conf *Config) bool {
+func (rm *Monitor) Configure(conf *Config) error {
 	return rm.SetConfigurationAndRun(conf)
 }

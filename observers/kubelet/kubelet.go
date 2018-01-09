@@ -58,7 +58,7 @@ func (c *Config) Validate() error {
 // Observer for kubelet
 type Observer struct {
 	config           *Config
-	client           http.Client
+	client           *kubelet.Client
 	serviceDiffer    *observers.ServiceDiffer
 	serviceCallbacks *observers.ServiceCallbacks
 }
@@ -105,13 +105,14 @@ func init() {
 }
 
 // Configure the kubernetes observer/client
-func (k *Observer) Configure(config *Config) bool {
+func (k *Observer) Configure(config *Config) error {
 	if config.KubeletAPI.URL == "" {
 		config.KubeletAPI.URL = fmt.Sprintf("https://%s:10250", config.Hostname)
 	}
-	client := kubelet.NewClient(&config.KubeletAPI)
-	if client == nil {
-		return false
+	var err error
+	k.client, err = kubelet.NewClient(&config.KubeletAPI)
+	if err != nil {
+		return err
 	}
 
 	if k.serviceDiffer != nil {
@@ -127,7 +128,7 @@ func (k *Observer) Configure(config *Config) bool {
 
 	k.serviceDiffer.Start()
 
-	return true
+	return nil
 }
 
 // Map adds additional data from the kubelet into instances

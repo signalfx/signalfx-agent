@@ -6,20 +6,20 @@ LoadPlugin "python"
   Import "dockerplugin"
 
   <Module dockerplugin>
-    Interval {{.C.IntervalSeconds}}
-    BaseURL "{{.C.DockerURL}}"
+    Interval {{.IntervalSeconds}}
+    BaseURL "{{.DockerURL}}"
     Timeout 30
     Verbose false
-    {{range $key, $value := .C.ExtraDimensions -}}
+    {{range $key, $value := .ExtraDimensions -}}
     Dimension "{{$key}}" "{{$value}}"
     {{end -}}
-  {{range .C.ExcludedImages}}
+  {{range .ExcludedImages}}
     ExcludeImage "{{.}}"
   {{end}}
-  {{range .C.ExcludedNames}}
+  {{range .ExcludedNames}}
     ExcludeName "{{.}}"
   {{end -}}
-  {{range $key, $value := .C.ExcludedLabels}}
+  {{range $key, $value := .ExcludedLabels}}
     ExcludeLabel "{{$key}}" "{{$value}}"
   {{end -}}
   </Module>
