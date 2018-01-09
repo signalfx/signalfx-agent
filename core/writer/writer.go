@@ -82,16 +82,27 @@ func (sw *SignalFxWriter) Configure(conf *config.WriterConfig) bool {
 
 	sw.client.AuthToken = conf.SignalFxAccessToken
 	sw.dimPropClient.Token = conf.SignalFxAccessToken
+	sw.dimPropClient.APIURL = conf.APIURL
 
-	endpointURL, err := conf.IngestURL.Parse("v2/datapoint")
+	dpEndpointURL, err := conf.IngestURL.Parse("v2/datapoint")
 	if err != nil {
 		log.WithFields(log.Fields{
 			"error":     err,
 			"ingestURL": conf.IngestURL.String(),
-		}).Error("Could not construct ingest URL")
+		}).Error("Could not construct datapoint ingest URL")
 		return false
 	}
-	sw.client.DatapointEndpoint = endpointURL.String()
+	sw.client.DatapointEndpoint = dpEndpointURL.String()
+
+	eventEndpointURL, err := conf.IngestURL.Parse("v2/event")
+	if err != nil {
+		log.WithFields(log.Fields{
+			"error":     err,
+			"ingestURL": conf.IngestURL.String(),
+		}).Error("Could not construct event ingest URL")
+		return false
+	}
+	sw.client.EventEndpoint = eventEndpointURL.String()
 
 	sw.conf = conf
 

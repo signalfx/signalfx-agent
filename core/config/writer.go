@@ -20,6 +20,7 @@ type WriterConfig struct {
 	LogEvents                    bool `yaml:"logEvents"`
 	// The following are propagated from the top level config
 	IngestURL           *url.URL           `yaml:"-"`
+	APIURL              *url.URL           `yaml:"-"`
 	SignalFxAccessToken string             `yaml:"-"`
 	GlobalDimensions    map[string]string  `yaml:"-"`
 	Filter              *filters.FilterSet `yaml:"-"`
