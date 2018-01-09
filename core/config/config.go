@@ -30,6 +30,8 @@ type Config struct {
 	SignalFxAccessToken string `yaml:"signalFxAccessToken"`
 	// The ingest URL for SignalFx, without the path
 	IngestURL string `yaml:"ingestUrl" default:"https://ingest.signalfx.com"`
+	// The SignalFx API base URL
+	APIURL string `yaml:"apiUrl" default:"https://api.signalfx.com"`
 	// The hostname that will be reported as the "host" dimension on metrics
 	// for which host applies
 	Hostname string `yaml:"hostname"`
@@ -56,13 +58,20 @@ type Config struct {
 }
 
 func (c *Config) setDefaultHostname() {
-	fqdn := fqdn.Get()
-	if fqdn == "unknown" {
-		log.Info("Error getting fully qualified hostname")
-	} else {
-		log.Infof("Using hostname %s", fqdn)
-		c.Hostname = fqdn
+	host := fqdn.Get()
+	if host == "unknown" || host == "localhost" {
+		log.Info("Error getting fully qualified hostname, using plain hostname")
+
+		var err error
+		host, err = os.Hostname()
+		if err != nil {
+			log.Error("Error getting system simple hostname, cannot set hostname")
+			return
+		}
 	}
+
+	log.Infof("Using hostname %s", host)
+	c.Hostname = host
 }
 
 func (c *Config) initialize(metaStore *stores.MetaStore) (*Config, error) {
@@ -126,6 +135,11 @@ func (c *Config) propagateValuesDown(metaStore *stores.MetaStore) {
 		panic("IngestURL was supposed to be validated already")
 	}
 
+	apiURL, err := url.Parse(c.APIURL)
+	if err != nil {
+		panic("apiUrl was supposed to be validated already")
+	}
+
 	c.Collectd.Hostname = c.Hostname
 	c.Collectd.Filter = filterSet
 	c.Collectd.IngestURL = c.IngestURL
@@ -151,6 +165,7 @@ func (c *Config) propagateValuesDown(metaStore *stores.MetaStore) {
 	}
 
 	c.Writer.IngestURL = ingestURL
+	c.Writer.APIURL = apiURL
 	c.Writer.Filter = filterSet
 	c.Writer.SignalFxAccessToken = c.SignalFxAccessToken
 	c.Writer.GlobalDimensions = c.GlobalDimensions

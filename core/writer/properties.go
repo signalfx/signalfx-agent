@@ -6,9 +6,11 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"net/url"
 	"reflect"
 	"time"
 
+	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -31,6 +33,7 @@ type Dimension struct {
 type dimensionPropertyClient struct {
 	client *http.Client
 	Token  string
+	APIURL *url.URL
 	// Keeps track of what has been synced so we don't do unnecessary syncs
 	history map[Dimension]map[string]string
 }
@@ -74,9 +77,14 @@ func (dpc *dimensionPropertyClient) doReq(key, value string, props map[string]st
 		return err
 	}
 
+	url, err := dpc.APIURL.Parse(fmt.Sprintf("/v2/dimension/%s/%s", key, value))
+	if err != nil {
+		return errors.Wrapf(err, "Could not construct dimension property PUT URL with %s / %s", key, value)
+	}
+
 	req, err := http.NewRequest(
 		"PUT",
-		fmt.Sprintf("https://api.signalfx.com/v2/dimension/%s/%s", key, value),
+		url.String(),
 		bytes.NewReader(json))
 	if err != nil {
 		return err
