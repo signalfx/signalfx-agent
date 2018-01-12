@@ -30,7 +30,7 @@ LoadPlugin cpufreq
 {{end}}
 LoadPlugin df
 <Plugin "df">
-  ChangeRoot "./hostfs"
+  ChangeRoot "{{.HostFSPath}}"
   IgnoreSelected true
   FSType "overlay"
   FSType "tmpfs"
@@ -48,9 +48,9 @@ LoadPlugin df
   FSType "pstore"
   FSType "binfmt_misc"
   FSType "autofs"
-  MountPoint "/^/hostfs/var/lib/rkt/pods/"
-  MountPoint "/^/hostfs/net//"
-  MountPoint "/^/hostfs/smb//"
+  MountPoint "/^{{.HostFSPath}}/var/lib/rkt/pods/"
+  MountPoint "/^{{.HostFSPath}}/net//"
+  MountPoint "/^{{.HostFSPath}}/smb//"
 </Plugin>
 
 LoadPlugin disk

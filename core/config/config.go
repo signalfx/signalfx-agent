@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net/url"
 	"os"
+	"path/filepath"
 	"strconv"
 	"strings"
 	"time"
@@ -47,7 +48,7 @@ type Config struct {
 	// Configure the underlying collectd daemon
 	Collectd                  CollectdConfig `yaml:"collectd" default:"{}"`
 	MetricsToExclude          []MetricFilter `yaml:"metricsToExclude" default:"[]"`
-	ProcFSPath                string         `yaml:"procFSPath" default:"./hostfs/proc"`
+	ProcFSPath                string         `yaml:"procFSPath" default:"/proc"`
 	PythonEnabled             bool           `yaml:"pythonEnabled" default:"false"`
 	DiagnosticsSocketPath     string         `yaml:"diagnosticsSocketPath" default:"./run/signalfx.sock"`
 	InternalMetricsSocketPath string         `yaml:"internalMetricsSocketPath" default:"./run/signalfx-agent-metrics.sock"`
@@ -147,6 +148,17 @@ func (c *Config) propagateValuesDown(metaStore *stores.MetaStore) {
 	c.Collectd.GlobalDimensions = c.GlobalDimensions
 	c.Collectd.IntervalSeconds = utils.FirstNonZero(c.Collectd.IntervalSeconds, c.IntervalSeconds)
 
+	// If the root mount namespace is mounted at ./hostfs we need to tell
+	// collectd about it so that disk utilization metrics can be properly
+	// stripped of this prefix in the df plugin in collectd.
+	if hostFSPath, err := filepath.Abs("./hostfs"); err == nil {
+		if _, err := os.Stat(hostFSPath); err == nil {
+			c.Collectd.HostFSPath = hostFSPath
+		}
+	} else {
+		log.Info("Could not find ./hostfs, assuming running in host's root mount namespace")
+	}
+
 	for i := range c.Monitors {
 		c.Monitors[i].CollectdConf = &c.Collectd
 		c.Monitors[i].IngestURL = ingestURL
@@ -215,6 +227,7 @@ type CollectdConfig struct {
 	WriteServerIPAddr    string `yaml:"writeServerIPAddr" default:"127.9.8.7"`
 	WriteServerPort      uint16 `yaml:"writeServerPort" default:"14839"`
 	// The following are propagated from the top-level config
+	HostFSPath           string             `yaml:"-"`
 	Hostname             string             `yaml:"-"`
 	Filter               *filters.FilterSet `yaml:"-"`
 	SignalFxAccessToken  string             `yaml:"-"`
