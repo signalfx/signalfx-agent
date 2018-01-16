@@ -10,7 +10,9 @@ LoadPlugin "python"
     CollectQueues {{.CollectQueues}}
     Dimensions "{{encodeDimsForPluginInstance .ExtraDimensions}}"
     Host {{.Host}}
-    HTTPTimeout {{.HTTPTimeout}}
+    {{with .HTTPTimeout -}}
+    HTTPTimeout {{.}}
+    {{- end}}
     {{with .Password -}}
     Password "{{.}}"
     {{- end}}
