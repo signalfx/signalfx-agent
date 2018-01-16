@@ -18,8 +18,4 @@ export JAVA_HOME="$(pwd)/jvm/java-8-openjdk-amd64"
 
 loader=$(pwd)/lib64/ld-linux-x86-64.so.2
 
-# The agent assumes it can access the root filesystem of the current host at
-# ./hostfs.
-$loader $(pwd)/bin/ln -fns / $(pwd)/hostfs
-
 exec -a signalfx-agent $loader bin/signalfx-agent $@

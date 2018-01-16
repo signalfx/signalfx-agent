@@ -1,6 +1,6 @@
 // Package host observer that monitors the current host for active network listeners
 // and reports them as service endpoints
-// Use of this observer requires the CAP_SYS_PTRACE capability in Linux
+// Use of this observer requires the CAP_SYS_PTRACE capability in Linux.
 package host
 
 import (
