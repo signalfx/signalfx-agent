@@ -259,9 +259,9 @@ ENV useful_bins=" \
   /bin/rm \
   /bin/sh \
   /bin/ss \
-  /bin/tail \
   /usr/bin/curl \
   /usr/bin/host \
+  /usr/bin/tail \
   /usr/bin/vim \
   "
 RUN /opt/collect-libs /opt/deps ${useful_bins}
