@@ -229,7 +229,9 @@ FROM ubuntu:16.04 as extra-packages
 
 RUN apt update &&\
     apt install -y \
+	  host \
 	  netcat.openbsd \
+	  iproute2 \
 	  curl \
 	  vim
 
@@ -243,20 +245,24 @@ RUN curl -Lo /opt/signalfx_types_db https://raw.githubusercontent.com/signalfx/i
 COPY scripts/collect-libs /opt/collect-libs
 
 ENV useful_bins=" \
-  /usr/bin/curl \
-  /usr/bin/vim \
-  /bin/sh \
-  /bin/rm \
-  /bin/ln \
-  /bin/ls \
   /bin/bash \
-  /bin/nc.openbsd \
-  /bin/kill \
-  /bin/mkdir \
+  /bin/cat \
+  /bin/date \
   /bin/echo \
   /bin/grep \
-  /bin/date \
-  /bin/cat \
+  /bin/kill \
+  /bin/ln \
+  /bin/ls \
+  /bin/mkdir \
+  /bin/nc.openbsd \
+  /bin/ps \
+  /bin/rm \
+  /bin/sh \
+  /bin/ss \
+  /bin/tail \
+  /usr/bin/curl \
+  /usr/bin/host \
+  /usr/bin/vim \
   "
 RUN /opt/collect-libs /opt/deps ${useful_bins}
 
@@ -357,8 +363,7 @@ COPY --from=godeps /usr/bin/dep /usr/bin/dep
 COPY --from=collectd /usr/src/collectd/ /usr/src/collectd
 
 RUN go get -u github.com/golang/lint/golint
-RUN go get github.com/derekparker/delve/cmd/dlv &&\
-    cp /go/bin/dlv /agent/usr/bin/dlv
+RUN go get github.com/derekparker/delve/cmd/dlv
 
 COPY --from=godeps /go/src/github.com/signalfx/neo-agent/vendor src/github.com/signalfx/neo-agent/vendor
 COPY --from=godeps /go/pkg /go/pkg
