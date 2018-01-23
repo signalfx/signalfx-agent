@@ -1,6 +1,7 @@
 package converter
 
 import (
+	"math"
 	"regexp"
 	"strconv"
 	"time"
@@ -514,7 +515,14 @@ func getContainerSpecMemMetrics(excludedMetrics map[string]bool) []containerSpec
 				extraLabels: []string{},
 			},
 			getValues: func(container *info.ContainerInfo) metricValues {
-				return metricValues{{value: datapoint.NewIntValue(int64(container.Spec.Memory.Limit))}}
+				limit := int64(container.Spec.Memory.Limit)
+				// Workaround a strange issue where cadvisor reports
+				// ridiculously high memory values in older k8s versions.
+				if limit >= math.MaxUint64/3 {
+					return metricValues{}
+				}
+
+				return metricValues{{value: datapoint.NewIntValue(limit)}}
 			},
 		},
 		{
