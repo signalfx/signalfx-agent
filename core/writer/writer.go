@@ -51,6 +51,7 @@ type SignalFxWriter struct {
 	eventBuffer []*event.Event
 	dpsSent     uint64
 	eventsSent  uint64
+	startTime   time.Time
 }
 
 // New creates a new un-configured writer
