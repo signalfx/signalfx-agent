@@ -8,7 +8,7 @@
   repo: signalfx/collectd-couchbase
 
 - name: docker
-  version: v2.0.2
+  version: v2.0.3
   repo: signalfx/docker-collectd-plugin
 
 - name: elasticsearch
@@ -57,7 +57,7 @@
     - redis.conf
 
 - name: signalfx
-  version: 8e9ba13bd573a88cc54fe9c652cbfd1614c2cd58
+  version: c913f2c66901456b07ef8ce3d174e4edb5a2d999
   repo: signalfx/signalfx-collectd-plugin
 
 - name: spark
