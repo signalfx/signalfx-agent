@@ -19,6 +19,7 @@ import (
 	k8s "k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/pkg/api/v1"
 	"k8s.io/client-go/pkg/fields"
+	"k8s.io/client-go/pkg/types"
 	"k8s.io/client-go/tools/cache"
 )
 
@@ -35,7 +36,8 @@ var logger = log.WithFields(log.Fields{"observerType": observerType})
 func init() {
 	observers.Register(observerType, func(cbs *observers.ServiceCallbacks) interface{} {
 		return &Observer{
-			serviceCallbacks: cbs,
+			serviceCallbacks:  cbs,
+			endpointsByPodUID: make(map[types.UID][]services.Endpoint),
 		}
 	}, &Config{})
 }
@@ -65,7 +67,10 @@ type Observer struct {
 	clientset        *k8s.Clientset
 	thisNode         string
 	serviceCallbacks *observers.ServiceCallbacks
-	stopper          chan struct{}
+	// A cache for endpoints so they don't have to be reconstructed when being
+	// removed.
+	endpointsByPodUID map[types.UID][]services.Endpoint
+	stopper           chan struct{}
 }
 
 // Configure configures and starts watching for endpoints
@@ -132,20 +137,22 @@ func (o *Observer) changeHandler(oldPod *v1.Pod, newPod *v1.Pod) {
 	// If it is an update, there will be a remove and immediately subsequent
 	// add.
 	if oldPod != nil && oldPod.Spec.NodeName == o.thisNode {
-		endpoints := endpointsInPod(oldPod)
+		endpoints := o.endpointsByPodUID[oldPod.UID]
 		for i := range endpoints {
 			o.serviceCallbacks.Removed(endpoints[i])
 		}
+		delete(o.endpointsByPodUID, oldPod.UID)
 	}
+
 	if newPod != nil && newPod.Spec.NodeName == o.thisNode {
-		endpoints := endpointsInPod(newPod)
-		for i := range endpoints {
-			o.serviceCallbacks.Added(endpoints[i])
+		o.endpointsByPodUID[newPod.UID] = endpointsInPod(newPod, o.clientset)
+		for i := range o.endpointsByPodUID[newPod.UID] {
+			o.serviceCallbacks.Added(o.endpointsByPodUID[newPod.UID][i])
 		}
 	}
 }
 
-func endpointsInPod(pod *v1.Pod) []services.Endpoint {
+func endpointsInPod(pod *v1.Pod, client *k8s.Clientset) []services.Endpoint {
 	endpoints := make([]services.Endpoint, 0)
 
 	podIP := pod.Status.PodIP
@@ -160,6 +167,8 @@ func endpointsInPod(pod *v1.Pod) []services.Endpoint {
 		return nil
 	}
 
+	annotationConfs := annotationsForPod(pod)
+
 	for _, container := range pod.Spec.Containers {
 		dims := map[string]string{
 			"container_name":           container.Name,
@@ -169,45 +178,64 @@ func endpointsInPod(pod *v1.Pod) []services.Endpoint {
 		}
 		orchestration := services.NewOrchestration("kubernetes", services.KUBERNETES, dims, services.PRIVATE)
 
-		for _, port := range container.Ports {
-			for _, status := range pod.Status.ContainerStatuses {
-				// Could possibly be made more efficient by creating maps
-				// keyed by name to match up container status and ports.
-				if container.Name != status.Name {
-					continue
-				}
+		var containerState string
+		var containerID string
+		var containerName string
 
-				containerState := "running"
-				if status.State.Running == nil {
-					// Container is not running.
-					continue
-				}
-
-				id := fmt.Sprintf("%s-%s-%d", pod.Name, pod.UID[:7], port.ContainerPort)
-
-				endpoint := services.NewEndpointCore(id, port.Name, now(), observerType)
-				endpoint.Host = podIP
-				endpoint.PortType = services.PortType(port.Protocol)
-				endpoint.Port = uint16(port.ContainerPort)
-
-				container := &services.Container{
-					ID:        status.ContainerID,
-					Names:     []string{status.Name},
-					Image:     container.Image,
-					Command:   "",
-					State:     containerState,
-					Labels:    pod.Labels,
-					Pod:       pod.Name,
-					PodUID:    string(pod.UID),
-					Namespace: pod.Namespace,
-				}
-				endpoints = append(endpoints, &services.ContainerEndpoint{
-					EndpointCore:  *endpoint,
-					AltPort:       0,
-					Container:     *container,
-					Orchestration: *orchestration,
-				})
+		for _, status := range pod.Status.ContainerStatuses {
+			if container.Name != status.Name {
+				continue
 			}
+
+			if status.State.Running == nil {
+				break
+			}
+			containerState = "running"
+			containerID = status.ContainerID
+			containerName = status.Name
+		}
+
+		if containerState != "running" {
+			continue
+		}
+
+		for _, port := range container.Ports {
+			id := fmt.Sprintf("%s-%s-%d", pod.Name, pod.UID[:7], port.ContainerPort)
+
+			endpoint := services.NewEndpointCore(id, port.Name, now(), observerType)
+
+			portAnnotations := annotationConfs.FilterByPortOrPortName(port.ContainerPort, port.Name)
+			monitorType, extraConf, err := configFromAnnotations(container.Name, portAnnotations, pod, client)
+			if err != nil {
+				log.WithFields(log.Fields{
+					"error": err,
+				}).Error("K8s port has invalid config annotations")
+			} else {
+				endpoint.Configuration = extraConf
+				endpoint.MonitorType = monitorType
+			}
+
+			endpoint.Host = podIP
+			endpoint.PortType = services.PortType(port.Protocol)
+			endpoint.Port = uint16(port.ContainerPort)
+
+			container := &services.Container{
+				ID:        containerID,
+				Names:     []string{containerName},
+				Image:     container.Image,
+				Command:   "",
+				State:     containerState,
+				Labels:    pod.Labels,
+				Pod:       pod.Name,
+				PodUID:    string(pod.UID),
+				Namespace: pod.Namespace,
+			}
+			endpoints = append(endpoints, &services.ContainerEndpoint{
+				EndpointCore:  *endpoint,
+				AltPort:       0,
+				Container:     *container,
+				Orchestration: *orchestration,
+			})
 		}
 	}
 	return endpoints
