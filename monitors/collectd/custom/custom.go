@@ -18,9 +18,9 @@ import (
 const monitorType = "collectd/custom"
 
 func init() {
-	monitors.Register(monitorType, func(id monitors.MonitorID) interface{} {
+	monitors.Register(monitorType, func() interface{} {
 		return &Monitor{
-			MonitorCore: *collectd.NewMonitorCore(id, template.New("custom")),
+			MonitorCore: *collectd.NewMonitorCore(template.New("custom")),
 		}
 	}, &Config{})
 }

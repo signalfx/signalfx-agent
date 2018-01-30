@@ -16,7 +16,7 @@ const (
 )
 
 func init() {
-	monitors.Register(cadvisorType, func(id monitors.MonitorID) interface{} { return &Cadvisor{} }, &CHTTPConfig{})
+	monitors.Register(cadvisorType, func() interface{} { return &Cadvisor{} }, &CHTTPConfig{})
 }
 
 // CHTTPConfig is the monitor-specific config for cAdvisor

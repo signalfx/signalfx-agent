@@ -30,7 +30,7 @@ type MonitorID string
 
 // MonitorFactory is a niladic function that creates an unconfigured instance
 // of a monitor.
-type MonitorFactory func(MonitorID) interface{}
+type MonitorFactory func() interface{}
 
 // MonitorFactories holds all of the registered monitor factories
 var MonitorFactories = map[string]MonitorFactory{}
@@ -70,9 +70,9 @@ func DeregisterAll() {
 	}
 }
 
-func newUninitializedMonitor(_type string, id MonitorID) interface{} {
+func newUninitializedMonitor(_type string) interface{} {
 	if factory, ok := MonitorFactories[_type]; ok {
-		return factory(id)
+		return factory()
 	}
 
 	log.WithFields(log.Fields{
@@ -83,8 +83,8 @@ func newUninitializedMonitor(_type string, id MonitorID) interface{} {
 
 // Creates a new, unconfigured instance of a monitor of _type.  Returns nil if
 // the monitor type is not registered.
-func newMonitor(_type string, id MonitorID) interface{} {
-	mon := newUninitializedMonitor(_type, id)
+func newMonitor(_type string, id types.MonitorID) interface{} {
+	mon := newUninitializedMonitor(_type)
 	if initMon, ok := mon.(Initializable); ok {
 		if err := initMon.Init(); err != nil {
 			log.WithFields(log.Fields{

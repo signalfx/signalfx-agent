@@ -27,7 +27,7 @@ const (
 )
 
 func init() {
-	monitors.Register(kubeletStatsType, func(id monitors.MonitorID) interface{} { return &KubeletStatsMonitor{} }, &KubeletStatsConfig{})
+	monitors.Register(kubeletStatsType, func() interface{} { return &KubeletStatsMonitor{} }, &KubeletStatsConfig{})
 }
 
 // KubeletStatsConfig respresents config for the Kubelet stats monitor

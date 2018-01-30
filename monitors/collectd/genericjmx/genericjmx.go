@@ -12,7 +12,6 @@ import (
 	yaml "gopkg.in/yaml.v2"
 
 	"github.com/signalfx/neo-agent/core/config"
-	"github.com/signalfx/neo-agent/monitors"
 	"github.com/signalfx/neo-agent/monitors/collectd"
 )
 
@@ -53,9 +52,9 @@ type JMXMonitorCore struct {
 }
 
 // NewJMXMonitorCore makes a new JMX core as well as the underlying MonitorCore
-func NewJMXMonitorCore(id monitors.MonitorID, defaultMBeans MBeanMap, defaultServiceName string) *JMXMonitorCore {
+func NewJMXMonitorCore(defaultMBeans MBeanMap, defaultServiceName string) *JMXMonitorCore {
 	mc := &JMXMonitorCore{
-		MonitorCore:        *collectd.NewMonitorCore(id, CollectdTemplate),
+		MonitorCore:        *collectd.NewMonitorCore(CollectdTemplate),
 		defaultMBeans:      defaultMBeans,
 		defaultServiceName: defaultServiceName,
 	}

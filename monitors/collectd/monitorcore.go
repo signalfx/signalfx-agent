@@ -27,7 +27,7 @@ type MonitorCore struct {
 	configFilename string
 	config         config.MonitorCustomConfig
 	isRunning      bool
-	monitorID      monitors.MonitorID
+	monitorID      types.MonitorID
 	lock           sync.Mutex
 	DPs            chan<- *datapoint.Datapoint
 	Events         chan<- *event.Event
@@ -36,11 +36,10 @@ type MonitorCore struct {
 
 // NewMonitorCore creates a new initialized but unconfigured MonitorCore with
 // the given template.
-func NewMonitorCore(id monitors.MonitorID, template *template.Template) *MonitorCore {
+func NewMonitorCore(template *template.Template) *MonitorCore {
 	return &MonitorCore{
 		Template:  template,
 		isRunning: false,
-		monitorID: id,
 	}
 }
 

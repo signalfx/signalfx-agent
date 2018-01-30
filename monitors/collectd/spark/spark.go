@@ -20,9 +20,9 @@ const (
 )
 
 func init() {
-	monitors.Register(monitorType, func(id monitors.MonitorID) interface{} {
+	monitors.Register(monitorType, func() interface{} {
 		return &Monitor{
-			*collectd.NewMonitorCore(id, CollectdTemplate),
+			*collectd.NewMonitorCore(CollectdTemplate),
 		}
 	}, &Config{})
 }
