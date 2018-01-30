@@ -25,7 +25,7 @@ type Config struct {
 	Host string  `yaml:"host"`
 	Port uint16  `yaml:"port"`
 	Name string  `yaml:"name"`
-	Auth *string `yaml:"auth"`
+	Auth *string `yaml:"auth" neverLog:"true"`
 }
 
 // Monitor is the main type that represents the monitor

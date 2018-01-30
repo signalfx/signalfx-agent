@@ -30,12 +30,12 @@ type Config struct {
 	Databases []struct {
 		Name     string  `yaml:"name"`
 		Username string  `yaml:"username"`
-		Password *string `yaml:"password"`
+		Password *string `yaml:"password" neverLog:"true"`
 	} `yaml:"databases" required:"true"`
 	// These credentials serve as defaults for all databases if not overridden
 	Username   string  `yaml:"username"`
-	Password   *string `yaml:"password"`
-	ReportHost bool    `yaml:"reportHost" default:"false"`
+	Password   *string `yaml:"password" neverLog:"true"`
+	ReportHost bool    `yaml:"reportHost"`
 }
 
 // Validate will check the config for correctness.

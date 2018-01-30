@@ -7,8 +7,6 @@ import (
 	"net/http"
 	"time"
 
-	yaml "gopkg.in/yaml.v2"
-
 	// Import for side-effect of registering http handler
 	_ "net/http/pprof"
 
@@ -44,8 +42,8 @@ func (a *Agent) serveDiagnosticInfo(socketPath string) error {
 // DiagnosticText returns a simple textual output of the agent's status
 func (a *Agent) DiagnosticText() string {
 	return fmt.Sprintf(
-		"NeoAgent Status"+
-			"\n===============\n"+
+		"SignalFx Agent Status"+
+			"\n=====================\n"+
 			"\nVersion: %s"+
 			"\nAgent Configuration:"+
 			"\n%s\n\n"+
@@ -53,17 +51,11 @@ func (a *Agent) DiagnosticText() string {
 			"%s\n"+
 			"%s",
 		VersionLine,
-		utils.IndentLines(configAsDiagnosticText(a.lastConfig), 2),
+		utils.IndentLines(config.ToString(a.lastConfig), 2),
 		a.writer.DiagnosticText(),
 		a.observers.DiagnosticText(),
 		a.monitors.DiagnosticText())
 
-}
-
-// Converts the config structure to a human friendly output
-func configAsDiagnosticText(conf *config.Config) string {
-	s, _ := yaml.Marshal(conf)
-	return string(s)
 }
 
 func (a *Agent) serveInternalMetrics(socketPath string) error {

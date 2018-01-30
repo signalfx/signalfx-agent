@@ -23,12 +23,7 @@ import (
 
 // Config is the top level config struct that everything goes under
 type Config struct {
-	// TODO: Consider whether to allow store configuration from the main config
-	// file.  There is a major chicken/egg problem with this and reloading
-	// stores is very tricky.  Right now, stores can only be configured via
-	// envvars and I think it is best to keep it that way.
-	//Stores              map[string]StoreConfig `yaml:"stores,omitempty" default:"{}"`
-	SignalFxAccessToken string `yaml:"signalFxAccessToken"`
+	SignalFxAccessToken string `yaml:"signalFxAccessToken" neverLog:"true"`
 	// The ingest URL for SignalFx, without the path
 	IngestURL string `yaml:"ingestUrl" default:"https://ingest.signalfx.com"`
 	// The SignalFx API base URL
@@ -36,13 +31,13 @@ type Config struct {
 	// The hostname that will be reported as the "host" dimension on metrics
 	// for which host applies
 	Hostname string `yaml:"hostname"`
-	// How often to send metrics to SignalFx.  Monitors can't override this
+	// How often to send metrics to SignalFx.  Monitors can override this
 	// individually.
 	IntervalSeconds int `yaml:"intervalSeconds" default:"10"`
 	// Dimensions that will be automatically added to all metrics reported
 	GlobalDimensions map[string]string `yaml:"globalDimensions" default:"{}"`
-	Observers        []ObserverConfig  `yaml:"observers" default:"[]"`
-	Monitors         []MonitorConfig   `yaml:"monitors" default:"[]"`
+	Observers        []ObserverConfig  `yaml:"observers" default:"[]" neverLog:"omit"`
+	Monitors         []MonitorConfig   `yaml:"monitors" default:"[]" neverLog:"omit"`
 	Writer           WriterConfig      `yaml:"writer" default:"{}"`
 	Logging          LogConfig         `yaml:"logging" default:"{}"`
 	// Configure the underlying collectd daemon
@@ -55,7 +50,7 @@ type Config struct {
 	EnableProfiling           bool           `yaml:"profiling" default:"false"`
 	// This exists purely to give the user a place to put common yaml values to
 	// reference in other parts of the config file.
-	Scratch interface{} `yaml:"scratch"`
+	Scratch interface{} `yaml:"scratch" neverLog:"omit"`
 }
 
 func (c *Config) setDefaultHostname() {

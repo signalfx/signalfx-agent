@@ -1,6 +1,9 @@
 package utils
 
 import (
+	"reflect"
+	"strings"
+
 	yaml "gopkg.in/yaml.v2"
 )
 
@@ -19,4 +22,14 @@ func ConvertToMapViaYAML(obj interface{}) (map[string]interface{}, error) {
 	}
 
 	return newMap, nil
+}
+
+func YAMLNameOfField(field reflect.StructField) string {
+	tmp := reflect.New(reflect.StructOf([]reflect.StructField{field})).Elem()
+	asYaml, _ := yaml.Marshal(tmp.Interface())
+	parts := strings.SplitN(string(asYaml), ":", 2)
+	if parts[0] == string(asYaml) {
+		return ""
+	}
+	return parts[0]
 }

@@ -25,7 +25,7 @@ type MonitorConfig struct {
 	// bunch of other stuff from the config file.
 	Solo bool `yaml:"solo,omitempty" default:"false"`
 	// OtherConfig is everything else that is custom to a particular monitor
-	OtherConfig map[string]interface{} `yaml:",inline" default:"{}" json:"-"`
+	OtherConfig map[string]interface{} `yaml:",inline" neverLog:"omit"`
 	// ValidationError is where a message concerning validation issues can go
 	// so that diagnostics can output it.
 	ValidationError string `yaml:"-"`
