@@ -20,8 +20,6 @@ LoadPlugin "python"
     ExcludeMetric {{.}}
     {{- end}}
     Cluster "{{.ClusterType}}"
-    {{range $key, $value := .ExtraDimensions}}
-    Dimension "{{$key}}={{$value}}"
-    {{- end}}
+    Dimension "monitorID={{.MonitorID}}"
   </Module>
 </Plugin>

@@ -1,0 +1,18 @@
+LoadPlugin disk
+<Plugin "disk">
+  Disk "/^loop\d+$/"
+  Disk "/^dm-\d+$/"
+  IgnoreSelected "true"
+</Plugin>
+
+
+<Chain "PostCache"> 
+  <Rule "set_disk_monitor_id"> 
+    <Match "regex"> 
+      Plugin "^disk$" 
+    </Match> 
+    <Target "set"> 
+      MetaData "monitorID" "{{.MonitorID}}" 
+    </Target> 
+  </Rule> 
+</Chain>

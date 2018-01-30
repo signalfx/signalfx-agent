@@ -10,6 +10,7 @@ import (
 
 	"github.com/signalfx/neo-agent/core/config"
 	"github.com/signalfx/neo-agent/core/config/stores"
+	"github.com/signalfx/neo-agent/core/meta"
 	"github.com/signalfx/neo-agent/core/services"
 	"github.com/signalfx/neo-agent/core/writer"
 	"github.com/signalfx/neo-agent/monitors"
@@ -21,6 +22,7 @@ type Agent struct {
 	observers  *observers.ObserverManager
 	monitors   *monitors.MonitorManager
 	writer     *writer.SignalFxWriter
+	meta       *meta.AgentMeta
 	lastConfig *config.Config
 
 	diagnosticSocketStop      func()
@@ -40,8 +42,8 @@ func NewAgent() *Agent {
 	}
 
 	agent.writer = writer.New()
-	agent.monitors = monitors.NewMonitorManager()
-
+	agent.meta = &meta.AgentMeta{}
+	agent.monitors = monitors.NewMonitorManager(agent.meta)
 	return &agent
 }
 
@@ -56,15 +58,29 @@ func (a *Agent) configure(conf *config.Config) {
 		a.ensureProfileServerRunning()
 	}
 
-	if ok := a.writer.Configure(&conf.Writer); !ok {
+	if err := a.writer.Configure(&conf.Writer); err != nil {
 		// This is a catastrophic error if we can't write datapoints.
-		log.Error("Could not configure SignalFx datapoint writer, unable to start up")
+		log.WithError(err).Error("Could not configure SignalFx datapoint writer, unable to start up")
 		os.Exit(4)
 	}
 
-	a.monitors.SetDPChannel(a.writer.DPChannel())
-	a.monitors.SetEventChannel(a.writer.EventChannel())
-	a.monitors.SetDimPropChannel(a.writer.DimPropertiesChannel())
+	// These channels should only be initialized once and never change for the
+	// lifetime of the agent.  This means that buffer size changes in the
+	// config require a restart.
+	if a.monitors.DPs == nil {
+		a.monitors.DPs = a.writer.DPChannel()
+	}
+	if a.monitors.Events == nil {
+		a.monitors.Events = a.writer.EventChannel()
+	}
+	if a.monitors.DimensionProps == nil {
+		a.monitors.DimensionProps = a.writer.DimPropertiesChannel()
+	}
+
+	a.meta.InternalMetricsSocketPath = conf.InternalMetricsSocketPath
+	a.meta.Hostname = conf.Hostname
+	a.meta.CollectdConf = &conf.Collectd
+	a.meta.ProcFSPath = conf.ProcFSPath
 
 	//if conf.PythonEnabled {
 	//neopy.Instance().Configure()
@@ -74,7 +90,7 @@ func (a *Agent) configure(conf *config.Config) {
 	//}
 
 	// The order of Configure calls is very important!
-	a.monitors.Configure(conf.Monitors)
+	a.monitors.Configure(conf.Monitors, conf.IntervalSeconds)
 	a.observers.Configure(conf.Observers)
 	a.lastConfig = conf
 }
@@ -139,7 +155,7 @@ func Startup(configPath string) (context.CancelFunc, <-chan struct{}) {
 					os.Exit(1)
 				}
 
-				conf, err := config.LoadConfigFromContent(configKVPair.Value, metaStore)
+				conf, err := config.LoadConfigFromContent(configKVPair.Value)
 				if err != nil || conf == nil {
 					log.WithFields(log.Fields{
 						"path": configPath,

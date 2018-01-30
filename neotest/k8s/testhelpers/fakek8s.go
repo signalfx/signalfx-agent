@@ -2,10 +2,14 @@ package testhelpers
 
 import (
 	"encoding/json"
-	"log"
 	"net/http"
 	"net/http/httptest"
+	"regexp"
 	"sync"
+
+	log "github.com/sirupsen/logrus"
+
+	"github.com/signalfx/neo-agent/utils"
 
 	"k8s.io/client-go/pkg/api/unversioned"
 	"k8s.io/client-go/pkg/api/v1"
@@ -25,6 +29,7 @@ const (
 	ReplicationControllers
 	DaemonSets
 	ReplicaSets
+	Secrets
 )
 
 // FakeK8s is a mock K8s API server.  It can serve both list and watch
@@ -33,6 +38,7 @@ type FakeK8s struct {
 	server *httptest.Server
 	// Resources that have been inserted on the ResourceInput channel
 	state      map[ResourceType]map[types.UID]runtime.Object
+	secrets    map[string]*v1.Secret
 	stateMutex sync.Mutex
 	// Used by tests to insert resources for test
 	EventInput chan WatchEvent
@@ -50,6 +56,7 @@ type FakeK8s struct {
 func NewFakeK8s() *FakeK8s {
 	return &FakeK8s{
 		state:      make(map[ResourceType]map[types.UID]runtime.Object),
+		secrets:    make(map[string]*v1.Secret),
 		EventInput: make(chan WatchEvent),
 		subs:       make(map[ResourceType]chan WatchEvent),
 		stoppers:   make(map[ResourceType]chan struct{}),
@@ -67,12 +74,14 @@ func (f *FakeK8s) Start() {
 
 // Close stops the server and all watchers
 func (f *FakeK8s) Close() {
+	close(f.eventStopper)
+	for _, ch := range f.stoppers {
+		close(ch)
+	}
+
+	f.server.Listener.Close()
 	f.server.Close()
 
-	f.eventStopper <- struct{}{}
-	for _, ch := range f.stoppers {
-		ch <- struct{}{}
-	}
 }
 
 // URL is the of the mock server to point your objects under test to
@@ -115,7 +124,6 @@ func (f *FakeK8s) SetInitialList(l interface{}) {
 	default:
 		panic("Unsupported resource type!")
 	}
-
 }
 
 func (f *FakeK8s) acceptEvents(stopper <-chan struct{}) {
@@ -167,11 +175,37 @@ func (f *FakeK8s) addToState(resType ResourceType, uid types.UID, resource runti
 	f.state[resType][uid] = resource
 }
 
+func (f *FakeK8s) AddSecret(secret *v1.Secret) {
+	f.secrets[secret.Namespace+"/"+secret.Name] = secret
+}
+
+func (f *FakeK8s) handleGetSecret(params map[string]string, rw http.ResponseWriter) {
+	if secret, ok := f.secrets[params["namespace"]+"/"+params["name"]]; ok {
+		s, _ := json.Marshal(secret)
+		rw.Write(s)
+		return
+	}
+
+	log.Errorf("Secret %s/%s not found", params["namespace"], params["name"])
+	rw.WriteHeader(http.StatusNotFound)
+}
+
 // ServeHTTP handles a single request
 func (f *FakeK8s) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 	log.Printf("Request: %s", r.URL.String())
 
 	rw.Header().Add("Content-Type", "application/json")
+
+	for reText, handler := range map[string]func(map[string]string, http.ResponseWriter){
+		`/api/v1/namespaces/(?P<namespace>\w+)/secrets/(?P<name>\w+)`: f.handleGetSecret,
+	} {
+		re := regexp.MustCompile(reText)
+		groupMap := utils.RegexpGroupMap(re, r.URL.Path)
+		if groupMap != nil {
+			handler(groupMap, rw)
+			return
+		}
+	}
 
 	var resource ResourceType
 	var isWatch = false

@@ -3,7 +3,7 @@
 </LoadPlugin>
 <Plugin mysql>
   {{range $db := .Databases}}
-  <Database "{{$.Name}}_{{$db.Name}}[{{encodeDimsForPluginInstance $.ExtraDimensions}}]">
+  <Database "{{$.Name}}_{{$db.Name}}[monitorID={{$.MonitorID}}]">
     ReportHost {{$.ReportHost}}
     Host "{{$.Host}}"
     Port {{$.Port}}

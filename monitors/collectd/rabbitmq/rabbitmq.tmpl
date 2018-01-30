@@ -8,18 +8,14 @@ LoadPlugin "python"
     CollectExchanges {{.CollectExchanges}}
     CollectNodes {{.CollectNodes}}
     CollectQueues {{.CollectQueues}}
-    Dimensions "{{encodeDimsForPluginInstance .ExtraDimensions}}"
+    Dimensions "monitorID={{.MonitorID}}"
     Host {{.Host}}
     {{with .HTTPTimeout -}}
     HTTPTimeout {{.}}
     {{- end}}
-    {{with .Password -}}
-    Password "{{.}}"
-    {{- end}}
     Port "{{.Port}}"
-    {{with .Username -}}
-    Username "{{.}}"
-    {{- end}}
+    Username "{{.Username}}"
+    Password "{{.Password}}"
     {{with .VerbosityLevel -}}
     VerbosityLevel "{{.}}"
     {{- end}}

@@ -13,11 +13,10 @@ type ContainerEndpoint struct {
 	// altPort is used for services that are accessed through some kind of
 	// NAT redirection as Docker does.  This could be either the public port
 	// or the private one.
-	AltPort       uint16                 `yaml:"alternatePort"`
-	Container     Container              `yaml:",inline"`
-	Orchestration Orchestration          `yaml:",inline"`
-	PortLabels    map[string]string      `yaml:"portLabels"`
-	Configuration map[string]interface{} `yaml:"-"`
+	AltPort       uint16            `yaml:"alternatePort"`
+	Container     Container         `yaml:",inline"`
+	Orchestration Orchestration     `yaml:",inline"`
+	PortLabels    map[string]string `yaml:"portLabels"`
 }
 
 // PublicPort is the port that the endpoint is accessed on externally.  It may
@@ -59,9 +58,4 @@ func (ce *ContainerEndpoint) Dimensions() map[string]string {
 			// This is essential as it is the only unique dim for a pod.
 			"kubernetes_pod_uid": ce.Container.PodUID,
 		}))
-}
-
-// ExtraConfig returns a map of values to be considered when configuring a monitor
-func (ce *ContainerEndpoint) ExtraConfig() map[string]interface{} {
-	return utils.MergeInterfaceMaps(ce.EndpointCore.ExtraConfig(), ce.Configuration)
 }

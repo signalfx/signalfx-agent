@@ -15,8 +15,6 @@ LoadPlugin "python"
     {{range .ExcludedMetrics -}}
     ExcludeMetric '{{.}}'
     {{- end }}
-    {{range $key, $value := .ExtraDimensions}}
-    Dimension {{$key}} {{$value}}
-    {{- end}}
+    Dimension "monitorID" "{{.MonitorID}}"
   </Module>
 </Plugin>

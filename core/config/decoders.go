@@ -8,12 +8,11 @@ import (
 	yaml "gopkg.in/yaml.v2"
 
 	"github.com/creasty/defaults"
-	"github.com/signalfx/neo-agent/core/config/stores"
 	log "github.com/sirupsen/logrus"
 )
 
 // LoadConfigFromContent transforms yaml to a Config struct
-func LoadConfigFromContent(fileContent []byte, metaStore *stores.MetaStore) (*Config, error) {
+func LoadConfigFromContent(fileContent []byte) (*Config, error) {
 	config := &Config{}
 
 	preprocessedContent := preprocessConfig(fileContent)
@@ -28,7 +27,7 @@ func LoadConfigFromContent(fileContent []byte, metaStore *stores.MetaStore) (*Co
 		panic(fmt.Sprintf("Config defaults are wrong types: %s", err))
 	}
 
-	return config.initialize(metaStore)
+	return config.initialize()
 }
 
 var envVarRE = regexp.MustCompile(`\${\s*([\w-]+?)\s*}`)

@@ -3,6 +3,8 @@ package nginx
 //go:generate collectd-template-to-go nginx.tmpl
 
 import (
+	"github.com/creasty/defaults"
+	"github.com/pkg/errors"
 	"github.com/signalfx/neo-agent/core/config"
 	"github.com/signalfx/neo-agent/monitors"
 	"github.com/signalfx/neo-agent/monitors/collectd"
@@ -20,7 +22,7 @@ func init() {
 
 // Config is the monitor-specific config with the generic config embedded
 type Config struct {
-	config.MonitorConfig `acceptsEndpoints:"true"`
+	config.MonitorConfig `yaml:",inline" acceptsEndpoints:"true"`
 
 	Host     string  `yaml:"host" validate:"required"`
 	Port     uint16  `yaml:"port" validate:"required"`
@@ -38,5 +40,8 @@ type Monitor struct {
 
 // Configure configures and runs the plugin in collectd
 func (m *Monitor) Configure(conf *Config) error {
+	if err := defaults.Set(conf); err != nil {
+		return errors.Wrap(err, "Could not set defaults for nginx monitor")
+	}
 	return m.SetConfigurationAndRun(conf)
 }

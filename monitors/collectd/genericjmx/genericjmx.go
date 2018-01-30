@@ -25,7 +25,7 @@ type connection struct {
 // Config has configuration that is specific to GenericJMX. This config should
 // be used by a monitors that use the generic JMX collectd plugin.
 type Config struct {
-	config.MonitorConfig `acceptsEndpoints:"true"`
+	config.MonitorConfig `yaml:",inline" acceptsEndpoints:"true"`
 
 	Host string  `yaml:"host"`
 	Port uint16  `yaml:"port"`

@@ -29,7 +29,12 @@ type EndpointCore struct {
 	Port       uint16    `yaml:"port"`
 	Discovered time.Time `yaml:"discovered"`
 	// The observer that discovered this endpoint
-	DiscoveredBy    string            `yaml:"discoveredBy"`
+	DiscoveredBy  string                 `yaml:"discoveredBy"`
+	Configuration map[string]interface{} `yaml:"configuration"`
+	// The type of monitor that this endpoint has requested.  This is populated
+	// by observers that pull configuration directly from the platform they are
+	// observing.
+	MonitorType     string            `yaml:"monitorType"`
 	extraDimensions map[string]string `yaml:"dimensions"`
 }
 
@@ -69,11 +74,16 @@ func NewEndpointCore(id string, name string, discovered time.Time, discoveredBy 
 
 // ExtraConfig returns a map of values to be considered when configuring a monitor
 func (e *EndpointCore) ExtraConfig() map[string]interface{} {
-	return map[string]interface{}{
-		"host": e.Host,
-		"port": e.Port,
-		"name": utils.FirstNonEmpty(e.Name, string(e.ID)),
-	}
+	return utils.MergeInterfaceMaps(
+		map[string]interface{}{
+			"host": e.Host,
+			"port": e.Port,
+			"name": utils.FirstNonEmpty(e.Name, string(e.ID)),
+		}, e.Configuration)
+}
+
+func (e *EndpointCore) IsSelfConfigured() bool {
+	return e.MonitorType != ""
 }
 
 // Dimensions returns a map of dimensions set on this endpoint

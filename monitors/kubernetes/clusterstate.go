@@ -39,9 +39,9 @@ func newClusterState(clientset *k8s.Clientset) *ClusterState {
 // Stop all running goroutines.
 func (cs *ClusterState) Stop() {
 	log.Info("Stopping all K8s API resource sync")
-	for k, s := range cs.stoppers {
-		if s != nil {
-			close(s)
+	for k := range cs.stoppers {
+		if cs.stoppers[k] != nil {
+			close(cs.stoppers[k])
 			cs.stoppers[k] = nil
 		}
 	}

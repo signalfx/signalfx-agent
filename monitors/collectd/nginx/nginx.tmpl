@@ -2,16 +2,16 @@
   Interval {{.IntervalSeconds}}
 </LoadPlugin>
 <Plugin "nginx">
-  <Instance "{{.Name}}[{{encodeDimsForPluginInstance .ExtraDimensions}}]">
-      {{with .URL}}
-      URL "{{renderValue . $ }}"
-      {{end}}
-      Timeout {{withDefault .Timeout 5000}}
-      {{with .Username -}}
-      User "{{.}}"
-      {{- end}}
-      {{with .Password -}}
-      Password "{{.}}"
-      {{- end}}
+  <Instance "{{.Name}}[monitorID={{.MonitorID}}]">
+    {{with .URL}}
+    URL "{{renderValue . $ }}"
+    {{end}}
+    Timeout {{withDefault .Timeout 5000}}
+    {{with .Username -}}
+    User "{{.}}"
+    {{- end}}
+    {{with .Password -}}
+    Password "{{.}}"
+    {{- end}}
   </Instance>
 </Plugin>

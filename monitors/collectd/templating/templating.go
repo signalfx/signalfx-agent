@@ -3,6 +3,7 @@ package templating
 
 import (
 	"bytes"
+	"fmt"
 	"net/url"
 	"os"
 	"path/filepath"
@@ -112,7 +113,20 @@ func InjectTemplateFuncs(tmpl *template.Template) *template.Template {
 			},
 			"merge":           utils.MergeInterfaceMaps,
 			"mergeStringMaps": utils.MergeStringMaps,
-			"toMap":           utils.ConvertToMapViaYAML,
+			"toBool": func(v interface{}) (string, error) {
+				if v == nil {
+					return "false", nil
+				}
+				if b, ok := v.(bool); ok {
+					if b {
+						return "true", nil
+					} else {
+						return "false", nil
+					}
+				}
+				return "", fmt.Errorf("Value %#v cannot be converted to bool", v)
+			},
+			"toMap": utils.ConvertToMapViaYAML,
 			"toServiceID": func(s string) services.ID {
 				return services.ID(s)
 			},

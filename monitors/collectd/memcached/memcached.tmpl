@@ -2,7 +2,7 @@
   Interval {{.IntervalSeconds}}
 </LoadPlugin>
 <Plugin "memcached">
-  <Instance "{{.Name}}[{{encodeDimsForPluginInstance .ExtraDimensions}}]">
+  <Instance "{{.Name}}[monitorID={{.MonitorID}}]">
     ReportHost {{.ReportHost}}
     Host "{{.Host}}"
     Port "{{.Port}}"

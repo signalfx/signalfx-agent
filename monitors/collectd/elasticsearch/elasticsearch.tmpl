@@ -7,17 +7,17 @@ LoadPlugin "python"
     {{with .AdditionalMetrics -}}
     AdditionalMetrics ["{{stringsJoin . "\", \""}}"]
     {{- end}}
-    DetailedMetrics {{.DetailedMetrics}}
-    Dimensions "{{encodeDimsForPluginInstance .ExtraDimensions}}"
-    EnableClusterHealth {{.EnableClusterHealth}}
-    EnableIndexStats {{.EnableIndexStats}}
+    DetailedMetrics {{toBool .DetailedMetrics}}
+    Dimensions "monitorID={{.MonitorID}}"
+    EnableClusterHealth {{toBool .EnableClusterHealth}}
+    EnableIndexStats {{toBool .EnableIndexStats}}
     Host {{.Host}}
     {{with .Indexes -}}
     Indexes ["{{stringsJoin . "\", \""}}"]
     {{- end}}
-    IndexInterval {{.IndexInterval}}
-    IndexStatsMasterOnly {{.IndexStatsMasterOnly}}
-    IndexSummaryOnly {{.IndexSummaryOnly}}
+    IndexInterval {{toBool .IndexInterval}}
+    IndexStatsMasterOnly {{toBool .IndexStatsMasterOnly}}
+    IndexSummaryOnly {{toBool .IndexSummaryOnly}}
     Interval {{.IntervalSeconds}}
     {{with .Password -}}
     Password "{{.}}"

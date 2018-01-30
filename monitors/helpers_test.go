@@ -2,6 +2,7 @@ package monitors
 
 import (
 	"github.com/signalfx/neo-agent/core/config"
+	"github.com/signalfx/neo-agent/monitors/types"
 )
 
 // This code is somewhat convoluted, but basically it creates two types of mock
@@ -11,7 +12,7 @@ import (
 
 type Config struct {
 	config.MonitorConfig
-	MyVar   string
+	MyVar   string `yaml:"myVar"`
 	MySlice []string
 }
 
@@ -22,17 +23,22 @@ type DynamicConfig struct {
 	Port uint16 `yaml:"port" validate:"required"`
 	Name string `yaml:"name"`
 
-	MyVar string
+	MyVar    string `yaml:"myVar"`
+	Password string `yaml:"password"`
 }
 
 type MockMonitor interface {
 	SetConfigHook(func(MockMonitor))
 	AddShutdownHook(fn func())
 	Type() string
+	MyVar() string
+	Password() string
 }
 
 type _MockMonitor struct {
 	MType         string
+	MMyVar        string
+	MPassword     string
 	shutdownHooks []func()
 	configHook    func(MockMonitor)
 }
@@ -41,12 +47,21 @@ var lastID = 0
 
 func (m *_MockMonitor) Configure(conf *Config) error {
 	m.MType = conf.Type
+	m.MMyVar = conf.MyVar
 	m.configHook(m)
 	return nil
 }
 
 func (m *_MockMonitor) Type() string {
 	return m.MType
+}
+
+func (m *_MockMonitor) MyVar() string {
+	return m.MMyVar
+}
+
+func (m *_MockMonitor) Password() string {
+	return m.MPassword
 }
 
 func (m *_MockMonitor) SetConfigHook(fn func(MockMonitor)) {
@@ -69,6 +84,8 @@ type _MockServiceMonitor struct {
 
 func (m *_MockServiceMonitor) Configure(conf *DynamicConfig) error {
 	m.MType = conf.Type
+	m.MMyVar = conf.MyVar
+	m.MPassword = conf.Password
 	m.configHook(m)
 	return nil
 }
@@ -78,11 +95,11 @@ type Static2 struct{ _MockMonitor }
 type Dynamic1 struct{ _MockServiceMonitor }
 type Dynamic2 struct{ _MockServiceMonitor }
 
-func RegisterFakeMonitors() func() map[MonitorID]MockMonitor {
-	instances := map[MonitorID]MockMonitor{}
+func RegisterFakeMonitors() func() map[types.MonitorID]MockMonitor {
+	instances := map[types.MonitorID]MockMonitor{}
 
-	track := func(factory func() interface{}) func(MonitorID) interface{} {
-		return func(id MonitorID) interface{} {
+	track := func(factory func() interface{}) func(types.MonitorID) interface{} {
+		return func(id types.MonitorID) interface{} {
 			mon := factory().(MockMonitor)
 			mon.SetConfigHook(func(mon MockMonitor) {
 				instances[id] = mon
@@ -100,12 +117,12 @@ func RegisterFakeMonitors() func() map[MonitorID]MockMonitor {
 	Register("dynamic1", track(func() interface{} { return &Dynamic1{} }), &DynamicConfig{})
 	Register("dynamic2", track(func() interface{} { return &Dynamic2{} }), &DynamicConfig{})
 
-	return func() map[MonitorID]MockMonitor {
+	return func() map[types.MonitorID]MockMonitor {
 		return instances
 	}
 }
 
-func findMonitorsByType(monitors map[MonitorID]MockMonitor, _type string) []MockMonitor {
+func findMonitorsByType(monitors map[types.MonitorID]MockMonitor, _type string) []MockMonitor {
 	mons := []MockMonitor{}
 	for _, m := range monitors {
 		if m.Type() == _type {

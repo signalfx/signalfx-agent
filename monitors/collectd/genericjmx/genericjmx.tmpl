@@ -26,7 +26,7 @@
       {{- else -}}
       ServiceURL "service:jmx:rmi:///jndi/rmi://{{.Host}}:{{.Port}}/jmxrmi"
       {{- end}}
-      InstanceSuffix "{{.Name}}[{{encodeDimsForPluginInstance .ExtraDimensions}}]"
+      InstanceSuffix "{{.Name}}[monitorID={{.MonitorID}}]"
       {{with .InstancePrefix -}}
       InstancePrefix "{{.}}"
       {{- end}}

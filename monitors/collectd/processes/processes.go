@@ -4,6 +4,7 @@ package processes
 
 import (
 	"github.com/signalfx/neo-agent/core/config"
+	"github.com/signalfx/neo-agent/core/meta"
 	"github.com/signalfx/neo-agent/monitors"
 	"github.com/signalfx/neo-agent/monitors/collectd"
 )
@@ -20,7 +21,7 @@ func init() {
 
 // Config is the monitor-specific config with the generic config embedded
 type Config struct {
-	config.MonitorConfig
+	config.MonitorConfig `singleInstance:"true"`
 	Processes            []string          `yaml:"processes"`
 	ProcessMatch         map[string]string `yaml:"processMatch"`
 	CollectContextSwitch bool              `yaml:"collectContextSwitch" default:"false"`
@@ -35,14 +36,13 @@ func (c *Config) Validate() error {
 // Monitor is the main type that represents the monitor
 type Monitor struct {
 	collectd.MonitorCore
+	AgentMeta *meta.AgentMeta
 }
 
 // Configure configures and runs the plugin in collectd
 func (am *Monitor) Configure(conf *Config) error {
-	// ProcFSPath is a global config setting that gets propagated to each
-	// monitor config, but allow overriding it if desired.
 	if conf.ProcFSPath == "" {
-		conf.ProcFSPath = conf.MonitorConfig.ProcFSPath
+		conf.ProcFSPath = am.AgentMeta.ProcFSPath
 	}
 
 	return am.SetConfigurationAndRun(conf)

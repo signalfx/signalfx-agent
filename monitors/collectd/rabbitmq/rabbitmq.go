@@ -20,7 +20,7 @@ func init() {
 
 // Config is the monitor-specific config with the generic config embedded
 type Config struct {
-	config.MonitorConfig `acceptsEndpoints:"true"`
+	config.MonitorConfig `yaml:",inline" acceptsEndpoints:"true"`
 
 	Host string `yaml:"host"`
 	Port uint16 `yaml:"port"`
@@ -33,8 +33,8 @@ type Config struct {
 	CollectQueues      bool   `yaml:"collectQueues"`
 	HTTPTimeout        *int   `yaml:"httpTimeout"`
 	VerbosityLevel     string `yaml:"verbosityLevel"`
-	Username           string `yaml:"username"`
-	Password           string `yaml:"password"`
+	Username           string `yaml:"username" validate:"required"`
+	Password           string `yaml:"password" validate:"required" neverLog:"true"`
 }
 
 // Monitor is the main type that represents the monitor

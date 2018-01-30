@@ -1,11 +1,11 @@
 package config
 
 import (
-	"net/url"
 	"reflect"
 
-	"github.com/signalfx/neo-agent/core/config/stores"
-	"github.com/signalfx/neo-agent/core/filters"
+	"github.com/mitchellh/hashstructure"
+	"github.com/signalfx/neo-agent/monitors/types"
+	log "github.com/sirupsen/logrus"
 )
 
 // MonitorConfig is used to configure monitor instances.  One instance of
@@ -13,32 +13,24 @@ import (
 // monitor's discovery rule does not match any discovered services, the monitor
 // will not run.
 type MonitorConfig struct {
-	Type string `yaml:"type,omitempty"`
+	Type string `yaml:"type"`
 	// DiscoveryRule is what is used to auto discover service endpoints
-	DiscoveryRule string `yaml:"discoveryRule,omitempty"`
+	DiscoveryRule string `yaml:"discoveryRule"`
 	// ExtraDimensions specific to this monitor
-	ExtraDimensions map[string]string `yaml:"dimensions" default:"{}"`
+	ExtraDimensions map[string]string `yaml:"extraDimensions"`
 	// IntervalSeconds will default to the top-level IntervalSeconds value if unset or 0
-	IntervalSeconds int `yaml:"intervalSeconds,omitempty" default:"0"`
+	IntervalSeconds int `yaml:"intervalSeconds"`
 	// Solo, if set to true, make this monitor the only one configured.  This
 	// is useful for testing config in isolation without having to delete a
 	// bunch of other stuff from the config file.
-	Solo bool `yaml:"solo,omitempty" default:"false"`
+	Solo bool `yaml:"solo"`
 	// OtherConfig is everything else that is custom to a particular monitor
 	OtherConfig map[string]interface{} `yaml:",inline" neverLog:"omit"`
 	// ValidationError is where a message concerning validation issues can go
 	// so that diagnostics can output it.
-	ValidationError string `yaml:"-"`
-	// The remaining are propagated from the top-level config and cannot be set
-	// by the user directly on the monitor
-	IngestURL                 *url.URL           `yaml:"-"`
-	SignalFxAccessToken       string             `yaml:"-"`
-	Hostname                  string             `yaml:"-"`
-	Filter                    *filters.FilterSet `yaml:"-"`
-	ProcFSPath                string             `yaml:"-"`
-	MetaStore                 *stores.MetaStore  `yaml:"-"`
-	CollectdConf              *CollectdConfig    `yaml:"-"`
-	InternalMetricsSocketPath string             `yaml:"-"`
+	ValidationError string          `yaml:"-" hash:"ignore"`
+	Hostname        string          `yaml:"-"`
+	MonitorID       types.MonitorID `yaml:"-" hash:"ignore"`
 }
 
 // Equals tests if two monitor configs are sufficiently equal to each other.
@@ -60,14 +52,23 @@ func (mc *MonitorConfig) HasAutoDiscovery() bool {
 	return mc.DiscoveryRule != ""
 }
 
-// CoreConfig provides a way of getting the MonitorConfig when embedded in a
+// MonitorConfig provides a way of getting the MonitorConfig when embedded in a
 // struct that is referenced through a more generic interface.
-func (mc *MonitorConfig) CoreConfig() *MonitorConfig {
+func (mc *MonitorConfig) MonitorConfigCore() *MonitorConfig {
 	return mc
+}
+
+func (mc *MonitorConfig) Hash() uint64 {
+	hash, err := hashstructure.Hash(mc, nil)
+	if err != nil {
+		log.WithError(err).Error("Could not get hash of MonitorConfig struct")
+		return 0
+	}
+	return hash
 }
 
 // MonitorCustomConfig represents monitor-specific configuration that doesn't
 // appear in the MonitorConfig struct.
 type MonitorCustomConfig interface {
-	CoreConfig() *MonitorConfig
+	MonitorConfigCore() *MonitorConfig
 }

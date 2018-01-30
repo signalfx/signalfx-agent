@@ -7,7 +7,6 @@ import (
 	"net/url"
 	"os"
 	"path/filepath"
-	"strconv"
 	"strings"
 	"time"
 
@@ -15,7 +14,6 @@ import (
 
 	fqdn "github.com/ShowMax/go-fqdn"
 	"github.com/pkg/errors"
-	"github.com/signalfx/neo-agent/core/config/stores"
 	"github.com/signalfx/neo-agent/core/filters"
 	"github.com/signalfx/neo-agent/utils"
 	log "github.com/sirupsen/logrus"
@@ -70,31 +68,16 @@ func (c *Config) setDefaultHostname() {
 	c.Hostname = host
 }
 
-func (c *Config) initialize(metaStore *stores.MetaStore) (*Config, error) {
-	c.overrideFromEnv()
-
+func (c *Config) initialize() (*Config, error) {
 	c.setDefaultHostname()
 
 	if err := c.validate(); err != nil {
 		return nil, errors.Wrap(err, "configuration is invalid")
 	}
 
-	c.propagateValuesDown(metaStore)
+	c.propagateValuesDown()
 
 	return c, nil
-}
-
-// Support overridding a few config options with envvars.  No need to allow
-// everything to be overridden.
-func (c *Config) overrideFromEnv() {
-	c.SignalFxAccessToken = utils.FirstNonEmpty(c.SignalFxAccessToken, os.Getenv("SFX_ACCESS_TOKEN"))
-	c.Hostname = utils.FirstNonEmpty(c.Hostname, os.Getenv("SFX_HOSTNAME"))
-	c.IngestURL = utils.FirstNonEmpty(c.IngestURL, os.Getenv("SFX_INGEST_URL"))
-
-	intervalSeconds, err := strconv.ParseInt(os.Getenv("SFX_INTERVAL_SECONDS"), 10, 32)
-	if err != nil {
-		c.IntervalSeconds = utils.FirstNonZero(c.IntervalSeconds, int(intervalSeconds))
-	}
 }
 
 // Validate everything that we can about the main config
@@ -123,7 +106,7 @@ func (c *Config) makeFilterSet() *filters.FilterSet {
 
 // Send values from the top of the config down to nested configs that might
 // need them
-func (c *Config) propagateValuesDown(metaStore *stores.MetaStore) {
+func (c *Config) propagateValuesDown() {
 	filterSet := c.makeFilterSet()
 
 	ingestURL, err := url.Parse(c.IngestURL)
@@ -137,10 +120,6 @@ func (c *Config) propagateValuesDown(metaStore *stores.MetaStore) {
 	}
 
 	c.Collectd.Hostname = c.Hostname
-	c.Collectd.Filter = filterSet
-	c.Collectd.IngestURL = c.IngestURL
-	c.Collectd.SignalFxAccessToken = c.SignalFxAccessToken
-	c.Collectd.GlobalDimensions = c.GlobalDimensions
 	c.Collectd.IntervalSeconds = utils.FirstNonZero(c.Collectd.IntervalSeconds, c.IntervalSeconds)
 
 	// If the root mount namespace is mounted at ./hostfs we need to tell
@@ -154,19 +133,6 @@ func (c *Config) propagateValuesDown(metaStore *stores.MetaStore) {
 		log.Info("Could not find ./hostfs, assuming running in host's root mount namespace")
 	}
 
-	for i := range c.Monitors {
-		c.Monitors[i].CollectdConf = &c.Collectd
-		c.Monitors[i].IngestURL = ingestURL
-		c.Monitors[i].SignalFxAccessToken = c.SignalFxAccessToken
-		c.Monitors[i].Hostname = c.Hostname
-		c.Monitors[i].Filter = filterSet
-		c.Monitors[i].ProcFSPath = c.ProcFSPath
-		// Top level interval serves as a default
-		c.Monitors[i].IntervalSeconds = utils.FirstNonZero(c.Monitors[i].IntervalSeconds, c.IntervalSeconds)
-		c.Monitors[i].MetaStore = metaStore
-		c.Monitors[i].InternalMetricsSocketPath = c.InternalMetricsSocketPath
-	}
-
 	for i := range c.Observers {
 		c.Observers[i].Hostname = c.Hostname
 	}
@@ -178,9 +144,16 @@ func (c *Config) propagateValuesDown(metaStore *stores.MetaStore) {
 	c.Writer.GlobalDimensions = c.GlobalDimensions
 }
 
+// CustomConfigurable should be implemented by config structs that have the
+// concept of generic other config that is initially deserialized into a
+// map[string]interface{} to be later transformed to another form.
+type CustomConfigurable interface {
+	ExtraConfig() map[string]interface{}
+}
+
 // LogConfig contains configuration related to logging
 type LogConfig struct {
-	Level string `yaml:"level,omitempty" default:"info"`
+	Level string `yaml:"level" default:"info"`
 	// TODO: Support log file output and other log targets
 }
 
@@ -200,35 +173,24 @@ func (lc *LogConfig) LogrusLevel() *log.Level {
 	return nil
 }
 
-// CustomConfigurable should be implemented by config structs that have the
-// concept of generic other config that is initially deserialized into a
-// map[string]interface{} to be later transformed to another form.
-type CustomConfigurable interface {
-	ExtraConfig() map[string]interface{}
-}
-
 var validCollectdLogLevels = set.NewNonTS("debug", "info", "notice", "warning", "err")
 
 // CollectdConfig high-level configurations
 type CollectdConfig struct {
-	DisableCollectd      bool   `yaml:"disableCollectd,omitempty" default:"false"`
-	Timeout              int    `yaml:"timeout,omitempty" default:"40"`
-	ReadThreads          int    `yaml:"readThreads,omitempty" default:"5"`
-	WriteQueueLimitHigh  int    `yaml:"writeQueueLimitHigh,omitempty" default:"500000"`
-	WriteQueueLimitLow   int    `yaml:"writeQueueLimitLow,omitempty" default:"400000"`
-	CollectInternalStats bool   `yaml:"collectInternalStats,omitempty" default:"true"`
-	LogLevel             string `yaml:"logLevel,omitempty" default:"notice"`
+	DisableCollectd      bool   `yaml:"disableCollectd" default:"false"`
+	Timeout              int    `yaml:"timeout" default:"40"`
+	ReadThreads          int    `yaml:"readThreads" default:"5"`
+	WriteQueueLimitHigh  int    `yaml:"writeQueueLimitHigh" default:"500000"`
+	WriteQueueLimitLow   int    `yaml:"writeQueueLimitLow" default:"400000"`
+	CollectInternalStats bool   `yaml:"collectInternalStats" default:"true"`
+	LogLevel             string `yaml:"logLevel" default:"notice"`
 	IntervalSeconds      int    `yaml:"intervalSeconds" default:"0"`
 	WriteServerIPAddr    string `yaml:"writeServerIPAddr" default:"127.9.8.7"`
 	WriteServerPort      uint16 `yaml:"writeServerPort" default:"14839"`
 	// The following are propagated from the top-level config
-	HostFSPath           string             `yaml:"-"`
-	Hostname             string             `yaml:"-"`
-	Filter               *filters.FilterSet `yaml:"-"`
-	SignalFxAccessToken  string             `yaml:"-"`
-	IngestURL            string             `yaml:"-"`
-	GlobalDimensions     map[string]string  `yaml:"-"`
-	HasGenericJMXMonitor bool               `yaml:"-"`
+	HostFSPath           string `yaml:"-"`
+	Hostname             string `yaml:"-"`
+	HasGenericJMXMonitor bool   `yaml:"-"`
 }
 
 // Validate the collectd specific config

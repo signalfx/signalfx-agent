@@ -1,32 +1,15 @@
-// Package monitors is the core logic for monitors.  Monitors are what collect
-// metrics from the environment.  They have a simple interface that all must
-// implement: the Configure method, which takes one argument of the same type
-// that you pass as the configTemplate to the Register function.  Optionally,
-// monitors may implement the niladic Shutdown method to do cleanup.  Monitors
-// will never be reused after the Shutdown method is called.
-//
-// If your monitor is used for dynamically discovered services, you should
-// implement the InjectableMonitor interface, which simply includes two
-// methods that are called when services are added and removed.
-//
-// If a monitor wants to create SignalFx golib datapoints/events and have them
-// sent by the agent.  The monitor type should define a "DPs" and/or "Events"
-// field of the type "chan<- datapoints.Datapoint" and "chan<- events.Event".
-// The monitor manager will automatically inject those fields before Configure
-// is called.  They could be swapped out at any time, so monitors should not
-// cache those fields in other variables.
 package monitors
 
 import (
+	"reflect"
+
 	"github.com/pkg/errors"
 	"github.com/signalfx/neo-agent/core/config"
 	"github.com/signalfx/neo-agent/core/services"
+	"github.com/signalfx/neo-agent/monitors/types"
 	"github.com/signalfx/neo-agent/utils"
 	log "github.com/sirupsen/logrus"
 )
-
-// MonitorID is a unique identifier for a specific instance of a monitor
-type MonitorID string
 
 // MonitorFactory is a niladic function that creates an unconfigured instance
 // of a monitor.
@@ -143,4 +126,13 @@ func anyMarkedSolo(confs []config.MonitorConfig) bool {
 		}
 	}
 	return false
+}
+
+func configOnlyAllowsSingleInstance(monConfig config.MonitorCustomConfig) bool {
+	confVal := reflect.Indirect(reflect.ValueOf(monConfig))
+	coreConfField, ok := confVal.Type().FieldByName("MonitorConfig")
+	if !ok {
+		return false
+	}
+	return coreConfField.Tag.Get("singleInstance") == "true"
 }

@@ -8,3 +8,15 @@ LoadPlugin "python"
     verbose False
   </Module>
 </Plugin>
+
+<Chain "PostCache"> 
+  <Rule "set_marathon_monitor_id"> 
+    <Match "regex"> 
+      Plugin "^marathon" 
+    </Match> 
+    <Target "set"> 
+      MetaData "monitorID" "{{.MonitorID}}" 
+    </Target> 
+  </Rule> 
+  Target "write" 
+</Chain>

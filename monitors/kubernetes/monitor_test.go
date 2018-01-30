@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/url"
 	"os"
+	"testing"
 
 	//"github.com/davecgh/go-spew/spew"
 
@@ -18,7 +19,7 @@ import (
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	. "github.com/signalfx/neo-agent/monitors/kubernetes/testhelpers"
+	. "github.com/signalfx/neo-agent/neotest/k8s/testhelpers"
 )
 
 var _ = Describe("Kubernetes plugin", func() {
@@ -64,6 +65,7 @@ var _ = Describe("Kubernetes plugin", func() {
 
 	AfterEach(func() {
 		monitor.Shutdown()
+		fakeK8s.Close()
 	})
 
 	// Making an int literal pointer requires a helper
@@ -76,7 +78,7 @@ var _ = Describe("Kubernetes plugin", func() {
 		dps := make([]*datapoint.Datapoint, 0)
 		for {
 			dp := &datapoint.Datapoint{}
-			Eventually(dpChan, 2).Should(Receive(&dp))
+			Eventually(dpChan, 3).Should(Receive(&dp))
 			dps = append(dps, dp)
 			if len(dps) >= expected {
 				break
@@ -443,3 +445,8 @@ var _ = Describe("Kubernetes plugin", func() {
 		Expect(dps).To(HaveLen(1))
 	})
 })
+
+func TestKubernetes(t *testing.T) {
+	RegisterFailHandler(Fail)
+	RunSpecs(t, "Kubernetes Monitor Suite")
+}

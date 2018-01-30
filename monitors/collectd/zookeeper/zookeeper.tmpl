@@ -6,6 +6,6 @@ LoadPlugin "python"
   <Module "zk-collectd">
     Hosts "{{.Host}}"
     Port {{.Port}}
-    Instance "{{.Name}}[{{encodeDimsForPluginInstance .ExtraDimensions}}]"
+    Instance "{{.Name}}[monitorID={{.MonitorID}}]"
   </Module>
 </Plugin>
