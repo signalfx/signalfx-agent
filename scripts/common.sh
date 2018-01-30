@@ -1,5 +1,7 @@
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
+# A hack to simplify Dockerfile since Dockerfile doesn't support copying
+# multiple directories without flattening them out
 make_go_package_tar() {
   GO_PACKAGES=(
     core
@@ -8,8 +10,6 @@ make_go_package_tar() {
     utils
   )
 
-  # A hack to simplify Dockerfile since Dockerfile doesn't support copying
-  # multiple directories without flattening them out
   (cd $SCRIPT_DIR/.. && tar -cf $SCRIPT_DIR/go_packages.tar \
     main.go \
     Makefile \

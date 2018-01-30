@@ -185,7 +185,7 @@ ADD scripts/go_packages.tar /go/src/github.com/signalfx/neo-agent/
 ENV GOPATH=/go
 WORKDIR /go/src/github.com/signalfx/neo-agent
 
-RUN VERSION=${agent_version} make signalfx-agent &&\
+RUN AGENT_VERSION=${agent_version} make signalfx-agent &&\
 	mv signalfx-agent /usr/bin/signalfx-agent
 	# compressing the binary causes segfaults when run in standalone mode
 	#/tmp/upx --lzma /usr/bin/signalfx-agent
@@ -200,13 +200,6 @@ RUN pip install yq &&\
     wget -O /usr/bin/jq https://github.com/stedolan/jq/releases/download/jq-1.5/jq-linux64 &&\
     chmod +x /usr/bin/jq
 
-# Mirror the same dir structure that exists in the original source
-COPY scripts/get-collectd-plugins.sh /opt/scripts/
-COPY collectd-plugins.yaml /opt/
-
-RUN mkdir -p /opt/collectd-python &&\
-    bash /opt/scripts/get-collectd-plugins.sh /opt/collectd-python
-
 RUN apt install -y libffi-dev libssl-dev build-essential python-dev libcurl4-openssl-dev
 
 #COPY scripts/install-dd-plugin-deps.sh /opt/
@@ -220,6 +213,13 @@ RUN apt install -y libffi-dev libssl-dev build-essential python-dev libcurl4-ope
 
 COPY neopy/requirements.txt /tmp/requirements.txt
 RUN pip install -r /tmp/requirements.txt
+
+# Mirror the same dir structure that exists in the original source
+COPY scripts/get-collectd-plugins.sh /opt/scripts/
+COPY collectd-plugins.yaml /opt/
+
+RUN mkdir -p /opt/collectd-python &&\
+    bash /opt/scripts/get-collectd-plugins.sh /opt/collectd-python
 
 # Delete all compiled python to save space
 RUN find /usr/lib/python2.7 /usr/local/lib/python2.7/dist-packages -name "*.pyc" | xargs rm
@@ -260,6 +260,7 @@ ENV useful_bins=" \
   /bin/sh \
   /bin/ss \
   /usr/bin/curl \
+  /usr/bin/dirname \
   /usr/bin/host \
   /usr/bin/tail \
   /usr/bin/vim \
@@ -279,23 +280,11 @@ CMD ["/bin/signalfx-agent"]
 
 COPY --from=collectd /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt
 
-# Pull in non-C collectd plugins
-COPY --from=python-plugins /opt/collectd-python/ /plugins/collectd
-#COPY --from=python-plugins /opt/dd/dd-agent /opt/dd/dd-agent
-#COPY --from=python-plugins /opt/dd/integrations-core /opt/dd/integrations-core
-# Grab pip dependencies too
-COPY --from=python-plugins /usr/lib/python2.7/ /lib/python2.7
-COPY --from=python-plugins /usr/local/lib/python2.7/ /lib/python2.7
-
 COPY --from=extra-packages /lib/x86_64-linux-gnu/ld-2.23.so /lib64/ld-linux-x86-64.so.2
 COPY --from=extra-packages /opt/jvm/ /jvm
 COPY --from=extra-packages /opt/signalfx_types_db /plugins/collectd/java/
 COPY --from=extra-packages /opt/deps/ /lib
 COPY --from=extra-packages /opt/bins/ /bin
-
-RUN mkdir /run
-
-COPY scripts/agent-status /bin/agent-status
 
 COPY --from=collectd /usr/sbin/collectd /bin/collectd
 COPY --from=collectd /opt/deps/ /lib
@@ -305,7 +294,20 @@ COPY --from=collectd /usr/share/collectd/types.db /plugins/collectd/types.db
 COPY --from=collectd /usr/lib/collectd/*.so /plugins/collectd/
 COPY --from=collectd /usr/share/collectd/java/ /plugins/collectd/java/
 
+# Pull in non-C collectd plugins
+COPY --from=python-plugins /opt/collectd-python/ /plugins/collectd
+#COPY --from=python-plugins /opt/dd/dd-agent /opt/dd/dd-agent
+#COPY --from=python-plugins /opt/dd/integrations-core /opt/dd/integrations-core
+# Grab pip dependencies too
+COPY --from=python-plugins /usr/lib/python2.7/ /lib/python2.7
+COPY --from=python-plugins /usr/local/lib/python2.7/ /lib/python2.7
+
 COPY neopy /neopy
+
+RUN mkdir /run
+
+COPY scripts/agent-status /bin/agent-status
+
 COPY --from=agent-builder /usr/bin/signalfx-agent /bin/signalfx-agent
 
 # The current directory of the agent is important since it uses a lot of
