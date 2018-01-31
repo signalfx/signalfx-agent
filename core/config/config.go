@@ -13,6 +13,7 @@ import (
 	set "gopkg.in/fatih/set.v0"
 
 	fqdn "github.com/ShowMax/go-fqdn"
+	"github.com/mitchellh/hashstructure"
 	"github.com/pkg/errors"
 	"github.com/signalfx/neo-agent/core/filters"
 	"github.com/signalfx/neo-agent/utils"
@@ -201,6 +202,16 @@ func (cc *CollectdConfig) Validate() error {
 	}
 
 	return nil
+}
+
+// Hash calculates a unique hash value for this config struct
+func (cc *CollectdConfig) Hash() uint64 {
+	hash, err := hashstructure.Hash(cc, nil)
+	if err != nil {
+		log.WithError(err).Error("Could not get hash of CollectdConfig struct")
+		return 0
+	}
+	return hash
 }
 
 // WriteServerURL is the local address served by the agent where collect should

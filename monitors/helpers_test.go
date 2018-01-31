@@ -28,7 +28,7 @@ type DynamicConfig struct {
 }
 
 type MockMonitor interface {
-	SetConfigHook(func(MockMonitor))
+	SetConfigHook(func(types.MonitorID, MockMonitor))
 	AddShutdownHook(fn func())
 	Type() string
 	MyVar() string
@@ -40,7 +40,7 @@ type _MockMonitor struct {
 	MMyVar        string
 	MPassword     string
 	shutdownHooks []func()
-	configHook    func(MockMonitor)
+	configHook    func(types.MonitorID, MockMonitor)
 }
 
 var lastID = 0
@@ -48,7 +48,7 @@ var lastID = 0
 func (m *_MockMonitor) Configure(conf *Config) error {
 	m.MType = conf.Type
 	m.MMyVar = conf.MyVar
-	m.configHook(m)
+	m.configHook(conf.MonitorID, m)
 	return nil
 }
 
@@ -64,7 +64,7 @@ func (m *_MockMonitor) Password() string {
 	return m.MPassword
 }
 
-func (m *_MockMonitor) SetConfigHook(fn func(MockMonitor)) {
+func (m *_MockMonitor) SetConfigHook(fn func(types.MonitorID, MockMonitor)) {
 	m.configHook = fn
 }
 
@@ -86,7 +86,7 @@ func (m *_MockServiceMonitor) Configure(conf *DynamicConfig) error {
 	m.MType = conf.Type
 	m.MMyVar = conf.MyVar
 	m.MPassword = conf.Password
-	m.configHook(m)
+	m.configHook(conf.MonitorID, m)
 	return nil
 }
 
@@ -98,14 +98,15 @@ type Dynamic2 struct{ _MockServiceMonitor }
 func RegisterFakeMonitors() func() map[types.MonitorID]MockMonitor {
 	instances := map[types.MonitorID]MockMonitor{}
 
-	track := func(factory func() interface{}) func(types.MonitorID) interface{} {
-		return func(id types.MonitorID) interface{} {
+	track := func(factory func() interface{}) func() interface{} {
+		return func() interface{} {
 			mon := factory().(MockMonitor)
-			mon.SetConfigHook(func(mon MockMonitor) {
+			mon.SetConfigHook(func(id types.MonitorID, mon MockMonitor) {
 				instances[id] = mon
-			})
-			mon.AddShutdownHook(func() {
-				delete(instances, id)
+
+				mon.AddShutdownHook(func() {
+					delete(instances, id)
+				})
 			})
 
 			return mon

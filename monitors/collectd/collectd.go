@@ -81,21 +81,29 @@ func Instance() *Manager {
 	return collectdSingleton
 }
 
+// Configure should be called whenever the main collectd config in the agent
+// has changed.  Restarts collectd if the config has changed.
 func (cm *Manager) Configure(conf *config.CollectdConfig) error {
 	cm.configMutex.Lock()
 	defer cm.configMutex.Unlock()
 
-	cm.conf = conf
+	if cm.conf == nil || cm.conf.Hash() != conf.Hash() {
+		cm.conf = conf
+
+		cm.requestRestart <- struct{}{}
+	}
 
 	return nil
 }
 
-// ConfigureFromMonitor configures collectd, renders the collectd.conf file,
-// and queues a (re)start.  Individual collectd-based monitors write their own
-// config files and should queue restarts when they have rendered their own
-// config files.  The monitorID is passed in so that we can keep track of what
-// monitors are actively using collectd.  When a monitor is done (i.e.
-// shutdown) it should call MonitorDidShutdown.
+// ConfigureFromMonitor is how monitors notify the collectd manager that they
+// have added a configuration file to managed_config and need a restart. The
+// monitorID is passed in so that we can keep track of what monitors are
+// actively using collectd.  When a monitor is done (i.e. shutdown) it should
+// call MonitorDidShutdown.  GenericJMX monitors should set usesGenericJMX to
+// true so that collectd can know to load the java plugin in the collectd.conf
+// file so that any JVM config doesn't get set multiple times and cause
+// spurious log output.
 func (cm *Manager) ConfigureFromMonitor(monitorID types.MonitorID, output types.Output, usesGenericJMX bool) error {
 	cm.configMutex.Lock()
 	defer cm.configMutex.Unlock()
@@ -123,8 +131,8 @@ func (cm *Manager) MonitorDidShutdown(monitorID types.MonitorID) {
 	delete(cm.activeMonitors, monitorID)
 	delete(cm.genericJMXUsers, monitorID)
 
-	if len(cm.activeMonitors) == 0 {
-		cm.stop <- struct{}{}
+	if len(cm.activeMonitors) == 0 && cm.stop != nil {
+		close(cm.stop)
 	} else {
 		cm.requestRestart <- struct{}{}
 	}
@@ -192,7 +200,12 @@ func (cm *Manager) manageCollectd() {
 			state = Starting
 
 		case Starting:
-			cm.rerenderConf()
+			if err := cm.rerenderConf(); err != nil {
+				log.WithError(err).Error("Could not render collectd.conf")
+				state = Errored
+				writeServer.Shutdown()
+				continue
+			}
 
 			cmd = cm.makeChildCommand()
 
@@ -218,6 +231,8 @@ func (cm *Manager) manageCollectd() {
 			state = Running
 
 		case Running:
+			cm.stop = make(chan struct{})
+
 			select {
 			case <-restart:
 				state = Restarting
@@ -351,9 +366,11 @@ func (cm *Manager) rerenderConf() error {
 		"context": cm.conf,
 	}).Debug("Rendering main collectd.conf template")
 
-	cm.conf.HasGenericJMXMonitor = len(cm.genericJMXUsers) > 0
+	// Copy so that hash of config struct is consistent
+	conf := *cm.conf
+	conf.HasGenericJMXMonitor = len(cm.genericJMXUsers) > 0
 
-	if err := CollectdTemplate.Execute(&output, cm.conf); err != nil {
+	if err := CollectdTemplate.Execute(&output, &conf); err != nil {
 		return errors.Wrapf(err, "Failed to render collectd template")
 	}
 

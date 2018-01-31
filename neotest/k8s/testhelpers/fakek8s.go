@@ -175,6 +175,7 @@ func (f *FakeK8s) addToState(resType ResourceType, uid types.UID, resource runti
 	f.state[resType][uid] = resource
 }
 
+// AddSecret accepts a secret to serve later.
 func (f *FakeK8s) AddSecret(secret *v1.Secret) {
 	f.secrets[secret.Namespace+"/"+secret.Name] = secret
 }

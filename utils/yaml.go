@@ -24,6 +24,10 @@ func ConvertToMapViaYAML(obj interface{}) (map[string]interface{}, error) {
 	return newMap, nil
 }
 
+// YAMLNameOfField returns the YAML key that is used for the given struct
+// field.  It does this by actually serializing the field and parsing the
+// output string.  If the field has no key (e.g. if the `yaml:"-"` tag is set,
+// this will return an empty string.
 func YAMLNameOfField(field reflect.StructField) string {
 	tmp := reflect.New(reflect.StructOf([]reflect.StructField{field})).Elem()
 	asYaml, _ := yaml.Marshal(tmp.Interface())

@@ -39,7 +39,7 @@ var _ = Describe("Monitor Manager", func() {
 
 		getMonitors = RegisterFakeMonitors()
 
-		manager = NewMonitorManager(&meta.AgentMeta{}, nil, nil, nil)
+		manager = NewMonitorManager(&meta.AgentMeta{})
 	})
 
 	It("Starts up static monitors immediately", func() {

@@ -15,6 +15,11 @@ import (
 	"github.com/signalfx/neo-agent/utils"
 )
 
+// WriteHTTPServer is a reimplementation of what the metricproxy collectd
+// endpoint does.  The main difference from metric proxy is that we propagate
+// the meta field from collectd datapoints onto the resulting datapoints so
+// that we can correlate metrics from collectd to specific monitors in the
+// agent.  The server will run on the configured localhost port.
 type WriteHTTPServer struct {
 	dpCallback    func([]*datapoint.Datapoint)
 	eventCallback func([]*event.Event)
@@ -23,7 +28,7 @@ type WriteHTTPServer struct {
 	server        *http.Server
 }
 
-// NewServer creates and starts a write server
+// NewWriteHTTPServer creates but does not start a new write server
 func NewWriteHTTPServer(ipAddr string, port uint16,
 	dpCallback func([]*datapoint.Datapoint), eventCallback func([]*event.Event)) (*WriteHTTPServer, error) {
 
@@ -42,6 +47,8 @@ func NewWriteHTTPServer(ipAddr string, port uint16,
 	return inst, nil
 }
 
+// Start begins accepting connections on the write server.  Will return an
+// error if it cannot bind to the configured port.
 func (s *WriteHTTPServer) Start() error {
 	listener, err := net.Listen("tcp", fmt.Sprintf("%s:%d", s.ipAddr, s.port))
 	if err != nil {
@@ -57,6 +64,8 @@ func (s *WriteHTTPServer) Shutdown() error {
 	return s.server.Close()
 }
 
+// ServeHTTP accepts collectd write_http requests and sends the resulting
+// datapoint/events to the configured callback functions.
 func (s *WriteHTTPServer) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 	var writeBody collectd.JSONWriteBody
 	err := json.NewDecoder(req.Body).Decode(&writeBody)

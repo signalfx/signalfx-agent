@@ -120,9 +120,8 @@ func InjectTemplateFuncs(tmpl *template.Template) *template.Template {
 				if b, ok := v.(bool); ok {
 					if b {
 						return "true", nil
-					} else {
-						return "false", nil
 					}
+					return "false", nil
 				}
 				return "", fmt.Errorf("Value %#v cannot be converted to bool", v)
 			},

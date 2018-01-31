@@ -52,12 +52,13 @@ func (mc *MonitorConfig) HasAutoDiscovery() bool {
 	return mc.DiscoveryRule != ""
 }
 
-// MonitorConfig provides a way of getting the MonitorConfig when embedded in a
-// struct that is referenced through a more generic interface.
+// MonitorConfigCore provides a way of getting the MonitorConfig when embedded
+// in a struct that is referenced through a more generic interface.
 func (mc *MonitorConfig) MonitorConfigCore() *MonitorConfig {
 	return mc
 }
 
+// Hash calculates a unique hash value for this config struct
 func (mc *MonitorConfig) Hash() uint64 {
 	hash, err := hashstructure.Hash(mc, nil)
 	if err != nil {

@@ -82,6 +82,9 @@ func (e *EndpointCore) ExtraConfig() map[string]interface{} {
 		}, e.Configuration)
 }
 
+// IsSelfConfigured tells whether this endpoint comes with enough configuration
+// to run without being configured further.  This ultimately just means whether
+// it specifies what type of monitor to use to monitor it.
 func (e *EndpointCore) IsSelfConfigured() bool {
 	return e.MonitorType != ""
 }

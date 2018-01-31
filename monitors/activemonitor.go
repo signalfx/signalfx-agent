@@ -91,13 +91,6 @@ func (am *ActiveMonitor) injectAgentMetaIfNeeded() bool {
 	return true
 }
 
-func (am *ActiveMonitor) HasSelfConfiguredEndpoint() bool {
-	if am.endpoint == nil {
-		return false
-	}
-	return am.endpoint.Core().IsSelfConfigured()
-}
-
 // Shutdown calls Shutdown on the monitor instance if it is provided.
 func (am *ActiveMonitor) Shutdown() {
 	if sh, ok := am.instance.(Shutdownable); ok {

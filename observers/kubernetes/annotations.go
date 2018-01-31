@@ -21,6 +21,8 @@ var annotationConfigRegexp = regexp.MustCompile(
 		`.(?P<port>[\w-]+)` +
 		`(?:.(?P<config_key>\w+))?$`)
 
+// AnnotationConfig is a generic struct that can describe any of the annotation
+// config values we support.
 type AnnotationConfig struct {
 	AnnotationKey string
 	// The type of annotation
@@ -33,8 +35,12 @@ type AnnotationConfig struct {
 	Value     string
 }
 
+// AnnotationConfigs is a slice of AnnotationConfig with some helper methods
+// for filtering.
 type AnnotationConfigs []*AnnotationConfig
 
+// FilterByPortOrPortName returns all AnnotationConfig instances that match
+// either the port number or port name.
 func (ac AnnotationConfigs) FilterByPortOrPortName(port int32, portName string) (out AnnotationConfigs) {
 	for i := range ac {
 		if ac[i].Port == port || (portName != "" && ac[i].PortName == portName) {
@@ -68,7 +74,7 @@ func parseAgentAnnotation(key, value string, pod *v1.Pod) (*AnnotationConfig, er
 		return nil, fmt.Errorf("K8s config annotation %s is missing a config key", key)
 	}
 	if conf.Port != 0 && k8sutil.PortByNumber(pod, conf.Port) == nil {
-		return nil, fmt.Errorf("K8s config annotation %s references invalid port number %s", key, conf.Port)
+		return nil, fmt.Errorf("K8s config annotation %s references invalid port number %d", key, conf.Port)
 	}
 	if conf.PortName != "" && k8sutil.PortByName(pod, conf.PortName) == nil {
 		return nil, fmt.Errorf("K8s config annotation %s references invalid port name %s", key, conf.PortName)

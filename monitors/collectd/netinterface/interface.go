@@ -1,4 +1,4 @@
-// package netinterface wraps the "interface" collectd plugin for gather
+// Package netinterface wraps the "interface" collectd plugin for gather
 // network interface metrics.  It is called netinterface because "interface" is
 // a keyword in golang.
 package netinterface

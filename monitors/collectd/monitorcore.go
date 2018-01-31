@@ -42,8 +42,6 @@ func NewMonitorCore(template *template.Template) *MonitorCore {
 
 // Init generates a unique file name for each distinct monitor instance
 func (bm *MonitorCore) Init() error {
-	name := bm.Template.Name()
-	bm.configFilename = fmt.Sprintf("20-%s.%s.conf", name, string(bm.monitorID))
 	templating.InjectTemplateFuncs(bm.Template)
 
 	return nil
@@ -57,6 +55,8 @@ func (bm *MonitorCore) SetConfigurationAndRun(conf config.MonitorCustomConfig) e
 
 	bm.config = conf
 	bm.monitorID = conf.MonitorConfigCore().MonitorID
+
+	bm.configFilename = fmt.Sprintf("20-%s.%s.conf", bm.Template.Name(), string(bm.monitorID))
 
 	if err := bm.WriteConfigForPlugin(); err != nil {
 		return err
@@ -75,8 +75,8 @@ func (bm *MonitorCore) SetConfiguration(conf config.MonitorCustomConfig) error {
 	return nil
 }
 
-// WriteConfigForPluginAndRestart will render the config template to the
-// filesystem and queue a collectd restart
+// WriteConfigForPlugin will render the config template to the filesystem and
+// queue a collectd restart
 func (bm *MonitorCore) WriteConfigForPlugin() error {
 	pluginConfigText := bytes.Buffer{}
 
