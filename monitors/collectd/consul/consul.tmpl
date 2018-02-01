@@ -16,9 +16,7 @@ LoadPlugin "python"
     AclToken "{{.}}"
     {{- end}}
     SfxToken "{{.SignalFxAccessToken}}"
-    {{range $key, $value := .ExtraDimensions}}
-    Dimension "{{$key}}" "{{$value}}"
-    {{- end}}
+    Dimension "monitorID" "{{.MonitorID}}"
 
     EnhancedMetrics {{if .EnhancedMetrics}}true{{else}}false{{end}}
     {{with .CACertificate -}}

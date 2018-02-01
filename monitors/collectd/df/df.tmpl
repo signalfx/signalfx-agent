@@ -1,0 +1,35 @@
+LoadPlugin df
+<Plugin "df">
+  ChangeRoot "{{.HostFSPath}}"
+  IgnoreSelected true
+  FSType "overlay"
+  FSType "tmpfs"
+  FSType "proc"
+  FSType "sysfs"
+  FSType "nsfs"
+  FSType "cgroup"
+  FSType "devpts"
+  FSType "selinuxfs"
+  FSType "devtmpfs"
+  FSType "debugfs"
+  FSType "mqueue"
+  FSType "hugetlbfs"
+  FSType "securityfs"
+  FSType "pstore"
+  FSType "binfmt_misc"
+  FSType "autofs"
+  MountPoint "/^{{.HostFSPath}}/var/lib/rkt/pods/"
+  MountPoint "/^{{.HostFSPath}}/net//"
+  MountPoint "/^{{.HostFSPath}}/smb//"
+</Plugin>
+
+<Chain "PostCache"> 
+  <Rule "set_df_monitor_id"> 
+    <Match "regex"> 
+      Plugin "^df$" 
+    </Match> 
+    <Target "set"> 
+      MetaData "monitorID" "{{.MonitorID}}" 
+    </Target> 
+  </Rule> 
+</Chain>

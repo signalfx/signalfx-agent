@@ -2,8 +2,8 @@ package writer
 
 import (
 	"fmt"
+	"time"
 
-	"github.com/davecgh/go-spew/spew"
 	"github.com/signalfx/golib/datapoint"
 	"github.com/signalfx/golib/sfxclient"
 )
@@ -18,6 +18,11 @@ func (s state) String() string {
 	return "unknown"
 }
 
+func (sw *SignalFxWriter) averageDPM() uint {
+	minutesActive := time.Since(sw.startTime).Minutes()
+	return uint(float64(sw.dpsSent) / minutesActive)
+}
+
 // DiagnosticText outputs a string that describes the state of the writer to a
 // human.
 func (sw *SignalFxWriter) DiagnosticText() string {
@@ -25,14 +30,16 @@ func (sw *SignalFxWriter) DiagnosticText() string {
 		"Writer Status:\n"+
 			"Global Dims:              %s\n"+
 			"State:                    %s\n"+
+			"Average DPM:              %d\n"+
 			"DPs Sent:                 %d\n"+
 			"Events Sent:              %d\n"+
 			"DPs Buffered:             %d\n"+
 			"Events Buffered:          %d\n"+
 			"DPs Channel (len/cap) :   %d/%d\n"+
 			"Events Channel (len/cap): %d/%d\n",
-		spew.Sdump(sw.conf.GlobalDimensions),
+		sw.conf.GlobalDimensions,
 		sw.state.String(),
+		sw.averageDPM(),
 		sw.dpsSent,
 		sw.eventsSent,
 		len(sw.dpBuffer),

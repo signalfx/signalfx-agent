@@ -11,21 +11,21 @@ import (
 const monitorType = "collectd/memcached"
 
 func init() {
-	monitors.Register(monitorType, func(id monitors.MonitorID) interface{} {
+	monitors.Register(monitorType, func() interface{} {
 		return &Monitor{
-			*collectd.NewMonitorCore(id, CollectdTemplate),
+			*collectd.NewMonitorCore(CollectdTemplate),
 		}
 	}, &Config{})
 }
 
 // Config is the monitor-specific config with the generic config embedded
 type Config struct {
-	config.MonitorConfig `acceptsEndpoints:"true"`
+	config.MonitorConfig `yaml:",inline" acceptsEndpoints:"true"`
 
 	Host       string `yaml:"host"`
 	Port       uint16 `yaml:"port"`
 	Name       string `yaml:"name"`
-	ReportHost *bool  `yaml:"reportHost" default:"false"`
+	ReportHost *bool  `yaml:"reportHost"`
 }
 
 // Monitor is the main type that represents the monitor

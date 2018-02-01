@@ -11,24 +11,24 @@ import (
 const monitorType = "collectd/haproxy"
 
 func init() {
-	monitors.Register(monitorType, func(id monitors.MonitorID) interface{} {
+	monitors.Register(monitorType, func() interface{} {
 		return &Monitor{
-			*collectd.NewMonitorCore(id, CollectdTemplate),
+			*collectd.NewMonitorCore(CollectdTemplate),
 		}
 	}, &Config{})
 }
 
 // Config is the monitor-specific config with the generic config embedded
 type Config struct {
-	config.MonitorConfig `acceptsEndpoints:"true"`
+	config.MonitorConfig `yaml:",inline" acceptsEndpoints:"true"`
 
 	Host string `yaml:"host"`
 	Port uint16 `yaml:"port"`
 	Name string `yaml:"name"`
 
 	ProxiesToMonitor []string `yaml:"proxiesToMonitor"`
-	ExcludedMetrics  []string `yaml:"excludedMetrics" default:"[]"`
-	EnhancedMetrics  *bool    `yaml:"enhancedMetrics" default:"false"`
+	ExcludedMetrics  []string `yaml:"excludedMetrics"`
+	EnhancedMetrics  *bool    `yaml:"enhancedMetrics"`
 }
 
 // Monitor is the main type that represents the monitor

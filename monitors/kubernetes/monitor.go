@@ -43,9 +43,9 @@ import (
 	"github.com/signalfx/golib/datapoint"
 	"github.com/signalfx/neo-agent/core/common/kubernetes"
 	"github.com/signalfx/neo-agent/core/config"
-	"github.com/signalfx/neo-agent/core/writer"
 	"github.com/signalfx/neo-agent/monitors"
 	"github.com/signalfx/neo-agent/monitors/kubernetes/metrics"
+	"github.com/signalfx/neo-agent/monitors/types"
 	"github.com/signalfx/neo-agent/utils"
 
 	"sync"
@@ -74,8 +74,7 @@ func (c *Config) Validate() error {
 type Monitor struct {
 	config      *Config
 	lock        sync.Mutex
-	DPs         chan<- *datapoint.Datapoint
-	DimProps    chan<- *writer.DimProperties
+	Output      types.Output
 	thisPodName string
 	// Since most datapoints will stay the same or only slightly different
 	// across reporting intervals, reuse them
@@ -85,7 +84,7 @@ type Monitor struct {
 }
 
 func init() {
-	monitors.Register(monitorType, func(id monitors.MonitorID) interface{} { return &Monitor{} }, &Config{})
+	monitors.Register(monitorType, func() interface{} { return &Monitor{} }, &Config{})
 }
 
 // Configure is called by the plugin framework when configuration changes
@@ -180,7 +179,7 @@ func (m *Monitor) sendLatestDatapoints() {
 	dps := updateTimestamps(m.datapointCache.AllDatapoints())
 
 	for i := range dps {
-		m.DPs <- dps[i]
+		m.Output.SendDatapoint(dps[i])
 	}
 }
 
@@ -231,13 +230,13 @@ func (m *Monitor) syncResourceProperties(obj runtime.Object) {
 		}
 
 		if len(props) > 0 {
-			m.DimProps <- &writer.DimProperties{
-				Dimension: writer.Dimension{
+			m.Output.SendDimensionProps(&types.DimProperties{
+				Dimension: types.Dimension{
 					Name:  "kubernetes_pod_uid",
 					Value: string(res.UID),
 				},
 				Properties: props,
-			}
+			})
 		}
 	}
 }

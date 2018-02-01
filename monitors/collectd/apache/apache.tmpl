@@ -2,7 +2,7 @@
   Interval {{.IntervalSeconds}}
 </LoadPlugin>
 <Plugin "apache">
-  <Instance "{{.Name}}[{{encodeDimsForPluginInstance .ExtraDimensions}}]">
+  <Instance "{{.Name}}[monitorID={{.MonitorID}}]">
     URL "http://{{.Host}}:{{.Port}}/mod_status?auto"
     {{with .Username -}}
     User "{{.}}"

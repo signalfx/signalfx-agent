@@ -9,8 +9,10 @@ LoadPlugin "python"
     Interval {{.IntervalSeconds}}
     BaseURL "{{.DockerURL}}"
     Timeout 30
+    CollectNetworkStats {{toBool .CollectNetworkStats}}
     Verbose false
-    {{range $key, $value := .ExtraDimensions -}}
+    Dimension "monitorID" "raw:{{.MonitorID}}"
+    {{range $key, $value := .Dimensions -}}
     Dimension "{{$key}}" "{{$value}}"
     {{end -}}
   {{range .ExcludedImages}}

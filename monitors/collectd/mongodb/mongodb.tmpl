@@ -12,7 +12,7 @@ LoadPlugin "python"
     Password "{{.}}"
     {{- end}}
     Database {{range .Databases}} "{{.}}" {{end}}
-    Dimensions "{{encodeDimsForPluginInstance .ExtraDimensions}}"
+    Dimensions "monitorID={{.MonitorID}}"
     {{with .UseTLS -}}
     UseTLS {{.}}
     {{- end}}

@@ -89,6 +89,7 @@ func main() {
 
 	interruptCh := make(chan os.Signal, 1)
 	signal.Notify(interruptCh, os.Interrupt)
+	signal.Notify(interruptCh, syscall.SIGTERM)
 	go func() {
 		select {
 		case <-interruptCh:

@@ -12,9 +12,9 @@ import (
 const monitorType = "collectd/health_checker"
 
 func init() {
-	monitors.Register(monitorType, func(id monitors.MonitorID) interface{} {
+	monitors.Register(monitorType, func() interface{} {
 		return &Monitor{
-			*collectd.NewMonitorCore(id, CollectdTemplate),
+			*collectd.NewMonitorCore(CollectdTemplate),
 		}
 	}, &Config{})
 }
@@ -25,7 +25,7 @@ type serviceEndpoint struct {
 
 // Config is the monitor-specific config with the generic config embedded
 type Config struct {
-	config.MonitorConfig `acceptsEndpoints:"true"`
+	config.MonitorConfig `yaml:",inline" acceptsEndpoints:"true"`
 
 	Host string `yaml:"host"`
 	Port uint16 `yaml:"port"`

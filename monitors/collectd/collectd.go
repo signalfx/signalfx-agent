@@ -7,17 +7,18 @@ import (
 	"os"
 	"os/exec"
 	"sync"
+	"syscall"
 	"time"
 
+	"github.com/davecgh/go-spew/spew"
 	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
 
 	"github.com/signalfx/golib/datapoint"
 	"github.com/signalfx/golib/event"
 	"github.com/signalfx/neo-agent/core/config"
-	"github.com/signalfx/neo-agent/monitors"
 	"github.com/signalfx/neo-agent/monitors/collectd/templating"
-	"github.com/signalfx/neo-agent/monitors/collectd/write"
+	"github.com/signalfx/neo-agent/monitors/types"
 	"github.com/signalfx/neo-agent/utils"
 )
 
@@ -46,12 +47,11 @@ const (
 // Manager coordinates the collectd conf file and running the embedded collectd
 // library.
 type Manager struct {
-	configMutex     sync.Mutex
-	conf            *config.CollectdConfig
-	activeMonitors  map[monitors.MonitorID]bool
-	genericJMXUsers map[monitors.MonitorID]bool
-	dpChan          chan<- *datapoint.Datapoint
-	eventChan       chan<- *event.Event
+	configMutex sync.Mutex
+	conf        *config.CollectdConfig
+	// Map of each active monitor to its output instance
+	activeMonitors  map[types.MonitorID]types.Output
+	genericJMXUsers map[types.MonitorID]bool
 	active          bool
 
 	// Channels to control the state machine asynchronously
@@ -60,15 +60,19 @@ type Manager struct {
 }
 
 var collectdSingleton = &Manager{
-	activeMonitors:  make(map[monitors.MonitorID]bool),
-	genericJMXUsers: make(map[monitors.MonitorID]bool),
+	activeMonitors:  make(map[types.MonitorID]types.Output),
+	genericJMXUsers: make(map[types.MonitorID]bool),
 	stop:            make(chan struct{}),
 	requestRestart:  make(chan struct{}),
 }
 
 // Instance returns the singleton instance of the collectd manager
 func Instance() *Manager {
+	collectdSingleton.configMutex.Lock()
+	defer collectdSingleton.configMutex.Unlock()
+
 	if !collectdSingleton.active {
+		collectdSingleton.deleteExistingConfig()
 		// This should only have to be called once for the lifetime of the
 		// agent.
 		go collectdSingleton.manageCollectd()
@@ -77,23 +81,34 @@ func Instance() *Manager {
 	return collectdSingleton
 }
 
-// ConfigureFromMonitor configures collectd, renders the collectd.conf file,
-// and queues a (re)start.  Individual collectd-based monitors write their own
-// config files and should queue restarts when they have rendered their own
-// config files.  The monitorID is passed in so that we can keep track of what
-// monitors are actively using collectd.  When a monitor is done (i.e.
-// shutdown) it should call MonitorDidShutdown.
-func (cm *Manager) ConfigureFromMonitor(monitorID monitors.MonitorID, conf *config.CollectdConfig,
-	dpChan chan<- *datapoint.Datapoint, eventChan chan<- *event.Event, usesGenericJMX bool) error {
-
+// Configure should be called whenever the main collectd config in the agent
+// has changed.  Restarts collectd if the config has changed.
+func (cm *Manager) Configure(conf *config.CollectdConfig) error {
 	cm.configMutex.Lock()
 	defer cm.configMutex.Unlock()
 
-	cm.conf = conf
-	cm.dpChan = dpChan
-	cm.eventChan = eventChan
+	if cm.conf == nil || cm.conf.Hash() != conf.Hash() {
+		cm.conf = conf
 
-	cm.activeMonitors[monitorID] = true
+		cm.requestRestart <- struct{}{}
+	}
+
+	return nil
+}
+
+// ConfigureFromMonitor is how monitors notify the collectd manager that they
+// have added a configuration file to managed_config and need a restart. The
+// monitorID is passed in so that we can keep track of what monitors are
+// actively using collectd.  When a monitor is done (i.e. shutdown) it should
+// call MonitorDidShutdown.  GenericJMX monitors should set usesGenericJMX to
+// true so that collectd can know to load the java plugin in the collectd.conf
+// file so that any JVM config doesn't get set multiple times and cause
+// spurious log output.
+func (cm *Manager) ConfigureFromMonitor(monitorID types.MonitorID, output types.Output, usesGenericJMX bool) error {
+	cm.configMutex.Lock()
+	defer cm.configMutex.Unlock()
+
+	cm.activeMonitors[monitorID] = output
 
 	// This is kind of ugly having to keep track of this but it allows us to
 	// load the GenericJMX plugin in a central place and then have each
@@ -109,15 +124,15 @@ func (cm *Manager) ConfigureFromMonitor(monitorID monitors.MonitorID, conf *conf
 
 // MonitorDidShutdown should be called by any monitor that uses collectd when
 // it is shutdown.
-func (cm *Manager) MonitorDidShutdown(monitorID monitors.MonitorID) {
+func (cm *Manager) MonitorDidShutdown(monitorID types.MonitorID) {
 	cm.configMutex.Lock()
 	defer cm.configMutex.Unlock()
 
 	delete(cm.activeMonitors, monitorID)
 	delete(cm.genericJMXUsers, monitorID)
 
-	if len(cm.activeMonitors) == 0 {
-		cm.stop <- struct{}{}
+	if len(cm.activeMonitors) == 0 && cm.stop != nil {
+		close(cm.stop)
 	} else {
 		cm.requestRestart <- struct{}{}
 	}
@@ -143,7 +158,7 @@ func (cm *Manager) manageCollectd() {
 	var closeSignal chan struct{}
 	var restartDebounced func()
 	var restartDebouncedStop chan<- struct{}
-	var writeServer *write.Server
+	var writeServer *WriteHTTPServer
 
 	for {
 		log.Debugf("Collectd is now %s", state)
@@ -151,8 +166,6 @@ func (cm *Manager) manageCollectd() {
 		switch state {
 
 		case Uninitialized:
-			collectdSingleton.deleteExistingConfig()
-
 			closeSignal = make(chan struct{})
 			restartDebounced, restartDebouncedStop = utils.Debounce0(func() {
 				restart <- struct{}{}
@@ -187,7 +200,12 @@ func (cm *Manager) manageCollectd() {
 			state = Starting
 
 		case Starting:
-			cm.rerenderConf()
+			if err := cm.rerenderConf(); err != nil {
+				log.WithError(err).Error("Could not render collectd.conf")
+				state = Errored
+				writeServer.Shutdown()
+				continue
+			}
 
 			cmd = cm.makeChildCommand()
 
@@ -213,6 +231,8 @@ func (cm *Manager) manageCollectd() {
 			state = Running
 
 		case Running:
+			cm.stop = make(chan struct{})
+
 			select {
 			case <-restart:
 				state = Restarting
@@ -235,7 +255,7 @@ func (cm *Manager) manageCollectd() {
 			state = Stopped
 
 		case Stopped:
-			writeServer.Close()
+			writeServer.Shutdown()
 			restartDebouncedStop <- struct{}{}
 			close(closeSignal)
 			state = Uninitialized
@@ -257,8 +277,8 @@ func (cm *Manager) deleteExistingConfig() {
 	os.Remove(collectdConfPath)
 }
 
-func (cm *Manager) startWriteServer() (*write.Server, error) {
-	writeServer, err := write.NewServer(cm.conf.WriteServerIPAddr, cm.conf.WriteServerPort, cm.dpChan, cm.eventChan)
+func (cm *Manager) startWriteServer() (*WriteHTTPServer, error) {
+	writeServer, err := NewWriteHTTPServer(cm.conf.WriteServerIPAddr, cm.conf.WriteServerPort, cm.receiveDPs, cm.receiveEvents)
 	if err != nil {
 		return nil, err
 	}
@@ -267,7 +287,76 @@ func (cm *Manager) startWriteServer() (*write.Server, error) {
 		"port":   cm.conf.WriteServerPort,
 	}).Info("Started collectd write server")
 
+	if err := writeServer.Start(); err != nil {
+		return nil, err
+	}
+
 	return writeServer, nil
+}
+
+func (cm *Manager) receiveDPs(dps []*datapoint.Datapoint) {
+	cm.configMutex.Lock()
+	defer cm.configMutex.Unlock()
+
+	for i := range dps {
+		var monitorID types.MonitorID
+		if id, ok := dps[i].Meta["monitorID"].(string); ok {
+			monitorID = types.MonitorID(id)
+		} else if id := dps[i].Dimensions["monitorID"]; id != "" {
+			monitorID = types.MonitorID(id)
+			delete(dps[i].Dimensions, "monitorID")
+		}
+
+		if string(monitorID) == "" {
+			log.WithFields(log.Fields{
+				"dp": spew.Sdump(dps[i]),
+			}).Error("Datapoint does not have a monitorID as either a dimension or Meta field, cannot send")
+			continue
+		}
+
+		output := cm.activeMonitors[monitorID]
+		if output == nil {
+			log.WithFields(log.Fields{
+				"monitorID": monitorID,
+			}).Error("Datapoint has an unknown monitorID, cannot send")
+			continue
+		}
+
+		output.SendDatapoint(dps[i])
+	}
+}
+
+func (cm *Manager) receiveEvents(events []*event.Event) {
+	cm.configMutex.Lock()
+	defer cm.configMutex.Unlock()
+
+	for i := range events {
+		var monitorID types.MonitorID
+		if id, ok := events[i].Properties["monitorID"].(string); ok {
+			monitorID = types.MonitorID(id)
+			delete(events[i].Properties, "monitorID")
+		} else if id := events[i].Dimensions["monitorID"]; id != "" {
+			monitorID = types.MonitorID(id)
+			delete(events[i].Dimensions, "monitorID")
+		}
+
+		if string(monitorID) == "" {
+			log.WithFields(log.Fields{
+				"event": spew.Sdump(events[i]),
+			}).Error("Event does not have a monitorID as either a dimension or property field, cannot send")
+			continue
+		}
+
+		output := cm.activeMonitors[monitorID]
+		if output == nil {
+			log.WithFields(log.Fields{
+				"monitorID": monitorID,
+			}).Error("Event has an unknown monitorID, cannot send")
+			continue
+		}
+
+		output.SendEvent(events[i])
+	}
 }
 
 func (cm *Manager) rerenderConf() error {
@@ -277,9 +366,11 @@ func (cm *Manager) rerenderConf() error {
 		"context": cm.conf,
 	}).Debug("Rendering main collectd.conf template")
 
-	cm.conf.HasGenericJMXMonitor = len(cm.genericJMXUsers) > 0
+	// Copy so that hash of config struct is consistent
+	conf := *cm.conf
+	conf.HasGenericJMXMonitor = len(cm.genericJMXUsers) > 0
 
-	if err := CollectdTemplate.Execute(&output, cm.conf); err != nil {
+	if err := CollectdTemplate.Execute(&output, &conf); err != nil {
 		return errors.Wrapf(err, "Failed to render collectd template")
 	}
 
@@ -291,6 +382,12 @@ func (cm *Manager) makeChildCommand() *exec.Cmd {
 
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
+
+	// This is Linux-specific and will cause collectd to be killed by the OS if
+	// the agent dies
+	cmd.SysProcAttr = &syscall.SysProcAttr{
+		Pdeathsig: syscall.SIGTERM,
+	}
 
 	return cmd
 }

@@ -8,16 +8,14 @@ import (
 	yaml "gopkg.in/yaml.v2"
 
 	"github.com/creasty/defaults"
-	"github.com/signalfx/neo-agent/core/config/stores"
 	log "github.com/sirupsen/logrus"
 )
 
 // LoadConfigFromContent transforms yaml to a Config struct
-func LoadConfigFromContent(fileContent []byte, metaStore *stores.MetaStore) (*Config, error) {
+func LoadConfigFromContent(fileContent []byte) (*Config, error) {
 	config := &Config{}
 
 	preprocessedContent := preprocessConfig(fileContent)
-	log.Debugf("Pre: %s", preprocessedContent)
 
 	err := yaml.UnmarshalStrict(preprocessedContent, config)
 	if err != nil {
@@ -29,21 +27,34 @@ func LoadConfigFromContent(fileContent []byte, metaStore *stores.MetaStore) (*Co
 		panic(fmt.Sprintf("Config defaults are wrong types: %s", err))
 	}
 
-	return config.initialize(metaStore)
+	return config.initialize()
 }
 
 var envVarRE = regexp.MustCompile(`\${\s*([\w-]+?)\s*}`)
+
+// Hold all of the envvars so that when they are sanitized from the proc we can
+// still get to them when we need to rerender config
+var envVarCache = make(map[string]string)
 
 // Replaces envvar syntax with the actual envvars
 func preprocessConfig(content []byte) []byte {
 	return envVarRE.ReplaceAllFunc(content, func(bs []byte) []byte {
 		parts := envVarRE.FindSubmatch(bs)
-		value := os.Getenv(string(parts[1]))
-		log.WithFields(log.Fields{
-			"envVarName": string(parts[1]),
-			"value":      value,
-		}).Info("Substituting envvar into config")
+		envvar := string(parts[1])
 
-		return []byte(value)
+		val, ok := envVarCache[envvar]
+
+		if !ok {
+			val = os.Getenv(envvar)
+			envVarCache[envvar] = val
+
+			log.WithFields(log.Fields{
+				"envvar": envvar,
+			}).Debug("Sanitizing envvar from agent")
+
+			os.Unsetenv(envvar)
+		}
+
+		return []byte(val)
 	})
 }

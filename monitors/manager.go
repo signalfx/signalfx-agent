@@ -1,14 +1,18 @@
 package monitors
 
 import (
+	"fmt"
 	"sync"
 
+	"github.com/davecgh/go-spew/spew"
 	"github.com/pkg/errors"
 	"github.com/signalfx/golib/datapoint"
 	"github.com/signalfx/golib/event"
 	"github.com/signalfx/neo-agent/core/config"
+	"github.com/signalfx/neo-agent/core/meta"
 	"github.com/signalfx/neo-agent/core/services"
-	"github.com/signalfx/neo-agent/core/writer"
+	"github.com/signalfx/neo-agent/monitors/collectd"
+	"github.com/signalfx/neo-agent/monitors/types"
 	"github.com/signalfx/neo-agent/utils"
 	log "github.com/sirupsen/logrus"
 )
@@ -19,114 +23,135 @@ import (
 // rule (a "static" monitor), it will be started immediately (as soon as
 // Configure is called).
 type MonitorManager struct {
-	monitorConfigs []config.MonitorCustomConfig
+	monitorConfigs map[uint64]config.MonitorCustomConfig
 	// Keep track of which services go with which monitor
 	activeMonitors []*ActiveMonitor
-	badConfigs     []*config.MonitorConfig
+	badConfigs     map[uint64]*config.MonitorConfig
 	lock           sync.Mutex
 	// Map of service endpoints that have been discovered
 	discoveredEndpoints map[services.ID]services.Endpoint
 
-	dpChan      chan<- *datapoint.Datapoint
-	eventChan   chan<- *event.Event
-	dimPropChan chan<- *writer.DimProperties
+	DPs            chan<- *datapoint.Datapoint
+	Events         chan<- *event.Event
+	DimensionProps chan<- *types.DimProperties
+
+	agentMeta       *meta.AgentMeta
+	intervalSeconds int
 
 	idGenerator func() string
 }
 
 // NewMonitorManager creates a new instance of the MonitorManager
-func NewMonitorManager() *MonitorManager {
+func NewMonitorManager(agentMeta *meta.AgentMeta) *MonitorManager {
 	return &MonitorManager{
-		monitorConfigs:      make([]config.MonitorCustomConfig, 0),
+		monitorConfigs:      make(map[uint64]config.MonitorCustomConfig),
 		activeMonitors:      make([]*ActiveMonitor, 0),
-		badConfigs:          make([]*config.MonitorConfig, 0),
+		badConfigs:          make(map[uint64]*config.MonitorConfig),
 		discoveredEndpoints: make(map[services.ID]services.Endpoint),
 		idGenerator:         utils.NewIDGenerator(),
+		agentMeta:           agentMeta,
 	}
 }
 
 // Configure receives a list of monitor configurations.  It will start up any
 // static monitors and watch discovered services to see if any match dynamic
 // monitors.
-func (mm *MonitorManager) Configure(confs []config.MonitorConfig) {
+func (mm *MonitorManager) Configure(confs []config.MonitorConfig, intervalSeconds int) {
 	mm.lock.Lock()
 	defer mm.lock.Unlock()
 
-	mm.monitorConfigs = make([]config.MonitorCustomConfig, 0, len(confs))
+	mm.intervalSeconds = intervalSeconds
+	for i := range confs {
+		confs[i].IntervalSeconds = utils.FirstNonZero(confs[i].IntervalSeconds, intervalSeconds)
+	}
 
 	requireSoloTrue := anyMarkedSolo(confs)
 
-	// All monitors are marked for deletion at first.  They can be saved and
-	// reused by having a compatible config in the newly provided config
-	mm.markAllMonitorsAsDoomed()
+	newConfig, deletedHashes := diffNewConfig(confs, mm.monitorConfigs)
 
-	for i := range confs {
-		conf := &confs[i]
+	// By configuring collectd with the monitor manager, we absolve the monitor
+	// instances of having to know about collectd config, which makes it easier
+	// to create monitor config from disparate sources such as from observers.
+	if err := collectd.Instance().Configure(mm.agentMeta.CollectdConf); err != nil {
+		log.WithFields(log.Fields{
+			"error":          err,
+			"collectdConfig": spew.Sdump(mm.agentMeta.CollectdConf),
+		}).Error("Could not configure collectd")
+	}
 
-		if isConfigUnique(conf, confs[:i]) {
-			log.WithFields(log.Fields{
-				"monitorType": conf.Type,
-				"config":      conf,
-			}).Error("Monitor config is duplicated")
-			continue
-		}
+	for _, hash := range deletedHashes {
+		mm.deleteMonitorsByConfigHash(hash)
+
+		delete(mm.monitorConfigs, hash)
+		delete(mm.badConfigs, hash)
+	}
+
+	for _, conf := range newConfig {
+		hash := conf.Hash()
 
 		if requireSoloTrue && !conf.Solo {
 			log.Infof("Solo mode is active, skipping monitor of type %s", conf.Type)
 			continue
 		}
 
-		monConfig, err := mm.processConfigForMonitor(conf)
+		monConfig, err := mm.handleNewConfig(&conf)
 		if err != nil {
 			log.WithFields(log.Fields{
 				"monitorType": conf.Type,
 				"error":       err,
 			}).Error("Could not process configuration for monitor")
 			conf.ValidationError = err.Error()
-			mm.badConfigs = append(mm.badConfigs, conf)
+			mm.badConfigs[hash] = &conf
 			continue
 		}
 
-		mm.monitorConfigs = append(mm.monitorConfigs, monConfig)
+		mm.monitorConfigs[hash] = monConfig
 	}
-
-	mm.deleteDoomedMonitors()
 }
 
-func (mm *MonitorManager) processConfigForMonitor(conf *config.MonitorConfig) (config.MonitorCustomConfig, error) {
+// Returns the any new configs and any removed config hashes
+func diffNewConfig(confs []config.MonitorConfig, oldHashes map[uint64]config.MonitorCustomConfig) ([]config.MonitorConfig, []uint64) {
+	newConfigHashes := make(map[uint64]bool)
+	var newConfig []config.MonitorConfig
+	for i := range confs {
+		hash := confs[i].Hash()
+		if oldHashes[hash] == nil {
+			newConfig = append(newConfig, confs[i])
+		}
+
+		if newConfigHashes[hash] {
+			log.WithFields(log.Fields{
+				"monitorType": confs[i].Type,
+				"config":      confs[i],
+			}).Error("Monitor config is duplicated")
+			continue
+		}
+
+		newConfigHashes[hash] = true
+	}
+
+	var deletedHashes []uint64
+	for hash := range oldHashes {
+		// If we didn't see it in the latest config slice then we need to
+		// delete anything using it.
+		if !newConfigHashes[hash] {
+			deletedHashes = append(deletedHashes, hash)
+		}
+	}
+
+	return newConfig, deletedHashes
+}
+
+func (mm *MonitorManager) handleNewConfig(conf *config.MonitorConfig) (config.MonitorCustomConfig, error) {
 	monConfig, err := getCustomConfigForMonitor(conf)
 	if err != nil {
 		return nil, err
 	}
 
-	configMatchedActive := false
-
-	// Go through each actively running monitor marked for deletion and see if it can be
-	// reconfigured with this particular config.  The criteria for being
-	// reconfigurable with this config is if the type and discovery rule match.
-	// Monitors should all be capable of being dynamically reconfigured on the
-	// fly to minimize down time between config changes.
-	// This makes config O(n*m) where n=<number of monitor configs> and
-	// m=<number of active monitors> but given how infrequent config changes
-	// are and how few active monitors there will be for a single agent, this
-	// should be acceptable.
-	for i := range mm.activeMonitors {
-		am := mm.activeMonitors[i]
-		if am.doomed {
-			coreConfig := am.config.CoreConfig()
-			monitorsCompatible := coreConfig.Type == conf.Type && coreConfig.DiscoveryRule == conf.DiscoveryRule
-			if monitorsCompatible {
-				configMatchedActive = true
-				if err := am.configureMonitor(monConfig); err != nil {
-					return nil, err
-				}
-				am.doomed = false
-			}
+	if configOnlyAllowsSingleInstance(monConfig) {
+		if len(mm.monitorConfigsForType(conf.Type)) > 0 {
+			return nil, fmt.Errorf("Monitor type %s only allows a single instance at a time", conf.Type)
 		}
-	}
-
-	if configMatchedActive {
-		return monConfig, nil
 	}
 
 	// No discovery rule means that the monitor should run from the start
@@ -140,77 +165,17 @@ func (mm *MonitorManager) processConfigForMonitor(conf *config.MonitorConfig) (c
 	return monConfig, nil
 }
 
-// SetDPChannel allows you to inject a new datapoint channel to the manager and
-// have it propagated to all active monitors
-func (mm *MonitorManager) SetDPChannel(dpChan chan<- *datapoint.Datapoint) {
-	mm.lock.Lock()
-	defer mm.lock.Unlock()
-
-	mm.dpChan = dpChan
-
-	for i := range mm.activeMonitors {
-		mm.activeMonitors[i].injectDatapointChannelIfNeeded(dpChan)
-	}
-}
-
-// SetEventChannel allows you to inject a new event channel to the manager and
-// have it propagated to all active monitors
-func (mm *MonitorManager) SetEventChannel(eventChan chan<- *event.Event) {
-	mm.lock.Lock()
-	defer mm.lock.Unlock()
-
-	mm.eventChan = eventChan
-
-	for i := range mm.activeMonitors {
-		mm.activeMonitors[i].injectEventChannelIfNeeded(eventChan)
-	}
-}
-
-// SetDimPropChannel allows you to inject a new dimension property channel to
-// the manager and have it propagated to all active monitors
-func (mm *MonitorManager) SetDimPropChannel(dimPropChan chan<- *writer.DimProperties) {
-	mm.lock.Lock()
-	defer mm.lock.Unlock()
-
-	mm.dimPropChan = dimPropChan
-
-	for i := range mm.activeMonitors {
-		mm.activeMonitors[i].injectDimPropertiesChannelIfNeeded(dimPropChan)
-	}
-}
-
-func (mm *MonitorManager) markAllMonitorsAsDoomed() {
-	for i := range mm.activeMonitors {
-		mm.activeMonitors[i].doomed = true
-	}
-}
-
-func (mm *MonitorManager) deleteDoomedMonitors() {
-	newActiveMonitors := []*ActiveMonitor{}
-
-	for i := range mm.activeMonitors {
-		am := mm.activeMonitors[i]
-		if am.doomed {
-			log.WithFields(log.Fields{
-				"endpoint":      am.endpoint,
-				"monitorType":   am.config.CoreConfig().Type,
-				"discoveryRule": am.config.CoreConfig().DiscoveryRule,
-			}).Debug("Shutting down doomed monitor")
-
-			am.Shutdown()
-		} else {
-			newActiveMonitors = append(newActiveMonitors, am)
-		}
-	}
-
-	mm.activeMonitors = newActiveMonitors
-}
-
 func (mm *MonitorManager) makeMonitorsForMatchingEndpoints(conf config.MonitorCustomConfig) {
 	for id, endpoint := range mm.discoveredEndpoints {
+		// Self configured endpoints are monitored immediately upon being
+		// created and never need to be matched against discovery rules.
+		if endpoint.Core().IsSelfConfigured() {
+			continue
+		}
+
 		log.WithFields(log.Fields{
-			"monitorType":   conf.CoreConfig().Type,
-			"discoveryRule": conf.CoreConfig().DiscoveryRule,
+			"monitorType":   conf.MonitorConfigCore().Type,
+			"discoveryRule": conf.MonitorConfigCore().DiscoveryRule,
 			"endpoint":      endpoint,
 		}).Debug("Trying to find config that matches discovered endpoint")
 
@@ -223,12 +188,12 @@ func (mm *MonitorManager) makeMonitorsForMatchingEndpoints(conf config.MonitorCu
 				log.WithFields(log.Fields{
 					"error":       err,
 					"endpointID":  endpoint.Core().ID,
-					"monitorType": conf.CoreConfig().Type,
+					"monitorType": conf.MonitorConfigCore().Type,
 				}).Error("Error monitoring endpoint that matched rule")
 			} else {
 				log.WithFields(log.Fields{
 					"endpointID":  endpoint.Core().ID,
-					"monitorType": conf.CoreConfig().Type,
+					"monitorType": conf.MonitorConfigCore().Type,
 				}).Info("Now monitoring discovered endpoint")
 			}
 		}
@@ -237,7 +202,7 @@ func (mm *MonitorManager) makeMonitorsForMatchingEndpoints(conf config.MonitorCu
 
 func (mm *MonitorManager) isEndpointIDMonitoredByConfig(conf config.MonitorCustomConfig, id services.ID) bool {
 	for _, am := range mm.activeMonitors {
-		if conf.CoreConfig().Equals(am.config.CoreConfig()) {
+		if conf.MonitorConfigCore().Hash() == am.configHash {
 			return true
 		}
 	}
@@ -246,7 +211,7 @@ func (mm *MonitorManager) isEndpointIDMonitoredByConfig(conf config.MonitorCusto
 
 // Returns true is the service did match a rule in this monitor config
 func (mm *MonitorManager) monitorEndpointIfRuleMatches(config config.MonitorCustomConfig, endpoint services.Endpoint) (bool, error) {
-	if config.CoreConfig().DiscoveryRule == "" || !services.DoesServiceMatchRule(endpoint, config.CoreConfig().DiscoveryRule) {
+	if config.MonitorConfigCore().DiscoveryRule == "" || !services.DoesServiceMatchRule(endpoint, config.MonitorConfigCore().DiscoveryRule) {
 		return false, nil
 	}
 
@@ -266,10 +231,49 @@ func (mm *MonitorManager) EndpointAdded(endpoint services.Endpoint) {
 	ensureProxyingDisabledForService(endpoint)
 	mm.discoveredEndpoints[endpoint.Core().ID] = endpoint
 
-	watching := false
+	// If the endpoint has a monitor type specified, then it is expected to
+	// have all of its configuration already set in the endpoint and discovery
+	// rules will be ignored.
+	if endpoint.Core().IsSelfConfigured() {
+		mm.monitorSelfConfiguredEndpoint(endpoint)
+		return
+	}
+
+	mm.findConfigForMonitorAndRun(endpoint)
+}
+
+func (mm *MonitorManager) monitorSelfConfiguredEndpoint(endpoint services.Endpoint) {
+	monitorType := endpoint.Core().MonitorType
+	conf := &config.MonitorConfig{
+		Type: monitorType,
+		// This will get overridden by the endpoint configuration if interval
+		// was specified
+		IntervalSeconds: mm.intervalSeconds,
+	}
+
+	monConfig, err := getCustomConfigForMonitor(conf)
+	if err != nil {
+		log.WithFields(log.Fields{
+			"error":       err,
+			"monitorType": monitorType,
+		}).Error("Could not create monitor config for self-configured endpoint")
+	}
+
+	err = mm.createAndConfigureNewMonitor(monConfig, endpoint)
+	if err != nil {
+		log.WithFields(log.Fields{
+			"error":    err,
+			"endpoint": endpoint,
+		}).Error("Could not create monitor for self-configured endpoint")
+	}
+}
+
+func (mm *MonitorManager) findConfigForMonitorAndRun(endpoint services.Endpoint) {
+	monitoring := false
+
 	for _, config := range mm.monitorConfigs {
 		matched, err := mm.monitorEndpointIfRuleMatches(config, endpoint)
-		watching = matched || watching
+		monitoring = matched || monitoring
 		if err != nil {
 			log.WithFields(log.Fields{
 				"error":    err,
@@ -279,7 +283,7 @@ func (mm *MonitorManager) EndpointAdded(endpoint services.Endpoint) {
 		}
 	}
 
-	if !watching {
+	if !monitoring {
 		log.WithFields(log.Fields{
 			"endpoint": endpoint,
 		}).Debug("Endpoint added that doesn't match any discovery rules")
@@ -288,22 +292,34 @@ func (mm *MonitorManager) EndpointAdded(endpoint services.Endpoint) {
 
 // endpoint may be nil for static monitors
 func (mm *MonitorManager) createAndConfigureNewMonitor(config config.MonitorCustomConfig, endpoint services.Endpoint) error {
-	id := MonitorID(mm.idGenerator())
+	id := types.MonitorID(mm.idGenerator())
 
-	instance := newMonitor(config.CoreConfig().Type, id)
+	instance := newMonitor(config.MonitorConfigCore().Type, id)
 	if instance == nil {
-		return errors.Errorf("Could not create new monitor of type %s", config.CoreConfig().Type)
+		return errors.Errorf("Could not create new monitor of type %s", config.MonitorConfigCore().Type)
+	}
+
+	configHash := config.MonitorConfigCore().Hash()
+
+	output := &monitorOutput{
+		monitorType: config.MonitorConfigCore().Type,
+		monitorID:   id,
+		configHash:  configHash,
+		endpoint:    endpoint,
+		dpChan:      mm.DPs,
+		eventChan:   mm.Events,
+		dimPropChan: mm.DimensionProps,
+		extraDims:   config.MonitorConfigCore().ExtraDimensions,
 	}
 
 	am := &ActiveMonitor{
-		id:       id,
-		instance: instance,
-		endpoint: endpoint,
+		id:         id,
+		configHash: configHash,
+		instance:   instance,
+		endpoint:   endpoint,
+		agentMeta:  mm.agentMeta,
+		output:     output,
 	}
-
-	am.injectDatapointChannelIfNeeded(mm.dpChan)
-	am.injectEventChannelIfNeeded(mm.eventChan)
-	am.injectDimPropertiesChannelIfNeeded(mm.dimPropChan)
 
 	if err := am.configureMonitor(config); err != nil {
 		return err
@@ -311,9 +327,9 @@ func (mm *MonitorManager) createAndConfigureNewMonitor(config config.MonitorCust
 	mm.activeMonitors = append(mm.activeMonitors, am)
 
 	log.WithFields(log.Fields{
-		"monitorType":   config.CoreConfig().Type,
-		"discoveryRule": config.CoreConfig().DiscoveryRule,
-	}).Debug("Creating new monitor")
+		"monitorType":   config.MonitorConfigCore().Type,
+		"discoveryRule": config.MonitorConfigCore().DiscoveryRule,
+	}).Info("Creating new monitor")
 
 	return nil
 }
@@ -325,6 +341,16 @@ func (mm *MonitorManager) monitorsForEndpointID(id services.ID) (out []*ActiveMo
 		}
 	}
 	return // Named return value
+}
+
+func (mm *MonitorManager) monitorConfigsForType(monitorType string) []*config.MonitorCustomConfig {
+	var out []*config.MonitorCustomConfig
+	for _, conf := range mm.monitorConfigs {
+		if conf.MonitorConfigCore().Type == monitorType {
+			out = append(out, &conf)
+		}
+	}
+	return out
 }
 
 func (mm *MonitorManager) isServiceMonitored(id services.ID) bool {
@@ -347,12 +373,42 @@ func (mm *MonitorManager) EndpointRemoved(endpoint services.Endpoint) {
 
 	log.WithFields(log.Fields{
 		"endpoint": endpoint,
-	}).Info("No longer monitoring service")
+	}).Info("No longer monitoring endpoint")
 }
 
 func (mm *MonitorManager) isEndpointMonitored(endpoint services.Endpoint) bool {
 	monitors := mm.monitorsForEndpointID(endpoint.Core().ID)
 	return len(monitors) > 0
+}
+
+func (mm *MonitorManager) deleteMonitorsByConfigHash(hash uint64) {
+	for i := range mm.activeMonitors {
+		if mm.activeMonitors[i].configHash == hash {
+			mm.activeMonitors[i].doomed = true
+		}
+	}
+	mm.deleteDoomedMonitors()
+}
+
+func (mm *MonitorManager) deleteDoomedMonitors() {
+	newActiveMonitors := []*ActiveMonitor{}
+
+	for i := range mm.activeMonitors {
+		am := mm.activeMonitors[i]
+		if am.doomed {
+			log.WithFields(log.Fields{
+				"monitorID":     am.id,
+				"monitorType":   am.config.MonitorConfigCore().Type,
+				"discoveryRule": am.config.MonitorConfigCore().DiscoveryRule,
+			}).Info("Shutting down monitor")
+
+			am.Shutdown()
+		} else {
+			newActiveMonitors = append(newActiveMonitors, am)
+		}
+	}
+
+	mm.activeMonitors = newActiveMonitors
 }
 
 // Shutdown will shutdown all managed monitors and deinitialize the manager.

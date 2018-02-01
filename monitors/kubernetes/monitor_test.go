@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/url"
 	"os"
+	"testing"
 
 	//"github.com/davecgh/go-spew/spew"
 
@@ -14,21 +15,21 @@ import (
 
 	"github.com/signalfx/golib/datapoint"
 	"github.com/signalfx/neo-agent/core/common/kubernetes"
+	"github.com/signalfx/neo-agent/neotest"
 	log "github.com/sirupsen/logrus"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	. "github.com/signalfx/neo-agent/monitors/kubernetes/testhelpers"
+	. "github.com/signalfx/neo-agent/neotest/k8s/testhelpers"
 )
 
 var _ = Describe("Kubernetes plugin", func() {
 	var config *Config
 	var fakeK8s *FakeK8s
 	var monitor *Monitor
-	var dpChan chan *datapoint.Datapoint
+	var output *neotest.TestOutput
 
 	BeforeEach(func() {
-		dpChan = make(chan *datapoint.Datapoint, 100)
 		config = &Config{}
 		config.IntervalSeconds = 1
 		config.KubernetesAPI = &kubernetes.APIConfig{
@@ -39,6 +40,8 @@ var _ = Describe("Kubernetes plugin", func() {
 		fakeK8s = NewFakeK8s()
 		fakeK8s.Start()
 		K8sURL, _ := url.Parse(fakeK8s.URL())
+
+		output = neotest.NewTestOutput()
 
 		// The k8s go library picks these up -- they are set automatically in
 		// containers running in a real k8s env
@@ -54,7 +57,7 @@ var _ = Describe("Kubernetes plugin", func() {
 		os.Setenv("SFX_ACCESS_TOKEN", "deadbeef")
 
 		monitor = &Monitor{}
-		monitor.DPs = dpChan
+		monitor.Output = output
 
 		err := monitor.Configure(config)
 		if err != nil {
@@ -64,6 +67,7 @@ var _ = Describe("Kubernetes plugin", func() {
 
 	AfterEach(func() {
 		monitor.Shutdown()
+		fakeK8s.Close()
 	})
 
 	// Making an int literal pointer requires a helper
@@ -73,15 +77,8 @@ var _ = Describe("Kubernetes plugin", func() {
 	}
 
 	waitForDatapoints := func(expected int) []*datapoint.Datapoint {
-		dps := make([]*datapoint.Datapoint, 0)
-		for {
-			dp := &datapoint.Datapoint{}
-			Eventually(dpChan, 2).Should(Receive(&dp))
-			dps = append(dps, dp)
-			if len(dps) >= expected {
-				break
-			}
-		}
+		dps := output.WaitForDPs(expected, 3)
+		Expect(len(dps)).Should(BeNumerically(">=", expected))
 		return dps
 	}
 
@@ -390,7 +387,7 @@ var _ = Describe("Kubernetes plugin", func() {
 
 		doSetup(false, "agent-2")
 
-		Expect(dpChan).ShouldNot(Receive())
+		Expect(output.WaitForDPs(1, 2)).Should(HaveLen(0))
 	})
 
 	It("Starts reporting if later becomes first in pod list", func() {
@@ -423,7 +420,7 @@ var _ = Describe("Kubernetes plugin", func() {
 
 		doSetup(false, "agent-2")
 
-		Expect(dpChan).ShouldNot(Receive())
+		Expect(output.WaitForDPs(1, 2)).Should(HaveLen(0))
 
 		fakeK8s.EventInput <- WatchEvent{watch.Deleted, &v1.Pod{
 			TypeMeta: unversioned.TypeMeta{
@@ -443,3 +440,8 @@ var _ = Describe("Kubernetes plugin", func() {
 		Expect(dps).To(HaveLen(1))
 	})
 })
+
+func TestKubernetes(t *testing.T) {
+	RegisterFailHandler(Fail)
+	RunSpecs(t, "Kubernetes Monitor Suite")
+}

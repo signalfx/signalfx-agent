@@ -15,3 +15,4 @@ scripts/.Dockerfile*
 *.pyc
 /collectd
 .vagrant
+tmp/

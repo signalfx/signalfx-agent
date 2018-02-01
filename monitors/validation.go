@@ -13,7 +13,7 @@ import (
 
 // Used to validate configuration that is common to all monitors up front
 func validateConfig(monConfig config.MonitorCustomConfig) error {
-	conf := monConfig.CoreConfig()
+	conf := monConfig.MonitorConfigCore()
 
 	if _, ok := MonitorFactories[conf.Type]; !ok {
 		return errors.New("Monitor type not recognized")
@@ -51,7 +51,7 @@ func validateFields(monConfig config.MonitorCustomConfig) error {
 
 func isConfigUnique(conf *config.MonitorConfig, otherConfs []config.MonitorConfig) bool {
 	for _, c := range otherConfs {
-		if c.CoreConfig().Equals(conf) {
+		if c.MonitorConfigCore().Equals(conf) {
 			return true
 		}
 	}

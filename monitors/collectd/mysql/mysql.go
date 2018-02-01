@@ -13,16 +13,16 @@ import (
 const monitorType = "collectd/mysql"
 
 func init() {
-	monitors.Register(monitorType, func(id monitors.MonitorID) interface{} {
+	monitors.Register(monitorType, func() interface{} {
 		return &Monitor{
-			*collectd.NewMonitorCore(id, CollectdTemplate),
+			*collectd.NewMonitorCore(CollectdTemplate),
 		}
 	}, &Config{})
 }
 
 // Config is the monitor-specific config with the generic config embedded
 type Config struct {
-	config.MonitorConfig `acceptsEndpoints:"true"`
+	config.MonitorConfig `yaml:",inline" acceptsEndpoints:"true"`
 
 	Host      string `yaml:"host"`
 	Port      uint16 `yaml:"port"`
@@ -30,12 +30,12 @@ type Config struct {
 	Databases []struct {
 		Name     string  `yaml:"name"`
 		Username string  `yaml:"username"`
-		Password *string `yaml:"password"`
+		Password *string `yaml:"password" neverLog:"true"`
 	} `yaml:"databases" required:"true"`
 	// These credentials serve as defaults for all databases if not overridden
 	Username   string  `yaml:"username"`
-	Password   *string `yaml:"password"`
-	ReportHost bool    `yaml:"reportHost" default:"false"`
+	Password   *string `yaml:"password" neverLog:"true"`
+	ReportHost bool    `yaml:"reportHost"`
 }
 
 // Validate will check the config for correctness.

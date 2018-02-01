@@ -1,6 +1,7 @@
 package converter
 
 import (
+	"math"
 	"regexp"
 	"strconv"
 	"time"
@@ -62,7 +63,7 @@ type CadvisorCollector struct {
 	excludedNames           []*regexp.Regexp
 	excludedLabels          [][]*regexp.Regexp
 	machineInfoMetrics      []machineInfoMetric
-	dpChan                  chan<- *datapoint.Datapoint
+	sendDP                  func(*datapoint.Datapoint)
 	hostname                string
 	defaultDimensions       map[string]string
 }
@@ -514,7 +515,11 @@ func getContainerSpecMemMetrics(excludedMetrics map[string]bool) []containerSpec
 				extraLabels: []string{},
 			},
 			getValues: func(container *info.ContainerInfo) metricValues {
-				return metricValues{{value: datapoint.NewIntValue(int64(container.Spec.Memory.Limit))}}
+				limit := container.Spec.Memory.Limit
+				if limit == math.MaxInt64 {
+					limit = 0
+				}
+				return metricValues{{value: datapoint.NewIntValue(int64(limit))}}
 			},
 		},
 		{
@@ -623,7 +628,7 @@ func getContainerSpecMetrics(excludedMetrics map[string]bool) []containerSpecMet
 // NewCadvisorCollector creates new CadvisorCollector
 func NewCadvisorCollector(
 	infoProvider InfoProvider,
-	dpChan chan<- *datapoint.Datapoint,
+	sendDP func(*datapoint.Datapoint),
 	hostname string,
 	defaultDimensions map[string]string,
 	excludedImages []*regexp.Regexp,
@@ -641,7 +646,7 @@ func NewCadvisorCollector(
 		containerSpecMemMetrics: getContainerSpecMemMetrics(excludedMetrics),
 		containerSpecMetrics:    getContainerSpecMetrics(excludedMetrics),
 		machineInfoMetrics:      getMachineInfoMetrics(excludedMetrics),
-		dpChan:                  dpChan,
+		sendDP:                  sendDP,
 		hostname:                hostname,
 		defaultDimensions:       defaultDimensions,
 	}
@@ -678,7 +683,7 @@ func (c *CadvisorCollector) sendDatapoint(dp *datapoint.Datapoint) {
 	delete(dims, "id")
 	delete(dims, "name")
 
-	c.dpChan <- dp
+	c.sendDP(dp)
 }
 
 func copyDims(dims map[string]string) map[string]string {

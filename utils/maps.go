@@ -78,3 +78,13 @@ func SortMapKeys(m map[string]interface{}) []string {
 	sort.Strings(keys)
 	return keys
 }
+
+// StringInterfaceMapToAllInterfaceMap converts a map[string]interface{} to a
+// map[interface{}]interface{}
+func StringInterfaceMapToAllInterfaceMap(in map[string]interface{}) map[interface{}]interface{} {
+	out := make(map[interface{}]interface{})
+	for k, v := range in {
+		out[k] = v
+	}
+	return out
+}

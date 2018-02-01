@@ -13,23 +13,23 @@ import (
 const monitorType = "collectd/mongodb"
 
 func init() {
-	monitors.Register(monitorType, func(id monitors.MonitorID) interface{} {
+	monitors.Register(monitorType, func() interface{} {
 		return &Monitor{
-			*collectd.NewMonitorCore(id, CollectdTemplate),
+			*collectd.NewMonitorCore(CollectdTemplate),
 		}
 	}, &Config{})
 }
 
 // Config is the monitor-specific config with the generic config embedded
 type Config struct {
-	config.MonitorConfig `acceptsEndpoints:"true"`
+	config.MonitorConfig `yaml:",inline" acceptsEndpoints:"true"`
 
 	Host                   string   `yaml:"host"`
 	Port                   uint16   `yaml:"port"`
 	Name                   string   `yaml:"name"`
 	Databases              []string `yaml:"databases"`
 	Username               string   `yaml:"username"`
-	Password               *string  `yaml:"password"`
+	Password               *string  `yaml:"password" neverLog:"true"`
 	UseTLS                 *bool    `yaml:"useTLS"`
 	CACerts                *string  `yaml:"caCerts"`
 	TLSClientCert          *string  `yaml:"tlsClientCert"`

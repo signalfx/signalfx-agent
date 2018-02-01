@@ -13,9 +13,9 @@ import (
 const monitorType = "collectd/docker"
 
 func init() {
-	monitors.Register(monitorType, func(id monitors.MonitorID) interface{} {
+	monitors.Register(monitorType, func() interface{} {
 		return &Monitor{
-			*collectd.NewMonitorCore(id, CollectdTemplate),
+			*collectd.NewMonitorCore(CollectdTemplate),
 		}
 	}, &Config{})
 }
@@ -23,10 +23,12 @@ func init() {
 // Config is the monitor-specific config with the generic config embedded
 type Config struct {
 	config.MonitorConfig
-	DockerURL      string            `yaml:"dockerURL"`
-	ExcludedImages []string          `yaml:"excludedImages"`
-	ExcludedNames  []string          `yaml:"excludedNames"`
-	ExcludedLabels map[string]string `yaml:"excludedLabels"`
+	Dimensions          map[string]string `yaml:"dimensions"`
+	DockerURL           string            `yaml:"dockerURL"`
+	ExcludedImages      []string          `yaml:"excludedImages"`
+	ExcludedNames       []string          `yaml:"excludedNames"`
+	ExcludedLabels      map[string]string `yaml:"excludedLabels"`
+	CollectNetworkStats bool              `yaml:"collectNetworkStats"`
 }
 
 // Validate will check the config before the monitor is instantiated

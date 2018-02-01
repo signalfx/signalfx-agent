@@ -9,9 +9,7 @@ LoadPlugin python
     Port "{{.Port}}"
     Interval {{.IntervalSeconds}}
     Cluster "{{.ClusterName}}"
-    {{range $key, $value := .ExtraDimensions}}
-    Dimension "{{$key}}" "{{$value}}"
-    {{- end}}
+    Dimension "monitorID" "{{.MonitorID}}"
     {{with .SSLKeyFile -}}
     ssl_keyfile "{{.}}"
     {{- end}}

@@ -11,11 +11,23 @@ TypesDB "{{Globals.PluginRoot}}/signalfx/types.db.plugin"
     Interval {{.}}
   {{- end}}
     Notifications true
-    URL "{{.CollectdConf.WriteServerURL}}"
-    Token "{{.SignalFxAccessToken}}"
+    URL "{{.WriteServerURL}}?monitorID={{.MonitorID}}"
+    Token "unnecessary"
     NotifyLevel "OKAY"
     ProcPath "{{ .ProcFSPath }}"
     EtcPath "./hostfs/etc"
     PersistencePath "./run"
   </Module>
 </Plugin>
+
+
+<Chain "PostCache"> 
+  <Rule "set_metadata_monitor_id"> 
+    <Match "regex"> 
+      Plugin "^signalfx-metadata$" 
+    </Match> 
+    <Target "set"> 
+      MetaData "monitorID" "{{.MonitorID}}" 
+    </Target> 
+  </Rule> 
+</Chain>

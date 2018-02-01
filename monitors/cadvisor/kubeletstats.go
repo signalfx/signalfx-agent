@@ -15,10 +15,10 @@ import (
 	"time"
 
 	info "github.com/google/cadvisor/info/v1"
-	"github.com/signalfx/golib/datapoint"
 	"github.com/signalfx/neo-agent/core/common/kubelet"
 	"github.com/signalfx/neo-agent/core/config"
 	"github.com/signalfx/neo-agent/monitors"
+	"github.com/signalfx/neo-agent/monitors/types"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -27,14 +27,15 @@ const (
 )
 
 func init() {
-	monitors.Register(kubeletStatsType, func(id monitors.MonitorID) interface{} { return &KubeletStatsMonitor{} }, &KubeletStatsConfig{})
+	monitors.Register(kubeletStatsType, func() interface{} { return &KubeletStatsMonitor{} }, &KubeletStatsConfig{})
 }
 
 // KubeletStatsConfig respresents config for the Kubelet stats monitor
 type KubeletStatsConfig struct {
 	config.MonitorConfig
 	Config
-	KubeletAPI kubelet.APIConfig `yaml:"kubeletAPI" default:"{}"`
+	KubeletAPI   kubelet.APIConfig `yaml:"kubeletAPI" default:"{}"`
+	LogResponses bool              `yaml:"logResponses" default:"false"`
 }
 
 // KubeletStatsMonitor will pull container metrics from the /stats/ endpoint of
@@ -45,21 +46,22 @@ type KubeletStatsConfig struct {
 // out if this is versioned and how to access versioned endpoints.
 type KubeletStatsMonitor struct {
 	Monitor
-	DPs chan<- *datapoint.Datapoint
+	Output types.Output
 }
 
 // Configure the Kubelet Stats monitor
 func (ks *KubeletStatsMonitor) Configure(conf *KubeletStatsConfig) error {
 	kubeletAPI := conf.KubeletAPI
 	if kubeletAPI.URL == "" {
-		kubeletAPI.URL = fmt.Sprintf("https://%s:10250", conf.Hostname)
+		kubeletAPI.URL = fmt.Sprintf("https://%s:10250", ks.AgentMeta.Hostname)
 	}
 	client, err := kubelet.NewClient(&kubeletAPI)
 	if err != nil {
 		return err
 	}
 
-	return ks.Monitor.Configure(&conf.Config, &conf.MonitorConfig, ks.DPs, newKubeletInfoProvider(client))
+	return ks.Monitor.Configure(&conf.Config, &conf.MonitorConfig, ks.Output.SendDatapoint,
+		newKubeletInfoProvider(client, conf.LogResponses))
 }
 
 type statsRequest struct {
@@ -86,8 +88,9 @@ type statsRequest struct {
 }
 
 type kubeletInfoProvider struct {
-	client     *kubelet.Client
-	lastUpdate time.Time
+	client       *kubelet.Client
+	lastUpdate   time.Time
+	logResponses bool
 }
 
 func (kip *kubeletInfoProvider) SubcontainersInfo(containerName string) ([]info.ContainerInfo, error) {
@@ -130,10 +133,11 @@ func (kip *kubeletInfoProvider) GetMachineInfo() (*info.MachineInfo, error) {
 	return &machineInfo, nil
 }
 
-func newKubeletInfoProvider(client *kubelet.Client) *kubeletInfoProvider {
+func newKubeletInfoProvider(client *kubelet.Client, logResponses bool) *kubeletInfoProvider {
 	return &kubeletInfoProvider{
-		client:     client,
-		lastUpdate: time.Now(),
+		client:       client,
+		lastUpdate:   time.Now(),
+		logResponses: logResponses,
 	}
 }
 
@@ -194,7 +198,9 @@ func (kip *kubeletInfoProvider) doRequestAndGetValue(req *http.Request, value in
 	if req.URL != nil {
 		kubeletAddr = req.URL.Host
 	}
-	log.Debugf("Raw response from Kubelet at %s: %s", kubeletAddr, string(body))
+	if kip.logResponses {
+		log.Debugf("Raw response from Kubelet at %s: %s", kubeletAddr, string(body))
+	}
 
 	err = json.Unmarshal(body, value)
 	if err != nil {

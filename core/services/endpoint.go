@@ -1,3 +1,14 @@
+// Package services has service endpoint types.  An endpoint is a single port
+// on a single instance of a service/application.  The two most important
+// attributes of an endpoint are the host and port.  Host can be either an IP
+// address or a DNS name.  Endpoints are created by observers.
+//
+// Most of the core logic for endpoints is on the EndpointCore type, which all
+// endpoints must embed.
+//
+// There is the notion of a "self-configured" endpoint, which means that
+// it specifies what monitor type to use to monitor it as well as the
+// configuration for that monitor.
 package services
 
 import (

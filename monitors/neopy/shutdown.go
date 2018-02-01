@@ -7,7 +7,7 @@ import (
 	"sync"
 
 	"github.com/pebbe/zmq4"
-	"github.com/signalfx/neo-agent/monitors"
+	"github.com/signalfx/neo-agent/monitors/types"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -46,7 +46,7 @@ func (sq *ShutdownQueue) socketPath() string {
 	return shutdownSocketPath
 }
 
-func (sq *ShutdownQueue) sendShutdownForMonitor(monitorID monitors.MonitorID) bool {
+func (sq *ShutdownQueue) sendShutdownForMonitor(monitorID types.MonitorID) bool {
 	sq.mutex.Lock()
 	defer sq.mutex.Unlock()
 

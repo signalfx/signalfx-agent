@@ -1,36 +1,19 @@
-// Package monitors is the core logic for monitors.  Monitors are what collect
-// metrics from the environment.  They have a simple interface that all must
-// implement: the Configure method, which takes one argument of the same type
-// that you pass as the configTemplate to the Register function.  Optionally,
-// monitors may implement the niladic Shutdown method to do cleanup.  Monitors
-// will never be reused after the Shutdown method is called.
-//
-// If your monitor is used for dynamically discovered services, you should
-// implement the InjectableMonitor interface, which simply includes two
-// methods that are called when services are added and removed.
-//
-// If a monitor wants to create SignalFx golib datapoints/events and have them
-// sent by the agent.  The monitor type should define a "DPs" and/or "Events"
-// field of the type "chan<- datapoints.Datapoint" and "chan<- events.Event".
-// The monitor manager will automatically inject those fields before Configure
-// is called.  They could be swapped out at any time, so monitors should not
-// cache those fields in other variables.
 package monitors
 
 import (
+	"reflect"
+
 	"github.com/pkg/errors"
 	"github.com/signalfx/neo-agent/core/config"
 	"github.com/signalfx/neo-agent/core/services"
+	"github.com/signalfx/neo-agent/monitors/types"
 	"github.com/signalfx/neo-agent/utils"
 	log "github.com/sirupsen/logrus"
 )
 
-// MonitorID is a unique identifier for a specific instance of a monitor
-type MonitorID string
-
 // MonitorFactory is a niladic function that creates an unconfigured instance
 // of a monitor.
-type MonitorFactory func(MonitorID) interface{}
+type MonitorFactory func() interface{}
 
 // MonitorFactories holds all of the registered monitor factories
 var MonitorFactories = map[string]MonitorFactory{}
@@ -70,9 +53,9 @@ func DeregisterAll() {
 	}
 }
 
-func newUninitializedMonitor(_type string, id MonitorID) interface{} {
+func newUninitializedMonitor(_type string) interface{} {
 	if factory, ok := MonitorFactories[_type]; ok {
-		return factory(id)
+		return factory()
 	}
 
 	log.WithFields(log.Fields{
@@ -83,8 +66,8 @@ func newUninitializedMonitor(_type string, id MonitorID) interface{} {
 
 // Creates a new, unconfigured instance of a monitor of _type.  Returns nil if
 // the monitor type is not registered.
-func newMonitor(_type string, id MonitorID) interface{} {
-	mon := newUninitializedMonitor(_type, id)
+func newMonitor(_type string, id types.MonitorID) interface{} {
+	mon := newUninitializedMonitor(_type)
 	if initMon, ok := mon.(Initializable); ok {
 		if err := initMon.Init(); err != nil {
 			log.WithFields(log.Fields{
@@ -143,4 +126,13 @@ func anyMarkedSolo(confs []config.MonitorConfig) bool {
 		}
 	}
 	return false
+}
+
+func configOnlyAllowsSingleInstance(monConfig config.MonitorCustomConfig) bool {
+	confVal := reflect.Indirect(reflect.ValueOf(monConfig))
+	coreConfField, ok := confVal.Type().FieldByName("MonitorConfig")
+	if !ok {
+		return false
+	}
+	return coreConfField.Tag.Get("singleInstance") == "true"
 }

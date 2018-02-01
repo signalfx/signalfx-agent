@@ -10,7 +10,7 @@ import (
 	"github.com/signalfx/neo-agent/utils"
 )
 
-func serviceToDiagnosticText(endpoint services.Endpoint, isMonitored bool) string {
+func endpointToDiagnosticText(endpoint services.Endpoint, isMonitored bool) string {
 	var containerInfo string
 	endpointMap := services.EndpointAsMap(endpoint)
 	sortedKeys := utils.SortMapKeys(endpointMap)
@@ -30,7 +30,6 @@ func serviceToDiagnosticText(endpoint services.Endpoint, isMonitored bool) strin
 		unmonitoredText,
 		utils.IndentLines(containerInfo, 2))
 	return text
-
 }
 
 // DiagnosticText returns a string to be served on the diagnostic socket
@@ -42,29 +41,32 @@ func (mm *MonitorManager) DiagnosticText() string {
 	for i := range mm.activeMonitors {
 		am := mm.activeMonitors[i]
 
-		serviceStats := "\n"
+		serviceStats := ""
 		if am.endpoint != nil {
-			serviceText := serviceToDiagnosticText(am.endpoint, true)
 			serviceStats = fmt.Sprintf(
-				"Discovery Rule: %s\nService:\n%s",
-				am.config.CoreConfig().DiscoveryRule, serviceText)
+				"Discovery Rule: %s\n"+
+					"Monitored Endpoint ID: %s\n",
+				am.config.MonitorConfigCore().DiscoveryRule,
+				am.endpoint.Core().ID)
 		}
 		activeMonText += fmt.Sprintf(
 			"%2d. %s\n"+
 				"    Reporting Interval (seconds): %d\n"+
-				"%s\n",
-			i+1, am.config.CoreConfig().Type,
-			am.config.CoreConfig().IntervalSeconds,
-			utils.IndentLines(serviceStats, 4))
+				"%s"+
+				"    Config:\n%s\n",
+			i+1, am.config.MonitorConfigCore().Type,
+			am.config.MonitorConfigCore().IntervalSeconds,
+			utils.IndentLines(serviceStats, 4),
+			utils.IndentLines(config.ToString(am.config), 6))
 		i++
 	}
 
-	var discoveredServicesText string
+	var discoveredEndpointsText string
 	for _, endpoint := range mm.discoveredEndpoints {
-		discoveredServicesText += serviceToDiagnosticText(endpoint, mm.isEndpointMonitored(endpoint))
+		discoveredEndpointsText += endpointToDiagnosticText(endpoint, mm.isEndpointMonitored(endpoint))
 	}
-	if len(discoveredServicesText) == 0 {
-		discoveredServicesText = "None\n"
+	if len(discoveredEndpointsText) == 0 {
+		discoveredEndpointsText = "None\n"
 	}
 
 	return fmt.Sprintf(
@@ -75,7 +77,7 @@ func (mm *MonitorManager) DiagnosticText() string {
 			"Bad Monitor Configurations:\n"+
 			"%s\n",
 		activeMonText,
-		discoveredServicesText,
+		discoveredEndpointsText,
 		badConfigText(mm.badConfigs))
 }
 
@@ -89,11 +91,11 @@ func (mm *MonitorManager) InternalMetrics() []*datapoint.Datapoint {
 	}
 }
 
-func badConfigText(confs []*config.MonitorConfig) string {
+func badConfigText(confs map[uint64]*config.MonitorConfig) string {
 	if len(confs) > 0 {
 		var text string
-		for i := range confs {
-			conf := confs[i]
+		for k := range confs {
+			conf := confs[k]
 			text += fmt.Sprintf("Type: %s\nError: %s\n\n",
 				conf.Type, conf.ValidationError)
 		}

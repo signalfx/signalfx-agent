@@ -11,31 +11,16 @@ import (
 	"time"
 
 	"github.com/pkg/errors"
+	"github.com/signalfx/neo-agent/monitors/types"
 	log "github.com/sirupsen/logrus"
 )
-
-// DimProperties represents a set of properties associated with a given
-// dimension value
-type DimProperties struct {
-	Dimension
-	// Properties to be set on the dimension
-	Properties map[string]string
-}
-
-// Dimension represents a specific dimension value
-type Dimension struct {
-	// Name of the dimension
-	Name string
-	// Value of the dimension
-	Value string
-}
 
 type dimensionPropertyClient struct {
 	client *http.Client
 	Token  string
 	APIURL *url.URL
 	// Keeps track of what has been synced so we don't do unnecessary syncs
-	history map[Dimension]map[string]string
+	history map[types.Dimension]map[string]string
 }
 
 func newDimensionPropertyClient() *dimensionPropertyClient {
@@ -43,13 +28,13 @@ func newDimensionPropertyClient() *dimensionPropertyClient {
 		client: &http.Client{
 			Timeout: 5 * time.Second,
 		},
-		history: make(map[Dimension]map[string]string),
+		history: make(map[types.Dimension]map[string]string),
 	}
 }
 
 // SetPropertiesOnDimension will set custom properties on a specific dimension
 // value.  It will wipe out any description or tags on the dimension.
-func (dpc *dimensionPropertyClient) SetPropertiesOnDimension(dimProps *DimProperties) error {
+func (dpc *dimensionPropertyClient) SetPropertiesOnDimension(dimProps *types.DimProperties) error {
 	prev := dpc.history[dimProps.Dimension]
 	if !reflect.DeepEqual(prev, dimProps.Properties) {
 		log.WithFields(log.Fields{

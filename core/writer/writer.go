@@ -18,6 +18,7 @@ import (
 	"github.com/signalfx/golib/event"
 	"github.com/signalfx/golib/sfxclient"
 	"github.com/signalfx/neo-agent/core/config"
+	"github.com/signalfx/neo-agent/monitors/types"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -38,7 +39,7 @@ type SignalFxWriter struct {
 	dpChan chan *datapoint.Datapoint
 	// Monitors should send events to this
 	eventChan    chan *event.Event
-	propertyChan chan *DimProperties
+	propertyChan chan *types.DimProperties
 
 	stopCh chan struct{}
 
@@ -51,6 +52,7 @@ type SignalFxWriter struct {
 	eventBuffer []*event.Event
 	dpsSent     uint64
 	eventsSent  uint64
+	startTime   time.Time
 }
 
 // New creates a new un-configured writer
@@ -60,14 +62,19 @@ func New() *SignalFxWriter {
 		stopCh:        make(chan struct{}),
 		client:        sfxclient.NewHTTPSink(),
 		dimPropClient: newDimensionPropertyClient(),
+		startTime:     time.Now(),
 	}
 }
 
 // Configure configures and starts up a routine that writes any datapoints or
 // events that come in on the exposed channels.
-func (sw *SignalFxWriter) Configure(conf *config.WriterConfig) bool {
+func (sw *SignalFxWriter) Configure(conf *config.WriterConfig) error {
 	sw.lock.Lock()
 	defer sw.lock.Unlock()
+
+	if conf.Hash() == sw.conf.Hash() {
+		return nil
+	}
 
 	// The capacity configuration options are only set once on agent startup
 	if sw.dpChan == nil {
@@ -77,7 +84,7 @@ func (sw *SignalFxWriter) Configure(conf *config.WriterConfig) bool {
 		sw.eventChan = make(chan *event.Event, conf.EventBufferCapacity)
 	}
 	if sw.propertyChan == nil {
-		sw.propertyChan = make(chan *DimProperties, 100)
+		sw.propertyChan = make(chan *types.DimProperties, 100)
 	}
 
 	sw.client.AuthToken = conf.SignalFxAccessToken
@@ -90,7 +97,7 @@ func (sw *SignalFxWriter) Configure(conf *config.WriterConfig) bool {
 			"error":     err,
 			"ingestURL": conf.IngestURL.String(),
 		}).Error("Could not construct datapoint ingest URL")
-		return false
+		return err
 	}
 	sw.client.DatapointEndpoint = dpEndpointURL.String()
 
@@ -100,7 +107,7 @@ func (sw *SignalFxWriter) Configure(conf *config.WriterConfig) bool {
 			"error":     err,
 			"ingestURL": conf.IngestURL.String(),
 		}).Error("Could not construct event ingest URL")
-		return false
+		return err
 	}
 	sw.client.EventEndpoint = eventEndpointURL.String()
 
@@ -110,7 +117,7 @@ func (sw *SignalFxWriter) Configure(conf *config.WriterConfig) bool {
 	sw.shutdownIfRunning()
 	sw.ensureListeningForDatapoints()
 
-	return true
+	return nil
 }
 
 func (sw *SignalFxWriter) filterAndSendDatapoints(dps []*datapoint.Datapoint) error {
@@ -201,7 +208,7 @@ func (sw *SignalFxWriter) EventChannel() chan<- *event.Event {
 
 // DimPropertiesChannel returns a channel that datapoints can be fed into that will be
 // sent to SignalFx ingest.
-func (sw *SignalFxWriter) DimPropertiesChannel() chan<- *DimProperties {
+func (sw *SignalFxWriter) DimPropertiesChannel() chan<- *types.DimProperties {
 	if sw.propertyChan == nil {
 		panic("You must call Configure on the writer before getting the properties channel")
 	}

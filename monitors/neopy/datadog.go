@@ -10,6 +10,7 @@ import (
 	"github.com/signalfx/neo-agent/core/config"
 	"github.com/signalfx/neo-agent/core/services"
 	"github.com/signalfx/neo-agent/monitors"
+	"github.com/signalfx/neo-agent/monitors/types"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -37,7 +38,7 @@ type DDConfig struct {
 // DDCheck represents a Datadog check that may or may not be configured via
 // service discovery.
 type DDCheck struct {
-	id         monitors.MonitorID
+	id         types.MonitorID
 	serviceSet map[services.ID]services.Endpoint
 	DPs        chan<- *datapoint.Datapoint
 	config     *DDConfig
@@ -136,7 +137,7 @@ func (ddc *DDCheck) renderInstanceTemplateValue(t string, service services.Endpo
 }
 
 func registerDDCheck(_type string) {
-	monitors.Register(_type, func(id monitors.MonitorID) interface{} {
+	monitors.Register(_type, func(id types.MonitorID) interface{} {
 		return &DDCheck{
 			serviceSet: make(map[services.ID]services.Endpoint),
 			id:         id,

@@ -16,9 +16,6 @@ lint:
 	golint -set_exit_status ./utils/... ./observers/... ./monitors/... ./core/... ./neotest/...
 
 templates:
-	# Delete old template files in case they are malformed
-	find monitors -type f -name "template.go" | xargs rm -f
-	rm -f monitors/collectd/collectd.conf.go
 	scripts/make-templates
 
 .PHONY: image
@@ -31,8 +28,8 @@ vendor:
 
 signalfx-agent: templates
 	go build \
-		-ldflags "-X main.Version=$(VERSION) -X main.BuiltTime=$$(date +%FT%T%z)" \
-		-i -o signalfx-agent \
+		-ldflags "-X main.Version=$(AGENT_VERSION) -X main.BuiltTime=$$(date +%FT%T%z)" \
+		-i -v -o signalfx-agent \
 		github.com/signalfx/neo-agent
 
 .PHONY: bundle
@@ -55,10 +52,10 @@ run-dev-image:
 		-p 6060:6060 \
 		--name signalfx-agent-dev \
 		-v $(PWD)/local-etc:/etc/signalfx \
-		-v /:/agent/hostfs:ro \
-		-v $(PWD):/go/src/github.com/signalfx/neo-agent \
-		-v $(PWD)/collectd:/usr/src/collectd \
-		-v /var/run/docker.sock:/docker.sock \
+		-v /:/bundle/hostfs:ro \
+		-v /var/run/docker.sock:/var/run/docker.sock:ro \
+		-v $(PWD):/go/src/github.com/signalfx/neo-agent:cached \
+		-v $(PWD)/collectd:/usr/src/collectd:cached \
 		signalfx-agent-dev /bin/bash
 
 .PHONY: run-agent-dev
@@ -67,6 +64,6 @@ run-agent-dev:
 	/run-agent
 
 .PHONY: debug-agent
-debug-agent: setup-dev-chroot
-	dlv run /bin/signalfx-agent
+debug-agent:
+	dlv run /bundle/bin/signalfx-agent
 

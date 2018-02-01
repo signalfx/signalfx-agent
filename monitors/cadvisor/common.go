@@ -9,6 +9,7 @@ import (
 
 	"github.com/signalfx/golib/datapoint"
 	"github.com/signalfx/neo-agent/core/config"
+	"github.com/signalfx/neo-agent/core/meta"
 	"github.com/signalfx/neo-agent/monitors/cadvisor/converter"
 	"github.com/signalfx/neo-agent/utils"
 )
@@ -32,6 +33,8 @@ type Monitor struct {
 	excludedImages  []*regexp.Regexp
 	excludedLabels  [][]*regexp.Regexp
 	excludedMetrics map[string]bool
+
+	AgentMeta *meta.AgentMeta
 }
 
 func (m *Monitor) getLabelFilter(labels [][]string) [][]*regexp.Regexp {
@@ -99,13 +102,10 @@ func (m *Monitor) getMetricFilter(filters []string) map[string]bool {
 }
 
 // Configure and start/restart cadvisor plugin
-func (m *Monitor) Configure(conf *Config, monConfig *config.MonitorConfig, dpChan chan<- *datapoint.Datapoint, statProvider converter.InfoProvider) error {
+func (m *Monitor) Configure(conf *Config, monConfig *config.MonitorConfig, sendDP func(*datapoint.Datapoint), statProvider converter.InfoProvider) error {
 	// Lock for reconfiguring the plugin
 	m.lock.Lock()
 	defer m.lock.Unlock()
-
-	// Stop if cadvisor was previously running
-	m.Shutdown()
 
 	m.monConfig = monConfig
 
@@ -117,7 +117,7 @@ func (m *Monitor) Configure(conf *Config, monConfig *config.MonitorConfig, dpCha
 	m.excludedLabels = m.getLabelFilter(conf.ExcludedLabels)
 	m.excludedMetrics = m.getMetricFilter(conf.ExcludedMetrics)
 
-	collector := converter.NewCadvisorCollector(statProvider, dpChan, monConfig.Hostname, monConfig.ExtraDimensions, m.excludedImages, m.excludedNames, m.excludedLabels, m.excludedMetrics)
+	collector := converter.NewCadvisorCollector(statProvider, sendDP, m.AgentMeta.Hostname, monConfig.ExtraDimensions, m.excludedImages, m.excludedNames, m.excludedLabels, m.excludedMetrics)
 
 	m.stop, m.stopped = monitorNode(monConfig.IntervalSeconds, collector)
 
@@ -130,6 +130,7 @@ func monitorNode(intervalSeconds int, collector *converter.CadvisorCollector) (s
 	stopped = make(chan bool, 1)
 
 	go func() {
+		collector.Collect()
 		for {
 			select {
 			case <-stop:
@@ -150,10 +151,6 @@ func monitorNode(intervalSeconds int, collector *converter.CadvisorCollector) (s
 func (m *Monitor) Shutdown() {
 	// tell cadvisor to stop
 	if m.stop != nil {
-		m.stop <- true
-	}
-	// read the stopped signal from cadvisor
-	if m.stopped != nil {
-		<-m.stopped
+		close(m.stop)
 	}
 }

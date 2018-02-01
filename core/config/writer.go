@@ -3,7 +3,9 @@ package config
 import (
 	"net/url"
 
+	"github.com/mitchellh/hashstructure"
 	"github.com/signalfx/neo-agent/core/filters"
+	log "github.com/sirupsen/logrus"
 )
 
 // WriterConfig holds configuration for the datapoint writer.
@@ -24,4 +26,14 @@ type WriterConfig struct {
 	SignalFxAccessToken string             `yaml:"-"`
 	GlobalDimensions    map[string]string  `yaml:"-"`
 	Filter              *filters.FilterSet `yaml:"-"`
+}
+
+// Hash calculates a unique hash value for this config struct
+func (wc *WriterConfig) Hash() uint64 {
+	hash, err := hashstructure.Hash(wc, nil)
+	if err != nil {
+		log.WithError(err).Error("Could not get hash of WriterConfig struct")
+		return 0
+	}
+	return hash
 }
