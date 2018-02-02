@@ -2,6 +2,8 @@ package utils
 
 import (
 	"reflect"
+	"regexp"
+	"strconv"
 	"strings"
 
 	yaml "gopkg.in/yaml.v2"
@@ -36,4 +38,21 @@ func YAMLNameOfField(field reflect.StructField) string {
 		return ""
 	}
 	return parts[0]
+}
+
+// ParseLineNumberFromYAMLError takes an error message nested in yaml.TypeError
+// and returns a line number if indicated in the error message.  This is pretty
+// hacky but is the only way to actually get at the line number in the standard
+// yaml package.
+func ParseLineNumberFromYAMLError(e string) int {
+	re := regexp.MustCompile(`line (\d+): `)
+	match := re.FindStringSubmatch(e)
+	if len(match) > 0 {
+		asInt, err := strconv.Atoi(match[1])
+		if err != nil {
+			return 0
+		}
+		return asInt
+	}
+	return 0
 }

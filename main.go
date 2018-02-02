@@ -9,6 +9,7 @@ import (
 	"os/signal"
 	"path/filepath"
 	"syscall"
+	"time"
 
 	log "github.com/sirupsen/logrus"
 
@@ -54,6 +55,8 @@ func main() {
 	configPath := flag.String("config", "/etc/signalfx/agent.yaml", "agent config path")
 	version := flag.Bool("version", false, "print agent version")
 	debug := flag.Bool("debug", false, "print debugging output")
+	watchDuration := flag.Duration("configPollRate", 5*time.Second,
+		"Set to 0 to disable config file watch, see https://golang.org/pkg/time/#ParseDuration for acceptable values")
 
 	core.VersionLine = fmt.Sprintf("agent-version: %s, built-time: %s\n",
 		Version, BuiltTime)
@@ -82,7 +85,7 @@ func main() {
 	var shutdown context.CancelFunc
 	var shutdownComplete <-chan struct{}
 	init := func() {
-		shutdown, shutdownComplete = core.Startup(*configPath)
+		shutdown, shutdownComplete = core.Startup(*configPath, *watchDuration)
 	}
 
 	init()
@@ -96,7 +99,7 @@ func main() {
 			log.Info("Interrupt signal received, stopping agent")
 			shutdown()
 			<-shutdownComplete
-			exit <- struct{}{}
+			close(exit)
 		}
 	}()
 

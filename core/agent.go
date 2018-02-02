@@ -5,11 +5,11 @@ package core
 import (
 	"context"
 	"os"
+	"time"
 
 	log "github.com/sirupsen/logrus"
 
 	"github.com/signalfx/neo-agent/core/config"
-	"github.com/signalfx/neo-agent/core/config/stores"
 	"github.com/signalfx/neo-agent/core/meta"
 	"github.com/signalfx/neo-agent/core/services"
 	"github.com/signalfx/neo-agent/core/writer"
@@ -113,18 +113,12 @@ func (a *Agent) shutdown() {
 // Startup the agent.  Returns a function that can be called to shutdown the
 // agent, as well as a channel that will be notified when the agent has
 // shutdown.
-func Startup(configPath string) (context.CancelFunc, <-chan struct{}) {
+func Startup(configPath string, watchDuration time.Duration) (context.CancelFunc, <-chan struct{}) {
 	log.Info("Starting up agent")
 
 	cwc, cancel := context.WithCancel(context.Background())
 
-	metaStore := stores.NewMetaStore()
-
-	// Configure the config store from envvars so that we can load config from
-	// a non-fs based config store.
-	metaStore.ConfigureFromEnv()
-
-	configLoads, stop, err := metaStore.WatchPath(configPath)
+	configLoads, err := config.LoadConfig(cwc, configPath, watchDuration)
 	if err != nil {
 		log.WithFields(log.Fields{
 			"error":      err,
@@ -135,53 +129,38 @@ func Startup(configPath string) (context.CancelFunc, <-chan struct{}) {
 
 	agent := NewAgent()
 
-	exitedCh := make(chan struct{})
+	shutdownComplete := make(chan struct{})
 
 	go func(ctx context.Context) {
 		for {
 			select {
-			case configKVPair := <-configLoads:
+			case config := <-configLoads:
 				log.Info("New config loaded")
 
-				if configKVPair.Value == nil {
-					log.WithFields(log.Fields{
-						"path": configPath,
-					}).Error("Could not load config file!")
-					os.Exit(1)
-				} else if len(configKVPair.Value) == 0 {
-					log.WithFields(log.Fields{
-						"path": configPath,
-					}).Error("Config file is blank!")
-					os.Exit(1)
-				}
-
-				conf, err := config.LoadConfigFromContent(configKVPair.Value)
-				if err != nil || conf == nil {
+				if config == nil {
 					log.WithFields(log.Fields{
 						"path": configPath,
 					}).Error("Failed to load config, cannot continue!")
 					os.Exit(2)
 				}
 
-				agent.configure(conf)
+				agent.configure(config)
 				log.Info("Done configuring agent")
 
-				if err := agent.serveDiagnosticInfo(conf.DiagnosticsSocketPath); err != nil {
+				if err := agent.serveDiagnosticInfo(config.DiagnosticsSocketPath); err != nil {
 					log.WithError(err).Error("Could not start diagnostic socket")
 				}
-				if err := agent.serveInternalMetrics(conf.InternalMetricsSocketPath); err != nil {
+				if err := agent.serveInternalMetrics(config.InternalMetricsSocketPath); err != nil {
 					log.WithError(err).Error("Could not start internal metrics socket")
 				}
 
 			case <-ctx.Done():
 				agent.shutdown()
-				stop()
-				metaStore.Close()
-				exitedCh <- struct{}{}
+				close(shutdownComplete)
 				return
 			}
 		}
 	}(cwc)
 
-	return cancel, exitedCh
+	return cancel, shutdownComplete
 }

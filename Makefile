@@ -9,6 +9,11 @@ test:
 
 .PHONY: vet
 vet:
+	# Only consider it a failure if issues are in non-test files
+	! go vet ./... 2>&1 | tee /dev/tty | grep '.go' | grep -v '_test.go'
+
+.PHONY: vetall
+vetall:
 	go vet ./...
 
 .PHONY: lint

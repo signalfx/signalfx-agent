@@ -50,6 +50,9 @@ type Config struct {
 	// This exists purely to give the user a place to put common yaml values to
 	// reference in other parts of the config file.
 	Scratch interface{} `yaml:"scratch" neverLog:"omit"`
+	// Sources is used by the dynamic value renderer at an earlier stage of
+	// config file processing and so is not needed here.
+	Sources interface{} `yaml:"configSources" neverLog:"omit"`
 }
 
 func (c *Config) setDefaultHostname() {
