@@ -37,6 +37,13 @@ func (mm *MonitorManager) DiagnosticText() string {
 	mm.lock.Lock()
 	defer mm.lock.Unlock()
 
+	configurationText := "\n"
+	for i := range mm.monitorConfigs {
+		configurationText += fmt.Sprintf(
+			"%s\n",
+			utils.IndentLines(config.ToString(mm.monitorConfigs[i]), 2))
+	}
+
 	activeMonText := ""
 	for i := range mm.activeMonitors {
 		am := mm.activeMonitors[i]
@@ -70,12 +77,15 @@ func (mm *MonitorManager) DiagnosticText() string {
 	}
 
 	return fmt.Sprintf(
-		"Active Monitors:\n"+
+		"Monitor Configurations (Not necessarily active):\n"+
+			"%s"+
+			"Active Monitors:\n"+
 			"%s"+
 			"Discovered Endpoints:\n"+
 			"%s\n"+
 			"Bad Monitor Configurations:\n"+
 			"%s\n",
+		configurationText,
 		activeMonText,
 		discoveredEndpointsText,
 		badConfigText(mm.badConfigs))
