@@ -3,6 +3,7 @@
 package zookeeper
 
 import (
+	"errors"
 	"fmt"
 	"hash/crc64"
 	"path/filepath"
@@ -54,11 +55,20 @@ func (z *zkConfigSource) ensureConnection() error {
 	return nil
 }
 
-func isGlob(path string) (string, bool) {
+var ErrBadGlob = errors.New("Zookeeper only supports globs in the last path segment")
+
+func isGlob(path string) (string, bool, error) {
+	firstGlobIndex := strings.IndexAny(path, "*?")
 	if strings.HasSuffix(path, "/*") {
-		return strings.TrimSuffix(path, "/*"), true
+		if firstGlobIndex != len(path)-1 {
+			return "", false, ErrBadGlob
+		}
+		return strings.TrimSuffix(path, "/*"), true, nil
 	}
-	return "", false
+	if firstGlobIndex != -1 {
+		return "", false, ErrBadGlob
+	}
+	return "", false, nil
 }
 
 func (z *zkConfigSource) Name() string {
@@ -71,7 +81,12 @@ func (z *zkConfigSource) Get(path string) (map[string][]byte, uint64, error) {
 }
 
 // The Zookeeper go lib is really not amenable to the pattern we use for
-// ConfigSource.
+// ConfigSource since it doesn't have any concept of a global index counter
+// that can be used to ensure updates aren't missed, and it also doesn't have
+// the ability to watch child nodes recursively.  Therefore, for now we just
+// limit globbing to to asterisks at the very end of a node.  If we need more
+// complex globbing, consider something like
+// https://github.com/kelseyhightower/confd/blob/master/backends/zookeeper/client.go
 func (z *zkConfigSource) getNodes(path string, watch bool) (map[string][]byte, uint64, []<-chan zk.Event, error) {
 	if err := z.ensureConnection(); err != nil {
 		return nil, 0, nil, err
@@ -82,7 +97,10 @@ func (z *zkConfigSource) getNodes(path string, watch bool) (map[string][]byte, u
 	var nodes []string
 	var events []<-chan zk.Event
 
-	prefix, globbed := isGlob(path)
+	prefix, globbed, err := isGlob(path)
+	if err != nil {
+		return nil, 0, nil, err
+	}
 	if globbed {
 		var err error
 		var parentEvents <-chan zk.Event

@@ -26,17 +26,23 @@ func newConfigSourceCacher(source types.ConfigSource, notifications chan<- strin
 	}
 }
 
-func (c *configSourceCacher) Get(path string) (map[string][]byte, error) {
+// optional controls whether it treats a path not found error as a real error
+// that causes watching to never be initiated.
+func (c *configSourceCacher) Get(path string, optional bool) (map[string][]byte, error) {
 	if v, ok := c.cache[path]; ok {
 		return v, nil
 	}
+	log.Infof("Getting %s for cacher", path)
 	v, version, err := c.source.Get(path)
 	if err != nil {
-		return nil, err
+		if _, ok := err.(types.ErrNotFound); !ok || !optional {
+			return nil, err
+		}
 	}
 
 	c.cache[path] = v
 
+	log.Infof("Set %s = %s for cacher", path, v)
 	if c.shouldWatch {
 		// From now on, subsequent Gets will read from the cache.  It is the
 		// responsibility of the watch method to keep the cache up to date.

@@ -15,17 +15,17 @@ monitors:
 ```
 
 The remote config specification is a YAML map object that includes the `#from`
-key.  The value of that key is the path from which to get the config value. 
+key.  The value of that key is the path from which to get the config value.
 
-The value of the `#from` key has the form `<source>://<path>`.  If it is only a
-path with no `<source>://`, it is assumed to be a file path on the local
+The value of the `#from` key has the form `<source>:<path>`.  If it is only a
+path with no `<source>:`, it is assumed to be a file path on the local
 filesystem.  All non-filesystem sources must be configured in the
 `sourceConfig` section of the main config file.
 
 If the source is a reference to a single path, that value is deserialized by
 YAML and inserted into the config as if it had been literally in the config as
 such.  The replacement is done in such as way that you don't need to worry
-about matching indentation of remote values.  
+about matching indentation of remote values.
 
 ## Simple paths
 
@@ -54,7 +54,7 @@ monitors:
    username: signalfx
    databases:
     - name: admin
-    - {"#from": "zk:///signalfx-agent/mysql/databases/*", flatten: true}
+    - {"#from": "zk:/signalfx-agent/mysql/databases/*", flatten: true}
 ```
 
 Given the following znodes name and values in ZooKeeper:
@@ -71,11 +71,10 @@ monitors:
    databases:
     - name: admin
     - name: my-db1
-	- name: my-db2
-	- name: their-db1
-	- name: their-db2
+    - name: my-db2
+    - name: their-db1
+    - name: their-db2
 ```
-
 
 ### Optional paths
 You may want to allow for globbed paths that don't actually match anything.
@@ -105,7 +104,6 @@ The config file also supports environment variable interpolation with the
 are interpolated *after* all of the remote config values are interpolated,
 which means that remote config values can contain references to envvars, if so
 desired.  Envvars cannot, however, contain remote config values.
-
 
 ## Other
 

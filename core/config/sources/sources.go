@@ -8,6 +8,8 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/signalfx/neo-agent/core/config/sources/consul"
+	"github.com/signalfx/neo-agent/core/config/sources/etcd2"
 	"github.com/signalfx/neo-agent/core/config/sources/types"
 	"github.com/signalfx/neo-agent/core/config/sources/zookeeper"
 	"github.com/signalfx/neo-agent/utils"
@@ -20,18 +22,33 @@ import (
 // support.
 type sourceConfig struct {
 	Zookeeper *zookeeper.Config `yaml:"zookeeper"`
-	//Etcd etcd.Config
-	//Consul consul.Config
+	Etcd2     *etcd2.Config     `yaml:"etcd2"`
+	//Etcd3 etcd3.Config `yaml:"etcd3"`
+	Consul *consul.Config `yaml:"consul"`
 }
 
 // Sources returns a map of instantiated sources based on the config
-func (sc *sourceConfig) Sources() map[string]types.ConfigSource {
+func (sc *sourceConfig) Sources() (map[string]types.ConfigSource, error) {
 	sources := make(map[string]types.ConfigSource)
 	if sc.Zookeeper != nil {
 		zk := zookeeper.New(sc.Zookeeper)
 		sources[zk.Name()] = zk
 	}
-	return sources
+	if sc.Etcd2 != nil {
+		e2, err := etcd2.New(sc.Etcd2)
+		if err != nil {
+			return nil, err
+		}
+		sources[e2.Name()] = e2
+	}
+	if sc.Consul != nil {
+		c, err := consul.New(sc.Consul)
+		if err != nil {
+			return nil, err
+		}
+		sources[c.Name()] = c
+	}
+	return sources, nil
 }
 
 func parseSourceConfig(config []byte) (sourceConfig, error) {
@@ -111,7 +128,12 @@ func ReadDynamicValues(configContent []byte, fileSource types.ConfigSource,
 		return nil, nil, err
 	}
 
-	for name, source := range sourceConfig.Sources() {
+	configuredSources, err := sourceConfig.Sources()
+	if err != nil {
+		return nil, nil, err
+	}
+
+	for name, source := range configuredSources {
 		sources[name] = source
 	}
 

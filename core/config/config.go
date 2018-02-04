@@ -55,6 +55,18 @@ type Config struct {
 	Sources interface{} `yaml:"configSources" neverLog:"omit"`
 }
 
+func (c *Config) Help() map[string]string {
+	return map[string]string{
+		"SignalFxAccessToken": "The SignalFx access token for your organization",
+		"IngestURL":           "The URL of SignalFx ingest server.  Can be overridden if using the Metric Proxy.",
+		"APIURL":              "The URL of the SignalFX API.",
+		"Hostname":            "The hostname that will be reported. If blank, this will be auto-determined by the agent based on a reverse lookup of the machine's IP address",
+		"IntervalSeconds":     "The default reporting interval for monitors",
+		"GlobalDimensions":    "Dimensions that will be added to every datapoint emitted by the agent",
+		"Observers":           "",
+	}
+}
+
 func (c *Config) setDefaultHostname() {
 	host := fqdn.Get()
 	if host == "unknown" || host == "localhost" {

@@ -1,7 +1,7 @@
 package sources
 
 import (
-	"net/url"
+	"strings"
 
 	"github.com/pkg/errors"
 	"github.com/signalfx/neo-agent/utils"
@@ -9,35 +9,48 @@ import (
 )
 
 type dynamicValueSpec struct {
-	From     *specURL `yaml:"#from"`
-	Flatten  bool     `yaml:"flatten"`
-	Optional bool     `yaml:"optional"`
+	From     *spec `yaml:"#from"`
+	Flatten  bool  `yaml:"flatten"`
+	Optional bool  `yaml:"optional"`
 }
 
-type specURL struct {
-	*url.URL
+type spec struct {
+	sourceName string
+	path       string
 }
 
-func (sp *specURL) UnmarshalYAML(unmarshal func(interface{}) error) error {
+func (sp *spec) UnmarshalYAML(unmarshal func(interface{}) error) error {
 	var str string
 	err := unmarshal(&str)
 	if err != nil {
 		return err
 	}
-	url, err := url.Parse(str)
-	if err != nil {
-		return err
+	if len(str) == 0 {
+		return errors.New("#from value is empty")
 	}
-	sp.URL = url
+
+	parts := strings.SplitN(str, ":", 2)
+
+	if len(parts) == 1 {
+		sp.path = parts[0]
+	} else {
+		sp.sourceName = parts[0]
+		sp.path = parts[1]
+	}
+
 	return nil
 }
 
-func (sp *specURL) SourceName() string {
-	return utils.FirstNonEmpty(sp.URL.Scheme, "file")
+func (sp *spec) SourceName() string {
+	return utils.FirstNonEmpty(sp.sourceName, "file")
 }
 
-func (sp *specURL) Path() string {
-	return sp.URL.Path
+func (sp *spec) Path() string {
+	return sp.path
+}
+
+func (sp *spec) String() string {
+	return sp.SourceName() + ":" + sp.Path()
 }
 
 // RawDynamicValueSpec is a string that should deserialize to a dynamic value

@@ -2,7 +2,6 @@ package sources
 
 import (
 	"fmt"
-	"os"
 
 	"github.com/pkg/errors"
 
@@ -36,12 +35,10 @@ func (r *resolver) Resolve(raw RawDynamicValueSpec) ([]interface{}, string, bool
 		return nil, "", false, fmt.Errorf("Source '%s' is not configured", sourceName)
 	}
 
-	contentMap, err := source.Get(spec.From.Path())
+	contentMap, err := source.Get(spec.From.Path(), spec.Optional)
 	if err != nil {
-		if err != os.ErrNotExist || !spec.Optional {
-			return nil, "", false, errors.WithMessage(err,
-				"could not resolve path "+spec.From.String())
-		}
+		return nil, "", false, errors.WithMessage(err,
+			"could not resolve path "+spec.From.String())
 	}
 
 	value, err := convertFileBytesToValues(contentMap)

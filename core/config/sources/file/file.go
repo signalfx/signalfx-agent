@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"hash/crc64"
 	"io/ioutil"
-	"os"
 	"path/filepath"
 	"sort"
 	"time"
@@ -37,7 +36,7 @@ func (fcs *fileConfigSource) Get(path string) (map[string][]byte, uint64, error)
 		return nil, 0, err
 	}
 	if len(matches) == 0 {
-		return nil, 0, os.ErrNotExist
+		return nil, 0, types.NewNotFoundError("file(s) not found")
 	}
 
 	// sort so the checksum is consistent

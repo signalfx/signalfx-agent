@@ -67,3 +67,12 @@ func StripIndent(s string) string {
 
 	return strings.TrimSpace(strings.Join(lines, "\n"))
 }
+
+// EnsurePrefix ensures that string s starts with the given prefix.  If it
+// already starts with that prefix, the original string is returned unaltered.
+func EnsurePrefix(s, prefix string) string {
+	if strings.HasPrefix(s, prefix) {
+		return s
+	}
+	return prefix + s
+}
