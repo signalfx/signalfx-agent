@@ -12,10 +12,10 @@ must be compiled into the agent binary.
 
 First, create a new package within the `github.com/signalfx/neo-agent/monitors`
 package (or inside the `monitors/collectd` package if creating a collectd
-wrapper monitor).  Inside that package create a single module named whatever
-you like that will hold the monitor code.  If your monitor gets complicated,
-you can of course split it up into multiple modules or even packages as
-desired.
+wrapper monitor, see below for more on collectd monitors).  Inside that package
+create a single module named whatever you like that will hold the monitor code.
+If your monitor gets complicated, you can of course split it up into multiple
+modules or even packages as desired.
 
 Here is a minimalistic example of a monitor:
 
@@ -232,3 +232,31 @@ new config.
    then at the specified interval so that metrics start coming out of the
    agent as soon as possible.  This will help minimize the chance of metric
    gaps.
+
+## Collectd-based Monitors
+
+Collectd runs as a subprocess of the agent.  It's configuration is managed
+entirely by the agent.  Every collectd plugin that sends metrics is
+encapsulated in a monitor that manages the collectd plugin config, as well as
+making sure collectd is restarted when its config is added or changes.
+
+The simplest way to get started is to simply copy an existing collectd monitor
+package and alter it.  Much of the package code is boilerplate anyway, although
+even that has been kept to a minimum.  The main things you will need to change
+is the config template and the config struct.
+
+Almost all of the work involved in configuring and restarting collectd is
+encapsulated in a type called `MonitorCore` that resides in the
+`github.com/signalfx/neo-agent/monitors/collectd` package.  The monitor must
+only embed this type in the main monitor struct and make sure it gets instantiated
+with a collectd config template in the monitor factory function.
+
+The convention for collectd monitors is to write the collectd config template
+in a standalone plain text file and use Go's code generation feature to render
+it into a Go module.  Just copy the `go generate` comment from another collectd
+monitor and change the name of the template file to match yours.  Collectd
+config templates use [Go templating](https://golang.org/pkg/text/template/).
+
+The same things about endpoints and config apply to the collectd monitors as
+above.  Collectd monitors are not treated any differently from the agent's
+perspective.
