@@ -67,7 +67,7 @@ func (mm *MonitorManager) Configure(confs []config.MonitorConfig, intervalSecond
 
 	requireSoloTrue := anyMarkedSolo(confs)
 
-	newConfig, deletedHashes := diffNewConfig(confs, mm.monitorConfigs)
+	newConfig, deletedHashes := diffNewConfig(confs, mm.allConfigHashes())
 
 	// By configuring collectd with the monitor manager, we absolve the monitor
 	// instances of having to know about collectd config, which makes it easier
@@ -86,7 +86,8 @@ func (mm *MonitorManager) Configure(confs []config.MonitorConfig, intervalSecond
 		delete(mm.badConfigs, hash)
 	}
 
-	for _, conf := range newConfig {
+	for i := range newConfig {
+		conf := newConfig[i]
 		hash := conf.Hash()
 
 		if requireSoloTrue && !conf.Solo {
@@ -109,13 +110,24 @@ func (mm *MonitorManager) Configure(confs []config.MonitorConfig, intervalSecond
 	}
 }
 
+func (mm *MonitorManager) allConfigHashes() map[uint64]bool {
+	hashes := make(map[uint64]bool)
+	for h := range mm.monitorConfigs {
+		hashes[h] = true
+	}
+	for h := range mm.badConfigs {
+		hashes[h] = true
+	}
+	return hashes
+}
+
 // Returns the any new configs and any removed config hashes
-func diffNewConfig(confs []config.MonitorConfig, oldHashes map[uint64]config.MonitorCustomConfig) ([]config.MonitorConfig, []uint64) {
+func diffNewConfig(confs []config.MonitorConfig, oldHashes map[uint64]bool) ([]config.MonitorConfig, []uint64) {
 	newConfigHashes := make(map[uint64]bool)
 	var newConfig []config.MonitorConfig
 	for i := range confs {
 		hash := confs[i].Hash()
-		if oldHashes[hash] == nil {
+		if !oldHashes[hash] {
 			newConfig = append(newConfig, confs[i])
 		}
 
