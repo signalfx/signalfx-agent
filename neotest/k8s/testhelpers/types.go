@@ -1,8 +1,8 @@
 package testhelpers
 
 import (
-	"k8s.io/client-go/pkg/runtime"
-	"k8s.io/client-go/pkg/watch"
+	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apimachinery/pkg/watch"
 )
 
 // WatchEvent is a copy of watch event from the main k8s package, used by the

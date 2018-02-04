@@ -35,15 +35,20 @@
   name = "github.com/davecgh/go-spew"
 
 [[constraint]]
-  name = "github.com/docker/engine-api"
-  version = "0.4.0"
+  name = "github.com/docker/docker"
+  revision = "6e5c2d639f67ae70f54d9f2285f3261440b074aa"
 
-[[constraint]]
-  name = "github.com/docker/libkv"
-  source = "https://github.com/signalfx/libkv.git"
+[[override]]
+  name = "github.com/docker/distribution"
+  revision = "fea8bd51143307d3454703eadecbeeb778aa75e8"
+
+[[override]]
+  name = "google.golang.org/cloud"
+  revision = "15454a9f4f17e9fc086c36d48d595f8dbef13e24"
 
 [[constraint]]
   name = "github.com/gogo/protobuf"
+  revision = "c0656edd0d9eab7c66d1eb0c568f9039345796f7"
 
 [[constraint]]
   name = "github.com/google/cadvisor"
@@ -61,9 +66,6 @@
 
 [[constraint]]
   name = "github.com/onsi/gomega"
-
-[[constraint]]
-  name = "github.com/pebbe/zmq4"
 
 [[constraint]]
   name = "github.com/signalfx/com_signalfx_metrics_protobuf"
@@ -99,16 +101,8 @@
   name = "gopkg.in/yaml.v2"
 
 [[constraint]]
-  name = "k8s.io/client-go"
-  version = "2.0.0"
-
-[[constraint]]
   name = "github.com/shirou/gopsutil"
   version = "2.17.11"
-
-[[constraint]]
-  name = "gopkg.in/go-playground/validator.v9"
-  version = "9.9.1"
 
 [[constraint]]
   branch = "master"
@@ -117,3 +111,35 @@
 [[constraint]]
   branch = "master"
   name = "github.com/samuel/go-zookeeper"
+
+[[constraint]]
+  name = "github.com/coreos/etcd"
+  version = "3.3.0"
+
+[[constraint]]
+  name = "github.com/gobwas/glob"
+  version = "0.2.2"
+
+[[constraint]]
+  name = "k8s.io/client-go"
+  version = "6.0.0"
+
+[[override]]
+  name = "k8s.io/apimachinery"
+  revision = "180eddb345a5be3a157cea1c624700ad5bd27b8f"
+
+#[[override]]
+  #name = "github.com/googleapis/gnostic"
+  #revision = "0c5108395e2debce0d731cf0287ddf7242066aba"
+
+#[[override]]
+  #name = "golang.org/x/text"
+  #revision = "2910a502d2bf9e43193af9d68ca516529614eed3"
+
+[[override]]
+  name = "golang.org/x/text"
+  revision = "e19ae1496984b1c655b8044a65c0300a3c878dd3"
+
+[[override]]
+  name = "golang.org/x/exp"
+  revision = "f2486d8f4791367d077f7fa69b7855041f5b2ddf"

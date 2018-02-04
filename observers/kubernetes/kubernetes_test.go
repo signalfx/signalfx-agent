@@ -8,8 +8,8 @@ import (
 
 	//"github.com/davecgh/go-spew/spew"
 
-	"k8s.io/client-go/pkg/api/v1"
-	"k8s.io/client-go/pkg/types"
+	"k8s.io/api/core/v1"
+	"k8s.io/apimachinery/pkg/types"
 
 	"github.com/signalfx/neo-agent/core/common/kubernetes"
 	"github.com/signalfx/neo-agent/core/services"

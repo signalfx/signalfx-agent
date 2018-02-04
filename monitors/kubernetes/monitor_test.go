@@ -8,10 +8,10 @@ import (
 
 	//"github.com/davecgh/go-spew/spew"
 
-	"k8s.io/client-go/pkg/api/unversioned"
-	"k8s.io/client-go/pkg/api/v1"
-	"k8s.io/client-go/pkg/apis/extensions/v1beta1"
-	"k8s.io/client-go/pkg/watch"
+	"k8s.io/api/core/v1"
+	"k8s.io/api/extensions/v1beta1"
+	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apimachinery/pkg/watch"
 
 	"github.com/signalfx/golib/datapoint"
 	"github.com/signalfx/neo-agent/core/common/kubernetes"
@@ -138,7 +138,7 @@ var _ = Describe("Kubernetes plugin", func() {
 		Expect(dims["metric_source"]).To(Equal("kubernetes"))
 
 		fakeK8s.EventInput <- WatchEvent{watch.Added, &v1.Pod{
-			TypeMeta: unversioned.TypeMeta{
+			TypeMeta: runtime.TypeMeta{
 				Kind:       "Pod",
 				APIVersion: "v1",
 			},
@@ -161,7 +161,7 @@ var _ = Describe("Kubernetes plugin", func() {
 		expectIntMetric(dps, "kubernetes_pod_uid", "1234", "kubernetes.container_restart_count", 0)
 
 		fakeK8s.EventInput <- WatchEvent{watch.Modified, &v1.Pod{
-			TypeMeta: unversioned.TypeMeta{
+			TypeMeta: runtime.TypeMeta{
 				Kind:       "Pod",
 				APIVersion: "v1",
 			},
@@ -184,7 +184,7 @@ var _ = Describe("Kubernetes plugin", func() {
 		expectIntMetric(dps, "kubernetes_pod_uid", "1234", "kubernetes.container_restart_count", 2)
 
 		fakeK8s.EventInput <- WatchEvent{watch.Deleted, &v1.Pod{
-			TypeMeta: unversioned.TypeMeta{
+			TypeMeta: runtime.TypeMeta{
 				Kind:       "Pod",
 				APIVersion: "v1",
 			},
@@ -260,7 +260,7 @@ var _ = Describe("Kubernetes plugin", func() {
 		expectIntMetric(dps, "uid", "efgh", "kubernetes.deployment.available", 1)
 
 		fakeK8s.EventInput <- WatchEvent{watch.Modified, &v1beta1.Deployment{
-			TypeMeta: unversioned.TypeMeta{
+			TypeMeta: runtime.TypeMeta{
 				Kind:       "Deployment",
 				APIVersion: "extensions/v1beta1",
 			},
@@ -423,7 +423,7 @@ var _ = Describe("Kubernetes plugin", func() {
 		Expect(output.WaitForDPs(1, 2)).Should(HaveLen(0))
 
 		fakeK8s.EventInput <- WatchEvent{watch.Deleted, &v1.Pod{
-			TypeMeta: unversioned.TypeMeta{
+			TypeMeta: runtime.TypeMeta{
 				Kind:       "Pod",
 				APIVersion: "v1",
 			},

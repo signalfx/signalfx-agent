@@ -5,12 +5,11 @@ import (
 
 	log "github.com/sirupsen/logrus"
 
+	"k8s.io/api/core/v1"
+	"k8s.io/api/extensions/v1beta1"
+	"k8s.io/apimachinery/pkg/fields"
+	"k8s.io/apimachinery/pkg/runtime"
 	k8s "k8s.io/client-go/kubernetes"
-	"k8s.io/client-go/pkg/api"
-	"k8s.io/client-go/pkg/api/v1"
-	"k8s.io/client-go/pkg/apis/extensions/v1beta1"
-	"k8s.io/client-go/pkg/fields"
-	"k8s.io/client-go/pkg/runtime"
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/cache"
 )
@@ -21,7 +20,7 @@ import (
 type ClusterState struct {
 	clientset   *k8s.Clientset
 	indexers    map[string]cache.Indexer
-	controllers map[string]*cache.Controller
+	controllers map[string]cache.Controller
 	stoppers    map[string]chan struct{}
 
 	ChangeFunc func(runtime.Object, runtime.Object)
@@ -31,7 +30,7 @@ func newClusterState(clientset *k8s.Clientset) *ClusterState {
 	return &ClusterState{
 		clientset:   clientset,
 		indexers:    make(map[string]cache.Indexer),
-		controllers: make(map[string]*cache.Controller),
+		controllers: make(map[string]cache.Controller),
 		stoppers:    make(map[string]chan struct{}),
 	}
 }
@@ -134,7 +133,7 @@ func (cs *ClusterState) StartSyncing(resType runtime.Object) {
 
 	cs.stoppers[resName] = make(chan struct{})
 
-	watchList := cache.NewListWatchFromClient(client, resName, api.NamespaceAll, fields.Everything())
+	watchList := cache.NewListWatchFromClient(client, resName, v1.NamespaceAll, fields.Everything())
 
 	cs.indexers[resName], cs.controllers[resName] = cache.NewIndexerInformer(
 		watchList,

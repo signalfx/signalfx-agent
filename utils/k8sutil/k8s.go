@@ -4,8 +4,10 @@ import (
 	"encoding/base64"
 	"fmt"
 
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+
+	"k8s.io/api/core/v1"
 	k8s "k8s.io/client-go/kubernetes"
-	"k8s.io/client-go/pkg/api/v1"
 )
 
 // EnvValueForContainer returns the value of an env var set on a container
@@ -38,7 +40,7 @@ func ContainerInPod(pod *v1.Pod, containerName string) *v1.Container {
 // FetchSecretValue fetches a specific secret value from the "data" object in a
 // secret and returns the decoded value.
 func FetchSecretValue(client *k8s.Clientset, secretName, dataKey, namespace string) (string, error) {
-	secret, err := client.CoreV1().Secrets(namespace).Get(secretName)
+	secret, err := client.CoreV1().Secrets(namespace).Get(secretName, metav1.GetOptions{})
 	if err != nil {
 		return "", err
 	}

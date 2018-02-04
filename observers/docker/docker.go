@@ -9,8 +9,8 @@ import (
 	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
 
-	"github.com/docker/engine-api/client"
-	"github.com/docker/engine-api/types"
+	"github.com/docker/docker/api/types"
+	"github.com/docker/docker/client"
 	"golang.org/x/net/context"
 
 	"github.com/signalfx/neo-agent/core/config"
@@ -110,7 +110,7 @@ func (docker *Docker) discover() []services.Endpoint {
 			}
 
 			for _, port := range c.Ports {
-				id := serviceContainer.PrimaryName() + "-" + c.ID[:12] + "-" + strconv.Itoa(port.PrivatePort)
+				id := serviceContainer.PrimaryName() + "-" + c.ID[:12] + "-" + strconv.Itoa(int(port.PrivatePort))
 
 				endpoint := services.NewEndpointCore(id, "", time.Now(), observerType)
 				// Use the IP Address of the first network we iterate over.

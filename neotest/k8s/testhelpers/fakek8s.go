@@ -11,12 +11,12 @@ import (
 
 	"github.com/signalfx/neo-agent/utils"
 
-	"k8s.io/client-go/pkg/api/unversioned"
-	"k8s.io/client-go/pkg/api/v1"
-	"k8s.io/client-go/pkg/apis/extensions/v1beta1"
-	"k8s.io/client-go/pkg/types"
-	//"k8s.io/client-go/pkg/watch"
-	"k8s.io/client-go/pkg/runtime"
+	"k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/client-go/kubernetes/typed/extensions/v1beta1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/types"
+	//"k8s.io/apimachinery/pkg/watch"
+	"k8s.io/apimachinery/pkg/runtime"
 )
 
 // ResourceType is an enum
@@ -293,7 +293,7 @@ func (f *FakeK8s) sendList(resType ResourceType, rw http.ResponseWriter) {
 
 	l := v1.List{
 		TypeMeta: typeMeta(resType),
-		ListMeta: unversioned.ListMeta{},
+		ListMeta: metav1.ListMeta{},
 		Items:    items,
 	}
 
@@ -303,18 +303,18 @@ func (f *FakeK8s) sendList(resType ResourceType, rw http.ResponseWriter) {
 	rw.Write(d)
 }
 
-func typeMeta(rt ResourceType) unversioned.TypeMeta {
+func typeMeta(rt ResourceType) runtime.TypeMeta {
 	switch rt {
 	case Pods:
-		return unversioned.TypeMeta{Kind: "PodList", APIVersion: "v1"}
+		return runtime.TypeMeta{Kind: "PodList", APIVersion: "v1"}
 	case ReplicationControllers:
-		return unversioned.TypeMeta{Kind: "ReplicationControllerList", APIVersion: "v1"}
+		return runtime.TypeMeta{Kind: "ReplicationControllerList", APIVersion: "v1"}
 	case Deployments:
-		return unversioned.TypeMeta{Kind: "DeploymentList", APIVersion: "extensions/v1beta1"}
+		return runtime.TypeMeta{Kind: "DeploymentList", APIVersion: "extensions/v1beta1"}
 	case DaemonSets:
-		return unversioned.TypeMeta{Kind: "DaemonSetList", APIVersion: "extensions/v1beta1"}
+		return runtime.TypeMeta{Kind: "DaemonSetList", APIVersion: "extensions/v1beta1"}
 	case ReplicaSets:
-		return unversioned.TypeMeta{Kind: "ReplicaSetList", APIVersion: "extensions/v1beta1"}
+		return runtime.TypeMeta{Kind: "ReplicaSetList", APIVersion: "extensions/v1beta1"}
 	default:
 		panic("Unknown resource type: " + string(rt))
 	}
