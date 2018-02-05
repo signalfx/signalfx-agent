@@ -32,7 +32,6 @@ func (c *configSourceCacher) Get(path string, optional bool) (map[string][]byte,
 	if v, ok := c.cache[path]; ok {
 		return v, nil
 	}
-	log.Infof("Getting %s for cacher", path)
 	v, version, err := c.source.Get(path)
 	if err != nil {
 		if _, ok := err.(types.ErrNotFound); !ok || !optional {
@@ -42,7 +41,6 @@ func (c *configSourceCacher) Get(path string, optional bool) (map[string][]byte,
 
 	c.cache[path] = v
 
-	log.Infof("Set %s = %s for cacher", path, v)
 	if c.shouldWatch {
 		// From now on, subsequent Gets will read from the cache.  It is the
 		// responsibility of the watch method to keep the cache up to date.
@@ -55,12 +53,15 @@ func (c *configSourceCacher) Get(path string, optional bool) (map[string][]byte,
 func (c *configSourceCacher) watch(path string, version uint64) {
 	for {
 		var err error
-		log.Debugf("Cache is watching %s://%s:%d", c.source.Name(), path, version)
 		err = c.source.WaitForChange(path, version, c.stop)
 		if utils.IsSignalChanClosed(c.stop) {
 			return
 		}
 		if err != nil {
+			// If the file isn't found, just continue
+			if _, ok := err.(types.ErrNotFound); ok {
+				continue
+			}
 			log.WithFields(log.Fields{
 				"path":   path,
 				"source": c.source.Name(),
