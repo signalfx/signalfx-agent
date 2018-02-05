@@ -25,6 +25,8 @@ var (
 	BuiltTime string
 )
 
+const defaultConfigPath = "/etc/signalfx/agent.yaml"
+
 func init() {
 	log.SetFormatter(&prefixed.TextFormatter{})
 	log.SetLevel(log.InfoLevel)
@@ -33,13 +35,24 @@ func init() {
 // We always want the current dir of the agent to be the base of the bundle.  A
 // lot of stuff depends on relative paths from here so that the agent is more
 // easily relocated.
-// This assumes the agent binary is in the bin dir in the root of the bundle.
-func setCurrentDir() {
-	exePath, err := os.Executable()
-	if err != nil {
-		panic("Cannot determine agent executable path, cannot continue")
+// If the SIGNALFX_BUNDLE_DIR envvar is set, this will be used, otherwise this
+// assumes the agent binary is in the bin dir in the root of the bundle.
+// We also need to set some environment variables that collectd makes use of
+// for loading c plugins as well as the Java and Python runtimes.
+func setupEnvironment() {
+	bundleDir := os.Getenv("SIGNALFX_BUNDLE_DIR")
+	if bundleDir == "" {
+		exePath, err := os.Executable()
+		if err != nil {
+			panic("Cannot determine agent executable path, cannot continue")
+		}
+		bundleDir = filepath.Join(filepath.Dir(exePath), "..")
 	}
-	os.Chdir(filepath.Join(filepath.Dir(exePath), ".."))
+	os.Chdir(bundleDir)
+
+	os.Setenv("LD_LIBRARY_PATH", filepath.Join(bundleDir, "lib"))
+	os.Setenv("JAVA_HOME", filepath.Join(bundleDir, "jvm/java-8-openjdk-amd64"))
+	os.Setenv("PYTHONHOME", bundleDir)
 }
 
 // Set an envvar with the agent's version so that plugins can have easy access
@@ -48,28 +61,54 @@ func setVersionEnvvar() {
 	os.Setenv("SIGNALFX_AGENT_VERSION", Version)
 }
 
-func main() {
-	setCurrentDir()
-	setVersionEnvvar()
+// Print out status about an existing instance of the agent.
+func doStatus() {
+	set := flag.NewFlagSet("status", flag.ExitOnError)
+	configPath := set.String("config", defaultConfigPath, "agent config path")
 
-	configPath := flag.String("config", "/etc/signalfx/agent.yaml", "agent config path")
-	version := flag.Bool("version", false, "print agent version")
-	debug := flag.Bool("debug", false, "print debugging output")
-	watchDuration := flag.Duration("configPollRate", 5*time.Second,
+	set.Parse(os.Args[2:])
+
+	log.SetLevel(log.ErrorLevel)
+
+	status, err := core.Status(*configPath)
+	if err != nil {
+		fmt.Printf("Could not get status: %s\nAre you sure the agent is currently running?\n", err)
+		os.Exit(1)
+	}
+	fmt.Print(string(status))
+	fmt.Println("")
+}
+
+// Print out agent documentation
+func doDocs() {
+}
+
+// glog is a transitive dependency of the agent and puts a bunch of flags in
+// the flag package.  We don't really ever need to have users override these,
+// but we would like ERROR messages going to stderr of the agent instead of to
+// a temporary file.
+func fixGlogFlags() {
+	os.Args = os.Args[:1]
+	flag.Parse()
+	flag.Set("logtostderr", "true")
+}
+
+func runAgent() {
+	set := flag.NewFlagSet(os.Args[0], flag.ExitOnError)
+
+	version := set.Bool("version", false, "print agent version")
+	configPath := set.String("config", defaultConfigPath, "agent config path")
+	debug := set.Bool("debug", false, "print debugging output")
+	watchDuration := set.Duration("filePollRate", 5*time.Second,
 		"Set to 0 to disable config file watch, see https://golang.org/pkg/time/#ParseDuration for acceptable values")
 
 	core.VersionLine = fmt.Sprintf("agent-version: %s, built-time: %s\n",
 		Version, BuiltTime)
 
-	// Override Usage to support the signalfx-metadata plugin, which expects a
-	// line with the collectd version from the -h flag.
-	flag.Usage = func() {
-		fmt.Fprintf(os.Stderr, "Usage of %s:\n", os.Args[0])
-		flag.PrintDefaults()
-		fmt.Fprintf(os.Stderr, core.VersionLine)
-	}
-
-	flag.Parse()
+	// The set is configured to exit on errors so we don't need to check the
+	// return value here.
+	set.Parse(os.Args[1:])
+	fixGlogFlags()
 
 	if *debug {
 		log.SetLevel(log.DebugLevel)
@@ -118,4 +157,24 @@ func main() {
 	}()
 
 	<-exit
+}
+
+func main() {
+	setupEnvironment()
+	setVersionEnvvar()
+
+	var firstArg string
+	if len(os.Args) >= 2 {
+		firstArg = os.Args[1]
+	}
+	switch firstArg {
+	case "status":
+		doStatus()
+	case "docs":
+		doDocs()
+	default:
+		runAgent()
+	}
+
+	os.Exit(0)
 }

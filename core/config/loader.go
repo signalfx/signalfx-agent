@@ -12,6 +12,7 @@ import (
 	yaml "gopkg.in/yaml.v2"
 
 	"github.com/creasty/defaults"
+	"github.com/pkg/errors"
 	"github.com/signalfx/neo-agent/core/config/sources"
 	"github.com/signalfx/neo-agent/core/config/sources/file"
 	"github.com/signalfx/neo-agent/utils"
@@ -29,7 +30,7 @@ func LoadConfig(ctx context.Context, configPath string, watchInterval time.Durat
 
 	configYAML, configFileChanges, err := sources.ReadConfig(configPath, fileSource, ctx.Done(), shouldWatch)
 	if err != nil {
-		return nil, err
+		return nil, errors.WithMessage(err, "Could not read config file "+configPath)
 	}
 
 	dynamicValueCtx, cancelDynamic := context.WithCancel(ctx)

@@ -164,3 +164,15 @@ func Startup(configPath string, watchDuration time.Duration) (context.CancelFunc
 
 	return cancel, shutdownComplete
 }
+
+func Status(configPath string) ([]byte, error) {
+	configLoads, err := config.LoadConfig(context.Background(), configPath, 0)
+	if err != nil {
+		return nil, err
+	}
+
+	select {
+	case conf := <-configLoads:
+		return readDiagnosticInfo(conf.DiagnosticsSocketPath)
+	}
+}

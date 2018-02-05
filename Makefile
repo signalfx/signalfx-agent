@@ -25,21 +25,21 @@ templates:
 
 .PHONY: image
 image:
-	./scripts/build.sh
+	./scripts/build
 
 .PHONY: vendor
 vendor:
 	dep ensure
 
 signalfx-agent: templates
-	go build \
+	CGO_ENABLED=0 go build \
 		-ldflags "-X main.Version=$(AGENT_VERSION) -X main.BuiltTime=$$(date +%FT%T%z)" \
-		-i -v -o signalfx-agent \
+		-i -o signalfx-agent \
 		github.com/signalfx/neo-agent
 
 .PHONY: bundle
 bundle:
-	scripts/standalone/make-bundle
+	BUILD_BUNDLE=true scripts/build
 
 .PHONY: attach-image
 run-shell:
@@ -56,17 +56,13 @@ run-dev-image:
 		--privileged \
 		-p 6060:6060 \
 		--name signalfx-agent-dev \
+		-e SIGNALFX_BUNDLE_DIR=/bundle \
 		-v $(PWD)/local-etc:/etc/signalfx \
 		-v /:/bundle/hostfs:ro \
 		-v /var/run/docker.sock:/var/run/docker.sock:ro \
 		-v $(PWD):/go/src/github.com/signalfx/neo-agent:cached \
 		-v $(PWD)/collectd:/usr/src/collectd:cached \
 		signalfx-agent-dev /bin/bash
-
-.PHONY: run-agent-dev
-run-agent-dev:
-	cp -f signalfx-agent /bundle/bin/signalfx-agent
-	/run-agent
 
 .PHONY: debug-agent
 debug-agent:

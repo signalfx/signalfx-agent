@@ -3,6 +3,7 @@ package core
 import (
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"net"
 	"net/http"
 	"time"
@@ -37,6 +38,15 @@ func (a *Agent) serveDiagnosticInfo(socketPath string) error {
 		}).Error("Problem with diagnostic socket")
 	})
 	return err
+}
+
+func readDiagnosticInfo(socketPath string) ([]byte, error) {
+	conn, err := net.Dial("unix", socketPath)
+	if err != nil {
+		return nil, err
+	}
+
+	return ioutil.ReadAll(conn)
 }
 
 // DiagnosticText returns a simple textual output of the agent's status

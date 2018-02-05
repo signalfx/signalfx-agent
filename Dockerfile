@@ -231,6 +231,7 @@ RUN apt update &&\
     apt install -y \
 	  host \
 	  netcat.openbsd \
+	  netcat \
 	  iproute2 \
 	  curl \
 	  vim
@@ -254,6 +255,7 @@ ENV useful_bins=" \
   /bin/ln \
   /bin/ls \
   /bin/mkdir \
+  /bin/nc \
   /bin/nc.openbsd \
   /bin/ps \
   /bin/rm \
@@ -306,25 +308,12 @@ COPY neopy /neopy
 
 RUN mkdir /run
 
-COPY scripts/agent-status /bin/agent-status
-
 COPY --from=agent-builder /usr/bin/signalfx-agent /bin/signalfx-agent
 
 # The current directory of the agent is important since it uses a lot of
 # relative paths to make it very easily relocated within the filesystem in
 # standalone.
 WORKDIR /
-
-###### Standalone Image Filesystem ########
-# This is an image almost identical to the normal one above except that it has
-# the runc binary and config for running the agent apart from docker (but still
-# using containers).  This image is meant to be dumped to a tar file and run
-# standalone.
-FROM scratch as standalone
-
-COPY --from=final-image / /bundle
-
-COPY scripts/standalone/run-agent /run-agent
 
 
 ####### Dev Image ########
@@ -371,4 +360,3 @@ COPY --from=godeps /go/src/github.com/signalfx/neo-agent/vendor src/github.com/s
 COPY --from=godeps /go/pkg /go/pkg
 
 COPY --from=final-image / /bundle/
-COPY scripts/standalone/run-agent /
