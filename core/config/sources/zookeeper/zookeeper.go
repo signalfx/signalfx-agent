@@ -47,7 +47,7 @@ func (z *zkConfigSource) ensureConnection() error {
 		return nil
 	}
 
-	conn, _, err := zk.Connect(z.endpoints, z.timeout)
+	conn, _, err := zk.Connect(z.endpoints, z.timeout, zk.WithLogInfo(false))
 	if err != nil {
 		return err
 	}
