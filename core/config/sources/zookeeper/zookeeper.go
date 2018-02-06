@@ -72,7 +72,7 @@ func isGlob(path string) (string, bool, error) {
 }
 
 func (z *zkConfigSource) Name() string {
-	return "zk"
+	return "zookeeper"
 }
 
 func (z *zkConfigSource) Get(path string) (map[string][]byte, uint64, error) {
