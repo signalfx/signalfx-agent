@@ -23,11 +23,6 @@ import (
 )
 
 const (
-	pluginType = "monitors/collectd"
-
-	collectdConfPath = "./tmp/collectd.conf"
-	managedConfigDir = "./tmp/managed_config/"
-
 	// How long to wait for back-to-back (re)starts before actually (re)starting
 	restartDelay = 3 * time.Second
 )
@@ -144,6 +139,15 @@ func (cm *Manager) MonitorDidShutdown(monitorID types.MonitorID) {
 // bit to batch together multiple back-to-back restarts.
 func (cm *Manager) RequestRestart() {
 	cm.requestRestart <- struct{}{}
+}
+
+func (cm *Manager) ManagedConfigDir() string {
+	if cm.conf != nil {
+		return cm.conf.ManagedConfigDir()
+	} else {
+		// This is a programming bug if we get here.
+		panic("Collectd must be configured before any monitor tries to use it")
+	}
 }
 
 // Manage the subprocess with a basic state machine.  This is a bit tricky
@@ -272,9 +276,10 @@ func (cm *Manager) manageCollectd() {
 // Delete existing config in case there were plugins configured before that won't
 // be configured on this run.
 func (cm *Manager) deleteExistingConfig() {
-	log.Debug("Deleting existing config")
-	os.RemoveAll(managedConfigDir)
-	os.Remove(collectdConfPath)
+	if cm.conf != nil {
+		log.Debug("Deleting existing config")
+		os.RemoveAll(cm.conf.ConfigDir)
+	}
 }
 
 func (cm *Manager) startWriteServer() (*WriteHTTPServer, error) {
@@ -374,11 +379,11 @@ func (cm *Manager) rerenderConf() error {
 		return errors.Wrapf(err, "Failed to render collectd template")
 	}
 
-	return templating.WriteConfFile(output.String(), collectdConfPath)
+	return templating.WriteConfFile(output.String(), cm.conf.ConfigFilePath())
 }
 
 func (cm *Manager) makeChildCommand() *exec.Cmd {
-	cmd := exec.Command("lib64/ld-linux-x86-64.so.2", "bin/collectd", "-f", "-C", collectdConfPath)
+	cmd := exec.Command("lib64/ld-linux-x86-64.so.2", "bin/collectd", "-f", "-C", cm.conf.ConfigFilePath())
 
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr

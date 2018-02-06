@@ -44,8 +44,8 @@ type Config struct {
 	MetricsToExclude          []MetricFilter `yaml:"metricsToExclude" default:"[]"`
 	ProcFSPath                string         `yaml:"procFSPath" default:"/proc"`
 	PythonEnabled             bool           `yaml:"pythonEnabled" default:"false"`
-	DiagnosticsSocketPath     string         `yaml:"diagnosticsSocketPath" default:"./run/signalfx.sock"`
-	InternalMetricsSocketPath string         `yaml:"internalMetricsSocketPath" default:"./run/signalfx-agent-metrics.sock"`
+	DiagnosticsSocketPath     string         `yaml:"diagnosticsSocketPath" default:"/run/signalfx-agent/diagnostics.sock"`
+	InternalMetricsSocketPath string         `yaml:"internalMetricsSocketPath" default:"/run/signalfx-agent/internal-metrics.sock"`
 	EnableProfiling           bool           `yaml:"profiling" default:"false"`
 	// This exists purely to give the user a place to put common yaml values to
 	// reference in other parts of the config file.
@@ -203,6 +203,9 @@ type CollectdConfig struct {
 	IntervalSeconds      int    `yaml:"intervalSeconds" default:"0"`
 	WriteServerIPAddr    string `yaml:"writeServerIPAddr" default:"127.9.8.7"`
 	WriteServerPort      uint16 `yaml:"writeServerPort" default:"14839"`
+
+	ConfigDir string `yaml:"configDir" default:"/tmp/signalfx-collectd"`
+
 	// The following are propagated from the top-level config
 	HostFSPath           string `yaml:"-"`
 	Hostname             string `yaml:"-"`
@@ -233,6 +236,14 @@ func (cc *CollectdConfig) Hash() uint64 {
 // write datapoints
 func (cc *CollectdConfig) WriteServerURL() string {
 	return fmt.Sprintf("http://%s:%d/", cc.WriteServerIPAddr, cc.WriteServerPort)
+}
+
+func (cc *CollectdConfig) ConfigFilePath() string {
+	return filepath.Join(cc.ConfigDir, "collectd.conf")
+}
+
+func (cc *CollectdConfig) ManagedConfigDir() string {
+	return filepath.Join(cc.ConfigDir, "managed_config")
 }
 
 // StoreConfig holds configuration related to config stores (e.g. filesystem,

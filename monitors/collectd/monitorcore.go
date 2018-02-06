@@ -103,7 +103,7 @@ func (bm *MonitorCore) WriteConfigForPlugin() error {
 }
 
 func (bm *MonitorCore) renderPath() string {
-	return filepath.Join(managedConfigDir, bm.configFilename)
+	return filepath.Join(Instance().ManagedConfigDir(), bm.configFilename)
 }
 
 // Shutdown removes the config file and restarts collectd

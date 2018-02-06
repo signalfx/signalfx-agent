@@ -83,7 +83,7 @@ func (mm *MonitorManager) DiagnosticText() string {
 			"%s"+
 			"Discovered Endpoints:\n"+
 			"%s\n"+
-			"Bad Monitor Configurations:\n"+
+			"Bad Monitor Configurations:\n\n"+
 			"%s\n",
 		configurationText,
 		activeMonText,

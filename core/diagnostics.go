@@ -6,6 +6,8 @@ import (
 	"io/ioutil"
 	"net"
 	"net/http"
+	"os"
+	"path/filepath"
 	"time"
 
 	// Import for side-effect of registering http handler
@@ -26,6 +28,10 @@ var VersionLine string
 func (a *Agent) serveDiagnosticInfo(socketPath string) error {
 	if a.diagnosticSocketStop != nil {
 		a.diagnosticSocketStop()
+	}
+
+	if err := os.MkdirAll(filepath.Dir(socketPath), 0700); err != nil {
+		return err
 	}
 
 	var err error
@@ -71,6 +77,10 @@ func (a *Agent) DiagnosticText() string {
 func (a *Agent) serveInternalMetrics(socketPath string) error {
 	if a.internalMetricsSocketStop != nil {
 		a.internalMetricsSocketStop()
+	}
+
+	if err := os.MkdirAll(filepath.Dir(socketPath), 0700); err != nil {
+		return err
 	}
 
 	var err error

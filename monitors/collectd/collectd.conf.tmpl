@@ -1,5 +1,4 @@
-BaseDir "."
-PIDFile "./run/pid"
+BaseDir "{{ .ConfigDir }}"
 TypesDB "./plugins/collectd/types.db"
 PluginDir "./plugins/collectd"
 
@@ -57,4 +56,4 @@ LoadPlugin "java"
 </Plugin>
 {{end}}
 
-Include "./tmp/managed_config/*.conf"
+Include "{{.ManagedConfigDir}}/*.conf"
