@@ -211,8 +211,8 @@ RUN apt install -y libffi-dev libssl-dev build-essential python-dev libcurl4-ope
 
 #RUN bash /opt/install-dd-plugin-deps.sh
 
-COPY neopy/requirements.txt /tmp/requirements.txt
-RUN pip install -r /tmp/requirements.txt
+#COPY neopy/requirements.txt /tmp/requirements.txt
+#RUN pip install -r /tmp/requirements.txt
 
 # Mirror the same dir structure that exists in the original source
 COPY scripts/get-collectd-plugins.sh /opt/scripts/
@@ -360,3 +360,22 @@ COPY --from=godeps /go/src/github.com/signalfx/neo-agent/vendor src/github.com/s
 COPY --from=godeps /go/pkg /go/pkg
 
 COPY --from=final-image / /bundle/
+
+
+####### Debian Packager #######
+FROM debian:9
+
+RUN apt update &&\
+    apt install -y dh-make devscripts
+
+ARG agent_version
+WORKDIR /opt/signalfx-agent_${agent_version}
+
+COPY packaging/debian/ ./debian
+COPY packaging/etc/init.d/signalfx-agent ./debian/signalfx-agent.init
+COPY packaging/etc/systemd/signalfx-agent.service ./debian/signalfx-agent.service
+COPY packaging/etc/upstart/signalfx-agent.conf ./debian/signalfx-agent.upstart
+COPY packaging/etc/logrotate.d/signalfx-agent.conf ./debian/signalfx-agent.logrotate
+COPY --from=final-image / ./signalfx-agent/
+
+RUN debuild --unsigned-source --unsigned-changes
