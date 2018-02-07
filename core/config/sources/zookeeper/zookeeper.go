@@ -55,6 +55,7 @@ func (z *zkConfigSource) ensureConnection() error {
 	return nil
 }
 
+// ErrBadGlob gets returned when the globbing in a path is invalid
 var ErrBadGlob = errors.New("Zookeeper only supports globs in the last path segment")
 
 func isGlob(path string) (string, bool, error) {

@@ -8,6 +8,8 @@ import (
 	"time"
 )
 
+// AWSUniqueID constructs the unique EC2 instance of the underlying host.  If
+// not running on EC2, returns the empty string.
 func AWSUniqueID() string {
 	c := http.Client{
 		Timeout: 1 * time.Second,

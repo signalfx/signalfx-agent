@@ -17,10 +17,14 @@ type ConfigSource interface {
 	WaitForChange(path string, version uint64, stop <-chan struct{}) error
 }
 
+// ErrNotFound should be returned by config sources if a path does not exist,
+// so that we can distinguish this from other errors in case the path is
+// optional.
 type ErrNotFound struct {
 	msg string
 }
 
+// NewNotFoundError returns an instance of ErrNotFound with the given msg.
 func NewNotFoundError(msg string) ErrNotFound {
 	return ErrNotFound{
 		msg: msg,

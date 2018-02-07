@@ -10,7 +10,7 @@ import (
 
 	"k8s.io/api/core/v1"
 	"k8s.io/api/extensions/v1beta1"
-	"k8s.io/apimachinery/pkg/runtime"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/watch"
 
 	"github.com/signalfx/golib/datapoint"
@@ -109,7 +109,7 @@ var _ = Describe("Kubernetes plugin", func() {
 		log.SetLevel(log.DebugLevel)
 		fakeK8s.SetInitialList([]*v1.Pod{
 			&v1.Pod{
-				ObjectMeta: v1.ObjectMeta{
+				ObjectMeta: metav1.ObjectMeta{
 					Name: "test1",
 					UID:  "abcd",
 				},
@@ -138,11 +138,11 @@ var _ = Describe("Kubernetes plugin", func() {
 		Expect(dims["metric_source"]).To(Equal("kubernetes"))
 
 		fakeK8s.EventInput <- WatchEvent{watch.Added, &v1.Pod{
-			TypeMeta: runtime.TypeMeta{
+			TypeMeta: metav1.TypeMeta{
 				Kind:       "Pod",
 				APIVersion: "v1",
 			},
-			ObjectMeta: v1.ObjectMeta{
+			ObjectMeta: metav1.ObjectMeta{
 				Name: "pod2",
 				UID:  "1234",
 			},
@@ -161,11 +161,11 @@ var _ = Describe("Kubernetes plugin", func() {
 		expectIntMetric(dps, "kubernetes_pod_uid", "1234", "kubernetes.container_restart_count", 0)
 
 		fakeK8s.EventInput <- WatchEvent{watch.Modified, &v1.Pod{
-			TypeMeta: runtime.TypeMeta{
+			TypeMeta: metav1.TypeMeta{
 				Kind:       "Pod",
 				APIVersion: "v1",
 			},
-			ObjectMeta: v1.ObjectMeta{
+			ObjectMeta: metav1.ObjectMeta{
 				Name: "pod2",
 				UID:  "1234",
 			},
@@ -184,11 +184,11 @@ var _ = Describe("Kubernetes plugin", func() {
 		expectIntMetric(dps, "kubernetes_pod_uid", "1234", "kubernetes.container_restart_count", 2)
 
 		fakeK8s.EventInput <- WatchEvent{watch.Deleted, &v1.Pod{
-			TypeMeta: runtime.TypeMeta{
+			TypeMeta: metav1.TypeMeta{
 				Kind:       "Pod",
 				APIVersion: "v1",
 			},
-			ObjectMeta: v1.ObjectMeta{
+			ObjectMeta: metav1.ObjectMeta{
 				Name: "pod2",
 				UID:  "1234",
 			},
@@ -212,7 +212,7 @@ var _ = Describe("Kubernetes plugin", func() {
 	It("Sends Deployment metrics", func() {
 		fakeK8s.SetInitialList([]*v1.Pod{
 			&v1.Pod{
-				ObjectMeta: v1.ObjectMeta{
+				ObjectMeta: metav1.ObjectMeta{
 					Name: "test1",
 					UID:  "1234",
 				},
@@ -224,7 +224,7 @@ var _ = Describe("Kubernetes plugin", func() {
 
 		fakeK8s.SetInitialList([]*v1beta1.Deployment{
 			&v1beta1.Deployment{
-				ObjectMeta: v1.ObjectMeta{
+				ObjectMeta: metav1.ObjectMeta{
 					Name: "deploy1",
 					UID:  "abcd",
 				},
@@ -236,7 +236,7 @@ var _ = Describe("Kubernetes plugin", func() {
 				},
 			},
 			&v1beta1.Deployment{
-				ObjectMeta: v1.ObjectMeta{
+				ObjectMeta: metav1.ObjectMeta{
 					Name: "deploy2",
 					UID:  "efgh",
 				},
@@ -260,11 +260,11 @@ var _ = Describe("Kubernetes plugin", func() {
 		expectIntMetric(dps, "uid", "efgh", "kubernetes.deployment.available", 1)
 
 		fakeK8s.EventInput <- WatchEvent{watch.Modified, &v1beta1.Deployment{
-			TypeMeta: runtime.TypeMeta{
+			TypeMeta: metav1.TypeMeta{
 				Kind:       "Deployment",
 				APIVersion: "extensions/v1beta1",
 			},
-			ObjectMeta: v1.ObjectMeta{
+			ObjectMeta: metav1.ObjectMeta{
 				Name: "deploy2",
 				UID:  "efgh",
 			},
@@ -288,7 +288,7 @@ var _ = Describe("Kubernetes plugin", func() {
 		BeforeEach(func() {
 			fakeK8s.SetInitialList([]*v1.Pod{
 				&v1.Pod{
-					ObjectMeta: v1.ObjectMeta{
+					ObjectMeta: metav1.ObjectMeta{
 						Name:      "test1",
 						Namespace: "default",
 						UID:       "abcd",
@@ -307,7 +307,7 @@ var _ = Describe("Kubernetes plugin", func() {
 
 			fakeK8s.SetInitialList([]*v1beta1.Deployment{
 				&v1beta1.Deployment{
-					ObjectMeta: v1.ObjectMeta{
+					ObjectMeta: metav1.ObjectMeta{
 						Name: "deploy1",
 						UID:  "abcd",
 					},
@@ -326,7 +326,7 @@ var _ = Describe("Kubernetes plugin", func() {
 	It("Reports if first in pod list", func() {
 		fakeK8s.SetInitialList([]*v1.Pod{
 			&v1.Pod{
-				ObjectMeta: v1.ObjectMeta{
+				ObjectMeta: metav1.ObjectMeta{
 					Name: "agent-1",
 					UID:  "abcd",
 					Labels: map[string]string{
@@ -338,7 +338,7 @@ var _ = Describe("Kubernetes plugin", func() {
 				},
 			},
 			&v1.Pod{
-				ObjectMeta: v1.ObjectMeta{
+				ObjectMeta: metav1.ObjectMeta{
 					Name: "agent-2",
 					UID:  "efgh",
 					Labels: map[string]string{
@@ -360,7 +360,7 @@ var _ = Describe("Kubernetes plugin", func() {
 	It("Doesn't report if not first in pod list", func() {
 		fakeK8s.SetInitialList([]*v1.Pod{
 			&v1.Pod{
-				ObjectMeta: v1.ObjectMeta{
+				ObjectMeta: metav1.ObjectMeta{
 					Name: "agent-1",
 					UID:  "abcd",
 					Labels: map[string]string{
@@ -372,7 +372,7 @@ var _ = Describe("Kubernetes plugin", func() {
 				},
 			},
 			&v1.Pod{
-				ObjectMeta: v1.ObjectMeta{
+				ObjectMeta: metav1.ObjectMeta{
 					Name: "agent-2",
 					UID:  "efgh",
 					Labels: map[string]string{
@@ -393,7 +393,7 @@ var _ = Describe("Kubernetes plugin", func() {
 	It("Starts reporting if later becomes first in pod list", func() {
 		fakeK8s.SetInitialList([]*v1.Pod{
 			&v1.Pod{
-				ObjectMeta: v1.ObjectMeta{
+				ObjectMeta: metav1.ObjectMeta{
 					Name: "agent-1",
 					UID:  "abcd",
 					Labels: map[string]string{
@@ -405,7 +405,7 @@ var _ = Describe("Kubernetes plugin", func() {
 				},
 			},
 			&v1.Pod{
-				ObjectMeta: v1.ObjectMeta{
+				ObjectMeta: metav1.ObjectMeta{
 					Name: "agent-2",
 					UID:  "efgh",
 					Labels: map[string]string{
@@ -423,11 +423,11 @@ var _ = Describe("Kubernetes plugin", func() {
 		Expect(output.WaitForDPs(1, 2)).Should(HaveLen(0))
 
 		fakeK8s.EventInput <- WatchEvent{watch.Deleted, &v1.Pod{
-			TypeMeta: runtime.TypeMeta{
+			TypeMeta: metav1.TypeMeta{
 				Kind:       "Pod",
 				APIVersion: "v1",
 			},
-			ObjectMeta: v1.ObjectMeta{
+			ObjectMeta: metav1.ObjectMeta{
 				Name: "agent-1",
 				UID:  "abcd",
 			},

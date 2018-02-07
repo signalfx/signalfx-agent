@@ -2,9 +2,9 @@ package hostid
 
 import log "github.com/sirupsen/logrus"
 
-// HostIDDims returns a map of host-specific dimensions that are derived from
+// Dimensions returns a map of host-specific dimensions that are derived from
 // the environment.
-func HostIDDims() map[string]string {
+func Dimensions() map[string]string {
 	log.Info("Fetching host id dimensions")
 	// Fire off both AWS and GCP requests simultaneously so we delay agent
 	// startup as little as possible.

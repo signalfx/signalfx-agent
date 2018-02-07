@@ -42,7 +42,7 @@ func NewAgent() *Agent {
 		},
 	}
 
-	agent.writer = writer.New(hostid.HostIDDims())
+	agent.writer = writer.New(hostid.Dimensions())
 	agent.meta = &meta.AgentMeta{}
 	agent.monitors = monitors.NewMonitorManager(agent.meta)
 	return &agent
@@ -166,6 +166,7 @@ func Startup(configPath string, watchDuration time.Duration) (context.CancelFunc
 	return cancel, shutdownComplete
 }
 
+// Status reads the text from the diagnostic socket and returns it if available.
 func Status(configPath string) ([]byte, error) {
 	configLoads, err := config.LoadConfig(context.Background(), configPath, 0)
 	if err != nil {

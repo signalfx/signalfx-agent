@@ -11,8 +11,8 @@ import (
 
 	"github.com/signalfx/neo-agent/utils"
 
-	"k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/client-go/kubernetes/typed/extensions/v1beta1"
+	"k8s.io/api/core/v1"
+	"k8s.io/api/extensions/v1beta1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
 	//"k8s.io/apimachinery/pkg/watch"
@@ -303,18 +303,18 @@ func (f *FakeK8s) sendList(resType ResourceType, rw http.ResponseWriter) {
 	rw.Write(d)
 }
 
-func typeMeta(rt ResourceType) runtime.TypeMeta {
+func typeMeta(rt ResourceType) metav1.TypeMeta {
 	switch rt {
 	case Pods:
-		return runtime.TypeMeta{Kind: "PodList", APIVersion: "v1"}
+		return metav1.TypeMeta{Kind: "PodList", APIVersion: "v1"}
 	case ReplicationControllers:
-		return runtime.TypeMeta{Kind: "ReplicationControllerList", APIVersion: "v1"}
+		return metav1.TypeMeta{Kind: "ReplicationControllerList", APIVersion: "v1"}
 	case Deployments:
-		return runtime.TypeMeta{Kind: "DeploymentList", APIVersion: "extensions/v1beta1"}
+		return metav1.TypeMeta{Kind: "DeploymentList", APIVersion: "extensions/v1beta1"}
 	case DaemonSets:
-		return runtime.TypeMeta{Kind: "DaemonSetList", APIVersion: "extensions/v1beta1"}
+		return metav1.TypeMeta{Kind: "DaemonSetList", APIVersion: "extensions/v1beta1"}
 	case ReplicaSets:
-		return runtime.TypeMeta{Kind: "ReplicaSetList", APIVersion: "extensions/v1beta1"}
+		return metav1.TypeMeta{Kind: "ReplicaSetList", APIVersion: "extensions/v1beta1"}
 	default:
 		panic("Unknown resource type: " + string(rt))
 	}

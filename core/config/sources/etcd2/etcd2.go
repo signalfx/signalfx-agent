@@ -14,12 +14,14 @@ type etcd2ConfigSource struct {
 	kapi   client.KeysAPI
 }
 
+// Config for an Etcd2 source
 type Config struct {
 	Endpoints []string `yaml:"endpoints"`
 	Username  string   `yaml:"username"`
 	Password  string   `yaml:"password" neverLog:"true"`
 }
 
+// New creates a new etcd2 config source
 func New(conf *Config) (types.ConfigSource, error) {
 	c, err := client.New(client.Config{
 		Endpoints: conf.Endpoints,

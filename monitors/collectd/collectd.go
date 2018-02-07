@@ -141,13 +141,13 @@ func (cm *Manager) RequestRestart() {
 	cm.requestRestart <- struct{}{}
 }
 
+// ManagedConfigDir returns the directory where monitor config should go.
 func (cm *Manager) ManagedConfigDir() string {
 	if cm.conf != nil {
 		return cm.conf.ManagedConfigDir()
-	} else {
-		// This is a programming bug if we get here.
-		panic("Collectd must be configured before any monitor tries to use it")
 	}
+	// This is a programming bug if we get here.
+	panic("Collectd must be configured before any monitor tries to use it")
 }
 
 // Manage the subprocess with a basic state machine.  This is a bit tricky

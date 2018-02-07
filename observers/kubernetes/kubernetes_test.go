@@ -9,6 +9,7 @@ import (
 	//"github.com/davecgh/go-spew/spew"
 
 	"k8s.io/api/core/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
 
 	"github.com/signalfx/neo-agent/core/common/kubernetes"
@@ -69,7 +70,7 @@ var _ = Describe("Kubernetes Observer", func() {
 	It("Converts a pod to a set of endpoints", func() {
 		fakeK8s.SetInitialList([]*v1.Pod{
 			&v1.Pod{
-				ObjectMeta: v1.ObjectMeta{
+				ObjectMeta: metav1.ObjectMeta{
 					Name: "test1",
 					UID:  "abcdefghij",
 				},
@@ -112,7 +113,7 @@ var _ = Describe("Kubernetes Observer", func() {
 	It("Maps configuration from pod annotations", func() {
 		fakeK8s.SetInitialList([]*v1.Pod{
 			&v1.Pod{
-				ObjectMeta: v1.ObjectMeta{
+				ObjectMeta: metav1.ObjectMeta{
 					Name:      "test1",
 					UID:       "abcdefghij",
 					Namespace: "default",
@@ -166,7 +167,7 @@ var _ = Describe("Kubernetes Observer", func() {
 		})
 
 		fakeK8s.AddSecret(&v1.Secret{
-			ObjectMeta: v1.ObjectMeta{
+			ObjectMeta: metav1.ObjectMeta{
 				Name:      "mongo",
 				Namespace: "default",
 			},

@@ -55,6 +55,7 @@ type Config struct {
 	Sources interface{} `yaml:"configSources" neverLog:"omit"`
 }
 
+// Help provides documentation for this config struct's fields
 func (c *Config) Help() map[string]string {
 	return map[string]string{
 		"SignalFxAccessToken": "The SignalFx access token for your organization",
@@ -63,7 +64,8 @@ func (c *Config) Help() map[string]string {
 		"Hostname":            "The hostname that will be reported. If blank, this will be auto-determined by the agent based on a reverse lookup of the machine's IP address",
 		"IntervalSeconds":     "The default reporting interval for monitors",
 		"GlobalDimensions":    "Dimensions that will be added to every datapoint emitted by the agent",
-		"Observers":           "",
+		"Observers":           "A list of observers to use (see observer config)",
+		"Monitors":            "A list of monitors to use (see monitor config)",
 	}
 }
 
@@ -238,10 +240,13 @@ func (cc *CollectdConfig) WriteServerURL() string {
 	return fmt.Sprintf("http://%s:%d/", cc.WriteServerIPAddr, cc.WriteServerPort)
 }
 
+// ConfigFilePath returns the path where collectd should render its main config
+// file.
 func (cc *CollectdConfig) ConfigFilePath() string {
 	return filepath.Join(cc.ConfigDir, "collectd.conf")
 }
 
+// ManagedConfigDir returns the dir path where all monitor config should go.
 func (cc *CollectdConfig) ManagedConfigDir() string {
 	return filepath.Join(cc.ConfigDir, "managed_config")
 }

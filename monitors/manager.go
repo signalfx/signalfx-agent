@@ -343,6 +343,7 @@ func (mm *MonitorManager) createAndConfigureNewMonitor(config config.MonitorCust
 	log.WithFields(log.Fields{
 		"monitorType":   config.MonitorConfigCore().Type,
 		"discoveryRule": config.MonitorConfigCore().DiscoveryRule,
+		"monitorID":     id,
 	}).Info("Creating new monitor")
 
 	return nil
@@ -387,7 +388,7 @@ func (mm *MonitorManager) EndpointRemoved(endpoint services.Endpoint) {
 
 	log.WithFields(log.Fields{
 		"endpoint": endpoint,
-	}).Info("No longer monitoring endpoint")
+	}).Info("No longer considering endpoint")
 }
 
 func (mm *MonitorManager) isEndpointMonitored(endpoint services.Endpoint) bool {
