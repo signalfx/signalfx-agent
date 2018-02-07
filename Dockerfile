@@ -176,14 +176,14 @@ COPY --from=godeps /go/src/github.com/signalfx/neo-agent/vendor /go/src/github.c
 COPY --from=godeps /go/pkg /go/pkg
 COPY --from=collectd /usr/src/collectd/ /usr/src/collectd
 
+ENV GOPATH=/go
+WORKDIR /go/src/github.com/signalfx/neo-agent
+
 ARG agent_version
 
 # The agent source files are tarred up because otherwise we would have to have
 # a separate ADD/COPY layer for every top-level package dir.
 ADD scripts/go_packages.tar /go/src/github.com/signalfx/neo-agent/
-
-ENV GOPATH=/go
-WORKDIR /go/src/github.com/signalfx/neo-agent
 
 RUN AGENT_VERSION=${agent_version} make signalfx-agent &&\
 	mv signalfx-agent /usr/bin/signalfx-agent
@@ -306,7 +306,8 @@ COPY --from=python-plugins /usr/local/lib/python2.7/ /lib/python2.7
 
 COPY neopy /neopy
 
-RUN mkdir /run
+RUN mkdir /run &&\
+    ln -s /bin/signalfx-agent /bin/agent-status
 
 COPY --from=agent-builder /usr/bin/signalfx-agent /bin/signalfx-agent
 

@@ -8,6 +8,7 @@ import (
 	"os"
 	"os/signal"
 	"path/filepath"
+	"strings"
 	"syscall"
 	"time"
 
@@ -163,10 +164,17 @@ func main() {
 	setupEnvironment()
 	setVersionEnvvar()
 
+	// Make it so the symlink from agent-status to this binary invokes the
+	// status command
+	if len(os.Args) == 1 && strings.HasSuffix(os.Args[0], "agent-status") {
+		os.Args = append(os.Args, "status")
+	}
+
 	var firstArg string
 	if len(os.Args) >= 2 {
 		firstArg = os.Args[1]
 	}
+
 	switch firstArg {
 	case "status":
 		doStatus()
