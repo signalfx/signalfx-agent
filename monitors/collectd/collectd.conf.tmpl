@@ -1,4 +1,6 @@
-BaseDir "{{ .ConfigDir }}"
+# Use a relative path because collectd will choke if the cwd is just '/' since
+# it strips off trailing slashes from the path before doing the chdir.
+BaseDir "{{ cwd }}/plugins/.."
 TypesDB "./plugins/collectd/types.db"
 PluginDir "./plugins/collectd"
 

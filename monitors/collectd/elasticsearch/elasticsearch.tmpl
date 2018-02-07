@@ -15,7 +15,7 @@ LoadPlugin "python"
     {{with .Indexes -}}
     Indexes ["{{stringsJoin . "\", \""}}"]
     {{- end}}
-    IndexInterval {{toBool .IndexInterval}}
+    IndexInterval {{.IndexInterval}}
     IndexStatsMasterOnly {{toBool .IndexStatsMasterOnly}}
     IndexSummaryOnly {{toBool .IndexSummaryOnly}}
     Interval {{.IntervalSeconds}}

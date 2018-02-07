@@ -61,6 +61,9 @@ func InjectTemplateFuncs(tmpl *template.Template) *template.Template {
 					"Platform":   runtime.GOOS,
 				}
 			},
+			"cwd": func() (string, error) {
+				return os.Getwd()
+			},
 			"withDefault": func(value interface{}, def interface{}) interface{} {
 				v := reflect.ValueOf(value)
 				switch v.Kind() {
@@ -115,6 +118,12 @@ func InjectTemplateFuncs(tmpl *template.Template) *template.Template {
 			"mergeStringMaps": utils.MergeStringMaps,
 			"toBool": func(v interface{}) (string, error) {
 				if v == nil {
+					return "false", nil
+				}
+				if b, ok := v.(*bool); ok {
+					if *b {
+						return "true", nil
+					}
 					return "false", nil
 				}
 				if b, ok := v.(bool); ok {
