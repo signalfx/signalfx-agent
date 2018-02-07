@@ -151,6 +151,30 @@ func getContainerMetrics(excludedMetrics map[string]bool) []containerMetric {
 			},
 		},
 		{
+			name:      "container_cpu_cfs_periods",
+			help:      "Total number of elapsed CFS enforcement intervals.",
+			valueType: datapoint.Counter,
+			getValues: func(s *info.ContainerStats) metricValues {
+				return metricValues{{value: datapoint.NewIntValue(int64(s.Cpu.CFS.Periods))}}
+			},
+		},
+		{
+			name:      "container_cpu_cfs_throttled_periods",
+			help:      "Total number of times tasks in the cgroup have been throttled",
+			valueType: datapoint.Counter,
+			getValues: func(s *info.ContainerStats) metricValues {
+				return metricValues{{value: datapoint.NewIntValue(int64(s.Cpu.CFS.ThrottledPeriods))}}
+			},
+		},
+		{
+			name:      "container_cpu_cfs_throttled_time",
+			help:      "Total time duration, in nanoseconds, for which tasks in the cgroup have been throttled.",
+			valueType: datapoint.Counter,
+			getValues: func(s *info.ContainerStats) metricValues {
+				return metricValues{{value: datapoint.NewIntValue(int64(s.Cpu.CFS.ThrottledTime))}}
+			},
+		},
+		{
 			name:      "container_memory_failcnt",
 			help:      "Number of memory usage hits limits",
 			valueType: datapoint.Counter,
@@ -488,6 +512,28 @@ func getContainerSpecCPUMetrics(excludedMetrics map[string]bool) []containerSpec
 			},
 			getValues: func(container *info.ContainerInfo) metricValues {
 				return metricValues{{value: datapoint.NewIntValue(int64(container.Spec.Cpu.Limit))}}
+			},
+		},
+		{
+			containerMetric: containerMetric{
+				name:        "container_spec_cpu_quota",
+				help:        "",
+				valueType:   datapoint.Gauge,
+				extraLabels: []string{},
+			},
+			getValues: func(container *info.ContainerInfo) metricValues {
+				return metricValues{{value: datapoint.NewIntValue(int64(container.Spec.Cpu.Quota))}}
+			},
+		},
+		{
+			containerMetric: containerMetric{
+				name:        "container_spec_cpu_period",
+				help:        "",
+				valueType:   datapoint.Gauge,
+				extraLabels: []string{},
+			},
+			getValues: func(container *info.ContainerInfo) metricValues {
+				return metricValues{{value: datapoint.NewIntValue(int64(container.Spec.Cpu.Period))}}
 			},
 		},
 	}
