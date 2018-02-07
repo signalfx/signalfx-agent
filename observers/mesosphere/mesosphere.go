@@ -202,7 +202,7 @@ func (mesos *Mesosphere) discover() []services.Endpoint {
 					id := fmt.Sprintf("%s-%d", taskInfo.ID, publicPort)
 					endpoint := services.ContainerEndpoint{
 						AltPort:       privatePort,
-						EndpointCore:  *services.NewEndpointCore(id, portName, now(), observerType),
+						EndpointCore:  *services.NewEndpointCore(id, portName, observerType),
 						Container:     serviceContainer,
 						Orchestration: *orchestration,
 					}

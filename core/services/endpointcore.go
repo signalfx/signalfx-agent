@@ -2,7 +2,6 @@ package services
 
 import (
 	"regexp"
-	"time"
 
 	"github.com/signalfx/neo-agent/utils"
 )
@@ -22,12 +21,11 @@ var ipAddrRegexp = regexp.MustCompile(`\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}`)
 
 // EndpointCore represents an exposed network port
 type EndpointCore struct {
-	ID         ID        `yaml:"id"`
-	Name       string    `yaml:"name"`
-	Host       string    `yaml:"host"`
-	PortType   PortType  `yaml:"portType"`
-	Port       uint16    `yaml:"port"`
-	Discovered time.Time `yaml:"discovered"`
+	ID       ID       `yaml:"id"`
+	Name     string   `yaml:"name"`
+	Host     string   `yaml:"host"`
+	PortType PortType `yaml:"portType"`
+	Port     uint16   `yaml:"port"`
 	// The observer that discovered this endpoint
 	DiscoveredBy  string                 `yaml:"discoveredBy"`
 	Configuration map[string]interface{} `yaml:"configuration"`
@@ -56,7 +54,7 @@ func (e *EndpointCore) DerivedFields() map[string]interface{} {
 }
 
 // NewEndpointCore returns a new initialized endpoint core struct
-func NewEndpointCore(id string, name string, discovered time.Time, discoveredBy string) *EndpointCore {
+func NewEndpointCore(id string, name string, discoveredBy string) *EndpointCore {
 	if id == "" {
 		// Observers must provide an ID or else they are majorly broken
 		panic("EndpointCore cannot be created without an id")
@@ -65,7 +63,6 @@ func NewEndpointCore(id string, name string, discovered time.Time, discoveredBy 
 	ec := &EndpointCore{
 		ID:           ID(id),
 		Name:         name,
-		Discovered:   discovered,
 		DiscoveredBy: discoveredBy,
 	}
 

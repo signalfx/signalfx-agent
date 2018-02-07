@@ -4,7 +4,6 @@ package docker
 
 import (
 	"strconv"
-	"time"
 
 	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
@@ -112,7 +111,7 @@ func (docker *Docker) discover() []services.Endpoint {
 			for _, port := range c.Ports {
 				id := serviceContainer.PrimaryName() + "-" + c.ID[:12] + "-" + strconv.Itoa(int(port.PrivatePort))
 
-				endpoint := services.NewEndpointCore(id, "", time.Now(), observerType)
+				endpoint := services.NewEndpointCore(id, "", observerType)
 				// Use the IP Address of the first network we iterate over.
 				// This can be made configurable if so desired.
 				for _, n := range c.NetworkSettings.Networks {

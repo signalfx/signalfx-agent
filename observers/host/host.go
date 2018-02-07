@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"strconv"
 	"syscall"
-	"time"
 
 	log "github.com/sirupsen/logrus"
 
@@ -99,7 +98,7 @@ func (o *Observer) discover() []services.Endpoint {
 		}
 
 		se := services.NewEndpointCore(
-			fmt.Sprintf("%s-%d-%d", c.Laddr.IP, c.Laddr.Port, c.Pid), name, time.Now(), observerType)
+			fmt.Sprintf("%s-%d-%d", c.Laddr.IP, c.Laddr.Port, c.Pid), name, observerType)
 
 		ip := c.Laddr.IP
 		// An IP addr of 0.0.0.0 means it listens on all interfaces, including

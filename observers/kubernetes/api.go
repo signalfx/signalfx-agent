@@ -134,21 +134,34 @@ func (o *Observer) stopIfRunning() {
 
 // Handles notifications of changes to pods from the API server
 func (o *Observer) changeHandler(oldPod *v1.Pod, newPod *v1.Pod) {
-	// If it is an update, there will be a remove and immediately subsequent
-	// add.
+	var newEndpoints []services.Endpoint
+	var oldEndpoints []services.Endpoint
+
 	if oldPod != nil && oldPod.Spec.NodeName == o.thisNode {
-		endpoints := o.endpointsByPodUID[oldPod.UID]
-		for i := range endpoints {
-			o.serviceCallbacks.Removed(endpoints[i])
-		}
+		oldEndpoints = o.endpointsByPodUID[oldPod.UID]
 		delete(o.endpointsByPodUID, oldPod.UID)
 	}
 
 	if newPod != nil && newPod.Spec.NodeName == o.thisNode {
-		o.endpointsByPodUID[newPod.UID] = endpointsInPod(newPod, o.clientset)
-		for i := range o.endpointsByPodUID[newPod.UID] {
-			o.serviceCallbacks.Added(o.endpointsByPodUID[newPod.UID][i])
-		}
+		newEndpoints = endpointsInPod(newPod, o.clientset)
+		o.endpointsByPodUID[newPod.UID] = newEndpoints
+	}
+
+	// Prevent spurious churn of endpoints if they haven't changed
+	if reflect.DeepEqual(newEndpoints, oldEndpoints) {
+		return
+	}
+
+	// If it is an update, there will be a remove and immediately subsequent
+	// add.
+	for i := range oldEndpoints {
+		log.Debugf("Removing K8s endpoint from pod %s", oldPod.UID)
+		o.serviceCallbacks.Removed(oldEndpoints[i])
+	}
+
+	for i := range newEndpoints {
+		log.Debugf("Adding K8s endpoint for pod %s", newPod.UID)
+		o.serviceCallbacks.Added(newEndpoints[i])
 	}
 }
 
@@ -202,7 +215,7 @@ func endpointsInPod(pod *v1.Pod, client *k8s.Clientset) []services.Endpoint {
 		for _, port := range container.Ports {
 			id := fmt.Sprintf("%s-%s-%d", pod.Name, pod.UID[:7], port.ContainerPort)
 
-			endpoint := services.NewEndpointCore(id, port.Name, now(), observerType)
+			endpoint := services.NewEndpointCore(id, port.Name, observerType)
 
 			portAnnotations := annotationConfs.FilterByPortOrPortName(port.ContainerPort, port.Name)
 			monitorType, extraConf, err := configFromAnnotations(container.Name, portAnnotations, pod, client)

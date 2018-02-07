@@ -211,7 +211,7 @@ func (k *Observer) discover() []services.Endpoint {
 
 					id := fmt.Sprintf("%s-%s-%d", pod.Metadata.Name, pod.Metadata.UID[:7], port.ContainerPort)
 
-					endpoint := services.NewEndpointCore(id, port.Name, now(), observerType)
+					endpoint := services.NewEndpointCore(id, port.Name, observerType)
 					endpoint.Host = podIP
 					endpoint.PortType = port.Protocol
 					endpoint.Port = port.ContainerPort
