@@ -43,7 +43,7 @@ func (am *ActiveMonitor) configureMonitor(monConfig config.MonitorCustomConfig) 
 	am.config = monConfig
 	am.config.MonitorConfigCore().MonitorID = am.id
 
-	if err := validateFields(monConfig); err != nil {
+	if err := validateConfig(monConfig); err != nil {
 		return err
 	}
 

@@ -32,6 +32,12 @@ func validateConfig(monConfig config.MonitorCustomConfig) error {
 		}
 	}
 
+	validate := validator.New()
+	err := validate.Struct(monConfig)
+	if err != nil {
+		return err
+	}
+
 	return config.ValidateCustomConfig(monConfig)
 }
 
@@ -42,11 +48,6 @@ func configAcceptsEndpoints(monConfig config.MonitorCustomConfig) bool {
 		return false
 	}
 	return coreConfField.Tag.Get("acceptsEndpoints") == "true"
-}
-
-func validateFields(monConfig config.MonitorCustomConfig) error {
-	validate := validator.New()
-	return validate.Struct(monConfig)
 }
 
 func isConfigUnique(conf *config.MonitorConfig, otherConfs []config.MonitorConfig) bool {

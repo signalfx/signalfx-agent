@@ -110,12 +110,6 @@ func getCustomConfigForMonitor(conf *config.MonitorConfig) (config.MonitorCustom
 		return nil, err
 	}
 
-	// These methods will set state inside the config such that conf.IsValid
-	// will return true or false
-	if err := validateConfig(monConfig); err != nil {
-		return monConfig, err
-	}
-
 	return monConfig, nil
 }
 

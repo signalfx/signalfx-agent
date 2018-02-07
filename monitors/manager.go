@@ -269,6 +269,7 @@ func (mm *MonitorManager) monitorSelfConfiguredEndpoint(endpoint services.Endpoi
 			"error":       err,
 			"monitorType": monitorType,
 		}).Error("Could not create monitor config for self-configured endpoint")
+		return
 	}
 
 	err = mm.createAndConfigureNewMonitor(monConfig, endpoint)
@@ -277,6 +278,7 @@ func (mm *MonitorManager) monitorSelfConfiguredEndpoint(endpoint services.Endpoi
 			"error":    err,
 			"endpoint": endpoint,
 		}).Error("Could not create monitor for self-configured endpoint")
+		return
 	}
 }
 
