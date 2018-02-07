@@ -20,7 +20,8 @@ type WriterConfig struct {
 	EventSendIntervalSeconds     int  `yaml:"eventSendIntervalSeconds" default:"5"`
 	LogDatapoints                bool `yaml:"logDatapoints"`
 	LogEvents                    bool `yaml:"logEvents"`
-	// The following are propagated from the top level config
+	// The following are propagated from elsewhere
+	HostIDDims          map[string]string  `yaml:"-"`
 	IngestURL           *url.URL           `yaml:"-"`
 	APIURL              *url.URL           `yaml:"-"`
 	SignalFxAccessToken string             `yaml:"-"`

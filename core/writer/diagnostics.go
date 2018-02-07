@@ -29,6 +29,7 @@ func (sw *SignalFxWriter) DiagnosticText() string {
 	return fmt.Sprintf(
 		"Writer Status:\n"+
 			"Global Dims:              %s\n"+
+			"Host ID Dims:             %s\n"+
 			"State:                    %s\n"+
 			"Average DPM:              %d\n"+
 			"DPs Sent:                 %d\n"+
@@ -38,6 +39,7 @@ func (sw *SignalFxWriter) DiagnosticText() string {
 			"DPs Channel (len/cap) :   %d/%d\n"+
 			"Events Channel (len/cap): %d/%d\n",
 		sw.conf.GlobalDimensions,
+		sw.hostIDDims,
 		sw.state.String(),
 		sw.averageDPM(),
 		sw.dpsSent,

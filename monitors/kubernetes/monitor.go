@@ -40,7 +40,7 @@ import (
 	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
 
-	"github.com/signalfx/golib/datapoint"
+	"github.com/signalfx/neo-agent/core/common/dpmeta"
 	"github.com/signalfx/neo-agent/core/common/kubernetes"
 	"github.com/signalfx/neo-agent/core/config"
 	"github.com/signalfx/neo-agent/monitors"
@@ -160,25 +160,17 @@ func (m *Monitor) Start(intervalSeconds int) error {
 	return nil
 }
 
-// Timestamps are updated in place
-func updateTimestamps(dps []*datapoint.Datapoint) []*datapoint.Datapoint {
-	// Update timestamp
-	now := time.Now()
-	for _, dp := range dps {
-		dp.Timestamp = now
-	}
-
-	return dps
-}
-
 // Synchonously send all of the cached datapoints to ingest
 func (m *Monitor) sendLatestDatapoints() {
 	m.datapointCache.Mutex.Lock()
 	defer m.datapointCache.Mutex.Unlock()
 
-	dps := updateTimestamps(m.datapointCache.AllDatapoints())
+	dps := m.datapointCache.AllDatapoints()
 
+	now := time.Now()
 	for i := range dps {
+		dps[i].Timestamp = now
+		dps[i].Meta[dpmeta.NotHostSpecificMeta] = true
 		m.Output.SendDatapoint(dps[i])
 	}
 }

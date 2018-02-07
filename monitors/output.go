@@ -3,6 +3,7 @@ package monitors
 import (
 	"github.com/signalfx/golib/datapoint"
 	"github.com/signalfx/golib/event"
+	"github.com/signalfx/neo-agent/core/common/dpmeta"
 	"github.com/signalfx/neo-agent/core/services"
 	"github.com/signalfx/neo-agent/monitors/types"
 	"github.com/signalfx/neo-agent/utils"
@@ -25,14 +26,14 @@ func (mo *monitorOutput) SendDatapoint(dp *datapoint.Datapoint) {
 		dp.Meta = make(map[interface{}]interface{})
 	}
 
-	dp.Meta[types.MonitorIDMeta] = mo.monitorID
-	dp.Meta[types.MonitorTypeMeta] = mo.monitorType
-	dp.Meta[types.ConfigHashMeta] = mo.configHash
+	dp.Meta[dpmeta.MonitorIDMeta] = mo.monitorID
+	dp.Meta[dpmeta.MonitorTypeMeta] = mo.monitorType
+	dp.Meta[dpmeta.ConfigHashMeta] = mo.configHash
 
 	var endpointDims map[string]string
 	if mo.endpoint != nil {
 		endpointDims = mo.endpoint.Dimensions()
-		dp.Meta[types.EndpointIDMeta] = mo.endpoint.Core().ID
+		dp.Meta[dpmeta.EndpointIDMeta] = mo.endpoint.Core().ID
 	}
 
 	dp.Dimensions = utils.MergeStringMaps(dp.Dimensions, mo.extraDims, endpointDims)

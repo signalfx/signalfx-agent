@@ -17,6 +17,7 @@ import (
 	"github.com/signalfx/golib/datapoint"
 	"github.com/signalfx/golib/event"
 	"github.com/signalfx/golib/sfxclient"
+	"github.com/signalfx/neo-agent/core/common/dpmeta"
 	"github.com/signalfx/neo-agent/core/config"
 	"github.com/signalfx/neo-agent/monitors/types"
 	log "github.com/sirupsen/logrus"
@@ -47,6 +48,8 @@ type SignalFxWriter struct {
 	lock  sync.Mutex
 
 	conf *config.WriterConfig
+	// map that holds host-specific ids like AWSUniqueID
+	hostIDDims map[string]string
 
 	dpBuffer    []*datapoint.Datapoint
 	eventBuffer []*event.Event
@@ -56,13 +59,14 @@ type SignalFxWriter struct {
 }
 
 // New creates a new un-configured writer
-func New() *SignalFxWriter {
+func New(hostIDDims map[string]string) *SignalFxWriter {
 	return &SignalFxWriter{
 		state:         stopped,
 		stopCh:        make(chan struct{}),
 		client:        sfxclient.NewHTTPSink(),
 		dimPropClient: newDimensionPropertyClient(),
 		startTime:     time.Now(),
+		hostIDDims:    hostIDDims,
 	}
 }
 
@@ -121,10 +125,18 @@ func (sw *SignalFxWriter) Configure(conf *config.WriterConfig) error {
 }
 
 func (sw *SignalFxWriter) filterAndSendDatapoints(dps []*datapoint.Datapoint) error {
+	sw.lock.Lock()
+	defer sw.lock.Unlock()
+
 	finalDps := make([]*datapoint.Datapoint, 0)
 	for i := range dps {
 		if sw.conf.Filter == nil || !sw.conf.Filter.Matches(dps[i]) {
 			dps[i].Dimensions = sw.addGlobalDims(dps[i].Dimensions)
+
+			// Some metrics aren't really specific to the
+			if b, ok := dps[i].Meta[dpmeta.NotHostSpecificMeta].(bool); !ok || !b {
+				dps[i].Dimensions = sw.addHostIDDims(dps[i].Dimensions)
+			}
 			finalDps = append(finalDps, dps[i])
 
 			if sw.conf.LogDatapoints {
@@ -152,6 +164,9 @@ func (sw *SignalFxWriter) filterAndSendDatapoints(dps []*datapoint.Datapoint) er
 }
 
 func (sw *SignalFxWriter) sendEvents(events []*event.Event) error {
+	sw.lock.Lock()
+	defer sw.lock.Unlock()
+
 	for i := range events {
 		events[i].Dimensions = sw.addGlobalDims(events[i].Dimensions)
 
@@ -184,6 +199,16 @@ func (sw *SignalFxWriter) addGlobalDims(dims map[string]string) map[string]strin
 		if _, ok := dims[name]; !ok {
 			dims[name] = value
 		}
+	}
+	return dims
+}
+
+func (sw *SignalFxWriter) addHostIDDims(dims map[string]string) map[string]string {
+	for k, v := range sw.hostIDDims {
+		if _, ok := dims[k]; ok {
+			continue
+		}
+		dims[k] = v
 	}
 	return dims
 }

@@ -10,6 +10,7 @@ import (
 	log "github.com/sirupsen/logrus"
 
 	"github.com/signalfx/neo-agent/core/config"
+	"github.com/signalfx/neo-agent/core/hostid"
 	"github.com/signalfx/neo-agent/core/meta"
 	"github.com/signalfx/neo-agent/core/services"
 	"github.com/signalfx/neo-agent/core/writer"
@@ -41,7 +42,7 @@ func NewAgent() *Agent {
 		},
 	}
 
-	agent.writer = writer.New()
+	agent.writer = writer.New(hostid.HostIDDims())
 	agent.meta = &meta.AgentMeta{}
 	agent.monitors = monitors.NewMonitorManager(agent.meta)
 	return &agent
