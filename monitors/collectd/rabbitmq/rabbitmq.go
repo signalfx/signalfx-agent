@@ -31,7 +31,7 @@ type Config struct {
 	CollectExchanges   bool   `yaml:"collectExchanges"`
 	CollectNodes       bool   `yaml:"collectNodes"`
 	CollectQueues      bool   `yaml:"collectQueues"`
-	HTTPTimeout        *int   `yaml:"httpTimeout"`
+	HTTPTimeout        int    `yaml:"httpTimeout"`
 	VerbosityLevel     string `yaml:"verbosityLevel"`
 	Username           string `yaml:"username" validate:"required"`
 	Password           string `yaml:"password" validate:"required" neverLog:"true"`

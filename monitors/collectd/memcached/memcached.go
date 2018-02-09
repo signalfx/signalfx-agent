@@ -25,7 +25,7 @@ type Config struct {
 	Host       string `yaml:"host"`
 	Port       uint16 `yaml:"port"`
 	Name       string `yaml:"name"`
-	ReportHost *bool  `yaml:"reportHost"`
+	ReportHost bool   `yaml:"reportHost"`
 }
 
 // Monitor is the main type that represents the monitor

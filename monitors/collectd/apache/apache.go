@@ -22,11 +22,11 @@ func init() {
 type Config struct {
 	config.MonitorConfig `yaml:",inline" acceptsEndpoints:"true"`
 
-	Host     string  `yaml:"host"`
-	Port     uint16  `yaml:"port"`
-	Name     *string `yaml:"name"`
-	Username *string `yaml:"username"`
-	Password *string `yaml:"password"`
+	Host     string `yaml:"host"`
+	Port     uint16 `yaml:"port"`
+	Name     string `yaml:"name"`
+	Username string `yaml:"username"`
+	Password string `yaml:"password"`
 }
 
 // Monitor is the main type that represents the monitor

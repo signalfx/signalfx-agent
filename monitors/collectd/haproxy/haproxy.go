@@ -28,7 +28,7 @@ type Config struct {
 
 	ProxiesToMonitor []string `yaml:"proxiesToMonitor"`
 	ExcludedMetrics  []string `yaml:"excludedMetrics"`
-	EnhancedMetrics  *bool    `yaml:"enhancedMetrics"`
+	EnhancedMetrics  bool     `yaml:"enhancedMetrics"`
 }
 
 // Monitor is the main type that represents the monitor

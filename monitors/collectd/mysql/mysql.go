@@ -28,14 +28,14 @@ type Config struct {
 	Port      uint16 `yaml:"port"`
 	Name      string `yaml:"name"`
 	Databases []struct {
-		Name     string  `yaml:"name"`
-		Username string  `yaml:"username"`
-		Password *string `yaml:"password" neverLog:"true"`
+		Name     string `yaml:"name"`
+		Username string `yaml:"username"`
+		Password string `yaml:"password" neverLog:"true"`
 	} `yaml:"databases" required:"true"`
 	// These credentials serve as defaults for all databases if not overridden
-	Username   string  `yaml:"username"`
-	Password   *string `yaml:"password" neverLog:"true"`
-	ReportHost bool    `yaml:"reportHost"`
+	Username   string `yaml:"username"`
+	Password   string `yaml:"password" neverLog:"true"`
+	ReportHost bool   `yaml:"reportHost"`
 }
 
 // Validate will check the config for correctness.

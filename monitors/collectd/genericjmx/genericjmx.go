@@ -31,11 +31,11 @@ type Config struct {
 	Port uint16  `yaml:"port"`
 	Name *string `yaml:"name"`
 
-	ServiceName      *string  `yaml:"serviceName"`
-	ServiceURL       *string  `yaml:"serviceURL"`
-	InstancePrefix   *string  `yaml:"instancePrefix"`
-	Username         *string  `yaml:"username"`
-	Password         *string  `yaml:"password"`
+	ServiceName      string   `yaml:"serviceName"`
+	ServiceURL       string   `yaml:"serviceURL"`
+	InstancePrefix   string   `yaml:"instancePrefix"`
+	Username         string   `yaml:"username"`
+	Password         string   `yaml:"password"`
 	MBeansToCollect  []string `yaml:"mBeansToCollect"`
 	MBeanDefinitions MBeanMap `yaml:"mBeanDefinitions"`
 }
@@ -71,8 +71,8 @@ func (m *JMXMonitorCore) Configure(conf *Config) error {
 	if conf.MBeansToCollect == nil {
 		conf.MBeansToCollect = conf.MBeanDefinitions.MBeanNames()
 	}
-	if conf.ServiceName == nil {
-		conf.ServiceName = &m.defaultServiceName
+	if conf.ServiceName == "" {
+		conf.ServiceName = m.defaultServiceName
 	}
 
 	return m.SetConfigurationAndRun(conf)

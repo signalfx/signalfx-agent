@@ -29,12 +29,12 @@ type Config struct {
 	Name                   string   `yaml:"name"`
 	Databases              []string `yaml:"databases"`
 	Username               string   `yaml:"username"`
-	Password               *string  `yaml:"password" neverLog:"true"`
-	UseTLS                 *bool    `yaml:"useTLS"`
-	CACerts                *string  `yaml:"caCerts"`
-	TLSClientCert          *string  `yaml:"tlsClientCert"`
-	TLSClientKey           *string  `yaml:"tlsClientKey"`
-	TLSClientKeyPassPhrase *string  `yaml:"tlsClientKeyPassPhrase"`
+	Password               string   `yaml:"password" neverLog:"true"`
+	UseTLS                 bool     `yaml:"useTLS"`
+	CACerts                string   `yaml:"caCerts"`
+	TLSClientCert          string   `yaml:"tlsClientCert"`
+	TLSClientKey           string   `yaml:"tlsClientKey"`
+	TLSClientKeyPassPhrase string   `yaml:"tlsClientKeyPassPhrase"`
 }
 
 // Validate will check the config for correctness.

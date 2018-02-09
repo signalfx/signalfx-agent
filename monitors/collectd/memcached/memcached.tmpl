@@ -3,7 +3,7 @@
 </LoadPlugin>
 <Plugin "memcached">
   <Instance "{{.Name}}[monitorID={{.MonitorID}}]">
-    ReportHost {{.ReportHost}}
+    ReportHost {{toBool .ReportHost}}
     Host "{{.Host}}"
     Port "{{.Port}}"
   </Instance>

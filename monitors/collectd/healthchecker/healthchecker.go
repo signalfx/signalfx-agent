@@ -31,10 +31,10 @@ type Config struct {
 	Port uint16 `yaml:"port"`
 	Name string `yaml:"name"`
 
-	URL *string `yaml:"url"`
+	URL string `yaml:"url"`
 	// This can be either a string or numeric type
-	JSONVal *interface{} `yaml:"jsonVal"`
-	JSONKey *string      `yaml:"jsonKey"`
+	JSONVal interface{} `yaml:"jsonVal"`
+	JSONKey string      `yaml:"jsonKey"`
 }
 
 // Monitor is the main type that represents the monitor

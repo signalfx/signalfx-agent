@@ -28,10 +28,10 @@ type Config struct {
 	Port              uint16   `yaml:"port"`
 	Name              string   `yaml:"name"`
 	ClusterName       string   `yaml:"clusterName" required:"true"`
-	SSLKeyFile        *string  `yaml:"sslKeyFile"`
-	SSLCertificate    *string  `yaml:"sslCertificate"`
-	SSLCACerts        *string  `yaml:"sslCACerts"`
-	SSLCertValidation *bool    `yaml:"sslCertValidation" default:"true"`
+	SSLKeyFile        string   `yaml:"sslKeyFile"`
+	SSLCertificate    string   `yaml:"sslCertificate"`
+	SSLCACerts        string   `yaml:"sslCACerts"`
+	SSLCertValidation bool     `yaml:"sslCertValidation" default:"true"`
 	EnhancedMetrics   bool     `yaml:"enhancedMetrics"`
 	MetricsToInclude  []string `yaml:"metricsToInclude"`
 	MetricsToExclude  []string `yaml:"metricsToExclude"`

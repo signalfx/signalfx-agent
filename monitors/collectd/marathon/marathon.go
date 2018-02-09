@@ -23,11 +23,11 @@ type Config struct {
 	// Make this single instance since we can't add dimensions
 	config.MonitorConfig `yaml:",inline" acceptsEndpoints:"true" singleInstance:"true"`
 
-	Host     string  `yaml:"host"`
-	Port     uint16  `yaml:"port"`
-	Name     string  `yaml:"name"`
-	Username string  `yaml:"username"`
-	Password *string `yaml:"password" neverLog:"true"`
+	Host     string `yaml:"host"`
+	Port     uint16 `yaml:"port"`
+	Name     string `yaml:"name"`
+	Username string `yaml:"username"`
+	Password string `yaml:"password" neverLog:"true"`
 }
 
 // Monitor is the main type that represents the monitor
