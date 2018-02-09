@@ -41,7 +41,7 @@ func (dpc *dimensionPropertyClient) SetPropertiesOnDimension(dimProps *types.Dim
 			"name":  dimProps.Name,
 			"value": dimProps.Value,
 			"props": dimProps.Properties,
-		}).Debug("Syncing properties to dimension")
+		}).Info("Syncing properties to dimension")
 
 		err := dpc.doReq(dimProps.Name, dimProps.Value, dimProps.Properties)
 		if err != nil {
