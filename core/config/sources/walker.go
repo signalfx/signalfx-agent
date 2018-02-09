@@ -171,6 +171,10 @@ func (w *walker) injectDynamicValuesInSlice(v []interface{}) ([]interface{}, err
 }
 
 func mergeValues(v []interface{}) (interface{}, error) {
+	if len(v) == 0 {
+		return nil, nil
+	}
+
 	if _, ok := v[0].([]interface{}); ok {
 		return mergeSlices(v)
 	} else if _, ok := v[0].(map[interface{}]interface{}); ok {

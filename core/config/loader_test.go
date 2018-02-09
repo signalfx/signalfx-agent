@@ -411,6 +411,23 @@ var _ = Describe("Config Loader", func() {
 		Expect(config.SignalFxAccessToken).To(Equal("1234"))
 		Expect(config.Monitors[0].OtherConfig["password"]).To(Equal(1234))
 	})
+
+	It("Allows optional values", func() {
+		path := mkFile("agent/agent.yaml", outdent(fmt.Sprintf(`
+			signalFxAccessToken: abcd
+			monitors:
+			- type: collectd/mysql
+			  password: {"#from": "%s/agent/mysql-password.yaml", optional: true}
+		`, dir)))
+
+		loads, err := LoadConfig(ctx, path, 0)
+		Expect(err).ShouldNot(HaveOccurred())
+
+		var config *Config
+		Eventually(loads).Should(Receive(&config))
+
+		Expect(config.Monitors[0].OtherConfig["password"]).To(BeNil())
+	})
 })
 
 func TestLoader(t *testing.T) {
