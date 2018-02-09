@@ -2,6 +2,7 @@ package consul
 
 import (
 	"math"
+	"strings"
 	"time"
 
 	log "github.com/sirupsen/logrus"
@@ -62,7 +63,8 @@ func max(a, b uint64) uint64 {
 }
 
 func (c *consulConfigSource) Get(path string) (map[string][]byte, uint64, error) {
-	prefix, g, _, err := types.PrefixAndGlob(path)
+	// Take off leading / from consul paths since they aren't official.
+	prefix, g, _, err := types.PrefixAndGlob(strings.TrimPrefix(path, "/"))
 	if err != nil {
 		return nil, 0, err
 	}
@@ -85,7 +87,7 @@ func (c *consulConfigSource) Get(path string) (map[string][]byte, uint64, error)
 }
 
 func (c *consulConfigSource) WaitForChange(path string, version uint64, stop <-chan struct{}) error {
-	prefix, g, _, err := types.PrefixAndGlob(path)
+	prefix, g, _, err := types.PrefixAndGlob(strings.TrimPrefix(path, "/"))
 	if err != nil {
 		return err
 	}
