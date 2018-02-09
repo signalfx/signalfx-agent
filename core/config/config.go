@@ -206,7 +206,7 @@ type CollectdConfig struct {
 	WriteServerIPAddr    string `yaml:"writeServerIPAddr" default:"127.9.8.7"`
 	WriteServerPort      uint16 `yaml:"writeServerPort" default:"14839"`
 
-	ConfigDir string `yaml:"configDir" default:"/tmp/signalfx-collectd"`
+	ConfigDir string `yaml:"configDir" default:"/run/signalfx-agent"`
 
 	// The following are propagated from the top-level config
 	HostFSPath           string `yaml:"-"`
