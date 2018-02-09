@@ -1,4 +1,4 @@
-SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+MY_SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 # A hack to simplify Dockerfile since Dockerfile doesn't support copying
 # multiple directories without flattening them out
@@ -10,7 +10,7 @@ make_go_package_tar() {
     utils
   )
 
-  (cd $SCRIPT_DIR/.. && tar -cf $SCRIPT_DIR/go_packages.tar \
+  (cd $MY_SCRIPT_DIR/.. && tar -cf $MY_SCRIPT_DIR/go_packages.tar \
     main.go \
     Makefile \
     scripts/{make-templates,collectd-template-to-go} \
@@ -27,17 +27,18 @@ extra_cflags_build_arg() {
 
 do_docker_build() {
   local image_name=$1
-  local version=$2
+  local image_tag=$2
   local target_stage=$3
+  local agent_version=${4:-$image_tag}
 
   make_go_package_tar
 
   docker build \
-    -t $image_name:$version \
-    -f $SCRIPT_DIR/../Dockerfile \
-    --build-arg agent_version=${version} \
+    -t $image_name:$image_tag \
+    -f $MY_SCRIPT_DIR/../Dockerfile \
+    --build-arg agent_version=${agent_version} \
     --target $target_stage \
-    --label agent.version=${version} \
+    --label agent.version=${agent_version} \
     $(extra_cflags_build_arg) \
-    $SCRIPT_DIR/.. 
+    $MY_SCRIPT_DIR/.. 
 }

@@ -7,11 +7,13 @@ strip_v() {
 	sed -e 's/^v//' <<< $1
 }
 
-tag=$(git describe --abbrev=0 --tags --exact-match 2>/dev/null)
+latest_tag="git describe --abbrev=0 --tags --exclude *deb* --exclude *rpm*"
+
+tag=$($latest_tag --exact-match 2>/dev/null)
 
 if test -z $tag
 then
-	tag=$(git describe --abbrev=0 --tags)-post
+	tag=$($latest_tag)-post
 fi
 
 if test -z $tag

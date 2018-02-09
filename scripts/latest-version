@@ -1,0 +1,18 @@
+#!/bin/bash
+
+# Determines the last release of the agent, not counting package revision
+# releases.
+
+strip_v() {
+	sed -e 's/^v//' <<< $1
+}
+
+tag=$(git describe --abbrev=0 --tags --exclude '*deb*' --exclude '*rpm*')
+
+if test -z $tag
+then
+  echo "Could not determine latest version" >&2
+  exit 1
+fi
+
+strip_v $tag
