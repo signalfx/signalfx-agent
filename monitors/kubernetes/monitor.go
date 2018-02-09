@@ -30,7 +30,6 @@ package kubernetes
 import (
 	"os"
 	"reflect"
-	"regexp"
 	"sort"
 	"time"
 
@@ -46,7 +45,6 @@ import (
 	"github.com/signalfx/neo-agent/monitors"
 	"github.com/signalfx/neo-agent/monitors/kubernetes/metrics"
 	"github.com/signalfx/neo-agent/monitors/types"
-	"github.com/signalfx/neo-agent/utils"
 
 	"sync"
 )
@@ -125,7 +123,6 @@ func (m *Monitor) Configure(config *Config) error {
 	m.clusterState = newClusterState(k8sClient)
 	m.clusterState.ChangeFunc = func(oldObj, newObj runtime.Object) {
 		m.datapointCache.HandleChange(oldObj, newObj)
-		m.syncResourceProperties(newObj)
 	}
 
 	m.Start(config.IntervalSeconds)
@@ -152,6 +149,7 @@ func (m *Monitor) Start(intervalSeconds int) error {
 					log.Debugf("This agent is a K8s cluster reporter")
 					m.clusterState.EnsureAllStarted()
 					m.sendLatestDatapoints()
+					m.sendLatestProps()
 				}
 			}
 		}
@@ -162,9 +160,6 @@ func (m *Monitor) Start(intervalSeconds int) error {
 
 // Synchonously send all of the cached datapoints to ingest
 func (m *Monitor) sendLatestDatapoints() {
-	m.datapointCache.Mutex.Lock()
-	defer m.datapointCache.Mutex.Unlock()
-
 	dps := m.datapointCache.AllDatapoints()
 
 	now := time.Now()
@@ -172,6 +167,14 @@ func (m *Monitor) sendLatestDatapoints() {
 		dps[i].Timestamp = now
 		dps[i].Meta[dpmeta.NotHostSpecificMeta] = true
 		m.Output.SendDatapoint(dps[i])
+	}
+}
+
+func (m *Monitor) sendLatestProps() {
+	dimProps := m.datapointCache.AllDimProperties()
+
+	for i := range dimProps {
+		m.Output.SendDimensionProps(dimProps[i])
 	}
 }
 
@@ -201,36 +204,6 @@ func (m *Monitor) isReporter() bool {
 	})
 
 	return agentPods[0].Name == m.thisPodName
-}
-
-var propNameSanitizer = regexp.MustCompile(`[./]`)
-
-// SyncResource will accept a resource and set any properties on dimensions
-// that do not already have them (at least as far as the agent knows from it's
-// cache, it does not actually query the SignalFx API to discover this).
-func (m *Monitor) syncResourceProperties(obj runtime.Object) {
-	switch res := obj.(type) {
-	case *v1.Pod:
-		props := make(map[string]string)
-
-		for label, value := range res.Labels {
-			props[propNameSanitizer.ReplaceAllLiteralString(label, "_")] = value
-		}
-
-		for _, or := range res.OwnerReferences {
-			props[utils.LowercaseFirstChar(or.Kind)] = or.Name
-		}
-
-		if len(props) > 0 {
-			m.Output.SendDimensionProps(&types.DimProperties{
-				Dimension: types.Dimension{
-					Name:  "kubernetes_pod_uid",
-					Value: string(res.UID),
-				},
-				Properties: props,
-			})
-		}
-	}
 }
 
 func (m *Monitor) stopIfRunning() {

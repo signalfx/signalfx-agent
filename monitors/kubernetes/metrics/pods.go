@@ -5,30 +5,13 @@ import (
 	"time"
 
 	"github.com/signalfx/golib/datapoint"
+	atypes "github.com/signalfx/neo-agent/monitors/types"
 	"github.com/signalfx/neo-agent/utils"
 	"k8s.io/api/core/v1"
-	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/types"
 )
 
-// podMetrics keeps track of pod-related K8s metrics
-type podMetrics struct {
-	// Int value of the datapoint.Datapoint corresponds to the phase (see `phaseToInt` below)
-	podPhases map[types.UID]*datapoint.Datapoint
-	// These will cap at 5 according to
-	// https://kubernetes.io/docs/api-reference/v1.5/#containerstatus-v1
-	containerRestartCount map[ContainerID]*datapoint.Datapoint
-}
-
-func newPodMetrics() *podMetrics {
-	return &podMetrics{
-		podPhases:             make(map[types.UID]*datapoint.Datapoint),
-		containerRestartCount: make(map[ContainerID]*datapoint.Datapoint),
-	}
-}
-
-func (pm *podMetrics) Add(obj runtime.Object) {
-	pod := obj.(*v1.Pod)
+func datapointsForPod(pod *v1.Pod) []*datapoint.Datapoint {
 	dimensions := map[string]string{
 		"metric_source": "kubernetes",
 		// Try and be consistent with other plugin dimensions, despite
@@ -39,49 +22,54 @@ func (pm *podMetrics) Add(obj runtime.Object) {
 		"host":                 pod.Spec.NodeName,
 	}
 
-	pm.podPhases[pod.UID] = datapoint.New(
-		"kubernetes.pod_phase",
-		dimensions,
-		datapoint.NewIntValue(phaseToInt(pod.Status.Phase)),
-		datapoint.Gauge,
-		time.Now())
+	dps := []*datapoint.Datapoint{
+		datapoint.New(
+			"kubernetes.pod_phase",
+			dimensions,
+			datapoint.NewIntValue(phaseToInt(pod.Status.Phase)),
+			datapoint.Gauge,
+			time.Now()),
+	}
 
 	for _, cs := range pod.Status.ContainerStatuses {
 		contDims := utils.CloneStringMap(dimensions)
 		contDims["container_id"] = strings.Replace(cs.ContainerID, "docker://", "", 1)
 		contDims["container_spec_name"] = cs.Name
 		contDims["container_image"] = cs.Image
-		pm.containerRestartCount[makeContUID(pod.UID, cs.Name)] = datapoint.New(
+
+		dps = append(dps, datapoint.New(
 			"kubernetes.container_restart_count",
 			contDims,
 			datapoint.NewIntValue(int64(cs.RestartCount)),
 			datapoint.Gauge,
-			time.Now())
-	}
-}
-
-func (pm *podMetrics) Remove(obj runtime.Object) {
-	pod := obj.(*v1.Pod)
-	delete(pm.podPhases, pod.UID)
-	for key := range pm.containerRestartCount {
-		if strings.HasPrefix(string(key), string(pod.UID)+":") {
-			delete(pm.containerRestartCount, key)
-		}
-	}
-}
-
-func (pm *podMetrics) Datapoints() []*datapoint.Datapoint {
-	dps := make([]*datapoint.Datapoint, 0)
-
-	for _, dp := range pm.podPhases {
-		dps = append(dps, dp)
-	}
-
-	for _, dp := range pm.containerRestartCount {
-		dps = append(dps, dp)
+			time.Now()))
 	}
 
 	return dps
+}
+
+func dimPropsForPod(pod *v1.Pod) *atypes.DimProperties {
+	props := make(map[string]string)
+
+	for label, value := range pod.Labels {
+		props[propNameSanitizer.ReplaceAllLiteralString(label, "_")] = value
+	}
+
+	for _, or := range pod.OwnerReferences {
+		props[utils.LowercaseFirstChar(or.Kind)] = or.Name
+	}
+
+	if len(props) == 0 {
+		return nil
+	}
+
+	return &atypes.DimProperties{
+		Dimension: atypes.Dimension{
+			Name:  "kubernetes_pod_uid",
+			Value: string(pod.UID),
+		},
+		Properties: props,
+	}
 }
 
 func phaseToInt(phase v1.PodPhase) int64 {

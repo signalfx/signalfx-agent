@@ -3,22 +3,9 @@ package metrics
 import (
 	"github.com/signalfx/golib/datapoint"
 	"k8s.io/api/extensions/v1beta1"
-	"k8s.io/apimachinery/pkg/runtime"
-	"k8s.io/apimachinery/pkg/types"
 )
 
-type deploymentMetrics struct {
-	deployments map[types.UID]replicaDPs
-}
-
-func newDeploymentMetrics() *deploymentMetrics {
-	return &deploymentMetrics{
-		deployments: make(map[types.UID]replicaDPs),
-	}
-}
-
-func (dm *deploymentMetrics) Add(obj runtime.Object) {
-	dep := obj.(*v1beta1.Deployment)
+func datapointsForDeployment(dep *v1beta1.Deployment) []*datapoint.Datapoint {
 	dimensions := map[string]string{
 		"metric_source":        "kubernetes",
 		"kubernetes_namespace": dep.Namespace,
@@ -27,23 +14,9 @@ func (dm *deploymentMetrics) Add(obj runtime.Object) {
 	}
 
 	if dep.Spec.Replicas == nil { // || dep.Status.AvailableReplicas == nil {
-		return
+		return nil
 	}
-	dm.deployments[dep.UID] = makeReplicaDPs("deployment", dimensions,
+
+	return makeReplicaDPs("deployment", dimensions,
 		*dep.Spec.Replicas, dep.Status.AvailableReplicas)
-}
-
-func (dm *deploymentMetrics) Remove(obj runtime.Object) {
-	d := obj.(*v1beta1.Deployment)
-	delete(dm.deployments, d.UID)
-}
-
-func (dm *deploymentMetrics) Datapoints() []*datapoint.Datapoint {
-	dps := make([]*datapoint.Datapoint, 0)
-
-	for _, rdps := range dm.deployments {
-		dps = append(dps, rdps.Datapoints()...)
-	}
-
-	return dps
 }

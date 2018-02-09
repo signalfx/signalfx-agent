@@ -3,44 +3,39 @@ package metrics
 import (
 	"github.com/signalfx/golib/datapoint"
 	"github.com/signalfx/golib/sfxclient"
+	atypes "github.com/signalfx/neo-agent/monitors/types"
 	"k8s.io/api/core/v1"
-	"k8s.io/apimachinery/pkg/runtime"
-	"k8s.io/apimachinery/pkg/types"
 )
 
-type nodeMetrics struct {
-	nodes map[types.UID]*v1.Node
-}
+func datapointsForNode(node *v1.Node) []*datapoint.Datapoint {
+	dims := map[string]string{
+		"host":      firstNodeHostname(node),
+		"machineID": node.Status.NodeInfo.MachineID,
+	}
 
-func newNodeMetrics() *nodeMetrics {
-	return &nodeMetrics{
-		nodes: make(map[types.UID]*v1.Node),
+	return []*datapoint.Datapoint{
+		sfxclient.Gauge("kubernetes.node_ready", dims, nodeConditionValue(node, v1.NodeReady)),
 	}
 }
 
-func (n *nodeMetrics) Datapoints() []*datapoint.Datapoint {
-	var dps []*datapoint.Datapoint
-	for _, node := range n.nodes {
-		dims := map[string]string{
-			"host":      firstNodeHostname(node),
-			"machineID": node.Status.NodeInfo.MachineID,
-		}
+func dimPropsForNode(node *v1.Node) *atypes.DimProperties {
+	props := make(map[string]string)
 
-		dps = append(dps, []*datapoint.Datapoint{
-			sfxclient.Gauge("kubernetes.node_ready", dims, nodeConditionValue(node, v1.NodeReady)),
-		}...)
+	for label, value := range node.Labels {
+		props[propNameSanitizer.ReplaceAllLiteralString(label, "_")] = value
 	}
-	return dps
-}
 
-func (n *nodeMetrics) Add(obj runtime.Object) {
-	node := obj.(*v1.Node)
-	n.nodes[node.UID] = node
-}
+	if len(props) == 0 {
+		return nil
+	}
 
-func (n *nodeMetrics) Remove(obj runtime.Object) {
-	node := obj.(*v1.Node)
-	delete(n.nodes, node.UID)
+	return &atypes.DimProperties{
+		Dimension: atypes.Dimension{
+			Name:  "machineID",
+			Value: node.Status.NodeInfo.MachineID,
+		},
+		Properties: props,
+	}
 }
 
 var nodeConditionValues = map[v1.ConditionStatus]int64{
