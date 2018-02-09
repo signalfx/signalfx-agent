@@ -24,10 +24,8 @@ func init() {
 type Config struct {
 	config.MonitorConfig `yaml:",inline" acceptsEndpoints:"true"`
 
-	// Hostname of the ES instance
-	Host string `yaml:"host"`
-	// Port of the ES instance
-	Port uint16 `yaml:"port"`
+	Host string `yaml:"host" validate:"required"`
+	Port uint16 `yaml:"port" validate:"required"`
 	Name string `yaml:"name"`
 	// AdditionalMetrics to report on
 	AdditionalMetrics []string `yaml:"additionalMetrics"`

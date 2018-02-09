@@ -26,18 +26,28 @@ func init() {
 type Config struct {
 	config.MonitorConfig `yaml:",inline" acceptsEndpoints:"true"`
 
-	Host string  `yaml:"host"`
-	Port uint16  `yaml:"port"`
-	Name *string `yaml:"name"`
+	Host string `yaml:"host"`
+	Port uint16 `yaml:"port"`
+	Name string `yaml:"name"`
 
-	TemplateText string `yaml:"templateText"`
+	Template  string   `yaml:"template"`
+	Templates []string `yaml:"templates"`
+}
+
+func (c *Config) AllTemplates() []string {
+	templates := c.Templates
+	if c.Template != "" {
+		templates = append(templates, c.Template)
+	}
+	return templates
 }
 
 // Validate will check the config that is specific to this monitor
 func (c *Config) Validate() error {
-	if c.TemplateText == "" {
-		return errors.New("templateText must be set")
+	if c.Template == "" && len(c.Templates) == 0 {
+		return errors.New("either template or templates must be set")
 	}
+
 	if _, err := templateFromText(c.TemplateText); err != nil {
 		return err
 	}

@@ -3,8 +3,6 @@ package docker
 //go:generate collectd-template-to-go docker.tmpl
 
 import (
-	"errors"
-
 	"github.com/signalfx/neo-agent/core/config"
 	"github.com/signalfx/neo-agent/monitors"
 	"github.com/signalfx/neo-agent/monitors/collectd"
@@ -24,19 +22,11 @@ func init() {
 type Config struct {
 	config.MonitorConfig
 	Dimensions          map[string]string `yaml:"dimensions"`
-	DockerURL           string            `yaml:"dockerURL"`
+	DockerURL           string            `yaml:"dockerURL" validate:"required"`
 	ExcludedImages      []string          `yaml:"excludedImages"`
 	ExcludedNames       []string          `yaml:"excludedNames"`
 	ExcludedLabels      map[string]string `yaml:"excludedLabels"`
 	CollectNetworkStats bool              `yaml:"collectNetworkStats"`
-}
-
-// Validate will check the config before the monitor is instantiated
-func (c *Config) Validate() error {
-	if len(c.DockerURL) == 0 {
-		return errors.New("dockerURL must be specified in the docker monitor")
-	}
-	return nil
 }
 
 // Monitor is the main type that represents the monitor

@@ -31,8 +31,8 @@ func init() {
 type Config struct {
 	config.MonitorConfig `yaml:",inline" acceptsEndpoints:"true"`
 
-	Host                      string           `yaml:"host"`
-	Port                      uint16           `yaml:"port"`
+	Host                      string           `yaml:"host" validate:"required"`
+	Port                      uint16           `yaml:"port" validate:"required"`
 	Name                      string           `yaml:"name"`
 	IsMaster                  bool             `yaml:"isMaster" default:"false"`
 	ClusterType               sparkClusterType `yaml:"clusterType"`

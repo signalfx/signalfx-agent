@@ -23,8 +23,8 @@ type Config struct {
 	// Make this single instance since we can't add dimensions
 	config.MonitorConfig `yaml:",inline" acceptsEndpoints:"true" singleInstance:"true"`
 
-	Host     string `yaml:"host"`
-	Port     uint16 `yaml:"port"`
+	Host     string `yaml:"host" validate:"required"`
+	Port     uint16 `yaml:"port" validate:"required"`
 	Name     string `yaml:"name"`
 	Username string `yaml:"username"`
 	Password string `yaml:"password" neverLog:"true"`
