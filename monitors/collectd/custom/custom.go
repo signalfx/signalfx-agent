@@ -44,12 +44,10 @@ func (c *Config) AllTemplates() []string {
 
 // Validate will check the config that is specific to this monitor
 func (c *Config) Validate() error {
-	if c.Template == "" && len(c.Templates) == 0 {
-		return errors.New("either template or templates must be set")
-	}
-
-	if _, err := templateFromText(c.TemplateText); err != nil {
-		return err
+	for _, templateText := range c.AllTemplates() {
+		if _, err := templateFromText(templateText); err != nil {
+			return err
+		}
 	}
 	return nil
 }
@@ -70,8 +68,20 @@ type Monitor struct {
 // Configure will render the custom collectd config and queue a collectd
 // restart.
 func (cm *Monitor) Configure(conf *Config) error {
+	templateTextConcatenated := ""
+	for _, text := range conf.AllTemplates() {
+		templateTextConcatenated += "\n" + text
+	}
+
+	// Allow blank template text so that we have a standard config item that
+	// configured the monitor with all of the templates in a possibly
+	// non-existant legacy collectd managed_config dir.
+	if templateTextConcatenated == "" {
+		return nil
+	}
+
 	var err error
-	cm.Template, err = templateFromText(conf.TemplateText)
+	cm.Template, err = templateFromText(templateTextConcatenated)
 	if err != nil {
 		return err
 	}
