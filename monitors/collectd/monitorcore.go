@@ -22,6 +22,9 @@ import (
 type MonitorCore struct {
 	Template *template.Template
 	Output   types.Output
+	// Set to true if the collectd plugin(s) configured by this monitor cannot
+	// report the monitor id back to the agent via write_http
+	NoMonitorID bool
 	// Where to write the plugin config to on the filesystem
 	configFilename string
 	config         config.MonitorCustomConfig
@@ -67,7 +70,7 @@ func (bm *MonitorCore) SetConfigurationAndRun(conf config.MonitorCustomConfig) e
 // SetConfiguration adds various fields from the config to the template context
 // but does not render the config.
 func (bm *MonitorCore) SetConfiguration(conf config.MonitorCustomConfig) error {
-	if err := Instance().ConfigureFromMonitor(bm.monitorID, bm.Output, bm.UsesGenericJMX); err != nil {
+	if err := Instance().ConfigureFromMonitor(bm.monitorID, bm.Output, bm.UsesGenericJMX, bm.NoMonitorID); err != nil {
 		return err
 	}
 

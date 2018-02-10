@@ -49,6 +49,12 @@ func (c *Config) Validate() error {
 			return err
 		}
 	}
+
+	if len(c.ExtraDimensions) > 0 {
+		return errors.New("Collectd custom template monitors cannot have " +
+			"extraDimensions set because there is no generic way to correlate " +
+			"datapoints from those plugins to their configuration")
+	}
 	return nil
 }
 
@@ -85,6 +91,8 @@ func (cm *Monitor) Configure(conf *Config) error {
 	if err != nil {
 		return err
 	}
+
+	cm.MonitorCore.NoMonitorID = true
 
 	return cm.SetConfigurationAndRun(conf)
 }

@@ -4,3 +4,5 @@ package types
 
 // MonitorID is a unique identifier for a specific instance of a monitor
 type MonitorID string
+
+const UnknownMonitorID = MonitorID("-unknown-")

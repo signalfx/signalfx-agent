@@ -47,6 +47,7 @@ type Manager struct {
 	// Map of each active monitor to its output instance
 	activeMonitors  map[types.MonitorID]types.Output
 	genericJMXUsers map[types.MonitorID]bool
+	noIDOutputs     map[types.MonitorID]types.Output
 	active          bool
 
 	// Channels to control the state machine asynchronously
@@ -57,6 +58,7 @@ type Manager struct {
 var collectdSingleton = &Manager{
 	activeMonitors:  make(map[types.MonitorID]types.Output),
 	genericJMXUsers: make(map[types.MonitorID]bool),
+	noIDOutputs:     make(map[types.MonitorID]types.Output),
 	stop:            make(chan struct{}),
 	requestRestart:  make(chan struct{}),
 }
@@ -99,7 +101,7 @@ func (cm *Manager) Configure(conf *config.CollectdConfig) error {
 // true so that collectd can know to load the java plugin in the collectd.conf
 // file so that any JVM config doesn't get set multiple times and cause
 // spurious log output.
-func (cm *Manager) ConfigureFromMonitor(monitorID types.MonitorID, output types.Output, usesGenericJMX bool) error {
+func (cm *Manager) ConfigureFromMonitor(monitorID types.MonitorID, output types.Output, usesGenericJMX bool, noMonitorID bool) error {
 	cm.configMutex.Lock()
 	defer cm.configMutex.Unlock()
 
@@ -111,6 +113,18 @@ func (cm *Manager) ConfigureFromMonitor(monitorID types.MonitorID, output types.
 	// about reinitializing GenericJMX and causing errors to be thrown.
 	if usesGenericJMX {
 		cm.genericJMXUsers[monitorID] = true
+	}
+
+	// Some legacy collectd plugin configuration might not properly report the
+	// monitor ID back to agent, so we have no way of knowing which monitor's
+	// Output to associate the datapoints back to.  This is especially true of
+	// user provided collectd config templates.  So just stick those outputs
+	// into a map so that they can be picked from randomly when we get
+	// datapoints without a monitor id.  This is definitely a hack but I can't
+	// figure out any generic way to correlate it without requiring users to
+	// provide fairly intricate collectd filtering.
+	if noMonitorID {
+		cm.noIDOutputs[monitorID] = output
 	}
 
 	cm.requestRestart <- struct{}{}
@@ -125,6 +139,7 @@ func (cm *Manager) MonitorDidShutdown(monitorID types.MonitorID) {
 
 	delete(cm.activeMonitors, monitorID)
 	delete(cm.genericJMXUsers, monitorID)
+	delete(cm.noIDOutputs, monitorID)
 
 	if len(cm.activeMonitors) == 0 && cm.stop != nil {
 		close(cm.stop)
@@ -312,19 +327,25 @@ func (cm *Manager) receiveDPs(dps []*datapoint.Datapoint) {
 			delete(dps[i].Dimensions, "monitorID")
 		}
 
+		var output types.Output
 		if string(monitorID) == "" {
-			log.WithFields(log.Fields{
-				"dp": spew.Sdump(dps[i]),
-			}).Error("Datapoint does not have a monitorID as either a dimension or Meta field, cannot send")
-			continue
+			// Just get an arbitrary output from the "no id" outputs, doesn't
+			// matter which.
+			for k := range cm.noIDOutputs {
+				output = cm.noIDOutputs[k]
+				break
+			}
+		} else {
+			output = cm.activeMonitors[monitorID]
 		}
 
-		output := cm.activeMonitors[monitorID]
 		if output == nil {
-			log.WithFields(log.Fields{
-				"monitorID": monitorID,
-			}).Error("Datapoint has an unknown monitorID, cannot send")
-			continue
+			if output == nil {
+				log.WithFields(log.Fields{
+					"monitorID": monitorID,
+				}).Error("Datapoint has an unknown monitorID")
+				continue
+			}
 		}
 
 		output.SendDatapoint(dps[i])
