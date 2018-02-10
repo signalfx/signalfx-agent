@@ -98,8 +98,10 @@ func (dc *DatapointCache) HandleChange(oldObj, newObj runtime.Object) {
 	case *v1beta1.ReplicaSet:
 		dps = datapointsForReplicaSet(o)
 	case *v1.Node:
-		dps = datapointsForNode(o)
-		dimProps = dimPropsForNode(o)
+		if oldObj == nil || nodesDifferent(o, oldObj.(*v1.Node)) {
+			dps = datapointsForNode(o)
+			dimProps = dimPropsForNode(o)
+		}
 	default:
 		log.WithFields(log.Fields{
 			"obj": spew.Sdump(newObj),
