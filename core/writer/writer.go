@@ -48,8 +48,9 @@ type SignalFxWriter struct {
 	lock  sync.Mutex
 
 	conf *config.WriterConfig
+
 	// map that holds host-specific ids like AWSUniqueID
-	hostIDDims map[string]string
+	HostIDDims map[string]string
 
 	dpBuffer    []*datapoint.Datapoint
 	eventBuffer []*event.Event
@@ -59,14 +60,13 @@ type SignalFxWriter struct {
 }
 
 // New creates a new un-configured writer
-func New(hostIDDims map[string]string) *SignalFxWriter {
+func New() *SignalFxWriter {
 	return &SignalFxWriter{
 		state:         stopped,
 		stopCh:        make(chan struct{}),
 		client:        sfxclient.NewHTTPSink(),
 		dimPropClient: newDimensionPropertyClient(),
 		startTime:     time.Now(),
-		hostIDDims:    hostIDDims,
 	}
 }
 
@@ -204,7 +204,7 @@ func (sw *SignalFxWriter) addGlobalDims(dims map[string]string) map[string]strin
 }
 
 func (sw *SignalFxWriter) addHostIDDims(dims map[string]string) map[string]string {
-	for k, v := range sw.hostIDDims {
+	for k, v := range sw.HostIDDims {
 		if _, ok := dims[k]; ok {
 			continue
 		}

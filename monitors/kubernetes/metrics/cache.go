@@ -2,7 +2,6 @@ package metrics
 
 import (
 	"errors"
-	"regexp"
 	"sync"
 
 	"github.com/davecgh/go-spew/spew"
@@ -24,8 +23,6 @@ type CachedResourceKey struct {
 	Kind schema.GroupVersionKind
 	UID  types.UID
 }
-
-var propNameSanitizer = regexp.MustCompile(`[./]`)
 
 type DatapointCache struct {
 	dpCache      map[CachedResourceKey][]*datapoint.Datapoint

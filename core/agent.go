@@ -42,7 +42,7 @@ func NewAgent() *Agent {
 		},
 	}
 
-	agent.writer = writer.New(hostid.Dimensions())
+	agent.writer = writer.New()
 	agent.meta = &meta.AgentMeta{}
 	agent.monitors = monitors.NewMonitorManager(agent.meta)
 	return &agent
@@ -54,6 +54,10 @@ func (a *Agent) configure(conf *config.Config) {
 		log.SetLevel(*level)
 	}
 	log.Infof("Using log level %s", log.GetLevel().String())
+
+	if a.writer.HostIDDims == nil {
+		a.writer.HostIDDims = hostid.Dimensions(conf.SendMachineID)
+	}
 
 	if conf.EnableProfiling {
 		a.ensureProfileServerRunning()

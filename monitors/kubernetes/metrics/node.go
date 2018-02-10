@@ -9,8 +9,8 @@ import (
 
 func datapointsForNode(node *v1.Node) []*datapoint.Datapoint {
 	dims := map[string]string{
-		"host":      firstNodeHostname(node),
-		"machineID": node.Status.NodeInfo.MachineID,
+		"host":       firstNodeHostname(node),
+		"machine_id": node.Status.NodeInfo.MachineID,
 	}
 
 	return []*datapoint.Datapoint{
@@ -19,22 +19,19 @@ func datapointsForNode(node *v1.Node) []*datapoint.Datapoint {
 }
 
 func dimPropsForNode(node *v1.Node) *atypes.DimProperties {
-	props := make(map[string]string)
+	props, tags := propsAndTagsFromLabels(node.Labels)
 
-	for label, value := range node.Labels {
-		props[propNameSanitizer.ReplaceAllLiteralString(label, "_")] = value
-	}
-
-	if len(props) == 0 {
+	if len(props) == 0 && len(tags) == 0 {
 		return nil
 	}
 
 	return &atypes.DimProperties{
 		Dimension: atypes.Dimension{
-			Name:  "machineID",
+			Name:  "machine_id",
 			Value: node.Status.NodeInfo.MachineID,
 		},
 		Properties: props,
+		Tags:       tags,
 	}
 }
 

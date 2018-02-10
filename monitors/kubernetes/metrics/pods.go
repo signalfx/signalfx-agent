@@ -49,17 +49,9 @@ func datapointsForPod(pod *v1.Pod) []*datapoint.Datapoint {
 }
 
 func dimPropsForPod(pod *v1.Pod) *atypes.DimProperties {
-	props := make(map[string]string)
+	props, tags := propsAndTagsFromLabels(pod.Labels)
 
-	for label, value := range pod.Labels {
-		props[propNameSanitizer.ReplaceAllLiteralString(label, "_")] = value
-	}
-
-	for _, or := range pod.OwnerReferences {
-		props[utils.LowercaseFirstChar(or.Kind)] = or.Name
-	}
-
-	if len(props) == 0 {
+	if len(props) == 0 && len(tags) == 0 {
 		return nil
 	}
 
@@ -69,6 +61,7 @@ func dimPropsForPod(pod *v1.Pod) *atypes.DimProperties {
 			Value: string(pod.UID),
 		},
 		Properties: props,
+		Tags:       tags,
 	}
 }
 

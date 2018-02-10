@@ -128,14 +128,6 @@
   name = "k8s.io/apimachinery"
   revision = "180eddb345a5be3a157cea1c624700ad5bd27b8f"
 
-#[[override]]
-  #name = "github.com/googleapis/gnostic"
-  #revision = "0c5108395e2debce0d731cf0287ddf7242066aba"
-
-#[[override]]
-  #name = "golang.org/x/text"
-  #revision = "2910a502d2bf9e43193af9d68ca516529614eed3"
-
 [[override]]
   name = "golang.org/x/text"
   revision = "e19ae1496984b1c655b8044a65c0300a3c878dd3"

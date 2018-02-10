@@ -12,6 +12,7 @@ import (
 
 	"github.com/pkg/errors"
 	"github.com/signalfx/neo-agent/monitors/types"
+	"github.com/signalfx/neo-agent/utils"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -20,7 +21,7 @@ type dimensionPropertyClient struct {
 	Token  string
 	APIURL *url.URL
 	// Keeps track of what has been synced so we don't do unnecessary syncs
-	history map[types.Dimension]map[string]string
+	history map[types.Dimension]*types.DimProperties
 }
 
 func newDimensionPropertyClient() *dimensionPropertyClient {
@@ -28,7 +29,7 @@ func newDimensionPropertyClient() *dimensionPropertyClient {
 		client: &http.Client{
 			Timeout: 5 * time.Second,
 		},
-		history: make(map[types.Dimension]map[string]string),
+		history: make(map[types.Dimension]*types.DimProperties),
 	}
 }
 
@@ -36,27 +37,29 @@ func newDimensionPropertyClient() *dimensionPropertyClient {
 // value.  It will wipe out any description or tags on the dimension.
 func (dpc *dimensionPropertyClient) SetPropertiesOnDimension(dimProps *types.DimProperties) error {
 	prev := dpc.history[dimProps.Dimension]
-	if !reflect.DeepEqual(prev, dimProps.Properties) {
+	if !reflect.DeepEqual(prev, dimProps) {
 		log.WithFields(log.Fields{
 			"name":  dimProps.Name,
 			"value": dimProps.Value,
 			"props": dimProps.Properties,
+			"tags":  dimProps.Tags,
 		}).Info("Syncing properties to dimension")
 
-		err := dpc.doReq(dimProps.Name, dimProps.Value, dimProps.Properties)
+		err := dpc.doReq(dimProps.Name, dimProps.Value, dimProps.Properties, dimProps.Tags)
 		if err != nil {
 			return err
 		}
-		dpc.history[dimProps.Dimension] = dimProps.Properties
+		dpc.history[dimProps.Dimension] = dimProps
 	}
 	return nil
 }
 
-func (dpc *dimensionPropertyClient) doReq(key, value string, props map[string]string) error {
+func (dpc *dimensionPropertyClient) doReq(key, value string, props map[string]string, tags map[string]bool) error {
 	json, err := json.Marshal(map[string]interface{}{
 		"key":              key,
 		"value":            value,
 		"customProperties": props,
+		"tags":             utils.StringSetToSlice(tags),
 	})
 	if err != nil {
 		return err

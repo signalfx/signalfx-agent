@@ -39,7 +39,7 @@ func (sw *SignalFxWriter) DiagnosticText() string {
 			"DPs Channel (len/cap) :   %d/%d\n"+
 			"Events Channel (len/cap): %d/%d\n",
 		sw.conf.GlobalDimensions,
-		sw.hostIDDims,
+		sw.HostIDDims,
 		sw.state.String(),
 		sw.averageDPM(),
 		sw.dpsSent,

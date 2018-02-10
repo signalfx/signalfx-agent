@@ -4,17 +4,21 @@ import log "github.com/sirupsen/logrus"
 
 // Dimensions returns a map of host-specific dimensions that are derived from
 // the environment.
-func Dimensions() map[string]string {
+func Dimensions(sendMachineID bool) map[string]string {
 	log.Info("Fetching host id dimensions")
 	// Fire off both AWS and GCP requests simultaneously so we delay agent
 	// startup as little as possible.
 	awsRes := callConcurrent(AWSUniqueID)
 	gcpRes := callConcurrent(GoogleComputeID)
+	machineIdRes := callConcurrent(MachineID)
 	//azureRes := callConcurrent(AzureVMID)
 
 	dims := make(map[string]string)
 	insertNextChanValue(dims, "AWSUniqueId", awsRes)
 	insertNextChanValue(dims, "gcp_id", gcpRes)
+	if sendMachineID {
+		insertNextChanValue(dims, "machine_id", machineIdRes)
+	}
 	//insertNextChanValue(dims, "azue_id", azureRes)
 
 	log.Infof("Using host id dimensions %v", dims)
