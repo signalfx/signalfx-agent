@@ -24,7 +24,7 @@ func init() {
 // Config is the monitor-specific config with the generic config embedded
 type Config struct {
 	config.MonitorConfig `singleInstance:"true"`
-	WriteServerURL       string `yaml:"writeServerURL" validate:"required"`
+	WriteServerURL       string `yaml:"writeServerURL"`
 	ProcFSPath           string `yaml:"procFSPath"`
 }
 
