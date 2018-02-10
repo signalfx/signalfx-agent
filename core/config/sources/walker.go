@@ -46,11 +46,11 @@ type walker struct {
 	resolve   resolveFunc
 }
 
-func (w *walker) doResolution(spec RawDynamicValueSpec) ([]interface{}, bool, error) {
-	log.Debugf("Resolving %s", spec)
-	values, path, flatten, err := w.resolve(spec)
+func (w *walker) doResolution(rawSpec RawDynamicValueSpec) ([]interface{}, *dynamicValueSpec, error) {
+	log.Debugf("Resolving %s", rawSpec)
+	values, path, spec, err := w.resolve(rawSpec)
 	if err != nil {
-		return nil, false, err
+		return nil, spec, err
 	}
 
 	if w.pathsSeen[path] {
@@ -58,7 +58,7 @@ func (w *walker) doResolution(spec RawDynamicValueSpec) ([]interface{}, bool, er
 		for k := range w.pathsSeen {
 			paths = append(paths, k)
 		}
-		return nil, false, fmt.Errorf("Dynamic value paths %s have a circular dependency", strings.Join(paths, "; "))
+		return nil, spec, fmt.Errorf("Dynamic value paths %s have a circular dependency", strings.Join(paths, "; "))
 	}
 
 	// Set the current path in our path set before we go recursing into the
@@ -66,19 +66,19 @@ func (w *walker) doResolution(spec RawDynamicValueSpec) ([]interface{}, bool, er
 	// dynamic values.
 	w.pathsSeen[path] = true
 
-	log.Debugf("Resolved %s to %s", spec, spew.Sdump(values))
+	log.Debugf("Resolved %s to %s", rawSpec, spew.Sdump(values))
 	var out []interface{}
 	for i := range values {
 		val, err := w.injectDynamicValues(values[i])
 		if err != nil {
-			return nil, false, err
+			return nil, spec, err
 		}
 		out = append(out, val)
 	}
 	delete(w.pathsSeen, path)
 
-	log.Debugf("Final resolution of %s is %s", spec, spew.Sdump(out))
-	return out, flatten, nil
+	log.Debugf("Final resolution of %s is %s", rawSpec, spew.Sdump(out))
+	return out, spec, nil
 }
 
 func (w *walker) injectDynamicValues(v interface{}) (interface{}, error) {
@@ -95,11 +95,11 @@ func (w *walker) injectDynamicValuesInMap(m map[interface{}]interface{}) (map[in
 	out := make(map[interface{}]interface{})
 	for k, v := range m {
 		if isDynamicValue(v) {
-			values, flatten, err := w.doResolution(RawDynamicValueSpec(v))
+			values, spec, err := w.doResolution(RawDynamicValueSpec(v))
 			if err != nil {
 				return nil, errors.WithMessage(err, fmt.Sprintf("could not process key '%s'", k))
 			}
-			if flatten {
+			if spec.Flatten {
 				if !strings.HasPrefix(k.(string), "_") {
 					return nil, fmt.Errorf(
 						"When flattening a map into another map, the key should "+
@@ -144,11 +144,11 @@ func (w *walker) injectDynamicValuesInSlice(v []interface{}) ([]interface{}, err
 
 	for i := range v {
 		if isDynamicValue(v[i]) {
-			values, flatten, err := w.doResolution(RawDynamicValueSpec(v[i]))
+			values, spec, err := w.doResolution(RawDynamicValueSpec(v[i]))
 			if err != nil {
 				return nil, err
 			}
-			if flatten {
+			if spec.Flatten {
 				for j := range values {
 					slice, ok := values[j].([]interface{})
 					if !ok {

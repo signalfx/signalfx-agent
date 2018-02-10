@@ -9,17 +9,18 @@ import (
 )
 
 type dynamicValueSpec struct {
-	From     *spec `yaml:"#from"`
-	Flatten  bool  `yaml:"flatten"`
-	Optional bool  `yaml:"optional"`
+	From     *fromPath `yaml:"#from"`
+	Flatten  bool      `yaml:"flatten"`
+	Optional bool      `yaml:"optional"`
+	Raw      bool      `yaml:"raw"`
 }
 
-type spec struct {
+type fromPath struct {
 	sourceName string
 	path       string
 }
 
-func (sp *spec) UnmarshalYAML(unmarshal func(interface{}) error) error {
+func (sp *fromPath) UnmarshalYAML(unmarshal func(interface{}) error) error {
 	var str string
 	err := unmarshal(&str)
 	if err != nil {
@@ -41,20 +42,20 @@ func (sp *spec) UnmarshalYAML(unmarshal func(interface{}) error) error {
 	return nil
 }
 
-func (sp *spec) SourceName() string {
+func (sp *fromPath) SourceName() string {
 	return utils.FirstNonEmpty(sp.sourceName, "file")
 }
 
-func (sp *spec) Path() string {
+func (sp *fromPath) Path() string {
 	return sp.path
 }
 
-func (sp *spec) String() string {
+func (sp *fromPath) String() string {
 	return sp.SourceName() + ":" + sp.Path()
 }
 
 // RawDynamicValueSpec is a string that should deserialize to a dynamic value
-// spec (e.g. {"#from": "/path/to/value"}).
+// path (e.g. {"#from": "/path/to/value"}).
 type RawDynamicValueSpec interface{}
 
 func parseRawSpec(r RawDynamicValueSpec) (*dynamicValueSpec, error) {

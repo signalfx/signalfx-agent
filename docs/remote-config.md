@@ -97,6 +97,11 @@ stated that you are ok with no matches.
 `optional` also works in scalar contexts as well, assuming that the config value
 is not required by the agent.
 
+### Raw Values
+If you have values in files/KV stores that you don't want interpreted as YAML,
+but rather as plain strings, you can add the `raw: true` value to the remote
+value specification.  Everything else acts as it would otherwise.
+
 ## Environment Variables
 
 The config file also supports environment variable interpolation with the
