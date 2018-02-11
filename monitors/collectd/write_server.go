@@ -2,7 +2,6 @@ package collectd
 
 import (
 	"encoding/json"
-	"fmt"
 	"net"
 	"net/http"
 	"time"
@@ -25,7 +24,10 @@ type WriteHTTPServer struct {
 	eventCallback func([]*event.Event)
 	ipAddr        string
 	port          uint16
-	server        *http.Server
+	// Port can be 0, which lets the kernel choose a free port.  activePort
+	// will be the chosen port once the server is running.
+	activePort int
+	server     *http.Server
 }
 
 // NewWriteHTTPServer creates but does not start a new write server
@@ -50,13 +52,22 @@ func NewWriteHTTPServer(ipAddr string, port uint16,
 // Start begins accepting connections on the write server.  Will return an
 // error if it cannot bind to the configured port.
 func (s *WriteHTTPServer) Start() error {
-	listener, err := net.Listen("tcp", fmt.Sprintf("%s:%d", s.ipAddr, s.port))
+	listener, err := net.ListenTCP("tcp", &net.TCPAddr{
+		IP:   net.ParseIP(s.ipAddr),
+		Port: int(s.port),
+	})
 	if err != nil {
 		return err
 	}
 
+	s.activePort = listener.Addr().(*net.TCPAddr).Port
+
 	go s.server.Serve(listener)
 	return nil
+}
+
+func (s *WriteHTTPServer) RunningPort() int {
+	return s.activePort
 }
 
 // Shutdown stops the write server immediately

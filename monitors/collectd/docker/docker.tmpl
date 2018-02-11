@@ -28,7 +28,6 @@ LoadPlugin "python"
 
 </Plugin>
 
-LoadPlugin match_regex
 <Chain "PostCache">
   <Rule>
     <Match "regex">
@@ -38,8 +37,6 @@ LoadPlugin match_regex
       Chain "FilterOutDetailedDockerStats"
     </Target>
   </Rule>
-
-  Target "write"
 </Chain>
 <Chain "FilterOutDetailedDockerStats">
   <Rule "CpuUsage">

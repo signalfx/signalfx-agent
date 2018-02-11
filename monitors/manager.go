@@ -72,7 +72,7 @@ func (mm *MonitorManager) Configure(confs []config.MonitorConfig, intervalSecond
 	// By configuring collectd with the monitor manager, we absolve the monitor
 	// instances of having to know about collectd config, which makes it easier
 	// to create monitor config from disparate sources such as from observers.
-	if err := collectd.Instance().Configure(mm.agentMeta.CollectdConf); err != nil {
+	if err := collectd.ConfigureCollectd(mm.agentMeta.CollectdConf); err != nil {
 		log.WithFields(log.Fields{
 			"error":          err,
 			"collectdConfig": spew.Sdump(mm.agentMeta.CollectdConf),

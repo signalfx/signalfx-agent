@@ -207,9 +207,9 @@ type CollectdConfig struct {
 	LogLevel             string `yaml:"logLevel" default:"notice"`
 	IntervalSeconds      int    `yaml:"intervalSeconds" default:"0"`
 	WriteServerIPAddr    string `yaml:"writeServerIPAddr" default:"127.9.8.7"`
-	WriteServerPort      uint16 `yaml:"writeServerPort" default:"14839"`
+	WriteServerPort      uint16 `yaml:"writeServerPort" default:"0"`
 
-	ConfigDir string `yaml:"configDir" default:"/run/signalfx-agent"`
+	ConfigDir string `yaml:"configDir" default:"/run/signalfx-agent/collectd"`
 
 	// The following are propagated from the top-level config
 	HostFSPath           string `yaml:"-"`

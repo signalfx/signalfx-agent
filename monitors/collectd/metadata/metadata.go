@@ -40,7 +40,7 @@ func (m *Monitor) Configure(conf *Config) error {
 		return errors.New("Metadata plugin needs collectd config")
 	}
 
-	conf.WriteServerURL = m.AgentMeta.CollectdConf.WriteServerURL()
+	conf.WriteServerURL = collectd.Instance().WriteServerURL()
 	conf.ProcFSPath = m.AgentMeta.ProcFSPath
 
 	return m.SetConfigurationAndRun(conf)

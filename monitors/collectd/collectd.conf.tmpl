@@ -29,6 +29,10 @@ LoadPlugin logfile
 LoadPlugin match_regex
 LoadPlugin target_set
 
+<Chain "PostCache">
+  Target "write"
+</Chain>
+
 <LoadPlugin "write_http">
    FlushInterval 2
 </LoadPlugin>

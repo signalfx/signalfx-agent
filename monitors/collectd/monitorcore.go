@@ -28,7 +28,6 @@ type MonitorCore struct {
 	// Where to write the plugin config to on the filesystem
 	configFilename string
 	config         config.MonitorCustomConfig
-	isRunning      bool
 	monitorID      types.MonitorID
 	lock           sync.Mutex
 	UsesGenericJMX bool
@@ -38,8 +37,7 @@ type MonitorCore struct {
 // the given template.
 func NewMonitorCore(template *template.Template) *MonitorCore {
 	return &MonitorCore{
-		Template:  template,
-		isRunning: false,
+		Template: template,
 	}
 }
 
@@ -74,7 +72,6 @@ func (bm *MonitorCore) SetConfiguration(conf config.MonitorCustomConfig) error {
 		return err
 	}
 
-	bm.isRunning = true
 	return nil
 }
 

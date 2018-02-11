@@ -30,7 +30,6 @@ const (
 // Collectd states
 const (
 	Errored       = "errored"
-	Initializing  = "initializing"
 	Restarting    = "restarting"
 	Running       = "running"
 	Starting      = "starting"
@@ -49,6 +48,9 @@ type Manager struct {
 	genericJMXUsers map[types.MonitorID]bool
 	noIDOutputs     map[types.MonitorID]types.Output
 	active          bool
+	// The port of the active write server, will be 0 if write server isn't
+	// started yet.
+	writeServerPort int
 
 	// Channels to control the state machine asynchronously
 	stop           chan struct{}
@@ -69,23 +71,34 @@ func Instance() *Manager {
 	defer collectdSingleton.configMutex.Unlock()
 
 	if !collectdSingleton.active {
-		collectdSingleton.deleteExistingConfig()
-		// This should only have to be called once for the lifetime of the
-		// agent.
-		go collectdSingleton.manageCollectd()
-		collectdSingleton.active = true
+		panic("Don't try and use the collectd manager until it is configured!")
 	}
+
 	return collectdSingleton
 }
 
-// Configure should be called whenever the main collectd config in the agent
+// ConfigureCollectd should be called whenever the main collectd config in the agent
 // has changed.  Restarts collectd if the config has changed.
-func (cm *Manager) Configure(conf *config.CollectdConfig) error {
+func ConfigureCollectd(conf *config.CollectdConfig) error {
+	cm := collectdSingleton
+
 	cm.configMutex.Lock()
 	defer cm.configMutex.Unlock()
 
 	if cm.conf == nil || cm.conf.Hash() != conf.Hash() {
 		cm.conf = conf
+
+		if !cm.active {
+			cm.deleteExistingConfig()
+
+			waitCh := make(chan struct{})
+			// This should only have to be called once for the lifetime of the
+			// agent.
+			go cm.manageCollectd(waitCh)
+			// Wait for the write server to be started
+			<-waitCh
+			cm.active = true
+		}
 
 		cm.requestRestart <- struct{}{}
 	}
@@ -156,6 +169,13 @@ func (cm *Manager) RequestRestart() {
 	cm.requestRestart <- struct{}{}
 }
 
+func (cm *Manager) WriteServerURL() string {
+	// Just reuse the config struct's method for making a URL
+	conf := *cm.conf
+	conf.WriteServerPort = uint16(cm.writeServerPort)
+	return conf.WriteServerURL()
+}
+
 // ManagedConfigDir returns the directory where monitor config should go.
 func (cm *Manager) ManagedConfigDir() string {
 	if cm.conf != nil {
@@ -167,8 +187,9 @@ func (cm *Manager) ManagedConfigDir() string {
 
 // Manage the subprocess with a basic state machine.  This is a bit tricky
 // since we have config coming in asynchronously from multiple sources.  This
-// function should never return.
-func (cm *Manager) manageCollectd() {
+// function should never return.  waitCh will be closed once the write server
+// is setup and right before it is actualy waiting for restart signals.
+func (cm *Manager) manageCollectd(waitCh chan<- struct{}) {
 	state := Uninitialized
 	var cmd *exec.Cmd
 	procDied := make(chan struct{})
@@ -177,7 +198,16 @@ func (cm *Manager) manageCollectd() {
 	var closeSignal chan struct{}
 	var restartDebounced func()
 	var restartDebouncedStop chan<- struct{}
-	var writeServer *WriteHTTPServer
+
+	writeServer, err := cm.startWriteServer()
+	if err != nil {
+		log.WithError(err).Error("Could not start collectd write server")
+		state = Errored
+	} else {
+		cm.writeServerPort = writeServer.RunningPort()
+	}
+
+	close(waitCh)
 
 	for {
 		log.Debugf("Collectd is now %s", state)
@@ -204,25 +234,13 @@ func (cm *Manager) manageCollectd() {
 			// Block here until we actually get a start request
 			select {
 			case <-restart:
-				state = Initializing
+				state = Starting
 			}
-
-		case Initializing:
-			var err error
-			writeServer, err = cm.startWriteServer()
-			if err != nil {
-				log.WithError(err).Error("Could not start collectd write server")
-				state = Errored
-				continue
-			}
-
-			state = Starting
 
 		case Starting:
-			if err := cm.rerenderConf(); err != nil {
+			if err := cm.rerenderConf(writeServer.RunningPort()); err != nil {
 				log.WithError(err).Error("Could not render collectd.conf")
 				state = Errored
-				writeServer.Shutdown()
 				continue
 			}
 
@@ -274,7 +292,6 @@ func (cm *Manager) manageCollectd() {
 			state = Stopped
 
 		case Stopped:
-			writeServer.Shutdown()
 			restartDebouncedStop <- struct{}{}
 			close(closeSignal)
 			state = Uninitialized
@@ -284,7 +301,6 @@ func (cm *Manager) manageCollectd() {
 			log.Error("Collectd is in an error state, waiting for config change")
 			state = Uninitialized
 		}
-
 	}
 }
 
@@ -302,14 +318,15 @@ func (cm *Manager) startWriteServer() (*WriteHTTPServer, error) {
 	if err != nil {
 		return nil, err
 	}
-	log.WithFields(log.Fields{
-		"ipAddr": cm.conf.WriteServerIPAddr,
-		"port":   cm.conf.WriteServerPort,
-	}).Info("Started collectd write server")
 
 	if err := writeServer.Start(); err != nil {
 		return nil, err
 	}
+
+	log.WithFields(log.Fields{
+		"ipAddr": cm.conf.WriteServerIPAddr,
+		"port":   writeServer.RunningPort(),
+	}).Info("Started collectd write server")
 
 	return writeServer, nil
 }
@@ -385,7 +402,7 @@ func (cm *Manager) receiveEvents(events []*event.Event) {
 	}
 }
 
-func (cm *Manager) rerenderConf() error {
+func (cm *Manager) rerenderConf(writeHTTPPort int) error {
 	output := bytes.Buffer{}
 
 	log.WithFields(log.Fields{
@@ -395,6 +412,7 @@ func (cm *Manager) rerenderConf() error {
 	// Copy so that hash of config struct is consistent
 	conf := *cm.conf
 	conf.HasGenericJMXMonitor = len(cm.genericJMXUsers) > 0
+	conf.WriteServerPort = uint16(writeHTTPPort)
 
 	if err := CollectdTemplate.Execute(&output, &conf); err != nil {
 		return errors.Wrapf(err, "Failed to render collectd template")
