@@ -4,21 +4,21 @@ RUN_CONTAINER := neo-agent-tmp
 check: lint vet test
 
 .PHONY: test
-test:
+test: templates
 	go test ./...
 
 .PHONY: vet
-vet:
+vet: templates
 	# Only consider it a failure if issues are in non-test files
 	! go vet ./... 2>&1 | tee /dev/tty | grep '.go' | grep -v '_test.go'
 
 .PHONY: vetall
-vetall:
+vetall: templates
 	go vet ./...
 
 .PHONY: lint
 lint:
-	golint -set_exit_status ./utils/... ./observers/... ./monitors/... ./core/... ./neotest/...
+	golint -set_exit_status ./cmd/... ./internal/...
 
 templates:
 	scripts/make-templates
@@ -35,7 +35,7 @@ signalfx-agent: templates
 	CGO_ENABLED=0 go build \
 		-ldflags "-X main.Version=$(AGENT_VERSION) -X main.BuiltTime=$$(date +%FT%T%z)" \
 		-i -o signalfx-agent \
-		github.com/signalfx/neo-agent
+		github.com/signalfx/signalfx-agent/cmd/agent
 
 .PHONY: bundle
 bundle:
@@ -48,7 +48,7 @@ run-shell:
 
 .PHONY: dev-image
 dev-image:
-	scripts/make-dev-image
+	scripts/build-docker-image signalfx-agent-dev latest dev-extras
 
 .PHONY: run-dev-image
 run-dev-image:
@@ -56,11 +56,10 @@ run-dev-image:
 		--privileged \
 		-p 6060:6060 \
 		--name signalfx-agent-dev \
-		-e SIGNALFX_BUNDLE_DIR=/bundle \
 		-v $(PWD)/local-etc:/etc/signalfx \
 		-v /:/bundle/hostfs:ro \
 		-v /var/run/docker.sock:/var/run/docker.sock:ro \
-		-v $(PWD):/go/src/github.com/signalfx/neo-agent:cached \
+		-v $(PWD):/go/src/github.com/signalfx/signalfx-agent:cached \
 		-v $(PWD)/collectd:/usr/src/collectd:cached \
 		signalfx-agent-dev /bin/bash
 

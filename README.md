@@ -1,7 +1,7 @@
-# SignalFx NeoAgent
+# SignalFx Agent
 
-NeoAgent is an agent written in Go for monitoring nodes and application
-services in highly ephemeral environments.
+The SignalFx Agent is a metric agent written in Go for monitoring nodes and
+application services in a variety of different environments.
 
 ## Design Goals
 Basic design goals are to have a minimal footprint with a plugin system so that

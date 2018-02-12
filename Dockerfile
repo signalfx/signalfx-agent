@@ -149,7 +149,7 @@ FROM golang:1.9.2-stretch as godeps
 RUN wget -O /usr/bin/dep https://github.com/golang/dep/releases/download/v0.3.2/dep-linux-amd64 &&\
     chmod +x /usr/bin/dep
 
-WORKDIR /go/src/github.com/signalfx/neo-agent
+WORKDIR /go/src/github.com/signalfx/signalfx-agent
 COPY Gopkg.toml Gopkg.lock ./
 
 RUN dep ensure -vendor-only
@@ -160,7 +160,7 @@ RUN apt update && apt install -y parallel
 RUN cd vendor && find . -type d -not -empty | grep -v '\btest' | parallel go install {} 2>/dev/null || true
 
 
-###### Neoagent Build Image ########
+###### Agent Build Image ########
 FROM ubuntu:16.04 as agent-builder
 
 # Cgo requires dep libraries present
@@ -172,23 +172,23 @@ RUN cd /tmp &&\
     wget https://storage.googleapis.com/golang/go${GO_VERSION}.linux-amd64.tar.gz &&\
 	tar -C /usr/local -xf go*.tar.gz
 
-COPY --from=godeps /go/src/github.com/signalfx/neo-agent/vendor /go/src/github.com/signalfx/neo-agent/vendor
+COPY --from=godeps /go/src/github.com/signalfx/signalfx-agent/vendor /go/src/github.com/signalfx/signalfx-agent/vendor
 COPY --from=godeps /go/pkg /go/pkg
 COPY --from=collectd /usr/src/collectd/ /usr/src/collectd
 
 ENV GOPATH=/go
-WORKDIR /go/src/github.com/signalfx/neo-agent
+WORKDIR /go/src/github.com/signalfx/signalfx-agent
 
-ARG agent_version
+COPY cmd/ ./cmd/
+COPY scripts/make-templates ./scripts/
+COPY scripts/collectd-template-to-go ./scripts/
+COPY Makefile .
+COPY internal/ ./internal/
 
-# The agent source files are tarred up because otherwise we would have to have
-# a separate ADD/COPY layer for every top-level package dir.
-ADD scripts/go_packages.tar /go/src/github.com/signalfx/neo-agent/
+ARG agent_version="latest"
 
 RUN AGENT_VERSION=${agent_version} make signalfx-agent &&\
 	mv signalfx-agent /usr/bin/signalfx-agent
-	# compressing the binary causes segfaults when run in standalone mode
-	#/tmp/upx --lzma /usr/bin/signalfx-agent
 
 
 ###### Python Plugin Image ######
@@ -327,18 +327,9 @@ WORKDIR /
 FROM ubuntu:16.04 as dev-extras
 
 RUN apt update &&\
-    apt install -y libcurl4-openssl-dev &&\
     apt install -y \
-      autoconf \
-      automake \
-      autotools-dev \
-      bison \
-      build-essential \
-      flex \
       git \
       inotify-tools \
-      libtool \
-      pkg-config \
       python-pip \
 	  python3-pip \
 	  vim \
@@ -346,12 +337,12 @@ RUN apt update &&\
 	  wget
 
 ENV SIGNALFX_BUNDLE_DIR=/bundle \
-    TEST_SERVICES_DIR=/go/src/github.com/signalfx/neo-agent/test-services \
-    AGENT_BIN=/go/src/github.com/signalfx/neo-agent/signalfx-agent
+    TEST_SERVICES_DIR=/go/src/github.com/signalfx/signalfx-agent/test-services \
+    AGENT_BIN=/go/src/github.com/signalfx/signalfx-agent/signalfx-agent
 
 RUN pip install ipython==5 ipdb
 
-WORKDIR /go/src/github.com/signalfx/neo-agent
+WORKDIR /go/src/github.com/signalfx/signalfx-agent
 CMD ["/bin/bash"]
 ENV PATH=$PATH:/usr/local/go/bin:/go/bin GOPATH=/go
 
@@ -367,26 +358,34 @@ RUN go get -u github.com/golang/lint/golint &&\
 COPY tests/requirements.txt /tmp/
 RUN pip3 install -r /tmp/requirements.txt
 
-COPY --from=godeps /go/src/github.com/signalfx/neo-agent/vendor src/github.com/signalfx/neo-agent/vendor
-COPY --from=godeps /go/pkg /go/pkg
+COPY --from=godeps /go/src/github.com/signalfx/signalfx-agent/vendor/ ./vendor/
+COPY --from=godeps /go/pkg/ /go/pkg/
+COPY --from=final-image /bin/signalfx-agent ./signalfx-agent
 
+COPY ./ ./
 COPY --from=final-image / /bundle/
 
 
 ####### Debian Packager #######
-FROM debian:9
+FROM debian:9 as debian-packager
 
 RUN apt update &&\
-    apt install -y dh-make devscripts
+    apt install -y dh-make devscripts dh-systemd
 
-ARG agent_version
+ARG agent_version="latest"
 WORKDIR /opt/signalfx-agent_${agent_version}
 
-COPY packaging/debian/ ./debian
+ENV DEBEMAIL="support+deb@signalfx.com" DEBFULLNAME="SignalFx, Inc."
+
+COPY packaging/deb/debian/ ./debian
 COPY packaging/etc/init.d/signalfx-agent ./debian/signalfx-agent.init
 COPY packaging/etc/systemd/signalfx-agent.service ./debian/signalfx-agent.service
+COPY packaging/etc/systemd/signalfx-agent.tmpfile ./debian/signalfx-agent.tmpfile
 COPY packaging/etc/upstart/signalfx-agent.conf ./debian/signalfx-agent.upstart
 COPY packaging/etc/logrotate.d/signalfx-agent.conf ./debian/signalfx-agent.logrotate
-COPY --from=final-image / ./signalfx-agent/
+COPY packaging/deb/make-changelog ./make-changelog
+COPY packaging/deb/devscripts.conf /etc/devscripts.conf
 
-RUN debuild --unsigned-source --unsigned-changes
+COPY packaging/etc/agent.yaml ./agent.yaml
+
+COPY --from=final-image / ./signalfx-agent/

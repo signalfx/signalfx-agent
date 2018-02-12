@@ -1,0 +1,14 @@
+#!/bin/bash
+
+set -euo pipefail
+
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+. $SCRIPT_DIR/common.sh
+
+IMAGE_NAME=$1
+IMAGE_TAG=$2
+STAGE=$3
+AGENT_VERSION=${4:-$IMAGE_TAG}
+
+do_docker_build ${IMAGE_NAME} ${IMAGE_TAG} ${STAGE} ${AGENT_VERSION}

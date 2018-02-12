@@ -1,37 +1,87 @@
 version: 2
+references:
+  executor: &executor
+    machine:
+      image: circleci/classic:201711-01
+
+  attach_workspace: &attach_workspace
+    attach_workspace:
+      at: /tmp/workspace
+
+  import_image: &import_image
+    run: |
+      docker load -i /tmp/workspace/image.tar
+    
 jobs:
-   build:
-     docker:
-       - image: ubuntu:16.04
-     environment:
-       GODIST: "go1.9.2.linux-amd64.tar.gz"
-       GOPATH: /go
-       GOROOT: /usr/local/go
-     steps:
-       - checkout
+  build:
+    <<: *executor
+    steps:
+     - checkout
+     - run: docker build -t signalfx-agent-dev:${CIRCLE_SHA1} --target dev-extras .
+     - run: |
+         mkdir -p /tmp/workspace
+         docker save -o /tmp/workspace/image.tar signalfx-agent-dev:${CIRCLE_SHA1}
+     - persist_to_workspace:
+         root: /tmp/workspace
+         paths:
+           - image.tar
 
-       - run: |
-          export PATH=/usr/local/go/bin:/go/bin:$PATH
-          proj_dir=$(pwd)
+  lint: 
+    <<: *executor
+    steps:
+      - *attach_workspace
+      - *import_image
+      - run: docker run --rm signalfx-agent-dev:${CIRCLE_SHA1} make lint
 
+  vet: 
+    <<: *executor
+    steps:
+      - *attach_workspace
+      - *import_image
+      - run: docker run --rm signalfx-agent-dev:${CIRCLE_SHA1} make vet
+
+  gotests: 
+    <<: *executor
+    steps:
+      - *attach_workspace
+      - *import_image
+      - run: |
+          mkdir ~/testresults
+          docker run --rm \
+            -v ~/testresults:/output \
+            signalfx-agent-dev:${CIRCLE_SHA1} \
+            bash -ec "make templates && go test -v ./... | go2xunit > /output/unit.xml"
+
+      - store_test_results:
+          path: ~/testresults
+
+  integration_tests: 
+    <<: *executor
+    steps:
+      - *attach_workspace
+      - *import_image
+      - run: |
           mkdir ~/testresults
 
-          apt-get update
-          apt-get install -y libzmq5-dev curl build-essential git pkg-config wget
-          cd /tmp
-          curl -o $GODIST https://storage.googleapis.com/golang/$GODIST
-          tar -C /usr/local -xzf $GODIST
-          mkdir -p /go/src/github.com/signalfx /go/bin
+          docker run --rm -v /var/run/docker.sock:/var/run/docker.sock -v ~/testresults:/output signalfx-agent-dev:${CIRCLE_SHA1} pytest -n8 --junitxml=/output/integration_tests.xml tests
 
-          wget -O /usr/bin/dep https://github.com/golang/dep/releases/download/v0.3.2/dep-linux-amd64
-          chmod +x /usr/bin/dep
+      - store_test_results:
+          path: ~/testresults
 
-          ln -s $proj_dir /go/src/github.com/signalfx/neo-agent
-
-          ls -al /go/src/github.com/signalfx
-          cd /go/src/github.com/signalfx/neo-agent
-          make vendor
-          scripts/circle.sh test
-
-       - store_test_results:
-           path: ~/testresults
+workflows:
+  version: 2
+  build_test:
+    jobs:
+     - build
+     - lint:
+        requires:
+         - build
+     - vet:
+        requires:
+         - build
+     - gotests:
+        requires:
+         - build
+     - integration_tests:
+        requires:
+         - build

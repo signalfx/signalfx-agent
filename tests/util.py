@@ -16,6 +16,7 @@ AGENT_BIN = os.environ.get("AGENT_BIN", "/bundle/bin/signalfx-agent")
 PROJECT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 TEST_SERVICES_DIR = os.environ.get("TEST_SERVICES_DIR", "/test-services")
 DEFAULT_TIMEOUT = os.environ.get("DEFAULT_TIMEOUT", 20)
+DOCKER_API_VERSION = "1.34"
 
 
 # Repeatedly calls the test function for timeout_seconds until either test
@@ -90,7 +91,7 @@ def setup_config(config_text, run_dir, fake_services):
 
 @contextmanager
 def run_container(name, **kwargs):
-    client = docker.from_env()
+    client = docker.from_env(version=DOCKER_API_VERSION)
     container = client.containers.run(name, detach=True, **kwargs)
 
     def has_ip_addr():
@@ -107,7 +108,7 @@ def run_container(name, **kwargs):
 
 @contextmanager
 def run_service(name):
-    client = docker.from_env()
+    client = docker.from_env(version=DOCKER_API_VERSION)
     print(TEST_SERVICES_DIR)
     nginx_image, logs = client.images.build(path=os.path.join(TEST_SERVICES_DIR, name))
     with run_container(nginx_image.id) as cont:
