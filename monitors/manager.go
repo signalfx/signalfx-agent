@@ -35,6 +35,8 @@ type MonitorManager struct {
 	Events         chan<- *event.Event
 	DimensionProps chan<- *types.DimProperties
 
+	// TODO: AgentMeta is rather hacky so figure out a better way to share agent
+	// metadata with monitors
 	agentMeta       *meta.AgentMeta
 	intervalSeconds int
 
@@ -56,7 +58,7 @@ func NewMonitorManager(agentMeta *meta.AgentMeta) *MonitorManager {
 // Configure receives a list of monitor configurations.  It will start up any
 // static monitors and watch discovered services to see if any match dynamic
 // monitors.
-func (mm *MonitorManager) Configure(confs []config.MonitorConfig, intervalSeconds int) {
+func (mm *MonitorManager) Configure(confs []config.MonitorConfig, collectdConf *config.CollectdConfig, intervalSeconds int) {
 	mm.lock.Lock()
 	defer mm.lock.Unlock()
 
@@ -72,10 +74,10 @@ func (mm *MonitorManager) Configure(confs []config.MonitorConfig, intervalSecond
 	// By configuring collectd with the monitor manager, we absolve the monitor
 	// instances of having to know about collectd config, which makes it easier
 	// to create monitor config from disparate sources such as from observers.
-	if err := collectd.ConfigureCollectd(mm.agentMeta.CollectdConf); err != nil {
+	if err := collectd.ConfigureCollectd(collectdConf); err != nil {
 		log.WithFields(log.Fields{
 			"error":          err,
-			"collectdConfig": spew.Sdump(mm.agentMeta.CollectdConf),
+			"collectdConfig": spew.Sdump(collectdConf),
 		}).Error("Could not configure collectd")
 	}
 

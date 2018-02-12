@@ -169,6 +169,8 @@ func (cm *Manager) RequestRestart() {
 	cm.requestRestart <- struct{}{}
 }
 
+// WriteServerURL returns the URL of the write server, in case monitors need to
+// know it (e.g. the signalfx-metadata plugin).
 func (cm *Manager) WriteServerURL() string {
 	// Just reuse the config struct's method for making a URL
 	conf := *cm.conf

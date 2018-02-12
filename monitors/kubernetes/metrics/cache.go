@@ -19,25 +19,29 @@ import (
 // ContainerID is some type of unique id for containers
 type ContainerID string
 
-type CachedResourceKey struct {
+type cachedResourceKey struct {
 	Kind schema.GroupVersionKind
 	UID  types.UID
 }
 
+// DatapointCache holds an up to date copy of datapoints pertaining to the
+// cluster.  It is updated whenever the HandleChange method is called with new
+// K8s resources.
 type DatapointCache struct {
-	dpCache      map[CachedResourceKey][]*datapoint.Datapoint
-	dimPropCache map[CachedResourceKey]*atypes.DimProperties
+	dpCache      map[cachedResourceKey][]*datapoint.Datapoint
+	dimPropCache map[cachedResourceKey]*atypes.DimProperties
 	mutex        sync.Mutex
 }
 
+// NewDatapointCache creates a new clean cache
 func NewDatapointCache() *DatapointCache {
 	return &DatapointCache{
-		dpCache:      make(map[CachedResourceKey][]*datapoint.Datapoint),
-		dimPropCache: make(map[CachedResourceKey]*atypes.DimProperties),
+		dpCache:      make(map[cachedResourceKey][]*datapoint.Datapoint),
+		dimPropCache: make(map[cachedResourceKey]*atypes.DimProperties),
 	}
 }
 
-func keyForObject(obj runtime.Object) (*CachedResourceKey, error) {
+func keyForObject(obj runtime.Object) (*cachedResourceKey, error) {
 	kind := obj.GetObjectKind().GroupVersionKind()
 	oma, ok := obj.(metav1.ObjectMetaAccessor)
 
@@ -45,7 +49,7 @@ func keyForObject(obj runtime.Object) (*CachedResourceKey, error) {
 		return nil, errors.New("K8s object is not of the expected form")
 	}
 
-	return &CachedResourceKey{
+	return &cachedResourceKey{
 		Kind: kind,
 		UID:  oma.GetObjectMeta().GetUID(),
 	}, nil
@@ -113,6 +117,7 @@ func (dc *DatapointCache) HandleChange(oldObj, newObj runtime.Object) {
 	dc.dimPropCache[*key] = dimProps
 }
 
+// AllDatapoints returns all of the cached datapoints.
 func (dc *DatapointCache) AllDatapoints() []*datapoint.Datapoint {
 	dc.mutex.Lock()
 	defer dc.mutex.Unlock()
@@ -128,6 +133,7 @@ func (dc *DatapointCache) AllDatapoints() []*datapoint.Datapoint {
 	return dps
 }
 
+// AllDimProperties returns any dimension properties pertaining to the cluster
 func (dc *DatapointCache) AllDimProperties() []*atypes.DimProperties {
 	dc.mutex.Lock()
 	defer dc.mutex.Unlock()

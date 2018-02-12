@@ -16,3 +16,6 @@ scripts/.Dockerfile*
 /collectd
 .vagrant
 tmp/
+/packaging/*/output
+test_output/
+.pytest_cache

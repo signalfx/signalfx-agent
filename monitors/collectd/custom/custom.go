@@ -34,7 +34,7 @@ type Config struct {
 	Templates []string `yaml:"templates"`
 }
 
-func (c *Config) AllTemplates() []string {
+func (c *Config) allTemplates() []string {
 	templates := c.Templates
 	if c.Template != "" {
 		templates = append(templates, c.Template)
@@ -44,7 +44,7 @@ func (c *Config) AllTemplates() []string {
 
 // Validate will check the config that is specific to this monitor
 func (c *Config) Validate() error {
-	for _, templateText := range c.AllTemplates() {
+	for _, templateText := range c.allTemplates() {
 		if _, err := templateFromText(templateText); err != nil {
 			return err
 		}
@@ -75,7 +75,7 @@ type Monitor struct {
 // restart.
 func (cm *Monitor) Configure(conf *Config) error {
 	templateTextConcatenated := ""
-	for _, text := range conf.AllTemplates() {
+	for _, text := range conf.allTemplates() {
 		templateTextConcatenated += "\n" + text
 	}
 

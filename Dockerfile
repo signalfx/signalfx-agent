@@ -340,9 +340,14 @@ RUN apt update &&\
       libtool \
       pkg-config \
       python-pip \
+	  python3-pip \
 	  vim \
 	  curl \
 	  wget
+
+ENV SIGNALFX_BUNDLE_DIR=/bundle \
+    TEST_SERVICES_DIR=/go/src/github.com/signalfx/neo-agent/test-services \
+    AGENT_BIN=/go/src/github.com/signalfx/neo-agent/signalfx-agent
 
 RUN pip install ipython==5 ipdb
 
@@ -354,8 +359,13 @@ COPY --from=agent-builder /usr/local/go/ /usr/local/go
 COPY --from=godeps /usr/bin/dep /usr/bin/dep
 COPY --from=collectd /usr/src/collectd/ /usr/src/collectd
 
-RUN go get -u github.com/golang/lint/golint
-RUN go get github.com/derekparker/delve/cmd/dlv
+RUN go get -u github.com/golang/lint/golint &&\
+    go get github.com/derekparker/delve/cmd/dlv &&\
+    go get github.com/tebeka/go2xunit
+
+# Get integration test deps in here
+COPY tests/requirements.txt /tmp/
+RUN pip3 install -r /tmp/requirements.txt
 
 COPY --from=godeps /go/src/github.com/signalfx/neo-agent/vendor src/github.com/signalfx/neo-agent/vendor
 COPY --from=godeps /go/pkg /go/pkg

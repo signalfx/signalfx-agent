@@ -6,7 +6,9 @@ import (
 	"math"
 
 	"github.com/coreos/etcd/client"
+	"github.com/gobwas/glob"
 	"github.com/signalfx/neo-agent/core/config/sources/types"
+	log "github.com/sirupsen/logrus"
 )
 
 type etcd2ConfigSource struct {
@@ -48,6 +50,20 @@ func max(a, b uint64) uint64 {
 	return uint64(math.Max(float64(a), float64(b)))
 }
 
+func matchNodeKeys(node *client.Node, g glob.Glob, contentMap map[string][]byte) {
+	if g.Match(node.Key) {
+		contentMap[node.Key] = []byte(node.Value)
+	}
+
+	for _, n := range node.Nodes {
+		log.Infof("Testing key %s", n.Key)
+		if g.Match(n.Key) {
+			contentMap[n.Key] = []byte(n.Value)
+		}
+		matchNodeKeys(n, g, contentMap)
+	}
+}
+
 func (e *etcd2ConfigSource) Get(path string) (map[string][]byte, uint64, error) {
 	prefix, g, isGlob, err := types.PrefixAndGlob(path)
 	if err != nil {
@@ -66,15 +82,8 @@ func (e *etcd2ConfigSource) Get(path string) (map[string][]byte, uint64, error) 
 	}
 
 	contentMap := make(map[string][]byte)
-	if g.Match(resp.Node.Key) {
-		contentMap[resp.Node.Key] = []byte(resp.Node.Value)
-	}
+	matchNodeKeys(resp.Node, g, contentMap)
 
-	for _, n := range resp.Node.Nodes {
-		if g.Match(n.Key) {
-			contentMap[n.Key] = []byte(n.Value)
-		}
-	}
 	return contentMap, resp.Index, nil
 }
 

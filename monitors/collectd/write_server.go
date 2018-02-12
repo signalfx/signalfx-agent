@@ -66,6 +66,8 @@ func (s *WriteHTTPServer) Start() error {
 	return nil
 }
 
+// RunningPort returns the TCP port that the server is running on. Should not
+// be called before the Start method is called.
 func (s *WriteHTTPServer) RunningPort() int {
 	return s.activePort
 }

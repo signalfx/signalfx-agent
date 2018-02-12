@@ -95,7 +95,7 @@ func (a *Agent) configure(conf *config.Config) {
 	//}
 
 	// The order of Configure calls is very important!
-	a.monitors.Configure(conf.Monitors, conf.IntervalSeconds)
+	a.monitors.Configure(conf.Monitors, &conf.Collectd, conf.IntervalSeconds)
 	a.observers.Configure(conf.Observers)
 	a.lastConfig = conf
 }
