@@ -3,8 +3,9 @@ package processes
 //go:generate collectd-template-to-go processes.tmpl
 
 import (
+	"github.com/creasty/defaults"
+	"github.com/pkg/errors"
 	"github.com/signalfx/signalfx-agent/internal/core/config"
-	"github.com/signalfx/signalfx-agent/internal/core/meta"
 	"github.com/signalfx/signalfx-agent/internal/monitors"
 	"github.com/signalfx/signalfx-agent/internal/monitors/collectd"
 )
@@ -25,7 +26,7 @@ type Config struct {
 	Processes            []string          `yaml:"processes"`
 	ProcessMatch         map[string]string `yaml:"processMatch"`
 	CollectContextSwitch bool              `yaml:"collectContextSwitch" default:"false"`
-	ProcFSPath           string            `yaml:"procFSPath"`
+	ProcFSPath           string            `yaml:"procFSPath" default:"/proc"`
 }
 
 // Validate will check the config for correctness.
@@ -36,13 +37,12 @@ func (c *Config) Validate() error {
 // Monitor is the main type that represents the monitor
 type Monitor struct {
 	collectd.MonitorCore
-	AgentMeta *meta.AgentMeta
 }
 
 // Configure configures and runs the plugin in collectd
 func (am *Monitor) Configure(conf *Config) error {
-	if conf.ProcFSPath == "" {
-		conf.ProcFSPath = am.AgentMeta.ProcFSPath
+	if err := defaults.Set(conf); err != nil {
+		return errors.Wrap(err, "Could not set defaults for processes monitor")
 	}
 
 	return am.SetConfigurationAndRun(conf)

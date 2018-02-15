@@ -85,29 +85,32 @@ To override collectd templates modify the `signalfx-templates` config map.
 ## Diagnostics
 The agent serves diagnostic information on a unix domain socket at
 `/var/run/signalfx.sock`.  The socket takes no input, but simply dumps it's
-current status back upon connection.  There is a small helper script
-`agent-status` that is on the system PATH in the container that will call it
-for you.
+current status back upon connection.  The command `signalfx-agent status` (or
+the special symlink `agent-status`) will read this socket and dump out its
+contents.
 
 ## Development
 
-The agent can be built from a single multi-stage Dockerfile. This requires
-Docker 17.06+.  Run `make image` to build the image using the build script
-wrapper (`scripts/build.sh`).
+The agent is built from a single multi-stage Dockerfile. This requires Docker
+17.06+.  There is a dev image that can be built for more convenient local
+development. Run `make dev-image` to build it and `make run-dev-image` to run
+it and attach to a shell inside of it.  Inside this dev image, the agent bundle
+is at `/bundle` and the rest of the image contains useful tools for
+development, such as a golang build environment.
 
-There is a dev image that can be built for more convenient local development.
-Run `make dev-image` to build it and `make run-dev-image` to run it.  Inside
-this dev image, the agent bundle is at `/bundle` and the rest of the image
-contains useful tools for development, such as a golang build environment.
-
-Within this image, you can build the agent with `make signalfx-agent` and then run the
-agent with `make run-agent-dev` (this handles copying the built binary into the
-bundle dir and invoking it with the standalone run script).  The code directory
-will be mounted in the container at the right place in the go path so that it
-can be built with no extra setup.
+Within this image, you can build the agent with `make signalfx-agent` and then
+run the agent with `./signalfx-agent`.  The code directory will be mounted in
+the container at the right place in the go path so that it can be built with no
+extra setup.
 
 You can put agent config in the `local-etc` dir of this repo and it will be
-shared into the container at the default place that the agent looks for config.
+shared into the container at the default place that the agent looks for config
+(`/etc/signalfx`).
+
+### Trivial Commits
+If you have a very simple commit that should not require a full CI run, just
+put the text `[skip ci]` in the commit message somewhere and CircleCI will not
+run for that commit.
 
 ### Development in Kubernetes (K8s)
 

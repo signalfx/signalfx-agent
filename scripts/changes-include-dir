@@ -1,0 +1,14 @@
+#!/bin/bash
+
+# Tests if a CircleCI job run is dealing with changes in the given directory.
+# Useful for skipping a job if nothing was updated for a particular component.
+# Only should be run in a CircleCI job.
+
+# This compares the current branch to the master, so it might have some false
+# positives if using multiple layers of branches off of master.
+
+set -euo pipefail
+
+DIR=$1
+
+git diff origin/master...$CIRCLE_BRANCH --name-status | grep $DIR

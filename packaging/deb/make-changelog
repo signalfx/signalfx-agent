@@ -1,0 +1,48 @@
+#!/bin/bash
+
+# This script generates the Debian package changelog file from the annotated
+# tags doing back from the current HEAD.  If you update a debian package
+# without changing the agent bundle, you should make an annotated tag of the
+# form "<agent version>-deb<revision #> where <revision #> should start at 2
+# (the first revision is implicitly set to 1 if there is no debian tag).
+
+set -exuo pipefail
+
+git="git --git-dir /git-repo --bare"
+
+strip_v() {
+	sed -e 's/^v//' <<< $1
+}
+
+revision_from_tag() {
+  revision=$(echo $1 | grep '.*-deb' | sed -e "s/.*-deb//")
+
+  if test -z $revision
+  then
+    echo '1'
+  else
+    echo $revision
+  fi
+}
+
+# Construct the changelog from git annotated tags
+dch --create --empty --package signalfx-agent -v 0.0.0-1
+
+tag_history=$($git tag --list --merged=HEAD --sort=v:refname)
+for t in $tag_history
+do
+  # Filter out lightweight (non-annotated) tags
+  if [[ $($git cat-file -t $t) != "tag" ]]
+  then
+    continue
+  fi
+
+  upstream_version=$(echo -n $(strip_v $t) | sed -e 's/-deb.*//')
+
+  revision=$(revision_from_tag $t)
+  
+  message=$($git tag -l --format='%(contents)' $t)
+  dch -v $upstream_version-$revision --distribution all "$message"
+done
+
+cat debian/changelog

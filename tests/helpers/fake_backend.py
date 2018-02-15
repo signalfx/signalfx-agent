@@ -40,7 +40,7 @@ def _make_fake_ingest(datapoints, events):
             self.end_headers()
             self.wfile.write("\"OK\"".encode("utf-8"))
 
-    return HTTPServer(('', 0), FakeIngest)
+    return HTTPServer(('127.0.0.1', 0), FakeIngest)
 
 
 # Fake the dimension PUT method to capture dimension property/tag updates.
@@ -61,11 +61,11 @@ def _make_fake_api(dims):
             self.send_header("Content-Length", "0")
             self.end_headers()
 
-    return HTTPServer(('', 0), FakeAPIServer)
+    return HTTPServer(('127.0.0.1', 0), FakeAPIServer)
 
 # Starts up a new set of backend services that will run on a random port.  The
-# returned object will have a stop() method that should be called to stop the
-# set of services.
+# returned object will have properties on it for datapoints, events, and dims.
+# The fake servers will be stopped once the context manager block is exited.
 @contextmanager
 def start():
     # Data structures are thread-safe due to the GIL
@@ -80,7 +80,12 @@ def start():
     threading.Thread(target=api_httpd.serve_forever).start()
 
     class FakeBackend:
+        ingest_host = ingest_httpd.server_address[0]
+        ingest_port = ingest_httpd.server_address[1]
         ingest_url = "http://%s:%d" % ingest_httpd.server_address
+
+        api_host = api_httpd.server_address[0]
+        api_port = api_httpd.server_address[1]
         api_url = "http://%s:%d" % api_httpd.server_address
 
         datapoints = _datapoints

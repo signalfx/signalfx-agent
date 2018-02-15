@@ -10,5 +10,4 @@ type AgentMeta struct {
 	Hostname                  string
 	InternalMetricsSocketPath string
 	CollectdConf              *config.CollectdConfig
-	ProcFSPath                string
 }

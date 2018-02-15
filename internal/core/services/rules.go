@@ -97,11 +97,12 @@ func DoesServiceMatchRule(si Endpoint, ruleText string) bool {
 	}
 
 	asMap := EndpointAsMap(si)
-	if !endpointMapHasAllVars(asMap, rule.Vars()) {
+	if err := endpointMapHasAllVars(asMap, rule.Vars()); err != nil {
 		log.WithFields(log.Fields{
 			"discoveryRule":   rule.String(),
 			"values":          asMap,
 			"serviceInstance": si,
+			"error":           err,
 		}).Debug("Endpoint does not include some variables used in rule, assuming does not match")
 		return false
 	}
@@ -154,11 +155,11 @@ func ValidateDiscoveryRule(rule string) error {
 	return nil
 }
 
-func endpointMapHasAllVars(endpointParams map[string]interface{}, vars []string) bool {
+func endpointMapHasAllVars(endpointParams map[string]interface{}, vars []string) error {
 	for _, v := range vars {
-		if _, ok := endpointParams[v]; !ok {
-			return false
+		if _, ok := endpointParams[v]; !ok && validRuleIdentifiers[v] {
+			return fmt.Errorf("Variable '%s' not found in endpoint", v)
 		}
 	}
-	return true
+	return nil
 }

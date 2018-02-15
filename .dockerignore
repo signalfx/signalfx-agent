@@ -9,3 +9,4 @@ build/**
 internal/monitors/**/template.go
 internal/monitors/collectd/collectd.conf.go
 packaging/*/output
+tests/**/__pycache__

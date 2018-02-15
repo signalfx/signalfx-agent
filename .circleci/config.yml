@@ -17,10 +17,10 @@ jobs:
     <<: *executor
     steps:
      - checkout
-     - run: docker build -t signalfx-agent-dev:${CIRCLE_SHA1} --target dev-extras .
+     - run: docker build -t signalfx-agent-dev:latest --target dev-extras .
      - run: |
          mkdir -p /tmp/workspace
-         docker save -o /tmp/workspace/image.tar signalfx-agent-dev:${CIRCLE_SHA1}
+         docker save -o /tmp/workspace/image.tar signalfx-agent-dev:latest
      - persist_to_workspace:
          root: /tmp/workspace
          paths:
@@ -31,14 +31,14 @@ jobs:
     steps:
       - *attach_workspace
       - *import_image
-      - run: docker run --rm signalfx-agent-dev:${CIRCLE_SHA1} make lint
+      - run: docker run --rm signalfx-agent-dev make lint
 
   vet: 
     <<: *executor
     steps:
       - *attach_workspace
       - *import_image
-      - run: docker run --rm signalfx-agent-dev:${CIRCLE_SHA1} make vet
+      - run: docker run --rm signalfx-agent-dev make vet
 
   gotests: 
     <<: *executor
@@ -49,7 +49,7 @@ jobs:
           mkdir ~/testresults
           docker run --rm \
             -v ~/testresults:/output \
-            signalfx-agent-dev:${CIRCLE_SHA1} \
+            signalfx-agent-dev \
             bash -ec "make templates && go test -v ./... | go2xunit > /output/unit.xml"
 
       - store_test_results:
@@ -63,10 +63,62 @@ jobs:
       - run: |
           mkdir ~/testresults
 
-          docker run --rm -v /var/run/docker.sock:/var/run/docker.sock -v ~/testresults:/output signalfx-agent-dev:${CIRCLE_SHA1} pytest -n8 --junitxml=/output/integration_tests.xml tests
+          docker run --rm -v /var/run/docker.sock:/var/run/docker.sock -v ~/testresults:/output signalfx-agent-dev pytest -n8 --junitxml=/output/integration_tests.xml -m "not packaging" tests
 
       - store_test_results:
           path: ~/testresults
+
+  rpm_package_tests:
+    <<: *executor
+    steps:
+      - checkout
+      - run: |
+          mkdir ~/testresults
+
+          if ! scripts/changes-include-dir packaging/rpm; then
+              echo "RPM packaging code has not changed, skipping tests!"
+              exit 0
+          fi
+
+          sudo apt-get update && sudo apt-get install -y python3-pip
+          sudo pip3 install -r tests/requirements.txt
+
+          ./packaging/rpm/build
+
+          pytest -n auto -m "rpm" --junitxml=~/testresults/rpm.xml ./tests/packaging
+
+      - store_test_results:
+          path: ~/testresults
+
+      - store_artifacts:
+          path: ~/project/packaging/rpm/output
+          destination: /packages/
+
+  deb_package_tests:
+    <<: *executor
+    steps:
+      - checkout
+      - run: |
+          mkdir ~/testresults
+
+          if ! scripts/changes-include-dir packaging/deb; then
+              echo "Debian packaging code has not changed, skipping tests!"
+              exit 0
+          fi
+
+          sudo apt-get update && sudo apt-get install -y python3-pip
+          sudo pip3 install -r tests/requirements.txt
+
+          ./packaging/deb/build
+
+          pytest -n auto -m "deb" --junitxml=~/testresults/deb.xml ./tests/packaging
+
+      - store_test_results:
+          path: ~/testresults
+
+      - store_artifacts:
+          path: ~/project/packaging/deb/output
+          destination: /packages/
 
 workflows:
   version: 2
@@ -85,3 +137,5 @@ workflows:
      - integration_tests:
         requires:
          - build
+     - rpm_package_tests
+     - deb_package_tests

@@ -2,14 +2,14 @@ from functools import partial as p
 import os
 import string
 
-from tests import fake_backend
-from tests.util import (
+from tests.helpers import fake_backend
+from tests.helpers.util import (
     container_ip,
     wait_for,
     run_agent,
     run_container
 )
-from tests.assertions import *
+from tests.helpers.assertions import *
 
 
 def create_path(container, path, value):

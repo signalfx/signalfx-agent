@@ -3,10 +3,9 @@ package metadata
 //go:generate collectd-template-to-go metadata.tmpl
 
 import (
-	"errors"
-
+	"github.com/creasty/defaults"
+	"github.com/pkg/errors"
 	"github.com/signalfx/signalfx-agent/internal/core/config"
-	"github.com/signalfx/signalfx-agent/internal/core/meta"
 	"github.com/signalfx/signalfx-agent/internal/monitors"
 	"github.com/signalfx/signalfx-agent/internal/monitors/collectd"
 )
@@ -25,23 +24,23 @@ func init() {
 type Config struct {
 	config.MonitorConfig `singleInstance:"true"`
 	WriteServerURL       string `yaml:"writeServerURL"`
-	ProcFSPath           string `yaml:"procFSPath"`
+	ProcFSPath           string `yaml:"procFSPath" default:"/proc"`
+	EtcPath              string `yaml:"etcPath" default:"/etc"`
+	PersistencePath      string `yaml:"persistencePath" default:"/var/lib/misc"`
 }
 
 // Monitor is the main type that represents the monitor
 type Monitor struct {
 	collectd.MonitorCore
-	AgentMeta *meta.AgentMeta
 }
 
 // Configure configures and runs the plugin in collectd
 func (m *Monitor) Configure(conf *Config) error {
-	if m.AgentMeta.CollectdConf == nil {
-		return errors.New("Metadata plugin needs collectd config")
+	if err := defaults.Set(conf); err != nil {
+		return errors.Wrap(err, "Could not set defaults for signalfx-metadata monitor")
 	}
 
 	conf.WriteServerURL = collectd.Instance().WriteServerURL()
-	conf.ProcFSPath = m.AgentMeta.ProcFSPath
 
 	return m.SetConfigurationAndRun(conf)
 }

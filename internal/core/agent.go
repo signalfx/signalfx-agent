@@ -85,7 +85,6 @@ func (a *Agent) configure(conf *config.Config) {
 	a.meta.InternalMetricsSocketPath = conf.InternalMetricsSocketPath
 	a.meta.Hostname = conf.Hostname
 	a.meta.CollectdConf = &conf.Collectd
-	a.meta.ProcFSPath = conf.ProcFSPath
 
 	//if conf.PythonEnabled {
 	//neopy.Instance().Configure()

@@ -32,6 +32,12 @@ def wait_for(test, timeout_seconds=DEFAULT_TIMEOUT):
         time.sleep(0.5)
 
 
+# Print each line separately to make it easier to read in pytest output
+def print_lines(msg):
+    for l in msg.splitlines():
+        print(l)
+
+
 def container_ip(container):
     return container.attrs["NetworkSettings"]["IPAddress"]
 
@@ -61,8 +67,7 @@ def run_agent(config_text):
                 proc.wait(10)
 
                 print("Agent output:")
-                for line in get_output().splitlines():
-                    print(line)
+                print_lines(get_output())
 
 
 def setup_config(config_text, run_dir, fake_services):
@@ -90,7 +95,7 @@ def setup_config(config_text, run_dir, fake_services):
 
 
 @contextmanager
-def run_container(name, **kwargs):
+def run_container(name, wait_for_ip=True, **kwargs):
     client = docker.from_env(version=DOCKER_API_VERSION)
     container = client.containers.run(name, detach=True, **kwargs)
 
@@ -98,11 +103,12 @@ def run_container(name, **kwargs):
         container.reload()
         return container.attrs["NetworkSettings"]["IPAddress"]
 
-    wait_for(has_ip_addr, timeout_seconds=5)
+    if wait_for_ip:
+        wait_for(has_ip_addr, timeout_seconds=5)
     try:
         yield container
     finally:
-        print("Container %s logs: %s" % (name, container.logs()))
+        print_lines("Container %s logs:\n%s" % (name, container.logs()))
         container.remove(force=True, v=True)
 
 

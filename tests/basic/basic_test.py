@@ -1,7 +1,7 @@
 import os
 
-from tests import fake_backend
-from tests.util import wait_for, run_agent
+from tests.helpers import fake_backend
+from tests.helpers.util import wait_for, run_agent
 
 basic_config = """
 monitors:

@@ -1,0 +1,22 @@
+#!/bin/bash
+
+# Gets the latest debian package revision within the given agent version.
+# Most agent versions will only have one (implicit) debian package revision,
+# which is revision #1.  If you create an annotated tag of the form "v<agent
+# version>-deb<revision #>" (e.g. v2.0.0-deb2), that will indicate that the
+# Debian package should have a new revision.
+
+set -euo pipefail
+
+agent_version=$1
+if test -z $agent_version
+then
+  echo "Usage: $0 agent_version" >&2
+  exit 1
+fi
+
+deb_tag=$(git describe --abbrev=0 --tags --match "v${agent_version}-deb*" 2>/dev/null || true)
+
+revision=$(echo -n $deb_tag | sed -e "s/v${agent_version}-deb//")
+
+echo -n ${revision:-"1"}

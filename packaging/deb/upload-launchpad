@@ -1,0 +1,6 @@
+#!/bin/bash
+
+base_series=xenial
+ppa_suffix=
+
+./copy-package --from=~signalfx/ubuntu/signalfx-agent${ppa-suffix} --from-suite=${base_series} --to=~signalfx/ubuntu/signalfx-agent${ppa-suffix} --to-suite=${target_series} -b -y signalfx-agent

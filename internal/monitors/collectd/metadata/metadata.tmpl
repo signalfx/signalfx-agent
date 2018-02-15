@@ -15,8 +15,8 @@ TypesDB "{{Globals.PluginRoot}}/signalfx/types.db.plugin"
     Token "unnecessary"
     NotifyLevel "OKAY"
     ProcPath "{{ .ProcFSPath }}"
-    EtcPath "./hostfs/etc"
-    PersistencePath "./run"
+    EtcPath "{{ .EtcPath }}"
+    PersistencePath "{{ .PersistencePath }}"
   </Module>
 </Plugin>
 

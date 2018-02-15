@@ -1,0 +1,48 @@
+#!/bin/bash
+
+# Builds the agent RPM package.
+# First builds the RPM packager Docker image (which extends and includes the
+# agent bundle) and then runs "rpmbuild" which does the heavy lifting of
+# actually building the package.
+
+set -exuo pipefail
+
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+. $SCRIPT_DIR/../../scripts/common.sh
+
+AGENT_VERSION=$($SCRIPT_DIR/../../scripts/latest-version)
+# RPM really dislikes dashes in version names, so replace them with tilde if
+# any (e.g. in beta releases).
+CLEAN_AGENT_VERSION=$(echo "$AGENT_VERSION" | sed -e 's/-/~/g')
+RPM_REVISION=${RPM_REVISION:-$($SCRIPT_DIR/current-revision ${AGENT_VERSION})}
+GPG_DIR=${GPG_DIR:-"$HOME/.gnupg"}
+
+image_name=signalfx-agent-rpm-packager
+image_tag=${AGENT_VERSION}-rpm${RPM_REVISION}
+
+do_docker_build ${image_name} ${image_tag} rpm-packager $AGENT_VERSION
+
+OUTPUT_DIR=${OUTPUT_DIR:-$SCRIPT_DIR/output}
+
+find ${OUTPUT_DIR} -name "*.rpm" | xargs rm
+
+docker run --rm \
+  -v ${OUTPUT_DIR}:/output \
+  $image_name:$image_tag \
+    rpmbuild -bb \
+      --nodeps \
+      --define "_version $CLEAN_AGENT_VERSION" \
+      --define "_release $RPM_REVISION" \
+      --define "_rpmdir /output" \
+      SPECS/signalfx-agent.spec
+
+  #-v ${GPG_DIR}:/root/.gnupg \
+
+if ! test -e ${OUTPUT_DIR}/x86_64/signalfx-agent-${CLEAN_AGENT_VERSION}-${RPM_REVISION}.x86_64.rpm
+then
+  echo "Could not find output package, something went wrong" >&2
+  exit 1
+fi
+
+echo "SignalFx Agent ${AGENT_VERSION}-${RPM_REVISION} build successfully.  Output is in ${OUTPUT_DIR}."

@@ -1,0 +1,43 @@
+#!/bin/bash
+
+# Builds the Debian deb package.
+# First builds the debian packager Docker image (which extends and includes the
+# agent bundle) and then runs "debuild" which does the heavy lifting of
+# actually building the deb package.
+
+set -exuo pipefail
+
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+. $SCRIPT_DIR/../../scripts/common.sh
+
+AGENT_VERSION=$($SCRIPT_DIR/../../scripts/latest-version)
+DEB_REVISION=${DEB_REVISION:-$($SCRIPT_DIR/current-revision ${AGENT_VERSION})}
+GPG_DIR=${GPG_DIR:-"$HOME/.gnupg"}
+
+image_name=signalfx-agent-debian-packager
+image_tag=${AGENT_VERSION}-deb${DEB_REVISION}
+
+do_docker_build ${image_name} ${image_tag} debian-packager $AGENT_VERSION
+
+OUTPUT_DIR=${OUTPUT_DIR:-$SCRIPT_DIR/output}
+
+output_prefix="$OUTPUT_DIR/signalfx-agent_$AGENT_VERSION-${DEB_REVISION}_amd64"
+
+rm -f ${output_prefix}*
+
+docker run --rm \
+  -v ${SCRIPT_DIR}/../../.git:/git-repo:ro \
+  -v ${GPG_DIR}:/root/.gnupg \
+  -v ${OUTPUT_DIR}:/output \
+  $image_name:$image_tag \
+  bash -e -c \
+    "./make-changelog && debuild && cp -f ../*.{changes,build,buildinfo,deb} /output"
+
+if ! test -e $output_prefix.deb
+then
+  echo "Could not find output package, something went wrong" >&2
+  exit 1
+fi
+
+echo "SignalFx Agent ${AGENT_VERSION}-${DEB_REVISION} build successfully.  Output is in ${OUTPUT_DIR}."

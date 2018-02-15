@@ -1,0 +1,26 @@
+#!/usr/bin/make -f
+
+export DH_VERBOSE = 1
+
+%:
+	dh $@
+
+# Disable this since the agent packages its own libs in a non-standard path
+override_dh_makeshlibs:
+override_dh_shlibdeps:
+
+# Make sure the agent stays up for as long as possible when upgrading
+override_dh_installinit:
+	dh_installinit --restart-after-upgrade --no-start
+
+# Prevent systemd from enabling or starting because the user might need to do
+# further config such as adding an access token before starting or enabling.
+override_dh_systemd_enable:
+override_dh_systemd_start:
+
+override_dh_strip:
+override_dh_strip_nondeterminism:
+
+# Stop it from trying to take away the executable bit on our bundled loader
+override_dh_fixperms:
+	dh_fixperms --exclude ld-linux-x86-64.so

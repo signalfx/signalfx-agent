@@ -54,6 +54,7 @@ dev-image:
 run-dev-image:
 	docker exec -it signalfx-agent-dev bash 2>/dev/null || docker run --rm -it \
 		--privileged \
+		--net host \
 		-p 6060:6060 \
 		--name signalfx-agent-dev \
 		-v $(PWD)/local-etc:/etc/signalfx \
@@ -61,6 +62,7 @@ run-dev-image:
 		-v /var/run/docker.sock:/var/run/docker.sock:ro \
 		-v $(PWD):/go/src/github.com/signalfx/signalfx-agent:cached \
 		-v $(PWD)/collectd:/usr/src/collectd:cached \
+		-v /tmp/scratch:/tmp/scratch \
 		signalfx-agent-dev /bin/bash
 
 .PHONY: debug-agent

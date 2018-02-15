@@ -306,7 +306,8 @@ COPY --from=python-plugins /usr/local/lib/python2.7/ /lib/python2.7
 
 COPY neopy /neopy
 
-RUN mkdir /run &&\
+RUN mkdir -p /run/collectd /var/run/ &&\
+    ln -s /var/run/signalfx-agent /run &&\
     ln -s /bin/signalfx-agent /bin/agent-status
 
 COPY --from=agent-builder /usr/bin/signalfx-agent /bin/signalfx-agent
@@ -328,19 +329,21 @@ FROM ubuntu:16.04 as dev-extras
 
 RUN apt update &&\
     apt install -y \
+      curl \
       git \
       inotify-tools \
       python-pip \
-	  python3-pip \
-	  vim \
-	  curl \
-	  wget
+      python3-pip \
+      socat \
+      vim \
+      wget
 
 ENV SIGNALFX_BUNDLE_DIR=/bundle \
     TEST_SERVICES_DIR=/go/src/github.com/signalfx/signalfx-agent/test-services \
     AGENT_BIN=/go/src/github.com/signalfx/signalfx-agent/signalfx-agent
 
 RUN pip install ipython==5 ipdb
+RUN pip3 install ipython ipdb
 
 WORKDIR /go/src/github.com/signalfx/signalfx-agent
 CMD ["/bin/bash"]
@@ -349,6 +352,9 @@ ENV PATH=$PATH:/usr/local/go/bin:/go/bin GOPATH=/go
 COPY --from=agent-builder /usr/local/go/ /usr/local/go
 COPY --from=godeps /usr/bin/dep /usr/bin/dep
 COPY --from=collectd /usr/src/collectd/ /usr/src/collectd
+
+RUN curl -fsSL get.docker.com -o /tmp/get-docker.sh &&\
+    sh /tmp/get-docker.sh
 
 RUN go get -u github.com/golang/lint/golint &&\
     go get github.com/derekparker/delve/cmd/dlv &&\
@@ -389,3 +395,18 @@ COPY packaging/deb/devscripts.conf /etc/devscripts.conf
 COPY packaging/etc/agent.yaml ./agent.yaml
 
 COPY --from=final-image / ./signalfx-agent/
+
+
+###### RPM Packager #######
+FROM centos:7 as rpm-packager
+
+RUN yum install -y rpmdevtools
+
+WORKDIR /root/rpmbuild
+
+COPY packaging/etc/agent.yaml ./SOURCES/agent.yaml
+COPY packaging/etc/upstart/signalfx-agent.conf ./SOURCES/signalfx-agent.upstart
+COPY packaging/etc/systemd/ ./SOURCES/systemd/
+COPY packaging/rpm/signalfx-agent.spec ./SPECS/signalfx-agent.spec
+
+COPY --from=final-image / ./SOURCES/signalfx-agent/

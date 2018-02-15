@@ -2,9 +2,9 @@ from functools import partial as p
 import os
 import string
 
-from tests import fake_backend
-from tests.util import wait_for, run_agent, run_service
-from tests.assertions import *
+from tests.helpers import fake_backend
+from tests.helpers.util import wait_for, run_agent, run_service
+from tests.helpers.assertions import *
 
 nginx_config = string.Template("""
 monitors:
