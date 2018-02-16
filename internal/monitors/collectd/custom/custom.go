@@ -9,7 +9,6 @@ import (
 	"github.com/signalfx/signalfx-agent/internal/core/config"
 	"github.com/signalfx/signalfx-agent/internal/monitors"
 	"github.com/signalfx/signalfx-agent/internal/monitors/collectd"
-	"github.com/signalfx/signalfx-agent/internal/monitors/collectd/templating"
 )
 
 const monitorType = "collectd/custom"
@@ -59,7 +58,7 @@ func (c *Config) Validate() error {
 }
 
 func templateFromText(templateText string) (*template.Template, error) {
-	template, err := templating.InjectTemplateFuncs(template.New("custom")).Parse(templateText)
+	template, err := collectd.InjectTemplateFuncs(template.New("custom")).Parse(templateText)
 	if err != nil {
 		return nil, errors.Wrapf(err, "Template text failed to parse: \n%s", templateText)
 	}

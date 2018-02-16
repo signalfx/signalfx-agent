@@ -203,6 +203,9 @@ var _ = Describe("Kubernetes plugin", func() {
 			},
 		}}
 
+		// Throw away the next set of dps since they could still have the pod
+		// metrics if sent before the update but after the previous assertion.
+		_ = waitForDatapoints(2)
 		dps = waitForDatapoints(2)
 
 		expectIntMetricMissing(dps, "kubernetes_pod_uid", "1234", "kubernetes.container_restart_count")

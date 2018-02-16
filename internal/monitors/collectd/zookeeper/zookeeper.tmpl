@@ -1,6 +1,6 @@
 LoadPlugin "python"
 <Plugin python>
-  ModulePath "{{Globals.PluginRoot}}/zookeeper"
+  ModulePath "{{.pluginRoot .BundleDir}}/zookeeper"
   Import "zk-collectd"
 
   <Module "zk-collectd">

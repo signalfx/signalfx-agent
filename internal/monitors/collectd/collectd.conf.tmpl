@@ -1,8 +1,8 @@
 # Use a relative path because collectd will choke if the cwd is just '/' since
 # it strips off trailing slashes from the path before doing the chdir.
-BaseDir "{{ cwd }}/plugins/.."
-TypesDB "./plugins/collectd/types.db"
-PluginDir "./plugins/collectd"
+BaseDir "{{ stripTrailingSlash .BundleDir }}/plugins/.."
+TypesDB "{{ stripTrailingSlash .BundleDir }}/plugins/collectd/types.db"
+PluginDir "{{ stripTrailingSlash .BundleDir }}/plugins/collectd"
 
 {{if .Hostname}}
 Hostname "{{.Hostname}}"
@@ -47,12 +47,12 @@ LoadPlugin target_set
 </Plugin>
 
 {{if .HasGenericJMXMonitor}}
-TypesDB "{{Globals.PluginRoot}}/java/signalfx_types_db"
+TypesDB "{{ pluginRoot }}/java/signalfx_types_db"
 LoadPlugin "java"
 
 <Plugin java>
   #JVMArg "-verbose:jni"
-  JVMArg "-Djava.class.path={{Globals.PluginRoot}}/java/collectd-api.jar:{{Globals.PluginRoot}}/java/generic-jmx.jar"
+  JVMArg "-Djava.class.path={{ pluginRoot }}/java/collectd-api.jar:{{Globals.PluginRoot}}/java/generic-jmx.jar"
 
   LoadPlugin "org.collectd.java.GenericJMX"
 </Plugin>

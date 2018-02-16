@@ -28,8 +28,9 @@ type MonitorConfig struct {
 	OtherConfig map[string]interface{} `yaml:",inline" neverLog:"omit"`
 	// ValidationError is where a message concerning validation issues can go
 	// so that diagnostics can output it.
-	ValidationError string          `yaml:"-" hash:"ignore"`
 	Hostname        string          `yaml:"-"`
+	BundleDir       string          `yaml:"-"`
+	ValidationError string          `yaml:"-" hash:"ignore"`
 	MonitorID       types.MonitorID `yaml:"-" hash:"ignore"`
 }
 

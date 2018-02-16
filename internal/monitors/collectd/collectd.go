@@ -6,6 +6,7 @@ import (
 	"bytes"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"sync"
 	"syscall"
 	"time"
@@ -17,7 +18,6 @@ import (
 	"github.com/signalfx/golib/datapoint"
 	"github.com/signalfx/golib/event"
 	"github.com/signalfx/signalfx-agent/internal/core/config"
-	"github.com/signalfx/signalfx-agent/internal/monitors/collectd/templating"
 	"github.com/signalfx/signalfx-agent/internal/monitors/types"
 	"github.com/signalfx/signalfx-agent/internal/utils"
 )
@@ -180,11 +180,20 @@ func (cm *Manager) WriteServerURL() string {
 
 // ManagedConfigDir returns the directory where monitor config should go.
 func (cm *Manager) ManagedConfigDir() string {
-	if cm.conf != nil {
-		return cm.conf.ManagedConfigDir()
+	if cm.conf == nil {
+		// This is a programming bug if we get here.
+		panic("Collectd must be configured before any monitor tries to use it")
 	}
-	// This is a programming bug if we get here.
-	panic("Collectd must be configured before any monitor tries to use it")
+	return cm.conf.ManagedConfigDir()
+}
+
+// PluginDir returns the base directory that holds both C and Python plugins.
+func (cm *Manager) PluginDir() string {
+	if cm.conf == nil {
+		// This is a programming bug if we get here.
+		panic("Collectd must be configured before any monitor tries to use it")
+	}
+	return filepath.Join(cm.conf.BundleDir, "plugins/collectd")
 }
 
 // Manage the subprocess with a basic state machine.  This is a bit tricky
@@ -420,11 +429,13 @@ func (cm *Manager) rerenderConf(writeHTTPPort int) error {
 		return errors.Wrapf(err, "Failed to render collectd template")
 	}
 
-	return templating.WriteConfFile(output.String(), cm.conf.ConfigFilePath())
+	return WriteConfFile(output.String(), cm.conf.ConfigFilePath())
 }
 
 func (cm *Manager) makeChildCommand() *exec.Cmd {
-	cmd := exec.Command("lib64/ld-linux-x86-64.so.2", "bin/collectd", "-f", "-C", cm.conf.ConfigFilePath())
+	loader := filepath.Join(cm.conf.BundleDir, "lib64/ld-linux-x86-64.so.2")
+	collectdBin := filepath.Join(cm.conf.BundleDir, "bin/collectd")
+	cmd := exec.Command(loader, collectdBin, "-f", "-C", cm.conf.ConfigFilePath())
 
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr

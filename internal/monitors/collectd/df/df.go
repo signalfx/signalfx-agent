@@ -4,7 +4,6 @@ package df
 
 import (
 	"github.com/signalfx/signalfx-agent/internal/core/config"
-	"github.com/signalfx/signalfx-agent/internal/core/meta"
 	"github.com/signalfx/signalfx-agent/internal/monitors"
 	"github.com/signalfx/signalfx-agent/internal/monitors/collectd"
 )
@@ -28,13 +27,9 @@ type Config struct {
 // Monitor is the main type that represents the monitor
 type Monitor struct {
 	collectd.MonitorCore
-	AgentMeta *meta.AgentMeta
 }
 
 // Configure configures and runs the plugin in collectd
 func (m *Monitor) Configure(conf *Config) error {
-	if conf.HostFSPath == "" && m.AgentMeta.CollectdConf != nil {
-		conf.HostFSPath = m.AgentMeta.CollectdConf.HostFSPath
-	}
 	return m.SetConfigurationAndRun(conf)
 }

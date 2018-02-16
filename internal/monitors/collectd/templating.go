@@ -1,5 +1,4 @@
-// Package templating facilitates templating of collectd config files.
-package templating
+package collectd
 
 import (
 	"bytes"
@@ -19,8 +18,6 @@ import (
 
 	"strings"
 )
-
-const pluginDir = "./plugins/collectd"
 
 // WriteConfFile writes a file to the given filePath, ensuring that the
 // containing directory exists.
@@ -57,12 +54,11 @@ func InjectTemplateFuncs(tmpl *template.Template) *template.Template {
 			// Global variables available in all templates
 			"Globals": func() map[string]string {
 				return map[string]string{
-					"PluginRoot": pluginDir,
-					"Platform":   runtime.GOOS,
+					"Platform": runtime.GOOS,
 				}
 			},
-			"cwd": func() (string, error) {
-				return os.Getwd()
+			"pluginRoot": func() string {
+				return Instance().PluginDir()
 			},
 			"withDefault": func(value interface{}, def interface{}) interface{} {
 				v := reflect.ValueOf(value)
@@ -107,6 +103,9 @@ func InjectTemplateFuncs(tmpl *template.Template) *template.Template {
 			},
 			"stringsJoin": func(ss []string, joiner string) string {
 				return strings.Join(ss, joiner)
+			},
+			"stripTrailingSlash": func(s string) string {
+				return strings.TrimSuffix(s, "/")
 			},
 			// Tells whether the key is present in the context map.  Says
 			// nothing about whether it is a zero-value or not.

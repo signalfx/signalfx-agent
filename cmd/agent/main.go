@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"os"
 	"os/signal"
-	"path/filepath"
 	"strings"
 	"syscall"
 	"time"
@@ -30,29 +29,6 @@ const defaultConfigPath = "/etc/signalfx/agent.yaml"
 func init() {
 	log.SetFormatter(&prefixed.TextFormatter{})
 	log.SetLevel(log.InfoLevel)
-}
-
-// We always want the current dir of the agent to be the base of the bundle.  A
-// lot of stuff depends on relative paths from here so that the agent is more
-// easily relocated.
-// If the SIGNALFX_BUNDLE_DIR envvar is set, this will be used, otherwise this
-// assumes the agent binary is in the bin dir in the root of the bundle.
-// We also need to set some environment variables that collectd makes use of
-// for loading c plugins as well as the Java and Python runtimes.
-func setupEnvironment() {
-	bundleDir := os.Getenv("SIGNALFX_BUNDLE_DIR")
-	if bundleDir == "" {
-		exePath, err := os.Executable()
-		if err != nil {
-			panic("Cannot determine agent executable path, cannot continue")
-		}
-		bundleDir = filepath.Join(filepath.Dir(exePath), "..")
-	}
-	os.Chdir(bundleDir)
-
-	os.Setenv("LD_LIBRARY_PATH", filepath.Join(bundleDir, "lib"))
-	os.Setenv("JAVA_HOME", filepath.Join(bundleDir, "jvm/java-8-openjdk-amd64"))
-	os.Setenv("PYTHONHOME", bundleDir)
 }
 
 // Set an envvar with the agent's version so that plugins can have easy access
@@ -160,7 +136,6 @@ func runAgent() {
 }
 
 func main() {
-	setupEnvironment()
 	setVersionEnvvar()
 
 	// Make it so the symlink from agent-status to this binary invokes the

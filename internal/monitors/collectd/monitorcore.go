@@ -10,7 +10,6 @@ import (
 
 	"github.com/pkg/errors"
 	"github.com/signalfx/signalfx-agent/internal/core/config"
-	"github.com/signalfx/signalfx-agent/internal/monitors/collectd/templating"
 	"github.com/signalfx/signalfx-agent/internal/monitors/types"
 	log "github.com/sirupsen/logrus"
 )
@@ -43,7 +42,7 @@ func NewMonitorCore(template *template.Template) *MonitorCore {
 
 // Init generates a unique file name for each distinct monitor instance
 func (bm *MonitorCore) Init() error {
-	templating.InjectTemplateFuncs(bm.Template)
+	InjectTemplateFuncs(bm.Template)
 
 	return nil
 }
@@ -87,7 +86,7 @@ func (bm *MonitorCore) WriteConfigForPlugin() error {
 		"context":    bm.config,
 	}).Debug("Writing collectd plugin config file")
 
-	if err := templating.WriteConfFile(pluginConfigText.String(), bm.renderPath()); err != nil {
+	if err := WriteConfFile(pluginConfigText.String(), bm.renderPath()); err != nil {
 		log.WithFields(log.Fields{
 			"error": err,
 			"path":  bm.renderPath(),
