@@ -24,15 +24,14 @@ OUTPUT_DIR=${OUTPUT_DIR:-$SCRIPT_DIR/output}
 
 output_prefix="$OUTPUT_DIR/signalfx-agent_$AGENT_VERSION-${DEB_REVISION}_amd64"
 
-rm -f ${output_prefix}*
+find $OUTPUT_DIR -type f | xargs rm || true 
 
 docker run --rm \
   -v ${SCRIPT_DIR}/../../.git:/git-repo:ro \
-  -v ${GPG_DIR}:/root/.gnupg \
   -v ${OUTPUT_DIR}:/output \
   $image_name:$image_tag \
   bash -e -c \
-    "./make-changelog && debuild && cp -f ../*.{changes,build,buildinfo,deb} /output"
+    "./make-changelog && debuild -us -uc && cp -f ../*.{changes,build,buildinfo,deb} /output"
 
 if ! test -e $output_prefix.deb
 then

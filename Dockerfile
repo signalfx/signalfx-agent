@@ -376,7 +376,7 @@ COPY --from=final-image / /bundle/
 FROM debian:9 as debian-packager
 
 RUN apt update &&\
-    apt install -y dh-make devscripts dh-systemd
+    apt install -y dh-make devscripts dh-systemd reprepro
 
 ARG agent_version="latest"
 WORKDIR /opt/signalfx-agent_${agent_version}
@@ -400,7 +400,7 @@ COPY --from=final-image / ./signalfx-agent/
 ###### RPM Packager #######
 FROM centos:7 as rpm-packager
 
-RUN yum install -y rpmdevtools
+RUN yum install -y rpmdevtools createrepo
 
 WORKDIR /root/rpmbuild
 

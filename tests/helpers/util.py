@@ -19,6 +19,9 @@ DEFAULT_TIMEOUT = os.environ.get("DEFAULT_TIMEOUT", 20)
 DOCKER_API_VERSION = "1.34"
 
 
+def get_docker_client():
+    return docker.from_env(version=DOCKER_API_VERSION)
+
 # Repeatedly calls the test function for timeout_seconds until either test
 # returns a truthy value or the timeout is exceeded, at which point it will
 # raise an AssertionError.
@@ -96,7 +99,7 @@ def setup_config(config_text, run_dir, fake_services):
 
 @contextmanager
 def run_container(name, wait_for_ip=True, **kwargs):
-    client = docker.from_env(version=DOCKER_API_VERSION)
+    client = get_docker_client()
     container = client.containers.run(name, detach=True, **kwargs)
 
     def has_ip_addr():
@@ -114,9 +117,9 @@ def run_container(name, wait_for_ip=True, **kwargs):
 
 @contextmanager
 def run_service(name):
-    client = docker.from_env(version=DOCKER_API_VERSION)
+    client = get_docker_client()
     print(TEST_SERVICES_DIR)
-    nginx_image, logs = client.images.build(path=os.path.join(TEST_SERVICES_DIR, name))
+    nginx_image, logs = client.images.build(path=os.path.join(TEST_SERVICES_DIR, name), rm=True, forcerm=True)
     with run_container(nginx_image.id) as cont:
         yield cont
 

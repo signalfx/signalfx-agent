@@ -7,7 +7,7 @@ strip_v() {
 	sed -e 's/^v//' <<< $1
 }
 
-latest_tag="git describe --abbrev=0 --tags --exclude *deb* --exclude *rpm*"
+latest_tag="git describe --abbrev=0 --exclude *deb* --exclude *rpm*"
 
 tag=$($latest_tag --exact-match 2>/dev/null)
 

@@ -54,8 +54,8 @@ def _test_package_install(base_image, package_path, init_system):
     print("Image ID: %s" % image_id)
     with fake_backend.start() as backend:
         container_options = {
-            # Running systemd in a container requires CAP_SYS_ADMIN
-            "cap_add": ["SYS_ADMIN"],
+            # Init systems running in the container want permissions
+            "privileged": True,
             "volumes": {
                 "/sys/fs/cgroup": {"bind": "/sys/fs/cgroup", "mode": "ro"},
                 "/tmp/scratch": {"bind": "/tmp/scratch", "mode": "rw"},

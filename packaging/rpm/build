@@ -25,7 +25,7 @@ do_docker_build ${image_name} ${image_tag} rpm-packager $AGENT_VERSION
 
 OUTPUT_DIR=${OUTPUT_DIR:-$SCRIPT_DIR/output}
 
-find ${OUTPUT_DIR} -name "*.rpm" | xargs rm
+find ${OUTPUT_DIR}/x86_64 -name "*.rpm" | xargs rm || true
 
 docker run --rm \
   -v ${OUTPUT_DIR}:/output \

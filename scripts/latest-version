@@ -7,7 +7,7 @@ strip_v() {
 	sed -e 's/^v//' <<< $1
 }
 
-tag=$(git describe --abbrev=0 --tags --exclude '*deb*' --exclude '*rpm*')
+tag=$(git describe --abbrev=0 --exclude '*deb*' --exclude '*rpm*')
 
 if test -z $tag
 then

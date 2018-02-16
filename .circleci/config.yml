@@ -85,6 +85,8 @@ jobs:
 
           ./packaging/rpm/build
 
+          mkdir /tmp/scratch
+
           pytest -n auto -m "rpm" --junitxml=~/testresults/rpm.xml ./tests/packaging
 
       - store_test_results:
@@ -110,6 +112,8 @@ jobs:
           sudo pip3 install -r tests/requirements.txt
 
           ./packaging/deb/build
+
+          mkdir /tmp/scratch
 
           pytest -n auto -m "deb" --junitxml=~/testresults/deb.xml ./tests/packaging
 

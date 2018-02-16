@@ -7,6 +7,8 @@ import random
 import subprocess
 import tarfile
 
+from tests.helpers.util import get_docker_client
+
 PACKAGING_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../packaging"))
 RPM_OUTPUT_DIR = os.path.join(PACKAGING_DIR, "rpm/output/x86_64")
 DEB_OUTPUT_DIR = os.path.join(PACKAGING_DIR, "deb/output")
@@ -20,10 +22,12 @@ monitors:
 """
 
 def build_base_image(name):
-    client = docker.from_env()
+    client = get_docker_client()
     image, logs = client.images.build(
         path=DOCKERFILES_DIR,
-        dockerfile=os.path.join(DOCKERFILES_DIR, "Dockerfile.%s" % name))
+        dockerfile=os.path.join(DOCKERFILES_DIR, "Dockerfile.%s" % name),
+        rm=True,
+        forcerm=True)
 
     return image.id
 
