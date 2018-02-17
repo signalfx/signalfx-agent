@@ -7,6 +7,7 @@ import (
 	"regexp"
 
 	"github.com/signalfx/golib/datapoint"
+	"github.com/signalfx/signalfx-agent/internal/core/common/dpmeta"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -31,10 +32,11 @@ type BasicFilter struct {
 	dimensionRegexps   map[string]*regexp.Regexp
 	staticMetricSet    map[string]bool
 	metricRegexps      []*regexp.Regexp
+	negated            bool
 }
 
 // New returns a new filter with the given configuration
-func New(monitorType string, metricNames []string, dimensions map[string]string) *BasicFilter {
+func New(monitorType string, metricNames []string, dimensions map[string]string, negated bool) *BasicFilter {
 	staticDimensionSet := make(map[string]string)
 	dimensionRegexps := make(map[string]*regexp.Regexp)
 
@@ -95,10 +97,12 @@ func New(monitorType string, metricNames []string, dimensions map[string]string)
 	}
 
 	return &BasicFilter{
+		monitorType:        monitorType,
 		staticMetricSet:    staticMetricSet,
 		metricRegexps:      metricRegexps,
 		staticDimensionSet: staticDimensionSet,
 		dimensionRegexps:   dimensionRegexps,
+		negated:            negated,
 	}
 }
 
@@ -128,9 +132,16 @@ func (f *BasicFilter) metricNameMatches(name string) bool {
 // order to match on monitor type, the datapoint should have the "monitorType"
 // key set in it's Meta field.
 func (f *BasicFilter) Matches(dp *datapoint.Datapoint) bool {
-	if f.monitorType != "" && dp.Meta["monitorType"] != f.monitorType {
-		return false
+	if dpMonitorType, ok := dp.Meta[dpmeta.MonitorTypeMeta].(string); ok {
+		if f.monitorType != "" && dpMonitorType != f.monitorType {
+			return false
+		}
 	}
 
-	return f.metricNameMatches(dp.Metric) && f.dimensionsMatch(dp.Dimensions)
+	matched := f.metricNameMatches(dp.Metric) && f.dimensionsMatch(dp.Dimensions)
+
+	if f.negated {
+		return !matched
+	}
+	return matched
 }

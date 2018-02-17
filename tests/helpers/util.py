@@ -8,6 +8,7 @@ import shutil
 import subprocess
 import string
 import tempfile
+import threading
 import time
 import yaml
 from . import fake_backend
@@ -35,6 +36,18 @@ def wait_for(test, timeout_seconds=DEFAULT_TIMEOUT):
         time.sleep(0.5)
 
 
+# Repeatedly calls the given test.  If it ever returns false before the timeout
+# given is completed, raises an AssertionError.
+def ensure_always(test, timeout_seconds=DEFAULT_TIMEOUT):
+    start = time.time()
+    while True:
+        if not test():
+            raise AssertionError("Test returned false")
+        if time.time() - start > timeout_seconds:
+            return
+        time.sleep(0.5)
+
+
 # Print each line separately to make it easier to read in pytest output
 def print_lines(msg):
     for l in msg.splitlines():
@@ -54,14 +67,21 @@ def run_agent(config_text):
 
             proc = subprocess.Popen([AGENT_BIN, "-config", config_path], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 
-            output = io.StringIO() 
-            def get_output():
-                # If any output is waiting, grab it.
-                ready, _, _ = select.select([proc.stdout], [], [], 0)
-                if ready:
-                    output.write(proc.stdout.read().decode("utf-8"))
+            output = io.BytesIO() 
+            def pull_output():
+                while True:
+                    # If any output is waiting, grab it.
+                    ready, _, _ = select.select([proc.stdout], [], [], 0)
+                    if ready:
+                        b = proc.stdout.read(1)
+                        if not b:
+                            return
+                        output.write(b)
 
-                return output.getvalue()
+            def get_output():
+                return output.getvalue().decode("utf-8")
+
+            threading.Thread(target=pull_output).start()
 
             try:
                 yield [fake_services, get_output]
