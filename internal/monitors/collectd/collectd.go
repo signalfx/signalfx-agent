@@ -371,6 +371,7 @@ func (cm *Manager) receiveDPs(dps []*datapoint.Datapoint) {
 			if output == nil {
 				log.WithFields(log.Fields{
 					"monitorID": monitorID,
+					"datapoint": dps[i],
 				}).Error("Datapoint has an unknown monitorID")
 				continue
 			}
