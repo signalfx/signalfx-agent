@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Builds the Debian deb package.
+# Makes the Debian deb package.
 # First builds the debian packager Docker image (which extends and includes the
 # agent bundle) and then runs "debuild" which does the heavy lifting of
 # actually building the deb package.
@@ -22,21 +22,41 @@ do_docker_build ${image_name} ${image_tag} debian-packager $AGENT_VERSION
 
 OUTPUT_DIR=${OUTPUT_DIR:-$SCRIPT_DIR/output}
 
-output_prefix="$OUTPUT_DIR/signalfx-agent_$AGENT_VERSION-${DEB_REVISION}_amd64"
+create_deb() {
+  output_prefix="$OUTPUT_DIR/signalfx-agent_$AGENT_VERSION-${DEB_REVISION}_amd64"
 
-find $OUTPUT_DIR -type f | xargs rm || true 
+  find $OUTPUT_DIR -type f | xargs rm || true 
 
-docker run --rm \
-  -v ${SCRIPT_DIR}/../../.git:/git-repo:ro \
-  -v ${OUTPUT_DIR}:/output \
-  $image_name:$image_tag \
-  bash -e -c \
-    "./make-changelog && debuild -us -uc && cp -f ../*.{changes,build,buildinfo,deb} /output"
+  docker run --rm \
+    -v ${SCRIPT_DIR}/../../.git:/git-repo:ro \
+    -v ${OUTPUT_DIR}:/output \
+    $image_name:$image_tag \
+    bash -e -c \
+      "./make-changelog && debuild -us -uc && cp -f ../*.{changes,build,buildinfo,deb} /output"
 
-if ! test -e $output_prefix.deb
-then
-  echo "Could not find output package, something went wrong" >&2
-  exit 1
+  if ! test -e $output_prefix.deb
+  then
+    echo "Could not find output package, something went wrong" >&2
+    exit 1
+  fi
+
+  echo "SignalFx Agent ${AGENT_VERSION}-${DEB_REVISION} built successfully.  Output is in ${OUTPUT_DIR}."
+}
+
+push_to_repo() {
+  docker run --rm \
+    -v $HOME/.gnupg:/root/.gnupg \
+    -v $HOME/.aws:/root/.aws \
+    -v ${OUTPUT_DIR}:/output \
+    -it \
+    $image_name:$image_tag \
+    bash -e -c "./add-output-to-repo"
+}
+
+if  [[ ${BUILD_DEB-yes} == "yes" ]]; then
+  create_deb
 fi
 
-echo "SignalFx Agent ${AGENT_VERSION}-${DEB_REVISION} build successfully.  Output is in ${OUTPUT_DIR}."
+if [[ -n ${PUSH_TO_REPO-} ]]; then
+  push_to_repo
+fi

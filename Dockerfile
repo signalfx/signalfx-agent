@@ -376,7 +376,7 @@ COPY --from=final-image / /bundle/
 FROM debian:9 as debian-packager
 
 RUN apt update &&\
-    apt install -y dh-make devscripts dh-systemd reprepro
+    apt install -y dh-make devscripts dh-systemd apt-utils awscli
 
 ARG agent_version="latest"
 WORKDIR /opt/signalfx-agent_${agent_version}
@@ -390,6 +390,7 @@ COPY packaging/etc/systemd/signalfx-agent.tmpfile ./debian/signalfx-agent.tmpfil
 COPY packaging/etc/upstart/signalfx-agent.conf ./debian/signalfx-agent.upstart
 COPY packaging/etc/logrotate.d/signalfx-agent.conf ./debian/signalfx-agent.logrotate
 COPY packaging/deb/make-changelog ./make-changelog
+COPY packaging/deb/add-output-to-repo ./add-output-to-repo
 COPY packaging/deb/devscripts.conf /etc/devscripts.conf
 
 COPY packaging/etc/agent.yaml ./agent.yaml
