@@ -80,17 +80,20 @@ threading:
     attribute: ThreadCount
 `
 
+// MBeanValue specifies a particular value to pull from the MBean.
+type MBeanValue struct {
+	Type           string `yaml:"type"`
+	Table          bool   `yaml:"table"`
+	InstancePrefix string `yaml:"instancePrefix"`
+	InstanceFrom   string `yaml:"instanceFrom"`
+	Attribute      string `yaml:"attribute"`
+}
+
 // MBean represents the <MBean> config object in the collectd config for
 // generic jmx.
 type MBean struct {
-	ObjectName     string   `yaml:"objectName"`
-	InstancePrefix string   `yaml:"instancePrefix"`
-	InstanceFrom   []string `yaml:"instanceFrom"`
-	Values         []struct {
-		Type           string `yaml:"type"`
-		Table          bool   `yaml:"table"`
-		InstancePrefix string `yaml:"instancePrefix"`
-		InstanceFrom   string `yaml:"instanceFrom"`
-		Attribute      string `yaml:"attribute"`
-	} `yaml:"values"`
+	ObjectName     string       `yaml:"objectName"`
+	InstancePrefix string       `yaml:"instancePrefix"`
+	InstanceFrom   []string     `yaml:"instanceFrom"`
+	Values         []MBeanValue `yaml:"values"`
 }

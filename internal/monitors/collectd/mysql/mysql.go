@@ -20,18 +20,21 @@ func init() {
 	}, &Config{})
 }
 
+// Database configures a particular MySQL database
+type Database struct {
+	Name     string `yaml:"name" validate:"required"`
+	Username string `yaml:"username"`
+	Password string `yaml:"password" neverLog:"true"`
+}
+
 // Config is the monitor-specific config with the generic config embedded
 type Config struct {
 	config.MonitorConfig `yaml:",inline" acceptsEndpoints:"true"`
 
-	Host      string `yaml:"host" validate:"required"`
-	Port      uint16 `yaml:"port" validate:"required"`
-	Name      string `yaml:"name"`
-	Databases []struct {
-		Name     string `yaml:"name"`
-		Username string `yaml:"username"`
-		Password string `yaml:"password" neverLog:"true"`
-	} `yaml:"databases" required:"true"`
+	Host      string     `yaml:"host" validate:"required"`
+	Port      uint16     `yaml:"port" validate:"required"`
+	Name      string     `yaml:"name"`
+	Databases []Database `yaml:"databases" required:"true"`
 	// These credentials serve as defaults for all databases if not overridden
 	Username   string `yaml:"username"`
 	Password   string `yaml:"password" neverLog:"true"`

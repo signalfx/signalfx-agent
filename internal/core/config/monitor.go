@@ -13,16 +13,21 @@ import (
 // monitor's discovery rule does not match any discovered services, the monitor
 // will not run.
 type MonitorConfig struct {
+	// The type of the monitor
 	Type string `yaml:"type"`
-	// DiscoveryRule is what is used to auto discover service endpoints
+	// The rule used to match up this configuration with a discovered endpoint.
+	// If blank, the configuration will be run immediately when the agent is
+	// started.  If multiple endpoints match this rule, multiple instances of
+	// the monitor type will be created with the same configuration.
 	DiscoveryRule string `yaml:"discoveryRule"`
-	// ExtraDimensions specific to this monitor
+	// A set of extra dimensions to include on datapoints emitted by the
+	// monitor(s) created from this configuration
 	ExtraDimensions map[string]string `yaml:"extraDimensions"`
-	// IntervalSeconds will default to the top-level IntervalSeconds value if unset or 0
+	// The interval (in seconds) at which to emit datapoints from the
+	// monitor(s) created by this configuration
 	IntervalSeconds int `yaml:"intervalSeconds"`
-	// Solo, if set to true, make this monitor the only one configured.  This
-	// is useful for testing config in isolation without having to delete a
-	// bunch of other stuff from the config file.
+	// If one or more configurations have this set to true, only those
+	// configurations will be considered -- useful for testing
 	Solo bool `yaml:"solo"`
 	// OtherConfig is everything else that is custom to a particular monitor
 	OtherConfig map[string]interface{} `yaml:",inline" neverLog:"omit"`

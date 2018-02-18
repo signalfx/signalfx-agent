@@ -18,9 +18,9 @@ type MonitorFactory func() interface{}
 // MonitorFactories holds all of the registered monitor factories
 var MonitorFactories = map[string]MonitorFactory{}
 
-// These are blank (zero-value) instances of the configuration struct for a
-// particular monitor type.
-var configTemplates = map[string]config.MonitorCustomConfig{}
+// ConfigTemplates are blank (zero-value) instances of the configuration struct
+// for a particular monitor type.
+var ConfigTemplates = map[string]config.MonitorCustomConfig{}
 
 // InjectableMonitor should be implemented by a dynamic monitor that needs to
 // know when services are added and removed.
@@ -38,7 +38,7 @@ func Register(_type string, factory MonitorFactory, configTemplate config.Monito
 		panic("Monitor type '" + _type + "' already registered")
 	}
 	MonitorFactories[_type] = factory
-	configTemplates[_type] = configTemplate
+	ConfigTemplates[_type] = configTemplate
 }
 
 // DeregisterAll unregisters all monitor types.  Primarily intended for testing
@@ -48,8 +48,8 @@ func DeregisterAll() {
 		delete(MonitorFactories, k)
 	}
 
-	for k := range configTemplates {
-		delete(configTemplates, k)
+	for k := range ConfigTemplates {
+		delete(ConfigTemplates, k)
 	}
 }
 
@@ -100,7 +100,7 @@ type Shutdownable interface {
 // type specified in conf.  This will also validate the config and return nil
 // if validation fails.
 func getCustomConfigForMonitor(conf *config.MonitorConfig) (config.MonitorCustomConfig, error) {
-	confTemplate, ok := configTemplates[conf.Type]
+	confTemplate, ok := ConfigTemplates[conf.Type]
 	if !ok {
 		return nil, errors.Errorf("Unknown monitor type %s", conf.Type)
 	}

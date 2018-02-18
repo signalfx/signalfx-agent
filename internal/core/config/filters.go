@@ -18,8 +18,8 @@ func (mf *MetricFilter) Help() map[string]string {
 		"Dimensions":  "A map of dimension key/values to match against.  All key/values must match a datapoint for it to be matched.",
 		"MetricNames": "A list of metric names to match against, OR'd together",
 		"MetricName":  "A single metric name to match against",
-		"MonitorType": "Limits this filter to datapoints from a specific monitor",
-		"Negated":     "Negates the result of the match so that it matches all datapoints that do NOT match the non-negated filter.",
+		"MonitorType": "Limits this scope of the filter to datapoints from a specific monitor.  If specified, any datapoints not from this monitor type will never match against this filter.",
+		"Negated":     "Negates the result of the match so that it matches all datapoints that do NOT match the metric name and dimension values given. This does not negate monitorType, if given.",
 	}
 }
 

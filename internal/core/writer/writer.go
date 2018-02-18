@@ -20,6 +20,7 @@ import (
 	"github.com/signalfx/signalfx-agent/internal/core/common/dpmeta"
 	"github.com/signalfx/signalfx-agent/internal/core/config"
 	"github.com/signalfx/signalfx-agent/internal/monitors/types"
+	"github.com/signalfx/signalfx-agent/internal/utils"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -140,9 +141,7 @@ func (sw *SignalFxWriter) filterAndSendDatapoints(dps []*datapoint.Datapoint) er
 			finalDps = append(finalDps, dps[i])
 
 			if sw.conf.LogDatapoints {
-				log.WithFields(log.Fields{
-					"dp": spew.Sdump(dps[i]),
-				}).Debug("Sending datapoint")
+				log.Debugf("Sending datapoint:\n%s", utils.DatapointToString(dps[i]))
 			}
 		}
 	}

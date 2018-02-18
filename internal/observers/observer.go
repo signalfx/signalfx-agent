@@ -31,7 +31,7 @@ var observerFactories = map[string]ObserverFactory{}
 
 // These are blank (zero-value) instances of the configuration struct for a
 // particular observer type.
-var configTemplates = map[string]interface{}{}
+var ConfigTemplates = map[string]interface{}{}
 
 // Register an observer of _type with the agent.  configTemplate should be a
 // zero-valued struct that is of the same type that is accepted by the
@@ -44,7 +44,7 @@ func Register(_type string, factory ObserverFactory, configTemplate interface{})
 		return
 	}
 	observerFactories[_type] = factory
-	configTemplates[_type] = configTemplate
+	ConfigTemplates[_type] = configTemplate
 }
 
 // ServiceCallbacks are a set of functions that the observers call upon
@@ -59,7 +59,7 @@ func configureObserver(observer interface{}, conf *config.ObserverConfig) error 
 		"config": *conf,
 	}).Debug("Configuring observer")
 
-	finalConfig := utils.CloneInterface(configTemplates[conf.Type])
+	finalConfig := utils.CloneInterface(ConfigTemplates[conf.Type])
 
 	if err := config.FillInConfigTemplate("ObserverConfig", finalConfig, conf); err != nil {
 		return err

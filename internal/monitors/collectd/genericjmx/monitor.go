@@ -19,7 +19,7 @@ func init() {
 	}
 
 	monitors.Register(monitorType, func() interface{} {
-		return Monitor{
+		return &Monitor{
 			NewJMXMonitorCore(DefaultMBeans, "java"),
 		}
 	}, &Config{})

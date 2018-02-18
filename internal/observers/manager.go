@@ -13,7 +13,6 @@ type ObserverWrapper struct {
 	instance interface{}
 	_type    string
 	// May be blank
-	id         string
 	lastConfig *config.ObserverConfig
 	// Marked to be shutdown or not
 	doomed bool
@@ -40,7 +39,6 @@ func (om *ObserverManager) makeWrappedObserver(config *config.ObserverConfig) *O
 	if !ok {
 		log.WithFields(log.Fields{
 			"observerType": config.Type,
-			"id":           config.ID,
 		}).Error("Observer type not recognized")
 		return nil
 	}
@@ -55,7 +53,6 @@ func (om *ObserverManager) makeWrappedObserver(config *config.ObserverConfig) *O
 		instance:   factory(om.CallbackTargets),
 		lastConfig: config,
 		_type:      config.Type,
-		id:         config.ID,
 		doomed:     false,
 	}
 }

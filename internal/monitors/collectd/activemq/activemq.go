@@ -25,7 +25,7 @@ func init() {
 	defaultMBeans = defaultMBeans.MergeWith(genericjmx.DefaultMBeans)
 
 	monitors.Register(monitorType, func() interface{} {
-		return Monitor{
+		return &Monitor{
 			genericjmx.NewJMXMonitorCore(defaultMBeans, serviceName),
 		}
 	}, &genericjmx.Config{})
