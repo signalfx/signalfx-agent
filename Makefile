@@ -48,7 +48,7 @@ run-shell:
 
 .PHONY: dev-image
 dev-image:
-	scripts/build-docker-image signalfx-agent-dev latest dev-extras
+	bash -ec "source scripts/common.sh && do_docker_build signalfx-agent-dev latest dev-extras"
 
 .PHONY: run-dev-image
 run-dev-image:

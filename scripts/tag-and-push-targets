@@ -1,0 +1,18 @@
+#!/bin/bash
+
+set -xeuo pipefail
+
+# This will tag each stage in the multi-stage Dockerfile and push each one to
+# quay.io so that we can have some semblance of a build cache in CI
+# environments.  Otherwise it takes about 30 minutes to build the image from
+# scratch.
+
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+DEV_IMAGE=${DEV_IMAGE:-"quay.io/signalfx/signalfx-agent"}
+
+for s in $($SCRIPT_DIR/dockerfile-stages); do
+  image="$DEV_IMAGE:stage-$s"
+  docker build -t $image --target $s $SCRIPT_DIR/..
+  docker push $image
+done

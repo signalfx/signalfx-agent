@@ -1,0 +1,21 @@
+#!/bin/bash
+
+# Pulls the tagged multistage targets from a remote repo and then outputs the
+# --cache-from arguments that can be used in a docker build to speed up the
+# build.
+#
+# These remote image tags are created by the "tag-and-push-targets" script in
+# this dir.
+
+set -euo pipefail
+
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+DEV_IMAGE=${DEV_IMAGE:-"quay.io/signalfx/signalfx-agent"}
+
+stages=$($SCRIPT_DIR/dockerfile-stages ${1-})
+
+for s in $stages; do
+  docker pull $DEV_IMAGE:stage-$s >&2
+  echo -n "--cache-from $DEV_IMAGE:stage-$s "
+done

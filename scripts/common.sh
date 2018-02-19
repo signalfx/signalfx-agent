@@ -14,6 +14,11 @@ do_docker_build() {
   local target_stage=$3
   local agent_version=${4:-$image_tag}
 
+  cache_flags=
+  if [[ $PULL_CACHE == "yes" ]]; then
+    cache_flags=$($MY_SCRIPT_DIR/docker-cache-from $target_stage)
+  fi
+
   docker build \
     -t $image_name:$image_tag \
     -f $MY_SCRIPT_DIR/../Dockerfile \
@@ -21,5 +26,6 @@ do_docker_build() {
     --target $target_stage \
     --label agent.version=${agent_version} \
     $(extra_cflags_build_arg) \
+    $cache_flags \
     $MY_SCRIPT_DIR/.. 
 }

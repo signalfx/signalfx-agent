@@ -1,0 +1,10 @@
+#!/bin/bash
+
+# Outputs all of the stages in the Dockerfile.  An optional parameter can be
+# given that will only show stages up to and including the given stage.
+
+set -euo pipefail
+
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+grep 'FROM .* as .*' $SCRIPT_DIR/../Dockerfile | sed -e 's/.*as //' | sed -e "/${1:-wontmatch}/q"
