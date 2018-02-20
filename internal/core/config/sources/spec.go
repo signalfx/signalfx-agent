@@ -9,10 +9,11 @@ import (
 )
 
 type dynamicValueSpec struct {
-	From     *fromPath `yaml:"#from"`
-	Flatten  bool      `yaml:"flatten"`
-	Optional bool      `yaml:"optional"`
-	Raw      bool      `yaml:"raw"`
+	From     *fromPath   `yaml:"#from"`
+	Flatten  bool        `yaml:"flatten"`
+	Optional bool        `yaml:"optional"`
+	Raw      bool        `yaml:"raw"`
+	Default  interface{} `yaml:"default"`
 }
 
 type fromPath struct {
@@ -20,7 +21,7 @@ type fromPath struct {
 	path       string
 }
 
-func (sp *fromPath) UnmarshalYAML(unmarshal func(interface{}) error) error {
+func (fp *fromPath) UnmarshalYAML(unmarshal func(interface{}) error) error {
 	var str string
 	err := unmarshal(&str)
 	if err != nil {
@@ -33,25 +34,25 @@ func (sp *fromPath) UnmarshalYAML(unmarshal func(interface{}) error) error {
 	parts := strings.SplitN(str, ":", 2)
 
 	if len(parts) == 1 {
-		sp.path = parts[0]
+		fp.path = parts[0]
 	} else {
-		sp.sourceName = parts[0]
-		sp.path = parts[1]
+		fp.sourceName = parts[0]
+		fp.path = parts[1]
 	}
 
 	return nil
 }
 
-func (sp *fromPath) SourceName() string {
-	return utils.FirstNonEmpty(sp.sourceName, "file")
+func (fp *fromPath) SourceName() string {
+	return utils.FirstNonEmpty(fp.sourceName, "file")
 }
 
-func (sp *fromPath) Path() string {
-	return sp.path
+func (fp *fromPath) Path() string {
+	return fp.path
 }
 
-func (sp *fromPath) String() string {
-	return sp.SourceName() + ":" + sp.Path()
+func (fp *fromPath) String() string {
+	return fp.SourceName() + ":" + fp.Path()
 }
 
 // RawDynamicValueSpec is a string that should deserialize to a dynamic value
@@ -71,6 +72,15 @@ func parseRawSpec(r RawDynamicValueSpec) (*dynamicValueSpec, error) {
 		// We should never get here for any given user input if the calling
 		// code is doing its job.
 		return nil, errors.New("#from field is missing")
+	}
+
+	if dvs.Raw && dvs.Default != nil {
+		return nil, errors.New("cannot have raw remote config value and a default -- default is always parsed as YAML")
+	}
+
+	// If we have a default, this makes it always optional.
+	if dvs.Default != nil {
+		dvs.Optional = true
 	}
 
 	return &dvs, err

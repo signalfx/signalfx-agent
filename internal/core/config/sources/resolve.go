@@ -41,7 +41,14 @@ func (r *resolver) Resolve(raw RawDynamicValueSpec) ([]interface{}, string, *dyn
 			"could not resolve path "+spec.From.String())
 	}
 
-	value, err := convertFileBytesToValues(contentMap, spec.Raw)
+	var value []interface{}
+	if len(contentMap) == 0 && spec.Default != nil {
+		value = []interface{}{
+			spec.Default,
+		}
+	} else {
+		value, err = convertFileBytesToValues(contentMap, spec.Raw)
+	}
 
 	return value, spec.From.Path(), spec, err
 }

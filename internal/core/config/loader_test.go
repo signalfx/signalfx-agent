@@ -428,6 +428,23 @@ var _ = Describe("Config Loader", func() {
 
 		Expect(config.Monitors[0].OtherConfig["password"]).To(BeNil())
 	})
+
+	It("Allows default values", func() {
+		path := mkFile("agent/agent.yaml", outdent(fmt.Sprintf(`
+			signalFxAccessToken: abcd
+			monitors:
+			- type: collectd/mysql
+			  password: {"#from": "%s/agent/mysql-password.yaml", default: "s3cr3t"}
+		`, dir)))
+
+		loads, err := LoadConfig(ctx, path, 0)
+		Expect(err).ShouldNot(HaveOccurred())
+
+		var config *Config
+		Eventually(loads).Should(Receive(&config))
+
+		Expect(config.Monitors[0].OtherConfig["password"]).To(Equal("s3cr3t"))
+	})
 })
 
 func TestLoader(t *testing.T) {

@@ -11,18 +11,16 @@ import (
 	"github.com/signalfx/signalfx-agent/internal/core/config/sources/types"
 )
 
-const pollInterval = 3 * time.Second
-
 type fileConfigSource struct {
 	table        *crc64.Table
-	pollDuration time.Duration
+	pollInterval time.Duration
 }
 
 // New makes a new fileConfigSource with the given config
-func New(pollDuration time.Duration) types.ConfigSource {
+func New(pollInterval time.Duration) types.ConfigSource {
 	return &fileConfigSource{
 		table:        crc64.MakeTable(crc64.ECMA),
-		pollDuration: pollDuration,
+		pollInterval: pollInterval,
 	}
 }
 
@@ -72,7 +70,7 @@ func (fcs *fileConfigSource) getFile(path string) ([]byte, uint64, error) {
 // wrapping golang library, fsnotify), so the simplest and most robust thing is
 // to just poll the file and see if it has changed.
 func (fcs *fileConfigSource) WaitForChange(path string, version uint64, stop <-chan struct{}) error {
-	ticker := time.NewTicker(fcs.pollDuration)
+	ticker := time.NewTicker(fcs.pollInterval)
 	defer ticker.Stop()
 
 	for {
