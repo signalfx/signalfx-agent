@@ -66,6 +66,9 @@ func (cs *ClusterState) EnsureAllStarted() {
 	if cs.indexers["nodes"] == nil {
 		cs.StartSyncing(&v1.Node{})
 	}
+	if cs.indexers["namespaces"] == nil {
+		cs.StartSyncing(&v1.Namespace{})
+	}
 }
 
 // GetAgentPods returns only running SignalFx agent pods, or error if pods
@@ -123,6 +126,9 @@ func (cs *ClusterState) StartSyncing(resType runtime.Object) {
 		client = cs.clientset.ExtensionsV1beta1().RESTClient()
 	case *v1.Node:
 		resName = "nodes"
+		client = cs.clientset.Core().RESTClient()
+	case *v1.Namespace:
+		resName = "namespaces"
 		client = cs.clientset.Core().RESTClient()
 	}
 

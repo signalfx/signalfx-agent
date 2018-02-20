@@ -43,6 +43,13 @@ func datapointsForPod(pod *v1.Pod) []*datapoint.Datapoint {
 			datapoint.NewIntValue(int64(cs.RestartCount)),
 			datapoint.Gauge,
 			time.Now()))
+
+		dps = append(dps, datapoint.New(
+			"kubernetes.container_ready",
+			contDims,
+			datapoint.NewIntValue(int64(utils.BoolToInt(cs.Ready))),
+			datapoint.Gauge,
+			time.Now()))
 	}
 
 	return dps

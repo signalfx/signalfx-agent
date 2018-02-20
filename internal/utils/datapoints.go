@@ -43,3 +43,13 @@ func dpTypeToString(t datapoint.MetricType) string {
 func DatapointToString(dp *datapoint.Datapoint) string {
 	return fmt.Sprintf("%s: %s (%s) @ %s\n[%s]", dp.Metric, dp.Value, dpTypeToString(dp.MetricType), dp.Timestamp, sortedDimensionString(dp.Dimensions))
 }
+
+// BoolToInt returns 1 if b is true and 0 otherwise.  It is useful for
+// datapoints which track a binary value since we don't support boolean
+// datapoint directly.
+func BoolToInt(b bool) int {
+	if b {
+		return 1
+	}
+	return 0
+}

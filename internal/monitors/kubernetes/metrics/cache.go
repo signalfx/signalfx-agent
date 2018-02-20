@@ -93,6 +93,8 @@ func (dc *DatapointCache) HandleChange(oldObj, newObj runtime.Object) {
 	case *v1.Pod:
 		dps = datapointsForPod(o)
 		dimProps = dimPropsForPod(o)
+	case *v1.Namespace:
+		dps = datapointsForNamespace(o)
 	case *v1.ReplicationController:
 		dps = datapointsForReplicationController(o)
 	case *v1beta1.DaemonSet:
