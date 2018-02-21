@@ -140,7 +140,7 @@ var _ = Describe("Kubernetes plugin", func() {
 		dims := dps[0].Dimensions
 		Expect(dims["metric_source"]).To(Equal("kubernetes"))
 
-		fakeK8s.EventInput <- WatchEvent{watch.Added, &v1.Pod{
+		fakeK8s.EventInput <- watch.Event{watch.Added, &v1.Pod{
 			TypeMeta: metav1.TypeMeta{
 				Kind:       "Pod",
 				APIVersion: "v1",
@@ -160,10 +160,11 @@ var _ = Describe("Kubernetes plugin", func() {
 			},
 		}}
 
+		_ = waitForDatapoints(3)
 		dps = waitForDatapoints(6)
 		expectIntMetric(dps, "kubernetes_pod_uid", "1234", "kubernetes.container_restart_count", 0)
 
-		fakeK8s.EventInput <- WatchEvent{watch.Modified, &v1.Pod{
+		fakeK8s.EventInput <- watch.Event{watch.Modified, &v1.Pod{
 			TypeMeta: metav1.TypeMeta{
 				Kind:       "Pod",
 				APIVersion: "v1",
@@ -183,10 +184,11 @@ var _ = Describe("Kubernetes plugin", func() {
 			},
 		}}
 
+		_ = waitForDatapoints(6)
 		dps = waitForDatapoints(6)
 		expectIntMetric(dps, "kubernetes_pod_uid", "1234", "kubernetes.container_restart_count", 2)
 
-		fakeK8s.EventInput <- WatchEvent{watch.Deleted, &v1.Pod{
+		fakeK8s.EventInput <- watch.Event{watch.Deleted, &v1.Pod{
 			TypeMeta: metav1.TypeMeta{
 				Kind:       "Pod",
 				APIVersion: "v1",
@@ -208,8 +210,8 @@ var _ = Describe("Kubernetes plugin", func() {
 
 		// Throw away the next set of dps since they could still have the pod
 		// metrics if sent before the update but after the previous assertion.
-		_ = waitForDatapoints(3)
-		dps = waitForDatapoints(3)
+		_ = waitForDatapoints(6)
+		dps = waitForDatapoints(6)
 
 		expectIntMetricMissing(dps, "kubernetes_pod_uid", "1234", "kubernetes.container_restart_count")
 
@@ -265,7 +267,7 @@ var _ = Describe("Kubernetes plugin", func() {
 		expectIntMetric(dps, "uid", "efgh", "kubernetes.deployment.desired", 1)
 		expectIntMetric(dps, "uid", "efgh", "kubernetes.deployment.available", 1)
 
-		fakeK8s.EventInput <- WatchEvent{watch.Modified, &v1beta1.Deployment{
+		fakeK8s.EventInput <- watch.Event{watch.Modified, &v1beta1.Deployment{
 			TypeMeta: metav1.TypeMeta{
 				Kind:       "Deployment",
 				APIVersion: "extensions/v1beta1",
@@ -428,7 +430,7 @@ var _ = Describe("Kubernetes plugin", func() {
 
 		Expect(output.WaitForDPs(1, 2)).Should(HaveLen(0))
 
-		fakeK8s.EventInput <- WatchEvent{watch.Deleted, &v1.Pod{
+		fakeK8s.EventInput <- watch.Event{watch.Deleted, &v1.Pod{
 			TypeMeta: metav1.TypeMeta{
 				Kind:       "Pod",
 				APIVersion: "v1",

@@ -1,12 +1,15 @@
 package testhelpers
 
 import (
+	"bytes"
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
 	"regexp"
+	"strings"
 	"sync"
 
+	"github.com/davecgh/go-spew/spew"
 	log "github.com/sirupsen/logrus"
 
 	"github.com/signalfx/signalfx-agent/internal/utils"
@@ -14,9 +17,14 @@ import (
 	"k8s.io/api/core/v1"
 	"k8s.io/api/extensions/v1beta1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/apimachinery/pkg/types"
-	//"k8s.io/apimachinery/pkg/watch"
 	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apimachinery/pkg/runtime/serializer"
+	runtimejson "k8s.io/apimachinery/pkg/runtime/serializer/json"
+	"k8s.io/apimachinery/pkg/runtime/serializer/streaming"
+	"k8s.io/apimachinery/pkg/types"
+	"k8s.io/apimachinery/pkg/watch"
+	"k8s.io/client-go/kubernetes/scheme"
+	restwatch "k8s.io/client-go/rest/watch"
 )
 
 // ResourceType is an enum
@@ -41,10 +49,10 @@ type FakeK8s struct {
 	secrets    map[string]*v1.Secret
 	stateMutex sync.Mutex
 	// Used by tests to insert resources for test
-	EventInput chan WatchEvent
+	EventInput chan watch.Event
 	// Channels to send new resources to watchers (we only support one watcher
 	// per resource)
-	subs      map[ResourceType]chan WatchEvent
+	subs      map[ResourceType]chan watch.Event
 	subsMutex sync.Mutex
 	// Stops the resource accepter goroutine
 	eventStopper chan struct{}
@@ -57,8 +65,8 @@ func NewFakeK8s() *FakeK8s {
 	return &FakeK8s{
 		state:      make(map[ResourceType]map[types.UID]runtime.Object),
 		secrets:    make(map[string]*v1.Secret),
-		EventInput: make(chan WatchEvent),
-		subs:       make(map[ResourceType]chan WatchEvent),
+		EventInput: make(chan watch.Event),
+		subs:       make(map[ResourceType]chan watch.Event),
 		stoppers:   make(map[ResourceType]chan struct{}),
 	}
 }
@@ -209,31 +217,16 @@ func (f *FakeK8s) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 	}
 
 	var resource ResourceType
-	var isWatch = false
+	var isWatch = strings.Contains(r.URL.RawQuery, "watch=true")
 	switch r.URL.Path {
-	case "/api/v1/watch/pods":
-		isWatch = true
-		fallthrough
 	case "/api/v1/pods":
 		resource = Pods
-	case "/api/v1/watch/replicationcontrollers":
-		isWatch = true
-		fallthrough
 	case "/api/v1/replicationcontrollers":
 		resource = ReplicationControllers
-	case "/apis/extensions/v1beta1/watch/replicasets":
-		isWatch = true
-		fallthrough
 	case "/apis/extensions/v1beta1/replicasets":
 		resource = ReplicaSets
-	case "/apis/extensions/v1beta1/watch/daemonsets":
-		isWatch = true
-		fallthrough
 	case "/apis/extensions/v1beta1/daemonsets":
 		resource = DaemonSets
-	case "/apis/extensions/v1beta1/watch/deployments":
-		isWatch = true
-		fallthrough
 	case "/apis/extensions/v1beta1/deployments":
 		resource = Deployments
 	default:
@@ -243,6 +236,7 @@ func (f *FakeK8s) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 	}
 
 	if isWatch {
+		spew.Dump("WATCHING")
 		rw.Header().Add("Transfer-Encoding", "chunked")
 		f.stoppers[resource] = make(chan struct{})
 		// This must block in order to continue to be able to write to the
@@ -265,7 +259,7 @@ func (f *FakeK8s) startWatcher(resType ResourceType, rw http.ResponseWriter, sto
 		panic("We don't support more than one watcher at a time!")
 	}
 
-	eventCh := make(chan WatchEvent)
+	eventCh := make(chan watch.Event)
 	f.subs[resType] = eventCh
 
 	f.subsMutex.Unlock()
@@ -273,8 +267,17 @@ func (f *FakeK8s) startWatcher(resType ResourceType, rw http.ResponseWriter, sto
 	for {
 		select {
 		case r := <-eventCh:
-			d, _ := json.Marshal(r)
-			rw.Write(d)
+			spew.Dump("WATCHING")
+			buf := &bytes.Buffer{}
+			jsonSerializer := runtimejson.NewSerializer(runtimejson.DefaultMetaFactory, scheme.Scheme, scheme.Scheme, false)
+			directCodecFactory := serializer.DirectCodecFactory{CodecFactory: scheme.Codecs}
+			innerEncoder := directCodecFactory.EncoderForVersion(jsonSerializer, v1.SchemeGroupVersion)
+
+			encoder := restwatch.NewEncoder(streaming.NewEncoder(buf, innerEncoder), innerEncoder)
+			if err := encoder.Encode(&r); err != nil {
+				panic("could not encode watch event")
+			}
+			rw.Write(buf.Bytes())
 			rw.Write([]byte("\n"))
 			rw.(http.Flusher).Flush()
 		case <-stopper:
