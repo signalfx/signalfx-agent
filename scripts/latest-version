@@ -7,7 +7,11 @@ strip_v() {
 	sed -e 's/^v//' <<< $1
 }
 
-tag=$(git describe --abbrev=0 --exclude '*deb*' --exclude '*rpm*')
+strip_pkg() {
+  sed -Ee 's/-(deb|rpm)[0-9]+//' <<< $1
+}
+
+tag=$(git describe --abbrev=0 --match 'v[0-9]*')
 
 if test -z $tag
 then
@@ -15,4 +19,4 @@ then
   exit 1
 fi
 
-strip_v $tag
+strip_pkg $(strip_v $tag)

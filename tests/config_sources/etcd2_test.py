@@ -34,15 +34,15 @@ monitors:
 
 def test_basic_etcd2_config():
     with run_container(ETCD2_IMAGE, command=ETCD_COMMAND) as etcd:
-        wait_for(p(container_cmd_exit_0, etcd, "/etcdctl ls"), 5)
+        assert wait_for(p(container_cmd_exit_0, etcd, "/etcdctl ls"), 5), "etcd didn't start"
         create_path(etcd, "/env", "prod")
         create_path(etcd, "/monitors/cpu", "- type: collectd/cpu")
         create_path(etcd, "/monitors/signalfx-metadata", "- type: collectd/signalfx-metadata")
 
         final_conf = config.substitute(endpoint="%s:2379" % container_ip(etcd))
         with run_agent(final_conf) as [backend, get_output]:
-            wait_for(p(has_datapoint_with_dim, backend, "plugin", "signalfx-metadata"))
-            wait_for(p(has_datapoint_with_dim, backend, "env", "prod"))
+            assert wait_for(p(has_datapoint_with_dim, backend, "plugin", "signalfx-metadata")), "Datapoints didn't come through"
+            assert wait_for(p(has_datapoint_with_dim, backend, "env", "prod")), "dimension wasn't set"
 
 
 internal_glob_config = string.Template("""
@@ -56,15 +56,15 @@ monitors:
 
 def test_interior_globbing():
     with run_container(ETCD2_IMAGE, command=ETCD_COMMAND) as etcd:
-        wait_for(p(container_cmd_exit_0, etcd, "/etcdctl ls"), 5)
+        assert wait_for(p(container_cmd_exit_0, etcd, "/etcdctl ls"), 5), "etcd didn't start"
         create_path(etcd, "/env", "prod")
         create_path(etcd, "/services/cpu/monitor", "- type: collectd/cpu")
         create_path(etcd, "/services/signalfx/monitor", "- type: collectd/signalfx-metadata")
 
         final_conf = internal_glob_config.substitute(endpoint="%s:2379" % container_ip(etcd))
         with run_agent(final_conf) as [backend, get_output]:
-            wait_for(p(has_datapoint_with_dim, backend, "plugin", "signalfx-metadata"))
+            assert wait_for(p(has_datapoint_with_dim, backend, "plugin", "signalfx-metadata")), "Datapoints didn't come through"
 
             create_path(etcd, "/services/uptime/monitor", "- type: collectd/uptime")
-            wait_for(p(has_datapoint_with_dim, backend, "plugin", "uptime"))
+            assert wait_for(p(has_datapoint_with_dim, backend, "plugin", "uptime")), "didn't get uptime datapoints"
 

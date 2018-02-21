@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Builds the agent RPM package.
+# Builds the agent RPM package and optionally adds it to the public yum repo..
 # First builds the RPM packager Docker image (which extends and includes the
 # agent bundle) and then runs "rpmbuild" which does the heavy lifting of
 # actually building the package.
@@ -11,6 +11,7 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 . $SCRIPT_DIR/../../scripts/common.sh
 
+REPO_STAGE=${1:-test}
 AGENT_VERSION=$($SCRIPT_DIR/../../scripts/latest-version)
 # RPM really dislikes dashes in version names, so replace them with tilde if
 # any (e.g. in beta releases).
@@ -25,24 +26,43 @@ do_docker_build ${image_name} ${image_tag} rpm-packager $AGENT_VERSION
 
 OUTPUT_DIR=${OUTPUT_DIR:-$SCRIPT_DIR/output}
 
-find ${OUTPUT_DIR}/x86_64 -name "*.rpm" | xargs rm || true
+create_rpm() {
+  find ${OUTPUT_DIR}/x86_64 -name "*.rpm" | xargs rm || true
 
-docker run --rm \
-  -v ${OUTPUT_DIR}:/output \
-  $image_name:$image_tag \
-    rpmbuild -bb \
-      --nodeps \
-      --define "_version $CLEAN_AGENT_VERSION" \
-      --define "_release $RPM_REVISION" \
-      --define "_rpmdir /output" \
-      SPECS/signalfx-agent.spec
+  docker run --rm \
+    -v ${OUTPUT_DIR}:/output \
+    $image_name:$image_tag \
+      rpmbuild -bb \
+        --nodeps \
+        --define "_version $CLEAN_AGENT_VERSION" \
+        --define "_release $RPM_REVISION" \
+        --define "_rpmdir /output" \
+        SPECS/signalfx-agent.spec
 
-  #-v ${GPG_DIR}:/root/.gnupg \
+  if ! test -e ${OUTPUT_DIR}/x86_64/signalfx-agent-${CLEAN_AGENT_VERSION}-${RPM_REVISION}.x86_64.rpm
+  then
+    echo "Could not find output package, something went wrong" >&2
+    exit 1
+  fi
 
-if ! test -e ${OUTPUT_DIR}/x86_64/signalfx-agent-${CLEAN_AGENT_VERSION}-${RPM_REVISION}.x86_64.rpm
-then
-  echo "Could not find output package, something went wrong" >&2
-  exit 1
+  echo "SignalFx Agent ${AGENT_VERSION}-${RPM_REVISION} build successfully.  Output is in ${OUTPUT_DIR}."
+}
+
+push_to_repo() {
+  docker run --rm \
+    -v $HOME/.gnupg:/root/.gnupg \
+    -v $HOME/.aws:/root/.aws \
+    -v ${OUTPUT_DIR}:/output \
+    -v /tmp/signalfx-agent-rpm-cache:/repo \
+    -it \
+    $image_name:$image_tag \
+    bash -e -c "./add-output-to-repo $REPO_STAGE"
+}
+
+if [[ ${BUILD_RPM-yes} == "yes" ]]; then
+  create_rpm
 fi
 
-echo "SignalFx Agent ${AGENT_VERSION}-${RPM_REVISION} build successfully.  Output is in ${OUTPUT_DIR}."
+if [[ -n ${PUSH_TO_REPO-} ]]; then
+  push_to_repo
+fi

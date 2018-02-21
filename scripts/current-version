@@ -7,11 +7,15 @@ strip_v() {
 	sed -e 's/^v//' <<< $1
 }
 
-latest_tag="git describe --abbrev=0 --exclude *deb* --exclude *rpm*"
+strip_pkg() {
+  sed -Ee 's/-(deb|rpm)[0-9]+//' <<< $1
+}
+
+latest_tag="git describe --abbrev=0 --match v[0-9].[0-9].[0-9]*"
 
 tag=$($latest_tag --exact-match 2>/dev/null)
 
-if test -z $tag
+if test -z $tag || [[ $tag =~ (deb|rpm) ]]
 then
 	tag=$($latest_tag)-post
 fi
@@ -22,4 +26,4 @@ then
   exit 1
 fi
 
-strip_v $tag
+strip_pkg $(strip_v $tag)

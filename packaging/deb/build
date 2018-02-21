@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Makes the Debian deb package.
+# Makes the Debian deb package and optionally adds it to the public repository.
 # First builds the debian packager Docker image (which extends and includes the
 # agent bundle) and then runs "debuild" which does the heavy lifting of
 # actually building the deb package.
@@ -11,6 +11,7 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 . $SCRIPT_DIR/../../scripts/common.sh
 
+REPO_STAGE=${1:-test}
 AGENT_VERSION=$($SCRIPT_DIR/../../scripts/latest-version)
 DEB_REVISION=${DEB_REVISION:-$($SCRIPT_DIR/current-revision ${AGENT_VERSION})}
 GPG_DIR=${GPG_DIR:-"$HOME/.gnupg"}
@@ -48,12 +49,13 @@ push_to_repo() {
     -v $HOME/.gnupg:/root/.gnupg \
     -v $HOME/.aws:/root/.aws \
     -v ${OUTPUT_DIR}:/output \
+    -v /tmp/signalfx-agent-deb-cache:/repo \
     -it \
     $image_name:$image_tag \
-    bash -e -c "./add-output-to-repo"
+    bash -e -c "./add-output-to-repo $REPO_STAGE"
 }
 
-if  [[ ${BUILD_DEB-yes} == "yes" ]]; then
+if [[ ${BUILD_DEB-yes} == "yes" ]]; then
   create_deb
 fi
 

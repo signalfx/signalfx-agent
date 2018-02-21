@@ -368,8 +368,8 @@ COPY --from=godeps /go/src/github.com/signalfx/signalfx-agent/vendor/ ./vendor/
 COPY --from=godeps /go/pkg/ /go/pkg/
 COPY --from=final-image /bin/signalfx-agent ./signalfx-agent
 
-COPY ./ ./
 COPY --from=final-image / /bundle/
+COPY ./ ./
 
 
 ####### Debian Packager #######
@@ -399,9 +399,9 @@ COPY --from=final-image / ./signalfx-agent/
 
 
 ###### RPM Packager #######
-FROM centos:7 as rpm-packager
+FROM fedora:27 as rpm-packager
 
-RUN yum install -y rpmdevtools createrepo
+RUN yum install -y rpmdevtools createrepo rpm-sign awscli
 
 WORKDIR /root/rpmbuild
 
@@ -409,5 +409,6 @@ COPY packaging/etc/agent.yaml ./SOURCES/agent.yaml
 COPY packaging/etc/upstart/signalfx-agent.conf ./SOURCES/signalfx-agent.upstart
 COPY packaging/etc/systemd/ ./SOURCES/systemd/
 COPY packaging/rpm/signalfx-agent.spec ./SPECS/signalfx-agent.spec
+COPY packaging/rpm/add-output-to-repo ./add-output-to-repo
 
 COPY --from=final-image / ./SOURCES/signalfx-agent/

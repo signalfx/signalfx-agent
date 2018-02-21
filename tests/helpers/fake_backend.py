@@ -20,14 +20,21 @@ def _make_fake_ingest(datapoints, events):
         def do_POST(self):
             print("INGEST POST: %s" % self.path)
             body = self.rfile.read(int(self.headers.get('Content-Length')))
+            is_json = "application/json" in self.headers.get("Content-Type")
 
             if 'datapoint' in self.path:
                 dp_upload = sf_pbuf.DataPointUploadMessage()
-                dp_upload.ParseFromString(body)
+                if is_json:
+                    json_format.Parse(body, dp_upload)
+                else:
+                    dp_upload.ParseFromString(body)
                 datapoints.extend(dp_upload.datapoints)
             elif 'event' in self.path:
                 event_upload = sf_pbuf.EventUploadMessage()
-                event_upload.ParseFromString(body)
+                if is_json:
+                    json_format.Parse(body, event_upload)
+                else:
+                    event_upload.ParseFromString(body)
                 events.extend(event_upload.events)
             else:
                 self.send_response(404)

@@ -29,7 +29,7 @@ type ObserverFactory func(*ServiceCallbacks) interface{}
 
 var observerFactories = map[string]ObserverFactory{}
 
-// These are blank (zero-value) instances of the configuration struct for a
+// ConfigTemplates are blank (zero-value) instances of the configuration struct for a
 // particular observer type.
 var ConfigTemplates = map[string]interface{}{}
 

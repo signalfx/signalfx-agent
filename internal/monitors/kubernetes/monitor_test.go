@@ -117,6 +117,7 @@ var _ = Describe("Kubernetes plugin", func() {
 					Phase: v1.PodRunning,
 					ContainerStatuses: []v1.ContainerStatus{
 						v1.ContainerStatus{
+							Ready:        true,
 							Name:         "container1",
 							RestartCount: 5,
 						},
@@ -127,12 +128,14 @@ var _ = Describe("Kubernetes plugin", func() {
 
 		doSetup(true, "")
 
-		dps := waitForDatapoints(2)
+		dps := waitForDatapoints(3)
 
 		Expect(dps[0].Metric).To(Equal("kubernetes.pod_phase"))
 		Expect(intValue(dps[0].Value)).To(Equal(int64(2)))
 		Expect(dps[1].Metric).To(Equal("kubernetes.container_restart_count"))
 		Expect(intValue(dps[1].Value)).To(Equal(int64(5)))
+		Expect(dps[2].Metric).To(Equal("kubernetes.container_ready"))
+		Expect(intValue(dps[2].Value)).To(Equal(int64(1)))
 
 		dims := dps[0].Dimensions
 		Expect(dims["metric_source"]).To(Equal("kubernetes"))
@@ -157,7 +160,7 @@ var _ = Describe("Kubernetes plugin", func() {
 			},
 		}}
 
-		dps = waitForDatapoints(4)
+		dps = waitForDatapoints(6)
 		expectIntMetric(dps, "kubernetes_pod_uid", "1234", "kubernetes.container_restart_count", 0)
 
 		fakeK8s.EventInput <- WatchEvent{watch.Modified, &v1.Pod{
@@ -180,7 +183,7 @@ var _ = Describe("Kubernetes plugin", func() {
 			},
 		}}
 
-		dps = waitForDatapoints(4)
+		dps = waitForDatapoints(6)
 		expectIntMetric(dps, "kubernetes_pod_uid", "1234", "kubernetes.container_restart_count", 2)
 
 		fakeK8s.EventInput <- WatchEvent{watch.Deleted, &v1.Pod{
@@ -205,8 +208,8 @@ var _ = Describe("Kubernetes plugin", func() {
 
 		// Throw away the next set of dps since they could still have the pod
 		// metrics if sent before the update but after the previous assertion.
-		_ = waitForDatapoints(2)
-		dps = waitForDatapoints(2)
+		_ = waitForDatapoints(3)
+		dps = waitForDatapoints(3)
 
 		expectIntMetricMissing(dps, "kubernetes_pod_uid", "1234", "kubernetes.container_restart_count")
 

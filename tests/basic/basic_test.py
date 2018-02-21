@@ -12,7 +12,7 @@ monitors:
 
 def test_basic():
     with run_agent(basic_config) as [backend, _]:
-        wait_for(lambda: len(backend.datapoints) > 0)
+        assert wait_for(lambda: len(backend.datapoints) > 0), "Didn't get any datapoints"
 
 
 

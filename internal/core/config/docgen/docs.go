@@ -10,19 +10,19 @@ import (
 	"github.com/signalfx/signalfx-agent/internal/observers"
 )
 
-type StructMetadata struct {
+type structMetadata struct {
 	Name   string          `json:"name"`
 	Doc    string          `json:"doc"`
-	Fields []FieldMetadata `json:"fields"`
+	Fields []fieldMetadata `json:"fields"`
 }
 
-type MonitorMetadata struct {
-	StructMetadata
+type monitorMetadata struct {
+	structMetadata
 	AcceptsEndpoints bool `json:"acceptsEndpoints"`
 	SingleInstance   bool `json:"singleInstance"`
 }
 
-type FieldMetadata struct {
+type fieldMetadata struct {
 	YAMLName string `json:"yamlName"`
 	Doc      string `json:"doc"`
 	Default  string `json:"default"`
@@ -30,18 +30,18 @@ type FieldMetadata struct {
 	Type     string `json:"type"`
 	// Element is the metadata for the element type of a slice or the value
 	// type of a map if they are structs.
-	ElementStruct *StructMetadata `json:"elementStruct,omitempty"`
+	ElementStruct *structMetadata `json:"elementStruct,omitempty"`
 }
 
-func getStructMetadata(typ reflect.Type) StructMetadata {
+func getStructMetadata(typ reflect.Type) structMetadata {
 	pkg := typ.PkgPath()
 	packageDir := strings.TrimPrefix(pkg, "github.com/signalfx/signalfx-agent/")
 	structName := typ.Name()
 	if packageDir == "" || structName == "" {
-		return StructMetadata{}
+		return structMetadata{}
 	}
 
-	fieldMD := []FieldMetadata{}
+	fieldMD := []fieldMetadata{}
 	for i := 0; i < typ.NumField(); i++ {
 		f := typ.Field(i)
 
@@ -57,7 +57,7 @@ func getStructMetadata(typ reflect.Type) StructMetadata {
 			// Embedded struct name and doc is irrelevant.
 		}
 
-		fm := FieldMetadata{
+		fm := fieldMetadata{
 			YAMLName: yamlName,
 			Doc:      structFieldDocs(packageDir, structName)[f.Name],
 			Default:  getDefault(f),
@@ -76,20 +76,20 @@ func getStructMetadata(typ reflect.Type) StructMetadata {
 		fieldMD = append(fieldMD, fm)
 	}
 
-	return StructMetadata{
+	return structMetadata{
 		Name:   structName,
 		Doc:    structDoc(packageDir, structName),
 		Fields: fieldMD,
 	}
 }
 
-func monitorsStructMetadata() map[string]MonitorMetadata {
-	sms := map[string]MonitorMetadata{}
+func monitorsStructMetadata() map[string]monitorMetadata {
+	sms := map[string]monitorMetadata{}
 	for k := range monitors.ConfigTemplates {
 		t := reflect.TypeOf(monitors.ConfigTemplates[k]).Elem()
 		mc, _ := t.FieldByName("MonitorConfig")
-		mmd := MonitorMetadata{
-			StructMetadata:   getStructMetadata(t),
+		mmd := monitorMetadata{
+			structMetadata:   getStructMetadata(t),
 			AcceptsEndpoints: mc.Tag.Get("acceptsEndpoints") == "true",
 			SingleInstance:   mc.Tag.Get("singleInstance") == "true",
 		}
@@ -99,8 +99,8 @@ func monitorsStructMetadata() map[string]MonitorMetadata {
 	return sms
 }
 
-func observersStructMetadata() map[string]StructMetadata {
-	sms := map[string]StructMetadata{}
+func observersStructMetadata() map[string]structMetadata {
+	sms := map[string]structMetadata{}
 	for k := range observers.ConfigTemplates {
 		sms[k] = getStructMetadata(reflect.TypeOf(observers.ConfigTemplates[k]).Elem())
 	}

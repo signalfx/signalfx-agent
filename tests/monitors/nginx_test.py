@@ -18,5 +18,5 @@ def test_nginx():
         config = nginx_config.substitute(host=nginx_container.attrs["NetworkSettings"]["IPAddress"])
 
         with run_agent(config) as [backend, _]:
-            wait_for(p(has_datapoint_with_dim, backend, "plugin", "nginx"))
+            assert wait_for(p(has_datapoint_with_dim, backend, "plugin", "nginx")), "Didn't get nginx datapoints"
 

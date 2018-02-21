@@ -41,7 +41,7 @@ def create_znode(container, path, value):
 
 def test_basic_zk_config():
     with run_container("zookeeper:3.4") as zk:
-        wait_for(p(container_cmd_exit_0, zk, "nc -z localhost 2181"), 5)
+        assert wait_for(p(container_cmd_exit_0, zk, "nc -z localhost 2181"), 5)
         create_znode(zk, "/env", "prod")
         create_znode(zk, "/monitors", "")
         create_znode(zk, "/monitors/cpu", "- type: collectd/cpu")
@@ -49,15 +49,15 @@ def test_basic_zk_config():
 
         final_conf = config.substitute(zk_endpoint="%s:2181" % container_ip(zk))
         with run_agent(final_conf) as [backend, get_output]:
-            wait_for(p(has_datapoint_with_dim, backend, "plugin", "signalfx-metadata"))
-            wait_for(p(has_datapoint_with_dim, backend, "env", "prod"))
+            assert wait_for(p(has_datapoint_with_dim, backend, "plugin", "signalfx-metadata"))
+            assert wait_for(p(has_datapoint_with_dim, backend, "env", "prod"))
 
 
 def test_bad_globbing():
     with run_container("zookeeper:3.4") as zk:
-        wait_for(p(container_cmd_exit_0, zk, "nc -z localhost 2181"), 5)
+        assert wait_for(p(container_cmd_exit_0, zk, "nc -z localhost 2181"), 5)
         create_znode(zk, "/env", "prod")
 
         final_conf = bad_glob_config.substitute(zk_endpoint="%s:2181" % container_ip(zk))
         with run_agent(final_conf) as [backend, get_output]:
-            wait_for(lambda: "Zookeeper only supports globs" in get_output())
+            assert wait_for(lambda: "Zookeeper only supports globs" in get_output())

@@ -24,27 +24,27 @@ def get_docker_client():
     return docker.from_env(version=DOCKER_API_VERSION)
 
 # Repeatedly calls the test function for timeout_seconds until either test
-# returns a truthy value or the timeout is exceeded, at which point it will
-# raise an AssertionError.
+# returns a truthy value, at which point the function returns True -- or the
+# timeout is exceeded, at which point it will return False.
 def wait_for(test, timeout_seconds=DEFAULT_TIMEOUT):
     start = time.time()
     while True:
         if test():
-            return
+            return True
         if time.time() - start > timeout_seconds:
-            raise AssertionError("Test failed for %d seconds" % timeout_seconds)
+            return False
         time.sleep(0.5)
 
 
 # Repeatedly calls the given test.  If it ever returns false before the timeout
-# given is completed, raises an AssertionError.
+# given is completed, returns False, otherwise True.
 def ensure_always(test, timeout_seconds=DEFAULT_TIMEOUT):
     start = time.time()
     while True:
         if not test():
-            raise AssertionError("Test returned false")
+            return False
         if time.time() - start > timeout_seconds:
-            return
+            return True
         time.sleep(0.5)
 
 
@@ -106,6 +106,7 @@ def setup_config(config_text, run_dir, fake_services):
     conf["apiUrl"] = fake_services.api_url
     conf["internalMetricsSocketPath"] = os.path.join(run_dir, "internal.sock")
     conf["diagnosticsSocketPath"] = os.path.join(run_dir, "diagnostics.sock")
+    conf["logging"] = dict(level="debug")
 
     conf["collectd"] = conf.get("collectd", {})
     conf["collectd"]["configDir"] = os.path.join(run_dir, "collectd")
