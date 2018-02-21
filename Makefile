@@ -34,7 +34,7 @@ vendor:
 signalfx-agent: templates
 	CGO_ENABLED=0 go build \
 		-ldflags "-X main.Version=$(AGENT_VERSION) -X main.BuiltTime=$$(date +%FT%T%z)" \
-		-i -o signalfx-agent \
+		-o signalfx-agent \
 		github.com/signalfx/signalfx-agent/cmd/agent
 
 .PHONY: bundle

@@ -144,9 +144,9 @@ COPY scripts/collect-libs /opt/collect-libs
 RUN /opt/collect-libs /opt/deps /usr/sbin/collectd /usr/lib/collectd/
 
 ###### Golang Dependencies Image ######
-FROM golang:1.9.2-stretch as godeps
+FROM golang:1.10.0-stretch as godeps
 
-RUN wget -O /usr/bin/dep https://github.com/golang/dep/releases/download/v0.3.2/dep-linux-amd64 &&\
+RUN wget -O /usr/bin/dep https://github.com/golang/dep/releases/download/v0.4.1/dep-linux-amd64 &&\
     chmod +x /usr/bin/dep
 
 WORKDIR /go/src/github.com/signalfx/signalfx-agent
@@ -167,7 +167,7 @@ FROM ubuntu:16.04 as agent-builder
 RUN apt update &&\
     apt install -y curl wget pkg-config
 
-ENV GO_VERSION=1.9.2 PATH=$PATH:/usr/local/go/bin
+ENV GO_VERSION=1.10 PATH=$PATH:/usr/local/go/bin
 RUN cd /tmp &&\
     wget https://storage.googleapis.com/golang/go${GO_VERSION}.linux-amd64.tar.gz &&\
 	tar -C /usr/local -xf go*.tar.gz
@@ -363,6 +363,8 @@ RUN go get -u github.com/golang/lint/golint &&\
 # Get integration test deps in here
 COPY tests/requirements.txt /tmp/
 RUN pip3 install -r /tmp/requirements.txt
+RUN wget -O /usr/bin/gomplate https://github.com/hairyhenderson/gomplate/releases/download/v2.3.0/gomplate_linux-amd64-slim &&\
+    chmod +x /usr/bin/gomplate
 
 COPY --from=godeps /go/src/github.com/signalfx/signalfx-agent/vendor/ ./vendor/
 COPY --from=godeps /go/pkg/ /go/pkg/
