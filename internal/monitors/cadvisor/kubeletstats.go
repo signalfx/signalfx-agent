@@ -26,6 +26,9 @@ const (
 	kubeletStatsType = "kubelet-stats"
 )
 
+// MONITOR(kubelet-stats): This monitor pulls cadvisor metrics through a
+// Kubernetes kubelet instance via the /stats/container endpoint.
+
 func init() {
 	monitors.Register(kubeletStatsType, func() interface{} { return &KubeletStatsMonitor{} }, &KubeletStatsConfig{})
 }

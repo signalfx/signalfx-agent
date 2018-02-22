@@ -15,6 +15,9 @@ const (
 	cadvisorType = "cadvisor"
 )
 
+// MONITOR(cadvisor): This monitor pulls metrics directly from cadvisor, which
+// conventionally runs on port 4194, but can be configured to anything.
+
 func init() {
 	monitors.Register(cadvisorType, func() interface{} { return &Cadvisor{} }, &CHTTPConfig{})
 }

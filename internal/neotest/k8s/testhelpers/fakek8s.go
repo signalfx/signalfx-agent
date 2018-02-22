@@ -9,7 +9,6 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/davecgh/go-spew/spew"
 	log "github.com/sirupsen/logrus"
 
 	"github.com/signalfx/signalfx-agent/internal/utils"
@@ -38,6 +37,8 @@ const (
 	DaemonSets
 	ReplicaSets
 	Secrets
+	Namespaces
+	Nodes
 )
 
 // FakeK8s is a mock K8s API server.  It can serve both list and watch
@@ -188,7 +189,7 @@ func (f *FakeK8s) AddSecret(secret *v1.Secret) {
 	f.secrets[secret.Namespace+"/"+secret.Name] = secret
 }
 
-func (f *FakeK8s) handleGetSecret(params map[string]string, rw http.ResponseWriter) {
+func (f *FakeK8s) handleGetSecret(_ *http.Request, params map[string]string, rw http.ResponseWriter) {
 	if secret, ok := f.secrets[params["namespace"]+"/"+params["name"]]; ok {
 		s, _ := json.Marshal(secret)
 		rw.Write(s)
@@ -199,19 +200,24 @@ func (f *FakeK8s) handleGetSecret(params map[string]string, rw http.ResponseWrit
 	rw.WriteHeader(http.StatusNotFound)
 }
 
+func (f *FakeK8s) handleConfigMaps(req *http.Request, params map[string]string, rw http.ResponseWriter) {
+
+}
+
 // ServeHTTP handles a single request
 func (f *FakeK8s) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 	log.Printf("Request: %s", r.URL.String())
 
 	rw.Header().Add("Content-Type", "application/json")
 
-	for reText, handler := range map[string]func(map[string]string, http.ResponseWriter){
-		`/api/v1/namespaces/(?P<namespace>\w+)/secrets/(?P<name>\w+)`: f.handleGetSecret,
+	for reText, handler := range map[string]func(*http.Request, map[string]string, http.ResponseWriter){
+		`/api/v1/namespaces/(?P<namespace>\w+)/secrets/(?P<name>\w+)`:    f.handleGetSecret,
+		`/api/v1/namespaces/(?P<namespace>\w+)/configmaps/(?P<name>\w+)`: f.handleConfigMaps,
 	} {
 		re := regexp.MustCompile(reText)
 		groupMap := utils.RegexpGroupMap(re, r.URL.Path)
 		if groupMap != nil {
-			handler(groupMap, rw)
+			handler(r, groupMap, rw)
 			return
 		}
 	}
@@ -221,6 +227,10 @@ func (f *FakeK8s) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 	switch r.URL.Path {
 	case "/api/v1/pods":
 		resource = Pods
+	case "/api/v1/namespaces":
+		resource = Namespaces
+	case "/api/v1/nodes":
+		resource = Nodes
 	case "/api/v1/replicationcontrollers":
 		resource = ReplicationControllers
 	case "/apis/extensions/v1beta1/replicasets":
@@ -236,7 +246,6 @@ func (f *FakeK8s) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 	}
 
 	if isWatch {
-		spew.Dump("WATCHING")
 		rw.Header().Add("Transfer-Encoding", "chunked")
 		f.stoppers[resource] = make(chan struct{})
 		// This must block in order to continue to be able to write to the
@@ -267,7 +276,6 @@ func (f *FakeK8s) startWatcher(resType ResourceType, rw http.ResponseWriter, sto
 	for {
 		select {
 		case r := <-eventCh:
-			spew.Dump("WATCHING")
 			buf := &bytes.Buffer{}
 			jsonSerializer := runtimejson.NewSerializer(runtimejson.DefaultMetaFactory, scheme.Scheme, scheme.Scheme, false)
 			directCodecFactory := serializer.DirectCodecFactory{CodecFactory: scheme.Codecs}
@@ -318,6 +326,10 @@ func typeMeta(rt ResourceType) metav1.TypeMeta {
 		return metav1.TypeMeta{Kind: "DaemonSetList", APIVersion: "extensions/v1beta1"}
 	case ReplicaSets:
 		return metav1.TypeMeta{Kind: "ReplicaSetList", APIVersion: "extensions/v1beta1"}
+	case Namespaces:
+		return metav1.TypeMeta{Kind: "NamespaceList", APIVersion: "v1"}
+	case Nodes:
+		return metav1.TypeMeta{Kind: "NodeList", APIVersion: "v1"}
 	default:
 		panic("Unknown resource type: " + string(rt))
 	}

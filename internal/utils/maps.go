@@ -31,6 +31,15 @@ func RemoveEmptyMapValues(m map[string]string) map[string]string {
 	return out
 }
 
+// StringMapToInterfaceMap converts a map[string]string to a map[string]interface{}.
+func StringMapToInterfaceMap(m map[string]string) map[string]interface{} {
+	out := map[string]interface{}{}
+	for k, v := range m {
+		out[k] = v
+	}
+	return out
+}
+
 // MergeInterfaceMaps merges any number of map[string]interface{} with a later
 // map's keys overriding earlier maps.  Nil values do not override earlier
 // values.

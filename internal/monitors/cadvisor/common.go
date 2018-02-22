@@ -1,3 +1,6 @@
+// Package cadvisor contains a monitor that pulls cadvisor stats either
+// directly from cadvisor or from the kubelet /stats endpoint that exposes
+// cadvisor.
 package cadvisor
 
 import (

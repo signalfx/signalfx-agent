@@ -1,4 +1,4 @@
-package kubernetes
+package cluster
 
 import (
 	"fmt"
@@ -259,7 +259,7 @@ var _ = Describe("Kubernetes plugin", func() {
 
 		doSetup(true, "")
 
-		dps := waitForDatapoints(6)
+		dps := waitForDatapoints(7)
 
 		By("Reporting on existing deployments")
 		expectIntMetric(dps, "uid", "abcd", "kubernetes.deployment.desired", 10)
@@ -284,7 +284,8 @@ var _ = Describe("Kubernetes plugin", func() {
 			},
 		}}
 
-		dps = waitForDatapoints(6)
+		_ = waitForDatapoints(7)
+		dps = waitForDatapoints(7)
 		By("Responding to events pushed on the watch API")
 		expectIntMetric(dps, "uid", "abcd", "kubernetes.deployment.desired", 10)
 		expectIntMetric(dps, "uid", "abcd", "kubernetes.deployment.available", 5)
@@ -292,161 +293,6 @@ var _ = Describe("Kubernetes plugin", func() {
 		expectIntMetric(dps, "uid", "efgh", "kubernetes.deployment.available", 0)
 	})
 
-	Describe("Filtering", func() {
-		BeforeEach(func() {
-			fakeK8s.SetInitialList([]*v1.Pod{
-				&v1.Pod{
-					ObjectMeta: metav1.ObjectMeta{
-						Name:      "test1",
-						Namespace: "default",
-						UID:       "abcd",
-					},
-					Status: v1.PodStatus{
-						Phase: v1.PodRunning,
-						ContainerStatuses: []v1.ContainerStatus{
-							v1.ContainerStatus{
-								Name:         "container1",
-								RestartCount: 5,
-							},
-						},
-					},
-				},
-			})
-
-			fakeK8s.SetInitialList([]*v1beta1.Deployment{
-				&v1beta1.Deployment{
-					ObjectMeta: metav1.ObjectMeta{
-						Name: "deploy1",
-						UID:  "abcd",
-					},
-					Spec: v1beta1.DeploymentSpec{
-						Replicas: intp(int32(10)),
-					},
-					Status: v1beta1.DeploymentStatus{
-						AvailableReplicas: 5,
-					},
-				},
-			})
-		})
-
-	})
-
-	It("Reports if first in pod list", func() {
-		fakeK8s.SetInitialList([]*v1.Pod{
-			&v1.Pod{
-				ObjectMeta: metav1.ObjectMeta{
-					Name: "agent-1",
-					UID:  "abcd",
-					Labels: map[string]string{
-						"app": "signalfx-agent",
-					},
-				},
-				Status: v1.PodStatus{
-					Phase: v1.PodRunning,
-				},
-			},
-			&v1.Pod{
-				ObjectMeta: metav1.ObjectMeta{
-					Name: "agent-2",
-					UID:  "efgh",
-					Labels: map[string]string{
-						"app": "signalfx-agent",
-					},
-				},
-				Status: v1.PodStatus{
-					Phase: v1.PodRunning,
-				},
-			},
-		})
-
-		doSetup(false, "agent-1")
-
-		dps := waitForDatapoints(3)
-		Expect(len(dps)).To(BeNumerically(">=", 2))
-	})
-
-	It("Doesn't report if not first in pod list", func() {
-		fakeK8s.SetInitialList([]*v1.Pod{
-			&v1.Pod{
-				ObjectMeta: metav1.ObjectMeta{
-					Name: "agent-1",
-					UID:  "abcd",
-					Labels: map[string]string{
-						"app": "signalfx-agent",
-					},
-				},
-				Status: v1.PodStatus{
-					Phase: v1.PodRunning,
-				},
-			},
-			&v1.Pod{
-				ObjectMeta: metav1.ObjectMeta{
-					Name: "agent-2",
-					UID:  "efgh",
-					Labels: map[string]string{
-						"app": "signalfx-agent",
-					},
-				},
-				Status: v1.PodStatus{
-					Phase: v1.PodRunning,
-				},
-			},
-		})
-
-		doSetup(false, "agent-2")
-
-		Expect(output.WaitForDPs(1, 2)).Should(HaveLen(0))
-	})
-
-	It("Starts reporting if later becomes first in pod list", func() {
-		fakeK8s.SetInitialList([]*v1.Pod{
-			&v1.Pod{
-				ObjectMeta: metav1.ObjectMeta{
-					Name: "agent-1",
-					UID:  "abcd",
-					Labels: map[string]string{
-						"app": "signalfx-agent",
-					},
-				},
-				Status: v1.PodStatus{
-					Phase: v1.PodRunning,
-				},
-			},
-			&v1.Pod{
-				ObjectMeta: metav1.ObjectMeta{
-					Name: "agent-2",
-					UID:  "efgh",
-					Labels: map[string]string{
-						"app": "signalfx-agent",
-					},
-				},
-				Status: v1.PodStatus{
-					Phase: v1.PodRunning,
-				},
-			},
-		})
-
-		doSetup(false, "agent-2")
-
-		Expect(output.WaitForDPs(1, 2)).Should(HaveLen(0))
-
-		fakeK8s.EventInput <- watch.Event{watch.Deleted, &v1.Pod{
-			TypeMeta: metav1.TypeMeta{
-				Kind:       "Pod",
-				APIVersion: "v1",
-			},
-			ObjectMeta: metav1.ObjectMeta{
-				Name: "agent-1",
-				UID:  "abcd",
-			},
-			Status: v1.PodStatus{
-				Phase: v1.PodRunning,
-			},
-		}}
-
-		dps := waitForDatapoints(1)
-		Expect(dps).To(HaveLen(1))
-	})
 })
 
 func TestKubernetes(t *testing.T) {

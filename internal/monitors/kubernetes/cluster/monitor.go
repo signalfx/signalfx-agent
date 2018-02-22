@@ -1,4 +1,4 @@
-// Package kubernetes contains a Kubernetes monitor.
+// Package cluster contains a Kubernetes cluster monitor.
 //
 // This plugin collects high level metrics about a K8s cluster and sends them
 // to SignalFx.  The basic technique is to pull data from the K8s API and keep
@@ -25,28 +25,24 @@
 // cluster, which may be more error prone.
 //
 // This plugin requires read-only access to the K8s API.
-package kubernetes
+package cluster
 
 import (
-	"os"
-	"reflect"
-	"sort"
 	"time"
-
-	"k8s.io/api/core/v1"
-	"k8s.io/apimachinery/pkg/runtime"
 
 	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
+
+	"k8s.io/apimachinery/pkg/runtime"
+	k8s "k8s.io/client-go/kubernetes"
 
 	"github.com/signalfx/signalfx-agent/internal/core/common/dpmeta"
 	"github.com/signalfx/signalfx-agent/internal/core/common/kubernetes"
 	"github.com/signalfx/signalfx-agent/internal/core/config"
 	"github.com/signalfx/signalfx-agent/internal/monitors"
-	"github.com/signalfx/signalfx-agent/internal/monitors/kubernetes/metrics"
+	"github.com/signalfx/signalfx-agent/internal/monitors/kubernetes/cluster/metrics"
+	"github.com/signalfx/signalfx-agent/internal/monitors/kubernetes/leadership"
 	"github.com/signalfx/signalfx-agent/internal/monitors/types"
-
-	"sync"
 )
 
 const (
@@ -71,13 +67,12 @@ func (c *Config) Validate() error {
 // about pods.
 type Monitor struct {
 	config      *Config
-	lock        sync.Mutex
 	Output      types.Output
 	thisPodName string
 	// Since most datapoints will stay the same or only slightly different
 	// across reporting intervals, reuse them
 	datapointCache *metrics.DatapointCache
-	clusterState   *ClusterState
+	k8sClient      *k8s.Clientset
 	stop           chan struct{}
 }
 
@@ -87,55 +82,46 @@ func init() {
 
 // Configure is called by the plugin framework when configuration changes
 func (m *Monitor) Configure(config *Config) error {
-	m.lock.Lock()
-	defer m.lock.Unlock()
-
-	// There is a bug/limitation in the k8s go client's Controller where
-	// goroutines are leaked even when using the stop channel properly.  So we
-	// should avoid going through a shutdown/startup cycle here if nothing is
-	// different in the config.
-	// See https://github.com/kubernetes/client-go/blob/v2.0.0/tools/cache/controller.go#L125
-	if reflect.DeepEqual(config, m.config) {
-		return nil
-	}
-
 	m.config = config
-
-	m.stopIfRunning()
 
 	k8sClient, err := kubernetes.MakeClient(config.KubernetesAPI)
 	if err != nil {
 		return errors.Wrapf(err, "Could not create K8s API client")
 	}
 
-	// We need to know the pod name if we aren't always reporting
-	if !config.AlwaysClusterReporter {
-		var ok bool
-		m.thisPodName, ok = os.LookupEnv("MY_POD_NAME")
-		if !ok {
-			return errors.New("This pod's name is not known! Please inject the envvar MY_POD_NAME " +
-				"via a config fieldRef in your K8s agent resource config")
-		}
-	}
-
+	m.k8sClient = k8sClient
 	m.datapointCache = metrics.NewDatapointCache()
+	m.stop = make(chan struct{})
 
-	m.clusterState = newClusterState(k8sClient)
-	m.clusterState.ChangeFunc = func(oldObj, newObj runtime.Object) {
-		m.datapointCache.HandleChange(oldObj, newObj)
-	}
-
-	m.Start(config.IntervalSeconds)
+	m.Start()
 
 	return nil
 }
 
 // Start starts syncing resources and sending datapoints to ingest
-func (m *Monitor) Start(intervalSeconds int) error {
-	m.clusterState.StartSyncing(&v1.Pod{})
+func (m *Monitor) Start() error {
+	ticker := time.NewTicker(time.Second * time.Duration(m.config.IntervalSeconds))
 
-	m.stop = make(chan struct{})
-	ticker := time.NewTicker(time.Second * time.Duration(intervalSeconds))
+	shouldReport := m.config.AlwaysClusterReporter
+
+	clusterState := newState(m.k8sClient)
+	clusterState.ChangeFunc = func(oldObj, newObj runtime.Object) {
+		m.datapointCache.HandleChange(oldObj, newObj)
+	}
+
+	var leaderCh <-chan bool
+	var unregister func()
+
+	if m.config.AlwaysClusterReporter {
+		log.Error("STARTING")
+		clusterState.Start()
+	} else {
+		var err error
+		leaderCh, unregister, err = leadership.RequestLeaderNotification(m.k8sClient.CoreV1())
+		if err != nil {
+			return err
+		}
+	}
 
 	go func() {
 		defer ticker.Stop()
@@ -143,11 +129,21 @@ func (m *Monitor) Start(intervalSeconds int) error {
 		for {
 			select {
 			case <-m.stop:
+				if unregister != nil {
+					unregister()
+				}
+				clusterState.Stop()
 				return
+			case isLeader := <-leaderCh:
+				if isLeader {
+					shouldReport = true
+					clusterState.Start()
+				} else {
+					shouldReport = false
+					clusterState.Stop()
+				}
 			case <-ticker.C:
-				if m.isReporter() {
-					log.Debugf("This agent is a K8s cluster reporter")
-					m.clusterState.EnsureAllStarted()
+				if shouldReport {
 					m.sendLatestDatapoints()
 					m.sendLatestProps()
 				}
@@ -178,48 +174,9 @@ func (m *Monitor) sendLatestProps() {
 	}
 }
 
-// We only need one agent to report high-level K8s metrics so we need to
-// deterministically choose one without the agents being able to talk to one
-// another (for simplified setup).  About the simplest way to do that is to
-// have it be the agent with the pod name that is first when all of the names
-// are sorted ascending.
-func (m *Monitor) isReporter() bool {
-	if m.config.AlwaysClusterReporter {
-		return true
-	}
-
-	agentPods, err := m.clusterState.GetAgentPods()
-	if err != nil {
-		log.WithError(err).Error("Unexpected error getting agent pods")
-		return false
-	}
-
-	// This shouldn't really happen, but don't blow up if it does
-	if len(agentPods) == 0 {
-		return false
-	}
-
-	sort.Slice(agentPods, func(i, j int) bool {
-		return agentPods[i].Name < agentPods[j].Name
-	})
-
-	return agentPods[0].Name == m.thisPodName
-}
-
-func (m *Monitor) stopIfRunning() {
-	if m.stop != nil {
-		m.stop <- struct{}{}
-	}
-	if m.clusterState != nil {
-		m.clusterState.Stop()
-	}
-}
-
 // Shutdown halts everything that is syncing
 func (m *Monitor) Shutdown() {
-	m.lock.Lock()
-	defer m.lock.Unlock()
-
-	m.stopIfRunning()
-	m.config = nil
+	if m.stop != nil {
+		close(m.stop)
+	}
 }
