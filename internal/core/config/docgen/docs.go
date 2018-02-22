@@ -3,6 +3,7 @@ package docgen
 import (
 	"encoding/json"
 	"reflect"
+	"sort"
 	"strings"
 
 	"github.com/signalfx/signalfx-agent/internal/core/config"
@@ -18,8 +19,9 @@ type structMetadata struct {
 
 type monitorMetadata struct {
 	structMetadata
-	AcceptsEndpoints bool `json:"acceptsEndpoints"`
-	SingleInstance   bool `json:"singleInstance"`
+	MonitorType      string `json:"monitorType"`
+	AcceptsEndpoints bool   `json:"acceptsEndpoints"`
+	SingleInstance   bool   `json:"singleInstance"`
 }
 
 type fieldMetadata struct {
@@ -33,9 +35,17 @@ type fieldMetadata struct {
 	ElementStruct *structMetadata `json:"elementStruct,omitempty"`
 }
 
+var embeddedExclusions = map[string]bool{
+	"MonitorConfig":  true,
+	"ObserverConfig": true,
+}
+
+func packageDirOfType(t reflect.Type) string {
+	return strings.TrimPrefix(t.PkgPath(), "github.com/signalfx/signalfx-agent/")
+}
+
 func getStructMetadata(typ reflect.Type) structMetadata {
-	pkg := typ.PkgPath()
-	packageDir := strings.TrimPrefix(pkg, "github.com/signalfx/signalfx-agent/")
+	packageDir := packageDirOfType(typ)
 	structName := typ.Name()
 	if packageDir == "" || structName == "" {
 		return structMetadata{}
@@ -45,16 +55,16 @@ func getStructMetadata(typ reflect.Type) structMetadata {
 	for i := 0; i < typ.NumField(); i++ {
 		f := typ.Field(i)
 
-		yamlName := getYAMLName(f)
-		if yamlName == "" || yamlName == "-" {
-			continue
-		}
-
-		if f.Anonymous {
+		if f.Anonymous && !embeddedExclusions[f.Name] {
 			nestedSM := getStructMetadata(f.Type)
 			fieldMD = append(fieldMD, nestedSM.Fields...)
 			continue
 			// Embedded struct name and doc is irrelevant.
+		}
+
+		yamlName := getYAMLName(f)
+		if yamlName == "" || yamlName == "-" {
+			continue
 		}
 
 		fm := fieldMetadata{
@@ -83,26 +93,34 @@ func getStructMetadata(typ reflect.Type) structMetadata {
 	}
 }
 
-func monitorsStructMetadata() map[string]monitorMetadata {
-	sms := map[string]monitorMetadata{}
+func monitorsStructMetadata() []monitorMetadata {
+	sms := []monitorMetadata{}
 	for k := range monitors.ConfigTemplates {
 		t := reflect.TypeOf(monitors.ConfigTemplates[k]).Elem()
+		pkgDoc := packageDoc(packageDirOfType(t))
+
 		mc, _ := t.FieldByName("MonitorConfig")
 		mmd := monitorMetadata{
 			structMetadata:   getStructMetadata(t),
+			MonitorType:      k,
 			AcceptsEndpoints: mc.Tag.Get("acceptsEndpoints") == "true",
 			SingleInstance:   mc.Tag.Get("singleInstance") == "true",
 		}
+		mmd.Doc = monitorDocFromPackageDoc(k, pkgDoc)
 
-		sms[k] = mmd
+		sms = append(sms, mmd)
 	}
+	sort.Slice(sms, func(i, j int) bool {
+		return sms[i].Name < sms[j].Name
+	})
 	return sms
 }
 
 func observersStructMetadata() map[string]structMetadata {
 	sms := map[string]structMetadata{}
 	for k := range observers.ConfigTemplates {
-		sms[k] = getStructMetadata(reflect.TypeOf(observers.ConfigTemplates[k]).Elem())
+		t := reflect.TypeOf(observers.ConfigTemplates[k]).Elem()
+		sms[k] = getStructMetadata(t)
 	}
 	return sms
 }

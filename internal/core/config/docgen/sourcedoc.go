@@ -4,9 +4,11 @@ import (
 	"bytes"
 	"fmt"
 	"go/ast"
+	"go/doc"
 	"go/parser"
 	"go/printer"
 	"go/token"
+	"path/filepath"
 	"reflect"
 	"strings"
 )
@@ -61,6 +63,18 @@ func structDoc(packageDir, structName string) string {
 	return commentTextToParagraphs(commentGroup.Text())
 }
 
+func packageDoc(packageDir string) *doc.Package {
+	fset := token.NewFileSet()
+	pkgs, err := parser.ParseDir(fset, packageDir, nil, parser.ParseComments)
+	if err != nil {
+		panic(err)
+	}
+	if len(pkgs) > 1 {
+		panic("Can't handle multiple packages")
+	}
+	return doc.New(pkgs[filepath.Base(packageDir)], packageDir, doc.AllDecls|doc.AllMethods)
+}
+
 func structFieldDocs(packageDir, structName string) map[string]string {
 	configStruct, _ := structNodes(packageDir, structName)
 	fieldDocs := make(map[string]string)
@@ -71,6 +85,15 @@ func structFieldDocs(packageDir, structName string) map[string]string {
 	}
 
 	return fieldDocs
+}
+
+func monitorDocFromPackageDoc(monitorType string, pkgDoc *doc.Package) string {
+	for _, note := range pkgDoc.Notes["MONITOR"] {
+		if note.UID == monitorType {
+			return note.Body
+		}
+	}
+	return ""
 }
 
 func commentTextToParagraphs(t string) string {

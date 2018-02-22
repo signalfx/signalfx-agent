@@ -1,0 +1,13 @@
+#!/bin/bash
+
+set -euxo pipefail
+
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+AGENT_BIN=${AGENT_BIN:-signalfx-agent}
+
+json_file=$(mktemp -t XXXXXXX.json)
+
+$AGENT_BIN docjson > $json_file
+
+gomplate --file $SCRIPT_DIR/templates/monitors.tmpl --datasource agent=$json_file #> $SCRIPT_DIR/../../docs/monitor-config.md
