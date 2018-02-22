@@ -9,8 +9,6 @@ package genericjmx
 import (
 	"sync"
 
-	yaml "gopkg.in/yaml.v2"
-
 	"github.com/signalfx/signalfx-agent/internal/core/config"
 	"github.com/signalfx/signalfx-agent/internal/monitors/collectd"
 )
@@ -65,9 +63,7 @@ func NewJMXMonitorCore(defaultMBeans MBeanMap, defaultServiceName string) *JMXMo
 
 // Configure configures and runs the plugin in collectd
 func (m *JMXMonitorCore) Configure(conf *Config) error {
-	if conf.MBeanDefinitions == nil {
-		conf.MBeanDefinitions = m.defaultMBeans
-	}
+	conf.MBeanDefinitions = m.defaultMBeans.MergeWith(conf.MBeanDefinitions)
 	if conf.MBeansToCollect == nil {
 		conf.MBeansToCollect = conf.MBeanDefinitions.MBeanNames()
 	}
@@ -76,11 +72,4 @@ func (m *JMXMonitorCore) Configure(conf *Config) error {
 	}
 
 	return m.SetConfigurationAndRun(conf)
-}
-
-func init() {
-	err := yaml.Unmarshal([]byte(defaultMBeanYAML), &DefaultMBeans)
-	if err != nil {
-		panic("YAML for GenericJMX MBeans is invalid: " + err.Error())
-	}
 }

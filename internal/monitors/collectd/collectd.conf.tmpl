@@ -51,7 +51,7 @@ LoadPlugin "java"
 
 <Plugin java>
   #JVMArg "-verbose:jni"
-  JVMArg "-Djava.class.path={{ pluginRoot }}/java/collectd-api.jar:{{Globals.PluginRoot}}/java/generic-jmx.jar"
+  JVMArg "-Djava.class.path={{ pluginRoot }}/java/collectd-api.jar:{{ pluginRoot }}/java/generic-jmx.jar"
 
   LoadPlugin "org.collectd.java.GenericJMX"
 </Plugin>
