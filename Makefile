@@ -50,6 +50,10 @@ run-shell:
 dev-image:
 	bash -ec "source scripts/common.sh && do_docker_build signalfx-agent-dev latest dev-extras"
 
+.PHONY: debug
+debug:
+	dlv debug ./cmd/agent
+
 .PHONY: run-dev-image
 run-dev-image:
 	docker exec -it signalfx-agent-dev bash 2>/dev/null || docker run --rm -it \
@@ -64,8 +68,3 @@ run-dev-image:
 		-v $(PWD)/collectd:/usr/src/collectd:cached \
 		-v /tmp/scratch:/tmp/scratch \
 		signalfx-agent-dev /bin/bash
-
-.PHONY: debug-agent
-debug-agent:
-	dlv run /bundle/bin/signalfx-agent
-

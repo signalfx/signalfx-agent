@@ -332,6 +332,7 @@ RUN apt update &&\
       curl \
       git \
       inotify-tools \
+      jq \
       python-pip \
       python3-pip \
       socat \

@@ -1,0 +1,67 @@
+package selfdescribe
+
+import (
+	"reflect"
+	"strings"
+)
+
+// Embedded structs to always ignore since they already provided in other
+// places in the output.
+var embeddedExclusions = map[string]bool{
+	"MonitorConfig":  true,
+	"ObserverConfig": true,
+}
+
+// This will have to change if we start pulling in monitors from other repos
+func packageDirOfType(t reflect.Type) string {
+	return strings.TrimPrefix(t.PkgPath(), "github.com/signalfx/signalfx-agent/")
+}
+
+func getStructMetadata(typ reflect.Type) structMetadata {
+	packageDir := packageDirOfType(typ)
+	structName := typ.Name()
+	if packageDir == "" || structName == "" {
+		return structMetadata{}
+	}
+
+	fieldMD := []fieldMetadata{}
+	for i := 0; i < typ.NumField(); i++ {
+		f := typ.Field(i)
+
+		if f.Anonymous && !embeddedExclusions[f.Name] {
+			nestedSM := getStructMetadata(f.Type)
+			fieldMD = append(fieldMD, nestedSM.Fields...)
+			continue
+			// Embedded struct name and doc is irrelevant.
+		}
+
+		yamlName := getYAMLName(f)
+		if yamlName == "" || yamlName == "-" {
+			continue
+		}
+
+		fm := fieldMetadata{
+			YAMLName: yamlName,
+			Doc:      structFieldDocs(packageDir, structName)[f.Name],
+			Default:  getDefault(f),
+			Required: getRequired(f),
+			Type:     indirectKind(f.Type).String(),
+		}
+
+		if indirectKind(f.Type) == reflect.Struct {
+			smd := getStructMetadata(indirectType(f.Type))
+			fm.ElementStruct = &smd
+		} else if (f.Type.Kind() == reflect.Map || f.Type.Kind() == reflect.Slice) && indirectKind(f.Type.Elem()) == reflect.Struct {
+			smd := getStructMetadata(indirectType(f.Type.Elem()))
+			fm.ElementStruct = &smd
+		}
+
+		fieldMD = append(fieldMD, fm)
+	}
+
+	return structMetadata{
+		Name:   structName,
+		Doc:    structDoc(packageDir, structName),
+		Fields: fieldMD,
+	}
+}

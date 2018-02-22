@@ -8,6 +8,17 @@ AGENT_BIN=${AGENT_BIN:-signalfx-agent}
 
 json_file=$(mktemp -t XXXXXXX.json)
 
-$AGENT_BIN docjson > $json_file
+j() {
+  jq -r "$1" < $json_file
+}
 
-gomplate --file $SCRIPT_DIR/templates/monitors.tmpl --datasource agent=$json_file #> $SCRIPT_DIR/../../docs/monitor-config.md
+#$AGENT_BIN selfdescribe > $json_file
+json_file="/tmp/agent.json"
+
+gomplate --file $SCRIPT_DIR/templates/monitor-main.md.tmpl --datasource agent=$json_file #> $SCRIPT_DIR/../../docs/monitor-config.md
+
+for i in $(seq 0 $(($(j '.Monitors | length')-1))); do
+  monitorType=$(j ".Monitors[$i].monitorType")
+
+  #j ".Monitors[$i]" | gomplate --file $SCRIPT_DIR/templates/monitor-page.md.tmpl --datasource monitor=stdin:///monitor.json #> $SCRIPT_DIR/../../docs/monitors/${monitorType}.md
+done

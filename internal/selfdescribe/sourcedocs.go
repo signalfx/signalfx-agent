@@ -1,15 +1,12 @@
-package docgen
+package selfdescribe
 
 import (
-	"bytes"
 	"fmt"
 	"go/ast"
 	"go/doc"
 	"go/parser"
-	"go/printer"
 	"go/token"
 	"path/filepath"
-	"reflect"
 	"strings"
 )
 
@@ -18,6 +15,8 @@ var astCache = make(map[string]struct {
 	pkgs map[string]*ast.Package
 })
 
+// Returns the ast node of the struct itself and the comment group on the
+// struct type.
 func structNodes(packageDir, structName string) (*ast.TypeSpec, *ast.CommentGroup) {
 	var fset *token.FileSet
 	var pkgs map[string]*ast.Package
@@ -87,34 +86,10 @@ func structFieldDocs(packageDir, structName string) map[string]string {
 	return fieldDocs
 }
 
-func monitorDocFromPackageDoc(monitorType string, pkgDoc *doc.Package) string {
-	for _, note := range pkgDoc.Notes["MONITOR"] {
-		if note.UID == monitorType {
-			return note.Body
-		}
-	}
-	return ""
-}
-
 func commentTextToParagraphs(t string) string {
 	return strings.TrimSpace(strings.Replace(
 		strings.Replace(
 			strings.Replace(t, "\n\n", "TWOLINES", -1),
 			"\n", " ", -1),
 		"TWOLINES", "\n", -1))
-}
-
-func nodeToString(fset *token.FileSet, n interface{}) string {
-	b := bytes.NewBuffer(nil)
-	printer.Fprint(b, fset, n)
-	return b.String()
-}
-
-func getStructTagValue(f *ast.Field, tagName string) string {
-	if f.Tag == nil {
-		return ""
-	}
-
-	tag := reflect.StructTag(strings.Trim(f.Tag.Value, "`"))
-	return tag.Get(tagName)
 }

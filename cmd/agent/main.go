@@ -13,7 +13,7 @@ import (
 	log "github.com/sirupsen/logrus"
 
 	"github.com/signalfx/signalfx-agent/internal/core"
-	"github.com/signalfx/signalfx-agent/internal/core/config/docgen"
+	"github.com/signalfx/signalfx-agent/internal/selfdescribe"
 
 	prefixed "github.com/x-cray/logrus-prefixed-formatter"
 )
@@ -56,9 +56,10 @@ func doStatus() {
 	fmt.Println("")
 }
 
-// Print out agent documentation
-func doDocs() {
-	fmt.Print(docgen.ConfigDocJSON())
+// Print out agent self-description of config/metadata
+func doSelfDescribe() {
+	log.SetOutput(os.Stderr)
+	fmt.Print(selfdescribe.JSON())
 }
 
 // glog is a transitive dependency of the agent and puts a bunch of flags in
@@ -154,8 +155,8 @@ func main() {
 	switch firstArg {
 	case "status":
 		doStatus()
-	case "docjson":
-		doDocs()
+	case "selfdescribe":
+		doSelfDescribe()
 	default:
 		if firstArg != "" && !strings.HasPrefix(firstArg, "-") {
 			log.Errorf("Unknown subcommand '%s'", firstArg)

@@ -1,4 +1,4 @@
-package docgen
+package selfdescribe
 
 import (
 	"fmt"
@@ -6,11 +6,13 @@ import (
 	"strings"
 )
 
+// Only works if there is an explicit "yaml" struct tag
 func getYAMLName(f reflect.StructField) string {
 	yamlTag := f.Tag.Get("yaml")
 	return strings.SplitN(yamlTag, ",", 2)[0]
 }
 
+// Assumes monitors are using the defaults package
 func getDefault(f reflect.StructField) string {
 	defTag := f.Tag.Get("default")
 	if defTag != "" {
@@ -22,6 +24,7 @@ func getDefault(f reflect.StructField) string {
 	return fmt.Sprintf("%v", reflect.Zero(f.Type).Interface())
 }
 
+// Assumes that monitors are using the validate package to do validation
 func getRequired(f reflect.StructField) bool {
 	validate := f.Tag.Get("validate")
 	for _, v := range strings.Split(validate, ",") {
@@ -41,6 +44,7 @@ func indirectKind(t reflect.Type) reflect.Kind {
 	return kind
 }
 
+// The type with any pointers removed
 func indirectType(t reflect.Type) reflect.Type {
 	if t.Kind() == reflect.Ptr {
 		return t.Elem()
