@@ -99,7 +99,7 @@ is not required by the agent.
 
 ### Raw Values
 If you have values in files/KV stores that you don't want interpreted as YAML,
-but rather as plain strings, you can add the `raw: true` value to the remote
+but rather as plain strings, you can add the `raw: true` option to the remote
 value specification.  Everything else acts as it would otherwise.
 
 ## Environment Variables
