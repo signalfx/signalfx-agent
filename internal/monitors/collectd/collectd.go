@@ -4,6 +4,7 @@ package collectd
 
 import (
 	"bytes"
+	"io"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -202,7 +203,10 @@ func (cm *Manager) PluginDir() string {
 // is setup and right before it is actualy waiting for restart signals.
 func (cm *Manager) manageCollectd(waitCh chan<- struct{}) {
 	state := Uninitialized
+	// The collectd process manager
 	var cmd *exec.Cmd
+	// Where collectd's output goes
+	var output io.ReadCloser
 	procDied := make(chan struct{})
 	restart := make(chan struct{})
 	// This is to stop the goroutine that looks for restart requests
@@ -255,7 +259,7 @@ func (cm *Manager) manageCollectd(waitCh chan<- struct{}) {
 				continue
 			}
 
-			cmd = cm.makeChildCommand()
+			cmd, output = cm.makeChildCommand()
 
 			if err := cmd.Start(); err != nil {
 				log.WithError(err).Error("Could not start collectd child process!")
@@ -265,15 +269,16 @@ func (cm *Manager) manageCollectd(waitCh chan<- struct{}) {
 			}
 
 			go func() {
-				cmd.Wait()
-				procDied <- struct{}{}
+				scanner := logScanner(output)
+				for scanner.Scan() {
+					logLine(scanner.Text())
+				}
 			}()
 
 			go func() {
-				select {
-				case <-cm.requestRestart:
-					restartDebounced()
-				}
+				cmd.Wait()
+				output.Close()
+				procDied <- struct{}{}
 			}()
 
 			state = Running
@@ -433,13 +438,19 @@ func (cm *Manager) rerenderConf(writeHTTPPort int) error {
 	return WriteConfFile(output.String(), cm.conf.ConfigFilePath())
 }
 
-func (cm *Manager) makeChildCommand() *exec.Cmd {
+func (cm *Manager) makeChildCommand() (*exec.Cmd, io.ReadCloser) {
 	loader := filepath.Join(cm.conf.BundleDir, "lib64/ld-linux-x86-64.so.2")
 	collectdBin := filepath.Join(cm.conf.BundleDir, "bin/collectd")
 	cmd := exec.Command(loader, collectdBin, "-f", "-C", cm.conf.ConfigFilePath())
 
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
+	// Send both stdout and stderr to the same buffer
+	r, w, err := os.Pipe()
+	// If this errors things are really wrong with the system
+	if err != nil {
+		panic("Output pipe could not be created for collectd")
+	}
+	cmd.Stdout = w
+	cmd.Stderr = w
 
 	// This is Linux-specific and will cause collectd to be killed by the OS if
 	// the agent dies
@@ -447,5 +458,5 @@ func (cm *Manager) makeChildCommand() *exec.Cmd {
 		Pdeathsig: syscall.SIGTERM,
 	}
 
-	return cmd
+	return cmd, r
 }
