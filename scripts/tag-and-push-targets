@@ -9,7 +9,7 @@ set -xeuo pipefail
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
-DEV_IMAGE=${DEV_IMAGE:-"quay.io/signalfx/signalfx-agent"}
+DEV_IMAGE=${DEV_IMAGE:-"quay.io/signalfx/signalfx-agent-dev"}
 
 for s in $($SCRIPT_DIR/dockerfile-stages); do
   image="$DEV_IMAGE:stage-$s"
