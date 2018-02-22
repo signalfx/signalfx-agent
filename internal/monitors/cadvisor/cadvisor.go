@@ -25,7 +25,7 @@ func init() {
 // CHTTPConfig is the monitor-specific config for cAdvisor
 type CHTTPConfig struct {
 	config.MonitorConfig
-	Config
+	// Where to find cAdvisor
 	CAdvisorURL string `yaml:"cadvisorURL" default:"http://localhost:4194"`
 }
 
@@ -43,7 +43,7 @@ func (c *Cadvisor) Configure(conf *CHTTPConfig) error {
 		return errors.Wrap(err, "Could not create cAdvisor client")
 	}
 
-	return c.Monitor.Configure(&conf.Config, &conf.MonitorConfig, c.Output.SendDatapoint, newCadvisorInfoProvider(cadvisorClient))
+	return c.Monitor.Configure(&conf.MonitorConfig, c.Output.SendDatapoint, newCadvisorInfoProvider(cadvisorClient))
 }
 
 type cadvisorInfoProvider struct {

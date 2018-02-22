@@ -59,9 +59,6 @@ type CadvisorCollector struct {
 	containerSpecMetrics    []containerSpecMetric
 	containerSpecMemMetrics []containerSpecMetric
 	containerSpecCPUMetrics []containerSpecMetric
-	excludedImages          []*regexp.Regexp
-	excludedNames           []*regexp.Regexp
-	excludedLabels          [][]*regexp.Regexp
 	machineInfoMetrics      []machineInfoMetric
 	sendDP                  func(*datapoint.Datapoint)
 	hostname                string
@@ -91,7 +88,7 @@ func networkValues(net []info.InterfaceStats, valueFn func(*info.InterfaceStats)
 	return values
 }
 
-func getContainerMetrics(excludedMetrics map[string]bool) []containerMetric {
+func getContainerMetrics() []containerMetric {
 	var metrics = []containerMetric{
 		{
 			name:      "container_last_seen",
@@ -487,21 +484,10 @@ func getContainerMetrics(excludedMetrics map[string]bool) []containerMetric {
 		},
 	}
 
-	var index = 0
-	for _, metric := range metrics {
-		// check if metric is not on the exclusion list
-		if _, ok := excludedMetrics[metric.name]; !ok {
-			metrics[index] = metric
-			index++
-		}
-	}
-
-	// trim metrics down to the desired length
-	metrics = metrics[:index]
 	return metrics
 }
 
-func getContainerSpecCPUMetrics(excludedMetrics map[string]bool) []containerSpecMetric {
+func getContainerSpecCPUMetrics() []containerSpecMetric {
 	var metrics = []containerSpecMetric{
 		{
 			containerMetric: containerMetric{
@@ -538,20 +524,10 @@ func getContainerSpecCPUMetrics(excludedMetrics map[string]bool) []containerSpec
 		},
 	}
 
-	var index = 0
-	for _, metric := range metrics {
-		// check if metric is not on the exclusion list
-		if _, ok := excludedMetrics[metric.name]; !ok {
-			metrics[index] = metric
-			index++
-		}
-	}
-	// trim metrics down to the desired length
-	metrics = metrics[:index]
 	return metrics
 }
 
-func getContainerSpecMemMetrics(excludedMetrics map[string]bool) []containerSpecMetric {
+func getContainerSpecMemMetrics() []containerSpecMetric {
 	var metrics = []containerSpecMetric{
 		{
 			containerMetric: containerMetric{
@@ -581,20 +557,10 @@ func getContainerSpecMemMetrics(excludedMetrics map[string]bool) []containerSpec
 		},
 	}
 
-	var index = 0
-	for _, metric := range metrics {
-		// check if metric is not on the exclusion list
-		if _, ok := excludedMetrics[metric.name]; !ok {
-			metrics[index] = metric
-			index++
-		}
-	}
-	// trim metrics down to the desired length
-	metrics = metrics[:index]
 	return metrics
 }
 
-func getMachineInfoMetrics(excludedMetrics map[string]bool) []machineInfoMetric {
+func getMachineInfoMetrics() []machineInfoMetric {
 	var metrics = []machineInfoMetric{
 		{
 			containerMetric: containerMetric{
@@ -630,20 +596,10 @@ func getMachineInfoMetrics(excludedMetrics map[string]bool) []machineInfoMetric 
 			},
 		},
 	}
-	var index = 0
-	for _, metric := range metrics {
-		// check if metric is not on the exclusion list
-		if _, ok := excludedMetrics[metric.name]; !ok {
-			metrics[index] = metric
-			index++
-		}
-	}
-	// trim metrics down to the desired length
-	metrics = metrics[:index]
 	return metrics
 }
 
-func getContainerSpecMetrics(excludedMetrics map[string]bool) []containerSpecMetric {
+func getContainerSpecMetrics() []containerSpecMetric {
 	var metrics = []containerSpecMetric{
 		{
 			containerMetric: containerMetric{
@@ -658,16 +614,6 @@ func getContainerSpecMetrics(excludedMetrics map[string]bool) []containerSpecMet
 		},
 	}
 
-	var index = 0
-	for _, metric := range metrics {
-		// check if metric is not on the exclusion list
-		if _, ok := excludedMetrics[metric.name]; !ok {
-			metrics[index] = metric
-			index++
-		}
-	}
-	// trim metrics down to the desired length
-	metrics = metrics[:index]
 	return metrics
 }
 
@@ -676,22 +622,15 @@ func NewCadvisorCollector(
 	infoProvider InfoProvider,
 	sendDP func(*datapoint.Datapoint),
 	hostname string,
-	defaultDimensions map[string]string,
-	excludedImages []*regexp.Regexp,
-	excludedNames []*regexp.Regexp,
-	excludedLabels [][]*regexp.Regexp,
-	excludedMetrics map[string]bool) *CadvisorCollector {
+	defaultDimensions map[string]string) *CadvisorCollector {
 
 	return &CadvisorCollector{
-		excludedImages:          excludedImages,
-		excludedNames:           excludedNames,
-		excludedLabels:          excludedLabels,
 		infoProvider:            infoProvider,
-		containerMetrics:        getContainerMetrics(excludedMetrics),
-		containerSpecCPUMetrics: getContainerSpecCPUMetrics(excludedMetrics),
-		containerSpecMemMetrics: getContainerSpecMemMetrics(excludedMetrics),
-		containerSpecMetrics:    getContainerSpecMetrics(excludedMetrics),
-		machineInfoMetrics:      getMachineInfoMetrics(excludedMetrics),
+		containerMetrics:        getContainerMetrics(),
+		containerSpecCPUMetrics: getContainerSpecCPUMetrics(),
+		containerSpecMemMetrics: getContainerSpecMemMetrics(),
+		containerSpecMetrics:    getContainerSpecMetrics(),
+		machineInfoMetrics:      getMachineInfoMetrics(),
 		sendDP:                  sendDP,
 		hostname:                hostname,
 		defaultDimensions:       defaultDimensions,
@@ -740,56 +679,6 @@ func copyDims(dims map[string]string) map[string]string {
 	return newMap
 }
 
-// isExcludedLabel - filters out containers if their labels match the excludedLabels regexp
-func (c *CadvisorCollector) isExcludedLabel(container info.ContainerInfo) bool {
-	var exlabel []*regexp.Regexp
-	for _, exlabel = range c.excludedLabels {
-		for label, value := range container.Spec.Labels {
-			if exlabel[0].Match([]byte(label)) && exlabel[1].Match([]byte(value)) {
-				return true
-			}
-		}
-	}
-
-	return false
-}
-
-// isExcludedImage - filters out containers if their image matches the excludedImages regexp
-func (c *CadvisorCollector) isExcludedImage(container info.ContainerInfo) bool {
-	var eximage *regexp.Regexp
-	var image = []byte(container.Spec.Image)
-	for _, eximage = range c.excludedImages {
-		if eximage.Match(image) {
-			return true
-		}
-	}
-	return false
-}
-
-// isExcludedName - filters out containers if their name matches the excludedContainer regexp
-func (c *CadvisorCollector) isExcludedName(container info.ContainerInfo) bool {
-	var exname *regexp.Regexp
-	var name = []byte(container.Name)
-	for _, exname = range c.excludedNames {
-		if exname.Match(name) {
-			return true
-		}
-		for _, alias := range container.Aliases {
-			var aliasBytes = []byte(alias)
-			if exname.Match(aliasBytes) {
-				return true
-			}
-
-		}
-	}
-	return false
-}
-
-// isExcluded - filters out containers if their name, images, or labels match the configured regexp filters
-func (c *CadvisorCollector) isExcluded(container info.ContainerInfo) bool {
-	return c.isExcludedImage(container) || c.isExcludedName(container) || c.isExcludedLabel(container)
-}
-
 func (c *CadvisorCollector) collectContainersInfo() {
 	containers, err := c.infoProvider.SubcontainersInfo("/")
 	if err != nil {
@@ -798,9 +687,6 @@ func (c *CadvisorCollector) collectContainersInfo() {
 		return
 	}
 	for _, container := range containers {
-		if c.isExcluded(container) {
-			continue
-		}
 		dims := make(map[string]string)
 
 		image := container.Spec.Image

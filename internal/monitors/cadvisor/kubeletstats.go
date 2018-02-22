@@ -36,9 +36,11 @@ func init() {
 // KubeletStatsConfig respresents config for the Kubelet stats monitor
 type KubeletStatsConfig struct {
 	config.MonitorConfig
-	Config
-	KubeletAPI   kubelet.APIConfig `yaml:"kubeletAPI" default:"{}"`
-	LogResponses bool              `yaml:"logResponses" default:"false"`
+	// Kubelet client configuration
+	KubeletAPI kubelet.APIConfig `yaml:"kubeletAPI" default:"{}"`
+	// Whether to log the raw cadvisor response at the debug level for
+	// debugging purposes.
+	LogResponses bool `yaml:"logResponses" default:"false"`
 }
 
 // KubeletStatsMonitor will pull container metrics from the /stats/ endpoint of
@@ -63,7 +65,7 @@ func (ks *KubeletStatsMonitor) Configure(conf *KubeletStatsConfig) error {
 		return err
 	}
 
-	return ks.Monitor.Configure(&conf.Config, &conf.MonitorConfig, ks.Output.SendDatapoint,
+	return ks.Monitor.Configure(&conf.MonitorConfig, ks.Output.SendDatapoint,
 		newKubeletInfoProvider(client, conf.LogResponses))
 }
 
