@@ -27,6 +27,8 @@ const monitorType = "kubernetes-events"
 // agents perform leader election amongs themselves to decide which instance
 // will send events, unless the `alwaysClusterReporter` config option is set to
 // true.
+// You can see the types of events happening in your cluster with `kubectl get
+// events -o yaml --all-namespaces`.
 
 var logger = log.WithFields(log.Fields{"monitorType": monitorType})
 
@@ -34,7 +36,8 @@ func init() {
 	monitors.Register(monitorType, func() interface{} { return &Monitor{} }, &Config{})
 }
 
-type eventInclusionSpec struct {
+// EventInclusionSpec specifies a type of event to send
+type EventInclusionSpec struct {
 	Reason             string `yaml:"reason"`
 	InvolvedObjectKind string `yaml:"involvedObjectKind"`
 }
@@ -44,10 +47,11 @@ type Config struct {
 	config.MonitorConfig
 	// Configuration of the Kubernetes API client
 	KubernetesAPI *kubernetes.APIConfig `yaml:"kubernetesAPI" default:"{}"`
-	// A list of event types to send events for.  Unless sendAllEvents is set,
-	// only events matching these items will be sent
-	WhitelistedEvents []eventInclusionSpec `yaml:"whitelistedEvents"`
-	// If true, all events from Kubernetes will be sent.
+	// A list of event types to send events for.  Only events matching these
+	// items will be sent.
+	WhitelistedEvents []EventInclusionSpec `yaml:"whitelistedEvents"`
+	// If true, all events from Kubernetes will be sent.  Please don't use this
+	// option unless you really want to act on all possible K8s events.
 	SendAllEvents bool `yaml:"sendAllEvents"`
 	// Whether to always send events from this agent instance or to do leader
 	// election to only send from one agent instance.
@@ -60,7 +64,7 @@ type Monitor struct {
 	Output        types.Output
 	stopper       chan struct{}
 	sendAllEvents bool
-	whitelistSet  map[eventInclusionSpec]bool
+	whitelistSet  map[EventInclusionSpec]bool
 }
 
 // Configure the monitor and kick off event syncing
@@ -71,10 +75,11 @@ func (m *Monitor) Configure(conf *Config) error {
 	}
 
 	m.sendAllEvents = conf.SendAllEvents
-	m.whitelistSet = make(map[eventInclusionSpec]bool, len(conf.WhitelistedEvents))
+	m.whitelistSet = make(map[EventInclusionSpec]bool, len(conf.WhitelistedEvents))
 	for i := range conf.WhitelistedEvents {
 		spec := conf.WhitelistedEvents[i]
 		spec.InvolvedObjectKind = strings.ToLower(spec.InvolvedObjectKind)
+		spec.Reason = strings.ToLower(spec.Reason)
 		m.whitelistSet[spec] = true
 	}
 
@@ -148,8 +153,8 @@ func (m *Monitor) shouldSendEvent(ev *v1.Event) bool {
 		return true
 	}
 
-	return m.whitelistSet[eventInclusionSpec{
-		Reason:             ev.Reason,
+	return m.whitelistSet[EventInclusionSpec{
+		Reason:             strings.ToLower(ev.Reason),
 		InvolvedObjectKind: strings.ToLower(ev.InvolvedObject.Kind),
 	}]
 }
