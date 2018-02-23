@@ -4,21 +4,19 @@ set -euxo pipefail
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
-AGENT_BIN=${AGENT_BIN:-signalfx-agent}
+. $SCRIPT_DIR/../code-gen-helpers.sh
 
-json_file=$(mktemp -t XXXXXXX.json)
+#json_file="/tmp/agent.json"
 
-j() {
-  jq -r "$1" < $json_file
-}
+ensure_description_json
 
-#$AGENT_BIN selfdescribe > $json_file
-json_file="/tmp/agent.json"
+gomplate --file $SCRIPT_DIR/templates/monitor-main.md.tmpl --datasource agent=$json_file > $SCRIPT_DIR/../../docs/monitor-config.md
 
-gomplate --file $SCRIPT_DIR/templates/monitor-main.md.tmpl --datasource agent=$json_file #> $SCRIPT_DIR/../../docs/monitor-config.md
+mon_dir=$SCRIPT_DIR/../../docs/monitors
+mkdir -p $mon_dir
 
 for i in $(seq 0 $(($(j '.Monitors | length')-1))); do
   monitorType=$(j ".Monitors[$i].monitorType")
 
-  #j ".Monitors[$i]" | gomplate --file $SCRIPT_DIR/templates/monitor-page.md.tmpl --datasource monitor=stdin:///monitor.json #> $SCRIPT_DIR/../../docs/monitors/${monitorType}.md
+  j ".Monitors[$i]" | gomplate --file $SCRIPT_DIR/templates/monitor-page.md.tmpl --datasource monitor=stdin:///monitor.json > $mon_dir/${monitorType//\//-}.md
 done
