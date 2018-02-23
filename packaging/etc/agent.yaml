@@ -14,7 +14,7 @@ observers:
   - type: host
 
 monitors:
-  - {"#from": "/etc/signalfx/conf/*.yaml", flatten: true, optional: true}
+  - {"#from": "/etc/signalfx/monitors/*.yaml", flatten: true, optional: true}
   - type: collectd/cpu
   - type: collectd/cpufreq
   - type: collectd/df

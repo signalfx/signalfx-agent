@@ -59,6 +59,12 @@ request_access_token() {
   echo "$access_token"
 }
 
+pull_access_token_from_config() {
+  if [ -e /etc/signalfx/token ] && [ -s /etc/signalfx/token ]; then
+    cat /etc/signalfx/token
+  fi
+}
+
 verify_access_token() {
   local access_token="$1"
   local ingest_url="$2"
@@ -105,37 +111,13 @@ download_debian_key() {
   fi
 }
 
-get_debian_release() {
-  case "$(get_distro_version)" in
-    7)
-      echo -n "wheezy"
-      ;;
-    8)
-      echo -n "jessie"
-      ;;
-    9)
-      echo -n "stretch"
-      ;;
-    14.04)
-      echo -n "trusty"
-      ;;
-    16.04)
-      echo -n "xenial"
-      ;;
-    *)
-      echo -n "generic"
-      ;;
-  esac
-}
-
 install_debian_apt_source() {
   local stage="$1"
-  local release="$(get_debian_release)"
   local trusted_flag=
   if [ "$stage" = "test" ]; then
     trusted_flag="[trusted=yes]"
   fi
-  echo "deb $trusted_flag $(repo_for_stage $deb_repo_base $stage) ${release}/" > /etc/apt/sources.list.d/signalfx-agent.list
+  echo "deb $trusted_flag $(repo_for_stage $deb_repo_base $stage) /" > /etc/apt/sources.list.d/signalfx-agent.list
 }
 
 install_with_apt() {
@@ -179,12 +161,14 @@ ensure_not_installed() {
 configure_access_token() {
   local access_token=$1
 
+  mkdir -p /etc/signalfx
   printf "%s" "$access_token" > /etc/signalfx/token
 }
 
 configure_ingest_url() {
   local ingest_url=$1
 
+  mkdir -p /etc/signalfx
   printf "%s" "$ingest_url" > /etc/signalfx/ingest_url
 }
 
@@ -216,6 +200,10 @@ install() {
   local distro="$(get_distro)"
 
   ensure_not_installed
+
+  if [ -z $access_token ]; then
+    access_token=$(pull_access_token_from_config)
+  fi
 
   if [ -z $access_token ]; then
     access_token=$(request_access_token)

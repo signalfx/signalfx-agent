@@ -1,18 +1,15 @@
 #!/bin/bash
 
 # Adds a file from the output dir to a Debian package repo.  We use the same
-# package for every distro, but offer separate dirs for each in case we decide
-# to have distro-specific packages in the future.
+# package for every distro so there are no separate distro repos.
+#
 # This will sign the repo Release file unless the envvar NO_SIGN is non-empty.
 
 set -euxo pipefail
 
-distros="wheezy jessie stretch trusty xenial generic"
-
 GPG_KEY_ID=${GPG_KEY_ID:-185894C15AE495F6}
 OUTPUT_DIR=${OUTPUT_DIR:-/output}
 REPO_STAGE=${1:-test}
-
 
 case $REPO_STAGE in
   main|beta|test) ;;
@@ -36,19 +33,18 @@ for f in $(find $OUTPUT_DIR -name "*.deb"); do
 done
 
 cd $repo_dir
-for distro in $distros; do
-  mkdir -p $distro
-  apt-ftparchive packages pool > $distro/Packages
-  gzip -kf $distro/Packages
-  xz -kf $distro/Packages
+rm -f Packages*
+apt-ftparchive packages pool > Packages
+gzip -kf Packages
+xz -kf Packages
 
-  apt-ftparchive release $distro > $distro/Release
+rm -f Release*
+apt-ftparchive release . > Release
 
-  if [[ -z ${NO_SIGN-} ]]; then
-    gpg --batch --yes --default-key $GPG_KEY_ID --digest-algo SHA256 -abs -o $distro/Release.gpg $distro/Release
-    gpg --batch --yes --default-key $GPG_KEY_ID --digest-algo SHA256 --clearsign --output $distro/InRelease $distro/Release
-  fi
-done
+if [[ -z ${NO_SIGN-} ]]; then
+  gpg --batch --yes --default-key $GPG_KEY_ID --digest-algo SHA256 -abs -o Release.gpg Release
+  gpg --batch --yes --default-key $GPG_KEY_ID --digest-algo SHA256 --clearsign --output InRelease Release
+fi
 
 aws s3 sync --dryrun $repo_dir $s3_bucket
 
