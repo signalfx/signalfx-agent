@@ -76,14 +76,14 @@ verify_access_token() {
       -H "X-Sf-Token: $access_token" \
       -H "Content-Type:application/json" \
       -X POST \
-      $([ $insecure = "true" ] && echo -n "--insecure") \
+      $([ "$insecure" = "true" ] && echo -n "--insecure") \
       "$ingest_url"/v2/event 2>/dev/null)
   elif command -v wget > /dev/null; then
     api_output=$(wget \
       --header="Content-Type: application/json" \
       --header="X-Sf-Token: $access_token" \
       --post-data='[]' \
-      $([ $insecure = "true" ] && echo -n "--no-check-certificate") \
+      $([ "$insecure" = "true" ] && echo -n "--no-check-certificate") \
       -O - \
       -o /dev/null \
       "$ingest_url"/v2/event)
