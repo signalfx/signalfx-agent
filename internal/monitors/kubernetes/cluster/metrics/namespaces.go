@@ -6,6 +6,9 @@ import (
 	"k8s.io/api/core/v1"
 )
 
+// GAUGE(kubernetes.namespace_phase): The current phase of namespaces (`1` for
+// _active_ and `0` for _terminating_)
+
 func datapointsForNamespace(ns *v1.Namespace) []*datapoint.Datapoint {
 	dims := map[string]string{
 		"kubernetes_namespace": ns.Name,

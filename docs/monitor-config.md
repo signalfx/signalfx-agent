@@ -20,27 +20,28 @@ configuration options:
 - [collectd/etcd](./monitors/collectd-etcd.md)
 - [collectd/genericjmx](./monitors/collectd-genericjmx.md)
 - [collectd/haproxy](./monitors/collectd-haproxy.md)
-- [collectd/health_checker](./monitors/collectd-health_checker.md)
-- [collectd/interface](./monitors/collectd-interface.md)
+- [collectd/health-checker](./monitors/collectd-health-checker.md)
 - [collectd/kafka](./monitors/collectd-kafka.md)
 - [collectd/load](./monitors/collectd-load.md)
-- [collectd/marathon](./monitors/collectd-marathon.md)
-- [collectd/memcached](./monitors/collectd-memcached.md)
 - [collectd/memory](./monitors/collectd-memory.md)
 - [collectd/mongodb](./monitors/collectd-mongodb.md)
 - [collectd/mysql](./monitors/collectd-mysql.md)
-- [collectd/nginx](./monitors/collectd-nginx.md)
-- [collectd/processes](./monitors/collectd-processes.md)
-- [collectd/protocols](./monitors/collectd-protocols.md)
-- [collectd/rabbitmq](./monitors/collectd-rabbitmq.md)
-- [collectd/redis](./monitors/collectd-redis.md)
 - [collectd/signalfx-metadata](./monitors/collectd-signalfx-metadata.md)
-- [collectd/spark](./monitors/collectd-spark.md)
-- [collectd/uptime](./monitors/collectd-uptime.md)
-- [collectd/vmem](./monitors/collectd-vmem.md)
-- [collectd/zookeeper](./monitors/collectd-zookeeper.md)
 - [internal-metrics](./monitors/internal-metrics.md)
 - [kubelet-stats](./monitors/kubelet-stats.md)
 - [kubernetes-cluster](./monitors/kubernetes-cluster.md)
 - [kubernetes-events](./monitors/kubernetes-events.md)
+
+
+## Common Configuration
+
+The following config options are common to all monitors:
+
+| Config option | Default | Required | Type | Description |
+| --- | --- | --- | --- | --- |
+| `type` |  | no | `string` | The type of the monitor |
+| `discoveryRule` |  | no | `string` | The rule used to match up this configuration with a discovered endpoint. If blank, the configuration will be run immediately when the agent is started.  If multiple endpoints match this rule, multiple instances of the monitor type will be created with the same configuration. |
+| `extraDimensions` |  | no | `map of string` | A set of extra dimensions to include on datapoints emitted by the monitor(s) created from this configuration |
+| `intervalSeconds` | `0` | no | `integer` | The interval (in seconds) at which to emit datapoints from the monitor(s) created by this configuration.  If not set (or set to 0), the global agent intervalSeconds config option will be used instead. |
+| `solo` | `false` | no | `bool` | If one or more configurations have this set to true, only those configurations will be considered -- useful for testing |
 

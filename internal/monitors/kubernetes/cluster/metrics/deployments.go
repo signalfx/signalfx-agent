@@ -5,6 +5,12 @@ import (
 	"k8s.io/api/extensions/v1beta1"
 )
 
+// GAUGE(kubernetes.deployment.available): Total number of available pods
+// (ready for at least minReadySeconds) targeted by this deployment.
+
+// GAUGE(kubernetes.deployment.desired): Number of desired pods in this
+// deployment
+
 func datapointsForDeployment(dep *v1beta1.Deployment) []*datapoint.Datapoint {
 	dimensions := map[string]string{
 		"metric_source":        "kubernetes",

@@ -10,6 +10,17 @@ import (
 	"k8s.io/api/core/v1"
 )
 
+// GAUGE(kubernetes_node_ready): Whether this node is ready (1), not ready (0)
+// or in an unknown state (-1)
+
+// DIMENSION(machine_id): The machine ID from /etc/machine-id.  This should be
+// unique across all nodes in your cluster, but some cluster deployment tools
+// don't guarantee this.
+
+// PROPERTY(machine_id:<node label>): All non-blank labels on a given node will
+// be synced as properties to the `machine_id` dimension value for that node.
+// Any blank values will be synced as tags on that same dimension.
+
 // A map to check for duplicate machine IDs
 var machineIDToHostMap = make(map[string]string)
 

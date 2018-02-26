@@ -11,6 +11,14 @@ import (
 	"k8s.io/apimachinery/pkg/types"
 )
 
+// GAUGE(kubernetes.container_restart_count): How many times the container has restarted (capped at 5 due to K8s GC)
+// GAUGE(kubernetes.pod_phase): Current phase of the pod (1 - Pending, 2 - Running, 3 - Succeeded, 4 - Failed, 5 - Unknown)
+// GAUGE(kubernetes.container_ready): Whether a container has passed its readiness probe (0 for no, 1 for yes)
+
+// PROPERTY(kubernetes_pod_uid:<pod label>): Any labels with non-blank values
+// on the pod will be synced as properties to the `kubernetes_pod_uid`
+// dimension. Any blank labels will be synced as tags on that same dimension.
+
 func datapointsForPod(pod *v1.Pod) []*datapoint.Datapoint {
 	dimensions := map[string]string{
 		"metric_source": "kubernetes",

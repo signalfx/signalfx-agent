@@ -27,6 +27,7 @@ const monitorType = "kubernetes-events"
 // agents perform leader election amongs themselves to decide which instance
 // will send events, unless the `alwaysClusterReporter` config option is set to
 // true.
+//
 // You can see the types of events happening in your cluster with `kubectl get
 // events -o yaml --all-namespaces`.
 

@@ -12,15 +12,9 @@
 | Config option | Default | Required | Type | Description |
 | --- | --- | --- | --- | --- |
 | `host` |  | **yes** | `string` |  |
-| `port` | `0` | **yes** | `uint16` |  |
+| `port` |  | **yes** | `uint16` |  |
 | `name` |  | no | `string` |  |
 | `auth` |  | no | `string` |  |
-
-
-
-
-
-
 
 
 

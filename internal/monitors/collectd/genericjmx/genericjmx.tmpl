@@ -23,8 +23,6 @@
     <Connection>
       {{with .ServiceURL}}
       ServiceURL "{{renderValue . $}}"
-      {{- else -}}
-      ServiceURL "service:jmx:rmi:///jndi/rmi://{{.Host}}:{{.Port}}/jmxrmi"
       {{- end}}
       InstanceSuffix "{{.Name}}[monitorID={{.MonitorID}}]"
       {{with .InstancePrefix -}}

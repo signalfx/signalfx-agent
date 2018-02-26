@@ -2,17 +2,20 @@
 
 # collectd/load
 
+ Monitors process load on the host using the collectd
+[Load plugin](https://collectd.org/wiki/index.php/Plugin:Load).
+
+
+[Monitor Source Code](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/load)
 
 **Accepts Endpoints**: No
 
-**Only One Instance Allowed**: **Yes**
+**Multiple Instances Allowed**: **No**
 
 ## Configuration
 
 | Config option | Default | Required | Type | Description |
 | --- | --- | --- | --- | --- |
-
-
 
 
 

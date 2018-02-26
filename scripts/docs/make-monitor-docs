@@ -6,11 +6,28 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 . $SCRIPT_DIR/../code-gen-helpers.sh
 
-#json_file="/tmp/agent.json"
+json_file="/tmp/agent.json"
 
 ensure_description_json
 
-gomplate --file $SCRIPT_DIR/templates/monitor-main.md.tmpl --datasource agent=$json_file > $SCRIPT_DIR/../../docs/monitor-config.md
+doc_types=$(cat <<EOH
+{
+  "slice": "list",
+  "uint16": "integer",
+  "uint": "unsigned integer",
+  "int": "integer",
+  "struct": "object (see below)"
+}
+EOH
+)
+
+j "." | \
+  inject_to_obj "doc_types" "$doc_types" | \
+  gomplate --file $SCRIPT_DIR/templates/monitor-main.md.tmpl --datasource agent=stdin:///agent.json > $SCRIPT_DIR/../../docs/monitor-config.md
+
+j "." | \
+  inject_to_obj "doc_types" "$doc_types" | \
+  gomplate --file $SCRIPT_DIR/templates/top-config.md.tmpl --datasource agent=stdin:///agent.json > $SCRIPT_DIR/../../docs/config-schema.md
 
 mon_dir=$SCRIPT_DIR/../../docs/monitors
 mkdir -p $mon_dir
@@ -18,5 +35,7 @@ mkdir -p $mon_dir
 for i in $(seq 0 $(($(j '.Monitors | length')-1))); do
   monitorType=$(j ".Monitors[$i].monitorType")
 
-  j ".Monitors[$i]" | gomplate --file $SCRIPT_DIR/templates/monitor-page.md.tmpl --datasource monitor=stdin:///monitor.json > $mon_dir/${monitorType//\//-}.md
+  j ".Monitors[$i]" |\
+    inject_to_obj "doc_types" "$doc_types" | \
+    gomplate --file $SCRIPT_DIR/templates/monitor-page.md.tmpl --datasource monitor=stdin:///monitor.json > $mon_dir/${monitorType//\//-}.md
 done

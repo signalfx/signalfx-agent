@@ -11,16 +11,10 @@
 
 | Config option | Default | Required | Type | Description |
 | --- | --- | --- | --- | --- |
-| `processes` | `[]` | no | `slice` |  |
-| `processMatch` | `map[]` | no | `map` |  |
-| `collectContextSwitch` | `false` | no | `bool` |  |
-| `procFSPath` | `/proc` | no | `string` |  |
-
-
-
-
-
-
+| `processes` |  | no | `slice` |  |
+| `processMatch` |  | no | `map` |  |
+| `collectContextSwitch` |  | no | `bool` |  |
+| `procFSPath` |  | no | `string` |  |
 
 
 

@@ -52,3 +52,5 @@ well as services to monitor on K8s.  There is a Helm values file for
 development [in this repo](../deployments/helm-dev-values.yaml]) that will use
 the quay.io private repo.
 
+## Running tests
+

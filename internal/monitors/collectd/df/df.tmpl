@@ -1,26 +1,15 @@
 LoadPlugin df
 <Plugin "df">
   ChangeRoot "{{.HostFSPath}}"
-  IgnoreSelected true
-  FSType "overlay"
-  FSType "tmpfs"
-  FSType "proc"
-  FSType "sysfs"
-  FSType "nsfs"
-  FSType "cgroup"
-  FSType "devpts"
-  FSType "selinuxfs"
-  FSType "devtmpfs"
-  FSType "debugfs"
-  FSType "mqueue"
-  FSType "hugetlbfs"
-  FSType "securityfs"
-  FSType "pstore"
-  FSType "binfmt_misc"
-  FSType "autofs"
-  MountPoint "/^{{.HostFSPath}}/var/lib/rkt/pods/"
-  MountPoint "/^{{.HostFSPath}}/net//"
-  MountPoint "/^{{.HostFSPath}}/smb//"
+  IgnoreSelected {{if .IgnoreSelected}}true{{else}}false{{end}}
+{{range .FSTypes}}
+  FSType "{{.}}"
+{{- end}}
+{{range .MountPoints}}
+  MountPoint "{{.}}"
+{{- end}}
+  ReportByDevice {{if .ReportByDevice}}true{{else}}false{{end}}
+  ReportInodes {{if .ReportInodes}}true{{else}}false{{end}}
 </Plugin>
 
 <Chain "PostCache"> 

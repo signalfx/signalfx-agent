@@ -10,6 +10,10 @@ import (
 
 const monitorType = "collectd/docker"
 
+// MONITOR(collectd/docker): Pulls container stats from the Docker Engine.
+//
+// See https://github.com/signalfx/docker-collectd-plugin.
+
 func init() {
 	monitors.Register(monitorType, func() interface{} {
 		return &Monitor{
@@ -21,7 +25,10 @@ func init() {
 // Config is the monitor-specific config with the generic config embedded
 type Config struct {
 	config.MonitorConfig
-	Dimensions          map[string]string `yaml:"dimensions"`
+	// A set of dimensions to add to container metrics (see
+	// https://github.com/signalfx/docker-collectd-plugin#extracting-additional-dimensions).
+	Dimensions map[string]string `yaml:"dimensions"`
+	// URL of the Docker engine, can be a unix socket path.
 	DockerURL           string            `yaml:"dockerURL" validate:"required"`
 	ExcludedImages      []string          `yaml:"excludedImages"`
 	ExcludedNames       []string          `yaml:"excludedNames"`

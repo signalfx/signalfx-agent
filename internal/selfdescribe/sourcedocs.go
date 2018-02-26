@@ -6,7 +6,9 @@ import (
 	"go/doc"
 	"go/parser"
 	"go/token"
+	"os"
 	"path/filepath"
+	"regexp"
 	"strings"
 )
 
@@ -71,7 +73,25 @@ func packageDoc(packageDir string) *doc.Package {
 	if len(pkgs) > 1 {
 		panic("Can't handle multiple packages")
 	}
-	return doc.New(pkgs[filepath.Base(packageDir)], packageDir, doc.AllDecls|doc.AllMethods)
+	p := pkgs[filepath.Base(packageDir)]
+	// go/doc is pretty inflexible in how it parses notes so do it ourselves.
+	notes := readNotes(ast.MergePackageFiles(p, 0).Comments)
+	pkgDoc := doc.New(p, packageDir, doc.AllDecls|doc.AllMethods)
+	pkgDoc.Notes = notes
+	return pkgDoc
+}
+
+func nestedPackageDocs(packageDir string) []*doc.Package {
+	var out []*doc.Package
+	filepath.Walk(packageDir, func(path string, info os.FileInfo, err error) error {
+		if !info.IsDir() || err != nil {
+			return err
+		}
+
+		out = append(out, packageDoc(path))
+		return nil
+	})
+	return out
 }
 
 func structFieldDocs(packageDir, structName string) map[string]string {
@@ -86,10 +106,8 @@ func structFieldDocs(packageDir, structName string) map[string]string {
 	return fieldDocs
 }
 
+var textRE = regexp.MustCompile(`([^\n])\n([^\s])`)
+
 func commentTextToParagraphs(t string) string {
-	return strings.TrimSpace(strings.Replace(
-		strings.Replace(
-			strings.Replace(t, "\n\n", "TWOLINES", -1),
-			"\n", " ", -1),
-		"TWOLINES", "\n", -1))
+	return strings.TrimSpace(textRE.ReplaceAllString(t, "$1 $2"))
 }

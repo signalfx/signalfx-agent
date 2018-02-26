@@ -2,10 +2,17 @@
 
 # collectd/cpufreq
 
+ Monitors the actual clock speed of each CPU on a
+host.  Useful for systems that vary the clock speed to conserve energy.
+
+See https://collectd.org/wiki/index.php/Plugin:CPUFreq
+
+
+[Monitor Source Code](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/cpufreq)
 
 **Accepts Endpoints**: No
 
-**Only One Instance Allowed**: **Yes**
+**Multiple Instances Allowed**: **No**
 
 ## Configuration
 
@@ -13,7 +20,11 @@
 | --- | --- | --- | --- | --- |
 
 
+## Metrics
 
+| Name | Type | Description |
+| ---  | ---  | ---         |
+| `cpufreq.<N>` | gauge | The processor frequency in Hertz for the <N>th processor on the system. |
 
 
 

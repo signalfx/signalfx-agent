@@ -2,17 +2,24 @@
 
 # collectd/etcd
 
+ Monitors an etcd key/value store.
+
+See https://github.com/signalfx/integrations/tree/master/collectd-etcd and
+https://github.com/signalfx/collectd-etcd
+
+
+[Monitor Source Code](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/etcd)
 
 **Accepts Endpoints**: **Yes**
 
-**Only One Instance Allowed**: No
+**Multiple Instances Allowed**: Yes
 
 ## Configuration
 
 | Config option | Default | Required | Type | Description |
 | --- | --- | --- | --- | --- |
 | `host` |  | **yes** | `string` |  |
-| `port` | `0` | **yes** | `uint16` |  |
+| `port` |  | **yes** | `integer` |  |
 | `name` |  | no | `string` |  |
 | `clusterName` |  | no | `string` |  |
 | `sslKeyFile` |  | no | `string` |  |
@@ -20,21 +27,8 @@
 | `sslCACerts` |  | no | `string` |  |
 | `sslCertValidation` | `true` | no | `bool` |  |
 | `enhancedMetrics` | `false` | no | `bool` |  |
-| `metricsToInclude` | `[]` | no | `slice` |  |
-| `metricsToExclude` | `[]` | no | `slice` |  |
-
-
-
-
-
-
-
-
-
-
-
-
-
+| `metricsToInclude` |  | no | `list of string` |  |
+| `metricsToExclude` |  | no | `list of string` |  |
 
 
 

@@ -19,6 +19,35 @@ const (
 	monitorType = "internal-metrics"
 )
 
+// MONITOR(internal-metrics): Emits metrics about the internal state of the
+// agent.  Useful for debugging performance issues with the agent and to ensure
+// the agent isn't overloaded.
+
+// CUMULATIVE(sfxagent.datapoints_sent): The total number of datapoints sent by
+// the agent since it last started
+
+// CUMULATIVE(sfxagent.events_sent): The total number of events sent by the
+// agent since it last started
+
+// GAUGE(sfxagent.datapoints_buffered): The total number of datapoints that
+// have been emitted by monitors but have yet to be sent to SignalFx
+
+// GAUGE(sfxagent.events_buffered): The total number of events that have been
+// emitted by monitors but have yet to be sent to SignalFx
+
+// GAUGE(sfxagent.active_monitors): The total number of monitor instances
+// actively working
+
+// GAUGE(sfxagent.configured_monitors): The total number of monitor
+// configurations
+
+// GAUGE(sfxagent.discovered_endpoints): The number of discovered service
+// endpoints.  This includes endpoints that do not have any matching monitor
+// configuration discovery rule.
+
+// GAUGE(sfxagent.active_observers): The number of observers configured and
+// running
+
 // Config for internal metric monitoring
 type Config struct {
 	config.MonitorConfig

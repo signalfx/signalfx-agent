@@ -12,21 +12,12 @@
 | Config option | Default | Required | Type | Description |
 | --- | --- | --- | --- | --- |
 | `host` |  | **yes** | `string` |  |
-| `port` | `0` | **yes** | `uint16` |  |
+| `port` |  | **yes** | `uint16` |  |
 | `name` |  | no | `string` |  |
-| `url` | `http://{{.Host}}:{{.Port}}/nginx_status` | no | `string` |  |
+| `url` |  | no | `string` |  |
 | `username` |  | no | `string` |  |
 | `password` |  | no | `string` |  |
-| `timeout` | `0` | no | `int` |  |
-
-
-
-
-
-
-
-
-
+| `timeout` |  | no | `int` |  |
 
 
 

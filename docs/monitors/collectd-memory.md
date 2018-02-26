@@ -2,10 +2,15 @@
 
 # collectd/memory
 
+ Sends memory usage stats for the underlying host.
+See https://collectd.org/wiki/index.php/Plugin:Memory
+
+
+[Monitor Source Code](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/memory)
 
 **Accepts Endpoints**: No
 
-**Only One Instance Allowed**: **Yes**
+**Multiple Instances Allowed**: **No**
 
 ## Configuration
 
@@ -13,7 +18,16 @@
 | --- | --- | --- | --- | --- |
 
 
+## Metrics
 
+| Name | Type | Description |
+| ---  | ---  | ---         |
+| `memory.buffered` | gauge | Bytes of memory used for buffering I/O |
+| `memory.cached` | gauge | Bytes of memory used for disk caching |
+| `memory.free` | gauge | Bytes of memory available for use |
+| `memory.slab_recl` | gauge | Bytes of memory, used for SLAB-allocation of kernel objects, that can be reclaimed. |
+| `memory.slab_unrecl` | gauge | Bytes of memory, used for SLAB-allocation of kernel objects, that can't be reclaimed |
+| `memory.used` | gauge | Bytes of memory in use by the system. |
 
 
 

@@ -9,7 +9,11 @@ import (
 	"github.com/signalfx/signalfx-agent/internal/monitors/collectd"
 )
 
-const monitorType = "collectd/health_checker"
+const monitorType = "collectd/health-checker"
+
+// MONITOR(collectd/health-checker): A simple Collectd Python-based monitor
+// that hits an endpoint and checks if the configured JSON value is returned in
+// the response body.
 
 func init() {
 	monitors.Register(monitorType, func() interface{} {

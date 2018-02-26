@@ -5,6 +5,12 @@ import (
 	"k8s.io/api/extensions/v1beta1"
 )
 
+// GAUGE(kubernetes.replica_set.available): Total number of available pods
+// (ready for at least minReadySeconds) targeted by this replica set
+
+// GAUGE(kubernetes.replica_set.desired): Number of desired pods in this
+// replica set
+
 func datapointsForReplicaSet(rs *v1beta1.ReplicaSet) []*datapoint.Datapoint {
 	dimensions := map[string]string{
 		"metric_source":        "kubernetes",

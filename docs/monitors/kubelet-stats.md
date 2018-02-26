@@ -2,54 +2,55 @@
 
 # kubelet-stats
 
-This monitor pulls cadvisor metrics through a
+ This monitor pulls cadvisor metrics through a
 Kubernetes kubelet instance via the `/stats/container` endpoint.
 
 
+[Monitor Source Code](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/cadvisor)
+
 **Accepts Endpoints**: No
 
-**Only One Instance Allowed**: No
+**Multiple Instances Allowed**: Yes
 
 ## Configuration
 
 | Config option | Default | Required | Type | Description |
 | --- | --- | --- | --- | --- |
-| `kubeletAPI` | `{}` | no | `struct` | Kubelet client configuration |
+| `kubeletAPI` | `map[]` | no | `object (see below)` | Kubelet client configuration |
 | `logResponses` | `false` | no | `bool` | Whether to log the raw cadvisor response at the debug level for debugging purposes. |
 
 
-The `kubeletAPI` config object has the following fields:
+The **nested** `kubeletAPI` config object has the following fields:
 
 | Config option | Default | Required | Type | Description |
 | --- | --- | --- | --- | --- |
 | `url` |  | no | `string` |  |
-| `authType` | none | no | `string` |  |
-| `skipVerify` | false | no | `bool` |  |
+| `authType` | `none` | no | `string` |  |
+| `skipVerify` | `false` | no | `bool` |  |
 | `caCertPath` |  | no | `string` |  |
 | `clientCertPath` |  | no | `string` |  |
 | `clientKeyPath` |  | no | `string` |  |
 
 
-
-
+<!--- This is pretty ugly but some config has nesting to three layers.  Would probably be better to flatten them before rendering. --->
 ## Metrics
 
 | Name | Type | Description |
 | ---  | ---  | ---         |
-| container_last_seen | timestamp | Last time a container was seen by the exporter |
-| container_cpu_user_seconds_total | counter | Cumulative user cpu time consumed in nanoseconds |
+| `container_last_seen` | timestamp | Last time a container was seen by the exporter |
+| `container_cpu_user_seconds_total` | counter | Cumulative user cpu time consumed in nanoseconds |
 
 ## Dimensions
 
 | Name | Description |
 | ---  | ---         |
-| kubernetes_namespace | The K8s namespace the container is part of |
-| kubernetes_pod_name | The pod instance under which this container runs |
-| kubernetes_pod_uid | The UID of the pod instance under which this container runs |
-| container_spec_name | The container's name as it appears in the pod spec |
-| container_name | The container's name as it appears in the pod spec, the same as container_spec_name but retained for backwards compatibility. |
-| container_id | The ID of the running container |
-| container_image | The container image name |
+| `kubernetes_namespace` | The K8s namespace the container is part of |
+| `kubernetes_pod_name` | The pod instance under which this container runs |
+| `kubernetes_pod_uid` | The UID of the pod instance under which this container runs |
+| `container_spec_name` | The container's name as it appears in the pod spec |
+| `container_name` | The container's name as it appears in the pod spec, the same as container_spec_name but retained for backwards compatibility. |
+| `container_id` | The ID of the running container |
+| `container_image` | The container image name |
 
 
 

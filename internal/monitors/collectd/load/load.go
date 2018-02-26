@@ -8,6 +8,9 @@ import (
 	"github.com/signalfx/signalfx-agent/internal/monitors/collectd"
 )
 
+// MONITOR(collectd/load): Monitors process load on the host using the collectd
+// [Load plugin](https://collectd.org/wiki/index.php/Plugin:Load).
+
 const monitorType = "collectd/load"
 
 func init() {

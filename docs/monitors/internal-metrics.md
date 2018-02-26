@@ -2,10 +2,16 @@
 
 # internal-metrics
 
+ Emits metrics about the internal state of the
+agent.  Useful for debugging performance issues with the agent and to ensure
+the agent isn't overloaded.
+
+
+[Monitor Source Code](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/internalmetrics)
 
 **Accepts Endpoints**: No
 
-**Only One Instance Allowed**: No
+**Multiple Instances Allowed**: Yes
 
 ## Configuration
 
@@ -13,7 +19,18 @@
 | --- | --- | --- | --- | --- |
 
 
+## Metrics
 
+| Name | Type | Description |
+| ---  | ---  | ---         |
+| `sfxagent.datapoints_sent` | cumulative | The total number of datapoints sent by the agent since it last started |
+| `sfxagent.events_sent` | cumulative | The total number of events sent by the agent since it last started |
+| `sfxagent.datapoints_buffered` | gauge | The total number of datapoints that have been emitted by monitors but have yet to be sent to SignalFx |
+| `sfxagent.events_buffered` | gauge | The total number of events that have been emitted by monitors but have yet to be sent to SignalFx |
+| `sfxagent.active_monitors` | gauge | The total number of monitor instances actively working |
+| `sfxagent.configured_monitors` | gauge | The total number of monitor configurations |
+| `sfxagent.discovered_endpoints` | gauge | The number of discovered service endpoints.  This includes endpoints that do not have any matching monitor configuration discovery rule. |
+| `sfxagent.active_observers` | gauge | The number of observers configured and running |
 
 
 

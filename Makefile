@@ -68,3 +68,7 @@ run-dev-image:
 		-v $(PWD)/collectd:/usr/src/collectd:cached \
 		-v /tmp/scratch:/tmp/scratch \
 		signalfx-agent-dev /bin/bash
+
+.PHONY: docs
+docs:
+	scripts/docs/make-monitor-docs

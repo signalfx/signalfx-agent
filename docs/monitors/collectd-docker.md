@@ -2,29 +2,27 @@
 
 # collectd/docker
 
+ Pulls container stats from the Docker Engine.
+
+See https://github.com/signalfx/docker-collectd-plugin.
+
+
+[Monitor Source Code](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/docker)
 
 **Accepts Endpoints**: No
 
-**Only One Instance Allowed**: No
+**Multiple Instances Allowed**: Yes
 
 ## Configuration
 
 | Config option | Default | Required | Type | Description |
 | --- | --- | --- | --- | --- |
-| `dimensions` | `map[]` | no | `map` |  |
-| `dockerURL` |  | **yes** | `string` |  |
-| `excludedImages` | `[]` | no | `slice` |  |
-| `excludedNames` | `[]` | no | `slice` |  |
-| `excludedLabels` | `map[]` | no | `map` |  |
+| `dimensions` |  | no | `map of string` | A set of dimensions to add to container metrics (see https://github.com/signalfx/docker-collectd-plugin#extracting-additional-dimensions). |
+| `dockerURL` |  | **yes** | `string` | URL of the Docker engine, can be a unix socket path. |
+| `excludedImages` |  | no | `list of string` |  |
+| `excludedNames` |  | no | `list of string` |  |
+| `excludedLabels` |  | no | `map of string` |  |
 | `collectNetworkStats` | `false` | no | `bool` |  |
-
-
-
-
-
-
-
-
 
 
 

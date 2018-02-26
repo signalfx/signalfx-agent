@@ -2,28 +2,54 @@
 
 # collectd/apache
 
+ Monitors Apache webservice instances using
+the information provided by `mod_status`.
+
+See https://github.com/signalfx/integrations/tree/master/collectd-apache
+
+
+[Monitor Source Code](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/apache)
 
 **Accepts Endpoints**: **Yes**
 
-**Only One Instance Allowed**: No
+**Multiple Instances Allowed**: Yes
 
 ## Configuration
 
 | Config option | Default | Required | Type | Description |
 | --- | --- | --- | --- | --- |
-| `host` |  | **yes** | `string` |  |
-| `port` | `0` | **yes** | `uint16` |  |
-| `name` |  | no | `string` |  |
-| `username` |  | no | `string` |  |
+| `host` |  | **yes** | `string` | The hostname of the Apache server |
+| `port` |  | **yes** | `integer` | The port number of the Apache server |
+| `name` |  | no | `string` | This will be sent as the `plugin_instance` dimension and can be any name you like. |
+| `username` |  | no | `string` | You can specify a username and password to do basic HTTP auth |
 | `password` |  | no | `string` |  |
 
 
+## Metrics
 
+| Name | Type | Description |
+| ---  | ---  | ---         |
+| `apache_bytes` | cumulative | Bytes served by Apache |
+| `apache_requests` | cumulative | Requests served by Apache |
+| `apache_connections` | gauge | Connections served by Apache |
+| `apache_idle_workers` | gauge | Apache workers that are idle |
+| `apache_scoreboard.closing` | gauge | Number of workers in the process of closing connections |
+| `apache_scoreboard.dnslookup` | gauge | Number of workers performing DNS lookup |
+| `apache_scoreboard.finishing` | gauge | Number of workers that are finishing |
+| `apache_scoreboard.idle_cleanup` | gauge | Number of idle threads ready for cleanup |
+| `apache_scoreboard.keepalive` | gauge | Number of keep-alive connections |
+| `apache_scoreboard.logging` | gauge | Number of workers writing to log file |
+| `apache_scoreboard.open` | gauge | Number of worker thread slots that are open |
+| `apache_scoreboard.reading` | gauge | Number of workers reading requests |
+| `apache_scoreboard.sending` | gauge | Number of workers sending responses |
+| `apache_scoreboard.starting` | gauge | Number of workers starting up |
+| `apache_scoreboard.waiting` | gauge | Number of workers waiting for requests |
 
+## Dimensions
 
-
-
-
+| Name | Description |
+| ---  | ---         |
+| `plugin_instance` | Set to whatever you set in the `name` config option. |
 
 
 

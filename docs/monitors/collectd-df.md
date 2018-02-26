@@ -2,20 +2,43 @@
 
 # collectd/df
 
+ Tracks free disk space on the host.
+
+
+[Monitor Source Code](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/df)
 
 **Accepts Endpoints**: No
 
-**Only One Instance Allowed**: **Yes**
+**Multiple Instances Allowed**: **No**
 
 ## Configuration
 
 | Config option | Default | Required | Type | Description |
 | --- | --- | --- | --- | --- |
-| `hostFSPath` |  | no | `string` |  |
+| `hostFSPath` |  | no | `string` | Path to the root of the host filesystem.  Useful when running in a container and the host filesystem is mounted in some subdirectory under /. |
+| `ignoreSelected` | `true` | no | `bool` | If true, the filesystems selected by `fsTypes` and `mountPoints` will be excluded and all others included. |
+| `fsTypes` | `[aufs overlay tmpfs proc sysfs nsfs cgroup devpts selinuxfs devtmpfs debugfs mqueue hugetlbfs securityfs pstore binfmt_misc autofs]` | no | `list of string` | The filesystem types to include/exclude. |
+| `mountPoints` | `[/^/var/lib/rkt/pods/ /^/net// /^/smb//]` | no | `list of string` | The mount paths to include/exclude, is interpreted as a regex if surrounded by `/`. |
+| `reportByDevice` | `false` | no | `bool` |  |
+| `reportInodes` | `false` | no | `bool` |  |
 
 
+## Metrics
 
-
+| Name | Type | Description |
+| ---  | ---  | ---         |
+| `gauge.df_complex.free` | gauge | Free disk space in bytes |
+| `gauge.df_complex.reserved` | gauge | Reserved disk space in bytes |
+| `gauge.df_complex.used` | gauge | Used disk space in bytes |
+| `gauge.df_inodes.free` | gauge | Number of inodes that are free. |
+| `gauge.df_inodes.reserved` | gauge | Number of inodes reserved for the super user. |
+| `gauge.df_inodes.used` | gauge | Number of inodes that are used. |
+| `gauge.percent_bytes.free` | gauge | Free disk space on the file system, expressed as a percentage. |
+| `gauge.percent_bytes.reserved` | gauge | Reserved disk space on the filesystem, expressed as a percentage. |
+| `gauge.percent_bytes.used` | gauge | Used disk space on the file system, expressed as a percentage. |
+| `gauge.percent_inodes.free` | gauge | Free inodes on the file system, expressed as a percentage. |
+| `gauge.percent_inodes.reserved` | gauge | Reserved inodes on the file system, expressed as a percentage. |
+| `gauge.percent_inodes.used` | gauge | Used inodes on the file system, expressed as a percentage. |
 
 
 

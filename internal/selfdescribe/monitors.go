@@ -2,6 +2,8 @@ package selfdescribe
 
 import (
 	"go/doc"
+	"os"
+	"path/filepath"
 	"reflect"
 	"sort"
 	"strings"
@@ -40,97 +42,112 @@ type monitorMetadata struct {
 
 func monitorsStructMetadata() []monitorMetadata {
 	sms := []monitorMetadata{}
-	for k := range monitors.ConfigTemplates {
-		t := reflect.TypeOf(monitors.ConfigTemplates[k]).Elem()
-		pkgDoc := packageDoc(packageDirOfType(t))
+	// Set to track undocumented monitors
+	monTypesSeen := make(map[string]bool)
 
-		mc, _ := t.FieldByName("MonitorConfig")
-		mmd := monitorMetadata{
-			structMetadata:   getStructMetadata(t),
-			MonitorType:      k,
-			AcceptsEndpoints: mc.Tag.Get("acceptsEndpoints") == "true",
-			SingleInstance:   mc.Tag.Get("singleInstance") == "true",
-			Dimensions:       dimensionsFromNotes(pkgDoc),
-			Metrics:          metricsFromNotes(pkgDoc),
-			Properties:       propertiesFromNotes(pkgDoc),
+	filepath.Walk("internal/monitors", func(path string, info os.FileInfo, err error) error {
+		if !info.IsDir() || err != nil {
+			return err
 		}
-		mmd.Doc = monitorDocFromPackageDoc(k, pkgDoc)
+		pkgDoc := packageDoc(path)
+		for monType, monDoc := range monitorDocsInPackage(pkgDoc) {
+			if _, ok := monitors.ConfigTemplates[monType]; !ok {
+				log.Errorf("Found MONITOR doc for monitor type %s but it doesn't appear to be registered", monType)
+				continue
+			}
+			t := reflect.TypeOf(monitors.ConfigTemplates[monType]).Elem()
+			monTypesSeen[monType] = true
 
-		sms = append(sms, mmd)
-	}
+			allDocs := nestedPackageDocs(path)
+
+			mc, _ := t.FieldByName("MonitorConfig")
+			mmd := monitorMetadata{
+				structMetadata:   getStructMetadata(t),
+				MonitorType:      monType,
+				AcceptsEndpoints: mc.Tag.Get("acceptsEndpoints") == "true",
+				SingleInstance:   mc.Tag.Get("singleInstance") == "true",
+				Dimensions:       dimensionsFromNotes(allDocs),
+				Metrics:          metricsFromNotes(allDocs),
+				Properties:       propertiesFromNotes(allDocs),
+			}
+			mmd.Doc = monDoc
+			mmd.Package = path
+
+			sms = append(sms, mmd)
+		}
+		return nil
+	})
 	sort.Slice(sms, func(i, j int) bool {
 		return sms[i].MonitorType < sms[j].MonitorType
 	})
+
+	for k := range monitors.ConfigTemplates {
+		if !monTypesSeen[k] {
+			log.Warnf("Monitor Type %s is registered but does not appear to have documentation", k)
+		}
+	}
+
 	return sms
 }
 
-func monitorDocFromPackageDoc(monitorType string, pkgDoc *doc.Package) string {
+func monitorDocsInPackage(pkgDoc *doc.Package) map[string]string {
+	out := make(map[string]string)
 	for _, note := range pkgDoc.Notes["MONITOR"] {
-		if note.UID == monitorType {
-			return note.Body
-		}
+		out[note.UID] = note.Body
 	}
-	return ""
+	return out
 }
 
-func dimensionsFromNotes(pkgDoc *doc.Package) []dimMetadata {
+func dimensionsFromNotes(allDocs []*doc.Package) []dimMetadata {
 	var dm []dimMetadata
-	for _, note := range pkgDoc.Notes["DIMENSION"] {
-		dm = append(dm, dimMetadata{
-			Name:        note.UID,
-			Description: note.Body,
-		})
+	for _, pkgDoc := range allDocs {
+		for _, note := range pkgDoc.Notes["DIMENSION"] {
+			dm = append(dm, dimMetadata{
+				Name:        note.UID,
+				Description: commentTextToParagraphs(note.Body),
+			})
+		}
 	}
 	return dm
 }
 
-func metricsFromNotes(pkgDoc *doc.Package) []metricMetadata {
+func metricsFromNotes(allDocs []*doc.Package) []metricMetadata {
 	var mm []metricMetadata
-	for _, note := range pkgDoc.Notes["GAUGE"] {
-		mm = append(mm, metricMetadata{
-			Type:        "gauge",
-			Name:        note.UID,
-			Description: note.Body,
-		})
-	}
-	for _, note := range pkgDoc.Notes["TIMESTAMP"] {
-		mm = append(mm, metricMetadata{
-			Type:        "timestamp",
-			Name:        note.UID,
-			Description: note.Body,
-		})
-	}
-	for _, note := range pkgDoc.Notes["COUNTER"] {
-		mm = append(mm, metricMetadata{
-			Type:        "counter",
-			Name:        note.UID,
-			Description: note.Body,
-		})
-	}
-	for _, note := range pkgDoc.Notes["CUMULATIVE"] {
-		mm = append(mm, metricMetadata{
-			Type:        "cumulative counter",
-			Name:        note.UID,
-			Description: note.Body,
-		})
+	for _, pkgDoc := range allDocs {
+		for noteMarker, metaType := range map[string]string{
+			"GAUGE":      "gauge",
+			"TIMESTAMP":  "timestamp",
+			"COUNTER":    "counter",
+			"CUMULATIVE": "cumulative",
+		} {
+			for _, note := range pkgDoc.Notes[noteMarker] {
+				mm = append(mm, metricMetadata{
+					Type:        metaType,
+					Name:        note.UID,
+					Description: commentTextToParagraphs(note.Body),
+				})
+			}
+		}
 	}
 	return mm
 }
 
-func propertiesFromNotes(pkgDoc *doc.Package) []propMetadata {
+func propertiesFromNotes(allDocs []*doc.Package) []propMetadata {
 	var pm []propMetadata
-	for _, note := range pkgDoc.Notes["PROPERTY"] {
-		parts := strings.Split(note.UID, ":")
-		if len(parts) != 2 {
-			log.Errorf("Property comment 'PROPERTY(%s): %s' in package %s should have form "+
-				"'PROPERTY(propname:dimension_name): desc'", note.UID, note.Body, pkgDoc.Name)
-		}
+	for _, pkgDoc := range allDocs {
+		for _, note := range pkgDoc.Notes["PROPERTY"] {
+			parts := strings.Split(note.UID, ":")
+			if len(parts) != 2 {
+				log.Errorf("Property comment 'PROPERTY(%s): %s' in package %s should have form "+
+					"'PROPERTY(dimension_name:prop_name): desc'", note.UID, note.Body, pkgDoc.Name)
+			}
 
-		pm = append(pm, propMetadata{
-			Name:        parts[0],
-			Dimension:   parts[1],
-			Description: note.Body,
-		})
+			pm = append(pm, propMetadata{
+				Name:        parts[1],
+				Dimension:   parts[0],
+				Description: commentTextToParagraphs(note.Body),
+			})
+		}
 	}
 	return pm
 }

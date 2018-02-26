@@ -9,12 +9,17 @@ import (
 
 const monitorType = "collectd/activemq"
 
+// MONITOR(collectd/activemq): Monitors Apache ActiveMQ via the collectd
+// GenericJMX plugin.
+
 var serviceName = "activemq"
 
 // Monitor is the main type that represents the monitor
 type Monitor struct {
 	*genericjmx.JMXMonitorCore
 }
+
+type Config = genericjmx.Config
 
 func init() {
 	var defaultMBeans genericjmx.MBeanMap
@@ -28,5 +33,5 @@ func init() {
 		return &Monitor{
 			genericjmx.NewJMXMonitorCore(defaultMBeans, serviceName),
 		}
-	}, &genericjmx.Config{})
+	}, &Config{})
 }

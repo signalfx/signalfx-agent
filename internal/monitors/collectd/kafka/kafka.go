@@ -10,6 +10,15 @@ const monitorType = "collectd/kafka"
 
 var serviceName = "kafka"
 
+// MONITOR(collectd/kafka): Monitors a Kafka instance using collectd's
+// GenericJMX plugin.
+//
+// This monitor has a set of [built in MBeans
+// configured](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/kafka/mbeans.go)
+// for which it pulls metrics from Kafka's JMX endpoint.
+//
+// See https://github.com/signalfx/integrations/tree/master/collectd-kafka.
+
 // Monitor is the main type that represents the monitor
 type Monitor struct {
 	*genericjmx.JMXMonitorCore

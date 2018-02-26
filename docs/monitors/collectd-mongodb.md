@@ -2,19 +2,26 @@
 
 # collectd/mongodb
 
+ Monitors an instance of MongoDB using the
+[collectd MongoDB Python plugin](https://github.com/signalfx/collectd-mongodb).
+
+Also see https://github.com/signalfx/integrations/tree/master/collectd-mongodb.
+
+
+[Monitor Source Code](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/mongodb)
 
 **Accepts Endpoints**: **Yes**
 
-**Only One Instance Allowed**: No
+**Multiple Instances Allowed**: Yes
 
 ## Configuration
 
 | Config option | Default | Required | Type | Description |
 | --- | --- | --- | --- | --- |
 | `host` |  | **yes** | `string` |  |
-| `port` | `0` | **yes** | `uint16` |  |
+| `port` |  | **yes** | `integer` |  |
 | `name` |  | no | `string` |  |
-| `databases` | `[]` | no | `slice` |  |
+| `databases` |  | no | `list of string` |  |
 | `username` |  | no | `string` |  |
 | `password` |  | no | `string` |  |
 | `useTLS` | `false` | no | `bool` |  |
@@ -22,19 +29,6 @@
 | `tlsClientCert` |  | no | `string` |  |
 | `tlsClientKey` |  | no | `string` |  |
 | `tlsClientKeyPassPhrase` |  | no | `string` |  |
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

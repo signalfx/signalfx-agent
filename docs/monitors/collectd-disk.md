@@ -2,17 +2,24 @@
 
 # collectd/disk
 
+ This monitor collects information about the usage of
+physical disks and logical disks (partitions).
+
+See https://collectd.org/wiki/index.php/Plugin:Disk.
+
+
+[Monitor Source Code](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/disk)
 
 **Accepts Endpoints**: No
 
-**Only One Instance Allowed**: **Yes**
+**Multiple Instances Allowed**: **No**
 
 ## Configuration
 
 | Config option | Default | Required | Type | Description |
 | --- | --- | --- | --- | --- |
-
-
+| `disks` | `[/^loop\d+$/ /^dm-\d+$/]` | no | `list of string` | Which devices to include/exclude |
+| `ignoreSelected` | `true` | no | `bool` | If true, the disks selected by `disks` will be excluded and all others included. |
 
 
 

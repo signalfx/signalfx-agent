@@ -12,31 +12,17 @@
 | Config option | Default | Required | Type | Description |
 | --- | --- | --- | --- | --- |
 | `host` |  | **yes** | `string` |  |
-| `port` | `0` | **yes** | `uint16` |  |
+| `port` |  | **yes** | `uint16` |  |
 | `name` |  | no | `string` |  |
-| `collectChannels` | `false` | no | `bool` |  |
-| `collectConnections` | `false` | no | `bool` |  |
-| `collectExchanges` | `false` | no | `bool` |  |
-| `collectNodes` | `false` | no | `bool` |  |
-| `collectQueues` | `false` | no | `bool` |  |
-| `httpTimeout` | `0` | no | `int` |  |
+| `collectChannels` |  | no | `bool` |  |
+| `collectConnections` |  | no | `bool` |  |
+| `collectExchanges` |  | no | `bool` |  |
+| `collectNodes` |  | no | `bool` |  |
+| `collectQueues` |  | no | `bool` |  |
+| `httpTimeout` |  | no | `int` |  |
 | `verbosityLevel` |  | no | `string` |  |
 | `username` |  | **yes** | `string` |  |
 | `password` |  | **yes** | `string` |  |
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

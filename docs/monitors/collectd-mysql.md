@@ -2,28 +2,30 @@
 
 # collectd/mysql
 
+ Montiors a MySQL database server using collectd's
+[MySQL plugin](https://collectd.org/wiki/index.php/Plugin:MySQL).
+
+
+[Monitor Source Code](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/mysql)
 
 **Accepts Endpoints**: **Yes**
 
-**Only One Instance Allowed**: No
+**Multiple Instances Allowed**: Yes
 
 ## Configuration
 
 | Config option | Default | Required | Type | Description |
 | --- | --- | --- | --- | --- |
 | `host` |  | **yes** | `string` |  |
-| `port` | `0` | **yes** | `uint16` |  |
+| `port` |  | **yes** | `integer` |  |
 | `name` |  | no | `string` |  |
-| `databases` | `[]` | no | `slice` |  |
+| `databases` |  | no | `list of object (see below)` |  |
 | `username` |  | no | `string` | These credentials serve as defaults for all databases if not overridden |
 | `password` |  | no | `string` |  |
-| `reportHost` | `false` | no | `bool` |  |
+| `reportHost` | `false` | no | `bool` | A SignalFx extension to the plugin that allows us to disable the normal behavior of the MySQL collectd plugin where the `host` dimension is set to the hostname of the MySQL database server.  When `false` (the recommended and default setting), the globally configured `hostname` config is used instead. |
 
 
-
-
-
-The `databases` config object has the following fields:
+The **nested** `databases` config object has the following fields:
 
 | Config option | Default | Required | Type | Description |
 | --- | --- | --- | --- | --- |
@@ -32,9 +34,6 @@ The `databases` config object has the following fields:
 | `password` |  | no | `string` |  |
 
 
-
-
-
-
+<!--- This is pretty ugly but some config has nesting to three layers.  Would probably be better to flatten them before rendering. --->
 
 

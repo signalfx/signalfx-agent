@@ -2,26 +2,42 @@
 
 # collectd/signalfx-metadata
 
+ Collectd Python plugin that aggregates
+various metrics from other collectd plugins.  It also sends host metadata to
+SignalFx through specially formatted events, and sends active process
+("top") lists on a periodic basis.
+
+See [Python plugin code](https://github.com/signalfx/collectd-signalfx/) and
+[Integrations docs](https://github.com/signalfx/integrations/tree/master/signalfx-metadata).
+
+
+[Monitor Source Code](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/metadata)
 
 **Accepts Endpoints**: No
 
-**Only One Instance Allowed**: **Yes**
+**Multiple Instances Allowed**: **No**
 
 ## Configuration
 
 | Config option | Default | Required | Type | Description |
 | --- | --- | --- | --- | --- |
 | `writeServerURL` |  | no | `string` |  |
-| `procFSPath` | `/proc` | no | `string` |  |
-| `etcPath` | `/etc` | no | `string` |  |
-| `persistencePath` | `/var/lib/misc` | no | `string` |  |
+| `procFSPath` | `/proc` | no | `string` | The path to the proc filesystem. Useful to override in containerized environments. |
+| `etcPath` | `/etc` | no | `string` | The path to the main host config dir. Userful to override in containerized environments. |
+| `persistencePath` | `/var/lib/misc` | no | `string` | A directory where the metadata plugin can persist the history of successful host metadata syncs so that host metadata is not sent redundantly. |
 
 
+## Metrics
 
-
-
-
-
+| Name | Type | Description |
+| ---  | ---  | ---         |
+| `disk_ops.total` | cumulative | Total number of disk read and write operations on this host. |
+| `network.total` | cumulative | Total amount of inbound and outbound network traffic on this host, in bytes. |
+| `cpu.utilization` | gauge | Percent of CPU used on this host. |
+| `cpu.utilization_per_core` | gauge | Percent of CPU used on each core. |
+| `disk.summary_utilization` | gauge | Percent of disk space utilized on all volumes on this host. |
+| `disk.utilization` | gauge | Percent of disk used on this volume. |
+| `memory.utilization` | gauge | Percent of memory in use on this host. |
 
 
 

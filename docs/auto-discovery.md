@@ -44,7 +44,7 @@ are using.  The following two variables are common to all observers:
 
  - `host` (string): The hostname or IP address of the discovered endpoint
  - `port` (integer): The port number of the discovered endpoint
-
+ - `portType` (`UDP` or `TCP`): Whether the port is TCP or UDP
 
 In addition, these extra functions are provided:
 

@@ -1,8 +1,9 @@
 LoadPlugin disk
 <Plugin "disk">
-  Disk "/^loop\d+$/"
-  Disk "/^dm-\d+$/"
-  IgnoreSelected "true"
+{{range .Disks -}}
+  Disk "{{.}}"
+{{end}}
+  IgnoreSelected {{if .IgnoreSelected}}true{{else}}false{{end}}
 </Plugin>
 
 

@@ -2,29 +2,27 @@
 
 # collectd/haproxy
 
+ Monitors an HAProxy instance.
+
+See https://github.com/signalfx/integrations/tree/master/collectd-haproxy.
+
+
+[Monitor Source Code](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/haproxy)
 
 **Accepts Endpoints**: **Yes**
 
-**Only One Instance Allowed**: No
+**Multiple Instances Allowed**: Yes
 
 ## Configuration
 
 | Config option | Default | Required | Type | Description |
 | --- | --- | --- | --- | --- |
 | `host` |  | **yes** | `string` |  |
-| `port` | `0` | **yes** | `uint16` |  |
+| `port` |  | **yes** | `integer` |  |
 | `name` |  | no | `string` |  |
-| `proxiesToMonitor` | `[]` | no | `slice` |  |
-| `excludedMetrics` | `[]` | no | `slice` |  |
+| `proxiesToMonitor` |  | no | `list of string` |  |
+| `excludedMetrics` |  | no | `list of string` |  |
 | `enhancedMetrics` | `false` | no | `bool` |  |
-
-
-
-
-
-
-
-
 
 
 

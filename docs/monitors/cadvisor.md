@@ -2,13 +2,23 @@
 
 # cadvisor
 
-This monitor pulls metrics directly from cadvisor, which
+ This monitor pulls metrics directly from cadvisor, which
 conventionally runs on port 4194, but can be configured to anything.
 
+If you are running containers with Docker, there is a fair amount of
+duplication with the `collectd/docker` monitor in terms of the metrics sent
+(under distinct metric names) so you may want to consider not enabling the
+Docker monitor in a K8s environment, or else use filtering to whitelist only
+certain metrics.  Note that this will cause the built-in Docker dashboards
+to be blank, but container metrics will be available on the Kubernetes
+dashboards instead.
+
+
+[Monitor Source Code](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/cadvisor)
 
 **Accepts Endpoints**: No
 
-**Only One Instance Allowed**: No
+**Multiple Instances Allowed**: Yes
 
 ## Configuration
 
@@ -17,27 +27,24 @@ conventionally runs on port 4194, but can be configured to anything.
 | `cadvisorURL` | `http://localhost:4194` | no | `string` | Where to find cAdvisor |
 
 
-
-
-
 ## Metrics
 
 | Name | Type | Description |
 | ---  | ---  | ---         |
-| container_last_seen | timestamp | Last time a container was seen by the exporter |
-| container_cpu_user_seconds_total | counter | Cumulative user cpu time consumed in nanoseconds |
+| `container_last_seen` | timestamp | Last time a container was seen by the exporter |
+| `container_cpu_user_seconds_total` | counter | Cumulative user cpu time consumed in nanoseconds |
 
 ## Dimensions
 
 | Name | Description |
 | ---  | ---         |
-| kubernetes_namespace | The K8s namespace the container is part of |
-| kubernetes_pod_name | The pod instance under which this container runs |
-| kubernetes_pod_uid | The UID of the pod instance under which this container runs |
-| container_spec_name | The container's name as it appears in the pod spec |
-| container_name | The container's name as it appears in the pod spec, the same as container_spec_name but retained for backwards compatibility. |
-| container_id | The ID of the running container |
-| container_image | The container image name |
+| `kubernetes_namespace` | The K8s namespace the container is part of |
+| `kubernetes_pod_name` | The pod instance under which this container runs |
+| `kubernetes_pod_uid` | The UID of the pod instance under which this container runs |
+| `container_spec_name` | The container's name as it appears in the pod spec |
+| `container_name` | The container's name as it appears in the pod spec, the same as container_spec_name but retained for backwards compatibility. |
+| `container_id` | The ID of the running container |
+| `container_image` | The container image name |
 
 
 

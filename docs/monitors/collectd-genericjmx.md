@@ -2,46 +2,54 @@
 
 # collectd/genericjmx
 
+ Monitors Java services that expose metrics on
+JMX using collectd's GenericJMX plugin.
+
+See https://github.com/signalfx/integrations/tree/master/collectd-genericjmx
+and https://collectd.org/documentation/manpages/collectd-java.5.shtml
+
+
+[Monitor Source Code](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/genericjmx)
 
 **Accepts Endpoints**: **Yes**
 
-**Only One Instance Allowed**: No
+**Multiple Instances Allowed**: Yes
 
 ## Configuration
 
 | Config option | Default | Required | Type | Description |
 | --- | --- | --- | --- | --- |
 | `host` |  | **yes** | `string` |  |
-| `port` | `0` | **yes** | `uint16` |  |
+| `port` |  | **yes** | `integer` |  |
 | `name` |  | no | `string` |  |
-| `serviceName` |  | no | `string` |  |
-| `serviceURL` |  | no | `string` |  |
+| `serviceName` |  | no | `string` | This is how the service type is identified in the SignalFx UI so that you can get built-in content for it.  For custom JMX integrations, it can be set to whatever you like and metrics will get the dimension `sf_hostHasService` set to this value. |
+| `serviceURL` | `service:jmx:rmi:///jndi/rmi://{{.Host}}:{{.Port}}/jmxrmi` | no | `string` | The JMX connection string.  This is rendered as a Go template and has access to the other values in this config. |
 | `instancePrefix` |  | no | `string` |  |
 | `username` |  | no | `string` |  |
 | `password` |  | no | `string` |  |
-| `mBeansToCollect` | `[]` | no | `slice` |  |
-| `mBeanDefinitions` | `map[]` | no | `map` |  |
+| `mBeansToCollect` |  | no | `list of string` |  |
+| `mBeanDefinitions` |  | no | `map of object (see below)` |  |
 
 
-
-
-
-
-
-
-
-
-
-The `mBeanDefinitions` config object has the following fields:
+The **nested** `mBeanDefinitions` config object has the following fields:
 
 | Config option | Default | Required | Type | Description |
 | --- | --- | --- | --- | --- |
 | `objectName` |  | no | `string` |  |
 | `instancePrefix` |  | no | `string` |  |
-| `instanceFrom` | [] | no | `slice` |  |
-| `values` | [] | no | `slice` |  |
+| `instanceFrom` |  | no | `list of string` |  |
+| `values` |  | no | `list of object (see below)` |  |
 
 
+<!--- This is pretty ugly but some config has nesting to three layers.  Would probably be better to flatten them before rendering. --->
+The **nested** `values` config object has the following fields:
 
+| Config option | Default | Required | Type | Description |
+| --- | --- | --- | --- | --- |
+| `type` |  | no | `string` |  |
+| `table` | `false` | no | `bool` |  |
+| `instancePrefix` |  | no | `string` |  |
+| `instanceFrom` |  | no | `string` |  |
+| `attribute` |  | no | `string` |  |
 
 

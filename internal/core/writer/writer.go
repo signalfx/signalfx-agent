@@ -134,7 +134,8 @@ func (sw *SignalFxWriter) filterAndSendDatapoints(dps []*datapoint.Datapoint) er
 		if sw.conf.Filter == nil || !sw.conf.Filter.Matches(dps[i]) {
 			dps[i].Dimensions = sw.addGlobalDims(dps[i].Dimensions)
 
-			// Some metrics aren't really specific to the
+			// Some metrics aren't really specific to the host they are running
+			// on and shouldn't have any host-specific dims
 			if b, ok := dps[i].Meta[dpmeta.NotHostSpecificMeta].(bool); !ok || !b {
 				dps[i].Dimensions = sw.addHostIDDims(dps[i].Dimensions)
 			}

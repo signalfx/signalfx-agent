@@ -2,49 +2,38 @@
 
 # collectd/elasticsearch
 
+ Monitors ElasticSearch instances.
+
+See https://github.com/signalfx/collectd-elasticsearch and
+https://github.com/signalfx/integrations/tree/master/collectd-elasticsearch
+
+
+[Monitor Source Code](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/elasticsearch)
 
 **Accepts Endpoints**: **Yes**
 
-**Only One Instance Allowed**: No
+**Multiple Instances Allowed**: Yes
 
 ## Configuration
 
 | Config option | Default | Required | Type | Description |
 | --- | --- | --- | --- | --- |
 | `host` |  | **yes** | `string` |  |
-| `port` | `0` | **yes** | `uint16` |  |
+| `port` |  | **yes** | `integer` |  |
 | `name` |  | no | `string` |  |
-| `additionalMetrics` | `[]` | no | `slice` | AdditionalMetrics to report on |
+| `additionalMetrics` |  | no | `list of string` | AdditionalMetrics to report on |
 | `detailedMetrics` | `true` | no | `bool` | DetailedMetrics turns on additional metric time series |
 | `enableClusterHealth` | `true` | no | `bool` | EnableClusterHealth enables reporting on the cluster health |
 | `enableIndexStats` | `true` | no | `bool` | EnableIndexStats reports metrics about indexes |
-| `indexes` | `["_all"]` | no | `slice` | Indexes to report on |
-| `indexInterval` | `300` | no | `uint` | IndexInterval is an interval in seconds at which the plugin will report index stats. It must be greater than or equal, and divisible by the Interval configuration |
+| `indexes` | `[_all]` | no | `list of string` | Indexes to report on |
+| `indexInterval` | `300` | no | `unsigned integer` | IndexInterval is an interval in seconds at which the plugin will report index stats. It must be greater than or equal, and divisible by the Interval configuration |
 | `indexStatsMasterOnly` | `false` | no | `bool` | IndexStatsMasterOnly sends index stats from the master only |
 | `indexSummaryOnly` | `false` | no | `bool` |  |
 | `password` |  | no | `string` | Password used to access elasticsearch stats api |
 | `protocol` |  | no | `string` | Protocol used to connect: http or https |
-| `threadPools` | `["search", "index"]` | no | `slice` | ThreadPools to report on |
+| `threadPools` | `[search index]` | no | `list of string` | ThreadPools to report on |
 | `username` |  | no | `string` | Username used to access elasticsearch stats api |
 | `version` |  | no | `string` |  |
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

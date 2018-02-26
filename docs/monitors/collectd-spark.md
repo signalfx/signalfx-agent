@@ -12,25 +12,14 @@
 | Config option | Default | Required | Type | Description |
 | --- | --- | --- | --- | --- |
 | `host` |  | **yes** | `string` |  |
-| `port` | `0` | **yes** | `uint16` |  |
+| `port` |  | **yes** | `uint16` |  |
 | `name` |  | no | `string` |  |
-| `isMaster` | `false` | no | `bool` |  |
+| `isMaster` |  | no | `bool` |  |
 | `clusterType` |  | no | `string` |  |
-| `collectApplicationMetrics` | `false` | no | `bool` |  |
-| `enhancedMetrics` | `false` | no | `bool` |  |
-| `metricsToInclude` | `[]` | no | `slice` |  |
-| `metricsToExclude` | `[]` | no | `slice` |  |
-
-
-
-
-
-
-
-
-
-
-
+| `collectApplicationMetrics` |  | no | `bool` |  |
+| `enhancedMetrics` |  | no | `bool` |  |
+| `metricsToInclude` |  | no | `slice` |  |
+| `metricsToExclude` |  | no | `slice` |  |
 
 
 

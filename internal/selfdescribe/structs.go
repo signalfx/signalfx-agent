@@ -51,17 +51,23 @@ func getStructMetadata(typ reflect.Type) structMetadata {
 		if indirectKind(f.Type) == reflect.Struct {
 			smd := getStructMetadata(indirectType(f.Type))
 			fm.ElementStruct = &smd
-		} else if (f.Type.Kind() == reflect.Map || f.Type.Kind() == reflect.Slice) && indirectKind(f.Type.Elem()) == reflect.Struct {
-			smd := getStructMetadata(indirectType(f.Type.Elem()))
-			fm.ElementStruct = &smd
+		} else if f.Type.Kind() == reflect.Map || f.Type.Kind() == reflect.Slice {
+			ikind := indirectKind(f.Type.Elem())
+			fm.ElementKind = ikind.String()
+
+			if ikind == reflect.Struct {
+				smd := getStructMetadata(indirectType(f.Type.Elem()))
+				fm.ElementStruct = &smd
+			}
 		}
 
 		fieldMD = append(fieldMD, fm)
 	}
 
 	return structMetadata{
-		Name:   structName,
-		Doc:    structDoc(packageDir, structName),
-		Fields: fieldMD,
+		Name:    structName,
+		Doc:     structDoc(packageDir, structName),
+		Package: packageDir,
+		Fields:  fieldMD,
 	}
 }

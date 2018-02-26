@@ -18,11 +18,11 @@ import (
 // the agent.
 func JSON() string {
 	out, err := json.MarshalIndent(map[string]interface{}{
-		"TopConfig":      getStructMetadata(reflect.TypeOf(config.Config{})),
-		"MonitorConfig":  getStructMetadata(reflect.TypeOf(config.MonitorConfig{})),
-		"ObserverConfig": getStructMetadata(reflect.TypeOf(config.ObserverConfig{})),
-		"Monitors":       monitorsStructMetadata(),
-		"Observers":      observersStructMetadata(),
+		"TopConfig":             getStructMetadata(reflect.TypeOf(config.Config{})),
+		"GenericMonitorConfig":  getStructMetadata(reflect.TypeOf(config.MonitorConfig{})),
+		"GenericObserverConfig": getStructMetadata(reflect.TypeOf(config.ObserverConfig{})),
+		"Monitors":              monitorsStructMetadata(),
+		"Observers":             observersStructMetadata(),
 	}, "", "  ")
 	if err != nil {
 		panic(err)

@@ -2,46 +2,88 @@
 
 # collectd/activemq
 
+ Monitors Apache ActiveMQ via the collectd
+GenericJMX plugin.
+
+
+[Monitor Source Code](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/activemq)
 
 **Accepts Endpoints**: **Yes**
 
-**Only One Instance Allowed**: No
+**Multiple Instances Allowed**: Yes
 
 ## Configuration
 
 | Config option | Default | Required | Type | Description |
 | --- | --- | --- | --- | --- |
 | `host` |  | **yes** | `string` |  |
-| `port` | `0` | **yes** | `uint16` |  |
+| `port` |  | **yes** | `integer` |  |
 | `name` |  | no | `string` |  |
-| `serviceName` |  | no | `string` |  |
-| `serviceURL` |  | no | `string` |  |
+| `serviceName` |  | no | `string` | This is how the service type is identified in the SignalFx UI so that you can get built-in content for it.  For custom JMX integrations, it can be set to whatever you like and metrics will get the dimension `sf_hostHasService` set to this value. |
+| `serviceURL` | `service:jmx:rmi:///jndi/rmi://{{.Host}}:{{.Port}}/jmxrmi` | no | `string` | The JMX connection string.  This is rendered as a Go template and has access to the other values in this config. |
 | `instancePrefix` |  | no | `string` |  |
 | `username` |  | no | `string` |  |
 | `password` |  | no | `string` |  |
-| `mBeansToCollect` | `[]` | no | `slice` |  |
-| `mBeanDefinitions` | `map[]` | no | `map` |  |
+| `mBeansToCollect` |  | no | `list of string` |  |
+| `mBeanDefinitions` |  | no | `map of object (see below)` |  |
 
 
-
-
-
-
-
-
-
-
-
-The `mBeanDefinitions` config object has the following fields:
+The **nested** `mBeanDefinitions` config object has the following fields:
 
 | Config option | Default | Required | Type | Description |
 | --- | --- | --- | --- | --- |
 | `objectName` |  | no | `string` |  |
 | `instancePrefix` |  | no | `string` |  |
-| `instanceFrom` | [] | no | `slice` |  |
-| `values` | [] | no | `slice` |  |
+| `instanceFrom` |  | no | `list of string` |  |
+| `values` |  | no | `list of object (see below)` |  |
 
 
+<!--- This is pretty ugly but some config has nesting to three layers.  Would probably be better to flatten them before rendering. --->
+The **nested** `values` config object has the following fields:
+
+| Config option | Default | Required | Type | Description |
+| --- | --- | --- | --- | --- |
+| `type` |  | no | `string` |  |
+| `table` | `false` | no | `bool` |  |
+| `instancePrefix` |  | no | `string` |  |
+| `instanceFrom` |  | no | `string` |  |
+| `attribute` |  | no | `string` |  |
+## Metrics
+
+| Name | Type | Description |
+| ---  | ---  | ---         |
+| `counter.amq.TotalConnectionsCount` | counter | Total connections count per broker |
+| `gauge.amq.TotalConsumerCount` | gauge | Total number of consumers subscribed to destinations on the broker |
+| `gauge.amq.TotalDequeueCount` | gauge | Total number of messages that have been acknowledged from the broker. |
+| `gauge.amq.TotalEnqueueCount` | gauge | Total number of messages that have been sent to the broker. |
+| `gauge.amq.TotalMessageCount` | gauge | Total number of unacknowledged messages on the broker |
+| `gauge.amq.TotalProducerCount` | gauge | Total number of message producers active on destinations on the broker |
+| `gauge.amq.queue.AverageBlockedTime` | gauge | Average time (ms) that messages have spent blocked by Flow Control. |
+| `gauge.amq.queue.AverageEnqueueTime` | gauge | Average time (ms) that messages have been held at this destination |
+| `gauge.amq.queue.AverageMessageSize` | gauge | Average size of messages in this queue, in bytes. |
+| `gauge.amq.queue.BlockedSends` | gauge | Number of messages blocked by Flow Control. |
+| `gauge.amq.queue.ConsumerCount` | gauge | Number of consumers subscribed to this queue. |
+| `gauge.amq.queue.DequeueCount` | gauge | Number of messages that have been acknowledged and removed from the queue. |
+| `gauge.amq.queue.EnqueueCount` | gauge | Number of messages that have been sent to the queue. |
+| `gauge.amq.queue.ExpiredCount` | gauge | Number of messages that have expired from the queue. |
+| `gauge.amq.queue.ForwardCount` | gauge | Number of messages that have been forwarded from this queue to a networked broker. |
+| `gauge.amq.queue.InFlightCount` | gauge | The number of messages that have been dispatched to consumers, but not acknowledged. |
+| `gauge.amq.queue.ProducerCount` | gauge | Number of producers publishing to this queue |
+| `gauge.amq.queue.QueueSize` | gauge | The number of messages in the queue that have yet to be consumed. |
+| `gauge.amq.queue.TotalBlockedTime` | gauge | The total time (ms) that messages have spent blocked by Flow Control. |
+| `gauge.amq.topic.AverageBlockedTime` | gauge | Average time (ms) that messages have been blocked by Flow Control. |
+| `gauge.amq.topic.AverageEnqueueTime` | gauge | Average time (ms) that messages have been held at this destination. |
+| `gauge.amq.topic.AverageMessageSize` | gauge | Average size of messages on this topic, in bytes. |
+| `gauge.amq.topic.BlockedSends` | gauge | Number of messages blocked by Flow Control |
+| `gauge.amq.topic.ConsumerCount` | gauge | The number of consumers subscribed to this topic |
+| `gauge.amq.topic.DequeueCount` | gauge | Number of messages that have been acknowledged and removed from the topic. |
+| `gauge.amq.topic.EnqueueCount` | gauge | The number of messages that have been sent to the topic. |
+| `gauge.amq.topic.ExpiredCount` | gauge | The number of messages that have expired from this topic. |
+| `gauge.amq.topic.ForwardCount` | gauge | The number of messages that have been forwarded from this topic to a networked broker. |
+| `gauge.amq.topic.InFlightCount` | gauge | The number of messages that have been dispatched to consumers, but have not yet been acknowledged. |
+| `gauge.amq.topic.ProducerCount` | gauge | Number of producers publishing to this topic. |
+| `gauge.amq.topic.QueueSize` | gauge | Number of messages in the topic that have yet to be consumed. |
+| `gauge.amq.topic.TotalBlockedTime` | gauge | The total time (ms) that messages have spent blocked by Flow Control |
 
 
 

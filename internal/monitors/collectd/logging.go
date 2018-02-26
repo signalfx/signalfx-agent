@@ -52,18 +52,21 @@ func logLine(line string) {
 	groups := utils.RegexpGroupMap(logRE, line)
 	logger := collectdLogger
 
+	var level string
+	var message string
 	if groups == nil {
-		logger.Info(line)
-		return
+		level = "info"
+		message = line
+	} else {
+		if groups["plugin"] != "" {
+			logger = logger.WithField("plugin", groups["plugin"])
+		}
+
+		level = groups["level"]
+		message = strings.TrimPrefix(groups["message"], groups["plugin"]+": ")
 	}
 
-	if groups["plugin"] != "" {
-		logger = logger.WithField("plugin", groups["plugin"])
-	}
-
-	message := strings.TrimPrefix(groups["message"], groups["plugin"]+": ")
-
-	switch groups["level"] {
+	switch level {
 	case "debug":
 		logger.Debug(message)
 	case "info":

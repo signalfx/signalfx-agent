@@ -10,14 +10,6 @@
 // This plugin should only be run at one place in the cluster, or else metrics
 // would be duplicated.  This plugin supports two ways of ensuring that:
 //
-// 1) With the default configuration, this plugin will watch the current list
-// of our agent pods, and if and only if it is the first pod in the list,
-// sorted alphabetically by pod name ascending, it will be a reporter. Each
-// instance of the agent will check upon each reporting interval whether it is
-// the first such pod and begin reporting if it finds that it has become the
-// reporter.  This method requires one long-running connection to the K8s API
-// server per node (assuming the agent is running on all nodes).
-//
 // 2) You can simply pass a config flag `alwaysClusterReporter` with value of
 // `true` to this plugin and it will always report cluster metrics.  This
 // method uses less cluster resources (e.g. network sockets, watches on the api
@@ -49,13 +41,46 @@ const (
 	monitorType = "kubernetes-cluster"
 )
 
+// MONITOR(kubernetes-cluster): Collects cluster-level metrics from the
+// Kubernetes API server.  It uses the _watch_ functionality of the K8s API
+// to listen for updates about the cluster and maintains a cache of metrics
+// that get sent on a regular interval.
+//
+// Since the agent is generally running in multiple places in a K8s cluster and
+// since it is generally more convenient to share the same configuration across
+// all agent instances, this monitor by default makes use of a leader election
+// process to ensure that it is the only agent sending metrics in a cluster.
+// All of the agents running in the same namespace that have this monitor
+// configured will decide amongst themselves which should send metrics for this
+// monitor, and the rest will stand by ready to activate if the leader agent
+// dies.  You can override leader election by setting the config option
+// `alwaysClusterReporter` to true, which will make the monitor always report
+// metrics.
+//
+// This monitor is similar to
+// [kube-state-metrics](https://github.com/kubernetes/kube-state-metrics), and
+// sends many of the same metrics, but in a way that is less verbose and better
+// fitted for the SignalFx backend.
+
+// DIMENSION(kubernetes_namespace): The namespace of the resource that the metric
+// describes
+
+// DIMENSION(kubernetes_pod_uid): The UID of the pod that the metric describes
+
+// DIMENSION(metric_source): This is always set to `kubernetes`
+
+// DIMENSION(kubernetes_name): The name of the resource that the metric
+// describes
+
 var logger = log.WithFields(log.Fields{"monitorType": monitorType})
 
 // Config for the K8s monitor
 type Config struct {
 	config.MonitorConfig
-	AlwaysClusterReporter bool                  `yaml:"alwaysClusterReporter"`
-	KubernetesAPI         *kubernetes.APIConfig `yaml:"kubernetesAPI" default:"{}"`
+	// If `true`, leader election is skipped and metrics are always reported.
+	AlwaysClusterReporter bool `yaml:"alwaysClusterReporter"`
+	// Config for the K8s API client
+	KubernetesAPI *kubernetes.APIConfig `yaml:"kubernetesAPI" default:"{}"`
 }
 
 // Validate the k8s-specific config
