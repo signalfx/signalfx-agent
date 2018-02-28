@@ -1,7 +1,6 @@
 package k8sutil
 
 import (
-	"encoding/base64"
 	"fmt"
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -44,12 +43,11 @@ func FetchSecretValue(client *k8s.Clientset, secretName, dataKey, namespace stri
 	if err != nil {
 		return "", err
 	}
-	bytes, err := base64.StdEncoding.DecodeString(string(secret.Data[dataKey]))
-	if err != nil {
-		return "", err
+	if _, ok := secret.Data[dataKey]; !ok {
+		return "", fmt.Errorf("Secret value %s not found in secret %s", dataKey, secretName)
 	}
 
-	return string(bytes), nil
+	return string(secret.Data[dataKey]), nil
 }
 
 // PortByName returns the first port instance with the given name among all of
