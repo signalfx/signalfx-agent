@@ -10,13 +10,14 @@ import (
 // more than one observer.
 type ContainerEndpoint struct {
 	EndpointCore `yaml:",inline"`
-	// altPort is used for services that are accessed through some kind of
+	// Used for services that are accessed through some kind of
 	// NAT redirection as Docker does.  This could be either the public port
 	// or the private one.
-	AltPort       uint16            `yaml:"alternatePort"`
-	Container     Container         `yaml:",inline"`
-	Orchestration Orchestration     `yaml:",inline"`
-	PortLabels    map[string]string `yaml:"portLabels"`
+	AltPort       uint16        `yaml:"alternate_port"`
+	Container     Container     `yaml:",inline"`
+	Orchestration Orchestration `yaml:",inline"`
+	// A map of labels on the container port
+	PortLabels map[string]string `yaml:"port_labels"`
 }
 
 // PublicPort is the port that the endpoint is accessed on externally.  It may
@@ -36,13 +37,23 @@ func (ce *ContainerEndpoint) PrivatePort() uint16 {
 	return ce.AltPort
 }
 
-// DerivedFields returns aliased and computed fields for this endpoint
+// CONTAINER_ENDPOINT_VAR(container_name): The first and primary name of the container as
+// it is known to the container runtime (e.g. Docker).
+
+// CONTAINER_ENDPOINT_VAR(public_port): The port exposed outside the container
+
+// CONTAINER_ENDPOINT_VAR(private_port): The port that the service endpoint runs on
+// inside the container
+
+// DerivedFields returns aliased and computed variable fields for this endpoint
 func (ce *ContainerEndpoint) DerivedFields() map[string]interface{} {
-	return map[string]interface{}{
-		"publicPort":    ce.PublicPort(),
-		"privatePort":   ce.PrivatePort(),
-		"containerName": ce.Container.PrimaryName(),
-	}
+	return utils.MergeInterfaceMaps(
+		ce.EndpointCore.DerivedFields(),
+		utils.StringMapToInterfaceMap(ce.Dimensions()),
+		map[string]interface{}{
+			"public_port":  ce.PublicPort(),
+			"private_port": ce.PrivatePort(),
+		})
 }
 
 // Dimensions returns the dimensions associated with this endpoint
@@ -51,11 +62,7 @@ func (ce *ContainerEndpoint) Dimensions() map[string]string {
 		ce.EndpointCore.Dimensions(),
 		ce.Orchestration.Dimensions,
 		utils.RemoveEmptyMapValues(map[string]string{
-			"container_name":           ce.Container.PrimaryName(),
-			"container_image":          ce.Container.Image,
-			"kubernetes_pod_name":      ce.Container.Pod,
-			"kubernetes_pod_namespace": ce.Container.Namespace,
-			// This is essential as it is the only unique dim for a pod.
-			"kubernetes_pod_uid": ce.Container.PodUID,
+			"container_name":  ce.Container.PrimaryName(),
+			"container_image": ce.Container.Image,
 		}))
 }

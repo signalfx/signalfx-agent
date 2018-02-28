@@ -50,7 +50,7 @@ var _ = Describe("Monitor Manager", func() {
 			},
 			config.MonitorConfig{
 				Type:          "dynamic1",
-				DiscoveryRule: `containerImage =~ "my-service"`,
+				DiscoveryRule: `container_image =~ "my-service"`,
 			},
 		}, &collectdConf, 10)
 
@@ -67,7 +67,7 @@ var _ = Describe("Monitor Manager", func() {
 			},
 			config.MonitorConfig{
 				Type:          "dynamic1",
-				DiscoveryRule: `containerImage =~ "my-service"`,
+				DiscoveryRule: `container_image =~ "my-service"`,
 			},
 		}, &collectdConf, 10)
 
@@ -76,7 +76,7 @@ var _ = Describe("Monitor Manager", func() {
 		manager.Configure([]config.MonitorConfig{
 			config.MonitorConfig{
 				Type:          "dynamic1",
-				DiscoveryRule: `containerImage =~ "my-service"`,
+				DiscoveryRule: `container_image =~ "my-service"`,
 			},
 		}, &collectdConf, 10)
 
@@ -90,7 +90,7 @@ var _ = Describe("Monitor Manager", func() {
 			},
 			config.MonitorConfig{
 				Type:          "dynamic1",
-				DiscoveryRule: `containerImage =~ "my-service"`,
+				DiscoveryRule: `container_image =~ "my-service"`,
 			},
 		}, &collectdConf, 10)
 
@@ -111,7 +111,7 @@ var _ = Describe("Monitor Manager", func() {
 			},
 			config.MonitorConfig{
 				Type:          "dynamic1",
-				DiscoveryRule: `containerImage =~ "my-service"`,
+				DiscoveryRule: `container_image =~ "my-service"`,
 			},
 		}, &collectdConf, 10)
 
@@ -142,7 +142,7 @@ var _ = Describe("Monitor Manager", func() {
 			},
 			config.MonitorConfig{
 				Type:          "dynamic1",
-				DiscoveryRule: `containerImage =~ "my-service"`,
+				DiscoveryRule: `container_image =~ "my-service"`,
 			},
 		}, &collectdConf, 10)
 
@@ -182,7 +182,7 @@ var _ = Describe("Monitor Manager", func() {
 			},
 			config.MonitorConfig{
 				Type:          "dynamic1",
-				DiscoveryRule: `containerImage =~ "my-service"`,
+				DiscoveryRule: `container_image =~ "my-service"`,
 			},
 		}
 		manager.Configure(goodConfig, &collectdConf, 10)
@@ -198,7 +198,7 @@ var _ = Describe("Monitor Manager", func() {
 			},
 			config.MonitorConfig{
 				Type:          "dynamic1",
-				DiscoveryRule: `containerImage =~ "my-service"`,
+				DiscoveryRule: `container_image =~ "my-service"`,
 				OtherConfig:   map[string]interface{}{"invalid": true},
 			},
 		}, &collectdConf, 10)
@@ -216,7 +216,7 @@ var _ = Describe("Monitor Manager", func() {
 		manager.Configure([]config.MonitorConfig{
 			config.MonitorConfig{
 				Type:          "dynamic1",
-				DiscoveryRule: `containerImage =~ "their-service"`,
+				DiscoveryRule: `container_image =~ "their-service"`,
 			},
 		}, &collectdConf, 10)
 
@@ -228,7 +228,7 @@ var _ = Describe("Monitor Manager", func() {
 		manager.Configure([]config.MonitorConfig{
 			config.MonitorConfig{
 				Type:          "dynamic1",
-				DiscoveryRule: `containerImage =~ "my-service"`,
+				DiscoveryRule: `container_image =~ "my-service"`,
 			},
 		}, &collectdConf, 10)
 
@@ -240,7 +240,7 @@ var _ = Describe("Monitor Manager", func() {
 		manager.Configure([]config.MonitorConfig{
 			config.MonitorConfig{
 				Type:          "dynamic1",
-				DiscoveryRule: `containerImage =~ "my-service"`,
+				DiscoveryRule: `container_image =~ "my-service"`,
 			},
 		}, &collectdConf, 10)
 
@@ -252,7 +252,7 @@ var _ = Describe("Monitor Manager", func() {
 		manager.Configure([]config.MonitorConfig{
 			config.MonitorConfig{
 				Type:          "dynamic1",
-				DiscoveryRule: `containerImage =~ "their-service"`,
+				DiscoveryRule: `container_image =~ "their-service"`,
 			},
 		}, &collectdConf, 10)
 
@@ -267,7 +267,7 @@ var _ = Describe("Monitor Manager", func() {
 			},
 			config.MonitorConfig{
 				Type:          "dynamic1",
-				DiscoveryRule: `containerImage =~ "my-service"`,
+				DiscoveryRule: `container_image =~ "my-service"`,
 			},
 		}, &collectdConf, 10)
 
@@ -282,11 +282,11 @@ var _ = Describe("Monitor Manager", func() {
 			},
 			config.MonitorConfig{
 				Type:          "dynamic1",
-				DiscoveryRule: `containerImage =~ "my-service"`,
+				DiscoveryRule: `container_image =~ "my-service"`,
 			},
 			config.MonitorConfig{
 				Type:          "dynamic2",
-				DiscoveryRule: `containerImage =~ "my-service"`,
+				DiscoveryRule: `container_image =~ "my-service"`,
 			},
 		}, &collectdConf, 10)
 
@@ -300,11 +300,11 @@ var _ = Describe("Monitor Manager", func() {
 		manager.Configure([]config.MonitorConfig{
 			config.MonitorConfig{
 				Type:          "dynamic1",
-				DiscoveryRule: `containerImage =~ "my-service"`,
+				DiscoveryRule: `container_image =~ "my-service"`,
 			},
 			config.MonitorConfig{
 				Type:          "dynamic2",
-				DiscoveryRule: `containerImage =~ "my-service"`,
+				DiscoveryRule: `container_image =~ "my-service"`,
 			},
 		}, &collectdConf, 10)
 
@@ -373,7 +373,7 @@ var _ = Describe("Monitor Manager", func() {
 		manager.Configure([]config.MonitorConfig{
 			config.MonitorConfig{
 				Type:          "dynamic1",
-				DiscoveryRule: `port == 5000 && containerImage =~ "my-service"`,
+				DiscoveryRule: `port == 5000 && container_image =~ "my-service"`,
 				OtherConfig: map[string]interface{}{
 					"password": "s3cr3t",
 				},
@@ -414,7 +414,7 @@ var _ = Describe("Monitor Manager", func() {
 			},
 			config.MonitorConfig{
 				Type:          "dynamic1",
-				DiscoveryRule: `containerImage =~ "my-service"`,
+				DiscoveryRule: `container_image =~ "my-service"`,
 			},
 		}, &collectdConf, 10)
 
@@ -452,7 +452,7 @@ var _ = Describe("Monitor Manager", func() {
 			},
 			config.MonitorConfig{
 				Type:          "dynamic2",
-				DiscoveryRule: `containerImage =~ "not-my-service"`,
+				DiscoveryRule: `container_image =~ "not-my-service"`,
 			},
 		}, &collectdConf, 10)
 

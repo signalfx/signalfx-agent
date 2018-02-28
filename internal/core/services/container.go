@@ -7,16 +7,21 @@ import (
 
 // Container information
 type Container struct {
-	ID      string            `yaml:"containerID"`
-	Names   []string          `yaml:"containerNames"`
-	Image   string            `yaml:"containerImage"`
-	Command string            `yaml:"containerCommand"`
-	State   string            `yaml:"containerState"`
-	Labels  map[string]string `yaml:"containerLabels"`
-	// K8s specific
-	Pod       string `yaml:"pod"`
-	PodUID    string `yaml:"podUID"`
-	Namespace string `yaml:"namespace"`
+	// The ID of the container exposing the endpoint
+	ID string `yaml:"container_id"`
+	// A list of container names of the container exposing the endpoint
+	Names []string `yaml:"container_names"`
+	// The image name of the container exposing the endpoint
+	Image string `yaml:"container_image"`
+	// The command used when running the container exposing the endpoint
+	Command string `yaml:"container_command"`
+	// The container state, will usually be "running" since otherwise the
+	// container wouldn't have a port exposed to be discovered.
+	State string `yaml:"container_state"`
+	// A map that contains container label key/value pairs.  You can use the
+	// `Contains` and `Get` helper functions in discovery rules to make use of
+	// this.
+	Labels map[string]string `yaml:"container_labels"`
 }
 
 // PrimaryName is the first container name, with all slashes stripped from the

@@ -101,14 +101,14 @@ func TestNoPods(t *testing.T) {
 		Expect(re.Port).To(Equal(uint16(6379)))
 		Expect(re.Host).To(Equal("10.2.83.18"))
 		Expect(re.Container.Image).To(Equal("redis:latest"))
-		Expect(re.Container.PodUID).To(Equal("2fafcdfe-f3a7-11e6-99cc-066fe1d5e5f9"))
+		Expect(re.Dimensions()["kubernetes_pod_uid"]).To(Equal("2fafcdfe-f3a7-11e6-99cc-066fe1d5e5f9"))
 		Expect(re.Dimensions()["kubernetes_pod_name"]).To(Equal("redis-3165242388-n1vc7"))
 
 		re2 := endpoints[services.ID("redis-3165242388-n1vc7-2fafcdf-7379")].(*services.ContainerEndpoint)
 		Expect(re2.Port).To(Equal(uint16(7379)))
 		Expect(re2.Host).To(Equal("10.2.83.18"))
 		Expect(re2.Container.Image).To(Equal("redis:latest"))
-		Expect(re2.Container.PodUID).To(Equal("2fafcdfe-f3a7-11e6-99cc-066fe1d5e5f9"))
+		Expect(re2.Dimensions()["kubernetes_pod_uid"]).To(Equal("2fafcdfe-f3a7-11e6-99cc-066fe1d5e5f9"))
 	})
 
 	t.Run("No running pods", func(t *testing.T) {

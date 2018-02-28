@@ -10,28 +10,6 @@ import (
 	"github.com/Knetic/govaluate"
 )
 
-// Used to quickly check if a discovery rule is invalid without actually
-// evaluating it.  MAKE SURE TO UPDATE THIS IF ADDING OR REMOVING METADATA TO
-// ENDPOINT/INSTANCES
-var validRuleIdentifiers = map[string]bool{
-	"name":             true,
-	"host":             true,
-	"port":             true,
-	"networkPort":      true,
-	"portType":         true,
-	"publicPort":       true,
-	"privatePort":      true,
-	"containerID":      true,
-	"containerName":    true,
-	"containerImage":   true,
-	"containerCommand": true,
-	"containerState":   true,
-	"containerLabels":  true,
-	"portLabels":       true,
-	"pod":              true,
-	"namespace":        true,
-}
-
 var ruleFunctions = map[string]govaluate.ExpressionFunction{
 	"Get": func(args ...interface{}) (interface{}, error) {
 		if len(args) != 2 {
@@ -138,26 +116,18 @@ func DoesServiceMatchRule(si Endpoint, ruleText string) bool {
 
 // ValidateDiscoveryRule takes a discovery rule string and returns false if it
 // can be determined to be invalid.  It does not guarantee validity but can be
-// used to give upfront feedback to the user if there are syntax errors or
-// unknown variables in the rule.
+// used to give upfront feedback to the user if there are syntax errors in the
+// rule.
 func ValidateDiscoveryRule(rule string) error {
-	expr, err := parseRuleText(rule)
-	if err != nil {
+	if _, err := parseRuleText(rule); err != nil {
 		return fmt.Errorf("Syntax error in discovery rule '%s': %s", rule, err.Error())
-	}
-
-	variables := expr.Vars()
-	for _, v := range variables {
-		if !validRuleIdentifiers[v] {
-			return fmt.Errorf("Unknown variable in discovery rule '%s': %s", rule, v)
-		}
 	}
 	return nil
 }
 
 func endpointMapHasAllVars(endpointParams map[string]interface{}, vars []string) error {
 	for _, v := range vars {
-		if _, ok := endpointParams[v]; !ok && validRuleIdentifiers[v] {
+		if _, ok := endpointParams[v]; !ok {
 			return fmt.Errorf("Variable '%s' not found in endpoint", v)
 		}
 	}

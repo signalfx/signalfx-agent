@@ -168,14 +168,12 @@ func (mesos *Mesosphere) discover() []services.Endpoint {
 						containerLabels[label.Key] = label.Value
 					}
 					serviceContainer = services.Container{
-						ID:        executor.Container,
-						Names:     []string{containerName},
-						Image:     containerImage,
-						Pod:       "",
-						Command:   "",
-						State:     "running",
-						Labels:    containerLabels,
-						Namespace: "",
+						ID:      executor.Container,
+						Names:   []string{containerName},
+						Image:   containerImage,
+						Command: "",
+						State:   "running",
+						Labels:  containerLabels,
 					}
 				} else {
 					continue

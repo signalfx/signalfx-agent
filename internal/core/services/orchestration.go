@@ -35,10 +35,10 @@ const (
 // Orchestration contains information about the orchestrator that the service
 // is deployed on (see OrchestrationType)
 type Orchestration struct {
-	ID         string            `yaml:"orchestrationID"`
+	ID         string            `yaml:"-"`
 	Type       OrchestrationType `yaml:"orchestrator"`
-	Dimensions map[string]string `yaml:"orchestrationDimensions"`
-	PortPref   PortPreference    `yaml:"orchestrationPortPref"`
+	Dimensions map[string]string `yaml:"-"`
+	PortPref   PortPreference    `yaml:"-"`
 }
 
 // NewOrchestration constructor

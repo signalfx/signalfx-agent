@@ -21,36 +21,23 @@ var ipAddrRegexp = regexp.MustCompile(`\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}`)
 
 // EndpointCore represents an exposed network port
 type EndpointCore struct {
-	ID       ID       `yaml:"id"`
-	Name     string   `yaml:"name"`
-	Host     string   `yaml:"host"`
-	PortType PortType `yaml:"portType"`
-	Port     uint16   `yaml:"port"`
+	ID ID `yaml:"id"`
+	// A observer assigned name of the endpoint
+	Name string `yaml:"name"`
+	// The hostname/IP address of the endpoint
+	Host string `yaml:"host"`
+	// TCP or UDP
+	PortType PortType `yaml:"port_type"`
+	// The TCP/UDP port number of the endpoint
+	Port uint16 `yaml:"port"`
 	// The observer that discovered this endpoint
-	DiscoveredBy  string                 `yaml:"discoveredBy"`
-	Configuration map[string]interface{} `yaml:"configuration"`
+	DiscoveredBy  string                 `yaml:"discovered_by"`
+	Configuration map[string]interface{} `yaml:"-"`
 	// The type of monitor that this endpoint has requested.  This is populated
 	// by observers that pull configuration directly from the platform they are
 	// observing.
-	MonitorType     string            `yaml:"monitorType"`
-	extraDimensions map[string]string `yaml:"dimensions"`
-}
-
-// Core returns the EndpointCore since it will be embedded in an Endpoint
-// instance
-func (e *EndpointCore) Core() *EndpointCore {
-	return e
-}
-
-// DerivedFields returns aliased and computed fields for this endpoint
-func (e *EndpointCore) DerivedFields() map[string]interface{} {
-	out := map[string]interface{}{
-		"networkPort": e.Port,
-	}
-	if ipAddrRegexp.MatchString(e.Host) {
-		out["ipAddress"] = e.Host
-	}
-	return out
+	MonitorType     string            `yaml:"-"`
+	extraDimensions map[string]string `yaml:"-"`
 }
 
 // NewEndpointCore returns a new initialized endpoint core struct
@@ -67,6 +54,27 @@ func NewEndpointCore(id string, name string, discoveredBy string) *EndpointCore 
 	}
 
 	return ec
+}
+
+// Core returns the EndpointCore since it will be embedded in an Endpoint
+// instance
+func (e *EndpointCore) Core() *EndpointCore {
+	return e
+}
+
+// ENDPOINT_VAR(network_port): An alias for `port`
+// ENDPOINT_VAR(ip_address): The IP address of the endpoint if the `host` is in
+// the from of an IPv4 address
+
+// DerivedFields returns aliased and computed variable fields for this endpoint
+func (e *EndpointCore) DerivedFields() map[string]interface{} {
+	out := map[string]interface{}{
+		"network_port": e.Port,
+	}
+	if ipAddrRegexp.MatchString(e.Host) {
+		out["ip_address"] = e.Host
+	}
+	return utils.MergeInterfaceMaps(utils.StringMapToInterfaceMap(e.Dimensions()), out)
 }
 
 // ExtraConfig returns a map of values to be considered when configuring a monitor

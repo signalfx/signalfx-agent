@@ -19,8 +19,6 @@ type Monitor struct {
 	*genericjmx.JMXMonitorCore
 }
 
-type Config = genericjmx.Config
-
 func init() {
 	var defaultMBeans genericjmx.MBeanMap
 	err := yaml.Unmarshal([]byte(defaultMBeanYAML), &defaultMBeans)
@@ -33,5 +31,5 @@ func init() {
 		return &Monitor{
 			genericjmx.NewJMXMonitorCore(defaultMBeans, serviceName),
 		}
-	}, &Config{})
+	}, &genericjmx.Config{})
 }

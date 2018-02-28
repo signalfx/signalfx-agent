@@ -12,8 +12,6 @@
 package services
 
 import (
-	"reflect"
-
 	"github.com/davecgh/go-spew/spew"
 	"github.com/signalfx/signalfx-agent/internal/utils"
 	log "github.com/sirupsen/logrus"
@@ -66,16 +64,4 @@ func EndpointAsMap(endpoint Endpoint) map[string]interface{} {
 		return utils.MergeInterfaceMaps(asMap, df.DerivedFields())
 	}
 	return asMap
-}
-
-// EndpointsAsSliceOfMap takes a slice of endpoint types and returns a slice of
-// the result of mapping each endpoint through EndpointAsMap.  Panics if
-// endpoints isn't a slice.
-func EndpointsAsSliceOfMap(endpoints interface{}) []map[string]interface{} {
-	val := reflect.ValueOf(endpoints)
-	out := make([]map[string]interface{}, val.Len(), val.Len())
-	for i := 0; i < val.Len(); i++ {
-		out[i] = EndpointAsMap(val.Index(i).Interface().(Endpoint))
-	}
-	return out
 }

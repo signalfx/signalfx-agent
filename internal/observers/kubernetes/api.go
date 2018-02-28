@@ -212,10 +212,10 @@ func endpointsInPod(pod *v1.Pod, client *k8s.Clientset) []services.Endpoint {
 
 	for _, container := range pod.Spec.Containers {
 		dims := map[string]string{
-			"container_name":           container.Name,
-			"container_image":          container.Image,
-			"kubernetes_pod_name":      pod.Name,
-			"kubernetes_pod_namespace": pod.Namespace,
+			"container_spec_name":  container.Name,
+			"kubernetes_pod_name":  pod.Name,
+			"kubernetes_pod_uid":   string(pod.UID),
+			"kubernetes_namespace": pod.Namespace,
 		}
 		orchestration := services.NewOrchestration("kubernetes", services.KUBERNETES, dims, services.PRIVATE)
 
@@ -261,15 +261,12 @@ func endpointsInPod(pod *v1.Pod, client *k8s.Clientset) []services.Endpoint {
 			endpoint.Port = uint16(port.ContainerPort)
 
 			container := &services.Container{
-				ID:        containerID,
-				Names:     []string{containerName},
-				Image:     container.Image,
-				Command:   "",
-				State:     containerState,
-				Labels:    pod.Labels,
-				Pod:       pod.Name,
-				PodUID:    string(pod.UID),
-				Namespace: pod.Namespace,
+				ID:      containerID,
+				Names:   []string{containerName},
+				Image:   container.Image,
+				Command: "",
+				State:   containerState,
+				Labels:  pod.Labels,
 			}
 			endpoints = append(endpoints, &services.ContainerEndpoint{
 				EndpointCore:  *endpoint,

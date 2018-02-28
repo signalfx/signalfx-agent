@@ -216,7 +216,13 @@ func (k *Observer) discover() []services.Endpoint {
 		}
 
 		for _, container := range pod.Spec.Containers {
-			orchestration := services.NewOrchestration("kubernetes", services.KUBERNETES, nil, services.PRIVATE)
+			dims := map[string]string{
+				"container_spec_name":  container.Name,
+				"kubernetes_pod_name":  pod.Metadata.Name,
+				"kubernetes_pod_uid":   pod.Metadata.UID,
+				"kubernetes_namespace": pod.Metadata.Namespace,
+			}
+			orchestration := services.NewOrchestration("kubernetes", services.KUBERNETES, dims, services.PRIVATE)
 
 			for _, port := range container.Ports {
 				for _, status := range pod.Status.ContainerStatuses {
@@ -240,15 +246,12 @@ func (k *Observer) discover() []services.Endpoint {
 					endpoint.Port = port.ContainerPort
 
 					container := &services.Container{
-						ID:        status.ContainerID,
-						Names:     []string{status.Name},
-						Image:     container.Image,
-						Command:   "",
-						State:     containerState,
-						Labels:    pod.Metadata.Labels,
-						Pod:       pod.Metadata.Name,
-						PodUID:    pod.Metadata.UID,
-						Namespace: pod.Metadata.Namespace,
+						ID:      status.ContainerID,
+						Names:   []string{status.Name},
+						Image:   container.Image,
+						Command: "",
+						State:   containerState,
+						Labels:  pod.Metadata.Labels,
 					}
 					instances = append(instances, &services.ContainerEndpoint{
 						EndpointCore:  *endpoint,

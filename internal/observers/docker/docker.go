@@ -127,12 +127,7 @@ func (docker *Docker) discover() []services.Endpoint {
 				endpoint.PortType = services.PortType(port.Type)
 				endpoint.Port = uint16(port.PrivatePort)
 
-				dims := map[string]string{
-					"container_name":  serviceContainer.PrimaryName(),
-					"container_image": c.Image,
-				}
-
-				orchestration := services.NewOrchestration("docker", services.DOCKER, dims, services.PRIVATE)
+				orchestration := services.NewOrchestration("docker", services.DOCKER, nil, services.PRIVATE)
 
 				si := &services.ContainerEndpoint{
 					EndpointCore:  *endpoint,

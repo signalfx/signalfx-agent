@@ -56,66 +56,66 @@ data:
         kubernetes_namespace: inspect:Config.Labels['io.kubernetes.pod.namespace']
 
     - type: collectd/activemq
-      discoveryRule: containerImage =~ "activemq" && privatePort == 1099
+      discoveryRule: container_image =~ "activemq" && private_port == 1099
 
     - type: collectd/apache
-      discoveryRule: containerImage =~ "apache" && privatePort == 80
+      discoveryRule: container_image =~ "apache" && private_port == 80
 
     - type: collectd/cassandra
-      discoveryRule: containerImage =~ "cassandra" && privatePort == 7199
+      discoveryRule: container_image =~ "cassandra" && private_port == 7199
 
     - type: collectd/consul
-      discoveryRule: containerImage =~ "consul" && privatePort == 8500
+      discoveryRule: container_image =~ "consul" && private_port == 8500
 
     - type: collectd/elasticsearch
-      discoveryRule: containerImage =~ "elasticsearch" && port == 9200
+      discoveryRule: container_image =~ "elasticsearch" && port == 9200
 
     - type: collectd/etcd
-      discoveryRule: containerImage =~ "etcd" && port == 2379
+      discoveryRule: container_image =~ "etcd" && port == 2379
       clusterName: my-cluster
 
     - type: collectd/haproxy
-      discoveryRule: containerImage =~ "haproxy" && port == 9000
+      discoveryRule: container_image =~ "haproxy" && port == 9000
 
     - type: collectd/kafka
-      discoveryRule: containerImage =~ "kafka" && privatePort == 9092
+      discoveryRule: container_image =~ "kafka" && private_port == 9092
 
     - type: collectd/memcached
-      discoveryRule: containerImage =~ "memcache" && privatePort == 11211
+      discoveryRule: container_image =~ "memcache" && private_port == 11211
 
     - type: collectd/mongodb
-      discoveryRule: containerImage =~ "mongo" && privatePort == 27017
+      discoveryRule: container_image =~ "mongo" && private_port == 27017
       databases:
       - mydatabase
 
     - type: collectd/mysql
-      discoveryRule: containerImage =~ "mysql" && privatePort == 3306
+      discoveryRule: container_image =~ "mysql" && private_port == 3306
       databases:
       - name: mydb
       username: admin
 
     - type: collectd/nginx
-      discoveryRule: containerImage =~ "nginx" && privatePort == 80
+      discoveryRule: container_image =~ "nginx" && private_port == 80
 
     - type: collectd/rabbitmq
-      discoveryRule: containerImage =~ "rabbitmq" && privatePort == 15672
+      discoveryRule: container_image =~ "rabbitmq" && private_port == 15672
 
     - type: collectd/redis
-      discoveryRule: containerImage =~ "redis" && privatePort == 6379
+      discoveryRule: container_image =~ "redis" && private_port == 6379
 
     - type: collectd/spark
-      discoveryRule: containerImage =~ "spark" && privatePort == 8080
+      discoveryRule: container_image =~ "spark" && private_port == 8080
       clusterType: Standalone
       collectApplicationMetrics: true
       isMaster: true
 
     - type: collectd/spark
-      discoveryRule: containerImage =~ "spark" && privatePort >= 8081
+      discoveryRule: container_image =~ "spark" && private_port >= 8081
       clusterType: Standalone
       isMaster: false
 
     - type: collectd/zookeeper
-      discoveryRule: containerImage =~ "zookeeper" && privatePort == 2181
+      discoveryRule: container_image =~ "zookeeper" && private_port == 2181
 
 
     collectd:
