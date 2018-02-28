@@ -48,6 +48,11 @@ const monitorType = "collectd/custom"
 //         </Module>
 //       </Plugin>
 // ```
+//
+// We have many collectd plugins included in the image that are not exposed as
+// monitors.  You can see the plugins in the `<AGENT_BUNDLE>/plugins/collectd`
+// directory, where `<AGENT_BUNDLE>` is blank in the containerized version, and
+// is normally `/usr/lib/signalfx-agent` in the non-containerized agent.
 
 func init() {
 	monitors.Register(monitorType, func() interface{} {

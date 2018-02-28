@@ -8,6 +8,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"regexp"
 	"sync"
 	"syscall"
 	"time"
@@ -221,6 +222,8 @@ func (cm *Manager) manageCollectd(waitCh chan<- struct{}) {
 	} else {
 		cm.writeServerPort = writeServer.RunningPort()
 	}
+
+	cm.setCollectdVersionEnvVar()
 
 	close(waitCh)
 
@@ -441,7 +444,17 @@ func (cm *Manager) rerenderConf(writeHTTPPort int) error {
 func (cm *Manager) makeChildCommand() (*exec.Cmd, io.ReadCloser) {
 	loader := filepath.Join(cm.conf.BundleDir, "lib64/ld-linux-x86-64.so.2")
 	collectdBin := filepath.Join(cm.conf.BundleDir, "bin/collectd")
-	cmd := exec.Command(loader, collectdBin, "-f", "-C", cm.conf.ConfigFilePath())
+	args := []string{"-f", "-C", cm.conf.ConfigFilePath()}
+
+	var cmd *exec.Cmd
+	// If running in a container where the bundle is the main filesystem, don't
+	// bother explicitly invoking through the loader (this happens
+	// automatically).
+	if cm.conf.BundleDir == "/" {
+		cmd = exec.Command(collectdBin, args...)
+	} else {
+		cmd = exec.Command(loader, append([]string{collectdBin}, args...)...)
+	}
 
 	// Send both stdout and stderr to the same buffer
 	r, w, err := os.Pipe()
@@ -459,4 +472,27 @@ func (cm *Manager) makeChildCommand() (*exec.Cmd, io.ReadCloser) {
 	}
 
 	return cmd, r
+}
+
+var collectdVersionRegexp = regexp.MustCompile(`collectd (?P<version>.*), http://collectd.org/`)
+
+func (cm *Manager) setCollectdVersionEnvVar() {
+	loader := filepath.Join(cm.conf.BundleDir, "lib64/ld-linux-x86-64.so.2")
+	collectdBin := filepath.Join(cm.conf.BundleDir, "bin/collectd")
+	cmd := exec.Command(loader, collectdBin, "-h")
+
+	outText, err := cmd.CombinedOutput()
+	if err != nil {
+		log.WithError(err).Error("Could not determine collectd version")
+		return
+	}
+
+	groups := utils.RegexpGroupMap(collectdVersionRegexp, string(outText))
+	if groups == nil {
+		log.Errorf("Could not determine collectd version from output %s", outText)
+		return
+	}
+
+	os.Setenv("COLLECTD_VERSION", groups["version"])
+	log.Infof("Detected collectd version %s", groups["version"])
 }
