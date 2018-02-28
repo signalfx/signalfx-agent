@@ -1,7 +1,7 @@
 FROM debian:wheezy-slim
 
 RUN apt-get update &&\
-    apt-get install -yq ca-certificates procps wget
+    apt-get install -yq ca-certificates procps wget libcap2-bin
 
 COPY socat /bin/socat
 

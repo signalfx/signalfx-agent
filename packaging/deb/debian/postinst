@@ -22,6 +22,7 @@ case "$1" in
     configure)
         getent passwd signalfx-agent >/dev/null || \
           useradd --system --home-dir /usr/lib/signalfx-agent --no-create-home --shell /sbin/nologin signalfx-agent
+        setcap CAP_SYS_PTRACE,CAP_DAC_READ_SEARCH=+eip /usr/lib/signalfx-agent/bin/signalfx-agent
         echo "The SignalFx agent has been successfully installed."
         echo "If you do not already have a access token configured, please add it to /etc/signalfx/agent.yaml and then start the agent."
     ;;

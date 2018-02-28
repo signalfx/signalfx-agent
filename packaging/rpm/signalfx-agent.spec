@@ -10,7 +10,7 @@ URL: https://github.com/signalfx/signalfx-agent
 
 # We bundle all dependencies so don't have rpmbuild try and figure them out.
 AutoReqProv: no
-Requires: shadow-utils
+Requires: shadow-utils, libcap
 BuildRequires: systemd
 Provides: signalfx-agent
 
@@ -59,6 +59,7 @@ getent passwd signalfx-agent >/dev/null || \
 %post
 %systemd_post signalfx-agent.service
 %tmpfiles_create %{_tmpfilesdir}/signalfx-agent.conf
+setcap CAP_SYS_PTRACE,CAP_DAC_READ_SEARCH=+eip /usr/lib/signalfx-agent/bin/signalfx-agent
 
 %preun
 %systemd_preun signalfx-agent.service

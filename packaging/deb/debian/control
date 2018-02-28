@@ -6,6 +6,7 @@ Vcs-Git: https://github.com/signalfx/signalfx-agent
 Maintainer: SignalFx, Inc. <support+deb@signalfx.com>
 
 Package: signalfx-agent
+Depends: libcap2-bin
 Priority: optional
 Architecture: amd64
 Homepage: https://signalfx.com
