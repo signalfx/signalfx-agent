@@ -282,6 +282,13 @@ func (sw *SignalFxWriter) listenForDatapoints() {
 			return
 
 		case dp := <-sw.dpChan:
+			if len(sw.dpBuffer) > sw.conf.DatapointBufferHardMax {
+				log.WithFields(log.Fields{
+					"metric":         dp.Metric,
+					"dpBufferLength": len(sw.dpBuffer),
+				}).Error("Dropping datapoint due to overfull buffer")
+				continue
+			}
 			sw.dpBuffer = append(sw.dpBuffer, dp)
 			// TODO: perhaps flush the buffer more frequently than the
 			// dpSendInterval if we exceed the initial buffer capacity OR
@@ -289,6 +296,13 @@ func (sw *SignalFxWriter) listenForDatapoints() {
 			// resize it as often and risk `append` doing a copy.
 
 		case event := <-sw.eventChan:
+			if len(sw.eventBuffer) > sw.conf.EventBufferHardMax {
+				log.WithFields(log.Fields{
+					"eventType":         event.EventType,
+					"eventBufferLength": len(sw.eventBuffer),
+				}).Error("Dropping event due to overfull buffer")
+				continue
+			}
 			sw.eventBuffer = append(sw.eventBuffer, event)
 
 		case <-dpTicker.C:
