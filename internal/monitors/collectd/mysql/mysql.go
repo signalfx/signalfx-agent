@@ -34,9 +34,10 @@ type Database struct {
 type Config struct {
 	config.MonitorConfig `yaml:",inline" acceptsEndpoints:"true"`
 
-	Host      string     `yaml:"host" validate:"required"`
-	Port      uint16     `yaml:"port" validate:"required"`
-	Name      string     `yaml:"name"`
+	Host string `yaml:"host" validate:"required"`
+	Port uint16 `yaml:"port" validate:"required"`
+	Name string `yaml:"name"`
+	// A list of databases along with optional authentication credentials.
 	Databases []Database `yaml:"databases" required:"true"`
 	// These credentials serve as defaults for all databases if not overridden
 	Username string `yaml:"username"`

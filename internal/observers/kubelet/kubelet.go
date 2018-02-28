@@ -27,13 +27,36 @@ const (
 	runningPhase phase = "Running"
 )
 
+// OBSERVER(k8s-kubelet): Discovers service endpoints running on the same node
+// as the agent by querying the local kubelet instance.  It is generally
+// recommended to use the [`k8s-api`](./k8s-api.md) observer because
+// authentication to the local kubelet can be more difficult to setup, and also
+// the kubelet API is technically not documented for public consumption, so
+// this observer may break more easily in future K8s versions.
+
+// ENDPOINT_TYPE(ContainerEndpoint): true
+
+// DIMENSION(kubernetes_namespace): The namespace that the discovered service
+// endpoint is running in.
+
+// DIMENSION(kubernetes_pod_name): The name of the running pod that is exposing
+// the discovered endpoint
+
+// DIMENSION(kubernetes_pod_uid): The UID of the pod that is exposing the
+// discovered endpoint
+
+// DIMENSION(container_spec_name): The short name of the container in the pod spec,
+// **NOT** the running container's name in the Docker engine
+
 var logger = log.WithFields(log.Fields{"observerType": observerType})
 
 // Config for Kubelet observer
 type Config struct {
 	config.ObserverConfig
-	PollIntervalSeconds int               `yaml:"pollIntervalSeconds" default:"10"`
-	KubeletAPI          kubelet.APIConfig `yaml:"kubeletAPI" default:"{}"`
+	// How often to poll the Kubelet instance for pod information
+	PollIntervalSeconds int `yaml:"pollIntervalSeconds" default:"10"`
+	// Config for the Kubelet HTTP client
+	KubeletAPI kubelet.APIConfig `yaml:"kubeletAPI" default:"{}"`
 }
 
 // Validate the observer-specific config

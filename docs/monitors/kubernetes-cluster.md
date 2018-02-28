@@ -24,6 +24,8 @@ sends many of the same metrics, but in a way that is less verbose and better
 fitted for the SignalFx backend.
 
 
+Monitor Type: `kubernetes-cluster`
+
 [Monitor Source Code](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/kubernetes/cluster)
 
 **Accepts Endpoints**: No
@@ -32,45 +34,53 @@ fitted for the SignalFx backend.
 
 ## Configuration
 
-| Config option | Default | Required | Type | Description |
-| --- | --- | --- | --- | --- |
-| `alwaysClusterReporter` | `false` | no | `bool` | If `true`, leader election is skipped and metrics are always reported. |
-| `kubernetesAPI` | `map[]` | no | `object (see below)` | Config for the K8s API client |
+| Config option | Required | Type | Description |
+| --- | --- | --- | --- |
+| `alwaysClusterReporter` | no | `bool` | If `true`, leader election is skipped and metrics are always reported. (**default:** `false`) |
+| `kubernetesAPI` | no | `object (see below)` | Config for the K8s API client (**default:** `map[]`) |
 
 
 The **nested** `kubernetesAPI` config object has the following fields:
 
-| Config option | Default | Required | Type | Description |
-| --- | --- | --- | --- | --- |
-| `authType` | `serviceAccount` | no | `string` | How to authenticate to the K8s API server.  This can be one of `none` (for no auth), `tls` (to use manually specified TLS client certs, not recommended), or `serviceAccount` (to use the standard service account token provided to the agent pod). |
-| `skipVerify` | `false` | no | `bool` | Whether to skip verifying the TLS cert from the API server.  Almost never needed. |
-| `clientCertPath` |  | no | `string` | The path to the TLS client cert on the pod's filesystem, if using `tls` auth. |
-| `clientKeyPath` |  | no | `string` | The path to the TLS client key on the pod's filesystem, if using `tls` auth. |
-| `caCertPath` |  | no | `string` | Path to a CA certificate to use when verifying the API server's TLS cert.  Generally this is provided by K8s alongside the service account token, which will be picked up automatically, so this should rarely be necessary to specify. |
+| Config option | Required | Type | Description |
+| --- | --- | --- | --- |
+| `authType` | no | `string` | How to authenticate to the K8s API server.  This can be one of `none` (for no auth), `tls` (to use manually specified TLS client certs, not recommended), or `serviceAccount` (to use the standard service account token provided to the agent pod). (**default:** `serviceAccount`) |
+| `skipVerify` | no | `bool` | Whether to skip verifying the TLS cert from the API server.  Almost never needed. (**default:** `false`) |
+| `clientCertPath` | no | `string` | The path to the TLS client cert on the pod's filesystem, if using `tls` auth. |
+| `clientKeyPath` | no | `string` | The path to the TLS client key on the pod's filesystem, if using `tls` auth. |
+| `caCertPath` | no | `string` | Path to a CA certificate to use when verifying the API server's TLS cert.  Generally this is provided by K8s alongside the service account token, which will be picked up automatically, so this should rarely be necessary to specify. |
 
 
-<!--- This is pretty ugly but some config has nesting to three layers.  Would probably be better to flatten them before rendering. --->
+<!--- This is pretty ugly all this repetition, but some config has nesting to three layers.  Would probably be better to flatten them before rendering or use a template engine with partials. --->
+
+
 ## Metrics
+
+This monitor emits the following metrics.  Note that configuration options may
+cause only a subset of metrics to be emitted.
 
 | Name | Type | Description |
 | ---  | ---  | ---         |
-| `kubernetes.deployment.available` | gauge | Total number of available pods (ready for at least minReadySeconds) targeted by this deployment. |
-| `kubernetes.deployment.desired` | gauge | Number of desired pods in this deployment |
-| `kubernetes.replication_controller.available` | gauge | Total number of available pods (ready for at least minReadySeconds) targeted by this replication controller. |
-| `kubernetes.replication_controller.desired` | gauge | Number of desired pods |
+| `kubernetes.container_restart_count` | gauge | How many times the container has restarted (capped at 5 due to K8s GC) |
+| `kubernetes.pod_phase` | gauge | Current phase of the pod (1 - Pending, 2 - Running, 3 - Succeeded, 4 - Failed, 5 - Unknown) |
+| `kubernetes.container_ready` | gauge | Whether a container has passed its readiness probe (0 for no, 1 for yes) |
 | `kubernetes.namespace_phase` | gauge | The current phase of namespaces (`1` for _active_ and `0` for _terminating_) |
-| `kubernetes_node_ready` | gauge | Whether this node is ready (1), not ready (0) or in an unknown state (-1) |
+| `kubernetes.replica_set.available` | gauge | Total number of available pods (ready for at least minReadySeconds) targeted by this replica set |
+| `kubernetes.replica_set.desired` | gauge | Number of desired pods in this replica set |
 | `kubernetes.daemon_set.current_scheduled` | gauge | The number of nodes that are running at least 1 daemon pod and are supposed to run the daemon pod |
 | `kubernetes.daemon_set.desired_scheduled` | gauge | The total number of nodes that should be running the daemon pod (including nodes currently running the daemon pod) |
 | `kubernetes.daemon_set.misscheduled` | gauge | The number of nodes that are running the daemon pod, but are not supposed to run the daemon pod |
 | `kubernetes.daemon_set.ready` | gauge | The number of nodes that should be running the daemon pod and have one or more of the daemon pod running and ready |
-| `kubernetes.container_restart_count` | gauge | How many times the container has restarted (capped at 5 due to K8s GC) |
-| `kubernetes.pod_phase` | gauge | Current phase of the pod (1 - Pending, 2 - Running, 3 - Succeeded, 4 - Failed, 5 - Unknown) |
-| `kubernetes.container_ready` | gauge | Whether a container has passed its readiness probe (0 for no, 1 for yes) |
-| `kubernetes.replica_set.available` | gauge | Total number of available pods (ready for at least minReadySeconds) targeted by this replica set |
-| `kubernetes.replica_set.desired` | gauge | Number of desired pods in this replica set |
+| `kubernetes.deployment.available` | gauge | Total number of available pods (ready for at least minReadySeconds) targeted by this deployment. |
+| `kubernetes.deployment.desired` | gauge | Number of desired pods in this deployment |
+| `kubernetes.replication_controller.available` | gauge | Total number of available pods (ready for at least minReadySeconds) targeted by this replication controller. |
+| `kubernetes.replication_controller.desired` | gauge | Number of desired pods |
+| `kubernetes_node_ready` | gauge | Whether this node is ready (1), not ready (0) or in an unknown state (-1) |
 
 ## Dimensions
+
+The following dimensions may occur on metrics emitted by this monitor.  Some
+dimensions may be specific to certain metrics.
 
 | Name | Description |
 | ---  | ---         |
@@ -82,10 +92,14 @@ The **nested** `kubernetesAPI` config object has the following fields:
 
 ## Properties
 
+The following
+[properties](https://docs.signalfx.com/en/latest/concepts/metrics-metadata.html#properties)
+are set on the dimension values of the dimension specified.
+
 | Name | Dimension | Description |
 | ---  | ---       | ---         |
-| `<node label>` | `machine_id` | All non-blank labels on a given node will be synced as properties to the `machine_id` dimension value for that node. Any blank values will be synced as tags on that same dimension. |
 | `<pod label>` | `kubernetes_pod_uid` | Any labels with non-blank values on the pod will be synced as properties to the `kubernetes_pod_uid` dimension. Any blank labels will be synced as tags on that same dimension. |
+| `<node label>` | `machine_id` | All non-blank labels on a given node will be synced as properties to the `machine_id` dimension value for that node. Any blank values will be synced as tags on that same dimension. |
 
 
 

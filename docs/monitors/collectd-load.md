@@ -6,6 +6,8 @@
 [Load plugin](https://collectd.org/wiki/index.php/Plugin:Load).
 
 
+Monitor Type: `collectd/load`
+
 [Monitor Source Code](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/load)
 
 **Accepts Endpoints**: No
@@ -14,8 +16,10 @@
 
 ## Configuration
 
-| Config option | Default | Required | Type | Description |
-| --- | --- | --- | --- | --- |
+| Config option | Required | Type | Description |
+| --- | --- | --- | --- |
+
+
 
 
 

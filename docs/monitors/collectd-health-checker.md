@@ -7,6 +7,8 @@ that hits an endpoint and checks if the configured JSON value is returned in
 the response body.
 
 
+Monitor Type: `collectd/health-checker`
+
 [Monitor Source Code](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/healthchecker)
 
 **Accepts Endpoints**: **Yes**
@@ -15,14 +17,16 @@ the response body.
 
 ## Configuration
 
-| Config option | Default | Required | Type | Description |
-| --- | --- | --- | --- | --- |
-| `host` |  | **yes** | `string` |  |
-| `port` |  | **yes** | `integer` |  |
-| `name` |  | no | `string` |  |
-| `url` |  | no | `string` |  |
-| `jsonVal` |  | no | `interface` | This can be either a string or numeric type |
-| `jsonKey` |  | no | `string` |  |
+| Config option | Required | Type | Description |
+| --- | --- | --- | --- |
+| `host` | **yes** | `string` |  |
+| `port` | **yes** | `integer` |  |
+| `name` | no | `string` |  |
+| `url` | no | `string` |  |
+| `jsonVal` | no | `interface` | This can be either a string or numeric type |
+| `jsonKey` | no | `string` |  |
+
+
 
 
 

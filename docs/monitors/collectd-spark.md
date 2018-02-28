@@ -2,24 +2,41 @@
 
 # collectd/spark
 
+ Collects metrics about a Spark cluster using the
+[collectd Spark Python plugin](https://github.com/signalfx/collectd-spark).
+Also see
+https://github.com/signalfx/integrations/tree/master/collectd-spark.
+
+You have to specify distinct monitor configurations and discovery rules for
+master and worker processes.  For the master configuration, set `isMaster`
+to true.
+
+We only support HTTP endpoints for now.
+
+
+Monitor Type: `collectd/spark`
+
+[Monitor Source Code](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/spark)
 
 **Accepts Endpoints**: **Yes**
 
-**Only One Instance Allowed**: No
+**Multiple Instances Allowed**: Yes
 
 ## Configuration
 
-| Config option | Default | Required | Type | Description |
-| --- | --- | --- | --- | --- |
-| `host` |  | **yes** | `string` |  |
-| `port` |  | **yes** | `uint16` |  |
-| `name` |  | no | `string` |  |
-| `isMaster` |  | no | `bool` |  |
-| `clusterType` |  | no | `string` |  |
-| `collectApplicationMetrics` |  | no | `bool` |  |
-| `enhancedMetrics` |  | no | `bool` |  |
-| `metricsToInclude` |  | no | `slice` |  |
-| `metricsToExclude` |  | no | `slice` |  |
+| Config option | Required | Type | Description |
+| --- | --- | --- | --- |
+| `host` | **yes** | `string` |  |
+| `port` | **yes** | `integer` |  |
+| `name` | no | `string` |  |
+| `isMaster` | no | `bool` | Set to `true` when monitoring a master Spark node (**default:** `false`) |
+| `clusterType` | no | `string` | Should be one of `Standalone` or `Mesos` |
+| `collectApplicationMetrics` | no | `bool` |  (**default:** `false`) |
+| `enhancedMetrics` | no | `bool` |  (**default:** `false`) |
+| `metricsToInclude` | no | `list of string` |  (**default:** `[]`) |
+| `metricsToExclude` | no | `list of string` |  (**default:** `[]`) |
+
+
 
 
 

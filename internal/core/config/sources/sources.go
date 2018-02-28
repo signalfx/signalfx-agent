@@ -20,15 +20,14 @@ import (
 
 // SourceConfig represents configuration for various config sources that we
 // support.
-type sourceConfig struct {
+type SourceConfig struct {
 	Zookeeper *zookeeper.Config `yaml:"zookeeper"`
 	Etcd2     *etcd2.Config     `yaml:"etcd2"`
-	//Etcd3 etcd3.Config `yaml:"etcd3"`
-	Consul *consul.Config `yaml:"consul"`
+	Consul    *consul.Config    `yaml:"consul"`
 }
 
 // Sources returns a map of instantiated sources based on the config
-func (sc *sourceConfig) Sources() (map[string]types.ConfigSource, error) {
+func (sc *SourceConfig) Sources() (map[string]types.ConfigSource, error) {
 	sources := make(map[string]types.ConfigSource)
 	if sc.Zookeeper != nil {
 		zk := zookeeper.New(sc.Zookeeper)
@@ -51,9 +50,9 @@ func (sc *sourceConfig) Sources() (map[string]types.ConfigSource, error) {
 	return sources, nil
 }
 
-func parseSourceConfig(config []byte) (sourceConfig, error) {
+func parseSourceConfig(config []byte) (SourceConfig, error) {
 	var out struct {
-		Sources sourceConfig `yaml:"configSources"`
+		Sources SourceConfig `yaml:"configSources"`
 	}
 	err := yaml.Unmarshal(config, &out)
 	return out.Sources, err

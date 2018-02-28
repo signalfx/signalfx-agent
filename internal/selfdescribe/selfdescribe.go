@@ -10,6 +10,7 @@ import (
 	"reflect"
 
 	"github.com/signalfx/signalfx-agent/internal/core/config"
+	"github.com/signalfx/signalfx-agent/internal/core/config/sources"
 )
 
 // JSON returns a json encoded string of all of the documentation for the
@@ -23,6 +24,7 @@ func JSON() string {
 		"GenericObserverConfig": getStructMetadata(reflect.TypeOf(config.ObserverConfig{})),
 		"Monitors":              monitorsStructMetadata(),
 		"Observers":             observersStructMetadata(),
+		"SourceConfig":          getStructMetadata(reflect.TypeOf(sources.SourceConfig{})),
 	}, "", "  ")
 	if err != nil {
 		panic(err)

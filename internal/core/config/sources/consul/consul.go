@@ -19,10 +19,15 @@ type consulConfigSource struct {
 
 // Config for the consul client
 type Config struct {
-	Endpoint   string `yaml:"endpoint"`
-	Username   string `yaml:"username"`
-	Password   string `yaml:"password" neverLog:"true"`
-	Token      string `yaml:"token" neverLog:"true"`
+	// A Consul server URL
+	Endpoint string `yaml:"endpoint"`
+	// An optional username to use when connecting
+	Username string `yaml:"username"`
+	// An optional password to use when connecting
+	Password string `yaml:"password" neverLog:"true"`
+	// An authentication token, if needed
+	Token string `yaml:"token" neverLog:"true"`
+	// The Consul datacenter to use
 	Datacenter string `yaml:"datacenter"`
 }
 

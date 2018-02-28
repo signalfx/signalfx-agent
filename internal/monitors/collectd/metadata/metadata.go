@@ -40,9 +40,16 @@ func init() {
 type Config struct {
 	config.MonitorConfig `singleInstance:"true"`
 	WriteServerURL       string `yaml:"writeServerURL"`
-	ProcFSPath           string `yaml:"procFSPath" default:"/proc"`
-	EtcPath              string `yaml:"etcPath" default:"/etc"`
-	PersistencePath      string `yaml:"persistencePath" default:"/var/lib/misc"`
+	// The path to the proc filesystem. Useful to override in containerized
+	// environments.
+	ProcFSPath string `yaml:"procFSPath" default:"/proc"`
+	// The path to the main host config dir. Userful to override in
+	// containerized environments.
+	EtcPath string `yaml:"etcPath" default:"/etc"`
+	// A directory where the metadata plugin can persist the history of
+	// successful host metadata syncs so that host metadata is not sent
+	// redundantly.
+	PersistencePath string `yaml:"persistencePath" default:"/var/lib/misc"`
 }
 
 // Monitor is the main type that represents the monitor

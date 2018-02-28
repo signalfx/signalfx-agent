@@ -27,8 +27,10 @@ type zkConfigSource struct {
 
 // Config is used to configure the Zookeeper client
 type Config struct {
-	Endpoints      []string `yaml:"endpoints"`
-	TimeoutSeconds uint     `yaml:"timeoutSeconds" default:"10"`
+	// A list of Zookeeper servers to use for the client
+	Endpoints []string `yaml:"endpoints"`
+	// Client timeout
+	TimeoutSeconds uint `yaml:"timeoutSeconds" default:"10"`
 }
 
 // New creates a new Zookeeper config source with the given config.  All gets

@@ -8,6 +8,8 @@ See https://github.com/signalfx/collectd-elasticsearch and
 https://github.com/signalfx/integrations/tree/master/collectd-elasticsearch
 
 
+Monitor Type: `collectd/elasticsearch`
+
 [Monitor Source Code](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/elasticsearch)
 
 **Accepts Endpoints**: **Yes**
@@ -16,24 +18,26 @@ https://github.com/signalfx/integrations/tree/master/collectd-elasticsearch
 
 ## Configuration
 
-| Config option | Default | Required | Type | Description |
-| --- | --- | --- | --- | --- |
-| `host` |  | **yes** | `string` |  |
-| `port` |  | **yes** | `integer` |  |
-| `name` |  | no | `string` |  |
-| `additionalMetrics` |  | no | `list of string` | AdditionalMetrics to report on |
-| `detailedMetrics` | `true` | no | `bool` | DetailedMetrics turns on additional metric time series |
-| `enableClusterHealth` | `true` | no | `bool` | EnableClusterHealth enables reporting on the cluster health |
-| `enableIndexStats` | `true` | no | `bool` | EnableIndexStats reports metrics about indexes |
-| `indexes` | `[_all]` | no | `list of string` | Indexes to report on |
-| `indexInterval` | `300` | no | `unsigned integer` | IndexInterval is an interval in seconds at which the plugin will report index stats. It must be greater than or equal, and divisible by the Interval configuration |
-| `indexStatsMasterOnly` | `false` | no | `bool` | IndexStatsMasterOnly sends index stats from the master only |
-| `indexSummaryOnly` | `false` | no | `bool` |  |
-| `password` |  | no | `string` | Password used to access elasticsearch stats api |
-| `protocol` |  | no | `string` | Protocol used to connect: http or https |
-| `threadPools` | `[search index]` | no | `list of string` | ThreadPools to report on |
-| `username` |  | no | `string` | Username used to access elasticsearch stats api |
-| `version` |  | no | `string` |  |
+| Config option | Required | Type | Description |
+| --- | --- | --- | --- |
+| `host` | **yes** | `string` |  |
+| `port` | **yes** | `integer` |  |
+| `name` | no | `string` |  |
+| `additionalMetrics` | no | `list of string` | AdditionalMetrics to report on |
+| `detailedMetrics` | no | `bool` | DetailedMetrics turns on additional metric time series (**default:** `true`) |
+| `enableClusterHealth` | no | `bool` | EnableClusterHealth enables reporting on the cluster health (**default:** `true`) |
+| `enableIndexStats` | no | `bool` | EnableIndexStats reports metrics about indexes (**default:** `true`) |
+| `indexes` | no | `list of string` | Indexes to report on (**default:** `[_all]`) |
+| `indexInterval` | no | `unsigned integer` | IndexInterval is an interval in seconds at which the plugin will report index stats. It must be greater than or equal, and divisible by the Interval configuration (**default:** `300`) |
+| `indexStatsMasterOnly` | no | `bool` | IndexStatsMasterOnly sends index stats from the master only (**default:** `false`) |
+| `indexSummaryOnly` | no | `bool` |  (**default:** `false`) |
+| `password` | no | `string` | Password used to access elasticsearch stats api |
+| `protocol` | no | `string` | Protocol used to connect: http or https |
+| `threadPools` | no | `list of string` | ThreadPools to report on (**default:** `[search index]`) |
+| `username` | no | `string` | Username used to access elasticsearch stats api |
+| `version` | no | `string` |  |
+
+
 
 
 

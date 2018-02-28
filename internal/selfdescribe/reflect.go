@@ -3,6 +3,7 @@ package selfdescribe
 import (
 	"encoding/json"
 	"reflect"
+	"strconv"
 	"strings"
 
 	log "github.com/sirupsen/logrus"
@@ -14,6 +15,10 @@ func getYAMLName(f reflect.StructField) string {
 	return strings.SplitN(yamlTag, ",", 2)[0]
 }
 
+func isInlinedYAML(f reflect.StructField) bool {
+	return strings.Contains(f.Tag.Get("yaml"), ",inline")
+}
+
 // Assumes monitors are using the defaults package
 func getDefault(f reflect.StructField) interface{} {
 	if getRequired(f) {
@@ -21,18 +26,27 @@ func getDefault(f reflect.StructField) interface{} {
 	}
 	defTag := f.Tag.Get("default")
 	if defTag != "" {
-		var out interface{}
-		err := json.Unmarshal([]byte(defTag), &out)
-		if err != nil && (strings.HasPrefix(defTag, "{") || strings.HasPrefix(defTag, "[")) {
-			log.WithError(err).Errorf("Could not unmarshal default value `%s` for field %s", defTag, f.Name)
-			return defTag
+		if strings.HasPrefix(defTag, "{") || strings.HasPrefix(defTag, "[") || defTag == "true" || defTag == "false" {
+			var out interface{}
+			err := json.Unmarshal([]byte(defTag), &out)
+			if err != nil {
+				log.WithError(err).Errorf("Could not unmarshal default value `%s` for field %s", defTag, f.Name)
+				return defTag
+			}
+			return out
 		}
-		return out
+		if asInt, err := strconv.Atoi(defTag); err == nil {
+			return asInt
+		}
+		return defTag
 	}
 	if f.Type.Kind() == reflect.Ptr {
 		return nil
 	}
-	return reflect.Zero(f.Type).Interface()
+	if f.Type.Kind() != reflect.Struct {
+		return reflect.Zero(f.Type).Interface()
+	}
+	return nil
 }
 
 // Assumes that monitors are using the validate package to do validation

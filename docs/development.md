@@ -54,3 +54,37 @@ the quay.io private repo.
 
 ## Running tests
 
+The agent comes with a suite of unit and integration tests which exercise
+various components within the agent.  All of these tests must pass for a branch
+to be merged into the mainline `master` branch.  Our CircleCI configuration
+will automatically run them when a pull request is made but you can run them
+manually as follows:
+
+### Go Unit Tests
+Simply run `make tests`.  You should add new unit tests for any new modules
+that have relatively self-contained functionality that is easy to isolate and
+test.
+
+### Integration Tests
+These tests run the agent and associated packaging in a more fully functional
+environment, along with a fake backend that simulates the SignalFx ingest and
+API servers.  
+
+These are all written using Python's pytest and are located in the `tests`
+directory.  To run all of them in parallel, simply invoke `pytest tests -n
+auto` from the root of the repo in the dev image.  You can select certain tests
+to run by either specifying a single python module or by using the `-k` and
+`-m` flags.
+
+A key goal in writing these tests is that they be both fully parallelizable to
+minimize run time, and very robust with minimal transient failures due to
+timing issues or race conditions that are so prevalent with integration
+testing.  Please keep these goals in mind when adding integration tests.
+
+### Lint
+We require 100% passing rate for the standard [golint
+tool](https://github.com/golang/lint), which can be run with `make lint`.
+
+### Vet
+We also require 100% passing for [go vet](https://golang.org/cmd/vet/) for
+non-test code.  Test code can fail if there is a good reason.

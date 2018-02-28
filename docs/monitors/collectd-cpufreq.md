@@ -8,6 +8,8 @@ host.  Useful for systems that vary the clock speed to conserve energy.
 See https://collectd.org/wiki/index.php/Plugin:CPUFreq
 
 
+Monitor Type: `collectd/cpufreq`
+
 [Monitor Source Code](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/cpufreq)
 
 **Accepts Endpoints**: No
@@ -16,11 +18,16 @@ See https://collectd.org/wiki/index.php/Plugin:CPUFreq
 
 ## Configuration
 
-| Config option | Default | Required | Type | Description |
-| --- | --- | --- | --- | --- |
+| Config option | Required | Type | Description |
+| --- | --- | --- | --- |
+
+
 
 
 ## Metrics
+
+This monitor emits the following metrics.  Note that configuration options may
+cause only a subset of metrics to be emitted.
 
 | Name | Type | Description |
 | ---  | ---  | ---         |

@@ -9,9 +9,6 @@ A remote config value looks like this in the main config file:
 
 ```yaml
 signalFxAccessToken: {"#from": "/etc/signalfx/token"}
-monitors:
- - type: collectd/cpu
-...
 ```
 
 The remote config specification is a YAML map object that includes the `#from`

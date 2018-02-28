@@ -5,6 +5,8 @@
  Tracks free disk space on the host.
 
 
+Monitor Type: `collectd/df`
+
 [Monitor Source Code](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/df)
 
 **Accepts Endpoints**: No
@@ -13,17 +15,22 @@
 
 ## Configuration
 
-| Config option | Default | Required | Type | Description |
-| --- | --- | --- | --- | --- |
-| `hostFSPath` |  | no | `string` | Path to the root of the host filesystem.  Useful when running in a container and the host filesystem is mounted in some subdirectory under /. |
-| `ignoreSelected` | `true` | no | `bool` | If true, the filesystems selected by `fsTypes` and `mountPoints` will be excluded and all others included. |
-| `fsTypes` | `[aufs overlay tmpfs proc sysfs nsfs cgroup devpts selinuxfs devtmpfs debugfs mqueue hugetlbfs securityfs pstore binfmt_misc autofs]` | no | `list of string` | The filesystem types to include/exclude. |
-| `mountPoints` | `[/^/var/lib/rkt/pods/ /^/net// /^/smb//]` | no | `list of string` | The mount paths to include/exclude, is interpreted as a regex if surrounded by `/`. |
-| `reportByDevice` | `false` | no | `bool` |  |
-| `reportInodes` | `false` | no | `bool` |  |
+| Config option | Required | Type | Description |
+| --- | --- | --- | --- |
+| `hostFSPath` | no | `string` | Path to the root of the host filesystem.  Useful when running in a container and the host filesystem is mounted in some subdirectory under /. |
+| `ignoreSelected` | no | `bool` | If true, the filesystems selected by `fsTypes` and `mountPoints` will be excluded and all others included. (**default:** `true`) |
+| `fsTypes` | no | `list of string` | The filesystem types to include/exclude. (**default:** `[aufs overlay tmpfs proc sysfs nsfs cgroup devpts selinuxfs devtmpfs debugfs mqueue hugetlbfs securityfs pstore binfmt_misc autofs]`) |
+| `mountPoints` | no | `list of string` | The mount paths to include/exclude, is interpreted as a regex if surrounded by `/`. (**default:** `[/^/var/lib/rkt/pods/ /^/net// /^/smb//]`) |
+| `reportByDevice` | no | `bool` |  (**default:** `false`) |
+| `reportInodes` | no | `bool` |  (**default:** `false`) |
+
+
 
 
 ## Metrics
+
+This monitor emits the following metrics.  Note that configuration options may
+cause only a subset of metrics to be emitted.
 
 | Name | Type | Description |
 | ---  | ---  | ---         |

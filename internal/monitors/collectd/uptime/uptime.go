@@ -10,6 +10,12 @@ import (
 
 const monitorType = "collectd/uptime"
 
+// MONITOR(collectd/uptime): Sends a single metric of the total number of
+// seconds the host has been up, using the [collectd uptime
+// plugin](https://collectd.org/wiki/index.php/Plugin:Uptime).
+
+// GAUGE(uptime): Seconds since system boot
+
 func init() {
 	monitors.Register(monitorType, func() interface{} {
 		return &Monitor{

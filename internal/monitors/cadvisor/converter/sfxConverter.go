@@ -88,6 +88,41 @@ func networkValues(net []info.InterfaceStats, valueFn func(*info.InterfaceStats)
 	return values
 }
 
+// COUNTER(container_cpu_system_seconds_total): Cumulative system cpu time consumed in nanoseconds
+// COUNTER(container_cpu_usage_seconds_total): Cumulative cpu time consumed per cpu in nanoseconds
+// COUNTER(container_cpu_user_seconds_total): Cumulative user cpu time consumed in nanoseconds
+// COUNTER(container_cpu_utilization): Cumulative cpu utilization in percentages
+// COUNTER(container_cpu_cfs_periods): Total number of elapsed CFS enforcement intervals
+// COUNTER(container_cpu_cfs_throttled_periods): Total number of times tasks in the cgroup have been throttled
+// COUNTER(container_cpu_cfs_throttled_time): Total time duration, in nanoseconds, for which tasks in the cgroup have been throttled
+// GAUGE(container_fs_io_current): Number of I/Os currently in progress
+// COUNTER(container_fs_io_time_seconds_total): Cumulative count of seconds spent doing I/Os
+// COUNTER(container_fs_io_time_weighted_seconds_total): Cumulative weighted I/O time in seconds
+// GAUGE(container_fs_limit_bytes): Number of bytes that the container may occupy on this filesystem
+// COUNTER(container_fs_read_seconds_total): Cumulative count of seconds spent reading
+// COUNTER(container_fs_reads_merged_total): Cumulative count of reads merged
+// COUNTER(container_fs_reads_total): Cumulative count of reads completed
+// COUNTER(container_fs_sector_reads_total): Cumulative count of sector reads completed
+// COUNTER(container_fs_sector_writes_total): Cumulative count of sector writes completed
+// GAUGE(container_fs_usage_bytes): Number of bytes that are consumed by the container on this filesystem
+// COUNTER(container_fs_write_seconds_total): Cumulative count of seconds spent writing
+// COUNTER(container_fs_writes_merged_total): Cumulative count of writes merged
+// COUNTER(container_fs_writes_total): Cumulative count of writes completed
+// GAUGE(container_last_seen): Last time a container was seen by the exporter
+// COUNTER(container_memory_failcnt): Number of memory usage hits limits
+// COUNTER(container_memory_failures_total): Cumulative count of memory allocation failures
+// GAUGE(container_memory_usage_bytes): Current memory usage in bytes
+// GAUGE(container_memory_working_set_bytes): Current working set in bytes
+// COUNTER(container_network_receive_bytes_total): Cumulative count of bytes received
+// COUNTER(container_network_receive_errors_total): Cumulative count of errors encountered while receiving
+// COUNTER(container_network_receive_packets_dropped_total): Cumulative count of packets dropped while receiving
+// COUNTER(container_network_receive_packets_total): Cumulative count of packets received
+// COUNTER(container_network_transmit_bytes_total): Cumulative count of bytes transmitted
+// COUNTER(container_network_transmit_errors_total): Cumulative count of errors encountered while transmitting
+// COUNTER(container_network_transmit_packets_dropped_total): Cumulative count of packets dropped while transmitting
+// COUNTER(container_network_transmit_packets_total): Cumulative count of packets transmitted
+// GAUGE(container_tasks_state): Number of tasks in given state
+
 func getContainerMetrics() []containerMetric {
 	var metrics = []containerMetric{
 		{
@@ -487,6 +522,18 @@ func getContainerMetrics() []containerMetric {
 	return metrics
 }
 
+// GAUGE(container_spec_cpu_shares): CPU share of the container
+
+// GAUGE(container_spec_cpu_quota): In CPU quota for the CFS process scheduler.
+// In K8s this is equal to the containers's CPU limit as a fraction of 1 core
+// and multiplied by the `container_spec_cpu_period`.  So if the CPU limit is
+// `500m` (500 millicores) for a container and the `container_spec_cpu_period`
+// is set to 100,000, this value will be 50,000.
+
+// GAUGE(container_spec_cpu_period): The number of microseconds that the [CFS
+// scheduler](https://www.kernel.org/doc/Documentation/scheduler/sched-bwc.txt)
+// uses as a window when limiting container processes
+
 func getContainerSpecCPUMetrics() []containerSpecMetric {
 	var metrics = []containerSpecMetric{
 		{
@@ -527,6 +574,9 @@ func getContainerSpecCPUMetrics() []containerSpecMetric {
 	return metrics
 }
 
+// GAUGE(container_spec_memory_limit_bytes): Memory limit for the container.
+// GAUGE(container_spec_memory_swap_limit_bytes): Memory swap limit for the container.
+
 func getContainerSpecMemMetrics() []containerSpecMetric {
 	var metrics = []containerSpecMetric{
 		{
@@ -559,6 +609,10 @@ func getContainerSpecMemMetrics() []containerSpecMetric {
 
 	return metrics
 }
+
+// GAUGE(machine_cpu_frequency_khz): Node's CPU frequency.
+// GAUGE(machine_cpu_cores): Number of CPU cores on the node.
+// GAUGE(machine_memory_bytes): Amount of memory installed on the node.
 
 func getMachineInfoMetrics() []machineInfoMetric {
 	var metrics = []machineInfoMetric{
@@ -598,6 +652,8 @@ func getMachineInfoMetrics() []machineInfoMetric {
 	}
 	return metrics
 }
+
+// GAUGE(container_start_time_seconds): Start time of the container since unix epoch in seconds.
 
 func getContainerSpecMetrics() []containerSpecMetric {
 	var metrics = []containerSpecMetric{
@@ -678,6 +734,14 @@ func copyDims(dims map[string]string) map[string]string {
 	}
 	return newMap
 }
+
+// DIMENSION(kubernetes_namespace): The K8s namespace the container is part of
+// DIMENSION(kubernetes_pod_name): The pod instance under which this container runs
+// DIMENSION(kubernetes_pod_uid): The UID of the pod instance under which this container runs
+// DIMENSION(container_spec_name): The container's name as it appears in the pod spec
+// DIMENSION(container_name): The container's name as it appears in the pod spec, the same as container_spec_name but retained for backwards compatibility.
+// DIMENSION(container_id): The ID of the running container
+// DIMENSION(container_image): The container image name
 
 func (c *CadvisorCollector) collectContainersInfo() {
 	containers, err := c.infoProvider.SubcontainersInfo("/")

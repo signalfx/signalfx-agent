@@ -18,3 +18,8 @@ type fieldMetadata struct {
 	// type of a map if they are structs.
 	ElementStruct *structMetadata `json:"elementStruct,omitempty"`
 }
+
+type dimMetadata struct {
+	Name        string `json:"name"`
+	Description string `json:"description"`
+}

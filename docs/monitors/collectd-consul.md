@@ -17,6 +17,8 @@ from Consul instances by hitting these endpoints:
 - [/health/state/any](https://www.consul.io/api/health.html#list-checks-in-state)
 
 
+Monitor Type: `collectd/consul`
+
 [Monitor Source Code](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/consul)
 
 **Accepts Endpoints**: **Yes**
@@ -25,21 +27,26 @@ from Consul instances by hitting these endpoints:
 
 ## Configuration
 
-| Config option | Default | Required | Type | Description |
-| --- | --- | --- | --- | --- |
-| `host` |  | **yes** | `string` |  |
-| `port` |  | **yes** | `integer` |  |
-| `name` |  | no | `string` |  |
-| `aclToken` |  | no | `string` |  |
-| `useHTTPS` | `false` | no | `bool` |  |
-| `enhancedMetrics` | `false` | no | `bool` |  |
-| `caCertificate` |  | no | `string` |  |
-| `clientCertificate` |  | no | `string` |  |
-| `clientKey` |  | no | `string` |  |
-| `signalFxAccessToken` |  | no | `string` |  |
+| Config option | Required | Type | Description |
+| --- | --- | --- | --- |
+| `host` | **yes** | `string` |  |
+| `port` | **yes** | `integer` |  |
+| `name` | no | `string` |  |
+| `aclToken` | no | `string` |  |
+| `useHTTPS` | no | `bool` |  (**default:** `false`) |
+| `enhancedMetrics` | no | `bool` |  (**default:** `false`) |
+| `caCertificate` | no | `string` |  |
+| `clientCertificate` | no | `string` |  |
+| `clientKey` | no | `string` |  |
+| `signalFxAccessToken` | no | `string` |  |
+
+
 
 
 ## Metrics
+
+This monitor emits the following metrics.  Note that configuration options may
+cause only a subset of metrics to be emitted.
 
 | Name | Type | Description |
 | ---  | ---  | ---         |
@@ -100,6 +107,9 @@ from Consul instances by hitting these endpoints:
 | `gauge.consul.serf.queue.Query.min` | gauge | Minimum number of serf queries in queue yet to be processed during the interval |
 
 ## Dimensions
+
+The following dimensions may occur on metrics emitted by this monitor.  Some
+dimensions may be specific to certain metrics.
 
 | Name | Description |
 | ---  | ---         |

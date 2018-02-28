@@ -2,16 +2,35 @@
 
 # collectd/uptime
 
+ Sends a single metric of the total number of
+seconds the host has been up, using the [collectd uptime
+plugin](https://collectd.org/wiki/index.php/Plugin:Uptime).
+
+
+Monitor Type: `collectd/uptime`
+
+[Monitor Source Code](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/uptime)
 
 **Accepts Endpoints**: No
 
-**Only One Instance Allowed**: **Yes**
+**Multiple Instances Allowed**: **No**
 
 ## Configuration
 
-| Config option | Default | Required | Type | Description |
-| --- | --- | --- | --- | --- |
+| Config option | Required | Type | Description |
+| --- | --- | --- | --- |
 
+
+
+
+## Metrics
+
+This monitor emits the following metrics.  Note that configuration options may
+cause only a subset of metrics to be emitted.
+
+| Name | Type | Description |
+| ---  | ---  | ---         |
+| `uptime` | gauge | Seconds since system boot |
 
 
 

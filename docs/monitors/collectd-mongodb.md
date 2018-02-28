@@ -8,6 +8,8 @@
 Also see https://github.com/signalfx/integrations/tree/master/collectd-mongodb.
 
 
+Monitor Type: `collectd/mongodb`
+
 [Monitor Source Code](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/mongodb)
 
 **Accepts Endpoints**: **Yes**
@@ -16,19 +18,21 @@ Also see https://github.com/signalfx/integrations/tree/master/collectd-mongodb.
 
 ## Configuration
 
-| Config option | Default | Required | Type | Description |
-| --- | --- | --- | --- | --- |
-| `host` |  | **yes** | `string` |  |
-| `port` |  | **yes** | `integer` |  |
-| `name` |  | no | `string` |  |
-| `databases` |  | no | `list of string` |  |
-| `username` |  | no | `string` |  |
-| `password` |  | no | `string` |  |
-| `useTLS` | `false` | no | `bool` |  |
-| `caCerts` |  | no | `string` |  |
-| `tlsClientCert` |  | no | `string` |  |
-| `tlsClientKey` |  | no | `string` |  |
-| `tlsClientKeyPassPhrase` |  | no | `string` |  |
+| Config option | Required | Type | Description |
+| --- | --- | --- | --- |
+| `host` | **yes** | `string` |  |
+| `port` | **yes** | `integer` |  |
+| `name` | no | `string` |  |
+| `databases` | no | `list of string` |  |
+| `username` | no | `string` |  |
+| `password` | no | `string` |  |
+| `useTLS` | no | `bool` |  (**default:** `false`) |
+| `caCerts` | no | `string` |  |
+| `tlsClientCert` | no | `string` |  |
+| `tlsClientKey` | no | `string` |  |
+| `tlsClientKeyPassPhrase` | no | `string` |  |
+
+
 
 
 

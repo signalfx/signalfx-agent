@@ -8,10 +8,13 @@ by the `-config` flag to the agent binary (`signalfx-agent`).
 ## Config Schema
 {{ with (ds "agent").TopConfig }}
 {{ $doc_types := (ds "agent").doc_types -}}
-| Config option | Default | Required | Type | Description |
-| --- | --- | --- | --- | --- |
+| Config option | Required | Type | Description |
+| --- | --- | --- | --- |
 {{ range .fields -}}
-| `{{.yamlName}}` | {{if .default | print}}`{{.default | data.ToJSON}}`{{end}} | {{if .required}}**yes**{{else}}no{{end}} | {{if has . "elementStruct"}}[{{end}}`{{or (index $doc_types .type) .type}}{{if .elementKind}} of {{or (index $doc_types .elementKind) .elementKind}}{{end}}`{{if has . "elementStruct"}}](#{{.yamlName | toLower}}){{end}} | {{.doc | strings.TrimSpace}} |
+| `{{.yamlName}}` |
+{{- if .required}}**yes**{{else}}no{{end}} |
+{{- if has . "elementStruct"}}[{{end}}{{or (index $doc_types .type) .type}}{{if .elementKind}} of {{or (index $doc_types .elementKind) .elementKind}}{{end}}{{if has . "elementStruct"}}](#{{.yamlName | toLower}}){{end}} |
+{{- .doc | strings.TrimSpace}}{{if .default | print}} (**default:** `{{.default | data.ToJSON}}`){{end}} |
 {{end}}
 
 {{ range .fields -}}
@@ -19,16 +22,19 @@ by the `-config` flag to the agent binary (`signalfx-agent`).
 ## {{.yamlName}}
 The **nested** `{{.yamlName}}` config object has the following fields:
 {{ if eq .yamlName "monitors" }}
-For more information on monitor configuration, see [Monitor Config](./monitor-config.md).
+The following are generic options that apply to all monitors.  Each monitor type has its own set of additional configuration options, detailed in [Monitor Config](./monitor-config.md).
 {{end -}}
 {{ if eq .yamlName "observers" }}
-For more information on observer configuration, see [Observer Config](./observer-config.md).
+The following are generic options that apply to all observers.  Each observer type has its own set of additional configuration options, detailed in [Observer Config](./observer-config.md).
+{{end -}}
+{{ if eq .yamlName "metricsToExclude" }}
+For more information on filtering see [Datapoint Filtering](./filtering.md).
 {{end}}
 
-| Config option | Default | Required | Type | Description |
-| --- | --- | --- | --- | --- |
+| Config option | Required | Type | Description |
+| --- | --- | --- | --- |
 {{ range .elementStruct.fields -}}
-| `{{.yamlName}}` | {{if .default | print}}`{{.default}}`{{end}} | {{if .required}}**yes**{{else}}no{{end}} | `{{or (index $doc_types .type) .type}}{{if .elementKind}} of {{or (index $doc_types .elementKind) .elementKind}}{{end}}` | {{.doc | strings.TrimSpace}} |
+| `{{.yamlName}}` | {{if .required}}**yes**{{else}}no{{end}} | `{{or (index $doc_types .type) .type}}{{if .elementKind}} of {{or (index $doc_types .elementKind) .elementKind}}{{end}}` | {{.doc | strings.TrimSpace}}{{if .default | print}} (**default:** `{{.default}}`){{end}} |
 {{end}}
 
 {{end -}}

@@ -36,11 +36,19 @@ type Config struct {
 	ServiceName string `yaml:"serviceName"`
 	// The JMX connection string.  This is rendered as a Go template and has
 	// access to the other values in this config.
-	ServiceURL       string   `yaml:"serviceURL" default:"service:jmx:rmi:///jndi/rmi://{{.Host}}:{{.Port}}/jmxrmi"`
-	InstancePrefix   string   `yaml:"instancePrefix"`
-	Username         string   `yaml:"username"`
-	Password         string   `yaml:"password"`
-	MBeansToCollect  []string `yaml:"mBeansToCollect"`
+	ServiceURL     string `yaml:"serviceURL" default:"service:jmx:rmi:///jndi/rmi://{{.Host}}:{{.Port}}/jmxrmi"`
+	InstancePrefix string `yaml:"instancePrefix"`
+	Username       string `yaml:"username"`
+	Password       string `yaml:"password"`
+	// A list of the MBeans defined in `mBeanDefinitions` to actually collect.
+	// If not provided, then all defined MBeans will be collected.
+	MBeansToCollect []string `yaml:"mBeansToCollect"`
+	// Specifies how to map JMX MBean values to metrics.  If using a specific
+	// service monitor such as cassandra, kafka, or activemq, they come
+	// pre-loaded with a set of mappings, and any that you add in this option
+	// will be merged with those.  See
+	// [collectd GenericJMX](https://collectd.org/documentation/manpages/collectd-java.5.shtml#genericjmx_plugin)
+	// for more details.
 	MBeanDefinitions MBeanMap `yaml:"mBeanDefinitions"`
 }
 

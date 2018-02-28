@@ -24,7 +24,8 @@ type MonitorConfig struct {
 	// monitor(s) created from this configuration
 	ExtraDimensions map[string]string `yaml:"extraDimensions"`
 	// The interval (in seconds) at which to emit datapoints from the
-	// monitor(s) created by this configuration
+	// monitor(s) created by this configuration.  If not set (or set to 0), the
+	// global agent intervalSeconds config option will be used instead.
 	IntervalSeconds int `yaml:"intervalSeconds"`
 	// If one or more configurations have this set to true, only those
 	// configurations will be considered -- useful for testing

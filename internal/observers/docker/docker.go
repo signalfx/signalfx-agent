@@ -22,6 +22,12 @@ const (
 	dockerAPIVersion = "v1.22"
 )
 
+// OBSERVER(docker): Queries the Docker Engine API for running containers.  If
+// you are using Kubernetes, you should use the [`k8s-api`
+// observer](./k8s-api.md) instead of this.
+
+// ENDPOINT_TYPE(ContainerEndpoint): true
+
 var logger = log.WithFields(log.Fields{"observerType": observerType})
 
 // Docker observer plugin

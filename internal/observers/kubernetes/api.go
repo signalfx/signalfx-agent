@@ -31,6 +31,33 @@ const (
 	runningPhase = "Running"
 )
 
+// OBSERVER(k8s-api): Discovers services running in a Kubernetes cluster by
+// querying the Kubernetes API server.  This observer is designed to only
+// discover pod endpoints exposed on the same node that the agent is running,
+// so that the monitoring of services does not generate cross-node traffic.  To
+// know which node the agent is running on, you should set an environment
+// variable called `MY_NODE_NAME` using the downward API `spec.nodeName` value
+// in the pod spec.  Our provided K8s DaemonSet resource does this already and
+// provides an example.
+//
+// Note that this observer discovers exposed ports on pod containers, not K8s
+// Endpoint resources, so don't let the terminology of agent "endpoints"
+// confuse you.
+
+// ENDPOINT_TYPE(ContainerEndpoint): true
+
+// DIMENSION(kubernetes_namespace): The namespace that the discovered service
+// endpoint is running in.
+
+// DIMENSION(kubernetes_pod_name): The name of the running pod that is exposing
+// the discovered endpoint
+
+// DIMENSION(kubernetes_pod_uid): The UID of the pod that is exposing the
+// discovered endpoint
+
+// DIMENSION(container_spec_name): The short name of the container in the pod spec,
+// **NOT** the running container's name in the Docker engine
+
 var logger = log.WithFields(log.Fields{"observerType": observerType})
 
 func init() {
@@ -45,6 +72,7 @@ func init() {
 // Config for Kubernetes API observer
 type Config struct {
 	config.ObserverConfig
+	// Configuration for the K8s API client
 	KubernetesAPI *kubernetes.APIConfig `yaml:"kubernetesAPI" default:"{}"`
 }
 

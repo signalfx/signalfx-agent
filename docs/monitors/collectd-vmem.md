@@ -2,16 +2,43 @@
 
 # collectd/vmem
 
+ Collects information about the virtual memory
+subsystem of the kernel using the [collectd vmem
+plugin](https://collectd.org/wiki/index.php/Plugin:vmem).  There is no
+configuration available for this plugin.
+
+
+Monitor Type: `collectd/vmem`
+
+[Monitor Source Code](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/vmem)
 
 **Accepts Endpoints**: No
 
-**Only One Instance Allowed**: **Yes**
+**Multiple Instances Allowed**: **No**
 
 ## Configuration
 
-| Config option | Default | Required | Type | Description |
-| --- | --- | --- | --- | --- |
+| Config option | Required | Type | Description |
+| --- | --- | --- | --- |
 
+
+
+
+## Metrics
+
+This monitor emits the following metrics.  Note that configuration options may
+cause only a subset of metrics to be emitted.
+
+| Name | Type | Description |
+| ---  | ---  | ---         |
+| `vmpage_faults.majflt` | cumulative | Number of major page faults on the system |
+| `vmpage_faults.minflt` | cumulative | Number of minor page faults on the system |
+| `vmpage_io.memory.in` | cumulative | Page Ins for Memory |
+| `vmpage_io.memory.out` | cumulative | Page Outs for Memory |
+| `vmpage_io.swap.in` | cumulative | Page Ins for Swap |
+| `vmpage_io.swap.out` | cumulative | Page Outs for Swap |
+| `vmpage_number.free_pages` | cumulative | Number of free memory pages |
+| `vmpage_number.mapped` | cumulative | Number of mapped pages |
 
 
 

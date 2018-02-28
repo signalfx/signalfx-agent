@@ -8,6 +8,8 @@ the information provided by `mod_status`.
 See https://github.com/signalfx/integrations/tree/master/collectd-apache
 
 
+Monitor Type: `collectd/apache`
+
 [Monitor Source Code](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/apache)
 
 **Accepts Endpoints**: **Yes**
@@ -16,21 +18,24 @@ See https://github.com/signalfx/integrations/tree/master/collectd-apache
 
 ## Configuration
 
-| Config option | Default | Required | Type | Description |
-| --- | --- | --- | --- | --- |
-| `host` |  | **yes** | `string` | The hostname of the Apache server |
-| `port` |  | **yes** | `integer` | The port number of the Apache server |
-| `name` |  | no | `string` | This will be sent as the `plugin_instance` dimension and can be any name you like. |
-| `username` |  | no | `string` | You can specify a username and password to do basic HTTP auth |
-| `password` |  | no | `string` |  |
+| Config option | Required | Type | Description |
+| --- | --- | --- | --- |
+| `host` | **yes** | `string` | The hostname of the Apache server |
+| `port` | **yes** | `integer` | The port number of the Apache server |
+| `name` | no | `string` | This will be sent as the `plugin_instance` dimension and can be any name you like. |
+| `username` | no | `string` | You can specify a username and password to do basic HTTP auth |
+| `password` | no | `string` |  |
+
+
 
 
 ## Metrics
 
+This monitor emits the following metrics.  Note that configuration options may
+cause only a subset of metrics to be emitted.
+
 | Name | Type | Description |
 | ---  | ---  | ---         |
-| `apache_bytes` | cumulative | Bytes served by Apache |
-| `apache_requests` | cumulative | Requests served by Apache |
 | `apache_connections` | gauge | Connections served by Apache |
 | `apache_idle_workers` | gauge | Apache workers that are idle |
 | `apache_scoreboard.closing` | gauge | Number of workers in the process of closing connections |
@@ -44,8 +49,13 @@ See https://github.com/signalfx/integrations/tree/master/collectd-apache
 | `apache_scoreboard.sending` | gauge | Number of workers sending responses |
 | `apache_scoreboard.starting` | gauge | Number of workers starting up |
 | `apache_scoreboard.waiting` | gauge | Number of workers waiting for requests |
+| `apache_bytes` | cumulative | Bytes served by Apache |
+| `apache_requests` | cumulative | Requests served by Apache |
 
 ## Dimensions
+
+The following dimensions may occur on metrics emitted by this monitor.  Some
+dimensions may be specific to certain metrics.
 
 | Name | Description |
 | ---  | ---         |

@@ -19,11 +19,6 @@ type metricMetadata struct {
 	Description string `json:"description"`
 }
 
-type dimMetadata struct {
-	Name        string `json:"name"`
-	Description string `json:"description"`
-}
-
 type propMetadata struct {
 	Name        string `json:"name"`
 	Dimension   string `json:"dimension"`
@@ -100,33 +95,29 @@ func monitorDocsInPackage(pkgDoc *doc.Package) map[string]string {
 
 func dimensionsFromNotes(allDocs []*doc.Package) []dimMetadata {
 	var dm []dimMetadata
-	for _, pkgDoc := range allDocs {
-		for _, note := range pkgDoc.Notes["DIMENSION"] {
-			dm = append(dm, dimMetadata{
-				Name:        note.UID,
-				Description: commentTextToParagraphs(note.Body),
-			})
-		}
+	for _, note := range notesFromDocs(allDocs, "DIMENSION") {
+		dm = append(dm, dimMetadata{
+			Name:        note.UID,
+			Description: commentTextToParagraphs(note.Body),
+		})
 	}
 	return dm
 }
 
 func metricsFromNotes(allDocs []*doc.Package) []metricMetadata {
 	var mm []metricMetadata
-	for _, pkgDoc := range allDocs {
-		for noteMarker, metaType := range map[string]string{
-			"GAUGE":      "gauge",
-			"TIMESTAMP":  "timestamp",
-			"COUNTER":    "counter",
-			"CUMULATIVE": "cumulative",
-		} {
-			for _, note := range pkgDoc.Notes[noteMarker] {
-				mm = append(mm, metricMetadata{
-					Type:        metaType,
-					Name:        note.UID,
-					Description: commentTextToParagraphs(note.Body),
-				})
-			}
+	for noteMarker, metaType := range map[string]string{
+		"GAUGE":      "gauge",
+		"TIMESTAMP":  "timestamp",
+		"COUNTER":    "counter",
+		"CUMULATIVE": "cumulative",
+	} {
+		for _, note := range notesFromDocs(allDocs, noteMarker) {
+			mm = append(mm, metricMetadata{
+				Type:        metaType,
+				Name:        note.UID,
+				Description: commentTextToParagraphs(note.Body),
+			})
 		}
 	}
 	return mm
@@ -134,20 +125,18 @@ func metricsFromNotes(allDocs []*doc.Package) []metricMetadata {
 
 func propertiesFromNotes(allDocs []*doc.Package) []propMetadata {
 	var pm []propMetadata
-	for _, pkgDoc := range allDocs {
-		for _, note := range pkgDoc.Notes["PROPERTY"] {
-			parts := strings.Split(note.UID, ":")
-			if len(parts) != 2 {
-				log.Errorf("Property comment 'PROPERTY(%s): %s' in package %s should have form "+
-					"'PROPERTY(dimension_name:prop_name): desc'", note.UID, note.Body, pkgDoc.Name)
-			}
-
-			pm = append(pm, propMetadata{
-				Name:        parts[1],
-				Dimension:   parts[0],
-				Description: commentTextToParagraphs(note.Body),
-			})
+	for _, note := range notesFromDocs(allDocs, "PROPERTY") {
+		parts := strings.Split(note.UID, ":")
+		if len(parts) != 2 {
+			log.Errorf("Property comment 'PROPERTY(%s): %s' in package %s should have form "+
+				"'PROPERTY(dimension_name:prop_name): desc'", note.UID, note.Body, allDocs[0].Name)
 		}
+
+		pm = append(pm, propMetadata{
+			Name:        parts[1],
+			Dimension:   parts[0],
+			Description: commentTextToParagraphs(note.Body),
+		})
 	}
 	return pm
 }

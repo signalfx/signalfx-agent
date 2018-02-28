@@ -37,7 +37,7 @@ func init() {
 type KubeletStatsConfig struct {
 	config.MonitorConfig
 	// Kubelet client configuration
-	KubeletAPI kubelet.APIConfig `yaml:"kubeletAPI" default:"{}"`
+	KubeletAPI kubelet.APIConfig `yaml:"kubeletAPI" default:""`
 	// Whether to log the raw cadvisor response at the debug level for
 	// debugging purposes.
 	LogResponses bool `yaml:"logResponses" default:"false"`

@@ -42,7 +42,7 @@ Here is a minimalistic example of a monitor:
 	type Config struct {
 		config.MonitorConfig `yaml:",inline" acceptsEndpoints:"true"`
 
-		# Required for monitors that accept auto-discovered endpoints
+		// Required for monitors that accept auto-discovered endpoints
 		Host string `yaml:"host"`
 		Port uint16 `yaml:"port"`
 		Name string `yaml:"name"`
@@ -50,7 +50,7 @@ Here is a minimalistic example of a monitor:
 		MyVar string `yaml:"myVar"`
 	}
 
-	// Validate will check the config for correctness.
+	// Validate will check the config for correctness.  This method is optional.
 	func (c *Config) Validate() error {
 		if c.MyVar == "" {
 			return errors.New("myVar is required")
@@ -208,7 +208,7 @@ The `Configure` method will receive a reference to the config struct that you
 registered with the agent.  It is guaranteed to have passed its `Validate`
 method, if provided.
 
-## Create Dependency From Agent
+## Create Dependency From Agent Core
 
 To force the agent to compile and statically link in your new monitor code in
 the binary, you must include the package in the

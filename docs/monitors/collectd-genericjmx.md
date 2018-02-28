@@ -9,6 +9,8 @@ See https://github.com/signalfx/integrations/tree/master/collectd-genericjmx
 and https://collectd.org/documentation/manpages/collectd-java.5.shtml
 
 
+Monitor Type: `collectd/genericjmx`
+
 [Monitor Source Code](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/genericjmx)
 
 **Accepts Endpoints**: **Yes**
@@ -17,39 +19,41 @@ and https://collectd.org/documentation/manpages/collectd-java.5.shtml
 
 ## Configuration
 
-| Config option | Default | Required | Type | Description |
-| --- | --- | --- | --- | --- |
-| `host` |  | **yes** | `string` |  |
-| `port` |  | **yes** | `integer` |  |
-| `name` |  | no | `string` |  |
-| `serviceName` |  | no | `string` | This is how the service type is identified in the SignalFx UI so that you can get built-in content for it.  For custom JMX integrations, it can be set to whatever you like and metrics will get the dimension `sf_hostHasService` set to this value. |
-| `serviceURL` | `service:jmx:rmi:///jndi/rmi://{{.Host}}:{{.Port}}/jmxrmi` | no | `string` | The JMX connection string.  This is rendered as a Go template and has access to the other values in this config. |
-| `instancePrefix` |  | no | `string` |  |
-| `username` |  | no | `string` |  |
-| `password` |  | no | `string` |  |
-| `mBeansToCollect` |  | no | `list of string` |  |
-| `mBeanDefinitions` |  | no | `map of object (see below)` |  |
+| Config option | Required | Type | Description |
+| --- | --- | --- | --- |
+| `host` | **yes** | `string` |  |
+| `port` | **yes** | `integer` |  |
+| `name` | no | `string` |  |
+| `serviceName` | no | `string` | This is how the service type is identified in the SignalFx UI so that you can get built-in content for it.  For custom JMX integrations, it can be set to whatever you like and metrics will get the dimension `sf_hostHasService` set to this value. |
+| `serviceURL` | no | `string` | The JMX connection string.  This is rendered as a Go template and has access to the other values in this config. (**default:** `service:jmx:rmi:///jndi/rmi://{{.Host}}:{{.Port}}/jmxrmi`) |
+| `instancePrefix` | no | `string` |  |
+| `username` | no | `string` |  |
+| `password` | no | `string` |  |
+| `mBeansToCollect` | no | `list of string` | A list of the MBeans defined in `mBeanDefinitions` to actually collect. If not provided, then all defined MBeans will be collected. |
+| `mBeanDefinitions` | no | `map of object (see below)` | Specifies how to map JMX MBean values to metrics.  If using a specific service monitor such as cassandra, kafka, or activemq, they come pre-loaded with a set of mappings, and any that you add in this option will be merged with those.  See [collectd GenericJMX](https://collectd.org/documentation/manpages/collectd-java.5.shtml#genericjmx_plugin) for more details. |
 
 
 The **nested** `mBeanDefinitions` config object has the following fields:
 
-| Config option | Default | Required | Type | Description |
-| --- | --- | --- | --- | --- |
-| `objectName` |  | no | `string` |  |
-| `instancePrefix` |  | no | `string` |  |
-| `instanceFrom` |  | no | `list of string` |  |
-| `values` |  | no | `list of object (see below)` |  |
+| Config option | Required | Type | Description |
+| --- | --- | --- | --- |
+| `objectName` | no | `string` |  |
+| `instancePrefix` | no | `string` |  |
+| `instanceFrom` | no | `list of string` |  |
+| `values` | no | `list of object (see below)` |  |
 
 
-<!--- This is pretty ugly but some config has nesting to three layers.  Would probably be better to flatten them before rendering. --->
+<!--- This is pretty ugly all this repetition, but some config has nesting to three layers.  Would probably be better to flatten them before rendering or use a template engine with partials. --->
 The **nested** `values` config object has the following fields:
 
-| Config option | Default | Required | Type | Description |
-| --- | --- | --- | --- | --- |
-| `type` |  | no | `string` |  |
-| `table` | `false` | no | `bool` |  |
-| `instancePrefix` |  | no | `string` |  |
-| `instanceFrom` |  | no | `string` |  |
-| `attribute` |  | no | `string` |  |
+| Config option | Required | Type | Description |
+| --- | --- | --- | --- |
+| `type` | no | `string` |  |
+| `table` | no | `bool` |  (**default:** `false`) |
+| `instancePrefix` | no | `string` |  |
+| `instanceFrom` | no | `string` |  |
+| `attribute` | no | `string` |  |
+
+
 
 

@@ -7,9 +7,10 @@ import (
 
 // Embedded structs to always ignore since they already provided in other
 // places in the output.
-var embeddedExclusions = map[string]bool{
+var excludedFields = map[string]bool{
 	"MonitorConfig":  true,
 	"ObserverConfig": true,
+	"OtherConfig":    true,
 }
 
 // This will have to change if we start pulling in monitors from other repos
@@ -28,7 +29,11 @@ func getStructMetadata(typ reflect.Type) structMetadata {
 	for i := 0; i < typ.NumField(); i++ {
 		f := typ.Field(i)
 
-		if f.Anonymous && !embeddedExclusions[f.Name] {
+		if excludedFields[f.Name] {
+			continue
+		}
+
+		if f.Anonymous {
 			nestedSM := getStructMetadata(f.Type)
 			fieldMD = append(fieldMD, nestedSM.Fields...)
 			continue
@@ -36,7 +41,7 @@ func getStructMetadata(typ reflect.Type) structMetadata {
 		}
 
 		yamlName := getYAMLName(f)
-		if yamlName == "" || yamlName == "-" {
+		if (yamlName == "" || yamlName == "-") && !isInlinedYAML(f) {
 			continue
 		}
 

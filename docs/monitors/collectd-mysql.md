@@ -6,6 +6,8 @@
 [MySQL plugin](https://collectd.org/wiki/index.php/Plugin:MySQL).
 
 
+Monitor Type: `collectd/mysql`
+
 [Monitor Source Code](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/mysql)
 
 **Accepts Endpoints**: **Yes**
@@ -14,26 +16,28 @@
 
 ## Configuration
 
-| Config option | Default | Required | Type | Description |
-| --- | --- | --- | --- | --- |
-| `host` |  | **yes** | `string` |  |
-| `port` |  | **yes** | `integer` |  |
-| `name` |  | no | `string` |  |
-| `databases` |  | no | `list of object (see below)` |  |
-| `username` |  | no | `string` | These credentials serve as defaults for all databases if not overridden |
-| `password` |  | no | `string` |  |
-| `reportHost` | `false` | no | `bool` | A SignalFx extension to the plugin that allows us to disable the normal behavior of the MySQL collectd plugin where the `host` dimension is set to the hostname of the MySQL database server.  When `false` (the recommended and default setting), the globally configured `hostname` config is used instead. |
+| Config option | Required | Type | Description |
+| --- | --- | --- | --- |
+| `host` | **yes** | `string` |  |
+| `port` | **yes** | `integer` |  |
+| `name` | no | `string` |  |
+| `databases` | no | `list of object (see below)` | A list of databases along with optional authentication credentials. |
+| `username` | no | `string` | These credentials serve as defaults for all databases if not overridden |
+| `password` | no | `string` |  |
+| `reportHost` | no | `bool` | A SignalFx extension to the plugin that allows us to disable the normal behavior of the MySQL collectd plugin where the `host` dimension is set to the hostname of the MySQL database server.  When `false` (the recommended and default setting), the globally configured `hostname` config is used instead. (**default:** `false`) |
 
 
 The **nested** `databases` config object has the following fields:
 
-| Config option | Default | Required | Type | Description |
-| --- | --- | --- | --- | --- |
-| `name` |  | **yes** | `string` |  |
-| `username` |  | no | `string` |  |
-| `password` |  | no | `string` |  |
+| Config option | Required | Type | Description |
+| --- | --- | --- | --- |
+| `name` | **yes** | `string` |  |
+| `username` | no | `string` |  |
+| `password` | no | `string` |  |
 
 
-<!--- This is pretty ugly but some config has nesting to three layers.  Would probably be better to flatten them before rendering. --->
+<!--- This is pretty ugly all this repetition, but some config has nesting to three layers.  Would probably be better to flatten them before rendering or use a template engine with partials. --->
+
+
 
 

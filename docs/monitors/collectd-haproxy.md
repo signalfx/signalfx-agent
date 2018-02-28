@@ -7,6 +7,8 @@
 See https://github.com/signalfx/integrations/tree/master/collectd-haproxy.
 
 
+Monitor Type: `collectd/haproxy`
+
 [Monitor Source Code](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/haproxy)
 
 **Accepts Endpoints**: **Yes**
@@ -15,14 +17,16 @@ See https://github.com/signalfx/integrations/tree/master/collectd-haproxy.
 
 ## Configuration
 
-| Config option | Default | Required | Type | Description |
-| --- | --- | --- | --- | --- |
-| `host` |  | **yes** | `string` |  |
-| `port` |  | **yes** | `integer` |  |
-| `name` |  | no | `string` |  |
-| `proxiesToMonitor` |  | no | `list of string` |  |
-| `excludedMetrics` |  | no | `list of string` |  |
-| `enhancedMetrics` | `false` | no | `bool` |  |
+| Config option | Required | Type | Description |
+| --- | --- | --- | --- |
+| `host` | **yes** | `string` |  |
+| `port` | **yes** | `integer` |  |
+| `name` | no | `string` |  |
+| `proxiesToMonitor` | no | `list of string` |  |
+| `excludedMetrics` | no | `list of string` |  |
+| `enhancedMetrics` | no | `bool` |  (**default:** `false`) |
+
+
 
 
 

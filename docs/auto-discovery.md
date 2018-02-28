@@ -54,3 +54,36 @@ In addition, these extra functions are provided:
 There are no implicit rules built into the agent, so each must be specified
 manually in the config file in conjunction with monitor that should monitor the
 discovered service.
+
+
+## Manually Defined Services
+
+While service discovery is useful, sometimes it is just easier to manually
+define services to monitor.  This can be done by setting the `host` and
+`port` option in a monitor's config to the host/port that you need to
+monitor.  These two values are what the auto discovery mechanism provides for
+you automatically.
+
+For example (making use of YAML references to reduce repetition):
+
+```yaml
+  - &es
+    type: collectd/elasticsearch
+    username: admin
+    password: s3cr3t
+    host: es
+    port: 9200
+
+  - <<: *es
+    host: es2
+    port: 9300
+```
+
+This would monitor two ElasticSearch instances at the given host/port and would
+use the same username and password given in the top-level monitor config to
+connect to both of them.  If you needed different configuration for the two ES
+hosts, you could simply define two monitor configurations, each with one
+service endpoint.
+
+It is invalid to have manually defined service endpoints and a discovery rule
+on a single monitor configuration.

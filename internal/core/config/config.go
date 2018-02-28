@@ -24,7 +24,7 @@ import (
 type Config struct {
 	// The access token for the org that should receive the metrics emitted by
 	// the agent.
-	SignalFxAccessToken string `yaml:"signalFxAccessToken" neverLog:"true"`
+	SignalFxAccessToken string `yaml:"signalFxAccessToken" neverLog:"true" validate:"required"`
 	// The URL of SignalFx ingest server.  Can be overridden if using the Metric Proxy.
 	IngestURL string `yaml:"ingestUrl" default:"https://ingest.signalfx.com"`
 	// The SignalFx API base URL
@@ -219,19 +219,20 @@ type CollectdConfig struct {
 	DisableCollectd bool `yaml:"disableCollectd" default:"false"`
 	// How many read intervals before abandoning a metrics. Doesn't affect much
 	// in normal usage.
-	// See https://collectd.org/documentation/manpages/collectd.conf.5.shtml#timeout_iterations.
+	// See [Timeout](https://collectd.org/documentation/manpages/collectd.conf.5.shtml#timeout_iterations).
 	Timeout int `yaml:"timeout" default:"40"`
-	// Number of threads dedicated to executing read callbacks. See https://collectd.org/documentation/manpages/collectd.conf.5.shtml#readthreads_num.
+	// Number of threads dedicated to executing read callbacks. See
+	// [ReadThreads](https://collectd.org/documentation/manpages/collectd.conf.5.shtml#readthreads_num)
 	ReadThreads int `yaml:"readThreads" default:"5"`
 	// The maximum numbers of values in the queue to be written back to the
 	// agent from collectd.  Since the values are written to a local socket
 	// that the agent exposes, there should be almost no queuing and the
 	// default should be more than sufficient. See
-	// https://collectd.org/documentation/manpages/collectd.conf.5.shtml#writequeuelimithigh_highnum
+	// [WriteQueueLimitHigh](https://collectd.org/documentation/manpages/collectd.conf.5.shtml#writequeuelimithigh_highnum)
 	WriteQueueLimitHigh int `yaml:"writeQueueLimitHigh" default:"500000"`
 	// The lowest number of values in the collectd queue before which metrics
 	// begin being randomly dropped.  See
-	// https://collectd.org/documentation/manpages/collectd.conf.5.shtml#writequeuelimitlow_lownum
+	// [WriteQueueLimitLow](https://collectd.org/documentation/manpages/collectd.conf.5.shtml#writequeuelimitlow_lownum)
 	WriteQueueLimitLow int `yaml:"writeQueueLimitLow" default:"400000"`
 	// Collectd's log level -- info, notice, warning, or err
 	LogLevel string `yaml:"logLevel" default:"notice"`

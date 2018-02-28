@@ -19,6 +19,17 @@ const (
 	sparkMesos                       = "Mesos"
 )
 
+// MONITOR(collectd/spark): Collects metrics about a Spark cluster using the
+// [collectd Spark Python plugin](https://github.com/signalfx/collectd-spark).
+// Also see
+// https://github.com/signalfx/integrations/tree/master/collectd-spark.
+//
+// You have to specify distinct monitor configurations and discovery rules for
+// master and worker processes.  For the master configuration, set `isMaster`
+// to true.
+//
+// We only support HTTP endpoints for now.
+
 func init() {
 	monitors.Register(monitorType, func() interface{} {
 		return &Monitor{
@@ -31,10 +42,12 @@ func init() {
 type Config struct {
 	config.MonitorConfig `yaml:",inline" acceptsEndpoints:"true"`
 
-	Host                      string           `yaml:"host" validate:"required"`
-	Port                      uint16           `yaml:"port" validate:"required"`
-	Name                      string           `yaml:"name"`
-	IsMaster                  bool             `yaml:"isMaster" default:"false"`
+	Host string `yaml:"host" validate:"required"`
+	Port uint16 `yaml:"port" validate:"required"`
+	Name string `yaml:"name"`
+	// Set to `true` when monitoring a master Spark node
+	IsMaster bool `yaml:"isMaster" default:"false"`
+	// Should be one of `Standalone` or `Mesos`
 	ClusterType               sparkClusterType `yaml:"clusterType"`
 	CollectApplicationMetrics bool             `yaml:"collectApplicationMetrics" default:"false"`
 	EnhancedMetrics           bool             `yaml:"enhancedMetrics" default:"false"`

@@ -73,6 +73,9 @@ func packageDoc(packageDir string) *doc.Package {
 	if len(pkgs) > 1 {
 		panic("Can't handle multiple packages")
 	}
+	if len(pkgs) == 0 {
+		return nil
+	}
 	p := pkgs[filepath.Base(packageDir)]
 	// go/doc is pretty inflexible in how it parses notes so do it ourselves.
 	notes := readNotes(ast.MergePackageFiles(p, 0).Comments)
@@ -88,10 +91,23 @@ func nestedPackageDocs(packageDir string) []*doc.Package {
 			return err
 		}
 
-		out = append(out, packageDoc(path))
+		pkgDoc := packageDoc(path)
+		if pkgDoc != nil {
+			out = append(out, pkgDoc)
+		}
 		return nil
 	})
 	return out
+}
+
+func notesFromDocs(docs []*doc.Package, noteType string) []*doc.Note {
+	var notes []*doc.Note
+	for _, pkgDoc := range docs {
+		for _, note := range pkgDoc.Notes[noteType] {
+			notes = append(notes, note)
+		}
+	}
+	return notes
 }
 
 func structFieldDocs(packageDir, structName string) map[string]string {

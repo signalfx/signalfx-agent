@@ -12,7 +12,7 @@ import (
 // code here and remove the whitespace normalization so that it is more useful.
 
 var (
-	noteMarker    = `([A-Z][A-Z]+)\(([^)]+)\):?`                    // MARKER(uid), MARKER at least 2 chars, uid at least 1 char
+	noteMarker    = `([A-Z][A-Z_-]+)\(([^)]+)\):?`                  // MARKER(uid), MARKER at least 2 chars, uid at least 1 char
 	noteMarkerRx  = regexp.MustCompile(`^[ \t]*` + noteMarker)      // MARKER(uid) at text start
 	noteCommentRx = regexp.MustCompile(`^/[/*][ \t]*` + noteMarker) // MARKER(uid) at comment start
 )

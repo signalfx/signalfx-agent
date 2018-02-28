@@ -6,6 +6,8 @@
 See https://collectd.org/wiki/index.php/Plugin:Memory
 
 
+Monitor Type: `collectd/memory`
+
 [Monitor Source Code](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/memory)
 
 **Accepts Endpoints**: No
@@ -14,11 +16,16 @@ See https://collectd.org/wiki/index.php/Plugin:Memory
 
 ## Configuration
 
-| Config option | Default | Required | Type | Description |
-| --- | --- | --- | --- | --- |
+| Config option | Required | Type | Description |
+| --- | --- | --- | --- |
+
+
 
 
 ## Metrics
+
+This monitor emits the following metrics.  Note that configuration options may
+cause only a subset of metrics to be emitted.
 
 | Name | Type | Description |
 | ---  | ---  | ---         |

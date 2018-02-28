@@ -1,6 +1,6 @@
-// Package host observer that monitors the current host for active network listeners
-// and reports them as service endpoints
-// Use of this observer requires the CAP_SYS_PTRACE capability in Linux.
+// Package host observer that monitors the current host for active network
+// listeners and reports them as service endpoints Use of this observer
+// requires the CAP_SYS_PTRACE and CAP_DAC_READ_SEARCH capability in Linux.
 package host
 
 import (
@@ -18,6 +18,15 @@ import (
 const (
 	observerType = "host"
 )
+
+// OBSERVER(host): Looks at the current host for listening network endpoints.
+// It uses the `/proc` filesystem and requires the `SYS_PTRACE` and
+// `DAC_READ_SEARCH` capabilities so that it can determine what processes own
+// the listening sockets.
+//
+// It will look for all listening sockets on TCP and UDP over IPv4 and IPv6.
+
+// DIMENSION(pid): The PID of the process that owns the listening endpoint
 
 var logger = log.WithFields(log.Fields{"observerType": observerType})
 

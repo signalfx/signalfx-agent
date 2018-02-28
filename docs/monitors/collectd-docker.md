@@ -7,6 +7,8 @@
 See https://github.com/signalfx/docker-collectd-plugin.
 
 
+Monitor Type: `collectd/docker`
+
 [Monitor Source Code](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/docker)
 
 **Accepts Endpoints**: No
@@ -15,14 +17,16 @@ See https://github.com/signalfx/docker-collectd-plugin.
 
 ## Configuration
 
-| Config option | Default | Required | Type | Description |
-| --- | --- | --- | --- | --- |
-| `dimensions` |  | no | `map of string` | A set of dimensions to add to container metrics (see https://github.com/signalfx/docker-collectd-plugin#extracting-additional-dimensions). |
-| `dockerURL` |  | **yes** | `string` | URL of the Docker engine, can be a unix socket path. |
-| `excludedImages` |  | no | `list of string` |  |
-| `excludedNames` |  | no | `list of string` |  |
-| `excludedLabels` |  | no | `map of string` |  |
-| `collectNetworkStats` | `false` | no | `bool` |  |
+| Config option | Required | Type | Description |
+| --- | --- | --- | --- |
+| `dimensions` | no | `map of string` | A set of dimensions to add to container metrics (see https://github.com/signalfx/docker-collectd-plugin#extracting-additional-dimensions). |
+| `dockerURL` | **yes** | `string` | URL of the Docker engine, can be a unix socket path. |
+| `excludedImages` | no | `list of string` |  |
+| `excludedNames` | no | `list of string` |  |
+| `excludedLabels` | no | `map of string` |  |
+| `collectNetworkStats` | no | `bool` |  (**default:** `false`) |
+
+
 
 
 

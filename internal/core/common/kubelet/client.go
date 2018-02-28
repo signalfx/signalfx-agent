@@ -27,12 +27,20 @@ const (
 
 // APIConfig contains config specific to the KubeletAPI
 type APIConfig struct {
-	URL            string   `yaml:"url"`
-	AuthType       AuthType `yaml:"authType" default:"none"`
-	SkipVerify     bool     `yaml:"skipVerify" default:"false"`
-	CACertPath     string   `yaml:"caCertPath"`
-	ClientCertPath string   `yaml:"clientCertPath"`
-	ClientKeyPath  string   `yaml:"clientKeyPath"`
+	URL string `yaml:"url"`
+	// Can be `none` for no auth, `tls` for TLS client cert auth, or
+	// `serviceAccount` to use the pod's default service account token to
+	// authenticate.
+	AuthType AuthType `yaml:"authType" default:"none"`
+	// Whether to skip verification of the Kubelet's TLS cert
+	SkipVerify bool `yaml:"skipVerify" default:"false"`
+	// Path to the CA cert that has signed the Kubelet's TLS cert, unnecessary
+	// if `skipVerify` is set to false.
+	CACertPath string `yaml:"caCertPath"`
+	// Path to the client TLS cert to use if `authType` is set to `tls`
+	ClientCertPath string `yaml:"clientCertPath"`
+	// Path to the client TLS key to use if `authType` is set to `tls`
+	ClientKeyPath string `yaml:"clientKeyPath"`
 }
 
 // Client is a wrapper around http.Client that injects the right auth to every

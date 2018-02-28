@@ -18,9 +18,12 @@ type etcd2ConfigSource struct {
 
 // Config for an Etcd2 source
 type Config struct {
+	// A list of Etcd2 servers to use
 	Endpoints []string `yaml:"endpoints"`
-	Username  string   `yaml:"username"`
-	Password  string   `yaml:"password" neverLog:"true"`
+	// An optional username to use when connecting
+	Username string `yaml:"username"`
+	// An optional password to use when connecting
+	Password string `yaml:"password" neverLog:"true"`
 }
 
 // New creates a new etcd2 config source

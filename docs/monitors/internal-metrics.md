@@ -7,6 +7,8 @@ agent.  Useful for debugging performance issues with the agent and to ensure
 the agent isn't overloaded.
 
 
+Monitor Type: `internal-metrics`
+
 [Monitor Source Code](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/internalmetrics)
 
 **Accepts Endpoints**: No
@@ -15,11 +17,16 @@ the agent isn't overloaded.
 
 ## Configuration
 
-| Config option | Default | Required | Type | Description |
-| --- | --- | --- | --- | --- |
+| Config option | Required | Type | Description |
+| --- | --- | --- | --- |
+
+
 
 
 ## Metrics
+
+This monitor emits the following metrics.  Note that configuration options may
+cause only a subset of metrics to be emitted.
 
 | Name | Type | Description |
 | ---  | ---  | ---         |
