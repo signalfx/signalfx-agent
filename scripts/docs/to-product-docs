@@ -1,0 +1,32 @@
+#!/bin/bash
+
+# Converts the agent docs here to the ReadTheDocs repo at
+# https://github.com/signalfx/product-docs. You will probably have to provide
+# the envvar $PRODUCT_DOCS_REPO, which is the directory path to the root of the
+# product-docs repo.  It will overwrite any existing agent docs in the repo,
+# but will not commit them to git.
+
+set -euxo pipefail
+
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+AGENT_REPO_BASE="$SCRIPT_DIR/../.."
+PRODUCT_DOCS_REPO="${PRODUCT_DOCS_REPO:-$AGENT_REPO_BASE/../product-docs}"
+AGENT_PRODUCT_DOCS="$PRODUCT_DOCS_REPO/integrations/agent"
+
+[ -d $PRODUCT_DOCS_REPO ] || (echo "product-docs repo dir cannot be found at $PRODUCT_DOCS_REPO" && exit 1)
+
+mkdir -p $AGENT_PRODUCT_DOCS/{monitors,observers}
+
+for f in $(find $AGENT_REPO_BASE/docs -name "*.md"); do
+  pandoc -i $f \
+  --from gfm \
+  --standalone \
+  --reference-links \
+  --columns=500 \
+  -o $AGENT_PRODUCT_DOCS/$(echo $f | sed -e "s@${AGENT_REPO_BASE}/docs/@@" | sed 's/md/rst/')
+done
+
+pandoc -i $AGENT_REPO_BASE/README.md -o $AGENT_PRODUCT_DOCS/overview.rst --wrap none
+
+# Convert links from markdown to html
+find $AGENT_PRODUCT_DOCS -name "*.rst" | xargs sed -i '' -e 's/\.md[[:>:]]/.html/g' -e 's@\./docs/@./@g'

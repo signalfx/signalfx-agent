@@ -1,0 +1,43 @@
+<Plugin java>
+  <Plugin "GenericJMX">
+
+    {{range $name, $_ := .MBeanDefinitions}}
+    <MBean "{{$name}}">
+      ObjectName "{{.ObjectName}}"
+      {{with .InstancePrefix -}}
+      InstancePrefix "{{.}}"
+      {{end -}}
+      {{range .Values}}
+      <Value>
+        {{with .InstancePrefix -}}
+        InstancePrefix "{{.}}"
+        {{- end}}
+        Type "{{.Type}}"
+        Table {{withDefault .Table "false"}}
+        Attribute "{{.Attribute}}"
+      </Value>
+      {{end}}
+    </MBean>
+    {{end}}
+
+    <Connection>
+      {{with .ServiceURL}}
+      ServiceURL "{{renderValue . $}}"
+      {{- end}}
+      InstanceSuffix "{{.Name}}[monitorID={{.MonitorID}}]"
+      {{with .InstancePrefix -}}
+      InstancePrefix "{{.}}"
+      {{- end}}
+      ServiceName "{{.ServiceName}}"
+      {{with .Username -}}
+      User "{{.}}"
+      {{- end}}
+      {{- with .Password}}
+      Password "{{.}}"
+      {{- end}}
+      {{range .MBeansToCollect}}
+      Collect "{{.}}"
+      {{- end}}
+    </Connection>
+  </Plugin>
+</Plugin>

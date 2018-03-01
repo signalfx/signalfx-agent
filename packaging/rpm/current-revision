@@ -1,0 +1,22 @@
+#!/bin/bash
+
+# Gets the latest RPM package revision within the given agent version. Most
+# agent versions will only have one (implicit) RPM package revision, which is
+# revision #1.  If you create an annotated tag of the form "v<agent
+# version>-rpm<revision #>" (e.g. v2.0.0-rpm2), that will indicate that the RPM
+# package should have a new revision.
+
+set -euo pipefail
+
+agent_version=$1
+if test -z $agent_version
+then
+  echo "Usage: $0 agent_version" >&2
+  exit 1
+fi
+
+rpm_tag=$(git describe --abbrev=0 --tags --match "v${agent_version}-rpm*" 2>/dev/null || true)
+
+revision=$(echo -n $rpm_tag | sed -e "s/v${agent_version}-rpm//")
+
+echo -n ${revision:-"1"}

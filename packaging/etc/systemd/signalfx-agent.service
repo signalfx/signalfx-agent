@@ -1,0 +1,15 @@
+[Unit]
+Description=SignalFx Agent
+After=network.target
+
+[Service]
+ExecStart=/usr/bin/signalfx-agent
+Environment=SIGNALFX_BUNDLE_DIR=/usr/lib/signalfx-agent
+KillMode=process
+Restart=on-failure
+Type=simple
+User=signalfx-agent
+Group=signalfx-agent
+
+[Install]
+WantedBy=multi-user.target

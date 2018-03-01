@@ -1,0 +1,6 @@
+signalfx==1.0.16
+docker==3.0.1
+protobuf==3.5.1
+pytest==3.4.0
+pytest-xdist==1.22.0
+pyyaml

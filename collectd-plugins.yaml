@@ -12,7 +12,7 @@
   repo: signalfx/docker-collectd-plugin
 
 - name: elasticsearch
-  version: v1.3.2
+  version: v1.3.4
   repo: signalfx/collectd-elasticsearch
   can_remove:
     - tests
@@ -38,7 +38,7 @@
   repo: signalfx/collectd-marathon
 
 - name: mongodb
-  version: v1.1.3
+  version: v1.2.2
   repo: signalfx/collectd-mongodb
   pip_packages:
     - pymongo[tls]==3.3.1
@@ -57,7 +57,7 @@
     - redis.conf
 
 - name: signalfx
-  version: c913f2c66901456b07ef8ce3d174e4edb5a2d999
+  version: daf364c13397040deba27054949cd8f06498d810
   repo: signalfx/signalfx-collectd-plugin
 
 - name: spark

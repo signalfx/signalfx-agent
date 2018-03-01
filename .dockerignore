@@ -6,5 +6,7 @@ vendor/**
 tmp/**
 local-etc/**
 build/**
-monitors/**/template.go
-monitors/collectd/collectd.conf.go
+internal/monitors/**/template.go
+internal/monitors/collectd/collectd.conf.go
+packaging/*/output
+tests/**/__pycache__

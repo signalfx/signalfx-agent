@@ -1,0 +1,2 @@
+signalfx-agent/* /usr/lib/signalfx-agent
+agent.yaml /etc/signalfx/

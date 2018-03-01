@@ -1,0 +1,25 @@
+LoadPlugin "python"
+<Plugin "python">
+  ModulePath "{{ pluginRoot }}/spark"
+  Import "spark_plugin"
+
+  <Module spark_plugin>
+    MetricsURL "http://{{.Host}}"
+    {{if .IsMaster -}}
+    Master "http://{{.Host}}:{{.Port}}"
+    MasterPort {{.Port}}
+    {{else}}
+    WorkerPorts {{.Port}}
+    {{- end}}
+    Applications "{{if .CollectApplicationMetrics}}True{{else}}False{{end}}"
+    EnhancedMetrics "{{if .EnhancedMetrics}}True{{else}}False{{end}}"
+    {{range .MetricsToInclude}}
+    IncludeMetric {{.}}
+    {{- end}}
+    {{range .MetricsToExclude}}
+    ExcludeMetric {{.}}
+    {{- end}}
+    Cluster "{{.ClusterType}}"
+    Dimension "monitorID={{.MonitorID}}"
+  </Module>
+</Plugin>

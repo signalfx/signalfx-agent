@@ -144,12 +144,12 @@ COPY scripts/collect-libs /opt/collect-libs
 RUN /opt/collect-libs /opt/deps /usr/sbin/collectd /usr/lib/collectd/
 
 ###### Golang Dependencies Image ######
-FROM golang:1.9.2-stretch as godeps
+FROM golang:1.10.0-stretch as godeps
 
-RUN wget -O /usr/bin/dep https://github.com/golang/dep/releases/download/v0.3.2/dep-linux-amd64 &&\
+RUN wget -O /usr/bin/dep https://github.com/golang/dep/releases/download/v0.4.1/dep-linux-amd64 &&\
     chmod +x /usr/bin/dep
 
-WORKDIR /go/src/github.com/signalfx/neo-agent
+WORKDIR /go/src/github.com/signalfx/signalfx-agent
 COPY Gopkg.toml Gopkg.lock ./
 
 RUN dep ensure -vendor-only
@@ -160,35 +160,35 @@ RUN apt update && apt install -y parallel
 RUN cd vendor && find . -type d -not -empty | grep -v '\btest' | parallel go install {} 2>/dev/null || true
 
 
-###### Neoagent Build Image ########
+###### Agent Build Image ########
 FROM ubuntu:16.04 as agent-builder
 
 # Cgo requires dep libraries present
 RUN apt update &&\
     apt install -y curl wget pkg-config
 
-ENV GO_VERSION=1.9.2 PATH=$PATH:/usr/local/go/bin
+ENV GO_VERSION=1.10 PATH=$PATH:/usr/local/go/bin
 RUN cd /tmp &&\
     wget https://storage.googleapis.com/golang/go${GO_VERSION}.linux-amd64.tar.gz &&\
 	tar -C /usr/local -xf go*.tar.gz
 
-COPY --from=godeps /go/src/github.com/signalfx/neo-agent/vendor /go/src/github.com/signalfx/neo-agent/vendor
+COPY --from=godeps /go/src/github.com/signalfx/signalfx-agent/vendor /go/src/github.com/signalfx/signalfx-agent/vendor
 COPY --from=godeps /go/pkg /go/pkg
 COPY --from=collectd /usr/src/collectd/ /usr/src/collectd
 
-ARG agent_version
-
-# The agent source files are tarred up because otherwise we would have to have
-# a separate ADD/COPY layer for every top-level package dir.
-ADD scripts/go_packages.tar /go/src/github.com/signalfx/neo-agent/
-
 ENV GOPATH=/go
-WORKDIR /go/src/github.com/signalfx/neo-agent
+WORKDIR /go/src/github.com/signalfx/signalfx-agent
+
+COPY cmd/ ./cmd/
+COPY scripts/make-templates ./scripts/
+COPY scripts/collectd-template-to-go ./scripts/
+COPY Makefile .
+COPY internal/ ./internal/
+
+ARG agent_version="latest"
 
 RUN AGENT_VERSION=${agent_version} make signalfx-agent &&\
 	mv signalfx-agent /usr/bin/signalfx-agent
-	# compressing the binary causes segfaults when run in standalone mode
-	#/tmp/upx --lzma /usr/bin/signalfx-agent
 
 
 ###### Python Plugin Image ######
@@ -211,8 +211,8 @@ RUN apt install -y libffi-dev libssl-dev build-essential python-dev libcurl4-ope
 
 #RUN bash /opt/install-dd-plugin-deps.sh
 
-COPY neopy/requirements.txt /tmp/requirements.txt
-RUN pip install -r /tmp/requirements.txt
+#COPY neopy/requirements.txt /tmp/requirements.txt
+#RUN pip install -r /tmp/requirements.txt
 
 # Mirror the same dir structure that exists in the original source
 COPY scripts/get-collectd-plugins.sh /opt/scripts/
@@ -231,6 +231,7 @@ RUN apt update &&\
     apt install -y \
 	  host \
 	  netcat.openbsd \
+	  netcat \
 	  iproute2 \
 	  curl \
 	  vim
@@ -254,6 +255,7 @@ ENV useful_bins=" \
   /bin/ln \
   /bin/ls \
   /bin/mkdir \
+  /bin/nc \
   /bin/nc.openbsd \
   /bin/ps \
   /bin/rm \
@@ -304,9 +306,9 @@ COPY --from=python-plugins /usr/local/lib/python2.7/ /lib/python2.7
 
 COPY neopy /neopy
 
-RUN mkdir /run
-
-COPY scripts/agent-status /bin/agent-status
+RUN mkdir -p /run/collectd /var/run/ &&\
+    ln -s /var/run/signalfx-agent /run &&\
+    ln -s /bin/signalfx-agent /bin/agent-status
 
 COPY --from=agent-builder /usr/bin/signalfx-agent /bin/signalfx-agent
 
@@ -314,17 +316,6 @@ COPY --from=agent-builder /usr/bin/signalfx-agent /bin/signalfx-agent
 # relative paths to make it very easily relocated within the filesystem in
 # standalone.
 WORKDIR /
-
-###### Standalone Image Filesystem ########
-# This is an image almost identical to the normal one above except that it has
-# the runc binary and config for running the agent apart from docker (but still
-# using containers).  This image is meant to be dumped to a tar file and run
-# standalone.
-FROM scratch as standalone
-
-COPY --from=final-image / /bundle
-
-COPY scripts/standalone/run-agent /run-agent
 
 
 ####### Dev Image ########
@@ -337,26 +328,25 @@ COPY scripts/standalone/run-agent /run-agent
 FROM ubuntu:16.04 as dev-extras
 
 RUN apt update &&\
-    apt install -y libcurl4-openssl-dev &&\
     apt install -y \
-      autoconf \
-      automake \
-      autotools-dev \
-      bison \
-      build-essential \
-      flex \
+      curl \
       git \
       inotify-tools \
-      libtool \
-      pkg-config \
+      jq \
       python-pip \
-	  vim \
-	  curl \
-	  wget
+      python3-pip \
+      socat \
+      vim \
+      wget
+
+ENV SIGNALFX_BUNDLE_DIR=/bundle \
+    TEST_SERVICES_DIR=/go/src/github.com/signalfx/signalfx-agent/test-services \
+    AGENT_BIN=/go/src/github.com/signalfx/signalfx-agent/signalfx-agent
 
 RUN pip install ipython==5 ipdb
+RUN pip3 install ipython ipdb
 
-WORKDIR /go/src/github.com/signalfx/neo-agent
+WORKDIR /go/src/github.com/signalfx/signalfx-agent
 CMD ["/bin/bash"]
 ENV PATH=$PATH:/usr/local/go/bin:/go/bin GOPATH=/go
 
@@ -364,11 +354,64 @@ COPY --from=agent-builder /usr/local/go/ /usr/local/go
 COPY --from=godeps /usr/bin/dep /usr/bin/dep
 COPY --from=collectd /usr/src/collectd/ /usr/src/collectd
 
-RUN go get -u github.com/golang/lint/golint
-RUN go get github.com/derekparker/delve/cmd/dlv
+RUN curl -fsSL get.docker.com -o /tmp/get-docker.sh &&\
+    sh /tmp/get-docker.sh
 
-COPY --from=godeps /go/src/github.com/signalfx/neo-agent/vendor src/github.com/signalfx/neo-agent/vendor
-COPY --from=godeps /go/pkg /go/pkg
+RUN go get -u github.com/golang/lint/golint &&\
+    go get github.com/derekparker/delve/cmd/dlv &&\
+    go get github.com/tebeka/go2xunit
+
+# Get integration test deps in here
+COPY tests/requirements.txt /tmp/
+RUN pip3 install -r /tmp/requirements.txt
+RUN wget -O /usr/bin/gomplate https://github.com/hairyhenderson/gomplate/releases/download/v2.3.0/gomplate_linux-amd64-slim &&\
+    chmod +x /usr/bin/gomplate
+
+COPY --from=godeps /go/src/github.com/signalfx/signalfx-agent/vendor/ ./vendor/
+COPY --from=godeps /go/pkg/ /go/pkg/
+COPY --from=final-image /bin/signalfx-agent ./signalfx-agent
 
 COPY --from=final-image / /bundle/
-COPY scripts/standalone/run-agent /
+COPY ./ ./
+
+
+####### Debian Packager #######
+FROM debian:9 as debian-packager
+
+RUN apt update &&\
+    apt install -y dh-make devscripts dh-systemd apt-utils awscli
+
+ARG agent_version="latest"
+WORKDIR /opt/signalfx-agent_${agent_version}
+
+ENV DEBEMAIL="support+deb@signalfx.com" DEBFULLNAME="SignalFx, Inc."
+
+COPY packaging/deb/debian/ ./debian
+COPY packaging/etc/init.d/signalfx-agent ./debian/signalfx-agent.init
+COPY packaging/etc/systemd/signalfx-agent.service ./debian/signalfx-agent.service
+COPY packaging/etc/systemd/signalfx-agent.tmpfile ./debian/signalfx-agent.tmpfile
+COPY packaging/etc/upstart/signalfx-agent.conf ./debian/signalfx-agent.upstart
+COPY packaging/etc/logrotate.d/signalfx-agent.conf ./debian/signalfx-agent.logrotate
+COPY packaging/deb/make-changelog ./make-changelog
+COPY packaging/deb/add-output-to-repo ./add-output-to-repo
+COPY packaging/deb/devscripts.conf /etc/devscripts.conf
+
+COPY packaging/etc/agent.yaml ./agent.yaml
+
+COPY --from=final-image / ./signalfx-agent/
+
+
+###### RPM Packager #######
+FROM fedora:27 as rpm-packager
+
+RUN yum install -y rpmdevtools createrepo rpm-sign awscli
+
+WORKDIR /root/rpmbuild
+
+COPY packaging/etc/agent.yaml ./SOURCES/agent.yaml
+COPY packaging/etc/upstart/signalfx-agent.conf ./SOURCES/signalfx-agent.upstart
+COPY packaging/etc/systemd/ ./SOURCES/systemd/
+COPY packaging/rpm/signalfx-agent.spec ./SPECS/signalfx-agent.spec
+COPY packaging/rpm/add-output-to-repo ./add-output-to-repo
+
+COPY --from=final-image / ./SOURCES/signalfx-agent/

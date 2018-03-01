@@ -1,0 +1,33 @@
+LoadPlugin "python"
+TypesDB "{{ pluginRoot }}/signalfx/types.db.plugin"
+<Plugin python>
+  ModulePath "{{ pluginRoot }}/signalfx/src"
+  LogTraces true
+  Interactive false
+
+  Import "signalfx_metadata"
+  <Module signalfx_metadata>
+  {{with .IntervalSeconds -}}
+    Interval {{.}}
+  {{- end}}
+    Notifications true
+    URL "{{.WriteServerURL}}?monitorID={{.MonitorID}}"
+    Token "unnecessary"
+    NotifyLevel "OKAY"
+    ProcPath "{{ .ProcFSPath }}"
+    EtcPath "{{ .EtcPath }}"
+    PersistencePath "{{ .PersistencePath }}"
+  </Module>
+</Plugin>
+
+
+<Chain "PostCache"> 
+  <Rule "set_metadata_monitor_id"> 
+    <Match "regex"> 
+      Plugin "^signalfx-metadata$" 
+    </Match> 
+    <Target "set"> 
+      MetaData "monitorID" "{{.MonitorID}}" 
+    </Target> 
+  </Rule> 
+</Chain>
