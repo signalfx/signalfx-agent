@@ -322,6 +322,12 @@
   version = "v0.8.1"
 
 [[projects]]
+  branch = "master"
+  name = "github.com/iancoleman/strcase"
+  packages = ["."]
+  revision = "3de563c3dc08a7504131e9d63f678b7d1c3e85d7"
+
+[[projects]]
   name = "github.com/json-iterator/go"
   packages = ["."]
   revision = "28452fcdec4e44348d2af0d91d1e9e38da3a9e0a"
@@ -822,6 +828,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "0978045d6f48727cc48dfd40dfc708e36738faa34c5664bf93ff2d0e538149ad"
+  inputs-digest = "134f2494db15f9c695b3c0294f819534f7870b131cc20d5e717b6c6d9156861d"
   solver-name = "gps-cdcl"
   solver-version = 1

@@ -8,6 +8,7 @@ import (
 	log "github.com/sirupsen/logrus"
 
 	"github.com/Knetic/govaluate"
+	"github.com/iancoleman/strcase"
 )
 
 var ruleFunctions = map[string]govaluate.ExpressionFunction{
@@ -74,7 +75,7 @@ func DoesServiceMatchRule(si Endpoint, ruleText string) bool {
 		}).Error("Could not parse discovery rule")
 	}
 
-	asMap := EndpointAsMap(si)
+	asMap := duplicateKeysAsCamelCase(EndpointAsMap(si))
 	if err := endpointMapHasAllVars(asMap, rule.Vars()); err != nil {
 		log.WithFields(log.Fields{
 			"discoveryRule":   rule.String(),
@@ -112,6 +113,15 @@ func DoesServiceMatchRule(si Endpoint, ruleText string) bool {
 	}).Debug("Rule evaluated")
 
 	return exprVal
+}
+
+func duplicateKeysAsCamelCase(m map[string]interface{}) map[string]interface{} {
+	out := make(map[string]interface{})
+	for k, v := range m {
+		out[k] = v
+		out[strcase.ToLowerCamel(k)] = v
+	}
+	return out
 }
 
 // ValidateDiscoveryRule takes a discovery rule string and returns false if it
