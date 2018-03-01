@@ -97,9 +97,18 @@ yum install -y signalfx-agent
 
 #### Standalone tar.gz
 For Linux distros without a supported package, we offer the agent bundle as a
-.tar.gz that can be deployed to the target host.
+.tar.gz that can be deployed to the target host.  This bundle is available for
+download on the [Github Releases
+Page](https://github.com/signalfx/signalfx-agent/releases) for each new
+release.
 
-INSTRUCTIONS ON HOW TO GET
+To use the bundle, simply 
+
+1) Unarchive it to any directory on the target system you like
+2) Ensure a valid configuration file is available somewhere on the target
+system
+3) Run the agent by invoking `signalfx-agent/bin/signalfx-agent -config <path
+to config.yaml>`.
 
 ### Deployment Tools
 We support the following deployment/configuration management tools to automate the
@@ -120,7 +129,9 @@ We also offer a Puppet manifest to install and configure the agent.  See [the
 manifest source](./deployments/puppet) and INSERT MORE.
 
 #### Kubernetes
-
+See our [Kubernetes Quickstart
+Guide](https://docs.signalfx.com/en/latest/integrations/kubernetes-quickstart.html)
+for more information.
 
 ### Privileges
 
@@ -131,9 +142,9 @@ capabilities](http://man7.org/linux/man-pages/man7/capabilities.7.html)
 agent to determine which processes are listening on network ports on the host.
 Otherwise, there is nothing built into the agent that requires privileges.
 When using a package to install the agent, the agent binary is given those
-capabilities in the package post-install script, but then run as the
+capabilities in the package post-install script, but the agent is run as the
 `signalfx-agent` user.  If you are not using the `host` observer, then you can
-remove those capabilities from the agent binary if so desired.
+strip those capabilities from the agent binary if so desired.
 
 You should generally not run the agent as `root` unless you can't use
 capabilities for some reason.

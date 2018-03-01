@@ -13,7 +13,7 @@ container-based observer, you could use the following configuration:
 ```yaml
   monitors:
     - type: collectd/redis
-      discoveryRule: containerImage =~ "redis" && port == 6379
+      discoveryRule: container_image =~ "redis" && port == 6379
 ```
 
 ## Rule DSL
@@ -40,11 +40,14 @@ documentation](https://github.com/Knetic/govaluate/blob/master/MANUAL.md) for
 all available operators.
 
 The variables available in the expression are dependent on what observer you
-are using.  The following two variables are common to all observers:
+are using.  The following three variables are common to all observers:
 
  - `host` (string): The hostname or IP address of the discovered endpoint
  - `port` (integer): The port number of the discovered endpoint
- - `portType` (`UDP` or `TCP`): Whether the port is TCP or UDP
+ - `port_type` (`UDP` or `TCP`): Whether the port is TCP or UDP
+
+**See [Observers](./observer-config.md) for a list of observers and what
+discovery rule variables they provide.**
 
 In addition, these extra functions are provided:
 
@@ -55,14 +58,20 @@ There are no implicit rules built into the agent, so each must be specified
 manually in the config file in conjunction with monitor that should monitor the
 discovered service.
 
+## Troubleshooting
+
+The simplest way to see what services an instance of the agent has discovered,
+along with the variables that can be matched against this service, is to run
+the command `signalfx-agent status`.  Near the end of this output will be a
+list of discovered endpoints that the agent knows about.
 
 ## Manually Defined Services
 
 While service discovery is useful, sometimes it is just easier to manually
 define services to monitor.  This can be done by setting the `host` and
 `port` option in a monitor's config to the host/port that you need to
-monitor.  These two values are what the auto discovery mechanism provides for
-you automatically.
+monitor.  These two values are the core of what the auto discovery mechanism
+provides for you automatically.
 
 For example (making use of YAML references to reduce repetition):
 

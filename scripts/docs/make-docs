@@ -1,12 +1,12 @@
 #!/bin/bash
 
-set -euxo pipefail
+set -euo pipefail
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 . $SCRIPT_DIR/../code-gen-helpers.sh
 
-json_file="/tmp/agent.json"
+#json_file="/tmp/agent.json"
 
 ensure_description_json
 

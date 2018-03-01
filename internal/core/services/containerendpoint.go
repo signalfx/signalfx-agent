@@ -56,6 +56,13 @@ func (ce *ContainerEndpoint) DerivedFields() map[string]interface{} {
 		})
 }
 
+// CONTAINER_DIMENSION(container_name): The primary name of the running
+// container -- Docker containers can have multiple names but this will be the
+// first name, if any.
+
+// CONTAINER_DIMENSION(container_image): The image name (including tags) of the
+// running container
+
 // Dimensions returns the dimensions associated with this endpoint
 func (ce *ContainerEndpoint) Dimensions() map[string]string {
 	return utils.MergeStringMaps(

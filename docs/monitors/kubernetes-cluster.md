@@ -61,21 +61,21 @@ cause only a subset of metrics to be emitted.
 
 | Name | Type | Description |
 | ---  | ---  | ---         |
+| `kubernetes_node_ready` | gauge | Whether this node is ready (1), not ready (0) or in an unknown state (-1) |
+| `kubernetes.daemon_set.current_scheduled` | gauge | The number of nodes that are running at least 1 daemon pod and are supposed to run the daemon pod |
+| `kubernetes.daemon_set.desired_scheduled` | gauge | The total number of nodes that should be running the daemon pod (including nodes currently running the daemon pod) |
+| `kubernetes.daemon_set.misscheduled` | gauge | The number of nodes that are running the daemon pod, but are not supposed to run the daemon pod |
+| `kubernetes.daemon_set.ready` | gauge | The number of nodes that should be running the daemon pod and have one or more of the daemon pod running and ready |
+| `kubernetes.replication_controller.available` | gauge | Total number of available pods (ready for at least minReadySeconds) targeted by this replication controller. |
+| `kubernetes.replication_controller.desired` | gauge | Number of desired pods |
 | `kubernetes.container_restart_count` | gauge | How many times the container has restarted (capped at 5 due to K8s GC) |
 | `kubernetes.pod_phase` | gauge | Current phase of the pod (1 - Pending, 2 - Running, 3 - Succeeded, 4 - Failed, 5 - Unknown) |
 | `kubernetes.container_ready` | gauge | Whether a container has passed its readiness probe (0 for no, 1 for yes) |
 | `kubernetes.namespace_phase` | gauge | The current phase of namespaces (`1` for _active_ and `0` for _terminating_) |
 | `kubernetes.replica_set.available` | gauge | Total number of available pods (ready for at least minReadySeconds) targeted by this replica set |
 | `kubernetes.replica_set.desired` | gauge | Number of desired pods in this replica set |
-| `kubernetes.daemon_set.current_scheduled` | gauge | The number of nodes that are running at least 1 daemon pod and are supposed to run the daemon pod |
-| `kubernetes.daemon_set.desired_scheduled` | gauge | The total number of nodes that should be running the daemon pod (including nodes currently running the daemon pod) |
-| `kubernetes.daemon_set.misscheduled` | gauge | The number of nodes that are running the daemon pod, but are not supposed to run the daemon pod |
-| `kubernetes.daemon_set.ready` | gauge | The number of nodes that should be running the daemon pod and have one or more of the daemon pod running and ready |
 | `kubernetes.deployment.available` | gauge | Total number of available pods (ready for at least minReadySeconds) targeted by this deployment. |
 | `kubernetes.deployment.desired` | gauge | Number of desired pods in this deployment |
-| `kubernetes.replication_controller.available` | gauge | Total number of available pods (ready for at least minReadySeconds) targeted by this replication controller. |
-| `kubernetes.replication_controller.desired` | gauge | Number of desired pods |
-| `kubernetes_node_ready` | gauge | Whether this node is ready (1), not ready (0) or in an unknown state (-1) |
 
 ## Dimensions
 
@@ -98,8 +98,8 @@ are set on the dimension values of the dimension specified.
 
 | Name | Dimension | Description |
 | ---  | ---       | ---         |
-| `<pod label>` | `kubernetes_pod_uid` | Any labels with non-blank values on the pod will be synced as properties to the `kubernetes_pod_uid` dimension. Any blank labels will be synced as tags on that same dimension. |
 | `<node label>` | `machine_id` | All non-blank labels on a given node will be synced as properties to the `machine_id` dimension value for that node. Any blank values will be synced as tags on that same dimension. |
+| `<pod label>` | `kubernetes_pod_uid` | Any labels with non-blank values on the pod will be synced as properties to the `kubernetes_pod_uid` dimension. Any blank labels will be synced as tags on that same dimension. |
 
 
 

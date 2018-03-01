@@ -49,10 +49,12 @@ func observersStructMetadata() []observerMetadata {
 
 			allDocs := nestedPackageDocs(path)
 
+			dims := dimensionsFromNotesAndServicesPackage(allDocs)
+
 			mmd := observerMetadata{
 				structMetadata:    getStructMetadata(t),
 				ObserverType:      obsType,
-				Dimensions:        dimensionsFromNotes(allDocs),
+				Dimensions:        dims,
 				EndpointVariables: endpointVariables(allDocs),
 			}
 			mmd.Doc = obsDoc
@@ -83,22 +85,46 @@ func observerDocsInPackage(pkgDoc *doc.Package) map[string]string {
 	return out
 }
 
-func endpointVariables(obsDocs []*doc.Package) []endpointVar {
-	servicesDocs := nestedPackageDocs("internal/core/services")
+func dimensionsFromNotesAndServicesPackage(allDocs []*doc.Package) []dimMetadata {
+	var containerDims []dimMetadata
+	if isContainerObserver(allDocs) {
+		servicesDocs := nestedPackageDocs("internal/core/services")
+		for _, note := range notesFromDocs(servicesDocs, "CONTAINER_DIMENSION") {
+			containerDims = append(containerDims, dimMetadata{
+				Name:        note.UID,
+				Description: commentTextToParagraphs(note.Body),
+			})
+		}
+	}
+
+	return append(
+		dimensionsFromNotes(allDocs),
+		containerDims...)
+}
+
+func isContainerObserver(obsDocs []*doc.Package) bool {
 	obsEndpointTypes := notesFromDocs(obsDocs, "ENDPOINT_TYPE")
 
-	var eType reflect.Type
-	var includeContainerVars bool
 	if len(obsEndpointTypes) > 0 && obsEndpointTypes[0].UID == "ContainerEndpoint" {
+		return true
+	}
+	return false
+}
+
+func endpointVariables(obsDocs []*doc.Package) []endpointVar {
+	servicesDocs := nestedPackageDocs("internal/core/services")
+
+	var eType reflect.Type
+	isForContainers := isContainerObserver(obsDocs)
+	if isForContainers {
 		eType = reflect.TypeOf(services.ContainerEndpoint{})
-		includeContainerVars = true
 	} else {
 		eType = reflect.TypeOf(services.EndpointCore{})
 	}
 	sm := getStructMetadata(eType)
 
 	return append(
-		endpointVariablesFromNotes(append(obsDocs, servicesDocs...), includeContainerVars),
+		endpointVariablesFromNotes(append(obsDocs, servicesDocs...), isForContainers),
 		endpointVarsFromStructMetadataFields(sm.Fields)...)
 }
 

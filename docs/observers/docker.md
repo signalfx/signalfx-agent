@@ -16,6 +16,7 @@ Observer Type: `docker`
 | Config option | Required | Type | Description |
 | --- | --- | --- | --- |
 | `dockerURL` | no | `string` |  (**default:** `unix:///var/run/docker.sock`) |
+| `pollIntervalSeconds` | no | `integer` | How often to poll the docker API (**default:** `10`) |
 
 
 
@@ -47,5 +48,16 @@ can be used in discovery rules.
 | `container_labels` | `map of string` | A map that contains container label key/value pairs.  You can use the `Contains` and `Get` helper functions in discovery rules to make use of this. |
 | `orchestrator` | `integer` |  |
 | `port_labels` | `map of string` | A map of labels on the container port |
+
+## Dimensions
+
+These dimensions are added to all metrics that are emitted for this service
+endpoint.  These variables are also available to use as variables in discovery
+rules.
+
+| Name | Description |
+| ---  | ---         |
+| `container_name` | The primary name of the running container -- Docker containers can have multiple names but this will be the first name, if any. |
+| `container_image` | The image name (including tags) of the running container |
 
 
