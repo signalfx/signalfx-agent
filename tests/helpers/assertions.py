@@ -1,3 +1,6 @@
+import re
+
+
 def has_datapoint_with_metric_name(fake_services, metric_name):
     for dp in fake_services.datapoints:
         if dp.metric == metric_name:
@@ -23,3 +26,12 @@ def container_cmd_exit_0(container, command):
 def text_is_in_stream(stream, text):
     return text.encode("utf-8") in b"".join(stream.readlines())
 
+
+def has_log_message(output, level="info", message=""):
+    for l in output.splitlines():
+        m = re.search(r'(?<=level=)\w+', l)
+        if m is None:
+            continue
+        if level == m.group(0) and message in l:
+            return True
+    return False

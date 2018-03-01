@@ -43,7 +43,7 @@ type Config struct {
 	config.ObserverConfig
 	DockerURL string `yaml:"dockerURL" default:"unix:///var/run/docker.sock"`
 	// How often to poll the docker API
-	PollIntervalSeconds int `default:"10"`
+	PollIntervalSeconds int `yaml:"pollIntervalSeconds" default:"10"`
 }
 
 // Validate the docker-specific config
