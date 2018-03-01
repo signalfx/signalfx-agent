@@ -11,7 +11,7 @@ func Dimensions(sendMachineID bool) map[string]string {
 	awsRes := callConcurrent(AWSUniqueID)
 	gcpRes := callConcurrent(GoogleComputeID)
 	machineIDRes := callConcurrent(MachineID)
-	azureRes := callConcurrent(AzureVMID)
+	azureRes := callConcurrent(AzureUniqueID)
 
 	dims := make(map[string]string)
 	insertNextChanValue(dims, "AWSUniqueId", awsRes)
