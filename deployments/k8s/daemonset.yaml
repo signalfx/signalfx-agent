@@ -1,15 +1,18 @@
 ---
+# Source: signalfx-agent/templates/daemonset.yaml
 apiVersion: extensions/v1beta1
 kind: DaemonSet
 metadata:
   name: signalfx-agent
   labels:
-      app: signalfx-agent
-      version: 2.2.3
+    app: signalfx-agent
+    version: 3.0.0
+
 spec:
   selector:
     matchLabels:
       app: signalfx-agent
+
   updateStrategy:
     rollingUpdate:
       maxUnavailable: "100%"
@@ -18,14 +21,15 @@ spec:
     metadata:
       labels:
         app: signalfx-agent
-        version: 2.2.3
+        version: 3.0.0
+
 
     spec:
       # Use host network so we can access kubelet directly
       hostNetwork: true
       restartPolicy: Always
       serviceAccountName: "signalfx-agent"
-      imagePullPolicy: IfNotPresent
+
       tolerations:
       - effect: NoSchedule
         key: node.alpha.kubernetes.io/role
@@ -33,16 +37,18 @@ spec:
       - effect: NoSchedule
         key: node-role.kubernetes.io/master
         operator: Exists
+
       containers:
       - name: signalfx-agent
-        image: "quay.io/signalfx/signalfx-agent:2.2.3"
+        image: "quay.io/signalfx/signalfx-agent:3.0.0"
+        imagePullPolicy: IfNotPresent
         command:
         - /bin/signalfx-agent
-        - -config
-        - /mnt/config/agent.yaml
         volumeMounts:
-        - mountPath: /mnt/config
+        - mountPath: /etc/signalfx
           name: config
+        - mountPath: /etc/machine-id
+          name: machine-id
         - mountPath: /hostfs
           name: hostfs
           readOnly: true
@@ -53,7 +59,7 @@ spec:
         - name: SFX_ACCESS_TOKEN
           valueFrom:
             secretKeyRef:
-              name: signalfx
+              name: signalfx-agent
               key: access-token
         - name: MY_POD_NAME
           valueFrom:
@@ -79,4 +85,7 @@ spec:
       - name: docker
         hostPath:
           path: /var/run/docker.sock
+      - name: machine-id
+        hostPath:
+          path: /etc/machine-id
 

@@ -1,0 +1,19 @@
+#!/bin/bash
+
+set -euxo pipefail
+
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+[ -z ${AGENT_CHART_DIR-} ] && echo 'Please set $AGENT_CHART_DIR' && exit 1
+
+templates="configmap.yaml daemonset.yaml clusterrole.yaml clusterrolebinding.yaml serviceaccount.yaml"
+for f in $templates; do
+  helm template \
+    --set signalFxAccessToken=MY_TOKEN \
+    --set clusterName=MY-CLUSTER \
+    --set fullnameOverride=signalfx-agent \
+    --set agentVersion=$($SCRIPT_DIR/../../scripts/latest-release) \
+    -x ${AGENT_CHART_DIR%/}/templates/$f \
+    $AGENT_CHART_DIR | sed -e 's/[[:space:]]*$//' > $SCRIPT_DIR/$f
+  echo "Wrote resource $f"
+done

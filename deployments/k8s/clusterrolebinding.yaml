@@ -1,10 +1,12 @@
 ---
+# Source: signalfx-agent/templates/clusterrolebinding.yaml
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
   name: signalfx-agent
   labels:
-      app: signalfx-agent
+    app: signalfx-agent
+
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
@@ -12,4 +14,4 @@ roleRef:
 subjects:
 - kind: ServiceAccount
   name: "signalfx-agent"
-  namespace: default
+  namespace: signalfx-agent

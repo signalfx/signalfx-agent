@@ -1,14 +1,17 @@
 ---
+# Source: signalfx-agent/templates/clusterrole.yaml
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
   name: signalfx-agent
   labels:
-      app: signalfx-agent
+    app: signalfx-agent
+
 rules:
 - apiGroups:
   - ""
   resources:
+  - events
   - namespaces
   - namespaces/status
   - nodes
@@ -25,6 +28,14 @@ rules:
   - get
   - list
   - watch
+- apiGroups:
+  - ""
+  resources:
+  - configmaps
+  verbs:
+  - get
+  - update
+  - create
 - apiGroups:
   - ""
   resources:

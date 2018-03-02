@@ -1,17 +1,25 @@
 ---
+# Source: signalfx-agent/templates/configmap.yaml
 apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: signalfx-agent
+  labels:
+    app: signalfx-agent
+
 data:
   agent.yaml: |
     signalFxAccessToken: ${SFX_ACCESS_TOKEN}
 
     intervalSeconds: 15
-    procFSPath: /hostfs/proc
 
     logging:
       level: info
 
     globalDimensions:
-      kubernetes_cluster: 'CLUSTER_NAME'
+      kubernetes_cluster: MY-CLUSTER
+
+    sendMachineID: true
 
     observers:
     - type: k8s-api
@@ -20,12 +28,16 @@ data:
     - type: collectd/cpu
     - type: collectd/cpufreq
     - type: collectd/df
+      hostFSPath: /hostfs
     - type: collectd/disk
     - type: collectd/interface
     - type: collectd/load
     - type: collectd/memory
     - type: collectd/protocols
     - type: collectd/signalfx-metadata
+      procFSPath: /hostfs/proc
+      etcPath: /hostfs/etc
+      persistencePath: /run
     - type: collectd/uptime
     - type: collectd/vmem
 
@@ -118,6 +130,7 @@ data:
       discoveryRule: container_image =~ "zookeeper" && private_port == 2181
 
 
+
     collectd:
       readThreads: 5
       writeQueueLimitHigh: 500000
@@ -149,8 +162,3 @@ data:
         - "pod_network_transmit_packets_total"
         - "pod_network_transmit_packets_dropped_total"
         - "machine_cpu_frequency_khz"
-kind: ConfigMap
-metadata:
-  name: signalfx-agent
-  labels:
-    app: signalfx-agent
