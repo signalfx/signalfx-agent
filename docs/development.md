@@ -2,22 +2,59 @@
 
 The agent is built from a single multi-stage Dockerfile. This requires Docker
 17.06+.  There is a dev image that can be built for more convenient local
-development. Run `make dev-image` to build it and `make run-dev-image` to run
-it and attach to a shell inside of it.  Inside this dev image, the agent bundle
-is at `/bundle` and the rest of the image contains useful tools for
-development, such as a golang build environment.
+development. To use it first do the following:
+
+```sh
+$ make dev-image
+$ # The build will take a while...
+$ scripts/prime-vendor-dir  # Copy out the vendor dir from the dev image
+$ mkdir local-etc && cp packaging/etc/agent.yaml local-etc/  # Get a basic operating config file in place
+$ make run-dev-image
+```
+
+If all went well, you will now be attached to a shell inside of the dev image
+at the Go package dir where you can compile and run the agent.
+
+Inside this image the agent "bundle" (which basically means collectd and all of
+its dependencies) is at `/bundle`, and the rest of the dev image contains
+useful tools for development, such as a golang build environment.
 
 Within this image, you can build the agent with `make signalfx-agent` and then
 run the agent with `./signalfx-agent`.  The code directory will be mounted in
 the container at the right place in the Go path so that it can be built with no
 extra setup.  There is also an environment variable `SIGNALFX_BUNDLE_DIR` set
-to `/bundle` so that the agent knows where to find the bundle when run.
+to `/bundle` so that the agent knows where to find the bundle when run.  The
+agent binary itself is statically compiled, so it has no external library
+dependencies once built.
 
 You can put agent config in the `local-etc` dir of this repo and it will be
 shared into the container at the default place that the agent looks for config
-(`/etc/signalfx`).
+(`/etc/signalfx`).  The `local-etc` dir is ignored by git.
 
-## Trivial Commits
+## Making the Final Docker Image
+To make the final Docker image without all of the development tools, just run
+`make image` (either in or outside of the dev image) and it will make a new
+agent image with the name `quay.io/signalfx/signalfx-agent-dev:<agent
+version>`.  The agent version will be automatically determined from the git
+repo status, but can be overridden with the `AGENT_VERSION` envvar.  The image
+name itself can be overridden with the `AGENT_IMAGE_NAME` envvar.
+
+## Making the Standalone Bundle
+To make the standalone `.tar.gz` bundle, simply run `make bundle` (either in or
+outside of the dev image).  It will dump a file with the name
+`signalfx-agent-<agent version>.tar.gz` in the current directory.  You can
+override the agent version used with the `AGENT_VERSION` envvar, otherwise it
+will be automatically inferred from the git repo.
+
+## Contributing
+If you are a SignalFx employee you should make commits to a branch off of the
+main code repository at https://github.com/signalfx/signalfx-agent and make a
+pull request back to the master branch.  If you are not an employee, simply
+fork that repository and make pull requests back to our repo's master branch.
+We welcome any enhancements you might have -- we will try to respond to all
+issues and pull requests quickly.
+
+### Trivial Commits
 If you have a very simple commit that should not require a full CI run, just
 put the text `[skip ci]` in the commit message somewhere and CircleCI will not
 run for that commit.

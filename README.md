@@ -96,19 +96,51 @@ yum install -y signalfx-agent
 ```
 
 #### Standalone tar.gz
-For Linux distros without a supported package, we offer the agent bundle as a
+If you don't want to use a distro package, we offer the agent bundle as a
 .tar.gz that can be deployed to the target host.  This bundle is available for
 download on the [Github Releases
 Page](https://github.com/signalfx/signalfx-agent/releases) for each new
 release.
 
-To use the bundle, simply 
+To use the bundle:
 
-1) Unarchive it to any directory on the target system you like
+1) Unarchive it to any directory on the target system you like.
+
 2) Ensure a valid configuration file is available somewhere on the target
-system
-3) Run the agent by invoking `signalfx-agent/bin/signalfx-agent -config <path
-to config.yaml>`.
+system.  The main thing that the distro packages provide -- but that you will
+have to provide manually with the bundle -- is a run directory for the agent to
+use.  There are three config options that you will especially want to consider
+since you aren't installing from a package:
+
+ - `diagnosticsSocketPath` - This is the full path to a UNIX domain socket that
+	 the agent will listen on so that the `signalfx-agent status` command can
+	 read diagnostic information from a running agent.  It can be blank if you
+	 don't desire that functionality.
+
+ - `internalMetricsSocketPath` - This is the full path to a UNIX domain socket
+	 that the agent will listen on for requests from the
+	 [internal-metrics](./docs/monitors/internal-metrics.md) monitor to gather
+	 internal metrics about the agent.  It can also be blank to disable this
+	 socket.
+
+ - `collectd.configDir` - This is where the agent writes the managed collectd
+	 config since collectd can only be configured by files.  Note that this
+	 entire dir will be **wiped by the agent upon startup** so that it doesn't
+	 pick up stale collectd config, so be sure that it is not used for anything
+	 else.  Also note that these files could have **sensitive information in
+	 them** if you have passwords configured for collectd monitors, so you
+	 might want to place this dir on a `tmpfs` mount to avoid credentials being
+	 persisted on disk.
+
+See the section on [Privileges](#privileges) for information on what
+capabilities the agent needs.
+
+3) Run the agent by invoking the archive path
+`signalfx-agent/bin/signalfx-agent -config <path to config.yaml>`.  The agent
+logs only to stdout/err so it is up to you to direct that to a log file or
+other log management system if you wish to persist logs.  See the
+[signalfx-agent command](./docs/signalfx-agent.1.md) doc for more information on
+supported command flags.
 
 ### Deployment Tools
 We support the following deployment/configuration management tools to automate the
@@ -126,7 +158,7 @@ source](./deployments/chef) and INSERT URL TO SUPERMARKET.
 
 #### Puppet
 We also offer a Puppet manifest to install and configure the agent.  See [the
-manifest source](./deployments/puppet) and INSERT MORE.
+manifest source](./deployments/puppet) and INSERT THE PUPPET FORGE LINK.
 
 #### Kubernetes
 See our [Kubernetes Quickstart
@@ -150,8 +182,8 @@ You should generally not run the agent as `root` unless you can't use
 capabilities for some reason.
 
 ## Logging
-Currently the agent only supports logging to stdout, which will generally be
-redirected by the init scripts we provide to either a file at
+Currently the agent only supports logging to stdout/stderr, which will
+generally be redirected by the init scripts we provide to either a file at
 `/var/log/signalfx-agent.log` or to the systemd journal on newer distros. The
 default log level is `info`, which will log anything noteworthy in the agent
 without spamming the logs too much.  Most of the `info` level logs are on
@@ -167,10 +199,10 @@ SignalFx ingest and API servers both use HTTPS.  The agent will automatically
 manipulate the `NO_PROXY` envvar to not use the proxy for local services.
 
 ## Diagnostics
-The agent serves diagnostic information on a unix domain socket at
-`/var/run/signalfx.sock`.  The socket takes no input, but simply dumps it's
-current status back upon connection.  The command `signalfx-agent status` (or
-the special symlink `agent-status`) will read this socket and dump out its
+The agent serves diagnostic information on a UNIX domain socket at the path
+configured by the `diagnosticsSocketPath` option.  The socket takes no input,
+but simply dumps it's current status back upon connection.  As a convenience,
+the command `signalfx-agent status` will read this socket and dump out its
 contents.
 
 ## Development
