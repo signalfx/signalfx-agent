@@ -15,6 +15,7 @@ import (
 	fqdn "github.com/ShowMax/go-fqdn"
 	"github.com/mitchellh/hashstructure"
 	"github.com/pkg/errors"
+	"github.com/signalfx/signalfx-agent/internal/core/config/sources"
 	"github.com/signalfx/signalfx-agent/internal/core/filters"
 	"github.com/signalfx/signalfx-agent/internal/utils"
 	log "github.com/sirupsen/logrus"
@@ -54,7 +55,10 @@ type Config struct {
 	Collectd CollectdConfig `yaml:"collectd" default:"{}"`
 	// A list of metric filters
 	MetricsToExclude []MetricFilter `yaml:"metricsToExclude" default:"[]"`
-	PythonEnabled    bool           `yaml:"pythonEnabled" default:"false"`
+	// (**NOT FUNCTIONAL**) Whether to enable the Python sub-agent ("neopy")
+	// that can directly use DataDog and Collectd Python plugins.  This is not
+	// the same as Collectd's Python plugin, which is always enabled.
+	PythonEnabled bool `yaml:"pythonEnabled" default:"false"`
 	// The path where the agent will create its diagnostic output UNIX socket
 	DiagnosticsSocketPath string `yaml:"diagnosticsSocketPath" default:"/var/run/signalfx-agent/diagnostics.sock"`
 	// The path where the agent will create a socket that serves internal
@@ -70,9 +74,8 @@ type Config struct {
 	// This exists purely to give the user a place to put common yaml values to
 	// reference in other parts of the config file.
 	Scratch interface{} `yaml:"scratch" neverLog:"omit"`
-	// Sources is used by the dynamic value renderer at an earlier stage of
-	// config file processing and so is not needed here.
-	Sources interface{} `yaml:"configSources" neverLog:"omit"`
+	// Configuration of remote config stores
+	Sources sources.SourceConfig `yaml:"configSources"`
 }
 
 func (c *Config) setDefaultHostname() {

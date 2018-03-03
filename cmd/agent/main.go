@@ -8,7 +8,6 @@ import (
 	"os/signal"
 	"strings"
 	"syscall"
-	"time"
 
 	log "github.com/sirupsen/logrus"
 
@@ -78,8 +77,6 @@ func runAgent() {
 	version := set.Bool("version", false, "print agent version")
 	configPath := set.String("config", defaultConfigPath, "agent config path")
 	debug := set.Bool("debug", false, "print debugging output")
-	watchDuration := set.Duration("filePollRate", 5*time.Second,
-		"Set to 0 to disable config file watch, see https://golang.org/pkg/time/#ParseDuration for acceptable values")
 
 	core.VersionLine = fmt.Sprintf("agent-version: %s, built-time: %s\n",
 		Version, BuiltTime)
@@ -87,6 +84,11 @@ func runAgent() {
 	// The set is configured to exit on errors so we don't need to check the
 	// return value here.
 	set.Parse(os.Args[1:])
+	if len(set.Args()) > 0 {
+		os.Stderr.WriteString("Non-flag parameters are not accepted\n")
+		set.Usage()
+		os.Exit(2)
+	}
 	fixGlogFlags()
 
 	if *debug {
@@ -103,7 +105,7 @@ func runAgent() {
 	var shutdown context.CancelFunc
 	var shutdownComplete <-chan struct{}
 	init := func() {
-		shutdown, shutdownComplete = core.Startup(*configPath, *watchDuration)
+		shutdown, shutdownComplete = core.Startup(*configPath)
 	}
 
 	init()

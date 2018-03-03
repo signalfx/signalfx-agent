@@ -4,8 +4,8 @@ package core
 
 import (
 	"context"
+	"errors"
 	"os"
-	"time"
 
 	log "github.com/sirupsen/logrus"
 
@@ -116,12 +116,12 @@ func (a *Agent) shutdown() {
 // Startup the agent.  Returns a function that can be called to shutdown the
 // agent, as well as a channel that will be notified when the agent has
 // shutdown.
-func Startup(configPath string, watchDuration time.Duration) (context.CancelFunc, <-chan struct{}) {
+func Startup(configPath string) (context.CancelFunc, <-chan struct{}) {
 	log.Info("Starting up agent")
 
 	cwc, cancel := context.WithCancel(context.Background())
 
-	configLoads, err := config.LoadConfig(cwc, configPath, watchDuration)
+	configLoads, err := config.LoadConfig(cwc, configPath)
 	if err != nil {
 		log.WithFields(log.Fields{
 			"error":      err,
@@ -150,11 +150,15 @@ func Startup(configPath string, watchDuration time.Duration) (context.CancelFunc
 				agent.configure(config)
 				log.Info("Done configuring agent")
 
-				if err := agent.serveDiagnosticInfo(config.DiagnosticsSocketPath); err != nil {
-					log.WithError(err).Error("Could not start diagnostic socket")
+				if config.DiagnosticsSocketPath != "" {
+					if err := agent.serveDiagnosticInfo(config.DiagnosticsSocketPath); err != nil {
+						log.WithError(err).Error("Could not start diagnostic socket")
+					}
 				}
-				if err := agent.serveInternalMetrics(config.InternalMetricsSocketPath); err != nil {
-					log.WithError(err).Error("Could not start internal metrics socket")
+				if config.InternalMetricsSocketPath != "" {
+					if err := agent.serveInternalMetrics(config.InternalMetricsSocketPath); err != nil {
+						log.WithError(err).Error("Could not start internal metrics socket")
+					}
 				}
 
 			case <-ctx.Done():
@@ -170,13 +174,16 @@ func Startup(configPath string, watchDuration time.Duration) (context.CancelFunc
 
 // Status reads the text from the diagnostic socket and returns it if available.
 func Status(configPath string) ([]byte, error) {
-	configLoads, err := config.LoadConfig(context.Background(), configPath, 0)
+	configLoads, err := config.LoadConfig(context.Background(), configPath)
 	if err != nil {
 		return nil, err
 	}
 
 	select {
 	case conf := <-configLoads:
+		if conf.DiagnosticsSocketPath == "" {
+			return nil, errors.New("diagnosticsSocketPath is blank so cannot get status")
+		}
 		return readDiagnosticInfo(conf.DiagnosticsSocketPath)
 	}
 }

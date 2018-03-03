@@ -11,6 +11,16 @@ import (
 	"github.com/signalfx/signalfx-agent/internal/core/config/sources/types"
 )
 
+// Config for the file-based config source
+type Config struct {
+	// How often to poll files (in seconds) to test for changes.  There are so
+	// many edge cases that break inotify that it is more robust to simply poll
+	// files than rely on that.
+	// This option is not subject to watching and changes to it will require an
+	// agent restart.
+	PollRateSeconds int `yaml:"pollRateSeconds" default:"5"`
+}
+
 type fileConfigSource struct {
 	table        *crc64.Table
 	pollInterval time.Duration

@@ -14,7 +14,6 @@ import (
 	"github.com/creasty/defaults"
 	"github.com/pkg/errors"
 	"github.com/signalfx/signalfx-agent/internal/core/config/sources"
-	"github.com/signalfx/signalfx-agent/internal/core/config/sources/file"
 	"github.com/signalfx/signalfx-agent/internal/utils"
 	log "github.com/sirupsen/logrus"
 )
@@ -24,17 +23,14 @@ import (
 // loaded once and sent to the returned channel, after which the channel will
 // be closed.  Otherwise, the returned channel will remain open and will be
 // sent any config updates.
-func LoadConfig(ctx context.Context, configPath string, watchInterval time.Duration) (<-chan *Config, error) {
-	fileSource := file.New(watchInterval)
-	shouldWatch := uint64(watchInterval) != 0
-
-	configYAML, configFileChanges, err := sources.ReadConfig(configPath, fileSource, ctx.Done(), shouldWatch)
+func LoadConfig(ctx context.Context, configPath string) (<-chan *Config, error) {
+	configYAML, configFileChanges, err := sources.ReadConfig(configPath, ctx.Done())
 	if err != nil {
 		return nil, errors.WithMessage(err, "Could not read config file "+configPath)
 	}
 
 	dynamicValueCtx, cancelDynamic := context.WithCancel(ctx)
-	finalYAML, dynamicChanges, err := sources.ReadDynamicValues(configYAML, fileSource, dynamicValueCtx.Done(), shouldWatch)
+	finalYAML, dynamicChanges, err := sources.ReadDynamicValues(configYAML, dynamicValueCtx.Done())
 	if err != nil {
 		cancelDynamic()
 		return nil, err
@@ -51,7 +47,7 @@ func LoadConfig(ctx context.Context, configPath string, watchInterval time.Durat
 
 	loads <- config
 
-	if shouldWatch {
+	if configFileChanges != nil {
 		go func() {
 			for {
 				// We can have changes either in the dynamic values or the
@@ -64,7 +60,7 @@ func LoadConfig(ctx context.Context, configPath string, watchInterval time.Durat
 
 					dynamicValueCtx, cancelDynamic = context.WithCancel(ctx)
 
-					finalYAML, dynamicChanges, err = sources.ReadDynamicValues(configYAML, fileSource, dynamicValueCtx.Done(), true)
+					finalYAML, dynamicChanges, err = sources.ReadDynamicValues(configYAML, dynamicValueCtx.Done())
 					if err != nil {
 						log.WithError(err).Error("Could not read dynamic values in config after change")
 						time.Sleep(5 * time.Second)
@@ -93,7 +89,6 @@ func LoadConfig(ctx context.Context, configPath string, watchInterval time.Durat
 		}()
 	} else {
 		cancelDynamic()
-		close(loads)
 	}
 	return loads, nil
 }

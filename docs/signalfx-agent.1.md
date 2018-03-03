@@ -6,14 +6,14 @@
 
 # SYNOPSIS
 
-| **signalfx-agent** \[**-config** path] \[**-debug**] \[**-version**] \[**-debug**] \[**-filePollRate** duration] \[**-watchConfig** true|false]
+| **signalfx-agent** \[**-config** path] \[**-debug**] \[**-version**]
 | **signalfx-agent** \[**status**]
 
 # DESCRIPTION
 
 Runs the SignalFx metric collection agent that optionally discovers services
 running in the local environment and monitors them, sending metrics to the
-SignalFx backend for processing.  
+SignalFx backend for processing.
 
 The agent does not fork to the background and has no such option to do so.
 
@@ -35,18 +35,6 @@ configuration documentation, as well as to file bug reports or ask questions.
 
 :	Sets the log level to debug, overriding whatever level is set in the 
 	config file.
-
--filePollRate <duration>
-
-:	The agent will poll its configuration file by default every 5 seconds
-	(`5s`).  You can change that rate by setting this to any string that
-	conforms to the documentation at https://golang.org/pkg/time/#ParseDuration. 
-	If `-watchConfig` is false, then this flag has no effect.
-
--watchConfig true|false
-
-:	Whether to watch the config file and all referenced remote config values
-	for changes.  Defaults to `true`.
 
 -version
 
