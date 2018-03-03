@@ -12,28 +12,45 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 . $SCRIPT_DIR/../../scripts/common.sh
 
 REPO_STAGE=${1:-test}
-AGENT_VERSION=$($SCRIPT_DIR/../../scripts/latest-version)
-DEB_REVISION=${DEB_REVISION:-$($SCRIPT_DIR/current-revision ${AGENT_VERSION})}
+
+current_commit_tag=$(git describe --abbrev=0 --tags --exact-match --match 'v[0-9].[0-9].[0-9]' 2>/dev/null || \
+  git describe --abbrev=0 --tags --exact-match --match 'v[0-9].[0-9].[0-9]-alpha*' 2>/dev/null || \
+  git describe --abbrev=0 --tags --exact-match --match 'v[0-9].[0-9].[0-9]-beta*' 2>/dev/null || \
+  git describe --abbrev=0 --tags --exact-match --match 'v*-deb[0-9]' 2>/dev/null || \
+  true)
+
+deb_revision=1
+if [[ -n $current_commit_tag ]]; then
+  if grep -q -- '-deb[0-9]$' <<< "$current_commit_tag"; then
+    deb_revision=$(sed -e "s/v.*-deb//" <<< "$current_commit_tag")
+  fi
+  agent_version=$(echo -n "$current_commit_tag" | sed -e "s/-deb[0-9]//" | sed -e "s/^v//")
+else
+  agent_version=$($SCRIPT_DIR/../../scripts/current-version)
+fi
+
 GPG_DIR=${GPG_DIR:-"$HOME/.gnupg"}
 
 image_name=signalfx-agent-debian-packager
-image_tag=${AGENT_VERSION}-deb${DEB_REVISION}
+image_tag=${agent_version}-deb${deb_revision}
+package_version=${agent_version}-${deb_revision}
 
-do_docker_build ${image_name} ${image_tag} debian-packager $AGENT_VERSION
+do_docker_build ${image_name} ${image_tag} debian-packager $agent_version
 
 OUTPUT_DIR=${OUTPUT_DIR:-$SCRIPT_DIR/output}
 
 create_deb() {
-  output_prefix="$OUTPUT_DIR/signalfx-agent_$AGENT_VERSION-${DEB_REVISION}_amd64"
+  output_prefix="$OUTPUT_DIR/signalfx-agent_${package_version}_amd64"
 
   find $OUTPUT_DIR -type f | xargs rm || true 
 
   docker run --rm \
     -v ${SCRIPT_DIR}/../../.git:/git-repo:ro \
     -v ${OUTPUT_DIR}:/output \
+    -it \
     $image_name:$image_tag \
     bash -e -c \
-      "./make-changelog && debuild -us -uc && cp -f ../*.{changes,build,buildinfo,deb} /output"
+      "./make-changelog $agent_version $deb_revision && debuild -us -uc && cp -f ../*.{changes,build,buildinfo,deb} /output"
 
   if ! test -e $output_prefix.deb
   then
@@ -41,7 +58,7 @@ create_deb() {
     exit 1
   fi
 
-  echo "SignalFx Agent ${AGENT_VERSION}-${DEB_REVISION} built successfully.  Output is in ${OUTPUT_DIR}."
+  echo "SignalFx Agent ${package_version} built successfully.  Output is in ${OUTPUT_DIR}."
 }
 
 push_to_repo() {

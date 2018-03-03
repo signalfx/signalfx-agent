@@ -11,7 +11,7 @@ strip_pkg() {
   sed -Ee 's/-(deb|rpm)[0-9]+//' <<< $1
 }
 
-tag=$(git describe --abbrev=0 --match 'v[0-9]*')
+tag=$(git describe --abbrev=0 --match 'v[0-9].[0-9].[0-9]*')
 
 if test -z $tag
 then

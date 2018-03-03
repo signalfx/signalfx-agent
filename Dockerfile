@@ -374,6 +374,16 @@ COPY --from=final-image /bin/signalfx-agent ./signalfx-agent
 COPY --from=final-image / /bundle/
 COPY ./ ./
 
+####### Pandoc Converter ########
+FROM ubuntu:16.04 as pandoc-converter
+
+RUN apt update &&\
+    apt install -y pandoc
+
+COPY docs/signalfx-agent.1.md /tmp/signalfx-agent.1.md
+RUN mkdir /docs &&\
+    pandoc --standalone --to man /tmp/signalfx-agent.1.md -o /docs/signalfx-agent.1
+
 
 ####### Debian Packager #######
 FROM debian:9 as debian-packager
@@ -395,6 +405,7 @@ COPY packaging/etc/logrotate.d/signalfx-agent.conf ./debian/signalfx-agent.logro
 COPY packaging/deb/make-changelog ./make-changelog
 COPY packaging/deb/add-output-to-repo ./add-output-to-repo
 COPY packaging/deb/devscripts.conf /etc/devscripts.conf
+COPY --from=pandoc-converter /docs/signalfx-agent.1 ./signalfx-agent.1
 
 COPY packaging/etc/agent.yaml ./agent.yaml
 
@@ -413,5 +424,6 @@ COPY packaging/etc/upstart/signalfx-agent.conf ./SOURCES/signalfx-agent.upstart
 COPY packaging/etc/systemd/ ./SOURCES/systemd/
 COPY packaging/rpm/signalfx-agent.spec ./SPECS/signalfx-agent.spec
 COPY packaging/rpm/add-output-to-repo ./add-output-to-repo
+COPY --from=pandoc-converter /docs/signalfx-agent.1 ./SOURCES/signalfx-agent.1
 
 COPY --from=final-image / ./SOURCES/signalfx-agent/
