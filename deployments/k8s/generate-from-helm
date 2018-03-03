@@ -14,6 +14,11 @@ for f in $templates; do
     --set fullnameOverride=signalfx-agent \
     --set agentVersion=$($SCRIPT_DIR/../../scripts/latest-release) \
     -x ${AGENT_CHART_DIR%/}/templates/$f \
-    $AGENT_CHART_DIR | sed -e 's/[[:space:]]*$//' > $SCRIPT_DIR/$f
+    $AGENT_CHART_DIR | \
+      sed -e 's/[[:space:]]*$//' | \
+      grep -v 'chart: signalfx-agent' | \
+      grep -v 'heritage: Tiller' | \
+      grep -v 'release: RELEASE-NAME' \
+    > $SCRIPT_DIR/$f
   echo "Wrote resource $f"
 done

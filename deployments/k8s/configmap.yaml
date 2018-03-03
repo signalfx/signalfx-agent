@@ -6,7 +6,6 @@ metadata:
   name: signalfx-agent
   labels:
     app: signalfx-agent
-
 data:
   agent.yaml: |
     signalFxAccessToken: ${SFX_ACCESS_TOKEN}

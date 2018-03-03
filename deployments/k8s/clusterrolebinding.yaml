@@ -6,12 +6,11 @@ metadata:
   name: signalfx-agent
   labels:
     app: signalfx-agent
-
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
   name: signalfx-agent
 subjects:
 - kind: ServiceAccount
-  name: "signalfx-agent"
+  name: signalfx-agent
   namespace: signalfx-agent

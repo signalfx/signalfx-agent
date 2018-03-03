@@ -6,7 +6,6 @@ metadata:
   name: signalfx-agent
   labels:
     app: signalfx-agent
-
 rules:
 - apiGroups:
   - ""
