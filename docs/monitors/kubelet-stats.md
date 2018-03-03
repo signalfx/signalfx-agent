@@ -34,7 +34,6 @@ The **nested** `kubeletAPI` config object has the following fields:
 | `clientKeyPath` | no | `string` | Path to the client TLS key to use if `authType` is set to `tls` |
 
 
-<!--- This is pretty ugly all this repetition, but some config has nesting to three layers.  Would probably be better to flatten them before rendering or use a template engine with partials. --->
 
 
 ## Metrics

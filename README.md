@@ -1,5 +1,7 @@
 # SignalFx Agent
 
+[![GoDoc](https://godoc.org/github.com/signalfx/signalfx-agent?status.svg)](https://godoc.org/github.com/signalfx/signalfx-agent)
+
 The SignalFx Agent is a metric agent written in Go for monitoring nodes and
 application services in a variety of different environments.
 

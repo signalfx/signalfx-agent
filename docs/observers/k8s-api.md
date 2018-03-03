@@ -24,7 +24,7 @@ Observer Type: `k8s-api`
 
 | Config option | Required | Type | Description |
 | --- | --- | --- | --- |
-| `kubernetesAPI` | no | `object (see below)` | Configuration for the K8s API client (**default:** `map[]`) |
+| `kubernetesAPI` | no | `object (see below)` | Configuration for the K8s API client |
 
 
 The **nested** `kubernetesAPI` config object has the following fields:
@@ -38,7 +38,6 @@ The **nested** `kubernetesAPI` config object has the following fields:
 | `caCertPath` | no | `string` | Path to a CA certificate to use when verifying the API server's TLS cert.  Generally this is provided by K8s alongside the service account token, which will be picked up automatically, so this should rarely be necessary to specify. |
 
 
-<!--- This is pretty ugly all this repetition, but some config has nesting to three layers.  Would probably be better to flatten them before rendering or use a template engine with partials. --->
 
 
 ## Endpoint Variables

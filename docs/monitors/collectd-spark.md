@@ -33,8 +33,8 @@ Monitor Type: `collectd/spark`
 | `clusterType` | no | `string` | Should be one of `Standalone` or `Mesos` |
 | `collectApplicationMetrics` | no | `bool` |  (**default:** `false`) |
 | `enhancedMetrics` | no | `bool` |  (**default:** `false`) |
-| `metricsToInclude` | no | `list of string` |  (**default:** `[]`) |
-| `metricsToExclude` | no | `list of string` |  (**default:** `[]`) |
+| `metricsToInclude` | no | `list of string` |  |
+| `metricsToExclude` | no | `list of string` |  |
 
 
 

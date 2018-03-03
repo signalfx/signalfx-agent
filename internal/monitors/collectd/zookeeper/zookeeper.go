@@ -10,6 +10,14 @@ import (
 
 const monitorType = "collectd/zookeeper"
 
+// MONITOR(collectd/zookeeper): Monitors an Apache Zookeeper instance.
+//
+// See the [Python plugin
+// source](https://github.com/signalfx/collectd-zookeeper) and the
+// [integrations repo
+// page](https://github.com/signalfx/integrations/tree/master/collectd-zookeeper)
+// for more information.
+
 func init() {
 	monitors.Register(monitorType, func() interface{} {
 		return &Monitor{

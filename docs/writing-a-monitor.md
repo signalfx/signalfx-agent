@@ -20,75 +20,81 @@ modules or even packages as desired.
 Here is a minimalistic example of a monitor:
 
 ```go
-	package mymonitor
+package mymonitor
 
-	import (
-		"time"
-		"github.com/signalfx/golib/datapoint"
-		"github.com/signalfx/signalfx-agent/internal/core/config"
-		"github.com/signalfx/signalfx-agent/internal/monitors"
-		"github.com/signalfx/signalfx-agent/internal/monitors/types"
-		"github.com/signalfx/signalfx-agent/internal/utils"
-		log "github.com/sirupsen/logrus"
-	)
+import (
+	"time"
+	"github.com/signalfx/golib/datapoint"
+	"github.com/signalfx/signalfx-agent/internal/core/config"
+	"github.com/signalfx/signalfx-agent/internal/monitors"
+	"github.com/signalfx/signalfx-agent/internal/monitors/types"
+	"github.com/signalfx/signalfx-agent/internal/utils"
+	log "github.com/sirupsen/logrus"
+)
 
-	func init() {
-		monitors.Register("my-monitor",
-			func() interface{} { return &Monitor{} },
-			&Config{})
+func init() {
+	monitors.Register("my-monitor",
+		func() interface{} { return &Monitor{} },
+		&Config{})
+}
+
+// MONITOR(my-monitor): Monitors my service
+
+// DIMENSION(env): The environment that the service is running in
+// GAUGE(my-monitor.requests): Number of requests made to my service
+
+// Config for monitor
+type Config struct {
+	config.MonitorConfig `yaml:",inline" acceptsEndpoints:"true"`
+
+	// Required for monitors that accept auto-discovered endpoints
+	Host string `yaml:"host"`
+	Port uint16 `yaml:"port"`
+	Name string `yaml:"name"`
+
+	// Holds my config string
+	MyVar string `yaml:"myVar"`
+}
+
+// Validate will check the config for correctness.  This method is optional.
+func (c *Config) Validate() error {
+	if c.MyVar == "" {
+		return errors.New("myVar is required")
 	}
+	return nil
+}
 
-	// Config for monitor
-	type Config struct {
-		config.MonitorConfig `yaml:",inline" acceptsEndpoints:"true"`
+// Monitor that collectd metrics.
+type Monitor struct {
+	// This will be automatically injected to the monitor instance before
+	// Configure is called.
+	Output types.Output
+	stop func()
+}
 
-		// Required for monitors that accept auto-discovered endpoints
-		Host string `yaml:"host"`
-		Port uint16 `yaml:"port"`
-		Name string `yaml:"name"`
+// Configure and kick off internal metric collection
+func (m *Monitor) Configure(conf *Config) error {
+	// Start the metric gathering process here.
+	m.stop = utils.RunOnInterval(func() {
 
-		MyVar string `yaml:"myVar"`
+		// This would be a more complicated in a real monitor, but this
+		// shows the basic idea of using the Output interface to send
+		// datapoints.
+		m.Output.SendDatapoint(datapoint.New("my-monitor.requests",
+			map[string]string{"env": "test"}, 100, datapoint.Gauge, time.Now())
+
+	}, time.Duration(conf.IntervalSeconds)*time.Second)
+
+	return nil
+}
+
+// Shutdown the monitor
+func (m *Monitor) Shutdown() {
+	// Stop any long-running go routines here
+	if m.stop != nil {
+		m.stop()
 	}
-
-	// Validate will check the config for correctness.  This method is optional.
-	func (c *Config) Validate() error {
-		if c.MyVar == "" {
-			return errors.New("myVar is required")
-		}
-		return nil
-	}
-
-	// Monitor that collectd metrics.
-	type Monitor struct {
-		// This will be automatically injected to the monitor instance before
-		// Configure is called.
-		Output types.Output
-		stop func()
-	}
-
-	// Configure and kick off internal metric collection
-	func (m *Monitor) Configure(conf *Config) error {
-		// Start the metric gathering process here.
-		m.stop = utils.RunOnInterval(func() {
-
-			# This would be a more complicated in a real monitor, but this
-			# shows the basic idea of using the Output interface to send
-			# datapoints.
-		    m.Output.SendDatapoint(datapoint.New("my-monitor.requests",
-			    map[string]string{"env": "test"}, 100, datapoint.Gauge, time.Now())
-
-		}, time.Duration(conf.IntervalSeconds)*time.Second)
-
-		return nil
-	}
-
-	// Shutdown the monitor
-	func (m *Monitor) Shutdown() {
-		// Stop any long-running go routines here
-		if m.stop != nil {
-			m.stop()
-		}
-	}
+}
 ```
 
 There are two data types that are essential to a monitor: the configuration and the
@@ -153,7 +159,9 @@ annotations).
 
 When an endpoint is discovered by an observer, the observer sets configuration
 on the endpoint that then gets merged into your monitor's config before
-`Configure` is called.
+`Configure` is called.  As far as your monitor's `Configure` method is
+concerned, there is no difference between an auto-discovered endpoint and a
+manually specified one.
 
 ## Monitor Struct
 
@@ -172,17 +180,16 @@ There is a special field that can be specified by the monitor struct that will
 be automatically populated by the agent:
 
 - `Output "github.com/signalfx/signalfx-agent/internal/monitors/types".Output`: This is what
-	is used to send data from the monitor back to the agent, and then on to
-	SignalFx.  This value has three methods:
+    is used to send data from the monitor back to the agent, and then on to
+    SignalFx.  This value has three methods:
 
-	- `SendDatapoints([]*"github.com/signalfx/golib/datapoint".Datapoint)`:
-		Sends datapoints, appending any extra dimensions specified in the
-		configuration or by the service endpoint associated with the monitor.
+    - `SendDatapoint(*"github.com/signalfx/golib/datapoint".Datapoint)`:
+        Sends a datapoint, appending any extra dimensions specified in the
+        configuration or by the service endpoint associated with the monitor.
 
-	- `SendEvents([]*"github.com/signalfx/golib/event".Event)`: Sends events.
+    - `SendEvent(*"github.com/signalfx/golib/event".Event)`: Sends an event.
 
-	- `SendDimensionProps(*"github.com/signalfx/signalfx-agent/internal/monitors/types".DimProperties)`:
-		Sends property updates for a specific dimension key/value pair.
+    - `SendDimensionProps(*"github.com/signalfx/signalfx-agent/internal/monitors/types".DimProperties)`: Sends property updates for a specific dimension key/value pair.
 
 The name and type of the struct field must be exactly as specified or else it
 will not be injected.
@@ -226,6 +233,32 @@ The `Shutdown()` method will not be called more than once.
 If your monitor's configuration is changed in the agent, the agent will
 shutdown existing monitors dependent on that config and recreate them with the
 new config.
+
+## Documentation
+
+To make your monitor show up in the auto-generated docs, you should add a
+comment somewhere in the monitor package of the form:
+
+`// MONITOR(my-monitor-type): These are the docs for my monitor`
+
+Where `my-monitor-type` should match exactly the type that you register your
+monitor as.  The comment can span multiple lines, and will include all
+continguously commented lines from the beginning comment.
+
+You should also document all metric types that your monitor emits with comments
+of the following form:
+
+`// GAUGE(my-metric): What my metric is`
+
+The metric types you can specify are `GAUGE`, `COUNTER`, `CUMULATIVE`, and
+`TIMESTAMP`.
+
+You should also document any monitor-specific dimensions that your monitor
+attaches to datapoints that it emits by adding comments of this form anywhere
+in your monitor package (or subpackages of the package where the `MONITOR` doc
+is):
+
+`// DIMENSION(dim-name): Description of the dimension`
 
 ## Best Practices
 

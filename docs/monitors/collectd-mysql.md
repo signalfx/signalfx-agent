@@ -36,7 +36,6 @@ The **nested** `databases` config object has the following fields:
 | `password` | no | `string` |  |
 
 
-<!--- This is pretty ugly all this repetition, but some config has nesting to three layers.  Would probably be better to flatten them before rendering or use a template engine with partials. --->
 
 
 

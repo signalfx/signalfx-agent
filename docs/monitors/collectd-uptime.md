@@ -17,10 +17,7 @@ Monitor Type: `collectd/uptime`
 
 ## Configuration
 
-| Config option | Required | Type | Description |
-| --- | --- | --- | --- |
-
-
+This monitor has no configuration options.
 
 
 ## Metrics

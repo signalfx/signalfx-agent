@@ -16,7 +16,8 @@ doc_types=$(cat <<EOH
   "uint16": "integer",
   "uint": "unsigned integer",
   "int": "integer",
-  "struct": "object (see below)"
+  "struct": "object (see below)",
+  "interface": "any"
 }
 EOH
 )

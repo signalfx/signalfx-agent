@@ -26,6 +26,10 @@ func getDefault(f reflect.StructField) interface{} {
 	}
 	defTag := f.Tag.Get("default")
 	if defTag != "" {
+		// These are essentialy just noop defaults so don't return them
+		if defTag == "{}" || defTag == "[]" {
+			return ""
+		}
 		if strings.HasPrefix(defTag, "{") || strings.HasPrefix(defTag, "[") || defTag == "true" || defTag == "false" {
 			var out interface{}
 			err := json.Unmarshal([]byte(defTag), &out)

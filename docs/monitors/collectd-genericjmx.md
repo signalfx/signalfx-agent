@@ -8,6 +8,25 @@ JMX using collectd's GenericJMX plugin.
 See https://github.com/signalfx/integrations/tree/master/collectd-genericjmx
 and https://collectd.org/documentation/manpages/collectd-java.5.shtml
 
+Example (gets the thread count from a standard JMX MBean available on all
+Java JMX-enabled apps):
+
+```yaml
+
+monitors:
+ - type: collectd/genericjmx
+   host: my-java-app
+   port: 7099
+   mBeanDefinitions:
+     threading:
+       objectName: java.lang:type=Threading
+       values:
+       - type: gauge
+         table: false
+         instancePrefix: jvm.threads.count
+         attribute: ThreadCount
+```
+
 
 Monitor Type: `collectd/genericjmx`
 
@@ -24,7 +43,7 @@ Monitor Type: `collectd/genericjmx`
 | `host` | **yes** | `string` |  |
 | `port` | **yes** | `integer` |  |
 | `name` | no | `string` |  |
-| `serviceName` | no | `string` | This is how the service type is identified in the SignalFx UI so that you can get built-in content for it.  For custom JMX integrations, it can be set to whatever you like and metrics will get the dimension `sf_hostHasService` set to this value. |
+| `serviceName` | no | `string` | This is how the service type is identified in the SignalFx UI so that you can get built-in content for it.  For custom JMX integrations, it can be set to whatever you like and metrics will get the special property `sf_hostHasService` set to this value. |
 | `serviceURL` | no | `string` | The JMX connection string.  This is rendered as a Go template and has access to the other values in this config. (**default:** `service:jmx:rmi:///jndi/rmi://{{.Host}}:{{.Port}}/jmxrmi`) |
 | `instancePrefix` | no | `string` |  |
 | `username` | no | `string` |  |
@@ -43,7 +62,6 @@ The **nested** `mBeanDefinitions` config object has the following fields:
 | `values` | no | `list of object (see below)` |  |
 
 
-<!--- This is pretty ugly all this repetition, but some config has nesting to three layers.  Would probably be better to flatten them before rendering or use a template engine with partials. --->
 The **nested** `values` config object has the following fields:
 
 | Config option | Required | Type | Description |
@@ -53,6 +71,8 @@ The **nested** `values` config object has the following fields:
 | `instancePrefix` | no | `string` |  |
 | `instanceFrom` | no | `string` |  |
 | `attribute` | no | `string` |  |
+
+
 
 
 

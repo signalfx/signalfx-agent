@@ -2,18 +2,32 @@
 
 # collectd/zookeeper
 
+ Monitors an Apache Zookeeper instance.
+
+See the [Python plugin
+source](https://github.com/signalfx/collectd-zookeeper) and the
+[integrations repo
+page](https://github.com/signalfx/integrations/tree/master/collectd-zookeeper)
+for more information.
+
+
+Monitor Type: `collectd/zookeeper`
+
+[Monitor Source Code](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/zookeeper)
 
 **Accepts Endpoints**: **Yes**
 
-**Only One Instance Allowed**: No
+**Multiple Instances Allowed**: Yes
 
 ## Configuration
 
-| Config option | Default | Required | Type | Description |
-| --- | --- | --- | --- | --- |
-| `host` |  | **yes** | `string` |  |
-| `port` |  | **yes** | `uint16` |  |
-| `name` |  | no | `string` |  |
+| Config option | Required | Type | Description |
+| --- | --- | --- | --- |
+| `host` | **yes** | `string` |  |
+| `port` | **yes** | `integer` |  |
+| `name` | no | `string` |  |
+
+
 
 
 

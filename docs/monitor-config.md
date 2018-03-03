@@ -31,6 +31,7 @@ configuration options:
 - [collectd/spark](./monitors/collectd-spark.md)
 - [collectd/uptime](./monitors/collectd-uptime.md)
 - [collectd/vmem](./monitors/collectd-vmem.md)
+- [collectd/zookeeper](./monitors/collectd-zookeeper.md)
 - [internal-metrics](./monitors/internal-metrics.md)
 - [kubelet-stats](./monitors/kubelet-stats.md)
 - [kubernetes-cluster](./monitors/kubernetes-cluster.md)

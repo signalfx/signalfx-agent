@@ -23,7 +23,7 @@ Monitor Type: `collectd/health-checker`
 | `port` | **yes** | `integer` |  |
 | `name` | no | `string` |  |
 | `url` | no | `string` |  |
-| `jsonVal` | no | `interface` | This can be either a string or numeric type |
+| `jsonVal` | no | `any` | This can be either a string or numeric type |
 | `jsonKey` | no | `string` |  |
 
 

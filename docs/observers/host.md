@@ -16,10 +16,7 @@ Observer Type: `host`
 
 ## Configuration
 
-| Config option | Required | Type | Description |
-| --- | --- | --- | --- |
-
-
+This observer has no configuration options.
 
 
 ## Endpoint Variables
