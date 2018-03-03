@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"net/url"
 	"reflect"
+	"sync"
 	"time"
 
 	"github.com/pkg/errors"
@@ -22,6 +23,7 @@ type dimensionPropertyClient struct {
 	APIURL *url.URL
 	// Keeps track of what has been synced so we don't do unnecessary syncs
 	history map[types.Dimension]*types.DimProperties
+	lock    sync.Mutex
 }
 
 func newDimensionPropertyClient() *dimensionPropertyClient {
@@ -34,8 +36,12 @@ func newDimensionPropertyClient() *dimensionPropertyClient {
 }
 
 // SetPropertiesOnDimension will set custom properties on a specific dimension
-// value.  It will wipe out any description or tags on the dimension.
+// value.  It will wipe out any description or tags on the dimension.  There is
+// no retry logic here so any failures are terminal.
 func (dpc *dimensionPropertyClient) SetPropertiesOnDimension(dimProps *types.DimProperties) error {
+	dpc.lock.Lock()
+	defer dpc.lock.Unlock()
+
 	prev := dpc.history[dimProps.Dimension]
 	if !reflect.DeepEqual(prev, dimProps) {
 		log.WithFields(log.Fields{

@@ -318,13 +318,16 @@ func (sw *SignalFxWriter) listenForDatapoints() {
 				initEventBuffer()
 			}
 		case dimProps := <-sw.propertyChan:
-			err := sw.dimPropClient.SetPropertiesOnDimension(dimProps)
-			if err != nil {
-				log.WithFields(log.Fields{
-					"error":    err,
-					"dimProps": dimProps,
-				}).Error("Could not sync properties to dimension")
-			}
+			// Run the sync async so we don't block other cases in this select
+			go func(innerProps *types.DimProperties) {
+				err := sw.dimPropClient.SetPropertiesOnDimension(innerProps)
+				if err != nil {
+					log.WithFields(log.Fields{
+						"error":    err,
+						"dimProps": innerProps,
+					}).Error("Could not sync properties to dimension")
+				}
+			}(dimProps)
 		}
 	}
 }
