@@ -73,3 +73,12 @@ run-dev-image:
 .PHONY: docs
 docs:
 	scripts/docs/make-docs
+
+.PHONY: chef-%
+chef-%:
+	$(MAKE) -C deployments/chef $*
+
+.PHONY: puppet-%
+puppet-%:
+	$(MAKE) -C deployments/puppet $*
+
