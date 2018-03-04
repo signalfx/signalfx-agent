@@ -49,7 +49,7 @@ type Config struct {
 	// A directory where the metadata plugin can persist the history of
 	// successful host metadata syncs so that host metadata is not sent
 	// redundantly.
-	PersistencePath string `yaml:"persistencePath" default:"/var/lib/misc"`
+	PersistencePath string `yaml:"persistencePath" default:"/var/run/signalfx-agent"`
 }
 
 // Monitor is the main type that represents the monitor
