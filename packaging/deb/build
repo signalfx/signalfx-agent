@@ -47,7 +47,6 @@ create_deb() {
   docker run --rm \
     -v ${SCRIPT_DIR}/../../.git:/git-repo:ro \
     -v ${OUTPUT_DIR}:/output \
-    -it \
     $image_name:$image_tag \
     bash -e -c \
       "./make-changelog $agent_version $deb_revision && debuild -us -uc && cp -f ../*.{changes,build,buildinfo,deb} /output"
@@ -76,6 +75,16 @@ if [[ ${BUILD_DEB-yes} == "yes" ]]; then
   create_deb
 fi
 
-if [[ -n ${PUSH_TO_REPO-} ]]; then
+if [[ -n "${PUSH_TO_REPO-}" ]]; then
+  if [[ ! "$agent_version" =~ ^[0-9]\.[0-9]\.[0-9]$ ]] && [[ "$REPO_STAGE" = "main" ]]; then
+    echo "Only final releases should go to the main package repo" >&2
+    exit 2
+  fi
+
+  if [[ "$agent_version" =~ ^[0-9]\.[0-9]\.[0-9]-post$ ]] && [[ "$REPO_STAGE" = "beta" ]]; then
+    echo "Only beta or final releases should go to the beta package repo" >&2
+    exit 3
+  fi
+
   push_to_repo
 fi

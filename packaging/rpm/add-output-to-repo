@@ -22,9 +22,9 @@ mkdir -p $repo_dir
 aws s3 sync --delete $s3_bucket $repo_dir
 
 for f in $(find $OUTPUT_DIR -name "*.rpm"); do
-  base=$(basename $f)
-  if [ -e $repo_dir/$base ]; then
-    echo "RPM package $(basename $f) already exists in this repo.  If you want to overwrite it, please delete it from the repo first." >&2 && exit 2
+  pkg_name=$(basename $f)
+  if [ -e $repo_dir/$pkg_name ] && [ "$REPO_STAGE" != "test" ]; then
+    echo "RPM package $pkg_name already exists in this repo.  If you want to overwrite it, please delete it from the repo first." >&2 && exit 2
   fi
   cp $f $repo_dir
   if [[ -z ${NO_SIGN-} ]]; then

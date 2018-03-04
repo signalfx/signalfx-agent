@@ -26,7 +26,7 @@ aws s3 sync --delete $s3_bucket $repo_dir
 mkdir -p $pool_dir
 for f in $(find $OUTPUT_DIR -name "*.deb"); do
   base=$(basename $f)
-  if [ -e $pool_dir/$base ]; then
+  if [ -e $pool_dir/$base ] && [ "$REPO_STAGE" != "test" ]; then
     echo "Debian package $(basename $f) already exists in this repo.  If you want to overwrite it, please delete it from the repo first." >&2 && exit 2
   fi
   cp $f $pool_dir
