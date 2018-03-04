@@ -105,6 +105,7 @@ func runAgent() {
 	var shutdown context.CancelFunc
 	var shutdownComplete <-chan struct{}
 	init := func() {
+		log.Info("Starting up agent version " + Version)
 		shutdown, shutdownComplete = core.Startup(*configPath)
 	}
 

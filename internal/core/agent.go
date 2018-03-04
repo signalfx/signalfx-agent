@@ -117,8 +117,6 @@ func (a *Agent) shutdown() {
 // agent, as well as a channel that will be notified when the agent has
 // shutdown.
 func Startup(configPath string) (context.CancelFunc, <-chan struct{}) {
-	log.Info("Starting up agent")
-
 	cwc, cancel := context.WithCancel(context.Background())
 
 	configLoads, err := config.LoadConfig(cwc, configPath)
