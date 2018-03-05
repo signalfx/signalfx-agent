@@ -154,6 +154,31 @@ jobs:
 
       - store_test_results:
           path: ~/testresults
+
+  puppet_tests:
+    <<: *executor
+    steps:
+      - checkout
+      - run: |
+          mkdir ~/testresults
+
+          if ! scripts/changes-include-dir deployments/puppet; then
+              echo "Puppet module code has not changed, skipping tests!"
+              exit 0
+          fi
+
+          cd deployments/puppet
+          make dev-image
+          docker run --rm \
+            signalfx-agent-puppet-dev \
+            rspec spec --format RspecJunitFormatter > ~/testresults/puppetspec.xml
+
+          docker run --rm \
+            signalfx-agent-puppet-dev \
+            puppet-lint .
+
+      - store_test_results:
+          path: ~/testresults
 workflows:
   version: 2
   build_test:
@@ -174,3 +199,4 @@ workflows:
      - rpm_package_tests
      - deb_package_tests
      - chef_tests
+     - puppet_tests
