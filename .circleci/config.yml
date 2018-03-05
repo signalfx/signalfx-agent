@@ -59,6 +59,17 @@ jobs:
       - store_test_results:
           path: ~/testresults
 
+  docs_test: 
+    <<: *executor
+    steps:
+      - *attach_workspace
+      - *import_image
+      - run: |
+          docker run --rm signalfx-agent-dev \
+            -v $(pwd)/.git:/go/src/github.com/signalfx/signalfx-agent/.git \
+            bash -ec "make docs && git diff --exit-code" || \
+            (echo 'Docs are not updated in the repo! Run `make docs` in the dev image and commit those changes.' && exit 1)
+
   integration_tests: 
     <<: *executor
     steps:
@@ -194,6 +205,9 @@ workflows:
         requires:
          - build
      - integration_tests:
+        requires:
+         - build
+     - docs_test:
         requires:
          - build
      - rpm_package_tests
