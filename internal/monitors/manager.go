@@ -74,7 +74,7 @@ func (mm *MonitorManager) Configure(confs []config.MonitorConfig, collectdConf *
 	// By configuring collectd with the monitor manager, we absolve the monitor
 	// instances of having to know about collectd config, which makes it easier
 	// to create monitor config from disparate sources such as from observers.
-	if err := collectd.ConfigureCollectd(collectdConf); err != nil {
+	if err := collectd.ConfigureMainCollectd(collectdConf); err != nil {
 		log.WithFields(log.Fields{
 			"error":          err,
 			"collectdConfig": spew.Sdump(collectdConf),
@@ -401,6 +401,9 @@ func (mm *MonitorManager) isEndpointMonitored(endpoint services.Endpoint) bool {
 func (mm *MonitorManager) deleteMonitorsByConfigHash(hash uint64) {
 	for i := range mm.activeMonitors {
 		if mm.activeMonitors[i].configHash == hash {
+			log.WithFields(log.Fields{
+				"config": mm.activeMonitors[i].config,
+			}).Info("Shutting down monitor due to config hash change")
 			mm.activeMonitors[i].doomed = true
 		}
 	}

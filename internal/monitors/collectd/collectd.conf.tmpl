@@ -13,6 +13,7 @@ FQDNLookup true
 Interval {{ .IntervalSeconds }}
 Timeout {{ .Timeout }}
 ReadThreads {{ .ReadThreads }}
+WriteThreads {{ .WriteThreads }}
 WriteQueueLimitHigh {{ .WriteQueueLimitHigh }}
 WriteQueueLimitLow  {{ .WriteQueueLimitLow }}
 CollectInternalStats false
@@ -37,7 +38,7 @@ LoadPlugin target_set
 </LoadPlugin>
 <Plugin "write_http">
   <Node "SignalFx">
-    URL "{{.WriteServerURL}}"
+    URL "{{.WriteServerURL}}{{.WriteServerQuery}}"
     Format "JSON"
     Timeout 5000
     BufferSize 4096

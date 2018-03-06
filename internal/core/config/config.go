@@ -48,7 +48,7 @@ type Config struct {
 	// A list of monitors to use (see monitor config)
 	Monitors []MonitorConfig `yaml:"monitors" default:"[]" neverLog:"omit"`
 	// Configuration of the datapoint/event writer
-	Writer WriterConfig `yaml:"writer" default:"{}"`
+	Writer WriterConfig `yaml:"writer"`
 	// Log configuration
 	Logging LogConfig `yaml:"logging" default:"{}"`
 	// Configuration of the managed collectd subprocess
@@ -227,6 +227,11 @@ type CollectdConfig struct {
 	// Number of threads dedicated to executing read callbacks. See
 	// [ReadThreads](https://collectd.org/documentation/manpages/collectd.conf.5.shtml#readthreads_num)
 	ReadThreads int `yaml:"readThreads" default:"5"`
+	// Number of threads dedicated to writing value lists to write callbacks.
+	// This should be much less than readThreads because writing is batched in
+	// the write_http plugin that writes back to the agent.
+	// See [WriteThreads](https://collectd.org/documentation/manpages/collectd.conf.5.shtml#writethreads_num).
+	WriteThreads int `yaml:"writeThreads" default:"2"`
 	// The maximum numbers of values in the queue to be written back to the
 	// agent from collectd.  Since the values are written to a local socket
 	// that the agent exposes, there should be almost no queuing and the
@@ -262,6 +267,11 @@ type CollectdConfig struct {
 	BundleDir            string `yaml:"-"`
 	Hostname             string `yaml:"-"`
 	HasGenericJMXMonitor bool   `yaml:"-"`
+	// Assigned by manager, not by user
+	InstanceName string `yaml:"-"`
+	// A hack to allow custom collectd to easily specify a single monitorID via
+	// query parameter
+	WriteServerQuery string `yaml:"-"`
 }
 
 // Validate the collectd specific config
@@ -290,15 +300,21 @@ func (cc *CollectdConfig) WriteServerURL() string {
 	return fmt.Sprintf("http://%s:%d/", cc.WriteServerIPAddr, cc.WriteServerPort)
 }
 
+// InstanceConfigDir is the directory underneath the ConfigDir that is specific
+// to this collectd instance.
+func (cc *CollectdConfig) InstanceConfigDir() string {
+	return filepath.Join(cc.ConfigDir, cc.InstanceName)
+}
+
 // ConfigFilePath returns the path where collectd should render its main config
 // file.
 func (cc *CollectdConfig) ConfigFilePath() string {
-	return filepath.Join(cc.ConfigDir, "collectd.conf")
+	return filepath.Join(cc.InstanceConfigDir(), "collectd.conf")
 }
 
 // ManagedConfigDir returns the dir path where all monitor config should go.
 func (cc *CollectdConfig) ManagedConfigDir() string {
-	return filepath.Join(cc.ConfigDir, "managed_config")
+	return filepath.Join(cc.InstanceConfigDir(), "managed_config")
 }
 
 // StoreConfig holds configuration related to config stores (e.g. filesystem,

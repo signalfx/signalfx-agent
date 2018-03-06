@@ -58,7 +58,7 @@ func InjectTemplateFuncs(tmpl *template.Template) *template.Template {
 				}
 			},
 			"pluginRoot": func() string {
-				return Instance().PluginDir()
+				return MainInstance().PluginDir()
 			},
 			"withDefault": func(value interface{}, def interface{}) interface{} {
 				v := reflect.ValueOf(value)

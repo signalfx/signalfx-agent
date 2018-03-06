@@ -107,10 +107,10 @@ func (s *WriteHTTPServer) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 			for i := range f.Dsnames {
 				if i < len(f.Dstypes) && i < len(f.Values) && f.Values[i] != nil {
 					dp := collectd.NewDatapoint(f, uint(i), nil)
-					if monitorID != "" {
+					dp.Meta = utils.StringInterfaceMapToAllInterfaceMap(f.Meta)
+					if monitorID != "" && dp.Meta["monitorID"] == nil {
 						dp.Meta["monitorID"] = monitorID
 					}
-					dp.Meta = utils.StringInterfaceMapToAllInterfaceMap(f.Meta)
 					dps = append(dps, dp)
 				}
 			}

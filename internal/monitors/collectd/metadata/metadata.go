@@ -3,8 +3,6 @@ package metadata
 //go:generate collectd-template-to-go metadata.tmpl
 
 import (
-	"github.com/creasty/defaults"
-	"github.com/pkg/errors"
 	"github.com/signalfx/signalfx-agent/internal/core/config"
 	"github.com/signalfx/signalfx-agent/internal/monitors"
 	"github.com/signalfx/signalfx-agent/internal/monitors/collectd"
@@ -59,11 +57,7 @@ type Monitor struct {
 
 // Configure configures and runs the plugin in collectd
 func (m *Monitor) Configure(conf *Config) error {
-	if err := defaults.Set(conf); err != nil {
-		return errors.Wrap(err, "Could not set defaults for signalfx-metadata monitor")
-	}
-
-	conf.WriteServerURL = collectd.Instance().WriteServerURL()
+	conf.WriteServerURL = collectd.MainInstance().WriteServerURL()
 
 	return m.SetConfigurationAndRun(conf)
 }
