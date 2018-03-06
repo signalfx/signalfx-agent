@@ -65,8 +65,9 @@ jobs:
       - *attach_workspace
       - *import_image
       - run: |
-          docker run --rm signalfx-agent-dev \
+          docker run --rm \
             -v $(pwd)/.git:/go/src/github.com/signalfx/signalfx-agent/.git \
+            signalfx-agent-dev \
             bash -ec "make docs && git diff --exit-code" || \
             (echo 'Docs are not updated in the repo! Run `make docs` in the dev image and commit those changes.' && exit 1)
 
