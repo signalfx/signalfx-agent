@@ -5,9 +5,9 @@
 | --- | --- | --- | --- |
 {{ range . -}}
 | `{{.yamlName}}` |
-{{- if .required}}**yes**{{else}}no{{end}} |
-{{- if has . "elementStruct"}}[{{end}}{{or (index $doc_types .type) .type}}{{if .elementKind}} of {{or (index $doc_types .elementKind) .elementKind}}{{end}}{{if has . "elementStruct"}}](#{{.yamlName | toLower}}){{end}} |
-{{- .doc | strings.TrimSpace}}{{if .default | print}} (**default:** `{{.default | data.ToJSON}}`){{end}} |
+{{- ` `}}{{if .required}}**yes**{{else}}no{{end}} |
+{{- ` `}}{{if has . "elementStruct"}}[{{end}}{{or (index $doc_types .type) .type}}{{if .elementKind}} of {{or (index $doc_types .elementKind) .elementKind}}{{end}}{{if has . "elementStruct"}}](#{{.yamlName | toLower}}){{end}} |
+{{- ` `}}{{ .doc | strings.TrimSpace}}{{if .default | print}} (**default:** `{{.default | data.ToJSON}}`){{end}} |
 {{end}}
 
 {{ range . -}}

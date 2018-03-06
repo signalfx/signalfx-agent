@@ -43,41 +43,31 @@ cause only a subset of metrics to be emitted.
 
 | Name | Type | Description |
 | ---  | ---  | ---         |
-| `container_fs_io_current` | gauge | Number of I/Os currently in progress |
-| `container_fs_limit_bytes` | gauge | Number of bytes that the container may occupy on this filesystem |
-| `container_fs_usage_bytes` | gauge | Number of bytes that are consumed by the container on this filesystem |
-| `container_last_seen` | gauge | Last time a container was seen by the exporter |
-| `container_memory_usage_bytes` | gauge | Current memory usage in bytes |
-| `container_memory_working_set_bytes` | gauge | Current working set in bytes |
-| `container_tasks_state` | gauge | Number of tasks in given state |
-| `container_spec_cpu_shares` | gauge | CPU share of the container |
-| `container_spec_cpu_quota` | gauge | In CPU quota for the CFS process scheduler. In K8s this is equal to the containers's CPU limit as a fraction of 1 core and multiplied by the `container_spec_cpu_period`.  So if the CPU limit is `500m` (500 millicores) for a container and the `container_spec_cpu_period` is set to 100,000, this value will be 50,000. |
-| `container_spec_cpu_period` | gauge | The number of microseconds that the [CFS scheduler](https://www.kernel.org/doc/Documentation/scheduler/sched-bwc.txt) uses as a window when limiting container processes |
-| `container_spec_memory_limit_bytes` | gauge | Memory limit for the container. |
-| `container_spec_memory_swap_limit_bytes` | gauge | Memory swap limit for the container. |
-| `machine_cpu_frequency_khz` | gauge | Node's CPU frequency. |
-| `machine_cpu_cores` | gauge | Number of CPU cores on the node. |
-| `machine_memory_bytes` | gauge | Amount of memory installed on the node. |
-| `container_start_time_seconds` | gauge | Start time of the container since unix epoch in seconds. |
+| `container_cpu_cfs_periods` | counter | Total number of elapsed CFS enforcement intervals |
+| `container_cpu_cfs_throttled_periods` | counter | Total number of times tasks in the cgroup have been throttled |
+| `container_cpu_cfs_throttled_time` | counter | Total time duration, in nanoseconds, for which tasks in the cgroup have been throttled |
 | `container_cpu_system_seconds_total` | counter | Cumulative system cpu time consumed in nanoseconds |
 | `container_cpu_usage_seconds_total` | counter | Cumulative cpu time consumed per cpu in nanoseconds |
 | `container_cpu_user_seconds_total` | counter | Cumulative user cpu time consumed in nanoseconds |
 | `container_cpu_utilization` | counter | Cumulative cpu utilization in percentages |
-| `container_cpu_cfs_periods` | counter | Total number of elapsed CFS enforcement intervals |
-| `container_cpu_cfs_throttled_periods` | counter | Total number of times tasks in the cgroup have been throttled |
-| `container_cpu_cfs_throttled_time` | counter | Total time duration, in nanoseconds, for which tasks in the cgroup have been throttled |
+| `container_fs_io_current` | gauge | Number of I/Os currently in progress |
 | `container_fs_io_time_seconds_total` | counter | Cumulative count of seconds spent doing I/Os |
 | `container_fs_io_time_weighted_seconds_total` | counter | Cumulative weighted I/O time in seconds |
+| `container_fs_limit_bytes` | gauge | Number of bytes that the container may occupy on this filesystem |
 | `container_fs_read_seconds_total` | counter | Cumulative count of seconds spent reading |
 | `container_fs_reads_merged_total` | counter | Cumulative count of reads merged |
 | `container_fs_reads_total` | counter | Cumulative count of reads completed |
 | `container_fs_sector_reads_total` | counter | Cumulative count of sector reads completed |
 | `container_fs_sector_writes_total` | counter | Cumulative count of sector writes completed |
+| `container_fs_usage_bytes` | gauge | Number of bytes that are consumed by the container on this filesystem |
 | `container_fs_write_seconds_total` | counter | Cumulative count of seconds spent writing |
 | `container_fs_writes_merged_total` | counter | Cumulative count of writes merged |
 | `container_fs_writes_total` | counter | Cumulative count of writes completed |
+| `container_last_seen` | gauge | Last time a container was seen by the exporter |
 | `container_memory_failcnt` | counter | Number of memory usage hits limits |
 | `container_memory_failures_total` | counter | Cumulative count of memory allocation failures |
+| `container_memory_usage_bytes` | gauge | Current memory usage in bytes |
+| `container_memory_working_set_bytes` | gauge | Current working set in bytes |
 | `container_network_receive_bytes_total` | counter | Cumulative count of bytes received |
 | `container_network_receive_errors_total` | counter | Cumulative count of errors encountered while receiving |
 | `container_network_receive_packets_dropped_total` | counter | Cumulative count of packets dropped while receiving |
@@ -86,6 +76,16 @@ cause only a subset of metrics to be emitted.
 | `container_network_transmit_errors_total` | counter | Cumulative count of errors encountered while transmitting |
 | `container_network_transmit_packets_dropped_total` | counter | Cumulative count of packets dropped while transmitting |
 | `container_network_transmit_packets_total` | counter | Cumulative count of packets transmitted |
+| `container_spec_cpu_period` | gauge | The number of microseconds that the [CFS scheduler](https://www.kernel.org/doc/Documentation/scheduler/sched-bwc.txt) uses as a window when limiting container processes |
+| `container_spec_cpu_quota` | gauge | In CPU quota for the CFS process scheduler. In K8s this is equal to the containers's CPU limit as a fraction of 1 core and multiplied by the `container_spec_cpu_period`.  So if the CPU limit is `500m` (500 millicores) for a container and the `container_spec_cpu_period` is set to 100,000, this value will be 50,000. |
+| `container_spec_cpu_shares` | gauge | CPU share of the container |
+| `container_spec_memory_limit_bytes` | gauge | Memory limit for the container. |
+| `container_spec_memory_swap_limit_bytes` | gauge | Memory swap limit for the container. |
+| `container_start_time_seconds` | gauge | Start time of the container since unix epoch in seconds. |
+| `container_tasks_state` | gauge | Number of tasks in given state |
+| `machine_cpu_cores` | gauge | Number of CPU cores on the node. |
+| `machine_cpu_frequency_khz` | gauge | Node's CPU frequency. |
+| `machine_memory_bytes` | gauge | Amount of memory installed on the node. |
 
 ## Dimensions
 
@@ -94,13 +94,13 @@ dimensions may be specific to certain metrics.
 
 | Name | Description |
 | ---  | ---         |
+| `container_id` | The ID of the running container |
+| `container_image` | The container image name |
+| `container_name` | The container's name as it appears in the pod spec, the same as container_spec_name but retained for backwards compatibility. |
+| `container_spec_name` | The container's name as it appears in the pod spec |
 | `kubernetes_namespace` | The K8s namespace the container is part of |
 | `kubernetes_pod_name` | The pod instance under which this container runs |
 | `kubernetes_pod_uid` | The UID of the pod instance under which this container runs |
-| `container_spec_name` | The container's name as it appears in the pod spec |
-| `container_name` | The container's name as it appears in the pod spec, the same as container_spec_name but retained for backwards compatibility. |
-| `container_id` | The ID of the running container |
-| `container_image` | The container image name |
 
 
 

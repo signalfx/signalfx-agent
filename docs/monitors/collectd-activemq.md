@@ -60,6 +60,7 @@ cause only a subset of metrics to be emitted.
 
 | Name | Type | Description |
 | ---  | ---  | ---         |
+| `counter.amq.TotalConnectionsCount` | counter | Total connections count per broker |
 | `gauge.amq.TotalConsumerCount` | gauge | Total number of consumers subscribed to destinations on the broker |
 | `gauge.amq.TotalDequeueCount` | gauge | Total number of messages that have been acknowledged from the broker. |
 | `gauge.amq.TotalEnqueueCount` | gauge | Total number of messages that have been sent to the broker. |
@@ -91,7 +92,6 @@ cause only a subset of metrics to be emitted.
 | `gauge.amq.topic.ProducerCount` | gauge | Number of producers publishing to this topic. |
 | `gauge.amq.topic.QueueSize` | gauge | Number of messages in the topic that have yet to be consumed. |
 | `gauge.amq.topic.TotalBlockedTime` | gauge | The total time (ms) that messages have spent blocked by Flow Control |
-| `counter.amq.TotalConnectionsCount` | counter | Total connections count per broker |
 
 
 

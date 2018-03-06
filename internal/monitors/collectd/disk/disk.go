@@ -3,8 +3,6 @@ package disk
 //go:generate collectd-template-to-go disk.tmpl
 
 import (
-	"github.com/creasty/defaults"
-	"github.com/pkg/errors"
 	"github.com/signalfx/signalfx-agent/internal/core/config"
 	"github.com/signalfx/signalfx-agent/internal/monitors"
 	"github.com/signalfx/signalfx-agent/internal/monitors/collectd"
@@ -44,8 +42,5 @@ type Monitor struct {
 
 // Configure configures and runs the plugin in collectd
 func (m *Monitor) Configure(conf *Config) error {
-	if err := defaults.Set(conf); err != nil {
-		return errors.Wrap(err, "Could not set defaults for disk monitor")
-	}
 	return m.SetConfigurationAndRun(conf)
 }

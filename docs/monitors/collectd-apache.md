@@ -36,8 +36,10 @@ cause only a subset of metrics to be emitted.
 
 | Name | Type | Description |
 | ---  | ---  | ---         |
+| `apache_bytes` | cumulative | Bytes served by Apache |
 | `apache_connections` | gauge | Connections served by Apache |
 | `apache_idle_workers` | gauge | Apache workers that are idle |
+| `apache_requests` | cumulative | Requests served by Apache |
 | `apache_scoreboard.closing` | gauge | Number of workers in the process of closing connections |
 | `apache_scoreboard.dnslookup` | gauge | Number of workers performing DNS lookup |
 | `apache_scoreboard.finishing` | gauge | Number of workers that are finishing |
@@ -49,8 +51,6 @@ cause only a subset of metrics to be emitted.
 | `apache_scoreboard.sending` | gauge | Number of workers sending responses |
 | `apache_scoreboard.starting` | gauge | Number of workers starting up |
 | `apache_scoreboard.waiting` | gauge | Number of workers waiting for requests |
-| `apache_bytes` | cumulative | Bytes served by Apache |
-| `apache_requests` | cumulative | Requests served by Apache |
 
 ## Dimensions
 

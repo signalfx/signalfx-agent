@@ -3,16 +3,16 @@
 # collectd/custom
 
  This monitor lets you provide custom collectd
-configuration to be run by the managed collectd instance.  The provided
-config is parsed as a Go template, so if you provide a `discoveryRule` to
-automatically discover service endpoints, the agent will create a separate
-copy of the config for each endpoint discovered and fill in the `{{.Host}}`
-and `{{.Port}}` parameters in the provided config with those of the
-discovered endpoint.  If you do not provide a discovery rule, the provided
-config will be run immediately with collectd.
+configuration to be run by the managed collectd instance.  You can provide
+configuration for as many plugins as you want in a single instance of this
+monitor configuration by either putting multiple `<Plugin>` blocks in a
+single `template` option, or specifying multiple `templates`.
 
-You can provide configuration for as many plugins as you want in a single
-instance of this monitor configuration.
+Note that a distinct instance of collectd is run for each instance of this
+monitor, so it is more efficient to group plugin configurations into a
+single monitor configuration.  You should not group configurations if using
+a discoveryRule since that would result in duplicate config for each
+instance of the service endpoint discovered.
 
 You can also use your own Python plugins in conjunction with the
 `ModulePath` option in
@@ -59,7 +59,7 @@ Monitor Type: `collectd/custom`
 | `host` | no | `string` | This should generally not be set manually, but will be filled in by the agent if using service discovery. It can be accessed in the provided config template with `{{.Host}}`.  It will be set to the hostname or IP address of the discovered service. If you aren't using service discovery, you can just hardcode the host/port in the config template and ignore these fields. |
 | `port` | no | `integer` | This should generally not be set manually, but will be filled in by the agent if using service discovery. It can be accessed in the provided config template with `{{.Port}}`.  It will be set to the port of the discovered service, if it is a TCP/UDP endpoint. (**default:** `0`) |
 | `name` | no | `string` | This should generally not be set manually, but will be filled in by the agent if using service discovery. It can be accessed in the provided config template with `{{.Name}}`.  It will be set to the name that the observer creates for the endpoint upon discovery.  You can generally ignore this field. |
-| `template` | no | `string` | A config template for collectd.  You can include as many plugin blocks as you want in this value.  It is rendered as a standard Go template, so be mindful of the strings `{{` and `}}`. |
+| `template` | no | `string` | A config template for collectd.  You can include as many plugin blocks as you want in this value.  It is rendered as a standard Go template, so be mindful of the delimiters `{{` and `}}`. |
 | `templates` | no | `list of string` | A list of templates, but otherwise equivalent to the above `template` option.  This enables you to have a single directory with collectd configuration files and load them all by using a globbed remote config value: |
 
 

@@ -11,7 +11,7 @@ references:
   import_image: &import_image
     run: |
       docker load -i /tmp/workspace/image.tar
-    
+
 jobs:
   build:
     <<: *executor

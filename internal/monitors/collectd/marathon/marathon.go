@@ -10,6 +10,13 @@ import (
 
 const monitorType = "collectd/marathon"
 
+// MONITOR(collectd/marathon): Monitors a Mesos Marathon instance using the
+// [collectd Marathon Python plugin](https://github.com/signalfx/collectd-marathon).
+//
+// See the [integrations
+// doc](https://github.com/signalfx/integrations/tree/master/collectd-marathon)
+// for more information on configuration.
+
 func init() {
 	monitors.Register(monitorType, func() interface{} {
 		return &Monitor{

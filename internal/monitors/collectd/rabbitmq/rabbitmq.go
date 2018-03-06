@@ -10,6 +10,14 @@ import (
 
 const monitorType = "collectd/rabbitmq"
 
+// MONITOR(collectd/rabbitmq): Monitors an instance of RabbitMQ using the
+// [collectd RabbitMQ Python
+// Plugin](https://github.com/signalfx/collectd-rabbitmq).
+//
+// See the [integration
+// doc](https://github.com/signalfx/integrations/tree/master/collectd-rabbitmq)
+// for more information.
+
 func init() {
 	monitors.Register(monitorType, func() interface{} {
 		return &Monitor{

@@ -10,6 +10,13 @@ import (
 
 const monitorType = "collectd/redis"
 
+// MONITOR(collectd/redis): Monitors a redis instance using the [collectd
+// Python Redis plugin](https://github.com/signalfx/redis-collectd-plugin).
+//
+// See the [integrations
+// doc](https://github.com/signalfx/integrations/tree/master/collectd-redis)
+// for more information.
+
 func init() {
 	monitors.Register(monitorType, func() interface{} {
 		return &Monitor{

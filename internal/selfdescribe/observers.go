@@ -143,13 +143,16 @@ func endpointVarsFromStructMetadataFields(fields []fieldMetadata) []endpointVar 
 			Description: fm.Doc,
 		})
 	}
+	sort.Slice(endpointVars, func(i, j int) bool {
+		return endpointVars[i].Name < endpointVars[j].Name
+	})
 	return endpointVars
 }
 
 func endpointVariablesFromNotes(allDocs []*doc.Package, includeContainerVars bool) []endpointVar {
-	var pm []endpointVar
+	var endpointVars []endpointVar
 	for _, note := range notesFromDocs(allDocs, "ENDPOINT_VAR") {
-		pm = append(pm, endpointVar{
+		endpointVars = append(endpointVars, endpointVar{
 			Name:        note.UID,
 			Type:        "string",
 			Description: commentTextToParagraphs(note.Body),
@@ -161,12 +164,15 @@ func endpointVariablesFromNotes(allDocs []*doc.Package, includeContainerVars boo
 	// misleading.
 	if includeContainerVars {
 		for _, note := range notesFromDocs(allDocs, "CONTAINER_ENDPOINT_VAR") {
-			pm = append(pm, endpointVar{
+			endpointVars = append(endpointVars, endpointVar{
 				Name:        note.UID,
 				Type:        "string",
 				Description: commentTextToParagraphs(note.Body),
 			})
 		}
 	}
-	return pm
+	sort.Slice(endpointVars, func(i, j int) bool {
+		return endpointVars[i].Name < endpointVars[j].Name
+	})
+	return endpointVars
 }
