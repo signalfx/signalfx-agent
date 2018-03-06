@@ -12,13 +12,13 @@ OUTPUT_DIR=${OUTPUT_DIR:-/output}
 REPO_STAGE=${1:-test}
 
 case $REPO_STAGE in
-  main|beta|test) ;;
-  *) echo "REPO_STAGE must be 'main', 'beta' or 'test'" >&2 && exit 1 ;;
+  final|beta|test) ;;
+  *) echo "REPO_STAGE must be 'final', 'beta' or 'test'" >&2 && exit 1 ;;
 esac
 
 repo_dir="/repo/${REPO_STAGE}"
 pool_dir="${repo_dir}/pool"
-s3_bucket="s3://signalfx-agent-test-packages/debs/signalfx-agent/$REPO_STAGE"
+s3_bucket="s3://public-downloads--signalfuse-com/debs/signalfx-agent/$REPO_STAGE"
 
 mkdir -p $repo_dir
 aws s3 sync --delete $s3_bucket $repo_dir

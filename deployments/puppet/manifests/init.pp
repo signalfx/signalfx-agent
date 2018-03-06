@@ -2,7 +2,7 @@
 class signalfx_agent (
     $config,
     $package_stage = 'main',
-    $repo_base = 's3.amazonaws.com/signalfx-agent-test-packages',
+    $repo_base = 'dl.signalfx.com',
     $config_file_path = '/etc/signalfx/agent.yaml',
     $version = 'latest') {
 

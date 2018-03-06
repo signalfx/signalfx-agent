@@ -41,6 +41,14 @@ signalfx-agent: templates
 bundle:
 	BUILD_BUNDLE=true scripts/build
 
+.PHONY: deb-package
+deb-%-package:
+	packaging/deb/build $*
+
+.PHONY: rpm-package
+rpm-%-package:
+	packaging/rpm/build $*
+
 .PHONY: attach-image
 run-shell:
 # Attach to the running container kicked off by `make run-image`.

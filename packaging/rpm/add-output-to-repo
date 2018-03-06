@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Takes any packages in the dir mounted at /output and adds them to the remote
-# S3 repo bucket for the specified stage (main, beta, or test).
+# S3 repo bucket for the specified stage (final, beta, or test).
 
 set -euxo pipefail
 
@@ -11,12 +11,12 @@ REPO_STAGE=${1:-test}
 
 
 case $REPO_STAGE in
-  main|beta|test) ;;
-  *) echo "REPO_STAGE must be 'main', 'beta' or 'test'" >&2 && exit 1 ;;
+  final|beta|test) ;;
+  *) echo "REPO_STAGE must be 'final', 'beta' or 'test'" >&2 && exit 1 ;;
 esac
 
 repo_dir="/repo/${REPO_STAGE}"
-s3_bucket="s3://signalfx-agent-test-packages/rpms/signalfx-agent/$REPO_STAGE"
+s3_bucket="s3://public-downloads--signalfuse-com/rpms/signalfx-agent/$REPO_STAGE"
 
 mkdir -p $repo_dir
 aws s3 sync --delete $s3_bucket $repo_dir

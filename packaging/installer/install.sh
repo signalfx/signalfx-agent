@@ -3,13 +3,74 @@
 # A convenience script to install the agent package on any of our supported
 # distros.  NOT recommended for production use.
 
-set -eufx
+set -euf
 
-repo_base="http://s3.amazonaws.com/signalfx-agent-test-packages"
+repo_base="https://dl.signalfx.com"
 deb_repo_base="$repo_base/debs/signalfx-agent"
 rpm_repo_base="$repo_base/rpms/signalfx-agent"
 debian_gpg_key_url="$repo_base/debian.gpg"
 yum_gpg_key_url="$repo_base/yum-rpm.key"
+
+parse_args_and_install() {
+  local stage="final"
+  local ingest_url="https://ingest.signalfx.com"
+  local access_token=
+  local insecure=
+  local package_version=
+
+  while [ -n "${1-}" ]; do
+    case $1 in
+      --beta)
+        stage="beta"
+        ;;
+      --test)
+        stage="test"
+        ;;
+      --ingest)
+        ingest_url="$2"
+        shift 1
+        ;;
+      --insecure)
+        insecure="true"
+        ;;
+      --package-version)
+        package_version="$2"
+        shift 1
+        ;;
+      *)
+        if [ -z "$access_token" ]; then
+          access_token=$1
+        else
+          echo "Unknown option $1" >&2
+          usage
+          exit 1
+        fi
+        ;;
+    esac
+    shift 1
+  done
+
+  install "$stage" "$ingest_url" "$access_token" "$insecure" "$package_version"
+  exit 0
+}
+
+usage() {
+  cat <<EOH >&2
+Usage: $0 [options] [access_token]
+
+Installs the SignalFx Agent from the package repos.  If access_token is not
+provided, and is not in the file /etc/signalfx/token, it will prompted for on
+stdin.
+
+Options:
+
+  --agent-version <version>   The agent package version to instance
+  --ingest <ingest url>       Base URL to the SignalFx ingest server to use
+  --test                      Use the test package repo instead of the primary
+  --beta                      Use the beta package repo instead of the primary
+EOH
+  exit 0
+}
 
 repo_for_stage() {
   local repo_url=$1
@@ -121,8 +182,14 @@ install_debian_apt_source() {
 }
 
 install_with_apt() {
+  local package_version="$1"
+  local version_flag=""
+  if test -n "$package_version"; then
+    version_flag="=${package_version}"
+  fi
+
   apt-get -y update
-  apt-get -y install signalfx-agent
+  apt-get -y install signalfx-agent${version_flag}
 }
 
 #download_rpm_key() {
@@ -148,7 +215,13 @@ EOH
 }
 
 install_with_yum() {
-  yum install -y signalfx-agent
+  local package_version="$1"
+  local version_flag=""
+  if test -n "$package_version"; then
+    version_flag="-${package_version}"
+  fi
+
+  yum install -y signalfx-agent${version_flag}
 }
 
 ensure_not_installed() {
@@ -197,9 +270,12 @@ install() {
   local ingest_url="$2"
   local access_token="$3"
   local insecure="$4"
+  local package_version="$5"
   local distro="$(get_distro)"
 
   ensure_not_installed
+
+  echo "Installing package signalfx-agent (${package_version-latest}) from $stage repo"
 
   if [ -z $access_token ]; then
     access_token=$(pull_access_token_from_config)
@@ -220,11 +296,11 @@ install() {
         download_debian_key
       fi
       install_debian_apt_source "$stage"
-      install_with_apt
+      install_with_apt "$package_version"
       ;;
     amzn|centos|rhel)
       install_yum_repo "$stage"
-      install_with_yum
+      install_with_yum "$package_version"
       ;;
     default)
       echo "Your distro ($distro) is not supported or could not be determined" >&2
@@ -245,43 +321,6 @@ Make sure that your system's time is relatively accurate or else datapoints may 
 
 The agent's main configuration file is located at /etc/signalfx/agent.yaml.
 EOH
-}
-
-parse_args_and_install() {
-  local stage="main"
-  local ingest_url="https://ingest.signalfx.com"
-  local access_token=
-  local insecure=
-
-  while [ -n "${1-}" ]; do
-    case $1 in
-      --beta)
-        stage="beta"
-        ;;
-      --test)
-        stage="test"
-        ;;
-      --ingest)
-        ingest_url="$2"
-        shift 1
-        ;;
-      --insecure)
-        insecure="true"
-        ;;
-      *)
-        if [ -z $access_token ]; then
-          access_token=$1
-        else
-          echo "Unknown option $1" >&2
-          exit 1
-        fi
-        ;;
-    esac
-    shift 1
-  done
-
-  install "$stage" "$ingest_url" "$access_token" "$insecure"
-  exit 0
 }
 
 parse_args_and_install $@

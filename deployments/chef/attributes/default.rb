@@ -1,5 +1,5 @@
 
-default['signalfx_agent']['repo_base_url'] = "http://s3.amazonaws.com/signalfx-agent-test-packages"
+default['signalfx_agent']['repo_base_url'] = "https://dl.signalfx.com"
 default['signalfx_agent']['package_stage'] = 'main'
 
 default['signalfx_agent']['debian_repo_url'] = "#{node['signalfx_agent']['repo_base_url']}/debs/signalfx-agent"
