@@ -67,7 +67,7 @@ jobs:
       - checkout
       - run: |
           docker run --rm \
-            -v $(readlink -f $CIRCLE_WORKING_DIRECTORY)/.git:/go/src/github.com/signalfx/signalfx-agent/.git \
+            -v $(eval "echo -n $CIRCLE_WORKING_DIRECTORY")/.git:/go/src/github.com/signalfx/signalfx-agent/.git \
             signalfx-agent-dev \
             bash -ec "make docs && git diff --exit-code" || \
             (echo 'Docs are not updated in the repo! Run `make docs` in the dev image and commit those changes.' && exit 1)
