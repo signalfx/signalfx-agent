@@ -37,11 +37,20 @@ parse_args_and_install() {
         package_version="$2"
         shift 1
         ;;
+      -h|--help)
+        usage
+        exit 0
+        ;;
+      -*)
+        echo "Unknown option $1" >&2
+        usage
+        exit 1
+        ;;
       *)
         if [ -z "$access_token" ]; then
           access_token=$1
         else
-          echo "Unknown option $1" >&2
+          echo "Unknown argument $1" >&2
           usage
           exit 1
         fi
@@ -64,7 +73,7 @@ stdin.
 
 Options:
 
-  --agent-version <version>   The agent package version to instance
+  --package-version <version> The agent package version to instance
   --ingest <ingest url>       Base URL to the SignalFx ingest server to use
   --test                      Use the test package repo instead of the primary
   --beta                      Use the beta package repo instead of the primary
@@ -275,7 +284,7 @@ install() {
 
   ensure_not_installed
 
-  echo "Installing package signalfx-agent (${package_version-latest}) from $stage repo"
+  echo "Installing package signalfx-agent (${package_version:-latest}) from $stage repo"
 
   if [ -z $access_token ]; then
     access_token=$(pull_access_token_from_config)
