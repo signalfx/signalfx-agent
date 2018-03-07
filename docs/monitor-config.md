@@ -25,6 +25,7 @@ configuration options:
 - [collectd/kafka](./monitors/collectd-kafka.md)
 - [collectd/load](./monitors/collectd-load.md)
 - [collectd/marathon](./monitors/collectd-marathon.md)
+- [collectd/memcached](./monitors/collectd-memcached.md)
 - [collectd/memory](./monitors/collectd-memory.md)
 - [collectd/mongodb](./monitors/collectd-mongodb.md)
 - [collectd/mysql](./monitors/collectd-mysql.md)

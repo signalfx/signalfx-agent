@@ -22,8 +22,9 @@ const monitorType = "collectd/custom"
 //
 // Note that a distinct instance of collectd is run for each instance of this
 // monitor, so it is more efficient to group plugin configurations into a
-// single monitor configuration.  You should not group configurations if using
-// a discoveryRule since that would result in duplicate config for each
+// single monitor configuration (either in one big `template` text blob, or
+// split into multiple `templates`).  You should not group configurations if
+// using a discoveryRule since that would result in duplicate config for each
 // instance of the service endpoint discovered.
 //
 // You can also use your own Python plugins in conjunction with the

@@ -193,6 +193,9 @@ type CustomConfigurable interface {
 
 // LogConfig contains configuration related to logging
 type LogConfig struct {
+	// Valid levels include `debug`, `info`, `warn`, `error`.  Note that
+	// `debug` logging may leak sensitive configuration (e.g. passwords) to the
+	// agent output.
 	Level string `yaml:"level" default:"info"`
 	// TODO: Support log file output and other log targets
 }
@@ -220,7 +223,7 @@ type CollectdConfig struct {
 	// If you won't be using any collectd monitors, this can be set to true to
 	// prevent collectd from pre-initializing
 	DisableCollectd bool `yaml:"disableCollectd" default:"false"`
-	// How many read intervals before abandoning a metrics. Doesn't affect much
+	// How many read intervals before abandoning a metric. Doesn't affect much
 	// in normal usage.
 	// See [Timeout](https://collectd.org/documentation/manpages/collectd.conf.5.shtml#timeout_iterations).
 	Timeout int `yaml:"timeout" default:"40"`

@@ -23,7 +23,7 @@ const (
 )
 
 // OBSERVER(docker): Queries the Docker Engine API for running containers.  If
-// you are using Kubernetes, you should use the [`k8s-api`
+// you are using Kubernetes, you should use the [k8s-api
 // observer](./k8s-api.md) instead of this.
 
 // ENDPOINT_TYPE(ContainerEndpoint): true

@@ -1,9 +1,10 @@
-# SignalFx Agent
+# SignalFx Agent (SmartAgent)
 
 [![GoDoc](https://godoc.org/github.com/signalfx/signalfx-agent?status.svg)](https://godoc.org/github.com/signalfx/signalfx-agent)
 
-The SignalFx Agent is a metric agent written in Go for monitoring nodes and
-application services in a variety of different environments.
+The SignalFx Agent (a.k.a. the "SmartAgent") is a metric agent written in Go
+for monitoring nodes and application services in a variety of different
+environments.
 
 ## Concepts
 
@@ -39,6 +40,13 @@ configured in the same way, however.
 See [Monitor Config](./docs/monitor-config.md) for a list of supported monitors
 and their configuration.
 
+The agent is primarily intended to monitor services/applications running on the
+same host as the agent.  This is in keeping with the collectd model.  The main
+issue with monitoring services on other hosts is that the `host` dimension that
+collectd sets on all metrics will currently get set to the hostname of the
+machine that the agent is running on.  This allows everything to have a
+consistent `host` dimension so that metrics can be matched to a specific
+machine during metric analysis.
 
 ## Configuration
 
@@ -152,7 +160,14 @@ installation process:
 For non-containerized environments, there is a convenience script that you can
 run on your host to install the agent package.  This is useful for testing and
 trails, but for full-scale deployments you will probably want to use a
-configuration management system like Chef or Puppet.
+configuration management system like Chef or Puppet.  You can [view the source
+for the installer script](./packaging/installer/install.sh) and use it on your
+hosts by running:
+
+```sh
+curl -sSL https://dl.signalfx.com/signalfx-agent.sh > /tmp/signalfx-agent.sh
+sh /tmp/signalfx-agent.sh <access token>
+```
 
 #### Chef
 We offer a Chef cookbook to install and configure the agent.  See [the cookbook
@@ -169,7 +184,7 @@ for more information.
 
 ### Privileges
 
-When using the [`host` observer](./docs/observers/host.md), the agent requires
+When using the [host observer](./docs/observers/host.md), the agent requires
 the [Linux
 capabilities](http://man7.org/linux/man-pages/man7/capabilities.7.html)
 `DAC_READ_SEARCH` and `SYS_PTRACE`, both of which are necessary to allow the

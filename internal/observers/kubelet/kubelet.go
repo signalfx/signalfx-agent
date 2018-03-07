@@ -29,7 +29,7 @@ const (
 
 // OBSERVER(k8s-kubelet): Discovers service endpoints running on the same node
 // as the agent by querying the local kubelet instance.  It is generally
-// recommended to use the [`k8s-api`](./k8s-api.md) observer because
+// recommended to use the [k8s-api](./k8s-api.md) observer because
 // authentication to the local kubelet can be more difficult to setup, and also
 // the kubelet API is technically not documented for public consumption, so
 // this observer may break more easily in future K8s versions.

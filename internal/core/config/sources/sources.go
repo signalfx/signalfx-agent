@@ -24,14 +24,14 @@ import (
 // support.
 type SourceConfig struct {
 	// Whether to watch config sources for changes.  If this is `true` and any
-	// of the config changes, the agent will dynamically reconfigure itself
-	// with minimal disruption.  This is generally better than restarting the
-	// agent on config changes since that can result in larger gaps in metric
-	// data.  The main disadvantage of watching is slightly greater network and
-	// compute resource usage.
-	// This option itself ironically enough is not subject to watching and
-	// changing it to false after the agent was started with it true will
-	// require an agent restart.
+	// of the config changes (either the main agent.yaml, or remote config
+	// values), the agent will dynamically reconfigure itself with minimal
+	// disruption.  This is generally better than restarting the agent on
+	// config changes since that can result in larger gaps in metric data.  The
+	// main disadvantage of watching is slightly greater network and compute
+	// resource usage. This option itself ironically enough is not subject to
+	// watching and changing it to false after the agent was started with it
+	// true will require an agent restart.
 	Watch bool `yaml:"watch" default:"true"`
 	// Configuration for other file sources
 	File file.Config `yaml:"file" default:"{}"`
