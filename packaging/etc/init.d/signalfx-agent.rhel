@@ -34,79 +34,73 @@ is_running() {
 }
 
 case "$1" in
-    start)
+  start)
     if is_running; then
-        echo "Already started"
+      echo "Already started"
     else
-        echo "Starting $name"
+      echo "Starting $name"
 
-        mkdir -p "$rundir"
-        chown -R signalfx-agent "$rundir"
-        chmod 0755 "$rundir"
+      mkdir -p "$rundir"
+      chown -R signalfx-agent "$rundir"
+      chmod 0755 "$rundir"
 
-        start-stop-daemon --start \
-          --exec $cmd \
-          --pidfile $pidfile \
-          --name $name \
-          --user $user \
-          --chuid $user \
-          --group $group \
-          --background \
-          --no-close \
-          --make-pidfile >> $logfile 2>&1
+      su -s /bin/sh -c 'exec "$0" "$@" >> /var/log/signalfx-agent.log 2>&1' $user -- $cmd &
+      pid=$!
 
-        if [ $? -eq 0 ]; then
-          echo "Started.  Logs will go to $logfile"
-          echo -n $pid > $pidfile
-          exit 0
-        else
-          echo "Failed to start, see $logfile"
-          exit 1
-        fi
+      if [ $? -eq 0 ]; then
+        echo "Started.  Logs will go to /var/log/signalfx-agent.log"
+        echo -n $pid > $pidfile
+        exit 0
+      else
+        echo "Failed to start, see /var/log/signalfx-agent.log"
+        exit 1
+      fi
     fi
-    ;;
+  ;;
 
-    stop)
+  stop)
     if is_running; then
-        echo -n "Stopping $name.."
+      echo -n "Stopping $name.."
 
-        start-stop-daemon --stop \
-          --pidfile $pidfile \
-          --name $name \
-          --user $user \
-          --retry 10
+      kill `get_pid`
 
+      for i in "0 1 2 3 4 5 6 7 8 9"; do
         if is_running; then
-          echo "Failed to stop"
-          exit 1
-        else
-          echo "Stopped"
+          echo -n "."
         fi
+      done
+
+      if is_running; then
+        echo "Failed to stop"
+        exit 1
+      else
+        echo "Stopped"
+      fi
     else
-        echo "Not running"
+      echo "Not running"
     fi
 
     rm -f "$pidfile"
-    ;;
+  ;;
 
-    restart)
+  restart)
     $0 stop
     if is_running; then
-        echo "Unable to stop, will not attempt to start"
-        exit 1
+      echo "Unable to stop, will not attempt to start"
+      exit 1
     fi
     $0 start
     ;;
 
-    status)
-      if is_running; then
-        echo "Running with pid `get_pid`"
-      else
-        echo "Not running"
-      fi
+  status)
+    if is_running; then
+      echo "Running with pid `get_pid`"
+    else
+      echo "Not running"
+    fi
     ;;
 
-    *)
+  *)
     echo "Usage: $0 {start|stop|restart|status}"
     exit 1
     ;;

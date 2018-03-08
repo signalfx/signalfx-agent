@@ -21,7 +21,7 @@ Monitor Type: `collectd/activemq`
 | `host` | **yes** | `string` |  |
 | `port` | **yes** | `integer` |  |
 | `name` | no | `string` |  |
-| `serviceName` | no | `string` | This is how the service type is identified in the SignalFx UI so that you can get built-in content for it.  For custom JMX integrations, it can be set to whatever you like and metrics will get the dimension `sf_hostHasService` set to this value. |
+| `serviceName` | no | `string` | This is how the service type is identified in the SignalFx UI so that you can get built-in content for it.  For custom JMX integrations, it can be set to whatever you like and metrics will get the special property `sf_hostHasService` set to this value. |
 | `serviceURL` | no | `string` | The JMX connection string.  This is rendered as a Go template and has access to the other values in this config. (**default:** `service:jmx:rmi:///jndi/rmi://{{.Host}}:{{.Port}}/jmxrmi`) |
 | `instancePrefix` | no | `string` |  |
 | `username` | no | `string` |  |
@@ -40,7 +40,6 @@ The **nested** `mBeanDefinitions` config object has the following fields:
 | `values` | no | `list of object (see below)` |  |
 
 
-<!--- This is pretty ugly all this repetition, but some config has nesting to three layers.  Would probably be better to flatten them before rendering or use a template engine with partials. --->
 The **nested** `values` config object has the following fields:
 
 | Config option | Required | Type | Description |
@@ -52,6 +51,8 @@ The **nested** `values` config object has the following fields:
 | `attribute` | no | `string` |  |
 
 
+
+
 ## Metrics
 
 This monitor emits the following metrics.  Note that configuration options may
@@ -59,6 +60,7 @@ cause only a subset of metrics to be emitted.
 
 | Name | Type | Description |
 | ---  | ---  | ---         |
+| `counter.amq.TotalConnectionsCount` | counter | Total connections count per broker |
 | `gauge.amq.TotalConsumerCount` | gauge | Total number of consumers subscribed to destinations on the broker |
 | `gauge.amq.TotalDequeueCount` | gauge | Total number of messages that have been acknowledged from the broker. |
 | `gauge.amq.TotalEnqueueCount` | gauge | Total number of messages that have been sent to the broker. |
@@ -90,7 +92,6 @@ cause only a subset of metrics to be emitted.
 | `gauge.amq.topic.ProducerCount` | gauge | Number of producers publishing to this topic. |
 | `gauge.amq.topic.QueueSize` | gauge | Number of messages in the topic that have yet to be consumed. |
 | `gauge.amq.topic.TotalBlockedTime` | gauge | The total time (ms) that messages have spent blocked by Flow Control |
-| `counter.amq.TotalConnectionsCount` | counter | Total connections count per broker |
 
 
 

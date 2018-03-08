@@ -21,7 +21,7 @@ filesystem.  All non-filesystem sources must be configured in the
 
 If the source is a reference to a single path, that value is deserialized by
 YAML and inserted into the config as if it had been literally in the config as
-such.  The replacement is done in such as way that you don't need to worry
+such.  The replacement is done in such a way that you don't need to worry
 about matching indentation of remote values.
 
 ## Simple paths

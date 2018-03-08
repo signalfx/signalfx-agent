@@ -16,10 +16,7 @@ Monitor Type: `collectd/load`
 
 ## Configuration
 
-| Config option | Required | Type | Description |
-| --- | --- | --- | --- |
-
-
+This monitor has no configuration options.
 
 
 

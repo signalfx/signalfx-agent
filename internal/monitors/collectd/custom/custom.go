@@ -9,21 +9,23 @@ import (
 	"github.com/signalfx/signalfx-agent/internal/core/config"
 	"github.com/signalfx/signalfx-agent/internal/monitors"
 	"github.com/signalfx/signalfx-agent/internal/monitors/collectd"
+	"github.com/signalfx/signalfx-agent/internal/utils"
 )
 
 const monitorType = "collectd/custom"
 
 // MONITOR(collectd/custom): This monitor lets you provide custom collectd
-// configuration to be run by the managed collectd instance.  The provided
-// config is parsed as a Go template, so if you provide a `discoveryRule` to
-// automatically discover service endpoints, the agent will create a separate
-// copy of the config for each endpoint discovered and fill in the `{{.Host}}`
-// and `{{.Port}}` parameters in the provided config with those of the
-// discovered endpoint.  If you do not provide a discovery rule, the provided
-// config will be run immediately with collectd.
+// configuration to be run by the managed collectd instance.  You can provide
+// configuration for as many plugins as you want in a single instance of this
+// monitor configuration by either putting multiple `<Plugin>` blocks in a
+// single `template` option, or specifying multiple `templates`.
 //
-// You can provide configuration for as many plugins as you want in a single
-// instance of this monitor configuration.
+// Note that a distinct instance of collectd is run for each instance of this
+// monitor, so it is more efficient to group plugin configurations into a
+// single monitor configuration (either in one big `template` text blob, or
+// split into multiple `templates`).  You should not group configurations if
+// using a discoveryRule since that would result in duplicate config for each
+// instance of the service endpoint discovered.
 //
 // You can also use your own Python plugins in conjunction with the
 // `ModulePath` option in
@@ -87,7 +89,7 @@ type Config struct {
 
 	// A config template for collectd.  You can include as many plugin blocks
 	// as you want in this value.  It is rendered as a standard Go template, so
-	// be mindful of the strings `{{` and `}}`.
+	// be mindful of the delimiters `{{` and `}}`.
 	Template string `yaml:"template"`
 	// A list of templates, but otherwise equivalent to the above `template`
 	// option.  This enables you to have a single directory with collectd
@@ -112,11 +114,11 @@ func (c *Config) Validate() error {
 		}
 	}
 
-	if len(c.ExtraDimensions) > 0 {
-		return errors.New("Collectd custom template monitors cannot have " +
-			"extraDimensions set because there is no generic way to correlate " +
-			"datapoints from those plugins to their configuration")
+	if c.DiscoveryRule != "" && len(c.allTemplates()) > 1 {
+		return errors.New("You should not have multiple templates and a discovery " +
+			"rule on a custom collectd monitor")
 	}
+
 	return nil
 }
 
@@ -154,7 +156,18 @@ func (cm *Monitor) Configure(conf *Config) error {
 		return err
 	}
 
-	cm.MonitorCore.NoMonitorID = true
+	collectdConf := *collectd.MainInstance().Config()
+
+	collectdConf.WriteServerPort = 0
+	collectdConf.WriteServerQuery = "?monitorID=" + string(conf.MonitorID)
+	collectdConf.InstanceName = "monitor-" + string(conf.MonitorID)
+	collectdConf.ReadThreads = utils.MinInt(len(conf.allTemplates()), 5)
+	collectdConf.WriteThreads = 1
+	collectdConf.WriteQueueLimitHigh = 10000
+	collectdConf.WriteQueueLimitLow = 10000
+	collectdConf.IntervalSeconds = conf.IntervalSeconds
+
+	cm.MonitorCore.SetCollectdInstance(collectd.InitCollectd(&collectdConf))
 
 	return cm.SetConfigurationAndRun(conf)
 }

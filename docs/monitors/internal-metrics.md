@@ -17,10 +17,7 @@ Monitor Type: `internal-metrics`
 
 ## Configuration
 
-| Config option | Required | Type | Description |
-| --- | --- | --- | --- |
-
-
+This monitor has no configuration options.
 
 
 ## Metrics
@@ -30,13 +27,13 @@ cause only a subset of metrics to be emitted.
 
 | Name | Type | Description |
 | ---  | ---  | ---         |
-| `sfxagent.datapoints_buffered` | gauge | The total number of datapoints that have been emitted by monitors but have yet to be sent to SignalFx |
-| `sfxagent.events_buffered` | gauge | The total number of events that have been emitted by monitors but have yet to be sent to SignalFx |
 | `sfxagent.active_monitors` | gauge | The total number of monitor instances actively working |
-| `sfxagent.configured_monitors` | gauge | The total number of monitor configurations |
-| `sfxagent.discovered_endpoints` | gauge | The number of discovered service endpoints.  This includes endpoints that do not have any matching monitor configuration discovery rule. |
 | `sfxagent.active_observers` | gauge | The number of observers configured and running |
+| `sfxagent.configured_monitors` | gauge | The total number of monitor configurations |
+| `sfxagent.datapoints_buffered` | gauge | The total number of datapoints that have been emitted by monitors but have yet to be sent to SignalFx |
 | `sfxagent.datapoints_sent` | cumulative | The total number of datapoints sent by the agent since it last started |
+| `sfxagent.discovered_endpoints` | gauge | The number of discovered service endpoints.  This includes endpoints that do not have any matching monitor configuration discovery rule. |
+| `sfxagent.events_buffered` | gauge | The total number of events that have been emitted by monitors but have yet to be sent to SignalFx |
 | `sfxagent.events_sent` | cumulative | The total number of events sent by the agent since it last started |
 
 

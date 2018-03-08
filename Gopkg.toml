@@ -33,6 +33,7 @@
 
 [[constraint]]
   name = "github.com/creasty/defaults"
+  revision = "046b42c5f1223416864bdd984edb30d270cfce8a"
 
 [[constraint]]
   name = "github.com/davecgh/go-spew"

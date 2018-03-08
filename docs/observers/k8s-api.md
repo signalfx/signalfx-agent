@@ -24,7 +24,7 @@ Observer Type: `k8s-api`
 
 | Config option | Required | Type | Description |
 | --- | --- | --- | --- |
-| `kubernetesAPI` | no | `object (see below)` | Configuration for the K8s API client (**default:** `map[]`) |
+| `kubernetesAPI` | no | `object (see below)` | Configuration for the K8s API client |
 
 
 The **nested** `kubernetesAPI` config object has the following fields:
@@ -38,7 +38,6 @@ The **nested** `kubernetesAPI` config object has the following fields:
 | `caCertPath` | no | `string` | Path to a CA certificate to use when verifying the API server's TLS cert.  Generally this is provided by K8s alongside the service account token, which will be picked up automatically, so this should rarely be necessary to specify. |
 
 
-<!--- This is pretty ugly all this repetition, but some config has nesting to three layers.  Would probably be better to flatten them before rendering or use a template engine with partials. --->
 
 
 ## Endpoint Variables
@@ -48,26 +47,26 @@ can be used in discovery rules.
 
 | Name | Type | Description |
 | ---  | ---  | ---         |
-| `network_port` | `string` | An alias for `port` |
-| `ip_address` | `string` | The IP address of the endpoint if the `host` is in the from of an IPv4 address |
 | `container_name` | `string` | The first and primary name of the container as it is known to the container runtime (e.g. Docker). |
-| `public_port` | `string` | The port exposed outside the container |
+| `ip_address` | `string` | The IP address of the endpoint if the `host` is in the from of an IPv4 address |
+| `network_port` | `string` | An alias for `port` |
 | `private_port` | `string` | The port that the service endpoint runs on inside the container |
+| `public_port` | `string` | The port exposed outside the container |
+| `alternate_port` | `integer` | Used for services that are accessed through some kind of NAT redirection as Docker does.  This could be either the public port or the private one. |
+| `container_command` | `string` | The command used when running the container exposing the endpoint |
+| `container_id` | `string` | The ID of the container exposing the endpoint |
+| `container_image` | `string` | The image name of the container exposing the endpoint |
+| `container_labels` | `map of string` | A map that contains container label key/value pairs.  You can use the `Contains` and `Get` helper functions in discovery rules to make use of this. |
+| `container_names` | `list of string` | A list of container names of the container exposing the endpoint |
+| `container_state` | `string` | The container state, will usually be "running" since otherwise the container wouldn't have a port exposed to be discovered. |
+| `discovered_by` | `string` | The observer that discovered this endpoint |
+| `host` | `string` | The hostname/IP address of the endpoint |
 | `id` | `string` |  |
 | `name` | `string` | A observer assigned name of the endpoint |
-| `host` | `string` | The hostname/IP address of the endpoint |
-| `port_type` | `string` | TCP or UDP |
-| `port` | `integer` | The TCP/UDP port number of the endpoint |
-| `discovered_by` | `string` | The observer that discovered this endpoint |
-| `alternate_port` | `integer` | Used for services that are accessed through some kind of NAT redirection as Docker does.  This could be either the public port or the private one. |
-| `container_id` | `string` | The ID of the container exposing the endpoint |
-| `container_names` | `list of string` | A list of container names of the container exposing the endpoint |
-| `container_image` | `string` | The image name of the container exposing the endpoint |
-| `container_command` | `string` | The command used when running the container exposing the endpoint |
-| `container_state` | `string` | The container state, will usually be "running" since otherwise the container wouldn't have a port exposed to be discovered. |
-| `container_labels` | `map of string` | A map that contains container label key/value pairs.  You can use the `Contains` and `Get` helper functions in discovery rules to make use of this. |
 | `orchestrator` | `integer` |  |
+| `port` | `integer` | The TCP/UDP port number of the endpoint |
 | `port_labels` | `map of string` | A map of labels on the container port |
+| `port_type` | `string` | TCP or UDP |
 
 ## Dimensions
 
@@ -77,10 +76,10 @@ rules.
 
 | Name | Description |
 | ---  | ---         |
+| `container_spec_name` | The short name of the container in the pod spec, **NOT** the running container's name in the Docker engine |
 | `kubernetes_namespace` | The namespace that the discovered service endpoint is running in. |
 | `kubernetes_pod_name` | The name of the running pod that is exposing the discovered endpoint |
 | `kubernetes_pod_uid` | The UID of the pod that is exposing the discovered endpoint |
-| `container_spec_name` | The short name of the container in the pod spec, **NOT** the running container's name in the Docker engine |
 | `container_name` | The primary name of the running container -- Docker containers can have multiple names but this will be the first name, if any. |
 | `container_image` | The image name (including tags) of the running container |
 

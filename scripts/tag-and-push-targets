@@ -6,6 +6,10 @@ set -xeuo pipefail
 # quay.io so that we can have some semblance of a build cache in CI
 # environments.  Otherwise it takes about 30 minutes to build the image from
 # scratch.
+#
+# Meant to be used in conjunction with the `docker-cache-from` script that
+# pulls these images and outputs docker --cache-from flags to make docker use
+# them.
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 

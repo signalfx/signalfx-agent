@@ -15,8 +15,8 @@ then
   exit 1
 fi
 
-deb_tag=$(git describe --abbrev=0 --tags --match "v${agent_version}-deb*" 2>/dev/null || true)
+deb_tag=$(git describe --abbrev=0 --tags --match "v*-deb*" 2>/dev/null || true)
 
-revision=$(echo -n $deb_tag | sed -e "s/v${agent_version}-deb//")
+revision=$(echo -n $deb_tag | sed -e "s/v.*-deb//")
 
 echo -n ${revision:-"1"}

@@ -3,6 +3,7 @@ package monitors
 import (
 	"reflect"
 
+	"github.com/creasty/defaults"
 	"github.com/pkg/errors"
 
 	"github.com/signalfx/signalfx-agent/internal/core/config"
@@ -32,6 +33,9 @@ type ActiveMonitor struct {
 // each monitor
 func (am *ActiveMonitor) configureMonitor(monConfig config.MonitorCustomConfig) error {
 	monConfig = utils.CloneInterface(monConfig).(config.MonitorCustomConfig)
+	if err := defaults.Set(monConfig); err != nil {
+		return err
+	}
 
 	if am.endpoint != nil {
 		err := config.DecodeExtraConfigStrict(am.endpoint, monConfig)

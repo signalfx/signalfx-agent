@@ -37,7 +37,7 @@ Monitor Type: `kubernetes-cluster`
 | Config option | Required | Type | Description |
 | --- | --- | --- | --- |
 | `alwaysClusterReporter` | no | `bool` | If `true`, leader election is skipped and metrics are always reported. (**default:** `false`) |
-| `kubernetesAPI` | no | `object (see below)` | Config for the K8s API client (**default:** `map[]`) |
+| `kubernetesAPI` | no | `object (see below)` | Config for the K8s API client |
 
 
 The **nested** `kubernetesAPI` config object has the following fields:
@@ -51,7 +51,6 @@ The **nested** `kubernetesAPI` config object has the following fields:
 | `caCertPath` | no | `string` | Path to a CA certificate to use when verifying the API server's TLS cert.  Generally this is provided by K8s alongside the service account token, which will be picked up automatically, so this should rarely be necessary to specify. |
 
 
-<!--- This is pretty ugly all this repetition, but some config has nesting to three layers.  Would probably be better to flatten them before rendering or use a template engine with partials. --->
 
 
 ## Metrics
@@ -61,21 +60,21 @@ cause only a subset of metrics to be emitted.
 
 | Name | Type | Description |
 | ---  | ---  | ---         |
-| `kubernetes_node_ready` | gauge | Whether this node is ready (1), not ready (0) or in an unknown state (-1) |
+| `kubernetes.container_ready` | gauge | Whether a container has passed its readiness probe (0 for no, 1 for yes) |
+| `kubernetes.container_restart_count` | gauge | How many times the container has restarted (capped at 5 due to K8s GC) |
 | `kubernetes.daemon_set.current_scheduled` | gauge | The number of nodes that are running at least 1 daemon pod and are supposed to run the daemon pod |
 | `kubernetes.daemon_set.desired_scheduled` | gauge | The total number of nodes that should be running the daemon pod (including nodes currently running the daemon pod) |
 | `kubernetes.daemon_set.misscheduled` | gauge | The number of nodes that are running the daemon pod, but are not supposed to run the daemon pod |
 | `kubernetes.daemon_set.ready` | gauge | The number of nodes that should be running the daemon pod and have one or more of the daemon pod running and ready |
-| `kubernetes.replication_controller.available` | gauge | Total number of available pods (ready for at least minReadySeconds) targeted by this replication controller. |
-| `kubernetes.replication_controller.desired` | gauge | Number of desired pods |
-| `kubernetes.container_restart_count` | gauge | How many times the container has restarted (capped at 5 due to K8s GC) |
-| `kubernetes.pod_phase` | gauge | Current phase of the pod (1 - Pending, 2 - Running, 3 - Succeeded, 4 - Failed, 5 - Unknown) |
-| `kubernetes.container_ready` | gauge | Whether a container has passed its readiness probe (0 for no, 1 for yes) |
-| `kubernetes.namespace_phase` | gauge | The current phase of namespaces (`1` for _active_ and `0` for _terminating_) |
-| `kubernetes.replica_set.available` | gauge | Total number of available pods (ready for at least minReadySeconds) targeted by this replica set |
-| `kubernetes.replica_set.desired` | gauge | Number of desired pods in this replica set |
 | `kubernetes.deployment.available` | gauge | Total number of available pods (ready for at least minReadySeconds) targeted by this deployment. |
 | `kubernetes.deployment.desired` | gauge | Number of desired pods in this deployment |
+| `kubernetes.namespace_phase` | gauge | The current phase of namespaces (`1` for _active_ and `0` for _terminating_) |
+| `kubernetes.pod_phase` | gauge | Current phase of the pod (1 - Pending, 2 - Running, 3 - Succeeded, 4 - Failed, 5 - Unknown) |
+| `kubernetes.replica_set.available` | gauge | Total number of available pods (ready for at least minReadySeconds) targeted by this replica set |
+| `kubernetes.replica_set.desired` | gauge | Number of desired pods in this replica set |
+| `kubernetes.replication_controller.available` | gauge | Total number of available pods (ready for at least minReadySeconds) targeted by this replication controller. |
+| `kubernetes.replication_controller.desired` | gauge | Number of desired pods |
+| `kubernetes_node_ready` | gauge | Whether this node is ready (1), not ready (0) or in an unknown state (-1) |
 
 ## Dimensions
 
@@ -84,11 +83,11 @@ dimensions may be specific to certain metrics.
 
 | Name | Description |
 | ---  | ---         |
+| `kubernetes_name` | The name of the resource that the metric describes |
 | `kubernetes_namespace` | The namespace of the resource that the metric describes |
 | `kubernetes_pod_uid` | The UID of the pod that the metric describes |
-| `metric_source` | This is always set to `kubernetes` |
-| `kubernetes_name` | The name of the resource that the metric describes |
 | `machine_id` | The machine ID from /etc/machine-id.  This should be unique across all nodes in your cluster, but some cluster deployment tools don't guarantee this. |
+| `metric_source` | This is always set to `kubernetes` |
 
 ## Properties
 

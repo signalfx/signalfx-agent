@@ -26,7 +26,7 @@ Monitor Type: `collectd/signalfx-metadata`
 | `writeServerURL` | no | `string` |  |
 | `procFSPath` | no | `string` | The path to the proc filesystem. Useful to override in containerized environments. (**default:** `/proc`) |
 | `etcPath` | no | `string` | The path to the main host config dir. Userful to override in containerized environments. (**default:** `/etc`) |
-| `persistencePath` | no | `string` | A directory where the metadata plugin can persist the history of successful host metadata syncs so that host metadata is not sent redundantly. (**default:** `/var/lib/misc`) |
+| `persistencePath` | no | `string` | A directory where the metadata plugin can persist the history of successful host metadata syncs so that host metadata is not sent redundantly. (**default:** `/var/run/signalfx-agent`) |
 
 
 
@@ -42,8 +42,8 @@ cause only a subset of metrics to be emitted.
 | `cpu.utilization_per_core` | gauge | Percent of CPU used on each core. |
 | `disk.summary_utilization` | gauge | Percent of disk space utilized on all volumes on this host. |
 | `disk.utilization` | gauge | Percent of disk used on this volume. |
-| `memory.utilization` | gauge | Percent of memory in use on this host. |
 | `disk_ops.total` | cumulative | Total number of disk read and write operations on this host. |
+| `memory.utilization` | gauge | Percent of memory in use on this host. |
 | `network.total` | cumulative | Total amount of inbound and outbound network traffic on this host, in bytes. |
 
 

@@ -27,7 +27,7 @@ Monitor Type: `collectd/kafka`
 | `host` | **yes** | `string` |  |
 | `port` | **yes** | `integer` |  |
 | `name` | no | `string` |  |
-| `serviceName` | no | `string` | This is how the service type is identified in the SignalFx UI so that you can get built-in content for it.  For custom JMX integrations, it can be set to whatever you like and metrics will get the dimension `sf_hostHasService` set to this value. |
+| `serviceName` | no | `string` | This is how the service type is identified in the SignalFx UI so that you can get built-in content for it.  For custom JMX integrations, it can be set to whatever you like and metrics will get the special property `sf_hostHasService` set to this value. |
 | `serviceURL` | no | `string` | The JMX connection string.  This is rendered as a Go template and has access to the other values in this config. (**default:** `service:jmx:rmi:///jndi/rmi://{{.Host}}:{{.Port}}/jmxrmi`) |
 | `instancePrefix` | no | `string` |  |
 | `username` | no | `string` |  |
@@ -46,7 +46,6 @@ The **nested** `mBeanDefinitions` config object has the following fields:
 | `values` | no | `list of object (see below)` |  |
 
 
-<!--- This is pretty ugly all this repetition, but some config has nesting to three layers.  Would probably be better to flatten them before rendering or use a template engine with partials. --->
 The **nested** `values` config object has the following fields:
 
 | Config option | Required | Type | Description |
@@ -57,6 +56,34 @@ The **nested** `values` config object has the following fields:
 | `instanceFrom` | no | `string` |  |
 | `attribute` | no | `string` |  |
 
+
+
+
+## Metrics
+
+This monitor emits the following metrics.  Note that configuration options may
+cause only a subset of metrics to be emitted.
+
+| Name | Type | Description |
+| ---  | ---  | ---         |
+| `counter.kafka-all-bytes-in` | cumulative | Number of bytes received per second across all topics |
+| `counter.kafka-all-bytes-out` | cumulative | Number of bytes transmitted per second across all topics |
+| `counter.kafka-log-flushes` | cumulative | Number of log flushes per second |
+| `counter.kafka-messages-in` | cumulative | Number of messages received per second across all topics |
+| `counter.kafka.fetch-consumer.total-time.count` | cumulative | Number of fetch requests from consumers per second across all partitions |
+| `counter.kafka.fetch-follower.total-time.count` | cumulative | Number of fetch requests from followers per second across all partitions |
+| `counter.kafka.produce.total-time.99th` | gauge | 99th percentile of time in milliseconds to process produce requests |
+| `counter.kafka.produce.total-time.count` | cumulative | Number of producer requests |
+| `counter.kafka.produce.total-time.median` | gauge | Median time it takes to process a produce request |
+| `gauge.kafka-active-controllers` | gauge | Specifies if the broker an active controller |
+| `gauge.kafka-log-flush-time-ms` | gauge | Average number of milliseconds to flush a log |
+| `gauge.kafka-log-flush-time-ms-p95` | gauge | 95th percentile of log flush time in milliseconds |
+| `gauge.kafka-request-queue` | gauge | Number of requests in the request queue across all partitions on the broker |
+| `gauge.kafka-underreplicated-partitions` | gauge | Number of underreplicated partitions across all topics on the broker |
+| `gauge.kafka.fetch-consumer.total-time.99th` | gauge | 99th percentile of time in milliseconds to process fetch requests from consumers |
+| `gauge.kafka.fetch-consumer.total-time.median` | gauge | Median time it takes to process a fetch request from consumers |
+| `gauge.kafka.fetch-follower.total-time.99th` | gauge | 99th percentile of time in milliseconds to process fetch requests from followers |
+| `gauge.kafka.fetch-follower.total-time.median` | gauge | Median time it takes to process a fetch request from follower |
 
 
 

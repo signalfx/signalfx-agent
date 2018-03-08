@@ -101,6 +101,9 @@ func dimensionsFromNotes(allDocs []*doc.Package) []dimMetadata {
 			Description: commentTextToParagraphs(note.Body),
 		})
 	}
+	sort.Slice(dm, func(i, j int) bool {
+		return dm[i].Name < dm[j].Name
+	})
 	return dm
 }
 
@@ -120,6 +123,10 @@ func metricsFromNotes(allDocs []*doc.Package) []metricMetadata {
 			})
 		}
 	}
+
+	sort.Slice(mm, func(i, j int) bool {
+		return mm[i].Name < mm[j].Name
+	})
 	return mm
 }
 
@@ -138,5 +145,8 @@ func propertiesFromNotes(allDocs []*doc.Package) []propMetadata {
 			Description: commentTextToParagraphs(note.Body),
 		})
 	}
+	sort.Slice(pm, func(i, j int) bool {
+		return pm[i].Name < pm[j].Name
+	})
 	return pm
 }

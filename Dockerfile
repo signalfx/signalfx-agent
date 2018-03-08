@@ -374,6 +374,16 @@ COPY --from=final-image /bin/signalfx-agent ./signalfx-agent
 COPY --from=final-image / /bundle/
 COPY ./ ./
 
+####### Pandoc Converter ########
+FROM ubuntu:16.04 as pandoc-converter
+
+RUN apt update &&\
+    apt install -y pandoc
+
+COPY docs/signalfx-agent.1.md /tmp/signalfx-agent.1.md
+RUN mkdir /docs &&\
+    pandoc --standalone --to man /tmp/signalfx-agent.1.md -o /docs/signalfx-agent.1
+
 
 ####### Debian Packager #######
 FROM debian:9 as debian-packager
@@ -387,7 +397,7 @@ WORKDIR /opt/signalfx-agent_${agent_version}
 ENV DEBEMAIL="support+deb@signalfx.com" DEBFULLNAME="SignalFx, Inc."
 
 COPY packaging/deb/debian/ ./debian
-COPY packaging/etc/init.d/signalfx-agent ./debian/signalfx-agent.init
+COPY packaging/etc/init.d/signalfx-agent.debian ./debian/signalfx-agent.init
 COPY packaging/etc/systemd/signalfx-agent.service ./debian/signalfx-agent.service
 COPY packaging/etc/systemd/signalfx-agent.tmpfile ./debian/signalfx-agent.tmpfile
 COPY packaging/etc/upstart/signalfx-agent.conf ./debian/signalfx-agent.upstart
@@ -395,6 +405,7 @@ COPY packaging/etc/logrotate.d/signalfx-agent.conf ./debian/signalfx-agent.logro
 COPY packaging/deb/make-changelog ./make-changelog
 COPY packaging/deb/add-output-to-repo ./add-output-to-repo
 COPY packaging/deb/devscripts.conf /etc/devscripts.conf
+COPY --from=pandoc-converter /docs/signalfx-agent.1 ./signalfx-agent.1
 
 COPY packaging/etc/agent.yaml ./agent.yaml
 
@@ -409,9 +420,11 @@ RUN yum install -y rpmdevtools createrepo rpm-sign awscli
 WORKDIR /root/rpmbuild
 
 COPY packaging/etc/agent.yaml ./SOURCES/agent.yaml
+COPY packaging/etc/init.d/signalfx-agent.rhel ./SOURCES/signalfx-agent.init
 COPY packaging/etc/upstart/signalfx-agent.conf ./SOURCES/signalfx-agent.upstart
 COPY packaging/etc/systemd/ ./SOURCES/systemd/
 COPY packaging/rpm/signalfx-agent.spec ./SPECS/signalfx-agent.spec
 COPY packaging/rpm/add-output-to-repo ./add-output-to-repo
+COPY --from=pandoc-converter /docs/signalfx-agent.1 ./SOURCES/signalfx-agent.1
 
 COPY --from=final-image / ./SOURCES/signalfx-agent/

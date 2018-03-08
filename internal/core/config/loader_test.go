@@ -7,7 +7,6 @@ import (
 	"os"
 	"path/filepath"
 	"testing"
-	"time"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -50,7 +49,7 @@ var _ = Describe("Config Loader", func() {
 
 	It("Loads a basic config file", func() {
 		path := mkFile("agent/agent.yaml", `signalFxAccessToken: abcd`)
-		loads, err := LoadConfig(ctx, path, 0)
+		loads, err := LoadConfig(ctx, path)
 		Expect(err).ShouldNot(HaveOccurred())
 
 		var config *Config
@@ -64,7 +63,7 @@ var _ = Describe("Config Loader", func() {
 			signalFxAccessToken: abcd
 			monitors: {}
 		`))
-		_, err := LoadConfig(ctx, path, 0)
+		_, err := LoadConfig(ctx, path)
 		Expect(err).To(HaveOccurred())
 	})
 
@@ -73,7 +72,7 @@ var _ = Describe("Config Loader", func() {
 			signalFxAccessToken: {"#from": "%s/does-not-exist"}
 		`, dir)))
 
-		_, err := LoadConfig(ctx, path, 0)
+		_, err := LoadConfig(ctx, path)
 		Expect(err).To(HaveOccurred())
 	})
 
@@ -84,7 +83,7 @@ var _ = Describe("Config Loader", func() {
 			signalFxAccessToken: {"#from": "%s"}
 		`, tokenPath)))
 
-		loads, err := LoadConfig(ctx, path, 0)
+		loads, err := LoadConfig(ctx, path)
 		Expect(err).ShouldNot(HaveOccurred())
 
 		var config *Config
@@ -110,7 +109,7 @@ var _ = Describe("Config Loader", func() {
 			  databases: {"#from": "%s/agent/conf/*.yaml"}
 		`, dir)))
 
-		loads, err := LoadConfig(ctx, path, 0)
+		loads, err := LoadConfig(ctx, path)
 		Expect(err).ShouldNot(HaveOccurred())
 
 		var config *Config
@@ -136,7 +135,7 @@ var _ = Describe("Config Loader", func() {
 			  databases: {"#from": "%s/agent/conf/*.yaml"}
 		`, dir)))
 
-		_, err := LoadConfig(ctx, path, 0)
+		_, err := LoadConfig(ctx, path)
 		Expect(err).To(HaveOccurred())
 	})
 
@@ -152,7 +151,7 @@ var _ = Describe("Config Loader", func() {
 			  databases: {"#from": "%s/agent/conf/databases.yaml"}
 		`, dir)))
 
-		loads, err := LoadConfig(ctx, path, 0)
+		loads, err := LoadConfig(ctx, path)
 		Expect(err).ShouldNot(HaveOccurred())
 
 		var config *Config
@@ -179,7 +178,7 @@ var _ = Describe("Config Loader", func() {
 			- {"#from": "%s/agent/conf/*.yaml", flatten: true}
 		`, dir)))
 
-		loads, err := LoadConfig(ctx, path, 0)
+		loads, err := LoadConfig(ctx, path)
 		Expect(err).ShouldNot(HaveOccurred())
 
 		var config *Config
@@ -207,7 +206,7 @@ var _ = Describe("Config Loader", func() {
 			  _: {"#from": "%s/agent/conf/*.yaml", flatten: true}
 		`, dir)))
 
-		_, err := LoadConfig(ctx, path, 0)
+		_, err := LoadConfig(ctx, path)
 		Expect(err).To(HaveOccurred())
 	})
 
@@ -227,7 +226,7 @@ var _ = Describe("Config Loader", func() {
 			  _: {"#from": "%s/agent/conf/*.yaml", flatten: true}
 		`, dir)))
 
-		loads, err := LoadConfig(ctx, path, 0)
+		loads, err := LoadConfig(ctx, path)
 		Expect(err).ShouldNot(HaveOccurred())
 
 		var config *Config
@@ -254,7 +253,7 @@ var _ = Describe("Config Loader", func() {
 			  _: {"#from": "%s/agent/conf/*.yaml", flatten: true}
 		`, dir)))
 
-		loads, err := LoadConfig(ctx, path, 0)
+		loads, err := LoadConfig(ctx, path)
 		Expect(err).ShouldNot(HaveOccurred())
 
 		var config *Config
@@ -282,7 +281,7 @@ var _ = Describe("Config Loader", func() {
 			  password: {"#from": "%s/agent/conf/*.yaml", flatten: true}
 		`, dir)))
 
-		_, err := LoadConfig(ctx, path, 0)
+		_, err := LoadConfig(ctx, path)
 		Expect(err).To(HaveOccurred())
 	})
 
@@ -291,9 +290,12 @@ var _ = Describe("Config Loader", func() {
 
 		path := mkFile("agent/agent.yaml", outdent(fmt.Sprintf(`
 			signalFxAccessToken: {"#from": "%s"}
+			configSources:
+			  file:
+			    pollRateSeconds: 1
 		`, tokenPath)))
 
-		loads, err := LoadConfig(ctx, path, 50*time.Millisecond)
+		loads, err := LoadConfig(ctx, path)
 		Expect(err).ShouldNot(HaveOccurred())
 
 		var config *Config
@@ -315,11 +317,14 @@ var _ = Describe("Config Loader", func() {
 
 		path := mkFile("agent/agent.yaml", outdent(fmt.Sprintf(`
 			signalFxAccessToken: "abcd"
+			configSources:
+			  file:
+			    pollRateSeconds: 1
 			monitors:
 			- {"#from": "%s"}
 		`, monitorPath)))
 
-		loads, err := LoadConfig(ctx, path, 50*time.Millisecond)
+		loads, err := LoadConfig(ctx, path)
 		Expect(err).ShouldNot(HaveOccurred())
 
 		var config *Config
@@ -328,7 +333,7 @@ var _ = Describe("Config Loader", func() {
 		Expect(config.Monitors[0].OtherConfig["password"]).To(Equal("s3cr3t"))
 
 		mkFile("agent/password", "sup3rs3cr3t")
-		Eventually(loads).Should(Receive(&config))
+		Eventually(loads, 2).Should(Receive(&config))
 
 		Expect(config.Monitors[0].OtherConfig["password"]).To(Equal("sup3rs3cr3t"))
 	})
@@ -348,11 +353,14 @@ var _ = Describe("Config Loader", func() {
 
 		path := mkFile("agent/agent.yaml", outdent(fmt.Sprintf(`
 			signalFxAccessToken: "abcd"
+			configSources:
+			  file:
+			    pollRateSeconds: 1
 			monitors:
 			- {"#from": "%s"}
 		`, monitorPath)))
 
-		loads, err := LoadConfig(ctx, path, 50*time.Millisecond)
+		loads, err := LoadConfig(ctx, path)
 		Expect(err).ShouldNot(HaveOccurred())
 
 		var config *Config
@@ -361,7 +369,7 @@ var _ = Describe("Config Loader", func() {
 		Expect(config.Monitors[0].ExtraDimensions["env"]).To(Equal("dev"))
 
 		mkFile("agent/env", "prod")
-		Eventually(loads).Should(Receive(&config))
+		Eventually(loads, 2).Should(Receive(&config))
 
 		Expect(config.Monitors[0].ExtraDimensions["env"]).To(Equal("prod"))
 	})
@@ -380,11 +388,14 @@ var _ = Describe("Config Loader", func() {
 
 		mkFile("agent/agent.yaml", outdent(fmt.Sprintf(`
 			signalFxAccessToken: "abcd"
+			configSources:
+			  file:
+			    pollRateSeconds: 1
 			monitors:
 			- {"#from": "%s", flatten: true}
 		`, monitorPath)))
 
-		_, err := LoadConfig(ctx, configPath, 50*time.Millisecond)
+		_, err := LoadConfig(ctx, configPath)
 		Expect(err).To(HaveOccurred())
 	})
 
@@ -393,20 +404,23 @@ var _ = Describe("Config Loader", func() {
 
 		path := mkFile("agent/agent.yaml", outdent(fmt.Sprintf(`
 			signalFxAccessToken: {"#from": "%s"}
+			configSources:
+			  file:
+			    pollRateSeconds: 1
 			monitors:
 			- type: my-monitor
 			  password: {"#from": "%s"}
 			  other: {"#from": "%s"}
 		`, tokenPath, tokenPath, tokenPath)))
 
-		loads, err := LoadConfig(ctx, path, 50*time.Millisecond)
+		loads, err := LoadConfig(ctx, path)
 		Expect(err).ShouldNot(HaveOccurred())
 
 		var config *Config
 		Eventually(loads).Should(Receive(&config))
 
 		mkFile("agent/token", "1234")
-		Eventually(loads).Should(Receive(&config))
+		Eventually(loads, 2).Should(Receive(&config))
 
 		Expect(config.SignalFxAccessToken).To(Equal("1234"))
 		Expect(config.Monitors[0].OtherConfig["password"]).To(Equal(1234))
@@ -420,7 +434,7 @@ var _ = Describe("Config Loader", func() {
 			  password: {"#from": "%s/agent/mysql-password.yaml", optional: true}
 		`, dir)))
 
-		loads, err := LoadConfig(ctx, path, 0)
+		loads, err := LoadConfig(ctx, path)
 		Expect(err).ShouldNot(HaveOccurred())
 
 		var config *Config
@@ -437,7 +451,7 @@ var _ = Describe("Config Loader", func() {
 			  password: {"#from": "%s/agent/mysql-password.yaml", default: "s3cr3t"}
 		`, dir)))
 
-		loads, err := LoadConfig(ctx, path, 0)
+		loads, err := LoadConfig(ctx, path)
 		Expect(err).ShouldNot(HaveOccurred())
 
 		var config *Config

@@ -160,7 +160,7 @@ var _ = Describe("Kubernetes plugin", func() {
 			},
 		}}
 
-		_ = waitForDatapoints(3)
+		_ = waitForDatapoints(6)
 		dps = waitForDatapoints(6)
 		expectIntMetric(dps, "kubernetes_pod_uid", "1234", "kubernetes.container_restart_count", 0)
 

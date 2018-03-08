@@ -1,7 +1,6 @@
 package kubernetes
 
 import (
-	"encoding/base64"
 	"net/url"
 	"os"
 	"testing"
@@ -172,8 +171,8 @@ var _ = Describe("Kubernetes Observer", func() {
 				Namespace: "default",
 			},
 			Data: map[string][]byte{
-				"password": []byte(base64.StdEncoding.EncodeToString([]byte("s3cr3t"))),
-				"other":    []byte(base64.StdEncoding.EncodeToString([]byte("other secret"))),
+				"password": []byte("s3cr3t"),
+				"other":    []byte("other secret"),
 			},
 		})
 

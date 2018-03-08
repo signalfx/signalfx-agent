@@ -2,21 +2,61 @@
 
 # collectd/marathon
 
+ Monitors a Mesos Marathon instance using the
+[collectd Marathon Python plugin](https://github.com/signalfx/collectd-marathon).
+
+See the [integrations
+doc](https://github.com/signalfx/integrations/tree/master/collectd-marathon)
+for more information on configuration.
+
+
+Monitor Type: `collectd/marathon`
+
+[Monitor Source Code](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/marathon)
 
 **Accepts Endpoints**: **Yes**
 
-**Only One Instance Allowed**: **Yes**
+**Multiple Instances Allowed**: **No**
 
 ## Configuration
 
-| Config option | Default | Required | Type | Description |
-| --- | --- | --- | --- | --- |
-| `host` |  | **yes** | `string` |  |
-| `port` |  | **yes** | `uint16` |  |
-| `name` |  | no | `string` |  |
-| `username` |  | no | `string` |  |
-| `password` |  | no | `string` |  |
+| Config option | Required | Type | Description |
+| --- | --- | --- | --- |
+| `host` | **yes** | `string` |  |
+| `port` | **yes** | `integer` |  |
+| `name` | no | `string` |  |
+| `username` | no | `string` |  |
+| `password` | no | `string` |  |
 
+
+
+
+## Metrics
+
+This monitor emits the following metrics.  Note that configuration options may
+cause only a subset of metrics to be emitted.
+
+| Name | Type | Description |
+| ---  | ---  | ---         |
+| `gauge.marathon-api-metric` | gauge | Metrics reported by the Marathon Metrics API |
+| `gauge.marathon.app.cpu.allocated` | gauge | Number of CPUs allocated to an application |
+| `gauge.marathon.app.cpu.allocated.per.instance` | gauge | Configured number of CPUs allocated to each application instance |
+| `gauge.marathon.app.delayed` | gauge | Indicates if the application is delayed or not |
+| `gauge.marathon.app.deployments.total` | gauge | Number of application deployments |
+| `gauge.marathon.app.disk.allocated` | gauge | Storage allocated to a Marathon application |
+| `gauge.marathon.app.disk.allocated.per.instance` | gauge | Configured storage allocated each to application instance |
+| `gauge.marathon.app.gpu.allocated` | gauge | GPU Allocated to a Marathon application |
+| `gauge.marathon.app.gpu.allocated.per.instance` | gauge | Configured number of GPUs allocated to each application instance |
+| `gauge.marathon.app.instances.total` | gauge | Number of application instances |
+| `gauge.marathon.app.memory.allocated` | gauge | Memory Allocated to a Marathon application |
+| `gauge.marathon.app.memory.allocated.per.instance` | gauge | Configured amount of memory allocated to each application instance |
+| `gauge.marathon.app.tasks.running` | gauge | Number tasks running for an application |
+| `gauge.marathon.app.tasks.staged` | gauge | Number tasks staged for an application |
+| `gauge.marathon.app.tasks.unhealthy` | gauge | Number unhealthy tasks for an application |
+| `gauge.marathon.task.healthchecks.failing.total` | gauge | The number of failing health checks for a task |
+| `gauge.marathon.task.healthchecks.passing.total` | gauge | The number of passing health checks for a task |
+| `gauge.marathon.task.staged.time.elapsed` | gauge | The amount of time the task spent in staging |
+| `gauge.marathon.task.start.time.elapsed` | gauge | Time elapsed since the task started |
 
 
 

@@ -16,10 +16,7 @@ Observer Type: `host`
 
 ## Configuration
 
-| Config option | Required | Type | Description |
-| --- | --- | --- | --- |
-
-
+This observer has no configuration options.
 
 
 ## Endpoint Variables
@@ -29,14 +26,14 @@ can be used in discovery rules.
 
 | Name | Type | Description |
 | ---  | ---  | ---         |
-| `network_port` | `string` | An alias for `port` |
 | `ip_address` | `string` | The IP address of the endpoint if the `host` is in the from of an IPv4 address |
+| `network_port` | `string` | An alias for `port` |
+| `discovered_by` | `string` | The observer that discovered this endpoint |
+| `host` | `string` | The hostname/IP address of the endpoint |
 | `id` | `string` |  |
 | `name` | `string` | A observer assigned name of the endpoint |
-| `host` | `string` | The hostname/IP address of the endpoint |
-| `port_type` | `string` | TCP or UDP |
 | `port` | `integer` | The TCP/UDP port number of the endpoint |
-| `discovered_by` | `string` | The observer that discovered this endpoint |
+| `port_type` | `string` | TCP or UDP |
 
 ## Dimensions
 

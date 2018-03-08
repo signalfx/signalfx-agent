@@ -2,16 +2,41 @@
 
 # collectd/protocols
 
+ Gathers metrics about the network protocol
+stacks running on the system by using the [collectd protocols
+plugin](https://collectd.org/wiki/index.php/Plugin:Protocols).
+
+See the [integrations
+doc](https://github.com/signalfx/integrations/tree/master/collectd-protocols)
+for more information.
+
+
+Monitor Type: `collectd/protocols`
+
+[Monitor Source Code](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/protocols)
 
 **Accepts Endpoints**: No
 
-**Only One Instance Allowed**: **Yes**
+**Multiple Instances Allowed**: **No**
 
 ## Configuration
 
-| Config option | Default | Required | Type | Description |
-| --- | --- | --- | --- | --- |
+This monitor has no configuration options.
 
+
+## Metrics
+
+This monitor emits the following metrics.  Note that configuration options may
+cause only a subset of metrics to be emitted.
+
+| Name | Type | Description |
+| ---  | ---  | ---         |
+| `protocol_counter.ActiveOpens` | cumulative | The number of times TCP connections transitioned from the CLOSED state to the SYN-SENT state. |
+| `protocol_counter.CurrEstab` | cumulative | The number of TCP connections currently in either ESTABLISHED or CLOSE-WAIT state. |
+| `protocol_counter.DelayedACKs` | cumulative | The number of acknowledgements delayed by TCP Delayed Acknowledgement |
+| `protocol_counter.InDestUnreachs` | cumulative | The number of ICMP Destination Unreachable messages received |
+| `protocol_counter.PassiveOpens` | cumulative | The number of times that a server opened a connection, due to receiving a TCP SYN packet. |
+| `protocol_counter.RetransSegs` | cumulative | The total number of segments retransmitted |
 
 
 

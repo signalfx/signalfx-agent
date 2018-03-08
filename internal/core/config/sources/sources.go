@@ -8,8 +8,10 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/creasty/defaults"
 	"github.com/signalfx/signalfx-agent/internal/core/config/sources/consul"
 	"github.com/signalfx/signalfx-agent/internal/core/config/sources/etcd2"
+	"github.com/signalfx/signalfx-agent/internal/core/config/sources/file"
 	"github.com/signalfx/signalfx-agent/internal/core/config/sources/types"
 	"github.com/signalfx/signalfx-agent/internal/core/config/sources/zookeeper"
 	"github.com/signalfx/signalfx-agent/internal/utils"
@@ -21,14 +23,33 @@ import (
 // SourceConfig represents configuration for various config sources that we
 // support.
 type SourceConfig struct {
+	// Whether to watch config sources for changes.  If this is `true` and any
+	// of the config changes (either the main agent.yaml, or remote config
+	// values), the agent will dynamically reconfigure itself with minimal
+	// disruption.  This is generally better than restarting the agent on
+	// config changes since that can result in larger gaps in metric data.  The
+	// main disadvantage of watching is slightly greater network and compute
+	// resource usage. This option itself ironically enough is not subject to
+	// watching and changing it to false after the agent was started with it
+	// true will require an agent restart.
+	Watch bool `yaml:"watch" default:"true"`
+	// Configuration for other file sources
+	File file.Config `yaml:"file" default:"{}"`
+	// Configuration for a Zookeeper remote config source
 	Zookeeper *zookeeper.Config `yaml:"zookeeper"`
-	Etcd2     *etcd2.Config     `yaml:"etcd2"`
-	Consul    *consul.Config    `yaml:"consul"`
+	// Configuration for an Etcd 2 remote config source
+	Etcd2 *etcd2.Config `yaml:"etcd2"`
+	// Configuration for a Consul remote config source
+	Consul *consul.Config `yaml:"consul"`
 }
 
-// Sources returns a map of instantiated sources based on the config
-func (sc *SourceConfig) Sources() (map[string]types.ConfigSource, error) {
+// SourceInstances returns a map of instantiated sources based on the config
+func (sc *SourceConfig) SourceInstances() (map[string]types.ConfigSource, error) {
 	sources := make(map[string]types.ConfigSource)
+
+	file := file.New(time.Duration(sc.File.PollRateSeconds) * time.Second)
+	sources[file.Name()] = file
+
 	if sc.Zookeeper != nil {
 		zk := zookeeper.New(sc.Zookeeper)
 		sources[zk.Name()] = zk
@@ -54,17 +75,25 @@ func parseSourceConfig(config []byte) (SourceConfig, error) {
 	var out struct {
 		Sources SourceConfig `yaml:"configSources"`
 	}
-	err := yaml.Unmarshal(config, &out)
-	return out.Sources, err
+	err := defaults.Set(&out.Sources)
+	if err != nil {
+		panic("Could not set default on source config: " + err.Error())
+	}
+	err = yaml.Unmarshal(config, &out)
+	if err != nil {
+		return out.Sources, err
+	}
+
+	return out.Sources, nil
 }
 
 // ReadConfig reads in the main agent config file and optionally watches for
 // changes on it.  It will be returned immediately, along with a channel that
 // will be sent any updated config content if watching is enabled.
-func ReadConfig(configPath string, fileSource types.ConfigSource,
-	stop <-chan struct{}, shouldWatch bool) ([]byte, <-chan []byte, error) {
-
-	contentMap, version, err := fileSource.Get(configPath)
+func ReadConfig(configPath string, stop <-chan struct{}) ([]byte, <-chan []byte, error) {
+	// Fetch the config file with a dummy file source since we don't know what
+	// poll rate to configure on it yet.
+	contentMap, version, err := file.New(1 * time.Second).Get(configPath)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -76,13 +105,20 @@ func ReadConfig(configPath string, fileSource types.ConfigSource,
 	}
 
 	configContent := contentMap[configPath]
+	sourceConfig, err := parseSourceConfig(configContent)
+	if err != nil {
+		return nil, nil, err
+	}
 
-	var changes chan []byte
-	if shouldWatch {
-		changes = make(chan []byte)
+	// Now that we know the poll rate for files, we can make a new file source
+	// that will be used for the duration of the agent process.
+	fileSource := file.New(time.Duration(sourceConfig.File.PollRateSeconds) * time.Second)
+
+	if sourceConfig.Watch {
+		log.Info("Watching for config file changes")
+		changes := make(chan []byte)
 		go func() {
 			for {
-				log.Debug("Waiting for config file to change")
 				err := fileSource.WaitForChange(configPath, version, stop)
 				log.Info("Config file changed")
 
@@ -105,9 +141,10 @@ func ReadConfig(configPath string, fileSource types.ConfigSource,
 				changes <- contentMap[configPath]
 			}
 		}()
+		return configContent, changes, nil
 	}
 
-	return configContent, changes, nil
+	return configContent, nil, nil
 }
 
 // ReadDynamicValues takes the config file content and processes it for any
@@ -115,25 +152,15 @@ func ReadConfig(configPath string, fileSource types.ConfigSource,
 // contains the rendered values.  It will optionally watch the sources of any
 // dynamic values configured and send updated YAML docs on the returned
 // channel.
-func ReadDynamicValues(configContent []byte, fileSource types.ConfigSource,
-	stop <-chan struct{}, shouldWatch bool) ([]byte, <-chan []byte, error) {
-
-	sources := map[string]types.ConfigSource{
-		fileSource.Name(): fileSource,
-	}
-
+func ReadDynamicValues(configContent []byte, stop <-chan struct{}) ([]byte, <-chan []byte, error) {
 	sourceConfig, err := parseSourceConfig(configContent)
 	if err != nil {
 		return nil, nil, err
 	}
 
-	configuredSources, err := sourceConfig.Sources()
+	sources, err := sourceConfig.SourceInstances()
 	if err != nil {
 		return nil, nil, err
-	}
-
-	for name, source := range configuredSources {
-		sources[name] = source
 	}
 
 	// This is what the cacher will notify on with the names of dynamic value
@@ -142,7 +169,7 @@ func ReadDynamicValues(configContent []byte, fileSource types.ConfigSource,
 
 	cachers := make(map[string]*configSourceCacher)
 	for name, source := range sources {
-		cacher := newConfigSourceCacher(source, pathChanges, stop, shouldWatch)
+		cacher := newConfigSourceCacher(source, pathChanges, stop, sourceConfig.Watch)
 		cachers[name] = cacher
 	}
 
@@ -154,7 +181,7 @@ func ReadDynamicValues(configContent []byte, fileSource types.ConfigSource,
 	}
 
 	var changes chan []byte
-	if shouldWatch {
+	if sourceConfig.Watch {
 		changes = make(chan []byte)
 
 		go func() {

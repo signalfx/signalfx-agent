@@ -11,7 +11,7 @@ references:
   import_image: &import_image
     run: |
       docker load -i /tmp/workspace/image.tar
-    
+
 jobs:
   build:
     <<: *executor
@@ -54,10 +54,23 @@ jobs:
           docker run --rm \
             -v ~/testresults:/output \
             signalfx-agent-dev \
-            bash -ec "make templates && go test -v ./... | go2xunit > /output/unit.xml"
+            bash -eo pipefail -c "make templates && go test -v ./... | go2xunit > /output/unit.xml"
 
       - store_test_results:
           path: ~/testresults
+
+  docs_test: 
+    <<: *executor
+    steps:
+      - *attach_workspace
+      - *import_image
+      - checkout
+      - run: |
+          docker run --rm \
+            -v $(eval "echo -n $CIRCLE_WORKING_DIRECTORY")/.git:/go/src/github.com/signalfx/signalfx-agent/.git \
+            signalfx-agent-dev \
+            bash -ec "make docs && git diff --exit-code" || \
+            (echo 'Docs are not updated in the repo! Run `make docs` in the dev image and commit those changes.' && exit 1)
 
   integration_tests: 
     <<: *executor
@@ -130,6 +143,55 @@ jobs:
           path: ~/project/packaging/deb/output
           destination: /packages/
 
+  chef_tests:
+    <<: *executor
+    steps:
+      - checkout
+      - run: |
+          mkdir ~/testresults
+
+          if ! scripts/changes-include-dir deployments/chef; then
+              echo "Chef cookbook code has not changed, skipping tests!"
+              exit 0
+          fi
+
+          cd deployments/chef
+          make dev-image
+          docker run --rm \
+            signalfx-agent-chef-dev \
+            chef exec rspec --format RspecJunitFormatter > ~/testresults/chefspec.xml
+
+          docker run --rm \
+            signalfx-agent-chef-dev \
+            foodcritic .
+
+      - store_test_results:
+          path: ~/testresults
+
+  puppet_tests:
+    <<: *executor
+    steps:
+      - checkout
+      - run: |
+          mkdir ~/testresults
+
+          if ! scripts/changes-include-dir deployments/puppet; then
+              echo "Puppet module code has not changed, skipping tests!"
+              exit 0
+          fi
+
+          cd deployments/puppet
+          make dev-image
+          docker run --rm \
+            signalfx-agent-puppet-dev \
+            rspec spec --format RspecJunitFormatter > ~/testresults/puppetspec.xml
+
+          docker run --rm \
+            signalfx-agent-puppet-dev \
+            puppet-lint .
+
+      - store_test_results:
+          path: ~/testresults
 workflows:
   version: 2
   build_test:
@@ -147,5 +209,10 @@ workflows:
      - integration_tests:
         requires:
          - build
+     - docs_test:
+        requires:
+         - build
      - rpm_package_tests
      - deb_package_tests
+     - chef_tests
+     - puppet_tests

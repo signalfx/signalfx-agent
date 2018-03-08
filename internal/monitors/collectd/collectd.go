@@ -48,61 +48,64 @@ type Manager struct {
 	// Map of each active monitor to its output instance
 	activeMonitors  map[types.MonitorID]types.Output
 	genericJMXUsers map[types.MonitorID]bool
-	noIDOutputs     map[types.MonitorID]types.Output
 	active          bool
 	// The port of the active write server, will be 0 if write server isn't
 	// started yet.
 	writeServerPort int
 
 	// Channels to control the state machine asynchronously
-	stop           chan struct{}
+	stop chan struct{}
+	// Closed when collectd state machine is terminated
+	terminated     chan struct{}
 	requestRestart chan struct{}
+
+	logger *log.Entry
 }
 
-var collectdSingleton = &Manager{
-	activeMonitors:  make(map[types.MonitorID]types.Output),
-	genericJMXUsers: make(map[types.MonitorID]bool),
-	noIDOutputs:     make(map[types.MonitorID]types.Output),
-	stop:            make(chan struct{}),
-	requestRestart:  make(chan struct{}),
-}
+var collectdSingleton *Manager
 
-// Instance returns the singleton instance of the collectd manager
-func Instance() *Manager {
-	collectdSingleton.configMutex.Lock()
-	defer collectdSingleton.configMutex.Unlock()
-
-	if !collectdSingleton.active {
-		panic("Don't try and use the collectd manager until it is configured!")
+// MainInstance returns the global singleton instance of the collectd manager
+func MainInstance() *Manager {
+	if collectdSingleton == nil {
+		panic("Main collectd instance should not be accessed before being configured")
 	}
 
 	return collectdSingleton
 }
 
-// ConfigureCollectd should be called whenever the main collectd config in the agent
-// has changed.  Restarts collectd if the config has changed.
-func ConfigureCollectd(conf *config.CollectdConfig) error {
+// InitCollectd makes a new instance of a manager and initializes it, but does
+// not start collectd
+func InitCollectd(conf *config.CollectdConfig) *Manager {
+	manager := &Manager{
+		conf:            conf,
+		activeMonitors:  make(map[types.MonitorID]types.Output),
+		genericJMXUsers: make(map[types.MonitorID]bool),
+		requestRestart:  make(chan struct{}),
+		logger:          log.WithField("collectdInstance", conf.InstanceName),
+	}
+	manager.deleteExistingConfig()
+
+	return manager
+}
+
+// ConfigureMainCollectd should be called whenever the main collectd config in
+// the agent has changed.  Restarts collectd if the config has changed.
+func ConfigureMainCollectd(conf *config.CollectdConfig) error {
+	localConf := *conf
+	localConf.InstanceName = "global"
+
+	if collectdSingleton == nil {
+		collectdSingleton = InitCollectd(&localConf)
+	}
 	cm := collectdSingleton
 
 	cm.configMutex.Lock()
 	defer cm.configMutex.Unlock()
 
-	if cm.conf == nil || cm.conf.Hash() != conf.Hash() {
-		cm.conf = conf
+	if cm.conf == nil || cm.conf.Hash() != localConf.Hash() {
+		cm.conf = &localConf
 
-		if !cm.active {
-			cm.deleteExistingConfig()
-
-			waitCh := make(chan struct{})
-			// This should only have to be called once for the lifetime of the
-			// agent.
-			go cm.manageCollectd(waitCh)
-			// Wait for the write server to be started
-			<-waitCh
-			cm.active = true
-		}
-
-		cm.requestRestart <- struct{}{}
+		cm.RequestRestart()
 	}
 
 	return nil
@@ -116,7 +119,7 @@ func ConfigureCollectd(conf *config.CollectdConfig) error {
 // true so that collectd can know to load the java plugin in the collectd.conf
 // file so that any JVM config doesn't get set multiple times and cause
 // spurious log output.
-func (cm *Manager) ConfigureFromMonitor(monitorID types.MonitorID, output types.Output, usesGenericJMX bool, noMonitorID bool) error {
+func (cm *Manager) ConfigureFromMonitor(monitorID types.MonitorID, output types.Output, usesGenericJMX bool) error {
 	cm.configMutex.Lock()
 	defer cm.configMutex.Unlock()
 
@@ -130,19 +133,7 @@ func (cm *Manager) ConfigureFromMonitor(monitorID types.MonitorID, output types.
 		cm.genericJMXUsers[monitorID] = true
 	}
 
-	// Some legacy collectd plugin configuration might not properly report the
-	// monitor ID back to agent, so we have no way of knowing which monitor's
-	// Output to associate the datapoints back to.  This is especially true of
-	// user provided collectd config templates.  So just stick those outputs
-	// into a map so that they can be picked from randomly when we get
-	// datapoints without a monitor id.  This is definitely a hack but I can't
-	// figure out any generic way to correlate it without requiring users to
-	// provide fairly intricate collectd filtering.
-	if noMonitorID {
-		cm.noIDOutputs[monitorID] = output
-	}
-
-	cm.requestRestart <- struct{}{}
+	cm.RequestRestart()
 	return nil
 }
 
@@ -152,14 +143,34 @@ func (cm *Manager) MonitorDidShutdown(monitorID types.MonitorID) {
 	cm.configMutex.Lock()
 	defer cm.configMutex.Unlock()
 
-	delete(cm.activeMonitors, monitorID)
 	delete(cm.genericJMXUsers, monitorID)
-	delete(cm.noIDOutputs, monitorID)
 
-	if len(cm.activeMonitors) == 0 && cm.stop != nil {
-		close(cm.stop)
-	} else {
-		cm.requestRestart <- struct{}{}
+	// This is a bit hacky but it is to solve the race condition where the
+	// monitor "shuts down" in the agent but is still running in collectd and
+	// generating datapoints.  If datapoints come in after the monitor's output
+	// is lost from activeMonitors, then those datapoints can't be associated
+	// with an Output interface and will be dropped, causing scary looking
+	// error messages. Blocking the monitor's Shutdown method until collectd is
+	// restarted is undesirable since it is called synchronously.  This defers
+	// the actual deletion of the Output interfaces until collectd has been
+	// restarted and is no longer sending datapoints for the deleted monitor.
+	go func() {
+		time.Sleep(5 * time.Second)
+
+		cm.configMutex.Lock()
+		defer cm.configMutex.Unlock()
+
+		delete(cm.activeMonitors, monitorID)
+
+		if len(cm.activeMonitors) == 0 && cm.stop != nil {
+			close(cm.stop)
+			cm.deleteExistingConfig()
+			<-cm.terminated
+		}
+	}()
+
+	if len(cm.activeMonitors) > 1 {
+		cm.RequestRestart()
 	}
 }
 
@@ -168,6 +179,16 @@ func (cm *Manager) MonitorDidShutdown(monitorID types.MonitorID) {
 // to restart.  This method will not immediately restart but will wait for a
 // bit to batch together multiple back-to-back restarts.
 func (cm *Manager) RequestRestart() {
+	if cm.terminated == nil || utils.IsSignalChanClosed(cm.terminated) {
+		waitCh := make(chan struct{})
+		cm.terminated = make(chan struct{})
+		// This should only have to be called once for the lifetime of the
+		// agent.
+		go cm.manageCollectd(waitCh, cm.terminated)
+		// Wait for the write server to be started
+		<-waitCh
+	}
+
 	cm.requestRestart <- struct{}{}
 }
 
@@ -178,6 +199,15 @@ func (cm *Manager) WriteServerURL() string {
 	conf := *cm.conf
 	conf.WriteServerPort = uint16(cm.writeServerPort)
 	return conf.WriteServerURL()
+}
+
+// Config returns the collectd config used by this instance of collectd manager
+func (cm *Manager) Config() *config.CollectdConfig {
+	if cm.conf == nil {
+		// This is a programming bug if we get here.
+		panic("Collectd must be configured before any monitor tries to use it")
+	}
+	return cm.conf
 }
 
 // ManagedConfigDir returns the directory where monitor config should go.
@@ -202,7 +232,7 @@ func (cm *Manager) PluginDir() string {
 // since we have config coming in asynchronously from multiple sources.  This
 // function should never return.  waitCh will be closed once the write server
 // is setup and right before it is actualy waiting for restart signals.
-func (cm *Manager) manageCollectd(waitCh chan<- struct{}) {
+func (cm *Manager) manageCollectd(initCh chan<- struct{}, terminated chan struct{}) {
 	state := Uninitialized
 	// The collectd process manager
 	var cmd *exec.Cmd
@@ -210,14 +240,14 @@ func (cm *Manager) manageCollectd(waitCh chan<- struct{}) {
 	var output io.ReadCloser
 	procDied := make(chan struct{})
 	restart := make(chan struct{})
-	// This is to stop the goroutine that looks for restart requests
-	var closeSignal chan struct{}
 	var restartDebounced func()
 	var restartDebouncedStop chan<- struct{}
 
+	cm.stop = make(chan struct{})
+
 	writeServer, err := cm.startWriteServer()
 	if err != nil {
-		log.WithError(err).Error("Could not start collectd write server")
+		cm.logger.WithError(err).Error("Could not start collectd write server")
 		state = Errored
 	} else {
 		cm.writeServerPort = writeServer.RunningPort()
@@ -225,15 +255,14 @@ func (cm *Manager) manageCollectd(waitCh chan<- struct{}) {
 
 	cm.setCollectdVersionEnvVar()
 
-	close(waitCh)
+	close(initCh)
 
 	for {
-		log.Debugf("Collectd is now %s", state)
+		cm.logger.Debugf("Collectd is now %s", state)
 
 		switch state {
 
 		case Uninitialized:
-			closeSignal = make(chan struct{})
 			restartDebounced, restartDebouncedStop = utils.Debounce0(func() {
 				restart <- struct{}{}
 			}, restartDelay)
@@ -243,29 +272,31 @@ func (cm *Manager) manageCollectd(waitCh chan<- struct{}) {
 					select {
 					case <-cm.requestRestart:
 						restartDebounced()
-					case <-closeSignal:
+					case <-terminated:
 						return
 					}
 				}
 			}()
 
-			// Block here until we actually get a start request
+			// Block here until we actually get a start or stop request
 			select {
+			case <-cm.stop:
+				state = Stopped
 			case <-restart:
 				state = Starting
 			}
 
 		case Starting:
 			if err := cm.rerenderConf(writeServer.RunningPort()); err != nil {
-				log.WithError(err).Error("Could not render collectd.conf")
-				state = Errored
+				cm.logger.WithError(err).Error("Could not render collectd.conf")
+				state = Stopped
 				continue
 			}
 
 			cmd, output = cm.makeChildCommand()
 
 			if err := cmd.Start(); err != nil {
-				log.WithError(err).Error("Could not start collectd child process!")
+				cm.logger.WithError(err).Error("Could not start collectd child process!")
 				time.Sleep(restartDelay)
 				state = Starting
 				continue
@@ -274,7 +305,7 @@ func (cm *Manager) manageCollectd(waitCh chan<- struct{}) {
 			go func() {
 				scanner := logScanner(output)
 				for scanner.Scan() {
-					logLine(scanner.Text())
+					logLine(scanner.Text(), cm.logger)
 				}
 			}()
 
@@ -287,15 +318,13 @@ func (cm *Manager) manageCollectd(waitCh chan<- struct{}) {
 			state = Running
 
 		case Running:
-			cm.stop = make(chan struct{})
-
 			select {
 			case <-restart:
 				state = Restarting
 			case <-cm.stop:
 				state = ShuttingDown
 			case <-procDied:
-				log.Error("Collectd died when it was supposed to be running, restarting...")
+				cm.logger.Error("Collectd died when it was supposed to be running, restarting...")
 				time.Sleep(restartDelay)
 				state = Starting
 			}
@@ -312,13 +341,9 @@ func (cm *Manager) manageCollectd(waitCh chan<- struct{}) {
 
 		case Stopped:
 			restartDebouncedStop <- struct{}{}
-			close(closeSignal)
-			state = Uninitialized
-
-		// If you go to the Errored state, make sure nothing is left running!
-		case Errored:
-			log.Error("Collectd is in an error state, waiting for config change")
-			state = Uninitialized
+			writeServer.Shutdown()
+			close(terminated)
+			return
 		}
 	}
 }
@@ -327,8 +352,8 @@ func (cm *Manager) manageCollectd(waitCh chan<- struct{}) {
 // be configured on this run.
 func (cm *Manager) deleteExistingConfig() {
 	if cm.conf != nil {
-		log.Debug("Deleting existing config")
-		os.RemoveAll(cm.conf.ConfigDir)
+		cm.logger.Debugf("Deleting existing config from %s", cm.conf.InstanceConfigDir())
+		os.RemoveAll(cm.conf.InstanceConfigDir())
 	}
 }
 
@@ -342,7 +367,7 @@ func (cm *Manager) startWriteServer() (*WriteHTTPServer, error) {
 		return nil, err
 	}
 
-	log.WithFields(log.Fields{
+	cm.logger.WithFields(log.Fields{
 		"ipAddr": cm.conf.WriteServerIPAddr,
 		"port":   writeServer.RunningPort(),
 	}).Info("Started collectd write server")
@@ -365,19 +390,18 @@ func (cm *Manager) receiveDPs(dps []*datapoint.Datapoint) {
 
 		var output types.Output
 		if string(monitorID) == "" {
-			// Just get an arbitrary output from the "no id" outputs, doesn't
-			// matter which.
-			for k := range cm.noIDOutputs {
-				output = cm.noIDOutputs[k]
-				break
-			}
+			cm.logger.WithFields(log.Fields{
+				"monitorID": monitorID,
+				"datapoint": dps[i],
+			}).Error("Datapoint does not specify its monitor id, cannot process")
+			continue
 		} else {
 			output = cm.activeMonitors[monitorID]
 		}
 
 		if output == nil {
 			if output == nil {
-				log.WithFields(log.Fields{
+				cm.logger.WithFields(log.Fields{
 					"monitorID": monitorID,
 					"datapoint": dps[i],
 				}).Error("Datapoint has an unknown monitorID")
@@ -404,7 +428,7 @@ func (cm *Manager) receiveEvents(events []*event.Event) {
 		}
 
 		if string(monitorID) == "" {
-			log.WithFields(log.Fields{
+			cm.logger.WithFields(log.Fields{
 				"event": spew.Sdump(events[i]),
 			}).Error("Event does not have a monitorID as either a dimension or property field, cannot send")
 			continue
@@ -412,7 +436,7 @@ func (cm *Manager) receiveEvents(events []*event.Event) {
 
 		output := cm.activeMonitors[monitorID]
 		if output == nil {
-			log.WithFields(log.Fields{
+			cm.logger.WithFields(log.Fields{
 				"monitorID": monitorID,
 			}).Error("Event has an unknown monitorID, cannot send")
 			continue
@@ -425,7 +449,7 @@ func (cm *Manager) receiveEvents(events []*event.Event) {
 func (cm *Manager) rerenderConf(writeHTTPPort int) error {
 	output := bytes.Buffer{}
 
-	log.WithFields(log.Fields{
+	cm.logger.WithFields(log.Fields{
 		"context": cm.conf,
 	}).Debug("Rendering main collectd.conf template")
 
@@ -483,16 +507,16 @@ func (cm *Manager) setCollectdVersionEnvVar() {
 
 	outText, err := cmd.CombinedOutput()
 	if err != nil {
-		log.WithError(err).Error("Could not determine collectd version")
+		cm.logger.WithError(err).Error("Could not determine collectd version")
 		return
 	}
 
 	groups := utils.RegexpGroupMap(collectdVersionRegexp, string(outText))
 	if groups == nil {
-		log.Errorf("Could not determine collectd version from output %s", outText)
+		cm.logger.Errorf("Could not determine collectd version from output %s", outText)
 		return
 	}
 
 	os.Setenv("COLLECTD_VERSION", groups["version"])
-	log.Infof("Detected collectd version %s", groups["version"])
+	cm.logger.Infof("Detected collectd version %s", groups["version"])
 }

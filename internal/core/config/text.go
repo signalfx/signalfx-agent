@@ -19,6 +19,9 @@ func ToString(conf interface{}) string {
 
 	var out string
 	confValue := reflect.Indirect(reflect.ValueOf(conf))
+	if !confValue.IsValid() {
+		return ""
+	}
 	confStruct := confValue.Type()
 
 	for i := 0; i < confStruct.NumField(); i++ {

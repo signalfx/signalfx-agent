@@ -3,7 +3,6 @@ package etcd
 //go:generate collectd-template-to-go etcd.tmpl
 
 import (
-	"github.com/creasty/defaults"
 	"github.com/pkg/errors"
 	"github.com/signalfx/signalfx-agent/internal/core/config"
 	"github.com/signalfx/signalfx-agent/internal/monitors"
@@ -57,8 +56,5 @@ type Monitor struct {
 
 // Configure configures and runs the plugin in collectd
 func (am *Monitor) Configure(conf *Config) error {
-	if err := defaults.Set(conf); err != nil {
-		return errors.Wrap(err, "Could not set defaults for etcd monitor")
-	}
 	return am.SetConfigurationAndRun(conf)
 }

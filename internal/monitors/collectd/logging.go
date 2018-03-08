@@ -17,8 +17,6 @@ var logRE = regexp.MustCompile(
 		`(?:\[(?P<level>\w+?)\] )?` +
 		`(?P<message>(?:(?P<plugin>[\w-]+?): )?.*)`)
 
-var collectdLogger = log.WithFields(log.Fields{"source": "collectd"})
-
 func logScanner(output io.ReadCloser) *bufio.Scanner {
 	s := bufio.NewScanner(output)
 	s.Split(func(data []byte, atEOF bool) (advance int, token []byte, err error) {
@@ -48,9 +46,8 @@ func logScanner(output io.ReadCloser) *bufio.Scanner {
 	return s
 }
 
-func logLine(line string) {
+func logLine(line string, logger *log.Entry) {
 	groups := utils.RegexpGroupMap(logRE, line)
-	logger := collectdLogger
 
 	var level string
 	var message string

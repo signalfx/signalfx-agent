@@ -2,20 +2,63 @@
 
 # collectd/memcached
 
+ Monitors an instance of memcached using the
+[collectd memcached
+plugin](https://collectd.org/wiki/index.php/Plugin:memcached).
+
+See the [integrations
+doc](https://github.com/signalfx/integrations/tree/master/collectd-memcached)
+for more information.
+
+
+Monitor Type: `collectd/memcached`
+
+[Monitor Source Code](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/memcached)
 
 **Accepts Endpoints**: **Yes**
 
-**Only One Instance Allowed**: No
+**Multiple Instances Allowed**: Yes
 
 ## Configuration
 
-| Config option | Default | Required | Type | Description |
-| --- | --- | --- | --- | --- |
-| `host` |  | **yes** | `string` |  |
-| `port` |  | **yes** | `uint16` |  |
-| `name` |  | no | `string` |  |
-| `reportHost` |  | no | `bool` |  |
+| Config option | Required | Type | Description |
+| --- | --- | --- | --- |
+| `host` | **yes** | `string` |  |
+| `port` | **yes** | `integer` |  |
+| `name` | no | `string` |  |
+| `reportHost` | no | `bool` |  (**default:** `false`) |
 
+
+
+
+## Metrics
+
+This monitor emits the following metrics.  Note that configuration options may
+cause only a subset of metrics to be emitted.
+
+| Name | Type | Description |
+| ---  | ---  | ---         |
+| `df.cache.free` | gauge | Unused storage bytes |
+| `df.cache.used` | gauge | Current number of bytes used to store items |
+| `memcached_command.flush` | cumulative | Number of flush requests |
+| `memcached_command.get` | cumulative | Number of retrieval requests |
+| `memcached_command.set` | cumulative | Number of storage requests |
+| `memcached_command.touch` | cumulative | Number of touch requests |
+| `memcached_connections.current` | gauge | Current number of open connections |
+| `memcached_connections.listen_disabled` | gauge | Number of times connection limit has been exceeded |
+| `memcached_items.current` | gauge | Current number of items stored by this instance |
+| `memcached_octets.rx` | cumulative | Total network bytes read by this server |
+| `memcached_octets.tx` | cumulative | Total network bytes written by this server |
+| `memcached_ops.decr_hits` | cumulative | Number of successful Decr requests |
+| `memcached_ops.decr_misses` | cumulative | Number of decr requests against missing keys |
+| `memcached_ops.evictions` | cumulative | Number of valid items removed from cache |
+| `memcached_ops.hits` | cumulative | Number of keys that have been requested and found present |
+| `memcached_ops.incr_hits` | cumulative | Number of successful incr requests |
+| `memcached_ops.incr_misses` | cumulative | Number of incr requests against missing keys |
+| `memcached_ops.misses` | cumulative | Number of items that have been requested and not found |
+| `ps_count.threads` | gauge | Number of worker threads requested |
+| `ps_cputime.syst` | cumulative | Total system time for this instance |
+| `ps_cputime.user` | cumulative | Total user time for this instance |
 
 
 

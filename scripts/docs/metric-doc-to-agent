@@ -1,0 +1,33 @@
+#!/bin/bash
+
+set -euo pipefail
+
+# Converts a set of metric docs in the integrations repo to the Go note
+# comments that are picked up by the selfdescribe module to generate agent
+# documentation.
+
+# E.g. to sync collectd-kafka run:
+# INTEGRATIONS_REPO=~/work/integrations ./metric-doc-to-agent collectd-kafka
+
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+INTEGRATION=$1
+INTEGRATIONS_REPO=${INTEGRATIONS_REPO:-$SCRIPT_DIR/../../../integrations}
+
+test -d $INTEGRATIONS_REPO || \
+  (echo "Please set INTEGRATIONS_REPO to the local path to the SignalFx integrations repo" >&2 && exit 1)
+
+for f in ${INTEGRATIONS_REPO%/}/$INTEGRATION/docs/*.md; do
+  if [[ $f =~ "readme.md" ]]; then
+    continue
+  fi
+  metric_name=$(basename $f .md)
+  desc=$(head -n4 $f | yq -r '.brief')
+  type=$(head -n4 $f | yq -r '.metric_type')
+
+  echo "// $type($metric_name): $desc" | \
+    sed -e 's/[cC]umulative[_ ][cC]ounter/CUMULATIVE/' | \
+    sed -e 's/gauge/GAUGE/' | \
+    sed -e 's/^counter/COUNTER/'
+  echo
+done

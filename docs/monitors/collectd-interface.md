@@ -2,16 +2,41 @@
 
 # collectd/interface
 
+ Collectd stats about network interfaces on the
+system by using the [collectd interface
+plugin](https://collectd.org/wiki/index.php/Plugin:Interface).
+
+See the [integrations
+doc](https://github.com/signalfx/integrations/tree/master/collectd-interface)
+for more information.
+
+
+Monitor Type: `collectd/interface`
+
+[Monitor Source Code](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/netinterface)
 
 **Accepts Endpoints**: No
 
-**Only One Instance Allowed**: **Yes**
+**Multiple Instances Allowed**: **No**
 
 ## Configuration
 
-| Config option | Default | Required | Type | Description |
-| --- | --- | --- | --- | --- |
+This monitor has no configuration options.
 
+
+## Metrics
+
+This monitor emits the following metrics.  Note that configuration options may
+cause only a subset of metrics to be emitted.
+
+| Name | Type | Description |
+| ---  | ---  | ---         |
+| `if_errors.rx` | cumulative | Count of receive errors on the interface |
+| `if_errors.tx` | cumulative | Count of transmit errors on the interface |
+| `if_octets.rx` | cumulative | Count of bytes (octets) received on the interface |
+| `if_octets.tx` | cumulative | Count of bytes (octets) transmitted by the interface |
+| `if_packets.rx` | cumulative | Count of packets received on the interface |
+| `if_packets.tx` | cumulative | Count of packets transmitted by the interface |
 
 
 

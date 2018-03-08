@@ -3,8 +3,6 @@ package metadata
 //go:generate collectd-template-to-go metadata.tmpl
 
 import (
-	"github.com/creasty/defaults"
-	"github.com/pkg/errors"
 	"github.com/signalfx/signalfx-agent/internal/core/config"
 	"github.com/signalfx/signalfx-agent/internal/monitors"
 	"github.com/signalfx/signalfx-agent/internal/monitors/collectd"
@@ -49,7 +47,7 @@ type Config struct {
 	// A directory where the metadata plugin can persist the history of
 	// successful host metadata syncs so that host metadata is not sent
 	// redundantly.
-	PersistencePath string `yaml:"persistencePath" default:"/var/lib/misc"`
+	PersistencePath string `yaml:"persistencePath" default:"/var/run/signalfx-agent"`
 }
 
 // Monitor is the main type that represents the monitor
@@ -59,11 +57,7 @@ type Monitor struct {
 
 // Configure configures and runs the plugin in collectd
 func (m *Monitor) Configure(conf *Config) error {
-	if err := defaults.Set(conf); err != nil {
-		return errors.Wrap(err, "Could not set defaults for signalfx-metadata monitor")
-	}
-
-	conf.WriteServerURL = collectd.Instance().WriteServerURL()
+	conf.WriteServerURL = collectd.MainInstance().WriteServerURL()
 
 	return m.SetConfigurationAndRun(conf)
 }

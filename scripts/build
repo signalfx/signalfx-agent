@@ -8,16 +8,16 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 AGENT_IMAGE_NAME=${AGENT_IMAGE_NAME:-"quay.io/signalfx/signalfx-agent-dev"}
 
-TAG=${AGENT_VERSION:-$($SCRIPT_DIR/current-version)}
+AGENT_VERSION=${AGENT_VERSION:-$($SCRIPT_DIR/current-version)}
 
-do_docker_build ${AGENT_IMAGE_NAME} ${TAG} final-image
+do_docker_build ${AGENT_IMAGE_NAME} ${AGENT_VERSION} final-image
 
 if [[ -n ${BUILD_BUNDLE-} ]]
 then
-  OUTPUT=${OUTPUT:-signalfx-agent.tar.gz}
+  OUTPUT=${OUTPUT:-signalfx-agent-${AGENT_VERSION}.tar.gz}
   output_tar=$(basename $OUTPUT .gz)
 
-  cid=$(docker create ${AGENT_IMAGE_NAME}:$TAG true)
+  cid=$(docker create ${AGENT_IMAGE_NAME}:$AGENT_VERSION true)
   tmpdir=$(mktemp -d)
   mkdir $tmpdir/signalfx-agent
   trap "docker rm -f $cid; rm -rf $tmpdir; rm -f $output_tar" EXIT
@@ -27,7 +27,7 @@ then
   tar -C $tmpdir -zcf $output_tar.gz .
 fi
 
-if [[ "${BUILD_PUBLISH-}" = "True" ]]
+if [[ "${PUSH_DOCKER_IMAGE-}" = "yes" ]]
 then
-    docker push ${AGENT_IMAGE_NAME}:${TAG}
+    docker push ${AGENT_IMAGE_NAME}:${AGENT_VERSION}
 fi

@@ -41,6 +41,14 @@ signalfx-agent: templates
 bundle:
 	BUILD_BUNDLE=true scripts/build
 
+.PHONY: deb-package
+deb-%-package:
+	packaging/deb/build $*
+
+.PHONY: rpm-package
+rpm-%-package:
+	packaging/rpm/build $*
+
 .PHONY: attach-image
 run-shell:
 # Attach to the running container kicked off by `make run-image`.
@@ -57,12 +65,13 @@ debug:
 .PHONY: run-dev-image
 run-dev-image:
 	docker exec -it signalfx-agent-dev bash 2>/dev/null || docker run --rm -it \
-		--privileged \
+		--cap-add DAC_READ_SEARCH \
+		--cap-add SYS_PTRACE \
 		--net host \
 		-p 6060:6060 \
 		--name signalfx-agent-dev \
 		-v $(PWD)/local-etc:/etc/signalfx \
-		-v /:/bundle/hostfs:ro \
+		-v /:/hostfs:ro \
 		-v /var/run/docker.sock:/var/run/docker.sock:ro \
 		-v $(PWD):/go/src/github.com/signalfx/signalfx-agent:cached \
 		-v $(PWD)/collectd:/usr/src/collectd:cached \
@@ -71,4 +80,13 @@ run-dev-image:
 
 .PHONY: docs
 docs:
-	scripts/docs/make-monitor-docs
+	scripts/docs/make-docs
+
+.PHONY: chef-%
+chef-%:
+	$(MAKE) -C deployments/chef $*
+
+.PHONY: puppet-%
+puppet-%:
+	$(MAKE) -C deployments/puppet $*
+

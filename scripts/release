@@ -1,28 +1,224 @@
 #!/bin/bash
 
-# Consumes a new version number, tags the repo with that version, and builds
-# a image for that version in the production quay repo.
-# If the envvar BUILD_PUBLISH=True, the tag and image are both pushed
+# If the envvar PUSH_TO_REPO=yes (the default), then stuff is pushed to remote
+# locations
 
-new_version=$1
-
-if test -z $new_version
-then
-  echo "Usage: $0 x.y.z" >&2
-  exit 1
-fi
+set -euo pipefail
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
-echo "Tagging repo with v${new_version}"
-git tag v${new_version}
+stage_from_version() {
+  if [[ "$1" =~ -beta[0-9]$ ]]; then
+    echo -n "beta"
+  elif [[ "$1" =~ -post$ ]]; then
+    echo -n "test"
+  else
+    echo -n "final"
+  fi
+}
 
-if [ "$BUILD_PUBLISH" = True ]
-then
-  git push --tags
-else
-  echo "Not pushing tag"
-fi
+parse_args_and_release() {
+  local new_version=$($SCRIPT_DIR/current-version)
+  local push=no
+  local stage=
+  local build_all=yes
+  local build_docker_image=no
+  local build_deb_package=no
+  local build_rpm_package=no
+  local build_bundle=no
+  local force=no
 
-echo "Building image quay.io/signalfx/signalfx-agent:$new_version"
-AGENT_IMAGE_NAME=quay.io/signalfx/signalfx-agent VERSION=$new_version make -C $SCRIPT_DIR/.. image
+  while [ -n "${1-}" ]; do
+    case $1 in
+      --stage)
+        stage="$2"
+
+        case $stage in
+          final|beta|test) ;;
+          *) echo "stage must be 'final', 'beta' or 'test'" >&2 && exit 1 ;;
+        esac
+
+        shift 1
+        ;;
+      --new-version)
+        new_version="$2"
+
+        if [[ ! "$new_version" =~ [0-9]\.[0-9]\.[0-9](-beta[0-9])?(-post)? ]]; then
+          echo "Version $new_version is in an unexpected format" >&2
+          exit 1
+        fi
+
+        shift 1
+        ;;
+      --push)
+        push=yes
+        ;;
+      --no-push)
+        push=no
+        ;;
+      --force)
+        force=yes
+        ;;
+      --component)
+        case "$2" in
+          docker) build_docker_image=yes build_all=no ;;
+          deb) build_deb_package=yes build_all=no ;;
+          rpm) build_rpm_package=yes build_all=no ;;
+          bundle) build_bundle=yes build_all=no ;;
+          *) echo "component "$1" not recognized, quitting" >&2 && exit 1 ;;
+        esac
+        shift 1
+        ;;
+      *)
+        echo "Unknown option $1" >&2
+        usage
+        exit 1
+        ;;
+    esac
+    shift 1
+  done
+
+  if [[ -z "$stage" ]]; then
+    stage=$(stage_from_version $new_version)
+  fi
+
+  if [[ "$stage" != "test" ]] && ! git diff --exit-code && [[ "$force" != "yes" ]]; then
+    echo "You are making a non-test release and have changes in your local workspace.  Stash them first for a pristine build." >&2
+    exit 1
+  fi
+
+  read -p "This is a $stage release of version $new_version, please confirm: [y/N] "
+  [[ ! "$REPLY" =~ ^[Yy]$ ]] && echo "Cancelling release" && exit 1
+
+  if [[ "$stage" != "test" ]] && [[ "$($SCRIPT_DIR/current-version)" != "$new_version" ]]; then
+    create_and_push_tag $new_version
+    create_github_release
+  fi
+
+  if [[ "$build_all" == "yes" ]] || [[ "$build_docker_image" == "yes" ]]; then
+    echo "Building docker image..."
+    build_docker_image "$stage" "$new_version"
+    if [[ "$push" == "yes" ]]; then
+      echo "Pushing docker image"
+      push_docker_image "$stage" "$new_version"
+    fi
+  fi
+
+  if [[ "$build_all" == "yes" ]] || [[ "$build_deb_package" == "yes" ]]; then
+    echo "Building and pushing deb package"
+    build_and_push_package "deb" "$stage" "$push"
+  fi
+
+  if [[ "$build_all" == "yes" ]] || [[ "$build_rpm_package" == "yes" ]]; then
+    echo "Building and pushing rpm package"
+    build_and_push_package "rpm" "$stage" "$push"
+  fi
+
+  if [[ "$build_all" == "yes" ]] || [[ "$build_bundle" == "yes" ]]; then
+    echo "Making bundle tar.gz"
+    make_bundle "$new_version"
+
+    if [[ "$push" == "yes" ]]; then
+      echo "Pushing bundle to github"
+      push_bundle_to_github "$new_version"
+    fi
+  fi
+
+  echo "Successfully released $new_version"
+}
+
+usage() {
+  cat <<EOH
+Usage: $0 [options]
+
+Makes a new release of the agent, which involves making a new tag (if not
+already created, building a docker image, making new versions of the Linux
+distro packaging, as well as making a new standalone bundle.
+
+Options:
+
+  --new-version <version>           The new version to release.  If not specified, will be inferred from the latest git tag
+                                    Note that the version should not include a leading 'v'!
+  --component docker|deb|rpm|bundle Releases only the selected component if specified, otherwise does everything
+  --[no-]push                       Whether to push the components to remote sources or not (default, yes)
+  --force                           Ignore checks for uncommited local changes
+  --stage test|beta|final           What kind of release this is.  If not specified, will be inferred from the version
+
+EOH
+}
+
+create_and_push_tag() {
+  local new_version=$1
+
+  new_tag="v${new_version}"
+  echo "Tagging repo with ${new_tag}"
+
+  # This will prompt the user for a tag message, which will act as the changelog
+  # for this version
+  git tag -a "$new_tag"
+
+  if [[ $($SCRIPT_DIR/current-version) != "$new_version" ]]; then
+    echo "Something is off, $($SCRIPT_DIR/current_version) should now be $new_version" >&2
+    exit 1
+  fi
+
+  #git push --tags
+
+  echo "Tag pushed"
+}
+
+create_github_release() {
+  echo "[NOT IMPLEMENTED] Creating Github release..."
+}
+
+## Docker image build and push
+
+docker_repo_from_stage() {
+  local stage=$1
+  if [[ "$stage" != "final" ]]; then
+    echo -n "quay.io/signalfx/signalfx-agent-dev"
+  else
+    echo -n "quay.io/signalfx/signalfx-agent"
+  fi
+}
+
+build_docker_image() {
+  local image_name="$(docker_repo_from_stage $1)"
+  local new_version="$2"
+  echo "Building image $image_name:$new_version"
+  AGENT_IMAGE_NAME=$image_name make -C $SCRIPT_DIR/.. image
+}
+
+push_docker_image() {
+  local stage="$1"
+  local new_version="$2"
+  docker push $(docker_repo_from_stage $stage):$new_version
+}
+
+# Deb package build and push
+
+build_and_push_package() {
+  local package_type=$1
+  local stage=$2
+  local push=$3
+
+  PUSH_TO_REPO=$push $SCRIPT_DIR/../packaging/$package_type/build $stage
+}
+
+make_bundle() {
+  local new_version="$1"
+  local expected_output="$SCRIPT_DIR/../signalfx-agent-${new_version}.tar.gz"
+
+  make bundle
+
+  test -f "$expected_output"
+  echo "Bundle is built at $expected_output"
+}
+
+push_bundle_to_github() {
+  local new_version="$1"
+  local bundle_path="$SCRIPT_DIR/../signalfx-agent-${new_version}.tar.gz"
+  echo "[NOT IMPLEMENTED] Uploading bundle $bundle_path to Github..."
+}
+
+parse_args_and_release $@

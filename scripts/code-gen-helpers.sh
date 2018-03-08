@@ -44,7 +44,8 @@ camel_case_to_underscore() {
   perl -pe 's/([A-Z])([A-Z])([a-z])/$1_\L$2$3/'
 }
 
-# 
+# Ensure we have an agent self description json and run a query against it
+# with jq
 j() {
   ensure_description_json
   jq -r "$1" < $json_file

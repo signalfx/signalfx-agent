@@ -21,7 +21,7 @@ Monitor Type: `collectd/cassandra`
 | `host` | **yes** | `string` |  |
 | `port` | **yes** | `integer` |  |
 | `name` | no | `string` |  |
-| `serviceName` | no | `string` | This is how the service type is identified in the SignalFx UI so that you can get built-in content for it.  For custom JMX integrations, it can be set to whatever you like and metrics will get the dimension `sf_hostHasService` set to this value. |
+| `serviceName` | no | `string` | This is how the service type is identified in the SignalFx UI so that you can get built-in content for it.  For custom JMX integrations, it can be set to whatever you like and metrics will get the special property `sf_hostHasService` set to this value. |
 | `serviceURL` | no | `string` | The JMX connection string.  This is rendered as a Go template and has access to the other values in this config. (**default:** `service:jmx:rmi:///jndi/rmi://{{.Host}}:{{.Port}}/jmxrmi`) |
 | `instancePrefix` | no | `string` |  |
 | `username` | no | `string` |  |
@@ -40,7 +40,6 @@ The **nested** `mBeanDefinitions` config object has the following fields:
 | `values` | no | `list of object (see below)` |  |
 
 
-<!--- This is pretty ugly all this repetition, but some config has nesting to three layers.  Would probably be better to flatten them before rendering or use a template engine with partials. --->
 The **nested** `values` config object has the following fields:
 
 | Config option | Required | Type | Description |
@@ -52,6 +51,8 @@ The **nested** `values` config object has the following fields:
 | `attribute` | no | `string` |  |
 
 
+
+
 ## Metrics
 
 This monitor emits the following metrics.  Note that configuration options may
@@ -59,6 +60,16 @@ cause only a subset of metrics to be emitted.
 
 | Name | Type | Description |
 | ---  | ---  | ---         |
+| `counter.cassandra.ClientRequest.RangeSlice.Latency.Count` | cumulative | Count of range slice operations since server start |
+| `counter.cassandra.ClientRequest.RangeSlice.Timeouts.Count` | cumulative | Count of range slice timeouts since server start |
+| `counter.cassandra.ClientRequest.RangeSlice.Unavailables.Count` | cumulative | Count of range slice unavailables since server start |
+| `counter.cassandra.ClientRequest.Read.Latency.Count` | cumulative | Count of read operations since server start |
+| `counter.cassandra.ClientRequest.Read.Timeouts.Count` | cumulative | Count of read timeouts since server start |
+| `counter.cassandra.ClientRequest.Read.Unavailables.Count` | cumulative | Count of read unavailables since server start |
+| `counter.cassandra.ClientRequest.Write.Latency.Count` | cumulative | Count of write operations since server start |
+| `counter.cassandra.ClientRequest.Write.Timeouts.Count` | cumulative | Count of write timeouts since server start |
+| `counter.cassandra.ClientRequest.Write.Unavailables.Count` | cumulative | Count of write unavailables since server start |
+| `counter.cassandra.Compaction.TotalCompactionsCompleted.Count` | cumulative | Number of compaction operations since node start |
 | `gauge.cassandra.ClientRequest.RangeSlice.Latency.50thPercentile` | gauge | 50th percentile (median) of Cassandra range slice latency |
 | `gauge.cassandra.ClientRequest.RangeSlice.Latency.99thPercentile` | gauge | 99th percentile of Cassandra range slice latency |
 | `gauge.cassandra.ClientRequest.RangeSlice.Latency.Max` | gauge | Maximum Cassandra range slice latency |
@@ -72,16 +83,6 @@ cause only a subset of metrics to be emitted.
 | `gauge.cassandra.Storage.Load.Count` | gauge | Storage used for Cassandra data in bytes |
 | `gauge.cassandra.Storage.TotalHints.Count` | gauge | Total hints since node start |
 | `gauge.cassandra.Storage.TotalHintsInProgress.Count` | gauge | Total pending hints |
-| `counter.cassandra.ClientRequest.RangeSlice.Latency.Count` | cumulative | Count of range slice operations since server start |
-| `counter.cassandra.ClientRequest.RangeSlice.Timeouts.Count` | cumulative | Count of range slice timeouts since server start |
-| `counter.cassandra.ClientRequest.RangeSlice.Unavailables.Count` | cumulative | Count of range slice unavailables since server start |
-| `counter.cassandra.ClientRequest.Read.Latency.Count` | cumulative | Count of read operations since server start |
-| `counter.cassandra.ClientRequest.Read.Timeouts.Count` | cumulative | Count of read timeouts since server start |
-| `counter.cassandra.ClientRequest.Read.Unavailables.Count` | cumulative | Count of read unavailables since server start |
-| `counter.cassandra.ClientRequest.Write.Latency.Count` | cumulative | Count of write operations since server start |
-| `counter.cassandra.ClientRequest.Write.Timeouts.Count` | cumulative | Count of write timeouts since server start |
-| `counter.cassandra.ClientRequest.Write.Unavailables.Count` | cumulative | Count of write unavailables since server start |
-| `counter.cassandra.Compaction.TotalCompactionsCompleted.Count` | cumulative | Number of compaction operations since node start |
 
 
 

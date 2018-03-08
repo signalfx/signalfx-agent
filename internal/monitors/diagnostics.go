@@ -57,15 +57,15 @@ func (mm *MonitorManager) DiagnosticText() string {
 				am.endpoint.Core().ID)
 		}
 		activeMonText += fmt.Sprintf(
-			"%2d. %s\n"+
+			"%s. %s\n"+
 				"    Reporting Interval (seconds): %d\n"+
 				"%s"+
 				"    Config:\n%s\n",
-			i+1, am.config.MonitorConfigCore().Type,
+			am.config.MonitorConfigCore().MonitorID,
+			am.config.MonitorConfigCore().Type,
 			am.config.MonitorConfigCore().IntervalSeconds,
 			utils.IndentLines(serviceStats, 4),
 			utils.IndentLines(config.ToString(am.config), 6))
-		i++
 	}
 
 	var discoveredEndpointsText string

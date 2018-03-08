@@ -4,7 +4,9 @@ local-etc/
 /agent
 internal/monitors/**/template.go
 internal/monitors/collectd/collectd.conf.go
-/signalfx-agent*
+/signalfx-agent
+*.tar.gz
+*.tgz
 /debug
 *.pyc
 /collectd

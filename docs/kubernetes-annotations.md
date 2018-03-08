@@ -1,7 +1,8 @@
 # Config via K8s annotations
 
-You can use Kubernetes pod annotations to tell the agent how to monitor your
-services.  There are several annotations that the agent recognizes:
+When using the `k8s-api` observer, you can use Kubernetes pod annotations to
+tell the agent how to monitor your services.  There are several annotations
+that the `k8s-api` observer recognizes:
 
 - `agent.signalfx.com/monitorType.<port>: "<monitor type>"` - Specifies the
 	monitor type to use when monitoring the specified port.  If this value is

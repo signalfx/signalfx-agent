@@ -31,8 +31,8 @@ type Config struct {
 
 	// This is how the service type is identified in the SignalFx UI so that
 	// you can get built-in content for it.  For custom JMX integrations, it
-	// can be set to whatever you like and metrics will get the dimension
-	// `sf_hostHasService` set to this value.
+	// can be set to whatever you like and metrics will get the special
+	// property `sf_hostHasService` set to this value.
 	ServiceName string `yaml:"serviceName"`
 	// The JMX connection string.  This is rendered as a Go template and has
 	// access to the other values in this config.

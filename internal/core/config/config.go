@@ -15,6 +15,7 @@ import (
 	fqdn "github.com/ShowMax/go-fqdn"
 	"github.com/mitchellh/hashstructure"
 	"github.com/pkg/errors"
+	"github.com/signalfx/signalfx-agent/internal/core/config/sources"
 	"github.com/signalfx/signalfx-agent/internal/core/filters"
 	"github.com/signalfx/signalfx-agent/internal/utils"
 	log "github.com/sirupsen/logrus"
@@ -35,7 +36,7 @@ type Config struct {
 	Hostname string `yaml:"hostname"`
 	// How often to send metrics to SignalFx.  Monitors can override this
 	// individually.
-	IntervalSeconds int `yaml:"intervalSeconds" default:"10"`
+	IntervalSeconds int `yaml:"intervalSeconds" default:"15"`
 	// Dimensions that will be added to every datapoint emitted by the agent
 	GlobalDimensions map[string]string `yaml:"globalDimensions" default:"{}"`
 	// Whether to send the machine-id dimension on all host-specific datapoints
@@ -47,14 +48,17 @@ type Config struct {
 	// A list of monitors to use (see monitor config)
 	Monitors []MonitorConfig `yaml:"monitors" default:"[]" neverLog:"omit"`
 	// Configuration of the datapoint/event writer
-	Writer WriterConfig `yaml:"writer" default:"{}"`
+	Writer WriterConfig `yaml:"writer"`
 	// Log configuration
 	Logging LogConfig `yaml:"logging" default:"{}"`
 	// Configuration of the managed collectd subprocess
 	Collectd CollectdConfig `yaml:"collectd" default:"{}"`
 	// A list of metric filters
 	MetricsToExclude []MetricFilter `yaml:"metricsToExclude" default:"[]"`
-	PythonEnabled    bool           `yaml:"pythonEnabled" default:"false"`
+	// (**NOT FUNCTIONAL**) Whether to enable the Python sub-agent ("neopy")
+	// that can directly use DataDog and Collectd Python plugins.  This is not
+	// the same as Collectd's Python plugin, which is always enabled.
+	PythonEnabled bool `yaml:"pythonEnabled" default:"false"`
 	// The path where the agent will create its diagnostic output UNIX socket
 	DiagnosticsSocketPath string `yaml:"diagnosticsSocketPath" default:"/var/run/signalfx-agent/diagnostics.sock"`
 	// The path where the agent will create a socket that serves internal
@@ -70,9 +74,8 @@ type Config struct {
 	// This exists purely to give the user a place to put common yaml values to
 	// reference in other parts of the config file.
 	Scratch interface{} `yaml:"scratch" neverLog:"omit"`
-	// Sources is used by the dynamic value renderer at an earlier stage of
-	// config file processing and so is not needed here.
-	Sources interface{} `yaml:"configSources" neverLog:"omit"`
+	// Configuration of remote config stores
+	Sources sources.SourceConfig `yaml:"configSources"`
 }
 
 func (c *Config) setDefaultHostname() {
@@ -190,6 +193,9 @@ type CustomConfigurable interface {
 
 // LogConfig contains configuration related to logging
 type LogConfig struct {
+	// Valid levels include `debug`, `info`, `warn`, `error`.  Note that
+	// `debug` logging may leak sensitive configuration (e.g. passwords) to the
+	// agent output.
 	Level string `yaml:"level" default:"info"`
 	// TODO: Support log file output and other log targets
 }
@@ -217,13 +223,18 @@ type CollectdConfig struct {
 	// If you won't be using any collectd monitors, this can be set to true to
 	// prevent collectd from pre-initializing
 	DisableCollectd bool `yaml:"disableCollectd" default:"false"`
-	// How many read intervals before abandoning a metrics. Doesn't affect much
+	// How many read intervals before abandoning a metric. Doesn't affect much
 	// in normal usage.
 	// See [Timeout](https://collectd.org/documentation/manpages/collectd.conf.5.shtml#timeout_iterations).
 	Timeout int `yaml:"timeout" default:"40"`
 	// Number of threads dedicated to executing read callbacks. See
 	// [ReadThreads](https://collectd.org/documentation/manpages/collectd.conf.5.shtml#readthreads_num)
 	ReadThreads int `yaml:"readThreads" default:"5"`
+	// Number of threads dedicated to writing value lists to write callbacks.
+	// This should be much less than readThreads because writing is batched in
+	// the write_http plugin that writes back to the agent.
+	// See [WriteThreads](https://collectd.org/documentation/manpages/collectd.conf.5.shtml#writethreads_num).
+	WriteThreads int `yaml:"writeThreads" default:"2"`
 	// The maximum numbers of values in the queue to be written back to the
 	// agent from collectd.  Since the values are written to a local socket
 	// that the agent exposes, there should be almost no queuing and the
@@ -259,6 +270,11 @@ type CollectdConfig struct {
 	BundleDir            string `yaml:"-"`
 	Hostname             string `yaml:"-"`
 	HasGenericJMXMonitor bool   `yaml:"-"`
+	// Assigned by manager, not by user
+	InstanceName string `yaml:"-"`
+	// A hack to allow custom collectd to easily specify a single monitorID via
+	// query parameter
+	WriteServerQuery string `yaml:"-"`
 }
 
 // Validate the collectd specific config
@@ -287,15 +303,21 @@ func (cc *CollectdConfig) WriteServerURL() string {
 	return fmt.Sprintf("http://%s:%d/", cc.WriteServerIPAddr, cc.WriteServerPort)
 }
 
+// InstanceConfigDir is the directory underneath the ConfigDir that is specific
+// to this collectd instance.
+func (cc *CollectdConfig) InstanceConfigDir() string {
+	return filepath.Join(cc.ConfigDir, cc.InstanceName)
+}
+
 // ConfigFilePath returns the path where collectd should render its main config
 // file.
 func (cc *CollectdConfig) ConfigFilePath() string {
-	return filepath.Join(cc.ConfigDir, "collectd.conf")
+	return filepath.Join(cc.InstanceConfigDir(), "collectd.conf")
 }
 
 // ManagedConfigDir returns the dir path where all monitor config should go.
 func (cc *CollectdConfig) ManagedConfigDir() string {
-	return filepath.Join(cc.ConfigDir, "managed_config")
+	return filepath.Join(cc.InstanceConfigDir(), "managed_config")
 }
 
 // StoreConfig holds configuration related to config stores (e.g. filesystem,

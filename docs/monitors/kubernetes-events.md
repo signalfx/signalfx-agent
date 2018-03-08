@@ -25,7 +25,7 @@ Monitor Type: `kubernetes-events`
 
 | Config option | Required | Type | Description |
 | --- | --- | --- | --- |
-| `kubernetesAPI` | no | `object (see below)` | Configuration of the Kubernetes API client (**default:** `map[]`) |
+| `kubernetesAPI` | no | `object (see below)` | Configuration of the Kubernetes API client |
 | `whitelistedEvents` | no | `list of object (see below)` | A list of event types to send events for.  Only events matching these items will be sent. |
 | `sendAllEvents` | no | `bool` | If true, all events from Kubernetes will be sent.  Please don't use this option unless you really want to act on all possible K8s events. (**default:** `false`) |
 | `alwaysClusterReporter` | no | `bool` | Whether to always send events from this agent instance or to do leader election to only send from one agent instance. (**default:** `false`) |
@@ -42,7 +42,6 @@ The **nested** `kubernetesAPI` config object has the following fields:
 | `caCertPath` | no | `string` | Path to a CA certificate to use when verifying the API server's TLS cert.  Generally this is provided by K8s alongside the service account token, which will be picked up automatically, so this should rarely be necessary to specify. |
 
 
-<!--- This is pretty ugly all this repetition, but some config has nesting to three layers.  Would probably be better to flatten them before rendering or use a template engine with partials. --->
 The **nested** `whitelistedEvents` config object has the following fields:
 
 | Config option | Required | Type | Description |
@@ -51,7 +50,6 @@ The **nested** `whitelistedEvents` config object has the following fields:
 | `involvedObjectKind` | no | `string` |  |
 
 
-<!--- This is pretty ugly all this repetition, but some config has nesting to three layers.  Would probably be better to flatten them before rendering or use a template engine with partials. --->
 
 
 

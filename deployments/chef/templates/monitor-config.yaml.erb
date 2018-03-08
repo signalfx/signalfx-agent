@@ -1,0 +1,10 @@
+type: <%= @type %>
+<% if @discovery_rule != '' %>
+discoveryRule: <%= @discovery_rule %>
+<% end %>
+<% if !@interval_seconds.nil? %>
+intervalSeconds: <%= @interval_seconds %>
+<% end %>
+<% @config.each do |k, v| %>
+<%= k.split('_').collect(&:capitalize).join %>: <%= v.to_json %>
+<% end %>

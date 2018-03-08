@@ -21,15 +21,13 @@ import (
 type MonitorCore struct {
 	Template *template.Template
 	Output   types.Output
-	// Set to true if the collectd plugin(s) configured by this monitor cannot
-	// report the monitor id back to the agent via write_http
-	NoMonitorID bool
 	// Where to write the plugin config to on the filesystem
-	configFilename string
-	config         config.MonitorCustomConfig
-	monitorID      types.MonitorID
-	lock           sync.Mutex
-	UsesGenericJMX bool
+	configFilename           string
+	config                   config.MonitorCustomConfig
+	monitorID                types.MonitorID
+	lock                     sync.Mutex
+	UsesGenericJMX           bool
+	collectdInstanceOverride *Manager
 }
 
 // NewMonitorCore creates a new initialized but unconfigured MonitorCore with
@@ -45,6 +43,19 @@ func (bm *MonitorCore) Init() error {
 	InjectTemplateFuncs(bm.Template)
 
 	return nil
+}
+
+// SetCollectdInstance allows you to override the instance of collectd used by
+// this monitor
+func (bm *MonitorCore) SetCollectdInstance(instance *Manager) {
+	bm.collectdInstanceOverride = instance
+}
+
+func (bm *MonitorCore) collectdInstance() *Manager {
+	if bm.collectdInstanceOverride != nil {
+		return bm.collectdInstanceOverride
+	}
+	return MainInstance()
 }
 
 // SetConfigurationAndRun sets the configuration to be used when rendering
@@ -67,7 +78,7 @@ func (bm *MonitorCore) SetConfigurationAndRun(conf config.MonitorCustomConfig) e
 // SetConfiguration adds various fields from the config to the template context
 // but does not render the config.
 func (bm *MonitorCore) SetConfiguration(conf config.MonitorCustomConfig) error {
-	return Instance().ConfigureFromMonitor(bm.monitorID, bm.Output, bm.UsesGenericJMX, bm.NoMonitorID)
+	return bm.collectdInstance().ConfigureFromMonitor(bm.monitorID, bm.Output, bm.UsesGenericJMX)
 }
 
 // WriteConfigForPlugin will render the config template to the filesystem and
@@ -98,7 +109,12 @@ func (bm *MonitorCore) WriteConfigForPlugin() error {
 }
 
 func (bm *MonitorCore) renderPath() string {
-	return filepath.Join(Instance().ManagedConfigDir(), bm.configFilename)
+	return filepath.Join(bm.collectdInstance().ManagedConfigDir(), bm.configFilename)
+}
+
+// RemoveConfFile deletes the collectd config file for this monitor
+func (bm *MonitorCore) RemoveConfFile() {
+	os.Remove(bm.renderPath())
 }
 
 // Shutdown removes the config file and restarts collectd
@@ -107,6 +123,6 @@ func (bm *MonitorCore) Shutdown() {
 		"path": bm.renderPath(),
 	}).Debug("Removing collectd plugin config")
 
-	os.Remove(bm.renderPath())
-	Instance().MonitorDidShutdown(bm.monitorID)
+	bm.RemoveConfFile()
+	bm.collectdInstance().MonitorDidShutdown(bm.monitorID)
 }

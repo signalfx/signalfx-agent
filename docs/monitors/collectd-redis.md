@@ -2,20 +2,79 @@
 
 # collectd/redis
 
+ Monitors a redis instance using the [collectd
+Python Redis plugin](https://github.com/signalfx/redis-collectd-plugin).
+
+See the [integrations
+doc](https://github.com/signalfx/integrations/tree/master/collectd-redis)
+for more information.
+
+
+Monitor Type: `collectd/redis`
+
+[Monitor Source Code](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/redis)
 
 **Accepts Endpoints**: **Yes**
 
-**Only One Instance Allowed**: No
+**Multiple Instances Allowed**: Yes
 
 ## Configuration
 
-| Config option | Default | Required | Type | Description |
-| --- | --- | --- | --- | --- |
-| `host` |  | **yes** | `string` |  |
-| `port` |  | **yes** | `uint16` |  |
-| `name` |  | no | `string` |  |
-| `auth` |  | no | `string` |  |
+| Config option | Required | Type | Description |
+| --- | --- | --- | --- |
+| `host` | **yes** | `string` |  |
+| `port` | **yes** | `integer` |  |
+| `name` | no | `string` |  |
+| `auth` | no | `string` |  |
 
+
+
+
+## Metrics
+
+This monitor emits the following metrics.  Note that configuration options may
+cause only a subset of metrics to be emitted.
+
+| Name | Type | Description |
+| ---  | ---  | ---         |
+| `bytes.used_memory` | gauge | Number of bytes allocated by Redis |
+| `bytes.used_memory_lua` | gauge | Number of bytes used by the Lua engine |
+| `bytes.used_memory_peak` | gauge | Peak Number of bytes allocated by Redis |
+| `bytes.used_memory_rss` | gauge | Number of bytes allocated by Redis as seen by the OS |
+| `counter.commands_processed` | cumulative | Total number of commands processed by the server |
+| `counter.connections_received` | cumulative | Total number of connections accepted by the server |
+| `counter.evicted_keys` | cumulative | Number of evicted keys due to maxmemory limit |
+| `counter.expired_keys` | cumulative | Total number of key expiration events |
+| `counter.lru_clock` | cumulative | Clock incrementing every minute, for LRU management |
+| `counter.rejected_connections` | cumulative | Number of connections rejected because of maxclients limit |
+| `counter.total_net_input_bytes` | cumulative | Total number of bytes inputted |
+| `counter.total_net_output_bytes` | cumulative | Total number of bytes outputted |
+| `counter.used_cpu_sys` | cumulative | System CPU consumed by the Redis server |
+| `counter.used_cpu_sys_children` | cumulative | System CPU consumed by the background processes |
+| `counter.used_cpu_user` | cumulative | User CPU consumed by the Redis server |
+| `counter.used_cpu_user_children` | cumulative | User CPU consumed by the background processes |
+| `derive.keyspace_hits` | cumulative | Number of successful lookup of keys in the main dictionary |
+| `derive.keyspace_misses` | cumulative | Number of failed lookup of keys in the main dictionary |
+| `gauge.blocked_clients` | gauge | Number of clients pending on a blocking call |
+| `gauge.changes_since_last_save` | gauge | Number of changes since the last dump |
+| `gauge.client_biggest_input_buf` | gauge | Biggest input buffer among current client connections |
+| `gauge.client_longest_output_list` | gauge | Longest output list among current client connections |
+| `gauge.connected_clients` | gauge | Number of client connections (excluding connections from slaves) |
+| `gauge.connected_slaves` | gauge | Number of connected slaves |
+| `gauge.db0_avg_ttl` | gauge | The average time to live for all keys in redis |
+| `gauge.db0_expires` | gauge | The total number of keys in redis that will expire |
+| `gauge.db0_keys` | gauge | The total number of keys stored in redis |
+| `gauge.instantaneous_ops_per_sec` | gauge | Number of commands processed per second |
+| `gauge.key_llen` | gauge | Length of an list key |
+| `gauge.latest_fork_usec` | gauge | Duration of the latest fork operation in microseconds |
+| `gauge.master_last_io_seconds_ago` | gauge | Number of seconds since the last interaction with master |
+| `gauge.master_repl_offset` | gauge | Master replication offset |
+| `gauge.mem_fragmentation_ratio` | gauge | Ratio between used_memory_rss and used_memory |
+| `gauge.rdb_bgsave_in_progress` | gauge | Flag indicating a RDB save is on-going |
+| `gauge.repl_backlog_first_byte_offset` | gauge | Slave replication backlog offset |
+| `gauge.slave_repl_offset` | gauge | Slave replication offset |
+| `gauge.uptime_in_days` | gauge | Number of days up |
+| `gauge.uptime_in_seconds` | gauge | Number of seconds up |
 
 
 

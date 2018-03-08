@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Takes any packages in the dir mounted at /output and adds them to the remote
-# S3 repo bucket for the specified stage (main, beta, or test).
+# S3 repo bucket for the specified stage (final, beta, or test).
 
 set -euxo pipefail
 
@@ -11,20 +11,20 @@ REPO_STAGE=${1:-test}
 
 
 case $REPO_STAGE in
-  main|beta|test) ;;
-  *) echo "REPO_STAGE must be 'main', 'beta' or 'test'" >&2 && exit 1 ;;
+  final|beta|test) ;;
+  *) echo "REPO_STAGE must be 'final', 'beta' or 'test'" >&2 && exit 1 ;;
 esac
 
 repo_dir="/repo/${REPO_STAGE}"
-s3_bucket="s3://signalfx-agent-test-packages/rpms/signalfx-agent/$REPO_STAGE"
+s3_bucket="s3://public-downloads--signalfuse-com/rpms/signalfx-agent/$REPO_STAGE"
 
 mkdir -p $repo_dir
 aws s3 sync --delete $s3_bucket $repo_dir
 
 for f in $(find $OUTPUT_DIR -name "*.rpm"); do
-  base=$(basename $f)
-  if [ -e $repo_dir/$base ]; then
-    echo "RPM package $(basename $f) already exists in this repo.  If you want to overwrite it, please delete it from the repo first." >&2 && exit 2
+  pkg_name=$(basename $f)
+  if [ -e $repo_dir/$pkg_name ] && [ "$REPO_STAGE" != "test" ]; then
+    echo "RPM package $pkg_name already exists in this repo.  If you want to overwrite it, please delete it from the repo first." >&2 && exit 2
   fi
   cp $f $repo_dir
   if [[ -z ${NO_SIGN-} ]]; then
@@ -44,9 +44,9 @@ if [[ -z ${NO_SIGN-} ]]; then
   gpg2 --batch --yes --detach-sign --armor --default-key $GPG_KEY_ID --digest-algo SHA256 repodata/repomd.xml
 fi
 
-aws s3 sync --dryrun $repo_dir $s3_bucket
+aws s3 sync --delete --dryrun $repo_dir $s3_bucket
 
 read -p "Do the above file updates to the s3 bucket seem correct? [y/N] "
 [[ ! "$REPLY" =~ ^[Yy]$ ]] && echo "Cancelling upload" && exit 1
 
-aws s3 sync $repo_dir $s3_bucket
+aws s3 sync --delete $repo_dir $s3_bucket
