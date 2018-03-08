@@ -3,7 +3,7 @@
 # If the envvar PUSH_TO_REPO=yes (the default), then stuff is pushed to remote
 # locations
 
-set -euxo pipefail
+set -euo pipefail
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
@@ -71,6 +71,7 @@ parse_args_and_release() {
         ;;
       *)
         echo "Unknown option $1" >&2
+        usage
         exit 1
         ;;
     esac
@@ -80,7 +81,7 @@ parse_args_and_release() {
   if [[ -z "$stage" ]]; then
     stage=$(stage_from_version $new_version)
   fi
-  
+
   if [[ "$stage" != "test" ]] && ! git diff --exit-code && [[ "$force" != "yes" ]]; then
     echo "You are making a non-test release and have changes in your local workspace.  Stash them first for a pristine build." >&2
     exit 1
@@ -95,24 +96,30 @@ parse_args_and_release() {
   fi
 
   if [[ "$build_all" == "yes" ]] || [[ "$build_docker_image" == "yes" ]]; then
+    echo "Building docker image..."
     build_docker_image "$stage" "$new_version"
     if [[ "$push" == "yes" ]]; then
+      echo "Pushing docker image"
       push_docker_image "$stage" "$new_version"
     fi
   fi
 
   if [[ "$build_all" == "yes" ]] || [[ "$build_deb_package" == "yes" ]]; then
+    echo "Building and pushing deb package"
     build_and_push_package "deb" "$stage" "$push"
   fi
 
   if [[ "$build_all" == "yes" ]] || [[ "$build_rpm_package" == "yes" ]]; then
+    echo "Building and pushing rpm package"
     build_and_push_package "rpm" "$stage" "$push"
   fi
 
   if [[ "$build_all" == "yes" ]] || [[ "$build_bundle" == "yes" ]]; then
+    echo "Making bundle tar.gz"
     make_bundle "$new_version"
 
     if [[ "$push" == "yes" ]]; then
+      echo "Pushing bundle to github"
       push_bundle_to_github "$new_version"
     fi
   fi
@@ -120,6 +127,25 @@ parse_args_and_release() {
   echo "Successfully released $new_version"
 }
 
+usage() {
+  cat <<EOH
+Usage: $0 [options]
+
+Makes a new release of the agent, which involves making a new tag (if not
+already created, building a docker image, making new versions of the Linux
+distro packaging, as well as making a new standalone bundle.
+
+Options:
+
+  --new-version <version>           The new version to release.  If not specified, will be inferred from the latest git tag
+                                    Note that the version should not include a leading 'v'!
+  --component docker|deb|rpm|bundle Releases only the selected component if specified, otherwise does everything
+  --[no-]push                       Whether to push the components to remote sources or not (default, yes)
+  --force                           Ignore checks for uncommited local changes
+  --stage test|beta|final           What kind of release this is.  If not specified, will be inferred from the version
+
+EOH
+}
 
 create_and_push_tag() {
   local new_version=$1

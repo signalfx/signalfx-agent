@@ -82,7 +82,7 @@ following commands:
 
 ```sh
 curl -sSL https://dl.signalfx.com/debian.gpg > /etc/apt/trusted.gpg.d/signalfx.gpg
-echo 'deb http://dl.signalfx.com/debs/signalfx-agent/main /' > /etc/apt/sources.list.d/signalfx-agent.list
+echo 'deb https://dl.signalfx.com/debs/signalfx-agent/main /' > /etc/apt/sources.list.d/signalfx-agent.list
 apt-get update
 apt-get install -y signalfx-agent
 ```
@@ -95,9 +95,8 @@ following commands:
 cat <<EOH > /etc/yum.repos.d/signalfx-agent.repo
 [signalfx-agent]
 name=SignalFx Agent Repository
-baseurl=http://dl.signalfx.com/rpms/signalfx-agent/main
+baseurl=https://dl.signalfx.com/rpms/signalfx-agent/main
 gpgcheck=1
-repo_gpgcheck=1
 gpgkey=https://dl.signalfx.com/yum-rpm.key
 enabled=1
 EOH

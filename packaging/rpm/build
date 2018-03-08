@@ -73,7 +73,7 @@ push_to_repo() {
     -v $HOME/.gnupg:/root/.gnupg \
     -v $HOME/.aws:/root/.aws \
     -v ${OUTPUT_DIR}:/output \
-    -v /tmp/signalfx-agent-rpm-cache:/repo \
+    -v /opt/signalfx-agent-rpm-cache:/repo \
     -it \
     $image_name:$image_tag \
     bash -e -c "./add-output-to-repo $REPO_STAGE"
