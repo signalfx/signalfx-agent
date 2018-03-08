@@ -11,7 +11,7 @@ class signalfx_agent::debian_repo ($repo_base, $package_stage) {
   }
 
   file { '/etc/apt/sources.list.d/signalfx-agent.list':
-    content => "deb http://${repo_base}/debs/signalfx-agent/${package_stage} /\n",
+    content => "deb https://${repo_base}/debs/signalfx-agent/${package_stage} /\n",
     mode    => '0644',
     notify  => Exec['/usr/bin/apt-get update'],
   }

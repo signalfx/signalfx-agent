@@ -77,6 +77,7 @@ Options:
   --ingest <ingest url>       Base URL to the SignalFx ingest server to use
   --test                      Use the test package repo instead of the primary
   --beta                      Use the beta package repo instead of the primary
+
 EOH
   exit 0
 }
@@ -311,7 +312,7 @@ install() {
       install_yum_repo "$stage"
       install_with_yum "$package_version"
       ;;
-    default)
+    *)
       echo "Your distro ($distro) is not supported or could not be determined" >&2
       exit 1
       ;;
