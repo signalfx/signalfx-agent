@@ -255,12 +255,14 @@ ENV useful_bins=" \
   /bin/ln \
   /bin/ls \
   /bin/mkdir \
+  /bin/mount \
   /bin/nc \
   /bin/nc.openbsd \
   /bin/ps \
   /bin/rm \
   /bin/sh \
   /bin/ss \
+  /bin/umount \
   /usr/bin/curl \
   /usr/bin/dirname \
   /usr/bin/host \
