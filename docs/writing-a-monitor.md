@@ -11,11 +11,11 @@ deal of added complexity and artifact size.  Therefore right now, new monitors
 must be compiled into the agent binary.
 
 First, create a new package within the `github.com/signalfx/signalfx-agent/internal/monitors`
-package (or inside the `monitors/collectd` package if creating a collectd
-wrapper monitor, see below for more on collectd monitors).  Inside that package
-create a single module named whatever you like that will hold the monitor code.
-If your monitor gets complicated, you can of course split it up into multiple
-modules or even packages as desired.
+package (or inside the `internal/monitors/collectd` package if creating a
+collectd wrapper monitor, see below for more on collectd monitors).  Inside
+that package create a single module named whatever you like that will hold the
+monitor code. If your monitor gets complicated, you can of course split it up
+into multiple modules or even packages as desired.
 
 Here is a minimalistic example of a monitor:
 
@@ -108,7 +108,7 @@ embed the
 `github.com/signalfx/signalfx-agent/internal/core/config.MonitorConfig` struct,
 which includes generic configuration common to all monitors.  Configuration of
 the agent (and also monitors) is driven by YAML and it is best practice to
-explicitly state the yaml key for your config values instead of letting the
+explicitly state the YAML key for your config values instead of letting the
 YAML interpreter derive it by default.  See [the golang YAML
 docs](https://godoc.org/gopkg.in/yaml.v2) for more information.
 
