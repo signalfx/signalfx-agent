@@ -14,8 +14,9 @@ from tests.helpers import fake_backend
 from tests.helpers.util import get_docker_client, run_container, wait_for
 from tests.helpers.assertions import *
 
-PACKAGING_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../packaging"))
-INSTALLER_PATH = os.path.join(PACKAGING_DIR, "installer/install.sh")
+PROJECT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "../.."))
+PACKAGING_DIR = os.path.join(PROJECT_DIR, "packaging")
+INSTALLER_PATH = os.path.join(PROJECT_DIR, "deployments/installer/install.sh")
 RPM_OUTPUT_DIR = os.path.join(PACKAGING_DIR, "rpm/output/x86_64")
 DEB_OUTPUT_DIR = os.path.join(PACKAGING_DIR, "deb/output")
 DOCKERFILES_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "images"))

@@ -103,20 +103,9 @@ that have relatively self-contained functionality that is easy to isolate and
 test.
 
 ### Integration Tests
-These tests run the agent and associated packaging in a more fully functional
-environment, along with a fake backend that simulates the SignalFx ingest and
-API servers.  
-
-These are all written using Python's pytest and are located in the `tests`
-directory.  To run all of them in parallel, simply invoke `pytest tests -n
-auto` from the root of the repo in the dev image.  You can select certain tests
-to run by either specifying a single python module or by using the `-k` and
-`-m` flags.
-
-A key goal in writing these tests is that they be both fully parallelizable to
-minimize run time, and very robust with minimal transient failures due to
-timing issues or race conditions that are so prevalent with integration
-testing.  Please keep these goals in mind when adding integration tests.
+These are all written using Python's pytest and are located in the [tests
+directory](https://github.com/signalfx/signalfx-agent/tree/master/tests).  See
+there for more information.
 
 ### Lint
 We require 100% passing rate for the standard [golint
