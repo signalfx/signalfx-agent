@@ -255,21 +255,9 @@ configure_ingest_url() {
   printf "%s" "$ingest_url" > /etc/signalfx/ingest_url
 }
 
-# We don't enable systemd services in the package post install scripts.
-enable_agent_if_systemd() {
-  if command -v systemctl > /dev/null; then
-    systemctl enable signalfx-agent
-  fi
-}
-
 start_agent() {
   if command -v systemctl > /dev/null; then
     systemctl start signalfx-agent
-  # Some docker images insert a fake Upstart initctl that does nothing so try a
-  # command and make sure there's output.
-  elif command -v initctl > /dev/null && [ -n "$(initctl version)" ]; then
-    initctl reload-configuration
-    initctl start signalfx-agent
   else
     service signalfx-agent start
   fi
@@ -321,7 +309,6 @@ install() {
   configure_access_token "$access_token"
   configure_ingest_url "$ingest_url"
 
-  enable_agent_if_systemd
   start_agent
 
   cat <<EOH

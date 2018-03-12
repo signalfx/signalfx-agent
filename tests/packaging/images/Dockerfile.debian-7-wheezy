@@ -9,6 +9,4 @@ COPY socat /bin/socat
 COPY certs/*.signalfx.com.* /
 RUN cat /*.cert >> /etc/ssl/certs/ca-certificates.crt
 
-#RUN  update-rc.d -f $DAEMON remove
-
 CMD ["/sbin/init"]

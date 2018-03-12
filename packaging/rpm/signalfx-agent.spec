@@ -3,7 +3,7 @@
 Name: signalfx-agent
 Version: %{_version}
 Release: %{_release}
-Summary: The SignalFx metric collection agent 
+Summary: The SignalFx metric collection agent
 
 License: Apache 2.0
 URL: https://github.com/signalfx/signalfx-agent
@@ -31,9 +31,6 @@ cp -a %{_sourcedir}/signalfx-agent/* $RPM_BUILD_ROOT/usr/lib/signalfx-agent/
 install -d -m 755 $RPM_BUILD_ROOT/%{_bindir}
 ln -sf /usr/lib/signalfx-agent/bin/signalfx-agent $RPM_BUILD_ROOT/%{_bindir}/signalfx-agent
 
-install -d $RPM_BUILD_ROOT/etc/init
-install -p -m 644 %{_sourcedir}/signalfx-agent.upstart $RPM_BUILD_ROOT/etc/init/signalfx-agent.conf
-
 install -d $RPM_BUILD_ROOT/%{_initddir}
 install -p -m 755 %{_sourcedir}/signalfx-agent.init $RPM_BUILD_ROOT/%{_initddir}/signalfx-agent
 
@@ -53,7 +50,6 @@ install -p -m 644 %{_sourcedir}/signalfx-agent.1 $RPM_BUILD_ROOT/%{_mandir}/man1
 
 %config /etc/signalfx/agent.yaml
 /usr/lib/signalfx-agent
-/etc/init/signalfx-agent.conf
 /%{_unitdir}/signalfx-agent.service
 /%{_bindir}/signalfx-agent
 /%{_tmpfilesdir}/signalfx-agent.conf
@@ -65,15 +61,29 @@ getent passwd signalfx-agent >/dev/null || \
   useradd --system --home-dir /usr/lib/signalfx-agent --no-create-home --shell /sbin/nologin signalfx-agent
 
 %post
-%systemd_post signalfx-agent.service
+if command -v systemctl; then
+  if [ $1 -eq 1 ] ; then
+    # Force it enabled since this is critical for monitoring
+    systemctl --no-reload enable signalfx-agent.service >/dev/null 2>&1 || :
+  fi
+else
+  /sbin/chkconfig --add signalfx-agent
+fi
 %tmpfiles_create %{_tmpfilesdir}/signalfx-agent.conf
 setcap CAP_SYS_PTRACE,CAP_DAC_READ_SEARCH=+eip /usr/lib/signalfx-agent/bin/signalfx-agent
 
 %preun
-%systemd_preun signalfx-agent.service
+if command -v systemctl; then
+  %systemd_preun signalfx-agent.service
+else
+  /sbin/service signalfx-agent stop > /dev/null 2>&1
+  /sbin/chkconfig --del signalfx-agent
+fi
 
 %postun
-%systemd_postun_with_restart signalfx-agent.service
+if command -v systemctl; then
+  %systemd_postun_with_restart signalfx-agent.service
+fi
 
 
 %changelog
