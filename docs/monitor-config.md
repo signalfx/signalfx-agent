@@ -2,8 +2,10 @@
 
 # Monitor Configuration
 
-These are all of the monitors included in the agent along with their possible
-configuration options:
+Monitors are what go out to the host and running applications to gather
+metrics.  They are configured in a list called `monitors` in the [main agent
+config file](./config-schema.md). These are all of the monitors included in the
+agent along with their possible configuration options:
 
 - [cadvisor](./monitors/cadvisor.md)
 - [collectd/activemq](./monitors/collectd-activemq.md)
@@ -52,7 +54,7 @@ The following config options are common to all monitors:
 | Config option | Default | Required | Type | Description |
 | --- | --- | --- | --- | --- |
 | `type` |  | no | `string` | The type of the monitor |
-| `discoveryRule` |  | no | `string` | The rule used to match up this configuration with a discovered endpoint. If blank, the configuration will be run immediately when the agent is started.  If multiple endpoints match this rule, multiple instances of the monitor type will be created with the same configuration. |
+| `discoveryRule` |  | no | `string` | The rule used to match up this configuration with a discovered endpoint. If blank, the configuration will be run immediately when the agent is started.  If multiple endpoints match this rule, multiple instances of the monitor type will be created with the same configuration (except different host/port). |
 | `extraDimensions` |  | no | `map of string` | A set of extra dimensions to include on datapoints emitted by the monitor(s) created from this configuration |
 | `intervalSeconds` | `0` | no | `integer` | The interval (in seconds) at which to emit datapoints from the monitor(s) created by this configuration.  If not set (or set to 0), the global agent intervalSeconds config option will be used instead. |
 | `solo` | `false` | no | `bool` | If one or more configurations have this set to true, only those configurations will be considered -- useful for testing |

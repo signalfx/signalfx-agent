@@ -29,7 +29,7 @@ PACKAGE_UTIL = {
 
 INIT_START_COMMAND = {
     INIT_SYSV: "service signalfx-agent start",
-    INIT_UPSTART: "bash -ec 'initctl reload-configuration && start signalfx-agent'",
+    INIT_UPSTART: "/etc/init.d/signalfx-agent start",
     INIT_SYSTEMD: "systemctl start signalfx-agent",
 }
 
@@ -62,7 +62,6 @@ def _test_package_install(base_image, package_path, init_system):
         print_lines(output)
         try:
             assert code == 0, "Agent could not be started"
-            
             assert wait_for(p(has_datapoint_with_dim, backend, "plugin", "signalfx-metadata")), "Datapoints didn't come through"
             assert is_agent_running_as_non_root(cont)
         finally:

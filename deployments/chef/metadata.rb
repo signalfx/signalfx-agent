@@ -7,10 +7,10 @@ version '0.1.0'
 chef_version '>= 12.1' if respond_to?(:chef_version)
 
 supports 'amazon'
-supports 'centos', '>= 6'
-supports 'debian', '>= 7'
-supports 'redhat', '>= 6'
-supports 'ubuntu', '>= 14.04'
+supports 'centos'
+supports 'debian'
+supports 'redhat'
+supports 'ubuntu'
 
-issues_url 'https://github.com/signalfx/signalfx-agent/issues'
-source_url 'https://github.com/signalfx/signalfx-agent'
+issues_url 'https://github.com/signalfx/signalfx-agent/issues' if respond_to?(:issues_url)
+source_url 'https://github.com/signalfx/signalfx-agent' if respond_to?(:source_url)

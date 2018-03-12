@@ -18,7 +18,8 @@ type MonitorConfig struct {
 	// The rule used to match up this configuration with a discovered endpoint.
 	// If blank, the configuration will be run immediately when the agent is
 	// started.  If multiple endpoints match this rule, multiple instances of
-	// the monitor type will be created with the same configuration.
+	// the monitor type will be created with the same configuration (except
+	// different host/port).
 	DiscoveryRule string `yaml:"discoveryRule"`
 	// A set of extra dimensions to include on datapoints emitted by the
 	// monitor(s) created from this configuration

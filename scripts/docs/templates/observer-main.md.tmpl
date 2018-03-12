@@ -3,8 +3,10 @@
 {{ $doc_types := (ds "agent").doc_types -}}
 # Observer Configuration
 
-These are all of the observers included in the agent along with their possible
-configuration options:
+Observers are what discover service endpoints that can then be monitored.  They
+are configured in a list called `observers` in the [main agent config
+file](./config-schema.md). These are all of the observers included in the agent
+along with their possible configuration options:
 
 {{ range $observers -}}
 - [{{.observerType}}](./observers/{{strings.ReplaceAll "/" "-" (strings.ToLower .observerType)}}.md)

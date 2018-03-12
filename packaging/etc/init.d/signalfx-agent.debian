@@ -44,16 +44,19 @@ case "$1" in
         chown -R signalfx-agent "$rundir"
         chmod 0755 "$rundir"
 
+        touch $logfile
+        chown signalfx-agent $logfile
+
         start-stop-daemon --start \
-          --exec $cmd \
+          --startas /bin/sh \
           --pidfile $pidfile \
           --name $name \
           --user $user \
           --chuid $user \
           --group $group \
           --background \
-          --no-close \
-          --make-pidfile >> $logfile 2>&1
+          --make-pidfile \
+          -- -c "exec $cmd >> $logfile 2>&1"
 
         if [ $? -eq 0 ]; then
           echo "Started.  Logs will go to $logfile"

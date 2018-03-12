@@ -56,8 +56,8 @@ monitors:
 
 Given the following znodes name and values in ZooKeeper:
 
- - `/signalfx-agent/mysql/databases/app1`: `[{name: my-db1, name: my-db2}]`
- - `/signalfx-agent/mysql/databases/app2`: `[{name: their-db1, name: their-db2}]`
+ - `/signalfx-agent/mysql/databases/app1`: `[{name: my-db1}, {name: my-db2}]`
+ - `/signalfx-agent/mysql/databases/app2`: `[{name: their-db1}, {name: their-db2}]`
 
 The final resolved config would look like this:
 

@@ -1,4 +1,6 @@
 #!/bin/sh
+
+# chkconfig: 2345 20 80
 ### BEGIN INIT INFO
 # Provides: signalfx-agent
 # Required-Start:    $remote_fs $syslog
@@ -44,7 +46,10 @@ case "$1" in
       chown -R signalfx-agent "$rundir"
       chmod 0755 "$rundir"
 
-      su -s /bin/sh -c 'exec "$0" "$@" >> /var/log/signalfx-agent.log 2>&1' $user -- $cmd &
+      touch $logfile
+      chown signalfx-agent $logfile
+
+      nohup su -s /bin/sh -c 'exec "$0" "$@"' $user -- $cmd >> /var/log/signalfx-agent.log 2>&1 &
       pid=$!
 
       if [ $? -eq 0 ]; then
@@ -64,9 +69,10 @@ case "$1" in
 
       kill `get_pid`
 
-      for i in "0 1 2 3 4 5 6 7 8 9"; do
+      for i in 0 1 2 3 4 5 6 7 8 9; do
         if is_running; then
           echo -n "."
+          sleep 1
         fi
       done
 
