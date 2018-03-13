@@ -307,6 +307,7 @@ COPY --from=python-plugins /usr/lib/python2.7/ /lib/python2.7
 COPY --from=python-plugins /usr/local/lib/python2.7/ /lib/python2.7
 
 COPY neopy /neopy
+COPY scripts/umount-hostfs-non-persistent /bin/umount-hostfs-non-persistent
 
 RUN mkdir -p /run/collectd /var/run/ &&\
     ln -s /var/run/signalfx-agent /run &&\
