@@ -19,7 +19,7 @@ stage_from_version() {
 
 parse_args_and_release() {
   local new_version=$($SCRIPT_DIR/current-version)
-  local push=no
+  local push=yes
   local stage=
   local build_all=yes
   local build_docker_image=no
