@@ -1,6 +1,6 @@
 {"signalfx_agent": {
   "package_stage": "test",
-  "agent_version": "3.0.0-post-1",
+  "package_version": "3.0.0-post-1",
   "conf": {
     "signalFxAccessToken": "testing",
     "observers": [

@@ -31,7 +31,10 @@ elsif platform_family?('rhel', 'amazon', 'fedora')
 end
 
 package 'signalfx-agent' do
+  action :install
   version node['signalfx_agent']['package_version'] if !node['signalfx_agent']['package_version'].nil?
+  options '--allow-downgrades' if platform_family?('debian')
+  allow_downgrade true if platform_family?('rhel', 'amazon', 'fedora')
   notifies :restart, 'service[signalfx-agent]', :delayed
 end
 
