@@ -4,6 +4,7 @@
 - [What if I am currently using the old collectd agent?](#what-if-I-am-currently-using-the-old-collectd-agent)
 - [How can I see the datapoints emitted by the agent to troubleshoot issues?](#how-can-I-see-the-datapoints-emitted-by-the-agent-to-troubleshoot-issues)
 - [How can I see what services the agent has discovered?](#how-can-I-see-what-services-the-agent-has-discovered)
+- [Why do other pods in my Kubernetes cluster get stuck terminating?](#why-do-other-pods-in-my-kubernetes-cluster-get-stuck-terminating)
 
 
 ## How does this differ from the old collectd agent?
@@ -67,3 +68,46 @@ If using the containerized agent, you don't need to use `sudo`.
 
 This will dump out some text that includes a section listing the discovered
 service endpoints that the agent knows about.
+
+## Why do other pods in my Kubernetes cluster get stuck terminating?
+
+When running the agent in K8s, we have seen issues where the prescribed host
+filesystem mount to `/hostfs` inside the agent pod will prevent termination of
+other pods on the same node.  It appears to be the same issue described in
+https://bugzilla.redhat.com/show_bug.cgi?id=1437952 with fluentd containers.
+The best thing to do in this case is to unmount docker/k8s related mounts
+inside the agent container by using this container command in the DaemonSet for
+the agent instead of the default `/bin/signalfx-agent`, as well by adding the
+`SYS_ADMIN` capability to the agent container:
+
+```yaml
+...
+      containers:
+      - command:
+        - /bin/bash
+        - -c
+        - /bin/umount-hostfs-non-persistent; exec /bin/signalfx-agent
+        name: signalfx-agent
+        securityContext:
+          capabilities:
+            add:
+            - SYS_ADMIN
+	    ...
+	...
+...
+```
+
+The source for the script `/bin/umount-hostfs-non-persistent` can be [found
+here](
+https://github.com/signalfx/signalfx-agent/blob/master/scripts/umount-hostfs-non-persistent),
+but basically it just does a `umount` on all of the potentially problematic
+mounts that we know of.  You can add arguments to the script invocation for
+additional directories to unmount if necessary.
+
+Note that in order to unmount filesystems, you must have the `SYS_ADMIN`
+capability.  Because it requires such a broad capability, we don't do the
+unmounting by default in order to keep the agent's permissions limited.
+
+We need to mount the host filesystem into the agent pod in order to get disk usage
+metrics for each disk individually on the node, but unfortunately there is no
+way to be more selective with what gets mounted by K8s.
