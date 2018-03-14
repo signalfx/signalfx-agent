@@ -189,7 +189,8 @@ be automatically populated by the agent:
 
     - `SendEvent(*"github.com/signalfx/golib/event".Event)`: Sends an event.
 
-    - `SendDimensionProps(*"github.com/signalfx/signalfx-agent/internal/monitors/types".DimProperties)`: Sends property updates for a specific dimension key/value pair.
+	- `SendDimensionProps(*"github.com/signalfx/signalfx-agent/internal/monitors/types".DimProperties)`:
+		Sends property updates for a specific dimension key/value pair.
 
 The name and type of the struct field must be exactly as specified or else it
 will not be injected.

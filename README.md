@@ -7,7 +7,7 @@ nodes and application services in a variety of different environments.
 
 ## Concepts
 
-The Smart Agent has three main components:
+The agent has three main components:
 
 1) _Observers_ that discover applications and services running on the host
 2) _Monitors_ that collect metrics from the host and applications
@@ -16,7 +16,7 @@ The Smart Agent has three main components:
 ### Observers
 
 Observers watch the various environments we support to discover running
-services and automatically configure the Smart Agent to send metrics for those
+services and automatically configure the agent to send metrics for those
 services.
 
 For a list of supported observers and their configurations,
@@ -39,7 +39,7 @@ configured in the same way, however.
 For a list of supported monitors and their configurations, 
 see [Monitor Config](./docs/monitor-config.md).
 
-The Smart Agent is primarily intended to monitor services/applications running on the
+The agent is primarily intended to monitor services/applications running on the
 same host as the agent.  This is in keeping with the collectd model.  The main
 issue with monitoring services on other hosts is that the `host` dimension that
 collectd sets on all metrics will currently get set to the hostname of the
@@ -49,24 +49,26 @@ machine during metric analysis.
 
 ## Configuration
 
-The Smart Agent is configured primarily from a YAML file (by default,
+The agent is configured primarily from a YAML file (by default,
 `/etc/signalfx/agent.yaml`, but this can be overridden by the `-config` command
 line flag).  
 
 For the full schema of the config, see [Config Schema](./docs/config-schema.md).
 
-For information on how to configure the agent from remote sources, such as other files on the filesystem or KV stores such as Etcd, see [Remote Configuration](./docs/remote-config.md).
+For information on how to configure the agent from remote sources, such as
+other files on the filesystem or KV stores such as Etcd, see [Remote
+Configuration](./docs/remote-config.md).
 
 ## Installation
 
-The Smart Agent is available  for Linux in both a containerized and standalone form.
+The agent is available  for Linux in both a containerized and standalone form.
 Whatever form you use, the dependencies are completely bundled along with the
 agent, including a Java JRE runtime and a Python runtime, so there are no
 additional dependencies required.  This means that the agent should work on any
 relatively modern Linux distribution (kernel version 2.6+).
 
 ### Bundles
-We offer the Smart Agent in the following forms:
+We offer the agent in the following forms:
 
 #### Docker Image
 We provide a Docker image at
@@ -139,7 +141,7 @@ options that you will especially want to consider:
 	 persisting on disk.
 
 See the section on [Privileges](#privileges) for information on the
-capabilities the Smart Agent requires.
+capabilities the agent requires.
 
 3) Run the agent by invoking the archive path
 `signalfx-agent/bin/signalfx-agent -config <path to config.yaml>`.  The agent
@@ -155,11 +157,11 @@ installation process:
 
 #### Installer Script
 For non-containerized environments, there is a convenience script that you can
-run on your host to install the Smart Agent package.  This is useful for testing and
+run on your host to install the agent package.  This is useful for testing and
 trials, but for full-scale deployments you will probably want to use a
 configuration management system like Chef or Puppet.  You can [view the source
 for the installer
-script](https://github.com/signalfx/signalfx-agent/tree/master/deployments/installer/install.sh)
+script](./deployments/installer/install.sh)
 and use it on your hosts by running:
 
 ```sh
@@ -168,11 +170,11 @@ sh /tmp/signalfx-agent.sh <access token>
 ```
 
 #### Chef
-We offer a Chef cookbook to install and configure the Smart Agent.  See [the cookbook
+We offer a Chef cookbook to install and configure the agent.  See [the cookbook
 source](./deployments/chef) and INSERT URL TO SUPERMARKET.
 
 #### Puppet
-We also offer a Puppet manifest to install and configure the Smart Agent.  See [the
+We also offer a Puppet manifest to install and configure the agent.  See [the
 manifest source](./deployments/puppet) and INSERT THE PUPPET FORGE LINK.
 
 #### Kubernetes
@@ -182,7 +184,7 @@ for more information.
 
 ### Privileges
 
-When using the [host observer](./docs/observers/host.md), the Smart Agent requires
+When using the [host observer](./docs/observers/host.md), the agent requires
 the [Linux
 capabilities](http://man7.org/linux/man-pages/man7/capabilities.7.html)
 `DAC_READ_SEARCH` and `SYS_PTRACE`, both of which are necessary to allow the
@@ -197,7 +199,7 @@ You should generally not run the agent as `root` unless you can't use
 capabilities for some reason.
 
 ## Logging
-Currently the Smart Agent only supports logging to stdout/stderr, which will
+Currently the agent only supports logging to stdout/stderr, which will
 generally be redirected by the init scripts we provide to either a file at
 `/var/log/signalfx-agent.log` or to the systemd journal on newer distros. The
 default log level is `info`, which will log anything noteworthy in the agent
@@ -210,11 +212,11 @@ agent.
 
 To use an HTTP(S) proxy, set the environment variable `HTTP_PROXY` and/or
 `HTTPS_PROXY` in the container configuration to proxy either protocol.  The
-SignalFx ingest and API servers both use HTTPS.  The Smart Agent will automatically
+SignalFx ingest and API servers both use HTTPS.  The agent will automatically
 manipulate the `NO_PROXY` envvar to not use the proxy for local services.
 
 ## Diagnostics
-The Smart Agent serves diagnostic information on a UNIX domain socket at the path
+The agent serves diagnostic information on a UNIX domain socket at the path
 configured by the `diagnosticsSocketPath` option.  The socket takes no input,
 but simply dumps its current status back upon connection.  As a convenience,
 the command `signalfx-agent status` will read this socket and dump out its
@@ -222,6 +224,6 @@ contents.
 
 ## Development
 
-If you wish to contribute to the Smart Agent, see the [Developer's
+If you wish to contribute to the agent, see the [Developer's
 Guide](./docs/development.md).
 

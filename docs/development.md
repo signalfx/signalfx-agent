@@ -1,6 +1,6 @@
 # Developer's Guide
 
-The Smart Agent is built from a single multi-stage Dockerfile. This requires Docker
+The agent is built from a single multi-stage Dockerfile. This requires Docker
 17.06+.  There is a dev image that can be built for more convenient local
 development. To use it first do the following:
 
@@ -15,11 +15,11 @@ $ make run-dev-image
 If all went well, you will now be attached to a shell inside of the dev image
 at the Go package dir where you can compile and run the agent.
 
-Inside this image the Smart Agent "bundle" (which basically means collectd and all of
+Inside this image the agent "bundle" (which basically means collectd and all of
 its dependencies) is at `/bundle`, and the rest of the dev image contains
 useful tools for development, such as a golang build environment.
 
-Within this image, you can build the Smart Agent with `make signalfx-agent` and then
+Within this image, you can build the agent with `make signalfx-agent` and then
 run the agent with `./signalfx-agent`.  The code directory will be mounted in
 the container at the right place in the Go path so that it can be built with no
 extra setup.  There is also an environment variable `SIGNALFX_BUNDLE_DIR` set
@@ -34,13 +34,17 @@ shared into the container at the default place that the agent looks for config
 ## Making the Final Docker Image
 To make the final Docker image without all of the development tools, just run
 `make image` (either in or outside of the dev image) and it will make a new
-Smart Agent image with the name `quay.io/signalfx/signalfx-agent-dev:<agent
+agent image with the name `quay.io/signalfx/signalfx-agent-dev:<agent
 version>`.  The agent version will be automatically determined from the git
 repo status, but can be overridden with the `AGENT_VERSION` envvar.  The image
 name itself can be overridden with the `AGENT_IMAGE_NAME` envvar.
 
 ## Making the Standalone Bundle
-To make the standalone `.tar.gz` bundle, simply run `make bundle` (either in or outside of the dev image).  It will dump a file with the name `signalfx-agent-<agent version>.tar.gz` in the current directory.  You can override the agent version used with the `AGENT_VERSION` envvar; otherwise, the version will be automatically inferred from the git repo.
+To make the standalone `.tar.gz` bundle, simply run `make bundle` (either in or
+outside of the dev image).  It will dump a file with the name
+`signalfx-agent-<agent version>.tar.gz` in the current directory.  You can
+override the agent version used with the `AGENT_VERSION` envvar; otherwise, the
+version will be automatically inferred from the git repo.
 
 ## Contributing
 If you are a SignalFx employee, you should make commits to a branch off of the
@@ -87,7 +91,7 @@ the quay.io private repo.
 
 ## Running tests
 
-The Smart Agent comes with a suite of unit and integration tests that exercise
+The agent comes with a suite of unit and integration tests that exercise
 various components within the agent.  All of these tests must pass for a branch
 to be merged into the mainline `master` branch.  Our CircleCI configuration
 will automatically run them when a pull request is made, but you can run them

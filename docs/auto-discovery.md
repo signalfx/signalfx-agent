@@ -1,11 +1,11 @@
 # Endpoint Discovery
 
-The Smart Agent's observers are responsible for discovering service endpoints.  For
-these service endpoints to result in a new monitor instance that is watching
-that endpoint, you must apply _discovery rules_ to your monitor configuration.
-Every monitor that supports monitoring specific services (i.e. not a static
-monitor like the `collectd/cpu` monitor) can be configured with a
-`discoveryRule` config option that specifies a rule using a mini rule language.
+The observers are responsible for discovering service endpoints.  For these
+service endpoints to result in a new monitor instance that is watching that
+endpoint, you must apply _discovery rules_ to your monitor configuration. Every
+monitor that supports monitoring specific services (i.e. not a static monitor
+like the `collectd/cpu` monitor) can be configured with a `discoveryRule`
+config option that specifies a rule using a mini rule language.
 
 For example, to monitor a Redis instance that has been discovered by a
 container-based observer, you could use the following configuration:
@@ -52,13 +52,13 @@ In addition, these extra functions are provided:
  - `Get(map, key)` - retrieves the value from map with the given key
  - `Contains(map, key)` - returns true if key is inside map, otherwise false
 
-There are no implicit rules built into the Smart Agent, so each rule must be specified
+There are no implicit rules built into the agent, so each rule must be specified
 manually in the config file, in conjunction with the monitor that should monitor the
 discovered service.
 
 ## Troubleshooting
 
-The simplest way to see what services an instance of the Smart Agent has discovered,
+The simplest way to see what services an instance of the agent has discovered,
 along with the variables that can be matched against this service, is to run
 the command `signalfx-agent status`.  Near the end of this output will be a
 list of discovered endpoints that the agent knows about.
