@@ -37,7 +37,7 @@ YAML, so any valid JSON can also be used.
 If there is a glob in the source path, the YAML content of the matching paths
 will be read and deserialized.  All of the values must be YAML collections of
 the same type (i.e. either all a sequence or all a map), or else an error is
-raised.  Then all of those collections will be merged together and treated as
+raised.  All of those collections will be merged together and treated as
 one collection.
 
 ### Flattening
@@ -76,7 +76,7 @@ monitors:
 ### Optional paths
 You may want to allow for globbed paths that don't actually match anything.
 This is very useful for specifying a directory of extra monitor configurations
-that may be empty such as the following:
+that may be empty, such as the following:
 
 ```yaml
 signalFxAccessToken: abcd
@@ -87,7 +87,7 @@ monitors:
  - type: collectd/df
 ```
 
-The key here is the `optional: true` value which makes it accept globs that
+The key here is the `optional: true` value, which makes it accept globs that
 don't match anything.  `optional` defaults to `false` so it must be explicitly
 stated that you are ok with no matches.
 
@@ -111,6 +111,6 @@ desired.  Envvars cannot, however, contain remote config values.
 
 If you need more sophisticated interpolation of config values from KV stores,
 we recommend using a third-party templating solution such as
-[confd](https://github.com/kelseyhightower/confd/), or rolling your own
-scripting.
+[confd](https://github.com/kelseyhightower/confd/), or writing your own
+custom script.
 

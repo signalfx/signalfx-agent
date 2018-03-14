@@ -1,6 +1,6 @@
 # Writing a Monitor
 
-Monitors are what go out to the environment around the agent and collect
+Monitors go out to the environment around the agent and collect
 metrics about running services or platforms.  Adding a new monitor is
 relatively simple.
 
@@ -107,7 +107,7 @@ The config struct is where any configuration of your monitor will go.  It must
 embed the
 `github.com/signalfx/signalfx-agent/internal/core/config.MonitorConfig` struct,
 which includes generic configuration common to all monitors.  Configuration of
-the agent (and also monitors) is driven by YAML and it is best practice to
+the agent (and also monitors) is driven by YAML, and it is best practice to
 explicitly state the YAML key for your config values instead of letting the
 YAML interpreter derive it by default.  See [the golang YAML
 docs](https://godoc.org/gopkg.in/yaml.v2) for more information.
