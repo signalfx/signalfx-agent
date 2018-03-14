@@ -43,15 +43,15 @@ name itself can be overridden with the `AGENT_IMAGE_NAME` envvar.
 To make the standalone `.tar.gz` bundle, simply run `make bundle` (either in or
 outside of the dev image).  It will dump a file with the name
 `signalfx-agent-<agent version>.tar.gz` in the current directory.  You can
-override the agent version used with the `AGENT_VERSION` envvar, otherwise it
-will be automatically inferred from the git repo.
+override the agent version used with the `AGENT_VERSION` envvar; otherwise, the
+version will be automatically inferred from the git repo.
 
 ## Contributing
-If you are a SignalFx employee you should make commits to a branch off of the
+If you are a SignalFx employee, you should make commits to a branch off of the
 main code repository at https://github.com/signalfx/signalfx-agent and make a
 pull request back to the master branch.  If you are not an employee, simply
 fork that repository and make pull requests back to our repo's master branch.
-We welcome any enhancements you might have -- we will try to respond to all
+We welcome any enhancements you might have, and will try to respond to all
 issues and pull requests quickly.
 
 ### Trivial Commits
@@ -86,15 +86,15 @@ as long as they are public, so you can make one.
 
 [Helm](https://github.com/kubernetes/helm) makes it easy to deploy the agent as
 well as services to monitor on K8s.  There is a Helm values file for
-development [in this repo](../deployments/helm-dev-values.yaml]) that will use
+development [in this repo](../deployments/k8s/helm-dev-values.yaml) that will use
 the quay.io private repo.
 
 ## Running tests
 
-The agent comes with a suite of unit and integration tests which exercise
+The agent comes with a suite of unit and integration tests that exercise
 various components within the agent.  All of these tests must pass for a branch
 to be merged into the mainline `master` branch.  Our CircleCI configuration
-will automatically run them when a pull request is made but you can run them
+will automatically run them when a pull request is made, but you can run them
 manually as follows:
 
 ### Go Unit Tests

@@ -1,6 +1,6 @@
 # Datapoint Filtering
 
-To reduce your Datapoints per Minute (DPM), you may wish to filter out certain
+To reduce your DPM (datapoints per minute), you may wish to filter out certain
 datapoints at a high level to prevent them from ever leaving the agent.
 Filtering can also be useful to reduce clutter in charts without having to
 resort to filtering in the UI.  If possible, it is preferable to prevent the

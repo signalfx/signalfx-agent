@@ -2,10 +2,10 @@
 
 # Monitor Configuration
 
-Monitors are what go out to the host and running applications to gather
-metrics.  They are configured in a list called `monitors` in the [main agent
-config file](./config-schema.md). These are all of the monitors included in the
-agent along with their possible configuration options:
+Monitors gather metrics from the host and from running applications.  They are
+configured in a list called `monitors` in the [main agent config
+file](./config-schema.md). These are all of the monitors included in the agent,
+along with their possible configuration options:
 
 - [cadvisor](./monitors/cadvisor.md)
 - [collectd/activemq](./monitors/collectd-activemq.md)

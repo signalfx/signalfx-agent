@@ -6,20 +6,20 @@ that the `k8s-api` observer recognizes:
 
 - `agent.signalfx.com/monitorType.<port>: "<monitor type>"` - Specifies the
 	monitor type to use when monitoring the specified port.  If this value is
-	present, any agent config will be ignored and so you must fully specify any
+	present, any agent config will be ignored, so you must fully specify any
 	non-default config values you want to use in annotations.  If this
 	annotation is missing for a port but other config is present, you must have
 	discovery rules or manually configured endpoints in your agent config to
-	monitor this port (the other annotation config values will be merged into
-	the agent config).
+	monitor this port; the other annotation config values will be merged into
+	the agent config.
 
 - `agent.signalfx.com/config.<port>.<configKey>: "<configValue>"` - Specifies
 	a config option for the monitor that will monitor this endpoint.  The
 	options are the same as specified in the monitor config reference.  Lists
 	may be specified with the syntax `[a, b, c]` (YAML compact list) which
 	will be deserialized to a list that will be provided to the monitor.
-	Booleans values are simply the annotation string values `true` or
-	`false`.  Integers can also be specified -- they must be strings as the
+	Boolean values are the annotation string values `true` or
+	`false`.  Integers can also be specified; they must be strings as the
 	annotation value, but they will be interpreted as an integer if they don't
 	contain any non-number characters.
 
@@ -37,7 +37,7 @@ that the `k8s-api` observer recognizes:
 In all of the above, the `<port>` field can be either the port number of the
 endpoint you want to monitor or the assigned name.  The config is specific to a
 single port, which allows you to monitor multiple ports in a single pod and
-container by just specifying annotations with differing ports.
+container by just specifying annotations with different ports.
 
 ## Example
 
@@ -80,6 +80,6 @@ pod will be excluded from the auto discovery mechanism and will be monitored
 only with the given annotation configuration.  If you want to merge
 configuration from the annotations with agent configuration, you must omit the
 `monitorType` annotation and rely on auto discovery to find this endpoint.
-At that point, config from both sources will be merged together, with pod
+At that time, config from both sources will be merged together, with pod
 annotation config taking precedent.
 

@@ -1,10 +1,9 @@
-# SignalFx Agent (SmartAgent)
+# SignalFx SmartAgent
 
 [![GoDoc](https://godoc.org/github.com/signalfx/signalfx-agent?status.svg)](https://godoc.org/github.com/signalfx/signalfx-agent)
 
-The SignalFx Agent (a.k.a. the "SmartAgent") is a metric agent written in Go
-for monitoring nodes and application services in a variety of different
-environments.
+The SignalFx SmartAgent is a metric agent written in Go for monitoring 
+nodes and application services in a variety of different environments.
 
 ## Concepts
 
@@ -16,16 +15,16 @@ The agent has three main components:
 
 ### Observers
 
-Observers are what watch the various environments we support to discover running
+Observers watch the various environments we support to discover running
 services and automatically configure the agent to send metrics for those
 services.
 
-See [Observer Config](./docs/observer-config.md) for a list of supported
-observers and their configuration.
+For a list of supported observers and their configurations,
+see [Observer Config](./docs/observer-config.md).
 
 ### Monitors
 
-Monitors are what collect metrics from the host system and services.  They are
+Monitors collect metrics from the host system and services.  They are
 configured under the `monitors` list in the agent config.  For monitors of
 applications, you can configure a discovery rule on the monitor so that a
 separate instance of the monitor is created for each discovered instance of
@@ -37,8 +36,8 @@ Many of the monitors rely on a third-party "super monitor",
 collection, although we also have monitors apart from Collectd.  They are
 configured in the same way, however.
 
-See [Monitor Config](./docs/monitor-config.md) for a list of supported monitors
-and their configuration.
+For a list of supported monitors and their configurations, 
+see [Monitor Config](./docs/monitor-config.md).
 
 The agent is primarily intended to monitor services/applications running on the
 same host as the agent.  This is in keeping with the collectd model.  The main
@@ -56,13 +55,13 @@ line flag).
 
 For the full schema of the config, see [Config Schema](./docs/config-schema.md).
 
-See [Remote Configuration](./docs/remote-config.md) for information on how to
-configure the agent from remote sources such as other files on the filesystem
-or KV stores such as Etcd.
+For information on how to configure the agent from remote sources, such as
+other files on the filesystem or KV stores such as Etcd, see [Remote
+Configuration](./docs/remote-config.md).
 
 ## Installation
 
-The agent is available in both a containerized and standalone form for Linux.
+The agent is available  for Linux in both a containerized and standalone form.
 Whatever form you use, the dependencies are completely bundled along with the
 agent, including a Java JRE runtime and a Python runtime, so there are no
 additional dependencies required.  This means that the agent should work on any
@@ -72,7 +71,7 @@ relatively modern Linux distribution (kernel version 2.6+).
 We offer the agent in the following forms:
 
 #### Docker Image
-The agent is available as a Docker image at
+We provide a Docker image at
 [quay.io/signalfx/signalfx-agent](https://quay.io/signalfx/signalfx-agent). The
 image is tagged using the same agent version scheme.
 
@@ -105,7 +104,7 @@ yum install -y signalfx-agent
 ```
 
 #### Standalone tar.gz
-If you don't want to use a distro package, we offer the agent bundle as a
+If you don't want to use a distro package, we offer a
 .tar.gz that can be deployed to the target host.  This bundle is available for
 download on the [Github Releases
 Page](https://github.com/signalfx/signalfx-agent/releases) for each new
@@ -113,13 +112,13 @@ release.
 
 To use the bundle:
 
-1) Unarchive it to any directory on the target system you like.
+1) Unarchive it to a directory of your choice on the target system.
 
 2) Ensure a valid configuration file is available somewhere on the target
 system.  The main thing that the distro packages provide -- but that you will
 have to provide manually with the bundle -- is a run directory for the agent to
-use.  There are three config options that you will especially want to consider
-since you aren't installing from a package:
+use.  Since you aren't installing from a package, there are three config 
+options that you will especially want to consider:
 
  - `diagnosticsSocketPath` - This is the full path to a UNIX domain socket that
 	 the agent will listen on so that the `signalfx-agent status` command can
@@ -133,16 +132,16 @@ since you aren't installing from a package:
 	 socket.
 
  - `collectd.configDir` - This is where the agent writes the managed collectd
-	 config since collectd can only be configured by files.  Note that this
-	 entire dir will be **wiped by the agent upon startup** so that it doesn't
+	 config, since collectd can only be configured by files.  Note that **this
+	 entire dir will be wiped by the agent upon startup** so that it doesn't
 	 pick up stale collectd config, so be sure that it is not used for anything
-	 else.  Also note that these files could have **sensitive information in
+	 else.  Also note that **these files could have sensitive information in
 	 them** if you have passwords configured for collectd monitors, so you
-	 might want to place this dir on a `tmpfs` mount to avoid credentials being
-	 persisted on disk.
+	 might want to place this dir on a `tmpfs` mount to avoid credentials 
+	 persisting on disk.
 
-See the section on [Privileges](#privileges) for information on what
-capabilities the agent needs.
+See the section on [Privileges](#privileges) for information on the
+capabilities the agent requires.
 
 3) Run the agent by invoking the archive path
 `signalfx-agent/bin/signalfx-agent -config <path to config.yaml>`.  The agent
@@ -151,6 +150,7 @@ other log management system if you wish to persist logs.  See the
 [signalfx-agent command](./docs/signalfx-agent.1.md) doc for more information on
 supported command flags.
 
+
 ### Deployment Tools
 We support the following deployment/configuration management tools to automate the
 installation process:
@@ -158,10 +158,10 @@ installation process:
 #### Installer Script
 For non-containerized environments, there is a convenience script that you can
 run on your host to install the agent package.  This is useful for testing and
-trails, but for full-scale deployments you will probably want to use a
+trials, but for full-scale deployments you will probably want to use a
 configuration management system like Chef or Puppet.  You can [view the source
 for the installer
-script](https://github.com/signalfx/signalfx-agent/tree/master/deployments/installer/install.sh)
+script](./deployments/installer/install.sh)
 and use it on your hosts by running:
 
 ```sh
@@ -210,7 +210,7 @@ agent.
 
 ## Proxy Support
 
-To use a HTTP(S) proxy, set the environment variable `HTTP_PROXY` and/or
+To use an HTTP(S) proxy, set the environment variable `HTTP_PROXY` and/or
 `HTTPS_PROXY` in the container configuration to proxy either protocol.  The
 SignalFx ingest and API servers both use HTTPS.  The agent will automatically
 manipulate the `NO_PROXY` envvar to not use the proxy for local services.
@@ -218,7 +218,7 @@ manipulate the `NO_PROXY` envvar to not use the proxy for local services.
 ## Diagnostics
 The agent serves diagnostic information on a UNIX domain socket at the path
 configured by the `diagnosticsSocketPath` option.  The socket takes no input,
-but simply dumps it's current status back upon connection.  As a convenience,
+but simply dumps its current status back upon connection.  As a convenience,
 the command `signalfx-agent status` will read this socket and dump out its
 contents.
 

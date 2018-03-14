@@ -80,6 +80,7 @@ run-dev-image:
 
 .PHONY: docs
 docs:
+	rm -f docs/{observers,monitors}/*
 	scripts/docs/make-docs
 
 .PHONY: chef-%
