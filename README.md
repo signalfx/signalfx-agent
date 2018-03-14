@@ -160,8 +160,9 @@ For non-containerized environments, there is a convenience script that you can
 run on your host to install the agent package.  This is useful for testing and
 trails, but for full-scale deployments you will probably want to use a
 configuration management system like Chef or Puppet.  You can [view the source
-for the installer script](./packaging/installer/install.sh) and use it on your
-hosts by running:
+for the installer
+script](https://github.com/signalfx/signalfx-agent/tree/master/deployments/installer/install.sh)
+and use it on your hosts by running:
 
 ```sh
 curl -sSL https://dl.signalfx.com/signalfx-agent.sh > /tmp/signalfx-agent.sh

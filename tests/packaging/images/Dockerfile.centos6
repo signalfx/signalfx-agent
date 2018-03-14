@@ -1,6 +1,6 @@
 FROM centos:6
 
-RUN yum install -y upstart
+RUN yum install -y upstart initscripts
 
 COPY socat /bin/socat
 

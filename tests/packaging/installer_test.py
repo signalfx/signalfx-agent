@@ -25,6 +25,7 @@ from tests.helpers.assertions import *
 from tests.helpers.util import run_container, wait_for, print_lines
 
 pytestmark = pytest.mark.installer
+pytest.skip("installer tests are skipped by default", allow_module_level=True)
 
 
 def is_agent_running_as_non_root(container):
@@ -52,7 +53,7 @@ def test_intaller(base_image, init_system):
         # Unfortunately, wget and curl both don't like self-signed certs, even
         # if they are in the system bundle, so we need to use the --insecure
         # flag.
-        code, output = cont.exec_run("sh /opt/install.sh MYTOKEN --test --insecure")
+        code, output = cont.exec_run("sh /opt/install.sh MYTOKEN --beta --insecure")
         print("Output of install script:")
         print_lines(output)
         assert code == 0, "Agent could not be installed!"

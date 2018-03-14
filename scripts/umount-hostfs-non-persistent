@@ -1,0 +1,32 @@
+#!/bin/bash
+
+# Script to be used in the k8s container to unmount filesystems that we don't
+# need for calculating free disk space, but that seem to cause problems with
+# certain k8s clusters if left mounted.
+
+# Must only use tools that are present in the final k8s image.
+
+# Also the pod must be run with the SYS_ADMIN capability to be able to unmount
+# stuff.
+
+set -x
+
+# Ignore errors with unmounting because some paths may not exist
+set +e
+
+umount_all_under_dir() {
+  for d in $(cat /proc/mounts | grep -Eo "$1[[:alnum:]/~\.-]*"); do
+    umount -R $d > /dev/null 2>&1
+  done
+}
+
+umount_all_under_dir /hostfs/var/lib/docker/aufs/mnt
+umount_all_under_dir /hostfs/var/lib/docker/containers
+umount_all_under_dir /hostfs/var/lib/kubelet
+umount_all_under_dir /hostfs/run/docker/netns
+umount_all_under_dir /hostfs/var/lib/rkt
+
+# Take in args for additional paths to unmount
+for d in $@; do
+  umount_all_under_dir $d
+done
