@@ -39,7 +39,7 @@ class signalfx_agent (
   }
 
   service { 'signalfx-agent':
-    ensure => 'running',
+    ensure => true,
     enable => true,
   }
 
