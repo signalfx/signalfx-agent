@@ -366,7 +366,7 @@ RUN go get -u github.com/golang/lint/golint &&\
 
 # Get integration test deps in here
 COPY tests/requirements.txt /tmp/
-RUN pip3 install -r /tmp/requirements.txt
+RUN pip install --upgrade pip==9.0.1 && pip3 install -r /tmp/requirements.txt
 RUN wget -O /usr/bin/gomplate https://github.com/hairyhenderson/gomplate/releases/download/v2.3.0/gomplate_linux-amd64-slim &&\
     chmod +x /usr/bin/gomplate
 
