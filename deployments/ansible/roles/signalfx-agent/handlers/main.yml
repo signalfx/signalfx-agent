@@ -1,0 +1,6 @@
+---
+# signalfx-agent handler
+- name: restart signalfx-agent
+  service:
+    name: signalfx-agent
+    state: restarted

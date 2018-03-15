@@ -1,0 +1,7 @@
+---
+# This playbook deploys a Signalfx autodiscovery agent
+
+- hosts: all
+
+  roles:
+    - signalfx-agent

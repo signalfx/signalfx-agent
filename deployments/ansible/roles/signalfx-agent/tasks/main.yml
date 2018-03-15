@@ -1,0 +1,10 @@
+---
+# Import tasks according to the distribution
+- name: Import signalfx-agent deploy for CentOS or RHEL
+  import_tasks: yum_repo.yml
+  when: ansible_distribution == 'CentOS' or ansible_distribution == 'Red Hat Enterprise Linux'
+
+- name: Import signalfx-agent deploy for Debian or Ubuntu
+  import_tasks: debian_repo.yml
+  when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
+

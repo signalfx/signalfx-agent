@@ -1,0 +1,4 @@
+# Variables for signalfx-agent service
+
+signalfx_access_token: 
+
