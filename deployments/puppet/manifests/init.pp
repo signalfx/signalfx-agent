@@ -1,7 +1,7 @@
 # Main class that installs and configures the agent
 class signalfx_agent (
     $config,
-    $package_stage = 'main',
+    $package_stage = 'final',
     $repo_base = 'dl.signalfx.com',
     $config_file_path = '/etc/signalfx/agent.yaml',
     $version = 'latest') {
