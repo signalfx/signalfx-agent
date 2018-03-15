@@ -34,8 +34,8 @@ class accepts the following parameters:
 	`signalfx_agent::config`, which will make it automatically filled in as a
 	parameter.
 
- - `$package_stage`: The package repo stage to use: `main`, `beta`, or `test`
-   (**default:** 'main')
+ - `$package_stage`: The package repo stage to use: `final`, `beta`, or `test`
+   (**default:** 'final')
 
  - `$config_file_path`: The path of the config file that will be rendered by the
    module (**default:** '/etc/signalfx/agent.yaml')

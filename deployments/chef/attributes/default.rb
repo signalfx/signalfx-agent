@@ -1,6 +1,6 @@
 
 default['signalfx_agent']['repo_base_url'] = "https://dl.signalfx.com"
-default['signalfx_agent']['package_stage'] = 'main'
+default['signalfx_agent']['package_stage'] = 'final'
 
 default['signalfx_agent']['debian_repo_url'] = "#{node['signalfx_agent']['repo_base_url']}/debs/signalfx-agent"
 default['signalfx_agent']['debian_gpg_key_url'] = "#{node['signalfx_agent']['repo_base_url']}/debian.gpg"
