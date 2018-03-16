@@ -47,18 +47,6 @@ machine that the agent is running on.  This allows everything to have a
 consistent `host` dimension so that metrics can be matched to a specific
 machine during metric analysis.
 
-## Configuration
-
-The agent is configured primarily from a YAML file (by default,
-`/etc/signalfx/agent.yaml`, but this can be overridden by the `-config` command
-line flag).  
-
-For the full schema of the config, see [Config Schema](./docs/config-schema.md).
-
-For information on how to configure the agent from remote sources, such as
-other files on the filesystem or KV stores such as Etcd, see [Remote
-Configuration](./docs/remote-config.md).
-
 ## Installation
 
 The agent is available  for Linux in both a containerized and standalone form.
@@ -171,11 +159,13 @@ sh /tmp/signalfx-agent.sh <access token>
 
 #### Chef
 We offer a Chef cookbook to install and configure the agent.  See [the cookbook
-source](./deployments/chef) and INSERT URL TO SUPERMARKET.
+source](./deployments/chef) and [on the Chef
+Supermarket](https://supermarket.chef.io/cookbooks/signalfx_agent).
 
 #### Puppet
 We also offer a Puppet manifest to install and configure the agent.  See [the
-manifest source](./deployments/puppet) and INSERT THE PUPPET FORGE LINK.
+manifest source](./deployments/puppet) and [on the Puppet
+Forge](https://forge.puppet.com/signalfx/signalfx_agent/readme).
 
 #### Kubernetes
 See our [Kubernetes Quickstart
@@ -197,6 +187,18 @@ strip those capabilities from the agent binary if so desired.
 
 You should generally not run the agent as `root` unless you can't use
 capabilities for some reason.
+
+## Configuration
+
+The agent is configured primarily from a YAML file (by default,
+`/etc/signalfx/agent.yaml`, but this can be overridden by the `-config` command
+line flag).  
+
+For the full schema of the config, see [Config Schema](./docs/config-schema.md).
+
+For information on how to configure the agent from remote sources, such as
+other files on the filesystem or KV stores such as Etcd, see [Remote
+Configuration](./docs/remote-config.md).
 
 ## Logging
 Currently the agent only supports logging to stdout/stderr, which will

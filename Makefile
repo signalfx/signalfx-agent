@@ -83,6 +83,14 @@ docs:
 	rm -f docs/{observers,monitors}/*
 	scripts/docs/make-docs
 
+.PHONY: product-docs
+product-docs:
+	scripts/docs/to-product-docs
+
+.PHONY: integrations-repo
+integrations-repo:
+	scripts/docs/to-integrations-repo
+
 .PHONY: chef-%
 chef-%:
 	$(MAKE) -C deployments/chef $*
