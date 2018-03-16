@@ -11,5 +11,10 @@ run-dev-image:
 		--name signalfx-agent-chef-dev \
 		-it \
 		-v $(CURDIR):/chef-repo/cookbooks/signalfx_agent \
+		-v $(HOME)/.chef:/root/.chef \
 		signalfx-agent-chef-dev \
 		bash
+
+.PHONY: release
+release:
+	./release

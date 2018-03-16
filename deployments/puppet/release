@@ -1,0 +1,48 @@
+#!/bin/bash
+
+set -euo pipefail
+
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+version_from_metadata() {
+  jq -r '.version' $SCRIPT_DIR/metadata.json
+}
+
+run_puppet_command() {
+	docker run \
+		--rm \
+		-v $SCRIPT_DIR:/etc/puppetlabs/code/modules/signalfx_agent \
+		signalfx-agent-puppet-dev \
+    puppet $@
+}
+
+current_version_exists() {
+  curl https://forgeapi.puppetlabs.com:443/v3/modules/signalfx-signalfx_agent | \
+    jq -r '.releases[].version' | \
+    grep $(version_from_metadata) > /dev/null || false
+}
+
+if current_version_exists; then
+  echo "Version $(version_from_metadata) already exists in Puppet Forge. Please update the metadata.json with a new version" >&2
+  exit 1
+fi
+
+tag=puppet-v$(version_from_metadata)
+if ! git rev-parse $tag; then
+  git tag -a $tag
+  git push origin $tag
+fi
+
+make -C $SCRIPT_DIR dev-image
+
+run_puppet_command module build /etc/puppetlabs/code/modules/signalfx_agent
+
+expected_output=$SCRIPT_DIR/pkg/signalfx-signalfx_agent-$(version_from_metadata).tar.gz
+if ! test -e $expected_output; then
+  echo "Module could not be built, expected output at $expected_output" >&2
+  exit 1
+fi
+
+echo "Module was successfully build and is available in ./pkg/$(basename $expected_output)"
+echo
+echo "You must manually upload this file in the Puppet forge web UI by following the directions at https://puppet.com/docs/puppet/5.4/modules_publishing.html#upload-a-module-to-the-forge"

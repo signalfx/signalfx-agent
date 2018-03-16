@@ -59,7 +59,7 @@ If you have a very simple commit that should not require a full CI run, just
 put the text `[skip ci]` in the commit message somewhere and CircleCI will not
 run for that commit.
 
-## Dependencies
+## Go Dependencies
 
 We are using [dep](https://github.com/golang/dep) to manage dependencies.  It
 isn't quite GA yet but seems to meet our needs sufficiently.  Vendoring the

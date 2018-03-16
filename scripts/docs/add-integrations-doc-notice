@@ -1,0 +1,53 @@
+#!/bin/bash
+
+set -euo pipefail
+
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+AGENT_REPO_BASE="$SCRIPT_DIR/../.."
+INTEGRATIONS_REPO_PATH=${INTEGRATIONS_REPO_PATH:-$SCRIPT_DIR/../../../integrations}
+
+. $SCRIPT_DIR/../code-gen-helpers.sh
+
+json_file="$SCRIPT_DIR/../../tmp/agent.json"
+
+install_header='### INSTALLATION'
+
+inject_notice() {
+  local integrations_doc_path=$1
+  local monitor_type=$2
+
+  grep -B 10000 "$install_header" $integrations_doc_path
+
+  cat <<EOH
+
+**If you are using the new SmartAgent, see the docs for [the ${monitor_type}
+monitor](https://github.com/signalfx/signalfx-agent/tree/master/docs/monitors/${monitor_type//\//-}.md)
+for more information.  The configuration documentation below may be helpful as
+well, but consult the SmartAgent repo's docs for the exact schema.**
+
+EOH
+
+  grep -A 10000 "$install_header" $integrations_doc_path | \
+    grep -v "$install_header"
+}
+
+buffer_file=$(mktemp)
+
+for i in $(seq 0 $(($(j '.Monitors | length')-1))); do
+  monitor_type=$(j ".Monitors[$i].monitorType")
+  integrations_dir=${INTEGRATIONS_REPO_PATH%/}/${monitor_type//\//-}
+
+  if ! test -d $integrations_dir; then
+    echo "$monitor_type does not seem to have a directory ($integrations_dir) in the integrations repo"
+    continue
+  fi
+
+  if grep 'github.com/signalfx/signalfx-agent' $integrations_dir/README.md > /dev/null; then
+    echo "Skipping $monitor_type since its integrations doc is already updated"
+    continue
+  fi
+
+  inject_notice $integrations_dir/README.md $monitor_type > $buffer_file
+  cp $buffer_file $integrations_dir/README.md
+done
+  

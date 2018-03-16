@@ -92,7 +92,10 @@ parse_args_and_release() {
 
   if [[ "$stage" != "test" ]] && [[ "$($SCRIPT_DIR/current-version)" != "$new_version" ]]; then
     create_and_push_tag $new_version
-    create_github_release
+  fi
+
+  if [[ "$stage" == "final" ]]; then
+    ensure_github_release "v$new_version"
   fi
 
   if [[ "$build_all" == "yes" ]] || [[ "$build_docker_image" == "yes" ]]; then
@@ -118,8 +121,8 @@ parse_args_and_release() {
     echo "Making bundle tar.gz"
     make_bundle "$new_version"
 
-    if [[ "$push" == "yes" ]]; then
-      echo "Pushing bundle to github"
+    if [[ "$push" == "yes" ]] && [[ "$stage" == "final" ]]; then
+      echo "Pushing bundle to Github"
       push_bundle_to_github "$new_version"
     fi
   fi
@@ -167,8 +170,19 @@ create_and_push_tag() {
   echo "Tag pushed"
 }
 
-create_github_release() {
-  echo "[NOT IMPLEMENTED] Creating Github release..."
+ensure_github_release() {
+  local tag=$1
+  local username=$2
+  local token=$3
+
+  . $SCRIPT_DIR/github_releases.sh
+
+  if ! get_github_release $tag $username $token; then
+    echo "Creating Github release..."
+    new_github_release $tag $username $token
+  else
+    echo "Github release already exists"
+  fi
 }
 
 ## Docker image build and push
@@ -217,8 +231,13 @@ make_bundle() {
 
 push_bundle_to_github() {
   local new_version="$1"
+  local username=$2
+  local token=$3
+
   local bundle_path="$SCRIPT_DIR/../signalfx-agent-${new_version}.tar.gz"
-  echo "[NOT IMPLEMENTED] Uploading bundle $bundle_path to Github..."
+
+  . $SCRIPT_DIR/github_releases.sh
+  upload_asset_to_release v$new_version $bundle_path application/gzip $username $token
 }
 
 parse_args_and_release $@

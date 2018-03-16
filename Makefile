@@ -80,8 +80,16 @@ run-dev-image:
 
 .PHONY: docs
 docs:
-	rm -f docs/{observers,monitors}/*
+	bash -c "rm -f docs/{observers,monitors}/*"
 	scripts/docs/make-docs
+
+.PHONY: product-docs
+product-docs:
+	scripts/docs/to-product-docs
+
+.PHONY: integrations-repo
+integrations-repo:
+	scripts/docs/to-integrations-repo
 
 .PHONY: chef-%
 chef-%:

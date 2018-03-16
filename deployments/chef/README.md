@@ -66,3 +66,15 @@ When testing on a remote machine, put the contents of this directory into a
 directory `cookbooks/signalfx_agent` located anywhere in the filesystem, create
 a json attribute file with the desired attributes (see `example_attrs.json` for
 an example), and then invoke chef-client as you would in the dev image.
+
+## Release Process
+To release a new version of the cookbook, run `./release` in this directory.
+You will need to have our Chef Supermarket server `knife.rb` and the
+`signalfx.pem` private key in `~/.chef`, which you can obtain from somebody
+else on the project who has it.
+
+You should update the version in `metadata.rb` to whatever is most appropriate
+for semver and have that committed before running `./release`.
+
+The release script will try to make and push an annotated tag of the form
+`chef-vX.Y.Z` where `X.Y.Z` is the version in the `./metadata.rb` file.
