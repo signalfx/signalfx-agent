@@ -19,8 +19,9 @@ collectd custom syntax.
 
 The first main foray outside of collectd was the Kubernetes integration, which
 uses monitors and observers written purely in Go and run completely independent
-of collectd.  We hope to write additional monitors apart from collectd, and
-perhaps eventually remove the dependency on collectd entirely.
+of collectd.  Our new monitors can now be independent of collectd to overcome
+some of the limitations we have with that tool.
+
 
 ## What if I am currently using the old collectd agent?
 
