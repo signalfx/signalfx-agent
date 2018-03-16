@@ -13,3 +13,7 @@ run-dev-image:
 		-v $(CURDIR):/etc/puppetlabs/code/modules/signalfx_agent \
 		signalfx-agent-puppet-dev \
 		bash
+
+.PHONY: release
+release:
+	./release
