@@ -44,7 +44,6 @@ along with their possible configuration options:
 - [internal-metrics](./monitors/internal-metrics.md)
 - [kubelet-stats](./monitors/kubelet-stats.md)
 - [kubernetes-cluster](./monitors/kubernetes-cluster.md)
-- [kubernetes-events](./monitors/kubernetes-events.md)
 
 
 ## Common Configuration
