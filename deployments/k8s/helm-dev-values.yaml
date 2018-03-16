@@ -5,7 +5,7 @@ signalFxAccessToken: MYACCESSTOKEN
 clusterName: dev-cluster
 imageRepository: quay.io/signalfx/signalfx-agent-dev
 fullnameOverride: agent
-imageTag: 3.0.0
+imageTag: 3.0.1
 logLevel: debug
 pullPolicy: Always
 kubeletAPI:

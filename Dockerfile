@@ -315,9 +315,6 @@ RUN mkdir -p /run/collectd /var/run/ &&\
 
 COPY --from=agent-builder /usr/bin/signalfx-agent /bin/signalfx-agent
 
-# The current directory of the agent is important since it uses a lot of
-# relative paths to make it very easily relocated within the filesystem in
-# standalone.
 WORKDIR /
 
 
@@ -325,9 +322,7 @@ WORKDIR /
 # This is an image to facilitate development of the agent.  It installs all of
 # the build tools for building collectd and the go agent, along with some other
 # useful utilities.  The agent image is copied from the final-image stage to
-# the /agent dir in here, and should be run with a chroot jail to closely
-# mimick the way the agent is normally run.  There are targets in the Makefile
-# to assist with running it in the chroot jail.
+# the /agent dir in here and the SIGNALFX_BUNDLE_DIR is set to point to that.
 FROM ubuntu:16.04 as dev-extras
 
 RUN apt update &&\

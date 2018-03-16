@@ -6,22 +6,20 @@ metadata:
   name: signalfx-agent
   labels:
     app: signalfx-agent
-    version: 3.0.0
+    version: 3.0.1
 spec:
   selector:
     matchLabels:
       app: signalfx-agent
-
   updateStrategy:
     rollingUpdate:
-      maxUnavailable: "100%"
+      maxUnavailable: 1
     type: RollingUpdate
   template:
     metadata:
       labels:
         app: signalfx-agent
-        version: 3.0.0
-
+        version: 3.0.1
 
     spec:
       # Use host network so we can access kubelet directly
@@ -39,7 +37,7 @@ spec:
 
       containers:
       - name: signalfx-agent
-        image: "quay.io/signalfx/signalfx-agent:3.0.0"
+        image: "quay.io/signalfx/signalfx-agent:3.0.1"
         imagePullPolicy: IfNotPresent
         command:
         - /bin/signalfx-agent

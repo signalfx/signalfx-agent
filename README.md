@@ -2,8 +2,8 @@
 
 [![GoDoc](https://godoc.org/github.com/signalfx/signalfx-agent?status.svg)](https://godoc.org/github.com/signalfx/signalfx-agent)
 
-The SignalFx SmartAgent is a metric agent written in Go for monitoring 
-nodes and application services in a variety of different environments.
+The SignalFx SmartAgent is a metric agent written in Go for monitoring
+infrastructure and application services in a variety of different environments.
 
 ## Concepts
 
@@ -47,6 +47,13 @@ machine that the agent is running on.  This allows everything to have a
 consistent `host` dimension so that metrics can be matched to a specific
 machine during metric analysis.
 
+### Writer
+The writer collects metrics emitted by the configured monitors and sends them
+to SignalFx on a regular basis.  By default it batches metrics for 1 second
+before sending.  There are a few things that can be
+[configured](./docs/config-schema.md#writer) in the writer, but this is generally
+unnecessary.
+
 ## Installation
 
 The agent is available  for Linux in both a containerized and standalone form.
@@ -54,6 +61,41 @@ Whatever form you use, the dependencies are completely bundled along with the
 agent, including a Java JRE runtime and a Python runtime, so there are no
 additional dependencies required.  This means that the agent should work on any
 relatively modern Linux distribution (kernel version 2.6+).
+
+### Deployment
+We support the following deployment/configuration management tools to automate the
+installation process.  See [Bundles](#bundles) for a list of underlying
+packages for the agent.
+
+#### Installer Script
+For non-containerized environments, there is a convenience script that you can
+run on your host to install the agent package.  This is useful for testing and
+trials, but for full-scale deployments you will probably want to use a
+configuration management system like Chef or Puppet.  You can [view the source
+for the installer
+script](./deployments/installer/install.sh)
+and use it on your hosts by running:
+
+```sh
+curl -sSL https://dl.signalfx.com/signalfx-agent.sh > /tmp/signalfx-agent.sh
+sh /tmp/signalfx-agent.sh YOUR_SIGNALFX_API_TOKEN
+```
+
+#### Chef
+We offer a Chef cookbook to install and configure the agent.  See [the cookbook
+source](./deployments/chef) and [on the Chef
+Supermarket](https://supermarket.chef.io/cookbooks/signalfx_agent).
+
+#### Puppet
+We also offer a Puppet manifest to install and configure the agent.  See [the
+manifest source](./deployments/puppet) and [on the Puppet
+Forge](https://forge.puppet.com/signalfx/signalfx_agent/readme).
+
+#### Kubernetes
+See our [Kubernetes setup instructions](./docs/kubernetes-setup.md) and the
+[Kubernetes Quickstart
+Guide](https://docs.signalfx.com/en/latest/integrations/kubernetes-quickstart.html)
+for more information.
 
 ### Bundles
 We offer the agent in the following forms:
@@ -137,40 +179,6 @@ logs only to stdout/err so it is up to you to direct that to a log file or
 other log management system if you wish to persist logs.  See the
 [signalfx-agent command](./docs/signalfx-agent.1.md) doc for more information on
 supported command flags.
-
-
-### Deployment Tools
-We support the following deployment/configuration management tools to automate the
-installation process:
-
-#### Installer Script
-For non-containerized environments, there is a convenience script that you can
-run on your host to install the agent package.  This is useful for testing and
-trials, but for full-scale deployments you will probably want to use a
-configuration management system like Chef or Puppet.  You can [view the source
-for the installer
-script](./deployments/installer/install.sh)
-and use it on your hosts by running:
-
-```sh
-curl -sSL https://dl.signalfx.com/signalfx-agent.sh > /tmp/signalfx-agent.sh
-sh /tmp/signalfx-agent.sh <access token>
-```
-
-#### Chef
-We offer a Chef cookbook to install and configure the agent.  See [the cookbook
-source](./deployments/chef) and [on the Chef
-Supermarket](https://supermarket.chef.io/cookbooks/signalfx_agent).
-
-#### Puppet
-We also offer a Puppet manifest to install and configure the agent.  See [the
-manifest source](./deployments/puppet) and [on the Puppet
-Forge](https://forge.puppet.com/signalfx/signalfx_agent/readme).
-
-#### Kubernetes
-See our [Kubernetes Quickstart
-Guide](https://docs.signalfx.com/en/latest/integrations/kubernetes-quickstart.html)
-for more information.
 
 ### Privileges
 
