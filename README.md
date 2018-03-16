@@ -2,8 +2,8 @@
 
 [![GoDoc](https://godoc.org/github.com/signalfx/signalfx-agent?status.svg)](https://godoc.org/github.com/signalfx/signalfx-agent)
 
-The SignalFx SmartAgent is a metric agent written in Go for monitoring 
-nodes and application services in a variety of different environments.
+The SignalFx SmartAgent is a metric agent written in Go for monitoring
+infrastructure and application services in a variety of different environments.
 
 ## Concepts
 
@@ -47,6 +47,13 @@ machine that the agent is running on.  This allows everything to have a
 consistent `host` dimension so that metrics can be matched to a specific
 machine during metric analysis.
 
+### Writer
+The writer collects metrics emitted by the configured monitors and sends them
+to SignalFx on a regular basis.  By default it batches metrics for 1 second
+before sending.  There are a few things that can be
+[configured](./docs/config-schema.md#writer) in the writer, but this is generally
+unnecessary.
+
 ## Installation
 
 The agent is available  for Linux in both a containerized and standalone form.
@@ -85,7 +92,8 @@ manifest source](./deployments/puppet) and [on the Puppet
 Forge](https://forge.puppet.com/signalfx/signalfx_agent/readme).
 
 #### Kubernetes
-See our [Kubernetes Quickstart
+See our [Kubernetes setup instructions](./docs/kubernetes-setup.md) and the
+[Kubernetes Quickstart
 Guide](https://docs.signalfx.com/en/latest/integrations/kubernetes-quickstart.html)
 for more information.
 
