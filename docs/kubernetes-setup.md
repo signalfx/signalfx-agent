@@ -4,8 +4,7 @@ The agent was first written for Kubernetes and is relatively easy to setup in a
 cluster.  The agent is intended to be run on each node and will monitor
 services running on those same nodes to minimize cross-node traffic.
 
-See the [Kubernetes
-Quickstart](https://docs.signalfx.com/en/latest/integrations/kubernetes-quickstart.html)
+See the documentation on [Monitoring Kubernetes](https://docs.signalfx.com/en/latest/integrations/kubernetes-quickstart.html)
 for more information on how to use the UI components in the SignalFx webapp once
 you are setup.
 
