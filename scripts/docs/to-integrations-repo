@@ -1,6 +1,8 @@
 #!/bin/bash
 
-# Converts the README to README in the integrations repo
+# Converts the README to the README in the signalfx-agent directory of the
+# integrations repo, using the special structure that signalview parses to
+# display in the integration tile.
 
 set -euo pipefail
 
