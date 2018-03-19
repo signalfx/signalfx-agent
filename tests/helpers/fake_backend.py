@@ -1,6 +1,7 @@
 from http.server import HTTPServer, BaseHTTPRequestHandler
 from collections import defaultdict
 from contextlib import contextmanager
+import gzip
 import json
 from google.protobuf import json_format
 import signal
@@ -21,6 +22,9 @@ def _make_fake_ingest(datapoints, events):
             print("INGEST POST: %s" % self.path)
             body = self.rfile.read(int(self.headers.get('Content-Length')))
             is_json = "application/json" in self.headers.get("Content-Type")
+
+            if "gzip" in self.headers.get("Content-Encoding", ""):
+                body = gzip.decompress(body)
 
             if 'datapoint' in self.path:
                 dp_upload = sf_pbuf.DataPointUploadMessage()
