@@ -15,7 +15,7 @@ The agent has three main components:
 
 ### Observers
 
-Observers watch the various environments we support to discover running
+Observers watch the various environments that we support to discover running
 services and automatically configure the agent to send metrics for those
 services.
 
