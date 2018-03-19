@@ -1,18 +1,32 @@
 ---
-# Deploy signalfx-agent via yum repo
-- yum:
-   name: signalfx-agent
-   state: present
+- name: Add Signalfx Agent repo into source list
+  yum_repository:
+    name: signalfx-agent
+    description: SignalFx Agent Repository
+    baseurl: "{{ rhel_repo_url }}"
+    gpgkey: "{{ rhel_gpg_key_url }}"
+    gpgcheck: yes
+    enabled: yes
+
+- name: Install Signalfx Agent via yum package manager
+  yum:
+    name: signalfx-agent
+    state: present
 
 - name: add signalfx group
-   group:
-      name: signalfx-agent
-      state: present
+  group:
+    name: signalfx-agent
+    state: present
 
 - name: add signalfx user
-   user:
-      name: signalfx-agent
-      state: present
+  user:
+    name: signalfx-agent
+    state: present
+
+- name: write signalfx config
+  copy:
+    content: "{{ conf | to_nice_yaml }}"
+    dest: "{{ conf_file_path }}"
 
 - name: start signalfx-agent
   service: 

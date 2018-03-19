@@ -1,18 +1,37 @@
 ---
-# Deploy signalfx-agent via yum repo
-- apt:
-   name: signalfx-agent
-   state: present
+- name: Add an Apt signing key for Signalfx Agent
+  apt_key:
+    url: "{{ debian_gpg_key_url }}"
+    keyring: /etc/apt/trusted.gpg.d/signalfx.gpg
+    state: present
+
+- name: Add Signalfx Agent repository into sources list
+  apt_repository:
+    repo: "{{ debian_repo_url }}"
+    filename: 'signalfx-agent'
+    mode: 644
+    state: present
+
+- name: Install the Signalfx Agent via apt package manager
+  apt:
+    name: signalfx-agent
+    state: present
+    update_cache: yes
 
 - name: add signalfx group
-   group:
-      name: signalfx-agent
-      state: present
+  group:
+    name: signalfx-agent
+    state: present
 
 - name: add signalfx user
-   user:
-      name: signalfx-agent
-      state: present
+  user:
+    name: signalfx-agent
+    state: present
+
+- name: write signalfx config
+  copy:
+    content: "{{ conf | to_nice_yaml }}"
+    dest: "{{ conf_file_path }}"
 
 - name: start signalfx-agent
   service: 

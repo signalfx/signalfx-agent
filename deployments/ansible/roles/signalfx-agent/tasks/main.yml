@@ -1,8 +1,13 @@
 ---
+# Check Signalfx Access Toekn is defined
+- name: Check SignalFx Access Token is defined
+  fail: msg="Bailing out. This play requires 'signalFxAccessToken'"
+  when: conf['signalFxAccessToken'] is undefined or conf['signalFxAccessToken'] is none or (conf['signalFxAccessToken'] | trim == '')
+
 # Import tasks according to the distribution
 - name: Import signalfx-agent deploy for CentOS or RHEL
   import_tasks: yum_repo.yml
-  when: ansible_distribution == 'CentOS' or ansible_distribution == 'Red Hat Enterprise Linux'
+  when: ansible_distribution == 'CentOS' or ansible_distribution == 'Red Hat Enterprise Linux' or ansible_distribution == 'Amazon'
 
 - name: Import signalfx-agent deploy for Debian or Ubuntu
   import_tasks: debian_repo.yml

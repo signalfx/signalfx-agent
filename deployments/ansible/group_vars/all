@@ -1,4 +1,32 @@
-# Variables for signalfx-agent service
+---
+# Variables for Signalfx Agent package
 
-signalfx_access_token: 
+repo_base_url: https://dl.signalfx.com
+package_stage: beta
+version: latest
+
+# Variables specific to debian
+debian_repo_url: "deb {{ repo_base_url }}/debs/signalfx-agent/{{ package_stage }} /"
+debian_gpg_key_url: "{{ repo_base_url }}/debian.gpg"
+
+# Variables specific to rhel
+rhel_repo_url: "{{ repo_base_url }}/rpms/signalfx-agent/{{ package_stage }}"
+rhel_gpg_key_url: "{{ repo_base_url }}/yum-rpm.key"
+
+conf_file_path: /etc/signalfx/agent.yaml
+
+conf:
+  signalFxAccessToken: MY_TOKEN
+  monitors:
+    - type: collectd/cpu
+    - type: collectd/cpufreq
+    - type: collectd/df
+    - type: collectd/disk
+    - type: collectd/interface
+    - type: collectd/load
+    - type: collectd/memory
+    - type: collectd/protocols
+    - type: collectd/signalfx-metadata
+    - type: collectd/uptime
+    - type: collectd/vmem
 

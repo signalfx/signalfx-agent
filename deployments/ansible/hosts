@@ -1,2 +1,3 @@
-app-server1
-app-server2
+# Inventory file for production servers
+server1
+server2
