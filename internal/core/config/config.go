@@ -30,10 +30,16 @@ type Config struct {
 	IngestURL string `yaml:"ingestUrl" default:"https://ingest.signalfx.com"`
 	// The SignalFx API base URL
 	APIURL string `yaml:"apiUrl" default:"https://api.signalfx.com"`
-	// The hostname that will be reported. If blank, this will be
-	// auto-determined by the agent based on a reverse lookup of the machine's
-	// IP address
+	// The hostname that will be reported as the `host` dimension. If blank,
+	// this will be auto-determined by the agent based on a reverse lookup of
+	// the machine's IP address
 	Hostname string `yaml:"hostname"`
+	// If true (the default), and the `hostname` option is not set, the
+	// hostname will be determined by doing a reverse DNS query on the IP
+	// address that is returned by querying for the bare hostname.  This is
+	// useful in cases where the hostname reported by the kernel is a short
+	// name.
+	UseFullyQualifiedHost *bool `yaml:"useFullyQualifiedHost"`
 	// How often to send metrics to SignalFx.  Monitors can override this
 	// individually.
 	IntervalSeconds int `yaml:"intervalSeconds" default:"15"`
@@ -79,10 +85,20 @@ type Config struct {
 }
 
 func (c *Config) setDefaultHostname() {
-	host := fqdn.Get()
-	if host == "unknown" || host == "localhost" {
-		log.Info("Error getting fully qualified hostname, using plain hostname")
+	var host string
+	// This needs to default to true but the defaults lib that we use can't
+	// distinguish between false and unspecified, so figure out if the user
+	// specified it explicitly as false with this logic.
+	if c.UseFullyQualifiedHost == nil || *c.UseFullyQualifiedHost {
+		log.Info("Trying to get fully qualified hostname")
+		host = fqdn.Get()
+		if host == "unknown" || host == "localhost" {
+			log.Info("Error getting fully qualified hostname, using plain hostname")
+			host = ""
+		}
+	}
 
+	if host == "" {
 		var err error
 		host, err = os.Hostname()
 		if err != nil {
