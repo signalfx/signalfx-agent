@@ -1,0 +1,19 @@
+isignalfx-agent:
+  repo_base_url: https://dl.signalfx.com
+  package_stage: beta
+  version: latest
+  conf_file_path: '/etc/signalfx/agent.yaml'
+  conf:
+    signalFxAccessToken: ****************
+    monitors:
+      - type: collectd/cpu
+      - type: collectd/cpufreq
+      - type: collectd/df
+      - type: collectd/disk
+      - type: collectd/interface
+      - type: collectd/load
+      - type: collectd/memory
+      - type: collectd/protocols
+      - type: collectd/signalfx-metadata
+      - type: collectd/uptime
+      - type: collectd/vmem
