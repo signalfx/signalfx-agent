@@ -24,10 +24,16 @@ see [Observer Config](./docs/observer-config.md).
 
 ### Monitors
 
-Monitors collect metrics from the host system and services.  They are configured under the `monitors` list in the agent config.  For application-specific monitors, you can define discovery rules in your monitor configuration. A separate monitor instance is created for each discovered instance of applications that match a discovery rule. See [Auto
+Monitors collect metrics from the host system and services.  They are
+configured under the `monitors` list in the agent config.  For
+application-specific monitors, you can define discovery rules in your monitor
+configuration. A separate monitor instance is created for each discovered
+instance of applications that match a discovery rule. See [Auto
 Discovery](./docs/auto-discovery.md) for more information.
 
-Many of the monitors are built around [collectd](https://collectd.org), an open source third-party monitor, and use it to collect metrics. Some other monitors do not use collectd. However, either type is configured in the same way.
+Many of the monitors are built around [collectd](https://collectd.org), an open
+source third-party monitor, and use it to collect metrics. Some other monitors
+do not use collectd. However, either type is configured in the same way.
 
 For a list of supported monitors and their configurations, 
 see [Monitor Config](./docs/monitor-config.md).
@@ -85,8 +91,9 @@ manifest source](./deployments/puppet) and [on the Puppet
 Forge](https://forge.puppet.com/signalfx/signalfx_agent/readme).
 
 #### Kubernetes
-See our [Kubernetes setup instructions](./docs/kubernetes-setup.md) and the documentation on 
-[Monitoring Kubernetes](https://docs.signalfx.com/en/latest/integrations/kubernetes-quickstart.html)
+See our [Kubernetes setup instructions](./docs/kubernetes-setup.md) and the
+documentation on [Monitoring
+Kubernetes](https://docs.signalfx.com/en/latest/integrations/kubernetes-quickstart.html)
 for more information.
 
 ### Bundles
