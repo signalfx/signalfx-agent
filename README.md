@@ -15,7 +15,7 @@ The agent has three main components:
 
 ### Observers
 
-Observers watch the various environments we support to discover running
+Observers watch the various environments that we support to discover running
 services and automatically configure the agent to send metrics for those
 services.
 
@@ -25,16 +25,15 @@ see [Observer Config](./docs/observer-config.md).
 ### Monitors
 
 Monitors collect metrics from the host system and services.  They are
-configured under the `monitors` list in the agent config.  For monitors of
-applications, you can configure a discovery rule on the monitor so that a
-separate instance of the monitor is created for each discovered instance of
-applications that match that discovery rule.  See [Auto
+configured under the `monitors` list in the agent config.  For
+application-specific monitors, you can define discovery rules in your monitor
+configuration. A separate monitor instance is created for each discovered
+instance of applications that match a discovery rule. See [Auto
 Discovery](./docs/auto-discovery.md) for more information.
 
-Many of the monitors rely on a third-party "super monitor",
-[collectd](https://collectd.org), under the covers to do a lot of the metric
-collection, although we also have monitors apart from Collectd.  They are
-configured in the same way, however.
+Many of the monitors are built around [collectd](https://collectd.org), an open
+source third-party monitor, and use it to collect metrics. Some other monitors
+do not use collectd. However, either type is configured in the same way.
 
 For a list of supported monitors and their configurations, 
 see [Monitor Config](./docs/monitor-config.md).
@@ -92,8 +91,9 @@ manifest source](./deployments/puppet) and [on the Puppet
 Forge](https://forge.puppet.com/signalfx/signalfx_agent/readme).
 
 #### Kubernetes
-See our [Kubernetes setup instructions](./docs/kubernetes-setup.md) and the documentation on 
-[Monitoring Kubernetes](https://docs.signalfx.com/en/latest/integrations/kubernetes-quickstart.html)
+See our [Kubernetes setup instructions](./docs/kubernetes-setup.md) and the
+documentation on [Monitoring
+Kubernetes](https://docs.signalfx.com/en/latest/integrations/kubernetes-quickstart.html)
 for more information.
 
 ### Bundles
