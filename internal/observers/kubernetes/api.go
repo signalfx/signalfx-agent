@@ -131,7 +131,7 @@ func (o *Observer) watchPods() {
 	o.stopper = make(chan struct{})
 
 	client := o.clientset.Core().RESTClient()
-	watchList := cache.NewListWatchFromClient(client, "pods", "", fields.Everything())
+	watchList := cache.NewListWatchFromClient(client, "pods", "", fields.ParseSelectorOrDie("spec.nodeName="+o.thisNode))
 
 	_, controller := cache.NewInformer(
 		watchList,
@@ -165,12 +165,12 @@ func (o *Observer) changeHandler(oldPod *v1.Pod, newPod *v1.Pod) {
 	var newEndpoints []services.Endpoint
 	var oldEndpoints []services.Endpoint
 
-	if oldPod != nil && oldPod.Spec.NodeName == o.thisNode {
+	if oldPod != nil {
 		oldEndpoints = o.endpointsByPodUID[oldPod.UID]
 		delete(o.endpointsByPodUID, oldPod.UID)
 	}
 
-	if newPod != nil && newPod.Spec.NodeName == o.thisNode {
+	if newPod != nil {
 		newEndpoints = endpointsInPod(newPod, o.clientset)
 		o.endpointsByPodUID[newPod.UID] = newEndpoints
 	}
