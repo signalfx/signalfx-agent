@@ -13,7 +13,6 @@ import (
 	set "gopkg.in/fatih/set.v0"
 
 	fqdn "github.com/ShowMax/go-fqdn"
-	"github.com/davecgh/go-spew/spew"
 	"github.com/mitchellh/hashstructure"
 	"github.com/pkg/errors"
 	"github.com/signalfx/signalfx-agent/internal/core/config/sources"
@@ -175,7 +174,6 @@ func (c *Config) makeFilterSet() *filters.FilterSet {
 // need them
 func (c *Config) propagateValuesDown() {
 	filterSet := c.makeFilterSet()
-	spew.Dump(filterSet)
 
 	ingestURL, err := url.Parse(c.IngestURL)
 	if err != nil {
