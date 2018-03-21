@@ -48,7 +48,7 @@ def test_basic_zk_config():
         create_znode(zk, "/monitors/signalfx-metadata", "- type: collectd/signalfx-metadata")
 
         final_conf = config.substitute(zk_endpoint="%s:2181" % container_ip(zk))
-        with run_agent(final_conf) as [backend, get_output]:
+        with run_agent(final_conf) as [backend, get_output, _]:
             assert wait_for(p(has_datapoint_with_dim, backend, "plugin", "signalfx-metadata"))
             assert wait_for(p(has_datapoint_with_dim, backend, "env", "prod"))
 
@@ -59,5 +59,5 @@ def test_bad_globbing():
         create_znode(zk, "/env", "prod")
 
         final_conf = bad_glob_config.substitute(zk_endpoint="%s:2181" % container_ip(zk))
-        with run_agent(final_conf) as [backend, get_output]:
+        with run_agent(final_conf) as [backend, get_output, _]:
             assert wait_for(lambda: "Zookeeper only supports globs" in get_output())

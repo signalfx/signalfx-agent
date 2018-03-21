@@ -16,7 +16,7 @@ monitors:
       <Plugin ping>
         Host "google.com"
       </Plugin>
-""") as [backend, _]:
+""") as [backend, _, _]:
         assert wait_for(p(has_datapoint_with_dim, backend, "plugin", "ping")), "Didn't get ping datapoints"
         assert wait_for(p(has_datapoint_with_dim, backend, "plugin", "df")), "Didn't get df datapoints"
 
@@ -36,7 +36,7 @@ monitors:
        </Plugin>
 collectd:
   logLevel: debug
-""") as [backend, _]:
+""") as [backend, _, _]:
         assert wait_for(p(has_datapoint_with_dim, backend, "plugin", "df")), "Didn't get df datapoints"
         assert wait_for(p(has_datapoint_with_dim, backend, "plugin", "cpu")), "Didn't get cpufreq datapoints"
         assert wait_for(p(has_datapoint_with_dim, backend, "plugin", "ping")), "Didn't get ping datapoints"

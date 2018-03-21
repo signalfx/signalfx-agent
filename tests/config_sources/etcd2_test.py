@@ -40,7 +40,7 @@ def test_basic_etcd2_config():
         create_path(etcd, "/monitors/signalfx-metadata", "- type: collectd/signalfx-metadata")
 
         final_conf = config.substitute(endpoint="%s:2379" % container_ip(etcd))
-        with run_agent(final_conf) as [backend, get_output]:
+        with run_agent(final_conf) as [backend, get_output, _]:
             assert wait_for(p(has_datapoint_with_dim, backend, "plugin", "signalfx-metadata")), "Datapoints didn't come through"
             assert wait_for(p(has_datapoint_with_dim, backend, "env", "prod")), "dimension wasn't set"
 
@@ -62,7 +62,7 @@ def test_interior_globbing():
         create_path(etcd, "/services/signalfx/monitor", "- type: collectd/signalfx-metadata")
 
         final_conf = internal_glob_config.substitute(endpoint="%s:2379" % container_ip(etcd))
-        with run_agent(final_conf) as [backend, get_output]:
+        with run_agent(final_conf) as [backend, get_output, _]:
             assert wait_for(p(has_datapoint_with_dim, backend, "plugin", "signalfx-metadata")), "Datapoints didn't come through"
 
             create_path(etcd, "/services/uptime/monitor", "- type: collectd/uptime")
