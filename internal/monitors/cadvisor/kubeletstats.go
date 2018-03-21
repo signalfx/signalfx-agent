@@ -10,8 +10,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
-	"net/http"
 	"time"
 
 	info "github.com/google/cadvisor/info/v1"
@@ -38,9 +36,6 @@ type KubeletStatsConfig struct {
 	config.MonitorConfig
 	// Kubelet client configuration
 	KubeletAPI kubelet.APIConfig `yaml:"kubeletAPI" default:""`
-	// Whether to log the raw cadvisor response at the debug level for
-	// debugging purposes.
-	LogResponses bool `yaml:"logResponses" default:"false"`
 }
 
 // KubeletStatsMonitor will pull container metrics from the /stats/ endpoint of
@@ -56,17 +51,13 @@ type KubeletStatsMonitor struct {
 
 // Configure the Kubelet Stats monitor
 func (ks *KubeletStatsMonitor) Configure(conf *KubeletStatsConfig) error {
-	kubeletAPI := conf.KubeletAPI
-	if kubeletAPI.URL == "" {
-		kubeletAPI.URL = fmt.Sprintf("https://%s:10250", ks.AgentMeta.Hostname)
-	}
-	client, err := kubelet.NewClient(&kubeletAPI)
+	client, err := kubelet.NewClient(&conf.KubeletAPI)
 	if err != nil {
 		return err
 	}
 
 	return ks.Monitor.Configure(&conf.MonitorConfig, ks.Output.SendDatapoint,
-		newKubeletInfoProvider(client, conf.LogResponses))
+		newKubeletInfoProvider(client))
 }
 
 type statsRequest struct {
@@ -93,9 +84,15 @@ type statsRequest struct {
 }
 
 type kubeletInfoProvider struct {
-	client       *kubelet.Client
-	lastUpdate   time.Time
-	logResponses bool
+	client     *kubelet.Client
+	lastUpdate time.Time
+}
+
+func newKubeletInfoProvider(client *kubelet.Client) *kubeletInfoProvider {
+	return &kubeletInfoProvider{
+		client:     client,
+		lastUpdate: time.Now(),
+	}
 }
 
 func (kip *kubeletInfoProvider) SubcontainersInfo(containerName string) ([]info.ContainerInfo, error) {
@@ -130,20 +127,12 @@ func (kip *kubeletInfoProvider) GetMachineInfo() (*info.MachineInfo, error) {
 	}
 
 	machineInfo := info.MachineInfo{}
-	err = kip.doRequestAndGetValue(req, &machineInfo)
+	err = kip.client.DoRequestAndSetValue(req, &machineInfo)
 	if err != nil {
 		return nil, err
 	}
 
 	return &machineInfo, nil
-}
-
-func newKubeletInfoProvider(client *kubelet.Client, logResponses bool) *kubeletInfoProvider {
-	return &kubeletInfoProvider{
-		client:       client,
-		lastUpdate:   time.Now(),
-		logResponses: logResponses,
-	}
 }
 
 func (kip *kubeletInfoProvider) getAllContainers(start, end time.Time) ([]info.ContainerInfo, error) {
@@ -169,7 +158,7 @@ func (kip *kubeletInfoProvider) getAllContainers(start, end time.Time) ([]info.C
 	req.Header.Set("Content-Type", "application/json")
 
 	var containers map[string]info.ContainerInfo
-	err = kip.doRequestAndGetValue(req, &containers)
+	err = kip.client.DoRequestAndSetValue(req, &containers)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get all container stats from Kubelet URL %q: %v", req.URL.String(), err)
 	}
@@ -179,37 +168,4 @@ func (kip *kubeletInfoProvider) getAllContainers(start, end time.Time) ([]info.C
 		result = append(result, containerInfo)
 	}
 	return result, nil
-}
-
-func (kip *kubeletInfoProvider) doRequestAndGetValue(req *http.Request, value interface{}) error {
-	response, err := kip.client.Do(req)
-	if err != nil {
-		return err
-	}
-	defer response.Body.Close()
-
-	body, err := ioutil.ReadAll(response.Body)
-	if err != nil {
-		return fmt.Errorf("failed to read Kubelet response body - %v", err)
-	}
-
-	if response.StatusCode == http.StatusNotFound {
-		return fmt.Errorf("Kubelet request resulted in 404: %s", req.URL.String())
-	} else if response.StatusCode != http.StatusOK {
-		return fmt.Errorf("Kubelet request failed - %q, response: %q", response.Status, string(body))
-	}
-
-	kubeletAddr := "[unknown]"
-	if req.URL != nil {
-		kubeletAddr = req.URL.Host
-	}
-	if kip.logResponses {
-		log.Debugf("Raw response from Kubelet at %s: %s", kubeletAddr, string(body))
-	}
-
-	err = json.Unmarshal(body, value)
-	if err != nil {
-		return fmt.Errorf("Failed to parse Kubelet output. Response: %q. Error: %v", string(body), err)
-	}
-	return nil
 }
