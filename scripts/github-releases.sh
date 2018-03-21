@@ -5,7 +5,7 @@ github_request() {
   local token=$2
   local method=$3
   local path=$4
-  local datafile=$5
+  local datafile="${5-}"
   local dataflag=
   if test -n "$datafile"; then
     dataflag="--data-binary @$datafile"
@@ -50,7 +50,9 @@ upload_asset_to_release() {
   local username=$4
   local token=$5
 
+  set -x
   upload_url="$(get_github_release "$tag" "$username" "$token" | jq -r '.upload_url' | sed -E -e 's/\{\?.*//')"
 
   curl -X POST -u $username:$token --data-binary @$file -H "Content-Type: $type" "$upload_url?name=$(basename $file)"
+  set +x
 }

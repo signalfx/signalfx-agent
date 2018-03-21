@@ -27,6 +27,8 @@ parse_args_and_release() {
   local build_rpm_package=no
   local build_bundle=no
   local force=no
+  local github_username="${GITHUB_USERNAME-}"
+  local github_token="${GITHUB_TOKEN-}"
 
   while [ -n "${1-}" ]; do
     case $1 in
@@ -48,6 +50,14 @@ parse_args_and_release() {
           exit 1
         fi
 
+        shift 1
+        ;;
+      --github-user)
+        github_username="$2"
+        shift 1
+        ;;
+      --github-token)
+        github_token="$2"
         shift 1
         ;;
       --push)
@@ -95,7 +105,7 @@ parse_args_and_release() {
   fi
 
   if [[ "$stage" == "final" ]]; then
-    ensure_github_release "v$new_version"
+    ensure_github_release "v$new_version" "$github_username" "$github_token"
   fi
 
   if [[ "$build_all" == "yes" ]] || [[ "$build_docker_image" == "yes" ]]; then
@@ -123,7 +133,7 @@ parse_args_and_release() {
 
     if [[ "$push" == "yes" ]] && [[ "$stage" == "final" ]]; then
       echo "Pushing bundle to Github"
-      push_bundle_to_github "$new_version"
+      push_bundle_to_github "$new_version" "$github_username" "$github_token"
     fi
   fi
 
@@ -175,9 +185,9 @@ ensure_github_release() {
   local username=$2
   local token=$3
 
-  . $SCRIPT_DIR/github_releases.sh
+  . $SCRIPT_DIR/github-releases.sh
 
-  if ! get_github_release $tag $username $token; then
+  if ! get_github_release "$tag" "$username" "$token"; then
     echo "Creating Github release..."
     new_github_release $tag $username $token
   else
@@ -231,12 +241,12 @@ make_bundle() {
 
 push_bundle_to_github() {
   local new_version="$1"
-  local username=$2
-  local token=$3
+  local username="$2"
+  local token="$3"
 
   local bundle_path="$SCRIPT_DIR/../signalfx-agent-${new_version}.tar.gz"
 
-  . $SCRIPT_DIR/github_releases.sh
+  . $SCRIPT_DIR/github-releases.sh
   upload_asset_to_release v$new_version $bundle_path application/gzip $username $token
 }
 
