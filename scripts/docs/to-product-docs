@@ -30,8 +30,25 @@ convert_doc_extensions() {
   sed -e '/development.md/! s/\.md[[:>:]]/.html/g' -e'/development.md/! s@\./docs/@./@g'
 }
 
+reset_repo() {
+  if ! git -C $PRODUCT_DOCS_REPO diff --exit-code; then
+    echo "Product docs repo has uncommitted changes, please deal with them first" >&2 
+    exit 1
+  fi
+
+  git -C $PRODUCT_DOCS_REPO fetch origin
+  git -C $PRODUCT_DOCS_REPO checkout smart-agent
+  # If there aren't any pending commits in the smart-agent branch, then reset
+  # with the latest master first
+  if [[ -z "$(git cherry -v origin/master origin/smart-agent)" ]]; then
+    git -C $PRODUCT_DOCS_REPO reset --hard origin/master
+  fi
+}
+
 [ -d $PRODUCT_DOCS_REPO ] || \
   (echo "product-docs repo dir cannot be found at $PRODUCT_DOCS_REPO; please set \$PRODUCT_DOCS_REPO" && exit 1)
+
+reset_repo
 
 mkdir -p $AGENT_PRODUCT_DOCS/{monitors,observers}
 
@@ -85,10 +102,13 @@ done
 header_comment | \
   cat - $AGENT_REPO_BASE/README.md | \
     use_marketing_name | \
-    sed -e 's/# SignalFx SmartAgent/# Overview/' | \
+    sed -e 's/# SignalFx Smart Agent/# Overview/' | \
     sed -e '/GoDoc/d' | \
     pandoc --from gfm --to rst --standalone --reference-links --wrap none | \
     convert_doc_extensions | \
     convert_relative_links \
       > $AGENT_PRODUCT_DOCS/overview.rst
 
+git -C $PRODUCT_DOCS_REPO add $PRODUCT_DOCS_REPO
+git -C $PRODUCT_DOCS_REPO commit
+git -C $PRODUCT_DOCS_REPO push
