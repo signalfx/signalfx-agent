@@ -36,21 +36,21 @@ func init() {
 	monitors.Register(monitorType, func() interface{} { return &Monitor{} }, &Config{})
 }
 
+// Config for this monitor
 type Config struct {
 	config.MonitorConfig
 	// Kubelet client configuration
 	KubeletAPI kubelet.APIConfig `yaml:"kubeletAPI" default:""`
 }
 
-// Monitor for K8s Cluster Metrics.  Also handles syncing certain properties
-// about pods.
+// Monitor for K8s volume metrics as reported by kubelet
 type Monitor struct {
 	Output types.Output
 	stop   func()
 	client *kubelet.Client
 }
 
-// Configure the monitor and kick off event syncing
+// Configure the monitor and kick off volume metric syncing
 func (m *Monitor) Configure(conf *Config) error {
 	var err error
 	m.client, err = kubelet.NewClient(&conf.KubeletAPI)
@@ -116,6 +116,7 @@ func (m *Monitor) getSummary() (*stats.Summary, error) {
 	return &summary, nil
 }
 
+// Shutdown stops the metric sync
 func (m *Monitor) Shutdown() {
 	if m.stop != nil {
 		m.stop()

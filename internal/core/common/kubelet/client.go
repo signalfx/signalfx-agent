@@ -151,6 +151,8 @@ func (kc *Client) NewRequest(method, path string, body io.Reader) (*http.Request
 	return http.NewRequest(method, baseURL+path, body)
 }
 
+// DoRequestAndSetValue does a request to the Kubelet and populates the `value`
+// by deserializing the JSON in the response.
 func (kc *Client) DoRequestAndSetValue(req *http.Request, value interface{}) error {
 	response, err := kc.Do(req)
 	if err != nil {
