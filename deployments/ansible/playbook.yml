@@ -1,0 +1,10 @@
+---
+# This playbook deploys Signalfx smart agent
+
+- name: Configure Instance(s)
+  hosts: signalfx-host-group
+  remote_user: user
+  become: yes
+  become_method: sudo
+  roles:
+    - signalfx-agent
