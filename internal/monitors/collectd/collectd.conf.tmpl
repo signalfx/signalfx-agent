@@ -4,12 +4,8 @@ BaseDir "{{ stripTrailingSlash .BundleDir }}/plugins/.."
 TypesDB "{{ stripTrailingSlash .BundleDir }}/plugins/collectd/types.db"
 PluginDir "{{ stripTrailingSlash .BundleDir }}/plugins/collectd"
 
-{{if .Hostname}}
-Hostname "{{.Hostname}}"
+Hostname ""
 FQDNLookup false
-{{else}}
-FQDNLookup true
-{{end}}
 Interval {{ .IntervalSeconds }}
 Timeout {{ .Timeout }}
 ReadThreads {{ .ReadThreads }}

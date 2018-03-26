@@ -29,6 +29,7 @@ const defaultConfigPath = "/etc/signalfx/agent.yaml"
 func init() {
 	log.SetFormatter(&prefixed.TextFormatter{})
 	log.SetLevel(log.InfoLevel)
+	log.SetOutput(os.Stdout)
 }
 
 // Set an envvar with the agent's version so that plugins can have easy access

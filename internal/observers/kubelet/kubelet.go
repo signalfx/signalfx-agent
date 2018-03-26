@@ -129,9 +129,6 @@ func init() {
 
 // Configure the kubernetes observer/client
 func (k *Observer) Configure(config *Config) error {
-	if config.KubeletAPI.URL == "" {
-		config.KubeletAPI.URL = fmt.Sprintf("https://%s:10250", config.Hostname)
-	}
 	var err error
 	k.client, err = kubelet.NewClient(&config.KubeletAPI)
 	if err != nil {
