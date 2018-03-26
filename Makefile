@@ -64,7 +64,8 @@ debug:
 
 .PHONY: run-dev-image
 run-dev-image:
-	docker exec -it signalfx-agent-dev bash 2>/dev/null || docker run --rm -it \
+	docker exec -it -e COLUMNS=`tput cols` -e LINES=`tput lines` signalfx-agent-dev /bin/bash -l -i 2>/dev/null || \
+	  docker run --rm -it \
 		--cap-add DAC_READ_SEARCH \
 		--cap-add SYS_PTRACE \
 		--net host \
