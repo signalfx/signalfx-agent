@@ -31,6 +31,12 @@ type MonitorConfig struct {
 	// If one or more configurations have this set to true, only those
 	// configurations will be considered -- useful for testing
 	Solo bool `yaml:"solo"`
+	// Some monitors pull metrics from services not running on the same host
+	// and should not get the host-specific dimensions set on them (e.g.
+	// `host`, `AWSUniqueId`, etc).  Setting this to `true` causes those
+	// dimensions to be omitted.  You can disable this globally with the
+	// `disableHostDimensions` option on the top level of the config.
+	DisableHostDimensions bool `yaml:"disableHostDimensions" default:"false"`
 	// OtherConfig is everything else that is custom to a particular monitor
 	OtherConfig map[string]interface{} `yaml:",inline" neverLog:"omit"`
 	// ValidationError is where a message concerning validation issues can go

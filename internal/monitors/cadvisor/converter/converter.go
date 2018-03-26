@@ -61,7 +61,6 @@ type CadvisorCollector struct {
 	containerSpecCPUMetrics []containerSpecMetric
 	machineInfoMetrics      []machineInfoMetric
 	sendDP                  func(*datapoint.Datapoint)
-	hostname                string
 	defaultDimensions       map[string]string
 }
 
@@ -680,7 +679,6 @@ func getContainerSpecMetrics() []containerSpecMetric {
 func NewCadvisorCollector(
 	infoProvider InfoProvider,
 	sendDP func(*datapoint.Datapoint),
-	hostname string,
 	defaultDimensions map[string]string) *CadvisorCollector {
 
 	return &CadvisorCollector{
@@ -691,7 +689,6 @@ func NewCadvisorCollector(
 		containerSpecMetrics:    getContainerSpecMetrics(),
 		machineInfoMetrics:      getMachineInfoMetrics(),
 		sendDP:                  sendDP,
-		hostname:                hostname,
 		defaultDimensions:       defaultDimensions,
 	}
 }
@@ -717,7 +714,6 @@ func (c *CadvisorCollector) sendDatapoint(dp *datapoint.Datapoint) {
 	}
 
 	dims["metric_source"] = "kubernetes"
-	dims["host"] = c.hostname
 
 	for k, v := range c.defaultDimensions {
 		dims[k] = v

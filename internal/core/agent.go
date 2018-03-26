@@ -55,8 +55,8 @@ func (a *Agent) configure(conf *config.Config) {
 	}
 	log.Infof("Using log level %s", log.GetLevel().String())
 
-	if a.writer.HostIDDims == nil {
-		a.writer.HostIDDims = hostid.Dimensions(conf.SendMachineID)
+	if !conf.DisableHostDimensions {
+		a.writer.HostIDDims = hostid.Dimensions(conf.SendMachineID, conf.Hostname, conf.UseFullyQualifiedHost)
 	}
 
 	if conf.EnableProfiling {
@@ -83,7 +83,6 @@ func (a *Agent) configure(conf *config.Config) {
 	}
 
 	a.meta.InternalMetricsSocketPath = conf.InternalMetricsSocketPath
-	a.meta.Hostname = conf.Hostname
 
 	//if conf.PythonEnabled {
 	//neopy.Instance().Configure()

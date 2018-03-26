@@ -12,7 +12,6 @@ import (
 
 	set "gopkg.in/fatih/set.v0"
 
-	fqdn "github.com/ShowMax/go-fqdn"
 	"github.com/mitchellh/hashstructure"
 	"github.com/pkg/errors"
 	"github.com/signalfx/signalfx-agent/internal/core/config/sources"
@@ -32,7 +31,7 @@ type Config struct {
 	APIURL string `yaml:"apiUrl" default:"https://api.signalfx.com"`
 	// The hostname that will be reported as the `host` dimension. If blank,
 	// this will be auto-determined by the agent based on a reverse lookup of
-	// the machine's IP address
+	// the machine's IP address.
 	Hostname string `yaml:"hostname"`
 	// If true (the default), and the `hostname` option is not set, the
 	// hostname will be determined by doing a reverse DNS query on the IP
@@ -40,6 +39,13 @@ type Config struct {
 	// useful in cases where the hostname reported by the kernel is a short
 	// name.
 	UseFullyQualifiedHost *bool `yaml:"useFullyQualifiedHost"`
+	// Our standard agent model is to collect metrics for services running on
+	// the same host as the agent.  Therefore, host-specific dimensions (e.g.
+	// `host`, `AWSUniqueId`, etc) are automatically added to every datapoint
+	// that is emitted from the agent by default.  Set this to true if you are
+	// using the agent primarily to monitor things on other hosts.  You can set
+	// this option at the monitor level as well.
+	DisableHostDimensions bool `yaml:"disableHostDimensions" default:"false"`
 	// How often to send metrics to SignalFx.  Monitors can override this
 	// individually.
 	IntervalSeconds int `yaml:"intervalSeconds" default:"15"`
@@ -84,36 +90,8 @@ type Config struct {
 	Sources sources.SourceConfig `yaml:"configSources"`
 }
 
-func (c *Config) setDefaultHostname() {
-	var host string
-	// This needs to default to true but the defaults lib that we use can't
-	// distinguish between false and unspecified, so figure out if the user
-	// specified it explicitly as false with this logic.
-	if c.UseFullyQualifiedHost == nil || *c.UseFullyQualifiedHost {
-		log.Info("Trying to get fully qualified hostname")
-		host = fqdn.Get()
-		if host == "unknown" || host == "localhost" {
-			log.Info("Error getting fully qualified hostname, using plain hostname")
-			host = ""
-		}
-	}
-
-	if host == "" {
-		var err error
-		host, err = os.Hostname()
-		if err != nil {
-			log.Error("Error getting system simple hostname, cannot set hostname")
-			return
-		}
-	}
-
-	log.Infof("Using hostname %s", host)
-	c.Hostname = host
-}
-
 func (c *Config) initialize() (*Config, error) {
 	c.setupEnvironment()
-	c.setDefaultHostname()
 
 	if err := c.validate(); err != nil {
 		return nil, errors.Wrap(err, "configuration is invalid")
@@ -185,13 +163,8 @@ func (c *Config) propagateValuesDown() {
 		panic("apiUrl was supposed to be validated already")
 	}
 
-	c.Collectd.Hostname = c.Hostname
 	c.Collectd.IntervalSeconds = utils.FirstNonZero(c.Collectd.IntervalSeconds, c.IntervalSeconds)
 	c.Collectd.BundleDir = c.BundleDir
-
-	for i := range c.Observers {
-		c.Observers[i].Hostname = c.Hostname
-	}
 
 	c.Writer.IngestURL = ingestURL
 	c.Writer.APIURL = apiURL
@@ -284,7 +257,6 @@ type CollectdConfig struct {
 
 	// The following are propagated from the top-level config
 	BundleDir            string `yaml:"-"`
-	Hostname             string `yaml:"-"`
 	HasGenericJMXMonitor bool   `yaml:"-"`
 	// Assigned by manager, not by user
 	InstanceName string `yaml:"-"`
