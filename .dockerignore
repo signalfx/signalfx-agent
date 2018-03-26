@@ -1,3 +1,4 @@
+*.tar.gz
 .git/**
 .glide/**
 .build/**
@@ -10,3 +11,4 @@ internal/monitors/**/template.go
 internal/monitors/collectd/collectd.conf.go
 packaging/*/output
 tests/**/__pycache__
+vendor_orig/**
