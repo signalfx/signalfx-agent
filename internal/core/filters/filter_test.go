@@ -112,6 +112,13 @@ func TestFilters(t *testing.T) {
 			},
 		}))
 
+		assert.True(t, f.Matches(&datapoint.Datapoint{
+			Metric: "cpu.utilization",
+			Dimensions: map[string]string{
+				"container_name": "POD123",
+			},
+		}))
+
 		assert.False(t, f.Matches(&datapoint.Datapoint{
 			Metric: "disk.utilization",
 			Dimensions: map[string]string{

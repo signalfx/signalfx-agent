@@ -133,3 +133,7 @@
 [[override]]
   name = "golang.org/x/exp"
   revision = "f2486d8f4791367d077f7fa69b7855041f5b2ddf"
+
+[[constraint]]
+  name = "k8s.io/kubernetes"
+  version = "1.9.5"

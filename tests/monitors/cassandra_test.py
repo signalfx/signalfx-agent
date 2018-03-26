@@ -19,6 +19,6 @@ def test_cassandra():
     with run_service("cassandra") as cassandra_cont:
         config = cassandra_config.substitute(host=cassandra_cont.attrs["NetworkSettings"]["IPAddress"])
 
-        with run_agent(config) as [backend, _]:
+        with run_agent(config) as [backend, _, _]:
             assert wait_for(p(has_datapoint_with_metric_name, backend, "counter.cassandra.ClientRequest.Read.Latency.Count"), 30), "Didn't get Cassandra datapoints"
 

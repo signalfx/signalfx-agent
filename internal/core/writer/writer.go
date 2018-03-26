@@ -77,7 +77,10 @@ func (sw *SignalFxWriter) Configure(conf *config.WriterConfig) error {
 	sw.lock.Lock()
 	defer sw.lock.Unlock()
 
-	if conf.Hash() == sw.conf.Hash() {
+	// conf.Filter contains a bunch of unexported fields so it can't be hashed
+	// so just manually check it
+	if conf.Hash() == sw.conf.Hash() && conf.Filter == sw.conf.Filter {
+		log.Debug("Writer config has not changing, not reconfiguring")
 		return nil
 	}
 
