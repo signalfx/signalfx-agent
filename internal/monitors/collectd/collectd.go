@@ -162,7 +162,7 @@ func (cm *Manager) MonitorDidShutdown(monitorID types.MonitorID) {
 
 		delete(cm.activeMonitors, monitorID)
 
-		if len(cm.activeMonitors) == 0 && cm.stop != nil {
+		if len(cm.activeMonitors) == 0 && !utils.IsSignalChanClosed(cm.stop) {
 			close(cm.stop)
 			cm.deleteExistingConfig()
 			<-cm.terminated

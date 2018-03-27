@@ -1,11 +1,11 @@
-package filters
+package dpfilters
 
 import "github.com/signalfx/golib/datapoint"
 
-// FilterSet is a collection of filters, any one of which must match for a
-// datapoint to be matched.
+// FilterSet is a collection of datapont filters, any one of which must match
+// for a datapoint to be matched.
 type FilterSet struct {
-	Filters []Filter
+	Filters []DatapointFilter
 }
 
 // Matches sends a datapoint through each of the filters in the set and returns

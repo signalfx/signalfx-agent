@@ -1,6 +1,7 @@
 package internalmetrics
 
 import (
+	"context"
 	"encoding/json"
 	"io/ioutil"
 	"net"
@@ -58,7 +59,7 @@ type Config struct {
 type Monitor struct {
 	Output    types.Output
 	AgentMeta *meta.AgentMeta
-	stop      func()
+	cancel    func()
 }
 
 func init() {
@@ -69,7 +70,9 @@ func init() {
 func (m *Monitor) Configure(conf *Config) error {
 	m.Shutdown()
 
-	m.stop = utils.RunOnInterval(func() {
+	var ctx context.Context
+	ctx, m.cancel = context.WithCancel(context.Background())
+	utils.RunOnInterval(ctx, func() {
 		c, err := net.Dial("unix", m.AgentMeta.InternalMetricsSocketPath)
 		if err != nil {
 			log.WithFields(log.Fields{
@@ -105,7 +108,7 @@ func (m *Monitor) Configure(conf *Config) error {
 
 // Shutdown the internal metric collection
 func (m *Monitor) Shutdown() {
-	if m.stop != nil {
-		m.stop()
+	if m.cancel != nil {
+		m.cancel()
 	}
 }

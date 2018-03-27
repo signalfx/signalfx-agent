@@ -69,13 +69,15 @@ type Monitor struct {
 	// This will be automatically injected to the monitor instance before
 	// Configure is called.
 	Output types.Output
-	stop func()
+	cancel func()
 }
 
 // Configure and kick off internal metric collection
 func (m *Monitor) Configure(conf *Config) error {
 	// Start the metric gathering process here.
-	m.stop = utils.RunOnInterval(func() {
+	var ctx context.Context
+	ctx, m.cancel = context.WithCancel(context.Background())
+	utils.RunOnInterval(ctx, func() {
 
 		// This would be a more complicated in a real monitor, but this
 		// shows the basic idea of using the Output interface to send
@@ -91,8 +93,8 @@ func (m *Monitor) Configure(conf *Config) error {
 // Shutdown the monitor
 func (m *Monitor) Shutdown() {
 	// Stop any long-running go routines here
-	if m.stop != nil {
-		m.stop()
+	if m.cancel != nil {
+		m.cancel()
 	}
 }
 ```

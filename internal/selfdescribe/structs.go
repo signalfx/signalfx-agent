@@ -41,7 +41,7 @@ func getStructMetadata(typ reflect.Type) structMetadata {
 		}
 
 		yamlName := getYAMLName(f)
-		if (yamlName == "" || yamlName == "-") && !isInlinedYAML(f) {
+		if (yamlName == "" || yamlName == "-" || strings.HasPrefix(yamlName, "_")) && !isInlinedYAML(f) {
 			continue
 		}
 
