@@ -54,7 +54,7 @@ signalfx-pkg-repo:
 signalfx-agent.packages:
   pkg.installed:
     - name: signalfx-agent
-{% if salt['pillar.get']('signalfx-agent:version') is not none %}
+{% if salt['pillar.get']('signalfx-agent:version') is not none and salt['pillar.get']('signalfx-agent:version') != 'latest' %}
     - version: {{ salt['pillar.get']('signalfx-agent:version') }}
 {% endif %}
   service.running:
@@ -64,7 +64,7 @@ signalfx-agent.packages:
       - pkg: signalfx-agent
     - watch:
       - pkg: signalfx-agent
-      - file: /etc/signalfx/agent.yaml
+      - file: {{ conf_file_path }}
 
 
 # Changing the agent.yaml configuration.
