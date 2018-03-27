@@ -19,13 +19,7 @@ LoadPlugin python
     {{with .SSLCACerts -}}
     ssl_ca_certs "{{.}}"
     {{- end}}
-    ssl_cert_validation {{if .SSLCertValidation}}"True"{{else}}"False"{{end}}
+    ssl_cert_validation {{if .SkipSSLValidation}}"False"{{else}}"True"{{end}}
     EnhancedMetrics {{if .EnhancedMetrics}}"True"{{else}}"False"{{end}}
-    {{range .MetricsToInclude}}
-    IncludeMetric "{{.}}"
-    {{end}}
-    {{range .MetricsToExclude}}
-    ExcludeMetric "{{.}}"
-    {{end}}
   </Module>
 </Plugin>

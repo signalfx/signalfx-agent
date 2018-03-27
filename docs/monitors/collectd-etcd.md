@@ -23,14 +23,12 @@ Monitor Type: `collectd/etcd`
 | `host` | **yes** | `string` |  |
 | `port` | **yes** | `integer` |  |
 | `name` | no | `string` |  |
-| `clusterName` | no | `string` |  |
+| `clusterName` | **yes** | `string` | An arbitrary name of the etcd cluster to make it easier to group together and identify instances. |
 | `sslKeyFile` | no | `string` |  |
 | `sslCertificate` | no | `string` |  |
 | `sslCACerts` | no | `string` |  |
-| `sslCertValidation` | no | `bool` |  (**default:** `true`) |
+| `skipSSLValidation` | no | `bool` |  (**default:** `false`) |
 | `enhancedMetrics` | no | `bool` |  (**default:** `false`) |
-| `metricsToInclude` | no | `list of string` |  |
-| `metricsToExclude` | no | `list of string` |  |
 
 
 
