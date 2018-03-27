@@ -1,10 +1,9 @@
-isignalfx-agent:
+signalfx-agent:
   repo_base_url: https://dl.signalfx.com
-  package_stage: beta
-  version: latest
+  package_stage: final
   conf_file_path: '/etc/signalfx/agent.yaml'
   conf:
-    signalFxAccessToken: ****************
+    signalFxAccessToken: 'My_Token'
     monitors:
       - type: collectd/cpu
       - type: collectd/cpufreq

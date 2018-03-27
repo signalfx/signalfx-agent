@@ -47,12 +47,6 @@ signalfx-pkg-repo:
 {% endif %}
 
 
-# signalfx-agent user and group creation.
-
-signalfx-agent.user:
-  user.present:
-    - name: signalfx-agent
-    - gid_from_name: True
 
 
 # Installation of signalfx-agent package and starting of service.
@@ -60,13 +54,12 @@ signalfx-agent.user:
 signalfx-agent.packages:
   pkg.installed:
     - name: signalfx-agent
-{% if salt['pillar.get']('signalfx-agent:version') is not None %}
+{% if salt['pillar.get']('signalfx-agent:version') is not none %}
     - version: {{ salt['pillar.get']('signalfx-agent:version') }}
 {% endif %}
   service.running:
     - name: signalfx-agent
     - enable: True
-    - full_restart: True
     - require:
       - pkg: signalfx-agent
     - watch:
@@ -82,7 +75,7 @@ signalfx-agent.packages:
     - group: signalfx-agent
     - makedirs: True
     - template: jinja
-    - source: salt://agent.yaml
+    - source: salt://signalfx-agent/agent.yaml
 
 
 {% endif %}
