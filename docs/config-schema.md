@@ -57,7 +57,24 @@ The following are generic options that apply to all monitors.  Each monitor type
 | `extraDimensions` | no | map of string | A set of extra dimensions to include on datapoints emitted by the monitor(s) created from this configuration |
 | `intervalSeconds` | no | integer | The interval (in seconds) at which to emit datapoints from the monitor(s) created by this configuration.  If not set (or set to 0), the global agent intervalSeconds config option will be used instead. (**default:** `0`) |
 | `solo` | no | bool | If one or more configurations have this set to true, only those configurations will be considered -- useful for testing (**default:** `false`) |
+| `metricsToExclude` | no | [list of object (see below)](#metricstoexclude) | A list of metric filters |
 | `disableHostDimensions` | no | bool | Some monitors pull metrics from services not running on the same host and should not get the host-specific dimensions set on them (e.g. `host`, `AWSUniqueId`, etc).  Setting this to `true` causes those dimensions to be omitted.  You can disable this globally with the `disableHostDimensions` option on the top level of the config. (**default:** `false`) |
+
+
+## metricsToExclude
+The **nested** `metricsToExclude` config object has the following fields:
+
+For more information on filtering see [Datapoint Filtering](./filtering.md).
+
+
+| Config option | Required | Type | Description |
+| --- | --- | --- | --- |
+| `dimensions` | no | map of string | A map of dimension key/values to match against.  All key/values must match a datapoint for it to be matched. |
+| `metricNames` | no | list of string | A list of metric names to match against, OR'd together |
+| `metricName` | no | string | A single metric name to match against |
+| `monitorType` | no | string | (**Only applicable for the top level filters**) Limits this scope of the filter to datapoints from a specific monitor. If specified, any datapoints not from this monitor type will never match against this filter. |
+| `negated` | no | bool | Negates the result of the match so that it matches all datapoints that do NOT match the metric name and dimension values given. This does not negate monitorType, if given. (**default:** `false`) |
+
 
 
 
@@ -122,7 +139,7 @@ For more information on filtering see [Datapoint Filtering](./filtering.md).
 | `dimensions` | no | map of string | A map of dimension key/values to match against.  All key/values must match a datapoint for it to be matched. |
 | `metricNames` | no | list of string | A list of metric names to match against, OR'd together |
 | `metricName` | no | string | A single metric name to match against |
-| `monitorType` | no | string | Limits this scope of the filter to datapoints from a specific monitor. If specified, any datapoints not from this monitor type will never match against this filter. |
+| `monitorType` | no | string | (**Only applicable for the top level filters**) Limits this scope of the filter to datapoints from a specific monitor. If specified, any datapoints not from this monitor type will never match against this filter. |
 | `negated` | no | bool | Negates the result of the match so that it matches all datapoints that do NOT match the metric name and dimension values given. This does not negate monitorType, if given. (**default:** `false`) |
 
 

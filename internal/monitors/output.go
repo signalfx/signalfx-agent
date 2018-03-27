@@ -4,6 +4,7 @@ import (
 	"github.com/signalfx/golib/datapoint"
 	"github.com/signalfx/golib/event"
 	"github.com/signalfx/signalfx-agent/internal/core/common/dpmeta"
+	"github.com/signalfx/signalfx-agent/internal/core/dpfilters"
 	"github.com/signalfx/signalfx-agent/internal/core/services"
 	"github.com/signalfx/signalfx-agent/internal/monitors/types"
 	"github.com/signalfx/signalfx-agent/internal/utils"
@@ -14,6 +15,7 @@ type monitorOutput struct {
 	monitorType     string
 	monitorID       types.MonitorID
 	notHostSpecific bool
+	filter          *dpfilters.FilterSet
 	configHash      uint64
 	endpoint        services.Endpoint
 	dpChan          chan<- *datapoint.Datapoint
@@ -23,6 +25,10 @@ type monitorOutput struct {
 }
 
 func (mo *monitorOutput) SendDatapoint(dp *datapoint.Datapoint) {
+	if mo.filter != nil && mo.filter.Matches(dp) {
+		return
+	}
+
 	if dp.Meta == nil {
 		dp.Meta = make(map[interface{}]interface{})
 	}

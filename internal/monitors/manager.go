@@ -321,6 +321,7 @@ func (mm *MonitorManager) createAndConfigureNewMonitor(config config.MonitorCust
 		monitorType:     config.MonitorConfigCore().Type,
 		monitorID:       id,
 		notHostSpecific: config.MonitorConfigCore().DisableHostDimensions,
+		filter:          config.MonitorConfigCore().Filter,
 		configHash:      configHash,
 		endpoint:        endpoint,
 		dpChan:          mm.DPs,

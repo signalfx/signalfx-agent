@@ -86,3 +86,27 @@ metricsToExclude:
 """)
         assert wait_for(lambda: has_datapoint_with_metric_name(backend, "memory.free"))
 
+# Ensure the filters on monitors get applied
+def test_monitor_filter():
+    with run_agent("""
+monitors:
+  - type: collectd/signalfx-metadata
+  - type: collectd/df
+  - type: collectd/memory
+    metricsToExclude:
+     - metricName: memory.used
+  - type: collectd/uptime
+""") as [backend, _, update_config]:
+        assert wait_for(lambda: has_datapoint_with_metric_name(backend, "df_complex.free"))
+        assert wait_for(lambda: has_datapoint_with_metric_name(backend, "memory.free"))
+        assert ensure_always(lambda: not has_datapoint_with_metric_name(backend, "memory.used"))
+
+        update_config("""
+monitors:
+  - type: collectd/signalfx-metadata
+  - type: collectd/df
+  - type: collectd/memory
+  - type: collectd/uptime
+""")
+        assert wait_for(lambda: has_datapoint_with_metric_name(backend, "memory.used"))
+        assert wait_for(lambda: has_datapoint_with_metric_name(backend, "memory.free"))

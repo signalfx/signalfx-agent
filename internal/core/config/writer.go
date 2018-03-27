@@ -4,7 +4,7 @@ import (
 	"net/url"
 
 	"github.com/mitchellh/hashstructure"
-	"github.com/signalfx/signalfx-agent/internal/core/filters"
+	"github.com/signalfx/signalfx-agent/internal/core/dpfilters"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -35,12 +35,12 @@ type WriterConfig struct {
 	// The analogue of `logDatapoints` for events.
 	LogEvents bool `yaml:"logEvents"`
 	// The following are propagated from elsewhere
-	HostIDDims          map[string]string  `yaml:"-"`
-	IngestURL           *url.URL           `yaml:"-"`
-	APIURL              *url.URL           `yaml:"-"`
-	SignalFxAccessToken string             `yaml:"-"`
-	GlobalDimensions    map[string]string  `yaml:"-"`
-	Filter              *filters.FilterSet `yaml:"-"`
+	HostIDDims          map[string]string    `yaml:"-"`
+	IngestURL           *url.URL             `yaml:"-"`
+	APIURL              *url.URL             `yaml:"-"`
+	SignalFxAccessToken string               `yaml:"-"`
+	GlobalDimensions    map[string]string    `yaml:"-"`
+	Filter              *dpfilters.FilterSet `yaml:"-"`
 }
 
 // Hash calculates a unique hash value for this config struct

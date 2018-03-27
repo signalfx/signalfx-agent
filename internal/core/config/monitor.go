@@ -4,6 +4,7 @@ import (
 	"reflect"
 
 	"github.com/mitchellh/hashstructure"
+	"github.com/signalfx/signalfx-agent/internal/core/dpfilters"
 	"github.com/signalfx/signalfx-agent/internal/monitors/types"
 	log "github.com/sirupsen/logrus"
 )
@@ -31,6 +32,8 @@ type MonitorConfig struct {
 	// If one or more configurations have this set to true, only those
 	// configurations will be considered -- useful for testing
 	Solo bool `yaml:"solo"`
+	// A list of metric filters
+	MetricsToExclude []MetricFilter `yaml:"metricsToExclude" default:"[]"`
 	// Some monitors pull metrics from services not running on the same host
 	// and should not get the host-specific dimensions set on them (e.g.
 	// `host`, `AWSUniqueId`, etc).  Setting this to `true` causes those
@@ -41,10 +44,22 @@ type MonitorConfig struct {
 	OtherConfig map[string]interface{} `yaml:",inline" neverLog:"omit"`
 	// ValidationError is where a message concerning validation issues can go
 	// so that diagnostics can output it.
-	Hostname        string          `yaml:"-"`
-	BundleDir       string          `yaml:"-"`
-	ValidationError string          `yaml:"-" hash:"ignore"`
-	MonitorID       types.MonitorID `yaml:"-" hash:"ignore"`
+	Hostname        string               `yaml:"-"`
+	BundleDir       string               `yaml:"-"`
+	ValidationError string               `yaml:"-" hash:"ignore"`
+	MonitorID       types.MonitorID      `yaml:"-" hash:"ignore"`
+	Filter          *dpfilters.FilterSet `yaml:"-" hash:"ignore"`
+}
+
+// Init does basic setup of the config struct and should always be called after
+// deserialization.
+func (mc *MonitorConfig) Init() error {
+	var err error
+	mc.Filter, err = makeFilterSet(mc.MetricsToExclude)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 // Equals tests if two monitor configs are sufficiently equal to each other.

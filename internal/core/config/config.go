@@ -15,7 +15,6 @@ import (
 	"github.com/mitchellh/hashstructure"
 	"github.com/pkg/errors"
 	"github.com/signalfx/signalfx-agent/internal/core/config/sources"
-	"github.com/signalfx/signalfx-agent/internal/core/filters"
 	"github.com/signalfx/signalfx-agent/internal/utils"
 	log "github.com/sirupsen/logrus"
 )
@@ -97,7 +96,10 @@ func (c *Config) initialize() (*Config, error) {
 		return nil, errors.Wrap(err, "configuration is invalid")
 	}
 
-	c.propagateValuesDown()
+	err := c.propagateValuesDown()
+	if err != nil {
+		return nil, err
+	}
 
 	return c, nil
 }
@@ -137,21 +139,13 @@ func (c *Config) validate() error {
 	return c.Collectd.Validate()
 }
 
-func (c *Config) makeFilterSet() *filters.FilterSet {
-	fs := make([]filters.Filter, 0)
-	for _, mte := range c.MetricsToExclude {
-		fs = append(fs, mte.MakeFilter())
-	}
-
-	return &filters.FilterSet{
-		Filters: fs,
-	}
-}
-
 // Send values from the top of the config down to nested configs that might
 // need them
-func (c *Config) propagateValuesDown() {
-	filterSet := c.makeFilterSet()
+func (c *Config) propagateValuesDown() error {
+	filterSet, err := makeFilterSet(c.MetricsToExclude)
+	if err != nil {
+		return err
+	}
 
 	ingestURL, err := url.Parse(c.IngestURL)
 	if err != nil {
@@ -163,6 +157,12 @@ func (c *Config) propagateValuesDown() {
 		panic("apiUrl was supposed to be validated already")
 	}
 
+	for i := range c.Monitors {
+		if err := c.Monitors[i].Init(); err != nil {
+			return errors.Wrapf(err, "Could not initialize monitor %s", c.Monitors[i].Type)
+		}
+	}
+
 	c.Collectd.IntervalSeconds = utils.FirstNonZero(c.Collectd.IntervalSeconds, c.IntervalSeconds)
 	c.Collectd.BundleDir = c.BundleDir
 
@@ -171,6 +171,8 @@ func (c *Config) propagateValuesDown() {
 	c.Writer.Filter = filterSet
 	c.Writer.SignalFxAccessToken = c.SignalFxAccessToken
 	c.Writer.GlobalDimensions = c.GlobalDimensions
+
+	return nil
 }
 
 // CustomConfigurable should be implemented by config structs that have the
