@@ -1,6 +1,7 @@
 package volumes
 
 import (
+	"context"
 	"fmt"
 	"time"
 
@@ -46,7 +47,7 @@ type Config struct {
 // Monitor for K8s volume metrics as reported by kubelet
 type Monitor struct {
 	Output types.Output
-	stop   func()
+	cancel func()
 	client *kubelet.Client
 }
 
@@ -58,7 +59,9 @@ func (m *Monitor) Configure(conf *Config) error {
 		return err
 	}
 
-	m.stop = utils.RunOnInterval(func() {
+	var ctx context.Context
+	ctx, m.cancel = context.WithCancel(context.Background())
+	utils.RunOnInterval(ctx, func() {
 		dps, err := m.getVolumeMetrics()
 		if err != nil {
 			logger.WithError(err).Error("Could not get volume metrics")
@@ -118,7 +121,7 @@ func (m *Monitor) getSummary() (*stats.Summary, error) {
 
 // Shutdown stops the metric sync
 func (m *Monitor) Shutdown() {
-	if m.stop != nil {
-		m.stop()
+	if m.cancel != nil {
+		m.cancel()
 	}
 }

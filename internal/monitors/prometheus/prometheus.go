@@ -1,6 +1,7 @@
 package prometheus
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"net/http"
@@ -59,7 +60,7 @@ type Config struct {
 // Monitor for prometheus exporter metrics
 type Monitor struct {
 	Output types.Output
-	stop   func()
+	cancel func()
 	client *http.Client
 }
 
@@ -76,14 +77,18 @@ func (m *Monitor) Configure(conf *Config) error {
 	}
 	url := fmt.Sprintf("http://%s:%d%s", host, conf.Port, conf.MetricPath)
 
-	m.stop = utils.RunOnInterval(func() {
+	var ctx context.Context
+	ctx, m.cancel = context.WithCancel(context.Background())
+	utils.RunOnInterval(ctx, func() {
 		dps, err := fetchPrometheusMetrics(m.client, url)
 		if err != nil {
 			logger.WithError(err).Error("Could not get prometheus metrics")
 			return
 		}
 
+		now := time.Now()
 		for i := range dps {
+			dps[i].Timestamp = now
 			m.Output.SendDatapoint(dps[i])
 		}
 	}, time.Duration(conf.IntervalSeconds)*time.Second)
@@ -134,7 +139,7 @@ func doFetch(client *http.Client, url string) ([]*dto.MetricFamily, error) {
 
 // Shutdown stops the metric sync
 func (m *Monitor) Shutdown() {
-	if m.stop != nil {
-		m.stop()
+	if m.cancel != nil {
+		m.cancel()
 	}
 }
