@@ -41,6 +41,7 @@ along with their possible configuration options:
 - [collectd/uptime](./monitors/collectd-uptime.md)
 - [collectd/vmem](./monitors/collectd-vmem.md)
 - [collectd/zookeeper](./monitors/collectd-zookeeper.md)
+- [docker-container-stats](./monitors/docker-container-stats.md)
 - [internal-metrics](./monitors/internal-metrics.md)
 - [kubelet-stats](./monitors/kubelet-stats.md)
 - [kubernetes-cluster](./monitors/kubernetes-cluster.md)

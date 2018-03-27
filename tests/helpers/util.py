@@ -143,9 +143,9 @@ def run_container(image_name, wait_for_ip=True, **kwargs):
 
 
 @contextmanager
-def run_service(service_name, name=None):
+def run_service(service_name, **kwargs):
     client = get_docker_client()
     image, logs = client.images.build(path=os.path.join(TEST_SERVICES_DIR, service_name), rm=True, forcerm=True)
-    with run_container(image.id, name=name) as cont:
+    with run_container(image.id, **kwargs) as cont:
         yield cont
 
