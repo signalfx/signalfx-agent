@@ -25,9 +25,9 @@ type connection struct {
 type Config struct {
 	config.MonitorConfig `yaml:",inline" acceptsEndpoints:"true"`
 
-	Host string  `yaml:"host" validate:"required"`
-	Port uint16  `yaml:"port" validate:"required"`
-	Name *string `yaml:"name"`
+	Host string `yaml:"host" validate:"required"`
+	Port uint16 `yaml:"port" validate:"required"`
+	Name string `yaml:"name"`
 
 	// This is how the service type is identified in the SignalFx UI so that
 	// you can get built-in content for it.  For custom JMX integrations, it
