@@ -94,15 +94,17 @@ func ConfigureMainCollectd(conf *config.CollectdConfig) error {
 	localConf := *conf
 	localConf.InstanceName = "global"
 
+	var created bool
 	if collectdSingleton == nil {
 		collectdSingleton = InitCollectd(&localConf)
+		created = true
 	}
 	cm := collectdSingleton
 
 	cm.configMutex.Lock()
 	defer cm.configMutex.Unlock()
 
-	if cm.conf == nil || cm.conf.Hash() != localConf.Hash() {
+	if created || cm.conf.Hash() != localConf.Hash() {
 		cm.conf = &localConf
 
 		cm.RequestRestart()

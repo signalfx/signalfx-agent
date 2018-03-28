@@ -52,6 +52,14 @@ func (mo *monitorOutput) SendDatapoint(dp *datapoint.Datapoint) {
 }
 
 func (mo *monitorOutput) SendEvent(event *event.Event) {
+	if mo.notHostSpecific {
+		if event.Properties == nil {
+			event.Properties = make(map[string]interface{})
+		}
+		// Events don't have a non-serialized meta field, so just use
+		// properties and make sure to remove this in the writer.
+		event.Properties[dpmeta.NotHostSpecificMeta] = true
+	}
 	mo.eventChan <- event
 }
 

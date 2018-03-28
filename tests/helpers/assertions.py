@@ -7,13 +7,27 @@ def has_datapoint_with_metric_name(fake_services, metric_name):
             return True
     return False
 
+# Tests if `dims`'s are all in a certain datapoint or event
+def has_all_dims(dp_or_event, dims):
+    return dims.items() <= {d.key: d.value for d in dp_or_event.dimensions}.items()
+        
+
+# Tests if any datapoints has all of the given dimensions
+def has_datapoint_with_all_dims(fake_services, dims):
+    for dp in fake_services.datapoints:
+        if has_all_dims(dp, dims):
+            return True
+    return False
 
 # Tests if any datapoint received has the given dim key/value on it.
 def has_datapoint_with_dim(fake_services, key, value):
-    for dp in fake_services.datapoints:
-        for dim in dp.dimensions:
-            if dim.key == key and dim.value == value:
-                return True
+    return has_datapoint_with_all_dims(fake_services, {key: value})
+
+# Tests if any event received has the given dim key/value on it.
+def has_event_with_dim(fake_services, key, value):
+    for ev in fake_services.events:
+        if has_all_dims(ev, {key: value}):
+            return True
     return False
 
 # Tests if a command run against a container returns with an exit code of 0

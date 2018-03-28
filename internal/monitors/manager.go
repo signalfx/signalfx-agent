@@ -310,6 +310,12 @@ func (mm *MonitorManager) findConfigForMonitorAndRun(endpoint services.Endpoint)
 func (mm *MonitorManager) createAndConfigureNewMonitor(config config.MonitorCustomConfig, endpoint services.Endpoint) error {
 	id := types.MonitorID(mm.idGenerator())
 
+	log.WithFields(log.Fields{
+		"monitorType":   config.MonitorConfigCore().Type,
+		"discoveryRule": config.MonitorConfigCore().DiscoveryRule,
+		"monitorID":     id,
+	}).Info("Creating new monitor")
+
 	instance := newMonitor(config.MonitorConfigCore().Type, id)
 	if instance == nil {
 		return errors.Errorf("Could not create new monitor of type %s", config.MonitorConfigCore().Type)
@@ -343,12 +349,6 @@ func (mm *MonitorManager) createAndConfigureNewMonitor(config config.MonitorCust
 		return err
 	}
 	mm.activeMonitors = append(mm.activeMonitors, am)
-
-	log.WithFields(log.Fields{
-		"monitorType":   config.MonitorConfigCore().Type,
-		"discoveryRule": config.MonitorConfigCore().DiscoveryRule,
-		"monitorID":     id,
-	}).Info("Creating new monitor")
 
 	return nil
 }

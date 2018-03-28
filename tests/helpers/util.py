@@ -93,6 +93,10 @@ def run_agent(config_text):
 
                 print("Agent output:")
                 print_lines(get_output())
+                print("Datapoints received:")
+                print(fake_services.datapoints)
+                print("Events received:")
+                print(fake_services.events)
 
 
 def setup_config(config_text, path, fake_services):
@@ -114,6 +118,7 @@ def setup_config(config_text, path, fake_services):
 
     conf["collectd"] = conf.get("collectd", {})
     conf["collectd"]["configDir"] = os.path.join(run_dir, "collectd")
+    conf["collectd"]["logLevel"] = "info"
 
     conf["configSources"] = conf.get("configSources", {})
     conf["configSources"]["file"] = conf["configSources"].get("file", {})
