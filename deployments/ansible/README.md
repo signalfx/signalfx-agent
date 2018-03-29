@@ -1,6 +1,6 @@
-# SignalFx Agent Ansible Playbook
+# SignalFx Agent Ansible Role
 
-This is a Ansible playbook that will install and configure the SignalFx Agent.  To
+This is a Ansible playbook contains `signalfx-agent` role that will install and configure the SignalFx Agent.  To
 use it, simply include the role `signalfx-agent` in your play or run the playbook by passing the inventory.  That
 playbook defines the following parameters:
 
@@ -13,7 +13,7 @@ playbook defines the following parameters:
     
     ```yaml
     conf:
-      signalFxAccessToken:
+      signalFxAccessToken: MY-TOKEN
       monitors:
         - type: collectd/cpu
         - type: collectd/cpufreq
@@ -31,8 +31,8 @@ playbook defines the following parameters:
 	It is probably going to be simpler to keep this config in `target-group` var file at the 
 	`group_vars` and update the same in playbook, which will make it visible to that group of hosts under inventory.
 
- - `{{ package_stage }}`: The package repo stage to use: `main`, `beta`, or `test`
-   (**default:** 'main')
+ - `{{ package_stage }}`: The package repo stage to use: `final`, `beta`, or `test`
+   (**default:** 'final')
 
  - `{{ config_file_path }}`: The path of the config file that will be rendered by the
    module (**default:** '/etc/signalfx/agent.yaml')
