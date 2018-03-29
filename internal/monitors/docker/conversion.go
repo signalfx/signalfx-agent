@@ -104,8 +104,8 @@ func convertCPUStats(stats *dtypes.CPUStats, prior *dtypes.CPUStats) []*datapoin
 	return out
 }
 
-// From the old docker golang client (I can't find it in the current client
-// though)
+// Copied from
+// https://github.com/docker/cli/blob/dbd96badb6959c2b7070664aecbcf0f7c299c538/cli/command/container/stats_helpers.go
 func calculateCPUPercent(previous *dtypes.CPUStats, v *dtypes.CPUStats) float64 {
 	var (
 		cpuPercent = 0.0
@@ -113,10 +113,14 @@ func calculateCPUPercent(previous *dtypes.CPUStats, v *dtypes.CPUStats) float64 
 		cpuDelta = float64(v.CPUUsage.TotalUsage) - float64(previous.CPUUsage.TotalUsage)
 		// calculate the change for the entire system between readings
 		systemDelta = float64(v.SystemUsage) - float64(previous.SystemUsage)
+		onlineCPUs  = float64(v.OnlineCPUs)
 	)
 
+	if onlineCPUs == 0.0 {
+		onlineCPUs = float64(len(v.CPUUsage.PercpuUsage))
+	}
 	if systemDelta > 0.0 && cpuDelta > 0.0 {
-		cpuPercent = (cpuDelta / systemDelta) * float64(len(v.CPUUsage.PercpuUsage)) * 100.0
+		cpuPercent = (cpuDelta / systemDelta) * onlineCPUs * 100.0
 	}
 	return cpuPercent
 }
