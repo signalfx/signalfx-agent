@@ -5,7 +5,6 @@ import (
 	"sync"
 	"time"
 
-	"github.com/davecgh/go-spew/spew"
 	dtypes "github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/filters"
 	docker "github.com/docker/docker/client"
@@ -65,8 +64,6 @@ func listAndWatchContainers(ctx context.Context, client *docker.Client, lock *sy
 			for {
 				select {
 				case event := <-eventCh:
-					spew.Dump(event)
-
 					lock.Lock()
 
 					switch event.Action {
