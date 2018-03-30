@@ -5,6 +5,7 @@
 - [How can I see the datapoints emitted by the agent to troubleshoot issues?](#how-can-I-see-the-datapoints-emitted-by-the-agent-to-troubleshoot-issues)
 - [How can I see what services the agent has discovered?](#how-can-I-see-what-services-the-agent-has-discovered)
 - [Why do other pods in my Kubernetes cluster get stuck terminating?](#why-do-other-pods-in-my-kubernetes-cluster-get-stuck-terminating)
+- [How do I monitor CPU usage for Kubernetes pods that have CPU limits?](#how-do-i-monitor-cpu-usage-for-kubernetes-pods-that-have-cpu-limits)
 
 
 ## How does this differ from the old collectd agent?
@@ -45,6 +46,7 @@ monitors:
 We run collectd-python linked against Python 2.7 so any Python plugins will
 have to be Python 2.7 compatible.
 
+
 ## How can I see the datapoints emitted by the agent to troubleshoot issues?
 
 Set the following config in the agent.yaml config file:
@@ -58,6 +60,7 @@ writer:
 
 This will log all of the datapoints as they are emitted by the agent.
 
+
 ## How can I see what services the agent has discovered?
 
 Run the following command on the host with the agent. (If you are using the
@@ -69,6 +72,7 @@ $ sudo signalfx-agent status
 
 This command dumps out some text that includes a section listing the discovered
 service endpoints that the agent knows about.
+
 
 ## Why do other pods in my Kubernetes cluster get stuck terminating?
 
@@ -93,8 +97,8 @@ the agent instead of the default `/bin/signalfx-agent`, as well by adding the
           capabilities:
             add:
             - SYS_ADMIN
-	    ...
-	...
+        ...
+    ...
 ...
 ```
 
@@ -111,3 +115,98 @@ unmounting by default in order to keep the agent's permissions limited.
 We need to mount the host filesystem into the agent pod in order to get disk usage
 metrics for each disk individually on the node, but unfortunately there is no
 way to be more selective with what gets mounted by K8s.
+
+
+## How do I monitor CPU usage for Kubernetes pods that have CPU limits?
+
+CPU usage in Kubernetes (or really any environment where process/container CPU
+throttling is active) can be a bit tricky since the usual metrics giving a
+container's CPU utilization are absolute values of CPU consumed (e.g. the
+docker `cpu.percent` metric or the `container_cpu_utilization` metric from
+cAdvisor), without regard for cgroup limits set by K8s and Docker.
+
+See [Resource Quality of Service in
+Kubernetes](https://github.com/kubernetes/community/blob/06a069714aaeddf4a0d5817901eede231ddf1424/contributors/design-proposals/node/resource-qos.md)
+for an explanation of requests and limits and how they work in K8s.  See [CFS
+Bandwidth
+Control](https://www.kernel.org/doc/Documentation/scheduler/sched-bwc.txt) for
+more low-level information on how K8s limits are imposed via the Linux kernel.
+
+The primary metrics for container CPU limits are:
+
+ - `container_cpu_cfs_throttled_time`: The amount of time (in nanoseconds) that
+     a container's processes have spent throttled
+ - `container_cpu_usage_seconds_total`: The total amount of time (in
+     nanoseconds) that a container's processes have spent executing -- this
+     metric is equivalent to `container_cpu_utilization * 10,000,000`.
+ - `container_spec_cpu_period`: The CFS period length (in microseconds) -- the
+     length of time for which the CFS scheduler considers process usage.  This
+     is typically 100,000 microseconds or 0.1 seconds.  This value cannot
+     exceed 1 second.
+ - `container_spec_cpu_quota`: The CFS quota (in microseconds) -- a process can
+     run for this amount of time within a given CFS period.  The value of this
+     for a given container is derived by dividing the millicore limit value
+     by 1000 and multiplying by the CFS period (e.g. a K8s limit of `500m`
+     would translate to a quota of 50,000 microseconds assuming the period were
+     100,000 microseconds.
+
+The first two metrics are cumulative counters that keep growing, so the easiest
+way to use them is to look at how much they change per second (the default
+rollup when you look at the metrics in SignalFx).  The second two are gauges
+and generally don't change for the lifetime of the container.
+
+The maximum percentage of time a process can execute in a given second is equal
+to `container_spec_cpu_quota`/`container_spec_cpu_period`.  For example, a
+process with quota of 50,000µs and a period of 100,000µs could execute for no
+more than half a second, every second.  More specifically, within each discrete
+100ms window within that second, the process can execute no more than 50ms.  In
+other words, the rate/sec rollup of `container_cpu_usage_seconds_total` should
+never exceed `500,000,000` nanoseconds with such a limit.  Note that the quota
+can be larger than the period, which means that a process could consume more
+than an entire core's worth of execution per period.
+
+There are two ways that a container process might be exceeding its limit:
+
+1) The process is being throttled continually and it does not have enough CPU
+to accomplish everything it needs to.  The value of
+`container_cpu_usage_seconds_total` is maxed out for long periods of time based
+on the formula above. This is a starving process.
+
+2) The process is bursty and needs a lot of CPU for short periods, so it might
+get throttled within a short time window but is always able to complete
+execution without backing up indefinitely.  The process could do things faster
+if it had a higher limit, but is not starving for CPU.
+
+Case #1 is almost always a bad situation that should be remedied by some
+combination of 1) optimizing the application, 2) if workload can be
+distributed, launching more instances of it (horizontal scaling), or 3)
+increasing the CPU limit (and potentially the CPU request) on a container
+(vertical scaling). Case #2 may or may not be bad depending on how
+time-sensitive its workload is.
+
+To monitor case #1, you can use the formula
+
+`(container_cpu_usage_seconds_total/10000000)/(conatiner_spec_cpu_quota/container_spec_cpu_period)`
+
+to get the percentage of CPU used compared to the limit (0 - 100+).  This value
+can actually exceed 100 because the sampling by the agent is not on a perfectly
+exact interval.
+
+For case #2 you need to factor in the `container_cpu_cfs_throttled_time`
+metric.  The above metric showing usage relative to the limit will be under 100
+in this case but that doesn't mean throttling isn't happening.  You can simply
+look at `container_cpu_cfs_throttled_time` using its default rollup of
+`rate/sec` which will tell you the raw amount of time a container is spending
+throttled.  If you have many processes/threads in a container, this number
+could be very high.  You could compare throttle time to usage time with the
+formula 
+
+`container_cpu_cfs_throttled_time/container_cpu_usage_seconds_total`
+
+or the equivalent
+
+`container_cpu_cfs_throttled_time/(container_cpu_utilization*10000000)`
+
+which will tell you the ratio of time the container's processes spent waiting
+to execute vs the time spent actually executed.  Anything over 1 means that the
+process is spending more time waiting than actually executing.
