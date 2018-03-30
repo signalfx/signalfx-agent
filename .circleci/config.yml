@@ -22,6 +22,7 @@ jobs:
          export PULL_CACHE=yes
          source scripts/common.sh
          do_docker_build signalfx-agent-dev latest dev-extras
+         ./scripts/build
      - run: |
          mkdir -p /tmp/workspace
          docker save -o /tmp/workspace/image.tar signalfx-agent-dev:latest
@@ -79,8 +80,10 @@ jobs:
       - *import_image
       - run: |
           mkdir ~/testresults
-
-          docker run --rm -v /var/run/docker.sock:/var/run/docker.sock -v ~/testresults:/output signalfx-agent-dev pytest -n8 --junitxml=/output/integration_tests.xml -m "not packaging and not installer" tests
+          docker run -d -p 5000:5000 --restart always --name registry registry
+          docker tag `docker images | grep 'quay.io/signalfx/signalfx-agent-dev' | grep -v 'stage-' | head -n1 | awk '{print $3}'` localhost:5000/signalfx-agent-dev
+          docker push localhost:5000/signalfx-agent-dev
+          docker run --rm -v /var/run/docker.sock:/var/run/docker.sock -v ~/testresults:/output signalfx-agent-dev pytest -n8 --junitxml=/output/integration_tests.xml -m "not packaging and not installer" --k8s_version=all tests
 
       - store_test_results:
           path: ~/testresults
