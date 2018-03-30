@@ -26,7 +26,6 @@ jobs:
          export PULL_CACHE=yes
          source scripts/common.sh
          do_docker_build signalfx-agent-dev latest dev-extras
-         ./scripts/build
      - run: |
          mkdir -p /tmp/workspace
          docker save -o /tmp/workspace/image.tar signalfx-agent-dev:latest
