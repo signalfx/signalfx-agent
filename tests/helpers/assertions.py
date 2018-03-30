@@ -1,6 +1,14 @@
 import re
 
 
+def has_datapoint_with_dim_and_metric_name(fake_services, key, value, metric_name):
+    for dp in fake_services.datapoints:
+        for dim in dp.dimensions:
+            if dim.key == key:
+                if re.match(value, dim.value) and dp.metric == metric_name:
+                    return True
+    return False
+
 def has_datapoint_with_metric_name(fake_services, metric_name):
     for dp in fake_services.datapoints:
         if dp.metric == metric_name:
@@ -12,8 +20,9 @@ def has_datapoint_with_metric_name(fake_services, metric_name):
 def has_datapoint_with_dim(fake_services, key, value):
     for dp in fake_services.datapoints:
         for dim in dp.dimensions:
-            if dim.key == key and dim.value == value:
-                return True
+            if dim.key == key:
+                if re.match(value, dim.value) or dim.value == value:
+                    return True
     return False
 
 # Tests if a command run against a container returns with an exit code of 0

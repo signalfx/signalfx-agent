@@ -99,3 +99,14 @@ chef-%:
 puppet-%:
 	$(MAKE) -C deployments/puppet $*
 
+.PHONY: test-kube
+test-kube: image
+	docker run -d -p 5000:5000 --restart always --name registry registry 2>/dev/null || true
+	docker tag `docker images | grep 'quay.io/signalfx/signalfx-agent-dev' | grep -v 'stage-' | head -n1 | awk '{print $$3}'` localhost:5000/signalfx-agent-dev
+	docker push localhost:5000/signalfx-agent-dev
+	docker exec signalfx-agent-dev bash -ex test-kube.sh 2>/dev/null || docker run --rm --net host \
+		-v /var/run/docker.sock:/var/run/docker.sock:ro \
+		-v /tmp/scratch:/tmp/scratch \
+		-v $(PWD):/go/src/github.com/signalfx/signalfx-agent:cached \
+		signalfx-agent-dev bash -ex test-kube.sh
+
