@@ -112,37 +112,6 @@ def minikube(k8s_version, request):
 
 @pytest.mark.k8s
 @pytest.mark.kubernetes
-def test_k8s_metrics(minikube):
-    with fake_backend.start(ip=get_host_ip()) as backend:
-        with minikube as [mk, mk_docker_client]:
-            kube_config.load_kube_config(config_file=get_kubeconfig(mk, kubeconfig_path="/kubeconfig"))
-            print("\nDeploying signalfx-agent to the minikube cluster ...")
-            deploy_agent(
-                AGENT_CONFIGMAP_PATH,
-                AGENT_DAEMONSET_PATH,
-                AGENT_SERVICEACCOUNT_PATH,
-                cluster_name="minikube",
-                backend=backend,
-                image_name=AGENT_IMAGE_NAME,
-                image_tag=AGENT_IMAGE_TAG,
-                namespace="default"
-            )
-            agent_container = get_agent_container(mk_docker_client, image_name=AGENT_IMAGE_NAME)
-            assert agent_container, "failed to get agent container!"
-            # test for datapoints
-            datapoints = [
-                {"key": "kubernetes_cluster", "value": "minikube", "metric": "memory.free"},
-                {"key": "host", "value": mk.attrs['Config']['Hostname'], "metric": "if_dropped.tx"},
-                {"key": "kubernetes_pod_name", "value": ".*", "metric": "kubernetes.container_ready"},
-            ]
-            for dp in datapoints:
-                assert wait_for(p(has_datapoint_with_dim_and_metric_name, backend, dp["key"], dp["value"], dp["metric"]), timeout_seconds=60), "timed out waiting for datapoint %s:%s:%s\n\nAGENT STATUS:\n%s\n\nAGENT CONTAINER LOGS:\n%s" % (dp["key"], dp["value"], dp["metric"], get_agent_status(agent_container), agent_container.logs().decode('utf-8'))
-                print("Found datapoint %s:%s:%s" % (dp["key"], dp["value"], dp["metric"]))
-            print_lines("\nAGENT STATUS:\n%s" % get_agent_status(agent_container))
-            print_lines("\nAGENT CONTAINER LOGS:\n%s\n" % agent_container.logs().decode('utf-8'))
-
-@pytest.mark.k8s
-@pytest.mark.kubernetes
 def test_k8s_nginx_metrics(minikube):
     with fake_backend.start(ip=get_host_ip()) as backend:
         with minikube as [mk, mk_docker_client]:
@@ -164,6 +133,8 @@ def test_k8s_nginx_metrics(minikube):
             assert agent_container, "failed to get agent container!"
             # test for datapoints
             datapoints = [
+                {"key": "kubernetes_cluster", "value": "minikube", "metric": "memory.free"},
+                {"key": "host", "value": mk.attrs['Config']['Hostname'], "metric": "if_dropped.tx"},
                 {"key": "kubernetes_pod_name", "value": "nginx-deployment-.*", "metric": "kubernetes.container_ready"},
                 {"key": "plugin", "value": "nginx", "metric": "connections.accepted"},
                 {"key": "plugin", "value": "nginx", "metric": "connections.handled"},
