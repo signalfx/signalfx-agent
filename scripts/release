@@ -156,6 +156,8 @@ Options:
   --[no-]push                       Whether to push the components to remote sources or not (default, yes)
   --force                           Ignore checks for uncommited local changes
   --stage test|beta|final           What kind of release this is.  If not specified, will be inferred from the version
+  --github-user <username>
+  --github-token <token>
 
 EOH
 }
