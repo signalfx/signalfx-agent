@@ -1,5 +1,5 @@
 ---
-# Variables for Signalfx Agent package
+# Default values for for Signalfx Agent installation
 
 repo_base_url: https://dl.signalfx.com
 package_stage: final
