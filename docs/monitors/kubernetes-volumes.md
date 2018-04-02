@@ -10,6 +10,10 @@ those volumes are not seen by the agent since they can be mounted
 dynamically and older versions of K8s don't support mount propagation of
 those mounts to the agent container.
 
+Dimensions that identify the underlying volume source will be added for
+`awsElasticBlockStore` and `glusterfs` volumes.  Support for more can be
+easily added as needed.
+
 
 Monitor Type: `kubernetes-volumes`
 
@@ -23,7 +27,8 @@ Monitor Type: `kubernetes-volumes`
 
 | Config option | Required | Type | Description |
 | --- | --- | --- | --- |
-| `kubeletAPI` | no | `object (see below)` | Kubelet client configuration |
+| `kubeletAPI` | no | `object (see below)` | Kubelet kubeletClient configuration |
+| `kubernetesAPI` | no | `object (see below)` | Configuration of the Kubernetes API kubeletClient |
 
 
 The **nested** `kubeletAPI` config object has the following fields:
@@ -39,6 +44,17 @@ The **nested** `kubeletAPI` config object has the following fields:
 | `logResponses` | no | `bool` | Whether to log the raw cadvisor response at the debug level for debugging purposes. (**default:** `false`) |
 
 
+The **nested** `kubernetesAPI` config object has the following fields:
+
+| Config option | Required | Type | Description |
+| --- | --- | --- | --- |
+| `authType` | no | `string` | How to authenticate to the K8s API server.  This can be one of `none` (for no auth), `tls` (to use manually specified TLS client certs, not recommended), or `serviceAccount` (to use the standard service account token provided to the agent pod). (**default:** `serviceAccount`) |
+| `skipVerify` | no | `bool` | Whether to skip verifying the TLS cert from the API server.  Almost never needed. (**default:** `false`) |
+| `clientCertPath` | no | `string` | The path to the TLS client cert on the pod's filesystem, if using `tls` auth. |
+| `clientKeyPath` | no | `string` | The path to the TLS client key on the pod's filesystem, if using `tls` auth. |
+| `caCertPath` | no | `string` | Path to a CA certificate to use when verifying the API server's TLS cert.  Generally this is provided by K8s alongside the service account token, which will be picked up automatically, so this should rarely be necessary to specify. |
+
+
 
 
 ## Dimensions
@@ -48,10 +64,15 @@ dimensions may be specific to certain metrics.
 
 | Name | Description |
 | ---  | ---         |
+| `VolumeId` | (*EBS volumes only*) The EBS volume id of the underlying volume source |
+| `endpoints_name` | (*GlusterFS volumes only*) The endpoint name used for the GlusterFS volume |
+| `glusterfs_path` | (*GlusterFS volumes only*) The GlusterFS volume path |
 | `kubernetes_namespace` | The namespace of the pod that has this volume |
 | `kubernetes_pod_name` | The name of the pod that has this volume |
 | `kubernetes_pod_uid` | The UID of the pod that has this volume |
+| `partition` | (*EBS volumes only*) The partition number of the underlying EBS volume (`0` indicates the entire disk) |
 | `volume` | The volume name as given in the pod spec under `volumes` |
+| `volume_type` | The type of the underlying volume -- this will be the key used in the k8s volume config spec (e.g. awsElasticBlockStore, etc.) |
 
 
 

@@ -8,11 +8,13 @@ import (
 	"github.com/signalfx/golib/datapoint"
 	"github.com/signalfx/golib/sfxclient"
 	"github.com/signalfx/signalfx-agent/internal/core/common/kubelet"
+	"github.com/signalfx/signalfx-agent/internal/core/common/kubernetes"
 	"github.com/signalfx/signalfx-agent/internal/core/config"
 	"github.com/signalfx/signalfx-agent/internal/monitors"
 	"github.com/signalfx/signalfx-agent/internal/monitors/types"
 	"github.com/signalfx/signalfx-agent/internal/utils"
 	log "github.com/sirupsen/logrus"
+	k8s "k8s.io/client-go/kubernetes"
 	stats "k8s.io/kubernetes/pkg/kubelet/apis/stats/v1alpha1"
 )
 
@@ -25,6 +27,10 @@ const monitorType = "kubernetes-volumes"
 // those volumes are not seen by the agent since they can be mounted
 // dynamically and older versions of K8s don't support mount propagation of
 // those mounts to the agent container.
+//
+// Dimensions that identify the underlying volume source will be added for
+// `awsElasticBlockStore` and `glusterfs` volumes.  Support for more can be
+// easily added as needed.
 
 // DIMENSION(volume): The volume name as given in the pod spec under `volumes`
 // DIMENSION(kubernetes_pod_uid): The UID of the pod that has this volume
@@ -40,24 +46,35 @@ func init() {
 // Config for this monitor
 type Config struct {
 	config.MonitorConfig
-	// Kubelet client configuration
+	// Kubelet kubeletClient configuration
 	KubeletAPI kubelet.APIConfig `yaml:"kubeletAPI" default:""`
+	// Configuration of the Kubernetes API kubeletClient
+	KubernetesAPI *kubernetes.APIConfig `yaml:"kubernetesAPI" default:"{}"`
 }
 
 // Monitor for K8s volume metrics as reported by kubelet
 type Monitor struct {
-	Output types.Output
-	cancel func()
-	client *kubelet.Client
+	Output        types.Output
+	cancel        func()
+	kubeletClient *kubelet.Client
+	k8sClient     *k8s.Clientset
+	dimCache      map[string]map[string]string
 }
 
 // Configure the monitor and kick off volume metric syncing
 func (m *Monitor) Configure(conf *Config) error {
 	var err error
-	m.client, err = kubelet.NewClient(&conf.KubeletAPI)
+	m.kubeletClient, err = kubelet.NewClient(&conf.KubeletAPI)
 	if err != nil {
 		return err
 	}
+
+	m.k8sClient, err = kubernetes.MakeClient(conf.KubernetesAPI)
+	if err != nil {
+		return err
+	}
+
+	m.dimCache = make(map[string]map[string]string)
 
 	var ctx context.Context
 	ctx, m.cancel = context.WithCancel(context.Background())
@@ -91,6 +108,21 @@ func (m *Monitor) getVolumeMetrics() ([]*datapoint.Datapoint, error) {
 				"kubernetes_pod_name":  p.PodRef.Name,
 				"kubernetes_namespace": p.PodRef.Namespace,
 			}
+
+			volumeDims, err := m.volumeIDDimsForPod(p.PodRef.Name, p.PodRef.Namespace, p.PodRef.UID, v.Name)
+			if err != nil {
+				logger.WithFields(log.Fields{
+					"error":     err,
+					"volName":   v.Name,
+					"podName":   p.PodRef.Name,
+					"namespace": p.PodRef.Namespace,
+				}).Error("Could not get volume-specific dimensions")
+			} else {
+				for k, v := range volumeDims {
+					dims[k] = v
+				}
+			}
+
 			if v.AvailableBytes != nil {
 				// uint64 -> int64 conversion should be safe since disk sizes
 				// aren't going to get that big for a long time.
@@ -105,13 +137,13 @@ func (m *Monitor) getVolumeMetrics() ([]*datapoint.Datapoint, error) {
 }
 
 func (m *Monitor) getSummary() (*stats.Summary, error) {
-	req, err := m.client.NewRequest("POST", "/stats/summary/", nil)
+	req, err := m.kubeletClient.NewRequest("POST", "/stats/summary/", nil)
 	if err != nil {
 		return nil, err
 	}
 
 	var summary stats.Summary
-	err = m.client.DoRequestAndSetValue(req, &summary)
+	err = m.kubeletClient.DoRequestAndSetValue(req, &summary)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get summary stats from Kubelet URL %q: %v", req.URL.String(), err)
 	}
