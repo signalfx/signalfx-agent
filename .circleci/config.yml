@@ -230,7 +230,7 @@ jobs:
           make dev-image
           docker run --rm \
             signalfx-agent-ansible-dev \
-            ansible-playbook -i inventory playbook.yml --connection=local > ~/testresults/ansible.out
+            ansible-playbook -i inventory example-playbook.yml --connection=local > ~/testresults/ansible.out
 
           docker run --rm \
             signalfx-agent-ansible-dev \
