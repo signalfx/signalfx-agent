@@ -27,7 +27,7 @@ jobs:
          source scripts/common.sh
          do_docker_build signalfx-agent-dev latest dev-extras
          ./scripts/build
-         ./scripts/current_version > /tmp/workspace/final_image_tag.txt
+         ./scripts/current-version > /tmp/workspace/final_image_tag.txt
      - run:
          environment:
            FINAL_IMAGE_TAG: $(cat /tmp/workspace/final_image_tag.txt)
