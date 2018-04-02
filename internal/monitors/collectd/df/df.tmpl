@@ -1,7 +1,7 @@
 LoadPlugin df
 <Plugin "df">
   ChangeRoot "{{.HostFSPath}}"
-  IgnoreSelected {{if .IgnoreSelected}}true{{else}}false{{end}}
+  IgnoreSelected {{toBool .IgnoreSelected}}
 {{range .FSTypes}}
   FSType "{{.}}"
 {{- end}}
