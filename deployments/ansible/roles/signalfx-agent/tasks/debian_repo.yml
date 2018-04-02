@@ -12,13 +12,9 @@
     mode: 644
     state: present
 
-- name: Clean up the existing Signalfx Agent
-  apt:
-    name: signalfx-agent
-    state: absent
-
 - name: Install signalfx-agent via apt package manager
   apt:
     name: signalfx-agent{% if version is defined and version != "latest" %}={{ version }}{% endif %}
     state: "{% if version is defined and version != 'latest' %}present{% else %}{{ version }}{% endif %}"
+    force: yes
     update_cache: yes
