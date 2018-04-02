@@ -115,7 +115,7 @@ jobs:
             docker tag quay.io/signalfx/signalfx-agent-dev:$(eval "echo -n $FINAL_IMAGE_TAG") localhost:5000/signalfx-agent-dev:latest
             docker images
             docker push localhost:5000/signalfx-agent-dev:latest
-            docker run --rm --net host -v /var/run/docker.sock:/var/run/docker.sock -v /tmp/scratch:/tmp/scratch -v ~/testresults:/output signalfx-agent-dev bash -ec 'py3clean tests && pytest --verbose -n8 --junitxml=/output/integration_tests.xml -m "k8s" --k8s_version=all tests'
+            docker run --rm --net host -v /var/run/docker.sock:/var/run/docker.sock -v /tmp/scratch:/tmp/scratch -v ~/testresults:/output signalfx-agent-dev bash -ec 'py3clean tests && pytest --verbose -n auto --junitxml=/output/integration_tests.xml -m "k8s" --k8s_version=all tests'
 
       - store_test_results:
           path: ~/testresults
