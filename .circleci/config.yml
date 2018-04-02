@@ -27,15 +27,15 @@ jobs:
          source scripts/common.sh
          do_docker_build signalfx-agent-dev latest dev-extras
          ./scripts/build
-         mkdir -p /tmp/workspace
-         ./scripts/current-version > /tmp/workspace/final_image_tag.txt
+         ./scripts/current-version > final_image_tag.txt
      - run:
          environment:
-           FINAL_IMAGE_TAG: $(cat /tmp/workspace/final_image_tag.txt)
+           FINAL_IMAGE_TAG: $(cat final_image_tag.txt)
          command: |
            mkdir -p /tmp/workspace
            docker save -o /tmp/workspace/image.tar signalfx-agent-dev:latest
            docker save -o /tmp/workspace/final_image.tar quay.io/signalfx/signalfx-agent-dev:$(eval "echo -n $FINAL_IMAGE_TAG")
+           cp final_image_tag.txt /tmp/workspace/final_image_tag.txt
      - persist_to_workspace:
          root: /tmp/workspace
          paths:
