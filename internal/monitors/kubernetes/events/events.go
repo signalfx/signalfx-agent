@@ -53,7 +53,7 @@ type Config struct {
 	WhitelistedEvents []EventInclusionSpec `yaml:"whitelistedEvents"`
 	// If true, all events from Kubernetes will be sent.  Please don't use this
 	// option unless you really want to act on all possible K8s events.
-	SendAllEvents bool `yaml:"sendAllEvents"`
+	SendAllEvents bool `yaml:"_sendAllEvents"`
 	// Whether to always send events from this agent instance or to do leader
 	// election to only send from one agent instance.
 	AlwaysClusterReporter bool `yaml:"alwaysClusterReporter"`

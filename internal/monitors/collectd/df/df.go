@@ -55,7 +55,7 @@ type Config struct {
 
 	// If true, the filesystems selected by `fsTypes` and `mountPoints` will be
 	// excluded and all others included.
-	IgnoreSelected bool `yaml:"ignoreSelected" default:"true"`
+	IgnoreSelected *bool `yaml:"ignoreSelected"`
 
 	// The filesystem types to include/exclude.
 	FSTypes []string `yaml:"fsTypes" default:"[\"aufs\", \"overlay\", \"tmpfs\", \"proc\", \"sysfs\", \"nsfs\", \"cgroup\", \"devpts\", \"selinuxfs\", \"devtmpfs\", \"debugfs\", \"mqueue\", \"hugetlbfs\", \"securityfs\", \"pstore\", \"binfmt_misc\", \"autofs\"]"`
@@ -74,5 +74,11 @@ type Monitor struct {
 
 // Configure configures and runs the plugin in collectd
 func (m *Monitor) Configure(conf *Config) error {
+	t := true
+	// Default to true.  Ideally don't have bools that default to true but this
+	// one is pretty essential.
+	if conf.IgnoreSelected == nil {
+		conf.IgnoreSelected = &t
+	}
 	return m.SetConfigurationAndRun(conf)
 }

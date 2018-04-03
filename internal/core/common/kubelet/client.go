@@ -3,9 +3,12 @@ package kubelet
 import (
 	"crypto/tls"
 	"crypto/x509"
+	"encoding/json"
+	"fmt"
 	"io"
 	"io/ioutil"
 	"net/http"
+	"os"
 	"strings"
 	"time"
 
@@ -27,6 +30,8 @@ const (
 
 // APIConfig contains config specific to the KubeletAPI
 type APIConfig struct {
+	// URL of the Kubelet instance.  This will default to `https://<current
+	// node hostname>:10250` if not provided.
 	URL string `yaml:"url"`
 	// Can be `none` for no auth, `tls` for TLS client cert auth, or
 	// `serviceAccount` to use the pod's default service account token to
@@ -41,6 +46,9 @@ type APIConfig struct {
 	ClientCertPath string `yaml:"clientCertPath"`
 	// Path to the client TLS key to use if `authType` is set to `tls`
 	ClientKeyPath string `yaml:"clientKeyPath"`
+	// Whether to log the raw cadvisor response at the debug level for
+	// debugging purposes.
+	LogResponses bool `yaml:"logResponses" default:"false"`
 }
 
 // Client is a wrapper around http.Client that injects the right auth to every
@@ -55,6 +63,14 @@ func NewClient(kubeletAPI *APIConfig) (*Client, error) {
 	certs, err := x509.SystemCertPool()
 	if err != nil {
 		return nil, errors.Wrapf(err, "Could not load system x509 cert pool")
+	}
+
+	if kubeletAPI.URL == "" {
+		hostname, err := os.Hostname()
+		if err != nil {
+			return nil, err
+		}
+		kubeletAPI.URL = fmt.Sprintf("https://%s:10250", hostname)
 	}
 
 	tlsConfig := &tls.Config{
@@ -133,4 +149,35 @@ func (kc *Client) NewRequest(method, path string, body io.Reader) (*http.Request
 	}
 
 	return http.NewRequest(method, baseURL+path, body)
+}
+
+// DoRequestAndSetValue does a request to the Kubelet and populates the `value`
+// by deserializing the JSON in the response.
+func (kc *Client) DoRequestAndSetValue(req *http.Request, value interface{}) error {
+	response, err := kc.Do(req)
+	if err != nil {
+		return err
+	}
+	defer response.Body.Close()
+
+	body, err := ioutil.ReadAll(response.Body)
+	if err != nil {
+		return fmt.Errorf("failed to read Kubelet response body - %v", err)
+	}
+
+	if response.StatusCode == http.StatusNotFound {
+		return fmt.Errorf("Kubelet request resulted in 404: %s", req.URL.String())
+	} else if response.StatusCode != http.StatusOK {
+		return fmt.Errorf("Kubelet request failed - %q, response: %q", response.Status, string(body))
+	}
+
+	if kc.config.LogResponses {
+		log.Debugf("Raw response from Kubelet url %s: %s", req.URL.String(), string(body))
+	}
+
+	err = json.Unmarshal(body, value)
+	if err != nil {
+		return fmt.Errorf("Failed to parse Kubelet output. Response: %q. Error: %v", string(body), err)
+	}
+	return nil
 }

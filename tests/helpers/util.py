@@ -3,6 +3,7 @@ import docker
 import inspect
 import io
 import os
+import queue
 import select
 import shutil
 import subprocess
@@ -62,8 +63,9 @@ def container_ip(container):
 def run_agent(config_text):
     with fake_backend.start() as fake_services:
         with tempfile.TemporaryDirectory() as run_dir:
-            config_path = setup_config(config_text, run_dir, fake_services)
-            print("CONFIG: %s\n%s" % (config_path, config_text))
+            config_path = os.path.join(run_dir, "agent.yaml")
+
+            setup_config(config_text, config_path, fake_services)
 
             proc = subprocess.Popen([AGENT_BIN, "-config", config_path], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 
@@ -84,17 +86,23 @@ def run_agent(config_text):
             threading.Thread(target=pull_output).start()
 
             try:
-                yield [fake_services, get_output]
+                yield [fake_services, get_output, lambda c: setup_config(c, config_path, fake_services)]
             finally:
                 proc.terminate()
                 proc.wait(10)
 
                 print("Agent output:")
                 print_lines(get_output())
+                print("Datapoints received:")
+                print(fake_services.datapoints)
+                print("Events received:")
+                print(fake_services.events)
 
 
-def setup_config(config_text, run_dir, fake_services):
+def setup_config(config_text, path, fake_services):
     conf = yaml.load(config_text)
+
+    run_dir = os.path.dirname(path)
 
     if conf.get("intervalSeconds") is None:
         conf["intervalSeconds"] = 3
@@ -110,12 +118,15 @@ def setup_config(config_text, run_dir, fake_services):
 
     conf["collectd"] = conf.get("collectd", {})
     conf["collectd"]["configDir"] = os.path.join(run_dir, "collectd")
+    conf["collectd"]["logLevel"] = "info"
 
-    path = os.path.join(run_dir, "agent.yaml")
+    conf["configSources"] = conf.get("configSources", {})
+    conf["configSources"]["file"] = conf["configSources"].get("file", {})
+    conf["configSources"]["file"]["pollRateSeconds"] = 1
+
     with open(path, "w") as f:
+        print("CONFIG: %s\n%s" % (path, conf))
         f.write(yaml.dump(conf))
-
-    return path
 
 
 @contextmanager

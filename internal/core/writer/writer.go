@@ -77,7 +77,10 @@ func (sw *SignalFxWriter) Configure(conf *config.WriterConfig) error {
 	sw.lock.Lock()
 	defer sw.lock.Unlock()
 
-	if conf.Hash() == sw.conf.Hash() {
+	// conf.Filter contains a bunch of unexported fields so it can't be hashed
+	// so just manually check it
+	if conf.Hash() == sw.conf.Hash() && conf.Filter == sw.conf.Filter {
+		log.Debug("Writer config has not changing, not reconfiguring")
 		return nil
 	}
 
@@ -170,6 +173,20 @@ func (sw *SignalFxWriter) sendEvents(events []*event.Event) error {
 	for i := range events {
 		events[i].Dimensions = sw.addGlobalDims(events[i].Dimensions)
 
+		ps := events[i].Properties
+		var notHostSpecific bool
+		if ps != nil {
+			if b, ok := ps[dpmeta.NotHostSpecificMeta].(bool); ok {
+				notHostSpecific = b
+				// Clear this so it doesn't leak through to ingest
+				delete(ps, dpmeta.NotHostSpecificMeta)
+			}
+		}
+		// Only override host dimension for now and omit other host id dims.
+		if !notHostSpecific && sw.HostIDDims != nil && sw.HostIDDims["host"] != "" {
+			events[i].Dimensions["host"] = sw.HostIDDims["host"]
+		}
+
 		if sw.conf.LogEvents {
 			log.WithFields(log.Fields{
 				"event": spew.Sdump(events[i]),
@@ -188,14 +205,15 @@ func (sw *SignalFxWriter) sendEvents(events []*event.Event) error {
 	return nil
 }
 
-// mutates datapoint in place to add global dimensions.  Also returns dims in
-// case they were nil to begin with.
+// Mutates datapoint dimensions in place to add global dimensions.  Also
+// returns dims in case they were nil to begin with, so the return value should
+// be assigned back to the dp Dimensions field.
 func (sw *SignalFxWriter) addGlobalDims(dims map[string]string) map[string]string {
 	if dims == nil {
 		dims = make(map[string]string)
 	}
 	for name, value := range sw.conf.GlobalDimensions {
-		// If the dimensions is already set, don't override.
+		// If the dimensions are already set, don't override
 		if _, ok := dims[name]; !ok {
 			dims[name] = value
 		}
@@ -203,11 +221,13 @@ func (sw *SignalFxWriter) addGlobalDims(dims map[string]string) map[string]strin
 	return dims
 }
 
+// Adds the host ids to the datapoints, forcibly overridding any existing
+// dimensions of the same name.
 func (sw *SignalFxWriter) addHostIDDims(dims map[string]string) map[string]string {
+	if dims == nil {
+		dims = make(map[string]string)
+	}
 	for k, v := range sw.HostIDDims {
-		if _, ok := dims[k]; ok {
-			continue
-		}
 		dims[k] = v
 	}
 	return dims

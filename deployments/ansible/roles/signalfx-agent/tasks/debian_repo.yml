@@ -1,0 +1,20 @@
+---
+- name: Add an Apt signing key for Signalfx Agent
+  apt_key:
+    url: "{{ repo_base_url }}/debian.gpg"
+    keyring: /etc/apt/trusted.gpg.d/signalfx.gpg
+    state: present
+
+- name: Add Signalfx Agent repository into sources list
+  apt_repository:
+    repo: "deb {{ repo_base_url }}/debs/signalfx-agent/{{ package_stage }} /"
+    filename: 'signalfx-agent'
+    mode: 644
+    state: present
+
+- name: Install signalfx-agent via apt package manager
+  apt:
+    name: signalfx-agent{% if version is defined and version != "latest" %}={{ version }}{% endif %}
+    state: "{% if version is defined and version != 'latest' %}present{% else %}{{ version }}{% endif %}"
+    force: yes
+    update_cache: yes

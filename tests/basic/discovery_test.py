@@ -17,7 +17,7 @@ monitors:
 """
 
 def test_basic_service_discovery():
-    with run_agent(config) as [backend, get_output]:
+    with run_agent(config) as [backend, get_output, _]:
         with run_service("nginx", name="nginx-discovery") as nginx_container:
             assert wait_for(p(has_datapoint_with_dim, backend, "plugin", "nginx")), "Didn't get nginx datapoints"
         # Let nginx be removed by docker observer and collectd restart

@@ -1,0 +1,2 @@
+{%- set config = salt['pillar.get']('signalfx-agent:conf') %}
+{{ config | yaml(False) }}

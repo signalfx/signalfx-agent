@@ -11,7 +11,6 @@ import (
 
 	"github.com/signalfx/golib/datapoint"
 	"github.com/signalfx/signalfx-agent/internal/core/config"
-	"github.com/signalfx/signalfx-agent/internal/core/meta"
 	"github.com/signalfx/signalfx-agent/internal/monitors/cadvisor/converter"
 )
 
@@ -21,8 +20,6 @@ type Monitor struct {
 	lock      sync.Mutex
 	stop      chan bool
 	stopped   chan bool
-
-	AgentMeta *meta.AgentMeta
 }
 
 // Configure and start/restart cadvisor plugin
@@ -36,7 +33,7 @@ func (m *Monitor) Configure(monConfig *config.MonitorConfig, sendDP func(*datapo
 	m.stop = nil
 	m.stopped = nil
 
-	collector := converter.NewCadvisorCollector(statProvider, sendDP, m.AgentMeta.Hostname, monConfig.ExtraDimensions)
+	collector := converter.NewCadvisorCollector(statProvider, sendDP, monConfig.ExtraDimensions)
 
 	m.stop, m.stopped = monitorNode(monConfig.IntervalSeconds, collector)
 

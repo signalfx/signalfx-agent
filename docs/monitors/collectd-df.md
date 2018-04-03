@@ -18,7 +18,7 @@ Monitor Type: `collectd/df`
 | Config option | Required | Type | Description |
 | --- | --- | --- | --- |
 | `hostFSPath` | no | `string` | Path to the root of the host filesystem.  Useful when running in a container and the host filesystem is mounted in some subdirectory under /. |
-| `ignoreSelected` | no | `bool` | If true, the filesystems selected by `fsTypes` and `mountPoints` will be excluded and all others included. (**default:** `true`) |
+| `ignoreSelected` | no | `bool` | If true, the filesystems selected by `fsTypes` and `mountPoints` will be excluded and all others included. |
 | `fsTypes` | no | `list of string` | The filesystem types to include/exclude. (**default:** `[aufs overlay tmpfs proc sysfs nsfs cgroup devpts selinuxfs devtmpfs debugfs mqueue hugetlbfs securityfs pstore binfmt_misc autofs]`) |
 | `mountPoints` | no | `list of string` | The mount paths to include/exclude, is interpreted as a regex if surrounded by `/`. (**default:** `[/^/var/lib/rkt/pods/ /^/net// /^/smb//]`) |
 | `reportByDevice` | no | `bool` |  (**default:** `false`) |

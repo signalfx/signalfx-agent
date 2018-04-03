@@ -94,15 +94,17 @@ func ConfigureMainCollectd(conf *config.CollectdConfig) error {
 	localConf := *conf
 	localConf.InstanceName = "global"
 
+	var created bool
 	if collectdSingleton == nil {
 		collectdSingleton = InitCollectd(&localConf)
+		created = true
 	}
 	cm := collectdSingleton
 
 	cm.configMutex.Lock()
 	defer cm.configMutex.Unlock()
 
-	if cm.conf == nil || cm.conf.Hash() != localConf.Hash() {
+	if created || cm.conf.Hash() != localConf.Hash() {
 		cm.conf = &localConf
 
 		cm.RequestRestart()
@@ -162,7 +164,7 @@ func (cm *Manager) MonitorDidShutdown(monitorID types.MonitorID) {
 
 		delete(cm.activeMonitors, monitorID)
 
-		if len(cm.activeMonitors) == 0 && cm.stop != nil {
+		if len(cm.activeMonitors) == 0 && !utils.IsSignalChanClosed(cm.stop) {
 			close(cm.stop)
 			cm.deleteExistingConfig()
 			<-cm.terminated

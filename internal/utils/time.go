@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"context"
 	"sync"
 	"time"
 )
@@ -39,29 +40,21 @@ func Debounce0(fn func(), duration time.Duration) (func(), chan<- struct{}) {
 	}, stop
 }
 
-// RunOnInterval the given fn once every interval.  Returns a function that can
-// be called to stop running the function.
-func RunOnInterval(fn func(), interval time.Duration) func() {
-	stopped := false
-	stop := make(chan struct{})
+// RunOnInterval the given fn once every interval, starting at the moment the
+// function is called.  Returns a function that can be called to stop running
+// the function.
+func RunOnInterval(ctx context.Context, fn func(), interval time.Duration) {
 	timer := time.NewTicker(interval)
 
+	fn()
 	go func() {
 		for {
 			select {
-			case <-stop:
-				close(stop)
+			case <-ctx.Done():
 				return
 			case <-timer.C:
 				fn()
 			}
 		}
 	}()
-
-	return func() {
-		if !stopped {
-			stop <- struct{}{}
-			stopped = true
-		}
-	}
 }

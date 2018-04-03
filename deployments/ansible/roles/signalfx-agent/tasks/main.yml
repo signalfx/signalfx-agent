@@ -1,0 +1,41 @@
+---
+- name: Define acceptable distros
+  set_fact:
+    debian_distro: ['Debian', 'Ubuntu']
+    rhel_distro: ['CentOS', 'RedHat', 'Red Hat Enterprise Linux', 'Amazon']
+    cacheable: true
+
+- name: Check SignalFx Access Token is defined
+  fail: msg="Bailing out. This play requires 'signalFxAccessToken'"
+  when: (conf['signalFxAccessToken'] is undefined)
+          or
+        (conf['signalFxAccessToken'] is none)
+          or
+        (conf['signalFxAccessToken'] | trim == '')
+
+- name: Acceptable distribution check
+  fail: msg="Bailing out. This play is supported on {{ debian_distro }}, {{ rhel_distro }}. Target server runs on {{ ansible_os_family }}"
+  when: (ansible_os_family not in debian_distro)
+          and
+        (ansible_os_family not in rhel_distro)
+
+- name: Import signalfx-agent deploy for CentOS or RHEL
+  import_tasks: yum_repo.yml
+  when: ansible_os_family in rhel_distro
+
+- name: Import signalfx-agent deploy for Debian or Ubuntu
+  import_tasks: debian_repo.yml
+  when: ansible_os_family in debian_distro
+
+- name: write signalfx config
+  copy:
+    content: "{{ conf | to_nice_yaml }}"
+    dest: "{{ conf_file_path }}"
+    owner: signalfx-agent
+    group: signalfx-agent
+
+- name: start signalfx-agent
+  service:
+    name: signalfx-agent
+    state: started
+    enabled: yes

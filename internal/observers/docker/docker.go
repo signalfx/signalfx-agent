@@ -25,6 +25,11 @@ const (
 // OBSERVER(docker): Queries the Docker Engine API for running containers.  If
 // you are using Kubernetes, you should use the [k8s-api
 // observer](./k8s-api.md) instead of this.
+//
+// Note that you will need permissions to access the Docker engine API.  For a
+// Docker domain socket URL, this means that the agent needs to have read
+// permissions on the socket.  We don't currently support authentication for
+// HTTP URLs.
 
 // ENDPOINT_TYPE(ContainerEndpoint): true
 

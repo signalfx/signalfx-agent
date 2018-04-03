@@ -104,6 +104,44 @@ We provide a Docker image at
 [quay.io/signalfx/signalfx-agent](https://quay.io/signalfx/signalfx-agent). The
 image is tagged using the same agent version scheme.
 
+If you are using Docker outside of Kubernetes, you can run the agent in a
+Docker container and still gather metrics on the underlying host by running it
+with the following flags:
+
+```sh
+$ docker run \
+    --name signalfx-agent \
+    --pid host \
+    --net host \
+    -v /:/hostfs:ro \
+    -v /var/run/docker.sock:/var/run/docker.sock:ro \
+    -v /etc/signalfx/:/etc/signalfx/:ro \
+    quay.io/signalfx/signalfx-agent:<version>
+```
+
+This assumes you have the agent config in the conventional directory
+(`/etc/signalfx`) on the root mount namespace.
+
+If you have the Docker API available through the conventional UNIX domain
+socket, you should mount that in to be able to use the
+[docker-container-stats](./docs/monitors/docker-container-stats.md) monitor.
+
+It is necessary to mount in the host root filesystem at `/hostfs` in order to
+get disk usage metrics for the host filesystems using the
+[collectd/df](./docs/monitors/collectd-df.md).  You will need to set the
+`hostFSPath: /hostfs` config option on that monitor to make it use this
+non-default path.
+
+The only other special config you will need is the `etcPath: /hostfs/etc`
+option under the
+[collectd/signalfx-metadata](./docs/monitors/collectd-signalfx-metadata.md)
+monitor config.  This tells it where to find certain files like
+`/etc/os-release` that are used to generate host metadata such as the Linux
+distro and version.
+
+You may also want to use the [Docker observer](./docs/observers/docker.md) to
+automatically discover other containers running in the same Docker engine.
+
 #### Debian Package
 We provide a Debian package repository that you can make use of with the
 following commands:

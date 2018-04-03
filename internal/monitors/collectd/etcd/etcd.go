@@ -3,7 +3,6 @@ package etcd
 //go:generate collectd-template-to-go etcd.tmpl
 
 import (
-	"github.com/pkg/errors"
 	"github.com/signalfx/signalfx-agent/internal/core/config"
 	"github.com/signalfx/signalfx-agent/internal/monitors"
 	"github.com/signalfx/signalfx-agent/internal/monitors/collectd"
@@ -28,25 +27,17 @@ func init() {
 type Config struct {
 	config.MonitorConfig `yaml:",inline" acceptsEndpoints:"true"`
 
-	Host              string   `yaml:"host" validate:"required"`
-	Port              uint16   `yaml:"port" validate:"required"`
-	Name              string   `yaml:"name"`
-	ClusterName       string   `yaml:"clusterName" required:"true"`
-	SSLKeyFile        string   `yaml:"sslKeyFile"`
-	SSLCertificate    string   `yaml:"sslCertificate"`
-	SSLCACerts        string   `yaml:"sslCACerts"`
-	SSLCertValidation bool     `yaml:"sslCertValidation" default:"true"`
-	EnhancedMetrics   bool     `yaml:"enhancedMetrics"`
-	MetricsToInclude  []string `yaml:"metricsToInclude"`
-	MetricsToExclude  []string `yaml:"metricsToExclude"`
-}
-
-// Validate will check the config before the monitor is instantiated
-func (c *Config) Validate() error {
-	if c.ClusterName == "" {
-		return errors.New("Etcd monitor config requires a clusterName")
-	}
-	return nil
+	Host string `yaml:"host" validate:"required"`
+	Port uint16 `yaml:"port" validate:"required"`
+	Name string `yaml:"name"`
+	// An arbitrary name of the etcd cluster to make it easier to group
+	// together and identify instances.
+	ClusterName       string `yaml:"clusterName" validate:"required"`
+	SSLKeyFile        string `yaml:"sslKeyFile"`
+	SSLCertificate    string `yaml:"sslCertificate"`
+	SSLCACerts        string `yaml:"sslCACerts"`
+	SkipSSLValidation bool   `yaml:"skipSSLValidation"`
+	EnhancedMetrics   bool   `yaml:"enhancedMetrics"`
 }
 
 // Monitor is the main type that represents the monitor

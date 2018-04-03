@@ -216,6 +216,53 @@ jobs:
 
       - store_test_results:
           path: ~/testresults
+
+  salt_tests:
+    <<: *executor
+    steps:
+      - checkout
+      - run: |
+          mkdir ~/testresults
+
+          if ! scripts/changes-include-dir deployments/salt; then
+              echo "Salt module code has not changed, skipping tests!"
+              exit 0
+          fi
+
+          cd deployments/salt
+          make dev-image
+          docker run --rm \
+          signalfx-agent-salt-dev salt '*' state.apply > ~/testresults/salt.out
+
+
+      - store_test_results:
+          path: ~/testresults
+
+  ansible_tests:
+    <<: *executor
+    steps:
+      - checkout
+      - run: |
+          mkdir ~/testresults
+
+          if ! scripts/changes-include-dir deployments/ansible; then
+              echo "Ansible playbook code has not changed, skipping tests!"
+              exit 0
+          fi
+
+          cd deployments/ansible
+          make dev-image
+          docker run --rm \
+            signalfx-agent-ansible-dev \
+            ansible-playbook -i inventory example-playbook.yml --connection=local > ~/testresults/ansible.out
+
+          docker run --rm \
+            signalfx-agent-ansible-dev \
+            ansible-lint .
+
+      - store_test_results:
+          path: ~/testresults
+
 workflows:
   version: 2
   build_test:
@@ -243,3 +290,5 @@ workflows:
      - deb_package_tests
      - chef_tests
      - puppet_tests
+     - salt_tests
+     - ansible_tests
