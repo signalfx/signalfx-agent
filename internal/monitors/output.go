@@ -12,16 +12,17 @@ import (
 
 // The default implementation of Output
 type monitorOutput struct {
-	monitorType     string
-	monitorID       types.MonitorID
-	notHostSpecific bool
-	filter          *dpfilters.FilterSet
-	configHash      uint64
-	endpoint        services.Endpoint
-	dpChan          chan<- *datapoint.Datapoint
-	eventChan       chan<- *event.Event
-	dimPropChan     chan<- *types.DimProperties
-	extraDims       map[string]string
+	monitorType               string
+	monitorID                 types.MonitorID
+	notHostSpecific           bool
+	disableEndpointDimensions bool
+	filter                    *dpfilters.FilterSet
+	configHash                uint64
+	endpoint                  services.Endpoint
+	dpChan                    chan<- *datapoint.Datapoint
+	eventChan                 chan<- *event.Event
+	dimPropChan               chan<- *types.DimProperties
+	extraDims                 map[string]string
 }
 
 func (mo *monitorOutput) SendDatapoint(dp *datapoint.Datapoint) {
@@ -41,7 +42,7 @@ func (mo *monitorOutput) SendDatapoint(dp *datapoint.Datapoint) {
 	}
 
 	var endpointDims map[string]string
-	if mo.endpoint != nil {
+	if mo.endpoint != nil && !mo.disableEndpointDimensions {
 		endpointDims = mo.endpoint.Dimensions()
 		dp.Meta[dpmeta.EndpointIDMeta] = mo.endpoint.Core().ID
 	}
