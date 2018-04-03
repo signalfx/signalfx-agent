@@ -3,6 +3,8 @@ import os
 import pytest
 import semver
 import subprocess
+import sys
+import time
 import urllib.request
 
 SCRIPTS_DIR = os.path.join(os.path.dirname(os.path.realpath(__file__)), "..", "scripts")
@@ -16,8 +18,20 @@ except:
     DEFAULT_AGENT_IMAGE_TAG = "latest"
 
 def get_k8s_supported_versions():
-    with urllib.request.urlopen('https://storage.googleapis.com/minikube/k8s_releases.json') as f:
-        k8s_releases_json = json.loads(f.read().decode('utf-8'))
+    k8s_releases_json = None
+    attempt = 0
+    while attempt < 3:
+        try:
+            with urllib.request.urlopen('https://storage.googleapis.com/minikube/k8s_releases.json') as f:
+                k8s_releases_json = json.loads(f.read().decode('utf-8'))
+            break
+        except:
+            time.sleep(5)
+            k8s_releases_json = None
+            attempt += 1
+    if not k8s_releases_json:
+        print("Failed to get K8S releases from https://storage.googleapis.com/minikube/k8s_releases.json !")
+        sys.exit(1)
     versions = []
     for r in k8s_releases_json:
         if semver.match(r['version'].strip('v'), '>=' + MIN_K8S_VERSION.strip('v')):
