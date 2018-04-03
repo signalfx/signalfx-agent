@@ -160,13 +160,13 @@ def all_pods_have_ips():
         return True
     return False
 
-def get_agent_container(client, image_name="", timeout=300):
+def get_agent_container(client, image_name="", image_tag="", timeout=300):
     start_time = time.time()
     while True:
         if time.time() - start_time > timeout:
             return None
         try:
-            return client.containers.list(all=True, filters={"ancestor": image_name})[0]
+            return client.containers.list(all=True, filters={"ancestor": image_name + ":" + image_tag})[0]
         except:
             time.sleep(2)
 

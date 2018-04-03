@@ -16,8 +16,8 @@ AGENT_YAMLS_DIR = os.environ.get("AGENT_YAMLS_DIR", "/go/src/github.com/signalfx
 AGENT_CONFIGMAP_PATH = os.environ.get("AGENT_CONFIGMAP_PATH", os.path.join(AGENT_YAMLS_DIR, "configmap.yaml"))
 AGENT_DAEMONSET_PATH = os.environ.get("AGENT_DAEMONSET_PATH", os.path.join(AGENT_YAMLS_DIR, "daemonset.yaml"))
 AGENT_SERVICEACCOUNT_PATH = os.environ.get("AGENT_SERVICEACCOUNT_PATH", os.path.join(AGENT_YAMLS_DIR, "serviceaccount.yaml"))
-AGENT_IMAGE_NAME = os.environ.get("AGENT_IMAGE_NAME", "localhost:5000/signalfx-agent-dev")
-AGENT_IMAGE_TAG = os.environ.get("AGENT_IMAGE_TAG", "latest")
+AGENT_IMAGE_NAME = "localhost:5000/signalfx-agent-dev"
+AGENT_IMAGE_TAG = "test"
 
 def deploy_nginx(labels={"app": "nginx"}, namespace="default"):
     configmap_data = {"default.conf": '''
@@ -62,6 +62,11 @@ def deploy_agent(configmap_path, daemonset_path, serviceaccount_path, cluster_na
     if backend:
         agent_yaml['ingestUrl'] = "http://%s:%d" % (get_host_ip(), backend.ingest_port)
         agent_yaml['apiUrl'] = "http://%s:%d" % (get_host_ip(), backend.api_port)
+    if 'metricsToExclude' in agent_yaml.keys():
+        del agent_yaml['metricsToExclude']
+    for monitor in agent_yaml['monitors']:
+        if monitor['type'] == 'kubelet-stats':
+            monitor['kubeletAPI']['skipVerify'] = True
     configmap_yaml['data']['agent.yaml'] = yaml.dump(agent_yaml)
     create_configmap(
         body=configmap_yaml,
@@ -78,6 +83,47 @@ def deploy_agent(configmap_path, daemonset_path, serviceaccount_path, cluster_na
         namespace=namespace)
     assert wait_for(p(has_pod, "signalfx-agent"), timeout_seconds=60), "timed out waiting for the signalfx-agent pod to start!"
     assert wait_for(all_pods_have_ips, timeout_seconds=300), "timed out waiting for pod IPs!"
+
+@pytest.fixture(scope="session")
+def local_registry(request):
+    registry_container = None
+    client = docker.from_env()
+    final_agent_image_name = request.config.getoption("--agent_name")
+    final_agent_image_tag = request.config.getoption("--agent_tag")
+    try:
+        final_image = client.images.get(final_agent_image_name + ":" + final_agent_image_tag)
+    except:
+        final_image = None
+    assert final_image, "agent image '%s:%s' not found in the local registry!" % (final_agent_image_name, final_agent_image_tag)
+    try:
+        client.containers.get("registry")
+        print("\nRegistry container localhost:5000 already running")
+    except:
+        try:
+            client.containers.run(
+                image='registry',
+                name='registry',
+                remove=True,
+                detach=True,
+                ports={'5000/tcp': 5000},
+            )
+            print("\nStarted registry container localhost:5000")
+        except:
+            pass
+        print("\nWaiting for registry container localhost:5000 to be ready ...")
+        start_time = time.time()
+        while True:
+            assert (time.time() - start_time) < 30, "timed out waiting for registry container to be ready!"
+            try:
+                client.containers.get("registry")
+                time.sleep(2)
+                break
+            except:
+                time.sleep(2)
+    print("\nTagging %s:%s as %s:%s ..." % (final_agent_image_name, final_agent_image_tag, AGENT_IMAGE_NAME, AGENT_IMAGE_TAG))
+    final_image.tag(AGENT_IMAGE_NAME, tag=AGENT_IMAGE_TAG)
+    print("\nPushing %s:%s ..." % (AGENT_IMAGE_NAME, AGENT_IMAGE_TAG))
+    client.images.push(AGENT_IMAGE_NAME, tag=AGENT_IMAGE_TAG)
 
 @contextmanager
 @pytest.fixture
@@ -112,7 +158,7 @@ def minikube(k8s_version, request):
 
 @pytest.mark.k8s
 @pytest.mark.kubernetes
-def test_k8s_nginx_metrics(minikube):
+def test_k8s_nginx_metrics(minikube, local_registry):
     with fake_backend.start(ip=get_host_ip()) as backend:
         with minikube as [mk, mk_docker_client]:
             kube_config.load_kube_config(config_file=get_kubeconfig(mk, kubeconfig_path="/kubeconfig"))
@@ -129,7 +175,7 @@ def test_k8s_nginx_metrics(minikube):
                 image_tag=AGENT_IMAGE_TAG,
                 namespace="default"
             )
-            agent_container = get_agent_container(mk_docker_client, image_name=AGENT_IMAGE_NAME)
+            agent_container = get_agent_container(mk_docker_client, image_name=AGENT_IMAGE_NAME, image_tag=AGENT_IMAGE_TAG)
             assert agent_container, "failed to get agent container!"
             # test for datapoints
             datapoints = [
@@ -145,7 +191,7 @@ def test_k8s_nginx_metrics(minikube):
                 {"key": "plugin", "value": "nginx", "metric": "nginx_requests"},
             ]
             for dp in datapoints:
-                assert wait_for(p(has_datapoint_with_dim_and_metric_name, backend, dp["key"], dp["value"], dp["metric"]), timeout_seconds=60), "timed out waiting for datapoint %s:%s:%s\n\nAGENT STATUS:\n%s\n\nAGENT CONTAINER LOGS:\n%s" % (dp["key"], dp["value"], dp["metric"], get_agent_status(agent_container), agent_container.logs().decode('utf-8'))
+                assert wait_for(p(has_datapoint_with_dim_and_metric_name, backend, dp["key"], dp["value"], dp["metric"]), timeout_seconds=300), "timed out waiting for datapoint %s:%s:%s\n\nAGENT STATUS:\n%s\n\nAGENT CONTAINER LOGS:\n%s" % (dp["key"], dp["value"], dp["metric"], get_agent_status(agent_container), agent_container.logs().decode('utf-8'))
                 print("Found datapoint %s:%s:%s" % (dp["key"], dp["value"], dp["metric"]))
             print_lines("\nAGENT STATUS:\n%s" % get_agent_status(agent_container))
             print_lines("\nAGENT CONTAINER LOGS:\n%s\n" % agent_container.logs().decode('utf-8'))
