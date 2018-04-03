@@ -138,7 +138,6 @@ func (m *Monitor) Start() error {
 	var unregister func()
 
 	if m.config.AlwaysClusterReporter {
-		log.Error("STARTING")
 		clusterState.Start()
 	} else {
 		var err error
