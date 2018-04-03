@@ -109,6 +109,32 @@ Of particular relevance to Kubernetes are the following monitors:
  - [Kubelet Stats](./monitors/kubelet-stats.md) - Gets cAdvisor metrics through
 	 the Kubelet `/stats` endpoint.  This is much more robust, as it uses the
 	 same interface that Heapster uses.
+ - [Prometheus Exporter](./monitors/prometheus-exporter.md) - Gets prometheus
+	 metrics directly from exporters.  This is useful especially if you already
+	 have exporters deployed in your cluster because you currently use
+	 Prometheus.
+
+If you want to pull metrics from
+[kube-state-metrics](https://github.com/kubernetes/kube-state-metrics) you can
+use use a config similar to the following (assuming the kube-state-metrics
+instance is running once in your cluster in a container using an image that has
+the string "kube-state-metrics" in it):
+
+```yaml
+    - type: prometheus-exporter
+      discoveryRule: container_image =~ "kube-state-metrics"
+      disableHostDimensions: true
+      disableEndpointDimensions: true
+      extraDimensions:
+        metric_source: kube-state-metrics
+```
+
+This uses the [prometheus-exporter](./monitors/prometheus-exporter.md) monitor
+to pull metrics from the service.  It also disables a lot of host and endpoint
+specific dimensions that are irrelevant to cluster-level metrics.  Note that
+many of the metrics exposed by `kube-state-metrics` overlap with our own
+[kubernetes-cluster](./monitors/kubernetes-cluster.md) monitor, so you probably
+don't want to enable both unless you are using heavy filtering.
 
 ## Config via K8s annotations
 
