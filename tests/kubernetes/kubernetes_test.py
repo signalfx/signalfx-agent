@@ -86,10 +86,11 @@ def deploy_agent(configmap_path, daemonset_path, serviceaccount_path, cluster_na
 
 @pytest.fixture(scope="session")
 def local_registry(request):
-    registry_container = None
     client = docker.from_env()
     final_agent_image_name = request.config.getoption("--agent_name")
     final_agent_image_tag = request.config.getoption("--agent_tag")
+    for image in client.images.list():
+        print(image)
     try:
         final_image = client.images.get(final_agent_image_name + ":" + final_agent_image_tag)
     except:
