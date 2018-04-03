@@ -13,12 +13,6 @@ LoadPlugin "python"
     {{- end}}
     Applications "{{if .CollectApplicationMetrics}}True{{else}}False{{end}}"
     EnhancedMetrics "{{if .EnhancedMetrics}}True{{else}}False{{end}}"
-    {{range .MetricsToInclude}}
-    IncludeMetric {{.}}
-    {{- end}}
-    {{range .MetricsToExclude}}
-    ExcludeMetric {{.}}
-    {{- end}}
     Cluster "{{.ClusterType}}"
     Dimension "monitorID={{.MonitorID}}"
   </Module>
