@@ -160,7 +160,7 @@ def all_pods_have_ips():
         return True
     return False
 
-def get_agent_container(client, image_name="", image_tag="", timeout=300):
+def get_agent_container(client, image_name="", image_tag="", timeout=60):
     start_time = time.time()
     while True:
         if time.time() - start_time > timeout:
