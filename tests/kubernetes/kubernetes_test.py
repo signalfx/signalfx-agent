@@ -86,7 +86,7 @@ def deploy_agent(configmap_path, daemonset_path, serviceaccount_path, cluster_na
 
 @pytest.fixture(scope="session")
 def local_registry(request):
-    client = docker.from_env()
+    client = docker.from_env(version='auto')
     final_agent_image_name = request.config.getoption("--agent_name")
     final_agent_image_tag = request.config.getoption("--agent_tag")
     for image in client.images.list():
@@ -94,8 +94,12 @@ def local_registry(request):
     try:
         final_image = client.images.get(final_agent_image_name + ":" + final_agent_image_tag)
     except:
-        final_image = None
-    assert final_image, "agent image '%s:%s' not found in the local registry!" % (final_agent_image_name, final_agent_image_tag)
+        try:
+            print("Agent image '%s:%s' not found in local registry.\nAttempting to pull from remote registry ..." % (final_agent_image_name, final_agent_image_tag))
+            final_image = client.images.pull(final_agent_image_name, tag=final_agent_image_tag)
+        except:
+            final_image = None
+    assert final_image, "agent image '%s:%s' not found!" % (final_agent_image_name, final_agent_image_tag)
     try:
         client.containers.get("registry")
         print("\nRegistry container localhost:5000 already running")
