@@ -398,6 +398,24 @@ workflows:
      - k8s_v1.9.0_integration_tests:
         requires:
          - build
+     - k8s_v1.8.0_integration_tests:
+        requires:
+         - build
+     - k8s_v1.7.5_integration_tests:
+        requires:
+         - build
+     - k8s_v1.7.4_integration_tests:
+        requires:
+         - build
+     - k8s_v1.7.3_integration_tests:
+        requires:
+         - build
+     - k8s_v1.7.2_integration_tests:
+        requires:
+         - build
+     - k8s_v1.7.0_integration_tests:
+        requires:
+         - build
      - docs_test:
         requires:
          - build
