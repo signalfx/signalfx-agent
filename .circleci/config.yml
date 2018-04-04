@@ -26,13 +26,13 @@ jobs:
          export PULL_CACHE=yes
          source scripts/common.sh
          do_docker_build signalfx-agent-dev latest dev-extras
-         export AGENT_VERSION=$CIRCLE_BUILD_NUM
+         export AGENT_VERSION=k8s-test
          ./scripts/build
          docker images
      - run: |
          mkdir -p /tmp/workspace
          docker save -o /tmp/workspace/image.tar signalfx-agent-dev:latest
-         docker save -o /tmp/workspace/final_image.tar quay.io/signalfx/signalfx-agent-dev:$(eval "echo -n $CIRCLE_BUILD_NUM")
+         docker save -o /tmp/workspace/final_image.tar quay.io/signalfx/signalfx-agent-dev:k8s-test
      - persist_to_workspace:
          root: /tmp/workspace
          paths:
@@ -107,7 +107,7 @@ jobs:
             mkdir ~/testresults
             mkdir -p /tmp/scratch
             docker images
-            docker run --rm --net host -v /var/run/docker.sock:/var/run/docker.sock -v /tmp/scratch:/tmp/scratch -v ~/testresults:/output signalfx-agent-dev pytest --verbose -n auto --junitxml=/output/integration_tests.xml -m "k8s" --k8s_version=all --agent_name=quay.io/signalfx/signalfx-agent-dev --agent_tag=$(eval "echo -n $CIRCLE_BUILD_NUM") tests
+            docker run --rm --net host -v /var/run/docker.sock:/var/run/docker.sock -v /tmp/scratch:/tmp/scratch -v ~/testresults:/output signalfx-agent-dev pytest --verbose -n auto --junitxml=/output/integration_tests.xml -m "k8s" --k8s_version=all --agent_name=quay.io/signalfx/signalfx-agent-dev --agent_tag=k8s-test tests
       - store_test_results:
           path: ~/testresults
 
