@@ -99,13 +99,14 @@ jobs:
       - *attach_workspace
       - *import_image
       - *import_final_image
-      - run: |
-          set -x
-          mkdir ~/testresults
-          mkdir -p /tmp/scratch
-          docker images
-          docker run --rm --net host -v /var/run/docker.sock:/var/run/docker.sock -v /tmp/scratch:/tmp/scratch -v ~/testresults:/output signalfx-agent-dev pytest --verbose -n auto --junitxml=/output/integration_tests.xml -m "k8s" --k8s_version=all --agent_name=quay.io/signalfx/signalfx-agent-dev --agent_tag=test tests
-
+      - run:
+          no_output_timeout: 30m
+          command: |
+            set -x
+            mkdir ~/testresults
+            mkdir -p /tmp/scratch
+            docker images
+            docker run --rm --net host -v /var/run/docker.sock:/var/run/docker.sock -v /tmp/scratch:/tmp/scratch -v ~/testresults:/output signalfx-agent-dev pytest --verbose -n auto --junitxml=/output/integration_tests.xml -m "k8s" --k8s_version=all --agent_name=quay.io/signalfx/signalfx-agent-dev --agent_tag=test tests
       - store_test_results:
           path: ~/testresults
 
