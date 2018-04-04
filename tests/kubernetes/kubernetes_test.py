@@ -19,6 +19,70 @@ AGENT_SERVICEACCOUNT_PATH = os.environ.get("AGENT_SERVICEACCOUNT_PATH", os.path.
 AGENT_IMAGE_NAME = "localhost:5000/signalfx-agent-dev"
 AGENT_IMAGE_TAG = "test"
 
+EXPECTED_KUBELET_STATS_METRICS = [
+    'container_cpu_cfs_periods',
+    'container_cpu_cfs_throttled_periods',
+    'container_cpu_cfs_throttled_time',
+    'container_cpu_system_seconds_total',
+    'container_cpu_usage_seconds_total',
+    'container_cpu_user_seconds_total',
+    'container_cpu_utilization',
+    'container_fs_io_current',
+    'container_fs_io_time_seconds_total',
+    'container_fs_io_time_weighted_seconds_total',
+    'container_fs_limit_bytes',
+    'container_fs_read_seconds_total',
+    'container_fs_reads_merged_total',
+    'container_fs_reads_total',
+    'container_fs_sector_reads_total',
+    'container_fs_sector_writes_total',
+    'container_fs_usage_bytes',
+    'container_fs_write_seconds_total',
+    'container_fs_writes_merged_total',
+    'container_fs_writes_total',
+    'container_last_seen',
+    'container_memory_failcnt',
+    'container_memory_failures_total',
+    'container_memory_usage_bytes',
+    'container_memory_working_set_bytes',
+    'container_network_receive_bytes_total',
+    'container_network_receive_errors_total',
+    'container_network_receive_packets_dropped_total',
+    'container_network_receive_packets_total',
+    'container_network_transmit_bytes_total',
+    'container_network_transmit_errors_total',
+    'container_network_transmit_packets_dropped_total',
+    'container_network_transmit_packets_total',
+    'container_spec_cpu_period',
+    'container_spec_cpu_quota',
+    'container_spec_cpu_shares',
+    'container_spec_memory_limit_bytes',
+    'container_spec_memory_swap_limit_bytes',
+    'container_start_time_seconds',
+    'container_tasks_state',
+    'machine_cpu_cores',
+    'machine_cpu_frequency_khz',
+    'machine_memory_bytes'
+]
+
+EXPECTED_KUBERNETES_CLUSTER_METRICS = [
+    'kubernetes.container_ready',
+    'kubernetes.container_restart_count',
+    'kubernetes.daemon_set.current_scheduled',
+    'kubernetes.daemon_set.desired_scheduled',
+    'kubernetes.daemon_set.misscheduled',
+    'kubernetes.daemon_set.ready',
+    'kubernetes.deployment.available',
+    'kubernetes.deployment.desired',
+    'kubernetes.namespace_phase',
+    'kubernetes.pod_phase',
+    'kubernetes.replica_set.available',
+    'kubernetes.replica_set.desired',
+    'kubernetes.replication_controller.available',
+    'kubernetes.replication_controller.desired',
+    'kubernetes_node_ready'
+]
+
 def deploy_nginx(labels={"app": "nginx"}, namespace="default"):
     configmap_data = {"default.conf": '''
         server {
@@ -87,13 +151,13 @@ def deploy_agent(configmap_path, daemonset_path, serviceaccount_path, cluster_na
 @pytest.fixture(scope="session")
 def local_registry(request):
     client = docker.from_env(version='auto')
-    final_agent_image_name = request.config.getoption("--agent_name")
-    final_agent_image_tag = request.config.getoption("--agent_tag")
+    final_agent_image_name = request.config.getoption("--k8s_agent_name")
+    final_agent_image_tag = request.config.getoption("--k8s_agent_tag")
     try:
         final_image = client.images.get(final_agent_image_name + ":" + final_agent_image_tag)
     except:
         try:
-            print("Agent image '%s:%s' not found in local registry.\nAttempting to pull from remote registry ..." % (final_agent_image_name, final_agent_image_tag))
+            print("\nAgent image '%s:%s' not found in local registry.\nAttempting to pull from remote registry ..." % (final_agent_image_name, final_agent_image_tag))
             final_image = client.images.pull(final_agent_image_name, tag=final_agent_image_tag)
         except:
             final_image = None
@@ -161,7 +225,8 @@ def minikube(k8s_version, request):
 
 @pytest.mark.k8s
 @pytest.mark.kubernetes
-def test_k8s_nginx_metrics(minikube, local_registry):
+def test_k8s_metrics(minikube, local_registry, request):
+    metrics_timeout = int(request.config.getoption("--k8s_metrics_timeout"))
     with fake_backend.start(ip=get_host_ip()) as backend:
         with minikube as [mk, mk_docker_client]:
             kube_config.load_kube_config(config_file=get_kubeconfig(mk, kubeconfig_path="/kubeconfig"))
@@ -188,10 +253,29 @@ def test_k8s_nginx_metrics(minikube, local_registry):
             except:
                 agent_status = "exited"
             assert agent_status == 'running', "agent container is not running!\n\nAGENT STATUS:\n%s\n\nAGENT CONTAINER LOGS:\n%s\n" % (get_agent_status(agent_container), get_agent_container_logs(agent_container))
+            metrics_not_found = EXPECTED_KUBELET_STATS_METRICS + EXPECTED_KUBERNETES_CLUSTER_METRICS
+            start_time = time.time()
+            while True:
+                if len(metrics_not_found) == 0:
+                    break
+                elif (time.time() - start_time) > metrics_timeout:
+                    assert len(metrics_not_found) == 0, \
+                        "timed out waiting for metric(s) %s!\n\nAGENT STATUS:\n%s\n\nAGENT CONTAINER LOGS:\n%s\n" % (
+                            metrics_not_found,
+                            get_agent_status(agent_container),
+                            get_agent_container_logs(agent_container)
+                        )
+                    break
+                else:
+                    for metric in metrics_not_found:
+                        if has_datapoint_with_metric_name(backend, metric):
+                            metrics_not_found.remove(metric)
+                            print("Found metric %s" % metric)
+                    time.sleep(5)
             # test for datapoints
-            datapoints = [
-                {"key": "kubernetes_cluster", "value": "minikube", "metric": "memory.free"},
+            expected_datapoints = [
                 {"key": "host", "value": mk.attrs['Config']['Hostname'], "metric": "if_dropped.tx"},
+                {"key": "kubernetes_cluster", "value": "minikube", "metric": "memory.free"},
                 {"key": "kubernetes_pod_name", "value": "nginx-deployment-.*", "metric": "kubernetes.container_ready"},
                 {"key": "plugin", "value": "nginx", "metric": "connections.accepted"},
                 {"key": "plugin", "value": "nginx", "metric": "connections.handled"},
@@ -201,7 +285,7 @@ def test_k8s_nginx_metrics(minikube, local_registry):
                 {"key": "plugin", "value": "nginx", "metric": "nginx_connections.writing"},
                 {"key": "plugin", "value": "nginx", "metric": "nginx_requests"},
             ]
-            for dp in datapoints:
+            for dp in expected_datapoints:
                 assert wait_for(p(has_datapoint_with_dim_and_metric_name, backend, dp["key"], dp["value"], dp["metric"]), timeout_seconds=120), \
                     "timed out waiting for datapoint %s:%s:%s\n\nAGENT STATUS:\n%s\n\nAGENT CONTAINER LOGS:\n%s\n" % (
                         dp["key"], dp["value"], dp["metric"],
