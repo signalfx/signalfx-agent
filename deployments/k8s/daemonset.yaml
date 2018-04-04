@@ -6,7 +6,7 @@ metadata:
   name: signalfx-agent
   labels:
     app: signalfx-agent
-    version: 3.0.2
+    version: 3.1.2
 spec:
   selector:
     matchLabels:
@@ -19,7 +19,7 @@ spec:
     metadata:
       labels:
         app: signalfx-agent
-        version: 3.0.2
+        version: 3.1.2
 
     spec:
       # Use host network so we can access kubelet directly
@@ -37,7 +37,7 @@ spec:
 
       containers:
       - name: signalfx-agent
-        image: "quay.io/signalfx/signalfx-agent:3.0.2"
+        image: "quay.io/signalfx/signalfx-agent:3.1.2"
         imagePullPolicy: IfNotPresent
         command:
         - /bin/signalfx-agent
