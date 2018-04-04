@@ -26,9 +26,11 @@ jobs:
          export PULL_CACHE=yes
          source scripts/common.sh
          do_docker_build signalfx-agent-dev latest dev-extras
+     - run: |
+         set -x
+         export PULL_CACHE=yes
          export AGENT_VERSION=k8s-test
          ./scripts/build
-         docker images
      - run: |
          mkdir -p /tmp/workspace
          docker save -o /tmp/workspace/image.tar signalfx-agent-dev:latest
