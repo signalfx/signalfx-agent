@@ -120,6 +120,9 @@ parse_args_and_release() {
   if [[ "$build_all" == "yes" ]] || [[ "$build_deb_package" == "yes" ]]; then
     echo "Building and pushing deb package"
     build_and_push_package "deb" "$stage" "$push"
+    if [[ "$push" == "yes" ]]; then
+      $SCRIPT_DIR/invalidate-cloudfront "/debs/signalfx-agent/$stage/*"
+    fi
   fi
 
   if [[ "$build_all" == "yes" ]] || [[ "$build_rpm_package" == "yes" ]]; then
