@@ -16,6 +16,17 @@ references:
     run: |
       docker load -i /tmp/workspace/final_image.tar
 
+  run_k8s_integration_tests: &run_k8s_integration_tests
+    run:
+      no_output_timeout: 30m
+      command: |
+        set -x
+        mkdir ~/testresults
+        mkdir -p /tmp/scratch
+        docker images
+        docker run --rm --net host -v /var/run/docker.sock:/var/run/docker.sock -v /tmp/scratch:/tmp/scratch -v ~/testresults:/output signalfx-agent-dev pytest --verbose --junitxml=/output/integration_tests.xml --html=/output/k8s_integration_tests.html --self-contained-html -m "k8s" --k8s_versions=$(eval "echo -n $K8S_VERSION") --k8s_timeout=300 --k8s_agent_name=quay.io/signalfx/signalfx-agent-dev --k8s_agent_tag=k8s-test --k8s_metrics_timeout=300 tests
+    
+
 jobs:
   build:
     <<: *executor
@@ -98,20 +109,113 @@ jobs:
       - store_test_results:
           path: ~/testresults
 
-  k8s_integration_tests: 
+  k8s_v1.9.4_integration_tests:
     <<: *executor
+    environment:
+      K8S_VERSION: "v1.9.4"
     steps:
       - *attach_workspace
       - *import_image
       - *import_final_image
-      - run:
-          no_output_timeout: 30m
-          command: |
-            set -x
-            mkdir ~/testresults
-            mkdir -p /tmp/scratch
-            docker images
-            docker run --rm --net host -v /var/run/docker.sock:/var/run/docker.sock -v /tmp/scratch:/tmp/scratch -v ~/testresults:/output signalfx-agent-dev pytest --verbose -n auto --junitxml=/output/k8s_integration_tests.xml --html=/output/k8s_integration_tests.html --self-contained-html -m "k8s" --k8s_versions=all --k8s_timeout=300 --k8s_agent_name=quay.io/signalfx/signalfx-agent-dev --k8s_agent_tag=k8s-test --k8s_metrics_timeout=300 tests
+      - *run_k8s_integration_tests
+      - store_test_results:
+          path: ~/testresults
+      - store_artifacts:
+          path: ~/testresults/k8s_integration_tests.html
+
+  k8s_v1.9.0_integration_tests:
+    <<: *executor
+    environment:
+      K8S_VERSION: "v1.9.0"
+    steps:
+      - *attach_workspace
+      - *import_image
+      - *import_final_image
+      - *run_k8s_integration_tests
+      - store_test_results:
+          path: ~/testresults
+      - store_artifacts:
+          path: ~/testresults/k8s_integration_tests.html
+
+  k8s_v1.8.0_integration_tests:
+    <<: *executor
+    environment:
+      K8S_VERSION: "v1.8.0"
+    steps:
+      - *attach_workspace
+      - *import_image
+      - *import_final_image
+      - *run_k8s_integration_tests
+      - store_test_results:
+          path: ~/testresults
+      - store_artifacts:
+          path: ~/testresults/k8s_integration_tests.html
+
+  k8s_v1.7.5_integration_tests:
+    <<: *executor
+    environment:
+      K8S_VERSION: "v1.7.5"
+    steps:
+      - *attach_workspace
+      - *import_image
+      - *import_final_image
+      - *run_k8s_integration_tests
+      - store_test_results:
+          path: ~/testresults
+      - store_artifacts:
+          path: ~/testresults/k8s_integration_tests.html
+
+  k8s_v1.7.4_integration_tests:
+    <<: *executor
+    environment:
+      K8S_VERSION: "v1.7.4"
+    steps:
+      - *attach_workspace
+      - *import_image
+      - *import_final_image
+      - *run_k8s_integration_tests
+      - store_test_results:
+          path: ~/testresults
+      - store_artifacts:
+          path: ~/testresults/k8s_integration_tests.html
+
+  k8s_v1.7.3_integration_tests:
+    <<: *executor
+    environment:
+      K8S_VERSION: "v1.7.3"
+    steps:
+      - *attach_workspace
+      - *import_image
+      - *import_final_image
+      - *run_k8s_integration_tests
+      - store_test_results:
+          path: ~/testresults
+      - store_artifacts:
+          path: ~/testresults/k8s_integration_tests.html
+
+  k8s_v1.7.2_integration_tests:
+    <<: *executor
+    environment:
+      K8S_VERSION: "v1.7.2"
+    steps:
+      - *attach_workspace
+      - *import_image
+      - *import_final_image
+      - *run_k8s_integration_tests
+      - store_test_results:
+          path: ~/testresults
+      - store_artifacts:
+          path: ~/testresults/k8s_integration_tests.html
+
+  k8s_v1.7.0_integration_tests:
+    <<: *executor
+    environment:
+      K8S_VERSION: "v1.7.0"
+    steps:
+      - *attach_workspace
+      - *import_image
+      - *import_final_image
+      - *run_k8s_integration_tests
       - store_test_results:
           path: ~/testresults
       - store_artifacts:
@@ -288,7 +392,10 @@ workflows:
      - integration_tests:
         requires:
          - build
-     - k8s_integration_tests:
+     - k8s_v1.9.4_integration_tests:
+        requires:
+         - build
+     - k8s_v1.9.0_integration_tests:
         requires:
          - build
      - docs_test:
