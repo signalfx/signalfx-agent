@@ -60,12 +60,14 @@ jobs:
     steps:
       - *attach_workspace
       - *import_image
-      - run: |
-          mkdir ~/testresults
-          docker run --rm \
-            -v ~/testresults:/output \
-            signalfx-agent-dev \
-            bash -eo pipefail -c "make templates && go test -v ./... | go2xunit > /output/unit.xml"
+      - run:
+          no_output_timeout: 20m
+          command: |
+            mkdir ~/testresults
+            docker run --rm \
+              -v ~/testresults:/output \
+              signalfx-agent-dev \
+              bash -eo pipefail -c "make templates && go test -v ./... | go2xunit > /output/unit.xml"
 
       - store_test_results:
           path: ~/testresults
