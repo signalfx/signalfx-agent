@@ -163,15 +163,25 @@ def all_pods_have_ips():
 def get_agent_container(client, image_name="", image_tag="", timeout=60):
     start_time = time.time()
     while True:
-        if time.time() - start_time > timeout:
+        if (time.time() - start_time) > timeout:
             return None
         try:
-            return client.containers.list(all=True, filters={"ancestor": image_name + ":" + image_tag})[0]
+            return client.containers.list(filters={"ancestor": image_name + ":" + image_tag})[0]
         except:
-            time.sleep(2)
+            time.sleep(1)
 
 def get_agent_status(agent_container):
-    rc, output = agent_container.exec_run("agent-status")
-    assert rc == 0 and output.decode('utf-8').strip() != '', "failed to get output from agent-status!"
-    return output.decode('utf-8').strip()
+    try:
+        rc, output = agent_container.exec_run("agent-status")
+        if rc != 0:
+            raise Exception(output.decode('utf-8').strip())
+        return output.decode('utf-8').strip()
+    except Exception as e:
+        return "Failed to get agent-status!\n%s" % str(e)
+
+def get_agent_container_logs(agent_container):
+    try:
+        return agent_container.logs().decode('utf-8').strip()
+    except Exception as e:
+        return "Failed to get agent container logs!\n%s" % str(e)
 

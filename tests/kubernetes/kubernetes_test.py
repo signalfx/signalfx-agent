@@ -180,6 +180,14 @@ def test_k8s_nginx_metrics(minikube, local_registry):
             )
             agent_container = get_agent_container(mk_docker_client, image_name=AGENT_IMAGE_NAME, image_tag=AGENT_IMAGE_TAG)
             assert agent_container, "failed to get agent container!"
+            agent_status = agent_container.status.lower()
+            time.sleep(10)
+            try:
+                agent_container.reload()
+                agent_status = agent_container.status.lower()
+            except:
+                agent_status = "exited"
+            assert agent_status == 'running', "agent container is not running!\n\nAGENT STATUS:\n%s\n\nAGENT CONTAINER LOGS:\n%s\n" % (get_agent_status(agent_container), get_agent_container_logs(agent_container))
             # test for datapoints
             datapoints = [
                 {"key": "kubernetes_cluster", "value": "minikube", "metric": "memory.free"},
@@ -194,8 +202,12 @@ def test_k8s_nginx_metrics(minikube, local_registry):
                 {"key": "plugin", "value": "nginx", "metric": "nginx_requests"},
             ]
             for dp in datapoints:
-                assert wait_for(p(has_datapoint_with_dim_and_metric_name, backend, dp["key"], dp["value"], dp["metric"]), timeout_seconds=300), "timed out waiting for datapoint %s:%s:%s\n\nAGENT STATUS:\n%s\n\nAGENT CONTAINER LOGS:\n%s" % (dp["key"], dp["value"], dp["metric"], get_agent_status(agent_container), agent_container.logs().decode('utf-8'))
+                assert wait_for(p(has_datapoint_with_dim_and_metric_name, backend, dp["key"], dp["value"], dp["metric"]), timeout_seconds=120), \
+                    "timed out waiting for datapoint %s:%s:%s\n\nAGENT STATUS:\n%s\n\nAGENT CONTAINER LOGS:\n%s\n" % (
+                        dp["key"], dp["value"], dp["metric"],
+                        get_agent_status(agent_container),
+                        get_agent_container_logs(agent_container)
+                    )
                 print("Found datapoint %s:%s:%s" % (dp["key"], dp["value"], dp["metric"]))
-            print_lines("\nAGENT STATUS:\n%s" % get_agent_status(agent_container))
-            print_lines("\nAGENT CONTAINER LOGS:\n%s\n" % agent_container.logs().decode('utf-8'))
+            print_lines("\nAGENT STATUS:\n%s\n\nAGENT CONTAINER LOGS:\n%s\n" % (get_agent_status(agent_container), get_agent_container_logs(agent_container)))
 
