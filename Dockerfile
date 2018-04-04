@@ -248,6 +248,7 @@ COPY scripts/collect-libs /opt/collect-libs
 ENV useful_bins=" \
   /bin/bash \
   /bin/cat \
+  /bin/cp \
   /bin/date \
   /bin/echo \
   /bin/grep \
