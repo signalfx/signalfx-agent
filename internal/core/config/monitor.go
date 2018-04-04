@@ -40,6 +40,11 @@ type MonitorConfig struct {
 	// dimensions to be omitted.  You can disable this globally with the
 	// `disableHostDimensions` option on the top level of the config.
 	DisableHostDimensions bool `yaml:"disableHostDimensions" default:"false"`
+	// This can be set to true if you don't want to include the dimensions that
+	// are specific to the endpoint that was discovered by an observer.  This
+	// is useful when you have an endpoint whose identity is not particularly
+	// important since it acts largely as a proxy or adapter for other metrics.
+	DisableEndpointDimensions bool `yaml:"disableEndpointDimensions"`
 	// OtherConfig is everything else that is custom to a particular monitor
 	OtherConfig map[string]interface{} `yaml:",inline" neverLog:"omit"`
 	// ValidationError is where a message concerning validation issues can go

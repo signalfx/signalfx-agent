@@ -324,16 +324,17 @@ func (mm *MonitorManager) createAndConfigureNewMonitor(config config.MonitorCust
 	configHash := config.MonitorConfigCore().Hash()
 
 	output := &monitorOutput{
-		monitorType:     config.MonitorConfigCore().Type,
-		monitorID:       id,
-		notHostSpecific: config.MonitorConfigCore().DisableHostDimensions,
-		filter:          config.MonitorConfigCore().Filter,
-		configHash:      configHash,
-		endpoint:        endpoint,
-		dpChan:          mm.DPs,
-		eventChan:       mm.Events,
-		dimPropChan:     mm.DimensionProps,
-		extraDims:       config.MonitorConfigCore().ExtraDimensions,
+		monitorType:               config.MonitorConfigCore().Type,
+		monitorID:                 id,
+		notHostSpecific:           config.MonitorConfigCore().DisableHostDimensions,
+		disableEndpointDimensions: config.MonitorConfigCore().DisableEndpointDimensions,
+		filter:      config.MonitorConfigCore().Filter,
+		configHash:  configHash,
+		endpoint:    endpoint,
+		dpChan:      mm.DPs,
+		eventChan:   mm.Events,
+		dimPropChan: mm.DimensionProps,
+		extraDims:   config.MonitorConfigCore().ExtraDimensions,
 	}
 
 	am := &ActiveMonitor{
