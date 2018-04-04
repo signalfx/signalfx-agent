@@ -111,9 +111,11 @@ jobs:
             mkdir ~/testresults
             mkdir -p /tmp/scratch
             docker images
-            docker run --rm --net host -v /var/run/docker.sock:/var/run/docker.sock -v /tmp/scratch:/tmp/scratch -v ~/testresults:/output signalfx-agent-dev pytest --verbose -n auto --junitxml=/output/integration_tests.xml -m "k8s" --k8s_versions=all --k8s_timeout=300 --k8s_agent_name=quay.io/signalfx/signalfx-agent-dev --k8s_agent_tag=k8s-test --k8s_metrics_timeout=300 tests
+            docker run --rm --net host -v /var/run/docker.sock:/var/run/docker.sock -v /tmp/scratch:/tmp/scratch -v ~/testresults:/output signalfx-agent-dev pytest --verbose -n auto --junitxml=/output/k8s_integration_tests.xml --html=/output/k8s_integration_tests.html --self-contained-html -m "k8s" --k8s_versions=all --k8s_timeout=300 --k8s_agent_name=quay.io/signalfx/signalfx-agent-dev --k8s_agent_tag=k8s-test --k8s_metrics_timeout=300 tests
       - store_test_results:
           path: ~/testresults
+      - store_artifacts:
+          path: ~/testresults/k8s_integration_tests.html
 
   rpm_package_tests:
     <<: *executor
