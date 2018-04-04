@@ -61,6 +61,7 @@ func (dc *DatapointCache) HandleChange(oldObj, newObj runtime.Object) {
 	dc.mutex.Lock()
 	defer dc.mutex.Unlock()
 
+	var prevCached []*datapoint.Datapoint
 	if oldObj != nil {
 		key, err := keyForObject(oldObj)
 		if err != nil {
@@ -71,6 +72,7 @@ func (dc *DatapointCache) HandleChange(oldObj, newObj runtime.Object) {
 			return
 		}
 
+		prevCached = dc.dpCache[*key]
 		delete(dc.dpCache, *key)
 	}
 
@@ -107,6 +109,10 @@ func (dc *DatapointCache) HandleChange(oldObj, newObj runtime.Object) {
 		if oldObj == nil || nodesDifferent(o, oldObj.(*v1.Node)) {
 			dps = datapointsForNode(o)
 			dimProps = dimPropsForNode(o)
+		} else if prevCached != nil {
+			// Reinsert it into the cache since we deleted it above since
+			// oldObj != nil but avoid recalculating dps to avoid excess CPU.
+			dc.dpCache[*key] = prevCached
 		}
 	default:
 		log.WithFields(log.Fields{
@@ -115,8 +121,12 @@ func (dc *DatapointCache) HandleChange(oldObj, newObj runtime.Object) {
 		return
 	}
 
-	dc.dpCache[*key] = dps
-	dc.dimPropCache[*key] = dimProps
+	if dps != nil {
+		dc.dpCache[*key] = dps
+	}
+	if dimProps != nil {
+		dc.dimPropCache[*key] = dimProps
+	}
 }
 
 // AllDatapoints returns all of the cached datapoints.
