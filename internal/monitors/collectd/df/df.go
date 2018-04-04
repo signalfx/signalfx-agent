@@ -61,7 +61,8 @@ type Config struct {
 	FSTypes []string `yaml:"fsTypes" default:"[\"aufs\", \"overlay\", \"tmpfs\", \"proc\", \"sysfs\", \"nsfs\", \"cgroup\", \"devpts\", \"selinuxfs\", \"devtmpfs\", \"debugfs\", \"mqueue\", \"hugetlbfs\", \"securityfs\", \"pstore\", \"binfmt_misc\", \"autofs\"]"`
 
 	// The mount paths to include/exclude, is interpreted as a regex if
-	// surrounded by `/`.
+	// surrounded by `/`.  Note that you need to include the full path as the
+	// agent will see it, irrespective of the hostFSPath option.
 	MountPoints    []string `yaml:"mountPoints" default:"[\"/^/var/lib/rkt/pods/\", \"/^/net//\", \"/^/smb//\"]"`
 	ReportByDevice bool     `yaml:"reportByDevice" default:"false"`
 	ReportInodes   bool     `yaml:"reportInodes" default:"false"`

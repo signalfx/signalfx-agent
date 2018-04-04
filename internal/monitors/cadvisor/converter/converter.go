@@ -743,6 +743,7 @@ func copyDims(dims map[string]string) map[string]string {
 // DIMENSION(container_image): The container image name
 
 func (c *CadvisorCollector) collectContainersInfo() {
+	now := time.Now()
 	containers, err := c.infoProvider.SubcontainersInfo("/")
 	if err != nil {
 		//c.errors.Set(1)
@@ -766,7 +767,6 @@ func (c *CadvisorCollector) collectContainersInfo() {
 		dims["kubernetes_pod_name"] = container.Spec.Labels["io.kubernetes.pod.name"]
 		dims["kubernetes_namespace"] = container.Spec.Labels["io.kubernetes.pod.namespace"]
 
-		tt := time.Now()
 		// Container spec
 		for _, cm := range c.containerSpecMetrics {
 			for _, metricValue := range cm.getValues(&container) {
@@ -777,7 +777,7 @@ func (c *CadvisorCollector) collectContainersInfo() {
 					newDims[label] = metricValue.labels[i]
 				}
 
-				c.sendDatapoint(datapoint.New(cm.name, newDims, metricValue.value, cm.valueType, tt))
+				c.sendDatapoint(datapoint.New(cm.name, newDims, metricValue.value, cm.valueType, now))
 			}
 		}
 
@@ -791,7 +791,7 @@ func (c *CadvisorCollector) collectContainersInfo() {
 						newDims[label] = metricValue.labels[i]
 					}
 
-					c.sendDatapoint(datapoint.New(cm.name, newDims, metricValue.value, cm.valueType, tt))
+					c.sendDatapoint(datapoint.New(cm.name, newDims, metricValue.value, cm.valueType, now))
 				}
 			}
 		}
@@ -806,7 +806,7 @@ func (c *CadvisorCollector) collectContainersInfo() {
 						newDims[label] = metricValue.labels[i]
 					}
 
-					c.sendDatapoint(datapoint.New(cm.name, newDims, metricValue.value, cm.valueType, tt))
+					c.sendDatapoint(datapoint.New(cm.name, newDims, metricValue.value, cm.valueType, now))
 				}
 			}
 		}
@@ -826,7 +826,7 @@ func (c *CadvisorCollector) collectContainersInfo() {
 						newDims[label] = metricValue.labels[i]
 					}
 
-					c.sendDatapoint(datapoint.New(cm.name, newDims, metricValue.value, cm.valueType, tt))
+					c.sendDatapoint(datapoint.New(cm.name, newDims, metricValue.value, cm.valueType, now))
 				}
 			}
 		}
@@ -836,6 +836,7 @@ func (c *CadvisorCollector) collectContainersInfo() {
 func (c *CadvisorCollector) collectVersionInfo() {}
 
 func (c *CadvisorCollector) collectMachineInfo() {
+	now := time.Now()
 	machineInfo, err := c.infoProvider.GetMachineInfo()
 	if err != nil {
 		//c.errors.Set(1)
@@ -847,7 +848,6 @@ func (c *CadvisorCollector) collectMachineInfo() {
 	}
 
 	dims := make(map[string]string)
-	tt := time.Now()
 
 	for _, cm := range c.machineInfoMetrics {
 		for _, metricValue := range cm.getValues(machineInfo) {
@@ -858,7 +858,7 @@ func (c *CadvisorCollector) collectMachineInfo() {
 				newDims[label] = metricValue.labels[i]
 			}
 
-			c.sendDatapoint(datapoint.New(cm.name, newDims, metricValue.value, cm.valueType, tt))
+			c.sendDatapoint(datapoint.New(cm.name, newDims, metricValue.value, cm.valueType, now))
 		}
 	}
 }

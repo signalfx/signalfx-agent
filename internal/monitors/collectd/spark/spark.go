@@ -51,8 +51,6 @@ type Config struct {
 	ClusterType               sparkClusterType `yaml:"clusterType"`
 	CollectApplicationMetrics bool             `yaml:"collectApplicationMetrics" default:"false"`
 	EnhancedMetrics           bool             `yaml:"enhancedMetrics" default:"false"`
-	MetricsToInclude          []string         `yaml:"metricsToInclude" default:"[]"`
-	MetricsToExclude          []string         `yaml:"metricsToExclude" default:"[]"`
 }
 
 // Validate will check the config for correctness.
