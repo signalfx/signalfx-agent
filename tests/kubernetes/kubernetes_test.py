@@ -34,6 +34,19 @@ if len(EXPECTED_KUBERNETES_CLUSTER_METRICS) == 0:
     print("Failed to get metrics from %s!" % os.path.join(DOCS_DIR, "monitors/kubernetes-cluster.md"))
     sys.exit(1)
 
+EXPECTED_DATAPOINTS = [
+    {"key": "host", "value": "", "metric": "if_dropped.tx"},
+    {"key": "kubernetes_cluster", "value": "minikube", "metric": "memory.free"},
+    {"key": "kubernetes_pod_name", "value": "nginx-replication-controller-.*", "metric": "kubernetes.container_ready"},
+    {"key": "plugin", "value": "nginx", "metric": "connections.accepted"},
+    {"key": "plugin", "value": "nginx", "metric": "connections.handled"},
+    {"key": "plugin", "value": "nginx", "metric": "nginx_connections.active"},
+    {"key": "plugin", "value": "nginx", "metric": "nginx_connections.reading"},
+    {"key": "plugin", "value": "nginx", "metric": "nginx_connections.waiting"},
+    {"key": "plugin", "value": "nginx", "metric": "nginx_connections.writing"},
+    {"key": "plugin", "value": "nginx", "metric": "nginx_requests"},
+]
+
 def deploy_nginx(labels={"app": "nginx"}, namespace="default"):
     configmap_data = {"default.conf": '''
         server {
@@ -202,6 +215,7 @@ def test_k8s_metrics(minikube, local_registry, request):
             )
             agent_container = get_agent_container(mk_docker_client, image_name=AGENT_IMAGE_NAME, image_tag=AGENT_IMAGE_TAG)
             assert agent_container, "failed to get agent container!"
+            # wait to make sure that the agent container is running
             agent_status = agent_container.status.lower()
             time.sleep(10)
             try:
@@ -210,6 +224,7 @@ def test_k8s_metrics(minikube, local_registry, request):
             except:
                 agent_status = "exited"
             assert agent_status == 'running', "agent container is not running!\n\nAGENT STATUS:\n%s\n\nAGENT CONTAINER LOGS:\n%s\n" % (get_agent_status(agent_container), get_agent_container_logs(agent_container))
+            # test for metrics
             metrics_not_found = EXPECTED_KUBELET_STATS_METRICS + EXPECTED_KUBERNETES_CLUSTER_METRICS
             start_time = time.time()
             while True:
@@ -230,19 +245,9 @@ def test_k8s_metrics(minikube, local_registry, request):
                             print("Found metric %s" % metric)
                     time.sleep(5)
             # test for datapoints
-            expected_datapoints = [
-                {"key": "host", "value": mk.attrs['Config']['Hostname'], "metric": "if_dropped.tx"},
-                {"key": "kubernetes_cluster", "value": "minikube", "metric": "memory.free"},
-                {"key": "kubernetes_pod_name", "value": "nginx-replication-controller-.*", "metric": "kubernetes.container_ready"},
-                {"key": "plugin", "value": "nginx", "metric": "connections.accepted"},
-                {"key": "plugin", "value": "nginx", "metric": "connections.handled"},
-                {"key": "plugin", "value": "nginx", "metric": "nginx_connections.active"},
-                {"key": "plugin", "value": "nginx", "metric": "nginx_connections.reading"},
-                {"key": "plugin", "value": "nginx", "metric": "nginx_connections.waiting"},
-                {"key": "plugin", "value": "nginx", "metric": "nginx_connections.writing"},
-                {"key": "plugin", "value": "nginx", "metric": "nginx_requests"},
-            ]
-            for dp in expected_datapoints:
+            for dp in EXPECTED_DATAPOINTS:
+                if dp["key"] == "host":
+                    dp["value"] = mk.attrs['Config']['Hostname']
                 assert wait_for(p(has_datapoint_with_dim_and_metric_name, backend, dp["key"], dp["value"], dp["metric"]), timeout_seconds=120), \
                     "timed out waiting for datapoint %s:%s:%s\n\nAGENT STATUS:\n%s\n\nAGENT CONTAINER LOGS:\n%s\n" % (
                         dp["key"], dp["value"], dp["metric"],
