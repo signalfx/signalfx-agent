@@ -197,7 +197,7 @@ def minikube(k8s_version, request):
             "name": container_name,
             "privileged": True,
             "environment": {
-                'K8S_VERSION': k8s_version
+                'K8S_VERSION': k8s_version,
                 'CIRCLECI': 'false',
             },
             "ports": {
