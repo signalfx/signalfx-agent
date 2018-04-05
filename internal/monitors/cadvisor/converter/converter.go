@@ -10,7 +10,6 @@ import (
 
 	info "github.com/google/cadvisor/info/v1"
 	"github.com/signalfx/golib/datapoint"
-	"github.com/signalfx/signalfx-agent/internal/utils"
 )
 
 // InfoProvider provides a swappable interface to actually get the cAdvisor
@@ -92,7 +91,6 @@ func networkValues(net []info.InterfaceStats, valueFn func(*info.InterfaceStats)
 // COUNTER(container_cpu_usage_seconds_total): Cumulative cpu time consumed per cpu in nanoseconds
 // COUNTER(container_cpu_user_seconds_total): Cumulative user cpu time consumed in nanoseconds
 // COUNTER(container_cpu_utilization): Cumulative cpu utilization in percentages
-// COUNTER(container_cpu_percent): Cumulative cpu utilization as a percentage of the host total CPU available
 // COUNTER(container_cpu_cfs_periods): Total number of elapsed CFS enforcement intervals
 // COUNTER(container_cpu_cfs_throttled_periods): Total number of times tasks in the cgroup have been throttled
 // COUNTER(container_cpu_cfs_throttled_time): Total time duration, in nanoseconds, for which tasks in the cgroup have been throttled
@@ -164,15 +162,6 @@ func getContainerMetrics() []containerMetric {
 			valueType: datapoint.Counter,
 			getValues: func(s *info.ContainerStats) metricValues {
 				return metricValues{{value: datapoint.NewIntValue(int64(s.Cpu.Usage.Total / 10000000))}}
-			},
-		},
-		{
-			name:      "container_cpu_percent",
-			help:      "Cumulative cpu utilization as a percentage of the host total CPU available",
-			valueType: datapoint.Counter,
-			getValues: func(s *info.ContainerStats) metricValues {
-				cpuCount := utils.MaxInt(len(s.Cpu.Usage.PerCpu), 1)
-				return metricValues{{value: datapoint.NewIntValue(int64(int(s.Cpu.Usage.Total) / (10000000 * cpuCount)))}}
 			},
 		},
 		{

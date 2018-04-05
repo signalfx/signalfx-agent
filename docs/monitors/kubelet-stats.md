@@ -46,7 +46,6 @@ cause only a subset of metrics to be emitted.
 | `container_cpu_cfs_periods` | counter | Total number of elapsed CFS enforcement intervals |
 | `container_cpu_cfs_throttled_periods` | counter | Total number of times tasks in the cgroup have been throttled |
 | `container_cpu_cfs_throttled_time` | counter | Total time duration, in nanoseconds, for which tasks in the cgroup have been throttled |
-| `container_cpu_percent` | counter | Cumulative cpu utilization as a percentage of the host total CPU available |
 | `container_cpu_system_seconds_total` | counter | Cumulative system cpu time consumed in nanoseconds |
 | `container_cpu_usage_seconds_total` | counter | Cumulative cpu time consumed per cpu in nanoseconds |
 | `container_cpu_user_seconds_total` | counter | Cumulative user cpu time consumed in nanoseconds |

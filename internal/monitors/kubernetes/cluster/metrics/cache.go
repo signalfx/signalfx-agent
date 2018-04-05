@@ -138,12 +138,7 @@ func (dc *DatapointCache) AllDatapoints() []*datapoint.Datapoint {
 
 	for k := range dc.dpCache {
 		if dc.dpCache[k] != nil {
-			for i := range dc.dpCache[k] {
-				// Copy the datapoint since nothing in datapoints is thread
-				// safe.
-				dp := *dc.dpCache[k][i]
-				dps = append(dps, &dp)
-			}
+			dps = append(dps, dc.dpCache[k]...)
 		}
 	}
 
