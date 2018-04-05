@@ -127,7 +127,8 @@ def local_registry(request):
         final_image = client.images.get(final_agent_image_name + ":" + final_agent_image_tag)
     except:
         try:
-            print("\nAgent image '%s:%s' not found in local registry.\nAttempting to pull from remote registry ..." % (final_agent_image_name, final_agent_image_tag))
+            print("\nAgent image '%s:%s' not found in local registry.\nAttempting to pull from remote registry ..." % \
+                (final_agent_image_name, final_agent_image_tag))
             final_image = client.images.pull(final_agent_image_name, tag=final_agent_image_tag)
         except:
             final_image = None
@@ -142,8 +143,7 @@ def local_registry(request):
                 name='registry',
                 remove=True,
                 detach=True,
-                ports={'5000/tcp': 5000},
-            )
+                ports={'5000/tcp': 5000})
             print("\nStarted registry container localhost:5000")
         except:
             pass
@@ -182,7 +182,7 @@ def minikube(k8s_version, request):
                 "bind": "/tmp/scratch",
                 "mode": "rw"
             },
-        },
+        }
     }
     print("\nDeploying minikube ...")
     with run_service('minikube', **container_options) as mk:
@@ -211,19 +211,18 @@ def test_k8s_metrics(minikube, local_registry, request):
                 backend=backend,
                 image_name=AGENT_IMAGE_NAME,
                 image_tag=AGENT_IMAGE_TAG,
-                namespace="default"
-            )
+                namespace="default")
             agent_container = get_agent_container(mk_docker_client, image_name=AGENT_IMAGE_NAME, image_tag=AGENT_IMAGE_TAG)
             assert agent_container, "failed to get agent container!"
-            # wait to make sure that the agent container is running
             agent_status = agent_container.status.lower()
+            # wait to make sure that the agent container is still running
             time.sleep(10)
             try:
                 agent_container.reload()
                 agent_status = agent_container.status.lower()
             except:
                 agent_status = "exited"
-            assert agent_status == 'running', "agent container is not running!\n\nAGENT STATUS:\n%s\n\nAGENT CONTAINER LOGS:\n%s\n" % (get_agent_status(agent_container), get_agent_container_logs(agent_container))
+            assert agent_status == 'running', "agent container is not running!\n\n%s\n\n" % (get_all_logs(agent_container, mk))
             # test for metrics
             metrics_not_found = EXPECTED_KUBELET_STATS_METRICS + EXPECTED_KUBERNETES_CLUSTER_METRICS
             start_time = time.time()
@@ -231,12 +230,7 @@ def test_k8s_metrics(minikube, local_registry, request):
                 if len(metrics_not_found) == 0:
                     break
                 elif (time.time() - start_time) > metrics_timeout:
-                    assert len(metrics_not_found) == 0, \
-                        "timed out waiting for metric(s) %s!\n\nAGENT STATUS:\n%s\n\nAGENT CONTAINER LOGS:\n%s\n" % (
-                            metrics_not_found,
-                            get_agent_status(agent_container),
-                            get_agent_container_logs(agent_container)
-                        )
+                    assert len(metrics_not_found) == 0, "timed out waiting for metric(s) %s!\n\n%s\n\n" % (metrics_not_found, get_all_logs(agent_container, mk))
                     break
                 else:
                     for metric in metrics_not_found:
@@ -249,11 +243,7 @@ def test_k8s_metrics(minikube, local_registry, request):
                 if dp["key"] == "host":
                     dp["value"] = mk.attrs['Config']['Hostname']
                 assert wait_for(p(has_datapoint_with_dim_and_metric_name, backend, dp["key"], dp["value"], dp["metric"]), timeout_seconds=120), \
-                    "timed out waiting for datapoint %s:%s:%s\n\nAGENT STATUS:\n%s\n\nAGENT CONTAINER LOGS:\n%s\n" % (
-                        dp["key"], dp["value"], dp["metric"],
-                        get_agent_status(agent_container),
-                        get_agent_container_logs(agent_container)
-                    )
+                    "timed out waiting for datapoint %s:%s:%s\n\n%s\n\n" % (dp["key"], dp["value"], dp["metric"], get_all_logs(agent_container, mk))
                 print("Found datapoint %s:%s:%s" % (dp["key"], dp["value"], dp["metric"]))
-            print_lines("\nAGENT STATUS:\n%s\n\nAGENT CONTAINER LOGS:\n%s\n" % (get_agent_status(agent_container), get_agent_container_logs(agent_container)))
+            print_lines("\n\n%s\n\n" % (get_all_logs(agent_container, mk)))
 

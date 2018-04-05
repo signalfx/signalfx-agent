@@ -199,3 +199,28 @@ def get_agent_container_logs(agent_container):
     except Exception as e:
         return "Failed to get agent container logs!\n%s" % str(e)
 
+def get_all_logs(agent_container, minikube_container):
+    try:
+        agent_status = get_agent_status(agent_container)
+    except:
+        agent_status = ""
+    try:
+        agent_container_logs = get_agent_container_logs(agent_container)
+    except:
+        agent_container_logs = ""
+    try:
+        _, output = minikube_container.exec_run("minikube logs")
+        minikube_logs = output.decode('utf-8').strip()
+    except:
+        minikube_logs = ""
+    try:
+        pods_status = ""
+        v1 = kube_client.CoreV1Api()
+        pods = v1.list_pod_for_all_namespaces(watch=False)
+        for pod in pods.items:
+            pods_status += "%s\t%s\t%s\n" % (pod.status.pod_ip, pod.metadata.namespace, pod.metadata.name)
+        pods_status = pods_status.strip()
+    except:
+        pods_status = ""
+    return "AGENT STATUS:\n%s\n\nAGENT CONTAINER LOGS:\n%s\n\nMINIKUBE LOGS:\n%s\n\nPODS STATUS:\n%s" % \
+        (agent_status, agent_container_logs, minikube_logs, pods_status)
