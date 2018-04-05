@@ -10,7 +10,7 @@ import (
 	"k8s.io/api/core/v1"
 )
 
-// GAUGE(kubernetes_node_ready): Whether this node is ready (1), not ready (0)
+// GAUGE(kubernetes.node_ready): Whether this node is ready (1), not ready (0)
 // or in an unknown state (-1)
 
 // DIMENSION(machine_id): The machine ID from /etc/machine-id.  This should be
