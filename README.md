@@ -4,6 +4,10 @@
 
 The SignalFx Smart Agent is a metric agent written in Go for monitoring
 infrastructure and application services in a variety of different environments.
+It is meant as a successor to our previous [collectd
+agent](https://github.com/signalfx/collectd), but still uses that internally --
+so any existing Python or C-based collectd plugins will still work without
+modification.
 
 ## Concepts
 
@@ -55,7 +59,7 @@ unnecessary.
 
 ## Installation
 
-The agent is available  for Linux in both a containerized and standalone form.
+The agent is available for Linux in both a containerized and standalone form.
 Whatever form you use, the dependencies are completely bundled along with the
 agent, including a Java JRE runtime and a Python runtime, so there are no
 additional dependencies required.  This means that the agent should work on any
