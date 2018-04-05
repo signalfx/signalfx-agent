@@ -23,11 +23,13 @@ fi
 
 mount --make-shared /
 
-dockerd \
-  --host=unix:///var/run/docker.sock \
-  --host=tcp://0.0.0.0:2375 \
-  --insecure-registry localhost:5000 \
-  &> /var/log/docker.log 2>&1 < /dev/null &
+if [ "$CIRCLECI" = "false" ]; then
+    dockerd \
+      --host=unix:///var/run/docker.sock \
+      --host=tcp://0.0.0.0:2375 \
+      --insecure-registry localhost:5000 \
+      &> /var/log/docker.log 2>&1 < /dev/null &
+fi
 
 if [ -n "$K8S_VERSION" ]; then
     minikube start --kubernetes-version $K8S_VERSION --vm-driver=none

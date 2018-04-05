@@ -97,6 +97,7 @@ def deploy_agent(configmap_path, daemonset_path, serviceaccount_path, cluster_na
     configmap_yaml = yaml.load(open(configmap_path).read())
     agent_yaml = yaml.load(configmap_yaml['data']['agent.yaml'])
     agent_yaml['globalDimensions']['kubernetes_cluster'] = cluster_name
+    agent_yaml['useFullyQualifiedHost'] = False
     if backend:
         agent_yaml['ingestUrl'] = "http://%s:%d" % (get_host_ip(), backend.ingest_port)
         agent_yaml['apiUrl'] = "http://%s:%d" % (get_host_ip(), backend.api_port)
@@ -133,57 +134,83 @@ def local_registry(request):
         except:
             final_image = None
     assert final_image, "agent image '%s:%s' not found!" % (final_agent_image_name, final_agent_image_tag)
-    try:
-        client.containers.get("registry")
-        print("\nRegistry container localhost:5000 already running")
-    except:
+    if not os.environ.get("CIRCLECI"):
         try:
-            client.containers.run(
-                image='registry',
-                name='registry',
-                remove=True,
-                detach=True,
-                ports={'5000/tcp': 5000})
-            print("\nStarted registry container localhost:5000")
+            client.containers.get("registry")
+            print("\nRegistry container localhost:5000 already running")
         except:
-            pass
-        print("\nWaiting for registry container localhost:5000 to be ready ...")
-        start_time = time.time()
-        while True:
-            assert (time.time() - start_time) < 30, "timed out waiting for registry container to be ready!"
             try:
-                client.containers.get("registry")
-                time.sleep(2)
-                break
+                client.containers.run(
+                    image='registry',
+                    name='registry',
+                    remove=True,
+                    detach=True,
+                    ports={'5000/tcp': 5000})
+                print("\nStarted registry container localhost:5000")
             except:
-                time.sleep(2)
+                pass
+            print("\nWaiting for registry container localhost:5000 to be ready ...")
+            start_time = time.time()
+            while True:
+                assert (time.time() - start_time) < 30, "timed out waiting for registry container to be ready!"
+                try:
+                    client.containers.get("registry")
+                    time.sleep(2)
+                    break
+                except:
+                    time.sleep(2)
     print("\nTagging %s:%s as %s:%s ..." % (final_agent_image_name, final_agent_image_tag, AGENT_IMAGE_NAME, AGENT_IMAGE_TAG))
     final_image.tag(AGENT_IMAGE_NAME, tag=AGENT_IMAGE_TAG)
-    print("\nPushing %s:%s ..." % (AGENT_IMAGE_NAME, AGENT_IMAGE_TAG))
-    client.images.push(AGENT_IMAGE_NAME, tag=AGENT_IMAGE_TAG)
+    if not os.environ.get("CIRCLECI"):
+        print("\nPushing %s:%s ..." % (AGENT_IMAGE_NAME, AGENT_IMAGE_TAG))
+        client.images.push(AGENT_IMAGE_NAME, tag=AGENT_IMAGE_TAG)
 
 @contextmanager
 @pytest.fixture
 def minikube(k8s_version, request):
     k8s_timeout = int(request.config.getoption("--k8s-timeout"))
     container_name = "minikube-%s" % k8s_version
-    container_options = {
-        "name": container_name,
-        "privileged": True,
-        "environment": {
-            'K8S_VERSION': k8s_version
-        },
-        "ports": {
-            '8443/tcp': None,
-            '2375/tcp': None,
-        },
-        "volumes": {
-            "/tmp/scratch": {
-                "bind": "/tmp/scratch",
-                "mode": "rw"
+    if os.environ.get("CIRCLECI"):
+        container_options = {
+            "name": container_name,
+            "environment": {
+                'K8S_VERSION': k8s_version,
+                'CIRCLECI': 'true',
             },
+            "ports": {
+                '8443/tcp': None,
+                '2375/tcp': None,
+            },
+            "volumes": {
+                "/var/run/docker.sock": {
+                    "bind": "/var/run/docker.sock",
+                    "mode": "ro"
+                },
+                "/tmp/scratch": {
+                    "bind": "/tmp/scratch",
+                    "mode": "rw"
+                },
+            }
         }
-    }
+    else:
+        container_options = {
+            "name": container_name,
+            "privileged": True,
+            "environment": {
+                'K8S_VERSION': k8s_version
+                'CIRCLECI': 'false',
+            },
+            "ports": {
+                '8443/tcp': None,
+                '2375/tcp': None,
+            },
+            "volumes": {
+                "/tmp/scratch": {
+                    "bind": "/tmp/scratch",
+                    "mode": "rw"
+                },
+            }
+        }
     print("\nDeploying minikube ...")
     with run_service('minikube', **container_options) as mk:
         #k8s_api_host_port = mk.attrs['NetworkSettings']['Ports']['8443/tcp'][0]['HostPort']

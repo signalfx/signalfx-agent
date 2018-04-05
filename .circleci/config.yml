@@ -105,6 +105,23 @@ jobs:
       - store_test_results:
           path: ~/testresults
 
+  k8s_integration_tests:
+    <<: *executor
+    environment:
+      K8S_VERSION: "v1.9.4"
+    steps:
+      - checkout
+      - run:
+          no_output_timeout: 30m
+          command: |
+            set -x
+            mkdir ~/testresults
+            docker run -e "CIRCLECI=true" --rm -v $(pwd):/go/src/github.com/signalfx/signalfx-agent:cached -v /var/run/docker.sock:/var/run/docker.sock -v /tmp/scratch:/tmp/scratch -v ~/testresults:/output quay.io/signalfx/signalfx-agent-dev:stage-dev-extras pytest --verbose --junitxml=/output/integration_tests.xml --html=/output/k8s_integration_tests.html --self-contained-html -m "k8s" --k8s-versions=$(eval "echo -n $K8S_VERSION") --k8s-timeout=300 --k8s-agent-name=quay.io/signalfx/signalfx-agent --k8s-agent-tag=3.1.2 --k8s-metrics-timeout=600 tests
+      - store_test_results:
+          path: ~/testresults
+      - store_artifacts:
+          path: ~/testresults/k8s_integration_tests.html
+
   k8s_v1.9.4_integration_tests:
     <<: *executor
     environment:
@@ -421,3 +438,4 @@ workflows:
      - puppet_tests
      - salt_tests
      - ansible_tests
+     - k8s_integration_tests
