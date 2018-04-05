@@ -5,6 +5,8 @@ from kubernetes import config as kube_config
 import docker
 import os
 import pytest
+import re
+import sys
 import yaml
 
 from tests.helpers import fake_backend
@@ -16,72 +18,21 @@ AGENT_YAMLS_DIR = os.environ.get("AGENT_YAMLS_DIR", "/go/src/github.com/signalfx
 AGENT_CONFIGMAP_PATH = os.environ.get("AGENT_CONFIGMAP_PATH", os.path.join(AGENT_YAMLS_DIR, "configmap.yaml"))
 AGENT_DAEMONSET_PATH = os.environ.get("AGENT_DAEMONSET_PATH", os.path.join(AGENT_YAMLS_DIR, "daemonset.yaml"))
 AGENT_SERVICEACCOUNT_PATH = os.environ.get("AGENT_SERVICEACCOUNT_PATH", os.path.join(AGENT_YAMLS_DIR, "serviceaccount.yaml"))
-AGENT_IMAGE_NAME = "localhost:5000/signalfx-agent-dev"
-AGENT_IMAGE_TAG = "test"
+AGENT_IMAGE_NAME = "localhost:5000/signalfx-agent"
+AGENT_IMAGE_TAG = "k8s-test"
 
-EXPECTED_KUBELET_STATS_METRICS = [
-    'container_cpu_cfs_periods',
-    'container_cpu_cfs_throttled_periods',
-    'container_cpu_cfs_throttled_time',
-    'container_cpu_system_seconds_total',
-    'container_cpu_usage_seconds_total',
-    'container_cpu_user_seconds_total',
-    'container_cpu_utilization',
-    'container_fs_io_current',
-    'container_fs_io_time_seconds_total',
-    'container_fs_io_time_weighted_seconds_total',
-    'container_fs_limit_bytes',
-    'container_fs_read_seconds_total',
-    'container_fs_reads_merged_total',
-    'container_fs_reads_total',
-    'container_fs_sector_reads_total',
-    'container_fs_sector_writes_total',
-    'container_fs_usage_bytes',
-    'container_fs_write_seconds_total',
-    'container_fs_writes_merged_total',
-    'container_fs_writes_total',
-    'container_last_seen',
-    'container_memory_failcnt',
-    'container_memory_failures_total',
-    'container_memory_usage_bytes',
-    'container_memory_working_set_bytes',
-    'container_spec_cpu_period',
-    'container_spec_cpu_quota',
-    'container_spec_cpu_shares',
-    'container_spec_memory_limit_bytes',
-    'container_spec_memory_swap_limit_bytes',
-    'container_start_time_seconds',
-    'container_tasks_state',
-    'machine_cpu_cores',
-    'machine_cpu_frequency_khz',
-    'machine_memory_bytes',
-    'pod_network_receive_bytes_total',
-    'pod_network_receive_errors_total',
-    'pod_network_receive_packets_dropped_total',
-    'pod_network_receive_packets_total',
-    'pod_network_transmit_bytes_total',
-    'pod_network_transmit_errors_total',
-    'pod_network_transmit_packets_dropped_total',
-    'pod_network_transmit_packets_total'
-]
-
-EXPECTED_KUBERNETES_CLUSTER_METRICS = [
-    'kubernetes.container_ready',
-    'kubernetes.container_restart_count',
-    'kubernetes.daemon_set.current_scheduled',
-    'kubernetes.daemon_set.desired_scheduled',
-    'kubernetes.daemon_set.misscheduled',
-    'kubernetes.daemon_set.ready',
-    'kubernetes.deployment.available',
-    'kubernetes.deployment.desired',
-    'kubernetes.namespace_phase',
-    'kubernetes.node_ready',
-    'kubernetes.pod_phase',
-    'kubernetes.replica_set.available',
-    'kubernetes.replica_set.desired',
-#    'kubernetes.replication_controller.available',
-#    'kubernetes.replication_controller.desired'
-]
+# get metrics to test from docs
+DOCS_DIR = os.environ.get("DOCS_DIR", "/go/src/github.com/signalfx/signalfx-agent/docs")
+KUBELET_STATS_MD = open(os.path.join(DOCS_DIR, "monitors/kubelet-stats.md")).read()
+EXPECTED_KUBELET_STATS_METRICS = re.findall('\| `(.*?)` \| (?:counter|gauge) \|', KUBELET_STATS_MD)
+if len(EXPECTED_KUBELET_STATS_METRICS) == 0:
+    print("Failed to get metrics from %s!" % os.path.join(DOCS_DIR, "monitors/kubelet-stats.md"))
+    sys.exit(1)
+KUBERNETES_CLUSTER_MD = open(os.path.join(DOCS_DIR, "monitors/kubernetes-cluster.md")).read()
+EXPECTED_KUBERNETES_CLUSTER_METRICS = re.findall('\| `(.*?)` \| (?:counter|gauge) \|', KUBERNETES_CLUSTER_MD)
+if len(EXPECTED_KUBERNETES_CLUSTER_METRICS) == 0:
+    print("Failed to get metrics from %s!" % os.path.join(DOCS_DIR, "monitors/kubernetes-cluster.md"))
+    sys.exit(1)
 
 def deploy_nginx(labels={"app": "nginx"}, namespace="default"):
     configmap_data = {"default.conf": '''
@@ -105,8 +56,14 @@ def deploy_nginx(labels={"app": "nginx"}, namespace="default"):
         port=80,
         labels=labels,
         volume_mounts=[{"name": "nginx-conf", "mount_path": "/etc/nginx/conf.d", "configmap": "nginx-status"}])
-    create_deployment(
-        name="nginx-deployment",
+    #create_deployment(
+    #    name="nginx-deployment",
+    #    pod_template=pod_template,
+    #    replicas=3,
+    #    labels=labels,
+    #    namespace=namespace)
+    create_replication_controller(
+        name="nginx-replication-controller",
         pod_template=pod_template,
         replicas=3,
         labels=labels,
@@ -276,7 +233,7 @@ def test_k8s_metrics(minikube, local_registry, request):
             expected_datapoints = [
                 {"key": "host", "value": mk.attrs['Config']['Hostname'], "metric": "if_dropped.tx"},
                 {"key": "kubernetes_cluster", "value": "minikube", "metric": "memory.free"},
-                {"key": "kubernetes_pod_name", "value": "nginx-deployment-.*", "metric": "kubernetes.container_ready"},
+                {"key": "kubernetes_pod_name", "value": "nginx-replication-controller-.*", "metric": "kubernetes.container_ready"},
                 {"key": "plugin", "value": "nginx", "metric": "connections.accepted"},
                 {"key": "plugin", "value": "nginx", "metric": "connections.handled"},
                 {"key": "plugin", "value": "nginx", "metric": "nginx_connections.active"},

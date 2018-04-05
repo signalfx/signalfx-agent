@@ -81,6 +81,20 @@ def create_deployment(name="", pod_template=None, replicas=1, labels={}, namespa
         body=deployment,
         namespace=namespace)
 
+def create_replication_controller(name="", pod_template=None, replicas=1, labels={}, namespace="default"):
+    v1 = kube_client.CoreV1Api()
+    spec = kube_client.V1ReplicationControllerSpec(
+        replicas=replicas,
+        template=pod_template,
+        selector=labels)
+    rc = kube_client.V1ReplicationController(
+        api_version="v1",
+        metadata=kube_client.V1ObjectMeta(name=name, labels=labels),
+        spec=spec)
+    return v1.create_namespaced_replication_controller(
+        body=rc,
+        namespace=namespace)
+
 def create_service(name="", port=None, service_type="NodePort", labels={}, namespace="default"):
     v1 = kube_client.CoreV1Api()
     service = kube_client.V1Service(
@@ -92,8 +106,8 @@ def create_service(name="", port=None, service_type="NodePort", labels={}, names
             ports=[kube_client.V1ServicePort(port=port)],
             selector=labels))
     return v1.create_namespaced_service(
-        namespace=namespace,
-        body=service)
+        body=service,
+        namespace=namespace)
 
 def create_daemonset(body=None, namespace="default"):
     v1beta1 = kube_client.ExtensionsV1beta1Api()
