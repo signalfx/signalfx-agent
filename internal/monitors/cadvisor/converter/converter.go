@@ -112,14 +112,14 @@ func networkValues(net []info.InterfaceStats, valueFn func(*info.InterfaceStats)
 // COUNTER(container_memory_failures_total): Cumulative count of memory allocation failures
 // GAUGE(container_memory_usage_bytes): Current memory usage in bytes
 // GAUGE(container_memory_working_set_bytes): Current working set in bytes
-// COUNTER(container_network_receive_bytes_total): Cumulative count of bytes received
-// COUNTER(container_network_receive_errors_total): Cumulative count of errors encountered while receiving
-// COUNTER(container_network_receive_packets_dropped_total): Cumulative count of packets dropped while receiving
-// COUNTER(container_network_receive_packets_total): Cumulative count of packets received
-// COUNTER(container_network_transmit_bytes_total): Cumulative count of bytes transmitted
-// COUNTER(container_network_transmit_errors_total): Cumulative count of errors encountered while transmitting
-// COUNTER(container_network_transmit_packets_dropped_total): Cumulative count of packets dropped while transmitting
-// COUNTER(container_network_transmit_packets_total): Cumulative count of packets transmitted
+// COUNTER(pod_network_receive_bytes_total): Cumulative count of bytes received
+// COUNTER(pod_network_receive_errors_total): Cumulative count of errors encountered while receiving
+// COUNTER(pod_network_receive_packets_dropped_total): Cumulative count of packets dropped while receiving
+// COUNTER(pod_network_receive_packets_total): Cumulative count of packets received
+// COUNTER(pod_network_transmit_bytes_total): Cumulative count of bytes transmitted
+// COUNTER(pod_network_transmit_errors_total): Cumulative count of errors encountered while transmitting
+// COUNTER(pod_network_transmit_packets_dropped_total): Cumulative count of packets dropped while transmitting
+// COUNTER(pod_network_transmit_packets_total): Cumulative count of packets transmitted
 // GAUGE(container_tasks_state): Number of tasks in given state
 
 func getContainerMetrics() []containerMetric {

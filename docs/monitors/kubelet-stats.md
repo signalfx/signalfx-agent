@@ -68,14 +68,6 @@ cause only a subset of metrics to be emitted.
 | `container_memory_failures_total` | counter | Cumulative count of memory allocation failures |
 | `container_memory_usage_bytes` | gauge | Current memory usage in bytes |
 | `container_memory_working_set_bytes` | gauge | Current working set in bytes |
-| `container_network_receive_bytes_total` | counter | Cumulative count of bytes received |
-| `container_network_receive_errors_total` | counter | Cumulative count of errors encountered while receiving |
-| `container_network_receive_packets_dropped_total` | counter | Cumulative count of packets dropped while receiving |
-| `container_network_receive_packets_total` | counter | Cumulative count of packets received |
-| `container_network_transmit_bytes_total` | counter | Cumulative count of bytes transmitted |
-| `container_network_transmit_errors_total` | counter | Cumulative count of errors encountered while transmitting |
-| `container_network_transmit_packets_dropped_total` | counter | Cumulative count of packets dropped while transmitting |
-| `container_network_transmit_packets_total` | counter | Cumulative count of packets transmitted |
 | `container_spec_cpu_period` | gauge | The number of microseconds that the [CFS scheduler](https://www.kernel.org/doc/Documentation/scheduler/sched-bwc.txt) uses as a window when limiting container processes |
 | `container_spec_cpu_quota` | gauge | In CPU quota for the CFS process scheduler. In K8s this is equal to the containers's CPU limit as a fraction of 1 core and multiplied by the `container_spec_cpu_period`.  So if the CPU limit is `500m` (500 millicores) for a container and the `container_spec_cpu_period` is set to 100,000, this value will be 50,000. |
 | `container_spec_cpu_shares` | gauge | CPU share of the container |
@@ -86,6 +78,14 @@ cause only a subset of metrics to be emitted.
 | `machine_cpu_cores` | gauge | Number of CPU cores on the node. |
 | `machine_cpu_frequency_khz` | gauge | Node's CPU frequency. |
 | `machine_memory_bytes` | gauge | Amount of memory installed on the node. |
+| `pod_network_receive_bytes_total` | counter | Cumulative count of bytes received |
+| `pod_network_receive_errors_total` | counter | Cumulative count of errors encountered while receiving |
+| `pod_network_receive_packets_dropped_total` | counter | Cumulative count of packets dropped while receiving |
+| `pod_network_receive_packets_total` | counter | Cumulative count of packets received |
+| `pod_network_transmit_bytes_total` | counter | Cumulative count of bytes transmitted |
+| `pod_network_transmit_errors_total` | counter | Cumulative count of errors encountered while transmitting |
+| `pod_network_transmit_packets_dropped_total` | counter | Cumulative count of packets dropped while transmitting |
+| `pod_network_transmit_packets_total` | counter | Cumulative count of packets transmitted |
 
 ## Dimensions
 

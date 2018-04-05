@@ -69,12 +69,12 @@ cause only a subset of metrics to be emitted.
 | `kubernetes.deployment.available` | gauge | Total number of available pods (ready for at least minReadySeconds) targeted by this deployment. |
 | `kubernetes.deployment.desired` | gauge | Number of desired pods in this deployment |
 | `kubernetes.namespace_phase` | gauge | The current phase of namespaces (`1` for _active_ and `0` for _terminating_) |
+| `kubernetes.node_ready` | gauge | Whether this node is ready (1), not ready (0) or in an unknown state (-1) |
 | `kubernetes.pod_phase` | gauge | Current phase of the pod (1 - Pending, 2 - Running, 3 - Succeeded, 4 - Failed, 5 - Unknown) |
 | `kubernetes.replica_set.available` | gauge | Total number of available pods (ready for at least minReadySeconds) targeted by this replica set |
 | `kubernetes.replica_set.desired` | gauge | Number of desired pods in this replica set |
 | `kubernetes.replication_controller.available` | gauge | Total number of available pods (ready for at least minReadySeconds) targeted by this replication controller. |
 | `kubernetes.replication_controller.desired` | gauge | Number of desired pods |
-| `kubernetes_node_ready` | gauge | Whether this node is ready (1), not ready (0) or in an unknown state (-1) |
 
 ## Dimensions
 
