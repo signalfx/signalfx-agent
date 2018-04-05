@@ -43,31 +43,31 @@ K8S_SUPPORTED_VERSIONS = get_k8s_supported_versions()
 
 def pytest_addoption(parser):
     parser.addoption(
-        "--k8s_versions",
+        "--k8s-versions",
         action="store",
         default=K8S_SUPPORTED_VERSIONS[0],
-        help="Comma-separated K8S versions for minikube to deploy (default=%s). Use '--k8s_versions=all' to test all supported versions." % K8S_SUPPORTED_VERSIONS[0]
+        help="Comma-separated K8S versions for minikube to deploy (default=%s). Use '--k8s-versions=all' to test all supported versions." % K8S_SUPPORTED_VERSIONS[0]
     )
     parser.addoption(
-        "--k8s_timeout",
+        "--k8s-timeout",
         action="store",
         default=K8S_DEFAULT_TIMEOUT,
         help="Timeout (in seconds) to wait for the minikube cluster to be ready (default=%d)." % K8S_DEFAULT_TIMEOUT
     )
     parser.addoption(
-        "--k8s_agent_name",
+        "--k8s-agent-name",
         action="store",
         default=K8S_DEFAULT_AGENT_IMAGE_NAME,
         help="SignalFx agent image name to use for K8S tests (default=%s). The image must exist either locally or remotely." % K8S_DEFAULT_AGENT_IMAGE_NAME
     )
     parser.addoption(
-        "--k8s_agent_tag",
+        "--k8s-agent-tag",
         action="store",
         default=K8S_DEFAULT_AGENT_IMAGE_TAG,
         help="SignalFx agent image tag to use for K8S tests (default=%s). The image must exist either locally or remotely." % K8S_DEFAULT_AGENT_IMAGE_TAG
     )
     parser.addoption(
-        "--k8s_metrics_timeout",
+        "--k8s-metrics-timeout",
         action="store",
         default=K8S_DEFAULT_METRICS_TIMEOUT,
         help="Timeout (in seconds) for K8S metrics tests (default=%d)." % K8S_DEFAULT_METRICS_TIMEOUT
@@ -75,7 +75,7 @@ def pytest_addoption(parser):
 
 def pytest_generate_tests(metafunc):
     if 'k8s_version' in metafunc.fixturenames:
-        k8s_versions = metafunc.config.getoption("k8s_versions")
+        k8s_versions = metafunc.config.getoption("--k8s-versions")
         if k8s_versions:
             if k8s_versions.lower() == "all":
                 metafunc.parametrize("k8s_version", K8S_SUPPORTED_VERSIONS)

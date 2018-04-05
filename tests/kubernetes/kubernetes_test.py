@@ -45,14 +45,6 @@ EXPECTED_KUBELET_STATS_METRICS = [
     'container_memory_failures_total',
     'container_memory_usage_bytes',
     'container_memory_working_set_bytes',
-    'container_network_receive_bytes_total',
-    'container_network_receive_errors_total',
-    'container_network_receive_packets_dropped_total',
-    'container_network_receive_packets_total',
-    'container_network_transmit_bytes_total',
-    'container_network_transmit_errors_total',
-    'container_network_transmit_packets_dropped_total',
-    'container_network_transmit_packets_total',
     'container_spec_cpu_period',
     'container_spec_cpu_quota',
     'container_spec_cpu_shares',
@@ -62,7 +54,15 @@ EXPECTED_KUBELET_STATS_METRICS = [
     'container_tasks_state',
     'machine_cpu_cores',
     'machine_cpu_frequency_khz',
-    'machine_memory_bytes'
+    'machine_memory_bytes',
+    'pod_network_receive_bytes_total',
+    'pod_network_receive_errors_total',
+    'pod_network_receive_packets_dropped_total',
+    'pod_network_receive_packets_total',
+    'pod_network_transmit_bytes_total',
+    'pod_network_transmit_errors_total',
+    'pod_network_transmit_packets_dropped_total',
+    'pod_network_transmit_packets_total'
 ]
 
 EXPECTED_KUBERNETES_CLUSTER_METRICS = [
@@ -75,12 +75,12 @@ EXPECTED_KUBERNETES_CLUSTER_METRICS = [
     'kubernetes.deployment.available',
     'kubernetes.deployment.desired',
     'kubernetes.namespace_phase',
+    'kubernetes.node_ready',
     'kubernetes.pod_phase',
     'kubernetes.replica_set.available',
     'kubernetes.replica_set.desired',
-    'kubernetes.replication_controller.available',
-    'kubernetes.replication_controller.desired',
-    'kubernetes_node_ready'
+#    'kubernetes.replication_controller.available',
+#    'kubernetes.replication_controller.desired'
 ]
 
 def deploy_nginx(labels={"app": "nginx"}, namespace="default"):
@@ -151,8 +151,8 @@ def deploy_agent(configmap_path, daemonset_path, serviceaccount_path, cluster_na
 @pytest.fixture(scope="session")
 def local_registry(request):
     client = docker.from_env(version='auto')
-    final_agent_image_name = request.config.getoption("--k8s_agent_name")
-    final_agent_image_tag = request.config.getoption("--k8s_agent_tag")
+    final_agent_image_name = request.config.getoption("--k8s-agent-name")
+    final_agent_image_tag = request.config.getoption("--k8s-agent-tag")
     try:
         final_image = client.images.get(final_agent_image_name + ":" + final_agent_image_tag)
     except:
@@ -195,7 +195,7 @@ def local_registry(request):
 @contextmanager
 @pytest.fixture
 def minikube(k8s_version, request):
-    k8s_timeout = int(request.config.getoption("--k8s_timeout"))
+    k8s_timeout = int(request.config.getoption("--k8s-timeout"))
     container_name = "minikube-%s" % k8s_version
     container_options = {
         "name": container_name,
@@ -226,7 +226,7 @@ def minikube(k8s_version, request):
 @pytest.mark.k8s
 @pytest.mark.kubernetes
 def test_k8s_metrics(minikube, local_registry, request):
-    metrics_timeout = int(request.config.getoption("--k8s_metrics_timeout"))
+    metrics_timeout = int(request.config.getoption("--k8s-metrics-timeout"))
     with fake_backend.start(ip=get_host_ip()) as backend:
         with minikube as [mk, mk_docker_client]:
             kube_config.load_kube_config(config_file=get_kubeconfig(mk, kubeconfig_path="/kubeconfig"))
