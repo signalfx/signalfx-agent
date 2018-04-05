@@ -90,6 +90,10 @@ def deploy_nginx(labels={"app": "nginx"}, namespace="default"):
     assert wait_for(all_pods_have_ips, timeout_seconds=300), "timed out waiting for pod IPs!"
 
 def deploy_agent(configmap_path, daemonset_path, serviceaccount_path, cluster_name="minikube", backend=None, image_name=None, image_tag=None, namespace="default"):
+    serviceaccount_yaml = yaml.load(open(serviceaccount_path).read())
+    create_serviceaccount(
+        body=serviceaccount_yaml,
+        namespace=namespace)
     configmap_yaml = yaml.load(open(configmap_path).read())
     agent_yaml = yaml.load(configmap_yaml['data']['agent.yaml'])
     agent_yaml['globalDimensions']['kubernetes_cluster'] = cluster_name
@@ -110,10 +114,6 @@ def deploy_agent(configmap_path, daemonset_path, serviceaccount_path, cluster_na
         daemonset_yaml['spec']['template']['spec']['containers'][0]['image'] = image_name + ":" + image_tag
     create_daemonset(
         body=daemonset_yaml,
-        namespace=namespace)
-    serviceaccount_yaml = yaml.load(open(serviceaccount_path).read())
-    create_serviceaccount(
-        body=serviceaccount_yaml,
         namespace=namespace)
     assert wait_for(p(has_pod, "signalfx-agent"), timeout_seconds=60), "timed out waiting for the signalfx-agent pod to start!"
     assert wait_for(all_pods_have_ips, timeout_seconds=300), "timed out waiting for pod IPs!"
