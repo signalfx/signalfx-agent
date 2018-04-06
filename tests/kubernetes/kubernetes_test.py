@@ -177,6 +177,7 @@ def minikube(k8s_version, request):
             "environment": {
                 'K8S_VERSION': k8s_version,
                 'CIRCLECI': 'true',
+                'TIMEOUT': str(k8s_timeout)
             },
             "ports": {
                 '8443/tcp': None,
@@ -200,6 +201,7 @@ def minikube(k8s_version, request):
             "environment": {
                 'K8S_VERSION': k8s_version,
                 'CIRCLECI': 'false',
+                'TIMEOUT': str(k8s_timeout)
             },
             "ports": {
                 '8443/tcp': None,
