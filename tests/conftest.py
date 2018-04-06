@@ -46,7 +46,7 @@ def pytest_addoption(parser):
         "--k8s-versions",
         action="store",
         default=K8S_SUPPORTED_VERSIONS[0],
-        help="Comma-separated K8S versions for minikube to deploy (default=%s). Use '--k8s-versions=all' to test all supported versions." % K8S_SUPPORTED_VERSIONS[0]
+        help="Comma-separated K8S cluster versions for minikube to deploy (default=%s). Use '--k8s-versions=all' to test all supported versions. This option is ignored if the --k8s-container option is specified." % K8S_SUPPORTED_VERSIONS[0]
     )
     parser.addoption(
         "--k8s-timeout",
