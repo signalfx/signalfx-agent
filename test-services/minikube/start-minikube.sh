@@ -21,7 +21,7 @@ if [ -f /kubeconfig ]; then
     rm -f /kubeconfig
 fi
 
-if [ "$CIRCLECI" = "false" ]; then
+if [[ -z "$CIRCLECI" || "$CIRCLECI" = "false" ]]; then
     mount --make-shared /
     dockerd \
       --host=unix:///var/run/docker.sock \
