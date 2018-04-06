@@ -129,9 +129,11 @@ jobs:
       - *import_image
       - run: |
           mkdir ~/testresults
-
-          docker run --rm -v /var/run/docker.sock:/var/run/docker.sock -v ~/testresults:/output signalfx-agent-dev pytest -n8 --junitxml=/output/integration_tests.xml -m "not packaging and not installer and not k8s" tests
-
+          for ((i=0; i<3; i++)); do
+              docker run --rm -v /var/run/docker.sock:/var/run/docker.sock -v ~/testresults:/output signalfx-agent-dev pytest -n8 --junitxml=/output/integration_tests.xml -m "not packaging and not installer and not k8s" tests && exit 0
+              rm -rf ~/testresults/*
+          done
+          exit 1
       - store_test_results:
           path: ~/testresults
 
