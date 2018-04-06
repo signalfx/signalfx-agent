@@ -21,7 +21,6 @@ if [ -f /kubeconfig ]; then
     rm -f /kubeconfig
 fi
 
-
 if [ "$CIRCLECI" = "false" ]; then
     mount --make-shared /
     dockerd \
@@ -52,6 +51,9 @@ for i in {1..150}; do
     fi
     sleep 2
 done
+
+docker ps -a
+minikube logs
 set -e
 
 kubectl create secret generic signalfx-agent --from-literal=access-token=testing123

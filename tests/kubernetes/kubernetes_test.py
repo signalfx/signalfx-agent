@@ -170,9 +170,10 @@ def local_registry(request):
 def minikube(k8s_version, request):
     k8s_timeout = int(request.config.getoption("--k8s-timeout"))
     container_name = "minikube-%s" % k8s_version
-    if os.environ.get("CIRCLECI"):
+    if os.environ.get("CIRCLECI") and os.environ.get("CIRCLECI") == "true":
         container_options = {
             "name": container_name,
+            "privileged": True,
             "environment": {
                 'K8S_VERSION': k8s_version,
                 'CIRCLECI': 'true',
