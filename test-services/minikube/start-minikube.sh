@@ -44,16 +44,13 @@ for i in {1..150}; do
     if [ $i -eq 150 ]; then
         exit 1
     fi
-    kubectl get pods
+    kubectl get pods --all-namespaces
     if [ $? -eq 0 ]; then
         sleep 5
         break
     fi
     sleep 2
 done
-
-docker ps -a
-minikube logs
 set -e
 
 kubectl create secret generic signalfx-agent --from-literal=access-token=testing123
