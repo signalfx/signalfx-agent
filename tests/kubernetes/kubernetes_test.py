@@ -134,7 +134,7 @@ def local_registry(request):
         except:
             final_image = None
     assert final_image, "agent image '%s:%s' not found!" % (final_agent_image_name, final_agent_image_tag)
-    if not os.environ.get("CIRCLECI"):
+    if not env_is_circleci():
         try:
             client.containers.get("registry")
             print("\nRegistry container localhost:5000 already running")
@@ -161,7 +161,7 @@ def local_registry(request):
                     time.sleep(2)
     print("\nTagging %s:%s as %s:%s ..." % (final_agent_image_name, final_agent_image_tag, AGENT_IMAGE_NAME, AGENT_IMAGE_TAG))
     final_image.tag(AGENT_IMAGE_NAME, tag=AGENT_IMAGE_TAG)
-    if not os.environ.get("CIRCLECI"):
+    if not env_is_circleci():
         print("\nPushing %s:%s ..." % (AGENT_IMAGE_NAME, AGENT_IMAGE_TAG))
         client.images.push(AGENT_IMAGE_NAME, tag=AGENT_IMAGE_TAG)
 
@@ -170,7 +170,7 @@ def local_registry(request):
 def minikube(k8s_version, request):
     k8s_timeout = int(request.config.getoption("--k8s-timeout"))
     container_name = "minikube-%s" % k8s_version
-    if os.environ.get("CIRCLECI") and os.environ.get("CIRCLECI") == "true":
+    if env_is_circleci():
         container_options = {
             "name": container_name,
             "privileged": True,
@@ -216,7 +216,7 @@ def minikube(k8s_version, request):
     with run_service('minikube', **container_options) as mk:
         #k8s_api_host_port = mk.attrs['NetworkSettings']['Ports']['8443/tcp'][0]['HostPort']
         assert wait_for(p(container_cmd_exit_0, mk, "test -f /kubeconfig"), k8s_timeout), "timed out waiting for minikube to be ready!"
-        if os.environ.get("CIRCLECI") and os.environ.get("CIRCLECI") == "true":
+        if env_is_circleci():
             client = docker.from_env(version='auto')
         else:
             client = docker.DockerClient(base_url="tcp://%s:2375" % mk.attrs["NetworkSettings"]["IPAddress"], version='auto')
