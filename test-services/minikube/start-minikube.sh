@@ -39,19 +39,23 @@ minikube status
 if [ -z "$TIMEOUT" ]; then
     TIMEOUT=300
 fi
+(( TIMEOUT = $TIMEOUT / 2 ))
 
 set +e
 # wait for the cluster to be ready
 for ((i=0; i<=${TIMEOUT}; i++)); do
-    if [ $i -eq $TIMEOUT ]; then
+    if [ $i -ge $TIMEOUT ]; then
         kubectl get pods --all-namespaces
         exit 1
     fi
-    if [ `kubectl get pods --all-namespaces 2>/dev/null | grep 'kube-system' | grep 'Running' | wc -l` -eq 4 ]; then
+    npods=`kubectl get pods --all-namespaces 2>/dev/null | grep 'kube-system' | wc -l`
+    nrunning=`kubectl get pods --all-namespaces 2>/dev/null | grep 'kube-system' | grep 'Running' | wc -l`
+    if [[ $npods -gt 1 && $npods -eq $nrunning ]]; then
+        sleep 5
         kubectl get pods --all-namespaces
         break
     fi
-    sleep 1
+    sleep 2
 done
 set -e
 
