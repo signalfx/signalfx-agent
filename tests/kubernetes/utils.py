@@ -15,13 +15,16 @@ def get_host_ip():
     return ni.ifaddresses('eth0')[ni.AF_INET][0]['addr']
 
 def pull_agent_image(container, client, image_name="", image_tag=""):
-    container.exec_run("cp -f /etc/hosts /etc/hosts.orig")
-    container.exec_run("cp -f /etc/hosts /etc/hosts.new")
-    container.exec_run("sed -i 's|127.0.0.1|%s|' /etc/hosts.new" % get_host_ip())
-    container.exec_run("cp -f /etc/hosts.new /etc/hosts")
-    time.sleep(5)
-    client.images.pull(image_name, tag=image_tag)
-    container.exec_run("cp -f /etc/hosts.orig /etc/hosts")
+    if os.environ.get("CIRCLECI") and os.environ.get("CIRCLECI") == "true":
+        client.images.pull(image_name, tag=image_tag)
+    else:
+        container.exec_run("cp -f /etc/hosts /etc/hosts.orig")
+        container.exec_run("cp -f /etc/hosts /etc/hosts.new")
+        container.exec_run("sed -i 's|127.0.0.1|%s|' /etc/hosts.new" % get_host_ip())
+        container.exec_run("cp -f /etc/hosts.new /etc/hosts")
+        time.sleep(5)
+        client.images.pull(image_name, tag=image_tag)
+        container.exec_run("cp -f /etc/hosts.orig /etc/hosts")
     _, output = container.exec_run('docker images')
     print_lines(output.decode('utf-8'))
 
