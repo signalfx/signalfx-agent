@@ -134,97 +134,76 @@ def local_registry(request):
         except:
             final_image = None
     assert final_image, "agent image '%s:%s' not found!" % (final_agent_image_name, final_agent_image_tag)
-    if not env_is_circleci():
+    try:
+        client.containers.get("registry")
+        print("\nRegistry container localhost:5000 already running")
+    except:
         try:
-            client.containers.get("registry")
-            print("\nRegistry container localhost:5000 already running")
+            client.containers.run(
+                image='registry',
+                name='registry',
+                remove=True,
+                detach=True,
+                ports={'5000/tcp': 5000})
+            print("\nStarted registry container localhost:5000")
         except:
+            pass
+        print("\nWaiting for registry container localhost:5000 to be ready ...")
+        start_time = time.time()
+        while True:
+            assert (time.time() - start_time) < 30, "timed out waiting for registry container to be ready!"
             try:
-                client.containers.run(
-                    image='registry',
-                    name='registry',
-                    remove=True,
-                    detach=True,
-                    ports={'5000/tcp': 5000})
-                print("\nStarted registry container localhost:5000")
+                client.containers.get("registry")
+                time.sleep(2)
+                break
             except:
-                pass
-            print("\nWaiting for registry container localhost:5000 to be ready ...")
-            start_time = time.time()
-            while True:
-                assert (time.time() - start_time) < 30, "timed out waiting for registry container to be ready!"
-                try:
-                    client.containers.get("registry")
-                    time.sleep(2)
-                    break
-                except:
-                    time.sleep(2)
+                time.sleep(2)
     print("\nTagging %s:%s as %s:%s ..." % (final_agent_image_name, final_agent_image_tag, AGENT_IMAGE_NAME, AGENT_IMAGE_TAG))
     final_image.tag(AGENT_IMAGE_NAME, tag=AGENT_IMAGE_TAG)
-    if not env_is_circleci():
-        print("\nPushing %s:%s ..." % (AGENT_IMAGE_NAME, AGENT_IMAGE_TAG))
-        client.images.push(AGENT_IMAGE_NAME, tag=AGENT_IMAGE_TAG)
+    print("\nPushing %s:%s ..." % (AGENT_IMAGE_NAME, AGENT_IMAGE_TAG))
+    client.images.push(AGENT_IMAGE_NAME, tag=AGENT_IMAGE_TAG)
 
 @contextmanager
 @pytest.fixture
 def minikube(k8s_version, request):
     k8s_timeout = int(request.config.getoption("--k8s-timeout"))
-    container_name = "minikube-%s" % k8s_version
-    if env_is_circleci():
-        container_options = {
-            "name": container_name,
-            "privileged": True,
-            "environment": {
-                'K8S_VERSION': k8s_version,
-                'CIRCLECI': 'true',
-                'TIMEOUT': str(k8s_timeout)
-            },
-            "ports": {
-                '8443/tcp': None,
-                '2375/tcp': None,
-            },
-            "volumes": {
-                "/var/run/docker.sock": {
-                    "bind": "/var/run/docker.sock",
-                    "mode": "ro"
-                },
-                "/tmp/scratch": {
-                    "bind": "/tmp/scratch",
-                    "mode": "rw"
-                },
-            }
-        }
-    else:
-        container_options = {
-            "name": container_name,
-            "privileged": True,
-            "environment": {
-                'K8S_VERSION': k8s_version,
-                'CIRCLECI': 'false',
-                'TIMEOUT': str(k8s_timeout)
-            },
-            "ports": {
-                '8443/tcp': None,
-                '2375/tcp': None,
-            },
-            "volumes": {
-                "/tmp/scratch": {
-                    "bind": "/tmp/scratch",
-                    "mode": "rw"
-                },
-            }
-        }
-    print("\nDeploying minikube ...")
-    with run_service('minikube', **container_options) as mk:
-        #k8s_api_host_port = mk.attrs['NetworkSettings']['Ports']['8443/tcp'][0]['HostPort']
+    container_name = request.config.getoption("--k8s-container")
+    if container_name:
+        print("\nConnecting to %s container ..." % container_name)
+        mk = docker.from_env(version='auto').containers.get(container_name)
         assert wait_for(p(container_cmd_exit_0, mk, "test -f /kubeconfig"), k8s_timeout), "timed out waiting for minikube to be ready!"
-        if env_is_circleci():
-            client = docker.from_env(version='auto')
-        else:
+        client = docker.DockerClient(base_url="tcp://%s:2375" % mk.attrs["NetworkSettings"]["IPAddress"], version='auto')
+        print("\nPulling %s:%s to the minikube container ..." % (AGENT_IMAGE_NAME, AGENT_IMAGE_TAG))
+        pull_agent_image(mk, client, image_name=AGENT_IMAGE_NAME, image_tag=AGENT_IMAGE_TAG)
+        yield [mk, client]
+    else:
+        container_name = "minikube-%s" % k8s_version
+        container_options = {
+            "name": container_name,
+            "privileged": True,
+            "environment": {
+                'K8S_VERSION': k8s_version,
+                'TIMEOUT': str(k8s_timeout)
+            },
+            "ports": {
+                '8443/tcp': None,
+                '2375/tcp': None,
+            },
+            "volumes": {
+                "/tmp/scratch": {
+                    "bind": "/tmp/scratch",
+                    "mode": "rw"
+                },
+            }
+        }
+        print("\nDeploying minikube ...")
+        with run_service('minikube', **container_options) as mk:
+            #k8s_api_host_port = mk.attrs['NetworkSettings']['Ports']['8443/tcp'][0]['HostPort']
+            assert wait_for(p(container_cmd_exit_0, mk, "test -f /kubeconfig"), k8s_timeout), "timed out waiting for minikube to be ready!"
             client = docker.DockerClient(base_url="tcp://%s:2375" % mk.attrs["NetworkSettings"]["IPAddress"], version='auto')
             print("\nPulling %s:%s to the minikube container ..." % (AGENT_IMAGE_NAME, AGENT_IMAGE_TAG))
             pull_agent_image(mk, client, image_name=AGENT_IMAGE_NAME, image_tag=AGENT_IMAGE_TAG)
-        yield [mk, client]
+            yield [mk, client]
 
 @pytest.mark.k8s
 @pytest.mark.kubernetes

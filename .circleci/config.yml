@@ -115,8 +115,8 @@ jobs:
             set -x
             mkdir ~/testresults
             docker build -t minikube:latest test-services/minikube
-            docker run --rm --privileged --name minikube -v /var/run/docker.sock:/var/run/docker.sock -e "CIRCLECI=true" minikube /usr/local/bin/start-minikube.sh
-            #docker run -t -e "CIRCLECI=true" --rm -v $(pwd):/go/src/github.com/signalfx/signalfx-agent:cached -v /var/run/docker.sock:/var/run/docker.sock -v /tmp/scratch:/tmp/scratch -v ~/testresults:/output quay.io/signalfx/signalfx-agent-dev:stage-dev-extras bash -ec "pip3 install -r tests/requirements.txt && pytest --verbose --junitxml=/output/integration_tests.xml --html=/output/k8s_integration_tests.html --self-contained-html -m k8s --k8s-timeout=300 --k8s-agent-name=quay.io/signalfx/signalfx-agent --k8s-agent-tag=3.1.2 --k8s-metrics-timeout=600 -s tests"
+            docker run -d --rm --privileged -p 8443 -p 2375 -v /tmp/scratch:/tmp/scratch --name minikube minikube
+            docker run --rm -v $(pwd):/go/src/github.com/signalfx/signalfx-agent:cached -v /var/run/docker.sock:/var/run/docker.sock -v /tmp/scratch:/tmp/scratch -v ~/testresults:/output quay.io/signalfx/signalfx-agent-dev:stage-dev-extras bash -ec "pip3 install -r tests/requirements.txt && pytest --verbose --junitxml=/output/integration_tests.xml --html=/output/k8s_integration_tests.html --self-contained-html -m k8s --k8s-timeout=300 --k8s-agent-name=quay.io/signalfx/signalfx-agent --k8s-agent-tag=3.1.2 --k8s-metrics-timeout=600 --k8s-container=minikube -s tests"
       - store_test_results:
           path: ~/testresults
       - store_artifacts:

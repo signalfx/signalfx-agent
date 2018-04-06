@@ -72,6 +72,12 @@ def pytest_addoption(parser):
         default=K8S_DEFAULT_METRICS_TIMEOUT,
         help="Timeout (in seconds) for K8S metrics tests (default=%d)." % K8S_DEFAULT_METRICS_TIMEOUT
     )
+    parser.addoption(
+        "--k8s-container",
+        action="store",
+        default=None,
+        help="Name of a running minikube container to use as the K8S cluster for the tests. If not specified, a new minikube K8S cluster will automatically be deployed."
+    )
 
 def pytest_generate_tests(metafunc):
     if 'k8s_version' in metafunc.fixturenames:

@@ -8,11 +8,6 @@ import os
 import netifaces as ni
 import time
 
-def env_is_circleci():
-    if os.environ.get("CIRCLECI") and os.environ.get("CIRCLECI") == "true":
-        return True
-    return False
-
 def get_host_ip():
     #proc = subprocess.run("ip r | awk '/default/{print $7}'", shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     #ip = proc.stdout.decode('utf-8').strip()
