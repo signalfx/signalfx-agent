@@ -16,15 +16,18 @@ references:
     run: |
       docker load -i /tmp/workspace/final_image.tar
 
+  import_minikube_image: &import_minikube_image
+    run: |
+      docker load -i /tmp/workspace/minikube_image.tar
+
   run_k8s_integration_tests: &run_k8s_integration_tests
     run:
       no_output_timeout: 30m
       command: |
         set -x
         mkdir ~/testresults
-        docker build -t minikube:latest test-services/minikube
         docker images
-        docker run -e K8S_VERSION=$(eval "echo -n $K8S_VERSION") -d --rm --privileged -p 8443 -p 2375 -v /tmp/scratch:/tmp/scratch --name minikube minikube
+        docker run -e K8S_VERSION=$(eval "echo -n $K8S_VERSION") -d --rm --privileged -p 8443 -p 2375 -v /tmp/scratch:/tmp/scratch --name minikube minikube:latest
         docker run --rm --net host -v /var/run/docker.sock:/var/run/docker.sock -v /tmp/scratch:/tmp/scratch -v ~/testresults:/output signalfx-agent-dev pytest --verbose --junitxml=/output/integration_tests.xml --html=/output/k8s_integration_tests.html --self-contained-html -m "k8s" --k8s-versions=$(eval "echo -n $K8S_VERSION") --k8s-timeout=600 --k8s-agent-name=quay.io/signalfx/signalfx-agent-dev --k8s-agent-tag=k8s-test --k8s-metrics-timeout=600 --k8s-container=minikube tests
 
 jobs:
@@ -38,19 +41,44 @@ jobs:
          source scripts/common.sh
          do_docker_build signalfx-agent-dev latest dev-extras
      - run: |
+         mkdir -p /tmp/workspace
+         docker save -o /tmp/workspace/image.tar signalfx-agent-dev:latest
+     - persist_to_workspace:
+         root: /tmp/workspace
+         paths:
+           - image.tar
+
+  build_final_image:
+    <<: *executor
+    steps:
+     - checkout
+     - run: |
          set -x
          export PULL_CACHE=yes
          export AGENT_VERSION=k8s-test
          ./scripts/build
      - run: |
          mkdir -p /tmp/workspace
-         docker save -o /tmp/workspace/image.tar signalfx-agent-dev:latest
          docker save -o /tmp/workspace/final_image.tar quay.io/signalfx/signalfx-agent-dev:k8s-test
      - persist_to_workspace:
          root: /tmp/workspace
          paths:
-           - image.tar
            - final_image.tar
+
+  build_minikube_image:
+    <<: *executor
+    steps:
+      - checkout
+      - run: |
+          set -x
+          docker build -t minikube:latest test-services/minikube
+      - run: |
+          mkdir -p /tmp/workspace
+          docker save -o /tmp/workspace/minikube_image.tar minikube:latest
+      - persist_to_workspace:
+          root: /tmp/workspace
+          paths:
+            - minikube_image.tar
 
   lint: 
     <<: *executor
@@ -107,32 +135,15 @@ jobs:
       - store_test_results:
           path: ~/testresults
 
-  k8s_integration_tests:
-    <<: *executor
-    steps:
-      - checkout
-      - run:
-          no_output_timeout: 30m
-          command: |
-            set -x
-            mkdir ~/testresults
-            docker build -t minikube:latest test-services/minikube
-            docker run -d --rm --privileged -p 8443 -p 2375 -v /tmp/scratch:/tmp/scratch --name minikube minikube
-            docker run --net host --rm -v $(pwd):/go/src/github.com/signalfx/signalfx-agent:cached -v /var/run/docker.sock:/var/run/docker.sock -v /tmp/scratch:/tmp/scratch -v ~/testresults:/output quay.io/signalfx/signalfx-agent-dev:stage-dev-extras bash -ec "pip3 install -r tests/requirements.txt && pytest --verbose --junitxml=/output/integration_tests.xml --html=/output/k8s_integration_tests.html --self-contained-html -m k8s --k8s-timeout=300 --k8s-agent-name=quay.io/signalfx/signalfx-agent --k8s-agent-tag=3.1.2 --k8s-metrics-timeout=600 --k8s-container=minikube -s tests"
-      - store_test_results:
-          path: ~/testresults
-      - store_artifacts:
-          path: ~/testresults/k8s_integration_tests.html
-
   k8s_v1.9.4_integration_tests:
     <<: *executor
     environment:
       K8S_VERSION: "v1.9.4"
     steps:
-      - checkout
       - *attach_workspace
       - *import_image
       - *import_final_image
+      - *import_minikube_image
       - *run_k8s_integration_tests
       - store_test_results:
           path: ~/testresults
@@ -144,10 +155,10 @@ jobs:
     environment:
       K8S_VERSION: "v1.9.0"
     steps:
-      - checkout
       - *attach_workspace
       - *import_image
       - *import_final_image
+      - *import_minikube_image
       - *run_k8s_integration_tests
       - store_test_results:
           path: ~/testresults
@@ -159,10 +170,10 @@ jobs:
     environment:
       K8S_VERSION: "v1.8.0"
     steps:
-      - checkout
       - *attach_workspace
       - *import_image
       - *import_final_image
+      - *import_minikube_image
       - *run_k8s_integration_tests
       - store_test_results:
           path: ~/testresults
@@ -174,10 +185,10 @@ jobs:
     environment:
       K8S_VERSION: "v1.7.5"
     steps:
-      - checkout
       - *attach_workspace
       - *import_image
       - *import_final_image
+      - *import_minikube_image
       - *run_k8s_integration_tests
       - store_test_results:
           path: ~/testresults
@@ -189,10 +200,10 @@ jobs:
     environment:
       K8S_VERSION: "v1.7.4"
     steps:
-      - checkout
       - *attach_workspace
       - *import_image
       - *import_final_image
+      - *import_minikube_image
       - *run_k8s_integration_tests
       - store_test_results:
           path: ~/testresults
@@ -204,10 +215,10 @@ jobs:
     environment:
       K8S_VERSION: "v1.7.3"
     steps:
-      - checkout
       - *attach_workspace
       - *import_image
       - *import_final_image
+      - *import_minikube_image
       - *run_k8s_integration_tests
       - store_test_results:
           path: ~/testresults
@@ -219,10 +230,10 @@ jobs:
     environment:
       K8S_VERSION: "v1.7.2"
     steps:
-      - checkout
       - *attach_workspace
       - *import_image
       - *import_final_image
+      - *import_minikube_image
       - *run_k8s_integration_tests
       - store_test_results:
           path: ~/testresults
@@ -234,10 +245,10 @@ jobs:
     environment:
       K8S_VERSION: "v1.7.0"
     steps:
-      - checkout
       - *attach_workspace
       - *import_image
       - *import_final_image
+      - *import_minikube_image
       - *run_k8s_integration_tests
       - store_test_results:
           path: ~/testresults
@@ -403,6 +414,8 @@ workflows:
   build_test:
     jobs:
      - build
+     - build_final_image
+     - build_minikube_image
      - lint:
         requires:
          - build
@@ -418,27 +431,43 @@ workflows:
      - k8s_v1.9.4_integration_tests:
         requires:
          - build
+         - build_final_image
+         - build_minikube_image
      - k8s_v1.9.0_integration_tests:
         requires:
          - build
+         - build_final_image
+         - build_minikube_image
      - k8s_v1.8.0_integration_tests:
         requires:
          - build
+         - build_final_image
+         - build_minikube_image
      - k8s_v1.7.5_integration_tests:
         requires:
          - build
+         - build_final_image
+         - build_minikube_image
      - k8s_v1.7.4_integration_tests:
         requires:
          - build
+         - build_final_image
+         - build_minikube_image
      - k8s_v1.7.3_integration_tests:
         requires:
          - build
+         - build_final_image
+         - build_minikube_image
      - k8s_v1.7.2_integration_tests:
         requires:
          - build
+         - build_final_image
+         - build_minikube_image
      - k8s_v1.7.0_integration_tests:
         requires:
          - build
+         - build_final_image
+         - build_minikube_image
      - docs_test:
         requires:
          - build
@@ -448,4 +477,3 @@ workflows:
      - puppet_tests
      - salt_tests
      - ansible_tests
-     - k8s_integration_tests
