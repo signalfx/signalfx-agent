@@ -24,12 +24,12 @@ AGENT_IMAGE_TAG = "k8s-test"
 # get metrics to test from docs
 DOCS_DIR = os.environ.get("DOCS_DIR", "/go/src/github.com/signalfx/signalfx-agent/docs")
 KUBELET_STATS_MD = open(os.path.join(DOCS_DIR, "monitors/kubelet-stats.md")).read()
-EXPECTED_KUBELET_STATS_METRICS = re.findall('\| `(.*?)` \| (?:counter|gauge) \|', KUBELET_STATS_MD)
+EXPECTED_KUBELET_STATS_METRICS = re.findall('\| `(.*?)` \| (?:counter|gauge|cumulative) \|', KUBELET_STATS_MD, re.IGNORECASE)
 if len(EXPECTED_KUBELET_STATS_METRICS) == 0:
     print("Failed to get metrics from %s!" % os.path.join(DOCS_DIR, "monitors/kubelet-stats.md"))
     sys.exit(1)
 KUBERNETES_CLUSTER_MD = open(os.path.join(DOCS_DIR, "monitors/kubernetes-cluster.md")).read()
-EXPECTED_KUBERNETES_CLUSTER_METRICS = re.findall('\| `(.*?)` \| (?:counter|gauge) \|', KUBERNETES_CLUSTER_MD)
+EXPECTED_KUBERNETES_CLUSTER_METRICS = re.findall('\| `(.*?)` \| (?:counter|gauge|cumulative) \|', KUBERNETES_CLUSTER_MD, re.IGNORECASE)
 if len(EXPECTED_KUBERNETES_CLUSTER_METRICS) == 0:
     print("Failed to get metrics from %s!" % os.path.join(DOCS_DIR, "monitors/kubernetes-cluster.md"))
     sys.exit(1)
