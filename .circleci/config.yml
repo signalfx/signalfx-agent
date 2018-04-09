@@ -24,10 +24,15 @@ references:
     run:
       command: |
         set -x
-        mkdir ~/testresults
-        docker images
         for ((i=0; i<3; i++)); do
-            docker run -e K8S_VERSION=$(eval "echo -n $K8S_VERSION") -d --rm --privileged -p 8443 -p 2375 -v /tmp/scratch:/tmp/scratch --name minikube minikube:latest && exit 0
+            docker run -d --rm \
+                -e K8S_VERSION=$(eval "echo -n $K8S_VERSION") \
+                -p 8443 \
+                -p 2375 \
+                -v /tmp/scratch:/tmp/scratch \
+                --privileged \
+                --name minikube \
+                minikube:latest && exit 0
             sleep 10
         done
         exit 1
@@ -38,7 +43,26 @@ references:
       command: |
         set -x
         for ((i=0; i<3; i++)); do
-            docker run --name signalfx-agent-dev --rm --net host -v /var/run/docker.sock:/var/run/docker.sock -v /tmp/scratch:/tmp/scratch -v ~/testresults:/output signalfx-agent-dev pytest --verbose --junitxml=/output/integration_tests.xml --html=/output/k8s_integration_tests.html --self-contained-html -m "k8s" --k8s-versions=$(eval "echo -n $K8S_VERSION") --k8s-timeout=600 --k8s-agent-name=quay.io/signalfx/signalfx-agent-dev --k8s-agent-tag=k8s-test --k8s-metrics-timeout=600 --k8s-container=minikube tests && exit 0
+            mkdir ~/testresults
+            docker run --rm --net host \
+                -v /var/run/docker.sock:/var/run/docker.sock \
+                -v /tmp/scratch:/tmp/scratch \
+                -v ~/testresults:/output \
+                signalfx-agent-dev \
+                    pytest \
+                        -m "k8s" \
+                        --verbose \
+                        --junitxml=/output/integration_tests.xml \
+                        --html=/output/k8s_integration_tests.html \
+                        --self-contained-html \
+                        --k8s-versions=$(eval "echo -n $K8S_VERSION") \
+                        --k8s-timeout=600 \
+                        --k8s-agent-name=quay.io/signalfx/signalfx-agent-dev \
+                        --k8s-agent-tag=k8s-test \
+                        --k8s-metrics-timeout=600 \
+                        --k8s-container=minikube \
+                        tests && exit 0
+            rm -rf ~/testresults
             sleep 10
         done
         exit 1
@@ -113,11 +137,16 @@ jobs:
       - *attach_workspace
       - *import_image
       - run: |
-          mkdir ~/testresults
-          docker run --rm \
-            -v ~/testresults:/output \
-            signalfx-agent-dev \
-            bash -eo pipefail -c "make templates && go test -v ./... | go2xunit > /output/unit.xml"
+          for ((i=0; i<3; i++)); do
+              mkdir ~/testresults
+              docker run --rm \
+                -v ~/testresults:/output \
+                signalfx-agent-dev \
+                bash -eo pipefail -c "make templates && go test -v ./... | go2xunit > /output/unit.xml" && exit 0
+              rm -rf ~/testresults
+              sleep 10
+          done
+          exit 1
 
       - store_test_results:
           path: ~/testresults
@@ -141,10 +170,11 @@ jobs:
       - *attach_workspace
       - *import_image
       - run: |
-          mkdir ~/testresults
           for ((i=0; i<3; i++)); do
+              mkdir ~/testresults
               docker run --rm -v /var/run/docker.sock:/var/run/docker.sock -v ~/testresults:/output signalfx-agent-dev pytest -n8 --junitxml=/output/integration_tests.xml -m "not packaging and not installer and not k8s" tests && exit 0
-              rm -rf ~/testresults/*
+              rm -rf ~/testresults
+              sleep 10
           done
           exit 1
       - store_test_results:
