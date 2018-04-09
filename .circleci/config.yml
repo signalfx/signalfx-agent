@@ -25,6 +25,7 @@ references:
       no_output_timeout: 30m
       command: |
         set -x
+        set +e
         for ((i=0; i<3; i++)); do
             mkdir ~/testresults
             docker run -d --rm \
@@ -56,7 +57,7 @@ references:
                             --k8s-container=minikube \
                             tests && exit 0
             fi
-            docker rm -f minikube signalfx-agent-dev || true
+            docker rm -f minikube signalfx-agent-dev
             rm -rf ~/testresults
             sleep 10
         done
@@ -132,6 +133,7 @@ jobs:
       - *attach_workspace
       - *import_image
       - run: |
+          set +e
           for ((i=0; i<3; i++)); do
               mkdir ~/testresults
               docker run --rm \
@@ -165,6 +167,7 @@ jobs:
       - *attach_workspace
       - *import_image
       - run: |
+          set +e
           for ((i=0; i<3; i++)); do
               mkdir ~/testresults
               docker run --rm -v /var/run/docker.sock:/var/run/docker.sock -v ~/testresults:/output signalfx-agent-dev pytest -n8 --junitxml=/output/integration_tests.xml -m "not packaging and not installer and not k8s" tests && exit 0
