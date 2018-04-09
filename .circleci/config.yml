@@ -20,7 +20,7 @@ references:
     run: |
       docker load -i /tmp/workspace/minikube_image.tar
 
-  run_k8s_integration_tests: &run_k8s_integration_tests
+  start_minikube: & start_minikube
     run:
       command: |
         set -x
@@ -31,6 +31,8 @@ references:
             sleep 10
         done
         exit 1
+    
+  run_k8s_integration_tests: &run_k8s_integration_tests
     run:
       no_output_timeout: 30m
       command: |
@@ -157,6 +159,7 @@ jobs:
       - *import_image
       - *import_final_image
       - *import_minikube_image
+      - *start_minikube
       - *run_k8s_integration_tests
       - store_test_results:
           path: ~/testresults
@@ -172,6 +175,7 @@ jobs:
       - *import_image
       - *import_final_image
       - *import_minikube_image
+      - *start_minikube
       - *run_k8s_integration_tests
       - store_test_results:
           path: ~/testresults
@@ -187,6 +191,7 @@ jobs:
       - *import_image
       - *import_final_image
       - *import_minikube_image
+      - *start_minikube
       - *run_k8s_integration_tests
       - store_test_results:
           path: ~/testresults
@@ -202,6 +207,7 @@ jobs:
       - *import_image
       - *import_final_image
       - *import_minikube_image
+      - *start_minikube
       - *run_k8s_integration_tests
       - store_test_results:
           path: ~/testresults
@@ -217,6 +223,7 @@ jobs:
       - *import_image
       - *import_final_image
       - *import_minikube_image
+      - *start_minikube
       - *run_k8s_integration_tests
       - store_test_results:
           path: ~/testresults
@@ -232,6 +239,7 @@ jobs:
       - *import_image
       - *import_final_image
       - *import_minikube_image
+      - *start_minikube
       - *run_k8s_integration_tests
       - store_test_results:
           path: ~/testresults
@@ -247,6 +255,7 @@ jobs:
       - *import_image
       - *import_final_image
       - *import_minikube_image
+      - *start_minikube
       - *run_k8s_integration_tests
       - store_test_results:
           path: ~/testresults
@@ -262,6 +271,7 @@ jobs:
       - *import_image
       - *import_final_image
       - *import_minikube_image
+      - *start_minikube
       - *run_k8s_integration_tests
       - store_test_results:
           path: ~/testresults
