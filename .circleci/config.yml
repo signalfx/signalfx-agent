@@ -20,7 +20,7 @@ references:
     run: |
       docker load -i /tmp/workspace/minikube_image.tar
 
-  start_minikube: & start_minikube
+  start_minikube: &start_minikube
     run:
       command: |
         set -x
