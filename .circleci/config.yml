@@ -138,7 +138,7 @@ jobs:
               docker run --rm \
                 -v ~/testresults:/output \
                 signalfx-agent-dev \
-                bash -eo pipefail -c "make templates && go test -v ./... | go2xunit > /output/unit.xml" && exit 0
+                timeout 120 bash -eo pipefail -c "make templates && go test -v ./... | go2xunit > /output/unit.xml" && exit 0
               rm -rf ~/testresults
               sleep 10
           done
