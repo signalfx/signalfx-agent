@@ -24,7 +24,6 @@ references:
     run:
       no_output_timeout: 30m
       command: |
-        set -x
         set +e
         for ((i=0; i<3; i++)); do
             mkdir ~/testresults
