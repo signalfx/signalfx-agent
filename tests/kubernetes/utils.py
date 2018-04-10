@@ -150,27 +150,36 @@ def delete_deployment(api_instance):
             grace_period_seconds=5))
     print("Deployment deleted. status='%s'" % str(api_response.status))
 
-def has_pod(pod_name):
+def get_all_pods():
     v1 = kube_client.CoreV1Api()
     pods = v1.list_pod_for_all_namespaces(watch=False)
-    for pod in pods.items:
+    return pods.items
+
+def get_all_pods_with_name(name):
+    pods = []
+    for pod in get_all_pods():
+        if name in pod.metadata.name:
+            pods.append(pod)
+    return pods
+
+def has_pod(pod_name):
+    for pod in get_all_pods():
         if pod_name in pod.metadata.name:
             return True
     return False
 
 def all_pods_have_ips():
-    v1 = kube_client.CoreV1Api()
-    pods = v1.list_pod_for_all_namespaces(watch=False)
-    if len(pods.items) == 0:
+    pods = get_all_pods()
+    if len(pods) == 0:
         return False
     ips = 0
-    for pod in pods.items:
+    for pod in pods:
         if not pod.status.pod_ip:
             return False
         else:
             ips += 1
-    if ips == len(pods.items):
-        for pod in pods.items:
+    if ips == len(pods):
+        for pod in pods:
             print("%s\t%s\t%s" % (pod.status.pod_ip, pod.metadata.namespace, pod.metadata.name))
         return True
     return False
@@ -216,9 +225,7 @@ def get_all_logs(agent_container, minikube_container):
         minikube_logs = ""
     try:
         pods_status = ""
-        v1 = kube_client.CoreV1Api()
-        pods = v1.list_pod_for_all_namespaces(watch=False)
-        for pod in pods.items:
+        for pod in get_all_pods():
             pods_status += "%s\t%s\t%s\n" % (pod.status.pod_ip, pod.metadata.namespace, pod.metadata.name)
         pods_status = pods_status.strip()
     except:
