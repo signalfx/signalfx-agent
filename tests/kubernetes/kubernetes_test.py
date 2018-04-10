@@ -22,30 +22,24 @@ AGENT_IMAGE_NAME = "localhost:5000/signalfx-agent"
 AGENT_IMAGE_TAG = "k8s-test"
 
 # get metrics to test from docs
-DOCS_DIR = os.environ.get("DOCS_DIR", "/go/src/github.com/signalfx/signalfx-agent/docs")
-KUBELET_STATS_MD = open(os.path.join(DOCS_DIR, "monitors/kubelet-stats.md")).read()
-EXPECTED_KUBELET_STATS_METRICS = re.findall('\| `(.*?)` \| (?:counter|gauge|cumulative) \|', KUBELET_STATS_MD, re.IGNORECASE)
-if len(EXPECTED_KUBELET_STATS_METRICS) == 0:
-    print("Failed to get metrics from %s!" % os.path.join(DOCS_DIR, "monitors/kubelet-stats.md"))
-    sys.exit(1)
-KUBERNETES_CLUSTER_MD = open(os.path.join(DOCS_DIR, "monitors/kubernetes-cluster.md")).read()
-EXPECTED_KUBERNETES_CLUSTER_METRICS = re.findall('\| `(.*?)` \| (?:counter|gauge|cumulative) \|', KUBERNETES_CLUSTER_MD, re.IGNORECASE)
-if len(EXPECTED_KUBERNETES_CLUSTER_METRICS) == 0:
-    print("Failed to get metrics from %s!" % os.path.join(DOCS_DIR, "monitors/kubernetes-cluster.md"))
-    sys.exit(1)
-
-EXPECTED_DATAPOINTS = [
-    {"key": "host", "value": "", "metric": "if_dropped.tx"},
-    {"key": "kubernetes_cluster", "value": "minikube", "metric": "memory.free"},
-    {"key": "kubernetes_pod_name", "value": "nginx-replication-controller-.*", "metric": "kubernetes.container_ready"},
-    {"key": "plugin", "value": "nginx", "metric": "connections.accepted"},
-    {"key": "plugin", "value": "nginx", "metric": "connections.handled"},
-    {"key": "plugin", "value": "nginx", "metric": "nginx_connections.active"},
-    {"key": "plugin", "value": "nginx", "metric": "nginx_connections.reading"},
-    {"key": "plugin", "value": "nginx", "metric": "nginx_connections.waiting"},
-    {"key": "plugin", "value": "nginx", "metric": "nginx_connections.writing"},
-    {"key": "plugin", "value": "nginx", "metric": "nginx_requests"},
+DOCS_DIR = os.environ.get("DOCS_DIR", "/go/src/github.com/signalfx/signalfx-agent/docs/monitors")
+DOCS = [ 
+    "collectd-nginx.md",
+    "kubelet-stats.md",
+    "kubernetes-cluster.md"
 ]
+DOCS = [os.path.join(DOCS_DIR, i) for i in DOCS]
+
+def get_metrics_from_docs(docs=[], ignored_metrics=[]):
+    all_metrics = []
+    for doc in docs:
+        with open(doc) as fd:
+            metrics = re.findall('\|\s+`(.*?)`\s+\|\s+(?:counter|gauge|cumulative)\s+\|', fd.read(), re.IGNORECASE)
+            assert len(metrics) > 0, "Failed to get metrics from %s!" % doc
+            all_metrics += metrics
+    if len(ignored_metrics) > 0:
+        all_metrics = [i for i in all_metrics if i not in ignored_metrics]
+    return sorted(list(set(all_metrics)))
 
 def deploy_nginx(labels={"app": "nginx"}, namespace="default"):
     configmap_data = {"default.conf": '''
@@ -106,6 +100,10 @@ def deploy_agent(configmap_path, daemonset_path, serviceaccount_path, cluster_na
     for monitor in agent_yaml['monitors']:
         if monitor['type'] == 'kubelet-stats':
             monitor['kubeletAPI']['skipVerify'] = True
+        if monitor['type'] == 'collectd/etcd':
+            monitor['clusterName'] = cluster_name
+        if 'metricsToExclude' in monitor.keys():
+            del monitor['metricsToExclude']
     configmap_yaml['data']['agent.yaml'] = yaml.dump(agent_yaml)
     create_configmap(
         body=configmap_yaml,
@@ -128,8 +126,8 @@ def local_registry(request):
         final_image = client.images.get(final_agent_image_name + ":" + final_agent_image_tag)
     except:
         try:
-            print("\nAgent image '%s:%s' not found in local registry.\nAttempting to pull from remote registry ..." % \
-                (final_agent_image_name, final_agent_image_tag))
+            print("\nAgent image '%s:%s' not found in local registry." % (final_agent_image_name, final_agent_image_tag))
+            print("\nAttempting to pull from remote registry ...")
             final_image = client.images.pull(final_agent_image_name, tag=final_agent_image_tag)
         except:
             final_image = None
@@ -170,12 +168,12 @@ def minikube(k8s_version, request):
     container_name = request.config.getoption("--k8s-container")
     if container_name:
         print("\nConnecting to %s container ..." % container_name)
-        mk = docker.from_env(version='auto').containers.get(container_name)
-        assert wait_for(p(container_cmd_exit_0, mk, "test -f /kubeconfig"), k8s_timeout), "timed out waiting for minikube to be ready!"
-        client = docker.DockerClient(base_url="tcp://%s:2375" % mk.attrs["NetworkSettings"]["IPAddress"], version='auto')
+        container = docker.from_env(version='auto').containers.get(container_name)
+        assert wait_for(p(container_cmd_exit_0, container, "test -f /kubeconfig"), k8s_timeout), "timed out waiting for minikube to be ready!"
+        client = docker.DockerClient(base_url="tcp://%s:2375" % container.attrs["NetworkSettings"]["IPAddress"], version='auto')
         print("\nPulling %s:%s to the minikube container ..." % (AGENT_IMAGE_NAME, AGENT_IMAGE_TAG))
-        pull_agent_image(mk, client, image_name=AGENT_IMAGE_NAME, image_tag=AGENT_IMAGE_TAG)
-        yield [mk, client]
+        pull_agent_image(container, client, image_name=AGENT_IMAGE_NAME, image_tag=AGENT_IMAGE_TAG)
+        yield [container, client]
     else:
         container_name = "minikube-%s" % k8s_version
         container_options = {
@@ -197,21 +195,24 @@ def minikube(k8s_version, request):
             }
         }
         print("\nDeploying minikube ...")
-        with run_service('minikube', **container_options) as mk:
-            #k8s_api_host_port = mk.attrs['NetworkSettings']['Ports']['8443/tcp'][0]['HostPort']
-            assert wait_for(p(container_cmd_exit_0, mk, "test -f /kubeconfig"), k8s_timeout), "timed out waiting for minikube to be ready!"
-            client = docker.DockerClient(base_url="tcp://%s:2375" % mk.attrs["NetworkSettings"]["IPAddress"], version='auto')
+        with run_service('minikube', **container_options) as container:
+            #k8s_api_host_port = container.attrs['NetworkSettings']['Ports']['8443/tcp'][0]['HostPort']
+            assert wait_for(p(container_cmd_exit_0, container, "test -f /kubeconfig"), k8s_timeout), "timed out waiting for minikube to be ready!"
+            client = docker.DockerClient(base_url="tcp://%s:2375" % container.attrs["NetworkSettings"]["IPAddress"], version='auto')
             print("\nPulling %s:%s to the minikube container ..." % (AGENT_IMAGE_NAME, AGENT_IMAGE_TAG))
-            pull_agent_image(mk, client, image_name=AGENT_IMAGE_NAME, image_tag=AGENT_IMAGE_TAG)
-            yield [mk, client]
+            pull_agent_image(container, client, image_name=AGENT_IMAGE_NAME, image_tag=AGENT_IMAGE_TAG)
+            yield [container, client]
 
 @pytest.mark.k8s
 @pytest.mark.kubernetes
 def test_k8s_metrics(minikube, local_registry, request):
+    metrics_not_found = get_metrics_from_docs(docs=DOCS)
+    print("Collected %d metrics from docs." % len(metrics_not_found))
     metrics_timeout = int(request.config.getoption("--k8s-metrics-timeout"))
     with fake_backend.start(ip=get_host_ip()) as backend:
-        with minikube as [mk, mk_docker_client]:
-            kube_config.load_kube_config(config_file=get_kubeconfig(mk, kubeconfig_path="/kubeconfig"))
+        with minikube as [mk_container, mk_docker_client]:
+            # load kubeconfig from the minikube container
+            kube_config.load_kube_config(config_file=get_kubeconfig(mk_container, kubeconfig_path="/kubeconfig"))
             print("\nDeploying nginx to the minikube cluster ...")
             deploy_nginx()
             print("\nDeploying signalfx-agent to the minikube cluster ...")
@@ -234,28 +235,42 @@ def test_k8s_metrics(minikube, local_registry, request):
                 agent_status = agent_container.status.lower()
             except:
                 agent_status = "exited"
-            assert agent_status == 'running', "agent container is not running!\n\n%s\n\n" % (get_all_logs(agent_container, mk))
+            assert agent_status == 'running', "agent container is not running!\n\n%s\n\n" % (get_all_logs(agent_container, mk_container))
             # test for metrics
-            metrics_not_found = EXPECTED_KUBELET_STATS_METRICS + EXPECTED_KUBERNETES_CLUSTER_METRICS
             start_time = time.time()
             while True:
                 if len(metrics_not_found) == 0:
                     break
                 elif (time.time() - start_time) > metrics_timeout:
-                    assert len(metrics_not_found) == 0, "timed out waiting for metric(s) %s!\n\n%s\n\n" % (metrics_not_found, get_all_logs(agent_container, mk))
+                    assert len(metrics_not_found) == 0, "timed out waiting for metric(s) %s!\n\n%s\n\n" % (metrics_not_found, get_all_logs(agent_container, mk_container))
                     break
                 else:
                     for metric in metrics_not_found:
+                        #if has_datapoint_with_metric_name(backend, metric.replace('gauge.', '', 1)):
                         if has_datapoint_with_metric_name(backend, metric):
                             metrics_not_found.remove(metric)
                             print("Found metric %s" % metric)
                     time.sleep(5)
-            # test for datapoints
-            for dp in EXPECTED_DATAPOINTS:
-                if dp["key"] == "host":
-                    dp["value"] = mk.attrs['Config']['Hostname']
-                assert wait_for(p(has_datapoint_with_dim_and_metric_name, backend, dp["key"], dp["value"], dp["metric"]), timeout_seconds=120), \
-                    "timed out waiting for datapoint %s:%s:%s\n\n%s\n\n" % (dp["key"], dp["value"], dp["metric"], get_all_logs(agent_container, mk))
-                print("Found datapoint %s:%s:%s" % (dp["key"], dp["value"], dp["metric"]))
-            print_lines("\n\n%s\n\n" % (get_all_logs(agent_container, mk)))
+            # test for dimensions
+            nginx_pod = get_all_pods_with_name("nginx-replication-controller")[0]
+            nginx_container = mk_docker_client.containers.list(filters={"ancestor": "nginx:latest"})[0]
+            expected_dims = [
+                {"key": "host", "value": mk_container.attrs['Config']['Hostname']},
+                {"key": "container_id", "value": nginx_container.id},
+                {"key": "container_name", "value": nginx_container.name},
+                {"key": "container_spec_name", "value": nginx_pod.spec.containers[0].name},
+                {"key": "kubernetes_namespace", "value": "default"},
+                {"key": "kubernetes_cluster", "value": "minikube"},
+                {"key": "kubernetes_pod_name", "value": nginx_pod.metadata.name},
+                {"key": "kubernetes_pod_uid", "value": nginx_pod.metadata.uid},
+                {"key": "machine_id", "value": None},
+                {"key": "metric_source", "value": "kubernetes"}
+            ]
+            for dim in expected_dims:
+                if dim["value"]:
+                    assert wait_for(p(has_datapoint_with_dim, backend, dim["key"], dim["value"]), timeout_seconds=120), \
+                        "timed out waiting for datapoint with dimension %s:%s\n\n%s\n\n" % \
+                            (dim["key"], dim["value"], get_all_logs(agent_container, mk_container))
+                    print("Found datapoint with dimension %s:%s" % (dim["key"], dim["value"]))
+            #print_lines("\n\n%s\n\n" % (get_all_logs(agent_container, mk_container)))
 
