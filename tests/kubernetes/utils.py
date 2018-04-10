@@ -6,6 +6,7 @@ from tests.helpers.util import *
 
 import os
 import netifaces as ni
+import re
 import time
 
 def get_host_ip():
@@ -158,7 +159,7 @@ def get_all_pods():
 def get_all_pods_with_name(name):
     pods = []
     for pod in get_all_pods():
-        if name in pod.metadata.name:
+        if re.search(name, pod.metadata.name):
             pods.append(pod)
     return pods
 

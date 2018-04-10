@@ -252,7 +252,7 @@ def test_k8s_metrics(minikube, local_registry, request):
                             print("Found metric %s" % metric)
                     time.sleep(5)
             # test for dimensions
-            nginx_pod = get_all_pods_with_name("nginx-replication-controller")[0]
+            nginx_pod = get_all_pods_with_name("^nginx-replication-controller-.*")[0]
             nginx_container = mk_docker_client.containers.list(filters={"ancestor": "nginx:latest"})[0]
             expected_dims = [
                 {"key": "host", "value": mk_container.attrs['Config']['Hostname']},
