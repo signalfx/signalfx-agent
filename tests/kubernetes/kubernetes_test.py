@@ -246,13 +246,12 @@ def test_k8s_metrics(minikube, local_registry, request):
                     break
                 else:
                     for metric in metrics_not_found:
-                        #if has_datapoint_with_metric_name(backend, metric.replace('gauge.', '', 1)):
                         if has_datapoint_with_metric_name(backend, metric):
                             metrics_not_found.remove(metric)
                             print("Found metric %s" % metric)
                     time.sleep(5)
             # test for dimensions
-            nginx_pod = get_all_pods_with_name("^nginx-replication-controller-.*")[0]
+            nginx_pod = get_all_pods_with_name('nginx-replication-controller-.*')[0]
             nginx_container = mk_docker_client.containers.list(filters={"ancestor": "nginx:latest"})[0]
             expected_dims = [
                 {"key": "host", "value": mk_container.attrs['Config']['Hostname']},
@@ -268,7 +267,7 @@ def test_k8s_metrics(minikube, local_registry, request):
             ]
             for dim in expected_dims:
                 if dim["value"]:
-                    assert wait_for(p(has_datapoint_with_dim, backend, dim["key"], dim["value"]), timeout_seconds=120), \
+                    assert wait_for(p(has_datapoint_with_dim, backend, dim["key"], dim["value"]), timeout_seconds=60), \
                         "timed out waiting for datapoint with dimension %s:%s\n\n%s\n\n" % \
                             (dim["key"], dim["value"], get_all_logs(agent_container, mk_container))
                     print("Found datapoint with dimension %s:%s" % (dim["key"], dim["value"]))
