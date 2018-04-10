@@ -1,4 +1,4 @@
-#!/bin/bash -xe
+#!/bin/bash -e
 # Portions Copyright 2016 The Kubernetes Authors All rights reserved.
 # Portions Copyright 2018 AspenMesh
 #
