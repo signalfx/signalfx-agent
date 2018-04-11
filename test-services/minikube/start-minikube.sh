@@ -29,35 +29,31 @@ dockerd \
   &> /var/log/docker.log 2>&1 < /dev/null &
 
 if [ -n "$K8S_VERSION" ]; then
-    minikube start --kubernetes-version $K8S_VERSION --vm-driver=none
+    minikube start --kubernetes-version $K8S_VERSION --vm-driver=none --bootstrapper=localkube
 else
-    minikube start --vm-driver=none
+    minikube start --vm-driver=none --bootstrapper=localkube
 fi
 sleep 2
 minikube status
 
+set +e
+# wait for the cluster to be ready
 if [ -z "$TIMEOUT" ]; then
     TIMEOUT=300
 fi
 (( TIMEOUT = $TIMEOUT / 2 ))
-
-set +e
-# wait for the cluster to be ready
 for ((i=0; i<=${TIMEOUT}; i++)); do
-    if [ $i -ge $TIMEOUT ]; then
-        kubectl get pods --all-namespaces
-        exit 1
-    fi
     npods=`kubectl get pods --all-namespaces 2>/dev/null | grep 'kube-system' | wc -l`
     nrunning=`kubectl get pods --all-namespaces 2>/dev/null | grep 'kube-system' | grep 'Running' | wc -l`
     if [[ $npods -gt 1 && $npods -eq $nrunning ]]; then
         sleep 5
-        kubectl get pods --all-namespaces
         break
     fi
     sleep 2
 done
 set -e
+
+kubectl get pods --all-namespaces || exit 1
 
 kubectl create secret generic signalfx-agent --from-literal=access-token=testing123
 
