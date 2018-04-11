@@ -16,8 +16,12 @@ monitor.
 
 1. Store your organization's Access Token as a key named `access-token` in a
    Kubernetes secret named `signalfx-agent`.
-2. Download the following files from SignalFx's Github repository to the
-   machine you usually run `kubectl` from, and modify them as indicated.
+2. If you use [Helm](https://github.com/kubernetes/helm), you can use [our
+   chart](https://github.com/kubernetes/charts/tree/master/stable/signalfx-agent)
+   in the stable Helm chart repository.  Otherwise, download the following
+   files from SignalFx's Github repository to the machine you usually run
+   `kubectl` from, and modify them as indicated.
+
    -  [daemonset.yaml](https://github.com/signalfx/signalfx-agent/blob/master/deployments/k8s/daemonset.yaml):
        Kubernetes daemon set configuration
    -  [configmap.yaml](https://github.com/signalfx/signalfx-agent/blob/master/deployments/k8s/configmap.yaml):
