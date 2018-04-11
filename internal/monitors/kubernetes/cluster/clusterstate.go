@@ -1,6 +1,10 @@
 package cluster
 
 import (
+	"context"
+
+	"github.com/signalfx/signalfx-agent/internal/monitors/kubernetes/cluster/metrics"
+	"github.com/signalfx/signalfx-agent/internal/utils/k8sutil"
 	log "github.com/sirupsen/logrus"
 
 	"k8s.io/api/core/v1"
@@ -16,19 +20,18 @@ import (
 // which is fairly poorly documented but seems to work pretty well and is well
 // suited to our use case.
 type State struct {
-	clientset   *k8s.Clientset
-	indexers    map[string]cache.Indexer
-	controllers map[string]cache.Controller
-	stoppers    map[string]chan struct{}
+	clientset  *k8s.Clientset
+	reflectors map[string]*cache.Reflector
+	cancel     func()
 
-	ChangeFunc func(runtime.Object, runtime.Object)
+	metricCache *metrics.DatapointCache
 }
 
-func newState(clientset *k8s.Clientset) *State {
+func newState(clientset *k8s.Clientset, metricCache *metrics.DatapointCache) *State {
 	return &State{
 		clientset:   clientset,
-		controllers: make(map[string]cache.Controller),
-		stoppers:    make(map[string]chan struct{}),
+		reflectors:  make(map[string]*cache.Reflector),
+		metricCache: metricCache,
 	}
 }
 
@@ -36,40 +39,80 @@ func newState(clientset *k8s.Clientset) *State {
 func (cs *State) Start() {
 	log.Info("Starting K8s API resource sync")
 
+	var ctx context.Context
+	ctx, cs.cancel = context.WithCancel(context.Background())
+
 	coreClient := cs.clientset.CoreV1().RESTClient()
 	extV1beta1Client := cs.clientset.ExtensionsV1beta1().RESTClient()
 
-	cs.beginSyncForType(&v1.Pod{}, "pods", coreClient)
-	cs.beginSyncForType(&v1beta1.DaemonSet{}, "daemonsets", extV1beta1Client)
-	cs.beginSyncForType(&v1beta1.Deployment{}, "deployments", extV1beta1Client)
-	cs.beginSyncForType(&v1.ReplicationController{}, "replicationcontrollers", coreClient)
-	cs.beginSyncForType(&v1beta1.ReplicaSet{}, "replicasets", extV1beta1Client)
-	cs.beginSyncForType(&v1.Node{}, "nodes", coreClient)
-	cs.beginSyncForType(&v1.Namespace{}, "namespaces", coreClient)
+	cs.beginSyncForType(ctx, &v1.Pod{}, "pods", coreClient)
+	cs.beginSyncForType(ctx, &v1beta1.DaemonSet{}, "daemonsets", extV1beta1Client)
+	cs.beginSyncForType(ctx, &v1beta1.Deployment{}, "deployments", extV1beta1Client)
+	cs.beginSyncForType(ctx, &v1.ReplicationController{}, "replicationcontrollers", coreClient)
+	cs.beginSyncForType(ctx, &v1beta1.ReplicaSet{}, "replicasets", extV1beta1Client)
+	cs.beginSyncForType(ctx, &v1.Node{}, "nodes", coreClient)
+	cs.beginSyncForType(ctx, &v1.Namespace{}, "namespaces", coreClient)
 }
 
-func (cs *State) beginSyncForType(resType runtime.Object, resName string, client rest.Interface) {
-	cs.stoppers[resName] = make(chan struct{})
+func (cs *State) beginSyncForType(ctx context.Context, resType runtime.Object, resName string, client rest.Interface) {
+	keysSeen := make(map[interface{}]bool)
+
+	store := k8sutil.FixedFakeCustomStore{
+		FakeCustomStore: cache.FakeCustomStore{},
+	}
+	store.AddFunc = func(obj interface{}) error {
+		cs.metricCache.Lock()
+		defer cs.metricCache.Unlock()
+
+		if key := cs.metricCache.HandleAdd(obj.(runtime.Object)); key != nil {
+			keysSeen[key] = true
+		}
+
+		return nil
+	}
+	store.UpdateFunc = func(obj interface{}) error {
+		cs.metricCache.Lock()
+		defer cs.metricCache.Unlock()
+
+		if key := cs.metricCache.HandleDelete(obj.(runtime.Object)); key != nil {
+			delete(keysSeen, key)
+		}
+
+		if key := cs.metricCache.HandleAdd(obj.(runtime.Object)); key != nil {
+			keysSeen[key] = true
+		}
+		return nil
+	}
+	store.DeleteFunc = func(obj interface{}) error {
+		cs.metricCache.Lock()
+		defer cs.metricCache.Unlock()
+
+		if key := cs.metricCache.HandleDelete(obj.(runtime.Object)); key != nil {
+			delete(keysSeen, key)
+		}
+
+		return nil
+	}
+	store.ReplaceFunc = func(list []interface{}, resourceVerion string) error {
+		cs.metricCache.Lock()
+		defer cs.metricCache.Unlock()
+
+		for k := range keysSeen {
+			cs.metricCache.DeleteByKey(k)
+			delete(keysSeen, k)
+		}
+		for i := range list {
+			if key := cs.metricCache.HandleAdd(list[i].(runtime.Object)); key != nil {
+				keysSeen[key] = true
+			}
+		}
+		return nil
+	}
 
 	watchList := cache.NewListWatchFromClient(client, resName, v1.NamespaceAll, fields.Everything())
+	cs.reflectors[resName] = cache.NewReflector(watchList, resType, &store, 0)
 
-	_, cs.controllers[resName] = cache.NewInformer(
-		watchList,
-		resType,
-		0,
-		cache.ResourceEventHandlerFuncs{
-			AddFunc: func(obj interface{}) {
-				cs.ChangeFunc(nil, obj.(runtime.Object))
-			},
-			UpdateFunc: func(oldObj, newObj interface{}) {
-				cs.ChangeFunc(oldObj.(runtime.Object), newObj.(runtime.Object))
-			},
-			DeleteFunc: func(obj interface{}) {
-				cs.ChangeFunc(obj.(runtime.Object), nil)
-			},
-		})
-
-	go cs.controllers[resName].Run(cs.stoppers[resName])
+	go cs.reflectors[resName].Run(ctx.Done())
 }
 
 // Stop all running goroutines. There is a bug/limitation in the k8s go
@@ -78,9 +121,7 @@ func (cs *State) beginSyncForType(resType runtime.Object, resName string, client
 // See https://github.com/kubernetes/client-go/blob/release-6.0/tools/cache/controller.go#L144
 func (cs *State) Stop() {
 	log.Info("Stopping all K8s API resource sync")
-	for k := range cs.stoppers {
-		close(cs.stoppers[k])
-		delete(cs.stoppers, k)
-		delete(cs.controllers, k)
+	if cs.cancel != nil {
+		cs.cancel()
 	}
 }

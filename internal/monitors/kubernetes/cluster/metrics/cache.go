@@ -55,37 +55,49 @@ func keyForObject(obj runtime.Object) (*cachedResourceKey, error) {
 	}, nil
 }
 
-// HandleChange updates the datapoint cache when called with the old and new
-// resources.  Delete only includes the old, and adds only includes the new.
-func (dc *DatapointCache) HandleChange(oldObj, newObj runtime.Object) {
+// Lock allows users of the cache to lock it when doing complex operations
+func (dc *DatapointCache) Lock() {
 	dc.mutex.Lock()
-	defer dc.mutex.Unlock()
+}
 
-	var prevCached []*datapoint.Datapoint
-	if oldObj != nil {
-		key, err := keyForObject(oldObj)
-		if err != nil {
-			log.WithFields(log.Fields{
-				"error": err,
-				"obj":   spew.Sdump(oldObj),
-			}).Error("Could not get cache key")
-			return
-		}
+// Unlock allows users of the cache to unlock it after doing complex operations
+func (dc *DatapointCache) Unlock() {
+	dc.mutex.Unlock()
+}
 
-		prevCached = dc.dpCache[*key]
-		delete(dc.dpCache, *key)
+// DeleteByKey delete a cache entry by key.  The supplied interface MUST be the
+// same type returned by Handle[Add|Delete].  MUST HOLD LOCK!
+func (dc *DatapointCache) DeleteByKey(key interface{}) {
+	delete(dc.dpCache, *key.(*cachedResourceKey))
+	delete(dc.dimPropCache, *key.(*cachedResourceKey))
+}
+
+// HandleDelete accepts an object that has been deleted and removes the
+// associated datapoints/props from the cache.  MUST HOLD LOCK!!
+func (dc *DatapointCache) HandleDelete(oldObj runtime.Object) interface{} {
+	key, err := keyForObject(oldObj)
+	if err != nil {
+		log.WithFields(log.Fields{
+			"error": err,
+			"obj":   spew.Sdump(oldObj),
+		}).Error("Could not get cache key")
+		return nil
 	}
 
-	if newObj == nil {
-		return
-	}
+	delete(dc.dpCache, *key)
+	return key
+}
 
+// HandleAdd accepts a new (or updated) object and updates the datapoint/prop
+// cache as needed.  MUST HOLD LOCK!!
+func (dc *DatapointCache) HandleAdd(newObj runtime.Object) interface{} {
 	key, err := keyForObject(newObj)
 	if err != nil {
 		log.WithFields(log.Fields{
 			"error": err,
 			"obj":   spew.Sdump(newObj),
 		}).Error("Could not get cache key")
+		return nil
 	}
 
 	var dps []*datapoint.Datapoint
@@ -106,19 +118,13 @@ func (dc *DatapointCache) HandleChange(oldObj, newObj runtime.Object) {
 	case *v1beta1.ReplicaSet:
 		dps = datapointsForReplicaSet(o)
 	case *v1.Node:
-		if oldObj == nil || nodesDifferent(o, oldObj.(*v1.Node)) {
-			dps = datapointsForNode(o)
-			dimProps = dimPropsForNode(o)
-		} else if prevCached != nil {
-			// Reinsert it into the cache since we deleted it above since
-			// oldObj != nil but avoid recalculating dps to avoid excess CPU.
-			dc.dpCache[*key] = prevCached
-		}
+		dps = datapointsForNode(o)
+		dimProps = dimPropsForNode(o)
 	default:
 		log.WithFields(log.Fields{
 			"obj": spew.Sdump(newObj),
 		}).Error("Unknown object type in HandleChange")
-		return
+		return nil
 	}
 
 	if dps != nil {
@@ -127,14 +133,16 @@ func (dc *DatapointCache) HandleChange(oldObj, newObj runtime.Object) {
 	if dimProps != nil {
 		dc.dimPropCache[*key] = dimProps
 	}
+
+	return key
 }
 
 // AllDatapoints returns all of the cached datapoints.
 func (dc *DatapointCache) AllDatapoints() []*datapoint.Datapoint {
+	dps := make([]*datapoint.Datapoint, 0)
+
 	dc.mutex.Lock()
 	defer dc.mutex.Unlock()
-
-	dps := make([]*datapoint.Datapoint, 0)
 
 	for k := range dc.dpCache {
 		if dc.dpCache[k] != nil {
@@ -152,10 +160,10 @@ func (dc *DatapointCache) AllDatapoints() []*datapoint.Datapoint {
 
 // AllDimProperties returns any dimension properties pertaining to the cluster
 func (dc *DatapointCache) AllDimProperties() []*atypes.DimProperties {
+	dimProps := make([]*atypes.DimProperties, 0)
+
 	dc.mutex.Lock()
 	defer dc.mutex.Unlock()
-
-	dimProps := make([]*atypes.DimProperties, 0)
 
 	for k := range dc.dimPropCache {
 		if dc.dimPropCache[k] != nil {
