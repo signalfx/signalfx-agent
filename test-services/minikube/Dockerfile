@@ -17,6 +17,7 @@
 # https://github.com/kubernetes/minikube/tree/master/deploy/docker/localkube-dind
 
 FROM ubuntu:16.04
+ARG MINIKUBE_VERSION=latest
 
 # Install minikube dependencies
 ENV DEBIAN_FRONTEND=noninteractive
@@ -48,13 +49,15 @@ RUN apt-get update -y && \
 RUN curl -fsSL get.docker.com -o /tmp/get-docker.sh && \
     sh /tmp/get-docker.sh && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+#RUN cd /tmp && \
+#    curl -sSl -O https://download.docker.com/linux/static/stable/x86_64/docker-17.03.2-ce.tgz && \
+#    tar -xf docker-*.tgz && \
+#    cp -f docker/* /usr/local/bin/
 VOLUME /var/lib/docker
 EXPOSE 2375
 
-# Install latest minikube
-# RUN curl -sSl -o /usr/local/bin/minikube https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64 && chmod a+x /usr/local/bin/minikube
-# Install minikube v0.25.2
-RUN curl -sSl -o /usr/local/bin/minikube https://storage.googleapis.com/minikube/releases/v0.25.2/minikube-linux-amd64 && chmod a+x /usr/local/bin/minikube
+# Install minikube
+RUN curl -sSl -o /usr/local/bin/minikube https://storage.googleapis.com/minikube/releases/${MINIKUBE_VERSION}/minikube-linux-amd64 && chmod a+x /usr/local/bin/minikube
 ENV MINIKUBE_WANTUPDATENOTIFICATION=false
 ENV MINIKUBE_WANTREPORTERRORPROMPT=false
 ENV CHANGE_MINIKUBE_NONE_USER=true
