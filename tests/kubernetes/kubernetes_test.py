@@ -139,7 +139,7 @@ def local_registry(request):
     except:
         try:
             client.containers.run(
-                image='registry',
+                image='registry:latest',
                 name='registry',
                 remove=True,
                 detach=True,
