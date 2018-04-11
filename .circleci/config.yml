@@ -411,7 +411,7 @@ workflows:
      - integration_tests:
         requires:
          - build
-     - k8s_v1.9.4_integration_tests:
+     - k8s_v1.10.0_integration_tests:
         requires:
          - build
          - build_final_image
@@ -422,26 +422,6 @@ workflows:
          - build_final_image
          - build_minikube_image
      - k8s_v1.8.0_integration_tests:
-        requires:
-         - build
-         - build_final_image
-         - build_minikube_image
-     - k8s_v1.7.5_integration_tests:
-        requires:
-         - build
-         - build_final_image
-         - build_minikube_image
-     - k8s_v1.7.4_integration_tests:
-        requires:
-         - build
-         - build_final_image
-         - build_minikube_image
-     - k8s_v1.7.3_integration_tests:
-        requires:
-         - build
-         - build_final_image
-         - build_minikube_image
-     - k8s_v1.7.2_integration_tests:
         requires:
          - build
          - build_final_image
