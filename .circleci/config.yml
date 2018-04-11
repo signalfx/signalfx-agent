@@ -36,7 +36,7 @@ references:
                 --name minikube \
                 minikube:latest
             if [ $? -eq 0 ]; then
-                docker run --rm --net host \
+                docker run --rm -t --net host \
                     -v /var/run/docker.sock:/var/run/docker.sock \
                     -v /tmp/scratch:/tmp/scratch \
                     -v ~/testresults:/output \
