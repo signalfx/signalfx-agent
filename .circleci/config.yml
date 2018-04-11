@@ -54,6 +54,7 @@ references:
                             --k8s-agent-tag=k8s-test \
                             --k8s-metrics-timeout=600 \
                             --k8s-container=minikube \
+                            -s \
                             tests && exit 0
             fi
             docker rm -f minikube signalfx-agent-dev
@@ -103,7 +104,7 @@ jobs:
       - checkout
       - run: |
           set -x
-          docker build -t minikube:latest test-services/minikube
+          docker build --build-arg MINIKUBE_VERSION=v0.26.0 -t minikube:latest test-services/minikube
       - run: |
           mkdir -p /tmp/workspace
           docker save -o /tmp/workspace/minikube_image.tar minikube:latest
@@ -177,10 +178,10 @@ jobs:
       - store_test_results:
           path: ~/testresults
 
-  k8s_v1.9.4_integration_tests:
+  k8s_v1.10.0_integration_tests:
     <<: *executor
     environment:
-      K8S_VERSION: "v1.9.4"
+      K8S_VERSION: "v1.10.0"
     steps:
       - *attach_workspace
       - *import_image
@@ -211,66 +212,6 @@ jobs:
     <<: *executor
     environment:
       K8S_VERSION: "v1.8.0"
-    steps:
-      - *attach_workspace
-      - *import_image
-      - *import_final_image
-      - *import_minikube_image
-      - *run_k8s_integration_tests
-      - store_test_results:
-          path: ~/testresults
-      - store_artifacts:
-          path: ~/testresults/k8s_integration_tests.html
-
-  k8s_v1.7.5_integration_tests:
-    <<: *executor
-    environment:
-      K8S_VERSION: "v1.7.5"
-    steps:
-      - *attach_workspace
-      - *import_image
-      - *import_final_image
-      - *import_minikube_image
-      - *run_k8s_integration_tests
-      - store_test_results:
-          path: ~/testresults
-      - store_artifacts:
-          path: ~/testresults/k8s_integration_tests.html
-
-  k8s_v1.7.4_integration_tests:
-    <<: *executor
-    environment:
-      K8S_VERSION: "v1.7.4"
-    steps:
-      - *attach_workspace
-      - *import_image
-      - *import_final_image
-      - *import_minikube_image
-      - *run_k8s_integration_tests
-      - store_test_results:
-          path: ~/testresults
-      - store_artifacts:
-          path: ~/testresults/k8s_integration_tests.html
-
-  k8s_v1.7.3_integration_tests:
-    <<: *executor
-    environment:
-      K8S_VERSION: "v1.7.3"
-    steps:
-      - *attach_workspace
-      - *import_image
-      - *import_final_image
-      - *import_minikube_image
-      - *run_k8s_integration_tests
-      - store_test_results:
-          path: ~/testresults
-      - store_artifacts:
-          path: ~/testresults/k8s_integration_tests.html
-
-  k8s_v1.7.2_integration_tests:
-    <<: *executor
-    environment:
-      K8S_VERSION: "v1.7.2"
     steps:
       - *attach_workspace
       - *import_image
