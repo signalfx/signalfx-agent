@@ -20,6 +20,7 @@ AGENT_DAEMONSET_PATH = os.environ.get("AGENT_DAEMONSET_PATH", os.path.join(AGENT
 AGENT_SERVICEACCOUNT_PATH = os.environ.get("AGENT_SERVICEACCOUNT_PATH", os.path.join(AGENT_YAMLS_DIR, "serviceaccount.yaml"))
 AGENT_IMAGE_NAME = "localhost:5000/signalfx-agent"
 AGENT_IMAGE_TAG = "k8s-test"
+MINIKUBE_VERSION = os.environ.get("MINIKUBE_VERSION", "latest")
 
 # get metrics to test from docs
 DOCS_DIR = os.environ.get("DOCS_DIR", "/go/src/github.com/signalfx/signalfx-agent/docs/monitors")
@@ -175,6 +176,8 @@ def minikube(k8s_version, request):
         pull_agent_image(container, client, image_name=AGENT_IMAGE_NAME, image_tag=AGENT_IMAGE_TAG)
         yield [container, client]
     else:
+        if k8s_version[0] != 'v':
+            k8s_version = 'v' + k8s_version
         container_name = "minikube-%s" % k8s_version
         container_options = {
             "name": container_name,
@@ -195,7 +198,7 @@ def minikube(k8s_version, request):
             }
         }
         print("\nDeploying minikube ...")
-        with run_service('minikube', **container_options) as container:
+        with run_service('minikube', buildargs={"MINIKUBE_VERSION": MINIKUBE_VERSION}, **container_options) as container:
             #k8s_api_host_port = container.attrs['NetworkSettings']['Ports']['8443/tcp'][0]['HostPort']
             assert wait_for(p(container_cmd_exit_0, container, "test -f /kubeconfig"), k8s_timeout), "timed out waiting for minikube to be ready!"
             client = docker.DockerClient(base_url="tcp://%s:2375" % container.attrs["NetworkSettings"]["IPAddress"], version='auto')
@@ -207,7 +210,7 @@ def minikube(k8s_version, request):
 @pytest.mark.kubernetes
 def test_k8s_metrics(minikube, local_registry, request):
     metrics_not_found = get_metrics_from_docs(docs=DOCS)
-    print("Collected %d metrics from docs." % len(metrics_not_found))
+    print("\nCollected %d metrics to test from docs." % len(metrics_not_found))
     metrics_timeout = int(request.config.getoption("--k8s-metrics-timeout"))
     with fake_backend.start(ip=get_host_ip()) as backend:
         with minikube as [mk_container, mk_docker_client]:
