@@ -52,9 +52,8 @@ jobs:
       - run: |
           mkdir ~/testresults
           docker run --rm \
-            -v ~/testresults:/output \
             signalfx-agent-dev \
-            bash -eo pipefail -c "make templates && go test -v ./... | go2xunit > /output/unit.xml"
+            bash -eo pipefail -c "make templates >/dev/null && go test -v ./... | go2xunit" > ~/testresults/unit.xml
 
       - store_test_results:
           path: ~/testresults

@@ -25,7 +25,6 @@ import (
 	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
 
-	"k8s.io/apimachinery/pkg/runtime"
 	k8s "k8s.io/client-go/kubernetes"
 
 	"github.com/signalfx/signalfx-agent/internal/core/common/dpmeta"
@@ -129,10 +128,7 @@ func (m *Monitor) Start() error {
 
 	shouldReport := m.config.AlwaysClusterReporter
 
-	clusterState := newState(m.k8sClient)
-	clusterState.ChangeFunc = func(oldObj, newObj runtime.Object) {
-		m.datapointCache.HandleChange(oldObj, newObj)
-	}
+	clusterState := newState(m.k8sClient, m.datapointCache)
 
 	var leaderCh <-chan bool
 	var unregister func()
