@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"runtime"
 	"time"
 
 	// Import for side-effect of registering http handler
@@ -121,6 +122,14 @@ func (a *Agent) InternalMetrics() []*datapoint.Datapoint {
 
 func (a *Agent) ensureProfileServerRunning() {
 	if !a.profileServerRunning {
+		// We don't use that much memory so the default mem sampling rate is
+		// too small to be very useful. Setting to 1 profiles ALL allocations
+		runtime.MemProfileRate = 1
+		// Crank up CPU profile rate too since our CPU usage tends to be pretty
+		// bursty around read cycles.
+		runtime.SetCPUProfileRate(-1)
+		runtime.SetCPUProfileRate(2000)
+
 		go func() {
 			a.profileServerRunning = true
 			// This is very difficult to access from the host on mac without

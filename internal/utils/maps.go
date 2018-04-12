@@ -33,7 +33,7 @@ func RemoveEmptyMapValues(m map[string]string) map[string]string {
 
 // StringMapToInterfaceMap converts a map[string]string to a map[string]interface{}.
 func StringMapToInterfaceMap(m map[string]string) map[string]interface{} {
-	out := map[string]interface{}{}
+	out := make(map[string]interface{}, len(m))
 	for k, v := range m {
 		out[k] = v
 	}
@@ -59,7 +59,7 @@ func MergeInterfaceMaps(maps ...map[string]interface{}) map[string]interface{} {
 
 // CloneStringMap makes a shallow copy of a map[string]string
 func CloneStringMap(m map[string]string) map[string]string {
-	m2 := make(map[string]string)
+	m2 := make(map[string]string, len(m))
 	for k, v := range m {
 		m2[k] = v
 	}
@@ -70,7 +70,7 @@ func CloneStringMap(m map[string]string) map[string]string {
 // map[string]string.  Keys and values will be converted with fmt.Sprintf so
 // the original key/values don't have to be strings.
 func InterfaceMapToStringMap(m map[interface{}]interface{}) map[string]string {
-	out := make(map[string]string)
+	out := make(map[string]string, len(m))
 	for k, v := range m {
 		out[fmt.Sprintf("%v", k)] = fmt.Sprintf("%v", v)
 	}
@@ -80,7 +80,11 @@ func InterfaceMapToStringMap(m map[interface{}]interface{}) map[string]string {
 // SortMapKeys returns a slice of all of the keys of a map sorted
 // alphabetically ascending.
 func SortMapKeys(m map[string]interface{}) []string {
-	var keys []string
+	if len(m) == 0 {
+		return nil
+	}
+
+	keys := make([]string, 0, len(m))
 	for k := range m {
 		keys = append(keys, k)
 	}
@@ -91,7 +95,7 @@ func SortMapKeys(m map[string]interface{}) []string {
 // StringInterfaceMapToAllInterfaceMap converts a map[string]interface{} to a
 // map[interface{}]interface{}
 func StringInterfaceMapToAllInterfaceMap(in map[string]interface{}) map[interface{}]interface{} {
-	out := make(map[interface{}]interface{})
+	out := make(map[interface{}]interface{}, len(in))
 	for k, v := range in {
 		out[k] = v
 	}
