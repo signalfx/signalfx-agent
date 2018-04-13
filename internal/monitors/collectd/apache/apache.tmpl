@@ -3,7 +3,9 @@
 </LoadPlugin>
 <Plugin "apache">
   <Instance "{{.Name}}[monitorID={{.MonitorID}}]">
-    URL "http://{{.Host}}:{{.Port}}/mod_status?auto"
+    {{with .URL}}
+    URL "{{renderValue . $ }}"
+    {{end}}
     {{with .Username -}}
     User "{{.}}"
     {{end}}
