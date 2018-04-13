@@ -54,6 +54,10 @@ type Config struct {
 	// you like.
 	Name string `yaml:"name"`
 	// You can specify a username and password to do basic HTTP auth
+
+	// The URL, either a final url or a Go template that will be populated with
+	// the host and port values.
+	URL      string `yaml:"url" default:"http://{{.Host}}:{{.Port}}/mod_status?auto"`
 	Username string `yaml:"username"`
 	Password string `yaml:"password"`
 }

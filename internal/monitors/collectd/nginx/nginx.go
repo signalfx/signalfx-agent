@@ -38,10 +38,11 @@ func init() {
 type Config struct {
 	config.MonitorConfig `yaml:",inline" acceptsEndpoints:"true"`
 
-	Host     string `yaml:"host" validate:"required"`
-	Port     uint16 `yaml:"port" validate:"required"`
-	Name     string `yaml:"name"`
-	URL      string `yaml:"url" default:"http://{{.Host}}:{{.Port}}/nginx_status" help:"The full URL of the status endpoint; can be a template"`
+	Host string `yaml:"host" validate:"required"`
+	Port uint16 `yaml:"port" validate:"required"`
+	Name string `yaml:"name"`
+	// The full URL of the status endpoint; can be a template
+	URL      string `yaml:"url" default:"http://{{.Host}}:{{.Port}}/nginx_status"`
 	Username string `yaml:"username"`
 	Password string `yaml:"password" neverLog:"true"`
 	Timeout  int    `yaml:"timeout"`

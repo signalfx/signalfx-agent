@@ -26,7 +26,7 @@ Monitor Type: `collectd/nginx`
 | `host` | **yes** | `string` |  |
 | `port` | **yes** | `integer` |  |
 | `name` | no | `string` |  |
-| `url` | no | `string` |  (**default:** `http://{{.Host}}:{{.Port}}/nginx_status`) |
+| `url` | no | `string` | The full URL of the status endpoint; can be a template (**default:** `http://{{.Host}}:{{.Port}}/nginx_status`) |
 | `username` | no | `string` |  |
 | `password` | no | `string` |  |
 | `timeout` | no | `integer` |  (**default:** `0`) |
