@@ -42,6 +42,11 @@ monitor.
 
       **If you are using Rancher for your Kubernetes deployment,** complete the
       instructions in [Rancher](#rancher) before proceeding with the next step.
+
+	  **If you are using Google Container Engine (GKE) for your Kubernetes
+	  deployment,** complete the instructions in [Google Container Engine
+	  (GKE)](#google-container-engine-gke) before proceeding with the next
+	  step.
       
       **If you are using OpenShift 3.0+ for your Kubernetes deployment,** complete the
       instructions in [Openshift](#openshift) before proceeding with the next step.
@@ -251,6 +256,23 @@ Cadvisor runs on port 9344 instead of the standard 4194.
 
 When you have completed these steps, continue with step 3 in
 [Installation](#installation).
+
+## Google Container Engine (GKE)
+
+On GKE, access to the kubelet is highly restricted and service accounts will
+not work (at least as of GKE 1.9.4).  In those environments, you can use the
+alternative, non-secure port 10255 on the kubelet in the `kubelet-stats`
+monitor to get container metrics.  The config for that monitor will look like:
+
+```
+monitors:
+ - type: kubelet-stats
+   kubeletAPI:
+     url: http://localhost:10255
+```
+
+As long as you use our standard RBAC resources, this should be the only
+modification needed to accommodate GKE.
 
 ## OpenShift
 
