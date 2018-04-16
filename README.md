@@ -4,6 +4,18 @@
 
 The SignalFx Smart Agent is a metric agent written in Go for monitoring
 infrastructure and application services in a variety of different environments.
+It is meant as a successor to our previous [collectd
+agent](https://github.com/signalfx/collectd), but still uses that internally --
+so any existing Python or C-based collectd plugins will still work without
+modification.
+
+ - [Concepts](#concepts)
+ - [Installation](#installation)
+ - [Configuration](#configuration)
+ - [Logging](#logging)
+ - [Proxy Support](#proxy-support)
+ - [Diagnostics](#diagnostics)
+ - [Development](#development)
 
 ## Concepts
 
@@ -55,7 +67,7 @@ unnecessary.
 
 ## Installation
 
-The agent is available  for Linux in both a containerized and standalone form.
+The agent is available for Linux in both a containerized and standalone form.
 Whatever form you use, the dependencies are completely bundled along with the
 agent, including a Java JRE runtime and a Python runtime, so there are no
 additional dependencies required.  This means that the agent should work on any
@@ -148,7 +160,7 @@ following commands:
 
 ```sh
 curl -sSL https://dl.signalfx.com/debian.gpg > /etc/apt/trusted.gpg.d/signalfx.gpg
-echo 'deb https://dl.signalfx.com/debs/signalfx-agent/main /' > /etc/apt/sources.list.d/signalfx-agent.list
+echo 'deb https://dl.signalfx.com/debs/signalfx-agent/final /' > /etc/apt/sources.list.d/signalfx-agent.list
 apt-get update
 apt-get install -y signalfx-agent
 ```
@@ -161,7 +173,7 @@ following commands:
 cat <<EOH > /etc/yum.repos.d/signalfx-agent.repo
 [signalfx-agent]
 name=SignalFx Agent Repository
-baseurl=https://dl.signalfx.com/rpms/signalfx-agent/main
+baseurl=https://dl.signalfx.com/rpms/signalfx-agent/final
 gpgcheck=1
 gpgkey=https://dl.signalfx.com/yum-rpm.key
 enabled=1
@@ -268,6 +280,32 @@ configured by the `diagnosticsSocketPath` option.  The socket takes no input,
 but simply dumps its current status back upon connection.  As a convenience,
 the command `signalfx-agent status` will read this socket and dump out its
 contents.
+
+The agent status output has the following sections:
+
+ - **Version**: The agent version and build time
+ - **Agent Configuration**: The current configuration in use by the agent, with
+	 secret values replaced by `*`s.  Default values will be shown here if they
+	 were not set in the agent config file.
+ - **Writer Status**: The status and metrics about the writer component which
+	 writes datapoints to SignalFx.
+ - **Observers**: The active observers in the agent
+ - **Monitor Configurations (Not necessarily active)**: A list of monitor
+	 configurations that are in place.  If a configuration has a discovery rule
+	 but no discovered endpoints match that rule, there will not be any active
+	 instances of this monitor.
+ - **Active Monitors**: Monitors instances that are actively monitoring
+	 something.  There may be multiple instances of these per configuration
+	 above if there is a discovery rule that matches multiple services.
+ - **Discovered Endpoints**: A list of the endpoints discovered by the agent's
+	 observers.  The fields shown there will be the fields used when matching
+	 discovery rules to a discovered endpoint.
+ - **Bad Monitor Configurations**: This will be a set of monitor configurations
+	 that did not validate and the associated error.  Bad monitor configuration
+	 generally does not prevent the agent from starting up, but will prevent
+	 that monitor from ever instantiating.
+
+Also see our [FAQ](./docs/faq.md) for more troubleshooting help.
 
 ## Development
 

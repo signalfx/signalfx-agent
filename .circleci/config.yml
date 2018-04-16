@@ -133,17 +133,10 @@ jobs:
       - *attach_workspace
       - *import_image
       - run: |
-          set +e
-          for ((i=0; i<3; i++)); do
-              mkdir ~/testresults
-              docker run --rm \
-                -v ~/testresults:/output \
-                signalfx-agent-dev \
-                timeout 120 bash -eo pipefail -c "make templates && go test -v ./... | go2xunit > /output/unit.xml" && exit 0
-              rm -rf ~/testresults
-              sleep 10
-          done
-          exit 1
+          mkdir ~/testresults
+          docker run --rm \
+            signalfx-agent-dev \
+            bash -eo pipefail -c "make templates >/dev/null && go test -v ./... | tee /dev/stderr | go2xunit" > ~/testresults/unit.xml
 
       - store_test_results:
           path: ~/testresults

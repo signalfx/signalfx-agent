@@ -2,8 +2,8 @@ package converter
 
 import (
 	"math"
-	"regexp"
 	"strconv"
+	"strings"
 	"time"
 
 	log "github.com/sirupsen/logrus"
@@ -717,8 +717,8 @@ func (c *CadvisorCollector) sendDatapoint(dp *datapoint.Datapoint) {
 
 	// filter POD level metrics
 	if dims["container_name"] == "POD" {
-		matched, _ := regexp.MatchString("^pod_network_.*", dp.Metric)
-		if !matched {
+		isNetworkMetric := strings.HasPrefix(dp.Metric, "pod_network_")
+		if !isNetworkMetric {
 			return
 		}
 		delete(dims, "container_name")
