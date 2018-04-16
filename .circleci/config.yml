@@ -24,44 +24,35 @@ references:
     run:
       no_output_timeout: 30m
       command: |
-        set +e
-        for ((i=0; i<3; i++)); do
-            mkdir ~/testresults
-            docker run -d --rm \
-                -e K8S_VERSION=$(eval "echo -n $K8S_VERSION") \
-                -p 8443 \
-                -p 2375 \
-                -v /tmp/scratch:/tmp/scratch \
-                --privileged \
-                --name minikube \
-                minikube:latest
-            if [ $? -eq 0 ]; then
-                docker run --rm -t --net host \
-                    -v /var/run/docker.sock:/var/run/docker.sock \
-                    -v /tmp/scratch:/tmp/scratch \
-                    -v ~/testresults:/output \
-                    --name signalfx-agent-dev \
-                    signalfx-agent-dev \
-                        pytest \
-                            -m "k8s" \
-                            --verbose \
-                            --junitxml=/output/integration_tests.xml \
-                            --html=/output/k8s_integration_tests.html \
-                            --self-contained-html \
-                            --k8s-versions=$(eval "echo -n $K8S_VERSION") \
-                            --k8s-timeout=600 \
-                            --k8s-agent-name=quay.io/signalfx/signalfx-agent-dev \
-                            --k8s-agent-tag=k8s-test \
-                            --k8s-metrics-timeout=600 \
-                            --k8s-container=minikube \
-                            -s \
-                            tests && exit 0
-            fi
-            docker rm -f minikube signalfx-agent-dev
-            rm -rf ~/testresults
-            sleep 10
-        done
-        exit 1
+        mkdir ~/testresults
+        docker run -d --rm \
+            -e K8S_VERSION=$(eval "echo -n $K8S_VERSION") \
+            -p 8443 \
+            -p 2375 \
+            -v /tmp/scratch:/tmp/scratch \
+            --privileged \
+            --name minikube \
+            minikube:latest
+        docker run --rm -t --net host \
+            -v /var/run/docker.sock:/var/run/docker.sock \
+            -v /tmp/scratch:/tmp/scratch \
+            -v ~/testresults:/output \
+            --name signalfx-agent-dev \
+            signalfx-agent-dev \
+                pytest \
+                    -m "k8s" \
+                    -s \
+                    --verbose \
+                    --junitxml=/output/integration_tests.xml \
+                    --html=/output/k8s_integration_tests.html \
+                    --self-contained-html \
+                    --k8s-versions=$(eval "echo -n $K8S_VERSION") \
+                    --k8s-timeout=600 \
+                    --k8s-agent-name=quay.io/signalfx/signalfx-agent-dev \
+                    --k8s-agent-tag=k8s-test \
+                    --k8s-metrics-timeout=600 \
+                    --k8s-container=minikube \
+                    tests
 
 jobs:
   build:
@@ -160,14 +151,8 @@ jobs:
       - *attach_workspace
       - *import_image
       - run: |
-          set +e
-          for ((i=0; i<3; i++)); do
-              mkdir ~/testresults
-              docker run --rm -v /var/run/docker.sock:/var/run/docker.sock -v ~/testresults:/output signalfx-agent-dev pytest -n8 --junitxml=/output/integration_tests.xml -m "not packaging and not installer and not k8s" tests && exit 0
-              rm -rf ~/testresults
-              sleep 10
-          done
-          exit 1
+          mkdir ~/testresults
+          docker run --rm -v /var/run/docker.sock:/var/run/docker.sock -v ~/testresults:/output signalfx-agent-dev pytest -n8 --junitxml=/output/integration_tests.xml -m "not packaging and not installer and not k8s" tests
       - store_test_results:
           path: ~/testresults
 
