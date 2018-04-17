@@ -9,6 +9,11 @@ plugin, which scales rather poorly against a large number of containers.
 
 This currently does not support CPU share/quota metrics.
 
+If you are running the agent directly on a host (outside of a container
+itself) and you are using the default Docker UNIX socket URL, you will
+probably need to add the `signalfx-agent` user to the `docker` group in
+order to have permission to access the Docker API via the socket.
+
 Requires Docker API version 1.22+.
 
 
