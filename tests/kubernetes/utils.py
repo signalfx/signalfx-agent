@@ -1,6 +1,5 @@
 from kubernetes import (
     client as kube_client,
-    config as kube_config,
     watch as kube_watch
 )
 from contextlib import contextmanager
@@ -11,7 +10,6 @@ from tests.helpers.util import *
 import docker
 import os
 import netifaces as ni
-import pytest
 import re
 import sys
 import time
@@ -43,50 +41,6 @@ def get_metrics_from_docs(docs=[], ignored_metrics=[]):
         all_metrics = [i for i in all_metrics if i not in ignored_metrics]
     return sorted(list(set(all_metrics)))
 
-@pytest.fixture(scope="session")
-def local_registry(request):
-    client = docker.from_env(version='auto')
-    final_agent_image_name = request.config.getoption("--k8s-agent-name")
-    final_agent_image_tag = request.config.getoption("--k8s-agent-tag")
-    try:
-        final_image = client.images.get(final_agent_image_name + ":" + final_agent_image_tag)
-    except:
-        try:
-            print("\nAgent image '%s:%s' not found in local registry." % (final_agent_image_name, final_agent_image_tag))
-            print("\nAttempting to pull from remote registry ...")
-            final_image = client.images.pull(final_agent_image_name, tag=final_agent_image_tag)
-        except:
-            final_image = None
-    assert final_image, "agent image '%s:%s' not found!" % (final_agent_image_name, final_agent_image_tag)
-    try:
-        client.containers.get("registry")
-        print("\nRegistry container localhost:5000 already running")
-    except:
-        try:
-            client.containers.run(
-                image='registry:latest',
-                name='registry',
-                remove=True,
-                detach=True,
-                ports={'5000/tcp': 5000})
-            print("\nStarted registry container localhost:5000")
-        except:
-            pass
-        print("\nWaiting for registry container localhost:5000 to be ready ...")
-        start_time = time.time()
-        while True:
-            assert (time.time() - start_time) < 30, "timed out waiting for registry container to be ready!"
-            try:
-                client.containers.get("registry")
-                time.sleep(2)
-                break
-            except:
-                time.sleep(2)
-    print("\nTagging %s:%s as %s:%s ..." % (final_agent_image_name, final_agent_image_tag, AGENT_IMAGE_NAME, AGENT_IMAGE_TAG))
-    final_image.tag(AGENT_IMAGE_NAME, tag=AGENT_IMAGE_TAG)
-    print("\nPushing %s:%s ..." % (AGENT_IMAGE_NAME, AGENT_IMAGE_TAG))
-    client.images.push(AGENT_IMAGE_NAME, tag=AGENT_IMAGE_TAG)
-
 def get_host_ip():
     #proc = subprocess.run("ip r | awk '/default/{print $7}'", shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     #ip = proc.stdout.decode('utf-8').strip()
@@ -94,7 +48,8 @@ def get_host_ip():
     #assert re.match('(\d{1,3}\.){3}\d{1,3}', ip), "failed to get system IP!\n%s" % proc.stdout.decode('utf-8').strip()
     return ni.ifaddresses('eth0')[ni.AF_INET][0]['addr']
 
-def pull_agent_image(container, client, image_name="", image_tag=""):
+def pull_agent_image(container, image_name="", image_tag=""):
+    client = get_minikube_docker_client(container)
     container.exec_run("cp -f /etc/hosts /etc/hosts.orig")
     container.exec_run("cp -f /etc/hosts /etc/hosts.new")
     container.exec_run("sed -i 's|127.0.0.1|%s|' /etc/hosts.new" % get_host_ip())
@@ -265,7 +220,7 @@ def all_pods_have_ips():
         return True
     return False
 
-def get_agent_container(client, image_name="", image_tag="", timeout=60):
+def get_agent_container(client, image_name=AGENT_IMAGE_NAME, image_tag=AGENT_IMAGE_TAG, timeout=60):
     start_time = time.time()
     while True:
         if (time.time() - start_time) > timeout:
@@ -290,7 +245,8 @@ def get_agent_container_logs(agent_container):
     except Exception as e:
         return "Failed to get agent container logs!\n%s" % str(e)
 
-def get_all_logs(agent_container, minikube_container):
+def get_all_logs(minikube_container):
+    agent_container = get_agent_container(get_minikube_docker_client(minikube_container), timeout=5)
     try:
         agent_status = get_agent_status(agent_container)
     except:
@@ -314,9 +270,10 @@ def get_all_logs(agent_container, minikube_container):
     return "AGENT STATUS:\n%s\n\nAGENT CONTAINER LOGS:\n%s\n\nMINIKUBE LOGS:\n%s\n\nPODS STATUS:\n%s" % \
         (agent_status, agent_container_logs, minikube_logs, pods_status)
 
-def deploy_agent(container, client, configmap_path, daemonset_path, serviceaccount_path, cluster_name="minikube", backend=None, image_name=None, image_tag=None, namespace="default"):
+def deploy_agent(container, configmap_path, daemonset_path, serviceaccount_path, cluster_name="minikube", backend=None, image_name=None, image_tag=None, namespace="default"):
+    client = get_minikube_docker_client(container)
     print("\nPulling %s:%s to the minikube container ..." % (image_name, image_tag))
-    pull_agent_image(container, client, image_name=AGENT_IMAGE_NAME, image_tag=AGENT_IMAGE_TAG)
+    pull_agent_image(container, image_name=AGENT_IMAGE_NAME, image_tag=AGENT_IMAGE_TAG)
     print("\nDeploying signalfx-agent to the %s cluster ..." % cluster_name)
     serviceaccount_yaml = yaml.load(open(serviceaccount_path).read())
     create_serviceaccount(
@@ -360,7 +317,8 @@ def deploy_agent(container, client, configmap_path, daemonset_path, serviceaccou
         agent_status = agent_container.status.lower()
     except:
         agent_status = "exited"
-    assert agent_status == 'running', "agent container is not running!\n\n%s\n\n" % (get_all_logs(agent_container, container))
+    assert agent_status == 'running', "agent container is not running!\n\n%s\n\n" % get_all_logs(container)
+    return agent_container
 
 def deploy_services(services=[]):
     for service in services:
@@ -368,36 +326,22 @@ def deploy_services(services=[]):
         exec("%s.deploy()" % service)
     assert wait_for(all_pods_have_ips, timeout_seconds=300), "timed out waiting for pod IPs!"
 
-@contextmanager
-@pytest.fixture
-def minikube(k8s_version, local_registry, request):
-    k8s_timeout = int(request.config.getoption("--k8s-timeout"))
-    k8s_container = request.config.getoption("--k8s-container")
-    with fake_backend.start(ip=get_host_ip()) as backend:
+def get_minikube_docker_client(container):
+    return docker.DockerClient(base_url="tcp://%s:2375" % container.attrs["NetworkSettings"]["IPAddress"], version='auto')
+
+def get_minikube_container(k8s_version, k8s_timeout, k8s_container=None):
+    if k8s_version[0] != 'v':
+        k8s_version = 'v' + k8s_version
+    container_name = "minikube-%s" % k8s_version
+    client = docker.from_env(version="auto")
+    try:
+        container = client.containers.get(container_name)
+        print("\nContainer %s already running." % container_name)
+    except:
         if k8s_container:
             print("\nConnecting to %s container ..." % k8s_container)
-            container = docker.from_env(version='auto').containers.get(k8s_container)
-            assert wait_for(p(container_cmd_exit_0, container, "test -f /kubeconfig"), k8s_timeout), "timed out waiting for minikube to be ready!"
-            client = docker.DockerClient(base_url="tcp://%s:2375" % container.attrs["NetworkSettings"]["IPAddress"], version='auto')
-            # load kubeconfig from the minikube container
-            kube_config.load_kube_config(config_file=get_kubeconfig(container, kubeconfig_path="/kubeconfig"))
-            deploy_services(SERVICES)
-            deploy_agent(
-                container,
-                client,
-                AGENT_CONFIGMAP_PATH,
-                AGENT_DAEMONSET_PATH,
-                AGENT_SERVICEACCOUNT_PATH,
-                cluster_name="minikube",
-                backend=backend,
-                image_name=AGENT_IMAGE_NAME,
-                image_tag=AGENT_IMAGE_TAG,
-                namespace="default")
-            yield [container, client, backend]
+            container = client.containers.get(k8s_container)
         else:
-            if k8s_version[0] != 'v':
-                k8s_version = 'v' + k8s_version
-            container_name = "minikube-%s" % k8s_version
             container_options = {
                 "name": container_name,
                 "privileged": True,
@@ -417,23 +361,17 @@ def minikube(k8s_version, local_registry, request):
                 }
             }
             print("\nDeploying minikube %s cluster ..." % k8s_version)
-            with run_service('minikube', buildargs={"MINIKUBE_VERSION": MINIKUBE_VERSION}, **container_options) as container:
-                #k8s_api_host_port = container.attrs['NetworkSettings']['Ports']['8443/tcp'][0]['HostPort']
-                assert wait_for(p(container_cmd_exit_0, container, "test -f /kubeconfig"), k8s_timeout), "timed out waiting for minikube to be ready!"
-                client = docker.DockerClient(base_url="tcp://%s:2375" % container.attrs["NetworkSettings"]["IPAddress"], version='auto')
-                # load kubeconfig from the minikube container
-                kube_config.load_kube_config(config_file=get_kubeconfig(container, kubeconfig_path="/kubeconfig"))
-                deploy_services(SERVICES)
-                deploy_agent(
-                    container,
-                    client,
-                    AGENT_CONFIGMAP_PATH,
-                    AGENT_DAEMONSET_PATH,
-                    AGENT_SERVICEACCOUNT_PATH,
-                    cluster_name="minikube",
-                    backend=backend,
-                    image_name=AGENT_IMAGE_NAME,
-                    image_tag=AGENT_IMAGE_TAG,
-                    namespace="default")
-                yield [container, client, backend]
+            image, logs = client.images.build(
+                path=os.path.join(TEST_SERVICES_DIR, 'minikube'),
+                buildargs={"MINIKUBE_VERSION": MINIKUBE_VERSION},
+                tag='minikube:latest',
+                rm=True,
+                forcerm=True)
+            container = client.containers.run(
+                image.id,
+                detach=True,
+                **container_options)
+    assert wait_for(p(container_cmd_exit_0, container, "test -f /kubeconfig"), timeout_seconds=k8s_timeout), "timed out waiting for the minikube cluster to be ready!\n\n%s\n\n" % container.logs().decode('utf-8').strip()
+    container.reload()
+    return container
 
