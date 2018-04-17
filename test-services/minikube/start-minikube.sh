@@ -28,6 +28,7 @@ dockerd \
   --insecure-registry localhost:5000 \
   &> /var/log/docker.log 2>&1 < /dev/null &
 
+minikube config set ShowBootstrapperDeprecationNotification false
 if [ -n "$K8S_VERSION" ]; then
     minikube start --kubernetes-version $K8S_VERSION --vm-driver=none --bootstrapper=localkube
 else
@@ -60,3 +61,4 @@ kubectl create secret generic signalfx-agent --from-literal=access-token=testing
 kubectl config view --merge=true --flatten=true > /kubeconfig
 
 exit 0
+
