@@ -6,6 +6,8 @@ from tests.kubernetes.utils import *
 import os
 import pytest
 
+pytestmark = [pytest.mark.k8s, pytest.mark.kubernetes]
+
 # list of docs to get metrics from
 DOCS_DIR = os.environ.get("DOCS_DIR", "/go/src/github.com/signalfx/signalfx-agent/docs/monitors")
 DOCS = [ 
@@ -13,7 +15,7 @@ DOCS = [
     "kubelet-stats.md",
     "kubernetes-cluster.md"
 ]
-DOCS = [os.path.join(DOCS_DIR, i) for i in DOCS]
+DOCS = [os.path.join(DOCS_DIR, doc) for doc in DOCS]
 
 def has_all_metrics(backend, metrics):
     for metric in metrics:
@@ -27,38 +29,52 @@ def has_all_dims(backend, dims):
             return False
     return True
 
-def get_dims(container, client):
+def get_expected_dims(container, cluster_name="minikube", namespace="default", machine_id=None, metric_source="kubernetes", pod_names=[], images=[]):
+    client = get_minikube_docker_client(container)
     dims = [
         {"key": "host", "value": container.attrs['Config']['Hostname']},
-        {"key": "kubernetes_namespace", "value": "default"},
-        {"key": "kubernetes_cluster", "value": "minikube"},
-        {"key": "machine_id", "value": None},
-        {"key": "metric_source", "value": "kubernetes"}
+        {"key": "kubernetes_cluster", "value": cluster_name},
+        {"key": "kubernetes_namespace", "value": namespace},
+        {"key": "machine_id", "value": machine_id},
+        {"key": "metric_source", "value": metric_source}
     ]
-    for nginx_pod in get_all_pods_with_name('nginx-replication-controller-.*'):
-        dims.extend([
-            {"key": "container_spec_name", "value": nginx_pod.spec.containers[0].name},
-            {"key": "kubernetes_pod_name", "value": nginx_pod.metadata.name},
-            {"key": "kubernetes_pod_uid", "value": nginx_pod.metadata.uid}
-        ])
-    for nginx_container in client.containers.list(filters={"ancestor": "nginx:latest"}):
-        dims.extend([
-            {"key": "container_id", "value": nginx_container.id},
-            {"key": "container_name", "value": nginx_container.name}
-        ])
+    for pod_name in pod_names:
+        pods = get_all_pods_with_name(pod_name)
+        assert len(pods) > 0, "failed to get pods with name '%s'!" % pod_name
+        for pod in pods:
+            dims.extend([
+                {"key": "container_spec_name", "value": pod.spec.containers[0].name},
+                {"key": "kubernetes_pod_name", "value": pod.metadata.name},
+                {"key": "kubernetes_pod_uid", "value": pod.metadata.uid}
+            ])
+    for image in images:
+        conts = client.containers.list(filters={"ancestor": image})
+        assert len(conts) > 0, "failed to get containers with ancestor '%s'!" % image
+        for cont in conts:
+            dims.extend([
+                {"key": "container_id", "value": cont.id},
+                {"key": "container_name", "value": cont.name}
+            ])
     return dims
 
-@pytest.mark.k8s
-@pytest.mark.kubernetes
-def test_k8s_metrics(minikube, request):
-    metrics_timeout = int(request.config.getoption("--k8s-metrics-timeout"))
-    with minikube as [mk_container, mk_docker_client, backend]:
-        # test for metrics
-        expected_metrics = get_metrics_from_docs(docs=DOCS)
-        print("\nCollected %d metrics to test from docs." % len(expected_metrics))
-        assert wait_for(p(has_all_metrics, backend, expected_metrics), timeout_seconds=metrics_timeout)
-        # test for dimensions
-        expected_dims = get_dims(mk_container, mk_docker_client)
-        print("\nCollected %d dimensions to test." % len(expected_dims))
-        assert wait_for(p(has_all_dims, backend, expected_dims), timeout_seconds=metrics_timeout)
+@pytest.fixture
+def timeout(request):
+    return int(request.config.getoption("--k8s-metrics-timeout"))
+
+def test_dims(request, minikube, backend, timeout):
+    #timeout = int(request.config.getoption("--k8s-metrics-timeout"))
+    expected_dims = get_expected_dims(minikube, pod_names=['nginx-replication-controller-.*'], images=['nginx:latest'])
+    print("\nCollected %d dimensions to test." % len(expected_dims))
+    assert wait_for(p(has_all_dims, backend, expected_dims), timeout_seconds=timeout), get_all_logs(minikube)
+
+@pytest.mark.parametrize("monitor", [
+    "kubelet-stats",
+    "kubernetes-cluster",
+    "collectd-nginx"
+])
+def test_metrics(request, monitor, minikube, backend, timeout):
+    #timeout = int(request.config.getoption("--k8s-metrics-timeout"))
+    expected_metrics = get_metrics_from_docs(docs=[os.path.join(DOCS_DIR, "%s.md" % monitor)])
+    print("\nCollected %d metrics to test from doc(s)." % len(expected_metrics))
+    assert wait_for(p(has_all_metrics, backend, expected_metrics), timeout_seconds=timeout), get_all_logs(minikube)
 
