@@ -6,11 +6,15 @@ import (
 	"github.com/signalfx/signalfx-agent/internal/core/config"
 	"github.com/signalfx/signalfx-agent/internal/monitors"
 	"github.com/signalfx/signalfx-agent/internal/monitors/collectd"
+	log "github.com/sirupsen/logrus"
 )
 
 const monitorType = "collectd/docker"
 
-// MONITOR(collectd/docker): Pulls container stats from the Docker Engine.
+// MONITOR(collectd/docker): Pulls container stats from the Docker Engine.  We
+// strongly recommend using the
+// [docker-container-stats](./docker-container-stats.md) monitor instead, as it
+// will scale to large number of containers much better.
 //
 // See https://github.com/signalfx/docker-collectd-plugin.
 
@@ -43,5 +47,6 @@ type Monitor struct {
 
 // Configure configures and runs the plugin in collectd
 func (rm *Monitor) Configure(conf *Config) error {
+	log.Warn("The collectd/docker monitor is deprecated in favor of the docker-container-stats monitor.")
 	return rm.SetConfigurationAndRun(conf)
 }
