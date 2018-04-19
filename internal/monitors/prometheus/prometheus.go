@@ -2,6 +2,7 @@ package prometheus
 
 import (
 	"context"
+	"crypto/tls"
 	"fmt"
 	"io"
 	"net/http"
@@ -51,6 +52,13 @@ type Config struct {
 	// Port of the exporter
 	Port uint16 `yaml:"port" validate:"required"`
 
+	// If true, the agent will connect to the exporter using HTTPS instead of
+	// plain HTTP.
+	UseHTTPS bool `yaml:"useHTTPS"`
+	// If useHTTPS is true and this option is also true, the exporter's TLS
+	// cert will not be verified.
+	SkipVerify bool `yaml:"skipVerify"`
+
 	// Path to the metrics endpoint on the exporter server, usually `/metrics`
 	// (the default).`
 	MetricPath string `yaml:"metricPath" default:"/metrics"`
@@ -67,6 +75,16 @@ type Monitor struct {
 func (m *Monitor) Configure(conf *Config) error {
 	m.client = &http.Client{
 		Timeout: 10 * time.Second,
+		Transport: &http.Transport{
+			TLSClientConfig: &tls.Config{InsecureSkipVerify: conf.SkipVerify},
+		},
+	}
+
+	var scheme string
+	if conf.UseHTTPS {
+		scheme = "https"
+	} else {
+		scheme = "http"
 	}
 
 	host := conf.Host
@@ -74,7 +92,7 @@ func (m *Monitor) Configure(conf *Config) error {
 	if strings.ContainsAny(host, ":") {
 		host = "[" + host + "]"
 	}
-	url := fmt.Sprintf("http://%s:%d%s", host, conf.Port, conf.MetricPath)
+	url := fmt.Sprintf("%s://%s:%d%s", scheme, host, conf.Port, conf.MetricPath)
 
 	var ctx context.Context
 	ctx, m.cancel = context.WithCancel(context.Background())
