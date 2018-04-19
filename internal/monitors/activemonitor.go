@@ -38,7 +38,7 @@ func (am *ActiveMonitor) configureMonitor(monConfig config.MonitorCustomConfig) 
 	}
 
 	if am.endpoint != nil {
-		err := config.DecodeExtraConfigStrict(am.endpoint, monConfig)
+		err := config.DecodeExtraConfig(am.endpoint, monConfig, false)
 		if err != nil {
 			return errors.Wrap(err, "Could not inject endpoint config into monitor config")
 		}

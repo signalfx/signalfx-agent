@@ -29,7 +29,6 @@ type Config struct {
 
 	Host string `yaml:"host" validate:"required"`
 	Port uint16 `yaml:"port" validate:"required"`
-	Name string `yaml:"name"`
 	// An arbitrary name of the etcd cluster to make it easier to group
 	// together and identify instances.
 	ClusterName       string `yaml:"clusterName" validate:"required"`

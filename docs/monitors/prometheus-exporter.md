@@ -33,7 +33,6 @@ Monitor Type: `prometheus-exporter`
 | --- | --- | --- | --- |
 | `host` | **yes** | `string` | Host of the exporter |
 | `port` | **yes** | `integer` | Port of the exporter |
-| `name` | no | `string` |  |
 | `metricPath` | no | `string` | Path to the metrics endpoint on the exporter server, usually `/metrics` (the default).` (**default:** `/metrics`) |
 
 

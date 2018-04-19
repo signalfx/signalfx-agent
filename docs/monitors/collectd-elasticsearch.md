@@ -22,7 +22,6 @@ Monitor Type: `collectd/elasticsearch`
 | --- | --- | --- | --- |
 | `host` | **yes** | `string` |  |
 | `port` | **yes** | `integer` |  |
-| `name` | no | `string` |  |
 | `additionalMetrics` | no | `list of string` | AdditionalMetrics to report on |
 | `detailedMetrics` | no | `bool` | DetailedMetrics turns on additional metric time series (**default:** `true`) |
 | `enableClusterHealth` | no | `bool` | EnableClusterHealth enables reporting on the cluster health (**default:** `true`) |
