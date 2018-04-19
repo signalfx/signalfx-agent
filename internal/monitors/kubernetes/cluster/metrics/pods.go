@@ -66,6 +66,10 @@ func datapointsForPod(pod *v1.Pod) []*datapoint.Datapoint {
 func dimPropsForPod(pod *v1.Pod) *atypes.DimProperties {
 	props, tags := propsAndTagsFromLabels(pod.Labels)
 
+	for _, or := range pod.OwnerReferences {
+		props[utils.LowercaseFirstChar(or.Kind)] = or.Name
+	}
+
 	if len(props) == 0 && len(tags) == 0 {
 		return nil
 	}
