@@ -1,9 +1,9 @@
 package monitors
 
 import (
+	"fmt"
 	"reflect"
 
-	"github.com/pkg/errors"
 	"github.com/signalfx/signalfx-agent/internal/core/config"
 	"github.com/signalfx/signalfx-agent/internal/core/services"
 	"github.com/signalfx/signalfx-agent/internal/monitors/types"
@@ -102,7 +102,7 @@ type Shutdownable interface {
 func getCustomConfigForMonitor(conf *config.MonitorConfig) (config.MonitorCustomConfig, error) {
 	confTemplate, ok := ConfigTemplates[conf.Type]
 	if !ok {
-		return nil, errors.Errorf("Unknown monitor type %s", conf.Type)
+		return nil, fmt.Errorf("Unknown monitor type %s", conf.Type)
 	}
 	monConfig := utils.CloneInterface(confTemplate).(config.MonitorCustomConfig)
 
