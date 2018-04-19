@@ -21,7 +21,6 @@ Monitor Type: `collectd/haproxy`
 | --- | --- | --- | --- |
 | `host` | **yes** | `string` |  |
 | `port` | **yes** | `integer` |  |
-| `name` | no | `string` |  |
 | `proxiesToMonitor` | no | `list of string` |  |
 | `excludedMetrics` | no | `list of string` |  |
 | `enhancedMetrics` | no | `bool` |  (**default:** `false`) |

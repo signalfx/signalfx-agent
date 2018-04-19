@@ -32,7 +32,6 @@ type Config struct {
 
 	Host     string `yaml:"host" validate:"required"`
 	Port     uint16 `yaml:"port" validate:"required"`
-	Name     string `yaml:"name"`
 	Username string `yaml:"username"`
 	Password string `yaml:"password" neverLog:"true"`
 }

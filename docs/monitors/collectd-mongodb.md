@@ -22,7 +22,6 @@ Monitor Type: `collectd/mongodb`
 | --- | --- | --- | --- |
 | `host` | **yes** | `string` |  |
 | `port` | **yes** | `integer` |  |
-| `name` | no | `string` |  |
 | `databases` | no | `list of string` |  |
 | `username` | no | `string` |  |
 | `password` | no | `string` |  |

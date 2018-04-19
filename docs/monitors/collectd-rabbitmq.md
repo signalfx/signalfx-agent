@@ -25,7 +25,6 @@ Monitor Type: `collectd/rabbitmq`
 | --- | --- | --- | --- |
 | `host` | **yes** | `string` |  |
 | `port` | **yes** | `integer` |  |
-| `name` | no | `string` |  |
 | `collectChannels` | no | `bool` |  (**default:** `false`) |
 | `collectConnections` | no | `bool` |  (**default:** `false`) |
 | `collectExchanges` | no | `bool` |  (**default:** `false`) |

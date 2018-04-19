@@ -50,7 +50,6 @@ type Config struct {
 	Host string `yaml:"host" validate:"required"`
 	// Port of the exporter
 	Port uint16 `yaml:"port" validate:"required"`
-	Name string `yaml:"name"`
 
 	// Path to the metrics endpoint on the exporter server, usually `/metrics`
 	// (the default).`

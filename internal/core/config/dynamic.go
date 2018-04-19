@@ -16,14 +16,14 @@ import (
 // DecodeExtraConfigStrict will pull out any config values from 'in' and put them
 // on the 'out' struct, returning an error if anything in 'in' isn't in 'out'.
 func DecodeExtraConfigStrict(in CustomConfigurable, out interface{}) error {
-	return decodeExtraConfig(in, out, true)
+	return DecodeExtraConfig(in, out, true)
 }
 
 // DecodeExtraConfig will pull out the OtherConfig values from both
 // ObserverConfig and MonitorConfig and decode them to a struct that is
 // provided in the `out` arg.  Whether all fields have to be in 'out' is
 // determined by the 'strict' flag.  Any errors decoding will cause `out` to be nil.
-func decodeExtraConfig(in CustomConfigurable, out interface{}, strict bool) error {
+func DecodeExtraConfig(in CustomConfigurable, out interface{}, strict bool) error {
 	pkgPaths := strings.Split(reflect.Indirect(reflect.ValueOf(out)).Type().PkgPath(), "/")
 
 	otherYaml, err := yaml.Marshal(in.ExtraConfig())

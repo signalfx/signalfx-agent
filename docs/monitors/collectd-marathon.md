@@ -24,7 +24,6 @@ Monitor Type: `collectd/marathon`
 | --- | --- | --- | --- |
 | `host` | **yes** | `string` |  |
 | `port` | **yes** | `integer` |  |
-| `name` | no | `string` |  |
 | `username` | no | `string` |  |
 | `password` | no | `string` |  |
 
