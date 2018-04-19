@@ -30,6 +30,7 @@ type cachedResourceKey struct {
 type DatapointCache struct {
 	dpCache      map[cachedResourceKey][]*datapoint.Datapoint
 	dimPropCache map[cachedResourceKey]*atypes.DimProperties
+	lastNodes    map[types.UID]*v1.Node
 	mutex        sync.Mutex
 }
 
@@ -38,18 +39,19 @@ func NewDatapointCache() *DatapointCache {
 	return &DatapointCache{
 		dpCache:      make(map[cachedResourceKey][]*datapoint.Datapoint),
 		dimPropCache: make(map[cachedResourceKey]*atypes.DimProperties),
+		lastNodes:    make(map[types.UID]*v1.Node),
 	}
 }
 
-func keyForObject(obj runtime.Object) (*cachedResourceKey, error) {
+func keyForObject(obj runtime.Object) (cachedResourceKey, error) {
 	kind := obj.GetObjectKind().GroupVersionKind()
 	oma, ok := obj.(metav1.ObjectMetaAccessor)
 
 	if !ok || oma.GetObjectMeta() == nil {
-		return nil, errors.New("K8s object is not of the expected form")
+		return cachedResourceKey{}, errors.New("K8s object is not of the expected form")
 	}
 
-	return &cachedResourceKey{
+	return cachedResourceKey{
 		Kind: kind,
 		UID:  oma.GetObjectMeta().GetUID(),
 	}, nil
@@ -68,8 +70,8 @@ func (dc *DatapointCache) Unlock() {
 // DeleteByKey delete a cache entry by key.  The supplied interface MUST be the
 // same type returned by Handle[Add|Delete].  MUST HOLD LOCK!
 func (dc *DatapointCache) DeleteByKey(key interface{}) {
-	delete(dc.dpCache, *key.(*cachedResourceKey))
-	delete(dc.dimPropCache, *key.(*cachedResourceKey))
+	delete(dc.dpCache, key.(cachedResourceKey))
+	delete(dc.dimPropCache, key.(cachedResourceKey))
 }
 
 // HandleDelete accepts an object that has been deleted and removes the
@@ -84,22 +86,16 @@ func (dc *DatapointCache) HandleDelete(oldObj runtime.Object) interface{} {
 		return nil
 	}
 
-	delete(dc.dpCache, *key)
+	delete(dc.dpCache, key)
+	if o, ok := oldObj.(*v1.Node); ok {
+		delete(dc.lastNodes, o.UID)
+	}
 	return key
 }
 
 // HandleAdd accepts a new (or updated) object and updates the datapoint/prop
 // cache as needed.  MUST HOLD LOCK!!
 func (dc *DatapointCache) HandleAdd(newObj runtime.Object) interface{} {
-	key, err := keyForObject(newObj)
-	if err != nil {
-		log.WithFields(log.Fields{
-			"error": err,
-			"obj":   spew.Sdump(newObj),
-		}).Error("Could not get cache key")
-		return nil
-	}
-
 	var dps []*datapoint.Datapoint
 	var dimProps *atypes.DimProperties
 
@@ -118,8 +114,15 @@ func (dc *DatapointCache) HandleAdd(newObj runtime.Object) interface{} {
 	case *v1beta1.ReplicaSet:
 		dps = datapointsForReplicaSet(o)
 	case *v1.Node:
+		// Nodes update incredibly often so don't do all the work figuring out
+		// datapoints if they haven't changed in a way we care about.
+		if !nodesDifferent(o, dc.lastNodes[o.UID]) {
+			return nil
+		}
+
 		dps = datapointsForNode(o)
 		dimProps = dimPropsForNode(o)
+		dc.lastNodes[o.UID] = o
 	default:
 		log.WithFields(log.Fields{
 			"obj": spew.Sdump(newObj),
@@ -127,11 +130,20 @@ func (dc *DatapointCache) HandleAdd(newObj runtime.Object) interface{} {
 		return nil
 	}
 
+	key, err := keyForObject(newObj)
+	if err != nil {
+		log.WithFields(log.Fields{
+			"error": err,
+			"obj":   spew.Sdump(newObj),
+		}).Error("Could not get cache key")
+		return nil
+	}
+
 	if dps != nil {
-		dc.dpCache[*key] = dps
+		dc.dpCache[key] = dps
 	}
 	if dimProps != nil {
-		dc.dimPropCache[*key] = dimProps
+		dc.dimPropCache[key] = dimProps
 	}
 
 	return key
