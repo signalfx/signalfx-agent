@@ -180,7 +180,7 @@ create_and_push_tag() {
     exit 1
   fi
 
-  #git push --tags
+  git push --tags
 
   echo "Tag pushed"
 }
