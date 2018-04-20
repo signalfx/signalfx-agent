@@ -24,9 +24,31 @@ const monitorType = "prometheus-exporter"
 // MONITOR(prometheus-exporter): This monitor reads metrics from a [Prometheus
 // exporter](https://prometheus.io/docs/instrumenting/exporters/) endpoint.
 //
-// All metric types *except for* histograms are supported.  Histograms are
-// ignored. All Prometheus labels will be converted directly to SignalFx
-// dimensions.
+// All metric types are supported.  See
+// https://prometheus.io/docs/concepts/metric_types/ for a description of the
+// Prometheus metric types.  The conversion happens as follows:
+//
+//  - Gauges are converted directly to SignalFx gauges
+//  - Counters are converted directly to SignalFx cumulative counters
+//  - Untyped metrics are converted directly to SignalFx gauges
+//  - Summary metrics are converted to three distinct metrics, where
+//    `<basename>` is the root name of the metric:
+//    - The total count gets converted to a cumulative counter called `<basename>_count`
+//    - The total sum gets converted to a cumulative counter called `<basename>`
+//    - Each quantile value is converted to a gauge called
+//      `<basename>_quantile` and will include a dimension called `quantile` that
+//      specifies the quantile.
+//  - Histogram metrics are converted to three distinct metrics, where
+//    `<basename>` is the root name of the metric:
+//    - The total count gets converted to a cumulative counter called `<basename>_count`
+//    - The total sum gets converted to a cumulative counter called `<basename>`
+//    - Each histogram bucket is converted to a cumulative counter called
+//      `<basename>_bucket` and will include a dimension called `upper_bound` that
+//      specifies the maximum value in that bucket.  This metric specifies the
+//      number of events with a value that is less than or equal to the upper
+//      bound.
+//
+// All Prometheus labels will be converted directly to SignalFx dimensions.
 //
 // This supports service discovery so you can set a discovery rule such as:
 //

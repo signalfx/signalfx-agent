@@ -1,7 +1,7 @@
 package prometheus
 
 import (
-	"fmt"
+	"strconv"
 
 	dto "github.com/prometheus/client_model/go"
 	"github.com/signalfx/golib/datapoint"
@@ -40,7 +40,7 @@ func convertMetricFamily(mf *dto.MetricFamily) []*datapoint.Datapoint {
 	// TODO: figure out how to best convert histograms, in particular the
 	// upper bound value
 	case dto.MetricType_HISTOGRAM:
-		return nil
+		return makeHistogramDatapoints(*mf.Name, mf.Metric)
 	default:
 		return nil
 	}
@@ -64,19 +64,47 @@ func makeSummaryDatapoints(name string, ms []*dto.Metric) []*datapoint.Datapoint
 		}
 
 		if s.SampleCount != nil {
-			dps = append(dps, sfxclient.Gauge(name, dims, int64(s.GetSampleCount())))
+			dps = append(dps, sfxclient.Cumulative(name+"_count", dims, int64(s.GetSampleCount())))
 		}
 
 		if s.SampleSum != nil {
-			dps = append(dps, sfxclient.GaugeF(name, dims, s.GetSampleSum()))
+			dps = append(dps, sfxclient.CumulativeF(name, dims, s.GetSampleSum()))
 		}
 
 		qs := s.GetQuantile()
 		for i := range qs {
 			quantileDims := utils.MergeStringMaps(dims, map[string]string{
-				"quantile": fmt.Sprintf("%f", qs[i].GetQuantile()),
+				"quantile": strconv.FormatFloat(qs[i].GetQuantile(), 'f', 6, 64),
 			})
-			dps = append(dps, sfxclient.GaugeF(name, quantileDims, qs[i].GetValue()))
+			dps = append(dps, sfxclient.GaugeF(name+"_quantile", quantileDims, qs[i].GetValue()))
+		}
+	}
+	return dps
+}
+
+func makeHistogramDatapoints(name string, ms []*dto.Metric) []*datapoint.Datapoint {
+	var dps []*datapoint.Datapoint
+	for _, m := range ms {
+		dims := labelsToDims(m.Label)
+		h := m.GetHistogram()
+		if h == nil {
+			continue
+		}
+
+		if h.SampleCount != nil {
+			dps = append(dps, sfxclient.Cumulative(name+"_count", dims, int64(h.GetSampleCount())))
+		}
+
+		if h.SampleSum != nil {
+			dps = append(dps, sfxclient.CumulativeF(name, dims, h.GetSampleSum()))
+		}
+
+		buckets := h.GetBucket()
+		for i := range buckets {
+			bucketDims := utils.MergeStringMaps(dims, map[string]string{
+				"upper_bound": strconv.FormatFloat(buckets[i].GetUpperBound(), 'f', 6, 64),
+			})
+			dps = append(dps, sfxclient.Cumulative(name+"_bucket", bucketDims, int64(buckets[i].GetCumulativeCount())))
 		}
 	}
 	return dps
