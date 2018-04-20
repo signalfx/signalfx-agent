@@ -14,6 +14,7 @@ LoadPlugin "python"
     HTTPTimeout {{.}}
     {{- end}}
     Port "{{.Port}}"
+    BrokerName "{{renderValue .BrokerName (toMap .) }}"
     Username "{{.Username}}"
     Password "{{.Password}}"
     {{with .VerbosityLevel -}}
