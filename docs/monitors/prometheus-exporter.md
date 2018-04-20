@@ -9,12 +9,15 @@ All metric types *except for* histograms are supported.  Histograms are
 ignored. All Prometheus labels will be converted directly to SignalFx
 dimensions.
 
-This supports service discovery so you can set a discovery rule like: `port
->= 9100 && port <= 9500 && containerImage =~ "exporter"`, assuming you are
-running exporters in container images that have the word "exporter" in them
-and fall within the standard exporter port range.  In K8s, you could also
-try matching on the container port name as defined in the pod spec, which is
-the `name` variable in discovery rules for the `k8s-api` observer.
+This supports service discovery so you can set a discovery rule such as:
+
+`port >= 9100 && port <= 9500 && containerImage =~ "exporter"`
+
+assuming you are running exporters in container images that have the word
+"exporter" in them and fall within the standard exporter port range.  In
+K8s, you could also try matching on the container port name as defined in
+the pod spec, which is the `name` variable in discovery rules for the
+`k8s-api` observer.
 
 Filtering can be very useful here since exporters tend to be fairly verbose.
 
