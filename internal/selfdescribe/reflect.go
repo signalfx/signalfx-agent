@@ -34,7 +34,7 @@ func getDefault(f reflect.StructField) interface{} {
 			var out interface{}
 			err := json.Unmarshal([]byte(defTag), &out)
 			if err != nil {
-				log.WithError(err).Errorf("Could not unmarshal default value `%s` for field %s", defTag, f.Name)
+				log.WithError(err).Warnf("Could not unmarshal default value `%s` for field %s", defTag, f.Name)
 				return defTag
 			}
 			return out
