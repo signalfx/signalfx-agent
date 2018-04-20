@@ -96,6 +96,11 @@ type Config struct {
 	// configuration files and load them all by using a globbed remote config
 	// value:
 	Templates []string `yaml:"templates"`
+
+	// The number of read threads to use in collectd.  Will default to the
+	// number of templates provided, capped at 10, but if you manually specify
+	// it there is no limit.
+	CollectdReadThreads int `yaml:"collectdReadThreads"`
 }
 
 func (c *Config) allTemplates() []string {
@@ -161,7 +166,7 @@ func (cm *Monitor) Configure(conf *Config) error {
 	collectdConf.WriteServerPort = 0
 	collectdConf.WriteServerQuery = "?monitorID=" + string(conf.MonitorID)
 	collectdConf.InstanceName = "monitor-" + string(conf.MonitorID)
-	collectdConf.ReadThreads = utils.MinInt(len(conf.allTemplates()), 5)
+	collectdConf.ReadThreads = utils.FirstNonZero(conf.CollectdReadThreads, utils.MinInt(len(conf.allTemplates()), 10))
 	collectdConf.WriteThreads = 1
 	collectdConf.WriteQueueLimitHigh = 10000
 	collectdConf.WriteQueueLimitLow = 10000

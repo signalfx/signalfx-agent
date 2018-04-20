@@ -62,6 +62,7 @@ Monitor Type: `collectd/custom`
 | `name` | no | `string` | This should generally not be set manually, but will be filled in by the agent if using service discovery. It can be accessed in the provided config template with `{{.Name}}`.  It will be set to the name that the observer creates for the endpoint upon discovery.  You can generally ignore this field. |
 | `template` | no | `string` | A config template for collectd.  You can include as many plugin blocks as you want in this value.  It is rendered as a standard Go template, so be mindful of the delimiters `{{` and `}}`. |
 | `templates` | no | `list of string` | A list of templates, but otherwise equivalent to the above `template` option.  This enables you to have a single directory with collectd configuration files and load them all by using a globbed remote config value: |
+| `collectdReadThreads` | no | `integer` | The number of read threads to use in collectd.  Will default to the number of templates provided, capped at 10, but if you manually specify it there is no limit. (**default:** `0`) |
 
 
 
