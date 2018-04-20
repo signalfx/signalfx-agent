@@ -50,6 +50,7 @@ func (to *TestOutput) SendDimensionProps(dimProps *types.DimProperties) {
 // returns those datapoints.  It will never return more than 'count' datapoints.
 func (to *TestOutput) WaitForDPs(count, waitSeconds int) []*datapoint.Datapoint {
 	var dps []*datapoint.Datapoint
+	timeout := time.After(time.Duration(waitSeconds) * time.Second)
 
 loop:
 	for {
@@ -59,7 +60,31 @@ loop:
 			if len(dps) >= count {
 				break loop
 			}
-		case <-time.After(time.Duration(waitSeconds) * time.Second):
+		case <-timeout:
+			break loop
+		}
+	}
+
+	return dps
+}
+
+// WaitForDimensionProps will keep pulling dimension property updates off of
+// the internal queue until it either gets the expected count or waitSeconds
+// seconds have elapsed.  It then returns those dimension property updates.  It
+// will never return more than 'count' objects.
+func (to *TestOutput) WaitForDimensionProps(count, waitSeconds int) []*types.DimProperties {
+	var dps []*types.DimProperties
+	timeout := time.After(time.Duration(waitSeconds) * time.Second)
+
+loop:
+	for {
+		select {
+		case dp := <-to.dimPropChan:
+			dps = append(dps, dp)
+			if len(dps) >= count {
+				break loop
+			}
+		case <-timeout:
 			break loop
 		}
 	}
