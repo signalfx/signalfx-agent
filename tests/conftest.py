@@ -1,3 +1,4 @@
+import itertools
 import json
 import os
 import pytest
@@ -10,7 +11,7 @@ import urllib.request
 SCRIPTS_DIR = os.path.join(os.path.dirname(os.path.realpath(__file__)), "..", "scripts")
 K8S_MIN_VERSION = '1.7.0'
 K8S_DEFAULT_TIMEOUT = 300
-K8S_DEFAULT_METRICS_TIMEOUT = 300
+K8S_DEFAULT_TEST_TIMEOUT = 300
 K8S_DEFAULT_AGENT_IMAGE_NAME = "quay.io/signalfx/signalfx-agent-dev"
 try:
     proc = subprocess.run(os.path.join(SCRIPTS_DIR, "current-version"), shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
@@ -42,12 +43,21 @@ def get_k8s_supported_versions():
 K8S_SUPPORTED_VERSIONS = get_k8s_supported_versions()
 K8S_MAJOR_MINOR_VERSIONS = [v for v in K8S_SUPPORTED_VERSIONS if semver.parse_version_info(v).patch == 0]
 
+K8S_SUPPORTED_OBSERVERS = ["docker", "host", "k8s-api", "k8s-kubelet"]
+K8S_DEFAULT_OBSERVER = "k8s-api"
+
 def pytest_addoption(parser):
     parser.addoption(
         "--k8s-versions",
         action="store",
         default=K8S_MAJOR_MINOR_VERSIONS[0],
-        help="Comma-separated K8S cluster versions for minikube to deploy (default=%s). Use '--k8s-versions=all' to test all supported non-patch versions. This option is ignored if the --k8s-container option is specified." % K8S_MAJOR_MINOR_VERSIONS[0]
+        help="Comma-separated string of K8S cluster versions for minikube to deploy (default=%s). Use '--k8s-versions=all' to test all supported versions. Use '--k8s-versions=minor' to test all supported non-patch versions (e.g. 1.7.0, 1.8.0, 1.9.0, etc.). This option is ignored if the --k8s-container option also is specified." % K8S_MAJOR_MINOR_VERSIONS[0]
+    )
+    parser.addoption(
+        "--k8s-observers",
+        action="store",
+        default=K8S_DEFAULT_OBSERVER,
+        help="Comma-separated string of observers for the SignalFx agent (default=%s). Use '--k8s-observers=all' to test all supported observers." % K8S_DEFAULT_OBSERVER
     )
     parser.addoption(
         "--k8s-timeout",
@@ -68,28 +78,44 @@ def pytest_addoption(parser):
         help="SignalFx agent image tag to use for K8S tests (default=%s). The image must exist either locally or remotely." % K8S_DEFAULT_AGENT_IMAGE_TAG
     )
     parser.addoption(
-        "--k8s-metrics-timeout",
+        "--k8s-test-timeout",
         action="store",
-        default=K8S_DEFAULT_METRICS_TIMEOUT,
-        help="Timeout (in seconds) for K8S metrics tests (default=%d)." % K8S_DEFAULT_METRICS_TIMEOUT
+        default=K8S_DEFAULT_TEST_TIMEOUT,
+        help="Timeout (in seconds) for each K8S test (default=%d)." % K8S_DEFAULT_TEST_TIMEOUT
     )
     parser.addoption(
         "--k8s-container",
         action="store",
         default=None,
-        help="Name of a running minikube container to use as the K8S cluster for the tests. If not specified, a new minikube K8S cluster will automatically be deployed."
+        help="Name of a running minikube container to use for the tests (the container should not have the agent or any services already running). If not specified, a new minikube container will automatically be deployed."
     )
 
 def pytest_generate_tests(metafunc):
     if 'minikube' in metafunc.fixturenames:
         k8s_versions = metafunc.config.getoption("--k8s-versions")
+        k8s_observers = metafunc.config.getoption("--k8s-observers")
+        versions_to_test = []
         if not k8s_versions:
-            metafunc.parametrize("minikube", [K8S_MAJOR_MINOR_VERSIONS[0]], scope="module", indirect=True)
-        if k8s_versions.lower() == "latest":
-            metafunc.parametrize("minikube", [K8S_SUPPORTED_VERSIONS[0]], scope="module", indirect=True)
+            versions_to_test = [K8S_MAJOR_MINOR_VERSIONS[0]]
+        elif k8s_versions.lower() == "latest":
+            versions_to_test = [K8S_SUPPORTED_VERSIONS[0]]
         elif k8s_versions.lower() == "all":
-            metafunc.parametrize("minikube", K8S_MAJOR_MINOR_VERSIONS, scope="module", indirect=True)
+            versions_to_test = K8S_SUPPORTED_VERSIONS
+        elif k8s_versions.lower() == "minor":
+            versions_to_test = K8S_MAJOR_MINOR_VERSIONS
         else:
             for v in k8s_versions.split(','):
                 assert v.strip('v') in K8S_SUPPORTED_VERSIONS, "K8S version \"%s\" not supported!" % v
-            metafunc.parametrize("minikube", k8s_versions.split(','), scope="module", indirect=True)
+            versions_to_test = k8s_versions.split(',')
+        observers_to_test = []
+        if not k8s_observers:
+            observers_to_test = [K8S_DEFAULT_OBSERVER]
+        elif k8s_observers.lower() == 'all':
+            observers_to_test = K8S_SUPPORTED_OBSERVERS
+        else:
+            for o in k8s_observers.split(','):
+                assert o in K8S_SUPPORTED_OBSERVERS, "Observer \"%s\" not supported!" % o
+            observers_to_test = k8s_observers.split(',')
+        params = list(itertools.product(versions_to_test, observers_to_test))
+        metafunc.parametrize("minikube", params, ids=lambda x: "v%s-%s" % (str(x[0]), str(x[1])), scope="module", indirect=True)
+
