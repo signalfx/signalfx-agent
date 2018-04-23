@@ -93,6 +93,9 @@ func firstNodeHostname(node *v1.Node) string {
 // sometimes come in different orderings and we don't really care about them
 // anyway, so just get rid of them before comparing.
 func nodesDifferent(n1 *v1.Node, n2 *v1.Node) bool {
+	if n2 == nil {
+		return true
+	}
 	c1 := *n1
 	c2 := *n2
 

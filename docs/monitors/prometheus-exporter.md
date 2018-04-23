@@ -5,16 +5,41 @@
  This monitor reads metrics from a [Prometheus
 exporter](https://prometheus.io/docs/instrumenting/exporters/) endpoint.
 
-All metric types *except for* histograms are supported.  Histograms are
-ignored. All Prometheus labels will be converted directly to SignalFx
-dimensions.
+All metric types are supported.  See
+https://prometheus.io/docs/concepts/metric_types/ for a description of the
+Prometheus metric types.  The conversion happens as follows:
 
-This supports service discovery so you can set a discovery rule like: `port
->= 9100 && port <= 9500 && containerImage =~ "exporter"`, assuming you are
-running exporters in container images that have the word "exporter" in them
-and fall within the standard exporter port range.  In K8s, you could also
-try matching on the container port name as defined in the pod spec, which is
-the `name` variable in discovery rules for the `k8s-api` observer.
+ - Gauges are converted directly to SignalFx gauges
+ - Counters are converted directly to SignalFx cumulative counters
+ - Untyped metrics are converted directly to SignalFx gauges
+ - Summary metrics are converted to three distinct metrics, where
+   `<basename>` is the root name of the metric:
+   - The total count gets converted to a cumulative counter called `<basename>_count`
+   - The total sum gets converted to a cumulative counter called `<basename>`
+   - Each quantile value is converted to a gauge called
+     `<basename>_quantile` and will include a dimension called `quantile` that
+     specifies the quantile.
+ - Histogram metrics are converted to three distinct metrics, where
+   `<basename>` is the root name of the metric:
+   - The total count gets converted to a cumulative counter called `<basename>_count`
+   - The total sum gets converted to a cumulative counter called `<basename>`
+   - Each histogram bucket is converted to a cumulative counter called
+     `<basename>_bucket` and will include a dimension called `upper_bound` that
+     specifies the maximum value in that bucket.  This metric specifies the
+     number of events with a value that is less than or equal to the upper
+     bound.
+
+All Prometheus labels will be converted directly to SignalFx dimensions.
+
+This supports service discovery so you can set a discovery rule such as:
+
+`port >= 9100 && port <= 9500 && containerImage =~ "exporter"`
+
+assuming you are running exporters in container images that have the word
+"exporter" in them and fall within the standard exporter port range.  In
+K8s, you could also try matching on the container port name as defined in
+the pod spec, which is the `name` variable in discovery rules for the
+`k8s-api` observer.
 
 Filtering can be very useful here since exporters tend to be fairly verbose.
 
@@ -33,8 +58,9 @@ Monitor Type: `prometheus-exporter`
 | --- | --- | --- | --- |
 | `host` | **yes** | `string` | Host of the exporter |
 | `port` | **yes** | `integer` | Port of the exporter |
-| `name` | no | `string` |  |
-| `metricPath` | no | `string` | Path to the metrics endpoint on the exporter server, usually `/metrics` (the default).` (**default:** `/metrics`) |
+| `useHTTPS` | no | `bool` | If true, the agent will connect to the exporter using HTTPS instead of plain HTTP. (**default:** `false`) |
+| `skipVerify` | no | `bool` | If useHTTPS is true and this option is also true, the exporter's TLS cert will not be verified. (**default:** `false`) |
+| `metricPath` | no | `string` | Path to the metrics endpoint on the exporter server, usually `/metrics` (the default). (**default:** `/metrics`) |
 
 
 

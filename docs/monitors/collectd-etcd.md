@@ -22,7 +22,6 @@ Monitor Type: `collectd/etcd`
 | --- | --- | --- | --- |
 | `host` | **yes** | `string` |  |
 | `port` | **yes** | `integer` |  |
-| `name` | no | `string` |  |
 | `clusterName` | **yes** | `string` | An arbitrary name of the etcd cluster to make it easier to group together and identify instances. |
 | `sslKeyFile` | no | `string` |  |
 | `sslCertificate` | no | `string` |  |

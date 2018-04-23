@@ -112,6 +112,12 @@ var _ = Describe("Kubernetes plugin", func() {
 				ObjectMeta: metav1.ObjectMeta{
 					Name: "test1",
 					UID:  "abcd",
+					OwnerReferences: []metav1.OwnerReference{
+						metav1.OwnerReference{
+							Kind: "DaemonSet",
+							Name: "MySet",
+						},
+					},
 				},
 				Status: v1.PodStatus{
 					Phase: v1.PodRunning,
@@ -136,6 +142,12 @@ var _ = Describe("Kubernetes plugin", func() {
 		Expect(intValue(dps[1].Value)).To(Equal(int64(5)))
 		Expect(dps[2].Metric).To(Equal("kubernetes.container_ready"))
 		Expect(intValue(dps[2].Value)).To(Equal(int64(1)))
+
+		dimProps := output.WaitForDimensionProps(1, 3)
+		Expect(len(dimProps)).Should(Equal(1))
+		Expect(dimProps[0].Name).Should(Equal("kubernetes_pod_uid"))
+		Expect(dimProps[0].Value).Should(Equal("abcd"))
+		Expect(dimProps[0].Properties["daemonSet"]).Should(Equal("MySet"))
 
 		dims := dps[0].Dimensions
 		Expect(dims["metric_source"]).To(Equal("kubernetes"))

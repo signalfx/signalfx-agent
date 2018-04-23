@@ -25,7 +25,7 @@ Monitor Type: `collectd/rabbitmq`
 | --- | --- | --- | --- |
 | `host` | **yes** | `string` |  |
 | `port` | **yes** | `integer` |  |
-| `name` | no | `string` |  |
+| `brokerName` | no | `string` | The name of the particular RabbitMQ instance.  Can be a Go template using other config options. This will be used as the `plugin_instance` dimension. (**default:** `{{.host}}-{{.port}}`) |
 | `collectChannels` | no | `bool` |  (**default:** `false`) |
 | `collectConnections` | no | `bool` |  (**default:** `false`) |
 | `collectExchanges` | no | `bool` |  (**default:** `false`) |

@@ -32,8 +32,11 @@ type Config struct {
 
 	Host string `yaml:"host" validate:"required"`
 	Port uint16 `yaml:"port" validate:"required"`
-	Name string `yaml:"name"`
 
+	// The name of the particular RabbitMQ instance.  Can be a Go template
+	// using other config options. This will be used as the `plugin_instance`
+	// dimension.
+	BrokerName         string `yaml:"brokerName" default:"{{.host}}-{{.port}}"`
 	CollectChannels    bool   `yaml:"collectChannels"`
 	CollectConnections bool   `yaml:"collectConnections"`
 	CollectExchanges   bool   `yaml:"collectExchanges"`

@@ -69,19 +69,7 @@ func (cs *State) beginSyncForType(ctx context.Context, resType runtime.Object, r
 
 		return nil
 	}
-	store.UpdateFunc = func(obj interface{}) error {
-		cs.metricCache.Lock()
-		defer cs.metricCache.Unlock()
-
-		if key := cs.metricCache.HandleDelete(obj.(runtime.Object)); key != nil {
-			delete(keysSeen, key)
-		}
-
-		if key := cs.metricCache.HandleAdd(obj.(runtime.Object)); key != nil {
-			keysSeen[key] = true
-		}
-		return nil
-	}
+	store.UpdateFunc = store.AddFunc
 	store.DeleteFunc = func(obj interface{}) error {
 		cs.metricCache.Lock()
 		defer cs.metricCache.Unlock()

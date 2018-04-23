@@ -31,7 +31,6 @@ Monitor Type: `collectd/consul`
 | --- | --- | --- | --- |
 | `host` | **yes** | `string` |  |
 | `port` | **yes** | `integer` |  |
-| `name` | no | `string` |  |
 | `aclToken` | no | `string` |  |
 | `useHTTPS` | no | `bool` |  (**default:** `false`) |
 | `enhancedMetrics` | no | `bool` |  (**default:** `false`) |
