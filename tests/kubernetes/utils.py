@@ -7,7 +7,6 @@ from functools import partial as p
 from tests.helpers.assertions import *
 from tests.helpers.util import *
 
-import docker
 import os
 import netifaces as ni
 import re
@@ -15,31 +14,33 @@ import sys
 import time
 import yaml
 
-AGENT_YAMLS_DIR = os.environ.get("AGENT_YAMLS_DIR", "/go/src/github.com/signalfx/signalfx-agent/deployments/k8s")
-AGENT_CONFIGMAP_PATH = os.environ.get("AGENT_CONFIGMAP_PATH", os.path.join(AGENT_YAMLS_DIR, "configmap.yaml"))
-AGENT_DAEMONSET_PATH = os.environ.get("AGENT_DAEMONSET_PATH", os.path.join(AGENT_YAMLS_DIR, "daemonset.yaml"))
-AGENT_SERVICEACCOUNT_PATH = os.environ.get("AGENT_SERVICEACCOUNT_PATH", os.path.join(AGENT_YAMLS_DIR, "serviceaccount.yaml"))
-AGENT_IMAGE_NAME = "localhost:5000/signalfx-agent"
-AGENT_IMAGE_TAG = "k8s-test"
-MINIKUBE_VERSION = os.environ.get("MINIKUBE_VERSION", "latest")
-SERVICES_DIR = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'services')
-SERVICES = []
-sys.path.append(SERVICES_DIR)
-for service in os.listdir(SERVICES_DIR):
-    if service != '__init__.py' and service.endswith('.py'):
-        exec("import %s" % service[:-3])
-        SERVICES.append(service[:-3])
+def get_metrics_from_doc(doc, ignore=[]):
+    metrics = []
+    with open(doc) as fd:
+        metrics = re.findall('\|\s+`(.*?)`\s+\|\s+(?:counter|gauge|cumulative)\s+\|', fd.read(), re.IGNORECASE)
+    if len(ignore) > 0:
+        metrics = [i for i in metrics if i not in ignore]
+    return sorted(list(set(metrics)))
 
-def get_metrics_from_docs(docs=[], ignored_metrics=[]):
-    all_metrics = []
-    for doc in docs:
-        with open(doc) as fd:
-            metrics = re.findall('\|\s+`(.*?)`\s+\|\s+(?:counter|gauge|cumulative)\s+\|', fd.read(), re.IGNORECASE)
-            assert len(metrics) > 0, "Failed to get metrics from %s!" % doc
-            all_metrics += metrics
-    if len(ignored_metrics) > 0:
-        all_metrics = [i for i in all_metrics if i not in ignored_metrics]
-    return sorted(list(set(all_metrics)))
+def get_dims_from_doc(doc, ignore=[]):
+    dims = []
+    with open(doc) as fd:
+        line = fd.readline()
+        while line and not re.match('\s*##\s*Dimensions.*', line):
+            line = fd.readline()
+        if line:
+            dim_line = re.compile('\|\s+`(.*?)`\s+\|.*\|')
+            match = None
+            while line and not match:
+                line = fd.readline()
+                match = dim_line.match(line)
+            while line and match:
+                dims.append(match.group(1))
+                line = fd.readline()
+                match = dim_line.match(line)
+    if len(ignore) > 0:
+        dims = [i for i in dims if i not in ignore]
+    return sorted(list(set(dims)))
 
 def get_host_ip():
     #proc = subprocess.run("ip r | awk '/default/{print $7}'", shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
@@ -47,25 +48,6 @@ def get_host_ip():
     #assert ip != "", "failed to get system IP!"
     #assert re.match('(\d{1,3}\.){3}\d{1,3}', ip), "failed to get system IP!\n%s" % proc.stdout.decode('utf-8').strip()
     return ni.ifaddresses('eth0')[ni.AF_INET][0]['addr']
-
-def pull_agent_image(container, image_name="", image_tag=""):
-    client = get_minikube_docker_client(container)
-    container.exec_run("cp -f /etc/hosts /etc/hosts.orig")
-    container.exec_run("cp -f /etc/hosts /etc/hosts.new")
-    container.exec_run("sed -i 's|127.0.0.1|%s|' /etc/hosts.new" % get_host_ip())
-    container.exec_run("cp -f /etc/hosts.new /etc/hosts")
-    time.sleep(5)
-    client.images.pull(image_name, tag=image_tag)
-    container.exec_run("cp -f /etc/hosts.orig /etc/hosts")
-    _, output = container.exec_run('docker images')
-    print_lines(output.decode('utf-8'))
-
-def get_kubeconfig(container, kubeconfig_path="/kubeconfig"):
-    time.sleep(2)
-    rc, output = container.exec_run("cp -f %s /tmp/scratch/kubeconfig-%s" % (kubeconfig_path, container.id[:12]))
-    assert rc == 0, "failed to get %s from minikube!\n%s" % (kubeconfig_path, output.decode('utf-8'))
-    time.sleep(2)
-    return "/tmp/scratch/kubeconfig-%s" % container.id[:12]
 
 def create_configmap(name="", body=None, data={}, labels={}, namespace="default"):
     v1 = kube_client.CoreV1Api()
@@ -191,10 +173,10 @@ def get_all_pods():
     pods = v1.list_pod_for_all_namespaces(watch=False)
     return pods.items
 
-def get_all_pods_with_name(name):
+def get_all_pods_matching_name(name):
     pods = []
     for pod in get_all_pods():
-        if re.search(name, pod.metadata.name):
+        if re.match(name, pod.metadata.name):
             pods.append(pod)
     return pods
 
@@ -220,46 +202,24 @@ def all_pods_have_ips():
         return True
     return False
 
-def get_agent_container(client, image_name=AGENT_IMAGE_NAME, image_tag=AGENT_IMAGE_TAG, timeout=60):
-    start_time = time.time()
-    while True:
-        if (time.time() - start_time) > timeout:
-            return None
-        try:
-            return client.containers.list(filters={"ancestor": image_name + ":" + image_tag})[0]
-        except:
-            time.sleep(1)
-
-def get_agent_status(agent_container):
+def get_all_logs(minikube):
     try:
-        rc, output = agent_container.exec_run("agent-status")
-        if rc != 0:
-            raise Exception(output.decode('utf-8').strip())
-        return output.decode('utf-8').strip()
-    except Exception as e:
-        return "Failed to get agent-status!\n%s" % str(e)
-
-def get_agent_container_logs(agent_container):
-    try:
-        return agent_container.logs().decode('utf-8').strip()
-    except Exception as e:
-        return "Failed to get agent container logs!\n%s" % str(e)
-
-def get_all_logs(minikube_container):
-    agent_container = get_agent_container(get_minikube_docker_client(minikube_container), timeout=5)
-    try:
-        agent_status = get_agent_status(agent_container)
+        agent_status = minikube.agent.get_status()
     except:
         agent_status = ""
     try:
-        agent_container_logs = get_agent_container_logs(agent_container)
+        agent_container_logs = minikube.agent.get_container_logs()
     except:
         agent_container_logs = ""
     try:
-        _, output = minikube_container.exec_run("minikube logs")
+        _, output = minikube.container.exec_run("minikube logs")
         minikube_logs = output.decode('utf-8').strip()
     except:
         minikube_logs = ""
+    try:
+        minikube_container_logs = minikube.get_container_logs()
+    except:
+        minikube_container_logs = ""
     try:
         pods_status = ""
         for pod in get_all_pods():
@@ -267,111 +227,6 @@ def get_all_logs(minikube_container):
         pods_status = pods_status.strip()
     except:
         pods_status = ""
-    return "AGENT STATUS:\n%s\n\nAGENT CONTAINER LOGS:\n%s\n\nMINIKUBE LOGS:\n%s\n\nPODS STATUS:\n%s" % \
-        (agent_status, agent_container_logs, minikube_logs, pods_status)
-
-def deploy_agent(container, configmap_path, daemonset_path, serviceaccount_path, cluster_name="minikube", backend=None, image_name=None, image_tag=None, namespace="default"):
-    client = get_minikube_docker_client(container)
-    print("\nPulling %s:%s to the minikube container ..." % (image_name, image_tag))
-    pull_agent_image(container, image_name=AGENT_IMAGE_NAME, image_tag=AGENT_IMAGE_TAG)
-    print("\nDeploying signalfx-agent to the %s cluster ..." % cluster_name)
-    serviceaccount_yaml = yaml.load(open(serviceaccount_path).read())
-    create_serviceaccount(
-        body=serviceaccount_yaml,
-        namespace=namespace)
-    configmap_yaml = yaml.load(open(configmap_path).read())
-    agent_yaml = yaml.load(configmap_yaml['data']['agent.yaml'])
-    agent_yaml['globalDimensions']['kubernetes_cluster'] = cluster_name
-    agent_yaml['useFullyQualifiedHost'] = False
-    if backend:
-        agent_yaml['ingestUrl'] = "http://%s:%d" % (get_host_ip(), backend.ingest_port)
-        agent_yaml['apiUrl'] = "http://%s:%d" % (get_host_ip(), backend.api_port)
-    if 'metricsToExclude' in agent_yaml.keys():
-        del agent_yaml['metricsToExclude']
-    for monitor in agent_yaml['monitors']:
-        if monitor['type'] == 'kubelet-stats':
-            monitor['kubeletAPI']['skipVerify'] = True
-        if monitor['type'] == 'collectd/etcd':
-            monitor['clusterName'] = cluster_name
-        if 'metricsToExclude' in monitor.keys():
-            del monitor['metricsToExclude']
-    configmap_yaml['data']['agent.yaml'] = yaml.dump(agent_yaml)
-    create_configmap(
-        body=configmap_yaml,
-        namespace=namespace)
-    daemonset_yaml = yaml.load(open(daemonset_path).read())
-    if image_name and image_tag:
-        daemonset_yaml['spec']['template']['spec']['containers'][0]['image'] = image_name + ":" + image_tag
-    create_daemonset(
-        body=daemonset_yaml,
-        namespace=namespace)
-    assert wait_for(p(has_pod, "signalfx-agent"), timeout_seconds=60), "timed out waiting for the signalfx-agent pod to start!"
-    assert wait_for(all_pods_have_ips, timeout_seconds=300), "timed out waiting for pod IPs!"
-    agent_container = get_agent_container(client, image_name=AGENT_IMAGE_NAME, image_tag=AGENT_IMAGE_TAG)
-    assert agent_container, "failed to get agent container!"
-    agent_status = agent_container.status.lower()
-    # wait to make sure that the agent container is still running
-    time.sleep(10)
-    try:
-        agent_container.reload()
-        agent_status = agent_container.status.lower()
-    except:
-        agent_status = "exited"
-    assert agent_status == 'running', "agent container is not running!\n\n%s\n\n" % get_all_logs(container)
-    return agent_container
-
-def deploy_services(services=[]):
-    for service in services:
-        print("\nDeploying %s to the minikube cluster ..." % service)
-        exec("%s.deploy()" % service)
-    assert wait_for(all_pods_have_ips, timeout_seconds=300), "timed out waiting for pod IPs!"
-
-def get_minikube_docker_client(container):
-    return docker.DockerClient(base_url="tcp://%s:2375" % container.attrs["NetworkSettings"]["IPAddress"], version='auto')
-
-def get_minikube_container(k8s_version, k8s_timeout, k8s_container=None):
-    if k8s_version[0] != 'v':
-        k8s_version = 'v' + k8s_version
-    container_name = "minikube-%s" % k8s_version
-    client = docker.from_env(version="auto")
-    try:
-        container = client.containers.get(container_name)
-        print("\nContainer %s already running." % container_name)
-    except:
-        if k8s_container:
-            print("\nConnecting to %s container ..." % k8s_container)
-            container = client.containers.get(k8s_container)
-        else:
-            container_options = {
-                "name": container_name,
-                "privileged": True,
-                "environment": {
-                    'K8S_VERSION': k8s_version,
-                    'TIMEOUT': str(k8s_timeout)
-                },
-                "ports": {
-                    '8443/tcp': None,
-                    '2375/tcp': None,
-                },
-                "volumes": {
-                    "/tmp/scratch": {
-                        "bind": "/tmp/scratch",
-                        "mode": "rw"
-                    },
-                }
-            }
-            print("\nDeploying minikube %s cluster ..." % k8s_version)
-            image, logs = client.images.build(
-                path=os.path.join(TEST_SERVICES_DIR, 'minikube'),
-                buildargs={"MINIKUBE_VERSION": MINIKUBE_VERSION},
-                tag='minikube:latest',
-                rm=True,
-                forcerm=True)
-            container = client.containers.run(
-                image.id,
-                detach=True,
-                **container_options)
-    assert wait_for(p(container_cmd_exit_0, container, "test -f /kubeconfig"), timeout_seconds=k8s_timeout), "timed out waiting for the minikube cluster to be ready!\n\n%s\n\n" % container.logs().decode('utf-8').strip()
-    container.reload()
-    return container
+    return "AGENT STATUS:\n%s\n\nAGENT CONTAINER LOGS:\n%s\n\nMINIKUBE LOGS:\n%s\n\nMINIKUBE CONTAINER LOGS:\n%s\n\nPODS STATUS:\n%s" % \
+        (agent_status, agent_container_logs, minikube_logs, minikube_container_logs, pods_status)
 
