@@ -128,6 +128,7 @@ parse_args_and_release() {
   if [[ "$build_all" == "yes" ]] || [[ "$build_rpm_package" == "yes" ]]; then
     echo "Building and pushing rpm package"
     build_and_push_package "rpm" "$stage" "$push"
+    $SCRIPT_DIR/invalidate-cloudfront "/rpms/signalfx-agent/$stage/*"
   fi
 
   if [[ "$build_all" == "yes" ]] || [[ "$build_bundle" == "yes" ]]; then
