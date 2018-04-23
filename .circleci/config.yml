@@ -47,10 +47,11 @@ references:
                     --html=/output/k8s_integration_tests.html \
                     --self-contained-html \
                     --k8s-versions=$(eval "echo -n $K8S_VERSION") \
+                    --k8s-observers=k8s-api \
                     --k8s-timeout=600 \
+                    --k8s-test-timeout=600 \
                     --k8s-agent-name=quay.io/signalfx/signalfx-agent-dev \
                     --k8s-agent-tag=k8s-test \
-                    --k8s-metrics-timeout=600 \
                     --k8s-container=minikube \
                     tests
 
