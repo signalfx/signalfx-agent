@@ -39,22 +39,25 @@ minikube status
 
 set +e
 # wait for the cluster to be ready
-if [ -z "$TIMEOUT" ]; then
-    TIMEOUT=300
-fi
-(( TIMEOUT = $TIMEOUT / 2 ))
-for ((i=0; i<=${TIMEOUT}; i++)); do
+TIMEOUT=${TIMEOUT:-"300"}
+START_TIME=`date +%s`
+while [ 0 ]; do
+    if [ $(expr `date +%s` - $START_TIME) -gt $TIMEOUT ]; then
+        kubectl get pods --all-namespaces
+        echo "Timed out after $TIMEOUT seconds waiting for the cluster to be ready!"
+        exit 1
+    fi
     npods=`kubectl get pods --all-namespaces 2>/dev/null | grep 'kube-system' | wc -l`
     nrunning=`kubectl get pods --all-namespaces 2>/dev/null | grep 'kube-system' | grep 'Running' | wc -l`
     if [[ $npods -gt 1 && $npods -eq $nrunning ]]; then
         sleep 5
         break
     fi
-    sleep 2
+    sleep 5
 done
 set -e
 
-kubectl get pods --all-namespaces || exit 1
+kubectl get pods --all-namespaces
 
 kubectl create secret generic signalfx-agent --from-literal=access-token=testing123
 
