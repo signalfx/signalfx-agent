@@ -85,7 +85,7 @@ type Config struct {
 	SkipVerify bool `yaml:"skipVerify"`
 
 	// Path to the metrics endpoint on the exporter server, usually `/metrics`
-	// (the default).`
+	// (the default).
 	MetricPath string `yaml:"metricPath" default:"/metrics"`
 }
 
