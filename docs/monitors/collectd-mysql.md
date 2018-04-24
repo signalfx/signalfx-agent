@@ -5,6 +5,27 @@
  Montiors a MySQL database server using collectd's
 [MySQL plugin](https://collectd.org/wiki/index.php/Plugin:MySQL).
 
+You have to specify each database you want to monitor individually under the
+`databases` key.  If you have a common authentication to all databases being
+monitored, you can specify that in the top-level `username`/`password`
+options, otherwise they can be specified at the database level.
+
+Sample YAML configuration:
+
+```
+monitors:
+ - type: collectd/mysql
+   host: localhost
+   port: 3306
+   databases:
+     - name: dbname
+     - name: securedb
+       username: admin
+       password: s3cr3t
+   username: dbuser
+   password: passwd
+```
+
 
 Monitor Type: `collectd/mysql`
 
