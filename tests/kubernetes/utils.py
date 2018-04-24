@@ -14,16 +14,58 @@ import sys
 import time
 import yaml
 
+DOCS_DIR = os.environ.get("DOCS_DIR", "/go/src/github.com/signalfx/signalfx-agent/docs/monitors")
+
+# check the fake backend for a list of metrics
+# returns a list of the metrics not found if the timeout is reached
+# returns an empty list if all metrics are found before the timeout is reached
+def check_for_metrics(backend, metrics, timeout):
+    start_time = time.time()
+    while True:
+        if (time.time() - start_time) > timeout:
+            break
+        for metric in metrics:
+            if has_datapoint_with_metric_name(backend, metric):
+                metrics.remove(metric)
+        if len(metrics) == 0:
+            break
+        time.sleep(5)
+    return metrics
+
+# check the fake backend for a list of dimensions
+# returns a list of the dimensions not found if the timeout is reached
+# returns an empty list if all dimensions are found before the timeout is reached
+def check_for_dims(backend, dims, timeout):
+    start_time = time.time()
+    while True:
+        if (time.time() - start_time) > timeout:
+            break
+        for dim in dims:
+            if not dim["value"] or has_datapoint_with_dim(backend, dim["key"], dim["value"]):
+                dims.remove(dim)
+        if len(dims) == 0:
+            break
+        time.sleep(5)
+    return dims
+
+# returns a sorted list of unique metric names from `doc` excluding those in `ignore`
 def get_metrics_from_doc(doc, ignore=[]):
     metrics = []
+    if not os.path.isfile(doc):
+        doc = os.path.join(DOCS_DIR, doc)
+    assert os.path.isfile(doc), "\"%s\" not found!" % doc
     with open(doc) as fd:
         metrics = re.findall('\|\s+`(.*?)`\s+\|\s+(?:counter|gauge|cumulative)\s+\|', fd.read(), re.IGNORECASE)
     if len(ignore) > 0:
         metrics = [i for i in metrics if i not in ignore]
     return sorted(list(set(metrics)))
 
+# returns a sorted list of unique dimension names from `doc` excluding those in `ignore`
 def get_dims_from_doc(doc, ignore=[]):
     dims = []
+    if not os.path.isfile(doc):
+        doc = os.path.join(DOCS_DIR, doc)
+    assert os.path.isfile(doc), "\"%s\" not found!" % doc
     with open(doc) as fd:
         line = fd.readline()
         while line and not re.match('\s*##\s*Dimensions.*', line):
@@ -42,11 +84,8 @@ def get_dims_from_doc(doc, ignore=[]):
         dims = [i for i in dims if i not in ignore]
     return sorted(list(set(dims)))
 
+# returns the IP of the pytest host (i.e. the dev image)
 def get_host_ip():
-    #proc = subprocess.run("ip r | awk '/default/{print $7}'", shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-    #ip = proc.stdout.decode('utf-8').strip()
-    #assert ip != "", "failed to get system IP!"
-    #assert re.match('(\d{1,3}\.){3}\d{1,3}', ip), "failed to get system IP!\n%s" % proc.stdout.decode('utf-8').strip()
     return ni.ifaddresses('eth0')[ni.AF_INET][0]['addr']
 
 def create_configmap(name="", body=None, data={}, labels={}, namespace="default"):
@@ -62,13 +101,13 @@ def create_configmap(name="", body=None, data={}, labels={}, namespace="default"
         namespace=namespace)
 
 def get_pod_template(name="", image="", port=None, labels={}, volume_mounts=[]):
-    def get_volume_mounts(volume_mounts):
+    def get_volume_mounts():
         mounts = []
         for vm in volume_mounts:
             mounts.append(kube_client.V1VolumeMount(name=vm["name"], mount_path=vm["mount_path"]))
         return mounts
 
-    def get_configmap_volumes(volumes_mounts):
+    def get_configmap_volumes():
         configmap_volumes = []
         for vm in volume_mounts:
             configmap_volumes.append(kube_client.V1Volume(name=vm["name"], config_map=kube_client.V1ConfigMapVolumeSource(name=vm["configmap"])))
@@ -78,12 +117,12 @@ def get_pod_template(name="", image="", port=None, labels={}, volume_mounts=[]):
         name=name,
         image=image,
         ports=[kube_client.V1ContainerPort(container_port=port)],
-        volume_mounts=get_volume_mounts(volume_mounts))
+        volume_mounts=get_volume_mounts())
     template = kube_client.V1PodTemplateSpec(
         metadata=kube_client.V1ObjectMeta(labels=labels),
         spec=kube_client.V1PodSpec(
             containers=[container],
-            volumes=get_configmap_volumes(volume_mounts)))
+            volumes=get_configmap_volumes()))
     return template
 
 def create_deployment(name="", pod_template=None, replicas=1, labels={}, namespace="default"):
@@ -140,39 +179,13 @@ def create_serviceaccount(body=None, namespace="default"):
         body=body,
         namespace=namespace)
 
-def create_deployment_from_yaml(yaml_path):
-    with open(yaml_path) as f:
-        dep = yaml.load(f)
-        k8s_beta = kube_client.ExtensionsV1beta1Api()
-        resp = k8s_beta.create_namespaced_deployment(
-            body=dep, namespace="default")
-        print("Deployment created. status='%s'" % str(resp.status))
-
-def update_deployment(api_instance, deployment):
-    # Update container image
-    deployment.spec.template.spec.containers[0].image = "nginx:latest"
-    # Update the deployment
-    api_response = api_instance.patch_namespaced_deployment(
-        name=DEPLOYMENT_NAME,
-        namespace="default",
-        body=deployment)
-    print("Deployment updated. status='%s'" % str(api_response.status))
-
-def delete_deployment(api_instance):
-    # Delete deployment
-    api_response = api_instance.delete_namespaced_deployment(
-        name=DEPLOYMENT_NAME,
-        namespace="default",
-        body=client.V1DeleteOptions(
-            propagation_policy='Foreground',
-            grace_period_seconds=5))
-    print("Deployment deleted. status='%s'" % str(api_response.status))
-
+# returns a list of all pods in the cluster
 def get_all_pods():
     v1 = kube_client.CoreV1Api()
     pods = v1.list_pod_for_all_namespaces(watch=False)
     return pods.items
 
+# returns a list of all pods in the cluster that regex matches `name`
 def get_all_pods_matching_name(name):
     pods = []
     for pod in get_all_pods():
@@ -180,12 +193,14 @@ def get_all_pods_matching_name(name):
             pods.append(pod)
     return pods
 
+# returns True if any pod contains `pod_name`; False otherwise
 def has_pod(pod_name):
     for pod in get_all_pods():
         if pod_name in pod.metadata.name:
             return True
     return False
 
+# returns True if all pods have IPs; False otherwise
 def all_pods_have_ips():
     pods = get_all_pods()
     if len(pods) == 0:
@@ -202,6 +217,12 @@ def all_pods_have_ips():
         return True
     return False
 
+# returns a string containing:
+# - the output from 'agent-status'
+# - the agent container logs
+# - the output from 'minikube logs'
+# - the minikube container logs
+# - the status of all pods
 def get_all_logs(minikube):
     try:
         agent_status = minikube.agent.get_status()
