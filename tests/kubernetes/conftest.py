@@ -14,12 +14,17 @@ AGENT_IMAGE_TAG = os.environ.get("AGENT_IMAGE_TAG", "k8s-test")
 SERVICES_DIR = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'services')
 
 @pytest.fixture(scope="module")
-def k8s_services():
+def k8s_services(request):
+    services_to_deploy = getattr(request.module, "SERVICES_TO_DEPLOY", [])
+    available_services = []
+    for f in os.listdir(SERVICES_DIR):
+        if f != '__init__.py' and f.endswith('.py'):
+            available_services.append(f[:-3])
     services = []
-    for service in os.listdir(SERVICES_DIR):
-        if service != '__init__.py' and service.endswith('.py'):
-            exec("from tests.kubernetes.services import %s" % service[:-3])
-            services.append({"name": service[:-3], "config": eval(service[:-3] + ".CONFIG")})
+    for service_to_deploy in services_to_deploy:
+        assert service_to_deploy in available_services, "service \"%s\" is not available!" % service_to_deploy
+        exec("from tests.kubernetes.services import %s" % service_to_deploy)
+        services.append({"name": service_to_deploy, "config": eval(service_to_deploy + ".CONFIG")})
     return services
 
 @pytest.fixture(scope="module")
@@ -77,7 +82,7 @@ def local_registry(request):
         pass
 
 @pytest.fixture(scope="module")
-def minikube(request, backend, local_registry, k8s_services):
+def minikube(request, k8s_services, backend, local_registry):
     k8s_version, k8s_observer = request.param
     k8s_timeout = int(request.config.getoption("--k8s-timeout"))
     k8s_container = request.config.getoption("--k8s-container")
@@ -115,4 +120,37 @@ def minikube(request, backend, local_registry, k8s_services):
 @pytest.fixture
 def k8s_test_timeout(request):
     return int(request.config.getoption("--k8s-test-timeout"))
+
+# returns a list of key:value dimensions based on the minikube environment
+@pytest.fixture(scope="module")
+def expected_dims(minikube):
+    rc, machine_id = minikube.agent.container.exec_run("cat /etc/machine-id")
+    if rc != 0:
+        machine_id = None
+    dims = [
+        {"key": "host", "value": minikube.container.attrs['Config']['Hostname']},
+        {"key": "kubernetes_cluster", "value": minikube.cluster_name},
+        {"key": "kubernetes_namespace", "value": minikube.namespace},
+        {"key": "machine_id", "value": machine_id},
+        {"key": "metric_source", "value": "kubernetes"}
+    ]
+    for service in minikube.services:
+        if "pod_name" in service["config"].keys():
+            pods = get_all_pods_matching_name(service["config"]["pod_name"])
+            assert len(pods) > 0, "failed to get pods with name '%s'!" % service["config"]["pod_name"]
+            for pod in pods:
+                dims.extend([
+                    {"key": "container_spec_name", "value": pod.spec.containers[0].name},
+                    {"key": "kubernetes_pod_name", "value": pod.metadata.name},
+                    {"key": "kubernetes_pod_uid", "value": pod.metadata.uid}
+                ])
+        if "image" in service["config"].keys():
+            containers = minikube.client.containers.list(filters={"ancestor": service["config"]["image"]})
+            assert len(containers) > 0, "failed to get containers with ancestor '%s'!" % service["config"]["image"]
+            for container in containers:
+                dims.extend([
+                    {"key": "container_id", "value": container.id},
+                    {"key": "container_name", "value": container.name}
+                ])
+    return dims
 
