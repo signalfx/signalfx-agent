@@ -6,7 +6,8 @@ import sys
 import time
 import yaml
 
-MINIKUBE_VERSION = os.environ.get("MINIKUBE_VERSION", "latest")
+MINIKUBE_VERSION = os.environ.get("MINIKUBE_VERSION", "v0.26.1")
+K8S_SERVICES_DIR = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'services')
 
 class Agent:
     def __init__(self):
@@ -117,9 +118,21 @@ class Minikube:
         self.cluster_name = "minikube"
         self.kubeconfig = None
         self.namespace = "default"
+        self.ip = None
 
     def get_client(self):
-        return docker.DockerClient(base_url="tcp://%s:2375" % self.container.attrs["NetworkSettings"]["IPAddress"], version='auto')
+        if self.container:
+            self.client = docker.DockerClient(base_url="tcp://%s:2375" % self.container.attrs["NetworkSettings"]["IPAddress"], version='auto')
+            return self.client
+        else:
+            return None
+
+    def get_ip(self):
+        if self.container:
+            self.ip = self.container.attrs["NetworkSettings"]["IPAddress"]
+            return self.ip
+        else:
+            return None
 
     def load_kubeconfig(self, kubeconfig_path="/kubeconfig", timeout=300):
         assert wait_for(p(container_cmd_exit_0, self.container, "test -f %s" % kubeconfig_path), timeout_seconds=timeout), "timed out waiting for the minikube cluster to be ready!\n\n%s\n\n" % self.container.logs().decode('utf-8').strip()
@@ -167,8 +180,8 @@ class Minikube:
         print("\nDeploying minikube %s cluster ..." % self.version)
         image, logs = self.host_client.images.build(
             path=os.path.join(TEST_SERVICES_DIR, 'minikube'),
-            buildargs={"MINIKUBE_VERSION": MINIKUBE_VERSION},
-            tag='minikube:latest',
+            buildargs={"MINIKUBE_VERSION": MINIKUBE_VERSION, "KUBECTL_VERSION": self.version},
+            tag="minikube:%s-%s" % (MINIKUBE_VERSION, self.version),
             rm=True,
             forcerm=True)
         self.container = self.host_client.containers.run(
@@ -177,16 +190,28 @@ class Minikube:
             **options)
         self.load_kubeconfig(timeout=timeout)
         self.container.reload()
-        self.client = self.get_client()
+        self.get_client()
+        self.get_ip()
 
-    def deploy_services(self, services=[]):
-        for service in services:
-            print("\nDeploying %s to the minikube cluster ..." % service["name"])
-            exec("from tests.kubernetes.services import %s" % service["name"])
-            exec("%s.deploy()" % service["name"])
-        if len(services) > 0:
+    def deploy_services(self, services_dir=K8S_SERVICES_DIR):
+        self.services = []
+        yamls = [y for y in os.listdir(services_dir) if y.endswith(".yaml")]
+        if "configmap.yaml" in yamls:
+            print("Creating configmap from %s ..." % os.path.join(services_dir, "configmap.yaml"))
+            create_configmap(body=yaml.load(open(os.path.join(services_dir, "configmap.yaml"))))
+            yamls.remove("configmap.yaml")
+        for y in [os.path.join(services_dir, y) for y in yamls]:
+            body = yaml.load(open(y))
+            assert body["kind"] in ["Deployment", "ReplicationController"], "kind \"%s\" in %s not yet supported!" % (body["kind"], y)
+            if body["kind"] == "Deployment":
+                print("Creating deployment from %s ..." % y)
+                create_deployment(body=body)
+            elif body["kind"] == "ReplicationController":
+                print("Creating replication controller from %s ..." % y)
+                create_replication_controller(body=body)
+            self.services.append(body)
+        if len(yamls) > 0:
             assert wait_for(all_pods_have_ips, timeout_seconds=300), "timed out waiting for pod IPs!"
-        self.services = services
 
     def pull_agent_image(self, name, tag=""):
         self.container.exec_run("cp -f /etc/hosts /etc/hosts.orig")
