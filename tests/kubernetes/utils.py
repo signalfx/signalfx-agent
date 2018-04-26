@@ -149,19 +149,19 @@ def get_pod_template(name="", image="", ports=[], labels={}, volume_mounts=[], e
     return template
 
 def create_deployment(body=None, name="", pod_template=None, replicas=1, labels={}, namespace="default"):
-    api = kube_client.AppsV1Api()
+    api = kube_client.ExtensionsV1beta1Api()
     if body:
-        body["apiVersion"] = "apps/v1"
+        body["apiVersion"] = "extensions/v1beta1"
         try:
             namespace = body["metadata"]["namespace"]
         except:
             pass
     else:
-        spec = kube_client.V1DeploymentSpec(
+        spec = kube_client.ExtensionsV1beta1DeploymentSpec(
             replicas=replicas,
             template=pod_template)
-        body = kube_client.V1Deployment(
-            api_version="apps/v1",
+        body = kube_client.ExtensionsV1beta1Deployment(
+            api_version="extensions/v1beta1",
             kind="Deployment",
             metadata=kube_client.V1ObjectMeta(name=name, labels=labels),
             spec=spec)
@@ -211,9 +211,9 @@ def create_service(name="", ports=[], service_type="NodePort", labels={}, namesp
         namespace=namespace)
 
 def create_daemonset(body=None, namespace="default"):
-    api = kube_client.AppsV1Api()
+    api = kube_client.ExtensionsV1beta1Api()
     if body:
-        body["apiVersion"] = "apps/v1"
+        body["apiVersion"] = "extensions/v1beta1"
         try:
             namespace = body["metadata"]["namespace"]
         except:
