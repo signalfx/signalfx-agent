@@ -97,7 +97,7 @@ jobs:
       - checkout
       - run: |
           set -x
-          docker build --build-arg MINIKUBE_VERSION=v0.26.0 -t minikube:latest test-services/minikube
+          docker build --build-arg MINIKUBE_VERSION=v0.26.1 -t minikube:latest test-services/minikube
       - run: |
           mkdir -p /tmp/workspace
           docker save -o /tmp/workspace/minikube_image.tar minikube:latest
