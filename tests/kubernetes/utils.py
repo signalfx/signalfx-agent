@@ -88,19 +88,31 @@ def get_dims_from_doc(doc, ignore=[]):
 def get_host_ip():
     return ni.ifaddresses('eth0')[ni.AF_INET][0]['addr']
 
-def create_configmap(name="", body=None, data={}, labels={}, namespace="default"):
-    v1 = kube_client.CoreV1Api()
-    if not body and name and data:
+def create_configmap(body=None, name="", data={}, labels={}, namespace="default"):
+    api = kube_client.CoreV1Api()
+    if body:
+        body["apiVersion"] = "v1"
+        try:
+            namespace = body["metadata"]["namespace"]
+        except:
+            pass
+    else:
         body = kube_client.V1ConfigMap(
             api_version="v1",
             kind="ConfigMap",
             metadata=kube_client.V1ObjectMeta(name=name, labels=labels),
             data=data)
-    return v1.create_namespaced_config_map(
+    return api.create_namespaced_config_map(
         body=body,
         namespace=namespace)
 
-def get_pod_template(name="", image="", port=None, labels={}, volume_mounts=[]):
+def get_pod_template(name="", image="", ports=[], labels={}, volume_mounts=[], env={}, command=[], args=[]):
+    def get_ports():
+        container_ports = []
+        for port in ports:
+            container_ports.append(kube_client.V1ContainerPort(container_port=port))
+        return container_ports
+
     def get_volume_mounts():
         mounts = []
         for vm in volume_mounts:
@@ -113,11 +125,20 @@ def get_pod_template(name="", image="", port=None, labels={}, volume_mounts=[]):
             configmap_volumes.append(kube_client.V1Volume(name=vm["name"], config_map=kube_client.V1ConfigMapVolumeSource(name=vm["configmap"])))
         return configmap_volumes
 
+    def get_envvars():
+        envvars = []
+        for key,val in env.items():
+            envvars.append(kube_client.V1EnvVar(name=key, value=val))
+        return envvars
+
     container = kube_client.V1Container(
         name=name,
         image=image,
-        ports=[kube_client.V1ContainerPort(container_port=port)],
-        volume_mounts=get_volume_mounts())
+        ports=get_ports(),
+        volume_mounts=get_volume_mounts(),
+        env=get_envvars(),
+        command=command,
+        args=args)
     template = kube_client.V1PodTemplateSpec(
         metadata=kube_client.V1ObjectMeta(labels=labels),
         spec=kube_client.V1PodSpec(
@@ -125,59 +146,129 @@ def get_pod_template(name="", image="", port=None, labels={}, volume_mounts=[]):
             volumes=get_configmap_volumes()))
     return template
 
-def create_deployment(name="", pod_template=None, replicas=1, labels={}, namespace="default"):
-    v1beta1 = kube_client.ExtensionsV1beta1Api()
-    spec = kube_client.ExtensionsV1beta1DeploymentSpec(
-        replicas=replicas,
-        template=pod_template)
-    deployment = kube_client.ExtensionsV1beta1Deployment(
-        api_version="extensions/v1beta1",
-        kind="Deployment",
-        metadata=kube_client.V1ObjectMeta(name=name, labels=labels),
-        spec=spec)
-    return v1beta1.create_namespaced_deployment(
-        body=deployment,
+def create_deployment(body=None, name="", pod_template=None, replicas=1, labels={}, namespace="default"):
+    api = kube_client.AppsV1Api()
+    if body:
+        body["apiVersion"] = "apps/v1"
+        try:
+            namespace = body["metadata"]["namespace"]
+        except:
+            pass
+    else:
+        spec = kube_client.V1DeploymentSpec(
+            replicas=replicas,
+            template=pod_template)
+        body = kube_client.V1Deployment(
+            api_version="apps/v1",
+            kind="Deployment",
+            metadata=kube_client.V1ObjectMeta(name=name, labels=labels),
+            spec=spec)
+    return api.create_namespaced_deployment(
+        body=body,
         namespace=namespace)
 
-def create_replication_controller(name="", pod_template=None, replicas=1, labels={}, namespace="default"):
-    v1 = kube_client.CoreV1Api()
-    spec = kube_client.V1ReplicationControllerSpec(
-        replicas=replicas,
-        template=pod_template,
-        selector=labels)
-    rc = kube_client.V1ReplicationController(
-        api_version="v1",
-        metadata=kube_client.V1ObjectMeta(name=name, labels=labels),
-        spec=spec)
-    return v1.create_namespaced_replication_controller(
-        body=rc,
+def create_replication_controller(body=None, name="", pod_template=None, replicas=1, labels={}, namespace="default"):
+    api = kube_client.CoreV1Api()
+    if body:
+        body["apiVersion"] = "v1"
+        try:
+            namespace = body["metadata"]["namespace"]
+        except:
+            pass
+    else:
+        spec = kube_client.V1ReplicationControllerSpec(
+            replicas=replicas,
+            template=pod_template,
+            selector=labels)
+        body = kube_client.V1ReplicationController(
+            api_version="v1",
+            metadata=kube_client.V1ObjectMeta(name=name, labels=labels),
+            spec=spec)
+    return api.create_namespaced_replication_controller(
+        body=body,
         namespace=namespace)
 
-def create_service(name="", port=None, service_type="NodePort", labels={}, namespace="default"):
-    v1 = kube_client.CoreV1Api()
+def create_service(name="", ports=[], service_type="NodePort", labels={}, namespace="default"):
+    def get_ports():
+        service_ports = []
+        for port in ports:
+            service_ports.append(kube_client.V1ServicePort(port=port))
+        return service_ports
+
+    api = kube_client.CoreV1Api()
     service = kube_client.V1Service(
         api_version="v1",
         kind="Service",
         metadata=kube_client.V1ObjectMeta(name=name, labels=labels),
         spec=kube_client.V1ServiceSpec(
             type=service_type,
-            ports=[kube_client.V1ServicePort(port=port)],
+            ports=get_ports(),
             selector=labels))
-    return v1.create_namespaced_service(
+    return api.create_namespaced_service(
         body=service,
         namespace=namespace)
 
 def create_daemonset(body=None, namespace="default"):
-    v1beta1 = kube_client.ExtensionsV1beta1Api()
-    return v1beta1.create_namespaced_daemon_set(
+    api = kube_client.AppsV1Api()
+    if body:
+        body["apiVersion"] = "apps/v1"
+        try:
+            namespace = body["metadata"]["namespace"]
+        except:
+            pass
+    return api.create_namespaced_daemon_set(
         body=body,
         namespace=namespace)
 
 def create_serviceaccount(body=None, namespace="default"):
-    v1 = kube_client.CoreV1Api()
-    return v1.create_namespaced_service_account(
+    api = kube_client.CoreV1Api()
+    if body:
+        body["apiVersion"] = "v1"
+        try:
+            namespace = body["metadata"]["namespace"]
+        except:
+            pass
+    return api.create_namespaced_service_account(
         body=body,
         namespace=namespace)
+
+def deploy_k8s_service(**kwargs):
+    if configmap_name and configmap_data:
+        create_configmap(
+            name=configmap_name,
+            data=configmap_data,
+            labels=labels,
+            namespace=namespace)
+    pod_template = get_pod_template(
+        name=name,
+        image=image,
+        ports=ports,
+        labels=labels,
+        env=env,
+        command=command,
+        args=args,
+        volume_mounts=volume_mounts)
+    if replicas > 1:
+        create_replication_controller(
+            name=pod_name,
+            pod_template=pod_template,
+            replicas=replicas,
+            labels=labels,
+            namespace=namespace)
+    else:
+        create_deployment(
+            name=pod_name,
+            pod_template=pod_template,
+            replicas=replicas,
+            labels=labels,
+            namespace=namespace)
+    if service_type:
+        create_service(
+            name="%s-service" % name,
+            ports=ports,
+            service_type=service_type,
+            labels=labels,
+            namespace=namespace)
 
 # returns a list of all pods in the cluster
 def get_all_pods():
