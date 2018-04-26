@@ -20,33 +20,35 @@ DOCS_DIR = os.environ.get("DOCS_DIR", "/go/src/github.com/signalfx/signalfx-agen
 # returns a list of the metrics not found if the timeout is reached
 # returns an empty list if all metrics are found before the timeout is reached
 def check_for_metrics(backend, metrics, timeout):
+    metrics_not_found = list(metrics)
     start_time = time.time()
     while True:
         if (time.time() - start_time) > timeout:
             break
-        for metric in metrics:
+        for metric in metrics_not_found:
             if has_datapoint_with_metric_name(backend, metric):
-                metrics.remove(metric)
-        if len(metrics) == 0:
+                metrics_not_found.remove(metric)
+        if len(metrics_not_found) == 0:
             break
         time.sleep(5)
-    return metrics
+    return metrics_not_found
 
 # check the fake backend for a list of dimensions
 # returns a list of the dimensions not found if the timeout is reached
 # returns an empty list if all dimensions are found before the timeout is reached
 def check_for_dims(backend, dims, timeout):
+    dims_not_found = list(dims)
     start_time = time.time()
     while True:
         if (time.time() - start_time) > timeout:
             break
-        for dim in dims:
+        for dim in dims_not_found:
             if not dim["value"] or has_datapoint_with_dim(backend, dim["key"], dim["value"]):
-                dims.remove(dim)
-        if len(dims) == 0:
+                dims_not_found.remove(dim)
+        if len(dims_not_found) == 0:
             break
         time.sleep(5)
-    return dims
+    return dims_not_found
 
 # returns a sorted list of unique metric names from `doc` excluding those in `ignore`
 def get_metrics_from_doc(doc, ignore=[]):
