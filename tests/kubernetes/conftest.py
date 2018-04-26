@@ -83,8 +83,6 @@ def minikube(request, backend, local_registry):
     request.addfinalizer(teardown)
     if k8s_container:
         mk.connect(k8s_container, k8s_timeout)
-        for service in k8s_services:
-            assert len(get_all_pods_matching_name(service["config"]["pod_name"])) == 0, "service \"%s\" already running in container %s!" % (service["name"], mk.container.name)
         assert len(get_all_pods_matching_name('signalfx-agent.*')) == 0, "signalfx-agent already running in container %s!" % mk.container.name
     else:
         name = "minikube-%s-%s" % (k8s_version, k8s_observer)
