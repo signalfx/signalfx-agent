@@ -4,6 +4,7 @@ from tests.kubernetes.utils import *
 
 import docker
 import pytest
+import yaml
 
 AGENT_YAMLS_DIR = os.environ.get("AGENT_YAMLS_DIR", "/go/src/github.com/signalfx/signalfx-agent/deployments/k8s")
 AGENT_CONFIGMAP_PATH = os.environ.get("AGENT_CONFIGMAP_PATH", os.path.join(AGENT_YAMLS_DIR, "configmap.yaml"))
@@ -11,21 +12,6 @@ AGENT_DAEMONSET_PATH = os.environ.get("AGENT_DAEMONSET_PATH", os.path.join(AGENT
 AGENT_SERVICEACCOUNT_PATH = os.environ.get("AGENT_SERVICEACCOUNT_PATH", os.path.join(AGENT_YAMLS_DIR, "serviceaccount.yaml"))
 AGENT_IMAGE_NAME = os.environ.get("AGENT_IMAGE_NAME", "localhost:5000/signalfx-agent")
 AGENT_IMAGE_TAG = os.environ.get("AGENT_IMAGE_TAG", "k8s-test")
-SERVICES_DIR = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'services')
-
-@pytest.fixture(scope="module")
-def k8s_services(request):
-    services_to_deploy = getattr(request.module, "SERVICES_TO_DEPLOY", [])
-    available_services = []
-    for f in os.listdir(SERVICES_DIR):
-        if f != '__init__.py' and f.endswith('.py'):
-            available_services.append(f[:-3])
-    services = []
-    for service_to_deploy in services_to_deploy:
-        assert service_to_deploy in available_services, "service \"%s\" is not available!" % service_to_deploy
-        exec("from tests.kubernetes.services import %s" % service_to_deploy)
-        services.append({"name": service_to_deploy, "config": eval(service_to_deploy + ".CONFIG")})
-    return services
 
 @pytest.fixture(scope="module")
 def backend():
@@ -82,12 +68,19 @@ def local_registry(request):
         pass
 
 @pytest.fixture(scope="module")
-def minikube(request, k8s_services, backend, local_registry):
+def minikube(request, backend, local_registry):
     k8s_version, k8s_observer = request.param
     k8s_timeout = int(request.config.getoption("--k8s-timeout"))
     k8s_container = request.config.getoption("--k8s-container")
     monitors = [m[0] for m in getattr(request.module, "MONITORS_TO_TEST")]
     mk = Minikube()
+    def teardown():
+        if not k8s_container:
+            try:
+                mk.container.remove(force=True, v=True)
+            except:
+                pass
+    request.addfinalizer(teardown)
     if k8s_container:
         mk.connect(k8s_container, k8s_timeout)
         for service in k8s_services:
@@ -96,7 +89,7 @@ def minikube(request, k8s_services, backend, local_registry):
     else:
         name = "minikube-%s-%s" % (k8s_version, k8s_observer)
         mk.deploy(k8s_version, k8s_timeout, name=name)
-    mk.deploy_services(k8s_services)
+    mk.deploy_services()
     mk.deploy_agent(
         AGENT_CONFIGMAP_PATH,
         AGENT_DAEMONSET_PATH,
@@ -108,13 +101,6 @@ def minikube(request, k8s_services, backend, local_registry):
         image_name=AGENT_IMAGE_NAME,
         image_tag=AGENT_IMAGE_TAG,
         namespace="default")
-    def teardown():
-        if not k8s_container:
-            try:
-                mk.container.remove(force=True, v=True)
-            except:
-                pass
-    request.addfinalizer(teardown)
     return mk
 
 @pytest.fixture
@@ -135,18 +121,26 @@ def expected_dims(minikube):
         {"key": "metric_source", "value": "kubernetes"}
     ]
     for service in minikube.services:
-        if "pod_name" in service["config"].keys():
-            pods = get_all_pods_matching_name(service["config"]["pod_name"])
-            assert len(pods) > 0, "failed to get pods with name '%s'!" % service["config"]["pod_name"]
+        try:
+            name = service["metadata"]["name"]
+        except:
+            name = None
+        if name:
+            pods = get_all_pods_matching_name(name)
+            assert len(pods) > 0, "failed to get pods with name '%s'!" % name
             for pod in pods:
                 dims.extend([
                     {"key": "container_spec_name", "value": pod.spec.containers[0].name},
                     {"key": "kubernetes_pod_name", "value": pod.metadata.name},
                     {"key": "kubernetes_pod_uid", "value": pod.metadata.uid}
                 ])
-        if "image" in service["config"].keys():
-            containers = minikube.client.containers.list(filters={"ancestor": service["config"]["image"]})
-            assert len(containers) > 0, "failed to get containers with ancestor '%s'!" % service["config"]["image"]
+        try:
+            image = service["spec"]["template"]["spec"]["image"]
+        except:
+            image = None
+        if image:
+            containers = minikube.client.containers.list(filters={"ancestor": image})
+            assert len(containers) > 0, "failed to get containers with ancestor '%s'!" % image
             for container in containers:
                 dims.extend([
                     {"key": "container_id", "value": container.id},
