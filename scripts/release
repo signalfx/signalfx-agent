@@ -158,10 +158,10 @@ Options:
                                     Note that the version should not include a leading 'v'!
   --component docker|deb|rpm|bundle Releases only the selected component if specified, otherwise does everything
   --[no-]push                       Whether to push the components to remote sources or not (default, yes)
-  --force                           Ignore checks for uncommited local changes
+  --force                           Ignore checks for uncommited local changes and package repo confirmation
   --stage test|beta|final           What kind of release this is.  If not specified, will be inferred from the version
-  --github-user <username>
-  --github-token <token>
+  --github-user <username>          Github username of a user that has permisssions to manage releases
+  --github-token <token>            Github API token for the given user
 
 EOH
 }

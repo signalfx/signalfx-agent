@@ -67,12 +67,12 @@ func parseRuleText(text string) (*govaluate.EvaluableExpression, error) {
 // DoesServiceMatchRule returns true if service endpoint satisfies the rule
 // given
 func DoesServiceMatchRule(si Endpoint, ruleText string) bool {
-	// TODO: consider caching parsed rule for maximum efficiency
 	rule, err := parseRuleText(ruleText)
 	if err != nil {
 		log.WithFields(log.Fields{
 			"discoveryRule": ruleText,
 		}).Error("Could not parse discovery rule")
+		return false
 	}
 
 	asMap := duplicateKeysAsCamelCase(EndpointAsMap(si))

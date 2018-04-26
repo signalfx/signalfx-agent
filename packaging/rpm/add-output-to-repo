@@ -44,9 +44,4 @@ if [[ -z ${NO_SIGN-} ]]; then
   gpg2 --batch --yes --detach-sign --armor --default-key $GPG_KEY_ID --digest-algo SHA256 repodata/repomd.xml
 fi
 
-aws s3 sync --delete --dryrun $repo_dir $s3_bucket
-
-read -p "Do the above file updates to the s3 bucket seem correct? [y/N] "
-[[ ! "$REPLY" =~ ^[Yy]$ ]] && echo "Cancelling upload" && exit 1
-
 aws s3 sync --delete $repo_dir $s3_bucket
