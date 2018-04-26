@@ -17,6 +17,10 @@ TypesDB "{{ pluginRoot }}/signalfx/types.db.plugin"
     ProcPath "{{ .ProcFSPath }}"
     EtcPath "{{ .EtcPath }}"
     PersistencePath "{{ .PersistencePath }}"
+    ProcessInfo {{if .OmitProcessInfo}}false{{else}}true{{end}}
+    {{with .DogStatsDPort}}
+    DogStatsDPort {{.}}
+    {{end}}
   </Module>
 </Plugin>
 
