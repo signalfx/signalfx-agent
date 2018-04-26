@@ -27,6 +27,8 @@ Monitor Type: `collectd/signalfx-metadata`
 | `procFSPath` | no | `string` | The path to the proc filesystem. Useful to override in containerized environments. (**default:** `/proc`) |
 | `etcPath` | no | `string` | The path to the main host config dir. Userful to override in containerized environments. (**default:** `/etc`) |
 | `persistencePath` | no | `string` | A directory where the metadata plugin can persist the history of successful host metadata syncs so that host metadata is not sent redundantly. (**default:** `/var/run/signalfx-agent`) |
+| `omitProcessInfo` | no | `bool` | If true, process "top" information will not be sent.  This can be useful if you have an extremely high number of processes and performance of the plugin is poor. (**default:** `false`) |
+| `dogStatsDPort` | no | `unsigned integer` | Set this to a non-zero value to enable the DogStatsD listener as part of this monitor.  The listener will accept metrics on the DogStatsD format, and sends them as SignalFx datapoints to our backend. (**default:** `0`) |
 
 
 
