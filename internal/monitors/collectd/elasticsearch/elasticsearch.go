@@ -46,7 +46,7 @@ type Config struct {
 	IndexStatsMasterOnly bool `yaml:"indexStatsMasterOnly" default:"false"`
 	IndexSummaryOnly     bool `yaml:"indexSummaryOnly" default:"false"`
 	// Password used to access elasticsearch stats api
-	Password string `yaml:"password"`
+	Password string `yaml:"password" neverLog:"true"`
 	// Protocol used to connect: http or https
 	Protocol string `yaml:"protocol"`
 	// ThreadPools to report on

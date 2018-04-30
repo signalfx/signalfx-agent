@@ -64,5 +64,3 @@ def test_docker_stops_watching_old_containers():
             time.sleep(3)
             backend.datapoints.clear()
             assert ensure_always(lambda: not has_datapoint_with_dim(backend, "container_id", nginx_container.id))
-            assert not has_log_message(get_output(), "error")
-            
