@@ -1,10 +1,8 @@
-from tests.helpers.util import *
 from tests.kubernetes.minikube import *
 from tests.kubernetes.utils import *
-
+from tests.helpers import fake_backend
 import docker
 import pytest
-import yaml
 
 AGENT_YAMLS_DIR = os.environ.get("AGENT_YAMLS_DIR", "/go/src/github.com/signalfx/signalfx-agent/deployments/k8s")
 AGENT_CONFIGMAP_PATH = os.environ.get("AGENT_CONFIGMAP_PATH", os.path.join(AGENT_YAMLS_DIR, "configmap.yaml"))

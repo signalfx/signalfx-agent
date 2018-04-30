@@ -2,17 +2,11 @@ from kubernetes import (
     client as kube_client,
     watch as kube_watch
 )
-from contextlib import contextmanager
-from functools import partial as p
 from tests.helpers.assertions import *
-from tests.helpers.util import *
-
 import os
 import netifaces as ni
 import re
-import sys
 import time
-import yaml
 
 DOCS_DIR = os.environ.get("DOCS_DIR", "/go/src/github.com/signalfx/signalfx-agent/docs/monitors")
 
