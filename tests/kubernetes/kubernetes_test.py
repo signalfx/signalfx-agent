@@ -1,9 +1,4 @@
-from functools import partial as p
-from tests.helpers.util import *
-from tests.helpers.assertions import *
 from tests.kubernetes.utils import *
-
-import os
 import pytest
 
 pytestmark = [pytest.mark.k8s, pytest.mark.kubernetes]
@@ -12,13 +7,20 @@ pytestmark = [pytest.mark.k8s, pytest.mark.kubernetes]
 # the monitor should be a YAML-based dictionary which will be used for the signalfx-agent agent.yaml configuration
 MONITORS_TO_TEST = [
     ({"type": "collectd/activemq", "discoveryRule": 'container_image =~ "activemq" && private_port == 1099', "username": "testuser", "password": "testing123"}, get_metrics_from_doc("collectd-activemq.md")),
+    ({"type": "collectd/apache", "discoveryRule": 'container_image =~ "apache" && private_port == 80', "username": "testuser", "password": "testing123"}, []),
+    ({"type": "collectd/cassandra", "discoveryRule": 'container_image =~ "cassandra" && private_port == 7199', "username": "testuser", "password": "testing123"}, []),
     ({"type": "collectd/cpu"}, get_metrics_from_doc("collectd-cpu.md")),
-    #({"type": "collectd/cpufreq"}, ["cpufreq.0"]),
-    #({"type": "collectd/df", "hostFSPath": "/hostfs", "reportInodes": True}, get_metrics_from_doc("collectd-df.md")),
+    ({"type": "collectd/elasticsearch", "discoveryRule": 'container_image =~ "elasticsearch" && private_port == 9200', "username": "testuser", "password": "testing123"}, []),
+    ({"type": "collectd/genericjmx", "discoveryRule": 'container_image =~ "activemq" && private_port == 1099', "username": "testuser", "password": "testing123"}, []),
     ({"type": "collectd/interface"}, get_metrics_from_doc("collectd-interface.md")),
+    ({"type": "collectd/kafka", "discoveryRule": 'container_image =~ "kafka" && private_port == 9092', "username": "testuser", "password": "testing123"}, []),
+    ({"type": "collectd/marathon", "discoveryRule": 'container_image =~ "marathon" && private_port == 8443', "username": "testuser", "password": "testing123"}, []),
     ({"type": "collectd/memory"}, get_metrics_from_doc("collectd-memory.md")),
-    ({"type": "collectd/nginx", "discoveryRule": 'container_image =~ "nginx" && private_port == 80'}, get_metrics_from_doc("collectd-nginx.md")),
+    ({"type": "collectd/mongodb", "discoveryRule": 'container_image =~ "mongo" && private_port == 27017', "username": "testuser", "password": "testing123"}, []),
+    ({"type": "collectd/mysql", "discoveryRule": 'container_image =~ "mysql" && private_port == 3306', "username": "testuser", "password": "testing123"}, []),
+    ({"type": "collectd/nginx", "discoveryRule": 'container_image =~ "nginx" && private_port == 80', "username": "testuser", "password": "testing123"}, get_metrics_from_doc("collectd-nginx.md")),
     ({"type": "collectd/protocols"}, get_metrics_from_doc("collectd-protocols.md")),
+    ({"type": "collectd/rabbitmq", "discoveryRule": 'container_image =~ "rabbitmq" && private_port == 15672', "username": "testuser", "password": "testing123"}, []),
     ({"type": "collectd/signalfx-metadata", "procFSPath": "/hostfs/proc", "etcPath": "/hostfs/etc", "persistencePath": "/run"}, get_metrics_from_doc("collectd-signalfx-metadata.md", ignore=['cpu.utilization_per_core', 'disk.summary_utilization', 'disk.utilization', 'disk_ops.total'])),
     ({"type": "collectd/uptime"}, get_metrics_from_doc("collectd-uptime.md")),
     ({"type": "collectd/vmem"}, get_metrics_from_doc("collectd-vmem.md")),
