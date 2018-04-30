@@ -59,7 +59,7 @@ type Config struct {
 	// the host and port values.
 	URL      string `yaml:"url" default:"http://{{.Host}}:{{.Port}}/mod_status?auto"`
 	Username string `yaml:"username"`
-	Password string `yaml:"password"`
+	Password string `yaml:"password" neverLog:"true"`
 }
 
 // Monitor is the main type that represents the monitor

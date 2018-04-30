@@ -39,7 +39,7 @@ type Config struct {
 	ServiceURL     string `yaml:"serviceURL" default:"service:jmx:rmi:///jndi/rmi://{{.Host}}:{{.Port}}/jmxrmi"`
 	InstancePrefix string `yaml:"instancePrefix"`
 	Username       string `yaml:"username"`
-	Password       string `yaml:"password"`
+	Password       string `yaml:"password" neverLog:"true"`
 	// A list of the MBeans defined in `mBeanDefinitions` to actually collect.
 	// If not provided, then all defined MBeans will be collected.
 	MBeansToCollect []string `yaml:"mBeansToCollect"`
