@@ -17,3 +17,4 @@ test_output/
 .pytest_cache
 __pycache__
 /vendor_orig/
+.idea/
