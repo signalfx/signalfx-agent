@@ -196,13 +196,15 @@ class Minikube:
 
     def deploy_services(self, services_dir=K8S_SERVICES_DIR):
         self.services = []
-        yamls = [y for y in os.listdir(services_dir) if y.endswith(".yaml")]
-        if "configmap.yaml" in yamls:
-            print("Creating configmap from %s ..." % os.path.join(services_dir, "configmap.yaml"))
-            create_configmap(body=yaml.load(open(os.path.join(services_dir, "configmap.yaml"))))
-            yamls.remove("configmap.yaml")
-        for y in [os.path.join(services_dir, y) for y in yamls]:
+        yamls = [os.path.join(services_dir, y) for y in os.listdir(services_dir) if y.endswith(".yaml")]
+        for y in yamls:
+            if "configmap" in y:
+                print("Creating configmap from %s ..." % y)
+                create_configmap(body=yaml.load(open(y)))
+        for y in yamls:
             body = yaml.load(open(y))
+            if body["kind"] == "ConfigMap":
+                continue
             assert body["kind"] in ["Deployment", "ReplicationController"], "kind \"%s\" in %s not yet supported!" % (body["kind"], y)
             if body["kind"] == "Deployment":
                 print("Creating deployment from %s ..." % y)
