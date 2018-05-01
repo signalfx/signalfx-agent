@@ -1,3 +1,4 @@
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -16,21 +17,20 @@ spec:
         app: activemq
     spec:
       containers:
-      - name: activemq
-        image: webcenter/activemq:5.14.3
-        ports:
-        - containerPort: 1099
-        env:
-        - name: ACTIVEMQ_SUNJMX_START
-          value: -Dcom.sun.management.jmxremote.port=1099 -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.password.file=${ACTIVEMQ_CONFIG_DIR}/jmx.password -Dcom.sun.management.jmxremote.access.file=${ACTIVEMQ_CONFIG_DIR}/jmx.access
-        - name: ACTIVEMQ_JMX_LOGIN
-          value: testuser
-        - name: ACTIVEMQ_JMX_PASSWORD
-          value: testing123
-        - name: ACTIVEMQ_STATIC_TOPICS
-          value: testtopic
-        - name: ACTIVEMQ_STATIC_QUEUES
-          value: testqueue
-        command: ["/bin/sh"]
-        args: ["-c", "python /app/entrypoint/Init.py; chmod 400 ${ACTIVEMQ_CONFIG_DIR}/jmx.password; exec /usr/bin/supervisord -n -c /etc/supervisor/supervisord.conf"]
-
+        - name: activemq
+          image: webcenter/activemq:5.14.3
+          ports:
+            - containerPort: 1099
+          env:
+            - name: ACTIVEMQ_SUNJMX_START
+              value: -Dcom.sun.management.jmxremote.port=1099 -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.password.file=${ACTIVEMQ_CONFIG_DIR}/jmx.password -Dcom.sun.management.jmxremote.access.file=${ACTIVEMQ_CONFIG_DIR}/jmx.access
+            - name: ACTIVEMQ_JMX_LOGIN
+              value: testuser
+            - name: ACTIVEMQ_JMX_PASSWORD
+              value: testing123
+            - name: ACTIVEMQ_STATIC_TOPICS
+              value: testtopic
+            - name: ACTIVEMQ_STATIC_QUEUES
+              value: testqueue
+          command: ["/bin/sh"]
+          args: ["-c", "python /app/entrypoint/Init.py; chmod 400 ${ACTIVEMQ_CONFIG_DIR}/jmx.password; exec /usr/bin/supervisord -n -c /etc/supervisor/supervisord.conf"]
