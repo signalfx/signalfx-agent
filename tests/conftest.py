@@ -89,6 +89,11 @@ def pytest_addoption(parser):
         default=None,
         help="Name of a running minikube container to use for the tests (the container should not have the agent or any services already running). If not specified, a new minikube container will automatically be deployed."
     )
+    parser.addoption(
+        "--k8s-skip-teardown",
+        action="store_true",
+        help="If specified, the minikube container will not be stopped/removed when the tests complete."
+    )
 
 def pytest_generate_tests(metafunc):
     if 'minikube' in metafunc.fixturenames:
