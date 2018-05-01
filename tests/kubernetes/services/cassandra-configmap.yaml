@@ -1,0 +1,11 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cassandra-jmx
+  namespace: default
+data:
+  jmxremote.password: |
+    testuser testing123
+  jmxremote.access: |
+    testuser readwrite
