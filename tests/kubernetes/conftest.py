@@ -70,10 +70,11 @@ def minikube(request, backend, local_registry):
     k8s_version, k8s_observer = request.param
     k8s_timeout = int(request.config.getoption("--k8s-timeout"))
     k8s_container = request.config.getoption("--k8s-container")
+    k8s_skip_teardown = request.config.getoption("--k8s-skip-teardown")
     monitors = [m[0] for m in getattr(request.module, "MONITORS_TO_TEST")]
     mk = Minikube()
     def teardown():
-        if not k8s_container:
+        if not k8s_container and not k8s_skip_teardown:
             try:
                 mk.container.remove(force=True, v=True)
             except:
