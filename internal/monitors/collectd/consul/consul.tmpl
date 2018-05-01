@@ -1,9 +1,9 @@
 LoadPlugin "python"
 <Plugin "python">
-  ModulePath "{{ pluginRoot }}/consul/plugin"
-  Import "consul_collectd"
+  ModulePath "{{ pluginRoot }}/consul"
+  Import "consul_plugin"
 
-  <Module consul_collectd>
+  <Module consul_plugin>
     ApiHost "{{.Host}}"
     ApiPort "{{.Port}}"
     ApiProtocol "{{if .UseHTTPS}}https{{else}}http{{end}}"
