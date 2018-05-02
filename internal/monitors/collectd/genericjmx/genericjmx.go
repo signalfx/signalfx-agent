@@ -25,9 +25,9 @@ type connection struct {
 type Config struct {
 	config.MonitorConfig `yaml:",inline" acceptsEndpoints:"true"`
     
-    // Host to connect to
+        // Host to connect to
 	Host string `yaml:"host" validate:"required"`
-    // Port on the host where JMX is exposed
+        // Port on the host where JMX is exposed
     
 	Port uint16 `yaml:"port" validate:"required"`
 	Name string `yaml:"name"`
@@ -39,8 +39,8 @@ type Config struct {
 	ServiceName string `yaml:"serviceName"`
 	// The JMX connection string.  This is rendered as a Go template and has
 	// access to the other values in this config. NOTE: under normal circumstances
-    // it is not advised to set this string directly - setting the Host and Port as
-    // specified above is preferred.
+        // it is not advised to set this string directly - setting the Host and Port as
+        // specified above is preferred.
 	ServiceURL     string `yaml:"serviceURL" default:"service:jmx:rmi:///jndi/rmi://{{.Host}}:{{.Port}}/jmxrmi"`
 	InstancePrefix string `yaml:"instancePrefix"`
 	Username       string `yaml:"username"`
