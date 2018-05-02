@@ -7,6 +7,26 @@ the information provided by `mod_status`.
 
 See https://github.com/signalfx/integrations/tree/master/collectd-apache
 
+Sample YAML configuration:
+
+```
+monitors:
+ - type: collectd/apache
+   host: localhost
+   port: 80
+```
+
+If `mod_status` is exposed on an endpoint other than `/mod_status`, you can
+use the `url` config option to specify the path:
+
+```
+monitors:
+ - type: collectd/apache
+   host: localhost
+   port: 80
+   url: "http://{{.Host}}:{{.Port}}/server-status?auto"
+```
+
 
 Monitor Type: `collectd/apache`
 
