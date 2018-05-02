@@ -16,7 +16,7 @@ LoadPlugin "python"
     AclToken "{{.}}"
     {{- end}}
     SfxToken "{{.SignalFxAccessToken}}"
-    Dimension "monitorID" "{{.MonitorID}}"
+    Dimension "monitorID={{.MonitorID}}"
 
     EnhancedMetrics {{if .EnhancedMetrics}}true{{else}}false{{end}}
     {{with .CACertificate -}}
