@@ -24,11 +24,11 @@ type connection struct {
 // be used by a monitors that use the generic JMX collectd plugin.
 type Config struct {
 	config.MonitorConfig `yaml:",inline" acceptsEndpoints:"true"`
-    
-       // Host to connect to
+
+	// Host to connect to -- JMX must be configured for remote access and
+	// accessible from the agent
 	Host string `yaml:"host" validate:"required"`
-       // Port on the host where JMX is exposed
-    
+	// JMX RMI port on the host
 	Port uint16 `yaml:"port" validate:"required"`
 	Name string `yaml:"name"`
 
@@ -38,9 +38,9 @@ type Config struct {
 	// property `sf_hostHasService` set to this value.
 	ServiceName string `yaml:"serviceName"`
 	// The JMX connection string.  This is rendered as a Go template and has
-	// access to the other values in this config. NOTE: under normal circumstances
-       // it is not advised to set this string directly - setting the Host and Port as
-       // specified above is preferred.
+	// access to the other values in this config. NOTE: under normal
+	// circumstances it is not advised to set this string directly - setting
+	// the host and port as specified above is preferred.
 	ServiceURL     string `yaml:"serviceURL" default:"service:jmx:rmi:///jndi/rmi://{{.Host}}:{{.Port}}/jmxrmi"`
 	InstancePrefix string `yaml:"instancePrefix"`
 	Username       string `yaml:"username"`
