@@ -1,3 +1,5 @@
+// +build !windows
+
 package collectd
 
 //go:generate collectd-template-to-go collectd.conf.tmpl collectd.conf.go
