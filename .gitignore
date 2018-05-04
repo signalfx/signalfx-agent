@@ -16,3 +16,4 @@ tmp/
 test_output/
 .pytest_cache
 /vendor_orig/
+*.exe
