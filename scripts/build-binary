@@ -1,0 +1,39 @@
+#!/bin/bash
+
+# Builds the agent RPM package and optionally adds it to the public yum repo..
+# First builds the RPM packager Docker image (which extends and includes the
+# agent bundle) and then runs "rpmbuild" which does the heavy lifting of
+# actually building the package.
+
+set -exuo pipefail
+
+operating_system=${1:-"linux"}
+
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+. $SCRIPT_DIR/common.sh
+
+agent_version=$($SCRIPT_DIR/current-version)
+
+# RPM really dislikes dashes in version names, so replace them with tilde if
+# any (e.g. in beta releases).
+clean_agent_version=$(echo "$agent_version" | sed -e 's/-/~/g')
+GPG_DIR=${GPG_DIR:-"$HOME/.gnupg"}
+
+image_name=signalfx-agent-${operating_system}
+image_tag=${agent_version}
+
+do_docker_build ${image_name} ${image_tag} agent-builder $agent_version ${operating_system}
+
+OUTPUT_DIR=${OUTPUT_DIR:-$SCRIPT_DIR/..}
+
+cid=$(docker create ${image_name}:${image_tag} true)
+tmpdir=$(mktemp -d)
+mkdir $tmpdir/signalfx-agent
+trap "docker rm -f $cid; rm -rf $tmpdir" EXIT
+
+if [ "$operating_system" = "windows" ] ; then
+  docker cp $cid:/usr/bin/signalfx-agent  $OUTPUT_DIR/signalfx-agent.exe
+elif [ "$operating_system" = "linux" ] ; then
+  docker cp $cid:/usr/bin/signalfx-agent $OUTPUT_DIR/signalfx-agent
+fi
