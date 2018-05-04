@@ -38,8 +38,8 @@ jobs:
           set -x
           export PULL_CACHE=yes
           ./scripts/build-binary windows
-          if [ ! -f ./signalfx-agent.exe ]; then
-            echo "File not found!"
+          if [ ! -f ~/project/signalfx-agent.exe ] ; then
+            echo "signalfx-agent.exe not found!"
             exit(1)
           fi
 
