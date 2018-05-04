@@ -30,6 +30,26 @@ jobs:
          paths:
            - image.tar
 
+  build-windows:
+    <<: *executor
+    steps:
+      - checkout
+      - run: |
+          set -x
+          export PULL_CACHE=yes
+          ./scripts/build-binary windows
+          if [ ! -f ./signalfx-agent.exe ]; then
+            echo "File not found!"
+            exit(1)
+          fi
+
+      - store_test_results:
+          path: ~/testresults
+
+      - store_artifacts:
+          path: ~/project/signalfx-agent.exe
+          destination: /packages/
+         
   lint: 
     <<: *executor
     steps:
@@ -243,6 +263,7 @@ workflows:
   build_test:
     jobs:
      - build
+     - build-windows
      - lint:
         requires:
          - build
