@@ -40,7 +40,7 @@ jobs:
           ./scripts/build-binary windows
           if [ ! -f ~/project/signalfx-agent.exe ] ; then
             echo "signalfx-agent.exe not found!"
-            exit(1)
+            exit 1
           fi
 
       - store_test_results:
