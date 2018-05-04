@@ -48,7 +48,7 @@ jobs:
 
       - store_artifacts:
           path: ~/project/signalfx-agent.exe
-          destination: /packages/
+          destination: /signalfx-agent.exe
          
   lint: 
     <<: *executor
