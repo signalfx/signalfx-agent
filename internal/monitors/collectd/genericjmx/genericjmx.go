@@ -25,7 +25,10 @@ type connection struct {
 type Config struct {
 	config.MonitorConfig `yaml:",inline" acceptsEndpoints:"true"`
 
+	// Host to connect to -- JMX must be configured for remote access and
+	// accessible from the agent
 	Host string `yaml:"host" validate:"required"`
+	// JMX RMI port on the host
 	Port uint16 `yaml:"port" validate:"required"`
 	Name string `yaml:"name"`
 
@@ -35,7 +38,9 @@ type Config struct {
 	// property `sf_hostHasService` set to this value.
 	ServiceName string `yaml:"serviceName"`
 	// The JMX connection string.  This is rendered as a Go template and has
-	// access to the other values in this config.
+	// access to the other values in this config. NOTE: under normal
+	// circumstances it is not advised to set this string directly - setting
+	// the host and port as specified above is preferred.
 	ServiceURL     string `yaml:"serviceURL" default:"service:jmx:rmi:///jndi/rmi://{{.Host}}:{{.Port}}/jmxrmi"`
 	InstancePrefix string `yaml:"instancePrefix"`
 	Username       string `yaml:"username"`
