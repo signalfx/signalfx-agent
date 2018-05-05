@@ -341,7 +341,8 @@ RUN apt update &&\
 
 ENV SIGNALFX_BUNDLE_DIR=/bundle \
     TEST_SERVICES_DIR=/go/src/github.com/signalfx/signalfx-agent/test-services \
-    AGENT_BIN=/go/src/github.com/signalfx/signalfx-agent/signalfx-agent
+    AGENT_BIN=/go/src/github.com/signalfx/signalfx-agent/signalfx-agent \
+    GOOS=linux
 
 RUN pip install ipython==5 ipdb
 RUN pip3 install ipython ipdb

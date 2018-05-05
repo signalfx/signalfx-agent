@@ -1,7 +1,7 @@
 package core
 
-// Do an import of all of the built-in observers and monitors until we get a
-// proper plugin system
+// Do an import of all of the built-in observers and monitors
+// that apply to all platforms until we get a proper plugin system
 
 import (
 	// Import everything that isn't referenced anywhere else
