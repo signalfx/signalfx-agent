@@ -18,7 +18,7 @@ do_docker_build ${image_name} ${image_tag} agent-builder $agent_version ${operat
 OUTPUT_DIR=${OUTPUT_DIR:-$SCRIPT_DIR/..}
 
 cid=$(docker create ${image_name}:${image_tag} true)
-trap "docker rm -f $cid; rm -rf $tmpdir" EXIT
+trap "docker rm -f $cid" EXIT
 
 if [ "$operating_system" = "windows" ] ; then
   extension=".exe"
