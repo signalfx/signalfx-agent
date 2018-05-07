@@ -44,6 +44,7 @@ along with their possible configuration options:
 - [collectd/postgresql](./monitors/collectd-postgresql.md)
 - [collectd/processes](./monitors/collectd-processes.md)
 - [collectd/protocols](./monitors/collectd-protocols.md)
+- [collectd/python](./monitors/collectd-python.md)
 - [collectd/rabbitmq](./monitors/collectd-rabbitmq.md)
 - [collectd/redis](./monitors/collectd-redis.md)
 - [collectd/signalfx-metadata](./monitors/collectd-signalfx-metadata.md)

@@ -14,6 +14,7 @@ import (
 
 	"github.com/mitchellh/hashstructure"
 	"github.com/pkg/errors"
+	"github.com/signalfx/signalfx-agent/internal/core/common/constants"
 	"github.com/signalfx/signalfx-agent/internal/core/config/sources"
 	"github.com/signalfx/signalfx-agent/internal/utils"
 	log "github.com/sirupsen/logrus"
@@ -118,7 +119,7 @@ func (c *Config) initialize() (*Config, error) {
 // instead of looking to the normal system paths.
 func (c *Config) setupEnvironment() {
 	if c.BundleDir == "" {
-		c.BundleDir = os.Getenv("SIGNALFX_BUNDLE_DIR")
+		c.BundleDir = os.Getenv(constants.BundleDirEnvVar)
 	}
 	if c.BundleDir == "" {
 		exePath, err := os.Executable()
@@ -129,6 +130,7 @@ func (c *Config) setupEnvironment() {
 		if err != nil {
 			panic("Cannot determine absolute path of executable parent dir " + exePath)
 		}
+		os.Setenv(constants.BundleDirEnvVar, c.BundleDir)
 	}
 
 	os.Setenv("LD_LIBRARY_PATH", filepath.Join(c.BundleDir, "lib"))

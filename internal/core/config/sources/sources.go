@@ -120,16 +120,18 @@ func ReadConfig(configPath string, stop <-chan struct{}) ([]byte, <-chan []byte,
 		go func() {
 			for {
 				err := fileSource.WaitForChange(configPath, version, stop)
-				log.Info("Config file changed")
 
 				if utils.IsSignalChanClosed(stop) {
 					return
 				}
+
 				if err != nil {
 					log.WithError(err).Error("Could not wait for changes to config file")
 					time.Sleep(5 * time.Second)
 					continue
 				}
+
+				log.Info("Config file changed")
 
 				contentMap, version, err = fileSource.Get(configPath)
 				if err != nil {

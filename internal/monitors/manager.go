@@ -71,14 +71,16 @@ func (mm *MonitorManager) Configure(confs []config.MonitorConfig, collectdConf *
 
 	newConfig, deletedHashes := diffNewConfig(confs, mm.allConfigHashes())
 
-	// By configuring collectd with the monitor manager, we absolve the monitor
-	// instances of having to know about collectd config, which makes it easier
-	// to create monitor config from disparate sources such as from observers.
-	if err := collectd.ConfigureMainCollectd(collectdConf); err != nil {
-		log.WithFields(log.Fields{
-			"error":          err,
-			"collectdConfig": spew.Sdump(collectdConf),
-		}).Error("Could not configure collectd")
+	if !collectdConf.DisableCollectd {
+		// By configuring collectd with the monitor manager, we absolve the monitor
+		// instances of having to know about collectd config, which makes it easier
+		// to create monitor config from disparate sources such as from observers.
+		if err := collectd.ConfigureMainCollectd(collectdConf); err != nil {
+			log.WithFields(log.Fields{
+				"error":          err,
+				"collectdConfig": spew.Sdump(collectdConf),
+			}).Error("Could not configure collectd")
+		}
 	}
 
 	for _, hash := range deletedHashes {

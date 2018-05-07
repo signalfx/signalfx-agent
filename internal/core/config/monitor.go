@@ -15,45 +15,45 @@ import (
 // will not run.
 type MonitorConfig struct {
 	// The type of the monitor
-	Type string `yaml:"type"`
+	Type string `yaml:"type" json:"type"`
 	// The rule used to match up this configuration with a discovered endpoint.
 	// If blank, the configuration will be run immediately when the agent is
 	// started.  If multiple endpoints match this rule, multiple instances of
 	// the monitor type will be created with the same configuration (except
 	// different host/port).
-	DiscoveryRule string `yaml:"discoveryRule"`
+	DiscoveryRule string `yaml:"discoveryRule" json:"discoveryRule"`
 	// A set of extra dimensions to include on datapoints emitted by the
 	// monitor(s) created from this configuration
-	ExtraDimensions map[string]string `yaml:"extraDimensions"`
+	ExtraDimensions map[string]string `yaml:"extraDimensions" json:"extraDimensions"`
 	// The interval (in seconds) at which to emit datapoints from the
 	// monitor(s) created by this configuration.  If not set (or set to 0), the
 	// global agent intervalSeconds config option will be used instead.
-	IntervalSeconds int `yaml:"intervalSeconds"`
+	IntervalSeconds int `yaml:"intervalSeconds" json:"intervalSeconds"`
 	// If one or more configurations have this set to true, only those
 	// configurations will be considered -- useful for testing
-	Solo bool `yaml:"solo"`
+	Solo bool `yaml:"solo" json:"solo"`
 	// A list of metric filters
-	MetricsToExclude []MetricFilter `yaml:"metricsToExclude" default:"[]"`
+	MetricsToExclude []MetricFilter `yaml:"metricsToExclude" json:"metricsToExclude" default:"[]"`
 	// Some monitors pull metrics from services not running on the same host
 	// and should not get the host-specific dimensions set on them (e.g.
 	// `host`, `AWSUniqueId`, etc).  Setting this to `true` causes those
 	// dimensions to be omitted.  You can disable this globally with the
 	// `disableHostDimensions` option on the top level of the config.
-	DisableHostDimensions bool `yaml:"disableHostDimensions" default:"false"`
+	DisableHostDimensions bool `yaml:"disableHostDimensions" json:"disableHostDimensions" default:"false"`
 	// This can be set to true if you don't want to include the dimensions that
 	// are specific to the endpoint that was discovered by an observer.  This
 	// is useful when you have an endpoint whose identity is not particularly
 	// important since it acts largely as a proxy or adapter for other metrics.
-	DisableEndpointDimensions bool `yaml:"disableEndpointDimensions"`
+	DisableEndpointDimensions bool `yaml:"disableEndpointDimensions" json:"disableEndpointDimensions"`
 	// OtherConfig is everything else that is custom to a particular monitor
 	OtherConfig map[string]interface{} `yaml:",inline" neverLog:"omit"`
 	// ValidationError is where a message concerning validation issues can go
 	// so that diagnostics can output it.
-	Hostname        string               `yaml:"-"`
-	BundleDir       string               `yaml:"-"`
-	ValidationError string               `yaml:"-" hash:"ignore"`
+	Hostname        string               `yaml:"-" json:"-"`
+	BundleDir       string               `yaml:"-" json:"-"`
+	ValidationError string               `yaml:"-" json:"-" hash:"ignore"`
 	MonitorID       types.MonitorID      `yaml:"-" hash:"ignore"`
-	Filter          *dpfilters.FilterSet `yaml:"-" hash:"ignore"`
+	Filter          *dpfilters.FilterSet `yaml:"-" json:"-" hash:"ignore"`
 }
 
 // Init does basic setup of the config struct and should always be called after

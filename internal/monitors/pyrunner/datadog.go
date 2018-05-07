@@ -1,6 +1,6 @@
 // +build ignore
 
-package neopy
+package pyrunner
 
 import (
 	"bytes"
