@@ -19,7 +19,7 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-// Config is the top level config struct that everything goes under
+// Config is the top level config struct for configurations that are common to all platoforms
 type Config struct {
 	// The access token for the org that should receive the metrics emitted by
 	// the agent.
@@ -70,11 +70,21 @@ type Config struct {
 	// that can directly use DataDog and Collectd Python plugins.  This is not
 	// the same as Collectd's Python plugin, which is always enabled.
 	PythonEnabled bool `yaml:"pythonEnabled" default:"false"`
-	// The path where the agent will create its diagnostic output UNIX socket
-	DiagnosticsSocketPath string `yaml:"diagnosticsSocketPath" default:"/var/run/signalfx-agent/diagnostics.sock"`
+
+	DiagnosticsServerPath string `yaml:"-"`
+	// The path where the agent will create a named pipe and serve diagnostic output (windows only)
+	DiagnosticsServerNamedPipePath string `yaml:"diagnosticsNamedPipePath" default:"\\\\.\\pipe\\signalfx-agent-diagnostics" copyTo:"DiagnosticsServerPath,GOOS=windows"`
+	// The path where the agent will create UNIX socket and serve diagnostic output (linux only)
+	DiagnosticsSocketPath string `yaml:"diagnosticsSocketPath" default:"/var/run/signalfx-agent/diagnostics.sock" copyTo:"DiagnosticsServerPath,GOOS=!windows"`
+
+	InternalMetricsServerPath string `yaml:"-"`
+	// The path where the agent will create a named pipe that serves internal
+	// metrics (used by the internal-metrics monitor) (windows only)
+	InternalMetricsServerNamedPipePath string `yaml:"internalMetricsNamedPipePath" default:"\\\\.\\pipe\\signalfx-agent-internal-metrics" copyTo:"InternalMetricsServerPath,GOOS=windows"`
 	// The path where the agent will create a socket that serves internal
-	// metrics (used by the internal-metrics monitor)
-	InternalMetricsSocketPath string `yaml:"internalMetricsSocketPath" default:"/var/run/signalfx-agent/internal-metrics.sock"`
+	// metrics (used by the internal-metrics monitor) (linux only)
+	InternalMetricsSocketPath string `yaml:"internalMetricsSocketPath" default:"/var/run/signalfx-agent/internal-metrics.sock" copyTo:"InternalMetricsServerPath,GOOS=!windows"`
+
 	// Enables Go pprof endpoint on port 6060 that serves profiling data for
 	// development
 	EnableProfiling bool `yaml:"profiling" default:"false"`
