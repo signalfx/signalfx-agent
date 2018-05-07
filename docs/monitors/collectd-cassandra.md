@@ -18,11 +18,11 @@ Monitor Type: `collectd/cassandra`
 
 | Config option | Required | Type | Description |
 | --- | --- | --- | --- |
-| `host` | **yes** | `string` |  |
-| `port` | **yes** | `integer` |  |
+| `host` | **yes** | `string` | Host to connect to -- JMX must be configured for remote access and accessible from the agent |
+| `port` | **yes** | `integer` | JMX RMI port on the host |
 | `name` | no | `string` |  |
 | `serviceName` | no | `string` | This is how the service type is identified in the SignalFx UI so that you can get built-in content for it.  For custom JMX integrations, it can be set to whatever you like and metrics will get the special property `sf_hostHasService` set to this value. |
-| `serviceURL` | no | `string` | The JMX connection string.  This is rendered as a Go template and has access to the other values in this config. (**default:** `service:jmx:rmi:///jndi/rmi://{{.Host}}:{{.Port}}/jmxrmi`) |
+| `serviceURL` | no | `string` | The JMX connection string.  This is rendered as a Go template and has access to the other values in this config. NOTE: under normal circumstances it is not advised to set this string directly - setting the host and port as specified above is preferred. (**default:** `service:jmx:rmi:///jndi/rmi://{{.Host}}:{{.Port}}/jmxrmi`) |
 | `instancePrefix` | no | `string` |  |
 | `username` | no | `string` |  |
 | `password` | no | `string` |  |
