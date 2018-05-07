@@ -303,7 +303,7 @@ func (cm *Manager) manageCollectd(initCh chan<- struct{}, terminated chan struct
 			}
 
 			go func() {
-				scanner := logScanner(output)
+				scanner := utils.ChunkScanner(output)
 				for scanner.Scan() {
 					logLine(scanner.Text(), cm.logger)
 				}

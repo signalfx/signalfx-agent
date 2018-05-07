@@ -1,6 +1,9 @@
 package utils
 
 import (
+	"bufio"
+	"bytes"
+	"io"
 	"regexp"
 	"strings"
 	"unicode"
@@ -75,4 +78,37 @@ func EnsurePrefix(s, prefix string) string {
 		return s
 	}
 	return prefix + s
+}
+
+// ChunkScanner looks for a line and all subsequent indented lines and
+// returns a scanner that will output that chunk as a single token.  This
+// assumes that the entire chunk comes in a single read call, which will not
+// always be the case.
+func ChunkScanner(output io.ReadCloser) *bufio.Scanner {
+	s := bufio.NewScanner(output)
+	s.Split(func(data []byte, atEOF bool) (advance int, token []byte, err error) {
+		if atEOF && len(data) == 0 {
+			return 0, nil, nil
+		}
+
+		lines := bytes.Split(data, []byte{'\n'})
+		// If there is no newline in the data, lines will only have one element,
+		// so return and wait for more data.
+		if len(lines) == 1 && !atEOF {
+			return 0, nil, nil
+		}
+
+		// For any subsequent indented lines, assume they are part of the same
+		// log entry.  This requires that the whole entry be fed to this
+		// function in a single chunk, so some entries may get split up
+		// erroneously.
+		var i int
+		for i = 1; i < len(lines) && len(lines[i]) > 0 && (lines[i][0] == ' ' || lines[i][0] == '\t'); i++ {
+		}
+
+		entry := bytes.Join(lines[:i], []byte("\n"))
+		// the above Join adds back all newlines lost except for one
+		return len(entry) + 1, entry, nil
+	})
+	return s
 }

@@ -14,7 +14,7 @@ import (
 	"github.com/signalfx/golib/event"
 	"github.com/signalfx/metricproxy/protocol/collectd"
 	"github.com/signalfx/metricproxy/protocol/collectd/format"
-	"github.com/signalfx/signalfx-agent/internal/utils"
+	"github.com/signalfx/signalfx-agent/internal/utils/collectdutil"
 )
 
 // WriteHTTPServer is a reimplementation of what the metricproxy collectd
@@ -99,23 +99,17 @@ func (s *WriteHTTPServer) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 	// Preallocate space for dps
 	dps := make([]*datapoint.Datapoint, 0, len(writeBody)*2)
 	for _, f := range writeBody {
-		if f.Time != nil && f.Severity != nil && f.Message != nil {
-			event := collectd.NewEvent((*collectd.JSONWriteFormat)(f), nil)
-			if monitorID != "" {
-				event.Properties["monitorID"] = monitorID
-			}
-			events = append(events, event)
-		} else {
-			for i := range f.Dsnames {
-				if i < len(f.Dstypes) && i < len(f.Values) && f.Values[i] != nil {
-					dp := collectd.NewDatapoint((*collectd.JSONWriteFormat)(f), uint(i), nil)
-					dp.Meta = utils.StringInterfaceMapToAllInterfaceMap(f.Meta)
-					if monitorID != "" && dp.Meta["monitorID"] == nil {
-						dp.Meta["monitorID"] = monitorID
-					}
-					dps = append(dps, dp)
-				}
-			}
+		collectdutil.ConvertWriteFormat((*collectd.JSONWriteFormat)(f), &dps, &events)
+	}
+
+	for i := range events {
+		if monitorID != "" {
+			events[i].Properties["monitorID"] = monitorID
+		}
+	}
+	for i := range dps {
+		if monitorID != "" && dps[i].Meta["monitorID"] == nil {
+			dps[i].Meta["monitorID"] = monitorID
 		}
 	}
 

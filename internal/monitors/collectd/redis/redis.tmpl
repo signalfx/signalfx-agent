@@ -6,7 +6,7 @@ LoadPlugin "python"
   <Module redis_info>
     Host "{{.Host}}"
     Port {{.Port}}
-    Instance "{{.Name}}[monitorID={{.MonitorID}}]"
+    Instance "{{if .Name }}{{.Name}}{{else}}{{.Host}}:{{.Port}}{{end}}[monitorID={{.MonitorID}}]"
     {{with .Auth}}
     Auth "{{.}}"
     {{end}}

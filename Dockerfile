@@ -2,7 +2,6 @@
 ###### Agent Build Image ########
 FROM ubuntu:16.04 as agent-builder
 
-# Cgo requires dep libraries present
 RUN apt update &&\
     apt install -y curl wget pkg-config parallel
 
@@ -197,24 +196,15 @@ RUN pip install yq &&\
 
 RUN apt install -y libffi-dev libssl-dev build-essential python-dev libcurl4-openssl-dev
 
-#COPY scripts/install-dd-plugin-deps.sh /opt/
-
-#RUN mkdir -p /opt/dd &&\
-    #cd /opt/dd &&\
-    #git clone --depth 1 --single-branch https://github.com/DataDog/dd-agent.git &&\
-	#git clone --depth 1 --single-branch https://github.com/DataDog/integrations-core.git
-
-#RUN bash /opt/install-dd-plugin-deps.sh
-
-#COPY neopy/requirements.txt /tmp/requirements.txt
-#RUN pip install -r /tmp/requirements.txt
-
 # Mirror the same dir structure that exists in the original source
 COPY scripts/get-collectd-plugins.sh /opt/scripts/
 COPY collectd-plugins.yaml /opt/
 
 RUN mkdir -p /opt/collectd-python &&\
     bash /opt/scripts/get-collectd-plugins.sh /opt/collectd-python
+
+COPY python/ /opt/sfxpython/
+RUN cd /opt/sfxpython && pip install .
 
 # Delete all compiled python to save space
 RUN find /usr/lib/python2.7 /usr/local/lib/python2.7/dist-packages -name "*.pyc" | xargs rm
@@ -297,13 +287,11 @@ COPY --from=collectd /usr/share/collectd/java/ /plugins/collectd/java/
 
 # Pull in non-C collectd plugins
 COPY --from=python-plugins /opt/collectd-python/ /plugins/collectd
-#COPY --from=python-plugins /opt/dd/dd-agent /opt/dd/dd-agent
-#COPY --from=python-plugins /opt/dd/integrations-core /opt/dd/integrations-core
 # Grab pip dependencies too
 COPY --from=python-plugins /usr/lib/python2.7/ /lib/python2.7
 COPY --from=python-plugins /usr/local/lib/python2.7/ /lib/python2.7
+COPY --from=python-plugins /usr/bin/python /bin/python
 
-COPY neopy /neopy
 COPY scripts/umount-hostfs-non-persistent /bin/umount-hostfs-non-persistent
 COPY deployments/docker/agent.yaml /etc/signalfx/agent.yaml
 
@@ -338,6 +326,7 @@ RUN apt update &&\
 ENV SIGNALFX_BUNDLE_DIR=/bundle \
     TEST_SERVICES_DIR=/go/src/github.com/signalfx/signalfx-agent/test-services \
     AGENT_BIN=/go/src/github.com/signalfx/signalfx-agent/signalfx-agent \
+    PYTHONPATH=/go/src/github.com/signalfx/signalfx-agent/python \
     GOOS=linux
 
 RUN pip3 install ipython ipdb

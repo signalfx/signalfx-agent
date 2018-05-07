@@ -46,6 +46,9 @@ func (am *ActiveMonitor) configureMonitor(monConfig config.MonitorCustomConfig) 
 
 	am.config = monConfig
 	am.config.MonitorConfigCore().MonitorID = am.id
+	// Wipe out the other config that has already been decoded since it is not
+	// redundant.
+	am.config.MonitorConfigCore().OtherConfig = nil
 
 	if err := validateConfig(monConfig); err != nil {
 		return err
