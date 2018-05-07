@@ -22,8 +22,8 @@ for f in ${INTEGRATIONS_REPO%/}/$INTEGRATION/docs/*.md; do
     continue
   fi
   metric_name=$(basename $f .md)
-  desc=$(head -n4 $f | yq -r '.brief')
-  type=$(head -n4 $f | yq -r '.metric_type')
+  desc=$(head -n4 $f | yq r - 'brief')
+  type=$(head -n4 $f | yq r - 'metric_type')
 
   echo "// $type($metric_name): $desc" | \
     sed -e 's/[cC]umulative[_ ][cC]ounter/CUMULATIVE/' | \
