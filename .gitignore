@@ -18,3 +18,4 @@ test_output/
 __pycache__
 /vendor_orig/
 .idea/
+*.exe

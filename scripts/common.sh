@@ -13,6 +13,7 @@ do_docker_build() {
   local image_tag=$2
   local target_stage=$3
   local agent_version=${4:-$image_tag}
+  local operating_system=${5:-"linux"}
 
   cache_flags=
   if [[ ${PULL_CACHE-} == "yes" ]]; then
@@ -23,6 +24,7 @@ do_docker_build() {
     -t $image_name:$image_tag \
     -f $MY_SCRIPT_DIR/../Dockerfile \
     --build-arg agent_version=${agent_version} \
+    --build-arg GOOS=${operating_system} \
     --target $target_stage \
     --label agent.version=${agent_version} \
     $(extra_cflags_build_arg) \

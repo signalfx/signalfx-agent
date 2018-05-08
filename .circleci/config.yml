@@ -74,6 +74,26 @@ jobs:
          paths:
            - image.tar
 
+  build-windows:
+    <<: *executor
+    steps:
+      - checkout
+      - run: |
+          set -x
+          export PULL_CACHE=yes
+          ./scripts/build-binary windows
+          if [ ! -f ~/project/signalfx-agent.exe ] ; then
+            echo "signalfx-agent.exe not found!"
+            exit 1
+          fi
+
+      - store_test_results:
+          path: ~/testresults
+
+      - store_artifacts:
+          path: ~/project/signalfx-agent.exe
+          destination: /signalfx-agent.exe
+
   build_final_image:
     <<: *executor
     steps:
@@ -106,6 +126,7 @@ jobs:
           paths:
             - minikube_image.tar
 
+         
   lint: 
     <<: *executor
     steps:
@@ -377,8 +398,12 @@ workflows:
   build_test:
     jobs:
      - build
+<<<<<<< HEAD
      - build_final_image
      - build_minikube_image
+=======
+     - build-windows
+>>>>>>> origin/etcd-doc-fixes
      - lint:
         requires:
          - build
