@@ -1,3 +1,50 @@
+###### Golang Dependencies Image ######
+FROM golang:1.10.0-stretch as godeps
+
+RUN wget -O /usr/bin/dep https://github.com/golang/dep/releases/download/v0.4.1/dep-linux-amd64 &&\
+    chmod +x /usr/bin/dep
+
+WORKDIR /go/src/github.com/signalfx/signalfx-agent
+COPY Gopkg.toml Gopkg.lock ./
+
+RUN dep ensure -vendor-only
+
+RUN apt update && apt install -y parallel
+# Precompile and cache vendor objects so that building the app is faster
+# A bunch of these fail because dep pulls in more than necessary, but a lot do compile
+RUN cd vendor && find . -type d -not -empty | grep -v '\btest' | parallel go install {} 2>/dev/null || true
+
+
+###### Agent Build Image ########
+FROM ubuntu:16.04 as agent-builder
+
+# Cgo requires dep libraries present
+RUN apt update &&\
+    apt install -y curl wget pkg-config
+
+ENV GO_VERSION=1.10 PATH=$PATH:/usr/local/go/bin
+RUN cd /tmp &&\
+    wget https://storage.googleapis.com/golang/go${GO_VERSION}.linux-amd64.tar.gz &&\
+	tar -C /usr/local -xf go*.tar.gz
+
+COPY --from=godeps /go/src/github.com/signalfx/signalfx-agent/vendor /go/src/github.com/signalfx/signalfx-agent/vendor
+COPY --from=godeps /go/pkg /go/pkg
+
+ENV GOPATH=/go
+WORKDIR /go/src/github.com/signalfx/signalfx-agent
+
+COPY cmd/ ./cmd/
+COPY scripts/make-templates ./scripts/
+COPY scripts/collectd-template-to-go ./scripts/
+COPY Makefile .
+COPY internal/ ./internal/
+
+ARG agent_version="latest"
+ARG GOOS="linux"
+
+RUN AGENT_VERSION=${agent_version} make signalfx-agent &&\
+    mv signalfx-agent /usr/bin/signalfx-agent
+
 ###### Collectd builder image ######
 FROM ubuntu:16.04 as collectd
 
@@ -143,52 +190,6 @@ RUN make -j8 &&\
 COPY scripts/collect-libs /opt/collect-libs
 RUN /opt/collect-libs /opt/deps /usr/sbin/collectd /usr/lib/collectd/
 
-###### Golang Dependencies Image ######
-FROM golang:1.10.0-stretch as godeps
-
-RUN wget -O /usr/bin/dep https://github.com/golang/dep/releases/download/v0.4.1/dep-linux-amd64 &&\
-    chmod +x /usr/bin/dep
-
-WORKDIR /go/src/github.com/signalfx/signalfx-agent
-COPY Gopkg.toml Gopkg.lock ./
-
-RUN dep ensure -vendor-only
-
-RUN apt update && apt install -y parallel
-# Precompile and cache vendor objects so that building the app is faster
-# A bunch of these fail because dep pulls in more than necessary, but a lot do compile
-RUN cd vendor && find . -type d -not -empty | grep -v '\btest' | parallel go install {} 2>/dev/null || true
-
-
-###### Agent Build Image ########
-FROM ubuntu:16.04 as agent-builder
-
-# Cgo requires dep libraries present
-RUN apt update &&\
-    apt install -y curl wget pkg-config
-
-ENV GO_VERSION=1.10 PATH=$PATH:/usr/local/go/bin
-RUN cd /tmp &&\
-    wget https://storage.googleapis.com/golang/go${GO_VERSION}.linux-amd64.tar.gz &&\
-	tar -C /usr/local -xf go*.tar.gz
-
-COPY --from=godeps /go/src/github.com/signalfx/signalfx-agent/vendor /go/src/github.com/signalfx/signalfx-agent/vendor
-COPY --from=godeps /go/pkg /go/pkg
-COPY --from=collectd /usr/src/collectd/ /usr/src/collectd
-
-ENV GOPATH=/go
-WORKDIR /go/src/github.com/signalfx/signalfx-agent
-
-COPY cmd/ ./cmd/
-COPY scripts/make-templates ./scripts/
-COPY scripts/collectd-template-to-go ./scripts/
-COPY Makefile .
-COPY internal/ ./internal/
-
-ARG agent_version="latest"
-
-RUN AGENT_VERSION=${agent_version} make signalfx-agent &&\
-	mv signalfx-agent /usr/bin/signalfx-agent
 
 
 ###### Python Plugin Image ######
@@ -340,7 +341,8 @@ RUN apt update &&\
 
 ENV SIGNALFX_BUNDLE_DIR=/bundle \
     TEST_SERVICES_DIR=/go/src/github.com/signalfx/signalfx-agent/test-services \
-    AGENT_BIN=/go/src/github.com/signalfx/signalfx-agent/signalfx-agent
+    AGENT_BIN=/go/src/github.com/signalfx/signalfx-agent/signalfx-agent \
+    GOOS=linux
 
 RUN pip install ipython==5 ipdb
 RUN pip3 install ipython ipdb

@@ -32,6 +32,7 @@ vendor:
 	dep ensure
 
 signalfx-agent: templates
+	echo "building SignalFx agent for operating system: $(GOOS)"
 	CGO_ENABLED=0 go build \
 		-ldflags "-X main.Version=$(AGENT_VERSION) -X main.BuiltTime=$$(date +%FT%T%z)" \
 		-o signalfx-agent \
