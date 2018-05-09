@@ -37,6 +37,11 @@ const monitorType = "kubernetes-volumes"
 // DIMENSION(kubernetes_pod_name): The name of the pod that has this volume
 // DIMENSION(kubernetes_namespace): The namespace of the pod that has this volume
 
+// GAUGE(kubernetes.volume_available_bytes): The number of available bytes in
+// the volume
+// GAUGE(kubernetes.volume_capacity_bytes): The total capacity in bytes of the
+// volume
+
 var logger = log.WithFields(log.Fields{"monitorType": monitorType})
 
 func init() {
