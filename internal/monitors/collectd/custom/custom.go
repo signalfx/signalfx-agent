@@ -37,7 +37,7 @@ const monitorType = "collectd/custom"
 //
 // ```yaml
 //   - type: collectd/custom
-//     discoveryRule: containerImage =~ "myservice"
+//     discoveryRule: container_image =~ "myservice"
 //     template: |
 //       LoadPlugin "python"
 //       <Plugin python>

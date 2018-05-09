@@ -25,7 +25,7 @@ Here is an example of a configuration with a custom Python plugin:
 
 ```yaml
   - type: collectd/custom
-    discoveryRule: containerImage =~ "myservice"
+    discoveryRule: container_image =~ "myservice"
     template: |
       LoadPlugin "python"
       <Plugin python>
