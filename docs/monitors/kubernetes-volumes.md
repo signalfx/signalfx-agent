@@ -57,6 +57,16 @@ The **nested** `kubernetesAPI` config object has the following fields:
 
 
 
+## Metrics
+
+This monitor emits the following metrics.  Note that configuration options may
+cause only a subset of metrics to be emitted.
+
+| Name | Type | Description |
+| ---  | ---  | ---         |
+| `kubernetes.volume_available_bytes` | gauge | The number of available bytes in the volume |
+| `kubernetes.volume_capacity_bytes` | gauge | The total capacity in bytes of the volume |
+
 ## Dimensions
 
 The following dimensions may occur on metrics emitted by this monitor.  Some
