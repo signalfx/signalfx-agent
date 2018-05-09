@@ -89,7 +89,7 @@ func (f *FakeK8s) Close() {
 	}
 
 	f.server.Listener.Close()
-	f.server.Close()
+	//f.server.Close()
 
 }
 
