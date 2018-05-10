@@ -35,7 +35,6 @@ else
     minikube start --vm-driver=none --bootstrapper=localkube
 fi
 sleep 2
-minikube addons enable heapster
 minikube status
 
 set +e
