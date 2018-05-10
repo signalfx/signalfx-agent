@@ -1,15 +1,16 @@
 ---
-apiVersion: v1
-kind: ReplicationController
+apiVersion: apps/v1
+kind: Deployment
 metadata:
-  name: nginx-replication-controller
+  name: nginx-deployment
   namespace: default
   labels:
     app: nginx
 spec:
-  replicas: 3
+  replicas: 1
   selector:
-    app: nginx
+    matchLabels:
+      app: nginx
   template:
     metadata:
       labels:
@@ -26,4 +27,4 @@ spec:
       volumes:
         - name: nginx-conf
           configMap:
-            name: nginx-status
+            name: nginx-configmap
