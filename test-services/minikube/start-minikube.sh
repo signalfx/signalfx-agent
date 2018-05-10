@@ -35,6 +35,7 @@ else
     minikube start --vm-driver=none --bootstrapper=localkube
 fi
 sleep 2
+minikube addons enable heapster
 minikube status
 
 set +e
@@ -59,9 +60,6 @@ set -e
 
 kubectl get pods --all-namespaces
 
-kubectl create secret generic signalfx-agent --from-literal=access-token=testing123
-
 kubectl config view --merge=true --flatten=true > /kubeconfig
 
 exit 0
-
