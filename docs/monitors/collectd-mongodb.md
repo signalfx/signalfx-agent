@@ -34,5 +34,78 @@ Monitor Type: `collectd/mongodb`
 
 
 
+## Metrics
+
+This monitor emits the following metrics.  Note that configuration options may
+cause only a subset of metrics to be emitted.
+
+| Name | Type | Description |
+| ---  | ---  | ---         |
+| `counter.backgroundFlushing.flushes` | gauge | Number of times the database has been flushed |
+| `counter.collection.commandsCount` | counter | Number of commands issued for a collection |
+| `counter.collection.commandsTime` | counter | Time spent in microseconds processing commands issued for a collection |
+| `counter.collection.getmoreCount` | counter | Number of getMore requests issued for a collection |
+| `counter.collection.getmoreTime` | counter | Time spent in microseconds processing getMore requests for a collection |
+| `counter.collection.index.accesses.ops` | counter | Number of times an index has been used (only on Mongo 3.2+) |
+| `counter.collection.insertCount` | counter | Number of inserts issued for a collection |
+| `counter.collection.insertTime` | counter | Time spent in microseconds processing insert requests for a collection |
+| `counter.collection.queriesCount` | counter | Number of queries issued for a collection |
+| `counter.collection.queriesTime` | counter | Time spent in microseconds processing query requests for a collection |
+| `counter.collection.readLockCount` | counter | Number of read locks issued for a collection |
+| `counter.collection.readLockTime` | counter | Time spent in microseconds processing read locks for a collection |
+| `counter.collection.removeCount` | counter | Number of remove requests issued for a collection |
+| `counter.collection.removeTime` | counter | Time spent in microseconds processing remove requests for a collection |
+| `counter.collection.totalCount` | counter | Total number of operations issued for a collection |
+| `counter.collection.totalTime` | counter | Time spent in microseconds processing all operations for a collection |
+| `counter.collection.updateCount` | counter | Number of update requests issued for a collection |
+| `counter.collection.updateTime` | counter | Time spent in microseconds processing update requests for a collection |
+| `counter.collection.writeLockCount` | counter | Number of write locks issued for a collection |
+| `counter.collection.writeLockTime` | counter | Time spent in microseconds processing write locks for a collection |
+| `counter.extra_info.page_faults` | gauge | Mongod page faults |
+| `counter.network.bytesIn` | gauge | Network bytes received by the database server |
+| `counter.network.bytesOut` | gauge | Network bytes sent by the database server |
+| `counter.network.numRequests` | cumulative | Requests received by the server |
+| `counter.opcounters.delete` | cumulative | Number of deletes per second |
+| `counter.opcounters.insert` | cumulative | Number of inserts per second |
+| `counter.opcounters.query` | cumulative | Number of queries per second |
+| `counter.opcounters.update` | cumulative | Number of updates per second |
+| `gauge.backgroundFlushing.average_ms` | gauge | Average time (ms) to write data to disk |
+| `gauge.backgroundFlushing.last_ms` | gauge | Most recent time (ms) spent writing data to disk |
+| `gauge.collection.avgObjSize` | gauge | Mean object/document size of a collection |
+| `gauge.collection.count` | gauge | Number of objects/documents in a collection |
+| `gauge.collection.indexSize` | gauge | Size of a particular index on a collection |
+| `gauge.collection.max` | gauge | Maximum number of documents in a capped collection |
+| `gauge.collection.maxSize` | gauge | Maximum disk usage of a capped collection |
+| `gauge.collection.size` | gauge | Size of a collection in bytes, not including indexes |
+| `gauge.collection.storageSize` | gauge | Size of the collection on disk in bytes, never decreases. |
+| `gauge.collections` | gauge | Number of collections |
+| `gauge.connections.available` | gauge | Number of available incoming connections |
+| `gauge.connections.current` | gauge | Number of current client connections |
+| `gauge.dataSize` | gauge | Total size of data, in bytes |
+| `gauge.extra_info.heap_usage_bytes` | gauge | Heap size used by the mongod process, in bytes |
+| `gauge.globalLock.activeClients.readers` | gauge | Number of active client connections performing reads |
+| `gauge.globalLock.activeClients.total` | gauge | Total number of active client connections |
+| `gauge.globalLock.activeClients.writers` | gauge | Number of active client connections performing writes |
+| `gauge.globalLock.currentQueue.readers` | gauge | Read operations currently in queue |
+| `gauge.globalLock.currentQueue.total` | gauge | Total operations currently in queue |
+| `gauge.globalLock.currentQueue.writers` | gauge | Write operations currently in queue |
+| `gauge.indexSize` | gauge | Total size of indexes, in bytes |
+| `gauge.indexes` | gauge | Number of indexes across all collections |
+| `gauge.mem.mapped` | gauge | Mongodb mapped memory usage, in MB |
+| `gauge.mem.resident` | gauge | Mongodb resident memory usage, in MB |
+| `gauge.mem.virtual` | gauge | Mongodb virtual memory usage, in MB |
+| `gauge.objects` | gauge | Number of documents across all collections |
+| `gauge.storageSize` | gauge | Total bytes allocated to collections for document storage |
+| `gauge.uptime` | counter | Uptime of this server in milliseconds |
+
+## Dimensions
+
+The following dimensions may occur on metrics emitted by this monitor.  Some
+dimensions may be specific to certain metrics.
+
+| Name | Description |
+| ---  | ---         |
+| `plugin_instance` | Port number of the MongoDB instance |
+
 
 
