@@ -26,8 +26,8 @@ type Agent struct {
 	meta       *meta.AgentMeta
 	lastConfig *config.Config
 
-	diagnosticSocketStop      func()
-	internalMetricsSocketStop func()
+	diagnosticServerStop      func()
+	internalMetricsServerStop func()
 	profileServerRunning      bool
 }
 
@@ -82,7 +82,7 @@ func (a *Agent) configure(conf *config.Config) {
 		a.monitors.DimensionProps = a.writer.DimPropertiesChannel()
 	}
 
-	a.meta.InternalMetricsSocketPath = conf.InternalMetricsSocketPath
+	a.meta.InternalMetricsServerPath = conf.InternalMetricsServerPath
 
 	//if conf.PythonEnabled {
 	//neopy.Instance().Configure()
@@ -147,13 +147,13 @@ func Startup(configPath string) (context.CancelFunc, <-chan struct{}) {
 				agent.configure(config)
 				log.Info("Done configuring agent")
 
-				if config.DiagnosticsSocketPath != "" {
-					if err := agent.serveDiagnosticInfo(config.DiagnosticsSocketPath); err != nil {
+				if config.DiagnosticsServerPath != "" {
+					if err := agent.serveDiagnosticInfo(config.DiagnosticsServerPath); err != nil {
 						log.WithError(err).Error("Could not start diagnostic socket")
 					}
 				}
-				if config.InternalMetricsSocketPath != "" {
-					if err := agent.serveInternalMetrics(config.InternalMetricsSocketPath); err != nil {
+				if config.InternalMetricsServerPath != "" {
+					if err := agent.serveInternalMetrics(config.InternalMetricsServerPath); err != nil {
 						log.WithError(err).Error("Could not start internal metrics socket")
 					}
 				}
@@ -178,9 +178,9 @@ func Status(configPath string) ([]byte, error) {
 
 	select {
 	case conf := <-configLoads:
-		if conf.DiagnosticsSocketPath == "" {
+		if conf.DiagnosticsServerPath == "" {
 			return nil, errors.New("diagnosticsSocketPath is blank so cannot get status")
 		}
-		return readDiagnosticInfo(conf.DiagnosticsSocketPath)
+		return readDiagnosticInfo(conf.DiagnosticsServerPath)
 	}
 }
