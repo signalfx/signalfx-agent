@@ -114,7 +114,7 @@ def pytest_generate_tests(metafunc):
             for v in k8s_versions.split(','):
                 assert v.strip('v') in K8S_SUPPORTED_VERSIONS, "K8S version \"%s\" not supported!" % v
             versions_to_test = k8s_versions.split(',')
-        metafunc.parametrize("minikube", versions_to_test, ids=["v%s" % v for v in versions_to_test], scope="module", indirect=True)
+        metafunc.parametrize("minikube", versions_to_test, ids=["v%s" % v.strip('v') for v in versions_to_test], scope="module", indirect=True)
     if 'k8s_observer' in metafunc.fixturenames:
         k8s_observers = metafunc.config.getoption("--k8s-observers")
         if not k8s_observers:
