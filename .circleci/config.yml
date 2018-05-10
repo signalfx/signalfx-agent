@@ -41,7 +41,6 @@ references:
             signalfx-agent-dev \
                 pytest \
                     -m "k8s" \
-                    --capture=no \
                     --exitfirst \
                     --verbose \
                     --junitxml=/output/integration_tests.xml \
