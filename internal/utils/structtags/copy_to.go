@@ -5,8 +5,6 @@ import (
 	"reflect"
 	"runtime"
 	"strings"
-
-	log "github.com/sirupsen/logrus"
 )
 
 const (
@@ -21,7 +19,6 @@ func CopyTo(ptr interface{}) error {
 
 	for i := 0; i < t.NumField(); i++ {
 		if val := t.Field(i).Tag.Get(copyToTag); val != "-" && val != "" {
-			log.Info(val)
 			var targets []string
 
 			// initialize with tag value
@@ -36,13 +33,13 @@ func CopyTo(ptr interface{}) error {
 			targets = strings.Split(groups[0], ",")
 
 			// check os eligibility
-			OSEligible := true
+			eligibleOS := true
 			if len(groups) == 2 {
-				OSEligible = isOSEligible(groups[1])
+				eligibleOS = isOSEligible(groups[1])
 			}
 
 			// if eligible copy the value to the targets
-			if OSEligible {
+			if eligibleOS {
 				for _, target := range targets {
 					sourceField := v.Field(i)
 					targetField := v.FieldByName(target)
