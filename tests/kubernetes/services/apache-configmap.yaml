@@ -2,7 +2,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: apache-status
+  name: apache-configmap
   namespace: default
 data:
   status.conf: |

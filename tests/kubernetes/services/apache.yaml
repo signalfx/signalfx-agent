@@ -29,4 +29,4 @@ spec:
       volumes:
         - name: apache-conf
           configMap:
-            name: apache-status
+            name: apache-configmap
