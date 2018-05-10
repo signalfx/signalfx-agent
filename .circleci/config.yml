@@ -398,12 +398,9 @@ workflows:
   build_test:
     jobs:
      - build
-<<<<<<< HEAD
      - build_final_image
      - build_minikube_image
-=======
      - build-windows
->>>>>>> origin/etcd-doc-fixes
      - lint:
         requires:
          - build
