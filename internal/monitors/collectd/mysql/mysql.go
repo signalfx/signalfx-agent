@@ -59,7 +59,7 @@ type Config struct {
 	Port uint16 `yaml:"port" validate:"required"`
 	Name string `yaml:"name"`
 	// A list of databases along with optional authentication credentials.
-	Databases []Database `yaml:"databases" required:"true"`
+	Databases []Database `yaml:"databases" validate:"required"`
 	// These credentials serve as defaults for all databases if not overridden
 	Username string `yaml:"username"`
 	Password string `yaml:"password" neverLog:"true"`
