@@ -1,6 +1,8 @@
+from contextlib import contextmanager
 from functools import partial as p
 from kubernetes import config as kube_config
 from tests.helpers.util import *
+from tests.kubernetes.agent import Agent
 from tests.kubernetes.utils import *
 import docker
 import os
@@ -10,103 +12,6 @@ import yaml
 MINIKUBE_VERSION = os.environ.get("MINIKUBE_VERSION", "v0.26.1")
 K8S_SERVICES_DIR = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'services')
 
-class Agent:
-    def __init__(self):
-        self.container = None
-        self.serviceaccount_yaml = None
-        self.configmap_yaml = None
-        self.agent_yaml = None
-        self.daemonset_yaml = None
-        self.image_name = None
-        self.image_tag = None
-        self.backend = None
-        self.observer = None
-        self.monitors = []
-        self.namespace = None
-    
-    def get_container(self, client, timeout=30):
-        if not self.image_name or not self.image_tag:
-            self.container = None
-            return None
-        start_time = time.time()
-        while True:
-            if (time.time() - start_time) > timeout:
-                self.container = None
-                return None
-            try:
-                self.container = client.containers.list(filters={"ancestor": self.image_name + ":" + self.image_tag})[0]
-                return self.container
-            except:
-                time.sleep(2)
-
-    def deploy(self, client, configmap_path, daemonset_path, serviceaccount_path, observer, monitors, cluster_name="minikube", backend=None, image_name=None, image_tag=None, namespace="default"):
-        self.observer = observer
-        self.monitors = monitors
-        self.cluster_name = cluster_name
-        self.backend = backend
-        self.image_name = image_name
-        self.image_tag = image_tag
-        self.namespace = namespace
-        print("\nDeploying signalfx-agent to the %s cluster ..." % cluster_name)
-        if serviceaccount_path:
-            self.serviceaccount_yaml = yaml.load(open(serviceaccount_path).read())
-            create_serviceaccount(
-                body=self.serviceaccount_yaml,
-                namespace=namespace)
-        self.configmap_yaml = yaml.load(open(configmap_path).read())
-        self.agent_yaml = yaml.load(self.configmap_yaml['data']['agent.yaml'])
-        del self.agent_yaml['observers']
-        self.agent_yaml['observers'] = [{'type': observer}]
-        self.agent_yaml['globalDimensions']['kubernetes_cluster'] = cluster_name
-        self.agent_yaml['sendMachineID'] = True
-        self.agent_yaml['useFullyQualifiedHost'] = False
-        if backend:
-            self.agent_yaml['ingestUrl'] = "http://%s:%d" % (get_host_ip(), backend.ingest_port)
-            self.agent_yaml['apiUrl'] = "http://%s:%d" % (get_host_ip(), backend.api_port)
-        if 'metricsToExclude' in self.agent_yaml.keys():
-            del self.agent_yaml['metricsToExclude']
-        del self.agent_yaml['monitors']
-        self.agent_yaml['monitors'] = monitors
-        self.configmap_yaml['data']['agent.yaml'] = yaml.dump(self.agent_yaml)
-        create_configmap(
-            body=self.configmap_yaml,
-            namespace=namespace)
-        self.daemonset_yaml = yaml.load(open(daemonset_path).read())
-        if image_name and image_tag:
-            self.daemonset_yaml['spec']['template']['spec']['containers'][0]['image'] = image_name + ":" + image_tag
-        create_daemonset(
-            body=self.daemonset_yaml,
-            namespace=namespace)
-        assert wait_for(p(has_pod, "signalfx-agent"), timeout_seconds=60), "timed out waiting for the signalfx-agent pod to start!"
-        assert wait_for(all_pods_have_ips, timeout_seconds=300), "timed out waiting for pod IPs!"
-        self.get_container(client)
-        assert self.container, "failed to get agent container!"
-        status = self.container.status.lower()
-        # wait to make sure that the agent container is still running
-        time.sleep(10)
-        try:
-            self.container.reload()
-            status = self.container.status.lower()
-        except:
-            status = "exited"
-        assert status == 'running', "agent container is not running!"
-        return self
-
-    def get_status(self):
-        try:
-            rc, output = self.container.exec_run("agent-status")
-            if rc != 0:
-                raise Exception(output.decode('utf-8').strip())
-            return output.decode('utf-8').strip()
-        except Exception as e:
-            return "Failed to get agent-status!\n%s" % str(e)
-
-    def get_container_logs(self):
-        try:
-            return self.container.logs().decode('utf-8').strip()
-        except Exception as e:
-            return "Failed to get agent container logs!\n%s" % str(e)
-
 class Minikube:
     def __init__(self):
         self.container = None
@@ -114,7 +19,7 @@ class Minikube:
         self.version = None
         self.name = None
         self.host_client = docker.from_env(version="auto")
-        self.services = []
+        self.yamls = []
         self.agent = Agent()
         self.cluster_name = "minikube"
         self.kubeconfig = None
@@ -163,6 +68,7 @@ class Minikube:
             options = {
                 "name": self.name,
                 "privileged": True,
+                "cap_add": ["SYS_PTRACE", "DAC_READ_SEARCH"],
                 "environment": {
                     'K8S_VERSION': self.version,
                     'TIMEOUT': str(timeout)
@@ -194,29 +100,78 @@ class Minikube:
         self.get_client()
         self.get_ip()
 
-    def deploy_services(self, services_dir=K8S_SERVICES_DIR):
-        self.services = []
-        yamls = [os.path.join(services_dir, y) for y in os.listdir(services_dir) if y.endswith(".yaml")]
-        for y in yamls:
-            if "configmap" in y:
-                print("Creating configmap from %s ..." % y)
-                create_configmap(body=yaml.load(open(y)))
+    def create_secret(self, key, secret):
+        if self.container:
+            rc, output = self.container.exec_run("kubectl create secret generic %s --from-literal=access-token=%s" % (key, secret))
+            assert rc == 0
+            print_lines(output.decode('utf-8'))
+
+    @contextmanager
+    def deploy_yamls(self, yamls=[], services_dir=K8S_SERVICES_DIR):
+        self.yamls= []
+        if services_dir:
+            if len(yamls) == 0:
+                yamls = sorted([os.path.join(services_dir, y) for y in os.listdir(services_dir) if y.endswith(".yaml")])
+            else:
+                yamls = sorted([os.path.join(services_dir, y) for y in yamls if y.endswith(".yaml")])
         for y in yamls:
             body = yaml.load(open(y))
-            if body["kind"] == "ConfigMap":
+            kind = body["kind"]
+            name = body['metadata']['name']
+            namespace = body['metadata']['namespace']
+            if "configmap" in y:
+                if has_configmap(name, namespace=namespace):
+                    print("Deleting configmap \"%s\" ..." % name)
+                    delete_configmap(name, namespace=namespace)
+                print("Creating configmap from %s ..." % y)
+                create_configmap(body=yaml.load(open(y)))
+                self.yamls.append(body)
+        for y in yamls:
+            body = yaml.load(open(y))
+            kind = body["kind"]
+            name = body['metadata']['name']
+            namespace = body['metadata']['namespace']
+            body = yaml.load(open(y))
+            if kind == "ConfigMap":
                 continue
-            assert body["kind"] in ["Deployment", "ReplicationController"], "kind \"%s\" in %s not yet supported!" % (body["kind"], y)
-            if body["kind"] == "Deployment":
-                print("Creating deployment from %s ..." % y)
-                create_deployment(body=body)
-            elif body["kind"] == "ReplicationController":
-                print("Creating replication controller from %s ..." % y)
-                create_replication_controller(body=body)
-            self.services.append(body)
-        if len(yamls) > 0:
+            assert kind == "Deployment", "kind \"%s\" in %s not yet supported!" % (kind, y)
+            if has_deployment(name, namespace=namespace):
+                print("Deleting deployment \"%s\" ..." % name)
+                delete_deployment(name, namespace=namespace)
+            print("Creating deployment from %s ..." % y)
+            create_deployment(body=body)
+            self.yamls.append(body)
+        if len(self.yamls) > 0:
             assert wait_for(all_pods_have_ips, timeout_seconds=300), "timed out waiting for pod IPs!"
+        try:
+            yield
+        finally:
+            for y in self.yamls:
+                kind = y["kind"]
+                name = y['metadata']['name']
+                namespace = y['metadata']['namespace']
+                if kind == "ConfigMap":
+                    print("Deleting configmap \"%s\" ..." % name)
+                    delete_configmap(name, namespace=namespace)
+                elif kind == "Deployment":
+                    print("Deleting deployment \"%s\" ..." % name)
+                    delete_deployment(name, namespace=namespace)
+            self.yamls = []
 
-    def pull_agent_image(self, name, tag=""):
+
+    def pull_agent_image(self, name, tag="latest"):
+        host_client = docker.from_env(version="auto")
+        try:
+            image_id = host_client.images.get("%s:%s" % (name, tag)).id
+        except:
+            image_id = None
+        if image_id:
+            try:
+                self.client.images.get(image_id)
+                return
+            except:
+                pass
+        print("\nPulling %s:%s to the minikube container ..." % (name, tag))
         self.container.exec_run("cp -f /etc/hosts /etc/hosts.orig")
         self.container.exec_run("cp -f /etc/hosts /etc/hosts.new")
         self.container.exec_run("sed -i 's|127.0.0.1|%s|' /etc/hosts.new" % get_host_ip())
@@ -227,14 +182,19 @@ class Minikube:
         _, output = self.container.exec_run('docker images')
         print_lines(output.decode('utf-8'))
 
-    def deploy_agent(self, configmap_path, daemonset_path, serviceaccount_path, observer, monitors, cluster_name="minikube", backend=None, image_name=None, image_tag=None, namespace="default"):
-        print("\nPulling %s:%s to the minikube container ..." % (image_name, image_tag))
+    @contextmanager
+    def deploy_agent(self, configmap_path, daemonset_path, serviceaccount_path, observer=None, monitors=[], cluster_name="minikube", backend=None, image_name=None, image_tag=None, namespace="default"):
         self.pull_agent_image(image_name, tag=image_tag)
         try:
             self.agent.deploy(self.client, configmap_path, daemonset_path, serviceaccount_path, observer, monitors, cluster_name=cluster_name, backend=backend, image_name=image_name, image_tag=image_tag, namespace=namespace)
         except Exception as e:
             print(str(e) + "\n\n%s\n\n" % get_all_logs(self))
             raise
+        try:
+            yield self.agent
+        finally:
+            self.agent.delete()
+            self.agent = Agent()
 
     def get_container_logs(self):
         try:

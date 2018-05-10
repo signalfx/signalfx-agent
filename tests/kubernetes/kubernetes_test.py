@@ -1,55 +1,116 @@
+from tests.helpers import fake_backend
+from tests.kubernetes.data import *
 from tests.kubernetes.utils import *
+import os
 import pytest
 
 pytestmark = [pytest.mark.k8s, pytest.mark.kubernetes]
 
-# list of tuples for the monitors and respective metrics to test
-# the monitor should be a YAML-based dictionary which will be used for the signalfx-agent agent.yaml configuration
-MONITORS_TO_TEST = [
-    ({"type": "collectd/activemq", "discoveryRule": 'container_image =~ "activemq" && private_port == 1099', "serviceURL": 'service:jmx:rmi:///jndi/rmi://{{.Host}}:{{.Port}}/jmxrmi', "username": "testuser", "password": "testing123"}, get_metrics_from_doc("collectd-activemq.md")),
-    ({"type": "collectd/apache", "discoveryRule": 'container_image =~ "httpd" && private_port == 80', "url": 'http://{{.Host}}:{{.Port}}/mod_status?auto', "username": "testuser", "password": "testing123"}, get_metrics_from_doc("collectd-apache.md")),
-    ({"type": "collectd/cassandra", "discoveryRule": 'container_image =~ "cassandra" && private_port == 7199', "username": "testuser", "password": "testing123"}, get_metrics_from_doc("collectd-cassandra.md")),
-    ({"type": "collectd/cpu"}, get_metrics_from_doc("collectd-cpu.md")),
-    ({"type": "collectd/elasticsearch", "discoveryRule": 'container_image =~ "elasticsearch" && private_port == 9200', "username": "testuser", "password": "testing123"}, []),
-    ({"type": "collectd/genericjmx", "discoveryRule": 'container_image =~ "activemq" && private_port == 1099', "serviceURL": 'service:jmx:rmi:///jndi/rmi://{{.Host}}:{{.Port}}/jmxrmi', "username": "testuser", "password": "testing123"}, []),
-    ({"type": "collectd/interface"}, get_metrics_from_doc("collectd-interface.md")),
-    ({"type": "collectd/kafka", "discoveryRule": 'container_image =~ "kafka" && private_port == 9092', "username": "testuser", "password": "testing123"}, []),
-    ({"type": "collectd/marathon", "discoveryRule": 'container_image =~ "marathon" && private_port == 8443', "username": "testuser", "password": "testing123"}, []),
-    ({"type": "collectd/memory"}, get_metrics_from_doc("collectd-memory.md")),
-    ({"type": "collectd/mongodb", "discoveryRule": 'container_image =~ "mongo" && private_port == 27017', "username": "testuser", "password": "testing123"}, []),
-    ({"type": "collectd/mysql", "discoveryRule": 'container_image =~ "mysql" && private_port == 3306', "username": "testuser", "password": "testing123"}, []),
-    ({"type": "collectd/nginx", "discoveryRule": 'container_image =~ "nginx" && private_port == 80', "url": 'http://{{.Host}}:{{.Port}}/nginx_status', "username": "testuser", "password": "testing123"}, get_metrics_from_doc("collectd-nginx.md")),
-    ({"type": "collectd/protocols"}, get_metrics_from_doc("collectd-protocols.md")),
-    ({"type": "collectd/rabbitmq", "discoveryRule": 'container_image =~ "rabbitmq" && private_port == 15672', "username": "testuser", "password": "testing123"}, []),
-    ({"type": "collectd/signalfx-metadata", "procFSPath": "/hostfs/proc", "etcPath": "/hostfs/etc", "persistencePath": "/run"}, get_metrics_from_doc("collectd-signalfx-metadata.md", ignore=['cpu.utilization_per_core', 'disk.summary_utilization', 'disk.utilization', 'disk_ops.total'])),
-    ({"type": "collectd/uptime"}, get_metrics_from_doc("collectd-uptime.md")),
-    ({"type": "collectd/vmem"}, get_metrics_from_doc("collectd-vmem.md")),
-    ({"type": "docker-container-stats"}, get_metrics_from_doc("docker-container-stats.md", ignore=["memory.stats.swap"])),
-    ({"type": "internal-metrics"}, get_metrics_from_doc("internal-metrics.md")),
-    ({"type": "kubelet-stats", "kubeletAPI": {"skipVerify": True, "authType": "serviceAccount"}}, get_metrics_from_doc("kubelet-stats.md")),
-    #({"type": "kubernetes-cluster", "kubernetesAPI": {"skipVerify": True, "authType": "serviceAccount"}}, get_metrics_from_doc("kubernetes-cluster.md")),
-    ({"type": "kubernetes-cluster", "kubernetesAPI": {"authType": "serviceAccount"}}, get_metrics_from_doc("kubernetes-cluster.md")),
-    ({"type": "kubernetes-volumes", "kubeletAPI": {"skipVerify": True, "authType": "serviceAccount"}}, ['kubernetes.volume_available_bytes', 'kubernetes.volume_capacity_bytes']),
-]
+AGENT_YAMLS_DIR = os.environ.get("AGENT_YAMLS_DIR", "/go/src/github.com/signalfx/signalfx-agent/deployments/k8s")
+AGENT_CONFIGMAP_PATH = os.environ.get("AGENT_CONFIGMAP_PATH", os.path.join(AGENT_YAMLS_DIR, "configmap.yaml"))
+AGENT_DAEMONSET_PATH = os.environ.get("AGENT_DAEMONSET_PATH", os.path.join(AGENT_YAMLS_DIR, "daemonset.yaml"))
+AGENT_SERVICEACCOUNT_PATH = os.environ.get("AGENT_SERVICEACCOUNT_PATH", os.path.join(AGENT_YAMLS_DIR, "serviceaccount.yaml"))
+AGENT_IMAGE_NAME = os.environ.get("AGENT_IMAGE_NAME", "localhost:5000/signalfx-agent")
+AGENT_IMAGE_TAG = os.environ.get("AGENT_IMAGE_TAG", "k8s-test")
 
-@pytest.mark.parametrize("monitor,expected_metrics", MONITORS_TO_TEST, ids=[m[0]["type"] for m in MONITORS_TO_TEST])
-def test_metrics(minikube, monitor, expected_metrics, k8s_test_timeout):
-    if monitor["type"] == 'collectd/nginx' and minikube.agent.observer in ['docker', 'host']:
-        pytest.skip("skipping monitor '%s' test for observer '%s'" % (monitor["type"], minikube.agent.observer))
-    if len(expected_metrics) == 0:
-        pytest.skip("expected metrics is empty; skipping test")
-    print("\nCollected %d metric(s) to test for %s." % (len(expected_metrics), monitor["type"]))
-    metrics_not_found = check_for_metrics(minikube.agent.backend, expected_metrics, k8s_test_timeout)
-    assert len(metrics_not_found) == 0, "timed out waiting for metric(s): %s\n\n%s\n\n" % (metrics_not_found, get_all_logs(minikube))
 
-def test_dims(minikube, expected_dims, k8s_test_timeout):
-    if len(expected_dims) == 0:
-        pytest.skip("expected dimensions is empty; skipping test")
-    print("\nCollected %d dimension(s) to test." % len(expected_dims))
-    dims_not_found = check_for_dims(minikube.agent.backend, expected_dims, k8s_test_timeout)
-    assert len(dims_not_found) == 0, "timed out waiting for dimension(s): %s\n\n%s\n\n" % (dims_not_found, get_all_logs(minikube))
+@pytest.mark.parametrize(
+    "monitor", 
+    MONITORS_WITHOUT_ENDPOINTS,
+    ids=[m["type"] for m in MONITORS_WITHOUT_ENDPOINTS])
+def test_monitor_without_observer(minikube, monitor, k8s_test_timeout):
+    if monitor["type"] in ["collectd/cpufreq", "collectd/df"]:
+        pytest.skip("monitor %s not supported" % monitor["type"])
+    doc = monitor["type"].replace("/", "-") + ".md"
+    expected_metrics = get_metrics_from_doc(doc)
+    expected_dims = get_dims_from_doc(doc)
+    if len(expected_metrics) == 0 and len(expected_dims) == 0:
+        pytest.skip("expected metrics and dimensions lists are empty")
+    print("\nCollected %d metric(s) and %d dimension(s) to test for %s." % (len(expected_metrics), len(expected_dims), monitor["type"]))
+    monitors = [monitor]
+    if monitor["type"] == "collectd/cpu":
+        monitors.append({"type": "collectd/signalfx-metadata"})
+    elif monitor["type"] == "collectd/signalfx-metadata":
+        monitors.append({"type": "collectd/cpu"})
+    with fake_backend.start(ip=get_host_ip()) as backend:
+        with minikube.deploy_agent(
+            AGENT_CONFIGMAP_PATH,
+            AGENT_DAEMONSET_PATH,
+            AGENT_SERVICEACCOUNT_PATH,
+            observer=None,
+            monitors=monitors,
+            cluster_name="minikube",
+            backend=backend,
+            image_name=AGENT_IMAGE_NAME,
+            image_tag=AGENT_IMAGE_TAG,
+            namespace="default") as agent:
+            if len(expected_metrics) > 0 and len(expected_dims) > 0:
+                assert any_metric_has_any_dim(backend, expected_metrics, expected_dims, k8s_test_timeout), \
+                    "timed out waiting for any metric in %s with any dimension in %s!\n\nAGENT STATUS:\n%s\n\nAGENT CONTAINER LOGS:\n%s\n" % \
+                    (expected_metrics, expected_dims, agent.get_status(), agent.get_container_logs())
+            elif len(expected_metrics) > 0:
+                assert any_metric_found(backend, expected_metrics, k8s_test_timeout), \
+                    "timed out waiting for any metric in %s!\n\nAGENT STATUS:\n%s\n\nAGENT CONTAINER LOGS:\n%s\n" % \
+                    (expected_metrics, agent.get_status(), agent.get_container_logs())
+            else:
+                assert any_dim_found(backend, expected_dims, k8s_test_timeout), \
+                    "timed out waiting for any dimension in %s!\n\nAGENT STATUS:\n%s\n\nAGENT CONTAINER LOGS:\n%s\n" % \
+                    (expected_dims, agent.get_status(), agent.get_container_logs())
+
+
+@pytest.mark.parametrize(
+    "monitor,yamls",
+    MONITORS_WITH_ENDPOINTS,
+    ids=[m[0]["type"] for m in MONITORS_WITH_ENDPOINTS])
+def test_monitor_with_observer(minikube, monitor, yamls, k8s_observer, k8s_test_timeout):
+    doc = monitor["type"].replace("/", "-") + ".md"
+    expected_metrics = get_metrics_from_doc(doc)
+    expected_dims = get_dims_from_doc(doc)
+    if len(expected_metrics) == 0 and len(expected_dims) == 0:
+        pytest.skip("expected metrics and dimensions lists are empty")
+    if len(yamls) == 0:
+        pytest.skip("yamls list is empty")
+    print("\nCollected %d metric(s) and %d dimension(s) to test for %s." % (len(expected_metrics), len(expected_dims), monitor["type"]))
+    with fake_backend.start(ip=get_host_ip()) as backend:
+        with minikube.deploy_yamls(yamls=yamls):
+            with minikube.deploy_agent(
+                AGENT_CONFIGMAP_PATH,
+                AGENT_DAEMONSET_PATH,
+                AGENT_SERVICEACCOUNT_PATH,
+                observer=k8s_observer,
+                monitors=[monitor],
+                cluster_name="minikube",
+                backend=backend,
+                image_name=AGENT_IMAGE_NAME,
+                image_tag=AGENT_IMAGE_TAG,
+                namespace="default") as agent:
+                if len(expected_metrics) > 0 and len(expected_dims) > 0:
+                    assert any_metric_has_any_dim(backend, expected_metrics, expected_dims, k8s_test_timeout), \
+                        "timed out waiting for any metric in %s with any dimension in %s!\n\nAGENT STATUS:\n%s\n\nAGENT CONTAINER LOGS:\n%s\n" % \
+                        (expected_metrics, expected_dims, agent.get_status(), agent.get_container_logs())
+                elif len(expected_metrics) > 0:
+                    assert any_metric_found(backend, expected_metrics, k8s_test_timeout), \
+                        "timed out waiting for any metric in %s!\n\nAGENT STATUS:\n%s\n\nAGENT CONTAINER LOGS:\n%s\n" % \
+                        (expected_metrics, agent.get_status(), agent.get_container_logs())
+                else:
+                    assert any_dim_found(backend, expected_dims, k8s_test_timeout), \
+                        "timed out waiting for any dimension in %s!\n\nAGENT STATUS:\n%s\n\nAGENT CONTAINER LOGS:\n%s\n" % \
+                        (expected_dims, agent.get_status(), agent.get_container_logs())
+
 
 def test_plaintext_passwords(minikube):
-    status = minikube.agent.get_status()
-    assert "testing123" not in status, "plaintext password(s) found in agent-status output!\n\n%s" % status
+    with fake_backend.start(ip=get_host_ip()) as backend:
+        with minikube.deploy_agent(
+            AGENT_CONFIGMAP_PATH,
+            AGENT_DAEMONSET_PATH,
+            AGENT_SERVICEACCOUNT_PATH,
+            observer=None,
+            monitors=MONITORS_WITHOUT_ENDPOINTS + [m[0] for m in MONITORS_WITH_ENDPOINTS],
+            cluster_name="minikube",
+            backend=backend,
+            image_name=AGENT_IMAGE_NAME,
+            image_tag=AGENT_IMAGE_TAG,
+            namespace="default") as agent:
+            status = agent.get_status()
+            assert "testing123" not in status, "plaintext password(s) found in agent-status output!\n\n%s\n" % status
 

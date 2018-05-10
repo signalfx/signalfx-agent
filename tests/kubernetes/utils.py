@@ -1,14 +1,56 @@
-from kubernetes import (
-    client as kube_client,
-    watch as kube_watch
-)
+from functools import partial as p
+from kubernetes import client as kube_client
 from tests.helpers.assertions import *
+from tests.helpers.util import *
 import os
 import netifaces as ni
 import re
 import time
 
 DOCS_DIR = os.environ.get("DOCS_DIR", "/go/src/github.com/signalfx/signalfx-agent/docs/monitors")
+
+
+# check the fake backend if any metric in `metrics` exist
+# returns the datapoint if found before the timeout is reached, otherwise None
+def any_metric_found(backend, metrics, timeout):
+    start_time = time.time()
+    while True:
+        if (time.time() - start_time) > timeout:
+            return None
+        for dp in backend.datapoints:
+            if dp.metric in metrics:
+                return dp
+        time.sleep(2)
+
+
+# check the fake backend if any dimension in `dims` exist
+# returns the datapoint if found before the timeout is reached, otherwise None
+def any_dim_found(backend, dims, timeout):
+    start_time = time.time()
+    while True:
+        if (time.time() - start_time) > timeout:
+            return None
+        for dp in backend.datapoints:
+            for dim in dp.dimensions:
+                if dim.key in dims:
+                    return dp
+        time.sleep(2)
+
+
+# check the fake backend if any metric in `metrics` with any dimension in `dims` exist
+# returns the datapoint if found before the timeout is reached, otherwise None
+def any_metric_has_any_dim(backend, metrics, dims, timeout):
+    start_time = time.time()
+    while True:
+        if (time.time() - start_time) > timeout:
+            return None
+        for dp in backend.datapoints:
+            if dp.metric in metrics:
+                for dim in dp.dimensions:
+                    if dim.key in dims:
+                        return dp
+        time.sleep(2)
+
 
 # check the fake backend for a list of metrics
 # returns a list of the metrics not found if the timeout is reached
@@ -27,6 +69,7 @@ def check_for_metrics(backend, metrics, timeout):
         time.sleep(5)
     return metrics_not_found
 
+
 # check the fake backend for a list of dimensions
 # returns a list of the dimensions not found if the timeout is reached
 # returns an empty list if all dimensions are found before the timeout is reached
@@ -44,25 +87,30 @@ def check_for_dims(backend, dims, timeout):
         time.sleep(5)
     return dims_not_found
 
+
 # returns a sorted list of unique metric names from `doc` excluding those in `ignore`
 def get_metrics_from_doc(doc, ignore=[]):
-    metrics = []
     if not os.path.isfile(doc):
         doc = os.path.join(DOCS_DIR, doc)
     assert os.path.isfile(doc), "\"%s\" not found!" % doc
     with open(doc) as fd:
-        metrics = re.findall('\|\s+`(.*?)`\s+\|\s+(?:counter|gauge|cumulative)\s+\|', fd.read(), re.IGNORECASE)
+        all_metrics = re.findall('\|\s+`(.*?)`\s+\|\s+(?:counter|gauge|cumulative)\s+\|', fd.read(), re.IGNORECASE)
+        metrics = list(all_metrics)
     if len(ignore) > 0:
-        metrics = [i for i in metrics if i not in ignore]
+        for m in all_metrics:
+            for i in ignore:
+                if re.match(i, m):
+                    metrics.remove(m)
     return sorted(list(set(metrics)))
+
 
 # returns a sorted list of unique dimension names from `doc` excluding those in `ignore`
 def get_dims_from_doc(doc, ignore=[]):
-    dims = []
     if not os.path.isfile(doc):
         doc = os.path.join(DOCS_DIR, doc)
     assert os.path.isfile(doc), "\"%s\" not found!" % doc
     with open(doc) as fd:
+        all_dims = []
         line = fd.readline()
         while line and not re.match('\s*##\s*Dimensions.*', line):
             line = fd.readline()
@@ -73,20 +121,63 @@ def get_dims_from_doc(doc, ignore=[]):
                 line = fd.readline()
                 match = dim_line.match(line)
             while line and match:
-                dims.append(match.group(1))
+                all_dims.append(match.group(1))
                 line = fd.readline()
                 match = dim_line.match(line)
+        dims = list(all_dims)
     if len(ignore) > 0:
-        dims = [i for i in dims if i not in ignore]
+        for d in all_dims:
+            for i in ignore:
+                if re.match(i, d):
+                    dims.remove(d)
     return sorted(list(set(dims)))
+
 
 # returns the IP of the pytest host (i.e. the dev image)
 def get_host_ip():
     return ni.ifaddresses('eth0')[ni.AF_INET][0]['addr']
 
-def create_configmap(body=None, name="", data={}, labels={}, namespace="default"):
+
+def has_serviceaccount(name, namespace="default"):
+    api = kube_client.CoreV1Api()
+    service_accounts = api.list_namespaced_service_account(namespace=namespace)
+    if service_accounts:
+        for sa in service_accounts.items:
+            if sa.metadata.name == name:
+                return True
+    return False
+
+
+def create_serviceaccount(body=None, namespace="default", timeout=60):
     api = kube_client.CoreV1Api()
     if body:
+        name = body['metadata']['name']
+        body["apiVersion"] = "v1"
+        try:
+            namespace = body["metadata"]["namespace"]
+        except:
+            pass
+    serviceaccount = api.create_namespaced_service_account(
+        body=body,
+        namespace=namespace)
+    assert wait_for(p(has_serviceaccount, name, namespace=namespace), timeout_seconds=timeout), "timed out waiting for service account \"%s\" to be created!" % name
+    return serviceaccount
+
+
+def has_configmap(name, namespace="default"):
+    api = kube_client.CoreV1Api()
+    configmaps = api.list_namespaced_config_map(namespace=namespace)
+    if configmaps:
+        for cm in configmaps.items:
+            if cm.metadata.name == name:
+                return True
+    return False
+
+
+def create_configmap(body=None, name="", data={}, labels={}, namespace="default", timeout=60):
+    api = kube_client.CoreV1Api()
+    if body:
+        name = body['metadata']['name']
         body["apiVersion"] = "v1"
         try:
             namespace = body["metadata"]["namespace"]
@@ -98,9 +189,29 @@ def create_configmap(body=None, name="", data={}, labels={}, namespace="default"
             kind="ConfigMap",
             metadata=kube_client.V1ObjectMeta(name=name, labels=labels),
             data=data)
-    return api.create_namespaced_config_map(
+    configmap = api.create_namespaced_config_map(
         body=body,
         namespace=namespace)
+    assert wait_for(p(has_configmap, name, namespace=namespace), timeout_seconds=timeout), "timed out waiting for configmap \"%s\" to be created!" % name
+    return configmap
+
+
+def delete_configmap(name, namespace="default", timeout=60):
+    if not has_configmap(name, namespace=namespace):
+        return
+    api = kube_client.CoreV1Api()
+    api.delete_namespaced_config_map(
+        name=name,
+        body=kube_client.V1DeleteOptions(grace_period_seconds=0, propagation_policy='Foreground'),
+        namespace=namespace)
+    start_time = time.time()
+    while True:
+        assert (time.time() - start_time) <= timeout, "timed out waiting for configmap \"%s\" to be deleted!" % name
+        if has_configmap(name, namespace=namespace):
+            time.sleep(2)
+        else:
+            break
+
 
 def get_pod_template(name="", image="", ports=[], labels={}, volume_mounts=[], env={}, command=[], args=[]):
     def get_ports():
@@ -142,9 +253,21 @@ def get_pod_template(name="", image="", ports=[], labels={}, volume_mounts=[], e
             volumes=get_configmap_volumes()))
     return template
 
-def create_deployment(body=None, name="", pod_template=None, replicas=1, labels={}, namespace="default"):
+
+def has_deployment(name, namespace="default"):
+    api = kube_client.ExtensionsV1beta1Api()
+    deployments = api.list_namespaced_deployment(namespace=namespace)
+    if deployments:
+        for d in deployments.items:
+            if d.metadata.name == name:
+                return True
+    return False
+
+
+def create_deployment(body=None, name="", pod_template=None, replicas=1, labels={}, namespace="default", timeout=60):
     api = kube_client.ExtensionsV1beta1Api()
     if body:
+        name = body["metadata"]["name"]
         body["apiVersion"] = "extensions/v1beta1"
         try:
             namespace = body["metadata"]["namespace"]
@@ -159,9 +282,29 @@ def create_deployment(body=None, name="", pod_template=None, replicas=1, labels=
             kind="Deployment",
             metadata=kube_client.V1ObjectMeta(name=name, labels=labels),
             spec=spec)
-    return api.create_namespaced_deployment(
+    deployment = api.create_namespaced_deployment(
         body=body,
         namespace=namespace)
+    assert wait_for(p(has_deployment, name, namespace=namespace), timeout_seconds=timeout), "timed out waiting for deployment \"%s\" to be created!" % name
+    return deployment
+
+
+def delete_deployment(name, namespace="default", timeout=60):
+    if not has_deployment(name, namespace=namespace):
+        return
+    api = kube_client.ExtensionsV1beta1Api()
+    api.delete_namespaced_deployment(
+        name=name,
+        body=kube_client.V1DeleteOptions(grace_period_seconds=0, propagation_policy='Foreground'),
+        namespace=namespace)
+    start_time = time.time()
+    while True:
+        assert (time.time() - start_time) <= timeout, "timed out waiting for deployment \"%s\" to be deleted!" % name
+        if has_deployment(name, namespace=namespace):
+            time.sleep(2)
+        else:
+            break
+
 
 def create_replication_controller(body=None, name="", pod_template=None, replicas=1, labels={}, namespace="default"):
     api = kube_client.CoreV1Api()
@@ -184,6 +327,7 @@ def create_replication_controller(body=None, name="", pod_template=None, replica
         body=body,
         namespace=namespace)
 
+
 def create_service(name="", ports=[], service_type="NodePort", labels={}, namespace="default"):
     def get_ports():
         service_ports = []
@@ -204,29 +348,49 @@ def create_service(name="", ports=[], service_type="NodePort", labels={}, namesp
         body=service,
         namespace=namespace)
 
-def create_daemonset(body=None, namespace="default"):
+
+def has_daemonset(name, namespace="default"):
+    api = kube_client.ExtensionsV1beta1Api()
+    daemonsets = api.list_namespaced_daemon_set(namespace=namespace)
+    if daemonsets:
+        for ds in daemonsets.items:
+            if ds.metadata.name == name:
+                return True
+    return False
+
+
+def create_daemonset(body=None, namespace="default", timeout=60):
     api = kube_client.ExtensionsV1beta1Api()
     if body:
+        name = body['metadata']['name']
         body["apiVersion"] = "extensions/v1beta1"
         try:
             namespace = body["metadata"]["namespace"]
         except:
             pass
-    return api.create_namespaced_daemon_set(
+    daemonset = api.create_namespaced_daemon_set(
         body=body,
         namespace=namespace)
+    assert wait_for(p(has_daemonset, name, namespace=namespace), timeout_seconds=timeout), "timed out waiting for daemonset \"%s\" to be created!" % name
+    return daemonset
 
-def create_serviceaccount(body=None, namespace="default"):
-    api = kube_client.CoreV1Api()
-    if body:
-        body["apiVersion"] = "v1"
-        try:
-            namespace = body["metadata"]["namespace"]
-        except:
-            pass
-    return api.create_namespaced_service_account(
-        body=body,
+
+def delete_daemonset(name, namespace="default", timeout=60):
+    if not has_daemonset(name, namespace=namespace):
+        return
+    api = kube_client.ExtensionsV1beta1Api()
+    api.delete_namespaced_daemon_set(
+        name=name,
+        body=kube_client.V1DeleteOptions(grace_period_seconds=0, propagation_policy='Foreground'),
         namespace=namespace)
+    start_time = time.time()
+    while True:
+        assert (time.time() - start_time) <= timeout, "timed out waiting for daemonset \"%s\" to be deleted!" % name
+        if has_daemonset(name, namespace=namespace):
+            time.sleep(2)
+        else:
+            break
+
 
 def deploy_k8s_service(**kwargs):
     if configmap_name and configmap_data:
@@ -266,11 +430,13 @@ def deploy_k8s_service(**kwargs):
             labels=labels,
             namespace=namespace)
 
+
 # returns a list of all pods in the cluster
 def get_all_pods():
     v1 = kube_client.CoreV1Api()
     pods = v1.list_pod_for_all_namespaces(watch=False)
     return pods.items
+
 
 # returns a list of all pods in the cluster that regex matches `name`
 def get_all_pods_matching_name(name):
@@ -280,12 +446,14 @@ def get_all_pods_matching_name(name):
             pods.append(pod)
     return pods
 
+
 # returns True if any pod contains `pod_name`; False otherwise
 def has_pod(pod_name):
     for pod in get_all_pods():
         if pod_name in pod.metadata.name:
             return True
     return False
+
 
 # returns True if all pods have IPs; False otherwise
 def all_pods_have_ips():
@@ -303,6 +471,7 @@ def all_pods_have_ips():
             print("%s\t%s\t%s" % (pod.status.pod_ip, pod.metadata.namespace, pod.metadata.name))
         return True
     return False
+
 
 # returns a string containing:
 # - the output from 'agent-status'
@@ -337,4 +506,3 @@ def get_all_logs(minikube):
         pods_status = ""
     return "AGENT STATUS:\n%s\n\nAGENT CONTAINER LOGS:\n%s\n\nMINIKUBE LOGS:\n%s\n\nMINIKUBE CONTAINER LOGS:\n%s\n\nPODS STATUS:\n%s" % \
         (agent_status, agent_container_logs, minikube_logs, minikube_container_logs, pods_status)
-
