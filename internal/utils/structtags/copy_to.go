@@ -44,7 +44,6 @@ func CopyTo(ptr interface{}) error {
 			// if eligible copy the value to the targets
 			if OSEligible {
 				for _, target := range targets {
-					fmt.Println(target)
 					sourceField := v.Field(i)
 					targetField := v.FieldByName(target)
 					if targetField.CanSet() && sourceField.Kind() == targetField.Kind() {
