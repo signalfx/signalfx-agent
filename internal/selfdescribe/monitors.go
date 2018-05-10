@@ -45,6 +45,9 @@ func monitorsStructMetadata() []monitorMetadata {
 			return err
 		}
 		pkgDoc := packageDoc(path)
+		if pkgDoc == nil {
+			return nil
+		}
 		for monType, monDoc := range monitorDocsInPackage(pkgDoc) {
 			if _, ok := monitors.ConfigTemplates[monType]; !ok {
 				log.Errorf("Found MONITOR doc for monitor type %s but it doesn't appear to be registered", monType)
