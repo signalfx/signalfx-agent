@@ -11,13 +11,14 @@ import urllib.request
 SCRIPTS_DIR = os.path.join(os.path.dirname(os.path.realpath(__file__)), "..", "scripts")
 K8S_MIN_VERSION = '1.7.0'
 K8S_DEFAULT_TIMEOUT = 300
-K8S_DEFAULT_TEST_TIMEOUT = 300
+K8S_DEFAULT_TEST_TIMEOUT = 120
 K8S_DEFAULT_AGENT_IMAGE_NAME = "quay.io/signalfx/signalfx-agent-dev"
 try:
     proc = subprocess.run(os.path.join(SCRIPTS_DIR, "current-version"), shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     K8S_DEFAULT_AGENT_IMAGE_TAG = proc.stdout.decode('utf-8').strip()
 except:
     K8S_DEFAULT_AGENT_IMAGE_TAG = "latest"
+
 
 def get_k8s_supported_versions():
     k8s_releases_json = None
@@ -43,8 +44,9 @@ def get_k8s_supported_versions():
 K8S_SUPPORTED_VERSIONS = get_k8s_supported_versions()
 K8S_MAJOR_MINOR_VERSIONS = [v for v in K8S_SUPPORTED_VERSIONS if semver.parse_version_info(v).patch == 0]
 
-K8S_SUPPORTED_OBSERVERS = ["docker", "host", "k8s-api", "k8s-kubelet"]
+K8S_SUPPORTED_OBSERVERS = ["k8s-api", "k8s-kubelet"]
 K8S_DEFAULT_OBSERVER = "k8s-api"
+
 
 def pytest_addoption(parser):
     parser.addoption(
@@ -95,10 +97,10 @@ def pytest_addoption(parser):
         help="If specified, the minikube container will not be stopped/removed when the tests complete."
     )
 
+
 def pytest_generate_tests(metafunc):
     if 'minikube' in metafunc.fixturenames:
         k8s_versions = metafunc.config.getoption("--k8s-versions")
-        k8s_observers = metafunc.config.getoption("--k8s-observers")
         versions_to_test = []
         if not k8s_versions:
             versions_to_test = [K8S_MAJOR_MINOR_VERSIONS[0]]
@@ -112,15 +114,16 @@ def pytest_generate_tests(metafunc):
             for v in k8s_versions.split(','):
                 assert v.strip('v') in K8S_SUPPORTED_VERSIONS, "K8S version \"%s\" not supported!" % v
             versions_to_test = k8s_versions.split(',')
-        observers_to_test = []
+        metafunc.parametrize("minikube", versions_to_test, ids=["v%s" % v for v in versions_to_test], scope="module", indirect=True)
+    if 'k8s_observer' in metafunc.fixturenames:
+        k8s_observers = metafunc.config.getoption("--k8s-observers")
         if not k8s_observers:
             observers_to_test = [K8S_DEFAULT_OBSERVER]
         elif k8s_observers.lower() == 'all':
             observers_to_test = K8S_SUPPORTED_OBSERVERS
         else:
             for o in k8s_observers.split(','):
-                assert o in K8S_SUPPORTED_OBSERVERS, "Observer \"%s\" not supported!" % o
+                assert o in K8S_SUPPORTED_OBSERVERS, "observer \"%s\" not supported!" % o
             observers_to_test = k8s_observers.split(',')
-        params = list(itertools.product(versions_to_test, observers_to_test))
-        metafunc.parametrize("minikube", params, ids=lambda x: "v%s-%s" % (str(x[0]), str(x[1])), scope="module", indirect=True)
+        metafunc.parametrize("k8s_observer", observers_to_test, ids=[o for o in observers_to_test], indirect=True)
 
