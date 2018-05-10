@@ -1,0 +1,12 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: haproxy-configmap
+  namespace: default
+data:
+  haproxy.cfg: |
+    global
+      daemon
+      stats socket :9000
+      stats timeout 2m
