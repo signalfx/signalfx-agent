@@ -36,13 +36,13 @@ spec:
       volumes:
         - name: password
           configMap:
-            name: cassandra-jmx
+            name: cassandra-configmap
             items:
               - key: jmxremote.password
                 path: jmxremote.password
         - name: access
           configMap:
-            name: cassandra-jmx
+            name: cassandra-configmap
             items:
               - key: jmxremote.access
                 path: jmxremote.access
