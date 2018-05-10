@@ -50,10 +50,6 @@ RUN apt-get update -y && \
 RUN curl -fsSL get.docker.com -o /tmp/get-docker.sh && \
     sh /tmp/get-docker.sh && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
-#RUN cd /tmp && \
-#    curl -sSl -O https://download.docker.com/linux/static/stable/x86_64/docker-17.03.2-ce.tgz && \
-#    tar -xf docker-*.tgz && \
-#    cp -f docker/* /usr/local/bin/
 VOLUME /var/lib/docker
 EXPOSE 2375
 
@@ -62,26 +58,26 @@ RUN curl -sSl -o /usr/local/bin/minikube https://storage.googleapis.com/minikube
 ENV MINIKUBE_WANTUPDATENOTIFICATION=false
 ENV MINIKUBE_WANTREPORTERRORPROMPT=false
 ENV CHANGE_MINIKUBE_NONE_USER=true
+EXPOSE 8443
 # minikube --vm-driver=none checks systemctl before starting.  Instead of
 # setting up a real systemd environment, install this shim to tell minikube
 # what it wants to know: localkube isn't started yet.
 COPY fake-systemctl.sh /usr/local/bin/systemctl
 RUN chmod a+x /usr/local/bin/systemctl
-EXPOSE 8443
 
 # Install kubectl
 RUN if [ "$KUBECTL_VERSION" = "latest" ]; then \
         export KUBECTL_VERSION=`curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt`; \
     fi; \
-    curl -sSl -o /usr/local/bin/kubectl https://storage.googleapis.com/kubernetes-release/release/${KUBECTL_VERSION}/bin/linux/amd64/kubectl && chmod a+x /usr/local/bin/kubectl
+    curl -sSl -o /usr/local/bin/kubectl https://storage.googleapis.com/kubernetes-release/release/${KUBECTL_VERSION}/bin/linux/amd64/kubectl
+RUN chmod a+x /usr/local/bin/kubectl
 
 # Install helm
 RUN curl https://raw.githubusercontent.com/kubernetes/helm/master/scripts/get | bash
 
-# Copy local start.sh
+# Copy local start script
 COPY start-minikube.sh /usr/local/bin/start-minikube.sh
 RUN chmod a+x /usr/local/bin/start-minikube.sh
 
 # If nothing else specified, start up docker and kubernetes.
 CMD /usr/local/bin/start-minikube.sh &> /var/log/start-minikube.log 2>&1 </dev/null & sleep 4 && tail -F /var/log/start-minikube.log
-
