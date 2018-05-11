@@ -63,12 +63,11 @@ class Minikube:
             self.version = 'v' + self.version
         self.name = name
         if not self.name:
-            self.name = "minikube-%s" % self.version
+            self.name = "minikube-%s-%s" % (MINIKUBE_VERSION, self.version)
         if not options:
             options = {
                 "name": self.name,
                 "privileged": True,
-                "cap_add": ["SYS_PTRACE", "DAC_READ_SEARCH"],
                 "environment": {
                     'K8S_VERSION': self.version,
                     'TIMEOUT': str(timeout)
@@ -87,8 +86,8 @@ class Minikube:
         print("\nDeploying minikube %s cluster ..." % self.version)
         image, logs = self.host_client.images.build(
             path=os.path.join(TEST_SERVICES_DIR, 'minikube'),
-            buildargs={"MINIKUBE_VERSION": MINIKUBE_VERSION, "KUBECTL_VERSION": self.version},
-            tag="minikube:%s-%s" % (MINIKUBE_VERSION, self.version),
+            buildargs={"MINIKUBE_VERSION": MINIKUBE_VERSION},
+            tag="minikube:%s" % MINIKUBE_VERSION,
             rm=True,
             forcerm=True)
         self.container = self.host_client.containers.run(
