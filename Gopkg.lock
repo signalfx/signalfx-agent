@@ -10,8 +10,7 @@
 [[projects]]
   name = "github.com/Microsoft/go-winio"
   packages = ["."]
-  revision = "7da180ee92d8bd8bb8c37fc560e673e6557c392f"
-  version = "v0.4.7"
+  revision = "ab35fc04b6365e8fcb18e6e9e41ea4a02b10b175"
 
 [[projects]]
   name = "github.com/PuerkitoBio/purell"
@@ -854,6 +853,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "a6023d80dd7bd0b06216df606b4945731e9d3b1f5de09e60400e3463a355d2a4"
+  inputs-digest = "c3cb1c1da9f3c81db9ac47460f9b73624343bcb9b0e7eda9b8b898c919cd6fdb"
   solver-name = "gps-cdcl"
   solver-version = 1

@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"io/ioutil"
-	"net"
 	"time"
 
 	"github.com/signalfx/golib/datapoint"
@@ -13,6 +12,7 @@ import (
 	"github.com/signalfx/signalfx-agent/internal/monitors"
 	"github.com/signalfx/signalfx-agent/internal/monitors/types"
 	"github.com/signalfx/signalfx-agent/internal/utils"
+	"github.com/signalfx/signalfx-agent/internal/utils/network/simpleserver"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -54,7 +54,7 @@ type Config struct {
 	config.MonitorConfig
 }
 
-// Monitor for collecting internal metrics from the unix socket that dumps
+// Monitor for collecting internal metrics from the simple server that dumps
 // them.
 type Monitor struct {
 	Output    types.Output
@@ -73,13 +73,13 @@ func (m *Monitor) Configure(conf *Config) error {
 	var ctx context.Context
 	ctx, m.cancel = context.WithCancel(context.Background())
 	utils.RunOnInterval(ctx, func() {
-		c, err := net.Dial("unix", m.AgentMeta.InternalMetricsSocketPath)
+		c, err := simpleserver.Dial(m.AgentMeta.InternalMetricsServerPath)
 		if err != nil {
 			log.WithFields(log.Fields{
 				"error":       err,
 				"monitorType": monitorType,
-				"path":        m.AgentMeta.InternalMetricsSocketPath,
-			}).Error("Could not connect to internal metric socket")
+				"path":        m.AgentMeta.InternalMetricsServerPath,
+			}).Error("Could not connect to internal metric server")
 			return
 		}
 
@@ -90,8 +90,8 @@ func (m *Monitor) Configure(conf *Config) error {
 			log.WithFields(log.Fields{
 				"error":       err,
 				"monitorType": monitorType,
-				"path":        m.AgentMeta.InternalMetricsSocketPath,
-			}).Error("Could not read metrics from internal metric socket")
+				"path":        m.AgentMeta.InternalMetricsServerPath,
+			}).Error("Could not read metrics from internal metric server")
 			return
 		}
 

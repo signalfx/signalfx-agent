@@ -17,7 +17,7 @@ import (
 	"github.com/signalfx/golib/datapoint"
 	"github.com/signalfx/signalfx-agent/internal/core/config"
 	"github.com/signalfx/signalfx-agent/internal/utils"
-	"github.com/signalfx/signalfx-agent/internal/utils/network"
+	"github.com/signalfx/signalfx-agent/internal/utils/network/simpleserver"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -25,30 +25,32 @@ import (
 // information that can be reported in diagnostics.
 var VersionLine string
 
-// Serves the diagnostic status on the domain socket
-func (a *Agent) serveDiagnosticInfo(socketPath string) error {
-	if a.diagnosticSocketStop != nil {
-		a.diagnosticSocketStop()
+// Serves the diagnostic status on the specified path
+func (a *Agent) serveDiagnosticInfo(path string) error {
+	if a.diagnosticServerStop != nil {
+		a.diagnosticServerStop()
 	}
 
-	if err := os.MkdirAll(filepath.Dir(socketPath), 0700); err != nil {
-		return err
+	if runtime.GOOS != "windows" {
+		if err := os.MkdirAll(filepath.Dir(path), 0700); err != nil {
+			return err
+		}
 	}
 
 	var err error
-	a.diagnosticSocketStop, err = network.RunSimpleSocketServer(socketPath, func(_ net.Conn) string {
+	a.diagnosticServerStop, err = simpleserver.Run(path, func(_ net.Conn) string {
 		return a.DiagnosticText()
 	}, func(err error) {
 		log.WithFields(log.Fields{
-			"path":  socketPath,
+			"path":  path,
 			"error": err,
 		}).Error("Problem with diagnostic socket")
 	})
 	return err
 }
 
-func readDiagnosticInfo(socketPath string) ([]byte, error) {
-	conn, err := net.Dial("unix", socketPath)
+func readDiagnosticInfo(path string) ([]byte, error) {
+	conn, err := simpleserver.Dial(path)
 	if err != nil {
 		return nil, err
 	}
@@ -75,17 +77,19 @@ func (a *Agent) DiagnosticText() string {
 
 }
 
-func (a *Agent) serveInternalMetrics(socketPath string) error {
-	if a.internalMetricsSocketStop != nil {
-		a.internalMetricsSocketStop()
+func (a *Agent) serveInternalMetrics(path string) error {
+	if a.internalMetricsServerStop != nil {
+		a.internalMetricsServerStop()
 	}
 
-	if err := os.MkdirAll(filepath.Dir(socketPath), 0700); err != nil {
-		return err
+	if runtime.GOOS != "windows" {
+		if err := os.MkdirAll(filepath.Dir(path), 0700); err != nil {
+			return err
+		}
 	}
 
 	var err error
-	a.internalMetricsSocketStop, err = network.RunSimpleSocketServer(socketPath, func(_ net.Conn) string {
+	a.internalMetricsServerStop, err = simpleserver.Run(path, func(_ net.Conn) string {
 		jsonOut, err := json.MarshalIndent(a.InternalMetrics(), "", "  ")
 		if err != nil {
 			log.WithError(err).Error("Could not serialize internal metrics to JSON")
@@ -94,7 +98,7 @@ func (a *Agent) serveInternalMetrics(socketPath string) error {
 		return string(jsonOut)
 	}, func(err error) {
 		log.WithFields(log.Fields{
-			"path":  socketPath,
+			"path":  path,
 			"error": err,
 		}).Error("Problem with internal metrics socket")
 	})
