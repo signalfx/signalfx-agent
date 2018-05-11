@@ -18,7 +18,6 @@
 
 FROM ubuntu:16.04
 ARG MINIKUBE_VERSION=latest
-ARG KUBECTL_VERSION=latest
 
 # Install minikube dependencies
 ENV DEBIAN_FRONTEND=noninteractive
@@ -64,13 +63,6 @@ EXPOSE 8443
 # what it wants to know: localkube isn't started yet.
 COPY fake-systemctl.sh /usr/local/bin/systemctl
 RUN chmod a+x /usr/local/bin/systemctl
-
-# Install kubectl
-RUN if [ "$KUBECTL_VERSION" = "latest" ]; then \
-        export KUBECTL_VERSION=`curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt`; \
-    fi; \
-    curl -sSl -o /usr/local/bin/kubectl https://storage.googleapis.com/kubernetes-release/release/${KUBECTL_VERSION}/bin/linux/amd64/kubectl
-RUN chmod a+x /usr/local/bin/kubectl
 
 # Install helm
 RUN curl https://raw.githubusercontent.com/kubernetes/helm/master/scripts/get | bash

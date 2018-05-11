@@ -28,16 +28,21 @@ dockerd \
   --insecure-registry localhost:5000 \
   &> /var/log/docker.log 2>&1 < /dev/null &
 
-minikube config set ShowBootstrapperDeprecationNotification false
-if [ -n "$K8S_VERSION" ]; then
-    minikube start --kubernetes-version $K8S_VERSION --vm-driver=none --bootstrapper=localkube
-else
+K8S_VERSION=${K8S_VERSION:-"latest"}
+if [ "$K8S_VERSION" = "latest" ]; then
+    curl -sSl -o /usr/local/bin/kubectl https://storage.googleapis.com/kubernetes-release/release/`curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt`/bin/linux/amd64/kubectl
+    chmod a+x /usr/local/bin/kubectl
+    minikube config set ShowBootstrapperDeprecationNotification false | true
     minikube start --vm-driver=none --bootstrapper=localkube
+else
+    curl -sSl -o /usr/local/bin/kubectl https://storage.googleapis.com/kubernetes-release/release/${K8S_VERSION}/bin/linux/amd64/kubectl
+    chmod a+x /usr/local/bin/kubectl
+    minikube config set ShowBootstrapperDeprecationNotification false | true
+    minikube start --kubernetes-version $K8S_VERSION --vm-driver=none --bootstrapper=localkube
 fi
 sleep 2
 minikube status
 
-set +e
 # wait for the cluster to be ready
 TIMEOUT=${TIMEOUT:-"300"}
 START_TIME=`date +%s`
@@ -55,7 +60,6 @@ while [ 0 ]; do
     fi
     sleep 5
 done
-set -e
 
 kubectl get pods --all-namespaces
 
