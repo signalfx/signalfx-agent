@@ -22,7 +22,7 @@ Monitor Type: `collectd/mongodb`
 | --- | --- | --- | --- |
 | `host` | **yes** | `string` |  |
 | `port` | **yes** | `integer` |  |
-| `databases` | no | `list of string` |  |
+| `databases` | **yes** | `list of string` |  |
 | `username` | no | `string` |  |
 | `password` | no | `string` |  |
 | `useTLS` | no | `bool` |  (**default:** `false`) |
