@@ -8,7 +8,7 @@ import re
 import time
 
 DOCS_DIR = os.environ.get("DOCS_DIR", "/go/src/github.com/signalfx/signalfx-agent/docs/monitors")
-
+K8S_API_TIMEOUT = 120
 
 # check the fake backend if any metric in `metrics` exist
 # returns the datapoint if found before the timeout is reached, otherwise None
@@ -148,7 +148,7 @@ def has_serviceaccount(name, namespace="default"):
     return False
 
 
-def create_serviceaccount(body=None, namespace="default", timeout=60):
+def create_serviceaccount(body=None, namespace="default", timeout=K8S_API_TIMEOUT):
     api = kube_client.CoreV1Api()
     if body:
         name = body['metadata']['name']
@@ -174,7 +174,7 @@ def has_configmap(name, namespace="default"):
     return False
 
 
-def create_configmap(body=None, name="", data={}, labels={}, namespace="default", timeout=60):
+def create_configmap(body=None, name="", data={}, labels={}, namespace="default", timeout=K8S_API_TIMEOUT):
     api = kube_client.CoreV1Api()
     if body:
         name = body['metadata']['name']
@@ -196,7 +196,7 @@ def create_configmap(body=None, name="", data={}, labels={}, namespace="default"
     return configmap
 
 
-def delete_configmap(name, namespace="default", timeout=60):
+def delete_configmap(name, namespace="default", timeout=K8S_API_TIMEOUT):
     if not has_configmap(name, namespace=namespace):
         return
     api = kube_client.CoreV1Api()
@@ -264,7 +264,7 @@ def has_deployment(name, namespace="default"):
     return False
 
 
-def create_deployment(body=None, name="", pod_template=None, replicas=1, labels={}, namespace="default", timeout=60):
+def create_deployment(body=None, name="", pod_template=None, replicas=1, labels={}, namespace="default", timeout=K8S_API_TIMEOUT):
     api = kube_client.ExtensionsV1beta1Api()
     if body:
         name = body["metadata"]["name"]
@@ -289,7 +289,7 @@ def create_deployment(body=None, name="", pod_template=None, replicas=1, labels=
     return deployment
 
 
-def delete_deployment(name, namespace="default", timeout=60):
+def delete_deployment(name, namespace="default", timeout=K8S_API_TIMEOUT):
     if not has_deployment(name, namespace=namespace):
         return
     api = kube_client.ExtensionsV1beta1Api()
@@ -359,7 +359,7 @@ def has_daemonset(name, namespace="default"):
     return False
 
 
-def create_daemonset(body=None, namespace="default", timeout=60):
+def create_daemonset(body=None, namespace="default", timeout=K8S_API_TIMEOUT):
     api = kube_client.ExtensionsV1beta1Api()
     if body:
         name = body['metadata']['name']
@@ -375,7 +375,7 @@ def create_daemonset(body=None, namespace="default", timeout=60):
     return daemonset
 
 
-def delete_daemonset(name, namespace="default", timeout=60):
+def delete_daemonset(name, namespace="default", timeout=K8S_API_TIMEOUT):
     if not has_daemonset(name, namespace=namespace):
         return
     api = kube_client.ExtensionsV1beta1Api()
