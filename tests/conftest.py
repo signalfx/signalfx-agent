@@ -10,6 +10,7 @@ import urllib.request
 
 SCRIPTS_DIR = os.path.join(os.path.dirname(os.path.realpath(__file__)), "..", "scripts")
 K8S_MIN_VERSION = '1.7.0'
+K8S_MAX_VERSION = '1.9.4'
 K8S_DEFAULT_TIMEOUT = 300
 K8S_DEFAULT_TEST_TIMEOUT = 120
 K8S_DEFAULT_AGENT_IMAGE_NAME = "quay.io/signalfx/signalfx-agent-dev"
@@ -37,8 +38,9 @@ def get_k8s_supported_versions():
         sys.exit(1)
     versions = []
     for r in k8s_releases_json:
-        if semver.match(r['version'].strip().strip('v'), '>=' + K8S_MIN_VERSION):
-            versions.append(r['version'].strip().strip('v'))
+        version = r['version'].strip().strip('v')
+        if semver.match(version, '>=' + K8S_MIN_VERSION) and semver.match(version, '<=' + K8S_MAX_VERSION):
+            versions.append(version)
     return sorted(versions, key=lambda v: list(map(int, v.split('.'))), reverse=True)
 
 K8S_SUPPORTED_VERSIONS = get_k8s_supported_versions()
