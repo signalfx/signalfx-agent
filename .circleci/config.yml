@@ -125,7 +125,6 @@ jobs:
           paths:
             - minikube_image.tar
 
-         
   lint: 
     <<: *executor
     steps:
@@ -412,11 +411,11 @@ workflows:
      - integration_tests:
         requires:
          - build
-     - k8s_v1.10.0_integration_tests:
-        requires:
-         - build
-         - build_final_image
-         - build_minikube_image
+#     - k8s_v1.10.0_integration_tests:
+#        requires:
+#         - build
+#         - build_final_image
+#         - build_minikube_image
      - k8s_v1.9.0_integration_tests:
         requires:
          - build
