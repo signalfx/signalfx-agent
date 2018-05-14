@@ -1,3 +1,4 @@
+import os
 import re
 
 
@@ -49,3 +50,6 @@ def has_log_message(output, level="info", message=""):
         if level == m.group(0) and message in l:
             return True
     return False
+
+def udp_port_open_locally(port):
+    return os.system("cat /proc/net/udp | grep %s" % (hex(port)[2:].upper(),)) == 0
