@@ -121,15 +121,17 @@ func (m *Monitor) Configure(conf *Config) error {
 func (m *Monitor) fetchStats(container *dtypes.ContainerJSON, labelMap map[string]string) {
 	ctx, cancel := context.WithTimeout(m.ctx, m.timeout)
 	stats, err := m.client.ContainerStats(ctx, container.ID, false)
-	cancel()
 	if err != nil {
+		cancel()
 		logger.WithError(err).Errorf("Could not fetch docker stats for container id %s", container.ID)
 		return
 	}
 
 	dps, err := convertStatsToMetrics(container, &stats)
+	cancel()
 	if err != nil {
 		logger.WithError(err).Errorf("Could not convert docker stats for container id %s", container.ID)
+		return
 	}
 
 	for i := range dps {
