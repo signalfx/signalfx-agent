@@ -2,7 +2,7 @@
 
 # collectd/mysql
 
- Montiors a MySQL database server using collectd's
+ Monitors a MySQL database server using collectd's
 [MySQL plugin](https://collectd.org/wiki/index.php/Plugin:MySQL).
 
 You have to specify each database you want to monitor individually under the
