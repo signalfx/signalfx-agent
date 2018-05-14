@@ -5,6 +5,13 @@
  Montiors a MySQL database server using collectd's
 [MySQL plugin](https://collectd.org/wiki/index.php/Plugin:MySQL).
 
+On Unix, MySQL programs treat the host name `localhost` specially, in a way
+that is likely different from what is expected compared to other network-based 
+programs. For connections to `localhost`, MySQL programs attempt to connect to
+the local server by using a Unix socket file. To ensure that the client makes
+a TCP/IP connection to the local server specify a host name value
+of `127.0.0.1`, or the IP address or name of the local server.
+
 You have to specify each database you want to monitor individually under the
 `databases` key.  If you have a common authentication to all databases being
 monitored, you can specify that in the top-level `username`/`password`
@@ -236,6 +243,3 @@ cause only a subset of metrics to be emitted.
 | `gauge.threads.cached` | gauge | The number of threads cached by MySQL for re-use on a new client connection.  A MySQL thread corresponds to a single MySQL connection. |
 | `gauge.threads.connected` | gauge | The number of currently open MySQL connections.  A MySQL thread corresponds to a single MySQL connection. |
 | `gauge.threads.running` | gauge | The number of MySQL threads that are processing a query.  A MySQL thread corresponds to a single MySQL connection. |
-
-
-
