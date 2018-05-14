@@ -28,6 +28,10 @@ dockerd \
   --insecure-registry localhost:5000 \
   &> /var/log/docker.log 2>&1 < /dev/null &
 
+if [ -f /usr/local/bin/kubectl ]; then
+    rm -f /usr/local/bin/kubectl
+fi
+
 K8S_VERSION=${K8S_VERSION:-"latest"}
 if [ "$K8S_VERSION" = "latest" ]; then
     curl -sSl -o /usr/local/bin/kubectl https://storage.googleapis.com/kubernetes-release/release/`curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt`/bin/linux/amd64/kubectl
