@@ -15,6 +15,7 @@ import (
 	"github.com/pkg/errors"
 	"github.com/signalfx/signalfx-agent/internal/core/config/sources"
 	"github.com/signalfx/signalfx-agent/internal/utils"
+	"github.com/signalfx/signalfx-agent/internal/utils/structtags"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -117,6 +118,10 @@ func loadYAML(fileContent []byte) (*Config, error) {
 
 	if err := defaults.Set(config); err != nil {
 		panic(fmt.Sprintf("Config defaults are wrong types: %s", err))
+	}
+
+	if err := structtags.CopyTo(config); err != nil {
+		panic(fmt.Sprintf("Error copying configs to fields: %v", err))
 	}
 
 	return config.initialize()
