@@ -39,13 +39,13 @@ type Config struct {
 	Host string `yaml:"host" validate:"required"`
 	Port uint16 `yaml:"port" validate:"required"`
 
-	ACLToken            string `yaml:"aclToken"`
+	ACLToken            string `yaml:"aclToken" neverLog:"true"`
 	UseHTTPS            bool   `yaml:"useHTTPS"`
 	EnhancedMetrics     bool   `yaml:"enhancedMetrics"`
 	CACertificate       string `yaml:"caCertificate"`
 	ClientCertificate   string `yaml:"clientCertificate"`
 	ClientKey           string `yaml:"clientKey"`
-	SignalFxAccessToken string `yaml:"signalFxAccessToken"`
+	SignalFxAccessToken string `yaml:"signalFxAccessToken" neverLog:"true"`
 }
 
 // Monitor is the main type that represents the monitor
