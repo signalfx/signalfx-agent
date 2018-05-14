@@ -31,7 +31,7 @@ type Config struct {
 
 	Host                   string   `yaml:"host" validate:"required"`
 	Port                   uint16   `yaml:"port" validate:"required"`
-	Databases              []string `yaml:"databases"`
+	Databases              []string `yaml:"databases" validate:"required"`
 	Username               string   `yaml:"username"`
 	Password               string   `yaml:"password" neverLog:"true"`
 	UseTLS                 bool     `yaml:"useTLS"`
