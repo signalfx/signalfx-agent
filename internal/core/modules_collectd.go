@@ -37,6 +37,7 @@ import (
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/collectd/rabbitmq"
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/collectd/redis"
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/collectd/spark"
+	_ "github.com/signalfx/signalfx-agent/internal/monitors/collectd/statsd"
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/collectd/uptime"
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/collectd/vmem"
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/collectd/zookeeper"
