@@ -1,0 +1,33 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: spark-deployment
+  namespace: default
+  labels:
+    app: spark
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: spark
+  template:
+    metadata:
+      labels:
+        app: spark
+    spec:
+      containers:
+        - name: spark
+          image: gettyimages/spark:latest
+          ports:
+            - containerPort: 8080
+          env:
+            - name: POD_IP
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.podIP
+            - name: MASTER
+              value: spark://$(POD_IP):7077
+            - name: SPARK_PUBLIC_DNS
+              value: localhost
+          command: ["bin/spark-class", "org.apache.spark.deploy.master.Master", "-h", $(POD_IP)]

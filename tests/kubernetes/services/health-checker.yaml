@@ -1,0 +1,34 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: health-checker-deployment
+  namespace: default
+  labels:
+    app: health-checker
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: health-checker
+  template:
+    metadata:
+      labels:
+        app: health-checker
+    spec:
+      containers:
+        - name: health-checker
+          image: clue/json-server:latest
+          ports:
+            - containerPort: 80
+          volumeMounts:
+            - name: json
+              mountPath: /data/db.json
+              subPath: db.json
+      volumes:
+        - name: json
+          configMap:
+            name: health-checker-configmap
+            items:
+              - key: db.json
+                path: db.json
