@@ -29,7 +29,7 @@ Monitor Type: `collectd/spark`
 | `host` | **yes** | `string` |  |
 | `port` | **yes** | `integer` |  |
 | `isMaster` | no | `bool` | Set to `true` when monitoring a master Spark node (**default:** `false`) |
-| `clusterType` | no | `string` | Should be one of `Standalone` or `Mesos` |
+| `clusterType` | **yes** | `string` | Should be one of `Standalone` or `Mesos` |
 | `collectApplicationMetrics` | no | `bool` |  (**default:** `false`) |
 | `enhancedMetrics` | no | `bool` |  (**default:** `false`) |
 
