@@ -7,8 +7,7 @@ import netifaces as ni
 import re
 import time
 
-DOCS_DIR = os.environ.get("DOCS_DIR", "/go/src/github.com/signalfx/signalfx-agent/docs/monitors")
-K8S_API_TIMEOUT = 120
+K8S_API_TIMEOUT = 180
 
 # check the fake backend if any metric in `metrics` exist
 # returns the datapoint if found before the timeout is reached, otherwise None
@@ -90,8 +89,6 @@ def check_for_dims(backend, dims, timeout):
 
 # returns a sorted list of unique metric names from `doc` excluding those in `ignore`
 def get_metrics_from_doc(doc, ignore=[]):
-    if not os.path.isfile(doc):
-        doc = os.path.join(DOCS_DIR, doc)
     assert os.path.isfile(doc), "\"%s\" not found!" % doc
     with open(doc) as fd:
         all_metrics = re.findall('\|\s+`(.*?)`\s+\|\s+(?:counter|gauge|cumulative)\s+\|', fd.read(), re.IGNORECASE)
@@ -106,8 +103,6 @@ def get_metrics_from_doc(doc, ignore=[]):
 
 # returns a sorted list of unique dimension names from `doc` excluding those in `ignore`
 def get_dims_from_doc(doc, ignore=[]):
-    if not os.path.isfile(doc):
-        doc = os.path.join(DOCS_DIR, doc)
     assert os.path.isfile(doc), "\"%s\" not found!" % doc
     with open(doc) as fd:
         all_dims = []
@@ -204,6 +199,8 @@ def delete_configmap(name, namespace="default", timeout=K8S_API_TIMEOUT):
         name=name,
         body=kube_client.V1DeleteOptions(grace_period_seconds=0, propagation_policy='Foreground'),
         namespace=namespace)
+    if timeout < 0:
+        return
     start_time = time.time()
     while True:
         assert (time.time() - start_time) <= timeout, "timed out waiting for configmap \"%s\" to be deleted!" % name
@@ -297,6 +294,8 @@ def delete_deployment(name, namespace="default", timeout=K8S_API_TIMEOUT):
         name=name,
         body=kube_client.V1DeleteOptions(grace_period_seconds=0, propagation_policy='Foreground'),
         namespace=namespace)
+    if timeout < 0:
+        return
     start_time = time.time()
     while True:
         assert (time.time() - start_time) <= timeout, "timed out waiting for deployment \"%s\" to be deleted!" % name
@@ -383,6 +382,8 @@ def delete_daemonset(name, namespace="default", timeout=K8S_API_TIMEOUT):
         name=name,
         body=kube_client.V1DeleteOptions(grace_period_seconds=0, propagation_policy='Foreground'),
         namespace=namespace)
+    if timeout < 0:
+        return
     start_time = time.time()
     while True:
         assert (time.time() - start_time) <= timeout, "timed out waiting for daemonset \"%s\" to be deleted!" % name
