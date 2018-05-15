@@ -102,6 +102,14 @@ We also offer a Puppet manifest to install and configure the agent.  See [the
 manifest source](./deployments/puppet) and [on the Puppet
 Forge](https://forge.puppet.com/signalfx/signalfx_agent/readme).
 
+#### Ansible
+We also offer a Ansible Role to install and configure the Smart Agent.  See [the
+role source](https://github.com/signalfx/signalfx-agent/tree/master/deployments/ansible).
+
+#### Salt
+We also offer a Salt Formula to install and configure the Smart Agent.  See [the
+formula source](https://github.com/signalfx/signalfx-agent/tree/master/deployments/salt).
+
 #### Kubernetes
 See our [Kubernetes setup instructions](./docs/kubernetes-setup.md) and the
 documentation on [Monitoring
