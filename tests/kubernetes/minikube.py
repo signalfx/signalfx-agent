@@ -73,6 +73,7 @@ class Minikube:
                     'TIMEOUT': str(timeout)
                 },
                 "ports": {
+                    '8080/tcp': None,
                     '8443/tcp': None,
                     '2375/tcp': None,
                 },

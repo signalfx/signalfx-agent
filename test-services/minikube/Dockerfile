@@ -52,17 +52,29 @@ RUN curl -fsSL get.docker.com -o /tmp/get-docker.sh && \
 VOLUME /var/lib/docker
 EXPOSE 2375
 
+# Install kubectl
+RUN curl -sSl -o /usr/local/bin/kubectl https://storage.googleapis.com/kubernetes-release/release/`curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt`/bin/linux/amd64/kubectl
+RUN chmod a+x /usr/local/bin/kubectl
+
 # Install minikube
-RUN curl -sSl -o /usr/local/bin/minikube https://storage.googleapis.com/minikube/releases/${MINIKUBE_VERSION}/minikube-linux-amd64 && chmod a+x /usr/local/bin/minikube
+RUN curl -sSl -o /usr/local/bin/minikube https://storage.googleapis.com/minikube/releases/${MINIKUBE_VERSION}/minikube-linux-amd64
+RUN chmod a+x /usr/local/bin/minikube
 ENV MINIKUBE_WANTUPDATENOTIFICATION=false
 ENV MINIKUBE_WANTREPORTERRORPROMPT=false
 ENV CHANGE_MINIKUBE_NONE_USER=true
 EXPOSE 8443
+
 # minikube --vm-driver=none checks systemctl before starting.  Instead of
 # setting up a real systemd environment, install this shim to tell minikube
 # what it wants to know: localkube isn't started yet.
 COPY fake-systemctl.sh /usr/local/bin/systemctl
 RUN chmod a+x /usr/local/bin/systemctl
+
+COPY dind-cluster.sh /usr/local/bin/dind-cluster.sh
+RUN chmod a+x /usr/local/bin/dind-cluster.sh
+COPY config.sh /usr/local/bin/config.sh
+RUN chmod a+x /usr/local/bin/config.sh
+EXPOSE 8080
 
 # Install helm
 RUN curl https://raw.githubusercontent.com/kubernetes/helm/master/scripts/get | bash
