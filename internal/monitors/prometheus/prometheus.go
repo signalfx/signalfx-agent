@@ -61,6 +61,18 @@ const monitorType = "prometheus-exporter"
 // `k8s-api` observer.
 //
 // Filtering can be very useful here since exporters tend to be fairly verbose.
+//
+// Sample YAML configuration:
+//
+// ```
+// monitors:
+//  - type: prometheus-exporter
+//    discoveryRule: port >= 9100 && port <= 9500 && container_image =~ "exporter"
+//    extraDimensions:
+//      metric_source: prometheus
+//    host: 127.0.0.1
+//    port: 9100
+// ```
 
 var logger = log.WithFields(log.Fields{"monitorType": monitorType})
 

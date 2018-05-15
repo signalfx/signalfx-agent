@@ -38,6 +38,7 @@ along with their possible configuration options:
 - [collectd/redis](./monitors/collectd-redis.md)
 - [collectd/signalfx-metadata](./monitors/collectd-signalfx-metadata.md)
 - [collectd/spark](./monitors/collectd-spark.md)
+- [collectd/statsd](./monitors/collectd-statsd.md)
 - [collectd/uptime](./monitors/collectd-uptime.md)
 - [collectd/vmem](./monitors/collectd-vmem.md)
 - [collectd/zookeeper](./monitors/collectd-zookeeper.md)

@@ -12,7 +12,7 @@ import (
 
 const monitorType = "collectd/mysql"
 
-// MONITOR(collectd/mysql): Montiors a MySQL database server using collectd's
+// MONITOR(collectd/mysql): Monitors a MySQL database server using collectd's
 // [MySQL plugin](https://collectd.org/wiki/index.php/Plugin:MySQL).
 //
 // You have to specify each database you want to monitor individually under the
