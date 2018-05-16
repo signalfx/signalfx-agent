@@ -34,18 +34,18 @@ cause only a subset of metrics to be emitted.
 
 | Name | Type | Description |
 | ---  | ---  | ---         |
-| `gauge.df_complex.free` | gauge | Free disk space in bytes |
-| `gauge.df_complex.reserved` | gauge | Reserved disk space in bytes |
-| `gauge.df_complex.used` | gauge | Used disk space in bytes |
-| `gauge.df_inodes.free` | gauge | Number of inodes that are free. |
-| `gauge.df_inodes.reserved` | gauge | Number of inodes reserved for the super user. |
-| `gauge.df_inodes.used` | gauge | Number of inodes that are used. |
-| `gauge.percent_bytes.free` | gauge | Free disk space on the file system, expressed as a percentage. |
-| `gauge.percent_bytes.reserved` | gauge | Reserved disk space on the filesystem, expressed as a percentage. |
-| `gauge.percent_bytes.used` | gauge | Used disk space on the file system, expressed as a percentage. |
-| `gauge.percent_inodes.free` | gauge | Free inodes on the file system, expressed as a percentage. |
-| `gauge.percent_inodes.reserved` | gauge | Reserved inodes on the file system, expressed as a percentage. |
-| `gauge.percent_inodes.used` | gauge | Used inodes on the file system, expressed as a percentage. |
+| `df_complex.free` | gauge | Free disk space in bytes |
+| `df_complex.reserved` | gauge | Reserved disk space in bytes |
+| `df_complex.used` | gauge | Used disk space in bytes |
+| `df_inodes.free` | gauge | Number of inodes that are free. |
+| `df_inodes.reserved` | gauge | Number of inodes reserved for the super user. |
+| `df_inodes.used` | gauge | Number of inodes that are used. |
+| `percent_bytes.free` | gauge | Free disk space on the file system, expressed as a percentage. |
+| `percent_bytes.reserved` | gauge | Reserved disk space on the filesystem, expressed as a percentage. |
+| `percent_bytes.used` | gauge | Used disk space on the file system, expressed as a percentage. |
+| `percent_inodes.free` | gauge | Free inodes on the file system, expressed as a percentage. |
+| `percent_inodes.reserved` | gauge | Reserved inodes on the file system, expressed as a percentage. |
+| `percent_inodes.used` | gauge | Used inodes on the file system, expressed as a percentage. |
 
 
 
