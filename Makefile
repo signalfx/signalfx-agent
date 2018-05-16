@@ -79,6 +79,7 @@ debug:
 
 .PHONY: run-dev-image
 run-dev-image:
+ifneq ($(OS),Windows_NT)
 	docker exec -it -e COLUMNS=`tput cols` -e LINES=`tput lines` signalfx-agent-dev /bin/bash -l -i 2>/dev/null || \
 	  docker run --rm -it \
 		--cap-add DAC_READ_SEARCH \
@@ -93,6 +94,20 @@ run-dev-image:
 		-v $(PWD)/collectd:/usr/src/collectd:cached \
 		-v /tmp/scratch:/tmp/scratch \
 		signalfx-agent-dev /bin/bash
+else
+	docker exec -it -e COLUMNS=`tput cols` -e LINES=`tput lines` signalfx-agent-dev /bin/bash -l -i 2>/dev/null || \
+	  docker run --rm -it \
+		--cap-add DAC_READ_SEARCH \
+		--cap-add SYS_PTRACE \
+		--net host \
+		-p 6060:6060 \
+		--name signalfx-agent-dev \
+		-v $(PWD)/local-etc:/etc/signalfx \
+		-v $(PWD):/go/src/github.com/signalfx/signalfx-agent:cached \
+		-v $(PWD)/collectd:/usr/src/collectd:cached \
+		-v /tmp/scratch:/tmp/scratch \
+		signalfx-agent-dev /bin/bash
+endif
 
 .PHONY: docs
 docs:
