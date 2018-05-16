@@ -63,6 +63,8 @@ class Agent:
             self.agent_yaml['observers'] = [{'type': self.observer, "kubernetesAPI": {"authType": "serviceAccount", "skipVerify": False}}]
         elif self.observer == "k8s-kubelet":
             self.agent_yaml['observers'] = [{'type': self.observer, "kubeletAPI": {"authType": "serviceAccount", "skipVerify": True}}]
+        elif self.observer == "docker":
+            self.agent_yaml['observers'] = [{'type': self.observer, "dockerURL": "unix:///var/run/docker.sock"}]
         else:
             self.agent_yaml['observers'] = [{'type': self.observer}]
         self.agent_yaml['globalDimensions']['kubernetes_cluster'] = self.cluster_name
