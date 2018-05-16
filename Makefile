@@ -5,7 +5,11 @@ check: lint vet test
 
 .PHONY: test
 test: templates
+ifeq ($(OS),Windows_NT)
+	powershell -Command $$env:CGO_ENABLED=0; go test ./...
+else
 	go test ./...
+endif
 
 .PHONY: vet
 vet: templates
@@ -21,7 +25,9 @@ lint:
 	golint -set_exit_status ./cmd/... ./internal/...
 
 templates:
+ifneq ($(OS),Windows_NT)
 	scripts/make-templates
+endif
 
 .PHONY: image
 image:
@@ -33,10 +39,14 @@ vendor:
 
 signalfx-agent: templates
 	echo "building SignalFx agent for operating system: $(GOOS)"
+ifeq ($(OS),Windows_NT)
+	powershell -Command $$env:CGO_ENABLED=0; go build -ldflags \"-X main.Version=$(AGENT_VERSION) -X main.BuiltTime=$$(Get-Date  -UFormat \"%Y-%m-%dT%T%Z\")\" -o signalfx-agent.exe github.com/signalfx/signalfx-agent/cmd/agent
+else
 	CGO_ENABLED=0 go build \
 		-ldflags "-X main.Version=$(AGENT_VERSION) -X main.BuiltTime=$$(date +%FT%T%z)" \
 		-o signalfx-agent \
 		github.com/signalfx/signalfx-agent/cmd/agent
+endif
 
 .PHONY: bundle
 bundle:
@@ -57,7 +67,11 @@ run-shell:
 
 .PHONY: dev-image
 dev-image:
+ifeq ($(OS),Windows_NT)
+	powershell -Command . $(CURDIR)\scripts\windows\common.ps1; do_docker_build signalfx-agent-dev latest dev-extras
+else 
 	bash -ec "source scripts/common.sh && do_docker_build signalfx-agent-dev latest dev-extras"
+endif
 
 .PHONY: debug
 debug:
