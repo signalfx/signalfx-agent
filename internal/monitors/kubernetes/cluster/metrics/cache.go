@@ -30,7 +30,6 @@ type cachedResourceKey struct {
 type DatapointCache struct {
 	dpCache      map[cachedResourceKey][]*datapoint.Datapoint
 	dimPropCache map[cachedResourceKey]*atypes.DimProperties
-	lastNodes    map[types.UID]*v1.Node
 	mutex        sync.Mutex
 }
 
@@ -39,7 +38,6 @@ func NewDatapointCache() *DatapointCache {
 	return &DatapointCache{
 		dpCache:      make(map[cachedResourceKey][]*datapoint.Datapoint),
 		dimPropCache: make(map[cachedResourceKey]*atypes.DimProperties),
-		lastNodes:    make(map[types.UID]*v1.Node),
 	}
 }
 
@@ -87,9 +85,6 @@ func (dc *DatapointCache) HandleDelete(oldObj runtime.Object) interface{} {
 	}
 
 	delete(dc.dpCache, key)
-	if o, ok := oldObj.(*v1.Node); ok {
-		delete(dc.lastNodes, o.UID)
-	}
 	return key
 }
 
@@ -114,15 +109,8 @@ func (dc *DatapointCache) HandleAdd(newObj runtime.Object) interface{} {
 	case *v1beta1.ReplicaSet:
 		dps = datapointsForReplicaSet(o)
 	case *v1.Node:
-		// Nodes update incredibly often so don't do all the work figuring out
-		// datapoints if they haven't changed in a way we care about.
-		if !nodesDifferent(o, dc.lastNodes[o.UID]) {
-			return nil
-		}
-
 		dps = datapointsForNode(o)
 		dimProps = dimPropsForNode(o)
-		dc.lastNodes[o.UID] = o
 	default:
 		log.WithFields(log.Fields{
 			"obj": spew.Sdump(newObj),
