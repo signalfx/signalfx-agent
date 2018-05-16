@@ -84,7 +84,7 @@ func TestNoPods(t *testing.T) {
 			},
 		}
 		if err := kub.Configure(config); err != nil {
-			t.Error(err)
+			t.Fatal(err)
 		}
 	}
 
