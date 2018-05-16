@@ -54,11 +54,7 @@ class Agent:
         self.configmap_name = self.configmap_yaml['metadata']['name']
         self.daemonset_yaml = yaml.load(open(daemonset_path).read())
         self.daemonset_name = self.daemonset_yaml['metadata']['name']
-        if has_daemonset(self.daemonset_name, namespace=self.namespace):
-            delete_daemonset(self.daemonset_name, namespace=self.namespace)
-        if has_configmap(self.configmap_name, namespace=self.namespace):
-            delete_configmap(self.configmap_name, namespace=self.namespace)
-        print("Creating configmap for observer=%s and monitor(s)=%s from %s ..." % (self.observer, ",".join([m["type"] for m in self.monitors]), configmap_path))
+        self.delete()
         self.agent_yaml = yaml.load(self.configmap_yaml['data']['agent.yaml'])
         del self.agent_yaml['observers']
         if not self.observer and "observers" in self.agent_yaml.keys():
@@ -80,24 +76,32 @@ class Agent:
         del self.agent_yaml['monitors']
         self.agent_yaml['monitors'] = self.monitors
         self.configmap_yaml['data']['agent.yaml'] = yaml.dump(self.agent_yaml)
-        create_configmap(
-            body=self.configmap_yaml,
-            namespace=self.namespace)
-        if self.image_name and self.image_tag:
-            print("Creating daemonset \"%s\" for %s:%s from %s ..." % (self.daemonset_name, self.image_name, self.image_tag, daemonset_path))
-            self.daemonset_yaml['spec']['template']['spec']['containers'][0]['image'] = image_name + ":" + image_tag
+        if has_configmap(self.configmap_name, namespace=self.namespace):
+            print("Updating configmap for observer=%s and monitor(s)=%s from %s ..." % (self.observer, ",".join([m["type"] for m in self.monitors]), configmap_path))
+            patch_configmap(
+                body=self.configmap_yaml,
+                namespace=self.namespace)
         else:
-            print("Creating daemonset \"%s\" from %s ..." % (self.daemonset_name, daemonset_path))
-        create_daemonset(
-            body=self.daemonset_yaml,
-            namespace=namespace)
+            print("Creating configmap for observer=%s and monitor(s)=%s from %s ..." % (self.observer, ",".join([m["type"] for m in self.monitors]), configmap_path))
+            create_configmap(
+                body=self.configmap_yaml,
+                namespace=self.namespace)
+        if not has_daemonset(self.daemonset_name, namespace=self.namespace):
+            if self.image_name and self.image_tag:
+                print("Creating daemonset \"%s\" for %s:%s from %s ..." % (self.daemonset_name, self.image_name, self.image_tag, daemonset_path))
+                self.daemonset_yaml['spec']['template']['spec']['containers'][0]['image'] = image_name + ":" + image_tag
+            else:
+                print("Creating daemonset \"%s\" from %s ..." % (self.daemonset_name, daemonset_path))
+            create_daemonset(
+                body=self.daemonset_yaml,
+                namespace=namespace)
         assert wait_for(p(has_pod, self.daemonset_name), timeout_seconds=60), "timed out waiting for the %s pod to start!" % self.daemonset_name
         assert wait_for(all_pods_have_ips, timeout_seconds=300), "timed out waiting for pod IPs!"
         self.get_container(client)
         assert self.container, "failed to get agent container!"
         status = self.container.status.lower()
         # wait to make sure that the agent container is still running
-        time.sleep(10)
+        time.sleep(5)
         try:
             self.container.reload()
             status = self.container.status.lower()

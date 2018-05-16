@@ -191,6 +191,22 @@ def create_configmap(body=None, name="", data={}, labels={}, namespace="default"
     return configmap
 
 
+def patch_configmap(body, namespace="default", timeout=K8S_API_TIMEOUT):
+    api = kube_client.CoreV1Api()
+    name = body['metadata']['name']
+    body["apiVersion"] = "v1"
+    try:
+        namespace = body["metadata"]["namespace"]
+    except:
+        pass
+    configmap =  api.patch_namespaced_config_map(
+        name=name,
+        body=body,
+        namespace=namespace)
+    assert wait_for(p(has_configmap, name, namespace=namespace), timeout_seconds=timeout), "timed out waiting for configmap \"%s\" to be patched!" % name
+    return configmap
+
+
 def delete_configmap(name, namespace="default", timeout=K8S_API_TIMEOUT):
     if not has_configmap(name, namespace=namespace):
         return
