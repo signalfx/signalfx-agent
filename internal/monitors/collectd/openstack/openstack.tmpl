@@ -1,0 +1,24 @@
+LoadPlugin "python"
+<Plugin "python">
+  ModulePath "{{ pluginRoot }}/openstack"
+  Import "openstack_metrics"
+
+  <Module openstack_metrics>
+    AuthURL "{{.AuthURL}}"
+    Username "{{.Username}}"
+    Password "{{.Password}}"
+    {{with .ProjectName -}}
+    ProjectName "{{.}}"
+    {{- end}}
+    {{with .ProjectDomainID -}}
+    ProjectDomainId "{{.}}"
+    {{- end}}
+    {{with .UserDomainID -}}
+    UserDomainId "{{.}}"
+    {{- end}}
+    Dimension "monitorID" "{{.MonitorID}}"
+    {{range $key, $value := .Dimensions -}}
+    Dimension "{{$key}}" "{{$value}}"
+    {{end -}}
+  </Module>
+</Plugin>

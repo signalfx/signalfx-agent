@@ -32,6 +32,7 @@ along with their possible configuration options:
 - [collectd/mongodb](./monitors/collectd-mongodb.md)
 - [collectd/mysql](./monitors/collectd-mysql.md)
 - [collectd/nginx](./monitors/collectd-nginx.md)
+- [collectd/openstack](./monitors/collectd-openstack.md)
 - [collectd/processes](./monitors/collectd-processes.md)
 - [collectd/protocols](./monitors/collectd-protocols.md)
 - [collectd/rabbitmq](./monitors/collectd-rabbitmq.md)
