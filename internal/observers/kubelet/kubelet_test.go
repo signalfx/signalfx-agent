@@ -83,7 +83,9 @@ func TestNoPods(t *testing.T) {
 				Removed: func(se services.Endpoint) { delete(endpoints, se.Core().ID) },
 			},
 		}
-		kub.Configure(config)
+		if err := kub.Configure(config); err != nil {
+			t.Error(err)
+		}
 	}
 
 	t.Run("No pods at all", func(t *testing.T) {
