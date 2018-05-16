@@ -1,3 +1,5 @@
+// +build !windows
+
 package redis
 
 //go:generate collectd-template-to-go redis.tmpl

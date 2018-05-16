@@ -1,3 +1,5 @@
+// +build !windows
+
 package haproxy
 
 //go:generate collectd-template-to-go haproxy.tmpl

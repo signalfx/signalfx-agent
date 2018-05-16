@@ -1,3 +1,5 @@
+// +build !windows
+
 package consul
 
 //go:generate collectd-template-to-go consul.tmpl

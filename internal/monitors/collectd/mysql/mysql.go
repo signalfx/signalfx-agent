@@ -1,3 +1,5 @@
+// +build !windows
+
 package mysql
 
 //go:generate collectd-template-to-go mysql.tmpl

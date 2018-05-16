@@ -1,3 +1,5 @@
+// +build !windows
+
 package etcd
 
 //go:generate collectd-template-to-go etcd.tmpl
