@@ -26,5 +26,21 @@ Monitor Type: `collectd/disk`
 
 
 
+## Metrics
+
+This monitor emits the following metrics.  Note that configuration options may
+cause only a subset of metrics to be emitted.
+
+| Name | Type | Description |
+| ---  | ---  | ---         |
+| `disk_merged.read` | cumulative | The number of disk reads merged into single physical disk access operations. |
+| `disk_merged.write` | cumulative | The number of disk writes merged into single physical disk access operations. |
+| `disk_octets.read` | cumulative | The number of bytes (octets) read from a disk. |
+| `disk_octets.write` | cumulative | The number of bytes (octets) written to a disk. |
+| `disk_ops.read` | cumulative | The number of disk read operations. |
+| `disk_ops.write` | cumulative | The number of disk write operations. |
+| `disk_time.read` | cumulative | The average amount of time it took to do a read operation. |
+| `disk_time.write` | cumulative | The average amount of time it took to do a write operation. |
+
 
 

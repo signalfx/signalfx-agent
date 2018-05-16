@@ -11,6 +11,10 @@ import (
 // MONITOR(collectd/load): Monitors process load on the host using the collectd
 // [Load plugin](https://collectd.org/wiki/index.php/Plugin:Load).
 
+// GAUGE(load.longterm): Average CPU load per core over the last 15 minutes
+// GAUGE(load.midterm): Average CPU load per core over the last five minutes
+// GAUGE(load.shortterm): Average CPU load per core over the last one minute
+
 const monitorType = "collectd/load"
 
 func init() {
