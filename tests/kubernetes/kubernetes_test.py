@@ -23,9 +23,13 @@ DOCS_DIR = os.environ.get("DOCS_DIR", "/go/src/github.com/signalfx/signalfx-agen
 def test_monitor_without_observer(minikube, monitor, k8s_test_timeout):
     if monitor["type"] in ["collectd/cpufreq", "collectd/df"]:
         pytest.skip("monitor %s not supported" % monitor["type"])
-    monitor_doc = os.path.join(DOCS_DIR, "monitors", monitor["type"].replace("/", "-") + ".md")
-    expected_metrics = get_metrics_from_doc(monitor_doc)
-    expected_dims = get_dims_from_doc(monitor_doc)
+    if monitor["type"] == "collectd/statsd":
+        expected_metrics = ["gauge.statsd.test"]
+        expected_dims = ["foo", "dim"]
+    else:
+        monitor_doc = os.path.join(DOCS_DIR, "monitors", monitor["type"].replace("/", "-") + ".md")
+        expected_metrics = get_metrics_from_doc(monitor_doc)
+        expected_dims = get_dims_from_doc(monitor_doc)
     if len(expected_metrics) == 0 and len(expected_dims) == 0:
         pytest.skip("expected metrics and dimensions lists are empty")
     print("\nCollected %d metric(s) and %d dimension(s) to test for %s." % (len(expected_metrics), len(expected_dims), monitor["type"]))
@@ -46,6 +50,8 @@ def test_monitor_without_observer(minikube, monitor, k8s_test_timeout):
             image_name=AGENT_IMAGE_NAME,
             image_tag=AGENT_IMAGE_TAG,
             namespace="default") as agent:
+            if monitor["type"] == "collectd/statsd":
+                agent.container.exec_run(["/bin/bash", "-c", 'while true; do echo "statsd.[foo=bar,dim=val]test:1|g" | nc -w 1 -u 127.0.0.1 8125; sleep 1; done'], detach=True)
             if len(expected_metrics) > 0 and len(expected_dims) > 0:
                 assert any_metric_has_any_dim(backend, expected_metrics, expected_dims, k8s_test_timeout), \
                     "timed out waiting for any metric in %s with any dimension in %s!\n\nAGENT STATUS:\n%s\n\nAGENT CONTAINER LOGS:\n%s\n" % \
