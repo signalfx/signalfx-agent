@@ -45,6 +45,7 @@ class Agent:
         self.namespace = namespace
         self.serviceaccount_yaml = yaml.load(open(serviceaccount_path).read())
         self.serviceaccount_name = self.serviceaccount_yaml['metadata']['name']
+        print()
         if not has_serviceaccount(self.serviceaccount_name, namespace=self.namespace):
             print("Creating service account \"%s\" from %s ..." % (self.serviceaccount_name, serviceaccount_path))
             create_serviceaccount(
@@ -68,6 +69,7 @@ class Agent:
         else:
             self.agent_yaml['observers'] = [{'type': self.observer}]
         self.agent_yaml['globalDimensions']['kubernetes_cluster'] = self.cluster_name
+        self.agent_yaml['intervalSeconds'] = 5
         self.agent_yaml['sendMachineID'] = True
         self.agent_yaml['useFullyQualifiedHost'] = False
         if self.backend:
