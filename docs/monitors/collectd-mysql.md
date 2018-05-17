@@ -66,6 +66,12 @@ cause only a subset of metrics to be emitted.
 
 | Name | Type | Description |
 | ---  | ---  | ---         |
+| `cache_result.qcache-hits` | cumulative | The number of hits on MySQL query cache. |
+| `cache_result.qcache-inserts` | cumulative | The number of inserts into MySQL query cache. |
+| `cache_results.cache_size` | gauge | MySQL Qcache Size |
+| `cache_results.qcache-not_cached` | cumulative | The number of MySQL queries that were not cacheable or not cached. |
+| `cache_results.qcache-prunes` | cumulative | The number of queries that were pruned from query cache because of low-memory condition. |
+| `cache_size.qcache` | gauge | The number of queries in MySQL query cache. |
 | `mysql_commands.admin_commands` | counter | The number of MySQL ADMIN commands executed |
 | `mysql_commands.alter_db` | counter | The number of MySQL ALTER DB commands executed |
 | `mysql_commands.alter_db_upgrade` | counter | The number of MySQL ALTER DB UPGRADE commands executed |
@@ -216,6 +222,8 @@ cause only a subset of metrics to be emitted.
 | `mysql_handler.write` | counter | The number of requests to insert a row in a table. |
 | `mysql_locks.immediate` | counter | The number of MySQL table locks which were granted immediately. |
 | `mysql_locks.waited` | counter | The number of MySQL table locks which had to wait before being granted. |
+| `mysql_octets.rx` | cumulative | The number of bytes received by MySQL server from all clients. |
+| `mysql_octets.tx` | cumulative | The number of bytes sent by MySQL server to all clients. |
 | `mysql_select.full_join` | counter | The number of joins that perform full table scans. |
 | `mysql_select.full_range_join` | counter | The number of joins that used a range search on a reference table. |
 | `mysql_select.range` | counter | The number of joins that used a range on the first table. |
@@ -224,18 +232,10 @@ cause only a subset of metrics to be emitted.
 | `mysql_sort.range` | counter | The number of sorts that were done using ranges. |
 | `mysql_sort.rows` | counter | The number of rows that were sorted. |
 | `mysql_sort.scan` | counter | The number of sorts that were done by scanning the table. |
-| `cache_result.qcache-hits` | cumulative | The number of hits on MySQL query cache. |
-| `cache_result.qcache-inserts` | cumulative | The number of inserts into MySQL query cache. |
-| `cache_results.qcache-not_cached` | cumulative | The number of MySQL queries that were not cacheable or not cached. |
-| `cache_results.qcache-prunes` | cumulative | The number of queries that were pruned from query cache because of low-memory condition. |
-| `mysql_octets.rx` | cumulative | The number of bytes received by MySQL server from all clients. |
-| `mysql_octets.tx` | cumulative | The number of bytes sent by MySQL server to all clients. |
-| `total_threads.created` | cumulative | The total number of threads created by MySQL for client connections.  A MySQL thread corresponds to a single MySQL connection. |
-| `cache_results.cache_size` | gauge | MySQL Qcache Size |
-| `cache_size.qcache` | gauge | The number of queries in MySQL query cache. |
 | `threads.cached` | gauge | The number of threads cached by MySQL for re-use on a new client connection.  A MySQL thread corresponds to a single MySQL connection. |
 | `threads.connected` | gauge | The number of currently open MySQL connections.  A MySQL thread corresponds to a single MySQL connection. |
 | `threads.running` | gauge | The number of MySQL threads that are processing a query.  A MySQL thread corresponds to a single MySQL connection. |
+| `total_threads.created` | cumulative | The total number of threads created by MySQL for client connections.  A MySQL thread corresponds to a single MySQL connection. |
 
 
 
