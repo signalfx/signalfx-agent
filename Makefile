@@ -80,11 +80,12 @@ debug:
 
 ifneq ($(OS),Windows_NT)
 extra_run_flags = -v /:/hostfs:ro -v /var/run/docker.sock:/var/run/docker.sock:ro -v /tmp/scratch:/tmp/scratch
+docker_env = -e COLUMNS=`tput cols` -e LINES=`tput lines`
 endif
 
 .PHONY: run-dev-image
 run-dev-image:
-	docker exec -it -e COLUMNS=`tput cols` -e LINES=`tput lines` signalfx-agent-dev /bin/bash -l -i 2>/dev/null || \
+	powershell -Command docker exec -it $(docker_env) signalfx-agent-dev /bin/bash -l -i || \
 	  docker run --rm -it \
 		$(extra_run_flags) \
 		--cap-add DAC_READ_SEARCH \
