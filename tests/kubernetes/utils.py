@@ -18,6 +18,7 @@ def any_metric_found(backend, metrics, timeout):
             return None
         for dp in backend.datapoints:
             if dp.metric in metrics:
+                print("Found metric \"%s\"." % dp.metric)
                 return dp
         time.sleep(2)
 
@@ -32,6 +33,7 @@ def any_dim_found(backend, dims, timeout):
         for dp in backend.datapoints:
             for dim in dp.dimensions:
                 if dim.key in dims:
+                    print("Found dimension \"%s\"." % dim.key)
                     return dp
         time.sleep(2)
 
@@ -47,6 +49,7 @@ def any_metric_has_any_dim(backend, metrics, dims, timeout):
             if dp.metric in metrics:
                 for dim in dp.dimensions:
                     if dim.key in dims:
+                        print("Found metric \"%s\" with dimension \"%s\"." % (dp.metric, dim.key))
                         return dp
         time.sleep(2)
 
