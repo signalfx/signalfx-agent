@@ -12,7 +12,7 @@ Monitor Type: `collectd/openstack`
 
 [Monitor Source Code](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/openstack)
 
-**Accepts Endpoints**: **Yes**
+**Accepts Endpoints**: No
 
 **Multiple Instances Allowed**: Yes
 

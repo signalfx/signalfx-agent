@@ -25,7 +25,7 @@ func init() {
 
 // Config is the monitor-specific config with the generic config embedded
 type Config struct {
-	config.MonitorConfig `yaml:",inline" acceptsEndpoints:"true"`
+	config.MonitorConfig `yaml:",inline"`
 
 	// Keystone authentication URL/endpoint for the OpenStack cloud
 	AuthURL string `yaml:"authURL" validate:"required"`
