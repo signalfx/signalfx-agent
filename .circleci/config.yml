@@ -47,7 +47,8 @@ references:
                     --html=/output/k8s_integration_tests.html \
                     --self-contained-html \
                     --k8s-versions=$(eval "echo -n $K8S_VERSION") \
-                    --k8s-observers=all \
+                    --k8s-observers=k8s-api,k8s-kubelet \
+                    --k8s-monitors=kubelet-stats,kubernetes-cluster,kubernetes-volumes,collectd/nginx,collectd/rabbitmq \
                     --k8s-timeout=300 \
                     --k8s-test-timeout=120 \
                     --k8s-agent-name=quay.io/signalfx/signalfx-agent-dev \
