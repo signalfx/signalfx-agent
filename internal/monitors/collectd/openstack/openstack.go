@@ -33,14 +33,12 @@ type Config struct {
 	Username string `yaml:"username" validate:"required"`
 	// Password to authenticate with keystone identity
 	Password string `yaml:"password" validate:"required"`
-	// Specify the name of Project to be monitored
-	ProjectName string `yaml:"projectName" default:"demo"`
-	// The project domain
-	ProjectDomainID string `yaml:"projectDomainID" default:"default"`
-	// The user domain id
-	UserDomainID string `yaml:"userDomainID" default:"default"`
-	// Additional dimensions to be added to metrics
-	Dimensions map[string]string `yaml:"dimensions"`
+	// Specify the name of Project to be monitored (**default**:"demo")
+	ProjectName string `yaml:"projectName"`
+	// The project domain (**default**:"default")
+	ProjectDomainID string `yaml:"projectDomainID"`
+	// The user domain id (**default**:"default")
+	UserDomainID string `yaml:"userDomainID"`
 }
 
 // Monitor is the main type that represents the monitor

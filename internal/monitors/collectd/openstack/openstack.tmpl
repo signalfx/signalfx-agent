@@ -17,8 +17,5 @@ LoadPlugin "python"
     UserDomainId "{{.}}"
     {{- end}}
     Dimension "monitorID" "{{.MonitorID}}"
-    {{range $key, $value := .Dimensions -}}
-    Dimension "{{$key}}" "{{$value}}"
-    {{end -}}
   </Module>
 </Plugin>
