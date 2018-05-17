@@ -29,9 +29,10 @@ options, respectively (if the image does not exist in the local registry, the
 test will try to pull the image from the remote registry).
 
 For example, the following commands will build the "final" agent image, the dev
-image, and run the kubernetes tests for the latest K8S version within the dev
+image, and run the kubernetes tests with the default options within the dev
 image:
 ```
+% cd <root_of_cloned_repo>
 % make image
 % make dev-image
 % make run-dev-image
@@ -43,9 +44,9 @@ Run `pytest --help` from the root of the repo in the dev image and see the
 options.
 
 **Warning:** Due to known limitations of the xdist pytest plugin (e.g. the 
-`-n auto` option), parallelization of concurrent kubernetes tests is not yet 
-fully supported.  Since the tests are designed to reuse the minikube and other 
-fixtures for the test environment, invoking the xdist plugin may cause race 
-conditions or duplicate executions of fixtures when running concurrent 
-kubernetes tests.
+`-n auto` option) for parametrized tests and fixtures, parallelization of
+concurrent kubernetes tests is not yet fully supported.  Since the tests are 
+designed to reuse the minikube and other fixtures for the test environment, 
+invoking the xdist plugin may cause race conditions or duplicate executions of 
+fixtures when running concurrent kubernetes tests.
 
