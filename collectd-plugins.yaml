@@ -44,7 +44,7 @@
     - pymongo[tls]==3.3.1
 
 - name: openstack
-  version: c4435463dd618c3452b9af000017da554a308784
+  version: 366e218d27be3f6a0b632045a87bc703837eddea
   repo: signalfx/collectd-openstack
 
 - name: rabbitmq
