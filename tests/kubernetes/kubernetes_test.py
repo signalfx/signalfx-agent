@@ -40,7 +40,6 @@ def test_monitor_without_endpoints(k8s_monitor_without_endpoints, k8s_test_timeo
     if len(expected_metrics) == 0 and os.path.isfile(metrics_txt):
         with open(metrics_txt, "r") as fd:
             expected_metrics = {m.strip() for m in fd.readlines() if len(m.strip()) > 0}
-    print("\nCollected %d metric(s) and %d dimension(s) to test for %s." % (len(expected_metrics), len(expected_dims), monitor["type"]))
     with fake_backend.start(ip=get_host_ip()) as backend:
         with minikube.deploy_agent(
             AGENT_CONFIGMAP_PATH,
@@ -56,6 +55,7 @@ def test_monitor_without_endpoints(k8s_monitor_without_endpoints, k8s_test_timeo
             if monitor["type"] == "collectd/statsd":
                 agent.container.exec_run(["/bin/bash", "-c", 'while true; do echo "statsd.[foo=bar,dim=val]test:1|g" | nc -w 1 -u 127.0.0.1 8125; sleep 1; done'], detach=True)
             if monitor["type"] not in ["collectd/cpufreq", "collectd/custom", "kubernetes-events"]:
+                print("\nCollected %d metric(s) and %d dimension(s) to test for %s." % (len(expected_metrics), len(expected_dims), monitor["type"]))
                 if len(expected_metrics) > 0 and len(expected_dims) > 0:
                     assert any_metric_has_any_dim(backend, expected_metrics, expected_dims, k8s_test_timeout), \
                         "timed out waiting for any metric in %s with any dimension in %s!\n\nAGENT STATUS:\n%s\n\nAGENT CONTAINER LOGS:\n%s\n" % \
@@ -82,7 +82,6 @@ def test_monitor_with_endpoints(k8s_monitor_with_endpoints, k8s_observer, k8s_te
             expected_metrics = {m.strip() for m in fd.readlines() if len(m.strip()) > 0}
     assert len(expected_metrics) > 0 and len(expected_dims) > 0, "expected metrics and dimensions lists are both empty!"
     assert len(yamls) > 0, "yamls list is empty!"
-    print("\nCollected %d metric(s) and %d dimension(s) to test for %s." % (len(expected_metrics), len(expected_dims), monitor["type"]))
     with fake_backend.start(ip=get_host_ip()) as backend:
         with minikube.deploy_yamls(yamls=yamls):
             with minikube.deploy_agent(
@@ -96,6 +95,7 @@ def test_monitor_with_endpoints(k8s_monitor_with_endpoints, k8s_observer, k8s_te
                 image_name=AGENT_IMAGE_NAME,
                 image_tag=AGENT_IMAGE_TAG,
                 namespace="default") as agent:
+                print("\nCollected %d metric(s) and %d dimension(s) to test for %s." % (len(expected_metrics), len(expected_dims), monitor["type"]))
                 if len(expected_metrics) > 0 and len(expected_dims) > 0:
                     assert any_metric_has_any_dim(backend, expected_metrics, expected_dims, k8s_test_timeout), \
                         "timed out waiting for any metric in %s with any dimension in %s!\n\nAGENT STATUS:\n%s\n\nAGENT CONTAINER LOGS:\n%s\n" % \
