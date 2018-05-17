@@ -45,7 +45,7 @@ func init() {
 
 // Config for monitor
 type Config struct {
-	config.MonitorConfig `yaml:",inline" acceptsEndpoints:"true" singleInstance:"true"`
+	config.MonitorConfig `yaml:",inline" acceptsEndpoints:"true"`
 
 	// Required for monitors that accept auto-discovered endpoints
 	Host string `yaml:"host"`
@@ -141,9 +141,7 @@ monitor code however, if desired.
 If your monitor is watching service endpoints that are appropriate for auto
 discovery (e.g. a web service), you have to tell the agent this by specifying
 the `acceptsEndpoints:"true"` tag on the embedded `MonitorConfig` struct in
-your config struct type.  If your monitor should only have one running instance,
-you have to tell the agent this by specifying the `singleInstance:"true"` tag on
-the the embedded `MonitorConfig`.  See the example above for what these looks like.
+your config struct type.  See the example above for what this looks like.
 Then, you must specify three YAML fields in your config struct that all
 discovered service endpoints provide in their configuration data:
 
