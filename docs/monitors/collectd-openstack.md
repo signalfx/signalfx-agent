@@ -23,10 +23,9 @@ Monitor Type: `collectd/openstack`
 | `authURL` | **yes** | `string` | Keystone authentication URL/endpoint for the OpenStack cloud |
 | `username` | **yes** | `string` | Username to authenticate with keystone identity |
 | `password` | **yes** | `string` | Password to authenticate with keystone identity |
-| `projectName` | no | `string` | Specify the name of Project to be monitored (**default:** `demo`) |
-| `projectDomainID` | no | `string` | The project domain (**default:** `default`) |
-| `userDomainID` | no | `string` | The user domain id (**default:** `default`) |
-| `dimensions` | no | `map of string` | Additional dimensions to be added to metrics |
+| `projectName` | no | `string` | Specify the name of Project to be monitored (**default**:"demo") |
+| `projectDomainID` | no | `string` | The project domain (**default**:"default") |
+| `userDomainID` | no | `string` | The user domain id (**default**:"default") |
 
 
 
@@ -38,35 +37,33 @@ cause only a subset of metrics to be emitted.
 
 | Name | Type | Description |
 | ---  | ---  | ---         |
-| `openstack.cinder.limit.maxTotalVolumeGigabytes` | gauge | Total available block storage at cinder component for project |
-| `openstack.cinder.limit.maxTotalVolumes` | gauge | Maximum volume resources available at cinder component for project |
-| `openstack.cinder.limit.totalGigabytesUsed` | gauge | Total block storage used at cinder component for project |
-| `openstack.cinder.limit.totalVolumesUsed` | gauge | Volume resources used at cinder component for project |
-| `openstack.neutron.floatingip.count` | gauge | Overall floating IPs used across projects |
-| `openstack.neutron.network.count` | gauge | Overall Network resources used across projects |
-| `openstack.neutron.router.count` | gauge | Overall router resources used across projects |
-| `openstack.neutron.securitygroup.count` | gauge | Overall securitygroup resources used across projects |
-| `openstack.nova.hypervisor.load_average` | gauge | Average CPU load on the hypervisor |
-| `openstack.nova.hypervisor.memory_mb` | gauge | Maximum available memory in MB at hypervisor |
-| `openstack.nova.hypervisor.memory_mb_used` | gauge | Total memory used in MB at hypervisor |
-| `openstack.nova.hypervisor.running_vms` | gauge | Total running VMs at hypervisor |
-| `openstack.nova.hypervisor.vcpus` | gauge | Available physical cores at hypervisor |
-| `openstack.nova.hypervisor.vcpus_used` | gauge | Used virtual CPUs used |
-| `openstack.nova.limit.maxSecurityGroups` | gauge | Maximum available security groups for project |
-| `openstack.nova.limit.maxTotalCores` | gauge | Maximum available VCPUs in project |
-| `openstack.nova.limit.maxTotalFloatingIps` | gauge | Maximum available floating IPs for project |
-| `openstack.nova.limit.maxTotalInstances` | gauge | Maximum available instances in project |
-| `openstack.nova.limit.maxTotalRAMSize` | gauge | Maximum available RAM size for project |
-| `openstack.nova.limit.totalCoresUsed` | gauge | Total cores used in the project |
-| `openstack.nova.limit.totalInstancesUsed` | gauge | Total instances used in the project |
-| `openstack.nova.limit.totalRAMUsed` | gauge | Total RAM used in the project |
-| `openstack.nova.server.memory` | gauge | Memory provisioned at an instance |
-| `openstack.nova.server.memory-actual` | gauge | Actual memory used at an instance |
-| `openstack.nova.server.memory-rss` | gauge | Memory used not including disk pages at an instance |
-| `openstack.nova.server.rx_packets` | counter | Received packets at an instance |
-| `openstack.nova.server.tx_packets` | counter | Transmitted packets at an instance |
-| `openstack.nova.server.vda_read_req` | gauge | Virtual disk read requests from an instance |
-| `openstack.nova.server.vda_write_req` | gauge | Virtual disk write requests from an instance |
+| `gauge.openstack.cinder.limit.maxTotalVolumeGigabytes` | gauge | Total available block storage at cinder component for project |
+| `gauge.openstack.cinder.limit.maxTotalVolumes` | gauge | Maximum volume resources available at cinder component for project |
+| `gauge.openstack.cinder.limit.totalGigabytesUsed` | gauge | Total block storage used at cinder component for project |
+| `gauge.openstack.cinder.limit.totalVolumesUsed` | gauge | Volume resources used at cinder component for project |
+| `gauge.openstack.neutron.floatingip.count` | gauge | Overall floating IPs used across projects |
+| `gauge.openstack.neutron.network.count` | gauge | Overall Network resources used across projects |
+| `gauge.openstack.neutron.router.count` | gauge | Overall router resources used across projects |
+| `gauge.openstack.neutron.securitygroup.count` | gauge | Overall securitygroup resources used across projects |
+| `gauge.openstack.nova.hypervisor.load_average` | gauge | Average CPU load on the hypervisor |
+| `gauge.openstack.nova.hypervisor.memory_mb` | gauge | Maximum available memory in MB at hypervisor |
+| `gauge.openstack.nova.hypervisor.memory_mb_used` | gauge | Total memory used in MB at hypervisor |
+| `gauge.openstack.nova.hypervisor.running_vms` | gauge | Total running VMs at hypervisor |
+| `gauge.openstack.nova.hypervisor.vcpus` | gauge | Available physical cores at hypervisor |
+| `gauge.openstack.nova.hypervisor.vcpus_used` | gauge | Used virtual CPUs used |
+| `gauge.openstack.nova.limit.maxSecurityGroups` | gauge | Maximum available security groups for project |
+| `gauge.openstack.nova.limit.maxTotalCores` | gauge | Maximum available VCPUs in project |
+| `gauge.openstack.nova.limit.maxTotalFloatingIps` | gauge | Maximum available floating IPs for project |
+| `gauge.openstack.nova.limit.maxTotalInstances` | gauge | Maximum available instances in project |
+| `gauge.openstack.nova.limit.maxTotalRAMSize` | gauge | Maximum available RAM size for project |
+| `gauge.openstack.nova.limit.totalCoresUsed` | gauge | Total cores used in the project |
+| `gauge.openstack.nova.limit.totalInstancesUsed` | gauge | Total instances used in the project |
+| `gauge.openstack.nova.limit.totalRAMUsed` | gauge | Total RAM used in the project |
+| `gauge.openstack.nova.server.memory` | gauge | Memory provisioned at an instance |
+| `gauge.openstack.nova.server.memory-actual` | gauge | Actual memory used at an instance |
+| `gauge.openstack.nova.server.memory-rss` | gauge | Memory used not including disk pages at an instance |
+| `gauge.openstack.nova.server.vda_read_req` | gauge | Virtual disk read requests from an instance |
+| `gauge.openstack.nova.server.vda_write_req` | gauge | Virtual disk write requests from an instance |
 
 
 
