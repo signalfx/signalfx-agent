@@ -43,6 +43,10 @@
   pip_packages:
     - pymongo[tls]==3.3.1
 
+- name: openstack
+  version: v1.0.0
+  repo: signalfx/collectd-openstack
+
 - name: rabbitmq
   version: v1.0.1
   repo: signalfx/collectd-rabbitmq

@@ -32,6 +32,7 @@ import (
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/collectd/mysql"
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/collectd/netinterface"
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/collectd/nginx"
+	_ "github.com/signalfx/signalfx-agent/internal/monitors/collectd/openstack"
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/collectd/processes"
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/collectd/protocols"
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/collectd/rabbitmq"
