@@ -87,25 +87,21 @@ def check_for_dims(backend, dims, timeout):
     return dims_not_found
 
 
-# returns a sorted list of unique metric names from `doc` excluding those in `ignore`
+# returns a sorted set of metric names from `doc` excluding those in `ignore`
 def get_metrics_from_doc(doc, ignore=[]):
     assert os.path.isfile(doc), "\"%s\" not found!" % doc
-    with open(doc) as fd:
-        all_metrics = re.findall('\|\s+`(.*?)`\s+\|\s+(?:counter|gauge|cumulative)\s+\|', fd.read(), re.IGNORECASE)
-        metrics = list(all_metrics)
-    if len(ignore) > 0:
-        for m in all_metrics:
-            for i in ignore:
-                if re.match(i, m):
-                    metrics.remove(m)
-    return sorted(list(set(metrics)))
+    with open(doc, 'r') as fd:
+        metrics = set(re.findall('\|\s+`(.*?)`\s+\|\s+(?:counter|gauge|cumulative)\s+\|', fd.read(), re.IGNORECASE))
+        if len(metrics) > 0 and len(ignore) > 0:
+            metrics.difference_update(set(ignore))
+        return set(sorted(metrics))
 
 
-# returns a sorted list of unique dimension names from `doc` excluding those in `ignore`
+# returns a sorted set of dimension names from `doc` excluding those in `ignore`
 def get_dims_from_doc(doc, ignore=[]):
     assert os.path.isfile(doc), "\"%s\" not found!" % doc
-    with open(doc) as fd:
-        all_dims = []
+    with open(doc, 'r') as fd:
+        dims = set()
         line = fd.readline()
         while line and not re.match('\s*##\s*Dimensions.*', line):
             line = fd.readline()
@@ -116,16 +112,12 @@ def get_dims_from_doc(doc, ignore=[]):
                 line = fd.readline()
                 match = dim_line.match(line)
             while line and match:
-                all_dims.append(match.group(1))
+                dims.add(match.group(1))
                 line = fd.readline()
                 match = dim_line.match(line)
-        dims = list(all_dims)
-    if len(ignore) > 0:
-        for d in all_dims:
-            for i in ignore:
-                if re.match(i, d):
-                    dims.remove(d)
-    return sorted(list(set(dims)))
+        if len(dims) > 0 and len(ignore) > 0:
+            dims.differnce_update(set(ignore))
+        return set(sorted(dims))
 
 
 # returns the IP of the pytest host (i.e. the dev image)
