@@ -91,3 +91,20 @@ def k8s_observer(request):
 def k8s_test_timeout(request):
     return int(request.config.getoption("--k8s-test-timeout"))
 
+
+@pytest.fixture
+def k8s_monitor_without_endpoints(request):
+    try:
+        return request.param
+    except:
+        pytest.skip("no monitors to test")
+        return None
+
+
+@pytest.fixture
+def k8s_monitor_with_endpoints(request):
+    try:
+        return request.param
+    except:
+        pytest.skip("no monitors to test")
+        return None

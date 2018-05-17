@@ -1,3 +1,4 @@
+from tests.kubernetes.data import *
 import itertools
 import json
 import os
@@ -46,9 +47,11 @@ def get_k8s_supported_versions():
 K8S_SUPPORTED_VERSIONS = get_k8s_supported_versions()
 K8S_MAJOR_MINOR_VERSIONS = [v for v in K8S_SUPPORTED_VERSIONS if semver.parse_version_info(v).patch == 0]
 
-K8S_SUPPORTED_OBSERVERS = ["k8s-api", "k8s-kubelet", "docker"]
-K8S_DEFAULT_OBSERVER = "k8s-api"
+K8S_SUPPORTED_OBSERVERS = ["k8s-api", "k8s-kubelet", "docker", "host"]
+K8S_DEFAULT_OBSERVERS = ["k8s-api", "k8s-kubelet"]
 
+K8S_DEFAULT_MONITORS_WITHOUT_ENDPOINTS = ["kubelet-stats", "kubernetes-cluster", "kubernetes-volumes"]
+K8S_DEFAULT_MONITORS_WITH_ENDPOINTS = ["collectd/nginx", "collectd/rabbitmq"]
 
 def pytest_addoption(parser):
     parser.addoption(
@@ -60,8 +63,14 @@ def pytest_addoption(parser):
     parser.addoption(
         "--k8s-observers",
         action="store",
-        default=K8S_DEFAULT_OBSERVER,
-        help="Comma-separated string of observers for the SignalFx agent (default=%s). Use '--k8s-observers=all' to test all supported observers." % K8S_DEFAULT_OBSERVER
+        default=",".join(K8S_DEFAULT_OBSERVERS),
+        help="Comma-separated string of observers for the SignalFx agent (default=%s). Use '--k8s-observers=all' to test all supported observers." % ",".join(K8S_DEFAULT_OBSERVERS)
+    )
+    parser.addoption(
+        "--k8s-monitors",
+        action="store",
+        default=",".join(K8S_DEFAULT_MONITORS_WITHOUT_ENDPOINTS + K8S_DEFAULT_MONITORS_WITH_ENDPOINTS),
+        help="Comma-separated string of monitors for the SignalFx agent (default=%s). Use '--k8s-monitors=all' to test all supported monitors." % ",".join(K8S_DEFAULT_MONITORS_WITHOUT_ENDPOINTS + K8S_DEFAULT_MONITORS_WITH_ENDPOINTS)
     )
     parser.addoption(
         "--k8s-timeout",
@@ -120,7 +129,7 @@ def pytest_generate_tests(metafunc):
     if 'k8s_observer' in metafunc.fixturenames:
         k8s_observers = metafunc.config.getoption("--k8s-observers")
         if not k8s_observers:
-            observers_to_test = [K8S_DEFAULT_OBSERVER]
+            observers_to_test = K8S_DEFAULT_OBSERVERS
         elif k8s_observers.lower() == 'all':
             observers_to_test = K8S_SUPPORTED_OBSERVERS
         else:
@@ -128,4 +137,23 @@ def pytest_generate_tests(metafunc):
                 assert o in K8S_SUPPORTED_OBSERVERS, "observer \"%s\" not supported!" % o
             observers_to_test = k8s_observers.split(',')
         metafunc.parametrize("k8s_observer", observers_to_test, ids=[o for o in observers_to_test], indirect=True)
-
+    k8s_monitors = metafunc.config.getoption("--k8s-monitors")
+    monitors_without_endpoints_to_test = []
+    monitors_with_endpoints_to_test = []
+    if not k8s_monitors:
+        monitors_without_endpoints_to_test = [m for m in MONITORS_WITHOUT_ENDPOINTS if m["type"] in K8S_DEFAULT_MONITORS_WITHOUT_ENDPOINTS]
+        monitors_with_endpoints_to_test = [m for m in MONITORS_WITH_ENDPOINTS if m[0]["type"] in K8S_DEFAULT_MONITORS_WITH_ENDPOINTS]
+    elif k8s_monitors.lower() == 'all':
+        monitors_without_endpoints_to_test = MONITORS_WITHOUT_ENDPOINTS
+        monitors_with_endpoints_to_test = MONITORS_WITH_ENDPOINTS
+    else:
+        for monitor in k8s_monitors.split(','):
+            assert monitor in [m["type"] for m in MONITORS_WITHOUT_ENDPOINTS + [x[0] for x in MONITORS_WITH_ENDPOINTS]], "monitor \"%s\" not supported!" % monitor
+            if monitor in [m["type"] for m in MONITORS_WITHOUT_ENDPOINTS]:
+                monitors_without_endpoints_to_test.extend([m for m in MONITORS_WITHOUT_ENDPOINTS if m["type"] == monitor])
+            else:
+                monitors_with_endpoints_to_test.extend([m for m in MONITORS_WITH_ENDPOINTS if m[0]["type"] == monitor])
+    if 'k8s_monitor_without_endpoints' in metafunc.fixturenames and len(monitors_without_endpoints_to_test) > 0:
+        metafunc.parametrize("k8s_monitor_without_endpoints", monitors_without_endpoints_to_test, ids=[m["type"] for m in monitors_without_endpoints_to_test], indirect=True)
+    if 'k8s_monitor_with_endpoints' in metafunc.fixturenames and len(monitors_with_endpoints_to_test) > 0:
+        metafunc.parametrize("k8s_monitor_with_endpoints", monitors_with_endpoints_to_test, ids=[m[0]["type"] for m in monitors_with_endpoints_to_test], indirect=True)
