@@ -77,37 +77,25 @@ endif
 debug:
 	dlv debug ./cmd/agent
 
+
+ifneq ($(OS),Windows_NT)
+extra_run_flags = -v /:/hostfs:ro -v /var/run/docker.sock:/var/run/docker.sock:ro -v /tmp/scratch:/tmp/scratch
+endif
+
 .PHONY: run-dev-image
 run-dev-image:
-ifneq ($(OS),Windows_NT)
 	docker exec -it -e COLUMNS=`tput cols` -e LINES=`tput lines` signalfx-agent-dev /bin/bash -l -i 2>/dev/null || \
 	  docker run --rm -it \
+		$(extra_run_flags) \
 		--cap-add DAC_READ_SEARCH \
 		--cap-add SYS_PTRACE \
 		--net host \
 		-p 6060:6060 \
 		--name signalfx-agent-dev \
-		-v $(PWD)/local-etc:/etc/signalfx \
-		-v /:/hostfs:ro \
-		-v /var/run/docker.sock:/var/run/docker.sock:ro \
-		-v $(PWD):/go/src/github.com/signalfx/signalfx-agent:cached \
-		-v $(PWD)/collectd:/usr/src/collectd:cached \
-		-v /tmp/scratch:/tmp/scratch \
+		-v $(CURDIR)/local-etc:/etc/signalfx \
+		-v $(CURDIR):/go/src/github.com/signalfx/signalfx-agent:cached \
+		-v $(CURDIR)/collectd:/usr/src/collectd:cached \
 		signalfx-agent-dev /bin/bash
-else
-	docker exec -it -e COLUMNS=`tput cols` -e LINES=`tput lines` signalfx-agent-dev /bin/bash -l -i 2>/dev/null || \
-	  docker run --rm -it \
-		--cap-add DAC_READ_SEARCH \
-		--cap-add SYS_PTRACE \
-		--net host \
-		-p 6060:6060 \
-		--name signalfx-agent-dev \
-		-v $(PWD)/local-etc:/etc/signalfx \
-		-v $(PWD):/go/src/github.com/signalfx/signalfx-agent:cached \
-		-v $(PWD)/collectd:/usr/src/collectd:cached \
-		-v /tmp/scratch:/tmp/scratch \
-		signalfx-agent-dev /bin/bash
-endif
 
 .PHONY: docs
 docs:
