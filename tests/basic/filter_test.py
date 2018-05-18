@@ -110,3 +110,20 @@ monitors:
 """)
         assert wait_for(lambda: has_datapoint_with_metric_name(backend, "memory.used"))
         assert wait_for(lambda: has_datapoint_with_metric_name(backend, "memory.free"))
+
+def test_mixed_regex_and_non_regex_filters():
+    with run_agent("""
+monitors:
+  - type: collectd/signalfx-metadata
+  - type: collectd/memory
+  - type: collectd/df
+  - type: collectd/uptime
+metricsToExclude:
+  - metricNames:
+     - /memory.used/
+     - asdflkjassdf
+    negated: true
+""") as [backend, _, _]:
+        assert wait_for(lambda: has_datapoint_with_metric_name(backend, "memory.used"))
+        assert ensure_always(lambda: not has_datapoint_with_metric_name(backend, "memory.free"), 10)
+        assert ensure_always(lambda: not has_datapoint_with_metric_name(backend, "uptime"), 5)
