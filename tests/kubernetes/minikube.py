@@ -114,6 +114,7 @@ class Minikube:
                 yamls = sorted([os.path.join(services_dir, y) for y in os.listdir(services_dir) if y.endswith(".yaml")])
             else:
                 yamls = sorted([os.path.join(services_dir, y) for y in yamls if y.endswith(".yaml")])
+        print()
         for y in yamls:
             body = yaml.load(open(y))
             kind = body["kind"]

@@ -208,7 +208,7 @@ def delete_configmap(name, namespace="default", timeout=K8S_API_TIMEOUT):
     api = kube_client.CoreV1Api()
     api.delete_namespaced_config_map(
         name=name,
-        body=kube_client.V1DeleteOptions(grace_period_seconds=0, propagation_policy='Foreground'),
+        body=kube_client.V1DeleteOptions(grace_period_seconds=0, propagation_policy='Background'),
         namespace=namespace)
     if timeout < 0:
         return
@@ -303,7 +303,7 @@ def delete_deployment(name, namespace="default", timeout=K8S_API_TIMEOUT):
     api = kube_client.ExtensionsV1beta1Api()
     api.delete_namespaced_deployment(
         name=name,
-        body=kube_client.V1DeleteOptions(grace_period_seconds=0, propagation_policy='Foreground'),
+        body=kube_client.V1DeleteOptions(grace_period_seconds=0, propagation_policy='Background'),
         namespace=namespace)
     if timeout < 0:
         return
@@ -391,7 +391,7 @@ def delete_daemonset(name, namespace="default", timeout=K8S_API_TIMEOUT):
     api = kube_client.ExtensionsV1beta1Api()
     api.delete_namespaced_daemon_set(
         name=name,
-        body=kube_client.V1DeleteOptions(grace_period_seconds=0, propagation_policy='Foreground'),
+        body=kube_client.V1DeleteOptions(grace_period_seconds=0, propagation_policy='Background'),
         namespace=namespace)
     if timeout < 0:
         return
