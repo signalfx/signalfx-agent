@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/signalfx/signalfx-agent/internal/utils"
+	log "github.com/sirupsen/logrus"
 	yaml "gopkg.in/yaml.v2"
 )
 
@@ -22,6 +23,34 @@ func ToString(conf interface{}) string {
 	if !confValue.IsValid() {
 		return ""
 	}
+
+	isSlice := confValue.Type().Kind() == reflect.Slice
+	if isSlice {
+		out := ""
+		for j := 0; j < confValue.Len(); j++ {
+			s := utils.IndentLines(ToString(confValue.Index(j).Interface()), 2)
+			if len(s) > 0 {
+				out += strings.Trim("-"+s[1:], "\n") + "\n"
+			}
+		}
+		return strings.Trim(out, "\n")
+	}
+
+	if !utils.IsStructOrPointerToStruct(confValue.Type()) {
+		yamlBytes, err := yaml.Marshal(conf)
+		if err != nil {
+			log.WithError(err).Error("Could not marshal yaml for diagnostic text conversion")
+			return ""
+		}
+		asYaml := string(yamlBytes)
+		// Output empty maps as blank instead of a pair of braces
+		if confValue.Type().Kind() == reflect.Map && strings.HasPrefix(asYaml, "{}") {
+			return ""
+		}
+
+		return strings.TrimSuffix(asYaml, "\n")
+	}
+
 	confStruct := confValue.Type()
 
 	for i := 0; i < confStruct.NumField(); i++ {
@@ -35,21 +64,7 @@ func ToString(conf interface{}) string {
 
 		fieldName := utils.YAMLNameOfField(field)
 
-		if fieldName == "" {
-			continue
-		}
-
-		isStruct := field.Type.Kind() == reflect.Struct
-		isPtrToStruct := field.Type.Kind() == reflect.Ptr && field.Type.Elem().Kind() == reflect.Struct
-		if isStruct || isPtrToStruct {
-			// Flatten embedded struct's representation
-			if field.Anonymous {
-				out += ToString(confValue.Field(i).Interface())
-				continue
-			}
-
-			out += fieldName + ":\n"
-			out += utils.IndentLines(ToString(confValue.Field(i).Interface()), 2)
+		if fieldName == "" && !field.Anonymous {
 			continue
 		}
 
@@ -59,24 +74,28 @@ func ToString(conf interface{}) string {
 			if neverLogVal == "omit" {
 				continue
 			}
-			field.Type = reflect.PtrTo(reflect.ValueOf("").Type())
-			if reflect.Zero(field.Type).Interface() == confValue.Field(i).Interface() {
+			if v, ok := confValue.Field(i).Interface().(string); ok && v == "" {
 				val = ""
 			} else {
 				val = "***************"
 			}
 		} else {
-			asYaml, _ := yaml.Marshal(confValue.Field(i).Interface())
-			val = strings.Trim(string(asYaml), "\n")
+			val = ToString(confValue.Field(i).Interface())
+		}
+
+		// Flatten embedded struct's representation
+		if field.Anonymous {
+			out += val
+			continue
 		}
 
 		separator := " "
-		if strings.Contains(val, "\n") {
+		if len(val) > 0 && (strings.Contains(val, "\n") || field.Type.Kind() == reflect.Map) {
 			separator = "\n"
 			val = utils.IndentLines(val, 2)
 		}
 
-		out += fmt.Sprintf("%s:%s%s\n", fieldName, separator, val)
+		out += fmt.Sprintf("%s:%s%s\n", fieldName, separator, strings.TrimSuffix(val, "\n"))
 	}
 	return out
 }

@@ -56,3 +56,11 @@ func FindFieldWithEmbeddedStructs(st interface{}, name string, typ reflect.Type)
 	}
 	return fieldValue
 }
+
+// IsStructOrPointerToStruct returns true if the given reflect.Type is a
+// struct or pointer to a struct
+func IsStructOrPointerToStruct(typ reflect.Type) bool {
+	isStruct := typ.Kind() == reflect.Struct
+	isPtrToStruct := typ.Kind() == reflect.Ptr && typ.Elem().Kind() == reflect.Struct
+	return isStruct || isPtrToStruct
+}
