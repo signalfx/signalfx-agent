@@ -85,7 +85,7 @@ endif
 
 .PHONY: run-dev-image
 run-dev-image:
-	powershell -Command docker exec -it $(docker_env) signalfx-agent-dev /bin/bash -l -i || \
+	docker exec -it $(docker_env) signalfx-agent-dev /bin/bash -l -i || \
 	  docker run --rm -it \
 		$(extra_run_flags) \
 		--cap-add DAC_READ_SEARCH \
