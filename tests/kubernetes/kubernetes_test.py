@@ -125,9 +125,6 @@ def test_plaintext_passwords(minikube):
             namespace="default") as agent:
             agent_status = agent.get_status()
             container_logs = agent.get_container_logs()
-            # temporary workaround for https://signalfuse.atlassian.net/browse/INT-595
-            #assert "testing123" not in agent_status, "plaintext password(s) found in agent-status output!\n\n%s\n" % agent_status
-            npasswords = agent_status.lower().count("testing123")
-            assert npasswords <= 1, "plaintext password(s) found in agent-status output!\n\n%s\n" % agent_status
+            assert "testing123" not in agent_status, "plaintext password(s) found in agent-status output!\n\n%s\n" % agent_status
             assert "testing123" not in container_logs, "plaintext password(s) found in agent container logs!\n\n%s\n" % container_logs
 
