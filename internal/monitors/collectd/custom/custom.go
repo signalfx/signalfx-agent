@@ -1,3 +1,5 @@
+// +build !windows
+
 // Package custom contains a custom collectd plugin monitor, for which you can
 // specify your own config template and parameters.
 package custom

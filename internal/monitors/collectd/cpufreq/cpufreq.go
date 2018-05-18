@@ -1,3 +1,5 @@
+// +build !windows
+
 package cpufreq
 
 //go:generate collectd-template-to-go cpufreq.tmpl

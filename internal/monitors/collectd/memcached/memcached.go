@@ -1,3 +1,5 @@
+// +build !windows
+
 package memcached
 
 //go:generate collectd-template-to-go memcached.tmpl

@@ -1,3 +1,5 @@
+// +build !windows
+
 package healthchecker
 
 //go:generate collectd-template-to-go healthchecker.tmpl

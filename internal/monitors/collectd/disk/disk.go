@@ -1,3 +1,5 @@
+// +build !windows
+
 package disk
 
 //go:generate collectd-template-to-go disk.tmpl

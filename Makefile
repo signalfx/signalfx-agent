@@ -5,7 +5,11 @@ check: lint vet test
 
 .PHONY: test
 test: templates
+ifeq ($(OS),Windows_NT)
+	powershell -Command $$env:CGO_ENABLED=0; go test ./...
+else
 	go test ./...
+endif
 
 .PHONY: vet
 vet: templates
@@ -21,7 +25,9 @@ lint:
 	golint -set_exit_status ./cmd/... ./internal/...
 
 templates:
+ifneq ($(OS),Windows_NT)
 	scripts/make-templates
+endif
 
 .PHONY: image
 image:
@@ -33,10 +39,14 @@ vendor:
 
 signalfx-agent: templates
 	echo "building SignalFx agent for operating system: $(GOOS)"
+ifeq ($(OS),Windows_NT)
+	powershell -Command $$env:CGO_ENABLED=0; go build -ldflags \"-X main.Version=$(AGENT_VERSION) -X main.BuiltTime=$$(Get-Date  -UFormat \"%Y-%m-%dT%T%Z\")\" -o signalfx-agent.exe github.com/signalfx/signalfx-agent/cmd/agent
+else
 	CGO_ENABLED=0 go build \
 		-ldflags "-X main.Version=$(AGENT_VERSION) -X main.BuiltTime=$$(date +%FT%T%z)" \
 		-o signalfx-agent \
 		github.com/signalfx/signalfx-agent/cmd/agent
+endif
 
 .PHONY: bundle
 bundle:
@@ -57,27 +67,35 @@ run-shell:
 
 .PHONY: dev-image
 dev-image:
+ifeq ($(OS),Windows_NT)
+	powershell -Command . $(CURDIR)\scripts\windows\common.ps1; do_docker_build signalfx-agent-dev latest dev-extras
+else 
 	bash -ec "source scripts/common.sh && do_docker_build signalfx-agent-dev latest dev-extras"
+endif
 
 .PHONY: debug
 debug:
 	dlv debug ./cmd/agent
 
+
+ifneq ($(OS),Windows_NT)
+extra_run_flags = -v /:/hostfs:ro -v /var/run/docker.sock:/var/run/docker.sock:ro -v /tmp/scratch:/tmp/scratch
+docker_env = -e COLUMNS=`tput cols` -e LINES=`tput lines`
+endif
+
 .PHONY: run-dev-image
 run-dev-image:
-	docker exec -it -e COLUMNS=`tput cols` -e LINES=`tput lines` signalfx-agent-dev /bin/bash -l -i 2>/dev/null || \
+	docker exec -it $(docker_env) signalfx-agent-dev /bin/bash -l -i || \
 	  docker run --rm -it \
+		$(extra_run_flags) \
 		--cap-add DAC_READ_SEARCH \
 		--cap-add SYS_PTRACE \
 		--net host \
 		-p 6060:6060 \
 		--name signalfx-agent-dev \
-		-v $(PWD)/local-etc:/etc/signalfx \
-		-v /:/hostfs:ro \
-		-v /var/run/docker.sock:/var/run/docker.sock:ro \
-		-v $(PWD):/go/src/github.com/signalfx/signalfx-agent:cached \
-		-v $(PWD)/collectd:/usr/src/collectd:cached \
-		-v /tmp/scratch:/tmp/scratch \
+		-v $(CURDIR)/local-etc:/etc/signalfx \
+		-v $(CURDIR):/go/src/github.com/signalfx/signalfx-agent:cached \
+		-v $(CURDIR)/collectd:/usr/src/collectd:cached \
 		signalfx-agent-dev /bin/bash
 
 .PHONY: docs

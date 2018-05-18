@@ -3,6 +3,8 @@ package host
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
+	"syscall"
 	"testing"
 
 	"github.com/shirou/gopsutil/net"
@@ -11,7 +13,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-const basicConnectionStatJSON = `[
+var basicConnectionStatJSON = fmt.Sprintf(`[
  {"fd":3,"family":2,"type":1,"localaddr":{"ip":"127.9.8.7","port":14839},"remoteaddr":{"ip":"0.0.0.0","port":0},"status":"LISTEN","uids":[0,0,0,0],"pid":12780}
 ,{"fd":7,"family":2,"type":1,"localaddr":{"ip":"127.9.8.7","port":14839},"remoteaddr":{"ip":"127.0.0.1","port":55128},"status":"ESTABLISHED","uids":[0,0,0,0],"pid":12780}
 ,{"fd":0,"family":2,"type":1,"localaddr":{"ip":"127.9.8.7","port":14839},"remoteaddr":{"ip":"127.0.0.1","port":55264},"status":"TIME_WAIT","uids":[],"pid":0} 
@@ -19,12 +21,12 @@ const basicConnectionStatJSON = `[
 ,{"fd":7,"family":2,"type":1,"localaddr":{"ip":"127.0.0.1","port":55128},"remoteaddr":{"ip":"127.9.8.7","port":14839},"status":"ESTABLISHED","uids":[0,0,0,0],"pid":12793}
 ,{"fd":3,"family":2,"type":2,"localaddr":{"ip":"5.4.3.2","port":80},"remoteaddr":{"ip":"0.0.0.0","port":0},"status":"LISTEN","uids":[0,0,0,0],"pid":12780}
 ,{"fd":3,"family":2,"type":1,"localaddr":{"ip":"10.2.3.4","port":9001},"remoteaddr":{"ip":"0.0.0.0","port":0},"status":"LISTEN","uids":[0,0,0,0],"pid":12768}
-,{"fd":3,"family":10,"type":1,"localaddr":{"ip":"::","port":9000},"remoteaddr":{"ip":"::","port":0},"status":"LISTEN","uids":[0,0,0,0],"pid":12768}
+,{"fd":3,"family":%d,"type":1,"localaddr":{"ip":"::","port":9000},"remoteaddr":{"ip":"::","port":0},"status":"LISTEN","uids":[0,0,0,0],"pid":12768}
 ,{"fd":5,"family":1,"type":1,"localaddr":{"ip":"/var/run/signalfx.sock","port":0},"remoteaddr":{"ip":"","port":0},"status":"NONE","uids":[0,0,0,0],"pid":12780 }
 ,{"fd":6,"family":1,"type":1,"localaddr":{"ip":"/var/run/signalfx-agent-metrics.sock","port":0},"remoteaddr":{"ip":"","port":0},"status":"NONE","uids":[0,0,0,0],"pid":12780}
 ,{"fd":11,"family":1,"type":1,"localaddr":{"ip":"","port":0},"remoteaddr":{"ip":"","port":0},"status":"NONE","uids":[0,0,0,0],"pid":12793}
 ,{"fd":0,"family":1,"type":1,"localaddr":{"ip":"/var/run/docker.sock","port":0},"remoteaddr":{"ip":"","port":0},"status":"NONE","uids":[],"pid":0}
-]`
+]`, syscall.AF_INET6)
 
 func Test_HostObserver(t *testing.T) {
 	config := &Config{

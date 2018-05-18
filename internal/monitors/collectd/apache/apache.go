@@ -1,3 +1,5 @@
+// +build !windows
+
 package apache
 
 //go:generate collectd-template-to-go apache.tmpl

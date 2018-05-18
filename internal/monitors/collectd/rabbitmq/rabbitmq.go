@@ -1,3 +1,5 @@
+// +build !windows
+
 package rabbitmq
 
 //go:generate collectd-template-to-go rabbitmq.tmpl

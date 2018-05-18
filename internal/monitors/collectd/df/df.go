@@ -1,3 +1,5 @@
+// +build !windows
+
 package df
 
 //go:generate collectd-template-to-go df.tmpl
