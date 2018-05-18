@@ -1,3 +1,5 @@
+// +build !windows
+
 package zookeeper
 
 //go:generate collectd-template-to-go zookeeper.tmpl

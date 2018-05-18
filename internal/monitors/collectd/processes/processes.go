@@ -1,3 +1,5 @@
+// +build !windows
+
 package processes
 
 //go:generate collectd-template-to-go processes.tmpl

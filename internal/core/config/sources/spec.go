@@ -1,6 +1,7 @@
 package sources
 
 import (
+	"runtime"
 	"strings"
 
 	"github.com/pkg/errors"
@@ -35,6 +36,10 @@ func (fp *fromPath) UnmarshalYAML(unmarshal func(interface{}) error) error {
 
 	if len(parts) == 1 {
 		fp.path = parts[0]
+	} else if runtime.GOOS == "windows" && []rune(parts[1])[0] == '\\' {
+		// if running on windows identify the difference between drive letters
+		// and remote config protocols i.e: 'zk://' vs 'C:\'
+		fp.path = str
 	} else {
 		fp.sourceName = parts[0]
 		fp.path = parts[1]

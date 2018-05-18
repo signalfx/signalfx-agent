@@ -1,3 +1,5 @@
+// +build !windows
+
 package load
 
 //go:generate collectd-template-to-go load.tmpl

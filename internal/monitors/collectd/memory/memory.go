@@ -1,3 +1,5 @@
+// +build !windows
+
 package memory
 
 //go:generate collectd-template-to-go memory.tmpl

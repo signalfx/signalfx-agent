@@ -1,3 +1,5 @@
+// +build !windows
+
 package nginx
 
 //go:generate collectd-template-to-go nginx.tmpl

@@ -1,3 +1,5 @@
+// +build !windows
+
 package metadata
 
 //go:generate collectd-template-to-go metadata.tmpl

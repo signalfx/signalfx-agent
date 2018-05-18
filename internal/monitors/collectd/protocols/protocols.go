@@ -1,3 +1,5 @@
+// +build !windows
+
 package protocols
 
 //go:generate collectd-template-to-go protocols.tmpl

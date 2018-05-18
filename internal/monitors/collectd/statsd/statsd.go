@@ -1,3 +1,5 @@
+// +build !windows
+
 package statsd
 
 //go:generate collectd-template-to-go statsd.tmpl
