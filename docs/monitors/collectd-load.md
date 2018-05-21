@@ -19,5 +19,16 @@ Monitor Type: `collectd/load`
 This monitor has no configuration options.
 
 
+## Metrics
+
+This monitor emits the following metrics.  Note that configuration options may
+cause only a subset of metrics to be emitted.
+
+| Name | Type | Description |
+| ---  | ---  | ---         |
+| `load.longterm` | gauge | Average CPU load per core over the last 15 minutes |
+| `load.midterm` | gauge | Average CPU load per core over the last five minutes |
+| `load.shortterm` | gauge | Average CPU load per core over the last one minute |
+
 
 
