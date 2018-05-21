@@ -121,7 +121,7 @@ RUN sed -i -e '/^deb-src/d' /etc/apt/sources.list &&\
 
 RUN apt install -y libcurl4-gnutls-dev
 
-ENV collectd_commit="c3647e4bf3d75805dc67de021bdd7f9b9294899f"
+ENV collectd_commit="67fe36b0d5c88054be3b975afc2707db0ecc9022"
 ENV collectd_version="5.8.0-sfx0"
 
 RUN cd /tmp &&\
@@ -295,6 +295,7 @@ COPY --from=extra-packages /opt/bins/ /bin
 COPY --from=collectd /usr/sbin/collectd /bin/collectd
 COPY --from=collectd /opt/deps/ /lib
 
+COPY --from=collectd /usr/share/collectd/postgresql_default.conf /plugins/collectd/postgresql_default.conf
 COPY --from=collectd /usr/share/collectd/types.db /plugins/collectd/types.db
 # All the built-in collectd plugins
 COPY --from=collectd /usr/lib/collectd/*.so /plugins/collectd/
