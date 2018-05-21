@@ -35,7 +35,7 @@ class Minikube:
 
     def get_ip(self):
         if self.container:
-            self.ip = self.container.attrs["NetworkSettings"]["IPAddress"]
+            self.ip = container_ip(self.container)
             return self.ip
         else:
             return None
