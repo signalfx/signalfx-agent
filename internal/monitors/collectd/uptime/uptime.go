@@ -1,3 +1,5 @@
+// +build !windows
+
 package uptime
 
 //go:generate collectd-template-to-go uptime.tmpl

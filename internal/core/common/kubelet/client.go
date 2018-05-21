@@ -9,6 +9,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"os"
+	"runtime"
 	"strings"
 	"time"
 
@@ -60,11 +61,14 @@ type Client struct {
 
 // NewClient creates a new client with the given config
 func NewClient(kubeletAPI *APIConfig) (*Client, error) {
-	certs, err := x509.SystemCertPool()
-	if err != nil {
-		return nil, errors.Wrapf(err, "Could not load system x509 cert pool")
+	var certs *x509.CertPool
+	if runtime.GOOS != "windows" {
+		var err error
+		certs, err = x509.SystemCertPool()
+		if err != nil {
+			return nil, errors.Wrapf(err, "Could not load system x509 cert pool")
+		}
 	}
-
 	if kubeletAPI.URL == "" {
 		hostname, err := os.Hostname()
 		if err != nil {
@@ -79,7 +83,7 @@ func NewClient(kubeletAPI *APIConfig) (*Client, error) {
 
 	var transport http.RoundTripper = &(*http.DefaultTransport.(*http.Transport))
 	if kubeletAPI.AuthType == AuthTypeTLS {
-		if kubeletAPI.CACertPath != "" {
+		if kubeletAPI.CACertPath != "" && certs != nil {
 			if err := augmentCertPoolFromCAFile(certs, kubeletAPI.CACertPath); err != nil {
 				return nil, err
 			}

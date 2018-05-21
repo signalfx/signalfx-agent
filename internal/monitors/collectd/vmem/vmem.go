@@ -1,3 +1,5 @@
+// +build !windows
+
 package vmem
 
 //go:generate collectd-template-to-go vmem.tmpl

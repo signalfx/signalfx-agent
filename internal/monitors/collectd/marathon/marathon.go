@@ -1,3 +1,5 @@
+// +build !windows
+
 package marathon
 
 //go:generate collectd-template-to-go marathon.tmpl

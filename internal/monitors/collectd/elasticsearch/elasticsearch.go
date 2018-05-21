@@ -1,3 +1,5 @@
+// +build !windows
+
 package elasticsearch
 
 //go:generate collectd-template-to-go elasticsearch.tmpl

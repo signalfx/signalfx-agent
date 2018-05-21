@@ -1,3 +1,5 @@
+// +build !windows
+
 package docker
 
 //go:generate collectd-template-to-go docker.tmpl

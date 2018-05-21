@@ -69,7 +69,7 @@ var _ = Describe("Config Loader", func() {
 
 	It("Errors on missing source path", func() {
 		path := mkFile("agent/agent.yaml", outdent(fmt.Sprintf(`
-			signalFxAccessToken: {"#from": "%s/does-not-exist"}
+			signalFxAccessToken: {"#from": '%s/does-not-exist'}
 		`, dir)))
 
 		_, err := LoadConfig(ctx, path)
@@ -78,9 +78,8 @@ var _ = Describe("Config Loader", func() {
 
 	It("Fills in dynamic values", func() {
 		tokenPath := mkFile("agent/token", "abcd")
-
 		path := mkFile("agent/agent.yaml", outdent(fmt.Sprintf(`
-			signalFxAccessToken: {"#from": "%s"}
+			signalFxAccessToken: {"#from": '%s'}
 		`, tokenPath)))
 
 		loads, err := LoadConfig(ctx, path)
@@ -106,7 +105,7 @@ var _ = Describe("Config Loader", func() {
 			signalFxAccessToken: abcd
 			monitors:
 			- type: collectd/mysql
-			  databases: {"#from": "%s/agent/conf/*.yaml"}
+			  databases: {"#from": '%s/agent/conf/*.yaml'}
 		`, dir)))
 
 		loads, err := LoadConfig(ctx, path)
@@ -132,7 +131,7 @@ var _ = Describe("Config Loader", func() {
 			signalFxAccessToken: abcd
 			monitors:
 			- type: collectd/mysql
-			  databases: {"#from": "%s/agent/conf/*.yaml"}
+			  databases: {"#from": '%s/agent/conf/*.yaml'}
 		`, dir)))
 
 		_, err := LoadConfig(ctx, path)
@@ -148,7 +147,7 @@ var _ = Describe("Config Loader", func() {
 			signalFxAccessToken: abcd
 			monitors:
 			- type: collectd/mysql
-			  databases: {"#from": "%s/agent/conf/databases.yaml"}
+			  databases: {"#from": '%s/agent/conf/databases.yaml'}
 		`, dir)))
 
 		loads, err := LoadConfig(ctx, path)
@@ -175,7 +174,7 @@ var _ = Describe("Config Loader", func() {
 		path := mkFile("agent/agent.yaml", outdent(fmt.Sprintf(`
 			signalFxAccessToken: abcd
 			monitors:
-			- {"#from": "%s/agent/conf/*.yaml", flatten: true}
+			- {"#from": '%s/agent/conf/*.yaml', flatten: true}
 		`, dir)))
 
 		loads, err := LoadConfig(ctx, path)
@@ -203,7 +202,7 @@ var _ = Describe("Config Loader", func() {
 			signalFxAccessToken: abcd
 			monitors:
 			- type: collectd/mysql
-			  _: {"#from": "%s/agent/conf/*.yaml", flatten: true}
+			  _: {"#from": '%s/agent/conf/*.yaml', flatten: true}
 		`, dir)))
 
 		_, err := LoadConfig(ctx, path)
@@ -223,7 +222,7 @@ var _ = Describe("Config Loader", func() {
 			signalFxAccessToken: abcd
 			monitors:
 			- type: collectd/mysql
-			  _: {"#from": "%s/agent/conf/*.yaml", flatten: true}
+			  _: {"#from": '%s/agent/conf/*.yaml', flatten: true}
 		`, dir)))
 
 		loads, err := LoadConfig(ctx, path)
@@ -250,7 +249,7 @@ var _ = Describe("Config Loader", func() {
 			signalFxAccessToken: abcd
 			monitors:
 			- type: collectd/mysql
-			  _: {"#from": "%s/agent/conf/*.yaml", flatten: true}
+			  _: {"#from": '%s/agent/conf/*.yaml', flatten: true}
 		`, dir)))
 
 		loads, err := LoadConfig(ctx, path)
@@ -278,7 +277,7 @@ var _ = Describe("Config Loader", func() {
 			signalFxAccessToken: abcd
 			monitors:
 			- type: collectd/mysql
-			  password: {"#from": "%s/agent/conf/*.yaml", flatten: true}
+			  password: {"#from": '%s/agent/conf/*.yaml', flatten: true}
 		`, dir)))
 
 		_, err := LoadConfig(ctx, path)
@@ -287,9 +286,8 @@ var _ = Describe("Config Loader", func() {
 
 	It("Watches dynamic value source for changes", func() {
 		tokenPath := mkFile("agent/token", "abcd")
-
 		path := mkFile("agent/agent.yaml", outdent(fmt.Sprintf(`
-			signalFxAccessToken: {"#from": "%s"}
+			signalFxAccessToken: {"#from": '%s'}
 			configSources:
 			  file:
 			    pollRateSeconds: 1
@@ -312,7 +310,7 @@ var _ = Describe("Config Loader", func() {
 
 		monitorPath := mkFile("agent/token", outdent(fmt.Sprintf(`
 			type: my-monitor
-			password: {"#from": "%s"}
+			password: {"#from": '%s'}
 		`, passwordPath)))
 
 		path := mkFile("agent/agent.yaml", outdent(fmt.Sprintf(`
@@ -321,7 +319,7 @@ var _ = Describe("Config Loader", func() {
 			  file:
 			    pollRateSeconds: 1
 			monitors:
-			- {"#from": "%s"}
+			- {"#from": '%s'}
 		`, monitorPath)))
 
 		loads, err := LoadConfig(ctx, path)
@@ -343,12 +341,12 @@ var _ = Describe("Config Loader", func() {
 
 		dimPath := mkFile("agent/dim", outdent(fmt.Sprintf(`
 			author: bob
-			env: {"#from": "%s"}
+			env: {"#from": '%s'}
 		`, envPath)))
 
 		monitorPath := mkFile("agent/monitors", outdent(fmt.Sprintf(`
 			type: my-monitor
-			extraDimensions: {"#from": "%s"}
+			extraDimensions: {"#from": '%s'}
 		`, dimPath)))
 
 		path := mkFile("agent/agent.yaml", outdent(fmt.Sprintf(`
@@ -357,7 +355,7 @@ var _ = Describe("Config Loader", func() {
 			  file:
 			    pollRateSeconds: 1
 			monitors:
-			- {"#from": "%s"}
+			- {"#from": '%s'}
 		`, monitorPath)))
 
 		loads, err := LoadConfig(ctx, path)
@@ -401,16 +399,15 @@ var _ = Describe("Config Loader", func() {
 
 	It("Allows multiple references to the same source path", func() {
 		tokenPath := mkFile("agent/token", "abcd")
-
 		path := mkFile("agent/agent.yaml", outdent(fmt.Sprintf(`
-			signalFxAccessToken: {"#from": "%s"}
+			signalFxAccessToken: {"#from": '%s'}
 			configSources:
 			  file:
 			    pollRateSeconds: 1
 			monitors:
 			- type: my-monitor
-			  password: {"#from": "%s"}
-			  other: {"#from": "%s"}
+			  password: {"#from": '%s'}
+			  other: {"#from": '%s'}
 		`, tokenPath, tokenPath, tokenPath)))
 
 		loads, err := LoadConfig(ctx, path)
@@ -431,7 +428,7 @@ var _ = Describe("Config Loader", func() {
 			signalFxAccessToken: abcd
 			monitors:
 			- type: collectd/mysql
-			  password: {"#from": "%s/agent/mysql-password.yaml", optional: true}
+			  password: {"#from": '%s/agent/mysql-password.yaml', optional: true}
 		`, dir)))
 
 		loads, err := LoadConfig(ctx, path)
@@ -448,7 +445,7 @@ var _ = Describe("Config Loader", func() {
 			signalFxAccessToken: abcd
 			monitors:
 			- type: collectd/mysql
-			  password: {"#from": "%s/agent/mysql-password.yaml", default: "s3cr3t"}
+			  password: {"#from": '%s/agent/mysql-password.yaml', default: "s3cr3t"}
 		`, dir)))
 
 		loads, err := LoadConfig(ctx, path)
