@@ -53,3 +53,33 @@ def has_log_message(output, level="info", message=""):
 
 def udp_port_open_locally(port):
     return os.system("cat /proc/net/udp | grep %s" % (hex(port)[2:].upper(),)) == 0
+
+
+# check the fake backend if any metric in `metrics` exist
+def any_metric_found(backend, metrics):
+    for dp in backend.datapoints:
+        if dp.metric in metrics:
+            print("Found metric \"%s\"." % dp.metric)
+            return True
+    return False
+
+
+# check the fake backend if any dimension in `dims` exist
+def any_dim_found(backend, dims):
+    for dp in backend.datapoints:
+        for dim in dp.dimensions:
+            if dim.key in dims:
+                print("Found dimension \"%s\"." % dim.key)
+                return True
+    return False
+
+
+# check the fake backend if any metric in `metrics` with any dimension in `dims` exist
+def any_metric_has_any_dim(backend, metrics, dims):
+    for dp in backend.datapoints:
+        if dp.metric in metrics:
+            for dim in dp.dimensions:
+                if dim.key in dims:
+                    print("Found metric \"%s\" with dimension \"%s\"." % (dp.metric, dim.key))
+                    return True
+    return False
