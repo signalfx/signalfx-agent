@@ -73,8 +73,8 @@ class Agent:
         self.agent_yaml['sendMachineID'] = True
         self.agent_yaml['useFullyQualifiedHost'] = False
         if self.backend:
-            self.agent_yaml['ingestUrl'] = "http://%s:%d" % (get_host_ip(), self.backend.ingest_port)
-            self.agent_yaml['apiUrl'] = "http://%s:%d" % (get_host_ip(), self.backend.api_port)
+            self.agent_yaml['ingestUrl'] = "http://%s:%d" % (self.backend.ingest_host, self.backend.ingest_port)
+            self.agent_yaml['apiUrl'] = "http://%s:%d" % (self.backend.api_host, self.backend.api_port)
         if 'metricsToExclude' in self.agent_yaml.keys():
             del self.agent_yaml['metricsToExclude']
         del self.agent_yaml['monitors']
