@@ -45,7 +45,9 @@ def get_dims_from_doc(doc, ignore=[]):
 
 # returns the IP of the pytest host (i.e. the dev image)
 def get_host_ip():
-    return ni.ifaddresses('eth0')[ni.AF_INET][0]['addr']
+    gws = ni.gateways()
+    interface = gws['default'][ni.AF_INET][1]
+    return ni.ifaddresses(interface)[ni.AF_INET][0]['addr']
 
 
 def has_serviceaccount(name, namespace="default"):
