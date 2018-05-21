@@ -55,8 +55,7 @@ func NewStringFilter(items []string) (StringFilter, error) {
 }
 
 func (f *basicStringFilter) Matches(s string) bool {
-	return (len(f.staticSet) != 0 && len(f.regexps) != 0) ||
-		(f.staticSet[s] || anyRegexMatches(s, f.regexps))
+	return f.staticSet[s] || anyRegexMatches(s, f.regexps)
 }
 
 // NewStringMapFilter returns a filter that matches against the provided map.
