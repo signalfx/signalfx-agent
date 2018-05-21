@@ -18,11 +18,7 @@ case $REPO_STAGE in
   *) echo "REPO_STAGE must be 'final', 'beta' or 'test'" >&2 && exit 1 ;;
 esac
 
-current_commit_tag=$(git describe --abbrev=0 --tags --exact-match --match 'v[0-9].[0-9].[0-9]' 2>/dev/null || \
-  git describe --abbrev=0 --tags --exact-match --match 'v[0-9].[0-9].[0-9]-alpha*' 2>/dev/null || \
-  git describe --abbrev=0 --tags --exact-match --match 'v[0-9].[0-9].[0-9]-beta*' 2>/dev/null || \
-  git describe --abbrev=0 --tags --exact-match --match 'v*-rpm[0-9]' 2>/dev/null || \
-  true)
+current_commit_tag=$(git describe --abbrev=0 --tags --exact-match --match 'v*-rpm[0-9]' 2>/dev/null || true)
 
 rpm_revision=1
 if [[ -n $current_commit_tag ]]; then
@@ -84,12 +80,12 @@ if [[ ${BUILD_RPM-yes} == "yes" ]]; then
 fi
 
 if [[ "${PUSH_TO_REPO-}" == "yes" ]]; then
-  if [[ ! "$agent_version" =~ ^[0-9]\.[0-9]\.[0-9]$ ]] && [[ "$REPO_STAGE" = "final" ]]; then
+  if [[ ! "$agent_version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] && [[ "$REPO_STAGE" = "final" ]]; then
     echo "Only final releases should go to the final package repo" >&2
     exit 2
   fi
 
-  if [[ "$agent_version" =~ ^[0-9]\.[0-9]\.[0-9]-post$ ]] && [[ "$REPO_STAGE" = "beta" ]]; then
+  if [[ "$agent_version" =~ ^[0-9]+\.[0-9]+\.[0-9]+-post$ ]] && [[ "$REPO_STAGE" = "beta" ]]; then
     echo "Only beta or final releases should go to the beta package repo" >&2
     exit 3
   fi
