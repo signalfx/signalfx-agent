@@ -16,24 +16,12 @@ references:
     run: |
       docker load -i /tmp/workspace/final_image.tar
 
-  import_minikube_image: &import_minikube_image
-    run: |
-      docker load -i /tmp/workspace/minikube_image.tar
-
   run_k8s_integration_tests: &run_k8s_integration_tests
     run:
       no_output_timeout: 30m
       command: |
         mkdir ~/testresults
-        docker run -d --rm \
-            -e K8S_VERSION=$(eval "echo -n $K8S_VERSION") \
-            -p 8443 \
-            -p 2375 \
-            -v /tmp/scratch:/tmp/scratch \
-            --privileged \
-            --name minikube \
-            minikube:latest
-        docker run --rm -t --net host \
+        docker run --rm --net host \
             -v /var/run/docker.sock:/var/run/docker.sock \
             -v /tmp/scratch:/tmp/scratch \
             -v ~/testresults:/output \
@@ -53,7 +41,6 @@ references:
                     --k8s-test-timeout=120 \
                     --k8s-agent-name=quay.io/signalfx/signalfx-agent-dev \
                     --k8s-agent-tag=k8s-test \
-                    --k8s-container=minikube \
                     tests
 
 jobs:
@@ -110,21 +97,6 @@ jobs:
          root: /tmp/workspace
          paths:
            - final_image.tar
-
-  build_minikube_image:
-    <<: *executor
-    steps:
-      - checkout
-      - run: |
-          set -x
-          docker build --build-arg MINIKUBE_VERSION=v0.26.1 -t minikube:latest test-services/minikube
-      - run: |
-          mkdir -p /tmp/workspace
-          docker save -o /tmp/workspace/minikube_image.tar minikube:latest
-      - persist_to_workspace:
-          root: /tmp/workspace
-          paths:
-            - minikube_image.tar
 
   lint: 
     <<: *executor
@@ -186,7 +158,6 @@ jobs:
       - *attach_workspace
       - *import_image
       - *import_final_image
-      - *import_minikube_image
       - *run_k8s_integration_tests
       - store_test_results:
           path: ~/testresults
@@ -201,7 +172,6 @@ jobs:
       - *attach_workspace
       - *import_image
       - *import_final_image
-      - *import_minikube_image
       - *run_k8s_integration_tests
       - store_test_results:
           path: ~/testresults
@@ -216,7 +186,6 @@ jobs:
       - *attach_workspace
       - *import_image
       - *import_final_image
-      - *import_minikube_image
       - *run_k8s_integration_tests
       - store_test_results:
           path: ~/testresults
@@ -231,7 +200,6 @@ jobs:
       - *attach_workspace
       - *import_image
       - *import_final_image
-      - *import_minikube_image
       - *run_k8s_integration_tests
       - store_test_results:
           path: ~/testresults
@@ -398,7 +366,6 @@ workflows:
     jobs:
      - build
      - build_final_image
-     - build_minikube_image
      - build-windows
      - lint:
         requires:
@@ -416,22 +383,18 @@ workflows:
 #        requires:
 #         - build
 #         - build_final_image
-#         - build_minikube_image
      - k8s_v1.9.0_integration_tests:
         requires:
          - build
          - build_final_image
-         - build_minikube_image
      - k8s_v1.8.0_integration_tests:
         requires:
          - build
          - build_final_image
-         - build_minikube_image
      - k8s_v1.7.0_integration_tests:
         requires:
          - build
          - build_final_image
-         - build_minikube_image
      - docs_test:
         requires:
          - build
