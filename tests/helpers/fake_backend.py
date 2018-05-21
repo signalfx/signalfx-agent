@@ -63,10 +63,7 @@ def _make_fake_api(dims, ip="127.0.0.1"):
                 self.end_headers()
                 return
 
-            try:
-                body = self.rfile.read(int(self.headers.getheader('Content-Length')))
-            except AttributeError:
-                body = self.rfile.read(int(self.headers.get('Content-Length')))
+            body = self.rfile.read(int(self.headers.get('Content-Length')))
 
             content = json.loads(body.decode('utf-8'))
             key = content["key"]
