@@ -13,13 +13,11 @@ AGENT_YAMLS_DIR = os.environ.get("AGENT_YAMLS_DIR", "/go/src/github.com/signalfx
 AGENT_CONFIGMAP_PATH = os.environ.get("AGENT_CONFIGMAP_PATH", os.path.join(AGENT_YAMLS_DIR, "configmap.yaml"))
 AGENT_DAEMONSET_PATH = os.environ.get("AGENT_DAEMONSET_PATH", os.path.join(AGENT_YAMLS_DIR, "daemonset.yaml"))
 AGENT_SERVICEACCOUNT_PATH = os.environ.get("AGENT_SERVICEACCOUNT_PATH", os.path.join(AGENT_YAMLS_DIR, "serviceaccount.yaml"))
-AGENT_IMAGE_NAME = os.environ.get("AGENT_IMAGE_NAME", "localhost:5000/signalfx-agent")
-AGENT_IMAGE_TAG = os.environ.get("AGENT_IMAGE_TAG", "k8s-test")
 DOCS_DIR = os.environ.get("DOCS_DIR", "/go/src/github.com/signalfx/signalfx-agent/docs")
 CUR_DIR = os.path.dirname(os.path.realpath(__file__))
 
 
-def test_monitor_without_endpoints(k8s_monitor_without_endpoints, k8s_test_timeout, minikube):
+def test_monitor_without_endpoints(k8s_monitor_without_endpoints, k8s_test_timeout, agent_image, minikube):
     monitor = k8s_monitor_without_endpoints
     monitors = [monitor]
     if monitor["type"] == "collectd/cpu":
@@ -51,8 +49,8 @@ def test_monitor_without_endpoints(k8s_monitor_without_endpoints, k8s_test_timeo
             monitors=monitors,
             cluster_name="minikube",
             backend=backend,
-            image_name=AGENT_IMAGE_NAME,
-            image_tag=AGENT_IMAGE_TAG,
+            image_name=agent_image["name"],
+            image_tag=agent_image["tag"],
             namespace="default") as agent:
             if monitor["type"] == "collectd/statsd":
                 agent.container.exec_run(["/bin/bash", "-c", 'while true; do echo "statsd.[foo=bar,dim=val]test:1|g" | nc -w 1 -u 127.0.0.1 8125; sleep 1; done'], detach=True)
@@ -72,7 +70,7 @@ def test_monitor_without_endpoints(k8s_monitor_without_endpoints, k8s_test_timeo
                         (expected_dims, agent.get_status(), agent.get_container_logs())
 
 
-def test_monitor_with_endpoints(k8s_monitor_with_endpoints, k8s_observer, k8s_test_timeout, minikube):
+def test_monitor_with_endpoints(k8s_monitor_with_endpoints, k8s_observer, k8s_test_timeout, agent_image, minikube):
     monitor, yamls = k8s_monitor_with_endpoints
     monitor_doc = os.path.join(DOCS_DIR, "monitors", monitor["type"].replace("/", "-") + ".md")
     observer_doc = os.path.join(DOCS_DIR, "observers", k8s_observer + ".md")
@@ -94,8 +92,8 @@ def test_monitor_with_endpoints(k8s_monitor_with_endpoints, k8s_observer, k8s_te
                 monitors=[monitor],
                 cluster_name="minikube",
                 backend=backend,
-                image_name=AGENT_IMAGE_NAME,
-                image_tag=AGENT_IMAGE_TAG,
+                image_name=agent_image["name"],
+                image_tag=agent_image["tag"],
                 namespace="default") as agent:
                 print("\nCollected %d metric(s) and %d dimension(s) to test for %s." % (len(expected_metrics), len(expected_dims), monitor["type"]))
                 if len(expected_metrics) > 0 and len(expected_dims) > 0:
@@ -112,7 +110,7 @@ def test_monitor_with_endpoints(k8s_monitor_with_endpoints, k8s_observer, k8s_te
                         (expected_dims, agent.get_status(), agent.get_container_logs())
 
 
-def test_plaintext_passwords(minikube):
+def test_plaintext_passwords(agent_image, minikube):
     with fake_backend.start(ip=get_host_ip()) as backend:
         with minikube.deploy_agent(
             AGENT_CONFIGMAP_PATH,
@@ -122,8 +120,8 @@ def test_plaintext_passwords(minikube):
             monitors=MONITORS_WITHOUT_ENDPOINTS + [m[0] for m in MONITORS_WITH_ENDPOINTS],
             cluster_name="minikube",
             backend=backend,
-            image_name=AGENT_IMAGE_NAME,
-            image_tag=AGENT_IMAGE_TAG,
+            image_name=agent_image["name"],
+            image_tag=agent_image["tag"],
             namespace="default") as agent:
             agent_status = agent.get_status()
             container_logs = agent.get_container_logs()

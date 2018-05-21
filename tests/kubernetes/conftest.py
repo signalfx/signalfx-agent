@@ -5,20 +5,8 @@ import pytest
 
 
 @pytest.fixture(scope="module")
-def local_registry(request):
+def local_registry():
     client = docker.from_env(version='auto')
-    final_agent_image_name = request.config.getoption("--k8s-agent-name")
-    final_agent_image_tag = request.config.getoption("--k8s-agent-tag")
-    try:
-        final_image = client.images.get(final_agent_image_name + ":" + final_agent_image_tag)
-    except:
-        try:
-            print("\nAgent image '%s:%s' not found in local registry." % (final_agent_image_name, final_agent_image_tag))
-            print("\nAttempting to pull from remote registry ...")
-            final_image = client.images.pull(final_agent_image_name, tag=final_agent_image_tag)
-        except:
-            final_image = None
-    assert final_image, "agent image '%s:%s' not found!" % (final_agent_image_name, final_agent_image_tag)
     try:
         client.containers.get("registry")
         print("\nRegistry container localhost:5000 already running")
@@ -42,21 +30,38 @@ def local_registry(request):
                 break
             except:
                 time.sleep(2)
-    agent_image_name = getattr(request.module, "AGENT_IMAGE_NAME")
-    agent_image_tag = getattr(request.module, "AGENT_IMAGE_TAG")
-    print("\nTagging %s:%s as %s:%s ..." % (final_agent_image_name, final_agent_image_tag, agent_image_name, agent_image_tag))
-    final_image.tag(agent_image_name, tag=agent_image_tag)
-    print("\nPushing %s:%s ..." % (agent_image_name, agent_image_tag))
-    client.images.push(agent_image_name, tag=agent_image_tag)
-    yield
     try:
+        yield
+    finally:
         client.containers.get("registry").remove(force=True)
-    except:
-        pass
 
 
 @pytest.fixture(scope="module")
-def minikube(local_registry, request):
+def agent_image(local_registry, request):
+    client = docker.from_env(version='auto')
+    final_agent_image_name = request.config.getoption("--k8s-agent-name")
+    final_agent_image_tag = request.config.getoption("--k8s-agent-tag")
+    agent_image_name = "localhost:5000" + "/" + final_agent_image_name.split("/")[-1]
+    agent_image_tag = final_agent_image_tag
+    try:
+        final_agent_image = client.images.get(final_agent_image_name + ":" + final_agent_image_tag)
+    except:
+        try:
+            print("\nAgent image '%s:%s' not found in local registry." % (final_agent_image_name, final_agent_image_tag))
+            print("\nAttempting to pull from remote registry ...")
+            final_agent_image = client.images.pull(final_agent_image_name, tag=final_agent_image_tag)
+        except:
+            final_agent_image = None
+    assert final_agent_image, "agent image '%s:%s' not found!" % (final_agent_image_name, final_agent_image_tag)
+    print("\nTagging %s:%s as %s:%s ..." % (final_agent_image_name, final_agent_image_tag, agent_image_name, agent_image_tag))
+    final_agent_image.tag(agent_image_name, tag=agent_image_tag)
+    print("\nPushing %s:%s ..." % (agent_image_name, agent_image_tag))
+    client.images.push(agent_image_name, tag=agent_image_tag)
+    return {"name": agent_image_name, "tag": agent_image_tag}
+
+
+@pytest.fixture(scope="module")
+def minikube(agent_image, request):
     k8s_version = request.param
     k8s_timeout = int(request.config.getoption("--k8s-timeout"))
     k8s_container = request.config.getoption("--k8s-container")
