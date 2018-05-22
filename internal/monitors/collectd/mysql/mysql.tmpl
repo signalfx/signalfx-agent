@@ -4,7 +4,7 @@
 <Plugin mysql>
   {{range $db := .Databases}}
   <Database "{{$.Name}}_{{$db.Name}}[monitorID={{$.MonitorID}}]">
-    ReportHost {{$.ReportHost}}
+    ReportHost {{toBool $.ReportHost}}
     Host "{{$.Host}}"
     Port {{$.Port}}
     Database "{{$db.Name}}"
