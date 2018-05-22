@@ -16,7 +16,7 @@ monitors:
     queries:
     - name: "exampleQuery"
       minVersion: 60203
-      maxVersion: 100203
+      maxVersion: 200203
       statement: "SELECT coalesce(sum(n_live_tup), 0) AS live, coalesce(sum(n_dead_tup), 0) AS dead FROM pg_stat_user_tables;"
       results:
       - type: gauge
