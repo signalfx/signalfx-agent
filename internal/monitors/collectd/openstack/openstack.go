@@ -1,3 +1,5 @@
+// +build !windows
+
 package openstack
 
 //go:generate collectd-template-to-go openstack.tmpl
@@ -14,6 +16,14 @@ const monitorType = "collectd/openstack"
 // [Openstack collectd Python
 // plugin](https://github.com/signalfx/collectd-openstack), which collects metrics
 // from Openstack instances
+//
+// ```yaml
+// monitors:
+// - type: collectd/openstack
+//   authURL: "http://192.168.11.111/identity/v3"
+//   username: "admin"
+//   password: "secret"
+// ```
 
 func init() {
 	monitors.Register(monitorType, func() interface{} {
