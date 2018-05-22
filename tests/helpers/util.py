@@ -130,7 +130,7 @@ def setup_config(config_text, path, fake_services):
 
 
 @contextmanager
-def run_container(image_name, wait_for_ip=True, **kwargs):
+def run_container(image_name, wait_for_ip=True, print_logs=True, **kwargs):
     client = get_docker_client()
     container = client.containers.run(image_name, detach=True, **kwargs)
 
@@ -143,14 +143,15 @@ def run_container(image_name, wait_for_ip=True, **kwargs):
     try:
         yield container
     finally:
-        print_lines("Container %s logs:\n%s" % (image_name, container.logs().decode('utf-8')))
+        if print_logs:
+            print_lines("Container %s logs:\n%s" % (image_name, container.logs().decode('utf-8')))
         container.remove(force=True, v=True)
 
 
 @contextmanager
-def run_service(service_name, name=None, buildargs={}, **kwargs):
+def run_service(service_name, name=None, buildargs={}, print_logs=True, **kwargs):
     client = get_docker_client()
     image, logs = client.images.build(path=os.path.join(TEST_SERVICES_DIR, service_name), rm=True, forcerm=True, buildargs=buildargs)
-    with run_container(image.id, name=name, **kwargs) as cont:
+    with run_container(image.id, name=name, print_logs=print_logs, **kwargs) as cont:
         yield cont
 
