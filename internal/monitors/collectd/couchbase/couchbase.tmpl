@@ -1,0 +1,19 @@
+LoadPlugin "python"
+<Plugin "python">
+  ModulePath "{{ pluginRoot }}/couchbase"
+  Import "couchbase"
+
+  <Module "couchbase">
+    Host "{{.Host}}"
+    Port "{{.Port}}"
+    CollectTarget  "{{.CollectTarget}}"
+    {{with .CollectBucket -}}CollectBucket "{{.}}"{{- end}}
+    {{with .ClusterName -}}ClusterName "{{.}}"{{- end}}
+    {{with .CollectMode -}}CollectMode "{{.}}"{{- end}}
+    {{with .IntervalSeconds -}}Interval {{.}}{{- end}}
+    {{with .Username -}}Username "{{.}}"{{- end}}
+    {{with .Password -}}Password "{{.}}"{{- end}}
+    FieldLength "1024"
+    Dimensions "monitorID={{.MonitorID}}"
+  </Module>
+</Plugin>

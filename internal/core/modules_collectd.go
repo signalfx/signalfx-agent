@@ -11,6 +11,7 @@ import (
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/collectd/apache"
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/collectd/cassandra"
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/collectd/consul"
+	_ "github.com/signalfx/signalfx-agent/internal/monitors/collectd/couchbase"
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/collectd/cpu"
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/collectd/cpufreq"
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/collectd/custom"
