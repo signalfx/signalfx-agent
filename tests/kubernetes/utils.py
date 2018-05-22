@@ -132,56 +132,7 @@ def delete_configmap(name, namespace="default", timeout=K8S_API_TIMEOUT):
         name=name,
         body=kube_client.V1DeleteOptions(grace_period_seconds=0, propagation_policy='Background'),
         namespace=namespace)
-    if timeout < 0:
-        return
-    start_time = time.time()
-    while True:
-        assert (time.time() - start_time) <= timeout, "timed out waiting for configmap \"%s\" to be deleted!" % name
-        if has_configmap(name, namespace=namespace):
-            time.sleep(2)
-        else:
-            break
-
-
-def get_pod_template(name="", image="", ports=[], labels={}, volume_mounts=[], env={}, command=[], args=[]):
-    def get_ports():
-        container_ports = []
-        for port in ports:
-            container_ports.append(kube_client.V1ContainerPort(container_port=port))
-        return container_ports
-
-    def get_volume_mounts():
-        mounts = []
-        for vm in volume_mounts:
-            mounts.append(kube_client.V1VolumeMount(name=vm["name"], mount_path=vm["mount_path"]))
-        return mounts
-
-    def get_configmap_volumes():
-        configmap_volumes = []
-        for vm in volume_mounts:
-            configmap_volumes.append(kube_client.V1Volume(name=vm["name"], config_map=kube_client.V1ConfigMapVolumeSource(name=vm["configmap"])))
-        return configmap_volumes
-
-    def get_envvars():
-        envvars = []
-        for key,val in env.items():
-            envvars.append(kube_client.V1EnvVar(name=key, value=val))
-        return envvars
-
-    container = kube_client.V1Container(
-        name=name,
-        image=image,
-        ports=get_ports(),
-        volume_mounts=get_volume_mounts(),
-        env=get_envvars(),
-        command=command,
-        args=args)
-    template = kube_client.V1PodTemplateSpec(
-        metadata=kube_client.V1ObjectMeta(labels=labels),
-        spec=kube_client.V1PodSpec(
-            containers=[container],
-            volumes=get_configmap_volumes()))
-    return template
+    assert wait_for(lambda: not has_configmap(name, namespace=namespace), timeout), "timed out waiting for configmap \"%s\" to be deleted!" % name
 
 
 def has_deployment(name, namespace="default"):
@@ -227,58 +178,7 @@ def delete_deployment(name, namespace="default", timeout=K8S_API_TIMEOUT):
         name=name,
         body=kube_client.V1DeleteOptions(grace_period_seconds=0, propagation_policy='Background'),
         namespace=namespace)
-    if timeout < 0:
-        return
-    start_time = time.time()
-    while True:
-        assert (time.time() - start_time) <= timeout, "timed out waiting for deployment \"%s\" to be deleted!" % name
-        if has_deployment(name, namespace=namespace):
-            time.sleep(2)
-        else:
-            break
-
-
-def create_replication_controller(body=None, name="", pod_template=None, replicas=1, labels={}, namespace="default"):
-    api = kube_client.CoreV1Api()
-    if body:
-        body["apiVersion"] = "v1"
-        try:
-            namespace = body["metadata"]["namespace"]
-        except:
-            pass
-    else:
-        spec = kube_client.V1ReplicationControllerSpec(
-            replicas=replicas,
-            template=pod_template,
-            selector=labels)
-        body = kube_client.V1ReplicationController(
-            api_version="v1",
-            metadata=kube_client.V1ObjectMeta(name=name, labels=labels),
-            spec=spec)
-    return api.create_namespaced_replication_controller(
-        body=body,
-        namespace=namespace)
-
-
-def create_service(name="", ports=[], service_type="NodePort", labels={}, namespace="default"):
-    def get_ports():
-        service_ports = []
-        for port in ports:
-            service_ports.append(kube_client.V1ServicePort(port=port))
-        return service_ports
-
-    api = kube_client.CoreV1Api()
-    service = kube_client.V1Service(
-        api_version="v1",
-        kind="Service",
-        metadata=kube_client.V1ObjectMeta(name=name, labels=labels),
-        spec=kube_client.V1ServiceSpec(
-            type=service_type,
-            ports=get_ports(),
-            selector=labels))
-    return api.create_namespaced_service(
-        body=service,
-        namespace=namespace)
+    assert wait_for(lambda: not has_deployment(name, namespace=namespace), timeout), "timed out waiting for deployment \"%s\" to be deleted!" % name
 
 
 def has_daemonset(name, namespace="default"):
@@ -315,54 +215,7 @@ def delete_daemonset(name, namespace="default", timeout=K8S_API_TIMEOUT):
         name=name,
         body=kube_client.V1DeleteOptions(grace_period_seconds=0, propagation_policy='Background'),
         namespace=namespace)
-    if timeout < 0:
-        return
-    start_time = time.time()
-    while True:
-        assert (time.time() - start_time) <= timeout, "timed out waiting for daemonset \"%s\" to be deleted!" % name
-        if has_daemonset(name, namespace=namespace):
-            time.sleep(2)
-        else:
-            break
-
-
-def deploy_k8s_service(**kwargs):
-    if configmap_name and configmap_data:
-        create_configmap(
-            name=configmap_name,
-            data=configmap_data,
-            labels=labels,
-            namespace=namespace)
-    pod_template = get_pod_template(
-        name=name,
-        image=image,
-        ports=ports,
-        labels=labels,
-        env=env,
-        command=command,
-        args=args,
-        volume_mounts=volume_mounts)
-    if replicas > 1:
-        create_replication_controller(
-            name=pod_name,
-            pod_template=pod_template,
-            replicas=replicas,
-            labels=labels,
-            namespace=namespace)
-    else:
-        create_deployment(
-            name=pod_name,
-            pod_template=pod_template,
-            replicas=replicas,
-            labels=labels,
-            namespace=namespace)
-    if service_type:
-        create_service(
-            name="%s-service" % name,
-            ports=ports,
-            service_type=service_type,
-            labels=labels,
-            namespace=namespace)
+    assert wait_for(lambda: not has_daemonset(name, namespace=namespace), timeout), "timed out waiting for daemonset \"%s\" to be deleted!" % name
 
 
 # returns a list of all pods in the cluster
