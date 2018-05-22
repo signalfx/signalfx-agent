@@ -15,38 +15,37 @@ Sample YAML configuration:
 ```
 monitors:
 - type: collectd/postgresql
+host: $host
+port: 5432
+username: "username1"
+password: "password1"
+databases:
+- name: testdb
+  username: "test_user"
+  password: "test_pwd"
+```
+
+Sample YAML configuration with custom query:
+```
+monitors:
+- type: collectd/postgresql
   host: 0.0.0.0
   port: 5432
   username: "username1"
   password: "password1"
   queries:
   - name: "exampleQuery"
-    pluginInstanceFrom: "testColumn"
-    minVersion: 80203
-    maxVersion: 80203
     params:
     - "hostname"
-    - "database"
-    - "instance"
-    - "username"
-    - "interval"
     statement: "Select * From test Where host = $1;"
     results:
     - type: gauge
-      instancePrefix: testPrefix
-      instancesFrom:
-      - test1
-      - test2
       valuesFrom:
       - test
  databases:
  - name: test
    username: "username2"
    password: "password2"
-   interval: 5
-   expireDelay: 10
-   sslMode: disable
-   krbSrvName: test
    queries:
    - exampleQuery
 ```
@@ -77,37 +76,37 @@ The **nested** `databases` config object has the following fields:
 
 | Config option | Required | Type | Description |
 | --- | --- | --- | --- |
-| `name` | **yes** | `string` | the name of the database |
-| `username` | no | `string` | username used to access the database |
-| `password` | no | `string` | password used to access the database |
-| `interval` | no | `integer` | interval to query the database in seconds (**default:** `0`) |
-| `expireDelay` | no | `integer` | skip expired values in query output (**default:** `0`) |
-| `sslMode` | no | `string` | specify whether to use an ssl connection with PostgreSQL. (prefer(default), disable, allow, require) |
-| `krbSrvName` | no | `string` | specify the Kerberos service name used to authenticate with kerberos 5 or GSSAPI |
-| `queries` | no | `list of string` | queries used to generate metrics.  If no queries are specified, the default set will be used [`custom_deadlocks`, `backends`, `transactions`, `queries`, `queries_by_table`, `query_plans`, `table_states`, `query_plans_by_table`, `table_states_by_table`, `disk_io`, `disk_io_by_table`, `disk_usage`] |
+| `name` | **yes** | `string` | The name of the database |
+| `username` | no | `string` | Username used to access the database |
+| `password` | no | `string` | Password used to access the database |
+| `interval` | no | `integer` | Interval to query the database in seconds (**default:** `0`) |
+| `expireDelay` | no | `integer` | Skip expired values in query output (**default:** `0`) |
+| `sslMode` | no | `string` | Specify whether to use an ssl connection with PostgreSQL. (prefer(default), disable, allow, require) |
+| `krbSrvName` | no | `string` | Specify the Kerberos service name used to authenticate with kerberos 5 or GSSAPI |
+| `queries` | no | `list of string` | Queries used to generate metrics.  If no queries are specified, the default set will be used [`custom_deadlocks`, `backends`, `transactions`, `queries`, `queries_by_table`, `query_plans`, `table_states`, `query_plans_by_table`, `table_states_by_table`, `disk_io`, `disk_io_by_table`, `disk_usage`] |
 
 
 The **nested** `queries` config object has the following fields:
 
 | Config option | Required | Type | Description |
 | --- | --- | --- | --- |
-| `name` | **yes** | `string` | name used to refer to the query in the database block |
-| `statement` | **yes** | `string` | statement is a SQL statement to execute |
-| `results` | **yes** | `list of object (see below)` | result blocks that define mappings of SQL query results to metrics |
-| `params` | no | `list of string` | parameters used to fill in $1,$2,$... tokens in the SQL statement.  Acceptable values are hostname, database, instance, username, interval |
-| `pluginInstanceFrom` | no | `string` | specifies the column that should be used to populate plugin instance |
-| `minVersion` | no | `integer` | the minimum version of PostgreSQL that the query is compatible with.  The version must be specified as a two decimal digit. Ex. 7.2.3 -> 70203 (**default:** `0`) |
-| `maxVersion` | no | `integer` | the maximum version of PostgreSQL that the query is compatible with.  The version must be specified as a two decimal digit. Ex. 7.2.3 -> 70203 (**default:** `0`) |
+| `name` | **yes** | `string` | Name used to refer to the query in the database block |
+| `statement` | **yes** | `string` | Statement is a SQL statement to execute |
+| `results` | **yes** | `list of object (see below)` | Result blocks that define mappings of SQL query results to metrics |
+| `params` | no | `list of string` | Parameters used to fill in $1,$2,$... tokens in the SQL statement.  Acceptable values are hostname, database, instance, username, interval |
+| `pluginInstanceFrom` | no | `string` | Specifies the column that should be used to populate plugin instance |
+| `minVersion` | no | `integer` | The minimum version of PostgreSQL that the query is compatible with.  The version must be specified as a two decimal digit. Ex. 7.2.3 -> 70203 (**default:** `0`) |
+| `maxVersion` | no | `integer` | The maximum version of PostgreSQL that the query is compatible with.  The version must be specified as a two decimal digit. Ex. 7.2.3 -> 70203 (**default:** `0`) |
 
 
 The **nested** `results` config object has the following fields:
 
 | Config option | Required | Type | Description |
 | --- | --- | --- | --- |
-| `type` | **yes** | `string` | type defines a metric type |
-| `valuesFrom` | **yes** | `list of string` | valuesFrom specifies columns in the SQL result to use as the metric value.  The number of columns must match the expected number of values for the metric type. |
-| `instancePrefix` | no | `string` | a prefix for the type instance |
-| `instancesFrom` | no | `list of string` | specifies columns in the SQL result to uses for the type instance.  Multiple columns are joined with a hyphen "-". |
+| `type` | **yes** | `string` | Type defines a metric type |
+| `valuesFrom` | **yes** | `list of string` | Specifies columns in the SQL result to use as the metric value.  The number of columns must match the expected number of values for the metric type. |
+| `instancePrefix` | no | `string` | A prefix for the type instance |
+| `instancesFrom` | no | `list of string` | Specifies columns in the SQL result to uses for the type instance.  Multiple columns are joined with a hyphen "-". |
 
 
 

@@ -27,38 +27,37 @@ const monitorType = "collectd/postgresql"
 // ```
 // monitors:
 // - type: collectd/postgresql
+// host: $host
+// port: 5432
+// username: "username1"
+// password: "password1"
+// databases:
+// - name: testdb
+//   username: "test_user"
+//   password: "test_pwd"
+// ```
+//
+// Sample YAML configuration with custom query:
+// ```
+// monitors:
+// - type: collectd/postgresql
 //   host: 0.0.0.0
 //   port: 5432
 //   username: "username1"
 //   password: "password1"
 //   queries:
 //   - name: "exampleQuery"
-//     pluginInstanceFrom: "testColumn"
-//     minVersion: 80203
-//     maxVersion: 80203
 //     params:
 //     - "hostname"
-//     - "database"
-//     - "instance"
-//     - "username"
-//     - "interval"
 //     statement: "Select * From test Where host = $1;"
 //     results:
 //     - type: gauge
-//       instancePrefix: testPrefix
-//       instancesFrom:
-//       - test1
-//       - test2
 //       valuesFrom:
 //       - test
 //  databases:
 //  - name: test
 //    username: "username2"
 //    password: "password2"
-//    interval: 5
-//    expireDelay: 10
-//    sslMode: disable
-//    krbSrvName: test
 //    queries:
 //    - exampleQuery
 // ```
@@ -73,23 +72,23 @@ func init() {
 
 // Database configures a particular PostgreSQL database
 type Database struct {
-	// the name of the database
+	// The name of the database
 	Name string `yaml:"name" validate:"required"`
-	// username used to access the database
+	// Username used to access the database
 	Username string `yaml:"username"`
-	// password used to access the database
+	// Password used to access the database
 	Password string `yaml:"password" neverLog:"true"`
-	// interval to query the database in seconds
+	// Interval to query the database in seconds
 	Interval int `yaml:"interval"`
-	// skip expired values in query output
+	// Skip expired values in query output
 	ExpireDelay int `yaml:"expireDelay"`
-	// specify whether to use an ssl connection with PostgreSQL.
+	// Specify whether to use an ssl connection with PostgreSQL.
 	// (prefer(default), disable, allow, require)
 	SSLMode string `yaml:"sslMode"`
-	// specify the Kerberos service name used to authenticate with kerberos 5 or
+	// Specify the Kerberos service name used to authenticate with kerberos 5 or
 	// GSSAPI
 	KRBSrvName string `yaml:"krbSrvName"`
-	// queries used to generate metrics.  If no queries are specified, the
+	// Queries used to generate metrics.  If no queries are specified, the
 	// default set will be used [`custom_deadlocks`, `backends`, `transactions`,
 	// `queries`, `queries_by_table`, `query_plans`, `table_states`,
 	// `query_plans_by_table`, `table_states_by_table`, `disk_io`,
@@ -99,40 +98,40 @@ type Database struct {
 
 // Result maps values from a query to a metric
 type Result struct {
-	// type defines a metric type
+	// Type defines a metric type
 	Type string `yaml:"type" validate:"required"`
-	// valuesFrom specifies columns in the SQL result to use as the metric
+	// Specifies columns in the SQL result to use as the metric
 	// value.  The number of columns must match the expected number of values
 	// for the metric type.
 	ValuesFrom []string `yaml:"valuesFrom" validate:"required"`
-	// a prefix for the type instance
+	// A prefix for the type instance
 	InstancePrefix string `yaml:"instancePrefix"`
-	// specifies columns in the SQL result to uses for the type
+	// Specifies columns in the SQL result to uses for the type
 	// instance.  Multiple columns are joined with a hyphen "-".
 	InstancesFrom []string `yaml:"instancesFrom"`
 }
 
 // Query adds a new query for retrieving metrics
 type Query struct {
-	// name used to refer to the query in the database block
+	// Name used to refer to the query in the database block
 	Name string `yaml:"name" validate:"required"`
-	// statement is a SQL statement to execute
+	// Statement is a SQL statement to execute
 	Statement string `yaml:"statement" validate:"required"`
-	// result blocks that define mappings of SQL query results to
+	// Result blocks that define mappings of SQL query results to
 	// metrics
 	Results []Result `yaml:"results" validate:"required"`
-	// parameters used to fill in $1,$2,$... tokens in the SQL
+	// Parameters used to fill in $1,$2,$... tokens in the SQL
 	// statement.  Acceptable values are hostname, database, instance, username,
 	// interval
 	Params []string `yaml:"params"`
-	// specifies the column that should be used to populate
+	// Specifies the column that should be used to populate
 	// plugin instance
 	PluginInstanceFrom string `yaml:"pluginInstanceFrom"`
-	// the minimum version of PostgreSQL that the query is
+	// The minimum version of PostgreSQL that the query is
 	// compatible with.  The version must be specified as a two decimal digit.
 	// Ex. 7.2.3 -> 70203
 	MinVersion int `yaml:"minVersion"`
-	// the maximum version of PostgreSQL that the query is
+	// The maximum version of PostgreSQL that the query is
 	// compatible with.  The version must be specified as a two decimal digit.
 	// Ex. 7.2.3 -> 70203
 	MaxVersion int `yaml:"maxVersion"`
