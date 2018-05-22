@@ -1,4 +1,6 @@
-LoadPlugin postgresql
+<LoadPlugin postgresql>
+  Interval {{.IntervalSeconds}}
+</LoadPlugin>
 
 <Plugin postgresql>
   <Query custom_deadlocks>
@@ -35,7 +37,7 @@ LoadPlugin postgresql
   <Database "{{$db.Name}}">
     Host "{{$.Host}}"
     Port "{{$.Port}}"
-    ReportHost {{$.ReportHost}}
+    ReportHost {{toBool $.ReportHost}}
     {{if $db.Username -}}User "{{$db.Username}}"{{else if $.Username}}User "{{$.Username}}"{{- end}}
     {{if $db.Password -}}Password "{{$db.Password}}"{{else if $.Password}}Password "{{$.Password}}"{{- end}}
     Instance "{{$db.Name}}[monitorID={{$.MonitorID}}]"
