@@ -31,6 +31,9 @@ func ConvertToMapViaYAML(obj interface{}) (map[string]interface{}, error) {
 // output string.  If the field has no key (e.g. if the `yaml:"-"` tag is set,
 // this will return an empty string.
 func YAMLNameOfField(field reflect.StructField) string {
+	if strings.HasPrefix(field.Tag.Get("yaml"), ",inline") {
+		return ""
+	}
 	tmp := reflect.New(reflect.StructOf([]reflect.StructField{field})).Elem()
 	asYaml, _ := yaml.Marshal(tmp.Interface())
 	parts := strings.SplitN(string(asYaml), ":", 2)
