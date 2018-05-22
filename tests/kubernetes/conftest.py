@@ -11,29 +11,9 @@ def local_registry():
         client.containers.get("registry")
         print("\nRegistry container localhost:5000 already running")
     except:
-        try:
-            client.containers.run(
-                image='registry:latest',
-                name='registry',
-                detach=True,
-                ports={'5000/tcp': 5000})
-            print("\nStarted registry container localhost:5000")
-        except:
-            pass
-        print("\nWaiting for registry container localhost:5000 to be ready ...")
-        start_time = time.time()
-        while True:
-            assert (time.time() - start_time) < 30, "timed out waiting for registry container to be ready!"
-            try:
-                client.containers.get("registry")
-                time.sleep(2)
-                break
-            except:
-                time.sleep(2)
-    try:
-        yield
-    finally:
-        client.containers.get("registry").remove(force=True)
+        print("\nStarting registry container localhost:5000 ...")
+        with run_container("registry:latest", print_logs=False, name='registry', ports={'5000/tcp': 5000}) as cont:
+            yield cont
 
 
 @pytest.fixture(scope="module")
