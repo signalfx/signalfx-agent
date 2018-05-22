@@ -24,24 +24,25 @@ const monitorType = "collectd/postgresql"
 //
 // Sample YAML configuration:
 //
-// ```
+// ```yaml
 // monitors:
 // - type: collectd/postgresql
-// host: $host
-// port: 5432
-// username: "username1"
-// password: "password1"
-// databases:
-// - name: testdb
-//   username: "test_user"
-//   password: "test_pwd"
+//   host: 127.0.0.1
+//   port: 5432
+//   username: "username1"
+//   password: "password1"
+//   databases:
+//   - name: "testdb"
+//     username: "test_user"
+//     password: "test_pwd"
 // ```
 //
 // Sample YAML configuration with custom query:
-// ```
+//
+// ```yaml
 // monitors:
 // - type: collectd/postgresql
-//   host: 0.0.0.0
+//   host: 127.0.0.1
 //   port: 5432
 //   username: "username1"
 //   password: "password1"
@@ -51,15 +52,15 @@ const monitorType = "collectd/postgresql"
 //     - "hostname"
 //     statement: "Select * From test Where host = $1;"
 //     results:
-//     - type: gauge
+//     - type: "gauge"
 //       valuesFrom:
-//       - test
+//       - "test"
 //  databases:
-//  - name: test
+//  - name: "test"
 //    username: "username2"
 //    password: "password2"
 //    queries:
-//    - exampleQuery
+//    - "exampleQuery"
 // ```
 
 func init() {
