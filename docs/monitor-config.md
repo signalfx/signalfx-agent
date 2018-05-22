@@ -12,6 +12,7 @@ along with their possible configuration options:
 - [collectd/apache](./monitors/collectd-apache.md)
 - [collectd/cassandra](./monitors/collectd-cassandra.md)
 - [collectd/consul](./monitors/collectd-consul.md)
+- [collectd/couchbase](./monitors/collectd-couchbase.md)
 - [collectd/cpu](./monitors/collectd-cpu.md)
 - [collectd/cpufreq](./monitors/collectd-cpufreq.md)
 - [collectd/custom](./monitors/collectd-custom.md)
