@@ -39,7 +39,7 @@ env = [
       ]
 
 
-def test_mongo():
+def test_postgresql():
     with run_container("postgres:10", environment=env) as cont:
         config = config_temp.substitute(host=cont.attrs["NetworkSettings"]["IPAddress"])
 
