@@ -18,7 +18,7 @@ class Minikube:
         self.client = None
         self.version = None
         self.name = None
-        self.host_client = docker.from_env(version="auto")
+        self.host_client = get_docker_client()
         self.yamls = []
         self.agent = Agent()
         self.cluster_name = "minikube"
@@ -68,6 +68,9 @@ class Minikube:
             options = {
                 "name": self.name,
                 "privileged": True,
+                "extra_hosts": {
+                    "localhost": get_host_ip()
+                },
                 "environment": {
                     'K8S_VERSION': self.version,
                     'TIMEOUT': str(timeout)
@@ -98,29 +101,19 @@ class Minikube:
         self.load_kubeconfig(timeout=timeout)
         self.container.reload()
         self.get_client()
-        self.get_ip()
-
-    def create_secret(self, key, secret):
-        if self.container:
-            rc, output = self.container.exec_run("kubectl create secret generic %s --from-literal=access-token=%s" % (key, secret))
-            assert rc == 0
-            print_lines(output.decode('utf-8'))
 
     @contextmanager
     def deploy_yamls(self, yamls=[], services_dir=K8S_SERVICES_DIR):
         self.yamls= []
         if services_dir:
-            if len(yamls) == 0:
-                yamls = sorted([os.path.join(services_dir, y) for y in os.listdir(services_dir) if y.endswith(".yaml")])
-            else:
-                yamls = sorted([os.path.join(services_dir, y) for y in yamls if y.endswith(".yaml")])
-        print()
+            yamls = sorted([os.path.join(services_dir, y) for y in yamls])
         for y in yamls:
+            assert os.path.isfile(y)
             body = yaml.load(open(y))
-            kind = body["kind"]
+            kind = body['kind']
             name = body['metadata']['name']
             namespace = body['metadata']['namespace']
-            if "configmap" in y:
+            if kind == "ConfigMap":
                 if has_configmap(name, namespace=namespace):
                     print("Deleting configmap \"%s\" ..." % name)
                     delete_configmap(name, namespace=namespace)
@@ -129,7 +122,7 @@ class Minikube:
                 self.yamls.append(body)
         for y in yamls:
             body = yaml.load(open(y))
-            kind = body["kind"]
+            kind = body['kind']
             name = body['metadata']['name']
             namespace = body['metadata']['namespace']
             body = yaml.load(open(y))
@@ -148,7 +141,7 @@ class Minikube:
             yield
         finally:
             for y in self.yamls:
-                kind = y["kind"]
+                kind = y['kind']
                 name = y['metadata']['name']
                 namespace = y['metadata']['namespace']
                 if kind == "ConfigMap":
@@ -161,11 +154,11 @@ class Minikube:
 
 
     def pull_agent_image(self, name, tag="latest"):
-        host_client = docker.from_env(version="auto")
         try:
-            image_id = host_client.images.get("%s:%s" % (name, tag)).id
+            image_id = self.host_client.images.get("%s:%s" % (name, tag)).id
         except:
             image_id = None
+        assert image_id, "failed to get agent image \"%s:%s\"!" % (name, tag)
         if image_id:
             try:
                 self.client.images.get(image_id)
@@ -173,13 +166,8 @@ class Minikube:
             except:
                 pass
         print("\nPulling %s:%s to the minikube container ..." % (name, tag))
-        self.container.exec_run("cp -f /etc/hosts /etc/hosts.orig")
-        self.container.exec_run("cp -f /etc/hosts /etc/hosts.new")
-        self.container.exec_run("sed -i 's|127.0.0.1|%s|' /etc/hosts.new" % get_host_ip())
-        self.container.exec_run("cp -f /etc/hosts.new /etc/hosts")
         time.sleep(5)
         self.client.images.pull(name, tag=tag)
-        self.container.exec_run("cp -f /etc/hosts.orig /etc/hosts")
         _, output = self.container.exec_run('docker images')
         print_lines(output.decode('utf-8'))
 
