@@ -4,14 +4,12 @@
 <Plugin mysql>
   {{range $db := .Databases}}
   <Database "{{$.Name}}_{{$db.Name}}[monitorID={{$.MonitorID}}]">
-    ReportHost {{$.ReportHost}}
+    ReportHost {{toBool $.ReportHost}}
     Host "{{$.Host}}"
     Port {{$.Port}}
     Database "{{$db.Name}}"
-    User "{{$.Username}}"
-    {{with $.Password -}}
-    Password "{{.}}"
-    {{- end}}
+    {{if $db.Username -}}User "{{$db.Username}}"{{else if $.Username}}User "{{$.Username}}"{{- end}}
+    {{if $db.Password -}}Password "{{$db.Password}}"{{else if $.Password}}Password "{{$.Password}}"{{- end}}
   </Database>
   {{end}}
 </Plugin>

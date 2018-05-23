@@ -8,7 +8,7 @@ from tests.helpers.assertions import *
 
 def wait_for_rabbit_to_start(cont):
     # 3D38 is 15672 in hex, the port we need to be listening
-    assert wait_for(p(container_cmd_exit_0, cont, "sh -c 'cat /proc/net/tcp | grep 3D38'")), "rabbitmq didn't start"
+    assert wait_for(p(container_cmd_exit_0, cont, "sh -c 'cat /proc/net/tcp | grep 3D38'"), 40), "rabbitmq didn't start"
 
 
 rabbitmq_config = string.Template("""
