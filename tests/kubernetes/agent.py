@@ -45,7 +45,9 @@ class Agent:
         self.namespace = namespace
         self.serviceaccount_yaml = yaml.load(open(serviceaccount_path).read())
         self.serviceaccount_name = self.serviceaccount_yaml['metadata']['name']
-        print()
+        if not has_secret("signalfx-agent"):
+            print("Creating secret \"signalfx-agent\" ...")
+            create_secret("signalfx-agent", "access-token", "testing123")
         if not has_serviceaccount(self.serviceaccount_name, namespace=self.namespace):
             print("Creating service account \"%s\" from %s ..." % (self.serviceaccount_name, serviceaccount_path))
             create_serviceaccount(
@@ -115,7 +117,6 @@ class Agent:
         agent_status = self.get_status()
         container_logs = self.get_container_logs()
         assert "error" not in agent_status.lower(), "error(s) found in agent-status output!\n\n%s" % agent_status
-        #assert "error" not in container_logs.lower(), "error(s) found in agent container logs!\n\n%s\n" % container_logs
         return self
 
     def delete(self):
