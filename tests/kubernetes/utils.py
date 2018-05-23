@@ -50,6 +50,24 @@ def get_host_ip():
     return ni.ifaddresses(interface)[ni.AF_INET][0]['addr']
 
 
+def has_secret(name, namespace="default"):
+    api = kube_client.CoreV1Api()
+    try:
+        api.read_namespaced_secret(name, namespace=namespace)
+        return True
+    except:
+        return False
+
+
+def create_secret(name, key, value, namespace="default"):
+    api = kube_client.CoreV1Api()
+    return api.create_namespaced_secret(
+        body=kube_client.V1Secret(
+            metadata=kube_client.V1ObjectMeta(name=name),
+            string_data={key: value}),
+        namespace=namespace)
+
+
 def has_serviceaccount(name, namespace="default"):
     api = kube_client.CoreV1Api()
     service_accounts = api.list_namespaced_service_account(namespace=namespace)
