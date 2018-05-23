@@ -10,8 +10,17 @@ import time
 K8S_API_TIMEOUT = 180
 
 
-# returns a sorted set of metric names from `doc` excluding those in `ignore`
 def get_metrics_from_doc(doc, ignore=[]):
+    """
+    Parse markdown document for metrics.
+
+    Args:
+    doc (str):            Path to markdown document
+    ignore (list of str): Metrics to exclude/ignore
+
+    Returns:
+    Sorted set of metric names from `doc` excluding those in `ignore`
+    """
     assert os.path.isfile(doc), "\"%s\" not found!" % doc
     with open(doc, 'r') as fd:
         metrics = set(re.findall('\|\s+`(.*?)`\s+\|\s+(?:counter|gauge|cumulative)\s+\|', fd.read(), re.IGNORECASE))
@@ -22,6 +31,16 @@ def get_metrics_from_doc(doc, ignore=[]):
 
 # returns a sorted set of dimension names from `doc` excluding those in `ignore`
 def get_dims_from_doc(doc, ignore=[]):
+    """
+    Parse markdown document for dimensions.
+
+    Args:
+    doc (str):            Path to markdown document
+    ignore (list of str): Dimensions to exclude/ignore
+
+    Returns:
+    Sorted set of dimensions from `doc` excluding those in `ignore`
+    """
     assert os.path.isfile(doc), "\"%s\" not found!" % doc
     with open(doc, 'r') as fd:
         dims = set()
@@ -43,7 +62,6 @@ def get_dims_from_doc(doc, ignore=[]):
         return set(sorted(dims))
 
 
-# returns the IP of the pytest host (i.e. the dev image)
 def get_host_ip():
     gws = ni.gateways()
     interface = gws['default'][ni.AF_INET][1]
@@ -70,12 +88,11 @@ def create_secret(name, key, value, namespace="default"):
 
 def has_serviceaccount(name, namespace="default"):
     api = kube_client.CoreV1Api()
-    service_accounts = api.list_namespaced_service_account(namespace=namespace)
-    if service_accounts:
-        for sa in service_accounts.items:
-            if sa.metadata.name == name:
-                return True
-    return False
+    try:
+        api.read_namespaced_service_account(name, namespace=namespace)
+        return True
+    except:
+        return False
 
 
 def create_serviceaccount(body=None, namespace="default", timeout=K8S_API_TIMEOUT):
@@ -96,12 +113,11 @@ def create_serviceaccount(body=None, namespace="default", timeout=K8S_API_TIMEOU
 
 def has_configmap(name, namespace="default"):
     api = kube_client.CoreV1Api()
-    configmaps = api.list_namespaced_config_map(namespace=namespace)
-    if configmaps:
-        for cm in configmaps.items:
-            if cm.metadata.name == name:
-                return True
-    return False
+    try:
+        api.read_namespaced_config_map(name, namespace=namespace)
+        return True
+    except:
+        return False
 
 
 def create_configmap(body=None, name="", data={}, labels={}, namespace="default", timeout=K8S_API_TIMEOUT):
@@ -155,12 +171,11 @@ def delete_configmap(name, namespace="default", timeout=K8S_API_TIMEOUT):
 
 def has_deployment(name, namespace="default"):
     api = kube_client.ExtensionsV1beta1Api()
-    deployments = api.list_namespaced_deployment(namespace=namespace)
-    if deployments:
-        for d in deployments.items:
-            if d.metadata.name == name:
-                return True
-    return False
+    try:
+        api.read_namespaced_deployment(name, namespace=namespace)
+        return True
+    except:
+        return False
 
 
 def create_deployment(body=None, name="", pod_template=None, replicas=1, labels={}, namespace="default", timeout=K8S_API_TIMEOUT):
@@ -201,12 +216,11 @@ def delete_deployment(name, namespace="default", timeout=K8S_API_TIMEOUT):
 
 def has_daemonset(name, namespace="default"):
     api = kube_client.ExtensionsV1beta1Api()
-    daemonsets = api.list_namespaced_daemon_set(namespace=namespace)
-    if daemonsets:
-        for ds in daemonsets.items:
-            if ds.metadata.name == name:
-                return True
-    return False
+    try:
+        api.read_namespaced_daemon_set(name, namespace=namespace)
+        return True
+    except:
+        return False
 
 
 def create_daemonset(body=None, namespace="default", timeout=K8S_API_TIMEOUT):
@@ -236,15 +250,24 @@ def delete_daemonset(name, namespace="default", timeout=K8S_API_TIMEOUT):
     assert wait_for(lambda: not has_daemonset(name, namespace=namespace), timeout), "timed out waiting for daemonset \"%s\" to be deleted!" % name
 
 
-# returns a list of all pods in the cluster
 def get_all_pods():
+    """
+    Returns:
+    List of all pods in the cluster
+    """
     v1 = kube_client.CoreV1Api()
     pods = v1.list_pod_for_all_namespaces(watch=False)
     return pods.items
 
 
-# returns a list of all pods in the cluster that regex matches `name`
 def get_all_pods_matching_name(name):
+    """
+    Args:
+    name (str or regex): Name of pod(s) to search for
+
+    Returns:
+    List of all pods in the cluster that matches `name`
+    """
     pods = []
     for pod in get_all_pods():
         if re.match(name, pod.metadata.name):
@@ -252,16 +275,25 @@ def get_all_pods_matching_name(name):
     return pods
 
 
-# returns True if any pod contains `pod_name`; False otherwise
-def has_pod(pod_name):
+def has_pod(name):
+    """
+    Args:
+    name (str): Name of pod(s) to search for
+
+    Returns:
+    True if any pod contains `pod_name`; otherwise False
+    """
     for pod in get_all_pods():
-        if pod_name in pod.metadata.name:
+        if name in pod.metadata.name:
             return True
     return False
 
 
-# returns True if all pods have IPs; False otherwise
 def all_pods_have_ips():
+    """
+    Returns:
+    True if all pods have IPs; otherwise False
+    """
     pods = get_all_pods()
     if len(pods) == 0:
         return False
@@ -278,13 +310,19 @@ def all_pods_have_ips():
     return False
 
 
-# returns a string containing:
-# - the output from 'agent-status'
-# - the agent container logs
-# - the output from 'minikube logs'
-# - the minikube container logs
-# - the status of all pods
 def get_all_logs(minikube):
+    """
+    Args:
+    minikube (Minikube): Minikube instance
+
+    Returns:
+    String containing:
+    - the output from 'agent-status'
+    - the agent container logs
+    - the output from 'minikube logs'
+    - the minikube container logs
+    - the status of all pods
+    """
     try:
         agent_status = minikube.agent.get_status()
     except:
