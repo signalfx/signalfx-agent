@@ -57,16 +57,16 @@ def test_monitor_without_endpoints(k8s_monitor_without_endpoints, k8s_test_timeo
             if monitor["type"] not in ["collectd/cpufreq", "collectd/custom", "kubernetes-events"]:
                 print("\nCollected %d metric(s) and %d dimension(s) to test for %s." % (len(expected_metrics), len(expected_dims), monitor["type"]))
                 if len(expected_metrics) > 0 and len(expected_dims) > 0:
-                    assert wait_for(p(any_metric_has_any_dim, backend, expected_metrics, expected_dims)), \
-                        "timed out waiting for any metric in %s with any dimension in %s!\n\nAGENT STATUS:\n%s\n\nAGENT CONTAINER LOGS:\n%s\n" % \
+                    assert wait_for(p(any_metric_has_any_dim_key, backend, expected_metrics, expected_dims)), \
+                        "timed out waiting for any metric in %s with any dimension key in %s!\n\nAGENT STATUS:\n%s\n\nAGENT CONTAINER LOGS:\n%s\n" % \
                         (expected_metrics, expected_dims, agent.get_status(), agent.get_container_logs())
                 elif len(expected_metrics) > 0:
                     assert wait_for(p(any_metric_found, backend, expected_metrics)), \
                         "timed out waiting for any metric in %s!\n\nAGENT STATUS:\n%s\n\nAGENT CONTAINER LOGS:\n%s\n" % \
                         (expected_metrics, agent.get_status(), agent.get_container_logs())
                 elif len(expected_dims) > 0:
-                    assert wait_for(p(any_dim_found, backend, expected_dims)), \
-                        "timed out waiting for any dimension in %s!\n\nAGENT STATUS:\n%s\n\nAGENT CONTAINER LOGS:\n%s\n" % \
+                    assert wait_for(p(any_dim_key_found, backend, expected_dims)), \
+                        "timed out waiting for any dimension key in %s!\n\nAGENT STATUS:\n%s\n\nAGENT CONTAINER LOGS:\n%s\n" % \
                         (expected_dims, agent.get_status(), agent.get_container_logs())
 
 
@@ -97,16 +97,16 @@ def test_monitor_with_endpoints(k8s_monitor_with_endpoints, k8s_observer, k8s_te
                 namespace="default") as agent:
                 print("\nCollected %d metric(s) and %d dimension(s) to test for %s." % (len(expected_metrics), len(expected_dims), monitor["type"]))
                 if len(expected_metrics) > 0 and len(expected_dims) > 0:
-                    assert wait_for(p(any_metric_has_any_dim, backend, expected_metrics, expected_dims)), \
-                        "timed out waiting for any metric in %s with any dimension in %s!\n\nAGENT STATUS:\n%s\n\nAGENT CONTAINER LOGS:\n%s\n" % \
+                    assert wait_for(p(any_metric_has_any_dim_key, backend, expected_metrics, expected_dims)), \
+                        "timed out waiting for any metric in %s with any dimension key in %s!\n\nAGENT STATUS:\n%s\n\nAGENT CONTAINER LOGS:\n%s\n" % \
                         (expected_metrics, expected_dims, agent.get_status(), agent.get_container_logs())
                 elif len(expected_metrics) > 0:
                     assert wait_for(p(any_metric_found, backend, expected_metrics)), \
                         "timed out waiting for any metric in %s!\n\nAGENT STATUS:\n%s\n\nAGENT CONTAINER LOGS:\n%s\n" % \
                         (expected_metrics, agent.get_status(), agent.get_container_logs())
                 else:
-                    assert wait_for(p(any_dim_found, backend, expected_dims)), \
-                        "timed out waiting for any dimension in %s!\n\nAGENT STATUS:\n%s\n\nAGENT CONTAINER LOGS:\n%s\n" % \
+                    assert wait_for(p(any_dim_key_found, backend, expected_dims)), \
+                        "timed out waiting for any dimension key in %s!\n\nAGENT STATUS:\n%s\n\nAGENT CONTAINER LOGS:\n%s\n" % \
                         (expected_dims, agent.get_status(), agent.get_container_logs())
 
 
