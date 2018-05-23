@@ -6,22 +6,33 @@ import pytest
 
 @pytest.fixture(scope="module")
 def local_registry():
-    client = docker.from_env(version='auto')
+    client = get_docker_client()
+    cont = None
     try:
         client.containers.get("registry")
         print("\nRegistry container localhost:5000 already running")
     except:
-        print("\nStarting registry container localhost:5000 ...")
-        with run_container("registry:latest", print_logs=False, name='registry', ports={'5000/tcp': 5000}) as cont:
-            yield cont
+        print("\nStarting registry container localhost:5000")
+        cont = client.containers.run(
+            image='registry:latest',
+            name='registry',
+            detach=True,
+            ports={'5000/tcp': 5000})
+        assert wait_for(lambda: has_log_message(cont.logs().decode('utf-8'), message="listening on [::]:5000"), timeout_seconds=5), \
+            "timed out waiting for registry container to be ready!\n\n%s\n" % cont.logs().decode('utf-8')
+    try:
+        yield
+    finally:
+        if cont:
+            cont.remove(force=True)
 
 
 @pytest.fixture(scope="module")
 def agent_image(local_registry, request):
-    client = docker.from_env(version='auto')
+    client = get_docker_client()
     final_agent_image_name = request.config.getoption("--k8s-agent-name")
     final_agent_image_tag = request.config.getoption("--k8s-agent-tag")
-    agent_image_name = "localhost:5000" + "/" + final_agent_image_name.split("/")[-1]
+    agent_image_name = "localhost:5000/%s" % final_agent_image_name.split("/")[-1]
     agent_image_tag = final_agent_image_tag
     try:
         final_agent_image = client.images.get(final_agent_image_name + ":" + final_agent_image_tag)
@@ -41,7 +52,7 @@ def agent_image(local_registry, request):
 
 
 @pytest.fixture(scope="module")
-def minikube(agent_image, request):
+def minikube(request):
     k8s_version = request.param
     k8s_timeout = int(request.config.getoption("--k8s-timeout"))
     k8s_container = request.config.getoption("--k8s-container")
@@ -60,10 +71,6 @@ def minikube(agent_image, request):
         mk.connect(k8s_container, k8s_timeout)
     else:
         mk.deploy(k8s_version, k8s_timeout)
-    try:
-        mk.create_secret("signalfx-agent", "testing123")
-    except:
-        pass
     return mk
 
 
