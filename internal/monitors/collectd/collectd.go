@@ -149,33 +149,14 @@ func (cm *Manager) MonitorDidShutdown(monitorID types.MonitorID) {
 
 	delete(cm.genericJMXUsers, monitorID)
 
-	// This is a bit hacky but it is to solve the race condition where the
-	// monitor "shuts down" in the agent but is still running in collectd and
-	// generating datapoints.  If datapoints come in after the monitor's output
-	// is lost from activeMonitors, then those datapoints can't be associated
-	// with an Output interface and will be dropped, causing scary looking
-	// error messages. Blocking the monitor's Shutdown method until collectd is
-	// restarted is undesirable since it is called synchronously.  This defers
-	// the actual deletion of the Output interfaces until collectd has been
-	// restarted and is no longer sending datapoints for the deleted monitor.
-	go func() {
-		time.Sleep(5 * time.Second)
-
-		cm.configMutex.Lock()
-		defer cm.configMutex.Unlock()
-
-		delete(cm.activeMonitors, monitorID)
-
-		if len(cm.activeMonitors) == 0 && !utils.IsSignalChanClosed(cm.stop) {
-			close(cm.stop)
-			cm.deleteExistingConfig()
-			<-cm.terminated
-		}
-	}()
-
-	if len(cm.activeMonitors) > 1 {
-		cm.RequestRestart()
+	if len(cm.activeMonitors) == 1 && !utils.IsSignalChanClosed(cm.stop) {
+		close(cm.stop)
+		cm.deleteExistingConfig()
+		<-cm.terminated
+		return
 	}
+	delete(cm.activeMonitors, monitorID)
+	cm.RequestRestart()
 }
 
 // RequestRestart should be used to indicate that a configuration in
