@@ -5,6 +5,8 @@ package metadata
 //go:generate collectd-template-to-go metadata.tmpl
 
 import (
+	"errors"
+
 	"github.com/signalfx/signalfx-agent/internal/core/config"
 	"github.com/signalfx/signalfx-agent/internal/monitors"
 	"github.com/signalfx/signalfx-agent/internal/monitors/collectd"
@@ -56,8 +58,32 @@ type Config struct {
 	OmitProcessInfo bool `yaml:"omitProcessInfo"`
 	// Set this to a non-zero value to enable the DogStatsD listener as part of
 	// this monitor.  The listener will accept metrics on the DogStatsD format,
-	// and sends them as SignalFx datapoints to our backend.
+	// and sends them as SignalFx datapoints to our backend.  **Note: The listener
+	// emits directly to SignalFx and will not be subject to filters configured
+	// with the SignalFx Smart Agent.  Internal stats about the SignalFx Smart
+	// Agent will not reflect datapoints set through the DogStatsD listener**
 	DogStatsDPort uint `yaml:"dogStatsDPort"`
+	// This is only required when running the DogStatsD listener.  Set this to
+	// your SignalFx access token.
+	Token string `yaml:"token" neverLog:"true"`
+	// Optionally override the default ip that the DogStatsD listener listens
+	// on.  (**default**: "0.0.0.0")
+	DogStatsDIP string `yaml:"dogStatsDIP"`
+	// This is optional only used when running the DogStatsD listener.
+	// By default the DogStatsD listener will emit to SignalFx Ingest.
+	// (**default**: "https://ingest.signalfx.com")
+	IngestEndpoint string `yaml:"ingestEndpoint"`
+}
+
+// Validate will check the config for correctness.
+func (c *Config) Validate() error {
+	if c.DogStatsDPort > 0 && c.Token == "" {
+		return errors.New("You must configure 'token' with your SignalFx access token when running the DogStatsD listener")
+	}
+	if c.DogStatsDPort == 0 && (c.Token != "" || c.IngestEndpoint != "" || c.DogStatsDIP != "") {
+		return errors.New("Optional DogStatsD configurations have been set, but the DogStatsDPort is not configured")
+	}
+	return nil
 }
 
 // Monitor is the main type that represents the monitor
