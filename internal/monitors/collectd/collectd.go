@@ -153,6 +153,7 @@ func (cm *Manager) MonitorDidShutdown(monitorID types.MonitorID) {
 		close(cm.stop)
 		cm.deleteExistingConfig()
 		<-cm.terminated
+		delete(cm.activeMonitors, monitorID)
 		return
 	}
 	delete(cm.activeMonitors, monitorID)
