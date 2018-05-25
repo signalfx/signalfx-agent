@@ -152,21 +152,19 @@ class Minikube:
                     delete_deployment(name, namespace=namespace)
             self.yamls = []
 
-
     def pull_agent_image(self, name, tag="latest"):
         try:
             image_id = self.host_client.images.get("%s:%s" % (name, tag)).id
-        except:
+        except docker.errors.ImageNotFound:
             image_id = None
         assert image_id, "failed to get agent image \"%s:%s\"!" % (name, tag)
         if image_id:
             try:
                 self.client.images.get(image_id)
                 return
-            except:
+            except docker.errors.ImageNotFound:
                 pass
         print("\nPulling %s:%s to the minikube container ..." % (name, tag))
-        time.sleep(5)
         self.client.images.pull(name, tag=tag)
         _, output = self.container.exec_run('docker images')
         print_lines(output.decode('utf-8'))
@@ -177,7 +175,7 @@ class Minikube:
         try:
             self.agent.deploy(self.client, configmap_path, daemonset_path, serviceaccount_path, observer, monitors, cluster_name=cluster_name, backend=backend, image_name=image_name, image_tag=image_tag, namespace=namespace)
         except Exception as e:
-            print(str(e) + "\n\n%s\n\n" % get_all_logs(self))
+            print("\n\n%s\n\n" % get_all_logs(self))
             raise
         try:
             yield self.agent
