@@ -47,6 +47,18 @@ TIMEOUT=${TIMEOUT:-"300"}
 START_TIME=`date +%s`
 while [ 0 ]; do
     if [ $(expr `date +%s` - $START_TIME) -gt $TIMEOUT ]; then
+        if [ -f /var/lib/localkube/localkube.out ]; then
+            echo
+            echo "/var/lib/localkube/localkube.out:"
+            cat /var/lib/localkube/localkube.out
+            echo
+        fi
+        if [ -f /var/lib/localkube/localkube.err ]; then
+            echo
+            echo "/var/lib/localkube/localkube.err:"
+            cat /var/lib/localkube/localkube.err
+            echo
+        fi
         kubectl get pods --all-namespaces
         echo "Timed out after $TIMEOUT seconds waiting for the cluster to be ready!"
         exit 1
