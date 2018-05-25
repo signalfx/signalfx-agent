@@ -9,6 +9,7 @@ agent](https://github.com/signalfx/collectd), but still uses that internally --
 so any existing Python or C-based collectd plugins will still work without
 modification.
 
+ - [Quickstart](#quickstart)
  - [Concepts](#concepts)
  - [Installation](#installation)
  - [Configuration](#configuration)
@@ -16,6 +17,120 @@ modification.
  - [Proxy Support](#proxy-support)
  - [Diagnostics](#diagnostics)
  - [Development](#development)
+
+## Quickstart
+
+This tutorial assumes you are starting fresh and have no existing collectd agent running on your instance.
+
+#### Step 1: Download and install the agent
+
+```sh
+curl -sSL https://dl.signalfx.com/signalfx-agent.sh > /tmp/signalfx-agent.sh
+sudo sh /tmp/signalfx-agent.sh YOUR_SIGNALFX_API_TOKEN
+```
+
+Your SignalFx API Token can be obtained from the Organization->Access Token tab in [SignalFx](https://app.signalfx/com)
+
+More detailed installation steps to install via a config management tool or using a containerized agent can be found [here](#installation)
+
+#### Step 2: Configuration
+
+The default configuration file should be located at /etc/signalfx/agent.yaml
+
+Here is an example of the configuration file - 
+
+```
+---
+# *Required* The access token for the org that you wish to send metrics to.
+signalFxAccessToken: {"#from": "/etc/signalfx/token"}
+ingestUrl: {"#from": "/etc/signalfx/ingest_url", default: "https://ingest.signalfx.com"}
+
+intervalSeconds: 10
+
+logging:
+  # Valid values are 'debug', 'info', 'warning', and 'error'
+  level: info
+
+# observers are what discover running services in the environment
+observers:
+  - type: host
+
+monitors:
+  - {"#from": "/etc/signalfx/monitors/*.yaml", flatten: true, optional: true}
+  - type: collectd/cpu
+  - type: collectd/cpufreq
+  - type: collectd/df
+  - type: collectd/disk
+  - type: collectd/interface
+  - type: collectd/load
+  - type: collectd/memory
+  - type: collectd/protocols
+  - type: collectd/signalfx-metadata
+  - type: collectd/uptime
+  - type: collectd/vmem
+  
+metricsToExclude:
+```
+
+You can add more [monitors](./docs/monitor-config.md) and configure the monitors appropriately. 
+
+##### Example of adding a new monitor 
+
+To start collecting mysql metrics you'd add the [mysql monitor](./docs/monitors/collectd-mysql.md) to the agent.yaml file.
+Your monitor list would now look similar to: 
+
+```
+monitors:
+  - type: collectd/cpu
+  .
+  .
+  .
+  - type: collectd/mysql
+     host: 127.0.0.1
+     port: 3306
+     databases:
+       - name: dbname
+       - name: securedb
+         username: admin
+         password: s3cr3t
+     username: dbuser
+     password: passwd
+```
+
+##### Example of adding a new observer
+
+To start collecting docker container metrics the first step would be to add a [docker observer](./docs/observers/docker.md) and 
+the next step would be to add a [docker metrics monitor](./docs/monitors/docker-container-stats.md) to the agent.yaml file.
+
+Your observer list would now look similar to:
+
+```
+observers:
+  - type: host
+  - type: docker
+```
+
+And your type list would now include the [docker metrics monitor](./docs/monitors/docker-container-stats.md): 
+
+```
+monitors:
+  - type: collectd/cpu
+  - type: collectd/cpufreq
+  .
+  .
+  .
+  - type: docker-container-stats
+```  
+
+Any changes to the configuration file will automatically get picked up by the agent and will not require a restart.
+
+For troubleshooting, you can also check the status of the agent: 
+
+```
+sudo signalfx-agent status
+```
+
+#### Step 3: Login to [SignalFx](https://app.signalfx.com) and see your data!
 
 ## Concepts
 
