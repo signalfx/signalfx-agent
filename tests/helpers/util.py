@@ -1,17 +1,15 @@
 from contextlib import contextmanager
-import docker
-import inspect
 import io
 import os
-import queue
 import select
-import shutil
 import subprocess
-import string
 import tempfile
 import threading
 import time
+
+import docker
 import yaml
+
 from . import fake_backend
 
 AGENT_BIN = os.environ.get("AGENT_BIN", "/bundle/bin/signalfx-agent")
