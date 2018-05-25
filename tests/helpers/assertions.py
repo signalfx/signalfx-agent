@@ -8,6 +8,13 @@ def has_datapoint_with_metric_name(fake_services, metric_name):
             return True
     return False
 
+def has_datapoint_with_dim_key(fake_services, dim_key):
+    for dp in fake_services.datapoints:
+        for dim in dp.dimensions:
+            if dim.key == dim_key:
+                return True
+    return False
+
 # Tests if `dims`'s are all in a certain datapoint or event
 def has_all_dims(dp_or_event, dims):
     return dims.items() <= {d.key: d.value for d in dp_or_event.dimensions}.items()
@@ -53,3 +60,24 @@ def has_log_message(output, level="info", message=""):
 
 def udp_port_open_locally(port):
     return os.system("cat /proc/net/udp | grep %s" % (hex(port)[2:].upper(),)) == 0
+
+
+# check if any metric in `metrics` exist
+def any_metric_found(fake_services, metrics):
+    return any([has_datapoint_with_metric_name(fake_services, m) for m in metrics])
+
+
+# check if any dimension key in `dim_keys` exist
+def any_dim_key_found(fake_services, dim_keys):
+    return any([has_datapoint_with_dim_key(fake_services, k) for k in dim_keys])
+
+
+# check if any metric in `metrics` with any dimension key in `dim_keys` exist
+def any_metric_has_any_dim_key(fake_services, metrics, dim_keys):
+    for dp in fake_services.datapoints:
+        if dp.metric in metrics:
+            for dim in dp.dimensions:
+                if dim.key in dim_keys:
+                    print("Found metric \"%s\" with dimension key \"%s\"." % (dp.metric, dim.key))
+                    return True
+    return False

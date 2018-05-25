@@ -1,0 +1,10 @@
+disk_io_time.io_time
+disk_io_time.weighted_io_time
+disk_merged.read
+disk_merged.write
+disk_octets.read
+disk_octets.write
+disk_ops.read
+disk_ops.write
+disk_time.read
+disk_time.write

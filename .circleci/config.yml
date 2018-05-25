@@ -12,6 +12,37 @@ references:
     run: |
       docker load -i /tmp/workspace/image.tar
 
+  import_final_image: &import_final_image
+    run: |
+      docker load -i /tmp/workspace/final_image.tar
+
+  run_k8s_integration_tests: &run_k8s_integration_tests
+    run:
+      no_output_timeout: 30m
+      command: |
+        mkdir ~/testresults
+        docker run --rm --net host \
+            -v /var/run/docker.sock:/var/run/docker.sock \
+            -v /tmp/scratch:/tmp/scratch \
+            -v ~/testresults:/output \
+            --name signalfx-agent-dev \
+            signalfx-agent-dev \
+                pytest \
+                    -m "k8s" \
+                    --exitfirst \
+                    --verbose \
+                    --junitxml=/output/integration_tests.xml \
+                    --html=/output/k8s_integration_tests.html \
+                    --self-contained-html \
+                    --k8s-versions=$(eval "echo -n $K8S_VERSION") \
+                    --k8s-observers=k8s-api,k8s-kubelet \
+                    --k8s-monitors=kubelet-stats,kubernetes-cluster,kubernetes-volumes,collectd/nginx,collectd/rabbitmq \
+                    --k8s-timeout=300 \
+                    --k8s-test-timeout=120 \
+                    --k8s-agent-name=quay.io/signalfx/signalfx-agent-dev \
+                    --k8s-agent-tag=k8s-test \
+                    tests
+
 jobs:
   build:
     <<: *executor
@@ -49,7 +80,24 @@ jobs:
       - store_artifacts:
           path: ~/project/signalfx-agent.exe
           destination: /signalfx-agent.exe
-         
+
+  build_final_image:
+    <<: *executor
+    steps:
+     - checkout
+     - run: |
+         set -x
+         export PULL_CACHE=yes
+         export AGENT_VERSION=k8s-test
+         ./scripts/build
+     - run: |
+         mkdir -p /tmp/workspace
+         docker save -o /tmp/workspace/final_image.tar quay.io/signalfx/signalfx-agent-dev:k8s-test
+     - persist_to_workspace:
+         root: /tmp/workspace
+         paths:
+           - final_image.tar
+
   lint: 
     <<: *executor
     steps:
@@ -98,11 +146,65 @@ jobs:
       - *import_image
       - run: |
           mkdir ~/testresults
-
-          docker run --rm -v /var/run/docker.sock:/var/run/docker.sock -v ~/testresults:/output signalfx-agent-dev pytest -n8 --junitxml=/output/integration_tests.xml -m "not packaging and not installer" tests
-
+          docker run --rm -v /var/run/docker.sock:/var/run/docker.sock -v ~/testresults:/output signalfx-agent-dev pytest -n8 --junitxml=/output/integration_tests.xml -m "not packaging and not installer and not k8s" tests
       - store_test_results:
           path: ~/testresults
+
+  k8s_v1.10.0_integration_tests:
+    <<: *executor
+    environment:
+      K8S_VERSION: "v1.10.0"
+    steps:
+      - *attach_workspace
+      - *import_image
+      - *import_final_image
+      - *run_k8s_integration_tests
+      - store_test_results:
+          path: ~/testresults
+      - store_artifacts:
+          path: ~/testresults/k8s_integration_tests.html
+
+  k8s_v1.9.0_integration_tests:
+    <<: *executor
+    environment:
+      K8S_VERSION: "v1.9.0"
+    steps:
+      - *attach_workspace
+      - *import_image
+      - *import_final_image
+      - *run_k8s_integration_tests
+      - store_test_results:
+          path: ~/testresults
+      - store_artifacts:
+          path: ~/testresults/k8s_integration_tests.html
+
+  k8s_v1.8.0_integration_tests:
+    <<: *executor
+    environment:
+      K8S_VERSION: "v1.8.0"
+    steps:
+      - *attach_workspace
+      - *import_image
+      - *import_final_image
+      - *run_k8s_integration_tests
+      - store_test_results:
+          path: ~/testresults
+      - store_artifacts:
+          path: ~/testresults/k8s_integration_tests.html
+
+  k8s_v1.7.0_integration_tests:
+    <<: *executor
+    environment:
+      K8S_VERSION: "v1.7.0"
+    steps:
+      - *attach_workspace
+      - *import_image
+      - *import_final_image
+      - *run_k8s_integration_tests
+      - store_test_results:
+          path: ~/testresults
+      - store_artifacts:
+          path: ~/testresults/k8s_integration_tests.html
 
   rpm_package_tests:
     <<: *executor
@@ -263,6 +365,7 @@ workflows:
   build_test:
     jobs:
      - build
+     - build_final_image
      - build-windows
      - lint:
         requires:
@@ -276,6 +379,22 @@ workflows:
      - integration_tests:
         requires:
          - build
+#     - k8s_v1.10.0_integration_tests:
+#        requires:
+#         - build
+#         - build_final_image
+     - k8s_v1.9.0_integration_tests:
+        requires:
+         - build
+         - build_final_image
+     - k8s_v1.8.0_integration_tests:
+        requires:
+         - build
+         - build_final_image
+     - k8s_v1.7.0_integration_tests:
+        requires:
+         - build
+         - build_final_image
      - docs_test:
         requires:
          - build

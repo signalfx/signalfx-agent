@@ -1,0 +1,48 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cassandra-deployment
+  namespace: default
+  labels:
+    app: cassandra
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: cassandra
+  template:
+    metadata:
+      labels:
+        app: cassandra
+    spec:
+      containers:
+        - name: cassandra
+          image: cassandra:latest
+          ports:
+            - containerPort: 7199
+          env:
+            - name: LOCAL_JMX
+              value: "no"
+          volumeMounts:
+            - name: password
+              mountPath: /tmp/jmxremote.password
+              subPath: jmxremote.password
+            - name: access
+              mountPath: /tmp/jmxremote.access
+              subPath: jmxremote.access
+          command: ["/bin/sh"]
+          args: ["-c", "cp -f /tmp/jmxremote.* /etc/cassandra/; chmod 400 /etc/cassandra/jmxremote.*; docker-entrypoint.sh cassandra -f"]
+      volumes:
+        - name: password
+          configMap:
+            name: cassandra-configmap
+            items:
+              - key: jmxremote.password
+                path: jmxremote.password
+        - name: access
+          configMap:
+            name: cassandra-configmap
+            items:
+              - key: jmxremote.access
+                path: jmxremote.access

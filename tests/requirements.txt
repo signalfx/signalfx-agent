@@ -4,3 +4,7 @@ protobuf==3.5.1
 pytest==3.4.0
 pytest-xdist==1.22.0
 pyyaml
+netifaces
+kubernetes
+pytest-html
+semver

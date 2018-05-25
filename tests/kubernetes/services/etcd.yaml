@@ -1,0 +1,30 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: etcd-deployment
+  namespace: default
+  labels:
+    app: etcd
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: etcd
+  template:
+    metadata:
+      labels:
+        app: etcd
+    spec:
+      containers:
+        - name: etcd
+          image: quay.io/coreos/etcd:latest
+          ports:
+            - containerPort: 2379
+          env:
+            - name: POD_IP
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.podIP
+          command: ["/usr/local/bin/etcd"]
+          args: ["--advertise-client-urls", "http://$(POD_IP):2379", "--listen-client-urls", "http://$(POD_IP):2379"]

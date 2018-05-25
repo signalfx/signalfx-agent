@@ -16,7 +16,7 @@ from signalfx.generated_protocol_buffers \
 
 # Fake the /v2/datapoint endpoint and just stick all of the metrics in a
 # list
-def _make_fake_ingest(datapoints, events):
+def _make_fake_ingest(datapoints, events, ip="127.0.0.1"):
     class FakeIngest(BaseHTTPRequestHandler):
         def do_POST(self):
             print("INGEST POST: %s" % self.path)
@@ -51,11 +51,11 @@ def _make_fake_ingest(datapoints, events):
             self.end_headers()
             self.wfile.write("\"OK\"".encode("utf-8"))
 
-    return HTTPServer(('127.0.0.1', 0), FakeIngest)
+    return HTTPServer((ip, 0), FakeIngest)
 
 
 # Fake the dimension PUT method to capture dimension property/tag updates.
-def _make_fake_api(dims):
+def _make_fake_api(dims, ip="127.0.0.1"):
     class FakeAPIServer(BaseHTTPRequestHandler):
         def do_PUT(self):
             if '/dimension/' not in self.path:
@@ -63,29 +63,32 @@ def _make_fake_api(dims):
                 self.end_headers()
                 return
 
-            body = self.rfile.read(int(self.headers.getheader('Content-Length')))
+            body = self.rfile.read(int(self.headers.get('Content-Length')))
 
-            dims[key][value] = json.loads(body)
+            content = json.loads(body.decode('utf-8'))
+            key = content["key"]
+            value = content["value"]
+            dims[key][value] = content
 
             self.send_response(200)
             self.send_header("Content-Type", "text/ascii")
             self.send_header("Content-Length", "0")
             self.end_headers()
 
-    return HTTPServer(('127.0.0.1', 0), FakeAPIServer)
+    return HTTPServer((ip, 0), FakeAPIServer)
 
 # Starts up a new set of backend services that will run on a random port.  The
 # returned object will have properties on it for datapoints, events, and dims.
 # The fake servers will be stopped once the context manager block is exited.
 @contextmanager
-def start():
+def start(ip="127.0.0.1"):
     # Data structures are thread-safe due to the GIL
     _datapoints = []
     _events = []
     _dims = defaultdict(defaultdict)
 
-    ingest_httpd = _make_fake_ingest(_datapoints, _events)
-    api_httpd = _make_fake_api(_dims)
+    ingest_httpd = _make_fake_ingest(_datapoints, _events, ip=ip)
+    api_httpd = _make_fake_api(_dims, ip=ip)
 
     threading.Thread(target=ingest_httpd.serve_forever).start()
     threading.Thread(target=api_httpd.serve_forever).start()
