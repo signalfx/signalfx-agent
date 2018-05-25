@@ -1,5 +1,6 @@
 from functools import partial as p
 from kubernetes import client as kube_client
+from kubernetes.client.rest import ApiException
 from tests.helpers.assertions import *
 from tests.helpers.util import *
 import os
@@ -73,8 +74,11 @@ def has_secret(name, namespace="default"):
     try:
         api.read_namespaced_secret(name, namespace=namespace)
         return True
-    except:
-        return False
+    except ApiException as e:
+        if 'Reason: Not Found' in str(e):
+            return False
+        else:
+            raise
 
 
 def create_secret(name, key, value, namespace="default"):
@@ -91,8 +95,11 @@ def has_serviceaccount(name, namespace="default"):
     try:
         api.read_namespaced_service_account(name, namespace=namespace)
         return True
-    except:
-        return False
+    except ApiException as e:
+        if 'Reason: Not Found' in str(e):
+            return False
+        else:
+            raise
 
 
 def create_serviceaccount(body=None, namespace="default", timeout=K8S_API_TIMEOUT):
@@ -103,7 +110,7 @@ def create_serviceaccount(body=None, namespace="default", timeout=K8S_API_TIMEOU
         try:
             namespace = body["metadata"]["namespace"]
         except:
-            pass
+            body["metadata"]["namespace"] = namespace
     serviceaccount = api.create_namespaced_service_account(
         body=body,
         namespace=namespace)
@@ -116,8 +123,11 @@ def has_configmap(name, namespace="default"):
     try:
         api.read_namespaced_config_map(name, namespace=namespace)
         return True
-    except:
-        return False
+    except ApiException as e:
+        if 'Reason: Not Found' in str(e):
+            return False
+        else:
+            raise
 
 
 def create_configmap(body=None, name="", data={}, labels={}, namespace="default", timeout=K8S_API_TIMEOUT):
@@ -128,7 +138,7 @@ def create_configmap(body=None, name="", data={}, labels={}, namespace="default"
         try:
             namespace = body["metadata"]["namespace"]
         except:
-            pass
+            body["metadata"]["namespace"] = namespace
     else:
         body = kube_client.V1ConfigMap(
             api_version="v1",
@@ -149,7 +159,7 @@ def patch_configmap(body, namespace="default", timeout=K8S_API_TIMEOUT):
     try:
         namespace = body["metadata"]["namespace"]
     except:
-        pass
+        body["metadata"]["namespace"] = namespace
     configmap =  api.patch_namespaced_config_map(
         name=name,
         body=body,
@@ -174,8 +184,11 @@ def has_deployment(name, namespace="default"):
     try:
         api.read_namespaced_deployment(name, namespace=namespace)
         return True
-    except:
-        return False
+    except ApiException as e:
+        if 'Reason: Not Found' in str(e):
+            return False
+        else:
+            raise
 
 
 def create_deployment(body=None, name="", pod_template=None, replicas=1, labels={}, namespace="default", timeout=K8S_API_TIMEOUT):
@@ -186,7 +199,7 @@ def create_deployment(body=None, name="", pod_template=None, replicas=1, labels=
         try:
             namespace = body["metadata"]["namespace"]
         except:
-            pass
+            body["metadata"]["namespace"] = namespace
     else:
         spec = kube_client.ExtensionsV1beta1DeploymentSpec(
             replicas=replicas,
@@ -219,8 +232,11 @@ def has_daemonset(name, namespace="default"):
     try:
         api.read_namespaced_daemon_set(name, namespace=namespace)
         return True
-    except:
-        return False
+    except ApiException as e:
+        if 'Reason: Not Found' in str(e):
+            return False
+        else:
+            raise
 
 
 def create_daemonset(body=None, namespace="default", timeout=K8S_API_TIMEOUT):
@@ -231,7 +247,7 @@ def create_daemonset(body=None, namespace="default", timeout=K8S_API_TIMEOUT):
         try:
             namespace = body["metadata"]["namespace"]
         except:
-            pass
+            body["metadata"]["namespace"] = namespace
     daemonset = api.create_namespaced_daemon_set(
         body=body,
         namespace=namespace)
