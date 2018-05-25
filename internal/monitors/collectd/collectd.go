@@ -147,17 +147,31 @@ func (cm *Manager) MonitorDidShutdown(monitorID types.MonitorID) {
 	cm.configMutex.Lock()
 	defer cm.configMutex.Unlock()
 
-	delete(cm.genericJMXUsers, monitorID)
-
-	if len(cm.activeMonitors) == 1 && !utils.IsSignalChanClosed(cm.stop) {
-		close(cm.stop)
-		cm.deleteExistingConfig()
-		<-cm.terminated
-		delete(cm.activeMonitors, monitorID)
+	if _, ok := cm.activeMonitors[monitorID]; !ok {
+		// This can happen if a monitor shuts down more than once, which is not
+		// explicitly disallowed.
 		return
 	}
+
+	delete(cm.genericJMXUsers, monitorID)
+
+	if len(cm.activeMonitors) == 1 {
+		if !utils.IsSignalChanClosed(cm.stop) {
+			close(cm.stop)
+		}
+
+		cm.deleteExistingConfig()
+		<-cm.terminated
+	}
+
+	// Defer the deletion of the monitor output until collectd is fully
+	// shutdown, if it is going to shutdown due to only one active monitor
+	// remaining.
 	delete(cm.activeMonitors, monitorID)
-	cm.RequestRestart()
+
+	if len(cm.activeMonitors) > 0 {
+		cm.RequestRestart()
+	}
 }
 
 // RequestRestart should be used to indicate that a configuration in
@@ -475,9 +489,9 @@ func (cm *Manager) makeChildCommand() (*exec.Cmd, io.ReadCloser) {
 	cmd.Stdout = w
 	cmd.Stderr = w
 
-	// This is Linux-specific and will cause collectd to be killed by the OS if
-	// the agent dies
 	cmd.SysProcAttr = &syscall.SysProcAttr{
+		// This is Linux-specific and will cause collectd to be killed by the OS if
+		// the agent dies
 		Pdeathsig: syscall.SIGTERM,
 	}
 
