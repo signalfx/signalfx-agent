@@ -1,0 +1,32 @@
+# *Required* The access token for the org that you wish to send metrics to.
+signalFxAccessToken: {"#from": "/etc/signalfx/token"}
+ingestUrl: {"#from": "/etc/signalfx/ingest_url", default: "https://ingest.signalfx.com"}
+
+intervalSeconds: 15
+
+logging:
+  # Valid values are 'debug', 'info', 'warning', and 'error'
+  level: info
+
+# observers are what discover running services in the environment
+observers:
+  - type: docker
+
+monitors:
+  - {"#from": "/etc/signalfx/monitors/*.yaml", flatten: true, optional: true}
+  - type: collectd/cpu
+  - type: collectd/cpufreq
+  - type: collectd/df
+    hostFSPath: /hostfs
+  - type: collectd/disk
+  - type: collectd/interface
+  - type: collectd/load
+  - type: collectd/memory
+  - type: collectd/protocols
+  - type: collectd/signalfx-metadata
+    etcPath: /hostfs/etc
+  - type: collectd/uptime
+  - type: collectd/vmem
+  - type: docker-container-stats
+
+metricsToExclude:
