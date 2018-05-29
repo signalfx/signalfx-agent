@@ -3,7 +3,7 @@ import os
 import string
 
 from tests.helpers import fake_backend
-from tests.helpers.util import wait_for, run_agent, run_service
+from tests.helpers.util import wait_for, run_agent, run_service, container_ip
 from tests.helpers.assertions import *
 
 cassandra_config = string.Template("""
@@ -17,7 +17,7 @@ monitors:
 
 def test_cassandra():
     with run_service("cassandra") as cassandra_cont:
-        config = cassandra_config.substitute(host=cassandra_cont.attrs["NetworkSettings"]["IPAddress"])
+        config = cassandra_config.substitute(host=container_ip(cassandra_cont))
 
         # Wait for the JMX port to be open in the container
         assert wait_for(p(container_cmd_exit_0, cassandra_cont,

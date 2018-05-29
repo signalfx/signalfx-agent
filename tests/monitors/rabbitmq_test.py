@@ -3,7 +3,7 @@ import os
 import string
 
 from tests.helpers import fake_backend
-from tests.helpers.util import wait_for, run_agent, run_container
+from tests.helpers.util import wait_for, run_agent, run_container, container_ip
 from tests.helpers.assertions import *
 
 rabbitmq_config = string.Template("""
@@ -19,7 +19,7 @@ monitors:
 
 def test_rabbitmq():
     with run_container("rabbitmq:3.6-management") as rabbitmq_cont:
-        host = rabbitmq_cont.attrs["NetworkSettings"]["IPAddress"]
+        host = container_ip(rabbitmq_cont)
         config = rabbitmq_config.substitute(host=host)
         assert wait_for(p(tcp_socket_open, host, 15672), 60), "service didn't start"
 
@@ -30,7 +30,7 @@ def test_rabbitmq():
 
 def test_rabbitmq_broker_name():
     with run_container("rabbitmq:3.6-management") as rabbitmq_cont:
-        host = rabbitmq_cont.attrs["NetworkSettings"]["IPAddress"]
+        host = container_ip(rabbitmq_cont)
         config = rabbitmq_config.substitute(host=host)
         assert wait_for(p(tcp_socket_open, host, 15672), 60), "service didn't start"
 

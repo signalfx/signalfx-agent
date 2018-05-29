@@ -3,7 +3,7 @@ import os
 import string
 
 from tests.helpers import fake_backend
-from tests.helpers.util import wait_for, run_agent, run_service
+from tests.helpers.util import wait_for, run_agent, run_service, container_ip
 from tests.helpers.assertions import *
 
 nginx_config = string.Template("""
@@ -15,7 +15,7 @@ monitors:
 
 def test_nginx():
     with run_service("nginx") as nginx_container:
-        host = nginx_container.attrs["NetworkSettings"]["IPAddress"]
+        host = container_ip(nginx_container)
         config = nginx_config.substitute(host=host)
         assert wait_for(p(tcp_socket_open, host, 80), 60), "service didn't start"
 
