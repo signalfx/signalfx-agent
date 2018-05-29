@@ -89,4 +89,8 @@ def tcp_socket_open(host, port):
     Returns True if there is an open TCP socket at the given host/port
     """
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    return sock.connect_ex((host, port)) == 0
+    sock.settimeout(1)
+    try:
+        return sock.connect_ex((host, port)) == 0
+    except socket.timeout:
+        return False
