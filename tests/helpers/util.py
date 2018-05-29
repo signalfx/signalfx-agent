@@ -86,8 +86,13 @@ def run_agent(config_text):
             try:
                 yield [fake_services, get_output, lambda c: setup_config(c, config_path, fake_services)]
             finally:
+                exc = None
+
                 proc.terminate()
-                proc.wait(10)
+                try:
+                    proc.wait(15)
+                except subprocess.TimeoutExpired as e:
+                    exc = e
 
                 print("Agent output:")
                 print_lines(get_output())
@@ -95,6 +100,9 @@ def run_agent(config_text):
                 print(fake_services.datapoints)
                 print("Events received:")
                 print(fake_services.events)
+
+                if exc is not None:
+                    raise exc
 
 
 def setup_config(config_text, path, fake_services):
