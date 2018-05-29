@@ -1,5 +1,6 @@
 import os
 import re
+import socket
 
 
 def has_datapoint_with_metric_name(fake_services, metric_name):
@@ -81,3 +82,11 @@ def any_metric_has_any_dim_key(fake_services, metrics, dim_keys):
                     print("Found metric \"%s\" with dimension key \"%s\"." % (dp.metric, dim.key))
                     return True
     return False
+
+
+def tcp_socket_open(host, port):
+    """
+    Returns True if there is an open TCP socket at the given host/port
+    """
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    return sock.connect_ex((host, port)) == 0

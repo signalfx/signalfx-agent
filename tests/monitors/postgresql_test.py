@@ -3,7 +3,7 @@ import os
 import string
 
 from tests.helpers import fake_backend
-from tests.helpers.util import wait_for, run_agent, run_container
+from tests.helpers.util import wait_for, run_agent, run_container, container_ip
 from tests.helpers.assertions import *
 
 config_temp = string.Template("""
@@ -41,7 +41,9 @@ env = [
 
 def test_postgresql():
     with run_container("postgres:10", environment=env) as cont:
-        config = config_temp.substitute(host=cont.attrs["NetworkSettings"]["IPAddress"])
+        host = container_ip(cont)
+        config = config_temp.substitute(host=host)
+        assert wait_for(p(tcp_socket_open, host, 5432), 60), "service didn't start"
 
         with run_agent(config) as [backend, _, _]:
             assert wait_for(p(has_datapoint_with_dim, backend, "plugin", "postgresql")), "Didn't get postgresql datapoints"

@@ -3,7 +3,7 @@ import os
 import string
 
 from tests.helpers import fake_backend
-from tests.helpers.util import wait_for, run_agent, run_container
+from tests.helpers.util import wait_for, run_agent, run_container, container_ip
 from tests.helpers.assertions import *
 
 mongo_config = string.Template("""
@@ -16,7 +16,9 @@ monitors:
 
 def test_mongo():
     with run_container("mongo:3.6") as mongo_cont:
-        config = mongo_config.substitute(host=mongo_cont.attrs["NetworkSettings"]["IPAddress"])
+        host = container_ip(mongo_cont)
+        config = mongo_config.substitute(host=host)
+        assert wait_for(p(tcp_socket_open, host, 27017), 60), "service didn't start"
 
         with run_agent(config) as [backend, _, _]:
             assert wait_for(p(has_datapoint_with_dim, backend, "plugin", "mongo")), "Didn't get mongo datapoints"
