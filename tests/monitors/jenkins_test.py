@@ -17,10 +17,10 @@ monitors:
 @pytest.mark.parametrize("version", [
     # technically we support 1.580.3, but the scripts needed to programmatically
     # setup jenkins do not work prior to 1.651.3
-    pytest.param("1.651.3-alpine"),
+    "1.651.3-alpine",
     # TODO: jenkins doesn't have a latest tag so we'll need to update this
     # periodically
-    pytest.param("2.60.3-alpine")
+    "2.60.3-alpine"
 ])
 def test_jenkins(version):
     with run_service("jenkins", buildargs={"JENKINS_VERSION": version, "JENKINS_PORT": "8080"}) as jenkins_container:
