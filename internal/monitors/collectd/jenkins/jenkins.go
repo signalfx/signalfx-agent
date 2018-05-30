@@ -91,12 +91,6 @@ type Monitor struct {
 	collectd.MonitorCore
 }
 
-// Validate will check the config for correctness.
-func (c *Config) Validate() error {
-
-	return nil
-}
-
 // Configure configures and runs the plugin in collectd
 func (am *Monitor) Configure(conf *Config) error {
 	return am.SetConfigurationAndRun(conf)
