@@ -23,6 +23,7 @@ import (
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/collectd/genericjmx"
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/collectd/haproxy"
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/collectd/healthchecker"
+	_ "github.com/signalfx/signalfx-agent/internal/monitors/collectd/jenkins"
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/collectd/kafka"
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/collectd/load"
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/collectd/marathon"

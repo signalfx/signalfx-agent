@@ -196,7 +196,9 @@ RUN /opt/collect-libs /opt/deps /usr/sbin/collectd /usr/lib/collectd/
 FROM ubuntu:16.04 as python-plugins
 
 RUN apt update &&\
-    apt install -y git python-pip wget curl
+    apt install -y git python-pip wget curl &&\
+    pip install --upgrade 'pip==10.0.1'
+
 RUN pip install yq &&\
     wget -O /usr/bin/jq https://github.com/stedolan/jq/releases/download/jq-1.5/jq-linux64 &&\
     chmod +x /usr/bin/jq

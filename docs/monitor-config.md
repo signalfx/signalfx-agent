@@ -25,6 +25,7 @@ along with their possible configuration options:
 - [collectd/haproxy](./monitors/collectd-haproxy.md)
 - [collectd/health-checker](./monitors/collectd-health-checker.md)
 - [collectd/interface](./monitors/collectd-interface.md)
+- [collectd/jenkins](./monitors/collectd-jenkins.md)
 - [collectd/kafka](./monitors/collectd-kafka.md)
 - [collectd/load](./monitors/collectd-load.md)
 - [collectd/marathon](./monitors/collectd-marathon.md)

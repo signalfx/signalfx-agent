@@ -29,6 +29,10 @@
   version: multi-instance  #v1.0.0
   repo: signalfx/collectd-health_checker
 
+- name: jenkins
+  version: v1.0.4
+  repo: signalfx/collectd-jenkins
+
 - name: mesos
   version: v1.1.1
   repo: signalfx/collectd-mesos
