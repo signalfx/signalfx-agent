@@ -30,6 +30,7 @@ const monitorType = "collectd/jenkins"
 // Sample YAML configuration with specific enhanced metrics included
 //
 // ```yaml
+// monitors:
 // - type: collectd/jenkins
 //   host: 127.0.0.1
 //   port: 8080
