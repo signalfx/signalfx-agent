@@ -21,7 +21,7 @@ def test_marathon(image):
     with run_container("zookeeper:3.5") as zookeeper:
         zkhost = container_ip(zookeeper)
         assert wait_for(p(tcp_socket_open, zkhost, 2181), 60), "zookeeper didn't start"
-        with run_container(image, ports={'8080/tcp': 8080},
+        with run_container(image,
                            command=["--master", "localhost:5050", "--zk", "zk://{0}:2181/marathon".format(zkhost)]
                            ) as service_container:
             host = container_ip(service_container)
