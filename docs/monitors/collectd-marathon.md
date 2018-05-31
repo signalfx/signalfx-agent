@@ -9,6 +9,27 @@ See the [integrations
 doc](https://github.com/signalfx/integrations/tree/master/collectd-marathon)
 for more information on configuration.
 
+Sample YAML configuration:
+
+```yaml
+monitors:
+  - type: collectd/marathon
+    host: 127.0.0.1
+    port: 8080
+    scheme: http
+```
+
+Sample YAML configuration for DC/OS:
+
+```yaml
+monitors:
+  - type: collectd/marathon
+    host: 127.0.0.1
+    port: 8080
+    scheme: https
+    dcosAuthURL: https://leader.mesos/acs/api/v1/auth/login
+```
+
 
 Monitor Type: `collectd/marathon`
 
@@ -24,8 +45,10 @@ Monitor Type: `collectd/marathon`
 | --- | --- | --- | --- |
 | `host` | **yes** | `string` |  |
 | `port` | **yes** | `integer` |  |
-| `username` | no | `string` |  |
-| `password` | no | `string` |  |
+| `username` | no | `string` | Username used to authenticate with Marathon. |
+| `password` | no | `string` | Password used to authenticate with Marathon. |
+| `scheme` | no | `string` | Set to either `http` or `https`. (**default:** `http`) |
+| `dcosAuthURL` | no | `string` | The dcos authentication URL which the plugin uses to get authentication tokens from. Set scheme to "https" if operating DC/OS in strict mode and dcosAuthURL to "https://leader.mesos/acs/api/v1/auth/login" (which is the default DNS entry provided by DC/OS) |
 
 
 
