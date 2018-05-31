@@ -119,9 +119,9 @@ RUN sed -i -e '/^deb-src/d' /etc/apt/sources.list &&\
       python-virtualenv \
       quilt
 
-COPY mysql-apt-config_0.8.10-1_all.deb /tmp/mysql-apt-config_0.8.10-1_all.deb
-RUN dpkg -i /tmp/mysql-apt-config_0.8.10-1_all.deb
-RUN apt-get update && apt-get install -y libmysqlclient-dev
+RUN wget https://dev.mysql.com/get/mysql-apt-config_0.8.10-1_all.deb && \
+    dpkg -i mysql-apt-config_0.8.10-1_all.deb && \
+    apt-get update && apt-get install -y libmysqlclient-dev
 
 RUN apt install -y libcurl4-gnutls-dev
 
