@@ -8,7 +8,7 @@
   repo: signalfx/collectd-couchbase
 
 - name: docker
-  version: v2.0.3
+  version: v2.0.5
   repo: signalfx/docker-collectd-plugin
 
 - name: elasticsearch
@@ -38,7 +38,7 @@
   repo: signalfx/collectd-mesos
 
 - name: marathon
-  version: v1.0.1
+  version: v1.0.3
   repo: signalfx/collectd-marathon
 
 - name: mongodb
@@ -52,13 +52,13 @@
   repo: signalfx/collectd-openstack
 
 - name: rabbitmq
-  version: v1.0.1
+  version: v1.0.2
   repo: signalfx/collectd-rabbitmq
   can_remove:
     - integration-test
 
 - name: redis
-  version: v1.0.0
+  version: v1.1.1
   repo: signalfx/redis-collectd-plugin
   can_remove:
     - screenshots
@@ -69,7 +69,7 @@
   repo: signalfx/signalfx-collectd-plugin
 
 - name: spark
-  version: v1.0.0
+  version: v1.0.1
   repo: signalfx/collectd-spark
 
 
