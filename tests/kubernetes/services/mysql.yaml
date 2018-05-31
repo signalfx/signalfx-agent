@@ -17,7 +17,16 @@ spec:
         app: mysql
     spec:
       containers:
-        - name: mysql
+        - name: mysql-5.7
+          image: mysql:5.7
+          ports:
+            - containerPort: 3306
+          env:
+            - name: MYSQL_ROOT_PASSWORD
+              value: testing123
+            - name: MYSQL_DATABASE
+              value: testdb
+        - name: mysql-latest
           image: mysql:latest
           ports:
             - containerPort: 3306
