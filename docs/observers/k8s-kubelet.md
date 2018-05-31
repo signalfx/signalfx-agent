@@ -28,7 +28,7 @@ The **nested** `kubeletAPI` config object has the following fields:
 | --- | --- | --- | --- |
 | `url` | no | `string` | URL of the Kubelet instance.  This will default to `https://<current node hostname>:10250` if not provided. |
 | `authType` | no | `string` | Can be `none` for no auth, `tls` for TLS client cert auth, or `serviceAccount` to use the pod's default service account token to authenticate. (**default:** `none`) |
-| `skipVerify` | no | `bool` | Whether to skip verification of the Kubelet's TLS cert (**default:** `false`) |
+| `skipVerify` | no | `bool` | Whether to skip verification of the Kubelet's TLS cert (**default:** `true`) |
 | `caCertPath` | no | `string` | Path to the CA cert that has signed the Kubelet's TLS cert, unnecessary if `skipVerify` is set to false. |
 | `clientCertPath` | no | `string` | Path to the client TLS cert to use if `authType` is set to `tls` |
 | `clientKeyPath` | no | `string` | Path to the client TLS key to use if `authType` is set to `tls` |

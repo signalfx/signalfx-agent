@@ -69,7 +69,8 @@
 [[projects]]
   name = "github.com/creasty/defaults"
   packages = ["."]
-  revision = "046b42c5f1223416864bdd984edb30d270cfce8a"
+  revision = "70562fe606572ce5d1a2abb2039bcbdc18709c01"
+  source = "github.com/signalfx/defaults"
 
 [[projects]]
   name = "github.com/davecgh/go-spew"
@@ -853,6 +854,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "c3cb1c1da9f3c81db9ac47460f9b73624343bcb9b0e7eda9b8b898c919cd6fdb"
+  inputs-digest = "16f5c191f09a19b5414ffb3833ce371ce110f5bf83a1c22208905a3f8e806349"
   solver-name = "gps-cdcl"
   solver-version = 1

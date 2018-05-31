@@ -39,7 +39,7 @@ type APIConfig struct {
 	// authenticate.
 	AuthType AuthType `yaml:"authType" default:"none"`
 	// Whether to skip verification of the Kubelet's TLS cert
-	SkipVerify bool `yaml:"skipVerify" default:"false"`
+	SkipVerify *bool `yaml:"skipVerify" default:"true"`
 	// Path to the CA cert that has signed the Kubelet's TLS cert, unnecessary
 	// if `skipVerify` is set to false.
 	CACertPath string `yaml:"caCertPath"`
@@ -77,8 +77,9 @@ func NewClient(kubeletAPI *APIConfig) (*Client, error) {
 		kubeletAPI.URL = fmt.Sprintf("https://%s:10250", hostname)
 	}
 
-	tlsConfig := &tls.Config{
-		InsecureSkipVerify: kubeletAPI.SkipVerify,
+	tlsConfig := &tls.Config{}
+	if kubeletAPI.SkipVerify != nil {
+		tlsConfig.InsecureSkipVerify = *kubeletAPI.SkipVerify
 	}
 
 	var transport http.RoundTripper = &(*http.DefaultTransport.(*http.Transport))

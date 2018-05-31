@@ -33,7 +33,8 @@
 
 [[constraint]]
   name = "github.com/creasty/defaults"
-  revision = "046b42c5f1223416864bdd984edb30d270cfce8a"
+  revision = "70562fe606572ce5d1a2abb2039bcbdc18709c01"
+  source = "github.com/signalfx/defaults"
 
 [[constraint]]
   name = "github.com/davecgh/go-spew"
