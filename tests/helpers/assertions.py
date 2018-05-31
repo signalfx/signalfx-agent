@@ -1,6 +1,7 @@
 import os
 import re
 import socket
+import urllib.request
 
 
 def has_datapoint_with_metric_name(fake_services, metric_name):
@@ -9,6 +10,7 @@ def has_datapoint_with_metric_name(fake_services, metric_name):
             return True
     return False
 
+
 def has_datapoint_with_dim_key(fake_services, dim_key):
     for dp in fake_services.datapoints:
         for dim in dp.dimensions:
@@ -16,10 +18,11 @@ def has_datapoint_with_dim_key(fake_services, dim_key):
                 return True
     return False
 
+
 # Tests if `dims`'s are all in a certain datapoint or event
 def has_all_dims(dp_or_event, dims):
     return dims.items() <= {d.key: d.value for d in dp_or_event.dimensions}.items()
-        
+
 
 # Tests if any datapoints has all of the given dimensions
 def has_datapoint_with_all_dims(fake_services, dims):
@@ -28,9 +31,11 @@ def has_datapoint_with_all_dims(fake_services, dims):
             return True
     return False
 
+
 # Tests if any datapoint received has the given dim key/value on it.
 def has_datapoint_with_dim(fake_services, key, value):
     return has_datapoint_with_all_dims(fake_services, {key: value})
+
 
 # Tests if any event received has the given dim key/value on it.
 def has_event_with_dim(fake_services, key, value):
@@ -38,6 +43,7 @@ def has_event_with_dim(fake_services, key, value):
         if has_all_dims(ev, {key: value}):
             return True
     return False
+
 
 # Tests if a command run against a container returns with an exit code of 0
 def container_cmd_exit_0(container, command):
@@ -58,6 +64,7 @@ def has_log_message(output, level="info", message=""):
         if level == m.group(0) and message in l:
             return True
     return False
+
 
 def udp_port_open_locally(port):
     return os.system("cat /proc/net/udp | grep %s" % (hex(port)[2:].upper(),)) == 0
@@ -93,4 +100,18 @@ def tcp_socket_open(host, port):
     try:
         return sock.connect_ex((host, port)) == 0
     except socket.timeout:
+        return False
+
+
+def http_status(status, *args, timeout=1, **kwargs):
+    """
+    Wrapper around urllib.request.urlopen() that returns True if
+    the request returns the specified HTTP status code
+    """
+    try:
+        return urllib.request.urlopen(*args, timeout=timeout, **kwargs).getcode() == status
+    except urllib.error.HTTPError as err:
+        # urllib raises exceptions for some http error statuses
+        return err.code == status
+    except (urllib.error.URLError, socket.timeout):
         return False
