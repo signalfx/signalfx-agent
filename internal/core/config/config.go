@@ -47,7 +47,7 @@ type Config struct {
 	DisableHostDimensions bool `yaml:"disableHostDimensions" default:"false"`
 	// How often to send metrics to SignalFx.  Monitors can override this
 	// individually.
-	IntervalSeconds int `yaml:"intervalSeconds" default:"15"`
+	IntervalSeconds int `yaml:"intervalSeconds" default:"10"`
 	// Dimensions that will be added to every datapoint emitted by the agent
 	GlobalDimensions map[string]string `yaml:"globalDimensions" default:"{}"`
 	// Whether to send the machine-id dimension on all host-specific datapoints
