@@ -11,6 +11,9 @@ LoadPlugin "python"
     Auth "{{.}}"
     {{end}}
     Verbose false
+    {{range $l := .SendListLengths -}}
+    SendListLength {{$l.DBIndex}} "{{$l.KeyPattern}}"
+    {{end}}
     # Catch Redis metrics (prefix with Redis_)
     Redis_uptime_in_seconds "gauge"
     Redis_used_cpu_sys "counter"

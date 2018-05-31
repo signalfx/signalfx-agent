@@ -54,5 +54,5 @@ curl --silent "http://${HOSTNAME}:8091/settings/web" \
 -d username=${USERNAME} \
 -d password=${PASSWORD} > /dev/null
 
-# Attach to couchbase entrypoint
-fg 1
+echo "# Sleeping infinitely while background process runs"
+sleep infinity
