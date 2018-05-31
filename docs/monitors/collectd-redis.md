@@ -9,6 +9,27 @@ See the [integrations
 doc](https://github.com/signalfx/integrations/tree/master/collectd-redis)
 for more information.
 
+Sample YAML configuration:
+
+```yaml
+monitors:
+- type: collectd/redis
+  host: 127.0.0.1
+  port: 9100
+```
+
+Sample YAML configuration with list lengths:
+
+```yaml
+monitors:
+- type: collectd/redis
+  host: 127.0.0.1
+  port: 9100
+  sendListLengths:
+  - databaseIndex: 0
+    keyPattern: 'mylist*'
+```
+
 
 Monitor Type: `collectd/redis`
 
@@ -24,8 +45,17 @@ Monitor Type: `collectd/redis`
 | --- | --- | --- | --- |
 | `host` | **yes** | `string` |  |
 | `port` | **yes** | `integer` |  |
-| `name` | no | `string` |  |
-| `auth` | no | `string` |  |
+| `name` | no | `string` | The name for the node is a canonical identifier which is used as plugin instance. It is limited to 64 characters in length.  (**default**: "{host}:{port}") |
+| `auth` | no | `string` | Password to use for authentication. |
+| `sendListLengths` | no | `list of object (see below)` | Specify a pattern of keys to lists for which to send their length as a metric. See below for more details. |
+
+
+The **nested** `sendListLengths` config object has the following fields:
+
+| Config option | Required | Type | Description |
+| --- | --- | --- | --- |
+| `databaseIndex` | **yes** | `integer` | The database index. |
+| `keyPattern` | **yes** | `string` | Can be a globbed pattern (only * is supported), in which case all keys matching that glob will be processed.  The pattern should be placed in single quotes (').  Ex. `'mylist*'` |
 
 
 
