@@ -124,7 +124,7 @@ jobs:
           make lint
 
   vet: 
-    <<: *executor
+    <<: *goexecutor
     steps:
       - checkout
       - <<: *goexecutor_setup
@@ -132,7 +132,7 @@ jobs:
           make vet
 
   gotests: 
-    <<: *executor
+    <<: *goexecutor
     steps:
       - checkout
       - <<: *goexecutor_setup
@@ -143,7 +143,7 @@ jobs:
           path: ~/testresults
 
   docs_test: 
-    <<: *executor
+    <<: *goexecutor
     steps:
       - checkout
       - <<: *goexecutor_setup
@@ -402,9 +402,9 @@ workflows:
         requires:
          - build
          - build_final_image
-    #  - docs_test:
-    #     requires:
-    #      - build
+     - docs_test:
+        requires:
+         - build
      - rpm_package_tests
      - deb_package_tests
      - chef_tests
