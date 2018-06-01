@@ -393,7 +393,6 @@ workflows:
      - build
      - build_final_image
      - build-windows
-     - vendor
      - lint
      - vet
      - gotests
