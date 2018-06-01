@@ -98,29 +98,6 @@ jobs:
          paths:
            - final_image.tar
 
-  vendor:
-    <<: *executor
-    steps:
-      - checkout
-      - run: |
-          mkdir -p /tmp/workspace
-          docker run --rm \
-          -e CGO_ENABLED=0 \
-          -v /tmp/workspace/go:/go \
-          -v ~/testresults:/root/testresults \
-          -v $(pwd):/go/src/github.com/signalfx/signalfx-agent \
-          -w /go/src/github.com/signalfx/signalfx-agent \
-          golang:1.10-alpine \
-          /bin/sh -c "apk add --no-cache curl make git bash; \
-          go get github.com/tebeka/go2xunit; \
-          go get -u golang.org/x/lint/golint; \
-          curl https://raw.githubusercontent.com/golang/dep/master/install.sh | /bin/sh; \
-          make vendor;"
-      - persist_to_workspace:
-         root: /tmp/workspace
-         paths:
-           - go
-
   lint: 
     <<: *executor
     steps:
@@ -417,15 +394,9 @@ workflows:
      - build_final_image
      - build-windows
      - vendor
-     - lint:
-        requires:
-         - vendor
-     - vet:
-        requires:
-         - vendor
-     - gotests:
-        requires:
-         - vendor
+     - lint
+     - vet
+     - gotests
      - integration_tests:
         requires:
          - build
