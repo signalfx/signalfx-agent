@@ -39,7 +39,7 @@ type APIConfig struct {
 	// authenticate.
 	AuthType AuthType `yaml:"authType" default:"none"`
 	// Whether to skip verification of the Kubelet's TLS cert
-	SkipVerify bool `yaml:"skipVerify" default:"false"`
+	SkipVerify *bool `yaml:"skipVerify" default:"true"`
 	// Path to the CA cert that has signed the Kubelet's TLS cert, unnecessary
 	// if `skipVerify` is set to false.
 	CACertPath string `yaml:"caCertPath"`
@@ -66,7 +66,7 @@ func NewClient(kubeletAPI *APIConfig) (*Client, error) {
 		var err error
 		certs, err = x509.SystemCertPool()
 		if err != nil {
-			return nil, errors.Wrapf(err, "Could not load system x509 cert pool")
+			return nil, errors.WithMessage(err, "Could not load system x509 cert pool")
 		}
 	}
 	if kubeletAPI.URL == "" {
@@ -77,8 +77,9 @@ func NewClient(kubeletAPI *APIConfig) (*Client, error) {
 		kubeletAPI.URL = fmt.Sprintf("https://%s:10250", hostname)
 	}
 
-	tlsConfig := &tls.Config{
-		InsecureSkipVerify: kubeletAPI.SkipVerify,
+	tlsConfig := &tls.Config{}
+	if kubeletAPI.SkipVerify != nil {
+		tlsConfig.InsecureSkipVerify = *kubeletAPI.SkipVerify
 	}
 
 	var transport http.RoundTripper = &(*http.DefaultTransport.(*http.Transport))
@@ -96,8 +97,9 @@ func NewClient(kubeletAPI *APIConfig) (*Client, error) {
 		if clientCertPath != "" && clientKeyPath != "" {
 			cert, err := tls.LoadX509KeyPair(clientCertPath, clientKeyPath)
 			if err != nil {
-				return nil, errors.Wrapf(err, "Kubelet client cert/key could not be loaded from %s/%s",
-					clientKeyPath, clientCertPath)
+				return nil, errors.WithMessage(err,
+					fmt.Sprintf("Kubelet client cert/key could not be loaded from %s/%s",
+						clientKeyPath, clientCertPath))
 			}
 			clientCerts = append(clientCerts, cert)
 			log.Infof("Configured TLS client cert in %s with key %s", clientCertPath, clientKeyPath)
@@ -117,7 +119,7 @@ func NewClient(kubeletAPI *APIConfig) (*Client, error) {
 
 		rootCAFile := "/var/run/secrets/kubernetes.io/serviceaccount/ca.crt"
 		if err := augmentCertPoolFromCAFile(certs, rootCAFile); err != nil {
-			return nil, errors.Wrapf(err, "Could not load root CA config from %s", rootCAFile)
+			return nil, errors.WithMessage(err, fmt.Sprintf("Could not load root CA config from %s", rootCAFile))
 		}
 
 		tlsConfig.RootCAs = certs
