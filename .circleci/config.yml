@@ -9,7 +9,7 @@ references:
           CGO_ENABLED: 0
           AGENT_BIN: /go/src/github.com/signalfx/signalfx-agent/signalfx-agent
 
-  goexecutor_setup:
+  goexecutor_setup: &goexecutor_setup
     run: |
       /bin/sh -c "apk add --no-cache curl make git bash
       go get github.com/tebeka/go2xunit
@@ -120,7 +120,7 @@ jobs:
     steps:
       - checkout
       # minor change
-      - *goexecutor_setup
+      - <<: *goexecutor_setup
       - run: |
           make lint"
 
