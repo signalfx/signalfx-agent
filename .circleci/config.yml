@@ -101,27 +101,50 @@ jobs:
   lint: 
     <<: *executor
     steps:
-      - *attach_workspace
-      - *import_image
-      - run: docker run --rm signalfx-agent-dev make lint
+      - checkout
+      - run: |
+          docker run --rm \
+          -v $(pwd):/go/src/github.com/signalfx/signalfx-agent \
+          -w /go/src/github.com/signalfx/signalfx-agent \
+          golang:1.10-alpine \
+          /bin/sh -c "apk add --no-cache curl make git bash; \
+          go get -u golang.org/x/lint/golint; \
+          curl https://raw.githubusercontent.com/golang/dep/master/install.sh | /bin/bash; \
+          make vendor; \
+          make lint"
 
   vet: 
     <<: *executor
     steps:
-      - *attach_workspace
-      - *import_image
-      - run: docker run --rm signalfx-agent-dev make vet
+      - checkout
+      - run: |
+          docker run --rm \
+          -v $(pwd):/go/src/github.com/signalfx/signalfx-agent \
+          -w /go/src/github.com/signalfx/signalfx-agent \
+          golang:1.10-alpine \
+          /bin/sh -c "apk add --no-cache curl make git bash; \
+          go get -u golang.org/x/lint/golint; \
+          curl https://raw.githubusercontent.com/golang/dep/master/install.sh | /bin/sh; \
+          make vendor; \
+          make vet"
 
   gotests: 
     <<: *executor
     steps:
-      - *attach_workspace
-      - *import_image
+      - checkout
       - run: |
           mkdir ~/testresults
           docker run --rm \
-            signalfx-agent-dev \
-            bash -eo pipefail -c "make templates >/dev/null && go test -v ./... | tee /dev/stderr | go2xunit" > ~/testresults/unit.xml
+          -v ~/testresults:/root/testresults \
+          -v $(pwd):/go/src/github.com/signalfx/signalfx-agent \
+          -w /go/src/github.com/signalfx/signalfx-agent \
+          golang:1.10-alpine \
+          /bin/sh -c "apk add --no-cache curl make git bash; \
+          go get github.com/tebeka/go2xunit; \
+          go get -u golang.org/x/lint/golint; \
+          curl https://raw.githubusercontent.com/golang/dep/master/install.sh | /bin/sh; \
+          make vendor; \
+          bash -eo pipefail -c \"make templates >/dev/null && go test -v ./... | tee /dev/stderr | go2xunit\" > ~/testresults/unit.xml"
 
       - store_test_results:
           path: ~/testresults
@@ -367,15 +390,9 @@ workflows:
      - build
      - build_final_image
      - build-windows
-     - lint:
-        requires:
-         - build
-     - vet:
-        requires:
-         - build
-     - gotests:
-        requires:
-         - build
+     - lint
+     - vet
+     - gotests
      - integration_tests:
         requires:
          - build
