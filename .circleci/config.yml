@@ -119,6 +119,7 @@ jobs:
     <<: *goexecutor
     steps:
       - checkout
+      # minor change
       - *goexecutor_setup
       - run: |
           make lint"
