@@ -119,7 +119,7 @@ jobs:
       - persist_to_workspace:
          root: /tmp/workspace
          paths:
-           - /go
+           - go
 
   lint: 
     <<: *executor
@@ -416,9 +416,16 @@ workflows:
      - build
      - build_final_image
      - build-windows
-     - lint
-     - vet
-     - gotests
+     - vendor
+     - lint:
+        requires:
+         - vendor
+     - vet:
+        requires:
+         - vendor
+     - gotests:
+        requires:
+         - vendor
      - integration_tests:
         requires:
          - build
