@@ -402,9 +402,7 @@ workflows:
         requires:
          - build
          - build_final_image
-     - docs_test:
-        requires:
-         - build
+     - docs_test
      - rpm_package_tests
      - deb_package_tests
      - chef_tests
