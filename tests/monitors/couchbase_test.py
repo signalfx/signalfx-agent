@@ -28,7 +28,7 @@ def test_couchbase(tag):
         host = container_ip(couchbase_container)
         config = couchbase_config.substitute(host=host)
         assert wait_for(p(tcp_socket_open, host, 8091), 60), "service not listening on port"
-        assert wait_for(p(http_status, status=401,
+        assert wait_for(p(http_status, status=[401],
                           url="http://{0}:8091/pools".format(host)),
                         120), "service didn't start"
 
