@@ -104,7 +104,7 @@ def tcp_socket_open(host, port):
         return False
 
 
-def http_status(url=None, status=[200], username=None, password=None, timeout=1, *args, **kwargs):
+def http_status(url=None, status=[], username=None, password=None, timeout=1, *args, **kwargs):
     """
     Wrapper around urllib.request.urlopen() that returns True if
     the request returns the any of the specified HTTP status codes.  Accepts
@@ -118,7 +118,7 @@ def http_status(url=None, status=[200], username=None, password=None, timeout=1,
             # create basic authorization header
             auth = b64encode('{0}:{1}'.format(username, password).encode('ascii')).decode('utf-8')
             req.add_header('Authorization', 'Basic {0}'.format(auth))
-        
+
         return urllib.request.urlopen(req, *args,
                                       timeout=timeout, **kwargs).getcode() in status
     except urllib.error.HTTPError as err:
