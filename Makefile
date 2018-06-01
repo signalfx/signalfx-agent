@@ -14,15 +14,15 @@ endif
 .PHONY: vet
 vet: templates
 	# Only consider it a failure if issues are in non-test files
-	! go vet ./... 2>&1 | tee /dev/tty | grep '.go' | grep -v '_test.go'
+	! CGO_ENABLED=0 go vet ./... 2>&1 | tee /dev/tty | grep '.go' | grep -v '_test.go'
 
 .PHONY: vetall
 vetall: templates
-	go vet ./...
+	CGO_ENABLED=0 go vet ./...
 
 .PHONY: lint
 lint:
-	golint -set_exit_status ./cmd/... ./internal/...
+	CGO_ENABLED=0 golint -set_exit_status ./cmd/... ./internal/...
 
 templates:
 ifneq ($(OS),Windows_NT)
@@ -35,7 +35,7 @@ image:
 
 .PHONY: vendor
 vendor:
-	dep ensure
+	CGO_ENABLED=0 dep ensure
 
 signalfx-agent: templates
 	echo "building SignalFx agent for operating system: $(GOOS)"
