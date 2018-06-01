@@ -106,7 +106,7 @@ jobs:
           mkdir -p /tmp/workspace
           docker run --rm \
           -e CGO_ENABLED=0 \
-          -v /tmp/workspace/go:/go
+          -v /tmp/workspace/go:/go \
           -v ~/testresults:/root/testresults \
           -v $(pwd):/go/src/github.com/signalfx/signalfx-agent \
           -w /go/src/github.com/signalfx/signalfx-agent \
