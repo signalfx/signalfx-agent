@@ -27,7 +27,7 @@ def test_marathon(image):
             host = container_ip(service_container)
             config = monitor_config.substitute(host=host)
             assert wait_for(p(tcp_socket_open, host, 8080), 60), "service not listening on port"
-            assert wait_for(p(http_status, 200, "http://{0}:8080/v2/info".format(host)), 120), "service didn't start"
+            assert wait_for(p(http_status, "http://{0}:8080/v2/info".format(host)), 120), "service didn't start"
 
             with run_agent(config) as [backend, _, _]:
                 assert wait_for(p(has_datapoint_with_dim, backend, "plugin", "marathon")), "didn't get datapoints"

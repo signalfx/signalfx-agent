@@ -22,11 +22,16 @@ monitors:
     "enterprise-5.1.0"
 ])
 def test_couchbase(tag):
-    with run_service("couchbase", buildargs={"COUCHBASE_VERSION": tag}, hostname="node1.cluster") as couchbase_container:
+    with run_service("couchbase",
+                     buildargs={"COUCHBASE_VERSION": tag},
+                     hostname="node1.cluster") as couchbase_container:
         host = container_ip(couchbase_container)
         config = couchbase_config.substitute(host=host)
         assert wait_for(p(tcp_socket_open, host, 8091), 60), "service not listening on port"
-        assert wait_for(p(http_status,  200, "http://{0}:8091/pools".format(host)), 120), "service didn't start"
+        assert wait_for(p(http_status,
+                          url="http://{0}:8091/pools".format(host),
+                          username="administrator",
+                          password="password"), 120), "service didn't start"
 
         with run_agent(config) as [backend, _, _]:
             assert wait_for(p(has_datapoint_with_dim, backend, "plugin", "couchbase")), \
