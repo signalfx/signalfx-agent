@@ -27,7 +27,7 @@ def test_jenkins(version):
         host = container_ip(jenkins_container)
         config = jenkins_config.substitute(host=host, port=8080)
         assert wait_for(p(tcp_socket_open, host, 8080), 60), "service not listening on port"
-        assert wait_for(p(http_status, 200, "http://{0}:8080/metrics/33DD8B2F1FD645B814993275703F_EE1FD4D4E204446D5F3200E0F6-C55AC14E/ping/".format(host)), 120), "service didn't start"
+        assert wait_for(p(http_status, url="http://{0}:8080/metrics/33DD8B2F1FD645B814993275703F_EE1FD4D4E204446D5F3200E0F6-C55AC14E/ping/".format(host), status=[200]), 120), "service didn't start"
 
         with run_agent(config) as [backend, _, _]:
             assert wait_for(p(has_datapoint_with_dim, backend, "plugin", "jenkins")), "Didn't get jenkins datapoints"
