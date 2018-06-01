@@ -1,3 +1,4 @@
+from base64 import b64encode
 import os
 import re
 import socket
@@ -103,15 +104,25 @@ def tcp_socket_open(host, port):
         return False
 
 
-def http_status(status, *args, timeout=1, **kwargs):
+def http_status(url=None, status=[], username=None, password=None, timeout=1, *args, **kwargs):
     """
     Wrapper around urllib.request.urlopen() that returns True if
-    the request returns the specified HTTP status code
+    the request returns the any of the specified HTTP status codes.  Accepts
+    username and password keyword arguments for basic authorization.
     """
     try:
-        return urllib.request.urlopen(*args, timeout=timeout, **kwargs).getcode() == status
+        # urllib expects url argument to either be a string url or a request object
+        req = url if isinstance(url, urllib.request.Request) else urllib.request.Request(url)
+
+        if username and password:
+            # create basic authorization header
+            auth = b64encode('{0}:{1}'.format(username, password).encode('ascii')).decode('utf-8')
+            req.add_header('Authorization', 'Basic {0}'.format(auth))
+
+        return urllib.request.urlopen(req, *args,
+                                      timeout=timeout, **kwargs).getcode() in status
     except urllib.error.HTTPError as err:
         # urllib raises exceptions for some http error statuses
-        return err.code == status
+        return err.code in status
     except (urllib.error.URLError, socket.timeout):
         return False
