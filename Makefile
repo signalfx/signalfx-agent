@@ -98,6 +98,21 @@ run-dev-image:
 		-v $(CURDIR)/collectd:/usr/src/collectd:cached \
 		signalfx-agent-dev /bin/bash
 
+.PHONY: run-k8s-tests
+run-k8s-tests:
+	docker rm -f -v minikube registry || true
+	docker run --rm -it \
+		$(extra_run_flags) \
+		--net host \
+		-v $(CURDIR):/go/src/github.com/signalfx/signalfx-agent:cached \
+		signalfx-agent-dev \
+			pytest \
+				--verbose \
+				--exitfirst \
+				-n4 \
+				-m "k8s" \
+				tests
+
 .PHONY: docs
 docs:
 	bash -c "rm -f docs/{observers,monitors}/*"
