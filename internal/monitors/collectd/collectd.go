@@ -264,7 +264,9 @@ func (cm *Manager) manageCollectd(initCh chan<- struct{}, terminated chan struct
 
 		case Uninitialized:
 			restartDebounced, restartDebouncedStop = utils.Debounce0(func() {
-				restart <- struct{}{}
+				if state != ShuttingDown {
+					restart <- struct{}{}
+				}
 			}, restartDelay)
 
 			go func() {
@@ -340,7 +342,7 @@ func (cm *Manager) manageCollectd(initCh chan<- struct{}, terminated chan struct
 			state = Stopped
 
 		case Stopped:
-			restartDebouncedStop <- struct{}{}
+			close(restartDebouncedStop)
 			writeServer.Shutdown()
 			close(terminated)
 			return
