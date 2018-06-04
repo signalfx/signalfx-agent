@@ -1,9 +1,15 @@
-from tests.kubernetes.data import *
+from tests.kubernetes.minikube import *
+from tests.kubernetes.utils import *
+import docker
 import itertools
 import json
 import os
 import pytest
+import random
+import re
 import semver
+import socket
+import string
 import subprocess
 import sys
 import time
@@ -12,6 +18,7 @@ import urllib.request
 SCRIPTS_DIR = os.path.join(os.path.dirname(os.path.realpath(__file__)), "..", "scripts")
 K8S_MIN_VERSION = '1.7.0'
 K8S_MAX_VERSION = '1.9.4'
+K8S_DEFAULT_VERSION = '1.9.0'
 K8S_DEFAULT_TIMEOUT = 300
 K8S_DEFAULT_TEST_TIMEOUT = 120
 K8S_DEFAULT_AGENT_IMAGE_NAME = "quay.io/signalfx/signalfx-agent-dev"
@@ -50,27 +57,19 @@ K8S_MAJOR_MINOR_VERSIONS = [v for v in K8S_SUPPORTED_VERSIONS if semver.parse_ve
 K8S_SUPPORTED_OBSERVERS = ["k8s-api", "k8s-kubelet", "docker", "host"]
 K8S_DEFAULT_OBSERVERS = ["k8s-api", "k8s-kubelet"]
 
-K8S_DEFAULT_MONITORS_WITHOUT_ENDPOINTS = ["kubelet-stats", "kubernetes-cluster", "kubernetes-volumes"]
-K8S_DEFAULT_MONITORS_WITH_ENDPOINTS = ["collectd/nginx", "collectd/rabbitmq"]
 
 def pytest_addoption(parser):
     parser.addoption(
-        "--k8s-versions",
+        "--k8s-version",
         action="store",
-        default=K8S_MAJOR_MINOR_VERSIONS[0],
-        help="Comma-separated string of K8S cluster versions for minikube to deploy (default=%s). Use '--k8s-versions=all' to test all supported versions. Use '--k8s-versions=minor' to test all supported non-patch versions (e.g. 1.7.0, 1.8.0, 1.9.0, etc.). This option is ignored if the --k8s-container option also is specified." % K8S_MAJOR_MINOR_VERSIONS[0]
+        default=K8S_DEFAULT_VERSION,
+        help="K8S cluster version for minikube to deploy (default=%s). This option is ignored if the --k8s-container option also is specified." % K8S_DEFAULT_VERSION
     )
     parser.addoption(
         "--k8s-observers",
         action="store",
         default=",".join(K8S_DEFAULT_OBSERVERS),
-        help="Comma-separated string of observers for the SignalFx agent (default=%s). Use '--k8s-observers=all' to test all supported observers." % ",".join(K8S_DEFAULT_OBSERVERS)
-    )
-    parser.addoption(
-        "--k8s-monitors",
-        action="store",
-        default=",".join(K8S_DEFAULT_MONITORS_WITHOUT_ENDPOINTS + K8S_DEFAULT_MONITORS_WITH_ENDPOINTS),
-        help="Comma-separated string of monitors for the SignalFx agent (default=%s). Use '--k8s-monitors=all' to test all supported monitors." % ",".join(K8S_DEFAULT_MONITORS_WITHOUT_ENDPOINTS + K8S_DEFAULT_MONITORS_WITH_ENDPOINTS)
+        help="Comma-separated string of observers to test monitors with endpoints for the SignalFx agent (default=%s). Use '--k8s-observers=all' to test all supported observers." % ",".join(K8S_DEFAULT_OBSERVERS)
     )
     parser.addoption(
         "--k8s-timeout",
@@ -111,21 +110,15 @@ def pytest_addoption(parser):
 
 def pytest_generate_tests(metafunc):
     if 'minikube' in metafunc.fixturenames:
-        k8s_versions = metafunc.config.getoption("--k8s-versions")
-        versions_to_test = []
-        if not k8s_versions:
-            versions_to_test = [K8S_MAJOR_MINOR_VERSIONS[0]]
-        elif k8s_versions.lower() == "latest":
-            versions_to_test = [K8S_SUPPORTED_VERSIONS[0]]
-        elif k8s_versions.lower() == "all":
-            versions_to_test = K8S_SUPPORTED_VERSIONS
-        elif k8s_versions.lower() == "minor":
-            versions_to_test = K8S_MAJOR_MINOR_VERSIONS
+        k8s_version = metafunc.config.getoption("--k8s-version")
+        if not k8s_version:
+            version_to_test = K8S_DEFAULT_VERSION
+        elif k8s_version.lower() == "latest":
+            version_to_test = [K8S_SUPPORTED_VERSIONS[0]]
         else:
-            for v in k8s_versions.split(','):
-                assert v.strip('v') in K8S_SUPPORTED_VERSIONS, "K8S version \"%s\" not supported!" % v
-            versions_to_test = k8s_versions.split(',')
-        metafunc.parametrize("minikube", versions_to_test, ids=["v%s" % v.strip('v') for v in versions_to_test], scope="module", indirect=True)
+            assert k8s_version.strip('v') in K8S_SUPPORTED_VERSIONS, "K8S version \"%s\" not supported!" % k8s_version
+            version_to_test = k8s_version
+        metafunc.parametrize("minikube", [version_to_test], ids=["v%s" % v.strip('v') for v in [version_to_test]], scope="session", indirect=True)
     if 'k8s_observer' in metafunc.fixturenames:
         k8s_observers = metafunc.config.getoption("--k8s-observers")
         if not k8s_observers:
@@ -137,23 +130,141 @@ def pytest_generate_tests(metafunc):
                 assert o in K8S_SUPPORTED_OBSERVERS, "observer \"%s\" not supported!" % o
             observers_to_test = k8s_observers.split(',')
         metafunc.parametrize("k8s_observer", observers_to_test, ids=[o for o in observers_to_test], indirect=True)
-    k8s_monitors = metafunc.config.getoption("--k8s-monitors")
-    monitors_without_endpoints_to_test = []
-    monitors_with_endpoints_to_test = []
-    if not k8s_monitors:
-        monitors_without_endpoints_to_test = [m for m in MONITORS_WITHOUT_ENDPOINTS if m["type"] in K8S_DEFAULT_MONITORS_WITHOUT_ENDPOINTS]
-        monitors_with_endpoints_to_test = [m for m in MONITORS_WITH_ENDPOINTS if m[0]["type"] in K8S_DEFAULT_MONITORS_WITH_ENDPOINTS]
-    elif k8s_monitors.lower() == 'all':
-        monitors_without_endpoints_to_test = MONITORS_WITHOUT_ENDPOINTS
-        monitors_with_endpoints_to_test = MONITORS_WITH_ENDPOINTS
+
+
+@pytest.fixture(scope="session")
+def local_registry(request, worker_id):
+    def get_free_port():
+        s = socket.socket()
+        s.bind(('', 0))
+        return s.getsockname()[1]
+
+    def teardown():
+        if cont and worker_id == "master":
+            cont.remove(force=True, v=True)
+
+    def registry_is_ready():
+        if container_is_running(client, "registry"):
+            cont = client.containers.get("registry")
+            return has_log_message(cont.logs().decode('utf-8'), message="listening on [::]:%d" % port)
+        return False
+        
+    client = get_docker_client()
+    cont = None
+    #port = get_free_port()
+    port = 5000
+    request.addfinalizer(teardown)
+    if worker_id == "master" or worker_id == "gw0":
+        try:
+            cont = client.containers.get("registry")
+            cont.remove(force=True, v=True)
+        except docker.errors.NotFound:
+            pass
+        print("\nStarting registry container localhost:%d ..." % port)
+        client.containers.run(
+            image='registry:latest',
+            name="registry",
+            detach=True,
+            environment={"REGISTRY_HTTP_ADDR": "0.0.0.0:%d" % port},
+            ports={"%d/tcp" % port: port})
     else:
-        for monitor in k8s_monitors.split(','):
-            assert monitor in [m["type"] for m in MONITORS_WITHOUT_ENDPOINTS + [x[0] for x in MONITORS_WITH_ENDPOINTS]], "monitor \"%s\" not supported!" % monitor
-            if monitor in [m["type"] for m in MONITORS_WITHOUT_ENDPOINTS]:
-                monitors_without_endpoints_to_test.extend([m for m in MONITORS_WITHOUT_ENDPOINTS if m["type"] == monitor])
-            else:
-                monitors_with_endpoints_to_test.extend([m for m in MONITORS_WITH_ENDPOINTS if m[0]["type"] == monitor])
-    if 'k8s_monitor_without_endpoints' in metafunc.fixturenames and len(monitors_without_endpoints_to_test) > 0:
-        metafunc.parametrize("k8s_monitor_without_endpoints", monitors_without_endpoints_to_test, ids=[m["type"] for m in monitors_without_endpoints_to_test], indirect=True)
-    if 'k8s_monitor_with_endpoints' in metafunc.fixturenames and len(monitors_with_endpoints_to_test) > 0:
-        metafunc.parametrize("k8s_monitor_with_endpoints", monitors_with_endpoints_to_test, ids=[m[0]["type"] for m in monitors_with_endpoints_to_test], indirect=True)
+        time.sleep(5)
+    print("\nWaiting for registry to be ready ...")
+    assert wait_for(registry_is_ready, timeout_seconds=10), "timed out waiting for registry to be ready!"
+    cont = client.containers.get("registry")
+    return (cont, port)
+
+
+@pytest.fixture(scope="session")
+def agent_image(local_registry, request, worker_id):
+    client = get_docker_client()
+    port = local_registry[1]
+    final_agent_image_name = request.config.getoption("--k8s-agent-name")
+    final_agent_image_tag = request.config.getoption("--k8s-agent-tag")
+    agent_image_name = "localhost:%d/%s" % (port, final_agent_image_name.split("/")[-1])
+    agent_image_tag = final_agent_image_tag
+    if worker_id == "master" or worker_id == "gw0":
+        if not has_docker_image(client, final_agent_image_name, final_agent_image_tag):
+            print("\nAgent image '%s:%s' not found in local registry." % (final_agent_image_name, final_agent_image_tag))
+            print("\nAttempting to pull from remote registry ...")
+            final_agent_image = client.images.pull(final_agent_image_name, tag=final_agent_image_tag)
+        else:
+            final_agent_image = client.images.get(final_agent_image_name + ":" + final_agent_image_tag)
+        print("\nTagging %s:%s as %s:%s ..." % (final_agent_image_name, final_agent_image_tag, agent_image_name, agent_image_tag))
+        final_agent_image.tag(agent_image_name, tag=agent_image_tag)
+        print("\nPushing %s:%s ..." % (agent_image_name, agent_image_tag))
+        client.images.push(agent_image_name, tag=agent_image_tag)
+    else:
+        assert wait_for(p(has_docker_image, client, agent_image_name, agent_image_tag), timeout_seconds=60), \
+            "timed out waiting for agent image \"%s:%s\"!" % (agent_image_name, agent_image_tag)
+    return {"name": agent_image_name, "tag": agent_image_tag}
+
+
+@pytest.fixture(scope="session")
+def minikube(request, worker_id):
+    k8s_version = request.param
+    k8s_timeout = int(request.config.getoption("--k8s-timeout"))
+    k8s_container = request.config.getoption("--k8s-container")
+    k8s_skip_teardown = request.config.getoption("--k8s-skip-teardown")
+    mk = Minikube()
+    mk.worker_id = worker_id
+
+    def teardown():
+        if not k8s_skip_teardown:
+            try:
+                print("Tearing down minikube container ...")
+                mk.container.remove(force=True, v=True)
+            except:
+                pass
+
+    request.addfinalizer(teardown)
+    if k8s_container:
+        mk.connect(k8s_container, k8s_timeout)
+        k8s_skip_teardown = True
+    elif worker_id not in ["master", "gw0"]:
+        time.sleep(5)
+        mk.connect("minikube", k8s_timeout)
+        k8s_skip_teardown = True
+    else:
+        mk.deploy(k8s_version, k8s_timeout)
+        if worker_id == "gw0":
+            k8s_skip_teardown = True
+    return mk
+
+
+@pytest.fixture
+def k8s_observer(request):
+    return request.param
+
+
+@pytest.fixture
+def k8s_test_timeout(request):
+    return int(request.config.getoption("--k8s-test-timeout"))
+
+
+@pytest.fixture
+def k8s_monitor_without_endpoints(request):
+    try:
+        return request.param
+    except:
+        pytest.skip("no monitors to test")
+        return None
+
+
+@pytest.fixture
+def k8s_monitor_with_endpoints(request):
+    try:
+        return request.param
+    except:
+        pytest.skip("no monitors to test")
+        return None
+
+
+@pytest.fixture
+def k8s_namespace(worker_id):
+    if worker_id == "master":
+        namespace = "default"
+    else:
+        chars = string.ascii_lowercase + string.digits
+        namespace = worker_id + '-' + ''.join((random.choice(chars)) for x in range(8))
+    return namespace
