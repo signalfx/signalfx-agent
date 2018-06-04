@@ -6,7 +6,7 @@ FROM ubuntu:16.04 as agent-builder
 RUN apt update &&\
     apt install -y curl wget pkg-config parallel
 
-ENV GO_VERSION=1.10 PATH=$PATH:/usr/local/go/bin
+ENV GO_VERSION=1.10.2 PATH=$PATH:/usr/local/go/bin
 RUN cd /tmp &&\
     wget https://storage.googleapis.com/golang/go${GO_VERSION}.linux-amd64.tar.gz &&\
 	tar -C /usr/local -xf go*.tar.gz
@@ -318,7 +318,7 @@ WORKDIR /
 # This is an image to facilitate development of the agent.  It installs all of
 # the build tools for building collectd and the go agent, along with some other
 # useful utilities.  The agent image is copied from the final-image stage to
-# the /agent dir in here and the SIGNALFX_BUNDLE_DIR is set to point to that.
+# the /bundle dir in here and the SIGNALFX_BUNDLE_DIR is set to point to that.
 FROM ubuntu:16.04 as dev-extras
 
 RUN apt update &&\
@@ -327,7 +327,6 @@ RUN apt update &&\
       git \
       inotify-tools \
       jq \
-      python-pip \
       python3-pip \
       socat \
       vim \
@@ -339,19 +338,16 @@ ENV SIGNALFX_BUNDLE_DIR=/bundle \
     AGENT_BIN=/go/src/github.com/signalfx/signalfx-agent/signalfx-agent \
     GOOS=linux
 
-RUN pip install ipython==5 ipdb
 RUN pip3 install ipython ipdb
 
 WORKDIR /go/src/github.com/signalfx/signalfx-agent
 CMD ["/bin/bash"]
 ENV PATH=$PATH:/usr/local/go/bin:/go/bin GOPATH=/go
 
-COPY --from=agent-builder /usr/local/go/ /usr/local/go
+COPY --from=golang:1.10.2-stretch /usr/local/go/ /usr/local/go
 
 RUN wget -O /usr/bin/dep https://github.com/golang/dep/releases/download/v0.4.1/dep-linux-amd64 &&\
     chmod +x /usr/bin/dep
-
-COPY --from=collectd /usr/src/collectd/ /usr/src/collectd
 
 RUN curl -fsSL get.docker.com -o /tmp/get-docker.sh &&\
     sh /tmp/get-docker.sh
@@ -362,9 +358,11 @@ RUN go get -u github.com/golang/lint/golint &&\
 
 # Get integration test deps in here
 COPY tests/requirements.txt /tmp/
-RUN pip install --upgrade pip==9.0.1 && pip3 install -r /tmp/requirements.txt
+RUN pip3 install --upgrade pip==9.0.1 && pip3 install -r /tmp/requirements.txt
 RUN wget -O /usr/bin/gomplate https://github.com/hairyhenderson/gomplate/releases/download/v2.3.0/gomplate_linux-amd64-slim &&\
     chmod +x /usr/bin/gomplate
+RUN ln -s /usr/bin/python3 /usr/bin/python &&\
+    ln -s /usr/bin/pip3 /usr/bin/pip
 
 COPY --from=final-image /bin/signalfx-agent ./signalfx-agent
 
