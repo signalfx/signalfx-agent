@@ -7,7 +7,6 @@ development. To use it first do the following:
 ```sh
 $ make dev-image
 $ # The build will take a while...
-$ scripts/prime-vendor-dir  # Copy out the vendor dir from the dev image
 $ mkdir local-etc && cp packaging/etc/agent.yaml local-etc/  # Get a basic operating config file in place
 $ make run-dev-image
 ```
@@ -61,17 +60,21 @@ run for that commit.
 
 ## Go Dependencies
 
-We are using [dep](https://github.com/golang/dep) to manage dependencies.  It
-isn't quite GA yet but seems to meet our needs sufficiently.  Vendoring the
-Kubernetes client-go requires a bit of hacking in the Gopkg.toml depedencies
-but wasn't too bad to get working, despite the fact that they officially don't
-recommend using it with dep.
+We are using [dep](https://github.com/golang/dep) to manage dependencies.
+Vendoring the Kubernetes client-go requires a bit of hacking in the Gopkg.toml
+depedencies but wasn't too bad to get working, despite the fact that they
+officially don't recommend using it with dep.
 
-If you add another Go package dependency, you can manually add it to the
-[Gopkg.toml](../Gopkg.toml) if you want to specify an exact dependency version,
-or you can just use the dependency in your code and run `dep ensure` and it
-will take care of figuring out a version that works and adding it to the
-`Gopkg.*` files.
+We commit all of our go dependencies to the git repository.  This results in a
+significantly larger repository but makes the agent build more self-contained
+and consistent.
+
+If you add another Go package dependency, you should manually add it to the
+[Gopkg.toml](../Gopkg.toml) and specify a dependency version.  Then run `dep
+ensure` and commit the new vendored source to the repository.  Please make
+commits to the vendor directory separate from commits to the application code
+for easier code review.
+
 
 ## Development in Kubernetes (K8s)
 
