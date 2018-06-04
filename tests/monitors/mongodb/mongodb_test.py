@@ -1,10 +1,17 @@
 from functools import partial as p
 import os
+import pytest
 import string
 
-from tests.helpers import fake_backend
 from tests.helpers.util import wait_for, run_agent, run_container, container_ip
 from tests.helpers.assertions import *
+from tests.kubernetes.utils import (
+    run_k8s_monitors_test,
+    get_metrics_from_doc,
+    get_dims_from_doc,
+)
+
+pytestmark = [pytest.mark.collectd, pytest.mark.mongodb, pytest.mark.monitor_with_endpoints]
 
 mongo_config = string.Template("""
 monitors:
@@ -14,6 +21,7 @@ monitors:
     databases: [admin]
 """)
 
+
 def test_mongo():
     with run_container("mongo:3.6") as mongo_cont:
         host = container_ip(mongo_cont)
@@ -22,4 +30,26 @@ def test_mongo():
 
         with run_agent(config) as [backend, _, _]:
             assert wait_for(p(has_datapoint_with_dim, backend, "plugin", "mongo")), "Didn't get mongo datapoints"
+
+
+@pytest.mark.k8s
+@pytest.mark.kubernetes
+def test_mongodb_in_k8s(agent_image, minikube, k8s_observer, k8s_test_timeout, k8s_namespace):
+    monitors = [
+        {"type": "collectd/mongodb",
+         "discoveryRule": 'container_image =~ "mongo" && private_port == 27017 && kubernetes_namespace == "%s"' % k8s_namespace,
+         "databases": ["admin"],
+         "username": "testuser", "password": "testing123"},
+    ]
+    yamls = [os.path.join(os.path.dirname(os.path.realpath(__file__)), "mongodb-k8s.yaml")]
+    run_k8s_monitors_test(
+        agent_image,
+        minikube,
+        monitors,
+        namespace=k8s_namespace,
+        yamls=yamls,
+        observer=k8s_observer,
+        expected_metrics=get_metrics_from_doc("collectd-mongodb.md"),
+        expected_dims=get_dims_from_doc("collectd-mongodb.md"),
+        test_timeout=k8s_test_timeout)
 
