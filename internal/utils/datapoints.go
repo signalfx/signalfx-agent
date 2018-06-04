@@ -41,7 +41,7 @@ func dpTypeToString(t datapoint.MetricType) string {
 // dict so it is consistent so that it is easier to visually scan a large list
 // of datapoints.
 func DatapointToString(dp *datapoint.Datapoint) string {
-	return fmt.Sprintf("%s: %s (%s) @ %s\n[%s]", dp.Metric, dp.Value, dpTypeToString(dp.MetricType), dp.Timestamp, sortedDimensionString(dp.Dimensions))
+	return fmt.Sprintf("\n%s\nValue: %s\n%s\n%s\nDimensions: {%s}\n", dp.Metric, dp.Value, strings.ToUpper(dpTypeToString(dp.MetricType)), dp.Timestamp, sortedDimensionString(dp.Dimensions))
 }
 
 // BoolToInt returns 1 if b is true and 0 otherwise.  It is useful for
