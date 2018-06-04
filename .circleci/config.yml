@@ -128,7 +128,6 @@ jobs:
       - checkout
       - <<: *goexecutor_setup
       - run: |
-          go get -u golang.org/x/lint/golint
           make vet
 
   gotests: 
