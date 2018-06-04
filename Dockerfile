@@ -1,37 +1,24 @@
-###### Golang Dependencies Image ######
-FROM golang:1.10.0-stretch as godeps
-
-RUN wget -O /usr/bin/dep https://github.com/golang/dep/releases/download/v0.4.1/dep-linux-amd64 &&\
-    chmod +x /usr/bin/dep
-
-WORKDIR /go/src/github.com/signalfx/signalfx-agent
-COPY Gopkg.toml Gopkg.lock ./
-
-RUN dep ensure -vendor-only
-
-RUN apt update && apt install -y parallel
-# Precompile and cache vendor objects so that building the app is faster
-# A bunch of these fail because dep pulls in more than necessary, but a lot do compile
-RUN cd vendor && find . -type d -not -empty | grep -v '\btest' | parallel go install {} 2>/dev/null || true
-
 
 ###### Agent Build Image ########
 FROM ubuntu:16.04 as agent-builder
 
 # Cgo requires dep libraries present
 RUN apt update &&\
-    apt install -y curl wget pkg-config
+    apt install -y curl wget pkg-config parallel
 
 ENV GO_VERSION=1.10 PATH=$PATH:/usr/local/go/bin
 RUN cd /tmp &&\
     wget https://storage.googleapis.com/golang/go${GO_VERSION}.linux-amd64.tar.gz &&\
 	tar -C /usr/local -xf go*.tar.gz
 
-COPY --from=godeps /go/src/github.com/signalfx/signalfx-agent/vendor /go/src/github.com/signalfx/signalfx-agent/vendor
-COPY --from=godeps /go/pkg /go/pkg
-
 ENV GOPATH=/go
 WORKDIR /go/src/github.com/signalfx/signalfx-agent
+
+COPY vendor/ ./vendor/
+# Precompile and cache vendor compilation outputs so that building the app is
+# faster.  A bunch of these fail because dep pulls in more than necessary, but
+# a lot do compile
+RUN cd vendor && find . -type d -not -empty | grep -v '\btest' | parallel go install {} 2>/dev/null || true
 
 COPY cmd/ ./cmd/
 COPY scripts/make-templates ./scripts/
@@ -342,6 +329,7 @@ RUN apt update &&\
       vim \
       wget
 
+
 ENV SIGNALFX_BUNDLE_DIR=/bundle \
     TEST_SERVICES_DIR=/go/src/github.com/signalfx/signalfx-agent/test-services \
     AGENT_BIN=/go/src/github.com/signalfx/signalfx-agent/signalfx-agent \
@@ -355,7 +343,10 @@ CMD ["/bin/bash"]
 ENV PATH=$PATH:/usr/local/go/bin:/go/bin GOPATH=/go
 
 COPY --from=agent-builder /usr/local/go/ /usr/local/go
-COPY --from=godeps /usr/bin/dep /usr/bin/dep
+
+RUN wget -O /usr/bin/dep https://github.com/golang/dep/releases/download/v0.4.1/dep-linux-amd64 &&\
+    chmod +x /usr/bin/dep
+
 COPY --from=collectd /usr/src/collectd/ /usr/src/collectd
 
 RUN curl -fsSL get.docker.com -o /tmp/get-docker.sh &&\
@@ -371,8 +362,6 @@ RUN pip install --upgrade pip==9.0.1 && pip3 install -r /tmp/requirements.txt
 RUN wget -O /usr/bin/gomplate https://github.com/hairyhenderson/gomplate/releases/download/v2.3.0/gomplate_linux-amd64-slim &&\
     chmod +x /usr/bin/gomplate
 
-COPY --from=godeps /go/src/github.com/signalfx/signalfx-agent/vendor/ ./vendor/
-COPY --from=godeps /go/pkg/ /go/pkg/
 COPY --from=final-image /bin/signalfx-agent ./signalfx-agent
 
 COPY --from=final-image / /bundle/
