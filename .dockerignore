@@ -3,7 +3,6 @@
 .glide/**
 .build/**
 signalfx-agent*
-vendor/**
 tmp/**
 local-etc/**
 build/**
