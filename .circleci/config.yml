@@ -36,6 +36,7 @@ references:
       sudo apt-get update && sudo apt-get install -y python3-dev
       curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
       sudo python3 get-pip.py
+      sudo pip3 install --upgrade 'pip==10.0.1'
       sudo pip3 install -r tests/requirements.txt
 
   run_k8s_integration_tests: &run_k8s_integration_tests
