@@ -31,32 +31,34 @@ references:
     run: |
       docker load -i /tmp/workspace/final_image.tar
 
+  install_pytest: &install_pytest
+    run: |
+      sudo apt-get update && sudo apt-get install -y python3-dev
+      curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
+      sudo python3 get-pip.py
+      sudo pip3 install -r tests/requirements.txt
+
   run_k8s_integration_tests: &run_k8s_integration_tests
     run:
       no_output_timeout: 30m
       command: |
         mkdir ~/testresults
-        docker run --rm --net host \
-            -v /var/run/docker.sock:/var/run/docker.sock \
-            -v /tmp/scratch:/tmp/scratch \
-            -v ~/testresults:/output \
-            --name signalfx-agent-dev \
-            signalfx-agent-dev \
-                pytest \
-                    -m "k8s" \
-                    --exitfirst \
-                    --verbose \
-                    --junitxml=/output/integration_tests.xml \
-                    --html=/output/k8s_integration_tests.html \
-                    --self-contained-html \
-                    --k8s-versions=$(eval "echo -n $K8S_VERSION") \
-                    --k8s-observers=k8s-api,k8s-kubelet \
-                    --k8s-monitors=kubelet-stats,kubernetes-cluster,kubernetes-volumes,collectd/nginx,collectd/rabbitmq \
-                    --k8s-timeout=300 \
-                    --k8s-test-timeout=120 \
-                    --k8s-agent-name=quay.io/signalfx/signalfx-agent-dev \
-                    --k8s-agent-tag=k8s-test \
-                    tests
+        mkdir -p /tmp/scratch
+        pytest \
+            -n4 \
+            -m "$PYTEST_MARKERS" \
+            --exitfirst \
+            --verbose \
+            --junitxml=~/testresults/k8s_integration_tests.xml \
+            --html=~/testresults/k8s_integration_tests.html \
+            --self-contained-html \
+            --k8s-version="$K8S_VERSION" \
+            --k8s-observers="$K8S_OBSERVERS" \
+            --k8s-timeout=300 \
+            --k8s-test-timeout=120 \
+            --k8s-agent-name=quay.io/signalfx/signalfx-agent-dev \
+            --k8s-agent-tag=latest \
+            tests
 
 jobs:
   build:
@@ -103,11 +105,11 @@ jobs:
      - run: |
          set -x
          export PULL_CACHE=yes
-         export AGENT_VERSION=k8s-test
+         export AGENT_VERSION=latest
          ./scripts/build
      - run: |
          mkdir -p /tmp/workspace
-         docker save -o /tmp/workspace/final_image.tar quay.io/signalfx/signalfx-agent-dev:k8s-test
+         docker save -o /tmp/workspace/final_image.tar quay.io/signalfx/signalfx-agent-dev:latest
      - persist_to_workspace:
          root: /tmp/workspace
          paths:
@@ -163,18 +165,31 @@ jobs:
       - *import_image
       - run: |
           mkdir ~/testresults
-          docker run --rm -v /var/run/docker.sock:/var/run/docker.sock -v ~/testresults:/output signalfx-agent-dev pytest -n8 --junitxml=/output/integration_tests.xml -m "not packaging and not installer and not k8s" tests
+          docker run --rm -v /var/run/docker.sock:/var/run/docker.sock -v ~/testresults:/output signalfx-agent-dev \
+            pytest \
+                --verbose \
+                -n8 \
+                --junitxml=/output/integration_tests.xml \
+                --html=/output/integration_tests.html \
+                --self-contained-html \
+                -m "not packaging and not installer and not k8s" \
+                tests
       - store_test_results:
           path: ~/testresults
+      - store_artifacts:
+          path: ~/testresults/integration_tests.html
 
   k8s_v1.10.0_integration_tests:
     <<: *executor
     environment:
       K8S_VERSION: "v1.10.0"
+      K8S_OBSERVERS: "k8s-api,k8s-kubelet"
+      PYTEST_MARKERS: "k8s"
     steps:
       - *attach_workspace
-      - *import_image
       - *import_final_image
+      - checkout
+      - *install_pytest
       - *run_k8s_integration_tests
       - store_test_results:
           path: ~/testresults
@@ -185,10 +200,13 @@ jobs:
     <<: *executor
     environment:
       K8S_VERSION: "v1.9.0"
+      K8S_OBSERVERS: "k8s-api,k8s-kubelet"
+      PYTEST_MARKERS: "k8s"
     steps:
       - *attach_workspace
-      - *import_image
       - *import_final_image
+      - checkout
+      - *install_pytest
       - *run_k8s_integration_tests
       - store_test_results:
           path: ~/testresults
@@ -199,10 +217,13 @@ jobs:
     <<: *executor
     environment:
       K8S_VERSION: "v1.8.0"
+      K8S_OBSERVERS: "k8s-api,k8s-kubelet"
+      PYTEST_MARKERS: "k8s"
     steps:
       - *attach_workspace
-      - *import_image
       - *import_final_image
+      - checkout
+      - *install_pytest
       - *run_k8s_integration_tests
       - store_test_results:
           path: ~/testresults
@@ -213,10 +234,13 @@ jobs:
     <<: *executor
     environment:
       K8S_VERSION: "v1.7.0"
+      K8S_OBSERVERS: "k8s-api,k8s-kubelet"
+      PYTEST_MARKERS: "k8s"
     steps:
       - *attach_workspace
-      - *import_image
       - *import_final_image
+      - checkout
+      - *install_pytest
       - *run_k8s_integration_tests
       - store_test_results:
           path: ~/testresults
@@ -227,6 +251,7 @@ jobs:
     <<: *executor
     steps:
       - checkout
+      - *install_pytest
       - run: |
           mkdir ~/testresults
 
@@ -235,15 +260,19 @@ jobs:
               exit 0
           fi
 
-          sudo apt-get update && sudo apt-get install -y python3-pip
-          sudo pip3 install -r tests/requirements.txt
-
           export PULL_CACHE=yes
           ./packaging/rpm/build
 
           mkdir /tmp/scratch
 
-          pytest -n auto -m "rpm" --junitxml=~/testresults/rpm.xml ./tests/packaging
+          pytest \
+            -n auto \
+            -m "rpm" \
+            --verbose \
+            --junitxml=~/testresults/rpm.xml \
+            --html=~/testresults/rpm.html \
+            --self-contained-html \
+            ./tests/packaging
 
       - store_test_results:
           path: ~/testresults
@@ -252,10 +281,14 @@ jobs:
           path: ~/project/packaging/rpm/output
           destination: /packages/
 
+      - store_artifacts:
+          path: ~/testresults/rpm.html
+
   deb_package_tests:
     <<: *executor
     steps:
       - checkout
+      - *install_pytest
       - run: |
           mkdir ~/testresults
 
@@ -264,15 +297,19 @@ jobs:
               exit 0
           fi
 
-          sudo apt-get update && sudo apt-get install -y python3-pip
-          sudo pip3 install -r tests/requirements.txt
-
           export PULL_CACHE=yes
           ./packaging/deb/build
 
           mkdir /tmp/scratch
 
-          pytest -n auto -m "deb" --junitxml=~/testresults/deb.xml ./tests/packaging
+          pytest \
+            -n auto \
+            -m "deb" \
+            --verbose \
+            --junitxml=~/testresults/deb.xml \
+            --html=~/testresults/deb.html \
+            --self-contained-html \
+            ./tests/packaging
 
       - store_test_results:
           path: ~/testresults
@@ -280,6 +317,9 @@ jobs:
       - store_artifacts:
           path: ~/project/packaging/deb/output
           destination: /packages/
+
+      - store_artifacts:
+          path: ~/testresults/deb.html
 
   chef_tests:
     <<: *executor
@@ -396,15 +436,12 @@ workflows:
 #         - build_final_image
      - k8s_v1.9.0_integration_tests:
         requires:
-         - build
          - build_final_image
      - k8s_v1.8.0_integration_tests:
         requires:
-         - build
          - build_final_image
      - k8s_v1.7.0_integration_tests:
         requires:
-         - build
          - build_final_image
      - docs_test
      - rpm_package_tests
