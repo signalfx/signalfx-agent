@@ -17,28 +17,22 @@
 # Based on:
 # https://github.com/kubernetes/minikube/tree/master/deploy/docker/localkube-dind
 
+docker version >/dev/null 2>&1 || /usr/local/bin/start-docker.sh
+
 if [ -f /kubeconfig ]; then
     rm -f /kubeconfig
 fi
 
-mount --make-shared /
-dockerd \
-  --host=unix:///var/run/docker.sock \
-  --host=tcp://0.0.0.0:2375 \
-  --insecure-registry localhost:5000 \
-  --metrics-addr 127.0.0.1:9323 \
-  --experimental \
-  &> /var/log/docker.log 2>&1 < /dev/null &
-
 minikube config set ShowBootstrapperDeprecationNotification false || true
+minikube config set WantNoneDriverWarning false || true
 
 K8S_VERSION=${K8S_VERSION:-"latest"}
 if [ "$K8S_VERSION" = "latest" ]; then
-    #/usr/local/bin/dind-cluster.sh up
     minikube start --vm-driver=none --bootstrapper=localkube
 else
     minikube start --kubernetes-version $K8S_VERSION --vm-driver=none --bootstrapper=localkube
 fi
+minikube config set dashboard false || true
 sleep 2
 minikube status
 

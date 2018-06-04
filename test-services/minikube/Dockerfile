@@ -79,7 +79,9 @@ EXPOSE 8080
 # Install helm
 RUN curl https://raw.githubusercontent.com/kubernetes/helm/master/scripts/get | bash
 
-# Copy local start script
+# Copy local start scripts
+COPY start-docker.sh /usr/local/bin/start-docker.sh
+RUN chmod a+x /usr/local/bin/start-docker.sh
 COPY start-minikube.sh /usr/local/bin/start-minikube.sh
 RUN chmod a+x /usr/local/bin/start-minikube.sh
 
