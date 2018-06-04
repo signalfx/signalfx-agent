@@ -18,7 +18,6 @@ func Debounce0(fn func(), duration time.Duration) (func(), chan<- struct{}) {
 		for {
 			select {
 			case <-stop:
-				close(stop)
 				return
 			case <-timer.C:
 				if callRequested {

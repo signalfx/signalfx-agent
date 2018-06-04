@@ -8,8 +8,19 @@ are generated from our [Helm](https://github.com/kubernetes/helm) chart,
 which is available in the main [Helm Charts
 repo](https://github.com/kubernetes/charts/tree/master/stable/signalfx-agent).
 
-Make sure you change the `kubernetes_cluster` global dimension to something
-specific to your cluster in the `configmap.yaml` resource before deploying.
+A few things to do before deploying these:
+
+ 1. Make sure you change the `kubernetes_cluster` global dimension to something
+	specific to your cluster in the `configmap.yaml` resource before deploying.
+
+ 2. Also make sure you change the `namespace` of the service account token
+	reference in [./clusterrolebinding.yaml](./clusterrolebinding.yaml) to the
+	namespace in which you are deploying the agent.
+
+Then to deploy run the following from the present directory:
+
+`cat *.yaml | kubectl apply -f -`
+
 
 ## Development
 
