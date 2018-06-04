@@ -12,8 +12,6 @@ references:
   goexecutor_setup: &goexecutor_setup
     run: |
       apk add --no-cache curl make git bash coreutils
-      curl https://raw.githubusercontent.com/golang/dep/master/install.sh | /bin/sh
-      make vendor
 
   executor: &executor
     machine:
