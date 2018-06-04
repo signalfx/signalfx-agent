@@ -17,33 +17,28 @@
 # Based on:
 # https://github.com/kubernetes/minikube/tree/master/deploy/docker/localkube-dind
 
+docker version >/dev/null 2>&1 || /usr/local/bin/start-docker.sh
+
 if [ -f /kubeconfig ]; then
     rm -f /kubeconfig
 fi
 
-mount --make-shared /
-dockerd \
-  --host=unix:///var/run/docker.sock \
-  --host=tcp://0.0.0.0:2375 \
-  --insecure-registry localhost:5000 \
-  --metrics-addr 127.0.0.1:9323 \
-  --experimental \
-  &> /var/log/docker.log 2>&1 < /dev/null &
-
-minikube config set ShowBootstrapperDeprecationNotification false || true
-
 K8S_VERSION=${K8S_VERSION:-"latest"}
+MINIKUBE_OPTIONS="--vm-driver=none --bootstrapper=localkube"
 if [ "$K8S_VERSION" = "latest" ]; then
     curl -sSl -o /usr/local/bin/kubectl https://storage.googleapis.com/kubernetes-release/release/`curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt`/bin/linux/amd64/kubectl
-    chmod a+x /usr/local/bin/kubectl
-    minikube start --vm-driver=none --bootstrapper=localkube
 else
     curl -sSl -o /usr/local/bin/kubectl https://storage.googleapis.com/kubernetes-release/release/${K8S_VERSION}/bin/linux/amd64/kubectl
-    chmod a+x /usr/local/bin/kubectl
-    minikube start --kubernetes-version $K8S_VERSION --vm-driver=none --bootstrapper=localkube
+    MINIKUBE_OPTIONS="$MINIKUBE_OPTIONS --kubernetes-version $K8S_VERSION"
 fi
+chmod a+x /usr/local/bin/kubectl
+minikube config set ShowBootstrapperDeprecationNotification false || true
+minikube config set WantNoneDriverWarning false || true
+minikube start $MINIKUBE_OPTIONS
+minikube config set dashboard false || true
 sleep 2
-minikube status
+minikube status || true
+kubectl version || true
 
 # wait for the cluster to be ready
 TIMEOUT=${TIMEOUT:-"300"}
