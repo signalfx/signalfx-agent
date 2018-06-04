@@ -1,0 +1,59 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: kafka-configmap
+  namespace: default
+data:
+  jmxremote.password: |
+    testuser testing123
+  jmxremote.access: |
+    testuser readwrite
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kafka-deployment
+  namespace: default
+  labels:
+    app: kafka
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kafka
+  template:
+    metadata:
+      labels:
+        app: kafka
+    spec:
+      containers:
+        - name: kafka
+          image: spotify/kafka:latest
+          ports:
+            - containerPort: 7302
+          env:
+            - name: KAFKA_JMX_OPTS
+              value: -Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.password.file=/root/jmxremote.password -Dcom.sun.management.jmxremote.access.file=/root/jmxremote.access -Dcom.sun.management.jmxremote.port=7302
+          volumeMounts:
+            - name: password
+              mountPath: /tmp/jmxremote.password
+              subPath: jmxremote.password
+            - name: access
+              mountPath: /tmp/jmxremote.access
+              subPath: jmxremote.access
+          command: ["/bin/sh"]
+          args: ["-c", "cp /tmp/jmxremote.* /root/; chmod 400 /root/jmxremote.*; supervisord -n"]
+      volumes:
+        - name: password
+          configMap:
+            name: kafka-configmap
+            items:
+              - key: jmxremote.password
+                path: jmxremote.password
+        - name: access
+          configMap:
+            name: kafka-configmap
+            items:
+              - key: jmxremote.access
+                path: jmxremote.access
