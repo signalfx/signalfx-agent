@@ -171,6 +171,7 @@ jobs:
           docker run --rm -v `pwd`/bundle:/tmp/bundle quay.io/signalfx/signalfx-agent-dev:latest \
               bash -c 'cp -r /bin /etc /jvm /lib /lib64 /neopy /plugins /run /var /tmp/bundle/'
           export AGENT_BIN=`pwd`/bundle/bin/signalfx-agent
+          setcap CAP_SYS_PTRACE,CAP_DAC_READ_SEARCH=+eip $AGENT_BIN
           export TEST_SERVICES_DIR=`pwd`/test-services
           pytest \
               --verbose \
