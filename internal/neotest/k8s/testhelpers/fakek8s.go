@@ -247,7 +247,6 @@ func (f *FakeK8s) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 
 	if isWatch {
 		rw.Header().Add("Transfer-Encoding", "chunked")
-		f.stoppers[resource] = make(chan struct{})
 		// This must block in order to continue to be able to write to the
 		// ResponseWriter
 		f.startWatcher(resource, rw, f.stoppers[resource])
@@ -261,7 +260,6 @@ func (f *FakeK8s) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 // Start a long running routine that will send everything received on the
 // `EventInput` channel as JSON back to the client
 func (f *FakeK8s) startWatcher(resType ResourceType, rw http.ResponseWriter, stopper <-chan struct{}) {
-	// There could be multiple watchers starting simultaneously
 	f.subsMutex.Lock()
 
 	if f.subs[resType] != nil {
@@ -269,6 +267,7 @@ func (f *FakeK8s) startWatcher(resType ResourceType, rw http.ResponseWriter, sto
 	}
 
 	eventCh := make(chan watch.Event)
+	f.stoppers[resType] = make(chan struct{})
 	f.subs[resType] = eventCh
 
 	f.subsMutex.Unlock()
