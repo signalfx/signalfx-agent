@@ -135,6 +135,31 @@
   version = "v1.2"
 
 [[projects]]
+  name = "github.com/fsouza/go-dockerclient"
+  packages = [
+    ".",
+    "external/github.com/Sirupsen/logrus",
+    "external/github.com/docker/docker/opts",
+    "external/github.com/docker/docker/pkg/archive",
+    "external/github.com/docker/docker/pkg/fileutils",
+    "external/github.com/docker/docker/pkg/homedir",
+    "external/github.com/docker/docker/pkg/idtools",
+    "external/github.com/docker/docker/pkg/ioutils",
+    "external/github.com/docker/docker/pkg/longpath",
+    "external/github.com/docker/docker/pkg/pools",
+    "external/github.com/docker/docker/pkg/promise",
+    "external/github.com/docker/docker/pkg/stdcopy",
+    "external/github.com/docker/docker/pkg/system",
+    "external/github.com/docker/go-units",
+    "external/github.com/hashicorp/go-cleanhttp",
+    "external/github.com/opencontainers/runc/libcontainer/user",
+    "external/golang.org/x/net/context",
+    "external/golang.org/x/sys/unix"
+  ]
+  revision = "1d4f4ae73768d3ca16a6fb964694f58dc5eba601"
+  version = "docker-1.9/go-1.4"
+
+[[projects]]
   name = "github.com/ghodss/yaml"
   packages = ["."]
   revision = "0ca9ea5df5451ffdf184b4428c902747c2c11cd7"
@@ -325,6 +350,17 @@
   name = "github.com/iancoleman/strcase"
   packages = ["."]
   revision = "3de563c3dc08a7504131e9d63f678b7d1c3e85d7"
+
+[[projects]]
+  name = "github.com/influxdata/telegraf"
+  packages = [
+    ".",
+    "plugins/inputs",
+    "plugins/inputs/win_perf_counters",
+    "plugins/outputs/signalfx/parse"
+  ]
+  revision = "4bf481d0520810f6dac7f848a1c1d231ef516915"
+  source = "github.com/signalfx/telegraf"
 
 [[projects]]
   name = "github.com/json-iterator/go"
@@ -556,9 +592,10 @@
     "pointer",
     "sfxclient",
     "timekeeper",
+    "trace",
     "web"
   ]
-  revision = "8321403a729d6c8fa60a3dcf2c60bf20f71f6062"
+  revision = "b1be94c3ec8d1fdeccd62735b851489f0b3798e0"
 
 [[projects]]
   name = "github.com/signalfx/metricproxy"
@@ -568,6 +605,12 @@
   ]
   revision = "502b641b80e24cbaebae66411d91e639454c88b5"
   version = "v0.9.21"
+
+[[projects]]
+  name = "github.com/signalfx/telegraf"
+  packages = ["plugins/inputs/docker"]
+  revision = "59568f5311fd96fd4f1d2315f6af1ea01b78c9c0"
+  version = "0.11.1"
 
 [[projects]]
   name = "github.com/sirupsen/logrus"
@@ -582,8 +625,17 @@
   version = "v1.0.0"
 
 [[projects]]
+  name = "github.com/stretchr/objx"
+  packages = ["."]
+  revision = "facf9a85c22f48d2f52f2380e4efce1768749a89"
+  version = "v0.1"
+
+[[projects]]
   name = "github.com/stretchr/testify"
-  packages = ["assert"]
+  packages = [
+    "assert",
+    "mock"
+  ]
   revision = "69483b4bd14f5845b5a1e55bca19e954e827f1d0"
   version = "v1.1.4"
 
@@ -854,6 +906,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "16f5c191f09a19b5414ffb3833ce371ce110f5bf83a1c22208905a3f8e806349"
+  inputs-digest = "011e3dfe565ea4a527b305e3db2f910e3daf7404bb3f3e0863c9675efa1a0339"
   solver-name = "gps-cdcl"
   solver-version = 1
