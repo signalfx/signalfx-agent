@@ -1,6 +1,7 @@
-# SignalFx Smart Agent
+# SignalFx Smart Agent 
 
 [![GoDoc](https://godoc.org/github.com/signalfx/signalfx-agent?status.svg)](https://godoc.org/github.com/signalfx/signalfx-agent)
+[![CircleCI](https://circleci.com/gh/signalfx/signalfx-agent.svg?style=shield)](https://circleci.com/gh/signalfx/signalfx-agent)
 
 The SignalFx Smart Agent is a metric agent written in Go for monitoring
 infrastructure and application services in a variety of different environments.

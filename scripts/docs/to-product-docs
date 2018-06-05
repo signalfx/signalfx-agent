@@ -104,6 +104,7 @@ header_comment | \
     use_marketing_name | \
     sed -e 's/# SignalFx Smart Agent/# Overview/' | \
     sed -e '/GoDoc/d' | \
+    sed -e '/CircleCI/d' | \
     pandoc --from gfm --to rst --standalone --reference-links --wrap none | \
     convert_doc_extensions | \
     convert_relative_links \
