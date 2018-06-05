@@ -14,8 +14,8 @@ pytestmark = [pytest.mark.collectd, pytest.mark.mysql, pytest.mark.monitor_with_
 @pytest.mark.kubernetes
 @pytest.mark.parametrize(
     "k8s_yaml",
-    ["mysql4-k8s.yaml", "mysql57-k8s.yaml", pytest.mark.skip("mysql8-k8s.yaml")],
-    ids=["mysql4", "mysql5.7", "mysql8"])
+    ["mysql57-k8s.yaml", "mysql8-k8s.yaml"],
+    ids=["mysql5.7", "mysql8"])
 def test_mysql_in_k8s(agent_image, minikube, k8s_observer, k8s_yaml, k8s_test_timeout, k8s_namespace):
     monitors = [
         {"type": "collectd/mysql",
