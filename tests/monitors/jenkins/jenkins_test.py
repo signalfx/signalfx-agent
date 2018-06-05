@@ -1,9 +1,17 @@
 from functools import partial as p
-import string
+import os
 import pytest
+import string
 
 from tests.helpers.util import wait_for, run_agent, run_service, container_ip
 from tests.helpers.assertions import tcp_socket_open, has_datapoint_with_dim, http_status
+from tests.kubernetes.utils import (
+    run_k8s_monitors_test,
+    get_metrics_from_doc,
+    get_dims_from_doc,
+)
+
+pytestmark = [pytest.mark.collectd, pytest.mark.jenkins, pytest.mark.monitor_with_endpoints]
 
 jenkins_config = string.Template("""
 monitors:
@@ -31,3 +39,29 @@ def test_jenkins(version):
 
         with run_agent(config) as [backend, _, _]:
             assert wait_for(p(has_datapoint_with_dim, backend, "plugin", "jenkins")), "Didn't get jenkins datapoints"
+
+
+@pytest.mark.k8s
+@pytest.mark.kubernetes
+def test_jenkins_in_k8s(agent_image, minikube, k8s_observer, k8s_test_timeout, k8s_namespace):
+    dockerfile_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)), "../../../test-services/jenkins")
+    build_opts = {"buildargs": {"JENKINS_VERSION": "2.60.3-alpine", "JENKINS_PORT": "8080"}, "tag": "jenkins:test"}
+    minikube.build_image(dockerfile_dir, build_opts)
+    monitors = [
+        {"type": "collectd/jenkins",
+         "discoveryRule": 'container_image =~ "jenkins" && private_port == 8080 && kubernetes_namespace == "%s"' % k8s_namespace,
+         "metricsKey": "33DD8B2F1FD645B814993275703F_EE1FD4D4E204446D5F3200E0F6-C55AC14E",
+         "enhancedMetrics": True}
+    ]
+    yamls = [os.path.join(os.path.dirname(os.path.realpath(__file__)), "jenkins-k8s.yaml")]
+    run_k8s_monitors_test(
+        agent_image,
+        minikube,
+        monitors,
+        namespace=k8s_namespace,
+        yamls=yamls,
+        observer=k8s_observer,
+        expected_metrics=get_metrics_from_doc("collectd-jenkins.md"),
+        expected_dims=get_dims_from_doc("collectd-jenkins.md"),
+        test_timeout=k8s_test_timeout)
+
