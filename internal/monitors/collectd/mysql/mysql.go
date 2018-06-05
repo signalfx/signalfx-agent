@@ -29,6 +29,8 @@ const monitorType = "collectd/mysql"
 // monitored, you can specify that in the top-level `username`/`password`
 // options, otherwise they can be specified at the database level.
 //
+// **Note:** The MySQL monitor supports MySQL versions 5.x or later.
+//
 // Sample YAML configuration:
 //
 // ```
