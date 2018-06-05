@@ -167,36 +167,30 @@ def local_registry(request, worker_id):
             detach=True,
             environment={"REGISTRY_HTTP_ADDR": "0.0.0.0:%d" % port},
             ports={"%d/tcp" % port: port})
-    else:
-        time.sleep(5)
     print("\nWaiting for registry to be ready ...")
-    assert wait_for(registry_is_ready, timeout_seconds=10), "timed out waiting for registry to be ready!"
+    assert wait_for(registry_is_ready, timeout_seconds=60), "timed out waiting for registry to be ready!"
     cont = client.containers.get("registry")
-    return (cont, port)
+    return {"container": cont, "port": port}
 
 
 @pytest.fixture(scope="session")
 def agent_image(local_registry, request, worker_id):
     client = get_docker_client()
-    port = local_registry[1]
+    port = local_registry["port"]
     final_agent_image_name = request.config.getoption("--k8s-agent-name")
     final_agent_image_tag = request.config.getoption("--k8s-agent-tag")
     agent_image_name = "localhost:%d/%s" % (port, final_agent_image_name.split("/")[-1])
     agent_image_tag = final_agent_image_tag
-    if worker_id == "master" or worker_id == "gw0":
-        if not has_docker_image(client, final_agent_image_name, final_agent_image_tag):
-            print("\nAgent image '%s:%s' not found in local registry." % (final_agent_image_name, final_agent_image_tag))
-            print("\nAttempting to pull from remote registry ...")
-            final_agent_image = client.images.pull(final_agent_image_name, tag=final_agent_image_tag)
-        else:
-            final_agent_image = client.images.get(final_agent_image_name + ":" + final_agent_image_tag)
-        print("\nTagging %s:%s as %s:%s ..." % (final_agent_image_name, final_agent_image_tag, agent_image_name, agent_image_tag))
-        final_agent_image.tag(agent_image_name, tag=agent_image_tag)
-        print("\nPushing %s:%s ..." % (agent_image_name, agent_image_tag))
-        client.images.push(agent_image_name, tag=agent_image_tag)
+    if not has_docker_image(client, final_agent_image_name, final_agent_image_tag):
+        print("\nAgent image '%s:%s' not found in local registry." % (final_agent_image_name, final_agent_image_tag))
+        print("\nAttempting to pull from remote registry ...")
+        final_agent_image = client.images.pull(final_agent_image_name, tag=final_agent_image_tag)
     else:
-        assert wait_for(p(has_docker_image, client, agent_image_name, agent_image_tag), timeout_seconds=60), \
-            "timed out waiting for agent image \"%s:%s\"!" % (agent_image_name, agent_image_tag)
+        final_agent_image = client.images.get(final_agent_image_name + ":" + final_agent_image_tag)
+    print("\nTagging %s:%s as %s:%s ..." % (final_agent_image_name, final_agent_image_tag, agent_image_name, agent_image_tag))
+    final_agent_image.tag(agent_image_name, tag=agent_image_tag)
+    print("\nPushing %s:%s ..." % (agent_image_name, agent_image_tag))
+    client.images.push(agent_image_name, tag=agent_image_tag)
     return {"name": agent_image_name, "tag": agent_image_tag}
 
 
