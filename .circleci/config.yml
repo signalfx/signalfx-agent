@@ -173,7 +173,7 @@ jobs:
           export AGENT_BIN=`pwd`/bundle/bin/signalfx-agent
           sudo setcap CAP_SYS_PTRACE,CAP_DAC_READ_SEARCH=+eip $AGENT_BIN
           export TEST_SERVICES_DIR=`pwd`/test-services
-          pytest \
+          sudo pytest \
               --verbose \
               -n8 \
               --junitxml=~/testresults/integration_tests.xml \
