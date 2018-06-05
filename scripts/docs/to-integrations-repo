@@ -52,6 +52,7 @@ EOH
       use_marketing_name | \
       sed -e '/# SignalFx SmartAgent/d' | \
       sed -e '/GoDoc/d' | \
+      sed -e '/CircleCI/d' | \
       sed -e '/## Concepts/d' | \
       uppercase_l2_headers | \
       increase_all_header_level | \
