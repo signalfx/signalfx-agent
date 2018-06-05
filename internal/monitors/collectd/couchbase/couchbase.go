@@ -60,7 +60,7 @@ type Config struct {
 	// Username to authenticate with
 	Username string `yaml:"username"`
 	// Password to authenticate with
-	Password string `yaml:"password"`
+	Password string `yaml:"password" neverLog:"true"`
 }
 
 // Monitor is the main type that represents the monitor
