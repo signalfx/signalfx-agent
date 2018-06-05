@@ -29,6 +29,14 @@ references:
     run: |
       docker load -i /tmp/workspace/final_image.tar
 
+  install_pytest: &install_pytest
+    run: |
+      sudo apt-get update && sudo apt-get install -y python3-dev
+      curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
+      sudo python3 get-pip.py
+      sudo pip3 install --upgrade 'pip==10.0.1'
+      sudo pip3 install -r tests/requirements.txt
+
   run_k8s_integration_tests: &run_k8s_integration_tests
     run:
       no_output_timeout: 30m
@@ -49,7 +57,7 @@ references:
                     --self-contained-html \
                     --k8s-versions=$(eval "echo -n $K8S_VERSION") \
                     --k8s-observers=k8s-api,k8s-kubelet \
-                    --k8s-monitors=kubelet-stats,kubernetes-cluster,kubernetes-volumes,collectd/nginx,collectd/rabbitmq \
+                    --k8s-monitors=kubelet-stats,kubernetes-cluster,kubernetes-volumes,collectd/nginx,collectd/rabbitmq,collectd/mysql \
                     --k8s-timeout=300 \
                     --k8s-test-timeout=120 \
                     --k8s-agent-name=quay.io/signalfx/signalfx-agent-dev \
@@ -225,16 +233,14 @@ jobs:
     <<: *executor
     steps:
       - checkout
+      - *install_pytest
       - run: |
           mkdir ~/testresults
 
-          if ! scripts/changes-include-dir packaging/rpm; then
+          if ! scripts/changes-include-dir Dockerfile packaging/rpm; then
               echo "RPM packaging code has not changed, skipping tests!"
               exit 0
           fi
-
-          sudo apt-get update && sudo apt-get install -y python3-pip
-          sudo pip3 install -r tests/requirements.txt
 
           export PULL_CACHE=yes
           ./packaging/rpm/build
@@ -254,16 +260,14 @@ jobs:
     <<: *executor
     steps:
       - checkout
+      - *install_pytest
       - run: |
           mkdir ~/testresults
 
-          if ! scripts/changes-include-dir packaging/deb; then
+          if ! scripts/changes-include-dir Dockerfile packaging/deb; then
               echo "Debian packaging code has not changed, skipping tests!"
               exit 0
           fi
-
-          sudo apt-get update && sudo apt-get install -y python3-pip
-          sudo pip3 install -r tests/requirements.txt
 
           export PULL_CACHE=yes
           ./packaging/deb/build
@@ -286,7 +290,7 @@ jobs:
       - run: |
           mkdir ~/testresults
 
-          if ! scripts/changes-include-dir deployments/chef; then
+          if ! scripts/changes-include-dir Dockerfile deployments/chef; then
               echo "Chef cookbook code has not changed, skipping tests!"
               exit 0
           fi
@@ -311,7 +315,7 @@ jobs:
       - run: |
           mkdir ~/testresults
 
-          if ! scripts/changes-include-dir deployments/puppet; then
+          if ! scripts/changes-include-dir Dockerfile deployments/puppet; then
               echo "Puppet module code has not changed, skipping tests!"
               exit 0
           fi
@@ -336,7 +340,7 @@ jobs:
       - run: |
           mkdir ~/testresults
 
-          if ! scripts/changes-include-dir deployments/salt; then
+          if ! scripts/changes-include-dir Dockerfile deployments/salt; then
               echo "Salt module code has not changed, skipping tests!"
               exit 0
           fi
@@ -357,7 +361,7 @@ jobs:
       - run: |
           mkdir ~/testresults
 
-          if ! scripts/changes-include-dir deployments/ansible; then
+          if ! scripts/changes-include-dir Dockerfile deployments/ansible; then
               echo "Ansible playbook code has not changed, skipping tests!"
               exit 0
           fi
