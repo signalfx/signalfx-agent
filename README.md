@@ -1,4 +1,4 @@
-# SignalFx Smart Agent
+# SignalFx Smart Agent [![CircleCI](https://circleci.com/gh/signalfx/signalfx-agent.svg?style=svg)](https://circleci.com/gh/signalfx/signalfx-agent)
 
 [![GoDoc](https://godoc.org/github.com/signalfx/signalfx-agent?status.svg)](https://godoc.org/github.com/signalfx/signalfx-agent)
 
