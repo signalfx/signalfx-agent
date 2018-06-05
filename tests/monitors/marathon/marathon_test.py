@@ -1,15 +1,9 @@
 from functools import partial as p
-import os
 import pytest
 import string
 
 from tests.helpers.util import wait_for, run_agent, run_container, container_ip
 from tests.helpers.assertions import tcp_socket_open, has_datapoint_with_dim, http_status
-from tests.kubernetes.utils import (
-    run_k8s_monitors_test,
-    get_metrics_from_doc,
-    get_dims_from_doc,
-)
 
 pytestmark = [pytest.mark.collectd, pytest.mark.marathon, pytest.mark.monitor_with_endpoints]
 
@@ -39,25 +33,3 @@ def test_marathon(marathon_image):
 
             with run_agent(config) as [backend, _, _]:
                 assert wait_for(p(has_datapoint_with_dim, backend, "plugin", "marathon")), "didn't get datapoints"
-
-
-@pytest.mark.k8s
-@pytest.mark.kubernetes
-def test_marathon_in_k8s(agent_image, minikube, k8s_observer, k8s_test_timeout, k8s_namespace):
-    monitors = [
-        {"type": "collectd/marathon",
-         "discoveryRule": 'container_image =~ "marathon" && private_port == 8080 && kubernetes_namespace == "%s"' % k8s_namespace,
-         "username": "testuser", "password": "testing123"},
-    ]
-    yamls = [os.path.join(os.path.dirname(os.path.realpath(__file__)), "marathon-k8s.yaml")]
-    run_k8s_monitors_test(
-        agent_image,
-        minikube,
-        monitors,
-        namespace=k8s_namespace,
-        yamls=yamls,
-        observer=k8s_observer,
-        expected_metrics=get_metrics_from_doc("collectd-marathon.md"),
-        expected_dims=get_dims_from_doc("collectd-marathon.md"),
-        test_timeout=k8s_test_timeout)
-
