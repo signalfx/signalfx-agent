@@ -203,11 +203,11 @@ jobs:
       - store_artifacts:
           path: ~/testresults/k8s_integration_tests.html
 
-  k8s-api_v1.9.0_integration_tests:
+  k8s_v1.9.0_integration_tests:
     <<: *executor
     environment:
       K8S_VERSION: "v1.9.0"
-      K8S_OBSERVERS: "k8s-api"
+      K8S_OBSERVERS: "k8s-api,k8s-kubelet"
       PYTEST_MARKERS: "k8s"
     steps:
       - *attach_workspace
@@ -220,28 +220,11 @@ jobs:
       - store_artifacts:
           path: ~/testresults/k8s_integration_tests.html
 
-  k8s-kubelet_v1.9.0_integration_tests:
-    <<: *executor
-    environment:
-      K8S_VERSION: "v1.9.0"
-      K8S_OBSERVERS: "k8s-kubelet"
-      PYTEST_MARKERS: "k8s"
-    steps:
-      - *attach_workspace
-      - *import_final_image
-      - checkout
-      - *install_pytest
-      - *run_k8s_integration_tests
-      - store_test_results:
-          path: ~/testresults
-      - store_artifacts:
-          path: ~/testresults/k8s_integration_tests.html
-
-  k8s-api_v1.8.0_integration_tests:
+  k8s_v1.8.0_integration_tests:
     <<: *executor
     environment:
       K8S_VERSION: "v1.8.0"
-      K8S_OBSERVERS: "k8s-api"
+      K8S_OBSERVERS: "k8s-api,k8s-kubelet"
       PYTEST_MARKERS: "k8s"
     steps:
       - *attach_workspace
@@ -254,45 +237,11 @@ jobs:
       - store_artifacts:
           path: ~/testresults/k8s_integration_tests.html
 
-  k8s-kubelet_v1.8.0_integration_tests:
-    <<: *executor
-    environment:
-      K8S_VERSION: "v1.8.0"
-      K8S_OBSERVERS: "k8s-kubelet"
-      PYTEST_MARKERS: "k8s"
-    steps:
-      - *attach_workspace
-      - *import_final_image
-      - checkout
-      - *install_pytest
-      - *run_k8s_integration_tests
-      - store_test_results:
-          path: ~/testresults
-      - store_artifacts:
-          path: ~/testresults/k8s_integration_tests.html
-
-  k8s-api_v1.7.0_integration_tests:
+  k8s_v1.7.0_integration_tests:
     <<: *executor
     environment:
       K8S_VERSION: "v1.7.0"
-      K8S_OBSERVERS: "k8s-api"
-      PYTEST_MARKERS: "k8s"
-    steps:
-      - *attach_workspace
-      - *import_final_image
-      - checkout
-      - *install_pytest
-      - *run_k8s_integration_tests
-      - store_test_results:
-          path: ~/testresults
-      - store_artifacts:
-          path: ~/testresults/k8s_integration_tests.html
-
-  k8s-kubelet_v1.7.0_integration_tests:
-    <<: *executor
-    environment:
-      K8S_VERSION: "v1.7.0"
-      K8S_OBSERVERS: "k8s-kubelet"
+      K8S_OBSERVERS: "k8s-api,k8s-kubelet"
       PYTEST_MARKERS: "k8s"
     steps:
       - *attach_workspace
@@ -490,22 +439,13 @@ workflows:
 #     - k8s_v1.10.0_integration_tests:
 #        requires:
 #         - build_final_image
-     - k8s-api_v1.9.0_integration_tests:
+     - k8s_v1.9.0_integration_tests:
         requires:
          - build_final_image
-     - k8s-kubelet_v1.9.0_integration_tests:
+     - k8s_v1.8.0_integration_tests:
         requires:
          - build_final_image
-     - k8s-api_v1.8.0_integration_tests:
-        requires:
-         - build_final_image
-     - k8s-kubelet_v1.8.0_integration_tests:
-        requires:
-         - build_final_image
-     - k8s-api_v1.7.0_integration_tests:
-        requires:
-         - build_final_image
-     - k8s-kubelet_v1.7.0_integration_tests:
+     - k8s_v1.7.0_integration_tests:
         requires:
          - build_final_image
      - docs_test
