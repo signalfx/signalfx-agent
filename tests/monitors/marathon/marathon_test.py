@@ -34,7 +34,7 @@ def test_marathon(image):
                            ) as service_container:
             host = container_ip(service_container)
             config = monitor_config.substitute(host=host)
-            assert wait_for(p(tcp_socket_open, host, 8080), 60), "service not listening on port"
+            assert wait_for(p(tcp_socket_open, host, 8080), 120), "service not listening on port"
             assert wait_for(p(http_status, url="http://{0}:8080/v2/info".format(host), status=[200]), 120), "service didn't start"
 
             with run_agent(config) as [backend, _, _]:
