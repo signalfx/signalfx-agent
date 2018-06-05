@@ -17,6 +17,6 @@ DEV_IMAGE=${DEV_IMAGE:-"quay.io/signalfx/signalfx-agent-dev"}
 
 for s in $($SCRIPT_DIR/dockerfile-stages); do
   image="$DEV_IMAGE:stage-$s"
-  docker build -t $image --target $s $SCRIPT_DIR/..
+  docker build -t $image --pull --target $s $SCRIPT_DIR/..
   docker push $image
 done
