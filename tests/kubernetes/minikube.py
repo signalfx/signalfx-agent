@@ -102,6 +102,15 @@ class Minikube:
         self.load_kubeconfig(timeout=timeout)
         self.get_client()
 
+    def build_image(self, dockerfile_dir, build_opts={}):
+        if not self.client:
+            self.get_client()
+        self.client.images.build(
+            path=dockerfile_dir,
+            rm=True,
+            forcerm=True,
+            **build_opts)
+
     @contextmanager
     def deploy_k8s_yamls(self, yamls=[], namespace="default", timeout=180):
         self.yamls = []
@@ -154,18 +163,14 @@ class Minikube:
             self.yamls = []
 
     def pull_agent_image(self, name, tag):
-        if self.worker_id == "master" or self.worker_id == "gw0":
-            assert has_docker_image(self.host_client, name, tag), "agent image \"%s:%s\" not found!" % (name, tag)
-            image_id = self.host_client.images.get("%s:%s" % (name, tag)).id
-            if has_docker_image(self.client, image_id):
-                return
-            print("\nPulling %s:%s to the minikube container ..." % (name, tag))
-            self.client.images.pull(name, tag=tag)
-            _, output = self.container.exec_run('docker images')
-            print(output.decode('utf-8'))
-        else:
-            assert wait_for(p(has_docker_image, self.client, name, tag), timeout_seconds=60), \
-                "timed out waiting for agent image \"%s:%s\"!" % (name, tag)
+        assert has_docker_image(self.host_client, name, tag), "agent image \"%s:%s\" not found!" % (name, tag)
+        image_id = self.host_client.images.get("%s:%s" % (name, tag)).id
+        if has_docker_image(self.client, image_id):
+            return
+        print("\nPulling %s:%s to the minikube container ..." % (name, tag))
+        self.client.images.pull(name, tag=tag)
+        _, output = self.container.exec_run('docker images')
+        print(output.decode('utf-8'))
 
     @contextmanager
     def deploy_agent(self, configmap_path, daemonset_path, serviceaccount_path, observer=None, monitors=[], cluster_name="minikube", backend=None, image_name=None, image_tag=None, namespace="default"):
@@ -178,6 +183,7 @@ class Minikube:
         try:
             yield self.agent
         finally:
+            print(self.agent.get_status())
             self.agent.delete()
             self.agent = Agent()
 
