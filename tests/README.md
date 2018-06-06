@@ -35,7 +35,8 @@ image:
 % cd <root_of_cloned_repo>
 % make image
 % make dev-image
-% make run-k8s-tests
+% make run-dev-image
+%% make run-k8s-tests
 ```
 
 Run `pytest --help` from the root of the repo in the dev image and see the 

@@ -102,19 +102,14 @@ run-dev-image:
 .PHONY: run-k8s-tests
 run-k8s-tests:
 	docker rm -f -v minikube registry || true
-	docker run --rm -it \
-		$(extra_run_flags) \
-		--net host \
-		-v $(CURDIR):/go/src/github.com/signalfx/signalfx-agent:cached \
-		signalfx-agent-dev \
-			pytest \
-				--verbose \
-				--exitfirst \
-				-n4 \
-				-m "k8s" \
-				--html=test_output/k8s_results.html \
-				--self-contained-html \
-				tests || true
+	pytest \
+		--verbose \
+		--exitfirst \
+		-n4 \
+		-m "k8s" \
+		--html=test_output/k8s_results.html \
+		--self-contained-html \
+		tests || true
 	docker rm -f -v minikube registry
 
 .PHONY: docs
