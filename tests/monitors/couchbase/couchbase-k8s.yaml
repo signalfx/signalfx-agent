@@ -18,6 +18,11 @@ spec:
     spec:
       containers:
         - name: couchbase
-          image: couchbase/server:sandbox
+          image: couchbase:test
           ports:
             - containerPort: 8091
+          env:
+            - name: USERNAME
+              value: administrator
+            - name: PASSWORD
+              value: testing123
