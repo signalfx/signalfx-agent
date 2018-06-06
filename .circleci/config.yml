@@ -44,7 +44,7 @@ references:
         mkdir ~/testresults
         mkdir -p /tmp/scratch
         pytest \
-            -n2 \
+            -n6 \
             -m "$PYTEST_MARKERS" \
             --exitfirst \
             --verbose \
@@ -73,12 +73,6 @@ jobs:
          export PULL_CACHE=yes
          source scripts/common.sh
          do_docker_build signalfx-agent-dev latest dev-extras
-         mkdir -p /tmp/workspace
-         docker save -o /tmp/workspace/image.tar signalfx-agent-dev:latest
-     - persist_to_workspace:
-         root: /tmp/workspace
-         paths:
-           - image.tar
 
   build-windows:
     <<: *executor
