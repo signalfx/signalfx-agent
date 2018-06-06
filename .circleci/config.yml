@@ -66,10 +66,13 @@ jobs:
      - checkout
      - run: |
          set -x
+         if ! scripts/changes-include-dir Dockerfile; then
+             echo "Dockerfile has not changed, skipping build!"
+             exit 0
+         fi
          export PULL_CACHE=yes
          source scripts/common.sh
          do_docker_build signalfx-agent-dev latest dev-extras
-     - run: |
          mkdir -p /tmp/workspace
          docker save -o /tmp/workspace/image.tar signalfx-agent-dev:latest
      - persist_to_workspace:
@@ -428,6 +431,7 @@ workflows:
   version: 2
   build_test:
     jobs:
+     - build
      - build_final_image
      - build-windows
      - lint
