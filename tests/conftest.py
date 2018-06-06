@@ -155,11 +155,11 @@ def local_registry(request, worker_id):
     port = 5000
     request.addfinalizer(teardown)
     if worker_id == "master" or worker_id == "gw0":
-        try:
-            cont = client.containers.get("registry")
-            cont.remove(force=True, v=True)
-        except docker.errors.NotFound:
-            pass
+        #try:
+        #    cont = client.containers.get("registry")
+        #    cont.remove(force=True, v=True)
+        #except docker.errors.NotFound:
+        #    pass
         print("\nStarting registry container localhost:%d ..." % port)
         client.containers.run(
             image='registry:latest',
