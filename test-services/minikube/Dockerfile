@@ -23,24 +23,23 @@ ARG MINIKUBE_VERSION=latest
 ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update -y && \
     apt-get -yy -q --no-install-recommends install \
-    iptables \
+    apt-transport-https \
+    aufs-tools \
+    bridge-utils \
+    ca-certificates \
+    cifs-utils \
+    conntrack \
+    curl \
     ebtables \
     ethtool \
-    ca-certificates \
-    conntrack \
-    socat \
-    git \
-    nfs-common \
     glusterfs-client \
-    cifs-utils \
-    apt-transport-https \
-    ca-certificates \
-    curl \
     gnupg2 \
-    software-properties-common \
-    bridge-utils \
     ipcalc \
-    aufs-tools \
+    iptables \
+    nfs-common \
+    netcat \
+    socat \
+    software-properties-common \
     sudo \
     && apt-get clean && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
