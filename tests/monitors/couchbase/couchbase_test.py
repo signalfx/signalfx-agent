@@ -46,12 +46,14 @@ def test_couchbase(tag):
 @pytest.mark.k8s
 @pytest.mark.kubernetes
 def test_couchbase_in_k8s(agent_image, minikube, k8s_observer, k8s_test_timeout, k8s_namespace):
+    dockerfile_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)), "../../../test-services/couchbase")
+    build_opts = {"buildargs": {"COUCHBASE_VERSION": "enterprise-5.1.0"}, "tag": "couchbase:test"}
+    minikube.build_image(dockerfile_dir, build_opts)
     monitors = [
         {"type": "collectd/couchbase",
          "discoveryRule": 'container_image =~ "couchbase" && private_port == 8091 && kubernetes_namespace == "%s"' % k8s_namespace,
-         "collectTarget": "BUCKET",
-         "collectBucket": "travel-sample",
-         "username": "Administrator", "password": "password"}
+         "collectTarget": "NODE",
+         "username": "administrator", "password": "testing123"}
     ]
     yamls = [os.path.join(os.path.dirname(os.path.realpath(__file__)), "couchbase-k8s.yaml")]
     run_k8s_monitors_test(
