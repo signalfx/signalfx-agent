@@ -37,6 +37,7 @@ Monitor Type: `kubernetes-cluster`
 | Config option | Required | Type | Description |
 | --- | --- | --- | --- |
 | `alwaysClusterReporter` | no | `bool` | If `true`, leader election is skipped and metrics are always reported. (**default:** `false`) |
+| `useNodeName` | no | `bool` | If set to true, the Kubernetes node name will be used as the dimension to which to sync properties about each respective node.  This is necessary if your cluster's machines do not have unique machine-id values, as can happen when machine images are improperly cloned. (**default:** `false`) |
 | `kubernetesAPI` | no | `object (see below)` | Config for the K8s API client |
 
 
@@ -85,8 +86,9 @@ dimensions may be specific to certain metrics.
 | ---  | ---         |
 | `kubernetes_name` | The name of the resource that the metric describes |
 | `kubernetes_namespace` | The namespace of the resource that the metric describes |
+| `kubernetes_node` | The name of the node, as defined by the `name` field of the node resource. |
 | `kubernetes_pod_uid` | The UID of the pod that the metric describes |
-| `machine_id` | The machine ID from /etc/machine-id.  This should be unique across all nodes in your cluster, but some cluster deployment tools don't guarantee this. |
+| `machine_id` | The machine ID from /etc/machine-id.  This should be unique across all nodes in your cluster, but some cluster deployment tools don't guarantee this.  This will not be sent if the `useNodeName` config option is set to true. |
 | `metric_source` | This is always set to `kubernetes` |
 
 ## Properties
@@ -97,7 +99,7 @@ are set on the dimension values of the dimension specified.
 
 | Name | Dimension | Description |
 | ---  | ---       | ---         |
-| `<node label>` | `machine_id` | All non-blank labels on a given node will be synced as properties to the `machine_id` dimension value for that node. Any blank values will be synced as tags on that same dimension. |
+| `<node label>` | `machine_id/kubernetes_node` | All non-blank labels on a given node will be synced as properties to the `machine_id` or `kubernetes_node` dimension value for that node.  Which dimension gets the properties is determined by the `useNodeName` config option.  Any blank values will be synced as tags on that same dimension. |
 | `<pod label>` | `kubernetes_pod_uid` | Any labels with non-blank values on the pod will be synced as properties to the `kubernetes_pod_uid` dimension. Any blank labels will be synced as tags on that same dimension. |
 
 

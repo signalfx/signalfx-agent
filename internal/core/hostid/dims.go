@@ -1,15 +1,19 @@
 package hostid
 
-import log "github.com/sirupsen/logrus"
+import (
+	"sync"
+
+	log "github.com/sirupsen/logrus"
+)
 
 // Dimensions returns a map of host-specific dimensions that are derived from
 // the environment.
 func Dimensions(sendMachineID bool, hostname string, useFullyQualifiedHost *bool) map[string]string {
 	log.Info("Fetching host id dimensions")
-	// Fire off all lookups simultaneously so we delay agent startup as little
-	// as possible.
 
-	hostProvider := callConcurrent(func() string {
+	var g dimGatherer
+
+	g.GatherDim("host", func() string {
 		if hostname != "" {
 			return hostname
 		}
@@ -18,38 +22,53 @@ func Dimensions(sendMachineID bool, hostname string, useFullyQualifiedHost *bool
 		// if the user specified it explicitly as false with this logic.
 		return getHostname(useFullyQualifiedHost == nil || *useFullyQualifiedHost)
 	})
-	awsProvider := callConcurrent(AWSUniqueID)
-	gcpProvider := callConcurrent(GoogleComputeID)
-	machineIDProvider := callConcurrent(MachineID)
-	azureProvider := callConcurrent(AzureUniqueID)
-
-	dims := make(map[string]string)
-	insertNextChanValue(dims, "host", hostProvider)
-	insertNextChanValue(dims, "AWSUniqueId", awsProvider)
-	insertNextChanValue(dims, "gcp_id", gcpProvider)
+	g.GatherDim("AWSUniqueId", AWSUniqueID)
+	g.GatherDim("gcp_id", GoogleComputeID)
 	if sendMachineID {
-		insertNextChanValue(dims, "machine_id", machineIDProvider)
+		g.GatherDim("machine_id", MachineID)
+	} else {
+		// If not running on k8s, this will be blank and thus omitted.  It is
+		// only sent as an alternative to machine id because k8s node labels
+		// are synced as properties to this instead of machine_id when
+		// machine_id isn't available.
+		g.GatherDim("kubernetes_node", KubernetesNodeName)
 	}
-	insertNextChanValue(dims, "azure_resource_id", azureProvider)
+	g.GatherDim("azure_resource_id", AzureUniqueID)
+
+	dims := g.WaitForDimensions()
 
 	log.Infof("Using host id dimensions %v", dims)
 	return dims
 }
 
-func callConcurrent(f func() string) <-chan string {
-	res := make(chan string)
-	go func() {
-		res <- f()
-	}()
-	return res
+// Helper to fire off the dim lookups in parallel to minimize delay to agent
+// start up.
+type dimGatherer struct {
+	lock sync.Mutex
+	dims map[string]string
+	wg   sync.WaitGroup
 }
 
-func insertNextChanValue(m map[string]string, k string, ch <-chan string) {
-	select {
-	case val := <-ch:
-		// Don't insert blank values
-		if val != "" {
-			m[k] = val
+// GatherDim inserts the given dim key based on the output of the provider
+// func.  If the output is blank, the dimension will not be inserted.
+func (dg *dimGatherer) GatherDim(key string, provider func() string) {
+	dg.wg.Add(1)
+	go func() {
+		res := provider()
+		if res != "" {
+			dg.lock.Lock()
+			if dg.dims == nil {
+				dg.dims = make(map[string]string)
+			}
+
+			dg.dims[key] = res
+			dg.lock.Unlock()
 		}
-	}
+		dg.wg.Done()
+	}()
+}
+
+func (dg *dimGatherer) WaitForDimensions() map[string]string {
+	dg.wg.Wait()
+	return dg.dims
 }

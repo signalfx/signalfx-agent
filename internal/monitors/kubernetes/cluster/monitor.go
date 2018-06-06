@@ -78,6 +78,11 @@ type Config struct {
 	config.MonitorConfig
 	// If `true`, leader election is skipped and metrics are always reported.
 	AlwaysClusterReporter bool `yaml:"alwaysClusterReporter"`
+	// If set to true, the Kubernetes node name will be used as the dimension
+	// to which to sync properties about each respective node.  This is
+	// necessary if your cluster's machines do not have unique machine-id
+	// values, as can happen when machine images are improperly cloned.
+	UseNodeName bool `yaml:"useNodeName"`
 	// Config for the K8s API client
 	KubernetesAPI *kubernetes.APIConfig `yaml:"kubernetesAPI" default:"{}"`
 }
@@ -114,7 +119,7 @@ func (m *Monitor) Configure(config *Config) error {
 	}
 
 	m.k8sClient = k8sClient
-	m.datapointCache = metrics.NewDatapointCache()
+	m.datapointCache = metrics.NewDatapointCache(config.UseNodeName)
 	m.stop = make(chan struct{})
 
 	m.Start()
