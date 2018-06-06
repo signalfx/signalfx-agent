@@ -178,7 +178,7 @@ jobs:
           export TEST_SERVICES_DIR=`pwd`/test-services
           sudo -E pytest \
               --verbose \
-              -n8 \
+              -n6 \
               --junitxml=~/testresults/integration_tests.xml \
               --html=~/testresults/integration_tests.html \
               --self-contained-html \
