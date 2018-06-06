@@ -39,7 +39,7 @@ references:
         mkdir ~/testresults
         mkdir -p /tmp/scratch
         pytest \
-            -n4 \
+            -n2 \
             -m "$PYTEST_MARKERS" \
             --exitfirst \
             --verbose \
