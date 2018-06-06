@@ -124,7 +124,6 @@ class Minikube:
             for doc in docs:
                 kind = doc['kind']
                 name = doc['metadata']['name']
-                #namespace = doc['metadata']['namespace']
                 doc['metadata']['namespace'] = namespace
                 if kind == "ConfigMap":
                     if has_configmap(name, namespace=namespace):
@@ -137,8 +136,15 @@ class Minikube:
             for doc in docs:
                 kind = doc['kind']
                 name = doc['metadata']['name']
-                #namespace = doc['metadata']['namespace']
                 doc['metadata']['namespace'] = namespace
+                try:
+                    containers = doc['spec']['template']['spec']['containers']
+                    ports = []
+                    for cont in containers:
+                        for port in cont['ports']:
+                            ports.append(int(port['containerPort']))
+                except KeyError:
+                    ports = []
                 if kind == "ConfigMap":
                     continue
                 if has_deployment(name, namespace=namespace):
@@ -146,6 +152,10 @@ class Minikube:
                     delete_deployment(name, namespace=namespace)
                 print("Creating deployment from %s ..." % yaml_file)
                 create_deployment(body=doc, namespace=namespace, timeout=timeout)
+                for port in ports:
+                    for pod in get_all_pods_with_name(name, namespace=namespace):
+                        assert wait_for(p(pod_port_open, self.container, pod.status.pod_ip, port), timeout_seconds=timeout), \
+                            "timed out waiting for port %d for pod %s to be ready!" % (port, pod.metadata.name)
                 self.yamls.append(doc)
         try:
             yield
