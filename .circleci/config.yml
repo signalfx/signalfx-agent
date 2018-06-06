@@ -167,7 +167,7 @@ jobs:
           mkdir bundle
           cid=$(docker create quay.io/signalfx/signalfx-agent-dev:latest true)
           docker export $cid | tar -C $(pwd)/bundle/ -xf -
-          docker rm -fv cid
+          docker rm -fv $cid
           export AGENT_BIN=$(pwd)/bundle/bin/signalfx-agent
           export TEST_SERVICES_DIR=`pwd`/test-services
           sudo -E pytest \
