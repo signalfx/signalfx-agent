@@ -135,31 +135,6 @@
   version = "v1.2"
 
 [[projects]]
-  name = "github.com/fsouza/go-dockerclient"
-  packages = [
-    ".",
-    "external/github.com/Sirupsen/logrus",
-    "external/github.com/docker/docker/opts",
-    "external/github.com/docker/docker/pkg/archive",
-    "external/github.com/docker/docker/pkg/fileutils",
-    "external/github.com/docker/docker/pkg/homedir",
-    "external/github.com/docker/docker/pkg/idtools",
-    "external/github.com/docker/docker/pkg/ioutils",
-    "external/github.com/docker/docker/pkg/longpath",
-    "external/github.com/docker/docker/pkg/pools",
-    "external/github.com/docker/docker/pkg/promise",
-    "external/github.com/docker/docker/pkg/stdcopy",
-    "external/github.com/docker/docker/pkg/system",
-    "external/github.com/docker/go-units",
-    "external/github.com/hashicorp/go-cleanhttp",
-    "external/github.com/opencontainers/runc/libcontainer/user",
-    "external/golang.org/x/net/context",
-    "external/golang.org/x/sys/unix"
-  ]
-  revision = "1d4f4ae73768d3ca16a6fb964694f58dc5eba601"
-  version = "docker-1.9/go-1.4"
-
-[[projects]]
   name = "github.com/ghodss/yaml"
   packages = ["."]
   revision = "0ca9ea5df5451ffdf184b4428c902747c2c11cd7"
@@ -607,12 +582,6 @@
   version = "v0.9.21"
 
 [[projects]]
-  name = "github.com/signalfx/telegraf"
-  packages = ["plugins/inputs/docker"]
-  revision = "59568f5311fd96fd4f1d2315f6af1ea01b78c9c0"
-  version = "0.11.1"
-
-[[projects]]
   name = "github.com/sirupsen/logrus"
   packages = ["."]
   revision = "d682213848ed68c0a260ca37d6dd5ace8423f5ba"
@@ -906,6 +875,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "011e3dfe565ea4a527b305e3db2f910e3daf7404bb3f3e0863c9675efa1a0339"
+  inputs-digest = "c88cbf68193bb574e8255b550528b935f5b79684ab062f3676c43a8a38ce200a"
   solver-name = "gps-cdcl"
   solver-version = 1
