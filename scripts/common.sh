@@ -23,6 +23,7 @@ do_docker_build() {
   docker build \
     -t $image_name:$image_tag \
     -f $MY_SCRIPT_DIR/../Dockerfile \
+    --pull \
     --build-arg agent_version=${agent_version} \
     --build-arg GOOS=${operating_system} \
     --target $target_stage \
