@@ -69,7 +69,7 @@ def test_docker_stops_watching_old_containers():
         """) as [backend, get_output, _]:
             assert wait_for(p(has_datapoint_with_dim, backend, "container_id", nginx_container.id)), "Didn't get nginx datapoints"
             nginx_container.stop(timeout=10)
-            time.sleep(3)
+            time.sleep(5)
             backend.datapoints.clear()
             assert ensure_always(lambda: not has_datapoint_with_dim(backend, "container_id", nginx_container.id))
 
