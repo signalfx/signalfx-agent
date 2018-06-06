@@ -561,3 +561,6 @@ def container_is_running(client, name):
         else:
             raise
 
+def pod_port_open(container, host, port):
+    rc, _ = container.exec_run("nc -z %s %d" % (host, port))
+    return rc == 0
