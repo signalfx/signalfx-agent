@@ -143,23 +143,23 @@ def local_registry(request, worker_id):
         if cont and worker_id == "master":
             cont.remove(force=True, v=True)
 
-    def registry_is_ready():
-        if container_is_running(client, "registry"):
-            cont = client.containers.get("registry")
-            return has_log_message(cont.logs().decode('utf-8'), message="listening on [::]:%d" % port)
-        return False
+    def wait_for_registry(port):
+        assert wait_for(p(container_is_running, client, "registry"), timeout_seconds=60), \
+            "timed out waiting for registry container to start!"
+        cont = client.containers.get("registry")
+        assert wait_for(lambda: has_log_message(cont.logs().decode('utf-8'), message="listening on [::]:"), timeout_seconds=10), \
+            "timed out waiting for registry to be ready!"
+        if not port:
+            match = re.search('listening on \[::\]:(\d+)', cont.logs().decode('utf-8'))
+            port = match.group(1)
+        return (cont, int(port))
         
     client = get_docker_client()
     cont = None
-    #port = get_free_port()
-    port = 5000
+    port = None
     request.addfinalizer(teardown)
     if worker_id == "master" or worker_id == "gw0":
-        #try:
-        #    cont = client.containers.get("registry")
-        #    cont.remove(force=True, v=True)
-        #except docker.errors.NotFound:
-        #    pass
+        port = get_free_port()
         print("\nStarting registry container localhost:%d ..." % port)
         client.containers.run(
             image='registry:latest',
@@ -168,8 +168,7 @@ def local_registry(request, worker_id):
             environment={"REGISTRY_HTTP_ADDR": "0.0.0.0:%d" % port},
             ports={"%d/tcp" % port: port})
     print("\nWaiting for registry to be ready ...")
-    assert wait_for(registry_is_ready, timeout_seconds=60), "timed out waiting for registry to be ready!"
-    cont = client.containers.get("registry")
+    cont, port = wait_for_registry(port)
     return {"container": cont, "port": port}
 
 
