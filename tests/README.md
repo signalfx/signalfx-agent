@@ -49,5 +49,5 @@ the containers will be started once for all workers, but they will not be
 automatically removed when the tests complete since there is currently no way of 
 knowing which test will be last to teardown the fixtures.  As a workaround, the
 `make run-k8s-tests` command will remove any running minikube and registry 
-containers before running the tests.
+containers before and after the tests start.
 
