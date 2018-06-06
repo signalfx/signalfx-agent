@@ -77,7 +77,7 @@ type Config struct {
 	// User with security access to jenkins
 	Username string `yaml:"username"`
 	// API Token of the user
-	APIToken string `yaml:"apiToken"`
+	APIToken string `yaml:"apiToken" neverLog:"true"`
 	// Path to the keyfile
 	SSLKeyFile string `yaml:"sslKeyFile"`
 	// Path to the certificate
