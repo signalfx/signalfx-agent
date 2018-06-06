@@ -17,6 +17,10 @@ A few things to do before deploying these:
 	reference in [./clusterrolebinding.yaml](./clusterrolebinding.yaml) to the
 	namespace in which you are deploying the agent.
 
+ 3. Create a secret in K8s with your org's access token:
+
+	`kubectl create secret generic --from-literal access-token=MY_ACCESS_TOKEN signalfx-agent`
+
 Then to deploy run the following from the present directory:
 
 `cat *.yaml | kubectl apply -f -`

@@ -24,20 +24,26 @@ type cachedResourceKey struct {
 	UID  types.UID
 }
 
+var logger = log.WithFields(log.Fields{
+	"monitorType": "kubernetes-cluster",
+})
+
 // DatapointCache holds an up to date copy of datapoints pertaining to the
 // cluster.  It is updated whenever the HandleChange method is called with new
 // K8s resources.
 type DatapointCache struct {
 	dpCache      map[cachedResourceKey][]*datapoint.Datapoint
 	dimPropCache map[cachedResourceKey]*atypes.DimProperties
+	useNodeName  bool
 	mutex        sync.Mutex
 }
 
 // NewDatapointCache creates a new clean cache
-func NewDatapointCache() *DatapointCache {
+func NewDatapointCache(useNodeName bool) *DatapointCache {
 	return &DatapointCache{
 		dpCache:      make(map[cachedResourceKey][]*datapoint.Datapoint),
 		dimPropCache: make(map[cachedResourceKey]*atypes.DimProperties),
+		useNodeName:  useNodeName,
 	}
 }
 
@@ -109,8 +115,8 @@ func (dc *DatapointCache) HandleAdd(newObj runtime.Object) interface{} {
 	case *v1beta1.ReplicaSet:
 		dps = datapointsForReplicaSet(o)
 	case *v1.Node:
-		dps = datapointsForNode(o)
-		dimProps = dimPropsForNode(o)
+		dps = datapointsForNode(o, dc.useNodeName)
+		dimProps = dimPropsForNode(o, dc.useNodeName)
 	default:
 		log.WithFields(log.Fields{
 			"obj": spew.Sdump(newObj),

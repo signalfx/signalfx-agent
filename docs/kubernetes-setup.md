@@ -15,7 +15,12 @@ cluster and configure it to auto-discover SignalFx-supported integrations to
 monitor.
 
 1. Store your organization's Access Token as a key named `access-token` in a
-   Kubernetes secret named `signalfx-agent`.
+   Kubernetes secret named `signalfx-agent`:
+
+   ```sh
+    $ kubectl create secret generic --from-literal access-token=MY_ACCESS_TOKEN signalfx-agent`
+   ```
+
 2. If you use [Helm](https://github.com/kubernetes/helm), you can use [our
    chart](https://github.com/kubernetes/charts/tree/master/stable/signalfx-agent)
    in the stable Helm chart repository.  Otherwise, download the following
@@ -42,6 +47,17 @@ monitor.
 
       **If you are using Rancher for your Kubernetes deployment,** complete the
       instructions in [Rancher](#rancher) before proceeding with the next step.
+
+	  **If you are using AWS Elastic Container Service for Kubernetes (EKS)for
+	  your Kubernetes deployment,** complete the instructions in [AWS Elastic
+	  Container Service for Kubernetes
+	  (EKS)](#aws-elastic-container-service-for-kubernetes-eks) before
+	  proceeding with the next step.
+
+	  **If you are using Pivotal Container Service (PKS) for your Kubernetes
+	  deployment,** complete the instructions in [Pivotal Container Service
+	  (PKS)](#pivotal-container-service-pks) before proceeding with the next
+	  step.
 
 	  **If you are using Google Container Engine (GKE) for your Kubernetes
 	  deployment,** complete the instructions in [Google Container Engine
@@ -256,6 +272,32 @@ Cadvisor runs on port 9344 instead of the standard 4194.
 
 When you have completed these steps, continue with step 3 in
 [Installation](#installation).
+
+
+## AWS Elastic Container Service for Kubernetes (EKS)
+On EKS, machine ids are identical across worker nodes, which makes that value
+useless for identification.  Therefore, there are two changes you should make
+to the configmap to use the K8s node name instead of machine-id.
+
+ 1) In the configmap.yaml, change the top-level config option `sendMachineId`
+    to `false`.  This will cause the agent to omit the machine_id dimension from
+    all datapoints and instead send the `kubernetes_node` dimension on all
+    datapoints emitted by the agent.
+
+ 2) Under the kubernetes-cluster monitor configuration, set the option
+    `useNodeName: true`.  This will cause that monitor to sync node labels to the
+    `kubernetes_node` dimension instead of the `machine_id` dimension.
+
+Note that in EKS there is no concept of a "master" node (at least not that is
+exposed via the K8s API) and so all nodes will be treated as workers.
+
+
+## Pivotal Container Service (PKS)
+
+See [AWS Elastic Container Service for
+Kubernetes](#aws-elastic-container-service-for-kubernetes-eks) -- the setup for
+PKS is identical because of the similar lack of reliable machine ids.
+
 
 ## Google Container Engine (GKE)
 
