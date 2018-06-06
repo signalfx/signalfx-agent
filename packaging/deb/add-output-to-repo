@@ -21,7 +21,7 @@ pool_dir="${repo_dir}/pool"
 s3_bucket="s3://public-downloads--signalfuse-com/debs/signalfx-agent/$REPO_STAGE"
 
 mkdir -p $repo_dir
-aws s3 sync --delete $s3_bucket $repo_dir
+aws --profile prod s3 sync --delete $s3_bucket $repo_dir
 
 mkdir -p $pool_dir
 for f in $(find $OUTPUT_DIR -name "*.deb"); do
@@ -46,4 +46,4 @@ if [[ -z ${NO_SIGN-} ]]; then
   gpg --batch --yes --default-key $GPG_KEY_ID --digest-algo SHA256 --clearsign --output InRelease Release
 fi
 
-aws s3 sync $repo_dir $s3_bucket
+aws --profile prod s3 sync $repo_dir $s3_bucket
