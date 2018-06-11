@@ -51,7 +51,7 @@ func TestImmediateEmitter_Emit(t *testing.T) {
 		want   *testOutput
 	}{
 		{
-			name: "single datapoint with timestamp and no plugin dimension",
+			name: "emit datapoint without plugin tag",
 			fields: fields{
 				Output: &testOutput{
 					Datapoints: []*datapoint.Datapoint{},
@@ -65,179 +65,21 @@ func TestImmediateEmitter_Emit(t *testing.T) {
 				tags: map[string]string{
 					"dim1Key": "dim1Val",
 				},
-				metricType:         datapoint.Gauge,
-				originalMetricType: "gauge",
-				t:                  []time.Time{ts},
+				metricType: datapoint.Gauge,
+				t:          []time.Time{ts},
 			},
 			want: &testOutput{
 				Datapoints: []*datapoint.Datapoint{
 					datapoint.New(
 						"name.fieldname",
 						map[string]string{
-							"dim1Key":       "dim1Val",
-							"plugin":        "name",
-							"telegraf_type": "gauge",
+							"dim1Key": "dim1Val",
+							"plugin":  "name",
 						},
 						datapoint.NewIntValue(int64(5)),
 						datapoint.Gauge,
 						ts),
 				},
-			},
-		},
-		{
-			name: "single datapoint with plugin dimension",
-			fields: fields{
-				Output: &testOutput{
-					Datapoints: []*datapoint.Datapoint{},
-				},
-			},
-			args: args{
-				measurement: "name",
-				fields: map[string]interface{}{
-					"fieldname": 5,
-				},
-				tags: map[string]string{
-					"dim1Key": "dim1Val",
-					"plugin":  "pluginname",
-				},
-				metricType:         datapoint.Gauge,
-				originalMetricType: "gauge",
-				t:                  []time.Time{ts},
-			},
-			want: &testOutput{
-				Datapoints: []*datapoint.Datapoint{
-					datapoint.New(
-						"name.fieldname",
-						map[string]string{
-							"dim1Key":       "dim1Val",
-							"telegraf_type": "gauge",
-							"plugin":        "pluginname",
-						},
-						datapoint.NewIntValue(int64(5)),
-						datapoint.Gauge,
-						ts),
-				},
-			},
-		},
-		{
-			name: "single event with timestamp and no plugin dimension",
-			fields: fields{
-				Output: &testOutput{
-					Events: []*event.Event{},
-				},
-			},
-			args: args{
-				measurement: "name",
-				fields: map[string]interface{}{
-					"fieldname": "hello world",
-				},
-				tags: map[string]string{
-					"dim1Key": "dim1Val",
-				},
-				metricType:         datapoint.Gauge,
-				originalMetricType: "gauge",
-				t:                  []time.Time{ts},
-				includeEvent: []string{
-					"name.fieldname",
-				},
-			},
-			want: &testOutput{
-				Events: []*event.Event{
-					event.NewWithProperties(
-						"name.fieldname",
-						event.AGENT,
-						map[string]string{
-							"dim1Key":       "dim1Val",
-							"telegraf_type": "gauge",
-							"plugin":        "name",
-						},
-						map[string]interface{}{
-							"message": "hello world",
-						},
-						ts),
-				},
-			},
-		},
-		{
-			name: "single excluded event",
-			fields: fields{
-				Output: &testOutput{
-					Events: []*event.Event{},
-				},
-			},
-			args: args{
-				measurement: "name",
-				fields: map[string]interface{}{
-					"fieldname": "hello world",
-				},
-				tags: map[string]string{
-					"dim1Key": "dim1Val",
-					"plugin":  "pluginname",
-				},
-				metricType:         datapoint.Gauge,
-				originalMetricType: "gauge",
-				t:                  []time.Time{ts},
-				includeEvent:       []string{},
-			},
-			want: &testOutput{
-				Events: []*event.Event{},
-			},
-		},
-		{
-			name: "exclude data by metric name",
-			fields: fields{
-				Output: &testOutput{
-					Events:     []*event.Event{},
-					Datapoints: []*datapoint.Datapoint{},
-				},
-			},
-			args: args{
-				measurement: "name",
-				fields: map[string]interface{}{
-					"fieldname": 5,
-				},
-				tags: map[string]string{
-					"dim1Key": "dim1Val",
-					"plugin":  "pluginname",
-				},
-				metricType:         datapoint.Gauge,
-				originalMetricType: "gauge",
-				t:                  []time.Time{ts},
-				includeEvent:       []string{},
-				excludeData:        []string{"name.fieldname"},
-			},
-			want: &testOutput{
-				Events:     []*event.Event{},
-				Datapoints: []*datapoint.Datapoint{},
-			},
-		},
-		{
-			name: "malformed property object",
-			fields: fields{
-				Output: &testOutput{
-					Events:     []*event.Event{},
-					Datapoints: []*datapoint.Datapoint{},
-				},
-			},
-			args: args{
-				measurement: "objects",
-				fields: map[string]interface{}{
-					"value": "",
-				},
-				tags: map[string]string{
-					"sf_metric": "objects.host-meta-data",
-					"plugin":    "signalfx-metadata",
-					"severity":  "4",
-				},
-				metricType:         datapoint.Gauge,
-				originalMetricType: "gauge",
-				t:                  []time.Time{ts},
-				includeEvent:       []string{},
-				excludeData:        []string{"name.fieldname"},
-			},
-			want: &testOutput{
-				Events:     []*event.Event{},
-				Datapoints: []*datapoint.Datapoint{},
 			},
 		},
 	}

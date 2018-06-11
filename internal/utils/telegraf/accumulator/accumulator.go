@@ -24,14 +24,14 @@ func (ac *Accumulator) AddFields(measurement string, fields map[string]interface
 // the accumulator. Measurements are passed to the Accumulator's Emitter.
 func (ac *Accumulator) AddGauge(measurement string, fields map[string]interface{},
 	tags map[string]string, t ...time.Time) {
-	ac.Emitter.Add(measurement, fields, tags, datapoint.Gauge, "gauge", t...)
+	ac.Emitter.Add(measurement, fields, tags, datapoint.Gauge, "", t...)
 }
 
 // AddCounter receives a measurement as a "Counter" with tags and a time stamp
 // to the accumulator. Measurements are passed to the Accumulator's Emitter.
 func (ac *Accumulator) AddCounter(measurement string, fields map[string]interface{},
 	tags map[string]string, t ...time.Time) {
-	ac.Emitter.Add(measurement, fields, tags, datapoint.Counter, "counter", t...)
+	ac.Emitter.Add(measurement, fields, tags, datapoint.Counter, "", t...)
 }
 
 // AddSummary receives a measurement as a "Counter" with tags and a time stamp

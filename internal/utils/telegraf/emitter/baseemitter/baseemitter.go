@@ -26,9 +26,9 @@ type BaseEmitter struct {
 	lock   *sync.Mutex
 	Output types.Output
 	Logger *log.Entry
-	// tagFitler is a tags that should be removed from measurements before being
-	// processed
-	tagFilter map[string]bool
+	// omittedTags are tags that should be removed from measurements before
+	// being processed
+	omittedTags map[string]bool
 	// Telegraf has some junk events so we exclude all events by default
 	// and can enable them as needed by using IncludeEvent(string) or
 	// IncludeEvents([]string).
@@ -94,11 +94,25 @@ func (B *BaseEmitter) Excluded(name string) (excluded bool) {
 	return
 }
 
+// OmitTag adds a tag to the list of tags to remove from measurements
+func (B *BaseEmitter) OmitTag(tag string) {
+	B.lock.Lock()
+	B.omittedTags[tag] = true
+	B.lock.Unlock()
+}
+
+// OmitTags adds a list of tags the list of tags to remove from measurements
+func (B *BaseEmitter) OmitTags(tags []string) {
+	for _, tag := range tags {
+		B.OmitTag(tag)
+	}
+}
+
 // FilterTags - filter function for util.CloneAndFilterStringMapWithFunc()
 // that will exclude any tags that
 func (B *BaseEmitter) FilterTags(key string, value string) (include bool) {
 	B.lock.Lock()
-	include = B.tagFilter[key]
+	include = B.omittedTags[key]
 	B.lock.Unlock()
 	return
 }
@@ -129,7 +143,10 @@ func (B *BaseEmitter) Add(measurement string, fields map[string]interface{},
 		}
 
 		// Add common dimensions
-		metricDims["telegraf_type"] = originalMetricType
+		if originalMetricType != "" {
+			// only add telegraf_type if we override the original type
+			metricDims["telegraf_type"] = originalMetricType
+		}
 		parse.SetPluginDimension(measurement, metricDims)
 		parse.RemoveSFXDimensions(metricDims)
 
@@ -170,10 +187,10 @@ func (B *BaseEmitter) AddError(err error) {
 // NewEmitter returns a new BaseEmitter
 func NewEmitter() (b *BaseEmitter) {
 	b = &BaseEmitter{
-		lock:      &sync.Mutex{},
-		tagFilter: map[string]bool{},
-		included:  map[string]bool{},
-		excluded:  map[string]bool{},
+		lock:        &sync.Mutex{},
+		omittedTags: map[string]bool{},
+		included:    map[string]bool{},
+		excluded:    map[string]bool{},
 	}
 	return
 }

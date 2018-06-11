@@ -45,6 +45,7 @@ func TestImmediateEmitter_Emit(t *testing.T) {
 		t                  []time.Time
 		includeEvent       []string
 		excludeData        []string
+		excludeTag         []string
 	}
 	ts := time.Now()
 	tests := []struct {
@@ -54,7 +55,7 @@ func TestImmediateEmitter_Emit(t *testing.T) {
 		want   *testOutput
 	}{
 		{
-			name: "single datapoint with timestamp and no plugin dimension",
+			name: "emit datapoint without plugin tag",
 			fields: fields{
 				Output: &testOutput{
 					Datapoints: []*datapoint.Datapoint{},
@@ -77,9 +78,8 @@ func TestImmediateEmitter_Emit(t *testing.T) {
 					datapoint.New(
 						"name.fieldname",
 						map[string]string{
-							"dim1Key":       "dim1Val",
-							"plugin":        "name",
-							"telegraf_type": "gauge",
+							"dim1Key": "dim1Val",
+							"plugin":  "name",
 						},
 						datapoint.NewIntValue(int64(5)),
 						datapoint.Gauge,
@@ -88,7 +88,7 @@ func TestImmediateEmitter_Emit(t *testing.T) {
 			},
 		},
 		{
-			name: "single datapoint with plugin dimension",
+			name: "emit datapoint with plugin tag",
 			fields: fields{
 				Output: &testOutput{
 					Datapoints: []*datapoint.Datapoint{},
@@ -112,8 +112,42 @@ func TestImmediateEmitter_Emit(t *testing.T) {
 					datapoint.New(
 						"name.fieldname",
 						map[string]string{
+							"dim1Key": "dim1Val",
+							"plugin":  "pluginname",
+						},
+						datapoint.NewIntValue(int64(5)),
+						datapoint.Gauge,
+						ts),
+				},
+			},
+		},
+		{
+			name: "emit datapoint with metric type that defaults to gauge",
+			fields: fields{
+				Output: &testOutput{
+					Datapoints: []*datapoint.Datapoint{},
+				},
+			},
+			args: args{
+				measurement: "name",
+				fields: map[string]interface{}{
+					"fieldname": 5,
+				},
+				tags: map[string]string{
+					"dim1Key": "dim1Val",
+					"plugin":  "pluginname",
+				},
+				metricType:         datapoint.Gauge,
+				originalMetricType: "untyped",
+				t:                  []time.Time{ts},
+			},
+			want: &testOutput{
+				Datapoints: []*datapoint.Datapoint{
+					datapoint.New(
+						"name.fieldname",
+						map[string]string{
+							"telegraf_type": "untyped",
 							"dim1Key":       "dim1Val",
-							"telegraf_type": "gauge",
 							"plugin":        "pluginname",
 						},
 						datapoint.NewIntValue(int64(5)),
@@ -123,7 +157,41 @@ func TestImmediateEmitter_Emit(t *testing.T) {
 			},
 		},
 		{
-			name: "single event with timestamp and no plugin dimension",
+			name: "emit datapoint and remove an undesirable tag",
+			fields: fields{
+				Output: &testOutput{
+					Datapoints: []*datapoint.Datapoint{},
+				},
+			},
+			args: args{
+				measurement: "name",
+				fields: map[string]interface{}{
+					"fieldname": 5,
+				},
+				tags: map[string]string{
+					"dim1Key": "dim1Val",
+					"plugin":  "pluginname",
+				},
+				metricType:         datapoint.Gauge,
+				originalMetricType: "gauge",
+				t:                  []time.Time{ts},
+				excludeTag:         []string{"dim1Key"},
+			},
+			want: &testOutput{
+				Datapoints: []*datapoint.Datapoint{
+					datapoint.New(
+						"name.fieldname",
+						map[string]string{
+							"plugin": "pluginname",
+						},
+						datapoint.NewIntValue(int64(5)),
+						datapoint.Gauge,
+						ts),
+				},
+			},
+		},
+		{
+			name: "emit an event",
 			fields: fields{
 				Output: &testOutput{
 					Events: []*event.Event{},
@@ -150,9 +218,8 @@ func TestImmediateEmitter_Emit(t *testing.T) {
 						"name.fieldname",
 						event.AGENT,
 						map[string]string{
-							"dim1Key":       "dim1Val",
-							"telegraf_type": "gauge",
-							"plugin":        "name",
+							"dim1Key": "dim1Val",
+							"plugin":  "name",
 						},
 						map[string]interface{}{
 							"message": "hello world",
@@ -162,7 +229,7 @@ func TestImmediateEmitter_Emit(t *testing.T) {
 			},
 		},
 		{
-			name: "single excluded event",
+			name: "exclude events that are not explicitly included or sf_metrics",
 			fields: fields{
 				Output: &testOutput{
 					Events: []*event.Event{},
@@ -215,7 +282,7 @@ func TestImmediateEmitter_Emit(t *testing.T) {
 			},
 		},
 		{
-			name: "malformed property object",
+			name: "malformed property objects should be dropped",
 			fields: fields{
 				Output: &testOutput{
 					Events:     []*event.Event{},
@@ -251,6 +318,7 @@ func TestImmediateEmitter_Emit(t *testing.T) {
 			I.Output = tt.fields.Output
 			I.IncludeEvents(tt.args.includeEvent)
 			I.ExcludeData(tt.args.excludeData)
+			I.OmitTags(tt.args.excludeTag)
 			I.Add(tt.args.measurement, tt.args.fields, tt.args.tags,
 				tt.args.metricType, tt.args.originalMetricType, tt.args.t...)
 
