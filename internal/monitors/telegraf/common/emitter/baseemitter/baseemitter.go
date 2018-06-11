@@ -23,7 +23,7 @@ func GetTime(t ...time.Time) time.Time {
 // BaseEmitter immediately converts a telegraf measurement into datapoints and
 // sends them through Output
 type BaseEmitter struct {
-	lock   sync.Mutex
+	lock   sync.RWMutex
 	Output types.Output
 	Logger log.FieldLogger
 	// omittedTags are tags that should be removed from measurements before
@@ -83,9 +83,9 @@ func (b *BaseEmitter) IncludeEvents(names []string) {
 // during emission.  We disable all events by default because Telegraf has some
 // junk events.
 func (b *BaseEmitter) Included(name string) (included bool) {
-	b.lock.Lock()
+	b.lock.RLock()
 	included = b.included[name]
-	b.lock.Unlock()
+	b.lock.RUnlock()
 	return included
 }
 
@@ -108,9 +108,9 @@ func (b *BaseEmitter) ExcludeData(names []string) {
 // IsExcluded - A thread safe function for checking if events or metrics should be
 // excluded from emission
 func (b *BaseEmitter) IsExcluded(name string) (excluded bool) {
-	b.lock.Lock()
+	b.lock.RLock()
 	excluded = b.excluded[name]
-	b.lock.Unlock()
+	b.lock.RUnlock()
 	return excluded
 }
 
@@ -131,9 +131,9 @@ func (b *BaseEmitter) OmitTags(tags []string) {
 // FilterTags - filter function for util.CloneAndFilterStringMapWithFunc()
 // it returns true if the supplied key is not in the omittedTags map
 func (b *BaseEmitter) FilterTags(key string, value string) (include bool) {
-	b.lock.Lock()
+	b.lock.RLock()
 	include = !b.omittedTags[key]
-	b.lock.Unlock()
+	b.lock.RUnlock()
 	return include
 }
 
@@ -214,7 +214,7 @@ func (b *BaseEmitter) AddError(err error) {
 // NewEmitter returns a new BaseEmitter
 func NewEmitter() *BaseEmitter {
 	return &BaseEmitter{
-		lock:        sync.Mutex{},
+		lock:        sync.RWMutex{},
 		omittedTags: map[string]bool{},
 		addTags:     map[string]string{},
 		included:    map[string]bool{},
