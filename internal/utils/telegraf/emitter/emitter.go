@@ -25,22 +25,22 @@ type Emitter interface {
 	// IncludeEvent a thread safe function for registering an event name to
 	// include during emission. We disable all events by default because
 	// Telegraf has some junk events.
-	IncludeEvent(string)
+	IncludeEvent(name string)
 	// IncludeEvents is a thread safe function for registering a list of event
 	// names to include during emission. We disable all events by default
 	// because Telegraf has some junk events.
-	IncludeEvents([]string)
+	IncludeEvents(names []string)
 	// ExcludeDatum adds a name to the list of metrics and events to
 	// exclude
-	ExcludeDatum(string)
+	ExcludeDatum(name string)
 	// ExcludeData adds a list of names the list of metrics and events
 	// to exclude
-	ExcludeData([]string)
+	ExcludeData(names []string)
 	// OmitTag adds a tag to the list of tags to remove from measurements
-	OmitTag()
+	OmitTag(tag string)
 	// OmitTags adds a list of tags the list of tags to remove from measurements
-	OmitTags()
+	OmitTags(tags []string)
 	// AddError handles errors added to the accumulator by telegraf plugins
 	// the default behavior is to log the error
-	AddError(error)
+	AddError(err error)
 }

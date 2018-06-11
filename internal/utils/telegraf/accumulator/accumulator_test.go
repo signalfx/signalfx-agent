@@ -28,10 +28,14 @@ func (e *testEmitter) Add(measurement string, fields map[string]interface{},
 	e.originalMetricType = originalMetricType
 	e.t = t[0]
 }
-func (e *testEmitter) IncludeEvent(string)    {}
-func (e *testEmitter) IncludeEvents([]string) {}
-func (e *testEmitter) ExcludeDatum(string)    {}
-func (e *testEmitter) ExcludeData([]string)   {}
+func (e *testEmitter) IncludeEvent(string)       {}
+func (e *testEmitter) IncludeEvents([]string)    {}
+func (e *testEmitter) ExcludeDatum(string)       {}
+func (e *testEmitter) ExcludeData([]string)      {}
+func (e *testEmitter) AddTag(string, string)     {}
+func (e *testEmitter) AddTags(map[string]string) {}
+func (e *testEmitter) OmitTag(string)            {}
+func (e *testEmitter) OmitTags([]string)         {}
 func (e *testEmitter) AddError(err error) {
 	e.err = err
 }
