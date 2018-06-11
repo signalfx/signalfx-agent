@@ -46,6 +46,7 @@ func TestImmediateEmitter_Emit(t *testing.T) {
 		includeEvent       []string
 		excludeData        []string
 		excludeTag         []string
+		addTag             map[string]string
 	}
 	ts := time.Now()
 	tests := []struct {
@@ -69,9 +70,8 @@ func TestImmediateEmitter_Emit(t *testing.T) {
 				tags: map[string]string{
 					"dim1Key": "dim1Val",
 				},
-				metricType:         datapoint.Gauge,
-				originalMetricType: "gauge",
-				t:                  []time.Time{ts},
+				metricType: datapoint.Gauge,
+				t:          []time.Time{ts},
 			},
 			want: &testOutput{
 				Datapoints: []*datapoint.Datapoint{
@@ -103,9 +103,8 @@ func TestImmediateEmitter_Emit(t *testing.T) {
 					"dim1Key": "dim1Val",
 					"plugin":  "pluginname",
 				},
-				metricType:         datapoint.Gauge,
-				originalMetricType: "gauge",
-				t:                  []time.Time{ts},
+				metricType: datapoint.Gauge,
+				t:          []time.Time{ts},
 			},
 			want: &testOutput{
 				Datapoints: []*datapoint.Datapoint{
@@ -172,10 +171,9 @@ func TestImmediateEmitter_Emit(t *testing.T) {
 					"dim1Key": "dim1Val",
 					"plugin":  "pluginname",
 				},
-				metricType:         datapoint.Gauge,
-				originalMetricType: "gauge",
-				t:                  []time.Time{ts},
-				excludeTag:         []string{"dim1Key"},
+				metricType: datapoint.Gauge,
+				t:          []time.Time{ts},
+				excludeTag: []string{"dim1Key"},
 			},
 			want: &testOutput{
 				Datapoints: []*datapoint.Datapoint{
@@ -183,6 +181,73 @@ func TestImmediateEmitter_Emit(t *testing.T) {
 						"name.fieldname",
 						map[string]string{
 							"plugin": "pluginname",
+						},
+						datapoint.NewIntValue(int64(5)),
+						datapoint.Gauge,
+						ts),
+				},
+			},
+		},
+		{
+			name: "emit datapoint and add a tag",
+			fields: fields{
+				Output: &testOutput{
+					Datapoints: []*datapoint.Datapoint{},
+				},
+			},
+			args: args{
+				measurement: "name",
+				fields: map[string]interface{}{
+					"fieldname": 5,
+				},
+				tags: map[string]string{
+					"plugin": "pluginname",
+				},
+				metricType: datapoint.Gauge,
+				t:          []time.Time{ts},
+				addTag:     map[string]string{"dim1Key": "dim1Val"},
+			},
+			want: &testOutput{
+				Datapoints: []*datapoint.Datapoint{
+					datapoint.New(
+						"name.fieldname",
+						map[string]string{
+							"dim1Key": "dim1Val",
+							"plugin":  "pluginname",
+						},
+						datapoint.NewIntValue(int64(5)),
+						datapoint.Gauge,
+						ts),
+				},
+			},
+		},
+		{
+			name: "emit datapoint and add a tag that overrides an original tag",
+			fields: fields{
+				Output: &testOutput{
+					Datapoints: []*datapoint.Datapoint{},
+				},
+			},
+			args: args{
+				measurement: "name",
+				fields: map[string]interface{}{
+					"fieldname": 5,
+				},
+				tags: map[string]string{
+					"dim1Key": "dim1Val",
+					"plugin":  "pluginname",
+				},
+				metricType: datapoint.Gauge,
+				t:          []time.Time{ts},
+				addTag:     map[string]string{"dim1Key": "dim1Override"},
+			},
+			want: &testOutput{
+				Datapoints: []*datapoint.Datapoint{
+					datapoint.New(
+						"name.fieldname",
+						map[string]string{
+							"dim1Key": "dim1Override",
+							"plugin":  "pluginname",
 						},
 						datapoint.NewIntValue(int64(5)),
 						datapoint.Gauge,
@@ -205,9 +270,8 @@ func TestImmediateEmitter_Emit(t *testing.T) {
 				tags: map[string]string{
 					"dim1Key": "dim1Val",
 				},
-				metricType:         datapoint.Gauge,
-				originalMetricType: "gauge",
-				t:                  []time.Time{ts},
+				metricType: datapoint.Gauge,
+				t:          []time.Time{ts},
 				includeEvent: []string{
 					"name.fieldname",
 				},
@@ -244,10 +308,9 @@ func TestImmediateEmitter_Emit(t *testing.T) {
 					"dim1Key": "dim1Val",
 					"plugin":  "pluginname",
 				},
-				metricType:         datapoint.Gauge,
-				originalMetricType: "gauge",
-				t:                  []time.Time{ts},
-				includeEvent:       []string{},
+				metricType:   datapoint.Gauge,
+				t:            []time.Time{ts},
+				includeEvent: []string{},
 			},
 			want: &testOutput{
 				Events: []*event.Event{},
@@ -270,11 +333,10 @@ func TestImmediateEmitter_Emit(t *testing.T) {
 					"dim1Key": "dim1Val",
 					"plugin":  "pluginname",
 				},
-				metricType:         datapoint.Gauge,
-				originalMetricType: "gauge",
-				t:                  []time.Time{ts},
-				includeEvent:       []string{},
-				excludeData:        []string{"name.fieldname"},
+				metricType:   datapoint.Gauge,
+				t:            []time.Time{ts},
+				includeEvent: []string{},
+				excludeData:  []string{"name.fieldname"},
 			},
 			want: &testOutput{
 				Events:     []*event.Event{},
@@ -299,11 +361,10 @@ func TestImmediateEmitter_Emit(t *testing.T) {
 					"plugin":    "signalfx-metadata",
 					"severity":  "4",
 				},
-				metricType:         datapoint.Gauge,
-				originalMetricType: "gauge",
-				t:                  []time.Time{ts},
-				includeEvent:       []string{},
-				excludeData:        []string{"name.fieldname"},
+				metricType:   datapoint.Gauge,
+				t:            []time.Time{ts},
+				includeEvent: []string{},
+				excludeData:  []string{"name.fieldname"},
 			},
 			want: &testOutput{
 				Events:     []*event.Event{},
@@ -316,6 +377,7 @@ func TestImmediateEmitter_Emit(t *testing.T) {
 			I := NewEmitter()
 			I.Logger = log.NewEntry(log.New())
 			I.Output = tt.fields.Output
+			I.AddTags(tt.args.addTag)
 			I.IncludeEvents(tt.args.includeEvent)
 			I.ExcludeData(tt.args.excludeData)
 			I.OmitTags(tt.args.excludeTag)

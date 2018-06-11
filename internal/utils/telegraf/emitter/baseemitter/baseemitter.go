@@ -29,6 +29,8 @@ type BaseEmitter struct {
 	// omittedTags are tags that should be removed from measurements before
 	// being processed
 	omittedTags map[string]bool
+	// addTags are tags that should be added to all measurements
+	addTags map[string]string
 	// Telegraf has some junk events so we exclude all events by default
 	// and can enable them as needed by using IncludeEvent(string) or
 	// IncludeEvents([]string).
@@ -39,6 +41,24 @@ type BaseEmitter struct {
 	// ExcludeDatum(string) and ExcludeData(string).  You should look up
 	// excluded events and metrics using Excluded(string)bool
 	excluded map[string]bool
+}
+
+// AddTag adds a key/value pair to all measurement tags.  If a key conflicts the
+// the key value pair in AddTag will override the original key on the
+// measurement
+func (B *BaseEmitter) AddTag(key string, val string) {
+	B.lock.Lock()
+	B.addTags[key] = val
+	B.lock.Unlock()
+}
+
+// AddTags adds a map of key value pairs to all measurement tags.  If a key
+// conflicts the key value pair in AddTags will override the original key on
+// the measurement.
+func (B *BaseEmitter) AddTags(tags map[string]string) {
+	for k, v := range tags {
+		B.AddTag(k, v)
+	}
 }
 
 // IncludeEvent a thread safe function for registering an event name to include
@@ -126,6 +146,13 @@ func (B *BaseEmitter) Add(measurement string, fields map[string]interface{},
 		// shouldn't be mutated.  So we copy the tags map
 		var metricDims = utils.CloneAndFilterStringMapWithFunc(tags, B.FilterTags)
 
+		// add additional tags to the metricDims
+		if len(B.addTags) > 0 {
+			B.lock.Lock()
+			metricDims = utils.MergeStringMaps(metricDims, B.addTags)
+			B.lock.Unlock()
+		}
+
 		// Generate the metric name
 		var metricName, isSFX = parse.GetMetricName(measurement, field, metricDims)
 
@@ -189,6 +216,7 @@ func NewEmitter() (b *BaseEmitter) {
 	b = &BaseEmitter{
 		lock:        &sync.Mutex{},
 		omittedTags: map[string]bool{},
+		addTags:     map[string]string{},
 		included:    map[string]bool{},
 		excluded:    map[string]bool{},
 	}
