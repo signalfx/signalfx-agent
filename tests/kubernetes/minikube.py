@@ -46,7 +46,6 @@ class Minikube:
             rc, output = self.container.exec_run("cp -f %s %s" % (kubeconfig_path, kubeconfig))
             assert rc == 0, "failed to get %s from minikube!\n%s" % (kubeconfig_path, output.decode('utf-8'))
             self.kubeconfig = kubeconfig
-            time.sleep(2)
             kube_config.load_kube_config(config_file=self.kubeconfig)
 
     def connect(self, name, timeout, version=None):
