@@ -14,7 +14,7 @@ import (
 // and then emitted
 type BatchEmitter struct {
 	*baseemitter.BaseEmitter
-	lock         *sync.Mutex
+	lock         sync.Mutex
 	Measurements []*measurement.Measurement
 }
 
@@ -50,7 +50,7 @@ func (b *BatchEmitter) Send() {
 func NewEmitter() *BatchEmitter {
 	return &BatchEmitter{
 		BaseEmitter:  baseemitter.NewEmitter(),
-		lock:         &sync.Mutex{},
+		lock:         sync.Mutex{},
 		Measurements: []*measurement.Measurement{},
 	}
 }

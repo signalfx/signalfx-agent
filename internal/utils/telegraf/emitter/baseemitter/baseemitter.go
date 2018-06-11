@@ -23,7 +23,7 @@ func GetTime(t ...time.Time) time.Time {
 // BaseEmitter immediately converts a telegraf measurement into datapoints and
 // sends them through Output
 type BaseEmitter struct {
-	lock   *sync.Mutex
+	lock   sync.Mutex
 	Output types.Output
 	Logger log.FieldLogger
 	// omittedTags are tags that should be removed from measurements before
@@ -214,7 +214,7 @@ func (b *BaseEmitter) AddError(err error) {
 // NewEmitter returns a new BaseEmitter
 func NewEmitter() *BaseEmitter {
 	return &BaseEmitter{
-		lock:        &sync.Mutex{},
+		lock:        sync.Mutex{},
 		omittedTags: map[string]bool{},
 		addTags:     map[string]string{},
 		included:    map[string]bool{},
