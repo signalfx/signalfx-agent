@@ -10,6 +10,7 @@ import (
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/internalmetrics"
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/kubernetes"
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/prometheus"
+	_ "github.com/signalfx/signalfx-agent/internal/monitors/telegraf/monitors/win_perf_counters"
 	_ "github.com/signalfx/signalfx-agent/internal/observers/docker"
 	_ "github.com/signalfx/signalfx-agent/internal/observers/file"
 	_ "github.com/signalfx/signalfx-agent/internal/observers/host"
