@@ -8,6 +8,7 @@ import (
 	"github.com/signalfx/golib/datapoint"
 	"github.com/signalfx/golib/event"
 	"github.com/signalfx/golib/log"
+	"github.com/signalfx/golib/trace"
 	"net/http"
 	"sync"
 	"sync/atomic"
@@ -25,12 +26,14 @@ type ItemFlagger struct {
 	CtxFlagCheck        FlagCheck
 	Logger              log.Logger
 	EventMetaName       string
+	SpanMetaName        string
 	MetricDimensionName string
 	dimensions          map[string]string
 	mu                  sync.RWMutex
 	stats               struct {
 		totalDpCtxSignals int64
 		totalEvCtxSignals int64
+		totalSpCtxSignals int64
 		totalDpDimSignals int64
 		totalEvDimSignals int64
 	}
@@ -122,6 +125,11 @@ func (f *ItemFlagger) AddEvents(ctx context.Context, events []*event.Event, next
 		}
 	}
 	return next.AddEvents(ctx, events)
+}
+
+// AddSpans is a pass-through
+func (f *ItemFlagger) AddSpans(ctx context.Context, spans []*trace.Span, next trace.Sink) error {
+	return next.AddSpans(ctx, spans)
 }
 
 // Datapoints returns debug stat information about the flagger

@@ -556,9 +556,10 @@
     "pointer",
     "sfxclient",
     "timekeeper",
+    "trace",
     "web"
   ]
-  revision = "8321403a729d6c8fa60a3dcf2c60bf20f71f6062"
+  revision = "b1be94c3ec8d1fdeccd62735b851489f0b3798e0"
 
 [[projects]]
   name = "github.com/signalfx/metricproxy"
@@ -568,6 +569,11 @@
   ]
   revision = "502b641b80e24cbaebae66411d91e639454c88b5"
   version = "v0.9.21"
+
+[[projects]]
+  name = "github.com/signalfx/telegraf"
+  packages = ["plugins/outputs/signalfx/parse"]
+  revision = "df5485433c763fbe76fd8bfc6ad80a81e93bb9c5"
 
 [[projects]]
   name = "github.com/sirupsen/logrus"
@@ -854,6 +860,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "16f5c191f09a19b5414ffb3833ce371ce110f5bf83a1c22208905a3f8e806349"
+  inputs-digest = "fc10246d95269779d43157edd538b71bbac59ee891ce362d5306039814f37a7f"
   solver-name = "gps-cdcl"
   solver-version = 1

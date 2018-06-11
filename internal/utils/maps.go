@@ -66,6 +66,32 @@ func CloneStringMap(m map[string]string) map[string]string {
 	return m2
 }
 
+// CloneAndFilterStringMapWithFunc clones a string map and only includes
+// key/value pairs for which the filter function returns true
+func CloneAndFilterStringMapWithFunc(in map[string]string, filter func(string, string) bool) (out map[string]string) {
+	out = make(map[string]string, len(in))
+	for k, v := range in {
+		if filter(k, v) {
+			out[k] = v
+		}
+	}
+	return out
+}
+
+// CloneAndExcludeStringMapByKey clones a string map excluding the specified keys
+func CloneAndExcludeStringMapByKey(in map[string]string, exclude map[string]bool) map[string]string {
+	if len(exclude) == 0 {
+		return CloneStringMap(in)
+	}
+	var out = make(map[string]string, len(in))
+	for k, v := range in {
+		if exclude[k] {
+			out[k] = v
+		}
+	}
+	return out
+}
+
 // InterfaceMapToStringMap converts a map[interface{}]interface{} to a
 // map[string]string.  Keys and values will be converted with fmt.Sprintf so
 // the original key/values don't have to be strings.
