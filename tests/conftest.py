@@ -254,9 +254,6 @@ def k8s_monitor_with_endpoints(request):
 
 @pytest.fixture
 def k8s_namespace(worker_id):
-    if worker_id == "master":
-        namespace = "default"
-    else:
-        chars = string.ascii_lowercase + string.digits
-        namespace = worker_id + '-' + ''.join((random.choice(chars)) for x in range(8))
+    chars = string.ascii_lowercase + string.digits
+    namespace = worker_id + '-' + ''.join((random.choice(chars)) for x in range(8))
     return namespace
