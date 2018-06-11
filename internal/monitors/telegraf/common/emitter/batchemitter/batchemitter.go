@@ -5,9 +5,9 @@ import (
 	"time"
 
 	"github.com/signalfx/golib/datapoint"
+	"github.com/signalfx/signalfx-agent/internal/monitors/telegraf/common/emitter/baseemitter"
+	"github.com/signalfx/signalfx-agent/internal/monitors/telegraf/common/measurement"
 	"github.com/signalfx/signalfx-agent/internal/utils"
-	"github.com/signalfx/signalfx-agent/internal/utils/telegraf/emitter/baseemitter"
-	"github.com/signalfx/signalfx-agent/internal/utils/telegraf/measurement"
 )
 
 // BatchEmitter gathers a batch of telegraf measurements that can be modified

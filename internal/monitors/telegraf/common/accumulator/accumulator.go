@@ -4,7 +4,7 @@ import (
 	"time"
 
 	"github.com/signalfx/golib/datapoint"
-	"github.com/signalfx/signalfx-agent/internal/utils/telegraf/emitter"
+	"github.com/signalfx/signalfx-agent/internal/monitors/telegraf/common/emitter"
 )
 
 // Accumulator is an interface used to accumulate telegraf measurements from
