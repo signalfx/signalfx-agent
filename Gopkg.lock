@@ -327,16 +327,6 @@
   revision = "3de563c3dc08a7504131e9d63f678b7d1c3e85d7"
 
 [[projects]]
-  name = "github.com/influxdata/telegraf"
-  packages = [
-    ".",
-    "plugins/inputs",
-    "plugins/inputs/win_perf_counters"
-  ]
-  revision = "b24e8648f093dfc97b643fc70e3d9ceda460db9d"
-  version = "1.6.4"
-
-[[projects]]
   name = "github.com/json-iterator/go"
   packages = ["."]
   revision = "28452fcdec4e44348d2af0d91d1e9e38da3a9e0a"
@@ -598,17 +588,8 @@
   version = "v1.0.0"
 
 [[projects]]
-  name = "github.com/stretchr/objx"
-  packages = ["."]
-  revision = "477a77ecc69700c7cdeb1fa9e129548e1c1c393c"
-  version = "v0.1.1"
-
-[[projects]]
   name = "github.com/stretchr/testify"
-  packages = [
-    "assert",
-    "mock"
-  ]
+  packages = ["assert"]
   revision = "69483b4bd14f5845b5a1e55bca19e954e827f1d0"
   version = "v1.1.4"
 
@@ -879,6 +860,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "fe214d5329e156914b365427d300dab3315e7fc5ee3bc35a397b610ec06eee77"
+  inputs-digest = "fc10246d95269779d43157edd538b71bbac59ee891ce362d5306039814f37a7f"
   solver-name = "gps-cdcl"
   solver-version = 1
