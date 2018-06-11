@@ -41,9 +41,7 @@ func (e *testEmitter) AddError(err error) {
 }
 
 func TestAccumulator(t *testing.T) {
-	ac := &Accumulator{
-		Emitter: &testEmitter{},
-	}
+	ac := NewAccumulator(&testEmitter{})
 	tests := []struct {
 		name string
 		want *testEmitter
@@ -112,25 +110,25 @@ func TestAccumulator(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			ac.Emitter = &testEmitter{}
+			ac.emit = &testEmitter{}
 			tt.fn(tt.want.measurement, tt.want.fields, tt.want.tags, tt.want.t)
-			if ac.Emitter.(*testEmitter).measurement != tt.want.measurement ||
-				!reflect.DeepEqual(ac.Emitter.(*testEmitter).fields, tt.want.fields) ||
-				!reflect.DeepEqual(ac.Emitter.(*testEmitter).tags, tt.want.tags) {
-				t.Errorf("Accumulator_AddFields() = %v, want %v", ac.Emitter, tt.want)
+			if ac.emit.(*testEmitter).measurement != tt.want.measurement ||
+				!reflect.DeepEqual(ac.emit.(*testEmitter).fields, tt.want.fields) ||
+				!reflect.DeepEqual(ac.emit.(*testEmitter).tags, tt.want.tags) {
+				t.Errorf("Accumulator_AddFields() = %v, want %v", ac.emit, tt.want)
 			}
 		})
 	}
 	t.Run("SetPrecision()", func(t *testing.T) {
-		ac.Emitter = &testEmitter{}
+		ac.emit = &testEmitter{}
 		ac.SetPrecision(time.Second*1, time.Second*1)
 	})
 	t.Run("AddError()", func(t *testing.T) {
-		ac.Emitter = &testEmitter{}
+		ac.emit = &testEmitter{}
 		err := fmt.Errorf("Test Error")
 		ac.AddError(err)
-		if ac.Emitter.(*testEmitter).err != err {
-			t.Errorf("AddError() = %v, want %v", ac.Emitter.(*testEmitter).err, err)
+		if ac.emit.(*testEmitter).err != err {
+			t.Errorf("AddError() = %v, want %v", ac.emit.(*testEmitter).err, err)
 		}
 	})
 }
