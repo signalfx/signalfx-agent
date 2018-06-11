@@ -48,7 +48,7 @@ monitor.
       **If you are using Rancher for your Kubernetes deployment,** complete the
       instructions in [Rancher](#rancher) before proceeding with the next step.
 
-	  **If you are using AWS Elastic Container Service for Kubernetes (EKS)for
+	  **If you are using AWS Elastic Container Service for Kubernetes (EKS) for
 	  your Kubernetes deployment,** complete the instructions in [AWS Elastic
 	  Container Service for Kubernetes
 	  (EKS)](#aws-elastic-container-service-for-kubernetes-eks) before
