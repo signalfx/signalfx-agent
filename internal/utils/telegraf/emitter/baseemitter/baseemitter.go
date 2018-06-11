@@ -129,10 +129,10 @@ func (b *BaseEmitter) OmitTags(tags []string) {
 }
 
 // FilterTags - filter function for util.CloneAndFilterStringMapWithFunc()
-// that will exclude any tags that
+// it returns true if the supplied key is not in the omittedTags map
 func (b *BaseEmitter) FilterTags(key string, value string) (include bool) {
 	b.lock.Lock()
-	include = b.omittedTags[key]
+	include = !b.omittedTags[key]
 	b.lock.Unlock()
 	return include
 }
