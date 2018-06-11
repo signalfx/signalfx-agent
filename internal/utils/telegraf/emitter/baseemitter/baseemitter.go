@@ -25,7 +25,7 @@ func GetTime(t ...time.Time) time.Time {
 type BaseEmitter struct {
 	lock   *sync.Mutex
 	Output types.Output
-	Logger *log.Entry
+	Logger log.FieldLogger
 	// omittedTags are tags that should be removed from measurements before
 	// being processed
 	omittedTags map[string]bool
