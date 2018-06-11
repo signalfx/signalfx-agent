@@ -19,24 +19,30 @@ import (
 	"github.com/signalfx/golib/datapoint"
 	"github.com/signalfx/golib/errors"
 	"github.com/signalfx/golib/event"
+	"github.com/signalfx/golib/trace"
 	"io"
 	"sync"
 )
 
-// ClientVersion is the version of this library and is embedded into the user agent
-const ClientVersion = "1.0"
+const (
+	// ClientVersion is the version of this library and is embedded into the user agent
+	ClientVersion = "1.0"
 
-// IngestEndpointV2 is the v2 version of the signalfx ingest endpoint
-const IngestEndpointV2 = "https://ingest.signalfx.com/v2/datapoint"
+	// IngestEndpointV2 is the v2 version of the signalfx ingest endpoint
+	IngestEndpointV2 = "https://ingest.signalfx.com/v2/datapoint"
 
-// EventIngestEndpointV2 is the v2 version of the signalfx event endpoint
-const EventIngestEndpointV2 = "https://ingest.signalfx.com/v2/event"
+	// EventIngestEndpointV2 is the v2 version of the signalfx event endpoint
+	EventIngestEndpointV2 = "https://ingest.signalfx.com/v2/event"
+
+	// TraceIngestEndpointV1 is the v1 version of the signalfx trace endpoint
+	TraceIngestEndpointV1 = "https://ingest.signalfx.com/v1/trace"
+
+	// DefaultTimeout is the default time to fail signalfx datapoint requests if they don't succeed
+	DefaultTimeout = time.Second * 5
+)
 
 // DefaultUserAgent is the UserAgent string sent to signalfx
 var DefaultUserAgent = fmt.Sprintf("golib-sfxclient/%s (gover %s)", ClientVersion, runtime.Version())
-
-// DefaultTimeout is the default time to fail signalfx datapoint requests if they don't succeed
-const DefaultTimeout = time.Second * 5
 
 // HTTPSink -
 type HTTPSink struct {
@@ -44,8 +50,10 @@ type HTTPSink struct {
 	UserAgent          string
 	EventEndpoint      string
 	DatapointEndpoint  string
+	TraceEndpoint      string
 	Client             http.Client
 	protoMarshaler     func(pb proto.Message) ([]byte, error)
+	jsonMarshal        func(v interface{}) ([]byte, error)
 	DisableCompression bool
 	zippers            sync.Pool
 
@@ -114,7 +122,7 @@ func (h *HTTPSink) doBottom(ctx context.Context, f func() (io.Reader, bool, erro
 	req.Header.Set("Content-Type", contentType)
 	req.Header.Set(TokenHeaderName, h.AuthToken)
 	req.Header.Set("User-Agent", h.UserAgent)
-	req.Header.Set("Connection", "Keep-Alive")
+	req.Header.Set("Connection", "keep-alive")
 	if compressed {
 		req.Header.Set("Content-Encoding", "gzip")
 	}
@@ -193,7 +201,7 @@ func filterSignalfxKey(str string) string {
 }
 
 func runeFilterMap(r rune) rune {
-	if unicode.IsDigit(r) || unicode.IsLetter(r) || r == '_' {
+	if unicode.IsDigit(r) || unicode.IsLetter(r) || r == '_' || r == '-' {
 		return r
 	}
 	return '_'
@@ -346,6 +354,20 @@ func mapToProperties(properties map[string]interface{}) []*com_signalfx_metrics_
 	return response
 }
 
+// AddSpans forwards the traces to SignalFx.
+func (h *HTTPSink) AddSpans(ctx context.Context, traces []*trace.Span) (err error) {
+	if len(traces) == 0 {
+		return nil
+	}
+	return h.doBottom(ctx, func() (io.Reader, bool, error) {
+		b, err := h.jsonMarshal(traces)
+		if err != nil {
+			return nil, false, errors.Annotate(err, "cannot encode traces into json")
+		}
+		return h.getReader(b)
+	}, "application/json", h.TraceEndpoint)
+}
+
 // NewHTTPSink creates a default NewHTTPSink using package level constants as
 // defaults, including an empty auth token.  If sending directly to SiganlFx, you will be required
 // to explicitly set the AuthToken
@@ -353,6 +375,7 @@ func NewHTTPSink() *HTTPSink {
 	return &HTTPSink{
 		EventEndpoint:     EventIngestEndpointV2,
 		DatapointEndpoint: IngestEndpointV2,
+		TraceEndpoint:     TraceIngestEndpointV1,
 		UserAgent:         DefaultUserAgent,
 		Client: http.Client{
 			Timeout: DefaultTimeout,
@@ -361,5 +384,6 @@ func NewHTTPSink() *HTTPSink {
 		zippers: sync.Pool{New: func() interface{} {
 			return gzip.NewWriter(nil)
 		}},
+		jsonMarshal: json.Marshal,
 	}
 }
