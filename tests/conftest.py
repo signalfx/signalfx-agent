@@ -147,7 +147,7 @@ def local_registry(request, worker_id):
         assert wait_for(p(container_is_running, client, "registry"), timeout_seconds=60), \
             "timed out waiting for registry container to start!"
         cont = client.containers.get("registry")
-        assert wait_for(lambda: has_log_message(cont.logs().decode('utf-8'), message="listening on [::]:"), timeout_seconds=10), \
+        assert wait_for(lambda: has_log_message(cont.logs().decode('utf-8'), message="listening on [::]:"), timeout_seconds=30), \
             "timed out waiting for registry to be ready!"
         if not port:
             match = re.search('listening on \[::\]:(\d+)', cont.logs().decode('utf-8'))
@@ -173,7 +173,7 @@ def local_registry(request, worker_id):
 
 
 @pytest.fixture(scope="session")
-def agent_image(local_registry, request, worker_id):
+def agent_image(local_registry, request):
     client = get_docker_client()
     port = local_registry["port"]
     final_agent_image_name = request.config.getoption("--k8s-agent-name")
@@ -214,14 +214,13 @@ def minikube(request, worker_id):
     if k8s_container:
         mk.connect(k8s_container, k8s_timeout)
         k8s_skip_teardown = True
-    elif worker_id not in ["master", "gw0"]:
-        time.sleep(5)
-        mk.connect("minikube", k8s_timeout)
-        k8s_skip_teardown = True
-    else:
+    elif worker_id == "master" or worker_id == "gw0":
         mk.deploy(k8s_version, k8s_timeout)
         if worker_id == "gw0":
             k8s_skip_teardown = True
+    else:
+        mk.connect("minikube", k8s_timeout)
+        k8s_skip_teardown = True
     return mk
 
 
