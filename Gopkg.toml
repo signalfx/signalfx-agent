@@ -144,6 +144,5 @@
   revision = "ab35fc04b6365e8fcb18e6e9e41ea4a02b10b175"
 
 [[constraint]]
-  name = "github.com/influxdata/telegraf"
-  revision = "4bf481d0520810f6dac7f848a1c1d231ef516915"
-  source = "github.com/signalfx/telegraf"
+  name = "github.com/signalfx/telegraf"
+  revision = "f3b3586e19a82e864b5bab8b6c15c1b01214053e"

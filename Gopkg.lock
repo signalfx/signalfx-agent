@@ -331,11 +331,10 @@
   packages = [
     ".",
     "plugins/inputs",
-    "plugins/inputs/win_perf_counters",
-    "plugins/outputs/signalfx/parse"
+    "plugins/inputs/win_perf_counters"
   ]
-  revision = "4bf481d0520810f6dac7f848a1c1d231ef516915"
-  source = "github.com/signalfx/telegraf"
+  revision = "b24e8648f093dfc97b643fc70e3d9ceda460db9d"
+  version = "1.6.4"
 
 [[projects]]
   name = "github.com/json-iterator/go"
@@ -582,6 +581,11 @@
   version = "v0.9.21"
 
 [[projects]]
+  name = "github.com/signalfx/telegraf"
+  packages = ["plugins/outputs/signalfx/parse"]
+  revision = "f3b3586e19a82e864b5bab8b6c15c1b01214053e"
+
+[[projects]]
   name = "github.com/sirupsen/logrus"
   packages = ["."]
   revision = "d682213848ed68c0a260ca37d6dd5ace8423f5ba"
@@ -596,8 +600,8 @@
 [[projects]]
   name = "github.com/stretchr/objx"
   packages = ["."]
-  revision = "facf9a85c22f48d2f52f2380e4efce1768749a89"
-  version = "v0.1"
+  revision = "477a77ecc69700c7cdeb1fa9e129548e1c1c393c"
+  version = "v0.1.1"
 
 [[projects]]
   name = "github.com/stretchr/testify"
@@ -875,6 +879,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "c88cbf68193bb574e8255b550528b935f5b79684ab062f3676c43a8a38ce200a"
+  inputs-digest = "cbbb66f0ccbe05aee477da5cdfc09d4484737eb1b431163699c867025255f603"
   solver-name = "gps-cdcl"
   solver-version = 1
