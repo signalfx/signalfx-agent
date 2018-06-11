@@ -14,5 +14,5 @@ type Measurement struct {
 	Tags               map[string]string
 	MetricType         datapoint.MetricType
 	OriginalMetricType string
-	T                  []time.Time
+	Timestamps         []time.Time
 }

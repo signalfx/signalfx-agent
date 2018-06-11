@@ -30,7 +30,7 @@ func (b *BatchEmitter) Add(m string, fields map[string]interface{},
 		Tags:               utils.CloneAndFilterStringMapWithFunc(tags, b.BaseEmitter.FilterTags),
 		MetricType:         metricType,
 		OriginalMetricType: originalMetricType,
-		T:                  t,
+		Timestamps:         t,
 	})
 	b.lock.Unlock()
 }
@@ -40,7 +40,7 @@ func (b *BatchEmitter) Send() {
 	b.lock.Lock()
 	for _, m := range b.Measurements {
 		b.BaseEmitter.Add(m.Measurement, m.Fields, m.Tags, m.MetricType,
-			m.OriginalMetricType, m.T...)
+			m.OriginalMetricType, m.Timestamps...)
 	}
 	b.lock.Unlock()
 }
