@@ -50,7 +50,6 @@ func (b *BatchEmitter) Send() {
 func NewEmitter() *BatchEmitter {
 	return &BatchEmitter{
 		BaseEmitter:  baseemitter.NewEmitter(),
-		lock:         sync.Mutex{},
 		Measurements: []*measurement.Measurement{},
 	}
 }

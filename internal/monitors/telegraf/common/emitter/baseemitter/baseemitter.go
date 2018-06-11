@@ -214,7 +214,6 @@ func (b *BaseEmitter) AddError(err error) {
 // NewEmitter returns a new BaseEmitter
 func NewEmitter() *BaseEmitter {
 	return &BaseEmitter{
-		lock:        sync.RWMutex{},
 		omittedTags: map[string]bool{},
 		addTags:     map[string]string{},
 		included:    map[string]bool{},
