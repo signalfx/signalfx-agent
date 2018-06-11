@@ -146,3 +146,11 @@
 [[constraint]]
   name = "github.com/signalfx/telegraf"
   revision = "df5485433c763fbe76fd8bfc6ad80a81e93bb9c5"
+
+[[constraint]]
+  name = "github.com/influxdata/telegraf"
+  version = "1.6.4"
+
+[[constraint]]
+  name = "github.com/ulule/deepcopier"
+  revision = "ca99b135e50f526fde9cd88705f0ff2f3f95b77c"
