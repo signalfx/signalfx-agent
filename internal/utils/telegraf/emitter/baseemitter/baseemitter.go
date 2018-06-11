@@ -48,8 +48,8 @@ type BaseEmitter struct {
 // measurement
 func (b *BaseEmitter) AddTag(key string, val string) {
 	b.lock.Lock()
+	defer b.lock.Unlock()
 	b.addTags[key] = val
-	b.lock.Unlock()
 }
 
 // AddTags adds a map of key value pairs to all measurement tags.  If a key
@@ -66,8 +66,8 @@ func (b *BaseEmitter) AddTags(tags map[string]string) {
 // junk events.
 func (b *BaseEmitter) IncludeEvent(name string) {
 	b.lock.Lock()
+	defer b.lock.Unlock()
 	b.included[name] = true
-	b.lock.Unlock()
 }
 
 // IncludeEvents a thread safe function for registering a list of event names to
@@ -86,15 +86,15 @@ func (b *BaseEmitter) Included(name string) (included bool) {
 	b.lock.Lock()
 	included = b.included[name]
 	b.lock.Unlock()
-	return
+	return included
 }
 
 // ExcludeDatum adds a name to the list of metrics and events to
 // exclude
 func (b *BaseEmitter) ExcludeDatum(name string) {
 	b.lock.Lock()
+	defer b.lock.Unlock()
 	b.excluded[name] = true
-	b.lock.Unlock()
 }
 
 // ExcludeData adds a list of names the list of metrics and events
@@ -111,14 +111,14 @@ func (b *BaseEmitter) Excluded(name string) (excluded bool) {
 	b.lock.Lock()
 	excluded = b.excluded[name]
 	b.lock.Unlock()
-	return
+	return excluded
 }
 
 // OmitTag adds a tag to the list of tags to remove from measurements
 func (b *BaseEmitter) OmitTag(tag string) {
 	b.lock.Lock()
+	defer b.lock.Unlock()
 	b.omittedTags[tag] = true
-	b.lock.Unlock()
 }
 
 // OmitTags adds a list of tags the list of tags to remove from measurements
@@ -134,7 +134,7 @@ func (b *BaseEmitter) FilterTags(key string, value string) (include bool) {
 	b.lock.Lock()
 	include = b.omittedTags[key]
 	b.lock.Unlock()
-	return
+	return include
 }
 
 // Add parses measurements from telegraf and emits them through Output
@@ -212,13 +212,12 @@ func (b *BaseEmitter) AddError(err error) {
 }
 
 // NewEmitter returns a new BaseEmitter
-func NewEmitter() (b *BaseEmitter) {
-	b = &BaseEmitter{
+func NewEmitter() *BaseEmitter {
+	return &BaseEmitter{
 		lock:        &sync.Mutex{},
 		omittedTags: map[string]bool{},
 		addTags:     map[string]string{},
 		included:    map[string]bool{},
 		excluded:    map[string]bool{},
 	}
-	return
 }
