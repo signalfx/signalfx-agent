@@ -43,7 +43,7 @@ type BaseEmitter struct {
 	excluded map[string]bool
 }
 
-// AddTag adds a key/value pair to all measurement tags.  If a key conflicts the
+// AddTag adds a key/value pair to all measurement tags.  If a key conflicts
 // the key value pair in AddTag will override the original key on the
 // measurement
 func (B *BaseEmitter) AddTag(key string, val string) {
