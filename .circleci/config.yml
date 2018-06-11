@@ -25,10 +25,6 @@ references:
     run: |
       docker load -i /tmp/workspace/image.tar
 
-  import_final_image: &import_final_image
-    run: |
-      docker load -i /tmp/workspace/final_image.tar
-
   install_pytest: &install_pytest
     run: |
       sudo apt-get update && sudo apt-get install -y python3-dev
@@ -60,6 +56,23 @@ references:
             tests
 
 jobs:
+  build:
+    <<: *executor
+    steps:
+     - checkout
+     - run: |
+         set -x
+         export PULL_CACHE=yes
+         export AGENT_VERSION=latest
+         ./scripts/build
+     - run: |
+         mkdir -p /tmp/workspace
+         docker save -o /tmp/workspace/image.tar quay.io/signalfx/signalfx-agent-dev:latest
+     - persist_to_workspace:
+         root: /tmp/workspace
+         paths:
+           - image.tar
+
   build_dev_image:
     <<: *executor
     steps:
@@ -93,23 +106,6 @@ jobs:
       - store_artifacts:
           path: ~/project/signalfx-agent.exe
           destination: /signalfx-agent.exe
-
-  build_final_image:
-    <<: *executor
-    steps:
-     - checkout
-     - run: |
-         set -x
-         export PULL_CACHE=yes
-         export AGENT_VERSION=latest
-         ./scripts/build
-     - run: |
-         mkdir -p /tmp/workspace
-         docker save -o /tmp/workspace/final_image.tar quay.io/signalfx/signalfx-agent-dev:latest
-     - persist_to_workspace:
-         root: /tmp/workspace
-         paths:
-           - final_image.tar
 
   lint: 
     <<: *goexecutor
@@ -158,7 +154,7 @@ jobs:
     <<: *executor
     steps:
       - *attach_workspace
-      - *import_final_image
+      - *import_image
       - checkout
       - *install_pytest
       - run: |
@@ -191,7 +187,7 @@ jobs:
       PYTEST_MARKERS: "k8s"
     steps:
       - *attach_workspace
-      - *import_final_image
+      - *import_image
       - checkout
       - *install_pytest
       - *run_k8s_integration_tests
@@ -208,7 +204,7 @@ jobs:
       PYTEST_MARKERS: "k8s"
     steps:
       - *attach_workspace
-      - *import_final_image
+      - *import_image
       - checkout
       - *install_pytest
       - *run_k8s_integration_tests
@@ -225,7 +221,7 @@ jobs:
       PYTEST_MARKERS: "k8s"
     steps:
       - *attach_workspace
-      - *import_final_image
+      - *import_image
       - checkout
       - *install_pytest
       - *run_k8s_integration_tests
@@ -242,7 +238,7 @@ jobs:
       PYTEST_MARKERS: "k8s"
     steps:
       - *attach_workspace
-      - *import_final_image
+      - *import_image
       - checkout
       - *install_pytest
       - *run_k8s_integration_tests
@@ -425,27 +421,27 @@ workflows:
   version: 2
   build_test:
     jobs:
+     - build
      - build_dev_image
-     - build_final_image
      - build-windows
      - lint
      - vet
      - gotests
      - integration_tests:
         requires:
-         - build_final_image
+         - build
 #     - k8s_v1.10.0_integration_tests:
 #        requires:
-#         - build_final_image
+#         - build
      - k8s_v1.9.0_integration_tests:
         requires:
-         - build_final_image
+         - build
      - k8s_v1.8.0_integration_tests:
         requires:
-         - build_final_image
+         - build
      - k8s_v1.7.0_integration_tests:
         requires:
-         - build_final_image
+         - build
      - docs_test
      - rpm_package_tests
      - deb_package_tests
