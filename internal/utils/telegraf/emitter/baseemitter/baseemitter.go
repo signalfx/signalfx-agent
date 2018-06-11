@@ -105,9 +105,9 @@ func (b *BaseEmitter) ExcludeData(names []string) {
 	}
 }
 
-// Excluded - A thread safe function for checking if events or metrics should be
+// IsExcluded - A thread safe function for checking if events or metrics should be
 // excluded from emission
-func (b *BaseEmitter) Excluded(name string) (excluded bool) {
+func (b *BaseEmitter) IsExcluded(name string) (excluded bool) {
 	b.lock.Lock()
 	excluded = b.excluded[name]
 	b.lock.Unlock()
@@ -144,7 +144,7 @@ func (b *BaseEmitter) Add(measurement string, fields map[string]interface{},
 	for field, val := range fields {
 		// telegraf doc says that tags are owned by the calling plugin and they
 		// shouldn't be mutated.  So we copy the tags map
-		var metricDims = utils.CloneAndFilterStringMapWithFunc(tags, b.FilterTags)
+		metricDims := utils.CloneAndFilterStringMapWithFunc(tags, b.FilterTags)
 
 		// add additional tags to the metricDims
 		if len(b.addTags) > 0 {
@@ -154,10 +154,10 @@ func (b *BaseEmitter) Add(measurement string, fields map[string]interface{},
 		}
 
 		// Generate the metric name
-		var metricName, isSFX = parse.GetMetricName(measurement, field, metricDims)
+		metricName, isSFX := parse.GetMetricName(measurement, field, metricDims)
 
 		// Check if the metric is explicitly excluded
-		if b.Excluded(metricName) {
+		if b.IsExcluded(metricName) {
 			b.Logger.Debugf("excluding the following metric: %s", metricName)
 			continue
 		}
@@ -182,7 +182,7 @@ func (b *BaseEmitter) Add(measurement string, fields map[string]interface{},
 			var dp = datapoint.New(
 				metricName,
 				metricDims,
-				metricValue.(datapoint.Value),
+				metricValue,
 				metricType,
 				GetTime(t...),
 			)
