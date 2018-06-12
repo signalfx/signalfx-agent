@@ -7,6 +7,7 @@ import docker
 import netifaces as ni
 import os
 import re
+import socket
 import time
 
 CUR_DIR = os.path.dirname(os.path.realpath(__file__))
@@ -551,8 +552,11 @@ def has_docker_image(client, name, tag=None):
 
 def container_is_running(client, name):
     try:
-        client.containers.get(name)
-        return True
+        cont = client.containers.get(name)
+        cont.reload()
+        if cont.status.lower() != "running":
+            return False
+        return container_ip(cont)
     except docker.errors.NotFound:
         return False
     except docker.errors.APIError as e:
@@ -564,3 +568,9 @@ def container_is_running(client, name):
 def pod_port_open(container, host, port):
     rc, _ = container.exec_run("nc -z %s %d" % (host, port))
     return rc == 0
+
+
+def get_free_port():
+    s = socket.socket()
+    s.bind(('', 0))
+    return s.getsockname()[1]

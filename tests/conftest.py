@@ -8,7 +8,6 @@ import pytest
 import random
 import re
 import semver
-import socket
 import string
 import subprocess
 import sys
@@ -133,67 +132,6 @@ def pytest_generate_tests(metafunc):
 
 
 @pytest.fixture(scope="session")
-def local_registry(request, worker_id):
-    def get_free_port():
-        s = socket.socket()
-        s.bind(('', 0))
-        return s.getsockname()[1]
-
-    def teardown():
-        if cont and worker_id == "master":
-            cont.remove(force=True, v=True)
-
-    def wait_for_registry(port):
-        assert wait_for(p(container_is_running, client, "registry"), timeout_seconds=60), \
-            "timed out waiting for registry container to start!"
-        cont = client.containers.get("registry")
-        assert wait_for(lambda: has_log_message(cont.logs().decode('utf-8'), message="listening on [::]:"), timeout_seconds=30), \
-            "timed out waiting for registry to be ready!"
-        if not port:
-            match = re.search('listening on \[::\]:(\d+)', cont.logs().decode('utf-8'))
-            port = match.group(1)
-        return (cont, int(port))
-        
-    client = get_docker_client()
-    cont = None
-    port = None
-    request.addfinalizer(teardown)
-    if worker_id == "master" or worker_id == "gw0":
-        port = get_free_port()
-        print("\nStarting registry container localhost:%d ..." % port)
-        client.containers.run(
-            image='registry:latest',
-            name="registry",
-            detach=True,
-            environment={"REGISTRY_HTTP_ADDR": "0.0.0.0:%d" % port},
-            ports={"%d/tcp" % port: port})
-    print("\nWaiting for registry to be ready ...")
-    cont, port = wait_for_registry(port)
-    return {"container": cont, "port": port}
-
-
-@pytest.fixture(scope="session")
-def agent_image(local_registry, request):
-    client = get_docker_client()
-    port = local_registry["port"]
-    final_agent_image_name = request.config.getoption("--k8s-agent-name")
-    final_agent_image_tag = request.config.getoption("--k8s-agent-tag")
-    agent_image_name = "localhost:%d/%s" % (port, final_agent_image_name.split("/")[-1])
-    agent_image_tag = final_agent_image_tag
-    if not has_docker_image(client, final_agent_image_name, final_agent_image_tag):
-        print("\nAgent image '%s:%s' not found in local registry." % (final_agent_image_name, final_agent_image_tag))
-        print("\nAttempting to pull from remote registry ...")
-        final_agent_image = client.images.pull(final_agent_image_name, tag=final_agent_image_tag)
-    else:
-        final_agent_image = client.images.get(final_agent_image_name + ":" + final_agent_image_tag)
-    print("\nTagging %s:%s as %s:%s ..." % (final_agent_image_name, final_agent_image_tag, agent_image_name, agent_image_tag))
-    final_agent_image.tag(agent_image_name, tag=agent_image_tag)
-    print("\nPushing %s:%s ..." % (agent_image_name, agent_image_tag))
-    client.images.push(agent_image_name, tag=agent_image_tag)
-    return {"name": agent_image_name, "tag": agent_image_tag}
-
-
-@pytest.fixture(scope="session")
 def minikube(request, worker_id):
     k8s_version = request.param
     k8s_timeout = int(request.config.getoption("--k8s-timeout"))
@@ -222,6 +160,50 @@ def minikube(request, worker_id):
         mk.connect("minikube", k8s_timeout)
         k8s_skip_teardown = True
     return mk
+
+
+@pytest.fixture(scope="session")
+def registry(minikube, worker_id):
+    def wait_for_registry(port):
+        assert wait_for(p(container_is_running, minikube.client, "registry"), timeout_seconds=60), \
+            "timed out waiting for registry container to start!"
+        cont = minikube.client.containers.get("registry")
+        assert wait_for(lambda: has_log_message(cont.logs().decode('utf-8'), message="listening on [::]:"), timeout_seconds=30), \
+            "timed out waiting for registry to be ready!"
+        if not port:
+            match = re.search('listening on \[::\]:(\d+)', cont.logs().decode('utf-8'))
+            port = match.group(1)
+        return (cont, int(port))
+        
+    cont = None
+    port = None
+    if worker_id == "master" or worker_id == "gw0":
+        minikube.start_registry()
+        port = minikube.registry_port
+    print("\nWaiting for registry to be ready ...")
+    cont, port = wait_for_registry(port)
+    return {"container": cont, "port": port}
+
+
+@pytest.fixture(scope="session")
+def agent_image(registry, request):
+    client = get_docker_client()
+    port = registry["port"]
+    final_agent_image_name = request.config.getoption("--k8s-agent-name")
+    final_agent_image_tag = request.config.getoption("--k8s-agent-tag")
+    agent_image_name = "localhost:%d/%s" % (port, final_agent_image_name.split("/")[-1])
+    agent_image_tag = final_agent_image_tag
+    if not has_docker_image(client, final_agent_image_name, final_agent_image_tag):
+        print("\nAgent image '%s:%s' not found in local registry." % (final_agent_image_name, final_agent_image_tag))
+        print("\nAttempting to pull from remote registry ...")
+        final_agent_image = client.images.pull(final_agent_image_name, tag=final_agent_image_tag)
+    else:
+        final_agent_image = client.images.get(final_agent_image_name + ":" + final_agent_image_tag)
+    print("\nTagging %s:%s as %s:%s ..." % (final_agent_image_name, final_agent_image_tag, agent_image_name, agent_image_tag))
+    final_agent_image.tag(agent_image_name, tag=agent_image_tag)
+    print("\nPushing %s:%s ..." % (agent_image_name, agent_image_tag))
+    client.images.push(agent_image_name, tag=agent_image_tag)
+    return {"name": agent_image_name, "tag": agent_image_tag}
 
 
 @pytest.fixture
