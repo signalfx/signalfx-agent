@@ -65,7 +65,7 @@
     - redis.conf
 
 - name: signalfx
-  version: b9d28dc1c680d238ba285e8c18c989e1f9450bfb
+  version: 6426c97260f629bad6f5bcbf274fb9a95fea4f79
   repo: signalfx/signalfx-collectd-plugin
 
 - name: spark
