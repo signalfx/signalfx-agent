@@ -100,7 +100,7 @@ run-dev-image:
 
 .PHONY: run-k8s-tests
 run-k8s-tests:
-	docker rm -f -v minikube registry || true
+	docker rm -f -v minikube || true
 	pytest \
 		--verbose \
 		--exitfirst \
@@ -109,7 +109,7 @@ run-k8s-tests:
 		--html=test_output/k8s_results.html \
 		--self-contained-html \
 		tests || true
-	docker rm -f -v minikube registry
+	docker rm -f -v minikube
 
 .PHONY: docs
 docs:

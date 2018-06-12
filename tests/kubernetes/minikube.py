@@ -14,6 +14,7 @@ MINIKUBE_VERSION = os.environ.get("MINIKUBE_VERSION", "v0.26.1")
 K8S_SERVICES_DIR = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'services')
 TEST_SERVICES_DIR = os.path.join(os.path.dirname(os.path.realpath(__file__)), "../../test-services")
 
+
 class Minikube:
     def __init__(self):
         self.container = None
@@ -27,6 +28,7 @@ class Minikube:
         self.kubeconfig = None
         self.namespace = "default"
         self.worker_id = "master"
+        self.registry_port = None
 
     def get_client(self):
         if self.container:
@@ -58,6 +60,7 @@ class Minikube:
         self.version = version
 
     def deploy(self, version, timeout, options={}):
+        self.registry_port = get_free_port()
         if container_is_running(self.host_client, "minikube"):
             self.host_client.containers.get("minikube").remove(force=True, v=True)
         self.version = version
@@ -67,9 +70,6 @@ class Minikube:
             options = {
                 "name": "minikube",
                 "privileged": True,
-                "extra_hosts": {
-                    "localhost": get_host_ip()
-                },
                 "environment": {
                     'K8S_VERSION': self.version,
                     'TIMEOUT': str(timeout)
@@ -78,6 +78,7 @@ class Minikube:
                     '8080/tcp': None,
                     '8443/tcp': None,
                     '2375/tcp': None,
+                    '%d/tcp' % self.registry_port: self.registry_port,
                 },
                 "volumes": {
                     "/tmp/scratch": {
@@ -99,7 +100,18 @@ class Minikube:
             **options)
         self.name = self.container.name
         self.load_kubeconfig(timeout=timeout)
-        self.get_client()
+        self.client = self.get_client()
+
+    def start_registry(self):
+        if not self.client:
+            self.client = self.get_client()
+        print("\nStarting registry container localhost:%d in minikube ..." % self.registry_port)
+        self.client.containers.run(
+            image='registry:latest',
+            name="registry",
+            detach=True,
+            environment={"REGISTRY_HTTP_ADDR": "0.0.0.0:%d" % self.registry_port},
+            ports={"%d/tcp" % self.registry_port: self.registry_port})
 
     def build_image(self, dockerfile_dir, build_opts={}):
         if not self.client:
@@ -184,15 +196,25 @@ class Minikube:
     @contextmanager
     def deploy_agent(self, configmap_path, daemonset_path, serviceaccount_path, observer=None, monitors=[], cluster_name="minikube", backend=None, image_name=None, image_tag=None, namespace="default"):
         self.pull_agent_image(image_name, image_tag)
-        try:
-            self.agent.deploy(self.client, configmap_path, daemonset_path, serviceaccount_path, observer, monitors, cluster_name=cluster_name, backend=backend, image_name=image_name, image_tag=image_tag, namespace=namespace)
-        except Exception as e:
-            print("\n\n%s\n\n" % get_all_logs(self))
-            raise
+        self.agent.deploy(
+            self.client,
+            configmap_path,
+            daemonset_path,
+            serviceaccount_path,
+            observer,
+            monitors,
+            cluster_name=cluster_name,
+            backend=backend,
+            image_name=image_name,
+            image_tag=image_tag,
+            namespace=namespace)
         try:
             yield self.agent
+            print("\n\n%s\n\n" % self.agent.get_status())
+        except:
+            print("\n\n%s\n\n" % get_all_logs(self))
+            raise
         finally:
-            print(self.agent.get_status())
             self.agent.delete()
             self.agent = Agent()
 
