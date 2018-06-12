@@ -45,10 +45,9 @@ options.
 
 Due to known limitations of the xdist pytest plugin (e.g. the `-n auto` option),
 fixtures cannot be shared across workers by default.  In order to prevent 
-starting multiple minikube and registry containers (fixtures) for each worker,
-the containers will be started once for all workers, but they will not be
-automatically removed when the tests complete since there is currently no way of 
-knowing which test will be last to teardown the fixtures.  As a workaround, the
-`make run-k8s-tests` command will remove any running minikube and registry 
-containers before and after the tests start.
+starting multiple minikube containers (fixtures) for each worker, minikube will
+be started once for all workers, but it will not be automatically removed when
+the tests complete since there is currently no way of knowing which test will be
+last to teardown the fixture.  As a workaround, the `make run-k8s-tests` command
+will remove any running minikube containers before and after the tests start.
 
