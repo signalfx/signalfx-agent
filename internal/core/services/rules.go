@@ -19,7 +19,7 @@ var ruleFunctions = map[string]govaluate.ExpressionFunction{
 		arg1 := args[0]
 		arg2 := args[1]
 
-		labelMap, ok := arg1.(map[string]string)
+		labelInterfaceMap, ok := arg1.(map[interface{}]interface{})
 		if !ok {
 			return nil, errors.New("label must be a map[string]string")
 		}
@@ -28,6 +28,7 @@ var ruleFunctions = map[string]govaluate.ExpressionFunction{
 			return nil, errors.New("label must be of type string")
 		}
 
+		labelMap := utils.InterfaceMapToStringMap(labelInterfaceMap)
 		if val, ok := labelMap[label]; ok {
 			return val, nil
 		}
