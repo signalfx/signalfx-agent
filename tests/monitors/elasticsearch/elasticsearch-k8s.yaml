@@ -18,6 +18,11 @@ spec:
     spec:
       containers:
         - name: elasticsearch
-          image: elasticsearch:latest
+          image: docker.elastic.co/elasticsearch/elasticsearch:6.2.4
           ports:
             - containerPort: 9200
+          env:
+            - name: ELASTIC_PASSWORD
+              value: testing123
+            - name: discovery.type
+              value: single-node
