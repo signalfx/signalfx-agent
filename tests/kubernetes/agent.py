@@ -104,9 +104,6 @@ class Agent:
         except:
             status = "exited"
         assert status == 'running', "agent container is not running!"
-        agent_status = self.get_status()
-        container_logs = self.get_container_logs()
-        assert "error" not in agent_status.lower(), "error(s) found in agent-status output!\n\n%s" % agent_status
         return self
 
     def delete(self):
