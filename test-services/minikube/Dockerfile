@@ -45,9 +45,15 @@ RUN apt-get update -y && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 # Install docker
-RUN curl -fsSL get.docker.com -o /tmp/get-docker.sh && \
-    sh /tmp/get-docker.sh && \
-    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+# RUN curl -fsSL get.docker.com -o /tmp/get-docker.sh && \
+#     sh /tmp/get-docker.sh && \
+#     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+RUN cd /tmp && \
+    curl -sSl -O https://download.docker.com/linux/static/stable/x86_64/docker-17.12.1-ce.tgz && \
+    tar -xf docker*.tgz && \
+    chmod a+x docker/* && \
+    chown root:root docker/* && \
+    cp docker/* /usr/bin/
 VOLUME /var/lib/docker
 EXPOSE 2375
 
