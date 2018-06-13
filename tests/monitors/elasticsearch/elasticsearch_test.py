@@ -16,7 +16,8 @@ def test_elasticsearch_in_k8s(agent_image, minikube, k8s_observer, k8s_test_time
     monitors = [
         {"type": "collectd/elasticsearch",
          "discoveryRule": 'container_image =~ "elasticsearch" && private_port == 9200 && kubernetes_namespace == "%s"' % k8s_namespace,
-         "username": "testuser", "password": "testing123"},
+         "detailedMetrics": True,
+         "username": "elastic", "password": "testing123"},
     ]
     yamls = [os.path.join(os.path.dirname(os.path.realpath(__file__)), "elasticsearch-k8s.yaml")]
     run_k8s_monitors_test(
