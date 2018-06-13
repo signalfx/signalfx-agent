@@ -183,19 +183,16 @@ class Minikube:
                     delete_deployment(name, namespace=namespace)
             self.yamls = []
 
-    def pull_agent_image(self, name, tag):
-        assert has_docker_image(self.host_client, name, tag), "agent image \"%s:%s\" not found!" % (name, tag)
-        image_id = self.host_client.images.get("%s:%s" % (name, tag)).id
+    def pull_agent_image(self, name, tag, image_id):
+        assert has_docker_image(self.host_client, image_id), "agent image \"%s\" not found!" % image_id
         if has_docker_image(self.client, image_id):
             return
-        print("\nPulling %s:%s to the minikube container ..." % (name, tag))
         self.client.images.pull(name, tag=tag)
         _, output = self.container.exec_run('docker images')
         print(output.decode('utf-8'))
 
     @contextmanager
     def deploy_agent(self, configmap_path, daemonset_path, serviceaccount_path, observer=None, monitors=[], cluster_name="minikube", backend=None, image_name=None, image_tag=None, namespace="default"):
-        self.pull_agent_image(image_name, image_tag)
         self.agent.deploy(
             self.client,
             configmap_path,

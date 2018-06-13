@@ -133,22 +133,21 @@ def pytest_generate_tests(metafunc):
 
 @pytest.fixture(scope="session")
 def minikube(request, worker_id):
+    def teardown():
+        if not k8s_skip_teardown:
+            try:
+                print("Removing minikube container ...")
+                mk.container.remove(force=True, v=True)
+            except:
+                pass
+
+    request.addfinalizer(teardown)
     k8s_version = request.param
     k8s_timeout = int(request.config.getoption("--k8s-timeout"))
     k8s_container = request.config.getoption("--k8s-container")
     k8s_skip_teardown = request.config.getoption("--k8s-skip-teardown")
     mk = Minikube()
     mk.worker_id = worker_id
-
-    def teardown():
-        if not k8s_skip_teardown:
-            try:
-                print("Tearing down minikube container ...")
-                mk.container.remove(force=True, v=True)
-            except:
-                pass
-
-    request.addfinalizer(teardown)
     if k8s_container:
         mk.connect(k8s_container, k8s_timeout)
         k8s_skip_teardown = True
@@ -164,34 +163,41 @@ def minikube(request, worker_id):
 
 @pytest.fixture(scope="session")
 def registry(minikube, worker_id):
-    def wait_for_registry(port):
-        assert wait_for(p(container_is_running, minikube.client, "registry"), timeout_seconds=60), \
-            "timed out waiting for registry container to start!"
-        cont = minikube.client.containers.get("registry")
-        assert wait_for(lambda: has_log_message(cont.logs().decode('utf-8'), message="listening on [::]:"), timeout_seconds=30), \
-            "timed out waiting for registry to be ready!"
-        if not port:
-            match = re.search('listening on \[::\]:(\d+)', cont.logs().decode('utf-8'))
-            port = match.group(1)
-        return (cont, int(port))
-        
+    def get_registry_logs():
+        cont.reload()
+        return cont.logs().decode('utf-8')
+
     cont = None
     port = None
     if worker_id == "master" or worker_id == "gw0":
         minikube.start_registry()
         port = minikube.registry_port
     print("\nWaiting for registry to be ready ...")
-    cont, port = wait_for_registry(port)
+    assert wait_for(p(container_is_running, minikube.client, "registry"), timeout_seconds=60), \
+        "timed out waiting for registry container to start!"
+    cont = minikube.client.containers.get("registry")
+    assert wait_for(lambda: has_log_message(get_registry_logs(), message="listening on [::]:"), timeout_seconds=30), \
+        "timed out waiting for registry to be ready!"
+    if not port:
+        match = re.search('listening on \[::\]:(\d+)', get_registry_logs())
+        assert match, "failed to determine registry port!"
+        port = int(match.group(1))
     return {"container": cont, "port": port}
 
 
 @pytest.fixture(scope="session")
-def agent_image(registry, request):
+def agent_image(minikube, registry, request):
+    def teardown():
+        try:
+            minikube.host_client.images.remove("%s:%s" % (agent_image_name, agent_image_tag))
+        except:
+            pass
+
+    request.addfinalizer(teardown)
     client = get_docker_client()
-    port = registry["port"]
     final_agent_image_name = request.config.getoption("--k8s-agent-name")
     final_agent_image_tag = request.config.getoption("--k8s-agent-tag")
-    agent_image_name = "localhost:%d/%s" % (port, final_agent_image_name.split("/")[-1])
+    agent_image_name = "localhost:%d/%s" % (registry['port'], final_agent_image_name.split("/")[-1])
     agent_image_tag = final_agent_image_tag
     if not has_docker_image(client, final_agent_image_name, final_agent_image_tag):
         print("\nAgent image '%s:%s' not found in local registry." % (final_agent_image_name, final_agent_image_tag))
@@ -203,7 +209,9 @@ def agent_image(registry, request):
     final_agent_image.tag(agent_image_name, tag=agent_image_tag)
     print("\nPushing %s:%s ..." % (agent_image_name, agent_image_tag))
     client.images.push(agent_image_name, tag=agent_image_tag)
-    return {"name": agent_image_name, "tag": agent_image_tag}
+    print("\nPulling %s:%s ..." % (agent_image_name, agent_image_tag))
+    minikube.pull_agent_image(agent_image_name, agent_image_tag, final_agent_image.id)
+    return {"name": agent_image_name, "tag": agent_image_tag, "id": final_agent_image.id}
 
 
 @pytest.fixture
@@ -214,24 +222,6 @@ def k8s_observer(request):
 @pytest.fixture
 def k8s_test_timeout(request):
     return int(request.config.getoption("--k8s-test-timeout"))
-
-
-@pytest.fixture
-def k8s_monitor_without_endpoints(request):
-    try:
-        return request.param
-    except:
-        pytest.skip("no monitors to test")
-        return None
-
-
-@pytest.fixture
-def k8s_monitor_with_endpoints(request):
-    try:
-        return request.param
-    except:
-        pytest.skip("no monitors to test")
-        return None
 
 
 @pytest.fixture

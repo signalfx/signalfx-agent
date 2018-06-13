@@ -67,28 +67,34 @@ def run_k8s_monitors_test(agent_image, minikube, monitors, observer=None, namesp
                 image_name=agent_image["name"],
                 image_tag=agent_image["tag"],
                 namespace=namespace) as agent:
-                if "collectd/statsd" in [m["type"] for m in monitors]:
-                    # hack to populate data for statsd
-                    agent.container.exec_run(["/bin/bash", "-c", 'while true; do echo "statsd.[foo=bar,dim=val]test:1|g" | nc -w 1 -u 127.0.0.1 8125; sleep 1; done'], detach=True)
-                if expected_metrics and expected_dims:
-                    print("\nTesting for any of %d metric(s) with any of %d dimension key(s) ..." % (len(expected_metrics), len(expected_dims)))
-                    assert wait_for(p(any_metric_has_any_dim_key, backend, expected_metrics, expected_dims), timeout_seconds=test_timeout), \
-                        "timed out waiting for any metric in %s with any dimension key in %s!\n\nAGENT STATUS:\n%s\n\nAGENT CONTAINER LOGS:\n%s\n" % \
-                        (expected_metrics, expected_dims, agent.get_status(), agent.get_container_logs())
-                elif expected_metrics:
-                    print("\nTesting for any of %d metric(s) ..." % len(expected_metrics))
-                    assert wait_for(p(any_metric_found, backend, expected_metrics), timeout_seconds=test_timeout), \
-                        "timed out waiting for any metric in %s!\n\nAGENT STATUS:\n%s\n\nAGENT CONTAINER LOGS:\n%s\n" % \
-                        (expected_metrics, agent.get_status(), agent.get_container_logs())
-                elif expected_dims:
-                    print("\nTesting for any of %d dimension key(s) ..." % len(expected_dims))
-                    assert wait_for(p(any_dim_key_found, backend, expected_dims), timeout_seconds=test_timeout), \
-                        "timed out waiting for any dimension key in %s!\n\nAGENT STATUS:\n%s\n\nAGENT CONTAINER LOGS:\n%s\n" % \
-                        (expected_dims, agent.get_status(), agent.get_container_logs())
-                agent_status = agent.get_status()
-                container_logs = agent.get_container_logs()
-                assert all([p not in agent_status for p in passwords]), "cleartext password(s) found in agent-status output!\n\n%s\n" % agent_status
-                assert all([p not in container_logs for p in passwords]), "cleartext password(s) found in agent container logs!\n\n%s\n" % container_logs
+                    if "collectd/statsd" in [m["type"] for m in monitors]:
+                        # hack to populate data for statsd
+                        agent.container.exec_run(
+                            ["/bin/bash",
+                             "-c",
+                             'while true; do echo "statsd.[foo=bar,dim=val]test:1|g" | nc -w 1 -u 127.0.0.1 8125; sleep 1; done'],
+                            detach=True)
+                    if expected_metrics and expected_dims:
+                        print("\nTesting for any of %d metric(s) with any of %d dimension key(s) ..." % (len(expected_metrics), len(expected_dims)))
+                        assert wait_for(p(any_metric_has_any_dim_key, backend, expected_metrics, expected_dims), timeout_seconds=test_timeout), \
+                            "timed out waiting for any metric in %s with any dimension key in %s!\n\nAGENT STATUS:\n%s\n\nAGENT CONTAINER LOGS:\n%s\n" % \
+                            (expected_metrics, expected_dims, agent.get_status(), agent.get_container_logs())
+                    elif expected_metrics:
+                        print("\nTesting for any of %d metric(s) ..." % len(expected_metrics))
+                        assert wait_for(p(any_metric_found, backend, expected_metrics), timeout_seconds=test_timeout), \
+                            "timed out waiting for any metric in %s!\n\nAGENT STATUS:\n%s\n\nAGENT CONTAINER LOGS:\n%s\n" % \
+                            (expected_metrics, agent.get_status(), agent.get_container_logs())
+                    elif expected_dims:
+                        print("\nTesting for any of %d dimension key(s) ..." % len(expected_dims))
+                        assert wait_for(p(any_dim_key_found, backend, expected_dims), timeout_seconds=test_timeout), \
+                            "timed out waiting for any dimension key in %s!\n\nAGENT STATUS:\n%s\n\nAGENT CONTAINER LOGS:\n%s\n" % \
+                            (expected_dims, agent.get_status(), agent.get_container_logs())
+                    agent_status = agent.get_status()
+                    container_logs = agent.get_container_logs()
+                    assert all([p not in agent_status for p in passwords]), \
+                        "cleartext password(s) found in agent-status output!\n\n%s\n" % agent_status
+                    assert all([p not in container_logs for p in passwords]), \
+                        "cleartext password(s) found in agent container logs!\n\n%s\n" % container_logs
 
 
 def get_metrics_from_doc(doc, ignore=[], doc_dir=MONITORS_DOCS_DIR):
