@@ -17,15 +17,15 @@ func get(args ...interface{}) (interface{}, error) {
 	if len(args) != 2 {
 		return nil, errors.New("Get takes 2 args")
 	}
-	arg1 := args[0]
-	arg2 := args[1]
+	input_map := args[0]
+	key := args[1]
 
-	labelInterfaceMap, ok := arg1.(map[interface{}]interface{})
+	labelInterfaceMap, ok := input_map.(map[interface{}]interface{})
 	if !ok {
 		return nil, errors.New("label must be a map[string]string")
 	}
 
-	label, ok := arg2.(string)
+	label, ok := key.(string)
 	if !ok {
 		return nil, errors.New("label must be of type string")
 	}
