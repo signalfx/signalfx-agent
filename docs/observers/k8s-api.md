@@ -56,7 +56,7 @@ can be used in discovery rules.
 | `container_command` | `string` | The command used when running the container exposing the endpoint |
 | `container_id` | `string` | The ID of the container exposing the endpoint |
 | `container_image` | `string` | The image name of the container exposing the endpoint |
-| `container_labels` | `map of string` | A map that contains container label key/value pairs.  You can use the `Contains` and `Get` helper functions in discovery rules to make use of this. |
+| `container_labels` | `map of string` | A map that contains container label key/value pairs.  A map that contains container label key/value pairs.  You can use the `Contains` and `Get` helper functions in discovery rules to make use of this.  See [Endpoint Discovery](../auto-discovery.md#Additional%20Functions). |
 | `container_names` | `list of string` | A list of container names of the container exposing the endpoint |
 | `container_state` | `string` | The container state, will usually be "running" since otherwise the container wouldn't have a port exposed to be discovered. |
 | `discovered_by` | `string` | The observer that discovered this endpoint |
@@ -65,7 +65,7 @@ can be used in discovery rules.
 | `name` | `string` | A observer assigned name of the endpoint |
 | `orchestrator` | `integer` |  |
 | `port` | `integer` | The TCP/UDP port number of the endpoint |
-| `port_labels` | `map of string` | A map of labels on the container port |
+| `port_labels` | `map of string` | A map of labels on the container port. A map that contains container label key/value pairs.  You can use the `Contains` and `Get` helper functions in discovery rules to make use of this.  See [Endpoint Discovery](../auto-discovery.md#Additional%20Functions). |
 | `port_type` | `string` | TCP or UDP |
 
 ## Dimensions
