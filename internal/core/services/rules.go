@@ -10,7 +10,7 @@ import (
 	"github.com/Knetic/govaluate"
 )
 
-var errNoValueFound = fmt.Errorf("no value was found in the map with the key")
+var errNoValueFound = errors.New("no value was found in the map with the key")
 
 // get returns the value of the specified key in the supplied map
 func get(args ...interface{}) (interface{}, error) {
