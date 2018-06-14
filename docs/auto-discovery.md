@@ -47,7 +47,7 @@ are using.  The following three variables are common to all observers:
 
 For a list of observers and the discovery rule variables they provide, see [Observers](./observer-config.md). 
 
-### <a name="additionalfns"></a>Additional Functions
+### Additional Functions
 
 In addition, these extra functions are provided:
 

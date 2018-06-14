@@ -20,7 +20,7 @@ type Container struct {
 	State string `yaml:"container_state"`
 	// A map that contains container label key/value pairs. You can use the
 	// `Contains` and `Get` helper functions in discovery rules to make use of
-	// this. See [Endpoint Discovery](../auto-discovery.md#additionalfns).
+	// this. See [Endpoint Discovery](../auto-discovery.md#additional-functions).
 	Labels map[string]string `yaml:"container_labels"`
 }
 

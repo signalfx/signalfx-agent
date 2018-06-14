@@ -18,7 +18,7 @@ type ContainerEndpoint struct {
 	Orchestration Orchestration `yaml:",inline"`
 	// A map of labels on the container port. You can use the
 	// `Contains` and `Get` helper functions in discovery rules to make use of
-	// this. See [Endpoint Discovery](../auto-discovery.md#additionalfns).
+	// this. See [Endpoint Discovery](../auto-discovery.md#additional-functions).
 	PortLabels map[string]string `yaml:"port_labels"`
 }
 
