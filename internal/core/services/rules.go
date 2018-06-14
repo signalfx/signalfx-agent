@@ -8,55 +8,47 @@ import (
 	log "github.com/sirupsen/logrus"
 
 	"github.com/Knetic/govaluate"
-	"github.com/iancoleman/strcase"
 )
 
+var errNoValueFound = errors.New("no value was found in the map with the key")
+
+// get returns the value of the specified key in the supplied map
+func get(args ...interface{}) (interface{}, error) {
+	if len(args) != 2 {
+		return nil, errors.New("Get takes 2 args")
+	}
+	inputMap := args[0]
+	key := args[1]
+
+	labelInterfaceMap, ok := inputMap.(map[interface{}]interface{})
+	if !ok {
+		return nil, errors.New("label must be a map[string]string")
+	}
+
+	label, ok := key.(string)
+	if !ok {
+		return nil, errors.New("label must be of type string")
+	}
+
+	labelMap := utils.InterfaceMapToStringMap(labelInterfaceMap)
+	if val, ok := labelMap[label]; ok {
+		return val, nil
+	}
+
+	return nil, errNoValueFound
+}
+
 var ruleFunctions = map[string]govaluate.ExpressionFunction{
-	"Get": func(args ...interface{}) (interface{}, error) {
-		if len(args) != 2 {
-			return nil, errors.New("Get takes 2 args")
-		}
-		arg1 := args[0]
-		arg2 := args[1]
-
-		labelMap, ok := arg1.(map[string]string)
-		if !ok {
-			return nil, errors.New("label must be a map[string]string")
-		}
-		label, ok := arg2.(string)
-		if !ok {
-			return nil, errors.New("label must be of type string")
-		}
-
-		if val, ok := labelMap[label]; ok {
-			return val, nil
-		}
-
-		return nil, nil
-	},
+	"Get": get,
 	"Contains": func(args ...interface{}) (interface{}, error) {
-		if len(args) != 2 {
-			return nil, errors.New("Contains takes 2 args")
+		if _, err := get(args...); err != nil {
+			// drop error if no value found
+			if err == errNoValueFound {
+				return false, nil
+			}
+			return false, err
 		}
-		arg1 := args[0]
-		arg2 := args[1]
-
-		labelInterfaceMap, ok := arg1.(map[interface{}]interface{})
-		if !ok {
-			return nil, errors.New("label must be a map[string]string")
-		}
-
-		label, ok := arg2.(string)
-		if !ok {
-			return nil, errors.New("label must be of type string")
-		}
-
-		labelMap := utils.InterfaceMapToStringMap(labelInterfaceMap)
-		if _, ok := labelMap[label]; ok {
-			return true, nil
-		}
-
-		return false, nil
+		return true, nil
 	},
 }
 
@@ -75,7 +67,7 @@ func DoesServiceMatchRule(si Endpoint, ruleText string) bool {
 		return false
 	}
 
-	asMap := duplicateKeysAsCamelCase(EndpointAsMap(si))
+	asMap := utils.DuplicateInterfaceMapKeysAsCamelCase(EndpointAsMap(si))
 	if err := endpointMapHasAllVars(asMap, rule.Vars()); err != nil {
 		log.WithFields(log.Fields{
 			"discoveryRule":   rule.String(),
@@ -113,15 +105,6 @@ func DoesServiceMatchRule(si Endpoint, ruleText string) bool {
 	}).Debug("Rule evaluated")
 
 	return exprVal
-}
-
-func duplicateKeysAsCamelCase(m map[string]interface{}) map[string]interface{} {
-	out := make(map[string]interface{})
-	for k, v := range m {
-		out[k] = v
-		out[strcase.ToLowerCamel(k)] = v
-	}
-	return out
 }
 
 // ValidateDiscoveryRule takes a discovery rule string and returns false if it

@@ -16,7 +16,9 @@ type ContainerEndpoint struct {
 	AltPort       uint16        `yaml:"alternate_port"`
 	Container     Container     `yaml:",inline"`
 	Orchestration Orchestration `yaml:",inline"`
-	// A map of labels on the container port
+	// A map of labels on the container port. You can use the
+	// `Contains` and `Get` helper functions in discovery rules to make use of
+	// this. See [Endpoint Discovery](../auto-discovery.md#additional-functions).
 	PortLabels map[string]string `yaml:"port_labels"`
 }
 

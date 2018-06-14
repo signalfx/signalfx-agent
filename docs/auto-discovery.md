@@ -47,10 +47,22 @@ are using.  The following three variables are common to all observers:
 
 For a list of observers and the discovery rule variables they provide, see [Observers](./observer-config.md). 
 
+### Additional Functions
+
 In addition, these extra functions are provided:
 
  - `Get(map, key)` - retrieves the value from map with the given key
+
+   ```yaml
+   discoveryRule: Get(container_labels, "mapKey") == "mapValue"
+   ```
+
  - `Contains(map, key)` - returns true if key is inside map, otherwise false
+
+   ```yaml
+   discoveryRule: Contains(container_labels, "mapKey")
+   ```
+
 
 There are no implicit rules built into the agent, so each rule must be specified
 manually in the config file, in conjunction with the monitor that should monitor the

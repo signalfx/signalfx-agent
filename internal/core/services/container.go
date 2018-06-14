@@ -18,9 +18,9 @@ type Container struct {
 	// The container state, will usually be "running" since otherwise the
 	// container wouldn't have a port exposed to be discovered.
 	State string `yaml:"container_state"`
-	// A map that contains container label key/value pairs.  You can use the
+	// A map that contains container label key/value pairs. You can use the
 	// `Contains` and `Get` helper functions in discovery rules to make use of
-	// this.
+	// this. See [Endpoint Discovery](../auto-discovery.md#additional-functions).
 	Labels map[string]string `yaml:"container_labels"`
 }
 
