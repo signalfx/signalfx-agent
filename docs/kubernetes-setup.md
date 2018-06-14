@@ -310,6 +310,7 @@ monitor to get container metrics.  The config for that monitor will look like:
 monitors:
  - type: kubelet-stats
    kubeletAPI:
+     authType: none
      url: http://localhost:10255
 ```
 
