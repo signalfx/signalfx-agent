@@ -1,4 +1,4 @@
-package win_perf_counters
+package winperfcounters
 
 import (
 	"context"
