@@ -6,7 +6,7 @@ check: lint vet test
 .PHONY: test
 test: templates
 ifeq ($(OS),Windows_NT)
-	powershell -Command $$env:CGO_ENABLED=0; go test ./...
+	powershell -Command set $$env:CGO_ENABLED=0; go test ./...
 else
 	CGO_ENABLED=0 go test ./...
 endif
@@ -22,8 +22,11 @@ vetall: templates
 
 .PHONY: lint
 lint:
+ifneq ($(OS),Windows_NT)
 	CGO_ENABLED=0 golint -set_exit_status ./cmd/... ./internal/...
-
+else
+	powershell -Command set $$env:CGO_ENABLED=0; golint -set_exit_status ./cmd/... ./internal/...
+endif
 templates:
 ifneq ($(OS),Windows_NT)
 	scripts/make-templates
@@ -40,7 +43,10 @@ vendor:
 signalfx-agent: templates
 	echo "building SignalFx agent for operating system: $(GOOS)"
 ifeq ($(OS),Windows_NT)
-	powershell -Command $$env:CGO_ENABLED=0; go build -ldflags \"-X main.Version=$(AGENT_VERSION) -X main.BuiltTime=$$(Get-Date  -UFormat \"%Y-%m-%dT%T%Z\")\" -o signalfx-agent.exe github.com/signalfx/signalfx-agent/cmd/agent
+	powershell -Command set $$env:CGO_ENABLED=0; go build \
+		-ldflags "-X main.Version=$(AGENT_VERSION) -X main.BuiltTime=$$(powershell -Command Get-Date  -UFormat \"%Y-%m-%dT%T%Z\")" \
+		-o signalfx-agent.exe \
+		github.com/signalfx/signalfx-agent/cmd/agent
 else
 	CGO_ENABLED=0 go build \
 		-ldflags "-X main.Version=$(AGENT_VERSION) -X main.BuiltTime=$$(date +%FT%T%z)" \
