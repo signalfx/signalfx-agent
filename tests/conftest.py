@@ -142,7 +142,7 @@ def minikube(request, worker_id):
                 pass
 
     request.addfinalizer(teardown)
-    k8s_version = request.param
+    k8s_version = "v" + request.param.lstrip("v")
     k8s_timeout = int(request.config.getoption("--k8s-timeout"))
     k8s_container = request.config.getoption("--k8s-container")
     k8s_skip_teardown = request.config.getoption("--k8s-skip-teardown")
@@ -156,7 +156,7 @@ def minikube(request, worker_id):
         if worker_id == "gw0":
             k8s_skip_teardown = True
     else:
-        mk.connect("minikube", k8s_timeout)
+        mk.connect("minikube", k8s_timeout, version=k8s_version)
         k8s_skip_teardown = True
     return mk
 
