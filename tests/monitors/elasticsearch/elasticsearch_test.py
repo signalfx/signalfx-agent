@@ -13,6 +13,8 @@ pytestmark = [pytest.mark.collectd, pytest.mark.elasticsearch, pytest.mark.monit
 @pytest.mark.k8s
 @pytest.mark.kubernetes
 def test_elasticsearch_in_k8s(agent_image, minikube, k8s_observer, k8s_test_timeout, k8s_namespace):
+    if minikube.version.startswith("v1.7."):
+        pytest.skip(reason="required env var \"discovery.type\" for elasticsearch not supported in K8S v1.7.x.")
     monitors = [
         {"type": "collectd/elasticsearch",
          "discoveryRule": 'container_image =~ "elasticsearch" && private_port == 9200 && kubernetes_namespace == "%s"' % k8s_namespace,

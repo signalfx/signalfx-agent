@@ -24,3 +24,5 @@ spec:
           env:
             - name: ELASTIC_PASSWORD
               value: testing123
+            - name: discovery.type
+              value: single-node
