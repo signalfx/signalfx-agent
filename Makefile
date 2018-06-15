@@ -103,10 +103,12 @@ run-dev-image:
 run-k8s-tests:
 	docker rm -f -v minikube || true
 	pytest \
+		-m "k8s" \
+		-n 4 \
 		--verbose \
 		--exitfirst \
-		-n4 \
-		-m "k8s" \
+		--k8s-version=v1.9.0 \
+		--k8s-observers=k8s-api,k8s-kubelet \
 		--html=test_output/k8s_results.html \
 		--self-contained-html \
 		tests || true
