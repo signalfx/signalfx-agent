@@ -186,10 +186,10 @@ def registry(minikube, worker_id):
 
 
 @pytest.fixture(scope="session")
-def agent_image(minikube, registry, request):
+def agent_image(minikube, registry, request, worker_id):
     def teardown():
         try:
-            minikube.host_client.images.remove("%s:%s" % (agent_image_name, agent_image_tag))
+            client.images.remove("%s:%s" % (agent_image_name, agent_image_tag))
         except:
             pass
 
@@ -199,18 +199,24 @@ def agent_image(minikube, registry, request):
     final_agent_image_tag = request.config.getoption("--k8s-agent-tag")
     agent_image_name = "localhost:%d/%s" % (registry['port'], final_agent_image_name.split("/")[-1])
     agent_image_tag = final_agent_image_tag
-    if not has_docker_image(client, final_agent_image_name, final_agent_image_tag):
-        print("\nAgent image '%s:%s' not found in local registry." % (final_agent_image_name, final_agent_image_tag))
-        print("\nAttempting to pull from remote registry ...")
-        final_agent_image = client.images.pull(final_agent_image_name, tag=final_agent_image_tag)
+    if worker_id == "master" or worker_id == "gw0":
+        if not has_docker_image(client, final_agent_image_name, final_agent_image_tag):
+            print("\nAgent image '%s:%s' not found in local registry." % (final_agent_image_name, final_agent_image_tag))
+            print("\nAttempting to pull from remote registry ...")
+            final_agent_image = client.images.pull(final_agent_image_name, tag=final_agent_image_tag)
+        else:
+            final_agent_image = client.images.get(final_agent_image_name + ":" + final_agent_image_tag)
+        print("\nTagging %s:%s as %s:%s ..." % (final_agent_image_name, final_agent_image_tag, agent_image_name, agent_image_tag))
+        final_agent_image.tag(agent_image_name, tag=agent_image_tag)
+        print("\nPushing %s:%s ..." % (agent_image_name, agent_image_tag))
+        client.images.push(agent_image_name, tag=agent_image_tag)
+        print("\nPulling %s:%s ..." % (agent_image_name, agent_image_tag))
+        minikube.pull_agent_image(agent_image_name, agent_image_tag, final_agent_image.id)
     else:
+        print("\nWaiting for agent image \"%s:%s\" to be pulled to minikube ..." % (agent_image_name, agent_image_tag))
+        assert wait_for(p(has_docker_image, minikube.client, agent_image_name, agent_image_tag), timeout_seconds=60), \
+            "timed out waiting for agent image \"%s:%s\"!" % (agent_image_name, agent_image_tag)
         final_agent_image = client.images.get(final_agent_image_name + ":" + final_agent_image_tag)
-    print("\nTagging %s:%s as %s:%s ..." % (final_agent_image_name, final_agent_image_tag, agent_image_name, agent_image_tag))
-    final_agent_image.tag(agent_image_name, tag=agent_image_tag)
-    print("\nPushing %s:%s ..." % (agent_image_name, agent_image_tag))
-    client.images.push(agent_image_name, tag=agent_image_tag)
-    print("\nPulling %s:%s ..." % (agent_image_name, agent_image_tag))
-    minikube.pull_agent_image(agent_image_name, agent_image_tag, final_agent_image.id)
     return {"name": agent_image_name, "tag": agent_image_tag, "id": final_agent_image.id}
 
 
