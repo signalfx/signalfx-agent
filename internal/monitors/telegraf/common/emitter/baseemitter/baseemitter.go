@@ -212,8 +212,10 @@ func (b *BaseEmitter) AddError(err error) {
 }
 
 // NewEmitter returns a new BaseEmitter
-func NewEmitter() *BaseEmitter {
+func NewEmitter(Output types.Output, Logger log.FieldLogger) *BaseEmitter {
 	return &BaseEmitter{
+		Output:      Output,
+		Logger:      Logger,
 		omittedTags: map[string]bool{},
 		addTags:     map[string]string{},
 		included:    map[string]bool{},

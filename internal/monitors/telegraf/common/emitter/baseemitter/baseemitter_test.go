@@ -374,9 +374,7 @@ func TestImmediateEmitter_Emit(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			I := NewEmitter()
-			I.Logger = log.NewEntry(log.New())
-			I.Output = tt.fields.Output
+			I := NewEmitter(tt.fields.Output, log.NewEntry(log.New()))
 			I.AddTags(tt.args.addTag)
 			I.IncludeEvents(tt.args.includeEvent)
 			I.ExcludeData(tt.args.excludeData)
