@@ -9,6 +9,7 @@ import os
 import re
 import socket
 import time
+import yaml
 
 CUR_DIR = os.path.dirname(os.path.realpath(__file__))
 AGENT_YAMLS_DIR = os.environ.get("AGENT_YAMLS_DIR", os.path.join(CUR_DIR, "../../deployments/k8s"))
@@ -580,3 +581,71 @@ def get_free_port():
     s = socket.socket()
     s.bind(('', 0))
     return s.getsockname()[1]
+
+
+def get_discovery_rule(yaml_file, observer, namespace="", container_index=0):
+    """
+    Generate container discovery rule based on yaml_file.
+
+    Args:
+    yaml_file (str):       Path to K8S deployment yaml.
+    observer (str):        K8S observer type (e.g. k8s-api or k8s-kubelet).
+    namespace (str):       K8S namespace.
+    container_index (int): Index of the container in yaml_file to generate the discovery rule for.
+
+    Returns:
+    Discovery rule (str) that can be used for monitor configuration.
+    The rule will include the following endpoint variables:
+    - container_state (should always match "running")
+    - discovered_by (should match the observer argument)
+    - container_name
+    - container_names (should include container_name)
+    - container_image
+    - container_labels with Contains and Get (if defined in the yaml_file pod spec)
+    - port (if containerPort is defined in the yaml_file pod spec)
+    - network_port (if containerPort is defined in the yaml_file pod_spec)
+    - private_port (if containerPort is defined in the yaml_file pod_spec)
+    - kubernetes_namespace (if the namespace argument is not empty or None)
+    """
+    name = None
+    image = None
+    ports = []
+    labels = []
+    with open(yaml_file, "r") as fd:
+        for doc in yaml.load_all(fd.read()):
+            if doc['kind'] == "Deployment":
+                container = doc['spec']['template']['spec']['containers'][container_index]
+                name = container['name']
+                image = container['image']
+                try:
+                    ports = [p['containerPort'] for p in container['ports']]
+                except KeyError:
+                    ports = []
+                try:
+                    labels = doc['spec']['template']['metadata']['labels']
+                except KeyError:
+                    labels = []
+    assert name, "failed to get container name from %s!" % yaml_file
+    assert image, "failed to get container image from %s!" % yaml_file
+    rule = 'container_state == "running"'
+    rule += ' && discovered_by == "%s"' % observer
+    rule += ' && container_name == "%s"' % name
+    rule += ' && "%s" in container_names' % name
+    rule += ' && container_image == "%s"' % image
+    if len(labels) > 0:
+        for key, value in labels.items():
+            rule += ' && Contains(container_labels, "%s")' % key
+            rule += ' && Get(container_labels, "%s") == "%s"' % (key, value)
+    if len(ports) > 0:
+        rule += ' && ((port == %s' % ports[0]
+        rule += ' && network_port == %s' % ports[0]
+        rule += ' && private_port == %s)' % ports[0]
+        if len(ports) > 1:
+            for port in ports[1:]:
+                rule += ' || (port == %s' % port
+                rule += ' && network_port == %s' % port
+                rule += ' && private_port == %s)' % port
+        rule += ")"
+    if namespace:
+        rule += ' && kubernetes_namespace == "%s"' % namespace
+    return rule
