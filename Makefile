@@ -6,7 +6,7 @@ check: lint vet test
 .PHONY: test
 test: templates
 ifeq ($(OS),Windows_NT)
-	powershell -Command set $$env:CGO_ENABLED=0; go test ./...
+	powershell "& { . $(CURDIR)/scripts/windows/make.ps1; test }"
 else
 	CGO_ENABLED=0 go test ./...
 endif
@@ -22,11 +22,12 @@ vetall: templates
 
 .PHONY: lint
 lint:
-ifneq ($(OS),Windows_NT)
-	CGO_ENABLED=0 golint -set_exit_status ./cmd/... ./internal/...
+ifeq ($(OS),Windows_NT)
+	powershell "& { . $(CURDIR)/scripts/windows/make.ps1; lint }"
 else
-	powershell -Command set $$env:CGO_ENABLED=0; golint -set_exit_status ./cmd/... ./internal/...
+	CGO_ENABLED=0 golint -set_exit_status ./cmd/... ./internal/...
 endif
+
 templates:
 ifneq ($(OS),Windows_NT)
 	scripts/make-templates
@@ -38,15 +39,17 @@ image:
 
 .PHONY: vendor
 vendor:
+ifeq ($(OS), Windows_NT)
+	powershell "& { . $(CURDIR)/scripts/windows/make.ps1; vendor }"
+else
 	CGO_ENABLED=0 dep ensure
+endif
+
 
 signalfx-agent: templates
 	echo "building SignalFx agent for operating system: $(GOOS)"
 ifeq ($(OS),Windows_NT)
-	powershell -Command set $$env:CGO_ENABLED=0; go build \
-		-ldflags "-X main.Version=$(AGENT_VERSION) -X main.BuiltTime=$$(powershell -Command Get-Date  -UFormat \"%Y-%m-%dT%T%Z\")" \
-		-o signalfx-agent.exe \
-		github.com/signalfx/signalfx-agent/cmd/agent
+	powershell "& { . $(CURDIR)/scripts/windows/make.ps1; signalfx-agent $(AGENT_VERSION)}"
 else
 	CGO_ENABLED=0 go build \
 		-ldflags "-X main.Version=$(AGENT_VERSION) -X main.BuiltTime=$$(date +%FT%T%z)" \
@@ -74,8 +77,8 @@ run-shell:
 .PHONY: dev-image
 dev-image:
 ifeq ($(OS),Windows_NT)
-	powershell -Command . $(CURDIR)\scripts\windows\common.ps1; do_docker_build signalfx-agent-dev latest dev-extras
-else 
+	powershell -Command "& { . $(CURDIR)\scripts\windows\common.ps1; do_docker_build signalfx-agent-dev latest dev-extras }"
+else
 	bash -ec "source scripts/common.sh && do_docker_build signalfx-agent-dev latest dev-extras"
 endif
 
