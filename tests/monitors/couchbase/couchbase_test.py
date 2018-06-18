@@ -9,6 +9,7 @@ from tests.kubernetes.utils import (
     run_k8s_monitors_test,
     get_metrics_from_doc,
     get_dims_from_doc,
+    get_discovery_rule,
 )
 
 pytestmark = [pytest.mark.collectd, pytest.mark.couchbase, pytest.mark.monitor_with_endpoints]
@@ -49,19 +50,19 @@ def test_couchbase_in_k8s(agent_image, minikube, k8s_observer, k8s_test_timeout,
     dockerfile_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)), "../../../test-services/couchbase")
     build_opts = {"buildargs": {"COUCHBASE_VERSION": "enterprise-5.1.0"}, "tag": "couchbase:test"}
     minikube.build_image(dockerfile_dir, build_opts)
+    yaml = os.path.join(os.path.dirname(os.path.realpath(__file__)), "couchbase-k8s.yaml")
     monitors = [
         {"type": "collectd/couchbase",
-         "discoveryRule": 'container_image =~ "couchbase" && private_port == 8091 && kubernetes_namespace == "%s"' % k8s_namespace,
+         "discoveryRule": get_discovery_rule(yaml, k8s_observer, namespace=k8s_namespace),
          "collectTarget": "NODE",
          "username": "administrator", "password": "testing123"}
     ]
-    yamls = [os.path.join(os.path.dirname(os.path.realpath(__file__)), "couchbase-k8s.yaml")]
     run_k8s_monitors_test(
         agent_image,
         minikube,
         monitors,
         namespace=k8s_namespace,
-        yamls=yamls,
+        yamls=[yaml],
         observer=k8s_observer,
         expected_metrics=get_metrics_from_doc("collectd-couchbase.md"),
         expected_dims=get_dims_from_doc("collectd-couchbase.md"),
