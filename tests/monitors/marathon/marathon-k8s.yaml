@@ -17,10 +17,6 @@ spec:
         app: marathon
     spec:
       containers:
-        - name: zookeeper
-          image: zookeeper:latest
-          ports:
-            - containerPort: 2181
         - name: marathon
           image: mesosphere/marathon:latest
           ports:
@@ -28,3 +24,7 @@ spec:
           securityContext:
             privileged: true
           args: ["--master", "local", "--zk", "zk://localhost:2181/marathon"]
+        - name: zookeeper
+          image: zookeeper:latest
+          ports:
+            - containerPort: 2181
