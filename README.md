@@ -10,6 +10,7 @@ agent](https://github.com/signalfx/collectd), but still uses that internally --
 so any existing Python or C-based collectd plugins will still work without
 modification.
 
+ - [Quickstart](./docs/quickstart.md)
  - [Concepts](#concepts)
  - [Installation](#installation)
  - [Configuration](#configuration)
