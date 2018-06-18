@@ -41,6 +41,9 @@ type BaseEmitter struct {
 	// ExcludeDatum(string) and ExcludeData(string).  You should look up
 	// excluded events and metrics using Excluded(string)bool
 	excluded map[string]bool
+	// name map is a map of metric names to their desired metricname
+	// this is used for overriding metric names
+	nameMap map[string]string
 }
 
 // AddTag adds a key/value pair to all measurement tags.  If a key conflicts
@@ -137,6 +140,35 @@ func (b *BaseEmitter) FilterTags(key string, value string) (include bool) {
 	return include
 }
 
+// RenameMetric adds a mapping to rename a metric by it's name
+func (b *BaseEmitter) RenameMetric(original string, override string) {
+	b.lock.Lock()
+	b.nameMap[original] = override
+	b.lock.Unlock()
+}
+
+// RenameMetrics takes a map of metric name overrides map[original]override
+func (b *BaseEmitter) RenameMetrics(mappings map[string]string) {
+	for original, override := range mappings {
+		b.RenameMetric(original, override)
+	}
+}
+
+// GetMetricName parses the metric name and takes name overrides into account
+func (b *BaseEmitter) GetMetricName(measurement string, field string, metricDims map[string]string) (name string, isSFX bool) {
+	name, isSFX = parse.GetMetricName(measurement, field, metricDims)
+
+	b.lock.RLock()
+	newName := b.nameMap[name]
+	b.lock.RUnlock()
+
+	// override name if an override is defined
+	if newName != "" {
+		name = newName
+	}
+	return name, isSFX
+}
+
 // Add parses measurements from telegraf and emits them through Output
 func (b *BaseEmitter) Add(measurement string, fields map[string]interface{},
 	tags map[string]string, metricType datapoint.MetricType,
@@ -154,7 +186,7 @@ func (b *BaseEmitter) Add(measurement string, fields map[string]interface{},
 		}
 
 		// Generate the metric name
-		metricName, isSFX := parse.GetMetricName(measurement, field, metricDims)
+		metricName, isSFX := b.GetMetricName(measurement, field, metricDims)
 
 		// Check if the metric is explicitly excluded
 		if b.IsExcluded(metricName) {
@@ -217,8 +249,9 @@ func NewEmitter(Output types.Output, Logger log.FieldLogger) *BaseEmitter {
 		Output:      Output,
 		Logger:      Logger,
 		omittedTags: map[string]bool{},
-		addTags:     map[string]string{},
 		included:    map[string]bool{},
 		excluded:    map[string]bool{},
+		addTags:     map[string]string{},
+		nameMap:     map[string]string{},
 	}
 }
