@@ -2,7 +2,6 @@ package winperfcounters
 
 import (
 	"context"
-	"time"
 
 	"github.com/signalfx/signalfx-agent/internal/core/config"
 	"github.com/signalfx/signalfx-agent/internal/monitors"
@@ -32,15 +31,20 @@ type Perfcounterobj struct {
 // Config for this monitor
 type Config struct {
 	config.MonitorConfig `acceptsEndpoints:"false" deepcopier:"skip"`
-	PrintValid           bool             `yaml:"PrintValid"`
-	PreVistaSupport      bool             `yaml:"PreVistaSupport"`
-	Object               []Perfcounterobj `yaml:"Objects" default:"[]"`
+	Object               []Perfcounterobj `yaml:"objects" default:"[]"`
+	// number of nanoseconds that wildcards in counter paths should be expanded
+	// and how often to refresh counters from configuration
+	CountersRefreshInterval int `yaml:"counterRefreshInterval" default:60`
+	// if `true`, instance indexes will be included in instance names, and wildcards will
+	// be expanded and localized (if applicable).  If `false`, non partial wildcards will be expanded and instance names will not include instance indexs.
+	UseWildcardsExpansion bool
+	// print out the configurations that match available performance counters
+	PrintValid bool `yaml:"printValid"`
 }
 
 // Monitor for Utilization
 type Monitor struct {
-	Output  types.Output
-	cancel  func()
-	ctx     context.Context
-	timeout time.Duration
+	Output types.Output
+	cancel func()
+	ctx    context.Context
 }
