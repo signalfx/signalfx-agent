@@ -39,7 +39,7 @@ Monitor Type: `telegraf/win_perf_counters`
 | Config option | Required | Type | Description |
 | --- | --- | --- | --- |
 | `objects` | no | `list of object (see below)` |  |
-| `counterRefreshInterval` | no | `integer` | number of nanoseconds that wildcards in counter paths should be expanded and how often to refresh counters from configuration (**default:** `0`) |
+| `counterRefreshInterval` | no | `integer` | number of nanoseconds that wildcards in counter paths should be expanded and how often to refresh counters from configuration (**default:** `60`) |
 | `printValid` | no | `bool` | print out the configurations that match available performance counters (**default:** `false`) |
 
 

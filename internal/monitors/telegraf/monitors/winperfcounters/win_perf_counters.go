@@ -44,12 +44,12 @@ func init() {
 // Perfcounterobj represents a perfcounter object to monitor
 type Perfcounterobj struct {
 	ObjectName    string   `yaml:"objectName"`
-	Counters      []string `yaml:"counters" default="[]"`
-	Instances     []string `yaml:"instances" default="[]"`
+	Counters      []string `yaml:"counters" default:"[]"`
+	Instances     []string `yaml:"instances" default:"[]"`
 	Measurement   string   `yaml:"measurement"`
-	WarnOnMissing bool     `yaml:"warnOnMissing" default="false"`
-	FailOnMissing bool     `yaml:"failOnMissing" default="false"`
-	IncludeTotal  bool     `yaml:"includeTotal" default="false"`
+	WarnOnMissing bool     `yaml:"warnOnMissing" default:"false"`
+	FailOnMissing bool     `yaml:"failOnMissing" default:"false"`
+	IncludeTotal  bool     `yaml:"includeTotal" default:"false"`
 }
 
 // Config for this monitor
@@ -58,7 +58,7 @@ type Config struct {
 	Object               []Perfcounterobj `yaml:"objects" default:"[]"`
 	// number of nanoseconds that wildcards in counter paths should be expanded
 	// and how often to refresh counters from configuration
-	CountersRefreshInterval int `yaml:"counterRefreshInterval" default:60`
+	CountersRefreshInterval int `yaml:"counterRefreshInterval" default:"60"`
 	// if `true`, instance indexes will be included in instance names, and wildcards will
 	// be expanded and localized (if applicable).  If `false`, non partial wildcards will be expanded and instance names will not include instance indexs.
 	UseWildcardsExpansion bool
