@@ -330,11 +330,12 @@
   name = "github.com/influxdata/telegraf"
   packages = [
     ".",
+    "internal",
     "plugins/inputs",
     "plugins/inputs/win_perf_counters"
   ]
-  revision = "b24e8648f093dfc97b643fc70e3d9ceda460db9d"
-  version = "1.6.4"
+  revision = "f4d22dd43992d80f0f6d58affa33d9466c447144"
+  version = "1.7.0"
 
 [[projects]]
   name = "github.com/json-iterator/go"
@@ -884,6 +885,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "eaa1473370b8d9b1ccddb541fefb9860b2ab526b041819b4f178e3b0e16caff8"
+  inputs-digest = "8d230893fb971961c24a16f783da3d30f4c4d735d50a8e49f52c319683f90524"
   solver-name = "gps-cdcl"
   solver-version = 1
