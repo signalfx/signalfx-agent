@@ -11,6 +11,108 @@ import (
 
 const monitorType = "telegraf/win_perf_counters"
 
+// MONITOR(telegraf/win_perf_counters): This monitor reads Windows performance
+// counters
+//
+// Sample YAML configuration:
+//
+// ```yaml
+// monitors:
+//   - type: telegraf/win_perf_counters
+//   printValid: true
+//   objects:
+// 	- objectName: "Processor"
+// 	  instances:
+// 		- "*"
+// 	  counters:
+// 		- "% Idle Time"
+// 		- "% Interrupt Time"
+// 		- "% Privileged Time"
+// 		- "% User Time"
+// 		- "% Processor Time"
+// 	  includeTotal: true
+// 	  measurement: "win_cpu"
+// 	- objectName: "LogicalDisk"
+// 	  instances:
+// 		- "*"
+// 	  counters:
+// 		- "% Idle Time"
+// 		- "% Disk Time"
+// 		- "% Disk Read Time"
+// 		- "% Disk Write Time"
+// 		- "% User Time"
+// 		- "% Current Disk Queue Length"
+// 	  measurement: "win_disk"
+// 	- objectName: "System"
+// 	  instances:
+// 		- "------"
+// 	  counters:
+// 		- "Context Switches/sec"
+// 		- "System Calls/sec"
+// 	  measurement: "win_system"
+// 	- objectName: "Memory"
+// 	  instances:
+// 		- "------"
+// 	  counters:
+// 	  - "Available Bytes"
+// 	  - "Cache Faults/sec"
+// 	  - "Demand Zero Faults/sec"
+// 	  - "Page Faults/sec"
+// 	  - "Pages/sec"
+// 	  - "Transition Faults/sec"
+// 	  - "Pool Nonpaged Bytes"
+// 	  - "Pool Paged Bytes"
+// 	  - "Pages Input/sec"
+// 	  measurement: "win_mem"
+// 	- objectName: "PhysicalDisk"
+// 	  instances:
+// 		- "*"
+// 	  counters:
+// 		- "Avg. Disk sec/Read"
+// 		- "Avg. Disk sec/Transfer"
+// 		- "Avg. Disk sec/Write"
+// 	  includeTotal: true
+// 	  measurement: "win_physical_disk"
+// 	- objectName: "LogicalDisk"
+// 	  instances:
+// 		- "*"
+// 	  counters:
+// 		- "Disk Transfers/sec"
+// 		- "Disk Reads/sec"
+// 		- "Disk Writes/sec"
+// 		- "Disk Read Bytes/sec"
+// 		- "Disk Write Bytes/sec"
+// 		- "Free Megabytes"
+// 		- "% Free Space"
+// 	  includeTotal: true
+// 	  measurement: "win_cpu"
+// 	- objectName: "Paging File"
+// 	  instances:
+// 		- "*"
+// 	  counters:
+// 		- "% Usage"
+// 		- "% Usage Peak"
+// 	  includeTotal: true
+// 	  measurement: "win_paging_file"
+// 	- objectName: "Network Interface"
+// 	  instances:
+// 		- "*"
+// 	  counters:
+// 		- "Bytes Total/sec"
+// 		- "Bytes Received/sec"
+// 		- "Bytes Sent/sec"
+// 		- "Current Bandwidth"
+// 		- "Packets Received/sec"
+// 		- "Packets Sent/sec"
+// 		- "Packets Received Errors"
+// 		- "Packets Outbound Errors"
+// 		- "Packets Received Discarded"
+// 		- "Packets Outbound Discarded"
+// 	  includeTotal: true
+// 	  measurement: "win_network_interface"
+// ```
+//
+
 var logger = log.WithFields(log.Fields{"monitorType": monitorType})
 
 func init() {
