@@ -26,6 +26,7 @@ func TestImmediateEmitter_Emit(t *testing.T) {
 		excludeData        []string
 		excludeTag         []string
 		addTag             map[string]string
+		nameMap            map[string]string
 	}
 	ts := time.Now()
 	tests := []struct {
@@ -34,6 +35,41 @@ func TestImmediateEmitter_Emit(t *testing.T) {
 		wantDatapoints []*datapoint.Datapoint
 		wantEvents     []*event.Event
 	}{
+		{
+			name: "emit datapoint with remapped name",
+			fields: fields{
+				Output: &testOutput{
+					Datapoints: []*datapoint.Datapoint{},
+				},
+			},
+			args: args{
+				measurement: "name",
+				fields: map[string]interface{}{
+					"fieldname": 5,
+				},
+				tags: map[string]string{
+					"dim1Key": "dim1Val",
+				},
+				metricType: datapoint.Gauge,
+				t:          []time.Time{ts},
+				nameMap: map[string]string{
+					"name.fieldname": "renamed.metric",
+				},
+			},
+			want: &testOutput{
+				Datapoints: []*datapoint.Datapoint{
+					datapoint.New(
+						"renamed.metric",
+						map[string]string{
+							"dim1Key": "dim1Val",
+							"plugin":  "name",
+						},
+						datapoint.NewIntValue(int64(5)),
+						datapoint.Gauge,
+						ts),
+				},
+			},
+		},
 		{
 			name: "emit datapoint without plugin tag",
 			args: args{
