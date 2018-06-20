@@ -18,20 +18,20 @@ const monitorType = "telegraf/win_perf_counters"
 //
 // ```yaml
 // monitors:
-//   - type: telegraf/win_perf_counters
-//   printValid: true
-//   objects:
-// 	- objectName: "Processor"
-// 	  instances:
-// 		- "*"
-// 	  counters:
-// 		- "% Idle Time"
-// 		- "% Interrupt Time"
-// 		- "% Privileged Time"
-// 		- "% User Time"
-// 		- "% Processor Time"
-// 	  includeTotal: true
-// 	  measurement: "win_cpu"
+//  - type: telegraf/win_perf_counters
+//    printValid: true
+//    objects:
+//     - objectName: "Processor"
+//       instances:
+//        - "*"
+//       counters:
+//        - "% Idle Time"
+//        - "% Interrupt Time"
+//        - "% Privileged Time"
+//        - "% User Time"
+//        - "% Processor Time"
+//       includeTotal: true
+//       measurement: "win_cpu"
 // ```
 //
 
