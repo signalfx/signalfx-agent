@@ -1,4 +1,4 @@
-# Quickstart
+# Smart Agent Quick Start
 
 - [Deploy Directly on Host](#deploy-directly-on-host)
 
