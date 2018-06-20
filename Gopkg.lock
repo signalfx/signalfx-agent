@@ -327,6 +327,17 @@
   revision = "3de563c3dc08a7504131e9d63f678b7d1c3e85d7"
 
 [[projects]]
+  name = "github.com/influxdata/telegraf"
+  packages = [
+    ".",
+    "internal",
+    "plugins/inputs",
+    "plugins/inputs/win_perf_counters"
+  ]
+  revision = "c6feb056ffa0440ce054ad220655189ce91d2b30"
+  version = "1.7.2"
+
+[[projects]]
   name = "github.com/json-iterator/go"
   packages = ["."]
   revision = "28452fcdec4e44348d2af0d91d1e9e38da3a9e0a"
@@ -577,9 +588,10 @@
   revision = "6d1b2d7f104e77f09d6df1fc62ce1c092d8ab3de"
 
 [[projects]]
+  branch = "signalfx-integration"
   name = "github.com/signalfx/telegraf"
   packages = ["plugins/outputs/signalfx/parse"]
-  revision = "e2e44a3374c4963a78c7bf87ed85b8b4059074aa"
+  revision = "888c034dc63b1420acc06188f1af72a5b19872e2"
 
 [[projects]]
   name = "github.com/sirupsen/logrus"
@@ -594,8 +606,17 @@
   version = "v1.0.0"
 
 [[projects]]
+  name = "github.com/stretchr/objx"
+  packages = ["."]
+  revision = "477a77ecc69700c7cdeb1fa9e129548e1c1c393c"
+  version = "v0.1.1"
+
+[[projects]]
   name = "github.com/stretchr/testify"
-  packages = ["assert"]
+  packages = [
+    "assert",
+    "mock"
+  ]
   revision = "69483b4bd14f5845b5a1e55bca19e954e827f1d0"
   version = "v1.1.4"
 
@@ -604,6 +625,11 @@
   packages = ["codec"]
   revision = "9831f2c3ac1068a78f50999a30db84270f647af6"
   version = "v1.1"
+
+[[projects]]
+  name = "github.com/ulule/deepcopier"
+  packages = ["."]
+  revision = "ca99b135e50f526fde9cd88705f0ff2f3f95b77c"
 
 [[projects]]
   name = "github.com/x-cray/logrus-prefixed-formatter"
@@ -866,6 +892,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "769fb6d96c3269346a02766a8f7f067e42d1f85acb9cb657731da129878bac88"
+  inputs-digest = "38f448b733a029ad54fc2deb4c439526b248e4d9242e8e1a08997e4e91b52531"
   solver-name = "gps-cdcl"
   solver-version = 1
