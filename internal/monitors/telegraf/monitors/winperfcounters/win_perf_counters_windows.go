@@ -55,12 +55,13 @@ func (m *Monitor) Configure(conf *Config) error {
 	ac := accumulator.NewAccumulator(baseemitter.NewEmitter(m.Output, logger))
 
 	// create contexts for managing the the plugin loop
-	m.ctx, m.cancel = context.WithCancel(context.Background())
+	var ctx context.Context
+	ctx, m.cancel = context.WithCancel(context.Background())
 
 	// gather metrics on the specified interval
 	utils.RunOnInterval(m.ctx, func() {
 		if err := plugin.Gather(ac); err != nil {
-			logger.WithError(err)
+			logger.Error(err)
 		}
 	}, time.Duration(conf.IntervalSeconds)*time.Second)
 	return nil

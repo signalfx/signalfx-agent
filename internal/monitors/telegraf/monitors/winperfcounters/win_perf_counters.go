@@ -1,8 +1,6 @@
 package winperfcounters
 
 import (
-	"context"
-
 	"github.com/signalfx/signalfx-agent/internal/core/config"
 	"github.com/signalfx/signalfx-agent/internal/monitors"
 	"github.com/signalfx/signalfx-agent/internal/monitors/types"
@@ -60,8 +58,9 @@ type Config struct {
 	// and how often to refresh counters from configuration
 	CountersRefreshInterval int `yaml:"counterRefreshInterval" default:"60"`
 	// if `true`, instance indexes will be included in instance names, and wildcards will
-	// be expanded and localized (if applicable).  If `false`, non partial wildcards will be expanded and instance names will not include instance indexs.
-	UseWildcardsExpansion bool
+	// be expanded and localized (if applicable).  If `false`, non partial wildcards will
+	// be expanded and instance names will not include instance indexes.
+	UseWildcardsExpansion bool `yaml:"useWildCardExpansion"`
 	// print out the configurations that match available performance counters
 	PrintValid bool `yaml:"printValid"`
 }
@@ -70,5 +69,4 @@ type Config struct {
 type Monitor struct {
 	Output types.Output
 	cancel func()
-	ctx    context.Context
 }

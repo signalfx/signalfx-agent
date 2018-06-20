@@ -40,6 +40,7 @@ Monitor Type: `telegraf/win_perf_counters`
 | --- | --- | --- | --- |
 | `objects` | no | `list of object (see below)` |  |
 | `counterRefreshInterval` | no | `integer` | number of nanoseconds that wildcards in counter paths should be expanded and how often to refresh counters from configuration (**default:** `60`) |
+| `useWildCardExpansion` | no | `bool` | if `true`, instance indexes will be included in instance names, and wildcards will be expanded and localized (if applicable).  If `false`, non partial wildcards will be expanded and instance names will not include instance indexes. (**default:** `false`) |
 | `printValid` | no | `bool` | print out the configurations that match available performance counters (**default:** `false`) |
 
 
