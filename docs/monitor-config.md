@@ -63,6 +63,7 @@ along with their possible configuration options:
 - [kubernetes-events](./monitors/kubernetes-events.md)
 - [kubernetes-volumes](./monitors/kubernetes-volumes.md)
 - [prometheus-exporter](./monitors/prometheus-exporter.md)
+- [telegraf/win_perf_counters](./monitors/telegraf-win_perf_counters.md)
 - [trace-forwarder](./monitors/trace-forwarder.md)
 
 

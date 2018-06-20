@@ -19,3 +19,4 @@ __pycache__
 .idea/
 *.exe
 .mypy_cache/
+.vscode/

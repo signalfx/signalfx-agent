@@ -366,6 +366,19 @@
   revision = "3de563c3dc08a7504131e9d63f678b7d1c3e85d7"
 
 [[projects]]
+  digest = "1:69f77c621a7e6a49e27ee2c49d2920b2178ea62d7fff011d6ded1f4a15a5e5c3"
+  name = "github.com/influxdata/telegraf"
+  packages = [
+    ".",
+    "internal",
+    "plugins/inputs",
+    "plugins/inputs/win_perf_counters",
+  ]
+  pruneopts = "NUT"
+  revision = "4be18c1ea229cb2a3b0da6f41923ba0597a4b94e"
+  version = "1.7.1"
+
+[[projects]]
   digest = "1:ed32dc822d051bf443e256bb9d535b6328423d9e22355da2d9e2efb943593e5f"
   name = "github.com/jaegertracing/jaeger"
   packages = ["thrift-gen/jaeger"]
@@ -713,11 +726,11 @@
   revision = "d07d53d0851a27c8d71480399b43263f214f0fee"
 
 [[projects]]
-  digest = "1:5eddda7da877381c06e82250de85055fc40245378ef18bbacd455963d70109ac"
+  digest = "1:332054668ed749bea01aeb5d2d53391acf386a348bb42c2668630aa6151694a7"
   name = "github.com/signalfx/telegraf"
   packages = ["plugins/outputs/signalfx/parse"]
   pruneopts = "NUT"
-  revision = "e2e44a3374c4963a78c7bf87ed85b8b4059074aa"
+  revision = "888c034dc63b1420acc06188f1af72a5b19872e2"
 
 [[projects]]
   digest = "1:6201742366c1518fc5f0df9ccdb4d193fc8a2aef2cc57bf164c9bca23bd5f869"
@@ -728,9 +741,20 @@
   version = "v1.0.4"
 
 [[projects]]
-  digest = "1:bacb8b590716ab7c33f2277240972c9582d389593ee8d66fc10074e0508b8126"
+  digest = "1:60a46e2410edbf02b419f833372dd1d24d7aa1b916a990a7370e792fada1eadd"
+  name = "github.com/stretchr/objx"
+  packages = ["."]
+  pruneopts = "NUT"
+  revision = "477a77ecc69700c7cdeb1fa9e129548e1c1c393c"
+  version = "v0.1.1"
+
+[[projects]]
+  digest = "1:81d363777b015e85bd42b978b80f4f5ecdaa43e11452ba8ff7ea93db3ce166bd"
   name = "github.com/stretchr/testify"
-  packages = ["assert"]
+  packages = [
+    "assert",
+    "mock",
+  ]
   pruneopts = "NUT"
   revision = "f35b8ab0b5a2cef36673838d662e249dd9c94686"
   version = "v1.2.2"
@@ -768,6 +792,13 @@
   pruneopts = "NUT"
   revision = "9831f2c3ac1068a78f50999a30db84270f647af6"
   version = "v1.1"
+
+[[projects]]
+  digest = "1:45e441e74062f04f4d07d6c450ac1b6b0723cd201e7b3ee895ec0ae10e3f658b"
+  name = "github.com/ulule/deepcopier"
+  packages = ["."]
+  pruneopts = "NUT"
+  revision = "ca99b135e50f526fde9cd88705f0ff2f3f95b77c"
 
 [[projects]]
   digest = "1:c950ed18f9e7d881d16e226c5612fea8acceb241a0d04c3dad5c0d22c24381c5"
@@ -1148,6 +1179,8 @@
     "github.com/hashicorp/consul/api",
     "github.com/hashicorp/golang-lru",
     "github.com/iancoleman/strcase",
+    "github.com/influxdata/telegraf/plugins/inputs",
+    "github.com/influxdata/telegraf/plugins/inputs/win_perf_counters",
     "github.com/kr/pretty",
     "github.com/mailru/easyjson",
     "github.com/mitchellh/hashstructure",
@@ -1176,6 +1209,7 @@
     "github.com/signalfx/telegraf/plugins/outputs/signalfx/parse",
     "github.com/sirupsen/logrus",
     "github.com/stretchr/testify/assert",
+    "github.com/ulule/deepcopier",
     "github.com/x-cray/logrus-prefixed-formatter",
     "golang.org/x/sync/errgroup",
     "gopkg.in/fatih/set.v0",
