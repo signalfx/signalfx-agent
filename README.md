@@ -10,7 +10,6 @@ agent](https://github.com/signalfx/collectd), but still uses that internally --
 so any existing Python or C-based collectd plugins will still work without
 modification.
 
- - [Quickstart](./docs/quickstart.md)
  - [Concepts](#concepts)
  - [Installation](#installation)
  - [Configuration](#configuration)
@@ -73,7 +72,9 @@ The agent is available for Linux in both a containerized and standalone form.
 Whatever form you use, the dependencies are completely bundled along with the
 agent, including a Java JRE runtime and a Python runtime, so there are no
 additional dependencies required.  This means that the agent should work on any
-relatively modern Linux distribution (kernel version 2.6+).
+relatively modern Linux distribution (kernel version 2.6+).  To get started
+deploying the Smart Agent directly on a host, see the
+[Smart Agent Quickstart](./docs/smart-agent-quickstart.md) guide.
 
 ### Deployment
 We support the following deployment/configuration management tools to automate the

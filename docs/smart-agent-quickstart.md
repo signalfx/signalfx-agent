@@ -1,9 +1,9 @@
 # Quickstart
 
-- [SingleHost](#single-host)
+- [Deploy Directly on Host](#deploy-directly-on-host)
 
 
-## Single Host
+## Deploy Directly on Host
 
 This tutorial assumes you are starting fresh and have no existing collectd agent running on your instance.
 
