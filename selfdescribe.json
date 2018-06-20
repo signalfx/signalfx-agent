@@ -11175,6 +11175,114 @@
     },
     {
       "name": "Config",
+      "doc": " This monitor reads Windows performance\ncounters\n\nSample YAML configuration:\n\n```yaml\nmonitors:\n - type: telegraf/win_perf_counters\n   printValid: true\n   objects:\n    - objectName: \"Processor\"\n      instances:\n       - \"*\"\n      counters:\n       - \"% Idle Time\"\n       - \"% Interrupt Time\"\n       - \"% Privileged Time\"\n       - \"% User Time\"\n       - \"% Processor Time\"\n      includeTotal: true\n      measurement: \"win_cpu\"\n```\n",
+      "package": "internal/monitors/telegraf/monitors/winperfcounters",
+      "fields": [
+        {
+          "yamlName": "objects",
+          "doc": "",
+          "default": "",
+          "required": false,
+          "type": "slice",
+          "elementKind": "struct",
+          "elementStruct": {
+            "name": "Perfcounterobj",
+            "doc": "Perfcounterobj represents a perfcounter object to monitor",
+            "package": "internal/monitors/telegraf/monitors/winperfcounters",
+            "fields": [
+              {
+                "yamlName": "objectName",
+                "doc": "",
+                "default": "",
+                "required": false,
+                "type": "string",
+                "elementKind": ""
+              },
+              {
+                "yamlName": "counters",
+                "doc": "",
+                "default": "",
+                "required": false,
+                "type": "slice",
+                "elementKind": "string"
+              },
+              {
+                "yamlName": "instances",
+                "doc": "",
+                "default": "",
+                "required": false,
+                "type": "slice",
+                "elementKind": "string"
+              },
+              {
+                "yamlName": "measurement",
+                "doc": "",
+                "default": "",
+                "required": false,
+                "type": "string",
+                "elementKind": ""
+              },
+              {
+                "yamlName": "warnOnMissing",
+                "doc": "",
+                "default": false,
+                "required": false,
+                "type": "bool",
+                "elementKind": ""
+              },
+              {
+                "yamlName": "failOnMissing",
+                "doc": "",
+                "default": false,
+                "required": false,
+                "type": "bool",
+                "elementKind": ""
+              },
+              {
+                "yamlName": "includeTotal",
+                "doc": "",
+                "default": false,
+                "required": false,
+                "type": "bool",
+                "elementKind": ""
+              }
+            ]
+          }
+        },
+        {
+          "yamlName": "counterRefreshInterval",
+          "doc": "number of nanoseconds that wildcards in counter paths should be expanded and how often to refresh counters from configuration",
+          "default": 60,
+          "required": false,
+          "type": "int",
+          "elementKind": ""
+        },
+        {
+          "yamlName": "useWildCardExpansion",
+          "doc": "if `true`, instance indexes will be included in instance names, and wildcards will be expanded and localized (if applicable).  If `false`, non partial wildcards will be expanded and instance names will not include instance indexes.",
+          "default": false,
+          "required": false,
+          "type": "bool",
+          "elementKind": ""
+        },
+        {
+          "yamlName": "printValid",
+          "doc": "print out the configurations that match available performance counters",
+          "default": false,
+          "required": false,
+          "type": "bool",
+          "elementKind": ""
+        }
+      ],
+      "monitorType": "telegraf/win_perf_counters",
+      "acceptsEndpoints": false,
+      "singleInstance": false,
+      "dimensions": null,
+      "metrics": null,
+      "properties": null
+    },
+    {
+      "name": "Config",
       "doc": " Runs an HTTP server that listens for trace spans\nand forwards them to SignalFx (or the configured ingest host in the `writer`\nsection of the agent config).  This supports the same span formats that our\ningest server supports and at the same path (`/v1/trace`).  By default, the\nserver listens on localhost port 9080 but can be configured to anything.\n",
       "package": "internal/monitors/traceforwarder",
       "fields": [
