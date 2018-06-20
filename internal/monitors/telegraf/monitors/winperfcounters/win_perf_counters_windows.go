@@ -59,11 +59,12 @@ func (m *Monitor) Configure(conf *Config) error {
 	ctx, m.cancel = context.WithCancel(context.Background())
 
 	// gather metrics on the specified interval
-	utils.RunOnInterval(m.ctx, func() {
+	utils.RunOnInterval(ctx, func() {
 		if err := plugin.Gather(ac); err != nil {
 			logger.Error(err)
 		}
 	}, time.Duration(conf.IntervalSeconds)*time.Second)
+
 	return nil
 }
 
