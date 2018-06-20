@@ -1,7 +1,6 @@
 package baseemitter
 
 import (
-	"sync"
 	"time"
 
 	"github.com/signalfx/golib/datapoint"
@@ -23,7 +22,6 @@ func GetTime(t ...time.Time) time.Time {
 // BaseEmitter immediately converts a telegraf measurement into datapoints and
 // sends them through Output
 type BaseEmitter struct {
-	lock   sync.RWMutex
 	Output types.Output
 	Logger log.FieldLogger
 	// omittedTags are tags that should be removed from measurements before
@@ -41,14 +39,15 @@ type BaseEmitter struct {
 	// ExcludeDatum(string) and ExcludeData(string).  You should look up
 	// excluded events and metrics using Excluded(string)bool
 	excluded map[string]bool
+	// name map is a map of metric names to their desired metricname
+	// this is used for overriding metric names
+	nameMap map[string]string
 }
 
 // AddTag adds a key/value pair to all measurement tags.  If a key conflicts
 // the key value pair in AddTag will override the original key on the
 // measurement
 func (b *BaseEmitter) AddTag(key string, val string) {
-	b.lock.Lock()
-	defer b.lock.Unlock()
 	b.addTags[key] = val
 }
 
@@ -61,16 +60,14 @@ func (b *BaseEmitter) AddTags(tags map[string]string) {
 	}
 }
 
-// IncludeEvent a thread safe function for registering an event name to include
+// IncludeEvent registers an event name to include
 // during emission. We disable all events by default because Telegraf has some
 // junk events.
 func (b *BaseEmitter) IncludeEvent(name string) {
-	b.lock.Lock()
-	defer b.lock.Unlock()
 	b.included[name] = true
 }
 
-// IncludeEvents a thread safe function for registering a list of event names to
+// IncludeEvents registers a list of event names to
 // include during emission. We disable all events by default because Telegraf
 // has some junk events.
 func (b *BaseEmitter) IncludeEvents(names []string) {
@@ -79,21 +76,16 @@ func (b *BaseEmitter) IncludeEvents(names []string) {
 	}
 }
 
-// Included - A thread safe function for checking if events should be included
+// Included - checks if events should be included
 // during emission.  We disable all events by default because Telegraf has some
 // junk events.
-func (b *BaseEmitter) Included(name string) (included bool) {
-	b.lock.RLock()
-	included = b.included[name]
-	b.lock.RUnlock()
-	return included
+func (b *BaseEmitter) Included(name string) bool {
+	return b.included[name]
 }
 
 // ExcludeDatum adds a name to the list of metrics and events to
 // exclude
 func (b *BaseEmitter) ExcludeDatum(name string) {
-	b.lock.Lock()
-	defer b.lock.Unlock()
 	b.excluded[name] = true
 }
 
@@ -105,19 +97,14 @@ func (b *BaseEmitter) ExcludeData(names []string) {
 	}
 }
 
-// IsExcluded - A thread safe function for checking if events or metrics should be
+// IsExcluded - checks if events or metrics should be
 // excluded from emission
-func (b *BaseEmitter) IsExcluded(name string) (excluded bool) {
-	b.lock.RLock()
-	excluded = b.excluded[name]
-	b.lock.RUnlock()
-	return excluded
+func (b *BaseEmitter) IsExcluded(name string) bool {
+	return b.excluded[name]
 }
 
 // OmitTag adds a tag to the list of tags to remove from measurements
 func (b *BaseEmitter) OmitTag(tag string) {
-	b.lock.Lock()
-	defer b.lock.Unlock()
 	b.omittedTags[tag] = true
 }
 
@@ -130,11 +117,31 @@ func (b *BaseEmitter) OmitTags(tags []string) {
 
 // FilterTags - filter function for util.CloneAndFilterStringMapWithFunc()
 // it returns true if the supplied key is not in the omittedTags map
-func (b *BaseEmitter) FilterTags(key string, value string) (include bool) {
-	b.lock.RLock()
-	include = !b.omittedTags[key]
-	b.lock.RUnlock()
-	return include
+func (b *BaseEmitter) FilterTags(key string, value string) bool {
+	return !b.omittedTags[key]
+}
+
+// RenameMetric adds a mapping to rename a metric by it's name
+func (b *BaseEmitter) RenameMetric(original string, override string) {
+	b.nameMap[original] = override
+}
+
+// RenameMetrics takes a map of metric name overrides map[original]override
+func (b *BaseEmitter) RenameMetrics(mappings map[string]string) {
+	for original, override := range mappings {
+		b.RenameMetric(original, override)
+	}
+}
+
+// GetMetricName parses the metric name and takes name overrides into account
+func (b *BaseEmitter) GetMetricName(measurement string, field string, metricDims map[string]string) (string, bool) {
+	var name, isSFX = parse.GetMetricName(measurement, field, metricDims)
+
+	if altName := b.nameMap[name]; altName != "" {
+		return altName, isSFX
+	}
+
+	return name, isSFX
 }
 
 // Add parses measurements from telegraf and emits them through Output
@@ -148,13 +155,11 @@ func (b *BaseEmitter) Add(measurement string, fields map[string]interface{},
 
 		// add additional tags to the metricDims
 		if len(b.addTags) > 0 {
-			b.lock.Lock()
 			metricDims = utils.MergeStringMaps(metricDims, b.addTags)
-			b.lock.Unlock()
 		}
 
 		// Generate the metric name
-		metricName, isSFX := parse.GetMetricName(measurement, field, metricDims)
+		metricName, isSFX := b.GetMetricName(measurement, field, metricDims)
 
 		// Check if the metric is explicitly excluded
 		if b.IsExcluded(metricName) {
@@ -212,11 +217,14 @@ func (b *BaseEmitter) AddError(err error) {
 }
 
 // NewEmitter returns a new BaseEmitter
-func NewEmitter() *BaseEmitter {
+func NewEmitter(Output types.Output, Logger log.FieldLogger) *BaseEmitter {
 	return &BaseEmitter{
+		Output:      Output,
+		Logger:      Logger,
 		omittedTags: map[string]bool{},
-		addTags:     map[string]string{},
 		included:    map[string]bool{},
 		excluded:    map[string]bool{},
+		addTags:     map[string]string{},
+		nameMap:     map[string]string{},
 	}
 }
