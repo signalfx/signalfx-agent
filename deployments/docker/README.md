@@ -3,8 +3,8 @@
 SignalFx bundleds a default agent.yaml within the [SignalFx docker image](https://docs.signalfx.com/en/latest/integrations/agent/overview.html#docker-image).
 The following documentation describes how to interact with that configuration to emit metrics.
 
-- (Configuration)[#configuration]
-- (Running the Docker Image)[#running-the-docker-image]
+- [Configuration](#configuration)
+- [Running the Docker Image](#running-the-docker-image)
 
 ## Configuration
 
@@ -36,18 +36,19 @@ shows where the incorporated yaml files will be loaded:
 monitors:
   - {"#from": "/etc/signalfx/monitors/*.yaml", flatten: true, optional: true}
   - type: collectd/cpu
+  ...
 ```
 
 For example, you can add an ElasticSearch monitor to a 
 configuration by creating the following file within `/etc/signalfx/monitors/` that follows
- the (monitor config schema)[https://github.com/signalfx/signalfx-agent/blob/master/docs/monitor-config.md]:
+ the [monitor config schema](https://github.com/signalfx/signalfx-agent/blob/master/docs/monitor-config.md):
 
 ```
 - collectd/elasticsearch
   host: localhost
   port: 9200
 ```
-Other options could be specified according to the (ElasticSearch Monitor configuration)[https://github.com/signalfx/signalfx-agent/blob/master/docs/monitors/collectd-elasticsearch.md]
+Other options could be specified according to the [ElasticSearch Monitor configuration](https://github.com/signalfx/signalfx-agent/blob/master/docs/monitors/collectd-elasticsearch.md)
 
 #### Specifying a different agent.yaml
 
