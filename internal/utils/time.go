@@ -47,6 +47,8 @@ func RunOnInterval(ctx context.Context, fn func(), interval time.Duration) {
 
 	fn()
 	go func() {
+		defer timer.Stop()
+
 		for {
 			select {
 			case <-ctx.Done():

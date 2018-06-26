@@ -1,9 +1,9 @@
-# Quickstart
+# Smart Agent Quick Start
 
-- [SingleHost](#single-host)
+- [Deploy Directly on Host](#deploy-directly-on-host)
 
 
-## Single Host
+## Deploy Directly on Host
 
 This tutorial assumes you are starting fresh and have no existing collectd agent running on your instance.
 
@@ -14,18 +14,17 @@ curl -sSL https://dl.signalfx.com/signalfx-agent.sh > /tmp/signalfx-agent.sh
 sudo sh /tmp/signalfx-agent.sh YOUR_SIGNALFX_API_TOKEN
 ```
 
-Your SignalFx API Token can be obtained from the Organization->Access Token tab in [SignalFx](https://app.signalfx.com)
+Your SignalFx API Token can be obtained from the Organization->Access Token tab in [SignalFx](https://app.signalfx.com).
 
-More detailed installation steps to install via a config management tool or using a containerized agent can be found [here](../README.md#installation)
+More detailed installation steps to install via a config management tool or using a containerized agent can be found [here](../README.md#installation).
 
 #### Step 2: Configuration
 
 The default configuration file should be located at `/etc/signalfx/agent.yaml`
-Also, by default, the token file should be located at `/etc/signalfx/token`
-which should contain your SignalFx API Token. 
-In the example configuration below, the default location for the token file is being referenced.
+Also, by default, the file containing your SignalFx API token should be located at `/etc/signalfx/token`. 
 
-Here is an example of the configuration file - 
+In the example agent.yaml configuration file shown below, the default location for the token file is used.
+
 
 ```
 ---
@@ -39,7 +38,7 @@ logging:
   # Valid values are 'debug', 'info', 'warning', and 'error'
   level: info
 
-# observers are what discover running services in the environment
+# observers discover running services in the environment
 observers:
   - type: host
 
@@ -60,12 +59,12 @@ monitors:
 metricsToExclude:
 ```
 
-You can add more [monitors](./monitor-config.md) and configure the monitors appropriately. 
+You can add more [monitors](./monitor-config.md) and configure them as appropriate. 
 
 ##### Example of adding a new monitor 
 
-To start collecting apache metrics you'd add the [apache monitor](./monitors/collectd-apache.md) to the agent.yaml file.
-Your monitor list would now look similar to: 
+To start collecting apache metrics, you would add the [apache monitor](./monitors/collectd-apache.md) to the agent.yaml file.
+Your monitor list would then look similar to this: 
 
 ```
 monitors:
@@ -80,10 +79,9 @@ monitors:
 
 ##### Example of adding a new observer
 
-To start collecting docker container metrics the first step would be to add a [docker observer](./observers/docker.md) and 
-the next step would be to add a [docker metrics monitor](./monitors/docker-container-stats.md) to the agent.yaml file.
+To start collecting docker container metrics, your first step would be to add a [docker observer](./observers/docker.md). 
 
-Your observer list would now look similar to:
+Your observer list would then look similar to this:
 
 ```
 observers:
@@ -91,7 +89,7 @@ observers:
   - type: docker
 ```
 
-And your type list would now include the [docker metrics monitor](./monitors/docker-container-stats.md): 
+Next, you would add a [docker metrics monitor](./monitors/docker-container-stats.md) to the agent.yaml file. Your type list would now include this monitor (docker-container-stats): 
 
 ```
 monitors:
@@ -103,7 +101,7 @@ monitors:
   - type: docker-container-stats
 ```  
 
-Any changes to the configuration file will automatically get picked up by the agent and will not require a restart.
+The agent automatically picks up any changes to the configuration file, so a restart is not required.
 
 For troubleshooting, you can also check the status of the agent: 
 
@@ -111,6 +109,6 @@ For troubleshooting, you can also check the status of the agent:
 sudo signalfx-agent status
 ```
 
-#### Step 3: Login to [SignalFx](https://app.signalfx.com) and see your data!
+#### Step 3: Log into [SignalFx](https://app.signalfx.com) and see your data!
 
 

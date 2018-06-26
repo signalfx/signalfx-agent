@@ -19,6 +19,10 @@ header_comment() {
 
 . $SCRIPT_DIR/common.sh
 
+convert_overview_links() {
+  sed -E -e 's@../README.html@./overview.html@'
+}
+
 # Convert all relative links that aren't already html links to be absolute to
 # the github repo url.
 convert_relative_links() {
@@ -70,7 +74,8 @@ for f in $(find $AGENT_REPO_BASE/docs -name "*.md"); do
     --reference-links \
     --columns=700 | \
    convert_doc_extensions | \
-   convert_relative_links \
+   convert_relative_links | \
+   convert_overview_links \
      >> $out_file
 
   if [[ $out_file =~ monitor-config.rst$ ]]; then
