@@ -26,7 +26,7 @@
   repo: signalfx/collectd-haproxy
 
 - name: health_checker
-  version: multi-instance  #v1.0.0
+  version: v0.0.3
   repo: signalfx/collectd-health_checker
 
 - name: jenkins

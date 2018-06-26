@@ -1,12 +1,19 @@
 LoadPlugin "python"
 <Plugin python>
   ModulePath "{{ pluginRoot }}/health_checker"
+  LogTraces true
 
   Import "health_checker"
   <Module health_checker>
-    URL "{{renderValue .URL .}}"
-    Instance "{{.Name}}[monitorID={{.MonitorID}}]"
+  {{ if not .TCPCheck }}
+    URL "http{{if .UseHTTPS}}s{{end}}://{{.Host}}:{{.Port}}{{.Path}}"
     JSONKey "{{.JSONKey}}"
     JSONVal "{{.JSONVal}}"
+  {{ else }}
+    URL "{{.Host}}"
+    TCP {{.Port}}
+  {{ end }}
+    SkipSecurity {{toBool .SkipSecurity}}
+    Instance "{{.Name}}[monitorID={{.MonitorID}}]"
   </Module>
 </Plugin>

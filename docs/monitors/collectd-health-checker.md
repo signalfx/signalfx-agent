@@ -22,9 +22,12 @@ Monitor Type: `collectd/health-checker`
 | `host` | **yes** | `string` |  |
 | `port` | **yes** | `integer` |  |
 | `name` | no | `string` |  |
-| `url` | no | `string` |  |
+| `path` | no | `string` | The HTTP path that contains a JSON document to verify (**default:** `/`) |
+| `jsonKey` | no | `string` | If `jsonKey` and `jsonVal` are given, the given endpoint will be interpreted as a JSON document and will be expected to contain the given key and value for the service to be considered healthy. |
 | `jsonVal` | no | `any` | This can be either a string or numeric type |
-| `jsonKey` | no | `string` |  |
+| `useHTTPS` | no | `bool` | If true, the endpoint will be connected to on HTTPS instead of plain HTTP.  It is invalid to specify this if `tcpCheck` is true. (**default:** `false`) |
+| `skipSecurity` | no | `bool` | If true, and `useHTTPS` is true, the server's SSL/TLS cert will not be verified. (**default:** `false`) |
+| `tcpCheck` | no | `bool` | If true, the plugin will verify that it can connect to the given host/port value. JSON checking is not supported. (**default:** `false`) |
 
 
 

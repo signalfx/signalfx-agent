@@ -89,7 +89,7 @@ MONITORS_WITH_ENDPOINTS = [
      ["haproxy-configmap.yaml", "haproxy.yaml"]),
     ({"type": "collectd/health-checker",
       "discoveryRule": 'container_image =~ "json-server" && private_port == 80',
-      "url": 'http://{{.Host}}:{{.Port}}/health',
+      "path": '/health',
       "jsonKey": "status",
       "jsonVal": "ok"},
      ["health-checker-configmap.yaml", "health-checker.yaml"]),
