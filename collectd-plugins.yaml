@@ -26,12 +26,16 @@
   repo: signalfx/collectd-haproxy
 
 - name: health_checker
-  version: multi-instance  #v1.0.0
+  version: v0.0.3
   repo: signalfx/collectd-health_checker
 
 - name: jenkins
   version: v1.0.4
   repo: signalfx/collectd-jenkins
+
+- name: kong
+  version: v0.0.2
+  repo: signalfx/collectd-kong
 
 - name: mesos
   version: v1.1.1

@@ -15,7 +15,7 @@ from . import fake_backend
 AGENT_BIN = os.environ.get("AGENT_BIN", "/bundle/bin/signalfx-agent")
 PROJECT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 TEST_SERVICES_DIR = os.environ.get("TEST_SERVICES_DIR", "/test-services")
-DEFAULT_TIMEOUT = os.environ.get("DEFAULT_TIMEOUT", 20)
+DEFAULT_TIMEOUT = os.environ.get("DEFAULT_TIMEOUT", 30)
 DOCKER_API_VERSION = "1.34"
 SELFDESCRIBE_JSON = os.path.join(PROJECT_DIR, "../selfdescribe.json")
 
