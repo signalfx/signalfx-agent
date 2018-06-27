@@ -67,17 +67,17 @@ func init() {
 
 // Header defines name/value pair for AuthHeader option
 type Header struct {
-    // Name of header to include with GET
+	// Name of header to include with GET
 	HeaderName string `yaml:"header" validate:"required"`
-    // Value of header
+	// Value of header
 	Value string `yaml:"value" validate:"required"`
 }
 
 // Metric is for use with `Metric "metric_name" bool` collectd plugin format
 type Metric struct {
-    // Name of metric, per collectd-kong
+	// Name of metric, per collectd-kong
 	MetricName string `yaml:"metric" validate:"required"`
-    // Whether to report this metric
+	// Whether to report this metric
 	ReportBool bool `yaml:"report" validate:"required"`
 }
 
@@ -86,11 +86,11 @@ type Config struct {
 	config.MonitorConfig `yaml:",inline" acceptsEndpoints:"true"`
 	// Kong host to connect with (used for autodiscovery and URL)
 	Host string `yaml:"host" validate:"required"`
-	// Port for kong-plugin-signalfx hosting server (used for autodiscovery and URL) 
+	// Port for kong-plugin-signalfx hosting server (used for autodiscovery and URL)
 	Port uint16 `yaml:"port" validate:"required"`
 	// Registration name when using multiple instances in Smart Agent
 	Name string `yaml:"name"`
-	// kong-plugin-signalfx metric plugin (**default:** `http://{{.Host}}:{{.Port}}/signalfx`) 
+	// kong-plugin-signalfx metric plugin (**default:** `http://{{.Host}}:{{.Port}}/signalfx`)
 	URL string `yaml:"url" default:"http://{{.Host}}:{{.Port}}/signalfx"`
 	// Header and its value to use for requests to SFx metric endpoint
 	AuthHeader *Header `yaml:"authHeader"`
