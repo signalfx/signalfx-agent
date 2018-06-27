@@ -55,7 +55,7 @@ def test_health_checker_in_k8s(agent_image, minikube, k8s_observer, k8s_test_tim
     monitors = [
         {"type": "collectd/health-checker",
          "discoveryRule": get_discovery_rule(yaml, k8s_observer, namespace=k8s_namespace),
-         "url": 'http://{{.Host}}:{{.Port}}/health',
+         "path": '/health',
          "jsonKey": "status",
          "jsonVal": "ok"},
     ]
