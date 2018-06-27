@@ -179,8 +179,10 @@ func mergeValues(v []interface{}) (interface{}, error) {
 		return mergeSlices(v)
 	} else if _, ok := v[0].(map[interface{}]interface{}); ok {
 		return mergeMaps(v)
-	} else {
+	} else if len(v) == 1 {
 		return v[0], nil
+	} else {
+		return nil, errors.New("value cannot be merged")
 	}
 }
 

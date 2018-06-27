@@ -40,7 +40,8 @@ configuration files by adding the following monitor:
 ```yaml
 monitors:
   - type: collectd/custom
-    templates: {"#from": "/etc/collectd/managed_config/*.conf", raw: true}
+    templates:
+    - {"#from": "/etc/collectd/managed_config/*.conf", flatten: true, raw: true}
 ```
 
 We run collectd-python linked against Python 2.7 so any Python plugins will
