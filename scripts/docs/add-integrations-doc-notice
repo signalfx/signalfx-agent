@@ -8,7 +8,7 @@ INTEGRATIONS_REPO_PATH=${INTEGRATIONS_REPO_PATH:-$SCRIPT_DIR/../../../integratio
 
 . $SCRIPT_DIR/../code-gen-helpers.sh
 
-json_file="$SCRIPT_DIR/../../tmp/agent.json"
+generate_selfdescribe_json
 
 install_header='### INSTALLATION'
 
