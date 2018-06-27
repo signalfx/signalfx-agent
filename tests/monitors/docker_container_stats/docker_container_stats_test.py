@@ -1,17 +1,10 @@
 from functools import partial as p
-import os
 import pytest
 import string
 import time
 
 from tests.helpers.util import ensure_always, wait_for, run_agent, run_service
 from tests.helpers.assertions import *
-
-from tests.kubernetes.utils import (
-    run_k8s_monitors_test,
-    get_metrics_from_doc,
-    get_dims_from_doc,
-)
 
 pytestmark = [pytest.mark.docker_container_stats, pytest.mark.monitor_without_endpoints]
 
@@ -72,20 +65,3 @@ def test_docker_stops_watching_old_containers():
             time.sleep(5)
             backend.datapoints.clear()
             assert ensure_always(lambda: not has_datapoint_with_dim(backend, "container_id", nginx_container.id))
-
-
-@pytest.mark.k8s
-@pytest.mark.kubernetes
-def test_docker_container_stats_in_k8s(agent_image, minikube, k8s_test_timeout, k8s_namespace):
-    monitors = [
-        {"type": "docker-container-stats"}
-    ]
-    run_k8s_monitors_test(
-        agent_image,
-        minikube,
-        monitors,
-        namespace=k8s_namespace,
-        expected_metrics=get_metrics_from_doc("docker-container-stats.md"),
-        expected_dims=get_dims_from_doc("docker-container-stats.md"),
-        test_timeout=k8s_test_timeout)
-
