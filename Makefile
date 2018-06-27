@@ -98,6 +98,27 @@ run-dev-image:
 		-v $(CURDIR)/collectd:/usr/src/collectd:cached \
 		signalfx-agent-dev /bin/bash
 
+.PHONY: run-integration-tests
+run-integration-tests:
+	docker run --rm \
+		$(extra_run_flags) \
+		--cap-add DAC_READ_SEARCH \
+		--cap-add SYS_PTRACE \
+		--net host \
+		-v $(CURDIR)/local-etc:/etc/signalfx \
+		-v $(CURDIR)/tests:/go/src/github.com/signalfx/signalfx-agent/tests:cached \
+		-v $(CURDIR)/collectd:/usr/src/collectd:cached \
+		-v $(CURDIR)/test_output:/test_output \
+		signalfx-agent-dev \
+			pytest \
+				-m "not packaging and not installer and not k8s" \
+				-n 4 \
+				--verbose \
+				--exitfirst \
+				--html=/test_output/results.html \
+				--self-contained-html \
+				tests
+
 .PHONY: run-k8s-tests
 run-k8s-tests:
 	docker rm -f -v minikube || true
