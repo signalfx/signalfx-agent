@@ -1,27 +1,17 @@
-import os
 import pytest
+import time
 
-from tests.kubernetes.utils import (
-    run_k8s_monitors_test,
-    get_metrics_from_doc,
-    get_dims_from_doc,
-)
+from tests.helpers.util import run_agent
+from tests.helpers.assertions import has_log_message
 
 pytestmark = [pytest.mark.collectd, pytest.mark.cpufreq, pytest.mark.monitor_without_endpoints]
 
 
-@pytest.mark.k8s
-@pytest.mark.kubernetes
-def test_cpufreq_in_k8s(agent_image, minikube, k8s_test_timeout, k8s_namespace):
-    monitors = [
-        {"type": "collectd/cpufreq"}
-    ]
-    run_k8s_monitors_test(
-        agent_image,
-        minikube,
-        monitors,
-        namespace=k8s_namespace,
-        expected_metrics=None,
-        expected_dims=None,
-        test_timeout=k8s_test_timeout)
+def test_cpufreq():
+    with run_agent("""
+    monitors:
+      - type: collectd/cpufreq
+    """) as [_, get_output, _]:
+        time.sleep(10)
+        assert not has_log_message(get_output().lower(), "error"), "error found in agent output!"
 
