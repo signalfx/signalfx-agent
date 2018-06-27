@@ -27,6 +27,7 @@ along with their possible configuration options:
 - [collectd/interface](./monitors/collectd-interface.md)
 - [collectd/jenkins](./monitors/collectd-jenkins.md)
 - [collectd/kafka](./monitors/collectd-kafka.md)
+- [collectd/kong](./monitors/collectd-kong.md)
 - [collectd/load](./monitors/collectd-load.md)
 - [collectd/marathon](./monitors/collectd-marathon.md)
 - [collectd/memcached](./monitors/collectd-memcached.md)
