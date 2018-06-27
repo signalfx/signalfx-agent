@@ -1183,6 +1183,43 @@
     },
     {
       "name": "Config",
+      "doc": " Collectd NTP data from a chronyd instance\n\nSee https://collectd.org/documentation/manpages/collectd.conf.5.shtml#plugin_chrony\n",
+      "package": "internal/monitors/collectd/chrony",
+      "fields": [
+        {
+          "yamlName": "host",
+          "doc": "The hostname of the chronyd instance",
+          "default": null,
+          "required": true,
+          "type": "string",
+          "elementKind": ""
+        },
+        {
+          "yamlName": "port",
+          "doc": "The UDP port number of the chronyd instance.  Defaults to 323 in collectd if unspecified.",
+          "default": null,
+          "required": false,
+          "type": "uint16",
+          "elementKind": ""
+        },
+        {
+          "yamlName": "timeout",
+          "doc": "How long to wait for a response from chronyd before considering it down. Defaults to 2 seconds in the collectd plugin if not specified",
+          "default": null,
+          "required": false,
+          "type": "uint",
+          "elementKind": ""
+        }
+      ],
+      "monitorType": "collectd/chrony",
+      "acceptsEndpoints": false,
+      "singleInstance": true,
+      "dimensions": null,
+      "metrics": null,
+      "properties": null
+    },
+    {
+      "name": "Config",
       "doc": " Monitors the Consul data store by using the\n[Consul collectd Python\nplugin](https://github.com/signalfx/collectd-consul), which collects metrics\nfrom Consul instances by hitting these endpoints:\n- [/agent/self](https://www.consul.io/api/agent.html#read-configuration)\n- [/agent/metrics](https://www.consul.io/api/agent.html#view-metrics)\n- [/catalog/nodes](https://www.consul.io/api/catalog.html#list-nodes)\n- [/catalog/node/:node](https://www.consul.io/api/catalog.html#list-services-for-node)\n- [/status/leader](https://www.consul.io/api/status.html#get-raft-leader)\n- [/status/peers](https://www.consul.io/api/status.html#list-raft-peers)\n- [/coordinate/datacenters](https://www.consul.io/api/coordinate.html#read-wan-coordinates)\n- [/coordinate/nodes](https://www.consul.io/api/coordinate.html#read-lan-coordinates)\n- [/health/state/any](https://www.consul.io/api/health.html#list-checks-in-state)\n",
       "package": "internal/monitors/collectd/consul",
       "fields": [
