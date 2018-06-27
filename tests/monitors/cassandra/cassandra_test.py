@@ -5,10 +5,12 @@ import string
 
 from tests.helpers.util import wait_for, run_agent, run_service, container_ip
 from tests.helpers.assertions import *
+from tests.helpers.util import (
+    get_monitor_metrics_from_selfdescribe,
+    get_monitor_dims_from_selfdescribe
+)
 from tests.kubernetes.utils import (
     run_k8s_monitors_test,
-    get_metrics_from_doc,
-    get_dims_from_doc,
     get_discovery_rule,
 )
 
@@ -52,7 +54,7 @@ def test_cassandra_in_k8s(agent_image, minikube, k8s_observer, k8s_test_timeout,
         namespace=k8s_namespace,
         yamls=[yaml],
         observer=k8s_observer,
-        expected_metrics=get_metrics_from_doc("collectd-cassandra.md"),
-        expected_dims=get_dims_from_doc("collectd-cassandra.md"),
+        expected_metrics=get_monitor_metrics_from_selfdescribe(monitors[0]["type"]),
+        expected_dims=get_monitor_dims_from_selfdescribe(monitors[0]["type"]),
         test_timeout=k8s_test_timeout)
 

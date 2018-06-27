@@ -3,8 +3,6 @@ import pytest
 
 from tests.kubernetes.utils import (
     run_k8s_monitors_test,
-    get_metrics_from_doc,
-    get_dims_from_doc,
     get_discovery_rule,
 )
 
