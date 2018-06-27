@@ -57,13 +57,12 @@ def test_kong(kong_image):
             assert wait_for(db_is_reachable)
             assert migrations.exec_run('kong migrations up --v').exit_code == 0
 
-        with run_container(kong_image, environment=kong_env, ports={'8001/tcp': None}) as kong:
-            admin_port = kong.attrs['NetworkSettings']['Ports']['8001/tcp'][0]['HostPort']
-            kong_admin = 'http://127.0.0.1:{}'.format(admin_port)
+        with run_container(kong_image, environment=kong_env) as kong:
+            kong_ip = container_ip(kong)
 
             def kong_is_listening():
                 try:
-                    return get(kong_admin + '/signalfx').status_code == 200
+                    return get('http://{}:8001/signalfx'.format(kong_ip)).status_code == 200
                 except RequestException:
                     return False
 
