@@ -6,7 +6,7 @@ import pytest
 import socket
 
 from functools import partial as p
-from tests.helpers.util import wait_for, run_agent
+from tests.helpers.util import wait_for, run_agent, container_ip
 from tests.helpers.assertions import (
     has_datapoint_with_dim,
     has_datapoint_with_metric_name,
@@ -51,6 +51,16 @@ monitors:
 @pytest.mark.k8s
 @pytest.mark.kubernetes
 def test_statsd_in_k8s(agent_image, minikube, k8s_test_timeout, k8s_namespace):
+    # hack to populate data for statsd
+    minikube.container.exec_run(
+        ["/bin/bash",
+         "-c",
+         'n=0; while [ $n -le %d ]; do \
+            echo "statsd.[foo=bar,dim=val]test:1|g" | nc -w 1 -u 127.0.0.1 8125; \
+            sleep 1; \
+            (( n += 1 )); \
+            done' % k8s_test_timeout],
+        detach=True)
     monitors = [
         {"type": "collectd/statsd",
          "listenAddress": "127.0.0.1",
