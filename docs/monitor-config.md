@@ -11,6 +11,7 @@ along with their possible configuration options:
 - [collectd/activemq](./monitors/collectd-activemq.md)
 - [collectd/apache](./monitors/collectd-apache.md)
 - [collectd/cassandra](./monitors/collectd-cassandra.md)
+- [collectd/chrony](./monitors/collectd-chrony.md)
 - [collectd/consul](./monitors/collectd-consul.md)
 - [collectd/couchbase](./monitors/collectd-couchbase.md)
 - [collectd/cpu](./monitors/collectd-cpu.md)
