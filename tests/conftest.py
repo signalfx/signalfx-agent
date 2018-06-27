@@ -53,7 +53,7 @@ def get_k8s_supported_versions():
 K8S_SUPPORTED_VERSIONS = get_k8s_supported_versions()
 K8S_MAJOR_MINOR_VERSIONS = [v for v in K8S_SUPPORTED_VERSIONS if semver.parse_version_info(v).patch == 0]
 
-K8S_SUPPORTED_OBSERVERS = ["k8s-api", "k8s-kubelet", "docker", "host"]
+K8S_SUPPORTED_OBSERVERS = ["k8s-api", "k8s-kubelet"]
 K8S_DEFAULT_OBSERVERS = ["k8s-api", "k8s-kubelet"]
 
 
