@@ -19,7 +19,7 @@ def test_df():
     with run_agent("""
     monitors:
       - type: collectd/df
-        hostFSPath: /hostfs
+        hostFSPath: /
     """) as [backend, get_output, _]:
         assert has_any_metric_or_dim(backend, expected_metrics, expected_dims, timeout=60), \
             "timed out waiting for metrics and/or dimensions!"
