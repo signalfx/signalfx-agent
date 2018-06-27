@@ -4,14 +4,11 @@
 
 AGENT_BIN=${AGENT_BIN:-signalfx-agent}
 
-if [ -z ${json_file-} ]; then
-  json_file=$(mktemp -t XXXXXXX.json)
-fi
+MY_SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+selfdescribe_json="$MY_SCRIPT_DIR/../selfdescribe.json"
 
-ensure_description_json() {
-  if ! [ -e $json_file ] || ! [ -s $json_file ]; then
-    $AGENT_BIN selfdescribe > $json_file
-  fi
+generate_selfdescribe_json() {
+  $AGENT_BIN selfdescribe > $selfdescribe_json
 }
 
 seq_from_len() {
@@ -44,9 +41,7 @@ camel_case_to_underscore() {
   perl -pe 's/([A-Z])([A-Z])([a-z])/$1_\L$2$3/'
 }
 
-# Ensure we have an agent self description json and run a query against it
-# with jq
+# Run a query against the selfdescribe json with jq
 j() {
-  ensure_description_json
-  jq -r "$1" < $json_file
+  jq -r "$1" < $selfdescribe_json
 }
