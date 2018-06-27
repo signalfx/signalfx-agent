@@ -17,6 +17,7 @@ PROJECT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 TEST_SERVICES_DIR = os.environ.get("TEST_SERVICES_DIR", "/test-services")
 DEFAULT_TIMEOUT = os.environ.get("DEFAULT_TIMEOUT", 20)
 DOCKER_API_VERSION = "1.34"
+SELFDESCRIBE_JSON = os.path.join(PROJECT_DIR, "../selfdescribe.json")
 
 
 def get_docker_client():
@@ -161,3 +162,35 @@ def run_service(service_name, name=None, buildargs={}, print_logs=True, **kwargs
     with run_container(image.id, name=name, print_logs=print_logs, **kwargs) as cont:
         yield cont
 
+
+def get_monitor_metrics_from_selfdescribe(monitor, json_path=SELFDESCRIBE_JSON):
+    metrics = set()
+    with open(json_path, "r") as fd:
+        doc = yaml.load(fd.read())
+        for mon in doc['Monitors']:
+            if monitor == mon['monitorType'] and 'metrics' in mon.keys() and mon['metrics']:
+                metrics = set([metric['name'] for metric in mon['metrics']])
+                break
+    return metrics
+
+
+def get_monitor_dims_from_selfdescribe(monitor, json_path=SELFDESCRIBE_JSON):
+    dims = set()
+    with open(json_path, "r") as fd:
+        doc = yaml.load(fd.read())
+        for mon in doc['Monitors']:
+            if monitor == mon['monitorType'] and 'dimensions' in mon.keys() and mon['dimensions']:
+                dims = set([dim['name'] for dim in mon['dimensions']])
+                break
+    return dims
+
+
+def get_observer_dims_from_selfdescribe(observer, json_path=SELFDESCRIBE_JSON):
+    dims = set()
+    with open(json_path, "r") as fd:
+        doc = yaml.load(fd.read())
+        for obs in doc['Observers']:
+            if observer == obs['observerType'] and 'dimensions' in obs.keys() and obs['dimensions']:
+                dims = set([dim['name'] for dim in obs['dimensions']])
+                break
+    return dims
