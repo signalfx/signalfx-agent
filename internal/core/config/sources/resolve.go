@@ -62,7 +62,7 @@ func convertFileBytesToValues(content map[string][]byte, raw bool) ([]interface{
 
 		var v interface{}
 		if raw {
-			v = content[path]
+			v = string(content[path])
 		} else {
 			err := yaml.Unmarshal(content[path], &v)
 			if err != nil {

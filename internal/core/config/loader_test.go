@@ -456,6 +456,29 @@ var _ = Describe("Config Loader", func() {
 
 		Expect(config.Monitors[0].OtherConfig["password"]).To(Equal("s3cr3t"))
 	})
+
+	It("Will render raw seq into seq position", func() {
+		mkFile("agent/conf/config.yaml", outdent(`
+		    LoadPlugin "cpufreq"
+		`))
+
+		path := mkFile("agent/agent.yaml", outdent(fmt.Sprintf(`
+			signalFxAccessToken: abcd
+			monitors:
+			- type: collectd/my-monitor
+			  templates:
+			  - {"#from": '%s/agent/conf/*.yaml', flatten: true, raw: true}
+		`, dir)))
+
+		loads, err := LoadConfig(ctx, path)
+		Expect(err).ShouldNot(HaveOccurred())
+
+		var config *Config
+		Eventually(loads).Should(Receive(&config))
+
+		Expect(config.Monitors[0].OtherConfig["templates"]).Should(ConsistOf(`LoadPlugin "cpufreq"`))
+	})
+
 })
 
 func TestLoader(t *testing.T) {
