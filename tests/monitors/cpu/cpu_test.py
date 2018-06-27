@@ -1,28 +1,25 @@
-import os
 import pytest
 
-from tests.kubernetes.utils import (
-    run_k8s_monitors_test,
-    get_metrics_from_doc,
-    get_dims_from_doc,
+from tests.helpers.util import (
+    get_monitor_metrics_from_selfdescribe,
+    get_monitor_dims_from_selfdescribe,
+    run_agent,
+)
+from tests.helpers.assertions import (
+    has_any_metric_or_dim,
+    has_log_message,
 )
 
 pytestmark = [pytest.mark.collectd, pytest.mark.cpu, pytest.mark.monitor_without_endpoints]
 
-
-@pytest.mark.k8s
-@pytest.mark.kubernetes
-def test_cpu_in_k8s(agent_image, minikube, k8s_test_timeout, k8s_namespace):
-    monitors = [
-        {"type": "collectd/cpu"},
-        {"type": "collectd/signalfx-metadata"}
-    ]
-    run_k8s_monitors_test(
-        agent_image,
-        minikube,
-        monitors,
-        namespace=k8s_namespace,
-        expected_metrics=get_metrics_from_doc("collectd-cpu.md"),
-        expected_dims=get_dims_from_doc("collectd-cpu.md"),
-        test_timeout=k8s_test_timeout)
-
+def test_cpu():
+    expected_metrics = get_monitor_metrics_from_selfdescribe("collectd/cpu")
+    expected_dims = get_monitor_dims_from_selfdescribe("collectd/cpu")
+    with run_agent("""
+    monitors:
+      - type: collectd/cpu
+      - type: collectd/signalfx-metadata
+    """) as [backend, get_output, _]:
+        assert has_any_metric_or_dim(backend, expected_metrics, expected_dims, timeout=60), \
+            "timed out waiting for metrics and/or dimensions!"
+        assert not has_log_message(get_output().lower(), "error"), "error found in agent output!"
