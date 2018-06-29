@@ -59,3 +59,53 @@ func RunOnInterval(ctx context.Context, fn func(), interval time.Duration) {
 		}
 	}()
 }
+
+// RepeatPolicy repeat behavior for RunOnIntervals Function
+type RepeatPolicy int
+
+const (
+	// RepeatAll repeats all intervals
+	RepeatAll RepeatPolicy = iota
+	// RepeatLast repeats only the last interval
+	RepeatLast
+	// RepeatNone does not repeat
+	RepeatNone
+)
+
+// RunOnIntervals the given function once on the specified intervals, and
+// repeat according to the supplied RepeatPolicy.
+func RunOnIntervals(ctx context.Context, fn func(), intervals []time.Duration, repeatPolicy RepeatPolicy) {
+	if len(intervals) < 1 {
+		return
+	}
+	// copy intervals
+	intv := intervals[:]
+
+	// initialize timer
+	timer := time.NewTimer(intv[0])
+	go func() {
+		defer timer.Stop()
+
+		for {
+			select {
+			case <-ctx.Done():
+				return
+			case <-timer.C:
+
+				if len(intv) > 1 {
+					// advance the interval
+					intv = intv[1:]
+				} else {
+					// evaluate repeat policies
+					if repeatPolicy == RepeatNone {
+						return
+					} else if repeatPolicy == RepeatAll {
+						intv = intervals[:] // copy the original interval list
+					}
+				}
+				timer.Reset(intervals[0])
+				fn()
+			}
+		}
+	}()
+}
