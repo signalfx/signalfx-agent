@@ -69,7 +69,9 @@
     - redis.conf
 
 - name: signalfx
-  version: 6426c97260f629bad6f5bcbf274fb9a95fea4f79
+  # Hardcode the metadata plugin commit until we can get it merged into master
+  # and tagged properly
+  version: 0b0c9a0d328867ce708c9a883cde9745b00878bf
   repo: signalfx/signalfx-collectd-plugin
 
 - name: spark
