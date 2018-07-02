@@ -549,17 +549,20 @@
   packages = [
     "datapoint",
     "datapoint/dpsink",
+    "dataunit",
     "errors",
     "event",
     "eventcounter",
     "log",
+    "metadata/aws/ec2metadata",
+    "metadata/hostmetadata",
     "pointer",
     "sfxclient",
     "timekeeper",
     "trace",
     "web"
   ]
-  revision = "b1be94c3ec8d1fdeccd62735b851489f0b3798e0"
+  revision = "dd1b8fa778f86addb51e1ca69cb4560da4085aa4"
 
 [[projects]]
   name = "github.com/signalfx/metricproxy"
@@ -573,7 +576,7 @@
 [[projects]]
   name = "github.com/signalfx/telegraf"
   packages = ["plugins/outputs/signalfx/parse"]
-  revision = "df5485433c763fbe76fd8bfc6ad80a81e93bb9c5"
+  revision = "e2e44a3374c4963a78c7bf87ed85b8b4059074aa"
 
 [[projects]]
   name = "github.com/sirupsen/logrus"
@@ -860,6 +863,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "fc10246d95269779d43157edd538b71bbac59ee891ce362d5306039814f37a7f"
+  inputs-digest = "59445991a1303324b8491e13c8c3a0552d3abca7452e10f0e911b895e57c408f"
   solver-name = "gps-cdcl"
   solver-version = 1
