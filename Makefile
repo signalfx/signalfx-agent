@@ -120,3 +120,10 @@ chef-%:
 puppet-%:
 	$(MAKE) -C deployments/puppet $*
 
+.PHONY: collectd-version
+collectd-version:
+	echo $(COLLECTD_VERSION)
+
+.PHONY: collectd-commit
+collectd-commit:
+	echo $(COLLECTD_COMMIT)
