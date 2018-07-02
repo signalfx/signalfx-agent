@@ -44,7 +44,6 @@ signalfx-agent:
   conf:
     signalFxAccessToken: 'My_Token'
     monitors:
-      - type: host-metadata
       - type: collectd/cpu
       - type: collectd/cpufreq
       - type: collectd/df
@@ -54,6 +53,7 @@ signalfx-agent:
       - type: collectd/memory
       - type: collectd/protocols
       - type: collectd/signalfx-metadata
+      - type: host-metadata
       - type: collectd/uptime
       - type: collectd/vmem
 ```

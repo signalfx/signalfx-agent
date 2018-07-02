@@ -15,7 +15,6 @@ playbook defines the following parameters:
     conf:
       signalFxAccessToken: MY-TOKEN
       monitors:
-        - type: host-metadata
         - type: collectd/cpu
         - type: collectd/cpufreq
         - type: collectd/df
@@ -25,6 +24,7 @@ playbook defines the following parameters:
         - type: collectd/memory
         - type: collectd/protocols
         - type: collectd/signalfx-metadata
+        - type: host-metadata
         - type: collectd/uptime
         - type: collectd/vmem
     ```

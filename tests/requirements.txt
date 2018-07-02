@@ -3,10 +3,10 @@ docker==3.0.1
 protobuf==3.5.1
 pytest==3.4.0
 pytest-xdist==1.22.0
-pyyaml
-netifaces
-kubernetes
+PyYAML==3.13
+netifaces==0.10.7
+kubernetes==6.0.0
 pytest-html
-semver
+semver==2.8.0
 redis==2.10.6
-requests
+requests==2.19.1

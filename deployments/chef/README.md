@@ -40,7 +40,6 @@ host-level components:
 node['signalfx_agent']['conf'] = {
   signalFxAccessToken: "MY_TOKEN",
   monitors: [
-    {type: "host-metadata"},
     {type: "collectd/cpu"},
     {type: "collectd/cpufreq"},
     {type: "collectd/df"},
@@ -50,6 +49,7 @@ node['signalfx_agent']['conf'] = {
     {type: "collectd/memory"},
     {type: "collectd/protocols"},
     {type: "collectd/signalfx-metadata"},
+    {type: "host-metadata"},
     {type: "collectd/uptime"},
     {type: "collectd/vmem"}
   ]

@@ -3,7 +3,7 @@ import os
 import re
 import socket
 import urllib.request
-from http.client import RemoteDisconnected, HTTPException
+from http.client import HTTPException
 
 
 def has_datapoint_with_metric_name(fake_services, metric_name):
@@ -105,7 +105,7 @@ def tcp_socket_open(host, port):
         return False
 
 
-def http_status(url=None, status=[], username=None, password=None, timeout=1, *args, **kwargs):
+def http_status(url=None, status=[], username=None, password=None, timeout=1, **kwargs):
     """
     Wrapper around urllib.request.urlopen() that returns True if
     the request returns the any of the specified HTTP status codes.  Accepts
@@ -120,11 +120,10 @@ def http_status(url=None, status=[], username=None, password=None, timeout=1, *a
             auth = b64encode('{0}:{1}'.format(username, password).encode('ascii')).decode('utf-8')
             req.add_header('Authorization', 'Basic {0}'.format(auth))
 
-        return urllib.request.urlopen(req, *args,
-                                      timeout=timeout, **kwargs).getcode() in status
+        return urllib.request.urlopen(req, timeout=timeout, **kwargs).getcode() in status
     except urllib.error.HTTPError as err:
         # urllib raises exceptions for some http error statuses
         return err.code in status
     except (urllib.error.URLError, socket.timeout, HTTPException,
-            RemoteDisconnected, ConnectionError):
+            ConnectionResetError, ConnectionError):
         return False
