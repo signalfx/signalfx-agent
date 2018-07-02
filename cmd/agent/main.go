@@ -20,6 +20,10 @@ import (
 var (
 	// Version for agent
 	Version string
+
+	// CollectdVersion for collectd
+	CollectdVersion string
+
 	// BuiltTime for the agent
 	BuiltTime string
 )
@@ -36,6 +40,10 @@ func init() {
 // to it (e.g. metadata plugin).
 func setVersionEnvvar() {
 	os.Setenv("SIGNALFX_AGENT_VERSION", Version)
+}
+
+func setCollectdVersionEnvvar() {
+	os.Setenv("COLLECTD_VERSION", CollectdVersion)
 }
 
 // Print out status about an existing instance of the agent.
@@ -144,6 +152,7 @@ func runAgent() {
 
 func main() {
 	setVersionEnvvar()
+	setCollectdVersionEnvvar()
 
 	// Make it so the symlink from agent-status to this binary invokes the
 	// status command

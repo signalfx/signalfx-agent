@@ -26,10 +26,11 @@ COPY scripts/collectd-template-to-go ./scripts/
 COPY Makefile .
 COPY internal/ ./internal/
 
+ARG collectd_version=""
 ARG agent_version="latest"
 ARG GOOS="linux"
 
-RUN AGENT_VERSION=${agent_version} make signalfx-agent &&\
+RUN AGENT_VERSION=${agent_version} COLLECTD_VERSION=${collectd_version} make signalfx-agent &&\
     mv signalfx-agent /usr/bin/signalfx-agent
 
 ###### Collectd builder image ######
@@ -112,8 +113,8 @@ RUN wget https://dev.mysql.com/get/mysql-apt-config_0.8.10-1_all.deb && \
 
 RUN apt install -y libcurl4-gnutls-dev
 
-ENV collectd_commit="67fe36b0d5c88054be3b975afc2707db0ecc9022"
-ENV collectd_version="5.8.0-sfx0"
+ARG collectd_version=""
+ARG collectd_commit=""
 
 RUN cd /tmp &&\
     wget https://github.com/signalfx/collectd/archive/${collectd_commit}.tar.gz &&\

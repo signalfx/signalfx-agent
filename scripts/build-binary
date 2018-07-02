@@ -13,7 +13,7 @@ agent_version=$($SCRIPT_DIR/current-version)
 image_name=signalfx-agent-binary-${operating_system}
 image_tag=${agent_version}
 
-do_docker_build ${image_name} ${image_tag} agent-builder $agent_version ${operating_system}
+COLLECTD_VERSION=${COLLECTD_VERSION} COLLECTD_COMMIT=${COLLECTD_COMMIT} do_docker_build ${image_name} ${image_tag} agent-builder $agent_version ${operating_system}
 
 OUTPUT_DIR=${OUTPUT_DIR:-$SCRIPT_DIR/..}
 
