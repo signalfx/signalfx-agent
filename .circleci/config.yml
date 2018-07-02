@@ -73,8 +73,6 @@ jobs:
          set -x
          export PULL_CACHE=yes
          make dev-image
-        #  source scripts/common.sh
-        #  do_docker_build signalfx-agent-dev latest dev-extras
 
      - run: |
          mkdir -p /tmp/workspace
@@ -113,7 +111,6 @@ jobs:
          export PULL_CACHE=yes
          export AGENT_VERSION=k8s-test
          make image
-        #  ./scripts/build
      - run: |
          mkdir -p /tmp/workspace
          docker save -o /tmp/workspace/final_image.tar quay.io/signalfx/signalfx-agent-dev:k8s-test
@@ -247,7 +244,6 @@ jobs:
 
           export PULL_CACHE=yes
           make rpm-package
-        #   ./packaging/rpm/build
 
           mkdir /tmp/scratch
 
@@ -275,7 +271,6 @@ jobs:
 
           export PULL_CACHE=yes
           make deb-package
-        #   ./packaging/deb/build
 
           mkdir /tmp/scratch
 
