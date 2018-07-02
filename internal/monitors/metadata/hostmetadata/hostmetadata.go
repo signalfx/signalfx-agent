@@ -4,9 +4,11 @@ import (
 	"context"
 	"fmt"
 	"math/rand"
+	"os"
 	"time"
 
 	"github.com/signalfx/golib/datapoint"
+	"github.com/signalfx/golib/metadata/aws/ec2metadata"
 	"github.com/signalfx/golib/metadata/hostmetadata"
 	"github.com/signalfx/signalfx-agent/internal/core/config"
 	"github.com/signalfx/signalfx-agent/internal/monitors"
@@ -15,7 +17,10 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-const monitorType = "host-metadata"
+const (
+	monitorType      = "host-metadata"
+	uptimeMetricName = "gauge.sf.host-plugin_uptime"
+)
 
 // MONITOR(host-metadata): This monitor collects metadata about a host.  It is
 // required for some views in SignalFx to operate.
@@ -23,16 +28,29 @@ const monitorType = "host-metadata"
 var logger = log.WithFields(log.Fields{"monitorType": monitorType})
 
 func init() {
-	monitors.Register(monitorType, func() interface{} { return &Monitor{MetadataMonitor: &metadata.MetadataMonitor{}} }, &Config{})
+	monitors.Register(monitorType, func() interface{} { return &Monitor{Monitor: &metadata.Monitor{}} }, &Config{})
 }
 
 // Config for this monitor
 type Config struct {
 	config.MonitorConfig `acceptsEndpoints:"false"`
+	// The path to the proc filesystem. Useful to override in containerized
+	// environments.
+	ProcFSPath string `yaml:"procFSPath" default:"/proc"`
+	// The path to the main host config dir. Userful to override in
+	// containerized environments.
+	EtcPath string `yaml:"etcPath" default:"/etc"`
+}
+
+// Monitor for host-metadata
+type Monitor struct {
+	*metadata.Monitor
+	startTime time.Time
+	cancel    func()
 }
 
 // Configure is the main function of the monitor, it will report host metadata
-// on a varried interval
+// on a varied interval
 func (m *Monitor) Configure(conf *Config) error {
 	intervals := []time.Duration{
 		// 0-60 seconds
@@ -48,6 +66,18 @@ func (m *Monitor) Configure(conf *Config) error {
 	// set plugin start time
 	m.startTime = time.Now()
 
+	// set HOST_PROC and HOST_ETC for gopsutil
+	if conf.ProcFSPath != "" {
+		if err := os.Setenv("HOST_PROC", conf.ProcFSPath); err != nil {
+			logger.Errorf("Error setting HOST_PROC env var %v", err)
+		}
+	}
+	if conf.EtcPath != "" {
+		if err := os.Setenv("HOST_ETC", conf.EtcPath); err != nil {
+			logger.Errorf("Error setting HOST_ETC env var %v", err)
+		}
+	}
+
 	// create contexts for managing the the plugin loop
 	var ctx context.Context
 	ctx, m.cancel = context.WithCancel(context.Background())
@@ -59,7 +89,7 @@ func (m *Monitor) Configure(conf *Config) error {
 
 	// emit metadata metric
 	utils.RunOnInterval(ctx,
-		ReportUptimeMetric,
+		m.ReportUptimeMetric,
 		time.Duration(conf.IntervalSeconds)*time.Second,
 	)
 
@@ -76,9 +106,9 @@ type info interface {
 // By placing them inside of anonymous functions I can return (info, error)
 var metadatafuncs = []func() (info, error){
 	func() (info, error) { return hostmetadata.GetCPU() },
-	// func() (info, error) { i, err := hostmetadata.GetMemory(); return i, err },
-	// func() (info, error) { i, err := hostmetadata.GetOS(); return i, err },
-	// func() (info, error) { i, err := ec2metadata.Get(); return i, err },
+	func() (info, error) { return hostmetadata.GetMemory() },
+	func() (info, error) { return hostmetadata.GetOS() },
+	func() (info, error) { return ec2metadata.Get() },
 }
 
 var errNotAWS = fmt.Errorf("not an aws box")
@@ -98,38 +128,36 @@ func (m *Monitor) ReportMetadataProperties() {
 	}
 }
 
-const uptimeMetricName = "sf.host-plugin_uptime"
+func (m *Monitor) getUptime(curr time.Time) int64 {
+	return int64((curr.UnixNano() - m.startTime.UnixNano()) / 1000000)
+}
 
 // ReportUptimeMetric report metrics
 func (m *Monitor) ReportUptimeMetric() {
-	dims = map[string]string{}
+	dims := map[string]string{
+		"signalfx_agent": os.Getenv("SIGNALFX_AGENT_VERSION"),
+	}
+
 	if osInfo, err := hostmetadata.GetOS(); err == nil {
 		if osInfo.HostLinuxVersion != "" {
 			dims["linux"] = osInfo.HostLinuxVersion
 		}
-		// if osInfo.HostKernelRelease != "" {
-		// osInfo.HostKernelRelease != "" {
-		// 	dims["release"] = osInfo.HostKernelRelease
-		// }
+		if osInfo.HostKernelRelease != "" {
+			dims["release"] = osInfo.HostKernelRelease
+		}
+		if osInfo.HostKernelVersion != "" {
+			dims["version"] = osInfo.HostKernelVersion
+		}
 	}
+
+	curr := time.Now()
 	m.Output.SendDatapoint(
 		datapoint.New(
 			uptimeMetricName,
 			dims,
-			getUptime(),
+			datapoint.NewIntValue(m.getUptime(curr)),
 			datapoint.Gauge,
-			time.Now(),
+			curr,
 		),
 	)
-}
-
-func (m *Monitor) getUptime() {
-	return (time.Now() - m.startTime).Nanosecond() / 1000000
-}
-
-// Monitor for Docker
-type Monitor struct {
-	*metadata.MetadataMonitor
-	starTime time.Time
-	cancel   func()
 }

@@ -7,13 +7,13 @@ import (
 	"github.com/signalfx/signalfx-agent/internal/monitors/types"
 )
 
-// MetadataMonitor is a base monitor struct for emitting metadata properties
-type MetadataMonitor struct {
+// Monitor is a base monitor struct for emitting metadata properties
+type Monitor struct {
 	Output types.Output
 }
 
 // EmitProperty emits a property formatted as a signalfx metadata event
-func (m *MetadataMonitor) EmitProperty(name string, val string) {
+func (m *Monitor) EmitProperty(name string, val string) {
 	m.Output.SendEvent(
 		event.NewWithProperties(
 			"objects.host-meta-data",
