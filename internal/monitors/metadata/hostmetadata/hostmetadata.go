@@ -24,6 +24,26 @@ const (
 
 // MONITOR(host-metadata): This monitor collects metadata about a host.  It is
 // required for some views in SignalFx to operate.
+//
+// ```yaml
+// monitors:
+//   - type: host-metadata
+// ```
+//
+// In containerized environments host `/etc` and `/proc` may not be located
+// directly under the root path.  You can specify the path to `proc` and `etc`
+// using the monitor configurations `procFSPath` and `etcPath`
+//
+// ```yaml
+// monitors:
+//   - type: host-metadata
+//     procFSPath: "/hostfs/proc"
+//     etcPath: "/hostfs/etc"
+// ```
+
+// GAUGE(gauge.sf.host-plugin_uptime): The time this monitor has been running in
+// milliseconds.  Dimensions include `signalfx_agent`, `collectd`,
+// `kernel_release`, `kernel_version`
 
 var logger = log.WithFields(log.Fields{"monitorType": monitorType})
 
@@ -37,7 +57,7 @@ type Config struct {
 	// The path to the proc filesystem. Useful to override in containerized
 	// environments.
 	ProcFSPath string `yaml:"procFSPath" default:"/proc"`
-	// The path to the main host config dir. Userful to override in
+	// The path to the main host config dir. Useful to override in
 	// containerized environments.
 	EtcPath string `yaml:"etcPath" default:"/etc"`
 }
@@ -117,8 +137,11 @@ var errNotAWS = fmt.Errorf("not an aws box")
 func (m *Monitor) ReportMetadataProperties() {
 	for _, f := range metadatafuncs {
 		meta, err := f()
-		if err != nil && err != errNotAWS {
-			logger.Error(err)
+		if err != nil {
+			// suppress the not an aws box error message as it is expected
+			if err.Error() != errNotAWS.Error() {
+				logger.Error(err)
+			}
 			continue
 		}
 		properties := meta.ToStringMap()
@@ -136,6 +159,10 @@ func (m *Monitor) getUptime(curr time.Time) int64 {
 func (m *Monitor) ReportUptimeMetric() {
 	dims := map[string]string{
 		"signalfx_agent": os.Getenv("SIGNALFX_AGENT_VERSION"),
+	}
+
+	if collectdVersion := os.Getenv("SIGNALFX_COLLECTD_VERSION"); collectdVersion != "" {
+		dims["collectd"] = collectdVersion
 	}
 
 	if osInfo, err := hostmetadata.GetOS(); err == nil {

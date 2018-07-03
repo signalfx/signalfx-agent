@@ -42,8 +42,9 @@ func setVersionEnvvar() {
 	os.Setenv("SIGNALFX_AGENT_VERSION", Version)
 }
 
+// Set an envvar with the collectd version so that plugins have easy access to it
 func setCollectdVersionEnvvar() {
-	os.Setenv("COLLECTD_VERSION", CollectdVersion)
+	os.Setenv("SIGNALFX_COLLECTD_VERSION", CollectdVersion)
 }
 
 // Print out status about an existing instance of the agent.
