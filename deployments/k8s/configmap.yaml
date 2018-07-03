@@ -24,7 +24,6 @@ data:
     - type: k8s-api
 
     monitors:
-    - type: internal-metrics
     - type: host-metadata
       procFSPath: /hostfs/proc
       etcPath: /hostfs/etc
