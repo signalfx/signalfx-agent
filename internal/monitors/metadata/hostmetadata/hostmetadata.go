@@ -2,13 +2,11 @@ package hostmetadata
 
 import (
 	"context"
+	"fmt"
 	"math/rand"
 	"os"
 	"time"
 
-	"github.com/signalfx/signalfx-agent/internal/core/common/constants"
-
-	"github.com/signalfx/golib/datapoint"
 	"github.com/signalfx/golib/metadata/aws/ec2metadata"
 	"github.com/signalfx/golib/metadata/hostmetadata"
 	"github.com/signalfx/signalfx-agent/internal/core/config"
@@ -19,9 +17,8 @@ import (
 )
 
 const (
-	monitorType      = "host-metadata"
-	uptimeMetricName = "gauge.sf.host-plugin_uptime"
-	errNotAWS        = "not an aws box"
+	monitorType = "host-metadata"
+	errNotAWS   = "not an aws box"
 )
 
 // MONITOR(host-metadata): This monitor collects metadata properties about a
@@ -43,19 +40,20 @@ const (
 //     etcPath: "/hostfs/etc"
 // ```
 //
-// GAUGE(gauge.sf.host-plugin_uptime): The time this monitor has been running in
-// seconds.  Dimensions include `signalfx_agent`, `collectd`, `kernel_release`,
-// `kernel_version`, and `kernel_name`
+// Metadata updates occur on a sparse interval of approximately
+// 1m, 1m, 1h, 1d and continues repeating once per day.
+// Setting the `Interval` configuration for this monitor will not effect the
+// sparse interval that metadata is collected.
 
 var logger = log.WithFields(log.Fields{"monitorType": monitorType})
 
 func init() {
-	monitors.Register(monitorType, func() interface{} { return &Monitor{Monitor: &metadata.Monitor{}} }, &Config{})
+	monitors.Register(monitorType, func() interface{} { return &Monitor{Monitor: metadata.Monitor{}} }, &Config{})
 }
 
 // Config for this monitor
 type Config struct {
-	config.MonitorConfig `acceptsEndpoints:"false"`
+	config.MonitorConfig `singleInstance:"true" acceptsEndpoints:"false"`
 	// The path to the proc filesystem. Useful to override in containerized
 	// environments.
 	ProcFSPath string `yaml:"procFSPath" default:"/proc"`
@@ -66,7 +64,7 @@ type Config struct {
 
 // Monitor for host-metadata
 type Monitor struct {
-	*metadata.Monitor
+	metadata.Monitor
 	startTime time.Time
 	cancel    func()
 }
@@ -86,18 +84,15 @@ func (m *Monitor) Configure(conf *Config) error {
 		time.Duration(rand.Int63n(600)+86400) * time.Second,
 	}
 
-	// set plugin start time
-	m.startTime = time.Now()
-
 	// set HOST_PROC and HOST_ETC for gopsutil
 	if conf.ProcFSPath != "" {
 		if err := os.Setenv("HOST_PROC", conf.ProcFSPath); err != nil {
-			logger.Errorf("Error setting HOST_PROC env var %v", err)
+			return fmt.Errorf("Error setting HOST_PROC env var %v", err)
 		}
 	}
 	if conf.EtcPath != "" {
 		if err := os.Setenv("HOST_ETC", conf.EtcPath); err != nil {
-			logger.Errorf("Error setting HOST_ETC env var %v", err)
+			return fmt.Errorf("Error setting HOST_ETC env var %v", err)
 		}
 	}
 
@@ -108,15 +103,9 @@ func (m *Monitor) Configure(conf *Config) error {
 	logger.Debugf("Waiting %f seconds to emit metadata", intervals[0].Seconds())
 
 	// gather metadata on intervals
-	utils.RunOnIntervals(ctx,
+	utils.RunOnArrayOfIntervals(ctx,
 		m.ReportMetadataProperties,
 		intervals, utils.RepeatLast)
-
-	// emit metadata metric
-	utils.RunOnInterval(ctx,
-		m.ReportUptimeMetric,
-		time.Duration(conf.IntervalSeconds)*time.Second,
-	)
 
 	return nil
 }
@@ -159,38 +148,4 @@ func (m *Monitor) ReportMetadataProperties() {
 			m.EmitProperty(k, v)
 		}
 	}
-}
-
-// ReportUptimeMetric report metrics
-func (m *Monitor) ReportUptimeMetric() {
-	dims := map[string]string{
-		"plugin":         monitorType,
-		"signalfx_agent": os.Getenv(constants.AgentVersionEnvVar),
-	}
-
-	if collectdVersion := os.Getenv(constants.CollectdVersionEnvVar); collectdVersion != "" {
-		dims["collectd"] = collectdVersion
-	}
-
-	if osInfo, err := hostmetadata.GetOS(); err == nil {
-		switch osInfo.HostKernelName {
-		case "windows":
-			dims["windows"] = osInfo.HostKernelRelease
-		case "linux":
-			dims["linux"] = osInfo.HostLinuxVersion
-		}
-		dims["kernel_name"] = osInfo.HostKernelName
-		dims["kernel_release"] = osInfo.HostKernelRelease
-		dims["kernel_version"] = osInfo.HostKernelVersion
-	}
-
-	m.Output.SendDatapoint(
-		datapoint.New(
-			uptimeMetricName,
-			dims,
-			datapoint.NewFloatValue(time.Since(m.startTime).Seconds()),
-			datapoint.Gauge,
-			time.Now(),
-		),
-	)
 }
