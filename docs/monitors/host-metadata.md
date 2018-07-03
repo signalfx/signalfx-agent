@@ -2,8 +2,8 @@
 
 # host-metadata
 
- This monitor collects metadata about a host.  It is
-required for some views in SignalFx to operate.
+ This monitor collects metadata properties about a
+host.  It is required for some views in SignalFx to operate.
 
 ```yaml
 monitors:
@@ -47,7 +47,7 @@ cause only a subset of metrics to be emitted.
 
 | Name | Type | Description |
 | ---  | ---  | ---         |
-| `gauge.sf.host-plugin_uptime` | gauge | The time this monitor has been running in milliseconds.  Dimensions include `signalfx_agent`, `collectd`, `kernel_release`, `kernel_version` |
+| `gauge.sf.host-plugin_uptime` | gauge | The time this monitor has been running in seconds.  Dimensions include `signalfx_agent`, `collectd`, `kernel_release`, `kernel_version`, and `kernel_name` |
 
 
 
