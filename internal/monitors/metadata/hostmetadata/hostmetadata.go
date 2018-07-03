@@ -2,10 +2,11 @@ package hostmetadata
 
 import (
 	"context"
-	"fmt"
 	"math/rand"
 	"os"
 	"time"
+
+	"github.com/signalfx/signalfx-agent/internal/core/common/constants"
 
 	"github.com/signalfx/golib/datapoint"
 	"github.com/signalfx/golib/metadata/aws/ec2metadata"
@@ -20,10 +21,11 @@ import (
 const (
 	monitorType      = "host-metadata"
 	uptimeMetricName = "gauge.sf.host-plugin_uptime"
+	errNotAWS        = "not an aws box"
 )
 
-// MONITOR(host-metadata): This monitor collects metadata about a host.  It is
-// required for some views in SignalFx to operate.
+// MONITOR(host-metadata): This monitor collects metadata properties about a
+// host.  It is required for some views in SignalFx to operate.
 //
 // ```yaml
 // monitors:
@@ -40,10 +42,10 @@ const (
 //     procFSPath: "/hostfs/proc"
 //     etcPath: "/hostfs/etc"
 // ```
-
+//
 // GAUGE(gauge.sf.host-plugin_uptime): The time this monitor has been running in
-// milliseconds.  Dimensions include `signalfx_agent`, `collectd`,
-// `kernel_release`, `kernel_version`
+// seconds.  Dimensions include `signalfx_agent`, `collectd`, `kernel_release`,
+// `kernel_version`, and `kernel_name`
 
 var logger = log.WithFields(log.Fields{"monitorType": monitorType})
 
@@ -73,13 +75,14 @@ type Monitor struct {
 // on a varied interval
 func (m *Monitor) Configure(conf *Config) error {
 	intervals := []time.Duration{
-		// 0-60 seconds
+		// on startup with some 0-60s dither
 		time.Duration(rand.Int63n(60)) * time.Second,
-		// 1 minute after the previous because sometimes pieces of metadata aren't available immediately on startup
+		// 1 minute after the previous because sometimes pieces of metadata
+		// aren't available immediately on startup like aws identity information
 		time.Duration(60) * time.Second,
-		// 1 hour after the previous with some dither
+		// 1 hour after the previous with some 0-60s dither
 		time.Duration(rand.Int63n(60)+3600) * time.Second,
-		// 1 day after the previous with some dither
+		// 1 day after the previous with some 0-10m dither
 		time.Duration(rand.Int63n(600)+86400) * time.Second,
 	}
 
@@ -101,6 +104,8 @@ func (m *Monitor) Configure(conf *Config) error {
 	// create contexts for managing the the plugin loop
 	var ctx context.Context
 	ctx, m.cancel = context.WithCancel(context.Background())
+
+	logger.Debugf("Waiting %f seconds to emit metadata", intervals[0].Seconds())
 
 	// gather metadata on intervals
 	utils.RunOnIntervals(ctx,
@@ -131,60 +136,61 @@ var metadatafuncs = []func() (info, error){
 	func() (info, error) { return ec2metadata.Get() },
 }
 
-var errNotAWS = fmt.Errorf("not an aws box")
-
 // ReportMetadataProperties emits properties about the host
 func (m *Monitor) ReportMetadataProperties() {
 	for _, f := range metadatafuncs {
 		meta, err := f()
+
 		if err != nil {
-			// suppress the not an aws box error message as it is expected
-			if err.Error() != errNotAWS.Error() {
+			// suppress the not an aws box error message it is expected
+			if err.Error() == errNotAWS {
+				logger.Debug(err)
+			} else {
 				logger.Error(err)
 			}
 			continue
 		}
+
+		// get the properties as a map
 		properties := meta.ToStringMap()
+
+		// emit each key/value pair
 		for k, v := range properties {
 			m.EmitProperty(k, v)
 		}
 	}
 }
 
-func (m *Monitor) getUptime(curr time.Time) int64 {
-	return int64((curr.UnixNano() - m.startTime.UnixNano()) / 1000000)
-}
-
 // ReportUptimeMetric report metrics
 func (m *Monitor) ReportUptimeMetric() {
 	dims := map[string]string{
-		"signalfx_agent": os.Getenv("SIGNALFX_AGENT_VERSION"),
+		"plugin":         monitorType,
+		"signalfx_agent": os.Getenv(constants.AgentVersionEnvVar),
 	}
 
-	if collectdVersion := os.Getenv("SIGNALFX_COLLECTD_VERSION"); collectdVersion != "" {
+	if collectdVersion := os.Getenv(constants.CollectdVersionEnvVar); collectdVersion != "" {
 		dims["collectd"] = collectdVersion
 	}
 
 	if osInfo, err := hostmetadata.GetOS(); err == nil {
-		if osInfo.HostLinuxVersion != "" {
+		switch osInfo.HostKernelName {
+		case "windows":
+			dims["windows"] = osInfo.HostKernelRelease
+		case "linux":
 			dims["linux"] = osInfo.HostLinuxVersion
 		}
-		if osInfo.HostKernelRelease != "" {
-			dims["release"] = osInfo.HostKernelRelease
-		}
-		if osInfo.HostKernelVersion != "" {
-			dims["version"] = osInfo.HostKernelVersion
-		}
+		dims["kernel_name"] = osInfo.HostKernelName
+		dims["kernel_release"] = osInfo.HostKernelRelease
+		dims["kernel_version"] = osInfo.HostKernelVersion
 	}
 
-	curr := time.Now()
 	m.Output.SendDatapoint(
 		datapoint.New(
 			uptimeMetricName,
 			dims,
-			datapoint.NewIntValue(m.getUptime(curr)),
+			datapoint.NewFloatValue(time.Since(m.startTime).Seconds()),
 			datapoint.Gauge,
-			curr,
+			time.Now(),
 		),
 	)
 }
