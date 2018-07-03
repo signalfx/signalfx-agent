@@ -253,8 +253,6 @@ func (cm *Manager) manageCollectd(initCh chan<- struct{}, terminated chan struct
 		cm.writeServerPort = writeServer.RunningPort()
 	}
 
-	cm.setCollectdVersionEnvVar()
-
 	close(initCh)
 
 	for {
@@ -501,24 +499,3 @@ func (cm *Manager) makeChildCommand() (*exec.Cmd, io.ReadCloser) {
 }
 
 var collectdVersionRegexp = regexp.MustCompile(`collectd (?P<version>.*), http://collectd.org/`)
-
-func (cm *Manager) setCollectdVersionEnvVar() {
-	loader := filepath.Join(cm.conf.BundleDir, "lib64/ld-linux-x86-64.so.2")
-	collectdBin := filepath.Join(cm.conf.BundleDir, "bin/collectd")
-	cmd := exec.Command(loader, collectdBin, "-h")
-
-	outText, err := cmd.CombinedOutput()
-	if err != nil {
-		cm.logger.WithError(err).Error("Could not determine collectd version")
-		return
-	}
-
-	groups := utils.RegexpGroupMap(collectdVersionRegexp, string(outText))
-	if groups == nil {
-		cm.logger.Errorf("Could not determine collectd version from output %s", outText)
-		return
-	}
-
-	os.Setenv("COLLECTD_VERSION", groups["version"])
-	cm.logger.Infof("Detected collectd version %s", groups["version"])
-}

@@ -12,6 +12,7 @@ import (
 	log "github.com/sirupsen/logrus"
 
 	"github.com/signalfx/signalfx-agent/internal/core"
+	"github.com/signalfx/signalfx-agent/internal/core/common/constants"
 	"github.com/signalfx/signalfx-agent/internal/selfdescribe"
 
 	prefixed "github.com/x-cray/logrus-prefixed-formatter"
@@ -39,12 +40,12 @@ func init() {
 // Set an envvar with the agent's version so that plugins can have easy access
 // to it (e.g. metadata plugin).
 func setVersionEnvvar() {
-	os.Setenv("SIGNALFX_AGENT_VERSION", Version)
+	os.Setenv(constants.AgentVersionEnvVar, Version)
 }
 
 // Set an envvar with the collectd version so that plugins have easy access to it
 func setCollectdVersionEnvvar() {
-	os.Setenv("SIGNALFX_COLLECTD_VERSION", CollectdVersion)
+	os.Setenv(constants.CollectdVersionEnvVar, CollectdVersion)
 }
 
 // Print out status about an existing instance of the agent.
