@@ -3,6 +3,7 @@ package internalmetrics
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"os"
 	"strings"
@@ -76,6 +77,12 @@ var startTime = time.Now()
 // Config for internal metric monitoring
 type Config struct {
 	config.MonitorConfig
+	// The path to the proc filesystem. Useful to override in containerized
+	// environments.
+	ProcFSPath string `yaml:"procFSPath" default:"/proc"`
+	// The path to the main host config dir. Useful to override in
+	// containerized environments.
+	EtcPath string `yaml:"etcPath" default:"/etc"`
 }
 
 // Monitor for collecting internal metrics from the simple server that dumps
@@ -93,6 +100,18 @@ func init() {
 // Configure and kick off internal metric collection
 func (m *Monitor) Configure(conf *Config) error {
 	m.Shutdown()
+
+	// set HOST_PROC and HOST_ETC for gopsutil
+	if conf.ProcFSPath != "" {
+		if err := os.Setenv("HOST_PROC", conf.ProcFSPath); err != nil {
+			return fmt.Errorf("Error setting HOST_PROC env var %v", err)
+		}
+	}
+	if conf.EtcPath != "" {
+		if err := os.Setenv("HOST_ETC", conf.EtcPath); err != nil {
+			return fmt.Errorf("Error setting HOST_ETC env var %v", err)
+		}
+	}
 
 	var ctx context.Context
 	ctx, m.cancel = context.WithCancel(context.Background())
