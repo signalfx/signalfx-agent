@@ -34,9 +34,12 @@ minikube config set ShowBootstrapperDeprecationNotification false || true
 
 K8S_VERSION=${K8S_VERSION:-"latest"}
 if [ "$K8S_VERSION" = "latest" ]; then
-    #/usr/local/bin/dind-cluster.sh up
+    curl -sSl -o /usr/local/bin/kubectl https://storage.googleapis.com/kubernetes-release/release/`curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt`/bin/linux/amd64/kubectl
+    chmod a+x /usr/local/bin/kubectl
     minikube start --vm-driver=none --bootstrapper=localkube
 else
+    curl -sSl -o /usr/local/bin/kubectl https://storage.googleapis.com/kubernetes-release/release/${K8S_VERSION}/bin/linux/amd64/kubectl
+    chmod a+x /usr/local/bin/kubectl
     minikube start --kubernetes-version $K8S_VERSION --vm-driver=none --bootstrapper=localkube
 fi
 sleep 2
