@@ -122,8 +122,8 @@ puppet-%:
 
 .PHONY: collectd-version
 collectd-version:
-	printf $(COLLECTD_VERSION)
+	@echo ${COLLECTD_VERSION}
 
 .PHONY: collectd-commit
 collectd-commit:
-	printf $(COLLECTD_COMMIT)
+	@echo ${COLLECTD_COMMIT}
