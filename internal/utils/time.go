@@ -103,7 +103,7 @@ func RunOnIntervals(ctx context.Context, fn func(), intervals []time.Duration, r
 						intv = intervals[:] // copy the original interval list
 					}
 				}
-				timer.Reset(intervals[0])
+				timer.Reset(intv[0])
 				fn()
 			}
 		}
