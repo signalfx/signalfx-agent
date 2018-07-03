@@ -72,17 +72,26 @@ const (
 	RepeatNone
 )
 
-// RunOnIntervals the given function once on the specified intervals, and
-// repeat according to the supplied RepeatPolicy.
-func RunOnIntervals(ctx context.Context, fn func(), intervals []time.Duration, repeatPolicy RepeatPolicy) {
-	if len(intervals) < 1 {
+// RunOnArrayOfIntervals the given function once on the specified intervals, and
+// repeat according to the supplied RepeatPolicy.  Please note the function is
+// executed after the first interval.  If you want the function executed
+// immediately, you should specify a duration of 0 as the first element in the
+// intervals array.
+func RunOnArrayOfIntervals(ctx context.Context, fn func(), intervals []time.Duration, repeatPolicy RepeatPolicy) {
+	// copy intervals
+	intvs := intervals[:]
+
+	// return if the interval list is empty
+	if len(intvs) < 1 {
 		return
 	}
-	// copy intervals
-	intv := intervals[:]
+
+	// set up index and last indice
+	index := 0
+	lastIndex := len(intvs) - 1
 
 	// initialize timer
-	timer := time.NewTimer(intv[0])
+	timer := time.NewTimer(intvs[index])
 	go func() {
 		defer timer.Stop()
 
@@ -91,19 +100,21 @@ func RunOnIntervals(ctx context.Context, fn func(), intervals []time.Duration, r
 			case <-ctx.Done():
 				return
 			case <-timer.C:
-
-				if len(intv) > 1 {
-					// advance the interval
-					intv = intv[1:]
+				if index < lastIndex {
+					// advance interval
+					index++
 				} else {
 					// evaluate repeat policies
 					if repeatPolicy == RepeatNone {
+						// execute and return
+						fn()
 						return
 					} else if repeatPolicy == RepeatAll {
-						intv = intervals[:] // copy the original interval list
-					}
+						// reset interval
+						index = 0
+					} // leave index == lastIndex if RepeatLast
 				}
-				timer.Reset(intv[0])
+				timer.Reset(intvs[index])
 				fn()
 			}
 		}
