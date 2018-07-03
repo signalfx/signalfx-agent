@@ -5,10 +5,13 @@ import (
 	"fmt"
 	"math/rand"
 	"os"
+	"strings"
 	"time"
 
+	"github.com/signalfx/golib/datapoint"
 	"github.com/signalfx/golib/metadata/aws/ec2metadata"
 	"github.com/signalfx/golib/metadata/hostmetadata"
+	"github.com/signalfx/signalfx-agent/internal/core/common/constants"
 	"github.com/signalfx/signalfx-agent/internal/core/config"
 	"github.com/signalfx/signalfx-agent/internal/monitors"
 	"github.com/signalfx/signalfx-agent/internal/monitors/metadata"
@@ -17,8 +20,9 @@ import (
 )
 
 const (
-	monitorType = "host-metadata"
-	errNotAWS   = "not an aws box"
+	monitorType      = "host-metadata"
+	errNotAWS        = "not an aws box"
+	uptimeMetricName = "sfxagent.hostmetadata"
 )
 
 // MONITOR(host-metadata): This monitor collects metadata properties about a
@@ -44,6 +48,20 @@ const (
 // 1m, 1m, 1h, 1d and continues repeating once per day.
 // Setting the `Interval` configuration for this monitor will not effect the
 // sparse interval that metadata is collected.
+//
+// GAUGE(sfxagent.hostmetadata): The time the hostmetadata monitor has been
+// running in seconds.  It includes dimensional metadata about the host and
+// agent.
+//
+// DIMENSION(signalfx_agent): The version of the signalfx-agent
+// DIMENSION(collectd): The version of collectd in the signalfx-agent
+// DIMENSION(kernel_name): The name of the host kernel.
+// DIMENSION(kernel_version): The version of the host kernel.
+// DIMENSION(kernel_release): The release of the host kernel.
+// DIMENSION(os_version): The version of the os on the host.
+
+// the time that the agent started / imported this package
+var startTime = time.Now()
 
 var logger = log.WithFields(log.Fields{"monitorType": monitorType})
 
@@ -107,6 +125,12 @@ func (m *Monitor) Configure(conf *Config) error {
 		m.ReportMetadataProperties,
 		intervals, utils.RepeatLast)
 
+	// emit metadata metric
+	utils.RunOnInterval(ctx,
+		m.ReportUptimeMetric,
+		time.Duration(conf.IntervalSeconds)*time.Second,
+	)
+
 	return nil
 }
 
@@ -148,4 +172,40 @@ func (m *Monitor) ReportMetadataProperties() {
 			m.EmitProperty(k, v)
 		}
 	}
+}
+
+// ReportUptimeMetric report metrics
+func (m *Monitor) ReportUptimeMetric() {
+	dims := map[string]string{
+		"plugin":         monitorType,
+		"signalfx_agent": os.Getenv(constants.AgentVersionEnvVar),
+	}
+
+	if collectdVersion := os.Getenv(constants.CollectdVersionEnvVar); collectdVersion != "" {
+		dims["collectd"] = collectdVersion
+	}
+
+	if osInfo, err := hostmetadata.GetOS(); err == nil {
+		kernelName := strings.ToLower(osInfo.HostKernelName)
+		dims["kernel_name"] = kernelName
+		dims["kernel_release"] = osInfo.HostKernelRelease
+		dims["kernel_version"] = osInfo.HostKernelVersion
+
+		switch kernelName {
+		case "windows":
+			dims["os_version"] = osInfo.HostKernelRelease
+		case "linux":
+			dims["os_version"] = osInfo.HostLinuxVersion
+		}
+	}
+
+	m.Output.SendDatapoint(
+		datapoint.New(
+			uptimeMetricName,
+			dims,
+			datapoint.NewFloatValue(time.Since(startTime).Seconds()),
+			datapoint.Counter,
+			time.Now(),
+		),
+	)
 }

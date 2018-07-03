@@ -22,12 +22,7 @@ Monitor Type: `internal-metrics`
 
 ## Configuration
 
-| Config option | Required | Type | Description |
-| --- | --- | --- | --- |
-| `procFSPath` | no | `string` | The path to the proc filesystem. Useful to override in containerized environments. (**default:** `/proc`) |
-| `etcPath` | no | `string` | The path to the main host config dir. Useful to override in containerized environments. (**default:** `/etc`) |
-
-
+This monitor has no configuration options.
 
 
 ## Metrics
@@ -45,21 +40,6 @@ cause only a subset of metrics to be emitted.
 | `sfxagent.discovered_endpoints` | gauge | The number of discovered service endpoints.  This includes endpoints that do not have any matching monitor configuration discovery rule. |
 | `sfxagent.events_buffered` | gauge | The total number of events that have been emitted by monitors but have yet to be sent to SignalFx |
 | `sfxagent.events_sent` | cumulative | The total number of events sent by the agent since it last started |
-| `sfxagent.uptime` | gauge | The time the agent has been running in seconds. |
-
-## Dimensions
-
-The following dimensions may occur on metrics emitted by this monitor.  Some
-dimensions may be specific to certain metrics.
-
-| Name | Description |
-| ---  | ---         |
-| `collectd` | The version of collectd in the signalfx-agent |
-| `kernel_name` | The name of the host kernel. |
-| `kernel_release` | The release of the host kernel. |
-| `kernel_version` | The version of the host kernel. |
-| `os_version` | The version of the os on the host. |
-| `signalfx_agent` | The version of the signalfx-agent |
 
 
 

@@ -45,5 +45,28 @@ Monitor Type: `host-metadata`
 
 
 
+## Metrics
+
+This monitor emits the following metrics.  Note that configuration options may
+cause only a subset of metrics to be emitted.
+
+| Name | Type | Description |
+| ---  | ---  | ---         |
+| `sfxagent.hostmetadata` | gauge | The time the hostmetadata monitor has been running in seconds.  It includes dimensional metadata about the host and agent. |
+
+## Dimensions
+
+The following dimensions may occur on metrics emitted by this monitor.  Some
+dimensions may be specific to certain metrics.
+
+| Name | Description |
+| ---  | ---         |
+| `collectd` | The version of collectd in the signalfx-agent |
+| `kernel_name` | The name of the host kernel. |
+| `kernel_release` | The release of the host kernel. |
+| `kernel_version` | The version of the host kernel. |
+| `os_version` | The version of the os on the host. |
+| `signalfx_agent` | The version of the signalfx-agent |
+
 
 

@@ -14,6 +14,4 @@ monitors:
 
 def test_internal_metrics():
     with run_agent(config) as [backend, _, _]:
-        assert wait_for(p(has_datapoint_with_metric_name, backend,
-                        "sfxagent.uptime")), "Didn't get agent uptime datapoints"
         assert wait_for(p(has_datapoint_with_metric_name, backend, "sfxagent.datapoints_sent")), "Didn't get internal metric datapoints"

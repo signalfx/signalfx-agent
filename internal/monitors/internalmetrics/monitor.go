@@ -3,15 +3,10 @@ package internalmetrics
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
-	"os"
-	"strings"
 	"time"
 
 	"github.com/signalfx/golib/datapoint"
-	"github.com/signalfx/golib/metadata/hostmetadata"
-	"github.com/signalfx/signalfx-agent/internal/core/common/constants"
 	"github.com/signalfx/signalfx-agent/internal/core/config"
 	"github.com/signalfx/signalfx-agent/internal/core/meta"
 	"github.com/signalfx/signalfx-agent/internal/monitors"
@@ -22,12 +17,8 @@ import (
 )
 
 const (
-	monitorType      = "internal-metrics"
-	uptimeMetricName = "sfxagent.uptime"
+	monitorType = "internal-metrics"
 )
-
-// the time that the agent started / imported this package
-var startTime = time.Now()
 
 // MONITOR(internal-metrics): Emits metrics about the internal state of the
 // agent.  Useful for debugging performance issues with the agent and to ensure
@@ -64,25 +55,9 @@ var startTime = time.Now()
 // GAUGE(sfxagent.active_observers): The number of observers configured and
 // running
 
-// GAUGE(sfxagent.uptime): The time the agent has been running in
-// seconds.
-//
-// DIMENSION(signalfx_agent): The version of the signalfx-agent
-// DIMENSION(collectd): The version of collectd in the signalfx-agent
-// DIMENSION(kernel_name): The name of the host kernel.
-// DIMENSION(kernel_version): The version of the host kernel.
-// DIMENSION(kernel_release): The release of the host kernel.
-// DIMENSION(os_version): The version of the os on the host.
-
 // Config for internal metric monitoring
 type Config struct {
 	config.MonitorConfig
-	// The path to the proc filesystem. Useful to override in containerized
-	// environments.
-	ProcFSPath string `yaml:"procFSPath" default:"/proc"`
-	// The path to the main host config dir. Useful to override in
-	// containerized environments.
-	EtcPath string `yaml:"etcPath" default:"/etc"`
 }
 
 // Monitor for collecting internal metrics from the simple server that dumps
@@ -100,18 +75,6 @@ func init() {
 // Configure and kick off internal metric collection
 func (m *Monitor) Configure(conf *Config) error {
 	m.Shutdown()
-
-	// set HOST_PROC and HOST_ETC for gopsutil
-	if conf.ProcFSPath != "" {
-		if err := os.Setenv("HOST_PROC", conf.ProcFSPath); err != nil {
-			return fmt.Errorf("Error setting HOST_PROC env var %v", err)
-		}
-	}
-	if conf.EtcPath != "" {
-		if err := os.Setenv("HOST_ETC", conf.EtcPath); err != nil {
-			return fmt.Errorf("Error setting HOST_ETC env var %v", err)
-		}
-	}
 
 	var ctx context.Context
 	ctx, m.cancel = context.WithCancel(context.Background())
@@ -146,49 +109,7 @@ func (m *Monitor) Configure(conf *Config) error {
 		}
 	}, time.Duration(conf.IntervalSeconds)*time.Second)
 
-	// emit metadata metric
-	utils.RunOnInterval(ctx,
-		m.ReportUptimeMetric,
-		time.Duration(conf.IntervalSeconds)*time.Second,
-	)
-
 	return nil
-}
-
-// ReportUptimeMetric report metrics
-func (m *Monitor) ReportUptimeMetric() {
-	dims := map[string]string{
-		"plugin":         monitorType,
-		"signalfx_agent": os.Getenv(constants.AgentVersionEnvVar),
-	}
-
-	if collectdVersion := os.Getenv(constants.CollectdVersionEnvVar); collectdVersion != "" {
-		dims["collectd"] = collectdVersion
-	}
-
-	if osInfo, err := hostmetadata.GetOS(); err == nil {
-		kernelName := strings.ToLower(osInfo.HostKernelName)
-		dims["kernel_name"] = kernelName
-		dims["kernel_release"] = osInfo.HostKernelRelease
-		dims["kernel_version"] = osInfo.HostKernelVersion
-
-		switch kernelName {
-		case "windows":
-			dims["os_version"] = osInfo.HostKernelRelease
-		case "linux":
-			dims["os_version"] = osInfo.HostLinuxVersion
-		}
-	}
-
-	m.Output.SendDatapoint(
-		datapoint.New(
-			uptimeMetricName,
-			dims,
-			datapoint.NewFloatValue(time.Since(startTime).Seconds()),
-			datapoint.Counter,
-			time.Now(),
-		),
-	)
 }
 
 // Shutdown the internal metric collection
