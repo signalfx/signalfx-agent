@@ -22,7 +22,12 @@ Monitor Type: `internal-metrics`
 
 ## Configuration
 
-This monitor has no configuration options.
+| Config option | Required | Type | Description |
+| --- | --- | --- | --- |
+| `procFSPath` | no | `string` | The path to the proc filesystem. Useful to override in containerized environments. (**default:** `/proc`) |
+| `etcPath` | no | `string` | The path to the main host config dir. Useful to override in containerized environments. (**default:** `/etc`) |
+
+
 
 
 ## Metrics

@@ -24,6 +24,12 @@ data:
     - type: k8s-api
 
     monitors:
+    - type: internal-metrics
+      procFSPath: /hostfs/proc
+      etcPath: /hostfs/etc
+    - type: host-metadata
+      procFSPath: /hostfs/proc
+      etcPath: /hostfs/etc
     - type: collectd/cpu
     - type: collectd/cpufreq
     - type: collectd/df
