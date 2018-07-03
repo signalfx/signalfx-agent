@@ -21,6 +21,11 @@ monitors:
     etcPath: "/hostfs/etc"
 ```
 
+Metadata updates occur on a sparse interval of approximately
+1m, 1m, 1h, 1d and continues repeating once per day.
+Setting the `Interval` configuration for this monitor will not effect the
+sparse interval that metadata is collected.
+
 
 Monitor Type: `host-metadata`
 
@@ -28,7 +33,7 @@ Monitor Type: `host-metadata`
 
 **Accepts Endpoints**: No
 
-**Multiple Instances Allowed**: Yes
+**Multiple Instances Allowed**: **No**
 
 ## Configuration
 
@@ -39,15 +44,6 @@ Monitor Type: `host-metadata`
 
 
 
-
-## Metrics
-
-This monitor emits the following metrics.  Note that configuration options may
-cause only a subset of metrics to be emitted.
-
-| Name | Type | Description |
-| ---  | ---  | ---         |
-| `gauge.sf.host-plugin_uptime` | gauge | The time this monitor has been running in seconds.  Dimensions include `signalfx_agent`, `collectd`, `kernel_release`, `kernel_version`, and `kernel_name` |
 
 
 
