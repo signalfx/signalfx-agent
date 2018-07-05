@@ -23,8 +23,8 @@ monitors:
 
 Metadata updates occur on a sparse interval of approximately
 1m, 1m, 1h, 1d and continues repeating once per day.
-Setting the `Interval` configuration for this monitor will not effect the
-sparse interval that metadata is collected.
+Setting the `Interval` configuration for this monitor will not affect the
+sparse interval on which metadata is collected.
 
 
 Monitor Type: `host-metadata`
