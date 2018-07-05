@@ -360,6 +360,7 @@
   branch = "master"
   name = "github.com/mailru/easyjson"
   packages = [
+    ".",
     "buffer",
     "jlexer",
     "jwriter"
@@ -560,9 +561,10 @@
     "sfxclient",
     "timekeeper",
     "trace",
+    "trace/format",
     "web"
   ]
-  revision = "dd1b8fa778f86addb51e1ca69cb4560da4085aa4"
+  revision = "0bcb5ca7f1efc1ba4a2fbaadd3dfb3c1d32e8429"
 
 [[projects]]
   name = "github.com/signalfx/metricproxy"
@@ -863,6 +865,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "59445991a1303324b8491e13c8c3a0552d3abca7452e10f0e911b895e57c408f"
+  inputs-digest = "e04cb0ba230a89a1e310ca90541c0a33892cd803a0118cd66e71b759d3cea904"
   solver-name = "gps-cdcl"
   solver-version = 1
