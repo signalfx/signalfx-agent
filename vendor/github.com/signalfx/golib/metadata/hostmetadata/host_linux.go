@@ -17,7 +17,7 @@ func fillPlatformSpecificOSData(info *OS) error {
 		return err
 	}
 
-	info.HostKernelVersion = string(Int8ArrayToByteArray(uname.Version[:]))
+	info.HostKernelVersion = string(int8ArrayToByteArray(uname.Version[:]))
 	return nil
 }
 
@@ -27,7 +27,7 @@ func fillPlatformSpecificCPUData(info *CPU) error {
 		return err
 	}
 
-	info.HostMachine = string(Int8ArrayToByteArray(uname.Machine[:]))
+	info.HostMachine = string(int8ArrayToByteArray(uname.Machine[:]))
 
 	// according to the python doc platform.Processor usually returns the same
 	// value as platform.Machine

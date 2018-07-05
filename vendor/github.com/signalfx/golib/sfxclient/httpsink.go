@@ -18,11 +18,14 @@ import (
 	"sync"
 
 	"github.com/golang/protobuf/proto"
+	"github.com/mailru/easyjson"
 	"github.com/signalfx/com_signalfx_metrics_protobuf"
 	"github.com/signalfx/golib/datapoint"
 	"github.com/signalfx/golib/errors"
 	"github.com/signalfx/golib/event"
 	"github.com/signalfx/golib/trace"
+	"github.com/signalfx/golib/trace/format"
+	"unsafe"
 )
 
 const (
@@ -54,7 +57,7 @@ type HTTPSink struct {
 	TraceEndpoint      string
 	Client             http.Client
 	protoMarshaler     func(pb proto.Message) ([]byte, error)
-	jsonMarshal        func(v interface{}) ([]byte, error)
+	jsonMarshal        func(v []*trace.Span) ([]byte, error)
 	DisableCompression bool
 	zippers            sync.Pool
 
@@ -409,8 +412,14 @@ func (h *HTTPSink) AddSpans(ctx context.Context, traces []*trace.Span) (err erro
 	}, "application/json", h.TraceEndpoint, spanResponseValidator)
 }
 
+func jsonMarshal(v []*trace.Span) ([]byte, error) {
+	// Yeah, i did that.
+	y := (*traceformat.Trace)(unsafe.Pointer(&v))
+	return easyjson.Marshal(y)
+}
+
 // NewHTTPSink creates a default NewHTTPSink using package level constants as
-// defaults, including an empty auth token.  If sending directly to SiganlFx, you will be required
+// defaults, including an empty auth token.  If sending directly to SignalFx, you will be required
 // to explicitly set the AuthToken
 func NewHTTPSink() *HTTPSink {
 	return &HTTPSink{
@@ -425,6 +434,6 @@ func NewHTTPSink() *HTTPSink {
 		zippers: sync.Pool{New: func() interface{} {
 			return gzip.NewWriter(nil)
 		}},
-		jsonMarshal: json.Marshal,
+		jsonMarshal: jsonMarshal,
 	}
 }

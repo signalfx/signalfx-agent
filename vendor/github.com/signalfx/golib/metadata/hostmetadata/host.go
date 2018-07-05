@@ -103,8 +103,8 @@ func (o *OS) ToStringMap() map[string]string {
 	}
 }
 
-// Int8ArrayToByteArray converts an []int8 to []byte
-func Int8ArrayToByteArray(in []int8) []byte {
+// int8ArrayToByteArray converts an []int8 to []byte
+func int8ArrayToByteArray(in []int8) []byte {
 	bts := make([]byte, len(in))
 	for i, c := range in {
 		bts[i] = byte(c)
