@@ -16,6 +16,8 @@ TypesDB "{{ pluginRoot }}/signalfx/types.db.plugin"
     NotifyLevel "OKAY"
     ProcPath "{{ .ProcFSPath }}"
     EtcPath "{{ .EtcPath }}"
+    HostMetadata false
+    Datapoints false
     PersistencePath "{{ .PersistencePath }}"
     ProcessInfo {{if .OmitProcessInfo}}false{{else}}true{{end}}
     {{with .DogStatsDIP -}}

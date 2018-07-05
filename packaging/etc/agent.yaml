@@ -15,6 +15,7 @@ observers:
 
 monitors:
   - {"#from": "/etc/signalfx/monitors/*.yaml", flatten: true, optional: true}
+  - type: host-metadata
   - type: collectd/cpu
   - type: collectd/cpufreq
   - type: collectd/df

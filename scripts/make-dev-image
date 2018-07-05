@@ -6,4 +6,4 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 . $SCRIPT_DIR/common.sh
 
-do_docker_build signalfx-agent-dev latest dev-extras
+COLLECTD_VERSION=${COLLECTD_VERSION} COLLECTD_COMMIT=${COLLECTD_COMMIT} do_docker_build signalfx-agent-dev latest dev-extras

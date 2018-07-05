@@ -15,6 +15,7 @@ class accepts the following parameters:
     $config = {
       signalFxAccessToken: "MY_TOKEN",
       monitors: [
+        {type: "host-metadata"},
         {type: "collectd/cpu"},
         {type: "collectd/cpufreq"},
         {type: "collectd/df"},

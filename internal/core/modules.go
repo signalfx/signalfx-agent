@@ -9,6 +9,7 @@ import (
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/docker"
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/internalmetrics"
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/kubernetes"
+	_ "github.com/signalfx/signalfx-agent/internal/monitors/metadata/hostmetadata"
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/prometheus"
 	_ "github.com/signalfx/signalfx-agent/internal/observers/docker"
 	_ "github.com/signalfx/signalfx-agent/internal/observers/file"

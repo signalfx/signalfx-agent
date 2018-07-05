@@ -72,8 +72,8 @@ jobs:
      - run: |
          set -x
          export PULL_CACHE=yes
-         source scripts/common.sh
-         do_docker_build signalfx-agent-dev latest dev-extras
+         make dev-image
+
      - run: |
          mkdir -p /tmp/workspace
          docker save -o /tmp/workspace/image.tar signalfx-agent-dev:latest
@@ -89,7 +89,7 @@ jobs:
       - run: |
           set -x
           export PULL_CACHE=yes
-          ./scripts/build-binary windows
+          COLLECTD_VERSION=$(make collectd-version) COLLECTD_COMMIT=$(make collectd-commit) ./scripts/build-binary windows
           if [ ! -f ~/project/signalfx-agent.exe ] ; then
             echo "signalfx-agent.exe not found!"
             exit 1
@@ -110,7 +110,7 @@ jobs:
          set -x
          export PULL_CACHE=yes
          export AGENT_VERSION=k8s-test
-         ./scripts/build
+         make image
      - run: |
          mkdir -p /tmp/workspace
          docker save -o /tmp/workspace/final_image.tar quay.io/signalfx/signalfx-agent-dev:k8s-test
@@ -243,7 +243,7 @@ jobs:
           fi
 
           export PULL_CACHE=yes
-          ./packaging/rpm/build
+          make rpm-test-package
 
           mkdir /tmp/scratch
 
@@ -270,7 +270,7 @@ jobs:
           fi
 
           export PULL_CACHE=yes
-          ./packaging/deb/build
+          make deb-test-package
 
           mkdir /tmp/scratch
 
