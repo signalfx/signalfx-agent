@@ -3,6 +3,7 @@ import os
 import re
 import socket
 import urllib.request
+from http.client import RemoteDisconnected, HTTPException
 
 
 def has_datapoint_with_metric_name(fake_services, metric_name):
@@ -124,5 +125,6 @@ def http_status(url=None, status=[], username=None, password=None, timeout=1, *a
     except urllib.error.HTTPError as err:
         # urllib raises exceptions for some http error statuses
         return err.code in status
-    except (urllib.error.URLError, socket.timeout):
+    except (urllib.error.URLError, socket.timeout, HTTPException,
+            RemoteDisconnected, ConnectionError):
         return False
