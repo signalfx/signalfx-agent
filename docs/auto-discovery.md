@@ -51,7 +51,7 @@ For a list of observers and the discovery rule variables they provide, see [Obse
 
 In addition, these extra functions are provided:
 
- - `Get(map, key)` - retrieves the value from map with the given key
+ - `Get(map, key)` - returns the value from map if the given key is found, otherwise empty string
 
    ```yaml
    discoveryRule: Get(container_labels, "mapKey") == "mapValue"
