@@ -38,8 +38,6 @@ data:
     - type: collectd/protocols
     - type: collectd/signalfx-metadata
       procFSPath: /hostfs/proc
-      etcPath: /hostfs/etc
-      persistencePath: /run
     - type: collectd/uptime
     - type: collectd/vmem
 
