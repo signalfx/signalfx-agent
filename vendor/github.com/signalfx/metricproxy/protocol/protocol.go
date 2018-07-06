@@ -3,10 +3,11 @@ package protocol
 import (
 	"io"
 
+	"context"
 	"github.com/signalfx/golib/datapoint/dpsink"
 	"github.com/signalfx/golib/event"
 	"github.com/signalfx/golib/sfxclient"
-	"golang.org/x/net/context"
+	"github.com/signalfx/golib/trace"
 )
 
 // DatapointForwarder can send datapoints and not events
@@ -19,6 +20,7 @@ type DatapointForwarder interface {
 // Forwarder is the basic interface endpoints must support for the proxy to forward to them
 type Forwarder interface {
 	dpsink.Sink
+	trace.Sink
 	Pipeline
 	sfxclient.Collector
 	io.Closer
@@ -48,6 +50,11 @@ type UneventfulForwarder struct {
 
 // AddEvents does nothing and returns nil
 func (u *UneventfulForwarder) AddEvents(ctx context.Context, events []*event.Event) error {
+	return nil
+}
+
+// AddSpans does nothing and returns nil
+func (u *UneventfulForwarder) AddSpans(ctx context.Context, events []*trace.Span) error {
 	return nil
 }
 

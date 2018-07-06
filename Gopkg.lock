@@ -570,10 +570,11 @@
   name = "github.com/signalfx/metricproxy"
   packages = [
     "protocol",
-    "protocol/collectd"
+    "protocol/collectd",
+    "protocol/collectd/format",
+    "protocol/zipper"
   ]
-  revision = "502b641b80e24cbaebae66411d91e639454c88b5"
-  version = "v0.9.21"
+  revision = "6d1b2d7f104e77f09d6df1fc62ce1c092d8ab3de"
 
 [[projects]]
   name = "github.com/signalfx/telegraf"
@@ -865,6 +866,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "e04cb0ba230a89a1e310ca90541c0a33892cd803a0118cd66e71b759d3cea904"
+  inputs-digest = "769fb6d96c3269346a02766a8f7f067e42d1f85acb9cb657731da129878bac88"
   solver-name = "gps-cdcl"
   solver-version = 1
