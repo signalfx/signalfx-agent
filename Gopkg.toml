@@ -78,7 +78,7 @@
 
 [[constraint]]
   name = "github.com/signalfx/metricproxy"
-  version = "0.9.18"
+  revision = "6d1b2d7f104e77f09d6df1fc62ce1c092d8ab3de"
 
 [[constraint]]
   name = "github.com/sirupsen/logrus"

@@ -11,8 +11,8 @@ import (
 
 	"strings"
 
-	"encoding/json"
-
+	"context"
+	"github.com/mailru/easyjson"
 	"github.com/signalfx/golib/datapoint"
 	"github.com/signalfx/golib/datapoint/dpsink"
 	"github.com/signalfx/golib/errors"
@@ -22,7 +22,8 @@ import (
 	"github.com/signalfx/golib/sfxclient"
 	"github.com/signalfx/golib/web"
 	"github.com/signalfx/metricproxy/protocol"
-	"golang.org/x/net/context"
+	"github.com/signalfx/metricproxy/protocol/collectd/format"
+	"github.com/signalfx/metricproxy/protocol/zipper"
 )
 
 // ListenerServer will listen for collectd datapoint connections
@@ -90,16 +91,15 @@ func newEvent(f *JSONWriteFormat, defaultDims map[string]string) *event.Event {
 
 func (decoder *JSONDecoder) Read(ctx context.Context, req *http.Request) error {
 	defaultDims := decoder.defaultDims(req)
-	var d JSONWriteBody
-	err := json.NewDecoder(req.Body).Decode(&d)
-	if err != nil {
+	var d collectdformat.JSONWriteBody
+	if err := easyjson.UnmarshalFromReader(req.Body, &d); err != nil {
 		return err
 	}
 	es := make([]*event.Event, 0, len(d)*2)
 	dps := make([]*datapoint.Datapoint, 0, len(d)*2)
 	for _, f := range d {
-		if e := newEvent(f, defaultDims); e == nil {
-			dps = append(dps, newDataPoints(f, defaultDims)...)
+		if e := newEvent((*JSONWriteFormat)(f), defaultDims); e == nil {
+			dps = append(dps, newDataPoints((*JSONWriteFormat)(f), defaultDims)...)
 		} else {
 			es = append(es, e)
 		}
@@ -163,6 +163,7 @@ var defaultListenerConfig = &ListenerConfig{
 
 // NewListener serves http collectd requests
 func NewListener(sink dpsink.Sink, passedConf *ListenerConfig) (*ListenerServer, error) {
+	zippers := zipper.NewZipper()
 	conf := pointer.FillDefaultFrom(passedConf, defaultListenerConfig).(*ListenerConfig)
 
 	listener, err := net.Listen("tcp", *conf.ListenAddr)
@@ -192,14 +193,16 @@ func NewListener(sink dpsink.Sink, passedConf *ListenerConfig) (*ListenerServer,
 		decoder: &decoder,
 		collector: sfxclient.NewMultiCollector(
 			metricTracking,
-			&decoder),
+			&decoder,
+			zippers,
+		),
 	}
 	listenServer.SetupHealthCheck(conf.HealthCheck, r, conf.Logger)
 	httpHandler := web.NewHandler(conf.StartingContext, listenServer.decoder)
 	if conf.DebugContext != nil {
 		httpHandler.Add(conf.DebugContext)
 	}
-	SetupCollectdPaths(r, httpHandler, *conf.ListenPath)
+	SetupCollectdPaths(r, zippers.GzipHandler(httpHandler), *conf.ListenPath)
 
 	go func() {
 		log.IfErr(conf.Logger, listenServer.server.Serve(listener))

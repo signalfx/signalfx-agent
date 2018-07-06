@@ -6,28 +6,8 @@ import (
 
 	"github.com/signalfx/golib/datapoint"
 	"github.com/signalfx/golib/event"
+	"github.com/signalfx/metricproxy/protocol/collectd/format"
 )
-
-// JSONWriteBody is the full POST body of collectd's write_http format
-type JSONWriteBody []*JSONWriteFormat
-
-// JSONWriteFormat is the format for collectd json datapoints
-type JSONWriteFormat struct {
-	Dsnames        []*string  `json:"dsnames"`
-	Dstypes        []*string  `json:"dstypes"`
-	Host           *string    `json:"host"`
-	Interval       *float64   `json:"interval"`
-	Plugin         *string    `json:"plugin"`
-	PluginInstance *string    `json:"plugin_instance"`
-	Time           *float64   `json:"time"`
-	TypeS          *string    `json:"type"`
-	TypeInstance   *string    `json:"type_instance"`
-	Values         []*float64 `json:"values"`
-	// events
-	Message  *string                `json:"message"`
-	Meta     map[string]interface{} `json:"meta"`
-	Severity *string                `json:"severity"`
-}
 
 var dsTypeToMetricType = map[string]datapoint.MetricType{
 	"gauge":    datapoint.Gauge,
@@ -35,6 +15,12 @@ var dsTypeToMetricType = map[string]datapoint.MetricType{
 	"counter":  datapoint.Counter,
 	"absolute": datapoint.Count,
 }
+
+// JSONWriteFormat is an alias
+type JSONWriteFormat collectdformat.JSONWriteFormat
+
+// JSONWriteBody is an alias
+type JSONWriteBody collectdformat.JSONWriteBody
 
 func metricTypeFromDsType(dstype *string) datapoint.MetricType {
 	if dstype == nil {
