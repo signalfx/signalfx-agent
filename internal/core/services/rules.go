@@ -41,12 +41,11 @@ func get(args ...interface{}) (interface{}, error) {
 var ruleFunctions = map[string]govaluate.ExpressionFunction{
 	"Get": get,
 	"Contains": func(args ...interface{}) (interface{}, error) {
-		if _, err := get(args...); err != nil {
-			// drop error if no value found
-			if err == errNoValueFound {
-				return false, nil
-			}
+		val, err := get(args...)
+		if err != nil {
 			return false, err
+		} else if val == nil {
+			return false, nil
 		}
 		return true, nil
 	},
