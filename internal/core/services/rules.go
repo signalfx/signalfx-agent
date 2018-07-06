@@ -35,7 +35,7 @@ func get(args ...interface{}) (interface{}, error) {
 		return val, nil
 	}
 
-	return "", nil
+	return nil, nil
 }
 
 var ruleFunctions = map[string]govaluate.ExpressionFunction{
