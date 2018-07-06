@@ -31,7 +31,7 @@ func TestMapFunctions(t *testing.T) {
 	t.Run("Get() map does not contain key", func(t *testing.T) {
 		val, err := ruleFunctions["Get"](interfacemap, "nokey")
 		assert.NoError(t, err, "should not error out if the map does not contain the desired value")
-		assert.NotEqual(t, "world", val, "should return the expected value")
+		assert.Nil(t, val, "should return nil if the map does not contain the desired value")
 	})
 	t.Run("Get() map contains desired value", func(t *testing.T) {
 		val, err := ruleFunctions["Get"](interfacemap, "hello")

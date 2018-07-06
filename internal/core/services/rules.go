@@ -44,10 +44,8 @@ var ruleFunctions = map[string]govaluate.ExpressionFunction{
 		val, err := get(args...)
 		if err != nil {
 			return false, err
-		} else if val == nil {
-			return false, nil
 		}
-		return true, nil
+		return val != nil, nil
 	},
 }
 
