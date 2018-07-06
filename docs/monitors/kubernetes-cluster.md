@@ -62,7 +62,7 @@ cause only a subset of metrics to be emitted.
 | Name | Type | Description |
 | ---  | ---  | ---         |
 | `kubernetes.container_ready` | gauge | Whether a container has passed its readiness probe (0 for no, 1 for yes) |
-| `kubernetes.container_restart_count` | gauge | How many times the container has restarted (capped at 5 due to K8s GC) |
+| `kubernetes.container_restart_count` | gauge | How many times the container has restarted in the recent past.  This value is pulled directly from [the K8s API](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.11/#containerstatus-v1-core) and the value can go indefinitely high and be reset to 0 at any time depending on how your [kubelet is configured to prune dead containers](https://kubernetes.io/docs/concepts/cluster-administration/kubelet-garbage-collection/). It is best to not depend too much on the exact value but rather look at it as either `== 0`, in which case you can conclude there were no restarts in the recent past, or `> 0`, in which case you can conclude there were restarts in the recent past, and not try and analyze the value beyond that. |
 | `kubernetes.daemon_set.current_scheduled` | gauge | The number of nodes that are running at least 1 daemon pod and are supposed to run the daemon pod |
 | `kubernetes.daemon_set.desired_scheduled` | gauge | The total number of nodes that should be running the daemon pod (including nodes currently running the daemon pod) |
 | `kubernetes.daemon_set.misscheduled` | gauge | The number of nodes that are running the daemon pod, but are not supposed to run the daemon pod |

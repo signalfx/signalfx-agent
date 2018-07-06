@@ -36,7 +36,7 @@ image_name=signalfx-agent-debian-packager
 image_tag=${agent_version}-deb${deb_revision}
 package_version=${agent_version}-${deb_revision}
 
-do_docker_build ${image_name} ${image_tag} debian-packager $agent_version
+COLLECTD_VERSION=${COLLECTD_VERSION} COLLECTD_COMMIT=${COLLECTD_COMMIT} do_docker_build ${image_name} ${image_tag} debian-packager $agent_version
 
 OUTPUT_DIR=${OUTPUT_DIR:-$SCRIPT_DIR/output}
 

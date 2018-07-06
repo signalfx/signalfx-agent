@@ -6,6 +6,11 @@
 agent.  Useful for debugging performance issues with the agent and to ensure
 the agent isn't overloaded.
 
+```yaml
+monitors:
+  - type: internal-metrics
+```
+
 
 Monitor Type: `internal-metrics`
 

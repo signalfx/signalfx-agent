@@ -23,6 +23,12 @@ const (
 // MONITOR(internal-metrics): Emits metrics about the internal state of the
 // agent.  Useful for debugging performance issues with the agent and to ensure
 // the agent isn't overloaded.
+//
+// ```yaml
+// monitors:
+//   - type: internal-metrics
+// ```
+//
 
 // CUMULATIVE(sfxagent.datapoints_sent): The total number of datapoints sent by
 // the agent since it last started

@@ -38,7 +38,7 @@ GPG_DIR=${GPG_DIR:-"$HOME/.gnupg"}
 image_name=signalfx-agent-rpm-packager
 image_tag=${agent_version}-rpm${rpm_revision}
 
-do_docker_build ${image_name} ${image_tag} rpm-packager $agent_version
+COLLECTD_VERSION=${COLLECTD_VERSION} COLLECTD_COMMIT=${COLLECTD_COMMIT} do_docker_build ${image_name} ${image_tag} rpm-packager $agent_version
 
 OUTPUT_DIR=${OUTPUT_DIR:-$SCRIPT_DIR/output}
 

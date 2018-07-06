@@ -14,6 +14,8 @@ do_docker_build() {
   local target_stage=$3
   local agent_version=${4:-$image_tag}
   local operating_system=${5:-"linux"}
+  local collectd_commit=${COLLECTD_COMMIT}
+  local collectd_version=${COLLECTD_VERSION}
 
   cache_flags=
   if [[ ${PULL_CACHE-} == "yes" ]]; then
@@ -26,6 +28,8 @@ do_docker_build() {
     --pull \
     --build-arg agent_version=${agent_version} \
     --build-arg GOOS=${operating_system} \
+    --build-arg collectd_version=${collectd_version} \
+    --build-arg collectd_commit=${collectd_commit} \
     --target $target_stage \
     --label agent.version=${agent_version} \
     $(extra_cflags_build_arg) \

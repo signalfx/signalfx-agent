@@ -360,6 +360,7 @@
   branch = "master"
   name = "github.com/mailru/easyjson"
   packages = [
+    ".",
     "buffer",
     "jlexer",
     "jwriter"
@@ -549,17 +550,21 @@
   packages = [
     "datapoint",
     "datapoint/dpsink",
+    "dataunit",
     "errors",
     "event",
     "eventcounter",
     "log",
+    "metadata/aws/ec2metadata",
+    "metadata/hostmetadata",
     "pointer",
     "sfxclient",
     "timekeeper",
     "trace",
+    "trace/format",
     "web"
   ]
-  revision = "b1be94c3ec8d1fdeccd62735b851489f0b3798e0"
+  revision = "0bcb5ca7f1efc1ba4a2fbaadd3dfb3c1d32e8429"
 
 [[projects]]
   name = "github.com/signalfx/metricproxy"
@@ -573,7 +578,7 @@
 [[projects]]
   name = "github.com/signalfx/telegraf"
   packages = ["plugins/outputs/signalfx/parse"]
-  revision = "df5485433c763fbe76fd8bfc6ad80a81e93bb9c5"
+  revision = "e2e44a3374c4963a78c7bf87ed85b8b4059074aa"
 
 [[projects]]
   name = "github.com/sirupsen/logrus"
@@ -860,6 +865,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "fc10246d95269779d43157edd538b71bbac59ee891ce362d5306039814f37a7f"
+  inputs-digest = "e04cb0ba230a89a1e310ca90541c0a33892cd803a0118cd66e71b759d3cea904"
   solver-name = "gps-cdcl"
   solver-version = 1

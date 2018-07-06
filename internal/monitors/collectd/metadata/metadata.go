@@ -45,7 +45,7 @@ type Config struct {
 	// The path to the proc filesystem. Useful to override in containerized
 	// environments.
 	ProcFSPath string `yaml:"procFSPath" default:"/proc"`
-	// The path to the main host config dir. Userful to override in
+	// The path to the main host config dir. Useful to override in
 	// containerized environments.
 	EtcPath string `yaml:"etcPath" default:"/etc"`
 	// A directory where the metadata plugin can persist the history of

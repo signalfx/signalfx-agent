@@ -26,10 +26,11 @@ COPY scripts/collectd-template-to-go ./scripts/
 COPY Makefile .
 COPY internal/ ./internal/
 
+ARG collectd_version=""
 ARG agent_version="latest"
 ARG GOOS="linux"
 
-RUN AGENT_VERSION=${agent_version} make signalfx-agent &&\
+RUN AGENT_VERSION=${agent_version} COLLECTD_VERSION=${collectd_version} make signalfx-agent &&\
     mv signalfx-agent /usr/bin/signalfx-agent
 
 ###### Collectd builder image ######
@@ -112,8 +113,8 @@ RUN wget https://dev.mysql.com/get/mysql-apt-config_0.8.10-1_all.deb && \
 
 RUN apt install -y libcurl4-gnutls-dev
 
-ENV collectd_commit="67fe36b0d5c88054be3b975afc2707db0ecc9022"
-ENV collectd_version="5.8.0-sfx0"
+ARG collectd_version=""
+ARG collectd_commit=""
 
 RUN cd /tmp &&\
     wget https://github.com/signalfx/collectd/archive/${collectd_commit}.tar.gz &&\
@@ -304,6 +305,7 @@ COPY --from=python-plugins /usr/local/lib/python2.7/ /lib/python2.7
 
 COPY neopy /neopy
 COPY scripts/umount-hostfs-non-persistent /bin/umount-hostfs-non-persistent
+COPY deployments/docker/agent.yaml /etc/signalfx/agent.yaml
 
 RUN mkdir -p /run/collectd /var/run/ &&\
     ln -s /var/run/signalfx-agent /run &&\
@@ -376,6 +378,7 @@ RUN apt update &&\
     apt install -y pandoc
 
 COPY docs/signalfx-agent.1.md /tmp/signalfx-agent.1.md
+# Create the man page for the agent
 RUN mkdir /docs &&\
     pandoc --standalone --to man /tmp/signalfx-agent.1.md -o /docs/signalfx-agent.1
 
@@ -404,6 +407,8 @@ COPY --from=pandoc-converter /docs/signalfx-agent.1 ./signalfx-agent.1
 COPY packaging/etc/agent.yaml ./agent.yaml
 
 COPY --from=final-image / ./signalfx-agent/
+# Remove the agent config so it doesn't confuse people in the final output.
+RUN rm -rf ./signalfx-agent/etc/signalfx
 
 
 ###### RPM Packager #######
@@ -421,3 +426,5 @@ COPY packaging/rpm/add-output-to-repo ./add-output-to-repo
 COPY --from=pandoc-converter /docs/signalfx-agent.1 ./SOURCES/signalfx-agent.1
 
 COPY --from=final-image / ./SOURCES/signalfx-agent/
+# Remove the agent config so it doesn't confuse people in the final output.
+RUN rm -rf ./SOURCES/signalfx-agent/etc/signalfx

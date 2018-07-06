@@ -103,7 +103,7 @@ func (c *Config) initialize() (*Config, error) {
 	c.setupEnvironment()
 
 	if err := c.validate(); err != nil {
-		return nil, errors.Wrap(err, "configuration is invalid")
+		return nil, errors.WithMessage(err, "configuration is invalid")
 	}
 
 	err := c.propagateValuesDown()
@@ -139,11 +139,11 @@ func (c *Config) setupEnvironment() {
 // Validate everything that we can about the main config
 func (c *Config) validate() error {
 	if c.SignalFxAccessToken == "" {
-		return errors.New("signalFxAccessToken must be set")
+		return fmt.Errorf("signalFxAccessToken must be set")
 	}
 
 	if _, err := url.Parse(c.IngestURL); err != nil {
-		return errors.Wrapf(err, "%s is not a valid ingest URL", c.IngestURL)
+		return errors.WithMessage(err, fmt.Sprintf("%s is not a valid ingest URL", c.IngestURL))
 	}
 
 	return c.Collectd.Validate()
@@ -169,7 +169,7 @@ func (c *Config) propagateValuesDown() error {
 
 	for i := range c.Monitors {
 		if err := c.Monitors[i].Init(); err != nil {
-			return errors.Wrapf(err, "Could not initialize monitor %s", c.Monitors[i].Type)
+			return errors.WithMessage(err, fmt.Sprintf("Could not initialize monitor %s", c.Monitors[i].Type))
 		}
 	}
 
@@ -280,7 +280,7 @@ type CollectdConfig struct {
 // Validate the collectd specific config
 func (cc *CollectdConfig) Validate() error {
 	if !validCollectdLogLevels.Has(cc.LogLevel) {
-		return errors.Errorf("Invalid collectd log level %s.  Valid choices are %v",
+		return fmt.Errorf("Invalid collectd log level %s.  Valid choices are %v",
 			cc.LogLevel, validCollectdLogLevels)
 	}
 

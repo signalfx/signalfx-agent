@@ -1,14 +1,14 @@
 #! /bin/bash
 # Based on a guide by Laura Czajkowski located at:
 # https://dzone.com/articles/using-docker-to-develop-with-couchbase
-set -m
+set -emx
 
 # initialize variables
 HOSTNAME=`hostname -f`
-export MEMORY_QUOTA=${MEMORY_QUOTA:-256}
-export INDEX_MEMORY_QUOTA=${INDEX_MEMORY_QUOTA:-256}
-export FTS_MEMORY_QUOTA=${FTS_MEMORY_QUOTA:-256}
-export SERVICES=${SERVICES:-"kv,n1ql,index,fts"}
+export MEMORY_QUOTA=${MEMORY_QUOTA:-256} # min allowed is 256
+# export INDEX_MEMORY_QUOTA=${INDEX_MEMORY_QUOTA:-256} # min allowed is 256
+# export FTS_MEMORY_QUOTA=${FTS_MEMORY_QUOTA:-256} # min allowed is 256
+# export SERVICES=${SERVICES:-"kv,n1ql,index,fts"}
 export USERNAME=${USERNAME:-"administrator"}
 export PASSWORD=${PASSWORD:-"password"}
 
@@ -30,26 +30,28 @@ echo "# Couchbase Server Online"
 
 echo "# Starting setup process"
 echo "Initialize the node"
-curl --silent "http://${HOSTNAME}:8091/nodes/self/controller/settings" \
+curl -f --verbose "http://${HOSTNAME}:8091/nodes/self/controller/settings" \
 -d path="/opt/couchbase/var/lib/couchbase/data" \
 -d index_path="/opt/couchbase/var/lib/couchbase/data"
 
 echo "# Setting hostname"
-curl --silent "http://${HOSTNAME}:8091/node/controller/rename" \
+curl -f --verbose "http://${HOSTNAME}:8091/node/controller/rename" \
 -d hostname=${HOSTNAME}
 
 echo "# Setting up memory"
-curl --silent "http://${HOSTNAME}:8091/pools/default" \
--d memoryQuota=${MEMORY_QUOTA} \
--d indexMemoryQuota=${INDEX_MEMORY_QUOTA} \
--d ftsMemoryQuota=${FTS_MEMORY_QUOTA}
+curl -f --verbose "http://${HOSTNAME}:8091/pools/default" \
+-d memoryQuota=${MEMORY_QUOTA}
+# # for integration tests we don't need to set memory quota for index and fts
+# -d indexMemoryQuota=${INDEX_MEMORY_QUOTA} \
+# -d ftsMemoryQuota=${FTS_MEMORY_QUOTA}
 
-echo "# Setting up services"
-curl --silent "http://${HOSTNAME}:8091/node/controller/setupServices" \
--d services="${SERVICES}"
+# # for integration tests, we don't need the services set up
+# echo "# Setting up services"
+# curl -f --verbose "http://${HOSTNAME}:8091/node/controller/setupServices" \
+# -d services="${SERVICES}"
 
 echo "# Setting up credentials"
-curl --silent "http://${HOSTNAME}:8091/settings/web" \
+curl -f --verbose "http://${HOSTNAME}:8091/settings/web" \
 -d port=8091 \
 -d username=${USERNAME} \
 -d password=${PASSWORD} > /dev/null
