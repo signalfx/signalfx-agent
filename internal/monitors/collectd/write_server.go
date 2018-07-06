@@ -3,16 +3,17 @@
 package collectd
 
 import (
-	"encoding/json"
 	"net"
 	"net/http"
 	"time"
 
+	"github.com/mailru/easyjson"
 	log "github.com/sirupsen/logrus"
 
 	"github.com/signalfx/golib/datapoint"
 	"github.com/signalfx/golib/event"
 	"github.com/signalfx/metricproxy/protocol/collectd"
+	"github.com/signalfx/metricproxy/protocol/collectd/format"
 	"github.com/signalfx/signalfx-agent/internal/utils"
 )
 
@@ -82,9 +83,8 @@ func (s *WriteHTTPServer) Shutdown() error {
 // ServeHTTP accepts collectd write_http requests and sends the resulting
 // datapoint/events to the configured callback functions.
 func (s *WriteHTTPServer) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
-	var writeBody collectd.JSONWriteBody
-	err := json.NewDecoder(req.Body).Decode(&writeBody)
-	if err != nil {
+	var writeBody collectdformat.JSONWriteBody
+	if err := easyjson.UnmarshalFromReader(req.Body, &writeBody); err != nil {
 		log.WithError(err).Error("Could not decode body of write_http request")
 		rw.WriteHeader(http.StatusBadRequest)
 		return
@@ -100,7 +100,7 @@ func (s *WriteHTTPServer) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 	dps := make([]*datapoint.Datapoint, 0, len(writeBody)*2)
 	for _, f := range writeBody {
 		if f.Time != nil && f.Severity != nil && f.Message != nil {
-			event := collectd.NewEvent(f, nil)
+			event := collectd.NewEvent((*collectd.JSONWriteFormat)(f), nil)
 			if monitorID != "" {
 				event.Properties["monitorID"] = monitorID
 			}
@@ -108,7 +108,7 @@ func (s *WriteHTTPServer) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 		} else {
 			for i := range f.Dsnames {
 				if i < len(f.Dstypes) && i < len(f.Values) && f.Values[i] != nil {
-					dp := collectd.NewDatapoint(f, uint(i), nil)
+					dp := collectd.NewDatapoint((*collectd.JSONWriteFormat)(f), uint(i), nil)
 					dp.Meta = utils.StringInterfaceMapToAllInterfaceMap(f.Meta)
 					if monitorID != "" && dp.Meta["monitorID"] == nil {
 						dp.Meta["monitorID"] = monitorID
