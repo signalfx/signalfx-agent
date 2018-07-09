@@ -63,7 +63,7 @@ def test_interior_globbing():
 
         final_conf = internal_glob_config.substitute(endpoint="%s:2379" % container_ip(etcd))
         with run_agent(final_conf) as [backend, get_output, _]:
-            assert wait_for(p(has_datapoint_with_dim, backend, "plugin", "signalfx-metadata")), "Datapoints didn't come through"
+            assert wait_for(p(has_event_with_dim, backend, "plugin", "signalfx-metadata")), "Datapoints didn't come through"
 
             create_path(etcd, "/services/uptime/monitor", "- type: collectd/uptime")
             assert wait_for(p(has_datapoint_with_dim, backend, "plugin", "uptime")), "didn't get uptime datapoints"
