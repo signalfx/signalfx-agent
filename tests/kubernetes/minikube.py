@@ -207,6 +207,7 @@ class Minikube:
         try:
             yield self.agent
             print("\n\n%s\n\n" % self.agent.get_status())
+            print("\n\n%s\n\n" % self.agent.get_container_logs())
         except:
             print("\n\n%s\n\n" % get_all_logs(self))
             raise
