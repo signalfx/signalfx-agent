@@ -232,7 +232,7 @@ build_and_push_package() {
   local stage=$2
   local push=$3
 
-  PUSH_TO_REPO=$push $SCRIPT_DIR/../packaging/$package_type/build $stage
+  PUSH_TO_REPO=$push make ${package_type}-$stage-package
 }
 
 make_bundle() {
