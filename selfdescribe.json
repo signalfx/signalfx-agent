@@ -7889,7 +7889,7 @@
         },
         {
           "yamlName": "etcPath",
-          "doc": "The path to the main host config dir. Userful to override in containerized environments.",
+          "doc": "The path to the main host config dir. Useful to override in containerized environments.",
           "default": "/etc",
           "required": false,
           "type": "string",
@@ -8982,7 +8982,67 @@
     },
     {
       "name": "Config",
-      "doc": " Emits metrics about the internal state of the\nagent.  Useful for debugging performance issues with the agent and to ensure\nthe agent isn't overloaded.\n",
+      "doc": " This monitor collects metadata properties about a\nhost.  It is required for some views in SignalFx to operate.\n\n```yaml\nmonitors:\n  - type: host-metadata\n```\n\nIn containerized environments host `/etc` and `/proc` may not be located\ndirectly under the root path.  You can specify the path to `proc` and `etc`\nusing the monitor configurations `procFSPath` and `etcPath`\n\n```yaml\nmonitors:\n  - type: host-metadata\n    procFSPath: \"/hostfs/proc\"\n    etcPath: \"/hostfs/etc\"\n```\n\nMetadata updates occur on a sparse interval of approximately\n1m, 1m, 1h, 1d and continues repeating once per day.\nSetting the `Interval` configuration for this monitor will not affect the\nsparse interval on which metadata is collected.\n",
+      "package": "internal/monitors/metadata/hostmetadata",
+      "fields": [
+        {
+          "yamlName": "procFSPath",
+          "doc": "The path to the proc filesystem. Useful to override in containerized environments.",
+          "default": "/proc",
+          "required": false,
+          "type": "string",
+          "elementKind": ""
+        },
+        {
+          "yamlName": "etcPath",
+          "doc": "The path to the main host config dir. Useful to override in containerized environments.",
+          "default": "/etc",
+          "required": false,
+          "type": "string",
+          "elementKind": ""
+        }
+      ],
+      "monitorType": "host-metadata",
+      "acceptsEndpoints": false,
+      "singleInstance": true,
+      "dimensions": [
+        {
+          "name": "collectd",
+          "description": "The version of collectd in the signalfx-agent"
+        },
+        {
+          "name": "kernel_name",
+          "description": "The name of the host kernel."
+        },
+        {
+          "name": "kernel_release",
+          "description": "The release of the host kernel."
+        },
+        {
+          "name": "kernel_version",
+          "description": "The version of the host kernel."
+        },
+        {
+          "name": "os_version",
+          "description": "The version of the os on the host."
+        },
+        {
+          "name": "signalfx_agent",
+          "description": "The version of the signalfx-agent"
+        }
+      ],
+      "metrics": [
+        {
+          "name": "sfxagent.hostmetadata",
+          "type": "gauge",
+          "description": "The time the hostmetadata monitor has been running in seconds.  It includes dimensional metadata about the host and agent."
+        }
+      ],
+      "properties": null
+    },
+    {
+      "name": "Config",
+      "doc": " Emits metrics about the internal state of the\nagent.  Useful for debugging performance issues with the agent and to ensure\nthe agent isn't overloaded.\n\n```yaml\nmonitors:\n  - type: internal-metrics\n```\n",
       "package": "internal/monitors/internalmetrics",
       "fields": [],
       "monitorType": "internal-metrics",
@@ -9482,7 +9542,7 @@
         {
           "name": "kubernetes.container_restart_count",
           "type": "gauge",
-          "description": "How many times the container has restarted (capped at 5 due to K8s GC)"
+          "description": "How many times the container has restarted in the recent past.  This value is pulled directly from [the K8s API](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.11/#containerstatus-v1-core) and the value can go indefinitely high and be reset to 0 at any time depending on how your [kubelet is configured to prune dead containers](https://kubernetes.io/docs/concepts/cluster-administration/kubelet-garbage-collection/). It is best to not depend too much on the exact value but rather look at it as either `== 0`, in which case you can conclude there were no restarts in the recent past, or `\u003e 0`, in which case you can conclude there were restarts in the recent past, and not try and analyze the value beyond that."
         },
         {
           "name": "kubernetes.daemon_set.current_scheduled",
