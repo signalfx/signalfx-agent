@@ -36,7 +36,7 @@ curl -f --verbose "http://${HOSTNAME}:8091/nodes/self/controller/settings" \
 
 echo "# Setting hostname"
 curl -f --verbose "http://${HOSTNAME}:8091/node/controller/rename" \
--d hostname=${HOSTNAME}
+-d hostname=${HOSTNAME} || true
 
 echo "# Setting up memory"
 curl -f --verbose "http://${HOSTNAME}:8091/pools/default" \
