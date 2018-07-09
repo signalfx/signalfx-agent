@@ -35,20 +35,17 @@ func get(args ...interface{}) (interface{}, error) {
 		return val, nil
 	}
 
-	return nil, errNoValueFound
+	return nil, nil
 }
 
 var ruleFunctions = map[string]govaluate.ExpressionFunction{
 	"Get": get,
 	"Contains": func(args ...interface{}) (interface{}, error) {
-		if _, err := get(args...); err != nil {
-			// drop error if no value found
-			if err == errNoValueFound {
-				return false, nil
-			}
+		val, err := get(args...)
+		if err != nil {
 			return false, err
 		}
-		return true, nil
+		return val != nil, nil
 	},
 }
 
