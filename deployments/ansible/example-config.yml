@@ -1,0 +1,15 @@
+sfx_agent_config:
+  signalFxAccessToken: MyToken
+  monitors:
+    - type: collectd/cpu
+    - type: collectd/cpufreq
+    - type: collectd/df
+    - type: collectd/disk
+    - type: collectd/interface
+    - type: collectd/load
+    - type: collectd/memory
+    - type: collectd/protocols
+    - type: collectd/signalfx-metadata
+    - type: host-metadata
+    - type: collectd/uptime
+    - type: collectd/vmem
