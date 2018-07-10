@@ -37,7 +37,8 @@ minikube config set WantNoneDriverWarning false || true
 minikube start $MINIKUBE_OPTIONS
 minikube config set dashboard false || true
 sleep 2
-minikube status
+minikube status || true
+kubectl version || true
 
 # wait for the cluster to be ready
 TIMEOUT=${TIMEOUT:-"300"}
