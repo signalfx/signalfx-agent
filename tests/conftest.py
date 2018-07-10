@@ -16,8 +16,8 @@ import urllib.request
 
 SCRIPTS_DIR = os.path.join(os.path.dirname(os.path.realpath(__file__)), "..", "scripts")
 K8S_MIN_VERSION = '1.7.0'
-K8S_MAX_VERSION = '1.9.4'
-K8S_DEFAULT_VERSION = '1.9.0'
+K8S_MAX_VERSION = '1.10.0'
+K8S_DEFAULT_VERSION = '1.10.0'
 K8S_DEFAULT_TIMEOUT = 300
 K8S_DEFAULT_TEST_TIMEOUT = 120
 K8S_DEFAULT_AGENT_IMAGE_NAME = "quay.io/signalfx/signalfx-agent-dev"
