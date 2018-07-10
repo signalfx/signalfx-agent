@@ -5,16 +5,19 @@
     rhel_distro: ['CentOS', 'RedHat', 'Red Hat Enterprise Linux', 'Amazon']
     cacheable: true
 
-- name: Check SignalFx Access Token is defined
-  fail: msg="Bailing out. This play requires 'signalFxAccessToken'"
-  when: (conf['signalFxAccessToken'] is undefined)
-          or
-        (conf['signalFxAccessToken'] is none)
-          or
-        (conf['signalFxAccessToken'] | trim == '')
+- name: Confirm agent configuration is provided
+  fail: msg='Please provide a populated sfx_agent_config'
+  when: not (sfx_agent_config | default(false))
+
+- name: Confirm SignalFx Access Token is defined
+  fail: msg='Please specify a signalFxAccessToken in your sfx_agent_config'
+  when: not (sfx_agent_config.signalFxAccessToken | default('') | trim | bool)
 
 - name: Acceptable distribution check
-  fail: msg="Bailing out. This play is supported on {{ debian_distro }}, {{ rhel_distro }}. Target server runs on {{ ansible_os_family }}"
+  fail: 
+    msg: >
+         Bailing out. This play is supported on {{ debian_distro }}, {{ rhel_distro }}.
+         Target server runs on {{ ansible_os_family }}.
   when: (ansible_os_family not in debian_distro)
           and
         (ansible_os_family not in rhel_distro)
@@ -29,8 +32,8 @@
 
 - name: write signalfx config
   copy:
-    content: "{{ conf | to_nice_yaml }}"
-    dest: "{{ conf_file_path }}"
+    content: "{{ sfx_agent_config | to_nice_yaml }}"
+    dest: "{{ sfx_conf_file_path }}"
     owner: signalfx-agent
     group: signalfx-agent
 

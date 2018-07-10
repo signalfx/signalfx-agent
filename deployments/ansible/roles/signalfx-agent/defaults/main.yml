@@ -1,24 +1,8 @@
 ---
 # Default values for for Signalfx Agent installation
 
-repo_base_url: https://dl.signalfx.com
-package_stage: final
-version: latest
+sfx_repo_base_url: https://dl.signalfx.com
+sfx_package_stage: final
+sfx_version: latest
 
-conf_file_path: /etc/signalfx/agent.yaml
-
-conf:
-  signalFxAccessToken: MY-TOKEN
-  monitors:
-    - type: collectd/cpu
-    - type: collectd/cpufreq
-    - type: collectd/df
-    - type: collectd/disk
-    - type: collectd/interface
-    - type: collectd/load
-    - type: collectd/memory
-    - type: collectd/protocols
-    - type: collectd/signalfx-metadata
-    - type: collectd/uptime
-    - type: collectd/vmem
-
+sfx_conf_file_path: /etc/signalfx/agent.yaml
