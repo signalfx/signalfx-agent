@@ -3,15 +3,14 @@
   yum_repository:
     name: signalfx-agent
     description: SignalFx Agent Repository
-    baseurl: "{{ repo_base_url }}/rpms/signalfx-agent/{{ package_stage }}"
-    gpgkey: "{{ repo_base_url }}/yum-rpm.key"
+    baseurl: "{{ sfx_repo_base_url }}/rpms/signalfx-agent/{{ sfx_package_stage }}"
+    gpgkey: "{{ sfx_repo_base_url }}/yum-rpm.key"
     gpgcheck: yes
     enabled: yes
 
 - name: Install signalfx-agent via yum package manager
   yum: 
-    name: signalfx-agent{% if version is defined and version != "latest" %}-{{ version }}{% endif %}
-    state: "{% if version is defined and version != 'latest' %}present{% else %}{{ version }}{% endif %}"
+    name: signalfx-agent{% if sfx_version is defined and sfx_version != "latest" %}-{{ sfx_version }}{% endif %}
+    state: "{% if sfx_version is defined and sfx_version != 'latest' %}present{% else %}{{ sfx_version }}{% endif %}"
     allow_downgrade: yes
     update_cache: yes
-

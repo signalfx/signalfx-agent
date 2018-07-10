@@ -1,18 +1,33 @@
 ---
 galaxy_info:
-  author: SignalFx, Inc.
+  role_name: smart_agent
+  author: SignalFx
   description: Ansible role to install and configure the SignalFx Smart Agent
   company: SignalFx, Inc.
   license: Apache-2.0
-  min_ansible_version: 1.9
+  min_ansible_version: 2.4
   platforms:
   - name: EL
+    versions:
+      - 7
+      - 6
   - name: Ubuntu
+    versions:
+      - bionic
+      - artful
+      - xenial
+      - trusty
   - name: Debian
+    versions:
+      - stretch
+      - jessie
+      - wheezy
+      - squeeze
   - name: Amazon
   galaxy_tags:
     - signalfx
     - metrics
     - agent
     - monitoring
-dependencies:
+
+dependencies: []
