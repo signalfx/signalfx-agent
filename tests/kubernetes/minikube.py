@@ -10,7 +10,7 @@ import tempfile
 import time
 import yaml
 
-MINIKUBE_VERSION = os.environ.get("MINIKUBE_VERSION", "v0.27.0")
+MINIKUBE_VERSION = os.environ.get("MINIKUBE_VERSION", "v0.28.0")
 TEST_SERVICES_DIR = os.path.join(os.path.dirname(os.path.realpath(__file__)), "../../test-services")
 
 
