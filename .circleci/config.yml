@@ -40,7 +40,7 @@ references:
         mkdir ~/testresults
         mkdir -p /tmp/scratch
         pytest \
-            -n auto \
+            -n4 \
             -m "$PYTEST_MARKERS" \
             --exitfirst \
             --verbose \
@@ -167,7 +167,7 @@ jobs:
           export TEST_SERVICES_DIR=$(pwd)/test-services
           sudo -E pytest \
               --verbose \
-              -n auto \
+              -n6 \
               --junitxml=~/testresults/integration_tests.xml \
               --html=~/testresults/integration_tests.html \
               --self-contained-html \
