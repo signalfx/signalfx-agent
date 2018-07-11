@@ -556,10 +556,10 @@
                     {
                       "yamlName": "instanceFrom",
                       "doc": "",
-                      "default": "",
+                      "default": null,
                       "required": false,
-                      "type": "string",
-                      "elementKind": ""
+                      "type": "slice",
+                      "elementKind": "string"
                     },
                     {
                       "yamlName": "attribute",
@@ -1038,10 +1038,10 @@
                     {
                       "yamlName": "instanceFrom",
                       "doc": "",
-                      "default": "",
+                      "default": null,
                       "required": false,
-                      "type": "string",
-                      "elementKind": ""
+                      "type": "slice",
+                      "elementKind": "string"
                     },
                     {
                       "yamlName": "attribute",
@@ -3095,10 +3095,10 @@
                     {
                       "yamlName": "instanceFrom",
                       "doc": "",
-                      "default": "",
+                      "default": null,
                       "required": false,
-                      "type": "string",
-                      "elementKind": ""
+                      "type": "slice",
+                      "elementKind": "string"
                     },
                     {
                       "yamlName": "attribute",
@@ -3975,10 +3975,10 @@
                     {
                       "yamlName": "instanceFrom",
                       "doc": "",
-                      "default": "",
+                      "default": null,
                       "required": false,
-                      "type": "string",
-                      "elementKind": ""
+                      "type": "slice",
+                      "elementKind": "string"
                     },
                     {
                       "yamlName": "attribute",

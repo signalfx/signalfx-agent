@@ -53,7 +53,7 @@ The **nested** `values` config object has the following fields:
 | `type` | no | `string` |  |
 | `table` | no | `bool` |  (**default:** `false`) |
 | `instancePrefix` | no | `string` |  |
-| `instanceFrom` | no | `string` |  |
+| `instanceFrom` | no | `list of string` |  |
 | `attribute` | no | `string` |  |
 
 
