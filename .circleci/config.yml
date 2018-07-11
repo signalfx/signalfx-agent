@@ -41,6 +41,7 @@ references:
     run:
       no_output_timeout: 30m
       command: |
+        docker version
         mkdir ~/testresults
         mkdir -p /tmp/scratch
         pytest \
