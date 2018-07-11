@@ -1,8 +1,10 @@
 from functools import partial as p
+import pytest
 
 from tests.helpers.util import wait_for, run_agent
 from tests.helpers.assertions import has_datapoint_with_metric_name, has_event_with_dim
 
+pytestmark = [pytest.mark.host_metadata, pytest.mark.monitor_without_endpoints]
 
 monitor_config = """
 monitors:
