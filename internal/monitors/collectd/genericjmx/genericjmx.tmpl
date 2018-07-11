@@ -7,11 +7,17 @@
       {{with .InstancePrefix -}}
       InstancePrefix "{{.}}"
       {{end -}}
+      {{range .InstanceFrom -}}
+      InstanceFrom "{{.}}"
+      {{end -}}
       {{range .Values}}
       <Value>
         {{with .InstancePrefix -}}
         InstancePrefix "{{.}}"
         {{- end}}
+        {{range .InstanceFrom -}}
+        InstanceFrom "{{.}}"
+        {{end -}}
         Type "{{.Type}}"
         Table {{withDefault .Table "false"}}
         Attribute "{{.Attribute}}"
