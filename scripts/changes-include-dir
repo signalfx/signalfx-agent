@@ -12,8 +12,7 @@ set -euo pipefail
 DIRS=$@
 
 for DIR in $DIRS; do
-    git diff origin/master...$CIRCLE_BRANCH --name-status | awk '{print $2}' | grep "^$DIR"
-    if [ $? -eq 0 ]; then
+    if [ $(git diff signalfx/master...$CIRCLE_BRANCH --name-status | awk '{print $2}' | grep -c "^$DIR") -gt 0 ]; then
         exit 0
     fi
 done

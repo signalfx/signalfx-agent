@@ -406,7 +406,8 @@ jobs:
           make dev-image
           docker run --rm \
             signalfx-agent-ansible-dev \
-            ansible-playbook -i inventory example-playbook.yml --connection=local > ~/testresults/ansible.out
+            ansible-playbook -i inventory example-playbook.yml --connection=local \
+            -e '{"sfx_agent_config": {"signalFxAccessToken": "MyToken"}}' > ~/testresults/ansible.out
 
           docker run --rm \
             signalfx-agent-ansible-dev \
