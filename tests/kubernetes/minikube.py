@@ -44,8 +44,9 @@ class Minikube:
         try:
             return wait_for(p(container_cmd_exit_0, self.container, "test -f %s" % kubeconfig_path), timeout_seconds=timeout)
         except Exception as e:
+            time.sleep(1)
             new_timeout = timeout - (time.time() - start_time)
-            print("exception caught: %s" % str(e))
+            print("exception caught: %s" % e)
             print("retrying for another %d seconds ..." % new_timeout)
             return self.wait_for_kubeconfig(kubeconfig_path, new_timeout)
 
