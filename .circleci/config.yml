@@ -41,7 +41,6 @@ references:
     run:
       no_output_timeout: 30m
       command: |
-        set -ex
         mkdir ~/testresults
         mkdir -p /tmp/scratch
         pytest \
