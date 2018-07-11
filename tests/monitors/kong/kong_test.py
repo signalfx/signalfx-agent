@@ -9,6 +9,7 @@ import pytest
 from tests.helpers.util import wait_for, run_agent, run_container, container_ip, get_docker_client
 from tests.helpers.assertions import has_datapoint_with_dim
 
+pytestmark = [pytest.mark.collectd, pytest.mark.kong, pytest.mark.monitor_with_endpoints]
 
 @pytest.fixture(scope='session')
 def kong_image():

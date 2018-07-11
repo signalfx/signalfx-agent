@@ -163,7 +163,7 @@ jobs:
           docker export $cid | tar -C $(pwd)/bundle/ -xf -
           docker rm -fv $cid
           export AGENT_BIN=$(pwd)/bundle/bin/signalfx-agent
-          export TEST_SERVICES_DIR=`pwd`/test-services
+          export TEST_SERVICES_DIR=$(pwd)/test-services
           sudo -E pytest \
               --verbose \
               -n6 \
