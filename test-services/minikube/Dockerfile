@@ -23,32 +23,37 @@ ARG MINIKUBE_VERSION=latest
 ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update -y && \
     apt-get -yy -q --no-install-recommends install \
-    iptables \
+    apt-transport-https \
+    aufs-tools \
+    bridge-utils \
+    ca-certificates \
+    cifs-utils \
+    conntrack \
+    curl \
     ebtables \
     ethtool \
-    ca-certificates \
-    conntrack \
-    socat \
-    git \
-    nfs-common \
     glusterfs-client \
-    cifs-utils \
-    apt-transport-https \
-    ca-certificates \
-    curl \
     gnupg2 \
-    software-properties-common \
-    bridge-utils \
     ipcalc \
-    aufs-tools \
+    iptables \
+    nfs-common \
+    netcat \
+    socat \
+    software-properties-common \
     sudo \
     && apt-get clean && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 # Install docker
-RUN curl -fsSL get.docker.com -o /tmp/get-docker.sh && \
-    sh /tmp/get-docker.sh && \
-    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+# RUN curl -fsSL get.docker.com -o /tmp/get-docker.sh && \
+#     sh /tmp/get-docker.sh && \
+#     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+RUN cd /tmp && \
+    curl -sSl -O https://download.docker.com/linux/static/stable/x86_64/docker-17.12.1-ce.tgz && \
+    tar -xf docker*.tgz && \
+    chmod a+x docker/* && \
+    chown root:root docker/* && \
+    cp docker/* /usr/bin/
 VOLUME /var/lib/docker
 EXPOSE 2375
 
@@ -75,7 +80,9 @@ EXPOSE 8080
 # Install helm
 RUN curl https://raw.githubusercontent.com/kubernetes/helm/master/scripts/get | bash
 
-# Copy local start script
+# Copy local start scripts
+COPY start-docker.sh /usr/local/bin/start-docker.sh
+RUN chmod a+x /usr/local/bin/start-docker.sh
 COPY start-minikube.sh /usr/local/bin/start-minikube.sh
 RUN chmod a+x /usr/local/bin/start-minikube.sh
 

@@ -9,7 +9,7 @@ environment, along with a fake backend that simulates the SignalFx ingest and
 API servers.  
 
 To run all of them in parallel, simply invoke `pytest tests -n auto` from the
-root of the repo in the dev image (see warning below for kubernetes
+root of the repo in the dev image (see note below for kubernetes
 limitations). You can run individual test files by replacing `tests` with the 
 relative path to the test Python module. You can also use the `-k` and `-m` 
 flags to pick tests by name or tags, respectively.
@@ -36,17 +36,18 @@ image:
 % make image
 % make dev-image
 % make run-dev-image
-%% pytest -m k8s tests
+%% make run-k8s-tests
 ```
 
 Run `pytest --help` from the root of the repo in the dev image and see the 
 "custom options" section of the output for more details and other available 
 options.
 
-**Warning:** Due to known limitations of the xdist pytest plugin (e.g. the 
-`-n auto` option) for parametrized tests and fixtures, parallelization of
-concurrent kubernetes tests is not yet fully supported.  Since the tests are 
-designed to reuse the minikube and other fixtures for the test environment, 
-invoking the xdist plugin may cause race conditions or duplicate executions of 
-fixtures when running concurrent kubernetes tests.
+Due to known limitations of the xdist pytest plugin (e.g. the `-n auto` option),
+fixtures cannot be shared across workers by default.  In order to prevent 
+starting multiple minikube containers (fixtures) for each worker, minikube will
+be started once for all workers, but it will not be automatically removed when
+the tests complete since there is currently no way of knowing which test will be
+last to teardown the fixture.  As a workaround, the `make run-k8s-tests` command
+will remove any running minikube containers before and after the tests start.
 

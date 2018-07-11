@@ -7,6 +7,7 @@ import yaml
 
 class Agent:
     def __init__(self):
+        self.container_name = None
         self.container = None
         self.serviceaccount_yaml = None
         self.configmap_yaml = None
@@ -21,19 +22,10 @@ class Agent:
         self.namespace = None
     
     def get_container(self, client, timeout=30):
-        if not self.image_name or not self.image_tag:
-            self.container = None
-            return None
-        start_time = time.time()
-        while True:
-            if (time.time() - start_time) > timeout:
-                self.container = None
-                return None
-            try:
-                self.container = client.containers.list(filters={"ancestor": self.image_name + ":" + self.image_tag})[0]
-                return self.container
-            except:
-                time.sleep(2)
+        assert wait_for(p(has_pod, self.container_name, namespace=self.namespace), timeout_seconds=timeout), "timed out waiting for \"%s\" pod!" % self.container_name
+        pods = get_all_pods_with_name(self.container_name, namespace=self.namespace)
+        assert len(pods) == 1, "multiple pods found with name \"%s\"!\n%s" % (self.container_name, "\n".join([p.metadata.name for p in pods]))
+        self.container = client.containers.get(pods[0].status.container_statuses[0].container_id.replace("docker:/", ""))
 
     def deploy(self, client, configmap_path, daemonset_path, serviceaccount_path, observer, monitors, cluster_name="minikube", backend=None, image_name=None, image_tag=None, namespace="default"):
         self.observer = observer
@@ -45,9 +37,13 @@ class Agent:
         self.namespace = namespace
         self.serviceaccount_yaml = yaml.load(open(serviceaccount_path).read())
         self.serviceaccount_name = self.serviceaccount_yaml['metadata']['name']
-        if not has_secret("signalfx-agent"):
+        if not has_secret("signalfx-agent", namespace=self.namespace):
             print("Creating secret \"signalfx-agent\" ...")
-            create_secret("signalfx-agent", "access-token", "testing123")
+            create_secret(
+                "signalfx-agent",
+                "access-token",
+                "testing123",
+                namespace=self.namespace)
         if not has_serviceaccount(self.serviceaccount_name, namespace=self.namespace):
             print("Creating service account \"%s\" from %s ..." % (self.serviceaccount_name, serviceaccount_path))
             create_serviceaccount(
@@ -57,6 +53,7 @@ class Agent:
         self.configmap_name = self.configmap_yaml['metadata']['name']
         self.daemonset_yaml = yaml.load(open(daemonset_path).read())
         self.daemonset_name = self.daemonset_yaml['metadata']['name']
+        self.container_name = self.daemonset_yaml['spec']['template']['spec']['containers'][0]['name']
         self.delete()
         self.agent_yaml = yaml.load(self.configmap_yaml['data']['agent.yaml'])
         del self.agent_yaml['observers']
@@ -82,27 +79,20 @@ class Agent:
         del self.agent_yaml['monitors']
         self.agent_yaml['monitors'] = self.monitors
         self.configmap_yaml['data']['agent.yaml'] = yaml.dump(self.agent_yaml)
-        if has_configmap(self.configmap_name, namespace=self.namespace):
-            print("Updating configmap for observer=%s and monitor(s)=%s from %s ..." % (self.observer, ",".join([m["type"] for m in self.monitors]), configmap_path))
-            patch_configmap(
-                body=self.configmap_yaml,
-                namespace=self.namespace)
+        print("Creating configmap for observer=%s and monitor(s)=%s from %s ..." % (self.observer, ",".join([m["type"] for m in self.monitors]), configmap_path))
+        create_configmap(
+            body=self.configmap_yaml,
+            namespace=self.namespace)
+        if self.image_name and self.image_tag:
+            print("Creating daemonset \"%s\" for %s:%s from %s ..." % (self.daemonset_name, self.image_name, self.image_tag, daemonset_path))
+            self.daemonset_yaml['spec']['template']['spec']['containers'][0]['image'] = image_name + ":" + image_tag
         else:
-            print("Creating configmap for observer=%s and monitor(s)=%s from %s ..." % (self.observer, ",".join([m["type"] for m in self.monitors]), configmap_path))
-            create_configmap(
-                body=self.configmap_yaml,
-                namespace=self.namespace)
-        if not has_daemonset(self.daemonset_name, namespace=self.namespace):
-            if self.image_name and self.image_tag:
-                print("Creating daemonset \"%s\" for %s:%s from %s ..." % (self.daemonset_name, self.image_name, self.image_tag, daemonset_path))
-                self.daemonset_yaml['spec']['template']['spec']['containers'][0]['image'] = image_name + ":" + image_tag
-            else:
-                print("Creating daemonset \"%s\" from %s ..." % (self.daemonset_name, daemonset_path))
-            create_daemonset(
-                body=self.daemonset_yaml,
-                namespace=namespace)
-        assert wait_for(p(has_pod, self.daemonset_name), timeout_seconds=60), "timed out waiting for the %s pod to start!" % self.daemonset_name
-        assert wait_for(all_pods_have_ips, timeout_seconds=300), "timed out waiting for pod IPs!"
+            print("Creating daemonset \"%s\" from %s ..." % (self.daemonset_name, daemonset_path))
+        create_daemonset(
+            body=self.daemonset_yaml,
+            namespace=self.namespace)
+        assert wait_for(p(has_pod, self.daemonset_name, namespace=self.namespace), timeout_seconds=60), "timed out waiting for the %s pod to be created!" % self.daemonset_name
+        #assert wait_for(p(all_pods_have_ips, namespace=self.namespace), timeout_seconds=300), "timed out waiting for pod IPs!"
         self.get_container(client)
         assert self.container, "failed to get agent container!"
         status = self.container.status.lower()
@@ -114,18 +104,19 @@ class Agent:
         except:
             status = "exited"
         assert status == 'running', "agent container is not running!"
-        agent_status = self.get_status()
-        container_logs = self.get_container_logs()
-        assert "error" not in agent_status.lower(), "error(s) found in agent-status output!\n\n%s" % agent_status
         return self
 
     def delete(self):
         if has_daemonset(self.daemonset_name, namespace=self.namespace):
             print("Deleting daemonset \"%s\" ..." % self.daemonset_name)
             delete_daemonset(self.daemonset_name, namespace=self.namespace)
+            #assert wait_for(lambda: not has_pod(self.daemonset_name, namespace=self.namespace), timeout_seconds=60), \
+            #    "timed out waiting for pod \"%s\" to be deleted!" % self.daemonset_name
         if has_configmap(self.configmap_name, namespace=self.namespace):
             print("Deleting configmap \"%s\" ..." % self.configmap_name)
             delete_configmap(self.configmap_name, namespace=self.namespace)
+            #assert wait_for(lambda: not has_configmap(self.configmap_name, namespace=self.namespace), timeout_seconds=60), \
+            #    "timed out waiting for configmap \"%s\" to be deleted!" % self.configmap_name
         
     def get_status(self):
         try:
@@ -137,7 +128,6 @@ class Agent:
             return "Failed to get agent-status!\n%s" % str(e)
 
     def get_container_logs(self):
-        try:
-            return self.container.logs().decode('utf-8').strip()
-        except Exception as e:
-            return "Failed to get agent container logs!\n%s" % str(e)
+        return get_pod_logs(
+            self.container_name,
+            namespace=self.namespace)

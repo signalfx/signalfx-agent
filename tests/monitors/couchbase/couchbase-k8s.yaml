@@ -1,0 +1,28 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: couchbase-deployment
+  namespace: default
+  labels:
+    app: couchbase
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: couchbase
+  template:
+    metadata:
+      labels:
+        app: couchbase
+    spec:
+      containers:
+        - name: couchbase
+          image: couchbase:test
+          ports:
+            - containerPort: 8091
+          env:
+            - name: USERNAME
+              value: administrator
+            - name: PASSWORD
+              value: testing123

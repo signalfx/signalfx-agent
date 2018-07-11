@@ -6,11 +6,13 @@ from tests.kubernetes.agent import Agent
 from tests.kubernetes.utils import *
 import docker
 import os
+import tempfile
 import time
 import yaml
 
-MINIKUBE_VERSION = os.environ.get("MINIKUBE_VERSION", "v0.26.1")
-K8S_SERVICES_DIR = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'services')
+MINIKUBE_VERSION = os.environ.get("MINIKUBE_VERSION", "v0.28.0")
+TEST_SERVICES_DIR = os.path.join(os.path.dirname(os.path.realpath(__file__)), "../../test-services")
+
 
 class Minikube:
     def __init__(self):
@@ -24,53 +26,49 @@ class Minikube:
         self.cluster_name = "minikube"
         self.kubeconfig = None
         self.namespace = "default"
-        self.ip = None
+        self.worker_id = "master"
+        self.registry_port = None
 
     def get_client(self):
         if self.container:
-            self.client = docker.DockerClient(base_url="tcp://%s:2375" % self.container.attrs["NetworkSettings"]["IPAddress"], version='auto')
+            self.container.reload()
+            self.client = docker.DockerClient(base_url="tcp://%s:2375" % container_ip(self.container), version='auto')
             return self.client
         else:
             return None
 
-    def get_ip(self):
-        if self.container:
-            self.ip = container_ip(self.container)
-            return self.ip
-        else:
-            return None
-
     def load_kubeconfig(self, kubeconfig_path="/kubeconfig", timeout=300):
-        assert wait_for(p(container_cmd_exit_0, self.container, "test -f %s" % kubeconfig_path), timeout_seconds=timeout), "timed out waiting for the minikube cluster to be ready!\n\n%s\n\n" % self.container.logs().decode('utf-8').strip()
-        self.kubeconfig = "/tmp/scratch/kubeconfig-%s" % self.container.id[:12]
-        time.sleep(2)
-        rc, output = self.container.exec_run("cp -f %s %s" % (kubeconfig_path, self.kubeconfig))
-        assert rc == 0, "failed to get %s from minikube!\n%s" % (kubeconfig_path, output.decode('utf-8'))
-        time.sleep(2)
-        kube_config.load_kube_config(config_file=self.kubeconfig)
+        with tempfile.NamedTemporaryFile(dir="/tmp/scratch") as fd:
+            kubeconfig = fd.name
+            assert wait_for(p(container_cmd_exit_0, self.container, "test -f %s" % kubeconfig_path), timeout_seconds=timeout), \
+                "timed out waiting for the minikube cluster to be ready!\n\nMINIKUBE CONTAINER LOGS:\n%s\n\nLOCALKUBE LOGS:\n%s\n\n" % \
+                (self.get_container_logs(), self.get_localkube_logs())
+            time.sleep(2)
+            rc, output = self.container.exec_run("cp -f %s %s" % (kubeconfig_path, kubeconfig))
+            assert rc == 0, "failed to get %s from minikube!\n%s" % (kubeconfig_path, output.decode('utf-8'))
+            self.kubeconfig = kubeconfig
+            kube_config.load_kube_config(config_file=self.kubeconfig)
 
     def connect(self, name, timeout, version=None):
         print("\nConnecting to %s container ..." % name)
+        assert wait_for(p(container_is_running, self.host_client, name), timeout_seconds=timeout), "timed out waiting for container %s!" % name
         self.container = self.host_client.containers.get(name)
+        self.load_kubeconfig(timeout=timeout)
         self.client = self.get_client()
         self.name = name
         self.version = version
-        self.load_kubeconfig(timeout=timeout)
 
-    def deploy(self, version, timeout, name=None, options={}):
+    def deploy(self, version, timeout, options={}):
+        self.registry_port = get_free_port()
+        if container_is_running(self.host_client, "minikube"):
+            self.host_client.containers.get("minikube").remove(force=True, v=True)
         self.version = version
         if self.version[0] != 'v':
             self.version = 'v' + self.version
-        self.name = name
-        if not self.name:
-            self.name = "minikube-%s-%s" % (MINIKUBE_VERSION, self.version)
         if not options:
             options = {
-                "name": self.name,
+                "name": "minikube",
                 "privileged": True,
-                "extra_hosts": {
-                    "localhost": get_host_ip()
-                },
                 "environment": {
                     'K8S_VERSION': self.version,
                     'TIMEOUT': str(timeout)
@@ -79,6 +77,7 @@ class Minikube:
                     '8080/tcp': None,
                     '8443/tcp': None,
                     '2375/tcp': None,
+                    '%d/tcp' % self.registry_port: self.registry_port,
                 },
                 "volumes": {
                     "/tmp/scratch": {
@@ -98,45 +97,76 @@ class Minikube:
             image.id,
             detach=True,
             **options)
+        self.name = self.container.name
         self.load_kubeconfig(timeout=timeout)
-        self.container.reload()
-        self.get_client()
+        self.client = self.get_client()
+
+    def start_registry(self):
+        if not self.client:
+            self.client = self.get_client()
+        print("\nStarting registry container localhost:%d in minikube ..." % self.registry_port)
+        self.client.containers.run(
+            image='registry:latest',
+            name="registry",
+            detach=True,
+            environment={"REGISTRY_HTTP_ADDR": "0.0.0.0:%d" % self.registry_port},
+            ports={"%d/tcp" % self.registry_port: self.registry_port})
+
+    def build_image(self, dockerfile_dir, build_opts={}):
+        if not self.client:
+            self.get_client()
+        self.client.images.build(
+            path=dockerfile_dir,
+            rm=True,
+            forcerm=True,
+            **build_opts)
 
     @contextmanager
-    def deploy_yamls(self, yamls=[], services_dir=K8S_SERVICES_DIR):
-        self.yamls= []
-        if services_dir:
-            yamls = sorted([os.path.join(services_dir, y) for y in yamls])
-        for y in yamls:
-            assert os.path.isfile(y)
-            body = yaml.load(open(y))
-            kind = body['kind']
-            name = body['metadata']['name']
-            namespace = body['metadata']['namespace']
-            if kind == "ConfigMap":
-                if has_configmap(name, namespace=namespace):
-                    print("Deleting configmap \"%s\" ..." % name)
-                    delete_configmap(name, namespace=namespace)
-                print("Creating configmap from %s ..." % y)
-                create_configmap(body=yaml.load(open(y)))
-                self.yamls.append(body)
-        for y in yamls:
-            body = yaml.load(open(y))
-            kind = body['kind']
-            name = body['metadata']['name']
-            namespace = body['metadata']['namespace']
-            body = yaml.load(open(y))
-            if kind == "ConfigMap":
-                continue
-            assert kind == "Deployment", "kind \"%s\" in %s not yet supported!" % (kind, y)
-            if has_deployment(name, namespace=namespace):
-                print("Deleting deployment \"%s\" ..." % name)
-                delete_deployment(name, namespace=namespace)
-            print("Creating deployment from %s ..." % y)
-            create_deployment(body=body)
-            self.yamls.append(body)
-        if len(self.yamls) > 0:
-            assert wait_for(all_pods_have_ips, timeout_seconds=300), "timed out waiting for pod IPs!"
+    def deploy_k8s_yamls(self, yamls=[], namespace="default", timeout=180):
+        self.yamls = []
+        for yaml_file in yamls:
+            assert os.path.isfile(yaml_file), "\"%s\" not found!" % yaml_file
+            docs = []
+            for doc in yaml.load_all(open(yaml_file, "r").read()):
+                assert doc['kind'] in ["ConfigMap", "Deployment"], "kind \"%s\" in %s not yet supported!" % (doc['kind'], yaml_file)
+                docs.append(doc)
+            # create ConfigMaps first
+            for doc in docs:
+                kind = doc['kind']
+                name = doc['metadata']['name']
+                doc['metadata']['namespace'] = namespace
+                if kind == "ConfigMap":
+                    if has_configmap(name, namespace=namespace):
+                        print("Deleting configmap \"%s\" ..." % name)
+                        delete_configmap(name, namespace=namespace)
+                    print("Creating configmap from %s ..." % yaml_file)
+                    create_configmap(body=doc, namespace=namespace, timeout=timeout)
+                    self.yamls.append(doc)
+            # create Deployments
+            for doc in docs:
+                kind = doc['kind']
+                name = doc['metadata']['name']
+                doc['metadata']['namespace'] = namespace
+                try:
+                    containers = doc['spec']['template']['spec']['containers']
+                    ports = []
+                    for cont in containers:
+                        for port in cont['ports']:
+                            ports.append(int(port['containerPort']))
+                except KeyError:
+                    ports = []
+                if kind == "ConfigMap":
+                    continue
+                if has_deployment(name, namespace=namespace):
+                    print("Deleting deployment \"%s\" ..." % name)
+                    delete_deployment(name, namespace=namespace)
+                print("Creating deployment from %s ..." % yaml_file)
+                create_deployment(body=doc, namespace=namespace, timeout=timeout)
+                for port in ports:
+                    for pod in get_all_pods_with_name(name, namespace=namespace):
+                        assert wait_for(p(pod_port_open, self.container, pod.status.pod_ip, port), timeout_seconds=timeout), \
+                            "timed out waiting for port %d for pod %s to be ready!" % (port, pod.metadata.name)
+                self.yamls.append(doc)
         try:
             yield
         finally:
@@ -152,33 +182,35 @@ class Minikube:
                     delete_deployment(name, namespace=namespace)
             self.yamls = []
 
-    def pull_agent_image(self, name, tag="latest"):
-        try:
-            image_id = self.host_client.images.get("%s:%s" % (name, tag)).id
-        except docker.errors.ImageNotFound:
-            image_id = None
-        assert image_id, "failed to get agent image \"%s:%s\"!" % (name, tag)
-        if image_id:
-            try:
-                self.client.images.get(image_id)
-                return
-            except docker.errors.ImageNotFound:
-                pass
-        print("\nPulling %s:%s to the minikube container ..." % (name, tag))
+    def pull_agent_image(self, name, tag, image_id):
+        assert has_docker_image(self.host_client, image_id), "agent image \"%s\" not found!" % image_id
+        if has_docker_image(self.client, image_id):
+            return
         self.client.images.pull(name, tag=tag)
         _, output = self.container.exec_run('docker images')
-        print_lines(output.decode('utf-8'))
+        print(output.decode('utf-8'))
 
     @contextmanager
     def deploy_agent(self, configmap_path, daemonset_path, serviceaccount_path, observer=None, monitors=[], cluster_name="minikube", backend=None, image_name=None, image_tag=None, namespace="default"):
-        self.pull_agent_image(image_name, tag=image_tag)
-        try:
-            self.agent.deploy(self.client, configmap_path, daemonset_path, serviceaccount_path, observer, monitors, cluster_name=cluster_name, backend=backend, image_name=image_name, image_tag=image_tag, namespace=namespace)
-        except Exception as e:
-            print("\n\n%s\n\n" % get_all_logs(self))
-            raise
+        self.agent.deploy(
+            self.client,
+            configmap_path,
+            daemonset_path,
+            serviceaccount_path,
+            observer,
+            monitors,
+            cluster_name=cluster_name,
+            backend=backend,
+            image_name=image_name,
+            image_tag=image_tag,
+            namespace=namespace)
         try:
             yield self.agent
+            print("\n\n%s\n\n" % self.agent.get_status())
+            print("\n\n%s\n\n" % self.agent.get_container_logs())
+        except:
+            print("\n\n%s\n\n" % get_all_logs(self))
+            raise
         finally:
             self.agent.delete()
             self.agent = Agent()
@@ -188,3 +220,12 @@ class Minikube:
             return self.container.logs().decode('utf-8').strip()
         except Exception as e:
             return "Failed to get minikube container logs!\n%s" % str(e)
+
+    def get_localkube_logs(self):
+        try:
+            rc, _ = self.container.exec_run("test -f /var/lib/localkube/localkube.err")
+            if rc == 0:
+                _, output = self.container.exec_run("cat /var/lib/localkube/localkube.err")
+                return output.decode('utf-8').strip()
+        except Exception as e:
+            return "Failed to get localkube logs from minikube!\n%s" % str(e)

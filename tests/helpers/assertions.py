@@ -3,6 +3,8 @@ import os
 import re
 import socket
 import urllib.request
+from tests.helpers.util import wait_for, DEFAULT_TIMEOUT
+from functools import partial as p
 from http.client import HTTPException
 
 
@@ -127,3 +129,13 @@ def http_status(url=None, status=[], username=None, password=None, timeout=1, **
     except (urllib.error.URLError, socket.timeout, HTTPException,
             ConnectionResetError, ConnectionError):
         return False
+
+
+def has_any_metric_or_dim(fake_services, metrics, dims, timeout=DEFAULT_TIMEOUT):
+    if metrics and dims:
+        return wait_for(p(any_metric_has_any_dim_key, fake_services, metrics, dims), timeout_seconds=timeout)
+    elif metrics:
+        return wait_for(p(any_metric_found, fake_services, metrics), timeout_seconds=timeout)
+    elif dims:
+        return wait_for(p(any_dim_key_found, fake_services, dims), timeout_seconds=timeout)
+    return False
