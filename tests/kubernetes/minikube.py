@@ -6,7 +6,6 @@ from tests.kubernetes.agent import Agent
 from tests.kubernetes.utils import *
 import docker
 import os
-import requests.exceptions
 import tempfile
 import time
 import yaml
@@ -38,19 +37,12 @@ class Minikube:
         else:
             return None
 
-    def path_exists(self, path):
-        try:
-            return container_cmd_exit_0(self.container, "test -e %s" % path)
-        except requests.exceptions.ConnectionError as e:
-            print("exception caught: %s" % str(e))
-            return False
-
     def load_kubeconfig(self, kubeconfig_path="/kubeconfig", timeout=300):
-        assert wait_for(p(self.path_exists, kubeconfig_path), timeout_seconds=timeout), \
-            "timed out waiting for %s to be created!\n\nMINIKUBE CONTAINER LOGS:\n%s\n\nLOCALKUBE LOGS:\n%s\n\n" % \
-            (kubeconfig_path, self.get_container_logs(), self.get_localkube_logs())
         with tempfile.NamedTemporaryFile(dir="/tmp/scratch") as fd:
             kubeconfig = fd.name
+            assert wait_for(p(container_cmd_exit_0, self.container, "test -f %s" % kubeconfig_path), timeout_seconds=timeout), \
+                "timed out waiting for the minikube cluster to be ready!\n\nMINIKUBE CONTAINER LOGS:\n%s\n\nLOCALKUBE LOGS:\n%s\n\n" % \
+                (self.get_container_logs(), self.get_localkube_logs())
             time.sleep(2)
             rc, output = self.container.exec_run("cp -f %s %s" % (kubeconfig_path, kubeconfig))
             assert rc == 0, "failed to get %s from minikube!\n%s" % (kubeconfig_path, output.decode('utf-8'))
@@ -59,12 +51,9 @@ class Minikube:
 
     def connect(self, name, timeout, version=None):
         print("\nConnecting to %s container ..." % name)
-        start_time = time.time()
         assert wait_for(p(container_is_running, self.host_client, name), timeout_seconds=timeout), "timed out waiting for container %s!" % name
         self.container = self.host_client.containers.get(name)
-        print("\nwaited %d seconds for container to be running" % (time.time() - start_time))
         self.load_kubeconfig(timeout=timeout)
-        print("\nwaited %d seconds for kubeconfig" % (time.time() - start_time))
         self.client = self.get_client()
         self.name = name
         self.version = version
@@ -98,7 +87,6 @@ class Minikube:
                 }
             }
         print("\nDeploying minikube %s cluster ..." % self.version)
-        start_time = time.time()
         image, logs = self.host_client.images.build(
             path=os.path.join(TEST_SERVICES_DIR, 'minikube'),
             buildargs={"MINIKUBE_VERSION": MINIKUBE_VERSION},
@@ -109,10 +97,8 @@ class Minikube:
             image.id,
             detach=True,
             **options)
-        print("\nwaited %d seconds for container to be running" % (time.time() - start_time))
         self.name = self.container.name
         self.load_kubeconfig(timeout=timeout)
-        print("\nwaited %d seconds for kubeconfig" % (time.time() - start_time))
         self.client = self.get_client()
 
     def start_registry(self):
@@ -221,7 +207,8 @@ class Minikube:
 
     def get_localkube_logs(self):
         try:
-            if self.path_exists("/var/lib/localkube/localkube.err"):
+            rc, _ = self.container.exec_run("test -f /var/lib/localkube/localkube.err")
+            if rc == 0:
                 _, output = self.container.exec_run("cat /var/lib/localkube/localkube.err")
                 return output.decode('utf-8').strip()
         except Exception as e:
