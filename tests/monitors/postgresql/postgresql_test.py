@@ -78,5 +78,6 @@ def test_postgresql_in_k8s(agent_image, minikube, k8s_observer, k8s_test_timeout
         observer=k8s_observer,
         expected_metrics=get_monitor_metrics_from_selfdescribe(monitors[0]["type"]),
         expected_dims=get_monitor_dims_from_selfdescribe(monitors[0]["type"]),
-        test_timeout=k8s_test_timeout)
+        test_timeout=k8s_test_timeout,
+        passwords=['test_pwd'])
 
