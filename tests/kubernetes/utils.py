@@ -1,6 +1,7 @@
 from functools import partial as p
 from kubernetes import client as kube_client
 from kubernetes.client.rest import ApiException
+from requests.exceptions import ConnectionError
 from tests.helpers.assertions import *
 from tests.helpers.util import *
 import docker
@@ -498,8 +499,12 @@ def container_is_running(client, name):
             raise
 
 def pod_port_open(container, host, port):
-    rc, _ = container.exec_run("nc -z %s %d" % (host, port))
-    return rc == 0
+    try:
+        rc, _ = container.exec_run("nc -z %s %d" % (host, port))
+        return rc == 0
+    except ConnectionError as e:
+        print("exception caught: %s" % str(e))
+        return False
 
 
 def get_free_port():
