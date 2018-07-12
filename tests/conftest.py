@@ -192,10 +192,11 @@ def registry(minikube, request, worker_id):
 @pytest.fixture(scope="session")
 def agent_image(minikube, registry, request, worker_id):
     def teardown():
-        try:
-            client.images.remove("%s:%s" % (agent_image_name, agent_image_tag))
-        except:
-            pass
+        if temp_name:
+            try:
+                client.images.remove("%s:%s" % (temp_name, agent_image_tag))
+            except:
+                pass
 
     request.addfinalizer(teardown)
     client = get_docker_client()
@@ -204,7 +205,7 @@ def agent_image(minikube, registry, request, worker_id):
     if has_docker_image(client, agent_image_name, agent_image_tag):
         temp_name = "localhost:%d/%s" % (registry['port'], agent_image_name.split("/")[-1])
     else:
-        temp_name = agent_image_name
+        temp_name = None
     if worker_id == "master" or worker_id == "gw0":
         if has_docker_image(client, agent_image_name, agent_image_tag):
             local_image = client.images.get(agent_image_name + ":" + agent_image_tag)
@@ -214,7 +215,7 @@ def agent_image(minikube, registry, request, worker_id):
             client.images.push(temp_name, tag=agent_image_tag)
             print("\nPulling %s:%s ..." % (temp_name, agent_image_tag))
             image = minikube.pull_agent_image(temp_name, agent_image_tag, local_image.id)
-            print("\nTagging %s:%s as %s:%s ..." % (temp_name, agent_image_tag, agent_image_name, agent_image_tag))
+            print("Tagging %s:%s as %s:%s ...\n" % (temp_name, agent_image_tag, agent_image_name, agent_image_tag))
             image.tag(agent_image_name, tag=agent_image_tag)
         else:
             print("\nAgent image '%s:%s' not found in local registry." % (agent_image_name, agent_image_tag))
