@@ -52,7 +52,7 @@ references:
             --k8s-timeout=300 \
             --k8s-test-timeout=120 \
             --k8s-agent-name=quay.io/signalfx/signalfx-agent-dev \
-            --k8s-agent-tag=latest \
+            --k8s-agent-tag=3.3.0-beta1 \
             tests
         if grep 'exception caught' ~/testresults/k8s_integration_tests.xml; then
             exit 1
@@ -424,31 +424,7 @@ workflows:
   version: 2
   build_test:
     jobs:
-     - build
-     - build_dev_image
-     - build-windows
-     - lint
-     - vet
-     - gotests
-     - integration_tests:
-        requires:
-         - build
-     - k8s_v1.10.0_integration_tests:
-        requires:
-         - build
-     - k8s_v1.9.0_integration_tests:
-        requires:
-         - build
-     - k8s_v1.8.0_integration_tests:
-        requires:
-         - build
-     - k8s_v1.7.0_integration_tests:
-        requires:
-         - build
-     - docs_test
-     - rpm_package_tests
-     - deb_package_tests
-     - chef_tests
-     - puppet_tests
-     - salt_tests
-     - ansible_tests
+     - k8s_v1.10.0_integration_tests
+     - k8s_v1.9.0_integration_tests
+     - k8s_v1.8.0_integration_tests
+     - k8s_v1.7.0_integration_tests
