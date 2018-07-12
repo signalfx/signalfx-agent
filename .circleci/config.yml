@@ -36,7 +36,7 @@ references:
     run:
       no_output_timeout: 30m
       command: |
-        docker version
+        set -ex
         mkdir ~/testresults
         mkdir -p /tmp/scratch
         pytest \
@@ -54,6 +54,9 @@ references:
             --k8s-agent-name=quay.io/signalfx/signalfx-agent-dev \
             --k8s-agent-tag=latest \
             tests
+        if grep 'exception caught' ~/testresults/k8s_integration_tests.xml; then
+            exit 1
+        fi
 
 jobs:
   build:
