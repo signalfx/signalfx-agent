@@ -1,6 +1,7 @@
 from contextlib import contextmanager
 from functools import partial as p
 from kubernetes import config as kube_config
+from requests.exceptions import ConnectionError
 from tests.helpers.util import *
 from tests.kubernetes.agent import Agent
 from tests.kubernetes.utils import *
@@ -38,15 +39,15 @@ class Minikube:
             return None
 
     def wait_for_kubeconfig(self, kubeconfig_path, timeout):
+        start_time = time.time()
         if timeout <= 0:
             return False
-        start_time = time.time()
         try:
             return wait_for(p(container_cmd_exit_0, self.container, "test -f %s" % kubeconfig_path), timeout_seconds=timeout)
-        except Exception as e:
+        except ConnectionError as e:
             time.sleep(1)
             new_timeout = timeout - (time.time() - start_time)
-            print("exception caught: %s" % e)
+            print("exception caught: %s" % str(e))
             print("retrying for another %d seconds ..." % new_timeout)
             return self.wait_for_kubeconfig(kubeconfig_path, new_timeout)
 
