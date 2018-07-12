@@ -188,8 +188,6 @@ jobs:
       K8S_OBSERVERS: "k8s-api,k8s-kubelet"
       PYTEST_MARKERS: "k8s"
     steps:
-      - *attach_workspace
-      - *import_image
       - checkout
       - *install_pytest
       - *run_k8s_integration_tests
@@ -205,8 +203,6 @@ jobs:
       K8S_OBSERVERS: "k8s-api,k8s-kubelet"
       PYTEST_MARKERS: "k8s"
     steps:
-      - *attach_workspace
-      - *import_image
       - checkout
       - *install_pytest
       - *run_k8s_integration_tests
@@ -222,8 +218,6 @@ jobs:
       K8S_OBSERVERS: "k8s-api,k8s-kubelet"
       PYTEST_MARKERS: "k8s"
     steps:
-      - *attach_workspace
-      - *import_image
       - checkout
       - *install_pytest
       - *run_k8s_integration_tests
@@ -239,8 +233,6 @@ jobs:
       K8S_OBSERVERS: "k8s-api,k8s-kubelet"
       PYTEST_MARKERS: "k8s"
     steps:
-      - *attach_workspace
-      - *import_image
       - checkout
       - *install_pytest
       - *run_k8s_integration_tests
