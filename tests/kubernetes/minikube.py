@@ -1,12 +1,12 @@
 from contextlib import contextmanager
 from functools import partial as p
 from kubernetes import config as kube_config
-from requests.exceptions import ConnectionError
 from tests.helpers.util import *
 from tests.kubernetes.agent import Agent
 from tests.kubernetes.utils import *
 import docker
 import os
+import requests.exceptions
 import tempfile
 import time
 import yaml
@@ -38,23 +38,17 @@ class Minikube:
         else:
             return None
 
-    def wait_for_kubeconfig(self, kubeconfig_path, timeout):
-        start_time = time.time()
-        if timeout <= 0:
-            return False
+    def path_exists(self, path):
         try:
-            return wait_for(p(container_cmd_exit_0, self.container, "test -f %s" % kubeconfig_path), timeout_seconds=timeout)
-        except ConnectionError as e:
-            time.sleep(1)
-            new_timeout = timeout - (time.time() - start_time)
+            return container_cmd_exit_0(self.container, "test -e %s" % path)
+        except requests.exceptions.ConnectionError as e:
             print("exception caught: %s" % str(e))
-            print("retrying for another %d seconds ..." % new_timeout)
-            return self.wait_for_kubeconfig(kubeconfig_path, new_timeout)
+            return False
 
     def load_kubeconfig(self, kubeconfig_path="/kubeconfig", timeout=300):
-        assert self.wait_for_kubeconfig(kubeconfig_path, timeout), \
-            "timed out waiting for the minikube cluster to be ready!\n\nMINIKUBE CONTAINER LOGS:\n%s\n\nLOCALKUBE LOGS:\n%s\n\n" % \
-            (self.get_container_logs(), self.get_localkube_logs())
+        assert wait_for(p(self.path_exists, kubeconfig_path), timeout_seconds=timeout), \
+            "timed out waiting for %s to be created!\n\nMINIKUBE CONTAINER LOGS:\n%s\n\nLOCALKUBE LOGS:\n%s\n\n" % \
+            (kubeconfig_path, self.get_container_logs(), self.get_localkube_logs())
         with tempfile.NamedTemporaryFile(dir="/tmp/scratch") as fd:
             kubeconfig = fd.name
             time.sleep(2)
@@ -227,8 +221,7 @@ class Minikube:
 
     def get_localkube_logs(self):
         try:
-            rc, _ = self.container.exec_run("test -f /var/lib/localkube/localkube.err")
-            if rc == 0:
+            if self.path_exists("/var/lib/localkube/localkube.err"):
                 _, output = self.container.exec_run("cat /var/lib/localkube/localkube.err")
                 return output.decode('utf-8').strip()
         except Exception as e:
