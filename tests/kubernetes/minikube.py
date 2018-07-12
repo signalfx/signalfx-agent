@@ -1,12 +1,12 @@
 from contextlib import contextmanager
 from functools import partial as p
 from kubernetes import config as kube_config
+from requests.exceptions import ConnectionError
 from tests.helpers.util import *
 from tests.kubernetes.agent import Agent
 from tests.kubernetes.utils import *
 import docker
 import os
-import requests.exceptions
 import tempfile
 import time
 import yaml
@@ -41,7 +41,7 @@ class Minikube:
     def path_exists(self, path):
         try:
             return container_cmd_exit_0(self.container, "test -e %s" % path)
-        except requests.exceptions.ConnectionError as e:
+        except ConnectionError as e:
             print("exception caught: %s" % str(e))
             return False
 
@@ -196,13 +196,15 @@ class Minikube:
                     delete_deployment(name, namespace=namespace)
             self.yamls = []
 
-    def pull_agent_image(self, name, tag, image_id):
-        assert has_docker_image(self.host_client, image_id), "agent image \"%s\" not found!" % image_id
-        if has_docker_image(self.client, image_id):
-            return
-        self.client.images.pull(name, tag=tag)
+    def pull_agent_image(self, name, tag, image_id=None):
+        if image_id:
+            assert has_docker_image(self.host_client, image_id), "agent image \"%s\" not found!" % image_id
+            if has_docker_image(self.client, image_id):
+                return self.client.images.get(image_id)
+        image = self.client.images.pull(name, tag=tag)
         _, output = self.container.exec_run('docker images')
         print(output.decode('utf-8'))
+        return image
 
     @contextmanager
     def deploy_agent(self, configmap_path, daemonset_path, serviceaccount_path, observer=None, monitors=[], cluster_name="minikube", backend=None, image_name=None, image_tag=None, namespace="default"):
