@@ -10,7 +10,10 @@ package writer
 
 import (
 	"context"
+	"net"
+	"net/http"
 	"sync"
+	"sync/atomic"
 	"time"
 
 	"github.com/davecgh/go-spew/spew"
@@ -24,11 +27,10 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-type state int
-
 const (
-	stopped state = iota
-	listening
+	// There cannot be more than this many events queued to be sent at any
+	// given time.  This should be big enough for any reasonable use case.
+	eventBufferCapacity = 1000
 )
 
 // SignalFxWriter is what sends events and datapoints to SignalFx ingest.  It
@@ -37,6 +39,7 @@ const (
 type SignalFxWriter struct {
 	client        *sfxclient.HTTPSink
 	dimPropClient *dimensionPropertyClient
+
 	// Monitors should send datapoints to this
 	dpChan chan *datapoint.Datapoint
 	// Monitors should send events to this
@@ -44,60 +47,62 @@ type SignalFxWriter struct {
 	propertyChan chan *types.DimProperties
 
 	stopCh chan struct{}
-
-	state state
-	lock  sync.Mutex
-
-	conf *config.WriterConfig
+	// Channel that gets closed when the listener is stopped
+	doneCh chan struct{}
+	conf   *config.WriterConfig
 
 	// map that holds host-specific ids like AWSUniqueID
-	HostIDDims map[string]string
+	hostIDDims map[string]string
 
-	dpBuffer    []*datapoint.Datapoint
-	eventBuffer []*event.Event
-	dpsSent     uint64
-	eventsSent  uint64
-	startTime   time.Time
+	dpBufferPool *sync.Pool
+	eventBuffer  []*event.Event
+
+	dpRequestsActive int64
+	dpsInFlight      int64
+	dpsSent          int64
+	eventsSent       int64
+	startTime        time.Time
 }
 
 // New creates a new un-configured writer
-func New() *SignalFxWriter {
-	return &SignalFxWriter{
-		state:         stopped,
+func New(conf *config.WriterConfig, dpChan chan *datapoint.Datapoint, eventChan chan *event.Event,
+	propertyChan chan *types.DimProperties) (*SignalFxWriter, error) {
+
+	sw := &SignalFxWriter{
+		conf:          conf,
 		stopCh:        make(chan struct{}),
+		doneCh:        make(chan struct{}),
 		client:        sfxclient.NewHTTPSink(),
 		dimPropClient: newDimensionPropertyClient(),
+		hostIDDims:    conf.HostIDDims,
+		dpChan:        dpChan,
+		eventChan:     eventChan,
+		propertyChan:  propertyChan,
 		startTime:     time.Now(),
-	}
-}
-
-// Configure configures and starts up a routine that writes any datapoints or
-// events that come in on the exposed channels.
-func (sw *SignalFxWriter) Configure(conf *config.WriterConfig) error {
-	sw.lock.Lock()
-	defer sw.lock.Unlock()
-
-	// conf.Filter contains a bunch of unexported fields so it can't be hashed
-	// so just manually check it
-	if conf.Hash() == sw.conf.Hash() && conf.Filter == sw.conf.Filter {
-		log.Debug("Writer config has not changing, not reconfiguring")
-		return nil
-	}
-
-	// The capacity configuration options are only set once on agent startup
-	if sw.dpChan == nil {
-		sw.dpChan = make(chan *datapoint.Datapoint, conf.DatapointBufferCapacity)
-	}
-	if sw.eventChan == nil {
-		sw.eventChan = make(chan *event.Event, conf.EventBufferCapacity)
-	}
-	if sw.propertyChan == nil {
-		sw.propertyChan = make(chan *types.DimProperties, 100)
+		dpBufferPool: &sync.Pool{
+			New: func() interface{} {
+				return make([]*datapoint.Datapoint, 0, conf.DatapointMaxBatchSize)
+			},
+		},
 	}
 
 	sw.client.AuthToken = conf.SignalFxAccessToken
 	sw.dimPropClient.Token = conf.SignalFxAccessToken
 	sw.dimPropClient.APIURL = conf.APIURL
+
+	sw.client.Client.Transport = &http.Transport{
+		Proxy: http.ProxyFromEnvironment,
+		DialContext: (&net.Dialer{
+			Timeout:   3 * time.Second,
+			KeepAlive: 90 * time.Second,
+			DualStack: true,
+		}).DialContext,
+		MaxIdleConns: 100,
+		// Add two connections to cover events and dim props
+		MaxIdleConnsPerHost: conf.DatapointMaxRequests + 2,
+		IdleConnTimeout:     90 * time.Second,
+		TLSHandshakeTimeout: 10 * time.Second,
+	}
 
 	dpEndpointURL, err := conf.IngestURL.Parse("v2/datapoint")
 	if err != nil {
@@ -105,7 +110,7 @@ func (sw *SignalFxWriter) Configure(conf *config.WriterConfig) error {
 			"error":     err,
 			"ingestURL": conf.IngestURL.String(),
 		}).Error("Could not construct datapoint ingest URL")
-		return err
+		return nil, err
 	}
 	sw.client.DatapointEndpoint = dpEndpointURL.String()
 
@@ -115,44 +120,36 @@ func (sw *SignalFxWriter) Configure(conf *config.WriterConfig) error {
 			"error":     err,
 			"ingestURL": conf.IngestURL.String(),
 		}).Error("Could not construct event ingest URL")
-		return err
+		return nil, err
 	}
 	sw.client.EventEndpoint = eventEndpointURL.String()
 
-	sw.conf = conf
+	go sw.listenForDatapoints()
 
-	// Do a shutdown in case some of our config values changed
-	sw.shutdownIfRunning()
-	sw.ensureListeningForDatapoints()
-
-	return nil
+	return sw, nil
 }
 
-func (sw *SignalFxWriter) filterAndSendDatapoints(dps []*datapoint.Datapoint) error {
-	sw.lock.Lock()
-	defer sw.lock.Unlock()
+func (sw *SignalFxWriter) shouldSendDatapoint(dp *datapoint.Datapoint) bool {
+	return sw.conf.Filter == nil || !sw.conf.Filter.Matches(dp)
+}
 
-	finalDps := make([]*datapoint.Datapoint, 0)
-	for i := range dps {
-		if sw.conf.Filter == nil || !sw.conf.Filter.Matches(dps[i]) {
-			dps[i].Dimensions = sw.addGlobalDims(dps[i].Dimensions)
+func (sw *SignalFxWriter) preprocessDatapoint(dp *datapoint.Datapoint) {
+	dp.Dimensions = sw.addGlobalDims(dp.Dimensions)
 
-			// Some metrics aren't really specific to the host they are running
-			// on and shouldn't have any host-specific dims
-			if b, ok := dps[i].Meta[dpmeta.NotHostSpecificMeta].(bool); !ok || !b {
-				dps[i].Dimensions = sw.addHostIDDims(dps[i].Dimensions)
-			}
-			finalDps = append(finalDps, dps[i])
-
-			if sw.conf.LogDatapoints {
-				log.Debugf("Sending datapoint:\n%s", utils.DatapointToString(dps[i]))
-			}
-		}
+	// Some metrics aren't really specific to the host they are running
+	// on and shouldn't have any host-specific dims
+	if b, ok := dp.Meta[dpmeta.NotHostSpecificMeta].(bool); !ok || !b {
+		dp.Dimensions = sw.addhostIDDims(dp.Dimensions)
 	}
 
-	// This sends synchonously despite what the first param might seem to
-	// indicate
-	err := sw.client.AddDatapoints(context.Background(), finalDps)
+	if sw.conf.LogDatapoints {
+		log.Debugf("Sending datapoint:\n%s", utils.DatapointToString(dp))
+	}
+}
+
+func (sw *SignalFxWriter) sendDatapoints(dps []*datapoint.Datapoint) error {
+	// This sends synchonously
+	err := sw.client.AddDatapoints(context.Background(), dps)
 	if err != nil {
 		log.WithFields(log.Fields{
 			"error": err,
@@ -160,16 +157,13 @@ func (sw *SignalFxWriter) filterAndSendDatapoints(dps []*datapoint.Datapoint) er
 		// If there is an error sending datapoints then just forget about them.
 		return err
 	}
-	sw.dpsSent += uint64(len(finalDps))
-	log.Debugf("Sent %d datapoints to SignalFx", len(finalDps))
+	atomic.AddInt64(&sw.dpsSent, int64(len(dps)))
+	log.Debugf("Sent %d datapoints to SignalFx", len(dps))
 
 	return nil
 }
 
 func (sw *SignalFxWriter) sendEvents(events []*event.Event) error {
-	sw.lock.Lock()
-	defer sw.lock.Unlock()
-
 	for i := range events {
 		events[i].Dimensions = sw.addGlobalDims(events[i].Dimensions)
 
@@ -183,8 +177,8 @@ func (sw *SignalFxWriter) sendEvents(events []*event.Event) error {
 			}
 		}
 		// Only override host dimension for now and omit other host id dims.
-		if !notHostSpecific && sw.HostIDDims != nil && sw.HostIDDims["host"] != "" {
-			events[i].Dimensions["host"] = sw.HostIDDims["host"]
+		if !notHostSpecific && sw.hostIDDims != nil && sw.hostIDDims["host"] != "" {
+			events[i].Dimensions["host"] = sw.hostIDDims["host"]
 		}
 
 		if sw.conf.LogEvents {
@@ -199,7 +193,7 @@ func (sw *SignalFxWriter) sendEvents(events []*event.Event) error {
 		log.WithError(err).Error("Error shipping events to SignalFx")
 		return err
 	}
-	sw.eventsSent += uint64(len(events))
+	sw.eventsSent += int64(len(events))
 	log.Debugf("Sent %d events to SignalFx", len(events))
 
 	return nil
@@ -223,100 +217,72 @@ func (sw *SignalFxWriter) addGlobalDims(dims map[string]string) map[string]strin
 
 // Adds the host ids to the datapoints, forcibly overridding any existing
 // dimensions of the same name.
-func (sw *SignalFxWriter) addHostIDDims(dims map[string]string) map[string]string {
+func (sw *SignalFxWriter) addhostIDDims(dims map[string]string) map[string]string {
 	if dims == nil {
 		dims = make(map[string]string)
 	}
-	for k, v := range sw.HostIDDims {
+	for k, v := range sw.hostIDDims {
 		dims[k] = v
 	}
 	return dims
-}
-
-// DPChannel returns a channel that datapoints can be fed into that will be
-// sent to SignalFx ingest.
-func (sw *SignalFxWriter) DPChannel() chan<- *datapoint.Datapoint {
-	if sw.dpChan == nil {
-		panic("You must call Configure on the writer before getting the datapoint channel")
-	}
-	return sw.dpChan
-}
-
-// EventChannel returns a channel that events can be fed into that will be
-// sent to SignalFx ingest.
-func (sw *SignalFxWriter) EventChannel() chan<- *event.Event {
-	if sw.dpChan == nil {
-		panic("You must call Configure on the writer before getting the event channel")
-	}
-	return sw.eventChan
-}
-
-// DimPropertiesChannel returns a channel that datapoints can be fed into that will be
-// sent to SignalFx ingest.
-func (sw *SignalFxWriter) DimPropertiesChannel() chan<- *types.DimProperties {
-	if sw.propertyChan == nil {
-		panic("You must call Configure on the writer before getting the properties channel")
-	}
-	return sw.propertyChan
-}
-
-// ensureListeningForDatapoints will make sure the writer is accepting
-// datapoints if it is not already.  This method is idempotent.
-// ASSUMES LOCK IS HELD WHEN CALLED.
-func (sw *SignalFxWriter) ensureListeningForDatapoints() {
-	if sw.state != listening {
-		log.Debug("Starting datapoint writer listener")
-		go sw.listenForDatapoints()
-		sw.state = listening
-	}
 }
 
 // listenForDatapoints starts up a goroutine that waits for datapoints and
 // events to come in on the provided channels.  That goroutine also sends data
 // to ingest at regular intervals.
 func (sw *SignalFxWriter) listenForDatapoints() {
-	dpTicker := time.NewTicker(time.Duration(sw.conf.DatapointSendIntervalSeconds) * time.Second)
-	defer dpTicker.Stop()
-
 	eventTicker := time.NewTicker(time.Duration(sw.conf.EventSendIntervalSeconds) * time.Second)
 	defer eventTicker.Stop()
 
-	initDPBuffer := func() {
-		sw.dpBuffer = make([]*datapoint.Datapoint, 0, sw.conf.DatapointBufferCapacity)
-	}
-	initDPBuffer()
-
 	initEventBuffer := func() {
-		sw.eventBuffer = make([]*event.Event, 0, sw.conf.EventBufferCapacity)
+		sw.eventBuffer = make([]*event.Event, 0, eventBufferCapacity)
 	}
 	initEventBuffer()
 
+	// This acts like a semaphore if a request goroutine pushes into it before
+	// making the request and pulling out of it when the request is done.
+	// Pushes will block if there are more than the max number of outstanding
+	// requests.
+	dpSema := make(chan struct{}, sw.conf.DatapointMaxRequests)
+
 	for {
 		select {
-
 		case <-sw.stopCh:
-			go sw.filterAndSendDatapoints(sw.dpBuffer)
 			go sw.sendEvents(sw.eventBuffer)
 
-			close(sw.stopCh)
+			close(sw.doneCh)
 			return
 
 		case dp := <-sw.dpChan:
-			if len(sw.dpBuffer) > sw.conf.DatapointBufferHardMax {
-				log.WithFields(log.Fields{
-					"metric":         dp.Metric,
-					"dpBufferLength": len(sw.dpBuffer),
-				}).Error("Dropping datapoint due to overfull buffer")
+			if !sw.shouldSendDatapoint(dp) {
 				continue
 			}
-			sw.dpBuffer = append(sw.dpBuffer, dp)
-			// TODO: perhaps flush the buffer more frequently than the
-			// dpSendInterval if we exceed the initial buffer capacity OR
-			// dynamically increase the buffer capacity so we don't have to
-			// resize it as often and risk `append` doing a copy.
+			buf := append(sw.dpBufferPool.Get().([]*datapoint.Datapoint), dp)
+			buf = sw.drainDpChan(buf)
+
+			for i := range buf {
+				sw.preprocessDatapoint(buf[i])
+			}
+
+			atomic.AddInt64(&sw.dpsInFlight, int64(len(buf)))
+
+			go func() {
+				// Wait if there are more than the max outstanding requests
+				dpSema <- struct{}{}
+
+				atomic.AddInt64(&sw.dpRequestsActive, 1)
+				sw.sendDatapoints(buf)
+
+				<-dpSema
+
+				atomic.AddInt64(&sw.dpRequestsActive, -1)
+				atomic.AddInt64(&sw.dpsInFlight, -int64(len(buf)))
+
+				sw.dpBufferPool.Put(buf[:0])
+			}()
 
 		case event := <-sw.eventChan:
-			if len(sw.eventBuffer) > sw.conf.EventBufferHardMax {
+			if len(sw.eventBuffer) > eventBufferCapacity {
 				log.WithFields(log.Fields{
 					"eventType":         event.EventType,
 					"eventBufferLength": len(sw.eventBuffer),
@@ -325,15 +291,8 @@ func (sw *SignalFxWriter) listenForDatapoints() {
 			}
 			sw.eventBuffer = append(sw.eventBuffer, event)
 
-		case <-dpTicker.C:
-			if len(sw.dpBuffer) > 0 {
-				go sw.filterAndSendDatapoints(sw.dpBuffer)
-				initDPBuffer()
-			}
-
 		case <-eventTicker.C:
 			if len(sw.eventBuffer) > 0 {
-				// TODO: actually send events to SignalFx
 				go sw.sendEvents(sw.eventBuffer)
 				initEventBuffer()
 			}
@@ -352,22 +311,28 @@ func (sw *SignalFxWriter) listenForDatapoints() {
 	}
 }
 
-// Assumes lock if held when called
-func (sw *SignalFxWriter) shutdownIfRunning() {
-	if sw.state != stopped {
-		sw.stopCh <- struct{}{}
-		<-sw.stopCh
-		sw.stopCh = make(chan struct{})
+func (sw *SignalFxWriter) drainDpChan(buf []*datapoint.Datapoint) []*datapoint.Datapoint {
+	for {
+		select {
+		case dp := <-sw.dpChan:
+			if !sw.shouldSendDatapoint(dp) {
+				continue
+			}
 
-		sw.state = stopped
-		log.Debug("Stopped datapoint writer")
+			buf = append(buf, dp)
+			if len(buf) >= sw.conf.DatapointMaxBatchSize {
+				return buf
+			}
+		default:
+			return buf
+		}
 	}
+
 }
 
 // Shutdown the writer and stop sending datapoints
 func (sw *SignalFxWriter) Shutdown() {
-	sw.lock.Lock()
-	defer sw.lock.Unlock()
-
-	sw.shutdownIfRunning()
+	close(sw.stopCh)
+	<-sw.doneCh
+	log.Debug("Stopped datapoint writer")
 }

@@ -37,7 +37,14 @@ const (
 // agent since it last started
 
 // GAUGE(sfxagent.datapoints_buffered): The total number of datapoints that
-// have been emitted by monitors but have yet to be sent to SignalFx
+// have been emitted by monitors but have yet to be processed by the writer
+
+// GAUGE(sfxagent.datapoints_in_flight): The total number of datapoints that
+// have been accepted by the writer but still lack confirmation from ingest
+// that they have been received.
+
+// GAUGE(sfxagent.datapoint_requests_active): The total number of outstanding
+// requests to ingest currently active.
 
 // GAUGE(sfxagent.events_buffered): The total number of events that have been
 // emitted by monitors but have yet to be sent to SignalFx
