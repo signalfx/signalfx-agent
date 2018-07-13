@@ -82,11 +82,11 @@ threading:
 
 // MBeanValue specifies a particular value to pull from the MBean.
 type MBeanValue struct {
-	Type           string `yaml:"type"`
-	Table          bool   `yaml:"table"`
-	InstancePrefix string `yaml:"instancePrefix"`
-	InstanceFrom   string `yaml:"instanceFrom"`
-	Attribute      string `yaml:"attribute"`
+	Type           string   `yaml:"type"`
+	Table          bool     `yaml:"table"`
+	InstancePrefix string   `yaml:"instancePrefix"`
+	InstanceFrom   []string `yaml:"instanceFrom"`
+	Attribute      string   `yaml:"attribute"`
 }
 
 // MBean represents the <MBean> config object in the collectd config for
