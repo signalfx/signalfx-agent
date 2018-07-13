@@ -8,16 +8,6 @@ import (
 	"github.com/signalfx/golib/sfxclient"
 )
 
-func (s state) String() string {
-	switch s {
-	case stopped:
-		return "stopped"
-	case listening:
-		return "listening"
-	}
-	return "unknown"
-}
-
 func (sw *SignalFxWriter) averageDPM() uint {
 	minutesActive := time.Since(sw.startTime).Minutes()
 	return uint(float64(sw.dpsSent) / minutesActive)
@@ -30,21 +20,21 @@ func (sw *SignalFxWriter) DiagnosticText() string {
 		"Writer Status:\n"+
 			"Global Dims:              %s\n"+
 			"Host ID Dims:             %s\n"+
-			"State:                    %s\n"+
 			"Average DPM:              %d\n"+
 			"DPs Sent:                 %d\n"+
 			"Events Sent:              %d\n"+
-			"DPs Buffered:             %d\n"+
+			"DPs In Flight:            %d\n"+
+			"DP Requests Active:       %d\n"+
 			"Events Buffered:          %d\n"+
 			"DPs Channel (len/cap) :   %d/%d\n"+
 			"Events Channel (len/cap): %d/%d\n",
 		sw.conf.GlobalDimensions,
-		sw.HostIDDims,
-		sw.state.String(),
+		sw.hostIDDims,
 		sw.averageDPM(),
 		sw.dpsSent,
 		sw.eventsSent,
-		len(sw.dpBuffer),
+		sw.dpsInFlight,
+		sw.dpRequestsActive,
 		len(sw.eventBuffer),
 		len(sw.dpChan),
 		cap(sw.dpChan),
@@ -58,7 +48,9 @@ func (sw *SignalFxWriter) InternalMetrics() []*datapoint.Datapoint {
 	return []*datapoint.Datapoint{
 		sfxclient.Cumulative("sfxagent.datapoints_sent", nil, int64(sw.dpsSent)),
 		sfxclient.Cumulative("sfxagent.events_sent", nil, int64(sw.eventsSent)),
-		sfxclient.Gauge("sfxagent.datapoints_buffered", nil, int64(len(sw.dpBuffer))),
+		sfxclient.Gauge("sfxagent.datapoints_buffered", nil, int64(len(sw.dpChan))),
+		sfxclient.Gauge("sfxagent.datapoints_in_flight", nil, sw.dpsInFlight),
+		sfxclient.Gauge("sfxagent.datapoint_requests_active", nil, sw.dpRequestsActive),
 		sfxclient.Gauge("sfxagent.events_buffered", nil, int64(len(sw.eventBuffer))),
 	}
 }

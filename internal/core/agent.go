@@ -9,22 +9,34 @@ import (
 
 	log "github.com/sirupsen/logrus"
 
+	"github.com/signalfx/golib/datapoint"
+	"github.com/signalfx/golib/event"
 	"github.com/signalfx/signalfx-agent/internal/core/config"
 	"github.com/signalfx/signalfx-agent/internal/core/hostid"
 	"github.com/signalfx/signalfx-agent/internal/core/meta"
 	"github.com/signalfx/signalfx-agent/internal/core/services"
 	"github.com/signalfx/signalfx-agent/internal/core/writer"
 	"github.com/signalfx/signalfx-agent/internal/monitors"
+	"github.com/signalfx/signalfx-agent/internal/monitors/types"
 	"github.com/signalfx/signalfx-agent/internal/observers"
+)
+
+const (
+	datapointBufferCapacity = 1000
+	eventBufferCapacity     = 1000
+	dimPropBufferCapacity   = 100
 )
 
 // Agent is what hooks up observers, monitors, and the datapoint writer.
 type Agent struct {
-	observers  *observers.ObserverManager
-	monitors   *monitors.MonitorManager
-	writer     *writer.SignalFxWriter
-	meta       *meta.AgentMeta
-	lastConfig *config.Config
+	observers    *observers.ObserverManager
+	monitors     *monitors.MonitorManager
+	writer       *writer.SignalFxWriter
+	meta         *meta.AgentMeta
+	lastConfig   *config.Config
+	dpChan       chan *datapoint.Datapoint
+	eventChan    chan *event.Event
+	propertyChan chan *types.DimProperties
 
 	diagnosticServerStop      func()
 	internalMetricsServerStop func()
@@ -33,7 +45,11 @@ type Agent struct {
 
 // NewAgent creates an unconfigured agent instance
 func NewAgent() *Agent {
-	agent := Agent{}
+	agent := Agent{
+		dpChan:       make(chan *datapoint.Datapoint, datapointBufferCapacity),
+		eventChan:    make(chan *event.Event, eventBufferCapacity),
+		propertyChan: make(chan *types.DimProperties, dimPropBufferCapacity),
+	}
 
 	agent.observers = &observers.ObserverManager{
 		CallbackTargets: &observers.ServiceCallbacks{
@@ -42,9 +58,11 @@ func NewAgent() *Agent {
 		},
 	}
 
-	agent.writer = writer.New()
 	agent.meta = &meta.AgentMeta{}
 	agent.monitors = monitors.NewMonitorManager(agent.meta)
+	agent.monitors.DPs = agent.dpChan
+	agent.monitors.Events = agent.eventChan
+	agent.monitors.DimensionProps = agent.propertyChan
 	return &agent
 }
 
@@ -56,30 +74,22 @@ func (a *Agent) configure(conf *config.Config) {
 	log.Infof("Using log level %s", log.GetLevel().String())
 
 	if !conf.DisableHostDimensions {
-		a.writer.HostIDDims = hostid.Dimensions(conf.SendMachineID, conf.Hostname, conf.UseFullyQualifiedHost)
+		conf.Writer.HostIDDims = hostid.Dimensions(conf.SendMachineID, conf.Hostname, conf.UseFullyQualifiedHost)
 	}
 
 	if conf.EnableProfiling {
 		a.ensureProfileServerRunning()
 	}
 
-	if err := a.writer.Configure(&conf.Writer); err != nil {
+	if a.writer != nil {
+		a.writer.Shutdown()
+	}
+	var err error
+	a.writer, err = writer.New(&conf.Writer, a.dpChan, a.eventChan, a.propertyChan)
+	if err != nil {
 		// This is a catastrophic error if we can't write datapoints.
 		log.WithError(err).Error("Could not configure SignalFx datapoint writer, unable to start up")
 		os.Exit(4)
-	}
-
-	// These channels should only be initialized once and never change for the
-	// lifetime of the agent.  This means that buffer size changes in the
-	// config require a restart.
-	if a.monitors.DPs == nil {
-		a.monitors.DPs = a.writer.DPChannel()
-	}
-	if a.monitors.Events == nil {
-		a.monitors.Events = a.writer.EventChannel()
-	}
-	if a.monitors.DimensionProps == nil {
-		a.monitors.DimensionProps = a.writer.DimPropertiesChannel()
 	}
 
 	a.meta.InternalMetricsServerPath = conf.InternalMetricsServerPath

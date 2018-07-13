@@ -9066,9 +9066,19 @@
           "description": "The total number of monitor configurations"
         },
         {
+          "name": "sfxagent.datapoint_requests_active",
+          "type": "gauge",
+          "description": "The total number of outstanding requests to ingest currently active."
+        },
+        {
           "name": "sfxagent.datapoints_buffered",
           "type": "gauge",
-          "description": "The total number of datapoints that have been emitted by monitors but have yet to be sent to SignalFx"
+          "description": "The total number of datapoints that have been emitted by monitors but have yet to be processed by the writer"
+        },
+        {
+          "name": "sfxagent.datapoints_in_flight",
+          "type": "gauge",
+          "description": "The total number of datapoints that have been accepted by the writer but still lack confirmation from ingest that they have been received."
         },
         {
           "name": "sfxagent.datapoints_sent",
@@ -11058,48 +11068,24 @@
           "package": "internal/core/config",
           "fields": [
             {
-              "yamlName": "datapointBufferCapacity",
-              "doc": "These are soft limits and affect how much memory will be initially allocated for datapoints, not the maximum memory allowed. Capacity options get applied at startup and subsequent changes require an agent restart.",
-              "default": 1000,
-              "required": false,
-              "type": "uint",
-              "elementKind": ""
-            },
-            {
-              "yamlName": "datapointBufferHardMax",
-              "doc": "A hard limit on the number of buffered datapoints.  If this is hit, new datapoints will be dropped until the buffer has room.",
-              "default": 100000,
+              "yamlName": "datapointMaxBatchSize",
+              "doc": "The maximum number of datapoints to include in a batch before sending the batch to the ingest server.  Smaller batch sizes than this will be sent if datapoints originate in smaller chunks.",
+              "default": 250,
               "required": false,
               "type": "int",
               "elementKind": ""
             },
             {
-              "yamlName": "eventBufferCapacity",
-              "doc": "The anaologue of `datapointBufferCapacity` for events",
-              "default": 1000,
-              "required": false,
-              "type": "uint",
-              "elementKind": ""
-            },
-            {
-              "yamlName": "eventBufferHardMax",
-              "doc": "A hard limit on the number of buffered events, beyond which all events will be dropped until the buffer length drops below this.",
-              "default": 10000,
-              "required": false,
-              "type": "int",
-              "elementKind": ""
-            },
-            {
-              "yamlName": "datapointSendIntervalSeconds",
-              "doc": "The agent does not send datapoints immediately upon a monitor generating them, but buffers them and sends them in batches.  The lower this number, the less delay for datapoints to appear in SignalFx.",
-              "default": 1,
+              "yamlName": "datapointMaxRequests",
+              "doc": "The maximum number of concurrent requests to make to the ingest server with datapoints.  This number multipled by `datapointMaxBatchSize` is more or less the maximum number of datapoints that can be \"in-flight\" at any given time.",
+              "default": 10,
               "required": false,
               "type": "int",
               "elementKind": ""
             },
             {
               "yamlName": "eventSendIntervalSeconds",
-              "doc": "The analogue of `datapointSendIntervalSeconds` for events",
+              "doc": "The agent does not send events immediately upon a monitor generating them, but buffers them and sends them in batches.  The lower this number, the less delay for events to appear in SignalFx.",
               "default": 1,
               "required": false,
               "type": "int",

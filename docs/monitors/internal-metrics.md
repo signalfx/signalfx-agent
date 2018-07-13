@@ -35,7 +35,9 @@ cause only a subset of metrics to be emitted.
 | `sfxagent.active_monitors` | gauge | The total number of monitor instances actively working |
 | `sfxagent.active_observers` | gauge | The number of observers configured and running |
 | `sfxagent.configured_monitors` | gauge | The total number of monitor configurations |
-| `sfxagent.datapoints_buffered` | gauge | The total number of datapoints that have been emitted by monitors but have yet to be sent to SignalFx |
+| `sfxagent.datapoint_requests_active` | gauge | The total number of outstanding requests to ingest currently active. |
+| `sfxagent.datapoints_buffered` | gauge | The total number of datapoints that have been emitted by monitors but have yet to be processed by the writer |
+| `sfxagent.datapoints_in_flight` | gauge | The total number of datapoints that have been accepted by the writer but still lack confirmation from ingest that they have been received. |
 | `sfxagent.datapoints_sent` | cumulative | The total number of datapoints sent by the agent since it last started |
 | `sfxagent.discovered_endpoints` | gauge | The number of discovered service endpoints.  This includes endpoints that do not have any matching monitor configuration discovery rule. |
 | `sfxagent.events_buffered` | gauge | The total number of events that have been emitted by monitors but have yet to be sent to SignalFx |
