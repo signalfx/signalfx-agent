@@ -62,7 +62,7 @@ Monitor Type: `collectd/kong`
 | `host` | **yes** | `string` | Kong host to connect with (used for autodiscovery and URL) |
 | `port` | **yes** | `integer` | Port for kong-plugin-signalfx hosting server (used for autodiscovery and URL) |
 | `name` | no | `string` | Registration name when using multiple instances in Smart Agent |
-| `url` | no | `string` | kong-plugin-signalfx metric plugin (**default:** `http://{{.Host}}:{{.Port}}/signalfx`) (**default:** `http://{{.Host}}:{{.Port}}/signalfx`) |
+| `url` | no | `string` | kong-plugin-signalfx metric plugin (**default:** `http://{{.Host}}:{{.Port}}/signalfx`) |
 | `authHeader` | no | `object (see below)` | Header and its value to use for requests to SFx metric endpoint |
 | `verifyCerts` | no | `bool` | Whether to verify certificates when using ssl/tls |
 | `caBundle` | no | `string` | CA Bundle file or directory |

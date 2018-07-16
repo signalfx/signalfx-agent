@@ -90,7 +90,7 @@ type Config struct {
 	Port uint16 `yaml:"port" validate:"required"`
 	// Registration name when using multiple instances in Smart Agent
 	Name string `yaml:"name"`
-	// kong-plugin-signalfx metric plugin (**default:** `http://{{.Host}}:{{.Port}}/signalfx`)
+	// kong-plugin-signalfx metric plugin
 	URL string `yaml:"url" default:"http://{{.Host}}:{{.Port}}/signalfx"`
 	// Header and its value to use for requests to SFx metric endpoint
 	AuthHeader *Header `yaml:"authHeader"`
