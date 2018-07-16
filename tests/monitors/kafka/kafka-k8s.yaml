@@ -3,18 +3,16 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: kafka-configmap
-  namespace: default
 data:
   jmxremote.password: |
     testuser testing123
   jmxremote.access: |
     testuser readwrite
 ---
-apiVersion: apps/v1
+apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
   name: kafka-deployment
-  namespace: default
   labels:
     app: kafka
 spec:

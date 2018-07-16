@@ -122,65 +122,50 @@ class Minikube:
             **build_opts)
 
     @contextmanager
-    def deploy_k8s_yamls(self, yamls=[], namespace="default", timeout=180):
+    def deploy_k8s_yamls(self, yamls=[], namespace=None, timeout=180):
         self.yamls = []
         for yaml_file in yamls:
             assert os.path.isfile(yaml_file), "\"%s\" not found!" % yaml_file
             docs = []
-            for doc in yaml.load_all(open(yaml_file, "r").read()):
-                assert doc['kind'] in ["ConfigMap", "Deployment"], "kind \"%s\" in %s not yet supported!" % (doc['kind'], yaml_file)
-                docs.append(doc)
-            # create ConfigMaps first
+            with open(yaml_file, "r") as yf:
+                docs = yaml.load_all(yf.read())
+
             for doc in docs:
                 kind = doc['kind']
                 name = doc['metadata']['name']
-                doc['metadata']['namespace'] = namespace
-                if kind == "ConfigMap":
-                    if has_configmap(name, namespace=namespace):
-                        print("Deleting configmap \"%s\" ..." % name)
-                        delete_configmap(name, namespace=namespace)
-                    print("Creating configmap from %s ..." % yaml_file)
-                    create_configmap(body=doc, namespace=namespace, timeout=timeout)
-                    self.yamls.append(doc)
-            # create Deployments
-            for doc in docs:
-                kind = doc['kind']
-                name = doc['metadata']['name']
-                doc['metadata']['namespace'] = namespace
-                try:
-                    containers = doc['spec']['template']['spec']['containers']
-                    ports = []
-                    for cont in containers:
-                        for port in cont['ports']:
-                            ports.append(int(port['containerPort']))
-                except KeyError:
-                    ports = []
-                if kind == "ConfigMap":
-                    continue
-                if has_deployment(name, namespace=namespace):
-                    print("Deleting deployment \"%s\" ..." % name)
-                    delete_deployment(name, namespace=namespace)
-                print("Creating deployment from %s ..." % yaml_file)
-                create_deployment(body=doc, namespace=namespace, timeout=timeout)
-                for port in ports:
-                    for pod in get_all_pods_with_name(name, namespace=namespace):
-                        assert wait_for(p(pod_port_open, self.container, pod.status.pod_ip, port), timeout_seconds=timeout), \
-                            "timed out waiting for port %d for pod %s to be ready!" % (port, pod.metadata.name)
+                api_version = doc['apiVersion']
+                api_client = api_client_from_version(api_version)
+
+                if not doc.get('metadata', {}).get('namespace'):
+                    if 'metadata' not in doc:
+                        doc['metadata'] = {}
+                    doc['metadata']['namespace'] = namespace
+
+                if has_resource(name, kind, api_client, namespace):
+                    print("Deleting %s \"%s\" ..." % (kind, name))
+                    delete_resource(name, kind, api_client, namespace=namespace)
+
+                print("Creating %s from %s ..." % (kind, yaml_file))
+                create_resource(doc, api_client, namespace=namespace, timeout=timeout)
                 self.yamls.append(doc)
+
+        for doc in filter(lambda d: d['kind'] == 'Deployment', self.yamls):
+            print("Waiting for ports to open on deployment %s" % doc['metadata']['name'])
+            wait_for_deployment(doc, self.container, timeout)
+
         try:
             yield
         finally:
             for y in self.yamls:
+                print("Deleting %s \"%s\" ..." % (kind, name))
+
                 kind = y['kind']
-                name = y['metadata']['name']
-                namespace = y['metadata']['namespace']
-                if kind == "ConfigMap":
-                    print("Deleting configmap \"%s\" ..." % name)
-                    delete_configmap(name, namespace=namespace)
-                elif kind == "Deployment":
-                    print("Deleting deployment \"%s\" ..." % name)
-                    delete_deployment(name, namespace=namespace)
+                api_version = y['apiVersion']
+                api_client = api_client_from_version(api_version)
+                delete_resource(name, kind, api_client, namespace=namespace)
+
             self.yamls = []
+
 
     def pull_agent_image(self, name, tag, image_id):
         assert has_docker_image(self.host_client, image_id), "agent image \"%s\" not found!" % image_id

@@ -41,6 +41,23 @@ def has_datapoint_with_dim(fake_services, key, value):
     return has_datapoint_with_all_dims(fake_services, {key: value})
 
 
+def has_datapoint(fake_services, metric_name=None, dimensions=None, value=None):
+    """
+    Returns True if there is a datapoint seen in the fake_services backend that
+    has the given attributes.  If a property is not specified it will not be
+    considered.  Dimensions, if provided, will be tested as a subset of total
+    set of dimensions on the datapoint and not the complete set.
+    """
+    for dp in fake_services.datapoints:
+        if metric_name and dp.metric != metric_name:
+            continue
+        if dimensions and not has_all_dims(dp, dimensions):
+            continue
+        if value and dp.value != value:
+            continue
+        return True
+    return False
+
 # Tests if any event received has the given dim key/value on it.
 def has_event_with_dim(fake_services, key, value):
     for ev in fake_services.events:

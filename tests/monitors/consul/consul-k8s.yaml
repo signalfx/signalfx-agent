@@ -1,9 +1,8 @@
 ---
-apiVersion: apps/v1
+apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
   name: consul-deployment
-  namespace: default
   labels:
     app: consul
 spec:
