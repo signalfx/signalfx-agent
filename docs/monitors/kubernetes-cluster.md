@@ -76,6 +76,8 @@ cause only a subset of metrics to be emitted.
 | `kubernetes.replica_set.desired` | gauge | Number of desired pods in this replica set |
 | `kubernetes.replication_controller.available` | gauge | Total number of available pods (ready for at least minReadySeconds) targeted by this replication controller. |
 | `kubernetes.replication_controller.desired` | gauge | Number of desired pods |
+| `kubernetes.resource_quota_hard` | gauge | The upper limit for a particular resource in a specific namespace.  Will only be sent if a quota is specified. |
+| `kubernetes.resource_quota_used` | gauge | The usage for a particular resource in a specific namespace.  Will only be sent if a quota is specified. |
 
 ## Dimensions
 
@@ -90,6 +92,8 @@ dimensions may be specific to certain metrics.
 | `kubernetes_pod_uid` | The UID of the pod that the metric describes |
 | `machine_id` | The machine ID from /etc/machine-id.  This should be unique across all nodes in your cluster, but some cluster deployment tools don't guarantee this.  This will not be sent if the `useNodeName` config option is set to true. |
 | `metric_source` | This is always set to `kubernetes` |
+| `quota_name` | The name of the k8s ResourceQuota object that the quota is part of |
+| `resource` | The k8s resource that the quota applies to |
 
 ## Properties
 

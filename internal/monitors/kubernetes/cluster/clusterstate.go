@@ -51,6 +51,7 @@ func (cs *State) Start() {
 	cs.beginSyncForType(ctx, &v1beta1.ReplicaSet{}, "replicasets", extV1beta1Client)
 	cs.beginSyncForType(ctx, &v1.Node{}, "nodes", coreClient)
 	cs.beginSyncForType(ctx, &v1.Namespace{}, "namespaces", coreClient)
+	cs.beginSyncForType(ctx, &v1.ResourceQuota{}, "resourcequotas", coreClient)
 }
 
 func (cs *State) beginSyncForType(ctx context.Context, resType runtime.Object, resName string, client rest.Interface) {

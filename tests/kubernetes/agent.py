@@ -20,10 +20,10 @@ class Agent:
         self.cluster_name = None
         self.monitors = []
         self.namespace = None
-    
+
     def get_container(self, client, timeout=30):
         assert wait_for(p(has_pod, self.container_name, namespace=self.namespace), timeout_seconds=timeout), "timed out waiting for \"%s\" pod!" % self.container_name
-        pods = get_all_pods_with_name(self.container_name, namespace=self.namespace)
+        pods = get_all_pods_starting_with_name(self.container_name, namespace=self.namespace)
         assert len(pods) == 1, "multiple pods found with name \"%s\"!\n%s" % (self.container_name, "\n".join([p.metadata.name for p in pods]))
         self.container = client.containers.get(pods[0].status.container_statuses[0].container_id.replace("docker:/", ""))
 

@@ -9531,6 +9531,14 @@
         {
           "name": "metric_source",
           "description": "This is always set to `kubernetes`"
+        },
+        {
+          "name": "quota_name",
+          "description": "The name of the k8s ResourceQuota object that the quota is part of"
+        },
+        {
+          "name": "resource",
+          "description": "The k8s resource that the quota applies to"
         }
       ],
       "metrics": [
@@ -9608,6 +9616,16 @@
           "name": "kubernetes.replication_controller.desired",
           "type": "gauge",
           "description": "Number of desired pods"
+        },
+        {
+          "name": "kubernetes.resource_quota_hard",
+          "type": "gauge",
+          "description": "The upper limit for a particular resource in a specific namespace.  Will only be sent if a quota is specified."
+        },
+        {
+          "name": "kubernetes.resource_quota_used",
+          "type": "gauge",
+          "description": "The usage for a particular resource in a specific namespace.  Will only be sent if a quota is specified."
         }
       ],
       "properties": [

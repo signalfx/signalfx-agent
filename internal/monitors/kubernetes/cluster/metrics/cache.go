@@ -114,6 +114,8 @@ func (dc *DatapointCache) HandleAdd(newObj runtime.Object) interface{} {
 		dps = datapointsForDeployment(o)
 	case *v1beta1.ReplicaSet:
 		dps = datapointsForReplicaSet(o)
+	case *v1.ResourceQuota:
+		dps = datapointsForResourceQuota(o)
 	case *v1.Node:
 		dps = datapointsForNode(o, dc.useNodeName)
 		dimProps = dimPropsForNode(o, dc.useNodeName)

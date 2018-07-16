@@ -19,7 +19,6 @@ AGENT_SERVICEACCOUNT_PATH = os.environ.get("AGENT_SERVICEACCOUNT_PATH", os.path.
 K8S_CREATE_TIMEOUT = 180
 K8S_DELETE_TIMEOUT = 10
 
-
 def run_k8s_monitors_test(agent_image, minikube, monitors, observer=None, namespace="default", yamls=[], yamls_timeout=K8S_CREATE_TIMEOUT, expected_metrics=set(), expected_dims=set(), passwords=["testing123"], test_timeout=60):
     """
     Wrapper function for K8S setup and tests within minikube for monitors.
@@ -44,6 +43,36 @@ def run_k8s_monitors_test(agent_image, minikube, monitors, observer=None, namesp
         if observer:
             expected_dims = expected_dims.union(get_observer_dims_from_selfdescribe(observer))
         expected_dims = expected_dims.union({"kubernetes_cluster"})
+
+    with run_k8s_with_agent(agent_image, minikube, monitors, observer,
+            namespace, yamls, yamls_timeout) as [backend, agent]:
+        result = has_any_metric_or_dim(backend, expected_metrics, expected_dims, timeout=test_timeout)
+        if expected_metrics and expected_dims:
+            assert result, \
+                "timed out waiting for any metric in %s with any dimension key in %s!\n\nAGENT STATUS:\n%s\n\nAGENT CONTAINER LOGS:\n%s\n" % \
+                (expected_metrics, expected_dims, agent.get_status(), agent.get_container_logs())
+        elif expected_metrics:
+            assert result, \
+                "timed out waiting for any metric in %s!\n\nAGENT STATUS:\n%s\n\nAGENT CONTAINER LOGS:\n%s\n" % \
+                (expected_metrics, agent.get_status(), agent.get_container_logs())
+        elif expected_dims:
+            assert result, \
+                "timed out waiting for any dimension key in %s!\n\nAGENT STATUS:\n%s\n\nAGENT CONTAINER LOGS:\n%s\n" % \
+                (expected_dims, agent.get_status(), agent.get_container_logs())
+        agent_status = agent.get_status()
+        container_logs = agent.get_container_logs()
+        assert all([p not in agent_status for p in passwords]), \
+            "cleartext password(s) found in agent-status output!\n\n%s\n" % agent_status
+        assert all([p not in container_logs for p in passwords]), \
+            "cleartext password(s) found in agent container logs!\n\n%s\n" % container_logs
+
+
+@contextmanager
+def run_k8s_with_agent(agent_image, minikube, monitors, observer=None, namespace="default", yamls=[], yamls_timeout=K8S_CREATE_TIMEOUT):
+    """
+    Runs a minikube environment with the agent and a set of specified
+    resources.
+    """
     try:
         monitors = yaml.load(monitors)
     except AttributeError:
@@ -64,25 +93,7 @@ def run_k8s_monitors_test(agent_image, minikube, monitors, observer=None, namesp
                 image_name=agent_image["name"],
                 image_tag=agent_image["tag"],
                 namespace=namespace) as agent:
-                    result = has_any_metric_or_dim(backend, expected_metrics, expected_dims, timeout=test_timeout)
-                    if expected_metrics and expected_dims:
-                        assert result, \
-                            "timed out waiting for any metric in %s with any dimension key in %s!\n\nAGENT STATUS:\n%s\n\nAGENT CONTAINER LOGS:\n%s\n" % \
-                            (expected_metrics, expected_dims, agent.get_status(), agent.get_container_logs())
-                    elif expected_metrics:
-                        assert result, \
-                            "timed out waiting for any metric in %s!\n\nAGENT STATUS:\n%s\n\nAGENT CONTAINER LOGS:\n%s\n" % \
-                            (expected_metrics, agent.get_status(), agent.get_container_logs())
-                    elif expected_dims:
-                        assert result, \
-                            "timed out waiting for any dimension key in %s!\n\nAGENT STATUS:\n%s\n\nAGENT CONTAINER LOGS:\n%s\n" % \
-                            (expected_dims, agent.get_status(), agent.get_container_logs())
-                    agent_status = agent.get_status()
-                    container_logs = agent.get_container_logs()
-                    assert all([p not in agent_status for p in passwords]), \
-                        "cleartext password(s) found in agent-status output!\n\n%s\n" % agent_status
-                    assert all([p not in container_logs for p in passwords]), \
-                        "cleartext password(s) found in agent container logs!\n\n%s\n" % container_logs
+                yield [backend, agent]
 
 
 def get_host_ip():
@@ -165,10 +176,29 @@ def create_serviceaccount(body, namespace=None, timeout=K8S_CREATE_TIMEOUT):
     return serviceaccount
 
 
-def has_configmap(name, namespace="default"):
-    api = kube_client.CoreV1Api()
+def api_client_from_version(api_version):
+    return {
+        'v1': kube_client.CoreV1Api(),
+        'extensions/v1beta1': kube_client.ExtensionsV1beta1Api(),
+    }[api_version]
+
+
+def camel_case_to_snake_case(name):
+    """
+    Useful for converting K8s "kind" field values to the k8s api method name
+    """
+    s1 = re.sub('(.)([A-Z][a-z]+)', r'\1_\2', name)
+    return re.sub('([a-z0-9])([A-Z])', r'\1_\2', s1).lower()
+
+
+def has_resource(name, kind, api_client, namespace="default"):
+    """
+    Returns True if the resource exists.  `kind` should be the same thing that
+    goes in the `kind` field of the k8s resource.
+    """
     try:
-        api.read_namespaced_config_map(name, namespace=namespace)
+        getattr(api_client, "read_namespaced_"+camel_case_to_snake_case(kind))(name,
+                                                                               namespace=namespace)
         return True
     except ApiException as e:
         if e.status == 404:
@@ -177,54 +207,58 @@ def has_configmap(name, namespace="default"):
             raise
 
 
-def create_configmap(body, namespace=None, timeout=K8S_CREATE_TIMEOUT):
-    api = kube_client.CoreV1Api()
+def create_resource(body, api_client, namespace=None, timeout=K8S_CREATE_TIMEOUT):
     name = body['metadata']['name']
-    body["apiVersion"] = "v1"
-    if namespace:
-        body["metadata"]["namespace"] = namespace
-    else:
-        try:
-            namespace = body["metadata"]["namespace"]
-        except KeyError:
-            namespace = "default"
+    kind = body['kind']
+    # The namespace in the resource body always takes precidence
+    namespace = body.get("metadata", {}).get("namespace", namespace)
+
     if not has_namespace(namespace):
         create_namespace(namespace)
-    configmap = api.create_namespaced_config_map(
+    resource = getattr(api_client, "create_namespaced_"+camel_case_to_snake_case(kind))(
         body=body,
         namespace=namespace)
-    assert wait_for(p(has_configmap, name, namespace=namespace), timeout_seconds=timeout), "timed out waiting for configmap \"%s\" to be created!" % name
-    return configmap
+    assert wait_for(p(has_resource, name, kind, api_client, namespace=namespace), timeout_seconds=timeout), "timed out waiting for %s \"%s\" to be created!" % (kind, name)
+    return resource
 
 
-def patch_configmap(body, namespace=None, timeout=K8S_CREATE_TIMEOUT):
-    api = kube_client.CoreV1Api()
+def patch_resource(body, api_client, namespace=None, timeout=K8S_CREATE_TIMEOUT):
     name = body['metadata']['name']
-    body["apiVersion"] = "v1"
-    if namespace:
-        body["metadata"]["namespace"] = namespace
-    else:
-        try:
-            namespace = body["metadata"]["namespace"]
-        except KeyError:
-            namespace = "default"
-    configmap = api.patch_namespaced_config_map(
+    kind = body['kind']
+    # The namespace in the resource body always takes precidence
+    namespace = body.get("metadata", {}).get("namespace", namespace)
+    resource = getattr(api_client, "patch_namespaced_"+camel_case_to_snake_case(kind))(
         name=name,
         body=body,
         namespace=namespace)
-    assert wait_for(p(has_configmap, name, namespace=namespace), timeout_seconds=timeout), "timed out waiting for configmap \"%s\" to be patched!" % name
-    return configmap
+    assert wait_for(p(has_resource, name, kind, api_client, namespace=namespace), timeout_seconds=timeout), "timed out waiting for %s \"%s\" to be patched!" % (kind, name)
+    return resource
 
 
-def delete_configmap(name, namespace="default", timeout=K8S_DELETE_TIMEOUT):
-    if not has_configmap(name, namespace=namespace):
+def delete_resource(name, kind, api_client, namespace="default", timeout=K8S_DELETE_TIMEOUT):
+    if not has_resource(name, kind, api_client, namespace=namespace):
         return
-    api = kube_client.CoreV1Api()
-    api.delete_namespaced_config_map(
+    getattr(api_client, "delete_namespaced_"+camel_case_to_snake_case(kind))(
         name=name,
         body=kube_client.V1DeleteOptions(grace_period_seconds=0, propagation_policy='Background'),
         namespace=namespace)
-    assert wait_for(lambda: not has_configmap(name, namespace=namespace), timeout), "timed out waiting for configmap \"%s\" to be deleted!" % name
+    assert wait_for(lambda: not has_resource(name, kind, api_client, namespace=namespace), timeout), "timed out waiting for %s \"%s\" to be deleted!" % (kind, name)
+
+
+def has_configmap(name, namespace="default"):
+    return has_resource(name, 'ConfigMap', kube_client.CoreV1Api(), namespace)
+
+
+def create_configmap(body, namespace=None, timeout=K8S_CREATE_TIMEOUT):
+    return create_resource(body, kube_client.CoreV1Api(), namespace=namespace, timeout=timeout)
+
+
+def patch_configmap(body, namespace=None, timeout=K8S_CREATE_TIMEOUT):
+    return patch_resource(body, kube_client.CoreV1Api(), namespace=namespace, timeout=timeout)
+
+
+def delete_configmap(name, namespace="default", timeout=K8S_DELETE_TIMEOUT):
+    return delete_resource(name, 'ConfigMap', kube_client.CoreV1Api(), namespace=namespace, timeout=timeout)
 
 
 def has_deployment(name, namespace="default"):
@@ -248,29 +282,36 @@ def deployment_is_ready(name, replicas, namespace="default"):
     return False
 
 
-def create_deployment(body, namespace=None, timeout=K8S_CREATE_TIMEOUT):
-    api = kube_client.ExtensionsV1beta1Api()
-    name = body["metadata"]["name"]
-    body["apiVersion"] = "extensions/v1beta1"
-    if namespace:
-        body["metadata"]["namespace"] = namespace
-    else:
-        try:
-            namespace = body["metadata"]["namespace"]
-        except KeyError:
-            namespace = "default"
-    try:
-        replicas = body["spec"]["replicas"]
-    except KeyError:
-        replicas = 1
-        body["spec"]["replicas"] = replicas
-    if not has_namespace(namespace):
-        create_namespace(namespace)
-    deployment = api.create_namespaced_deployment(
-        body=body,
-        namespace=namespace)
+def wait_for_deployment(deployment, minikube_container, timeout):
+    """
+    Waits for all of the ports specified in a deployment pod spec to be open
+    for connections.
+
+    :param minikube_container: A Docker container where minikube is running.
+      The port checks will be performed from this container
+    """
+    name = deployment['metadata']['name']
+    replicas = deployment["spec"]["replicas"]
+    namespace = deployment['metadata']['namespace']
+
     assert wait_for(p(deployment_is_ready, name, replicas, namespace=namespace), timeout_seconds=timeout), "timed out waiting for deployment \"%s\" to be ready!" % name
-    return deployment
+
+    try:
+        containers = deployment['spec']['template']['spec']['containers']
+    except KeyError:
+        containers = []
+
+
+    ports = []
+    for cont in containers:
+        for port_spec in cont['ports']:
+            port = int(port_spec['containerPort'])
+            for pod in get_all_pods_starting_with_name(name, namespace=namespace):
+                assert wait_for(p(pod_port_open,
+                    minikube_container,
+                    pod.status.pod_ip,
+                    port), timeout_seconds=timeout), \
+                    "timed out waiting for port %d for pod %s to be ready!" % (port, pod.metadata.name)
 
 
 def delete_deployment(name, namespace="default", timeout=K8S_DELETE_TIMEOUT):
@@ -338,7 +379,7 @@ def delete_daemonset(name, namespace="default", timeout=K8S_DELETE_TIMEOUT):
 
 def exec_pod_command(name, command, namespace="default"):
     api = kube_client.CoreV1Api()
-    pods = get_all_pods_with_name(name, namespace=namespace)
+    pods = get_all_pods_starting_with_name(name, namespace=namespace)
     assert len(pods) == 1, "multiple pods found with name \"%s\"!\n%s" % (name, "\n".join([p.metadata.name for p in pods]))
     return api.connect_post_namespaced_pod_exec(
         name=pods[0].metadata.name,
@@ -348,7 +389,7 @@ def exec_pod_command(name, command, namespace="default"):
 
 def get_pod_logs(name, namespace="default"):
     api = kube_client.CoreV1Api()
-    pods = get_all_pods_with_name(name, namespace=namespace)
+    pods = get_all_pods_starting_with_name(name, namespace=namespace)
     assert len(pods) == 1, "multiple pods found with name \"%s\"!\n%s" % (name, "\n".join([p.metadata.name for p in pods]))
     return api.read_namespaced_pod_log(
         name=pods[0].metadata.name,
@@ -373,10 +414,10 @@ def get_all_pods(namespace=None):
     return pods
 
 
-def get_all_pods_with_name(name, namespace=None):
+def get_all_pods_starting_with_name(name, namespace=None):
     """
     Args:
-    name (str):              Name of pods to search for
+    name (str):              Prefix of pods to search for
     namespace (str or None): Kubernetes namespace of pods
 
     Returns:
@@ -385,7 +426,7 @@ def get_all_pods_with_name(name, namespace=None):
     """
     pods = []
     for pod in get_all_pods(namespace=namespace):
-        if name in pod.metadata.name:
+        if pod.metadata.name.startswith(name):
             pods.append(pod)
     return pods
 
