@@ -69,6 +69,7 @@ func dimPropsForNode(node *v1.Node, useNodeName bool) *atypes.DimProperties {
 				"node %s and %s both have machine ID %s.  Please set the `useNodeName` option "+
 				"in this monitor config and set the top-level config option `sendMachineID` to "+
 				"false.", node.Name, otherNodeName, machineID)
+			return nil
 		}
 
 		machineIDToNodeNameMap[machineID] = node.Name
