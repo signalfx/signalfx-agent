@@ -13,10 +13,11 @@ set -xeuo pipefail
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
+. $SCRIPT_DIR/common.sh
+
 DEV_IMAGE=${DEV_IMAGE:-"quay.io/signalfx/signalfx-agent-dev"}
 
 for s in $($SCRIPT_DIR/dockerfile-stages); do
-  image="$DEV_IMAGE:stage-$s"
-  docker build -t $image --pull --target $s $SCRIPT_DIR/..
-  docker push $image
+  do_docker_build $DEV_IMAGE "stage-$s" $s
+  docker push ${DEV_IMAGE}:stage-$s
 done

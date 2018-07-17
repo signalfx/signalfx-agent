@@ -140,6 +140,10 @@ docs:
 	bash -c "rm -f docs/{observers,monitors}/*"
 	scripts/docs/make-docs
 
+.PHONY: stage-cache
+stage-cache:
+	COLLECTD_VERSION=$(COLLECTD_VERSION) COLLECTD_COMMIT=$(COLLECTD_COMMIT) scripts/tag-and-push-targets
+
 .PHONY: product-docs
 product-docs:
 	scripts/docs/to-product-docs
