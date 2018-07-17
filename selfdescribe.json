@@ -4124,7 +4124,7 @@
         },
         {
           "yamlName": "url",
-          "doc": "kong-plugin-signalfx metric plugin (**default:** `http://{{.Host}}:{{.Port}}/signalfx`)",
+          "doc": "kong-plugin-signalfx metric plugin",
           "default": "http://{{.Host}}:{{.Port}}/signalfx",
           "required": false,
           "type": "string",
