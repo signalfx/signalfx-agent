@@ -37,7 +37,7 @@ func datapointsForPod(pod *v1.Pod) []*datapoint.Datapoint {
 		"kubernetes_namespace": pod.Namespace,
 		"kubernetes_pod_uid":   string(pod.UID),
 		"kubernetes_pod_name":  pod.Name,
-		"host":                 pod.Spec.NodeName,
+		"kubernetes_node":      pod.Spec.NodeName,
 	}
 
 	dps := []*datapoint.Datapoint{
