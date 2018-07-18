@@ -14,7 +14,7 @@ github_request() {
 }
 
 new_github_release() {
-  local tag=$1 
+  local tag=$1
   local username=$2
   local token=$3
   local prerelease="false"
@@ -24,11 +24,13 @@ new_github_release() {
   fi
 
   tmpfile=$(mktemp)
+  echo "$tmpfile"
   cat <<EOH > $tmpfile
     {
       "tag_name": "$tag",
       "name": "$tag",
-      "prerelease": $(if [[ $tag =~ -beta ]]; then echo -n "true"; else echo -n "false"; fi)
+      "prerelease": $(if [[ $tag =~ -beta ]]; then echo -n "true"; else echo -n "false"; fi),
+	  "body": $(jq -n --arg body "$(git tag -l --format='%(contents)' $tag | tail -n+2)" '$body')
     }
 EOH
 
