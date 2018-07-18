@@ -13,7 +13,7 @@ type WriterConfig struct {
 	// The maximum number of datapoints to include in a batch before sending the
 	// batch to the ingest server.  Smaller batch sizes than this will be sent
 	// if datapoints originate in smaller chunks.
-	DatapointMaxBatchSize int `yaml:"datapointMaxBatchSize" default:"250"`
+	DatapointMaxBatchSize int `yaml:"datapointMaxBatchSize" default:"1000"`
 	// The maximum number of concurrent requests to make to the ingest server
 	// with datapoints.  This number multipled by `datapointMaxBatchSize` is
 	// more or less the maximum number of datapoints that can be "in-flight" at

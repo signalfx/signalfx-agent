@@ -11070,7 +11070,7 @@
             {
               "yamlName": "datapointMaxBatchSize",
               "doc": "The maximum number of datapoints to include in a batch before sending the batch to the ingest server.  Smaller batch sizes than this will be sent if datapoints originate in smaller chunks.",
-              "default": 250,
+              "default": 1000,
               "required": false,
               "type": "int",
               "elementKind": ""
