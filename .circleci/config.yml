@@ -189,7 +189,7 @@ jobs:
     environment:
       K8S_VERSION: "v1.10.0"
       K8S_OBSERVERS: "k8s-api,k8s-kubelet"
-      PYTEST_MARKERS: "k8s"
+      PYTEST_MARKERS: "k8s and (kong or jenkins or couchbase)"
     steps:
       - checkout
       - *install_pytest
@@ -204,7 +204,7 @@ jobs:
     environment:
       K8S_VERSION: "v1.9.0"
       K8S_OBSERVERS: "k8s-api,k8s-kubelet"
-      PYTEST_MARKERS: "k8s"
+      PYTEST_MARKERS: "k8s and (kong or jenkins or couchbase)"
     steps:
       - checkout
       - *install_pytest
@@ -219,7 +219,7 @@ jobs:
     environment:
       K8S_VERSION: "v1.8.0"
       K8S_OBSERVERS: "k8s-api,k8s-kubelet"
-      PYTEST_MARKERS: "k8s"
+      PYTEST_MARKERS: "k8s and (kong or jenkins or couchbase)"
     steps:
       - checkout
       - *install_pytest
@@ -234,7 +234,7 @@ jobs:
     environment:
       K8S_VERSION: "v1.7.0"
       K8S_OBSERVERS: "k8s-api,k8s-kubelet"
-      PYTEST_MARKERS: "k8s"
+      PYTEST_MARKERS: "k8s and (kong or jenkins or couchbase)"
     steps:
       - checkout
       - *install_pytest
