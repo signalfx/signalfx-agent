@@ -140,8 +140,6 @@ func (kip *kubeletInfoProvider) getAllContainers(start, end time.Time) ([]info.C
 	request := statsRequest{
 		ContainerName: "/",
 		NumStats:      1,
-		Start:         start,
-		End:           end,
 		Subcontainers: true,
 	}
 
