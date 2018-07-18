@@ -19,6 +19,10 @@ const monitorType = "collectd/rabbitmq"
 // See the [integration
 // doc](https://github.com/signalfx/integrations/tree/master/collectd-rabbitmq)
 // for more information.
+//
+// **Note that you must individually enable each of the five `collect*` options
+// to get metrics pertaining to those facets of a RabbitMQ instance.  If none
+// of them are enabled, no metrics will be sent.**
 
 func init() {
 	monitors.Register(monitorType, func() interface{} {

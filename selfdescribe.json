@@ -6946,7 +6946,7 @@
     },
     {
       "name": "Config",
-      "doc": " Monitors an instance of RabbitMQ using the\n[collectd RabbitMQ Python\nPlugin](https://github.com/signalfx/collectd-rabbitmq).\n\nSee the [integration\ndoc](https://github.com/signalfx/integrations/tree/master/collectd-rabbitmq)\nfor more information.\n",
+      "doc": " Monitors an instance of RabbitMQ using the\n[collectd RabbitMQ Python\nPlugin](https://github.com/signalfx/collectd-rabbitmq).\n\nSee the [integration\ndoc](https://github.com/signalfx/integrations/tree/master/collectd-rabbitmq)\nfor more information.\n\n**Note that you must individually enable each of the five `collect*` options\nto get metrics pertaining to those facets of a RabbitMQ instance.  If none\nof them are enabled, no metrics will be sent.**\n",
       "package": "internal/monitors/collectd/rabbitmq",
       "fields": [
         {
