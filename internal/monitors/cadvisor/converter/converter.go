@@ -754,12 +754,12 @@ func copyDims(dims map[string]string) map[string]string {
 // DIMENSION(container_image): The container image name
 
 func (c *CadvisorCollector) collectContainersInfo() {
+	now := time.Now()
 	containers, err := c.infoProvider.SubcontainersInfo("/")
 	if err != nil {
 		log.WithError(err).Error("Couldn't get cAdvisor container stats")
 		return
 	}
-	now := time.Now()
 	for _, container := range containers {
 		dims := make(map[string]string)
 
