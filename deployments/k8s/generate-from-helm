@@ -20,8 +20,11 @@ for f in $templates; do
       sed -e 's/[[:space:]]*$//' | \
       sed -e 's@apiVersion: apps/v1beta2@apiVersion: extensions/v1beta1@' | \
       grep -v 'chart: signalfx-agent' | \
+      grep -v 'namespace: signalfx-agent' | \
       grep -v 'heritage: Tiller' | \
       grep -v 'release: RELEASE-NAME' \
     > $SCRIPT_DIR/$f
   echo "Wrote resource $f"
 done
+
+echo '  namespace: MY_AGENT_NAMESPACE' >> $SCRIPT_DIR/clusterrolebinding.yaml

@@ -13,4 +13,4 @@ roleRef:
 subjects:
 - kind: ServiceAccount
   name: signalfx-agent
-  namespace: signalfx-agent
+  namespace: MY_AGENT_NAMESPACE
