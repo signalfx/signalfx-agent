@@ -122,11 +122,21 @@ class Minikube:
     def build_image(self, dockerfile_dir, build_opts={}):
         if not self.client:
             self.get_client()
-        self.client.images.build(
-            path=dockerfile_dir,
-            rm=True,
-            forcerm=True,
-            **build_opts)
+        attempts = 1
+        while attempts <= 3:
+            try:
+                self.client.images.build(
+                    path=dockerfile_dir,
+                    rm=True,
+                    forcerm=True,
+                    **build_opts)
+                break
+            except docker.errors.BuildError as e:
+                if attempts == 3:
+                    raise e
+                else:
+                    time.sleep(5)
+                    attempts += 1
 
     @contextmanager
     def deploy_k8s_yamls(self, yamls=[], namespace=None, timeout=180):
