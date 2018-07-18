@@ -125,6 +125,7 @@ class Minikube:
                     **build_opts)
                 break
             except docker.errors.BuildError as e:
+                print("exception caught: %s" % str(e))
                 if attempts == 3:
                     raise e
                 else:
