@@ -29,7 +29,6 @@ var machineIDToNodeNameMap = make(map[string]string)
 
 func datapointsForNode(node *v1.Node, useNodeName bool) []*datapoint.Datapoint {
 	dims := map[string]string{
-		"host":            firstNodeHostname(node),
 		"kubernetes_node": node.Name,
 	}
 
