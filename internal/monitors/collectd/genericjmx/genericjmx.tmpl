@@ -10,6 +10,9 @@
       {{range .InstanceFrom -}}
       InstanceFrom "{{.}}"
       {{end -}}
+      {{range .Dimensions -}}
+      Dimension "{{.}}"
+      {{end -}}
       {{range .Values}}
       <Value>
         {{with .InstancePrefix -}}
@@ -33,6 +36,11 @@
       MonitorId "{{.MonitorID}}"
       {{with .InstancePrefix -}}
       InstancePrefix "{{.}}"
+      {{- end}}
+      {{if .Plugin -}}
+      Plugin "{{.Plugin}}"
+      {{- else}}
+      Plugin "{{.ServiceName}}"
       {{- end}}
       ServiceName "{{.ServiceName}}"
       {{with .Username -}}

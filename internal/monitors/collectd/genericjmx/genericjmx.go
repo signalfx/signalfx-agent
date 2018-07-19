@@ -39,6 +39,10 @@ type Config struct {
 	// can be set to whatever you like and metrics will get the special
 	// property `sf_hostHasService` set to this value.
 	ServiceName string `yaml:"serviceName"`
+  // Plugin is an optional field that is redundant to sf_hostHasService to
+  // make GenericJMX consistent with other plugins in how the service being
+  // monitored is identified
+  Plugin      string  `yaml:"plugin"`
 	// The JMX connection string.  This is rendered as a Go template and has
 	// access to the other values in this config. NOTE: under normal
 	// circumstances it is not advised to set this string directly - setting
