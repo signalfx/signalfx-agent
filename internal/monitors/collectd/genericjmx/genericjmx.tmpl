@@ -30,7 +30,7 @@
       {{with .ServiceURL}}
       ServiceURL "{{renderValue . $}}"
       {{- end}}
-      InstanceSuffix "{{.Name}}[monitorID={{.MonitorID}}]"
+      MonitorId "{{.MonitorID}}"
       {{with .InstancePrefix -}}
       InstancePrefix "{{.}}"
       {{- end}}
