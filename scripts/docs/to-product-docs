@@ -6,6 +6,9 @@
 # product-docs repo.  It will overwrite any existing agent docs in the repo,
 # but will not commit them to git.
 
+# For Mac, Pandoc 2.2.2 should be used and can be gotten from
+# https://github.com/jgm/pandoc/releases/tag/2.2.2
+
 set -euo pipefail
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
