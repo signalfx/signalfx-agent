@@ -197,7 +197,7 @@ capabilities the agent requires.
 `signalfx-agent/bin/signalfx-agent -config <path to config.yaml>`.  The agent
 logs only to stdout/err so it is up to you to direct that to a log file or
 other log management system if you wish to persist logs.  See the
-[signalfx-agent command](./docs/signalfx-agent.1.md) doc for more information on
+[signalfx-agent command](./docs/signalfx-agent.1.man) doc for more information on
 supported command flags.
 
 ### Privileges
