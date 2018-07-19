@@ -115,23 +115,34 @@ class Minikube:
     def build_image(self, dockerfile_dir, build_opts={}):
         if not self.client:
             self.get_client()
+        assert "tag" in build_opts.keys(), "\"tag\" not defined in build_opts!"
+        try:
+            name, tag = build_opts["tag"].rsplit(":", 1)
+            del build_opts["tag"]
+        except ValueError as e:
+            raise ValueError("%s\nFailed to get name:tag from \"%s\"!" % (str(e), build_opts["tag"]))
+        if has_docker_image(self.client, name, tag):
+            print("\nImage \"%s:%s\" already exists" % (name, tag))
+            return
+        print("\nBuilding image \"%s:%s\" from %s ..." % (name, tag, dockerfile_dir))
+        max_attempts = 3
         attempts = 1
-        while attempts <= 3:
+        while attempts <= max_attempts:
             try:
                 self.client.images.build(
                     path=dockerfile_dir,
                     rm=True,
                     forcerm=True,
+                    tag="%s:%s" % (name, tag),
                     **build_opts)
                 break
             except docker.errors.BuildError as e:
                 print("exception caught: %s" % str(e))
-                if attempts == 3:
+                if attempts == max_attempts:
                     raise e
                 else:
                     time.sleep(5)
                     attempts += 1
-                
 
     @contextmanager
     def deploy_k8s_yamls(self, yamls=[], namespace=None, timeout=180):
