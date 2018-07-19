@@ -29,12 +29,12 @@ convert_overview_links() {
 # Convert all relative links that aren't already html links to be absolute to
 # the github repo url.
 convert_relative_links() {
-  sed -E -e '/\.html$/! s@(\.\. _[a-zA-Z].*:) \.\/(.*)@\1 https://github.com/signalfx/signalfx-agent/tree/master/\2@'
+  sed -E -e '/\.html(#.*)?$/! s@(\.\. _[a-zA-Z].*:) \.\/(.*)@\1 https://github.com/signalfx/signalfx-agent/tree/master/\2@'
 }
 
 # Changes .md extensions to .html
 convert_doc_extensions() {
-  sed -e '/development.md/! s/\.md[[:>:]]/.html/g' -e'/development.md/! s@\./docs/@./@g'
+  sed -E -e '/(development|signalfx-agent.1).md/! s/\.md(#.*)?[[:>:]]/.html\1/g' -e'/(development|signalfx-agent.1).md/! s@\./docs/@./@g'
 }
 
 reset_repo() {
@@ -60,7 +60,7 @@ reset_repo
 mkdir -p $AGENT_PRODUCT_DOCS/{monitors,observers}
 
 for f in $(find $AGENT_REPO_BASE/docs -name "*.md"); do
-  if [[ $f =~ signalfx-agent.1.md$ ]] || [[ $f =~ writing-a-monitor.md$ ]] || [[ $f =~ development.md$ ]]; then
+  if [[ $f =~ writing-a-monitor.md$ ]] || [[ $f =~ development.md$ ]]; then
     continue
   fi
 

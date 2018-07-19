@@ -377,10 +377,10 @@ FROM ubuntu:16.04 as pandoc-converter
 RUN apt update &&\
     apt install -y pandoc
 
-COPY docs/signalfx-agent.1.md /tmp/signalfx-agent.1.md
+COPY docs/signalfx-agent.1.man /tmp/signalfx-agent.1.man
 # Create the man page for the agent
 RUN mkdir /docs &&\
-    pandoc --standalone --to man /tmp/signalfx-agent.1.md -o /docs/signalfx-agent.1
+    pandoc --standalone --to man /tmp/signalfx-agent.1.man -o /docs/signalfx-agent.1
 
 
 ####### Debian Packager #######
