@@ -506,12 +506,12 @@ def get_all_logs(minikube):
         (agent_status, agent_container_logs, minikube_logs, minikube_container_logs, pods_status)
 
 
-def has_docker_image(client, name, tag=None):
+def has_docker_image(client, name_or_id, tag=None):
     try:
         if tag:
-            client.images.get(name + ":" + tag)
+            client.images.get(name_or_id + ":" + tag)
         else:
-            client.images.get(name)
+            client.images.get(name_or_id)
         return True
     except docker.errors.ImageNotFound:
         return False
