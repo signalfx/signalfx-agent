@@ -61,10 +61,10 @@ machine during metric analysis.
 
 ### Writer
 The writer collects metrics emitted by the configured monitors and sends them
-to SignalFx on a regular basis.  By default it batches metrics for 1 second
-before sending.  There are a few things that can be
+to SignalFx on a regular basis.  There are a few things that can be
 [configured](./docs/config-schema.md#writer) in the writer, but this is generally
-unnecessary.
+only necessary if you have a very large number of metrics flowing through a
+single agent.
 
 ## Installation
 
