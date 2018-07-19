@@ -28,6 +28,8 @@ import (
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/collectd/healthchecker"
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/collectd/jenkins"
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/collectd/kafka"
+	_ "github.com/signalfx/signalfx-agent/internal/monitors/collectd/kafka_consumer"
+	_ "github.com/signalfx/signalfx-agent/internal/monitors/collectd/kafka_producer"
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/collectd/kong"
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/collectd/load"
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/collectd/marathon"

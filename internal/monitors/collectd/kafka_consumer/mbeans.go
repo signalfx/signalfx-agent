@@ -1,3 +1,3 @@
-package kafka-consumer
+package kafka_consumer
 
 var defaultMBeanYAML = ``

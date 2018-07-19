@@ -8,9 +8,9 @@ import (
 	yaml "gopkg.in/yaml.v2"
 )
 
-const monitorType = "collectd/kafka-consumer"
+const monitorType = "collectd/kafka_consumer"
 
-var serviceName = "kafka-consumer"
+var serviceName = "kafka_consumer"
 
 // Monitor is the main type that represents the monitor
 type Monitor struct {
