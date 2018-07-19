@@ -18,7 +18,7 @@ monitor.
    Kubernetes secret named `signalfx-agent`:
 
    ```sh
-    $ kubectl create secret generic --from-literal access-token=MY_ACCESS_TOKEN signalfx-agent`
+    $ kubectl create secret generic --from-literal access-token=MY_ACCESS_TOKEN signalfx-agent
    ```
 
 2. If you use [Helm](https://github.com/kubernetes/helm), you can use [our
@@ -63,7 +63,7 @@ monitor.
 	  deployment,** complete the instructions in [Google Container Engine
 	  (GKE)](#google-container-engine-gke) before proceeding with the next
 	  step.
-      
+
       **If you are using OpenShift 3.0+ for your Kubernetes deployment,** complete the
       instructions in [Openshift](#openshift) before proceeding with the next step.
 
