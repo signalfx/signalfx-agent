@@ -19,6 +19,7 @@ type sparkClusterType string
 const (
 	sparkStandalone sparkClusterType = "Standalone"
 	sparkMesos                       = "Mesos"
+	sparkYarn                        = "Yarn"
 )
 
 // MONITOR(collectd/spark): Collects metrics about a Spark cluster using the
@@ -31,6 +32,22 @@ const (
 // to true.
 //
 // We only support HTTP endpoints for now.
+//
+// When running Spark on Apache Hadoop / Yarn, this integration is only capable
+// of reporting application metrics from the master node.  Please use the
+// collectd/hadoop monitor to report on the health of the cluster.
+//
+//An example configuration for monitoring applications on Yarn
+// ```yaml
+// monitors:
+//   - type: collectd/spark
+//     host: 000.000.000.000
+//     port: 8088
+//     clusterType: Yarn
+//     isMaster: true
+//     collectApplicationMetrics: true
+// ```
+//
 
 func init() {
 	monitors.Register(monitorType, func() interface{} {
@@ -48,7 +65,9 @@ type Config struct {
 	Port uint16 `yaml:"port" validate:"required"`
 	// Set to `true` when monitoring a master Spark node
 	IsMaster bool `yaml:"isMaster" default:"false"`
-	// Should be one of `Standalone` or `Mesos`
+	// Should be one of `Standalone` or `Mesos` or `Yarn`.  Cluster metrics will
+	// not be collected on Yarn.  Please use the collectd/hadoop monitor to gain
+	// insights to your cluster's health.
 	ClusterType               sparkClusterType `yaml:"clusterType" validate:"required"`
 	CollectApplicationMetrics bool             `yaml:"collectApplicationMetrics" default:"false"`
 	EnhancedMetrics           bool             `yaml:"enhancedMetrics" default:"false"`

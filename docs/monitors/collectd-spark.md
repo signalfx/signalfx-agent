@@ -13,6 +13,21 @@ to true.
 
 We only support HTTP endpoints for now.
 
+When running Spark on Apache Hadoop / Yarn, this integration is only capable
+of reporting application metrics from the master node.  Please use the
+collectd/hadoop monitor to report on the health of the cluster.
+
+An example configuration for monitoring applications on Yarn
+```yaml
+monitors:
+  - type: collectd/spark
+    host: 000.000.000.000
+    port: 8088
+    clusterType: Yarn
+    isMaster: true
+    collectApplicationMetrics: true
+```
+
 
 Monitor Type: `collectd/spark`
 
@@ -29,7 +44,7 @@ Monitor Type: `collectd/spark`
 | `host` | **yes** | `string` |  |
 | `port` | **yes** | `integer` |  |
 | `isMaster` | no | `bool` | Set to `true` when monitoring a master Spark node (**default:** `false`) |
-| `clusterType` | **yes** | `string` | Should be one of `Standalone` or `Mesos` |
+| `clusterType` | **yes** | `string` | Should be one of `Standalone` or `Mesos` or `Yarn`.  Cluster metrics will not be collected on Yarn.  Please use the collectd/hadoop monitor to gain insights to your cluster's health. |
 | `collectApplicationMetrics` | no | `bool` |  (**default:** `false`) |
 | `enhancedMetrics` | no | `bool` |  (**default:** `false`) |
 

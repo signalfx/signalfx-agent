@@ -75,7 +75,7 @@
   repo: signalfx/signalfx-collectd-plugin
 
 - name: spark
-  version: v1.0.1
+  version: v1.0.2
   repo: signalfx/collectd-spark
 
 

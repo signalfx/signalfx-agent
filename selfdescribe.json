@@ -7989,7 +7989,7 @@
     },
     {
       "name": "Config",
-      "doc": " Collects metrics about a Spark cluster using the\n[collectd Spark Python plugin](https://github.com/signalfx/collectd-spark).\nAlso see\nhttps://github.com/signalfx/integrations/tree/master/collectd-spark.\n\nYou have to specify distinct monitor configurations and discovery rules for\nmaster and worker processes.  For the master configuration, set `isMaster`\nto true.\n\nWe only support HTTP endpoints for now.\n",
+      "doc": " Collects metrics about a Spark cluster using the\n[collectd Spark Python plugin](https://github.com/signalfx/collectd-spark).\nAlso see\nhttps://github.com/signalfx/integrations/tree/master/collectd-spark.\n\nYou have to specify distinct monitor configurations and discovery rules for\nmaster and worker processes.  For the master configuration, set `isMaster`\nto true.\n\nWe only support HTTP endpoints for now.\n\nWhen running Spark on Apache Hadoop / Yarn, this integration is only capable\nof reporting application metrics from the master node.  Please use the\ncollectd/hadoop monitor to report on the health of the cluster.\n\nAn example configuration for monitoring applications on Yarn\n```yaml\nmonitors:\n  - type: collectd/spark\n    host: 000.000.000.000\n    port: 8088\n    clusterType: Yarn\n    isMaster: true\n    collectApplicationMetrics: true\n```\n",
       "package": "internal/monitors/collectd/spark",
       "fields": [
         {
@@ -8018,7 +8018,7 @@
         },
         {
           "yamlName": "clusterType",
-          "doc": "Should be one of `Standalone` or `Mesos`",
+          "doc": "Should be one of `Standalone` or `Mesos` or `Yarn`.  Cluster metrics will not be collected on Yarn.  Please use the collectd/hadoop monitor to gain insights to your cluster's health.",
           "default": null,
           "required": true,
           "type": "string",
