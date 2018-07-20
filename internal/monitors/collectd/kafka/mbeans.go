@@ -28,6 +28,51 @@ kafka-all-bytes-out:
     table: false
     attribute: "Count"
 
+kafka-bytes-rejected:
+  objectName: "kafka.server:type=BrokerTopicMetrics,name=BytesRejectedPerSec"
+  instancePrefix: "all"
+  values:
+  - instancePrefix: "kafka-bytes-rejected"
+    type: "counter"
+    table: false
+    attribute: "Count"
+
+kafka-total-produce-requests:
+  objectName: "kafka.server:type=BrokerTopicMetrics,name=TotalProduceRequestsPerSec"
+  instancePrefix: "all"
+  values:
+  - instancePrefix: "kafka-total-produce-requests"
+    type: "counter"
+    table: false
+    attribute: "Count"
+
+kafka-failed-produce-requests:
+  objectName: "kafka.server:type=BrokerTopicMetrics,name=FailedProduceRequestsPerSec"
+  instancePrefix: "all"
+  values:
+  - instancePrefix: "kafka-failed-produce-requests"
+    type: "counter"
+    table: false
+    attribute: "Count"
+
+kafka-total-fetch-requests:
+  objectName: "kafka.server:type=BrokerTopicMetrics,name=TotalFetchRequestsPerSec"
+  instancePrefix: "all"
+  values:
+  - instancePrefix: "kafka-total-fetch-requests"
+    type: "counter"
+    table: false
+    attribute: "Count"
+
+kafka-failed-fetch-requests:
+  objectName: "kafka.server:type=BrokerTopicMetrics,name=FailedFetchRequestsPerSec"
+  instancePrefix: "all"
+  values:
+  - instancePrefix: "kafka-failed-fetch-requests"
+    type: "counter"
+    table: false
+    attribute: "Count"
+
 kafka-active-controllers:
   objectName: "kafka.controller:type=KafkaController,name=ActiveControllerCount"
   values:
@@ -51,6 +96,47 @@ kafka-underreplicated-partitions:
     table: false
     attribute: "Value"
     instancePrefix: "kafka-underreplicated-partitions"
+
+kafka-isr-shrinks:
+  objectName: "kafka.server:type=ReplicaManager,name=IsrShrinksPerSec"
+  values:
+  - type: "counter"
+    table: false
+    attribute: "Count"
+    instancePrefix: "kafka-isr-shrinks"
+
+kafka-isr-expands:
+  objectName: "kafka.server:type=ReplicaManager,name=IsrExpandsPerSec"
+  values:
+  - type: "counter"
+    table: false
+    attribute: "Count"
+    instancePrefix: "kafka-isr-expands"
+
+kafka-max-lag:
+  objectName: "kafka.server:type=ReplicaFetcherManager,name=MaxLag,clientId=Replica"
+  values:
+  - type: "gauge"
+    table: false
+    attribute: "Value"
+    instancePrefix: "kafka-max-lag"
+
+kafka-leader-election-rate:
+  objectName: "kafka.controller:type=ControllerStats,name=LeaderElectionRateAndTimeMs"
+  values:
+  - type: "counter"
+    table: false
+    attribute: "Count"
+    instancePrefix: "kafka-leader-election-rate"
+
+kafka-unclean-elections:
+  objectName: "kafka.controller:type=ControllerStats,name=LeaderElectionRateAndTimeMs"
+  values:
+  - type: "counter"
+    table: false
+    attribute: "Count"
+    instancePrefix: "kafka-unclean-elections-rate"
+
 
 kafka-request-queue:
   objectName: "kafka.network:type=RequestChannel,name=RequestQueueSize"
