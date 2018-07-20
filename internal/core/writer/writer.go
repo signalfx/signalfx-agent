@@ -73,7 +73,7 @@ func New(conf *config.WriterConfig, dpChan chan *datapoint.Datapoint, eventChan 
 		stopCh:        make(chan struct{}),
 		doneCh:        make(chan struct{}),
 		client:        sfxclient.NewHTTPSink(),
-		dimPropClient: newDimensionPropertyClient(),
+		dimPropClient: newDimensionPropertyClient(conf),
 		hostIDDims:    conf.HostIDDims,
 		dpChan:        dpChan,
 		eventChan:     eventChan,
@@ -87,8 +87,6 @@ func New(conf *config.WriterConfig, dpChan chan *datapoint.Datapoint, eventChan 
 	}
 
 	sw.client.AuthToken = conf.SignalFxAccessToken
-	sw.dimPropClient.Token = conf.SignalFxAccessToken
-	sw.dimPropClient.APIURL = conf.APIURL
 
 	sw.client.Client.Transport = &http.Transport{
 		Proxy: http.ProxyFromEnvironment,

@@ -5,13 +5,17 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"net"
 	"net/http"
 	"net/url"
 	"reflect"
 	"sync"
+	"sync/atomic"
 	"time"
 
+	lru "github.com/hashicorp/golang-lru"
 	"github.com/pkg/errors"
+	"github.com/signalfx/signalfx-agent/internal/core/config"
 	"github.com/signalfx/signalfx-agent/internal/monitors/types"
 	"github.com/signalfx/signalfx-agent/internal/utils"
 	log "github.com/sirupsen/logrus"
@@ -22,16 +26,41 @@ type dimensionPropertyClient struct {
 	Token  string
 	APIURL *url.URL
 	// Keeps track of what has been synced so we don't do unnecessary syncs
-	history map[types.Dimension]*types.DimProperties
+	history *lru.Cache
 	lock    sync.Mutex
+	// A buffered channel that mimics a semaphore when performance isn't that
+	// big of a deal.
+	reqSema chan struct{}
+
+	TotalPropUpdates int64
 }
 
-func newDimensionPropertyClient() *dimensionPropertyClient {
+func newDimensionPropertyClient(conf *config.WriterConfig) *dimensionPropertyClient {
+	history, err := lru.New(int(conf.PropertiesHistorySize))
+	if err != nil {
+		panic("could not create properties history cache: " + err.Error())
+	}
+
 	return &dimensionPropertyClient{
+		Token:  conf.SignalFxAccessToken,
+		APIURL: conf.APIURL,
 		client: &http.Client{
-			Timeout: 5 * time.Second,
+			Timeout: 10 * time.Second,
+			Transport: &http.Transport{
+				Proxy: http.ProxyFromEnvironment,
+				DialContext: (&net.Dialer{
+					Timeout:   5 * time.Second,
+					KeepAlive: 90 * time.Second,
+					DualStack: true,
+				}).DialContext,
+				MaxIdleConns:        int(conf.PropertiesMaxRequests),
+				MaxIdleConnsPerHost: int(conf.PropertiesMaxRequests),
+				IdleConnTimeout:     90 * time.Second,
+				TLSHandshakeTimeout: 10 * time.Second,
+			},
 		},
-		history: make(map[types.Dimension]*types.DimProperties),
+		history: history,
+		reqSema: make(chan struct{}, int(conf.PropertiesMaxRequests)),
 	}
 }
 
@@ -39,11 +68,9 @@ func newDimensionPropertyClient() *dimensionPropertyClient {
 // value.  It will wipe out any description or tags on the dimension.  There is
 // no retry logic here so any failures are terminal.
 func (dpc *dimensionPropertyClient) SetPropertiesOnDimension(dimProps *types.DimProperties) error {
-	dpc.lock.Lock()
-	defer dpc.lock.Unlock()
+	if !dpc.isDuplicate(dimProps) {
+		dpc.reqSema <- struct{}{}
 
-	prev := dpc.history[dimProps.Dimension]
-	if !reflect.DeepEqual(prev, dimProps) {
 		log.WithFields(log.Fields{
 			"name":  dimProps.Name,
 			"value": dimProps.Value,
@@ -52,12 +79,24 @@ func (dpc *dimensionPropertyClient) SetPropertiesOnDimension(dimProps *types.Dim
 		}).Info("Syncing properties to dimension")
 
 		err := dpc.doReq(dimProps.Name, dimProps.Value, dimProps.Properties, dimProps.Tags)
+		<-dpc.reqSema
 		if err != nil {
 			return err
 		}
-		dpc.history[dimProps.Dimension] = dimProps
+		// Add it to the history only after successfully propagated.  This
+		// could lead to some duplicates if there are multiple concurrent calls
+		// for the same dim props, but that's ok.
+		dpc.history.Add(dimProps.Dimension, dimProps)
+		atomic.AddInt64(&dpc.TotalPropUpdates, int64(1))
 	}
 	return nil
+}
+
+// isDuplicate returns true if the exact same dimension properties have been
+// synced before in the recent past.
+func (dpc *dimensionPropertyClient) isDuplicate(dimProps *types.DimProperties) bool {
+	prev, ok := dpc.history.Get(dimProps.Dimension)
+	return ok && reflect.DeepEqual(prev.(*types.DimProperties), dimProps)
 }
 
 func (dpc *dimensionPropertyClient) doReq(key, value string, props map[string]string, tags map[string]bool) error {
@@ -92,6 +131,7 @@ func (dpc *dimensionPropertyClient) doReq(key, value string, props map[string]st
 	if err != nil {
 		return err
 	}
+	defer resp.Body.Close()
 
 	if resp.StatusCode != 200 {
 		body, _ := ioutil.ReadAll(resp.Body)
