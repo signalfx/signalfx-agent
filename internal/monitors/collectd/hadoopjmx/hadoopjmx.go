@@ -104,7 +104,7 @@ func (c *Config) Validate() error {
 	case nameNode, dataNode, resourceManager, nodeManager:
 		return nil
 	default:
-		return fmt.Errorf("nodeType '%s' is not a a valid node type", c.NodeType)
+		return fmt.Errorf("required configuration nodeType '%s' is invalid", c.NodeType)
 	}
 }
 
