@@ -1,0 +1,12 @@
+LoadPlugin "python"
+<Plugin "python">
+  ModulePath "{{ pluginRoot }}/hadoop"
+  Import "hadoop_plugin"
+
+  <Module hadoop_plugin>
+    ResourceManagerURL "http://{{.Host}}"
+    ResourceManagerPort {{.Port}}
+    Interval {{.IntervalSeconds}}
+    Dimension "monitorID" "{{.MonitorID}}"
+  </Module>
+</Plugin>

@@ -4,7 +4,9 @@ LoadPlugin "python"
   Import "spark_plugin"
 
   <Module spark_plugin>
+    {{if ne .ClusterType "yarn"}}
     MetricsURL "http://{{.Host}}"
+    {{- end}}
     {{if .IsMaster -}}
     Master "http://{{.Host}}:{{.Port}}"
     MasterPort {{.Port}}

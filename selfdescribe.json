@@ -3124,6 +3124,222 @@
     },
     {
       "name": "Config",
+      "doc": " Collects metrics about a Hadoop cluster using the\n[collectd Hadoop Python plugin](https://github.com/signalfx/collectd-hadoop).\nAlso see\nhttps://github.com/signalfx/integrations/tree/master/collectd-hadoop.\n\nThe `collectd/hadoop` monitor will collect metrics from the Resource Manager\nREST API for the following:\n- Cluster Metrics\n- Cluster Scheduler\n- Cluster Applications\n- Cluster Nodes\n- MapReduce Jobs\n\nSample YAML configuration:\n\n```yaml\nmonitors:\n- type: collectd/hadoop\n  host: 127.0.0.1\n  port: 8088\n```\n\nIf a remote JMX port is exposed in the hadoop cluster, then\nyou may also configure the [collectd/hadoopjmx](https://github.com/signalfx/signalfx-agent/tree/master/docs/monitors/collectd/hadoopjmx)\nmonitor to collect additional metrics about the hadoop cluster.\n",
+      "package": "internal/monitors/collectd/hadoop",
+      "fields": [
+        {
+          "yamlName": "host",
+          "doc": "Resource Manager Hostname",
+          "default": null,
+          "required": true,
+          "type": "string",
+          "elementKind": ""
+        },
+        {
+          "yamlName": "port",
+          "doc": "Resource Manager Port",
+          "default": null,
+          "required": true,
+          "type": "uint16",
+          "elementKind": ""
+        }
+      ],
+      "monitorType": "collectd/hadoop",
+      "acceptsEndpoints": true,
+      "singleInstance": false,
+      "dimensions": null,
+      "metrics": null,
+      "properties": null
+    },
+    {
+      "name": "Config",
+      "doc": " Collects metrics about a Hadoop cluster using\nusing collectd's GenericJMX plugin.\n\nAlso see\nhttps://github.com/signalfx/integrations/tree/master/collectd-hadoop.\n\n\u003eTo enable JMX in Hadoop, add the following JVM options to hadoop-env.sh and yarn-env.sh respectively\n\n**hadoop-env.sh:**\n```\nexport HADOOP_NAMENODE_OPTS=\"-Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.port=5677 $HADOOP_NAMENODE_OPTS\"\nexport HADOOP_DATANODE_OPTS=\"-Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.port=5679 $HADOOP_DATANODE_OPTS\"\n```\n\n**yarn-env.sh:**\n```\nexport YARN_NODEMANAGER_OPTS=\"-Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.port=5678 $YARN_NODEMANAGER_OPTS\"\nexport YARN_NODEMANAGER_OPTS=\"-Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.port=5678 $YARN_NODEMANAGER_OPTS\"\n```\n\nThis monitor has a set of built in MBeans configured for:\n- [Name Nodes](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/hadoopjmx/nameNodeMBeans.go)\n- [Resource Manager](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/hadoopjmx/resourceManagerMBeans.go)\n- [Node Manager](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/hadoopjmx/nodeManagerMBeans.go)\n- [Data Nodes](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/hadoopjmx/dataNodeMBeans.go)\n\nSample YAML configuration:\n\n\tName Node\n```yaml\nmonitors:\n- type: collectd/hadoopjmx\n  host: 127.0.0.1\n  port: 5677\n  nodeType: nameNode\n```\n\n\tResource Manager\n```yaml\nmonitors:\n- type: collectd/hadoopjmx\n  host: 127.0.0.1\n  port: 5680\n  nodeType: resourceManager\n```\n\n\tNode Manager\n```yaml\nmonitors:\n- type: collectd/hadoopjmx\n  host: 127.0.0.1\n  port: 8002\n  nodeType: nodeManager\n```\n\n\tData Node\n```yaml\nmonitors:\n- type: collectd/hadoopjmx\n  host: 127.0.0.1\n  port: 5679\n  nodeType: dataNode\n```\n\nYou may also configure the [collectd/hadoop](https://github.com/signalfx/signalfx-agent/tree/master/docs/monitors/collectd/hadoop)\nmonitor to collect additional metrics about the hadoop cluster from the REST API\n",
+      "package": "internal/monitors/collectd/hadoopjmx",
+      "fields": [
+        {
+          "yamlName": "host",
+          "doc": "Host to connect to -- JMX must be configured for remote access and accessible from the agent",
+          "default": null,
+          "required": true,
+          "type": "string",
+          "elementKind": ""
+        },
+        {
+          "yamlName": "port",
+          "doc": "JMX RMI port on the host",
+          "default": null,
+          "required": true,
+          "type": "uint16",
+          "elementKind": ""
+        },
+        {
+          "yamlName": "name",
+          "doc": "",
+          "default": "",
+          "required": false,
+          "type": "string",
+          "elementKind": ""
+        },
+        {
+          "yamlName": "serviceName",
+          "doc": "This is how the service type is identified in the SignalFx UI so that you can get built-in content for it.  For custom JMX integrations, it can be set to whatever you like and metrics will get the special property `sf_hostHasService` set to this value.",
+          "default": "",
+          "required": false,
+          "type": "string",
+          "elementKind": ""
+        },
+        {
+          "yamlName": "serviceURL",
+          "doc": "The JMX connection string.  This is rendered as a Go template and has access to the other values in this config. NOTE: under normal circumstances it is not advised to set this string directly - setting the host and port as specified above is preferred.",
+          "default": "service:jmx:rmi:///jndi/rmi://{{.Host}}:{{.Port}}/jmxrmi",
+          "required": false,
+          "type": "string",
+          "elementKind": ""
+        },
+        {
+          "yamlName": "instancePrefix",
+          "doc": "",
+          "default": "",
+          "required": false,
+          "type": "string",
+          "elementKind": ""
+        },
+        {
+          "yamlName": "username",
+          "doc": "",
+          "default": "",
+          "required": false,
+          "type": "string",
+          "elementKind": ""
+        },
+        {
+          "yamlName": "password",
+          "doc": "",
+          "default": "",
+          "required": false,
+          "type": "string",
+          "elementKind": ""
+        },
+        {
+          "yamlName": "mBeansToCollect",
+          "doc": "A list of the MBeans defined in `mBeanDefinitions` to actually collect. If not provided, then all defined MBeans will be collected.",
+          "default": null,
+          "required": false,
+          "type": "slice",
+          "elementKind": "string"
+        },
+        {
+          "yamlName": "mBeanDefinitions",
+          "doc": "Specifies how to map JMX MBean values to metrics.  If using a specific service monitor such as cassandra, kafka, or activemq, they come pre-loaded with a set of mappings, and any that you add in this option will be merged with those.  See [collectd GenericJMX](https://collectd.org/documentation/manpages/collectd-java.5.shtml#genericjmx_plugin) for more details.",
+          "default": null,
+          "required": false,
+          "type": "map",
+          "elementKind": "struct",
+          "elementStruct": {
+            "name": "MBean",
+            "doc": "MBean represents the \u003cMBean\u003e config object in the collectd config for generic jmx.",
+            "package": "internal/monitors/collectd/genericjmx",
+            "fields": [
+              {
+                "yamlName": "objectName",
+                "doc": "",
+                "default": "",
+                "required": false,
+                "type": "string",
+                "elementKind": ""
+              },
+              {
+                "yamlName": "instancePrefix",
+                "doc": "",
+                "default": "",
+                "required": false,
+                "type": "string",
+                "elementKind": ""
+              },
+              {
+                "yamlName": "instanceFrom",
+                "doc": "",
+                "default": null,
+                "required": false,
+                "type": "slice",
+                "elementKind": "string"
+              },
+              {
+                "yamlName": "values",
+                "doc": "",
+                "default": null,
+                "required": false,
+                "type": "slice",
+                "elementKind": "struct",
+                "elementStruct": {
+                  "name": "MBeanValue",
+                  "doc": "MBeanValue specifies a particular value to pull from the MBean.",
+                  "package": "internal/monitors/collectd/genericjmx",
+                  "fields": [
+                    {
+                      "yamlName": "type",
+                      "doc": "",
+                      "default": "",
+                      "required": false,
+                      "type": "string",
+                      "elementKind": ""
+                    },
+                    {
+                      "yamlName": "table",
+                      "doc": "",
+                      "default": false,
+                      "required": false,
+                      "type": "bool",
+                      "elementKind": ""
+                    },
+                    {
+                      "yamlName": "instancePrefix",
+                      "doc": "",
+                      "default": "",
+                      "required": false,
+                      "type": "string",
+                      "elementKind": ""
+                    },
+                    {
+                      "yamlName": "instanceFrom",
+                      "doc": "",
+                      "default": null,
+                      "required": false,
+                      "type": "slice",
+                      "elementKind": "string"
+                    },
+                    {
+                      "yamlName": "attribute",
+                      "doc": "",
+                      "default": "",
+                      "required": false,
+                      "type": "string",
+                      "elementKind": ""
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        {
+          "yamlName": "nodeType",
+          "doc": "Hadoop Node Type",
+          "default": null,
+          "required": true,
+          "type": "string",
+          "elementKind": ""
+        }
+      ],
+      "monitorType": "collectd/hadoopjmx",
+      "acceptsEndpoints": true,
+      "singleInstance": false,
+      "dimensions": null,
+      "metrics": null,
+      "properties": null
+    },
+    {
+      "name": "Config",
       "doc": " Monitors an HAProxy instance.\n\nSee https://github.com/signalfx/integrations/tree/master/collectd-haproxy.\n",
       "package": "internal/monitors/collectd/haproxy",
       "fields": [
@@ -7989,7 +8205,7 @@
     },
     {
       "name": "Config",
-      "doc": " Collects metrics about a Spark cluster using the\n[collectd Spark Python plugin](https://github.com/signalfx/collectd-spark).\nAlso see\nhttps://github.com/signalfx/integrations/tree/master/collectd-spark.\n\nYou have to specify distinct monitor configurations and discovery rules for\nmaster and worker processes.  For the master configuration, set `isMaster`\nto true.\n\nWe only support HTTP endpoints for now.\n",
+      "doc": " Collects metrics about a Spark cluster using the\n[collectd Spark Python plugin](https://github.com/signalfx/collectd-spark).\nAlso see\nhttps://github.com/signalfx/integrations/tree/master/collectd-spark.\n\nYou have to specify distinct monitor configurations and discovery rules for\nmaster and worker processes.  For the master configuration, set `isMaster`\nto true.\n\nWe only support HTTP endpoints for now.\n\nWhen running Spark on Apache Hadoop / Yarn, this integration is only capable\nof reporting application metrics from the master node.  Please use the\ncollectd/hadoop monitor to report on the health of the cluster.\n\nAn example configuration for monitoring applications on Yarn\n```yaml\nmonitors:\n  - type: collectd/spark\n    host: 000.000.000.000\n    port: 8088\n    clusterType: Yarn\n    isMaster: true\n    collectApplicationMetrics: true\n```\n",
       "package": "internal/monitors/collectd/spark",
       "fields": [
         {
@@ -8018,7 +8234,7 @@
         },
         {
           "yamlName": "clusterType",
-          "doc": "Should be one of `Standalone` or `Mesos`",
+          "doc": "Should be one of `Standalone` or `Mesos` or `Yarn`.  Cluster metrics will not be collected on Yarn.  Please use the collectd/hadoop monitor to gain insights to your cluster's health.",
           "default": null,
           "required": true,
           "type": "string",

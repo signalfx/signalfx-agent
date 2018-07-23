@@ -65,7 +65,7 @@ type Config struct {
 type JMXMonitorCore struct {
 	collectd.MonitorCore
 
-	defaultMBeans      MBeanMap
+	DefaultMBeans      MBeanMap
 	defaultServiceName string
 	lock               sync.Mutex
 }
@@ -74,7 +74,7 @@ type JMXMonitorCore struct {
 func NewJMXMonitorCore(defaultMBeans MBeanMap, defaultServiceName string) *JMXMonitorCore {
 	mc := &JMXMonitorCore{
 		MonitorCore:        *collectd.NewMonitorCore(CollectdTemplate),
-		defaultMBeans:      defaultMBeans,
+		DefaultMBeans:      defaultMBeans,
 		defaultServiceName: defaultServiceName,
 	}
 
@@ -84,7 +84,7 @@ func NewJMXMonitorCore(defaultMBeans MBeanMap, defaultServiceName string) *JMXMo
 
 // Configure configures and runs the plugin in collectd
 func (m *JMXMonitorCore) Configure(conf *Config) error {
-	conf.MBeanDefinitions = m.defaultMBeans.MergeWith(conf.MBeanDefinitions)
+	conf.MBeanDefinitions = m.DefaultMBeans.MergeWith(conf.MBeanDefinitions)
 	if conf.MBeansToCollect == nil {
 		conf.MBeansToCollect = conf.MBeanDefinitions.MBeanNames()
 	}
