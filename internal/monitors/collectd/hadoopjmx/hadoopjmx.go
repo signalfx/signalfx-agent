@@ -3,6 +3,8 @@
 package hadoopjmx
 
 import (
+	"fmt"
+
 	"github.com/signalfx/signalfx-agent/internal/monitors"
 	"github.com/signalfx/signalfx-agent/internal/monitors/collectd/genericjmx"
 	yaml "gopkg.in/yaml.v2"
@@ -94,6 +96,16 @@ type Config struct {
 	genericjmx.Config `yaml:",inline"`
 	// Hadoop Node Type
 	NodeType nodeType `yaml:"nodeType" validate:"required"`
+}
+
+// Validate that the nodeType is one of our defined constants
+func (c *Config) Validate() error {
+	switch c.NodeType {
+	case nameNode, dataNode, resourceManager, nodeManager:
+		return nil
+	default:
+		return fmt.Errorf("nodeType '%s' is not a a valid node type", c.NodeType)
+	}
 }
 
 // Monitor is the main type that represents the monitor
