@@ -23,6 +23,8 @@ along with their possible configuration options:
 - [collectd/elasticsearch](./monitors/collectd-elasticsearch.md)
 - [collectd/etcd](./monitors/collectd-etcd.md)
 - [collectd/genericjmx](./monitors/collectd-genericjmx.md)
+- [collectd/hadoop](./monitors/collectd-hadoop.md)
+- [collectd/hadoopjmx](./monitors/collectd-hadoopjmx.md)
 - [collectd/haproxy](./monitors/collectd-haproxy.md)
 - [collectd/health-checker](./monitors/collectd-health-checker.md)
 - [collectd/interface](./monitors/collectd-interface.md)

@@ -21,6 +21,10 @@
   version: v1.0.0
   repo: signalfx/collectd-etcd
 
+- name: hadoop
+  version: 01bbee862311465338dee705e6fc791747cf0977
+  repo: signalfx/collectd-hadoop
+
 - name: haproxy
   version: v1.0.1
   repo: signalfx/collectd-haproxy

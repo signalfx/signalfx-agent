@@ -22,6 +22,8 @@ import (
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/collectd/elasticsearch"
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/collectd/etcd"
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/collectd/genericjmx"
+	_ "github.com/signalfx/signalfx-agent/internal/monitors/collectd/hadoop"
+	_ "github.com/signalfx/signalfx-agent/internal/monitors/collectd/hadoopjmx"
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/collectd/haproxy"
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/collectd/healthchecker"
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/collectd/jenkins"
