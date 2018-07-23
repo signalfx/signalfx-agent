@@ -6,6 +6,7 @@ package spark
 
 import (
 	"errors"
+	"fmt"
 
 	"github.com/signalfx/signalfx-agent/internal/core/config"
 	"github.com/signalfx/signalfx-agent/internal/monitors"
@@ -78,11 +79,12 @@ func (c *Config) Validate() error {
 	if c.CollectApplicationMetrics && !c.IsMaster {
 		return errors.New("Cannot collect application metrics from non-master endpoint")
 	}
-
-	if c.ClusterType == "" {
-		return errors.New("clusterType is required for Spark monitors")
+	switch c.ClusterType {
+	case sparkYarn, sparkMesos, sparkStandalone:
+		return nil
+	default:
+		return fmt.Errorf("required configuration clusterType '%s' is invalid", c.ClusterType)
 	}
-	return nil
 }
 
 // Monitor is the main type that represents the monitor
