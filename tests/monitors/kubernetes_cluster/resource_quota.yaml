@@ -7,3 +7,4 @@ spec:
     persistentvolumeclaims: "4"
     services.loadbalancers: "2"
     services.nodeports: "1"
+    requests.cpu: 100

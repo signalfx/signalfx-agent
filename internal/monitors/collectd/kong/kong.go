@@ -17,6 +17,9 @@ const monitorType = "collectd/kong"
 // See the [integration documentation](https://github.com/signalfx/integrations/tree/master/collectd-kong)
 // for more information.
 //
+// The `metrics` field below is populated with a set of metrics that are
+// described at https://github.com/signalfx/collectd-kong/blob/master/README.md.
+//
 // Sample YAML configuration:
 //
 // ```yaml
@@ -104,7 +107,8 @@ type Config struct {
 	ClientCertKey string `yaml:"clientCertKey"`
 	// Whether to use debug logging for collectd-kong
 	Verbose *bool `yaml:"verbose"`
-	// List of metric names and report flags. For metric names see [collectd-kong](https://github.com/signalfx/collectd-kong/blob/master/README.md)
+	// List of metric names and report flags. See monitor description for more
+	// details.
 	Metrics []Metric `yaml:"metrics"`
 	// Report metrics for distinct API IDs where applicable
 	ReportAPIIDs *bool `yaml:"reportApiIds"`

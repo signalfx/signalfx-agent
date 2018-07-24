@@ -54,6 +54,7 @@ class Agent:
         self.daemonset_yaml = yaml.load(open(daemonset_path).read())
         self.daemonset_name = self.daemonset_yaml['metadata']['name']
         self.container_name = self.daemonset_yaml['spec']['template']['spec']['containers'][0]['name']
+        self.daemonset_yaml['spec']['template']['spec']['containers'][0]['resources'] = {'requests': {'cpu': '100m'}}
         self.delete()
         self.agent_yaml = yaml.load(self.configmap_yaml['data']['agent.yaml'])
         del self.agent_yaml['observers']

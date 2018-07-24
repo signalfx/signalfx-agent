@@ -49,6 +49,11 @@ def test_resource_quota_metrics(agent_image, minikube, k8s_test_timeout, k8s_nam
 
         wait_for(p(has_datapoint, backend,
             metric_name="kubernetes.resource_quota_hard",
+            dimensions={"quota_name": "object-quota-demo", "resource": "requests.cpu"},
+            value=100000))
+
+        wait_for(p(has_datapoint, backend,
+            metric_name="kubernetes.resource_quota_hard",
             dimensions={"quota_name": "object-quota-demo", "resource": "persistentvolumeclaims"},
             value=4))
 
