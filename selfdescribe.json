@@ -4311,7 +4311,7 @@
     },
     {
       "name": "Config",
-      "doc": " Monitors a Kong instance using [collectd-kong](https://github.com/signalfx/collectd-kong).\n\nSee the [integration documentation](https://github.com/signalfx/integrations/tree/master/collectd-kong)\nfor more information.\n\nSample YAML configuration:\n\n```yaml\nmonitors:\n  - type: collectd/kong\n    host: 127.0.0.1\n    port: 8001\n    metrics:\n      - metric: request_latency\n        report: true\n      - metric: connections_accepted\n        report: false\n```\n\nSample YAML configuration with custom /signalfx route and white and blacklists\n\n```yaml\nmonitors:\n  - type: collectd/kong\n    host: 127.0.0.1\n    port: 8443\n    url: https://127.0.0.1:8443/routed_signalfx\n    authHeader:\n      header: Authorization\n      value: HeaderValue\n    metrics:\n      - metric: request_latency\n        report: true\n    reportStatusCodeGroups: true\n    statusCodes:\n      - 202\n      - 403\n      - 405\n      - 419\n      - \"5*\"\n    serviceNamesBlacklist:\n      - \"*SomeService*\"\n```\n",
+      "doc": " Monitors a Kong instance using [collectd-kong](https://github.com/signalfx/collectd-kong).\n\nSee the [integration documentation](https://github.com/signalfx/integrations/tree/master/collectd-kong)\nfor more information.\n\nThe `metrics` field below is populated with a set of metrics that are\ndescribed at https://github.com/signalfx/collectd-kong/blob/master/README.md.\n\nSample YAML configuration:\n\n```yaml\nmonitors:\n  - type: collectd/kong\n    host: 127.0.0.1\n    port: 8001\n    metrics:\n      - metric: request_latency\n        report: true\n      - metric: connections_accepted\n        report: false\n```\n\nSample YAML configuration with custom /signalfx route and white and blacklists\n\n```yaml\nmonitors:\n  - type: collectd/kong\n    host: 127.0.0.1\n    port: 8443\n    url: https://127.0.0.1:8443/routed_signalfx\n    authHeader:\n      header: Authorization\n      value: HeaderValue\n    metrics:\n      - metric: request_latency\n        report: true\n    reportStatusCodeGroups: true\n    statusCodes:\n      - 202\n      - 403\n      - 405\n      - 419\n      - \"5*\"\n    serviceNamesBlacklist:\n      - \"*SomeService*\"\n```\n",
       "package": "internal/monitors/collectd/kong",
       "fields": [
         {
@@ -4419,7 +4419,7 @@
         },
         {
           "yamlName": "metrics",
-          "doc": "List of metric names and report flags. For metric names see [collectd-kong](https://github.com/signalfx/collectd-kong/blob/master/README.md)",
+          "doc": "List of metric names and report flags. See monitor description for more details.",
           "default": null,
           "required": false,
           "type": "slice",
@@ -9846,12 +9846,12 @@
         {
           "name": "kubernetes.resource_quota_hard",
           "type": "gauge",
-          "description": "The upper limit for a particular resource in a specific namespace.  Will only be sent if a quota is specified."
+          "description": "The upper limit for a particular resource in a specific namespace.  Will only be sent if a quota is specified.  CPU requests/limits will be sent as millicores."
         },
         {
           "name": "kubernetes.resource_quota_used",
           "type": "gauge",
-          "description": "The usage for a particular resource in a specific namespace.  Will only be sent if a quota is specified."
+          "description": "The usage for a particular resource in a specific namespace.  Will only be sent if a quota is specified.  CPU requests/limits will be sent as millicores."
         }
       ],
       "properties": [

@@ -7,6 +7,9 @@
 See the [integration documentation](https://github.com/signalfx/integrations/tree/master/collectd-kong)
 for more information.
 
+The `metrics` field below is populated with a set of metrics that are
+described at https://github.com/signalfx/collectd-kong/blob/master/README.md.
+
 Sample YAML configuration:
 
 ```yaml
@@ -69,7 +72,7 @@ Monitor Type: `collectd/kong`
 | `clientCert` | no | `string` | Client certificate file (with or without included key) |
 | `clientCertKey` | no | `string` | Client cert key if not bundled with clientCert |
 | `verbose` | no | `bool` | Whether to use debug logging for collectd-kong |
-| `metrics` | no | `list of object (see below)` | List of metric names and report flags. For metric names see [collectd-kong](https://github.com/signalfx/collectd-kong/blob/master/README.md) |
+| `metrics` | no | `list of object (see below)` | List of metric names and report flags. See monitor description for more details. |
 | `reportApiIds` | no | `bool` | Report metrics for distinct API IDs where applicable |
 | `reportApiNames` | no | `bool` | Report metrics for distinct API names where applicable |
 | `reportServiceIds` | no | `bool` | Report metrics for distinct Service IDs where applicable |

@@ -76,8 +76,8 @@ cause only a subset of metrics to be emitted.
 | `kubernetes.replica_set.desired` | gauge | Number of desired pods in this replica set |
 | `kubernetes.replication_controller.available` | gauge | Total number of available pods (ready for at least minReadySeconds) targeted by this replication controller. |
 | `kubernetes.replication_controller.desired` | gauge | Number of desired pods |
-| `kubernetes.resource_quota_hard` | gauge | The upper limit for a particular resource in a specific namespace.  Will only be sent if a quota is specified. |
-| `kubernetes.resource_quota_used` | gauge | The usage for a particular resource in a specific namespace.  Will only be sent if a quota is specified. |
+| `kubernetes.resource_quota_hard` | gauge | The upper limit for a particular resource in a specific namespace.  Will only be sent if a quota is specified.  CPU requests/limits will be sent as millicores. |
+| `kubernetes.resource_quota_used` | gauge | The usage for a particular resource in a specific namespace.  Will only be sent if a quota is specified.  CPU requests/limits will be sent as millicores. |
 
 ## Dimensions
 

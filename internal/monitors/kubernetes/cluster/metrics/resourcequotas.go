@@ -44,7 +44,7 @@ func datapointsForResourceQuota(rq *v1.ResourceQuota) []*datapoint.Datapoint {
 			}
 
 			val := v.Value()
-			if strings.HasSuffix(rq.Name, ".cpu") {
+			if strings.HasSuffix(string(k), ".cpu") {
 				val = v.MilliValue()
 			}
 
