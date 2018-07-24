@@ -51,7 +51,7 @@ func TestRunOnArrayOfIntervals(t *testing.T) {
 				repeatPolicy: RepeatLast,
 				wait:         1 * time.Second,
 			},
-			comparison: func(got int) bool { return got == 5 },
+			comparison: func(got int) bool { return got > 4 },
 			want:       "greater than 4",
 		},
 		{
@@ -63,8 +63,8 @@ func TestRunOnArrayOfIntervals(t *testing.T) {
 				repeatPolicy: RepeatAll,
 				wait:         1 * time.Second,
 			},
-			comparison: func(got int) bool { return got >= 9 },
-			want:       "greater than 4",
+			comparison: func(got int) bool { return got > 8 },
+			want:       "greater than 8",
 		},
 		{
 			name: "test no interval",
