@@ -54,6 +54,8 @@ type Config struct {
 	Host string `yaml:"host" validate:"required"`
 	// Resource Manager Port
 	Port uint16 `yaml:"port" validate:"required"`
+	// Log verbose information about the plugin
+	Verbose bool `yaml:"verbose"`
 }
 
 // Monitor is the main type that represents the monitor

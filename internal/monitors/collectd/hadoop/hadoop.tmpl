@@ -8,5 +8,8 @@ LoadPlugin "python"
     ResourceManagerPort {{.Port}}
     Interval {{.IntervalSeconds}}
     Dimension "monitorID" "{{.MonitorID}}"
+    {{with .Verbose -}}
+    Verbose {{.}}
+    {{- end}}
   </Module>
 </Plugin>
