@@ -43,6 +43,7 @@ Monitor Type: `collectd/hadoop`
 | --- | --- | --- | --- |
 | `host` | **yes** | `string` | Resource Manager Hostname |
 | `port` | **yes** | `integer` | Resource Manager Port |
+| `verbose` | no | `bool` | Log verbose information about the plugin (**default:** `false`) |
 
 
 
