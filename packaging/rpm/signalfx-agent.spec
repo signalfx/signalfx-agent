@@ -61,13 +61,11 @@ getent passwd signalfx-agent >/dev/null || \
   useradd --system --home-dir /usr/lib/signalfx-agent --no-create-home --shell /sbin/nologin signalfx-agent
 
 %post
-if command -v systemctl; then
-  if [ $1 -eq 1 ] ; then
+if [ $1 -ge 1 ] ; then
+  if command -v systemctl; then
     # Force it enabled since this is critical for monitoring
     systemctl --no-reload enable signalfx-agent.service >/dev/null 2>&1 || :
   fi
-else
-  /sbin/chkconfig --add signalfx-agent
 fi
 %tmpfiles_create %{_tmpfilesdir}/signalfx-agent.conf
 setcap CAP_SYS_PTRACE,CAP_DAC_READ_SEARCH=+eip /usr/lib/signalfx-agent/bin/signalfx-agent
@@ -76,8 +74,9 @@ setcap CAP_SYS_PTRACE,CAP_DAC_READ_SEARCH=+eip /usr/lib/signalfx-agent/bin/signa
 if command -v systemctl; then
   %systemd_preun signalfx-agent.service
 else
-  /sbin/service signalfx-agent stop > /dev/null 2>&1
-  /sbin/chkconfig --del signalfx-agent
+  if [ $1 -eq 0 ]; then
+    /sbin/chkconfig --del signalfx-agent
+  fi
 fi
 
 %postun
@@ -85,5 +84,10 @@ if command -v systemctl; then
   %systemd_postun_with_restart signalfx-agent.service
 fi
 
+%posttrans
+if ! command -v systemctl; then
+  /sbin/service signalfx-agent restart > /dev/null 2>&1
+  /sbin/chkconfig --add signalfx-agent
+fi
 
 %changelog
