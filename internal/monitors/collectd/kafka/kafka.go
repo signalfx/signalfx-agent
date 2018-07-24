@@ -79,6 +79,17 @@ type Monitor struct {
 	*genericjmx.JMXMonitorCore
 }
 
+type Config struct {
+	genericjmx.Config `yaml:",inline"`
+	// Cluster name to which the broker belongs
+	ClusterName string `yaml:"clusterName" validate:"required"`
+}
+
+func (m *Monitor) Configure(conf *Config) error {
+	m.Output.AddExtraDimension("cluster", conf.ClusterName)
+	return m.JMXMonitorCore.Configure(&conf.Config)
+}
+
 func init() {
 	var defaultMBeans genericjmx.MBeanMap
 	err := yaml.Unmarshal([]byte(defaultMBeanYAML), &defaultMBeans)
@@ -91,5 +102,5 @@ func init() {
 		return &Monitor{
 			genericjmx.NewJMXMonitorCore(defaultMBeans, serviceName),
 		}
-	}, &genericjmx.Config{})
+	}, &Config{})
 }
