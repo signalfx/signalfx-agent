@@ -49,6 +49,9 @@
       {{- with .Password}}
       Password "{{.}}"
       {{- end}}
+      {{range $key, $val := .CustomDimensions}}
+      CustomDimension "{{$key}}" "{{$val}}"
+      {{end}}
       {{range .MBeansToCollect}}
       Collect "{{.}}"
       {{- end}}
