@@ -254,7 +254,7 @@ jobs:
       - run: |
           mkdir ~/testresults
 
-          if ! scripts/changes-include-dir Dockerfile packaging/rpm; then
+          if ! scripts/changes-include-dir Dockerfile packaging/rpm tests/packaging; then
               echo "RPM packaging code has not changed, skipping tests!"
               exit 0
           fi
@@ -291,7 +291,7 @@ jobs:
       - run: |
           mkdir ~/testresults
 
-          if ! scripts/changes-include-dir Dockerfile packaging/deb; then
+          if ! scripts/changes-include-dir Dockerfile packaging/deb tests/packaging; then
               echo "Debian packaging code has not changed, skipping tests!"
               exit 0
           fi
