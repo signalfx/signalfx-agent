@@ -273,7 +273,7 @@ jobs:
             mkdir /tmp/scratch
             mkdir ~/testresults
             pytest \
-                -n auto \
+                -n 4 \
                 -m "rpm" \
                 --verbose \
                 --junitxml=~/testresults/rpm.xml \
@@ -314,7 +314,7 @@ jobs:
             mkdir ~/testresults
             mkdir /tmp/scratch
             pytest \
-                -n auto \
+                -n 4 \
                 -m "deb" \
                 --verbose \
                 --junitxml=~/testresults/deb.xml \
