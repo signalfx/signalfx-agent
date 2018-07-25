@@ -86,7 +86,10 @@ def _test_package_upgrade(base_image, package_path, init_system):
         _, package_ext = os.path.splitext(package_path)
         copy_file_into_container(package_path, cont, "/opt/signalfx-agent%s" % package_ext)
 
-        INSTALL_COMMAND = "curl -sSL https://dl.signalfx.com/signalfx-agent.sh | bash -s testing123 --package-version=3.1.0"
+        code, output = cont.exec_run("curl -sSL https://dl.signalfx.com/signalfx-agent.sh > /tmp/signalfx-agent.sh")
+        assert code == 0, "Failed to download signalfx-agent.sh:\n%s" % output
+
+        INSTALL_COMMAND = "bash /tmp/signalfx-agent.sh testing123 --package-version=3.1.0"
 
         code, output = cont.exec_run(INSTALL_COMMAND)
         print("Output of old package install:")
