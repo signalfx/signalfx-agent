@@ -45,6 +45,40 @@ func (to *TestOutput) SendDimensionProps(dimProps *types.DimProperties) {
 	to.dimPropChan <- dimProps
 }
 
+// AddExtraDimension is a noop here
+func (to *TestOutput) AddExtraDimension(key, value string) {}
+
+// RemoveExtraDimension is a noop here
+func (to *TestOutput) RemoveExtraDimension(key string) {}
+
+// FlushDatapoints returns all of the datapoints injected into the channel so
+// far.
+func (to *TestOutput) FlushDatapoints() []*datapoint.Datapoint {
+	var out []*datapoint.Datapoint
+	for {
+		select {
+		case dp := <-to.dpChan:
+			out = append(out, dp)
+		default:
+			return out
+		}
+	}
+}
+
+// FlushEvents returns all of the datapoints injected into the channel so
+// far.
+func (to *TestOutput) FlushEvents() []*event.Event {
+	var out []*event.Event
+	for {
+		select {
+		case event := <-to.eventChan:
+			out = append(out, event)
+		default:
+			return out
+		}
+	}
+}
+
 // WaitForDPs will keep pulling datapoints off of the internal queue until it
 // either gets the expected count or waitSeconds seconds have elapsed.  It then
 // returns those datapoints.  It will never return more than 'count' datapoints.
