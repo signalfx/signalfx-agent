@@ -334,7 +334,7 @@ func (mm *MonitorManager) createAndConfigureNewMonitor(config config.MonitorCust
 		dpChan:      mm.DPs,
 		eventChan:   mm.Events,
 		dimPropChan: mm.DimensionProps,
-		extraDims:   config.MonitorConfigCore().ExtraDimensions,
+		extraDims:   utils.CloneStringMap(config.MonitorConfigCore().ExtraDimensions),
 	}
 
 	am := &ActiveMonitor{

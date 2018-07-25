@@ -12,4 +12,6 @@ type Output interface {
 	SendDatapoint(*datapoint.Datapoint)
 	SendEvent(*event.Event)
 	SendDimensionProps(*DimProperties)
+	AddExtraDimension(key, value string)
+	RemoveExtraDimension(key string)
 }
