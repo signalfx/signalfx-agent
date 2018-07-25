@@ -1,4 +1,5 @@
 from functools import partial as p
+import difflib
 import os
 import pytest
 import time
@@ -36,7 +37,7 @@ INIT_START_COMMAND = {
 
 INIT_LIST_COMMAND = {
     INIT_SYSV: "service --status-all",
-    INIT_UPSTART: "chkconfig --list || service --status-all",
+    INIT_UPSTART: "bash -c 'chkconfig --list || service --status-all'",
     INIT_SYSTEMD: "systemctl list-unit-files --type=service --no-pager",
 }
 
@@ -95,9 +96,18 @@ def _test_package_upgrade(base_image, package_path, init_system):
         print_lines(output)
         assert code == 0, "Old package could not be installed!"
 
+        code, output = cont.exec_run("test -f /etc/signalfx/agent.yaml")
+        assert code == 0, "/etc/signalfx/agent.yaml does not exist!"
+
+        _, _ = cont.exec_run("bash -ec 'echo >> /etc/signalfx/agent.yaml'")
+        _, _ = cont.exec_run("bash -ec 'echo \"hostname: test-host\" >> /etc/signalfx/agent.yaml'")
+        _, _ = cont.exec_run("cp -f /etc/signalfx/agent.yaml /etc/signalfx/agent.yaml.orig")
+        _, output = cont.exec_run("cat /etc/signalfx/agent.yaml")
+        old_agent_yaml = output.decode('utf-8')
+
         UPGRADE_COMMAND = {
             ".rpm": "yum --nogpgcheck update -y /opt/signalfx-agent.rpm",
-            ".deb": "dpkg -i /opt/signalfx-agent.deb",
+            ".deb": "dpkg -i --force-confold /opt/signalfx-agent.deb",
         }
         
         code, output = cont.exec_run(UPGRADE_COMMAND[package_ext])
@@ -105,17 +115,27 @@ def _test_package_upgrade(base_image, package_path, init_system):
         print_lines(output)
         assert code == 0, "Package could not be upgraded!"
 
-        code, output = cont.exec_run(["/bin/sh", "-c", INIT_STATUS_COMMAND[init_system]])
+        code, output = cont.exec_run(INIT_STATUS_COMMAND[init_system])
         print("Init status command output:")
         print_lines(output)
         assert code == 0, "Agent service not started after upgrade!"
 
-        code, output = cont.exec_run(["/bin/sh", "-c", INIT_LIST_COMMAND[init_system]])
+        code, output = cont.exec_run(INIT_LIST_COMMAND[init_system])
         print("Init list command output:")
         print_lines(output)
-        output = output.decode('utf-8')
         assert code == 0, "Failed to get service list!"
-        assert "signalfx-agent" in output, "Agent service not registered"
+        assert "signalfx-agent" in output.decode('utf-8'), "Agent service not registered"
+
+        _, output = cont.exec_run("cat /etc/signalfx/agent.yaml")
+        new_agent_yaml = output.decode('utf-8')
+        diff = "\n".join(
+            difflib.unified_diff(
+                old_agent_yaml.splitlines(),
+                new_agent_yaml.splitlines(),
+                fromfile="/etc/signalfx/agent.yaml.orig",
+                tofile="/etc/signalfx/agent.yaml",
+                lineterm='')).strip()
+        assert len(diff) == 0, "/etc/signalfx/agent.yaml different after upgrade!\n%s" % diff
 
         try:
             assert wait_for(p(has_datapoint_with_dim, backend, "plugin", "signalfx-metadata")), "Datapoints didn't come through"
