@@ -79,7 +79,7 @@ byte-rate-per-topic:
     table: false
     attribute: "byte-rate"
 
-compression-rate:
+compression-rate-per-topic:
   objectName: "kafka.producer:client-id=*,topic=*,type=producer-topic-metrics"
   instancePrefix: "all"
   dimensions:
@@ -91,7 +91,7 @@ compression-rate:
     table: false
     attribute: "compression-rate"
 
-record-error-rate:
+record-error-rate-per-topic:
   objectName: "kafka.producer:client-id=*,topic=*,type=producer-topic-metrics"
   instancePrefix: "all"
   dimensions:
@@ -103,7 +103,7 @@ record-error-rate:
     table: false
     attribute: "record-error-rate"
 
-record-retry-rate:
+record-retry-rate-per-topic:
   objectName: "kafka.producer:client-id=*,topic=*,type=producer-topic-metrics"
   instancePrefix: "all"
   dimensions:
@@ -115,7 +115,7 @@ record-retry-rate:
     table: false
     attribute: "record-retry-rate"
 
-record-send-rate:
+record-send-rate-per-topic:
   objectName: "kafka.producer:client-id=*,topic=*,type=producer-topic-metrics"
   instancePrefix: "all"
   dimensions:
