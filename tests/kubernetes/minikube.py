@@ -1,6 +1,7 @@
 from contextlib import contextmanager
 from functools import partial as p
 from kubernetes import config as kube_config
+from requests.exceptions import ConnectionError
 from tests.helpers.util import *
 from tests.kubernetes.agent import Agent
 from tests.kubernetes.utils import *
@@ -37,12 +38,18 @@ class Minikube:
         else:
             return None
 
+    def path_exists(self, path):
+        try:
+            return container_cmd_exit_0(self.container, "test -e %s" % path)
+        except ConnectionError as e:
+            return False
+
     def load_kubeconfig(self, kubeconfig_path="/kubeconfig", timeout=300):
+        assert wait_for(p(self.path_exists, kubeconfig_path), timeout_seconds=timeout), \
+            "timed out waiting for %s to be created!\n\nMINIKUBE CONTAINER LOGS:\n%s\n\nLOCALKUBE LOGS:\n%s\n\n" % \
+            (kubeconfig_path, self.get_container_logs(), self.get_localkube_logs())
         with tempfile.NamedTemporaryFile(dir="/tmp/scratch") as fd:
             kubeconfig = fd.name
-            assert wait_for(p(container_cmd_exit_0, self.container, "test -f %s" % kubeconfig_path), timeout_seconds=timeout), \
-                "timed out waiting for the minikube cluster to be ready!\n\nMINIKUBE CONTAINER LOGS:\n%s\n\nLOCALKUBE LOGS:\n%s\n\n" % \
-                (self.get_container_logs(), self.get_localkube_logs())
             time.sleep(2)
             rc, output = self.container.exec_run("cp -f %s %s" % (kubeconfig_path, kubeconfig))
             assert rc == 0, "failed to get %s from minikube!\n%s" % (kubeconfig_path, output.decode('utf-8'))
@@ -115,11 +122,21 @@ class Minikube:
     def build_image(self, dockerfile_dir, build_opts={}):
         if not self.client:
             self.get_client()
-        self.client.images.build(
-            path=dockerfile_dir,
-            rm=True,
-            forcerm=True,
-            **build_opts)
+        attempts = 1
+        while attempts <= 3:
+            try:
+                self.client.images.build(
+                    path=dockerfile_dir,
+                    rm=True,
+                    forcerm=True,
+                    **build_opts)
+                break
+            except docker.errors.BuildError as e:
+                if attempts == 3:
+                    raise e
+                else:
+                    time.sleep(5)
+                    attempts += 1
 
     @contextmanager
     def deploy_k8s_yamls(self, yamls=[], namespace=None, timeout=180):
@@ -166,14 +183,15 @@ class Minikube:
 
             self.yamls = []
 
-
-    def pull_agent_image(self, name, tag, image_id):
-        assert has_docker_image(self.host_client, image_id), "agent image \"%s\" not found!" % image_id
-        if has_docker_image(self.client, image_id):
-            return
-        self.client.images.pull(name, tag=tag)
+    def pull_agent_image(self, name, tag, image_id=None):
+        if image_id:
+            assert has_docker_image(self.host_client, image_id), "agent image \"%s\" not found!" % image_id
+            if has_docker_image(self.client, image_id):
+                return self.client.images.get(image_id)
+        image = self.client.images.pull(name, tag=tag)
         _, output = self.container.exec_run('docker images')
         print(output.decode('utf-8'))
+        return image
 
     @contextmanager
     def deploy_agent(self, configmap_path, daemonset_path, serviceaccount_path, observer=None, monitors=[], cluster_name="minikube", backend=None, image_name=None, image_tag=None, namespace="default"):
@@ -208,8 +226,7 @@ class Minikube:
 
     def get_localkube_logs(self):
         try:
-            rc, _ = self.container.exec_run("test -f /var/lib/localkube/localkube.err")
-            if rc == 0:
+            if self.path_exists("/var/lib/localkube/localkube.err"):
                 _, output = self.container.exec_run("cat /var/lib/localkube/localkube.err")
                 return output.decode('utf-8').strip()
         except Exception as e:

@@ -27,6 +27,10 @@ references:
 
   install_pytest: &install_pytest
     run: |
+      if [ -f ~/.skip ]; then
+          echo "Found ~/.skip. Skipping pytest install."
+          exit 0
+      fi
       set -e
       sudo apt-get update && sudo apt-get install -y python3-dev
       curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
@@ -250,28 +254,32 @@ jobs:
     <<: *executor
     steps:
       - checkout
-      - *install_pytest
       - run: |
-          mkdir ~/testresults
-
-          if ! scripts/changes-include-dir Dockerfile packaging/rpm; then
+          if ! scripts/changes-include-dir Dockerfile packaging/rpm tests/packaging; then
               echo "RPM packaging code has not changed, skipping tests!"
+              touch ~/.skip
               exit 0
           fi
-
           export PULL_CACHE=yes
           make rpm-test-package
-
-          mkdir /tmp/scratch
-
-          pytest \
-            -n auto \
-            -m "rpm" \
-            --verbose \
-            --junitxml=~/testresults/rpm.xml \
-            --html=~/testresults/rpm.html \
-            --self-contained-html \
-            ./tests/packaging
+      - *install_pytest
+      - run:
+          no_output_timeout: 30m
+          command: |
+            if [ -f ~/.skip ]; then
+                echo "RPM packaging code has not changed, skipping tests!"
+                exit 0
+            fi
+            mkdir /tmp/scratch
+            mkdir ~/testresults
+            pytest \
+                -n 4 \
+                -m "rpm" \
+                --verbose \
+                --junitxml=~/testresults/rpm.xml \
+                --html=~/testresults/rpm.html \
+                --self-contained-html \
+                ./tests/packaging
 
       - store_test_results:
           path: ~/testresults
@@ -287,28 +295,32 @@ jobs:
     <<: *executor
     steps:
       - checkout
-      - *install_pytest
       - run: |
-          mkdir ~/testresults
-
-          if ! scripts/changes-include-dir Dockerfile packaging/deb; then
+          if ! scripts/changes-include-dir Dockerfile packaging/deb tests/packaging; then
               echo "Debian packaging code has not changed, skipping tests!"
+              touch ~/.skip
               exit 0
           fi
-
           export PULL_CACHE=yes
           make deb-test-package
-
-          mkdir /tmp/scratch
-
-          pytest \
-            -n auto \
-            -m "deb" \
-            --verbose \
-            --junitxml=~/testresults/deb.xml \
-            --html=~/testresults/deb.html \
-            --self-contained-html \
-            ./tests/packaging
+      - *install_pytest
+      - run:
+          no_output_timeout: 30m
+          command: |
+            if [ -f ~/.skip ]; then
+                echo "Debian packaging code has not changed, skipping tests!"
+                exit 0
+            fi
+            mkdir ~/testresults
+            mkdir /tmp/scratch
+            pytest \
+                -n 4 \
+                -m "deb" \
+                --verbose \
+                --junitxml=~/testresults/deb.xml \
+                --html=~/testresults/deb.html \
+                --self-contained-html \
+                ./tests/packaging
 
       - store_test_results:
           path: ~/testresults
