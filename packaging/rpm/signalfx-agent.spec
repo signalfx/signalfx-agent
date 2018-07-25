@@ -48,7 +48,7 @@ install -p -m 644 %{_sourcedir}/signalfx-agent.1 $RPM_BUILD_ROOT/%{_mandir}/man1
 
 %files
 
-%config /etc/signalfx/agent.yaml
+%config(noreplace) /etc/signalfx/agent.yaml
 /usr/lib/signalfx-agent
 /%{_unitdir}/signalfx-agent.service
 /%{_bindir}/signalfx-agent
