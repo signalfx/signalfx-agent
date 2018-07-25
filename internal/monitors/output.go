@@ -25,6 +25,8 @@ type monitorOutput struct {
 	extraDims                 map[string]string
 }
 
+var _ types.Output = &monitorOutput{}
+
 func (mo *monitorOutput) SendDatapoint(dp *datapoint.Datapoint) {
 	if mo.filter != nil && mo.filter.Matches(dp) {
 		return
@@ -66,4 +68,18 @@ func (mo *monitorOutput) SendEvent(event *event.Event) {
 
 func (mo *monitorOutput) SendDimensionProps(dimProps *types.DimProperties) {
 	mo.dimPropChan <- dimProps
+}
+
+// AddExtraDimension can be called by monitors *before* datapoints are flowing
+// to add an extra dimension value to all datapoints coming out of this output.
+// This method is not thread-safe!
+func (mo *monitorOutput) AddExtraDimension(key, value string) {
+	mo.extraDims[key] = value
+}
+
+// RemoveExtraDimension will remove any dimension added to this output, either
+// from the original configuration or from the AddExtraDimensions method.
+// This method is not thread-safe!
+func (mo *monitorOutput) RemoveExtraDimension(key string) {
+	delete(mo.extraDims, key)
 }
