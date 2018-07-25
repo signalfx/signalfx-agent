@@ -33,7 +33,6 @@
       {{with .ServiceURL}}
       ServiceURL "{{renderValue . $}}"
       {{- end}}
-      MonitorId "{{.MonitorID}}"
       {{with .InstancePrefix -}}
       InstancePrefix "{{.}}"
       {{- end}}
@@ -47,6 +46,7 @@
       {{range $key, $val := .CustomDimensions}}
       CustomDimension "{{$key}}" "{{$val}}"
       {{end}}
+      CustomDimension "monitorID" "{{.MonitorID}}"
       {{range .MBeansToCollect}}
       Collect "{{.}}"
       {{- end}}
