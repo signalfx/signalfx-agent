@@ -27,7 +27,7 @@ monitors:
 
 def distribute_hostnames(containers):
     """
-    iterate over each container and pass it's hostname and ip to etc host on
+    iterate over each container and pass its hostname and ip to etc host on
     all of the other containers in the dictionary
     """
     for hostname, container in containers.items():
