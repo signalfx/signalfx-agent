@@ -47,22 +47,22 @@ def test_resource_quota_metrics(agent_image, minikube, k8s_test_timeout, k8s_nam
         namespace=k8s_namespace,
         yamls=[os.path.join(os.path.dirname(os.path.realpath(__file__)), "resource_quota.yaml")]) as [backend, _]:
 
-        wait_for(p(has_datapoint, backend,
+        assert wait_for(p(has_datapoint, backend,
             metric_name="kubernetes.resource_quota_hard",
             dimensions={"quota_name": "object-quota-demo", "resource": "requests.cpu"},
             value=100000))
 
-        wait_for(p(has_datapoint, backend,
+        assert wait_for(p(has_datapoint, backend,
             metric_name="kubernetes.resource_quota_hard",
             dimensions={"quota_name": "object-quota-demo", "resource": "persistentvolumeclaims"},
             value=4))
 
-        wait_for(p(has_datapoint, backend,
+        assert wait_for(p(has_datapoint, backend,
             metric_name="kubernetes.resource_quota_used",
             dimensions={"quota_name": "object-quota-demo", "resource": "persistentvolumeclaims"},
             value=0))
 
-        wait_for(p(has_datapoint, backend,
+        assert wait_for(p(has_datapoint, backend,
             metric_name="kubernetes.resource_quota_hard",
             dimensions={"quota_name": "object-quota-demo", "resource": "services.loadbalancers"},
             value=2))

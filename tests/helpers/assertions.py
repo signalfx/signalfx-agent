@@ -53,8 +53,17 @@ def has_datapoint(fake_services, metric_name=None, dimensions=None, value=None):
             continue
         if dimensions and not has_all_dims(dp, dimensions):
             continue
-        if value and dp.value != value:
-            continue
+        if value is not None:
+            if dp.value.HasField("intValue"):
+                if dp.value.intValue != value:
+                    continue
+            elif dp.value.HasField("doubleValue"):
+                if dp.value.doubleValue != value:
+                    continue
+            else:
+                # Non-numeric values aren't supported, so they always fail to
+                # match
+                continue
         return True
     return False
 
