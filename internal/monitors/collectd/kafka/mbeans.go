@@ -149,6 +149,10 @@ kafka-request-queue:
 kafka.fetch-consumer.total-time:
   objectName: "kafka.network:type=RequestMetrics,name=TotalTimeMs,request=FetchConsumer"
   values:
+  - type: "counter"
+    table: false
+    attribute: "Count"
+    instancePrefix: "kafka.fetch-consumer.total-time.count"
   - type: "gauge"
     table: false
     attribute: "50thPercentile"
@@ -161,6 +165,10 @@ kafka.fetch-consumer.total-time:
 kafka.fetch-follower.total-time:
   objectName: "kafka.network:type=RequestMetrics,name=TotalTimeMs,request=FetchFollower"
   values:
+  - type: "counter"
+    table: false
+    attribute: "Count"
+    instancePrefix: "kafka.fetch-follower.total-time.count"
   - type: "gauge"
     table: false
     attribute: "50thPercentile"
@@ -173,6 +181,10 @@ kafka.fetch-follower.total-time:
 kafka.produce.total-time:
   objectName: "kafka.network:type=RequestMetrics,name=TotalTimeMs,request=Produce"
   values:
+  - type: "counter"
+    table: false
+    attribute: "Count"
+    instancePrefix: "kafka.produce.total-time.count"
   - type: "gauge"
     table: false
     attribute: "50thPercentile"
@@ -180,5 +192,5 @@ kafka.produce.total-time:
   - type: "gauge"
     table: false
     attribute: "99thPercentile"
-    instancePrefix: "kafka.fetchproducetotal-time.99th"
+    instancePrefix: "kafka.produce-time.99th"
 `
