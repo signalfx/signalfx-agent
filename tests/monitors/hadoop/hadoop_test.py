@@ -3,7 +3,7 @@ import os
 import pytest
 import string
 
-from tests.helpers.util import wait_for, run_agent, run_service, container_ip
+from tests.helpers.util import wait_for, run_agent, run_service, container_ip, print_lines
 from tests.helpers.assertions import tcp_socket_open, has_datapoint, has_datapoint_with_dim, http_status
 from tests.helpers.util import (
     get_monitor_metrics_from_selfdescribe,
@@ -50,11 +50,11 @@ def test_hadoop(version):
             distribute_hostnames(containers)
 
             # format hdfs
-            hadoop_master.exec_run(["/usr/local/hadoop/bin/hdfs", "namenode", "-format"])
+            print_lines(hadoop_master.exec_run(["/usr/local/hadoop/bin/hdfs", "namenode", "-format"])[1])
 
             # start hadoop and yarn
-            hadoop_master.exec_run("start-dfs.sh", stdout=True)
-            hadoop_master.exec_run("start-yarn.sh", stdout=True)
+            print_lines(hadoop_master.exec_run("start-dfs.sh")[1])
+            print_lines(hadoop_master.exec_run("start-yarn.sh")[1])
 
             # wait for yarn api to be available
             host = container_ip(hadoop_master)
