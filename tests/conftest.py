@@ -20,12 +20,6 @@ K8S_MAX_VERSION = '1.10.0'
 K8S_DEFAULT_VERSION = '1.10.0'
 K8S_DEFAULT_TIMEOUT = 300
 K8S_DEFAULT_TEST_TIMEOUT = 120
-K8S_DEFAULT_AGENT_IMAGE_NAME = "quay.io/signalfx/signalfx-agent-dev"
-try:
-    proc = subprocess.run(os.path.join(SCRIPTS_DIR, "current-version"), shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-    K8S_DEFAULT_AGENT_IMAGE_TAG = proc.stdout.decode('utf-8').strip()
-except:
-    K8S_DEFAULT_AGENT_IMAGE_TAG = "latest"
 
 
 def get_k8s_supported_versions():
@@ -49,6 +43,7 @@ def get_k8s_supported_versions():
         if semver.match(version, '>=' + K8S_MIN_VERSION) and semver.match(version, '<=' + K8S_MAX_VERSION):
             versions.append(version)
     return sorted(versions, key=lambda v: list(map(int, v.split('.'))), reverse=True)
+
 
 K8S_SUPPORTED_VERSIONS = get_k8s_supported_versions()
 K8S_MAJOR_MINOR_VERSIONS = [v for v in K8S_SUPPORTED_VERSIONS if semver.parse_version_info(v).patch == 0]
@@ -77,16 +72,10 @@ def pytest_addoption(parser):
         help="Timeout (in seconds) to wait for the minikube cluster to be ready (default=%d)." % K8S_DEFAULT_TIMEOUT
     )
     parser.addoption(
-        "--k8s-agent-name",
+        "--k8s-sfx-agent",
         action="store",
-        default=K8S_DEFAULT_AGENT_IMAGE_NAME,
-        help="SignalFx agent image name to use for K8S tests (default=%s). The image must exist either locally or remotely." % K8S_DEFAULT_AGENT_IMAGE_NAME
-    )
-    parser.addoption(
-        "--k8s-agent-tag",
-        action="store",
-        default=K8S_DEFAULT_AGENT_IMAGE_TAG,
-        help="SignalFx agent image tag to use for K8S tests (default=%s). The image must exist either locally or remotely." % K8S_DEFAULT_AGENT_IMAGE_TAG
+        default=None,
+        help="SignalFx agent image name:tag to use for K8S tests. If not specified, the agent image will be built from the local source code."
     )
     parser.addoption(
         "--k8s-test-timeout",
@@ -188,36 +177,61 @@ def registry(minikube, worker_id):
 @pytest.fixture(scope="session")
 def agent_image(minikube, registry, request, worker_id):
     def teardown():
-        try:
-            client.images.remove("%s:%s" % (agent_image_name, agent_image_tag))
-        except:
-            pass
+        if temp_agent_name and temp_agent_tag:
+            try:
+                client.images.remove("%s:%s" % (temp_agent_name, temp_agent_tag))
+            except:
+                pass
 
     request.addfinalizer(teardown)
-    client = get_docker_client()
-    final_agent_image_name = request.config.getoption("--k8s-agent-name")
-    final_agent_image_tag = request.config.getoption("--k8s-agent-tag")
-    agent_image_name = "localhost:%d/%s" % (registry['port'], final_agent_image_name.split("/")[-1])
-    agent_image_tag = final_agent_image_tag
-    if worker_id == "master" or worker_id == "gw0":
-        if not has_docker_image(client, final_agent_image_name, final_agent_image_tag):
-            print("\nAgent image '%s:%s' not found in local registry." % (final_agent_image_name, final_agent_image_tag))
-            print("\nAttempting to pull from remote registry ...")
-            final_agent_image = client.images.pull(final_agent_image_name, tag=final_agent_image_tag)
-        else:
-            final_agent_image = client.images.get(final_agent_image_name + ":" + final_agent_image_tag)
-        print("\nTagging %s:%s as %s:%s ..." % (final_agent_image_name, final_agent_image_tag, agent_image_name, agent_image_tag))
-        final_agent_image.tag(agent_image_name, tag=agent_image_tag)
-        print("\nPushing %s:%s ..." % (agent_image_name, agent_image_tag))
-        client.images.push(agent_image_name, tag=agent_image_tag)
-        print("\nPulling %s:%s ..." % (agent_image_name, agent_image_tag))
-        minikube.pull_agent_image(agent_image_name, agent_image_tag, final_agent_image.id)
+    sfx_agent_name = request.config.getoption("--k8s-sfx-agent")
+    if sfx_agent_name:
+        try:
+            agent_image_name, agent_image_tag = sfx_agent_name.rsplit(":", maxsplit=1)
+        except ValueError:
+            agent_image_name = sfx_agent_name
+            agent_image_tag = "latest"
     else:
-        print("\nWaiting for agent image \"%s:%s\" to be pulled to minikube ..." % (agent_image_name, agent_image_tag))
-        assert wait_for(p(has_docker_image, minikube.client, agent_image_name, agent_image_tag), timeout_seconds=60), \
+        agent_image_name = "signalfx-agent"
+        agent_image_tag = "k8s-test"
+    temp_agent_name = None
+    temp_agent_tag = None
+    client = get_docker_client()
+    if worker_id == "master" or worker_id == "gw0":
+        if sfx_agent_name and not has_docker_image(client, sfx_agent_name):
+            print("\nAgent image \"%s\" not found in local registry." % sfx_agent_name)
+            print("Attempting to pull from remote registry to minikube ...")
+            sfx_agent_image = minikube.pull_agent_image(agent_image_name, agent_image_tag)
+            _, output = minikube.container.exec_run('docker images')
+            print(output.decode('utf-8'))
+            return {"name": agent_image_name, "tag": agent_image_tag, "id": sfx_agent_image.id}
+        elif sfx_agent_name:
+            print("\nAgent image \"%s\" found in local registry." % sfx_agent_name)
+            sfx_agent_image = client.images.get(sfx_agent_name)
+        else:
+            print("\nBuilding agent image from local source and tagging as \"%s:%s\" ..." % (agent_image_name, agent_image_tag))
+            subprocess.run(
+                "make image",
+                shell=True,
+                env={"PULL_CACHE": "yes", "AGENT_IMAGE_NAME": agent_image_name, "AGENT_VERSION": agent_image_tag},
+                stderr=subprocess.STDOUT,
+                check=True)
+            sfx_agent_image = client.images.get(agent_image_name + ":" + agent_image_tag)
+        temp_agent_name = "localhost:%d/signalfx-agent-dev" % registry['port']
+        temp_agent_tag = "latest"
+        print("\nPushing agent image to minikube ...")
+        sfx_agent_image.tag(temp_agent_name, tag=temp_agent_tag)
+        client.images.push(temp_agent_name, tag=temp_agent_tag)
+        sfx_agent_image = minikube.pull_agent_image(temp_agent_name, temp_agent_tag, sfx_agent_image.id)
+        sfx_agent_image.tag(agent_image_name, tag=agent_image_tag)
+        _, output = minikube.container.exec_run('docker images')
+        print(output.decode('utf-8'))
+    else:
+        print("\nWaiting for agent image to be built/pulled to minikube ...")
+        assert wait_for(p(has_docker_image, minikube.client, agent_image_name, agent_image_tag), timeout_seconds=600), \
             "timed out waiting for agent image \"%s:%s\"!" % (agent_image_name, agent_image_tag)
-        final_agent_image = client.images.get(final_agent_image_name + ":" + final_agent_image_tag)
-    return {"name": agent_image_name, "tag": agent_image_tag, "id": final_agent_image.id}
+        sfx_agent_image = minikube.client.images.get(agent_image_name + ":" + agent_image_tag)
+    return {"name": agent_image_name, "tag": agent_image_tag, "id": sfx_agent_image.id}
 
 
 @pytest.fixture

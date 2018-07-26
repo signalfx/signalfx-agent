@@ -120,6 +120,7 @@ run-integration-tests:
 				--self-contained-html \
 				tests
 
+K8S_VERSION = v1.10.0
 .PHONY: run-k8s-tests
 run-k8s-tests:
 	docker rm -f -v minikube || true
@@ -128,7 +129,7 @@ run-k8s-tests:
 		-n 4 \
 		--verbose \
 		--exitfirst \
-		--k8s-version=v1.10.0 \
+		--k8s-version=$(K8S_VERSION) \
 		--k8s-observers=k8s-api,k8s-kubelet \
 		--html=test_output/k8s_results.html \
 		--self-contained-html \

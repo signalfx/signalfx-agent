@@ -55,8 +55,7 @@ references:
             --k8s-observers="$K8S_OBSERVERS" \
             --k8s-timeout=300 \
             --k8s-test-timeout=120 \
-            --k8s-agent-name=quay.io/signalfx/signalfx-agent-dev \
-            --k8s-agent-tag=latest \
+            --k8s-sfx-agent=quay.io/signalfx/signalfx-agent-dev:latest \
             tests
 
 jobs:

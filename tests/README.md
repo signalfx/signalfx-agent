@@ -21,19 +21,16 @@ testing.  Please keep these goals in mind when adding integration tests.
 
 These tests will be run automatically by CircleCI upon each commit.
 
-**Note:** By default, the kubernetes tests will use the locally built
-signalfx-agent docker image (i.e. the "final" image built by `make image`).  
-Alternatively, you can also specify the name of the image and tag of the agent
-with the `--k8s-agent-name=IMAGE_NAME` and `--k8s-agent-tag=IMAGE_TAG` pytest
-options, respectively (if the image does not exist in the local registry, the 
-test will try to pull the image from the remote registry).
+**Note:** By default, the kubernetes tests will build the agent image from the
+local source (i.e. the image built by `make image`).  Alternatively, you can
+also specify the name of the agent image with the `--k8s-sfx-agent=NAME:TAG`
+pytest option (if the image does not exist in the local registry, the test will
+try to pull the image from the remote registry).
 
-For example, the following commands will build the "final" agent image, the dev
-image, and run the kubernetes tests with the default options within the dev
-image:
+As a quickstart, the following commands will build the the dev image and run
+the kubernetes tests with the default options within the dev image:
 ```
 % cd <root_of_cloned_repo>
-% make image
 % make dev-image
 % make run-dev-image
 %% make run-k8s-tests
