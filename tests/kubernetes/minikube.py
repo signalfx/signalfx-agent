@@ -166,14 +166,13 @@ class Minikube:
 
             self.yamls = []
 
-
-    def pull_agent_image(self, name, tag, image_id):
-        assert has_docker_image(self.host_client, image_id), "agent image \"%s\" not found!" % image_id
-        if has_docker_image(self.client, image_id):
-            return
-        self.client.images.pull(name, tag=tag)
-        _, output = self.container.exec_run('docker images')
-        print(output.decode('utf-8'))
+    def pull_agent_image(self, name, tag, image_id=None):
+        if image_id and has_docker_image(self.client, image_id):
+            return self.client.images.get(image_id)
+        elif has_docker_image(self.client, name, tag):
+            return self.client.images.get(name + ":" + tag)
+        else:
+            return self.client.images.pull(name, tag=tag)
 
     @contextmanager
     def deploy_agent(self, configmap_path, daemonset_path, serviceaccount_path, observer=None, monitors=[], cluster_name="minikube", backend=None, image_name=None, image_tag=None, namespace="default"):
