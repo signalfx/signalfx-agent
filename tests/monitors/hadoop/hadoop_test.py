@@ -3,7 +3,7 @@ import os
 import pytest
 import string
 
-from tests.helpers.util import wait_for, run_agent, run_service, container_ip, print_lines
+from tests.helpers.util import wait_for, run_agent, run_service, run_container, container_ip, print_lines
 from tests.helpers.assertions import tcp_socket_open, has_datapoint, has_datapoint_with_dim, http_status
 from tests.helpers.util import (
     get_monitor_metrics_from_selfdescribe,
@@ -41,7 +41,7 @@ def distribute_hostnames(containers):
 def test_hadoop(version):
     buildargs = {"HADOOP_VER": version}
     with run_service("hadoop", buildargs=buildargs, hostname="hadoop-master") as hadoop_master:
-        with run_service("hadoop", buildargs=buildargs, hostname="hadoop-worker1") as hadoop_worker1:
+        with run_container(hadoop_master.image, hostname="hadoop-worker1") as hadoop_worker1:
             containers = {
                 'hadoop-master': hadoop_master, 'hadoop-worker1': hadoop_worker1
             }
