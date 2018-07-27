@@ -37,6 +37,7 @@ def build_base_image(name):
     image, logs = client.images.build(
         path=DOCKERFILES_DIR,
         dockerfile=os.path.join(DOCKERFILES_DIR, "Dockerfile.%s" % name),
+        pull=True,
         rm=True,
         forcerm=True)
 
