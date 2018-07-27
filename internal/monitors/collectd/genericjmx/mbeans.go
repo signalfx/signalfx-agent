@@ -96,5 +96,5 @@ type MBean struct {
 	InstancePrefix string       `yaml:"instancePrefix"`
 	InstanceFrom   []string     `yaml:"instanceFrom"`
 	Values         []MBeanValue `yaml:"values"`
-	Dimensions     []string     `yaml:"dimensions`
+	Dimensions     []string     `yaml:"dimensions"`
 }

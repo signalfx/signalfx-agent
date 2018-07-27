@@ -50,8 +50,6 @@ type Config struct {
 	Username       string `yaml:"username"`
 	Password       string `yaml:"password" neverLog:"true"`
 	// Takes in key-values pairs of custom dimensions at the connection level.
-	// This is useful in cases where we benefit from having extra dimensions
-	// for built-in content
 	CustomDimensions map[string]string `yaml:"customDimensions"`
 	// A list of the MBeans defined in `mBeanDefinitions` to actually collect.
 	// If not provided, then all defined MBeans will be collected.

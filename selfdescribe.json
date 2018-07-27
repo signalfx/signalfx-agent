@@ -474,8 +474,24 @@
           "elementKind": ""
         },
         {
+          "yamlName": "customDimensions",
+          "doc": "Takes in key-values pairs of custom dimensions at the connection level.",
+          "default": null,
+          "required": false,
+          "type": "map",
+          "elementKind": "string"
+        },
+        {
           "yamlName": "mBeansToCollect",
           "doc": "A list of the MBeans defined in `mBeanDefinitions` to actually collect. If not provided, then all defined MBeans will be collected.",
+          "default": null,
+          "required": false,
+          "type": "slice",
+          "elementKind": "string"
+        },
+        {
+          "yamlName": "mBeansToOmit",
+          "doc": "A list of the MBeans to omit. This will come handy in cases where only a few MBeans need to omitted from the default list",
           "default": null,
           "required": false,
           "type": "slice",
@@ -571,6 +587,14 @@
                     }
                   ]
                 }
+              },
+              {
+                "yamlName": "dimensions",
+                "doc": "",
+                "default": null,
+                "required": false,
+                "type": "slice",
+                "elementKind": "string"
               }
             ]
           }
@@ -956,8 +980,24 @@
           "elementKind": ""
         },
         {
+          "yamlName": "customDimensions",
+          "doc": "Takes in key-values pairs of custom dimensions at the connection level.",
+          "default": null,
+          "required": false,
+          "type": "map",
+          "elementKind": "string"
+        },
+        {
           "yamlName": "mBeansToCollect",
           "doc": "A list of the MBeans defined in `mBeanDefinitions` to actually collect. If not provided, then all defined MBeans will be collected.",
+          "default": null,
+          "required": false,
+          "type": "slice",
+          "elementKind": "string"
+        },
+        {
+          "yamlName": "mBeansToOmit",
+          "doc": "A list of the MBeans to omit. This will come handy in cases where only a few MBeans need to omitted from the default list",
           "default": null,
           "required": false,
           "type": "slice",
@@ -1053,6 +1093,14 @@
                     }
                   ]
                 }
+              },
+              {
+                "yamlName": "dimensions",
+                "doc": "",
+                "default": null,
+                "required": false,
+                "type": "slice",
+                "elementKind": "string"
               }
             ]
           }
@@ -3013,8 +3061,24 @@
           "elementKind": ""
         },
         {
+          "yamlName": "customDimensions",
+          "doc": "Takes in key-values pairs of custom dimensions at the connection level.",
+          "default": null,
+          "required": false,
+          "type": "map",
+          "elementKind": "string"
+        },
+        {
           "yamlName": "mBeansToCollect",
           "doc": "A list of the MBeans defined in `mBeanDefinitions` to actually collect. If not provided, then all defined MBeans will be collected.",
+          "default": null,
+          "required": false,
+          "type": "slice",
+          "elementKind": "string"
+        },
+        {
+          "yamlName": "mBeansToOmit",
+          "doc": "A list of the MBeans to omit. This will come handy in cases where only a few MBeans need to omitted from the default list",
           "default": null,
           "required": false,
           "type": "slice",
@@ -3110,6 +3174,14 @@
                     }
                   ]
                 }
+              },
+              {
+                "yamlName": "dimensions",
+                "doc": "",
+                "default": null,
+                "required": false,
+                "type": "slice",
+                "elementKind": "string"
               }
             ]
           }
@@ -3229,8 +3301,24 @@
           "elementKind": ""
         },
         {
+          "yamlName": "customDimensions",
+          "doc": "Takes in key-values pairs of custom dimensions at the connection level.",
+          "default": null,
+          "required": false,
+          "type": "map",
+          "elementKind": "string"
+        },
+        {
           "yamlName": "mBeansToCollect",
           "doc": "A list of the MBeans defined in `mBeanDefinitions` to actually collect. If not provided, then all defined MBeans will be collected.",
+          "default": null,
+          "required": false,
+          "type": "slice",
+          "elementKind": "string"
+        },
+        {
+          "yamlName": "mBeansToOmit",
+          "doc": "A list of the MBeans to omit. This will come handy in cases where only a few MBeans need to omitted from the default list",
           "default": null,
           "required": false,
           "type": "slice",
@@ -3326,6 +3414,14 @@
                     }
                   ]
                 }
+              },
+              {
+                "yamlName": "dimensions",
+                "doc": "",
+                "default": null,
+                "required": false,
+                "type": "slice",
+                "elementKind": "string"
               }
             ]
           }
@@ -4117,8 +4213,24 @@
           "elementKind": ""
         },
         {
+          "yamlName": "customDimensions",
+          "doc": "Takes in key-values pairs of custom dimensions at the connection level.",
+          "default": null,
+          "required": false,
+          "type": "map",
+          "elementKind": "string"
+        },
+        {
           "yamlName": "mBeansToCollect",
           "doc": "A list of the MBeans defined in `mBeanDefinitions` to actually collect. If not provided, then all defined MBeans will be collected.",
+          "default": null,
+          "required": false,
+          "type": "slice",
+          "elementKind": "string"
+        },
+        {
+          "yamlName": "mBeansToOmit",
+          "doc": "A list of the MBeans to omit. This will come handy in cases where only a few MBeans need to omitted from the default list",
           "default": null,
           "required": false,
           "type": "slice",
@@ -4214,9 +4326,25 @@
                     }
                   ]
                 }
+              },
+              {
+                "yamlName": "dimensions",
+                "doc": "",
+                "default": null,
+                "required": false,
+                "type": "slice",
+                "elementKind": "string"
               }
             ]
           }
+        },
+        {
+          "yamlName": "clusterName",
+          "doc": "Cluster name to which the broker belongs",
+          "default": null,
+          "required": true,
+          "type": "string",
+          "elementKind": ""
         }
       ],
       "monitorType": "collectd/kafka",
@@ -4315,6 +4443,412 @@
           "description": "Median time it takes to process a fetch request from follower"
         }
       ],
+      "properties": null
+    },
+    {
+      "name": "Config",
+      "doc": " Monitors a java based Kafka consumer using GenericJMX.\n\nSee the [integration documentation](https://github.com/signalfx/integrations/tree/master/collectd-kafka_consumer)\nfor more information.\n\nThis monitor has a set of [built in MBeans\nconfigured](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/kafka_consumer/mbeans.go)\nfor which it pulls metrics from the Kafka consumer's JMX endpoint.\n\nSample YAML configuration:\n```yaml\nmonitors:\n  - type: collectd/kafka_consumer\n    host: localhost\n    port: 9099\n```\n",
+      "package": "internal/monitors/collectd/kafkaconsumer",
+      "fields": [
+        {
+          "yamlName": "host",
+          "doc": "Host to connect to -- JMX must be configured for remote access and accessible from the agent",
+          "default": null,
+          "required": true,
+          "type": "string",
+          "elementKind": ""
+        },
+        {
+          "yamlName": "port",
+          "doc": "JMX RMI port on the host",
+          "default": null,
+          "required": true,
+          "type": "uint16",
+          "elementKind": ""
+        },
+        {
+          "yamlName": "name",
+          "doc": "",
+          "default": "",
+          "required": false,
+          "type": "string",
+          "elementKind": ""
+        },
+        {
+          "yamlName": "serviceName",
+          "doc": "This is how the service type is identified in the SignalFx UI so that you can get built-in content for it.  For custom JMX integrations, it can be set to whatever you like and metrics will get the special property `sf_hostHasService` set to this value.",
+          "default": "",
+          "required": false,
+          "type": "string",
+          "elementKind": ""
+        },
+        {
+          "yamlName": "serviceURL",
+          "doc": "The JMX connection string.  This is rendered as a Go template and has access to the other values in this config. NOTE: under normal circumstances it is not advised to set this string directly - setting the host and port as specified above is preferred.",
+          "default": "service:jmx:rmi:///jndi/rmi://{{.Host}}:{{.Port}}/jmxrmi",
+          "required": false,
+          "type": "string",
+          "elementKind": ""
+        },
+        {
+          "yamlName": "instancePrefix",
+          "doc": "",
+          "default": "",
+          "required": false,
+          "type": "string",
+          "elementKind": ""
+        },
+        {
+          "yamlName": "username",
+          "doc": "",
+          "default": "",
+          "required": false,
+          "type": "string",
+          "elementKind": ""
+        },
+        {
+          "yamlName": "password",
+          "doc": "",
+          "default": "",
+          "required": false,
+          "type": "string",
+          "elementKind": ""
+        },
+        {
+          "yamlName": "customDimensions",
+          "doc": "Takes in key-values pairs of custom dimensions at the connection level.",
+          "default": null,
+          "required": false,
+          "type": "map",
+          "elementKind": "string"
+        },
+        {
+          "yamlName": "mBeansToCollect",
+          "doc": "A list of the MBeans defined in `mBeanDefinitions` to actually collect. If not provided, then all defined MBeans will be collected.",
+          "default": null,
+          "required": false,
+          "type": "slice",
+          "elementKind": "string"
+        },
+        {
+          "yamlName": "mBeansToOmit",
+          "doc": "A list of the MBeans to omit. This will come handy in cases where only a few MBeans need to omitted from the default list",
+          "default": null,
+          "required": false,
+          "type": "slice",
+          "elementKind": "string"
+        },
+        {
+          "yamlName": "mBeanDefinitions",
+          "doc": "Specifies how to map JMX MBean values to metrics.  If using a specific service monitor such as cassandra, kafka, or activemq, they come pre-loaded with a set of mappings, and any that you add in this option will be merged with those.  See [collectd GenericJMX](https://collectd.org/documentation/manpages/collectd-java.5.shtml#genericjmx_plugin) for more details.",
+          "default": null,
+          "required": false,
+          "type": "map",
+          "elementKind": "struct",
+          "elementStruct": {
+            "name": "MBean",
+            "doc": "MBean represents the \u003cMBean\u003e config object in the collectd config for generic jmx.",
+            "package": "internal/monitors/collectd/genericjmx",
+            "fields": [
+              {
+                "yamlName": "objectName",
+                "doc": "",
+                "default": "",
+                "required": false,
+                "type": "string",
+                "elementKind": ""
+              },
+              {
+                "yamlName": "instancePrefix",
+                "doc": "",
+                "default": "",
+                "required": false,
+                "type": "string",
+                "elementKind": ""
+              },
+              {
+                "yamlName": "instanceFrom",
+                "doc": "",
+                "default": null,
+                "required": false,
+                "type": "slice",
+                "elementKind": "string"
+              },
+              {
+                "yamlName": "values",
+                "doc": "",
+                "default": null,
+                "required": false,
+                "type": "slice",
+                "elementKind": "struct",
+                "elementStruct": {
+                  "name": "MBeanValue",
+                  "doc": "MBeanValue specifies a particular value to pull from the MBean.",
+                  "package": "internal/monitors/collectd/genericjmx",
+                  "fields": [
+                    {
+                      "yamlName": "type",
+                      "doc": "",
+                      "default": "",
+                      "required": false,
+                      "type": "string",
+                      "elementKind": ""
+                    },
+                    {
+                      "yamlName": "table",
+                      "doc": "",
+                      "default": false,
+                      "required": false,
+                      "type": "bool",
+                      "elementKind": ""
+                    },
+                    {
+                      "yamlName": "instancePrefix",
+                      "doc": "",
+                      "default": "",
+                      "required": false,
+                      "type": "string",
+                      "elementKind": ""
+                    },
+                    {
+                      "yamlName": "instanceFrom",
+                      "doc": "",
+                      "default": null,
+                      "required": false,
+                      "type": "slice",
+                      "elementKind": "string"
+                    },
+                    {
+                      "yamlName": "attribute",
+                      "doc": "",
+                      "default": "",
+                      "required": false,
+                      "type": "string",
+                      "elementKind": ""
+                    }
+                  ]
+                }
+              },
+              {
+                "yamlName": "dimensions",
+                "doc": "",
+                "default": null,
+                "required": false,
+                "type": "slice",
+                "elementKind": "string"
+              }
+            ]
+          }
+        }
+      ],
+      "monitorType": "collectd/kafka_consumer",
+      "acceptsEndpoints": true,
+      "singleInstance": false,
+      "dimensions": null,
+      "metrics": null,
+      "properties": null
+    },
+    {
+      "name": "Config",
+      "doc": " Monitors a java based Kafka producer using GenericJMX.\n\nSee the [integration documentation](https://github.com/signalfx/integrations/tree/master/collectd-kafka_producer)\nfor more information.\n\nThis monitor has a set of [built in MBeans\nconfigured](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/kafka_producer/mbeans.go)\nfor which it pulls metrics from the Kafka producer's JMX endpoint.\n\nSample YAML configuration:\n```yaml\nmonitors:\n  - type: collectd/kafka_producer\n    host: localhost\n    port: 8099\n```\n",
+      "package": "internal/monitors/collectd/kafkaproducer",
+      "fields": [
+        {
+          "yamlName": "host",
+          "doc": "Host to connect to -- JMX must be configured for remote access and accessible from the agent",
+          "default": null,
+          "required": true,
+          "type": "string",
+          "elementKind": ""
+        },
+        {
+          "yamlName": "port",
+          "doc": "JMX RMI port on the host",
+          "default": null,
+          "required": true,
+          "type": "uint16",
+          "elementKind": ""
+        },
+        {
+          "yamlName": "name",
+          "doc": "",
+          "default": "",
+          "required": false,
+          "type": "string",
+          "elementKind": ""
+        },
+        {
+          "yamlName": "serviceName",
+          "doc": "This is how the service type is identified in the SignalFx UI so that you can get built-in content for it.  For custom JMX integrations, it can be set to whatever you like and metrics will get the special property `sf_hostHasService` set to this value.",
+          "default": "",
+          "required": false,
+          "type": "string",
+          "elementKind": ""
+        },
+        {
+          "yamlName": "serviceURL",
+          "doc": "The JMX connection string.  This is rendered as a Go template and has access to the other values in this config. NOTE: under normal circumstances it is not advised to set this string directly - setting the host and port as specified above is preferred.",
+          "default": "service:jmx:rmi:///jndi/rmi://{{.Host}}:{{.Port}}/jmxrmi",
+          "required": false,
+          "type": "string",
+          "elementKind": ""
+        },
+        {
+          "yamlName": "instancePrefix",
+          "doc": "",
+          "default": "",
+          "required": false,
+          "type": "string",
+          "elementKind": ""
+        },
+        {
+          "yamlName": "username",
+          "doc": "",
+          "default": "",
+          "required": false,
+          "type": "string",
+          "elementKind": ""
+        },
+        {
+          "yamlName": "password",
+          "doc": "",
+          "default": "",
+          "required": false,
+          "type": "string",
+          "elementKind": ""
+        },
+        {
+          "yamlName": "customDimensions",
+          "doc": "Takes in key-values pairs of custom dimensions at the connection level.",
+          "default": null,
+          "required": false,
+          "type": "map",
+          "elementKind": "string"
+        },
+        {
+          "yamlName": "mBeansToCollect",
+          "doc": "A list of the MBeans defined in `mBeanDefinitions` to actually collect. If not provided, then all defined MBeans will be collected.",
+          "default": null,
+          "required": false,
+          "type": "slice",
+          "elementKind": "string"
+        },
+        {
+          "yamlName": "mBeansToOmit",
+          "doc": "A list of the MBeans to omit. This will come handy in cases where only a few MBeans need to omitted from the default list",
+          "default": null,
+          "required": false,
+          "type": "slice",
+          "elementKind": "string"
+        },
+        {
+          "yamlName": "mBeanDefinitions",
+          "doc": "Specifies how to map JMX MBean values to metrics.  If using a specific service monitor such as cassandra, kafka, or activemq, they come pre-loaded with a set of mappings, and any that you add in this option will be merged with those.  See [collectd GenericJMX](https://collectd.org/documentation/manpages/collectd-java.5.shtml#genericjmx_plugin) for more details.",
+          "default": null,
+          "required": false,
+          "type": "map",
+          "elementKind": "struct",
+          "elementStruct": {
+            "name": "MBean",
+            "doc": "MBean represents the \u003cMBean\u003e config object in the collectd config for generic jmx.",
+            "package": "internal/monitors/collectd/genericjmx",
+            "fields": [
+              {
+                "yamlName": "objectName",
+                "doc": "",
+                "default": "",
+                "required": false,
+                "type": "string",
+                "elementKind": ""
+              },
+              {
+                "yamlName": "instancePrefix",
+                "doc": "",
+                "default": "",
+                "required": false,
+                "type": "string",
+                "elementKind": ""
+              },
+              {
+                "yamlName": "instanceFrom",
+                "doc": "",
+                "default": null,
+                "required": false,
+                "type": "slice",
+                "elementKind": "string"
+              },
+              {
+                "yamlName": "values",
+                "doc": "",
+                "default": null,
+                "required": false,
+                "type": "slice",
+                "elementKind": "struct",
+                "elementStruct": {
+                  "name": "MBeanValue",
+                  "doc": "MBeanValue specifies a particular value to pull from the MBean.",
+                  "package": "internal/monitors/collectd/genericjmx",
+                  "fields": [
+                    {
+                      "yamlName": "type",
+                      "doc": "",
+                      "default": "",
+                      "required": false,
+                      "type": "string",
+                      "elementKind": ""
+                    },
+                    {
+                      "yamlName": "table",
+                      "doc": "",
+                      "default": false,
+                      "required": false,
+                      "type": "bool",
+                      "elementKind": ""
+                    },
+                    {
+                      "yamlName": "instancePrefix",
+                      "doc": "",
+                      "default": "",
+                      "required": false,
+                      "type": "string",
+                      "elementKind": ""
+                    },
+                    {
+                      "yamlName": "instanceFrom",
+                      "doc": "",
+                      "default": null,
+                      "required": false,
+                      "type": "slice",
+                      "elementKind": "string"
+                    },
+                    {
+                      "yamlName": "attribute",
+                      "doc": "",
+                      "default": "",
+                      "required": false,
+                      "type": "string",
+                      "elementKind": ""
+                    }
+                  ]
+                }
+              },
+              {
+                "yamlName": "dimensions",
+                "doc": "",
+                "default": null,
+                "required": false,
+                "type": "slice",
+                "elementKind": "string"
+              }
+            ]
+          }
+        }
+      ],
+      "monitorType": "collectd/kafka_producer",
+      "acceptsEndpoints": true,
+      "singleInstance": false,
+      "dimensions": null,
+      "metrics": null,
       "properties": null
     },
     {

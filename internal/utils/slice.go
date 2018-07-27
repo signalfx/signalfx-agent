@@ -30,7 +30,7 @@ func RemoveAllElementsFromStringSlice(inputStrings []string, toRemoveStrings []s
 	inputStringsMap := StringSliceToMap(inputStrings)
 	toRemoveStringsMap := StringSliceToMap(toRemoveStrings)
 
-	for key, _ := range toRemoveStringsMap {
+	for key := range toRemoveStringsMap {
 		delete(inputStringsMap, key)
 	}
 

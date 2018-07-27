@@ -79,12 +79,15 @@ type Monitor struct {
 	*genericjmx.JMXMonitorCore
 }
 
+// Config is the monitor-specific config with the generic config embedded
 type Config struct {
 	genericjmx.Config `yaml:",inline"`
 	// Cluster name to which the broker belongs
 	ClusterName string `yaml:"clusterName" validate:"required"`
 }
 
+// Configure configures the kafka monitor and instantiates the generic jmx
+// monitor
 func (m *Monitor) Configure(conf *Config) error {
 	m.Output.AddExtraDimension("cluster", conf.ClusterName)
 	return m.JMXMonitorCore.Configure(&conf.Config)

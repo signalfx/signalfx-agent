@@ -41,6 +41,7 @@ def test_kafka_monitor():
          - type: collectd/kafka
            host: {0}
            port: 1099
+           clusterName: testcluster
         """.format(container_ip(kafka)))) as [backend, _, _]:
             assert wait_for(p(has_datapoint_with_metric_name, backend, "gauge.kafka-active-controllers")), \
                     "Didn't get kafka datapoints"
@@ -56,7 +57,8 @@ def test_kafka_in_k8s(agent_image, minikube, k8s_observer, k8s_test_timeout, k8s
             "discoveryRule": get_discovery_rule(yaml, k8s_observer, namespace=k8s_namespace),
             "serviceURL": 'service:jmx:rmi:///jndi/rmi://{{.Host}}:{{.Port}}/jmxrmi',
             "username": "testuser",
-            "password": "testing123"
+            "password": "testing123",
+            "clusterName": "testcluster"
         },
     ]
     run_k8s_monitors_test(

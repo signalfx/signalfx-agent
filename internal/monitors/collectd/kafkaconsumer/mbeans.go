@@ -1,4 +1,4 @@
-package kafka_consumer
+package kafkaconsumer
 
 var defaultMBeanYAML = `
 records-lag-max:

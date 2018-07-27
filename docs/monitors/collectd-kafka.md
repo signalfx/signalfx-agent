@@ -32,8 +32,11 @@ Monitor Type: `collectd/kafka`
 | `instancePrefix` | no | `string` |  |
 | `username` | no | `string` |  |
 | `password` | no | `string` |  |
+| `customDimensions` | no | `map of string` | Takes in key-values pairs of custom dimensions at the connection level. |
 | `mBeansToCollect` | no | `list of string` | A list of the MBeans defined in `mBeanDefinitions` to actually collect. If not provided, then all defined MBeans will be collected. |
+| `mBeansToOmit` | no | `list of string` | A list of the MBeans to omit. This will come handy in cases where only a few MBeans need to omitted from the default list |
 | `mBeanDefinitions` | no | `map of object (see below)` | Specifies how to map JMX MBean values to metrics.  If using a specific service monitor such as cassandra, kafka, or activemq, they come pre-loaded with a set of mappings, and any that you add in this option will be merged with those.  See [collectd GenericJMX](https://collectd.org/documentation/manpages/collectd-java.5.shtml#genericjmx_plugin) for more details. |
+| `clusterName` | **yes** | `string` | Cluster name to which the broker belongs |
 
 
 The **nested** `mBeanDefinitions` config object has the following fields:
@@ -44,6 +47,7 @@ The **nested** `mBeanDefinitions` config object has the following fields:
 | `instancePrefix` | no | `string` |  |
 | `instanceFrom` | no | `list of string` |  |
 | `values` | no | `list of object (see below)` |  |
+| `dimensions` | no | `list of string` |  |
 
 
 The **nested** `values` config object has the following fields:
