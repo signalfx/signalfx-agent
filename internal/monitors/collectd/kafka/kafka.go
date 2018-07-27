@@ -19,6 +19,15 @@ var serviceName = "kafka"
 // configured](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/kafka/mbeans.go)
 // for which it pulls metrics from Kafka's JMX endpoint.
 //
+// Note that this monitor supports Kafka v0.8.2.x and above. For Kafka v1.x.x and above,
+// apart from the list of default metrics, kafka.server:type=ZooKeeperClientMetrics,name=ZooKeeperRequestLatencyMs
+// is a good metric to monitor since it gives an understanding of how long brokers wait for
+// requests to Zookeeper to be completed. Since Zookeeper is an integral part of a Kafka cluster,
+// monitoring it using the [Zookeeper
+// monitor] (https://docs.signalfx.com/en/latest/integrations/agent/monitors/collectd-zookeeper.html)
+// is recommended. It is also a good idea to monitor disk utilization and network metrics of
+// the underlying host.
+//
 // See https://github.com/signalfx/integrations/tree/master/collectd-kafka.
 
 // CUMULATIVE(counter.kafka-all-bytes-in): Number of bytes received per second
@@ -73,6 +82,27 @@ var serviceName = "kafka"
 
 // GAUGE(gauge.kafka.fetch-follower.total-time.median): Median time it takes to
 // process a fetch request from follower
+
+// CUMULATIVE(kafka-bytes-rejected): Number of bytes rejected by the broker
+
+// GAUGE(kafka-offline-partitions-count): Number of partitions that don’t have an
+// active leader and are hence not writable or readable
+
+// CUMULATIVE(kafka-isr-shrinks): When a broker goes down, ISR for some of partitions
+// will shrink. When that broker is up again, ISR will be expanded once the replicas
+// are fully caught up. Other than that, the expected value for both ISR shrink rate
+// and expansion rate is 0.
+
+// CUMULATIVE(kafka-isr-expands): When a broker is brought up after a failure, it starts
+// catching up by reading from the leader. Once it is caught up, it gets added back
+//to the ISR.
+
+// GAUGE(kafka-max-lag): Maximum lag in messages between the follower and leader replicas
+
+// CUMULATIVE(kafka-leader-election-rate): Number of leader elections
+
+// CUMULATIVE(kafka-unclean-elections): Number of unclean leader elections. This happens
+// when a leader goes down and an out-of-sync replica is chosen to be the leader
 
 // Monitor is the main type that represents the monitor
 type Monitor struct {

@@ -2,7 +2,7 @@
 
 # collectd/kafka_producer
 
- Monitors a java based Kafka producer using GenericJMX.
+ Monitors a Java based Kafka producer using GenericJMX.
 
 See the [integration documentation](https://github.com/signalfx/integrations/tree/master/collectd-kafka_producer)
 for more information.
@@ -18,6 +18,8 @@ monitors:
     host: localhost
     port: 8099
 ```
+
+Note that this monitor requires Kafka v0.9.0.0 or above and collects metrics from the new producer API.
 
 
 Monitor Type: `collectd/kafka_producer`
@@ -69,6 +71,18 @@ The **nested** `values` config object has the following fields:
 
 
 
+
+## Metrics
+
+This monitor emits the following metrics.  Note that configuration options may
+cause only a subset of metrics to be emitted.
+
+| Name | Type | Description |
+| ---  | ---  | ---         |
+| `kafka.producer.outgoing-byte-rate` | gauge | Average number of outgoing bytes sent per second to all servers. |
+| `kafka.producer.request-latency-avg` | gauge | Average request latency in ms. Time it takes on average for the producer to get responses from the broker |
+| `kafka.producer.request-rate` | gauge | Average number of requests sent per second. |
+| `kafka.producer.response-rate` | gauge | Average number of responses received per second. |
 
 
 

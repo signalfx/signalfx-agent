@@ -4145,7 +4145,7 @@
     },
     {
       "name": "Config",
-      "doc": " Monitors a Kafka instance using collectd's\nGenericJMX plugin.\n\nThis monitor has a set of [built in MBeans\nconfigured](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/kafka/mbeans.go)\nfor which it pulls metrics from Kafka's JMX endpoint.\n\nSee https://github.com/signalfx/integrations/tree/master/collectd-kafka.\n",
+      "doc": " Monitors a Kafka instance using collectd's\nGenericJMX plugin.\n\nThis monitor has a set of [built in MBeans\nconfigured](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/kafka/mbeans.go)\nfor which it pulls metrics from Kafka's JMX endpoint.\n\nNote that this monitor supports Kafka v0.8.2.x and above. For Kafka v1.x.x and above,\napart from the list of default metrics, kafka.server:type=ZooKeeperClientMetrics,name=ZooKeeperRequestLatencyMs\nis a good metric to monitor since it gives an understanding of how long brokers wait for\nrequests to Zookeeper to be completed. Since Zookeeper is an integral part of a Kafka cluster,\nmonitoring it using the [Zookeeper\nmonitor] (https://docs.signalfx.com/en/latest/integrations/agent/monitors/collectd-zookeeper.html)\nis recommended. It is also a good idea to monitor disk utilization and network metrics of\nthe underlying host.\n\nSee https://github.com/signalfx/integrations/tree/master/collectd-kafka.\n",
       "package": "internal/monitors/collectd/kafka",
       "fields": [
         {
@@ -4441,13 +4441,48 @@
           "name": "gauge.kafka.fetch-follower.total-time.median",
           "type": "gauge",
           "description": "Median time it takes to process a fetch request from follower"
+        },
+        {
+          "name": "kafka-bytes-rejected",
+          "type": "cumulative",
+          "description": "Number of bytes rejected by the broker"
+        },
+        {
+          "name": "kafka-isr-expands",
+          "type": "cumulative",
+          "description": "When a broker is brought up after a failure, it starts catching up by reading from the leader. Once it is caught up, it gets added back to the ISR."
+        },
+        {
+          "name": "kafka-isr-shrinks",
+          "type": "cumulative",
+          "description": "When a broker goes down, ISR for some of partitions will shrink. When that broker is up again, ISR will be expanded once the replicas are fully caught up. Other than that, the expected value for both ISR shrink rate and expansion rate is 0."
+        },
+        {
+          "name": "kafka-leader-election-rate",
+          "type": "cumulative",
+          "description": "Number of leader elections"
+        },
+        {
+          "name": "kafka-max-lag",
+          "type": "gauge",
+          "description": "Maximum lag in messages between the follower and leader replicas"
+        },
+        {
+          "name": "kafka-offline-partitions-count",
+          "type": "gauge",
+          "description": "Number of partitions that don’t have an active leader and are hence not writable or readable"
+        },
+        {
+          "name": "kafka-unclean-elections",
+          "type": "cumulative",
+          "description": "Number of unclean leader elections. This happens when a leader goes down and an out-of-sync replica is chosen to be the leader"
         }
       ],
       "properties": null
     },
     {
       "name": "Config",
-      "doc": " Monitors a java based Kafka consumer using GenericJMX.\n\nSee the [integration documentation](https://github.com/signalfx/integrations/tree/master/collectd-kafka_consumer)\nfor more information.\n\nThis monitor has a set of [built in MBeans\nconfigured](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/kafka_consumer/mbeans.go)\nfor which it pulls metrics from the Kafka consumer's JMX endpoint.\n\nSample YAML configuration:\n```yaml\nmonitors:\n  - type: collectd/kafka_consumer\n    host: localhost\n    port: 9099\n```\n",
+      "doc": " Monitors a Java based Kafka consumer using GenericJMX.\n\nSee the [integration documentation](https://github.com/signalfx/integrations/tree/master/collectd-kafka_consumer)\nfor more information.\n\nThis monitor has a set of [built in MBeans\nconfigured](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/kafka_consumer/mbeans.go)\nfor which it pulls metrics from the Kafka consumer's JMX endpoint.\n\nSample YAML configuration:\n```yaml\nmonitors:\n  - type: collectd/kafka_consumer\n    host: localhost\n    port: 9099\n    mBeansToOmit:\n      - fetch-size-avg-per-topic\n```\n\nNote that this monitor requires Kafka v0.9.0.0 or above and collects metrics from the new consumer API.\nAlso, per topic metrics that are collected by default are not available through the new consumer API in\nv0.9.0.0 which can cause the logs to flood with warnings related to MBean not being found.\nUse `mBeansToOmit` config option in such cases. The above example configuration will not attempt to\ncollect the MBean referenced by `fetch-size-avg-per-topic`. Here is a\n[list] (https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/kafka/mbeans.go)\nof metrics collected by default\n",
       "package": "internal/monitors/collectd/kafkaconsumer",
       "fields": [
         {
@@ -4645,12 +4680,38 @@
       "acceptsEndpoints": true,
       "singleInstance": false,
       "dimensions": null,
-      "metrics": null,
+      "metrics": [
+        {
+          "name": "kafka.consumer.bytes-consumed-rate",
+          "type": "gauge",
+          "description": "Average number of bytes consumed per second. This metric has either client-id dimension or, both client-id and topic dimensions. The former is an aggregate across all topics of the latter."
+        },
+        {
+          "name": "kafka.consumer.fetch-rate",
+          "type": "gauge",
+          "description": "Number of records consumed per second."
+        },
+        {
+          "name": "kafka.consumer.fetch-size-avg",
+          "type": "gauge",
+          "description": "Average number of bytes fetched per request. This metric has either client-id dimension or, both client-id and topic dimensions. The former is an aggregate across all topics of the latter."
+        },
+        {
+          "name": "kafka.consumer.records-consumed-rate",
+          "type": "gauge",
+          "description": "Average number of records consumed per second. This metric has either client-id dimension or, both client-id and topic dimensions. The former is an aggregate across all topics of the latter."
+        },
+        {
+          "name": "kafka.consumer.records-lag-max",
+          "type": "gauge",
+          "description": "Maximum lag in of records for any partition in this window. An increasing value over time is your best indication that the consumer group is not keeping up with the producers."
+        }
+      ],
       "properties": null
     },
     {
       "name": "Config",
-      "doc": " Monitors a java based Kafka producer using GenericJMX.\n\nSee the [integration documentation](https://github.com/signalfx/integrations/tree/master/collectd-kafka_producer)\nfor more information.\n\nThis monitor has a set of [built in MBeans\nconfigured](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/kafka_producer/mbeans.go)\nfor which it pulls metrics from the Kafka producer's JMX endpoint.\n\nSample YAML configuration:\n```yaml\nmonitors:\n  - type: collectd/kafka_producer\n    host: localhost\n    port: 8099\n```\n",
+      "doc": " Monitors a Java based Kafka producer using GenericJMX.\n\nSee the [integration documentation](https://github.com/signalfx/integrations/tree/master/collectd-kafka_producer)\nfor more information.\n\nThis monitor has a set of [built in MBeans\nconfigured](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/kafka_producer/mbeans.go)\nfor which it pulls metrics from the Kafka producer's JMX endpoint.\n\nSample YAML configuration:\n```yaml\nmonitors:\n  - type: collectd/kafka_producer\n    host: localhost\n    port: 8099\n```\n\nNote that this monitor requires Kafka v0.9.0.0 or above and collects metrics from the new producer API.\n",
       "package": "internal/monitors/collectd/kafkaproducer",
       "fields": [
         {
@@ -4848,7 +4909,28 @@
       "acceptsEndpoints": true,
       "singleInstance": false,
       "dimensions": null,
-      "metrics": null,
+      "metrics": [
+        {
+          "name": "kafka.producer.outgoing-byte-rate",
+          "type": "gauge",
+          "description": "Average number of outgoing bytes sent per second to all servers."
+        },
+        {
+          "name": "kafka.producer.request-latency-avg",
+          "type": "gauge",
+          "description": "Average request latency in ms. Time it takes on average for the producer to get responses from the broker"
+        },
+        {
+          "name": "kafka.producer.request-rate",
+          "type": "gauge",
+          "description": "Average number of requests sent per second."
+        },
+        {
+          "name": "kafka.producer.response-rate",
+          "type": "gauge",
+          "description": "Average number of responses received per second."
+        }
+      ],
       "properties": null
     },
     {

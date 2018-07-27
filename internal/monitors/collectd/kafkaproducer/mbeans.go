@@ -45,17 +45,6 @@ outgoing-byte-rate:
     table: false
     attribute: "outgoing-byte-rate"
 
-io-time-ns-avg:
-  objectName: "kafka.producer:client-id=*,type=producer-metrics"
-  instancePrefix: "all"
-  dimensions:
-  - client-id
-  values:
-  - instancePrefix: "kafka.producer.io-time-ns-avg"
-    type: "gauge"
-    table: false
-    attribute: "io-time-ns-avg"
-
 io-wait-time-ns-avg:
   objectName: "kafka.producer:client-id=*,type=producer-metrics"
   instancePrefix: "all"
@@ -66,4 +55,64 @@ io-wait-time-ns-avg:
     type: "gauge"
     table: false
     attribute: "io-wait-time-ns-avg"
+
+byte-rate-per-topic:
+  objectName: "kafka.producer:client-id=*,topic=*,type=producer-topic-metrics"
+  instancePrefix: "all"
+  dimensions:
+  - client-id
+  - topic
+  values:
+  - instancePrefix: "kafka.producer.byte-rate"
+    type: "gauge"
+    table: false
+    attribute: "byte-rate"
+
+compression-rate:
+  objectName: "kafka.producer:client-id=*,topic=*,type=producer-topic-metrics"
+  instancePrefix: "all"
+  dimensions:
+  - client-id
+  - topic
+  values:
+  - instancePrefix: "kafka.producer.compression-rate"
+    type: "gauge"
+    table: false
+    attribute: "compression-rate"
+
+record-error-rate:
+  objectName: "kafka.producer:client-id=*,topic=*,type=producer-topic-metrics"
+  instancePrefix: "all"
+  dimensions:
+  - client-id
+  - topic
+  values:
+  - instancePrefix: "kafka.producer.record-error-rate"
+    type: "gauge"
+    table: false
+    attribute: "record-error-rate"
+
+record-retry-rate:
+  objectName: "kafka.producer:client-id=*,topic=*,type=producer-topic-metrics"
+  instancePrefix: "all"
+  dimensions:
+  - client-id
+  - topic
+  values:
+  - instancePrefix: "kafka.producer.record-retry-rate"
+    type: "gauge"
+    table: false
+    attribute: "record-retry-rate"
+
+record-send-rate:
+  objectName: "kafka.producer:client-id=*,topic=*,type=producer-topic-metrics"
+  instancePrefix: "all"
+  dimensions:
+  - client-id
+  - topic
+  values:
+  - instancePrefix: "kafka.producer.record-send-rate"
+    type: "gauge"
+    table: false
+    attribute: "record-send-rate"
 `

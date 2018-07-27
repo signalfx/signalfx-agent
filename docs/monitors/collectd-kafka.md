@@ -9,6 +9,15 @@ This monitor has a set of [built in MBeans
 configured](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/kafka/mbeans.go)
 for which it pulls metrics from Kafka's JMX endpoint.
 
+Note that this monitor supports Kafka v0.8.2.x and above. For Kafka v1.x.x and above,
+apart from the list of default metrics, kafka.server:type=ZooKeeperClientMetrics,name=ZooKeeperRequestLatencyMs
+is a good metric to monitor since it gives an understanding of how long brokers wait for
+requests to Zookeeper to be completed. Since Zookeeper is an integral part of a Kafka cluster,
+monitoring it using the [Zookeeper
+monitor] (https://docs.signalfx.com/en/latest/integrations/agent/monitors/collectd-zookeeper.html)
+is recommended. It is also a good idea to monitor disk utilization and network metrics of
+the underlying host.
+
 See https://github.com/signalfx/integrations/tree/master/collectd-kafka.
 
 
@@ -88,6 +97,13 @@ cause only a subset of metrics to be emitted.
 | `gauge.kafka.fetch-consumer.total-time.median` | gauge | Median time it takes to process a fetch request from consumers |
 | `gauge.kafka.fetch-follower.total-time.99th` | gauge | 99th percentile of time in milliseconds to process fetch requests from followers |
 | `gauge.kafka.fetch-follower.total-time.median` | gauge | Median time it takes to process a fetch request from follower |
+| `kafka-bytes-rejected` | cumulative | Number of bytes rejected by the broker |
+| `kafka-isr-expands` | cumulative | When a broker is brought up after a failure, it starts catching up by reading from the leader. Once it is caught up, it gets added back to the ISR. |
+| `kafka-isr-shrinks` | cumulative | When a broker goes down, ISR for some of partitions will shrink. When that broker is up again, ISR will be expanded once the replicas are fully caught up. Other than that, the expected value for both ISR shrink rate and expansion rate is 0. |
+| `kafka-leader-election-rate` | cumulative | Number of leader elections |
+| `kafka-max-lag` | gauge | Maximum lag in messages between the follower and leader replicas |
+| `kafka-offline-partitions-count` | gauge | Number of partitions that don’t have an active leader and are hence not writable or readable |
+| `kafka-unclean-elections` | cumulative | Number of unclean leader elections. This happens when a leader goes down and an out-of-sync replica is chosen to be the leader |
 
 
 

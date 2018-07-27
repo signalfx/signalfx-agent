@@ -37,42 +37,6 @@ kafka-bytes-rejected:
     table: false
     attribute: "Count"
 
-kafka-total-produce-requests:
-  objectName: "kafka.server:type=BrokerTopicMetrics,name=TotalProduceRequestsPerSec"
-  instancePrefix: "all"
-  values:
-  - instancePrefix: "kafka-total-produce-requests"
-    type: "counter"
-    table: false
-    attribute: "Count"
-
-kafka-failed-produce-requests:
-  objectName: "kafka.server:type=BrokerTopicMetrics,name=FailedProduceRequestsPerSec"
-  instancePrefix: "all"
-  values:
-  - instancePrefix: "kafka-failed-produce-requests"
-    type: "counter"
-    table: false
-    attribute: "Count"
-
-kafka-total-fetch-requests:
-  objectName: "kafka.server:type=BrokerTopicMetrics,name=TotalFetchRequestsPerSec"
-  instancePrefix: "all"
-  values:
-  - instancePrefix: "kafka-total-fetch-requests"
-    type: "counter"
-    table: false
-    attribute: "Count"
-
-kafka-failed-fetch-requests:
-  objectName: "kafka.server:type=BrokerTopicMetrics,name=FailedFetchRequestsPerSec"
-  instancePrefix: "all"
-  values:
-  - instancePrefix: "kafka-failed-fetch-requests"
-    type: "counter"
-    table: false
-    attribute: "Count"
-
 kafka-active-controllers:
   objectName: "kafka.controller:type=KafkaController,name=ActiveControllerCount"
   values:
@@ -192,5 +156,5 @@ kafka.produce.total-time:
   - type: "gauge"
     table: false
     attribute: "99thPercentile"
-    instancePrefix: "kafka.produce-time.99th"
+    instancePrefix: "kafka.produce.total-time.99th"
 `
