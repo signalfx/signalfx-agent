@@ -10,6 +10,9 @@
       {{range .InstanceFrom -}}
       InstanceFrom "{{.}}"
       {{end -}}
+      {{range .Dimensions -}}
+      Dimension "{{.}}"
+      {{end -}}
       {{range .Values}}
       <Value>
         {{with .InstancePrefix -}}
@@ -30,7 +33,6 @@
       {{with .ServiceURL}}
       ServiceURL "{{renderValue . $}}"
       {{- end}}
-      InstanceSuffix "{{.Name}}[monitorID={{.MonitorID}}]"
       {{with .InstancePrefix -}}
       InstancePrefix "{{.}}"
       {{- end}}
@@ -41,6 +43,10 @@
       {{- with .Password}}
       Password "{{.}}"
       {{- end}}
+      {{range $key, $val := .CustomDimensions}}
+      CustomDimension "{{$key}}" "{{$val}}"
+      {{end}}
+      CustomDimension "monitorID" "{{.MonitorID}}"
       {{range .MBeansToCollect}}
       Collect "{{.}}"
       {{- end}}

@@ -23,3 +23,16 @@ func InterfaceSliceToStringSlice(is []interface{}) []string {
 	}
 	return ss
 }
+
+// RemoveAllElementsFromStringSlice removes all elements from toRemove that exists
+// in inputStrings
+func RemoveAllElementsFromStringSlice(inputStrings []string, toRemoveStrings []string) []string {
+	inputStringsMap := StringSliceToMap(inputStrings)
+	toRemoveStringsMap := StringSliceToMap(toRemoveStrings)
+
+	for key := range toRemoveStringsMap {
+		delete(inputStringsMap, key)
+	}
+
+	return StringSetToSlice(inputStringsMap)
+}

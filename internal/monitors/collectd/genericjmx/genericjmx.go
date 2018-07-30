@@ -13,6 +13,7 @@ import (
 
 	"github.com/signalfx/signalfx-agent/internal/core/config"
 	"github.com/signalfx/signalfx-agent/internal/monitors/collectd"
+	"github.com/signalfx/signalfx-agent/internal/utils"
 )
 
 //go:generate collectd-template-to-go genericjmx.tmpl
@@ -20,6 +21,7 @@ import (
 type connection struct {
 	ServiceName     string
 	MBeansToCollect []string
+	MBeansToOmit    []string
 }
 
 // Config has configuration that is specific to GenericJMX. This config should
@@ -47,9 +49,14 @@ type Config struct {
 	InstancePrefix string `yaml:"instancePrefix"`
 	Username       string `yaml:"username"`
 	Password       string `yaml:"password" neverLog:"true"`
+	// Takes in key-values pairs of custom dimensions at the connection level.
+	CustomDimensions map[string]string `yaml:"customDimensions"`
 	// A list of the MBeans defined in `mBeanDefinitions` to actually collect.
 	// If not provided, then all defined MBeans will be collected.
 	MBeansToCollect []string `yaml:"mBeansToCollect"`
+	// A list of the MBeans to omit. This will come handy in cases where only a
+	// few MBeans need to omitted from the default list
+	MBeansToOmit    []string `yaml:"mBeansToOmit"`
 	// Specifies how to map JMX MBean values to metrics.  If using a specific
 	// service monitor such as cassandra, kafka, or activemq, they come
 	// pre-loaded with a set of mappings, and any that you add in this option
@@ -87,6 +94,9 @@ func (m *JMXMonitorCore) Configure(conf *Config) error {
 	conf.MBeanDefinitions = m.DefaultMBeans.MergeWith(conf.MBeanDefinitions)
 	if conf.MBeansToCollect == nil {
 		conf.MBeansToCollect = conf.MBeanDefinitions.MBeanNames()
+	}
+	if conf.MBeansToOmit != nil {
+		conf.MBeansToCollect = utils.RemoveAllElementsFromStringSlice(conf.MBeansToCollect, conf.MBeansToOmit)
 	}
 	if conf.ServiceName == "" {
 		conf.ServiceName = m.defaultServiceName

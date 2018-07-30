@@ -52,6 +52,47 @@ kafka-underreplicated-partitions:
     attribute: "Value"
     instancePrefix: "kafka-underreplicated-partitions"
 
+kafka-isr-shrinks:
+  objectName: "kafka.server:type=ReplicaManager,name=IsrShrinksPerSec"
+  values:
+  - type: "counter"
+    table: false
+    attribute: "Count"
+    instancePrefix: "kafka-isr-shrinks"
+
+kafka-isr-expands:
+  objectName: "kafka.server:type=ReplicaManager,name=IsrExpandsPerSec"
+  values:
+  - type: "counter"
+    table: false
+    attribute: "Count"
+    instancePrefix: "kafka-isr-expands"
+
+kafka-max-lag:
+  objectName: "kafka.server:type=ReplicaFetcherManager,name=MaxLag,clientId=Replica"
+  values:
+  - type: "gauge"
+    table: false
+    attribute: "Value"
+    instancePrefix: "kafka-max-lag"
+
+kafka-leader-election-rate:
+  objectName: "kafka.controller:type=ControllerStats,name=LeaderElectionRateAndTimeMs"
+  values:
+  - type: "counter"
+    table: false
+    attribute: "Count"
+    instancePrefix: "kafka-leader-election-rate"
+
+kafka-unclean-elections:
+  objectName: "kafka.controller:type=ControllerStats,name=LeaderElectionRateAndTimeMs"
+  values:
+  - type: "counter"
+    table: false
+    attribute: "Count"
+    instancePrefix: "kafka-unclean-elections-rate"
+
+
 kafka-request-queue:
   objectName: "kafka.network:type=RequestChannel,name=RequestQueueSize"
   values:
@@ -106,5 +147,5 @@ kafka.produce.total-time:
   - type: "gauge"
     table: false
     attribute: "99thPercentile"
-    instancePrefix: "kafka.fetchproducetotal-time.99th"
+    instancePrefix: "kafka.produce.total-time.99th"
 `

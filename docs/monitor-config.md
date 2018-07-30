@@ -30,6 +30,8 @@ along with their possible configuration options:
 - [collectd/interface](./monitors/collectd-interface.md)
 - [collectd/jenkins](./monitors/collectd-jenkins.md)
 - [collectd/kafka](./monitors/collectd-kafka.md)
+- [collectd/kafka_consumer](./monitors/collectd-kafka_consumer.md)
+- [collectd/kafka_producer](./monitors/collectd-kafka_producer.md)
 - [collectd/kong](./monitors/collectd-kong.md)
 - [collectd/load](./monitors/collectd-load.md)
 - [collectd/marathon](./monitors/collectd-marathon.md)
