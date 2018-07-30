@@ -2,6 +2,7 @@ from functools import partial as p
 import difflib
 import os
 import pytest
+import re
 import time
 
 from .common import (
@@ -29,10 +30,29 @@ PACKAGE_UTIL = {
     ".rpm": "rpm",
 }
 
+AGENT_YAML_PATH = "/etc/signalfx/agent.yaml"
+PIDFILE_PATH = "/var/run/signalfx-agent.pid"
+
+INIT_START_TIMEOUT = 5
+INIT_STOP_TIMEOUT = 11
+INIT_RESTART_TIMEOUT = INIT_STOP_TIMEOUT + INIT_START_TIMEOUT
+
 INIT_START_COMMAND = {
     INIT_SYSV: "service signalfx-agent start",
     INIT_UPSTART: "/etc/init.d/signalfx-agent start",
     INIT_SYSTEMD: "systemctl start signalfx-agent",
+}
+
+INIT_RESTART_COMMAND = {
+    INIT_SYSV: "service signalfx-agent restart",
+    INIT_UPSTART: "/etc/init.d/signalfx-agent restart",
+    INIT_SYSTEMD: "systemctl restart signalfx-agent",
+}
+
+INIT_STOP_COMMAND = {
+    INIT_SYSV: "service signalfx-agent stop",
+    INIT_UPSTART: "/etc/init.d/signalfx-agent stop",
+    INIT_SYSTEMD: "systemctl stop signalfx-agent",
 }
 
 INIT_LIST_COMMAND = {
@@ -47,11 +67,86 @@ INIT_STATUS_COMMAND = {
     INIT_SYSTEMD: "systemctl status signalfx-agent",
 }
 
+INIT_STATUS_OUTPUT = {
+    INIT_SYSV: {'active': "Running with pid", 'inactive': 'Not running'},
+    INIT_UPSTART: {'active': "Running with pid", 'inactive': 'Not running'},
+    INIT_SYSTEMD: {'active': 'Active: active (running)', 'inactive': 'Active: inactive (dead)'},
+}
+
 
 def is_agent_running_as_non_root(container):
     code, output = container.exec_run("pgrep -u signalfx-agent signalfx-agent")
     print("pgrep check: %s" % output)
     return code == 0
+
+
+def get_agent_pid(container):
+    command = "pgrep -u signalfx-agent -f /usr/bin/signalfx-agent"
+    code, output = container.exec_run(command)
+    output = output.decode('utf-8').strip()
+    if code == 0:
+        assert re.match('\d+', output), "Unexpected output from command '%s':\n%s" % (command, output)
+        return output
+    return None
+
+
+def agent_has_new_pid(container, old_pid):
+    def _new_pid():
+        pid = get_agent_pid(container)
+        return pid and pid != old_pid
+
+    return wait_for(_new_pid, timeout_seconds=INIT_RESTART_TIMEOUT)
+
+
+def container_file_exists(container, path):
+    code, _ = container.exec_run("test -f %s" % path)
+    return code == 0
+
+
+def _test_service_status(container, init_system, expected_status):
+    code, output = container.exec_run(INIT_STATUS_COMMAND[init_system])
+    print("Init status command output:")
+    print_lines(output)
+    assert INIT_STATUS_OUTPUT[init_system][expected_status] in output.decode('utf-8'), \
+        "'%s' expected in status output" % INIT_STATUS_OUTPUT[init_system][expected_status]
+
+
+def _test_service_list(container, init_system, service_name="signalfx-agent"):
+    code, output = container.exec_run(INIT_LIST_COMMAND[init_system])
+    print("Init list command output:")
+    print_lines(output)
+    assert code == 0, "Failed to get service list"
+    assert service_name in output.decode('utf-8'), "Agent service not registered"
+
+
+def _test_service_start(container, init_system, backend):
+    code, output = container.exec_run(INIT_START_COMMAND[init_system])
+    print("Init start command output:")
+    print_lines(output)
+    assert code == 0, "Agent could not be started"
+    assert wait_for(p(is_agent_running_as_non_root, container), timeout_seconds=INIT_START_TIMEOUT)
+    assert wait_for(p(has_datapoint_with_dim, backend, "plugin", "signalfx-metadata")), "Datapoints didn't come through"
+
+
+def _test_service_restart(container, init_system, backend):
+    old_pid = get_agent_pid(container)
+    code, output = container.exec_run(INIT_RESTART_COMMAND[init_system])
+    print("Init restart command output:")
+    print_lines(output)
+    assert code == 0, "Agent could not be restarted"
+    assert wait_for(p(is_agent_running_as_non_root, container), timeout_seconds=INIT_RESTART_TIMEOUT)
+    assert agent_has_new_pid(container, old_pid), "Agent pid the same after service restart"
+    assert wait_for(p(has_datapoint_with_dim, backend, "plugin", "signalfx-metadata")), "Datapoints didn't come through"
+
+
+def _test_service_stop(container, init_system):
+    code, output = container.exec_run(INIT_STOP_COMMAND[init_system])
+    print("Init stop command output:")
+    print_lines(output)
+    assert code == 0, "Agent could not be stop"
+    assert wait_for(lambda: not get_agent_pid(container), timeout_seconds=INIT_STOP_TIMEOUT), "Timed out waiting for agent process to stop"
+    if init_system in [INIT_SYSV, INIT_UPSTART]:
+        assert not container_file_exists(container, PIDFILE_PATH), "%s exists when agent is stopped" % PIDFILE_PATH
 
 
 def _test_package_install(base_image, package_path, init_system):
@@ -71,13 +166,14 @@ def _test_package_install(base_image, package_path, init_system):
 
         cont.exec_run("bash -ec 'echo -n testing > /etc/signalfx/token'")
 
-        code, output = cont.exec_run(INIT_START_COMMAND[init_system])
-        print("Init start command output:")
-        print_lines(output)
         try:
-            assert code == 0, "Agent could not be started"
-            assert wait_for(p(has_datapoint_with_dim, backend, "plugin", "signalfx-metadata")), "Datapoints didn't come through"
-            assert is_agent_running_as_non_root(cont)
+            _test_service_list(cont, init_system)
+            _test_service_start(cont, init_system, backend)
+            _test_service_status(cont, init_system, 'active')
+            _test_service_restart(cont, init_system, backend)
+            _test_service_status(cont, init_system, 'active')
+            _test_service_stop(cont, init_system)
+            _test_service_status(cont, init_system, 'inactive')
         finally:
             print("Agent log:")
             print_lines(get_agent_logs(cont, init_system))
@@ -96,13 +192,12 @@ def _test_package_upgrade(base_image, package_path, init_system):
         print_lines(output)
         assert code == 0, "Old package could not be installed!"
 
-        code, output = cont.exec_run("test -f /etc/signalfx/agent.yaml")
-        assert code == 0, "/etc/signalfx/agent.yaml does not exist!"
+        assert container_file_exists(cont, AGENT_YAML_PATH), "%s does not exist!" % AGENT_YAML_PATH
 
-        _, _ = cont.exec_run("bash -ec 'echo >> /etc/signalfx/agent.yaml'")
-        _, _ = cont.exec_run("bash -ec 'echo \"hostname: test-host\" >> /etc/signalfx/agent.yaml'")
-        _, _ = cont.exec_run("cp -f /etc/signalfx/agent.yaml /etc/signalfx/agent.yaml.orig")
-        _, output = cont.exec_run("cat /etc/signalfx/agent.yaml")
+        _, _ = cont.exec_run("bash -ec 'echo >> %s'" % AGENT_YAML_PATH)
+        _, _ = cont.exec_run("bash -ec 'echo \"hostname: test-host\" >> %s'" % AGENT_YAML_PATH)
+        _, _ = cont.exec_run("cp -f %s %s.orig" % (AGENT_YAML_PATH, AGENT_YAML_PATH))
+        _, output = cont.exec_run("cat %s" % AGENT_YAML_PATH)
         old_agent_yaml = output.decode('utf-8')
 
         UPGRADE_COMMAND = {
@@ -115,31 +210,28 @@ def _test_package_upgrade(base_image, package_path, init_system):
         print_lines(output)
         assert code == 0, "Package could not be upgraded!"
 
-        code, output = cont.exec_run(INIT_STATUS_COMMAND[init_system])
-        print("Init status command output:")
-        print_lines(output)
-        assert code == 0, "Agent service not started after upgrade!"
+        assert container_file_exists(cont, AGENT_YAML_PATH), "%s does not exist after upgrade!" % AGENT_YAML_PATH
 
-        code, output = cont.exec_run(INIT_LIST_COMMAND[init_system])
-        print("Init list command output:")
-        print_lines(output)
-        assert code == 0, "Failed to get service list!"
-        assert "signalfx-agent" in output.decode('utf-8'), "Agent service not registered"
-
-        _, output = cont.exec_run("cat /etc/signalfx/agent.yaml")
+        _, output = cont.exec_run("cat %s" % AGENT_YAML_PATH)
         new_agent_yaml = output.decode('utf-8')
         diff = "\n".join(
             difflib.unified_diff(
                 old_agent_yaml.splitlines(),
                 new_agent_yaml.splitlines(),
-                fromfile="/etc/signalfx/agent.yaml.orig",
-                tofile="/etc/signalfx/agent.yaml",
+                fromfile="%s.orig" % AGENT_YAML_PATH,
+                tofile=AGENT_YAML_PATH,
                 lineterm='')).strip()
-        assert len(diff) == 0, "/etc/signalfx/agent.yaml different after upgrade!\n%s" % diff
+        assert len(diff) == 0, "%s different after upgrade!\n%s" % (AGENT_YAML_PATH, diff)
 
         try:
-            assert wait_for(p(has_datapoint_with_dim, backend, "plugin", "signalfx-metadata")), "Datapoints didn't come through"
-            assert is_agent_running_as_non_root(cont)
+            _test_service_list(cont, init_system)
+            _test_service_status(cont, init_system, 'active')
+            _test_service_restart(cont, init_system, backend)
+            _test_service_status(cont, init_system, 'active')
+            _test_service_stop(cont, init_system)
+            _test_service_status(cont, init_system, 'inactive')
+            _test_service_start(cont, init_system, backend)
+            _test_service_status(cont, init_system, 'active')
         finally:
             print("Agent log:")
             print_lines(get_agent_logs(cont, init_system))
