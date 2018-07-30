@@ -4,7 +4,7 @@
 
  Monitors a Java based Kafka consumer using GenericJMX.
 
-See the [integration documentation](https://github.com/signalfx/integrations/tree/master/collectd-kafka_consumer)
+See the [integration documentation](https://github.com/signalfx/integrations/tree/master/collectd-kafka)
 for more information.
 
 This monitor has a set of [built in MBeans
@@ -22,11 +22,11 @@ monitors:
 ```
 
 Note that this monitor requires Kafka v0.9.0.0 or above and collects metrics from the new consumer API.
-Also, per topic metrics that are collected by default are not available through the new consumer API in
-v0.9.0.0 which can cause the logs to flood with warnings related to MBean not being found.
-Use `mBeansToOmit` config option in such cases. The above example configuration will not attempt to
+Also, per-topic metrics that are collected by default are not available through the new consumer API in
+v0.9.0.0 which can cause the logs to flood with warnings related to the MBean not being found.
+Use the `mBeansToOmit` config option in such cases. The above example configuration will not attempt to
 collect the MBean referenced by `fetch-size-avg-per-topic`. Here is a
-[list] (https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/kafka/mbeans.go)
+[list] (https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/kafkaconsumer/mbeans.go)
 of metrics collected by default
 
 

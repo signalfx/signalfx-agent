@@ -97,7 +97,6 @@ cause only a subset of metrics to be emitted.
 | `gauge.kafka.fetch-consumer.total-time.median` | gauge | Median time it takes to process a fetch request from consumers |
 | `gauge.kafka.fetch-follower.total-time.99th` | gauge | 99th percentile of time in milliseconds to process fetch requests from followers |
 | `gauge.kafka.fetch-follower.total-time.median` | gauge | Median time it takes to process a fetch request from follower |
-| `kafka-bytes-rejected` | cumulative | Number of bytes rejected by the broker |
 | `kafka-isr-expands` | cumulative | When a broker is brought up after a failure, it starts catching up by reading from the leader. Once it is caught up, it gets added back to the ISR. |
 | `kafka-isr-shrinks` | cumulative | When a broker goes down, ISR for some of partitions will shrink. When that broker is up again, ISR will be expanded once the replicas are fully caught up. Other than that, the expected value for both ISR shrink rate and expansion rate is 0. |
 | `kafka-leader-election-rate` | cumulative | Number of leader elections |
