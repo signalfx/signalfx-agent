@@ -8,6 +8,7 @@ import (
 	"os/signal"
 	"strings"
 	"syscall"
+	"time"
 
 	log "github.com/sirupsen/logrus"
 
@@ -130,7 +131,14 @@ func runAgent() {
 		case <-interruptCh:
 			log.Info("Interrupt signal received, stopping agent")
 			shutdown()
-			<-shutdownComplete
+			select {
+			case <-shutdownComplete:
+				break
+			case <-time.After(10 * time.Second):
+				log.Error("Shutdown timed out, forcing process down")
+				break
+			}
+
 			close(exit)
 		}
 	}()
