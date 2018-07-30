@@ -39,10 +39,8 @@ def run_kafka(version):
             )
             yield kafka_container
 
-versions = ["0.9.0.0", "0.10.0", "0.11.0", "1.0.0", "1.0.1", "1.1.1"]
 
-@pytest.mark.parametrize("version", versions)
-def test_omitting_kafka_metrics(version):
+def test_omitting_kafka_metrics(version="1.0.1"):
     with run_kafka(version) as kafka:
         kafkahost = container_ip(kafka)
         with run_agent(textwrap.dedent("""
@@ -54,8 +52,11 @@ def test_omitting_kafka_metrics(version):
            mBeansToOmit:
              - kafka-active-controllers
         """.format(kafkahost))) as [backend, _, _]:
-            assert not wait_for(p(has_datapoint_with_metric_name, backend, "gauge.kafka-active-controllers")), \
-                    "Didn't get kafka datapoints"
+            assert not wait_for(p(has_datapoint_with_metric_name, backend, "gauge.kafka-active-controllers"),
+                              timeout_seconds=60), "Didn't get kafka datapoints"
+
+
+versions = ["0.9.0.0", "0.10.0", "0.11.0", "1.0.0", "1.0.1", "1.1.1"]
 
 @pytest.mark.parametrize("version", versions)
 def test_all_kafka_monitors(version):
@@ -86,14 +87,14 @@ def test_all_kafka_monitors(version):
                    host: {2}
                    port: 9099
                 """.format(kafkahost, kafkaproducerhost, kafkaconsumerhost))) as [backend, _, _]:
-                    assert wait_for(p(has_datapoint_with_metric_name, backend, "gauge.kafka-active-controllers")), \
-                            "Didn't get kafka datapoints"
-                    assert wait_for(p(has_datapoint_with_dim, backend, "cluster", "testCluster")), \
-                            "Didn't get cluster dimension from kafka datapoints"
-                    assert wait_for(p(has_datapoint_with_dim, backend, "client-id", "console-producer")), \
-                            "Didn't get client-id dimension from kafka_producer datapoints"
-                    assert wait_for(p(has_datapoint_with_dim, backend, "client-id", "consumer-1")), \
-                            "Didn't get client-id dimension from kafka_consumer datapoints"
+                    assert wait_for(p(has_datapoint_with_metric_name, backend, "gauge.kafka-active-controllers"),
+                                      timeout_seconds=60), "Didn't get kafka datapoints"
+                    assert wait_for(p(has_datapoint_with_dim, backend, "cluster", "testCluster"),
+                                      timeout_seconds=60), "Didn't get cluster dimension from kafka datapoints"
+                    assert wait_for(p(has_datapoint_with_dim, backend, "client-id", "console-producer"),
+                                      timeout_seconds=60), "Didn't get client-id dimension from kafka_producer datapoints"
+                    assert wait_for(p(has_datapoint_with_dim, backend, "client-id", "consumer-1"),
+                                      timeout_seconds=60), "Didn't get client-id dimension from kafka_consumer datapoints"
 
 
 @pytest.mark.k8s
