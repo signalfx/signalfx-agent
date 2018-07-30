@@ -79,10 +79,16 @@ cause only a subset of metrics to be emitted.
 
 | Name | Type | Description |
 | ---  | ---  | ---         |
-| `kafka.producer.outgoing-byte-rate` | gauge | Average number of outgoing bytes sent per second to all servers. |
-| `kafka.producer.request-latency-avg` | gauge | Average request latency in ms. Time it takes on average for the producer to get responses from the broker |
-| `kafka.producer.request-rate` | gauge | Average number of requests sent per second. |
-| `kafka.producer.response-rate` | gauge | Average number of responses received per second. |
+| `kafka.producer.byte-rate` | gauge | Average number of bytes sent per second for a topic. This metric has client-id and topic dimensions. |
+| `kafka.producer.compression-rate` | gauge | Average compression rate of record batches for a topic. This metric has client-id and topic dimensions. |
+| `kafka.producer.io-wait-time-ns-avg` | gauge | Average length of time the I/O thread spent waiting for a socket ready for reads or writes in nanoseconds. This metric has client-id dimension. |
+| `kafka.producer.outgoing-byte-rate` | gauge | Average number of outgoing bytes sent per second to all servers. This metric has client-id dimension. |
+| `kafka.producer.record-error-rate` | gauge | Average per-second number of record sends that resulted in errors for a topic. This metric has client-id and topic dimensions. |
+| `kafka.producer.record-retry-rate` | gauge | Average per-second number of retried record sends for a topic. This metric has client-id and topic dimensions. |
+| `kafka.producer.record-send-rate` | gauge | Average number of records sent per second for a topic. This metric has client-id and topic dimensions. |
+| `kafka.producer.request-latency-avg` | gauge | Average request latency in ms. Time it takes on average for the producer to get responses from the broker. This metric has client-id dimension. |
+| `kafka.producer.request-rate` | gauge | Average number of requests sent per second. This metric has client-id dimension. |
+| `kafka.producer.response-rate` | gauge | Average number of responses received per second. This metric has client-id dimension. |
 
 
 

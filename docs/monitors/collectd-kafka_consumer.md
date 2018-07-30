@@ -8,7 +8,7 @@ See the [integration documentation](https://github.com/signalfx/integrations/tre
 for more information.
 
 This monitor has a set of [built in MBeans
-configured](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/kafka_consumer/mbeans.go)
+configured](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/kafkaconsumer/mbeans.go)
 for which it pulls metrics from the Kafka consumer's JMX endpoint.
 
 Sample YAML configuration:
@@ -26,7 +26,7 @@ Also, per-topic metrics that are collected by default are not available through 
 v0.9.0.0 which can cause the logs to flood with warnings related to the MBean not being found.
 Use the `mBeansToOmit` config option in such cases. The above example configuration will not attempt to
 collect the MBean referenced by `fetch-size-avg-per-topic`. Here is a
-[list] (https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/kafkaconsumer/mbeans.go)
+[list](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/kafkaconsumer/mbeans.go)
 of metrics collected by default
 
 
