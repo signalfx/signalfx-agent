@@ -83,8 +83,6 @@ var serviceName = "kafka"
 // GAUGE(gauge.kafka.fetch-follower.total-time.median): Median time it takes to
 // process a fetch request from follower
 
-// CUMULATIVE(kafka-bytes-rejected): Number of bytes rejected by the broker
-
 // GAUGE(kafka-offline-partitions-count): Number of partitions that don’t have an
 // active leader and are hence not writable or readable
 

@@ -12,11 +12,11 @@ const monitorType = "collectd/kafka_producer"
 
 // MONITOR(collectd/kafka_producer): Monitors a Java based Kafka producer using GenericJMX.
 //
-// See the [integration documentation](https://github.com/signalfx/integrations/tree/master/collectd-kafka_producer)
+// See the [integration documentation](https://github.com/signalfx/integrations/tree/master/collectd-kafka)
 // for more information.
 //
 // This monitor has a set of [built in MBeans
-// configured](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/kafka_producer/mbeans.go)
+// configured](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/kafkaproducer/mbeans.go)
 // for which it pulls metrics from the Kafka producer's JMX endpoint.
 //
 // Sample YAML configuration:

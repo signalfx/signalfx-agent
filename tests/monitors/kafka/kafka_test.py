@@ -41,60 +41,59 @@ def run_kafka(version):
 
 versions = ["0.9.0.0", "0.10.0", "0.11.0", "1.0.0", "1.0.1", "1.1.1"]
 
-def test_omitting_kafka_metrics():
-    for version in versions:
-        with run_kafka(version) as kafka:
-            kafkahost = container_ip(kafka)
-            with run_agent(textwrap.dedent("""
-            monitors:
-             - type: collectd/kafka
-               host: {0}
-               port: 7099
-               clusterName: testCluster
-               mBeansToOmit:
-                 - kafka-active-controllers
-            """.format(kafkahost))) as [backend, _, _]:
-                assert not wait_for(p(has_datapoint_with_metric_name, backend, "gauge.kafka-active-controllers")), \
-                        "Didn't get kafka datapoints"
+@pytest.mark.parametrize("version", versions)
+def test_omitting_kafka_metrics(version):
+    with run_kafka(version) as kafka:
+        kafkahost = container_ip(kafka)
+        with run_agent(textwrap.dedent("""
+        monitors:
+         - type: collectd/kafka
+           host: {0}
+           port: 7099
+           clusterName: testCluster
+           mBeansToOmit:
+             - kafka-active-controllers
+        """.format(kafkahost))) as [backend, _, _]:
+            assert not wait_for(p(has_datapoint_with_metric_name, backend, "gauge.kafka-active-controllers")), \
+                    "Didn't get kafka datapoints"
 
-
-def test_all_kafka_monitors():
-    for version in versions:
-        with run_kafka(version) as kafka:
-            kafkahost = container_ip(kafka)
+@pytest.mark.parametrize("version", versions)
+def test_all_kafka_monitors(version):
+    with run_kafka(version) as kafka:
+        kafkahost = container_ip(kafka)
+        with run_service(
+            "kafka",
+            environment={"JMX_PORT": "8099", "START_AS": "producer", "KAFKA_BROKER": "%s:9092" % (kafkahost,)},
+            buildargs={"KAFKA_VERSION": version}
+        ) as kafka_producer:
+            kafkaproducerhost = container_ip(kafka_producer)
             with run_service(
                 "kafka",
-                environment={"JMX_PORT": "8099", "START_AS": "producer", "KAFKA_BROKER": "%s:9092" % (kafkahost,)},
+                environment={"JMX_PORT": "9099", "START_AS": "consumer", "KAFKA_BROKER": "%s:9092" % (kafkahost,)},
                 buildargs={"KAFKA_VERSION": version}
-            ) as kafka_producer:
-                kafkaproducerhost = container_ip(kafka_producer)
-                with run_service(
-                    "kafka",
-                    environment={"JMX_PORT": "9099", "START_AS": "consumer", "KAFKA_BROKER": "%s:9092" % (kafkahost,)},
-                    buildargs={"KAFKA_VERSION": version}
-                    ) as kafka_consumer:
-                    kafkaconsumerhost = container_ip(kafka_consumer)
-                    with run_agent(textwrap.dedent("""
-                    monitors:
-                     - type: collectd/kafka
-                       host: {0}
-                       port: 7099
-                       clusterName: testCluster
-                     - type: collectd/kafka_producer
-                       host: {1}
-                       port: 8099
-                     - type: collectd/kafka_consumer
-                       host: {2}
-                       port: 9099
-                    """.format(kafkahost, kafkaproducerhost, kafkaconsumerhost))) as [backend, _, _]:
-                        assert wait_for(p(has_datapoint_with_metric_name, backend, "gauge.kafka-active-controllers")), \
-                                "Didn't get kafka datapoints"
-                        assert wait_for(p(has_datapoint_with_dim, backend, "cluster", "testCluster")), \
-                                "Didn't get cluster dimension from kafka datapoints"
-                        assert wait_for(p(has_datapoint_with_dim, backend, "client-id", "console-producer")), \
-                                "Didn't get client-id dimension from kafka_producer datapoints"
-                        assert wait_for(p(has_datapoint_with_dim, backend, "client-id", "consumer-1")), \
-                                "Didn't get client-id dimension from kafka_consumer datapoints"
+                ) as kafka_consumer:
+                kafkaconsumerhost = container_ip(kafka_consumer)
+                with run_agent(textwrap.dedent("""
+                monitors:
+                 - type: collectd/kafka
+                   host: {0}
+                   port: 7099
+                   clusterName: testCluster
+                 - type: collectd/kafka_producer
+                   host: {1}
+                   port: 8099
+                 - type: collectd/kafka_consumer
+                   host: {2}
+                   port: 9099
+                """.format(kafkahost, kafkaproducerhost, kafkaconsumerhost))) as [backend, _, _]:
+                    assert wait_for(p(has_datapoint_with_metric_name, backend, "gauge.kafka-active-controllers")), \
+                            "Didn't get kafka datapoints"
+                    assert wait_for(p(has_datapoint_with_dim, backend, "cluster", "testCluster")), \
+                            "Didn't get cluster dimension from kafka datapoints"
+                    assert wait_for(p(has_datapoint_with_dim, backend, "client-id", "console-producer")), \
+                            "Didn't get client-id dimension from kafka_producer datapoints"
+                    assert wait_for(p(has_datapoint_with_dim, backend, "client-id", "consumer-1")), \
+                            "Didn't get client-id dimension from kafka_consumer datapoints"
 
 
 @pytest.mark.k8s
