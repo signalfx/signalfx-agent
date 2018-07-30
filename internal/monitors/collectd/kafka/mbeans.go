@@ -28,15 +28,6 @@ kafka-all-bytes-out:
     table: false
     attribute: "Count"
 
-kafka-bytes-rejected:
-  objectName: "kafka.server:type=BrokerTopicMetrics,name=BytesRejectedPerSec"
-  instancePrefix: "all"
-  values:
-  - instancePrefix: "kafka-bytes-rejected"
-    type: "counter"
-    table: false
-    attribute: "Count"
-
 kafka-active-controllers:
   objectName: "kafka.controller:type=KafkaController,name=ActiveControllerCount"
   values:
