@@ -23,7 +23,7 @@ user="signalfx-agent"
 group="signalfx-agent"
 rundir="/var/run/signalfx-agent"
 
-name=`basename $0`
+name="signalfx-agent"
 pidfile="/var/run/$name.pid"
 logfile="/var/log/$name.log"
 
