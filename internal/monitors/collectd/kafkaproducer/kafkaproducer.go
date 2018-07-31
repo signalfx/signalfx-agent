@@ -29,47 +29,53 @@ const monitorType = "collectd/kafka_producer"
 //
 // Note that this monitor requires Kafka v0.9.0.0 or above and collects metrics from the new producer API.
 
-// GAUGE(kafka.producer.response-rate): Average number of responses received per second.
+// GAUGE(kafka.producer.response-rate): Average number of responses received per second. This metric has
+// client-id dimension.
 
-// GAUGE(kafka.producer.request-rate): Average number of requests sent per second.
+// GAUGE(kafka.producer.request-rate): Average number of requests sent per second. This metric has client-id dimension.
 
 // GAUGE(kafka.producer.request-latency-avg): Average request latency in ms. Time it takes on average for the producer to get
-// responses from the broker
+// responses from the broker. This metric has client-id dimension.
 
-// GAUGE(kafka.producer.outgoing-byte-rate): Average number of outgoing bytes sent per second to all servers.
+// GAUGE(kafka.producer.outgoing-byte-rate): Average number of outgoing bytes sent per second to all servers. This metric
+// has client-id dimension.
 
-// GAUAGE(kafka.producer.io-wait-time-ns-avg): Average length of time the I/O thread spent waiting for a socket ready for
-// reads or writes in nanoseconds
+// GAUGE(kafka.producer.io-wait-time-ns-avg): Average length of time the I/O thread spent waiting for a socket ready for
+// reads or writes in nanoseconds. This metric has client-id dimension.
 
-// GAUAGE(kafka.producer.byte-rate): Average number of bytes sent per second for a topic.
+// GAUGE(kafka.producer.byte-rate): Average number of bytes sent per second for a topic. This metric has client-id and
+// topic dimensions.
 
-// GAUAGE(kafka.producer.compression-rate): Average compression rate of record batches for a topic.
+// GAUGE(kafka.producer.compression-rate): Average compression rate of record batches for a topic. This metric has client-id
+// and topic dimensions.
 
-// GAUAGE(kafka.producer.record-error-rate): Average per-second number of record sends that resulted in errors for a topic.
+// GAUGE(kafka.producer.record-error-rate): Average per-second number of record sends that resulted in errors for a topic.
+// This metric has client-id and topic dimensions.
 
-// GAUAGE(kafka.producer.record-retry-rate): Average per-second number of retried record sends for a topic.
+// GAUGE(kafka.producer.record-retry-rate): Average per-second number of retried record sends for a topic. This metric has
+// client-id and topic dimensions.
 
-// GAUAGE(kafka.producer.record-send-rate): Average number of records sent per second for a topic.
-
+// GAUGE(kafka.producer.record-send-rate): Average number of records sent per second for a topic. This metric has client-id
+// and topic dimensions.
 
 var serviceName = "kafka_producer"
 
 // Monitor is the main type that represents the monitor
 type Monitor struct {
-       *genericjmx.JMXMonitorCore
+	*genericjmx.JMXMonitorCore
 }
 
 func init() {
-       var defaultMBeans genericjmx.MBeanMap
-       err := yaml.Unmarshal([]byte(defaultMBeanYAML), &defaultMBeans)
-       if err != nil {
-             panic("YAML for GenericJMX MBeans is invalid: " + err.Error())
-       }
-       defaultMBeans = defaultMBeans.MergeWith(genericjmx.DefaultMBeans)
+	var defaultMBeans genericjmx.MBeanMap
+	err := yaml.Unmarshal([]byte(defaultMBeanYAML), &defaultMBeans)
+	if err != nil {
+		panic("YAML for GenericJMX MBeans is invalid: " + err.Error())
+	}
+	defaultMBeans = defaultMBeans.MergeWith(genericjmx.DefaultMBeans)
 
-       monitors.Register(monitorType, func() interface{} {
-               return &Monitor{
-                       genericjmx.NewJMXMonitorCore(defaultMBeans, serviceName),
-               }
-       }, &genericjmx.Config{})
+	monitors.Register(monitorType, func() interface{} {
+		return &Monitor{
+			genericjmx.NewJMXMonitorCore(defaultMBeans, serviceName),
+		}
+	}, &genericjmx.Config{})
 }

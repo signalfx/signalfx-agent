@@ -16,7 +16,7 @@ const monitorType = "collectd/kafka_consumer"
 // for more information.
 //
 // This monitor has a set of [built in MBeans
-// configured](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/kafka_consumer/mbeans.go)
+// configured](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/kafkaconsumer/mbeans.go)
 // for which it pulls metrics from the Kafka consumer's JMX endpoint.
 //
 // Sample YAML configuration:
@@ -34,7 +34,7 @@ const monitorType = "collectd/kafka_consumer"
 // v0.9.0.0 which can cause the logs to flood with warnings related to the MBean not being found.
 // Use the `mBeansToOmit` config option in such cases. The above example configuration will not attempt to
 // collect the MBean referenced by `fetch-size-avg-per-topic`. Here is a
-// [list] (https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/kafkaconsumer/mbeans.go)
+// [list](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/kafkaconsumer/mbeans.go)
 // of metrics collected by default
 
 // GAUGE(kafka.consumer.records-lag-max): Maximum lag in of records for any partition in this window. An increasing
@@ -51,25 +51,24 @@ const monitorType = "collectd/kafka_consumer"
 // GAUGE(kafka.consumer.fetch-size-avg): Average number of bytes fetched per request. This metric has either
 // client-id dimension or, both client-id and topic dimensions. The former is an aggregate across all topics of the latter.
 
-
 var serviceName = "kafka_consumer"
 
 // Monitor is the main type that represents the monitor
 type Monitor struct {
-       *genericjmx.JMXMonitorCore
+	*genericjmx.JMXMonitorCore
 }
 
 func init() {
-       var defaultMBeans genericjmx.MBeanMap
-       err := yaml.Unmarshal([]byte(defaultMBeanYAML), &defaultMBeans)
-       if err != nil {
-             panic("YAML for GenericJMX MBeans is invalid: " + err.Error())
-       }
-       defaultMBeans = defaultMBeans.MergeWith(genericjmx.DefaultMBeans)
+	var defaultMBeans genericjmx.MBeanMap
+	err := yaml.Unmarshal([]byte(defaultMBeanYAML), &defaultMBeans)
+	if err != nil {
+		panic("YAML for GenericJMX MBeans is invalid: " + err.Error())
+	}
+	defaultMBeans = defaultMBeans.MergeWith(genericjmx.DefaultMBeans)
 
-       monitors.Register(monitorType, func() interface{} {
-               return &Monitor{
-                       genericjmx.NewJMXMonitorCore(defaultMBeans, serviceName),
-               }
-       }, &genericjmx.Config{})
+	monitors.Register(monitorType, func() interface{} {
+		return &Monitor{
+			genericjmx.NewJMXMonitorCore(defaultMBeans, serviceName),
+		}
+	}, &genericjmx.Config{})
 }
