@@ -39,12 +39,14 @@ supported_distros = [
     ("debian-9-stretch", INIT_SYSTEMD),
     ("ubuntu1404", INIT_UPSTART),
     ("ubuntu1604", INIT_SYSTEMD),
+    ("ubuntu1804", INIT_SYSTEMD),
     ("amazonlinux1", INIT_UPSTART),
     ("amazonlinux2", INIT_SYSTEMD),
     ("centos6", INIT_UPSTART),
     ("centos7", INIT_SYSTEMD),
 ]
 
+@pytest.mark.installer
 @pytest.mark.parametrize("base_image,init_system", supported_distros)
 def test_intaller(base_image, init_system):
     with run_init_system_image(base_image) as [cont, backend]:
