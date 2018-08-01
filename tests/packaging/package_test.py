@@ -1,5 +1,6 @@
 from functools import partial as p
 import difflib
+import docker
 import os
 import pytest
 import re
@@ -98,9 +99,20 @@ def agent_has_new_pid(container, old_pid):
     return wait_for(_new_pid, timeout_seconds=INIT_RESTART_TIMEOUT)
 
 
-def container_file_exists(container, path):
-    code, _ = container.exec_run("test -f %s" % path)
+def path_exists_in_container(container, path):
+    code, _ = container.exec_run("test -e %s" % path)
     return code == 0
+
+
+def get_agent_yaml_diff(old_agent_yaml, new_agent_yaml):
+    diff = "\n".join(
+        difflib.unified_diff(
+            old_agent_yaml.splitlines(),
+            new_agent_yaml.splitlines(),
+            fromfile="%s.orig" % AGENT_YAML_PATH,
+            tofile=AGENT_YAML_PATH,
+            lineterm='')).strip()
+    return diff
 
 
 def _test_service_status(container, init_system, expected_status):
@@ -128,7 +140,7 @@ def _test_service_start(container, init_system, backend):
     assert wait_for(p(has_datapoint_with_dim, backend, "plugin", "signalfx-metadata")), "Datapoints didn't come through"
 
 
-def _test_service_restart(container, init_system, backend):
+def _test_service_restart(container, init_system):
     old_pid = get_agent_pid(container)
     code, output = container.exec_run(INIT_RESTART_COMMAND[init_system])
     print("Init restart command output:")
@@ -136,7 +148,6 @@ def _test_service_restart(container, init_system, backend):
     assert code == 0, "Agent could not be restarted"
     assert wait_for(p(is_agent_running_as_non_root, container), timeout_seconds=INIT_RESTART_TIMEOUT)
     assert agent_has_new_pid(container, old_pid), "Agent pid the same after service restart"
-    assert wait_for(p(has_datapoint_with_dim, backend, "plugin", "signalfx-metadata")), "Datapoints didn't come through"
 
 
 def _test_service_stop(container, init_system):
@@ -146,7 +157,7 @@ def _test_service_stop(container, init_system):
     assert code == 0, "Agent could not be stop"
     assert wait_for(lambda: not get_agent_pid(container), timeout_seconds=INIT_STOP_TIMEOUT), "Timed out waiting for agent process to stop"
     if init_system in [INIT_SYSV, INIT_UPSTART]:
-        assert not container_file_exists(container, PIDFILE_PATH), "%s exists when agent is stopped" % PIDFILE_PATH
+        assert not path_exists_in_container(container, PIDFILE_PATH), "%s exists when agent is stopped" % PIDFILE_PATH
 
 
 def _test_package_install(base_image, package_path, init_system):
@@ -170,7 +181,7 @@ def _test_package_install(base_image, package_path, init_system):
             _test_service_list(cont, init_system)
             _test_service_start(cont, init_system, backend)
             _test_service_status(cont, init_system, 'active')
-            _test_service_restart(cont, init_system, backend)
+            _test_service_restart(cont, init_system)
             _test_service_status(cont, init_system, 'active')
             _test_service_stop(cont, init_system)
             _test_service_status(cont, init_system, 'inactive')
@@ -192,7 +203,7 @@ def _test_package_upgrade(base_image, package_path, init_system):
         print_lines(output)
         assert code == 0, "Old package could not be installed!"
 
-        assert container_file_exists(cont, AGENT_YAML_PATH), "%s does not exist!" % AGENT_YAML_PATH
+        assert path_exists_in_container(cont, AGENT_YAML_PATH), "%s does not exist!" % AGENT_YAML_PATH
 
         _, _ = cont.exec_run("bash -ec 'echo >> %s'" % AGENT_YAML_PATH)
         _, _ = cont.exec_run("bash -ec 'echo \"hostname: test-host\" >> %s'" % AGENT_YAML_PATH)
@@ -210,23 +221,16 @@ def _test_package_upgrade(base_image, package_path, init_system):
         print_lines(output)
         assert code == 0, "Package could not be upgraded!"
 
-        assert container_file_exists(cont, AGENT_YAML_PATH), "%s does not exist after upgrade!" % AGENT_YAML_PATH
+        assert path_exists_in_container(cont, AGENT_YAML_PATH), "%s does not exist after upgrade!" % AGENT_YAML_PATH
 
-        _, output = cont.exec_run("cat %s" % AGENT_YAML_PATH)
-        new_agent_yaml = output.decode('utf-8')
-        diff = "\n".join(
-            difflib.unified_diff(
-                old_agent_yaml.splitlines(),
-                new_agent_yaml.splitlines(),
-                fromfile="%s.orig" % AGENT_YAML_PATH,
-                tofile=AGENT_YAML_PATH,
-                lineterm='')).strip()
+        new_agent_yaml = cont.exec_run("cat %s" % AGENT_YAML_PATH)[1].decode('utf-8')
+        diff = get_agent_yaml_diff(old_agent_yaml, new_agent_yaml)
         assert len(diff) == 0, "%s different after upgrade!\n%s" % (AGENT_YAML_PATH, diff)
 
         try:
             _test_service_list(cont, init_system)
             _test_service_status(cont, init_system, 'active')
-            _test_service_restart(cont, init_system, backend)
+            _test_service_restart(cont, init_system)
             _test_service_status(cont, init_system, 'active')
             _test_service_stop(cont, init_system)
             _test_service_status(cont, init_system, 'inactive')
