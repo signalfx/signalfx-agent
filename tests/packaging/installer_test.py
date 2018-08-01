@@ -25,7 +25,6 @@ from tests.helpers.assertions import *
 from tests.helpers.util import run_container, wait_for, print_lines
 
 pytestmark = pytest.mark.installer
-pytest.skip("installer tests are skipped by default", allow_module_level=True)
 
 
 def is_agent_running_as_non_root(container):
@@ -46,7 +45,6 @@ supported_distros = [
     ("centos7", INIT_SYSTEMD),
 ]
 
-@pytest.mark.installer
 @pytest.mark.parametrize("base_image,init_system", supported_distros)
 def test_intaller(base_image, init_system):
     with run_init_system_image(base_image) as [cont, backend]:
