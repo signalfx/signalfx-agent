@@ -249,6 +249,41 @@ jobs:
       - store_artifacts:
           path: ~/testresults/k8s_integration_tests.html
 
+  installer_tests:
+    <<: *executor
+    steps:
+      - checkout
+      - run: |
+          if ! scripts/changes-include-dir deployments/installer; then
+              echo "Installer code has not changed, skipping tests!"
+              touch ~/.skip
+              exit 0
+          fi
+      - *install_pytest
+      - run:
+          no_output_timeout: 30m
+          command: |
+            if [ -f ~/.skip ]; then
+                echo "Installer code has not changed, skipping tests!"
+                exit 0
+            fi
+            mkdir /tmp/scratch
+            mkdir ~/testresults
+            pytest \
+                -n auto \
+                -m "installer" \
+                --verbose \
+                --junitxml=~/testresults/installer.xml \
+                --html=~/testresults/installer.html \
+                --self-contained-html \
+                ./tests/packaging/
+
+      - store_test_results:
+          path: ~/testresults
+
+      - store_artifacts:
+          path: ~/testresults/installer.html
+
   rpm_package_tests:
     <<: *executor
     steps:
