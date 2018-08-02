@@ -489,6 +489,7 @@ workflows:
         requires:
          - build
      - docs_test
+     - installer_tests
      - rpm_package_tests
      - deb_package_tests
      - chef_tests
