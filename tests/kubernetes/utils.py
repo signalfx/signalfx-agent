@@ -4,7 +4,6 @@ from kubernetes.client.rest import ApiException
 from tests.helpers.assertions import *
 from tests.helpers.util import *
 import docker
-import netifaces as ni
 import os
 import re
 import socket
@@ -94,12 +93,6 @@ def run_k8s_with_agent(agent_image, minikube, monitors, observer=None, namespace
                 image_tag=agent_image["tag"],
                 namespace=namespace) as agent:
                 yield [backend, agent]
-
-
-def get_host_ip():
-    gws = ni.gateways()
-    interface = gws['default'][ni.AF_INET][1]
-    return ni.ifaddresses(interface)[ni.AF_INET][0]['addr']
 
 
 def has_namespace(name):
