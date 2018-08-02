@@ -6,19 +6,7 @@ import pytest
 import re
 import time
 
-from .common import (
-    build_base_image,
-    get_agent_logs,
-    get_rpm_package_to_test,
-    get_deb_package_to_test,
-    socat_https_proxy,
-    copy_file_into_container,
-    run_init_system_image,
-    INIT_SYSV,
-    INIT_UPSTART,
-    INIT_SYSTEMD,
-    INSTALLER_PATH,
-)
+from .common import *
 
 from tests.helpers import fake_backend
 from tests.helpers.assertions import *
@@ -30,9 +18,6 @@ PACKAGE_UTIL = {
     ".deb": "dpkg",
     ".rpm": "rpm",
 }
-
-AGENT_YAML_PATH = "/etc/signalfx/agent.yaml"
-PIDFILE_PATH = "/var/run/signalfx-agent.pid"
 
 INIT_START_TIMEOUT = 5
 INIT_STOP_TIMEOUT = 11
@@ -75,12 +60,6 @@ INIT_STATUS_OUTPUT = {
 }
 
 
-def is_agent_running_as_non_root(container):
-    code, output = container.exec_run("pgrep -u signalfx-agent signalfx-agent")
-    print("pgrep check: %s" % output)
-    return code == 0
-
-
 def get_agent_pid(container):
     command = "pgrep -u signalfx-agent -f /usr/bin/signalfx-agent"
     code, output = container.exec_run(command)
@@ -99,11 +78,6 @@ def agent_has_new_pid(container, old_pid):
     return wait_for(_new_pid, timeout_seconds=INIT_RESTART_TIMEOUT)
 
 
-def path_exists_in_container(container, path):
-    code, _ = container.exec_run("test -e %s" % path)
-    return code == 0
-
-
 def get_agent_yaml_diff(old_agent_yaml, new_agent_yaml):
     diff = "\n".join(
         difflib.unified_diff(
@@ -113,6 +87,25 @@ def get_agent_yaml_diff(old_agent_yaml, new_agent_yaml):
             tofile=AGENT_YAML_PATH,
             lineterm='')).strip()
     return diff
+
+
+def update_agent_yaml(container, backend, hostname="test-hostname"):
+    def set_option(name, value):
+        code, _ = container.exec_run("grep '^%s:' %s" % (name, AGENT_YAML_PATH))
+        if code == 0:
+            _, _ = container.exec_run("sed -i 's|^%s:.*|%s: %s|' %s" % (name, name, value, AGENT_YAML_PATH))
+        else:
+            _, _ = container.exec_run("bash -ec 'echo >> %s'" % AGENT_YAML_PATH)
+            _, _ = container.exec_run("bash -ec 'echo \"%s: %s\" >> %s'" % (name, value, AGENT_YAML_PATH))
+
+    assert path_exists_in_container(container, AGENT_YAML_PATH), "File %s does not exist!" % AGENT_YAML_PATH
+    if hostname:
+        set_option("hostname", hostname)
+    ingest_url = "http://%s:%d" % (backend.ingest_host, backend.ingest_port)
+    set_option("ingestUrl", ingest_url)
+    api_url = "http://%s:%d" % (backend.api_host, backend.api_port)
+    set_option("apiUrl", api_url)
+    return get_container_file_content(container, AGENT_YAML_PATH)
 
 
 def _test_service_status(container, init_system, expected_status):
@@ -166,23 +159,16 @@ def _test_service_stop(container, init_system, backend):
 
 def _test_system_restart(container, init_system, backend):
     print("Restarting container")
-    try:
-        container.stop(timeout=3)
-        backend.datapoints.clear()
-        container.start()
-        assert wait_for(p(is_agent_running_as_non_root, container), timeout_seconds=INIT_RESTART_TIMEOUT)
-        _test_service_status(container, init_system, 'active')
-        assert wait_for(p(has_datapoint_with_dim, backend, "plugin", "signalfx-metadata")), "Datapoints didn't come through"
-    except docker.errors.APIError as e:
-        if not "id already in use" in str(e).lower():
-            raise e
-        else:
-            # possible intermittent bug with docker daemon not restarting containers correctly
-            print("Container failed to restart:\n%s" % str(e))
+    container.stop(timeout=3)
+    backend.datapoints.clear()
+    container.start()
+    assert wait_for(p(is_agent_running_as_non_root, container), timeout_seconds=INIT_RESTART_TIMEOUT)
+    _test_service_status(container, init_system, 'active')
+    assert wait_for(p(has_datapoint_with_dim, backend, "plugin", "signalfx-metadata")), "Datapoints didn't come through"
 
 
 def _test_package_install(base_image, package_path, init_system):
-    with run_init_system_image(base_image) as [cont, backend]:
+    with run_init_system_image(base_image, with_socat=False) as [cont, backend]:
         _, package_ext = os.path.splitext(package_path)
         copy_file_into_container(package_path, cont, "/opt/signalfx-agent%s" % package_ext)
 
@@ -196,16 +182,18 @@ def _test_package_install(base_image, package_path, init_system):
         print_lines(output)
         assert code == 0, "Package could not be installed!"
 
-        cont.exec_run("bash -ec 'echo -n testing > /etc/signalfx/token'")
+        cont.exec_run("bash -ec 'echo -n testing123 > /etc/signalfx/token'")
+        agent_yaml = update_agent_yaml(cont, backend, hostname="test-"+base_image)
 
         try:
             _test_service_list(cont, init_system)
-            _test_service_start(cont, init_system, backend)
-            _test_service_status(cont, init_system, 'active')
             _test_service_restart(cont, init_system, backend)
             _test_service_status(cont, init_system, 'active')
             _test_service_stop(cont, init_system, backend)
             _test_service_status(cont, init_system, 'inactive')
+            _test_service_start(cont, init_system, backend)
+            _test_service_status(cont, init_system, 'active')
+            _test_service_stop(cont, init_system, backend)
             _test_system_restart(cont, init_system, backend)
         finally:
             cont.reload()
@@ -215,25 +203,23 @@ def _test_package_install(base_image, package_path, init_system):
 
 
 def _test_package_upgrade(base_image, package_path, init_system):
-    with run_init_system_image(base_image) as [cont, backend]:
+    with run_init_system_image(base_image, with_socat=False) as [cont, backend]:
         _, package_ext = os.path.splitext(package_path)
         copy_file_into_container(package_path, cont, "/opt/signalfx-agent%s" % package_ext)
-        copy_file_into_container(INSTALLER_PATH, cont, "/opt/install.sh")
 
-        INSTALL_COMMAND = "sh /opt/install.sh testing123 --insecure --package-version 3.0.1-1"
+        INSTALL_COMMAND = {
+            ".rpm": "yum install -y https://s3.amazonaws.com/public-downloads--signalfuse-com/rpms/signalfx-agent/final/signalfx-agent-3.0.1-1.x86_64.rpm",
+            ".deb": "bash -ec 'wget -nv https://s3.amazonaws.com/public-downloads--signalfuse-com/debs/signalfx-agent/final/pool/signalfx-agent_3.0.1-1_amd64.deb && dpkg -i signalfx-agent_3.0.1-1_amd64.deb'"
+        }
 
-        code, output = cont.exec_run(INSTALL_COMMAND)
+        code, output = cont.exec_run(INSTALL_COMMAND[package_ext])
         print("Output of old package install:")
         print_lines(output)
         assert code == 0, "Old package could not be installed!"
 
-        assert path_exists_in_container(cont, AGENT_YAML_PATH), "%s does not exist!" % AGENT_YAML_PATH
-
-        _, _ = cont.exec_run("bash -ec 'echo >> %s'" % AGENT_YAML_PATH)
-        _, _ = cont.exec_run("bash -ec 'echo \"hostname: test-host\" >> %s'" % AGENT_YAML_PATH)
+        cont.exec_run("bash -ec 'echo -n testing123 > /etc/signalfx/token'")
+        old_agent_yaml = update_agent_yaml(cont, backend, hostname="test-"+base_image)
         _, _ = cont.exec_run("cp -f %s %s.orig" % (AGENT_YAML_PATH, AGENT_YAML_PATH))
-        _, output = cont.exec_run("cat %s" % AGENT_YAML_PATH)
-        old_agent_yaml = output.decode('utf-8')
 
         UPGRADE_COMMAND = {
             ".rpm": "yum --nogpgcheck update -y /opt/signalfx-agent.rpm",
@@ -245,15 +231,12 @@ def _test_package_upgrade(base_image, package_path, init_system):
         print_lines(output)
         assert code == 0, "Package could not be upgraded!"
 
-        assert path_exists_in_container(cont, AGENT_YAML_PATH), "%s does not exist after upgrade!" % AGENT_YAML_PATH
-
-        new_agent_yaml = cont.exec_run("cat %s" % AGENT_YAML_PATH)[1].decode('utf-8')
+        new_agent_yaml = get_container_file_content(cont, AGENT_YAML_PATH)
         diff = get_agent_yaml_diff(old_agent_yaml, new_agent_yaml)
         assert len(diff) == 0, "%s different after upgrade!\n%s" % (AGENT_YAML_PATH, diff)
 
         try:
             _test_service_list(cont, init_system)
-            _test_service_status(cont, init_system, 'active')
             _test_service_restart(cont, init_system, backend)
             _test_service_status(cont, init_system, 'active')
             _test_service_stop(cont, init_system, backend)

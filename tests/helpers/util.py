@@ -1,5 +1,6 @@
 from contextlib import contextmanager
 import io
+import netifaces as ni
 import os
 import select
 import subprocess
@@ -165,7 +166,7 @@ def run_service(service_name, name=None, buildargs={}, print_logs=True, **kwargs
 
 def get_monitor_metrics_from_selfdescribe(monitor, json_path=SELFDESCRIBE_JSON):
     metrics = set()
-    with open(json_path, "r") as fd:
+    with open(json_path, "r", encoding='utf-8') as fd:
         doc = yaml.load(fd.read())
         for mon in doc['Monitors']:
             if monitor == mon['monitorType'] and 'metrics' in mon.keys() and mon['metrics']:
@@ -176,7 +177,7 @@ def get_monitor_metrics_from_selfdescribe(monitor, json_path=SELFDESCRIBE_JSON):
 
 def get_monitor_dims_from_selfdescribe(monitor, json_path=SELFDESCRIBE_JSON):
     dims = set()
-    with open(json_path, "r") as fd:
+    with open(json_path, "r", encoding="utf-8") as fd:
         doc = yaml.load(fd.read())
         for mon in doc['Monitors']:
             if monitor == mon['monitorType'] and 'dimensions' in mon.keys() and mon['dimensions']:
@@ -187,10 +188,16 @@ def get_monitor_dims_from_selfdescribe(monitor, json_path=SELFDESCRIBE_JSON):
 
 def get_observer_dims_from_selfdescribe(observer, json_path=SELFDESCRIBE_JSON):
     dims = set()
-    with open(json_path, "r") as fd:
+    with open(json_path, "r", encoding="utf-8") as fd:
         doc = yaml.load(fd.read())
         for obs in doc['Observers']:
             if observer == obs['observerType'] and 'dimensions' in obs.keys() and obs['dimensions']:
                 dims = set([dim['name'] for dim in obs['dimensions']])
                 break
     return dims
+
+
+def get_host_ip():
+    gws = ni.gateways()
+    interface = gws['default'][ni.AF_INET][1]
+    return ni.ifaddresses(interface)[ni.AF_INET][0]['addr']
