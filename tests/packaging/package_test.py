@@ -135,22 +135,25 @@ def _test_service_start(container, init_system, backend):
     code, output = container.exec_run(INIT_START_COMMAND[init_system])
     print("Init start command output:")
     print_lines(output)
+    backend.datapoints.clear()
     assert code == 0, "Agent could not be started"
     assert wait_for(p(is_agent_running_as_non_root, container), timeout_seconds=INIT_START_TIMEOUT)
     assert wait_for(p(has_datapoint_with_dim, backend, "plugin", "signalfx-metadata")), "Datapoints didn't come through"
 
 
-def _test_service_restart(container, init_system):
+def _test_service_restart(container, init_system, backend):
     old_pid = get_agent_pid(container)
     code, output = container.exec_run(INIT_RESTART_COMMAND[init_system])
     print("Init restart command output:")
     print_lines(output)
+    backend.datapoints.clear()
     assert code == 0, "Agent could not be restarted"
     assert wait_for(p(is_agent_running_as_non_root, container), timeout_seconds=INIT_RESTART_TIMEOUT)
     assert agent_has_new_pid(container, old_pid), "Agent pid the same after service restart"
+    assert wait_for(p(has_datapoint_with_dim, backend, "plugin", "signalfx-metadata")), "Datapoints didn't come through"
 
 
-def _test_service_stop(container, init_system):
+def _test_service_stop(container, init_system, backend):
     code, output = container.exec_run(INIT_STOP_COMMAND[init_system])
     print("Init stop command output:")
     print_lines(output)
@@ -158,6 +161,24 @@ def _test_service_stop(container, init_system):
     assert wait_for(lambda: not get_agent_pid(container), timeout_seconds=INIT_STOP_TIMEOUT), "Timed out waiting for agent process to stop"
     if init_system in [INIT_SYSV, INIT_UPSTART]:
         assert not path_exists_in_container(container, PIDFILE_PATH), "%s exists when agent is stopped" % PIDFILE_PATH
+    backend.datapoints.clear()
+
+
+def _test_system_restart(container, init_system, backend):
+    print("Restarting container")
+    try:
+        container.stop(timeout=3)
+        backend.datapoints.clear()
+        container.start()
+        assert wait_for(p(is_agent_running_as_non_root, container), timeout_seconds=INIT_RESTART_TIMEOUT)
+        _test_service_status(container, init_system, 'active')
+        assert wait_for(p(has_datapoint_with_dim, backend, "plugin", "signalfx-metadata")), "Datapoints didn't come through"
+    except docker.errors.APIError as e:
+        if not "id already in use" in str(e).lower():
+            raise e
+        else:
+            # possible intermittent bug with docker daemon not restarting containers correctly
+            print("Container failed to restart:\n%s" % str(e))
 
 
 def _test_package_install(base_image, package_path, init_system):
@@ -181,13 +202,16 @@ def _test_package_install(base_image, package_path, init_system):
             _test_service_list(cont, init_system)
             _test_service_start(cont, init_system, backend)
             _test_service_status(cont, init_system, 'active')
-            _test_service_restart(cont, init_system)
+            _test_service_restart(cont, init_system, backend)
             _test_service_status(cont, init_system, 'active')
-            _test_service_stop(cont, init_system)
+            _test_service_stop(cont, init_system, backend)
             _test_service_status(cont, init_system, 'inactive')
+            _test_system_restart(cont, init_system, backend)
         finally:
-            print("Agent log:")
-            print_lines(get_agent_logs(cont, init_system))
+            cont.reload()
+            if cont.status.lower() == 'running':
+                print("Agent log:")
+                print_lines(get_agent_logs(cont, init_system))
 
 
 def _test_package_upgrade(base_image, package_path, init_system):
@@ -230,15 +254,19 @@ def _test_package_upgrade(base_image, package_path, init_system):
         try:
             _test_service_list(cont, init_system)
             _test_service_status(cont, init_system, 'active')
-            _test_service_restart(cont, init_system)
+            _test_service_restart(cont, init_system, backend)
             _test_service_status(cont, init_system, 'active')
-            _test_service_stop(cont, init_system)
+            _test_service_stop(cont, init_system, backend)
             _test_service_status(cont, init_system, 'inactive')
             _test_service_start(cont, init_system, backend)
             _test_service_status(cont, init_system, 'active')
+            _test_service_stop(cont, init_system, backend)
+            _test_system_restart(cont, init_system, backend)
         finally:
-            print("Agent log:")
-            print_lines(get_agent_logs(cont, init_system))
+            cont.reload()
+            if cont.status.lower() == 'running':
+                print("Agent log:")
+                print_lines(get_agent_logs(cont, init_system))
 
 
 @pytest.mark.rpm

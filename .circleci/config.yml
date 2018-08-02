@@ -254,7 +254,7 @@ jobs:
     steps:
       - checkout
       - run: |
-          if ! scripts/changes-include-dir deployments/installer; then
+          if ! scripts/changes-include-dir deployments/installer tests/packaging; then
               echo "Installer code has not changed, skipping tests!"
               touch ~/.skip
               exit 0
