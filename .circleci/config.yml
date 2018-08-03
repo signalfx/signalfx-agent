@@ -55,7 +55,7 @@ references:
             --k8s-observers="$K8S_OBSERVERS" \
             --k8s-timeout=300 \
             --k8s-test-timeout=120 \
-            --k8s-sfx-agent=quay.io/signalfx/signalfx-agent-dev:latest \
+            --k8s-sfx-agent=quay.io/signalfx/signalfx-agent:3.4.1 \
             tests
 
 jobs:
@@ -163,7 +163,7 @@ jobs:
           mkdir ~/testresults
           mkdir -p /tmp/scratch
           mkdir bundle
-          cid=$(docker create quay.io/signalfx/signalfx-agent-dev:latest true)
+          cid=$(docker create quay.io/signalfx/signalfx-agent:3.4.1 true)
           docker export $cid | tar -C $(pwd)/bundle/ -xf -
           docker rm -fv $cid
           export AGENT_BIN=$(pwd)/bundle/bin/signalfx-agent
@@ -467,32 +467,22 @@ workflows:
   version: 2
   build_test:
     jobs:
-     - build
-     - build_dev_image
-     - build-windows
-     - lint
-     - vet
-     - gotests
+#     - build
+#     - build_dev_image
+#     - build-windows
+#     - lint
+#     - vet
+#     - gotests
      - integration_tests:
-        requires:
-         - build
      - k8s_v1.10.0_integration_tests:
-        requires:
-         - build
      - k8s_v1.9.0_integration_tests:
-        requires:
-         - build
      - k8s_v1.8.0_integration_tests:
-        requires:
-         - build
      - k8s_v1.7.0_integration_tests:
-        requires:
-         - build
-     - docs_test
-     - installer_tests
-     - rpm_package_tests
-     - deb_package_tests
-     - chef_tests
-     - puppet_tests
-     - salt_tests
-     - ansible_tests
+#     - docs_test
+#     - installer_tests
+#     - rpm_package_tests
+#     - deb_package_tests
+#     - chef_tests
+#     - puppet_tests
+#     - salt_tests
+#     - ansible_tests
