@@ -63,3 +63,5 @@ This role sources the following variables:
 	 package revision > 1 contain changes to some aspect of the packaging
 	 scripts (e.g. init scripts) but contain the same agent bundle.
    (**default:** 'latest')
+
+**Note**: After the `signalfx-agent` role is deployed, Ansible will manage the `signalfx-agent` service via the Ansible core `service` module.  This module will automatically determine the host's init system for starting/stopping the `signalfx-agent` service, with a preference for systemd (`systemctl`).
