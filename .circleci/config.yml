@@ -57,9 +57,6 @@ references:
             --k8s-test-timeout=120 \
             --k8s-sfx-agent=quay.io/signalfx/signalfx-agent-dev:latest \
             tests
-        if grep 'exception caught' ~/testresults/k8s_integration_tests.xml; then
-            exit 1
-        fi
 
 jobs:
   build:
@@ -189,8 +186,10 @@ jobs:
     environment:
       K8S_VERSION: "v1.10.0"
       K8S_OBSERVERS: "k8s-api,k8s-kubelet"
-      PYTEST_MARKERS: "k8s and (kong or jenkins or couchbase)"
+      PYTEST_MARKERS: "k8s"
     steps:
+      - *attach_workspace
+      - *import_image
       - checkout
       - *install_pytest
       - *run_k8s_integration_tests
@@ -204,8 +203,10 @@ jobs:
     environment:
       K8S_VERSION: "v1.9.0"
       K8S_OBSERVERS: "k8s-api,k8s-kubelet"
-      PYTEST_MARKERS: "k8s and (kong or jenkins or couchbase)"
+      PYTEST_MARKERS: "k8s"
     steps:
+      - *attach_workspace
+      - *import_image
       - checkout
       - *install_pytest
       - *run_k8s_integration_tests
@@ -219,8 +220,10 @@ jobs:
     environment:
       K8S_VERSION: "v1.8.0"
       K8S_OBSERVERS: "k8s-api,k8s-kubelet"
-      PYTEST_MARKERS: "k8s and (kong or jenkins or couchbase)"
+      PYTEST_MARKERS: "k8s"
     steps:
+      - *attach_workspace
+      - *import_image
       - checkout
       - *install_pytest
       - *run_k8s_integration_tests
@@ -234,8 +237,10 @@ jobs:
     environment:
       K8S_VERSION: "v1.7.0"
       K8S_OBSERVERS: "k8s-api,k8s-kubelet"
-      PYTEST_MARKERS: "k8s and (kong or jenkins or couchbase)"
+      PYTEST_MARKERS: "k8s"
     steps:
+      - *attach_workspace
+      - *import_image
       - checkout
       - *install_pytest
       - *run_k8s_integration_tests

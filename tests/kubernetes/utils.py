@@ -1,7 +1,6 @@
 from functools import partial as p
 from kubernetes import client as kube_client
 from kubernetes.client.rest import ApiException
-from requests.exceptions import ConnectionError
 from tests.helpers.assertions import *
 from tests.helpers.util import *
 import docker
@@ -16,7 +15,7 @@ AGENT_YAMLS_DIR = os.environ.get("AGENT_YAMLS_DIR", os.path.join(CUR_DIR, "../..
 AGENT_CONFIGMAP_PATH = os.environ.get("AGENT_CONFIGMAP_PATH", os.path.join(AGENT_YAMLS_DIR, "configmap.yaml"))
 AGENT_DAEMONSET_PATH = os.environ.get("AGENT_DAEMONSET_PATH", os.path.join(AGENT_YAMLS_DIR, "daemonset.yaml"))
 AGENT_SERVICEACCOUNT_PATH = os.environ.get("AGENT_SERVICEACCOUNT_PATH", os.path.join(AGENT_YAMLS_DIR, "serviceaccount.yaml"))
-K8S_CREATE_TIMEOUT = 600
+K8S_CREATE_TIMEOUT = 180
 K8S_DELETE_TIMEOUT = 10
 
 def run_k8s_monitors_test(agent_image, minikube, monitors, observer=None, namespace="default", yamls=[], yamls_timeout=K8S_CREATE_TIMEOUT, expected_metrics=set(), expected_dims=set(), passwords=["testing123"], test_timeout=60):
@@ -506,12 +505,12 @@ def get_all_logs(minikube):
         (agent_status, agent_container_logs, minikube_logs, minikube_container_logs, pods_status)
 
 
-def has_docker_image(client, name_or_id, tag=None):
+def has_docker_image(client, name, tag=None):
     try:
         if tag:
-            client.images.get(name_or_id + ":" + tag)
+            client.images.get(name + ":" + tag)
         else:
-            client.images.get(name_or_id)
+            client.images.get(name)
         return True
     except docker.errors.ImageNotFound:
         return False
@@ -533,12 +532,8 @@ def container_is_running(client, name):
             raise
 
 def pod_port_open(container, host, port):
-    try:
-        rc, _ = container.exec_run("nc -z %s %d" % (host, port))
-        return rc == 0
-    except ConnectionError as e:
-        print("exception caught: %s" % str(e))
-        return False
+    rc, _ = container.exec_run("nc -z %s %d" % (host, port))
+    return rc == 0
 
 
 def get_free_port():
