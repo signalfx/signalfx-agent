@@ -473,11 +473,11 @@ workflows:
 #     - lint
 #     - vet
 #     - gotests
-     - integration_tests:
-     - k8s_v1.10.0_integration_tests:
-     - k8s_v1.9.0_integration_tests:
-     - k8s_v1.8.0_integration_tests:
-     - k8s_v1.7.0_integration_tests:
+     - integration_tests
+     - k8s_v1.10.0_integration_tests
+     - k8s_v1.9.0_integration_tests
+     - k8s_v1.8.0_integration_tests
+     - k8s_v1.7.0_integration_tests
 #     - docs_test
 #     - installer_tests
 #     - rpm_package_tests
