@@ -167,14 +167,16 @@ jobs:
           docker rm -fv $cid
           export AGENT_BIN=$(pwd)/bundle/bin/signalfx-agent
           export TEST_SERVICES_DIR=$(pwd)/test-services
-          sudo -E pytest \
-              --verbose \
-              -n 4 \
-              --junitxml=~/testresults/integration_tests.xml \
-              --html=~/testresults/integration_tests.html \
-              --self-contained-html \
-              -m "not packaging and not installer and not k8s" \
-              tests
+          for ((i=0; i<10; i++)); do
+              sudo -E pytest \
+                  --verbose \
+                  -n 4 \
+                  --junitxml=~/testresults/integration_tests.xml \
+                  --html=~/testresults/integration_tests.html \
+                  --self-contained-html \
+                  -m "not packaging and not installer and not k8s" \
+                  tests
+          done
       - store_test_results:
           path: ~/testresults
       - store_artifacts:
@@ -264,14 +266,16 @@ jobs:
             fi
             mkdir /tmp/scratch
             mkdir ~/testresults
-            pytest \
-                -n auto \
-                -m "installer" \
-                --verbose \
-                --junitxml=~/testresults/installer.xml \
-                --html=~/testresults/installer.html \
-                --self-contained-html \
-                ./tests/packaging/
+            for ((i=0; i<10; i++)); do
+                pytest \
+                    -n auto \
+                    -m "installer" \
+                    --verbose \
+                    --junitxml=~/testresults/installer.xml \
+                    --html=~/testresults/installer.html \
+                    --self-contained-html \
+                    ./tests/packaging/
+            done
 
       - store_test_results:
           path: ~/testresults
@@ -301,14 +305,16 @@ jobs:
             fi
             mkdir /tmp/scratch
             mkdir ~/testresults
-            pytest \
-                -n auto \
-                -m "rpm" \
-                --verbose \
-                --junitxml=~/testresults/rpm.xml \
-                --html=~/testresults/rpm.html \
-                --self-contained-html \
-                ./tests/packaging
+            for ((i=0; i<10; i++)); do
+                pytest \
+                    -n auto \
+                    -m "rpm" \
+                    --verbose \
+                    --junitxml=~/testresults/rpm.xml \
+                    --html=~/testresults/rpm.html \
+                    --self-contained-html \
+                    ./tests/packaging
+            done
 
       - store_test_results:
           path: ~/testresults
@@ -342,14 +348,16 @@ jobs:
             fi
             mkdir ~/testresults
             mkdir /tmp/scratch
-            pytest \
-                -n auto \
-                -m "deb" \
-                --verbose \
-                --junitxml=~/testresults/deb.xml \
-                --html=~/testresults/deb.html \
-                --self-contained-html \
-                ./tests/packaging
+            for ((i=0; i<10; i++)); do
+                pytest \
+                    -n auto \
+                    -m "deb" \
+                    --verbose \
+                    --junitxml=~/testresults/deb.xml \
+                    --html=~/testresults/deb.html \
+                    --self-contained-html \
+                    ./tests/packaging
+            done
 
       - store_test_results:
           path: ~/testresults
