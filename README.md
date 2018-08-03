@@ -242,8 +242,24 @@ agent.
 
 To use an HTTP(S) proxy, set the environment variable `HTTP_PROXY` and/or
 `HTTPS_PROXY` in the container configuration to proxy either protocol.  The
-SignalFx ingest and API servers both use HTTPS.  The agent will automatically
-manipulate the `NO_PROXY` envvar to not use the proxy for local services.
+SignalFx ingest and API servers both use HTTPS.  If the `NO_PROXY` envvar
+exists, the agent will automatically append the local services to the envvar to
+not use the proxy.
+
+If the agent is running as a local service on the host, refer to the host's 
+service management documentation for how to pass environment variables to the
+agent service in order to enable proxy support when the agent service is started.  
+
+For example, if the host services are managed by systemd, create the 
+`/etc/systemd/system/signalfx-agent.service.d/myproxy.conf` file and add the 
+following to the file:
+```
+[Service]
+Environment="HTTP_PROXY=http://proxy.example.com:8080/"
+Environment="HTTPS_PROXY=https://proxy.example.com:8081/"
+```
+Then execute `systemctl daemon-reload` and `systemctl restart signalfx-agent.service`
+to restart the agent service with proxy support.
 
 ## Diagnostics
 The agent serves diagnostic information on a UNIX domain socket at the path
