@@ -474,9 +474,9 @@ workflows:
      - k8s_v1.8.0_integration_tests
      - k8s_v1.7.0_integration_tests
 #     - docs_test
-#     - installer_tests
-#     - rpm_package_tests
-#     - deb_package_tests
+     - installer_tests
+     - rpm_package_tests
+     - deb_package_tests
 #     - chef_tests
 #     - puppet_tests
 #     - salt_tests
