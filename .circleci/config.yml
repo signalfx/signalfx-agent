@@ -156,7 +156,6 @@ jobs:
     <<: *executor
     steps:
       - *attach_workspace
-      - *import_image
       - checkout
       - *install_pytest
       - run: |
@@ -189,7 +188,6 @@ jobs:
       PYTEST_MARKERS: "k8s"
     steps:
       - *attach_workspace
-      - *import_image
       - checkout
       - *install_pytest
       - *run_k8s_integration_tests
@@ -206,7 +204,6 @@ jobs:
       PYTEST_MARKERS: "k8s"
     steps:
       - *attach_workspace
-      - *import_image
       - checkout
       - *install_pytest
       - *run_k8s_integration_tests
@@ -223,7 +220,6 @@ jobs:
       PYTEST_MARKERS: "k8s"
     steps:
       - *attach_workspace
-      - *import_image
       - checkout
       - *install_pytest
       - *run_k8s_integration_tests
@@ -240,7 +236,6 @@ jobs:
       PYTEST_MARKERS: "k8s"
     steps:
       - *attach_workspace
-      - *import_image
       - checkout
       - *install_pytest
       - *run_k8s_integration_tests
