@@ -170,7 +170,7 @@ jobs:
           for ((i=0; i<10; i++)); do
               sudo -E pytest \
                   --verbose \
-                  -n 4 \
+                  -n auto \
                   --junitxml=~/testresults/integration_tests.xml \
                   --html=~/testresults/integration_tests.html \
                   --self-contained-html \
