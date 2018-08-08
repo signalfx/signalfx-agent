@@ -63,6 +63,7 @@ references:
             docker rm -fv minikube
             if [ $rc != 0 ]; then
                 pytest \
+                    -m "$PYTEST_MARKERS" \
                     --verbose \
                     --junitxml=~/testresults/k8s_integration_tests.xml \
                     --html=~/testresults/k8s_integration_tests.html \
@@ -72,7 +73,8 @@ references:
                     --k8s-timeout=300 \
                     --k8s-test-timeout=120 \
                     --k8s-sfx-agent=quay.io/signalfx/signalfx-agent:3.4.1 \
-                    --last-failed
+                    --last-failed \
+                    tests
             fi
         done
 
@@ -198,11 +200,13 @@ jobs:
                   tests || \
               sudo -E pytest \
                   -n6 \
+                  -m "not packaging and not installer and not k8s" \
                   --verbose \
                   --junitxml=~/testresults/integration_tests.xml \
                   --html=~/testresults/integration_tests.html \
                   --self-contained-html \
-                  --last-failed
+                  --last-failed \
+                  tests
           done
       - store_test_results:
           path: ~/testresults
@@ -306,11 +310,13 @@ jobs:
                     ./tests/packaging/ || \
                 pytest \
                     -n auto \
+                    -m "installer" \
                     --verbose \
                     --junitxml=~/testresults/installer.xml \
                     --html=~/testresults/installer.html \
                     --self-contained-html \
-                    --last-failed
+                    --last-failed \
+                    ./tests/packaging/
             done
 
       - store_test_results:
@@ -354,11 +360,13 @@ jobs:
                     ./tests/packaging || \
                 pytest \
                     -n auto \
+                    -m "rpm" \
                     --verbose \
                     --junitxml=~/testresults/rpm.xml \
                     --html=~/testresults/rpm.html \
                     --self-contained-html \
-                    --last-failed
+                    --last-failed \
+                    ./tests/packaging
             done
 
       - store_test_results:
@@ -406,11 +414,13 @@ jobs:
                     ./tests/packaging || \
                 pytest \
                     -n auto \
+                    -m "deb" \
                     --verbose \
                     --junitxml=~/testresults/deb.xml \
                     --html=~/testresults/deb.html \
                     --self-contained-html \
-                    --last-failed
+                    --last-failed \
+                    ./tests/packaging
             done
 
       - store_test_results:
