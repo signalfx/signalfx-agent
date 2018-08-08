@@ -41,9 +41,10 @@ references:
     run:
       no_output_timeout: 30m
       command: |
+        set -x
         mkdir ~/testresults
         mkdir -p /tmp/scratch
-        PYTEST_OPTS="-m '$PYTEST_MARKERS' \
+        export PYTEST_OPTS="-m '$PYTEST_MARKERS' \
             --verbose \
             --junitxml=~/testresults/k8s_integration_tests.xml \
             --html=~/testresults/k8s_integration_tests.html \
@@ -59,11 +60,13 @@ references:
                 $PYTEST_OPTS \
                 -n4 \
                 tests
+            rc=$?
             docker rm -fv minikube
-            pytest \
-                $PYTEST_OPTS \
-                --last-failed \
-                --last-failed-no-failures none
+            if [ $rc != 0 ]; then
+                pytest \
+                    $PYTEST_OPTS \
+                    --last-failed
+            fi
         done
 
 jobs:
@@ -167,6 +170,7 @@ jobs:
       - checkout
       - *install_pytest
       - run: |
+          set -x
           mkdir ~/testresults
           mkdir -p /tmp/scratch
           mkdir bundle
@@ -175,7 +179,7 @@ jobs:
           docker rm -fv $cid
           export AGENT_BIN=$(pwd)/bundle/bin/signalfx-agent
           export TEST_SERVICES_DIR=$(pwd)/test-services
-          PYTEST_OPTS="-n6 \
+          export PYTEST_OPTS="-n6 \
               -m 'not packaging and not installer and not k8s' \
               --verbose \
               --junitxml=~/testresults/integration_tests.xml \
@@ -185,11 +189,10 @@ jobs:
           for ((i=0; i<10; i++)); do
               sudo -E pytest \
                   $PYTEST_OPTS \
-                  tests
+                  tests || \
               sudo -E pytest \
                   $PYTEST_OPTS \
-                  --last-failed \
-                  --last-failed-no-failures none
+                  --last-failed
           done
       - store_test_results:
           path: ~/testresults
@@ -274,13 +277,14 @@ jobs:
       - run:
           no_output_timeout: 30m
           command: |
+            set -x
             if [ -f ~/.skip ]; then
                 echo "Installer code has not changed, skipping tests!"
                 exit 0
             fi
             mkdir /tmp/scratch
             mkdir ~/testresults
-            PYTEST_OPTS="-n auto \
+            export PYTEST_OPTS="-n auto \
                 -m 'installer' \
                 --verbose \
                 --junitxml=~/testresults/installer.xml \
@@ -290,11 +294,10 @@ jobs:
             for ((i=0; i<10; i++)); do
                 pytest \
                     $PYTEST_OPTS \
-                    ./tests/packaging/
+                    ./tests/packaging/ ||
                 pytest \
                     $PYTEST_OPTS \
-                    --last-failed \
-                    --last-failed-no-failures none
+                    --last-failed
             done
 
       - store_test_results:
@@ -319,13 +322,14 @@ jobs:
       - run:
           no_output_timeout: 30m
           command: |
+            set -x
             if [ -f ~/.skip ]; then
                 echo "RPM packaging code has not changed, skipping tests!"
                 exit 0
             fi
             mkdir /tmp/scratch
             mkdir ~/testresults
-            PYTEST_OPTS="-n auto \
+            export PYTEST_OPTS="-n auto \
                 -m 'rpm' \
                 --verbose \
                 --junitxml=~/testresults/rpm.xml \
@@ -335,11 +339,10 @@ jobs:
             for ((i=0; i<10; i++)); do
                 pytest \
                     $PYTEST_OPTS \
-                    ./tests/packaging
+                    ./tests/packaging ||
                 pytest \
                     $PYTEST_OPTS \
-                    --last-failed \
-                    --last-failed-no-failures none
+                    --last-failed
             done
 
       - store_test_results:
@@ -368,13 +371,14 @@ jobs:
       - run:
           no_output_timeout: 30m
           command: |
+            set -x
             if [ -f ~/.skip ]; then
                 echo "Debian packaging code has not changed, skipping tests!"
                 exit 0
             fi
             mkdir ~/testresults
             mkdir /tmp/scratch
-            PYTEST_OPTS="-n auto \
+            export PYTEST_OPTS="-n auto \
                 -m 'deb' \
                 --verbose \
                 --junitxml=~/testresults/deb.xml \
@@ -384,11 +388,10 @@ jobs:
             for ((i=0; i<10; i++)); do
                 pytest \
                     $PYTEST_OPTS \
-                    ./tests/packaging
+                    ./tests/packaging || \
                 pytest \
                     $PYTEST_OPTS \
-                    --last-failed \
-                    --last-failed-no-failures none
+                    --last-failed
             done
 
       - store_test_results:
