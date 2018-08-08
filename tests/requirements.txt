@@ -10,3 +10,4 @@ pytest-html
 semver==2.8.0
 redis==2.10.6
 requests==2.19.1
+pytest-rerunfailures==4.1
