@@ -75,6 +75,7 @@ references:
                     --k8s-sfx-agent=quay.io/signalfx/signalfx-agent:3.4.1 \
                     --last-failed \
                     tests
+                exit $?
             fi
         done
 
@@ -188,24 +189,15 @@ jobs:
           docker rm -fv $cid
           export AGENT_BIN=$(pwd)/bundle/bin/signalfx-agent
           export TEST_SERVICES_DIR=$(pwd)/test-services
-          set +e
           for ((i=0; i<10; i++)); do
               sudo -E pytest \
                   -n6 \
                   -m "not packaging and not installer and not k8s" \
+                  --reruns=3 \
                   --verbose \
                   --junitxml=~/testresults/integration_tests.xml \
                   --html=~/testresults/integration_tests.html \
                   --self-contained-html \
-                  tests || \
-              sudo -E pytest \
-                  -n6 \
-                  -m "not packaging and not installer and not k8s" \
-                  --verbose \
-                  --junitxml=~/testresults/integration_tests.xml \
-                  --html=~/testresults/integration_tests.html \
-                  --self-contained-html \
-                  --last-failed \
                   tests
           done
       - store_test_results:
@@ -298,24 +290,15 @@ jobs:
             fi
             mkdir /tmp/scratch
             mkdir ~/testresults
-            set +e
             for ((i=0; i<10; i++)); do
                 pytest \
                     -n auto \
                     -m "installer" \
+                    --reruns=3 \
                     --verbose \
                     --junitxml=~/testresults/installer.xml \
                     --html=~/testresults/installer.html \
                     --self-contained-html \
-                    ./tests/packaging/ || \
-                pytest \
-                    -n auto \
-                    -m "installer" \
-                    --verbose \
-                    --junitxml=~/testresults/installer.xml \
-                    --html=~/testresults/installer.html \
-                    --self-contained-html \
-                    --last-failed \
                     ./tests/packaging/
             done
 
@@ -348,24 +331,15 @@ jobs:
             fi
             mkdir /tmp/scratch
             mkdir ~/testresults
-            set +e
             for ((i=0; i<10; i++)); do
                 pytest \
                     -n auto \
                     -m "rpm" \
+                    --reruns=3 \
                     --verbose \
                     --junitxml=~/testresults/rpm.xml \
                     --html=~/testresults/rpm.html \
                     --self-contained-html \
-                    ./tests/packaging || \
-                pytest \
-                    -n auto \
-                    -m "rpm" \
-                    --verbose \
-                    --junitxml=~/testresults/rpm.xml \
-                    --html=~/testresults/rpm.html \
-                    --self-contained-html \
-                    --last-failed \
                     ./tests/packaging
             done
 
@@ -402,24 +376,15 @@ jobs:
             fi
             mkdir ~/testresults
             mkdir /tmp/scratch
-            set +e
             for ((i=0; i<10; i++)); do
                 pytest \
                     -n auto \
                     -m "deb" \
+                    --reruns=3 \
                     --verbose \
                     --junitxml=~/testresults/deb.xml \
                     --html=~/testresults/deb.html \
                     --self-contained-html \
-                    ./tests/packaging || \
-                pytest \
-                    -n auto \
-                    -m "deb" \
-                    --verbose \
-                    --junitxml=~/testresults/deb.xml \
-                    --html=~/testresults/deb.html \
-                    --self-contained-html \
-                    --last-failed \
                     ./tests/packaging
             done
 
