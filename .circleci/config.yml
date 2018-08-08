@@ -44,13 +44,13 @@ references:
         set -x
         mkdir ~/testresults
         mkdir -p /tmp/scratch
-        export PYTEST_OPTS="-m '$PYTEST_MARKERS' \
+        export PYTEST_OPTS="-m \"$PYTEST_MARKERS\" \
             --verbose \
             --junitxml=~/testresults/k8s_integration_tests.xml \
             --html=~/testresults/k8s_integration_tests.html \
             --self-contained-html \
-            --k8s-version='$K8S_VERSION' \
-            --k8s-observers='$K8S_OBSERVERS' \
+            --k8s-version=\"$K8S_VERSION\" \
+            --k8s-observers=\"$K8S_OBSERVERS\" \
             --k8s-timeout=300 \
             --k8s-test-timeout=120 \
             --k8s-sfx-agent=quay.io/signalfx/signalfx-agent:3.4.1"
@@ -180,7 +180,7 @@ jobs:
           export AGENT_BIN=$(pwd)/bundle/bin/signalfx-agent
           export TEST_SERVICES_DIR=$(pwd)/test-services
           export PYTEST_OPTS="-n6 \
-              -m 'not packaging and not installer and not k8s' \
+              -m \"not packaging and not installer and not k8s\" \
               --verbose \
               --junitxml=~/testresults/integration_tests.xml \
               --html=~/testresults/integration_tests.html \
@@ -285,7 +285,7 @@ jobs:
             mkdir /tmp/scratch
             mkdir ~/testresults
             export PYTEST_OPTS="-n auto \
-                -m 'installer' \
+                -m \"installer\" \
                 --verbose \
                 --junitxml=~/testresults/installer.xml \
                 --html=~/testresults/installer.html \
@@ -330,7 +330,7 @@ jobs:
             mkdir /tmp/scratch
             mkdir ~/testresults
             export PYTEST_OPTS="-n auto \
-                -m 'rpm' \
+                -m \"rpm\" \
                 --verbose \
                 --junitxml=~/testresults/rpm.xml \
                 --html=~/testresults/rpm.html \
@@ -379,7 +379,7 @@ jobs:
             mkdir ~/testresults
             mkdir /tmp/scratch
             export PYTEST_OPTS="-n auto \
-                -m 'deb' \
+                -m \"deb\" \
                 --verbose \
                 --junitxml=~/testresults/deb.xml \
                 --html=~/testresults/deb.html \
