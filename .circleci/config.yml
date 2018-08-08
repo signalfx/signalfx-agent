@@ -169,12 +169,13 @@ jobs:
           export AGENT_BIN=$(pwd)/bundle/bin/signalfx-agent
           export TEST_SERVICES_DIR=$(pwd)/test-services
           sudo -E pytest \
+              -n4 \
+              -m "not packaging and not installer and not k8s" \
+              --reruns=3 \
               --verbose \
-              -n 4 \
               --junitxml=~/testresults/integration_tests.xml \
               --html=~/testresults/integration_tests.html \
               --self-contained-html \
-              -m "not packaging and not installer and not k8s" \
               tests
       - store_test_results:
           path: ~/testresults
@@ -272,6 +273,7 @@ jobs:
             pytest \
                 -n auto \
                 -m "installer" \
+                --reruns=3 \
                 --verbose \
                 --junitxml=~/testresults/installer.xml \
                 --html=~/testresults/installer.html \
@@ -309,6 +311,7 @@ jobs:
             pytest \
                 -n auto \
                 -m "rpm" \
+                --reruns=3 \
                 --verbose \
                 --junitxml=~/testresults/rpm.xml \
                 --html=~/testresults/rpm.html \
@@ -350,6 +353,7 @@ jobs:
             pytest \
                 -n auto \
                 -m "deb" \
+                --reruns=3 \
                 --verbose \
                 --junitxml=~/testresults/deb.xml \
                 --html=~/testresults/deb.html \
