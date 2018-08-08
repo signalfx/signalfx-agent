@@ -44,27 +44,34 @@ references:
         set -x
         mkdir ~/testresults
         mkdir -p /tmp/scratch
-        export PYTEST_OPTS="-m \"$PYTEST_MARKERS\" \
-            --verbose \
-            --junitxml=~/testresults/k8s_integration_tests.xml \
-            --html=~/testresults/k8s_integration_tests.html \
-            --self-contained-html \
-            --k8s-version=\"$K8S_VERSION\" \
-            --k8s-observers=\"$K8S_OBSERVERS\" \
-            --k8s-timeout=300 \
-            --k8s-test-timeout=120 \
-            --k8s-sfx-agent=quay.io/signalfx/signalfx-agent:3.4.1"
         set +e
         for ((i=0; i<10; i++)); do
             pytest \
-                $PYTEST_OPTS \
                 -n4 \
+                -m "$PYTEST_MARKERS" \
+                --verbose \
+                --junitxml=~/testresults/k8s_integration_tests.xml \
+                --html=~/testresults/k8s_integration_tests.html \
+                --self-contained-html \
+                --k8s-version="$K8S_VERSION" \
+                --k8s-observers="$K8S_OBSERVERS" \
+                --k8s-timeout=300 \
+                --k8s-test-timeout=120 \
+                --k8s-sfx-agent=quay.io/signalfx/signalfx-agent:3.4.1 \
                 tests
             rc=$?
             docker rm -fv minikube
             if [ $rc != 0 ]; then
                 pytest \
-                    $PYTEST_OPTS \
+                    --verbose \
+                    --junitxml=~/testresults/k8s_integration_tests.xml \
+                    --html=~/testresults/k8s_integration_tests.html \
+                    --self-contained-html \
+                    --k8s-version="$K8S_VERSION" \
+                    --k8s-observers="$K8S_OBSERVERS" \
+                    --k8s-timeout=300 \
+                    --k8s-test-timeout=120 \
+                    --k8s-sfx-agent=quay.io/signalfx/signalfx-agent:3.4.1 \
                     --last-failed
             fi
         done
@@ -179,19 +186,22 @@ jobs:
           docker rm -fv $cid
           export AGENT_BIN=$(pwd)/bundle/bin/signalfx-agent
           export TEST_SERVICES_DIR=$(pwd)/test-services
-          export PYTEST_OPTS="-n6 \
-              -m \"not packaging and not installer and not k8s\" \
-              --verbose \
-              --junitxml=~/testresults/integration_tests.xml \
-              --html=~/testresults/integration_tests.html \
-              --self-contained-html"
           set +e
           for ((i=0; i<10; i++)); do
               sudo -E pytest \
-                  $PYTEST_OPTS \
+                  -n6 \
+                  -m "not packaging and not installer and not k8s" \
+                  --verbose \
+                  --junitxml=~/testresults/integration_tests.xml \
+                  --html=~/testresults/integration_tests.html \
+                  --self-contained-html \
                   tests || \
               sudo -E pytest \
-                  $PYTEST_OPTS \
+                  -n6 \
+                  --verbose \
+                  --junitxml=~/testresults/integration_tests.xml \
+                  --html=~/testresults/integration_tests.html \
+                  --self-contained-html \
                   --last-failed
           done
       - store_test_results:
@@ -284,19 +294,22 @@ jobs:
             fi
             mkdir /tmp/scratch
             mkdir ~/testresults
-            export PYTEST_OPTS="-n auto \
-                -m \"installer\" \
-                --verbose \
-                --junitxml=~/testresults/installer.xml \
-                --html=~/testresults/installer.html \
-                --self-contained-html"
             set +e
             for ((i=0; i<10; i++)); do
                 pytest \
-                    $PYTEST_OPTS \
-                    ./tests/packaging/ ||
+                    -n auto \
+                    -m "installer" \
+                    --verbose \
+                    --junitxml=~/testresults/installer.xml \
+                    --html=~/testresults/installer.html \
+                    --self-contained-html \
+                    ./tests/packaging/ || \
                 pytest \
-                    $PYTEST_OPTS \
+                    -n auto \
+                    --verbose \
+                    --junitxml=~/testresults/installer.xml \
+                    --html=~/testresults/installer.html \
+                    --self-contained-html \
                     --last-failed
             done
 
@@ -329,19 +342,22 @@ jobs:
             fi
             mkdir /tmp/scratch
             mkdir ~/testresults
-            export PYTEST_OPTS="-n auto \
-                -m \"rpm\" \
-                --verbose \
-                --junitxml=~/testresults/rpm.xml \
-                --html=~/testresults/rpm.html \
-                --self-contained-html"
             set +e
             for ((i=0; i<10; i++)); do
                 pytest \
-                    $PYTEST_OPTS \
-                    ./tests/packaging ||
+                    -n auto \
+                    -m "rpm" \
+                    --verbose \
+                    --junitxml=~/testresults/rpm.xml \
+                    --html=~/testresults/rpm.html \
+                    --self-contained-html \
+                    ./tests/packaging || \
                 pytest \
-                    $PYTEST_OPTS \
+                    -n auto \
+                    --verbose \
+                    --junitxml=~/testresults/rpm.xml \
+                    --html=~/testresults/rpm.html \
+                    --self-contained-html \
                     --last-failed
             done
 
@@ -378,19 +394,22 @@ jobs:
             fi
             mkdir ~/testresults
             mkdir /tmp/scratch
-            export PYTEST_OPTS="-n auto \
-                -m \"deb\" \
-                --verbose \
-                --junitxml=~/testresults/deb.xml \
-                --html=~/testresults/deb.html \
-                --self-contained-html"
             set +e
             for ((i=0; i<10; i++)); do
                 pytest \
-                    $PYTEST_OPTS \
+                    -n auto \
+                    -m "deb" \
+                    --verbose \
+                    --junitxml=~/testresults/deb.xml \
+                    --html=~/testresults/deb.html \
+                    --self-contained-html \
                     ./tests/packaging || \
                 pytest \
-                    $PYTEST_OPTS \
+                    -n auto \
+                    --verbose \
+                    --junitxml=~/testresults/deb.xml \
+                    --html=~/testresults/deb.html \
+                    --self-contained-html \
                     --last-failed
             done
 
