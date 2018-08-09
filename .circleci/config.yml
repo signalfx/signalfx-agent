@@ -64,7 +64,14 @@ references:
         if [ $rc -ne 0 ]; then
             docker rm -fv minikube
             mv -f tests/monitors/activemq/activemq_test.py.orig tests/monitors/activemq/activemq_test.py
+            nfailed=$(grep 'true' .pytest_cache/v/cache/lastfailed | wc -l)
+            if [ $nfailed -gt 4 ]; then
+                nworkers=4
+            else
+                nworkers=$nfailed
+            fi
             pytest \
+                -n $nworkers \
                 -m "$PYTEST_MARKERS" \
                 --verbose \
                 --junitxml=~/testresults/k8s_integration_tests_reruns.xml \
