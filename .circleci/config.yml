@@ -46,6 +46,8 @@ references:
         mkdir -p /tmp/scratch
         set +e
         for ((i=0; i<10; i++)); do
+            cp -f tests/monitors/activemq/activemq_test.py tests/monitors/activemq/activemq_test.py.orig
+            echo '    assert False' >> tests/monitors/activemq/activemq_test.py
             pytest \
                 -n4 \
                 -m "$PYTEST_MARKERS" \
@@ -62,11 +64,12 @@ references:
             rc=$?
             docker rm -fv minikube
             if [ $rc != 0 ]; then
+                mv -f tests/monitors/activemq/activemq_test.py.orig tests/monitors/activemq/activemq_test.py
                 pytest \
                     -m "$PYTEST_MARKERS" \
                     --verbose \
-                    --junitxml=~/testresults/k8s_integration_tests.xml \
-                    --html=~/testresults/k8s_integration_tests.html \
+                    --junitxml=~/testresults/k8s_integration_tests_reruns.xml \
+                    --html=~/testresults/k8s_integration_tests_reruns.html \
                     --self-contained-html \
                     --k8s-version="$K8S_VERSION" \
                     --k8s-observers="$K8S_OBSERVERS" \
@@ -219,7 +222,7 @@ jobs:
       - store_test_results:
           path: ~/testresults
       - store_artifacts:
-          path: ~/testresults/k8s_integration_tests.html
+          path: ~/testresults
 
   k8s_v1.9.0_integration_tests:
     <<: *executor
@@ -235,7 +238,7 @@ jobs:
       - store_test_results:
           path: ~/testresults
       - store_artifacts:
-          path: ~/testresults/k8s_integration_tests.html
+          path: ~/testresults
 
   k8s_v1.8.0_integration_tests:
     <<: *executor
@@ -251,7 +254,7 @@ jobs:
       - store_test_results:
           path: ~/testresults
       - store_artifacts:
-          path: ~/testresults/k8s_integration_tests.html
+          path: ~/testresults
 
   k8s_v1.7.0_integration_tests:
     <<: *executor
@@ -267,7 +270,7 @@ jobs:
       - store_test_results:
           path: ~/testresults
       - store_artifacts:
-          path: ~/testresults/k8s_integration_tests.html
+          path: ~/testresults
 
   installer_tests:
     <<: *executor
