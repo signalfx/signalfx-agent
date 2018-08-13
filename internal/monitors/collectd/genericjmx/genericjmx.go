@@ -32,7 +32,9 @@ type Config struct {
 	// Host to connect to -- JMX must be configured for remote access and
 	// accessible from the agent
 	Host string `yaml:"host" validate:"required"`
-	// JMX RMI port on the host
+	// JMX connection port (NOT the RMI port) on the application.  This
+	// correponds to the `com.sun.management.jmxremote.port` Java property that
+	// should be set on the JVM when running the application.
 	Port uint16 `yaml:"port" validate:"required"`
 	Name string `yaml:"name"`
 
