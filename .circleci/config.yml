@@ -295,7 +295,7 @@ jobs:
             mkdir /tmp/scratch
             mkdir ~/testresults
             pytest \
-                -n auto \
+                -n 4 \
                 -m "installer" \
                 --reruns=3 \
                 --verbose \
@@ -334,7 +334,7 @@ jobs:
             mkdir /tmp/scratch
             mkdir ~/testresults
             pytest \
-                -n auto \
+                -n 4 \
                 -m "rpm" \
                 --reruns=3 \
                 --verbose \
@@ -377,7 +377,7 @@ jobs:
             mkdir ~/testresults
             mkdir /tmp/scratch
             pytest \
-                -n auto \
+                -n 4 \
                 -m "deb" \
                 --reruns=3 \
                 --verbose \
