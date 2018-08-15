@@ -23,6 +23,6 @@ function test() {
 }
 
 function vet() {
-    go vet ./... 2>&1 | Select-String -Pattern "\.go" | Select-String -NotMatch -Pattern "_test\.go"
-    if ($lastexitcode -ne 0){ exit $lastexitcode }
+    go vet ./... 2>&1 | Select-String -Pattern "\.go" | Select-String -NotMatch -Pattern "_test\.go" -outvariable gofiles
+    if ($gofiles){ exit 1 }
 }
