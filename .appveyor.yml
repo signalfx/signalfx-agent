@@ -1,11 +1,17 @@
 image: Visual Studio 2017
 version: "{build}"
+clone_folder: c:\gopath\src\github.com\signalfx\signalfx-agent
 environment:
-  GOPATH: c:\go
   AGENT_VERSION: 3.4.1
+  GOPATH: c:\gopath
 install:
-  - ps: go get -t ./...
-  - ps: go get github.com/golang/lint/golint
+  - go get -t ./...
+  - go get github.com/golang/lint/golint
+  - echo %PATH%
+  - echo %GOPATH%
+  - set PATH=%GOPATH%\bin;c:\go\bin;%PATH%
+  - go version
+  - go env
 before_build:
   - ps: "& { . $env:APPVEYOR_BUILD_FOLDER/scripts/windows/make.ps1; lint }"
 build_script:
