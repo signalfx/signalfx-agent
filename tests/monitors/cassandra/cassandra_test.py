@@ -26,6 +26,7 @@ monitors:
     password: cassandra
 """)
 
+@pytest.mark.flaky(reruns=2)
 def test_cassandra():
     with run_service("cassandra") as cassandra_cont:
         config = cassandra_config.substitute(host=container_ip(cassandra_cont))

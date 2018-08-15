@@ -15,6 +15,7 @@ monitors:
 """)
 
 
+@pytest.mark.flaky(reruns=2)
 @pytest.mark.parametrize("marathon_image", [
     "mesosphere/marathon:v1.1.1",
     "mesosphere/marathon:v1.6.352"
