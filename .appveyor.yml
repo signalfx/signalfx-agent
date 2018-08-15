@@ -1,8 +1,11 @@
 image: Visual Studio 2017
 environment:
-  AGENT_VERSION: 3.4.1
+  - AGENT_VERSION: 3.4.1
+before_build:
+  - ps: "& { . scripts/windows/make.ps1; lint }"
 build_script:
-- cmd: go generate ./internal/monitors/...
-- ps: "& { . scripts/windows/make.ps1; signalfx-agent $env:AGENT_VERSION }"
-test: off
+  - ps: go generate ./internal/monitors/...
+  - ps: "& { . scripts/windows/make.ps1; signalfx-agent $env:AGENT_VERSION }"
+test_script:
+  - ps: "& { . scripts/windows/make.ps1; test }"
 deploy: off
