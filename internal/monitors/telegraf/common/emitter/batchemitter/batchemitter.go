@@ -8,8 +8,8 @@ import (
 	"github.com/signalfx/signalfx-agent/internal/monitors/telegraf/common/emitter/baseemitter"
 	"github.com/signalfx/signalfx-agent/internal/monitors/telegraf/common/measurement"
 	"github.com/signalfx/signalfx-agent/internal/monitors/types"
-	log "github.com/sirupsen/logrus"
 	"github.com/signalfx/signalfx-agent/internal/utils"
+	log "github.com/sirupsen/logrus"
 )
 
 // BatchEmitter gathers a batch of telegraf measurements that can be modified
@@ -44,6 +44,7 @@ func (b *BatchEmitter) Send() {
 		b.BaseEmitter.Add(m.Measurement, m.Fields, m.Tags, m.MetricType,
 			m.OriginalMetricType, m.Timestamps...)
 	}
+	b.Measurements = b.Measurements[:0]
 	b.lock.Unlock()
 }
 
