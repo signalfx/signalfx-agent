@@ -5,7 +5,7 @@ environment:
   AGENT_VERSION: 3.4.1
   GOPATH: c:\gopath
 install:
-  - go get -t ./...
+#  - go get -t ./...
   - go get github.com/golang/lint/golint
   - echo %PATH%
   - echo %GOPATH%
