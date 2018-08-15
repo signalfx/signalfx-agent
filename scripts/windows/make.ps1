@@ -17,3 +17,7 @@ function vendor() {
 function test() {
     go test ./...
 }
+
+function vet() {
+    go vet ./...
+}
