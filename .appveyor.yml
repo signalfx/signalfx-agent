@@ -11,6 +11,7 @@ install:
   - go get github.com/golang/lint/golint
 before_build:
   - ps: "& { . $env:APPVEYOR_BUILD_FOLDER/scripts/windows/make.ps1; lint }"
+  - ps: "& { . $env:APPVEYOR_BUILD_FOLDER/scripts/windows/make.ps1; vet }"
 build_script:
   - ps: "& { . $env:APPVEYOR_BUILD_FOLDER/scripts/windows/make.ps1; signalfx-agent $env:AGENT_VERSION }"
 test_script:
