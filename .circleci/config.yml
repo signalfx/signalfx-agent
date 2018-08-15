@@ -171,7 +171,6 @@ jobs:
           sudo -E pytest \
               -n4 \
               -m "not packaging and not installer and not k8s" \
-              --reruns=3 \
               --verbose \
               --junitxml=~/testresults/integration_tests.xml \
               --html=~/testresults/integration_tests.html \
@@ -273,7 +272,6 @@ jobs:
             pytest \
                 -n auto \
                 -m "installer" \
-                --reruns=3 \
                 --verbose \
                 --junitxml=~/testresults/installer.xml \
                 --html=~/testresults/installer.html \
@@ -311,7 +309,6 @@ jobs:
             pytest \
                 -n auto \
                 -m "rpm" \
-                --reruns=3 \
                 --verbose \
                 --junitxml=~/testresults/rpm.xml \
                 --html=~/testresults/rpm.html \
@@ -353,7 +350,6 @@ jobs:
             pytest \
                 -n auto \
                 -m "deb" \
-                --reruns=3 \
                 --verbose \
                 --junitxml=~/testresults/deb.xml \
                 --html=~/testresults/deb.html \

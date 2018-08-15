@@ -58,6 +58,7 @@ def test_omitting_kafka_metrics(version="1.0.1"):
 
 versions = ["0.9.0.0", "0.10.0", "0.11.0", "1.0.0", "1.0.1", "1.1.1"]
 
+@pytest.mark.flaky(reruns=2)
 @pytest.mark.parametrize("version", versions)
 def test_all_kafka_monitors(version):
     with run_kafka(version) as kafka:

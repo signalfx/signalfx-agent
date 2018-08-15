@@ -25,6 +25,7 @@ monitors:
 """)
 
 
+@pytest.mark.flaky(reruns=2)
 @pytest.mark.parametrize("version", [
     # technically we support 1.580.3, but the scripts needed to programmatically
     # setup jenkins do not work prior to 1.651.3
