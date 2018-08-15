@@ -9,6 +9,8 @@ install:
   - go version
   - go env
   - go get github.com/golang/lint/golint
+build:
+  verbosity: minimal
 before_build:
   - ps: "& { . $env:APPVEYOR_BUILD_FOLDER/scripts/windows/make.ps1; lint }"
   - ps: "& { . $env:APPVEYOR_BUILD_FOLDER/scripts/windows/make.ps1; vet }"
