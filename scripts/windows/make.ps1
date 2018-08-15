@@ -4,20 +4,25 @@ $env:CGO_ENABLED = 0
 function signalfx-agent([string]$AGENTVERSION="") {
     $date = Get-Date -UFormat "%Y-%m-%dT%T%Z"
     go build -ldflags "-X main.Version='$AGENTVERSION' -X main.BuiltTime='$date'" -o signalfx-agent.exe github.com/signalfx/signalfx-agent/cmd/agent    
+    if ($lastexitcode -ne 0){ exit $lastexitcode }
 }
 
 function lint() {
     golint -set_exit_status ./cmd/... ./internal/...
+    if ($lastexitcode -ne 0){ exit $lastexitcode }
 }
 
 function vendor() {
     dep ensure
+    if ($lastexitcode -ne 0){ exit $lastexitcode }
 }
 
 function test() {
     go test ./...
+    if ($lastexitcode -ne 0){ exit $lastexitcode }
 }
 
 function vet() {
     go vet ./...
+    if ($lastexitcode -ne 0){ exit $lastexitcode }
 }
