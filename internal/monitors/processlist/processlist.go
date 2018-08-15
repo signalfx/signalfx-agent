@@ -7,6 +7,7 @@ import (
 	"encoding/base64"
 	"fmt"
 	"math"
+	"runtime"
 	"time"
 
 	"github.com/signalfx/golib/event"
@@ -67,6 +68,10 @@ type Monitor struct {
 
 // Configure configures the monitor and starts collecting on the configured interval
 func (m *Monitor) Configure(conf *Config) error {
+	if runtime.GOOS != "windows" {
+		return fmt.Errorf("currently this monitor only supports windows")
+	}
+
 	// create contexts for managing the the plugin loop
 	var ctx context.Context
 	ctx, m.cancel = context.WithCancel(context.Background())
