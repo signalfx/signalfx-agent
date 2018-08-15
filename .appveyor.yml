@@ -1,0 +1,21 @@
+image: Visual Studio 2017
+version: "{build}"
+clone_folder: c:\gopath\src\github.com\signalfx\signalfx-agent
+environment:
+  AGENT_VERSION: 3.4.1
+  GOPATH: c:\gopath
+install:
+  - set PATH=%GOPATH%\bin;c:\go\bin;%PATH%
+  - go version
+  - go env
+  - go get github.com/golang/lint/golint
+build:
+  verbosity: minimal
+before_build:
+  - ps: "& { . $env:APPVEYOR_BUILD_FOLDER/scripts/windows/make.ps1; lint }"
+  - ps: "& { . $env:APPVEYOR_BUILD_FOLDER/scripts/windows/make.ps1; vet }"
+build_script:
+  - ps: "& { . $env:APPVEYOR_BUILD_FOLDER/scripts/windows/make.ps1; signalfx-agent $env:AGENT_VERSION }"
+test_script:
+  - ps: "& { . $env:APPVEYOR_BUILD_FOLDER/scripts/windows/make.ps1; test }"
+deploy: off
