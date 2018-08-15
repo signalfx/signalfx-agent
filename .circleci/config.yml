@@ -41,12 +41,13 @@ references:
     run:
       no_output_timeout: 30m
       command: |
+        set -x
         mkdir ~/testresults
         mkdir -p /tmp/scratch
+        set +e
         pytest \
             -n4 \
             -m "$PYTEST_MARKERS" \
-            --exitfirst \
             --verbose \
             --junitxml=~/testresults/k8s_integration_tests.xml \
             --html=~/testresults/k8s_integration_tests.html \
@@ -55,8 +56,34 @@ references:
             --k8s-observers="$K8S_OBSERVERS" \
             --k8s-timeout=300 \
             --k8s-test-timeout=120 \
-            --k8s-sfx-agent=quay.io/signalfx/signalfx-agent-dev:latest \
+            --k8s-sfx-agent=quay.io/signalfx/signalfx-agent:3.4.1 \
             tests
+        rc=$?
+        [ -f .pytest_cache/v/cache/lastfailed ] || exit $rc
+        nfailed=$(grep 'true' .pytest_cache/v/cache/lastfailed | wc -l)
+        if [ $nfailed -eq 0 ]; then
+            exit $rc
+        elif [ $nfailed -gt 4 ]; then
+            nworkers=4
+        else
+            nworkers=$nfailed
+        fi
+        docker rm -fv minikube
+        pytest \
+            -n $nworkers \
+            -m "$PYTEST_MARKERS" \
+            --verbose \
+            --junitxml=~/testresults/k8s_integration_tests_reruns.xml \
+            --html=~/testresults/k8s_integration_tests_reruns.html \
+            --self-contained-html \
+            --k8s-version="$K8S_VERSION" \
+            --k8s-observers="$K8S_OBSERVERS" \
+            --k8s-timeout=300 \
+            --k8s-test-timeout=120 \
+            --k8s-sfx-agent=quay.io/signalfx/signalfx-agent:3.4.1 \
+            --last-failed \
+            tests
+        exit $?
 
 jobs:
   build:
@@ -156,25 +183,26 @@ jobs:
     <<: *executor
     steps:
       - *attach_workspace
-      - *import_image
       - checkout
       - *install_pytest
       - run: |
+          set -x
           mkdir ~/testresults
           mkdir -p /tmp/scratch
           mkdir bundle
-          cid=$(docker create quay.io/signalfx/signalfx-agent-dev:latest true)
+          cid=$(docker create quay.io/signalfx/signalfx-agent:3.4.1 true)
           docker export $cid | tar -C $(pwd)/bundle/ -xf -
           docker rm -fv $cid
           export AGENT_BIN=$(pwd)/bundle/bin/signalfx-agent
           export TEST_SERVICES_DIR=$(pwd)/test-services
           sudo -E pytest \
-              --verbose \
               -n6 \
+              -m "not packaging and not installer and not k8s" \
+              --reruns=3 \
+              --verbose \
               --junitxml=~/testresults/integration_tests.xml \
               --html=~/testresults/integration_tests.html \
               --self-contained-html \
-              -m "not packaging and not installer and not k8s" \
               tests
       - store_test_results:
           path: ~/testresults
@@ -189,14 +217,13 @@ jobs:
       PYTEST_MARKERS: "k8s"
     steps:
       - *attach_workspace
-      - *import_image
       - checkout
       - *install_pytest
       - *run_k8s_integration_tests
       - store_test_results:
           path: ~/testresults
       - store_artifacts:
-          path: ~/testresults/k8s_integration_tests.html
+          path: ~/testresults
 
   k8s_v1.9.0_integration_tests:
     <<: *executor
@@ -206,14 +233,13 @@ jobs:
       PYTEST_MARKERS: "k8s"
     steps:
       - *attach_workspace
-      - *import_image
       - checkout
       - *install_pytest
       - *run_k8s_integration_tests
       - store_test_results:
           path: ~/testresults
       - store_artifacts:
-          path: ~/testresults/k8s_integration_tests.html
+          path: ~/testresults
 
   k8s_v1.8.0_integration_tests:
     <<: *executor
@@ -223,14 +249,13 @@ jobs:
       PYTEST_MARKERS: "k8s"
     steps:
       - *attach_workspace
-      - *import_image
       - checkout
       - *install_pytest
       - *run_k8s_integration_tests
       - store_test_results:
           path: ~/testresults
       - store_artifacts:
-          path: ~/testresults/k8s_integration_tests.html
+          path: ~/testresults
 
   k8s_v1.7.0_integration_tests:
     <<: *executor
@@ -240,14 +265,50 @@ jobs:
       PYTEST_MARKERS: "k8s"
     steps:
       - *attach_workspace
-      - *import_image
       - checkout
       - *install_pytest
       - *run_k8s_integration_tests
       - store_test_results:
           path: ~/testresults
       - store_artifacts:
-          path: ~/testresults/k8s_integration_tests.html
+          path: ~/testresults
+
+  installer_tests:
+    <<: *executor
+    steps:
+      - checkout
+      - run: |
+          if ! scripts/changes-include-dir deployments/installer tests/packaging/installer_test.py tests/packaging/common.py tests/packaging/images; then
+              echo "Installer code has not changed, skipping tests!"
+              touch ~/.skip
+              exit 0
+          fi
+      - *install_pytest
+      - run:
+          no_output_timeout: 30m
+          command: |
+            set -x
+            if [ -f ~/.skip ]; then
+                echo "Installer code has not changed, skipping tests!"
+                exit 0
+            fi
+            mkdir /tmp/scratch
+            mkdir ~/testresults
+            pytest \
+                -n 4 \
+                -m "installer" \
+                --reruns=3 \
+                --verbose \
+                --junitxml=~/testresults/installer.xml \
+                --html=~/testresults/installer.html \
+                --self-contained-html \
+                ./tests/packaging/
+
+      - store_test_results:
+          path: ~/testresults
+
+      - store_artifacts:
+          path: ~/testresults/installer.html
 
   rpm_package_tests:
     <<: *executor
@@ -265,6 +326,7 @@ jobs:
       - run:
           no_output_timeout: 30m
           command: |
+            set -x
             if [ -f ~/.skip ]; then
                 echo "RPM packaging code has not changed, skipping tests!"
                 exit 0
@@ -272,8 +334,9 @@ jobs:
             mkdir /tmp/scratch
             mkdir ~/testresults
             pytest \
-                -n auto \
+                -n 4 \
                 -m "rpm" \
+                --reruns=3 \
                 --verbose \
                 --junitxml=~/testresults/rpm.xml \
                 --html=~/testresults/rpm.html \
@@ -306,6 +369,7 @@ jobs:
       - run:
           no_output_timeout: 30m
           command: |
+            set -x
             if [ -f ~/.skip ]; then
                 echo "Debian packaging code has not changed, skipping tests!"
                 exit 0
@@ -313,8 +377,9 @@ jobs:
             mkdir ~/testresults
             mkdir /tmp/scratch
             pytest \
-                -n auto \
+                -n 4 \
                 -m "deb" \
+                --reruns=3 \
                 --verbose \
                 --junitxml=~/testresults/deb.xml \
                 --html=~/testresults/deb.html \
@@ -432,31 +497,22 @@ workflows:
   version: 2
   build_test:
     jobs:
-     - build
-     - build_dev_image
-     - build-windows
-     - lint
-     - vet
-     - gotests
-     - integration_tests:
-        requires:
-         - build
-     - k8s_v1.10.0_integration_tests:
-        requires:
-         - build
-     - k8s_v1.9.0_integration_tests:
-        requires:
-         - build
-     - k8s_v1.8.0_integration_tests:
-        requires:
-         - build
-     - k8s_v1.7.0_integration_tests:
-        requires:
-         - build
-     - docs_test
+#     - build
+#     - build_dev_image
+#     - build-windows
+#     - lint
+#     - vet
+#     - gotests
+     - integration_tests
+     - k8s_v1.10.0_integration_tests
+     - k8s_v1.9.0_integration_tests
+     - k8s_v1.8.0_integration_tests
+     - k8s_v1.7.0_integration_tests
+#     - docs_test
+     - installer_tests
      - rpm_package_tests
      - deb_package_tests
-     - chef_tests
-     - puppet_tests
-     - salt_tests
-     - ansible_tests
+#     - chef_tests
+#     - puppet_tests
+#     - salt_tests
+#     - ansible_tests

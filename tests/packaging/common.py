@@ -11,7 +11,7 @@ import threading
 import time
 
 from tests.helpers import fake_backend
-from tests.helpers.util import get_docker_client, run_container, wait_for
+from tests.helpers.util import get_docker_client, run_container, wait_for, get_host_ip
 from tests.helpers.assertions import *
 
 PROJECT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "../.."))
@@ -24,6 +24,9 @@ DOCKERFILES_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "image
 INIT_SYSV = "sysv"
 INIT_UPSTART = "upstart"
 INIT_SYSTEMD = "systemd"
+
+AGENT_YAML_PATH = "/etc/signalfx/agent.yaml"
+PIDFILE_PATH = "/var/run/signalfx-agent.pid"
 
 basic_config = """
 monitors:
@@ -156,10 +159,14 @@ def copy_file_into_container(path, container, target_path):
 
 
 @contextmanager
-def run_init_system_image(base_image):
+def run_init_system_image(base_image, with_socat=True):
     image_id = build_base_image(base_image)
     print("Image ID: %s" % image_id)
-    with fake_backend.start() as backend:
+    if with_socat:
+        backend_ip = '127.0.0.1'
+    else:
+        backend_ip = get_host_ip()
+    with fake_backend.start(ip=backend_ip) as backend:
         container_options = {
             # Init systems running in the container want permissions
             "privileged": True,
@@ -170,16 +177,35 @@ def run_init_system_image(base_image):
             "extra_hosts": {
                 # Socat will be running on localhost to forward requests to
                 # these hosts to the fake backend
-                "ingest.signalfx.com": '127.0.0.1',
-                "api.signalfx.com": '127.0.0.2',
-            },
+                "ingest.signalfx.com": backend.ingest_host,
+                "api.signalfx.com": backend.api_host,
+            }
         }
-        with run_container(image_id, wait_for_ip=False, **container_options) as cont:
-            # Proxy the backend calls through a fake HTTPS endpoint so that we
-            # don't have to change the default configuration included by the
-            # package.  The base_image used should trust the self-signed certs
-            # included in the images dir so that the agent doesn't throw TLS
-            # verification errors.
-            with socat_https_proxy(cont, backend.ingest_host, backend.ingest_port, "ingest.signalfx.com", "127.0.0.1"), \
-                 socat_https_proxy(cont, backend.api_host, backend.api_port, "api.signalfx.com", "127.0.0.2"):
+        with run_container(image_id, wait_for_ip=True, **container_options) as cont:
+            if with_socat:
+                # Proxy the backend calls through a fake HTTPS endpoint so that we
+                # don't have to change the default configuration included by the
+                # package.  The base_image used should trust the self-signed certs
+                # included in the images dir so that the agent doesn't throw TLS
+                # verification errors.
+                with socat_https_proxy(cont, backend.ingest_host, backend.ingest_port, "ingest.signalfx.com", "127.0.0.1"), \
+                     socat_https_proxy(cont, backend.api_host, backend.api_port, "api.signalfx.com", "127.0.0.2"):
+                    yield [cont, backend]
+            else:
                 yield [cont, backend]
+
+
+def is_agent_running_as_non_root(container):
+    code, output = container.exec_run("pgrep -u signalfx-agent signalfx-agent")
+    print("pgrep check: %s" % output)
+    return code == 0
+
+
+def path_exists_in_container(container, path):
+    code, _ = container.exec_run("test -e %s" % path)
+    return code == 0
+
+
+def get_container_file_content(container, path):
+    assert path_exists_in_container(container, path), "File %s does not exist!" % path
+    return container.exec_run("cat %s" % path)[1].decode('utf-8')
