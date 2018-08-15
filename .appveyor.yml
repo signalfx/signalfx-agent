@@ -2,10 +2,9 @@ image: Visual Studio 2017
 environment:
   AGENT_VERSION: 3.4.1
 before_build:
-  - ps: "& { . scripts/windows/make.ps1; lint }"
+  - ps: "& { . $env:APPVEYOR_BUILD_FOLDER/scripts/windows/make.ps1; lint }"
 build_script:
-  - ps: go generate ./internal/monitors/...
-  - ps: "& { . scripts/windows/make.ps1; signalfx-agent $env:AGENT_VERSION }"
+  - ps: "& { . $env:APPVEYOR_BUILD_FOLDER/scripts/windows/make.ps1; signalfx-agent $env:AGENT_VERSION }"
 test_script:
-  - ps: "& { . scripts/windows/make.ps1; test }"
+  - ps: "& { . $env:APPVEYOR_BUILD_FOLDER/scripts/windows/make.ps1; test }"
 deploy: off
