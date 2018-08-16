@@ -10933,6 +10933,18 @@
     },
     {
       "name": "Config",
+      "doc": " This monitor reports processlist information for Windows\nHosts.\n\nSample YAML configuration:\n\n```yaml\nmonitors:\n - type: processlist\n```\n",
+      "package": "internal/monitors/processlist",
+      "fields": [],
+      "monitorType": "processlist",
+      "acceptsEndpoints": false,
+      "singleInstance": true,
+      "dimensions": null,
+      "metrics": null,
+      "properties": null
+    },
+    {
+      "name": "Config",
       "doc": " This monitor reads metrics from a [Prometheus\nexporter](https://prometheus.io/docs/instrumenting/exporters/) endpoint.\n\nAll metric types are supported.  See\nhttps://prometheus.io/docs/concepts/metric_types/ for a description of the\nPrometheus metric types.  The conversion happens as follows:\n\n - Gauges are converted directly to SignalFx gauges\n - Counters are converted directly to SignalFx cumulative counters\n - Untyped metrics are converted directly to SignalFx gauges\n - Summary metrics are converted to three distinct metrics, where\n   `\u003cbasename\u003e` is the root name of the metric:\n   - The total count gets converted to a cumulative counter called `\u003cbasename\u003e_count`\n   - The total sum gets converted to a cumulative counter called `\u003cbasename\u003e`\n   - Each quantile value is converted to a gauge called\n     `\u003cbasename\u003e_quantile` and will include a dimension called `quantile` that\n     specifies the quantile.\n - Histogram metrics are converted to three distinct metrics, where\n   `\u003cbasename\u003e` is the root name of the metric:\n   - The total count gets converted to a cumulative counter called `\u003cbasename\u003e_count`\n   - The total sum gets converted to a cumulative counter called `\u003cbasename\u003e`\n   - Each histogram bucket is converted to a cumulative counter called\n     `\u003cbasename\u003e_bucket` and will include a dimension called `upper_bound` that\n     specifies the maximum value in that bucket.  This metric specifies the\n     number of events with a value that is less than or equal to the upper\n     bound.\n\nAll Prometheus labels will be converted directly to SignalFx dimensions.\n\nThis supports service discovery so you can set a discovery rule such as:\n\n`port \u003e= 9100 \u0026\u0026 port \u003c= 9500 \u0026\u0026 containerImage =~ \"exporter\"`\n\nassuming you are running exporters in container images that have the word\n\"exporter\" in them and fall within the standard exporter port range.  In\nK8s, you could also try matching on the container port name as defined in\nthe pod spec, which is the `name` variable in discovery rules for the\n`k8s-api` observer.\n\nFiltering can be very useful here since exporters tend to be fairly verbose.\n\nSample YAML configuration:\n\n```\nmonitors:\n - type: prometheus-exporter\n   discoveryRule: port \u003e= 9100 \u0026\u0026 port \u003c= 9500 \u0026\u0026 container_image =~ \"exporter\"\n   extraDimensions:\n     metric_source: prometheus\n   host: 127.0.0.1\n   port: 9100\n```\n",
       "package": "internal/monitors/prometheus",
       "fields": [
