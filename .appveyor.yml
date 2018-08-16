@@ -13,12 +13,12 @@ install:
 build:
   verbosity: minimal
 before_build:
-  - ps: & { . $env:APPVEYOR_BUILD_FOLDER/scripts/windows/make.ps1; lint }
-  - ps: & { . $env:APPVEYOR_BUILD_FOLDER/scripts/windows/make.ps1; vet }
+  - ps: "& { . $env:APPVEYOR_BUILD_FOLDER/scripts/windows/make.ps1; lint }"
+  - ps: "& { . $env:APPVEYOR_BUILD_FOLDER/scripts/windows/make.ps1; vet }"
 build_script:
-  - ps: & { . $env:APPVEYOR_BUILD_FOLDER/scripts/windows/make.ps1; signalfx-agent $env:AGENT_VERSION }
+  - ps: "& { . $env:APPVEYOR_BUILD_FOLDER/scripts/windows/make.ps1; signalfx-agent $env:AGENT_VERSION }"
 test_script:
-  - ps: & { . $env:APPVEYOR_BUILD_FOLDER/scripts/windows/make.ps1; $rc=test }
+  - ps: "& { . $env:APPVEYOR_BUILD_FOLDER/scripts/windows/make.ps1; $rc=test }"
   - ps: |
       $wc = New-Object 'System.Net.WebClient'
       $wc.UploadFile("https://ci.appveyor.com/api/testresults/junit/$($env:APPVEYOR_JOB_ID)", (Resolve-Path .\results.xml))
