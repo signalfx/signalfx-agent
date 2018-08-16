@@ -10,11 +10,12 @@
   version = "v2.3.0"
 
 [[projects]]
-  digest = "1:d4b3bb952a228f05d52a58f8ffc39d5edf5b8f1bd291ac82f0249ffa31c509f5"
+  digest = "1:99632bb2b4e2c066233ee9d19c1370a695ebd2be18625e31390476d356db5d8a"
   name = "github.com/Microsoft/go-winio"
   packages = ["."]
   pruneopts = "NUT"
-  revision = "ab35fc04b6365e8fcb18e6e9e41ea4a02b10b175"
+  revision = "a6d595ae73cf27a1b8fc32930668708f45ce1c85"
+  version = "v0.4.9"
 
 [[projects]]
   digest = "1:d8ebbd207f3d3266d4423ce4860c9f3794956306ded6c7ba312ecc69cdfbf04c"
@@ -674,7 +675,7 @@
   ]
   pruneopts = "NUT"
   revision = "0ffcfc901f82fc83dc98c51c25ea60c996a1c781"
-  source = "github.com/pytimer/gopsutil/net"
+  source = "github.com/pytimer/gopsutil"
 
 [[projects]]
   branch = "master"
