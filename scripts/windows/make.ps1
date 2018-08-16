@@ -20,7 +20,8 @@ function vendor() {
 function test() {
     go generate ./internal/monitors/...
     if ($lastexitcode -ne 0){ exit $lastexitcode }
-    go test -v ./... 2>&1 | go2xunit > results.xml
+    $(& go test -v ./... 2>&1; $rc=$lastexitcode) | go2xunit > results.xml
+    return $rc
 }
 
 function vet() {
