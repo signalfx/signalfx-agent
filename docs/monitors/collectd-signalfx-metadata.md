@@ -42,15 +42,28 @@ Monitor Type: `collectd/signalfx-metadata`
 This monitor emits the following metrics.  Note that configuration options may
 cause only a subset of metrics to be emitted.
 
-| Name | Type | Description |
-| ---  | ---  | ---         |
-| `cpu.utilization` | gauge | Percent of CPU used on this host. |
-| `cpu.utilization_per_core` | gauge | Percent of CPU used on each core. |
-| `disk.summary_utilization` | gauge | Percent of disk space utilized on all volumes on this host. |
-| `disk.utilization` | gauge | Percent of disk used on this volume. |
-| `disk_ops.total` | cumulative | Total number of disk read and write operations on this host. |
-| `memory.utilization` | gauge | Percent of memory in use on this host. |
-| `network.total` | cumulative | Total amount of inbound and outbound network traffic on this host, in bytes. |
+| Name | Type | Custom | Description |
+| ---  | ---  | ---    | ---         |
+| `cpu.utilization` | gauge |  | Percent of CPU used on this host. |
+| `cpu.utilization_per_core` | gauge | X | Percent of CPU used on each core. |
+| `disk.summary_utilization` | gauge | X | Percent of disk space utilized on all volumes on this host. |
+| `disk.utilization` | gauge |  | Percent of disk used on this volume. |
+| `disk_ops.total` | cumulative | X | Total number of disk read and write operations on this host. |
+| `memory.utilization` | gauge |  | Percent of memory in use on this host. |
+| `network.total` | cumulative | X | Total amount of inbound and outbound network traffic on this host, in bytes. |
+
+Custom metrics may or not be collected by this monitor by default. Check the monitor configuration to see if additional flags are required for gathering additional metrics.
+Any custom metrics above may be reported by the agent by adding a negated `metricsToExclude` to the monitor configuration, as shown below.
+```yaml 
+metricsToExclude:
+  - cpu.utilization_per_core
+  - disk.summary_utilization
+  - disk_ops.total
+  - network.total
+  negated: true
+```
+
+
 
 
 

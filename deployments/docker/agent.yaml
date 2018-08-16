@@ -31,3 +31,4 @@ monitors:
   - type: docker-container-stats
 
 metricsToExclude:
+  - {"#from": "/lib/whitelist.json", flatten: true}

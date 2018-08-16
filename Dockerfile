@@ -301,6 +301,8 @@ RUN mkdir -p /run/collectd /var/run/ &&\
 
 COPY --from=agent-builder /usr/bin/signalfx-agent /bin/signalfx-agent
 
+COPY whitelist.json /lib/whitelist.json
+
 WORKDIR /
 
 

@@ -29,14 +29,25 @@ This monitor has no configuration options.
 This monitor emits the following metrics.  Note that configuration options may
 cause only a subset of metrics to be emitted.
 
-| Name | Type | Description |
-| ---  | ---  | ---         |
-| `if_errors.rx` | cumulative | Count of receive errors on the interface |
-| `if_errors.tx` | cumulative | Count of transmit errors on the interface |
-| `if_octets.rx` | cumulative | Count of bytes (octets) received on the interface |
-| `if_octets.tx` | cumulative | Count of bytes (octets) transmitted by the interface |
-| `if_packets.rx` | cumulative | Count of packets received on the interface |
-| `if_packets.tx` | cumulative | Count of packets transmitted by the interface |
+| Name | Type | Custom | Description |
+| ---  | ---  | ---    | ---         |
+| `if_errors.rx` | cumulative |  | Count of receive errors on the interface |
+| `if_errors.tx` | cumulative |  | Count of transmit errors on the interface |
+| `if_octets.rx` | cumulative |  | Count of bytes (octets) received on the interface |
+| `if_octets.tx` | cumulative |  | Count of bytes (octets) transmitted by the interface |
+| `if_packets.rx` | cumulative | X | Count of packets received on the interface |
+| `if_packets.tx` | cumulative | X | Count of packets transmitted by the interface |
+
+Custom metrics may or not be collected by this monitor by default. Check the monitor configuration to see if additional flags are required for gathering additional metrics.
+Any custom metrics above may be reported by the agent by adding a negated `metricsToExclude` to the monitor configuration, as shown below.
+```yaml 
+metricsToExclude:
+  - if_packets.rx
+  - if_packets.tx
+  negated: true
+```
+
+
 
 
 

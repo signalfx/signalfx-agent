@@ -29,3 +29,4 @@ monitors:
   - type: collectd/vmem
 
 metricsToExclude:
+  - {"#from": "/usr/lib/signalfx-agent/lib/whitelist.json", flatten: true}

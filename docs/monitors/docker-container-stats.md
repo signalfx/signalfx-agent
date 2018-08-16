@@ -42,40 +42,75 @@ Monitor Type: `docker-container-stats`
 This monitor emits the following metrics.  Note that configuration options may
 cause only a subset of metrics to be emitted.
 
-| Name | Type | Description |
-| ---  | ---  | ---         |
-| `blkio.io_service_bytes_recursive.async` | cumulative | Volume, in bytes, of asynchronous block I/O |
-| `blkio.io_service_bytes_recursive.read` | cumulative | Volume, in bytes, of reads from block devices |
-| `blkio.io_service_bytes_recursive.sync` | cumulative | Volume, in bytes, of synchronous block I/O |
-| `blkio.io_service_bytes_recursive.total` | cumulative | Total volume, in bytes, of all block I/O |
-| `blkio.io_service_bytes_recursive.write` | cumulative | Volume, in bytes, of writes to block devices |
-| `blkio.io_serviced_recursive.async` | cumulative | Number of asynchronous block I/O requests |
-| `blkio.io_serviced_recursive.read` | cumulative | Number of reads requests from block devices |
-| `blkio.io_serviced_recursive.sync` | cumulative | Number of synchronous block I/O requests |
-| `blkio.io_serviced_recursive.total` | cumulative | Total number of block I/O requests |
-| `blkio.io_serviced_recursive.write` | cumulative | Number of write requests to block devices |
-| `cpu.percent` | gauge | Percentage of host CPU resources used by the container |
-| `cpu.percpu.usage` | cumulative | Jiffies of CPU time spent by the container, per CPU core |
-| `cpu.percpu.usage` | cumulative | Jiffies of CPU time spent by the container, per CPU core |
-| `cpu.throttling_data.periods` | cumulative | Number of periods |
-| `cpu.throttling_data.throttled_periods` | cumulative | Number of periods throttled |
-| `cpu.throttling_data.throttled_time` | cumulative | Throttling time in nano seconds |
-| `cpu.usage.kernelmode` | cumulative | Jiffies of CPU time spent in kernel mode by the container |
-| `cpu.usage.system` | cumulative | Jiffies of CPU time used by the system |
-| `cpu.usage.total` | cumulative | Jiffies of CPU time used by the container |
-| `cpu.usage.usermode` | cumulative | Jiffies of CPU time spent in user mode by the container |
-| `memory.stats.swap` | gauge | Bytes of swap memory used by container |
-| `memory.usage.limit` | gauge | Memory usage limit of the container, in bytes |
-| `memory.usage.max` | gauge | Maximum measured memory usage of the container, in bytes |
-| `memory.usage.total` | gauge | Bytes of memory used by the container |
-| `network.usage.rx_bytes` | cumulative | Bytes received by the container via its network interface |
-| `network.usage.rx_dropped` | cumulative | Number of inbound network packets dropped by the container |
-| `network.usage.rx_errors` | cumulative | Errors receiving network packets |
-| `network.usage.rx_packets` | cumulative | Network packets received by the container via its network interface |
-| `network.usage.tx_bytes` | cumulative | Bytes sent by the container via its network interface |
-| `network.usage.tx_dropped` | cumulative | Number of outbound network packets dropped by the container |
-| `network.usage.tx_errors` | cumulative | Errors sending network packets |
-| `network.usage.tx_packets` | cumulative | Network packets sent by the container via its network interface |
+| Name | Type | Custom | Description |
+| ---  | ---  | ---    | ---         |
+| `blkio.io_service_bytes_recursive.async` | cumulative | X | Volume, in bytes, of asynchronous block I/O |
+| `blkio.io_service_bytes_recursive.read` | cumulative | X | Volume, in bytes, of reads from block devices |
+| `blkio.io_service_bytes_recursive.sync` | cumulative | X | Volume, in bytes, of synchronous block I/O |
+| `blkio.io_service_bytes_recursive.total` | cumulative | X | Total volume, in bytes, of all block I/O |
+| `blkio.io_service_bytes_recursive.write` | cumulative | X | Volume, in bytes, of writes to block devices |
+| `blkio.io_serviced_recursive.async` | cumulative | X | Number of asynchronous block I/O requests |
+| `blkio.io_serviced_recursive.read` | cumulative | X | Number of reads requests from block devices |
+| `blkio.io_serviced_recursive.sync` | cumulative | X | Number of synchronous block I/O requests |
+| `blkio.io_serviced_recursive.total` | cumulative | X | Total number of block I/O requests |
+| `blkio.io_serviced_recursive.write` | cumulative | X | Number of write requests to block devices |
+| `cpu.percent` | gauge | X | Percentage of host CPU resources used by the container |
+| `cpu.percpu.usage` | cumulative | X | Jiffies of CPU time spent by the container, per CPU core |
+| `cpu.percpu.usage` | cumulative | X | Jiffies of CPU time spent by the container, per CPU core |
+| `cpu.throttling_data.periods` | cumulative | X | Number of periods |
+| `cpu.throttling_data.throttled_periods` | cumulative | X | Number of periods throttled |
+| `cpu.throttling_data.throttled_time` | cumulative | X | Throttling time in nano seconds |
+| `cpu.usage.kernelmode` | cumulative | X | Jiffies of CPU time spent in kernel mode by the container |
+| `cpu.usage.system` | cumulative |  | Jiffies of CPU time used by the system |
+| `cpu.usage.total` | cumulative |  | Jiffies of CPU time used by the container |
+| `cpu.usage.usermode` | cumulative | X | Jiffies of CPU time spent in user mode by the container |
+| `memory.stats.swap` | gauge | X | Bytes of swap memory used by container |
+| `memory.usage.limit` | gauge |  | Memory usage limit of the container, in bytes |
+| `memory.usage.max` | gauge | X | Maximum measured memory usage of the container, in bytes |
+| `memory.usage.total` | gauge |  | Bytes of memory used by the container |
+| `network.usage.rx_bytes` | cumulative |  | Bytes received by the container via its network interface |
+| `network.usage.rx_dropped` | cumulative | X | Number of inbound network packets dropped by the container |
+| `network.usage.rx_errors` | cumulative | X | Errors receiving network packets |
+| `network.usage.rx_packets` | cumulative | X | Network packets received by the container via its network interface |
+| `network.usage.tx_bytes` | cumulative |  | Bytes sent by the container via its network interface |
+| `network.usage.tx_dropped` | cumulative | X | Number of outbound network packets dropped by the container |
+| `network.usage.tx_errors` | cumulative | X | Errors sending network packets |
+| `network.usage.tx_packets` | cumulative | X | Network packets sent by the container via its network interface |
+
+Custom metrics may or not be collected by this monitor by default. Check the monitor configuration to see if additional flags are required for gathering additional metrics.
+Any custom metrics above may be reported by the agent by adding a negated `metricsToExclude` to the monitor configuration, as shown below.
+```yaml 
+metricsToExclude:
+  - blkio.io_service_bytes_recursive.async
+  - blkio.io_service_bytes_recursive.read
+  - blkio.io_service_bytes_recursive.sync
+  - blkio.io_service_bytes_recursive.total
+  - blkio.io_service_bytes_recursive.write
+  - blkio.io_serviced_recursive.async
+  - blkio.io_serviced_recursive.read
+  - blkio.io_serviced_recursive.sync
+  - blkio.io_serviced_recursive.total
+  - blkio.io_serviced_recursive.write
+  - cpu.percent
+  - cpu.percpu.usage
+  - cpu.percpu.usage
+  - cpu.throttling_data.periods
+  - cpu.throttling_data.throttled_periods
+  - cpu.throttling_data.throttled_time
+  - cpu.usage.kernelmode
+  - cpu.usage.usermode
+  - memory.stats.swap
+  - memory.usage.max
+  - network.usage.rx_dropped
+  - network.usage.rx_errors
+  - network.usage.rx_packets
+  - network.usage.tx_dropped
+  - network.usage.tx_errors
+  - network.usage.tx_packets
+  negated: true
+```
+
+
 
 
 

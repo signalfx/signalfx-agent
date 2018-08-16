@@ -62,10 +62,21 @@ The **nested** `kubernetesAPI` config object has the following fields:
 This monitor emits the following metrics.  Note that configuration options may
 cause only a subset of metrics to be emitted.
 
-| Name | Type | Description |
-| ---  | ---  | ---         |
-| `kubernetes.volume_available_bytes` | gauge | The number of available bytes in the volume |
-| `kubernetes.volume_capacity_bytes` | gauge | The total capacity in bytes of the volume |
+| Name | Type | Custom | Description |
+| ---  | ---  | ---    | ---         |
+| `kubernetes.volume_available_bytes` | gauge | X | The number of available bytes in the volume |
+| `kubernetes.volume_capacity_bytes` | gauge | X | The total capacity in bytes of the volume |
+
+Custom metrics may or not be collected by this monitor by default. Check the monitor configuration to see if additional flags are required for gathering additional metrics.
+Any custom metrics above may be reported by the agent by adding a negated `metricsToExclude` to the monitor configuration, as shown below.
+```yaml 
+metricsToExclude:
+  - kubernetes.volume_available_bytes
+  - kubernetes.volume_capacity_bytes
+  negated: true
+```
+
+
 
 ## Dimensions
 

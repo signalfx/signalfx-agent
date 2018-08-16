@@ -120,22 +120,33 @@ The **nested** `metrics` config object has the following fields:
 This monitor emits the following metrics.  Note that configuration options may
 cause only a subset of metrics to be emitted.
 
-| Name | Type | Description |
-| ---  | ---  | ---         |
-| `counter.kong.connections.accepted` | cumulative | Total number of all accepted connections. |
-| `counter.kong.connections.handled` | cumulative | Total number of all handled connections (accounting for resource limits). |
-| `counter.kong.kong.latency` | cumulative | Time spent in Kong request handling and balancer (ms). |
-| `counter.kong.requests.count` | cumulative | Total number of all requests made to Kong API and proxy server. |
-| `counter.kong.requests.latency` | cumulative | Time elapsed between the first bytes being read from each client request and the log writes after the last bytes were sent to the clients (ms). |
-| `counter.kong.requests.size` | cumulative | Total bytes received/proxied from client requests. |
-| `counter.kong.responses.count` | cumulative | Total number of responses provided to clients. |
-| `counter.kong.responses.size` | cumulative | Total bytes sent/proxied to clients. |
-| `counter.kong.upstream.latency` | cumulative | Time spent waiting for upstream response (ms). |
-| `gauge.kong.connections.active` | gauge | The current number of active client connections (includes waiting). |
-| `gauge.kong.connections.reading` | gauge | The current number of connections where nginx is reading the request header. |
-| `gauge.kong.connections.waiting` | gauge | The current number of idle client connections waiting for a request. |
-| `gauge.kong.connections.writing` | gauge | The current number of connections where nginx is writing the response back to the client. |
-| `gauge.kong.database.reachable` | gauge | kong.dao:db.reachable() at time of metric query |
+| Name | Type | Custom | Description |
+| ---  | ---  | ---    | ---         |
+| `counter.kong.connections.accepted` | cumulative | X | Total number of all accepted connections. |
+| `counter.kong.connections.handled` | cumulative | X | Total number of all handled connections (accounting for resource limits). |
+| `counter.kong.kong.latency` | cumulative |  | Time spent in Kong request handling and balancer (ms). |
+| `counter.kong.requests.count` | cumulative |  | Total number of all requests made to Kong API and proxy server. |
+| `counter.kong.requests.latency` | cumulative |  | Time elapsed between the first bytes being read from each client request and the log writes after the last bytes were sent to the clients (ms). |
+| `counter.kong.requests.size` | cumulative |  | Total bytes received/proxied from client requests. |
+| `counter.kong.responses.count` | cumulative |  | Total number of responses provided to clients. |
+| `counter.kong.responses.size` | cumulative |  | Total bytes sent/proxied to clients. |
+| `counter.kong.upstream.latency` | cumulative |  | Time spent waiting for upstream response (ms). |
+| `gauge.kong.connections.active` | gauge |  | The current number of active client connections (includes waiting). |
+| `gauge.kong.connections.reading` | gauge |  | The current number of connections where nginx is reading the request header. |
+| `gauge.kong.connections.waiting` | gauge |  | The current number of idle client connections waiting for a request. |
+| `gauge.kong.connections.writing` | gauge |  | The current number of connections where nginx is writing the response back to the client. |
+| `gauge.kong.database.reachable` | gauge |  | kong.dao:db.reachable() at time of metric query |
+
+Custom metrics may or not be collected by this monitor by default. Check the monitor configuration to see if additional flags are required for gathering additional metrics.
+Any custom metrics above may be reported by the agent by adding a negated `metricsToExclude` to the monitor configuration, as shown below.
+```yaml 
+metricsToExclude:
+  - counter.kong.connections.accepted
+  - counter.kong.connections.handled
+  negated: true
+```
+
+
 
 
 

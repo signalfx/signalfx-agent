@@ -35,21 +35,33 @@ Monitor Type: `collectd/zookeeper`
 This monitor emits the following metrics.  Note that configuration options may
 cause only a subset of metrics to be emitted.
 
-| Name | Type | Description |
-| ---  | ---  | ---         |
-| `counter.zk_packets_received` | cumulative | Count of the number of ZooKeeper packets received by a server |
-| `counter.zk_packets_sent` | cumulative | Count of the number of ZooKeeper packets sent from a server |
-| `gauge.zk_approximate_data_size` | gauge | Size of data in bytes that a ZooKeeper server has in its data tree |
-| `gauge.zk_avg_latency` | gauge | Average time in milliseconds for requests to be processed |
-| `gauge.zk_ephemerals_count` | gauge | Number of ephemeral nodes that a ZooKeeper server has in its data tree |
-| `gauge.zk_max_file_descriptor_count` | gauge | Maximum number of file descriptors that a ZooKeeper server can open |
-| `gauge.zk_max_latency` | gauge | Maximum time in milliseconds for a request to be processed |
-| `gauge.zk_min_latency` | gauge | Minimum time in milliseconds for a request to be processed |
-| `gauge.zk_num_alive_connections` | gauge | Number of active clients connected to a ZooKeeper server |
-| `gauge.zk_open_file_descriptor_count` | gauge | Number of file descriptors that a ZooKeeper server has open |
-| `gauge.zk_outstanding_requests` | gauge | Number of currently executing requests |
-| `gauge.zk_watch_count` | gauge | Number of watches placed on Z-Nodes on a ZooKeeper server |
-| `gauge.zk_znode_count` | gauge | Number of z-nodes that a ZooKeeper server has in its data tree |
+| Name | Type | Custom | Description |
+| ---  | ---  | ---    | ---         |
+| `counter.zk_packets_received` | cumulative |  | Count of the number of ZooKeeper packets received by a server |
+| `counter.zk_packets_sent` | cumulative |  | Count of the number of ZooKeeper packets sent from a server |
+| `gauge.zk_approximate_data_size` | gauge |  | Size of data in bytes that a ZooKeeper server has in its data tree |
+| `gauge.zk_avg_latency` | gauge |  | Average time in milliseconds for requests to be processed |
+| `gauge.zk_ephemerals_count` | gauge |  | Number of ephemeral nodes that a ZooKeeper server has in its data tree |
+| `gauge.zk_max_file_descriptor_count` | gauge |  | Maximum number of file descriptors that a ZooKeeper server can open |
+| `gauge.zk_max_latency` | gauge | X | Maximum time in milliseconds for a request to be processed |
+| `gauge.zk_min_latency` | gauge | X | Minimum time in milliseconds for a request to be processed |
+| `gauge.zk_num_alive_connections` | gauge |  | Number of active clients connected to a ZooKeeper server |
+| `gauge.zk_open_file_descriptor_count` | gauge |  | Number of file descriptors that a ZooKeeper server has open |
+| `gauge.zk_outstanding_requests` | gauge | X | Number of currently executing requests |
+| `gauge.zk_watch_count` | gauge |  | Number of watches placed on Z-Nodes on a ZooKeeper server |
+| `gauge.zk_znode_count` | gauge |  | Number of z-nodes that a ZooKeeper server has in its data tree |
+
+Custom metrics may or not be collected by this monitor by default. Check the monitor configuration to see if additional flags are required for gathering additional metrics.
+Any custom metrics above may be reported by the agent by adding a negated `metricsToExclude` to the monitor configuration, as shown below.
+```yaml 
+metricsToExclude:
+  - gauge.zk_max_latency
+  - gauge.zk_min_latency
+  - gauge.zk_outstanding_requests
+  negated: true
+```
+
+
 
 
 

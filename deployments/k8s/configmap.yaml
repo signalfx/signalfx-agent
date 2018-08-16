@@ -63,14 +63,6 @@ data:
         io.kubernetes.pod.name: kubernetes_pod_name
         io.kubernetes.pod.uid: kubernetes_pod_uid
         io.kubernetes.pod.namespace: kubernetes_namespace
-      metricsToExclude:
-       - metricNames:
-         - 'cpu.usage*'
-         - 'cpu.percent'
-         - 'memory.usage*'
-         - 'memory.percent'
-         - 'blkio.io_service_bytes_recursive.*'
-         negated: true
 
     - type: collectd/activemq
       discoveryRule: container_image =~ "activemq" && private_port == 1099
@@ -144,25 +136,4 @@ data:
       logLevel: info
 
     metricsToExclude:
-      - metricNames:
-        - "container_cpu_user_seconds_total"
-        - "container_cpu_system_seconds_total"
-        - "container_cpu_utilization_per_core"
-        - "container_fs_reads_total"
-        - "container_fs_sector_reads_total"
-        - "container_fs_reads_merged_total"
-        - "container_fs_read_seconds_total"
-        - "container_fs_writes_total"
-        - "container_fs_sector_writes_total"
-        - "container_fs_writes_merged_total"
-        - "container_fs_write_seconds_total"
-        - "container_fs_io_current"
-        - "container_fs_io_time_seconds_total"
-        - "container_fs_io_time_weighted_seconds_total"
-        - "container_last_seen"
-        - "container_tasks_state"
-        - "pod_network_receive_packets_total"
-        - "pod_network_receive_packets_dropped_total"
-        - "pod_network_transmit_packets_total"
-        - "pod_network_transmit_packets_dropped_total"
-        - "machine_cpu_frequency_khz"
+      - {"#from": "/lib/whitelist.json", flatten: true}

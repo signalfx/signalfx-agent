@@ -55,23 +55,42 @@ Monitor Type: `collectd/apache`
 This monitor emits the following metrics.  Note that configuration options may
 cause only a subset of metrics to be emitted.
 
-| Name | Type | Description |
-| ---  | ---  | ---         |
-| `apache_bytes` | cumulative | Bytes served by Apache |
-| `apache_connections` | gauge | Connections served by Apache |
-| `apache_idle_workers` | gauge | Apache workers that are idle |
-| `apache_requests` | cumulative | Requests served by Apache |
-| `apache_scoreboard.closing` | gauge | Number of workers in the process of closing connections |
-| `apache_scoreboard.dnslookup` | gauge | Number of workers performing DNS lookup |
-| `apache_scoreboard.finishing` | gauge | Number of workers that are finishing |
-| `apache_scoreboard.idle_cleanup` | gauge | Number of idle threads ready for cleanup |
-| `apache_scoreboard.keepalive` | gauge | Number of keep-alive connections |
-| `apache_scoreboard.logging` | gauge | Number of workers writing to log file |
-| `apache_scoreboard.open` | gauge | Number of worker thread slots that are open |
-| `apache_scoreboard.reading` | gauge | Number of workers reading requests |
-| `apache_scoreboard.sending` | gauge | Number of workers sending responses |
-| `apache_scoreboard.starting` | gauge | Number of workers starting up |
-| `apache_scoreboard.waiting` | gauge | Number of workers waiting for requests |
+| Name | Type | Custom | Description |
+| ---  | ---  | ---    | ---         |
+| `apache_bytes` | cumulative |  | Bytes served by Apache |
+| `apache_connections` | gauge |  | Connections served by Apache |
+| `apache_idle_workers` | gauge |  | Apache workers that are idle |
+| `apache_requests` | cumulative |  | Requests served by Apache |
+| `apache_scoreboard.closing` | gauge | X | Number of workers in the process of closing connections |
+| `apache_scoreboard.dnslookup` | gauge | X | Number of workers performing DNS lookup |
+| `apache_scoreboard.finishing` | gauge | X | Number of workers that are finishing |
+| `apache_scoreboard.idle_cleanup` | gauge | X | Number of idle threads ready for cleanup |
+| `apache_scoreboard.keepalive` | gauge | X | Number of keep-alive connections |
+| `apache_scoreboard.logging` | gauge | X | Number of workers writing to log file |
+| `apache_scoreboard.open` | gauge |  | Number of worker thread slots that are open |
+| `apache_scoreboard.reading` | gauge | X | Number of workers reading requests |
+| `apache_scoreboard.sending` | gauge | X | Number of workers sending responses |
+| `apache_scoreboard.starting` | gauge | X | Number of workers starting up |
+| `apache_scoreboard.waiting` | gauge | X | Number of workers waiting for requests |
+
+Custom metrics may or not be collected by this monitor by default. Check the monitor configuration to see if additional flags are required for gathering additional metrics.
+Any custom metrics above may be reported by the agent by adding a negated `metricsToExclude` to the monitor configuration, as shown below.
+```yaml 
+metricsToExclude:
+  - apache_scoreboard.closing
+  - apache_scoreboard.dnslookup
+  - apache_scoreboard.finishing
+  - apache_scoreboard.idle_cleanup
+  - apache_scoreboard.keepalive
+  - apache_scoreboard.logging
+  - apache_scoreboard.reading
+  - apache_scoreboard.sending
+  - apache_scoreboard.starting
+  - apache_scoreboard.waiting
+  negated: true
+```
+
+
 
 ## Dimensions
 

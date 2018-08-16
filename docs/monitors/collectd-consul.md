@@ -47,63 +47,93 @@ Monitor Type: `collectd/consul`
 This monitor emits the following metrics.  Note that configuration options may
 cause only a subset of metrics to be emitted.
 
-| Name | Type | Description |
-| ---  | ---  | ---         |
-| `consul.dns.stale_queries` | gauge | Number of times an agent serves a DNS query with stale information |
-| `consul.memberlist.msg.suspect` | gauge | Number of suspect messages received per interval |
-| `consul.serf.member.flap` | gauge | Tracks flapping agents |
-| `gauge.consul.catalog.nodes.total` | gauge | Number of nodes in the Consul datacenter |
-| `gauge.consul.catalog.nodes_by_service` | gauge | Number of nodes providing a given service |
-| `gauge.consul.catalog.services.total` | gauge | Total number of services registered with Consul in the given datacenter |
-| `gauge.consul.catalog.services_by_node` | gauge | Number of services registered with a node |
-| `gauge.consul.consul.dns.domain_query.AGENT.avg` | gauge | Average time to complete a forward DNS query |
-| `gauge.consul.consul.dns.domain_query.AGENT.max` | gauge | Max time to complete a forward DNS query |
-| `gauge.consul.consul.dns.domain_query.AGENT.min` | gauge | Min time to complete a forward DNS query |
-| `gauge.consul.consul.dns.ptr_query.AGENT.avg` | gauge | Average time to complete a Reverse DNS query |
-| `gauge.consul.consul.dns.ptr_query.AGENT.max` | gauge | Max time to complete a Reverse DNS query |
-| `gauge.consul.consul.dns.ptr_query.AGENT.min` | gauge | Min time to complete a Reverse DNS query |
-| `gauge.consul.consul.leader.reconcile.avg` | gauge | Leader time to reconcile the differences between Serf membership and Consul's store |
-| `gauge.consul.health.nodes.critical` | gauge | Number of nodes for which health checks are reporting Critical state |
-| `gauge.consul.health.nodes.passing` | gauge | Number of nodes for which health checks are reporting Passing state |
-| `gauge.consul.health.nodes.warning` | gauge | Number of nodes for which health checks are reporting Warning state |
-| `gauge.consul.health.services.critical` | gauge | Number of services for which health checks are reporting Critical state |
-| `gauge.consul.health.services.passing` | gauge | Number of services for which health checks are reporting Passing state |
-| `gauge.consul.health.services.warning` | gauge | Number of services for which health checks are reporting Warning state |
-| `gauge.consul.is_leader` | gauge | Metric to map consul server's in leader or follower state |
-| `gauge.consul.network.dc.latency.avg` | gauge | Average network latency between 2 datacenters |
-| `gauge.consul.network.dc.latency.max` | gauge | Maximum network latency between 2 datacenters |
-| `gauge.consul.network.dc.latency.min` | gauge | Minimum network latency between 2 datacenters |
-| `gauge.consul.network.node.latency.avg` | gauge | Average network latency between given node and other nodes in the datacenter |
-| `gauge.consul.network.node.latency.max` | gauge | Minimum network latency between given node and other nodes in the datacenter |
-| `gauge.consul.network.node.latency.min` | gauge | Minimum network latency between given node and other nodes in the datacenter |
-| `gauge.consul.peers` | gauge | Number of Raft peers in Consul datacenter |
-| `gauge.consul.raft.apply` | gauge | Number of raft transactions |
-| `gauge.consul.raft.commitTime.avg` | gauge | Average of the time it takes to commit an entry on the leader |
-| `gauge.consul.raft.commitTime.max` | gauge | Max of the time it takes to commit an entry on the leader |
-| `gauge.consul.raft.commitTime.min` | gauge | Minimum of the time it takes to commit an entry on the leader |
-| `gauge.consul.raft.leader.dispatchLog.avg` | gauge | Average of the time it takes for the leader to write log entries to disk |
-| `gauge.consul.raft.leader.dispatchLog.max` | gauge | Maximum of the time it takes for the leader to write log entries to disk |
-| `gauge.consul.raft.leader.dispatchLog.min` | gauge | Minimum of the time it takes for the leader to write log entries to disk |
-| `gauge.consul.raft.leader.lastContact.avg` | gauge | Mean of the time since the leader was last able to contact follower nodes |
-| `gauge.consul.raft.leader.lastContact.max` | gauge | Max of the time since the leader was last able to contact follower nodes |
-| `gauge.consul.raft.leader.lastContact.min` | gauge | Min of the time since the leader was last able to contact follower nodes |
-| `gauge.consul.raft.replication.appendEntries.rpc.AGENT.avg` | gauge | Mean time taken to complete the AppendEntries RPC |
-| `gauge.consul.raft.replication.appendEntries.rpc.AGENT.max` | gauge | Max time taken to complete the AppendEntries RPC |
-| `gauge.consul.raft.replication.appendEntries.rpc.AGENT.min` | gauge | Min time taken to complete the AppendEntries RPC |
-| `gauge.consul.raft.state.candidate` | gauge | Tracks the number of times given node enters the candidate state |
-| `gauge.consul.raft.state.leader` | gauge | Tracks the number of leadership transitions per interval |
-| `gauge.consul.runtime.alloc_bytes` | gauge | Number of bytes allocated to Consul process on the node |
-| `gauge.consul.runtime.heap_objects` | gauge | Number of heap objects allocated to Consul |
-| `gauge.consul.runtime.num_goroutines` | gauge | Number of GO routines run by Consul process |
-| `gauge.consul.serf.events` | gauge | Number of serf events processed |
-| `gauge.consul.serf.member.join` | gauge | Tracks successful node joins |
-| `gauge.consul.serf.member.left` | gauge | Tracks successful node leaves |
-| `gauge.consul.serf.queue.Event.avg` | gauge | Average number of serf events in queue yet to be processed |
-| `gauge.consul.serf.queue.Event.max` | gauge | Maximum number of serf events in queue yet to be processed during the interval |
-| `gauge.consul.serf.queue.Event.min` | gauge | Minimum number of serf events in queue yet to be processed during the interval |
-| `gauge.consul.serf.queue.Query.avg` | gauge | Average number of serf queries in queue yet to be processed during the interval |
-| `gauge.consul.serf.queue.Query.max` | gauge | Maximum number of serf queries in queue yet to be processed during the interval |
-| `gauge.consul.serf.queue.Query.min` | gauge | Minimum number of serf queries in queue yet to be processed during the interval |
+| Name | Type | Custom | Description |
+| ---  | ---  | ---    | ---         |
+| `consul.dns.stale_queries` | gauge | X | Number of times an agent serves a DNS query with stale information |
+| `consul.memberlist.msg.suspect` | gauge | X | Number of suspect messages received per interval |
+| `consul.serf.member.flap` | gauge | X | Tracks flapping agents |
+| `gauge.consul.catalog.nodes.total` | gauge |  | Number of nodes in the Consul datacenter |
+| `gauge.consul.catalog.nodes_by_service` | gauge |  | Number of nodes providing a given service |
+| `gauge.consul.catalog.services.total` | gauge |  | Total number of services registered with Consul in the given datacenter |
+| `gauge.consul.catalog.services_by_node` | gauge |  | Number of services registered with a node |
+| `gauge.consul.consul.dns.domain_query.AGENT.avg` | gauge | X | Average time to complete a forward DNS query |
+| `gauge.consul.consul.dns.domain_query.AGENT.max` | gauge | X | Max time to complete a forward DNS query |
+| `gauge.consul.consul.dns.domain_query.AGENT.min` | gauge | X | Min time to complete a forward DNS query |
+| `gauge.consul.consul.dns.ptr_query.AGENT.avg` | gauge | X | Average time to complete a Reverse DNS query |
+| `gauge.consul.consul.dns.ptr_query.AGENT.max` | gauge | X | Max time to complete a Reverse DNS query |
+| `gauge.consul.consul.dns.ptr_query.AGENT.min` | gauge | X | Min time to complete a Reverse DNS query |
+| `gauge.consul.consul.leader.reconcile.avg` | gauge |  | Leader time to reconcile the differences between Serf membership and Consul's store |
+| `gauge.consul.health.nodes.critical` | gauge |  | Number of nodes for which health checks are reporting Critical state |
+| `gauge.consul.health.nodes.passing` | gauge |  | Number of nodes for which health checks are reporting Passing state |
+| `gauge.consul.health.nodes.warning` | gauge |  | Number of nodes for which health checks are reporting Warning state |
+| `gauge.consul.health.services.critical` | gauge |  | Number of services for which health checks are reporting Critical state |
+| `gauge.consul.health.services.passing` | gauge |  | Number of services for which health checks are reporting Passing state |
+| `gauge.consul.health.services.warning` | gauge |  | Number of services for which health checks are reporting Warning state |
+| `gauge.consul.is_leader` | gauge |  | Metric to map consul server's in leader or follower state |
+| `gauge.consul.network.dc.latency.avg` | gauge |  | Average network latency between 2 datacenters |
+| `gauge.consul.network.dc.latency.max` | gauge | X | Maximum network latency between 2 datacenters |
+| `gauge.consul.network.dc.latency.min` | gauge | X | Minimum network latency between 2 datacenters |
+| `gauge.consul.network.node.latency.avg` | gauge |  | Average network latency between given node and other nodes in the datacenter |
+| `gauge.consul.network.node.latency.max` | gauge |  | Minimum network latency between given node and other nodes in the datacenter |
+| `gauge.consul.network.node.latency.min` | gauge |  | Minimum network latency between given node and other nodes in the datacenter |
+| `gauge.consul.peers` | gauge |  | Number of Raft peers in Consul datacenter |
+| `gauge.consul.raft.apply` | gauge |  | Number of raft transactions |
+| `gauge.consul.raft.commitTime.avg` | gauge |  | Average of the time it takes to commit an entry on the leader |
+| `gauge.consul.raft.commitTime.max` | gauge |  | Max of the time it takes to commit an entry on the leader |
+| `gauge.consul.raft.commitTime.min` | gauge |  | Minimum of the time it takes to commit an entry on the leader |
+| `gauge.consul.raft.leader.dispatchLog.avg` | gauge |  | Average of the time it takes for the leader to write log entries to disk |
+| `gauge.consul.raft.leader.dispatchLog.max` | gauge |  | Maximum of the time it takes for the leader to write log entries to disk |
+| `gauge.consul.raft.leader.dispatchLog.min` | gauge |  | Minimum of the time it takes for the leader to write log entries to disk |
+| `gauge.consul.raft.leader.lastContact.avg` | gauge |  | Mean of the time since the leader was last able to contact follower nodes |
+| `gauge.consul.raft.leader.lastContact.max` | gauge |  | Max of the time since the leader was last able to contact follower nodes |
+| `gauge.consul.raft.leader.lastContact.min` | gauge |  | Min of the time since the leader was last able to contact follower nodes |
+| `gauge.consul.raft.replication.appendEntries.rpc.AGENT.avg` | gauge | X | Mean time taken to complete the AppendEntries RPC |
+| `gauge.consul.raft.replication.appendEntries.rpc.AGENT.max` | gauge | X | Max time taken to complete the AppendEntries RPC |
+| `gauge.consul.raft.replication.appendEntries.rpc.AGENT.min` | gauge | X | Min time taken to complete the AppendEntries RPC |
+| `gauge.consul.raft.state.candidate` | gauge |  | Tracks the number of times given node enters the candidate state |
+| `gauge.consul.raft.state.leader` | gauge |  | Tracks the number of leadership transitions per interval |
+| `gauge.consul.runtime.alloc_bytes` | gauge | X | Number of bytes allocated to Consul process on the node |
+| `gauge.consul.runtime.heap_objects` | gauge | X | Number of heap objects allocated to Consul |
+| `gauge.consul.runtime.num_goroutines` | gauge | X | Number of GO routines run by Consul process |
+| `gauge.consul.serf.events` | gauge |  | Number of serf events processed |
+| `gauge.consul.serf.member.join` | gauge |  | Tracks successful node joins |
+| `gauge.consul.serf.member.left` | gauge |  | Tracks successful node leaves |
+| `gauge.consul.serf.queue.Event.avg` | gauge |  | Average number of serf events in queue yet to be processed |
+| `gauge.consul.serf.queue.Event.max` | gauge |  | Maximum number of serf events in queue yet to be processed during the interval |
+| `gauge.consul.serf.queue.Event.min` | gauge | X | Minimum number of serf events in queue yet to be processed during the interval |
+| `gauge.consul.serf.queue.Query.avg` | gauge | X | Average number of serf queries in queue yet to be processed during the interval |
+| `gauge.consul.serf.queue.Query.max` | gauge | X | Maximum number of serf queries in queue yet to be processed during the interval |
+| `gauge.consul.serf.queue.Query.min` | gauge | X | Minimum number of serf queries in queue yet to be processed during the interval |
+
+Custom metrics may or not be collected by this monitor by default. Check the monitor configuration to see if additional flags are required for gathering additional metrics.
+Any custom metrics above may be reported by the agent by adding a negated `metricsToExclude` to the monitor configuration, as shown below.
+```yaml 
+metricsToExclude:
+  - consul.dns.stale_queries
+  - consul.memberlist.msg.suspect
+  - consul.serf.member.flap
+  - gauge.consul.consul.dns.domain_query.AGENT.avg
+  - gauge.consul.consul.dns.domain_query.AGENT.max
+  - gauge.consul.consul.dns.domain_query.AGENT.min
+  - gauge.consul.consul.dns.ptr_query.AGENT.avg
+  - gauge.consul.consul.dns.ptr_query.AGENT.max
+  - gauge.consul.consul.dns.ptr_query.AGENT.min
+  - gauge.consul.network.dc.latency.max
+  - gauge.consul.network.dc.latency.min
+  - gauge.consul.raft.replication.appendEntries.rpc.AGENT.avg
+  - gauge.consul.raft.replication.appendEntries.rpc.AGENT.max
+  - gauge.consul.raft.replication.appendEntries.rpc.AGENT.min
+  - gauge.consul.runtime.alloc_bytes
+  - gauge.consul.runtime.heap_objects
+  - gauge.consul.runtime.num_goroutines
+  - gauge.consul.serf.queue.Event.min
+  - gauge.consul.serf.queue.Query.avg
+  - gauge.consul.serf.queue.Query.max
+  - gauge.consul.serf.queue.Query.min
+  negated: true
+```
+
+
 
 ## Dimensions
 

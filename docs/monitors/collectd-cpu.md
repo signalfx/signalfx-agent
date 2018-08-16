@@ -29,9 +29,18 @@ This monitor has no configuration options.
 This monitor emits the following metrics.  Note that configuration options may
 cause only a subset of metrics to be emitted.
 
-| Name | Type | Description |
-| ---  | ---  | ---         |
-| `cpu.utilization` | gauge | Percentage of total CPU used within the last metric interval cycle. |
+| Name | Type | Custom | Description |
+| ---  | ---  | ---    | ---         |
+| `cpu.utilization` | gauge |  | Percentage of total CPU used within the last metric interval cycle. |
+
+Custom metrics may or not be collected by this monitor by default. Check the monitor configuration to see if additional flags are required for gathering additional metrics.
+Any custom metrics above may be reported by the agent by adding a negated `metricsToExclude` to the monitor configuration, as shown below.
+```yaml 
+metricsToExclude:
+  negated: true
+```
+
+
 
 
 

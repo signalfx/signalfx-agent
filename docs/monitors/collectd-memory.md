@@ -24,14 +24,23 @@ This monitor has no configuration options.
 This monitor emits the following metrics.  Note that configuration options may
 cause only a subset of metrics to be emitted.
 
-| Name | Type | Description |
-| ---  | ---  | ---         |
-| `memory.buffered` | gauge | Bytes of memory used for buffering I/O |
-| `memory.cached` | gauge | Bytes of memory used for disk caching |
-| `memory.free` | gauge | Bytes of memory available for use |
-| `memory.slab_recl` | gauge | Bytes of memory, used for SLAB-allocation of kernel objects, that can be reclaimed. |
-| `memory.slab_unrecl` | gauge | Bytes of memory, used for SLAB-allocation of kernel objects, that can't be reclaimed |
-| `memory.used` | gauge | Bytes of memory in use by the system. |
+| Name | Type | Custom | Description |
+| ---  | ---  | ---    | ---         |
+| `memory.buffered` | gauge |  | Bytes of memory used for buffering I/O |
+| `memory.cached` | gauge |  | Bytes of memory used for disk caching |
+| `memory.free` | gauge |  | Bytes of memory available for use |
+| `memory.slab_recl` | gauge |  | Bytes of memory, used for SLAB-allocation of kernel objects, that can be reclaimed. |
+| `memory.slab_unrecl` | gauge |  | Bytes of memory, used for SLAB-allocation of kernel objects, that can't be reclaimed |
+| `memory.used` | gauge |  | Bytes of memory in use by the system. |
+
+Custom metrics may or not be collected by this monitor by default. Check the monitor configuration to see if additional flags are required for gathering additional metrics.
+Any custom metrics above may be reported by the agent by adding a negated `metricsToExclude` to the monitor configuration, as shown below.
+```yaml 
+metricsToExclude:
+  negated: true
+```
+
+
 
 
 

@@ -36,29 +36,48 @@ Monitor Type: `collectd/memcached`
 This monitor emits the following metrics.  Note that configuration options may
 cause only a subset of metrics to be emitted.
 
-| Name | Type | Description |
-| ---  | ---  | ---         |
-| `df.cache.free` | gauge | Unused storage bytes |
-| `df.cache.used` | gauge | Current number of bytes used to store items |
-| `memcached_command.flush` | cumulative | Number of flush requests |
-| `memcached_command.get` | cumulative | Number of retrieval requests |
-| `memcached_command.set` | cumulative | Number of storage requests |
-| `memcached_command.touch` | cumulative | Number of touch requests |
-| `memcached_connections.current` | gauge | Current number of open connections |
-| `memcached_connections.listen_disabled` | gauge | Number of times connection limit has been exceeded |
-| `memcached_items.current` | gauge | Current number of items stored by this instance |
-| `memcached_octets.rx` | cumulative | Total network bytes read by this server |
-| `memcached_octets.tx` | cumulative | Total network bytes written by this server |
-| `memcached_ops.decr_hits` | cumulative | Number of successful Decr requests |
-| `memcached_ops.decr_misses` | cumulative | Number of decr requests against missing keys |
-| `memcached_ops.evictions` | cumulative | Number of valid items removed from cache |
-| `memcached_ops.hits` | cumulative | Number of keys that have been requested and found present |
-| `memcached_ops.incr_hits` | cumulative | Number of successful incr requests |
-| `memcached_ops.incr_misses` | cumulative | Number of incr requests against missing keys |
-| `memcached_ops.misses` | cumulative | Number of items that have been requested and not found |
-| `ps_count.threads` | gauge | Number of worker threads requested |
-| `ps_cputime.syst` | cumulative | Total system time for this instance |
-| `ps_cputime.user` | cumulative | Total user time for this instance |
+| Name | Type | Custom | Description |
+| ---  | ---  | ---    | ---         |
+| `df.cache.free` | gauge |  | Unused storage bytes |
+| `df.cache.used` | gauge |  | Current number of bytes used to store items |
+| `memcached_command.flush` | cumulative | X | Number of flush requests |
+| `memcached_command.get` | cumulative |  | Number of retrieval requests |
+| `memcached_command.set` | cumulative |  | Number of storage requests |
+| `memcached_command.touch` | cumulative | X | Number of touch requests |
+| `memcached_connections.current` | gauge |  | Current number of open connections |
+| `memcached_connections.listen_disabled` | gauge | X | Number of times connection limit has been exceeded |
+| `memcached_items.current` | gauge |  | Current number of items stored by this instance |
+| `memcached_octets.rx` | cumulative |  | Total network bytes read by this server |
+| `memcached_octets.tx` | cumulative |  | Total network bytes written by this server |
+| `memcached_ops.decr_hits` | cumulative | X | Number of successful Decr requests |
+| `memcached_ops.decr_misses` | cumulative | X | Number of decr requests against missing keys |
+| `memcached_ops.evictions` | cumulative |  | Number of valid items removed from cache |
+| `memcached_ops.hits` | cumulative |  | Number of keys that have been requested and found present |
+| `memcached_ops.incr_hits` | cumulative | X | Number of successful incr requests |
+| `memcached_ops.incr_misses` | cumulative | X | Number of incr requests against missing keys |
+| `memcached_ops.misses` | cumulative |  | Number of items that have been requested and not found |
+| `ps_count.threads` | gauge | X | Number of worker threads requested |
+| `ps_cputime.syst` | cumulative | X | Total system time for this instance |
+| `ps_cputime.user` | cumulative | X | Total user time for this instance |
+
+Custom metrics may or not be collected by this monitor by default. Check the monitor configuration to see if additional flags are required for gathering additional metrics.
+Any custom metrics above may be reported by the agent by adding a negated `metricsToExclude` to the monitor configuration, as shown below.
+```yaml 
+metricsToExclude:
+  - memcached_command.flush
+  - memcached_command.touch
+  - memcached_connections.listen_disabled
+  - memcached_ops.decr_hits
+  - memcached_ops.decr_misses
+  - memcached_ops.incr_hits
+  - memcached_ops.incr_misses
+  - ps_count.threads
+  - ps_cputime.syst
+  - ps_cputime.user
+  negated: true
+```
+
+
 
 
 

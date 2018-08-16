@@ -56,98 +56,141 @@ Monitor Type: `collectd/spark`
 This monitor emits the following metrics.  Note that configuration options may
 cause only a subset of metrics to be emitted.
 
-| Name | Type | Description |
-| ---  | ---  | ---         |
-| `counter.HiveExternalCatalog.counter.HiveClientCalls` | counter | Total number of client calls sent to Hive for query processing |
-| `counter.HiveExternalCatalog.fileCacheHits` | counter | Total number of file level cache hits occurred |
-| `counter.HiveExternalCatalog.filesDiscovered` | counter | Total number of files discovered |
-| `counter.HiveExternalCatalog.parallelListingJobCount` | counter | Total number of Hive-specific jobs running in parallel |
-| `counter.HiveExternalCatalog.partitionsFetched` | counter | Total number of partitions fetched |
-| `counter.spark.driver.completed_tasks` | counter | Total number of completed tasks in driver mapped to a particular application |
-| `counter.spark.driver.disk_used` | counter | Amount of disk used by driver mapped to a particular application |
-| `counter.spark.driver.failed_tasks` | counter | Total number of failed tasks in driver mapped to a particular application |
-| `counter.spark.driver.memory_used` | counter | Amount of memory used by driver mapped to a particular application |
-| `counter.spark.driver.total_duration` | counter | Fraction of time spent by driver mapped to a particular application |
-| `counter.spark.driver.total_input_bytes` | counter | Number of input bytes in driver mapped to a particular application |
-| `counter.spark.driver.total_shuffle_read` | counter | Size read during a shuffle in driver mapped to a particular application |
-| `counter.spark.driver.total_shuffle_write` | counter | Size written to during a shuffle in driver mapped to a particular application |
-| `counter.spark.driver.total_tasks` | counter | Total number of tasks in driver mapped to a particular application |
-| `counter.spark.executor.completed_tasks` | counter | Completed tasks across executors working for a particular application |
-| `counter.spark.executor.disk_used` | counter | Amount of disk used across executors working for a particular application |
-| `counter.spark.executor.failed_tasks` | counter | Failed tasks across executors working for a particular application |
-| `counter.spark.executor.memory_used` | counter | Amount of memory used across executors working for a particular application |
-| `counter.spark.executor.total_duration` | counter | Fraction of time spent across executors working for a particular application |
-| `counter.spark.executor.total_input_bytes` | counter | Number of input bytes across executors working for a particular application |
-| `counter.spark.executor.total_shuffle_read` | counter | Size read during a shuffle in a particular application's executors |
-| `counter.spark.executor.total_shuffle_write` | counter | Size written to during a shuffle in a particular application's executors |
-| `counter.spark.executor.total_tasks` | counter | Total tasks across executors working for a particular application |
-| `counter.spark.streaming.num_processed_records` | counter | Number of processed records in a streaming application |
-| `counter.spark.streaming.num_received_records` | counter | Number of received records in a streaming application |
-| `counter.spark.streaming.num_total_completed_batches` | counter | Number of batches completed in a streaming application |
-| `gauge.jvm.MarkSweepCompact.count` | gauge | Garbage collection count |
-| `gauge.jvm.MarkSweepCompact.time` | gauge | Garbage collection time |
-| `gauge.jvm.heap.committed` | gauge | Amount of committed heap memory (in MB) |
-| `gauge.jvm.heap.used` | gauge | Amount of used heap memory (in MB) |
-| `gauge.jvm.non-heap.committed` | gauge | Amount of committed non-heap memory (in MB) |
-| `gauge.jvm.non-heap.used` | gauge | Amount of used non-heap memory (in MB) |
-| `gauge.jvm.pools.Code-Cache.committed` | gauge | Amount of memory committed for compilation and storage of native code |
-| `gauge.jvm.pools.Code-Cache.used` | gauge | Amount of memory used to compile and store native code |
-| `gauge.jvm.pools.Compressed-Class-Space.committed` | gauge | Amount of memory committed for compressing a class object |
-| `gauge.jvm.pools.Compressed-Class-Space.used` | gauge | Amount of memory used to compress a class object |
-| `gauge.jvm.pools.Eden-Space.committed` | gauge | Amount of memory committed for the initial allocation of objects |
-| `gauge.jvm.pools.Eden-Space.used` | gauge | Amount of memory used for the initial allocation of objects |
-| `gauge.jvm.pools.Metaspace.committed` | gauge | Amount of memory committed for storing classes and classloaders |
-| `gauge.jvm.pools.Metaspace.used` | gauge | Amount of memory used to store classes and classloaders |
-| `gauge.jvm.pools.Survivor-Space.committed` | gauge | Amount of memory committed specifically for objects that have survived GC of the Eden Space |
-| `gauge.jvm.pools.Survivor-Space.used` | gauge | Amount of memory used for objects that have survived GC of the Eden Space |
-| `gauge.jvm.pools.Tenured-Gen.committed` | gauge | Amount of memory committed to store objects that have lived in the survivor space for a given period of time |
-| `gauge.jvm.pools.Tenured-Gen.used` | gauge | Amount of memory used for objects that have lived in the survivor space for a given period of time |
-| `gauge.jvm.total.committed` | gauge | Amount of committed JVM memory (in MB) |
-| `gauge.jvm.total.used` | gauge | Amount of used JVM memory (in MB) |
-| `gauge.master.aliveWorkers` | gauge | Total functioning workers |
-| `gauge.master.apps` | gauge | Total number of active applications in the spark cluster |
-| `gauge.master.waitingApps` | gauge | Total number of waiting applications in the spark cluster |
-| `gauge.master.workers` | gauge | Total number of workers in spark cluster |
-| `gauge.spark.driver.active_tasks` | gauge | Total number of active tasks in driver mapped to a particular application |
-| `gauge.spark.driver.max_memory` | gauge | Maximum memory used by driver mapped to a particular application |
-| `gauge.spark.driver.rdd_blocks` | gauge | Number of RDD blocks in the driver mapped to a particular application |
-| `gauge.spark.executor.active_tasks` | gauge | Total number of active tasks across all executors working for a particular application |
-| `gauge.spark.executor.count` | gauge | Total number of executors performing for an active application in the spark cluster |
-| `gauge.spark.executor.max_memory` | gauge | Max memory across all executors working for a particular application |
-| `gauge.spark.executor.rdd_blocks` | gauge | Number of RDD blocks across all executors working for a particular application |
-| `gauge.spark.job.num_active_stages` | gauge | Total number of active stages for an active application in the spark cluster |
-| `gauge.spark.job.num_active_tasks` | gauge | Total number of active tasks for an active application in the spark cluster |
-| `gauge.spark.job.num_completed_stages` | gauge | Total number of completed stages for an active application in the spark cluster |
-| `gauge.spark.job.num_completed_tasks` | gauge | Total number of completed tasks for an active application in the spark cluster |
-| `gauge.spark.job.num_failed_stages` | gauge | Total number of failed stages for an active application in the spark cluster |
-| `gauge.spark.job.num_failed_tasks` | gauge | Total number of failed tasks for an active application in the spark cluster |
-| `gauge.spark.job.num_skipped_stages` | gauge | Total number of skipped stages for an active application in the spark cluster |
-| `gauge.spark.job.num_skipped_tasks` | gauge | Total number of skipped tasks for an active application in the spark cluster |
-| `gauge.spark.job.num_tasks` | gauge | Total number of tasks for an active application in the spark cluster |
-| `gauge.spark.num_active_stages` | gauge | Total number of active stages for an active application in the spark cluster |
-| `gauge.spark.num_running_jobs` | gauge | Total number of running jobs for an active application in the spark cluster |
-| `gauge.spark.stage.disk_bytes_spilled` | gauge | Actual size written to disk for an active application in the spark cluster |
-| `gauge.spark.stage.executor_run_time` | gauge | Fraction of time spent by (and averaged across) executors for a particular application |
-| `gauge.spark.stage.input_bytes` | gauge | Input size for a particular application |
-| `gauge.spark.stage.input_records` | gauge | Input records received for a particular application |
-| `gauge.spark.stage.memory_bytes_spilled` | gauge | Size spilled to disk from memory for an active application in the spark cluster |
-| `gauge.spark.stage.output_bytes` | gauge | Output size for a particular application |
-| `gauge.spark.stage.output_records` | gauge | Output records written to for a particular application |
-| `gauge.spark.stage.shuffle_read_bytes` | gauge | Read size during shuffle phase for a particular application |
-| `gauge.spark.stage.shuffle_read_records` | gauge | Number of records read during shuffle phase for a particular application |
-| `gauge.spark.stage.shuffle_write_bytes` | gauge | Size written during shuffle phase for a particular application |
-| `gauge.spark.stage.shuffle_write_records` | gauge | Number of records written to during shuffle phase for a particular application |
-| `gauge.spark.streaming.avg_input_rate` | gauge | Average input rate of records across retained batches in a streaming application |
-| `gauge.spark.streaming.avg_processing_time` | gauge | Average processing time in a streaming application |
-| `gauge.spark.streaming.avg_scheduling_delay` | gauge | Average scheduling delay in a streaming application |
-| `gauge.spark.streaming.avg_total_delay` | gauge | Average total delay in a streaming application |
-| `gauge.spark.streaming.num_active_batches` | gauge | Number of active batches in a streaming application |
-| `gauge.spark.streaming.num_inactive_receivers` | gauge | Number of inactive receivers in a streaming application |
-| `gauge.worker.coresFree` | gauge | Total cores free for a particular worker process |
-| `gauge.worker.coresUsed` | gauge | Total cores used by a particular worker process |
-| `gauge.worker.executors` | gauge | Total number of executors for a particular worker process |
-| `gauge.worker.memFree_MB` | gauge | Total memory free for a particular worker process |
-| `gauge.worker.memUsed_MB` | gauge | Memory used by a particular worker process |
+| Name | Type | Custom | Description |
+| ---  | ---  | ---    | ---         |
+| `counter.HiveExternalCatalog.counter.HiveClientCalls` | counter | X | Total number of client calls sent to Hive for query processing |
+| `counter.HiveExternalCatalog.fileCacheHits` | counter | X | Total number of file level cache hits occurred |
+| `counter.HiveExternalCatalog.filesDiscovered` | counter | X | Total number of files discovered |
+| `counter.HiveExternalCatalog.parallelListingJobCount` | counter | X | Total number of Hive-specific jobs running in parallel |
+| `counter.HiveExternalCatalog.partitionsFetched` | counter | X | Total number of partitions fetched |
+| `counter.spark.driver.completed_tasks` | counter | X | Total number of completed tasks in driver mapped to a particular application |
+| `counter.spark.driver.disk_used` | counter |  | Amount of disk used by driver mapped to a particular application |
+| `counter.spark.driver.failed_tasks` | counter | X | Total number of failed tasks in driver mapped to a particular application |
+| `counter.spark.driver.memory_used` | counter |  | Amount of memory used by driver mapped to a particular application |
+| `counter.spark.driver.total_duration` | counter | X | Fraction of time spent by driver mapped to a particular application |
+| `counter.spark.driver.total_input_bytes` | counter |  | Number of input bytes in driver mapped to a particular application |
+| `counter.spark.driver.total_shuffle_read` | counter |  | Size read during a shuffle in driver mapped to a particular application |
+| `counter.spark.driver.total_shuffle_write` | counter |  | Size written to during a shuffle in driver mapped to a particular application |
+| `counter.spark.driver.total_tasks` | counter |  | Total number of tasks in driver mapped to a particular application |
+| `counter.spark.executor.completed_tasks` | counter | X | Completed tasks across executors working for a particular application |
+| `counter.spark.executor.disk_used` | counter |  | Amount of disk used across executors working for a particular application |
+| `counter.spark.executor.failed_tasks` | counter | X | Failed tasks across executors working for a particular application |
+| `counter.spark.executor.memory_used` | counter |  | Amount of memory used across executors working for a particular application |
+| `counter.spark.executor.total_duration` | counter | X | Fraction of time spent across executors working for a particular application |
+| `counter.spark.executor.total_input_bytes` | counter |  | Number of input bytes across executors working for a particular application |
+| `counter.spark.executor.total_shuffle_read` | counter |  | Size read during a shuffle in a particular application's executors |
+| `counter.spark.executor.total_shuffle_write` | counter |  | Size written to during a shuffle in a particular application's executors |
+| `counter.spark.executor.total_tasks` | counter | X | Total tasks across executors working for a particular application |
+| `counter.spark.streaming.num_processed_records` | counter |  | Number of processed records in a streaming application |
+| `counter.spark.streaming.num_received_records` | counter |  | Number of received records in a streaming application |
+| `counter.spark.streaming.num_total_completed_batches` | counter |  | Number of batches completed in a streaming application |
+| `gauge.jvm.MarkSweepCompact.count` | gauge | X | Garbage collection count |
+| `gauge.jvm.MarkSweepCompact.time` | gauge | X | Garbage collection time |
+| `gauge.jvm.heap.committed` | gauge |  | Amount of committed heap memory (in MB) |
+| `gauge.jvm.heap.used` | gauge |  | Amount of used heap memory (in MB) |
+| `gauge.jvm.non-heap.committed` | gauge |  | Amount of committed non-heap memory (in MB) |
+| `gauge.jvm.non-heap.used` | gauge |  | Amount of used non-heap memory (in MB) |
+| `gauge.jvm.pools.Code-Cache.committed` | gauge | X | Amount of memory committed for compilation and storage of native code |
+| `gauge.jvm.pools.Code-Cache.used` | gauge | X | Amount of memory used to compile and store native code |
+| `gauge.jvm.pools.Compressed-Class-Space.committed` | gauge | X | Amount of memory committed for compressing a class object |
+| `gauge.jvm.pools.Compressed-Class-Space.used` | gauge | X | Amount of memory used to compress a class object |
+| `gauge.jvm.pools.Eden-Space.committed` | gauge | X | Amount of memory committed for the initial allocation of objects |
+| `gauge.jvm.pools.Eden-Space.used` | gauge | X | Amount of memory used for the initial allocation of objects |
+| `gauge.jvm.pools.Metaspace.committed` | gauge | X | Amount of memory committed for storing classes and classloaders |
+| `gauge.jvm.pools.Metaspace.used` | gauge | X | Amount of memory used to store classes and classloaders |
+| `gauge.jvm.pools.Survivor-Space.committed` | gauge | X | Amount of memory committed specifically for objects that have survived GC of the Eden Space |
+| `gauge.jvm.pools.Survivor-Space.used` | gauge | X | Amount of memory used for objects that have survived GC of the Eden Space |
+| `gauge.jvm.pools.Tenured-Gen.committed` | gauge | X | Amount of memory committed to store objects that have lived in the survivor space for a given period of time |
+| `gauge.jvm.pools.Tenured-Gen.used` | gauge | X | Amount of memory used for objects that have lived in the survivor space for a given period of time |
+| `gauge.jvm.total.committed` | gauge |  | Amount of committed JVM memory (in MB) |
+| `gauge.jvm.total.used` | gauge |  | Amount of used JVM memory (in MB) |
+| `gauge.master.aliveWorkers` | gauge |  | Total functioning workers |
+| `gauge.master.apps` | gauge |  | Total number of active applications in the spark cluster |
+| `gauge.master.waitingApps` | gauge |  | Total number of waiting applications in the spark cluster |
+| `gauge.master.workers` | gauge |  | Total number of workers in spark cluster |
+| `gauge.spark.driver.active_tasks` | gauge | X | Total number of active tasks in driver mapped to a particular application |
+| `gauge.spark.driver.max_memory` | gauge |  | Maximum memory used by driver mapped to a particular application |
+| `gauge.spark.driver.rdd_blocks` | gauge | X | Number of RDD blocks in the driver mapped to a particular application |
+| `gauge.spark.executor.active_tasks` | gauge | X | Total number of active tasks across all executors working for a particular application |
+| `gauge.spark.executor.count` | gauge |  | Total number of executors performing for an active application in the spark cluster |
+| `gauge.spark.executor.max_memory` | gauge |  | Max memory across all executors working for a particular application |
+| `gauge.spark.executor.rdd_blocks` | gauge | X | Number of RDD blocks across all executors working for a particular application |
+| `gauge.spark.job.num_active_stages` | gauge |  | Total number of active stages for an active application in the spark cluster |
+| `gauge.spark.job.num_active_tasks` | gauge |  | Total number of active tasks for an active application in the spark cluster |
+| `gauge.spark.job.num_completed_stages` | gauge |  | Total number of completed stages for an active application in the spark cluster |
+| `gauge.spark.job.num_completed_tasks` | gauge |  | Total number of completed tasks for an active application in the spark cluster |
+| `gauge.spark.job.num_failed_stages` | gauge |  | Total number of failed stages for an active application in the spark cluster |
+| `gauge.spark.job.num_failed_tasks` | gauge |  | Total number of failed tasks for an active application in the spark cluster |
+| `gauge.spark.job.num_skipped_stages` | gauge |  | Total number of skipped stages for an active application in the spark cluster |
+| `gauge.spark.job.num_skipped_tasks` | gauge |  | Total number of skipped tasks for an active application in the spark cluster |
+| `gauge.spark.job.num_tasks` | gauge |  | Total number of tasks for an active application in the spark cluster |
+| `gauge.spark.num_active_stages` | gauge |  | Total number of active stages for an active application in the spark cluster |
+| `gauge.spark.num_running_jobs` | gauge |  | Total number of running jobs for an active application in the spark cluster |
+| `gauge.spark.stage.disk_bytes_spilled` | gauge |  | Actual size written to disk for an active application in the spark cluster |
+| `gauge.spark.stage.executor_run_time` | gauge |  | Fraction of time spent by (and averaged across) executors for a particular application |
+| `gauge.spark.stage.input_bytes` | gauge |  | Input size for a particular application |
+| `gauge.spark.stage.input_records` | gauge |  | Input records received for a particular application |
+| `gauge.spark.stage.memory_bytes_spilled` | gauge |  | Size spilled to disk from memory for an active application in the spark cluster |
+| `gauge.spark.stage.output_bytes` | gauge |  | Output size for a particular application |
+| `gauge.spark.stage.output_records` | gauge |  | Output records written to for a particular application |
+| `gauge.spark.stage.shuffle_read_bytes` | gauge | X | Read size during shuffle phase for a particular application |
+| `gauge.spark.stage.shuffle_read_records` | gauge | X | Number of records read during shuffle phase for a particular application |
+| `gauge.spark.stage.shuffle_write_bytes` | gauge | X | Size written during shuffle phase for a particular application |
+| `gauge.spark.stage.shuffle_write_records` | gauge | X | Number of records written to during shuffle phase for a particular application |
+| `gauge.spark.streaming.avg_input_rate` | gauge |  | Average input rate of records across retained batches in a streaming application |
+| `gauge.spark.streaming.avg_processing_time` | gauge |  | Average processing time in a streaming application |
+| `gauge.spark.streaming.avg_scheduling_delay` | gauge |  | Average scheduling delay in a streaming application |
+| `gauge.spark.streaming.avg_total_delay` | gauge |  | Average total delay in a streaming application |
+| `gauge.spark.streaming.num_active_batches` | gauge |  | Number of active batches in a streaming application |
+| `gauge.spark.streaming.num_inactive_receivers` | gauge |  | Number of inactive receivers in a streaming application |
+| `gauge.worker.coresFree` | gauge |  | Total cores free for a particular worker process |
+| `gauge.worker.coresUsed` | gauge |  | Total cores used by a particular worker process |
+| `gauge.worker.executors` | gauge |  | Total number of executors for a particular worker process |
+| `gauge.worker.memFree_MB` | gauge |  | Total memory free for a particular worker process |
+| `gauge.worker.memUsed_MB` | gauge |  | Memory used by a particular worker process |
+
+Custom metrics may or not be collected by this monitor by default. Check the monitor configuration to see if additional flags are required for gathering additional metrics.
+Any custom metrics above may be reported by the agent by adding a negated `metricsToExclude` to the monitor configuration, as shown below.
+```yaml 
+metricsToExclude:
+  - counter.HiveExternalCatalog.counter.HiveClientCalls
+  - counter.HiveExternalCatalog.fileCacheHits
+  - counter.HiveExternalCatalog.filesDiscovered
+  - counter.HiveExternalCatalog.parallelListingJobCount
+  - counter.HiveExternalCatalog.partitionsFetched
+  - counter.spark.driver.completed_tasks
+  - counter.spark.driver.failed_tasks
+  - counter.spark.driver.total_duration
+  - counter.spark.executor.completed_tasks
+  - counter.spark.executor.failed_tasks
+  - counter.spark.executor.total_duration
+  - counter.spark.executor.total_tasks
+  - gauge.jvm.MarkSweepCompact.count
+  - gauge.jvm.MarkSweepCompact.time
+  - gauge.jvm.pools.Code-Cache.committed
+  - gauge.jvm.pools.Code-Cache.used
+  - gauge.jvm.pools.Compressed-Class-Space.committed
+  - gauge.jvm.pools.Compressed-Class-Space.used
+  - gauge.jvm.pools.Eden-Space.committed
+  - gauge.jvm.pools.Eden-Space.used
+  - gauge.jvm.pools.Metaspace.committed
+  - gauge.jvm.pools.Metaspace.used
+  - gauge.jvm.pools.Survivor-Space.committed
+  - gauge.jvm.pools.Survivor-Space.used
+  - gauge.jvm.pools.Tenured-Gen.committed
+  - gauge.jvm.pools.Tenured-Gen.used
+  - gauge.spark.driver.active_tasks
+  - gauge.spark.driver.rdd_blocks
+  - gauge.spark.executor.active_tasks
+  - gauge.spark.executor.rdd_blocks
+  - gauge.spark.stage.shuffle_read_bytes
+  - gauge.spark.stage.shuffle_read_records
+  - gauge.spark.stage.shuffle_write_bytes
+  - gauge.spark.stage.shuffle_write_records
+  negated: true
+```
+
+
 
 
 

@@ -117,31 +117,47 @@ The **nested** `results` config object has the following fields:
 This monitor emits the following metrics.  Note that configuration options may
 cause only a subset of metrics to be emitted.
 
-| Name | Type | Description |
-| ---  | ---  | ---         |
-| `pg_blks.heap_hit` | gauge | Number of buffer hits |
-| `pg_blks.heap_read` | gauge | Number of disk blocks read |
-| `pg_blks.idx_hit` | gauge | Number of index buffer hits |
-| `pg_blks.idx_read` | gauge | Number of index blocks read |
-| `pg_blks.tidx_hit` | gauge | Number of TOAST index buffer hits |
-| `pg_blks.tidx_read` | gauge | Number of TOAST index blocks read |
-| `pg_blks.toast_hit` | gauge | Number of TOAST buffer hits |
-| `pg_blks.toast_read` | gauge | Number of disk blocks read |
-| `pg_db_size` | gauge | Size of the database on disk, in bytes |
-| `pg_n_tup_c.del` | gauge | Number of delete operations |
-| `pg_n_tup_c.hot_upd` | gauge | Number of update operations not requiring index update |
-| `pg_n_tup_c.ins` | gauge | Number of insert operations |
-| `pg_n_tup_c.upd` | gauge | Number of update operations |
-| `pg_n_tup_g.dead` | gauge | Number of dead rows in the database |
-| `pg_n_tup_g.live` | gauge | Number of live rows in the database |
-| `pg_numbackends` | gauge | Number of server processes |
-| `pg_scan.idx` | gauge | Number of index scans |
-| `pg_scan.idx_tup_fetch` | gauge | Number of rows read from index scans |
-| `pg_scan.seq` | gauge | Number of sequential scans |
-| `pg_scan.seq_tup_read` | gauge | Number of rows read from sequential scans |
-| `pg_xact.commit` | gauge | Number of commits |
-| `pg_xact.num_deadlocks` | gauge | Number of deadlocks detected by the database |
-| `pg_xact.rollback` | gauge | Number of rollbacks |
+| Name | Type | Custom | Description |
+| ---  | ---  | ---    | ---         |
+| `pg_blks.heap_hit` | gauge |  | Number of buffer hits |
+| `pg_blks.heap_read` | gauge |  | Number of disk blocks read |
+| `pg_blks.idx_hit` | gauge |  | Number of index buffer hits |
+| `pg_blks.idx_read` | gauge |  | Number of index blocks read |
+| `pg_blks.tidx_hit` | gauge | X | Number of TOAST index buffer hits |
+| `pg_blks.tidx_read` | gauge | X | Number of TOAST index blocks read |
+| `pg_blks.toast_hit` | gauge | X | Number of TOAST buffer hits |
+| `pg_blks.toast_read` | gauge | X | Number of disk blocks read |
+| `pg_db_size` | gauge |  | Size of the database on disk, in bytes |
+| `pg_n_tup_c.del` | gauge |  | Number of delete operations |
+| `pg_n_tup_c.hot_upd` | gauge | X | Number of update operations not requiring index update |
+| `pg_n_tup_c.ins` | gauge |  | Number of insert operations |
+| `pg_n_tup_c.upd` | gauge |  | Number of update operations |
+| `pg_n_tup_g.dead` | gauge | X | Number of dead rows in the database |
+| `pg_n_tup_g.live` | gauge |  | Number of live rows in the database |
+| `pg_numbackends` | gauge |  | Number of server processes |
+| `pg_scan.idx` | gauge |  | Number of index scans |
+| `pg_scan.idx_tup_fetch` | gauge |  | Number of rows read from index scans |
+| `pg_scan.seq` | gauge |  | Number of sequential scans |
+| `pg_scan.seq_tup_read` | gauge |  | Number of rows read from sequential scans |
+| `pg_xact.commit` | gauge |  | Number of commits |
+| `pg_xact.num_deadlocks` | gauge | X | Number of deadlocks detected by the database |
+| `pg_xact.rollback` | gauge |  | Number of rollbacks |
+
+Custom metrics may or not be collected by this monitor by default. Check the monitor configuration to see if additional flags are required for gathering additional metrics.
+Any custom metrics above may be reported by the agent by adding a negated `metricsToExclude` to the monitor configuration, as shown below.
+```yaml 
+metricsToExclude:
+  - pg_blks.tidx_hit
+  - pg_blks.tidx_read
+  - pg_blks.toast_hit
+  - pg_blks.toast_read
+  - pg_n_tup_c.hot_upd
+  - pg_n_tup_g.dead
+  - pg_xact.num_deadlocks
+  negated: true
+```
+
+
 
 
 

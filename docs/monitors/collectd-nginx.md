@@ -39,15 +39,24 @@ Monitor Type: `collectd/nginx`
 This monitor emits the following metrics.  Note that configuration options may
 cause only a subset of metrics to be emitted.
 
-| Name | Type | Description |
-| ---  | ---  | ---         |
-| `connections.accepted` | cumulative | Connections accepted by Nginx Web Server |
-| `connections.handled` | cumulative | Connections handled by Nginx Web Server |
-| `nginx_connections.active` | gauge | Connections active in Nginx Web Server |
-| `nginx_connections.reading` | gauge | Connections being read by Nginx Web Server |
-| `nginx_connections.waiting` | gauge | Connections waited on by Nginx Web Server |
-| `nginx_connections.writing` | gauge | Connections being written by Nginx Web Server |
-| `nginx_requests` | cumulative | Requests handled by Nginx Web Server |
+| Name | Type | Custom | Description |
+| ---  | ---  | ---    | ---         |
+| `connections.accepted` | cumulative |  | Connections accepted by Nginx Web Server |
+| `connections.handled` | cumulative |  | Connections handled by Nginx Web Server |
+| `nginx_connections.active` | gauge |  | Connections active in Nginx Web Server |
+| `nginx_connections.reading` | gauge |  | Connections being read by Nginx Web Server |
+| `nginx_connections.waiting` | gauge |  | Connections waited on by Nginx Web Server |
+| `nginx_connections.writing` | gauge |  | Connections being written by Nginx Web Server |
+| `nginx_requests` | cumulative |  | Requests handled by Nginx Web Server |
+
+Custom metrics may or not be collected by this monitor by default. Check the monitor configuration to see if additional flags are required for gathering additional metrics.
+Any custom metrics above may be reported by the agent by adding a negated `metricsToExclude` to the monitor configuration, as shown below.
+```yaml 
+metricsToExclude:
+  negated: true
+```
+
+
 
 
 

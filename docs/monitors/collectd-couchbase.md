@@ -50,71 +50,112 @@ Monitor Type: `collectd/couchbase`
 This monitor emits the following metrics.  Note that configuration options may
 cause only a subset of metrics to be emitted.
 
-| Name | Type | Description |
-| ---  | ---  | ---         |
-| `gauge.bucket.basic.dataUsed` | gauge | Size of user data within buckets of the specified state that are resident in RAM (%) |
-| `gauge.bucket.basic.diskFetches` | gauge | Number of disk fetches |
-| `gauge.bucket.basic.diskUsed` | gauge | Amount of disk used (bytes) |
-| `gauge.bucket.basic.itemCount` | gauge | Number of items associated with the bucket |
-| `gauge.bucket.basic.memUsed` | gauge | Amount of memory used by the bucket (bytes) |
-| `gauge.bucket.basic.opsPerSec` | gauge | Number of operations per second |
-| `gauge.bucket.basic.quotaPercentUsed` | gauge | Percentage of RAM used (for active objects) against the configure bucket size (%) |
-| `gauge.bucket.op.cmd_get` | gauge | requested objects |
-| `gauge.bucket.op.couch_docs_fragmentation` | gauge | Percent fragmentation of documents in this bucket. |
-| `gauge.bucket.op.couch_views_ops` | gauge | view operations per second |
-| `gauge.bucket.op.curr_connections` | gauge | open connection per bucket |
-| `gauge.bucket.op.curr_items` | gauge | total number of stored items per bucket |
-| `gauge.bucket.op.disk_write_queue` | gauge | number of items waiting to be written to disk |
-| `gauge.bucket.op.ep_bg_fetched` | gauge | number of items fetched from disk |
-| `gauge.bucket.op.ep_cache_miss_rate` | gauge | ratio of requested objects found in cache vs retrieved from disk |
-| `gauge.bucket.op.ep_diskqueue_drain` | gauge | items removed from disk queue |
-| `gauge.bucket.op.ep_diskqueue_fill` | gauge | enqueued items on disk queue |
-| `gauge.bucket.op.ep_mem_high_wat` | gauge | memory high water mark - point at which active objects begin to be ejected from bucket |
-| `gauge.bucket.op.ep_mem_low_wat` | gauge | memory low water mark |
-| `gauge.bucket.op.ep_num_value_ejects` | gauge | number of objects ejected out of the bucket |
-| `gauge.bucket.op.ep_oom_errors` | gauge | request rejected - bucket is at quota, panic |
-| `gauge.bucket.op.ep_queue_size` | gauge | number of items queued for storage |
-| `gauge.bucket.op.ep_tmp_oom_errors` | gauge | request rejected - couchbase is making room by ejecting objects, try again later |
-| `gauge.bucket.op.mem_used` | gauge | memory used |
-| `gauge.bucket.op.ops` | gauge | total of gets, sets, increment and decrement |
-| `gauge.bucket.op.vb_active_resident_items_ratio` | gauge | ratio of items kept in memory vs stored on disk |
-| `gauge.bucket.quota.ram` | gauge | Amount of RAM used by the bucket (bytes). |
-| `gauge.bucket.quota.rawRAM` | gauge | Amount of raw RAM used by the bucket (bytes). |
-| `gauge.nodes.cmd_get` | gauge | Number of get commands |
-| `gauge.nodes.couch_docs_actual_disk_size` | gauge | Amount of disk space used by Couch docs.(bytes) |
-| `gauge.nodes.couch_docs_data_size` | gauge | Data size of couch documents associated with a node (bytes) |
-| `gauge.nodes.couch_spatial_data_size` | gauge | Size of object data for spatial views (bytes) |
-| `gauge.nodes.couch_spatial_disk_size` | gauge | Amount of disk space occupied by spatial views, in bytes. |
-| `gauge.nodes.couch_views_actual_disk_size` | gauge | Amount of disk space occupied by Couch views (bytes). |
-| `gauge.nodes.couch_views_data_size` | gauge | Size of object data for Couch views (bytes). |
-| `gauge.nodes.curr_items` | gauge | Number of current items |
-| `gauge.nodes.curr_items_tot` | gauge | Total number of items associated with node |
-| `gauge.nodes.ep_bg_fetched` | gauge | Number of disk fetches performed since server was started |
-| `gauge.nodes.get_hits` | gauge | Number of get hits |
-| `gauge.nodes.mcdMemoryAllocated` | gauge | Amount of memcached memory allocated (bytes). |
-| `gauge.nodes.mcdMemoryReserved` | gauge | Amount of memcached memory reserved (bytes). |
-| `gauge.nodes.mem_used` | gauge | Memory used by the node (bytes) |
-| `gauge.nodes.memoryFree` | gauge | Amount of memory free for the node (bytes). |
-| `gauge.nodes.memoryTotal` | gauge | Total memory available to the node (bytes). |
-| `gauge.nodes.ops` | gauge | Number of operations performed on Couchbase |
-| `gauge.nodes.system.cpu_utilization_rate` | gauge | The CPU utilization rate (%) |
-| `gauge.nodes.system.mem_free` | gauge | Free memory available to the node (bytes) |
-| `gauge.nodes.system.mem_total` | gauge | Total memory available to the node (bytes) |
-| `gauge.nodes.system.swap_total` | gauge | Total swap size allocated (bytes) |
-| `gauge.nodes.system.swap_used` | gauge | Amount of swap space used (bytes) |
-| `gauge.nodes.vb_replica_curr_items` | gauge | Number of items/documents that are replicas |
-| `gauge.storage.hdd.free` | gauge | Free harddrive space in the cluster (bytes) |
-| `gauge.storage.hdd.quotaTotal` | gauge | Harddrive quota total for the cluster (bytes) |
-| `gauge.storage.hdd.total` | gauge | Total harddrive space available to cluster (bytes) |
-| `gauge.storage.hdd.used` | gauge | Harddrive space used by the cluster (bytes) |
-| `gauge.storage.hdd.usedByData` | gauge | Harddrive use by the data in the cluster(bytes) |
-| `gauge.storage.ram.quotaTotal` | gauge | Ram quota total for the cluster (bytes) |
-| `gauge.storage.ram.quotaTotalPerNode` | gauge | Ram quota total per node (bytes) |
-| `gauge.storage.ram.quotaUsed` | gauge | Ram quota used by the cluster (bytes) |
-| `gauge.storage.ram.quotaUsedPerNode` | gauge | Ram quota used per node (bytes) |
-| `gauge.storage.ram.total` | gauge | Total ram available to cluster (bytes) |
-| `gauge.storage.ram.used` | gauge | Ram used by the cluster (bytes) |
-| `gauge.storage.ram.usedByData` | gauge | Ram used by the data in the cluster (bytes) |
+| Name | Type | Custom | Description |
+| ---  | ---  | ---    | ---         |
+| `gauge.bucket.basic.dataUsed` | gauge | X | Size of user data within buckets of the specified state that are resident in RAM (%) |
+| `gauge.bucket.basic.diskFetches` | gauge | X | Number of disk fetches |
+| `gauge.bucket.basic.diskUsed` | gauge |  | Amount of disk used (bytes) |
+| `gauge.bucket.basic.itemCount` | gauge |  | Number of items associated with the bucket |
+| `gauge.bucket.basic.memUsed` | gauge | X | Amount of memory used by the bucket (bytes) |
+| `gauge.bucket.basic.opsPerSec` | gauge |  | Number of operations per second |
+| `gauge.bucket.basic.quotaPercentUsed` | gauge |  | Percentage of RAM used (for active objects) against the configure bucket size (%) |
+| `gauge.bucket.op.cmd_get` | gauge |  | requested objects |
+| `gauge.bucket.op.couch_docs_fragmentation` | gauge |  | Percent fragmentation of documents in this bucket. |
+| `gauge.bucket.op.couch_views_ops` | gauge |  | view operations per second |
+| `gauge.bucket.op.curr_connections` | gauge |  | open connection per bucket |
+| `gauge.bucket.op.curr_items` | gauge | X | total number of stored items per bucket |
+| `gauge.bucket.op.disk_write_queue` | gauge | X | number of items waiting to be written to disk |
+| `gauge.bucket.op.ep_bg_fetched` | gauge |  | number of items fetched from disk |
+| `gauge.bucket.op.ep_cache_miss_rate` | gauge |  | ratio of requested objects found in cache vs retrieved from disk |
+| `gauge.bucket.op.ep_diskqueue_drain` | gauge |  | items removed from disk queue |
+| `gauge.bucket.op.ep_diskqueue_fill` | gauge |  | enqueued items on disk queue |
+| `gauge.bucket.op.ep_mem_high_wat` | gauge |  | memory high water mark - point at which active objects begin to be ejected from bucket |
+| `gauge.bucket.op.ep_mem_low_wat` | gauge | X | memory low water mark |
+| `gauge.bucket.op.ep_num_value_ejects` | gauge |  | number of objects ejected out of the bucket |
+| `gauge.bucket.op.ep_oom_errors` | gauge |  | request rejected - bucket is at quota, panic |
+| `gauge.bucket.op.ep_queue_size` | gauge |  | number of items queued for storage |
+| `gauge.bucket.op.ep_tmp_oom_errors` | gauge |  | request rejected - couchbase is making room by ejecting objects, try again later |
+| `gauge.bucket.op.mem_used` | gauge |  | memory used |
+| `gauge.bucket.op.ops` | gauge | X | total of gets, sets, increment and decrement |
+| `gauge.bucket.op.vb_active_resident_items_ratio` | gauge |  | ratio of items kept in memory vs stored on disk |
+| `gauge.bucket.quota.ram` | gauge | X | Amount of RAM used by the bucket (bytes). |
+| `gauge.bucket.quota.rawRAM` | gauge | X | Amount of raw RAM used by the bucket (bytes). |
+| `gauge.nodes.cmd_get` | gauge |  | Number of get commands |
+| `gauge.nodes.couch_docs_actual_disk_size` | gauge |  | Amount of disk space used by Couch docs.(bytes) |
+| `gauge.nodes.couch_docs_data_size` | gauge |  | Data size of couch documents associated with a node (bytes) |
+| `gauge.nodes.couch_spatial_data_size` | gauge | X | Size of object data for spatial views (bytes) |
+| `gauge.nodes.couch_spatial_disk_size` | gauge | X | Amount of disk space occupied by spatial views, in bytes. |
+| `gauge.nodes.couch_views_actual_disk_size` | gauge | X | Amount of disk space occupied by Couch views (bytes). |
+| `gauge.nodes.couch_views_data_size` | gauge | X | Size of object data for Couch views (bytes). |
+| `gauge.nodes.curr_items` | gauge | X | Number of current items |
+| `gauge.nodes.curr_items_tot` | gauge |  | Total number of items associated with node |
+| `gauge.nodes.ep_bg_fetched` | gauge |  | Number of disk fetches performed since server was started |
+| `gauge.nodes.get_hits` | gauge | X | Number of get hits |
+| `gauge.nodes.mcdMemoryAllocated` | gauge | X | Amount of memcached memory allocated (bytes). |
+| `gauge.nodes.mcdMemoryReserved` | gauge | X | Amount of memcached memory reserved (bytes). |
+| `gauge.nodes.mem_used` | gauge |  | Memory used by the node (bytes) |
+| `gauge.nodes.memoryFree` | gauge | X | Amount of memory free for the node (bytes). |
+| `gauge.nodes.memoryTotal` | gauge | X | Total memory available to the node (bytes). |
+| `gauge.nodes.ops` | gauge |  | Number of operations performed on Couchbase |
+| `gauge.nodes.system.cpu_utilization_rate` | gauge |  | The CPU utilization rate (%) |
+| `gauge.nodes.system.mem_free` | gauge |  | Free memory available to the node (bytes) |
+| `gauge.nodes.system.mem_total` | gauge |  | Total memory available to the node (bytes) |
+| `gauge.nodes.system.swap_total` | gauge |  | Total swap size allocated (bytes) |
+| `gauge.nodes.system.swap_used` | gauge |  | Amount of swap space used (bytes) |
+| `gauge.nodes.vb_replica_curr_items` | gauge | X | Number of items/documents that are replicas |
+| `gauge.storage.hdd.free` | gauge | X | Free harddrive space in the cluster (bytes) |
+| `gauge.storage.hdd.quotaTotal` | gauge | X | Harddrive quota total for the cluster (bytes) |
+| `gauge.storage.hdd.total` | gauge | X | Total harddrive space available to cluster (bytes) |
+| `gauge.storage.hdd.used` | gauge | X | Harddrive space used by the cluster (bytes) |
+| `gauge.storage.hdd.usedByData` | gauge | X | Harddrive use by the data in the cluster(bytes) |
+| `gauge.storage.ram.quotaTotal` | gauge | X | Ram quota total for the cluster (bytes) |
+| `gauge.storage.ram.quotaTotalPerNode` | gauge | X | Ram quota total per node (bytes) |
+| `gauge.storage.ram.quotaUsed` | gauge | X | Ram quota used by the cluster (bytes) |
+| `gauge.storage.ram.quotaUsedPerNode` | gauge | X | Ram quota used per node (bytes) |
+| `gauge.storage.ram.total` | gauge | X | Total ram available to cluster (bytes) |
+| `gauge.storage.ram.used` | gauge | X | Ram used by the cluster (bytes) |
+| `gauge.storage.ram.usedByData` | gauge | X | Ram used by the data in the cluster (bytes) |
+
+Custom metrics may or not be collected by this monitor by default. Check the monitor configuration to see if additional flags are required for gathering additional metrics.
+Any custom metrics above may be reported by the agent by adding a negated `metricsToExclude` to the monitor configuration, as shown below.
+```yaml 
+metricsToExclude:
+  - gauge.bucket.basic.dataUsed
+  - gauge.bucket.basic.diskFetches
+  - gauge.bucket.basic.memUsed
+  - gauge.bucket.op.curr_items
+  - gauge.bucket.op.disk_write_queue
+  - gauge.bucket.op.ep_mem_low_wat
+  - gauge.bucket.op.ops
+  - gauge.bucket.quota.ram
+  - gauge.bucket.quota.rawRAM
+  - gauge.nodes.couch_spatial_data_size
+  - gauge.nodes.couch_spatial_disk_size
+  - gauge.nodes.couch_views_actual_disk_size
+  - gauge.nodes.couch_views_data_size
+  - gauge.nodes.curr_items
+  - gauge.nodes.get_hits
+  - gauge.nodes.mcdMemoryAllocated
+  - gauge.nodes.mcdMemoryReserved
+  - gauge.nodes.memoryFree
+  - gauge.nodes.memoryTotal
+  - gauge.nodes.vb_replica_curr_items
+  - gauge.storage.hdd.free
+  - gauge.storage.hdd.quotaTotal
+  - gauge.storage.hdd.total
+  - gauge.storage.hdd.used
+  - gauge.storage.hdd.usedByData
+  - gauge.storage.ram.quotaTotal
+  - gauge.storage.ram.quotaTotalPerNode
+  - gauge.storage.ram.quotaUsed
+  - gauge.storage.ram.quotaUsedPerNode
+  - gauge.storage.ram.total
+  - gauge.storage.ram.used
+  - gauge.storage.ram.usedByData
+  negated: true
+```
+
+
 
 
 

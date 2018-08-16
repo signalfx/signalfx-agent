@@ -31,16 +31,31 @@ Monitor Type: `collectd/disk`
 This monitor emits the following metrics.  Note that configuration options may
 cause only a subset of metrics to be emitted.
 
-| Name | Type | Description |
-| ---  | ---  | ---         |
-| `disk_merged.read` | cumulative | The number of disk reads merged into single physical disk access operations. |
-| `disk_merged.write` | cumulative | The number of disk writes merged into single physical disk access operations. |
-| `disk_octets.read` | cumulative | The number of bytes (octets) read from a disk. |
-| `disk_octets.write` | cumulative | The number of bytes (octets) written to a disk. |
-| `disk_ops.read` | cumulative | The number of disk read operations. |
-| `disk_ops.write` | cumulative | The number of disk write operations. |
-| `disk_time.read` | cumulative | The average amount of time it took to do a read operation. |
-| `disk_time.write` | cumulative | The average amount of time it took to do a write operation. |
+| Name | Type | Custom | Description |
+| ---  | ---  | ---    | ---         |
+| `disk_merged.read` | cumulative | X | The number of disk reads merged into single physical disk access operations. |
+| `disk_merged.write` | cumulative | X | The number of disk writes merged into single physical disk access operations. |
+| `disk_octets.read` | cumulative | X | The number of bytes (octets) read from a disk. |
+| `disk_octets.write` | cumulative | X | The number of bytes (octets) written to a disk. |
+| `disk_ops.read` | cumulative |  | The number of disk read operations. |
+| `disk_ops.write` | cumulative |  | The number of disk write operations. |
+| `disk_time.read` | cumulative | X | The average amount of time it took to do a read operation. |
+| `disk_time.write` | cumulative | X | The average amount of time it took to do a write operation. |
+
+Custom metrics may or not be collected by this monitor by default. Check the monitor configuration to see if additional flags are required for gathering additional metrics.
+Any custom metrics above may be reported by the agent by adding a negated `metricsToExclude` to the monitor configuration, as shown below.
+```yaml 
+metricsToExclude:
+  - disk_merged.read
+  - disk_merged.write
+  - disk_octets.read
+  - disk_octets.write
+  - disk_time.read
+  - disk_time.write
+  negated: true
+```
+
+
 
 
 
