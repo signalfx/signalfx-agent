@@ -19,11 +19,11 @@ function vendor() {
 
 function test() {
     go generate ./internal/monitors/...
-    if ($? -ne 0){ return $? }
+    if (-not $?){ return $? }
     go test -v ./... 2>&1 | go2xunit > xunit.xml
 }
 
 function vet() {
     go vet ./... 2>&1 | Select-String -Pattern "\.go" | Select-String -NotMatch -Pattern "_test\.go" -outvariable gofiles
-    if ($gofiles){ echo $gofiles; return 1 }
+    if ($gofiles){ echo $gofiles; return False }
 }
