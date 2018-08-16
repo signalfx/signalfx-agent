@@ -19,7 +19,7 @@ Monitor Type: `processlist`
 
 **Accepts Endpoints**: No
 
-**Multiple Instances Allowed**: Yes
+**Multiple Instances Allowed**: **No**
 
 ## Configuration
 

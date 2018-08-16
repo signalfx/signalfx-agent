@@ -10817,7 +10817,7 @@
       "fields": [],
       "monitorType": "processlist",
       "acceptsEndpoints": false,
-      "singleInstance": false,
+      "singleInstance": true,
       "dimensions": null,
       "metrics": null,
       "properties": null
