@@ -328,7 +328,3 @@ func TestBaseEmitter_AddError(t *testing.T) {
 		}
 	})
 }
-
-func Test_Failure(t *testing.T) {
-    t.Error("I'm an error")
-}
