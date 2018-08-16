@@ -18,8 +18,10 @@ function vendor() {
 }
 
 function test() {
-    go test ./...
+    go generate ./internal/monitors/...
     if ($lastexitcode -ne 0){ exit $lastexitcode }
+    $(& go test -v ./... 2>&1; $ec=$lastexitcode) | go2xunit > xunit.xml
+    if ($ec -ne 0 -or $lastexitcode -ne 0){ exit 1 }
 }
 
 function vet() {
