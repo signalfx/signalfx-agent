@@ -38,7 +38,7 @@ var zlibCompressor = zlib.NewWriter(&bytes.Buffer{})
 
 // Config for this monitor
 type Config struct {
-	config.MonitorConfig `acceptsEndpoints:"false"`
+	config.MonitorConfig `singleInstance:"true" acceptsEndpoints:"false"`
 }
 
 func init() {
