@@ -328,3 +328,7 @@ func TestBaseEmitter_AddError(t *testing.T) {
 		}
 	})
 }
+
+func TestFailure(t *testing.T) {
+    t.Error("I'm an expected failure")
+}
