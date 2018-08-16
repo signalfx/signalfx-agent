@@ -15,10 +15,8 @@ const (
 	processQueryLimitedInformation = 0x00001000
 )
 
-// Windows DLLs
-var psapi = windows.NewLazyDLL("psapi.dll")
-
-// Win32Process is a WMI struct
+// Win32Process is a WMI struct used for WMI calls
+// https://docs.microsoft.com/en-us/windows/desktop/CIMWin32Prov/win32-process
 type Win32Process struct {
 	Name           string
 	ExecutablePath *string
@@ -41,32 +39,31 @@ type PerfProcProcess struct {
 	PercentProcessorTime uint64
 }
 
-// getCPUPercentages is set as a package variable so we can mock it durring testing
+// getCPUPercentages is set as a package variable so we can mock it during testing
 var getCPUPercentages = func() (cpuPercents map[uint32]uint64, err error) {
 	// Get all process cpu percentages
 	var processes []PerfProcProcess
-	if err = wmi.Query("select IDProcess, PercentProcessorTime from Win32_PerfFormattedData_PerfProc_Process where Name != '_Total'", &processes); err == nil && len(processes) > 0 {
-		cpuPercents = make(map[uint32]uint64, len(processes))
-		for _, p := range processes {
-			cpuPercents[p.IDProcess] = p.PercentProcessorTime
-		}
+	err = wmi.Query("select IDProcess, PercentProcessorTime from Win32_PerfFormattedData_PerfProc_Process where Name != '_Total'", &processes)
+	cpuPercents = make(map[uint32]uint64, len(processes))
+	for _, p := range processes {
+		cpuPercents[p.IDProcess] = p.PercentProcessorTime
 	}
 	return cpuPercents, err
 }
 
-// getAllProcesses retrieves all processes.  It is set as a package variable so we can mock it durring testing
+// getAllProcesses retrieves all processes.  It is set as a package variable so we can mock it during testing
 var getAllProcesses = func() (ps []Win32Process, err error) {
 	err = wmi.Query("select Name, ExecutablePath, CommandLine, Priority, ProcessID, Status, ExecutionState, KernelModeTime, PageFileUsage, UserModeTime, WorkingSetSize, VirtualSize from Win32_Process", &ps)
 	return ps, err
 }
 
-// getUsername - retrieves a username from an open process handle it is set as a package variable so we can mock it durring testing
+// getUsername - retrieves a username from an open process handle it is set as a package variable so we can mock it during testing
 var getUsername = func(id uint32) (username string, err error) {
 	// open the process handle and collect any information that requires it
 	var h windows.Handle
 	defer windows.CloseHandle(h)
 	if h, err = windows.OpenProcess(processQueryLimitedInformation, false, id); err != nil {
-		err = fmt.Errorf("unable to open process handle. %v", err)
+		err = fmt.Errorf("Unable to open process handle. %v", err)
 		return username, err
 	}
 
@@ -76,21 +73,21 @@ var getUsername = func(id uint32) (username string, err error) {
 	defer token.Close()
 	err = windows.OpenProcessToken(h, windows.TOKEN_QUERY, &token)
 	if err != nil {
-		err = fmt.Errorf("unable to retrieve process token. %v", err)
+		err = fmt.Errorf("Unable to retrieve process token. %v", err)
 		return username, err
 	}
 
 	// extract the user from the process token
 	user, err := token.GetTokenUser()
 	if err != nil {
-		err = fmt.Errorf("unable to get token user. %v", err)
+		err = fmt.Errorf("Unable to get token user. %v", err)
 		return username, err
 	}
 
 	// extract the username and domain from the user
 	userid, domain, _, err := user.User.Sid.LookupAccount("")
 	if err != nil {
-		err = fmt.Errorf("unable to look up user account from Sid. %v", err)
+		err = fmt.Errorf("Unable to look up user account from Sid %v", err)
 	}
 	username = fmt.Sprintf("%s\\%s", domain, userid)
 
@@ -106,14 +103,13 @@ func ProcessList() (*bytes.Buffer, error) {
 	// Get all processes
 	ps, err := getAllProcesses()
 	if err != nil {
-		logger.Debugf("no processes returned %v", err)
 		return processes, err
 	}
 
 	// Get cpu percentages for all processes
 	cpuPercentages, err := getCPUPercentages()
 	if err != nil {
-		logger.Debugf("no per process cpu percentages returned %v", err)
+		logger.Debugf("No per process cpu percentages returned %v", err)
 	}
 
 	// index position to stop appending commas to the list of processes
@@ -123,7 +119,7 @@ func ProcessList() (*bytes.Buffer, error) {
 	for index, p := range ps {
 		username, err := getUsername(p.ProcessID)
 		if err != nil {
-			logger.Debugf("unable to collect use name for process %v %v", p, err)
+			logger.Debugf("Unable to collect username for process %v. %v", p, err)
 		}
 
 		// CPU Times
@@ -131,6 +127,8 @@ func ProcessList() (*bytes.Buffer, error) {
 		totalTime := float64(p.UserModeTime+p.KernelModeTime) / 10000000 // 100 ns units to seconds
 		if percent, inMap := cpuPercentages[p.ProcessID]; inMap {
 			cpuPercent = float64(percent)
+		} else {
+			logger.Debugf("Unable to find cpu percentage for pid %d.", p.ProcessID)
 		}
 
 		// Memory Percent
@@ -138,12 +136,12 @@ func ProcessList() (*bytes.Buffer, error) {
 		if systemMemory, err := mem.VirtualMemory(); err == nil {
 			memPercent = 100 * float64(p.WorkingSetSize) / float64(systemMemory.Total)
 		} else {
-			logger.Debugf("unable to collect system memory total", err)
+			logger.WithError(err).Error("Unable to collect system memory total")
 		}
 
 		// some windows processes do not have an executable path, but they do have a name
-		var command string
-		if command = *p.ExecutablePath; command == "" {
+		command := *p.ExecutablePath
+		if command == "" {
 			command = p.Name
 		}
 
@@ -153,8 +151,8 @@ func ProcessList() (*bytes.Buffer, error) {
 			username,    // username
 			p.Priority,  // priority
 			"",          // nice value is not available on windows
-			p.PageFileUsage/1024,  // virual memory size in kb?
-			p.WorkingSetSize/1024, // resident memory size in kb?
+			p.PageFileUsage/1024,  // virtual memory size in kb
+			p.WorkingSetSize/1024, // resident memory size in kb
 			0/1024,                // shared memory
 			*p.Status,             // status
 			cpuPercent,            // % cpu, float
@@ -168,5 +166,5 @@ func ProcessList() (*bytes.Buffer, error) {
 			processes.WriteString(",")
 		}
 	}
-	return processes, err
+	return processes, nil
 }

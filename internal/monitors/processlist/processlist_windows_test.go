@@ -94,7 +94,7 @@ func TestMonitor_Configure(t *testing.T) {
 				}
 				return username, nil
 			}
-			if err := tt.m.Configure(&Config{config.MonitorConfig{IntervalSeconds: 1}}); (err != nil) != tt.wantErr {
+			if err := tt.m.Configure(&Config{config.MonitorConfig{IntervalSeconds: 10}}); (err != nil) != tt.wantErr {
 				t.Errorf("Monitor.Configure() error = %v, wantErr %v", err, tt.wantErr)
 			}
 			time.Sleep(1 * time.Second)

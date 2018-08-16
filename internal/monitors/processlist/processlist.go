@@ -34,6 +34,7 @@ const (
 // ```
 
 var logger = log.WithFields(log.Fields{"monitorType": monitorType})
+var zlibCompressor = zlib.NewWriter(&bytes.Buffer{})
 
 // Config for this monitor
 type Config struct {
@@ -44,20 +45,20 @@ func init() {
 	monitors.Register(monitorType, func() interface{} { return &Monitor{} }, &Config{})
 }
 
+// compresses the given byte array
 func compressBytes(in []byte) (buf bytes.Buffer, err error) {
-	compressor := zlib.NewWriter(&buf)
-	_, err = compressor.Write(in)
-	_ = compressor.Close()
+	zlibCompressor.Reset(&buf)
+	_, err = zlibCompressor.Write(in)
+	_ = zlibCompressor.Close()
 	return
 }
 
-func toTime(secs float64) (response string) {
-	minutes := int(secs / 60)
-	seconds := int(math.Mod(secs, 60.0))
-	sec := seconds
-	dec := (seconds - sec) * 100
-	response = fmt.Sprintf("%02d:%02d.%02d", minutes, sec, dec)
-	return
+// toTime returns the given seconds as a formatted string "min:sec.dec"
+func toTime(secs float64) string {
+	minutes := int(secs) / 60
+	seconds := math.Mod(secs, 60.0)
+	dec := math.Mod(seconds, 1.0) * 100
+	return fmt.Sprintf("%02d:%02.f.%02.f", minutes, seconds, dec)
 }
 
 // Monitor for Utilization
@@ -82,20 +83,20 @@ func (m *Monitor) Configure(conf *Config) error {
 			// get the process list
 			processList, err := ProcessList()
 			if err != nil {
-				logger.Error(err)
+				logger.WithError(err).Error("Couldn't get process list")
 				return
 			}
 
 			// escape and compress the process list
 			escapedBytes := bytes.Replace(processList.Bytes(), []byte{byte('\\')}, []byte{byte('\\'), byte('\\')}, -1)
-			cbytes, err := compressBytes(escapedBytes)
+			compressedBytes, err := compressBytes(escapedBytes)
 			if err != nil {
-				logger.Error(err)
+				logger.WithError(err).Error("Couldn't compress process list")
 				return
 			}
 
 			// format and emit the top-info event
-			message := fmt.Sprintf("{\"t\":\"%s\",\"v\":\"%s\"}", base64.StdEncoding.EncodeToString(cbytes.Bytes()), version)
+			message := fmt.Sprintf("{\"t\":\"%s\",\"v\":\"%s\"}", base64.StdEncoding.EncodeToString(compressedBytes.Bytes()), version)
 			m.Output.SendEvent(
 				&event.Event{
 					EventType:  "objects.top-info",
