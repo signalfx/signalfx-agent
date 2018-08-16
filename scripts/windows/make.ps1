@@ -9,7 +9,7 @@ function signalfx-agent([string]$AGENTVERSION="") {
 
 function lint() {
     golint -set_exit_status ./cmd/... ./internal/...
-    return $?
+    return False
 }
 
 function vendor() {
