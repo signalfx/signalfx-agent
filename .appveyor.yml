@@ -20,18 +20,20 @@ install:
 build:
   verbosity: minimal
 before_build:
+  - echo "Running go lint"
   - ps: "& { . $env:APPVEYOR_BUILD_FOLDER/scripts/windows/make.ps1; lint }"
+  - echo "Running go vet"
   - ps: "& { . $env:APPVEYOR_BUILD_FOLDER/scripts/windows/make.ps1; vet }"
 build_script:
+  - echo "Running go build"
   - ps: "& { . $env:APPVEYOR_BUILD_FOLDER/scripts/windows/make.ps1; signalfx-agent $env:AGENT_VERSION }"
 test_script:
-  - echo "Run unit tests"
+  - echo "Running unit tests"
   - ps: "& { . $env:APPVEYOR_BUILD_FOLDER/scripts/windows/make.ps1; $env:TEST_RC=test }"
   - ps: |
       $wc = New-Object 'System.Net.WebClient'
       $wc.UploadFile("https://ci.appveyor.com/api/testresults/junit/$($env:APPVEYOR_JOB_ID)", (Resolve-Path .\results.xml))
   - ps: if ($env:TEST_RC -ne 0){ echo "One or more tests failed!"; exit $env:TEST_RC }
-  - echo "Run integration tests"
-  - signalfx-agent.exe --help
+  - echo "Running integration tests"
   - pytest -n4 -m "not packaging and not installer and not k8s" --verbose --junitxml=testresults/integration_tests.xml --html=testresults/integration_tests.html --self-contained-html tests
 deploy: off
