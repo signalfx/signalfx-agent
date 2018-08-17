@@ -50,7 +50,7 @@
   revision = "5d049714c4a64225c3c79a7cf7d02f7fb5b96338"
 
 [[projects]]
-  digest = "1:92c48b8dc572d037d215125fe6601ff26b242b69a10c7336a189dbecf2823462"
+  digest = "1:bd7558af71cbd2f2b77a33306002b2852d8693b5423f4140359033f90d620a71"
   name = "github.com/coreos/etcd"
   packages = [
     "client",
@@ -114,7 +114,7 @@
   revision = "fea8bd51143307d3454703eadecbeeb778aa75e8"
 
 [[projects]]
-  digest = "1:c29b984fbe376fa96c9908679b09d5be8c53d788dc38f07b3a7f9e576c426b59"
+  digest = "1:a4a05f5cd3db8facc6d97d81f03b80283c38baf04401325a2ffb871045304238"
   name = "github.com/docker/docker"
   packages = [
     "api",
@@ -380,7 +380,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:cdb5ce76cd7af19e3d2d5ba9b6458a2ee804f0d376711215dd3df5f51100d423"
+  digest = "1:d0848e4ad994d76a989069e9dc4faeb8eee082c9d7c93aac3df960442d6a508a"
   name = "github.com/hashicorp/go-rootcerts"
   packages = ["."]
   pruneopts = "NUT"
@@ -1077,7 +1077,7 @@
   revision = "275e2ce91dec4c05a4094a7b1daee5560b555ac9"
 
 [[projects]]
-  digest = "1:a64a5384c265ee694318115c85bb04092e2fa3eaaa77d125c4535ece52311360"
+  digest = "1:6ce53e143b429d0e14d7dc0b4ebd1d6f15427e125aa5c3ef4ccf5f34fa72e359"
   name = "k8s.io/kubernetes"
   packages = ["pkg/kubelet/apis/stats/v1alpha1"]
   pruneopts = "NUT"
