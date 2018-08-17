@@ -5,11 +5,10 @@ environment:
   AGENT_BIN: c:\gopath\src\github.com\signalfx\signalfx-agent\signalfx-agent.exe
   AGENT_VERSION: 3.4.1
   GOPATH: c:\gopath
-  PYTHONPATH: C:\Python35-x64
   PYTHONHOME: C:\Python35-x64
   TEST_SERVICES_DIR: c:\gopath\src\github.com\signalfx\signalfx-agent\test-services
 install:
-  - set PATH=%GOPATH%\bin;c:\go\bin;%PYTHONPATH%;%PATH%
+  - set PATH=%GOPATH%\bin;c:\go\bin;%PYTHONHOME%;%PATH%
   - go version
   - go env
   - go get github.com/golang/lint/golint
