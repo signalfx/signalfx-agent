@@ -6,6 +6,7 @@ environment:
   AGENT_VERSION: 3.4.1
   GOPATH: c:\gopath
   PYTHONPATH: C:\Python35-x64
+  PYTHONHOME: C:\Python35-x64
   TEST_SERVICES_DIR: c:\gopath\src\github.com\signalfx\signalfx-agent\test-services
 install:
   - set PATH=%GOPATH%\bin;c:\go\bin;%PYTHONPATH%;%PATH%
@@ -17,6 +18,7 @@ install:
   - curl -Lo get-pip.py https://bootstrap.pypa.io/get-pip.py
   - python get-pip.py "pip==10.0.1"
   - pip install -r tests\requirements.txt
+  - pytest --version
 build:
   verbosity: minimal
 before_build:
@@ -35,5 +37,5 @@ test_script:
       $wc.UploadFile("https://ci.appveyor.com/api/testresults/junit/$($env:APPVEYOR_JOB_ID)", (Resolve-Path .\results.xml))
   - ps: if ($env:TEST_RC -ne 0){ echo "One or more tests failed!"; exit $env:TEST_RC }
   - echo "Running integration tests"
-  - pytest3 -n4 -m "not packaging and not installer and not k8s" --verbose --junitxml=testresults/integration_tests.xml --html=testresults/integration_tests.html --self-contained-html tests
+  - pytest -n4 -m "not packaging and not installer and not k8s" --verbose --junitxml=testresults/integration_tests.xml --html=testresults/integration_tests.html --self-contained-html tests
 deploy: off
