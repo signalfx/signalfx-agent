@@ -2,9 +2,11 @@ image: Visual Studio 2017
 version: "{build}"
 clone_folder: c:\gopath\src\github.com\signalfx\signalfx-agent
 environment:
+  AGENT_BIN: c:\gopath\src\github.com\signalfx\signalfx-agent\signalfx-agent.exe
   AGENT_VERSION: 3.4.1
   GOPATH: c:\gopath
   PYTHONPATH: C:\Python35-x64
+  TEST_SERVICES_DIR: c:\gopath\src\github.com\signalfx\signalfx-agent\test-services
 install:
   - set PATH=%GOPATH%\bin;c:\go\bin;%PYTHONPATH%;%PATH%
   - go version
@@ -23,9 +25,13 @@ before_build:
 build_script:
   - ps: "& { . $env:APPVEYOR_BUILD_FOLDER/scripts/windows/make.ps1; signalfx-agent $env:AGENT_VERSION }"
 test_script:
+  - echo "Run unit tests"
   - ps: "& { . $env:APPVEYOR_BUILD_FOLDER/scripts/windows/make.ps1; $env:TEST_RC=test }"
   - ps: |
       $wc = New-Object 'System.Net.WebClient'
       $wc.UploadFile("https://ci.appveyor.com/api/testresults/junit/$($env:APPVEYOR_JOB_ID)", (Resolve-Path .\results.xml))
   - ps: if ($env:TEST_RC -ne 0){ echo "One or more tests failed!"; exit $env:TEST_RC }
+  - echo "Run integration tests"
+  - signalfx-agent.exe --help
+  - pytest -n4 -m "not packaging and not installer and not k8s" --verbose --junitxml=testresults/integration_tests.xml --html=testresults/integration_tests.html --self-contained-html tests
 deploy: off
