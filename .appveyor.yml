@@ -4,12 +4,17 @@ clone_folder: c:\gopath\src\github.com\signalfx\signalfx-agent
 environment:
   AGENT_VERSION: 3.4.1
   GOPATH: c:\gopath
+  PYTHONPATH: C:\Python35-x64
 install:
-  - set PATH=%GOPATH%\bin;c:\go\bin;%PATH%
+  - set PATH=%GOPATH%\bin;c:\go\bin;%PYTHONPATH%;%PATH%
   - go version
   - go env
   - go get github.com/golang/lint/golint
   - go get github.com/tebeka/go2xunit
+  - python --version
+  - curl -o https://bootstrap.pypa.io/get-pip.py
+  - python get-pip.py 'pip==10.0.1'
+  - pip install -r tests/requirements.txt
 build:
   verbosity: minimal
 before_build:
