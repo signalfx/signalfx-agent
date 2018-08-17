@@ -10,7 +10,8 @@
 [[projects]]
   name = "github.com/Microsoft/go-winio"
   packages = ["."]
-  revision = "ab35fc04b6365e8fcb18e6e9e41ea4a02b10b175"
+  revision = "97e4973ce50b2ff5f09635a57e2b88a037aae829"
+  version = "v0.4.11"
 
 [[projects]]
   name = "github.com/PuerkitoBio/purell"
@@ -550,8 +551,8 @@
     "net",
     "process"
   ]
-  revision = "c432be29ccce470088d07eea25b3ea7e68a8afbb"
-  version = "v2.18.01"
+  revision = "0ffcfc901f82fc83dc98c51c25ea60c996a1c781"
+  source = "github.com/pytimer/gopsutil"
 
 [[projects]]
   branch = "master"
@@ -938,6 +939,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "1750af15c2363e4d2cd85235ccc0127fadf08119fd8328d3ca5f076214589f3f"
+  inputs-digest = "882bcc42a2538403766a650042851072310d8aa31316f7d9eaab5c4d04550bc5"
   solver-name = "gps-cdcl"
   solver-version = 1
