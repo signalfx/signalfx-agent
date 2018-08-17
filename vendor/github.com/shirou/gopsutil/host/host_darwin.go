@@ -38,9 +38,12 @@ func InfoWithContext(ctx context.Context) (*InfoStat, error) {
 		ret.Hostname = hostname
 	}
 
-	kernelVersion, err := KernelVersionWithContext(ctx)
+	uname, err := exec.LookPath("uname")
 	if err == nil {
-		ret.KernelVersion = kernelVersion
+		out, err := invoke.CommandWithContext(ctx, uname, "-r")
+		if err == nil {
+			ret.KernelVersion = strings.ToLower(strings.TrimSpace(string(out)))
+		}
 	}
 
 	platform, family, pver, err := PlatformInformation()
@@ -211,15 +214,7 @@ func KernelVersion() (string, error) {
 }
 
 func KernelVersionWithContext(ctx context.Context) (string, error) {
-	uname, err := exec.LookPath("uname")
-	if err != nil {
-		return "", err
-	}
-	out, err := invoke.CommandWithContext(ctx, uname, "-r")
-	if err != nil {
-		return "", err
-	}
-	version := strings.ToLower(strings.TrimSpace(string(out)))
+	_, _, version, err := PlatformInformation()
 	return version, err
 }
 

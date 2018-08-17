@@ -23,7 +23,8 @@ type Win32_Processor struct {
 	MaxClockSpeed             uint32
 }
 
-type win32_PerfRawData_Counters_ProcessorInformation struct {
+// Win32_PerfFormattedData_Counters_ProcessorInformation stores instance value of the perf counters
+type Win32_PerfFormattedData_Counters_ProcessorInformation struct {
 	Name                  string
 	PercentDPCTime        uint64
 	PercentIdleTime       uint64
@@ -43,10 +44,6 @@ type Win32_PerfFormattedData_PerfOS_System struct {
 	ProcessorQueueLength uint32
 }
 
-const (
-	win32_TicksPerSecond = 10000000.0
-)
-
 // Times returns times stat per cpu and combined for all CPUs
 func Times(percpu bool) ([]TimesStat, error) {
 	return TimesWithContext(context.Background(), percpu)
@@ -54,7 +51,7 @@ func Times(percpu bool) ([]TimesStat, error) {
 
 func TimesWithContext(ctx context.Context, percpu bool) ([]TimesStat, error) {
 	if percpu {
-		return perCPUTimesWithContext(ctx)
+		return perCPUTimes()
 	}
 
 	var ret []TimesStat
@@ -122,13 +119,17 @@ func InfoWithContext(ctx context.Context) ([]InfoStat, error) {
 
 // PerfInfo returns the performance counter's instance value for ProcessorInformation.
 // Name property is the key by which overall, per cpu and per core metric is known.
-func perfInfoWithContext(ctx context.Context) ([]win32_PerfRawData_Counters_ProcessorInformation, error) {
-	var ret []win32_PerfRawData_Counters_ProcessorInformation
+func PerfInfo() ([]Win32_PerfFormattedData_Counters_ProcessorInformation, error) {
+	return PerfInfoWithContext(context.Background())
+}
 
-	q := wmi.CreateQuery(&ret, "WHERE NOT Name LIKE '%_Total'")
+func PerfInfoWithContext(ctx context.Context) ([]Win32_PerfFormattedData_Counters_ProcessorInformation, error) {
+	var ret []Win32_PerfFormattedData_Counters_ProcessorInformation
+
+	q := wmi.CreateQuery(&ret, "")
 	err := common.WMIQueryWithContext(ctx, q, &ret)
 	if err != nil {
-		return []win32_PerfRawData_Counters_ProcessorInformation{}, err
+		return []Win32_PerfFormattedData_Counters_ProcessorInformation{}, err
 	}
 
 	return ret, err
@@ -151,19 +152,19 @@ func ProcInfoWithContext(ctx context.Context) ([]Win32_PerfFormattedData_PerfOS_
 }
 
 // perCPUTimes returns times stat per cpu, per core and overall for all CPUs
-func perCPUTimesWithContext(ctx context.Context) ([]TimesStat, error) {
+func perCPUTimes() ([]TimesStat, error) {
 	var ret []TimesStat
-	stats, err := perfInfoWithContext(ctx)
+	stats, err := PerfInfo()
 	if err != nil {
 		return nil, err
 	}
 	for _, v := range stats {
 		c := TimesStat{
 			CPU:    v.Name,
-			User:   float64(v.PercentUserTime) / win32_TicksPerSecond,
-			System: float64(v.PercentPrivilegedTime) / win32_TicksPerSecond,
-			Idle:   float64(v.PercentIdleTime) / win32_TicksPerSecond,
-			Irq:    float64(v.PercentInterruptTime) / win32_TicksPerSecond,
+			User:   float64(v.PercentUserTime),
+			System: float64(v.PercentPrivilegedTime),
+			Idle:   float64(v.PercentIdleTime),
+			Irq:    float64(v.PercentInterruptTime),
 		}
 		ret = append(ret, c)
 	}
