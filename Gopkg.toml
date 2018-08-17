@@ -101,7 +101,13 @@
 
 [[constraint]]
   name = "github.com/shirou/gopsutil"
-  version = "2.17.11"
+  version = "2.18.07"
+
+# temporarily overriding until https://github.com/shirou/gopsutil/pull/549 is merged
+[[override]]
+  name = "github.com/shirou/gopsutil"
+  source = "github.com/pytimer/gopsutil"
+  revision = "0ffcfc901f82fc83dc98c51c25ea60c996a1c781"
 
 [[constraint]]
   branch = "master"
@@ -141,7 +147,7 @@
 
 [[constraint]]
   name = "github.com/Microsoft/go-winio"
-  revision = "ab35fc04b6365e8fcb18e6e9e41ea4a02b10b175"
+  version = "0.4.9"
 
 [[constraint]]
   name = "github.com/signalfx/telegraf"
