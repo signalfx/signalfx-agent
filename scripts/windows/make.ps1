@@ -20,11 +20,16 @@ function vendor() {
 function test() {
     go generate ./internal/monitors/...
     if ($lastexitcode -ne 0){ exit $lastexitcode }
-    $(& go test -v ./... 2>&1; $rc=$lastexitcode) | go2xunit > results.xml
+    $(& go test -v ./... 2>&1; $rc=$lastexitcode) | go2xunit > unit_results.xml
     return $rc
 }
 
 function vet() {
     go vet ./... 2>&1 | Select-String -Pattern "\.go" | Select-String -NotMatch -Pattern "_test\.go" -outvariable gofiles
     if ($gofiles){ Write-Host $gofiles; exit 1 }
+}
+
+function integration_test() {
+    $(& pytest -n4 -m 'windows or telegraf' --verbose --junitxml=integration_results.xml --html=integration_results.html --self-contained-html tests; $rc=$lastexitcode)
+    return $rc
 }

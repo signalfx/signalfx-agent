@@ -25,7 +25,9 @@ before_build:
 build_script:
   - echo Running go build
   - ps: "& { . $env:APPVEYOR_BUILD_FOLDER/scripts/windows/make.ps1; signalfx-agent $env:AGENT_VERSION }"
+  - signalfx-agent.exe -version
 before_test:
+  - echo Installing test dependencies
   - go get github.com/tebeka/go2xunit
   - curl -Lo get-pip.py https://bootstrap.pypa.io/get-pip.py
   - python get-pip.py "pip==10.0.1"
@@ -36,14 +38,14 @@ test_script:
   - ps: "& { . $env:APPVEYOR_BUILD_FOLDER/scripts/windows/make.ps1; $env:TEST_RC=test }"
   - ps: |
       $wc = New-Object 'System.Net.WebClient'
-      $wc.UploadFile("https://ci.appveyor.com/api/testresults/junit/$($env:APPVEYOR_JOB_ID)", (Resolve-Path .\results.xml))
-  - ps: if ($env:TEST_RC -ne 0){ Write-Host "One or more tests failed!"; exit $env:TEST_RC }
+      $wc.UploadFile("https://ci.appveyor.com/api/testresults/junit/$($env:APPVEYOR_JOB_ID)", (Resolve-Path .\unit_results.xml))
+  - ps: if ($env:TEST_RC -ne 0){ Write-Host "One or more unit tests failed!"; exit $env:TEST_RC }
   - echo Running integration tests
-  - signalfx-agent.exe -version
-  - pytest --exitfirst -n4 -m "windows or telegraf" --verbose --junitxml=integration_tests.xml --html=integration_tests.html --self-contained-html tests
+  - ps: "& { . $env:APPVEYOR_BUILD_FOLDER/scripts/windows/make.ps1; $env:TEST_RC=integration_test }"
   - ps: |
       $wc = New-Object 'System.Net.WebClient'
-      $wc.UploadFile("https://ci.appveyor.com/api/testresults/junit/$($env:APPVEYOR_JOB_ID)", (Resolve-Path .\integration_tests.xml))
+      $wc.UploadFile("https://ci.appveyor.com/api/testresults/junit/$($env:APPVEYOR_JOB_ID)", (Resolve-Path .\integration_results.xml))
+  - ps: if ($env:TEST_RC -ne 0){ Write-Host "One or more integration tests failed!"; exit $env:TEST_RC }
 artifacts:
-  - path: testresults\integration_tests.html
+  - path: integration_results.html
 deploy: off
