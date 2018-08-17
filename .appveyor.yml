@@ -5,8 +5,8 @@ environment:
   AGENT_BIN: c:\gopath\src\github.com\signalfx\signalfx-agent\signalfx-agent.exe
   AGENT_VERSION: 3.4.1
   GOPATH: c:\gopath
-  PYTHONHOME: C:\Python35-x64
-  PYTHONPATH: C:\Python35-x64
+  PYTHONHOME: c:\Python35-x64
+  PYTHONPATH: c:\Python35-x64
   TEST_SERVICES_DIR: c:\gopath\src\github.com\signalfx\signalfx-agent\test-services
 install:
   - set PATH=%GOPATH%\bin;c:\go\bin;%PATH%
@@ -23,22 +23,22 @@ install:
 build:
   verbosity: minimal
 before_build:
-  - echo "Running go lint"
+  - echo Running go lint
   - ps: "& { . $env:APPVEYOR_BUILD_FOLDER/scripts/windows/make.ps1; lint }"
-  - echo "Running go vet"
+  - echo Running go vet
   - ps: "& { . $env:APPVEYOR_BUILD_FOLDER/scripts/windows/make.ps1; vet }"
 build_script:
-  - echo "Running go build"
+  - echo Running go build
   - ps: "& { . $env:APPVEYOR_BUILD_FOLDER/scripts/windows/make.ps1; signalfx-agent $env:AGENT_VERSION }"
 test_script:
-  - echo "Running unit tests"
+  - echo Running unit tests
   - ps: "& { . $env:APPVEYOR_BUILD_FOLDER/scripts/windows/make.ps1; $env:TEST_RC=test }"
   - ps: |
       $wc = New-Object 'System.Net.WebClient'
       $wc.UploadFile("https://ci.appveyor.com/api/testresults/junit/$($env:APPVEYOR_JOB_ID)", (Resolve-Path .\results.xml))
-  - ps: if ($env:TEST_RC -ne 0){ echo "One or more tests failed!"; exit $env:TEST_RC }
-  - echo "Running integration tests"
-  - ps: $env:AGENT_BIN -version
+  - ps: if ($env:TEST_RC -ne 0){ Write-Host "One or more tests failed!"; exit $env:TEST_RC }
+  - echo Running integration tests
+  - signalfx-agent.exe -version
 #  - pytest --exitfirst -n4 -m "windows" --verbose --junitxml=integration_tests.xml --html=integration_tests.html --self-contained-html tests
 #  - ps: |
 #      $wc = New-Object 'System.Net.WebClient'
