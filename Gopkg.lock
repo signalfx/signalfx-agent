@@ -10,11 +10,12 @@
   version = "v2.3.0"
 
 [[projects]]
-  digest = "1:d4b3bb952a228f05d52a58f8ffc39d5edf5b8f1bd291ac82f0249ffa31c509f5"
+  digest = "1:2be791e7b333ff7c06f8fb3dc18a7d70580e9399dbdffd352621d067ff260b6e"
   name = "github.com/Microsoft/go-winio"
   packages = ["."]
   pruneopts = "NUT"
-  revision = "ab35fc04b6365e8fcb18e6e9e41ea4a02b10b175"
+  revision = "97e4973ce50b2ff5f09635a57e2b88a037aae829"
+  version = "v0.4.11"
 
 [[projects]]
   branch = "master"
@@ -734,7 +735,7 @@
   revision = "c4fab1ac1bec58281ad0667dc3f0907a9476ac47"
 
 [[projects]]
-  digest = "1:014d86c6b3f1811b99a705133b4f9e9d9c1270fed55497f0387362c728c414b3"
+  digest = "1:c977abde44ff4b33ec304d050073d528b530253f4ddbf7caf0d31e0e1bcb3dbd"
   name = "github.com/shirou/gopsutil"
   packages = [
     "cpu",
@@ -745,8 +746,8 @@
     "process",
   ]
   pruneopts = "NUT"
-  revision = "ccc1c1016bc5d10e803189ee43417c50cdde7f1b"
-  version = "v2.18.12"
+  revision = "0ffcfc901f82fc83dc98c51c25ea60c996a1c781"
+  source = "github.com/pytimer/gopsutil"
 
 [[projects]]
   branch = "master"
@@ -1254,6 +1255,7 @@
     "github.com/Knetic/govaluate",
     "github.com/Microsoft/go-winio",
     "github.com/ShowMax/go-fqdn",
+    "github.com/StackExchange/wmi",
     "github.com/coreos/etcd/client",
     "github.com/coreos/go-systemd/util",
     "github.com/creasty/defaults",
@@ -1281,6 +1283,7 @@
     "github.com/prometheus/client_model/go",
     "github.com/prometheus/common/expfmt",
     "github.com/samuel/go-zookeeper/zk",
+    "github.com/shirou/gopsutil/mem",
     "github.com/shirou/gopsutil/net",
     "github.com/shirou/gopsutil/process",
     "github.com/signalfx/com_signalfx_metrics_protobuf",
@@ -1302,6 +1305,7 @@
     "github.com/ulule/deepcopier",
     "github.com/x-cray/logrus-prefixed-formatter",
     "golang.org/x/sync/errgroup",
+    "golang.org/x/sys/windows",
     "gopkg.in/fatih/set.v0",
     "gopkg.in/go-playground/validator.v9",
     "gopkg.in/yaml.v2",
