@@ -337,7 +337,7 @@ ENV PATH=$PATH:/usr/local/go/bin:/go/bin GOPATH=/go
 
 COPY --from=golang:1.10.2-stretch /usr/local/go/ /usr/local/go
 
-RUN wget -O /usr/bin/dep https://github.com/golang/dep/releases/download/v0.4.1/dep-linux-amd64 &&\
+RUN wget -O /usr/bin/dep https://github.com/golang/dep/releases/download/v0.5.0/dep-linux-amd64 &&\
     chmod +x /usr/bin/dep
 
 RUN curl -fsSL get.docker.com -o /tmp/get-docker.sh &&\
