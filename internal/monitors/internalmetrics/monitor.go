@@ -62,6 +62,43 @@ const (
 // GAUGE(sfxagent.active_observers): The number of observers configured and
 // running
 
+// CUMULATIVE(sfxagent.go_total_alloc): Total number of bytes allocated to the
+// heap throughout the lifetime of the agent
+
+// CUMULATIVE(sfxagent.go_mallocs): Total number of heap objects allocated
+// throughout the lifetime of the agent
+
+// CUMULATIVE(sfxagent.go_frees): Total number of heap objects freed
+// throughout the lifetime of the agent
+
+// GAUGE(sfxagent.go_heap_alloc): Bytes of live heap memory (memory that has
+// been allocated but not freed)
+
+// GAUGE(sfxagent.go_heap_idle): Bytes of memory that consist of idle spans
+// (that is, completely empty spans of memory)
+
+// GAUGE(sfxagent.go_heap_released): Bytes of memory that have been returned to
+// the OS.  This is quite often 0.  `sfxagent.go_heap_idle -
+// sfxagent.go_heap_release` is the memory that Go is retaining for future heap
+// allocations.
+
+// GAUGE(sfxagent.go_heap_sys): Virtual memory size in bytes of the agent.  This
+// will generally reflect the largest heap size the agent has ever had in its
+// lifetime.
+
+// GAUGE(sfxagent.go_heap_inuse): Size in bytes of in use spans
+
+// GAUGE(sfxagent.go_stack_inuse): Size in bytes of spans that have at least
+// one goroutine stack in them
+
+// GAUGE(sfxagent.go_next_gc): The target heap size -- GC tries to keep the
+// heap smaller than this
+
+// GAUGE(sfxagent.go_num_gc): The number of GC cycles that have happened in the
+// agent since it started
+
+// GAUGE(sfxgent.go_num_goroutine): Number of goroutines in the agent
+
 // Config for internal metric monitoring
 type Config struct {
 	config.MonitorConfig

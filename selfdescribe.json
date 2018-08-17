@@ -9964,6 +9964,66 @@
           "name": "sfxagent.events_sent",
           "type": "cumulative",
           "description": "The total number of events sent by the agent since it last started"
+        },
+        {
+          "name": "sfxagent.go_frees",
+          "type": "cumulative",
+          "description": "Total number of heap objects freed throughout the lifetime of the agent"
+        },
+        {
+          "name": "sfxagent.go_heap_alloc",
+          "type": "gauge",
+          "description": "Bytes of live heap memory (memory that has been allocated but not freed)"
+        },
+        {
+          "name": "sfxagent.go_heap_idle",
+          "type": "gauge",
+          "description": "Bytes of memory that consist of idle spans (that is, completely empty spans of memory)"
+        },
+        {
+          "name": "sfxagent.go_heap_inuse",
+          "type": "gauge",
+          "description": "Size in bytes of in use spans"
+        },
+        {
+          "name": "sfxagent.go_heap_released",
+          "type": "gauge",
+          "description": "Bytes of memory that have been returned to the OS.  This is quite often 0.  `sfxagent.go_heap_idle - sfxagent.go_heap_release` is the memory that Go is retaining for future heap allocations."
+        },
+        {
+          "name": "sfxagent.go_heap_sys",
+          "type": "gauge",
+          "description": "Virtual memory size in bytes of the agent.  This will generally reflect the largest heap size the agent has ever had in its lifetime."
+        },
+        {
+          "name": "sfxagent.go_mallocs",
+          "type": "cumulative",
+          "description": "Total number of heap objects allocated throughout the lifetime of the agent"
+        },
+        {
+          "name": "sfxagent.go_next_gc",
+          "type": "gauge",
+          "description": "The target heap size -- GC tries to keep the heap smaller than this"
+        },
+        {
+          "name": "sfxagent.go_num_gc",
+          "type": "gauge",
+          "description": "The number of GC cycles that have happened in the agent since it started"
+        },
+        {
+          "name": "sfxagent.go_stack_inuse",
+          "type": "gauge",
+          "description": "Size in bytes of spans that have at least one goroutine stack in them"
+        },
+        {
+          "name": "sfxagent.go_total_alloc",
+          "type": "cumulative",
+          "description": "Total number of bytes allocated to the heap throughout the lifetime of the agent"
+        },
+        {
+          "name": "sfxgent.go_num_goroutine",
+          "type": "gauge",
+          "description": "Number of goroutines in the agent"
         }
       ],
       "properties": null
