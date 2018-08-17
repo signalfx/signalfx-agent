@@ -27,8 +27,17 @@ monitors:
       measurement: "win_cpu"
 """
 
+metrics = [
+    "win_cpu.Percent_Idle_Time",
+    "win_cpu.Percent_Interrupt_Time",
+    "win_cpu.Percent_Privileged_Time",
+    "win_cpu.Percent_Processor_Time",
+    "win_cpu.Percent_User_Time",
+]
 
 @pytest.mark.skipif(sys.platform != 'win32', reason="only runs on windows")
-def test_win_perf_counters():
+def test_win_cpu():
     with run_agent(config) as [backend, _, _]:
-        assert wait_for(p(has_datapoint_with_dim, backend, "plugin", "win_perf_counters")), "Didn't get win_perf_counters datapoints"
+        assert wait_for(p(has_datapoint_with_dim, backend, "plugin", "win_cpu")), "Didn't get win_cpu datapoints"
+        for metric in metrics:
+            assert wait_for(p(has_datapoint_with_metric_name, backend, metric)), "Didn't get metric %s" % metric
