@@ -38,5 +38,6 @@ test_script:
       $wc.UploadFile("https://ci.appveyor.com/api/testresults/junit/$($env:APPVEYOR_JOB_ID)", (Resolve-Path .\results.xml))
   - ps: if ($env:TEST_RC -ne 0){ echo "One or more tests failed!"; exit $env:TEST_RC }
   - echo "Running integration tests"
-  - pytest -n4 -m "not packaging and not installer and not k8s" --verbose --junitxml=testresults/integration_tests.xml --html=testresults/integration_tests.html --self-contained-html tests
+  - docker-switch-linux
+  - pytest --exitfirst -n4 -m "not packaging and not installer and not k8s" --verbose --junitxml=testresults/integration_tests.xml --html=testresults/integration_tests.html --self-contained-html tests
 deploy: off
