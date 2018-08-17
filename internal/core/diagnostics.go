@@ -15,6 +15,7 @@ import (
 	_ "net/http/pprof"
 
 	"github.com/signalfx/golib/datapoint"
+	"github.com/signalfx/golib/sfxclient"
 	"github.com/signalfx/signalfx-agent/internal/core/config"
 	"github.com/signalfx/signalfx-agent/internal/utils"
 	"github.com/signalfx/signalfx-agent/internal/utils/network/simpleserver"
@@ -109,6 +110,28 @@ func (a *Agent) serveInternalMetrics(path string) error {
 // list of datapoints that represent the instaneous state of the agent
 func (a *Agent) InternalMetrics() []*datapoint.Datapoint {
 	out := make([]*datapoint.Datapoint, 0)
+
+	mstat := runtime.MemStats{}
+	runtime.ReadMemStats(&mstat)
+	out = append(out, []*datapoint.Datapoint{
+		sfxclient.Cumulative("sfxagent.go_total_alloc", nil, int64(mstat.TotalAlloc)),
+		sfxclient.Gauge("sfxagent.go_sys", nil, int64(mstat.Sys)),
+		sfxclient.Cumulative("sfxagent.go_mallocs", nil, int64(mstat.Mallocs)),
+		sfxclient.Cumulative("sfxagent.go_frees", nil, int64(mstat.Frees)),
+		sfxclient.Gauge("sfxagent.go_heap_alloc", nil, int64(mstat.HeapAlloc)),
+		sfxclient.Gauge("sfxagent.go_heap_sys", nil, int64(mstat.HeapSys)),
+		sfxclient.Gauge("sfxagent.go_heap_idle", nil, int64(mstat.HeapIdle)),
+		sfxclient.Gauge("sfxagent.go_heap_inuse", nil, int64(mstat.HeapInuse)),
+		sfxclient.Gauge("sfxagent.go_heap_released", nil, int64(mstat.HeapReleased)),
+		sfxclient.Gauge("sfxagent.go_stack_inuse", nil, int64(mstat.StackInuse)),
+		sfxclient.Gauge("sfxagent.go_next_gc", nil, int64(mstat.NextGC)),
+		sfxclient.Cumulative("sfxagent.go_pause_total_ns", nil, int64(mstat.PauseTotalNs)),
+		sfxclient.Cumulative("sfxagent.go_gc_cpu_fraction", nil, int64(mstat.GCCPUFraction)),
+		sfxclient.Gauge("sfxagent.go_num_gc", nil, int64(mstat.NumGC)),
+		sfxclient.Gauge("sfxagent.go_gomaxprocs", nil, int64(runtime.GOMAXPROCS(0))),
+		sfxclient.Gauge("sfxagent.go_num_goroutine", nil, int64(runtime.NumGoroutine())),
+	}...)
+
 	out = append(out, a.writer.InternalMetrics()...)
 	out = append(out, a.observers.InternalMetrics()...)
 	out = append(out, a.monitors.InternalMetrics()...)

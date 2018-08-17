@@ -42,6 +42,18 @@ cause only a subset of metrics to be emitted.
 | `sfxagent.discovered_endpoints` | gauge | The number of discovered service endpoints.  This includes endpoints that do not have any matching monitor configuration discovery rule. |
 | `sfxagent.events_buffered` | gauge | The total number of events that have been emitted by monitors but have yet to be sent to SignalFx |
 | `sfxagent.events_sent` | cumulative | The total number of events sent by the agent since it last started |
+| `sfxagent.go_frees` | cumulative | Total number of heap objects freed throughout the lifetime of the agent |
+| `sfxagent.go_heap_alloc` | gauge | Bytes of live heap memory (memory that has been allocated but not freed) |
+| `sfxagent.go_heap_idle` | gauge | Bytes of memory that consist of idle spans (that is, completely empty spans of memory) |
+| `sfxagent.go_heap_inuse` | gauge | Size in bytes of in use spans |
+| `sfxagent.go_heap_released` | gauge | Bytes of memory that have been returned to the OS.  This is quite often 0.  `sfxagent.go_heap_idle - sfxagent.go_heap_release` is the memory that Go is retaining for future heap allocations. |
+| `sfxagent.go_heap_sys` | gauge | Virtual memory size in bytes of the agent.  This will generally reflect the largest heap size the agent has ever had in its lifetime. |
+| `sfxagent.go_mallocs` | cumulative | Total number of heap objects allocated throughout the lifetime of the agent |
+| `sfxagent.go_next_gc` | gauge | The target heap size -- GC tries to keep the heap smaller than this |
+| `sfxagent.go_num_gc` | gauge | The number of GC cycles that have happened in the agent since it started |
+| `sfxagent.go_stack_inuse` | gauge | Size in bytes of spans that have at least one goroutine stack in them |
+| `sfxagent.go_total_alloc` | cumulative | Total number of bytes allocated to the heap throughout the lifetime of the agent |
+| `sfxgent.go_num_goroutine` | gauge | Number of goroutines in the agent |
 
 
 
