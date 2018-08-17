@@ -30,6 +30,6 @@ function vet() {
 }
 
 function integration_test() {
-    $(& pytest -n4 -m 'windows or telegraf' --verbose --junitxml=integration_results.xml --html=integration_results.html --self-contained-html tests; $rc=$lastexitcode)
-    return $rc
+    pytest -n4 -m 'windows or telegraf' --verbose --junitxml=integration_results.xml --html=integration_results.html --self-contained-html tests
+    return $lastexitcode
 }
