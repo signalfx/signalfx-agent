@@ -9,7 +9,7 @@ from tests.helpers.assertions import *
 
 pytestmark = [pytest.mark.windows, pytest.mark.telegraf, pytest.mark.win_perf_counters]
 
-config = string.Template("""
+config = """
 monitors:
  - type: telegraf/win_perf_counters
    printValid: true
@@ -25,7 +25,7 @@ monitors:
        - "% Processor Time"
       includeTotal: true
       measurement: "win_cpu"
-""")
+"""
 
 
 @pytest.mark.skipif(sys.platform != 'win32', reason="only runs on windows")

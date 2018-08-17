@@ -40,7 +40,7 @@ test_script:
   - ps: if ($env:TEST_RC -ne 0){ Write-Host "One or more tests failed!"; exit $env:TEST_RC }
   - echo Running integration tests
   - signalfx-agent.exe -version
-  - pytest --exitfirst -n4 -m "telegraf" --verbose --junitxml=integration_tests.xml --html=integration_tests.html --self-contained-html tests
+  - pytest --exitfirst -n4 -m "windows or telegraf" --verbose --junitxml=integration_tests.xml --html=integration_tests.html --self-contained-html tests
   - ps: |
       $wc = New-Object 'System.Net.WebClient'
       $wc.UploadFile("https://ci.appveyor.com/api/testresults/junit/$($env:APPVEYOR_JOB_ID)", (Resolve-Path .\integration_tests.xml))
