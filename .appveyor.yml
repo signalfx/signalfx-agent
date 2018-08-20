@@ -35,14 +35,13 @@ before_test:
   - pytest --version
 test_script:
   - echo Running unit tests
-  - ps: "& { . $env:APPVEYOR_BUILD_FOLDER/scripts/windows/make.ps1; $env:TEST_RC=test }"
+  - ps: "& { . $env:APPVEYOR_BUILD_FOLDER/scripts/windows/make.ps1; test }; $env:TEST_RC=$lastexitcode"
   - ps: |
       $wc = New-Object 'System.Net.WebClient'
       $wc.UploadFile("https://ci.appveyor.com/api/testresults/junit/$($env:APPVEYOR_JOB_ID)", (Resolve-Path .\unit_results.xml))
   - ps: if ($env:TEST_RC -ne 0){ Write-Host "One or more unit tests failed!"; exit $env:TEST_RC }
   - echo Running integration tests
-  - ps: "& { . $env:APPVEYOR_BUILD_FOLDER/scripts/windows/make.ps1; $env:TEST_RC=integration_test }"
-  - ps: Write-Host $env:TEST_RC
+  - ps: "& { . $env:APPVEYOR_BUILD_FOLDER/scripts/windows/make.ps1; integration_test }; $env:TEST_RC=$lastexitcode"
   - ps: |
       $wc = New-Object 'System.Net.WebClient'
       $wc.UploadFile("https://ci.appveyor.com/api/testresults/junit/$($env:APPVEYOR_JOB_ID)", (Resolve-Path .\integration_results.xml))
