@@ -17,6 +17,11 @@ function vendor() {
     if ($lastexitcode -ne 0){ exit $lastexitcode }
 }
 
+function vet() {
+    go vet ./... 2>&1 | Select-String -Pattern "\.go" | Select-String -NotMatch -Pattern "_test\.go" -outvariable gofiles
+    if ($gofiles){ Write-Host $gofiles; exit 1 }
+}
+
 function test() {
     go generate ./internal/monitors/...
     if ($lastexitcode -ne 0){ exit $lastexitcode }
@@ -24,11 +29,6 @@ function test() {
     return $rc
 }
 
-function vet() {
-    go vet ./... 2>&1 | Select-String -Pattern "\.go" | Select-String -NotMatch -Pattern "_test\.go" -outvariable gofiles
-    if ($gofiles){ Write-Host $gofiles; exit 1 }
-}
-
 function integration_test() {
-    pytest -n4 -m 'windows or telegraf' --verbose --junitxml=integration_results.xml --html=integration_results.html --self-contained-html tests
+    pytest -n auto -m 'windows or telegraf' --verbose --junitxml=integration_results.xml --html=integration_results.html --self-contained-html tests
 }
