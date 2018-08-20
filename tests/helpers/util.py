@@ -3,6 +3,7 @@ import io
 import netifaces as ni
 import os
 import select
+import socket
 import subprocess
 import tempfile
 import threading
@@ -67,7 +68,11 @@ def run_agent(config_text):
 
             setup_config(config_text, config_path, fake_services)
 
-            proc = subprocess.Popen([AGENT_BIN, "-config", config_path], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+            if sys.platform != 'win32':
+                proc = subprocess.Popen([AGENT_BIN, "-config", config_path], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+            else:
+                sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                proc = subprocess.Popen([AGENT_BIN, "-config", config_path], stdout=sock, stderr=subprocess.STDOUT)
 
             output = io.BytesIO() 
             def pull_output():
