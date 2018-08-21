@@ -41,4 +41,3 @@ def test_win_cpu():
         assert wait_for(p(has_datapoint_with_dim, backend, "plugin", "win_cpu")), "Didn't get win_cpu datapoints"
         for metric in metrics:
             assert wait_for(p(has_datapoint_with_metric_name, backend, metric)), "Didn't get metric %s" % metric
-        assert False
