@@ -2,25 +2,50 @@ image: Visual Studio 2017
 version: "{build}"
 clone_folder: c:\gopath\src\github.com\signalfx\signalfx-agent
 environment:
+  AGENT_BIN: c:\gopath\src\github.com\signalfx\signalfx-agent\signalfx-agent.exe
   AGENT_VERSION: 3.4.1
   GOPATH: c:\gopath
+  PYTHONHOME: c:\Python35-x64
+  PYTHONPATH: c:\Python35-x64
+  TEST_SERVICES_DIR: c:\gopath\src\github.com\signalfx\signalfx-agent\test-services
 install:
   - set PATH=%GOPATH%\bin;c:\go\bin;%PATH%
+  - set PATH=%PYTHONHOME%;%PYTHONHOME%\Scripts;%PATH%
   - go version
   - go env
-  - go get github.com/golang/lint/golint
-  - go get github.com/tebeka/go2xunit
+  - python --version
 build:
   verbosity: minimal
 before_build:
+  - echo Running go lint
+  - go get github.com/golang/lint/golint
   - ps: "& { . $env:APPVEYOR_BUILD_FOLDER/scripts/windows/make.ps1; lint }"
+  - echo Running go vet
   - ps: "& { . $env:APPVEYOR_BUILD_FOLDER/scripts/windows/make.ps1; vet }"
 build_script:
+  - echo Running go build
   - ps: "& { . $env:APPVEYOR_BUILD_FOLDER/scripts/windows/make.ps1; signalfx-agent $env:AGENT_VERSION }"
+  - signalfx-agent.exe -version
+before_test:
+  - echo Installing test dependencies
+  - go get github.com/tebeka/go2xunit
+  - curl -sSLo get-pip.py https://bootstrap.pypa.io/get-pip.py
+  - python get-pip.py "pip==10.0.1"
+  - pip install -qq -r tests\requirements.txt
+  - pytest --version
 test_script:
-  - ps: "& { . $env:APPVEYOR_BUILD_FOLDER/scripts/windows/make.ps1; $env:TEST_RC=test }"
+  - echo Running unit tests
+  - ps: "& { . $env:APPVEYOR_BUILD_FOLDER/scripts/windows/make.ps1; $env:TEST_RC=unit_test }"
   - ps: |
       $wc = New-Object 'System.Net.WebClient'
-      $wc.UploadFile("https://ci.appveyor.com/api/testresults/junit/$($env:APPVEYOR_JOB_ID)", (Resolve-Path .\results.xml))
-  - ps: if ($env:TEST_RC -ne 0){ echo "One or more tests failed!"; exit $env:TEST_RC }
+      $wc.UploadFile("https://ci.appveyor.com/api/testresults/junit/$($env:APPVEYOR_JOB_ID)", (Resolve-Path .\unit_results.xml))
+  - ps: if ($env:TEST_RC -ne 0){ Write-Host "One or more unit tests failed!"; exit 1 }
+  - echo Running integration tests
+  - ps: "& { . $env:APPVEYOR_BUILD_FOLDER/scripts/windows/make.ps1; integration_test; $env:TEST_RC=$lastexitcode }"
+  - ps: |
+      $wc = New-Object 'System.Net.WebClient'
+      $wc.UploadFile("https://ci.appveyor.com/api/testresults/junit/$($env:APPVEYOR_JOB_ID)", (Resolve-Path .\integration_results.xml))
+  - ps: if ($env:TEST_RC -ne 0){ Write-Host "One or more integration tests failed!"; exit 1 }
+artifacts:
+  - path: integration_results.html
 deploy: off
