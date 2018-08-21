@@ -168,23 +168,8 @@ jobs:
           fi
           PULL_CACHE=yes make dev-image
 
-  build-windows:
-    executor: docker1809
-    steps:
-      - checkout
-      - setup_remote_docker:
-          docker_layer_caching: false
-      - run: |
-          apk add make bash git
-          export PULL_CACHE=yes
-          COLLECTD_VERSION=$(make collectd-version) COLLECTD_COMMIT=$(make collectd-commit) ./scripts/build-binary windows
-          [ -f ~/project/signalfx-agent.exe ] || (echo "signalfx-agent.exe not found!" && exit 1)
-      - store_artifacts:
-          path: ~/project/signalfx-agent.exe
-          destination: /signalfx-agent.exe
-
-  lint:
-    executor: goexecutor
+  lint: 
+    <<: *goexecutor
     steps:
       - checkout
       - goexecutor_setup
@@ -442,7 +427,6 @@ workflows:
     jobs:
       - build
       - build_dev_image
-      - build-windows
       - lint
       - vet
       - gofmt
