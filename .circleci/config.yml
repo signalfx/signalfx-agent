@@ -89,26 +89,6 @@ jobs:
          export PULL_CACHE=yes
          make dev-image
 
-  build-windows:
-    <<: *executor
-    steps:
-      - checkout
-      - run: |
-          set -x
-          export PULL_CACHE=yes
-          COLLECTD_VERSION=$(make collectd-version) COLLECTD_COMMIT=$(make collectd-commit) ./scripts/build-binary windows
-          if [ ! -f ~/project/signalfx-agent.exe ] ; then
-            echo "signalfx-agent.exe not found!"
-            exit 1
-          fi
-
-      - store_test_results:
-          path: ~/testresults
-
-      - store_artifacts:
-          path: ~/project/signalfx-agent.exe
-          destination: /signalfx-agent.exe
-
   lint: 
     <<: *goexecutor
     steps:
@@ -469,7 +449,6 @@ workflows:
     jobs:
      - build
      - build_dev_image
-     - build-windows
      - lint
      - vet
      - gotests
