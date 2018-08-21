@@ -3,6 +3,7 @@ import os
 import select
 import socket
 import subprocess
+import sys
 import tempfile
 import threading
 import time
@@ -89,6 +90,10 @@ def run_agent_with_fake_backend(config_text, fake_services):
         output = io.BytesIO()
 
         def pull_output():
+            if sys.platform == 'win32':
+                b, _ = proc.communicate()
+                output.write(b)
+                return
             while True:
                 # If any output is waiting, grab it.
                 ready, _, _ = select.select([proc.stdout], [], [], 0)
