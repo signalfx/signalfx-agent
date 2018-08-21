@@ -6,10 +6,14 @@ import sys
 from tests.helpers.util import wait_for, run_agent
 from tests.helpers.assertions import *
 
-pytestmark = [pytest.mark.windows, pytest.mark.telegraf, pytest.mark.win_perf_counters]
+pytestmark = [
+    pytest.mark.skipif(sys.platform != 'win32', reason="only runs on windows"),
+    pytest.mark.windows,
+    pytest.mark.telegraf,
+    pytest.mark.win_perf_counters
+]
 
 
-@pytest.mark.skipif(sys.platform != 'win32', reason="only runs on windows")
 def test_win_cpu():
     config = dedent("""
         monitors:
@@ -41,7 +45,6 @@ def test_win_cpu():
             assert wait_for(p(has_datapoint_with_metric_name, backend, metric)), "Didn't get metric %s" % metric
 
 
-@pytest.mark.skipif(sys.platform != 'win32', reason="only runs on windows")
 def test_win_disk():
     config = dedent("""
         monitors:
