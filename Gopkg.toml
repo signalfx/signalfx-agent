@@ -160,3 +160,7 @@
 [[constraint]]
   name = "github.com/ulule/deepcopier"
   revision = "ca99b135e50f526fde9cd88705f0ff2f3f95b77c"
+
+[[constraint]]
+  name = "github.com/kardianos/service"
+  revision = "615a14ed75099c9eaac6949e22ac2341bf9d3197"

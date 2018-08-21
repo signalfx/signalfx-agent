@@ -444,6 +444,21 @@
 
 [[projects]]
   branch = "master"
+  digest = "1:263f9b0a0bcbfff9d5e7d9f2aa11f53995d98214fe0fb97e429e7a5f4534a0f9"
+  name = "github.com/kardianos/osext"
+  packages = ["."]
+  pruneopts = "NUT"
+  revision = "ae77be60afb1dcacde03767a8c37337fad28ac14"
+
+[[projects]]
+  digest = "1:320c5a199bdfddb72c3c53786f16734279ea73fd3fccad51a753728413189cbf"
+  name = "github.com/kardianos/service"
+  packages = ["."]
+  pruneopts = "NUT"
+  revision = "615a14ed75099c9eaac6949e22ac2341bf9d3197"
+
+[[projects]]
+  branch = "master"
   digest = "1:f91bb67d051a94cf6ab2cf07eee0550432afc31655838d42cdec258db4b348f0"
   name = "github.com/kr/logfmt"
   packages = ["."]
@@ -831,11 +846,15 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:4301a4973691694236c322c1ed32273b7d42dbff3cd2d0bbb7b06f233edfbd8e"
+  digest = "1:1c9f78c3181969a5f18d33cda30f66505ef749156a652dcdeee9f6f6e3f6a2c3"
   name = "golang.org/x/sys"
   packages = [
     "unix",
     "windows",
+    "windows/registry",
+    "windows/svc",
+    "windows/svc/eventlog",
+    "windows/svc/mgr",
   ]
   pruneopts = "NUT"
   revision = "37707fdb30a5b38865cfb95e5aab41707daec7fd"
@@ -1107,6 +1126,7 @@
     "github.com/iancoleman/strcase",
     "github.com/influxdata/telegraf/plugins/inputs",
     "github.com/influxdata/telegraf/plugins/inputs/win_perf_counters",
+    "github.com/kardianos/service",
     "github.com/kr/pretty",
     "github.com/mailru/easyjson",
     "github.com/mitchellh/hashstructure",
