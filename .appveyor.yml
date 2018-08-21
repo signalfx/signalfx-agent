@@ -35,7 +35,7 @@ before_test:
   - pytest --version
 test_script:
   - echo Running unit tests
-  - ps: "& { . $env:APPVEYOR_BUILD_FOLDER/scripts/windows/make.ps1; unit_test; $env:TEST_RC=$lastexitcode }"
+  - ps: "& { . $env:APPVEYOR_BUILD_FOLDER/scripts/windows/make.ps1; $env:TEST_RC=unit_test }"
   - ps: |
       $wc = New-Object 'System.Net.WebClient'
       $wc.UploadFile("https://ci.appveyor.com/api/testresults/junit/$($env:APPVEYOR_JOB_ID)", (Resolve-Path .\unit_results.xml))

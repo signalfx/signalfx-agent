@@ -26,10 +26,9 @@ function unit_test() {
     go generate ./internal/monitors/...
     if ($lastexitcode -ne 0){ exit $lastexitcode }
     $(& go test -v ./... 2>&1; $rc=$lastexitcode) | go2xunit > unit_results.xml
-    if ($rc -ne 0){ exit 1 }
+    return $rc
 }
 
 function integration_test() {
     pytest -n auto -m 'windows or telegraf' --verbose --junitxml=integration_results.xml --html=integration_results.html --self-contained-html tests
-    if ($lastexitcode -ne 0){ exit $lastexitcode }
 }
