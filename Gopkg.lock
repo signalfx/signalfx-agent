@@ -42,12 +42,11 @@
   revision = "2501cdd51ef4c60dd727c58b2199e1a09466b10f"
 
 [[projects]]
-  branch = "master"
-  digest = "1:3ccf8ba7afe02fd470c4f07d6eea4d0e6875da3d129f95b925f2003ce5dd2024"
+  digest = "1:1d520ca43a45b3bf83c32d7317acdca5174375ae857a7b2b153bced8189b9133"
   name = "github.com/StackExchange/wmi"
   packages = ["."]
   pruneopts = "NUT"
-  revision = "5d049714c4a64225c3c79a7cf7d02f7fb5b96338"
+  revision = "b12b22c5341f0c26d88c4d66176330500e84db68"
 
 [[projects]]
   digest = "1:bd7558af71cbd2f2b77a33306002b2852d8693b5423f4140359033f90d620a71"

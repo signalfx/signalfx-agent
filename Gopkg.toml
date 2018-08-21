@@ -164,3 +164,7 @@
 [[constraint]]
   name = "github.com/kardianos/service"
   revision = "615a14ed75099c9eaac6949e22ac2341bf9d3197"
+
+[[constraint]]
+  name = "github.com/StackExchange/wmi"
+  revision = "b12b22c5341f0c26d88c4d66176330500e84db68"
