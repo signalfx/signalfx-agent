@@ -56,7 +56,6 @@ def test_win_disk():
                - "% Disk Time"
                - "% Disk Read Time"
                - "% Disk Write Time"
-               - "% User Time"
                - "Current Disk Queue Length"
               includeTotal: true
               measurement: "win_disk"
@@ -66,7 +65,6 @@ def test_win_disk():
         "win_disk.Percent_Disk_Time",
         "win_disk.Percent_Disk_Read_Time",
         "win_disk.Percent_Disk_Write_Time",
-        "win_disk.Percent_User_Time",
         "win_disk.Current_Disk_Queue_Length",
     ]
     with run_agent(config) as [backend, _, _]:
