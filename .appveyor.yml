@@ -35,17 +35,17 @@ before_test:
   - pytest --version
 test_script:
   - echo Running unit tests
-  - ps: "& { . $env:APPVEYOR_BUILD_FOLDER/scripts/windows/make.ps1; test }; $env:TEST_RC=$lastexitcode"
+  - ps: "& { . $env:APPVEYOR_BUILD_FOLDER/scripts/windows/make.ps1; unit_test; $env:TEST_RC=$lastexitcode }"
   - ps: |
       $wc = New-Object 'System.Net.WebClient'
       $wc.UploadFile("https://ci.appveyor.com/api/testresults/junit/$($env:APPVEYOR_JOB_ID)", (Resolve-Path .\unit_results.xml))
-  - ps: if ($env:TEST_RC -ne 0){ Write-Host "One or more unit tests failed!"; exit $env:TEST_RC }
+  - ps: if ($env:TEST_RC -ne 0){ Write-Host "One or more unit tests failed!"; exit 1 }
   - echo Running integration tests
-  - ps: "& { . $env:APPVEYOR_BUILD_FOLDER/scripts/windows/make.ps1; integration_test }; $env:TEST_RC=$lastexitcode"
+  - ps: "& { . $env:APPVEYOR_BUILD_FOLDER/scripts/windows/make.ps1; integration_test; $env:TEST_RC=$lastexitcode }"
   - ps: |
       $wc = New-Object 'System.Net.WebClient'
       $wc.UploadFile("https://ci.appveyor.com/api/testresults/junit/$($env:APPVEYOR_JOB_ID)", (Resolve-Path .\integration_results.xml))
-  - ps: if ($env:TEST_RC -ne 0){ Write-Host "One or more integration tests failed!"; exit $env:TEST_RC }
+  - ps: if ($env:TEST_RC -ne 0){ Write-Host "One or more integration tests failed!"; exit 1 }
 artifacts:
   - path: integration_results.html
 deploy: off
