@@ -105,6 +105,7 @@ func (m *Monitor) Configure(conf *Config) error {
 					Properties: map[string]interface{}{
 						"message": message,
 					},
+					Timestamp: time.Now(),
 				},
 			)
 		},
