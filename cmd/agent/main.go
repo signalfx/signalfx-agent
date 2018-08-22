@@ -95,6 +95,9 @@ type flags struct {
 	debug *bool
 	// service is a string flag used for starting, stopping, installing or uninstalling the agent as a windows service (windows only)
 	service *string
+	// logEvents is a bool flag for logging events to the Windows Application Event log.
+	// This flag is only intended to be used when the agent is launched as a Windows Service.
+	logEvents *bool
 }
 
 // getFlags retrieves flags passed to the agent at runtime and return them in a flags struct
@@ -109,6 +112,7 @@ func getFlags() *flags {
 	// service is a windows only feature and should only be added to the flag set on windows
 	if runtime.GOOS == "windows" {
 		flags.service = set.String("service", "", "'start', 'stop', 'install' or 'uninstall' agent as a windows service.  You may specify an alternate config file path with the -config flag when installing the service.")
+		flags.logEvents = set.Bool("logEvents", false, "copy log events from the agent to the Windows Application Event Log.  This is only used when the agent is deployed as a Windows service.  The agent will write to stdout under all other deployment scenarios.")
 	}
 
 	// The set is configured to exit on errors so we don't need to check the
@@ -162,7 +166,61 @@ func runAgent(flags *flags, interruptCh chan os.Signal, exit chan struct{}) {
 			}
 		}
 	}()
+
 	<-exit
+}
+
+// WindowsEventLogHook is a logrus log hook for emitting to the Windows Application Events log.
+// Events will only be raised when the agent is run as a Windows Service with the "-logEvents" flag enabled
+// Log events may be viewed using the "Event Viewer" Windows Administrative Tool.
+type WindowsEventLogHook struct {
+	logger service.Logger
+}
+
+// Fire is a call back for logrus entries to be passed through the hook
+func (h *WindowsEventLogHook) Fire(entry *log.Entry) error {
+	msg, err := entry.String()
+	if err != nil {
+		return err
+	}
+
+	// Windows Events support other log levels, but the golang.org/x/sys/windows library
+	// does not support these, and therefore the github.com/kardianos/service library does not support them.
+	// TODO: If our dependencies ever add support for Critical and Verbose log levels,
+	// then we should utilize them.
+	switch entry.Level {
+	case log.PanicLevel:
+		return h.logger.Error(msg)
+	case log.FatalLevel:
+		return h.logger.Error(msg)
+	case log.ErrorLevel:
+		return h.logger.Error(msg)
+	case log.WarnLevel:
+		return h.logger.Warning(msg)
+	case log.InfoLevel:
+		return h.logger.Info(msg)
+	case log.DebugLevel:
+		return h.logger.Info(msg)
+	default:
+		return nil
+	}
+}
+
+// Levels returns the logrus levels that the WindowsEventLogHook handles
+func (h *WindowsEventLogHook) Levels() []log.Level {
+	return log.AllLevels
+}
+
+// setupWindowsEventLogging instantiates a hook for logrus to catch and emit events as
+// Windows Application Event
+func setupWindowsEventLogging(s service.Service) {
+	errs := make(chan error, 5)
+	logger, err := s.Logger(errs)
+	if err != nil {
+		log.Error("Unable to set up windows event logger")
+	}
+	hook := &WindowsEventLogHook{logger: logger}
+	log.AddHook(hook)
 }
 
 type program struct {
@@ -233,7 +291,8 @@ func main() {
 			os.Exit(0)
 		}
 
-		// we only use github.com/kardianos/service on windows
+		// on windows we start the agent through the package the pacakge github.com/kardianos/service
+		// this package provides hooks for installing and managing the agent as a windows service
 		if runtime.GOOS == "windows" {
 			config := &service.Config{
 				Name:        "SignalFx Smart Agent",
@@ -241,6 +300,12 @@ func main() {
 				Description: "Collects and publishes metric data to SignalFx",
 				Arguments:   []string{"-config", *flags.configPath},
 			}
+
+			// add the logEvents argument to the service to enable Windows Application Event logging
+			if *flags.logEvents {
+				config.Arguments = append(config.Arguments, "-logEvents")
+			}
+
 			prgm := &program{
 				interruptCh: interruptCh,
 				flags:       flags,
@@ -252,6 +317,12 @@ func main() {
 				log.WithError(err).Error("Failed to find or create the service")
 			}
 
+			// setup Windows Event Logging.  The logging hook will only work when the agent
+			// is deployed as a service with the "-logEvents" flag.
+			if *flags.logEvents {
+				setupWindowsEventLogging(svc)
+			}
+
 			if *flags.service != "" {
 				// install, uninstall, stop the service
 				err = service.Control(svc, *flags.service)
@@ -261,6 +332,7 @@ func main() {
 				// svc.Run() will block and run the agent even when the agent is not installed as a service
 				err = svc.Run()
 			}
+
 			if err != nil {
 				log.WithError(err).Error("Failed to control the service")
 			}
