@@ -13,7 +13,7 @@ pytestmark = [
     pytest.mark.win_perf_counters
 ]
 
-config = string.Template("""
+config_template = string.Template("""
 monitors:
  - type: telegraf/win_perf_counters
    printValid: true
@@ -66,17 +66,18 @@ metrics = {
     ],
 }
 
+params = [
+    ("Processor", "*", "win_cpu"),
+    ("LogicalDisk", "*", "win_disk"),
+    ("System", "------", "win_system"),
+    ("Memory", "------", "win_mem"),
+    ("Network Interface", "------", "win_net")
+]
 
-@pytest.mark.parametrize(
-    "object_name, instance, measurement",
-    [("Processor", "*", "win_cpu"),
-     ("LogicalDisk", "*", "win_disk"),
-     ("System", "------", "win_system"),
-     ("Memory", "------", "win_mem"),
-     ("Network Interface", "*", "win_net")]
-)
+
+@pytest.mark.parametrize("object_name, instance, measurement", params, ids=[p[2] for p in params])
 def test_perf_counter(object_name, instance, measurement):
-    monitor_config = config.substitute(object_name=object_name, instance=instance, measurement=measurement)
+    config = config_template.substitute(object_name=object_name, instance=instance, measurement=measurement)
     with run_agent(monitor_config) as [backend, get_output, _]:
         assert wait_for(p(has_datapoint_with_dim, backend, "plugin", measurement)), "Didn't get %s datapoints" % measurement
         if instance == "*":
