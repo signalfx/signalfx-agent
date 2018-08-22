@@ -30,5 +30,5 @@ function unit_test() {
 }
 
 function integration_test() {
-    pytest -n auto -m 'windows or telegraf' --verbose --junitxml=integration_results.xml --html=integration_results.html --self-contained-html tests
+    pytest -m 'windows or telegraf' --verbose --junitxml=integration_results.xml --html=integration_results.html --self-contained-html tests
 }
