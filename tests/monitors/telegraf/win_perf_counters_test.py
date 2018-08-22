@@ -88,4 +88,5 @@ def test_perf_counter(object_name, instance, include_total, measurement):
             assert wait_for(p(has_datapoint_with_dim, backend, "instance", "_Total")), "Didn't get _Total datapoints"
         for metric in metrics[measurement]:
             assert wait_for(p(has_datapoint_with_metric_name, backend, metric)), "Didn't get metric %s" % metric
+        print("output = " + get_output())
         assert not has_log_message(get_output().lower(), "error"), "error found in agent output!"
