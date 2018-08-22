@@ -32,10 +32,9 @@
   revision = "2501cdd51ef4c60dd727c58b2199e1a09466b10f"
 
 [[projects]]
-  branch = "master"
   name = "github.com/StackExchange/wmi"
   packages = ["."]
-  revision = "5d049714c4a64225c3c79a7cf7d02f7fb5b96338"
+  revision = "b12b22c5341f0c26d88c4d66176330500e84db68"
 
 [[projects]]
   name = "github.com/apache/thrift"
@@ -360,6 +359,17 @@
   packages = ["."]
   revision = "59fac5042749a5afb9af70e813da1dd5474f0167"
   version = "1.0.1"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/kardianos/osext"
+  packages = ["."]
+  revision = "ae77be60afb1dcacde03767a8c37337fad28ac14"
+
+[[projects]]
+  name = "github.com/kardianos/service"
+  packages = ["."]
+  revision = "615a14ed75099c9eaac6949e22ac2341bf9d3197"
 
 [[projects]]
   branch = "master"
@@ -712,7 +722,11 @@
   name = "golang.org/x/sys"
   packages = [
     "unix",
-    "windows"
+    "windows",
+    "windows/registry",
+    "windows/svc",
+    "windows/svc/eventlog",
+    "windows/svc/mgr"
   ]
   revision = "37707fdb30a5b38865cfb95e5aab41707daec7fd"
 
@@ -939,6 +953,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "882bcc42a2538403766a650042851072310d8aa31316f7d9eaab5c4d04550bc5"
+  inputs-digest = "35b87131d3945250cd95959ba6a4ad0b4b37064f8880d1f7c41dc91f71b44743"
   solver-name = "gps-cdcl"
   solver-version = 1
