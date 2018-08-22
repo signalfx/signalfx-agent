@@ -18,5 +18,6 @@ def test_processlist():
         monitors:
          - type: processlist
         """)
-    with run_agent(config) as [backend, _, _]:
+    with run_agent(config) as [backend, get_output, _]:
         assert wait_for(p(has_event_type, backend, "objects.top-info")), "Didn't get processlist events"
+        assert not has_log_message(get_output().lower(), "error"), "error found in agent output!"

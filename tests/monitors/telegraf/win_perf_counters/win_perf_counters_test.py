@@ -36,11 +36,12 @@ def test_win_cpu():
         "win_cpu.Percent_Processor_Time",
         "win_cpu.Percent_User_Time",
     ]
-    with run_agent(config) as [backend, _, _]:
+    with run_agent(config) as [backend, get_output, _]:
         assert wait_for(p(has_datapoint_with_dim, backend, "plugin", "win_cpu")), "Didn't get win_cpu datapoints"
         assert wait_for(p(has_datapoint_with_dim, backend, "instance", "_Total")), "Didn't get _Total datapoints"
         for metric in metrics:
             assert wait_for(p(has_datapoint_with_metric_name, backend, metric)), "Didn't get metric %s" % metric
+        assert not has_log_message(get_output().lower(), "error"), "error found in agent output!"
 
 
 def test_win_disk():
@@ -65,11 +66,12 @@ def test_win_disk():
         "win_disk.Percent_Disk_Write_Time",
         "win_disk.Current_Disk_Queue_Length",
     ]
-    with run_agent(config) as [backend, _, _]:
+    with run_agent(config) as [backend, get_output, _]:
         assert wait_for(p(has_datapoint_with_dim, backend, "plugin", "win_disk")), "Didn't get win_disk datapoints"
         assert wait_for(p(has_datapoint_with_dim, backend, "instance", "_Total")), "Didn't get _Total datapoints"
         for metric in metrics:
             assert wait_for(p(has_datapoint_with_metric_name, backend, metric)), "Didn't get metric %s" % metric
+        assert not has_log_message(get_output().lower(), "error"), "error found in agent output!"
 
 
 def test_win_system():
@@ -93,10 +95,11 @@ def test_win_system():
         "win_system.System_Up_Time",
         "win_system.Threads",
     ]
-    with run_agent(config) as [backend, _, _]:
+    with run_agent(config) as [backend, get_output, _]:
         assert wait_for(p(has_datapoint_with_dim, backend, "plugin", "win_system")), "Didn't get win_system datapoints"
         for metric in metrics:
             assert wait_for(p(has_datapoint_with_metric_name, backend, metric)), "Didn't get metric %s" % metric
+        assert not has_log_message(get_output().lower(), "error"), "error found in agent output!"
 
 
 def test_win_mem():
@@ -120,10 +123,11 @@ def test_win_mem():
         "win_mem.Pages_persec",
         "win_mem.Write_Copies_persec",
     ]
-    with run_agent(config) as [backend, _, _]:
+    with run_agent(config) as [backend, get_output, _]:
         assert wait_for(p(has_datapoint_with_dim, backend, "plugin", "win_mem")), "Didn't get win_mem datapoints"
         for metric in metrics:
             assert wait_for(p(has_datapoint_with_metric_name, backend, metric)), "Didn't get metric %s" % metric
+        assert not has_log_message(get_output().lower(), "error"), "error found in agent output!"
 
 
 def test_win_net():
@@ -147,7 +151,8 @@ def test_win_net():
         "win_net.Current_Bandwidth",
         "win_net.Packets_persec",
     ]
-    with run_agent(config) as [backend, _, _]:
+    with run_agent(config) as [backend, get_output, _]:
         assert wait_for(p(has_datapoint_with_dim, backend, "plugin", "win_net")), "Didn't get win_net datapoints"
         for metric in metrics:
             assert wait_for(p(has_datapoint_with_metric_name, backend, metric)), "Didn't get metric %s" % metric
+        assert not has_log_message(get_output().lower(), "error"), "error found in agent output!"
