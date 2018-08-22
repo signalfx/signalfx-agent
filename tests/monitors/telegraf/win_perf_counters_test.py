@@ -71,7 +71,7 @@ params = [
     ("LogicalDisk", "*", "win_disk"),
     ("System", "------", "win_system"),
     ("Memory", "------", "win_mem"),
-    ("Network Interface", "------", "win_net")
+    ("Network Interface", "*", "win_net")
 ]
 
 
@@ -81,7 +81,7 @@ def test_perf_counter(object_name, instance, measurement):
     with run_agent(config) as [backend, get_output, _]:
         assert wait_for(p(has_datapoint_with_dim, backend, "plugin", measurement)), "Didn't get %s datapoints" % measurement
         if instance == "*":
-            assert wait_for(p(has_datapoint_with_dim, backend, "instance", "_Total")), "Didn't get _Total datapoints"
+            assert wait_for(p(has_datapoint_with_dim, backend, "instance", "_Total"), timeout_seconds=30), "Didn't get _Total datapoints"
         for metric in metrics[measurement]:
             assert wait_for(p(has_datapoint_with_metric_name, backend, metric)), "Didn't get metric %s" % metric
         assert not has_log_message(get_output().lower(), "error"), "error found in agent output!"
