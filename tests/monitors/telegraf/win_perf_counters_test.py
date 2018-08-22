@@ -24,7 +24,7 @@ monitors:
        - "$instance"
       counters:
        - "*"
-      includeTotal: true
+      includeTotal: $include_total
       measurement: "$measurement"
 """)
 
@@ -67,21 +67,25 @@ metrics = {
 }
 
 params = [
-    ("Processor", "*", "win_cpu"),
-    ("LogicalDisk", "*", "win_disk"),
-    ("System", "------", "win_system"),
-    ("Memory", "------", "win_mem"),
-    ("Network Interface", "*", "win_net")
+    ("Processor", "*", "true", "win_cpu"),
+    ("LogicalDisk", "*", "true", "win_disk"),
+    ("System", "------", "false", "win_system"),
+    ("Memory", "------", "false", "win_mem"),
+    ("Network Interface", "*", "false", "win_net")
 ]
 
 
-@pytest.mark.parametrize("object_name, instance, measurement", params, ids=[p[2] for p in params])
-def test_perf_counter(object_name, instance, measurement):
-    config = config_template.substitute(object_name=object_name, instance=instance, measurement=measurement)
+@pytest.mark.parametrize("object_name, instance, include_total, measurement", params, ids=[p[3] for p in params])
+def test_perf_counter(object_name, instance, include_total, measurement):
+    config = config_template.substitute(
+        object_name=object_name,
+        instance=instance,
+        include_total=include_total,
+        measurement=measurement)
     with run_agent(config) as [backend, get_output, _]:
         assert wait_for(p(has_datapoint_with_dim, backend, "plugin", measurement)), "Didn't get %s datapoints" % measurement
-        if instance == "*":
-            assert wait_for(p(has_datapoint_with_dim, backend, "instance", "_Total"), timeout_seconds=120), "Didn't get _Total datapoints"
+        if include_total == "true":
+            assert wait_for(p(has_datapoint_with_dim, backend, "instance", "_Total")), "Didn't get _Total datapoints"
         for metric in metrics[measurement]:
             assert wait_for(p(has_datapoint_with_metric_name, backend, metric)), "Didn't get metric %s" % metric
         assert not has_log_message(get_output().lower(), "error"), "error found in agent output!"
