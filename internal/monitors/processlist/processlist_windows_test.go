@@ -99,8 +99,19 @@ func TestMonitor_Configure(t *testing.T) {
 			}
 			time.Sleep(1 * time.Second)
 			events := tt.m.Output.(*neotest.TestOutput).FlushEvents()
-			if !reflect.DeepEqual(events, tt.want) {
+			if len(events) != len(tt.want) {
 				t.Errorf("events %v != %v", events, tt.want)
+				return
+			}
+			for index, e := range events {
+				w := tt.want[index]
+				if e.EventType != w.EventType ||
+					e.Category != w.Category ||
+					!reflect.DeepEqual(e.Dimensions, w.Dimensions) ||
+					!reflect.DeepEqual(e.Properties, w.Properties) {
+					t.Errorf("events %v != %v", events, tt.want)
+					return
+				}
 			}
 		})
 		getAllProcesses = origGetAllProcesses
