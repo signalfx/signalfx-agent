@@ -19,16 +19,13 @@ def test_win_cpu():
         monitors:
          - type: telegraf/win_perf_counters
            printValid: true
+           useWildCardExpansion: true
            objects:
             - objectName: "Processor"
               instances:
                - "*"
               counters:
-               - "% Idle Time"
-               - "% Interrupt Time"
-               - "% Privileged Time"
-               - "% User Time"
-               - "% Processor Time"
+               - "*"
               includeTotal: true
               measurement: "win_cpu"
         """)
@@ -41,6 +38,7 @@ def test_win_cpu():
     ]
     with run_agent(config) as [backend, _, _]:
         assert wait_for(p(has_datapoint_with_dim, backend, "plugin", "win_cpu")), "Didn't get win_cpu datapoints"
+        assert wait_for(p(has_datapoint_with_dim, backend, "instance", "_Total")), "Didn't get _Total datapoints"
         for metric in metrics:
             assert wait_for(p(has_datapoint_with_metric_name, backend, metric)), "Didn't get metric %s" % metric
 
@@ -50,16 +48,13 @@ def test_win_disk():
         monitors:
          - type: telegraf/win_perf_counters
            printValid: true
+           useWildCardExpansion: true
            objects:
             - objectName: "LogicalDisk"
               instances:
                - "*"
               counters:
-               - "% Idle Time"
-               - "% Disk Time"
-               - "% Disk Read Time"
-               - "% Disk Write Time"
-               - "Current Disk Queue Length"
+               - "*"
               includeTotal: true
               measurement: "win_disk"
         """)
@@ -72,5 +67,6 @@ def test_win_disk():
     ]
     with run_agent(config) as [backend, _, _]:
         assert wait_for(p(has_datapoint_with_dim, backend, "plugin", "win_disk")), "Didn't get win_disk datapoints"
+        assert wait_for(p(has_datapoint_with_dim, backend, "instance", "_Total")), "Didn't get _Total datapoints"
         for metric in metrics:
             assert wait_for(p(has_datapoint_with_metric_name, backend, metric)), "Didn't get metric %s" % metric
