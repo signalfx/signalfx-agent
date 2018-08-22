@@ -67,26 +67,26 @@ metrics = {
 }
 
 params = [
-    ("Processor", "*", "true", "win_cpu"),
-    ("LogicalDisk", "*", "true", "win_disk"),
-    ("System", "------", "false", "win_system"),
-    ("Memory", "------", "false", "win_mem"),
-    ("Network Interface", "*", "false", "win_net")
+    ("win_cpu", "Processor", "*", "true"),
+    ("win_disk", "LogicalDisk", "*", "true"),
+    ("win_system", "System", "------", "false"),
+    ("win_mem", "Memory", "------", "false"),
+    ("win_net", "Network Interface", "*", "false")
 ]
 
 
-@pytest.mark.parametrize("object_name, instance, include_total, measurement", params, ids=[p[3] for p in params])
-def test_perf_counter(object_name, instance, include_total, measurement):
+@pytest.mark.parametrize("measurement, object_name, instance, include_total", params, ids=[p[0] for p in params])
+def test_perf_counter(measurement, object_name, instance, include_total):
     config = config_template.substitute(
+        measurement=measurement,
         object_name=object_name,
         instance=instance,
-        include_total=include_total,
-        measurement=measurement)
+        include_total=include_total)
     with run_agent(config) as [backend, get_output, _]:
         assert wait_for(p(has_datapoint_with_dim, backend, "plugin", measurement)), "Didn't get %s datapoints" % measurement
         if include_total == "true":
             assert wait_for(p(has_datapoint_with_dim, backend, "instance", "_Total")), "Didn't get _Total datapoints"
         for metric in metrics[measurement]:
             assert wait_for(p(has_datapoint_with_metric_name, backend, metric)), "Didn't get metric %s" % metric
-        print("output = " + get_output())
-        assert not has_log_message(get_output().lower(), "error"), "error found in agent output!"
+    print("output = " + get_output())
+    assert not has_log_message(get_output().lower(), "error"), "error found in agent output!"
