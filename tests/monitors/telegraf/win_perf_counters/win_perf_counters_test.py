@@ -78,7 +78,7 @@ params = [
 @pytest.mark.parametrize("object_name, instance, measurement", params, ids=[p[2] for p in params])
 def test_perf_counter(object_name, instance, measurement):
     config = config_template.substitute(object_name=object_name, instance=instance, measurement=measurement)
-    with run_agent(monitor_config) as [backend, get_output, _]:
+    with run_agent(config) as [backend, get_output, _]:
         assert wait_for(p(has_datapoint_with_dim, backend, "plugin", measurement)), "Didn't get %s datapoints" % measurement
         if instance == "*":
             assert wait_for(p(has_datapoint_with_dim, backend, "instance", "_Total")), "Didn't get _Total datapoints"
