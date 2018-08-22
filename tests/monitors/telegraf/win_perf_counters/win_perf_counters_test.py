@@ -70,3 +70,84 @@ def test_win_disk():
         assert wait_for(p(has_datapoint_with_dim, backend, "instance", "_Total")), "Didn't get _Total datapoints"
         for metric in metrics:
             assert wait_for(p(has_datapoint_with_metric_name, backend, metric)), "Didn't get metric %s" % metric
+
+
+def test_win_system():
+    config = dedent("""
+        monitors:
+         - type: telegraf/win_perf_counters
+           printValid: true
+           useWildCardExpansion: true
+           objects:
+            - objectName: "System"
+              instances:
+               - "------"
+              counters:
+               - "*"
+              measurement: "win_system"
+        """)
+    metrics = [
+        "win_system.Context_Switches_persec",
+        "win_system.Processes",
+        "win_system.System_Calls_persec",
+        "win_system.System_Up_Time",
+        "win_system.Threads",
+    ]
+    with run_agent(config) as [backend, _, _]:
+        assert wait_for(p(has_datapoint_with_dim, backend, "plugin", "win_system")), "Didn't get win_system datapoints"
+        for metric in metrics:
+            assert wait_for(p(has_datapoint_with_metric_name, backend, metric)), "Didn't get metric %s" % metric
+
+
+def test_win_mem():
+    config = dedent("""
+        monitors:
+         - type: telegraf/win_perf_counters
+           printValid: true
+           useWildCardExpansion: true
+           objects:
+            - objectName: "Memory"
+              instances:
+               - "------"
+              counters:
+               - "*"
+              measurement: "win_mem"
+        """)
+    metrics = [
+        "win_mem.Available_Bytes",
+        "win_mem.Cache_Bytes",
+        "win_mem.Committed_Bytes",
+        "win_mem.Pages_persec",
+        "win_mem.Write_Copies_persec",
+    ]
+    with run_agent(config) as [backend, _, _]:
+        assert wait_for(p(has_datapoint_with_dim, backend, "plugin", "win_mem")), "Didn't get win_mem datapoints"
+        for metric in metrics:
+            assert wait_for(p(has_datapoint_with_metric_name, backend, metric)), "Didn't get metric %s" % metric
+
+
+def test_win_net():
+    config = dedent("""
+        monitors:
+         - type: telegraf/win_perf_counters
+           printValid: true
+           useWildCardExpansion: true
+           objects:
+            - objectName: "Network Interface"
+              instances:
+               - "*"
+              counters:
+               - "*"
+              measurement: "win_net"
+        """)
+    metrics = [
+        "win_net.Bytes_Received_persec",
+        "win_net.Bytes_Sent_persec",
+        "win_net.Bytes_Total_persec",
+        "win_net.Current_Bandwidth",
+        "win_net.Packets_persec",
+    ]
+    with run_agent(config) as [backend, _, _]:
+        assert wait_for(p(has_datapoint_with_dim, backend, "plugin", "win_net")), "Didn't get win_net datapoints"
+        for metric in metrics:
+            assert wait_for(p(has_datapoint_with_metric_name, backend, metric)), "Didn't get metric %s" % metric
