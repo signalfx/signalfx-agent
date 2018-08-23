@@ -75,7 +75,7 @@
 - name: signalfx
   # Hardcode the metadata plugin commit until we can get it merged into master
   # and tagged properly
-  version: 4ef9c73fae70f23fc337cd7e509d90891e208ee8
+  version: f921b95839e00c326e4dd4e8389b864d6651965b
   repo: signalfx/signalfx-collectd-plugin
 
 - name: spark

@@ -2,7 +2,9 @@ from contextlib import contextmanager
 import io
 import netifaces as ni
 import os
+import re
 import select
+import socket
 import subprocess
 import tempfile
 import threading
@@ -62,49 +64,56 @@ def container_ip(container):
 @contextmanager
 def run_agent(config_text):
     with fake_backend.start() as fake_services:
-        with tempfile.TemporaryDirectory() as run_dir:
-            config_path = os.path.join(run_dir, "agent.yaml")
+        with run_agent_with_fake_backend(config_text, fake_services) as [_, get_output, c]:
+            yield [fake_services, get_output, c]
 
-            setup_config(config_text, config_path, fake_services)
 
-            proc = subprocess.Popen([AGENT_BIN, "-config", config_path], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 
-            output = io.BytesIO() 
-            def pull_output():
-                while True:
-                    # If any output is waiting, grab it.
-                    ready, _, _ = select.select([proc.stdout], [], [], 0)
-                    if ready:
-                        b = proc.stdout.read(1)
-                        if not b:
-                            return
-                        output.write(b)
+@contextmanager
+def run_agent_with_fake_backend(config_text, fake_services):
+    with tempfile.TemporaryDirectory() as run_dir:
+        config_path = os.path.join(run_dir, "agent.yaml")
 
-            def get_output():
-                return output.getvalue().decode("utf-8")
+        setup_config(config_text, config_path, fake_services)
 
-            threading.Thread(target=pull_output).start()
+        proc = subprocess.Popen([AGENT_BIN, "-config", config_path], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 
+        output = io.BytesIO()
+        def pull_output():
+            while True:
+                # If any output is waiting, grab it.
+                ready, _, _ = select.select([proc.stdout], [], [], 0)
+                if ready:
+                    b = proc.stdout.read(1)
+                    if not b:
+                        return
+                    output.write(b)
+
+        def get_output():
+            return output.getvalue().decode("utf-8")
+
+        threading.Thread(target=pull_output).start()
+
+        try:
+            yield [fake_services, get_output, lambda c: setup_config(c, config_path, fake_services)]
+        finally:
+            exc = None
+
+            proc.terminate()
             try:
-                yield [fake_services, get_output, lambda c: setup_config(c, config_path, fake_services)]
-            finally:
-                exc = None
+                proc.wait(15)
+            except subprocess.TimeoutExpired as e:
+                exc = e
 
-                proc.terminate()
-                try:
-                    proc.wait(15)
-                except subprocess.TimeoutExpired as e:
-                    exc = e
+            print("Agent output:")
+            print_lines(get_output())
+            print("Datapoints received:")
+            print(fake_services.datapoints)
+            print("Events received:")
+            print(fake_services.events)
 
-                print("Agent output:")
-                print_lines(get_output())
-                print("Datapoints received:")
-                print(fake_services.datapoints)
-                print("Events received:")
-                print(fake_services.events)
-
-                if exc is not None:
-                    raise exc
+            if exc is not None:
+                raise exc
 
 
 def setup_config(config_text, path, fake_services):
@@ -201,3 +210,11 @@ def get_host_ip():
     gws = ni.gateways()
     interface = gws['default'][ni.AF_INET][1]
     return ni.ifaddresses(interface)[ni.AF_INET][0]['addr']
+
+def send_udp_message(host, port, msg):
+    """
+    Send a datagram to the given host/port
+    """
+    sock = socket.socket(socket.AF_INET, # Internet
+                         socket.SOCK_DGRAM) # UDP
+    sock.sendto(msg.encode("utf-8"), (host, port))

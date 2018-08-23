@@ -11,7 +11,7 @@ from functools import partial as p
 import pytest
 
 import redis
-from tests.helpers.assertions import has_datapoint_with_dim, tcp_socket_open
+from tests.helpers.assertions import has_datapoint_with_dim, regex_search_matches_output, tcp_socket_open
 from tests.helpers.util import container_ip, run_agent, run_container, wait_for
 
 pytestmark = [pytest.mark.pyrunner]
@@ -45,7 +45,7 @@ def test_python_runner_with_redis():
             assert wait_for(p(has_datapoint_with_dim, backend, "plugin", "redis_info")), \
                 "didn't get datapoints"
 
-            assert wait_for(p(pidRE.search, get_output()))
+            assert wait_for(p(regex_search_matches_output, get_output, pidRE.search))
             pid = int(pidRE.search(get_output()).groups()[0])
 
             os.kill(pid, signal.SIGTERM)

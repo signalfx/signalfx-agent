@@ -6,7 +6,7 @@ import pytest
 import socket
 
 from functools import partial as p
-from tests.helpers.util import wait_for, run_agent, container_ip
+from tests.helpers.util import wait_for, run_agent, container_ip, send_udp_message
 from tests.helpers.assertions import (
     has_datapoint_with_dim,
     has_datapoint_with_metric_name,
@@ -15,15 +15,6 @@ from tests.helpers.assertions import (
 from tests.kubernetes.utils import run_k8s_monitors_test
 
 pytestmark = [pytest.mark.collectd, pytest.mark.statsd, pytest.mark.monitor_without_endpoints]
-
-
-def send_udp_message(host, port, msg):
-    """
-    Send a datagram to the given host/port
-    """
-    sock = socket.socket(socket.AF_INET, # Internet
-                         socket.SOCK_DGRAM) # UDP
-    sock.sendto(msg.encode("utf-8"), (host, port))
 
 
 def test_statsd_monitor():

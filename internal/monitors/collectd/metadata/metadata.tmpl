@@ -29,6 +29,9 @@ TypesDB "{{ pluginRoot }}/signalfx/types.db.plugin"
     {{with .IngestEndpoint -}}
     IngestEndpoint "{{.}}"
     {{- end}}
+    {{with .Verbose -}}
+    Verbose {{.}}
+    {{- end}}
   </Module>
 </Plugin>
 
