@@ -77,7 +77,7 @@ params = {
 }
 
 
-@pytest.mark.parametrize("measurement", params.keys().sort())
+@pytest.mark.parametrize("measurement", sorted(params.keys()))
 def test_win_perf_counters(measurement):
     config = config_template.substitute(
         measurement=measurement,
