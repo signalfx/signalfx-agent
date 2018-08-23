@@ -76,7 +76,7 @@ params = [
 
 
 @pytest.mark.parametrize("measurement, object_name, instance, include_total", params, ids=[p[0] for p in params])
-def test_perf_counter(measurement, object_name, instance, include_total):
+def test_win_perf_counters(measurement, object_name, instance, include_total):
     config = config_template.substitute(
         measurement=measurement,
         object_name=object_name,
@@ -88,5 +88,5 @@ def test_perf_counter(measurement, object_name, instance, include_total):
             assert wait_for(p(has_datapoint_with_dim, backend, "instance", "_Total")), "Didn't get _Total datapoints"
         for metric in metrics[measurement]:
             assert wait_for(p(has_datapoint_with_metric_name, backend, metric)), "Didn't get metric %s" % metric
-        print(get_output())
+        print("output = " + get_output())
         assert not has_log_message(get_output().lower(), "error"), "error found in agent output!"
