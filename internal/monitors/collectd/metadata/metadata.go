@@ -58,10 +58,11 @@ type Config struct {
 	OmitProcessInfo bool `yaml:"omitProcessInfo"`
 	// Set this to a non-zero value to enable the DogStatsD listener as part of
 	// this monitor.  The listener will accept metrics on the DogStatsD format,
-	// and sends them as SignalFx datapoints to our backend.  **Note: The listener
-	// emits directly to SignalFx and will not be subject to filters configured
-	// with the SignalFx Smart Agent.  Internal stats about the SignalFx Smart
-	// Agent will not reflect datapoints set through the DogStatsD listener**
+	// and sends them as SignalFx datapoints to our backend.  Setting to a value
+	// setting the `DogStatsDPort` to `0` will result in a random port assignment.
+	// **Note: The listener emits directly to SignalFx and will not be subject to
+	// filters configured with the SignalFx Smart Agent.  Internal stats about the
+	// SignalFx Smart Agent will not reflect datapoints set through the DogStatsD listener**
 	DogStatsDPort *uint `yaml:"dogStatsDPort"`
 	// This is only required when running the DogStatsD listener.  Set this to
 	// your SignalFx access token.
