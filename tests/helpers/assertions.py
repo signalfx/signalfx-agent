@@ -95,6 +95,8 @@ def has_log_message(output, level="info", message=""):
             return True
     return False
 
+def regex_search_matches_output(get_output, search):
+    return search(get_output())
 
 def udp_port_open_locally(port):
     return os.system("cat /proc/net/udp | grep %s" % (hex(port)[2:].upper(),)) == 0

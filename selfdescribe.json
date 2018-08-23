@@ -8839,8 +8839,8 @@
         },
         {
           "yamlName": "dogStatsDPort",
-          "doc": "Set this to a non-zero value to enable the DogStatsD listener as part of this monitor.  The listener will accept metrics on the DogStatsD format, and sends them as SignalFx datapoints to our backend.  **Note: The listener emits directly to SignalFx and will not be subject to filters configured with the SignalFx Smart Agent.  Internal stats about the SignalFx Smart Agent will not reflect datapoints set through the DogStatsD listener**",
-          "default": 0,
+          "doc": "Set this to a non-zero value to enable the DogStatsD listener as part of this monitor.  The listener will accept metrics on the DogStatsD format, and sends them as SignalFx datapoints to our backend.  Setting to a value setting the `DogStatsDPort` to `0` will result in a random port assignment. **Note: The listener emits directly to SignalFx and will not be subject to filters configured with the SignalFx Smart Agent.  Internal stats about the SignalFx Smart Agent will not reflect datapoints set through the DogStatsD listener**",
+          "default": null,
           "required": false,
           "type": "uint",
           "elementKind": ""
@@ -8867,6 +8867,14 @@
           "default": "",
           "required": false,
           "type": "string",
+          "elementKind": ""
+        },
+        {
+          "yamlName": "verbose",
+          "doc": "Set this to enable verbose logging from the monitor",
+          "default": false,
+          "required": false,
+          "type": "bool",
           "elementKind": ""
         }
       ],
