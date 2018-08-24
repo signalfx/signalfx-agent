@@ -74,7 +74,9 @@ func (mc *MonitorCore) Logger() log.FieldLogger {
 func (mc *MonitorCore) run(messages *messageReadWriter, stdin io.Reader, stdout io.Writer) error {
 	mc.logger.Info("Starting Python runner child process")
 
-	cmd := exec.CommandContext(mc.ctx, pythonBinaryPath(), "-m", mc.pythonPkg)
+	executable := pythonBinaryExecutable()
+	args := pythonBinaryArgs(mc.pythonPkg)
+	cmd := exec.CommandContext(mc.ctx, executable, args...)
 	cmd.SysProcAttr = procAttrs()
 	cmd.Stdin = stdin
 	cmd.Stdout = stdout

@@ -11,8 +11,8 @@ from functools import partial as p
 import pytest
 
 import redis
-from tests.helpers.assertions import has_datapoint_with_dim, regex_search_matches_output, tcp_socket_open
-from tests.helpers.util import container_ip, run_agent, run_container, wait_for
+from tests.helpers.assertions import (has_datapoint_with_dim, regex_search_matches_output, tcp_socket_open)
+from tests.helpers.util import (BUNDLE_DIR, container_ip, run_agent, run_container, wait_for)
 
 pytestmark = [pytest.mark.pyrunner]
 
@@ -23,7 +23,7 @@ monitors:
   - type: collectd/python
     moduleName: redis_info
     modulePaths:
-     - "/bundle/plugins/collectd/redis"
+     - "${bundle_root}/plugins/collectd/redis"
     pluginConfig:
       Host: $host
       Port: 6379
@@ -35,7 +35,7 @@ monitors:
 def test_python_runner_with_redis():
     with run_container('redis:4-alpine') as test_container:
         host = container_ip(test_container)
-        config = monitor_config.substitute(host=host)
+        config = monitor_config.substitute(host=host, bundle_root=BUNDLE_DIR)
         assert wait_for(p(tcp_socket_open, host, 6379), 60), "redis is not listening on port"
 
         redis_client = redis.StrictRedis(host=host, port=6379, db=0)

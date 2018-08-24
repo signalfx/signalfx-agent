@@ -1,6 +1,4 @@
-from contextlib import contextmanager
 import io
-import netifaces as ni
 import os
 import re
 import select
@@ -9,13 +7,17 @@ import subprocess
 import tempfile
 import threading
 import time
+from contextlib import contextmanager
 
 import docker
+
+import netifaces as ni
 import yaml
 
 from . import fake_backend
 
 AGENT_BIN = os.environ.get("AGENT_BIN", "/bundle/bin/signalfx-agent")
+BUNDLE_DIR = os.environ.get("BUNDLE_DIR", "/bundle")
 PROJECT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 TEST_SERVICES_DIR = os.environ.get("TEST_SERVICES_DIR", "/test-services")
 DEFAULT_TIMEOUT = os.environ.get("DEFAULT_TIMEOUT", 30)
@@ -25,6 +27,7 @@ SELFDESCRIBE_JSON = os.path.join(PROJECT_DIR, "../selfdescribe.json")
 
 def get_docker_client():
     return docker.from_env(version=DOCKER_API_VERSION)
+
 
 # Repeatedly calls the test function for timeout_seconds until either test
 # returns a truthy value, at which point the function returns True -- or the
@@ -68,7 +71,6 @@ def run_agent(config_text):
             yield [fake_services, get_output, c]
 
 
-
 @contextmanager
 def run_agent_with_fake_backend(config_text, fake_services):
     with tempfile.TemporaryDirectory() as run_dir:
@@ -79,6 +81,7 @@ def run_agent_with_fake_backend(config_text, fake_services):
         proc = subprocess.Popen([AGENT_BIN, "-config", config_path], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 
         output = io.BytesIO()
+
         def pull_output():
             while True:
                 # If any output is waiting, grab it.
@@ -168,7 +171,8 @@ def run_container(image_name, wait_for_ip=True, print_logs=True, **kwargs):
 @contextmanager
 def run_service(service_name, name=None, buildargs={}, print_logs=True, **kwargs):
     client = get_docker_client()
-    image, logs = client.images.build(path=os.path.join(TEST_SERVICES_DIR, service_name), rm=True, forcerm=True, buildargs=buildargs)
+    image, logs = client.images.build(
+        path=os.path.join(TEST_SERVICES_DIR, service_name), rm=True, forcerm=True, buildargs=buildargs)
     with run_container(image.id, name=name, print_logs=print_logs, **kwargs) as cont:
         yield cont
 
@@ -211,10 +215,12 @@ def get_host_ip():
     interface = gws['default'][ni.AF_INET][1]
     return ni.ifaddresses(interface)[ni.AF_INET][0]['addr']
 
+
 def send_udp_message(host, port, msg):
     """
     Send a datagram to the given host/port
     """
-    sock = socket.socket(socket.AF_INET, # Internet
-                         socket.SOCK_DGRAM) # UDP
+    sock = socket.socket(
+        socket.AF_INET,  # Internet
+        socket.SOCK_DGRAM)  # UDP
     sock.sendto(msg.encode("utf-8"), (host, port))
