@@ -27,10 +27,11 @@ some of the limitations we have with that tool.
 ## What if I am currently using the old collectd agent?
 
 The Smart Agent comes with all of its dependencies bundled, so you will not
-need a prior collectd installation. If you are using the old collectd agent,
-you should uninstall it first before installing the Smart Agent.  **Make sure
-the old collectd instance does not run alongside the new agent, or you might
-send duplicate datapoints and use unnecessary DPM (datapoints per minute).**
+need a prior collectd installation. If you are currently using the old collectd
+agent, you should uninstall it first before installing the Smart Agent.  
+**To minimize the load on your host, make sure the old collectd instance
+does not run alongside the new agent. Running both will use unnecessary
+resources.**
 
 If you have your own homegrown collectd plugins, you can still use these with
 the Smart Agent by using the [collectd/custom](./monitors/collectd-custom.md)
