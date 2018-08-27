@@ -17,9 +17,12 @@ import yaml
 
 from . import fake_backend
 
-AGENT_BIN = os.environ.get("AGENT_BIN", "/bundle/bin/signalfx-agent")
-BUNDLE_DIR = os.environ.get("BUNDLE_DIR", "/bundle")
 PROJECT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+if sys.platform == 'win32':
+    AGENT_BIN = os.environ.get("AGENT_BIN", os.path.join(PROJECT_DIR, "..", "signalfx-agent.exe"))
+else:
+    AGENT_BIN = os.environ.get("AGENT_BIN", "/bundle/bin/signalfx-agent")
+BUNDLE_DIR = os.environ.get("BUNDLE_DIR", "/bundle")
 TEST_SERVICES_DIR = os.environ.get("TEST_SERVICES_DIR", "/test-services")
 DEFAULT_TIMEOUT = os.environ.get("DEFAULT_TIMEOUT", 30)
 DOCKER_API_VERSION = "1.34"
