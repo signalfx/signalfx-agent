@@ -85,17 +85,10 @@ def run_agent_with_fake_backend(config_text, fake_services):
 
         def pull_output():
             while True:
-                # If any output is waiting, grab it.
-                if sys.platform != 'win32':
-                    ready, _, _ = select.select([proc.stdout], [], [], 0)
-                else:
-                    # select.select is unsupported on windows for file descriptors
-                    ready = True
-                if ready:
-                    b = proc.stdout.read(1)
-                    if not b:
-                        return
-                    output.write(b)
+                b = proc.stdout.read(1)
+                if not b:
+                    return
+                output.write(b)
 
         def get_output():
             return output.getvalue().decode("utf-8")
