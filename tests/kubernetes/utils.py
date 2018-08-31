@@ -538,31 +538,25 @@ def get_all_logs(minikube):
     - the status of all pods
     """
     try:
-        agent_status = minikube.agent.get_status()
+        agent_status = "AGENT STATUS:\n" + minikube.agent.get_status()
     except:
         agent_status = ""
     try:
-        agent_container_logs = minikube.agent.get_container_logs()
+        agent_container_logs = "AGENT CONTAINER LOGS:\n" + minikube.agent.get_container_logs()
     except:
         agent_container_logs = ""
     try:
-        _, output = minikube.container.exec_run("minikube logs")
-        minikube_logs = output.decode('utf-8').strip()
+        minikube_logs = minikube.get_logs()
     except:
         minikube_logs = ""
-    try:
-        minikube_container_logs = minikube.get_container_logs()
-    except:
-        minikube_container_logs = ""
     try:
         pods_status = ""
         for pod in get_all_pods():
             pods_status += "%s\t%s\t%s\n" % (pod.status.pod_ip, pod.metadata.namespace, pod.metadata.name)
-        pods_status = pods_status.strip()
+        pods_status = "PODS STATUS:\n" + pods_status.strip()
     except:
         pods_status = ""
-    return "AGENT STATUS:\n%s\n\nAGENT CONTAINER LOGS:\n%s\n\nMINIKUBE LOGS:\n%s\n\nMINIKUBE CONTAINER LOGS:\n%s\n\nPODS STATUS:\n%s" % \
-        (agent_status, agent_container_logs, minikube_logs, minikube_container_logs, pods_status)
+    return "%s\n\n%s\n\n%s\n\n%s\n" % (agent_status, agent_container_logs, minikube_logs, pods_status)
 
 
 def has_docker_image(client, name, tag=None):

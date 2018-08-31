@@ -145,7 +145,7 @@ def minikube(request, worker_id):
     mk = Minikube()
     mk.worker_id = worker_id
     if k8s_container:
-        mk.connect(k8s_container, k8s_timeout)
+        mk.connect(k8s_container, bootstrapper, k8s_timeout)
         k8s_skip_teardown = True
     elif worker_id == "master" or worker_id == "gw0":
         mk.deploy(k8s_version, bootstrapper, k8s_timeout)

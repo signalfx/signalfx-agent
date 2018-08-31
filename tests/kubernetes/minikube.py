@@ -39,21 +39,10 @@ class Minikube:
             return None
 
     def load_kubeconfig(self, kubeconfig_path="/kubeconfig", timeout=300):
-        def _get_logs():
-            if self.bootstrapper == "localkube":
-                return "\nMINIKUBE CONTAINER LOGS:\n%s\n\nLOCALKUBE LOGS:\n%s\n\n" % \
-                    (self.get_container_logs(), self.get_localkube_logs())
-            elif self.bootstrapper == "kubeadm":
-                _, start_minikube_output = self.container.exec_run("cat /var/log/start-minikube.log")
-                _, minikube_logs = self.container.exec_run("minikube logs")
-                return "\nSTART-MINIKUBE OUTPUT:\n%s\n\nMINIKUBE LOGS:\n%s\n\n" % \
-                    (start_minikube_output.decode("utf-8"), minikube_logs.decode("utf-8"))
-            return ""
-
         with tempfile.NamedTemporaryFile(dir="/tmp/scratch") as fd:
             kubeconfig = fd.name
             assert wait_for(p(container_cmd_exit_0, self.container, "test -f %s" % kubeconfig_path), timeout_seconds=timeout), \
-                "timed out waiting for the minikube cluster to be ready!\n%s" % (_get_logs())
+                "timed out waiting for the minikube cluster to be ready!\n\n%s\n\n" % self.get_logs()
             time.sleep(2)
             rc, output = self.container.exec_run("cp -f %s %s" % (kubeconfig_path, kubeconfig))
             assert rc == 0, "failed to get %s from minikube!\n%s" % (kubeconfig_path, output.decode('utf-8'))
@@ -233,3 +222,15 @@ class Minikube:
                 return output.decode('utf-8').strip()
         except Exception as e:
             return "Failed to get localkube logs from minikube!\n%s" % str(e)
+
+    def get_logs(self):
+        if self.container:
+            _, start_minikube_output = self.container.exec_run("cat /var/log/start-minikube.log")
+            if self.bootstrapper == "localkube":
+                return "/var/log/start-minikube.log:\n%s\n\n/var/lib/localkube/localkube.err:\n%s" % \
+                    (start_minikube_output.decode("utf-8").strip(), self.get_localkube_logs())
+            elif self.bootstrapper == "kubeadm":
+                _, minikube_logs = self.container.exec_run("minikube logs")
+                return "/var/log/start-minikube.log:\n%s\n\nminikube logs:\n%s" % \
+                    (start_minikube_output.decode("utf-8").strip(), minikube_logs.decode("utf-8").strip())
+        return ""

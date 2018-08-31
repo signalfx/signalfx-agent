@@ -97,4 +97,4 @@ RUN systemctl set-default multi-user.target
 ENV init /lib/systemd/systemd
 
 # If nothing else specified, start up docker and kubernetes.
-CMD /usr/local/bin/start-minikube.sh &> /var/log/start-minikube.log 2>&1 </dev/null & sleep 4 && tail -F /var/log/start-minikube.log
+CMD /usr/local/bin/start-minikube.sh 2>&1 | tee /var/log/start-minikube.log && tail -F /var/log/start-minikube.log
