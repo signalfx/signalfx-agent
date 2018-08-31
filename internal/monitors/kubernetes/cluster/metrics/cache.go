@@ -91,6 +91,8 @@ func (dc *DatapointCache) HandleDelete(oldObj runtime.Object) interface{} {
 	}
 
 	delete(dc.dpCache, key)
+	delete(dc.dimPropCache, key)
+
 	return key
 }
 
