@@ -174,6 +174,7 @@ var _ = Describe("Config Loader", func() {
 		path := mkFile("agent/agent.yaml", outdent(fmt.Sprintf(`
 			signalFxAccessToken: abcd
 			monitors:
+			- type: fake
 			- {"#from": '%s/agent/conf/*.yaml', flatten: true}
 		`, dir)))
 
@@ -183,7 +184,7 @@ var _ = Describe("Config Loader", func() {
 		var config *Config
 		Eventually(loads).Should(Receive(&config))
 
-		Expect(len(config.Monitors)).To(Equal(3))
+		Expect(len(config.Monitors)).To(Equal(4))
 	})
 
 	It("Will not flatten seqs into map", func() {
