@@ -37,11 +37,11 @@ minikube config set ShowBootstrapperDeprecationNotification false || true
 minikube config set WantNoneDriverWarning false || true
 
 if [ "$BOOTSTRAPPER" = "kubeadm" ]; then
-    # Initialize minikube but expect kubeadm to fail due to the
-    # FileContent--proc-sys-net-bridge-bridge-nf-call-iptables preflight error.
-    minikube start $MINIKUBE_OPTIONS --extra-config=kubelet.authorization-mode=AlwaysAllow --extra-config=kubelet.anonymous-auth=true --extra-config=kubelet.cadvisor-port=4194 || true
-    # Run "kubeadm init" again but ignore the FileContent--proc-sys-net-bridge-bridge-nf-call-iptables preflight error.
-    kubeadm init --config /var/lib/kubeadm.yaml --ignore-preflight-errors=DirAvailable--etc-kubernetes-manifests --ignore-preflight-errors=DirAvailable--data-minikube --ignore-preflight-errors=Port-10250 --ignore-preflight-errors=FileAvailable--etc-kubernetes-manifests-kube-scheduler.yaml --ignore-preflight-errors=FileAvailable--etc-kubernetes-manifests-kube-apiserver.yaml --ignore-preflight-errors=FileAvailable--etc-kubernetes-manifests-kube-controller-manager.yaml --ignore-preflight-errors=FileAvailable--etc-kubernetes-manifests-etcd.yaml --ignore-preflight-errors=Swap --ignore-preflight-errors=CRI --ignore-preflight-errors=FileContent--proc-sys-net-bridge-bridge-nf-call-iptables
+    # Initialize minikube but expect "kubeadm init" to fail due to preflight errors.
+    if ! minikube start $MINIKUBE_OPTIONS --extra-config=kubelet.authorization-mode=AlwaysAllow --extra-config=kubelet.anonymous-auth=true --extra-config=kubelet.cadvisor-port=4194; then
+        # Run "kubeadm init" again but ignore preflight errors.
+        kubeadm init --config /var/lib/kubeadm.yaml --ignore-preflight-errors=all
+    fi
 elif [ "$BOOTSTRAPPER" = "localkube" ]; then
     mv /usr/local/bin/fake-systemctl.sh /usr/local/bin/systemctl
     chmod a+x /usr/local/bin/systemctl
@@ -79,6 +79,7 @@ while [ 0 ]; do
             echo
             echo "minikube logs:"
             minikube logs
+            echo
         fi
         kubectl get pods --all-namespaces
         echo "Timed out after $TIMEOUT seconds waiting for the cluster to be ready!"
