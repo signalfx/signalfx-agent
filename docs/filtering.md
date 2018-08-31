@@ -25,9 +25,10 @@ collectd-based monitors emit.
 Sometimes it is easier to whitelist the metrics you want to allow through.
 You can do this by setting the `negated` option to `true` on a filter item.
 This makes all metric name and dimension matching negated so that only
-datapoints with that name or dimension are allowed through.  The `monitorType`
-option is never negated, and always serves to scope a filter item to the
-specified monitor type, if given.
+datapoints with that name or dimension are allowed through.  You would also
+use this option to specify custom metrics that you want to send to SignalFx.
+The `monitorType`option is never negated, and always serves to scope a filter 
+item to the specified monitor type, if given.
 
 Examples:
 
@@ -66,4 +67,14 @@ Examples:
       - memory*
       monitorType: collectd/docker
       negated: true
+
+    # This indicates that you want to monitor the custom metrics
+    # gauge.cluster.status and gauge.thread_pool.active for the
+    # elasticsearch monitor.
+    - metricNames:
+      - gauge.cluster.status
+      - gauge.thread_pool.active
+      monitorType: collectd/elasticsearch
+      negated: true
+
 ```
