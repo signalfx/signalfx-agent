@@ -74,7 +74,6 @@ while [ 0 ]; do
             minikube logs
             echo
         fi
-        kubectl get pods --all-namespaces
         echo "Timed out after $TIMEOUT seconds waiting for the cluster to be ready!"
         exit 1
     fi
