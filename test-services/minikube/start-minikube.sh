@@ -24,7 +24,8 @@ if [ -f /kubeconfig ]; then
 fi
 
 K8S_VERSION=${K8S_VERSION:-"latest"}
-MINIKUBE_OPTIONS="--vm-driver=none --bootstrapper=localkube"
+BOOTSTRAPPER=${BOOTSTRAPPER:-"kubeadm"}
+MINIKUBE_OPTIONS="--vm-driver=none --bootstrapper=${BOOTSTRAPPER}"
 if [ "$K8S_VERSION" = "latest" ]; then
     curl -sSl -o /usr/local/bin/kubectl https://storage.googleapis.com/kubernetes-release/release/`curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt`/bin/linux/amd64/kubectl
 else
@@ -34,8 +35,24 @@ fi
 chmod a+x /usr/local/bin/kubectl
 minikube config set ShowBootstrapperDeprecationNotification false || true
 minikube config set WantNoneDriverWarning false || true
-minikube start $MINIKUBE_OPTIONS
-minikube config set dashboard false || true
+
+if [ "$BOOTSTRAPPER" = "kubeadm" ]; then
+    # Initialize minikube but expect kubeadm to fail due to the
+    # FileContent--proc-sys-net-bridge-bridge-nf-call-iptables preflight error.
+    minikube start $MINIKUBE_OPTIONS --extra-config=kubelet.authorization-mode=AlwaysAllow --extra-config=kubelet.anonymous-auth=true --extra-config=kubelet.cadvisor-port=4194 || true
+    # Run "kubeadm init" again but ignore the FileContent--proc-sys-net-bridge-bridge-nf-call-iptables preflight error.
+    kubeadm init --config /var/lib/kubeadm.yaml --ignore-preflight-errors=DirAvailable--etc-kubernetes-manifests --ignore-preflight-errors=DirAvailable--data-minikube --ignore-preflight-errors=Port-10250 --ignore-preflight-errors=FileAvailable--etc-kubernetes-manifests-kube-scheduler.yaml --ignore-preflight-errors=FileAvailable--etc-kubernetes-manifests-kube-apiserver.yaml --ignore-preflight-errors=FileAvailable--etc-kubernetes-manifests-kube-controller-manager.yaml --ignore-preflight-errors=FileAvailable--etc-kubernetes-manifests-etcd.yaml --ignore-preflight-errors=Swap --ignore-preflight-errors=CRI --ignore-preflight-errors=FileContent--proc-sys-net-bridge-bridge-nf-call-iptables
+elif [ "$BOOTSTRAPPER" = "localkube" ]; then
+    mv /usr/local/bin/fake-systemctl.sh /usr/local/bin/systemctl
+    chmod a+x /usr/local/bin/systemctl
+    export PATH=/usr/local/bin:$PATH
+    minikube start $MINIKUBE_OPTIONS
+else
+    echo "Unsupported bootstrapper \"${BOOTSTRAPPER}\"!"
+    exit 1
+fi
+
+minikube addons disable dashboard || true
 sleep 2
 minikube status || true
 kubectl version || true
@@ -45,17 +62,23 @@ TIMEOUT=${TIMEOUT:-"300"}
 START_TIME=`date +%s`
 while [ 0 ]; do
     if [ $(expr `date +%s` - $START_TIME) -gt $TIMEOUT ]; then
-        if [ -f /var/lib/localkube/localkube.out ]; then
+        if [ "$BOOTSTRAPPER" = "localkube" ]; then
+            if [ -f /var/lib/localkube/localkube.out ]; then
+                echo
+                echo "/var/lib/localkube/localkube.out:"
+                cat /var/lib/localkube/localkube.out
+                echo
+            fi
+            if [ -f /var/lib/localkube/localkube.err ]; then
+                echo
+                echo "/var/lib/localkube/localkube.err:"
+                cat /var/lib/localkube/localkube.err
+                echo
+            fi
+        else
             echo
-            echo "/var/lib/localkube/localkube.out:"
-            cat /var/lib/localkube/localkube.out
-            echo
-        fi
-        if [ -f /var/lib/localkube/localkube.err ]; then
-            echo
-            echo "/var/lib/localkube/localkube.err:"
-            cat /var/lib/localkube/localkube.err
-            echo
+            echo "minikube logs:"
+            minikube logs
         fi
         kubectl get pods --all-namespaces
         echo "Timed out after $TIMEOUT seconds waiting for the cluster to be ready!"

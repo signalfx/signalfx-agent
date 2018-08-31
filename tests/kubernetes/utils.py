@@ -12,10 +12,12 @@ import time
 import yaml
 
 CUR_DIR = os.path.dirname(os.path.realpath(__file__))
-AGENT_YAMLS_DIR = os.environ.get("AGENT_YAMLS_DIR", os.path.join(CUR_DIR, "../../deployments/k8s"))
+AGENT_YAMLS_DIR = os.environ.get("AGENT_YAMLS_DIR", os.path.abspath(os.path.join(CUR_DIR, "../../deployments/k8s")))
 AGENT_CONFIGMAP_PATH = os.environ.get("AGENT_CONFIGMAP_PATH", os.path.join(AGENT_YAMLS_DIR, "configmap.yaml"))
 AGENT_DAEMONSET_PATH = os.environ.get("AGENT_DAEMONSET_PATH", os.path.join(AGENT_YAMLS_DIR, "daemonset.yaml"))
 AGENT_SERVICEACCOUNT_PATH = os.environ.get("AGENT_SERVICEACCOUNT_PATH", os.path.join(AGENT_YAMLS_DIR, "serviceaccount.yaml"))
+AGENT_CLUSTERROLE_PATH= os.environ.get("AGENT_CLUSTERROLE_PATH", os.path.join(AGENT_YAMLS_DIR, "clusterrole.yaml"))
+AGENT_CLUSTERROLEBINDING_PATH= os.environ.get("AGENT_CLUSTERROLEBINDING_PATH", os.path.join(AGENT_YAMLS_DIR, "clusterrolebinding.yaml"))
 K8S_CREATE_TIMEOUT = 180
 K8S_DELETE_TIMEOUT = 10
 
@@ -87,6 +89,8 @@ def run_k8s_with_agent(agent_image, minikube, monitors, observer=None, namespace
                 AGENT_CONFIGMAP_PATH,
                 AGENT_DAEMONSET_PATH,
                 AGENT_SERVICEACCOUNT_PATH,
+                AGENT_CLUSTERROLE_PATH,
+                AGENT_CLUSTERROLEBINDING_PATH,
                 observer=observer,
                 monitors=monitors,
                 cluster_name="minikube",
@@ -179,10 +183,56 @@ def create_serviceaccount(body, namespace=None, timeout=K8S_CREATE_TIMEOUT):
     return serviceaccount
 
 
+def has_clusterrole(name):
+    api = kube_client.RbacAuthorizationV1beta1Api()
+    try:
+        api.read_cluster_role(name)
+        return True
+    except ApiException as e:
+        if e.status == 404:
+            return False
+        else:
+            raise
+
+
+def create_clusterrole(body, timeout=K8S_CREATE_TIMEOUT):
+    body["apiVersion"] = "rbac.authorization.k8s.io/v1beta1"
+    api = api_client_from_version(body["apiVersion"])
+    name = body['metadata']['name']
+    clusterrole = api.create_cluster_role(body=body)
+    assert wait_for(p(has_clusterrole, name), timeout_seconds=timeout), \
+        "timed out waiting for cluster role \"%s\" to be created!" % name
+    return clusterrole
+
+
+def has_clusterrolebinding(name):
+    api = kube_client.RbacAuthorizationV1beta1Api()
+    try:
+        api.read_cluster_role_binding(name)
+        return True
+    except ApiException as e:
+        if e.status == 404:
+            return False
+        else:
+            raise
+
+
+def create_clusterrolebinding(body, timeout=K8S_CREATE_TIMEOUT):
+    body["apiVersion"] = "rbac.authorization.k8s.io/v1beta1"
+    api = api_client_from_version(body["apiVersion"])
+    name = body["metadata"]["name"]
+    clusterrolebinding = api.create_cluster_role_binding(body=body)
+    assert wait_for(p(has_clusterrolebinding, name), timeout_seconds=timeout), \
+        "timed out waiting for cluster role binding \"%s\" to be created!" % name
+    return clusterrolebinding
+
+
 def api_client_from_version(api_version):
     return {
         'v1': kube_client.CoreV1Api(),
         'extensions/v1beta1': kube_client.ExtensionsV1beta1Api(),
+        'rbac.authorization.k8s.io/v1beta1': kube_client.RbacAuthorizationV1beta1Api(),
+        'rbac.authorization.k8s.io/v1': kube_client.RbacAuthorizationV1Api(),
     }[api_version]
 
 

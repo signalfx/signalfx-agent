@@ -182,6 +182,23 @@ jobs:
       - store_artifacts:
           path: ~/testresults/integration_tests.html
 
+  k8s_v1.11.0_integration_tests:
+    <<: *executor
+    environment:
+      K8S_VERSION: "v1.11.0"
+      K8S_OBSERVERS: "k8s-api,k8s-kubelet"
+      PYTEST_MARKERS: "k8s"
+    steps:
+      - *attach_workspace
+      - *import_image
+      - checkout
+      - *install_pytest
+      - *run_k8s_integration_tests
+      - store_test_results:
+          path: ~/testresults
+      - store_artifacts:
+          path: ~/testresults/k8s_integration_tests.html
+
   k8s_v1.10.0_integration_tests:
     <<: *executor
     environment:
@@ -475,6 +492,9 @@ workflows:
      - vet
      - gotests
      - integration_tests:
+        requires:
+         - build
+     - k8s_v1.11.0_integration_tests:
         requires:
          - build
      - k8s_v1.10.0_integration_tests:

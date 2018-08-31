@@ -18,6 +18,7 @@
 
 FROM ubuntu:16.04
 ARG MINIKUBE_VERSION=latest
+ARG CRI_VERSION=v1.11.1
 
 # Install minikube dependencies
 ENV DEBIAN_FRONTEND=noninteractive
@@ -35,14 +36,22 @@ RUN apt-get update -y && \
     glusterfs-client \
     gnupg2 \
     ipcalc \
+    iproute2 \
     iptables \
     nfs-common \
     netcat \
     socat \
     software-properties-common \
     sudo \
+    systemd \
     && apt-get clean && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+
+# Install crictl for kubeadm
+RUN curl -sSL -O https://github.com/kubernetes-incubator/cri-tools/releases/download/${CRI_VERSION}/crictl-${CRI_VERSION}-linux-amd64.tar.gz && \
+    tar zxvf crictl-${CRI_VERSION}-linux-amd64.tar.gz -C /usr/local/bin && \
+    chmod a+x /usr/local/bin/crictl && \
+    rm -f crictl-${CRI_VERSION}-linux-amd64.tar.gz
 
 # Install docker
 # RUN curl -fsSL get.docker.com -o /tmp/get-docker.sh && \
@@ -68,23 +77,24 @@ EXPOSE 8443
 # minikube --vm-driver=none checks systemctl before starting.  Instead of
 # setting up a real systemd environment, install this shim to tell minikube
 # what it wants to know: localkube isn't started yet.
-COPY fake-systemctl.sh /usr/local/bin/systemctl
-RUN chmod a+x /usr/local/bin/systemctl
-
-COPY dind-cluster.sh /usr/local/bin/dind-cluster.sh
-RUN chmod a+x /usr/local/bin/dind-cluster.sh
-COPY config.sh /usr/local/bin/config.sh
-RUN chmod a+x /usr/local/bin/config.sh
-EXPOSE 8080
-
-# Install helm
-RUN curl https://raw.githubusercontent.com/kubernetes/helm/master/scripts/get | bash
+COPY fake-systemctl.sh /usr/local/bin/fake-systemctl.sh
 
 # Copy local start scripts
 COPY start-docker.sh /usr/local/bin/start-docker.sh
 RUN chmod a+x /usr/local/bin/start-docker.sh
 COPY start-minikube.sh /usr/local/bin/start-minikube.sh
 RUN chmod a+x /usr/local/bin/start-minikube.sh
+
+ENV container docker
+RUN rm -f /lib/systemd/system/multi-user.target.wants/* \
+    /etc/systemd/system/*.wants/* \
+    /lib/systemd/system/local-fs.target.wants/* \
+    /lib/systemd/system/sockets.target.wants/*udev* \
+    /lib/systemd/system/sockets.target.wants/*initctl* \
+    /lib/systemd/system/systemd-update-utmp*
+
+RUN systemctl set-default multi-user.target
+ENV init /lib/systemd/systemd
 
 # If nothing else specified, start up docker and kubernetes.
 CMD /usr/local/bin/start-minikube.sh &> /var/log/start-minikube.log 2>&1 </dev/null & sleep 4 && tail -F /var/log/start-minikube.log

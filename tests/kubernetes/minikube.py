@@ -10,12 +10,13 @@ import tempfile
 import time
 import yaml
 
-MINIKUBE_VERSION = os.environ.get("MINIKUBE_VERSION", "v0.28.0")
+MINIKUBE_VERSION = os.environ.get("MINIKUBE_VERSION", "v0.28.2")
 TEST_SERVICES_DIR = os.path.join(os.path.dirname(os.path.realpath(__file__)), "../../test-services")
 
 
 class Minikube:
     def __init__(self):
+        self.bootstrapper = None
         self.container = None
         self.client = None
         self.version = None
@@ -38,11 +39,21 @@ class Minikube:
             return None
 
     def load_kubeconfig(self, kubeconfig_path="/kubeconfig", timeout=300):
+        def _get_logs():
+            if self.bootstrapper == "localkube":
+                return "\nMINIKUBE CONTAINER LOGS:\n%s\n\nLOCALKUBE LOGS:\n%s\n\n" % \
+                    (self.get_container_logs(), self.get_localkube_logs())
+            elif self.bootstrapper == "kubeadm":
+                _, start_minikube_output = self.container.exec_run("cat /var/log/start-minikube.log")
+                _, minikube_logs = self.container.exec_run("minikube logs")
+                return "\nSTART-MINIKUBE OUTPUT:\n%s\n\nMINIKUBE LOGS:\n%s\n\n" % \
+                    (start_minikube_output.decode("utf-8"), minikube_logs.decode("utf-8"))
+            return ""
+
         with tempfile.NamedTemporaryFile(dir="/tmp/scratch") as fd:
             kubeconfig = fd.name
             assert wait_for(p(container_cmd_exit_0, self.container, "test -f %s" % kubeconfig_path), timeout_seconds=timeout), \
-                "timed out waiting for the minikube cluster to be ready!\n\nMINIKUBE CONTAINER LOGS:\n%s\n\nLOCALKUBE LOGS:\n%s\n\n" % \
-                (self.get_container_logs(), self.get_localkube_logs())
+                "timed out waiting for the minikube cluster to be ready!\n%s" % (_get_logs())
             time.sleep(2)
             rc, output = self.container.exec_run("cp -f %s %s" % (kubeconfig_path, kubeconfig))
             assert rc == 0, "failed to get %s from minikube!\n%s" % (kubeconfig_path, output.decode('utf-8'))
@@ -58,19 +69,21 @@ class Minikube:
         self.name = name
         self.version = version
 
-    def deploy(self, version, timeout, options={}):
+    def deploy(self, version, bootstrapper, timeout, options={}):
         self.registry_port = get_free_port()
         if container_is_running(self.host_client, "minikube"):
             self.host_client.containers.get("minikube").remove(force=True, v=True)
         self.version = version
         if self.version[0] != 'v':
             self.version = 'v' + self.version
+        self.bootstrapper = bootstrapper
         if not options:
             options = {
                 "name": "minikube",
                 "privileged": True,
                 "environment": {
                     'K8S_VERSION': self.version,
+                    'BOOTSTRAPPER': self.bootstrapper,
                     'TIMEOUT': str(timeout)
                 },
                 "ports": {
@@ -93,11 +106,15 @@ class Minikube:
             tag="minikube:%s" % MINIKUBE_VERSION,
             rm=True,
             forcerm=True)
+        if self.bootstrapper == "kubeadm":
+            options["command"] = "/lib/systemd/systemd"
         self.container = self.host_client.containers.run(
             image.id,
             detach=True,
             **options)
         self.name = self.container.name
+        if self.bootstrapper == "kubeadm":
+            self.container.exec_run("/bin/bash -ec '/usr/local/bin/start-minikube.sh > /var/log/start-minikube.log 2>&1'", detach=True)
         self.load_kubeconfig(timeout=timeout)
         self.client = self.get_client()
 
@@ -175,12 +192,14 @@ class Minikube:
             return self.client.images.pull(name, tag=tag)
 
     @contextmanager
-    def deploy_agent(self, configmap_path, daemonset_path, serviceaccount_path, observer=None, monitors=[], cluster_name="minikube", backend=None, image_name=None, image_tag=None, namespace="default"):
+    def deploy_agent(self, configmap_path, daemonset_path, serviceaccount_path, clusterrole_path, clusterrolebinding_path, observer=None, monitors=[], cluster_name="minikube", backend=None, image_name=None, image_tag=None, namespace="default"):
         self.agent.deploy(
             self.client,
             configmap_path,
             daemonset_path,
             serviceaccount_path,
+            clusterrole_path,
+            clusterrolebinding_path,
             observer,
             monitors,
             cluster_name=cluster_name,
