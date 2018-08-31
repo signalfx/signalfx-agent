@@ -36,7 +36,7 @@ chmod a+x /usr/local/bin/kubectl
 
 if [ "$BOOTSTRAPPER" = "kubeadm" ]; then
     # Initialize minikube but expect "kubeadm init" to fail due to preflight errors.
-    if ! minikube start $MINIKUBE_OPTIONS --extra-config=kubelet.authorization-mode=AlwaysAllow --extra-config=kubelet.anonymous-auth=true --extra-config=kubelet.cadvisor-port=4194; then
+    if ! minikube start $MINIKUBE_OPTIONS --feature-gates=CoreDNS=false --extra-config=kubelet.authorization-mode=AlwaysAllow --extra-config=kubelet.anonymous-auth=true --extra-config=kubelet.cadvisor-port=4194; then
         # Run "kubeadm init" again but ignore preflight errors.
         kubeadm init --config /var/lib/kubeadm.yaml --ignore-preflight-errors=all
     fi
