@@ -152,7 +152,7 @@ def minikube(request, worker_id):
         if worker_id == "gw0":
             k8s_skip_teardown = True
     else:
-        mk.connect("minikube", k8s_timeout, version=k8s_version)
+        mk.connect("minikube", bootstrapper, k8s_timeout, version=k8s_version)
         k8s_skip_teardown = True
     return mk
 

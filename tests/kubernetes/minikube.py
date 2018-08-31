@@ -60,7 +60,8 @@ class Minikube:
             self.kubeconfig = kubeconfig
             kube_config.load_kube_config(config_file=self.kubeconfig)
 
-    def connect(self, name, timeout, version=None):
+    def connect(self, name, bootstrapper, timeout, version=None):
+        self.bootstrapper = bootstrapper
         print("\nConnecting to %s container ..." % name)
         assert wait_for(p(container_is_running, self.host_client, name), timeout_seconds=timeout), "timed out waiting for container %s!" % name
         self.container = self.host_client.containers.get(name)

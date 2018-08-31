@@ -52,12 +52,11 @@ else
     exit 1
 fi
 
-minikube addons disable dashboard || true
-sleep 2
-minikube status || true
-kubectl version || true
+for addon in addon-manager dashboard default-storageclass storage-provisioner; do
+    minikube addons disable $addon || true
+done
 
-# wait for the cluster to be ready
+echo "Waiting for the cluster to be ready ..."
 TIMEOUT=${TIMEOUT:-"300"}
 START_TIME=`date +%s`
 while [ 0 ]; do
@@ -81,21 +80,16 @@ while [ 0 ]; do
             minikube logs
             echo
         fi
-        kubectl get pods --all-namespaces
         echo "Timed out after $TIMEOUT seconds waiting for the cluster to be ready!"
         exit 1
     fi
-    npods=`kubectl get pods --all-namespaces 2>/dev/null | grep 'kube-system' | wc -l`
-    nrunning=`kubectl get pods --all-namespaces 2>/dev/null | grep 'kube-system' | grep 'Running' | wc -l`
-    if [[ $npods -gt 1 && $npods -eq $nrunning ]]; then
-        sleep 5
+    if kubectl get pods --all-namespaces; then
         break
     fi
     sleep 5
 done
 
-kubectl get pods --all-namespaces
-
+kubectl version
 kubectl config view --merge=true --flatten=true > /kubeconfig
 
 exit 0
