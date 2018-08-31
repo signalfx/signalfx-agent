@@ -39,17 +39,6 @@ class Minikube:
             return None
 
     def load_kubeconfig(self, kubeconfig_path="/kubeconfig", timeout=300):
-        def _get_logs():
-            if self.bootstrapper == "localkube":
-                return "\nMINIKUBE CONTAINER LOGS:\n%s\n\nLOCALKUBE LOGS:\n%s\n\n" % \
-                    (self.get_container_logs(), self.get_localkube_logs())
-            elif self.bootstrapper == "kubeadm":
-                _, start_minikube_output = self.container.exec_run("cat /var/log/start-minikube.log")
-                _, minikube_logs = self.container.exec_run("minikube logs")
-                return "\nSTART-MINIKUBE OUTPUT:\n%s\n\nMINIKUBE LOGS:\n%s\n\n" % \
-                    (start_minikube_output.decode("utf-8"), minikube_logs.decode("utf-8"))
-            return ""
-
         with tempfile.NamedTemporaryFile(dir="/tmp/scratch") as fd:
             kubeconfig = fd.name
             assert wait_for(p(container_cmd_exit_0, self.container, "test -f %s" % kubeconfig_path), timeout_seconds=timeout), \
