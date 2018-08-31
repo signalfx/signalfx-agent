@@ -53,7 +53,7 @@ references:
             --self-contained-html \
             --k8s-version="$K8S_VERSION" \
             --k8s-observers="$K8S_OBSERVERS" \
-            --k8s-timeout=300 \
+            --k8s-timeout=420 \
             --k8s-test-timeout=120 \
             --k8s-sfx-agent=quay.io/signalfx/signalfx-agent-dev:latest \
             tests
