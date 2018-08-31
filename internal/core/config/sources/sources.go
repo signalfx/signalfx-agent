@@ -10,6 +10,7 @@ import (
 
 	"github.com/creasty/defaults"
 	"github.com/signalfx/signalfx-agent/internal/core/config/sources/consul"
+	"github.com/signalfx/signalfx-agent/internal/core/config/sources/env"
 	"github.com/signalfx/signalfx-agent/internal/core/config/sources/etcd2"
 	"github.com/signalfx/signalfx-agent/internal/core/config/sources/file"
 	"github.com/signalfx/signalfx-agent/internal/core/config/sources/types"
@@ -49,6 +50,9 @@ func (sc *SourceConfig) SourceInstances() (map[string]types.ConfigSource, error)
 
 	file := file.New(time.Duration(sc.File.PollRateSeconds) * time.Second)
 	sources[file.Name()] = file
+
+	env := env.New()
+	sources[env.Name()] = env
 
 	if sc.Zookeeper != nil {
 		zk := zookeeper.New(sc.Zookeeper)

@@ -154,7 +154,11 @@ func (w *walker) injectDynamicValuesInSlice(v []interface{}) ([]interface{}, err
 					if !ok {
 						slice = []interface{}{values[j]}
 					}
-					out = append(out[:i], append(slice, out[i:]...)...)
+					remainder := slice
+					if i < len(out) {
+						remainder = append(slice, out[i:]...)
+					}
+					out = append(out[:i], remainder...)
 				}
 			} else {
 				out = append(out, values...)
