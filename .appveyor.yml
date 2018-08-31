@@ -4,12 +4,13 @@ clone_folder: c:\gopath\src\github.com\signalfx\signalfx-agent
 environment:
   AGENT_BIN: c:\gopath\src\github.com\signalfx\signalfx-agent\signalfx-agent.exe
   AGENT_VERSION: 3.4.1
+  GOROOT: c:\go110
   GOPATH: c:\gopath
   PYTHONHOME: c:\Python35-x64
   PYTHONPATH: c:\Python35-x64
   TEST_SERVICES_DIR: c:\gopath\src\github.com\signalfx\signalfx-agent\test-services
 install:
-  - set PATH=%GOPATH%\bin;c:\go\bin;%PATH%
+  - set PATH=%GOPATH%\bin;%GOROOT%\bin;%PATH%
   - set PATH=%PYTHONHOME%;%PYTHONHOME%\Scripts;%PATH%
   - go version
   - go env
