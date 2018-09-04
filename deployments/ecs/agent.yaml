@@ -1,0 +1,61 @@
+# This agent config file is designed for use within an ECS cluster.  The agent
+# should be run as a Daemon service with the host EC2 instance's filesystem
+# mounted in at /hostfs and the docker socket mounted in at
+# /var/run/docker.sock.
+signalFxAccessToken: {"#from": "env:ACCESS_TOKEN"}
+ingestUrl: {"#from": "env:INGEST_URL", optional: true}
+
+intervalSeconds: {"#from": "env:INTERVAL_SECONDS", default: 10}
+
+logging:
+  level: {"#from": "env:LOG_LEVEL", default: "info"}
+
+# observers are what discover running services in the environment
+observers:
+    # Enable the docker observer to discover other ECS tasks running on the
+    # same EC2 instance.
+  - type: docker
+    # ECS tasks running the awsvpc network mode don't actually expose and IP
+    # address on the docker inspect API so we need to use the hostname instead.
+    useHostnameIfPresent: true
+    labelsToDimensions: &labelMap
+      # We map the cluster label to ClusterName to match what our AWS
+      # CloudWatch integration uses.
+      com.amazonaws.ecs.cluster: ClusterName
+      com.amazonaws.ecs.container-name: container_spec_name
+      com.amazonaws.ecs.task-arn: ecs_task_arn
+      com.amazonaws.ecs.task-definition-family: ecs_task_group
+      com.amazonaws.ecs.task-definition-version: ecs_task_version
+
+monitors:
+  - type: collectd/cpu
+  - type: collectd/cpufreq
+  - type: collectd/df
+    hostFSPath: /hostfs
+  - type: collectd/disk
+  - type: collectd/interface
+  - type: collectd/load
+  - type: collectd/memory
+  - type: collectd/protocols
+  - type: collectd/signalfx-metadata
+  - type: host-metadata
+    etcPath: /hostfs/etc
+  - type: collectd/uptime
+  - type: collectd/vmem
+
+  - type: docker-container-stats
+    labelsToDimensions:
+      <<: *labelMap
+
+    # You can set this envvar in your task definition to provide extra monitor
+    # configuration to monitor applications running as ECS tasks.  You should
+    # probably use discovery rules so that you don't have to have a specific
+    # config for each EC2 instance.
+  - {"#from": "env:EXTRA_MONITOR_CONFIG", default: [], flatten: true}
+
+metricsToExclude: {"#from": "env:METRICS_TO_EXCLUDE", default: []}
+
+
+# This allows any config above to be completely overridden.  CONFIG_OVERRIDE
+# must be given as a YAML/JSON object.
+_: {"#from": "env:CONFIG_OVERRIDE", optional: true, flatten: true}
