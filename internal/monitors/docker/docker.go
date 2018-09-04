@@ -10,6 +10,7 @@ import (
 	dtypes "github.com/docker/docker/api/types"
 	docker "github.com/docker/docker/client"
 	"github.com/pkg/errors"
+	dockercommon "github.com/signalfx/signalfx-agent/internal/core/common/docker"
 	"github.com/signalfx/signalfx-agent/internal/core/config"
 	"github.com/signalfx/signalfx-agent/internal/monitors"
 	"github.com/signalfx/signalfx-agent/internal/monitors/types"
@@ -89,16 +90,44 @@ func (m *Monitor) Configure(conf *Config) error {
 	}
 
 	lock := sync.Mutex{}
-	var containers map[string]*dtypes.ContainerJSON
+	containers := map[string]*dtypes.ContainerJSON{}
+	isRegistered := false
+
+	changeHandler := func(old *dtypes.ContainerJSON, new *dtypes.ContainerJSON) {
+		if old == nil && new == nil {
+			return
+		}
+
+		var id string
+		if new != nil {
+			id = new.ID
+		} else {
+			id = old.ID
+		}
+
+		lock.Lock()
+		defer lock.Unlock()
+
+		if new == nil || (!new.State.Running || new.State.Paused) {
+			logger.Debugf("Container %s is no longer running", id)
+			delete(containers, id)
+			return
+		}
+		logger.Infof("Monitoring docker container %s", id)
+		containers[id] = new
+	}
 
 	utils.RunOnInterval(m.ctx, func() {
-		if containers == nil {
+		// Repeat the watch setup in the face of errors in case the docker
+		// engine is non-responsive when the monitor starts.
+		if !isRegistered {
 			var err error
-			containers, err = listAndWatchContainers(m.ctx, m.client, &lock, imageFilter)
+			err = dockercommon.ListAndWatchContainers(m.ctx, m.client, changeHandler, imageFilter, logger)
 			if err != nil {
 				logger.WithError(err).Error("Could not list docker containers")
 				return
 			}
+			isRegistered = true
 		}
 
 		// Individual container objects don't need to be protected by the lock,

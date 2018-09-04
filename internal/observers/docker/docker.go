@@ -3,14 +3,17 @@
 package docker
 
 import (
+	"context"
+	"reflect"
 	"strconv"
+	"strings"
 
 	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
 
-	"github.com/docker/docker/api/types"
+	dtypes "github.com/docker/docker/api/types"
 	"github.com/docker/docker/client"
-	"golang.org/x/net/context"
+	dockercommon "github.com/signalfx/signalfx-agent/internal/core/common/docker"
 
 	"github.com/signalfx/signalfx-agent/internal/core/config"
 	"github.com/signalfx/signalfx-agent/internal/core/services"
@@ -37,32 +40,36 @@ var logger = log.WithFields(log.Fields{"observerType": observerType})
 
 // Docker observer plugin
 type Docker struct {
-	client           *client.Client
 	serviceCallbacks *observers.ServiceCallbacks
-	serviceDiffer    *observers.ServiceDiffer
 	config           *Config
+	cancel           func()
+
+	endpointsByContainerID map[string][]services.Endpoint
 }
 
 // Config specific to the Docker observer
 type Config struct {
 	config.ObserverConfig
 	DockerURL string `yaml:"dockerURL" default:"unix:///var/run/docker.sock"`
-	// How often to poll the docker API
-	PollIntervalSeconds int `yaml:"pollIntervalSeconds" default:"10"`
-}
-
-// Validate the docker-specific config
-func (c *Config) Validate() error {
-	if c.PollIntervalSeconds < 1 {
-		return errors.New("pollIntervalSeconds must be greater than 0")
-	}
-	return nil
+	// A mapping of container label names to dimension names that will get
+	// applied to the metrics of all discovered services. The corresponding
+	// label values will become the dimension value for the mapped name.  E.g.
+	// `io.kubernetes.container.name: container_spec_name` would result in a
+	// dimension called `container_spec_name` that has the value of the
+	// `io.kubernetes.container.name` container label.
+	LabelsToDimensions map[string]string `yaml:"labelsToDimensions"`
+	// If true, the "Config.Hostname" field (if present) of the docker
+	// container will be used as the discovered host that is used to configure
+	// monitors.  If false or if no hostname is configured, the field
+	// `NetworkSettings.IPAddress` is used instead.
+	UseHostnameIfPresent bool `yaml:"useHostnameIfPresent"`
 }
 
 func init() {
 	observers.Register(observerType, func(cbs *observers.ServiceCallbacks) interface{} {
 		return &Docker{
-			serviceCallbacks: cbs,
+			serviceCallbacks:       cbs,
+			endpointsByContainerID: make(map[string][]services.Endpoint),
 		}
 	}, &Config{})
 }
@@ -71,78 +78,107 @@ func init() {
 func (docker *Docker) Configure(config *Config) error {
 	defaultHeaders := map[string]string{"User-Agent": "signalfx-agent"}
 
-	var err error
-	docker.client, err = client.NewClient(config.DockerURL, dockerAPIVersion, nil, defaultHeaders)
+	client, err := client.NewClient(config.DockerURL, dockerAPIVersion, nil, defaultHeaders)
 	if err != nil {
 		return errors.Wrapf(err, "Could not create docker client")
 	}
 
-	if docker.serviceDiffer != nil {
-		docker.serviceDiffer.Stop()
-	}
-
-	docker.serviceDiffer = &observers.ServiceDiffer{
-		DiscoveryFn:     docker.discover,
-		IntervalSeconds: config.PollIntervalSeconds,
-		Callbacks:       docker.serviceCallbacks,
-	}
 	docker.config = config
 
-	docker.serviceDiffer.Start()
+	var ctx context.Context
+	ctx, docker.cancel = context.WithCancel(context.Background())
 
+	err = dockercommon.ListAndWatchContainers(ctx, client, docker.changeHandler, nil, logger)
+	if err != nil {
+		logger.WithError(err).Error("Could not list docker containers")
+		return err
+	}
 	return nil
 }
 
-// Discover services by querying docker api
-func (docker *Docker) discover() []services.Endpoint {
-	options := types.ContainerListOptions{All: true}
-	containers, err := docker.client.ContainerList(context.Background(), options)
-	if err != nil {
-		logger.WithFields(log.Fields{
-			"options":   options,
-			"dockerURL": docker.config.DockerURL,
-			"error":     err,
-		}).Error("Could not get container list from docker")
-		return nil
+func (docker *Docker) changeHandler(old *dtypes.ContainerJSON, new *dtypes.ContainerJSON) {
+	var newEndpoints []services.Endpoint
+	var oldEndpoints []services.Endpoint
+
+	if old != nil {
+		oldEndpoints = docker.endpointsByContainerID[old.ID]
+		delete(docker.endpointsByContainerID, old.ID)
 	}
 
+	if new != nil {
+		newEndpoints = docker.endpointsForContainer(new)
+		docker.endpointsByContainerID[new.ID] = newEndpoints
+	}
+
+	// Prevent spurious churn of endpoints if they haven't changed
+	if reflect.DeepEqual(newEndpoints, oldEndpoints) {
+		return
+	}
+
+	// If it is an update, there will be a remove and immediately subsequent
+	// add.
+	for i := range oldEndpoints {
+		log.Debugf("Removing Docker endpoint from container %s", old.ID)
+		docker.serviceCallbacks.Removed(oldEndpoints[i])
+	}
+
+	for i := range newEndpoints {
+		log.Debugf("Adding Docker endpoint for container %s", new.ID)
+		docker.serviceCallbacks.Added(newEndpoints[i])
+	}
+}
+
+// Discover services by querying docker api
+func (docker *Docker) endpointsForContainer(cont *dtypes.ContainerJSON) []services.Endpoint {
 	instances := make([]services.Endpoint, 0)
 
-	for _, c := range containers {
-		if c.State == "running" {
-			serviceContainer := &services.Container{
-				ID:      c.ID,
-				Names:   c.Names,
-				Image:   c.Image,
-				Command: c.Command,
-				State:   c.State,
-				Labels:  c.Labels,
-			}
+	if cont.State.Running && !cont.State.Paused {
+		serviceContainer := &services.Container{
+			ID:      cont.ID,
+			Names:   []string{cont.Name},
+			Image:   cont.Config.Image,
+			Command: strings.Join(cont.Config.Cmd, " "),
+			State:   cont.State.Status,
+			Labels:  cont.Config.Labels,
+		}
 
-			for _, port := range c.Ports {
-				id := serviceContainer.PrimaryName() + "-" + c.ID[:12] + "-" + strconv.Itoa(int(port.PrivatePort))
+		for portObj := range cont.Config.ExposedPorts {
+			port := portObj.Int()
+			protocol := portObj.Proto()
 
-				endpoint := services.NewEndpointCore(id, "", observerType)
+			id := serviceContainer.PrimaryName() + "-" + cont.ID[:12] + "-" + strconv.Itoa(int(port))
+
+			endpoint := services.NewEndpointCore(id, "", observerType)
+			if docker.config.UseHostnameIfPresent && cont.Config.Hostname != "" {
+				endpoint.Host = cont.Config.Hostname
+			} else {
 				// Use the IP Address of the first network we iterate over.
 				// This can be made configurable if so desired.
-				for _, n := range c.NetworkSettings.Networks {
+				for _, n := range cont.NetworkSettings.Networks {
 					endpoint.Host = n.IPAddress
 					break
 				}
-				endpoint.PortType = services.PortType(port.Type)
-				endpoint.Port = uint16(port.PrivatePort)
-
-				orchestration := services.NewOrchestration("docker", services.DOCKER, nil, services.PRIVATE)
-
-				si := &services.ContainerEndpoint{
-					EndpointCore:  *endpoint,
-					AltPort:       uint16(port.PublicPort),
-					Container:     *serviceContainer,
-					Orchestration: *orchestration,
-				}
-
-				instances = append(instances, si)
 			}
+			endpoint.PortType = services.PortType(strings.ToUpper(protocol))
+			endpoint.Port = uint16(port)
+
+			orchDims := map[string]string{}
+			for k, dimName := range docker.config.LabelsToDimensions {
+				if v := cont.Config.Labels[k]; v != "" {
+					orchDims[dimName] = v
+				}
+			}
+
+			orchestration := services.NewOrchestration("docker", services.DOCKER, orchDims, services.PRIVATE)
+
+			si := &services.ContainerEndpoint{
+				EndpointCore:  *endpoint,
+				AltPort:       uint16(dockercommon.FindHostMappedPort(cont, portObj)),
+				Container:     *serviceContainer,
+				Orchestration: *orchestration,
+			}
+
+			instances = append(instances, si)
 		}
 	}
 
@@ -151,7 +187,7 @@ func (docker *Docker) discover() []services.Endpoint {
 
 // Shutdown the service differ routine
 func (docker *Docker) Shutdown() {
-	if docker.serviceDiffer != nil {
-		docker.serviceDiffer.Stop()
+	if docker.cancel != nil {
+		docker.cancel()
 	}
 }

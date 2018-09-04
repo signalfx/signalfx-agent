@@ -1,10 +1,10 @@
-from functools import partial as p
-import pytest
-import string
 import time
+from functools import partial as p
 
-from tests.helpers.util import ensure_always, wait_for, run_agent, run_service
-from tests.helpers.assertions import *
+import pytest
+
+from tests.helpers.assertions import (has_datapoint_with_dim, has_datapoint_with_metric_name)
+from tests.helpers.util import ensure_always, run_agent, run_service, wait_for
 
 pytestmark = [pytest.mark.docker_container_stats, pytest.mark.monitor_without_endpoints]
 
@@ -17,7 +17,8 @@ def test_docker_container_stats():
 
     """) as [backend, _, _]:
             assert wait_for(p(has_datapoint_with_metric_name, backend, "cpu.percent")), "Didn't get docker datapoints"
-            assert wait_for(p(has_datapoint_with_dim, backend, "container_id", nginx_container.id)), "Didn't get nginx datapoints"
+            assert wait_for(p(has_datapoint_with_dim, backend, "container_id",
+                              nginx_container.id)), "Didn't get nginx datapoints"
 
 
 def test_docker_image_filtering():
@@ -33,7 +34,7 @@ def test_docker_image_filtering():
 
 
 def test_docker_label_dimensions():
-    with run_service("nginx", labels={"app": "myserver"}) as nginx_container:
+    with run_service("nginx", labels={"app": "myserver"}):
         with run_agent("""
     monitors:
       - type: docker-container-stats
@@ -41,7 +42,9 @@ def test_docker_label_dimensions():
           app: service
 
     """) as [backend, _, _]:
-            assert wait_for(p(has_datapoint_with_dim, backend, "service", "myserver")), "Didn't get datapoint with service dim"
+            assert wait_for(p(has_datapoint_with_dim, backend, "service",
+                              "myserver")), "Didn't get datapoint with service dim"
+
 
 def test_docker_detects_new_containers():
     with run_agent("""
@@ -51,17 +54,50 @@ def test_docker_detects_new_containers():
     """) as [backend, _, _]:
         time.sleep(5)
         with run_service("nginx") as nginx_container:
-            assert wait_for(p(has_datapoint_with_dim, backend, "container_id", nginx_container.id)), "Didn't get nginx datapoints"
+            assert wait_for(p(has_datapoint_with_dim, backend, "container_id",
+                              nginx_container.id)), "Didn't get nginx datapoints"
 
-def test_docker_stops_watching_old_containers():
+
+def test_docker_stops_watching_paused_containers():
     with run_service("nginx") as nginx_container:
         with run_agent("""
         monitors:
           - type: docker-container-stats
 
-        """) as [backend, get_output, _]:
-            assert wait_for(p(has_datapoint_with_dim, backend, "container_id", nginx_container.id)), "Didn't get nginx datapoints"
+        """) as [backend, _, _]:
+            assert wait_for(p(has_datapoint_with_dim, backend, "container_id",
+                              nginx_container.id)), "Didn't get nginx datapoints"
+            nginx_container.pause()
+            time.sleep(5)
+            backend.datapoints.clear()
+            assert ensure_always(lambda: not has_datapoint_with_dim(backend, "container_id", nginx_container.id))
+
+
+def test_docker_stops_watching_stopped_containers():
+    with run_service("nginx") as nginx_container:
+        with run_agent("""
+        monitors:
+          - type: docker-container-stats
+
+        """) as [backend, _, _]:
+            assert wait_for(p(has_datapoint_with_dim, backend, "container_id",
+                              nginx_container.id)), "Didn't get nginx datapoints"
             nginx_container.stop(timeout=10)
+            time.sleep(5)
+            backend.datapoints.clear()
+            assert ensure_always(lambda: not has_datapoint_with_dim(backend, "container_id", nginx_container.id))
+
+
+def test_docker_stops_watching_destroyed_containers():
+    with run_service("nginx") as nginx_container:
+        with run_agent("""
+        monitors:
+          - type: docker-container-stats
+
+        """) as [backend, _, _]:
+            assert wait_for(p(has_datapoint_with_dim, backend, "container_id",
+                              nginx_container.id)), "Didn't get nginx datapoints"
+            nginx_container.remove(force=True)
             time.sleep(5)
             backend.datapoints.clear()
             assert ensure_always(lambda: not has_datapoint_with_dim(backend, "container_id", nginx_container.id))
