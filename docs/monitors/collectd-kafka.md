@@ -74,8 +74,7 @@ The **nested** `values` config object has the following fields:
 
 ## Metrics
 
-This monitor emits the following metrics.  Note that configuration options may
-cause only a subset of metrics to be emitted.
+The following table lists the metrics available for this monitor. Metrics that are not marked as Custom are standard metrics and are monitored by default.
 
 | Name | Type | Custom | Description |
 | ---  | ---  | ---    | ---         |
@@ -104,8 +103,8 @@ cause only a subset of metrics to be emitted.
 | `kafka-offline-partitions-count` | gauge | X | Number of partitions that don’t have an active leader and are hence not writable or readable |
 | `kafka-unclean-elections` | cumulative | X | Number of unclean leader elections. This happens when a leader goes down and an out-of-sync replica is chosen to be the leader |
 
-Custom metrics may or not be collected by this monitor by default. Check the monitor configuration to see if additional flags are required for gathering additional metrics.
-Any custom metrics above may be reported by the agent by adding a negated `metricsToExclude` to the monitor configuration, as shown below.
+To specify custom metrics you want to monitor, add a negated `metricsToExclude` to the monitor configuration, as shown in the code snippet below. The snippet lists all available custom metrics. You can copy and paste the snippet into your configuration file, then delete any custom metrics that you do not want to monitor. 
+Note that some of the custom metrics require you to set a flag as well as add them to the list. Check the monitor configuration file to see if a flag is required for gathering additional metrics.
 ```yaml 
 metricsToExclude:
   - counter.kafka-all-bytes-in

@@ -39,8 +39,7 @@ Monitor Type: `collectd/signalfx-metadata`
 
 ## Metrics
 
-This monitor emits the following metrics.  Note that configuration options may
-cause only a subset of metrics to be emitted.
+The following table lists the metrics available for this monitor. Metrics that are not marked as Custom are standard metrics and are monitored by default.
 
 | Name | Type | Custom | Description |
 | ---  | ---  | ---    | ---         |
@@ -52,8 +51,8 @@ cause only a subset of metrics to be emitted.
 | `memory.utilization` | gauge |  | Percent of memory in use on this host. |
 | `network.total` | cumulative | X | Total amount of inbound and outbound network traffic on this host, in bytes. |
 
-Custom metrics may or not be collected by this monitor by default. Check the monitor configuration to see if additional flags are required for gathering additional metrics.
-Any custom metrics above may be reported by the agent by adding a negated `metricsToExclude` to the monitor configuration, as shown below.
+To specify custom metrics you want to monitor, add a negated `metricsToExclude` to the monitor configuration, as shown in the code snippet below. The snippet lists all available custom metrics. You can copy and paste the snippet into your configuration file, then delete any custom metrics that you do not want to monitor. 
+Note that some of the custom metrics require you to set a flag as well as add them to the list. Check the monitor configuration file to see if a flag is required for gathering additional metrics.
 ```yaml 
 metricsToExclude:
   - cpu.utilization_per_core
