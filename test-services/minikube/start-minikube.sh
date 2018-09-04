@@ -33,8 +33,6 @@ else
     MINIKUBE_OPTIONS="$MINIKUBE_OPTIONS --kubernetes-version $K8S_VERSION"
 fi
 chmod a+x /usr/local/bin/kubectl
-minikube config set ShowBootstrapperDeprecationNotification false || true
-minikube config set WantNoneDriverWarning false || true
 
 if [ "$BOOTSTRAPPER" = "kubeadm" ]; then
     # Initialize minikube but expect "kubeadm init" to fail due to preflight errors.
@@ -51,10 +49,6 @@ else
     echo "Unsupported bootstrapper \"${BOOTSTRAPPER}\"!"
     exit 1
 fi
-
-for addon in addon-manager dashboard default-storageclass storage-provisioner; do
-    minikube addons disable $addon || true
-done
 
 echo "Waiting for the cluster to be ready ..."
 TIMEOUT=${TIMEOUT:-"300"}
