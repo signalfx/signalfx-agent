@@ -10,12 +10,18 @@ import (
 	docker "github.com/docker/docker/client"
 	"github.com/signalfx/signalfx-agent/internal/utils"
 	"github.com/signalfx/signalfx-agent/internal/utils/filter"
+	log "github.com/sirupsen/logrus"
 )
 
-// Returns a map of containers by id and ensures that the map is kept up to
-// date as containers come and go.  Access to the map should be done while
-// holding the provided lock.
-func listAndWatchContainers(ctx context.Context, client *docker.Client, lock *sync.Mutex, imageFilter filter.StringFilter) (map[string]*dtypes.ContainerJSON, error) {
+// ContainerChangeHandler is what gets called when a Docker container is
+// initially recognized or changed in some way.  old will be the previous state,
+// or nil if no previous state is known.  new is the new state, or nil if the
+// container is being destroyed.
+type ContainerChangeHandler func(old *dtypes.ContainerJSON, new *dtypes.ContainerJSON)
+
+// ListAndWatchContainers accepts a changeHandler that gets called as containers come and go.
+func ListAndWatchContainers(ctx context.Context, client *docker.Client, changeHandler ContainerChangeHandler, imageFilter filter.StringFilter, logger log.FieldLogger) error {
+	lock := sync.Mutex{}
 	containers := make(map[string]*dtypes.ContainerJSON)
 
 	// Make sure you hold the lock before calling this
@@ -24,8 +30,8 @@ func listAndWatchContainers(ctx context.Context, client *docker.Client, lock *sy
 		c, err := client.ContainerInspect(inspectCtx, id)
 		if err != nil {
 			logger.WithError(err).Errorf("Could not inspect updated container %s", id)
-		} else if !imageFilter.Matches(c.Config.Image) {
-			logger.Debugf("Monitoring docker container %s", id)
+		} else if imageFilter == nil || !imageFilter.Matches(c.Config.Image) {
+			logger.Debugf("Updated Docker container %s", id)
 			containers[id] = &c
 		}
 		cancel()
@@ -67,11 +73,17 @@ func listAndWatchContainers(ctx context.Context, client *docker.Client, lock *sy
 					lock.Lock()
 
 					switch event.Action {
-					case "destroy", "die", "pause", "stop":
-						logger.Debugf("No longer monitoring container %s", event.ID)
+					// This assumes that all deleted containers get a "destroy"
+					// event associated with them, otherwise memory usage could
+					// be unbounded.
+					case "destroy":
+						logger.Debugf("Docker container was destroyed: %s", event.ID)
 						delete(containers, event.ID)
-					case "start", "unpause", "update":
+						changeHandler(containers[event.ID], nil)
+					default:
+						oldContainer := containers[event.ID]
 						updateContainer(event.ID)
+						changeHandler(oldContainer, containers[event.ID])
 					}
 
 					lock.Unlock()
@@ -101,7 +113,7 @@ func listAndWatchContainers(ctx context.Context, client *docker.Client, lock *sy
 	}
 	containerList, err := client.ContainerList(ctx, options)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	wg := sync.WaitGroup{}
@@ -112,13 +124,14 @@ func listAndWatchContainers(ctx context.Context, client *docker.Client, lock *sy
 		// which makes this harder than it should be.
 		go func(id string) {
 			lock.Lock()
-			defer lock.Unlock()
 			updateContainer(id)
+			changeHandler(nil, containers[id])
+			lock.Unlock()
 			wg.Done()
 		}(containerList[i].ID)
 	}
 
 	wg.Wait()
 
-	return containers, nil
+	return nil
 }

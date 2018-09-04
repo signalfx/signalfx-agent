@@ -163,9 +163,12 @@ def run_container(image_name, wait_for_ip=True, print_logs=True, **kwargs):
     try:
         yield container
     finally:
-        if print_logs:
-            print_lines("Container %s logs:\n%s" % (image_name, container.logs().decode('utf-8')))
-        container.remove(force=True, v=True)
+        try:
+            if print_logs:
+                print_lines("Container %s logs:\n%s" % (image_name, container.logs().decode('utf-8')))
+            container.remove(force=True, v=True)
+        except docker.errors.NotFound:
+            pass
 
 
 @contextmanager
