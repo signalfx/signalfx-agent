@@ -1,0 +1,87 @@
+{
+    "executionRoleArn": null,
+    "containerDefinitions": [
+        {
+            "dnsSearchDomains": null,
+            "logConfiguration": null,
+            "entryPoint": [
+                "bash",
+                "-c"
+            ],
+            "portMappings": [],
+            "command": [
+                "curl $CONFIG_URL > /etc/signalfx/agent.yaml && exec /bin/signalfx-agent"
+            ],
+            "linuxParameters": null,
+            "cpu": 0,
+            "environment": [
+                {
+                    "name": "ACCESS_TOKEN",
+                    "value": "MY_ACCESS_TOKEN"
+                },
+                {
+                    "name": "CONFIG_URL",
+                    "value": "https://raw.githubusercontent.com/signalfx/signalfx-agent/ecs/deployments/ecs/agent.yaml"
+                }
+            ],
+            "ulimits": null,
+            "dnsServers": null,
+            "mountPoints": [
+                {
+                    "readOnly": true,
+                    "containerPath": "/hostfs",
+                    "sourceVolume": "hostfs"
+                },
+                {
+                    "readOnly": true,
+                    "containerPath": "/var/run/docker.sock",
+                    "sourceVolume": "docker-socket"
+                }
+            ],
+            "workingDirectory": null,
+            "dockerSecurityOptions": null,
+            "memory": null,
+            "memoryReservation": null,
+            "volumesFrom": [],
+            "image": "quay.io/signalfx/signalfx-agent:3.5.0",
+            "disableNetworking": null,
+            "healthCheck": null,
+            "essential": true,
+            "links": null,
+            "hostname": null,
+            "extraHosts": null,
+            "user": null,
+            "readonlyRootFilesystem": null,
+            "dockerLabels": {
+                "app": "signalfx-agent"
+            },
+            "privileged": null,
+            "name": "signalfx-agent"
+        }
+    ],
+    "memory": "200",
+    "taskRoleArn": null,
+    "family": "signalfx-agent",
+    "requiresCompatibilities": [
+        "EC2"
+    ],
+    "networkMode": "host",
+    "cpu": null,
+    "volumes": [
+        {
+            "name": "hostfs",
+            "host": {
+                "sourcePath": "/"
+            },
+            "dockerVolumeConfiguration": null
+        },
+        {
+            "name": "docker-socket",
+            "host": {
+                "sourcePath": "/var/run/docker.sock"
+            },
+            "dockerVolumeConfiguration": null
+        }
+    ],
+    "placementConstraints": []
+}
