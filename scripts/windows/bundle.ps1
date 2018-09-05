@@ -57,7 +57,7 @@ function install_pip([string]$buildDir=$BUILD_DIR) {
     $env:PYTHONHOME="$buildDir\python"
     & $python $arguments
     & $python -m pip -V
-    & $python -m pip install --upgrade pip
+    & $python -m pip install --upgrade pip==18.0
     & $python -m pip -V
     # unset the python home enviornment variable
     Remove-Item Env:\PYTHONHOME
