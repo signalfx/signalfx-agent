@@ -25,16 +25,18 @@ func ListAndWatchContainers(ctx context.Context, client *docker.Client, changeHa
 	containers := make(map[string]*dtypes.ContainerJSON)
 
 	// Make sure you hold the lock before calling this
-	updateContainer := func(id string) {
+	updateContainer := func(id string) bool {
 		inspectCtx, cancel := context.WithTimeout(ctx, 5*time.Second)
 		c, err := client.ContainerInspect(inspectCtx, id)
+		defer cancel()
 		if err != nil {
 			logger.WithError(err).Errorf("Could not inspect updated container %s", id)
 		} else if imageFilter == nil || !imageFilter.Matches(c.Config.Image) {
 			logger.Debugf("Updated Docker container %s", id)
 			containers[id] = &c
+			return true
 		}
-		cancel()
+		return false
 	}
 
 	watchStarted := make(chan struct{})
@@ -78,12 +80,15 @@ func ListAndWatchContainers(ctx context.Context, client *docker.Client, changeHa
 					// be unbounded.
 					case "destroy":
 						logger.Debugf("Docker container was destroyed: %s", event.ID)
-						delete(containers, event.ID)
-						changeHandler(containers[event.ID], nil)
+						if _, ok := containers[event.ID]; ok {
+							delete(containers, event.ID)
+							changeHandler(containers[event.ID], nil)
+						}
 					default:
 						oldContainer := containers[event.ID]
-						updateContainer(event.ID)
-						changeHandler(oldContainer, containers[event.ID])
+						if updateContainer(event.ID) {
+							changeHandler(oldContainer, containers[event.ID])
+						}
 					}
 
 					lock.Unlock()
