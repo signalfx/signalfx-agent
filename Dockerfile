@@ -197,11 +197,14 @@ RUN pip install yq &&\
 RUN apt install -y libffi-dev libssl-dev build-essential python-dev libcurl4-openssl-dev
 
 # Mirror the same dir structure that exists in the original source
-COPY scripts/get-collectd-plugins.sh /opt/scripts/
+COPY scripts/get-collectd-plugins.py /opt/scripts/
+COPY scripts/get-collectd-plugins-requirements.txt /opt/
 COPY collectd-plugins.yaml /opt/
 
+RUN pip install -r /opt/get-collectd-plugins-requirements.txt
+
 RUN mkdir -p /opt/collectd-python &&\
-    bash /opt/scripts/get-collectd-plugins.sh /opt/collectd-python
+    python /opt/scripts/get-collectd-plugins.py /opt/collectd-python
 
 COPY python/ /opt/sfxpython/
 RUN cd /opt/sfxpython && pip install .
