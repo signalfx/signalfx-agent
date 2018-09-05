@@ -122,6 +122,10 @@ documentation on [Monitoring
 Kubernetes](https://docs.signalfx.com/en/latest/integrations/kubernetes-quickstart.html)
 for more information.
 
+#### AWS Elastic Container Service (ECS)
+See the [ECS directory in this repo](./deployments/ecs) that includes a sample
+config and task definition for the agent.
+
 ### Bundles
 We offer the agent in the following forms:
 

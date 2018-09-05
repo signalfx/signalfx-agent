@@ -107,6 +107,21 @@ are interpolated *after* all of the remote config values are interpolated,
 which means that remote config values can contain references to envvars, if so
 desired.  Envvars cannot, however, contain remote config values.
 
+For more advanced environment variable interpolation you can use the remote
+config value syntax with the `env` type.  For example:
+
+```
+signalFxAccessToken: {"#from": "env:SIGNALFX_ACCESS_TOKEN"}
+```
+
+will interpolate the given environment variable to that place in the config
+file.  The advantage of this format over the plain `${VARNAME}` syntax is that
+you can use all of the advanced features of remote config, such as flattening
+and defaults, which are not possible with the `${}` syntax.
+
+The env var remote config source does not pick up changes to envvars that
+happen after the initial source resolution.
+
 ## Other
 
 If you need more sophisticated interpolation of config values from KV stores,
