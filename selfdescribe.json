@@ -22,7 +22,7 @@
       },
       {
         "yamlName": "extraDimensions",
-        "doc": "A set of extra dimensions to include on datapoints emitted by the monitor(s) created from this configuration",
+        "doc": "A set of extra dimensions (key:value pairs) to include on datapoints emitted by the monitor(s) created from this configuration. To specify metrics from this monitor should be high-resolution, add the dimension `sf_hires:1`",
         "default": null,
         "required": false,
         "type": "map",
@@ -11894,7 +11894,7 @@
       },
       {
         "yamlName": "globalDimensions",
-        "doc": "Dimensions that will be added to every datapoint emitted by the agent",
+        "doc": "Dimensions (key:value pairs) that will be added to every datapoint emitted by the agent. To specify that all metrics should be high-resolution, add the dimension `sf_hires:1`",
         "default": "",
         "required": false,
         "type": "map",
@@ -11961,7 +11961,7 @@
             },
             {
               "yamlName": "extraDimensions",
-              "doc": "A set of extra dimensions to include on datapoints emitted by the monitor(s) created from this configuration",
+              "doc": "A set of extra dimensions (key:value pairs) to include on datapoints emitted by the monitor(s) created from this configuration. To specify metrics from this monitor should be high-resolution, add the dimension `sf_hires:1`",
               "default": null,
               "required": false,
               "type": "map",
