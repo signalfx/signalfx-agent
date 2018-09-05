@@ -22,8 +22,8 @@ import (
 )
 
 const (
-	datapointBufferCapacity = 1000
-	eventBufferCapacity     = 1000
+	datapointBufferCapacity = 2000
+	eventBufferCapacity     = 100
 	dimPropBufferCapacity   = 100
 )
 
