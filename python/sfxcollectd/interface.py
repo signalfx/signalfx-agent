@@ -152,6 +152,7 @@ def inject_collectd_module(interface, send_values_func):
     mod.register_shutdown = interface.register_shutdown
     mod.info = logger.info
     mod.error = logger.error
+    mod.warning = logger.warning
     mod.notice = logger.warning
     mod.info = logger.info
     mod.debug = logger.debug

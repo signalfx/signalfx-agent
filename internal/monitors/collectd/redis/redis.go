@@ -2,12 +2,16 @@
 
 package redis
 
-//go:generate collectd-template-to-go redis.tmpl
-
 import (
+	"fmt"
+	"os"
+	"path/filepath"
+
+	"github.com/signalfx/signalfx-agent/internal/core/common/constants"
 	"github.com/signalfx/signalfx-agent/internal/core/config"
 	"github.com/signalfx/signalfx-agent/internal/monitors"
-	"github.com/signalfx/signalfx-agent/internal/monitors/collectd"
+	"github.com/signalfx/signalfx-agent/internal/monitors/collectd/python"
+	"github.com/signalfx/signalfx-agent/internal/monitors/pyrunner"
 )
 
 const monitorType = "collectd/redis"
@@ -44,7 +48,9 @@ const monitorType = "collectd/redis"
 func init() {
 	monitors.Register(monitorType, func() interface{} {
 		return &Monitor{
-			*collectd.NewMonitorCore(CollectdTemplate),
+			python.Monitor{
+				MonitorCore: pyrunner.New("sfxcollectd"),
+			},
 		}
 	}, &Config{})
 }
@@ -77,10 +83,76 @@ type Config struct {
 
 // Monitor is the main type that represents the monitor
 type Monitor struct {
-	collectd.MonitorCore
+	python.Monitor
 }
 
 // Configure configures and runs the plugin in collectd
 func (rm *Monitor) Configure(conf *Config) error {
-	return rm.SetConfigurationAndRun(conf)
+
+	instanceID := conf.Name
+	if instanceID == "" {
+		instanceID = fmt.Sprintf("%s:%d", conf.Host, conf.Port)
+	}
+
+	pyconf := &python.Config{
+		MonitorConfig: conf.MonitorConfig,
+		Host:          conf.Host,
+		Port:          conf.Port,
+		ModuleName:    "redis_info",
+		ModulePaths:   []string{filepath.Join(os.Getenv(constants.BundleDirEnvVar), "plugins", "collectd", "redis")},
+		PluginConfig: map[string]interface{}{
+			"Host":                                 conf.Host,
+			"Port":                                 conf.Port,
+			"Instance":                             instanceID,
+			"Verbose":                              false,
+			"Redis_uptime_in_seconds":              "gauge",
+			"Redis_used_cpu_sys":                   "counter",
+			"Redis_used_cpu_user":                  "counter",
+			"Redis_used_cpu_sys_children":          "counter",
+			"Redis_used_cpu_user_children":         "counter",
+			"Redis_uptime_in_days":                 "gauge",
+			"Redis_lru_clock":                      "counter",
+			"Redis_connected_clients":              "gauge",
+			"Redis_client_longest_output_list":     "gauge",
+			"Redis_client_biggest_input_buf":       "gauge",
+			"Redis_blocked_clients":                "gauge",
+			"Redis_expired_keys":                   "counter",
+			"Redis_evicted_keys":                   "counter",
+			"Redis_rejected_connections":           "counter",
+			"Redis_used_memory":                    "bytes",
+			"Redis_used_memory_rss":                "bytes",
+			"Redis_used_memory_peak":               "bytes",
+			"Redis_used_memory_lua":                "bytes",
+			"Redis_mem_fragmentation_ratio":        "gauge",
+			"Redis_changes_since_last_save":        "gauge",
+			"Redis_instantaneous_ops_per_sec":      "gauge",
+			"Redis_rdb_bgsave_in_progress":         "gauge",
+			"Redis_total_connections_received":     "counter",
+			"Redis_total_commands_processed":       "counter",
+			"Redis_total_net_input_bytes":          "counter",
+			"Redis_total_net_output_bytes":         "counter",
+			"Redis_keyspace_hits":                  "derive",
+			"Redis_keyspace_misses":                "derive",
+			"Redis_latest_fork_usec":               "gauge",
+			"Redis_connected_slaves":               "gauge",
+			"Redis_repl_backlog_first_byte_offset": "gauge",
+			"Redis_master_repl_offset":             "gauge",
+			"Redis_db0_keys":                       "gauge",
+			"Redis_db0_expires":                    "gauge",
+			"Redis_db0_avg_ttl":                    "gauge",
+		},
+		TypesDBPaths: []string{filepath.Join(os.Getenv(constants.BundleDirEnvVar), "plugins", "collectd", "types.db")},
+	}
+
+	if conf.Auth != "" {
+		pyconf.PluginConfig["Auth"] = conf.Auth
+	}
+	if conf.Name != "" {
+		pyconf.PluginConfig["Name"] = conf.Name
+	}
+	if len(conf.SendListLengths) > 0 {
+		pyconf.PluginConfig["SendListLength"] = conf.SendListLengths
+	}
+
+	return rm.Monitor.Configure(pyconf)
 }
