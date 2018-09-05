@@ -2,12 +2,15 @@
 
 package zookeeper
 
-//go:generate collectd-template-to-go zookeeper.tmpl
-
 import (
+	"os"
+	"path/filepath"
+
+	"github.com/signalfx/signalfx-agent/internal/core/common/constants"
 	"github.com/signalfx/signalfx-agent/internal/core/config"
 	"github.com/signalfx/signalfx-agent/internal/monitors"
-	"github.com/signalfx/signalfx-agent/internal/monitors/collectd"
+	"github.com/signalfx/signalfx-agent/internal/monitors/collectd/python"
+	"github.com/signalfx/signalfx-agent/internal/monitors/pyrunner"
 )
 
 const monitorType = "collectd/zookeeper"
@@ -23,7 +26,9 @@ const monitorType = "collectd/zookeeper"
 func init() {
 	monitors.Register(monitorType, func() interface{} {
 		return &Monitor{
-			*collectd.NewMonitorCore(CollectdTemplate),
+			python.Monitor{
+				MonitorCore: pyrunner.New("sfxcollectd"),
+			},
 		}
 	}, &Config{})
 }
@@ -39,10 +44,27 @@ type Config struct {
 
 // Monitor is the main type that represents the monitor
 type Monitor struct {
-	collectd.MonitorCore
+	python.Monitor
 }
 
-// Configure configures and runs the plugin in collectd
-func (am *Monitor) Configure(conf *Config) error {
-	return am.SetConfigurationAndRun(conf)
+// Configure configures and runs the plugin in python
+func (rm *Monitor) Configure(conf *Config) error {
+	pyconf := &python.Config{
+		MonitorConfig: conf.MonitorConfig,
+		Host:          conf.Host,
+		Port:          conf.Port,
+		ModuleName:    "zk-collectd",
+		ModulePaths:   []string{filepath.Join(os.Getenv(constants.BundleDirEnvVar), "plugins", "collectd", "zookeeper")},
+		PluginConfig: map[string]interface{}{
+			"Hosts": conf.Host,
+			"Port":  conf.Port,
+		},
+		TypesDBPaths: []string{filepath.Join(os.Getenv(constants.BundleDirEnvVar), "plugins", "collectd", "types.db")},
+	}
+
+	if conf.Name != "" {
+		pyconf.PluginConfig["Instance"] = conf.Name
+	}
+
+	return rm.Monitor.Configure(pyconf)
 }
