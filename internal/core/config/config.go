@@ -7,6 +7,7 @@ import (
 	"net/url"
 	"os"
 	"path/filepath"
+	"runtime"
 	"strings"
 	"time"
 
@@ -135,7 +136,11 @@ func (c *Config) setupEnvironment() {
 
 	os.Setenv("LD_LIBRARY_PATH", filepath.Join(c.BundleDir, "lib"))
 	os.Setenv("JAVA_HOME", filepath.Join(c.BundleDir, "jvm/java-8-openjdk-amd64"))
-	os.Setenv("PYTHONHOME", c.BundleDir)
+	if runtime.GOOS == "windows" {
+		os.Setenv("PYTHONHOME", filepath.Join(c.BundleDir, "python"))
+	} else {
+		os.Setenv("PYTHONHOME", c.BundleDir)
+	}
 }
 
 // Validate everything that we can about the main config
