@@ -79,11 +79,15 @@ type Monitor struct {
 
 // Configure starts the subprocess and configures the plugin
 func (m *Monitor) Configure(conf *Config) error {
+	bundleDir := os.Getenv(constants.BundleDirEnvVar)
 	if len(conf.TypesDBPaths) == 0 {
 		conf.TypesDBPaths = append(conf.TypesDBPaths,
-			filepath.Join(os.Getenv(constants.BundleDirEnvVar), "plugins/collectd/types.db"))
+			filepath.Join(bundleDir, "plugins", "collectd", "types.db"))
 	}
-
+	if len(conf.ModulePaths) == 0 {
+		conf.ModulePaths = append(conf.ModulePaths,
+			filepath.Join(bundleDir, "plugins", "collectd"))
+	}
 	for k := range conf.PluginConfig {
 		if v, ok := conf.PluginConfig[k].(string); ok {
 			if v == "" {
