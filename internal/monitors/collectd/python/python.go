@@ -41,6 +41,12 @@ func init() {
 	}, &Config{})
 }
 
+// PyConfig is an interface for passing in Config structs derrived from the Python Config struct
+type PyConfig interface {
+	config.MonitorCustomConfig
+	PythonConfig() *Config
+}
+
 // MONITOR(collectd/python): This monitor runs arbitrary collectd Python
 // plugins directly, apart from collectd.  It implements a mock collectd Python
 // interface that supports most, but not all, of the real collectd.
@@ -70,6 +76,11 @@ type Config struct {
 	TypesDBPaths []string `yaml:"typesDBPaths" json:"typesDBPaths"`
 }
 
+// PythonConfig returns the embedded python.Config struct from the interface
+func (c *Config) PythonConfig() *Config {
+	return c
+}
+
 // Monitor that runs collectd python plugins directly
 type Monitor struct {
 	*pyrunner.MonitorCore
@@ -78,14 +89,16 @@ type Monitor struct {
 }
 
 // Configure starts the subprocess and configures the plugin
-func (m *Monitor) Configure(conf *Config) error {
-	if len(conf.TypesDBPaths) == 0 {
-		conf.TypesDBPaths = append(conf.TypesDBPaths,
+func (m *Monitor) Configure(conf PyConfig) error {
+	// get the python config from the supplied config
+	pyconf := conf.PythonConfig()
+	if len(pyconf.TypesDBPaths) == 0 {
+		pyconf.TypesDBPaths = append(pyconf.TypesDBPaths,
 			filepath.Join(os.Getenv(constants.BundleDirEnvVar), "plugins/collectd/types.db"))
 	}
 
-	for k := range conf.PluginConfig {
-		if v, ok := conf.PluginConfig[k].(string); ok {
+	for k := range pyconf.PluginConfig {
+		if v, ok := pyconf.PluginConfig[k].(string); ok {
 			if v == "" {
 				continue
 			}
@@ -97,6 +110,7 @@ func (m *Monitor) Configure(conf *Config) error {
 			}
 
 			out := bytes.Buffer{}
+			// fill in any templates with the whole config struct passed into this method
 			err = template.Option("missingkey=error").Execute(&out, conf)
 			if err != nil {
 				m.Logger().WithFields(log.Fields{
@@ -112,11 +126,11 @@ func (m *Monitor) Configure(conf *Config) error {
 				result = i
 			}
 
-			conf.PluginConfig[k] = result
+			pyconf.PluginConfig[k] = result
 		}
 	}
 
-	return m.MonitorCore.ConfigureInPython(conf, func(dataReader pyrunner.MessageReceiver) {
+	return m.MonitorCore.ConfigureInPython(pyconf, func(dataReader pyrunner.MessageReceiver) {
 		for {
 			m.Logger().Debug("Waiting for messages")
 			msgType, payloadReader, err := dataReader.RecvMessage()
