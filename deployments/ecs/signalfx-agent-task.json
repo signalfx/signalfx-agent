@@ -10,7 +10,7 @@
             ],
             "portMappings": [],
             "command": [
-                "curl $CONFIG_URL > /etc/signalfx/agent.yaml && exec /bin/signalfx-agent"
+                "curl --fail $CONFIG_URL > /etc/signalfx/agent.yaml && exec /bin/signalfx-agent"
             ],
             "linuxParameters": null,
             "cpu": 0,
@@ -21,7 +21,7 @@
                 },
                 {
                     "name": "CONFIG_URL",
-                    "value": "https://raw.githubusercontent.com/signalfx/signalfx-agent/ecs/deployments/ecs/agent.yaml"
+                    "value": "https://raw.githubusercontent.com/signalfx/signalfx-agent/master/deployments/ecs/agent.yaml"
                 }
             ],
             "ulimits": null,

@@ -11,6 +11,59 @@ Docker domain socket URL, this means that the agent needs to have read
 permissions on the socket.  We don't currently support authentication for
 HTTP URLs.
 
+## Configuration from Labels
+You can configure monitors by putting special labels on your Docker
+containers.  You can either specify all of the configuration in container
+labels, or you can use the more traditional agent configuration with
+discovery rules and specify configuration overrides with labels.
+
+The config labels are of the form `agent.signalfx.com.config.<port
+number>.<config_key>: <config value>`.  The `<config value>` must be a
+string in a container label, but it will be deserialized as a YAML value to
+the most appropriate type when consumed by the agent.  For example, if you
+have a Redis container and want to monitor it at a higher frequency than
+other Redis containers, you could have an agent config that looks like the
+following:
+
+```
+observers:
+ - type: docker
+monitors:
+ - type: collectd/redis
+   discoveryRule: container_image =~ "redis" && port == 6379
+   auth: mypassword
+   intervalSeconds: 10
+```
+
+And then launch the Redis container with the label:
+
+`agent.signalfx.com.config.6379.intervalSeconds`: `1`
+
+This would cause the config value for `intervalSeconds` to be overwritten to
+the more frequent 1 second interval.
+
+You can also specify the monitor configuration entirely with Docker labels
+and completely omit monitor config from the agent config.  With the agent
+config:
+
+```
+observers:
+ - type: docker
+```
+
+You can then launch a Redis container with the following labels:
+
+ - `agent.signalfx.com.monitorType.6379`: `collectd/redis`
+ - `agent.signalfx.com.config.6379.auth`: `mypassword`
+
+Which would configure a Redis monitor with the given authentication
+configuration.  No Redis configuration is required in the agent config file.
+
+The distinction is that the `monitorType` label was added to the Docker
+container.  If a label of this form is present, no discovery rules will be
+considered for this endpoint, and thus, no agent configuration can be used
+anyway.
+
 
 Observer Type: `docker`
 
