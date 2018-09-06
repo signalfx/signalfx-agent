@@ -285,6 +285,13 @@
         ]
     },
     {
+        "monitorType": "collectd/cpu",
+        "negated": true,
+        "metricNames": [
+            "cpu.utilization"
+        ]
+    },
+    {
         "monitorType": "host-metadata",
         "negated": true,
         "metricNames": [
