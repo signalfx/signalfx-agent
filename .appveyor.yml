@@ -2,8 +2,7 @@ image: Visual Studio 2017
 version: "{build}"
 clone_folder: c:\gopath\src\github.com\signalfx\signalfx-agent
 environment:
-  AGENT_BIN: c:\gopath\src\github.com\signalfx\signalfx-agent\signalfx-agent.exe
-  AGENT_VERSION: 3.4.1
+  AGENT_BIN: c:\gopath\src\github.com\signalfx\signalfx-agent\build\signalfx-agent\bin\signalfx-agent.exe
   GOROOT: c:\go110
   GOPATH: c:\gopath
   PYTHONHOME: c:\Python35-x64
@@ -15,6 +14,8 @@ install:
   - go version
   - go env
   - python --version
+  - echo Installing Visual C++ Compiler For Python
+  - ps: "choco install vcpython27"
 build:
   verbosity: minimal
 before_build:
@@ -24,9 +25,12 @@ before_build:
   - echo Running go vet
   - ps: "& { . $env:APPVEYOR_BUILD_FOLDER/scripts/windows/make.ps1; vet }"
 build_script:
-  - echo Running go build
-  - ps: "& { . $env:APPVEYOR_BUILD_FOLDER/scripts/windows/make.ps1; signalfx-agent $env:AGENT_VERSION }"
-  - signalfx-agent.exe -version
+  - ps: "$env:AGENT_VERSION = & { git rev-parse HEAD };"
+  - echo Building Bundle
+  - ps: "& { . $env:APPVEYOR_BUILD_FOLDER/scripts/windows/make.ps1; bundle }"
+  - ps: ls $env:APPVEYOR_BUILD_FOLDER/build
+  - echo Bundled Collectd Plugins
+  - ps: ls $env:APPVEYOR_BUILD_FOLDER/build/signalfx-agent/plugins/collectd
 before_test:
   - echo Installing test dependencies
   - go get github.com/tebeka/go2xunit
@@ -49,4 +53,6 @@ test_script:
   - ps: if ($env:TEST_RC -ne 0){ Write-Host "One or more integration tests failed!"; exit 1 }
 artifacts:
   - path: integration_results.html
+  # upload any agent build bundles
+  - path: build/signalfx-agent-*-win*.zip
 deploy: off
