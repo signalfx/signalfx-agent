@@ -81,6 +81,7 @@ type Config struct {
 	EnhancedMetrics           bool             `yaml:"enhancedMetrics" default:"false"`
 }
 
+// PythonConfig returns the python.Config struct contained in the config struct
 func (c *Config) PythonConfig() *python.Config {
 	return c.pyConfig
 }
