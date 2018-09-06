@@ -68,9 +68,11 @@ type ListLength struct {
 // Config is the monitor-specific config with the generic config embedded
 type Config struct {
 	config.MonitorConfig `yaml:",inline" acceptsEndpoints:"true"`
-
-	Host string `yaml:"host" validate:"required"`
-	Port uint16 `yaml:"port" validate:"required"`
+	// By not embedding python.Config we can override struct fields (i.e. Host and Port)
+	// and add monitor specific config doc and struct tags.
+	pyConfig *python.Config
+	Host     string `yaml:"host" validate:"required"`
+	Port     uint16 `yaml:"port" validate:"required"`
 	// The name for the node is a canonical identifier which is used as plugin
 	// instance. It is limited to 64 characters in length.  (**default**: "{host}:{port}")
 	Name string `yaml:"name"`
@@ -79,6 +81,11 @@ type Config struct {
 	// Specify a pattern of keys to lists for which to send their length as a
 	// metric. See below for more details.
 	SendListLengths []ListLength `yaml:"sendListLengths"`
+}
+
+// PythonConfig returns the python.Config struct contained in the config struct
+func (c *Config) PythonConfig() *python.Config {
+	return c.pyConfig
 }
 
 // Monitor is the main type that represents the monitor
@@ -94,7 +101,7 @@ func (rm *Monitor) Configure(conf *Config) error {
 		instanceID = fmt.Sprintf("%s:%d", conf.Host, conf.Port)
 	}
 
-	pyconf := &python.Config{
+	conf.pyConfig = &python.Config{
 		MonitorConfig: conf.MonitorConfig,
 		Host:          conf.Host,
 		Port:          conf.Port,
@@ -145,14 +152,14 @@ func (rm *Monitor) Configure(conf *Config) error {
 	}
 
 	if conf.Auth != "" {
-		pyconf.PluginConfig["Auth"] = conf.Auth
+		conf.pyConfig.PluginConfig["Auth"] = conf.Auth
 	}
 	if conf.Name != "" {
-		pyconf.PluginConfig["Name"] = conf.Name
+		conf.pyConfig.PluginConfig["Name"] = conf.Name
 	}
 	if len(conf.SendListLengths) > 0 {
-		pyconf.PluginConfig["SendListLength"] = conf.SendListLengths
+		conf.pyConfig.PluginConfig["SendListLength"] = conf.SendListLengths
 	}
 
-	return rm.Monitor.Configure(pyconf)
+	return rm.Monitor.Configure(conf)
 }
