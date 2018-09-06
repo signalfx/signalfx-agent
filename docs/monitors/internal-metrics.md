@@ -27,33 +27,53 @@ This monitor has no configuration options.
 
 ## Metrics
 
-This monitor emits the following metrics.  Note that configuration options may
-cause only a subset of metrics to be emitted.
+The following table lists the metrics available for this monitor. Metrics that are not marked as Custom are standard metrics and are monitored by default.
 
-| Name | Type | Description |
-| ---  | ---  | ---         |
-| `sfxagent.active_monitors` | gauge | The total number of monitor instances actively working |
-| `sfxagent.active_observers` | gauge | The number of observers configured and running |
-| `sfxagent.configured_monitors` | gauge | The total number of monitor configurations |
-| `sfxagent.datapoint_requests_active` | gauge | The total number of outstanding requests to ingest currently active. |
-| `sfxagent.datapoints_buffered` | gauge | The total number of datapoints that have been emitted by monitors but have yet to be processed by the writer |
-| `sfxagent.datapoints_in_flight` | gauge | The total number of datapoints that have been accepted by the writer but still lack confirmation from ingest that they have been received. |
-| `sfxagent.datapoints_sent` | cumulative | The total number of datapoints sent by the agent since it last started |
-| `sfxagent.discovered_endpoints` | gauge | The number of discovered service endpoints.  This includes endpoints that do not have any matching monitor configuration discovery rule. |
-| `sfxagent.events_buffered` | gauge | The total number of events that have been emitted by monitors but have yet to be sent to SignalFx |
-| `sfxagent.events_sent` | cumulative | The total number of events sent by the agent since it last started |
-| `sfxagent.go_frees` | cumulative | Total number of heap objects freed throughout the lifetime of the agent |
-| `sfxagent.go_heap_alloc` | gauge | Bytes of live heap memory (memory that has been allocated but not freed) |
-| `sfxagent.go_heap_idle` | gauge | Bytes of memory that consist of idle spans (that is, completely empty spans of memory) |
-| `sfxagent.go_heap_inuse` | gauge | Size in bytes of in use spans |
-| `sfxagent.go_heap_released` | gauge | Bytes of memory that have been returned to the OS.  This is quite often 0.  `sfxagent.go_heap_idle - sfxagent.go_heap_release` is the memory that Go is retaining for future heap allocations. |
-| `sfxagent.go_heap_sys` | gauge | Virtual memory size in bytes of the agent.  This will generally reflect the largest heap size the agent has ever had in its lifetime. |
-| `sfxagent.go_mallocs` | cumulative | Total number of heap objects allocated throughout the lifetime of the agent |
-| `sfxagent.go_next_gc` | gauge | The target heap size -- GC tries to keep the heap smaller than this |
-| `sfxagent.go_num_gc` | gauge | The number of GC cycles that have happened in the agent since it started |
-| `sfxagent.go_stack_inuse` | gauge | Size in bytes of spans that have at least one goroutine stack in them |
-| `sfxagent.go_total_alloc` | cumulative | Total number of bytes allocated to the heap throughout the lifetime of the agent |
-| `sfxgent.go_num_goroutine` | gauge | Number of goroutines in the agent |
+| Name | Type | Custom | Description |
+| ---  | ---  | ---    | ---         |
+| `sfxagent.active_monitors` | gauge |  | The total number of monitor instances actively working |
+| `sfxagent.active_observers` | gauge |  | The number of observers configured and running |
+| `sfxagent.configured_monitors` | gauge |  | The total number of monitor configurations |
+| `sfxagent.datapoint_requests_active` | gauge |  | The total number of outstanding requests to ingest currently active. |
+| `sfxagent.datapoints_buffered` | gauge |  | The total number of datapoints that have been emitted by monitors but have yet to be processed by the writer |
+| `sfxagent.datapoints_in_flight` | gauge |  | The total number of datapoints that have been accepted by the writer but still lack confirmation from ingest that they have been received. |
+| `sfxagent.datapoints_sent` | cumulative |  | The total number of datapoints sent by the agent since it last started |
+| `sfxagent.discovered_endpoints` | gauge |  | The number of discovered service endpoints.  This includes endpoints that do not have any matching monitor configuration discovery rule. |
+| `sfxagent.events_buffered` | gauge |  | The total number of events that have been emitted by monitors but have yet to be sent to SignalFx |
+| `sfxagent.events_sent` | cumulative |  | The total number of events sent by the agent since it last started |
+| `sfxagent.go_frees` | cumulative | X | Total number of heap objects freed throughout the lifetime of the agent |
+| `sfxagent.go_heap_alloc` | gauge | X | Bytes of live heap memory (memory that has been allocated but not freed) |
+| `sfxagent.go_heap_idle` | gauge | X | Bytes of memory that consist of idle spans (that is, completely empty spans of memory) |
+| `sfxagent.go_heap_inuse` | gauge | X | Size in bytes of in use spans |
+| `sfxagent.go_heap_released` | gauge | X | Bytes of memory that have been returned to the OS.  This is quite often 0.  `sfxagent.go_heap_idle - sfxagent.go_heap_release` is the memory that Go is retaining for future heap allocations. |
+| `sfxagent.go_heap_sys` | gauge | X | Virtual memory size in bytes of the agent.  This will generally reflect the largest heap size the agent has ever had in its lifetime. |
+| `sfxagent.go_mallocs` | cumulative | X | Total number of heap objects allocated throughout the lifetime of the agent |
+| `sfxagent.go_next_gc` | gauge | X | The target heap size -- GC tries to keep the heap smaller than this |
+| `sfxagent.go_num_gc` | gauge | X | The number of GC cycles that have happened in the agent since it started |
+| `sfxagent.go_stack_inuse` | gauge | X | Size in bytes of spans that have at least one goroutine stack in them |
+| `sfxagent.go_total_alloc` | cumulative | X | Total number of bytes allocated to the heap throughout the lifetime of the agent |
+| `sfxgent.go_num_goroutine` | gauge | X | Number of goroutines in the agent |
+
+To specify custom metrics you want to monitor, add a negated `metricsToExclude` to the monitor configuration, as shown in the code snippet below. The snippet lists all available custom metrics. You can copy and paste the snippet into your configuration file, then delete any custom metrics that you do not want to monitor. 
+Note that some of the custom metrics require you to set a flag as well as add them to the list. Check the monitor configuration file to see if a flag is required for gathering additional metrics.
+```yaml 
+metricsToExclude:
+  - sfxagent.go_frees
+  - sfxagent.go_heap_alloc
+  - sfxagent.go_heap_idle
+  - sfxagent.go_heap_inuse
+  - sfxagent.go_heap_released
+  - sfxagent.go_heap_sys
+  - sfxagent.go_mallocs
+  - sfxagent.go_next_gc
+  - sfxagent.go_num_gc
+  - sfxagent.go_stack_inuse
+  - sfxagent.go_total_alloc
+  - sfxgent.go_num_goroutine
+  negated: true
+```
+
+
 
 
 

@@ -26,17 +26,27 @@ This monitor has no configuration options.
 
 ## Metrics
 
-This monitor emits the following metrics.  Note that configuration options may
-cause only a subset of metrics to be emitted.
+The following table lists the metrics available for this monitor. Metrics that are not marked as Custom are standard metrics and are monitored by default.
 
-| Name | Type | Description |
-| ---  | ---  | ---         |
-| `if_errors.rx` | cumulative | Count of receive errors on the interface |
-| `if_errors.tx` | cumulative | Count of transmit errors on the interface |
-| `if_octets.rx` | cumulative | Count of bytes (octets) received on the interface |
-| `if_octets.tx` | cumulative | Count of bytes (octets) transmitted by the interface |
-| `if_packets.rx` | cumulative | Count of packets received on the interface |
-| `if_packets.tx` | cumulative | Count of packets transmitted by the interface |
+| Name | Type | Custom | Description |
+| ---  | ---  | ---    | ---         |
+| `if_errors.rx` | cumulative |  | Count of receive errors on the interface |
+| `if_errors.tx` | cumulative |  | Count of transmit errors on the interface |
+| `if_octets.rx` | cumulative |  | Count of bytes (octets) received on the interface |
+| `if_octets.tx` | cumulative |  | Count of bytes (octets) transmitted by the interface |
+| `if_packets.rx` | cumulative | X | Count of packets received on the interface |
+| `if_packets.tx` | cumulative | X | Count of packets transmitted by the interface |
+
+To specify custom metrics you want to monitor, add a negated `metricsToExclude` to the monitor configuration, as shown in the code snippet below. The snippet lists all available custom metrics. You can copy and paste the snippet into your configuration file, then delete any custom metrics that you do not want to monitor. 
+Note that some of the custom metrics require you to set a flag as well as add them to the list. Check the monitor configuration file to see if a flag is required for gathering additional metrics.
+```yaml 
+metricsToExclude:
+  - if_packets.rx
+  - if_packets.tx
+  negated: true
+```
+
+
 
 
 

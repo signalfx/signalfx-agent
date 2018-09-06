@@ -74,21 +74,29 @@ The **nested** `values` config object has the following fields:
 
 ## Metrics
 
-This monitor emits the following metrics.  Note that configuration options may
-cause only a subset of metrics to be emitted.
+The following table lists the metrics available for this monitor. Metrics that are not marked as Custom are standard metrics and are monitored by default.
 
-| Name | Type | Description |
-| ---  | ---  | ---         |
-| `kafka.producer.byte-rate` | gauge | Average number of bytes sent per second for a topic. This metric has client-id and topic dimensions. |
-| `kafka.producer.compression-rate` | gauge | Average compression rate of record batches for a topic. This metric has client-id and topic dimensions. |
-| `kafka.producer.io-wait-time-ns-avg` | gauge | Average length of time the I/O thread spent waiting for a socket ready for reads or writes in nanoseconds. This metric has client-id dimension. |
-| `kafka.producer.outgoing-byte-rate` | gauge | Average number of outgoing bytes sent per second to all servers. This metric has client-id dimension. |
-| `kafka.producer.record-error-rate` | gauge | Average per-second number of record sends that resulted in errors for a topic. This metric has client-id and topic dimensions. |
-| `kafka.producer.record-retry-rate` | gauge | Average per-second number of retried record sends for a topic. This metric has client-id and topic dimensions. |
-| `kafka.producer.record-send-rate` | gauge | Average number of records sent per second for a topic. This metric has client-id and topic dimensions. |
-| `kafka.producer.request-latency-avg` | gauge | Average request latency in ms. Time it takes on average for the producer to get responses from the broker. This metric has client-id dimension. |
-| `kafka.producer.request-rate` | gauge | Average number of requests sent per second. This metric has client-id dimension. |
-| `kafka.producer.response-rate` | gauge | Average number of responses received per second. This metric has client-id dimension. |
+| Name | Type | Custom | Description |
+| ---  | ---  | ---    | ---         |
+| `kafka.producer.byte-rate` | gauge |  | Average number of bytes sent per second for a topic. This metric has client-id and topic dimensions. |
+| `kafka.producer.compression-rate` | gauge |  | Average compression rate of record batches for a topic. This metric has client-id and topic dimensions. |
+| `kafka.producer.io-wait-time-ns-avg` | gauge |  | Average length of time the I/O thread spent waiting for a socket ready for reads or writes in nanoseconds. This metric has client-id dimension. |
+| `kafka.producer.outgoing-byte-rate` | gauge |  | Average number of outgoing bytes sent per second to all servers. This metric has client-id dimension. |
+| `kafka.producer.record-error-rate` | gauge |  | Average per-second number of record sends that resulted in errors for a topic. This metric has client-id and topic dimensions. |
+| `kafka.producer.record-retry-rate` | gauge |  | Average per-second number of retried record sends for a topic. This metric has client-id and topic dimensions. |
+| `kafka.producer.record-send-rate` | gauge |  | Average number of records sent per second for a topic. This metric has client-id and topic dimensions. |
+| `kafka.producer.request-latency-avg` | gauge |  | Average request latency in ms. Time it takes on average for the producer to get responses from the broker. This metric has client-id dimension. |
+| `kafka.producer.request-rate` | gauge |  | Average number of requests sent per second. This metric has client-id dimension. |
+| `kafka.producer.response-rate` | gauge |  | Average number of responses received per second. This metric has client-id dimension. |
+
+To specify custom metrics you want to monitor, add a negated `metricsToExclude` to the monitor configuration, as shown in the code snippet below. The snippet lists all available custom metrics. You can copy and paste the snippet into your configuration file, then delete any custom metrics that you do not want to monitor. 
+Note that some of the custom metrics require you to set a flag as well as add them to the list. Check the monitor configuration file to see if a flag is required for gathering additional metrics.
+```yaml 
+metricsToExclude:
+  negated: true
+```
+
+
 
 
 

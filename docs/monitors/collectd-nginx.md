@@ -36,18 +36,26 @@ Monitor Type: `collectd/nginx`
 
 ## Metrics
 
-This monitor emits the following metrics.  Note that configuration options may
-cause only a subset of metrics to be emitted.
+The following table lists the metrics available for this monitor. Metrics that are not marked as Custom are standard metrics and are monitored by default.
 
-| Name | Type | Description |
-| ---  | ---  | ---         |
-| `connections.accepted` | cumulative | Connections accepted by Nginx Web Server |
-| `connections.handled` | cumulative | Connections handled by Nginx Web Server |
-| `nginx_connections.active` | gauge | Connections active in Nginx Web Server |
-| `nginx_connections.reading` | gauge | Connections being read by Nginx Web Server |
-| `nginx_connections.waiting` | gauge | Connections waited on by Nginx Web Server |
-| `nginx_connections.writing` | gauge | Connections being written by Nginx Web Server |
-| `nginx_requests` | cumulative | Requests handled by Nginx Web Server |
+| Name | Type | Custom | Description |
+| ---  | ---  | ---    | ---         |
+| `connections.accepted` | cumulative |  | Connections accepted by Nginx Web Server |
+| `connections.handled` | cumulative |  | Connections handled by Nginx Web Server |
+| `nginx_connections.active` | gauge |  | Connections active in Nginx Web Server |
+| `nginx_connections.reading` | gauge |  | Connections being read by Nginx Web Server |
+| `nginx_connections.waiting` | gauge |  | Connections waited on by Nginx Web Server |
+| `nginx_connections.writing` | gauge |  | Connections being written by Nginx Web Server |
+| `nginx_requests` | cumulative |  | Requests handled by Nginx Web Server |
+
+To specify custom metrics you want to monitor, add a negated `metricsToExclude` to the monitor configuration, as shown in the code snippet below. The snippet lists all available custom metrics. You can copy and paste the snippet into your configuration file, then delete any custom metrics that you do not want to monitor. 
+Note that some of the custom metrics require you to set a flag as well as add them to the list. Check the monitor configuration file to see if a flag is required for gathering additional metrics.
+```yaml 
+metricsToExclude:
+  negated: true
+```
+
+
 
 
 

@@ -62,49 +62,79 @@ The **nested** `sendListLengths` config object has the following fields:
 
 ## Metrics
 
-This monitor emits the following metrics.  Note that configuration options may
-cause only a subset of metrics to be emitted.
+The following table lists the metrics available for this monitor. Metrics that are not marked as Custom are standard metrics and are monitored by default.
 
-| Name | Type | Description |
-| ---  | ---  | ---         |
-| `bytes.used_memory` | gauge | Number of bytes allocated by Redis |
-| `bytes.used_memory_lua` | gauge | Number of bytes used by the Lua engine |
-| `bytes.used_memory_peak` | gauge | Peak Number of bytes allocated by Redis |
-| `bytes.used_memory_rss` | gauge | Number of bytes allocated by Redis as seen by the OS |
-| `counter.commands_processed` | cumulative | Total number of commands processed by the server |
-| `counter.connections_received` | cumulative | Total number of connections accepted by the server |
-| `counter.evicted_keys` | cumulative | Number of evicted keys due to maxmemory limit |
-| `counter.expired_keys` | cumulative | Total number of key expiration events |
-| `counter.lru_clock` | cumulative | Clock incrementing every minute, for LRU management |
-| `counter.rejected_connections` | cumulative | Number of connections rejected because of maxclients limit |
-| `counter.total_net_input_bytes` | cumulative | Total number of bytes inputted |
-| `counter.total_net_output_bytes` | cumulative | Total number of bytes outputted |
-| `counter.used_cpu_sys` | cumulative | System CPU consumed by the Redis server |
-| `counter.used_cpu_sys_children` | cumulative | System CPU consumed by the background processes |
-| `counter.used_cpu_user` | cumulative | User CPU consumed by the Redis server |
-| `counter.used_cpu_user_children` | cumulative | User CPU consumed by the background processes |
-| `derive.keyspace_hits` | cumulative | Number of successful lookup of keys in the main dictionary |
-| `derive.keyspace_misses` | cumulative | Number of failed lookup of keys in the main dictionary |
-| `gauge.blocked_clients` | gauge | Number of clients pending on a blocking call |
-| `gauge.changes_since_last_save` | gauge | Number of changes since the last dump |
-| `gauge.client_biggest_input_buf` | gauge | Biggest input buffer among current client connections |
-| `gauge.client_longest_output_list` | gauge | Longest output list among current client connections |
-| `gauge.connected_clients` | gauge | Number of client connections (excluding connections from slaves) |
-| `gauge.connected_slaves` | gauge | Number of connected slaves |
-| `gauge.db0_avg_ttl` | gauge | The average time to live for all keys in redis |
-| `gauge.db0_expires` | gauge | The total number of keys in redis that will expire |
-| `gauge.db0_keys` | gauge | The total number of keys stored in redis |
-| `gauge.instantaneous_ops_per_sec` | gauge | Number of commands processed per second |
-| `gauge.key_llen` | gauge | Length of an list key |
-| `gauge.latest_fork_usec` | gauge | Duration of the latest fork operation in microseconds |
-| `gauge.master_last_io_seconds_ago` | gauge | Number of seconds since the last interaction with master |
-| `gauge.master_repl_offset` | gauge | Master replication offset |
-| `gauge.mem_fragmentation_ratio` | gauge | Ratio between used_memory_rss and used_memory |
-| `gauge.rdb_bgsave_in_progress` | gauge | Flag indicating a RDB save is on-going |
-| `gauge.repl_backlog_first_byte_offset` | gauge | Slave replication backlog offset |
-| `gauge.slave_repl_offset` | gauge | Slave replication offset |
-| `gauge.uptime_in_days` | gauge | Number of days up |
-| `gauge.uptime_in_seconds` | gauge | Number of seconds up |
+| Name | Type | Custom | Description |
+| ---  | ---  | ---    | ---         |
+| `bytes.used_memory` | gauge |  | Number of bytes allocated by Redis |
+| `bytes.used_memory_lua` | gauge | X | Number of bytes used by the Lua engine |
+| `bytes.used_memory_peak` | gauge | X | Peak Number of bytes allocated by Redis |
+| `bytes.used_memory_rss` | gauge |  | Number of bytes allocated by Redis as seen by the OS |
+| `counter.commands_processed` | cumulative |  | Total number of commands processed by the server |
+| `counter.connections_received` | cumulative | X | Total number of connections accepted by the server |
+| `counter.evicted_keys` | cumulative |  | Number of evicted keys due to maxmemory limit |
+| `counter.expired_keys` | cumulative |  | Total number of key expiration events |
+| `counter.lru_clock` | cumulative | X | Clock incrementing every minute, for LRU management |
+| `counter.rejected_connections` | cumulative |  | Number of connections rejected because of maxclients limit |
+| `counter.total_net_input_bytes` | cumulative |  | Total number of bytes inputted |
+| `counter.total_net_output_bytes` | cumulative |  | Total number of bytes outputted |
+| `counter.used_cpu_sys` | cumulative |  | System CPU consumed by the Redis server |
+| `counter.used_cpu_sys_children` | cumulative | X | System CPU consumed by the background processes |
+| `counter.used_cpu_user` | cumulative |  | User CPU consumed by the Redis server |
+| `counter.used_cpu_user_children` | cumulative | X | User CPU consumed by the background processes |
+| `derive.keyspace_hits` | cumulative |  | Number of successful lookup of keys in the main dictionary |
+| `derive.keyspace_misses` | cumulative |  | Number of failed lookup of keys in the main dictionary |
+| `gauge.blocked_clients` | gauge |  | Number of clients pending on a blocking call |
+| `gauge.changes_since_last_save` | gauge | X | Number of changes since the last dump |
+| `gauge.client_biggest_input_buf` | gauge | X | Biggest input buffer among current client connections |
+| `gauge.client_longest_output_list` | gauge | X | Longest output list among current client connections |
+| `gauge.connected_clients` | gauge |  | Number of client connections (excluding connections from slaves) |
+| `gauge.connected_slaves` | gauge | X | Number of connected slaves |
+| `gauge.db0_avg_ttl` | gauge | X | The average time to live for all keys in redis |
+| `gauge.db0_expires` | gauge | X | The total number of keys in redis that will expire |
+| `gauge.db0_keys` | gauge | X | The total number of keys stored in redis |
+| `gauge.instantaneous_ops_per_sec` | gauge | X | Number of commands processed per second |
+| `gauge.key_llen` | gauge | X | Length of an list key |
+| `gauge.latest_fork_usec` | gauge | X | Duration of the latest fork operation in microseconds |
+| `gauge.master_last_io_seconds_ago` | gauge | X | Number of seconds since the last interaction with master |
+| `gauge.master_repl_offset` | gauge |  | Master replication offset |
+| `gauge.mem_fragmentation_ratio` | gauge | X | Ratio between used_memory_rss and used_memory |
+| `gauge.rdb_bgsave_in_progress` | gauge | X | Flag indicating a RDB save is on-going |
+| `gauge.repl_backlog_first_byte_offset` | gauge | X | Slave replication backlog offset |
+| `gauge.slave_repl_offset` | gauge |  | Slave replication offset |
+| `gauge.uptime_in_days` | gauge | X | Number of days up |
+| `gauge.uptime_in_seconds` | gauge | X | Number of seconds up |
+
+To specify custom metrics you want to monitor, add a negated `metricsToExclude` to the monitor configuration, as shown in the code snippet below. The snippet lists all available custom metrics. You can copy and paste the snippet into your configuration file, then delete any custom metrics that you do not want to monitor. 
+Note that some of the custom metrics require you to set a flag as well as add them to the list. Check the monitor configuration file to see if a flag is required for gathering additional metrics.
+```yaml 
+metricsToExclude:
+  - bytes.used_memory_lua
+  - bytes.used_memory_peak
+  - counter.connections_received
+  - counter.lru_clock
+  - counter.used_cpu_sys_children
+  - counter.used_cpu_user_children
+  - gauge.changes_since_last_save
+  - gauge.client_biggest_input_buf
+  - gauge.client_longest_output_list
+  - gauge.connected_slaves
+  - gauge.db0_avg_ttl
+  - gauge.db0_expires
+  - gauge.db0_keys
+  - gauge.instantaneous_ops_per_sec
+  - gauge.key_llen
+  - gauge.latest_fork_usec
+  - gauge.master_last_io_seconds_ago
+  - gauge.mem_fragmentation_ratio
+  - gauge.rdb_bgsave_in_progress
+  - gauge.repl_backlog_first_byte_offset
+  - gauge.uptime_in_days
+  - gauge.uptime_in_seconds
+  negated: true
+```
+
+
 
 
 

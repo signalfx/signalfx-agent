@@ -21,17 +21,25 @@ This monitor has no configuration options.
 
 ## Metrics
 
-This monitor emits the following metrics.  Note that configuration options may
-cause only a subset of metrics to be emitted.
+The following table lists the metrics available for this monitor. Metrics that are not marked as Custom are standard metrics and are monitored by default.
 
-| Name | Type | Description |
-| ---  | ---  | ---         |
-| `memory.buffered` | gauge | Bytes of memory used for buffering I/O |
-| `memory.cached` | gauge | Bytes of memory used for disk caching |
-| `memory.free` | gauge | Bytes of memory available for use |
-| `memory.slab_recl` | gauge | Bytes of memory, used for SLAB-allocation of kernel objects, that can be reclaimed. |
-| `memory.slab_unrecl` | gauge | Bytes of memory, used for SLAB-allocation of kernel objects, that can't be reclaimed |
-| `memory.used` | gauge | Bytes of memory in use by the system. |
+| Name | Type | Custom | Description |
+| ---  | ---  | ---    | ---         |
+| `memory.buffered` | gauge |  | Bytes of memory used for buffering I/O |
+| `memory.cached` | gauge |  | Bytes of memory used for disk caching |
+| `memory.free` | gauge |  | Bytes of memory available for use |
+| `memory.slab_recl` | gauge |  | Bytes of memory, used for SLAB-allocation of kernel objects, that can be reclaimed. |
+| `memory.slab_unrecl` | gauge |  | Bytes of memory, used for SLAB-allocation of kernel objects, that can't be reclaimed |
+| `memory.used` | gauge |  | Bytes of memory in use by the system. |
+
+To specify custom metrics you want to monitor, add a negated `metricsToExclude` to the monitor configuration, as shown in the code snippet below. The snippet lists all available custom metrics. You can copy and paste the snippet into your configuration file, then delete any custom metrics that you do not want to monitor. 
+Note that some of the custom metrics require you to set a flag as well as add them to the list. Check the monitor configuration file to see if a flag is required for gathering additional metrics.
+```yaml 
+metricsToExclude:
+  negated: true
+```
+
+
 
 
 

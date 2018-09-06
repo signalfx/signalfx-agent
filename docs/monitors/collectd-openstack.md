@@ -40,38 +40,73 @@ Monitor Type: `collectd/openstack`
 
 ## Metrics
 
-This monitor emits the following metrics.  Note that configuration options may
-cause only a subset of metrics to be emitted.
+The following table lists the metrics available for this monitor. Metrics that are not marked as Custom are standard metrics and are monitored by default.
 
-| Name | Type | Description |
-| ---  | ---  | ---         |
-| `openstack.cinder.limit.maxTotalVolumeGigabytes` | gauge | Total available block storage at cinder component for project |
-| `openstack.cinder.limit.maxTotalVolumes` | gauge | Maximum volume resources available at cinder component for project |
-| `openstack.cinder.limit.totalGigabytesUsed` | gauge | Total block storage used at cinder component for project |
-| `openstack.cinder.limit.totalVolumesUsed` | gauge | Volume resources used at cinder component for project |
-| `openstack.neutron.floatingip.count` | gauge | Overall floating IPs used across projects |
-| `openstack.neutron.network.count` | gauge | Overall Network resources used across projects |
-| `openstack.neutron.router.count` | gauge | Overall router resources used across projects |
-| `openstack.neutron.securitygroup.count` | gauge | Overall securitygroup resources used across projects |
-| `openstack.nova.hypervisor.load_average` | gauge | Average CPU load on the hypervisor |
-| `openstack.nova.hypervisor.memory_mb` | gauge | Maximum available memory in MB at hypervisor |
-| `openstack.nova.hypervisor.memory_mb_used` | gauge | Total memory used in MB at hypervisor |
-| `openstack.nova.hypervisor.running_vms` | gauge | Total running VMs at hypervisor |
-| `openstack.nova.hypervisor.vcpus` | gauge | Available physical cores at hypervisor |
-| `openstack.nova.hypervisor.vcpus_used` | gauge | Used virtual CPUs used |
-| `openstack.nova.limit.maxSecurityGroups` | gauge | Maximum available security groups for project |
-| `openstack.nova.limit.maxTotalCores` | gauge | Maximum available VCPUs in project |
-| `openstack.nova.limit.maxTotalFloatingIps` | gauge | Maximum available floating IPs for project |
-| `openstack.nova.limit.maxTotalInstances` | gauge | Maximum available instances in project |
-| `openstack.nova.limit.maxTotalRAMSize` | gauge | Maximum available RAM size for project |
-| `openstack.nova.limit.totalCoresUsed` | gauge | Total cores used in the project |
-| `openstack.nova.limit.totalInstancesUsed` | gauge | Total instances used in the project |
-| `openstack.nova.limit.totalRAMUsed` | gauge | Total RAM used in the project |
-| `openstack.nova.server.memory` | gauge | Memory provisioned at an instance |
-| `openstack.nova.server.memory-actual` | gauge | Actual memory used at an instance |
-| `openstack.nova.server.memory-rss` | gauge | Memory used not including disk pages at an instance |
-| `openstack.nova.server.vda_read_req` | gauge | Virtual disk read requests from an instance |
-| `openstack.nova.server.vda_write_req` | gauge | Virtual disk write requests from an instance |
+| Name | Type | Custom | Description |
+| ---  | ---  | ---    | ---         |
+| `openstack.cinder.limit.maxTotalVolumeGigabytes` | gauge | X | Total available block storage at cinder component for project |
+| `openstack.cinder.limit.maxTotalVolumes` | gauge | X | Maximum volume resources available at cinder component for project |
+| `openstack.cinder.limit.totalGigabytesUsed` | gauge | X | Total block storage used at cinder component for project |
+| `openstack.cinder.limit.totalVolumesUsed` | gauge | X | Volume resources used at cinder component for project |
+| `openstack.neutron.floatingip.count` | gauge | X | Overall floating IPs used across projects |
+| `openstack.neutron.network.count` | gauge | X | Overall Network resources used across projects |
+| `openstack.neutron.router.count` | gauge | X | Overall router resources used across projects |
+| `openstack.neutron.securitygroup.count` | gauge | X | Overall securitygroup resources used across projects |
+| `openstack.nova.hypervisor.load_average` | gauge | X | Average CPU load on the hypervisor |
+| `openstack.nova.hypervisor.memory_mb` | gauge | X | Maximum available memory in MB at hypervisor |
+| `openstack.nova.hypervisor.memory_mb_used` | gauge | X | Total memory used in MB at hypervisor |
+| `openstack.nova.hypervisor.running_vms` | gauge | X | Total running VMs at hypervisor |
+| `openstack.nova.hypervisor.vcpus` | gauge | X | Available physical cores at hypervisor |
+| `openstack.nova.hypervisor.vcpus_used` | gauge | X | Used virtual CPUs used |
+| `openstack.nova.limit.maxSecurityGroups` | gauge | X | Maximum available security groups for project |
+| `openstack.nova.limit.maxTotalCores` | gauge | X | Maximum available VCPUs in project |
+| `openstack.nova.limit.maxTotalFloatingIps` | gauge | X | Maximum available floating IPs for project |
+| `openstack.nova.limit.maxTotalInstances` | gauge | X | Maximum available instances in project |
+| `openstack.nova.limit.maxTotalRAMSize` | gauge | X | Maximum available RAM size for project |
+| `openstack.nova.limit.totalCoresUsed` | gauge | X | Total cores used in the project |
+| `openstack.nova.limit.totalInstancesUsed` | gauge | X | Total instances used in the project |
+| `openstack.nova.limit.totalRAMUsed` | gauge | X | Total RAM used in the project |
+| `openstack.nova.server.memory` | gauge | X | Memory provisioned at an instance |
+| `openstack.nova.server.memory-actual` | gauge | X | Actual memory used at an instance |
+| `openstack.nova.server.memory-rss` | gauge | X | Memory used not including disk pages at an instance |
+| `openstack.nova.server.vda_read_req` | gauge | X | Virtual disk read requests from an instance |
+| `openstack.nova.server.vda_write_req` | gauge | X | Virtual disk write requests from an instance |
+
+To specify custom metrics you want to monitor, add a negated `metricsToExclude` to the monitor configuration, as shown in the code snippet below. The snippet lists all available custom metrics. You can copy and paste the snippet into your configuration file, then delete any custom metrics that you do not want to monitor. 
+Note that some of the custom metrics require you to set a flag as well as add them to the list. Check the monitor configuration file to see if a flag is required for gathering additional metrics.
+```yaml 
+metricsToExclude:
+  - openstack.cinder.limit.maxTotalVolumeGigabytes
+  - openstack.cinder.limit.maxTotalVolumes
+  - openstack.cinder.limit.totalGigabytesUsed
+  - openstack.cinder.limit.totalVolumesUsed
+  - openstack.neutron.floatingip.count
+  - openstack.neutron.network.count
+  - openstack.neutron.router.count
+  - openstack.neutron.securitygroup.count
+  - openstack.nova.hypervisor.load_average
+  - openstack.nova.hypervisor.memory_mb
+  - openstack.nova.hypervisor.memory_mb_used
+  - openstack.nova.hypervisor.running_vms
+  - openstack.nova.hypervisor.vcpus
+  - openstack.nova.hypervisor.vcpus_used
+  - openstack.nova.limit.maxSecurityGroups
+  - openstack.nova.limit.maxTotalCores
+  - openstack.nova.limit.maxTotalFloatingIps
+  - openstack.nova.limit.maxTotalInstances
+  - openstack.nova.limit.maxTotalRAMSize
+  - openstack.nova.limit.totalCoresUsed
+  - openstack.nova.limit.totalInstancesUsed
+  - openstack.nova.limit.totalRAMUsed
+  - openstack.nova.server.memory
+  - openstack.nova.server.memory-actual
+  - openstack.nova.server.memory-rss
+  - openstack.nova.server.vda_read_req
+  - openstack.nova.server.vda_write_req
+  negated: true
+```
+
+
 
 
 
