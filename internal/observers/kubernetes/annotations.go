@@ -6,9 +6,8 @@ import (
 	"strconv"
 	"strings"
 
-	yaml "gopkg.in/yaml.v2"
-
 	"github.com/pkg/errors"
+	"github.com/signalfx/signalfx-agent/internal/utils"
 	"github.com/signalfx/signalfx-agent/internal/utils/k8sutil"
 	log "github.com/sirupsen/logrus"
 	"k8s.io/api/core/v1"
@@ -117,14 +116,14 @@ func configFromAnnotations(
 			monitorType = ac.Value
 
 		case "config":
-			extraConfig[ac.ConfigKey] = decodeValueGenerically(strings.TrimSpace(ac.Value))
+			extraConfig[ac.ConfigKey] = utils.DecodeValueGenerically(strings.TrimSpace(ac.Value))
 
 		case "configFromEnv":
 			val, err := k8sutil.EnvValueForContainer(pod, ac.Value, container)
 			if err != nil {
 				return "", nil, err
 			}
-			extraConfig[ac.ConfigKey] = decodeValueGenerically(strings.TrimSpace(val))
+			extraConfig[ac.ConfigKey] = utils.DecodeValueGenerically(strings.TrimSpace(val))
 
 		case "configFromSecret":
 			parts := strings.SplitN(ac.Value, "/", 2)
@@ -142,45 +141,4 @@ func configFromAnnotations(
 	}
 
 	return monitorType, extraConfig, nil
-}
-
-// Apply some very basic heuristics to decode string values to the most
-// sensible type so that they can be inserted into the endpoint's config map.
-// This will then permit them to go through the YAML serialize/deserialized
-// cycle and go into the monitor config structs as the right type.
-func decodeValueGenerically(val string) interface{} {
-	// The literal values of true/false get interpreted as bools
-	if val == "true" {
-		return true
-	}
-	if val == "false" {
-		return false
-	}
-
-	// Try to decode as an integer
-	if asInt, err := strconv.Atoi(val); err == nil {
-		return asInt
-	}
-
-	// See if it's an array/list
-	if strings.HasPrefix(val, "[") {
-		var out []interface{}
-		if err := yaml.Unmarshal([]byte(val), &out); err == nil {
-			return out
-		}
-	}
-
-	// Next try to see if it's some kind of object and return the generic
-	// yaml MapSlice so that it will be reserialized back to the original form
-	// when injected to a monitor instance.  That way we don't have to have
-	// knowledge about monitor config types here.
-	if strings.HasPrefix(val, "{") {
-		var out yaml.MapSlice
-		if err := yaml.Unmarshal([]byte(val), &out); err == nil {
-			return out
-		}
-	}
-
-	// Otherwise just treat it as the string it always was
-	return val
 }

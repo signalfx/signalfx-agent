@@ -50,6 +50,10 @@ func (am *ActiveMonitor) configureMonitor(monConfig config.MonitorCustomConfig) 
 	// redundant.
 	am.config.MonitorConfigCore().OtherConfig = nil
 
+	for k, v := range monConfig.MonitorConfigCore().ExtraDimensions {
+		am.output.AddExtraDimension(k, v)
+	}
+
 	if err := validateConfig(monConfig); err != nil {
 		return err
 	}
