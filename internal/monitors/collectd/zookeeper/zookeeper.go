@@ -36,10 +36,17 @@ func init() {
 // Config is the monitor-specific config with the generic config embedded
 type Config struct {
 	config.MonitorConfig `yaml:",inline" acceptsEndpoints:"true"`
+	// By not embedding python.Config we can override struct fields (i.e. Host and Port)
+	// and add monitor specific config doc and struct tags.
+	pyConfig *python.Config
+	Host     string `yaml:"host" validate:"required"`
+	Port     uint16 `yaml:"port" validate:"required"`
+	Name     string `yaml:"name"`
+}
 
-	Host string `yaml:"host" validate:"required"`
-	Port uint16 `yaml:"port" validate:"required"`
-	Name string `yaml:"name"`
+// PythonConfig returns the python.Config struct contained in the config struct
+func (c *Config) PythonConfig() *python.Config {
+	return c.pyConfig
 }
 
 // Monitor is the main type that represents the monitor
@@ -49,7 +56,7 @@ type Monitor struct {
 
 // Configure configures and runs the plugin in python
 func (rm *Monitor) Configure(conf *Config) error {
-	pyconf := &python.Config{
+	conf.pyConfig = &python.Config{
 		MonitorConfig: conf.MonitorConfig,
 		Host:          conf.Host,
 		Port:          conf.Port,
@@ -63,8 +70,8 @@ func (rm *Monitor) Configure(conf *Config) error {
 	}
 
 	if conf.Name != "" {
-		pyconf.PluginConfig["Instance"] = conf.Name
+		conf.pyConfig.PluginConfig["Instance"] = conf.Name
 	}
 
-	return rm.Monitor.Configure(pyconf)
+	return rm.Monitor.Configure(conf)
 }
