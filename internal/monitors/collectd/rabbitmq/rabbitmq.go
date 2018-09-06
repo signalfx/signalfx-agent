@@ -77,6 +77,8 @@ type Monitor struct {
 func (m *Monitor) Configure(conf *Config) error {
 	conf.pyConfig = &python.Config{
 		MonitorConfig: conf.MonitorConfig,
+		Host:          conf.Host,
+		Port:          conf.Port,
 		ModuleName:    "rabbitmq",
 		ModulePaths:   []string{filepath.Join(os.Getenv(constants.BundleDirEnvVar), "plugins", "collectd", "rabbitmq")},
 		TypesDBPaths:  []string{filepath.Join(os.Getenv(constants.BundleDirEnvVar), "plugins", "collectd", "types.db")},
