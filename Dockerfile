@@ -188,7 +188,7 @@ FROM ubuntu:16.04 as python-plugins
 
 RUN apt update &&\
     apt install -y git python-pip wget curl &&\
-    pip install --upgrade 'pip==10.0.1'
+    pip install --upgrade 'pip==18.0'
 
 RUN pip install yq &&\
     wget -O /usr/bin/jq https://github.com/stedolan/jq/releases/download/jq-1.5/jq-linux64 &&\
@@ -197,11 +197,14 @@ RUN pip install yq &&\
 RUN apt install -y libffi-dev libssl-dev build-essential python-dev libcurl4-openssl-dev
 
 # Mirror the same dir structure that exists in the original source
-COPY scripts/get-collectd-plugins.sh /opt/scripts/
+COPY scripts/get-collectd-plugins.py /opt/scripts/
+COPY scripts/get-collectd-plugins-requirements.txt /opt/
 COPY collectd-plugins.yaml /opt/
 
+RUN pip install -r /opt/get-collectd-plugins-requirements.txt
+
 RUN mkdir -p /opt/collectd-python &&\
-    bash /opt/scripts/get-collectd-plugins.sh /opt/collectd-python
+    python /opt/scripts/get-collectd-plugins.py /opt/collectd-python
 
 COPY python/ /opt/sfxpython/
 RUN cd /opt/sfxpython && pip install .
