@@ -15,7 +15,7 @@ install:
   - go env
   - python --version
   - echo Installing Visual C++ Compiler For Python
-  - ps: "choco install vcpython27"
+  - ps: "choco install --no-progress --limitoutput vcpython27"
 build:
   verbosity: minimal
 before_build:
