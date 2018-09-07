@@ -60,9 +60,45 @@ Which would configure a Redis monitor with the given authentication
 configuration.  No Redis configuration is required in the agent config file.
 
 The distinction is that the `monitorType` label was added to the Docker
-container.  If a label of this form is present, no discovery rules will be
-considered for this endpoint, and thus, no agent configuration can be used
-anyway.
+container.  If a `monitorType` label is present, **no discovery rules will
+be considered for this endpoint**, and thus, no agent configuration can be
+used anyway.
+
+### Multiple Monitors per Port
+If you want to configure multiple monitors per port, you can specify the
+port name in the form `<port number>-<port name>` instead of just the port
+number.  For example, if you had two different Prometheus exporters running
+on the same port, but on different paths in a given container, you could
+provide labels like the following:
+
+```
+ - `agent.signalfx.com.monitorType.8080-app`: `prometheus-exporter`
+ - `agent.signalfx.com.config.8080-app.metricPath`: `/appMetrics`
+ - `agent.signalfx.com.monitorType.8080-goruntime`: `prometheus-exporter`
+ - `agent.signalfx.com.config.8080-goruntime.metricPath`: `/goMetrics`
+```
+
+The name that is given to the port will populate the `name` field of the
+discovered endpoint and can be used in discovery rules as such.  For
+example, with the following agent config:
+
+```
+observers:
+ - type: docker
+monitors:
+ - type: prometheus-exporter
+   discoveryRule: name == "app" && port == 8080
+   intervalSeconds: 1
+```
+
+And given docker labels as follows (remember that discovery rules are
+irrelevant to endpoints that specify `monitorType` labels):
+
+ - `agent.signalfx.com.config.8080-app.metricPath`: `/appMetrics`
+ - `agent.signalfx.com.config.8080-goruntime.metricPath`: `/goMetrics`
+
+Would result in the `app` endpoint getting an interval of 1 second and the
+`goruntime` endpoint getting the default interval of the agent.
 
 
 Observer Type: `docker`
