@@ -158,14 +158,15 @@ def minikube(request, worker_id):
 
 
 @pytest.fixture(scope="session")
-def registry(minikube, worker_id):
+def registry(minikube, worker_id, request):
     def get_registry_logs():
         cont.reload()
         return cont.logs().decode('utf-8')
 
     cont = None
     port = None
-    if worker_id == "master" or worker_id == "gw0":
+    k8s_container = request.config.getoption("--k8s-container")
+    if not k8s_container and (worker_id == "master" or worker_id == "gw0"):
         minikube.start_registry()
         port = minikube.registry_port
     print("\nWaiting for registry to be ready ...")
