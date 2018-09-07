@@ -38,33 +38,30 @@ RUN apt-get update -y && \
     ipcalc \
     iproute2 \
     iptables \
+    kmod \
     nfs-common \
     netcat \
     socat \
     software-properties-common \
     sudo \
-    systemd \
-    && apt-get clean && \
-    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+    systemd
+
+# Install docker
+RUN curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+RUN add-apt-repository \
+    "deb [arch=amd64] https://download.docker.com/linux/ubuntu \
+    $(lsb_release -cs) \
+    stable"
+RUN apt-get update && \
+    apt-get -yy -q install docker-ce=17.12.1~ce-0~ubuntu
+VOLUME /var/lib/docker
+EXPOSE 2375
 
 # Install crictl for kubeadm
 RUN curl -sSL -O https://github.com/kubernetes-incubator/cri-tools/releases/download/${CRI_VERSION}/crictl-${CRI_VERSION}-linux-amd64.tar.gz && \
     tar zxvf crictl-${CRI_VERSION}-linux-amd64.tar.gz -C /usr/local/bin && \
     chmod a+x /usr/local/bin/crictl && \
     rm -f crictl-${CRI_VERSION}-linux-amd64.tar.gz
-
-# Install docker
-# RUN curl -fsSL get.docker.com -o /tmp/get-docker.sh && \
-#     sh /tmp/get-docker.sh && \
-#     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
-RUN cd /tmp && \
-    curl -sSl -O https://download.docker.com/linux/static/stable/x86_64/docker-17.12.1-ce.tgz && \
-    tar -xf docker*.tgz && \
-    chmod a+x docker/* && \
-    chown root:root docker/* && \
-    cp docker/* /usr/bin/
-VOLUME /var/lib/docker
-EXPOSE 2375
 
 # Install minikube
 RUN curl -sSl -o /usr/local/bin/minikube https://storage.googleapis.com/minikube/releases/${MINIKUBE_VERSION}/minikube-linux-amd64
@@ -98,5 +95,8 @@ ENV init /lib/systemd/systemd
 
 COPY config.json /root/.minikube/config/config.json
 
+RUN apt-get clean && \
+    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+
 # If nothing else specified, start up docker and kubernetes.
-CMD /usr/local/bin/start-minikube.sh 2>&1 | tee /var/log/start-minikube.log && tail -F /var/log/start-minikube.log
+CMD /usr/local/bin/start-minikube.sh 2>&1 | tee /var/log/start-minikube.log && sleep inf
