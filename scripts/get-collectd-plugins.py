@@ -38,11 +38,11 @@ url:     {u}""".format(p=plugin_name, v=version, r=repo, u=url))
 
     # install pip deps
     for package in p.get('pip_packages', []):
-        subprocess.check_call([python_executable, '-m', 'pip', 'install', '--no-warn-script-location', package])
+        subprocess.check_call([python_executable, '-m', 'pip', 'install', '-qq', '--no-warn-script-location', package])
 
     requirements_file = os.path.join(plugin_dir, "requirements.txt")
     if os.path.isfile(requirements_file):
-        subprocess.check_call([python_executable, '-m', 'pip', 'install', '--no-warn-script-location', '-r', requirements_file])
+        subprocess.check_call([python_executable, '-m', 'pip', 'install', '-qq', '--no-warn-script-location', '-r', requirements_file])
 
 
     # remove unecessary things
