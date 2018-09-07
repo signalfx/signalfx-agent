@@ -19,7 +19,7 @@ function get_collectd_plugins ([string]$buildDir=$BUILD_DIR) {
     $script = Resolve-Path "$scriptDir\..\get-collectd-plugins.py"
     $python = "$buildDir\python\python.exe"
     $env:PYTHONHOME="$buildDir\python"
-    & $python -m pip install -r $requirements
+    & $python -m pip install -qq -r $requirements
     & $python $script $collectdPlugins
     & $python -m pip list
     # unset the python home enviornment variable
@@ -57,7 +57,7 @@ function install_pip([string]$buildDir=$BUILD_DIR) {
     $env:PYTHONHOME="$buildDir\python"
     & $python $arguments
     & $python -m pip -V
-    & $python -m pip install --upgrade pip==18.0
+    & $python -m pip install -qq --upgrade pip==18.0
     & $python -m pip -V
     # unset the python home enviornment variable
     Remove-Item Env:\PYTHONHOME
@@ -67,7 +67,7 @@ function install_pip([string]$buildDir=$BUILD_DIR) {
 function bundle_python_runner($buildDir=".\build") {
     $python = Resolve-Path -Path "$buildDir\python\python.exe"
     $bundlePath = Resolve-Path -Path "$buildDir\..\..\python"
-    $arguments = "-m", "pip", "install", "$bundlePath", "--upgrade"
+    $arguments = "-m", "pip", "install", "-qq", "$bundlePath", "--upgrade"
     $env:PYTHONHOME="$buildDir\python"
     & $python $arguments
     # unset the python home enviornment variable
