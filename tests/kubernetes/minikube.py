@@ -41,7 +41,7 @@ class Minikube:
     def load_kubeconfig(self, kubeconfig_path="/kubeconfig", timeout=300):
         with tempfile.NamedTemporaryFile(dir="/tmp/scratch") as fd:
             kubeconfig = fd.name
-            assert wait_for(p(container_cmd_exit_0, self.container, "test -f %s" % kubeconfig_path), timeout_seconds=timeout), \
+            assert wait_for(p(container_cmd_exit_0, self.container, "test -f %s" % kubeconfig_path), timeout, 2), \
                 "timed out waiting for the minikube cluster to be ready!\n\n%s\n\n" % self.get_logs()
             time.sleep(2)
             rc, output = self.container.exec_run("cp -f %s %s" % (kubeconfig_path, kubeconfig))
@@ -52,7 +52,7 @@ class Minikube:
     def connect(self, name, bootstrapper, timeout, version=None):
         self.bootstrapper = bootstrapper
         print("\nConnecting to %s container ..." % name)
-        assert wait_for(p(container_is_running, self.host_client, name), timeout_seconds=timeout), "timed out waiting for container %s!" % name
+        assert wait_for(p(container_is_running, self.host_client, name), timeout, 2), "timed out waiting for container %s!" % name
         self.container = self.host_client.containers.get(name)
         self.load_kubeconfig(timeout=timeout)
         self.client = self.get_client()
