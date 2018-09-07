@@ -80,6 +80,12 @@ Examples:
       monitorType: collectd/elasticsearch
       negated: true
 
+    # This will be automatically merged with the above filter to produce one
+    # whitelist filter on three metric names for elasticsearch
+    - metricNames:
+      - gauge.thread_pool.inactive
+      monitorType: collectd/elasticsearch
+      negated: true
 ```
 
 ## Property Filtering

@@ -60,6 +60,32 @@ metricsToExclude:
         assert ensure_always(lambda: not has_datapoint_with_metric_name(backend, "uptime"), 5)
 
 
+def test_combined_filter_with_monitor_type():
+    with run_agent(
+        """
+monitors:
+  - type: collectd/signalfx-metadata
+  - type: collectd/memory
+  - type: collectd/df
+  - type: collectd/uptime
+metricsToExclude:
+  - metricNames:
+     - memory.used
+    monitorType: collectd/memory
+    negated: true
+  - metricName: uptime
+  - metricNames:
+    - memory.free
+    monitorType: collectd/memory
+    negated: true
+"""
+    ) as [backend, _, _]:
+        assert wait_for(lambda: has_datapoint_with_metric_name(backend, "memory.used"))
+        assert wait_for(lambda: has_datapoint_with_metric_name(backend, "memory.free"))
+        assert ensure_always(lambda: not has_datapoint_with_metric_name(backend, "memory.cached"), 10)
+        assert ensure_always(lambda: not has_datapoint_with_metric_name(backend, "uptime"), 5)
+
+
 # Ensure the filters get updated properly when the agent reloads a new config
 def test_filter_with_restart():
     with run_agent(
