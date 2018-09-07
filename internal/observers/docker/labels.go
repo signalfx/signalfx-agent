@@ -9,18 +9,23 @@ import (
 )
 
 var labelConfigRegexp = regexp.MustCompile(
-	`^agent.signalfx.com.` +
+	`^agent.signalfx.com\.` +
 		`(?P<type>monitorType|config)` +
-		`.(?P<port>[\w-]+)` +
-		`(?:.(?P<config_key>\w+))?$`)
+		`\.(?P<port>[\w]+)(?:-(?P<port_name>[\w]+))?` +
+		`(?:\.(?P<config_key>\w+))?$`)
 
 type labelConfig struct {
 	MonitorType   string
 	Configuration map[string]interface{}
 }
 
-func getConfigLabels(labels map[string]string) map[nat.Port]*labelConfig {
-	portMap := map[nat.Port]*labelConfig{}
+type contPort struct {
+	nat.Port
+	Name string
+}
+
+func getConfigLabels(labels map[string]string) map[contPort]*labelConfig {
+	portMap := map[contPort]*labelConfig{}
 
 	for k, v := range labels {
 		if !strings.HasPrefix(k, "agent.signalfx.com") {
@@ -33,10 +38,15 @@ func getConfigLabels(labels map[string]string) map[nat.Port]*labelConfig {
 			continue
 		}
 
-		portObj, err := nat.NewPort(nat.SplitProtoPort(groups["port"]))
+		natPort, err := nat.NewPort(nat.SplitProtoPort(groups["port"]))
 		if err != nil {
 			logger.WithError(err).Errorf("Docker label port '%s' could not be parsed", groups["port"])
 			continue
+		}
+
+		portObj := contPort{
+			Port: natPort,
+			Name: groups["port_name"],
 		}
 
 		if _, ok := portMap[portObj]; !ok {

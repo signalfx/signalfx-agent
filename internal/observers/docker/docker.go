@@ -13,7 +13,6 @@ import (
 
 	dtypes "github.com/docker/docker/api/types"
 	"github.com/docker/docker/client"
-	"github.com/docker/go-connections/nat"
 	dockercommon "github.com/signalfx/signalfx-agent/internal/core/common/docker"
 
 	"github.com/signalfx/signalfx-agent/internal/core/config"
@@ -84,9 +83,45 @@ const (
 // configuration.  No Redis configuration is required in the agent config file.
 //
 // The distinction is that the `monitorType` label was added to the Docker
-// container.  If a label of this form is present, no discovery rules will be
-// considered for this endpoint, and thus, no agent configuration can be used
-// anyway.
+// container.  If a `monitorType` label is present, **no discovery rules will
+// be considered for this endpoint**, and thus, no agent configuration can be
+// used anyway.
+//
+// ### Multiple Monitors per Port
+// If you want to configure multiple monitors per port, you can specify the
+// port name in the form `<port number>-<port name>` instead of just the port
+// number.  For example, if you had two different Prometheus exporters running
+// on the same port, but on different paths in a given container, you could
+// provide labels like the following:
+//
+// ```
+//  - `agent.signalfx.com.monitorType.8080-app`: `prometheus-exporter`
+//  - `agent.signalfx.com.config.8080-app.metricPath`: `/appMetrics`
+//  - `agent.signalfx.com.monitorType.8080-goruntime`: `prometheus-exporter`
+//  - `agent.signalfx.com.config.8080-goruntime.metricPath`: `/goMetrics`
+// ```
+//
+// The name that is given to the port will populate the `name` field of the
+// discovered endpoint and can be used in discovery rules as such.  For
+// example, with the following agent config:
+//
+// ```
+// observers:
+//  - type: docker
+// monitors:
+//  - type: prometheus-exporter
+//    discoveryRule: name == "app" && port == 8080
+//    intervalSeconds: 1
+// ```
+//
+// And given docker labels as follows (remember that discovery rules are
+// irrelevant to endpoints that specify `monitorType` labels):
+//
+//  - `agent.signalfx.com.config.8080-app.metricPath`: `/appMetrics`
+//  - `agent.signalfx.com.config.8080-goruntime.metricPath`: `/goMetrics`
+//
+// Would result in the `app` endpoint getting an interval of 1 second and the
+// `goruntime` endpoint getting the default interval of the agent.
 
 // ENDPOINT_TYPE(ContainerEndpoint): true
 
@@ -197,14 +232,14 @@ func (docker *Docker) endpointsForContainer(cont *dtypes.ContainerJSON) []servic
 		}
 
 		labelConfigs := getConfigLabels(cont.Config.Labels)
-		knownPorts := map[nat.Port]bool{}
+		knownPorts := map[contPort]bool{}
 
 		for port := range labelConfigs {
 			knownPorts[port] = true
 		}
 
 		for k := range cont.Config.ExposedPorts {
-			knownPorts[k] = true
+			knownPorts[contPort{Port: k}] = true
 		}
 
 		for portObj := range knownPorts {
@@ -223,13 +258,16 @@ func (docker *Docker) endpointsForContainer(cont *dtypes.ContainerJSON) []servic
 	return instances
 }
 
-func (docker *Docker) endpointForPort(portObj nat.Port, cont *dtypes.ContainerJSON, serviceContainer *services.Container) *services.ContainerEndpoint {
+func (docker *Docker) endpointForPort(portObj contPort, cont *dtypes.ContainerJSON, serviceContainer *services.Container) *services.ContainerEndpoint {
 	port := portObj.Int()
 	protocol := portObj.Proto()
 
 	id := serviceContainer.PrimaryName() + "-" + cont.ID[:12] + "-" + strconv.Itoa(int(port))
+	if portObj.Name != "" {
+		id += "-" + portObj.Name
+	}
 
-	endpoint := services.NewEndpointCore(id, "", observerType)
+	endpoint := services.NewEndpointCore(id, portObj.Name, observerType)
 	if docker.config.UseHostnameIfPresent && cont.Config.Hostname != "" {
 		endpoint.Host = cont.Config.Hostname
 	} else {
@@ -254,7 +292,7 @@ func (docker *Docker) endpointForPort(portObj nat.Port, cont *dtypes.ContainerJS
 
 	return &services.ContainerEndpoint{
 		EndpointCore:  *endpoint,
-		AltPort:       uint16(dockercommon.FindHostMappedPort(cont, portObj)),
+		AltPort:       uint16(dockercommon.FindHostMappedPort(cont, portObj.Port)),
 		Container:     *serviceContainer,
 		Orchestration: *orchestration,
 	}
