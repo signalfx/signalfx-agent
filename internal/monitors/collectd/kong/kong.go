@@ -2,12 +2,15 @@
 
 package kong
 
-//go:generate collectd-template-to-go kong.tmpl
-
 import (
+	"os"
+	"path/filepath"
+
+	"github.com/signalfx/signalfx-agent/internal/core/common/constants"
 	"github.com/signalfx/signalfx-agent/internal/core/config"
 	"github.com/signalfx/signalfx-agent/internal/monitors"
-	"github.com/signalfx/signalfx-agent/internal/monitors/collectd"
+	"github.com/signalfx/signalfx-agent/internal/monitors/collectd/python"
+	"github.com/signalfx/signalfx-agent/internal/monitors/pyrunner"
 )
 
 const monitorType = "collectd/kong"
@@ -63,7 +66,9 @@ const monitorType = "collectd/kong"
 func init() {
 	monitors.Register(monitorType, func() interface{} {
 		return &Monitor{
-			*collectd.NewMonitorCore(CollectdTemplate),
+			python.Monitor{
+				MonitorCore: pyrunner.New("sfxcollectd"),
+			},
 		}
 	}, &Config{})
 }
@@ -87,6 +92,9 @@ type Metric struct {
 // Config is the monitor-specific config with the generic config embedded
 type Config struct {
 	config.MonitorConfig `yaml:",inline" acceptsEndpoints:"true"`
+	// By not embedding python.Config we can override struct fields (i.e. Host and Port)
+	// and add monitor specific config doc and struct tags.
+	pyConfig *python.Config
 	// Kong host to connect with (used for autodiscovery and URL)
 	Host string `yaml:"host" validate:"required"`
 	// Port for kong-plugin-signalfx hosting server (used for autodiscovery and URL)
@@ -157,12 +165,172 @@ type Config struct {
 	StatusCodesBlacklist []string `yaml:"statusCodesBlacklist"`
 }
 
+// PythonConfig returns the python.Config struct contained in the config struct
+func (c *Config) PythonConfig() *python.Config {
+	return c.pyConfig
+}
+
 // Monitor is the main type that represents the monitor
 type Monitor struct {
-	collectd.MonitorCore
+	python.Monitor
 }
 
 // Configure configures and runs the plugin in collectd
-func (rm *Monitor) Configure(conf *Config) error {
-	return rm.SetConfigurationAndRun(conf)
+func (m *Monitor) Configure(conf *Config) error {
+	pConf := map[string]interface{}{
+		"URL": conf.URL,
+	}
+	if conf.Verbose != nil {
+		pConf["Verbose"] = *conf.Verbose
+	}
+	if conf.Name != "" {
+		pConf["Name"] = conf.Name
+	}
+	if conf.AuthHeader != nil {
+		pConf["AuthHeader"] = []string{conf.AuthHeader.HeaderName, conf.AuthHeader.Value}
+	}
+	if conf.VerifyCerts != nil {
+		pConf["VerifyCerts"] = *conf.VerifyCerts
+	}
+	if conf.CABundle != "" {
+		pConf["CABundle"] = conf.CABundle
+	}
+	if conf.ClientCert != "" {
+		pConf["ClientCert"] = conf.ClientCert
+	}
+	if conf.ClientCertKey != "" {
+		pConf["ClientCertKey"] = conf.ClientCertKey
+	}
+	if conf.IntervalSeconds > 0 {
+		pConf["Interval"] = conf.IntervalSeconds
+	}
+	if len(conf.Metrics) > 0 {
+		values := make([][]interface{}, 0, len(conf.Metrics))
+		for _, m := range conf.Metrics {
+			values = append(values, []interface{}{m.MetricName, m.ReportBool})
+		}
+		pConf["Metric"] = map[string]interface{}{
+			"#flatten": true,
+			"values":   values,
+		}
+	}
+	if conf.ReportAPIIDs != nil {
+		pConf["ReportAPIIDs"] = *conf.ReportAPIIDs
+	}
+	if conf.ReportAPINames != nil {
+		pConf["ReportAPINames"] = *conf.ReportAPINames
+	}
+	if conf.ReportServiceIDs != nil {
+		pConf["ReportServiceIDs"] = *conf.ReportServiceIDs
+	}
+	if conf.ReportServiceNames != nil {
+		pConf["ReportServiceNames"] = *conf.ReportServiceNames
+	}
+	if conf.ReportRouteIDs != nil {
+		pConf["ReportRouteIDs"] = *conf.ReportRouteIDs
+	}
+	if conf.ReportHTTPMethods != nil {
+		pConf["ReportHTTPMethods"] = *conf.ReportHTTPMethods
+	}
+	if conf.ReportStatusCodeGroups != nil {
+		pConf["ReportStatusCodeGroups"] = *conf.ReportStatusCodeGroups
+	}
+	if conf.ReportStatusCodes != nil {
+		pConf["ReportStatusCodes"] = *conf.ReportStatusCodes
+	}
+	if len(conf.APIIDs) > 0 {
+		pConf["APIIDs"] = map[string]interface{}{
+			"#flatten": true,
+			"values":   conf.APIIDs,
+		}
+	}
+	if len(conf.APIIDsBlacklist) > 0 {
+		pConf["APIIDsBlacklist"] = map[string]interface{}{
+			"#flatten": true,
+			"values":   conf.APIIDsBlacklist,
+		}
+	}
+	if len(conf.APINames) > 0 {
+		pConf["APINames"] = map[string]interface{}{
+			"#flatten": true,
+			"values":   conf.APINames,
+		}
+	}
+	if len(conf.APINamesBlacklist) > 0 {
+		pConf["APINamesBlacklist"] = map[string]interface{}{
+			"#flatten": true,
+			"values":   conf.APINamesBlacklist,
+		}
+	}
+	if len(conf.ServiceIDs) > 0 {
+		pConf["ServiceIDs"] = map[string]interface{}{
+			"#flatten": true,
+			"values":   conf.ServiceIDs,
+		}
+	}
+	if len(conf.ServiceIDsBlacklist) > 0 {
+		pConf["ServiceIDsBlacklist"] = map[string]interface{}{
+			"#flatten": true,
+			"values":   conf.ServiceIDsBlacklist,
+		}
+	}
+	if len(conf.ServiceNames) > 0 {
+		pConf["ServiceNames"] = map[string]interface{}{
+			"#flatten": true,
+			"values":   conf.ServiceNames,
+		}
+	}
+	if len(conf.ServiceNamesBlacklist) > 0 {
+		pConf["ServiceNamesBlacklist"] = map[string]interface{}{
+			"#flatten": true,
+			"values":   conf.ServiceNamesBlacklist,
+		}
+	}
+	if len(conf.RouteIDs) > 0 {
+		pConf["RouteIDs"] = map[string]interface{}{
+			"#flatten": true,
+			"values":   conf.RouteIDs,
+		}
+	}
+	if len(conf.RouteIDsBlacklist) > 0 {
+		pConf["RouteIDsBlacklist"] = map[string]interface{}{
+			"#flatten": true,
+			"values":   conf.RouteIDsBlacklist,
+		}
+	}
+	if len(conf.HTTPMethods) > 0 {
+		pConf["HTTPMethods"] = map[string]interface{}{
+			"#flatten": true,
+			"values":   conf.HTTPMethods,
+		}
+	}
+	if len(conf.HTTPMethodsBlacklist) > 0 {
+		pConf["HTTPMethodsBlacklist"] = map[string]interface{}{
+			"#flatten": true,
+			"values":   conf.HTTPMethodsBlacklist,
+		}
+	}
+	if len(conf.StatusCodes) > 0 {
+		pConf["StatusCodes"] = map[string]interface{}{
+			"#flatten": true,
+			"values":   conf.StatusCodes,
+		}
+	}
+	if len(conf.StatusCodesBlacklist) > 0 {
+		pConf["StatusCodesBlacklist"] = map[string]interface{}{
+			"#flatten": true,
+			"values":   conf.StatusCodesBlacklist,
+		}
+	}
+	conf.pyConfig = &python.Config{
+
+		MonitorConfig: conf.MonitorConfig,
+		Host:          conf.Host,
+		Port:          conf.Port,
+		ModuleName:    "kong_plugin",
+		ModulePaths:   []string{filepath.Join(os.Getenv(constants.BundleDirEnvVar), "plugins", "collectd", "kong")},
+		TypesDBPaths:  []string{filepath.Join(os.Getenv(constants.BundleDirEnvVar), "plugins", "collectd", "types.db")},
+		PluginConfig:  pConf,
+	}
+	return m.Monitor.Configure(conf)
 }

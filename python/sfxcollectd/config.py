@@ -40,6 +40,9 @@ class Config(object):
             elif isinstance(v, (int, str, unicode)):
                 values = (v,)
             elif isinstance(v, dict):
+                if "#flatten" in v and "values" in v:
+                    conf.children += [cls(root=conf, key=k, values=item, children=[]) for item in v.get("values", [])]
+                    continue
                 dict_conf = cls.from_monitor_config(v)
                 children = dict_conf.children
                 values = dict_conf.values
