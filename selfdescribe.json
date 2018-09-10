@@ -2415,6 +2415,38 @@
       "package": "internal/monitors/collectd/elasticsearch",
       "fields": [
         {
+          "yamlName": "moduleName",
+          "doc": "Corresponds to the ModuleName option in collectd-python",
+          "default": "",
+          "required": false,
+          "type": "string",
+          "elementKind": ""
+        },
+        {
+          "yamlName": "modulePaths",
+          "doc": "Corresponds to a set of ModulePath options in collectd-python",
+          "default": null,
+          "required": false,
+          "type": "slice",
+          "elementKind": "string"
+        },
+        {
+          "yamlName": "pluginConfig",
+          "doc": "This is a yaml form of the collectd config.",
+          "default": null,
+          "required": false,
+          "type": "map",
+          "elementKind": "interface"
+        },
+        {
+          "yamlName": "typesDBPaths",
+          "doc": "A set of paths to [types.db files](https://collectd.org/documentation/manpages/types.db.5.shtml) that are needed by your plugin.  If not specified, the runner will use the global collectd types.db file.",
+          "default": null,
+          "required": false,
+          "type": "slice",
+          "elementKind": "string"
+        },
+        {
           "yamlName": "host",
           "doc": "",
           "default": null,
@@ -2773,6 +2805,38 @@
       "doc": " Monitors an etcd key/value store.\n\nSee https://github.com/signalfx/integrations/tree/master/collectd-etcd and\nhttps://github.com/signalfx/collectd-etcd\n",
       "package": "internal/monitors/collectd/etcd",
       "fields": [
+        {
+          "yamlName": "moduleName",
+          "doc": "Corresponds to the ModuleName option in collectd-python",
+          "default": "",
+          "required": false,
+          "type": "string",
+          "elementKind": ""
+        },
+        {
+          "yamlName": "modulePaths",
+          "doc": "Corresponds to a set of ModulePath options in collectd-python",
+          "default": null,
+          "required": false,
+          "type": "slice",
+          "elementKind": "string"
+        },
+        {
+          "yamlName": "pluginConfig",
+          "doc": "This is a yaml form of the collectd config.",
+          "default": null,
+          "required": false,
+          "type": "map",
+          "elementKind": "interface"
+        },
+        {
+          "yamlName": "typesDBPaths",
+          "doc": "A set of paths to [types.db files](https://collectd.org/documentation/manpages/types.db.5.shtml) that are needed by your plugin.  If not specified, the runner will use the global collectd types.db file.",
+          "default": null,
+          "required": false,
+          "type": "slice",
+          "elementKind": "string"
+        },
         {
           "yamlName": "host",
           "doc": "",
