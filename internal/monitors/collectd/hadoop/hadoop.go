@@ -2,12 +2,14 @@
 
 package hadoop
 
-//go:generate collectd-template-to-go hadoop.tmpl
-
 import (
-	"github.com/signalfx/signalfx-agent/internal/core/config"
+	"os"
+	"path/filepath"
+
+	"github.com/signalfx/signalfx-agent/internal/core/common/constants"
 	"github.com/signalfx/signalfx-agent/internal/monitors"
-	"github.com/signalfx/signalfx-agent/internal/monitors/collectd"
+	"github.com/signalfx/signalfx-agent/internal/monitors/collectd/python"
+	"github.com/signalfx/signalfx-agent/internal/monitors/pyrunner"
 )
 
 const monitorType = "collectd/hadoop"
@@ -42,14 +44,16 @@ const monitorType = "collectd/hadoop"
 func init() {
 	monitors.Register(monitorType, func() interface{} {
 		return &Monitor{
-			*collectd.NewMonitorCore(CollectdTemplate),
+			python.Monitor{
+				MonitorCore: pyrunner.New("sfxcollectd"),
+			},
 		}
 	}, &Config{})
 }
 
 // Config is the monitor-specific config with the generic config embedded
 type Config struct {
-	config.MonitorConfig `yaml:",inline" acceptsEndpoints:"true"`
+	python.CoreConfig `yaml:",inline" acceptsEndpoints:"true"`
 	// Resource Manager Hostname
 	Host string `yaml:"host" validate:"required"`
 	// Resource Manager Port
@@ -60,10 +64,19 @@ type Config struct {
 
 // Monitor is the main type that represents the monitor
 type Monitor struct {
-	collectd.MonitorCore
+	python.Monitor
 }
 
 // Configure configures and runs the plugin in collectd
-func (am *Monitor) Configure(conf *Config) error {
-	return am.SetConfigurationAndRun(conf)
+func (m *Monitor) Configure(conf *Config) error {
+	conf.ModuleName = "hadoop_plugin"
+	conf.ModulePaths = []string{filepath.Join(os.Getenv(constants.BundleDirEnvVar), "plugins", "collectd", "hadoop")}
+	conf.TypesDBPaths = []string{filepath.Join(os.Getenv(constants.BundleDirEnvVar), "plugins", "collectd", "types.db")}
+	conf.PluginConfig = map[string]interface{}{
+		"ResourceManagerURL":  "http://{{.Host}}",
+		"ResourceManagerPort": conf.Port,
+		"Interval":            conf.IntervalSeconds,
+		"Verbose":             conf.Verbose,
+	}
+	return m.Monitor.Configure(conf)
 }
