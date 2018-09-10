@@ -119,6 +119,10 @@ class Values(object):  # pylint: disable=too-many-instance-attributes
         if not self.time:
             self.time = time.time()
         logger.debug("Dispatching value %s", repr(self))
+        # convert boolean values to their integer type
+        # because that is what collectd does
+        self.values = [int(value) if isinstance(value, bool)
+                       else value for value in self.values]
         Values._dispatcher_func(self)
         return
 
