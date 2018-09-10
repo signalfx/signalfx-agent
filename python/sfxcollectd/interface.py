@@ -86,7 +86,7 @@ class Values(object):  # pylint: disable=too-many-instance-attributes
             values=None,
             host="",
             plugin=None,
-            plugin_instance=None,
+            plugin_instance="",
             time=None,  # pylint: disable=redefined-outer-name
             type_instance="",
             interval=None,
