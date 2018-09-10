@@ -59,7 +59,7 @@ type CoreConfig struct {
 	// Corresponds to a set of ModulePath options in collectd-python
 	ModulePaths []string `yaml:"modulePaths" json:"modulePaths"`
 	// This is a yaml form of the collectd config.
-	PluginConfig map[string]interface{} `yaml:"pluginConfig" json:"pluginConfig"`
+	PluginConfig map[string]interface{} `yaml:"pluginConfig" json:"pluginConfig" neverLog:"true"`
 	// A set of paths to [types.db files](https://collectd.org/documentation/manpages/types.db.5.shtml)
 	// that are needed by your plugin.  If not specified, the runner will use
 	// the global collectd types.db file.
