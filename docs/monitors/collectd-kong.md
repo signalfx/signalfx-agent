@@ -62,6 +62,10 @@ Monitor Type: `collectd/kong`
 
 | Config option | Required | Type | Description |
 | --- | --- | --- | --- |
+| `moduleName` | no | `string` | Corresponds to the ModuleName option in collectd-python |
+| `modulePaths` | no | `list of string` | Corresponds to a set of ModulePath options in collectd-python |
+| `pluginConfig` | no | `map of any` | This is a yaml form of the collectd config. |
+| `typesDBPaths` | no | `list of string` | A set of paths to [types.db files](https://collectd.org/documentation/manpages/types.db.5.shtml) that are needed by your plugin.  If not specified, the runner will use the global collectd types.db file. |
 | `host` | **yes** | `string` | Kong host to connect with (used for autodiscovery and URL) |
 | `port` | **yes** | `integer` | Port for kong-plugin-signalfx hosting server (used for autodiscovery and URL) |
 | `name` | no | `string` | Registration name when using multiple instances in Smart Agent |

@@ -3448,6 +3448,38 @@
       "package": "internal/monitors/collectd/haproxy",
       "fields": [
         {
+          "yamlName": "moduleName",
+          "doc": "Corresponds to the ModuleName option in collectd-python",
+          "default": "",
+          "required": false,
+          "type": "string",
+          "elementKind": ""
+        },
+        {
+          "yamlName": "modulePaths",
+          "doc": "Corresponds to a set of ModulePath options in collectd-python",
+          "default": null,
+          "required": false,
+          "type": "slice",
+          "elementKind": "string"
+        },
+        {
+          "yamlName": "pluginConfig",
+          "doc": "This is a yaml form of the collectd config.",
+          "default": null,
+          "required": false,
+          "type": "map",
+          "elementKind": "interface"
+        },
+        {
+          "yamlName": "typesDBPaths",
+          "doc": "A set of paths to [types.db files](https://collectd.org/documentation/manpages/types.db.5.shtml) that are needed by your plugin.  If not specified, the runner will use the global collectd types.db file.",
+          "default": null,
+          "required": false,
+          "type": "slice",
+          "elementKind": "string"
+        },
+        {
           "yamlName": "host",
           "doc": "",
           "default": null,
@@ -3857,6 +3889,38 @@
       "package": "internal/monitors/collectd/healthchecker",
       "fields": [
         {
+          "yamlName": "moduleName",
+          "doc": "Corresponds to the ModuleName option in collectd-python",
+          "default": "",
+          "required": false,
+          "type": "string",
+          "elementKind": ""
+        },
+        {
+          "yamlName": "modulePaths",
+          "doc": "Corresponds to a set of ModulePath options in collectd-python",
+          "default": null,
+          "required": false,
+          "type": "slice",
+          "elementKind": "string"
+        },
+        {
+          "yamlName": "pluginConfig",
+          "doc": "This is a yaml form of the collectd config.",
+          "default": null,
+          "required": false,
+          "type": "map",
+          "elementKind": "interface"
+        },
+        {
+          "yamlName": "typesDBPaths",
+          "doc": "A set of paths to [types.db files](https://collectd.org/documentation/manpages/types.db.5.shtml) that are needed by your plugin.  If not specified, the runner will use the global collectd types.db file.",
+          "default": null,
+          "required": false,
+          "type": "slice",
+          "elementKind": "string"
+        },
+        {
           "yamlName": "host",
           "doc": "",
           "default": null,
@@ -3984,6 +4048,38 @@
       "doc": " Monitors jenkins by using the\n[jenkins collectd Python\nplugin](https://github.com/signalfx/collectd-jenkins), which collects\nmetrics from jenkins instances\n\nSample YAML configuration:\n\n```yaml\nmonitors:\n- type: collectd/jenkins\n  host: 127.0.0.1\n  port: 8080\n  metricsKey: reallylongmetricskey\n```\n\nSample YAML configuration with specific enhanced metrics included\n\n```yaml\nmonitors:\n- type: collectd/jenkins\n  host: 127.0.0.1\n  port: 8080\n  metricsKey: reallylongmetricskey\n  includeMetrics:\n  - \"vm.daemon.count\"\n  - \"vm.terminated.count\"\n```\n\nSample YAML configuration with all enhanced metrics included\n\n```yaml\nmonitors:\n- type: collectd/jenkins\n  host: 127.0.0.1\n  port: 8080\n  metricsKey: reallylongmetricskey\n  enhancedMetrics: true\n```\n",
       "package": "internal/monitors/collectd/jenkins",
       "fields": [
+        {
+          "yamlName": "moduleName",
+          "doc": "Corresponds to the ModuleName option in collectd-python",
+          "default": "",
+          "required": false,
+          "type": "string",
+          "elementKind": ""
+        },
+        {
+          "yamlName": "modulePaths",
+          "doc": "Corresponds to a set of ModulePath options in collectd-python",
+          "default": null,
+          "required": false,
+          "type": "slice",
+          "elementKind": "string"
+        },
+        {
+          "yamlName": "pluginConfig",
+          "doc": "This is a yaml form of the collectd config.",
+          "default": null,
+          "required": false,
+          "type": "map",
+          "elementKind": "interface"
+        },
+        {
+          "yamlName": "typesDBPaths",
+          "doc": "A set of paths to [types.db files](https://collectd.org/documentation/manpages/types.db.5.shtml) that are needed by your plugin.  If not specified, the runner will use the global collectd types.db file.",
+          "default": null,
+          "required": false,
+          "type": "slice",
+          "elementKind": "string"
+        },
         {
           "yamlName": "host",
           "doc": "",
@@ -4964,6 +5060,38 @@
       "package": "internal/monitors/collectd/kong",
       "fields": [
         {
+          "yamlName": "moduleName",
+          "doc": "Corresponds to the ModuleName option in collectd-python",
+          "default": "",
+          "required": false,
+          "type": "string",
+          "elementKind": ""
+        },
+        {
+          "yamlName": "modulePaths",
+          "doc": "Corresponds to a set of ModulePath options in collectd-python",
+          "default": null,
+          "required": false,
+          "type": "slice",
+          "elementKind": "string"
+        },
+        {
+          "yamlName": "pluginConfig",
+          "doc": "This is a yaml form of the collectd config.",
+          "default": null,
+          "required": false,
+          "type": "map",
+          "elementKind": "interface"
+        },
+        {
+          "yamlName": "typesDBPaths",
+          "doc": "A set of paths to [types.db files](https://collectd.org/documentation/manpages/types.db.5.shtml) that are needed by your plugin.  If not specified, the runner will use the global collectd types.db file.",
+          "default": null,
+          "required": false,
+          "type": "slice",
+          "elementKind": "string"
+        },
+        {
           "yamlName": "host",
           "doc": "Kong host to connect with (used for autodiscovery and URL)",
           "default": null,
@@ -5386,6 +5514,38 @@
       "package": "internal/monitors/collectd/marathon",
       "fields": [
         {
+          "yamlName": "moduleName",
+          "doc": "Corresponds to the ModuleName option in collectd-python",
+          "default": "",
+          "required": false,
+          "type": "string",
+          "elementKind": ""
+        },
+        {
+          "yamlName": "modulePaths",
+          "doc": "Corresponds to a set of ModulePath options in collectd-python",
+          "default": null,
+          "required": false,
+          "type": "slice",
+          "elementKind": "string"
+        },
+        {
+          "yamlName": "pluginConfig",
+          "doc": "This is a yaml form of the collectd config.",
+          "default": null,
+          "required": false,
+          "type": "map",
+          "elementKind": "interface"
+        },
+        {
+          "yamlName": "typesDBPaths",
+          "doc": "A set of paths to [types.db files](https://collectd.org/documentation/manpages/types.db.5.shtml) that are needed by your plugin.  If not specified, the runner will use the global collectd types.db file.",
+          "default": null,
+          "required": false,
+          "type": "slice",
+          "elementKind": "string"
+        },
+        {
           "yamlName": "host",
           "doc": "",
           "default": null,
@@ -5436,7 +5596,7 @@
       ],
       "monitorType": "collectd/marathon",
       "acceptsEndpoints": true,
-      "singleInstance": true,
+      "singleInstance": false,
       "dimensions": null,
       "metrics": [
         {
@@ -5736,6 +5896,38 @@
       "doc": " Monitors an instance of MongoDB using the\n[collectd MongoDB Python plugin](https://github.com/signalfx/collectd-mongodb).\n\nAlso see https://github.com/signalfx/integrations/tree/master/collectd-mongodb.\n",
       "package": "internal/monitors/collectd/mongodb",
       "fields": [
+        {
+          "yamlName": "moduleName",
+          "doc": "Corresponds to the ModuleName option in collectd-python",
+          "default": "",
+          "required": false,
+          "type": "string",
+          "elementKind": ""
+        },
+        {
+          "yamlName": "modulePaths",
+          "doc": "Corresponds to a set of ModulePath options in collectd-python",
+          "default": null,
+          "required": false,
+          "type": "slice",
+          "elementKind": "string"
+        },
+        {
+          "yamlName": "pluginConfig",
+          "doc": "This is a yaml form of the collectd config.",
+          "default": null,
+          "required": false,
+          "type": "map",
+          "elementKind": "interface"
+        },
+        {
+          "yamlName": "typesDBPaths",
+          "doc": "A set of paths to [types.db files](https://collectd.org/documentation/manpages/types.db.5.shtml) that are needed by your plugin.  If not specified, the runner will use the global collectd types.db file.",
+          "default": null,
+          "required": false,
+          "type": "slice",
+          "elementKind": "string"
+        },
         {
           "yamlName": "host",
           "doc": "",
@@ -7172,6 +7364,38 @@
       "package": "internal/monitors/collectd/openstack",
       "fields": [
         {
+          "yamlName": "moduleName",
+          "doc": "Corresponds to the ModuleName option in collectd-python",
+          "default": "",
+          "required": false,
+          "type": "string",
+          "elementKind": ""
+        },
+        {
+          "yamlName": "modulePaths",
+          "doc": "Corresponds to a set of ModulePath options in collectd-python",
+          "default": null,
+          "required": false,
+          "type": "slice",
+          "elementKind": "string"
+        },
+        {
+          "yamlName": "pluginConfig",
+          "doc": "This is a yaml form of the collectd config.",
+          "default": null,
+          "required": false,
+          "type": "map",
+          "elementKind": "interface"
+        },
+        {
+          "yamlName": "typesDBPaths",
+          "doc": "A set of paths to [types.db files](https://collectd.org/documentation/manpages/types.db.5.shtml) that are needed by your plugin.  If not specified, the runner will use the global collectd types.db file.",
+          "default": null,
+          "required": false,
+          "type": "slice",
+          "elementKind": "string"
+        },
+        {
           "yamlName": "authURL",
           "doc": "Keystone authentication URL/endpoint for the OpenStack cloud",
           "default": null,
@@ -7221,7 +7445,7 @@
         }
       ],
       "monitorType": "collectd/openstack",
-      "acceptsEndpoints": false,
+      "acceptsEndpoints": true,
       "singleInstance": false,
       "dimensions": null,
       "metrics": [
@@ -7815,6 +8039,38 @@
       "package": "internal/monitors/collectd/python",
       "fields": [
         {
+          "yamlName": "moduleName",
+          "doc": "Corresponds to the ModuleName option in collectd-python",
+          "default": "",
+          "required": false,
+          "type": "string",
+          "elementKind": ""
+        },
+        {
+          "yamlName": "modulePaths",
+          "doc": "Corresponds to a set of ModulePath options in collectd-python",
+          "default": null,
+          "required": false,
+          "type": "slice",
+          "elementKind": "string"
+        },
+        {
+          "yamlName": "pluginConfig",
+          "doc": "This is a yaml form of the collectd config.",
+          "default": null,
+          "required": false,
+          "type": "map",
+          "elementKind": "interface"
+        },
+        {
+          "yamlName": "typesDBPaths",
+          "doc": "A set of paths to [types.db files](https://collectd.org/documentation/manpages/types.db.5.shtml) that are needed by your plugin.  If not specified, the runner will use the global collectd types.db file.",
+          "default": null,
+          "required": false,
+          "type": "slice",
+          "elementKind": "string"
+        },
+        {
           "yamlName": "host",
           "doc": "Host will be filled in by auto-discovery if this monitor has a discovery rule.  It can then be used under pluginConfig by the template `{{.Host}}`",
           "default": "",
@@ -7829,7 +8085,20 @@
           "required": false,
           "type": "uint16",
           "elementKind": ""
-        },
+        }
+      ],
+      "monitorType": "collectd/python",
+      "acceptsEndpoints": true,
+      "singleInstance": false,
+      "dimensions": null,
+      "metrics": null,
+      "properties": null
+    },
+    {
+      "name": "Config",
+      "doc": " Monitors an instance of RabbitMQ using the\n[collectd RabbitMQ Python\nPlugin](https://github.com/signalfx/collectd-rabbitmq).\n\nSee the [integration\ndoc](https://github.com/signalfx/integrations/tree/master/collectd-rabbitmq)\nfor more information.\n\n**Note that you must individually enable each of the five `collect*` options\nto get metrics pertaining to those facets of a RabbitMQ instance.  If none\nof them are enabled, no metrics will be sent.**\n",
+      "package": "internal/monitors/collectd/rabbitmq",
+      "fields": [
         {
           "yamlName": "moduleName",
           "doc": "Corresponds to the ModuleName option in collectd-python",
@@ -7861,20 +8130,7 @@
           "required": false,
           "type": "slice",
           "elementKind": "string"
-        }
-      ],
-      "monitorType": "collectd/python",
-      "acceptsEndpoints": true,
-      "singleInstance": false,
-      "dimensions": null,
-      "metrics": null,
-      "properties": null
-    },
-    {
-      "name": "Config",
-      "doc": " Monitors an instance of RabbitMQ using the\n[collectd RabbitMQ Python\nPlugin](https://github.com/signalfx/collectd-rabbitmq).\n\nSee the [integration\ndoc](https://github.com/signalfx/integrations/tree/master/collectd-rabbitmq)\nfor more information.\n\n**Note that you must individually enable each of the five `collect*` options\nto get metrics pertaining to those facets of a RabbitMQ instance.  If none\nof them are enabled, no metrics will be sent.**\n",
-      "package": "internal/monitors/collectd/rabbitmq",
-      "fields": [
+        },
         {
           "yamlName": "host",
           "doc": "",
@@ -8531,6 +8787,38 @@
       "package": "internal/monitors/collectd/redis",
       "fields": [
         {
+          "yamlName": "moduleName",
+          "doc": "Corresponds to the ModuleName option in collectd-python",
+          "default": "",
+          "required": false,
+          "type": "string",
+          "elementKind": ""
+        },
+        {
+          "yamlName": "modulePaths",
+          "doc": "Corresponds to a set of ModulePath options in collectd-python",
+          "default": null,
+          "required": false,
+          "type": "slice",
+          "elementKind": "string"
+        },
+        {
+          "yamlName": "pluginConfig",
+          "doc": "This is a yaml form of the collectd config.",
+          "default": null,
+          "required": false,
+          "type": "map",
+          "elementKind": "interface"
+        },
+        {
+          "yamlName": "typesDBPaths",
+          "doc": "A set of paths to [types.db files](https://collectd.org/documentation/manpages/types.db.5.shtml) that are needed by your plugin.  If not specified, the runner will use the global collectd types.db file.",
+          "default": null,
+          "required": false,
+          "type": "slice",
+          "elementKind": "string"
+        },
+        {
           "yamlName": "host",
           "doc": "",
           "default": null,
@@ -8926,6 +9214,38 @@
       "doc": " Collects metrics about a Spark cluster using the\n[collectd Spark Python plugin](https://github.com/signalfx/collectd-spark).\nAlso see\nhttps://github.com/signalfx/integrations/tree/master/collectd-spark.\n\nYou have to specify distinct monitor configurations and discovery rules for\nmaster and worker processes.  For the master configuration, set `isMaster`\nto true.\n\nWe only support HTTP endpoints for now.\n\nWhen running Spark on Apache Hadoop / Yarn, this integration is only capable\nof reporting application metrics from the master node.  Please use the\ncollectd/hadoop monitor to report on the health of the cluster.\n\nAn example configuration for monitoring applications on Yarn\n```yaml\nmonitors:\n  - type: collectd/spark\n    host: 000.000.000.000\n    port: 8088\n    clusterType: Yarn\n    isMaster: true\n    collectApplicationMetrics: true\n```\n",
       "package": "internal/monitors/collectd/spark",
       "fields": [
+        {
+          "yamlName": "moduleName",
+          "doc": "Corresponds to the ModuleName option in collectd-python",
+          "default": "",
+          "required": false,
+          "type": "string",
+          "elementKind": ""
+        },
+        {
+          "yamlName": "modulePaths",
+          "doc": "Corresponds to a set of ModulePath options in collectd-python",
+          "default": null,
+          "required": false,
+          "type": "slice",
+          "elementKind": "string"
+        },
+        {
+          "yamlName": "pluginConfig",
+          "doc": "This is a yaml form of the collectd config.",
+          "default": null,
+          "required": false,
+          "type": "map",
+          "elementKind": "interface"
+        },
+        {
+          "yamlName": "typesDBPaths",
+          "doc": "A set of paths to [types.db files](https://collectd.org/documentation/manpages/types.db.5.shtml) that are needed by your plugin.  If not specified, the runner will use the global collectd types.db file.",
+          "default": null,
+          "required": false,
+          "type": "slice",
+          "elementKind": "string"
+        },
         {
           "yamlName": "host",
           "doc": "",
@@ -9610,6 +9930,38 @@
       "doc": " Monitors an Apache Zookeeper instance.\n\nSee the [Python plugin\nsource](https://github.com/signalfx/collectd-zookeeper) and the\n[integrations repo\npage](https://github.com/signalfx/integrations/tree/master/collectd-zookeeper)\nfor more information.\n",
       "package": "internal/monitors/collectd/zookeeper",
       "fields": [
+        {
+          "yamlName": "moduleName",
+          "doc": "Corresponds to the ModuleName option in collectd-python",
+          "default": "",
+          "required": false,
+          "type": "string",
+          "elementKind": ""
+        },
+        {
+          "yamlName": "modulePaths",
+          "doc": "Corresponds to a set of ModulePath options in collectd-python",
+          "default": null,
+          "required": false,
+          "type": "slice",
+          "elementKind": "string"
+        },
+        {
+          "yamlName": "pluginConfig",
+          "doc": "This is a yaml form of the collectd config.",
+          "default": null,
+          "required": false,
+          "type": "map",
+          "elementKind": "interface"
+        },
+        {
+          "yamlName": "typesDBPaths",
+          "doc": "A set of paths to [types.db files](https://collectd.org/documentation/manpages/types.db.5.shtml) that are needed by your plugin.  If not specified, the runner will use the global collectd types.db file.",
+          "default": null,
+          "required": false,
+          "type": "slice",
+          "elementKind": "string"
+        },
         {
           "yamlName": "host",
           "doc": "",

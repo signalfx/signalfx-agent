@@ -12,7 +12,6 @@ import (
 	"github.com/signalfx/signalfx-agent/internal/monitors/collectd/python"
 	"github.com/signalfx/signalfx-agent/internal/monitors/pyrunner"
 
-	"github.com/signalfx/signalfx-agent/internal/core/config"
 	"github.com/signalfx/signalfx-agent/internal/monitors"
 )
 
@@ -34,14 +33,10 @@ func init() {
 
 // Config is the monitor-specific config with the generic config embedded
 type Config struct {
-	config.MonitorConfig `yaml:",inline" acceptsEndpoints:"true"`
-	// By not embedding python.Config we can override struct fields (i.e. Host and Port)
-	// and add monitor specific config doc and struct tags.
-	pyConfig *python.Config
-	Host     string `yaml:"host" validate:"required"`
-	Port     uint16 `yaml:"port" validate:"required"`
-	Name     string `yaml:"name"`
-
+	python.CoreConfig `yaml:",inline" acceptsEndpoints:"true"`
+	Host              string `yaml:"host" validate:"required"`
+	Port              uint16 `yaml:"port" validate:"required"`
+	Name              string `yaml:"name"`
 	// The HTTP path that contains a JSON document to verify
 	Path string `yaml:"path" default:"/"`
 	// If `jsonKey` and `jsonVal` are given, the given endpoint will be
@@ -59,11 +54,6 @@ type Config struct {
 	// If true, the plugin will verify that it can connect to the given
 	// host/port value. JSON checking is not supported.
 	TCPCheck bool `yaml:"tcpCheck"`
-}
-
-// PythonConfig returns the python.Config struct contained in the config struct
-func (c *Config) PythonConfig() *python.Config {
-	return c.pyConfig
 }
 
 // Validate the given config
@@ -84,34 +74,29 @@ type Monitor struct {
 
 // Configure configures and runs the plugin in collectd
 func (m *Monitor) Configure(conf *Config) error {
-	pConf := map[string]interface{}{
+	conf.ModuleName = "health_checker"
+	conf.ModulePaths = []string{filepath.Join(os.Getenv(constants.BundleDirEnvVar), "plugins", "collectd", "health_checker")}
+	conf.TypesDBPaths = []string{filepath.Join(os.Getenv(constants.BundleDirEnvVar), "plugins", "collectd", "types.db")}
+
+	conf.PluginConfig = map[string]interface{}{
 		"Instance": conf.Name,
 	}
 
 	if conf.TCPCheck {
-		pConf["URL"] = conf.Host
-		pConf["TCP"] = conf.Port
+		conf.PluginConfig["URL"] = conf.Host
+		conf.PluginConfig["TCP"] = conf.Port
 	} else {
-		pConf["URL"] = "http{{if .UseHTTPS}}s{{end}}://{{.Host}}:{{.Port}}:{{.Path}}"
-		pConf["SkipSecurity"] = conf.SkipSecurity
+		conf.PluginConfig["URL"] = "http{{if .UseHTTPS}}s{{end}}://{{.Host}}:{{.Port}}:{{.Path}}"
+		conf.PluginConfig["SkipSecurity"] = conf.SkipSecurity
 	}
 
 	if conf.JSONKey != "" {
-		pConf["JSONKey"] = conf.JSONKey
+		conf.PluginConfig["JSONKey"] = conf.JSONKey
 	}
 
 	if conf.JSONVal != nil {
-		pConf["JSONVal"] = conf.JSONVal
+		conf.PluginConfig["JSONVal"] = conf.JSONVal
 	}
 
-	conf.pyConfig = &python.Config{
-		MonitorConfig: conf.MonitorConfig,
-		Host:          conf.Host,
-		Port:          conf.Port,
-		ModuleName:    "health_checker",
-		ModulePaths:   []string{filepath.Join(os.Getenv(constants.BundleDirEnvVar), "plugins", "collectd", "health_checker")},
-		TypesDBPaths:  []string{filepath.Join(os.Getenv(constants.BundleDirEnvVar), "plugins", "collectd", "types.db")},
-		PluginConfig:  pConf,
-	}
 	return m.Monitor.Configure(conf)
 }

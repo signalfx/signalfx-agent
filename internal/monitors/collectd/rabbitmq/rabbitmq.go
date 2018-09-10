@@ -9,7 +9,6 @@ import (
 	"github.com/signalfx/signalfx-agent/internal/utils"
 
 	"github.com/signalfx/signalfx-agent/internal/core/common/constants"
-	"github.com/signalfx/signalfx-agent/internal/core/config"
 	"github.com/signalfx/signalfx-agent/internal/monitors"
 	"github.com/signalfx/signalfx-agent/internal/monitors/collectd"
 	"github.com/signalfx/signalfx-agent/internal/monitors/collectd/python"
@@ -42,12 +41,9 @@ func init() {
 
 // Config is the monitor-specific config with the generic config embedded
 type Config struct {
-	config.MonitorConfig `yaml:",inline" acceptsEndpoints:"true"`
-	// By not embedding python.Config we can override struct fields (i.e. Host and Port)
-	// and add monitor specific config doc and struct tags.
-	pyConfig *python.Config
-	Host     string `yaml:"host" validate:"required"`
-	Port     uint16 `yaml:"port" validate:"required"`
+	python.CoreConfig `yaml:",inline" acceptsEndpoints:"true"`
+	Host              string `yaml:"host" validate:"required"`
+	Port              uint16 `yaml:"port" validate:"required"`
 	// The name of the particular RabbitMQ instance.  Can be a Go template
 	// using other config options. This will be used as the `plugin_instance`
 	// dimension.
@@ -63,11 +59,6 @@ type Config struct {
 	Password           string `yaml:"password" validate:"required" neverLog:"true"`
 }
 
-// PythonConfig returns the python.Config struct contained in the config struct
-func (c *Config) PythonConfig() *python.Config {
-	return c.pyConfig
-}
-
 // Monitor is the main type that represents the monitor
 type Monitor struct {
 	python.Monitor
@@ -75,35 +66,30 @@ type Monitor struct {
 
 // Configure configures and runs the plugin in python
 func (m *Monitor) Configure(conf *Config) error {
-	conf.pyConfig = &python.Config{
-		MonitorConfig: conf.MonitorConfig,
-		Host:          conf.Host,
-		Port:          conf.Port,
-		ModuleName:    "rabbitmq",
-		ModulePaths:   []string{filepath.Join(os.Getenv(constants.BundleDirEnvVar), "plugins", "collectd", "rabbitmq")},
-		TypesDBPaths:  []string{filepath.Join(os.Getenv(constants.BundleDirEnvVar), "plugins", "collectd", "types.db")},
-		PluginConfig: map[string]interface{}{
-			"Host":               conf.Host,
-			"Port":               conf.Port,
-			"BrokerName":         conf.BrokerName,
-			"Username":           conf.Username,
-			"Password":           conf.Password,
-			"CollectChannels":    conf.CollectChannels,
-			"CollectConnections": conf.CollectConnections,
-			"CollectExchanges":   conf.CollectExchanges,
-			"CollectNodes":       conf.CollectNodes,
-			"CollectQueues":      conf.CollectQueues,
-		},
+	conf.ModuleName = "rabbitmq"
+	conf.ModulePaths = []string{filepath.Join(os.Getenv(constants.BundleDirEnvVar), "plugins", "collectd", "rabbitmq")}
+	conf.TypesDBPaths = []string{filepath.Join(os.Getenv(constants.BundleDirEnvVar), "plugins", "collectd", "types.db")}
+	conf.PluginConfig = map[string]interface{}{
+		"Host":               conf.Host,
+		"Port":               conf.Port,
+		"BrokerName":         conf.BrokerName,
+		"Username":           conf.Username,
+		"Password":           conf.Password,
+		"CollectChannels":    conf.CollectChannels,
+		"CollectConnections": conf.CollectConnections,
+		"CollectExchanges":   conf.CollectExchanges,
+		"CollectNodes":       conf.CollectNodes,
+		"CollectQueues":      conf.CollectQueues,
 	}
 
 	// fill optional values into python plugin config map
 
 	if conf.HTTPTimeout > 0 {
-		conf.pyConfig.PluginConfig["HTTPTimeout"] = conf.HTTPTimeout
+		conf.PluginConfig["HTTPTimeout"] = conf.HTTPTimeout
 	}
 
 	if conf.VerbosityLevel != "" {
-		conf.pyConfig.PluginConfig["VerbosityLevel"] = conf.VerbosityLevel
+		conf.PluginConfig["VerbosityLevel"] = conf.VerbosityLevel
 	}
 
 	// the python runner's templating system does not convert to map first
@@ -119,7 +105,7 @@ func (m *Monitor) Configure(conf *Config) error {
 	if err != nil {
 		return err
 	}
-	conf.pyConfig.PluginConfig["BrokerName"] = brokerName
+	conf.PluginConfig["BrokerName"] = brokerName
 
 	return m.Monitor.Configure(conf)
 }

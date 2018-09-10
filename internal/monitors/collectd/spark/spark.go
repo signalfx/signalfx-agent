@@ -12,7 +12,6 @@ import (
 	"github.com/signalfx/signalfx-agent/internal/monitors/collectd/python"
 	"github.com/signalfx/signalfx-agent/internal/monitors/pyrunner"
 
-	"github.com/signalfx/signalfx-agent/internal/core/config"
 	"github.com/signalfx/signalfx-agent/internal/monitors"
 )
 
@@ -65,12 +64,9 @@ func init() {
 
 // Config is the monitor-specific config with the generic config embedded
 type Config struct {
-	config.MonitorConfig `yaml:",inline" acceptsEndpoints:"true"`
-	// By not embedding python.Config we can override struct fields (i.e. Host and Port)
-	// and add monitor specific config doc and struct tags.
-	pyConfig *python.Config
-	Host     string `yaml:"host" validate:"required"`
-	Port     uint16 `yaml:"port" validate:"required"`
+	python.CoreConfig `yaml:",inline" acceptsEndpoints:"true"`
+	Host              string `yaml:"host" validate:"required"`
+	Port              uint16 `yaml:"port" validate:"required"`
 	// Set to `true` when monitoring a master Spark node
 	IsMaster bool `yaml:"isMaster" default:"false"`
 	// Should be one of `Standalone` or `Mesos` or `Yarn`.  Cluster metrics will
@@ -79,11 +75,6 @@ type Config struct {
 	ClusterType               sparkClusterType `yaml:"clusterType" validate:"required"`
 	CollectApplicationMetrics bool             `yaml:"collectApplicationMetrics" default:"false"`
 	EnhancedMetrics           bool             `yaml:"enhancedMetrics" default:"false"`
-}
-
-// PythonConfig returns the python.Config struct contained in the config struct
-func (c *Config) PythonConfig() *python.Config {
-	return c.pyConfig
 }
 
 // Validate will check the config for correctness.
@@ -106,31 +97,26 @@ type Monitor struct {
 
 // Configure configures and runs the plugin in python
 func (m *Monitor) Configure(conf *Config) error {
-	conf.pyConfig = &python.Config{
-		MonitorConfig: conf.MonitorConfig,
-		Host:          conf.Host,
-		Port:          conf.Port,
-		ModuleName:    "spark_plugin",
-		ModulePaths:   []string{filepath.Join(os.Getenv(constants.BundleDirEnvVar), "plugins", "collectd", "spark")},
-		TypesDBPaths:  []string{filepath.Join(os.Getenv(constants.BundleDirEnvVar), "plugins", "collectd", "types.db")},
-		PluginConfig: map[string]interface{}{
-			"Host":            conf.Host,
-			"Port":            conf.Port,
-			"Cluster":         string(conf.ClusterType),
-			"Applications":    conf.CollectApplicationMetrics,
-			"EnhancedMetrics": conf.EnhancedMetrics,
-		},
+	conf.ModuleName = "spark_plugin"
+	conf.ModulePaths = []string{filepath.Join(os.Getenv(constants.BundleDirEnvVar), "plugins", "collectd", "spark")}
+	conf.TypesDBPaths = []string{filepath.Join(os.Getenv(constants.BundleDirEnvVar), "plugins", "collectd", "types.db")}
+	conf.PluginConfig = map[string]interface{}{
+		"Host":            conf.Host,
+		"Port":            conf.Port,
+		"Cluster":         string(conf.ClusterType),
+		"Applications":    conf.CollectApplicationMetrics,
+		"EnhancedMetrics": conf.EnhancedMetrics,
 	}
 
 	if conf.IsMaster {
-		conf.pyConfig.PluginConfig["Master"] = "http://{{.Host}}:{{.Port}}"
-		conf.pyConfig.PluginConfig["MasterPort"] = conf.Port
+		conf.PluginConfig["Master"] = "http://{{.Host}}:{{.Port}}"
+		conf.PluginConfig["MasterPort"] = conf.Port
 	} else {
-		conf.pyConfig.PluginConfig["WorkerPorts"] = conf.Port
+		conf.PluginConfig["WorkerPorts"] = conf.Port
 	}
 
 	if conf.ClusterType != sparkYarn {
-		conf.pyConfig.PluginConfig["MetricsURL"] = "http://{{.Host}}"
+		conf.PluginConfig["MetricsURL"] = "http://{{.Host}}"
 	}
 
 	return m.Monitor.Configure(conf)
