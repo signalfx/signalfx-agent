@@ -2,12 +2,14 @@
 
 package elasticsearch
 
-//go:generate collectd-template-to-go elasticsearch.tmpl
-
 import (
-	"github.com/signalfx/signalfx-agent/internal/core/config"
+	"os"
+	"path/filepath"
+
+	"github.com/signalfx/signalfx-agent/internal/core/common/constants"
 	"github.com/signalfx/signalfx-agent/internal/monitors"
-	"github.com/signalfx/signalfx-agent/internal/monitors/collectd"
+	"github.com/signalfx/signalfx-agent/internal/monitors/collectd/python"
+	"github.com/signalfx/signalfx-agent/internal/monitors/pyrunner"
 )
 
 const monitorType = "collectd/elasticsearch"
@@ -20,14 +22,16 @@ const monitorType = "collectd/elasticsearch"
 func init() {
 	monitors.Register(monitorType, func() interface{} {
 		return &Monitor{
-			*collectd.NewMonitorCore(CollectdTemplate),
+			python.Monitor{
+				MonitorCore: pyrunner.New("sfxcollectd"),
+			},
 		}
 	}, &Config{})
 }
 
 // Config is the monitor-specific config with the generic config embedded
 type Config struct {
-	config.MonitorConfig `yaml:",inline" acceptsEndpoints:"true"`
+	python.CoreConfig `yaml:",inline" acceptsEndpoints:"true"`
 
 	Host string `yaml:"host" validate:"required"`
 	Port uint16 `yaml:"port" validate:"required"`
@@ -60,10 +64,51 @@ type Config struct {
 
 // Monitor is the main type that represents the monitor
 type Monitor struct {
-	collectd.MonitorCore
+	python.Monitor
 }
 
 // Configure configures and runs the plugin in collectd
 func (m *Monitor) Configure(conf *Config) error {
-	return m.SetConfigurationAndRun(conf)
+	conf.ModuleName = "elasticsearch_collectd"
+	conf.ModulePaths = []string{filepath.Join(os.Getenv(constants.BundleDirEnvVar), "plugins", "collectd", "elasticsearch")}
+	conf.TypesDBPaths = []string{filepath.Join(os.Getenv(constants.BundleDirEnvVar), "plugins", "collectd", "types.db")}
+	conf.PluginConfig = map[string]interface{}{
+		"Host":                 conf.Host,
+		"Port":                 conf.Port,
+		"AdditionalMetrics":    conf.AdditionalMetrics,
+		"DetailedMetrics":      conf.DetailedMetrics,
+		"EnableClusterHealth":  conf.EnableClusterHealth,
+		"EnableIndexStats":     conf.EnableIndexStats,
+		"IndexInterval":        conf.IndexInterval,
+		"IndexStatsMasterOnly": conf.IndexStatsMasterOnly,
+		"IndexSummaryOnly":     conf.IndexSummaryOnly,
+		"Interval":             conf.IntervalSeconds,
+		"Verbose":              false,
+	}
+	if len(conf.Indexes) > 0 {
+		conf.PluginConfig["Indexes"] = map[string]interface{}{
+			"#flatten": true,
+			"values":   conf.Indexes,
+		}
+	}
+	if conf.Password != "" {
+		conf.PluginConfig["Password"] = conf.Password
+	}
+	if conf.Protocol != "" {
+		conf.PluginConfig["Protocol"] = conf.Protocol
+	}
+	if conf.Username != "" {
+		conf.PluginConfig["Username"] = conf.Username
+	}
+	if len(conf.ThreadPools) > 0 {
+		conf.PluginConfig["ThreadPools"] = map[string]interface{}{
+			"#flatten": true,
+			"values":   conf.ThreadPools,
+		}
+	}
+	if conf.Version != "" {
+		conf.PluginConfig["Version"] = conf.Version
+	}
+
+	return m.Monitor.Configure(conf)
 }

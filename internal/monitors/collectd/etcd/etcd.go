@@ -2,12 +2,14 @@
 
 package etcd
 
-//go:generate collectd-template-to-go etcd.tmpl
-
 import (
-	"github.com/signalfx/signalfx-agent/internal/core/config"
+	"os"
+	"path/filepath"
+
+	"github.com/signalfx/signalfx-agent/internal/core/common/constants"
 	"github.com/signalfx/signalfx-agent/internal/monitors"
-	"github.com/signalfx/signalfx-agent/internal/monitors/collectd"
+	"github.com/signalfx/signalfx-agent/internal/monitors/collectd/python"
+	"github.com/signalfx/signalfx-agent/internal/monitors/pyrunner"
 )
 
 const monitorType = "collectd/etcd"
@@ -20,17 +22,18 @@ const monitorType = "collectd/etcd"
 func init() {
 	monitors.Register(monitorType, func() interface{} {
 		return &Monitor{
-			*collectd.NewMonitorCore(CollectdTemplate),
+			python.Monitor{
+				MonitorCore: pyrunner.New("sfxcollectd"),
+			},
 		}
 	}, &Config{})
 }
 
 // Config is the monitor-specific config with the generic config embedded
 type Config struct {
-	config.MonitorConfig `yaml:",inline" acceptsEndpoints:"true"`
-
-	Host string `yaml:"host" validate:"required"`
-	Port uint16 `yaml:"port" validate:"required"`
+	python.CoreConfig `yaml:",inline" acceptsEndpoints:"true"`
+	Host              string `yaml:"host" validate:"required"`
+	Port              uint16 `yaml:"port" validate:"required"`
 	// An arbitrary name of the etcd cluster to make it easier to group
 	// together and identify instances.
 	ClusterName       string `yaml:"clusterName" validate:"required"`
@@ -43,10 +46,30 @@ type Config struct {
 
 // Monitor is the main type that represents the monitor
 type Monitor struct {
-	collectd.MonitorCore
+	python.Monitor
 }
 
 // Configure configures and runs the plugin in collectd
-func (am *Monitor) Configure(conf *Config) error {
-	return am.SetConfigurationAndRun(conf)
+func (m *Monitor) Configure(conf *Config) error {
+	conf.ModuleName = "etcd_plugin"
+	conf.ModulePaths = []string{filepath.Join(os.Getenv(constants.BundleDirEnvVar), "plugins", "collectd", "etcd")}
+	conf.TypesDBPaths = []string{filepath.Join(os.Getenv(constants.BundleDirEnvVar), "plugins", "collectd", "types.db")}
+	conf.PluginConfig = map[string]interface{}{
+		"Host":                conf.Host,
+		"Port":                conf.Port,
+		"Interval":            conf.IntervalSeconds,
+		"Cluster":             conf.ClusterName,
+		"ssl_cert_validation": conf.SkipSSLValidation,
+		"EnhancedMetrics":     conf.EnhancedMetrics,
+	}
+	if conf.SSLKeyFile != "" {
+		conf.PluginConfig["ssl_keyfile"] = conf.SSLKeyFile
+	}
+	if conf.SSLCertificate != "" {
+		conf.PluginConfig["ssl_certificate"] = conf.SSLCertificate
+	}
+	if conf.SSLCACerts != "" {
+		conf.PluginConfig["ssl_ca_certs"] = conf.SSLCACerts
+	}
+	return m.Monitor.Configure(conf)
 }
