@@ -29,7 +29,6 @@ monitors:
   enhancedMetrics: true
 """)
 
-# @pytest.mark.flaky(reruns=2)
 @pytest.mark.parametrize("version", ["latest"])
 def test_marathon(version):
     with run_service("haproxy", buildargs={"HAPROXY_VERSION": version}) as service_container:
