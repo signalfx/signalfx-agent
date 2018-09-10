@@ -15,6 +15,7 @@ import netifaces as ni
 import yaml
 
 from . import fake_backend
+from .formatting import print_dp_or_event
 
 AGENT_BIN = os.environ.get("AGENT_BIN", "/bundle/bin/signalfx-agent")
 BUNDLE_DIR = os.environ.get("BUNDLE_DIR", "/bundle")
@@ -108,12 +109,14 @@ def run_agent_with_fake_backend(config_text, fake_services):
             except subprocess.TimeoutExpired as e:
                 exc = e
 
-            print("Agent output:")
+            print("\nAgent output:")
             print_lines(get_output())
-            print("Datapoints received:")
-            print(fake_services.datapoints)
-            print("Events received:")
-            print(fake_services.events)
+            print("\nDatapoints received:")
+            for dp in fake_services.datapoints:
+                print_dp_or_event(dp)
+            print("\nEvents received:")
+            for event in fake_services.events:
+                print_dp_or_event(event)
 
             if exc is not None:
                 raise exc
