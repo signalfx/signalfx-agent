@@ -37,7 +37,7 @@ def distribute_hostnames(containers):
                 containers[target].exec_run(["/bin/bash", "-c", "echo '{0} {1}' >> /etc/hosts".format(ip, hostname)])
 
 
-@pytest.mark.parametrize("version", ["2.9.1"])#, "3.0.3"])
+@pytest.mark.parametrize("version", ["2.9.1", "3.0.3"])
 def test_hadoop(version):
     with run_service("hadoop", buildargs={"HADOOP_VER": version}, hostname="hadoop-master") as hadoop_master:
         with run_container(hadoop_master.image, hostname="hadoop-worker1") as hadoop_worker1:
