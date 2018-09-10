@@ -7,7 +7,6 @@ import (
 	"path/filepath"
 
 	"github.com/signalfx/signalfx-agent/internal/core/common/constants"
-	"github.com/signalfx/signalfx-agent/internal/core/config"
 	"github.com/signalfx/signalfx-agent/internal/monitors"
 	"github.com/signalfx/signalfx-agent/internal/monitors/collectd/python"
 	"github.com/signalfx/signalfx-agent/internal/monitors/pyrunner"
@@ -40,10 +39,7 @@ func init() {
 
 // Config is the monitor-specific config with the generic config embedded
 type Config struct {
-	config.MonitorConfig `yaml:",inline"`
-	// By not embedding python.Config we can override struct fields (i.e. Host and Port)
-	// and add monitor specific config doc and struct tags.
-	pyConfig *python.Config
+	python.CoreConfig `yaml:",inline"`
 	// Keystone authentication URL/endpoint for the OpenStack cloud
 	AuthURL string `yaml:"authURL" validate:"required"`
 	// Username to authenticate with keystone identity
@@ -58,11 +54,6 @@ type Config struct {
 	UserDomainID string `yaml:"userDomainID"`
 }
 
-// PythonConfig returns the python.Config struct contained in the config struct
-func (c *Config) PythonConfig() *python.Config {
-	return c.pyConfig
-}
-
 // Monitor is the main type that represents the monitor
 type Monitor struct {
 	python.Monitor
@@ -70,26 +61,23 @@ type Monitor struct {
 
 // Configure configures and runs the plugin in collectd
 func (m *Monitor) Configure(conf *Config) error {
-	conf.pyConfig = &python.Config{
-		MonitorConfig: conf.MonitorConfig,
-		ModuleName:    "openstack_metrics",
-		ModulePaths:   []string{filepath.Join(os.Getenv(constants.BundleDirEnvVar), "plugins", "collectd", "openstack")},
-		TypesDBPaths:  []string{filepath.Join(os.Getenv(constants.BundleDirEnvVar), "plugins", "collectd", "types.db")},
-		PluginConfig: map[string]interface{}{
-			"AuthURL":  conf.AuthURL,
-			"Username": conf.Username,
-			"Password": conf.Password,
-		},
+	conf.ModuleName = "openstack_metrics"
+	conf.ModulePaths = []string{filepath.Join(os.Getenv(constants.BundleDirEnvVar), "plugins", "collectd", "openstack")}
+	conf.TypesDBPaths = []string{filepath.Join(os.Getenv(constants.BundleDirEnvVar), "plugins", "collectd", "types.db")}
+	conf.PluginConfig = map[string]interface{}{
+		"AuthURL":  conf.AuthURL,
+		"Username": conf.Username,
+		"Password": conf.Password,
 	}
 
 	if conf.ProjectName != "" {
-		conf.pyConfig.PluginConfig["ProjectName"] = conf.ProjectName
+		conf.PluginConfig["ProjectName"] = conf.ProjectName
 	}
 	if conf.ProjectDomainID != "" {
-		conf.pyConfig.PluginConfig["ProjectDomainId"] = conf.ProjectDomainID
+		conf.PluginConfig["ProjectDomainId"] = conf.ProjectDomainID
 	}
 	if conf.UserDomainID != "" {
-		conf.pyConfig.PluginConfig["UserDomainId"] = conf.UserDomainID
+		conf.PluginConfig["UserDomainId"] = conf.UserDomainID
 	}
 
 	return m.Monitor.Configure(conf)

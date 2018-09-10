@@ -20,7 +20,7 @@ Monitor Type: `collectd/openstack`
 
 [Monitor Source Code](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/openstack)
 
-**Accepts Endpoints**: No
+**Accepts Endpoints**: **Yes**
 
 **Multiple Instances Allowed**: Yes
 
@@ -28,6 +28,10 @@ Monitor Type: `collectd/openstack`
 
 | Config option | Required | Type | Description |
 | --- | --- | --- | --- |
+| `moduleName` | no | `string` | Corresponds to the ModuleName option in collectd-python |
+| `modulePaths` | no | `list of string` | Corresponds to a set of ModulePath options in collectd-python |
+| `pluginConfig` | no | `map of any` | This is a yaml form of the collectd config. |
+| `typesDBPaths` | no | `list of string` | A set of paths to [types.db files](https://collectd.org/documentation/manpages/types.db.5.shtml) that are needed by your plugin.  If not specified, the runner will use the global collectd types.db file. |
 | `authURL` | **yes** | `string` | Keystone authentication URL/endpoint for the OpenStack cloud |
 | `username` | **yes** | `string` | Username to authenticate with keystone identity |
 | `password` | **yes** | `string` | Password to authenticate with keystone identity |

@@ -7,7 +7,6 @@ import (
 	"path/filepath"
 
 	"github.com/signalfx/signalfx-agent/internal/core/common/constants"
-	"github.com/signalfx/signalfx-agent/internal/core/config"
 	"github.com/signalfx/signalfx-agent/internal/monitors"
 	"github.com/signalfx/signalfx-agent/internal/monitors/collectd/python"
 	"github.com/signalfx/signalfx-agent/internal/monitors/pyrunner"
@@ -67,12 +66,9 @@ func init() {
 
 // Config is the monitor-specific config with the generic config embedded
 type Config struct {
-	config.MonitorConfig `yaml:",inline" acceptsEndpoints:"true"`
-	// By not embedding python.Config we can override struct fields (i.e. Host and Port)
-	// and add monitor specific config doc and struct tags.
-	pyConfig *python.Config
-	Host     string `yaml:"host" validate:"required"`
-	Port     uint16 `yaml:"port" validate:"required"`
+	python.CoreConfig `yaml:",inline" acceptsEndpoints:"true"`
+	Host              string `yaml:"host" validate:"required"`
+	Port              uint16 `yaml:"port" validate:"required"`
 	// Key required for collecting metrics.  The access key located at
 	// `Manage Jenkins > Configure System > Metrics > ADD.`
 	// If empty, click `Generate`.
@@ -94,11 +90,6 @@ type Config struct {
 	SSLCACerts string `yaml:"sslCACerts"`
 }
 
-// PythonConfig returns the python.Config struct contained in the config struct
-func (c *Config) PythonConfig() *python.Config {
-	return c.pyConfig
-}
-
 // Monitor is the main type that represents the monitor
 type Monitor struct {
 	python.Monitor
@@ -106,7 +97,10 @@ type Monitor struct {
 
 // Configure configures and runs the plugin in collectd
 func (m *Monitor) Configure(conf *Config) error {
-	pConf := map[string]interface{}{
+	conf.ModuleName = "jenkins"
+	conf.ModulePaths = []string{filepath.Join(os.Getenv(constants.BundleDirEnvVar), "plugins", "collectd", "jenkins")}
+	conf.TypesDBPaths = []string{filepath.Join(os.Getenv(constants.BundleDirEnvVar), "plugins", "collectd", "types.db")}
+	conf.PluginConfig = map[string]interface{}{
 		"Host":            conf.Host,
 		"Port":            conf.Port,
 		"Interval":        conf.IntervalSeconds,
@@ -114,35 +108,26 @@ func (m *Monitor) Configure(conf *Config) error {
 		"EnhancedMetrics": conf.EnhancedMetrics,
 	}
 	if conf.Username != "" {
-		pConf["Username"] = conf.Username
+		conf.PluginConfig["Username"] = conf.Username
 	}
 	if conf.APIToken != "" {
-		pConf["APIToken"] = conf.APIToken
+		conf.PluginConfig["APIToken"] = conf.APIToken
 	}
 	if conf.SSLKeyFile != "" {
-		pConf["ssl_keyfile"] = conf.SSLKeyFile
+		conf.PluginConfig["ssl_keyfile"] = conf.SSLKeyFile
 	}
 	if conf.SSLCertificate != "" {
-		pConf["ssl_certificate"] = conf.SSLCertificate
+		conf.PluginConfig["ssl_certificate"] = conf.SSLCertificate
 	}
 	if conf.SSLCACerts != "" {
-		pConf["ssl_ca_certs"] = conf.SSLCACerts
+		conf.PluginConfig["ssl_ca_certs"] = conf.SSLCACerts
 	}
 	if len(conf.IncludeMetrics) > 0 {
-		pConf["IncludeMetric"] = map[string]interface{}{
+		conf.PluginConfig["IncludeMetric"] = map[string]interface{}{
 			"#flatten": true,
 			"values":   conf.IncludeMetrics,
 		}
 	}
 
-	conf.pyConfig = &python.Config{
-		MonitorConfig: conf.MonitorConfig,
-		Host:          conf.Host,
-		Port:          conf.Port,
-		ModuleName:    "jenkins",
-		ModulePaths:   []string{filepath.Join(os.Getenv(constants.BundleDirEnvVar), "plugins", "collectd", "jenkins")},
-		TypesDBPaths:  []string{filepath.Join(os.Getenv(constants.BundleDirEnvVar), "plugins", "collectd", "types.db")},
-		PluginConfig:  pConf,
-	}
 	return m.Monitor.Configure(conf)
 }
