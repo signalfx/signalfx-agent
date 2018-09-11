@@ -31,7 +31,7 @@ def parse_types_db(content):
         for source in source_specs:
             parts = source.rstrip(",").split(":")
             if len(parts) != 4:
-                raise ValueError("types.db data source '%s' is not a quadruple: '%s'" % source)
+                raise ValueError("types.db data source '%s' is not a quadruple" % source)
 
             name, source_type, min_val, max_val = parts
             if source_type.upper() not in ACCEPTABLE_TYPES:
