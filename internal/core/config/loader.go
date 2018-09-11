@@ -133,6 +133,10 @@ var envVarRE = regexp.MustCompile(`\${\s*([\w-]+?)\s*}`)
 // still get to them when we need to rerender config
 var envVarCache = make(map[string]string)
 
+var envVarWhitelist = map[string]bool{
+	"MY_NODE_NAME": true,
+}
+
 // Replaces envvar syntax with the actual envvars
 func preprocessConfig(content []byte) []byte {
 	return envVarRE.ReplaceAllFunc(content, func(bs []byte) []byte {
@@ -149,7 +153,9 @@ func preprocessConfig(content []byte) []byte {
 				"envvar": envvar,
 			}).Debug("Sanitizing envvar from agent")
 
-			os.Unsetenv(envvar)
+			if !envVarWhitelist[envvar] {
+				os.Unsetenv(envvar)
+			}
 		}
 
 		return []byte(val)
