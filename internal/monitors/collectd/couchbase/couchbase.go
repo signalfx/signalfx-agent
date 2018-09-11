@@ -2,14 +2,16 @@
 
 package couchbase
 
-//go:generate collectd-template-to-go couchbase.tmpl
-
 import (
 	"errors"
+	"os"
+	"path/filepath"
 
-	"github.com/signalfx/signalfx-agent/internal/core/config"
+	"github.com/signalfx/signalfx-agent/internal/core/common/constants"
+	"github.com/signalfx/signalfx-agent/internal/monitors/collectd/python"
+	"github.com/signalfx/signalfx-agent/internal/monitors/pyrunner"
+
 	"github.com/signalfx/signalfx-agent/internal/monitors"
-	"github.com/signalfx/signalfx-agent/internal/monitors/collectd"
 )
 
 const monitorType = "collectd/couchbase"
@@ -35,16 +37,18 @@ const monitorType = "collectd/couchbase"
 func init() {
 	monitors.Register(monitorType, func() interface{} {
 		return &Monitor{
-			*collectd.NewMonitorCore(CollectdTemplate),
+			python.Monitor{
+				MonitorCore: pyrunner.New("sfxcollectd"),
+			},
 		}
 	}, &Config{})
 }
 
 // Config is the monitor-specific config with the generic config embedded
 type Config struct {
-	config.MonitorConfig `yaml:",inline" acceptsEndpoints:"true"`
-	Host                 string `yaml:"host" validate:"required"`
-	Port                 uint16 `yaml:"port" validate:"required"`
+	python.CoreConfig `yaml:",inline" acceptsEndpoints:"true"`
+	Host              string `yaml:"host" validate:"required"`
+	Port              uint16 `yaml:"port" validate:"required"`
 	// Define what this Module block will monitor: "NODE", for a Couchbase node,
 	// or "BUCKET" for a Couchbase bucket.
 	CollectTarget string `yaml:"collectTarget" validate:"required"`
@@ -65,7 +69,7 @@ type Config struct {
 
 // Monitor is the main type that represents the monitor
 type Monitor struct {
-	collectd.MonitorCore
+	python.Monitor
 }
 
 // Validate will check the config for correctness.
@@ -78,6 +82,32 @@ func (c *Config) Validate() error {
 }
 
 // Configure configures and runs the plugin in collectd
-func (am *Monitor) Configure(conf *Config) error {
-	return am.SetConfigurationAndRun(conf)
+func (m *Monitor) Configure(conf *Config) error {
+	conf.ModuleName = "couchbase"
+	conf.ModulePaths = []string{filepath.Join(os.Getenv(constants.BundleDirEnvVar), "plugins", "collectd", "couchbase")}
+	conf.TypesDBPaths = []string{filepath.Join(os.Getenv(constants.BundleDirEnvVar), "plugins", "collectd", "types.db")}
+	conf.PluginConfig = map[string]interface{}{
+		"Host":          conf.Host,
+		"Port":          conf.Port,
+		"CollectTarget": conf.CollectTarget,
+		"Interval":      conf.IntervalSeconds,
+		"FieldLength":   1024,
+	}
+	if conf.CollectBucket != "" {
+		conf.PluginConfig["CollectBucket"] = conf.CollectBucket
+	}
+	if conf.ClusterName != "" {
+		conf.PluginConfig["ClusterName"] = conf.ClusterName
+	}
+	if conf.CollectMode != "" {
+		conf.PluginConfig["CollectMode"] = conf.CollectMode
+	}
+	if conf.Username != "" {
+		conf.PluginConfig["Username"] = conf.Username
+	}
+	if conf.Password != "" {
+		conf.PluginConfig["Password"] = conf.Password
+	}
+
+	return m.Monitor.Configure(conf)
 }
