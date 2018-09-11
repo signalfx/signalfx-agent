@@ -1272,6 +1272,38 @@
       "package": "internal/monitors/collectd/consul",
       "fields": [
         {
+          "yamlName": "moduleName",
+          "doc": "Corresponds to the ModuleName option in collectd-python",
+          "default": "",
+          "required": false,
+          "type": "string",
+          "elementKind": ""
+        },
+        {
+          "yamlName": "modulePaths",
+          "doc": "Corresponds to a set of ModulePath options in collectd-python",
+          "default": null,
+          "required": false,
+          "type": "slice",
+          "elementKind": "string"
+        },
+        {
+          "yamlName": "pluginConfig",
+          "doc": "This is a yaml form of the collectd config.",
+          "default": null,
+          "required": false,
+          "type": "map",
+          "elementKind": "interface"
+        },
+        {
+          "yamlName": "typesDBPaths",
+          "doc": "A set of paths to [types.db files](https://collectd.org/documentation/manpages/types.db.5.shtml) that are needed by your plugin.  If not specified, the runner will use the global collectd types.db file.",
+          "default": null,
+          "required": false,
+          "type": "slice",
+          "elementKind": "string"
+        },
+        {
           "yamlName": "host",
           "doc": "",
           "default": null,
@@ -1645,6 +1677,38 @@
       "doc": " Monitors couchbase by using the\n[couchbase collectd Python\nplugin](https://github.com/signalfx/collectd-couchbase), which collects\nmetrics from couchbase instances\n\nSample YAML configuration with custom query:\n\n```yaml\nmonitors:\n- type: collectd/couchbase\n  host: 127.0.0.1\n  port: 8091\n  collectTarget: \"NODE\"\n  clusterName: \"my-cluster\"\n  username: \"user\"\n  password: \"password\"\n```\n",
       "package": "internal/monitors/collectd/couchbase",
       "fields": [
+        {
+          "yamlName": "moduleName",
+          "doc": "Corresponds to the ModuleName option in collectd-python",
+          "default": "",
+          "required": false,
+          "type": "string",
+          "elementKind": ""
+        },
+        {
+          "yamlName": "modulePaths",
+          "doc": "Corresponds to a set of ModulePath options in collectd-python",
+          "default": null,
+          "required": false,
+          "type": "slice",
+          "elementKind": "string"
+        },
+        {
+          "yamlName": "pluginConfig",
+          "doc": "This is a yaml form of the collectd config.",
+          "default": null,
+          "required": false,
+          "type": "map",
+          "elementKind": "interface"
+        },
+        {
+          "yamlName": "typesDBPaths",
+          "doc": "A set of paths to [types.db files](https://collectd.org/documentation/manpages/types.db.5.shtml) that are needed by your plugin.  If not specified, the runner will use the global collectd types.db file.",
+          "default": null,
+          "required": false,
+          "type": "slice",
+          "elementKind": "string"
+        },
         {
           "yamlName": "host",
           "doc": "",

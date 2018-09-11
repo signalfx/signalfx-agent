@@ -33,6 +33,10 @@ Monitor Type: `collectd/couchbase`
 
 | Config option | Required | Type | Description |
 | --- | --- | --- | --- |
+| `moduleName` | no | `string` | Corresponds to the ModuleName option in collectd-python |
+| `modulePaths` | no | `list of string` | Corresponds to a set of ModulePath options in collectd-python |
+| `pluginConfig` | no | `map of any` | This is a yaml form of the collectd config. |
+| `typesDBPaths` | no | `list of string` | A set of paths to [types.db files](https://collectd.org/documentation/manpages/types.db.5.shtml) that are needed by your plugin.  If not specified, the runner will use the global collectd types.db file. |
 | `host` | **yes** | `string` |  |
 | `port` | **yes** | `integer` |  |
 | `collectTarget` | **yes** | `string` | Define what this Module block will monitor: "NODE", for a Couchbase node, or "BUCKET" for a Couchbase bucket. |
