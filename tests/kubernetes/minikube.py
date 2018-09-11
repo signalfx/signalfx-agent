@@ -165,12 +165,10 @@ class Minikube:
         finally:
             for y in self.yamls:
                 print("Deleting %s \"%s\" ..." % (kind, name))
-
                 kind = y['kind']
                 api_version = y['apiVersion']
                 api_client = api_client_from_version(api_version)
                 delete_resource(name, kind, api_client, namespace=namespace)
-
             self.yamls = []
 
     def pull_agent_image(self, name, tag, image_id=None):
@@ -199,10 +197,10 @@ class Minikube:
             namespace=namespace)
         try:
             yield self.agent
-            print("\n\n%s\n\n" % self.agent.get_status())
-            print("\n\n%s\n\n" % self.agent.get_container_logs())
+            print("\nAgent status:\n%s\n" % self.agent.get_status())
+            print("\nAgent container logs:\n%s\n" % self.agent.get_container_logs())
         except:
-            print("\n\n%s\n\n" % get_all_logs(self))
+            print("\n%s\n" % get_all_logs(self))
             raise
         finally:
             self.agent.delete()

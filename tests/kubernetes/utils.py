@@ -11,6 +11,8 @@ import socket
 import time
 import yaml
 
+from tests.helpers.formatting import print_dp_or_event
+
 CUR_DIR = os.path.dirname(os.path.realpath(__file__))
 AGENT_YAMLS_DIR = os.environ.get("AGENT_YAMLS_DIR", os.path.abspath(os.path.join(CUR_DIR, "../../deployments/k8s")))
 AGENT_CONFIGMAP_PATH = os.environ.get("AGENT_CONFIGMAP_PATH", os.path.join(AGENT_YAMLS_DIR, "configmap.yaml"))
