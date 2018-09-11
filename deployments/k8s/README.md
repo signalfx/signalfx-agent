@@ -25,6 +25,34 @@ Then to deploy run the following from the present directory:
 
 `cat *.yaml | kubectl apply -f -`
 
+## Host Networking
+
+The agent runs with host networking by default (the `hostNetwork: true` option
+in the DaemonSet).  We intent to move away from that at some point, but if you
+want to go ahead and stop using host networking for some reason (e.g. the agent
+has trouble addressing service pods or there are DNS resolution issues), you
+can make the agent run with its own network namespace by doing the following:
+
+ 1. Change `hostNetwork: true` to `hostNetwork: false` in the DaemonSet.
+ 2. Add the item `hostname: ${MY_NODE_NAME}` under `agent.yaml` in the agent
+	ConfigMap.
+ 3. Configure the `kubelet-stats` monitor to use the node name as the hostname
+	by using the following config:
+
+	```
+    - type: kubelet-stats
+      kubeletAPI:
+        url: https://${MY_NODE_NAME}:10250
+        authType: serviceAccount
+    ```
+
+	If you have a non-standard `kubelet-stats` config, alter this accordingly.
+	Note that this **requires that node names are valid DNS hosts as well** and
+	it will not work if node names are not resolvable.  Of course, cluster
+	firewalls also have to allow for traffic from the pod network to the
+	kubelets.
+
+This requires version 3.6.2 or later of the agent to work.
 
 ## Development
 
