@@ -33,7 +33,7 @@ const monitorType = "collectd/consul"
 func init() {
 	monitors.Register(monitorType, func() interface{} {
 		return &Monitor{
-			python.Monitor{
+			python.PyMonitor{
 				MonitorCore: pyrunner.New("sfxcollectd"),
 			},
 		}
@@ -62,7 +62,7 @@ func (c *Config) PythonConfig() *python.Config {
 
 // Monitor is the main type that represents the monitor
 type Monitor struct {
-	python.Monitor
+	python.PyMonitor
 }
 
 // Configure configures and runs the plugin in collectd
@@ -101,5 +101,5 @@ func (m *Monitor) Configure(conf *Config) error {
 		conf.pyConf.PluginConfig["ClientKey"] = conf.ClientKey
 	}
 
-	return m.Monitor.Configure(conf)
+	return m.PyMonitor.Configure(conf)
 }

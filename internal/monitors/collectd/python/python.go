@@ -35,7 +35,7 @@ const monitorType = "collectd/python"
 
 func init() {
 	monitors.Register(monitorType, func() interface{} {
-		return &Monitor{
+		return &PyMonitor{
 			MonitorCore: pyrunner.New("sfxcollectd"),
 		}
 	}, &Config{})
@@ -79,15 +79,15 @@ func (c *Config) PythonConfig() *Config {
 	return c
 }
 
-// Monitor that runs collectd python plugins directly
-type Monitor struct {
+// PyMonitor that runs collectd python plugins directly
+type PyMonitor struct {
 	*pyrunner.MonitorCore
 
 	Output types.Output
 }
 
 // Configure starts the subprocess and configures the plugin
-func (m *Monitor) Configure(conf PyConfig) error {
+func (m *PyMonitor) Configure(conf PyConfig) error {
 	// get the python config from the supplied config
 	pyconf := conf.PythonConfig()
 	if len(pyconf.TypesDBPaths) == 0 {
@@ -153,7 +153,7 @@ func (m *Monitor) Configure(conf PyConfig) error {
 	})
 }
 
-func (m *Monitor) handleMessage(msgType pyrunner.MessageType, payloadReader io.Reader) error {
+func (m *PyMonitor) handleMessage(msgType pyrunner.MessageType, payloadReader io.Reader) error {
 	switch msgType {
 	case messageTypeValueList:
 		var valueList collectdformat.JSONWriteFormat

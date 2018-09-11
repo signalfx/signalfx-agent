@@ -27,7 +27,7 @@ const monitorType = "collectd/zookeeper"
 func init() {
 	monitors.Register(monitorType, func() interface{} {
 		return &Monitor{
-			python.Monitor{
+			python.PyMonitor{
 				MonitorCore: pyrunner.New("sfxcollectd"),
 			},
 		}
@@ -50,7 +50,7 @@ func (c *Config) PythonConfig() *python.Config {
 
 // Monitor is the main type that represents the monitor
 type Monitor struct {
-	python.Monitor
+	python.PyMonitor
 }
 
 // Configure configures and runs the plugin in python
@@ -71,5 +71,5 @@ func (rm *Monitor) Configure(conf *Config) error {
 		conf.pyConf.PluginConfig["Instance"] = conf.Name
 	}
 
-	return rm.Monitor.Configure(conf)
+	return rm.PyMonitor.Configure(conf)
 }
