@@ -97,9 +97,6 @@ type Monitor struct {
 
 // Configure configures and runs the plugin in python
 func (m *Monitor) Configure(conf *Config) error {
-	conf.ModuleName = "spark_plugin"
-	conf.ModulePaths = []string{filepath.Join(os.Getenv(constants.BundleDirEnvVar), "plugins", "collectd", "spark")}
-	conf.TypesDBPaths = []string{filepath.Join(os.Getenv(constants.BundleDirEnvVar), "plugins", "collectd", "types.db")}
 	conf.PluginConfig = map[string]interface{}{
 		"Host":            conf.Host,
 		"Port":            conf.Port,
@@ -107,7 +104,15 @@ func (m *Monitor) Configure(conf *Config) error {
 		"Applications":    conf.CollectApplicationMetrics,
 		"EnhancedMetrics": conf.EnhancedMetrics,
 	}
-
+	if conf.ModuleName == "" {
+		conf.ModuleName = "spark_plugin"
+	}
+	if len(conf.ModulePaths) == 0 {
+		conf.ModulePaths = []string{filepath.Join(os.Getenv(constants.BundleDirEnvVar), "plugins", "collectd", "spark")}
+	}
+	if len(conf.TypesDBPaths) == 0 {
+		conf.TypesDBPaths = []string{filepath.Join(os.Getenv(constants.BundleDirEnvVar), "plugins", "collectd", "types.db")}
+	}
 	if conf.IsMaster {
 		conf.PluginConfig["Master"] = "http://{{.Host}}:{{.Port}}"
 		conf.PluginConfig["MasterPort"] = conf.Port

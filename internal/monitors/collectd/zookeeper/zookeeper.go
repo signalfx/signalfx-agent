@@ -47,15 +47,19 @@ type Monitor struct {
 
 // Configure configures and runs the plugin in python
 func (rm *Monitor) Configure(conf *Config) error {
-	conf.ModuleName = "zk-collectd"
-	conf.ModulePaths = []string{filepath.Join(os.Getenv(constants.BundleDirEnvVar), "plugins", "collectd", "zookeeper")}
-	conf.TypesDBPaths = []string{filepath.Join(os.Getenv(constants.BundleDirEnvVar), "plugins", "collectd", "types.db")}
-
 	conf.PluginConfig = map[string]interface{}{
 		"Hosts": conf.Host,
 		"Port":  conf.Port,
 	}
-
+	if conf.ModuleName == "" {
+		conf.ModuleName = "zk-collectd"
+	}
+	if len(conf.ModulePaths) == 0 {
+		conf.ModulePaths = []string{filepath.Join(os.Getenv(constants.BundleDirEnvVar), "plugins", "collectd", "zookeeper")}
+	}
+	if len(conf.TypesDBPaths) == 0 {
+		conf.TypesDBPaths = []string{filepath.Join(os.Getenv(constants.BundleDirEnvVar), "plugins", "collectd", "types.db")}
+	}
 	if conf.Name != "" {
 		conf.PluginConfig["Instance"] = conf.Name
 	}

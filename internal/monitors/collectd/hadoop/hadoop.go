@@ -69,14 +69,20 @@ type Monitor struct {
 
 // Configure configures and runs the plugin in collectd
 func (m *Monitor) Configure(conf *Config) error {
-	conf.ModuleName = "hadoop_plugin"
-	conf.ModulePaths = []string{filepath.Join(os.Getenv(constants.BundleDirEnvVar), "plugins", "collectd", "hadoop")}
-	conf.TypesDBPaths = []string{filepath.Join(os.Getenv(constants.BundleDirEnvVar), "plugins", "collectd", "types.db")}
 	conf.PluginConfig = map[string]interface{}{
 		"ResourceManagerURL":  "http://{{.Host}}",
 		"ResourceManagerPort": conf.Port,
 		"Interval":            conf.IntervalSeconds,
 		"Verbose":             conf.Verbose,
+	}
+	if conf.ModuleName == "" {
+		conf.ModuleName = "hadoop_plugin"
+	}
+	if len(conf.ModulePaths) == 0 {
+		conf.ModulePaths = []string{filepath.Join(os.Getenv(constants.BundleDirEnvVar), "plugins", "collectd", "hadoop")}
+	}
+	if len(conf.TypesDBPaths) == 0 {
+		conf.TypesDBPaths = []string{filepath.Join(os.Getenv(constants.BundleDirEnvVar), "plugins", "collectd", "types.db")}
 	}
 	return m.Monitor.Configure(conf)
 }

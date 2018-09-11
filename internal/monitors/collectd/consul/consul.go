@@ -61,15 +61,21 @@ type Monitor struct {
 
 // Configure configures and runs the plugin in collectd
 func (m *Monitor) Configure(conf *Config) error {
-	conf.ModuleName = "consul_plugin"
-	conf.ModulePaths = []string{filepath.Join(os.Getenv(constants.BundleDirEnvVar), "plugins", "collectd", "consul")}
-	conf.TypesDBPaths = []string{filepath.Join(os.Getenv(constants.BundleDirEnvVar), "plugins", "collectd", "types.db")}
 	conf.PluginConfig = map[string]interface{}{
 		"ApiHost":         conf.Host,
 		"ApiPort":         conf.Port,
 		"TelemetryServer": false,
 		"SfxToken":        conf.SignalFxAccessToken,
 		"EnhancedMetrics": conf.EnhancedMetrics,
+	}
+	if conf.ModuleName == "" {
+		conf.ModuleName = "consul_plugin"
+	}
+	if len(conf.ModulePaths) == 0 {
+		conf.ModulePaths = []string{filepath.Join(os.Getenv(constants.BundleDirEnvVar), "plugins", "collectd", "consul")}
+	}
+	if len(conf.TypesDBPaths) == 0 {
+		conf.TypesDBPaths = []string{filepath.Join(os.Getenv(constants.BundleDirEnvVar), "plugins", "collectd", "types.db")}
 	}
 	if conf.UseHTTPS {
 		conf.PluginConfig["ApiProtocol"] = "https"

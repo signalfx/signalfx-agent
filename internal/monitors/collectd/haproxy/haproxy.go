@@ -45,13 +45,19 @@ type Monitor struct {
 
 // Configure configures and runs the plugin in collectd
 func (m *Monitor) Configure(conf *Config) error {
-	conf.ModuleName = "haproxy"
-	conf.ModulePaths = []string{filepath.Join(os.Getenv(constants.BundleDirEnvVar), "plugins", "collectd", "haproxy")}
-	conf.TypesDBPaths = []string{filepath.Join(os.Getenv(constants.BundleDirEnvVar), "plugins", "collectd", "types.db")}
 	conf.PluginConfig = map[string]interface{}{
 		"Socket":          "{{.Host}}:{{.Port}}",
 		"Interval":        conf.IntervalSeconds,
 		"EnhancedMetrics": conf.EnhancedMetrics,
+	}
+	if conf.ModuleName == "" {
+		conf.ModuleName = "haproxy"
+	}
+	if len(conf.ModulePaths) == 0 {
+		conf.ModulePaths = []string{filepath.Join(os.Getenv(constants.BundleDirEnvVar), "plugins", "collectd", "haproxy")}
+	}
+	if len(conf.TypesDBPaths) == 0 {
+		conf.TypesDBPaths = []string{filepath.Join(os.Getenv(constants.BundleDirEnvVar), "plugins", "collectd", "types.db")}
 	}
 	if len(conf.ProxiesToMonitor) > 0 {
 		conf.PluginConfig["ProxyMonitor"] = map[string]interface{}{
