@@ -51,9 +51,6 @@ type Monitor struct {
 
 // Configure configures and runs the plugin in collectd
 func (m *Monitor) Configure(conf *Config) error {
-	conf.ModuleName = "etcd_plugin"
-	conf.ModulePaths = []string{filepath.Join(os.Getenv(constants.BundleDirEnvVar), "plugins", "collectd", "etcd")}
-	conf.TypesDBPaths = []string{filepath.Join(os.Getenv(constants.BundleDirEnvVar), "plugins", "collectd", "types.db")}
 	conf.PluginConfig = map[string]interface{}{
 		"Host":                conf.Host,
 		"Port":                conf.Port,
@@ -61,6 +58,15 @@ func (m *Monitor) Configure(conf *Config) error {
 		"Cluster":             conf.ClusterName,
 		"ssl_cert_validation": conf.SkipSSLValidation,
 		"EnhancedMetrics":     conf.EnhancedMetrics,
+	}
+	if conf.ModuleName == "" {
+		conf.ModuleName = "etcd_plugin"
+	}
+	if len(conf.ModulePaths) == 0 {
+		conf.ModulePaths = []string{filepath.Join(os.Getenv(constants.BundleDirEnvVar), "plugins", "collectd", "etcd")}
+	}
+	if len(conf.TypesDBPaths) == 0 {
+		conf.TypesDBPaths = []string{filepath.Join(os.Getenv(constants.BundleDirEnvVar), "plugins", "collectd", "types.db")}
 	}
 	if conf.SSLKeyFile != "" {
 		conf.PluginConfig["ssl_keyfile"] = conf.SSLKeyFile

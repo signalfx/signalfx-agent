@@ -66,9 +66,6 @@ type Monitor struct {
 
 // Configure configures and runs the plugin in python
 func (m *Monitor) Configure(conf *Config) error {
-	conf.ModuleName = "rabbitmq"
-	conf.ModulePaths = []string{filepath.Join(os.Getenv(constants.BundleDirEnvVar), "plugins", "collectd", "rabbitmq")}
-	conf.TypesDBPaths = []string{filepath.Join(os.Getenv(constants.BundleDirEnvVar), "plugins", "collectd", "types.db")}
 	conf.PluginConfig = map[string]interface{}{
 		"Host":               conf.Host,
 		"Port":               conf.Port,
@@ -80,6 +77,15 @@ func (m *Monitor) Configure(conf *Config) error {
 		"CollectExchanges":   conf.CollectExchanges,
 		"CollectNodes":       conf.CollectNodes,
 		"CollectQueues":      conf.CollectQueues,
+	}
+	if conf.ModuleName == "" {
+		conf.ModuleName = "rabbitmq"
+	}
+	if len(conf.ModulePaths) == 0 {
+		conf.ModulePaths = []string{filepath.Join(os.Getenv(constants.BundleDirEnvVar), "plugins", "collectd", "rabbitmq")}
+	}
+	if len(conf.TypesDBPaths) == 0 {
+		conf.TypesDBPaths = []string{filepath.Join(os.Getenv(constants.BundleDirEnvVar), "plugins", "collectd", "types.db")}
 	}
 
 	// fill optional values into python plugin config map

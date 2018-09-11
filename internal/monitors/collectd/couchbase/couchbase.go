@@ -83,15 +83,21 @@ func (c *Config) Validate() error {
 
 // Configure configures and runs the plugin in collectd
 func (m *Monitor) Configure(conf *Config) error {
-	conf.ModuleName = "couchbase"
-	conf.ModulePaths = []string{filepath.Join(os.Getenv(constants.BundleDirEnvVar), "plugins", "collectd", "couchbase")}
-	conf.TypesDBPaths = []string{filepath.Join(os.Getenv(constants.BundleDirEnvVar), "plugins", "collectd", "types.db")}
 	conf.PluginConfig = map[string]interface{}{
 		"Host":          conf.Host,
 		"Port":          conf.Port,
 		"CollectTarget": conf.CollectTarget,
 		"Interval":      conf.IntervalSeconds,
 		"FieldLength":   1024,
+	}
+	if conf.ModuleName == "" {
+		conf.ModuleName = "couchbase"
+	}
+	if len(conf.ModulePaths) == 0 {
+		conf.ModulePaths = []string{filepath.Join(os.Getenv(constants.BundleDirEnvVar), "plugins", "collectd", "couchbase")}
+	}
+	if len(conf.TypesDBPaths) == 0 {
+		conf.TypesDBPaths = []string{filepath.Join(os.Getenv(constants.BundleDirEnvVar), "plugins", "collectd", "types.db")}
 	}
 	if conf.CollectBucket != "" {
 		conf.PluginConfig["CollectBucket"] = conf.CollectBucket

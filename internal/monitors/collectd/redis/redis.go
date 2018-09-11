@@ -92,8 +92,6 @@ func (rm *Monitor) Configure(conf *Config) error {
 		instanceID = fmt.Sprintf("%s:%d", conf.Host, conf.Port)
 	}
 
-	conf.ModuleName = "redis_info"
-	conf.ModulePaths = []string{filepath.Join(os.Getenv(constants.BundleDirEnvVar), "plugins", "collectd", "redis")}
 	conf.PluginConfig = map[string]interface{}{
 		"Host":                                 conf.Host,
 		"Port":                                 conf.Port,
@@ -135,8 +133,15 @@ func (rm *Monitor) Configure(conf *Config) error {
 		"Redis_db0_expires":                    "gauge",
 		"Redis_db0_avg_ttl":                    "gauge",
 	}
-	conf.TypesDBPaths = []string{filepath.Join(os.Getenv(constants.BundleDirEnvVar), "plugins", "collectd", "types.db")}
-
+	if conf.ModuleName == "" {
+		conf.ModuleName = "redis_info"
+	}
+	if len(conf.ModulePaths) == 0 {
+		conf.ModulePaths = []string{filepath.Join(os.Getenv(constants.BundleDirEnvVar), "plugins", "collectd", "redis")}
+	}
+	if len(conf.TypesDBPaths) == 0 {
+		conf.TypesDBPaths = []string{filepath.Join(os.Getenv(constants.BundleDirEnvVar), "plugins", "collectd", "types.db")}
+	}
 	if conf.Auth != "" {
 		conf.PluginConfig["Auth"] = conf.Auth
 	}
