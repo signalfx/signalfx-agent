@@ -63,7 +63,7 @@ def test_kong(kong_image):
             def db_is_reachable():
                 return migrations.exec_run('psql -h {} -U postgres'.format(db_ip)).exit_code == 0
 
-            assert wait_for(db_is_reachable)
+            assert wait_for(db_is_reachable, timeout_seconds=60)
             assert migrations.exec_run('kong migrations up --v').exit_code == 0
 
         with run_container(kong_image, environment=kong_env) as kong:
