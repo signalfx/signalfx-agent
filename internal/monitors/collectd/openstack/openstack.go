@@ -2,12 +2,16 @@
 
 package openstack
 
-//go:generate collectd-template-to-go openstack.tmpl
-
 import (
+	"os"
+	"path/filepath"
+
 	"github.com/signalfx/signalfx-agent/internal/core/config"
+
+	"github.com/signalfx/signalfx-agent/internal/core/common/constants"
 	"github.com/signalfx/signalfx-agent/internal/monitors"
-	"github.com/signalfx/signalfx-agent/internal/monitors/collectd"
+	"github.com/signalfx/signalfx-agent/internal/monitors/collectd/python"
+	"github.com/signalfx/signalfx-agent/internal/monitors/pyrunner"
 )
 
 const monitorType = "collectd/openstack"
@@ -28,15 +32,17 @@ const monitorType = "collectd/openstack"
 func init() {
 	monitors.Register(monitorType, func() interface{} {
 		return &Monitor{
-			*collectd.NewMonitorCore(CollectdTemplate),
+			python.Monitor{
+				MonitorCore: pyrunner.New("sfxcollectd"),
+			},
 		}
 	}, &Config{})
 }
 
 // Config is the monitor-specific config with the generic config embedded
 type Config struct {
-	config.MonitorConfig `yaml:",inline"`
-
+	config.MonitorConfig `yaml:",inline" acceptsEndpoints:"false"`
+	pyConf               *python.Config
 	// Keystone authentication URL/endpoint for the OpenStack cloud
 	AuthURL string `yaml:"authURL" validate:"required"`
 	// Username to authenticate with keystone identity
@@ -51,12 +57,38 @@ type Config struct {
 	UserDomainID string `yaml:"userDomainID"`
 }
 
+// PythonConfig returns the embedded python.Config struct from the interface
+func (c *Config) PythonConfig() *python.Config {
+	return c.pyConf
+}
+
 // Monitor is the main type that represents the monitor
 type Monitor struct {
-	collectd.MonitorCore
+	python.Monitor
 }
 
 // Configure configures and runs the plugin in collectd
-func (am *Monitor) Configure(conf *Config) error {
-	return am.SetConfigurationAndRun(conf)
+func (m *Monitor) Configure(conf *Config) error {
+	conf.pyConf = &python.Config{
+		ModuleName:    "openstack_metrics",
+		ModulePaths:   []string{filepath.Join(os.Getenv(constants.BundleDirEnvVar), "plugins", "collectd", "openstack")},
+		TypesDBPaths:  []string{filepath.Join(os.Getenv(constants.BundleDirEnvVar), "plugins", "collectd", "types.db")},
+		MonitorConfig: conf.MonitorConfig,
+		PluginConfig: map[string]interface{}{
+			"AuthURL":  conf.AuthURL,
+			"Username": conf.Username,
+			"Password": conf.Password,
+		},
+	}
+	if conf.ProjectName != "" {
+		conf.pyConf.PluginConfig["ProjectName"] = conf.ProjectName
+	}
+	if conf.ProjectDomainID != "" {
+		conf.pyConf.PluginConfig["ProjectDomainId"] = conf.ProjectDomainID
+	}
+	if conf.UserDomainID != "" {
+		conf.pyConf.PluginConfig["UserDomainId"] = conf.UserDomainID
+	}
+
+	return m.Monitor.Configure(conf)
 }

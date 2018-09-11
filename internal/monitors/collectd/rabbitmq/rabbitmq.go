@@ -2,12 +2,19 @@
 
 package rabbitmq
 
-//go:generate collectd-template-to-go rabbitmq.tmpl
-
 import (
+	"os"
+	"path/filepath"
+
+	"github.com/signalfx/signalfx-agent/internal/core/common/constants"
 	"github.com/signalfx/signalfx-agent/internal/core/config"
+
+	"github.com/signalfx/signalfx-agent/internal/utils"
+
 	"github.com/signalfx/signalfx-agent/internal/monitors"
 	"github.com/signalfx/signalfx-agent/internal/monitors/collectd"
+	"github.com/signalfx/signalfx-agent/internal/monitors/collectd/python"
+	"github.com/signalfx/signalfx-agent/internal/monitors/pyrunner"
 )
 
 const monitorType = "collectd/rabbitmq"
@@ -27,7 +34,9 @@ const monitorType = "collectd/rabbitmq"
 func init() {
 	monitors.Register(monitorType, func() interface{} {
 		return &Monitor{
-			*collectd.NewMonitorCore(CollectdTemplate),
+			python.Monitor{
+				MonitorCore: pyrunner.New("sfxcollectd"),
+			},
 		}
 	}, &Config{})
 }
@@ -35,10 +44,9 @@ func init() {
 // Config is the monitor-specific config with the generic config embedded
 type Config struct {
 	config.MonitorConfig `yaml:",inline" acceptsEndpoints:"true"`
-
-	Host string `yaml:"host" validate:"required"`
-	Port uint16 `yaml:"port" validate:"required"`
-
+	pyConf               *python.Config
+	Host                 string `yaml:"host" validate:"required"`
+	Port                 uint16 `yaml:"port" validate:"required"`
 	// The name of the particular RabbitMQ instance.  Can be a Go template
 	// using other config options. This will be used as the `plugin_instance`
 	// dimension.
@@ -54,12 +62,61 @@ type Config struct {
 	Password           string `yaml:"password" validate:"required" neverLog:"true"`
 }
 
-// Monitor is the main type that represents the monitor
-type Monitor struct {
-	collectd.MonitorCore
+// PythonConfig returns the embedded python.Config struct from the interface
+func (c *Config) PythonConfig() *python.Config {
+	return c.pyConf
 }
 
-// Configure configures and runs the plugin in collectd
-func (am *Monitor) Configure(conf *Config) error {
-	return am.SetConfigurationAndRun(conf)
+// Monitor is the main type that represents the monitor
+type Monitor struct {
+	python.Monitor
+}
+
+// Configure configures and runs the plugin in python
+func (m *Monitor) Configure(conf *Config) error {
+	conf.pyConf = &python.Config{
+		MonitorConfig: conf.MonitorConfig,
+		Host:          conf.Host,
+		Port:          conf.Port,
+		ModuleName:    "rabbitmq",
+		ModulePaths:   []string{filepath.Join(os.Getenv(constants.BundleDirEnvVar), "plugins", "collectd", "rabbitmq")},
+		TypesDBPaths:  []string{filepath.Join(os.Getenv(constants.BundleDirEnvVar), "plugins", "collectd", "types.db")},
+		PluginConfig: map[string]interface{}{
+			"Host":               conf.Host,
+			"Port":               conf.Port,
+			"BrokerName":         conf.BrokerName,
+			"Username":           conf.Username,
+			"Password":           conf.Password,
+			"CollectChannels":    conf.CollectChannels,
+			"CollectConnections": conf.CollectConnections,
+			"CollectExchanges":   conf.CollectExchanges,
+			"CollectNodes":       conf.CollectNodes,
+			"CollectQueues":      conf.CollectQueues,
+		},
+	}
+	// fill optional values into python plugin config map
+	if conf.HTTPTimeout > 0 {
+		conf.pyConf.PluginConfig["HTTPTimeout"] = conf.HTTPTimeout
+	}
+
+	if conf.VerbosityLevel != "" {
+		conf.pyConf.PluginConfig["VerbosityLevel"] = conf.VerbosityLevel
+	}
+
+	// the python runner's templating system does not convert to map first
+	// this requires TitleCase template values.  For BrokerName we accept
+	// either upper or lower case values.  Converting the map to yaml
+	// and explicitly rendering the BrokerName will allow for upper or lower
+	// casing.
+	mp, err := utils.ConvertToMapViaYAML(conf)
+	if err != nil {
+		return err
+	}
+	brokerName, err := collectd.RenderValue(conf.BrokerName, mp)
+	if err != nil {
+		return err
+	}
+	conf.pyConf.PluginConfig["BrokerName"] = brokerName
+
+	return m.Monitor.Configure(conf)
 }

@@ -54,14 +54,14 @@ def test_kong(kong_image):
         kong_env['KONG_PG_HOST'] = db_ip
 
         def db_is_ready():
-            return db.exec_run('pg_isready -U postgres').exit_code == 0
+            return db.exec_run('pg_isready -U kong').exit_code == 0
 
         assert wait_for(db_is_ready)
 
         with run_container(kong_image, environment=kong_env, command='sleep inf') as migrations:
 
             def db_is_reachable():
-                return migrations.exec_run('psql -h {} -U postgres'.format(db_ip)).exit_code == 0
+                return migrations.exec_run('psql -h {} -U kong'.format(db_ip)).exit_code == 0
 
             assert wait_for(db_is_reachable)
             assert migrations.exec_run('kong migrations up --v').exit_code == 0
