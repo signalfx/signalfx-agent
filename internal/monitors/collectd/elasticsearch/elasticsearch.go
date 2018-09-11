@@ -75,7 +75,6 @@ func (m *Monitor) Configure(conf *Config) error {
 	conf.PluginConfig = map[string]interface{}{
 		"Host":                 conf.Host,
 		"Port":                 conf.Port,
-		"AdditionalMetrics":    conf.AdditionalMetrics,
 		"DetailedMetrics":      conf.DetailedMetrics,
 		"EnableClusterHealth":  conf.EnableClusterHealth,
 		"EnableIndexStats":     conf.EnableIndexStats,
@@ -84,6 +83,12 @@ func (m *Monitor) Configure(conf *Config) error {
 		"IndexSummaryOnly":     conf.IndexSummaryOnly,
 		"Interval":             conf.IntervalSeconds,
 		"Verbose":              false,
+	}
+	if len(conf.AdditionalMetrics) > 0 {
+		conf.PluginConfig["AdditionalMetrics"] = map[string]interface{}{
+			"#flatten": true,
+			"values":   conf.AdditionalMetrics,
+		}
 	}
 	if len(conf.Indexes) > 0 {
 		conf.PluginConfig["Indexes"] = map[string]interface{}{
