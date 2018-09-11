@@ -2,12 +2,16 @@
 
 package haproxy
 
-//go:generate collectd-template-to-go haproxy.tmpl
-
 import (
+	"os"
+	"path/filepath"
+
+	"github.com/signalfx/signalfx-agent/internal/core/common/constants"
 	"github.com/signalfx/signalfx-agent/internal/core/config"
+
 	"github.com/signalfx/signalfx-agent/internal/monitors"
-	"github.com/signalfx/signalfx-agent/internal/monitors/collectd"
+	"github.com/signalfx/signalfx-agent/internal/monitors/collectd/python"
+	"github.com/signalfx/signalfx-agent/internal/monitors/pyrunner"
 )
 
 const monitorType = "collectd/haproxy"
@@ -19,7 +23,9 @@ const monitorType = "collectd/haproxy"
 func init() {
 	monitors.Register(monitorType, func() interface{} {
 		return &Monitor{
-			*collectd.NewMonitorCore(CollectdTemplate),
+			python.Monitor{
+				MonitorCore: pyrunner.New("sfxcollectd"),
+			},
 		}
 	}, &Config{})
 }
@@ -27,21 +33,51 @@ func init() {
 // Config is the monitor-specific config with the generic config embedded
 type Config struct {
 	config.MonitorConfig `yaml:",inline" acceptsEndpoints:"true"`
+	pyConf               *python.Config
+	Host                 string   `yaml:"host" validate:"required"`
+	Port                 uint16   `yaml:"port" validate:"required"`
+	ProxiesToMonitor     []string `yaml:"proxiesToMonitor"`
+	ExcludedMetrics      []string `yaml:"excludedMetrics"`
+	EnhancedMetrics      bool     `yaml:"enhancedMetrics"`
+}
 
-	Host string `yaml:"host" validate:"required"`
-	Port uint16 `yaml:"port" validate:"required"`
-
-	ProxiesToMonitor []string `yaml:"proxiesToMonitor"`
-	ExcludedMetrics  []string `yaml:"excludedMetrics"`
-	EnhancedMetrics  bool     `yaml:"enhancedMetrics"`
+// PythonConfig returns the embedded python.Config struct from the interface
+func (c *Config) PythonConfig() *python.Config {
+	return c.pyConf
 }
 
 // Monitor is the main type that represents the monitor
 type Monitor struct {
-	collectd.MonitorCore
+	python.Monitor
 }
 
 // Configure configures and runs the plugin in collectd
-func (mm *Monitor) Configure(conf *Config) error {
-	return mm.SetConfigurationAndRun(conf)
+func (m *Monitor) Configure(conf *Config) error {
+	conf.pyConf = &python.Config{
+		MonitorConfig: conf.MonitorConfig,
+		Host:          conf.Host,
+		Port:          conf.Port,
+		ModuleName:    "haproxy",
+		ModulePaths:   []string{filepath.Join(os.Getenv(constants.BundleDirEnvVar), "plugins", "collectd", "haproxy")},
+		TypesDBPaths:  []string{filepath.Join(os.Getenv(constants.BundleDirEnvVar), "plugins", "collectd", "types.db")},
+		PluginConfig: map[string]interface{}{
+			"Socket":          "{{.Host}}:{{.Port}}",
+			"Interval":        conf.IntervalSeconds,
+			"EnhancedMetrics": conf.EnhancedMetrics,
+		},
+	}
+
+	if len(conf.ProxiesToMonitor) > 0 {
+		conf.pyConf.PluginConfig["ProxyMonitor"] = map[string]interface{}{
+			"#flatten": true,
+			"values":   conf.ProxiesToMonitor,
+		}
+	}
+	if len(conf.ExcludedMetrics) > 0 {
+		conf.pyConf.PluginConfig["ExcludeMetric"] = map[string]interface{}{
+			"#flatten": true,
+			"values":   conf.ExcludedMetrics,
+		}
+	}
+	return m.Monitor.Configure(conf)
 }

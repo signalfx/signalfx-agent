@@ -2,14 +2,18 @@
 
 package mongodb
 
-//go:generate collectd-template-to-go mongodb.tmpl
-
 import (
 	"errors"
+	"os"
+	"path/filepath"
 
 	"github.com/signalfx/signalfx-agent/internal/core/config"
+
+	"github.com/signalfx/signalfx-agent/internal/monitors/collectd/python"
+	"github.com/signalfx/signalfx-agent/internal/monitors/pyrunner"
+
+	"github.com/signalfx/signalfx-agent/internal/core/common/constants"
 	"github.com/signalfx/signalfx-agent/internal/monitors"
-	"github.com/signalfx/signalfx-agent/internal/monitors/collectd"
 )
 
 const monitorType = "collectd/mongodb"
@@ -22,15 +26,17 @@ const monitorType = "collectd/mongodb"
 func init() {
 	monitors.Register(monitorType, func() interface{} {
 		return &Monitor{
-			*collectd.NewMonitorCore(CollectdTemplate),
+			python.Monitor{
+				MonitorCore: pyrunner.New("sfxcollectd"),
+			},
 		}
 	}, &Config{})
 }
 
 // Config is the monitor-specific config with the generic config embedded
 type Config struct {
-	config.MonitorConfig `yaml:",inline" acceptsEndpoints:"true"`
-
+	config.MonitorConfig   `yaml:",inline" acceptsEndpoints:"true"`
+	pyConf                 *python.Config
 	Host                   string   `yaml:"host" validate:"required"`
 	Port                   uint16   `yaml:"port" validate:"required"`
 	Databases              []string `yaml:"databases" validate:"required"`
@@ -43,6 +49,11 @@ type Config struct {
 	TLSClientKeyPassPhrase string   `yaml:"tlsClientKeyPassPhrase"`
 }
 
+// PythonConfig returns the embedded python.Config struct from the interface
+func (c *Config) PythonConfig() *python.Config {
+	return c.pyConf
+}
+
 // Validate will check the config for correctness.
 func (c *Config) Validate() error {
 	if len(c.Databases) == 0 {
@@ -53,10 +64,45 @@ func (c *Config) Validate() error {
 
 // Monitor is the main type that represents the monitor
 type Monitor struct {
-	collectd.MonitorCore
+	python.Monitor
 }
 
 // Configure configures and runs the plugin in collectd
-func (am *Monitor) Configure(conf *Config) error {
-	return am.SetConfigurationAndRun(conf)
+func (m *Monitor) Configure(conf *Config) error {
+	conf.pyConf = &python.Config{
+		MonitorConfig: conf.MonitorConfig,
+		Host:          conf.Host,
+		Port:          conf.Port,
+		ModuleName:    "mongodb",
+		ModulePaths:   []string{filepath.Join(os.Getenv(constants.BundleDirEnvVar), "plugins", "collectd", "mongodb")},
+		TypesDBPaths:  []string{filepath.Join(os.Getenv(constants.BundleDirEnvVar), "plugins", "collectd", "types.db")},
+		PluginConfig: map[string]interface{}{
+			"Host":     conf.Host,
+			"Port":     conf.Port,
+			"Database": conf.Databases,
+		},
+	}
+
+	if conf.UseTLS {
+		conf.pyConf.PluginConfig["UseTLS"] = conf.UseTLS
+	}
+	if conf.Username != "" {
+		conf.pyConf.PluginConfig["User"] = conf.Username
+	}
+	if conf.Password != "" {
+		conf.pyConf.PluginConfig["Password"] = conf.Password
+	}
+	if conf.CACerts != "" {
+		conf.pyConf.PluginConfig["CACerts"] = conf.CACerts
+	}
+	if conf.TLSClientCert != "" {
+		conf.pyConf.PluginConfig["TLSClientCert"] = conf.TLSClientCert
+	}
+	if conf.TLSClientKey != "" {
+		conf.pyConf.PluginConfig["TLSClientKey"] = conf.TLSClientKey
+	}
+	if conf.TLSClientKeyPassPhrase != "" {
+		conf.pyConf.PluginConfig["TLSClientKeyPassphrase"] = conf.TLSClientKeyPassPhrase
+	}
+	return m.Monitor.Configure(conf)
 }

@@ -86,7 +86,7 @@ class Values(object):  # pylint: disable=too-many-instance-attributes
             values=None,
             host="",
             plugin=None,
-            plugin_instance=None,
+            plugin_instance="",
             time=None,  # pylint: disable=redefined-outer-name
             type_instance="",
             interval=None,
@@ -119,6 +119,10 @@ class Values(object):  # pylint: disable=too-many-instance-attributes
         if not self.time:
             self.time = time.time()
         logger.debug("Dispatching value %s", repr(self))
+        # convert boolean values to their integer type
+        # because that is what collectd does
+        self.values = [int(value) if isinstance(value, bool)
+                       else value for value in self.values]
         Values._dispatcher_func(self)
         return
 
@@ -152,6 +156,7 @@ def inject_collectd_module(interface, send_values_func):
     mod.register_shutdown = interface.register_shutdown
     mod.info = logger.info
     mod.error = logger.error
+    mod.warning = logger.warning
     mod.notice = logger.warning
     mod.info = logger.info
     mod.debug = logger.debug
