@@ -6,6 +6,8 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/signalfx/signalfx-agent/internal/core/config"
+
 	"github.com/signalfx/signalfx-agent/internal/core/common/constants"
 	"github.com/signalfx/signalfx-agent/internal/monitors"
 	"github.com/signalfx/signalfx-agent/internal/monitors/collectd/python"
@@ -66,9 +68,10 @@ func init() {
 
 // Config is the monitor-specific config with the generic config embedded
 type Config struct {
-	python.CoreConfig `yaml:",inline" acceptsEndpoints:"true"`
-	Host              string `yaml:"host" validate:"required"`
-	Port              uint16 `yaml:"port" validate:"required"`
+	config.MonitorConfig `yaml:",inline" acceptsEndpoints:"true"`
+	pyConf               *python.Config
+	Host                 string `yaml:"host" validate:"required"`
+	Port                 uint16 `yaml:"port" validate:"required"`
 	// Key required for collecting metrics.  The access key located at
 	// `Manage Jenkins > Configure System > Metrics > ADD.`
 	// If empty, click `Generate`.
@@ -90,6 +93,11 @@ type Config struct {
 	SSLCACerts string `yaml:"sslCACerts"`
 }
 
+// PythonConfig returns the embedded python.Config struct from the interface
+func (c *Config) PythonConfig() *python.Config {
+	return c.pyConf
+}
+
 // Monitor is the main type that represents the monitor
 type Monitor struct {
 	python.Monitor
@@ -97,39 +105,39 @@ type Monitor struct {
 
 // Configure configures and runs the plugin in collectd
 func (m *Monitor) Configure(conf *Config) error {
-	conf.PluginConfig = map[string]interface{}{
-		"Host":            conf.Host,
-		"Port":            conf.Port,
-		"Interval":        conf.IntervalSeconds,
-		"MetricsKey":      conf.MetricsKey,
-		"EnhancedMetrics": conf.EnhancedMetrics,
+	conf.pyConf = &python.Config{
+		MonitorConfig: conf.MonitorConfig,
+		Host:          conf.Host,
+		Port:          conf.Port,
+		ModuleName:    "jenkins",
+		ModulePaths:   []string{filepath.Join(os.Getenv(constants.BundleDirEnvVar), "plugins", "collectd", "jenkins")},
+		TypesDBPaths:  []string{filepath.Join(os.Getenv(constants.BundleDirEnvVar), "plugins", "collectd", "types.db")},
+		PluginConfig: map[string]interface{}{
+			"Host":            conf.Host,
+			"Port":            conf.Port,
+			"Interval":        conf.IntervalSeconds,
+			"MetricsKey":      conf.MetricsKey,
+			"EnhancedMetrics": conf.EnhancedMetrics,
+		},
 	}
-	if conf.ModuleName == "" {
-		conf.ModuleName = "jenkins"
-	}
-	if len(conf.ModulePaths) == 0 {
-		conf.ModulePaths = []string{filepath.Join(os.Getenv(constants.BundleDirEnvVar), "plugins", "collectd", "jenkins")}
-	}
-	if len(conf.TypesDBPaths) == 0 {
-		conf.TypesDBPaths = []string{filepath.Join(os.Getenv(constants.BundleDirEnvVar), "plugins", "collectd", "types.db")}
-	}
+
 	if conf.Username != "" {
-		conf.PluginConfig["Username"] = conf.Username
+		conf.pyConf.PluginConfig["Username"] = conf.Username
 	}
 	if conf.APIToken != "" {
-		conf.PluginConfig["APIToken"] = conf.APIToken
+		conf.pyConf.PluginConfig["APIToken"] = conf.APIToken
 	}
 	if conf.SSLKeyFile != "" {
-		conf.PluginConfig["ssl_keyfile"] = conf.SSLKeyFile
+		conf.pyConf.PluginConfig["ssl_keyfile"] = conf.SSLKeyFile
 	}
 	if conf.SSLCertificate != "" {
-		conf.PluginConfig["ssl_certificate"] = conf.SSLCertificate
+		conf.pyConf.PluginConfig["ssl_certificate"] = conf.SSLCertificate
 	}
 	if conf.SSLCACerts != "" {
-		conf.PluginConfig["ssl_ca_certs"] = conf.SSLCACerts
+		conf.pyConf.PluginConfig["ssl_ca_certs"] = conf.SSLCACerts
 	}
 	if len(conf.IncludeMetrics) > 0 {
-		conf.PluginConfig["IncludeMetric"] = map[string]interface{}{
+		conf.pyConf.PluginConfig["IncludeMetric"] = map[string]interface{}{
 			"#flatten": true,
 			"values":   conf.IncludeMetrics,
 		}

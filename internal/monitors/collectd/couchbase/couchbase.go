@@ -8,6 +8,8 @@ import (
 	"path/filepath"
 
 	"github.com/signalfx/signalfx-agent/internal/core/common/constants"
+	"github.com/signalfx/signalfx-agent/internal/core/config"
+
 	"github.com/signalfx/signalfx-agent/internal/monitors/collectd/python"
 	"github.com/signalfx/signalfx-agent/internal/monitors/pyrunner"
 
@@ -46,9 +48,10 @@ func init() {
 
 // Config is the monitor-specific config with the generic config embedded
 type Config struct {
-	python.CoreConfig `yaml:",inline" acceptsEndpoints:"true"`
-	Host              string `yaml:"host" validate:"required"`
-	Port              uint16 `yaml:"port" validate:"required"`
+	config.MonitorConfig `yaml:",inline" acceptsEndpoints:"true"`
+	pyConf               *python.Config
+	Host                 string `yaml:"host" validate:"required"`
+	Port                 uint16 `yaml:"port" validate:"required"`
 	// Define what this Module block will monitor: "NODE", for a Couchbase node,
 	// or "BUCKET" for a Couchbase bucket.
 	CollectTarget string `yaml:"collectTarget" validate:"required"`
@@ -67,6 +70,11 @@ type Config struct {
 	Password string `yaml:"password" neverLog:"true"`
 }
 
+// PythonConfig returns the embedded python.Config struct from the interface
+func (c *Config) PythonConfig() *python.Config {
+	return c.pyConf
+}
+
 // Monitor is the main type that represents the monitor
 type Monitor struct {
 	python.Monitor
@@ -83,36 +91,36 @@ func (c *Config) Validate() error {
 
 // Configure configures and runs the plugin in collectd
 func (m *Monitor) Configure(conf *Config) error {
-	conf.PluginConfig = map[string]interface{}{
-		"Host":          conf.Host,
-		"Port":          conf.Port,
-		"CollectTarget": conf.CollectTarget,
-		"Interval":      conf.IntervalSeconds,
-		"FieldLength":   1024,
+	conf.pyConf = &python.Config{
+		MonitorConfig: conf.MonitorConfig,
+		Host:          conf.Host,
+		Port:          conf.Port,
+		ModuleName:    "couchbase",
+		ModulePaths:   []string{filepath.Join(os.Getenv(constants.BundleDirEnvVar), "plugins", "collectd", "couchbase")},
+		TypesDBPaths:  []string{filepath.Join(os.Getenv(constants.BundleDirEnvVar), "plugins", "collectd", "types.db")},
+		PluginConfig: map[string]interface{}{
+			"Host":          conf.Host,
+			"Port":          conf.Port,
+			"CollectTarget": conf.CollectTarget,
+			"Interval":      conf.IntervalSeconds,
+			"FieldLength":   1024,
+		},
 	}
-	if conf.ModuleName == "" {
-		conf.ModuleName = "couchbase"
-	}
-	if len(conf.ModulePaths) == 0 {
-		conf.ModulePaths = []string{filepath.Join(os.Getenv(constants.BundleDirEnvVar), "plugins", "collectd", "couchbase")}
-	}
-	if len(conf.TypesDBPaths) == 0 {
-		conf.TypesDBPaths = []string{filepath.Join(os.Getenv(constants.BundleDirEnvVar), "plugins", "collectd", "types.db")}
-	}
+
 	if conf.CollectBucket != "" {
-		conf.PluginConfig["CollectBucket"] = conf.CollectBucket
+		conf.pyConf.PluginConfig["CollectBucket"] = conf.CollectBucket
 	}
 	if conf.ClusterName != "" {
-		conf.PluginConfig["ClusterName"] = conf.ClusterName
+		conf.pyConf.PluginConfig["ClusterName"] = conf.ClusterName
 	}
 	if conf.CollectMode != "" {
-		conf.PluginConfig["CollectMode"] = conf.CollectMode
+		conf.pyConf.PluginConfig["CollectMode"] = conf.CollectMode
 	}
 	if conf.Username != "" {
-		conf.PluginConfig["Username"] = conf.Username
+		conf.pyConf.PluginConfig["Username"] = conf.Username
 	}
 	if conf.Password != "" {
-		conf.PluginConfig["Password"] = conf.Password
+		conf.pyConf.PluginConfig["Password"] = conf.Password
 	}
 
 	return m.Monitor.Configure(conf)

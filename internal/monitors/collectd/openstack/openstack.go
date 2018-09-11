@@ -6,6 +6,8 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/signalfx/signalfx-agent/internal/core/config"
+
 	"github.com/signalfx/signalfx-agent/internal/core/common/constants"
 	"github.com/signalfx/signalfx-agent/internal/monitors"
 	"github.com/signalfx/signalfx-agent/internal/monitors/collectd/python"
@@ -39,7 +41,8 @@ func init() {
 
 // Config is the monitor-specific config with the generic config embedded
 type Config struct {
-	python.CoreConfig `yaml:",inline"`
+	config.MonitorConfig `yaml:",inline" acceptsEndpoints:"false"`
+	pyConf               *python.Config
 	// Keystone authentication URL/endpoint for the OpenStack cloud
 	AuthURL string `yaml:"authURL" validate:"required"`
 	// Username to authenticate with keystone identity
@@ -54,6 +57,11 @@ type Config struct {
 	UserDomainID string `yaml:"userDomainID"`
 }
 
+// PythonConfig returns the embedded python.Config struct from the interface
+func (c *Config) PythonConfig() *python.Config {
+	return c.pyConf
+}
+
 // Monitor is the main type that represents the monitor
 type Monitor struct {
 	python.Monitor
@@ -61,28 +69,25 @@ type Monitor struct {
 
 // Configure configures and runs the plugin in collectd
 func (m *Monitor) Configure(conf *Config) error {
-	conf.PluginConfig = map[string]interface{}{
-		"AuthURL":  conf.AuthURL,
-		"Username": conf.Username,
-		"Password": conf.Password,
-	}
-	if conf.ModuleName == "" {
-		conf.ModuleName = "openstack_metrics"
-	}
-	if len(conf.ModulePaths) == 0 {
-		conf.ModulePaths = []string{filepath.Join(os.Getenv(constants.BundleDirEnvVar), "plugins", "collectd", "openstack")}
-	}
-	if len(conf.TypesDBPaths) == 0 {
-		conf.TypesDBPaths = []string{filepath.Join(os.Getenv(constants.BundleDirEnvVar), "plugins", "collectd", "types.db")}
+	conf.pyConf = &python.Config{
+		ModuleName:    "openstack_metrics",
+		ModulePaths:   []string{filepath.Join(os.Getenv(constants.BundleDirEnvVar), "plugins", "collectd", "openstack")},
+		TypesDBPaths:  []string{filepath.Join(os.Getenv(constants.BundleDirEnvVar), "plugins", "collectd", "types.db")},
+		MonitorConfig: conf.MonitorConfig,
+		PluginConfig: map[string]interface{}{
+			"AuthURL":  conf.AuthURL,
+			"Username": conf.Username,
+			"Password": conf.Password,
+		},
 	}
 	if conf.ProjectName != "" {
-		conf.PluginConfig["ProjectName"] = conf.ProjectName
+		conf.pyConf.PluginConfig["ProjectName"] = conf.ProjectName
 	}
 	if conf.ProjectDomainID != "" {
-		conf.PluginConfig["ProjectDomainId"] = conf.ProjectDomainID
+		conf.pyConf.PluginConfig["ProjectDomainId"] = conf.ProjectDomainID
 	}
 	if conf.UserDomainID != "" {
-		conf.PluginConfig["UserDomainId"] = conf.UserDomainID
+		conf.pyConf.PluginConfig["UserDomainId"] = conf.UserDomainID
 	}
 
 	return m.Monitor.Configure(conf)

@@ -44,16 +44,24 @@ func init() {
 // PyConfig is an interface for passing in Config structs derrived from the Python Config struct
 type PyConfig interface {
 	config.MonitorCustomConfig
-	PythonConfig() *CoreConfig
+	PythonConfig() *Config
 }
 
 // MONITOR(collectd/python): This monitor runs arbitrary collectd Python
 // plugins directly, apart from collectd.  It implements a mock collectd Python
 // interface that supports most, but not all, of the real collectd.
 
-// CoreConfig for the Collectd Python runner
-type CoreConfig struct {
+// Config specifies configurations that are specific to the individual python based monitor
+type Config struct {
 	config.MonitorConfig `yaml:",inline" acceptsEndpoints:"true"`
+	// Host will be filled in by auto-discovery if this monitor has a discovery
+	// rule.  It can then be used under pluginConfig by the template
+	// `{{.Host}}`
+	Host string `yaml:"host"`
+	// Port will be filled in by auto-discovery if this monitor has a discovery
+	// rule.  It can then be used under pluginConfig by the template
+	// `{{.Port}}`
+	Port uint16 `yaml:"port"`
 	// Corresponds to the ModuleName option in collectd-python
 	ModuleName string `yaml:"moduleName" json:"moduleName"`
 	// Corresponds to a set of ModulePath options in collectd-python
@@ -67,21 +75,8 @@ type CoreConfig struct {
 }
 
 // PythonConfig returns the embedded python.CoreConfig struct from the interface
-func (c *CoreConfig) PythonConfig() *CoreConfig {
+func (c *Config) PythonConfig() *Config {
 	return c
-}
-
-// Config specifies configurations that are specific to the individual python based monitor
-type Config struct {
-	CoreConfig `yaml:",inline"`
-	// Host will be filled in by auto-discovery if this monitor has a discovery
-	// rule.  It can then be used under pluginConfig by the template
-	// `{{.Host}}`
-	Host string `yaml:"host"`
-	// Port will be filled in by auto-discovery if this monitor has a discovery
-	// rule.  It can then be used under pluginConfig by the template
-	// `{{.Port}}`
-	Port uint16 `yaml:"port"`
 }
 
 // Monitor that runs collectd python plugins directly

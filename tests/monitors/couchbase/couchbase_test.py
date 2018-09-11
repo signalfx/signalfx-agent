@@ -27,9 +27,9 @@ monitors:
 """)
 
 
-# @pytest.mark.flaky(reruns=2)
+@pytest.mark.flaky(reruns=2)
 @pytest.mark.parametrize("tag", [
-    # "enterprise-4.0.0",
+    "enterprise-4.0.0",
     "enterprise-5.1.0"
 ])
 def test_couchbase(tag):

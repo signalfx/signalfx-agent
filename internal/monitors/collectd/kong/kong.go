@@ -7,6 +7,8 @@ import (
 	"path/filepath"
 
 	"github.com/signalfx/signalfx-agent/internal/core/common/constants"
+	"github.com/signalfx/signalfx-agent/internal/core/config"
+
 	"github.com/signalfx/signalfx-agent/internal/monitors"
 	"github.com/signalfx/signalfx-agent/internal/monitors/collectd/python"
 	"github.com/signalfx/signalfx-agent/internal/monitors/pyrunner"
@@ -90,7 +92,8 @@ type Metric struct {
 
 // Config is the monitor-specific config with the generic config embedded
 type Config struct {
-	python.CoreConfig `yaml:",inline" acceptsEndpoints:"true"`
+	config.MonitorConfig `yaml:",inline" acceptsEndpoints:"true"`
+	pyConf               *python.Config
 	// Kong host to connect with (used for autodiscovery and URL)
 	Host string `yaml:"host" validate:"required"`
 	// Port for kong-plugin-signalfx hosting server (used for autodiscovery and URL)
@@ -161,6 +164,11 @@ type Config struct {
 	StatusCodesBlacklist []string `yaml:"statusCodesBlacklist"`
 }
 
+// PythonConfig returns the embedded python.Config struct from the interface
+func (c *Config) PythonConfig() *python.Config {
+	return c.pyConf
+}
+
 // Monitor is the main type that represents the monitor
 type Monitor struct {
 	python.Monitor
@@ -168,157 +176,156 @@ type Monitor struct {
 
 // Configure configures and runs the plugin in collectd
 func (m *Monitor) Configure(conf *Config) error {
-	conf.PluginConfig = map[string]interface{}{
-		"URL": conf.URL,
-	}
-	if conf.ModuleName == "" {
-		conf.ModuleName = "kong_plugin"
-	}
-	if len(conf.ModulePaths) == 0 {
-		conf.ModulePaths = []string{filepath.Join(os.Getenv(constants.BundleDirEnvVar), "plugins", "collectd", "kong")}
-	}
-	if len(conf.TypesDBPaths) == 0 {
-		conf.TypesDBPaths = []string{filepath.Join(os.Getenv(constants.BundleDirEnvVar), "plugins", "collectd", "types.db")}
+	conf.pyConf = &python.Config{
+		MonitorConfig: conf.MonitorConfig,
+		Host:          conf.Host,
+		Port:          conf.Port,
+		ModuleName:    "kong_plugin",
+		ModulePaths:   []string{filepath.Join(os.Getenv(constants.BundleDirEnvVar), "plugins", "collectd", "kong")},
+		TypesDBPaths:  []string{filepath.Join(os.Getenv(constants.BundleDirEnvVar), "plugins", "collectd", "types.db")},
+		PluginConfig: map[string]interface{}{
+			"URL": conf.URL,
+		},
 	}
 
 	if conf.Verbose != nil {
-		conf.PluginConfig["Verbose"] = *conf.Verbose
+		conf.pyConf.PluginConfig["Verbose"] = *conf.Verbose
 	}
 	if conf.Name != "" {
-		conf.PluginConfig["Name"] = conf.Name
+		conf.pyConf.PluginConfig["Name"] = conf.Name
 	}
 	if conf.AuthHeader != nil {
-		conf.PluginConfig["AuthHeader"] = []string{conf.AuthHeader.HeaderName, conf.AuthHeader.Value}
+		conf.pyConf.PluginConfig["AuthHeader"] = []string{conf.AuthHeader.HeaderName, conf.AuthHeader.Value}
 	}
 	if conf.VerifyCerts != nil {
-		conf.PluginConfig["VerifyCerts"] = *conf.VerifyCerts
+		conf.pyConf.PluginConfig["VerifyCerts"] = *conf.VerifyCerts
 	}
 	if conf.CABundle != "" {
-		conf.PluginConfig["CABundle"] = conf.CABundle
+		conf.pyConf.PluginConfig["CABundle"] = conf.CABundle
 	}
 	if conf.ClientCert != "" {
-		conf.PluginConfig["ClientCert"] = conf.ClientCert
+		conf.pyConf.PluginConfig["ClientCert"] = conf.ClientCert
 	}
 	if conf.ClientCertKey != "" {
-		conf.PluginConfig["ClientCertKey"] = conf.ClientCertKey
+		conf.pyConf.PluginConfig["ClientCertKey"] = conf.ClientCertKey
 	}
 	if conf.IntervalSeconds > 0 {
-		conf.PluginConfig["Interval"] = conf.IntervalSeconds
+		conf.pyConf.PluginConfig["Interval"] = conf.IntervalSeconds
 	}
 	if len(conf.Metrics) > 0 {
 		values := make([][]interface{}, 0, len(conf.Metrics))
 		for _, m := range conf.Metrics {
 			values = append(values, []interface{}{m.MetricName, m.ReportBool})
 		}
-		conf.PluginConfig["Metric"] = map[string]interface{}{
+		conf.pyConf.PluginConfig["Metric"] = map[string]interface{}{
 			"#flatten": true,
 			"values":   values,
 		}
 	}
 	if conf.ReportAPIIDs != nil {
-		conf.PluginConfig["ReportAPIIDs"] = *conf.ReportAPIIDs
+		conf.pyConf.PluginConfig["ReportAPIIDs"] = *conf.ReportAPIIDs
 	}
 	if conf.ReportAPINames != nil {
-		conf.PluginConfig["ReportAPINames"] = *conf.ReportAPINames
+		conf.pyConf.PluginConfig["ReportAPINames"] = *conf.ReportAPINames
 	}
 	if conf.ReportServiceIDs != nil {
-		conf.PluginConfig["ReportServiceIDs"] = *conf.ReportServiceIDs
+		conf.pyConf.PluginConfig["ReportServiceIDs"] = *conf.ReportServiceIDs
 	}
 	if conf.ReportServiceNames != nil {
-		conf.PluginConfig["ReportServiceNames"] = *conf.ReportServiceNames
+		conf.pyConf.PluginConfig["ReportServiceNames"] = *conf.ReportServiceNames
 	}
 	if conf.ReportRouteIDs != nil {
-		conf.PluginConfig["ReportRouteIDs"] = *conf.ReportRouteIDs
+		conf.pyConf.PluginConfig["ReportRouteIDs"] = *conf.ReportRouteIDs
 	}
 	if conf.ReportHTTPMethods != nil {
-		conf.PluginConfig["ReportHTTPMethods"] = *conf.ReportHTTPMethods
+		conf.pyConf.PluginConfig["ReportHTTPMethods"] = *conf.ReportHTTPMethods
 	}
 	if conf.ReportStatusCodeGroups != nil {
-		conf.PluginConfig["ReportStatusCodeGroups"] = *conf.ReportStatusCodeGroups
+		conf.pyConf.PluginConfig["ReportStatusCodeGroups"] = *conf.ReportStatusCodeGroups
 	}
 	if conf.ReportStatusCodes != nil {
-		conf.PluginConfig["ReportStatusCodes"] = *conf.ReportStatusCodes
+		conf.pyConf.PluginConfig["ReportStatusCodes"] = *conf.ReportStatusCodes
 	}
 	if len(conf.APIIDs) > 0 {
-		conf.PluginConfig["APIIDs"] = map[string]interface{}{
+		conf.pyConf.PluginConfig["APIIDs"] = map[string]interface{}{
 			"#flatten": true,
 			"values":   conf.APIIDs,
 		}
 	}
 	if len(conf.APIIDsBlacklist) > 0 {
-		conf.PluginConfig["APIIDsBlacklist"] = map[string]interface{}{
+		conf.pyConf.PluginConfig["APIIDsBlacklist"] = map[string]interface{}{
 			"#flatten": true,
 			"values":   conf.APIIDsBlacklist,
 		}
 	}
 	if len(conf.APINames) > 0 {
-		conf.PluginConfig["APINames"] = map[string]interface{}{
+		conf.pyConf.PluginConfig["APINames"] = map[string]interface{}{
 			"#flatten": true,
 			"values":   conf.APINames,
 		}
 	}
 	if len(conf.APINamesBlacklist) > 0 {
-		conf.PluginConfig["APINamesBlacklist"] = map[string]interface{}{
+		conf.pyConf.PluginConfig["APINamesBlacklist"] = map[string]interface{}{
 			"#flatten": true,
 			"values":   conf.APINamesBlacklist,
 		}
 	}
 	if len(conf.ServiceIDs) > 0 {
-		conf.PluginConfig["ServiceIDs"] = map[string]interface{}{
+		conf.pyConf.PluginConfig["ServiceIDs"] = map[string]interface{}{
 			"#flatten": true,
 			"values":   conf.ServiceIDs,
 		}
 	}
 	if len(conf.ServiceIDsBlacklist) > 0 {
-		conf.PluginConfig["ServiceIDsBlacklist"] = map[string]interface{}{
+		conf.pyConf.PluginConfig["ServiceIDsBlacklist"] = map[string]interface{}{
 			"#flatten": true,
 			"values":   conf.ServiceIDsBlacklist,
 		}
 	}
 	if len(conf.ServiceNames) > 0 {
-		conf.PluginConfig["ServiceNames"] = map[string]interface{}{
+		conf.pyConf.PluginConfig["ServiceNames"] = map[string]interface{}{
 			"#flatten": true,
 			"values":   conf.ServiceNames,
 		}
 	}
 	if len(conf.ServiceNamesBlacklist) > 0 {
-		conf.PluginConfig["ServiceNamesBlacklist"] = map[string]interface{}{
+		conf.pyConf.PluginConfig["ServiceNamesBlacklist"] = map[string]interface{}{
 			"#flatten": true,
 			"values":   conf.ServiceNamesBlacklist,
 		}
 	}
 	if len(conf.RouteIDs) > 0 {
-		conf.PluginConfig["RouteIDs"] = map[string]interface{}{
+		conf.pyConf.PluginConfig["RouteIDs"] = map[string]interface{}{
 			"#flatten": true,
 			"values":   conf.RouteIDs,
 		}
 	}
 	if len(conf.RouteIDsBlacklist) > 0 {
-		conf.PluginConfig["RouteIDsBlacklist"] = map[string]interface{}{
+		conf.pyConf.PluginConfig["RouteIDsBlacklist"] = map[string]interface{}{
 			"#flatten": true,
 			"values":   conf.RouteIDsBlacklist,
 		}
 	}
 	if len(conf.HTTPMethods) > 0 {
-		conf.PluginConfig["HTTPMethods"] = map[string]interface{}{
+		conf.pyConf.PluginConfig["HTTPMethods"] = map[string]interface{}{
 			"#flatten": true,
 			"values":   conf.HTTPMethods,
 		}
 	}
 	if len(conf.HTTPMethodsBlacklist) > 0 {
-		conf.PluginConfig["HTTPMethodsBlacklist"] = map[string]interface{}{
+		conf.pyConf.PluginConfig["HTTPMethodsBlacklist"] = map[string]interface{}{
 			"#flatten": true,
 			"values":   conf.HTTPMethodsBlacklist,
 		}
 	}
 	if len(conf.StatusCodes) > 0 {
-		conf.PluginConfig["StatusCodes"] = map[string]interface{}{
+		conf.pyConf.PluginConfig["StatusCodes"] = map[string]interface{}{
 			"#flatten": true,
 			"values":   conf.StatusCodes,
 		}
 	}
 	if len(conf.StatusCodesBlacklist) > 0 {
-		conf.PluginConfig["StatusCodesBlacklist"] = map[string]interface{}{
+		conf.pyConf.PluginConfig["StatusCodesBlacklist"] = map[string]interface{}{
 			"#flatten": true,
 			"values":   conf.StatusCodesBlacklist,
 		}

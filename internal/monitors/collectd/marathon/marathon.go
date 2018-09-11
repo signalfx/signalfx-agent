@@ -7,6 +7,8 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/signalfx/signalfx-agent/internal/core/config"
+
 	"github.com/signalfx/signalfx-agent/internal/core/common/constants"
 
 	"github.com/signalfx/signalfx-agent/internal/monitors"
@@ -58,9 +60,10 @@ func init() {
 // Config is the monitor-specific config with the generic config embedded
 type Config struct {
 	// Make this single instance since we can't add dimensions
-	python.CoreConfig `yaml:",inline" acceptsEndpoints:"true" singleInstance:"true"`
-	Host              string `yaml:"host" validate:"required"`
-	Port              uint16 `yaml:"port" validate:"required"`
+	config.MonitorConfig `yaml:",inline" acceptsEndpoints:"true" singleInstance:"true"`
+	pyConf               *python.Config
+	Host                 string `yaml:"host" validate:"required"`
+	Port                 uint16 `yaml:"port" validate:"required"`
 	// Username used to authenticate with Marathon.
 	Username string `yaml:"username"`
 	// Password used to authenticate with Marathon.
@@ -72,6 +75,11 @@ type Config struct {
 	// dcosAuthURL to "https://leader.mesos/acs/api/v1/auth/login"
 	// (which is the default DNS entry provided by DC/OS)
 	DCOSAuthURL string `yaml:"dcosAuthURL"`
+}
+
+// PythonConfig returns the embedded python.Config struct from the interface
+func (c *Config) PythonConfig() *python.Config {
+	return c.pyConf
 }
 
 // Validate config issues
@@ -89,18 +97,18 @@ type Monitor struct {
 
 // Configure configures and runs the plugin in collectd
 func (m *Monitor) Configure(conf *Config) error {
-	conf.PluginConfig = map[string]interface{}{
-		"verbose": false,
+	conf.pyConf = &python.Config{
+		MonitorConfig: conf.MonitorConfig,
+		Host:          conf.Host,
+		Port:          conf.Port,
+		ModuleName:    "marathon",
+		ModulePaths:   []string{filepath.Join(os.Getenv(constants.BundleDirEnvVar), "plugins", "collectd", "marathon")},
+		TypesDBPaths:  []string{filepath.Join(os.Getenv(constants.BundleDirEnvVar), "plugins", "collectd", "types.db")},
+		PluginConfig: map[string]interface{}{
+			"verbose": false,
+		},
 	}
-	if conf.ModuleName == "" {
-		conf.ModuleName = "marathon"
-	}
-	if len(conf.ModulePaths) == 0 {
-		conf.ModulePaths = []string{filepath.Join(os.Getenv(constants.BundleDirEnvVar), "plugins", "collectd", "marathon")}
-	}
-	if len(conf.TypesDBPaths) == 0 {
-		conf.TypesDBPaths = []string{filepath.Join(os.Getenv(constants.BundleDirEnvVar), "plugins", "collectd", "types.db")}
-	}
+
 	// marathon's configuration is different, all configurations are
 	// packed into an array of values for a given host
 	host := []interface{}{conf.Scheme, conf.Host, conf.Port}
@@ -113,7 +121,7 @@ func (m *Monitor) Configure(conf *Config) error {
 	if conf.DCOSAuthURL != "" {
 		host = append(host, conf.DCOSAuthURL)
 	}
-	conf.PluginConfig["host"] = host
+	conf.pyConf.PluginConfig["host"] = host
 
 	return m.Monitor.Configure(conf)
 }

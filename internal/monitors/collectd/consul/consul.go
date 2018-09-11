@@ -7,6 +7,8 @@ import (
 	"path/filepath"
 
 	"github.com/signalfx/signalfx-agent/internal/core/common/constants"
+	"github.com/signalfx/signalfx-agent/internal/core/config"
+
 	"github.com/signalfx/signalfx-agent/internal/monitors"
 	"github.com/signalfx/signalfx-agent/internal/monitors/collectd/python"
 	"github.com/signalfx/signalfx-agent/internal/monitors/pyrunner"
@@ -40,18 +42,22 @@ func init() {
 
 // Config is the monitor-specific config with the generic config embedded
 type Config struct {
-	python.CoreConfig `yaml:",inline" acceptsEndpoints:"true"`
+	config.MonitorConfig `yaml:",inline" acceptsEndpoints:"true"`
+	pyConf               *python.Config
+	Host                 string `yaml:"host" validate:"required"`
+	Port                 uint16 `yaml:"port" validate:"required"`
+	ACLToken             string `yaml:"aclToken" neverLog:"true"`
+	UseHTTPS             bool   `yaml:"useHTTPS"`
+	EnhancedMetrics      bool   `yaml:"enhancedMetrics"`
+	CACertificate        string `yaml:"caCertificate"`
+	ClientCertificate    string `yaml:"clientCertificate"`
+	ClientKey            string `yaml:"clientKey"`
+	SignalFxAccessToken  string `yaml:"signalFxAccessToken" neverLog:"true"`
+}
 
-	Host string `yaml:"host" validate:"required"`
-	Port uint16 `yaml:"port" validate:"required"`
-
-	ACLToken            string `yaml:"aclToken" neverLog:"true"`
-	UseHTTPS            bool   `yaml:"useHTTPS"`
-	EnhancedMetrics     bool   `yaml:"enhancedMetrics"`
-	CACertificate       string `yaml:"caCertificate"`
-	ClientCertificate   string `yaml:"clientCertificate"`
-	ClientKey           string `yaml:"clientKey"`
-	SignalFxAccessToken string `yaml:"signalFxAccessToken" neverLog:"true"`
+// PythonConfig returns the embedded python.Config struct from the interface
+func (c *Config) PythonConfig() *python.Config {
+	return c.pyConf
 }
 
 // Monitor is the main type that represents the monitor
@@ -61,38 +67,38 @@ type Monitor struct {
 
 // Configure configures and runs the plugin in collectd
 func (m *Monitor) Configure(conf *Config) error {
-	conf.PluginConfig = map[string]interface{}{
-		"ApiHost":         conf.Host,
-		"ApiPort":         conf.Port,
-		"TelemetryServer": false,
-		"SfxToken":        conf.SignalFxAccessToken,
-		"EnhancedMetrics": conf.EnhancedMetrics,
+	conf.pyConf = &python.Config{
+		MonitorConfig: conf.MonitorConfig,
+		Host:          conf.Host,
+		Port:          conf.Port,
+		ModuleName:    "consul_plugin",
+		ModulePaths:   []string{filepath.Join(os.Getenv(constants.BundleDirEnvVar), "plugins", "collectd", "consul")},
+		TypesDBPaths:  []string{filepath.Join(os.Getenv(constants.BundleDirEnvVar), "plugins", "collectd", "types.db")},
+		PluginConfig: map[string]interface{}{
+			"ApiHost":         conf.Host,
+			"ApiPort":         conf.Port,
+			"TelemetryServer": false,
+			"SfxToken":        conf.SignalFxAccessToken,
+			"EnhancedMetrics": conf.EnhancedMetrics,
+		},
 	}
-	if conf.ModuleName == "" {
-		conf.ModuleName = "consul_plugin"
-	}
-	if len(conf.ModulePaths) == 0 {
-		conf.ModulePaths = []string{filepath.Join(os.Getenv(constants.BundleDirEnvVar), "plugins", "collectd", "consul")}
-	}
-	if len(conf.TypesDBPaths) == 0 {
-		conf.TypesDBPaths = []string{filepath.Join(os.Getenv(constants.BundleDirEnvVar), "plugins", "collectd", "types.db")}
-	}
+
 	if conf.UseHTTPS {
-		conf.PluginConfig["ApiProtocol"] = "https"
+		conf.pyConf.PluginConfig["ApiProtocol"] = "https"
 	} else {
-		conf.PluginConfig["ApiProtocol"] = "http"
+		conf.pyConf.PluginConfig["ApiProtocol"] = "http"
 	}
 	if conf.ACLToken != "" {
-		conf.PluginConfig["AclToken"] = conf.ACLToken
+		conf.pyConf.PluginConfig["AclToken"] = conf.ACLToken
 	}
 	if conf.CACertificate != "" {
-		conf.PluginConfig["CaCertificate"] = conf.CACertificate
+		conf.pyConf.PluginConfig["CaCertificate"] = conf.CACertificate
 	}
 	if conf.ClientCertificate != "" {
-		conf.PluginConfig["ClientCertificate"] = conf.ClientCertificate
+		conf.pyConf.PluginConfig["ClientCertificate"] = conf.ClientCertificate
 	}
 	if conf.ClientKey != "" {
-		conf.PluginConfig["ClientKey"] = conf.ClientKey
+		conf.pyConf.PluginConfig["ClientKey"] = conf.ClientKey
 	}
 
 	return m.Monitor.Configure(conf)

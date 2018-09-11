@@ -7,6 +7,8 @@ import (
 	"path/filepath"
 
 	"github.com/signalfx/signalfx-agent/internal/core/common/constants"
+	"github.com/signalfx/signalfx-agent/internal/core/config"
+
 	"github.com/signalfx/signalfx-agent/internal/monitors"
 	"github.com/signalfx/signalfx-agent/internal/monitors/collectd/python"
 	"github.com/signalfx/signalfx-agent/internal/monitors/pyrunner"
@@ -31,10 +33,10 @@ func init() {
 
 // Config is the monitor-specific config with the generic config embedded
 type Config struct {
-	python.CoreConfig `yaml:",inline" acceptsEndpoints:"true"`
-
-	Host string `yaml:"host" validate:"required"`
-	Port uint16 `yaml:"port" validate:"required"`
+	config.MonitorConfig `yaml:",inline" acceptsEndpoints:"true"`
+	pyConf               *python.Config
+	Host                 string `yaml:"host" validate:"required"`
+	Port                 uint16 `yaml:"port" validate:"required"`
 	// AdditionalMetrics to report on
 	AdditionalMetrics []string `yaml:"additionalMetrics"`
 	// DetailedMetrics turns on additional metric time series
@@ -62,6 +64,11 @@ type Config struct {
 	Version  string `yaml:"version"`
 }
 
+// PythonConfig returns the embedded python.Config struct from the interface
+func (c *Config) PythonConfig() *python.Config {
+	return c.pyConf
+}
+
 // Monitor is the main type that represents the monitor
 type Monitor struct {
 	python.Monitor
@@ -69,56 +76,56 @@ type Monitor struct {
 
 // Configure configures and runs the plugin in collectd
 func (m *Monitor) Configure(conf *Config) error {
-	conf.PluginConfig = map[string]interface{}{
-		"Host":                 conf.Host,
-		"Port":                 conf.Port,
-		"DetailedMetrics":      conf.DetailedMetrics,
-		"EnableClusterHealth":  conf.EnableClusterHealth,
-		"EnableIndexStats":     conf.EnableIndexStats,
-		"IndexInterval":        conf.IndexInterval,
-		"IndexStatsMasterOnly": conf.IndexStatsMasterOnly,
-		"IndexSummaryOnly":     conf.IndexSummaryOnly,
-		"Interval":             conf.IntervalSeconds,
-		"Verbose":              false,
+	conf.pyConf = &python.Config{
+		MonitorConfig: conf.MonitorConfig,
+		Host:          conf.Host,
+		Port:          conf.Port,
+		ModuleName:    "elasticsearch_collectd",
+		ModulePaths:   []string{filepath.Join(os.Getenv(constants.BundleDirEnvVar), "plugins", "collectd", "elasticsearch")},
+		TypesDBPaths:  []string{filepath.Join(os.Getenv(constants.BundleDirEnvVar), "plugins", "collectd", "types.db")},
+		PluginConfig: map[string]interface{}{
+			"Host":                 conf.Host,
+			"Port":                 conf.Port,
+			"DetailedMetrics":      conf.DetailedMetrics,
+			"EnableClusterHealth":  conf.EnableClusterHealth,
+			"EnableIndexStats":     conf.EnableIndexStats,
+			"IndexInterval":        conf.IndexInterval,
+			"IndexStatsMasterOnly": conf.IndexStatsMasterOnly,
+			"IndexSummaryOnly":     conf.IndexSummaryOnly,
+			"Interval":             conf.IntervalSeconds,
+			"Verbose":              false,
+		},
 	}
-	if conf.ModuleName == "" {
-		conf.ModuleName = "elasticsearch_collectd"
-	}
-	if len(conf.ModulePaths) == 0 {
-		conf.ModulePaths = []string{filepath.Join(os.Getenv(constants.BundleDirEnvVar), "plugins", "collectd", "elasticsearch")}
-	}
-	if len(conf.TypesDBPaths) == 0 {
-		conf.TypesDBPaths = []string{filepath.Join(os.Getenv(constants.BundleDirEnvVar), "plugins", "collectd", "types.db")}
-	}
+
 	if len(conf.AdditionalMetrics) > 0 {
-		conf.PluginConfig["AdditionalMetrics"] = map[string]interface{}{
+		conf.pyConf.PluginConfig["AdditionalMetrics"] = map[string]interface{}{
 			"#flatten": true,
 			"values":   conf.AdditionalMetrics,
 		}
 	}
 	if len(conf.Indexes) > 0 {
-		conf.PluginConfig["Indexes"] = map[string]interface{}{
+		conf.pyConf.PluginConfig["Indexes"] = map[string]interface{}{
 			"#flatten": true,
 			"values":   conf.Indexes,
 		}
 	}
 	if conf.Password != "" {
-		conf.PluginConfig["Password"] = conf.Password
+		conf.pyConf.PluginConfig["Password"] = conf.Password
 	}
 	if conf.Protocol != "" {
-		conf.PluginConfig["Protocol"] = conf.Protocol
+		conf.pyConf.PluginConfig["Protocol"] = conf.Protocol
 	}
 	if conf.Username != "" {
-		conf.PluginConfig["Username"] = conf.Username
+		conf.pyConf.PluginConfig["Username"] = conf.Username
 	}
 	if len(conf.ThreadPools) > 0 {
-		conf.PluginConfig["ThreadPools"] = map[string]interface{}{
+		conf.pyConf.PluginConfig["ThreadPools"] = map[string]interface{}{
 			"#flatten": true,
 			"values":   conf.ThreadPools,
 		}
 	}
 	if conf.Version != "" {
-		conf.PluginConfig["Version"] = conf.Version
+		conf.pyConf.PluginConfig["Version"] = conf.Version
 	}
 
 	return m.Monitor.Configure(conf)
