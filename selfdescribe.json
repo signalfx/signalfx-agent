@@ -11006,6 +11006,91 @@
     },
     {
       "name": "Config",
+      "doc": " This monitor reports metrics about microsoft sql servers.\nThis monitor is based on the telegraf sqlserver plugin.  More information about the telegraf plugin\ncan be found [here](https://github.com/influxdata/telegraf/tree/master/plugins/inputs/sqlserver).\n\nSample YAML configuration:\n\n```yaml\nmonitors:\n - type: telegraf/sqlserver\n   host: hostname\n   port: 1433\n   userID: sa\n   password: P@ssw0rd!\n   appName: signalfxagent\n   azureDB: true\n   excludeQuery:\n    - PerformanceCounters\n    # - WaitStatsCategorized\n    # - DatabaseIO\n    # - DatabaseProperties\n    # - CPUHistory\n    # - DatabaseSize\n    # - DatabaseStats\n    # - MemoryClerk\n    # - VolumeSpace\n    # - PerformanceMetrics\n```\n",
+      "package": "internal/monitors/telegraf/monitors/mssqlserver",
+      "fields": [
+        {
+          "yamlName": "host",
+          "doc": "",
+          "default": null,
+          "required": true,
+          "type": "string",
+          "elementKind": ""
+        },
+        {
+          "yamlName": "port",
+          "doc": "",
+          "default": null,
+          "required": true,
+          "type": "uint16",
+          "elementKind": ""
+        },
+        {
+          "yamlName": "userID",
+          "doc": "UserID used to access the SQL Server instance.",
+          "default": "",
+          "required": false,
+          "type": "string",
+          "elementKind": ""
+        },
+        {
+          "yamlName": "password",
+          "doc": "Password used to access the SQL Server instance.",
+          "default": "",
+          "required": false,
+          "type": "string",
+          "elementKind": ""
+        },
+        {
+          "yamlName": "appName",
+          "doc": "The app name used by the monitor when connecting to the SQLServer.",
+          "default": "signalfxagent",
+          "required": false,
+          "type": "string",
+          "elementKind": ""
+        },
+        {
+          "yamlName": "queryVersion",
+          "doc": "The version of queries to use when accessing the cluster Please refer to the telegraf [documentation](https://github.com/influxdata/telegraf/tree/master/plugins/inputs/sqlserver) for more information.",
+          "default": 2,
+          "required": false,
+          "type": "int",
+          "elementKind": ""
+        },
+        {
+          "yamlName": "azureDB",
+          "doc": "Whether the database is an azure database or not.",
+          "default": false,
+          "required": false,
+          "type": "bool",
+          "elementKind": ""
+        },
+        {
+          "yamlName": "excludedQueries",
+          "doc": "Queries to exclude possible values are `PerformanceCounters`, `WaitStatsCategorized`, `DatabaseIO`, `DatabaseProperties`, `CPUHistory`, `DatabaseSize`, `DatabaseStats`, `MemoryClerk` `VolumeSpace`, `PerformanceMetrics`.",
+          "default": null,
+          "required": false,
+          "type": "slice",
+          "elementKind": "string"
+        },
+        {
+          "yamlName": "log",
+          "doc": "Log level to use when accessing the database",
+          "default": 1,
+          "required": false,
+          "type": "uint",
+          "elementKind": ""
+        }
+      ],
+      "monitorType": "telegraf/sqlserver",
+      "acceptsEndpoints": true,
+      "singleInstance": false,
+      "dimensions": null,
+      "metrics": null,
+      "properties": null
+    },
+    {
+      "name": "Config",
       "doc": " This monitor reads Windows performance\ncounters\n\nSample YAML configuration:\n\n```yaml\nmonitors:\n - type: telegraf/win_perf_counters\n   printValid: true\n   objects:\n    - objectName: \"Processor\"\n      instances:\n       - \"*\"\n      counters:\n       - \"% Idle Time\"\n       - \"% Interrupt Time\"\n       - \"% Privileged Time\"\n       - \"% User Time\"\n       - \"% Processor Time\"\n      includeTotal: true\n      measurement: \"win_cpu\"\n```\n",
       "package": "internal/monitors/telegraf/monitors/winperfcounters",
       "fields": [
