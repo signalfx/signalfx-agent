@@ -490,12 +490,13 @@
   revision = "3de563c3dc08a7504131e9d63f678b7d1c3e85d7"
 
 [[projects]]
-  digest = "1:69f77c621a7e6a49e27ee2c49d2920b2178ea62d7fff011d6ded1f4a15a5e5c3"
+  digest = "1:d8cf544dfe98b1d465926412969a2bcb51dd173d25c003ccfdacee6808049b76"
   name = "github.com/influxdata/telegraf"
   packages = [
     ".",
     "internal",
     "plugins/inputs",
+    "plugins/inputs/sqlserver",
     "plugins/inputs/win_perf_counters",
   ]
   pruneopts = "NUT"
@@ -1005,6 +1006,14 @@
   version = "0.0.1"
 
 [[projects]]
+  branch = "master"
+  digest = "1:ed3d912b90c185e53176f0f6ebb838a110a4e2b42b2a06e3d9c36f83e0ccc03c"
+  name = "github.com/zensqlmonitor/go-mssqldb"
+  packages = ["."]
+  pruneopts = "NUT"
+  revision = "e8fbf836e44e86764eba398361d1825651709547"
+
+[[projects]]
   digest = "1:8eff4c694254322268936dc162805ff95ac846435e909f011ba43805bb9b4e0f"
   name = "go.uber.org/atomic"
   packages = ["."]
@@ -1037,11 +1046,12 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:6fb2dcac470fde917feb56fa6f2af7e5215eebd4312bb4abbef2cc87457270ee"
+  digest = "1:b65bf7403a2e0c41c4d46718d280582cea3f403b8788d31e86a19ba2b0d1d20d"
   name = "golang.org/x/crypto"
   packages = [
     "bcrypt",
     "blowfish",
+    "md4",
     "ssh/terminal",
   ]
   pruneopts = "NUT"
@@ -1417,6 +1427,7 @@
     "github.com/hashicorp/golang-lru",
     "github.com/iancoleman/strcase",
     "github.com/influxdata/telegraf/plugins/inputs",
+    "github.com/influxdata/telegraf/plugins/inputs/sqlserver",
     "github.com/influxdata/telegraf/plugins/inputs/win_perf_counters",
     "github.com/kardianos/service",
     "github.com/kr/pretty",
