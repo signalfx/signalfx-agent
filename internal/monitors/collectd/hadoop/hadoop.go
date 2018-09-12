@@ -3,6 +3,8 @@
 package hadoop
 
 import (
+	"fmt"
+
 	"github.com/signalfx/signalfx-agent/internal/monitors/collectd"
 
 	"github.com/signalfx/signalfx-agent/internal/core/config"
@@ -83,7 +85,7 @@ func (m *Monitor) Configure(conf *Config) error {
 		ModulePaths:   []string{collectd.MakePath("hadoop")},
 		TypesDBPaths:  []string{collectd.MakePath("types.db")},
 		PluginConfig: map[string]interface{}{
-			"ResourceManagerURL":  "http://{{.Host}}",
+			"ResourceManagerURL":  fmt.Sprintf("http://%s", conf.Host),
 			"ResourceManagerPort": conf.Port,
 			"Interval":            conf.IntervalSeconds,
 			"Verbose":             conf.Verbose,

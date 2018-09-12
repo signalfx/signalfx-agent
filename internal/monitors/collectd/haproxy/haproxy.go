@@ -3,6 +3,8 @@
 package haproxy
 
 import (
+	"fmt"
+
 	"github.com/signalfx/signalfx-agent/internal/monitors/collectd"
 
 	"github.com/signalfx/signalfx-agent/internal/core/config"
@@ -59,7 +61,7 @@ func (m *Monitor) Configure(conf *Config) error {
 		ModulePaths:   []string{collectd.MakePath("haproxy")},
 		TypesDBPaths:  []string{collectd.MakePath("types.db")},
 		PluginConfig: map[string]interface{}{
-			"Socket":          "{{.Host}}:{{.Port}}",
+			"Socket":          fmt.Sprintf("%s:%d", conf.Host, conf.Port),
 			"Interval":        conf.IntervalSeconds,
 			"EnhancedMetrics": conf.EnhancedMetrics,
 		},

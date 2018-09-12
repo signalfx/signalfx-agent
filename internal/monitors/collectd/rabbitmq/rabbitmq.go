@@ -102,8 +102,7 @@ func (m *Monitor) Configure(conf *Config) error {
 	// the python runner's templating system does not convert to map first
 	// this requires TitleCase template values.  For BrokerName we accept
 	// either upper or lower case values.  Converting the map to yaml
-	// and explicitly rendering the BrokerName will allow for upper or lower
-	// casing.
+	// and explicitly rendering the BrokerName will change everything to lower case.
 	mp, err := utils.ConvertToMapViaYAML(conf)
 	if err != nil {
 		return err

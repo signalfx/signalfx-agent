@@ -121,14 +121,14 @@ func (m *Monitor) Configure(conf *Config) error {
 	}
 
 	if conf.IsMaster {
-		conf.pyConf.PluginConfig["Master"] = "http://{{.Host}}:{{.Port}}"
+		conf.pyConf.PluginConfig["Master"] = fmt.Sprintf("http://%s:%d", conf.Host, conf.Port)
 		conf.pyConf.PluginConfig["MasterPort"] = conf.Port
 	} else {
 		conf.pyConf.PluginConfig["WorkerPorts"] = conf.Port
 	}
 
 	if conf.ClusterType != sparkYarn {
-		conf.pyConf.PluginConfig["MetricsURL"] = "http://{{.Host}}"
+		conf.pyConf.PluginConfig["MetricsURL"] = fmt.Sprintf("http://%s", conf.Host)
 	}
 
 	return m.PyMonitor.Configure(conf)

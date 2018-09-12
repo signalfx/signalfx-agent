@@ -4,6 +4,7 @@ package healthchecker
 
 import (
 	"errors"
+	"fmt"
 
 	"github.com/signalfx/signalfx-agent/internal/monitors/collectd"
 
@@ -96,7 +97,11 @@ func (m *Monitor) Configure(conf *Config) error {
 		conf.pyConf.PluginConfig["URL"] = conf.Host
 		conf.pyConf.PluginConfig["TCP"] = conf.Port
 	} else {
-		conf.pyConf.PluginConfig["URL"] = "http{{if .UseHTTPS}}s{{end}}://{{.Host}}:{{.Port}}:{{.Path}}"
+		protocol := "http"
+		if conf.UseHTTPS {
+			protocol = "https"
+		}
+		conf.pyConf.PluginConfig["URL"] = fmt.Sprintf("%s://%s:%d%s", protocol, conf.Host, conf.Port, conf.Path)
 		conf.pyConf.PluginConfig["SkipSecurity"] = conf.SkipSecurity
 	}
 
