@@ -12,6 +12,7 @@ import (
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/metadata/hostmetadata"
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/processlist"
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/prometheus"
+	_ "github.com/signalfx/signalfx-agent/internal/monitors/telegraf/monitors/mssqlserver"
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/telegraf/monitors/winperfcounters"
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/traceforwarder"
 	_ "github.com/signalfx/signalfx-agent/internal/observers/docker"

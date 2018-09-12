@@ -2,6 +2,12 @@
 
 
 [[projects]]
+  name = "cloud.google.com/go"
+  packages = ["civil"]
+  revision = "dfffe386c33fb24c34ee501e5723df5b97b98514"
+  version = "v0.30.0"
+
+[[projects]]
   name = "github.com/Knetic/govaluate"
   packages = ["."]
   revision = "4598e72a5762f7e683b840482a8bf9d19b1eb5e2"
@@ -82,6 +88,15 @@
   packages = ["spew"]
   revision = "346938d642f2ec3594ed81d874461961cd0faa76"
   version = "v1.1.0"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/denisenkom/go-mssqldb"
+  packages = [
+    ".",
+    "internal/cp"
+  ]
+  revision = "1eb28afdf9b6e56cf673badd47545f844fe81103"
 
 [[projects]]
   name = "github.com/docker/distribution"
@@ -337,6 +352,7 @@
     ".",
     "internal",
     "plugins/inputs",
+    "plugins/inputs/sqlserver",
     "plugins/inputs/win_perf_counters"
   ]
   revision = "ae9efb2f696f4dd9e83db4b0431cf9aabf7af97c"
@@ -692,7 +708,10 @@
 [[projects]]
   branch = "master"
   name = "golang.org/x/crypto"
-  packages = ["ssh/terminal"]
+  packages = [
+    "md4",
+    "ssh/terminal"
+  ]
   revision = "1875d0a70c90e57f11972aefd42276df65e895b9"
 
 [[projects]]
@@ -953,6 +972,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "35b87131d3945250cd95959ba6a4ad0b4b37064f8880d1f7c41dc91f71b44743"
+  inputs-digest = "a6c8cb42e05bf53a39d78daafd43a74ce27589799d802c839b235d69d3548cfd"
   solver-name = "gps-cdcl"
   solver-version = 1
