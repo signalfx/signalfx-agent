@@ -3,10 +3,8 @@
 package hadoop
 
 import (
-	"os"
-	"path/filepath"
+	"github.com/signalfx/signalfx-agent/internal/monitors/collectd"
 
-	"github.com/signalfx/signalfx-agent/internal/core/common/constants"
 	"github.com/signalfx/signalfx-agent/internal/core/config"
 
 	"github.com/signalfx/signalfx-agent/internal/monitors"
@@ -82,8 +80,8 @@ func (m *Monitor) Configure(conf *Config) error {
 		Host:          conf.Host,
 		Port:          conf.Port,
 		ModuleName:    "hadoop_plugin",
-		ModulePaths:   []string{filepath.Join(os.Getenv(constants.BundleDirEnvVar), "plugins", "collectd", "hadoop")},
-		TypesDBPaths:  []string{filepath.Join(os.Getenv(constants.BundleDirEnvVar), "plugins", "collectd", "types.db")},
+		ModulePaths:   []string{collectd.MakePath("hadoop")},
+		TypesDBPaths:  []string{collectd.MakePath("types.db")},
 		PluginConfig: map[string]interface{}{
 			"ResourceManagerURL":  "http://{{.Host}}",
 			"ResourceManagerPort": conf.Port,

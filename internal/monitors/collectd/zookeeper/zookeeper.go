@@ -3,10 +3,8 @@
 package zookeeper
 
 import (
-	"os"
-	"path/filepath"
+	"github.com/signalfx/signalfx-agent/internal/monitors/collectd"
 
-	"github.com/signalfx/signalfx-agent/internal/core/common/constants"
 	"github.com/signalfx/signalfx-agent/internal/core/config"
 
 	"github.com/signalfx/signalfx-agent/internal/monitors"
@@ -58,8 +56,8 @@ func (rm *Monitor) Configure(conf *Config) error {
 	conf.pyConf = &python.Config{
 		MonitorConfig: conf.MonitorConfig,
 		ModuleName:    "zk-collectd",
-		ModulePaths:   []string{filepath.Join(os.Getenv(constants.BundleDirEnvVar), "plugins", "collectd", "zookeeper")},
-		TypesDBPaths:  []string{filepath.Join(os.Getenv(constants.BundleDirEnvVar), "plugins", "collectd", "types.db")},
+		ModulePaths:   []string{collectd.MakePath("zookeeper")},
+		TypesDBPaths:  []string{collectd.MakePath("types.db")},
 		Host:          conf.Host,
 		Port:          conf.Port,
 		PluginConfig: map[string]interface{}{

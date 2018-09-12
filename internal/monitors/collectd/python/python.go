@@ -10,8 +10,6 @@ import (
 	"fmt"
 	"html/template"
 	"io"
-	"os"
-	"path/filepath"
 	"strconv"
 
 	"github.com/davecgh/go-spew/spew"
@@ -20,9 +18,9 @@ import (
 	"github.com/signalfx/golib/event"
 	mpCollectd "github.com/signalfx/metricproxy/protocol/collectd"
 	"github.com/signalfx/metricproxy/protocol/collectd/format"
-	"github.com/signalfx/signalfx-agent/internal/core/common/constants"
 	"github.com/signalfx/signalfx-agent/internal/core/config"
 	"github.com/signalfx/signalfx-agent/internal/monitors"
+	"github.com/signalfx/signalfx-agent/internal/monitors/collectd"
 	"github.com/signalfx/signalfx-agent/internal/monitors/pyrunner"
 	"github.com/signalfx/signalfx-agent/internal/monitors/types"
 	"github.com/signalfx/signalfx-agent/internal/utils/collectdutil"
@@ -91,8 +89,7 @@ func (m *PyMonitor) Configure(conf PyConfig) error {
 	// get the python config from the supplied config
 	pyconf := conf.PythonConfig()
 	if len(pyconf.TypesDBPaths) == 0 {
-		pyconf.TypesDBPaths = append(pyconf.TypesDBPaths,
-			filepath.Join(os.Getenv(constants.BundleDirEnvVar), "plugins/collectd/types.db"))
+		pyconf.TypesDBPaths = append(pyconf.TypesDBPaths, collectd.MakePath("types.db"))
 	}
 
 	for k := range pyconf.PluginConfig {

@@ -4,10 +4,9 @@ package couchbase
 
 import (
 	"errors"
-	"os"
-	"path/filepath"
 
-	"github.com/signalfx/signalfx-agent/internal/core/common/constants"
+	"github.com/signalfx/signalfx-agent/internal/monitors/collectd"
+
 	"github.com/signalfx/signalfx-agent/internal/core/config"
 
 	"github.com/signalfx/signalfx-agent/internal/monitors/collectd/python"
@@ -96,8 +95,8 @@ func (m *Monitor) Configure(conf *Config) error {
 		Host:          conf.Host,
 		Port:          conf.Port,
 		ModuleName:    "couchbase",
-		ModulePaths:   []string{filepath.Join(os.Getenv(constants.BundleDirEnvVar), "plugins", "collectd", "couchbase")},
-		TypesDBPaths:  []string{filepath.Join(os.Getenv(constants.BundleDirEnvVar), "plugins", "collectd", "types.db")},
+		ModulePaths:   []string{collectd.MakePath("couchbase")},
+		TypesDBPaths:  []string{collectd.MakePath("types.db")},
 		PluginConfig: map[string]interface{}{
 			"Host":          conf.Host,
 			"Port":          conf.Port,

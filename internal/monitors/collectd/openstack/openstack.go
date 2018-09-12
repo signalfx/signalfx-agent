@@ -3,12 +3,9 @@
 package openstack
 
 import (
-	"os"
-	"path/filepath"
-
 	"github.com/signalfx/signalfx-agent/internal/core/config"
+	"github.com/signalfx/signalfx-agent/internal/monitors/collectd"
 
-	"github.com/signalfx/signalfx-agent/internal/core/common/constants"
 	"github.com/signalfx/signalfx-agent/internal/monitors"
 	"github.com/signalfx/signalfx-agent/internal/monitors/collectd/python"
 	"github.com/signalfx/signalfx-agent/internal/monitors/pyrunner"
@@ -71,8 +68,8 @@ type Monitor struct {
 func (m *Monitor) Configure(conf *Config) error {
 	conf.pyConf = &python.Config{
 		ModuleName:    "openstack_metrics",
-		ModulePaths:   []string{filepath.Join(os.Getenv(constants.BundleDirEnvVar), "plugins", "collectd", "openstack")},
-		TypesDBPaths:  []string{filepath.Join(os.Getenv(constants.BundleDirEnvVar), "plugins", "collectd", "types.db")},
+		ModulePaths:   []string{collectd.MakePath("openstack")},
+		TypesDBPaths:  []string{collectd.MakePath("types.db")},
 		MonitorConfig: conf.MonitorConfig,
 		PluginConfig: map[string]interface{}{
 			"AuthURL":  conf.AuthURL,

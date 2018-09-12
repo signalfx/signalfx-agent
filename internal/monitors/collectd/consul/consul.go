@@ -3,10 +3,8 @@
 package consul
 
 import (
-	"os"
-	"path/filepath"
+	"github.com/signalfx/signalfx-agent/internal/monitors/collectd"
 
-	"github.com/signalfx/signalfx-agent/internal/core/common/constants"
 	"github.com/signalfx/signalfx-agent/internal/core/config"
 
 	"github.com/signalfx/signalfx-agent/internal/monitors"
@@ -72,8 +70,8 @@ func (m *Monitor) Configure(conf *Config) error {
 		Host:          conf.Host,
 		Port:          conf.Port,
 		ModuleName:    "consul_plugin",
-		ModulePaths:   []string{filepath.Join(os.Getenv(constants.BundleDirEnvVar), "plugins", "collectd", "consul")},
-		TypesDBPaths:  []string{filepath.Join(os.Getenv(constants.BundleDirEnvVar), "plugins", "collectd", "types.db")},
+		ModulePaths:   []string{collectd.MakePath("consul")},
+		TypesDBPaths:  []string{collectd.MakePath("types.db")},
 		PluginConfig: map[string]interface{}{
 			"ApiHost":         conf.Host,
 			"ApiPort":         conf.Port,
