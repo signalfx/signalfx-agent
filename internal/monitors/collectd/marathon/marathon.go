@@ -2,14 +2,16 @@
 
 package marathon
 
-//go:generate collectd-template-to-go marathon.tmpl
-
 import (
 	"errors"
 
-	"github.com/signalfx/signalfx-agent/internal/core/config"
-	"github.com/signalfx/signalfx-agent/internal/monitors"
 	"github.com/signalfx/signalfx-agent/internal/monitors/collectd"
+
+	"github.com/signalfx/signalfx-agent/internal/core/config"
+
+	"github.com/signalfx/signalfx-agent/internal/monitors"
+	"github.com/signalfx/signalfx-agent/internal/monitors/collectd/python"
+	"github.com/signalfx/signalfx-agent/internal/monitors/pyrunner"
 )
 
 const monitorType = "collectd/marathon"
@@ -46,7 +48,9 @@ const monitorType = "collectd/marathon"
 func init() {
 	monitors.Register(monitorType, func() interface{} {
 		return &Monitor{
-			*collectd.NewMonitorCore(CollectdTemplate),
+			python.PyMonitor{
+				MonitorCore: pyrunner.New("sfxcollectd"),
+			},
 		}
 	}, &Config{})
 }
@@ -55,9 +59,9 @@ func init() {
 type Config struct {
 	// Make this single instance since we can't add dimensions
 	config.MonitorConfig `yaml:",inline" acceptsEndpoints:"true" singleInstance:"true"`
-
-	Host string `yaml:"host" validate:"required"`
-	Port uint16 `yaml:"port" validate:"required"`
+	pyConf               *python.Config
+	Host                 string `yaml:"host" validate:"required"`
+	Port                 uint16 `yaml:"port" validate:"required"`
 	// Username used to authenticate with Marathon.
 	Username string `yaml:"username"`
 	// Password used to authenticate with Marathon.
@@ -71,6 +75,11 @@ type Config struct {
 	DCOSAuthURL string `yaml:"dcosAuthURL"`
 }
 
+// PythonConfig returns the embedded python.Config struct from the interface
+func (c *Config) PythonConfig() *python.Config {
+	return c.pyConf
+}
+
 // Validate config issues
 func (c *Config) Validate() error {
 	if c.DCOSAuthURL != "" && c.Scheme != "https" {
@@ -81,10 +90,36 @@ func (c *Config) Validate() error {
 
 // Monitor is the main type that represents the monitor
 type Monitor struct {
-	collectd.MonitorCore
+	python.PyMonitor
 }
 
 // Configure configures and runs the plugin in collectd
-func (am *Monitor) Configure(conf *Config) error {
-	return am.SetConfigurationAndRun(conf)
+func (m *Monitor) Configure(conf *Config) error {
+	conf.pyConf = &python.Config{
+		MonitorConfig: conf.MonitorConfig,
+		Host:          conf.Host,
+		Port:          conf.Port,
+		ModuleName:    "marathon",
+		ModulePaths:   []string{collectd.MakePath("marathon")},
+		TypesDBPaths:  []string{collectd.MakePath("types.db")},
+		PluginConfig: map[string]interface{}{
+			"verbose": false,
+		},
+	}
+
+	// marathon's configuration is different, all configurations are
+	// packed into an array of values for a given host
+	host := []interface{}{conf.Scheme, conf.Host, conf.Port}
+	if conf.Username != "" {
+		host = append(host, conf.Username)
+	}
+	if conf.Password != "" {
+		host = append(host, conf.Password)
+	}
+	if conf.DCOSAuthURL != "" {
+		host = append(host, conf.DCOSAuthURL)
+	}
+	conf.pyConf.PluginConfig["host"] = host
+
+	return m.PyMonitor.Configure(conf)
 }

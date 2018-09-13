@@ -35,11 +35,28 @@ class Config(object):
         for k, v in monitor_plugin_config.items():
             values = None
             children = None
+            if v is None:
+                logging.debug("dropping configuration %s because its value is None", k)
+                continue
             if isinstance(v, (tuple, list)):
+                if len(v) == 0:
+                    logging.debug("dropping configuration %s because its value is an empty list or tuple", k)
+                    continue
                 values = v
-            elif isinstance(v, (int, str, unicode)):
+            elif isinstance(v, (str, unicode)):
+                if v == "":
+                    logging.debug("dropping configuration %s because its value is an empty string", k)
+                    continue
+                values = (v,)
+            elif isinstance(v, (int, bool)):
                 values = (v,)
             elif isinstance(v, dict):
+                if len(v) == 0 :
+                    logging.debug("dropping configuration %s because its value is an empty dictionary", k)
+                    continue
+                if "#flatten" in v and "values" in v:
+                    conf.children += [cls(root=conf, key=k, values=item, children=[]) for item in v.get("values") or [] if item is not None]
+                    continue
                 dict_conf = cls.from_monitor_config(v)
                 children = dict_conf.children
                 values = dict_conf.values
