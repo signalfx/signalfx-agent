@@ -3,6 +3,7 @@ from kubernetes import client as kube_client
 from kubernetes.client.rest import ApiException
 from tests.helpers.assertions import *
 from tests.helpers.util import *
+from tests.helpers.formatting import print_dp_or_event
 import docker
 import os
 import re
@@ -17,6 +18,7 @@ AGENT_DAEMONSET_PATH = os.environ.get("AGENT_DAEMONSET_PATH", os.path.join(AGENT
 AGENT_SERVICEACCOUNT_PATH = os.environ.get("AGENT_SERVICEACCOUNT_PATH", os.path.join(AGENT_YAMLS_DIR, "serviceaccount.yaml"))
 K8S_CREATE_TIMEOUT = 180
 K8S_DELETE_TIMEOUT = 10
+
 
 def run_k8s_monitors_test(agent_image, minikube, monitors, observer=None, namespace="default", yamls=[], yamls_timeout=K8S_CREATE_TIMEOUT, expected_metrics=set(), expected_dims=set(), passwords=["testing123"], test_timeout=60):
     """
@@ -34,7 +36,7 @@ def run_k8s_monitors_test(agent_image, minikube, monitors, observer=None, namesp
     yamls (list of str):                   Path(s) to K8S deployment yamls to create
     yamls_timeout (int):                   Timeout in seconds to wait for the K8S deployments to be ready
     expected_metrics (set of str):         Set of metric names to test for (if empty or None, metrics test will be skipped)
-    expected_dims (set or str):            Set of dimension keys to test for (if None, dimensions test will be skipped)
+    expected_dims (set of str):            Set of dimension keys to test for (if None, dimensions test will be skipped)
     passwords (list of str):               Cleartext password(s) to test for in the output from the agent status and agent container logs
     test_timeout (int):                    Timeout in seconds to wait for metrics/dimensions
     """
@@ -92,7 +94,15 @@ def run_k8s_with_agent(agent_image, minikube, monitors, observer=None, namespace
                 image_name=agent_image["name"],
                 image_tag=agent_image["tag"],
                 namespace=namespace) as agent:
-                yield [backend, agent]
+                try:
+                    yield [backend, agent]
+                finally:
+                    print("\nDatapoints received:")
+                    for dp in backend.datapoints:
+                        print_dp_or_event(dp)
+                    print("\nEvents received:")
+                    for event in backend.events:
+                        print_dp_or_event(event)
 
 
 def has_namespace(name):
