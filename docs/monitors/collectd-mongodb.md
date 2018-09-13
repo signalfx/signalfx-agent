@@ -25,7 +25,7 @@ Monitor Type: `collectd/mongodb`
 | `databases` | **yes** | `list of string` |  |
 | `username` | no | `string` |  |
 | `password` | no | `string` |  |
-| `useTLS` | no | `bool` |  (**default:** `false`) |
+| `useTLS` | no | `bool` |  |
 | `caCerts` | no | `string` |  |
 | `tlsClientCert` | no | `string` |  |
 | `tlsClientKey` | no | `string` |  |

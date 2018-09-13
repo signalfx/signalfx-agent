@@ -23,7 +23,7 @@ Monitor Type: `collectd/haproxy`
 | `port` | **yes** | `integer` |  |
 | `proxiesToMonitor` | no | `list of string` |  |
 | `excludedMetrics` | no | `list of string` |  |
-| `enhancedMetrics` | no | `bool` |  (**default:** `false`) |
+| `enhancedMetrics` | no | `bool` |  |
 
 
 

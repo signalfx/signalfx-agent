@@ -57,7 +57,7 @@ Monitor Type: `collectd/jenkins`
 | `host` | **yes** | `string` |  |
 | `port` | **yes** | `integer` |  |
 | `metricsKey` | **yes** | `string` | Key required for collecting metrics.  The access key located at `Manage Jenkins > Configure System > Metrics > ADD.` If empty, click `Generate`. |
-| `enhancedMetrics` | no | `bool` | Whether to enable enhanced metrics (**default:** `false`) |
+| `enhancedMetrics` | no | `bool` | Whether to enable enhanced metrics |
 | `includeMetrics` | no | `list of string` | Used to enable individual enhanced metrics when `enhancedMetrics` is false |
 | `username` | no | `string` | User with security access to jenkins |
 | `apiToken` | no | `string` | API Token of the user |
