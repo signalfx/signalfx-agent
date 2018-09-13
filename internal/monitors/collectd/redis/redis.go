@@ -95,7 +95,7 @@ type Monitor struct {
 func (rm *Monitor) Configure(conf *Config) error {
 
 	instanceID := conf.Name
-	if instanceID == "" {
+	if conf.Name == "" {
 		instanceID = fmt.Sprintf("%s:%d", conf.Host, conf.Port)
 	}
 
@@ -110,6 +110,9 @@ func (rm *Monitor) Configure(conf *Config) error {
 			"Host":                                 conf.Host,
 			"Port":                                 conf.Port,
 			"Instance":                             instanceID,
+			"Auth":                                 conf.Auth,
+			"Name":                                 conf.Name,
+			"SendListLength":                       conf.SendListLengths,
 			"Verbose":                              false,
 			"Redis_uptime_in_seconds":              "gauge",
 			"Redis_used_cpu_sys":                   "counter",
@@ -147,15 +150,6 @@ func (rm *Monitor) Configure(conf *Config) error {
 			"Redis_db0_expires":                    "gauge",
 			"Redis_db0_avg_ttl":                    "gauge",
 		},
-	}
-	if conf.Auth != "" {
-		conf.pyConf.PluginConfig["Auth"] = conf.Auth
-	}
-	if conf.Name != "" {
-		conf.pyConf.PluginConfig["Name"] = conf.Name
-	}
-	if len(conf.SendListLengths) > 0 {
-		conf.pyConf.PluginConfig["SendListLength"] = conf.SendListLengths
 	}
 
 	return rm.PyMonitor.Configure(conf)

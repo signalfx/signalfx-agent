@@ -72,19 +72,13 @@ func (m *Monitor) Configure(conf *Config) error {
 		TypesDBPaths:  []string{collectd.MakePath("types.db")},
 		MonitorConfig: conf.MonitorConfig,
 		PluginConfig: map[string]interface{}{
-			"AuthURL":  conf.AuthURL,
-			"Username": conf.Username,
-			"Password": conf.Password,
+			"AuthURL":         conf.AuthURL,
+			"Username":        conf.Username,
+			"Password":        conf.Password,
+			"ProjectName":     conf.ProjectName,
+			"ProjectDomainId": conf.ProjectDomainID,
+			"UserDomainId":    conf.UserDomainID,
 		},
-	}
-	if conf.ProjectName != "" {
-		conf.pyConf.PluginConfig["ProjectName"] = conf.ProjectName
-	}
-	if conf.ProjectDomainID != "" {
-		conf.pyConf.PluginConfig["ProjectDomainId"] = conf.ProjectDomainID
-	}
-	if conf.UserDomainID != "" {
-		conf.pyConf.PluginConfig["UserDomainId"] = conf.UserDomainID
 	}
 
 	return m.PyMonitor.Configure(conf)

@@ -62,7 +62,7 @@ type Config struct {
 	// Resource Manager Port
 	Port uint16 `yaml:"port" validate:"required"`
 	// Log verbose information about the plugin
-	Verbose bool `yaml:"verbose"`
+	Verbose *bool `yaml:"verbose"`
 }
 
 // PythonConfig returns the embedded python.Config struct from the interface

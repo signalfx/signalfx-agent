@@ -46,7 +46,7 @@ type Config struct {
 	Port                 uint16 `yaml:"port" validate:"required"`
 	ACLToken             string `yaml:"aclToken" neverLog:"true"`
 	UseHTTPS             bool   `yaml:"useHTTPS"`
-	EnhancedMetrics      bool   `yaml:"enhancedMetrics"`
+	EnhancedMetrics      *bool  `yaml:"enhancedMetrics"`
 	CACertificate        string `yaml:"caCertificate"`
 	ClientCertificate    string `yaml:"clientCertificate"`
 	ClientKey            string `yaml:"clientKey"`
@@ -73,11 +73,15 @@ func (m *Monitor) Configure(conf *Config) error {
 		ModulePaths:   []string{collectd.MakePath("consul")},
 		TypesDBPaths:  []string{collectd.MakePath("types.db")},
 		PluginConfig: map[string]interface{}{
-			"ApiHost":         conf.Host,
-			"ApiPort":         conf.Port,
-			"TelemetryServer": false,
-			"SfxToken":        conf.SignalFxAccessToken,
-			"EnhancedMetrics": conf.EnhancedMetrics,
+			"ApiHost":           conf.Host,
+			"ApiPort":           conf.Port,
+			"TelemetryServer":   false,
+			"SfxToken":          conf.SignalFxAccessToken,
+			"EnhancedMetrics":   conf.EnhancedMetrics,
+			"AclToken":          conf.ACLToken,
+			"CaCertificate":     conf.CACertificate,
+			"ClientCertificate": conf.ClientCertificate,
+			"ClientKey":         conf.ClientKey,
 		},
 	}
 
@@ -85,18 +89,6 @@ func (m *Monitor) Configure(conf *Config) error {
 		conf.pyConf.PluginConfig["ApiProtocol"] = "https"
 	} else {
 		conf.pyConf.PluginConfig["ApiProtocol"] = "http"
-	}
-	if conf.ACLToken != "" {
-		conf.pyConf.PluginConfig["AclToken"] = conf.ACLToken
-	}
-	if conf.CACertificate != "" {
-		conf.pyConf.PluginConfig["CaCertificate"] = conf.CACertificate
-	}
-	if conf.ClientCertificate != "" {
-		conf.pyConf.PluginConfig["ClientCertificate"] = conf.ClientCertificate
-	}
-	if conf.ClientKey != "" {
-		conf.pyConf.PluginConfig["ClientKey"] = conf.ClientKey
 	}
 
 	return m.PyMonitor.Configure(conf)

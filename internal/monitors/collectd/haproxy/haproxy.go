@@ -38,7 +38,7 @@ type Config struct {
 	Port                 uint16   `yaml:"port" validate:"required"`
 	ProxiesToMonitor     []string `yaml:"proxiesToMonitor"`
 	ExcludedMetrics      []string `yaml:"excludedMetrics"`
-	EnhancedMetrics      bool     `yaml:"enhancedMetrics"`
+	EnhancedMetrics      *bool    `yaml:"enhancedMetrics"`
 }
 
 // PythonConfig returns the embedded python.Config struct from the interface
@@ -64,20 +64,16 @@ func (m *Monitor) Configure(conf *Config) error {
 			"Socket":          fmt.Sprintf("%s:%d", conf.Host, conf.Port),
 			"Interval":        conf.IntervalSeconds,
 			"EnhancedMetrics": conf.EnhancedMetrics,
+			"ProxyMonitor": map[string]interface{}{
+				"#flatten": true,
+				"values":   conf.ProxiesToMonitor,
+			},
+			"ExcludeMetric": map[string]interface{}{
+				"#flatten": true,
+				"values":   conf.ExcludedMetrics,
+			},
 		},
 	}
 
-	if len(conf.ProxiesToMonitor) > 0 {
-		conf.pyConf.PluginConfig["ProxyMonitor"] = map[string]interface{}{
-			"#flatten": true,
-			"values":   conf.ProxiesToMonitor,
-		}
-	}
-	if len(conf.ExcludedMetrics) > 0 {
-		conf.pyConf.PluginConfig["ExcludeMetric"] = map[string]interface{}{
-			"#flatten": true,
-			"values":   conf.ExcludedMetrics,
-		}
-	}
 	return m.PyMonitor.Configure(conf)
 }

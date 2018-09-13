@@ -90,6 +90,8 @@ func (m *Monitor) Configure(conf *Config) error {
 		TypesDBPaths:  []string{collectd.MakePath("types.db")},
 		PluginConfig: map[string]interface{}{
 			"Instance": conf.Name,
+			"JSONKey":  conf.JSONKey,
+			"JSONVal":  conf.JSONVal,
 		},
 	}
 
@@ -103,14 +105,6 @@ func (m *Monitor) Configure(conf *Config) error {
 		}
 		conf.pyConf.PluginConfig["URL"] = fmt.Sprintf("%s://%s:%d%s", protocol, conf.Host, conf.Port, conf.Path)
 		conf.pyConf.PluginConfig["SkipSecurity"] = conf.SkipSecurity
-	}
-
-	if conf.JSONKey != "" {
-		conf.pyConf.PluginConfig["JSONKey"] = conf.JSONKey
-	}
-
-	if conf.JSONVal != nil {
-		conf.pyConf.PluginConfig["JSONVal"] = conf.JSONVal
 	}
 
 	return m.PyMonitor.Configure(conf)

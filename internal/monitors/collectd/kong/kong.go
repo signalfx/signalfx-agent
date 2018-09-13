@@ -182,34 +182,85 @@ func (m *Monitor) Configure(conf *Config) error {
 		ModulePaths:   []string{collectd.MakePath("kong")},
 		TypesDBPaths:  []string{collectd.MakePath("types.db")},
 		PluginConfig: map[string]interface{}{
-			"URL": conf.URL,
+			"URL":                    conf.URL,
+			"Interval":               conf.IntervalSeconds,
+			"Verbose":                conf.Verbose,
+			"Name":                   conf.Name,
+			"VerifyCerts":            conf.VerifyCerts,
+			"CABundle":               conf.CABundle,
+			"ClientCert":             conf.ClientCert,
+			"ClientCertKey":          conf.ClientCertKey,
+			"ReportAPIIDs":           conf.ReportAPIIDs,
+			"ReportAPINames":         conf.ReportAPINames,
+			"ReportServiceIDs":       conf.ReportServiceIDs,
+			"ReportServiceNames":     conf.ReportServiceNames,
+			"ReportRouteIDs":         conf.ReportRouteIDs,
+			"ReportHTTPMethods":      conf.ReportHTTPMethods,
+			"ReportStatusCodeGroups": conf.ReportStatusCodeGroups,
+			"ReportStatusCodes":      conf.ReportStatusCodes,
+			"APIIDs": map[string]interface{}{
+				"#flatten": true,
+				"values":   conf.APIIDs,
+			},
+			"APIIDsBlacklist": map[string]interface{}{
+				"#flatten": true,
+				"values":   conf.APIIDsBlacklist,
+			},
+			"APINames": map[string]interface{}{
+				"#flatten": true,
+				"values":   conf.APINames,
+			},
+			"APINamesBlacklist": map[string]interface{}{
+				"#flatten": true,
+				"values":   conf.APINamesBlacklist,
+			},
+			"ServiceIDs": map[string]interface{}{
+				"#flatten": true,
+				"values":   conf.ServiceIDs,
+			},
+			"ServiceIDsBlacklist": map[string]interface{}{
+				"#flatten": true,
+				"values":   conf.ServiceIDsBlacklist,
+			},
+			"ServiceNames": map[string]interface{}{
+				"#flatten": true,
+				"values":   conf.ServiceNames,
+			},
+			"ServiceNamesBlacklist": map[string]interface{}{
+				"#flatten": true,
+				"values":   conf.ServiceNamesBlacklist,
+			},
+			"RouteIDs": map[string]interface{}{
+				"#flatten": true,
+				"values":   conf.RouteIDs,
+			},
+			"RouteIDsBlacklist": map[string]interface{}{
+				"#flatten": true,
+				"values":   conf.RouteIDsBlacklist,
+			},
+			"HTTPMethods": map[string]interface{}{
+				"#flatten": true,
+				"values":   conf.HTTPMethods,
+			},
+			"HTTPMethodsBlacklist": map[string]interface{}{
+				"#flatten": true,
+				"values":   conf.HTTPMethodsBlacklist,
+			},
+			"StatusCodes": map[string]interface{}{
+				"#flatten": true,
+				"values":   conf.StatusCodes,
+			},
+			"StatusCodesBlacklist": map[string]interface{}{
+				"#flatten": true,
+				"values":   conf.StatusCodesBlacklist,
+			},
 		},
 	}
 
-	if conf.Verbose != nil {
-		conf.pyConf.PluginConfig["Verbose"] = *conf.Verbose
-	}
-	if conf.Name != "" {
-		conf.pyConf.PluginConfig["Name"] = conf.Name
-	}
 	if conf.AuthHeader != nil {
 		conf.pyConf.PluginConfig["AuthHeader"] = []string{conf.AuthHeader.HeaderName, conf.AuthHeader.Value}
 	}
-	if conf.VerifyCerts != nil {
-		conf.pyConf.PluginConfig["VerifyCerts"] = *conf.VerifyCerts
-	}
-	if conf.CABundle != "" {
-		conf.pyConf.PluginConfig["CABundle"] = conf.CABundle
-	}
-	if conf.ClientCert != "" {
-		conf.pyConf.PluginConfig["ClientCert"] = conf.ClientCert
-	}
-	if conf.ClientCertKey != "" {
-		conf.pyConf.PluginConfig["ClientCertKey"] = conf.ClientCertKey
-	}
-	if conf.IntervalSeconds > 0 {
-		conf.pyConf.PluginConfig["Interval"] = conf.IntervalSeconds
-	}
+
 	if len(conf.Metrics) > 0 {
 		values := make([][]interface{}, 0, len(conf.Metrics))
 		for _, m := range conf.Metrics {
@@ -218,114 +269,6 @@ func (m *Monitor) Configure(conf *Config) error {
 		conf.pyConf.PluginConfig["Metric"] = map[string]interface{}{
 			"#flatten": true,
 			"values":   values,
-		}
-	}
-	if conf.ReportAPIIDs != nil {
-		conf.pyConf.PluginConfig["ReportAPIIDs"] = *conf.ReportAPIIDs
-	}
-	if conf.ReportAPINames != nil {
-		conf.pyConf.PluginConfig["ReportAPINames"] = *conf.ReportAPINames
-	}
-	if conf.ReportServiceIDs != nil {
-		conf.pyConf.PluginConfig["ReportServiceIDs"] = *conf.ReportServiceIDs
-	}
-	if conf.ReportServiceNames != nil {
-		conf.pyConf.PluginConfig["ReportServiceNames"] = *conf.ReportServiceNames
-	}
-	if conf.ReportRouteIDs != nil {
-		conf.pyConf.PluginConfig["ReportRouteIDs"] = *conf.ReportRouteIDs
-	}
-	if conf.ReportHTTPMethods != nil {
-		conf.pyConf.PluginConfig["ReportHTTPMethods"] = *conf.ReportHTTPMethods
-	}
-	if conf.ReportStatusCodeGroups != nil {
-		conf.pyConf.PluginConfig["ReportStatusCodeGroups"] = *conf.ReportStatusCodeGroups
-	}
-	if conf.ReportStatusCodes != nil {
-		conf.pyConf.PluginConfig["ReportStatusCodes"] = *conf.ReportStatusCodes
-	}
-	if len(conf.APIIDs) > 0 {
-		conf.pyConf.PluginConfig["APIIDs"] = map[string]interface{}{
-			"#flatten": true,
-			"values":   conf.APIIDs,
-		}
-	}
-	if len(conf.APIIDsBlacklist) > 0 {
-		conf.pyConf.PluginConfig["APIIDsBlacklist"] = map[string]interface{}{
-			"#flatten": true,
-			"values":   conf.APIIDsBlacklist,
-		}
-	}
-	if len(conf.APINames) > 0 {
-		conf.pyConf.PluginConfig["APINames"] = map[string]interface{}{
-			"#flatten": true,
-			"values":   conf.APINames,
-		}
-	}
-	if len(conf.APINamesBlacklist) > 0 {
-		conf.pyConf.PluginConfig["APINamesBlacklist"] = map[string]interface{}{
-			"#flatten": true,
-			"values":   conf.APINamesBlacklist,
-		}
-	}
-	if len(conf.ServiceIDs) > 0 {
-		conf.pyConf.PluginConfig["ServiceIDs"] = map[string]interface{}{
-			"#flatten": true,
-			"values":   conf.ServiceIDs,
-		}
-	}
-	if len(conf.ServiceIDsBlacklist) > 0 {
-		conf.pyConf.PluginConfig["ServiceIDsBlacklist"] = map[string]interface{}{
-			"#flatten": true,
-			"values":   conf.ServiceIDsBlacklist,
-		}
-	}
-	if len(conf.ServiceNames) > 0 {
-		conf.pyConf.PluginConfig["ServiceNames"] = map[string]interface{}{
-			"#flatten": true,
-			"values":   conf.ServiceNames,
-		}
-	}
-	if len(conf.ServiceNamesBlacklist) > 0 {
-		conf.pyConf.PluginConfig["ServiceNamesBlacklist"] = map[string]interface{}{
-			"#flatten": true,
-			"values":   conf.ServiceNamesBlacklist,
-		}
-	}
-	if len(conf.RouteIDs) > 0 {
-		conf.pyConf.PluginConfig["RouteIDs"] = map[string]interface{}{
-			"#flatten": true,
-			"values":   conf.RouteIDs,
-		}
-	}
-	if len(conf.RouteIDsBlacklist) > 0 {
-		conf.pyConf.PluginConfig["RouteIDsBlacklist"] = map[string]interface{}{
-			"#flatten": true,
-			"values":   conf.RouteIDsBlacklist,
-		}
-	}
-	if len(conf.HTTPMethods) > 0 {
-		conf.pyConf.PluginConfig["HTTPMethods"] = map[string]interface{}{
-			"#flatten": true,
-			"values":   conf.HTTPMethods,
-		}
-	}
-	if len(conf.HTTPMethodsBlacklist) > 0 {
-		conf.pyConf.PluginConfig["HTTPMethodsBlacklist"] = map[string]interface{}{
-			"#flatten": true,
-			"values":   conf.HTTPMethodsBlacklist,
-		}
-	}
-	if len(conf.StatusCodes) > 0 {
-		conf.pyConf.PluginConfig["StatusCodes"] = map[string]interface{}{
-			"#flatten": true,
-			"values":   conf.StatusCodes,
-		}
-	}
-	if len(conf.StatusCodesBlacklist) > 0 {
-		conf.pyConf.PluginConfig["StatusCodesBlacklist"] = map[string]interface{}{
-			"#flatten": true,
-			"values":   conf.StatusCodesBlacklist,
 		}
 	}
 

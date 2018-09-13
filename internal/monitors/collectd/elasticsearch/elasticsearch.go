@@ -37,19 +37,19 @@ type Config struct {
 	// AdditionalMetrics to report on
 	AdditionalMetrics []string `yaml:"additionalMetrics"`
 	// DetailedMetrics turns on additional metric time series
-	DetailedMetrics bool `yaml:"detailedMetrics" default:"true"`
+	DetailedMetrics *bool `yaml:"detailedMetrics" default:"true"`
 	// EnableClusterHealth enables reporting on the cluster health
-	EnableClusterHealth bool `yaml:"enableClusterHealth" default:"true"`
+	EnableClusterHealth *bool `yaml:"enableClusterHealth" default:"true"`
 	// EnableIndexStats reports metrics about indexes
-	EnableIndexStats bool `yaml:"enableIndexStats" default:"true"`
+	EnableIndexStats *bool `yaml:"enableIndexStats" default:"true"`
 	// Indexes to report on
 	Indexes []string `yaml:"indexes" default:"[\"_all\"]"`
 	// IndexInterval is an interval in seconds at which the plugin will report index stats.
 	// It must be greater than or equal, and divisible by the Interval configuration
-	IndexInterval uint `yaml:"indexInterval" default:"300"`
+	IndexInterval *uint `yaml:"indexInterval" default:"300"`
 	// IndexStatsMasterOnly sends index stats from the master only
-	IndexStatsMasterOnly bool `yaml:"indexStatsMasterOnly" default:"false"`
-	IndexSummaryOnly     bool `yaml:"indexSummaryOnly" default:"false"`
+	IndexStatsMasterOnly *bool `yaml:"indexStatsMasterOnly" default:"false"`
+	IndexSummaryOnly     *bool `yaml:"indexSummaryOnly" default:"false"`
 	// Password used to access elasticsearch stats api
 	Password string `yaml:"password" neverLog:"true"`
 	// Protocol used to connect: http or https
@@ -91,38 +91,23 @@ func (m *Monitor) Configure(conf *Config) error {
 			"IndexSummaryOnly":     conf.IndexSummaryOnly,
 			"Interval":             conf.IntervalSeconds,
 			"Verbose":              false,
+			"AdditionalMetrics": map[string]interface{}{
+				"#flatten": true,
+				"values":   conf.AdditionalMetrics,
+			},
+			"Indexes": map[string]interface{}{
+				"#flatten": true,
+				"values":   conf.Indexes,
+			},
+			"Password": conf.Password,
+			"Protocol": conf.Protocol,
+			"Username": conf.Username,
+			"ThreadPools": map[string]interface{}{
+				"#flatten": true,
+				"values":   conf.ThreadPools,
+			},
+			"Version": conf.Version,
 		},
-	}
-
-	if len(conf.AdditionalMetrics) > 0 {
-		conf.pyConf.PluginConfig["AdditionalMetrics"] = map[string]interface{}{
-			"#flatten": true,
-			"values":   conf.AdditionalMetrics,
-		}
-	}
-	if len(conf.Indexes) > 0 {
-		conf.pyConf.PluginConfig["Indexes"] = map[string]interface{}{
-			"#flatten": true,
-			"values":   conf.Indexes,
-		}
-	}
-	if conf.Password != "" {
-		conf.pyConf.PluginConfig["Password"] = conf.Password
-	}
-	if conf.Protocol != "" {
-		conf.pyConf.PluginConfig["Protocol"] = conf.Protocol
-	}
-	if conf.Username != "" {
-		conf.pyConf.PluginConfig["Username"] = conf.Username
-	}
-	if len(conf.ThreadPools) > 0 {
-		conf.pyConf.PluginConfig["ThreadPools"] = map[string]interface{}{
-			"#flatten": true,
-			"values":   conf.ThreadPools,
-		}
-	}
-	if conf.Version != "" {
-		conf.pyConf.PluginConfig["Version"] = conf.Version
 	}
 
 	return m.PyMonitor.Configure(conf)

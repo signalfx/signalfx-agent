@@ -41,7 +41,7 @@ type Config struct {
 	Databases              []string `yaml:"databases" validate:"required"`
 	Username               string   `yaml:"username"`
 	Password               string   `yaml:"password" neverLog:"true"`
-	UseTLS                 bool     `yaml:"useTLS"`
+	UseTLS                 *bool    `yaml:"useTLS"`
 	CACerts                string   `yaml:"caCerts"`
 	TLSClientCert          string   `yaml:"tlsClientCert"`
 	TLSClientKey           string   `yaml:"tlsClientKey"`
@@ -76,32 +76,18 @@ func (m *Monitor) Configure(conf *Config) error {
 		ModulePaths:   []string{collectd.MakePath("mongodb")},
 		TypesDBPaths:  []string{collectd.MakePath("types.db")},
 		PluginConfig: map[string]interface{}{
-			"Host":     conf.Host,
-			"Port":     conf.Port,
-			"Database": conf.Databases,
+			"Host":                   conf.Host,
+			"Port":                   conf.Port,
+			"Database":               conf.Databases,
+			"UseTLS":                 conf.UseTLS,
+			"User":                   conf.Username,
+			"Password":               conf.Password,
+			"CACerts":                conf.CACerts,
+			"TLSClientCert":          conf.TLSClientCert,
+			"TLSClientKey":           conf.TLSClientKey,
+			"TLSClientKeyPassphrase": conf.TLSClientKeyPassPhrase,
 		},
 	}
 
-	if conf.UseTLS {
-		conf.pyConf.PluginConfig["UseTLS"] = conf.UseTLS
-	}
-	if conf.Username != "" {
-		conf.pyConf.PluginConfig["User"] = conf.Username
-	}
-	if conf.Password != "" {
-		conf.pyConf.PluginConfig["Password"] = conf.Password
-	}
-	if conf.CACerts != "" {
-		conf.pyConf.PluginConfig["CACerts"] = conf.CACerts
-	}
-	if conf.TLSClientCert != "" {
-		conf.pyConf.PluginConfig["TLSClientCert"] = conf.TLSClientCert
-	}
-	if conf.TLSClientKey != "" {
-		conf.pyConf.PluginConfig["TLSClientKey"] = conf.TLSClientKey
-	}
-	if conf.TLSClientKeyPassPhrase != "" {
-		conf.pyConf.PluginConfig["TLSClientKeyPassphrase"] = conf.TLSClientKeyPassPhrase
-	}
 	return m.PyMonitor.Configure(conf)
 }

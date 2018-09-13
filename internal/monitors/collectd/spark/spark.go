@@ -75,8 +75,8 @@ type Config struct {
 	// not be collected on Yarn.  Please use the collectd/hadoop monitor to gain
 	// insights to your cluster's health.
 	ClusterType               sparkClusterType `yaml:"clusterType" validate:"required"`
-	CollectApplicationMetrics bool             `yaml:"collectApplicationMetrics" default:"false"`
-	EnhancedMetrics           bool             `yaml:"enhancedMetrics" default:"false"`
+	CollectApplicationMetrics *bool            `yaml:"collectApplicationMetrics" default:"false"`
+	EnhancedMetrics           *bool            `yaml:"enhancedMetrics" default:"false"`
 }
 
 // PythonConfig returns the embedded python.Config struct from the interface
@@ -86,7 +86,7 @@ func (c *Config) PythonConfig() *python.Config {
 
 // Validate will check the config for correctness.
 func (c *Config) Validate() error {
-	if c.CollectApplicationMetrics && !c.IsMaster {
+	if c.CollectApplicationMetrics != nil && *c.CollectApplicationMetrics && !c.IsMaster {
 		return errors.New("Cannot collect application metrics from non-master endpoint")
 	}
 	switch c.ClusterType {

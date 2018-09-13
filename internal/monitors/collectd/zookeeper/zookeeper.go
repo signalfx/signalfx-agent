@@ -61,12 +61,10 @@ func (rm *Monitor) Configure(conf *Config) error {
 		Host:          conf.Host,
 		Port:          conf.Port,
 		PluginConfig: map[string]interface{}{
-			"Hosts": conf.Host,
-			"Port":  conf.Port,
+			"Hosts":    conf.Host,
+			"Port":     conf.Port,
+			"Instance": conf.Name,
 		},
-	}
-	if conf.Name != "" {
-		conf.pyConf.PluginConfig["Instance"] = conf.Name
 	}
 
 	return rm.PyMonitor.Configure(conf)

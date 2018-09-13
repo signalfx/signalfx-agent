@@ -75,7 +75,7 @@ type Config struct {
 	// If empty, click `Generate`.
 	MetricsKey string `yaml:"metricsKey" validate:"required"`
 	// Whether to enable enhanced metrics
-	EnhancedMetrics bool `yaml:"enhancedMetrics"`
+	EnhancedMetrics *bool `yaml:"enhancedMetrics"`
 	// Used to enable individual enhanced metrics when `enhancedMetrics` is
 	// false
 	IncludeMetrics []string `yaml:"includeMetrics"`
@@ -116,29 +116,16 @@ func (m *Monitor) Configure(conf *Config) error {
 			"Interval":        conf.IntervalSeconds,
 			"MetricsKey":      conf.MetricsKey,
 			"EnhancedMetrics": conf.EnhancedMetrics,
+			"Username":        conf.Username,
+			"APIToken":        conf.APIToken,
+			"ssl_keyfile":     conf.SSLKeyFile,
+			"ssl_certificate": conf.SSLCertificate,
+			"ssl_ca_certs":    conf.SSLCACerts,
+			"IncludeMetric": map[string]interface{}{
+				"#flatten": true,
+				"values":   conf.IncludeMetrics,
+			},
 		},
-	}
-
-	if conf.Username != "" {
-		conf.pyConf.PluginConfig["Username"] = conf.Username
-	}
-	if conf.APIToken != "" {
-		conf.pyConf.PluginConfig["APIToken"] = conf.APIToken
-	}
-	if conf.SSLKeyFile != "" {
-		conf.pyConf.PluginConfig["ssl_keyfile"] = conf.SSLKeyFile
-	}
-	if conf.SSLCertificate != "" {
-		conf.pyConf.PluginConfig["ssl_certificate"] = conf.SSLCertificate
-	}
-	if conf.SSLCACerts != "" {
-		conf.pyConf.PluginConfig["ssl_ca_certs"] = conf.SSLCACerts
-	}
-	if len(conf.IncludeMetrics) > 0 {
-		conf.pyConf.PluginConfig["IncludeMetric"] = map[string]interface{}{
-			"#flatten": true,
-			"values":   conf.IncludeMetrics,
-		}
 	}
 
 	return m.PyMonitor.Configure(conf)

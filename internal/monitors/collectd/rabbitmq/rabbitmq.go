@@ -47,12 +47,12 @@ type Config struct {
 	// using other config options. This will be used as the `plugin_instance`
 	// dimension.
 	BrokerName         string `yaml:"brokerName" default:"{{.host}}-{{.port}}"`
-	CollectChannels    bool   `yaml:"collectChannels"`
-	CollectConnections bool   `yaml:"collectConnections"`
-	CollectExchanges   bool   `yaml:"collectExchanges"`
-	CollectNodes       bool   `yaml:"collectNodes"`
-	CollectQueues      bool   `yaml:"collectQueues"`
-	HTTPTimeout        int    `yaml:"httpTimeout"`
+	CollectChannels    *bool  `yaml:"collectChannels"`
+	CollectConnections *bool  `yaml:"collectConnections"`
+	CollectExchanges   *bool  `yaml:"collectExchanges"`
+	CollectNodes       *bool  `yaml:"collectNodes"`
+	CollectQueues      *bool  `yaml:"collectQueues"`
+	HTTPTimeout        *int   `yaml:"httpTimeout"`
 	VerbosityLevel     string `yaml:"verbosityLevel"`
 	Username           string `yaml:"username" validate:"required"`
 	Password           string `yaml:"password" validate:"required" neverLog:"true"`
@@ -88,15 +88,9 @@ func (m *Monitor) Configure(conf *Config) error {
 			"CollectExchanges":   conf.CollectExchanges,
 			"CollectNodes":       conf.CollectNodes,
 			"CollectQueues":      conf.CollectQueues,
+			"HTTPTimeout":        conf.HTTPTimeout,
+			"VerbosityLevel":     conf.VerbosityLevel,
 		},
-	}
-	// fill optional values into python plugin config map
-	if conf.HTTPTimeout > 0 {
-		conf.pyConf.PluginConfig["HTTPTimeout"] = conf.HTTPTimeout
-	}
-
-	if conf.VerbosityLevel != "" {
-		conf.pyConf.PluginConfig["VerbosityLevel"] = conf.VerbosityLevel
 	}
 
 	// the python runner's templating system does not convert to map first

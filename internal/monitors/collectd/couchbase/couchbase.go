@@ -103,23 +103,12 @@ func (m *Monitor) Configure(conf *Config) error {
 			"CollectTarget": conf.CollectTarget,
 			"Interval":      conf.IntervalSeconds,
 			"FieldLength":   1024,
+			"CollectBucket": conf.CollectBucket,
+			"ClusterName":   conf.ClusterName,
+			"CollectMode":   conf.CollectMode,
+			"Username":      conf.Username,
+			"Password":      conf.Password,
 		},
-	}
-
-	if conf.CollectBucket != "" {
-		conf.pyConf.PluginConfig["CollectBucket"] = conf.CollectBucket
-	}
-	if conf.ClusterName != "" {
-		conf.pyConf.PluginConfig["ClusterName"] = conf.ClusterName
-	}
-	if conf.CollectMode != "" {
-		conf.pyConf.PluginConfig["CollectMode"] = conf.CollectMode
-	}
-	if conf.Username != "" {
-		conf.pyConf.PluginConfig["Username"] = conf.Username
-	}
-	if conf.Password != "" {
-		conf.pyConf.PluginConfig["Password"] = conf.Password
 	}
 
 	return m.PyMonitor.Configure(conf)

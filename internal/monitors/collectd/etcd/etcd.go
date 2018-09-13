@@ -41,8 +41,8 @@ type Config struct {
 	SSLKeyFile        string `yaml:"sslKeyFile"`
 	SSLCertificate    string `yaml:"sslCertificate"`
 	SSLCACerts        string `yaml:"sslCACerts"`
-	SkipSSLValidation bool   `yaml:"skipSSLValidation"`
-	EnhancedMetrics   bool   `yaml:"enhancedMetrics"`
+	SkipSSLValidation *bool  `yaml:"skipSSLValidation"`
+	EnhancedMetrics   *bool  `yaml:"enhancedMetrics"`
 }
 
 // PythonConfig returns the embedded python.Config struct from the interface
@@ -71,16 +71,11 @@ func (m *Monitor) Configure(conf *Config) error {
 			"Cluster":             conf.ClusterName,
 			"ssl_cert_validation": conf.SkipSSLValidation,
 			"EnhancedMetrics":     conf.EnhancedMetrics,
+			"ssl_keyfile":         conf.SSLKeyFile,
+			"ssl_certificate":     conf.SSLCertificate,
+			"ssl_ca_certs":        conf.SSLCACerts,
 		},
 	}
-	if conf.SSLKeyFile != "" {
-		conf.pyConf.PluginConfig["ssl_keyfile"] = conf.SSLKeyFile
-	}
-	if conf.SSLCertificate != "" {
-		conf.pyConf.PluginConfig["ssl_certificate"] = conf.SSLCertificate
-	}
-	if conf.SSLCACerts != "" {
-		conf.pyConf.PluginConfig["ssl_ca_certs"] = conf.SSLCACerts
-	}
+
 	return m.PyMonitor.Configure(conf)
 }
