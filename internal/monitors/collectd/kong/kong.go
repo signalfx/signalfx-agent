@@ -2,12 +2,14 @@
 
 package kong
 
-//go:generate collectd-template-to-go kong.tmpl
-
 import (
-	"github.com/signalfx/signalfx-agent/internal/core/config"
-	"github.com/signalfx/signalfx-agent/internal/monitors"
 	"github.com/signalfx/signalfx-agent/internal/monitors/collectd"
+
+	"github.com/signalfx/signalfx-agent/internal/core/config"
+
+	"github.com/signalfx/signalfx-agent/internal/monitors"
+	"github.com/signalfx/signalfx-agent/internal/monitors/collectd/python"
+	"github.com/signalfx/signalfx-agent/internal/monitors/pyrunner"
 )
 
 const monitorType = "collectd/kong"
@@ -63,7 +65,9 @@ const monitorType = "collectd/kong"
 func init() {
 	monitors.Register(monitorType, func() interface{} {
 		return &Monitor{
-			*collectd.NewMonitorCore(CollectdTemplate),
+			python.PyMonitor{
+				MonitorCore: pyrunner.New("sfxcollectd"),
+			},
 		}
 	}, &Config{})
 }
@@ -87,6 +91,7 @@ type Metric struct {
 // Config is the monitor-specific config with the generic config embedded
 type Config struct {
 	config.MonitorConfig `yaml:",inline" acceptsEndpoints:"true"`
+	pyConf               *python.Config
 	// Kong host to connect with (used for autodiscovery and URL)
 	Host string `yaml:"host" validate:"required"`
 	// Port for kong-plugin-signalfx hosting server (used for autodiscovery and URL)
@@ -157,12 +162,115 @@ type Config struct {
 	StatusCodesBlacklist []string `yaml:"statusCodesBlacklist"`
 }
 
+// PythonConfig returns the embedded python.Config struct from the interface
+func (c *Config) PythonConfig() *python.Config {
+	return c.pyConf
+}
+
 // Monitor is the main type that represents the monitor
 type Monitor struct {
-	collectd.MonitorCore
+	python.PyMonitor
 }
 
 // Configure configures and runs the plugin in collectd
-func (rm *Monitor) Configure(conf *Config) error {
-	return rm.SetConfigurationAndRun(conf)
+func (m *Monitor) Configure(conf *Config) error {
+	conf.pyConf = &python.Config{
+		MonitorConfig: conf.MonitorConfig,
+		Host:          conf.Host,
+		Port:          conf.Port,
+		ModuleName:    "kong_plugin",
+		ModulePaths:   []string{collectd.MakePath("kong")},
+		TypesDBPaths:  []string{collectd.MakePath("types.db")},
+		PluginConfig: map[string]interface{}{
+			"URL":                    conf.URL,
+			"Interval":               conf.IntervalSeconds,
+			"Verbose":                conf.Verbose,
+			"Name":                   conf.Name,
+			"VerifyCerts":            conf.VerifyCerts,
+			"CABundle":               conf.CABundle,
+			"ClientCert":             conf.ClientCert,
+			"ClientCertKey":          conf.ClientCertKey,
+			"ReportAPIIDs":           conf.ReportAPIIDs,
+			"ReportAPINames":         conf.ReportAPINames,
+			"ReportServiceIDs":       conf.ReportServiceIDs,
+			"ReportServiceNames":     conf.ReportServiceNames,
+			"ReportRouteIDs":         conf.ReportRouteIDs,
+			"ReportHTTPMethods":      conf.ReportHTTPMethods,
+			"ReportStatusCodeGroups": conf.ReportStatusCodeGroups,
+			"ReportStatusCodes":      conf.ReportStatusCodes,
+			"APIIDs": map[string]interface{}{
+				"#flatten": true,
+				"values":   conf.APIIDs,
+			},
+			"APIIDsBlacklist": map[string]interface{}{
+				"#flatten": true,
+				"values":   conf.APIIDsBlacklist,
+			},
+			"APINames": map[string]interface{}{
+				"#flatten": true,
+				"values":   conf.APINames,
+			},
+			"APINamesBlacklist": map[string]interface{}{
+				"#flatten": true,
+				"values":   conf.APINamesBlacklist,
+			},
+			"ServiceIDs": map[string]interface{}{
+				"#flatten": true,
+				"values":   conf.ServiceIDs,
+			},
+			"ServiceIDsBlacklist": map[string]interface{}{
+				"#flatten": true,
+				"values":   conf.ServiceIDsBlacklist,
+			},
+			"ServiceNames": map[string]interface{}{
+				"#flatten": true,
+				"values":   conf.ServiceNames,
+			},
+			"ServiceNamesBlacklist": map[string]interface{}{
+				"#flatten": true,
+				"values":   conf.ServiceNamesBlacklist,
+			},
+			"RouteIDs": map[string]interface{}{
+				"#flatten": true,
+				"values":   conf.RouteIDs,
+			},
+			"RouteIDsBlacklist": map[string]interface{}{
+				"#flatten": true,
+				"values":   conf.RouteIDsBlacklist,
+			},
+			"HTTPMethods": map[string]interface{}{
+				"#flatten": true,
+				"values":   conf.HTTPMethods,
+			},
+			"HTTPMethodsBlacklist": map[string]interface{}{
+				"#flatten": true,
+				"values":   conf.HTTPMethodsBlacklist,
+			},
+			"StatusCodes": map[string]interface{}{
+				"#flatten": true,
+				"values":   conf.StatusCodes,
+			},
+			"StatusCodesBlacklist": map[string]interface{}{
+				"#flatten": true,
+				"values":   conf.StatusCodesBlacklist,
+			},
+		},
+	}
+
+	if conf.AuthHeader != nil {
+		conf.pyConf.PluginConfig["AuthHeader"] = []string{conf.AuthHeader.HeaderName, conf.AuthHeader.Value}
+	}
+
+	if len(conf.Metrics) > 0 {
+		values := make([][]interface{}, 0, len(conf.Metrics))
+		for _, m := range conf.Metrics {
+			values = append(values, []interface{}{m.MetricName, m.ReportBool})
+		}
+		conf.pyConf.PluginConfig["Metric"] = map[string]interface{}{
+			"#flatten": true,
+			"values":   values,
+		}
+	}
+
+	return m.PyMonitor.Configure(conf)
 }
