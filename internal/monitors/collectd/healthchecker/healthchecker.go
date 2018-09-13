@@ -107,5 +107,9 @@ func (m *Monitor) Configure(conf *Config) error {
 		conf.pyConf.PluginConfig["SkipSecurity"] = conf.SkipSecurity
 	}
 
+	if conf.Name == "" {
+		conf.pyConf.PluginConfig["Instance"] = fmt.Sprintf("%s-%d", conf.Host, conf.Port)
+	}
+
 	return m.PyMonitor.Configure(conf)
 }
