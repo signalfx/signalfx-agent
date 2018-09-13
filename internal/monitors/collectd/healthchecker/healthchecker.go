@@ -2,15 +2,18 @@
 
 package healthchecker
 
-//go:generate collectd-template-to-go healthchecker.tmpl
-
 import (
 	"errors"
+	"fmt"
+
+	"github.com/signalfx/signalfx-agent/internal/monitors/collectd"
 
 	"github.com/signalfx/signalfx-agent/internal/core/config"
-	"github.com/signalfx/signalfx-agent/internal/core/services"
+
+	"github.com/signalfx/signalfx-agent/internal/monitors/collectd/python"
+	"github.com/signalfx/signalfx-agent/internal/monitors/pyrunner"
+
 	"github.com/signalfx/signalfx-agent/internal/monitors"
-	"github.com/signalfx/signalfx-agent/internal/monitors/collectd"
 )
 
 const monitorType = "collectd/health-checker"
@@ -22,23 +25,20 @@ const monitorType = "collectd/health-checker"
 func init() {
 	monitors.Register(monitorType, func() interface{} {
 		return &Monitor{
-			*collectd.NewMonitorCore(CollectdTemplate),
+			python.PyMonitor{
+				MonitorCore: pyrunner.New("sfxcollectd"),
+			},
 		}
 	}, &Config{})
-}
-
-type serviceEndpoint struct {
-	services.EndpointCore `yaml:",inline"`
 }
 
 // Config is the monitor-specific config with the generic config embedded
 type Config struct {
 	config.MonitorConfig `yaml:",inline" acceptsEndpoints:"true"`
-
-	Host string `yaml:"host" validate:"required"`
-	Port uint16 `yaml:"port" validate:"required"`
-	Name string `yaml:"name"`
-
+	pyConf               *python.Config
+	Host                 string `yaml:"host" validate:"required"`
+	Port                 uint16 `yaml:"port" validate:"required"`
+	Name                 string `yaml:"name"`
 	// The HTTP path that contains a JSON document to verify
 	Path string `yaml:"path" default:"/"`
 	// If `jsonKey` and `jsonVal` are given, the given endpoint will be
@@ -58,6 +58,11 @@ type Config struct {
 	TCPCheck bool `yaml:"tcpCheck"`
 }
 
+// PythonConfig returns the embedded python.Config struct from the interface
+func (c *Config) PythonConfig() *python.Config {
+	return c.pyConf
+}
+
 // Validate the given config
 func (c *Config) Validate() error {
 	if c.TCPCheck && (c.SkipSecurity || c.UseHTTPS) {
@@ -71,10 +76,36 @@ func (c *Config) Validate() error {
 
 // Monitor is the main type that represents the monitor
 type Monitor struct {
-	collectd.MonitorCore
+	python.PyMonitor
 }
 
 // Configure configures and runs the plugin in collectd
-func (rm *Monitor) Configure(conf *Config) error {
-	return rm.SetConfigurationAndRun(conf)
+func (m *Monitor) Configure(conf *Config) error {
+	conf.pyConf = &python.Config{
+		MonitorConfig: conf.MonitorConfig,
+		Host:          conf.Host,
+		Port:          conf.Port,
+		ModuleName:    "health_checker",
+		ModulePaths:   []string{collectd.MakePath("health_checker")},
+		TypesDBPaths:  []string{collectd.MakePath("types.db")},
+		PluginConfig: map[string]interface{}{
+			"Instance": conf.Name,
+			"JSONKey":  conf.JSONKey,
+			"JSONVal":  conf.JSONVal,
+		},
+	}
+
+	if conf.TCPCheck {
+		conf.pyConf.PluginConfig["URL"] = conf.Host
+		conf.pyConf.PluginConfig["TCP"] = conf.Port
+	} else {
+		protocol := "http"
+		if conf.UseHTTPS {
+			protocol = "https"
+		}
+		conf.pyConf.PluginConfig["URL"] = fmt.Sprintf("%s://%s:%d%s", protocol, conf.Host, conf.Port, conf.Path)
+		conf.pyConf.PluginConfig["SkipSecurity"] = conf.SkipSecurity
+	}
+
+	return m.PyMonitor.Configure(conf)
 }
