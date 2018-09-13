@@ -101,26 +101,21 @@ run-dev-image:
 
 .PHONY: run-integration-tests
 run-integration-tests:
-	docker run --rm \
-		$(extra_run_flags) \
-		--cap-add DAC_READ_SEARCH \
-		--cap-add SYS_PTRACE \
-		--net host \
-		-v $(CURDIR)/local-etc:/etc/signalfx \
-		-v $(CURDIR)/tests:/go/src/github.com/signalfx/signalfx-agent/tests:cached \
-		-v $(CURDIR)/collectd:/usr/src/collectd:cached \
-		-v $(CURDIR)/test_output:/test_output \
-		signalfx-agent-dev \
-			pytest \
-				-m "not packaging and not installer and not k8s" \
-				-n 4 \
-				--verbose \
-				--exitfirst \
-				--html=/test_output/results.html \
-				--self-contained-html \
-				tests
+	AGENT_BIN=/bundle/bin/signalfx-agent \
+	pytest \
+		-m "not packaging and not installer and not k8s" \
+		-n 4 \
+		--verbose \
+		--html=test_output/results.html \
+		--self-contained-html \
+		tests
 
-K8S_VERSION = v1.10.0
+ifdef K8S_VERSION
+    k8s_version_arg = --k8s-version=$(K8S_VERSION)
+endif
+ifdef K8S_SFX_AGENT
+    agent_image_arg = --k8s-sfx-agent=$(K8S_SFX_AGENT)
+endif
 .PHONY: run-k8s-tests
 run-k8s-tests:
 	docker rm -f -v minikube || true
@@ -129,11 +124,10 @@ run-k8s-tests:
 		-n 4 \
 		--verbose \
 		--exitfirst \
-		--k8s-version=$(K8S_VERSION) \
 		--k8s-observers=k8s-api,k8s-kubelet \
 		--html=test_output/k8s_results.html \
 		--self-contained-html \
-		tests || true
+		$(agent_image_arg) $(k8s_version_arg) tests || true
 	docker rm -f -v minikube
 
 .PHONY: docs
