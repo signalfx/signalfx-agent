@@ -110,7 +110,7 @@ RUN wget https://dev.mysql.com/get/mysql-apt-config_0.8.10-1_all.deb && \
     dpkg -i mysql-apt-config_0.8.10-1_all.deb && \
     apt-get update && apt-get install -y libmysqlclient-dev
 
-RUN apt install -y libcurl4-gnutls-dev
+RUN apt install -y libcurl4-gnutls-dev patchelf
 
 ARG collectd_version=""
 ARG collectd_commit=""
@@ -180,6 +180,9 @@ RUN make -j8 &&\
 
 COPY scripts/collect-libs /opt/collect-libs
 RUN /opt/collect-libs /opt/deps /usr/sbin/collectd /usr/lib/collectd/
+# For some reason libvarnishapi doesn't properly depend on libm, so make it
+# right.
+RUN patchelf --add-needed libm-2.23.so /opt/deps/libvarnishapi.so.1.0.4
 
 
 
