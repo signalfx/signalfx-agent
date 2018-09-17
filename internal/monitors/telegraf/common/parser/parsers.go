@@ -120,6 +120,7 @@ type Config struct {
 	CSVSkipColumns       int `yaml:"CSVSkipColumns"`
 }
 
+// GetTelegrafConfig returns the configuration as a Telegraf *parsers.Config
 func (c *Config) GetTelegrafConfig() (config *parsers.Config, err error) {
 	config = &parsers.Config{}
 	// copy top level struct fields to the
@@ -127,7 +128,7 @@ func (c *Config) GetTelegrafConfig() (config *parsers.Config, err error) {
 	return config, err
 }
 
-// GetParser returns a pointer to a telegraf *parsers.Parser
+// GetTelegrafParser returns a pointer to a telegraf *parsers.Parser
 func (c *Config) GetTelegrafParser() (parser parsers.Parser, err error) {
 	var config *parsers.Config
 	if config, err = c.GetTelegrafConfig(); err != nil {
