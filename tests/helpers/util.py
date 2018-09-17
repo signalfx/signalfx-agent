@@ -33,14 +33,14 @@ def get_docker_client():
 # Repeatedly calls the test function for timeout_seconds until either test
 # returns a truthy value, at which point the function returns True -- or the
 # timeout is exceeded, at which point it will return False.
-def wait_for(test, timeout_seconds=DEFAULT_TIMEOUT):
+def wait_for(test, timeout_seconds=DEFAULT_TIMEOUT, interval_seconds=0.5):
     start = time.time()
     while True:
         if test():
             return True
         if time.time() - start > timeout_seconds:
             return False
-        time.sleep(0.5)
+        time.sleep(interval_seconds)
 
 
 # Repeatedly calls the given test.  If it ever returns false before the timeout

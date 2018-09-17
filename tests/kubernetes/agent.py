@@ -10,6 +10,8 @@ class Agent:
         self.container_name = None
         self.container = None
         self.serviceaccount_yaml = None
+        self.clusterrole_yaml = None
+        self.clusterrolebinding_yaml = None
         self.configmap_yaml = None
         self.agent_yaml = None
         self.daemonset_yaml = None
@@ -27,7 +29,7 @@ class Agent:
         assert len(pods) == 1, "multiple pods found with name \"%s\"!\n%s" % (self.container_name, "\n".join([p.metadata.name for p in pods]))
         self.container = client.containers.get(pods[0].status.container_statuses[0].container_id.replace("docker:/", ""))
 
-    def deploy(self, client, configmap_path, daemonset_path, serviceaccount_path, observer, monitors, cluster_name="minikube", backend=None, image_name=None, image_tag=None, namespace="default"):
+    def deploy(self, client, configmap_path, daemonset_path, serviceaccount_path, clusterrole_path, clusterrolebinding_path, observer, monitors, cluster_name="minikube", backend=None, image_name=None, image_tag=None, namespace="default"):
         self.observer = observer
         self.monitors = monitors
         self.cluster_name = cluster_name
@@ -49,6 +51,25 @@ class Agent:
             create_serviceaccount(
                 body=self.serviceaccount_yaml,
                 namespace=self.namespace)
+        self.clusterrole_yaml = yaml.load(open(clusterrole_path).read())
+        self.clusterrole_name = self.clusterrole_yaml["metadata"]["name"]
+        self.clusterrolebinding_yaml = yaml.load(open(clusterrolebinding_path).read())
+        self.clusterrolebinding_name = self.clusterrolebinding_yaml['metadata']['name']
+        if self.namespace != "default":
+            self.clusterrole_name = self.clusterrole_name + "-" + self.namespace
+            self.clusterrole_yaml["metadata"]["name"] = self.clusterrole_name
+            self.clusterrolebinding_name = self.clusterrolebinding_name + "-" + self.namespace
+            self.clusterrolebinding_yaml["metadata"]["name"] = self.clusterrolebinding_name
+        if self.clusterrolebinding_yaml["roleRef"]["kind"] == "ClusterRole":
+            self.clusterrolebinding_yaml["roleRef"]["name"] = self.clusterrole_name
+        for subject in self.clusterrolebinding_yaml["subjects"]:
+            subject["namespace"] = self.namespace
+        if not has_clusterrole(self.clusterrole_name):
+            print("Creating cluster role \"%s\" from %s ..." % (self.clusterrole_name, clusterrole_path))
+            create_clusterrole(self.clusterrole_yaml)
+        if not has_clusterrolebinding(self.clusterrolebinding_name):
+            print("Creating cluster role binding \"%s\" from %s ..." % (self.clusterrolebinding_name, clusterrolebinding_path))
+            create_clusterrolebinding(self.clusterrolebinding_yaml)
         self.configmap_yaml = yaml.load(open(configmap_path).read())
         self.configmap_name = self.configmap_yaml['metadata']['name']
         self.daemonset_yaml = yaml.load(open(daemonset_path).read())

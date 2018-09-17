@@ -11,11 +11,15 @@ import socket
 import time
 import yaml
 
+from tests.helpers.formatting import print_dp_or_event
+
 CUR_DIR = os.path.dirname(os.path.realpath(__file__))
-AGENT_YAMLS_DIR = os.environ.get("AGENT_YAMLS_DIR", os.path.join(CUR_DIR, "../../deployments/k8s"))
+AGENT_YAMLS_DIR = os.environ.get("AGENT_YAMLS_DIR", os.path.abspath(os.path.join(CUR_DIR, "../../deployments/k8s")))
 AGENT_CONFIGMAP_PATH = os.environ.get("AGENT_CONFIGMAP_PATH", os.path.join(AGENT_YAMLS_DIR, "configmap.yaml"))
 AGENT_DAEMONSET_PATH = os.environ.get("AGENT_DAEMONSET_PATH", os.path.join(AGENT_YAMLS_DIR, "daemonset.yaml"))
 AGENT_SERVICEACCOUNT_PATH = os.environ.get("AGENT_SERVICEACCOUNT_PATH", os.path.join(AGENT_YAMLS_DIR, "serviceaccount.yaml"))
+AGENT_CLUSTERROLE_PATH= os.environ.get("AGENT_CLUSTERROLE_PATH", os.path.join(AGENT_YAMLS_DIR, "clusterrole.yaml"))
+AGENT_CLUSTERROLEBINDING_PATH= os.environ.get("AGENT_CLUSTERROLEBINDING_PATH", os.path.join(AGENT_YAMLS_DIR, "clusterrolebinding.yaml"))
 K8S_CREATE_TIMEOUT = 180
 K8S_DELETE_TIMEOUT = 10
 
@@ -87,6 +91,8 @@ def run_k8s_with_agent(agent_image, minikube, monitors, observer=None, namespace
                 AGENT_CONFIGMAP_PATH,
                 AGENT_DAEMONSET_PATH,
                 AGENT_SERVICEACCOUNT_PATH,
+                AGENT_CLUSTERROLE_PATH,
+                AGENT_CLUSTERROLEBINDING_PATH,
                 observer=observer,
                 monitors=monitors,
                 cluster_name="minikube",
@@ -179,10 +185,56 @@ def create_serviceaccount(body, namespace=None, timeout=K8S_CREATE_TIMEOUT):
     return serviceaccount
 
 
+def has_clusterrole(name):
+    api = kube_client.RbacAuthorizationV1beta1Api()
+    try:
+        api.read_cluster_role(name)
+        return True
+    except ApiException as e:
+        if e.status == 404:
+            return False
+        else:
+            raise
+
+
+def create_clusterrole(body, timeout=K8S_CREATE_TIMEOUT):
+    body["apiVersion"] = "rbac.authorization.k8s.io/v1beta1"
+    api = api_client_from_version(body["apiVersion"])
+    name = body['metadata']['name']
+    clusterrole = api.create_cluster_role(body=body)
+    assert wait_for(p(has_clusterrole, name), timeout_seconds=timeout), \
+        "timed out waiting for cluster role \"%s\" to be created!" % name
+    return clusterrole
+
+
+def has_clusterrolebinding(name):
+    api = kube_client.RbacAuthorizationV1beta1Api()
+    try:
+        api.read_cluster_role_binding(name)
+        return True
+    except ApiException as e:
+        if e.status == 404:
+            return False
+        else:
+            raise
+
+
+def create_clusterrolebinding(body, timeout=K8S_CREATE_TIMEOUT):
+    body["apiVersion"] = "rbac.authorization.k8s.io/v1beta1"
+    api = api_client_from_version(body["apiVersion"])
+    name = body["metadata"]["name"]
+    clusterrolebinding = api.create_cluster_role_binding(body=body)
+    assert wait_for(p(has_clusterrolebinding, name), timeout_seconds=timeout), \
+        "timed out waiting for cluster role binding \"%s\" to be created!" % name
+    return clusterrolebinding
+
+
 def api_client_from_version(api_version):
     return {
         'v1': kube_client.CoreV1Api(),
         'extensions/v1beta1': kube_client.ExtensionsV1beta1Api(),
+        'rbac.authorization.k8s.io/v1beta1': kube_client.RbacAuthorizationV1beta1Api(),
+        'rbac.authorization.k8s.io/v1': kube_client.RbacAuthorizationV1Api(),
     }[api_version]
 
 
@@ -488,31 +540,25 @@ def get_all_logs(minikube):
     - the status of all pods
     """
     try:
-        agent_status = minikube.agent.get_status()
+        agent_status = "AGENT STATUS:\n" + minikube.agent.get_status()
     except:
         agent_status = ""
     try:
-        agent_container_logs = minikube.agent.get_container_logs()
+        agent_container_logs = "AGENT CONTAINER LOGS:\n" + minikube.agent.get_container_logs()
     except:
         agent_container_logs = ""
     try:
-        _, output = minikube.container.exec_run("minikube logs")
-        minikube_logs = output.decode('utf-8').strip()
+        minikube_logs = minikube.get_logs()
     except:
         minikube_logs = ""
-    try:
-        minikube_container_logs = minikube.get_container_logs()
-    except:
-        minikube_container_logs = ""
     try:
         pods_status = ""
         for pod in get_all_pods():
             pods_status += "%s\t%s\t%s\n" % (pod.status.pod_ip, pod.metadata.namespace, pod.metadata.name)
-        pods_status = pods_status.strip()
+        pods_status = "PODS STATUS:\n" + pods_status.strip()
     except:
         pods_status = ""
-    return "AGENT STATUS:\n%s\n\nAGENT CONTAINER LOGS:\n%s\n\nMINIKUBE LOGS:\n%s\n\nMINIKUBE CONTAINER LOGS:\n%s\n\nPODS STATUS:\n%s" % \
-        (agent_status, agent_container_logs, minikube_logs, minikube_container_logs, pods_status)
+    return "%s\n\n%s\n\n%s\n\n%s\n" % (agent_status, agent_container_logs, minikube_logs, pods_status)
 
 
 def has_docker_image(client, name, tag=None):

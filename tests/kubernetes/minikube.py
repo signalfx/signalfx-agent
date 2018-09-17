@@ -10,12 +10,13 @@ import tempfile
 import time
 import yaml
 
-MINIKUBE_VERSION = os.environ.get("MINIKUBE_VERSION", "v0.28.0")
+MINIKUBE_VERSION = os.environ.get("MINIKUBE_VERSION", "v0.28.2")
 TEST_SERVICES_DIR = os.path.join(os.path.dirname(os.path.realpath(__file__)), "../../test-services")
 
 
 class Minikube:
     def __init__(self):
+        self.bootstrapper = None
         self.container = None
         self.client = None
         self.version = None
@@ -40,37 +41,39 @@ class Minikube:
     def load_kubeconfig(self, kubeconfig_path="/kubeconfig", timeout=300):
         with tempfile.NamedTemporaryFile(dir="/tmp/scratch") as fd:
             kubeconfig = fd.name
-            assert wait_for(p(container_cmd_exit_0, self.container, "test -f %s" % kubeconfig_path), timeout_seconds=timeout), \
-                "timed out waiting for the minikube cluster to be ready!\n\nMINIKUBE CONTAINER LOGS:\n%s\n\nLOCALKUBE LOGS:\n%s\n\n" % \
-                (self.get_container_logs(), self.get_localkube_logs())
+            assert wait_for(p(container_cmd_exit_0, self.container, "test -f %s" % kubeconfig_path), timeout, 2), \
+                "timed out waiting for the minikube cluster to be ready!\n\n%s\n\n" % self.get_logs()
             time.sleep(2)
             rc, output = self.container.exec_run("cp -f %s %s" % (kubeconfig_path, kubeconfig))
             assert rc == 0, "failed to get %s from minikube!\n%s" % (kubeconfig_path, output.decode('utf-8'))
             self.kubeconfig = kubeconfig
             kube_config.load_kube_config(config_file=self.kubeconfig)
 
-    def connect(self, name, timeout, version=None):
+    def connect(self, name, bootstrapper, timeout, version=None):
+        self.bootstrapper = bootstrapper
         print("\nConnecting to %s container ..." % name)
-        assert wait_for(p(container_is_running, self.host_client, name), timeout_seconds=timeout), "timed out waiting for container %s!" % name
+        assert wait_for(p(container_is_running, self.host_client, name), timeout, 2), "timed out waiting for container %s!" % name
         self.container = self.host_client.containers.get(name)
         self.load_kubeconfig(timeout=timeout)
         self.client = self.get_client()
         self.name = name
         self.version = version
 
-    def deploy(self, version, timeout, options={}):
+    def deploy(self, version, bootstrapper, timeout, options={}):
         self.registry_port = get_free_port()
         if container_is_running(self.host_client, "minikube"):
             self.host_client.containers.get("minikube").remove(force=True, v=True)
         self.version = version
         if self.version[0] != 'v':
             self.version = 'v' + self.version
+        self.bootstrapper = bootstrapper
         if not options:
             options = {
                 "name": "minikube",
                 "privileged": True,
                 "environment": {
                     'K8S_VERSION': self.version,
+                    'BOOTSTRAPPER': self.bootstrapper,
                     'TIMEOUT': str(timeout)
                 },
                 "ports": {
@@ -93,11 +96,15 @@ class Minikube:
             tag="minikube:%s" % MINIKUBE_VERSION,
             rm=True,
             forcerm=True)
+        if self.bootstrapper == "kubeadm":
+            options["command"] = "/lib/systemd/systemd"
         self.container = self.host_client.containers.run(
             image.id,
             detach=True,
             **options)
         self.name = self.container.name
+        if self.bootstrapper == "kubeadm":
+            self.container.exec_run("/bin/bash -ec '/usr/local/bin/start-minikube.sh > /var/log/start-minikube.log 2>&1'", detach=True)
         self.load_kubeconfig(timeout=timeout)
         self.client = self.get_client()
 
@@ -158,12 +165,10 @@ class Minikube:
         finally:
             for y in self.yamls:
                 print("Deleting %s \"%s\" ..." % (kind, name))
-
                 kind = y['kind']
                 api_version = y['apiVersion']
                 api_client = api_client_from_version(api_version)
                 delete_resource(name, kind, api_client, namespace=namespace)
-
             self.yamls = []
 
     def pull_agent_image(self, name, tag, image_id=None):
@@ -175,12 +180,14 @@ class Minikube:
             return self.client.images.pull(name, tag=tag)
 
     @contextmanager
-    def deploy_agent(self, configmap_path, daemonset_path, serviceaccount_path, observer=None, monitors=[], cluster_name="minikube", backend=None, image_name=None, image_tag=None, namespace="default"):
+    def deploy_agent(self, configmap_path, daemonset_path, serviceaccount_path, clusterrole_path, clusterrolebinding_path, observer=None, monitors=[], cluster_name="minikube", backend=None, image_name=None, image_tag=None, namespace="default"):
         self.agent.deploy(
             self.client,
             configmap_path,
             daemonset_path,
             serviceaccount_path,
+            clusterrole_path,
+            clusterrolebinding_path,
             observer,
             monitors,
             cluster_name=cluster_name,
@@ -190,10 +197,10 @@ class Minikube:
             namespace=namespace)
         try:
             yield self.agent
-            print("\n\n%s\n\n" % self.agent.get_status())
-            print("\n\n%s\n\n" % self.agent.get_container_logs())
+            print("\nAgent status:\n%s\n" % self.agent.get_status())
+            print("\nAgent container logs:\n%s\n" % self.agent.get_container_logs())
         except:
-            print("\n\n%s\n\n" % get_all_logs(self))
+            print("\n%s\n" % get_all_logs(self))
             raise
         finally:
             self.agent.delete()
@@ -213,3 +220,15 @@ class Minikube:
                 return output.decode('utf-8').strip()
         except Exception as e:
             return "Failed to get localkube logs from minikube!\n%s" % str(e)
+
+    def get_logs(self):
+        if self.container:
+            _, start_minikube_output = self.container.exec_run("cat /var/log/start-minikube.log")
+            if self.bootstrapper == "localkube":
+                return "/var/log/start-minikube.log:\n%s\n\n/var/lib/localkube/localkube.err:\n%s" % \
+                    (start_minikube_output.decode("utf-8").strip(), self.get_localkube_logs())
+            elif self.bootstrapper == "kubeadm":
+                _, minikube_logs = self.container.exec_run("minikube logs")
+                return "/var/log/start-minikube.log:\n%s\n\nminikube logs:\n%s" % \
+                    (start_minikube_output.decode("utf-8").strip(), minikube_logs.decode("utf-8").strip())
+        return ""

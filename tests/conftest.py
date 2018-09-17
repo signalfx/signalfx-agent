@@ -16,10 +16,10 @@ import urllib.request
 
 SCRIPTS_DIR = os.path.join(os.path.dirname(os.path.realpath(__file__)), "..", "scripts")
 K8S_MIN_VERSION = '1.7.0'
-K8S_MAX_VERSION = '1.10.0'
-K8S_DEFAULT_VERSION = '1.10.0'
+K8S_MAX_VERSION = '1.11.0'
 K8S_DEFAULT_TIMEOUT = 300
 K8S_DEFAULT_TEST_TIMEOUT = 120
+KUBEADM_VERSIONS = ['1.11.0']
 
 
 def get_k8s_supported_versions():
@@ -42,11 +42,13 @@ def get_k8s_supported_versions():
         version = r['version'].strip().strip('v')
         if semver.match(version, '>=' + K8S_MIN_VERSION) and semver.match(version, '<=' + K8S_MAX_VERSION):
             versions.append(version)
+    versions += KUBEADM_VERSIONS
     return sorted(versions, key=lambda v: list(map(int, v.split('.'))), reverse=True)
 
 
 K8S_SUPPORTED_VERSIONS = get_k8s_supported_versions()
 K8S_MAJOR_MINOR_VERSIONS = [v for v in K8S_SUPPORTED_VERSIONS if semver.parse_version_info(v).patch == 0]
+K8S_DEFAULT_VERSION = K8S_MAJOR_MINOR_VERSIONS[0]
 
 K8S_SUPPORTED_OBSERVERS = ["k8s-api", "k8s-kubelet"]
 K8S_DEFAULT_OBSERVERS = ["k8s-api", "k8s-kubelet"]
@@ -131,34 +133,40 @@ def minikube(request, worker_id):
                 pass
 
     request.addfinalizer(teardown)
-    k8s_version = "v" + request.param.lstrip("v")
+    k8s_version = request.param.lstrip("v")
+    if semver.match(k8s_version, '>=' + "1.11.0"):
+        bootstrapper = "kubeadm"
+    else:
+        bootstrapper = "localkube"
+    k8s_version = "v" + k8s_version
     k8s_timeout = int(request.config.getoption("--k8s-timeout"))
     k8s_container = request.config.getoption("--k8s-container")
     k8s_skip_teardown = request.config.getoption("--k8s-skip-teardown")
     mk = Minikube()
     mk.worker_id = worker_id
     if k8s_container:
-        mk.connect(k8s_container, k8s_timeout)
+        mk.connect(k8s_container, bootstrapper, k8s_timeout)
         k8s_skip_teardown = True
     elif worker_id == "master" or worker_id == "gw0":
-        mk.deploy(k8s_version, k8s_timeout)
+        mk.deploy(k8s_version, bootstrapper, k8s_timeout)
         if worker_id == "gw0":
             k8s_skip_teardown = True
     else:
-        mk.connect("minikube", k8s_timeout, version=k8s_version)
+        mk.connect("minikube", bootstrapper, k8s_timeout, version=k8s_version)
         k8s_skip_teardown = True
     return mk
 
 
 @pytest.fixture(scope="session")
-def registry(minikube, worker_id):
+def registry(minikube, worker_id, request):
     def get_registry_logs():
         cont.reload()
         return cont.logs().decode('utf-8')
 
     cont = None
     port = None
-    if worker_id == "master" or worker_id == "gw0":
+    k8s_container = request.config.getoption("--k8s-container")
+    if not k8s_container and (worker_id == "master" or worker_id == "gw0"):
         minikube.start_registry()
         port = minikube.registry_port
     print("\nWaiting for registry to be ready ...")
