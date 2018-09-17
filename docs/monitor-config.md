@@ -63,6 +63,7 @@ along with their possible configuration options:
 - [processlist](./monitors/processlist.md)
 - [prometheus-exporter](./monitors/prometheus-exporter.md)
 - [telegraf/sqlserver](./monitors/telegraf-sqlserver.md)
+- [telegraf/tail](./monitors/telegraf-tail.md)
 - [telegraf/win_perf_counters](./monitors/telegraf-win_perf_counters.md)
 - [trace-forwarder](./monitors/trace-forwarder.md)
 
