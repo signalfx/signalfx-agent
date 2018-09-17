@@ -1,7 +1,6 @@
 package tail
 
 import (
-	"context"
 	telegrafInputs "github.com/influxdata/telegraf/plugins/inputs"
 	telegrafPlugin "github.com/influxdata/telegraf/plugins/inputs/tail"
 	telegrafParsers "github.com/influxdata/telegraf/plugins/parsers"
@@ -79,7 +78,6 @@ type Config struct {
 type Monitor struct {
 	Output types.Output
 	plugin *telegrafPlugin.Tail
-	cancel func()
 }
 
 // fetch the factory function used to generate the plugin
@@ -112,27 +110,12 @@ func (m *Monitor) Configure(conf *Config) (err error) {
 	// create the accumulator
 	ac := accumulator.NewAccumulator(baseemitter.NewEmitter(m.Output, logger))
 
-	// create context for managing the the plugin
-	var ctx context.Context
-	ctx, m.cancel = context.WithCancel(context.Background())
-
 	// start the tail plugin
-	if err = plugin.Start(ac); err != nil {
-		return err
-	}
-
-	// wait for the plugin to be stopped
-	<- ctx.Done()
-
-	return nil
+	return plugin.Start(ac)
 }
 
 // Shutdown stops the metric sync
 func (m *Monitor) Shutdown() {
-	if m.cancel != nil {
-		// stop the telegraf plugin
-		m.plugin.Stop()
-		// cancel the monitor context
-		m.cancel()
-	}
+	// stop the telegraf plugin
+	m.plugin.Stop()
 }
