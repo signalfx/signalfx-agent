@@ -46,7 +46,7 @@ const monitorType = "telegraf/tail"
 //     - "/logs/*/*.log"      # find all .log files who are contained in a directory under /logs/
 //     - "/var/log/agent.log" # tail the specified log file
 //    watchMethod: inotify    # specify the file watch method ("inotify" or "poll")
-//    telegrafParser:		  # specify a parser
+//    telegrafParser:         # specify a parser
 //      dataFormat: "influx"  # set the parser's dataFormat
 // ```
 //
@@ -105,6 +105,9 @@ func (m *Monitor) Configure(conf *Config) (err error) {
 		logger.Error("unable to copy configurations to plugin")
 		return err
 	}
+
+	// set the parser on the plugin
+	plugin.SetParser(conf.parser)
 
 	// create the accumulator
 	ac := accumulator.NewAccumulator(baseemitter.NewEmitter(m.Output, logger))
