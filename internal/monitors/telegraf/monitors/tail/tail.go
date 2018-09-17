@@ -85,7 +85,7 @@ var factory = telegrafInputs.Inputs["tail"]
 
 // Configure the monitor and kick off metric syncing
 func (m *Monitor) Configure(conf *Config) (err error) {
-	plugin := factory().(*telegrafPlugin.Tail)
+	m.plugin = factory().(*telegrafPlugin.Tail)
 
 	// use the default config
 	if conf.TelegrafParser == nil {
@@ -99,23 +99,25 @@ func (m *Monitor) Configure(conf *Config) (err error) {
 	}
 
 	// copy configurations to the plugin
-	if err = deepcopier.Copy(conf).To(plugin); err != nil {
+	if err = deepcopier.Copy(conf).To(m.plugin); err != nil {
 		logger.Error("unable to copy configurations to plugin")
 		return err
 	}
 
 	// set the parser on the plugin
-	plugin.SetParser(conf.parser)
+	m.plugin.SetParser(conf.parser)
 
 	// create the accumulator
 	ac := accumulator.NewAccumulator(baseemitter.NewEmitter(m.Output, logger))
 
 	// start the tail plugin
-	return plugin.Start(ac)
+	return m.plugin.Start(ac)
 }
 
 // Shutdown stops the metric sync
 func (m *Monitor) Shutdown() {
-	// stop the telegraf plugin
-	m.plugin.Stop()
+	if m.plugin != nil {
+		// stop the telegraf plugin
+		m.plugin.Stop()
+	}
 }
