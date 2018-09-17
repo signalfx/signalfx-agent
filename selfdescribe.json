@@ -11091,7 +11091,7 @@
     },
     {
       "name": "Config",
-      "doc": " This monitor is based on the Telegraf tail plugin.  The monitor tails files and\nnamed pipes.  The Telegraf parser configured with this monitor extracts metrics in different\n(formats)[https://github.com/influxdata/telegraf/blob/master/docs/DATA_FORMATS_INPUT.md]\nfrom the tailed output. More information about the Telegraf plugin\ncan be found [here](https://github.com/influxdata/telegraf/tree/master/plugins/inputs/tail).\n\nSample YAML configuration:\n\n```yaml\nmonitors:\n - type: telegraf/tail\n   files:\n    - \"/logs/**.log\"       # find all .log files in /logs\n    - \"/logs/*/*.log\"      # find all .log files who are contained in a directory under /logs/\n    - \"/var/log/agent.log\" # tail the specified log file\n   watchMethod: inotify    # specify the file watch method (\"ionotify\" or \"poll\")\n```\n\nSample YAML configuration that specifies a parser:\n\n```yaml\nmonitors:\n - type: telegraf/tail\n   files:\n    - \"/logs/**.log\"       # find all .log files in /logs\n    - \"/logs/*/*.log\"      # find all .log files who are contained in a directory under /logs/\n    - \"/var/log/agent.log\" # tail the specified log file\n   watchMethod: inotify    # specify the file watch method (\"inotify\" or \"poll\")\n   telegrafParser:\t\t  # specify a parser\n     dataFormat: \"influx\"  # set the parser's dataFormat\n```\n",
+      "doc": " This monitor is based on the Telegraf tail plugin.  The monitor tails files and\nnamed pipes.  The Telegraf parser configured with this monitor extracts metrics in different\n(formats)[https://github.com/influxdata/telegraf/blob/master/docs/DATA_FORMATS_INPUT.md]\nfrom the tailed output. More information about the Telegraf plugin\ncan be found [here](https://github.com/influxdata/telegraf/tree/master/plugins/inputs/tail).\n\nSample YAML configuration:\n\n```yaml\nmonitors:\n - type: telegraf/tail\n   files:\n    - '/logs/**.log'       # find all .log files in /logs\n    - '/logs/*/*.log'      # find all .log files who are contained in a directory under /logs/\n    - '/var/log/agent.log' # tail the specified log file\n   watchMethod: inotify    # specify the file watch method (\"ionotify\" or \"poll\")\n```\n\nSample YAML configuration that specifies a parser:\n\n```yaml\nmonitors:\n - type: telegraf/tail\n   files:\n    - '/logs/**.log'       # find all .log files in /logs\n    - '/logs/*/*.log'      # find all .log files who are contained in a directory under /logs/\n    - '/var/log/agent.log' # tail the specified log file\n   watchMethod: inotify    # specify the file watch method (\"inotify\" or \"poll\")\n   telegrafParser:         # specify a parser\n     dataFormat: \"influx\"  # set the parser's dataFormat\n```\n",
       "package": "internal/monitors/telegraf/monitors/tail",
       "fields": [
         {
@@ -11105,7 +11105,7 @@
         {
           "yamlName": "watchMethod",
           "doc": "Method for watching changes to files (\"ionotify\" or \"poll\")",
-          "default": "",
+          "default": "poll",
           "required": false,
           "type": "string",
           "elementKind": ""
@@ -11141,7 +11141,7 @@
               {
                 "yamlName": "dataFormat",
                 "doc": "dataFormat specifies a data format to parse: `json`, `value`, `influx`, `graphite`, `value`, `nagios`, `collectd`, `dropwizard`, `wavefront`, `grok`, `csv`, or `logfmt`.",
-                "default": "",
+                "default": "influx",
                 "required": false,
                 "type": "string",
                 "elementKind": ""

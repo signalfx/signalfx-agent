@@ -13,7 +13,7 @@ import (
 type Config struct {
 	// dataFormat specifies a data format to parse: `json`, `value`, `influx`, `graphite`, `value`, `nagios`,
 	// `collectd`, `dropwizard`, `wavefront`, `grok`, `csv`, or `logfmt`.
-	DataFormat string `yaml:"dataFormat" default"influx"`
+	DataFormat string `yaml:"dataFormat" default:"influx"`
 
 	// defaultTags are tags that will be added to all metrics. (`json`, `value`, `graphite`, `collectd`, `dropwizard`,
 	// `wavefront`, `grok`, `csv` and `logfmt` only)

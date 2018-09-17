@@ -14,9 +14,9 @@ Sample YAML configuration:
 monitors:
  - type: telegraf/tail
    files:
-    - "/logs/**.log"       # find all .log files in /logs
-    - "/logs/*/*.log"      # find all .log files who are contained in a directory under /logs/
-    - "/var/log/agent.log" # tail the specified log file
+    - '/logs/**.log'       # find all .log files in /logs
+    - '/logs/*/*.log'      # find all .log files who are contained in a directory under /logs/
+    - '/var/log/agent.log' # tail the specified log file
    watchMethod: inotify    # specify the file watch method ("ionotify" or "poll")
 ```
 
@@ -26,11 +26,11 @@ Sample YAML configuration that specifies a parser:
 monitors:
  - type: telegraf/tail
    files:
-    - "/logs/**.log"       # find all .log files in /logs
-    - "/logs/*/*.log"      # find all .log files who are contained in a directory under /logs/
-    - "/var/log/agent.log" # tail the specified log file
+    - '/logs/**.log'       # find all .log files in /logs
+    - '/logs/*/*.log'      # find all .log files who are contained in a directory under /logs/
+    - '/var/log/agent.log' # tail the specified log file
    watchMethod: inotify    # specify the file watch method ("inotify" or "poll")
-   telegrafParser:		  # specify a parser
+   telegrafParser:         # specify a parser
      dataFormat: "influx"  # set the parser's dataFormat
 ```
 
@@ -48,7 +48,7 @@ Monitor Type: `telegraf/tail`
 | Config option | Required | Type | Description |
 | --- | --- | --- | --- |
 | `files` | **yes** | `list of string` | Paths to files to be tailed |
-| `watchMethod` | no | `string` | Method for watching changes to files ("ionotify" or "poll") |
+| `watchMethod` | no | `string` | Method for watching changes to files ("ionotify" or "poll") (**default:** `poll`) |
 | `pipe` | no | `bool` | Indicates if the file is a named pipe (**default:** `false`) |
 | `fromBeginning` | no | `bool` | Whether to start tailing from the beginning of the file (**default:** `false`) |
 | `telegrafParser` | no | `object (see below)` | telegrafParser is a nested object that defines configurations for a Telegraf parser. Please refer to the Telegraf (documentation)[https://github.com/influxdata/telegraf/blob/master/docs/DATA_FORMATS_INPUT.md] for more information on Telegraf parsers. |
@@ -58,7 +58,7 @@ The **nested** `telegrafParser` config object has the following fields:
 
 | Config option | Required | Type | Description |
 | --- | --- | --- | --- |
-| `dataFormat` | no | `string` | dataFormat specifies a data format to parse: `json`, `value`, `influx`, `graphite`, `value`, `nagios`, `collectd`, `dropwizard`, `wavefront`, `grok`, `csv`, or `logfmt`. |
+| `dataFormat` | no | `string` | dataFormat specifies a data format to parse: `json`, `value`, `influx`, `graphite`, `value`, `nagios`, `collectd`, `dropwizard`, `wavefront`, `grok`, `csv`, or `logfmt`. (**default:** `influx`) |
 | `defaultTags` | no | `map of string` | defaultTags are tags that will be added to all metrics. (`json`, `value`, `graphite`, `collectd`, `dropwizard`, `wavefront`, `grok`, `csv` and `logfmt` only) |
 | `metricName` | no | `string` | metricName applies to (`json` and `value`). This will be the name of the measurement. |
 | `dataType` | no | `string` | dataType specifies the value type to parse the value to: `integer`, `float`, `long`, `string`, or `boolean`. (`value` only) |

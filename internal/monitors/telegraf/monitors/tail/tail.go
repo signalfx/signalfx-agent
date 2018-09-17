@@ -30,9 +30,9 @@ const monitorType = "telegraf/tail"
 // monitors:
 //  - type: telegraf/tail
 //    files:
-//     - "/logs/**.log"       # find all .log files in /logs
-//     - "/logs/*/*.log"      # find all .log files who are contained in a directory under /logs/
-//     - "/var/log/agent.log" # tail the specified log file
+//     - '/logs/**.log'       # find all .log files in /logs
+//     - '/logs/*/*.log'      # find all .log files who are contained in a directory under /logs/
+//     - '/var/log/agent.log' # tail the specified log file
 //    watchMethod: inotify    # specify the file watch method ("ionotify" or "poll")
 // ```
 //
@@ -42,9 +42,9 @@ const monitorType = "telegraf/tail"
 // monitors:
 //  - type: telegraf/tail
 //    files:
-//     - "/logs/**.log"       # find all .log files in /logs
-//     - "/logs/*/*.log"      # find all .log files who are contained in a directory under /logs/
-//     - "/var/log/agent.log" # tail the specified log file
+//     - '/logs/**.log'       # find all .log files in /logs
+//     - '/logs/*/*.log'      # find all .log files who are contained in a directory under /logs/
+//     - '/var/log/agent.log' # tail the specified log file
 //    watchMethod: inotify    # specify the file watch method ("inotify" or "poll")
 //    telegrafParser:         # specify a parser
 //      dataFormat: "influx"  # set the parser's dataFormat
@@ -63,7 +63,7 @@ type Config struct {
 	// Paths to files to be tailed
 	Files []string `yaml:"files" validate:"required"`
 	// Method for watching changes to files ("ionotify" or "poll")
-	WatchMethod string `yaml:"watchMethod" default"poll"`
+	WatchMethod string `yaml:"watchMethod" default:"poll"`
 	// Indicates if the file is a named pipe
 	Pipe bool `yaml:"pipe" default:"false"`
 	// Whether to start tailing from the beginning of the file
