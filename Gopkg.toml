@@ -162,6 +162,10 @@
   name = "github.com/Microsoft/go-winio"
   version = "=0.4.9"
 
+[[override]]
+  source = "https://github.com/fsnotify/fsnotify/archive/v1.4.7.tar.gz"
+  name = "gopkg.in/fsnotify.v1"
+
 [[constraint]]
   name = "github.com/signalfx/telegraf"
   revision = "888c034dc63b1420acc06188f1af72a5b19872e2"
