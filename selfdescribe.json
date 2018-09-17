@@ -11091,6 +11091,362 @@
     },
     {
       "name": "Config",
+      "doc": " This monitor is based on the Telegraf tail plugin.  The monitor tails files and\nnamed pipes.  The Telegraf parser configured with this monitor extracts metrics in different\n(formats)[https://github.com/influxdata/telegraf/blob/master/docs/DATA_FORMATS_INPUT.md]\nfrom the tailed output. More information about the Telegraf plugin\ncan be found [here](https://github.com/influxdata/telegraf/tree/master/plugins/inputs/tail).\n\nSample YAML configuration:\n\n```yaml\nmonitors:\n - type: telegraf/tail\n   files:\n    - '/logs/**.log'       # find all .log files in /logs\n    - '/logs/*/*.log'      # find all .log files who are contained in a directory under /logs/\n    - '/var/log/agent.log' # tail the specified log file\n   watchMethod: inotify    # specify the file watch method (\"ionotify\" or \"poll\")\n```\n\nSample YAML configuration that specifies a parser:\n\n```yaml\nmonitors:\n - type: telegraf/tail\n   files:\n    - '/logs/**.log'       # find all .log files in /logs\n    - '/logs/*/*.log'      # find all .log files who are contained in a directory under /logs/\n    - '/var/log/agent.log' # tail the specified log file\n   watchMethod: inotify    # specify the file watch method (\"inotify\" or \"poll\")\n   telegrafParser:         # specify a parser\n     dataFormat: \"influx\"  # set the parser's dataFormat\n```\n",
+      "package": "internal/monitors/telegraf/monitors/tail",
+      "fields": [
+        {
+          "yamlName": "files",
+          "doc": "Paths to files to be tailed",
+          "default": null,
+          "required": true,
+          "type": "slice",
+          "elementKind": "string"
+        },
+        {
+          "yamlName": "watchMethod",
+          "doc": "Method for watching changes to files (\"ionotify\" or \"poll\")",
+          "default": "poll",
+          "required": false,
+          "type": "string",
+          "elementKind": ""
+        },
+        {
+          "yamlName": "pipe",
+          "doc": "Indicates if the file is a named pipe",
+          "default": false,
+          "required": false,
+          "type": "bool",
+          "elementKind": ""
+        },
+        {
+          "yamlName": "fromBeginning",
+          "doc": "Whether to start tailing from the beginning of the file",
+          "default": false,
+          "required": false,
+          "type": "bool",
+          "elementKind": ""
+        },
+        {
+          "yamlName": "telegrafParser",
+          "doc": "telegrafParser is a nested object that defines configurations for a Telegraf parser. Please refer to the Telegraf (documentation)[https://github.com/influxdata/telegraf/blob/master/docs/DATA_FORMATS_INPUT.md] for more information on Telegraf parsers.",
+          "default": null,
+          "required": false,
+          "type": "struct",
+          "elementKind": "",
+          "elementStruct": {
+            "name": "Config",
+            "doc": "Config implements Telegraf parsers.Config, but with SignalFx Smart Agent struct tags and a methods for returning a Telegraf parsers.Config struct and a Telegraf parsers.Parser. Please refer to Telegraf's (documentation)[https://github.com/influxdata/telegraf/blob/master/docs/DATA_FORMATS_INPUT.md#influx] for more information about the different parsers and their specific configurations",
+            "package": "internal/monitors/telegraf/common/parser",
+            "fields": [
+              {
+                "yamlName": "dataFormat",
+                "doc": "dataFormat specifies a data format to parse: `json`, `value`, `influx`, `graphite`, `value`, `nagios`, `collectd`, `dropwizard`, `wavefront`, `grok`, `csv`, or `logfmt`.",
+                "default": "influx",
+                "required": false,
+                "type": "string",
+                "elementKind": ""
+              },
+              {
+                "yamlName": "defaultTags",
+                "doc": "defaultTags are tags that will be added to all metrics. (`json`, `value`, `graphite`, `collectd`, `dropwizard`, `wavefront`, `grok`, `csv` and `logfmt` only)",
+                "default": null,
+                "required": false,
+                "type": "map",
+                "elementKind": "string"
+              },
+              {
+                "yamlName": "metricName",
+                "doc": "metricName applies to (`json` and `value`). This will be the name of the measurement.",
+                "default": "",
+                "required": false,
+                "type": "string",
+                "elementKind": ""
+              },
+              {
+                "yamlName": "dataType",
+                "doc": "dataType specifies the value type to parse the value to: `integer`, `float`, `long`, `string`, or `boolean`. (`value` only)",
+                "default": "",
+                "required": false,
+                "type": "string",
+                "elementKind": ""
+              },
+              {
+                "yamlName": "JSONTagKeys",
+                "doc": "A list of tag names to fetch from JSON data. (`json` only)",
+                "default": null,
+                "required": false,
+                "type": "slice",
+                "elementKind": "string"
+              },
+              {
+                "yamlName": "JSONStringFields",
+                "doc": "A list of fields in JSON to extract and use as string fields. (json only)",
+                "default": null,
+                "required": false,
+                "type": "slice",
+                "elementKind": "string"
+              },
+              {
+                "yamlName": "JSONNameKey",
+                "doc": "A path used to extract the metric name in JSON data.  (`json` only)",
+                "default": "",
+                "required": false,
+                "type": "string",
+                "elementKind": ""
+              },
+              {
+                "yamlName": "JSONQuery",
+                "doc": "A gjson path for json parser. (`json` only)",
+                "default": "",
+                "required": false,
+                "type": "string",
+                "elementKind": ""
+              },
+              {
+                "yamlName": "JSONTimeKey",
+                "doc": "The name of the timestamp key. (`json` only)",
+                "default": "",
+                "required": false,
+                "type": "string",
+                "elementKind": ""
+              },
+              {
+                "yamlName": "JSONTimeFormat",
+                "doc": "Specifies the timestamp format. (`json` only)",
+                "default": "",
+                "required": false,
+                "type": "string",
+                "elementKind": ""
+              },
+              {
+                "yamlName": "separator",
+                "doc": "Separator for Graphite data. (`graphite` only).",
+                "default": "",
+                "required": false,
+                "type": "string",
+                "elementKind": ""
+              },
+              {
+                "yamlName": "templates",
+                "doc": "A list of templates for Graphite data. (`graphite` only).",
+                "default": null,
+                "required": false,
+                "type": "slice",
+                "elementKind": "string"
+              },
+              {
+                "yamlName": "collectdAuthFile",
+                "doc": "The path to the collectd authentication file (`collectd` only)",
+                "default": "",
+                "required": false,
+                "type": "string",
+                "elementKind": ""
+              },
+              {
+                "yamlName": "collectdSecurityLevel",
+                "doc": "Specifies the security level: `none` (default), `sign`, or `encrypt`. (`collectd only`)",
+                "default": "",
+                "required": false,
+                "type": "string",
+                "elementKind": ""
+              },
+              {
+                "yamlName": "collectdTypesDB",
+                "doc": "A list of paths to collectd TypesDB files. (`collectd` only)",
+                "default": null,
+                "required": false,
+                "type": "slice",
+                "elementKind": "string"
+              },
+              {
+                "yamlName": "collectdSplit",
+                "doc": "Indicates whether to separate or join multivalue metrics. (`collectd` only)",
+                "default": "",
+                "required": false,
+                "type": "string",
+                "elementKind": ""
+              },
+              {
+                "yamlName": "dropwizardMetricRegistryPath",
+                "doc": "An optional gjson path used to locate a metric registry inside of JSON data. The default behavior is to consider the entire JSON document. (`dropwizard` only)",
+                "default": "",
+                "required": false,
+                "type": "string",
+                "elementKind": ""
+              },
+              {
+                "yamlName": "dropwizardTimePath",
+                "doc": "An optional gjson path used to identify the drop wizard metric timestamp. (`dropwizard` only)",
+                "default": "",
+                "required": false,
+                "type": "string",
+                "elementKind": ""
+              },
+              {
+                "yamlName": "dropwizardTimeFormat",
+                "doc": "The format used for parsing the drop wizard metric timestamp. The default format is time.RFC3339. (`dropwizard` only)",
+                "default": "",
+                "required": false,
+                "type": "string",
+                "elementKind": ""
+              },
+              {
+                "yamlName": "dropwizardTagsPath",
+                "doc": "An optional gjson path used to locate drop wizard tags. (`dropwizard` only)",
+                "default": "",
+                "required": false,
+                "type": "string",
+                "elementKind": ""
+              },
+              {
+                "yamlName": "dropwizardTagPathsMap",
+                "doc": "A map of gjson tag names and gjson paths used to extract tag values from the JSON document. This is only used if `dropwizardTagsPath` is not specified. (`dropwizard` only)",
+                "default": null,
+                "required": false,
+                "type": "map",
+                "elementKind": "string"
+              },
+              {
+                "yamlName": "grokPatterns",
+                "doc": "A list of patterns to match. (`grok` only)",
+                "default": null,
+                "required": false,
+                "type": "slice",
+                "elementKind": "string"
+              },
+              {
+                "yamlName": "grokNamedPatterns",
+                "doc": "A list of named grok patterns to match.  (`grok` only)",
+                "default": null,
+                "required": false,
+                "type": "slice",
+                "elementKind": "string"
+              },
+              {
+                "yamlName": "grokCustomPatterns",
+                "doc": "Custom grok patterns. (`grok` only)",
+                "default": "",
+                "required": false,
+                "type": "string",
+                "elementKind": ""
+              },
+              {
+                "yamlName": "grokCustomPatternFiles",
+                "doc": "List of paths to custom grok pattern files. (`grok` only)",
+                "default": null,
+                "required": false,
+                "type": "slice",
+                "elementKind": "string"
+              },
+              {
+                "yamlName": "grokTimezone",
+                "doc": "Specifies the timezone.  The default is UTC time.  Other options are `Local` for the local time on the machine, `UTC`, and `Canada/Eastern` (unix style timezones).  (`grok` only)",
+                "default": "",
+                "required": false,
+                "type": "string",
+                "elementKind": ""
+              },
+              {
+                "yamlName": "CSVDelimiter",
+                "doc": "The delimiter used between fields in the csv. (`csv` only)",
+                "default": "",
+                "required": false,
+                "type": "string",
+                "elementKind": ""
+              },
+              {
+                "yamlName": "CSVComment",
+                "doc": "The character used to mark rows as comments. (`csv` only)",
+                "default": "",
+                "required": false,
+                "type": "string",
+                "elementKind": ""
+              },
+              {
+                "yamlName": "CSVTrimSpace",
+                "doc": "Indicates whether to trim leading white from fields. (`csv` only)",
+                "default": false,
+                "required": false,
+                "type": "bool",
+                "elementKind": ""
+              },
+              {
+                "yamlName": "CSVColumnNames",
+                "doc": "List of custom column names.  All columns must have names.  Unnamed columns are ignored. This configuration must be set when `CSVHeaderRowCount` is 0. (`csv` only)",
+                "default": null,
+                "required": false,
+                "type": "slice",
+                "elementKind": "string"
+              },
+              {
+                "yamlName": "CSVTagColumns",
+                "doc": "List of columns that should be added as tags.  Unspecified columns will be added as fields. (`csv` only)",
+                "default": null,
+                "required": false,
+                "type": "slice",
+                "elementKind": "string"
+              },
+              {
+                "yamlName": "CSVMeasurementColumn",
+                "doc": "The name of the column to extract the metric name from (`csv` only)",
+                "default": "",
+                "required": false,
+                "type": "string",
+                "elementKind": ""
+              },
+              {
+                "yamlName": "CSVTimestampColumn",
+                "doc": "The name of the column to extract the metric timestamp from. `CSVTimestampFormat` must be set when using this option.  (`csv` only)",
+                "default": "",
+                "required": false,
+                "type": "string",
+                "elementKind": ""
+              },
+              {
+                "yamlName": "CSVTimestampFormat",
+                "doc": "The format to use for extracting timestamps. (`csv` only)",
+                "default": "",
+                "required": false,
+                "type": "string",
+                "elementKind": ""
+              },
+              {
+                "yamlName": "CSVHeaderRowCount",
+                "doc": "The number of rows that are headers.  By default no rows are treated as headers.  (`csv` only)",
+                "default": 0,
+                "required": false,
+                "type": "int",
+                "elementKind": ""
+              },
+              {
+                "yamlName": "CSVSkipRows",
+                "doc": "The number of rows to ignore before looking for headers. (`csv` only)",
+                "default": 0,
+                "required": false,
+                "type": "int",
+                "elementKind": ""
+              },
+              {
+                "yamlName": "CSVSkipColumns",
+                "doc": "The number of columns to ignore before parsing data on a given row. (`csv` only)",
+                "default": 0,
+                "required": false,
+                "type": "int",
+                "elementKind": ""
+              }
+            ]
+          }
+        }
+      ],
+      "monitorType": "telegraf/tail",
+      "acceptsEndpoints": false,
+      "singleInstance": false,
+      "dimensions": null,
+      "metrics": null,
+      "properties": null
+    },
+    {
+      "name": "Config",
       "doc": " This monitor reads Windows performance\ncounters\n\nSample YAML configuration:\n\n```yaml\nmonitors:\n - type: telegraf/win_perf_counters\n   printValid: true\n   objects:\n    - objectName: \"Processor\"\n      instances:\n       - \"*\"\n      counters:\n       - \"% Idle Time\"\n       - \"% Interrupt Time\"\n       - \"% Privileged Time\"\n       - \"% User Time\"\n       - \"% Processor Time\"\n      includeTotal: true\n      measurement: \"win_cpu\"\n```\n",
       "package": "internal/monitors/telegraf/monitors/winperfcounters",
       "fields": [
