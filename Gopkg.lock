@@ -2,6 +2,18 @@
 
 
 [[projects]]
+  digest = "1:188f74d743ff5e941788eceec4546703f31cde64d7da744137ad361c875c8609"
+  name = "collectd.org"
+  packages = [
+    "api",
+    "cdtime",
+    "network",
+  ]
+  pruneopts = "NUT"
+  revision = "2ce144541b8903101fb8f1483cc0497a68798122"
+  version = "v0.3.0"
+
+[[projects]]
   digest = "1:4c981012ff1b1c68536e51da19cfdb26c78d0b3625e219e55f437527a7cd1d62"
   name = "github.com/Knetic/govaluate"
   packages = ["."]
@@ -31,6 +43,25 @@
   packages = ["."]
   pruneopts = "NUT"
   revision = "b12b22c5341f0c26d88c4d66176330500e84db68"
+
+[[projects]]
+  branch = "master"
+  digest = "1:f3793f8a708522400cef1dba23385e901aede5519f68971fd69938ef330b07a1"
+  name = "github.com/alecthomas/template"
+  packages = [
+    ".",
+    "parse",
+  ]
+  pruneopts = "NUT"
+  revision = "a0175ee3bccc567396460bf5acd36800cb10c49c"
+
+[[projects]]
+  branch = "master"
+  digest = "1:fdd419e104ec26bb5bd63cc62637c640453ed2929a7453f3afadbd9a0223da66"
+  name = "github.com/alecthomas/units"
+  packages = ["."]
+  pruneopts = "NUT"
+  revision = "2efee857e7cfd4f3d0138cc3cbb1b4966962b93a"
 
 [[projects]]
   digest = "1:9752dad5e89cd779096bf2477a4ded16bea7ac62de453c8d6b4bf841d51a8512"
@@ -358,6 +389,19 @@
   version = "v0.8.1"
 
 [[projects]]
+  digest = "1:9a09c93df5e47f995dc748ca32338eb0438b94926e048b7794f15477d9a92a75"
+  name = "github.com/hpcloud/tail"
+  packages = [
+    "ratelimiter",
+    "util",
+    "watch",
+    "winfile",
+  ]
+  pruneopts = "NUT"
+  revision = "a30252cb686a21eb2d0b98132633053ec2f7f1e5"
+  version = "v1.0.0"
+
+[[projects]]
   branch = "master"
   digest = "1:cc64e90fda7656daddd7ea78fdf0bcd4d69434e5179bb3063893fd89363a302c"
   name = "github.com/iancoleman/strcase"
@@ -366,14 +410,34 @@
   revision = "3de563c3dc08a7504131e9d63f678b7d1c3e85d7"
 
 [[projects]]
-  digest = "1:d8cf544dfe98b1d465926412969a2bcb51dd173d25c003ccfdacee6808049b76"
+  digest = "1:87c5dc16931f1d8debd9c087fcfa47db1063080f95c51e64c6bff5814b400e80"
+  name = "github.com/influxdata/tail"
+  packages = ["."]
+  pruneopts = "NUT"
+  revision = "a30252cb686a21eb2d0b98132633053ec2f7f1e5"
+  version = "v1.0.0"
+
+[[projects]]
+  digest = "1:86cdc5d7ba0727a5b4777b8a35abc18242b24101e08798e235edb0421e298be4"
   name = "github.com/influxdata/telegraf"
   packages = [
     ".",
     "internal",
+    "internal/globpath",
+    "internal/templating",
+    "metric",
     "plugins/inputs",
     "plugins/inputs/sqlserver",
+    "plugins/inputs/tail",
     "plugins/inputs/win_perf_counters",
+    "plugins/parsers",
+    "plugins/parsers/collectd",
+    "plugins/parsers/dropwizard",
+    "plugins/parsers/graphite",
+    "plugins/parsers/influx",
+    "plugins/parsers/json",
+    "plugins/parsers/nagios",
+    "plugins/parsers/value",
   ]
   pruneopts = "NUT"
   revision = "4be18c1ea229cb2a3b0da6f41923ba0597a4b94e"
@@ -630,11 +694,12 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:c5d42ef4adf65e7f285781909ee3798fef7fec57f9c018cf96d6a4104f483feb"
+  digest = "1:5a31033f117e1be267d642fa385ec7f0434e7b7ce8d934ff049c9efb78307f24"
   name = "github.com/prometheus/common"
   packages = [
     "expfmt",
     "internal/bitbucket.org/ww/goautoneg",
+    "log",
     "model",
   ]
   pruneopts = "NUT"
@@ -774,6 +839,22 @@
   pruneopts = "NUT"
   revision = "f35b8ab0b5a2cef36673838d662e249dd9c94686"
   version = "v1.2.2"
+
+[[projects]]
+  digest = "1:6343bc31d451dd4747480e1d5827ff75a4408908bcf817fe3799407576d67c11"
+  name = "github.com/tidwall/gjson"
+  packages = ["."]
+  pruneopts = "NUT"
+  revision = "081192fa2e471ddff3ec98a3cc04fecfd031ed57"
+  version = "v1.1.4"
+
+[[projects]]
+  digest = "1:20d232e544cf67770287960b1a5e8bee6a58a86fd71f77dfad60a9d903b9f2ed"
+  name = "github.com/tidwall/match"
+  packages = ["."]
+  pruneopts = "NUT"
+  revision = "33827db735fff6510490d69a8622612558a557ed"
+  version = "v1.0.1"
 
 [[projects]]
   digest = "1:22f696cee54865fb8e9ff91df7b633f6b8f22037a8015253c6b6a71ca82219c7"
@@ -975,12 +1056,29 @@
   revision = "41344da2231b913fa3d983840a57a6b1b7b631a1"
 
 [[projects]]
+  digest = "1:22b2dee6f30bc8601f087449a2a819df8388e54e9547349c658f14d8f8c590f2"
+  name = "gopkg.in/alecthomas/kingpin.v2"
+  packages = ["."]
+  pruneopts = "NUT"
+  revision = "947dcec5ba9c011838740e680966fd7087a71d0d"
+  version = "v2.2.6"
+
+[[projects]]
   digest = "1:39f943568ebb4a3dbf1b02cb83be68a724db02cbef9b3f3b72ef783e1fb2e06a"
   name = "gopkg.in/fatih/set.v0"
   packages = ["."]
   pruneopts = "NUT"
   revision = "57907de300222151a123d29255ed17f5ed43fad3"
   version = "v0.1.0"
+
+[[projects]]
+  digest = "1:1b91ae0dc69a41d4c2ed23ea5cffb721ea63f5037ca4b81e6d6771fbb8f45129"
+  name = "gopkg.in/fsnotify.v1"
+  packages = ["."]
+  pruneopts = "NUT"
+  revision = "c2828203cd70a50dcccfb2761f8b1f8ceef9a8e9"
+  source = "https://github.com/fsnotify/fsnotify/archive/v1.4.7.tar.gz"
+  version = "v1.4.7"
 
 [[projects]]
   digest = "1:424c948cbcc46affe16c2304a35c160c9d98bb10cb60ada8c334dc450d4d7839"
@@ -1013,6 +1111,14 @@
   pruneopts = "NUT"
   revision = "2fee6af1a9795aafbe0253a0cfbdf668e1fb8a9a"
   version = "v1.8.0"
+
+[[projects]]
+  branch = "v1"
+  digest = "1:8fb1ccb16a6cfecbfdfeb84d8ea1cc7afa8f9ef16526bc2326f72d993e32cef1"
+  name = "gopkg.in/tomb.v1"
+  packages = ["."]
+  pruneopts = "NUT"
+  revision = "dd632973f1e7218eb1089048e0798ec9ae7dceb8"
 
 [[projects]]
   branch = "v2"
@@ -1213,7 +1319,9 @@
     "github.com/iancoleman/strcase",
     "github.com/influxdata/telegraf/plugins/inputs",
     "github.com/influxdata/telegraf/plugins/inputs/sqlserver",
+    "github.com/influxdata/telegraf/plugins/inputs/tail",
     "github.com/influxdata/telegraf/plugins/inputs/win_perf_counters",
+    "github.com/influxdata/telegraf/plugins/parsers",
     "github.com/kardianos/service",
     "github.com/kr/pretty",
     "github.com/mailru/easyjson",
