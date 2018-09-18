@@ -492,7 +492,7 @@
   version = "v1.0.0"
 
 [[projects]]
-  digest = "1:ec7e231836f603d9d7d91446c9ab3196c413598c8ed91ded3da7e62354d50852"
+  digest = "1:26cd0f44c772eeaf717ffe755bbcd6c3309ffb5d95b3b5dbf0214dc99acc065c"
   name = "github.com/influxdata/telegraf"
   packages = [
     ".",
@@ -501,6 +501,7 @@
     "internal/templating",
     "metric",
     "plugins/inputs",
+    "plugins/inputs/procstat",
     "plugins/inputs/sqlserver",
     "plugins/inputs/statsd",
     "plugins/inputs/tail",
@@ -1422,6 +1423,7 @@
     "github.com/hashicorp/vault/api",
     "github.com/iancoleman/strcase",
     "github.com/influxdata/telegraf/plugins/inputs",
+    "github.com/influxdata/telegraf/plugins/inputs/procstat",
     "github.com/influxdata/telegraf/plugins/inputs/sqlserver",
     "github.com/influxdata/telegraf/plugins/inputs/statsd",
     "github.com/influxdata/telegraf/plugins/inputs/tail",
