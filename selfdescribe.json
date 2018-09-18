@@ -11479,6 +11479,83 @@
     },
     {
       "name": "Config",
+      "doc": " This monitor reports metrics about processes.\nThis monitor is based on the Telegraf procstat plugin.  More information about the Telegraf plugin\ncan be found [here](https://github.com/influxdata/telegraf/tree/master/plugins/inputs/procstat).\n\nPlease note that the Smart Agent only supports the `native` pid finder and the options\n`cgroup` and `systemd unit` are not supported at this time.\n\nSample YAML configuration:\n\n```yaml\nmonitors:\n - type: telegraf/procstat\n   exe: \"signalfx-agent*\"\n```\n",
+      "package": "internal/monitors/telegraf/monitors/procstat",
+      "fields": [
+        {
+          "yamlName": "procFSPath",
+          "doc": "The path to the proc filesystem. Useful to override in containerized environments.",
+          "default": "/proc",
+          "required": false,
+          "type": "string",
+          "elementKind": ""
+        },
+        {
+          "yamlName": "exe",
+          "doc": "The name of an executable to monitor.  (ie: `exe: \"signalfx-agent*\"`)",
+          "default": "",
+          "required": false,
+          "type": "string",
+          "elementKind": ""
+        },
+        {
+          "yamlName": "pattern",
+          "doc": "Pattern to match against.  On Windows the pattern should be in the form of a WMI query. (ie: `pattern: \"%signalfx-agent%\"`)",
+          "default": "",
+          "required": false,
+          "type": "string",
+          "elementKind": ""
+        },
+        {
+          "yamlName": "user",
+          "doc": "Username to match against",
+          "default": "",
+          "required": false,
+          "type": "string",
+          "elementKind": ""
+        },
+        {
+          "yamlName": "pidFile",
+          "doc": "Path to Pid file to monitor.  (ie: `pidFile: \"/var/run/signalfx-agent.pid\"`)",
+          "default": "",
+          "required": false,
+          "type": "string",
+          "elementKind": ""
+        },
+        {
+          "yamlName": "processName",
+          "doc": "Used to override the process name dimension",
+          "default": "",
+          "required": false,
+          "type": "string",
+          "elementKind": ""
+        },
+        {
+          "yamlName": "prefix",
+          "doc": "Prefix to be added to each dimension",
+          "default": "",
+          "required": false,
+          "type": "string",
+          "elementKind": ""
+        },
+        {
+          "yamlName": "pidTag",
+          "doc": "Whether to add PID as a dimension instead of part of the metric name",
+          "default": false,
+          "required": false,
+          "type": "bool",
+          "elementKind": ""
+        }
+      ],
+      "monitorType": "telegraf/procstat",
+      "acceptsEndpoints": false,
+      "singleInstance": false,
+      "dimensions": null,
+      "metrics": null,
+      "properties": null
+    },
+    {
+      "name": "Config",
       "doc": " This monitor reports metrics about microsoft sql servers.\nThis monitor is based on the telegraf sqlserver plugin.  More information about the telegraf plugin\ncan be found [here](https://github.com/influxdata/telegraf/tree/master/plugins/inputs/sqlserver).\n\nSample YAML configuration:\n\n```yaml\nmonitors:\n - type: telegraf/sqlserver\n   host: hostname\n   port: 1433\n   userID: sa\n   password: P@ssw0rd!\n   appName: signalfxagent\n   azureDB: true\n   excludeQuery:\n    - PerformanceCounters\n    # - WaitStatsCategorized\n    # - DatabaseIO\n    # - DatabaseProperties\n    # - CPUHistory\n    # - DatabaseSize\n    # - DatabaseStats\n    # - MemoryClerk\n    # - VolumeSpace\n    # - PerformanceMetrics\n```\n",
       "package": "internal/monitors/telegraf/monitors/mssqlserver",
       "fields": [
