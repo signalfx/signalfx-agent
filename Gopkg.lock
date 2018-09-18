@@ -465,7 +465,7 @@
   version = "v1.0.0"
 
 [[projects]]
-  digest = "1:7940db6509ae1ffb8f72c2ac420da3f03276a2ce532e04feee2270592888c3cb"
+  digest = "1:6993c5ff6e0553cfed864de6059b5d2b3fa327d896306eb794d79664599dbb2b"
   name = "github.com/influxdata/telegraf"
   packages = [
     ".",
@@ -475,6 +475,7 @@
     "metric",
     "plugins/inputs",
     "plugins/inputs/sqlserver",
+    "plugins/inputs/statsd",
     "plugins/inputs/tail",
     "plugins/inputs/win_perf_counters",
     "plugins/parsers",
@@ -485,6 +486,7 @@
     "plugins/parsers/json",
     "plugins/parsers/nagios",
     "plugins/parsers/value",
+    "selfstat",
   ]
   pruneopts = "NUT"
   revision = "c6feb056ffa0440ce054ad220655189ce91d2b30"
@@ -1236,6 +1238,7 @@
     "github.com/iancoleman/strcase",
     "github.com/influxdata/telegraf/plugins/inputs",
     "github.com/influxdata/telegraf/plugins/inputs/sqlserver",
+    "github.com/influxdata/telegraf/plugins/inputs/statsd",
     "github.com/influxdata/telegraf/plugins/inputs/tail",
     "github.com/influxdata/telegraf/plugins/inputs/win_perf_counters",
     "github.com/influxdata/telegraf/plugins/parsers",
