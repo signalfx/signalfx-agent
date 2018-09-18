@@ -33,7 +33,7 @@ Monitor Type: `collectd/consul`
 | `port` | **yes** | `integer` |  |
 | `aclToken` | no | `string` |  |
 | `useHTTPS` | no | `bool` |  (**default:** `false`) |
-| `enhancedMetrics` | no | `bool` |  (**default:** `false`) |
+| `enhancedMetrics` | no | `bool` |  |
 | `caCertificate` | no | `string` |  |
 | `clientCertificate` | no | `string` |  |
 | `clientKey` | no | `string` |  |

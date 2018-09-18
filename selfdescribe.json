@@ -1306,7 +1306,7 @@
         {
           "yamlName": "enhancedMetrics",
           "doc": "",
-          "default": false,
+          "default": null,
           "required": false,
           "type": "bool",
           "elementKind": ""
@@ -2824,7 +2824,7 @@
         {
           "yamlName": "skipSSLValidation",
           "doc": "",
-          "default": false,
+          "default": null,
           "required": false,
           "type": "bool",
           "elementKind": ""
@@ -2832,7 +2832,7 @@
         {
           "yamlName": "enhancedMetrics",
           "doc": "",
-          "default": false,
+          "default": null,
           "required": false,
           "type": "bool",
           "elementKind": ""
@@ -3218,7 +3218,7 @@
         {
           "yamlName": "verbose",
           "doc": "Log verbose information about the plugin",
-          "default": false,
+          "default": null,
           "required": false,
           "type": "bool",
           "elementKind": ""
@@ -3482,7 +3482,7 @@
         {
           "yamlName": "enhancedMetrics",
           "doc": "",
-          "default": false,
+          "default": null,
           "required": false,
           "type": "bool",
           "elementKind": ""
@@ -4011,7 +4011,7 @@
         {
           "yamlName": "enhancedMetrics",
           "doc": "Whether to enable enhanced metrics",
-          "default": false,
+          "default": null,
           "required": false,
           "type": "bool",
           "elementKind": ""
@@ -5779,7 +5779,7 @@
         {
           "yamlName": "useTLS",
           "doc": "",
-          "default": false,
+          "default": null,
           "required": false,
           "type": "bool",
           "elementKind": ""
@@ -7902,7 +7902,7 @@
         {
           "yamlName": "collectChannels",
           "doc": "",
-          "default": false,
+          "default": null,
           "required": false,
           "type": "bool",
           "elementKind": ""
@@ -7910,7 +7910,7 @@
         {
           "yamlName": "collectConnections",
           "doc": "",
-          "default": false,
+          "default": null,
           "required": false,
           "type": "bool",
           "elementKind": ""
@@ -7918,7 +7918,7 @@
         {
           "yamlName": "collectExchanges",
           "doc": "",
-          "default": false,
+          "default": null,
           "required": false,
           "type": "bool",
           "elementKind": ""
@@ -7926,7 +7926,7 @@
         {
           "yamlName": "collectNodes",
           "doc": "",
-          "default": false,
+          "default": null,
           "required": false,
           "type": "bool",
           "elementKind": ""
@@ -7934,7 +7934,7 @@
         {
           "yamlName": "collectQueues",
           "doc": "",
-          "default": false,
+          "default": null,
           "required": false,
           "type": "bool",
           "elementKind": ""
@@ -7942,7 +7942,7 @@
         {
           "yamlName": "httpTimeout",
           "doc": "",
-          "default": 0,
+          "default": null,
           "required": false,
           "type": "int",
           "elementKind": ""
