@@ -12,7 +12,7 @@ pytestmark = [pytest.mark.windows,
 monitor_config = """
 monitors:
   - type: telegraf/procstat
-    pattern: signalfx-agent*
+    exe: "signalfx-agent*"
 """
 
 
