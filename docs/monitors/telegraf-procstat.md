@@ -14,7 +14,7 @@ Sample YAML configuration:
 ```yaml
 monitors:
  - type: telegraf/procstat
-   name: signalfx-agent*
+   exe: "signalfx-agent*"
 ```
 
 

@@ -11006,7 +11006,7 @@
     },
     {
       "name": "Config",
-      "doc": " This monitor reports metrics about processes.\nThis monitor is based on the Telegraf procstat plugin.  More information about the Telegraf plugin\ncan be found [here](https://github.com/influxdata/telegraf/tree/master/plugins/inputs/procstat).\n\nPlease note that the Smart Agent only supports the `native` pid finder and the options\n`cgroup` and `systemd unit` are not supported at this time.\n\nSample YAML configuration:\n\n```yaml\nmonitors:\n - type: telegraf/procstat\n   name: signalfx-agent*\n```\n",
+      "doc": " This monitor reports metrics about processes.\nThis monitor is based on the Telegraf procstat plugin.  More information about the Telegraf plugin\ncan be found [here](https://github.com/influxdata/telegraf/tree/master/plugins/inputs/procstat).\n\nPlease note that the Smart Agent only supports the `native` pid finder and the options\n`cgroup` and `systemd unit` are not supported at this time.\n\nSample YAML configuration:\n\n```yaml\nmonitors:\n - type: telegraf/procstat\n   exe: \"signalfx-agent*\"\n```\n",
       "package": "internal/monitors/telegraf/monitors/procstat",
       "fields": [
         {

@@ -32,7 +32,7 @@ const monitorType = "telegraf/procstat"
 // ```yaml
 // monitors:
 //  - type: telegraf/procstat
-//    name: signalfx-agent*
+//    exe: "signalfx-agent*"
 // ```
 //
 
