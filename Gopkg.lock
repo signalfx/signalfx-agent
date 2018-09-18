@@ -465,7 +465,7 @@
   version = "v1.0.0"
 
 [[projects]]
-  digest = "1:6993c5ff6e0553cfed864de6059b5d2b3fa327d896306eb794d79664599dbb2b"
+  digest = "1:4b35366d1fb3e92560788db68f00961d7020869b3f080e89aa054bc2b3db82e6"
   name = "github.com/influxdata/telegraf"
   packages = [
     ".",
@@ -474,6 +474,7 @@
     "internal/templating",
     "metric",
     "plugins/inputs",
+    "plugins/inputs/procstat",
     "plugins/inputs/sqlserver",
     "plugins/inputs/statsd",
     "plugins/inputs/tail",
@@ -1237,6 +1238,7 @@
     "github.com/hashicorp/golang-lru",
     "github.com/iancoleman/strcase",
     "github.com/influxdata/telegraf/plugins/inputs",
+    "github.com/influxdata/telegraf/plugins/inputs/procstat",
     "github.com/influxdata/telegraf/plugins/inputs/sqlserver",
     "github.com/influxdata/telegraf/plugins/inputs/statsd",
     "github.com/influxdata/telegraf/plugins/inputs/tail",
