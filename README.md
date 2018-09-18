@@ -123,7 +123,7 @@ Kubernetes](https://docs.signalfx.com/en/latest/integrations/kubernetes-quicksta
 for more information.
 
 #### AWS Elastic Container Service (ECS)
-See the [ECS directory in this repo](./deployments/ecs) that includes a sample
+See the [ECS directory](./deployments/ecs), which includes a sample
 config and task definition for the agent.
 
 ### Bundles
