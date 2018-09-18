@@ -34,7 +34,7 @@ Monitor Type: `telegraf/procstat`
 | `exe` | no | `string` | The name of an executable to monitor.  (ie: `exe: "signalfx-agent*"`) |
 | `pattern` | no | `string` | Pattern to match against.  On Windows the pattern should be in the form of a WMI query. (ie: `pattern: "%signalfx-agent%"`) |
 | `user` | no | `string` | Username to match against |
-| `pidFile` | no | `string` | Path to pidfile to monitor.  An example value is `"/var/run/nginx.pid"` |
+| `pidFile` | no | `string` | Path to Pid file to monitor.  (ie: `pidFile: "/var/run/signalfx-agent.pid"`) |
 | `processName` | no | `string` | Used to override the process name dimension |
 | `prefix` | no | `string` | Prefix to be added to each dimension |
 | `pidTag` | no | `bool` | Whether to add PID as a dimension instead of part of the metric name (**default:** `false`) |

@@ -11043,7 +11043,7 @@
         },
         {
           "yamlName": "pidFile",
-          "doc": "Path to pidfile to monitor.  An example value is `\"/var/run/nginx.pid\"`",
+          "doc": "Path to Pid file to monitor.  (ie: `pidFile: \"/var/run/signalfx-agent.pid\"`)",
           "default": "",
           "required": false,
           "type": "string",

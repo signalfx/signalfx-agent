@@ -55,7 +55,7 @@ type Config struct {
 	Pattern     string `yaml:"pattern"`
 	// Username to match against
 	User        string `yaml:"user"`
-	// Path to pidfile to monitor.  An example value is `"/var/run/nginx.pid"`
+	// Path to Pid file to monitor.  (ie: `pidFile: "/var/run/signalfx-agent.pid"`)
 	PidFile     string `yaml:"pidFile"`
 	// Used to override the process name dimension
 	ProcessName string `yaml:"processName"`
