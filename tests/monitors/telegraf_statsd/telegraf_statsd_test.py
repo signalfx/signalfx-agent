@@ -41,3 +41,11 @@ def test_telegraf_statsd():
 
         # wait for fake ingest to receive the statsd metrics
         assert wait_for(p(has_datapoint_with_metric_name, backend, "statsd.test.metric"))
+        assert wait_for(p(has_datapoint_with_dim, backend, "dimension1", "value1")), "datapoint didn't have datadog tag"
+
+        # send datapoints to the statsd listener
+        for i in range(0,10):
+            send_udp_message(host, port, "dogstatsd.test.metric:55555|g|#dimension1:,dimension2:value2")
+            time.sleep(1)
+
+        assert wait_for(p(has_datapoint_with_metric_name, backend, "dogstatsd.test.metric")), "didn't report metric with valueless datadog tag"
