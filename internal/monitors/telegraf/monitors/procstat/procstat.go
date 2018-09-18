@@ -48,9 +48,10 @@ type Config struct {
 	// The path to the proc filesystem. Useful to override in containerized
 	// environments.
 	ProcFSPath string `yaml:"procFSPath" default:"/proc"`
-	// The name of an executable to monitor.
+	// The name of an executable to monitor.  (ie: `exe: "signalfx-agent*"`)
 	Exe         string `yaml:"exe"`
-	// Pattern to match against.  On Windows the pattern should be in the form of a WMI query.  (ie: pattern: "%influx%")`
+	// Pattern to match against.  On Windows the pattern should be in the form of a WMI query.
+	// (ie: `pattern: "%signalfx-agent%"`)
 	Pattern     string `yaml:"pattern"`
 	// Username to match against
 	User        string `yaml:"user"`

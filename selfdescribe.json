@@ -11019,7 +11019,7 @@
         },
         {
           "yamlName": "exe",
-          "doc": "The name of an executable to monitor.",
+          "doc": "The name of an executable to monitor.  (ie: `exe: \"signalfx-agent*\"`)",
           "default": "",
           "required": false,
           "type": "string",
@@ -11027,7 +11027,7 @@
         },
         {
           "yamlName": "pattern",
-          "doc": "Pattern to match against.  On Windows the pattern should be in the form of a WMI query.  (ie: pattern: \"%influx%\")`",
+          "doc": "Pattern to match against.  On Windows the pattern should be in the form of a WMI query. (ie: `pattern: \"%signalfx-agent%\"`)",
           "default": "",
           "required": false,
           "type": "string",

@@ -31,8 +31,8 @@ Monitor Type: `telegraf/procstat`
 | Config option | Required | Type | Description |
 | --- | --- | --- | --- |
 | `procFSPath` | no | `string` | The path to the proc filesystem. Useful to override in containerized environments. (**default:** `/proc`) |
-| `exe` | no | `string` | The name of an executable to monitor. |
-| `pattern` | no | `string` | Pattern to match against.  On Windows the pattern should be in the form of a WMI query.  (ie: pattern: "%influx%")` |
+| `exe` | no | `string` | The name of an executable to monitor.  (ie: `exe: "signalfx-agent*"`) |
+| `pattern` | no | `string` | Pattern to match against.  On Windows the pattern should be in the form of a WMI query. (ie: `pattern: "%signalfx-agent%"`) |
 | `user` | no | `string` | Username to match against |
 | `pidFile` | no | `string` | Path to pidfile to monitor.  An example value is `"/var/run/nginx.pid"` |
 | `processName` | no | `string` | Used to override the process name dimension |
