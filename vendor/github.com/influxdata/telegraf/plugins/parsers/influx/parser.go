@@ -63,7 +63,6 @@ func (p *Parser) Parse(input []byte) ([]telegraf.Metric, error) {
 	for p.machine.ParseLine() {
 		err := p.machine.Err()
 		if err != nil {
-			p.handler.Reset()
 			return nil, &ParseError{
 				Offset: p.machine.Position(),
 				msg:    err.Error(),

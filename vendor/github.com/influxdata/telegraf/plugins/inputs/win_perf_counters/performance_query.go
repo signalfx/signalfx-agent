@@ -6,7 +6,6 @@ package win_perf_counters
 import (
 	"errors"
 	"syscall"
-	"time"
 	"unsafe"
 )
 
@@ -27,8 +26,7 @@ type PerformanceQuery interface {
 	GetFormattedCounterValueDouble(hCounter PDH_HCOUNTER) (float64, error)
 	GetFormattedCounterArrayDouble(hCounter PDH_HCOUNTER) ([]CounterValue, error)
 	CollectData() error
-	CollectDataWithTime() (time.Time, error)
-	IsVistaOrNewer() bool
+	AddEnglishCounterSupported() bool
 }
 
 //PdhError represents error returned from Performance Counters API
@@ -63,8 +61,8 @@ func (m *PerformanceQueryImpl) Open() error {
 		}
 	}
 	var handle PDH_HQUERY
-
-	if ret := PdhOpenQuery(0, 0, &handle); ret != ERROR_SUCCESS {
+	ret := PdhOpenQuery(0, 0, &handle)
+	if ret != ERROR_SUCCESS {
 		return NewPdhError(ret)
 	}
 	m.query = handle
@@ -76,8 +74,8 @@ func (m *PerformanceQueryImpl) Close() error {
 	if m.query == 0 {
 		return errors.New("uninitialised query")
 	}
-
-	if ret := PdhCloseQuery(m.query); ret != ERROR_SUCCESS {
+	ret := PdhCloseQuery(m.query)
+	if ret != ERROR_SUCCESS {
 		return NewPdhError(ret)
 	}
 	m.query = 0
@@ -89,8 +87,8 @@ func (m *PerformanceQueryImpl) AddCounterToQuery(counterPath string) (PDH_HCOUNT
 	if m.query == 0 {
 		return 0, errors.New("uninitialised query")
 	}
-
-	if ret := PdhAddCounter(m.query, counterPath, 0, &counterHandle); ret != ERROR_SUCCESS {
+	ret := PdhAddCounter(m.query, counterPath, 0, &counterHandle)
+	if ret != ERROR_SUCCESS {
 		return 0, NewPdhError(ret)
 	}
 	return counterHandle, nil
@@ -101,7 +99,8 @@ func (m *PerformanceQueryImpl) AddEnglishCounterToQuery(counterPath string) (PDH
 	if m.query == 0 {
 		return 0, errors.New("uninitialised query")
 	}
-	if ret := PdhAddEnglishCounter(m.query, counterPath, 0, &counterHandle); ret != ERROR_SUCCESS {
+	ret := PdhAddEnglishCounter(m.query, counterPath, 0, &counterHandle)
+	if ret != ERROR_SUCCESS {
 		return 0, NewPdhError(ret)
 	}
 	return counterHandle, nil
@@ -111,11 +110,13 @@ func (m *PerformanceQueryImpl) AddEnglishCounterToQuery(counterPath string) (PDH
 func (m *PerformanceQueryImpl) GetCounterPath(counterHandle PDH_HCOUNTER) (string, error) {
 	var bufSize uint32
 	var buff []byte
-	var ret uint32
-	if ret = PdhGetCounterInfo(counterHandle, 0, &bufSize, nil); ret == PDH_MORE_DATA {
+
+	ret := PdhGetCounterInfo(counterHandle, 0, &bufSize, nil)
+	if ret == PDH_MORE_DATA {
 		buff = make([]byte, bufSize)
 		bufSize = uint32(len(buff))
-		if ret = PdhGetCounterInfo(counterHandle, 0, &bufSize, &buff[0]); ret == ERROR_SUCCESS {
+		ret = PdhGetCounterInfo(counterHandle, 0, &bufSize, &buff[0])
+		if ret == ERROR_SUCCESS {
 			ci := (*PDH_COUNTER_INFO)(unsafe.Pointer(&buff[0]))
 			return UTF16PtrToString(ci.SzFullPath), nil
 		}
@@ -127,9 +128,9 @@ func (m *PerformanceQueryImpl) GetCounterPath(counterHandle PDH_HCOUNTER) (strin
 func (m *PerformanceQueryImpl) ExpandWildCardPath(counterPath string) ([]string, error) {
 	var bufSize uint32
 	var buff []uint16
-	var ret uint32
 
-	if ret = PdhExpandWildCardPath(counterPath, nil, &bufSize); ret == PDH_MORE_DATA {
+	ret := PdhExpandWildCardPath(counterPath, nil, &bufSize)
+	if ret == PDH_MORE_DATA {
 		buff = make([]uint16, bufSize)
 		bufSize = uint32(len(buff))
 		ret = PdhExpandWildCardPath(counterPath, &buff[0], &bufSize)
@@ -145,9 +146,8 @@ func (m *PerformanceQueryImpl) ExpandWildCardPath(counterPath string) ([]string,
 func (m *PerformanceQueryImpl) GetFormattedCounterValueDouble(hCounter PDH_HCOUNTER) (float64, error) {
 	var counterType uint32
 	var value PDH_FMT_COUNTERVALUE_DOUBLE
-	var ret uint32
-
-	if ret = PdhGetFormattedCounterValueDouble(hCounter, &counterType, &value); ret == ERROR_SUCCESS {
+	ret := PdhGetFormattedCounterValueDouble(hCounter, &counterType, &value)
+	if ret == ERROR_SUCCESS {
 		if value.CStatus == PDH_CSTATUS_VALID_DATA || value.CStatus == PDH_CSTATUS_NEW_DATA {
 			return value.DoubleValue, nil
 		} else {
@@ -161,12 +161,11 @@ func (m *PerformanceQueryImpl) GetFormattedCounterValueDouble(hCounter PDH_HCOUN
 func (m *PerformanceQueryImpl) GetFormattedCounterArrayDouble(hCounter PDH_HCOUNTER) ([]CounterValue, error) {
 	var buffSize uint32
 	var itemCount uint32
-	var ret uint32
-
-	if ret = PdhGetFormattedCounterArrayDouble(hCounter, &buffSize, &itemCount, nil); ret == PDH_MORE_DATA {
+	ret := PdhGetFormattedCounterArrayDouble(hCounter, &buffSize, &itemCount, nil)
+	if ret == PDH_MORE_DATA {
 		buff := make([]byte, buffSize)
-
-		if ret = PdhGetFormattedCounterArrayDouble(hCounter, &buffSize, &itemCount, &buff[0]); ret == ERROR_SUCCESS {
+		ret = PdhGetFormattedCounterArrayDouble(hCounter, &buffSize, &itemCount, &buff[0])
+		if ret == ERROR_SUCCESS {
 			items := (*[1 << 20]PDH_FMT_COUNTERVALUE_ITEM_DOUBLE)(unsafe.Pointer(&buff[0]))[:itemCount]
 			values := make([]CounterValue, 0, itemCount)
 			for _, item := range items {
@@ -182,29 +181,17 @@ func (m *PerformanceQueryImpl) GetFormattedCounterArrayDouble(hCounter PDH_HCOUN
 }
 
 func (m *PerformanceQueryImpl) CollectData() error {
-	var ret uint32
 	if m.query == 0 {
 		return errors.New("uninitialised query")
 	}
-
-	if ret = PdhCollectQueryData(m.query); ret != ERROR_SUCCESS {
+	ret := PdhCollectQueryData(m.query)
+	if ret != ERROR_SUCCESS {
 		return NewPdhError(ret)
 	}
 	return nil
 }
 
-func (m *PerformanceQueryImpl) CollectDataWithTime() (time.Time, error) {
-	if m.query == 0 {
-		return time.Now(), errors.New("uninitialised query")
-	}
-	ret, mtime := PdhCollectQueryDataWithTime(m.query)
-	if ret != ERROR_SUCCESS {
-		return time.Now(), NewPdhError(ret)
-	}
-	return mtime, nil
-}
-
-func (m *PerformanceQueryImpl) IsVistaOrNewer() bool {
+func (m *PerformanceQueryImpl) AddEnglishCounterSupported() bool {
 	return PdhAddEnglishCounterSupported()
 }
 

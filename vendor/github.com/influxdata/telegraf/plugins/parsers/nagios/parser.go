@@ -1,8 +1,6 @@
 package nagios
 
 import (
-	"errors"
-	"log"
 	"regexp"
 	"strconv"
 	"strings"
@@ -19,10 +17,8 @@ type NagiosParser struct {
 
 // Got from Alignak
 // https://github.com/Alignak-monitoring/alignak/blob/develop/alignak/misc/perfdata.py
-var (
-	perfSplitRegExp = regexp.MustCompile(`([^=]+=\S+)`)
-	nagiosRegExp    = regexp.MustCompile(`^([^=]+)=([\d\.\-\+eE]+)([\w\/%]*);?([\d\.\-\+eE:~@]+)?;?([\d\.\-\+eE:~@]+)?;?([\d\.\-\+eE]+)?;?([\d\.\-\+eE]+)?;?\s*`)
-)
+var perfSplitRegExp, _ = regexp.Compile(`([^=]+=\S+)`)
+var nagiosRegExp, _ = regexp.Compile(`^([^=]+)=([\d\.\-\+eE]+)([\w\/%]*);?([\d\.\-\+eE:~@]+)?;?([\d\.\-\+eE:~@]+)?;?([\d\.\-\+eE]+)?;?([\d\.\-\+eE]+)?;?\s*`)
 
 func (p *NagiosParser) ParseLine(line string) (telegraf.Metric, error) {
 	metrics, err := p.Parse([]byte(line))
@@ -33,99 +29,88 @@ func (p *NagiosParser) SetDefaultTags(tags map[string]string) {
 	p.DefaultTags = tags
 }
 
+//> rta,host=absol,unit=ms critical=6000,min=0,value=0.332,warning=4000 1456374625003628099
+//> pl,host=absol,unit=% critical=90,min=0,value=0,warning=80 1456374625003693967
+
 func (p *NagiosParser) Parse(buf []byte) ([]telegraf.Metric, error) {
 	metrics := make([]telegraf.Metric, 0)
-	lines := strings.Split(strings.TrimSpace(string(buf)), "\n")
-
-	for _, line := range lines {
-		data_splitted := strings.Split(line, "|")
-
-		if len(data_splitted) != 2 {
-			// got human readable output only or bad line
-			continue
-		}
-		m, err := parsePerfData(data_splitted[1])
-		if err != nil {
-			log.Printf("E! [parser.nagios] failed to parse performance data: %s\n", err.Error())
-			continue
-		}
-		metrics = append(metrics, m...)
+	// Convert to string
+	out := string(buf)
+	// Prepare output for splitting
+	// Delete escaped pipes
+	out = strings.Replace(out, `\|`, "___PROTECT_PIPE___", -1)
+	// Split lines and get the first one
+	lines := strings.Split(out, "\n")
+	// Split output and perfdatas
+	data_splitted := strings.Split(lines[0], "|")
+	if len(data_splitted) <= 1 {
+		// No pipe == no perf data
+		return nil, nil
 	}
-	return metrics, nil
-}
-
-func parsePerfData(perfdatas string) ([]telegraf.Metric, error) {
-	metrics := make([]telegraf.Metric, 0)
-
-	for _, unParsedPerf := range perfSplitRegExp.FindAllString(perfdatas, -1) {
-		trimedPerf := strings.TrimSpace(unParsedPerf)
-		perf := nagiosRegExp.FindStringSubmatch(trimedPerf)
-
-		// verify at least `'label'=value[UOM];` existed
-		if len(perf) < 3 {
+	// Get perfdatas
+	perfdatas := data_splitted[1]
+	// Add escaped pipes
+	perfdatas = strings.Replace(perfdatas, "___PROTECT_PIPE___", `\|`, -1)
+	// Split perfs
+	unParsedPerfs := perfSplitRegExp.FindAllSubmatch([]byte(perfdatas), -1)
+	// Iterate on all perfs
+	for _, unParsedPerfs := range unParsedPerfs {
+		// Get metrics
+		// Trim perf
+		trimedPerf := strings.Trim(string(unParsedPerfs[0]), " ")
+		// Parse perf
+		perf := nagiosRegExp.FindAllSubmatch([]byte(trimedPerf), -1)
+		// Bad string
+		if len(perf) == 0 {
 			continue
 		}
-		if perf[1] == "" || perf[2] == "" {
+		if len(perf[0]) <= 2 {
 			continue
 		}
-
-		fieldName := strings.Trim(perf[1], "'")
-		tags := map[string]string{"perfdata": fieldName}
-		if perf[3] != "" {
-			str := string(perf[3])
+		if perf[0][1] == nil || perf[0][2] == nil {
+			continue
+		}
+		fieldName := string(perf[0][1])
+		tags := make(map[string]string)
+		if perf[0][3] != nil {
+			str := string(perf[0][3])
 			if str != "" {
 				tags["unit"] = str
 			}
 		}
-
 		fields := make(map[string]interface{})
-		if perf[2] == "U" {
-			return nil, errors.New("Value undetermined")
-		}
-
-		f, err := strconv.ParseFloat(string(perf[2]), 64)
+		f, err := strconv.ParseFloat(string(perf[0][2]), 64)
 		if err == nil {
 			fields["value"] = f
 		}
-		if perf[4] != "" {
-			low, high, err := parseThreshold(perf[4])
+		// TODO should we set empty field
+		// if metric if there is no data ?
+		if perf[0][4] != nil {
+			f, err := strconv.ParseFloat(string(perf[0][4]), 64)
 			if err == nil {
-				if strings.Contains(perf[4], "@") {
-					fields["warning_le"] = low
-					fields["warning_ge"] = high
-				} else {
-					fields["warning_lt"] = low
-					fields["warning_gt"] = high
-				}
+				fields["warning"] = f
 			}
 		}
-		if perf[5] != "" {
-			low, high, err := parseThreshold(perf[5])
+		if perf[0][5] != nil {
+			f, err := strconv.ParseFloat(string(perf[0][5]), 64)
 			if err == nil {
-				if strings.Contains(perf[5], "@") {
-					fields["critical_le"] = low
-					fields["critical_ge"] = high
-				} else {
-					fields["critical_lt"] = low
-					fields["critical_gt"] = high
-				}
+				fields["critical"] = f
 			}
 		}
-		if perf[6] != "" {
-			f, err := strconv.ParseFloat(perf[6], 64)
+		if perf[0][6] != nil {
+			f, err := strconv.ParseFloat(string(perf[0][6]), 64)
 			if err == nil {
 				fields["min"] = f
 			}
 		}
-		if perf[7] != "" {
-			f, err := strconv.ParseFloat(perf[7], 64)
+		if perf[0][7] != nil {
+			f, err := strconv.ParseFloat(string(perf[0][7]), 64)
 			if err == nil {
 				fields["max"] = f
 			}
 		}
-
 		// Create metric
-		metric, err := metric.New("nagios", tags, fields, time.Now().UTC())
+		metric, err := metric.New(fieldName, tags, fields, time.Now().UTC())
 		if err != nil {
 			return nil, err
 		}
@@ -134,48 +119,4 @@ func parsePerfData(perfdatas string) ([]telegraf.Metric, error) {
 	}
 
 	return metrics, nil
-}
-
-// from math
-const (
-	MaxFloat64 = 1.797693134862315708145274237317043567981e+308 // 2**1023 * (2**53 - 1) / 2**52
-	MinFloat64 = 4.940656458412465441765687928682213723651e-324 // 1 / 2**(1023 - 1 + 52)
-)
-
-var ErrBadThresholdFormat = errors.New("Bad threshold format")
-
-// Handles all cases from https://nagios-plugins.org/doc/guidelines.html#THRESHOLDFORMAT
-func parseThreshold(threshold string) (min float64, max float64, err error) {
-	thresh := strings.Split(threshold, ":")
-	switch len(thresh) {
-	case 1:
-		max, err = strconv.ParseFloat(string(thresh[0]), 64)
-		if err != nil {
-			return 0, 0, ErrBadThresholdFormat
-		}
-
-		return 0, max, nil
-	case 2:
-		if thresh[0] == "~" {
-			min = MinFloat64
-		} else {
-			min, err = strconv.ParseFloat(string(thresh[0]), 64)
-			if err != nil {
-				min = 0
-			}
-		}
-
-		if thresh[1] == "" {
-			max = MaxFloat64
-		} else {
-			max, err = strconv.ParseFloat(string(thresh[1]), 64)
-			if err != nil {
-				return 0, 0, ErrBadThresholdFormat
-			}
-		}
-	default:
-		return 0, 0, ErrBadThresholdFormat
-	}
-
-	return
 }

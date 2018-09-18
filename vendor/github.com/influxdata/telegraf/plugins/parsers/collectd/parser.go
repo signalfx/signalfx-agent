@@ -21,10 +21,7 @@ type CollectdParser struct {
 	// DefaultTags will be added to every parsed metric
 	DefaultTags map[string]string
 
-	//whether or not to split multi value metric into multiple metrics
-	//default value is split
-	ParseMultiValue string
-	popts           network.ParseOpts
+	popts network.ParseOpts
 }
 
 func (p *CollectdParser) SetParseOpts(popts *network.ParseOpts) {
@@ -35,7 +32,6 @@ func NewCollectdParser(
 	authFile string,
 	securityLevel string,
 	typesDB []string,
-	split string,
 ) (*CollectdParser, error) {
 	popts := network.ParseOpts{}
 
@@ -68,8 +64,7 @@ func NewCollectdParser(
 		}
 	}
 
-	parser := CollectdParser{popts: popts,
-		ParseMultiValue: split}
+	parser := CollectdParser{popts: popts}
 	return &parser, nil
 }
 
@@ -81,7 +76,7 @@ func (p *CollectdParser) Parse(buf []byte) ([]telegraf.Metric, error) {
 
 	metrics := []telegraf.Metric{}
 	for _, valueList := range valueLists {
-		metrics = append(metrics, UnmarshalValueList(valueList, p.ParseMultiValue)...)
+		metrics = append(metrics, UnmarshalValueList(valueList)...)
 	}
 
 	if len(p.DefaultTags) > 0 {
@@ -116,91 +111,47 @@ func (p *CollectdParser) SetDefaultTags(tags map[string]string) {
 }
 
 // UnmarshalValueList translates a ValueList into a Telegraf metric.
-func UnmarshalValueList(vl *api.ValueList, multiValue string) []telegraf.Metric {
+func UnmarshalValueList(vl *api.ValueList) []telegraf.Metric {
 	timestamp := vl.Time.UTC()
 
 	var metrics []telegraf.Metric
-
-	//set multiValue to default "split" if nothing is specified
-	if multiValue == "" {
-		multiValue = "split"
-	}
-	switch multiValue {
-	case "split":
-		for i := range vl.Values {
-			var name string
-			name = fmt.Sprintf("%s_%s", vl.Identifier.Plugin, vl.DSName(i))
-			tags := make(map[string]string)
-			fields := make(map[string]interface{})
-
-			// Convert interface back to actual type, then to float64
-			switch value := vl.Values[i].(type) {
-			case api.Gauge:
-				fields["value"] = float64(value)
-			case api.Derive:
-				fields["value"] = float64(value)
-			case api.Counter:
-				fields["value"] = float64(value)
-			}
-
-			if vl.Identifier.Host != "" {
-				tags["host"] = vl.Identifier.Host
-			}
-			if vl.Identifier.PluginInstance != "" {
-				tags["instance"] = vl.Identifier.PluginInstance
-			}
-			if vl.Identifier.Type != "" {
-				tags["type"] = vl.Identifier.Type
-			}
-			if vl.Identifier.TypeInstance != "" {
-				tags["type_instance"] = vl.Identifier.TypeInstance
-			}
-
-			// Drop invalid points
-			m, err := metric.New(name, tags, fields, timestamp)
-			if err != nil {
-				log.Printf("E! Dropping metric %v: %v", name, err)
-				continue
-			}
-
-			metrics = append(metrics, m)
-		}
-	case "join":
-		name := vl.Identifier.Plugin
+	for i := range vl.Values {
+		var name string
+		name = fmt.Sprintf("%s_%s", vl.Identifier.Plugin, vl.DSName(i))
 		tags := make(map[string]string)
 		fields := make(map[string]interface{})
-		for i := range vl.Values {
-			switch value := vl.Values[i].(type) {
-			case api.Gauge:
-				fields[vl.DSName(i)] = float64(value)
-			case api.Derive:
-				fields[vl.DSName(i)] = float64(value)
-			case api.Counter:
-				fields[vl.DSName(i)] = float64(value)
-			}
 
-			if vl.Identifier.Host != "" {
-				tags["host"] = vl.Identifier.Host
-			}
-			if vl.Identifier.PluginInstance != "" {
-				tags["instance"] = vl.Identifier.PluginInstance
-			}
-			if vl.Identifier.Type != "" {
-				tags["type"] = vl.Identifier.Type
-			}
-			if vl.Identifier.TypeInstance != "" {
-				tags["type_instance"] = vl.Identifier.TypeInstance
-			}
+		// Convert interface back to actual type, then to float64
+		switch value := vl.Values[i].(type) {
+		case api.Gauge:
+			fields["value"] = float64(value)
+		case api.Derive:
+			fields["value"] = float64(value)
+		case api.Counter:
+			fields["value"] = float64(value)
 		}
 
+		if vl.Identifier.Host != "" {
+			tags["host"] = vl.Identifier.Host
+		}
+		if vl.Identifier.PluginInstance != "" {
+			tags["instance"] = vl.Identifier.PluginInstance
+		}
+		if vl.Identifier.Type != "" {
+			tags["type"] = vl.Identifier.Type
+		}
+		if vl.Identifier.TypeInstance != "" {
+			tags["type_instance"] = vl.Identifier.TypeInstance
+		}
+
+		// Drop invalid points
 		m, err := metric.New(name, tags, fields, timestamp)
 		if err != nil {
 			log.Printf("E! Dropping metric %v: %v", name, err)
+			continue
 		}
 
 		metrics = append(metrics, m)
-	default:
-		log.Printf("parse-multi-value config can only be 'split' or 'join'")
 	}
 	return metrics
 }
