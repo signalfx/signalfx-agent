@@ -11151,6 +11151,131 @@
     },
     {
       "name": "Config",
+      "doc": " This monitor acts as a Telegraf StatsD listener for receiving telegrafstatsd metrics.\nThis monitor is based on the Telegraf Statsd input plugin.  More information about the Telegraf plugin\ncan be found [here](https://github.com/influxdata/telegraf/tree/master/plugins/inputs/statsd).\n\nSample YAML configuration:\n\n```yaml\nmonitors:\n - type: telegraf/statsd\n   protocol: udp\n   serviceAddress: \":8125\"\n   parseDataDogTags: true\n```\n\n```yaml\nmonitors:\n - type: telegraf/statsd\n   protocol: udp\n   serviceAddress: \"127.0.0.1:0\"\n   parseDataDogTags: true\n   metricSeparator: '.'\n```\n",
+      "package": "internal/monitors/telegraf/monitors/telegrafstatsd",
+      "fields": [
+        {
+          "yamlName": "protocol",
+          "doc": "Protocol to use with the listener: `tcp`, `udp4`, `udp6`, or `udp`.",
+          "default": "udp",
+          "required": false,
+          "type": "string",
+          "elementKind": ""
+        },
+        {
+          "yamlName": "serviceAddress",
+          "doc": "The address and port to serve from",
+          "default": ":8125",
+          "required": false,
+          "type": "string",
+          "elementKind": ""
+        },
+        {
+          "yamlName": "maxTCPConnections",
+          "doc": "Maximum number of tcp connections allowed.",
+          "default": 250,
+          "required": false,
+          "type": "int",
+          "elementKind": ""
+        },
+        {
+          "yamlName": "TCPKeepAlive",
+          "doc": "Indicates whether to keep the tcp connection alive.",
+          "default": false,
+          "required": false,
+          "type": "bool",
+          "elementKind": ""
+        },
+        {
+          "yamlName": "deleteGauges",
+          "doc": "Whether to clear the gauge cache every interval.  Setting this to false means the cache will only be cleared when the monitor is restarted.",
+          "default": true,
+          "required": false,
+          "type": "bool",
+          "elementKind": ""
+        },
+        {
+          "yamlName": "deleteCounters",
+          "doc": "Whether to clear the counter cache every interval.  Setting this to false means the cache will only be cleared when the monitor is restarted.",
+          "default": true,
+          "required": false,
+          "type": "bool",
+          "elementKind": ""
+        },
+        {
+          "yamlName": "deleteSets",
+          "doc": "Whether to clear the sets cache every interval.  Setting this to false means the cache will only be cleared when the monitor is restarted.",
+          "default": true,
+          "required": false,
+          "type": "bool",
+          "elementKind": ""
+        },
+        {
+          "yamlName": "deleteTimings",
+          "doc": "Whether to clear the timings cache every interval.  Setting this to false means the cache will only be cleared when the monitor is restarted.",
+          "default": true,
+          "required": false,
+          "type": "bool",
+          "elementKind": ""
+        },
+        {
+          "yamlName": "percentiles",
+          "doc": "The percentiles that are collected for timing and histogram stats.",
+          "default": null,
+          "required": false,
+          "type": "slice",
+          "elementKind": "int"
+        },
+        {
+          "yamlName": "allowedPendingMessages",
+          "doc": "Number of messages allowed to queue up between each collection interval. Packets will be dropped until the next collection interval if this buffer fills up.",
+          "default": 10000,
+          "required": false,
+          "type": "int",
+          "elementKind": ""
+        },
+        {
+          "yamlName": "percentileLimit",
+          "doc": "The maximum number of histogram values to track each measurement when calculating percentiles. Increasing the limit will increase memory consumption but will also improve accuracy.",
+          "default": 1000,
+          "required": false,
+          "type": "int",
+          "elementKind": ""
+        },
+        {
+          "yamlName": "metricSeparator",
+          "doc": "The separator used to separate parts of a metric name",
+          "default": "_",
+          "required": false,
+          "type": "string",
+          "elementKind": ""
+        },
+        {
+          "yamlName": "templates",
+          "doc": "Templates that transform telegrafstatsd metrics into influx tags and measurements. Please refer to the Telegraf (documentation)[https://github.com/influxdata/telegraf/tree/master/plugins/inputs/statsd#statsd-bucket---influxdb-line-protocol-templates] for more information on templates.",
+          "default": null,
+          "required": false,
+          "type": "slice",
+          "elementKind": "string"
+        },
+        {
+          "yamlName": "parseDataDogTags",
+          "doc": "Indicates whether to parse dogstatsd tags",
+          "default": false,
+          "required": false,
+          "type": "bool",
+          "elementKind": ""
+        }
+      ],
+      "monitorType": "telegraf/statsd",
+      "acceptsEndpoints": false,
+      "singleInstance": false,
+      "dimensions": null,
+      "metrics": null,
+      "properties": null
+    },
+    {
+      "name": "Config",
       "doc": " This monitor is based on the Telegraf tail plugin.  The monitor tails files and\nnamed pipes.  The Telegraf parser configured with this monitor extracts metrics in different\n(formats)[https://github.com/influxdata/telegraf/blob/master/docs/DATA_FORMATS_INPUT.md]\nfrom the tailed output. More information about the Telegraf plugin\ncan be found [here](https://github.com/influxdata/telegraf/tree/master/plugins/inputs/tail).\n\nSample YAML configuration:\n\n```yaml\nmonitors:\n - type: telegraf/tail\n   files:\n    - '/logs/**.log'       # find all .log files in /logs\n    - '/logs/*/*.log'      # find all .log files who are contained in a directory under /logs/\n    - '/var/log/agent.log' # tail the specified log file\n   watchMethod: inotify    # specify the file watch method (\"ionotify\" or \"poll\")\n```\n\nSample YAML configuration that specifies a parser:\n\n```yaml\nmonitors:\n - type: telegraf/tail\n   files:\n    - '/logs/**.log'       # find all .log files in /logs\n    - '/logs/*/*.log'      # find all .log files who are contained in a directory under /logs/\n    - '/var/log/agent.log' # tail the specified log file\n   watchMethod: inotify    # specify the file watch method (\"inotify\" or \"poll\")\n   telegrafParser:         # specify a parser\n     dataFormat: \"influx\"  # set the parser's dataFormat\n```\n",
       "package": "internal/monitors/telegraf/monitors/tail",
       "fields": [

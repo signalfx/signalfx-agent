@@ -399,6 +399,7 @@
     "metric",
     "plugins/inputs",
     "plugins/inputs/sqlserver",
+    "plugins/inputs/statsd",
     "plugins/inputs/tail",
     "plugins/inputs/win_perf_counters",
     "plugins/parsers",
@@ -412,7 +413,8 @@
     "plugins/parsers/logfmt",
     "plugins/parsers/nagios",
     "plugins/parsers/value",
-    "plugins/parsers/wavefront"
+    "plugins/parsers/wavefront",
+    "selfstat"
   ]
   revision = "ae9efb2f696f4dd9e83db4b0431cf9aabf7af97c"
   version = "1.8.1"
@@ -1069,6 +1071,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "b398fb9550aed1abd879a6dd7fa1777ccf74dc9eb1e3ff56348226e9ffbdac1e"
+  inputs-digest = "6304883029514f73bc3a615e8d53498d24aada805a33ce0f8c8869d15d206bdc"
   solver-name = "gps-cdcl"
   solver-version = 1
