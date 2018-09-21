@@ -7226,137 +7226,197 @@
       "dimensions": null,
       "metrics": [
         {
-          "name": "openstack.cinder.limit.maxTotalVolumeGigabytes",
+          "name": "counter.openstack.nova.server.cpu_time",
+          "type": "counter",
+          "description": "Virtual CPU time consumed in nanoseconds"
+        },
+        {
+          "name": "counter.openstack.nova.server.rx",
+          "type": "counter",
+          "description": "Size of network packet received in bytes"
+        },
+        {
+          "name": "counter.openstack.nova.server.rx_packets",
+          "type": "counter",
+          "description": "Received packets at an instance"
+        },
+        {
+          "name": "counter.openstack.nova.server.tx",
+          "type": "counter",
+          "description": "Size of network packet transmitted in bytes"
+        },
+        {
+          "name": "counter.openstack.nova.server.tx_packets",
+          "type": "counter",
+          "description": "Transmitted packets at an instance"
+        },
+        {
+          "name": "gauge.openstack.cinder.limit.maxTotalVolumeGigabytes",
           "type": "gauge",
           "description": "Total available block storage at cinder component for project"
         },
         {
-          "name": "openstack.cinder.limit.maxTotalVolumes",
+          "name": "gauge.openstack.cinder.limit.maxTotalVolumes",
           "type": "gauge",
           "description": "Maximum volume resources available at cinder component for project"
         },
         {
-          "name": "openstack.cinder.limit.totalGigabytesUsed",
+          "name": "gauge.openstack.cinder.limit.totalGigabytesUsed",
           "type": "gauge",
           "description": "Total block storage used at cinder component for project"
         },
         {
-          "name": "openstack.cinder.limit.totalVolumesUsed",
+          "name": "gauge.openstack.cinder.limit.totalVolumesUsed",
           "type": "gauge",
           "description": "Volume resources used at cinder component for project"
         },
         {
-          "name": "openstack.neutron.floatingip.count",
+          "name": "gauge.openstack.neutron.floatingip.count",
           "type": "gauge",
           "description": "Overall floating IPs used across projects"
         },
         {
-          "name": "openstack.neutron.network.count",
+          "name": "gauge.openstack.neutron.network.count",
           "type": "gauge",
           "description": "Overall Network resources used across projects"
         },
         {
-          "name": "openstack.neutron.router.count",
+          "name": "gauge.openstack.neutron.router.count",
           "type": "gauge",
           "description": "Overall router resources used across projects"
         },
         {
-          "name": "openstack.neutron.securitygroup.count",
+          "name": "gauge.openstack.neutron.securitygroup.count",
           "type": "gauge",
           "description": "Overall securitygroup resources used across projects"
         },
         {
-          "name": "openstack.nova.hypervisor.load_average",
+          "name": "gauge.openstack.neutron.subnet.count",
+          "type": "gauge",
+          "description": "Overall subnet resources used in all projects"
+        },
+        {
+          "name": "gauge.openstack.nova.hypervisor.disk_available_least",
+          "type": "gauge",
+          "description": "Minimum free disk space available in Gigabyte"
+        },
+        {
+          "name": "gauge.openstack.nova.hypervisor.free_disk_gb",
+          "type": "gauge",
+          "description": "Maximum free disk space available in Gigabyte"
+        },
+        {
+          "name": "gauge.openstack.nova.hypervisor.load_average",
           "type": "gauge",
           "description": "Average CPU load on the hypervisor"
         },
         {
-          "name": "openstack.nova.hypervisor.memory_mb",
+          "name": "gauge.openstack.nova.hypervisor.local_gb",
+          "type": "gauge",
+          "description": "Maximum available local disk space in Gigabyte"
+        },
+        {
+          "name": "gauge.openstack.nova.hypervisor.local_gb_used",
+          "type": "gauge",
+          "description": "Total disk space used in Gigabyte"
+        },
+        {
+          "name": "gauge.openstack.nova.hypervisor.memory_mb",
           "type": "gauge",
           "description": "Maximum available memory in MB at hypervisor"
         },
         {
-          "name": "openstack.nova.hypervisor.memory_mb_used",
+          "name": "gauge.openstack.nova.hypervisor.memory_mb_used",
           "type": "gauge",
           "description": "Total memory used in MB at hypervisor"
         },
         {
-          "name": "openstack.nova.hypervisor.running_vms",
+          "name": "gauge.openstack.nova.hypervisor.running_vms",
           "type": "gauge",
           "description": "Total running VMs at hypervisor"
         },
         {
-          "name": "openstack.nova.hypervisor.vcpus",
+          "name": "gauge.openstack.nova.hypervisor.vcpus",
           "type": "gauge",
           "description": "Available physical cores at hypervisor"
         },
         {
-          "name": "openstack.nova.hypervisor.vcpus_used",
+          "name": "gauge.openstack.nova.hypervisor.vcpus_used",
           "type": "gauge",
           "description": "Used virtual CPUs used"
         },
         {
-          "name": "openstack.nova.limit.maxSecurityGroups",
+          "name": "gauge.openstack.nova.limit.maxSecurityGroups",
           "type": "gauge",
           "description": "Maximum available security groups for project"
         },
         {
-          "name": "openstack.nova.limit.maxTotalCores",
+          "name": "gauge.openstack.nova.limit.maxTotalCores",
           "type": "gauge",
           "description": "Maximum available VCPUs in project"
         },
         {
-          "name": "openstack.nova.limit.maxTotalFloatingIps",
+          "name": "gauge.openstack.nova.limit.maxTotalFloatingIps",
           "type": "gauge",
           "description": "Maximum available floating IPs for project"
         },
         {
-          "name": "openstack.nova.limit.maxTotalInstances",
+          "name": "gauge.openstack.nova.limit.maxTotalInstances",
           "type": "gauge",
           "description": "Maximum available instances in project"
         },
         {
-          "name": "openstack.nova.limit.maxTotalRAMSize",
+          "name": "gauge.openstack.nova.limit.maxTotalRAMSize",
           "type": "gauge",
           "description": "Maximum available RAM size for project"
         },
         {
-          "name": "openstack.nova.limit.totalCoresUsed",
+          "name": "gauge.openstack.nova.limit.totalCoresUsed",
           "type": "gauge",
           "description": "Total cores used in the project"
         },
         {
-          "name": "openstack.nova.limit.totalInstancesUsed",
+          "name": "gauge.openstack.nova.limit.totalInstancesUsed",
           "type": "gauge",
           "description": "Total instances used in the project"
         },
         {
-          "name": "openstack.nova.limit.totalRAMUsed",
+          "name": "gauge.openstack.nova.limit.totalRAMUsed",
           "type": "gauge",
           "description": "Total RAM used in the project"
         },
         {
-          "name": "openstack.nova.server.memory",
+          "name": "gauge.openstack.nova.server.memory",
           "type": "gauge",
           "description": "Memory provisioned at an instance"
         },
         {
-          "name": "openstack.nova.server.memory-actual",
+          "name": "gauge.openstack.nova.server.memory-actual",
           "type": "gauge",
           "description": "Actual memory used at an instance"
         },
         {
-          "name": "openstack.nova.server.memory-rss",
+          "name": "gauge.openstack.nova.server.memory-rss",
           "type": "gauge",
           "description": "Memory used not including disk pages at an instance"
         },
         {
-          "name": "openstack.nova.server.vda_read_req",
+          "name": "gauge.openstack.nova.server.vda_read",
+          "type": "gauge",
+          "description": "Size of virtual disk read requests in bytes"
+        },
+        {
+          "name": "gauge.openstack.nova.server.vda_read_req",
           "type": "gauge",
           "description": "Virtual disk read requests from an instance"
         },
         {
-          "name": "openstack.nova.server.vda_write_req",
+          "name": "gauge.openstack.nova.server.vda_write",
+          "type": "gauge",
+          "description": "Size of virtual disk write requests in bytes"
+        },
+        {
+          "name": "gauge.openstack.nova.server.vda_write_req",
           "type": "gauge",
           "description": "Virtual disk write requests from an instance"
         }
