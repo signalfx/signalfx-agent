@@ -1,6 +1,6 @@
 ---
 - name: consul
-  version: v1.0.0
+  version: v1.0.1
   repo: signalfx/collectd-consul
 
 - name: couchbase
@@ -82,9 +82,8 @@
   version: v1.0.2
   repo: signalfx/collectd-spark
 
-
 - name: zookeeper
-  version: v0.0.3
+  version: v0.0.4
   repo: signalfx/collectd-zookeeper
 
 - name: vmstat
