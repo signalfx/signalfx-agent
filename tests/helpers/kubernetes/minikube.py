@@ -5,6 +5,7 @@ from contextlib import contextmanager
 from functools import partial as p
 
 import docker
+import semver
 import yaml
 from kubernetes import config as kube_config
 
@@ -23,12 +24,13 @@ from helpers.kubernetes.utils import (
 )
 from helpers.util import container_ip, get_docker_client, wait_for
 
-MINIKUBE_VERSION = os.environ.get("MINIKUBE_VERSION", "v0.28.0")
+MINIKUBE_VERSION = os.environ.get("MINIKUBE_VERSION", "v0.29.0")
 TEST_SERVICES_DIR = os.path.join(os.path.dirname(os.path.realpath(__file__)), "../../../test-services")
 
 
 class Minikube:  # pylint: disable=too-many-instance-attributes
     def __init__(self):
+        self.bootstrapper = None
         self.container = None
         self.client = None
         self.version = None
@@ -52,12 +54,8 @@ class Minikube:  # pylint: disable=too-many-instance-attributes
     def load_kubeconfig(self, kubeconfig_path="/kubeconfig", timeout=300):
         with tempfile.NamedTemporaryFile(dir="/tmp/scratch") as fd:
             kubeconfig = fd.name
-            assert wait_for(
-                p(container_cmd_exit_0, self.container, "test -f %s" % kubeconfig_path), timeout_seconds=timeout
-            ), (
-                "timed out waiting for the minikube cluster to be ready!\n\n"
-                "MINIKUBE CONTAINER LOGS:\n%s"
-                "\n\nLOCALKUBE LOGS:\n%s\n\n" % (self.get_container_logs(), self.get_localkube_logs())
+            assert wait_for(p(container_cmd_exit_0, self.container, "test -f %s" % kubeconfig_path), timeout, 2), (
+                "timed out waiting for the minikube cluster to be ready!\n\n%s\n\n" % self.get_logs()
             )
             time.sleep(2)
             exit_code, output = self.container.exec_run("cp -f %s %s" % (kubeconfig_path, kubeconfig))
@@ -65,14 +63,25 @@ class Minikube:  # pylint: disable=too-many-instance-attributes
             self.kubeconfig = kubeconfig
             kube_config.load_kube_config(config_file=self.kubeconfig)
 
+    def get_bootstrapper(self):
+        code, _ = self.container.exec_run("which localkube")
+        if code == 0:
+            self.bootstrapper = "localkube"
+        else:
+            code, _ = self.container.exec_run("which kubeadm")
+            if code == 0:
+                self.bootstrapper = "kubeadm"
+        return self.bootstrapper
+
     def connect(self, name, timeout, version=None):
         print("\nConnecting to %s container ..." % name)
-        assert wait_for(p(container_is_running, self.host_client, name), timeout_seconds=timeout), (
+        assert wait_for(p(container_is_running, self.host_client, name), timeout, 2), (
             "timed out waiting for container %s!" % name
         )
         self.container = self.host_client.containers.get(name)
         self.load_kubeconfig(timeout=timeout)
         self.client = self.get_client()
+        self.get_bootstrapper()
         self.name = name
         self.version = version
 
@@ -98,18 +107,26 @@ class Minikube:  # pylint: disable=too-many-instance-attributes
                 },
                 "volumes": {"/tmp/scratch": {"bind": "/tmp/scratch", "mode": "rw"}},
             }
+        minikube_version = MINIKUBE_VERSION
+        if semver.match(self.version.lstrip("v"), "<1.11.0"):
+            options["command"] = "sleep inf"
+            minikube_version = "v0.28.2"
+        else:
+            options["command"] = "/lib/systemd/systemd"
         print("\nDeploying minikube %s cluster ..." % self.version)
         image, _ = self.host_client.images.build(
             path=os.path.join(TEST_SERVICES_DIR, "minikube"),
-            buildargs={"MINIKUBE_VERSION": MINIKUBE_VERSION},
-            tag="minikube:%s" % MINIKUBE_VERSION,
+            buildargs={"MINIKUBE_VERSION": minikube_version},
+            tag="minikube:%s" % minikube_version,
             rm=True,
             forcerm=True,
         )
         self.container = self.host_client.containers.run(image.id, detach=True, **options)
         self.name = self.container.name
+        self.container.exec_run("start-minikube.sh", detach=True)
         self.load_kubeconfig(timeout=timeout)
         self.client = self.get_client()
+        self.get_bootstrapper()
 
     def start_registry(self):
         if not self.client:
@@ -169,12 +186,10 @@ class Minikube:  # pylint: disable=too-many-instance-attributes
         finally:
             for res in self.yamls:
                 print('Deleting %s "%s" ...' % (kind, name))
-
                 kind = res["kind"]
                 api_version = res["apiVersion"]
                 api_client = api_client_from_version(api_version)
                 delete_resource(name, kind, api_client, namespace=namespace)
-
             self.yamls = []
 
     def pull_agent_image(self, name, tag, image_id=None):
@@ -187,11 +202,13 @@ class Minikube:  # pylint: disable=too-many-instance-attributes
         return self.client.images.pull(name, tag=tag)
 
     @contextmanager
-    def deploy_agent(  # pylint: disable=too-many-arguments
+    def deploy_agent(
         self,
         configmap_path,
         daemonset_path,
         serviceaccount_path,
+        clusterrole_path,
+        clusterrolebinding_path,
         observer=None,
         monitors=None,
         cluster_name="minikube",
@@ -199,7 +216,7 @@ class Minikube:  # pylint: disable=too-many-instance-attributes
         image_name=None,
         image_tag=None,
         namespace="default",
-    ):
+    ):  # pylint: disable=too-many-arguments
         if monitors is None:
             monitors = []
         self.agent.deploy(
@@ -207,6 +224,8 @@ class Minikube:  # pylint: disable=too-many-instance-attributes
             configmap_path,
             daemonset_path,
             serviceaccount_path,
+            clusterrole_path,
+            clusterrolebinding_path,
             observer,
             monitors,
             cluster_name=cluster_name,
@@ -217,10 +236,10 @@ class Minikube:  # pylint: disable=too-many-instance-attributes
         )
         try:
             yield self.agent
-            print("\n\n%s\n\n" % self.agent.get_status())
-            print("\n\n%s\n\n" % self.agent.get_container_logs())
+            print("\nAgent status:\n%s\n" % self.agent.get_status())
+            print("\nAgent container logs:\n%s\n" % self.agent.get_container_logs())
         except Exception:
-            print("\n\n%s\n\n" % get_all_logs(self))
+            print("\n%s\n" % get_all_logs(self))
             raise
         finally:
             self.agent.delete()
@@ -241,3 +260,19 @@ class Minikube:  # pylint: disable=too-many-instance-attributes
         except Exception as e:  # pylint: disable=broad-except
             return "Failed to get localkube logs from minikube!\n%s" % str(e)
         return None
+
+    def get_logs(self):
+        if self.container and self.bootstrapper:
+            _, start_minikube_output = self.container.exec_run("cat /var/log/start-minikube.log")
+            if self.bootstrapper == "localkube":
+                return "/var/log/start-minikube.log:\n%s\n\n/var/lib/localkube/localkube.err:\n%s" % (
+                    start_minikube_output.decode("utf-8").strip(),
+                    self.get_localkube_logs(),
+                )
+            if self.bootstrapper == "kubeadm":
+                _, minikube_logs = self.container.exec_run("minikube logs")
+                return "/var/log/start-minikube.log:\n%s\n\nminikube logs:\n%s" % (
+                    start_minikube_output.decode("utf-8").strip(),
+                    minikube_logs.decode("utf-8").strip(),
+                )
+        return ""

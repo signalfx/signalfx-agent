@@ -19,11 +19,11 @@ from helpers.util import wait_for, get_docker_client
 
 SCRIPTS_DIR = os.path.join(os.path.dirname(os.path.realpath(__file__)), "..", "scripts")
 K8S_MIN_VERSION = "1.7.0"
-K8S_MAX_VERSION = "1.10.0"
-K8S_DEFAULT_VERSION = "1.10.0"
+K8S_MAX_VERSION = "1.11.0"
 K8S_DEFAULT_TIMEOUT = 300
 K8S_DEFAULT_TEST_TIMEOUT = 120
 K8S_DEFAULT_CONTAINER_NAME = "minikube"
+KUBEADM_VERSIONS = ["1.11.0"]
 
 
 def get_k8s_supported_versions():
@@ -46,11 +46,13 @@ def get_k8s_supported_versions():
         version = release["version"].strip().strip("v")
         if semver.match(version, ">=" + K8S_MIN_VERSION) and semver.match(version, "<=" + K8S_MAX_VERSION):
             versions.append(version)
+    versions += KUBEADM_VERSIONS
     return sorted(versions, key=lambda v: list(map(int, v.split("."))), reverse=True)
 
 
 K8S_SUPPORTED_VERSIONS = get_k8s_supported_versions()
 K8S_MAJOR_MINOR_VERSIONS = [v for v in K8S_SUPPORTED_VERSIONS if semver.parse_version_info(v).patch == 0]
+K8S_DEFAULT_VERSION = K8S_MAJOR_MINOR_VERSIONS[0]
 
 K8S_SUPPORTED_OBSERVERS = ["k8s-api", "k8s-kubelet"]
 K8S_DEFAULT_OBSERVERS = ["k8s-api", "k8s-kubelet"]
@@ -164,23 +166,24 @@ def minikube(request, worker_id):
 
 
 @pytest.fixture(scope="session")
-def registry(minikube, worker_id):  # pylint: disable=redefined-outer-name
+def registry(minikube, worker_id, request):  # pylint: disable=redefined-outer-name
     def get_registry_logs():
         cont.reload()
         return cont.logs().decode("utf-8")
 
     cont = None
     port = None
-    if worker_id in ("master", "gw0"):
+    k8s_container = request.config.getoption("--k8s-container")
+    if not k8s_container and worker_id in ("master", "gw0"):
         minikube.start_registry()
         port = minikube.registry_port
     print("\nWaiting for registry to be ready ...")
     assert wait_for(
-        p(container_is_running, minikube.client, "registry"), timeout_seconds=60
+        p(container_is_running, minikube.client, "registry"), 60, 2
     ), "timed out waiting for registry container to start!"
     cont = minikube.client.containers.get("registry")
     assert wait_for(
-        lambda: has_log_message(get_registry_logs(), message="listening on [::]:"), timeout_seconds=30
+        lambda: has_log_message(get_registry_logs(), message="listening on [::]:"), 30, 2
     ), "timed out waiting for registry to be ready!"
     if not port:
         match = re.search(r"listening on \[::\]:(\d+)", get_registry_logs())
@@ -249,7 +252,7 @@ def agent_image(minikube, registry, request, worker_id):  # pylint: disable=rede
     else:
         print("\nWaiting for agent image to be built/pulled to minikube ...")
         assert wait_for(
-            p(has_docker_image, minikube.client, agent_image_name, agent_image_tag), timeout_seconds=600
+            p(has_docker_image, minikube.client, agent_image_name, agent_image_tag), 600, 2
         ), 'timed out waiting for agent image "%s:%s"!' % (agent_image_name, agent_image_tag)
         sfx_agent_image = minikube.client.images.get(agent_image_name + ":" + agent_image_tag)
     return {"name": agent_image_name, "tag": agent_image_tag, "id": sfx_agent_image.id}
