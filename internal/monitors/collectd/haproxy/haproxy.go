@@ -4,6 +4,8 @@ package haproxy
 
 import (
 	"fmt"
+	"strings"
+	"errors"
 
 	"github.com/signalfx/signalfx-agent/internal/monitors/collectd"
 
@@ -35,7 +37,7 @@ type Config struct {
 	config.MonitorConfig `yaml:",inline" acceptsEndpoints:"true"`
 	pyConf               *python.Config
 	Host                 string   `yaml:"host" validate:"required"`
-	Port                 uint16   `yaml:"port" validate:"required"`
+	Port                 uint16   `yaml:"port"`
 	ProxiesToMonitor     []string `yaml:"proxiesToMonitor"`
 	ExcludedMetrics      []string `yaml:"excludedMetrics"`
 	EnhancedMetrics      *bool    `yaml:"enhancedMetrics"`
@@ -46,6 +48,14 @@ func (c *Config) PythonConfig() *python.Config {
 	return c.pyConf
 }
 
+// Validate check config if host is TCP or socket. TCP requires port.
+func (c *Config) Validate() error {
+    if (!strings.HasPrefix(c.Host, "/") && c.Port == 0 ) {
+		return errors.New("when using TCP for HAProxy connection, port must be specified")
+	}
+	return nil
+}
+
 // Monitor is the main type that represents the monitor
 type Monitor struct {
 	python.PyMonitor
@@ -53,6 +63,10 @@ type Monitor struct {
 
 // Configure configures and runs the plugin in collectd
 func (m *Monitor) Configure(conf *Config) error {
+    socket := conf.Host
+    if conf.Port != 0 {
+        socket += fmt.Sprintf(":%d", conf.Port)
+    }
 	conf.pyConf = &python.Config{
 		MonitorConfig: conf.MonitorConfig,
 		Host:          conf.Host,
@@ -61,7 +75,7 @@ func (m *Monitor) Configure(conf *Config) error {
 		ModulePaths:   []string{collectd.MakePath("haproxy")},
 		TypesDBPaths:  []string{collectd.MakePath("types.db")},
 		PluginConfig: map[string]interface{}{
-			"Socket":          fmt.Sprintf("%s:%d", conf.Host, conf.Port),
+			"Socket":          socket,
 			"Interval":        conf.IntervalSeconds,
 			"EnhancedMetrics": conf.EnhancedMetrics,
 			"ProxyMonitor": map[string]interface{}{

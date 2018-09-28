@@ -20,7 +20,7 @@ Monitor Type: `collectd/haproxy`
 | Config option | Required | Type | Description |
 | --- | --- | --- | --- |
 | `host` | **yes** | `string` |  |
-| `port` | **yes** | `integer` |  |
+| `port` | no | `integer` |  (**default:** `0`) |
 | `proxiesToMonitor` | no | `list of string` |  |
 | `excludedMetrics` | no | `list of string` |  |
 | `enhancedMetrics` | no | `bool` |  |
