@@ -8,6 +8,7 @@ import (
 	"github.com/pkg/errors"
 	"github.com/signalfx/golib/datapoint"
 	"github.com/signalfx/golib/event"
+	"github.com/signalfx/golib/trace"
 	"github.com/signalfx/signalfx-agent/internal/core/config"
 	"github.com/signalfx/signalfx-agent/internal/core/meta"
 	"github.com/signalfx/signalfx-agent/internal/core/services"
@@ -34,6 +35,7 @@ type MonitorManager struct {
 	DPs            chan<- *datapoint.Datapoint
 	Events         chan<- *event.Event
 	DimensionProps chan<- *types.DimProperties
+	TraceSpans     chan<- *trace.Span
 
 	// TODO: AgentMeta is rather hacky so figure out a better way to share agent
 	// metadata with monitors
@@ -336,6 +338,7 @@ func (mm *MonitorManager) createAndConfigureNewMonitor(config config.MonitorCust
 		dpChan:      mm.DPs,
 		eventChan:   mm.Events,
 		dimPropChan: mm.DimensionProps,
+		spanChan:    mm.TraceSpans,
 		extraDims:   map[string]string{},
 	}
 

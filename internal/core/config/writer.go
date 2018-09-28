@@ -14,16 +14,20 @@ type WriterConfig struct {
 	// batch to the ingest server.  Smaller batch sizes than this will be sent
 	// if datapoints originate in smaller chunks.
 	DatapointMaxBatchSize int `yaml:"datapointMaxBatchSize" default:"1000"`
-	// The maximum number of concurrent requests to make to the ingest server
-	// with datapoints.  This number multipled by `datapointMaxBatchSize` is
-	// more or less the maximum number of datapoints that can be "in-flight" at
-	// any given time.
-	DatapointMaxRequests int `yaml:"datapointMaxRequests" default:"10"`
+	// The analogue of `datapointMaxBatchSize` for trace spans.
+	TraceSpanMaxBatchSize int `yaml:"traceSpanMaxBatchSize" default:"1000"`
+	// Deprecated: use `maxRequests` instead.
+	DatapointMaxRequests int `yaml:"datapointMaxRequests"`
+	// The maximum number of concurrent requests to make to a single ingest server
+	// with datapoints/events/trace spans.  This number multipled by
+	// `datapointMaxBatchSize` is more or less the maximum number of datapoints
+	// that can be "in-flight" at any given time.
+	MaxRequests int `yaml:"maxRequests" default:"10"`
 	// The agent does not send events immediately upon a monitor generating
 	// them, but buffers them and sends them in batches.  The lower this
 	// number, the less delay for events to appear in SignalFx.
 	EventSendIntervalSeconds int `yaml:"eventSendIntervalSeconds" default:"1"`
-	// The analogue of `datapointMaxRequests` for dimension property requests.
+	// The analogue of `maxRequests` for dimension property requests.
 	PropertiesMaxRequests uint `yaml:"propertiesMaxRequests" default:"10"`
 	// Properties that are synced to SignalFx are cached to prevent duplicate
 	// requests from being sent, causing unnecessary load on our backend.
@@ -33,13 +37,24 @@ type WriterConfig struct {
 	LogDatapoints bool `yaml:"logDatapoints"`
 	// The analogue of `logDatapoints` for events.
 	LogEvents bool `yaml:"logEvents"`
+	// The analogue of `logDatapoints` for trace spans.
+	LogTraceSpans bool `yaml:"logTraceSpans"`
 	// The following are propagated from elsewhere
 	HostIDDims          map[string]string    `yaml:"-"`
 	IngestURL           *url.URL             `yaml:"-"`
 	APIURL              *url.URL             `yaml:"-"`
+	TraceEndpointURL    *url.URL             `yaml:"-"`
 	SignalFxAccessToken string               `yaml:"-"`
 	GlobalDimensions    map[string]string    `yaml:"-"`
 	Filter              *dpfilters.FilterSet `yaml:"-"`
+}
+
+func (wc *WriterConfig) initialize() {
+	if wc.DatapointMaxRequests != 0 {
+		wc.MaxRequests = wc.DatapointMaxRequests
+	} else {
+		wc.DatapointMaxRequests = wc.MaxRequests
+	}
 }
 
 // Hash calculates a unique hash value for this config struct
