@@ -4,7 +4,8 @@ package haproxy
 
 import (
 	"fmt"
-    "strings"
+	"strings"
+	"errors"
 
 	"github.com/signalfx/signalfx-agent/internal/monitors/collectd"
 
@@ -62,6 +63,10 @@ type Monitor struct {
 
 // Configure configures and runs the plugin in collectd
 func (m *Monitor) Configure(conf *Config) error {
+    socket := conf.Host
+    if conf.Port != 0 {
+        socket += fmt.Sprintf(":%d", conf.Port)
+    }
 	conf.pyConf = &python.Config{
 		MonitorConfig: conf.MonitorConfig,
 		Host:          conf.Host,
@@ -70,7 +75,7 @@ func (m *Monitor) Configure(conf *Config) error {
 		ModulePaths:   []string{collectd.MakePath("haproxy")},
 		TypesDBPaths:  []string{collectd.MakePath("types.db")},
 		PluginConfig: map[string]interface{}{
-			"Socket":          fmt.Sprintf("%s:%d", conf.Host, conf.Port),
+			"Socket":          socket,
 			"Interval":        conf.IntervalSeconds,
 			"EnhancedMetrics": conf.EnhancedMetrics,
 			"ProxyMonitor": map[string]interface{}{
