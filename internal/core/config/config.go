@@ -25,8 +25,14 @@ type Config struct {
 	// The access token for the org that should receive the metrics emitted by
 	// the agent.
 	SignalFxAccessToken string `yaml:"signalFxAccessToken" neverLog:"true" validate:"required"`
-	// The URL of SignalFx ingest server.  Can be overridden if using the Metric Proxy.
+	// The URL of SignalFx ingest server.  Should be overridden if using the
+	// Metric Proxy.  If you want to send trace spans to a different location,
+	// set the `traceEndpointUrl` option.
 	IngestURL string `yaml:"ingestUrl" default:"https://ingest.signalfx.com"`
+	// The full URL (including path) to the trace ingest server.  If this is
+	// not set, all trace spans will be sent to the `ingestUrl` configured
+	// above.
+	TraceEndpointURL string `yaml:"traceEndpointUrl"`
 	// The SignalFx API base URL
 	APIURL string `yaml:"apiUrl" default:"https://api.signalfx.com"`
 	// The hostname that will be reported as the `host` dimension. If blank,
@@ -102,6 +108,7 @@ type Config struct {
 }
 
 func (c *Config) initialize() (*Config, error) {
+	c.Writer.initialize()
 	c.setupEnvironment()
 
 	if err := c.validate(); err != nil {
@@ -148,6 +155,16 @@ func (c *Config) validate() error {
 		return errors.WithMessage(err, fmt.Sprintf("%s is not a valid ingest URL", c.IngestURL))
 	}
 
+	if _, err := url.Parse(c.APIURL); err != nil {
+		return errors.WithMessage(err, fmt.Sprintf("%s is not a valid API URL", c.APIURL))
+	}
+
+	if c.TraceEndpointURL != "" {
+		if _, err := url.Parse(c.TraceEndpointURL); err != nil {
+			return errors.WithMessage(err, fmt.Sprintf("%s is not a valid trace endpoint URL", c.TraceEndpointURL))
+		}
+	}
+
 	return c.Collectd.Validate()
 }
 
@@ -163,14 +180,24 @@ func (c *Config) propagateValuesDown() error {
 	if err != nil {
 		panic("IngestURL was supposed to be validated already")
 	}
+	c.Writer.IngestURL = ingestURL
 
 	apiURL, err := url.Parse(c.APIURL)
 	if err != nil {
 		panic("apiUrl was supposed to be validated already")
 	}
+	c.Writer.APIURL = apiURL
+
+	if c.TraceEndpointURL != "" {
+		traceEndpointURL, err := url.Parse(c.TraceEndpointURL)
+		if err != nil {
+			panic("traceEndpointUrl was supposed to be validated already")
+		}
+		c.Writer.TraceEndpointURL = traceEndpointURL
+	}
 
 	for i := range c.Monitors {
-		if err := c.Monitors[i].Init(); err != nil {
+		if err := c.Monitors[i].initialize(); err != nil {
 			return errors.WithMessage(err, fmt.Sprintf("Could not initialize monitor %s", c.Monitors[i].Type))
 		}
 	}
@@ -178,8 +205,6 @@ func (c *Config) propagateValuesDown() error {
 	c.Collectd.IntervalSeconds = utils.FirstNonZero(c.Collectd.IntervalSeconds, c.IntervalSeconds)
 	c.Collectd.BundleDir = c.BundleDir
 
-	c.Writer.IngestURL = ingestURL
-	c.Writer.APIURL = apiURL
 	c.Writer.Filter = filterSet
 	c.Writer.SignalFxAccessToken = c.SignalFxAccessToken
 	c.Writer.GlobalDimensions = c.GlobalDimensions

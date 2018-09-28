@@ -11,6 +11,7 @@ import (
 
 	"github.com/signalfx/golib/datapoint"
 	"github.com/signalfx/golib/event"
+	"github.com/signalfx/golib/trace"
 	"github.com/signalfx/signalfx-agent/internal/core/config"
 	"github.com/signalfx/signalfx-agent/internal/core/hostid"
 	"github.com/signalfx/signalfx-agent/internal/core/meta"
@@ -22,9 +23,14 @@ import (
 )
 
 const (
-	datapointBufferCapacity = 2000
-	eventBufferCapacity     = 100
-	dimPropBufferCapacity   = 100
+	// Items should stay in these channels only very briefly as there should be
+	// goroutines dedicated to pulling them at all times.  Having the capacity
+	// be non-zero is more an optimization to keep monitors from siezing up
+	// under extremely heavy load.
+	datapointChanCapacity = 3000
+	eventChanCapacity     = 100
+	dimPropChanCapacity   = 100
+	traceSpanChanCapacity = 3000
 )
 
 // Agent is what hooks up observers, monitors, and the datapoint writer.
@@ -37,6 +43,7 @@ type Agent struct {
 	dpChan       chan *datapoint.Datapoint
 	eventChan    chan *event.Event
 	propertyChan chan *types.DimProperties
+	spanChan     chan *trace.Span
 
 	diagnosticServerStop      func()
 	internalMetricsServerStop func()
@@ -46,9 +53,10 @@ type Agent struct {
 // NewAgent creates an unconfigured agent instance
 func NewAgent() *Agent {
 	agent := Agent{
-		dpChan:       make(chan *datapoint.Datapoint, datapointBufferCapacity),
-		eventChan:    make(chan *event.Event, eventBufferCapacity),
-		propertyChan: make(chan *types.DimProperties, dimPropBufferCapacity),
+		dpChan:       make(chan *datapoint.Datapoint, datapointChanCapacity),
+		eventChan:    make(chan *event.Event, eventChanCapacity),
+		propertyChan: make(chan *types.DimProperties, dimPropChanCapacity),
+		spanChan:     make(chan *trace.Span, traceSpanChanCapacity),
 	}
 
 	agent.observers = &observers.ObserverManager{
@@ -63,6 +71,7 @@ func NewAgent() *Agent {
 	agent.monitors.DPs = agent.dpChan
 	agent.monitors.Events = agent.eventChan
 	agent.monitors.DimensionProps = agent.propertyChan
+	agent.monitors.TraceSpans = agent.spanChan
 	return &agent
 }
 
@@ -85,7 +94,7 @@ func (a *Agent) configure(conf *config.Config) {
 		a.writer.Shutdown()
 	}
 	var err error
-	a.writer, err = writer.New(&conf.Writer, a.dpChan, a.eventChan, a.propertyChan)
+	a.writer, err = writer.New(&conf.Writer, a.dpChan, a.eventChan, a.propertyChan, a.spanChan)
 	if err != nil {
 		// This is a catastrophic error if we can't write datapoints.
 		log.WithError(err).Error("Could not configure SignalFx datapoint writer, unable to start up")

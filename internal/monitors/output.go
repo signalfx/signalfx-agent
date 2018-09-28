@@ -3,6 +3,7 @@ package monitors
 import (
 	"github.com/signalfx/golib/datapoint"
 	"github.com/signalfx/golib/event"
+	"github.com/signalfx/golib/trace"
 	"github.com/signalfx/signalfx-agent/internal/core/common/dpmeta"
 	"github.com/signalfx/signalfx-agent/internal/core/dpfilters"
 	"github.com/signalfx/signalfx-agent/internal/core/services"
@@ -21,6 +22,7 @@ type monitorOutput struct {
 	endpoint                  services.Endpoint
 	dpChan                    chan<- *datapoint.Datapoint
 	eventChan                 chan<- *event.Event
+	spanChan                  chan<- *trace.Span
 	dimPropChan               chan<- *types.DimProperties
 	extraDims                 map[string]string
 }
@@ -64,6 +66,10 @@ func (mo *monitorOutput) SendEvent(event *event.Event) {
 		event.Properties[dpmeta.NotHostSpecificMeta] = true
 	}
 	mo.eventChan <- event
+}
+
+func (mo *monitorOutput) SendSpan(span *trace.Span) {
+	mo.spanChan <- span
 }
 
 func (mo *monitorOutput) SendDimensionProps(dimProps *types.DimProperties) {

@@ -3,6 +3,7 @@ package types
 import (
 	"github.com/signalfx/golib/datapoint"
 	"github.com/signalfx/golib/event"
+	"github.com/signalfx/golib/trace"
 )
 
 // Output is the interface that monitors should use to send data to the agent
@@ -11,6 +12,7 @@ import (
 type Output interface {
 	SendDatapoint(*datapoint.Datapoint)
 	SendEvent(*event.Event)
+	SendSpan(*trace.Span)
 	SendDimensionProps(*DimProperties)
 	AddExtraDimension(key, value string)
 	RemoveExtraDimension(key string)
