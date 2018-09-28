@@ -49,7 +49,7 @@ func (sw *SignalFxWriter) DiagnosticText() string {
 // InternalMetrics returns a set of metrics showing how the writer is currently
 // doing.
 func (sw *SignalFxWriter) InternalMetrics() []*datapoint.Datapoint {
-	return []*datapoint.Datapoint{
+	return append([]*datapoint.Datapoint{
 		sfxclient.Cumulative("sfxagent.datapoints_sent", nil, int64(sw.dpsSent)),
 		sfxclient.Cumulative("sfxagent.events_sent", nil, int64(sw.eventsSent)),
 		sfxclient.Cumulative("sfxagent.dim_prop_sets_sent", nil, int64(sw.dimPropClient.TotalPropUpdates)),
@@ -61,5 +61,5 @@ func (sw *SignalFxWriter) InternalMetrics() []*datapoint.Datapoint {
 		sfxclient.Gauge("sfxagent.trace_spans_buffered", nil, int64(len(sw.spanChan))),
 		sfxclient.Gauge("sfxagent.trace_spans_in_flight", nil, sw.traceSpansInFlight),
 		sfxclient.Gauge("sfxagent.trace_span_requests_active", nil, sw.traceSpanRequestsActive),
-	}
+	}, sw.serviceTracker.InternalMetrics()...)
 }
