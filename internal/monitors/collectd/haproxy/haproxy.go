@@ -4,6 +4,7 @@ package haproxy
 
 import (
 	"fmt"
+    "strings"
 
 	"github.com/signalfx/signalfx-agent/internal/monitors/collectd"
 
@@ -35,7 +36,7 @@ type Config struct {
 	config.MonitorConfig `yaml:",inline" acceptsEndpoints:"true"`
 	pyConf               *python.Config
 	Host                 string   `yaml:"host" validate:"required"`
-	Port                 uint16   `yaml:"port" validate:"required"`
+	Port                 uint16   `yaml:"port"`
 	ProxiesToMonitor     []string `yaml:"proxiesToMonitor"`
 	ExcludedMetrics      []string `yaml:"excludedMetrics"`
 	EnhancedMetrics      *bool    `yaml:"enhancedMetrics"`
@@ -44,6 +45,14 @@ type Config struct {
 // PythonConfig returns the embedded python.Config struct from the interface
 func (c *Config) PythonConfig() *python.Config {
 	return c.pyConf
+}
+
+// Validate check config if host is TCP or socket. TCP requires port.
+func (c *Config) Validate() error {
+    if (!strings.HasPrefix(c.Host, "/") && c.Port == 0 ) {
+		return errors.New("when using TCP for HAProxy connection, port must be specified")
+	}
+	return nil
 }
 
 // Monitor is the main type that represents the monitor

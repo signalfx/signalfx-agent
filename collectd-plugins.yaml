@@ -26,7 +26,7 @@
   repo: signalfx/collectd-hadoop
 
 - name: haproxy
-  version: v1.0.2
+  version: v1.0.3
   repo: signalfx/collectd-haproxy
 
 - name: health_checker
