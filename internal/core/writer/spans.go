@@ -5,13 +5,20 @@ import (
 	"sync/atomic"
 
 	"github.com/davecgh/go-spew/spew"
+	"github.com/signalfx/golib/datapoint"
 	"github.com/signalfx/golib/trace"
 	"github.com/signalfx/signalfx-agent/internal/core/common/dpmeta"
+	"github.com/signalfx/signalfx-agent/internal/core/writer/tracetracker"
+	"github.com/signalfx/signalfx-agent/internal/utils"
 	log "github.com/sirupsen/logrus"
 )
 
 func (sw *SignalFxWriter) listenForTraceSpans() {
 	reqSema := make(chan struct{}, sw.conf.MaxRequests)
+
+	// The only reason this is on the struct and not a local var is so we can
+	// easily get diagnostic metrics from it
+	sw.serviceTracker = sw.startGeneratingHostCorrelationMetrics()
 
 	for {
 		select {
@@ -24,6 +31,10 @@ func (sw *SignalFxWriter) listenForTraceSpans() {
 
 			for i := range buf {
 				sw.preprocessSpan(buf[i])
+			}
+
+			if *sw.conf.SendTraceHostCorrelationMetrics {
+				sw.serviceTracker.AddSpans(sw.ctx, buf)
 			}
 
 			atomic.AddInt64(&sw.traceSpansInFlight, int64(len(buf)))
@@ -84,4 +95,21 @@ func (sw *SignalFxWriter) preprocessSpan(span *trace.Span) {
 	if sw.conf.LogTraceSpans {
 		log.Debugf("Sending trace span:\n%s", spew.Sdump(span))
 	}
+}
+
+func (sw *SignalFxWriter) startGeneratingHostCorrelationMetrics() *tracetracker.ActiveServiceTracker {
+	tracker := tracetracker.New(sw.conf.StaleServiceTimeout, func(dp *datapoint.Datapoint) {
+		// Immediately send correlation datapoints when we first see a service
+		sw.dpChan <- dp
+	})
+
+	// Send the correlation datapoints at a regular interval to keep the
+	// service live on the backend.
+	utils.RunOnInterval(sw.ctx, func() {
+		for _, dp := range tracker.CorrelationDatapoints() {
+			sw.dpChan <- dp
+		}
+	}, sw.conf.TraceHostCorrelationMetricsInterval)
+
+	return tracker
 }

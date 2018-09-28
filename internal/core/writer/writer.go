@@ -23,6 +23,7 @@ import (
 	"github.com/signalfx/golib/trace"
 	"github.com/signalfx/signalfx-agent/internal/core/common/dpmeta"
 	"github.com/signalfx/signalfx-agent/internal/core/config"
+	"github.com/signalfx/signalfx-agent/internal/core/writer/tracetracker"
 	"github.com/signalfx/signalfx-agent/internal/monitors/types"
 	"github.com/signalfx/signalfx-agent/internal/utils"
 	log "github.com/sirupsen/logrus"
@@ -58,6 +59,10 @@ type SignalFxWriter struct {
 	dpBufferPool   *sync.Pool
 	spanBufferPool *sync.Pool
 	eventBuffer    []*event.Event
+
+	// Keeps track of what service names have been seen in trace spans that are
+	// emitted by the agent
+	serviceTracker *tracetracker.ActiveServiceTracker
 
 	dpRequestsActive        int64
 	dpsInFlight             int64

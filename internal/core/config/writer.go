@@ -2,6 +2,7 @@ package config
 
 import (
 	"net/url"
+	"time"
 
 	"github.com/mitchellh/hashstructure"
 	"github.com/signalfx/signalfx-agent/internal/core/dpfilters"
@@ -39,6 +40,21 @@ type WriterConfig struct {
 	LogEvents bool `yaml:"logEvents"`
 	// The analogue of `logDatapoints` for trace spans.
 	LogTraceSpans bool `yaml:"logTraceSpans"`
+	// Whether to send host correlation metrics to correlation traced services
+	// with the underlying host
+	SendTraceHostCorrelationMetrics *bool `yaml:"sendTraceHostCorrelationMetrics" default:"false"`
+	// How long to wait after a trace span's service name is last seen to
+	// continue sending the correlation datapoints for that service.  This
+	// should be a duration string that is accepted by
+	// https://golang.org/pkg/time/#ParseDuration.  This option is irrelvant if
+	// `sendTraceHostCorrelationMetrics` is false.
+	StaleServiceTimeout time.Duration `yaml:"staleServiceTimeout" default:"5m"`
+	// How frequently to send host correlation metrics that are generated from
+	// the service name seen in trace spans sent through or by the agent.  This
+	// should be a duration string that is accepted by
+	// https://golang.org/pkg/time/#ParseDuration.  This option is irrelvant if
+	// `sendTraceHostCorrelationMetrics` is false.
+	TraceHostCorrelationMetricsInterval time.Duration `yaml:"traceHostCorrelationMetricsInterval" default:"1m"`
 	// The following are propagated from elsewhere
 	HostIDDims          map[string]string    `yaml:"-"`
 	IngestURL           *url.URL             `yaml:"-"`
