@@ -32,10 +32,11 @@ references:
           exit 0
       fi
       set -e
-      sudo apt-get update && sudo apt-get install -y python3-dev
+      pyenv install 3.6.3
+      pyenv global 3.6.3
       curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
-      sudo python3 get-pip.py 'pip==10.0.1'
-      sudo pip3 install -r tests/requirements.txt
+      python get-pip.py 'pip==10.0.1'
+      pip install -r tests/requirements.txt
 
   run_k8s_integration_tests: &run_k8s_integration_tests
     run:
@@ -169,7 +170,7 @@ jobs:
           export AGENT_BIN=$(pwd)/bundle/bin/signalfx-agent
           export BUNDLE_DIR=$(pwd)/bundle
           export TEST_SERVICES_DIR=$(pwd)/test-services
-          sudo -E pytest \
+          sudo -E $PYENV_ROOT/shims/pytest \
               -n4 \
               -m "not packaging and not installer and not k8s" \
               --verbose \
