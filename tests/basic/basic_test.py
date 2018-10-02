@@ -1,21 +1,22 @@
-import os
+"""
+Very basic tests of the agent
+"""
 
-from tests.helpers import fake_backend
-from tests.helpers.util import wait_for, run_agent
-from tests.helpers.assertions import *
+from helpers.assertions import has_log_message
+from helpers.util import run_agent, wait_for
 
-basic_config = """
+BASIC_CONFIG = """
 monitors:
   - type: collectd/signalfx-metadata
   - type: collectd/cpu
   - type: collectd/uptime
 """
 
+
 def test_basic():
-    with run_agent(basic_config) as [backend, get_output, _]:
-        assert wait_for(lambda: len(backend.datapoints) > 0), "Didn't get any datapoints"
+    """
+    See if we get datapoints from a very standard set of monitors
+    """
+    with run_agent(BASIC_CONFIG) as [backend, get_output, _]:
+        assert wait_for(lambda: backend.datapoints), "Didn't get any datapoints"
         assert has_log_message(get_output(), "info")
-
-
-
-

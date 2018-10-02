@@ -1,42 +1,49 @@
-from functools import partial as p
 import os
-import pytest
 import string
+from functools import partial as p
 
-from tests.helpers.util import wait_for, run_agent, run_service, container_ip
-from tests.helpers.assertions import *
-from tests.helpers.util import (
+import pytest
+
+from helpers.assertions import container_cmd_exit_0, has_datapoint_with_metric_name
+from helpers.kubernetes.utils import get_discovery_rule, run_k8s_monitors_test
+from helpers.util import (
+    container_ip,
+    get_monitor_dims_from_selfdescribe,
     get_monitor_metrics_from_selfdescribe,
-    get_monitor_dims_from_selfdescribe
-)
-from tests.kubernetes.utils import (
-    run_k8s_monitors_test,
-    get_discovery_rule,
+    run_agent,
+    run_service,
+    wait_for,
 )
 
 pytestmark = [pytest.mark.collectd, pytest.mark.cassandra, pytest.mark.monitor_with_endpoints]
 
 
-cassandra_config = string.Template("""
+CASSANDRA_CONFIG = string.Template(
+    """
 monitors:
   - type: collectd/cassandra
     host: $host
     port: 7199
     username: cassandra
     password: cassandra
-""")
+"""
+)
+
 
 @pytest.mark.flaky(reruns=2)
 def test_cassandra():
     with run_service("cassandra") as cassandra_cont:
-        config = cassandra_config.substitute(host=container_ip(cassandra_cont))
+        config = CASSANDRA_CONFIG.substitute(host=container_ip(cassandra_cont))
 
         # Wait for the JMX port to be open in the container
-        assert wait_for(p(container_cmd_exit_0, cassandra_cont,
-                        "sh -c 'cat /proc/net/tcp | grep 1C1F'")), "Cassandra JMX didn't start"
+        assert wait_for(
+            p(container_cmd_exit_0, cassandra_cont, "sh -c 'cat /proc/net/tcp | grep 1C1F'")
+        ), "Cassandra JMX didn't start"
 
         with run_agent(config) as [backend, _, _]:
-            assert wait_for(p(has_datapoint_with_metric_name, backend, "counter.cassandra.ClientRequest.Read.Latency.Count"), 30), "Didn't get Cassandra datapoints"
+            assert wait_for(
+                p(has_datapoint_with_metric_name, backend, "counter.cassandra.ClientRequest.Read.Latency.Count"), 30
+            ), "Didn't get Cassandra datapoints"
 
 
 @pytest.mark.k8s
@@ -44,9 +51,12 @@ def test_cassandra():
 def test_cassandra_in_k8s(agent_image, minikube, k8s_observer, k8s_test_timeout, k8s_namespace):
     yaml = os.path.join(os.path.dirname(os.path.realpath(__file__)), "cassandra-k8s.yaml")
     monitors = [
-        {"type": "collectd/cassandra",
-         "discoveryRule": get_discovery_rule(yaml, k8s_observer, namespace=k8s_namespace),
-         "username": "testuser", "password": "testing123"}
+        {
+            "type": "collectd/cassandra",
+            "discoveryRule": get_discovery_rule(yaml, k8s_observer, namespace=k8s_namespace),
+            "username": "testuser",
+            "password": "testing123",
+        }
     ]
     run_k8s_monitors_test(
         agent_image,
@@ -57,5 +67,5 @@ def test_cassandra_in_k8s(agent_image, minikube, k8s_observer, k8s_test_timeout,
         observer=k8s_observer,
         expected_metrics=get_monitor_metrics_from_selfdescribe(monitors[0]["type"]),
         expected_dims=get_monitor_dims_from_selfdescribe(monitors[0]["type"]),
-        test_timeout=k8s_test_timeout)
-
+        test_timeout=k8s_test_timeout,
+    )

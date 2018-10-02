@@ -1,27 +1,33 @@
-from functools import partial as p
-from requests import get, RequestException
-from textwrap import dedent
-from io import BytesIO
 import os
-import pytest
 import string
+from functools import partial as p
+from io import BytesIO
+from textwrap import dedent
 
-from tests.helpers.util import wait_for, run_agent, run_container, container_ip, get_docker_client
-from tests.helpers.assertions import has_datapoint_with_dim
-from tests.helpers.util import (
+import pytest
+from requests import RequestException, get
+
+from helpers.assertions import has_datapoint_with_dim
+from helpers.kubernetes.utils import get_discovery_rule, run_k8s_monitors_test
+from helpers.util import (
+    container_ip,
+    get_docker_client,
+    get_monitor_dims_from_selfdescribe,
     get_monitor_metrics_from_selfdescribe,
-    get_monitor_dims_from_selfdescribe
-)
-from tests.kubernetes.utils import (
-    run_k8s_monitors_test,
-    get_discovery_rule,
+    run_agent,
+    run_container,
+    wait_for,
 )
 
 pytestmark = [pytest.mark.collectd, pytest.mark.kong, pytest.mark.monitor_with_endpoints]
 
-@pytest.fixture(scope='session')
+
+@pytest.fixture(scope="session")
 def kong_image():
-    dockerfile = BytesIO(bytes(dedent('''
+    dockerfile = BytesIO(
+        bytes(
+            dedent(
+                r"""
         from kong:0.13-centos
         RUN yum install -y epel-release
         RUN yum install -y postgresql git
@@ -36,7 +42,11 @@ def kong_image():
         RUN mkdir -p /usr/local/kong/logs
         RUN ln -s /dev/stderr /usr/local/kong/logs/error.log
         RUN ln -s /dev/stdout /usr/local/kong/logs/access.log
-    '''), 'ascii'))
+    """
+            ),
+            "ascii",
+        )
+    )
     client = get_docker_client()
     image, _ = client.images.build(fileobj=dockerfile, forcerm=True)
     try:
@@ -45,39 +55,42 @@ def kong_image():
         client.images.remove(image=image.id, force=True)
 
 
-def test_kong(kong_image):
-    kong_env = dict(KONG_ADMIN_LISTEN='0.0.0.0:8001', KONG_LOG_LEVEL='warn', KONG_DATABASE='postgres',
-                    KONG_PG_DATABASE='kong')
+def test_kong(kong_image):  # pylint: disable=redefined-outer-name
+    kong_env = dict(
+        KONG_ADMIN_LISTEN="0.0.0.0:8001", KONG_LOG_LEVEL="warn", KONG_DATABASE="postgres", KONG_PG_DATABASE="kong"
+    )
 
-    with run_container('postgres:9.5', environment=dict(POSTGRES_USER='kong', POSTGRES_DB='kong')) as db:
+    with run_container("postgres:9.5", environment=dict(POSTGRES_USER="kong", POSTGRES_DB="kong")) as db:
         db_ip = container_ip(db)
-        kong_env['KONG_PG_HOST'] = db_ip
+        kong_env["KONG_PG_HOST"] = db_ip
 
         def db_is_ready():
-            return db.exec_run('pg_isready -U kong').exit_code == 0
+            return db.exec_run("pg_isready -U kong").exit_code == 0
 
         assert wait_for(db_is_ready)
 
-        with run_container(kong_image, environment=kong_env, command='sleep inf') as migrations:
+        with run_container(kong_image, environment=kong_env, command="sleep inf") as migrations:
 
             def db_is_reachable():
-                return migrations.exec_run('psql -h {} -U kong'.format(db_ip)).exit_code == 0
+                return migrations.exec_run("psql -h {} -U kong".format(db_ip)).exit_code == 0
 
             assert wait_for(db_is_reachable)
-            assert migrations.exec_run('kong migrations up --v').exit_code == 0
+            assert migrations.exec_run("kong migrations up --v").exit_code == 0
 
         with run_container(kong_image, environment=kong_env) as kong:
             kong_ip = container_ip(kong)
 
             def kong_is_listening():
                 try:
-                    return get('http://{}:8001/signalfx'.format(kong_ip)).status_code == 200
+                    return get("http://{}:8001/signalfx".format(kong_ip)).status_code == 200
                 except RequestException:
                     return False
 
             assert wait_for(kong_is_listening)
 
-            config = string.Template(dedent('''
+            config = string.Template(
+                dedent(
+                    """
             monitors:
               - type: collectd/kong
                 host: $host
@@ -85,10 +98,12 @@ def test_kong(kong_image):
                 metrics:
                   - metric: connections_handled
                     report: true
-            ''')).substitute(host=container_ip(kong))
+            """
+                )
+            ).substitute(host=container_ip(kong))
 
             with run_agent(config) as [backend, _, _]:
-                assert wait_for(p(has_datapoint_with_dim, backend, 'plugin', 'kong')), "Didn't get Kong data point"
+                assert wait_for(p(has_datapoint_with_dim, backend, "plugin", "kong")), "Didn't get Kong data point"
 
 
 @pytest.mark.k8s
@@ -99,8 +114,7 @@ def test_kong_in_k8s(agent_image, minikube, k8s_observer, k8s_test_timeout, k8s_
     build_opts = {"tag": "kong:k8s-test"}
     minikube.build_image(dockerfile_dir, build_opts)
     monitors = [
-        {"type": "collectd/kong",
-         "discoveryRule": get_discovery_rule(yaml, k8s_observer, namespace=k8s_namespace)}
+        {"type": "collectd/kong", "discoveryRule": get_discovery_rule(yaml, k8s_observer, namespace=k8s_namespace)}
     ]
     run_k8s_monitors_test(
         agent_image,
@@ -111,4 +125,5 @@ def test_kong_in_k8s(agent_image, minikube, k8s_observer, k8s_test_timeout, k8s_
         observer=k8s_observer,
         expected_metrics=get_monitor_metrics_from_selfdescribe(monitors[0]["type"]),
         expected_dims=get_monitor_dims_from_selfdescribe(monitors[0]["type"]),
-        test_timeout=k8s_test_timeout)
+        test_timeout=k8s_test_timeout,
+    )
