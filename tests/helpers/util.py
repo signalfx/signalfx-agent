@@ -197,7 +197,7 @@ def get_monitor_metrics_from_selfdescribe(monitor, json_path=SELFDESCRIBE_JSON):
         doc = yaml.load(fd.read())
         for mon in doc["Monitors"]:
             if monitor == mon["monitorType"] and "metrics" in mon.keys() and mon["metrics"]:
-                metrics = {[metric["name"] for metric in mon["metrics"]]}
+                metrics = set([metric["name"] for metric in mon["metrics"]])
                 break
     return metrics
 
@@ -208,7 +208,7 @@ def get_monitor_dims_from_selfdescribe(monitor, json_path=SELFDESCRIBE_JSON):
         doc = yaml.load(fd.read())
         for mon in doc["Monitors"]:
             if monitor == mon["monitorType"] and "dimensions" in mon.keys() and mon["dimensions"]:
-                dims = {[dim["name"] for dim in mon["dimensions"]]}
+                dims = set([dim["name"] for dim in mon["dimensions"]])
                 break
     return dims
 
@@ -219,7 +219,7 @@ def get_observer_dims_from_selfdescribe(observer, json_path=SELFDESCRIBE_JSON):
         doc = yaml.load(fd.read())
         for obs in doc["Observers"]:
             if observer == obs["observerType"] and "dimensions" in obs.keys() and obs["dimensions"]:
-                dims = {[dim["name"] for dim in obs["dimensions"]]}
+                dims = set([dim["name"] for dim in obs["dimensions"]])
                 break
     return dims
 
