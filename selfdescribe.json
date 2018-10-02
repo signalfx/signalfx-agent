@@ -11264,6 +11264,328 @@
     },
     {
       "name": "Config",
+      "doc": " This monitor reports metrics from snmp agents.\nThis monitor is based on the Telegraf SNMP plugin.  More information about the Telegraf plugin\ncan be found [here](https://github.com/influxdata/telegraf/tree/master/plugins/inputs/snmp).\n\n**NOTE:** This snmp monitor does not currently support MIB look ups because of a dependency on `net-snmp`\nand specifically the commands `snmptranslate` and `snmptable`.\n\nSample YAML configuration:\n\n```yaml\nmonitors:\n - type: telegraf/snmp\n   agents:\n     - \"127.0.0.1:161\"\n   version: 2\n   community: \"public\"\n   fields:\n     - name: \"uptime\"\n       oid: \".1.3.6.1.2.1.1.3.0\"\n```\n\nUsing a discovery rule to discover and configure for a specific snmp agent\n```yaml\nmonitors:\n - type: telegraf/snmp\n   discoveryRule: container_name =~ \"snmp\" \u0026\u0026 port == 161\n   version: 2\n   community: \"public\"\n   fields:\n     - name: \"uptime\"\n       oid: \".1.3.6.1.2.1.1.3.0\"\n```\n",
+      "package": "internal/monitors/telegraf/monitors/telegrafsnmp",
+      "fields": [
+        {
+          "yamlName": "host",
+          "doc": "Host and port will be concatenated and appended to the list of SNMP agents to connect to.",
+          "default": "",
+          "required": false,
+          "type": "string",
+          "elementKind": ""
+        },
+        {
+          "yamlName": "port",
+          "doc": "Port and Host will be concatenated and appended to the list of SNMP agents to connect to.",
+          "default": 0,
+          "required": false,
+          "type": "uint16",
+          "elementKind": ""
+        },
+        {
+          "yamlName": "agents",
+          "doc": "SNMP agent address and ports to query for information.  An example address is `0.0.0.0:5555` If an address is supplied with out a port, the default port `161` will be used.",
+          "default": null,
+          "required": false,
+          "type": "slice",
+          "elementKind": "string"
+        },
+        {
+          "yamlName": "retries",
+          "doc": "The number of times to retry.",
+          "default": 0,
+          "required": false,
+          "type": "int",
+          "elementKind": ""
+        },
+        {
+          "yamlName": "community",
+          "doc": "The SNMP community to use.",
+          "default": "public",
+          "required": false,
+          "type": "string",
+          "elementKind": ""
+        },
+        {
+          "yamlName": "maxRepetitions",
+          "doc": "Maximum number of iterations for reqpeating variables",
+          "default": 50,
+          "required": false,
+          "type": "uint8",
+          "elementKind": ""
+        },
+        {
+          "yamlName": "contextName",
+          "doc": "SNMP v3 context name to use with requests",
+          "default": "",
+          "required": false,
+          "type": "string",
+          "elementKind": ""
+        },
+        {
+          "yamlName": "secLevel",
+          "doc": "Security level to use for SNMP v3 messages: `noAuthNoPriv` `authNoPriv`, `authPriv`.",
+          "default": "noAuthNoPriv",
+          "required": false,
+          "type": "string",
+          "elementKind": ""
+        },
+        {
+          "yamlName": "secName",
+          "doc": "Name to used to authenticate with SNMP v3 requests.",
+          "default": "",
+          "required": false,
+          "type": "string",
+          "elementKind": ""
+        },
+        {
+          "yamlName": "authProtocol",
+          "doc": "Protocol to used to authenticate SNMP v3 requests: `\"MD5\"`, `\"SHA\"`, and `\"\"` (default).",
+          "default": "",
+          "required": false,
+          "type": "string",
+          "elementKind": ""
+        },
+        {
+          "yamlName": "authPassword",
+          "doc": "Password used to authenticate SNMP v3 requests.",
+          "default": "",
+          "required": false,
+          "type": "string",
+          "elementKind": ""
+        },
+        {
+          "yamlName": "privProtocol",
+          "doc": "Protocol used for encrypted SNMP v3 messages: `DES`, `AES`, `\"\"` (default).",
+          "default": "",
+          "required": false,
+          "type": "string",
+          "elementKind": ""
+        },
+        {
+          "yamlName": "privPassword",
+          "doc": "Password used to encrypt SNMP v3 messages.",
+          "default": "",
+          "required": false,
+          "type": "string",
+          "elementKind": ""
+        },
+        {
+          "yamlName": "engineID",
+          "doc": "The SNMP v3 engine ID.",
+          "default": "",
+          "required": false,
+          "type": "string",
+          "elementKind": ""
+        },
+        {
+          "yamlName": "engineBoots",
+          "doc": "The SNMP v3 engine boots.",
+          "default": 0,
+          "required": false,
+          "type": "uint32",
+          "elementKind": ""
+        },
+        {
+          "yamlName": "engineTime",
+          "doc": "The SNMP v3 engine time.",
+          "default": 0,
+          "required": false,
+          "type": "uint32",
+          "elementKind": ""
+        },
+        {
+          "yamlName": "name",
+          "doc": "The top-level measurement name",
+          "default": "",
+          "required": false,
+          "type": "string",
+          "elementKind": ""
+        },
+        {
+          "yamlName": "fields",
+          "doc": "The top-level SNMP fields",
+          "default": null,
+          "required": false,
+          "type": "slice",
+          "elementKind": "struct",
+          "elementStruct": {
+            "name": "Field",
+            "doc": "Field represents an SNMP field",
+            "package": "internal/monitors/telegraf/monitors/telegrafsnmp",
+            "fields": [
+              {
+                "yamlName": "name",
+                "doc": "Name of the field.  The OID will be used if no value is supplied.",
+                "default": "",
+                "required": false,
+                "type": "string",
+                "elementKind": ""
+              },
+              {
+                "yamlName": "oid",
+                "doc": "The OID to fetch.",
+                "default": "",
+                "required": false,
+                "type": "string",
+                "elementKind": ""
+              },
+              {
+                "yamlName": "oidIndexSuffix",
+                "doc": "The sub-identifier to strip off when matching indexes to other fields.",
+                "default": "",
+                "required": false,
+                "type": "string",
+                "elementKind": ""
+              },
+              {
+                "yamlName": "oidIndexLength",
+                "doc": "The index length after the table OID.  The index will be truncated after this length in order to remove length index suffixes or non-fixed values.",
+                "default": 0,
+                "required": false,
+                "type": "int",
+                "elementKind": ""
+              },
+              {
+                "yamlName": "isTag",
+                "doc": "Whether to output the field as a tag.",
+                "default": false,
+                "required": false,
+                "type": "bool",
+                "elementKind": ""
+              },
+              {
+                "yamlName": "conversion",
+                "doc": "Controls the type conversion applied to the value: `\"float(X)\"`, `\"float\"`, `\"int\"`, `\"hwaddr\"`, `\"ipaddr\"` or `\"\"` (default).",
+                "default": "",
+                "required": false,
+                "type": "string",
+                "elementKind": ""
+              }
+            ]
+          }
+        },
+        {
+          "yamlName": "tables",
+          "doc": "SNMP Tables",
+          "default": null,
+          "required": false,
+          "type": "slice",
+          "elementKind": "struct",
+          "elementStruct": {
+            "name": "Table",
+            "doc": "Table represents an SNMP table",
+            "package": "internal/monitors/telegraf/monitors/telegrafsnmp",
+            "fields": [
+              {
+                "yamlName": "name",
+                "doc": "Metric name.  If not supplied the OID will be used.",
+                "default": "",
+                "required": false,
+                "type": "string",
+                "elementKind": ""
+              },
+              {
+                "yamlName": "inheritTags",
+                "doc": "Top level tags to inherit.",
+                "default": null,
+                "required": false,
+                "type": "slice",
+                "elementKind": "string"
+              },
+              {
+                "yamlName": "indexAsTag",
+                "doc": "Add a tag for the table index for each row.",
+                "default": false,
+                "required": false,
+                "type": "bool",
+                "elementKind": ""
+              },
+              {
+                "yamlName": "field",
+                "doc": "Specifies the ags and values to look up.",
+                "default": null,
+                "required": false,
+                "type": "slice",
+                "elementKind": "struct",
+                "elementStruct": {
+                  "name": "Field",
+                  "doc": "Field represents an SNMP field",
+                  "package": "internal/monitors/telegraf/monitors/telegrafsnmp",
+                  "fields": [
+                    {
+                      "yamlName": "name",
+                      "doc": "Name of the field.  The OID will be used if no value is supplied.",
+                      "default": "",
+                      "required": false,
+                      "type": "string",
+                      "elementKind": ""
+                    },
+                    {
+                      "yamlName": "oid",
+                      "doc": "The OID to fetch.",
+                      "default": "",
+                      "required": false,
+                      "type": "string",
+                      "elementKind": ""
+                    },
+                    {
+                      "yamlName": "oidIndexSuffix",
+                      "doc": "The sub-identifier to strip off when matching indexes to other fields.",
+                      "default": "",
+                      "required": false,
+                      "type": "string",
+                      "elementKind": ""
+                    },
+                    {
+                      "yamlName": "oidIndexLength",
+                      "doc": "The index length after the table OID.  The index will be truncated after this length in order to remove length index suffixes or non-fixed values.",
+                      "default": 0,
+                      "required": false,
+                      "type": "int",
+                      "elementKind": ""
+                    },
+                    {
+                      "yamlName": "isTag",
+                      "doc": "Whether to output the field as a tag.",
+                      "default": false,
+                      "required": false,
+                      "type": "bool",
+                      "elementKind": ""
+                    },
+                    {
+                      "yamlName": "conversion",
+                      "doc": "Controls the type conversion applied to the value: `\"float(X)\"`, `\"float\"`, `\"int\"`, `\"hwaddr\"`, `\"ipaddr\"` or `\"\"` (default).",
+                      "default": "",
+                      "required": false,
+                      "type": "string",
+                      "elementKind": ""
+                    }
+                  ]
+                }
+              },
+              {
+                "yamlName": "oid",
+                "doc": "The OID to fetch.",
+                "default": "",
+                "required": false,
+                "type": "string",
+                "elementKind": ""
+              }
+            ]
+          }
+        }
+      ],
+      "monitorType": "telegraf/snmp",
+      "acceptsEndpoints": true,
+      "singleInstance": false,
+      "dimensions": null,
+      "metrics": null,
+      "properties": null
+    },
+    {
+      "name": "Config",
       "doc": " This monitor reports metrics about microsoft sql servers.\nThis monitor is based on the telegraf sqlserver plugin.  More information about the telegraf plugin\ncan be found [here](https://github.com/influxdata/telegraf/tree/master/plugins/inputs/sqlserver).\n\nSample YAML configuration:\n\n```yaml\nmonitors:\n - type: telegraf/sqlserver\n   host: hostname\n   port: 1433\n   userID: sa\n   password: P@ssw0rd!\n   appName: signalfxagent\n   azureDB: true\n   excludeQuery:\n    - PerformanceCounters\n    # - WaitStatsCategorized\n    # - DatabaseIO\n    # - DatabaseProperties\n    # - CPUHistory\n    # - DatabaseSize\n    # - DatabaseStats\n    # - MemoryClerk\n    # - VolumeSpace\n    # - PerformanceMetrics\n```\n",
       "package": "internal/monitors/telegraf/monitors/mssqlserver",
       "fields": [
