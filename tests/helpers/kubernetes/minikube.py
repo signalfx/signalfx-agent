@@ -16,13 +16,12 @@ from helpers.kubernetes.utils import (
     create_resource,
     delete_resource,
     get_all_logs,
-    get_docker_client,
     get_free_port,
     has_docker_image,
     has_resource,
     wait_for_deployment,
 )
-from helpers.util import container_ip, wait_for
+from helpers.util import container_ip, get_docker_client, wait_for
 
 MINIKUBE_VERSION = os.environ.get("MINIKUBE_VERSION", "v0.28.0")
 TEST_SERVICES_DIR = os.path.join(os.path.dirname(os.path.realpath(__file__)), "../../../test-services")
