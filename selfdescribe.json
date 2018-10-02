@@ -11051,6 +11051,43 @@
       "dimensions": null,
       "metrics": null,
       "properties": null
+    },
+    {
+      "name": "Config",
+      "doc": " Runs an HTTP server that listens for trace spans\nand forwards them to SignalFx (or the configured ingest host in the `writer`\nsection of the agent config).  This supports the same span formats that our\ningest server supports and at the same path (`/v1/trace`).  By default, the\nserver listens on localhost port 9080 but can be configured to anything.\n",
+      "package": "internal/monitors/traceforwarder",
+      "fields": [
+        {
+          "yamlName": "listenAddress",
+          "doc": "The host:port on which to listen for spans.  This server accepts spans in all of the formats that we support on our regular ingest server.  The HTTP path used is irrelevant and will be ignored.",
+          "default": "127.0.0.1:9080",
+          "required": false,
+          "type": "string",
+          "elementKind": ""
+        },
+        {
+          "yamlName": "serverTimeout",
+          "doc": "HTTP timeout duration for both read and writes. This should be a duration string that is accepted by https://golang.org/pkg/time/#ParseDuration",
+          "default": "5s",
+          "required": false,
+          "type": "int64",
+          "elementKind": ""
+        },
+        {
+          "yamlName": "sendInternalMetrics",
+          "doc": "Whether to send internal metrics about the HTTP listener",
+          "default": false,
+          "required": false,
+          "type": "bool",
+          "elementKind": ""
+        }
+      ],
+      "monitorType": "trace-forwarder",
+      "acceptsEndpoints": false,
+      "singleInstance": true,
+      "dimensions": null,
+      "metrics": null,
+      "properties": null
     }
   ],
   "Observers": [
@@ -11906,8 +11943,16 @@
       },
       {
         "yamlName": "ingestUrl",
-        "doc": "The URL of SignalFx ingest server.  Can be overridden if using the Metric Proxy.",
+        "doc": "The URL of SignalFx ingest server.  Should be overridden if using the Metric Proxy.  If you want to send trace spans to a different location, set the `traceEndpointUrl` option.",
         "default": "https://ingest.signalfx.com",
+        "required": false,
+        "type": "string",
+        "elementKind": ""
+      },
+      {
+        "yamlName": "traceEndpointUrl",
+        "doc": "The full URL (including path) to the trace ingest server.  If this is not set, all trace spans will be sent to the `ingestUrl` configured above.",
+        "default": "",
         "required": false,
         "type": "string",
         "elementKind": ""
@@ -12138,8 +12183,24 @@
               "elementKind": ""
             },
             {
+              "yamlName": "traceSpanMaxBatchSize",
+              "doc": "The analogue of `datapointMaxBatchSize` for trace spans.",
+              "default": 1000,
+              "required": false,
+              "type": "int",
+              "elementKind": ""
+            },
+            {
               "yamlName": "datapointMaxRequests",
-              "doc": "The maximum number of concurrent requests to make to the ingest server with datapoints.  This number multipled by `datapointMaxBatchSize` is more or less the maximum number of datapoints that can be \"in-flight\" at any given time.",
+              "doc": "Deprecated: use `maxRequests` instead.",
+              "default": 0,
+              "required": false,
+              "type": "int",
+              "elementKind": ""
+            },
+            {
+              "yamlName": "maxRequests",
+              "doc": "The maximum number of concurrent requests to make to a single ingest server with datapoints/events/trace spans.  This number multipled by `datapointMaxBatchSize` is more or less the maximum number of datapoints that can be \"in-flight\" at any given time.",
               "default": 10,
               "required": false,
               "type": "int",
@@ -12155,7 +12216,7 @@
             },
             {
               "yamlName": "propertiesMaxRequests",
-              "doc": "The analogue of `datapointMaxRequests` for dimension property requests.",
+              "doc": "The analogue of `maxRequests` for dimension property requests.",
               "default": 10,
               "required": false,
               "type": "uint",
@@ -12183,6 +12244,38 @@
               "default": false,
               "required": false,
               "type": "bool",
+              "elementKind": ""
+            },
+            {
+              "yamlName": "logTraceSpans",
+              "doc": "The analogue of `logDatapoints` for trace spans.",
+              "default": false,
+              "required": false,
+              "type": "bool",
+              "elementKind": ""
+            },
+            {
+              "yamlName": "sendTraceHostCorrelationMetrics",
+              "doc": "Whether to send host correlation metrics to correlation traced services with the underlying host",
+              "default": false,
+              "required": false,
+              "type": "bool",
+              "elementKind": ""
+            },
+            {
+              "yamlName": "staleServiceTimeout",
+              "doc": "How long to wait after a trace span's service name is last seen to continue sending the correlation datapoints for that service.  This should be a duration string that is accepted by https://golang.org/pkg/time/#ParseDuration.  This option is irrelvant if `sendTraceHostCorrelationMetrics` is false.",
+              "default": "5m",
+              "required": false,
+              "type": "int64",
+              "elementKind": ""
+            },
+            {
+              "yamlName": "traceHostCorrelationMetricsInterval",
+              "doc": "How frequently to send host correlation metrics that are generated from the service name seen in trace spans sent through or by the agent.  This should be a duration string that is accepted by https://golang.org/pkg/time/#ParseDuration.  This option is irrelvant if `sendTraceHostCorrelationMetrics` is false.",
+              "default": "1m",
+              "required": false,
+              "type": "int64",
               "elementKind": ""
             }
           ]

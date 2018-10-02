@@ -24,7 +24,7 @@ K8S_CREATE_TIMEOUT = 180
 K8S_DELETE_TIMEOUT = 10
 
 
-def run_k8s_monitors_test(  # pylint: disable=too-many-locals,too-many-arguments
+def run_k8s_monitors_test(  # pylint: disable=too-many-locals,too-many-arguments,dangerous-default-value
     agent_image,
     minikube,
     monitors,

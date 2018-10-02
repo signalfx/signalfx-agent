@@ -41,7 +41,7 @@ def wait_for(test, timeout_seconds=DEFAULT_TIMEOUT):
             return True
         if time.time() - start > timeout_seconds:
             return False
-        time.sleep(0.5)
+        time.sleep(0.2)
 
 
 def ensure_always(test, timeout_seconds=DEFAULT_TIMEOUT):
@@ -55,7 +55,21 @@ def ensure_always(test, timeout_seconds=DEFAULT_TIMEOUT):
             return False
         if time.time() - start > timeout_seconds:
             return True
-        time.sleep(0.5)
+        time.sleep(0.2)
+
+
+def ensure_never(test, timeout_seconds=DEFAULT_TIMEOUT):
+    """
+    Repeatedly calls the given test.  If it ever returns true before the timeout
+    given is completed, returns False, otherwise True.
+    """
+    start = time.time()
+    while True:
+        if test():
+            return False
+        if time.time() - start > timeout_seconds:
+            return True
+        time.sleep(0.2)
 
 
 def print_lines(msg):
