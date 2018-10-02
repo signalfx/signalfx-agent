@@ -426,36 +426,6 @@
   version = "v1.0.0"
 
 [[projects]]
-  digest = "1:a61611c335d8d5b73fba14905d85e8f18555684de4979c7c868b3aa65750f110"
-  name = "github.com/influxdata/telegraf"
-  packages = [
-    ".",
-    "internal",
-    "internal/globpath",
-    "internal/templating",
-    "metric",
-    "plugins/inputs",
-    "plugins/inputs/procstat",
-    "plugins/inputs/snmp",
-    "plugins/inputs/sqlserver",
-    "plugins/inputs/statsd",
-    "plugins/inputs/tail",
-    "plugins/inputs/win_perf_counters",
-    "plugins/parsers",
-    "plugins/parsers/collectd",
-    "plugins/parsers/dropwizard",
-    "plugins/parsers/graphite",
-    "plugins/parsers/influx",
-    "plugins/parsers/json",
-    "plugins/parsers/nagios",
-    "plugins/parsers/value",
-    "selfstat",
-  ]
-  pruneopts = "NUT"
-  revision = "4be18c1ea229cb2a3b0da6f41923ba0597a4b94e"
-  version = "1.7.1"
-
-[[projects]]
   digest = "1:ed32dc822d051bf443e256bb9d535b6328423d9e22355da2d9e2efb943593e5f"
   name = "github.com/jaegertracing/jaeger"
   packages = ["thrift-gen/jaeger"]
