@@ -140,7 +140,7 @@ type Config struct {
 // Monitor for Utilization
 type Monitor struct {
 	Output types.Output
-	cancel func()
+	cancel context.CancelFunc
 }
 
 // fetch the factory used to generate the perf counter plugin
@@ -165,7 +165,7 @@ func getTelegrafFields(incoming []Field) []telegrafPlugin.Field{
 func (m *Monitor) Configure(conf *Config) (err error) {
 	plugin := factory().(*telegrafPlugin.Snmp)
 
-	// craete the emitter
+	// create the emitter
 	em := baseemitter.NewEmitter(m.Output, logger)
 
 	// set a default plugin dimension

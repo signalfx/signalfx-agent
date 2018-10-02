@@ -28,9 +28,5 @@ def test_snmp():
         host = container_ip(test_container)
         config = monitor_config.substitute(host=host)
 
-        # TODO: write a better check for an open udp port
-        import time
-        time.sleep(10)
-
         with run_agent(config) as [backend, _, _]:
             assert wait_for(p(has_datapoint_with_dim, backend, "plugin", "snmp")), "didn't get database io datapoints"
