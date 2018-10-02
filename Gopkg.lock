@@ -2,6 +2,12 @@
 
 
 [[projects]]
+  name = "cloud.google.com/go"
+  packages = ["civil"]
+  revision = "97efc2c9ffd9fe8ef47f7f3203dc60bbca547374"
+  version = "v0.28.0"
+
+[[projects]]
   name = "collectd.org"
   packages = [
     "api",
@@ -104,6 +110,15 @@
   version = "v1.1.0"
 
 [[projects]]
+  branch = "master"
+  name = "github.com/denisenkom/go-mssqldb"
+  packages = [
+    ".",
+    "internal/cp"
+  ]
+  revision = "1eb28afdf9b6e56cf673badd47545f844fe81103"
+
+[[projects]]
   name = "github.com/docker/distribution"
   packages = [
     "digestset",
@@ -166,6 +181,12 @@
   version = "v1.0.0"
 
 [[projects]]
+  name = "github.com/go-logfmt/logfmt"
+  packages = ["."]
+  revision = "390ab7935ee28ec6b286364bba9b4dd6410cb3d5"
+  version = "v0.3.0"
+
+[[projects]]
   name = "github.com/go-ole/go-ole"
   packages = [
     ".",
@@ -225,8 +246,8 @@
     "util/runes",
     "util/strings"
   ]
-  revision = "bea32b9cd2d6f55753d94a28e959b13f0244797a"
-  version = "v0.2.2"
+  revision = "5ccd90ef52e1e632236f7326478d4faa74f99438"
+  version = "v0.2.3"
 
 [[projects]]
   name = "github.com/gogo/protobuf"
@@ -352,27 +373,22 @@
   version = "v0.8.1"
 
 [[projects]]
-  name = "github.com/hpcloud/tail"
-  packages = [
-    "ratelimiter",
-    "util",
-    "watch",
-    "winfile"
-  ]
-  revision = "a30252cb686a21eb2d0b98132633053ec2f7f1e5"
-  version = "v1.0.0"
-
-[[projects]]
   branch = "master"
   name = "github.com/iancoleman/strcase"
   packages = ["."]
   revision = "3de563c3dc08a7504131e9d63f678b7d1c3e85d7"
 
 [[projects]]
+  branch = "master"
   name = "github.com/influxdata/tail"
-  packages = ["."]
-  revision = "a30252cb686a21eb2d0b98132633053ec2f7f1e5"
-  version = "v1.0.0"
+  packages = [
+    ".",
+    "ratelimiter",
+    "util",
+    "watch",
+    "winfile"
+  ]
+  revision = "c43482518d410361b6c383d7aebce33d0471d7bc"
 
 [[projects]]
   name = "github.com/influxdata/telegraf"
@@ -383,6 +399,7 @@
     "internal/templating",
     "metric",
     "plugins/inputs",
+    "plugins/inputs/logparser",
     "plugins/inputs/procstat",
     "plugins/inputs/snmp",
     "plugins/inputs/sqlserver",
@@ -391,16 +408,20 @@
     "plugins/inputs/win_perf_counters",
     "plugins/parsers",
     "plugins/parsers/collectd",
+    "plugins/parsers/csv",
     "plugins/parsers/dropwizard",
     "plugins/parsers/graphite",
+    "plugins/parsers/grok",
     "plugins/parsers/influx",
     "plugins/parsers/json",
+    "plugins/parsers/logfmt",
     "plugins/parsers/nagios",
     "plugins/parsers/value",
+    "plugins/parsers/wavefront",
     "selfstat"
   ]
-  revision = "c6feb056ffa0440ce054ad220655189ce91d2b30"
-  version = "1.7.2"
+  revision = "07d2f2d8bb2daff1745bdf81927ba217235ccdf6"
+  version = "1.8.0"
 
 [[projects]]
   name = "github.com/json-iterator/go"
@@ -671,10 +692,10 @@
   version = "v1.0.4"
 
 [[projects]]
+  branch = "master"
   name = "github.com/soniah/gosnmp"
   packages = ["."]
-  revision = "3651b0e1a5302d5d5f6d47a2af02658f8bb36311"
-  version = "v1.14"
+  revision = "35d70ef6436030897babd670877f2d4a1748c249"
 
 [[projects]]
   name = "github.com/spf13/pflag"
@@ -694,8 +715,8 @@
     "assert",
     "mock"
   ]
-  revision = "69483b4bd14f5845b5a1e55bca19e954e827f1d0"
-  version = "v1.1.4"
+  revision = "f35b8ab0b5a2cef36673838d662e249dd9c94686"
+  version = "v1.2.2"
 
 [[projects]]
   name = "github.com/tidwall/gjson"
@@ -721,16 +742,16 @@
   revision = "ca99b135e50f526fde9cd88705f0ff2f3f95b77c"
 
 [[projects]]
+  name = "github.com/vjeantet/grok"
+  packages = ["."]
+  revision = "ce01e59abcf6fbc9833b7deb5e4b8ee1769bcc53"
+  version = "v1.0.0"
+
+[[projects]]
   name = "github.com/x-cray/logrus-prefixed-formatter"
   packages = ["."]
   revision = "bb2702d423886830dee131692131d35648c382e2"
   version = "v0.5.2"
-
-[[projects]]
-  branch = "master"
-  name = "github.com/zensqlmonitor/go-mssqldb"
-  packages = ["."]
-  revision = "e8fbf836e44e86764eba398361d1825651709547"
 
 [[projects]]
   branch = "master"
@@ -1013,6 +1034,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "dac51fa013d1da0f914c7986b04c360bc387e48b36c08b2265525853ce192e48"
+  inputs-digest = "943a3247db1171186b89486767e02706327926d50271031da011e8ee83a9da7c"
   solver-name = "gps-cdcl"
   solver-version = 1
