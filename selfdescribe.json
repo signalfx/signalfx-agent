@@ -2284,8 +2284,8 @@
           "yamlName": "disks",
           "doc": "Which devices to include/exclude",
           "default": [
-            "/^loop\\d+$/",
-            "/^dm-\\d+$/"
+            "/^loop[0-9]+$/",
+            "/^dm-[0-9]+$/"
           ],
           "required": false,
           "type": "slice",
