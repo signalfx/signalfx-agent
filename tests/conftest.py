@@ -12,9 +12,10 @@ from functools import partial as p
 import pytest
 import semver
 
+from helpers.assertions import has_log_message
 from helpers.kubernetes.minikube import Minikube
-from helpers.kubernetes.utils import container_is_running, get_docker_client, has_docker_image, has_log_message
-from helpers.util import wait_for
+from helpers.kubernetes.utils import container_is_running, has_docker_image
+from helpers.util import wait_for, get_docker_client
 
 SCRIPTS_DIR = os.path.join(os.path.dirname(os.path.realpath(__file__)), "..", "scripts")
 K8S_MIN_VERSION = "1.7.0"
