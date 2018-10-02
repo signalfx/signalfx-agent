@@ -30,7 +30,7 @@ monitors:
 
 
 @pytest.mark.parametrize("version", ["latest"])
-def test_marathon(version):
+def test_haproxy(version):
     with run_service("haproxy", buildargs={"HAPROXY_VERSION": version}) as service_container:
         host = container_ip(service_container)
         config = MONITOR_CONFIG.substitute(host=host)
