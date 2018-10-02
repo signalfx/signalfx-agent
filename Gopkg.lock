@@ -267,6 +267,14 @@
   revision = "66deaeb636dff1ac7d938ce666d090556056a4b0"
 
 [[projects]]
+  digest = "1:b60efdeb75d3c0ceed88783ac2495256aba3491a537d0f31401202579fd62a94"
+  name = "github.com/golang/mock"
+  packages = ["gomock"]
+  pruneopts = "NUT"
+  revision = "51421b967af1f557f93a59e0057aaf15ca02e29c"
+  version = "v1.2.0"
+
+[[projects]]
   digest = "1:63ccdfbd20f7ccd2399d0647a7d100b122f79c13bb83da9660b1598396fd9f62"
   name = "github.com/golang/protobuf"
   packages = [
@@ -492,7 +500,7 @@
   version = "v1.0.0"
 
 [[projects]]
-  digest = "1:26cd0f44c772eeaf717ffe755bbcd6c3309ffb5d95b3b5dbf0214dc99acc065c"
+  digest = "1:a61611c335d8d5b73fba14905d85e8f18555684de4979c7c868b3aa65750f110"
   name = "github.com/influxdata/telegraf"
   packages = [
     ".",
@@ -502,6 +510,7 @@
     "metric",
     "plugins/inputs",
     "plugins/inputs/procstat",
+    "plugins/inputs/snmp",
     "plugins/inputs/sqlserver",
     "plugins/inputs/statsd",
     "plugins/inputs/tail",
@@ -913,6 +922,14 @@
   pruneopts = "NUT"
   revision = "d682213848ed68c0a260ca37d6dd5ace8423f5ba"
   version = "v1.0.4"
+
+[[projects]]
+  digest = "1:ebe51cb89ba5ea486fc821735e6b652eb1b2d1b258a9cdb38d927ddeb2cd3464"
+  name = "github.com/soniah/gosnmp"
+  packages = ["."]
+  pruneopts = "NUT"
+  revision = "28507a583d6f323959b554e0fc6d33eb589f5c05"
+  version = "v1.16"
 
 [[projects]]
   digest = "1:60a46e2410edbf02b419f833372dd1d24d7aa1b916a990a7370e792fada1eadd"
@@ -1413,6 +1430,7 @@
     "github.com/iancoleman/strcase",
     "github.com/influxdata/telegraf/plugins/inputs",
     "github.com/influxdata/telegraf/plugins/inputs/procstat",
+    "github.com/influxdata/telegraf/plugins/inputs/snmp",
     "github.com/influxdata/telegraf/plugins/inputs/sqlserver",
     "github.com/influxdata/telegraf/plugins/inputs/statsd",
     "github.com/influxdata/telegraf/plugins/inputs/tail",
