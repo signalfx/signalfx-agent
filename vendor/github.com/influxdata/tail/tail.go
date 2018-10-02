@@ -15,14 +15,14 @@ import (
 	"sync"
 	"time"
 
-	"github.com/hpcloud/tail/ratelimiter"
-	"github.com/hpcloud/tail/util"
-	"github.com/hpcloud/tail/watch"
+	"github.com/influxdata/tail/ratelimiter"
+	"github.com/influxdata/tail/util"
+	"github.com/influxdata/tail/watch"
 	"gopkg.in/tomb.v1"
 )
 
 var (
-	ErrStop = fmt.Errorf("tail should now stop")
+	ErrStop = errors.New("tail should now stop")
 )
 
 type Line struct {
@@ -250,7 +250,12 @@ func (tail *Tail) tailFileSync() {
 
 	tail.openReader()
 
-	var offset int64 = 0
+	if err := tail.watchChanges(); err != nil {
+		tail.Killf("Error watching for changes on %s: %s", tail.Filename, err)
+		return
+	}
+
+	var offset int64
 	var err error
 
 	// Read line by line.
@@ -273,10 +278,9 @@ func (tail *Tail) tailFileSync() {
 			if cooloff {
 				// Wait a second before seeking till the end of
 				// file when rate limit is reached.
-				msg := fmt.Sprintf(
-					"Too much log activity; waiting a second " +
-						"before resuming tailing")
-				tail.Lines <- &Line{msg, time.Now(), fmt.Errorf(msg)}
+				msg := ("Too much log activity; waiting a second " +
+					"before resuming tailing")
+				tail.Lines <- &Line{msg, time.Now(), errors.New(msg)}
 				select {
 				case <-time.After(time.Second):
 				case <-tail.Dying():
@@ -332,19 +336,29 @@ func (tail *Tail) tailFileSync() {
 	}
 }
 
+// watchChanges ensures the watcher is running.
+func (tail *Tail) watchChanges() error {
+	if tail.changes != nil {
+		return nil
+	}
+	var pos int64
+	var err error
+	if !tail.Pipe {
+		pos, err = tail.file.Seek(0, os.SEEK_CUR)
+		if err != nil {
+			return err
+		}
+	}
+	tail.changes, err = tail.watcher.ChangeEvents(&tail.Tomb, pos)
+	return err
+}
+
 // waitForChanges waits until the file has been appended, deleted,
 // moved or truncated. When moved or deleted - the file will be
 // reopened if ReOpen is true. Truncated files are always reopened.
 func (tail *Tail) waitForChanges() error {
-	if tail.changes == nil {
-		pos, err := tail.file.Seek(0, os.SEEK_CUR)
-		if err != nil {
-			return err
-		}
-		tail.changes, err = tail.watcher.ChangeEvents(&tail.Tomb, pos)
-		if err != nil {
-			return err
-		}
+	if err := tail.watchChanges(); err != nil {
+		return err
 	}
 
 	select {
@@ -381,12 +395,14 @@ func (tail *Tail) waitForChanges() error {
 }
 
 func (tail *Tail) openReader() {
+	tail.lk.Lock()
 	if tail.MaxLineSize > 0 {
 		// add 2 to account for newline characters
 		tail.reader = bufio.NewReaderSize(tail.file, tail.MaxLineSize+2)
 	} else {
 		tail.reader = bufio.NewReader(tail.file)
 	}
+	tail.lk.Unlock()
 }
 
 func (tail *Tail) seekEnd() error {
