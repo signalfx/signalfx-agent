@@ -1,6 +1,7 @@
 package tail
 
 import (
+	"context"
 	telegrafInputs "github.com/influxdata/telegraf/plugins/inputs"
 	telegrafPlugin "github.com/influxdata/telegraf/plugins/inputs/tail"
 	telegrafParsers "github.com/influxdata/telegraf/plugins/parsers"
@@ -10,18 +11,20 @@ import (
 	"github.com/signalfx/signalfx-agent/internal/monitors/telegraf/common/emitter/baseemitter"
 	"github.com/signalfx/signalfx-agent/internal/monitors/telegraf/common/parser"
 	"github.com/signalfx/signalfx-agent/internal/monitors/types"
+	"github.com/signalfx/signalfx-agent/internal/utils"
 	log "github.com/sirupsen/logrus"
 	"github.com/ulule/deepcopier"
+	"time"
 )
 
 const monitorType = "telegraf/tail"
-
 
 // MONITOR(telegraf/tail): This monitor is based on the Telegraf tail plugin.  The monitor tails files and
 // named pipes.  The Telegraf parser configured with this monitor extracts metrics in different
 // (formats)[https://github.com/influxdata/telegraf/blob/master/docs/DATA_FORMATS_INPUT.md]
 // from the tailed output. More information about the Telegraf plugin
 // can be found [here](https://github.com/influxdata/telegraf/tree/master/plugins/inputs/tail).
+// All metrics emitted from this monitor will have the `plugin` dimension set to `telegraf-tail`
 //
 // Sample YAML configuration:
 //
@@ -71,12 +74,13 @@ type Config struct {
 	// Please refer to the Telegraf (documentation)[https://github.com/influxdata/telegraf/blob/master/docs/DATA_FORMATS_INPUT.md]
 	// for more information on Telegraf parsers.
 	TelegrafParser *parser.Config `yaml:"telegrafParser"`
-	parser telegrafParsers.Parser
+	parser         telegrafParsers.Parser
 }
 
 // Monitor for Utilization
 type Monitor struct {
 	Output types.Output
+	cancel context.CancelFunc
 	plugin *telegrafPlugin.Tail
 }
 
@@ -93,7 +97,7 @@ func (m *Monitor) Configure(conf *Config) (err error) {
 		conf.TelegrafParser = &parser.Config{DataFormat: "influx"}
 	}
 
-	// set the parser using the provided configuration
+	// test the parser configurations to make sure they're valid
 	if conf.parser, err = conf.TelegrafParser.GetTelegrafParser(); err != nil {
 		return err
 	}
@@ -105,18 +109,42 @@ func (m *Monitor) Configure(conf *Config) (err error) {
 	}
 
 	// set the parser on the plugin
-	m.plugin.SetParser(conf.parser)
+	m.plugin.SetParserFunc(conf.TelegrafParser.GetTelegrafParser)
+
+	// create contexts for managing the the plugin loop
+	var ctx context.Context
+	ctx, m.cancel = context.WithCancel(context.Background())
+
+	// craete the emitter
+	em := baseemitter.NewEmitter(m.Output, logger)
+
+	// Hard code the plugin name because the emitter will parse out the
+	// configured measurement name as plugin and that is confusing.
+	em.AddTag("plugin", "telegraf-tail")
 
 	// create the accumulator
-	ac := accumulator.NewAccumulator(baseemitter.NewEmitter(m.Output, logger))
+	ac := accumulator.NewAccumulator(em)
 
 	// start the tail plugin
-	return m.plugin.Start(ac)
+	if err = m.plugin.Start(ac); err != nil {
+		return err
+	}
+
+	// look for new files to tail on the defined interval
+	utils.RunOnInterval(ctx, func() {
+		if err := m.plugin.Gather(ac); err != nil {
+			logger.Error(err)
+		}
+	}, time.Duration(conf.IntervalSeconds)*time.Second)
+
+	return nil
 }
 
 // Shutdown stops the metric sync
 func (m *Monitor) Shutdown() {
 	if m.plugin != nil {
+		// stop the collection interval
+		m.cancel()
 		// stop the telegraf plugin
 		m.plugin.Stop()
 	}
