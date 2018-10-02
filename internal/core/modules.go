@@ -32,6 +32,7 @@ import (
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/prometheus"
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/telegraf/monitors/mssqlserver"
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/telegraf/monitors/procstat"
+	_ "github.com/signalfx/signalfx-agent/internal/monitors/telegraf/monitors/telegrafsnmp"
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/telegraf/monitors/tail"
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/telegraf/monitors/telegrafstatsd"
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/telegraf/monitors/winperfcounters"
