@@ -218,7 +218,7 @@ def _test_package_install(base_image, package_path, init_system):
 
 
 # pylint: disable=line-too-long
-INSTALL_COMMAND = {
+OLD_INSTALL_COMMAND = {
     ".rpm": "yum install -y https://s3.amazonaws.com/public-downloads--signalfuse-com/rpms/signalfx-agent/final/signalfx-agent-3.0.1-1.x86_64.rpm",
     ".deb": "bash -ec 'wget -nv https://s3.amazonaws.com/public-downloads--signalfuse-com/debs/signalfx-agent/final/pool/signalfx-agent_3.0.1-1_amd64.deb && dpkg -i signalfx-agent_3.0.1-1_amd64.deb'",
 }
@@ -234,7 +234,7 @@ def _test_package_upgrade(base_image, package_path, init_system):
         _, package_ext = os.path.splitext(package_path)
         copy_file_into_container(package_path, cont, "/opt/signalfx-agent%s" % package_ext)
 
-        code, output = cont.exec_run(INSTALL_COMMAND[package_ext])
+        code, output = cont.exec_run(OLD_INSTALL_COMMAND[package_ext])
         print("Output of old package install:")
         print_lines(output)
         assert code == 0, "Old package could not be installed!"
