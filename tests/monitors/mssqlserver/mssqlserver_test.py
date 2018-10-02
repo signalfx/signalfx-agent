@@ -5,7 +5,7 @@ import string
 from tests.helpers.util import wait_for, run_agent, run_container, container_ip
 from tests.helpers.assertions import tcp_socket_open, has_datapoint_with_dim
 
-pytestmark = [pytest.mark.collectd, pytest.mark.redis, pytest.mark.monitor_with_endpoints]
+pytestmark = [pytest.mark.telegraf, pytest.mark.sqlserver, pytest.mark.monitor_with_endpoints]
 
 monitor_config = string.Template("""
 monitors:
@@ -21,7 +21,7 @@ monitors:
 @pytest.mark.parametrize("image", [
     "microsoft/mssql-server-linux:2017-latest"
 ])
-def test_redis(image):
+def test_sql(image):
     with run_container(image, environment={"ACCEPT_EULA":"Y", "MSSQL_PID": "Developer", "SA_PASSWORD": "P@ssw0rd!"}) as test_container:
         host = container_ip(test_container)
         config = monitor_config.substitute(host=host)

@@ -254,6 +254,12 @@
   revision = "66deaeb636dff1ac7d938ce666d090556056a4b0"
 
 [[projects]]
+  name = "github.com/golang/mock"
+  packages = ["gomock"]
+  revision = "c34cdb4725f4c3844d095133c6e40e448b86589b"
+  version = "v1.1.1"
+
+[[projects]]
   name = "github.com/golang/protobuf"
   packages = [
     "proto",
@@ -378,6 +384,7 @@
     "metric",
     "plugins/inputs",
     "plugins/inputs/procstat",
+    "plugins/inputs/snmp",
     "plugins/inputs/sqlserver",
     "plugins/inputs/statsd",
     "plugins/inputs/tail",
@@ -682,6 +689,12 @@
   packages = ["."]
   revision = "d682213848ed68c0a260ca37d6dd5ace8423f5ba"
   version = "v1.0.4"
+
+[[projects]]
+  name = "github.com/soniah/gosnmp"
+  packages = ["."]
+  revision = "3651b0e1a5302d5d5f6d47a2af02658f8bb36311"
+  version = "v1.14"
 
 [[projects]]
   name = "github.com/spf13/pflag"
@@ -1047,6 +1060,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "bf5dae8eef57ef304d97b98a80cb98d905f4f1e76d7c6ea5fd26cdcb0b1fd702"
+  inputs-digest = "d566a5d9f51bbaec59c35350fd5b4c520cf26c42c9e18875b4e118600ccaea92"
   solver-name = "gps-cdcl"
   solver-version = 1
