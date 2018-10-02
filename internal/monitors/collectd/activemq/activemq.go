@@ -1,4 +1,4 @@
-// +build !windows
+// +build linux
 
 // Package activemq has an ActiveMQ Collectd monitor that uses GenericJMX
 package activemq
