@@ -312,7 +312,7 @@ WORKDIR /
 # the build tools for building collectd and the go agent, along with some other
 # useful utilities.  The agent image is copied from the final-image stage to
 # the /bundle dir in here and the SIGNALFX_BUNDLE_DIR is set to point to that.
-FROM ubuntu:16.04 as dev-extras
+FROM ubuntu:18.04 as dev-extras
 
 RUN apt update &&\
     apt install -y \
