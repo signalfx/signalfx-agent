@@ -23,6 +23,7 @@ K8S_MAX_VERSION = "1.10.0"
 K8S_DEFAULT_VERSION = "1.10.0"
 K8S_DEFAULT_TIMEOUT = 300
 K8S_DEFAULT_TEST_TIMEOUT = 120
+K8S_DEFAULT_CONTAINER_NAME = "minikube"
 
 
 def get_k8s_supported_versions():
@@ -157,7 +158,7 @@ def minikube(request, worker_id):
         if worker_id == "gw0":
             k8s_skip_teardown = True
     else:
-        inst.connect("inst", k8s_timeout, version=k8s_version)
+        inst.connect(K8S_DEFAULT_CONTAINER_NAME, k8s_timeout, version=k8s_version)
         k8s_skip_teardown = True
     return inst
 
