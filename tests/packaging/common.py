@@ -170,7 +170,7 @@ def run_init_system_image(base_image, with_socat=True):
         backend_ip = "127.0.0.1"
     else:
         backend_ip = get_host_ip()
-    with fake_backend.start(ip=backend_ip) as backend:
+    with fake_backend.start(ip_addr=backend_ip) as backend:
         container_options = {
             # Init systems running in the container want permissions
             "privileged": True,
