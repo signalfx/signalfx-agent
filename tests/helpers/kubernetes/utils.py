@@ -108,7 +108,7 @@ def run_k8s_with_agent(
     if isinstance(monitors, dict):
         monitors = [monitors]
     assert isinstance(monitors, list), "unknown type/defintion for monitors:\n%s\n" % monitors
-    with fake_backend.start(ip=get_host_ip()) as backend:
+    with fake_backend.start(ip_addr=get_host_ip()) as backend:
         with minikube.deploy_k8s_yamls(yamls, namespace=namespace, timeout=yamls_timeout):
             with minikube.deploy_agent(
                 AGENT_CONFIGMAP_PATH,
