@@ -33,3 +33,5 @@ def test_tail():
             f.write(b'mem,customtag2=foo2 bytes=1024\n')
             f.flush()
             assert wait_for(p(has_datapoint_with_dim, backend, "customtag2", "foo2")), "didn't get datapoint written after startup"
+            assert wait_for(p(has_datapoint_with_dim, backend, "plugin", "telegraf-tail")), "didn't get datapoint with expected plugin dimension"
+

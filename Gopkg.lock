@@ -2,6 +2,12 @@
 
 
 [[projects]]
+  name = "cloud.google.com/go"
+  packages = ["civil"]
+  revision = "dfffe386c33fb24c34ee501e5723df5b97b98514"
+  version = "v0.30.0"
+
+[[projects]]
   name = "collectd.org"
   packages = [
     "api",
@@ -109,6 +115,15 @@
   version = "v1.1.0"
 
 [[projects]]
+  branch = "master"
+  name = "github.com/denisenkom/go-mssqldb"
+  packages = [
+    ".",
+    "internal/cp"
+  ]
+  revision = "1eb28afdf9b6e56cf673badd47545f844fe81103"
+
+[[projects]]
   name = "github.com/docker/distribution"
   packages = [
     "digestset",
@@ -169,6 +184,12 @@
   packages = ["."]
   revision = "0ca9ea5df5451ffdf184b4428c902747c2c11cd7"
   version = "v1.0.0"
+
+[[projects]]
+  name = "github.com/go-logfmt/logfmt"
+  packages = ["."]
+  revision = "390ab7935ee28ec6b286364bba9b4dd6410cb3d5"
+  version = "v0.3.0"
 
 [[projects]]
   name = "github.com/go-ole/go-ole"
@@ -383,6 +404,7 @@
     "internal/templating",
     "metric",
     "plugins/inputs",
+    "plugins/inputs/logparser",
     "plugins/inputs/procstat",
     "plugins/inputs/snmp",
     "plugins/inputs/sqlserver",
@@ -391,16 +413,20 @@
     "plugins/inputs/win_perf_counters",
     "plugins/parsers",
     "plugins/parsers/collectd",
+    "plugins/parsers/csv",
     "plugins/parsers/dropwizard",
     "plugins/parsers/graphite",
+    "plugins/parsers/grok",
     "plugins/parsers/influx",
     "plugins/parsers/json",
+    "plugins/parsers/logfmt",
     "plugins/parsers/nagios",
     "plugins/parsers/value",
+    "plugins/parsers/wavefront",
     "selfstat"
   ]
-  revision = "578db7ef5156628efac1ffe98ca2b2a9cbfd89b2"
-  version = "1.7.4"
+  revision = "ae9efb2f696f4dd9e83db4b0431cf9aabf7af97c"
+  version = "1.8.1"
 
 [[projects]]
   name = "github.com/jaegertracing/jaeger"
@@ -691,10 +717,10 @@
   version = "v1.0.4"
 
 [[projects]]
+  branch = "master"
   name = "github.com/soniah/gosnmp"
   packages = ["."]
-  revision = "3651b0e1a5302d5d5f6d47a2af02658f8bb36311"
-  version = "v1.14"
+  revision = "35d70ef6436030897babd670877f2d4a1748c249"
 
 [[projects]]
   name = "github.com/spf13/pflag"
@@ -763,16 +789,16 @@
   revision = "ca99b135e50f526fde9cd88705f0ff2f3f95b77c"
 
 [[projects]]
+  name = "github.com/vjeantet/grok"
+  packages = ["."]
+  revision = "ce01e59abcf6fbc9833b7deb5e4b8ee1769bcc53"
+  version = "v1.0.0"
+
+[[projects]]
   name = "github.com/x-cray/logrus-prefixed-formatter"
   packages = ["."]
   revision = "bb2702d423886830dee131692131d35648c382e2"
   version = "v0.5.2"
-
-[[projects]]
-  branch = "master"
-  name = "github.com/zensqlmonitor/go-mssqldb"
-  packages = ["."]
-  revision = "e8fbf836e44e86764eba398361d1825651709547"
 
 [[projects]]
   branch = "master"
@@ -1060,6 +1086,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "d566a5d9f51bbaec59c35350fd5b4c520cf26c42c9e18875b4e118600ccaea92"
+  inputs-digest = "8fb38005cd104311bcaa1747236baaf365a5b408be35a0c5f7872018a5317168"
   solver-name = "gps-cdcl"
   solver-version = 1
