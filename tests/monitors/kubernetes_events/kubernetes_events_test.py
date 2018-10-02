@@ -53,7 +53,7 @@ def test_k8s_events_without_whitelist(agent_image, minikube, k8s_observer, k8s_n
         backend,
         agent,
     ]:
-        assert ensure_always(lambda: len(backend.events) == 0, 30), (
+        assert ensure_always(lambda: not backend.events, 30), (
             "event received!\n\nAGENT STATUS:\n%s\n\nAGENT CONTAINER LOGS:\n%s\n"
             % (agent.get_status(), agent.get_container_logs())
         )
