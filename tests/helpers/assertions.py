@@ -24,8 +24,10 @@ def has_datapoint_with_dim_key(fake_services, dim_key):
     return False
 
 
-# Tests if `dims`'s are all in a certain datapoint or event
 def has_all_dims(dp_or_event, dims):
+    """
+    Tests if `dims`'s are all in a certain datapoint or event
+    """
     return dims.items() <= {d.key: d.value for d in dp_or_event.dimensions}.items()
 
 
@@ -208,3 +210,38 @@ def http_status(url=None, status=None, username=None, password=None, timeout=1, 
         return err.code in status
     except (urllib.error.URLError, socket.timeout, HTTPException, ConnectionResetError, ConnectionError):
         return False
+
+
+def has_trace_span(  # pylint: disable=too-many-arguments
+    fake_services, trace_id=None, span_id=None, parent_id=None, name=None, local_service_name=None, kind=None, tags=None
+):
+    """
+    Returns True if there is a trace span seen in the fake_services backend that
+    has the given attributes.  If a property is not specified it will not be
+    considered.  `tags`, if provided, will be tested as a subset of total
+    set of tags on the span and not the complete set.
+    """
+    for span in fake_services.spans:
+        if trace_id and span.get("traceId") != trace_id:
+            continue
+        if span_id and span.get("id") != span_id:
+            continue
+        if parent_id and span.get("parentId") != parent_id:
+            continue
+        if name and span.get("name") != name:
+            continue
+        if kind and span.get("kind") != kind:
+            continue
+        if local_service_name and span.get("localEndpoint", {}).get("serviceName") != local_service_name:
+            continue
+        if tags and not has_all_tags(span, tags):
+            continue
+        return True
+    return False
+
+
+def has_all_tags(span, tags):
+    """
+    Tests if `tags`'s are all in a certain trace span
+    """
+    return tags.items() <= span.get("tags").items()

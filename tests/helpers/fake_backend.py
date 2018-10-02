@@ -14,7 +14,7 @@ from signalfx.generated_protocol_buffers import signal_fx_protocol_buffers_pb2 a
 
 # Fake the /v2/datapoint endpoint and just stick all of the metrics in a
 # list
-def _make_fake_ingest(datapoints, events, ip_addr="127.0.0.1"):
+def _make_fake_ingest(datapoints, events, spans, ip_addr="127.0.0.1"):
     class FakeIngest(BaseHTTPRequestHandler):
         def do_POST(self):
             print("INGEST POST: %s" % self.path)
@@ -38,6 +38,8 @@ def _make_fake_ingest(datapoints, events, ip_addr="127.0.0.1"):
                 else:
                     event_upload.ParseFromString(body)
                 events.extend(event_upload.events)  # pylint: disable=no-member
+            elif "trace" in self.path:
+                spans.extend(json.loads(body))
             else:
                 self.send_response(404)
                 self.end_headers()
@@ -84,9 +86,10 @@ def start(ip_addr="127.0.0.1"):
     # Data structures are thread-safe due to the GIL
     _datapoints = []
     _events = []
+    _spans = []
     _dims = defaultdict(defaultdict)
 
-    ingest_httpd = _make_fake_ingest(_datapoints, _events, ip_addr=ip_addr)
+    ingest_httpd = _make_fake_ingest(_datapoints, _events, _spans, ip_addr=ip_addr)
     api_httpd = _make_fake_api(_dims, ip_addr=ip_addr)
 
     threading.Thread(target=ingest_httpd.serve_forever).start()
@@ -103,6 +106,7 @@ def start(ip_addr="127.0.0.1"):
 
         datapoints = _datapoints
         events = _events
+        spans = _spans
         dims = _dims
 
     try:
