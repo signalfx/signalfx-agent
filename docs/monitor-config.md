@@ -65,6 +65,7 @@ along with their possible configuration options:
 - [processlist](./monitors/processlist.md)
 - [prometheus-exporter](./monitors/prometheus-exporter.md)
 - [telegraf/procstat](./monitors/telegraf-procstat.md)
+- [telegraf/snmp](./monitors/telegraf-snmp.md)
 - [telegraf/sqlserver](./monitors/telegraf-sqlserver.md)
 - [telegraf/statsd](./monitors/telegraf-statsd.md)
 - [telegraf/tail](./monitors/telegraf-tail.md)
