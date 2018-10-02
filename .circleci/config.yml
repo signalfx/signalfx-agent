@@ -37,6 +37,7 @@ references:
       curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
       python get-pip.py 'pip==10.0.1'
       pip install -r tests/requirements.txt
+      pyenv rehash
 
   run_k8s_integration_tests: &run_k8s_integration_tests
     run:
@@ -250,6 +251,19 @@ jobs:
           path: ~/testresults
       - store_artifacts:
           path: ~/testresults/k8s_integration_tests.html
+
+  int_test_lint:
+    working_directory: /opt/signalfx-agent
+    docker:
+     - image: python:3.6
+    steps:
+     - checkout
+     - run: |
+         pip install black==18.9b0
+         cd tests
+         pylint -j4 $(find . -type d -maxdepth 1)
+         black --config pyproject.toml .
+
 
   installer_tests:
     <<: *executor

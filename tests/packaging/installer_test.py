@@ -1,20 +1,26 @@
 # Tests of the installer script
 
-import docker
 from functools import partial as p
-import os
+
 import pytest
-import time
 
-from .common import *
+from helpers.assertions import has_datapoint_with_dim
+from helpers.util import print_lines, wait_for
 
-from tests.helpers import fake_backend
-from tests.helpers.assertions import *
-from tests.helpers.util import run_container, wait_for, print_lines
+from .common import (
+    INIT_SYSTEMD,
+    INIT_SYSV,
+    INIT_UPSTART,
+    INSTALLER_PATH,
+    copy_file_into_container,
+    get_agent_logs,
+    is_agent_running_as_non_root,
+    run_init_system_image,
+)
 
 pytestmark = pytest.mark.installer
 
-supported_distros = [
+SUPPORTED_DISTROS = [
     ("debian-7-wheezy", INIT_SYSV),
     ("debian-8-jessie", INIT_SYSTEMD),
     ("debian-9-stretch", INIT_SYSTEMD),
@@ -27,7 +33,8 @@ supported_distros = [
     ("centos7", INIT_SYSTEMD),
 ]
 
-@pytest.mark.parametrize("base_image,init_system", supported_distros)
+
+@pytest.mark.parametrize("base_image,init_system", SUPPORTED_DISTROS)
 def test_intaller(base_image, init_system):
     with run_init_system_image(base_image) as [cont, backend]:
         copy_file_into_container(INSTALLER_PATH, cont, "/opt/install.sh")
@@ -41,9 +48,10 @@ def test_intaller(base_image, init_system):
         assert code == 0, "Agent could not be installed!"
 
         try:
-            assert wait_for(p(has_datapoint_with_dim, backend, "plugin", "signalfx-metadata")), "Datapoints didn't come through"
+            assert wait_for(
+                p(has_datapoint_with_dim, backend, "plugin", "signalfx-metadata")
+            ), "Datapoints didn't come through"
             assert is_agent_running_as_non_root(cont), "Agent is not running as non-root user"
         finally:
             print("Agent log:")
             print_lines(get_agent_logs(cont, init_system))
-

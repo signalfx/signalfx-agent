@@ -48,3 +48,9 @@ the tests complete since there is currently no way of knowing which test will be
 last to teardown the fixture.  As a workaround, the `make run-k8s-tests` command
 will remove any running minikube containers before and after the tests start.
 
+## Formatting
+
+Test code should be formatted automatically with
+[Black](https://pypi.org/project/black/) (see
+[./requirements.txt](./requirements.txt) for the exact version) and should also
+pass Pylint.  We use a line length of 120.

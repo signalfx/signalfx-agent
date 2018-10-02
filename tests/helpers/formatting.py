@@ -1,5 +1,4 @@
-from signalfx.generated_protocol_buffers \
-    import signal_fx_protocol_buffers_pb2 as sf_pbuf
+from signalfx.generated_protocol_buffers import signal_fx_protocol_buffers_pb2 as sf_pbuf
 
 
 def print_dp_or_event(dp_or_event):
@@ -14,6 +13,7 @@ def print_dp_or_event(dp_or_event):
      - <property_key> = <property_value>
      - ...
     """
+
     def _get_metric_type(index):
         for metric_type, idx in sf_pbuf.MetricType.items():
             if int(index) == idx:
@@ -28,7 +28,7 @@ def print_dp_or_event(dp_or_event):
 
     def _get_pretty_dims(dims):
         str_dims = ""
-        if len(dims) > 0:
+        if dims:
             str_dims = " ["
             for dim in sorted(dims, key=lambda dim: dim.key):
                 str_dims += dim.key + "=" + dim.value + "; "
@@ -55,7 +55,7 @@ def print_dp_or_event(dp_or_event):
         str_dp_or_event = dp_or_event.eventType
         str_dp_or_event += " (" + _get_event_category(dp_or_event.category) + ")"
         str_dp_or_event += _get_pretty_dims(dp_or_event.dimensions)
-    str_dp_or_event += " (" + str(int(dp_or_event.timestamp)/1000) + ")"
+    str_dp_or_event += " (" + str(int(dp_or_event.timestamp) / 1000) + ")"
     if hasattr(dp_or_event, "properties"):
         str_dp_or_event += _get_pretty_props(dp_or_event.properties)
     print(str_dp_or_event)
