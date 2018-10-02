@@ -63,6 +63,7 @@ along with their possible configuration options:
 - [kubernetes-volumes](./monitors/kubernetes-volumes.md)
 - [processlist](./monitors/processlist.md)
 - [prometheus-exporter](./monitors/prometheus-exporter.md)
+- [telegraf/logparser](./monitors/telegraf-logparser.md)
 - [telegraf/procstat](./monitors/telegraf-procstat.md)
 - [telegraf/snmp](./monitors/telegraf-snmp.md)
 - [telegraf/sqlserver](./monitors/telegraf-sqlserver.md)
