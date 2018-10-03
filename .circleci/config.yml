@@ -153,7 +153,7 @@ jobs:
           export TEST_SERVICES_DIR=$(pwd)/test-services
           sudo -E $PYENV_ROOT/shims/pytest \
               -n4 \
-              -m "not packaging and not installer and not k8s" \
+              -m "not packaging and not installer and not k8s and not windows-only" \
               --verbose \
               --junitxml=~/testresults/integration_tests.xml \
               --html=~/testresults/integration_tests.html \
