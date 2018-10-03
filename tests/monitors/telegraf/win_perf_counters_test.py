@@ -6,7 +6,7 @@ from tests.helpers.util import wait_for, run_agent
 from tests.helpers.assertions import *
 
 pytestmark = [
-    pytest.mark.windows-only,
+    pytest.mark.windows_only,
     pytest.mark.windows,
     pytest.mark.telegraf,
     pytest.mark.win_perf_counters

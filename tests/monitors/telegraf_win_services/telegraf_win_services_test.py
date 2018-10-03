@@ -5,7 +5,7 @@ from tests.helpers.assertions import has_datapoint_with_dim
 
 
 pytestmark = [
-    pytest.mark.windows-only,
+    pytest.mark.windows_only,
     pytest.mark.windows,
     pytest.mark.win_services,
     pytest.mark.telegraf
