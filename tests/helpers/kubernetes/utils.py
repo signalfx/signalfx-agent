@@ -32,9 +32,9 @@ def run_k8s_monitors_test(  # pylint: disable=too-many-locals,too-many-arguments
     namespace="default",
     yamls=None,
     yamls_timeout=K8S_CREATE_TIMEOUT,
-    expected_metrics=set(),
-    expected_dims=set(),
-    passwords=["testing123"],
+    expected_metrics=None,
+    expected_dims=None,
+    passwords=None,
     test_timeout=60,
 ):
     """
@@ -46,10 +46,12 @@ def run_k8s_monitors_test(  # pylint: disable=too-many-locals,too-many-arguments
     Tests include waiting for at least one metric and/or dimension from the expected_metrics and expected_dims args,
     and checking for cleartext passwords in the output from the agent status and agent container logs.
 
-    Args:
+    Required Args:
     agent_image (dict):                    Dict object from the agent_image fixture
     minikube (Minikube):                   Minkube object from the minikube fixture
     monitors (str, dict, or list of dict): YAML-based definition of monitor(s) for the smart agent agent.yaml
+
+    Optional Args:
     observer (str):                        Observer for the smart agent agent.yaml (if None,
                                              the agent.yaml will not be configured for an observer)
     namespace (str):                       K8S namespace for the smart agent and deployments
@@ -62,12 +64,17 @@ def run_k8s_monitors_test(  # pylint: disable=too-many-locals,too-many-arguments
                                              agent container logs
     test_timeout (int):                    Timeout in seconds to wait for metrics/dimensions
     """
-    if yamls is None:
+    if not yamls:
         yamls = []
-    if expected_dims is not None:
-        if observer:
-            expected_dims = expected_dims.union(get_observer_dims_from_selfdescribe(observer))
-        expected_dims = expected_dims.union({"kubernetes_cluster"})
+    if not expected_metrics:
+        expected_metrics = set()
+    if not expected_dims:
+        expected_dims = set()
+    if observer:
+        expected_dims = expected_dims.union(get_observer_dims_from_selfdescribe(observer))
+    expected_dims = expected_dims.union({"kubernetes_cluster"})
+    if passwords is None:
+        passwords = ["testing123"]
 
     with run_k8s_with_agent(agent_image, minikube, monitors, observer, namespace, yamls, yamls_timeout) as [
         backend,
@@ -98,6 +105,18 @@ def run_k8s_with_agent(
     """
     Runs a minikube environment with the agent and a set of specified
     resources.
+
+    Required Args:
+    agent_image (dict):                    Dict object from the agent_image fixture
+    minikube (Minikube):                   Minkube object from the minikube fixture
+    monitors (str, dict, or list of dict): YAML-based definition of monitor(s) for the smart agent agent.yaml
+
+    Optional Args:
+    observer (str):                        Observer for the smart agent agent.yaml (if None,
+                                             the agent.yaml will not be configured for an observer)
+    namespace (str):                       K8S namespace for the smart agent and deployments
+    yamls (list of str):                   Path(s) to K8S deployment yamls to create
+    yamls_timeout (int):                   Timeout in seconds to wait for the K8S deployments to be ready
     """
     if yamls is None:
         yamls = []

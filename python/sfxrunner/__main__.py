@@ -9,13 +9,7 @@ import sys
 from .logging import PipeLogHandler, log_exc_traceback_as_error
 from .runner import Runner
 
-logging.config.dictConfig({
-    "version": 1,
-    "formatters": {},
-    "filters": {},
-    "handlers": {},
-    "loggers": {},
-})
+logging.config.dictConfig({"version": 1, "formatters": {}, "filters": {}, "handlers": {}, "loggers": {}})
 
 logger = logging.getLogger()
 logger.setLevel(logging.DEBUG)

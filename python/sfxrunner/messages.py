@@ -50,7 +50,6 @@ def setup_io_pipes():
 
 
 class _PipeMessageBase(object):
-
     def __init__(self, fd):
         """
         `path` is the path to a local fifo pipe
@@ -80,14 +79,14 @@ class PipeMessageReader(_PipeMessageBase):
     """
 
     def open(self):
-        self.file = io.open(self.fd, 'rb', buffering=0)
+        self.file = io.open(self.fd, "rb", buffering=0)
 
     def recv_msg(self):
         """
         Block until we receive a complete message from the pipe
         """
-        msg_type = struct.unpack('i', self.file.read(4))[0]
-        size = struct.unpack('i', self.file.read(4))[0]
+        msg_type = struct.unpack("i", self.file.read(4))[0]
+        size = struct.unpack("i", self.file.read(4))[0]
         msg = self.file.read(size)
 
         logger.debug("Received control message: %s", msg)
@@ -107,7 +106,7 @@ class PipeMessageWriter(_PipeMessageBase):
         self.lock = threading.Lock()
 
     def open(self):
-        self.file = io.open(self.fd, 'wb', buffering=0)
+        self.file = io.open(self.fd, "wb", buffering=0)
 
     def send_msg(self, msg_type, msg_obj):
         """
@@ -117,6 +116,6 @@ class PipeMessageWriter(_PipeMessageBase):
         msg_bytes = ujson.dumps(msg_obj)
 
         with self.lock:
-            self.file.write(struct.pack('i', msg_type))
-            self.file.write(struct.pack('i', len(msg_bytes)))
+            self.file.write(struct.pack("i", msg_type))
+            self.file.write(struct.pack("i", len(msg_bytes)))
             self.file.write(msg_bytes)
