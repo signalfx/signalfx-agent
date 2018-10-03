@@ -132,7 +132,7 @@
 
 [[constraint]]
   name = "github.com/gobwas/glob"
-  version = "=0.2.2"
+  version = "=0.2.3"
 
 [[constraint]]
   name = "k8s.io/client-go"
@@ -185,7 +185,7 @@
 
 [[constraint]]
   name = "github.com/influxdata/telegraf"
-  version = "=1.8.0"
+  version = "=1.8.3"
 
 [[constraint]]
   name = "github.com/ulule/deepcopier"
