@@ -2,6 +2,14 @@
 
 
 [[projects]]
+  digest = "1:b62a3c5b37db602bf1158e921da1a762315a4c37855fd418a14498aa87a342d5"
+  name = "cloud.google.com/go"
+  packages = ["civil"]
+  pruneopts = "NUT"
+  revision = "0ebda48a7f143b1cce9eb37a8c1106ac762a3430"
+  version = "v0.34.0"
+
+[[projects]]
   digest = "1:188f74d743ff5e941788eceec4546703f31cde64d7da744137ad361c875c8609"
   name = "collectd.org"
   packages = [
@@ -207,6 +215,17 @@
   version = "v1.1.0"
 
 [[projects]]
+  branch = "master"
+  digest = "1:949bbde2053e646b7b07c53289a78c452ca93acebb2714ac8553c6cdd4c63b18"
+  name = "github.com/denisenkom/go-mssqldb"
+  packages = [
+    ".",
+    "internal/cp",
+  ]
+  pruneopts = "NUT"
+  revision = "4e0d7dc8888fbb59764060e99b7b68e77a6f9698"
+
+[[projects]]
   digest = "1:7a6852b35eb5bbc184561443762d225116ae630c26a7c4d90546619f1e7d2ad2"
   name = "github.com/dgrijalva/jwt-go"
   packages = ["."]
@@ -278,6 +297,14 @@
   version = "v1.0.0"
 
 [[projects]]
+  digest = "1:738c75300725db7262825a96ba5b6a8a737f0faa93d9dadcf3977504034877e0"
+  name = "github.com/go-logfmt/logfmt"
+  packages = ["."]
+  pruneopts = "NUT"
+  revision = "07c9b44f60d7ffdfb7d8efe1ad539965737836dc"
+  version = "v0.4.0"
+
+[[projects]]
   digest = "1:cb4e216bd9f58866f42dc65893455b24f879b026fdaa1ecc3aafff625fdb5a66"
   name = "github.com/go-ole/go-ole"
   packages = [
@@ -308,7 +335,7 @@
   version = "v0.16.0"
 
 [[projects]]
-  digest = "1:a85ed1b91a1c5befbd78e3e287ec737d452fec388e6897ff9088cc939469e234"
+  digest = "1:6a7159c5f8f8826207545407a458b43ab6599c1c8a2271465c2e979ecea1dcd4"
   name = "github.com/gobwas/glob"
   packages = [
     ".",
@@ -321,8 +348,8 @@
     "util/strings",
   ]
   pruneopts = "NUT"
-  revision = "bea32b9cd2d6f55753d94a28e959b13f0244797a"
-  version = "v0.2.2"
+  revision = "5ccd90ef52e1e632236f7326478d4faa74f99438"
+  version = "v0.2.3"
 
 [[projects]]
   digest = "1:b15cd9015d6ebdedb4e7f415bb9cc8870210081c256dc6c5bae2928d31f6c5ba"
@@ -521,19 +548,6 @@
   version = "v0.8.1"
 
 [[projects]]
-  digest = "1:9a09c93df5e47f995dc748ca32338eb0438b94926e048b7794f15477d9a92a75"
-  name = "github.com/hpcloud/tail"
-  packages = [
-    "ratelimiter",
-    "util",
-    "watch",
-    "winfile",
-  ]
-  pruneopts = "NUT"
-  revision = "a30252cb686a21eb2d0b98132633053ec2f7f1e5"
-  version = "v1.0.0"
-
-[[projects]]
   branch = "master"
   digest = "1:cc64e90fda7656daddd7ea78fdf0bcd4d69434e5179bb3063893fd89363a302c"
   name = "github.com/iancoleman/strcase"
@@ -542,12 +556,54 @@
   revision = "3de563c3dc08a7504131e9d63f678b7d1c3e85d7"
 
 [[projects]]
-  digest = "1:87c5dc16931f1d8debd9c087fcfa47db1063080f95c51e64c6bff5814b400e80"
+  branch = "master"
+  digest = "1:cb88b61283669e6c48c480464a99794e2f61c3dc5ce924c7c78cec6af71b9675"
   name = "github.com/influxdata/tail"
-  packages = ["."]
+  packages = [
+    ".",
+    "ratelimiter",
+    "util",
+    "watch",
+    "winfile",
+  ]
   pruneopts = "NUT"
-  revision = "a30252cb686a21eb2d0b98132633053ec2f7f1e5"
-  version = "v1.0.0"
+  revision = "c43482518d410361b6c383d7aebce33d0471d7bc"
+
+[[projects]]
+  digest = "1:cb943ba21dd64a6a645538a82f99b1894b62823b694bb98bab1acde36afc706d"
+  name = "github.com/influxdata/telegraf"
+  packages = [
+    ".",
+    "internal",
+    "internal/globpath",
+    "internal/templating",
+    "metric",
+    "plugins/inputs",
+    "plugins/inputs/logparser",
+    "plugins/inputs/procstat",
+    "plugins/inputs/snmp",
+    "plugins/inputs/sqlserver",
+    "plugins/inputs/statsd",
+    "plugins/inputs/tail",
+    "plugins/inputs/win_perf_counters",
+    "plugins/inputs/win_services",
+    "plugins/parsers",
+    "plugins/parsers/collectd",
+    "plugins/parsers/csv",
+    "plugins/parsers/dropwizard",
+    "plugins/parsers/graphite",
+    "plugins/parsers/grok",
+    "plugins/parsers/influx",
+    "plugins/parsers/json",
+    "plugins/parsers/logfmt",
+    "plugins/parsers/nagios",
+    "plugins/parsers/value",
+    "plugins/parsers/wavefront",
+    "selfstat",
+  ]
+  pruneopts = "NUT"
+  revision = "f297910623fc8797618fe6b2ee3e393c1c41697c"
+  version = "1.8.3"
 
 [[projects]]
   digest = "1:ed32dc822d051bf443e256bb9d535b6328423d9e22355da2d9e2efb943593e5f"
@@ -951,6 +1007,7 @@
   packages = ["plugins/outputs/signalfx/parse"]
   pruneopts = "NUT"
   revision = "888c034dc63b1420acc06188f1af72a5b19872e2"
+  version = "1.7.1.sfx0"
 
 [[projects]]
   digest = "1:6201742366c1518fc5f0df9ccdb4d193fc8a2aef2cc57bf164c9bca23bd5f869"
@@ -969,12 +1026,12 @@
   version = "v0.1.4"
 
 [[projects]]
-  digest = "1:ebe51cb89ba5ea486fc821735e6b652eb1b2d1b258a9cdb38d927ddeb2cd3464"
+  branch = "master"
+  digest = "1:82339c3a0c93e6c104b1b55aa8880b09393fd17b1f34719c1ae184ba0625d4c8"
   name = "github.com/soniah/gosnmp"
   packages = ["."]
   pruneopts = "NUT"
-  revision = "28507a583d6f323959b554e0fc6d33eb589f5c05"
-  version = "v1.16"
+  revision = "0aea62d05f4dc342d5cdd045b81fd821a9af5e99"
 
 [[projects]]
   digest = "1:60a46e2410edbf02b419f833372dd1d24d7aa1b916a990a7370e792fada1eadd"
@@ -1061,6 +1118,14 @@
   revision = "ca99b135e50f526fde9cd88705f0ff2f3f95b77c"
 
 [[projects]]
+  digest = "1:796520da04cd342835b798d8ca760af9eaac9797960d3138c3ef5f3737d569fa"
+  name = "github.com/vjeantet/grok"
+  packages = ["."]
+  pruneopts = "NUT"
+  revision = "ce01e59abcf6fbc9833b7deb5e4b8ee1769bcc53"
+  version = "v1.0.0"
+
+[[projects]]
   digest = "1:c950ed18f9e7d881d16e226c5612fea8acceb241a0d04c3dad5c0d22c24381c5"
   name = "github.com/x-cray/logrus-prefixed-formatter"
   packages = ["."]
@@ -1075,14 +1140,6 @@
   pruneopts = "NUT"
   revision = "07dd2e8dfe18522e9c447ba95f2fe95262f63bb2"
   version = "0.0.1"
-
-[[projects]]
-  branch = "master"
-  digest = "1:ed3d912b90c185e53176f0f6ebb838a110a4e2b42b2a06e3d9c36f83e0ccc03c"
-  name = "github.com/zensqlmonitor/go-mssqldb"
-  packages = ["."]
-  pruneopts = "NUT"
-  revision = "e8fbf836e44e86764eba398361d1825651709547"
 
 [[projects]]
   digest = "1:8eff4c694254322268936dc162805ff95ac846435e909f011ba43805bb9b4e0f"
@@ -1523,12 +1580,14 @@
     "github.com/hashicorp/golang-lru",
     "github.com/iancoleman/strcase",
     "github.com/influxdata/telegraf/plugins/inputs",
+    "github.com/influxdata/telegraf/plugins/inputs/logparser",
     "github.com/influxdata/telegraf/plugins/inputs/procstat",
     "github.com/influxdata/telegraf/plugins/inputs/snmp",
     "github.com/influxdata/telegraf/plugins/inputs/sqlserver",
     "github.com/influxdata/telegraf/plugins/inputs/statsd",
     "github.com/influxdata/telegraf/plugins/inputs/tail",
     "github.com/influxdata/telegraf/plugins/inputs/win_perf_counters",
+    "github.com/influxdata/telegraf/plugins/inputs/win_services",
     "github.com/influxdata/telegraf/plugins/parsers",
     "github.com/kardianos/service",
     "github.com/kr/pretty",
