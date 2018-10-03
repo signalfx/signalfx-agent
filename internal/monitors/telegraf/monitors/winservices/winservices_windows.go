@@ -2,6 +2,20 @@
 
 package winservices
 
+import (
+	"context"
+	"time"
+
+	telegrafInputs "github.com/influxdata/telegraf/plugins/inputs"
+	telegrafPlugin "github.com/influxdata/telegraf/plugins/inputs/win_services"
+	"github.com/signalfx/signalfx-agent/internal/monitors/telegraf/common/accumulator"
+	"github.com/signalfx/signalfx-agent/internal/monitors/telegraf/common/emitter/baseemitter"
+	"github.com/signalfx/signalfx-agent/internal/utils"
+)
+
+// fetch the factory used to generate the perf counter plugin
+var factory = telegrafInputs.Inputs["win_services"]
+
 // Configure the monitor and kick off metric syncing
 func (m *Monitor) Configure(conf *Config) (err error) {
 	plugin := factory().(*telegrafPlugin.WinServices)

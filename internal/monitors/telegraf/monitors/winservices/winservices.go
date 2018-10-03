@@ -2,7 +2,7 @@ package winservices
 
 import (
 	"context"
-	telegrafInputs "github.com/influxdata/telegraf/plugins/inputs"
+
 	"github.com/signalfx/signalfx-agent/internal/core/config"
 	"github.com/signalfx/signalfx-agent/internal/monitors"
 	"github.com/signalfx/signalfx-agent/internal/monitors/types"
@@ -55,9 +55,6 @@ type Monitor struct {
 	Output types.Output
 	cancel context.CancelFunc
 }
-
-// fetch the factory used to generate the perf counter plugin
-var factory = telegrafInputs.Inputs["win_services"]
 
 // Shutdown stops the metric sync
 func (m *Monitor) Shutdown() {

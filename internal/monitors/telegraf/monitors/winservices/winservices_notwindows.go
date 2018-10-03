@@ -2,7 +2,6 @@
 
 package winservices
 
-
 import "fmt"
 
 // Configure the monitor and kick off volume metric syncing
