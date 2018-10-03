@@ -1,4 +1,4 @@
-// +build !windows
+// +build linux
 
 // Package genericjmx coordinates the various monitors that rely on the
 // GenericJMX Collectd plugin to pull JMX metrics.  All of the GenericJMX

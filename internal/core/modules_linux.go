@@ -1,4 +1,4 @@
-// +build !windows
+// +build linux
 
 package core
 
@@ -44,6 +44,7 @@ import (
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/collectd/postgresql"
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/collectd/processes"
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/collectd/protocols"
+	_ "github.com/signalfx/signalfx-agent/internal/monitors/collectd/python"
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/collectd/rabbitmq"
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/collectd/redis"
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/collectd/spark"

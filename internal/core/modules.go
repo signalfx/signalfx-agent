@@ -6,7 +6,6 @@ package core
 import (
 	// Import everything that isn't referenced anywhere else
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/cadvisor"
-	_ "github.com/signalfx/signalfx-agent/internal/monitors/collectd/python"
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/docker"
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/internalmetrics"
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/kubernetes"
