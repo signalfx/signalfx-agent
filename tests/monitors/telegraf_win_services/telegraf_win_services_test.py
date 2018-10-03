@@ -1,12 +1,11 @@
 from functools import partial as p
 import pytest
-import sys
 from tests.helpers.util import wait_for, run_agent
 from tests.helpers.assertions import has_datapoint_with_dim
 
 
 pytestmark = [
-    pytest.mark.skipif(sys.platform != 'win32', reason="only runs on windows"),
+    pytest.mark.windows-only,
     pytest.mark.windows,
     pytest.mark.win_services,
     pytest.mark.telegraf
