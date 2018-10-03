@@ -71,6 +71,7 @@ along with their possible configuration options:
 - [telegraf/statsd](./monitors/telegraf-statsd.md)
 - [telegraf/tail](./monitors/telegraf-tail.md)
 - [telegraf/win_perf_counters](./monitors/telegraf-win_perf_counters.md)
+- [telegraf/win_services](./monitors/telegraf-win_services.md)
 - [trace-forwarder](./monitors/trace-forwarder.md)
 
 

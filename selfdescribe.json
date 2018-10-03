@@ -12662,6 +12662,38 @@
     },
     {
       "name": "Config",
+      "doc": " This monitor reports metrics about Windows services.\nThis monitor is based on the Telegraf win_services plugin.  More information about the Telegraf plugin\ncan be found [here](https://github.com/influxdata/telegraf/tree/master/plugins/inputs/win_services).\n\nSample YAML configuration:\n\n```yaml\nmonitors:\n - type: telegraf/win_services  # monitor all services\n```\n\n```yaml\nmonitors:\n - type: telegraf/win_services\n   serviceNames:\n     - exampleService1  # only monitor exampleService1\n```\n",
+      "package": "internal/monitors/telegraf/monitors/winservices",
+      "fields": [
+        {
+          "yamlName": "serviceNames",
+          "doc": "Names of services to monitor.  All services will be monitored if none are specified.",
+          "default": null,
+          "required": false,
+          "type": "slice",
+          "elementKind": "string"
+        }
+      ],
+      "monitorType": "telegraf/win_services",
+      "acceptsEndpoints": false,
+      "singleInstance": false,
+      "dimensions": null,
+      "metrics": [
+        {
+          "name": "win_services.startup_mode",
+          "type": "gauge",
+          "description": "The startup mode configured for the service: 0 `boot start`, 1 `system start`, 2 `auto start`, 3 `demand start`, or 4 `disabled`"
+        },
+        {
+          "name": "win_services.state",
+          "type": "gauge",
+          "description": "The current state of the service: 1 `stopped`, 2 `start pending`, 3 `stop pending`, 4 `running`, 5 `continue pending`, 6 `pause pending`, or 7 `paused`"
+        }
+      ],
+      "properties": null
+    },
+    {
+      "name": "Config",
       "doc": " Runs an HTTP server that listens for trace spans\nand forwards them to SignalFx (or the configured ingest host in the `writer`\nsection of the agent config).  This supports the same span formats that our\ningest server supports and at the same path (`/v1/trace`).  By default, the\nserver listens on localhost port 9080 but can be configured to anything.\n",
       "package": "internal/monitors/traceforwarder",
       "fields": [
