@@ -12224,6 +12224,38 @@
     },
     {
       "name": "Config",
+      "doc": " This monitor reports metrics about Windows services.\nThis monitor is based on the Telegraf win_services plugin.  More information about the Telegraf plugin\ncan be found [here](https://github.com/influxdata/telegraf/tree/master/plugins/inputs/win_services).\n\nSample YAML configuration:\n\n```yaml\nmonitors:\n - type: telegraf/win_services  # monitor all services\n```\n\n```yaml\nmonitors:\n - type: telegraf/win_services\n   serviceNames:\n     - exampleService1  # only monitor exampleService1\n```\n",
+      "package": "internal/monitors/telegraf/monitors/winservices",
+      "fields": [
+        {
+          "yamlName": "serviceNames",
+          "doc": "Names of services to monitor.  All services will be monitored if none are specified.",
+          "default": null,
+          "required": false,
+          "type": "slice",
+          "elementKind": "string"
+        }
+      ],
+      "monitorType": "telegraf/win_services",
+      "acceptsEndpoints": false,
+      "singleInstance": false,
+      "dimensions": null,
+      "metrics": [
+        {
+          "name": "win_services.startup_mode",
+          "type": "gauge",
+          "description": "The startup mode configured for the service: 0 `boot start`, 1 `system start`, 2 `auto start`, 3 `demand start`, or 4 `disabled`"
+        },
+        {
+          "name": "win_services.state",
+          "type": "gauge",
+          "description": "The current state of the service: 1 `stopped`, 2 `start pending`, 3 `stop pending`, 4 `running`, 5 `continue pending`, 6 `pause pending`, or 7 `paused`"
+        }
+      ],
+      "properties": null
+    },
+    {
+      "name": "Config",
       "doc": " Runs an HTTP server that listens for trace spans\nand forwards them to SignalFx (or the configured ingest host in the `writer`\nsection of the agent config).  This supports the same span formats that our\ningest server supports and at the same path (`/v1/trace`).  By default, the\nserver listens on localhost port 9080 but can be configured to anything.\n",
       "package": "internal/monitors/traceforwarder",
       "fields": [
@@ -12255,114 +12287,6 @@
       "monitorType": "trace-forwarder",
       "acceptsEndpoints": false,
       "singleInstance": true,
-      "dimensions": null,
-      "metrics": null,
-      "properties": null
-    },
-    {
-      "name": "Config",
-      "doc": " This monitor reads Windows performance\ncounters\n\nSample YAML configuration:\n\n```yaml\nmonitors:\n - type: telegraf/win_perf_counters\n   printValid: true\n   objects:\n    - objectName: \"Processor\"\n      instances:\n       - \"*\"\n      counters:\n       - \"% Idle Time\"\n       - \"% Interrupt Time\"\n       - \"% Privileged Time\"\n       - \"% User Time\"\n       - \"% Processor Time\"\n      includeTotal: true\n      measurement: \"win_cpu\"\n```\n",
-      "package": "internal/monitors/telegraf/monitors/winperfcounters",
-      "fields": [
-        {
-          "yamlName": "objects",
-          "doc": "",
-          "default": "",
-          "required": false,
-          "type": "slice",
-          "elementKind": "struct",
-          "elementStruct": {
-            "name": "Perfcounterobj",
-            "doc": "Perfcounterobj represents a perfcounter object to monitor",
-            "package": "internal/monitors/telegraf/monitors/winperfcounters",
-            "fields": [
-              {
-                "yamlName": "objectName",
-                "doc": "",
-                "default": "",
-                "required": false,
-                "type": "string",
-                "elementKind": ""
-              },
-              {
-                "yamlName": "counters",
-                "doc": "",
-                "default": "",
-                "required": false,
-                "type": "slice",
-                "elementKind": "string"
-              },
-              {
-                "yamlName": "instances",
-                "doc": "",
-                "default": "",
-                "required": false,
-                "type": "slice",
-                "elementKind": "string"
-              },
-              {
-                "yamlName": "measurement",
-                "doc": "",
-                "default": "",
-                "required": false,
-                "type": "string",
-                "elementKind": ""
-              },
-              {
-                "yamlName": "warnOnMissing",
-                "doc": "",
-                "default": false,
-                "required": false,
-                "type": "bool",
-                "elementKind": ""
-              },
-              {
-                "yamlName": "failOnMissing",
-                "doc": "",
-                "default": false,
-                "required": false,
-                "type": "bool",
-                "elementKind": ""
-              },
-              {
-                "yamlName": "includeTotal",
-                "doc": "",
-                "default": false,
-                "required": false,
-                "type": "bool",
-                "elementKind": ""
-              }
-            ]
-          }
-        },
-        {
-          "yamlName": "counterRefreshInterval",
-          "doc": "number of nanoseconds that wildcards in counter paths should be expanded and how often to refresh counters from configuration",
-          "default": 60,
-          "required": false,
-          "type": "int",
-          "elementKind": ""
-        },
-        {
-          "yamlName": "useWildCardExpansion",
-          "doc": "if `true`, instance indexes will be included in instance names, and wildcards will be expanded and localized (if applicable).  If `false`, non partial wildcards will be expanded and instance names will not include instance indexes.",
-          "default": false,
-          "required": false,
-          "type": "bool",
-          "elementKind": ""
-        },
-        {
-          "yamlName": "printValid",
-          "doc": "print out the configurations that match available performance counters",
-          "default": false,
-          "required": false,
-          "type": "bool",
-          "elementKind": ""
-        }
-      ],
-      "monitorType": "telegraf/win_perf_counters",
-      "acceptsEndpoints": false,
-      "singleInstance": false,
       "dimensions": null,
       "metrics": null,
       "properties": null

@@ -1,13 +1,12 @@
 from functools import partial as p
 import pytest
 import string
-import sys
 
 from tests.helpers.util import wait_for, run_agent
 from tests.helpers.assertions import *
 
 pytestmark = [
-    pytest.mark.skipif(sys.platform != 'win32', reason="only runs on windows"),
+    pytest.mark.windows_only,
     pytest.mark.windows,
     pytest.mark.telegraf,
     pytest.mark.win_perf_counters

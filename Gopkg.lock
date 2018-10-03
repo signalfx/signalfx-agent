@@ -411,6 +411,7 @@
     "plugins/inputs/statsd",
     "plugins/inputs/tail",
     "plugins/inputs/win_perf_counters",
+    "plugins/inputs/win_services",
     "plugins/parsers",
     "plugins/parsers/collectd",
     "plugins/parsers/csv",
@@ -1086,6 +1087,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "8fb38005cd104311bcaa1747236baaf365a5b408be35a0c5f7872018a5317168"
+  inputs-digest = "70687a2d666982e36f6acbb49b39157e7bee5bcc5f14dae53fbc01c7c8d20f6a"
   solver-name = "gps-cdcl"
   solver-version = 1

@@ -157,7 +157,7 @@ jobs:
             export AGENT_BIN=$(pwd)/bundle/bin/signalfx-agent
             export BUNDLE_DIR=$(pwd)/bundle
             export TEST_SERVICES_DIR=$(pwd)/test-services
-            MARKERS="not packaging and not installer and not k8s"
+            MARKERS="not packaging and not installer and not k8s and not windows-only"
             if ! scripts/changes-include-dir internal/monitors/collectd/openstack tests/monitors/openstack test-services/devstack; then
                 MARKERS="$MARKERS and not openstack"
             fi
