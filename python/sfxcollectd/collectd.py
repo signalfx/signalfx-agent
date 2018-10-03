@@ -100,6 +100,10 @@ class CollectdMonitorProxy(object):
         if not self.interface.read_initializers:
             raise RuntimeError("No read callbacks were registered after configuring, this plugin is useless!")
 
+    def start_reading(self):
+        """
+        Kicks off the read callback cycle
+        """
         for read_init in self.interface.read_initializers:
             read_init()
 
