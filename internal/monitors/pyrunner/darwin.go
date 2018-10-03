@@ -23,6 +23,7 @@ func pythonBinaryExecutable() string {
 func pythonBinaryArgs(pkgName string) []string {
 	return []string{
 		filepath.Join(os.Getenv(constants.BundleDirEnvVar), "bin/python"),
+		"-u",
 		"-m",
 		pkgName,
 	}
