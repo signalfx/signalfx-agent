@@ -10,10 +10,10 @@ pytestmark = [pytest.mark.windows,
               pytest.mark.win_services,
               pytest.mark.telegraf]
 
-monitor_config = string.Template("""
+monitor_config = """
 monitors:
   - type: telegraf/win_services
-""")
+"""
 
 
 def test_win_services():
