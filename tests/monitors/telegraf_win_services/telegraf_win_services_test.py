@@ -1,14 +1,16 @@
 from functools import partial as p
 import pytest
-import string
-
+import sys
 from tests.helpers.util import wait_for, run_agent
 from tests.helpers.assertions import has_datapoint_with_dim
 
 
-pytestmark = [pytest.mark.windows,
-              pytest.mark.win_services,
-              pytest.mark.telegraf]
+pytestmark = [
+    pytest.mark.skipif(sys.platform != 'win32', reason="only runs on windows"),
+    pytest.mark.windows,
+    pytest.mark.win_services,
+    pytest.mark.telegraf
+]
 
 monitor_config = """
 monitors:
