@@ -1,7 +1,6 @@
 from functools import partial as p
 import pytest
 import string
-import tempfile
 
 from tests.helpers.util import wait_for, run_agent
 from tests.helpers.assertions import has_datapoint_with_dim
