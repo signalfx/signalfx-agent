@@ -2,16 +2,14 @@ from functools import partial as p
 import pytest
 import time
 
-from tests.helpers.util import *
-from tests.helpers.assertions import *
+from helpers.util import *
+from helpers.assertions import *
 
 
-pytestmark = [pytest.mark.windows,
-              pytest.mark.telegraf_statsd,
-              pytest.mark.telegraf]
+pytestmark = [pytest.mark.windows, pytest.mark.telegraf_statsd, pytest.mark.telegraf]
 
 # regex used to scrape the address and port that dogstatsd is listening on
-statsdRE = re.compile(r'(?<=listener listening on:(?=(\s+)(?=(\d+.\d+.\d+.\d+)\:(\d+))))')
+statsdRE = re.compile(r"(?<=listener listening on:(?=(\s+)(?=(\d+.\d+.\d+.\d+)\:(\d+))))")
 
 monitor_config = """
 monitors:
@@ -35,7 +33,7 @@ def test_telegraf_statsd():
         port = int(regex_results.groups()[2])
 
         # send datapoints to the statsd listener
-        for i in range(0,10):
+        for i in range(0, 10):
             send_udp_message(host, port, "statsd.test.metric:55555|g|#dimension1:value1,dimension2:value2")
             time.sleep(1)
 
@@ -44,8 +42,10 @@ def test_telegraf_statsd():
         assert wait_for(p(has_datapoint_with_dim, backend, "dimension1", "value1")), "datapoint didn't have datadog tag"
 
         # send datapoints to the statsd listener
-        for i in range(0,10):
+        for i in range(0, 10):
             send_udp_message(host, port, "dogstatsd.test.metric:55555|g|#dimension1:,dimension2:value2")
             time.sleep(1)
 
-        assert wait_for(p(has_datapoint_with_metric_name, backend, "dogstatsd.test.metric")), "didn't report metric with valueless datadog tag"
+        assert wait_for(
+            p(has_datapoint_with_metric_name, backend, "dogstatsd.test.metric")
+        ), "didn't report metric with valueless datadog tag"
