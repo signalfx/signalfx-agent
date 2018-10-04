@@ -1,11 +1,41 @@
+from functools import partial as p
+from textwrap import dedent
 import os
-
 import pytest
 
+from helpers.assertions import has_datapoint_with_dim, tcp_socket_open
 from helpers.kubernetes.utils import get_discovery_rule, run_k8s_monitors_test
-from helpers.util import get_monitor_dims_from_selfdescribe, get_monitor_metrics_from_selfdescribe
+from helpers.util import (
+    get_monitor_dims_from_selfdescribe,
+    get_monitor_metrics_from_selfdescribe,
+    run_container,
+    run_agent,
+    container_ip,
+    wait_for,
+)
 
 pytestmark = [pytest.mark.collectd, pytest.mark.elasticsearch, pytest.mark.monitor_with_endpoints]
+
+
+def test_elasticsearch():
+    es_env = {"ELASTIC_PASSWORD": "testing123", "discovery.type": "single-node", "ES_JAVA_OPTS": "-Xms128m -Xmx128m"}
+    with run_container("docker.elastic.co/elasticsearch/elasticsearch:6.2.4", environment=es_env) as es_container:
+        host = container_ip(es_container)
+        assert wait_for(p(tcp_socket_open, host, 9200), 90), "service didn't start"
+        config = dedent(
+            f"""
+            monitors:
+            - type: collectd/elasticsearch
+              host: {host}
+              port: 9200
+              username: elastic
+              password: testing123
+            """
+        )
+        with run_agent(config) as [backend, _, _]:
+            assert wait_for(
+                p(has_datapoint_with_dim, backend, "plugin", "elasticsearch")
+            ), "Didn't get elasticsearch datapoints"
 
 
 @pytest.mark.k8s
