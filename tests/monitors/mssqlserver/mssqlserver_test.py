@@ -2,8 +2,8 @@ from functools import partial as p
 import pytest
 import string
 
-from tests.helpers.util import wait_for, run_agent, run_container, container_ip
-from tests.helpers.assertions import tcp_socket_open, has_datapoint_with_dim
+from helpers.util import wait_for, run_agent, run_container, container_ip
+from helpers.assertions import tcp_socket_open, has_datapoint_with_dim
 
 pytestmark = [pytest.mark.telegraf, pytest.mark.sqlserver, pytest.mark.monitor_with_endpoints]
 
