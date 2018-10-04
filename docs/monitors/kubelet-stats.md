@@ -45,11 +45,11 @@ The following table lists the metrics available for this monitor. Metrics that a
 | `container_cpu_cfs_periods` | counter | X | Total number of elapsed CFS enforcement intervals |
 | `container_cpu_cfs_throttled_periods` | counter | X | Total number of times tasks in the cgroup have been throttled |
 | `container_cpu_cfs_throttled_time` | counter | X | Total time duration, in nanoseconds, for which tasks in the cgroup have been throttled |
-| `container_cpu_percent` | counter | X | Cumulative cpu utilization as a percentage of the host total CPU available |
+| `container_cpu_percent` | counter | X | Cumulative cpu utilization as a percentage of the total host CPU available.  This metric is equivalent to `container_cpu_utilization` / <# of CPUs/cores on host>. |
 | `container_cpu_system_seconds_total` | counter | X | Cumulative system cpu time consumed in nanoseconds |
 | `container_cpu_usage_seconds_total` | counter | X | Cumulative cpu time consumed per cpu in nanoseconds |
 | `container_cpu_user_seconds_total` | counter | X | Cumulative user cpu time consumed in nanoseconds |
-| `container_cpu_utilization` | counter |  | Cumulative cpu utilization in percentages |
+| `container_cpu_utilization` | counter |  | Cumulative cpu utilization in percentages.  This is equivalent to "centicores", or hundreths of CPU cores consumed.  This metric is **NOT** normalized by the total # of cores on the system. |
 | `container_fs_io_current` | gauge | X | Number of I/Os currently in progress |
 | `container_fs_io_time_seconds_total` | counter | X | Cumulative count of seconds spent doing I/Os |
 | `container_fs_io_time_weighted_seconds_total` | counter | X | Cumulative weighted I/O time in seconds |
