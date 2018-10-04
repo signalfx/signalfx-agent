@@ -5,8 +5,8 @@ environment:
   AGENT_BIN: c:\gopath\src\github.com\signalfx\signalfx-agent\build\signalfx-agent\bin\signalfx-agent.exe
   GOROOT: c:\go110
   GOPATH: c:\gopath
-  PYTHONHOME: c:\Python35-x64
-  PYTHONPATH: c:\Python35-x64
+  PYTHONHOME: c:\Python36-x64
+  PYTHONPATH: c:\Python36-x64
   TEST_SERVICES_DIR: c:\gopath\src\github.com\signalfx\signalfx-agent\test-services
 install:
   - set PATH=%GOPATH%\bin;%GOROOT%\bin;%PATH%
