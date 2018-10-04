@@ -17,7 +17,7 @@ from . import fake_backend
 from .formatting import print_dp_or_event
 
 PROJECT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
-if sys.platform == 'win32':
+if sys.platform == "win32":
     AGENT_BIN = os.environ.get("AGENT_BIN", os.path.join(PROJECT_DIR, "..", "signalfx-agent.exe"))
 else:
     AGENT_BIN = os.environ.get("AGENT_BIN", "/bundle/bin/signalfx-agent")
