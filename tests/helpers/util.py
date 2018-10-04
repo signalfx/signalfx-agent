@@ -1,6 +1,5 @@
 import io
 import os
-import select
 import socket
 import subprocess
 import sys
@@ -18,7 +17,7 @@ from . import fake_backend
 from .formatting import print_dp_or_event
 
 PROJECT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
-if sys.platform == 'win32':
+if sys.platform == "win32":
     AGENT_BIN = os.environ.get("AGENT_BIN", os.path.join(PROJECT_DIR, "..", "signalfx-agent.exe"))
 else:
     AGENT_BIN = os.environ.get("AGENT_BIN", "/bundle/bin/signalfx-agent")
@@ -109,12 +108,10 @@ def run_agent_with_fake_backend(config_text, fake_services):
         def pull_output():
             while True:
                 # If any output is waiting, grab it.
-                ready, _, _ = select.select([proc.stdout], [], [], 0)
-                if ready:
-                    byt = proc.stdout.read(1)
-                    if not byt:
-                        return
-                    output.write(byt)
+                byt = proc.stdout.read(1)
+                if not byt:
+                    return
+                output.write(byt)
 
         def get_output():
             return output.getvalue().decode("utf-8")

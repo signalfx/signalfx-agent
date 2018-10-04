@@ -2,17 +2,13 @@ from functools import partial as p
 import pytest
 import string
 
-from tests.helpers.util import wait_for, run_agent
-from tests.helpers.assertions import *
+from helpers.util import wait_for, run_agent
+from helpers.assertions import *
 
-pytestmark = [
-    pytest.mark.windows_only,
-    pytest.mark.windows,
-    pytest.mark.telegraf,
-    pytest.mark.win_perf_counters
-]
+pytestmark = [pytest.mark.windows_only, pytest.mark.windows, pytest.mark.telegraf, pytest.mark.win_perf_counters]
 
-config_template = string.Template("""
+config_template = string.Template(
+    """
 monitors:
  - type: telegraf/win_perf_counters
    printValid: true
@@ -25,15 +21,14 @@ monitors:
        - "*"
       includeTotal: $include_total
       measurement: "$measurement"
-""")
+"""
+)
 
 
 def get_config(measurement, object_name, instance, include_total):
     return config_template.substitute(
-        measurement=measurement,
-        object_name=object_name,
-        instance=instance,
-        include_total=str(include_total).lower())
+        measurement=measurement, object_name=object_name, instance=instance, include_total=str(include_total).lower()
+    )
 
 
 @pytest.fixture
@@ -119,7 +114,9 @@ def monitor_config(request):
 def test_win_perf_counters(monitor_config):
     measurement, config, include_total, metrics = monitor_config
     with run_agent(config) as [backend, get_output, _]:
-        assert wait_for(p(has_datapoint_with_dim, backend, "plugin", measurement)), "Didn't get %s datapoints" % measurement
+        assert wait_for(p(has_datapoint_with_dim, backend, "plugin", measurement)), (
+            "Didn't get %s datapoints" % measurement
+        )
         if include_total:
             assert wait_for(p(has_datapoint_with_dim, backend, "instance", "_Total")), "Didn't get _Total datapoints"
         for metric in metrics:
