@@ -2,12 +2,13 @@ from functools import partial as p
 import pytest
 import string
 
-from tests.helpers.util import wait_for, run_agent, run_container, container_ip
-from tests.helpers.assertions import has_datapoint_with_dim
+from helpers.util import wait_for, run_agent, run_container, container_ip
+from helpers.assertions import has_datapoint_with_dim
 
 pytestmark = [pytest.mark.telegraf, pytest.mark.snmp, pytest.mark.monitor_with_endpoints]
 
-monitor_config = string.Template("""
+monitor_config = string.Template(
+    """
 monitors:
 - type: telegraf/snmp
   agents:
@@ -17,7 +18,8 @@ monitors:
   fields:
     - name: "uptime"
       oid: ".1.3.6.1.2.1.1.3.0"
-""")
+"""
+)
 
 
 def test_snmp():
