@@ -1,6 +1,5 @@
 import io
 import os
-import select
 import socket
 import subprocess
 import sys
@@ -95,12 +94,10 @@ def run_agent_with_fake_backend(config_text, fake_services):
         def pull_output():
             while True:
                 # If any output is waiting, grab it.
-                ready, _, _ = select.select([proc.stdout], [], [], 0)
-                if ready:
-                    byt = proc.stdout.read(1)
-                    if not byt:
-                        return
-                    output.write(byt)
+                byt = proc.stdout.read(1)
+                if not byt:
+                    return
+                output.write(byt)
 
         def get_output():
             return output.getvalue().decode("utf-8")
