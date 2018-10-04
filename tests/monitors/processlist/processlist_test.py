@@ -3,8 +3,8 @@ from textwrap import dedent
 import pytest
 import sys
 
-from tests.helpers.util import wait_for, run_agent
-from tests.helpers.assertions import *
+from helpers.util import wait_for, run_agent
+from helpers.assertions import *
 
 pytestmark = [
     pytest.mark.skipif(sys.platform != 'win32', reason="only runs on windows"),
