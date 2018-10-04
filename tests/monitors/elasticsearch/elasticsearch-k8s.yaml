@@ -25,3 +25,5 @@ spec:
               value: testing123
             - name: discovery.type
               value: single-node
+            - name: ES_JAVA_OPTS
+              value: -Xms128m -Xmx128m
