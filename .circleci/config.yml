@@ -34,8 +34,12 @@ references:
       set -e
       pyenv install 3.6.3
       pyenv global 3.6.3
-      curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
-      python get-pip.py 'pip==10.0.1'
+      if which pip; then
+          pip install --upgrade 'pip==10.0.1'
+      else
+          curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
+          python get-pip.py 'pip==10.0.1'
+      fi
       pip install -r tests/requirements.txt
       pyenv rehash
 
@@ -262,6 +266,7 @@ jobs:
               touch ~/.skip
               exit 0
           fi
+          pip install --upgrade 'pip==10.0.1'
           pip install -r tests/requirements.txt
       - run: |
           if [ -f ~/.skip ]; then
@@ -285,6 +290,7 @@ jobs:
               touch ~/.skip
               exit 0
           fi
+          pip install --upgrade 'pip==10.0.1'
           pip install -e python
           pip install -r python/test-requirements.txt
       - run: |
