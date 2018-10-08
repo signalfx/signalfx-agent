@@ -163,24 +163,30 @@ jobs:
       - *import_image
       - checkout
       - *install_pytest
-      - run: |
-          mkdir ~/testresults
-          mkdir -p /tmp/scratch
-          mkdir bundle
-          cid=$(docker create quay.io/signalfx/signalfx-agent-dev:latest true)
-          docker export $cid | tar -C $(pwd)/bundle/ -xf -
-          docker rm -fv $cid
-          export AGENT_BIN=$(pwd)/bundle/bin/signalfx-agent
-          export BUNDLE_DIR=$(pwd)/bundle
-          export TEST_SERVICES_DIR=$(pwd)/test-services
-          sudo -E $PYENV_ROOT/shims/pytest \
-              -n4 \
-              -m "not packaging and not installer and not k8s" \
-              --verbose \
-              --junitxml=~/testresults/integration_tests.xml \
-              --html=~/testresults/integration_tests.html \
-              --self-contained-html \
-              tests
+      - run:
+          no_output_timeout: 20m
+          command: |
+            mkdir ~/testresults
+            mkdir -p /tmp/scratch
+            mkdir bundle
+            cid=$(docker create quay.io/signalfx/signalfx-agent-dev:latest true)
+            docker export $cid | tar -C $(pwd)/bundle/ -xf -
+            docker rm -fv $cid
+            export AGENT_BIN=$(pwd)/bundle/bin/signalfx-agent
+            export BUNDLE_DIR=$(pwd)/bundle
+            export TEST_SERVICES_DIR=$(pwd)/test-services
+            MARKERS="not packaging and not installer and not k8s"
+            if ! scripts/changes-include-dir internal/monitors/collectd/openstack tests/monitors/openstack test-services/devstack; then
+                MARKERS="$MARKERS and not openstack"
+            fi
+            sudo -E $PYENV_ROOT/shims/pytest \
+                -n4 \
+                -m "$MARKERS" \
+                --verbose \
+                --junitxml=~/testresults/integration_tests.xml \
+                --html=~/testresults/integration_tests.html \
+                --self-contained-html \
+                tests
       - store_test_results:
           path: ~/testresults
       - store_artifacts:

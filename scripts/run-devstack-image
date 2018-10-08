@@ -1,0 +1,14 @@
+#!/bin/bash -ex
+
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+PROJECT_DIR="$( cd "${SCRIPT_DIR}/../" && pwd )"
+
+docker run -d --privileged \
+    --name devstack \
+    -v /lib/modules:/lib/modules:ro \
+    -v ${PROJECT_DIR}:/opt/signalfx-agent \
+    -e COLUMNS=`tput cols` -e LINES=`tput lines` \
+    quay.io/signalfx/devstack:latest \
+    /lib/systemd/systemd
+docker exec devstack start-devstack.sh
+docker exec -it devstack bash

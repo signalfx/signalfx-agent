@@ -15,7 +15,7 @@ import semver
 from helpers.assertions import has_log_message
 from helpers.kubernetes.minikube import Minikube
 from helpers.kubernetes.utils import container_is_running, has_docker_image
-from helpers.util import wait_for, get_docker_client
+from helpers.util import wait_for, get_docker_client, run_container
 
 SCRIPTS_DIR = os.path.join(os.path.dirname(os.path.realpath(__file__)), "..", "scripts")
 K8S_MIN_VERSION = "1.7.0"
@@ -277,3 +277,19 @@ def k8s_namespace(worker_id):
     chars = string.ascii_lowercase + string.digits
     namespace = worker_id + "-" + "".join((random.choice(chars)) for x in range(8))
     return namespace
+
+
+@pytest.fixture
+def devstack():
+    devstack_opts = dict(
+        entrypoint="/lib/systemd/systemd",
+        privileged=True,
+        volumes={
+            "/lib/modules": {"bind": "/lib/modules", "mode": "ro"},
+            "/sys/fs/cgroup": {"bind": "/sys/fs/cgroup", "mode": "ro"},
+        },
+    )
+    with run_container("quay.io/signalfx/devstack:latest", **devstack_opts) as container:
+        code, output = container.exec_run("start-devstack.sh")
+        assert code == 0, "devstack failed to start:\n%s" % output.decode("utf-8")
+        yield container

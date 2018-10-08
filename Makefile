@@ -175,3 +175,11 @@ lint-python:
 	pip install -q -r python/test-requirements.txt
 	LC_ALL=C.UTF-8 LANG=C.UTF-8 black --config python/pyproject.toml python/
 	cd python && pylint -j4 `find . -maxdepth 1 -mindepth 1 -type d -o -name "*.py"`
+
+.PHONY: devstack
+devstack:
+	scripts/make-devstack-image
+
+.PHONY: run-devstack
+run-devstack:
+	scripts/run-devstack-image
