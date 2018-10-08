@@ -28,14 +28,16 @@ class PipeLogHandler(logging.Handler):
 
     def emit(self, record):
         self.writer.send_msg(
-            MSG_TYPE_LOG, {
+            MSG_TYPE_LOG,
+            {
                 "message": record.getMessage(),
                 "logger": record.name,
                 "source_path": record.pathname,
                 "lineno": record.lineno,
                 "created": record.created,
                 "level": record.levelname,
-            })
+            },
+        )
 
 
 def format_exception():
