@@ -394,9 +394,9 @@ def wait_for_deployment(deployment, minikube_container, timeout):
     replicas = deployment["spec"]["replicas"]
     namespace = deployment["metadata"]["namespace"]
 
-    assert wait_for(p(deployment_is_ready, name, replicas, namespace=namespace), timeout, 2), (
-        'timed out waiting for deployment "%s" to be ready!' % name
-    )
+    assert wait_for(
+        p(deployment_is_ready, name, replicas, namespace=namespace), timeout_seconds=timeout, interval_seconds=2
+    ), ('timed out waiting for deployment "%s" to be ready!' % name)
 
     try:
         containers = deployment["spec"]["template"]["spec"]["containers"]
@@ -408,7 +408,9 @@ def wait_for_deployment(deployment, minikube_container, timeout):
             port = int(port_spec["containerPort"])
             for pod in get_all_pods_starting_with_name(name, namespace=namespace):
                 assert wait_for(
-                    p(pod_port_open, minikube_container, pod.status.pod_ip, port), timeout, 2
+                    p(pod_port_open, minikube_container, pod.status.pod_ip, port),
+                    timeout_seconds=timeout,
+                    interval_seconds=2,
                 ), "timed out waiting for port %d for pod %s to be ready!" % (port, pod.metadata.name)
 
 
@@ -421,7 +423,7 @@ def delete_deployment(name, namespace="default", timeout=K8S_DELETE_TIMEOUT):
         body=kube_client.V1DeleteOptions(grace_period_seconds=0, propagation_policy="Background"),
         namespace=namespace,
     )
-    assert wait_for(lambda: not has_deployment(name, namespace=namespace), timeout), (
+    assert wait_for(lambda: not has_deployment(name, namespace=namespace), timeout_seconds=timeout), (
         'timed out waiting for deployment "%s" to be deleted!' % name
     )
 
@@ -475,7 +477,7 @@ def delete_daemonset(name, namespace="default", timeout=K8S_DELETE_TIMEOUT):
         body=kube_client.V1DeleteOptions(grace_period_seconds=0, propagation_policy="Background"),
         namespace=namespace,
     )
-    assert wait_for(lambda: not has_daemonset(name, namespace=namespace), timeout), (
+    assert wait_for(lambda: not has_daemonset(name, namespace=namespace), timeout_seconds=timeout), (
         'timed out waiting for daemonset "%s" to be deleted!' % name
     )
 

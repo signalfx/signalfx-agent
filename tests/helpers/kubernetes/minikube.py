@@ -54,9 +54,11 @@ class Minikube:  # pylint: disable=too-many-instance-attributes
     def load_kubeconfig(self, kubeconfig_path="/kubeconfig", timeout=300):
         with tempfile.NamedTemporaryFile(dir="/tmp/scratch") as fd:
             kubeconfig = fd.name
-            assert wait_for(p(container_cmd_exit_0, self.container, "test -f %s" % kubeconfig_path), timeout, 2), (
-                "timed out waiting for the minikube cluster to be ready!\n\n%s\n\n" % self.get_logs()
-            )
+            assert wait_for(
+                p(container_cmd_exit_0, self.container, "test -f %s" % kubeconfig_path),
+                timeout_seconds=timeout,
+                interval_seconds=2,
+            ), ("timed out waiting for the minikube cluster to be ready!\n\n%s\n\n" % self.get_logs())
             time.sleep(2)
             exit_code, output = self.container.exec_run("cp -f %s %s" % (kubeconfig_path, kubeconfig))
             assert exit_code == 0, "failed to get %s from minikube!\n%s" % (kubeconfig_path, output.decode("utf-8"))
@@ -75,7 +77,7 @@ class Minikube:  # pylint: disable=too-many-instance-attributes
 
     def connect(self, name, timeout, version=None):
         print("\nConnecting to %s container ..." % name)
-        assert wait_for(p(container_is_running, self.host_client, name), timeout, 2), (
+        assert wait_for(p(container_is_running, self.host_client, name), timeout_seconds=timeout, interval_seconds=2), (
             "timed out waiting for container %s!" % name
         )
         self.container = self.host_client.containers.get(name)

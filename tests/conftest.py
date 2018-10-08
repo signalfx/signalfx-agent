@@ -179,11 +179,13 @@ def registry(minikube, worker_id, request):  # pylint: disable=redefined-outer-n
         port = minikube.registry_port
     print("\nWaiting for registry to be ready ...")
     assert wait_for(
-        p(container_is_running, minikube.client, "registry"), 60, 2
+        p(container_is_running, minikube.client, "registry"), timeout_seconds=60, interval_seconds=2
     ), "timed out waiting for registry container to start!"
     cont = minikube.client.containers.get("registry")
     assert wait_for(
-        lambda: has_log_message(get_registry_logs(), message="listening on [::]:"), 30, 2
+        lambda: has_log_message(get_registry_logs(), message="listening on [::]:"),
+        timeout_seconds=30,
+        interval_seconds=2,
     ), "timed out waiting for registry to be ready!"
     if not port:
         match = re.search(r"listening on \[::\]:(\d+)", get_registry_logs())
@@ -252,7 +254,9 @@ def agent_image(minikube, registry, request, worker_id):  # pylint: disable=rede
     else:
         print("\nWaiting for agent image to be built/pulled to minikube ...")
         assert wait_for(
-            p(has_docker_image, minikube.client, agent_image_name, agent_image_tag), 600, 2
+            p(has_docker_image, minikube.client, agent_image_name, agent_image_tag),
+            timeout_seconds=600,
+            interval_seconds=2,
         ), 'timed out waiting for agent image "%s:%s"!' % (agent_image_name, agent_image_tag)
         sfx_agent_image = minikube.client.images.get(agent_image_name + ":" + agent_image_tag)
     return {"name": agent_image_name, "tag": agent_image_tag, "id": sfx_agent_image.id}
