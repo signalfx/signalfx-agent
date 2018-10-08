@@ -142,7 +142,7 @@ def test_tracing_load():
                 )
             ), "Didn't get host correlation datapoint"
 
-        time.sleep(6)
+        time.sleep(10)
         backend.datapoints.clear()
 
         assert ensure_never(
