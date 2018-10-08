@@ -4,6 +4,8 @@ from functools import partial as p
 import yaml
 
 from helpers.kubernetes.utils import (
+    create_clusterrole,
+    create_clusterrolebinding,
     create_configmap,
     create_daemonset,
     create_secret,
@@ -12,6 +14,8 @@ from helpers.kubernetes.utils import (
     delete_daemonset,
     get_all_pods_starting_with_name,
     get_pod_logs,
+    has_clusterrole,
+    has_clusterrolebinding,
     has_configmap,
     has_daemonset,
     has_pod,
@@ -23,22 +27,26 @@ from helpers.util import wait_for
 
 class Agent:  # pylint: disable=too-many-instance-attributes
     def __init__(self):
-        self.configmap_name = None
-        self.container_name = None
-        self.container = None
-        self.daemonset_name = None
-        self.serviceaccount_yaml = None
-        self.serviceaccount_name = None
-        self.configmap_yaml = None
         self.agent_yaml = None
+        self.backend = None
+        self.cluster_name = None
+        self.clusterrole_name = None
+        self.clusterrole_yaml = None
+        self.clusterrolebinding_name = None
+        self.clusterrolebinding_yaml = None
+        self.configmap_name = None
+        self.configmap_yaml = None
+        self.container = None
+        self.container_name = None
+        self.daemonset_name = None
         self.daemonset_yaml = None
         self.image_name = None
         self.image_tag = None
-        self.backend = None
-        self.observer = None
-        self.cluster_name = None
         self.monitors = []
+        self.observer = None
         self.namespace = None
+        self.serviceaccount_name = None
+        self.serviceaccount_yaml = None
 
     def get_container(self, client, timeout=30):
         assert wait_for(p(has_pod, self.container_name, namespace=self.namespace), timeout_seconds=timeout), (
@@ -53,42 +61,46 @@ class Agent:  # pylint: disable=too-many-instance-attributes
             pods[0].status.container_statuses[0].container_id.replace("docker:/", "")
         )
 
-    def deploy(  # pylint: disable=too-many-statements,too-many-arguments
-        self,
-        client,
-        configmap_path,
-        daemonset_path,
-        serviceaccount_path,
-        observer,
-        monitors,
-        cluster_name="minikube",
-        backend=None,
-        image_name=None,
-        image_tag=None,
-        namespace="default",
-    ):
-        self.observer = observer
-        self.monitors = monitors
-        self.cluster_name = cluster_name
-        self.backend = backend
-        self.image_name = image_name
-        self.image_tag = image_tag
-        self.namespace = namespace
-        self.serviceaccount_yaml = yaml.load(open(serviceaccount_path).read())
-        self.serviceaccount_name = self.serviceaccount_yaml["metadata"]["name"]
+    def create_agent_secret(self, secret="testing123"):
         if not has_secret("signalfx-agent", namespace=self.namespace):
             print('Creating secret "signalfx-agent" ...')
-            create_secret("signalfx-agent", "access-token", "testing123", namespace=self.namespace)
+            create_secret("signalfx-agent", "access-token", secret, namespace=self.namespace)
+
+    def create_agent_serviceaccount(self, serviceaccount_path):
+        self.serviceaccount_yaml = yaml.load(open(serviceaccount_path).read())
+        self.serviceaccount_name = self.serviceaccount_yaml["metadata"]["name"]
         if not has_serviceaccount(self.serviceaccount_name, namespace=self.namespace):
             print('Creating service account "%s" from %s ...' % (self.serviceaccount_name, serviceaccount_path))
             create_serviceaccount(body=self.serviceaccount_yaml, namespace=self.namespace)
+
+    def create_agent_clusterrole(self, clusterrole_path, clusterrolebinding_path):
+        self.clusterrole_yaml = yaml.load(open(clusterrole_path).read())
+        self.clusterrole_name = self.clusterrole_yaml["metadata"]["name"]
+        self.clusterrolebinding_yaml = yaml.load(open(clusterrolebinding_path).read())
+        self.clusterrolebinding_name = self.clusterrolebinding_yaml["metadata"]["name"]
+        if self.namespace != "default":
+            self.clusterrole_name = self.clusterrole_name + "-" + self.namespace
+            self.clusterrole_yaml["metadata"]["name"] = self.clusterrole_name
+            self.clusterrolebinding_name = self.clusterrolebinding_name + "-" + self.namespace
+            self.clusterrolebinding_yaml["metadata"]["name"] = self.clusterrolebinding_name
+        if self.clusterrolebinding_yaml["roleRef"]["kind"] == "ClusterRole":
+            self.clusterrolebinding_yaml["roleRef"]["name"] = self.clusterrole_name
+        for subject in self.clusterrolebinding_yaml["subjects"]:
+            subject["namespace"] = self.namespace
+        if not has_clusterrole(self.clusterrole_name):
+            print('Creating cluster role "%s" from %s ...' % (self.clusterrole_name, clusterrole_path))
+            create_clusterrole(self.clusterrole_yaml)
+        if not has_clusterrolebinding(self.clusterrolebinding_name):
+            print(
+                'Creating cluster role binding "%s" from %s ...'
+                % (self.clusterrolebinding_name, clusterrolebinding_path)
+            )
+            create_clusterrolebinding(self.clusterrolebinding_yaml)
+
+    def create_agent_configmap(self, configmap_path):
         self.configmap_yaml = yaml.load(open(configmap_path).read())
         self.configmap_name = self.configmap_yaml["metadata"]["name"]
-        self.daemonset_yaml = yaml.load(open(daemonset_path).read())
-        self.daemonset_name = self.daemonset_yaml["metadata"]["name"]
-        self.container_name = self.daemonset_yaml["spec"]["template"]["spec"]["containers"][0]["name"]
-        self.daemonset_yaml["spec"]["template"]["spec"]["containers"][0]["resources"] = {"requests": {"cpu": "100m"}}
-        self.delete()
+        self.delete_agent_configmap()
         self.agent_yaml = yaml.load(self.configmap_yaml["data"]["agent.yaml"])
         del self.agent_yaml["observers"]
         if not self.observer and "observers" in self.agent_yaml.keys():
@@ -122,18 +134,58 @@ class Agent:  # pylint: disable=too-many-instance-attributes
             % (self.observer, ",".join([m["type"] for m in self.monitors]), configmap_path)
         )
         create_configmap(body=self.configmap_yaml, namespace=self.namespace)
+
+    def create_agent_daemonset(self, daemonset_path):
+        self.daemonset_yaml = yaml.load(open(daemonset_path).read())
+        self.daemonset_name = self.daemonset_yaml["metadata"]["name"]
+        self.delete_agent_daemonset()
+        self.container_name = self.daemonset_yaml["spec"]["template"]["spec"]["containers"][0]["name"]
+        self.daemonset_yaml["spec"]["template"]["spec"]["containers"][0]["resources"] = {"requests": {"cpu": "100m"}}
         if self.image_name and self.image_tag:
             print(
                 'Creating daemonset "%s" for %s:%s from %s ...'
                 % (self.daemonset_name, self.image_name, self.image_tag, daemonset_path)
             )
-            self.daemonset_yaml["spec"]["template"]["spec"]["containers"][0]["image"] = image_name + ":" + image_tag
+            self.daemonset_yaml["spec"]["template"]["spec"]["containers"][0]["image"] = (
+                self.image_name + ":" + self.image_tag
+            )
         else:
             print('Creating daemonset "%s" from %s ...' % (self.daemonset_name, daemonset_path))
         create_daemonset(body=self.daemonset_yaml, namespace=self.namespace)
         assert wait_for(p(has_pod, self.daemonset_name, namespace=self.namespace), timeout_seconds=60), (
             "timed out waiting for the %s pod to be created!" % self.daemonset_name
         )
+
+    def deploy(
+        self,
+        client,
+        configmap_path,
+        daemonset_path,
+        serviceaccount_path,
+        clusterrole_path,
+        clusterrolebinding_path,
+        observer,
+        monitors,
+        cluster_name="minikube",
+        backend=None,
+        image_name=None,
+        image_tag=None,
+        namespace="default",
+    ):  # pylint: disable=too-many-arguments,too-many-locals
+        self.observer = observer
+        self.monitors = monitors
+        self.cluster_name = cluster_name
+        self.backend = backend
+        self.image_name = image_name
+        self.image_tag = image_tag
+        self.namespace = namespace
+
+        self.create_agent_secret()
+        self.create_agent_serviceaccount(serviceaccount_path)
+        self.create_agent_clusterrole(clusterrole_path, clusterrolebinding_path)
+        self.create_agent_configmap(configmap_path)
+        self.create_agent_daemonset(daemonset_path)
+
         self.get_container(client)
         assert self.container, "failed to get agent container!"
         status = self.container.status.lower()
@@ -147,18 +199,24 @@ class Agent:  # pylint: disable=too-many-instance-attributes
         assert status == "running", "agent container is not running!"
         return self
 
-    def delete(self):
-        if has_daemonset(self.daemonset_name, namespace=self.namespace):
+    def delete_agent_daemonset(self):
+        if self.daemonset_name and has_daemonset(self.daemonset_name, namespace=self.namespace):
             print('Deleting daemonset "%s" ...' % self.daemonset_name)
             delete_daemonset(self.daemonset_name, namespace=self.namespace)
-        if has_configmap(self.configmap_name, namespace=self.namespace):
+
+    def delete_agent_configmap(self):
+        if self.configmap_name and has_configmap(self.configmap_name, namespace=self.namespace):
             print('Deleting configmap "%s" ...' % self.configmap_name)
             delete_configmap(self.configmap_name, namespace=self.namespace)
 
+    def delete(self):
+        self.delete_agent_daemonset()
+        self.delete_agent_configmap()
+
     def get_status(self):
         try:
-            exit_code, output = self.container.exec_run("agent-status")
-            if exit_code != 0:
+            code, output = self.container.exec_run("agent-status")
+            if code != 0:
                 raise Exception(output.decode("utf-8").strip())
             return output.decode("utf-8").strip()
         except Exception as e:  # pylint: disable=broad-except

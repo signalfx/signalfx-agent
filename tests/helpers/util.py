@@ -29,7 +29,7 @@ def get_docker_client():
     return docker.from_env(version=DOCKER_API_VERSION)
 
 
-def wait_for(test, timeout_seconds=DEFAULT_TIMEOUT):
+def wait_for(test, timeout_seconds=DEFAULT_TIMEOUT, interval_seconds=0.2):
     """
     Repeatedly calls the test function for timeout_seconds until either test
     returns a truthy value, at which point the function returns True -- or the
@@ -41,7 +41,7 @@ def wait_for(test, timeout_seconds=DEFAULT_TIMEOUT):
             return True
         if time.time() - start > timeout_seconds:
             return False
-        time.sleep(0.2)
+        time.sleep(interval_seconds)
 
 
 def ensure_always(test, timeout_seconds=DEFAULT_TIMEOUT):
