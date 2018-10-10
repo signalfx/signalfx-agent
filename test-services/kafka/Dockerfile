@@ -1,6 +1,7 @@
 FROM ubuntu:16.04
 
-ENV KAFKA_VERSION=1.0.1
+ARG KAFKA_VERSION=1.0.1
+ENV KAFKA_VERSION=$KAFKA_VERSION
 RUN apt-get update
 RUN apt-get install -y wget
 RUN apt-get install -y default-jre
