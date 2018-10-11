@@ -20,7 +20,7 @@ build:
   verbosity: minimal
 before_build:
   - echo Running go lint
-  - go get github.com/golang/lint/golint
+  - go get -u golang.org/x/lint/golint
   - ps: "& { . $env:APPVEYOR_BUILD_FOLDER/scripts/windows/make.ps1; lint }"
   - echo Running go vet
   - ps: "& { . $env:APPVEYOR_BUILD_FOLDER/scripts/windows/make.ps1; vet }"
