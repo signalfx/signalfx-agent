@@ -346,7 +346,7 @@ RUN wget -O /usr/bin/dep https://github.com/golang/dep/releases/download/v0.4.1/
 RUN curl -fsSL get.docker.com -o /tmp/get-docker.sh &&\
     sh /tmp/get-docker.sh
 
-RUN go get -u github.com/golang/lint/golint &&\
+RUN go get -u golang.org/x/lint/golint &&\
     go get github.com/derekparker/delve/cmd/dlv &&\
     go get github.com/tebeka/go2xunit
 
