@@ -72,8 +72,8 @@ def has_datapoint(fake_services, metric_name=None, dimensions=None, value=None):
 
 
 def has_event_type(fake_services, event_type):
-    for ev in fake_services.events:
-        if ev.eventType == event_type:
+    for evt in fake_services.events:
+        if evt.eventType == event_type:
             return True
     return False
 
