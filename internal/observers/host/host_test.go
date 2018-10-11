@@ -55,7 +55,7 @@ func Test_HostObserver(t *testing.T) {
 	t.Run("Basic connections", func(t *testing.T) {
 		setup(basicConnectionStatJSON, map[int32]string{12780: "agent", 12768: "service"})
 
-		assert.Len(t, endpoints, 4)
+		assert.Len(t, endpoints, 3)
 
 		t.Run("IPV4 Port", func(t *testing.T) {
 			e := endpoints["10.2.3.4-9001-12768"].(*services.EndpointCore)
@@ -74,18 +74,16 @@ func Test_HostObserver(t *testing.T) {
 		})
 
 		t.Run("IPV6 Port", func(t *testing.T) {
-			e := endpoints["::-9000-12768"].(*services.EndpointCore)
-			assert.NotNil(t, e)
-			assert.Equal(t, e.Host, "::")
-			assert.EqualValues(t, e.Port, 9000)
-			assert.Equal(t, e.Name, "service")
+			e, keyExists := endpoints["::-9000-12768"] //.(*services.EndpointCore)
+			assert.False(t, keyExists)
+			assert.Nil(t, e)
 		})
 	})
 
 	t.Run("PID missing (due to race)", func(t *testing.T) {
 		setup(basicConnectionStatJSON, map[int32]string{12768: "service"})
 
-		assert.Len(t, endpoints, 2)
+		assert.Len(t, endpoints, 1)
 	})
 
 	t.Run("No connections", func(t *testing.T) {
