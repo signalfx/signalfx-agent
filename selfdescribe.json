@@ -11119,6 +11119,22 @@
           "required": false,
           "type": "bool",
           "elementKind": ""
+        },
+        {
+          "yamlName": "useHostBindings",
+          "doc": "If true, the observer will configure monitors for matching container endpoints using the host bound ip and port.  This is useful if containers exist that are not accessible to an instance of the agent running outside of the docker network stack.",
+          "default": false,
+          "required": false,
+          "type": "bool",
+          "elementKind": ""
+        },
+        {
+          "yamlName": "ignoreNonHostBindings",
+          "doc": "If true, the observer will ignore discovered container endpoints that are not bound to host ports.  This is useful if containers exist that are not accessible to an instance of the agent running outside of the docker network stack.",
+          "default": false,
+          "required": false,
+          "type": "bool",
+          "elementKind": ""
         }
       ],
       "observerType": "docker",
