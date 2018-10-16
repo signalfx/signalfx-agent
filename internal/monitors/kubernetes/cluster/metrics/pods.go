@@ -78,6 +78,7 @@ func dimPropsForPod(pod *v1.Pod) *atypes.DimProperties {
 
 	for _, or := range pod.OwnerReferences {
 		props[utils.LowercaseFirstChar(or.Kind)] = or.Name
+        props[utils.LowercaseFirstChar(or.Kind)+"_uid"] = string(or.UID)
 	}
 
 	if len(props) == 0 && len(tags) == 0 {

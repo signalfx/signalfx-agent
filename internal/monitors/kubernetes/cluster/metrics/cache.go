@@ -29,13 +29,13 @@ var logger = log.WithFields(log.Fields{
 })
 
 // DatapointCache holds an up to date copy of datapoints pertaining to the
-// cluster.  It is updated whenever the HandleChange method is called with new
+// cluster.  It is updated whenever the HandleAdd method is called with new
 // K8s resources.
 type DatapointCache struct {
+    sync.Mutex
 	dpCache      map[cachedResourceKey][]*datapoint.Datapoint
 	dimPropCache map[cachedResourceKey]*atypes.DimProperties
 	useNodeName  bool
-	mutex        sync.Mutex
 }
 
 // NewDatapointCache creates a new clean cache
@@ -49,26 +49,16 @@ func NewDatapointCache(useNodeName bool) *DatapointCache {
 
 func keyForObject(obj runtime.Object) (cachedResourceKey, error) {
 	kind := obj.GetObjectKind().GroupVersionKind()
+    log.Info(obj.GetObjectKind())
 	oma, ok := obj.(metav1.ObjectMetaAccessor)
 
 	if !ok || oma.GetObjectMeta() == nil {
 		return cachedResourceKey{}, errors.New("K8s object is not of the expected form")
 	}
-
 	return cachedResourceKey{
 		Kind: kind,
 		UID:  oma.GetObjectMeta().GetUID(),
 	}, nil
-}
-
-// Lock allows users of the cache to lock it when doing complex operations
-func (dc *DatapointCache) Lock() {
-	dc.mutex.Lock()
-}
-
-// Unlock allows users of the cache to unlock it after doing complex operations
-func (dc *DatapointCache) Unlock() {
-	dc.mutex.Unlock()
 }
 
 // DeleteByKey delete a cache entry by key.  The supplied interface MUST be the
@@ -116,6 +106,7 @@ func (dc *DatapointCache) HandleAdd(newObj runtime.Object) interface{} {
 		dps = datapointsForDeployment(o)
 	case *v1beta1.ReplicaSet:
 		dps = datapointsForReplicaSet(o)
+        dimProps = dimPropsForReplicaSet(o)
 	case *v1.ResourceQuota:
 		dps = datapointsForResourceQuota(o)
 	case *v1.Node:
@@ -124,7 +115,7 @@ func (dc *DatapointCache) HandleAdd(newObj runtime.Object) interface{} {
 	default:
 		log.WithFields(log.Fields{
 			"obj": spew.Sdump(newObj),
-		}).Error("Unknown object type in HandleChange")
+		}).Error("Unknown object type in HandleAdd")
 		return nil
 	}
 
@@ -141,18 +132,85 @@ func (dc *DatapointCache) HandleAdd(newObj runtime.Object) interface{} {
 		dc.dpCache[key] = dps
 	}
 	if dimProps != nil {
-		dc.dimPropCache[key] = dimProps
+        dc.addDimPropsToCache(key, dimProps)
 	}
 
 	return key
+}
+
+type propertyLink struct {
+    SourceProperty string
+    SourceKind     string
+    SourceJoinKey  string
+    TargetProperty string
+    TargetKind     string
+    TargetJoinKey  string
+}
+
+func (dc *DatapointCache) addDimPropsToCache(key cachedResourceKey, dimProps *atypes.DimProperties) {
+    links := []propertyLink{
+        propertyLink{
+            SourceKind:     "ReplicaSet",
+            SourceProperty: "deployment",
+            SourceJoinKey:  "name",
+            TargetKind:     "Pod",
+            TargetProperty: "deployment",
+            TargetJoinKey:  "replicaSet",
+        },
+    }
+
+    for _, link := range links {
+       // If the dim props are for a pod, go through all the existing replica set
+       // dim props and find one that has key.Kind.Kind == "ReplicaSet" and
+       // key.UID == dimProps["replicaSetUID"] and then pull the "deployment"
+       // properties off the replica set dim props and put it on the current pod
+       // dimProps and put it in the cache
+        if key.Kind.Kind == link.TargetKind {
+            for k := range dc.dimPropCache {
+                if k.Kind.Kind == link.SourceKind {
+                    props := dc.dimPropCache[k].Properties
+                    log.Info("Found Pod with matching replicaSet")
+                    if props[link.SourceJoinKey] == dimProps.Properties[link.TargetJoinKey] {
+                        log.WithFields(log.Fields{
+                            "deployment": props[link.SourceProperty],
+                            "replicaSet": props["name"],
+                            "pod_uid": key,
+                        }).Info("new pod: syncing deployments to pods via replicaSet")
+                        dimProps.Properties[link.TargetProperty] = props[link.SourceProperty]
+                    }
+                }
+            }
+        }
+
+       // If the dim props are for a replica set, go through all of the existing
+       // pod dim props and do something similar to propagate the deployment to
+       // the pods
+        if key.Kind.Kind == link.SourceKind {
+            for k := range dc.dimPropCache {
+                if k.Kind.Kind == link.TargetKind {
+                    props := dc.dimPropCache[k].Properties
+                    if props[link.TargetJoinKey] == dimProps.Properties[link.SourceJoinKey] {
+                        log.WithFields(log.Fields{
+                            "deployment": props[link.SourceProperty],
+                            "replicaSet": props["name"],
+                            "pod_uid": k,
+                        }).Info("new replicaSet: syncing deployment to pods with this replicaSet")
+                        props[link.TargetProperty] = dimProps.Properties[link.SourceProperty]
+                    }
+                }
+            }
+        }
+    }
+
+    dc.dimPropCache[key] = dimProps
 }
 
 // AllDatapoints returns all of the cached datapoints.
 func (dc *DatapointCache) AllDatapoints() []*datapoint.Datapoint {
 	dps := make([]*datapoint.Datapoint, 0)
 
-	dc.mutex.Lock()
-	defer dc.mutex.Unlock()
+	dc.Lock()
+	defer dc.Unlock()
 
 	for k := range dc.dpCache {
 		if dc.dpCache[k] != nil {
@@ -172,8 +230,8 @@ func (dc *DatapointCache) AllDatapoints() []*datapoint.Datapoint {
 func (dc *DatapointCache) AllDimProperties() []*atypes.DimProperties {
 	dimProps := make([]*atypes.DimProperties, 0)
 
-	dc.mutex.Lock()
-	defer dc.mutex.Unlock()
+	dc.Lock()
+	defer dc.Unlock()
 
 	for k := range dc.dimPropCache {
 		if dc.dimPropCache[k] != nil {
