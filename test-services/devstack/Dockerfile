@@ -65,6 +65,10 @@ RUN chown stack:stack /opt/stack/devstack/local.conf
 COPY start-devstack.sh /usr/local/bin/start-devstack.sh
 RUN chmod a+x /usr/local/bin/start-devstack.sh
 
+COPY stop-devstack.sh /usr/local/bin/stop-devstack.sh
+RUN chmod a+x /usr/local/bin/stop-devstack.sh
+
 VOLUME /lib/modules
+VOLUME /sys/fs/cgroup
 
 ENTRYPOINT ["/lib/systemd/systemd"]
