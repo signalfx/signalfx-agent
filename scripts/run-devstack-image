@@ -6,8 +6,10 @@ PROJECT_DIR="$( cd "${SCRIPT_DIR}/../" && pwd )"
 docker run -d --privileged \
     --name devstack \
     -v /lib/modules:/lib/modules:ro \
+    -v /sys/fs/cgroup:/sys/fs/cgroup:ro \
     -v ${PROJECT_DIR}:/opt/signalfx-agent \
     -e COLUMNS=`tput cols` -e LINES=`tput lines` \
+    -e container=docker \
     quay.io/signalfx/devstack:latest \
     /lib/systemd/systemd
 docker exec devstack start-devstack.sh

@@ -288,6 +288,7 @@ def devstack():
             "/lib/modules": {"bind": "/lib/modules", "mode": "ro"},
             "/sys/fs/cgroup": {"bind": "/sys/fs/cgroup", "mode": "ro"},
         },
+        environment={"container": "docker"},
     )
     with run_container("quay.io/signalfx/devstack:latest", **devstack_opts) as container:
         code, output = container.exec_run("start-devstack.sh")
