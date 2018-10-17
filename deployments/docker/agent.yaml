@@ -1,6 +1,7 @@
 # *Required* The access token for the org that you wish to send metrics to.
 signalFxAccessToken: ${SFX_ACCESS_TOKEN}
 ingestUrl: ${SFX_INGEST_URL}
+apiUrl: ${SFX_API_URL}
 
 intervalSeconds: 10
 

@@ -14,6 +14,7 @@ yum_gpg_key_url="$repo_base/yum-rpm.key"
 parse_args_and_install() {
   local stage="final"
   local ingest_url="https://ingest.signalfx.com"
+  local api_url="https://api.signalfx.com"
   local access_token=
   local insecure=
   local package_version=
@@ -26,8 +27,12 @@ parse_args_and_install() {
       --test)
         stage="test"
         ;;
-      --ingest)
+      --ingest-url)
         ingest_url="$2"
+        shift 1
+        ;;
+      --api-url)
+        api_url="$2"
         shift 1
         ;;
       --insecure)
@@ -59,7 +64,7 @@ parse_args_and_install() {
     shift 1
   done
 
-  install "$stage" "$ingest_url" "$access_token" "$insecure" "$package_version"
+  install "$stage" "$ingest_url" "$api_url" "$access_token" "$insecure" "$package_version"
   exit 0
 }
 
@@ -74,7 +79,8 @@ stdin.
 Options:
 
   --package-version <version> The agent package version to instance
-  --ingest <ingest url>       Base URL to the SignalFx ingest server to use
+  --ingest-url <ingest url>   Base URL of the SignalFx ingest server
+  --api-url <api url>         Base URL of the SignalFx API server
   --test                      Use the test package repo instead of the primary
   --beta                      Use the beta package repo instead of the primary
 
@@ -255,6 +261,13 @@ configure_ingest_url() {
   printf "%s" "$ingest_url" > /etc/signalfx/ingest_url
 }
 
+configure_api_url() {
+  local api_url=$1
+
+  mkdir -p /etc/signalfx
+  printf "%s" "$api_url" > /etc/signalfx/api_url
+}
+
 start_agent() {
   if command -v systemctl > /dev/null; then
     systemctl start signalfx-agent
@@ -266,9 +279,10 @@ start_agent() {
 install() {
   local stage="$1"
   local ingest_url="$2"
-  local access_token="$3"
-  local insecure="$4"
-  local package_version="$5"
+  local api_url="$3"
+  local access_token="$4"
+  local insecure="$5"
+  local package_version="$6"
   local distro="$(get_distro)"
 
   ensure_not_installed
@@ -308,6 +322,7 @@ install() {
 
   configure_access_token "$access_token"
   configure_ingest_url "$ingest_url"
+  configure_api_url "$api_url"
 
   start_agent
 
