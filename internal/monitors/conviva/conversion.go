@@ -20,9 +20,9 @@ func jsonResponseToDatapoints(jsonResponse map[string]interface{}) ([]*datapoint
 
 func tableTypeResponseToDatapoints(tableTypeResponse map[string]interface{}, metric string) []*datapoint.Datapoint {
 	account     := tableTypeResponse["account"].(string)
-	accountId   := tableTypeResponse["accountId"].(string)
+	//accountId   := tableTypeResponse["accountId"].(string)
 	dimension   := tableTypeResponse["dimension"].(string)
-	dimensionId := tableTypeResponse["dimensionId"].(string)
+	//dimensionId := tableTypeResponse["dimensionId"].(string)
 	filterNameById := tableTypeResponse["filterNameById"].(map[string]string)
 
 	tables := tableTypeResponse[metric].(map[string]interface{})["tables"].(map[string]interface{})
@@ -46,16 +46,17 @@ func tableTypeResponseToDatapoints(tableTypeResponse map[string]interface{}, met
 						dims := map[string]string{
 							"metric":                      metric,
 							"account":                     account,
-							"account_id":                  accountId,
+							//"account_id":                  accountId,
 							"filter":                      filterNameById[filterId],
-							"filter_id":                   filterId,
+							//"filter_id":                   filterId,
 							"status":                      status,
 							"filters_not_exist":           filters_not_exist,
 							"filters_incomplete_data":     filters_incomplete_data,
 							"filters_warmup":              filters_warmup,
-							"metriclens_dimension":        dimension,
-							"metriclens_dimension_id":     dimensionId,
-							"metriclens_dimension_entity": xvalues[rowIndex].(string),
+							//"metriclens_dimension":        dimension,
+							//"metriclens_dimension_id":     dimensionId,
+							//"metriclens_dimension_entity": xvalues[rowIndex].(string),
+							dimension: xvalues[rowIndex].(string),
 						}
 						datapoints = append(datapoints, sfxclient.GaugeF(metriclensMetrics[metric][metricIndex], dims, metricValue.(float64)))
 						//fmt.Printf("%v, %v = %v, %s, %t \n", dims, qualityMetricLensMetrics[metricIndex], metricValue.(float64), xvalues[rowIndex].(string))
