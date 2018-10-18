@@ -4,6 +4,7 @@
 # /var/run/docker.sock.
 signalFxAccessToken: {"#from": "env:ACCESS_TOKEN"}
 ingestUrl: {"#from": "env:INGEST_URL", optional: true}
+apiUrl: {"#from": "env:API_URL", optional: true}
 
 intervalSeconds: {"#from": "env:INTERVAL_SECONDS", default: 10}
 
