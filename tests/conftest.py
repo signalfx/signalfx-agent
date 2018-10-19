@@ -19,11 +19,11 @@ from helpers.util import wait_for, get_docker_client, run_container
 
 SCRIPTS_DIR = os.path.join(os.path.dirname(os.path.realpath(__file__)), "..", "scripts")
 K8S_MIN_VERSION = "1.7.0"
-K8S_MAX_VERSION = "1.11.0"
+K8S_MAX_VERSION = "1.12.0"
 K8S_DEFAULT_TIMEOUT = 300
 K8S_DEFAULT_TEST_TIMEOUT = 120
 K8S_DEFAULT_CONTAINER_NAME = "minikube"
-KUBEADM_VERSIONS = ["1.11.0"]
+KUBEADM_VERSIONS = ["1.12.0", "1.11.0"]
 
 
 def get_k8s_supported_versions():

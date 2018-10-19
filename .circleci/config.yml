@@ -372,6 +372,11 @@ workflows:
           requires:
             - build
       - k8s_integration_tests:
+          name: "k8s_v1.12.0_integration_tests"
+          k8s_version: "v1.12.0"
+          requires:
+            - build
+      - k8s_integration_tests:
           name: "k8s_v1.11.0_integration_tests"
           k8s_version: "v1.11.0"
           requires:

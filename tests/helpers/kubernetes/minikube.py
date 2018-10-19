@@ -24,7 +24,9 @@ from helpers.kubernetes.utils import (
 )
 from helpers.util import container_ip, get_docker_client, wait_for
 
-MINIKUBE_VERSION = os.environ.get("MINIKUBE_VERSION", "v0.29.0")
+MINIKUBE_VERSION = os.environ.get("MINIKUBE_VERSION")
+MINIKUBE_LOCALKUBE_VERSION = "v0.28.2"
+MINIKUBE_KUBEADM_VERSION = "v0.30.0"
 TEST_SERVICES_DIR = os.path.join(os.path.dirname(os.path.realpath(__file__)), "../../../test-services")
 
 
@@ -34,6 +36,7 @@ class Minikube:  # pylint: disable=too-many-instance-attributes
         self.container = None
         self.client = None
         self.version = None
+        self.k8s_version = None
         self.name = None
         self.host_client = get_docker_client()
         self.yamls = []
@@ -85,7 +88,7 @@ class Minikube:  # pylint: disable=too-many-instance-attributes
         self.client = self.get_client()
         self.get_bootstrapper()
         self.name = name
-        self.version = version
+        self.k8s_version = version
 
     def deploy(self, version, timeout, options=None):
         if options is None:
@@ -93,14 +96,14 @@ class Minikube:  # pylint: disable=too-many-instance-attributes
         self.registry_port = get_free_port()
         if container_is_running(self.host_client, "minikube"):
             self.host_client.containers.get("minikube").remove(force=True, v=True)
-        self.version = version
-        if self.version[0] != "v":
-            self.version = "v" + self.version
+        self.k8s_version = version
+        if self.k8s_version[0] != "v":
+            self.k8s_version = "v" + self.k8s_version
         if not options:
             options = {
                 "name": "minikube",
                 "privileged": True,
-                "environment": {"K8S_VERSION": self.version, "TIMEOUT": str(timeout)},
+                "environment": {"K8S_VERSION": self.k8s_version, "TIMEOUT": str(timeout)},
                 "ports": {
                     "8080/tcp": None,
                     "8443/tcp": None,
@@ -109,17 +112,23 @@ class Minikube:  # pylint: disable=too-many-instance-attributes
                 },
                 "volumes": {"/tmp/scratch": {"bind": "/tmp/scratch", "mode": "rw"}},
             }
-        minikube_version = MINIKUBE_VERSION
-        if semver.match(self.version.lstrip("v"), "<1.11.0"):
-            options["command"] = "sleep inf"
-            minikube_version = "v0.28.2"
+        if MINIKUBE_VERSION:
+            self.version = MINIKUBE_VERSION
+        elif semver.match(self.k8s_version.lstrip("v"), ">=1.11.0"):
+            self.version = MINIKUBE_KUBEADM_VERSION
         else:
+            self.version = MINIKUBE_LOCALKUBE_VERSION
+        if self.version == "latest" or semver.match(
+            self.version.lstrip("v"), ">" + MINIKUBE_LOCALKUBE_VERSION.lstrip("v")
+        ):
             options["command"] = "/lib/systemd/systemd"
-        print("\nDeploying minikube %s cluster ..." % self.version)
+        else:
+            options["command"] = "sleep inf"
+        print("\nDeploying minikube %s cluster ..." % self.k8s_version)
         image, _ = self.host_client.images.build(
             path=os.path.join(TEST_SERVICES_DIR, "minikube"),
-            buildargs={"MINIKUBE_VERSION": minikube_version},
-            tag="minikube:%s" % minikube_version,
+            buildargs={"MINIKUBE_VERSION": self.version},
+            tag="minikube:%s" % self.version,
             rm=True,
             forcerm=True,
         )
