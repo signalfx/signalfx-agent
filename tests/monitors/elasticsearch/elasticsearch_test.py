@@ -2,6 +2,7 @@ from functools import partial as p
 from textwrap import dedent
 import os
 import pytest
+import semver
 
 from helpers.assertions import has_datapoint_with_dim, tcp_socket_open
 from helpers.kubernetes.utils import get_discovery_rule, run_k8s_monitors_test
@@ -41,8 +42,8 @@ def test_elasticsearch():
 @pytest.mark.k8s
 @pytest.mark.kubernetes
 def test_elasticsearch_in_k8s(agent_image, minikube, k8s_observer, k8s_test_timeout, k8s_namespace):
-    if minikube.version.startswith("v1.7."):
-        pytest.skip('required env var "discovery.type" for elasticsearch not supported in K8S v1.7.x.')
+    if semver.match(minikube.k8s_version.lstrip("v"), "<1.8.0"):
+        pytest.skip('required env var "discovery.type" for elasticsearch not supported in K8S versions < 1.8.0')
     yaml = os.path.join(os.path.dirname(os.path.realpath(__file__)), "elasticsearch-k8s.yaml")
     monitors = [
         {

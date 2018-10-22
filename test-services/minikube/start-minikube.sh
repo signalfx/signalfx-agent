@@ -25,7 +25,7 @@ if [ "$K8S_VERSION" = "latest" ]; then
     K8S_VERSION="v1.11.0"
 fi
 BOOTSTRAPPER="localkube"
-if [[ "$K8S_VERSION" =~ "v1.11." ]]; then
+if [[ "$K8S_VERSION" =~ ^v(1\.11|1\.12)\. ]]; then
     BOOTSTRAPPER="kubeadm"
 fi
 
@@ -39,8 +39,10 @@ MINIKUBE_OPTIONS="--vm-driver=none --bootstrapper=${BOOTSTRAPPER} --kubernetes-v
 
 KUBEADM_OPTIONS="--feature-gates=CoreDNS=true \
     --extra-config=kubelet.authorization-mode=AlwaysAllow \
-    --extra-config=kubelet.anonymous-auth=true \
-    --extra-config=kubelet.cadvisor-port=4194"
+    --extra-config=kubelet.anonymous-auth=true"
+if [[ "$K8S_VERSION" =~ ^v1\.11\. ]]; then
+    KUBEADM_OPTIONS="$KUBEADM_OPTIONS --extra-config=kubelet.cadvisor-port=4194"
+fi
 
 if [ "$BOOTSTRAPPER" = "kubeadm" ]; then
     MINIKUBE_OPTIONS="$MINIKUBE_OPTIONS $KUBEADM_OPTIONS"
