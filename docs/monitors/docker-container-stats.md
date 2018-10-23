@@ -44,10 +44,10 @@ The following table lists the metrics available for this monitor. Metrics that a
 | Name | Type | Custom | Description |
 | ---  | ---  | ---    | ---         |
 | `blkio.io_service_bytes_recursive.async` | cumulative | X | Volume, in bytes, of asynchronous block I/O |
-| `blkio.io_service_bytes_recursive.read` | cumulative | X | Volume, in bytes, of reads from block devices |
+| `blkio.io_service_bytes_recursive.read` | cumulative |  | Volume, in bytes, of reads from block devices |
 | `blkio.io_service_bytes_recursive.sync` | cumulative | X | Volume, in bytes, of synchronous block I/O |
 | `blkio.io_service_bytes_recursive.total` | cumulative | X | Total volume, in bytes, of all block I/O |
-| `blkio.io_service_bytes_recursive.write` | cumulative | X | Volume, in bytes, of writes to block devices |
+| `blkio.io_service_bytes_recursive.write` | cumulative |  | Volume, in bytes, of writes to block devices |
 | `blkio.io_serviced_recursive.async` | cumulative | X | Number of asynchronous block I/O requests |
 | `blkio.io_serviced_recursive.read` | cumulative | X | Number of reads requests from block devices |
 | `blkio.io_serviced_recursive.sync` | cumulative | X | Number of synchronous block I/O requests |
@@ -81,10 +81,8 @@ Note that some of the custom metrics require you to set a flag as well as add th
 ```yaml 
 metricsToExclude:
   - blkio.io_service_bytes_recursive.async
-  - blkio.io_service_bytes_recursive.read
   - blkio.io_service_bytes_recursive.sync
   - blkio.io_service_bytes_recursive.total
-  - blkio.io_service_bytes_recursive.write
   - blkio.io_serviced_recursive.async
   - blkio.io_serviced_recursive.read
   - blkio.io_serviced_recursive.sync
