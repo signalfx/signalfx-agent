@@ -74,6 +74,8 @@ type Config struct {
 	Collectd CollectdConfig `yaml:"collectd" default:"{}"`
 	// A list of metric filters
 	MetricsToExclude []MetricFilter `yaml:"metricsToExclude" default:"[]"`
+	// A list of metric filters
+	PropertiesToExclude []PropertyFilter `yaml:"propertiesToExclude" default:"[]"`
 	// (**NOT FUNCTIONAL**) Whether to enable the Python sub-agent ("neopy")
 	// that can directly use DataDog and Collectd Python plugins.  This is not
 	// the same as Collectd's Python plugin, which is always enabled.
