@@ -96,7 +96,6 @@ func (m *Monitor) Configure(conf *Config) error {
 				"values":   conf.AdditionalMetrics,
 			},
 			"Indexes": map[string]interface{}{
-				"#flatten": true,
 				"values":   conf.Indexes,
 			},
 			"Password": conf.Password,

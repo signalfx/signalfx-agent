@@ -3,6 +3,7 @@ import os
 import select
 import socket
 import subprocess
+import sys
 import tempfile
 import threading
 import time
@@ -38,6 +39,8 @@ def wait_for(test, timeout_seconds=DEFAULT_TIMEOUT, interval_seconds=0.2):
     start = time.time()
     while True:
         if test():
+            if "-v" in sys.argv or "--verbose" in sys.argv:
+                print("%s: %d seconds" % (test, (time.time() - start)))
             return True
         if time.time() - start > timeout_seconds:
             return False
