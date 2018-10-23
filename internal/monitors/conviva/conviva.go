@@ -3,6 +3,10 @@ package conviva
 import (
 	"context"
 	"encoding/json"
+	"fmt"
+	"github.com/signalfx/golib/datapoint"
+	"github.com/signalfx/golib/sfxclient"
+	"github.com/signalfx/signalfx-agent/internal/core/common/dpmeta"
 	"github.com/signalfx/signalfx-agent/internal/core/config"
 	"github.com/signalfx/signalfx-agent/internal/monitors"
 	"github.com/signalfx/signalfx-agent/internal/monitors/types"
@@ -10,39 +14,73 @@ import (
 	Logger "github.com/sirupsen/logrus"
 	"io/ioutil"
 	"net/http"
-	"strconv"
 	"strings"
 	"time"
 )
 
 const monitorType = "conviva"
 
+// MONITOR(conviva): This monitor uses version 2.4 of the Conviva Experience Insights REST APIs to pull
+// `real-time(live)` video playing experience metrics from Conviva.
+//
+// Only `live` metrics types are supported. See
+// https://community.conviva.com/site/global/apis_data/experience_insights_api/index.gsp#metrics
+// if Conviva developer community member. The live metrics are gauge type metrics. They are converted
+// to SignalFx gauges with dimensions for the metric name, account name and filter name. For metriclens,
+// the metriclens dimensions are converted to SignalFx dimensions in addition. The values for these
+// dimensions are derived from the values of the associated metriclens dimension entities.
+//
+// TODO: doc about the default behavior
+//
+// Sample YAML configuration:
+//
+// ```
+//monitors:
+//- type: conviva
+//  pulse_username: <username>
+//  pulse_password: <password>
+//  timeoutSeconds: 20
+//  intervalSeconds: 25
+//  metricConfigs:
+//    - account: c3.NBC
+//      metric: quality_metriclens
+//      filters:
+//        - All Traffic
+//        - Live
+//      dimensions:
+//        - Cities
+//        - CDNs
+//    - account: c3.NBC
+//      metric: avg_bitrate
+//      filters:
+//        - All Traffic
+// ```
+
 var logger = Logger.WithFields(Logger.Fields{"monitorType": monitorType})
 
 // Config for this monitor
 type Config struct {
-	config.MonitorConfig //`yaml:",inline" acceptsEndpoints:"true"`
-	MetricConfigs []*MetricConfig `yaml:"metricConfigs"`
-	UserName      string          `yaml:"pulse_username" validate:"required"`
-	Password      string          `yaml:"pulse_password" validate:"required"`
-	// The maximum amount of time to wait for docker API requests
-	TimeoutSeconds int `yaml:"timeoutSeconds" default:"5"`
+	config.MonitorConfig
+	Username                    string                       `yaml:"pulse_username" validate:"required"`
+	Password                    string                       `yaml:"pulse_password" validate:"required"`
+	TimeoutSeconds              int                          `yaml:"timeoutSeconds" default:"5"`
+	MetricConfigs               []*MetricConfig              `yaml:"metricConfigs"`
+	filterNameById              map[string]map[string]string
+	dimensionIdByAccountAndName map[string]map[string]string
+	metriclensMetricNames       map[string][]string
 }
 
 type MetricConfig struct {
-	Account           string   `yaml:"account"`
-	Metric            string   `yaml:"metric" default:"quality_metriclens"`
-	Filters           []string `yaml:"filters"`
-	Dimensions        []string `yaml:"dimensions"`
-	accountId         string
-	filterIds         []string
-	filterIdByName    map[string]string
-	filterNameById    map[string]string
-	dimensionIdByName map[string]string
-	dimensionNameById map[string]string
+	Account             string   `yaml:"account"`
+	Metric              string   `yaml:"metric" default:"quality_metriclens"`
+	Filters             []string `yaml:"filters"`
+	Dimensions          []string `yaml:"dimensions"`
+	accountId           string
+	filterIds           []string
+	metriclensFilterIds []string
 }
 
-// Monitor for conviva metriclens metrics
+// Monitor for conviva metrics
 type Monitor struct {
 	Output types.Output
 	cancel func()
@@ -51,167 +89,160 @@ type Monitor struct {
 	timeout time.Duration
 }
 
-//func main(){
-//	m := Monitor{}
-//	m.Configure(&Config{config.MonitorConfig{IntervalSeconds: 10}, nil, os.Getenv("username"), os.Getenv("password"),  10})
-//}
-
 func init() {
 	monitors.Register(monitorType, func() interface{} { return &Monitor{} }, &Config{})
 }
 
-// Configure the monitor and kick off volume metric syncing
 func (m *Monitor) Configure(conf *Config) error {
-	m.client = &http.Client{}
 	logger.Debugf("configuration object before additional auto-configuration:\n%+v\n", conf)
 	m.timeout = time.Duration(conf.TimeoutSeconds) * time.Second
-	m.ctx, m.cancel = context.WithCancel(context.Background())
-	if conf.MetricConfigs == nil {
-		conf.MetricConfigs = []*MetricConfig{{Metric: "quality_metriclens"}}
+	m.client = &http.Client{
+		Timeout: m.timeout,
+		Transport: &http.Transport{
+			MaxIdleConnsPerHost: 100,
+		},
 	}
-	configureAccount(m.client, conf)
-	configureFilters(m.client, conf)
-	configureDimensions(m.client, conf)
-	logger.Debugf("configuration object after additional auto-configuration:\n%+v\n", conf)
+	setConfigFields(m, conf)
+	maxNumOfGoroutines := len(conf.MetricConfigs) * 100
+	if maxNumOfGoroutines > 500 {
+		maxNumOfGoroutines = 500
+	}
+	maxNumOfGoroutinesChan := make(chan struct{}, maxNumOfGoroutines)
 	utils.RunOnInterval(m.ctx, func() {
 		for _, metricConfig := range conf.MetricConfigs {
-			fetchMetriclensMetrics(m, metricConfig, conf)
+			if strings.Contains(metricConfig.Metric, "metriclens") {
+				getSendMetriclensMetrics(maxNumOfGoroutinesChan, m, metricConfig, conf)
+			} else {
+				getSendMetrics(maxNumOfGoroutinesChan, m, metricConfig, conf)
+			}
 		}
 	}, time.Duration(conf.IntervalSeconds) * time.Second)
-	//time.Sleep(time.Second * 60)
 	return nil
 }
-
-func fetchMetriclensMetrics(m *Monitor, metricConfig *MetricConfig, conf *Config) {
-	_, cancel := context.WithTimeout(m.ctx, m.timeout)
-	defer cancel()
-	for _, dimension := range metricConfig.Dimensions {
-		url := "https://api.conviva.com/insights/2.4/metrics.json?metrics=" + metricConfig.Metric + "&filter_ids=" + strings.Join(metricConfig.filterIds, ",") + "&metriclens_dimension_id=" + metricConfig.dimensionIdByName[dimension]
-		go func(m *Monitor, conf *Config, url string, metricConfig *MetricConfig, dimension string) {
-			//time.Sleep(time.Second * 10)
-			tableTypeResponse, err := get(m.client, conf, url)
+//TODO: implement functionality for simple series and label series
+func getSendMetrics(maxNumOfGoroutinesChan chan struct{}, m *Monitor, metricConfig *MetricConfig, conf *Config) {
+	ctx, cancel := context.WithTimeout(m.ctx, time.Duration(conf.IntervalSeconds) * time.Second)
+	select {
+	case <- ctx.Done():
+		cancel()
+		logger.Error(ctx.Err())
+		return
+	case maxNumOfGoroutinesChan <- struct{}{}:
+		url := "https://api.conviva.com/insights/2.4/metrics.json?metrics=" + metricConfig.Metric +
+			"&filter_ids=" + strings.Join(metricConfig.filterIds, ",")
+		go func(m *Monitor, conf *Config, url string) {
+			defer func() {<- maxNumOfGoroutinesChan}()
+			res, err := get(m, conf, url)
 			if err != nil {
-				logger.WithError(err).Error("Could not get conviva metrics")
+				logger.Error(err)
 				return
 			}
-			tableTypeResponse["account"] = metricConfig.Account
-			tableTypeResponse["accountId"] = metricConfig.accountId
-			tableTypeResponse["dimension"] = dimension
-			tableTypeResponse["dimensionId"] = metricConfig.dimensionIdByName[dimension]
-			tableTypeResponse["filterNameById"] = metricConfig.filterNameById
-			datapoints, err := jsonResponseToDatapoints(tableTypeResponse)
-			if err != nil {
-				logger.WithError(err).Error("Could not convert conviva metrics to datapoints")
-				return
-			}
-			now := time.Now()
-			for i := range datapoints {
-				datapoints[i].Timestamp = now
-				m.Output.SendDatapoint(datapoints[i])
-			}
-		}(m, conf, url, metricConfig, dimension)
-	}
-	//select {
-	//case <-ctx.Done():
-	//	fmt.Println(ctx.Err())
-	//}
-}
-
-// {"default": "c3.NBC", "count": 1, "accounts": {"c3.NBC": "bdcdd5221ca926201cc5d6127dbe5887c25c7f8d", "c3.Demo": "000000000000000000000000000000000000000"}}
-func configureAccount(client *http.Client, conf *Config)  {
-	jsonResponse, err := get(client, conf, "https://api.conviva.com/insights/2.4/accounts.json")
-	if err != nil {
-		logger.Errorf("Get accounts request failed %v\n", err)
-		return // nil, err
-	}
-	accounts := jsonResponse["accounts"].(map[string]interface{})
-	for _, metricConfig := range conf.MetricConfigs {
-		if metricConfig.Account == "" {
-			metricConfig.Account = jsonResponse["default"].(string)
-			for name, id := range accounts {
-				if metricConfig.Account == name {
-					metricConfig.accountId = id.(string)
+			timestamps := res[metricConfig.Metric].(map[string]interface{})["timestamps"].([]interface{})
+			timeSeriesByFilterId := res[metricConfig.Metric].(map[string]interface{})["filters"].(map[string]interface{})
+			dps := make([]*datapoint.Datapoint, 0)
+			for filterId, timeSeries := range timeSeriesByFilterId {
+				for i, metricValue := range timeSeries.([]interface{}) {
+					dp := sfxclient.GaugeF(
+						metricConfig.Metric,
+						map[string]string{
+							"metric":  metricConfig.Metric,
+							"account": metricConfig.Account,
+							"filter":  conf.filterNameById[metricConfig.Account][filterId],
+						},
+						metricValue.(float64))
+					dp.Timestamp = time.Unix(int64(0.001 * timestamps[i].(float64)), 0)
+					dp.Meta[dpmeta.NotHostSpecificMeta] = true
+					dps = append(dps, dp)
 				}
 			}
-		}
+			for i := range dps {
+				m.Output.SendDatapoint(dps[i])
+			}
+		}(m, conf, url)
 	}
 }
 
-func configureFilters(client *http.Client, conf *Config) {
-	var jsonResponse = make(map[string]map[string]interface{})
-	for _, metricConfig := range conf.MetricConfigs {
-		if len(jsonResponse[metricConfig.accountId]) == 0 {
-			var err error
-			jsonResponse[metricConfig.accountId], err = get(client, conf, "https://api.conviva.com/insights/2.4/filters.json?account=" + metricConfig.accountId)
-			if err != nil {
-				logger.Errorf("Failed to get filters for account %s: \n%v\n", metricConfig.Account, err)
-				continue
-			}
-		}
-		if len(metricConfig.Filters) == 0 {
-			metricConfig.Filters = append(metricConfig.Filters, "All Traffic")
-		}
-		metricConfig.filterIdByName = make(map[string]string)
-		metricConfig.filterNameById = make(map[string]string)
-		for _, filter := range metricConfig.Filters {
-			for filterId, filterName := range jsonResponse[metricConfig.accountId] {
-				if filter == filterName.(string) {
-					metricConfig.filterIds = append(metricConfig.filterIds, filterId)
-					metricConfig.filterIdByName[filterName.(string)] = filterId
-					metricConfig.filterNameById[filterId] = filterName.(string)
+func getSendMetriclensMetrics(maxNumOfGoroutinesChan chan struct{}, m *Monitor, metricConfig *MetricConfig, conf *Config)  {
+	ctx, cancel := context.WithTimeout(m.ctx, time.Duration(conf.IntervalSeconds) * time.Second)
+	for _, metriclensDimension := range metricConfig.Dimensions {
+		select {
+		case <- ctx.Done():
+			cancel()
+			logger.Error(ctx.Err())
+			return
+		case maxNumOfGoroutinesChan <- struct{}{}:
+			url := "https://api.conviva.com/insights/2.4/metrics.json?metrics=" + metricConfig.Metric +
+				"&filter_ids=" + strings.Join(metricConfig.metriclensFilterIds, ",") +
+				"&metriclens_dimension_id=" + conf.dimensionIdByAccountAndName[metricConfig.Account][metriclensDimension]
+			go func(m *Monitor, conf *Config, url string, metricConfig *MetricConfig, metriclensDimension string) {
+				defer func() {<- maxNumOfGoroutinesChan}()
+				res, err := get(m, conf, url)
+				if err != nil {
+					logger.Error(err)
+					return
 				}
-			}
+				tablesByFilterId := res[metricConfig.Metric].(map[string]interface{})["tables"].(map[string]interface{})
+				metriclensDimensionEntities := res[metricConfig.Metric].(map[string]interface{})["xvalues"].([]interface{})
+				dps := make([]*datapoint.Datapoint, 0)
+				for filterId, table := range tablesByFilterId {
+					for tableKey, tableValue := range table.(map[string]interface{}) {
+						if tableKey == "rows" {
+							for rowIndex, row := range tableValue.([]interface{}) {
+								select {
+								case <-ctx.Done():
+									cancel()
+									logger.Error(ctx.Err())
+									return
+								default:
+									if row != nil {
+										for metricIndex, metricValue := range row.([]interface{}) {
+											dps = append(dps, sfxclient.GaugeF(
+												conf.metriclensMetricNames[metricConfig.Metric][metricIndex],
+												map[string]string{
+													"metric":  metricConfig.Metric,
+													"account": metricConfig.Account,
+													"filter":  conf.filterNameById[metricConfig.Account][filterId],
+													metriclensDimension: metriclensDimensionEntities[rowIndex].(string),
+												},
+												metricValue.(float64)))
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+				now := time.Now()
+				for i := range dps {
+					dps[i].Timestamp = now
+					dps[i].Meta[dpmeta.NotHostSpecificMeta] = true
+					m.Output.SendDatapoint(dps[i])
+				}
+			}(m, conf, url, metricConfig, metriclensDimension)
 		}
 	}
 }
 
-func configureDimensions(client *http.Client, conf *Config) {
-	var jsonResponse = make(map[string]map[string]interface{})
-	for _, metricConfig := range conf.MetricConfigs {
-		if len(jsonResponse[metricConfig.accountId]) == 0 {
-			var err error
-			jsonResponse[metricConfig.accountId], err = get(client, conf, "https://api.conviva.com/insights/2.4/metriclens_dimension_list.json?account=" + metricConfig.accountId)
-			if err != nil {
-				logger.Errorf("Failed to get metriclens dimensions list for account %s: \n%v\n", metricConfig.Account, err)
-				continue
-			}
-		}
-		if len(metricConfig.Dimensions) == 0 {
-			metricConfig.Dimensions = make([]string, 0, len(jsonResponse[metricConfig.accountId]))
-			for dimension := range jsonResponse[metricConfig.accountId] {
-				metricConfig.Dimensions = append(metricConfig.Dimensions, dimension)
-			}
-		}
-		metricConfig.dimensionIdByName = make(map[string]string)
-		metricConfig.dimensionNameById = make(map[string]string)
-		for _, dimension := range metricConfig.Dimensions {
-			if jsonResponse[metricConfig.accountId][dimension] != nil {
-				dimensionId := strconv.FormatFloat(jsonResponse[metricConfig.accountId][dimension].(float64), 'f', 0, 64)
-				metricConfig.dimensionIdByName[dimension]   = dimensionId
-				metricConfig.dimensionNameById[dimensionId] = dimension
-			}
-		}
-	}
-}
-
-func get(client *http.Client, conf *Config, url string) (map[string]interface{}, error) {
-	request, _ := http.NewRequest("GET", url, nil)
-	request.SetBasicAuth(conf.UserName, conf.Password)
-	//if err != nil {
-	//	log.Fatal(err)
-	//}
-	response, err := client.Do(request)
-
-	defer response.Body.Close()
-
-	body, err := ioutil.ReadAll(response.Body)
-
+func get(m *Monitor, conf *Config, url string) (map[string]interface{}, error) {
+	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
-		logger.WithError(err).Error("Could not get prometheus metrics")
-		logger.Fatal(err)
+		return nil, err
+	}
+	req.SetBasicAuth(conf.Username, conf.Password)
+	res, err := m.client.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	defer res.Body.Close()
+	body, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		return nil, err
 	}
 	var payload map[string]interface{}
 	err = json.Unmarshal(body, &payload)
+	if res.StatusCode != 200 {
+		return nil, fmt.Errorf("Response status code: %d. Reason: %s.", res.StatusCode, payload["reason"])
+	}
 	return payload, err
 }
 
@@ -221,4 +252,3 @@ func (m *Monitor) Shutdown() {
 		m.cancel()
 	}
 }
-
