@@ -41,7 +41,7 @@ type Observer struct {
 // Config specific to the host observer
 type Config struct {
 	config.ObserverConfig
-	PollIntervalSeconds int `default:"10"`
+	PollIntervalSeconds int `default:"10" yaml:"pollIntervalSeconds"`
 }
 
 func init() {
