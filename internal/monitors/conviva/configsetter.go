@@ -47,7 +47,7 @@ func setAccounts(m *Monitor, conf *Config)  {
 			metricConfig.Account = jsonResponse["default"].(string)
 			for name, id := range accounts {
 				if metricConfig.Account == name {
-					metricConfig.accountId = id.(string)
+					metricConfig.accountID = id.(string)
 				}
 			}
 		}
@@ -56,46 +56,46 @@ func setAccounts(m *Monitor, conf *Config)  {
 
 func setFilters(m *Monitor, conf *Config) {
 	var jsonResponse   = map[string]map[string]interface{}{}
-	var filterIdByName = map[string]map[string]string{}
-	if conf.filterNameById == nil {
-		conf.filterNameById = make(map[string]map[string]string)
+	var filterIDByName = map[string]map[string]string{}
+	if conf.filterNameByID == nil {
+		conf.filterNameByID = make(map[string]map[string]string)
 	}
 	for _, metricConfig := range conf.MetricConfigs {
 		if len(jsonResponse[metricConfig.Account]) == 0 {
 			var err error
-			url := "https://api.conviva.com/insights/2.4/filters.json?account=" + metricConfig.accountId
+			url := "https://api.conviva.com/insights/2.4/filters.json?account=" + metricConfig.accountID
 			if jsonResponse[metricConfig.Account], err = get(m, conf, url); err != nil {
 				logger.Errorf("Failed to get filters for account %s: \n%v\n", metricConfig.Account, err)
 				continue
 			}
 		}
-		if len(filterIdByName[metricConfig.Account]) == 0 {
-			filterIdByName[metricConfig.Account] = map[string]string{}
+		if len(filterIDByName[metricConfig.Account]) == 0 {
+			filterIDByName[metricConfig.Account] = map[string]string{}
 		}
-		var noFilterNameById bool
-		if noFilterNameById = len(conf.filterNameById[metricConfig.Account]) == 0; noFilterNameById {
-			conf.filterNameById[metricConfig.Account] = map[string]string{}
+		var noFilterNameByID bool
+		if noFilterNameByID = len(conf.filterNameByID[metricConfig.Account]) == 0; noFilterNameByID {
+			conf.filterNameByID[metricConfig.Account] = map[string]string{}
 		}
-		for filterId, filterName := range jsonResponse[metricConfig.Account] {
-			if noFilterNameById {
-				conf.filterNameById[metricConfig.Account][filterId] = filterName.(string)
-				filterIdByName[metricConfig.Account][filterName.(string)] = filterId
+		for filterID, filterName := range jsonResponse[metricConfig.Account] {
+			if noFilterNameByID {
+				conf.filterNameByID[metricConfig.Account][filterID] = filterName.(string)
+				filterIDByName[metricConfig.Account][filterName.(string)] = filterID
 			}
 		}
 		if len(metricConfig.Filters) == 0 {
 			metricConfig.Filters   = []string{"All Traffic",}
-			metricConfig.filterIds = []string{filterIdByName[metricConfig.Account][metricConfig.Filters[0]],}
+			metricConfig.filterIDs = []string{filterIDByName[metricConfig.Account][metricConfig.Filters[0]],}
 		} else if metricConfig.Filters[0] == "*" {
-			metricConfig.Filters   = make([]string, 0, len(conf.filterNameById[metricConfig.Account]))
-			metricConfig.filterIds = make([]string, 0, len(metricConfig.Filters))
-			for filterId, filterName := range conf.filterNameById[metricConfig.Account] {
+			metricConfig.Filters   = make([]string, 0, len(conf.filterNameByID[metricConfig.Account]))
+			metricConfig.filterIDs = make([]string, 0, len(metricConfig.Filters))
+			for filterID, filterName := range conf.filterNameByID[metricConfig.Account] {
 				metricConfig.Filters   = append(metricConfig.Filters, filterName)
-				metricConfig.filterIds = append(metricConfig.filterIds, filterId)
+				metricConfig.filterIDs = append(metricConfig.filterIDs, filterID)
 			}
 		} else {
-			metricConfig.filterIds = make([]string, 0, len(metricConfig.Filters))
+			metricConfig.filterIDs = make([]string, 0, len(metricConfig.Filters))
 			for _, filterName := range metricConfig.Filters {
-				metricConfig.filterIds = append(metricConfig.filterIds, filterIdByName[metricConfig.Account][filterName])
+				metricConfig.filterIDs = append(metricConfig.filterIDs, filterIDByName[metricConfig.Account][filterName])
 			}
 		}
 	}
@@ -105,12 +105,12 @@ func setMetriclensFilters(m *Monitor, conf *Config) {
 	for _, metricConfig := range conf.MetricConfigs {
 		if strings.Contains(metricConfig.Metric, "metriclens") {
 			aDimension := metricConfig.Dimensions[0]
-			for _, filterId := range metricConfig.filterIds {
+			for _, filterID := range metricConfig.filterIDs {
 				url := "https://api.conviva.com/insights/2.4/metrics.json?metrics=" + metricConfig.Metric +
-					"&filter_ids=" + filterId +
-					"&metriclens_dimension_id=" + conf.dimensionIdByAccountAndName[metricConfig.Account][aDimension]
+					"&filter_ids=" + filterID +
+					"&metriclens_dimension_id=" + conf.dimensionIDByAccountAndName[metricConfig.Account][aDimension]
 				if _, err := get(m, conf, url); err == nil {
-					metricConfig.metriclensFilterIds = append(metricConfig.metriclensFilterIds, filterId)
+					metricConfig.metriclensFilterIDs = append(metricConfig.metriclensFilterIDs, filterID)
 				}
 			}
 		}
@@ -119,28 +119,28 @@ func setMetriclensFilters(m *Monitor, conf *Config) {
 
 func setDimensions(m *Monitor, conf *Config) {
 	var jsonResponse = make(map[string]map[string]interface{})
-	if conf.dimensionIdByAccountAndName == nil {
-		conf.dimensionIdByAccountAndName = make(map[string]map[string]string)
+	if conf.dimensionIDByAccountAndName == nil {
+		conf.dimensionIDByAccountAndName = make(map[string]map[string]string)
 	}
 	for _, metricConfig := range conf.MetricConfigs {
 		if len(jsonResponse[metricConfig.Account]) == 0 {
 			var err error
-			jsonResponse[metricConfig.Account], err = get(m, conf, "https://api.conviva.com/insights/2.4/metriclens_dimension_list.json?account=" + metricConfig.accountId)
+			jsonResponse[metricConfig.Account], err = get(m, conf, "https://api.conviva.com/insights/2.4/metriclens_dimension_list.json?account=" + metricConfig.accountID)
 			if err != nil {
 				logger.Errorf("Failed to get metriclens dimensions list for account %s: \n%v\n", metricConfig.Account, err)
 				continue
 			}
 		}
-		var noDimensionIdByAccountAndName, noDimensions bool
-		if noDimensionIdByAccountAndName = len(conf.dimensionIdByAccountAndName[metricConfig.Account]) == 0; noDimensionIdByAccountAndName {
-			conf.dimensionIdByAccountAndName[metricConfig.Account] = make(map[string]string)
+		var noDimensionIDByAccountAndName, noDimensions bool
+		if noDimensionIDByAccountAndName = len(conf.dimensionIDByAccountAndName[metricConfig.Account]) == 0; noDimensionIDByAccountAndName {
+			conf.dimensionIDByAccountAndName[metricConfig.Account] = make(map[string]string)
 		}
 		if noDimensions = len(metricConfig.Dimensions) == 0; noDimensions {
-			metricConfig.Dimensions = make([]string, 0, len(conf.dimensionIdByAccountAndName[metricConfig.Account]))
+			metricConfig.Dimensions = make([]string, 0, len(conf.dimensionIDByAccountAndName[metricConfig.Account]))
 		}
-		for dimension, dimensionId := range jsonResponse[metricConfig.Account] {
-			if noDimensionIdByAccountAndName {
-				conf.dimensionIdByAccountAndName[metricConfig.Account][dimension] = strconv.FormatFloat(dimensionId.(float64), 'f', 0, 64)
+		for dimension, dimensionID := range jsonResponse[metricConfig.Account] {
+			if noDimensionIDByAccountAndName {
+				conf.dimensionIDByAccountAndName[metricConfig.Account][dimension] = strconv.FormatFloat(dimensionID.(float64), 'f', 0, 64)
 			}
 			if noDimensions {
 				metricConfig.Dimensions = append(metricConfig.Dimensions, dimension)
