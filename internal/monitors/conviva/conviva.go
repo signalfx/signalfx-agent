@@ -47,9 +47,9 @@ const monitorType = "conviva"
 // the Conviva metric parameters
 // [here](https://community.conviva.com/site/global/apis_data/experience_insights_api/index.gsp#metrics)
 // Where an account is not provided the default account is used. Where no filters are specified the
-// `All Traffic` filter is used. Where dimensions are not specified all dimensions are used. The `*`
-// wildcard means all. Dimensions only apply to metriclenses. If specified for a regular metric they
-// will be ignored.
+// `All Traffic` filter is used. Where metriclens dimensions are not specified all metriclens dimensions
+// are used. The `_ALL_` keyword means all. Dimensions only apply to metriclenses. If specified for a
+// regular metric they will be ignored.
 //
 // ```
 //monitors:
@@ -61,17 +61,17 @@ const monitorType = "conviva"
 //      metric: audience_metriclens
 //      filters:
 //        - All Traffic
-//      dimensions:
+//      metriclensDimensions:
 //        - Cities
 //    - metric: avg_bitrate
 //      filters:
-//        - *
+//        - _ALL_
 //    - metric: concurrent_plays
 //    - metric: quality_metriclens
 //      filters:
 //        - All Traffic
-//      dimensions:
-//        - *
+//      metriclensDimensions:
+//        - _ALL_
 // ```
 //
 // Add the extra dimension metric_source as shown in sample configuration below for the convenience of searching
@@ -92,28 +92,28 @@ var logger = log.WithFields(log.Fields{"monitorType": monitorType})
 type Config struct {
 	config.MonitorConfig
 	// Conviva Pulse username required with each API request.
-	Username                    string                       `yaml:"pulseUsername" validate:"required"`
+	Username                    string                                 `yaml:"pulseUsername" validate:"required"`
 	// Conviva Pulse password required with each API request.
-	Password                    string                       `yaml:"pulsePassword" validate:"required"`
-	TimeoutSeconds              int                          `yaml:"timeoutSeconds" default:"15"`
-	MetricConfigs               []*MetricConfig              `yaml:"metricConfigs"`
-	filterNameByID              map[string]map[string]string
-	dimensionIDByAccountAndName map[string]map[string]string
-	metriclensMetricNames       map[string][]string
+	Password                              string                       `yaml:"pulsePassword" validate:"required"`
+	TimeoutSeconds                        int                          `yaml:"timeoutSeconds" default:"15"`
+	MetricConfigs                         []*MetricConfig              `yaml:"metricConfigs"`
+	filterNameByID                        map[string]map[string]string
+	metriclensDimensionIDByAccountAndName map[string]map[string]string
+	metriclensMetrics                     map[string][]string
 }
 
 // MetricConfig for configuring individual metric
 type MetricConfig struct {
 	// Conviva customer account name. The default account is used if not specified.
-	Account             string   `yaml:"account"`
-	Metric              string   `yaml:"metric" default:"quality_metriclens"`
+	Account              string   `yaml:"account"`
+	Metric               string   `yaml:"metric" default:"quality_metriclens"`
 	// Filter names. The default is `All Traffic` filter
-	Filters             []string `yaml:"filters"`
+	Filters              []string `yaml:"filters"`
 	// Metriclens dimension names.
-	Dimensions          []string `yaml:"dimensions"`
-	accountID           string
-	filterIDs           []string
-	metriclensFilterIDs []string
+	MetriclensDimensions []string `yaml:"metriclensDimensions"`
+	accountID            string
+	filterIDs            []string
+	metriclensFilterIDs  []string
 }
 
 // Monitor for conviva metrics
@@ -175,15 +175,14 @@ func getSendMetrics(maxNumOfGoroutinesChan chan struct{}, m *Monitor, metricConf
 				return
 			}
 			// The "series" in seriesByFilterID could be of type time series, simple series or label series
-			seriesByFilterID := res[metricConfig.Metric].(map[string]interface{})["filters"].(map[string]interface{})
+			//seriesByFilterID := res[metricConfig.Metric].(map[string]interface{})["filters"].(map[string]interface{})
 			dps := make([]*datapoint.Datapoint, 0)
-			for filterID, series := range seriesByFilterID {
+			// series could be of type time series, simple series or label series
+			for filterID, series := range res[metricConfig.Metric].(map[string]interface{})["filters"].(map[string]interface{}) {
 				for i, metricValue := range series.([]interface{}) {
 					dp := sfxclient.GaugeF(
 						metricConfig.Metric,
 						map[string]string{
-							//TODO: Redundant dimension. Get rid of it
-							"metric":  metricConfig.Metric,
 							"account": metricConfig.Account,
 							"filter":  conf.filterNameByID[metricConfig.Account][filterID],
 						},
@@ -210,9 +209,10 @@ func getSendMetrics(maxNumOfGoroutinesChan chan struct{}, m *Monitor, metricConf
 	}
 }
 
+// TODO: table_map requests always return the filters in filters_warmup
 func getSendMetriclensMetrics(maxNumOfGoroutinesChan chan struct{}, m *Monitor, metricConfig *MetricConfig, conf *Config)  {
 	ctx, _ := context.WithTimeout(m.ctx, time.Duration(conf.IntervalSeconds) * time.Second)
-	for _, metriclensDimension := range metricConfig.Dimensions {
+	for _, metriclensDimension := range metricConfig.MetriclensDimensions {
 		select {
 		case <- ctx.Done():
 			logger.Error(ctx.Err())
@@ -220,7 +220,7 @@ func getSendMetriclensMetrics(maxNumOfGoroutinesChan chan struct{}, m *Monitor, 
 		case maxNumOfGoroutinesChan <- struct{}{}:
 			url := "https://api.conviva.com/insights/2.4/metrics.json?metrics=" + metricConfig.Metric +
 				"&filter_ids=" + strings.Join(metricConfig.metriclensFilterIDs, ",") +
-				"&metriclens_dimension_id=" + conf.dimensionIDByAccountAndName[metricConfig.Account][metriclensDimension]
+				"&metriclens_dimension_id=" + conf.metriclensDimensionIDByAccountAndName[metricConfig.Account][metriclensDimension]
 			go func(m *Monitor, conf *Config, url string, metricConfig *MetricConfig, metriclensDimension string) {
 				defer func() {<- maxNumOfGoroutinesChan}()
 				res, err := get(m, conf, url)
@@ -228,10 +228,10 @@ func getSendMetriclensMetrics(maxNumOfGoroutinesChan chan struct{}, m *Monitor, 
 					logger.Error(err)
 					return
 				}
-				tablesByFilterID := res[metricConfig.Metric].(map[string]interface{})["tables"].(map[string]interface{})
-				metriclensDimensionEntities := res[metricConfig.Metric].(map[string]interface{})["xvalues"].([]interface{})
+				//tablesByFilterID := res[metricConfig.Metric].(map[string]interface{})["tables"].(map[string]interface{})
+				//metriclensDimensionEntities := res[metricConfig.Metric].(map[string]interface{})["xvalues"].([]interface{})
 				dps := make([]*datapoint.Datapoint, 0)
-				for filterID, table := range tablesByFilterID {
+				for filterID, table := range res[metricConfig.Metric].(map[string]interface{})["tables"].(map[string]interface{}) {
 					for tableKey, tableValue := range table.(map[string]interface{}) {
 						if tableKey == "rows" {
 							for rowIndex, row := range tableValue.([]interface{}) {
@@ -243,12 +243,12 @@ func getSendMetriclensMetrics(maxNumOfGoroutinesChan chan struct{}, m *Monitor, 
 									if row != nil {
 										for metricIndex, metricValue := range row.([]interface{}) {
 											dps = append(dps, sfxclient.GaugeF(
-												conf.metriclensMetricNames[metricConfig.Metric][metricIndex],
+												metricConfig.Metric,
 												map[string]string{
-													"metric":  metricConfig.Metric,
-													"account": metricConfig.Account,
-													"filter":  conf.filterNameByID[metricConfig.Account][filterID],
-													metriclensDimension: metriclensDimensionEntities[rowIndex].(string),
+													"account":           metricConfig.Account,
+													"filter":            conf.filterNameByID[metricConfig.Account][filterID],
+													"metriclensMetric":  conf.metriclensMetrics[metricConfig.Metric][metricIndex],
+													metriclensDimension: res[metricConfig.Metric].(map[string]interface{})["xvalues"].([]interface{})[rowIndex].(string),
 												},
 												metricValue.(float64)))
 										}
