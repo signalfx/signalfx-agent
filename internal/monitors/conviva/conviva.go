@@ -158,7 +158,6 @@ func (m *Monitor) Configure(conf *Config) error {
 	return nil
 }
 
-//TODO: implement functionality for simple series and label series
 func getSendMetrics(maxNumOfGoroutinesChan chan struct{}, m *Monitor, metricConfig *MetricConfig, conf *Config) {
 	ctx, _ := context.WithTimeout(m.ctx, time.Duration(conf.IntervalSeconds) * time.Second)
 	select {
@@ -175,25 +174,36 @@ func getSendMetrics(maxNumOfGoroutinesChan chan struct{}, m *Monitor, metricConf
 				logger.Error(err)
 				return
 			}
-			timestamps := res[metricConfig.Metric].(map[string]interface{})["timestamps"].([]interface{})
-			timeSeriesByFilterID := res[metricConfig.Metric].(map[string]interface{})["filters"].(map[string]interface{})
+			// The "series" in seriesByFilterID could be of type time series, simple series or label series
+			seriesByFilterID := res[metricConfig.Metric].(map[string]interface{})["filters"].(map[string]interface{})
 			dps := make([]*datapoint.Datapoint, 0)
-			for filterID, timeSeries := range timeSeriesByFilterID {
-				for i, metricValue := range timeSeries.([]interface{}) {
+			for filterID, series := range seriesByFilterID {
+				for i, metricValue := range series.([]interface{}) {
 					dp := sfxclient.GaugeF(
 						metricConfig.Metric,
 						map[string]string{
+							//TODO: Redundant dimension. Get rid of it
 							"metric":  metricConfig.Metric,
 							"account": metricConfig.Account,
 							"filter":  conf.filterNameByID[metricConfig.Account][filterID],
 						},
 						metricValue.(float64))
-					dp.Timestamp = time.Unix(int64(0.001 * timestamps[i].(float64)), 0)
+					// Checking the type of series and setting dimensions accordingly
+					switch res[metricConfig.Metric].(map[string]interface{})["type"].(string) {
+					case "time_series":
+						dp.Timestamp = time.Unix(int64(0.001 * res[metricConfig.Metric].(map[string]interface{})["timestamps"].([]interface{})[i].(float64)), 0)
+					case "label_series":
+						dp.Dimensions["label"] = res[metricConfig.Metric].(map[string]interface{})["xvalues"].([]interface{})[i].(string)
+						fallthrough
+					default:
+						dp.Timestamp = time.Now()
+					}
 					dp.Meta[dpmeta.NotHostSpecificMeta] = true
 					dps = append(dps, dp)
 				}
 			}
 			for i := range dps {
+
 				m.Output.SendDatapoint(dps[i])
 			}
 		}(m, conf, url)
