@@ -11275,7 +11275,16 @@
       "name": "Config",
       "doc": " Looks at the current host for listening network endpoints.\nIt uses the `/proc` filesystem and requires the `SYS_PTRACE` and\n`DAC_READ_SEARCH` capabilities so that it can determine what processes own\nthe listening sockets.\n\nIt will look for all listening sockets on TCP and UDP over IPv4 and IPv6.\n",
       "package": "internal/observers/host",
-      "fields": [],
+      "fields": [
+        {
+          "yamlName": "pollIntervalSeconds",
+          "doc": "",
+          "default": 10,
+          "required": false,
+          "type": "int",
+          "elementKind": ""
+        }
+      ],
       "observerType": "host",
       "dimensions": [
         {
