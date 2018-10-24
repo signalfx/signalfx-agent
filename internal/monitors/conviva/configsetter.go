@@ -1,7 +1,6 @@
 package conviva
 
 import (
-	"context"
 	"strconv"
 	"strings"
 )
@@ -27,7 +26,6 @@ func setConfigFields(m *Monitor, conf *Config)  {
 			"ended_plays",
 		},
 	}
-	m.ctx, m.cancel = context.WithCancel(context.Background())
 	if conf.MetricConfigs == nil {
 		conf.MetricConfigs = []*MetricConfig{{Metric: "quality_metriclens"}}
 	}
@@ -138,7 +136,7 @@ func setDimensions(m *Monitor, conf *Config) {
 			conf.dimensionIdByAccountAndName[metricConfig.Account] = make(map[string]string)
 		}
 		if noDimensions = len(metricConfig.Dimensions) == 0; noDimensions {
-			metricConfig.Dimensions   = make([]string, 0, len(conf.dimensionIdByAccountAndName[metricConfig.Account]))
+			metricConfig.Dimensions = make([]string, 0, len(conf.dimensionIdByAccountAndName[metricConfig.Account]))
 		}
 		for dimension, dimensionId := range jsonResponse[metricConfig.Account] {
 			if noDimensionIdByAccountAndName {

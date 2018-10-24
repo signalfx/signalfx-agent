@@ -11,7 +11,7 @@ import (
 	"github.com/signalfx/signalfx-agent/internal/monitors"
 	"github.com/signalfx/signalfx-agent/internal/monitors/types"
 	"github.com/signalfx/signalfx-agent/internal/utils"
-	Logger "github.com/sirupsen/logrus"
+	log "github.com/sirupsen/logrus"
 	"io/ioutil"
 	"net/http"
 	"strings"
@@ -21,49 +21,81 @@ import (
 const monitorType = "conviva"
 
 // MONITOR(conviva): This monitor uses version 2.4 of the Conviva Experience Insights REST APIs to pull
-// `real-time(live)` video playing experience metrics from Conviva.
+// `real-time/live` video playing experience metrics from Conviva.
 //
-// Only `live` metrics types are supported. See
-// https://community.conviva.com/site/global/apis_data/experience_insights_api/index.gsp#metrics
-// if Conviva developer community member. The live metrics are gauge type metrics. They are converted
-// to SignalFx gauges with dimensions for the metric name, account name and filter name. For metriclens,
-// the metriclens dimensions are converted to SignalFx dimensions in addition. The values for these
-// dimensions are derived from the values of the associated metriclens dimension entities.
+// Only `real-time/live` conviva metrics listed
+// [here](https://community.conviva.com/site/global/apis_data/experience_insights_api/index.gsp#metrics)
+// are supported. The metrics are gauges. They are converted to SignalFx metrics with dimensions for the
+// account name, filter name. In the case of metriclenses, the names of the constituent metrics and the
+// conviva metriclens dimensions are included. The values of the conviva dimensions are derived from
+// the values of the associated metriclens dimension entities.
 //
-// TODO: doc about the default behavior
-//
-// Sample YAML configuration:
+// Below is a sample YAML configuration showing the most basic configuration of the conviva monitor
+// using the required fields. For this configuration the monitor will default to fetching quality metriclens
+// metrics from the default conviva account using the `All Traffic` filter.
 //
 // ```
 //monitors:
 //- type: conviva
-//  pulse_username: <username>
-//  pulse_password: <password>
-//  timeoutSeconds: 20
-//  intervalSeconds: 25
+//  pulseUsername: <username>
+//  pulsePassword: <password>
+// ```
+//
+// Individual metrics are configured in a list of metricConfigs as shown in sample configuration below.
+// Metric values are the titles of the metrics
+// [here](https://github.com/signalfx/integrations/tree/master/conviva/docs) which are the same as
+// the Conviva metric parameters
+// [here](https://community.conviva.com/site/global/apis_data/experience_insights_api/index.gsp#metrics)
+// Where an account is not provided the default account is used. Where no filters are specified the
+// `All Traffic` filter is used. Where dimensions are not specified all dimensions are used. The `*`
+// wildcard means all. Dimensions only apply to metriclenses. If specified for a regular metric they
+// will be ignored.
+//
+// ```
+//monitors:
+//- type: conviva
+//  pulseUsername: <username>
+//  pulsePassword: <password>
 //  metricConfigs:
 //    - account: c3.NBC
-//      metric: quality_metriclens
+//      metric: audience_metriclens
 //      filters:
 //        - All Traffic
-//        - Live
 //      dimensions:
 //        - Cities
-//        - CDNs
-//    - account: c3.NBC
-//      metric: avg_bitrate
+//    - metric: avg_bitrate
+//      filters:
+//        - *
+//    - metric: concurrent_plays
+//    - metric: quality_metriclens
 //      filters:
 //        - All Traffic
+//      dimensions:
+//        - *
+// ```
+//
+// Add the extra dimension metric_source as shown in sample configuration below for the convenience of searching
+// for your metrics in SignalFx using the metric_source value you specify.
+//
+// ```
+//monitors:
+//- type: conviva
+//  pulseUsername: <username>
+//  pulsePassword: <password>
+//  extraDimensions:
+//    metric_source: conviva
 // ```
 
-var logger = Logger.WithFields(Logger.Fields{"monitorType": monitorType})
+var logger = log.WithFields(log.Fields{"monitorType": monitorType})
 
 // Config for this monitor
 type Config struct {
 	config.MonitorConfig
-	Username                    string                       `yaml:"pulse_username" validate:"required"`
-	Password                    string                       `yaml:"pulse_password" validate:"required"`
-	TimeoutSeconds              int                          `yaml:"timeoutSeconds" default:"5"`
+	// Conviva Pulse username required with each API request.
+	Username                    string                       `yaml:"pulseUsername" validate:"required"`
+	// Conviva Pulse password required with each API request.
+	Password                    string                       `yaml:"pulsePassword" validate:"required"`
+	TimeoutSeconds              int                          `yaml:"timeoutSeconds" default:"15"`
 	MetricConfigs               []*MetricConfig              `yaml:"metricConfigs"`
 	filterNameById              map[string]map[string]string
 	dimensionIdByAccountAndName map[string]map[string]string
@@ -71,9 +103,12 @@ type Config struct {
 }
 
 type MetricConfig struct {
+	// Conviva customer account name. The default account is used if not specified.
 	Account             string   `yaml:"account"`
 	Metric              string   `yaml:"metric" default:"quality_metriclens"`
+	// Filter names. The default is `All Traffic` filter
 	Filters             []string `yaml:"filters"`
+	// Metriclens dimension names.
 	Dimensions          []string `yaml:"dimensions"`
 	accountId           string
 	filterIds           []string
@@ -82,10 +117,10 @@ type MetricConfig struct {
 
 // Monitor for conviva metrics
 type Monitor struct {
-	Output types.Output
-	cancel func()
+	Output  types.Output
+	cancel  context.CancelFunc
 	ctx     context.Context
-	client *http.Client
+	client  *http.Client
 	timeout time.Duration
 }
 
@@ -102,6 +137,7 @@ func (m *Monitor) Configure(conf *Config) error {
 			MaxIdleConnsPerHost: 100,
 		},
 	}
+	m.ctx, m.cancel = context.WithCancel(context.Background())
 	setConfigFields(m, conf)
 	maxNumOfGoroutines := len(conf.MetricConfigs) * 100
 	if maxNumOfGoroutines > 500 {
@@ -119,6 +155,7 @@ func (m *Monitor) Configure(conf *Config) error {
 	}, time.Duration(conf.IntervalSeconds) * time.Second)
 	return nil
 }
+
 //TODO: implement functionality for simple series and label series
 func getSendMetrics(maxNumOfGoroutinesChan chan struct{}, m *Monitor, metricConfig *MetricConfig, conf *Config) {
 	ctx, cancel := context.WithTimeout(m.ctx, time.Duration(conf.IntervalSeconds) * time.Second)
@@ -240,7 +277,7 @@ func get(m *Monitor, conf *Config, url string) (map[string]interface{}, error) {
 	}
 	var payload map[string]interface{}
 	err = json.Unmarshal(body, &payload)
-	if res.StatusCode != 200 {
+	if res.StatusCode != 200 && payload != nil {
 		return nil, fmt.Errorf("Response status code: %d. Reason: %s.", res.StatusCode, payload["reason"])
 	}
 	return payload, err
