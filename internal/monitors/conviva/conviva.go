@@ -97,11 +97,12 @@ type Config struct {
 	Password                    string                       `yaml:"pulsePassword" validate:"required"`
 	TimeoutSeconds              int                          `yaml:"timeoutSeconds" default:"15"`
 	MetricConfigs               []*MetricConfig              `yaml:"metricConfigs"`
-	filterNameById              map[string]map[string]string
-	dimensionIdByAccountAndName map[string]map[string]string
+	filterNameByID              map[string]map[string]string
+	dimensionIDByAccountAndName map[string]map[string]string
 	metriclensMetricNames       map[string][]string
 }
 
+// MetricConfig for configuring individual metric
 type MetricConfig struct {
 	// Conviva customer account name. The default account is used if not specified.
 	Account             string   `yaml:"account"`
@@ -110,9 +111,9 @@ type MetricConfig struct {
 	Filters             []string `yaml:"filters"`
 	// Metriclens dimension names.
 	Dimensions          []string `yaml:"dimensions"`
-	accountId           string
-	filterIds           []string
-	metriclensFilterIds []string
+	accountID           string
+	filterIDs           []string
+	metriclensFilterIDs []string
 }
 
 // Monitor for conviva metrics
@@ -128,6 +129,7 @@ func init() {
 	monitors.Register(monitorType, func() interface{} { return &Monitor{} }, &Config{})
 }
 
+// Configure monitor
 func (m *Monitor) Configure(conf *Config) error {
 	logger.Debugf("configuration object before additional auto-configuration:\n%+v\n", conf)
 	m.timeout = time.Duration(conf.TimeoutSeconds) * time.Second
@@ -158,15 +160,14 @@ func (m *Monitor) Configure(conf *Config) error {
 
 //TODO: implement functionality for simple series and label series
 func getSendMetrics(maxNumOfGoroutinesChan chan struct{}, m *Monitor, metricConfig *MetricConfig, conf *Config) {
-	ctx, cancel := context.WithTimeout(m.ctx, time.Duration(conf.IntervalSeconds) * time.Second)
+	ctx, _ := context.WithTimeout(m.ctx, time.Duration(conf.IntervalSeconds) * time.Second)
 	select {
 	case <- ctx.Done():
-		cancel()
 		logger.Error(ctx.Err())
 		return
 	case maxNumOfGoroutinesChan <- struct{}{}:
 		url := "https://api.conviva.com/insights/2.4/metrics.json?metrics=" + metricConfig.Metric +
-			"&filter_ids=" + strings.Join(metricConfig.filterIds, ",")
+			"&filter_ids=" + strings.Join(metricConfig.filterIDs, ",")
 		go func(m *Monitor, conf *Config, url string) {
 			defer func() {<- maxNumOfGoroutinesChan}()
 			res, err := get(m, conf, url)
@@ -175,16 +176,16 @@ func getSendMetrics(maxNumOfGoroutinesChan chan struct{}, m *Monitor, metricConf
 				return
 			}
 			timestamps := res[metricConfig.Metric].(map[string]interface{})["timestamps"].([]interface{})
-			timeSeriesByFilterId := res[metricConfig.Metric].(map[string]interface{})["filters"].(map[string]interface{})
+			timeSeriesByFilterID := res[metricConfig.Metric].(map[string]interface{})["filters"].(map[string]interface{})
 			dps := make([]*datapoint.Datapoint, 0)
-			for filterId, timeSeries := range timeSeriesByFilterId {
+			for filterID, timeSeries := range timeSeriesByFilterID {
 				for i, metricValue := range timeSeries.([]interface{}) {
 					dp := sfxclient.GaugeF(
 						metricConfig.Metric,
 						map[string]string{
 							"metric":  metricConfig.Metric,
 							"account": metricConfig.Account,
-							"filter":  conf.filterNameById[metricConfig.Account][filterId],
+							"filter":  conf.filterNameByID[metricConfig.Account][filterID],
 						},
 						metricValue.(float64))
 					dp.Timestamp = time.Unix(int64(0.001 * timestamps[i].(float64)), 0)
@@ -200,17 +201,16 @@ func getSendMetrics(maxNumOfGoroutinesChan chan struct{}, m *Monitor, metricConf
 }
 
 func getSendMetriclensMetrics(maxNumOfGoroutinesChan chan struct{}, m *Monitor, metricConfig *MetricConfig, conf *Config)  {
-	ctx, cancel := context.WithTimeout(m.ctx, time.Duration(conf.IntervalSeconds) * time.Second)
+	ctx, _ := context.WithTimeout(m.ctx, time.Duration(conf.IntervalSeconds) * time.Second)
 	for _, metriclensDimension := range metricConfig.Dimensions {
 		select {
 		case <- ctx.Done():
-			cancel()
 			logger.Error(ctx.Err())
 			return
 		case maxNumOfGoroutinesChan <- struct{}{}:
 			url := "https://api.conviva.com/insights/2.4/metrics.json?metrics=" + metricConfig.Metric +
-				"&filter_ids=" + strings.Join(metricConfig.metriclensFilterIds, ",") +
-				"&metriclens_dimension_id=" + conf.dimensionIdByAccountAndName[metricConfig.Account][metriclensDimension]
+				"&filter_ids=" + strings.Join(metricConfig.metriclensFilterIDs, ",") +
+				"&metriclens_dimension_id=" + conf.dimensionIDByAccountAndName[metricConfig.Account][metriclensDimension]
 			go func(m *Monitor, conf *Config, url string, metricConfig *MetricConfig, metriclensDimension string) {
 				defer func() {<- maxNumOfGoroutinesChan}()
 				res, err := get(m, conf, url)
@@ -218,16 +218,15 @@ func getSendMetriclensMetrics(maxNumOfGoroutinesChan chan struct{}, m *Monitor, 
 					logger.Error(err)
 					return
 				}
-				tablesByFilterId := res[metricConfig.Metric].(map[string]interface{})["tables"].(map[string]interface{})
+				tablesByFilterID := res[metricConfig.Metric].(map[string]interface{})["tables"].(map[string]interface{})
 				metriclensDimensionEntities := res[metricConfig.Metric].(map[string]interface{})["xvalues"].([]interface{})
 				dps := make([]*datapoint.Datapoint, 0)
-				for filterId, table := range tablesByFilterId {
+				for filterID, table := range tablesByFilterID {
 					for tableKey, tableValue := range table.(map[string]interface{}) {
 						if tableKey == "rows" {
 							for rowIndex, row := range tableValue.([]interface{}) {
 								select {
 								case <-ctx.Done():
-									cancel()
 									logger.Error(ctx.Err())
 									return
 								default:
@@ -238,7 +237,7 @@ func getSendMetriclensMetrics(maxNumOfGoroutinesChan chan struct{}, m *Monitor, 
 												map[string]string{
 													"metric":  metricConfig.Metric,
 													"account": metricConfig.Account,
-													"filter":  conf.filterNameById[metricConfig.Account][filterId],
+													"filter":  conf.filterNameByID[metricConfig.Account][filterID],
 													metriclensDimension: metriclensDimensionEntities[rowIndex].(string),
 												},
 												metricValue.(float64)))
@@ -278,7 +277,7 @@ func get(m *Monitor, conf *Config, url string) (map[string]interface{}, error) {
 	var payload map[string]interface{}
 	err = json.Unmarshal(body, &payload)
 	if res.StatusCode != 200 && payload != nil {
-		return nil, fmt.Errorf("Response status code: %d. Reason: %s.", res.StatusCode, payload["reason"])
+		return nil, fmt.Errorf("Response status code: %d. Reason: %s", res.StatusCode, payload["reason"])
 	}
 	return payload, err
 }

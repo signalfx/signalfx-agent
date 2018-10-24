@@ -9778,6 +9778,90 @@
     },
     {
       "name": "Config",
+      "doc": " This monitor uses version 2.4 of the Conviva Experience Insights REST APIs to pull\n`real-time/live` video playing experience metrics from Conviva.\n\nOnly `real-time/live` conviva metrics listed\n[here](https://community.conviva.com/site/global/apis_data/experience_insights_api/index.gsp#metrics)\nare supported. The metrics are gauges. They are converted to SignalFx metrics with dimensions for the\naccount name, filter name. In the case of metriclenses, the names of the constituent metrics and the\nconviva metriclens dimensions are included. The values of the conviva dimensions are derived from\nthe values of the associated metriclens dimension entities.\n\nBelow is a sample YAML configuration showing the most basic configuration of the conviva monitor\nusing the required fields. For this configuration the monitor will default to fetching quality metriclens\nmetrics from the default conviva account using the `All Traffic` filter.\n\n```\nmonitors:\n- type: conviva\n pulseUsername: \u003cusername\u003e\n pulsePassword: \u003cpassword\u003e\n```\n\nIndividual metrics are configured in a list of metricConfigs as shown in sample configuration below.\nMetric values are the titles of the metrics\n[here](https://github.com/signalfx/integrations/tree/master/conviva/docs) which are the same as\nthe Conviva metric parameters\n[here](https://community.conviva.com/site/global/apis_data/experience_insights_api/index.gsp#metrics)\nWhere an account is not provided the default account is used. Where no filters are specified the\n`All Traffic` filter is used. Where dimensions are not specified all dimensions are used. The `*`\nwildcard means all. Dimensions only apply to metriclenses. If specified for a regular metric they\nwill be ignored.\n\n```\nmonitors:\n- type: conviva\n pulseUsername: \u003cusername\u003e\n pulsePassword: \u003cpassword\u003e\n metricConfigs:\n   - account: c3.NBC\n     metric: audience_metriclens\n     filters:\n       - All Traffic\n     dimensions:\n       - Cities\n   - metric: avg_bitrate\n     filters:\n       - *\n   - metric: concurrent_plays\n   - metric: quality_metriclens\n     filters:\n       - All Traffic\n     dimensions:\n       - *\n```\n\nAdd the extra dimension metric_source as shown in sample configuration below for the convenience of searching\nfor your metrics in SignalFx using the metric_source value you specify.\n\n```\nmonitors:\n- type: conviva\n pulseUsername: \u003cusername\u003e\n pulsePassword: \u003cpassword\u003e\n extraDimensions:\n   metric_source: conviva\n```\n",
+      "package": "internal/monitors/conviva",
+      "fields": [
+        {
+          "yamlName": "pulse_username",
+          "doc": "Conviva Pulse username required with each API request.",
+          "default": null,
+          "required": true,
+          "type": "string",
+          "elementKind": ""
+        },
+        {
+          "yamlName": "pulse_password",
+          "doc": "Conviva Pulse password required with each API request.",
+          "default": null,
+          "required": true,
+          "type": "string",
+          "elementKind": ""
+        },
+        {
+          "yamlName": "timeoutSeconds",
+          "doc": "",
+          "default": 5,
+          "required": false,
+          "type": "int",
+          "elementKind": ""
+        },
+        {
+          "yamlName": "metricConfigs",
+          "doc": "",
+          "default": null,
+          "required": false,
+          "type": "slice",
+          "elementKind": "struct",
+          "elementStruct": {
+            "name": "MetricConfig",
+            "doc": "MetricConfig for configuring individual metric",
+            "package": "internal/monitors/conviva",
+            "fields": [
+              {
+                "yamlName": "account",
+                "doc": "Conviva customer account name. The default account is used if not specified.",
+                "default": "",
+                "required": false,
+                "type": "string",
+                "elementKind": ""
+              },
+              {
+                "yamlName": "metric",
+                "doc": "",
+                "default": "quality_metriclens",
+                "required": false,
+                "type": "string",
+                "elementKind": ""
+              },
+              {
+                "yamlName": "filters",
+                "doc": "Filter names. The default is `All Traffic` filter",
+                "default": null,
+                "required": false,
+                "type": "slice",
+                "elementKind": "string"
+              },
+              {
+                "yamlName": "dimensions",
+                "doc": "Metriclens dimension names.",
+                "default": null,
+                "required": false,
+                "type": "slice",
+                "elementKind": "string"
+              }
+            ]
+          }
+        }
+      ],
+      "monitorType": "conviva",
+      "acceptsEndpoints": false,
+      "singleInstance": false,
+      "dimensions": null,
+      "metrics": null,
+      "properties": null
+    },
+    {
+      "name": "Config",
       "doc": " This monitor reads container stats from a\nDocker API server.  It is meant as a metric-compatible replacement of our\n[docker-collectd](https://github.com/signalfx/docker-collectd-plugin)\nplugin, which scales rather poorly against a large number of containers.\n\nThis currently does not support CPU share/quota metrics.\n\nIf you are running the agent directly on a host (outside of a container\nitself) and you are using the default Docker UNIX socket URL, you will\nprobably need to add the `signalfx-agent` user to the `docker` group in\norder to have permission to access the Docker API via the socket.\n\nRequires Docker API version 1.22+.\n",
       "package": "internal/monitors/docker",
       "fields": [
