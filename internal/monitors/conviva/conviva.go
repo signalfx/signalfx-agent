@@ -21,9 +21,9 @@ import (
 const monitorType = "conviva"
 
 // MONITOR(conviva): This monitor uses version 2.4 of the Conviva Experience Insights REST APIs to pull
-// `real-time/live` video playing experience metrics from Conviva.
+// `Real-Time/Live` video playing experience metrics from Conviva.
 //
-// Only `real-time/live` conviva metrics listed
+// Only `Live` conviva metrics listed
 // [here](https://community.conviva.com/site/global/apis_data/experience_insights_api/index.gsp#metrics)
 // are supported. The metrics are gauges. They are converted to SignalFx metrics with dimensions for the
 // account name, filter name. In the case of metriclenses, the names of the constituent metrics and the
@@ -141,34 +141,37 @@ func (m *Monitor) Configure(conf *Config) error {
 	}
 	m.ctx, m.cancel = context.WithCancel(context.Background())
 	setConfigFields(m, conf)
-	maxNumOfGoroutines := len(conf.MetricConfigs) * 100
-	if maxNumOfGoroutines > 500 {
-		maxNumOfGoroutines = 500
-	}
-	maxNumOfGoroutinesChan := make(chan struct{}, maxNumOfGoroutines)
+	semaphore := make(chan struct{}, requestsPerInterval(conf.MetricConfigs))
 	utils.RunOnInterval(m.ctx, func() {
 		for _, metricConfig := range conf.MetricConfigs {
 			if strings.Contains(metricConfig.Metric, "metriclens") {
-				getSendMetriclensMetrics(maxNumOfGoroutinesChan, m, metricConfig, conf)
+				getSendMetriclensMetrics(semaphore, m, metricConfig, conf)
 			} else {
-				getSendMetrics(maxNumOfGoroutinesChan, m, metricConfig, conf)
+				getSendMetrics(semaphore, m, metricConfig, conf)
 			}
 		}
 	}, time.Duration(conf.IntervalSeconds) * time.Second)
 	return nil
 }
 
-func getSendMetrics(maxNumOfGoroutinesChan chan struct{}, m *Monitor, metricConfig *MetricConfig, conf *Config) {
+// Shutdown stops the metric sync
+func (m *Monitor) Shutdown() {
+	if m.cancel != nil {
+		m.cancel()
+	}
+}
+
+func getSendMetrics(semaphore chan struct{}, m *Monitor, metricConfig *MetricConfig, conf *Config) {
 	ctx, _ := context.WithTimeout(m.ctx, time.Duration(conf.IntervalSeconds) * time.Second)
 	select {
 	case <- ctx.Done():
 		logger.Error(ctx.Err())
 		return
-	case maxNumOfGoroutinesChan <- struct{}{}:
+	case semaphore <- struct{}{}:
 		url := "https://api.conviva.com/insights/2.4/metrics.json?metrics=" + metricConfig.Metric +
 			"&filter_ids=" + strings.Join(metricConfig.filterIDs, ",")
 		go func(m *Monitor, conf *Config, url string) {
-			defer func() {<- maxNumOfGoroutinesChan}()
+			defer func() { <- semaphore }()
 			res, err := get(m, conf, url)
 			if err != nil {
 				logger.Error(err)
@@ -210,19 +213,19 @@ func getSendMetrics(maxNumOfGoroutinesChan chan struct{}, m *Monitor, metricConf
 }
 
 // TODO: table_map requests always return the filters in filters_warmup
-func getSendMetriclensMetrics(maxNumOfGoroutinesChan chan struct{}, m *Monitor, metricConfig *MetricConfig, conf *Config)  {
+func getSendMetriclensMetrics(semaphore chan struct{}, m *Monitor, metricConfig *MetricConfig, conf *Config)  {
 	ctx, _ := context.WithTimeout(m.ctx, time.Duration(conf.IntervalSeconds) * time.Second)
 	for _, metriclensDimension := range metricConfig.MetriclensDimensions {
 		select {
 		case <- ctx.Done():
 			logger.Error(ctx.Err())
 			return
-		case maxNumOfGoroutinesChan <- struct{}{}:
+		case semaphore <- struct{}{}:
 			url := "https://api.conviva.com/insights/2.4/metrics.json?metrics=" + metricConfig.Metric +
 				"&filter_ids=" + strings.Join(metricConfig.metriclensFilterIDs, ",") +
 				"&metriclens_dimension_id=" + conf.metriclensDimensionIDByAccountAndName[metricConfig.Account][metriclensDimension]
 			go func(m *Monitor, conf *Config, url string, metricConfig *MetricConfig, metriclensDimension string) {
-				defer func() {<- maxNumOfGoroutinesChan}()
+				defer func() { <- semaphore }()
 				res, err := get(m, conf, url)
 				if err != nil {
 					logger.Error(err)
@@ -236,7 +239,7 @@ func getSendMetriclensMetrics(maxNumOfGoroutinesChan chan struct{}, m *Monitor, 
 						if tableKey == "rows" {
 							for rowIndex, row := range tableValue.([]interface{}) {
 								select {
-								case <-ctx.Done():
+								case <- ctx.Done():
 									logger.Error(ctx.Err())
 									return
 								default:
@@ -292,9 +295,14 @@ func get(m *Monitor, conf *Config, url string) (map[string]interface{}, error) {
 	return payload, err
 }
 
-// Shutdown stops the metric sync
-func (m *Monitor) Shutdown() {
-	if m.cancel != nil {
-		m.cancel()
+func requestsPerInterval(metricConfigs []*MetricConfig) int {
+	requests := 0
+	for _, metricConfig := range metricConfigs {
+		if metriclensDimensionsLength := len(metricConfig.MetriclensDimensions); metriclensDimensionsLength != 0 {
+			requests += len(metricConfig.Filters) * metriclensDimensionsLength
+		} else {
+			requests += len(metricConfig.Filters)
+		}
 	}
+	return requests
 }
