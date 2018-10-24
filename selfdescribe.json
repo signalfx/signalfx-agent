@@ -9778,11 +9778,11 @@
     },
     {
       "name": "Config",
-      "doc": " This monitor uses version 2.4 of the Conviva Experience Insights REST APIs to pull\n`real-time/live` video playing experience metrics from Conviva.\n\nOnly `real-time/live` conviva metrics listed\n[here](https://community.conviva.com/site/global/apis_data/experience_insights_api/index.gsp#metrics)\nare supported. The metrics are gauges. They are converted to SignalFx metrics with dimensions for the\naccount name, filter name. In the case of metriclenses, the names of the constituent metrics and the\nconviva metriclens dimensions are included. The values of the conviva dimensions are derived from\nthe values of the associated metriclens dimension entities.\n\nBelow is a sample YAML configuration showing the most basic configuration of the conviva monitor\nusing the required fields. For this configuration the monitor will default to fetching quality metriclens\nmetrics from the default conviva account using the `All Traffic` filter.\n\n```\nmonitors:\n- type: conviva\n pulseUsername: \u003cusername\u003e\n pulsePassword: \u003cpassword\u003e\n```\n\nIndividual metrics are configured in a list of metricConfigs as shown in sample configuration below.\nMetric values are the titles of the metrics\n[here](https://github.com/signalfx/integrations/tree/master/conviva/docs) which are the same as\nthe Conviva metric parameters\n[here](https://community.conviva.com/site/global/apis_data/experience_insights_api/index.gsp#metrics)\nWhere an account is not provided the default account is used. Where no filters are specified the\n`All Traffic` filter is used. Where dimensions are not specified all dimensions are used. The `*`\nwildcard means all. Dimensions only apply to metriclenses. If specified for a regular metric they\nwill be ignored.\n\n```\nmonitors:\n- type: conviva\n pulseUsername: \u003cusername\u003e\n pulsePassword: \u003cpassword\u003e\n metricConfigs:\n   - account: c3.NBC\n     metric: audience_metriclens\n     filters:\n       - All Traffic\n     dimensions:\n       - Cities\n   - metric: avg_bitrate\n     filters:\n       - *\n   - metric: concurrent_plays\n   - metric: quality_metriclens\n     filters:\n       - All Traffic\n     dimensions:\n       - *\n```\n\nAdd the extra dimension metric_source as shown in sample configuration below for the convenience of searching\nfor your metrics in SignalFx using the metric_source value you specify.\n\n```\nmonitors:\n- type: conviva\n pulseUsername: \u003cusername\u003e\n pulsePassword: \u003cpassword\u003e\n extraDimensions:\n   metric_source: conviva\n```\n",
+      "doc": " This monitor uses version 2.4 of the Conviva Experience Insights REST APIs to pull\n`Real-Time/Live` video playing experience metrics from Conviva.\n\nOnly `Live` conviva metrics listed\n[here](https://community.conviva.com/site/global/apis_data/experience_insights_api/index.gsp#metrics)\nare supported. The metrics are gauges. They are converted to SignalFx metrics with dimensions for the\naccount name, filter name. In the case of metriclenses, the names of the constituent metrics and the\nconviva metriclens dimensions are included. The values of the conviva dimensions are derived from\nthe values of the associated metriclens dimension entities.\n\nBelow is a sample YAML configuration showing the most basic configuration of the conviva monitor\nusing the required fields. For this configuration the monitor will default to fetching quality metriclens\nmetrics from the default conviva account using the `All Traffic` filter.\n\n```\nmonitors:\n- type: conviva\n pulseUsername: \u003cusername\u003e\n pulsePassword: \u003cpassword\u003e\n```\n\nIndividual metrics are configured in a list of metricConfigs as shown in sample configuration below.\nMetric values are the titles of the metrics\n[here](https://github.com/signalfx/integrations/tree/master/conviva/docs) which are the same as\nthe Conviva metric parameters\n[here](https://community.conviva.com/site/global/apis_data/experience_insights_api/index.gsp#metrics)\nWhere an account is not provided the default account is used. Where no filters are specified the\n`All Traffic` filter is used. Where metriclens dimensions are not specified all metriclens dimensions\nare used. The `_ALL_` keyword means all. Dimensions only apply to metriclenses. If specified for a\nregular metric they will be ignored.\n\n```\nmonitors:\n- type: conviva\n pulseUsername: \u003cusername\u003e\n pulsePassword: \u003cpassword\u003e\n metricConfigs:\n   - account: c3.NBC\n     metric: audience_metriclens\n     filters:\n       - All Traffic\n     metriclensDimensions:\n       - Cities\n   - metric: avg_bitrate\n     filters:\n       - _ALL_\n   - metric: concurrent_plays\n   - metric: quality_metriclens\n     filters:\n       - All Traffic\n     metriclensDimensions:\n       - _ALL_\n```\n\nAdd the extra dimension metric_source as shown in sample configuration below for the convenience of searching\nfor your metrics in SignalFx using the metric_source value you specify.\n\n```\nmonitors:\n- type: conviva\n pulseUsername: \u003cusername\u003e\n pulsePassword: \u003cpassword\u003e\n extraDimensions:\n   metric_source: conviva\n```\n",
       "package": "internal/monitors/conviva",
       "fields": [
         {
-          "yamlName": "pulse_username",
+          "yamlName": "pulseUsername",
           "doc": "Conviva Pulse username required with each API request.",
           "default": null,
           "required": true,
@@ -9790,7 +9790,7 @@
           "elementKind": ""
         },
         {
-          "yamlName": "pulse_password",
+          "yamlName": "pulsePassword",
           "doc": "Conviva Pulse password required with each API request.",
           "default": null,
           "required": true,
@@ -9800,7 +9800,7 @@
         {
           "yamlName": "timeoutSeconds",
           "doc": "",
-          "default": 5,
+          "default": 15,
           "required": false,
           "type": "int",
           "elementKind": ""
@@ -9842,7 +9842,7 @@
                 "elementKind": "string"
               },
               {
-                "yamlName": "dimensions",
+                "yamlName": "metriclensDimensions",
                 "doc": "Metriclens dimension names.",
                 "default": null,
                 "required": false,

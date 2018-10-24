@@ -3,9 +3,9 @@
 # conviva
 
  This monitor uses version 2.4 of the Conviva Experience Insights REST APIs to pull
-`real-time/live` video playing experience metrics from Conviva.
+`Real-Time/Live` video playing experience metrics from Conviva.
 
-Only `real-time/live` conviva metrics listed
+Only `Live` conviva metrics listed
 [here](https://community.conviva.com/site/global/apis_data/experience_insights_api/index.gsp#metrics)
 are supported. The metrics are gauges. They are converted to SignalFx metrics with dimensions for the
 account name, filter name. In the case of metriclenses, the names of the constituent metrics and the
@@ -29,9 +29,9 @@ Metric values are the titles of the metrics
 the Conviva metric parameters
 [here](https://community.conviva.com/site/global/apis_data/experience_insights_api/index.gsp#metrics)
 Where an account is not provided the default account is used. Where no filters are specified the
-`All Traffic` filter is used. Where dimensions are not specified all dimensions are used. The `*`
-wildcard means all. Dimensions only apply to metriclenses. If specified for a regular metric they
-will be ignored.
+`All Traffic` filter is used. Where metriclens dimensions are not specified all metriclens dimensions
+are used. The `_ALL_` keyword means all. Dimensions only apply to metriclenses. If specified for a
+regular metric they will be ignored.
 
 ```
 monitors:
@@ -43,17 +43,17 @@ monitors:
      metric: audience_metriclens
      filters:
        - All Traffic
-     dimensions:
+     metriclensDimensions:
        - Cities
    - metric: avg_bitrate
      filters:
-       - *
+       - _ALL_
    - metric: concurrent_plays
    - metric: quality_metriclens
      filters:
        - All Traffic
-     dimensions:
-       - *
+     metriclensDimensions:
+       - _ALL_
 ```
 
 Add the extra dimension metric_source as shown in sample configuration below for the convenience of searching
@@ -81,9 +81,9 @@ Monitor Type: `conviva`
 
 | Config option | Required | Type | Description |
 | --- | --- | --- | --- |
-| `pulse_username` | **yes** | `string` | Conviva Pulse username required with each API request. |
-| `pulse_password` | **yes** | `string` | Conviva Pulse password required with each API request. |
-| `timeoutSeconds` | no | `integer` |  (**default:** `5`) |
+| `pulseUsername` | **yes** | `string` | Conviva Pulse username required with each API request. |
+| `pulsePassword` | **yes** | `string` | Conviva Pulse password required with each API request. |
+| `timeoutSeconds` | no | `integer` |  (**default:** `15`) |
 | `metricConfigs` | no | `list of object (see below)` |  |
 
 
@@ -94,7 +94,7 @@ The **nested** `metricConfigs` config object has the following fields:
 | `account` | no | `string` | Conviva customer account name. The default account is used if not specified. |
 | `metric` | no | `string` |  (**default:** `quality_metriclens`) |
 | `filters` | no | `list of string` | Filter names. The default is `All Traffic` filter |
-| `dimensions` | no | `list of string` | Metriclens dimension names. |
+| `metriclensDimensions` | no | `list of string` | Metriclens dimension names. |
 
 
 
