@@ -1,0 +1,30 @@
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: hadoop-deployment
+  labels:
+    app: hadoop
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: hadoop
+  template:
+    metadata:
+      labels:
+        app: hadoop
+    spec:
+      containers:
+        - name: hadoop
+          image: sequenceiq/hadoop-docker:2.7.1
+          command: ["/bin/sh"]
+          args: ["-c", "/etc/bootstrap.sh -d"]
+          ports:
+            - containerPort: 8088
+          readinessProbe:
+            tcpSocket:
+              port: 8088
+            initialDelaySeconds: 5
+            periodSeconds: 1
+            timeoutSeconds: 300
