@@ -36,6 +36,8 @@ type Config struct {
 	Port                 uint16 `yaml:"port" validate:"required"`
 	// AdditionalMetrics to report on
 	AdditionalMetrics []string `yaml:"additionalMetrics"`
+	// Cluster name to which the node belongs
+	Cluster           string `yaml:"cluster"`
 	// DetailedMetrics turns on additional metric time series
 	DetailedMetrics *bool `yaml:"detailedMetrics" default:"true"`
 	// EnableClusterHealth enables reporting on the cluster health
@@ -83,6 +85,7 @@ func (m *Monitor) Configure(conf *Config) error {
 		PluginConfig: map[string]interface{}{
 			"Host":                 conf.Host,
 			"Port":                 conf.Port,
+			"Cluster":              conf.Cluster,
 			"DetailedMetrics":      conf.DetailedMetrics,
 			"EnableClusterHealth":  conf.EnableClusterHealth,
 			"EnableIndexStats":     conf.EnableIndexStats,
