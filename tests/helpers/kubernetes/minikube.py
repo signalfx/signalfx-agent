@@ -156,6 +156,7 @@ class Minikube:  # pylint: disable=too-many-instance-attributes
             build_opts = {}
         if not self.client:
             self.get_client()
+        print("\nBuilding docker image from %s ..." % os.path.realpath(dockerfile_dir))
         self.client.images.build(path=dockerfile_dir, rm=True, forcerm=True, **build_opts)
 
     @contextmanager
@@ -189,8 +190,8 @@ class Minikube:  # pylint: disable=too-many-instance-attributes
                 self.yamls.append(doc)
 
         for doc in filter(lambda d: d["kind"] == "Deployment", self.yamls):
-            print("Waiting for ports to open on deployment %s" % doc["metadata"]["name"])
-            wait_for_deployment(doc, self.container, timeout)
+            print("Waiting for deployment %s to be ready ..." % doc["metadata"]["name"])
+            wait_for_deployment(doc, timeout)
 
         try:
             yield

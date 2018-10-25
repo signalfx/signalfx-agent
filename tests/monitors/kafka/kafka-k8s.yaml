@@ -42,6 +42,12 @@ spec:
               subPath: jmxremote.access
           command: ["/bin/sh"]
           args: ["-c", "cp /tmp/jmxremote.* /root/; chmod 400 /root/jmxremote.*; supervisord -n"]
+          readinessProbe:
+            tcpSocket:
+              port: 7302
+            initialDelaySeconds: 5
+            periodSeconds: 1
+            timeoutSeconds: 60
       volumes:
         - name: password
           configMap:

@@ -33,3 +33,9 @@ spec:
               value: testqueue
           command: ["/bin/sh"]
           args: ["-c", "python /app/entrypoint/Init.py; chmod 400 ${ACTIVEMQ_CONFIG_DIR}/jmx.password; exec /usr/bin/supervisord -n -c /etc/supervisor/supervisord.conf"]
+          readinessProbe:
+            tcpSocket:
+              port: 1099
+            initialDelaySeconds: 5
+            periodSeconds: 1
+            timeoutSeconds: 60

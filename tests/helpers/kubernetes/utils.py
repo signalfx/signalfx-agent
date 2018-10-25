@@ -382,13 +382,9 @@ def deployment_is_ready(name, replicas, namespace="default"):
     return False
 
 
-def wait_for_deployment(deployment, minikube_container, timeout):
+def wait_for_deployment(deployment, timeout):
     """
-    Waits for all of the ports specified in a deployment pod spec to be open
-    for connections.
-
-    :param minikube_container: A Docker container where minikube is running.
-      The port checks will be performed from this container
+    Waits for all pods in a deployment to be ready
     """
     name = deployment["metadata"]["name"]
     replicas = deployment["spec"]["replicas"]
@@ -396,22 +392,7 @@ def wait_for_deployment(deployment, minikube_container, timeout):
 
     assert wait_for(
         p(deployment_is_ready, name, replicas, namespace=namespace), timeout_seconds=timeout, interval_seconds=2
-    ), ('timed out waiting for deployment "%s" to be ready!' % name)
-
-    try:
-        containers = deployment["spec"]["template"]["spec"]["containers"]
-    except KeyError:
-        containers = []
-
-    for cont in containers:
-        for port_spec in cont["ports"]:
-            port = int(port_spec["containerPort"])
-            for pod in get_all_pods_starting_with_name(name, namespace=namespace):
-                assert wait_for(
-                    p(pod_port_open, minikube_container, pod.status.pod_ip, port),
-                    timeout_seconds=timeout,
-                    interval_seconds=2,
-                ), "timed out waiting for port %d for pod %s to be ready!" % (port, pod.metadata.name)
+    ), 'timed out waiting for deployment "%s" to be ready!\n%s' % (name, get_pod_logs(name, namespace=namespace))
 
 
 def delete_deployment(name, namespace="default", timeout=K8S_DELETE_TIMEOUT):

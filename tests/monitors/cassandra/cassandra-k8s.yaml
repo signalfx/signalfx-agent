@@ -42,6 +42,12 @@ spec:
               subPath: jmxremote.access
           command: ["/bin/sh"]
           args: ["-c", "cp -f /tmp/jmxremote.* /etc/cassandra/; chmod 400 /etc/cassandra/jmxremote.*; docker-entrypoint.sh cassandra -f"]
+          readinessProbe:
+            tcpSocket:
+              port: 7199
+            initialDelaySeconds: 5
+            periodSeconds: 1
+            timeoutSeconds: 60
       volumes:
         - name: password
           configMap:

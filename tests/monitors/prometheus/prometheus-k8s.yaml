@@ -20,3 +20,9 @@ spec:
           image: quay.io/prometheus/prometheus:latest
           ports:
             - containerPort: 9090
+          readinessProbe:
+            tcpSocket:
+              port: 9090
+            initialDelaySeconds: 5
+            periodSeconds: 1
+            timeoutSeconds: 60

@@ -20,4 +20,9 @@ spec:
           image: consul:0.9.3
           ports:
             - containerPort: 8500
-            - containerPort: 8600
+          readinessProbe:
+            tcpSocket:
+              port: 8500
+            initialDelaySeconds: 5
+            periodSeconds: 1
+            timeoutSeconds: 60
