@@ -23,7 +23,7 @@ Monitor Type: `collectd/elasticsearch`
 | `host` | **yes** | `string` |  |
 | `port` | **yes** | `integer` |  |
 | `additionalMetrics` | no | `list of string` | AdditionalMetrics to report on |
-| `cluster` | no | `string` | Cluster name to which the node belongs |
+| `cluster` | no | `string` | Cluster name to which the node belongs. This is an optional config that will override the cluster name fetched from a node and will be used to populate the plugin_instance dimension |
 | `detailedMetrics` | no | `bool` | DetailedMetrics turns on additional metric time series (**default:** `true`) |
 | `enableClusterHealth` | no | `bool` | EnableClusterHealth enables reporting on the cluster health (**default:** `true`) |
 | `enableIndexStats` | no | `bool` | EnableIndexStats reports metrics about indexes (**default:** `true`) |

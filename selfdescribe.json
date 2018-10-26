@@ -2440,7 +2440,7 @@
         },
         {
           "yamlName": "cluster",
-          "doc": "Cluster name to which the node belongs",
+          "doc": "Cluster name to which the node belongs. This is an optional config that will override the cluster name fetched from a node and will be used to populate the plugin_instance dimension",
           "default": "",
           "required": false,
           "type": "string",
