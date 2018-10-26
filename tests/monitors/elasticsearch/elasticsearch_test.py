@@ -19,8 +19,7 @@ pytestmark = [pytest.mark.collectd, pytest.mark.elasticsearch, pytest.mark.monit
 
 @pytest.mark.flaky(reruns=2)
 def test_elasticsearch_without_cluster_option():
-    with run_service("elasticsearch",
-        environment={"cluster.name": "testCluster"}) as es_container:
+    with run_service("elasticsearch", environment={"cluster.name": "testCluster"}) as es_container:
         host = container_ip(es_container)
         assert wait_for(
             p(http_status, url=f"http://{host}:9200/_nodes/_local", status=[200]), 180
@@ -47,8 +46,7 @@ def test_elasticsearch_without_cluster_option():
 
 @pytest.mark.flaky(reruns=2)
 def test_elasticsearch_with_cluster_option():
-    with run_service("elasticsearch",
-        environment={"cluster.name": "testCluster"}) as es_container:
+    with run_service("elasticsearch", environment={"cluster.name": "testCluster"}) as es_container:
         host = container_ip(es_container)
         assert wait_for(
             p(http_status, url=f"http://{host}:9200/_nodes/_local", status=[200]), 180
@@ -86,7 +84,7 @@ def test_elasticsearch_without_cluster():
           password: testing123
         """
     )
-    with run_agent(config) as [backend, get_output, _]:
+    with run_agent(config) as [backend, _, _]:
         assert not wait_for(
             p(has_datapoint_with_dim, backend, "plugin", "elasticsearch")
         ), "Didn't get elasticsearch datapoints"
