@@ -2439,6 +2439,14 @@
           "elementKind": "string"
         },
         {
+          "yamlName": "cluster",
+          "doc": "Cluster name to which the node belongs",
+          "default": "",
+          "required": false,
+          "type": "string",
+          "elementKind": ""
+        },
+        {
           "yamlName": "detailedMetrics",
           "doc": "DetailedMetrics turns on additional metric time series",
           "default": true,
