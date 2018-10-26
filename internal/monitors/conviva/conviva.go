@@ -20,7 +20,7 @@ import (
 
 const monitorType = "conviva"
 
-// MONITOR(conviva): This monitor uses version 2.4 of the Conviva Experience Insights REST APIs to pull
+// MONITOR(Conviva): This monitor uses version 2.4 of the Conviva Experience Insights REST APIs to pull
 // `Real-Time/Live` video playing experience metrics from Conviva.
 //
 // Only `Live` conviva metrics listed
@@ -180,32 +180,49 @@ func getSendMetrics(semaphore chan struct{}, m *Monitor, metricConfig *MetricCon
 			// The "series" in seriesByFilterID could be of type time series, simple series or label series
 			//seriesByFilterID := res[metricConfig.Metric].(map[string]interface{})["filters"].(map[string]interface{})
 			dps := make([]*datapoint.Datapoint, 0)
-			// series could be of type time series, simple series or label series
-			for filterID, series := range res[metricConfig.Metric].(map[string]interface{})["filters"].(map[string]interface{}) {
-				for i, metricValue := range series.([]interface{}) {
-					dp := sfxclient.GaugeF(
-						metricConfig.Metric,
-						map[string]string{
-							"account": metricConfig.Account,
-							"filter":  conf.filterNameByID[metricConfig.Account][filterID],
-						},
-						metricValue.(float64))
-					// Checking the type of series and setting dimensions accordingly
-					switch res[metricConfig.Metric].(map[string]interface{})["type"].(string) {
-					case "time_series":
-						dp.Timestamp = time.Unix(int64(0.001 * res[metricConfig.Metric].(map[string]interface{})["timestamps"].([]interface{})[i].(float64)), 0)
-					case "label_series":
-						dp.Dimensions["label"] = res[metricConfig.Metric].(map[string]interface{})["xvalues"].([]interface{})[i].(string)
-						fallthrough
-					default:
-						dp.Timestamp = time.Now()
+			if res[metricConfig.Metric] != nil &&
+				res[metricConfig.Metric].(map[string]interface{}) != nil &&
+				res[metricConfig.Metric].(map[string]interface{})["filters"] != nil &&
+				res[metricConfig.Metric].(map[string]interface{})["type"] != nil {
+				// series could be of type time series, simple series or label series
+				for filterID, series := range res[metricConfig.Metric].(map[string]interface{})["filters"].(map[string]interface{}) {
+					if series == nil { continue }
+					for i, metricValue := range series.([]interface{}) {
+						if metricValue == nil { continue }
+						dp := sfxclient.GaugeF(
+							metricConfig.Metric,
+							map[string]string{
+								"account": metricConfig.Account,
+								"filter":  conf.filterNameByID[metricConfig.Account][filterID],
+							},
+							metricValue.(float64))
+						// Checking the type of series and setting dimensions accordingly
+						switch res[metricConfig.Metric].(map[string]interface{})["type"].(string) {
+						case "time_series":
+							if res[metricConfig.Metric].(map[string]interface{}) == nil ||
+							res[metricConfig.Metric].(map[string]interface{})["timestamps"] == nil ||
+							res[metricConfig.Metric].(map[string]interface{})["timestamps"].([]interface{}) == nil ||
+							res[metricConfig.Metric].(map[string]interface{})["timestamps"].([]interface{})[i] == nil {
+								continue
+							}
+							dp.Timestamp = time.Unix(int64(0.001*res[metricConfig.Metric].(map[string]interface{})["timestamps"].([]interface{})[i].(float64)), 0)
+						case "label_series":
+							if res[metricConfig.Metric].(map[string]interface{})["xvalues"] == nil ||
+							res[metricConfig.Metric].(map[string]interface{})["xvalues"].([]interface{}) == nil ||
+							res[metricConfig.Metric].(map[string]interface{})["xvalues"].([]interface{})[i] == nil {
+								continue
+							}
+							dp.Dimensions["label"] = res[metricConfig.Metric].(map[string]interface{})["xvalues"].([]interface{})[i].(string)
+							fallthrough
+						default:
+							dp.Timestamp = time.Now()
+						}
+						dp.Meta[dpmeta.NotHostSpecificMeta] = true
+						dps = append(dps, dp)
 					}
-					dp.Meta[dpmeta.NotHostSpecificMeta] = true
-					dps = append(dps, dp)
 				}
 			}
 			for i := range dps {
-
 				m.Output.SendDatapoint(dps[i])
 			}
 		}(m, conf, url)
@@ -234,17 +251,25 @@ func getSendMetriclensMetrics(semaphore chan struct{}, m *Monitor, metricConfig 
 				//tablesByFilterID := res[metricConfig.Metric].(map[string]interface{})["tables"].(map[string]interface{})
 				//metriclensDimensionEntities := res[metricConfig.Metric].(map[string]interface{})["xvalues"].([]interface{})
 				dps := make([]*datapoint.Datapoint, 0)
-				for filterID, table := range res[metricConfig.Metric].(map[string]interface{})["tables"].(map[string]interface{}) {
-					for tableKey, tableValue := range table.(map[string]interface{}) {
-						if tableKey == "rows" {
-							for rowIndex, row := range tableValue.([]interface{}) {
-								select {
-								case <- ctx.Done():
-									logger.Error(ctx.Err())
-									return
-								default:
-									if row != nil {
+				if res[metricConfig.Metric] != nil && res[metricConfig.Metric].(map[string]interface{})["tables"] != nil {
+					for filterID, table := range res[metricConfig.Metric].(map[string]interface{})["tables"].(map[string]interface{}) {
+						if table == nil { continue }
+						for tableKey, tableValue := range table.(map[string]interface{}) {
+							if tableKey == "rows" {
+								if tableValue == nil { continue }
+								for rowIndex, row := range tableValue.([]interface{}) {
+									select {
+									case <-ctx.Done():
+										logger.Error(ctx.Err())
+										return
+									default:
+										if row == nil { continue }
 										for metricIndex, metricValue := range row.([]interface{}) {
+											if metricValue == nil ||
+												res[metricConfig.Metric].(map[string]interface{})["xvalues"] == nil ||
+												res[metricConfig.Metric].(map[string]interface{})["xvalues"].([]interface{})[rowIndex] == nil {
+												continue
+											}
 											dps = append(dps, sfxclient.GaugeF(
 												metricConfig.Metric,
 												map[string]string{
