@@ -53,7 +53,6 @@ along with their possible configuration options:
 - [collectd/uptime](./monitors/collectd-uptime.md)
 - [collectd/vmem](./monitors/collectd-vmem.md)
 - [collectd/zookeeper](./monitors/collectd-zookeeper.md)
-- [conviva](./monitors/conviva.md)
 - [docker-container-stats](./monitors/docker-container-stats.md)
 - [host-metadata](./monitors/host-metadata.md)
 - [internal-metrics](./monitors/internal-metrics.md)

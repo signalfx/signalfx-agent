@@ -99,7 +99,7 @@ type Config struct {
 	MetricConfigs                         []*MetricConfig              `yaml:"metricConfigs"`
 	filterNameByID                        map[string]map[string]string
 	metriclensDimensionIDByAccountAndName map[string]map[string]string
-	metriclensMetrics                     map[string][]string
+	//metriclensMetrics                     map[string][]string
 }
 
 // MetricConfig for configuring individual metric
@@ -162,17 +162,13 @@ func (m *Monitor) Shutdown() {
 }
 
 func getSendMetrics(semaphore chan struct{}, m *Monitor, metricConfig *MetricConfig, conf *Config) {
-	ctx, _ := context.WithTimeout(m.ctx, time.Duration(conf.IntervalSeconds) * time.Second)
 	select {
-	case <- ctx.Done():
-		logger.Error(ctx.Err())
-		return
 	case semaphore <- struct{}{}:
-		url := "https://api.conviva.com/insights/2.4/metrics.json?metrics=" + metricConfig.Metric +
-			"&filter_ids=" + strings.Join(metricConfig.filterIDs, ",")
 		go func(m *Monitor, conf *Config, url string) {
 			defer func() { <- semaphore }()
-			res, err := get(m, conf, url)
+			ctx, cancel := context.WithTimeout(m.ctx, time.Duration(conf.IntervalSeconds) * time.Second)
+			defer cancel()
+			res, err := get(ctx, m, conf, url)
 			if err != nil {
 				logger.Error(err)
 				return
@@ -184,66 +180,67 @@ func getSendMetrics(semaphore chan struct{}, m *Monitor, metricConfig *MetricCon
 				res[metricConfig.Metric].(map[string]interface{}) != nil &&
 				res[metricConfig.Metric].(map[string]interface{})["filters"] != nil &&
 				res[metricConfig.Metric].(map[string]interface{})["type"] != nil {
-				// series could be of type time series, simple series or label series
+				// series can be of type time series, simple series or label series
 				for filterID, series := range res[metricConfig.Metric].(map[string]interface{})["filters"].(map[string]interface{}) {
 					if series == nil { continue }
 					for i, metricValue := range series.([]interface{}) {
-						if metricValue == nil { continue }
-						dp := sfxclient.GaugeF(
-							metricConfig.Metric,
-							map[string]string{
-								"account": metricConfig.Account,
-								"filter":  conf.filterNameByID[metricConfig.Account][filterID],
-							},
-							metricValue.(float64))
-						// Checking the type of series and setting dimensions accordingly
-						switch res[metricConfig.Metric].(map[string]interface{})["type"].(string) {
-						case "time_series":
-							if res[metricConfig.Metric].(map[string]interface{}) == nil ||
-							res[metricConfig.Metric].(map[string]interface{})["timestamps"] == nil ||
-							res[metricConfig.Metric].(map[string]interface{})["timestamps"].([]interface{}) == nil ||
-							res[metricConfig.Metric].(map[string]interface{})["timestamps"].([]interface{})[i] == nil {
-								continue
-							}
-							dp.Timestamp = time.Unix(int64(0.001*res[metricConfig.Metric].(map[string]interface{})["timestamps"].([]interface{})[i].(float64)), 0)
-						case "label_series":
-							if res[metricConfig.Metric].(map[string]interface{})["xvalues"] == nil ||
-							res[metricConfig.Metric].(map[string]interface{})["xvalues"].([]interface{}) == nil ||
-							res[metricConfig.Metric].(map[string]interface{})["xvalues"].([]interface{})[i] == nil {
-								continue
-							}
-							dp.Dimensions["label"] = res[metricConfig.Metric].(map[string]interface{})["xvalues"].([]interface{})[i].(string)
-							fallthrough
+						select {
+						case <- ctx.Done():
+							logger.Error(ctx.Err())
+							return
 						default:
-							dp.Timestamp = time.Now()
+							if metricValue == nil { continue }
+							dp := sfxclient.GaugeF(
+								metricConfig.Metric,
+								map[string]string{
+									"account": metricConfig.Account,
+									"filter":  conf.filterNameByID[metricConfig.Account][filterID],
+								},
+								metricValue.(float64))
+							// Checking the type of series and setting dimensions accordingly
+							switch res[metricConfig.Metric].(map[string]interface{})["type"].(string) {
+							case "time_series":
+								if res[metricConfig.Metric].(map[string]interface{}) == nil ||
+									res[metricConfig.Metric].(map[string]interface{})["timestamps"] == nil ||
+									res[metricConfig.Metric].(map[string]interface{})["timestamps"].([]interface{}) == nil ||
+									res[metricConfig.Metric].(map[string]interface{})["timestamps"].([]interface{})[i] == nil {
+									continue
+								}
+								dp.Timestamp = time.Unix(int64(0.001*res[metricConfig.Metric].(map[string]interface{})["timestamps"].([]interface{})[i].(float64)), 0)
+							case "label_series":
+								if res[metricConfig.Metric].(map[string]interface{})["xvalues"] == nil ||
+									res[metricConfig.Metric].(map[string]interface{})["xvalues"].([]interface{}) == nil ||
+									res[metricConfig.Metric].(map[string]interface{})["xvalues"].([]interface{})[i] == nil {
+									continue
+								}
+								dp.Dimensions["label"] = res[metricConfig.Metric].(map[string]interface{})["xvalues"].([]interface{})[i].(string)
+								fallthrough
+							default:
+								dp.Timestamp = time.Now()
+							}
+							dp.Meta[dpmeta.NotHostSpecificMeta] = true
+							dps = append(dps, dp)
 						}
-						dp.Meta[dpmeta.NotHostSpecificMeta] = true
-						dps = append(dps, dp)
 					}
 				}
 			}
 			for i := range dps {
 				m.Output.SendDatapoint(dps[i])
 			}
-		}(m, conf, url)
+		}(m, conf, "https://api.conviva.com/insights/2.4/metrics.json?metrics=" + metricConfig.Metric + "&filter_ids=" + strings.Join(metricConfig.filterIDs, ","))
 	}
 }
 
 // TODO: table_map requests always return the filters in filters_warmup
 func getSendMetriclensMetrics(semaphore chan struct{}, m *Monitor, metricConfig *MetricConfig, conf *Config)  {
-	ctx, _ := context.WithTimeout(m.ctx, time.Duration(conf.IntervalSeconds) * time.Second)
 	for _, metriclensDimension := range metricConfig.MetriclensDimensions {
 		select {
-		case <- ctx.Done():
-			logger.Error(ctx.Err())
-			return
 		case semaphore <- struct{}{}:
-			url := "https://api.conviva.com/insights/2.4/metrics.json?metrics=" + metricConfig.Metric +
-				"&filter_ids=" + strings.Join(metricConfig.metriclensFilterIDs, ",") +
-				"&metriclens_dimension_id=" + conf.metriclensDimensionIDByAccountAndName[metricConfig.Account][metriclensDimension]
-			go func(m *Monitor, conf *Config, url string, metricConfig *MetricConfig, metriclensDimension string) {
+			go func(m *Monitor, conf *Config, metricConfig *MetricConfig, metriclensDimension string, url string) {
 				defer func() { <- semaphore }()
-				res, err := get(m, conf, url)
+				ctx, cancel := context.WithTimeout(m.ctx, time.Duration(conf.IntervalSeconds) * time.Second)
+				defer cancel()
+				res, err := get(ctx, m, conf, url)
 				if err != nil {
 					logger.Error(err)
 					return
@@ -259,7 +256,7 @@ func getSendMetriclensMetrics(semaphore chan struct{}, m *Monitor, metricConfig 
 								if tableValue == nil { continue }
 								for rowIndex, row := range tableValue.([]interface{}) {
 									select {
-									case <-ctx.Done():
+									case <- ctx.Done():
 										logger.Error(ctx.Err())
 										return
 									default:
@@ -275,7 +272,7 @@ func getSendMetriclensMetrics(semaphore chan struct{}, m *Monitor, metricConfig 
 												map[string]string{
 													"account":           metricConfig.Account,
 													"filter":            conf.filterNameByID[metricConfig.Account][filterID],
-													"metriclensMetric":  conf.metriclensMetrics[metricConfig.Metric][metricIndex],
+													"metriclensMetric":  metriclensMetrics[metricConfig.Metric][metricIndex],
 													metriclensDimension: res[metricConfig.Metric].(map[string]interface{})["xvalues"].([]interface{})[rowIndex].(string),
 												},
 												metricValue.(float64)))
@@ -292,16 +289,20 @@ func getSendMetriclensMetrics(semaphore chan struct{}, m *Monitor, metricConfig 
 					dps[i].Meta[dpmeta.NotHostSpecificMeta] = true
 					m.Output.SendDatapoint(dps[i])
 				}
-			}(m, conf, url, metricConfig, metriclensDimension)
+			}(m, conf, metricConfig, metriclensDimension,
+				"https://api.conviva.com/insights/2.4/metrics.json?metrics="+metricConfig.Metric + "&filter_ids=" +
+				strings.Join(metricConfig.metriclensFilterIDs, ",") + "&metriclens_dimension_id=" +
+				conf.metriclensDimensionIDByAccountAndName[metricConfig.Account][metriclensDimension])
 		}
 	}
 }
 
-func get(m *Monitor, conf *Config, url string) (map[string]interface{}, error) {
+func get(ctx context.Context, m *Monitor, conf *Config, url string) (map[string]interface{}, error) {
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		return nil, err
 	}
+	req = req.WithContext(ctx)
 	req.SetBasicAuth(conf.Username, conf.Password)
 	res, err := m.client.Do(req)
 	if err != nil {
