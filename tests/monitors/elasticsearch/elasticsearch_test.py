@@ -18,8 +18,9 @@ pytestmark = [pytest.mark.collectd, pytest.mark.elasticsearch, pytest.mark.monit
 
 
 @pytest.mark.flaky(reruns=2)
-def test_elasticsearch():
-    with run_service("elasticsearch") as es_container:
+def test_elasticsearch_without_cluster_option():
+    with run_service("elasticsearch",
+        environment={"cluster.name": "testCluster"}) as es_container:
         host = container_ip(es_container)
         assert wait_for(
             p(http_status, url=f"http://{host}:9200/_nodes/_local", status=[200]), 180
@@ -38,7 +39,57 @@ def test_elasticsearch():
             assert wait_for(
                 p(has_datapoint_with_dim, backend, "plugin", "elasticsearch")
             ), "Didn't get elasticsearch datapoints"
+            assert wait_for(
+                p(has_datapoint_with_dim, backend, "plugin_instance", "testCluster")
+            ), "Cluster name not picked from read callback"
             assert not has_log_message(get_output().lower(), "error"), "error found in agent output!"
+
+
+@pytest.mark.flaky(reruns=2)
+def test_elasticsearch_with_cluster_option():
+    with run_service("elasticsearch",
+        environment={"cluster.name": "testCluster"}) as es_container:
+        host = container_ip(es_container)
+        assert wait_for(
+            p(http_status, url=f"http://{host}:9200/_nodes/_local", status=[200]), 180
+        ), "service didn't start"
+        config = dedent(
+            f"""
+            monitors:
+            - type: collectd/elasticsearch
+              host: {host}
+              port: 9200
+              username: elastic
+              password: testing123
+              cluster: testCluster1
+            """
+        )
+        with run_agent(config) as [backend, get_output, _]:
+            assert wait_for(
+                p(has_datapoint_with_dim, backend, "plugin", "elasticsearch")
+            ), "Didn't get elasticsearch datapoints"
+            assert wait_for(
+                p(has_datapoint_with_dim, backend, "plugin_instance", "testCluster1")
+            ), "Cluster name not picked from read callback"
+            assert not has_log_message(get_output().lower(), "error"), "error found in agent output!"
+
+
+# To mimic the scenario where node is not up
+def test_elasticsearch_without_cluster():
+    config = dedent(
+        f"""
+        monitors:
+        - type: collectd/elasticsearch
+          host: localhost
+          port: 9200
+          username: elastic
+          password: testing123
+        """
+    )
+    with run_agent(config) as [backend, get_output, _]:
+        assert not wait_for(
+            p(has_datapoint_with_dim, backend, "plugin", "elasticsearch")
+        ), "Didn't get elasticsearch datapoints"
 
 
 @pytest.mark.k8s
