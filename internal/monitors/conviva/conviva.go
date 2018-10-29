@@ -13,6 +13,7 @@ import (
 	"github.com/signalfx/signalfx-agent/internal/utils"
 	log "github.com/sirupsen/logrus"
 	"io/ioutil"
+	"math"
 	"net/http"
 	"strings"
 	"time"
@@ -97,9 +98,13 @@ type Config struct {
 	Password                              string                       `yaml:"pulsePassword" validate:"required"`
 	TimeoutSeconds                        int                          `yaml:"timeoutSeconds" default:"15"`
 	MetricConfigs                         []*MetricConfig              `yaml:"metricConfigs"`
-	filterNameByID                        map[string]map[string]string
+	defaultAccount                        string
+	accounts                              map[string]string
+	filterByAccountAndID                  map[string]map[string]string
+	filterIDByAccountAndName              map[string]map[string]string
 	metriclensDimensionIDByAccountAndName map[string]map[string]string
-	//metriclensMetrics                     map[string][]string
+	metricLensFilterIDByAccountAndName    map[string]map[string]string
+
 }
 
 // MetricConfig for configuring individual metric
@@ -113,7 +118,6 @@ type MetricConfig struct {
 	MetriclensDimensions []string `yaml:"metriclensDimensions"`
 	accountID            string
 	filterIDs            []string
-	metriclensFilterIDs  []string
 }
 
 // Monitor for conviva metrics
@@ -131,23 +135,22 @@ func init() {
 
 // Configure monitor
 func (m *Monitor) Configure(conf *Config) error {
-	logger.Debugf("configuration object before additional auto-configuration:\n%+v\n", conf)
 	m.timeout = time.Duration(conf.TimeoutSeconds) * time.Second
 	m.client = &http.Client{
-		Timeout: m.timeout,
 		Transport: &http.Transport{
 			MaxIdleConnsPerHost: 100,
 		},
 	}
 	m.ctx, m.cancel = context.WithCancel(context.Background())
-	setConfigFields(m, conf)
-	semaphore := make(chan struct{}, requestsPerInterval(conf.MetricConfigs))
+	initConfig(m, conf)
+	semaphore := make(chan struct{}, maxGoroutinesPerInterval(conf.MetricConfigs))
 	utils.RunOnInterval(m.ctx, func() {
+		initConfig(m, conf)
 		for _, metricConfig := range conf.MetricConfigs {
 			if strings.Contains(metricConfig.Metric, "metriclens") {
-				getSendMetriclensMetrics(semaphore, m, metricConfig, conf)
+				fetchMetriclensMetrics(semaphore, m, metricConfig, conf)
 			} else {
-				getSendMetrics(semaphore, m, metricConfig, conf)
+				fetchMetrics(semaphore, m, metricConfig, conf)
 			}
 		}
 	}, time.Duration(conf.IntervalSeconds) * time.Second)
@@ -161,7 +164,7 @@ func (m *Monitor) Shutdown() {
 	}
 }
 
-func getSendMetrics(semaphore chan struct{}, m *Monitor, metricConfig *MetricConfig, conf *Config) {
+func fetchMetrics(semaphore chan struct{}, m *Monitor, metricConfig *MetricConfig, conf *Config) {
 	select {
 	case semaphore <- struct{}{}:
 		go func(m *Monitor, conf *Config, url string) {
@@ -173,15 +176,12 @@ func getSendMetrics(semaphore chan struct{}, m *Monitor, metricConfig *MetricCon
 				logger.Error(err)
 				return
 			}
-			// The "series" in seriesByFilterID could be of type time series, simple series or label series
-			//seriesByFilterID := res[metricConfig.Metric].(map[string]interface{})["filters"].(map[string]interface{})
 			dps := make([]*datapoint.Datapoint, 0)
-			if res[metricConfig.Metric] != nil &&
-				res[metricConfig.Metric].(map[string]interface{}) != nil &&
-				res[metricConfig.Metric].(map[string]interface{})["filters"] != nil &&
-				res[metricConfig.Metric].(map[string]interface{})["type"] != nil {
+			metric := metricConfig.Metric
+			account := metricConfig.Account
+			if res[metric] != nil && res[metric].(map[string]interface{}) != nil && res[metric].(map[string]interface{})["filters"] != nil && res[metric].(map[string]interface{})["type"] != nil {
 				// series can be of type time series, simple series or label series
-				for filterID, series := range res[metricConfig.Metric].(map[string]interface{})["filters"].(map[string]interface{}) {
+				for filterID, series := range res[metric].(map[string]interface{})["filters"].(map[string]interface{}) {
 					if series == nil { continue }
 					for i, metricValue := range series.([]interface{}) {
 						select {
@@ -191,29 +191,26 @@ func getSendMetrics(semaphore chan struct{}, m *Monitor, metricConfig *MetricCon
 						default:
 							if metricValue == nil { continue }
 							dp := sfxclient.GaugeF(
-								metricConfig.Metric,
+								metric,
 								map[string]string{
-									"account": metricConfig.Account,
-									"filter":  conf.filterNameByID[metricConfig.Account][filterID],
+									"account": account,
+									"filter":  conf.filterByAccountAndID[account][filterID],
 								},
 								metricValue.(float64))
 							// Checking the type of series and setting dimensions accordingly
-							switch res[metricConfig.Metric].(map[string]interface{})["type"].(string) {
+							switch res[metric].(map[string]interface{})["type"].(string) {
 							case "time_series":
-								if res[metricConfig.Metric].(map[string]interface{}) == nil ||
-									res[metricConfig.Metric].(map[string]interface{})["timestamps"] == nil ||
-									res[metricConfig.Metric].(map[string]interface{})["timestamps"].([]interface{}) == nil ||
-									res[metricConfig.Metric].(map[string]interface{})["timestamps"].([]interface{})[i] == nil {
+								timestamps := res[metric].(map[string]interface{})["timestamps"]
+								if timestamps == nil || timestamps.([]interface{}) == nil || timestamps.([]interface{})[i] == nil {
 									continue
 								}
-								dp.Timestamp = time.Unix(int64(0.001*res[metricConfig.Metric].(map[string]interface{})["timestamps"].([]interface{})[i].(float64)), 0)
+								dp.Timestamp = time.Unix(int64(0.001 * timestamps.([]interface{})[i].(float64)), 0)
 							case "label_series":
-								if res[metricConfig.Metric].(map[string]interface{})["xvalues"] == nil ||
-									res[metricConfig.Metric].(map[string]interface{})["xvalues"].([]interface{}) == nil ||
-									res[metricConfig.Metric].(map[string]interface{})["xvalues"].([]interface{})[i] == nil {
+								xvalues := res[metric].(map[string]interface{})["xvalues"]
+								if xvalues == nil || xvalues.([]interface{}) == nil || xvalues.([]interface{})[i] == nil {
 									continue
 								}
-								dp.Dimensions["label"] = res[metricConfig.Metric].(map[string]interface{})["xvalues"].([]interface{})[i].(string)
+								dp.Dimensions["label"] = xvalues.([]interface{})[i].(string)
 								fallthrough
 							default:
 								dp.Timestamp = time.Now()
@@ -227,15 +224,20 @@ func getSendMetrics(semaphore chan struct{}, m *Monitor, metricConfig *MetricCon
 			for i := range dps {
 				m.Output.SendDatapoint(dps[i])
 			}
-		}(m, conf, "https://api.conviva.com/insights/2.4/metrics.json?metrics=" + metricConfig.Metric + "&filter_ids=" + strings.Join(metricConfig.filterIDs, ","))
+		}(m, conf, "https://api.conviva.com/insights/2.4/metrics.json?metrics="+metricConfig.Metric+"&filter_ids="+strings.Join(metricConfig.filterIDs, ","))
 	}
 }
 
-// TODO: table_map requests always return the filters in filters_warmup
-func getSendMetriclensMetrics(semaphore chan struct{}, m *Monitor, metricConfig *MetricConfig, conf *Config)  {
+func fetchMetriclensMetrics(semaphore chan struct{}, m *Monitor, metricConfig *MetricConfig, conf *Config)  {
 	for _, metriclensDimension := range metricConfig.MetriclensDimensions {
 		select {
 		case semaphore <- struct{}{}:
+			metriclensDimension = strings.TrimSpace(metriclensDimension)
+			metriclensDimensionID := conf.metriclensDimensionIDByAccountAndName[metricConfig.Account][metriclensDimension]
+			if metriclensDimensionID == "" {
+				logger.Errorf("No id for metriclens dimension %s. Wrong metriclens dimension name.", metriclensDimension)
+				continue
+			}
 			go func(m *Monitor, conf *Config, metricConfig *MetricConfig, metriclensDimension string, url string) {
 				defer func() { <- semaphore }()
 				ctx, cancel := context.WithTimeout(m.ctx, time.Duration(conf.IntervalSeconds) * time.Second)
@@ -245,11 +247,11 @@ func getSendMetriclensMetrics(semaphore chan struct{}, m *Monitor, metricConfig 
 					logger.Error(err)
 					return
 				}
-				//tablesByFilterID := res[metricConfig.Metric].(map[string]interface{})["tables"].(map[string]interface{})
-				//metriclensDimensionEntities := res[metricConfig.Metric].(map[string]interface{})["xvalues"].([]interface{})
 				dps := make([]*datapoint.Datapoint, 0)
-				if res[metricConfig.Metric] != nil && res[metricConfig.Metric].(map[string]interface{})["tables"] != nil {
-					for filterID, table := range res[metricConfig.Metric].(map[string]interface{})["tables"].(map[string]interface{}) {
+				account := metricConfig.Account
+				metric := metricConfig.Metric
+				if res[metric] != nil && res[metric].(map[string]interface{})["tables"] != nil {
+					for filterID, table := range res[metric].(map[string]interface{})["tables"].(map[string]interface{}) {
 						if table == nil { continue }
 						for tableKey, tableValue := range table.(map[string]interface{}) {
 							if tableKey == "rows" {
@@ -261,19 +263,18 @@ func getSendMetriclensMetrics(semaphore chan struct{}, m *Monitor, metricConfig 
 										return
 									default:
 										if row == nil { continue }
+										xvalues := res[metric].(map[string]interface{})["xvalues"]
 										for metricIndex, metricValue := range row.([]interface{}) {
-											if metricValue == nil ||
-												res[metricConfig.Metric].(map[string]interface{})["xvalues"] == nil ||
-												res[metricConfig.Metric].(map[string]interface{})["xvalues"].([]interface{})[rowIndex] == nil {
+											if metricValue == nil || xvalues == nil || xvalues.([]interface{})[rowIndex] == nil {
 												continue
 											}
 											dps = append(dps, sfxclient.GaugeF(
-												metricConfig.Metric,
+												metric,
 												map[string]string{
-													"account":           metricConfig.Account,
-													"filter":            conf.filterNameByID[metricConfig.Account][filterID],
-													"metriclensMetric":  metriclensMetrics[metricConfig.Metric][metricIndex],
-													metriclensDimension: res[metricConfig.Metric].(map[string]interface{})["xvalues"].([]interface{})[rowIndex].(string),
+													"account":           account,
+													"filter":            conf.filterByAccountAndID[account][filterID],
+													"metriclensMetric":  metriclensMetrics[metric][metricIndex],
+													metriclensDimension: xvalues.([]interface{})[rowIndex].(string),
 												},
 												metricValue.(float64)))
 										}
@@ -289,10 +290,7 @@ func getSendMetriclensMetrics(semaphore chan struct{}, m *Monitor, metricConfig 
 					dps[i].Meta[dpmeta.NotHostSpecificMeta] = true
 					m.Output.SendDatapoint(dps[i])
 				}
-			}(m, conf, metricConfig, metriclensDimension,
-				"https://api.conviva.com/insights/2.4/metrics.json?metrics="+metricConfig.Metric + "&filter_ids=" +
-				strings.Join(metricConfig.metriclensFilterIDs, ",") + "&metriclens_dimension_id=" +
-				conf.metriclensDimensionIDByAccountAndName[metricConfig.Account][metriclensDimension])
+			}(m, conf, metricConfig, metriclensDimension, "https://api.conviva.com/insights/2.4/metrics.json?metrics="+metricConfig.Metric+"&filter_ids="+strings.Join(metricConfig.filterIDs, ",")+"&metriclens_dimension_id="+metriclensDimensionID)
 		}
 	}
 }
@@ -316,12 +314,12 @@ func get(ctx context.Context, m *Monitor, conf *Config, url string) (map[string]
 	var payload map[string]interface{}
 	err = json.Unmarshal(body, &payload)
 	if res.StatusCode != 200 && payload != nil {
-		return nil, fmt.Errorf("Response status code: %d. Reason: %s", res.StatusCode, payload["reason"])
+		return nil, fmt.Errorf("response status code: %d. Reason: %s", res.StatusCode, payload["reason"])
 	}
 	return payload, err
 }
 
-func requestsPerInterval(metricConfigs []*MetricConfig) int {
+func maxGoroutinesPerInterval(metricConfigs []*MetricConfig) int {
 	requests := 0
 	for _, metricConfig := range metricConfigs {
 		if metriclensDimensionsLength := len(metricConfig.MetriclensDimensions); metriclensDimensionsLength != 0 {
@@ -330,5 +328,5 @@ func requestsPerInterval(metricConfigs []*MetricConfig) int {
 			requests += len(metricConfig.Filters)
 		}
 	}
-	return requests
+	return int(math.Max(float64(requests), float64(2000)))
 }
