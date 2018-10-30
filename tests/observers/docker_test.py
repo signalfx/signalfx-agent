@@ -49,7 +49,7 @@ def test_docker_observer():
         # Let nginx be removed by docker observer and collectd restart
         time.sleep(5)
         backend.datapoints.clear()
-        assert ensure_always(lambda: not has_datapoint_with_dim(backend, "plugin", "nginx"), 10)
+        assert ensure_always(lambda: not has_datapoint_with_dim(backend, "container_name", "nginx-discovery"), 10)
 
 
 def test_docker_observer_use_host_bindings():
@@ -71,10 +71,6 @@ def test_docker_observer_use_host_bindings():
                 assert wait_for(
                     p(has_datapoint_with_dim, backend, "mydim", "with-host-binding")
                 ), "Didn't get custom label dimension"
-        # Let nginx be removed by docker observer and collectd restart
-        time.sleep(5)
-        backend.datapoints.clear()
-        assert ensure_always(lambda: not has_datapoint_with_dim(backend, "plugin", "nginx"), 10)
 
 
 def test_docker_observer_labels():
@@ -92,6 +88,7 @@ def test_docker_observer_labels():
     ) as [backend, _, _]:
         with run_service(
             "nginx",
+            name="nginx-disco-full",
             labels={
                 "agent.signalfx.com.monitorType.80": "collectd/nginx",
                 "agent.signalfx.com.config.80.intervalSeconds": "1",
@@ -101,7 +98,7 @@ def test_docker_observer_labels():
         # Let nginx be removed by docker observer and collectd restart
         time.sleep(5)
         backend.datapoints.clear()
-        assert ensure_always(lambda: not has_datapoint_with_dim(backend, "plugin", "nginx"), 10)
+        assert ensure_always(lambda: not has_datapoint_with_dim(backend, "container_name", "nginx-disco-full"), 10)
 
 
 def test_docker_observer_labels_partial():
@@ -130,7 +127,7 @@ def test_docker_observer_labels_partial():
         # Let nginx be removed by docker observer and collectd restart
         time.sleep(5)
         backend.datapoints.clear()
-        assert ensure_always(lambda: not has_datapoint_with_dim(backend, "plugin", "nginx"), 10)
+        assert ensure_always(lambda: not has_datapoint_with_dim(backend, "container_name", "nginx-disco-partial"), 10)
 
 
 def test_docker_observer_labels_multiple_monitors_per_port():
@@ -147,6 +144,7 @@ def test_docker_observer_labels_multiple_monitors_per_port():
     ) as [backend, _, _]:
         with run_service(
             "nginx",
+            name="nginx-multi-monitors",
             labels={
                 "agent.signalfx.com.monitorType.80": "collectd/nginx",
                 "agent.signalfx.com.config.80.intervalSeconds": "1",
@@ -162,4 +160,4 @@ def test_docker_observer_labels_multiple_monitors_per_port():
         # Let nginx be removed by docker observer and collectd restart
         time.sleep(5)
         backend.datapoints.clear()
-        assert ensure_always(lambda: not has_datapoint_with_dim(backend, "plugin", "nginx"), 10)
+        assert ensure_always(lambda: not has_datapoint_with_dim(backend, "container_name", "nginx-multi-monitors"), 10)
