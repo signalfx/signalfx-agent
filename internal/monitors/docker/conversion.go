@@ -133,7 +133,8 @@ func convertMemoryStats(stats *dtypes.MemoryStats) []*datapoint.Datapoint {
 		sfxclient.Gauge("memory.usage.max", nil, int64(stats.MaxUsage)),
 		sfxclient.Gauge("memory.usage.total", nil, int64(stats.Usage)),
 		sfxclient.GaugeF("memory.percent", nil,
-			100.0*float64(stats.Usage)/float64(stats.Limit)),
+			// If cache is not present it will use the default value of 0
+			100.0*(float64(stats.Usage)-float64(stats.Stats["cache"]))/float64(stats.Limit)),
 	}...)
 
 	for k, v := range stats.Stats {

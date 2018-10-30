@@ -63,6 +63,7 @@ The following table lists the metrics available for this monitor. Metrics that a
 | `cpu.usage.system` | cumulative |  | Jiffies of CPU time used by the system |
 | `cpu.usage.total` | cumulative |  | Jiffies of CPU time used by the container |
 | `cpu.usage.usermode` | cumulative | X | Jiffies of CPU time spent in user mode by the container |
+| `memory.percent` | gauge | X | Percent of memory (0-100) used by the container relative to its limit (excludes page cache usage) |
 | `memory.stats.swap` | gauge | X | Bytes of swap memory used by container |
 | `memory.usage.limit` | gauge |  | Memory usage limit of the container, in bytes |
 | `memory.usage.max` | gauge | X | Maximum measured memory usage of the container, in bytes |
@@ -96,6 +97,7 @@ metricsToExclude:
   - cpu.throttling_data.throttled_time
   - cpu.usage.kernelmode
   - cpu.usage.usermode
+  - memory.percent
   - memory.stats.swap
   - memory.usage.max
   - network.usage.rx_dropped

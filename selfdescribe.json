@@ -9912,6 +9912,11 @@
           "description": "Jiffies of CPU time spent in user mode by the container"
         },
         {
+          "name": "memory.percent",
+          "type": "gauge",
+          "description": "Percent of memory (0-100) used by the container relative to its limit (excludes page cache usage)"
+        },
+        {
           "name": "memory.stats.swap",
           "type": "gauge",
           "description": "Bytes of swap memory used by container"
