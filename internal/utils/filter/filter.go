@@ -6,8 +6,7 @@
 package filter
 
 import (
-    "regexp"
-    "strings"
+	"regexp"
 )
 
 // StringFilter matches against simple strings
@@ -20,20 +19,22 @@ type StringMapFilter interface {
 	Matches(map[string]string) bool
 }
 
-type basicStringFilter struct {
-	staticSet map[string]bool
-	regexps   []*regexp.Regexp
+type regexMatcher struct {
+	re      *regexp.Regexp
+	negated bool
 }
 
-type basicStringNegationFilter struct {
-    negationFilter  StringFilter
+type basicStringFilter struct {
+	staticSet map[string]bool
+	regexps   []regexMatcher
 }
 
 // NewStringFilter returns a filter that can match against the provided items.
 func NewStringFilter(items []string) (StringFilter, error) {
 	staticSet := make(map[string]bool)
-	var regexps []*regexp.Regexp
-	for _, m := range items {
+	var regexps []regexMatcher
+	for _, i := range items {
+		m, negated := stripNegation(i)
 		if isRegex(m) || isGlobbed(m) {
 			var re *regexp.Regexp
 			var err error
@@ -49,9 +50,9 @@ func NewStringFilter(items []string) (StringFilter, error) {
 				return nil, err
 			}
 
-			regexps = append(regexps, re)
+			regexps = append(regexps, regexMatcher{re: re, negated: negated})
 		} else {
-			staticSet[m] = true
+			staticSet[m] = negated
 		}
 	}
 
@@ -62,7 +63,16 @@ func NewStringFilter(items []string) (StringFilter, error) {
 }
 
 func (f *basicStringFilter) Matches(s string) bool {
-	return f.staticSet[s] || anyRegexMatches(s, f.regexps)
+	staticMatch := false
+	for val, negated := range f.staticSet {
+		staticMatch = staticMatch || (val == s != negated)
+	}
+
+	regexMatch := false
+	for _, reMatch := range f.regexps {
+		regexMatch = regexMatch || (reMatch.re.MatchString(s) != reMatch.negated)
+	}
+	return staticMatch || regexMatch
 }
 
 // NewStringMapFilter returns a filter that matches against the provided map.
@@ -97,16 +107,6 @@ func NewStringMapFilter(m map[string]string) (StringMapFilter, error) {
 		staticSet: staticSet,
 		regexps:   regexps,
 	}, nil
-}
-
-// StripNegation checks if a string is prefixed with "!"
-// and will returned the stripped string and true if so
-// else, return original value and false
-func stripNegation(value string) (string, bool) {
-   if strings.HasPrefix(value, "!") {
-       return value[1:], true
-   }
-   return value, false
 }
 
 // Each key/value pair must match the filter for the whole map to match.
