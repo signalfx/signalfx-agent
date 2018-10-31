@@ -116,7 +116,7 @@ func (f *basicDimPropsFilter) FilterProperties(properties map[string]string) map
 }
 
 // MatchesDimension checks both dimensionNameFilter and dimensionValueFilter
-// and if either matches the value, returns true
+// and if both match, returns true
 func (f *basicDimPropsFilter) MatchesDimension(name string, value string) bool {
-    return f.dimensionNameFilter.Matches(name) || f.dimensionValueFilter.Matches(value)
+    return f.dimensionNameFilter.Matches(name) && f.dimensionValueFilter.Matches(value)
 }
