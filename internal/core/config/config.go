@@ -178,7 +178,7 @@ func (c *Config) propagateValuesDown() error {
 		return err
 	}
 
-    propertyFilterSet, err := makePropertyFilterSet(c.PropertiesToExclude)
+	propertyFilterSet, err := makePropertyFilterSet(c.PropertiesToExclude)
 	if err != nil {
 		return err
 	}

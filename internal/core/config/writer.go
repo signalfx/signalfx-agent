@@ -57,14 +57,14 @@ type WriterConfig struct {
 	// `sendTraceHostCorrelationMetrics` is false.
 	TraceHostCorrelationMetricsInterval time.Duration `yaml:"traceHostCorrelationMetricsInterval" default:"1m"`
 	// The following are propagated from elsewhere
-	HostIDDims          map[string]string       `yaml:"-"`
-	IngestURL           *url.URL                `yaml:"-"`
-	APIURL              *url.URL                `yaml:"-"`
-	TraceEndpointURL    *url.URL                `yaml:"-"`
-	SignalFxAccessToken string                  `yaml:"-"`
-	GlobalDimensions    map[string]string       `yaml:"-"`
-	DatapointFilter     *dpfilters.FilterSet    `yaml:"-"`
-    PropertyFilter      *propfilters.FilterSet  `yaml:"-"`
+	HostIDDims          map[string]string      `yaml:"-"`
+	IngestURL           *url.URL               `yaml:"-"`
+	APIURL              *url.URL               `yaml:"-"`
+	TraceEndpointURL    *url.URL               `yaml:"-"`
+	SignalFxAccessToken string                 `yaml:"-"`
+	GlobalDimensions    map[string]string      `yaml:"-"`
+	DatapointFilter     *dpfilters.FilterSet   `yaml:"-"`
+	PropertyFilter      *propfilters.FilterSet `yaml:"-"`
 }
 
 func (wc *WriterConfig) initialize() {

@@ -12,12 +12,9 @@ type FilterSet struct {
 // and filters properties. All original properties will be returned if no filter matches
 //, or a subset of the original if some are filtered, or nil if all are filtered.
 func (fs *FilterSet) FilterDimProps(dimProps *types.DimProperties) *types.DimProperties {
-    filteredDimProps := &(*dimProps)
+	filteredDimProps := &(*dimProps)
 	for _, f := range fs.Filters {
 		filteredDimProps = f.FilterDimProps(filteredDimProps)
-        if filteredDimProps == nil {
-            return nil
-        }
 	}
 	return filteredDimProps
 }

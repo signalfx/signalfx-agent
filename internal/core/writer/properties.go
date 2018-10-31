@@ -30,9 +30,9 @@ type dimensionPropertyClient struct {
 	lock    sync.Mutex
 	// A buffered channel that mimics a semaphore when performance isn't that
 	// big of a deal.
-	reqSema chan struct{}
-	TotalPropUpdates int64
-    PropertyFilterSet *propfilters.FilterSet
+	reqSema           chan struct{}
+	TotalPropUpdates  int64
+	PropertyFilterSet *propfilters.FilterSet
 }
 
 func newDimensionPropertyClient(conf *config.WriterConfig) *dimensionPropertyClient {
@@ -59,9 +59,9 @@ func newDimensionPropertyClient(conf *config.WriterConfig) *dimensionPropertyCli
 				TLSHandshakeTimeout: 10 * time.Second,
 			},
 		},
-		history: history,
-		reqSema: make(chan struct{}, int(conf.PropertiesMaxRequests)),
-        PropertyFilterSet: conf.PropertyFilter,
+		history:           history,
+		reqSema:           make(chan struct{}, int(conf.PropertiesMaxRequests)),
+		PropertyFilterSet: conf.PropertyFilter,
 	}
 }
 
@@ -69,33 +69,33 @@ func newDimensionPropertyClient(conf *config.WriterConfig) *dimensionPropertyCli
 // value.  It will wipe out any description or tags on the dimension.  There is
 // no retry logic here so any failures are terminal.
 func (dpc *dimensionPropertyClient) SetPropertiesOnDimension(dimProps *types.DimProperties) error {
-    filteredDimProps := &(*dimProps)
+	filteredDimProps := &(*dimProps)
 
-    filteredDimProps = ApplyFilter(filteredDimProps, dpc.PropertyFilterSet)
-    if filteredDimProps == nil {
-        return nil
-    }
+	filteredDimProps = ApplyFilter(filteredDimProps, dpc.PropertyFilterSet)
+	if filteredDimProps == nil {
+		return nil
+	}
 
-    if !dpc.isDuplicate(filteredDimProps) {
-        dpc.reqSema <- struct{}{}
-        err := dpc.doReq(filteredDimProps.Name, filteredDimProps.Value,
-                filteredDimProps.Properties, filteredDimProps.Tags)
-        <-dpc.reqSema
-        if err != nil {
-            return err
-        }
-        // Add it to the history only after successfully propagated.  This
-        // could lead to some duplicates if there are multiple concurrent calls
-        // for the same dim props, but that's ok.
-        dpc.history.Add(filteredDimProps.Dimension, filteredDimProps)
-        atomic.AddInt64(&dpc.TotalPropUpdates, int64(1))
-    }
+	if !dpc.isDuplicate(filteredDimProps) {
+		dpc.reqSema <- struct{}{}
+		err := dpc.doReq(filteredDimProps.Name, filteredDimProps.Value,
+			filteredDimProps.Properties, filteredDimProps.Tags)
+		<-dpc.reqSema
+		if err != nil {
+			return err
+		}
+		// Add it to the history only after successfully propagated.  This
+		// could lead to some duplicates if there are multiple concurrent calls
+		// for the same dim props, but that's ok.
+		dpc.history.Add(filteredDimProps.Dimension, filteredDimProps)
+		atomic.AddInt64(&dpc.TotalPropUpdates, int64(1))
+	}
 	return nil
 }
 
-// ApplyFilter filters out properties from filter sets and returns 
+// ApplyFilter filters out properties from filter sets and returns
 func ApplyFilter(dimProps *types.DimProperties, propFilters *propfilters.FilterSet) *types.DimProperties {
-    return propFilters.FilterDimProps(dimProps)
+	return propFilters.FilterDimProps(dimProps)
 }
 
 // isDuplicate returns true if the exact same dimension properties have been
