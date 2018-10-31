@@ -50,11 +50,11 @@ type MonitorConfig struct {
 	OtherConfig map[string]interface{} `yaml:",inline" neverLog:"omit"`
 	// ValidationError is where a message concerning validation issues can go
 	// so that diagnostics can output it.
-	Hostname        string               `yaml:"-" json:"-"`
-	BundleDir       string               `yaml:"-" json:"-"`
-	ValidationError string               `yaml:"-" json:"-" hash:"ignore"`
-	MonitorID       types.MonitorID      `yaml:"-" hash:"ignore"`
-	Filter          *dpfilters.FilterSet `yaml:"-" json:"-" hash:"ignore"`
+	Hostname        string                  `yaml:"-" json:"-"`
+	BundleDir       string                  `yaml:"-" json:"-"`
+	ValidationError string                  `yaml:"-" json:"-" hash:"ignore"`
+	MonitorID       types.MonitorID         `yaml:"-" hash:"ignore"`
+	Filter          *dpfilters.FilterSet    `yaml:"-" json:"-" hash:"ignore"`
 }
 
 // initialize does basic setup of the config struct and should always be called after

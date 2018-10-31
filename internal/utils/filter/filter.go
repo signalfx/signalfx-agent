@@ -5,7 +5,10 @@
 // filter.
 package filter
 
-import "regexp"
+import (
+    "regexp"
+    "strings"
+)
 
 // StringFilter matches against simple strings
 type StringFilter interface {
@@ -20,6 +23,10 @@ type StringMapFilter interface {
 type basicStringFilter struct {
 	staticSet map[string]bool
 	regexps   []*regexp.Regexp
+}
+
+type basicStringNegationFilter struct {
+    negationFilter  StringFilter
 }
 
 // NewStringFilter returns a filter that can match against the provided items.
@@ -90,6 +97,16 @@ func NewStringMapFilter(m map[string]string) (StringMapFilter, error) {
 		staticSet: staticSet,
 		regexps:   regexps,
 	}, nil
+}
+
+// StripNegation checks if a string is prefixed with "!"
+// and will returned the stripped string and true if so
+// else, return original value and false
+func stripNegation(value string) (string, bool) {
+   if strings.HasPrefix(value, "!") {
+       return value[1:], true
+   }
+   return value, false
 }
 
 // Each key/value pair must match the filter for the whole map to match.
