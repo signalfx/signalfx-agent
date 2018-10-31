@@ -71,7 +71,7 @@ func newDimensionPropertyClient(conf *config.WriterConfig) *dimensionPropertyCli
 func (dpc *dimensionPropertyClient) SetPropertiesOnDimension(dimProps *types.DimProperties) error {
 	filteredDimProps := &(*dimProps)
 
-	filteredDimProps = ApplyFilter(filteredDimProps, dpc.PropertyFilterSet)
+	filteredDimProps = applyFilter(filteredDimProps, dpc.PropertyFilterSet)
 	if filteredDimProps == nil {
 		return nil
 	}
@@ -93,8 +93,8 @@ func (dpc *dimensionPropertyClient) SetPropertiesOnDimension(dimProps *types.Dim
 	return nil
 }
 
-// ApplyFilter filters out properties from filter sets and returns
-func ApplyFilter(dimProps *types.DimProperties, propFilters *propfilters.FilterSet) *types.DimProperties {
+// applyFilter filters out properties from filter sets and returns
+func applyFilter(dimProps *types.DimProperties, propFilters *propfilters.FilterSet) *types.DimProperties {
 	return propFilters.FilterDimProps(dimProps)
 }
 
