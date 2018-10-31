@@ -12479,6 +12479,53 @@
         }
       },
       {
+        "yamlName": "propertiesToExclude",
+        "doc": "A list of properties filters",
+        "default": "",
+        "required": false,
+        "type": "slice",
+        "elementKind": "struct",
+        "elementStruct": {
+          "name": "PropertyFilterConfig",
+          "doc": "PropertyFilterConfig describes a set of subtractive filters applied to properties used to create a PropertyFilter",
+          "package": "internal/core/config",
+          "fields": [
+            {
+              "yamlName": "propertyName",
+              "doc": "A single property name to match",
+              "default": "*",
+              "required": false,
+              "type": "string",
+              "elementKind": ""
+            },
+            {
+              "yamlName": "propertyValue",
+              "doc": "A property value to match",
+              "default": "*",
+              "required": false,
+              "type": "string",
+              "elementKind": ""
+            },
+            {
+              "yamlName": "dimensionName",
+              "doc": "A dimension name to match",
+              "default": "*",
+              "required": false,
+              "type": "string",
+              "elementKind": ""
+            },
+            {
+              "yamlName": "dimensionValue",
+              "doc": "A dimension value to match",
+              "default": "*",
+              "required": false,
+              "type": "string",
+              "elementKind": ""
+            }
+          ]
+        }
+      },
+      {
         "yamlName": "pythonEnabled",
         "doc": "(**NOT FUNCTIONAL**) Whether to enable the Python sub-agent (\"neopy\") that can directly use DataDog and Collectd Python plugins.  This is not the same as Collectd's Python plugin, which is always enabled.",
         "default": false,
