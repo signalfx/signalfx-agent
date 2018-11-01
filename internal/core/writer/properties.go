@@ -16,9 +16,9 @@ import (
 	lru "github.com/hashicorp/golang-lru"
 	"github.com/pkg/errors"
 	"github.com/signalfx/signalfx-agent/internal/core/config"
+	"github.com/signalfx/signalfx-agent/internal/core/propfilters"
 	"github.com/signalfx/signalfx-agent/internal/monitors/types"
 	"github.com/signalfx/signalfx-agent/internal/utils"
-	log "github.com/sirupsen/logrus"
 )
 
 type dimensionPropertyClient struct {
@@ -30,9 +30,9 @@ type dimensionPropertyClient struct {
 	lock    sync.Mutex
 	// A buffered channel that mimics a semaphore when performance isn't that
 	// big of a deal.
-	reqSema chan struct{}
-
-	TotalPropUpdates int64
+	reqSema           chan struct{}
+	TotalPropUpdates  int64
+	PropertyFilterSet *propfilters.FilterSet
 }
 
 func newDimensionPropertyClient(conf *config.WriterConfig) *dimensionPropertyClient {
@@ -59,8 +59,9 @@ func newDimensionPropertyClient(conf *config.WriterConfig) *dimensionPropertyCli
 				TLSHandshakeTimeout: 10 * time.Second,
 			},
 		},
-		history: history,
-		reqSema: make(chan struct{}, int(conf.PropertiesMaxRequests)),
+		history:           history,
+		reqSema:           make(chan struct{}, int(conf.PropertiesMaxRequests)),
+		PropertyFilterSet: conf.PropertyFilter,
 	}
 }
 
@@ -68,17 +69,17 @@ func newDimensionPropertyClient(conf *config.WriterConfig) *dimensionPropertyCli
 // value.  It will wipe out any description or tags on the dimension.  There is
 // no retry logic here so any failures are terminal.
 func (dpc *dimensionPropertyClient) SetPropertiesOnDimension(dimProps *types.DimProperties) error {
-	if !dpc.isDuplicate(dimProps) {
+	filteredDimProps := &(*dimProps)
+
+	filteredDimProps = dpc.PropertyFilterSet.FilterDimProps(filteredDimProps)
+	if filteredDimProps == nil {
+		return nil
+	}
+
+	if !dpc.isDuplicate(filteredDimProps) {
 		dpc.reqSema <- struct{}{}
-
-		log.WithFields(log.Fields{
-			"name":  dimProps.Name,
-			"value": dimProps.Value,
-			"props": dimProps.Properties,
-			"tags":  dimProps.Tags,
-		}).Info("Syncing properties to dimension")
-
-		err := dpc.doReq(dimProps.Name, dimProps.Value, dimProps.Properties, dimProps.Tags)
+		err := dpc.doReq(filteredDimProps.Name, filteredDimProps.Value,
+			filteredDimProps.Properties, filteredDimProps.Tags)
 		<-dpc.reqSema
 		if err != nil {
 			return err
@@ -86,7 +87,7 @@ func (dpc *dimensionPropertyClient) SetPropertiesOnDimension(dimProps *types.Dim
 		// Add it to the history only after successfully propagated.  This
 		// could lead to some duplicates if there are multiple concurrent calls
 		// for the same dim props, but that's ok.
-		dpc.history.Add(dimProps.Dimension, dimProps)
+		dpc.history.Add(filteredDimProps.Dimension, filteredDimProps)
 		atomic.AddInt64(&dpc.TotalPropUpdates, int64(1))
 	}
 	return nil

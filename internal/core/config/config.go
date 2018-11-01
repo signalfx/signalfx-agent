@@ -74,6 +74,8 @@ type Config struct {
 	Collectd CollectdConfig `yaml:"collectd" default:"{}"`
 	// A list of metric filters
 	MetricsToExclude []MetricFilter `yaml:"metricsToExclude" default:"[]"`
+	// A list of properties filters
+	PropertiesToExclude []PropertyFilterConfig `yaml:"propertiesToExclude" default:"[]"`
 	// (**NOT FUNCTIONAL**) Whether to enable the Python sub-agent ("neopy")
 	// that can directly use DataDog and Collectd Python plugins.  This is not
 	// the same as Collectd's Python plugin, which is always enabled.
@@ -171,7 +173,12 @@ func (c *Config) validate() error {
 // Send values from the top of the config down to nested configs that might
 // need them
 func (c *Config) propagateValuesDown() error {
-	filterSet, err := makeFilterSet(c.MetricsToExclude)
+	dpFilterSet, err := makeFilterSet(c.MetricsToExclude)
+	if err != nil {
+		return err
+	}
+
+	propertyFilterSet, err := makePropertyFilterSet(c.PropertiesToExclude)
 	if err != nil {
 		return err
 	}
@@ -205,7 +212,8 @@ func (c *Config) propagateValuesDown() error {
 	c.Collectd.IntervalSeconds = utils.FirstNonZero(c.Collectd.IntervalSeconds, c.IntervalSeconds)
 	c.Collectd.BundleDir = c.BundleDir
 
-	c.Writer.Filter = filterSet
+	c.Writer.DatapointFilter = dpFilterSet
+	c.Writer.PropertyFilter = propertyFilterSet
 	c.Writer.SignalFxAccessToken = c.SignalFxAccessToken
 	c.Writer.GlobalDimensions = c.GlobalDimensions
 

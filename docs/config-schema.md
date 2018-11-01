@@ -26,6 +26,7 @@ by the `-config` flag to the agent binary (`signalfx-agent`).
 | `logging` | no | [object (see below)](#logging) | Log configuration |
 | `collectd` | no | [object (see below)](#collectd) | Configuration of the managed collectd subprocess |
 | `metricsToExclude` | no | [list of object (see below)](#metricstoexclude) | A list of metric filters |
+| `propertiesToExclude` | no | [list of object (see below)](#propertiestoexclude) | A list of properties filters |
 | `pythonEnabled` | no | bool | (**NOT FUNCTIONAL**) Whether to enable the Python sub-agent ("neopy") that can directly use DataDog and Collectd Python plugins.  This is not the same as Collectd's Python plugin, which is always enabled. (**default:** `false`) |
 | `diagnosticsNamedPipePath` | no | string | The path where the agent will create a named pipe and serve diagnostic output (windows only) (**default:** `"\\\\.\\pipe\\signalfx-agent-diagnostics"`) |
 | `diagnosticsSocketPath` | no | string | The path where the agent will create UNIX socket and serve diagnostic output (linux only) (**default:** `"/var/run/signalfx-agent/diagnostics.sock"`) |
@@ -153,6 +154,20 @@ For more information on filtering see [Datapoint Filtering](./filtering.md).
 
 
 
+## propertiesToExclude
+The **nested** `propertiesToExclude` config object has the following fields:
+
+
+
+| Config option | Required | Type | Description |
+| --- | --- | --- | --- |
+| `propertyName` | no | string | A single property name to match (**default:** `"*"`) |
+| `propertyValue` | no | string | A property value to match (**default:** `"*"`) |
+| `dimensionName` | no | string | A dimension name to match (**default:** `"*"`) |
+| `dimensionValue` | no | string | A dimension value to match (**default:** `"*"`) |
+
+
+
 ## configSources
 The **nested** `configSources` config object has the following fields:
 
@@ -268,6 +283,7 @@ where applicable:
     writeServerPort: 0
     configDir: "/var/run/signalfx-agent/collectd"
   metricsToExclude: []
+  propertiesToExclude: []
   pythonEnabled: false
   diagnosticsNamedPipePath: "\\\\.\\pipe\\signalfx-agent-diagnostics"
   diagnosticsSocketPath: "/var/run/signalfx-agent/diagnostics.sock"

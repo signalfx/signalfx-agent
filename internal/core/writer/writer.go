@@ -158,7 +158,7 @@ func New(conf *config.WriterConfig, dpChan chan *datapoint.Datapoint, eventChan 
 }
 
 func (sw *SignalFxWriter) shouldSendDatapoint(dp *datapoint.Datapoint) bool {
-	return sw.conf.Filter == nil || !sw.conf.Filter.Matches(dp)
+	return sw.conf.DatapointFilter == nil || !sw.conf.DatapointFilter.Matches(dp)
 }
 
 func (sw *SignalFxWriter) preprocessDatapoint(dp *datapoint.Datapoint) {

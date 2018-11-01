@@ -53,3 +53,13 @@ func anyRegexMatches(s string, res []*regexp.Regexp) bool {
 	}
 	return false
 }
+
+// stripNegation checks if a string is prefixed with "!"
+// and will returned the stripped string and true if so
+// else, return original value and false
+func stripNegation(value string) (string, bool) {
+	if strings.HasPrefix(value, "!") {
+		return value[1:], true
+	}
+	return value, false
+}
