@@ -17,13 +17,13 @@ spec:
     spec:
       containers:
         - name: elasticsearch
-          image: docker.elastic.co/elasticsearch/elasticsearch:6.2.4
+          image: elasticsearch:k8s-test
           ports:
             - containerPort: 9200
-          env:
-            - name: ELASTIC_PASSWORD
-              value: testing123
-            - name: discovery.type
-              value: single-node
-            - name: ES_JAVA_OPTS
-              value: -Xms128m -Xmx128m
+          readinessProbe:
+            httpGet:
+              path: /_nodes/_local
+              port: 9200
+            initialDelaySeconds: 5
+            periodSeconds: 1
+            timeoutSeconds: 60

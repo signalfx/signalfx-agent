@@ -36,6 +36,13 @@ spec:
               mountPath: /usr/local/apache2/conf.d/status.conf
           command: ["/bin/sh"]
           args: ["-c", "echo 'Include conf.d/*.conf' >> /usr/local/apache2/conf/httpd.conf; /usr/local/bin/httpd-foreground"]
+          readinessProbe:
+            httpGet:
+              path: /mod_status?auto
+              port: 80
+            initialDelaySeconds: 5
+            periodSeconds: 1
+            timeoutSeconds: 60
       volumes:
         - name: apache-conf
           configMap:

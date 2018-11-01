@@ -27,3 +27,9 @@ spec:
               value: test_pwd
             - name: POSTGRES_DB
               value: test
+          readinessProbe:
+            tcpSocket:
+              port: 5432
+            initialDelaySeconds: 5
+            periodSeconds: 1
+            timeoutSeconds: 60

@@ -2439,6 +2439,14 @@
           "elementKind": "string"
         },
         {
+          "yamlName": "cluster",
+          "doc": "Cluster name to which the node belongs. This is an optional config that will override the cluster name fetched from a node and will be used to populate the plugin_instance dimension",
+          "default": "",
+          "required": false,
+          "type": "string",
+          "elementKind": ""
+        },
+        {
           "yamlName": "detailedMetrics",
           "doc": "DetailedMetrics turns on additional metric time series",
           "default": true,
@@ -9912,6 +9920,11 @@
           "description": "Jiffies of CPU time spent in user mode by the container"
         },
         {
+          "name": "memory.percent",
+          "type": "gauge",
+          "description": "Percent of memory (0-100) used by the container relative to its limit (excludes page cache usage)"
+        },
+        {
           "name": "memory.stats.swap",
           "type": "gauge",
           "description": "Bytes of swap memory used by container"
@@ -11275,7 +11288,16 @@
       "name": "Config",
       "doc": " Looks at the current host for listening network endpoints.\nIt uses the `/proc` filesystem and requires the `SYS_PTRACE` and\n`DAC_READ_SEARCH` capabilities so that it can determine what processes own\nthe listening sockets.\n\nIt will look for all listening sockets on TCP and UDP over IPv4 and IPv6.\n",
       "package": "internal/observers/host",
-      "fields": [],
+      "fields": [
+        {
+          "yamlName": "pollIntervalSeconds",
+          "doc": "",
+          "default": 10,
+          "required": false,
+          "type": "int",
+          "elementKind": ""
+        }
+      ],
       "observerType": "host",
       "dimensions": [
         {

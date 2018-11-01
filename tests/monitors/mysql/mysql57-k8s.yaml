@@ -25,3 +25,9 @@ spec:
               value: testing123
             - name: MYSQL_DATABASE
               value: testdb
+          readinessProbe:
+            tcpSocket:
+              port: 3306
+            initialDelaySeconds: 5
+            periodSeconds: 1
+            timeoutSeconds: 60

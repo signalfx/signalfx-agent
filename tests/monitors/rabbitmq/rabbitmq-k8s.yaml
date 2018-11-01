@@ -25,3 +25,9 @@ spec:
               value: testuser
             - name: RABBITMQ_DEFAULT_PASS
               value: testing123
+          readinessProbe:
+            tcpSocket:
+              port: 15672
+            initialDelaySeconds: 5
+            periodSeconds: 1
+            timeoutSeconds: 60

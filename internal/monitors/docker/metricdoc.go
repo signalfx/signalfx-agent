@@ -40,6 +40,9 @@ package docker
 
 // CUMULATIVE(cpu.usage.usermode): Jiffies of CPU time spent in user mode by the container
 
+// GAUGE(memory.percent): Percent of memory (0-100) used by the container
+// relative to its limit (excludes page cache usage)
+
 // GAUGE(memory.stats.swap): Bytes of swap memory used by container
 
 // GAUGE(memory.usage.limit): Memory usage limit of the container, in bytes

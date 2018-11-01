@@ -18,7 +18,12 @@ def test_docker_container_stats():
 
     """
         ) as [backend, _, _]:
-            assert wait_for(p(has_datapoint_with_metric_name, backend, "cpu.percent")), "Didn't get docker datapoints"
+            assert wait_for(
+                p(has_datapoint_with_metric_name, backend, "cpu.percent")
+            ), "Didn't get docker cpu datapoints"
+            assert wait_for(
+                p(has_datapoint_with_metric_name, backend, "memory.percent")
+            ), "Didn't get docker memory datapoints"
             assert wait_for(
                 p(has_datapoint_with_dim, backend, "container_id", nginx_container.id)
             ), "Didn't get nginx datapoints"
