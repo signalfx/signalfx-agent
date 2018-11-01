@@ -240,7 +240,7 @@ func TestFilters(t *testing.T) {
 		f, _ := New([]string{"pod-template-hash"}, []string{"123"},
 			[]string{"*"}, []string{"*"})
 
-            properties := map[string]string{"pod-template-hash": "123", "replicaSet": "abc", "service_uid": "123"}
+		properties := map[string]string{"pod-template-hash": "123", "replicaSet": "abc", "service_uid": "123"}
 		dimProps := &types.DimProperties{
 			Dimension: types.Dimension{
 				Name:  "kubernetes_pod_uid",
@@ -278,8 +278,8 @@ func TestFilters(t *testing.T) {
 		f, _ := New([]string{"pod-template-hash"}, []string{"*"},
 			[]string{"kubernetes_pod_uid"}, []string{"*"})
 
-            properties := map[string]string{"pod-template-hash": "123", "replicaSet": "abc", "service_uid": "123"}
-            node_properties := map[string]string{"pod-template-hash": "123", "replicaSet": "abc", "service_uid": "123"}
+		properties := map[string]string{"pod-template-hash": "123", "replicaSet": "abc", "service_uid": "123"}
+		nodeProperties := map[string]string{"pod-template-hash": "123", "replicaSet": "abc", "service_uid": "123"}
 		dimProps := &types.DimProperties{
 			Dimension: types.Dimension{
 				Name:  "kubernetes_pod_uid",
@@ -288,32 +288,32 @@ func TestFilters(t *testing.T) {
 			Properties: properties,
 			Tags:       nil,
 		}
-		dimProps_node := &types.DimProperties{
+		dimPropsNode := &types.DimProperties{
 			Dimension: types.Dimension{
 				Name:  "kubernetes_node",
 				Value: "minikube",
 			},
-			Properties: node_properties,
+			Properties: nodeProperties,
 			Tags:       nil,
 		}
 		filteredDimProps := f.FilterDimProps(dimProps)
-        node_filteredDimProps := f.FilterDimProps(dimProps_node)
+		nodeFilteredDimProps := f.FilterDimProps(dimPropsNode)
 		spew.Dump(f)
 		assert.True(t, len(filteredDimProps.Properties) == 2)
 		assert.True(t, filteredDimProps.Properties["replicaSet"] == "abc")
 		assert.True(t, filteredDimProps.Properties["service_uid"] == "123")
-		assert.True(t, len(node_filteredDimProps.Properties) == 3)
-		assert.True(t, node_filteredDimProps.Properties["replicaSet"] == "abc")
-		assert.True(t, node_filteredDimProps.Properties["service_uid"] == "123")
-		assert.True(t, node_filteredDimProps.Properties["pod-template-hash"] == "123")
+		assert.True(t, len(nodeFilteredDimProps.Properties) == 3)
+		assert.True(t, nodeFilteredDimProps.Properties["replicaSet"] == "abc")
+		assert.True(t, nodeFilteredDimProps.Properties["service_uid"] == "123")
+		assert.True(t, nodeFilteredDimProps.Properties["pod-template-hash"] == "123")
 	})
 
 	t.Run("Filter a dimprops object given dimension name, and property name and value", func(t *testing.T) {
 		f, _ := New([]string{"pod-template-hash"}, []string{"123"},
 			[]string{"kubernetes_pod_uid"}, []string{"*"})
 
-            properties := map[string]string{"pod-template-hash": "123", "replicaSet": "abc", "service_uid": "123"}
-            node_properties := map[string]string{"pod-template-hash": "789", "replicaSet": "abc", "service_uid": "123"}
+		properties := map[string]string{"pod-template-hash": "123", "replicaSet": "abc", "service_uid": "123"}
+		nodeProperties := map[string]string{"pod-template-hash": "789", "replicaSet": "abc", "service_uid": "123"}
 		dimProps := &types.DimProperties{
 			Dimension: types.Dimension{
 				Name:  "kubernetes_pod_uid",
@@ -322,32 +322,32 @@ func TestFilters(t *testing.T) {
 			Properties: properties,
 			Tags:       nil,
 		}
-		dimProps_node := &types.DimProperties{
+		dimPropsNode := &types.DimProperties{
 			Dimension: types.Dimension{
 				Name:  "kubernetes_pod_uid",
 				Value: "789",
 			},
-			Properties: node_properties,
+			Properties: nodeProperties,
 			Tags:       nil,
 		}
 		filteredDimProps := f.FilterDimProps(dimProps)
-        node_filteredDimProps := f.FilterDimProps(dimProps_node)
+		nodeFilteredDimProps := f.FilterDimProps(dimPropsNode)
 		spew.Dump(f)
 		assert.True(t, len(filteredDimProps.Properties) == 2)
 		assert.True(t, filteredDimProps.Properties["replicaSet"] == "abc")
 		assert.True(t, filteredDimProps.Properties["service_uid"] == "123")
-		assert.True(t, len(node_filteredDimProps.Properties) == 3)
-		assert.True(t, node_filteredDimProps.Properties["replicaSet"] == "abc")
-		assert.True(t, node_filteredDimProps.Properties["service_uid"] == "123")
-		assert.True(t, node_filteredDimProps.Properties["pod-template-hash"] == "789")
+		assert.True(t, len(nodeFilteredDimProps.Properties) == 3)
+		assert.True(t, nodeFilteredDimProps.Properties["replicaSet"] == "abc")
+		assert.True(t, nodeFilteredDimProps.Properties["service_uid"] == "123")
+		assert.True(t, nodeFilteredDimProps.Properties["pod-template-hash"] == "789")
 	})
 
 	t.Run("Filter a dimprops object given dimension name and value, and property name and value", func(t *testing.T) {
 		f, _ := New([]string{"pod-template-hash"}, []string{"123"},
 			[]string{"kubernetes_pod_uid"}, []string{"123"})
 
-            properties := map[string]string{"pod-template-hash": "123", "replicaSet": "abc", "service_uid": "123"}
-            node_properties := map[string]string{"pod-template-hash": "789", "replicaSet": "abc", "service_uid": "123"}
+		properties := map[string]string{"pod-template-hash": "123", "replicaSet": "abc", "service_uid": "123"}
+		nodeProperties := map[string]string{"pod-template-hash": "789", "replicaSet": "abc", "service_uid": "123"}
 		dimProps := &types.DimProperties{
 			Dimension: types.Dimension{
 				Name:  "kubernetes_pod_uid",
@@ -356,32 +356,32 @@ func TestFilters(t *testing.T) {
 			Properties: properties,
 			Tags:       nil,
 		}
-		dimProps_node := &types.DimProperties{
+		dimPropsNode := &types.DimProperties{
 			Dimension: types.Dimension{
 				Name:  "kubernetes_pod_uid",
 				Value: "123",
 			},
-			Properties: node_properties,
+			Properties: nodeProperties,
 			Tags:       nil,
 		}
 		filteredDimProps := f.FilterDimProps(dimProps)
-        node_filteredDimProps := f.FilterDimProps(dimProps_node)
+		nodeFilteredDimProps := f.FilterDimProps(dimPropsNode)
 		spew.Dump(f)
 		assert.True(t, len(filteredDimProps.Properties) == 2)
 		assert.True(t, filteredDimProps.Properties["replicaSet"] == "abc")
 		assert.True(t, filteredDimProps.Properties["service_uid"] == "123")
-		assert.True(t, len(node_filteredDimProps.Properties) == 3)
-		assert.True(t, node_filteredDimProps.Properties["replicaSet"] == "abc")
-		assert.True(t, node_filteredDimProps.Properties["service_uid"] == "123")
-		assert.True(t, node_filteredDimProps.Properties["pod-template-hash"] == "789")
+		assert.True(t, len(nodeFilteredDimProps.Properties) == 3)
+		assert.True(t, nodeFilteredDimProps.Properties["replicaSet"] == "abc")
+		assert.True(t, nodeFilteredDimProps.Properties["service_uid"] == "123")
+		assert.True(t, nodeFilteredDimProps.Properties["pod-template-hash"] == "789")
 	})
 
 	t.Run("Filter a dimprops object given dimension value, and property name and value", func(t *testing.T) {
 		f, _ := New([]string{"pod-template-hash"}, []string{"123"},
 			[]string{"*"}, []string{"123"})
 
-            properties := map[string]string{"pod-template-hash": "123", "replicaSet": "abc", "service_uid": "123"}
-            node_properties := map[string]string{"pod-template-hash": "789", "replicaSet": "abc", "service_uid": "123"}
+		properties := map[string]string{"pod-template-hash": "123", "replicaSet": "abc", "service_uid": "123"}
+		nodeProperties := map[string]string{"pod-template-hash": "789", "replicaSet": "abc", "service_uid": "123"}
 		dimProps := &types.DimProperties{
 			Dimension: types.Dimension{
 				Name:  "kubernetes_pod_uid",
@@ -390,24 +390,24 @@ func TestFilters(t *testing.T) {
 			Properties: properties,
 			Tags:       nil,
 		}
-		dimProps_node := &types.DimProperties{
+		dimPropsNode := &types.DimProperties{
 			Dimension: types.Dimension{
 				Name:  "kubernetes_pod_uid",
 				Value: "123",
 			},
-			Properties: node_properties,
+			Properties: nodeProperties,
 			Tags:       nil,
 		}
 		filteredDimProps := f.FilterDimProps(dimProps)
-        node_filteredDimProps := f.FilterDimProps(dimProps_node)
+		nodeFilteredDimProps := f.FilterDimProps(dimPropsNode)
 		spew.Dump(f)
 		assert.True(t, len(filteredDimProps.Properties) == 2)
 		assert.True(t, filteredDimProps.Properties["replicaSet"] == "abc")
 		assert.True(t, filteredDimProps.Properties["service_uid"] == "123")
-		assert.True(t, len(node_filteredDimProps.Properties) == 3)
-		assert.True(t, node_filteredDimProps.Properties["replicaSet"] == "abc")
-		assert.True(t, node_filteredDimProps.Properties["service_uid"] == "123")
-		assert.True(t, node_filteredDimProps.Properties["pod-template-hash"] == "789")
+		assert.True(t, len(nodeFilteredDimProps.Properties) == 3)
+		assert.True(t, nodeFilteredDimProps.Properties["replicaSet"] == "abc")
+		assert.True(t, nodeFilteredDimProps.Properties["service_uid"] == "123")
+		assert.True(t, nodeFilteredDimProps.Properties["pod-template-hash"] == "789")
 	})
 
 	// negation tests
