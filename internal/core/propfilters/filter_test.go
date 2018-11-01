@@ -17,8 +17,8 @@ func TestFilters(t *testing.T) {
 		filteredProperties := f.FilterProperties(properties)
 
 		spew.Dump(f)
-		assert.True(t, len(filteredProperties) == 1)
-		assert.True(t, filteredProperties["replicaSet"] == "abc")
+		expectedProperties := map[string]string{"replicaSet": "abc"}
+		assert.Equal(t, filteredProperties, expectedProperties)
 	})
 
 	t.Run("Filter a regex property name", func(t *testing.T) {
@@ -29,8 +29,8 @@ func TestFilters(t *testing.T) {
 		filteredProperties := f.FilterProperties(properties)
 
 		spew.Dump(f)
-		assert.True(t, len(filteredProperties) == 1)
-		assert.True(t, filteredProperties["replicaSet"] == "abc")
+		expectedProperties := map[string]string{"replicaSet": "abc"}
+		assert.Equal(t, filteredProperties, expectedProperties)
 	})
 
 	t.Run("Filter a globbed property name", func(t *testing.T) {
@@ -41,8 +41,8 @@ func TestFilters(t *testing.T) {
 		filteredProperties := f.FilterProperties(properties)
 
 		spew.Dump(f)
-		assert.True(t, len(filteredProperties) == 1)
-		assert.True(t, filteredProperties["replicaSet"] == "abc")
+		expectedProperties := map[string]string{"replicaSet": "abc"}
+		assert.Equal(t, filteredProperties, expectedProperties)
 	})
 
 	t.Run("Filter a single property value", func(t *testing.T) {
@@ -53,8 +53,8 @@ func TestFilters(t *testing.T) {
 		filteredProperties := f.FilterProperties(properties)
 
 		spew.Dump(f)
-		assert.True(t, len(filteredProperties) == 1)
-		assert.True(t, filteredProperties["replicaSet"] == "abc")
+		expectedProperties := map[string]string{"replicaSet": "abc"}
+		assert.Equal(t, filteredProperties, expectedProperties)
 	})
 
 	t.Run("Filter a regex property value", func(t *testing.T) {
@@ -65,8 +65,8 @@ func TestFilters(t *testing.T) {
 		filteredProperties := f.FilterProperties(properties)
 
 		spew.Dump(f)
-		assert.True(t, len(filteredProperties) == 1)
-		assert.True(t, filteredProperties["replicaSet"] == "abc")
+		expectedProperties := map[string]string{"replicaSet": "abc"}
+		assert.Equal(t, filteredProperties, expectedProperties)
 	})
 
 	t.Run("Filter a globbed property value", func(t *testing.T) {
@@ -77,8 +77,8 @@ func TestFilters(t *testing.T) {
 		filteredProperties := f.FilterProperties(properties)
 
 		spew.Dump(f)
-		assert.True(t, len(filteredProperties) == 1)
-		assert.True(t, filteredProperties["replicaSet"] == "abc")
+		expectedProperties := map[string]string{"replicaSet": "abc"}
+		assert.Equal(t, filteredProperties, expectedProperties)
 	})
 
 	t.Run("Filter a property name and value", func(t *testing.T) {
@@ -89,8 +89,8 @@ func TestFilters(t *testing.T) {
 		filteredProperties := f.FilterProperties(properties)
 
 		spew.Dump(filteredProperties)
-		assert.True(t, len(filteredProperties) == 1)
-		assert.True(t, filteredProperties["replicaSet"] == "abc")
+		expectedProperties := map[string]string{"replicaSet": "abc"}
+		assert.Equal(t, filteredProperties, expectedProperties)
 	})
 
 	t.Run("Filter a single dimension name", func(t *testing.T) {
@@ -192,7 +192,7 @@ func TestFilters(t *testing.T) {
 		}
 
 		spew.Dump(f)
-		assert.True(t, f.FilterDimProps(dimProps) == nil)
+		assert.Nil(t, f.FilterDimProps(dimProps))
 	})
 
 	t.Run("Filter a dimprops object given property name", func(t *testing.T) {
@@ -211,8 +211,8 @@ func TestFilters(t *testing.T) {
 		filteredDimProps := f.FilterDimProps(dimProps)
 
 		spew.Dump(f)
-		assert.True(t, len(filteredDimProps.Properties) == 1)
-		assert.True(t, filteredDimProps.Properties["replicaSet"] == "abc")
+		expectedProperties := map[string]string{"replicaSet": "abc"}
+		assert.Equal(t, filteredDimProps.Properties, expectedProperties)
 	})
 
 	t.Run("Filter a dimprops object given property value", func(t *testing.T) {
@@ -232,8 +232,8 @@ func TestFilters(t *testing.T) {
 		filteredDimProps := f.FilterDimProps(dimProps)
 
 		spew.Dump(f)
-		assert.True(t, len(filteredDimProps.Properties) == 1)
-		assert.True(t, filteredDimProps.Properties["replicaSet"] == "abc")
+		expectedProperties := map[string]string{"replicaSet": "abc"}
+		assert.Equal(t, filteredDimProps.Properties, expectedProperties)
 	})
 
 	t.Run("Filter a dimprops object given property name and value", func(t *testing.T) {
@@ -251,9 +251,8 @@ func TestFilters(t *testing.T) {
 		}
 		filteredDimProps := f.FilterDimProps(dimProps)
 		spew.Dump(f)
-		assert.True(t, len(filteredDimProps.Properties) == 2)
-		assert.True(t, filteredDimProps.Properties["replicaSet"] == "abc")
-		assert.True(t, filteredDimProps.Properties["service_uid"] == "123")
+		expectedProperties := map[string]string{"replicaSet": "abc", "service_uid": "123"}
+		assert.Equal(t, filteredDimProps.Properties, expectedProperties)
 	})
 
 	t.Run("Filter a dimprops object given dimension value", func(t *testing.T) {
@@ -271,7 +270,7 @@ func TestFilters(t *testing.T) {
 		}
 
 		spew.Dump(f)
-		assert.True(t, f.FilterDimProps(dimProps) == nil)
+		assert.Nil(t, f.FilterDimProps(dimProps))
 	})
 
 	t.Run("Filter a dimprops object given dimension name and property name", func(t *testing.T) {
@@ -299,13 +298,9 @@ func TestFilters(t *testing.T) {
 		filteredDimProps := f.FilterDimProps(dimProps)
 		nodeFilteredDimProps := f.FilterDimProps(dimPropsNode)
 		spew.Dump(f)
-		assert.True(t, len(filteredDimProps.Properties) == 2)
-		assert.True(t, filteredDimProps.Properties["replicaSet"] == "abc")
-		assert.True(t, filteredDimProps.Properties["service_uid"] == "123")
-		assert.True(t, len(nodeFilteredDimProps.Properties) == 3)
-		assert.True(t, nodeFilteredDimProps.Properties["replicaSet"] == "abc")
-		assert.True(t, nodeFilteredDimProps.Properties["service_uid"] == "123")
-		assert.True(t, nodeFilteredDimProps.Properties["pod-template-hash"] == "123")
+		expectedProperties := map[string]string{"replicaSet": "abc", "service_uid": "123"}
+		assert.Equal(t, filteredDimProps.Properties, expectedProperties)
+		assert.Equal(t, nodeFilteredDimProps.Properties, properties)
 	})
 
 	t.Run("Filter a dimprops object given dimension name, and property name and value", func(t *testing.T) {
@@ -333,13 +328,9 @@ func TestFilters(t *testing.T) {
 		filteredDimProps := f.FilterDimProps(dimProps)
 		nodeFilteredDimProps := f.FilterDimProps(dimPropsNode)
 		spew.Dump(f)
-		assert.True(t, len(filteredDimProps.Properties) == 2)
-		assert.True(t, filteredDimProps.Properties["replicaSet"] == "abc")
-		assert.True(t, filteredDimProps.Properties["service_uid"] == "123")
-		assert.True(t, len(nodeFilteredDimProps.Properties) == 3)
-		assert.True(t, nodeFilteredDimProps.Properties["replicaSet"] == "abc")
-		assert.True(t, nodeFilteredDimProps.Properties["service_uid"] == "123")
-		assert.True(t, nodeFilteredDimProps.Properties["pod-template-hash"] == "789")
+		expectedProperties := map[string]string{"replicaSet": "abc", "service_uid": "123"}
+		assert.Equal(t, filteredDimProps.Properties, expectedProperties)
+		assert.Equal(t, nodeFilteredDimProps.Properties, nodeProperties)
 	})
 
 	t.Run("Filter a dimprops object given dimension name and value, and property name and value", func(t *testing.T) {
@@ -367,13 +358,9 @@ func TestFilters(t *testing.T) {
 		filteredDimProps := f.FilterDimProps(dimProps)
 		nodeFilteredDimProps := f.FilterDimProps(dimPropsNode)
 		spew.Dump(f)
-		assert.True(t, len(filteredDimProps.Properties) == 2)
-		assert.True(t, filteredDimProps.Properties["replicaSet"] == "abc")
-		assert.True(t, filteredDimProps.Properties["service_uid"] == "123")
-		assert.True(t, len(nodeFilteredDimProps.Properties) == 3)
-		assert.True(t, nodeFilteredDimProps.Properties["replicaSet"] == "abc")
-		assert.True(t, nodeFilteredDimProps.Properties["service_uid"] == "123")
-		assert.True(t, nodeFilteredDimProps.Properties["pod-template-hash"] == "789")
+		expectedProperties := map[string]string{"replicaSet": "abc", "service_uid": "123"}
+		assert.Equal(t, filteredDimProps.Properties, expectedProperties)
+		assert.Equal(t, nodeFilteredDimProps.Properties, nodeProperties)
 	})
 
 	t.Run("Filter a dimprops object given dimension value, and property name and value", func(t *testing.T) {
@@ -401,13 +388,9 @@ func TestFilters(t *testing.T) {
 		filteredDimProps := f.FilterDimProps(dimProps)
 		nodeFilteredDimProps := f.FilterDimProps(dimPropsNode)
 		spew.Dump(f)
-		assert.True(t, len(filteredDimProps.Properties) == 2)
-		assert.True(t, filteredDimProps.Properties["replicaSet"] == "abc")
-		assert.True(t, filteredDimProps.Properties["service_uid"] == "123")
-		assert.True(t, len(nodeFilteredDimProps.Properties) == 3)
-		assert.True(t, nodeFilteredDimProps.Properties["replicaSet"] == "abc")
-		assert.True(t, nodeFilteredDimProps.Properties["service_uid"] == "123")
-		assert.True(t, nodeFilteredDimProps.Properties["pod-template-hash"] == "789")
+		expectedProperties := map[string]string{"replicaSet": "abc", "service_uid": "123"}
+		assert.Equal(t, filteredDimProps.Properties, expectedProperties)
+		assert.Equal(t, nodeFilteredDimProps.Properties, nodeProperties)
 	})
 
 	// negation tests
@@ -419,8 +402,8 @@ func TestFilters(t *testing.T) {
 		filteredProperties := f.FilterProperties(properties)
 
 		spew.Dump(f)
-		assert.True(t, len(filteredProperties) == 1)
-		assert.True(t, filteredProperties["pod-template-hash"] == "123")
+		expectedProperties := map[string]string{"pod-template-hash": "123"}
+		assert.Equal(t, filteredProperties, expectedProperties)
 	})
 
 	t.Run("Filter a single negated property value", func(t *testing.T) {
@@ -431,8 +414,8 @@ func TestFilters(t *testing.T) {
 		filteredProperties := f.FilterProperties(properties)
 
 		spew.Dump(f)
-		assert.True(t, len(filteredProperties) == 1)
-		assert.True(t, filteredProperties["pod-template-hash"] == "123")
+		expectedProperties := map[string]string{"pod-template-hash": "123"}
+		assert.Equal(t, filteredProperties, expectedProperties)
 	})
 
 	t.Run("Match a negated dimension name", func(t *testing.T) {
