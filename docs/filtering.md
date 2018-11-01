@@ -120,10 +120,18 @@ Examples:
       dimensionName: kubernetes_pod_uid
 
     # Exclude all properties except 'pod-template-hash' on 'kubernetes_pod_uid'
-    - dimensionName: kubernetes_pod_uid
-      propertyName: "!pod-template-hash"
+    -  propertyName: "!pod-template-hash"
+       dimensionName: kubernetes_pod_uid
 
     # Do not sync any property beginning with 'load_balancer' to 'kubernetes_pod_uid'
-    - propertyName: load_balancer*
+    - propertyName: "load_balancer*"
       dimensionName: kubernetes_pod_uid
+
+    # Do not sync any property name 'pod-template-hash' beginning with value '123'
+    # on a dimension name `kubernetes_pod_uid` with a dimension value starting
+    # with 'abc'
+    - propertyName: pod-template-hash
+      propertyValue: "123*"
+      dimensionName: kubernetes_pod_uid
+      dimensionValue: "abc*"
 ```
