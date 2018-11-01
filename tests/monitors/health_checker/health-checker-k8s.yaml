@@ -38,6 +38,13 @@ spec:
             - name: json
               mountPath: /data/db.json
               subPath: db.json
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 80
+            initialDelaySeconds: 5
+            periodSeconds: 1
+            timeoutSeconds: 60
       volumes:
         - name: json
           configMap:

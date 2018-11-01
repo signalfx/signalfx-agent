@@ -20,3 +20,9 @@ spec:
           image: memcached:latest
           ports:
             - containerPort: 11211
+          readinessProbe:
+            tcpSocket:
+              port: 11211
+            initialDelaySeconds: 5
+            periodSeconds: 1
+            timeoutSeconds: 60
