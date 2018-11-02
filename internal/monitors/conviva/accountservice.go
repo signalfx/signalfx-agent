@@ -45,7 +45,6 @@ type accountServiceImpl struct {
 // NewAccountService factory function creating AccountService
 func NewAccountService(ctx context.Context, timeout *time.Duration, httpClient *HTTPClient) AccountService {
 	service := accountServiceImpl{ctx: ctx, timeout: timeout, httpClient: httpClient,}
-	service.init()
 	return &service
 }
 
