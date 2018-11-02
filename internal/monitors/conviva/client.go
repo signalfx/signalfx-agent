@@ -8,16 +8,16 @@ import (
 	"net/http"
 )
 
-// ErrorResponse for Conviva error response
-type ErrorResponse struct {
+// errorResponse for Conviva error response
+type errorResponse struct {
 	Message string
 	Code    float64
 	Request string
 	Reason  string
 }
 
-// HTTPClient interface to provide for Conviva API specific implementation
-type HTTPClient interface {
+// httpClient interface to provide for Conviva API specific implementation
+type httpClient interface {
 	Get(ctx context.Context, v interface{}, url string) error
 }
 
@@ -27,8 +27,8 @@ type convivaHTTPClient struct {
 	password string
 }
 
-// NewConvivaClient factory function for creating HTTPClientt
-func NewConvivaClient(client *http.Client, username string, password string) HTTPClient {
+// newConvivaClient factory function for creating HTTPClientt
+func newConvivaClient(client *http.Client, username string, password string) httpClient {
 	return &convivaHTTPClient{
 			client:   client,
 			username: username,
@@ -54,7 +54,7 @@ func (c *convivaHTTPClient) Get(ctx context.Context, v interface{}, url string) 
 		return err
 	}
 	if res.StatusCode != 200  {
-		errorResponse := ErrorResponse{}
+		errorResponse := errorResponse{}
 		if err := json.Unmarshal(body, &errorResponse); err == nil {
 			return fmt.Errorf("%+v", errorResponse)
 		}
