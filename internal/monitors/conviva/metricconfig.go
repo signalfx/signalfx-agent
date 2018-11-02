@@ -4,24 +4,24 @@ import (
 	"strings"
 )
 
-var metriclensMetrics = map[string][]string {
+var prefixedMetriclensMetrics = map[string][]string {
 	"quality_metriclens": {
-		"Total Attempts",
-		"Video Start Failures (%)",
-		"Exits Before Video Start (%)",
-		"Plays (%)",
-		"Video Startup Time (sec)",
-		"Rebuffering Ratio (%)",
-		"Average Bitrate (kbps)",
-		"Video Playback Failures (%)",
-		"Ended Plays",
-		"Connection Induced Rebuffering Ratio (%)",
-		"Video Restart Time",
+		"conviva.quality_metriclens.total_attempts",
+		"conviva.quality_metriclens.video_start_failures_percent",
+		"conviva.quality_metriclens.exits_before_video_start_percent",
+		"conviva.quality_metriclens.plays_percent",
+		"conviva.quality_metriclens.video_startup_time_sec",
+		"conviva.quality_metriclens.rebuffering_ratio_percent",
+		"conviva.quality_metriclens.average_bitrate_kbps",
+		"conviva.quality_metriclens.video_playback_failures_percent",
+		"conviva.quality_metriclens.ended_plays",
+		"conviva.quality_metriclens.connection_induced_rebuffering_ratio_percent",
+		"conviva.quality_metriclens.video_restart_time",
 	},
 	"audience_metriclens": {
-		"Concurrent Plays",
-		"Plays",
-		"Ended Plays",
+		"conviva.audience_metriclens.concurrent_plays",
+		"conviva.audience_metriclens.plays",
+		"conviva.audience_metriclens.ended_plays",
 	},
 }
 

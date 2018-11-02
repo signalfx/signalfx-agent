@@ -189,13 +189,14 @@ func (m *Monitor) fetchMetrics(contextTimeout time.Duration, semaphore chan stru
 			}
 			dps := make([]*datapoint.Datapoint, 0)
 			for metricName, series := range res {
+				prefixedMetricName := "conviva." + metricName
 				for filterID, metricValues := range series.FilterIDValuesMap {
 					for i, metricValue := range metricValues {
 						select {
 						case <-ctx.Done(): logger.Error(ctx.Err()); return
 						default:
 							dp := sfxclient.GaugeF(
-								"conviva." + metricName,
+								prefixedMetricName,
 								map[string]string{"account": conf.Account, "filter": conf.filterMap[filterID],},
 								metricValue)
 							// Checking the type of series and setting dimensions accordingly
@@ -251,11 +252,10 @@ func (m *Monitor) fetchMetriclensMetrics(contextTimeout time.Duration, semaphore
 							default:
 								for metricIndex, metricValue := range row {
 									dps = append(dps, sfxclient.GaugeF(
-										"conviva." + metricName,
+										prefixedMetriclensMetrics[metricName][metricIndex],
 										map[string]string{
 											"account":           conf.Account,
 											"filter":            conf.filterMap[filterID],
-											"metriclensMetric":  metriclensMetrics[metricName][metricIndex],
 											metriclensDimension: metricTable.Xvalues[rowIndex],
 										},
 										metricValue))
