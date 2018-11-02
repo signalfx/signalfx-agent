@@ -40,11 +40,12 @@ type accountServiceImpl struct {
 	ctx            context.Context
 	timeout        *time.Duration
 	httpClient     *HTTPClient
+	mutex          *sync.RWMutex
 }
 
 // NewAccountService factory function creating AccountService
 func NewAccountService(ctx context.Context, timeout *time.Duration, httpClient *HTTPClient) AccountService {
-	service := accountServiceImpl{ctx: ctx, timeout: timeout, httpClient: httpClient,}
+	service := accountServiceImpl{ctx: ctx, timeout: timeout, httpClient: httpClient, mutex: &sync.RWMutex{},}
 	return &service
 }
 
@@ -124,10 +125,12 @@ func (s *accountServiceImpl) GetMetricLensDimensionID(accountName string, metric
 }
 
 func (s *accountServiceImpl) init() {
-	defer func() {anyErrors = false}()
-	ctx, cancel := context.WithTimeout(s.ctx, *s.timeout)
-	defer cancel()
+	s.mutex.Lock()
+	defer s.mutex.Unlock()
 	if !isInitialized {
+		defer func() {anyErrors = false}()
+		ctx, cancel := context.WithTimeout(s.ctx, *s.timeout)
+		defer cancel()
 		res := struct {
 			Default  string            `json:"default"`
 			Count    float64           `json:"count"`
