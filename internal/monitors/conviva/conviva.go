@@ -99,8 +99,8 @@ type Config struct {
 	// Conviva Pulse password required with each API request.
 	Password       string          `yaml:"pulsePassword" validate:"required"`
 	TimeoutSeconds int             `yaml:"timeoutSeconds" default:"10"`
-	MetricConfigs  []*MetricConfig `yaml:"metricConfigs"`
-	accountService AccountService
+	MetricConfigs  []*metricConfig `yaml:"metricConfigs"`
+	//accountService AccountService
 
 }
 
@@ -109,7 +109,7 @@ type Monitor struct {
 	Output  types.Output
 	cancel  context.CancelFunc
 	ctx     context.Context
-	client  HTTPClient
+	client  httpClient
 	timeout time.Duration
 }
 
@@ -120,23 +120,22 @@ func init() {
 // Configure monitor
 func (m *Monitor) Configure(conf *Config) error {
 	if conf.MetricConfigs == nil {
-		conf.MetricConfigs = []*MetricConfig{{Metric: "quality_metriclens"}}
+		conf.MetricConfigs = []*metricConfig{{Metric: "quality_metriclens"}}
 	}
 	m.timeout = time.Duration(conf.TimeoutSeconds) * time.Second
-	m.client = NewConvivaClient(&http.Client{
+	m.client = newConvivaClient(&http.Client{
 		Transport: &http.Transport{
 			MaxIdleConnsPerHost: 100,
 		},
 	}, conf.Username , conf.Password)
 
 	m.ctx, m.cancel = context.WithCancel(context.Background())
-	conf.accountService = NewAccountService(m.ctx, &m.timeout, &m.client)
 	semaphore := make(chan struct{}, maxGoroutinesPerInterval(conf.MetricConfigs))
 	interval := time.Duration(conf.IntervalSeconds) * time.Second
-
+	service := newAccountService(m.ctx, &m.timeout, &m.client)
 	utils.RunOnInterval(m.ctx, func() {
 		for _, metricConf := range conf.MetricConfigs {
-			metricConf.init(&conf.accountService)
+			metricConf.init(&service)
 			if strings.Contains(metricConf.Metric, "metriclens") {
 				m.fetchMetriclensMetrics(interval, semaphore, metricConf)
 			} else {
@@ -175,7 +174,7 @@ type meta struct {
 	FiltersIncompleteData []float64 `json:"filters_incomplete_data,omitempty"`
 }
 
-func (m *Monitor) fetchMetrics(contextTimeout time.Duration, semaphore chan struct{}, conf *MetricConfig) {
+func (m *Monitor) fetchMetrics(contextTimeout time.Duration, semaphore chan struct{}, conf *metricConfig) {
 	select {
 	case semaphore <- struct{}{}:
 		go func(contextTimeout time.Duration, m *Monitor, url string) {
@@ -222,7 +221,7 @@ func (m *Monitor) fetchMetrics(contextTimeout time.Duration, semaphore chan stru
 	}
 }
 
-func (m *Monitor) fetchMetriclensMetrics(contextTimeout time.Duration, semaphore chan struct{}, conf *MetricConfig)  {
+func (m *Monitor) fetchMetriclensMetrics(contextTimeout time.Duration, semaphore chan struct{}, conf *metricConfig)  {
 	for _, dim := range conf.MetriclensDimensions {
 		select {
 		case semaphore <- struct{}{}:
@@ -232,7 +231,7 @@ func (m *Monitor) fetchMetriclensMetrics(contextTimeout time.Duration, semaphore
 				logger.Errorf("No id for metriclens dimension %s. Wrong metriclens dimension name.", dim)
 				continue
 			}
-			go func(contextTimeout time.Duration, m *Monitor, conf *MetricConfig, metriclensDimension string, url string) {
+			go func(contextTimeout time.Duration, m *Monitor, conf *metricConfig, metriclensDimension string, url string) {
 				defer func() { <- semaphore }()
 				ctx, cancel := context.WithTimeout(m.ctx, contextTimeout)
 				defer cancel()
@@ -277,10 +276,10 @@ func (m *Monitor) fetchMetriclensMetrics(contextTimeout time.Duration, semaphore
 
 //func main(){
 //	m := Monitor{}
-//	m.Configure(&Config{Username:os.Getenv("username"), Password: os.Getenv("password"),  TimeoutSeconds:30,  MetricConfigs: []*MetricConfig{{Account:"c3.NBC", Metric:"quality_metriclens", Filters: []string{"All Traffic"} }}})
+//	m.Configure(&Config{Username:os.Getenv("username"), Password: os.Getenv("password"),  TimeoutSeconds:30,  MetricConfigs: []*metricConfig{{Account:"c3.NBC", Metric:"quality_metriclens", Filters: []string{"All Traffic"} }}})
 //}
 
-func maxGoroutinesPerInterval(metricConfigs []*MetricConfig) int {
+func maxGoroutinesPerInterval(metricConfigs []*metricConfig) int {
 	requests := 0
 	for _, metricConfig := range metricConfigs {
 		if metriclensDimensionsLength := len(metricConfig.MetriclensDimensions); metriclensDimensionsLength != 0 {

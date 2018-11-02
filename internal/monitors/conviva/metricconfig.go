@@ -25,8 +25,8 @@ var prefixedMetriclensMetrics = map[string][]string {
 	},
 }
 
-// MetricConfig for configuring individual metric
-type MetricConfig struct {
+// metricConfig for configuring individual metric
+type metricConfig struct {
 	// Conviva customer account name. The default account is used if not specified.
 	Account                string   `yaml:"account"`
 	Metric                 string   `yaml:"metric" default:"quality_metriclens"`
@@ -40,14 +40,14 @@ type MetricConfig struct {
 	isInitialized          bool
 }
 
-func (m *MetricConfig) init(accountService *AccountService) {
+func (m *metricConfig) init(service *accountService) {
 	if !m.isInitialized {
 		// setting account id and default account if necessary
 		if m.Account == "" {
-			m.Account = (*accountService).GetDefault().Name
+			m.Account = (*service).getDefault().Name
 		}
 		m.Account = strings.TrimSpace(m.Account)
-		m.accountID = (*accountService).GetID(m.Account)
+		m.accountID = (*service).getID(m.Account)
 		if m.accountID == "" {
 			logger.Errorf("No id for account %s. Wrong account name.", m.Account)
 			return
@@ -55,13 +55,13 @@ func (m *MetricConfig) init(accountService *AccountService) {
 		// setting filter names and filter ids
 		if len(m.Filters) == 0 {
 			m.Filters   = []string{"All Traffic",}
-			m.filterMap = map[string]string{(*accountService).GetFilterID(m.Account, "All Traffic"): "All Traffic",}
+			m.filterMap = map[string]string{(*service).getFilterID(m.Account, "All Traffic"): "All Traffic",}
 		} else if m.Filters[0] == "_ALL_" {
 			var allFilters map[string]string
 			if strings.Contains(m.Metric, "metriclens") {
-				allFilters = (*accountService).GetMetricLensFilters(m.Account)
+				allFilters = (*service).getMetricLensFilters(m.Account)
 			} else {
-				allFilters = (*accountService).GetFilters(m.Account)
+				allFilters = (*service).getFilters(m.Account)
 			}
 			m.Filters   = make([]string, 0, len(allFilters))
 			m.filterMap = make(map[string]string, len(allFilters))
@@ -73,7 +73,7 @@ func (m *MetricConfig) init(accountService *AccountService) {
 			m.filterMap = make(map[string]string, len(m.Filters))
 			for _, name := range m.Filters {
 				name = strings.TrimSpace(name)
-				id := (*accountService).GetFilterID(m.Account, name)
+				id := (*service).getFilterID(m.Account, name)
 				if id == "" {
 					logger.Errorf("No id for filter %s. Wrong filter name.", name)
 					continue
@@ -84,16 +84,16 @@ func (m *MetricConfig) init(accountService *AccountService) {
 		// setting metriclens dimensions
 		if strings.Contains(m.Metric, "metriclens") {
 			if len(m.MetriclensDimensions) == 0 || m.MetriclensDimensions[0] == "_ALL_" {
-				m.MetriclensDimensions   = make([]string, 0, len((*accountService).GetMetricLensDimensionMap(m.Account)))
-				m.metriclensDimensionMap = make(map[string]float64, len((*accountService).GetMetricLensDimensionMap(m.Account)))
-				for name, id := range (*accountService).GetMetricLensDimensionMap(m.Account) {
+				m.MetriclensDimensions   = make([]string, 0, len((*service).getMetricLensDimensionMap(m.Account)))
+				m.metriclensDimensionMap = make(map[string]float64, len((*service).getMetricLensDimensionMap(m.Account)))
+				for name, id := range (*service).getMetricLensDimensionMap(m.Account) {
 					m.MetriclensDimensions = append(m.MetriclensDimensions, name)
 					m.metriclensDimensionMap[name] = id
 				}
 			} else {
 				m.metriclensDimensionMap = make(map[string]float64, len(m.MetriclensDimensions))
 				for _, name := range m.MetriclensDimensions {
-					m.metriclensDimensionMap[name] = (*accountService).GetMetricLensDimensionID(m.Account, name)
+					m.metriclensDimensionMap[name] = (*service).getMetricLensDimensionID(m.Account, name)
 				}
 			}
 		}
@@ -101,7 +101,7 @@ func (m *MetricConfig) init(accountService *AccountService) {
 	}
 }
 
-func (m *MetricConfig) filterIDs() []string {
+func (m *metricConfig) filterIDs() []string {
 	ids := make([]string, 0, len(m.filterMap))
 	for id := range m.filterMap {
 		ids = append(ids, id)
