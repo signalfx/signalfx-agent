@@ -40,28 +40,44 @@ type metricConfig struct {
 	isInitialized          bool
 }
 
-func (m *metricConfig) init(service *accountService) {
+func (m *metricConfig) init(service accountsService) {
 	if !m.isInitialized {
 		// setting account id and default account if necessary
-		if m.Account == "" {
-			m.Account = (*service).getDefault().Name
+		if m.Account == ""  {
+			if defaultAccount, err := service.getDefault(); err != nil {
+				logger.Error(err)
+				return
+			} else {
+				m.Account = defaultAccount.Name
+			}
 		}
 		m.Account = strings.TrimSpace(m.Account)
-		m.accountID = (*service).getID(m.Account)
-		if m.accountID == "" {
-			logger.Errorf("No id for account %s. Wrong account name.", m.Account)
+		var err error
+		if m.accountID, err = service.getID(m.Account); err != nil {
+			logger.Error(err)
 			return
 		}
-		// setting filter names and filter ids
 		if len(m.Filters) == 0 {
 			m.Filters   = []string{"All Traffic",}
-			m.filterMap = map[string]string{(*service).getFilterID(m.Account, "All Traffic"): "All Traffic",}
+			if id, err := service.getFilterID(m.Account, "All Traffic"); err == nil {
+				m.filterMap = map[string]string{id: "All Traffic",}
+			} else {
+				logger.Error(err)
+				return
+			}
 		} else if m.Filters[0] == "_ALL_" {
 			var allFilters map[string]string
+			var err error
 			if strings.Contains(m.Metric, "metriclens") {
-				allFilters = (*service).getMetricLensFilters(m.Account)
+				if allFilters, err = service.getMetricLensFilters(m.Account); err != nil {
+					logger.Error(err)
+					return
+				}
 			} else {
-				allFilters = (*service).getFilters(m.Account)
+				if allFilters, err = service.getFilters(m.Account); err != nil {
+					logger.Error(err)
+					return
+				}
 			}
 			m.Filters   = make([]string, 0, len(allFilters))
 			m.filterMap = make(map[string]string, len(allFilters))
@@ -73,27 +89,38 @@ func (m *metricConfig) init(service *accountService) {
 			m.filterMap = make(map[string]string, len(m.Filters))
 			for _, name := range m.Filters {
 				name = strings.TrimSpace(name)
-				id := (*service).getFilterID(m.Account, name)
-				if id == "" {
-					logger.Errorf("No id for filter %s. Wrong filter name.", name)
-					continue
+				if id, err := service.getFilterID(m.Account, name); err == nil {
+					m.filterMap[id] = name
+				} else {
+					logger.Error(err)
+					return
 				}
-				m.filterMap[id] = name
 			}
 		}
 		// setting metriclens dimensions
 		if strings.Contains(m.Metric, "metriclens") {
 			if len(m.MetriclensDimensions) == 0 || m.MetriclensDimensions[0] == "_ALL_" {
-				m.MetriclensDimensions   = make([]string, 0, len((*service).getMetricLensDimensionMap(m.Account)))
-				m.metriclensDimensionMap = make(map[string]float64, len((*service).getMetricLensDimensionMap(m.Account)))
-				for name, id := range (*service).getMetricLensDimensionMap(m.Account) {
-					m.MetriclensDimensions = append(m.MetriclensDimensions, name)
-					m.metriclensDimensionMap[name] = id
+				if metricLensDimensionMap, err := service.getMetricLensDimensionMap(m.Account); err == nil {
+					m.MetriclensDimensions = make([]string, 0, len(metricLensDimensionMap))
+					m.metriclensDimensionMap = make(map[string]float64, len(metricLensDimensionMap))
+					for name, id := range metricLensDimensionMap {
+						m.MetriclensDimensions = append(m.MetriclensDimensions, name)
+						m.metriclensDimensionMap[name] = id
+					}
+				} else {
+					logger.Error(err)
+					return
 				}
+
 			} else {
 				m.metriclensDimensionMap = make(map[string]float64, len(m.MetriclensDimensions))
 				for _, name := range m.MetriclensDimensions {
-					m.metriclensDimensionMap[name] = (*service).getMetricLensDimensionID(m.Account, name)
+					if id, err := service.getMetricLensDimensionID(m.Account, name); err == nil {
+						m.metriclensDimensionMap[name] = id
+					} else {
+						logger.Error(err)
+						return
+					}
 				}
 			}
 		}

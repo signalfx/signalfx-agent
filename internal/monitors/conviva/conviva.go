@@ -88,7 +88,9 @@ const monitorType = "conviva"
 var logger = log.WithFields(log.Fields{"monitorType": monitorType})
 
 const (
-	metricLensURLFormat = "https://api.conviva.com/insights/2.4/metrics.json?metrics=%s&account=%s&filter_ids=%s&metriclens_dimension_id=%d"
+	metricURLFormat     = "https://api.conviva.com/insights/2.4/metrics.json?metrics=%s&account=%s&filter_ids=%s"
+	metricLensURLFormat = metricURLFormat + "&metriclens_dimension_id=%d"
+		//metricLensURLFormat = "https://api.conviva.com/insights/2.4/metrics.json?metrics=%s&account=%s&filter_ids=%s&metriclens_dimension_id=%d"
 )
 
 // Config for this monitor
@@ -97,11 +99,9 @@ type Config struct {
 	// Conviva Pulse username required with each API request.
 	Username       string          `yaml:"pulseUsername" validate:"required"`
 	// Conviva Pulse password required with each API request.
-	Password       string          `yaml:"pulsePassword" validate:"required"`
+	Password       string          `yaml:"pulsePassword" validate:"required" neverLog:"true"`
 	TimeoutSeconds int             `yaml:"timeoutSeconds" default:"10"`
 	MetricConfigs  []*metricConfig `yaml:"metricConfigs"`
-	//accountService AccountService
-
 }
 
 // Monitor for conviva metrics
@@ -132,10 +132,10 @@ func (m *Monitor) Configure(conf *Config) error {
 	m.ctx, m.cancel = context.WithCancel(context.Background())
 	semaphore := make(chan struct{}, maxGoroutinesPerInterval(conf.MetricConfigs))
 	interval := time.Duration(conf.IntervalSeconds) * time.Second
-	service := newAccountService(m.ctx, &m.timeout, &m.client)
+	service := newAccountsService(m.ctx, &m.timeout, &m.client)
 	utils.RunOnInterval(m.ctx, func() {
 		for _, metricConf := range conf.MetricConfigs {
-			metricConf.init(&service)
+			metricConf.init(service)
 			if strings.Contains(metricConf.Metric, "metriclens") {
 				m.fetchMetriclensMetrics(interval, semaphore, metricConf)
 			} else {
@@ -153,27 +153,6 @@ func (m *Monitor) Shutdown() {
 	}
 }
 
-type metricResponse struct {
-	Type              string               `json:"type"`
-	FilterIDValuesMap map[string][]float64 `json:"filters,omitempty"`
-	Meta              *meta 			   `json:"meta"`
-	Tables            map[string]table     `json:"tables,omitempty"`
-	Timestamps        []float64            `json:"timestamps,omitempty"`
-	Xvalues           []string             `json:"xvalues,omitempty"`
-}
-
-type table struct {
-	Rows     [][]float64 `json:"rows,omitempty"`
-	TotalRow []float64   `json:"total_row,omitempty"`
-}
-
-type meta struct {
-	Status                float64   `json:"status,omitempty"`
-	FiltersWarmup         []float64 `json:"filters_warmup,omitempty"`
-	FiltersNotExist       []float64 `json:"filters_not_exist,omitempty"`
-	FiltersIncompleteData []float64 `json:"filters_incomplete_data,omitempty"`
-}
-
 func (m *Monitor) fetchMetrics(contextTimeout time.Duration, semaphore chan struct{}, conf *metricConfig) {
 	select {
 	case semaphore <- struct{}{}:
@@ -182,12 +161,13 @@ func (m *Monitor) fetchMetrics(contextTimeout time.Duration, semaphore chan stru
 			ctx, cancel := context.WithTimeout(m.ctx, contextTimeout)
 			defer cancel()
 			var res map[string]metricResponse
-			if err := m.client.Get(ctx, &res, url); err != nil {
+			if _, err := m.client.get(ctx, &res, url); err != nil {
 				logger.Errorf("GET metric %s failed. %+v", conf.Metric, err)
 				return
 			}
 			dps := make([]*datapoint.Datapoint, 0)
 			for metricName, series := range res {
+				series.Meta.logErrorFilterStatus()
 				prefixedMetricName := "conviva." + metricName
 				for filterID, metricValues := range series.FilterIDValuesMap {
 					for i, metricValue := range metricValues {
@@ -217,7 +197,7 @@ func (m *Monitor) fetchMetrics(contextTimeout time.Duration, semaphore chan stru
 			for i := range dps {
 				m.Output.SendDatapoint(dps[i])
 			}
-		}(contextTimeout, m, "https://api.conviva.com/insights/2.4/metrics.json?metrics="+conf.Metric+"&account="+conf.accountID+"&filter_ids="+strings.Join(conf.filterIDs(), ","))
+		}(contextTimeout, m, fmt.Sprintf(metricURLFormat, conf.Metric, conf.accountID, strings.Join(conf.filterIDs(), ",")))
 	}
 }
 
@@ -236,12 +216,13 @@ func (m *Monitor) fetchMetriclensMetrics(contextTimeout time.Duration, semaphore
 				ctx, cancel := context.WithTimeout(m.ctx, contextTimeout)
 				defer cancel()
 				var res map[string]metricResponse
-				if err := m.client.Get(ctx, &res, url); err != nil {
+				if _, err := m.client.get(ctx, &res, url); err != nil {
 					logger.Errorf("GET metric %s failed. %+v", conf.Metric, err)
 					return
 				}
 				dps := make([]*datapoint.Datapoint, 0)
 				for metricName, metricTable := range res {
+					metricTable.Meta.logErrorFilterStatus()
 					for filterID, tableValue := range metricTable.Tables {
 						for rowIndex, row := range tableValue.Rows {
 							select {
@@ -273,11 +254,6 @@ func (m *Monitor) fetchMetriclensMetrics(contextTimeout time.Duration, semaphore
 		}
 	}
 }
-
-//func main(){
-//	m := Monitor{}
-//	m.Configure(&Config{Username:os.Getenv("username"), Password: os.Getenv("password"),  TimeoutSeconds:30,  MetricConfigs: []*metricConfig{{Account:"c3.NBC", Metric:"quality_metriclens", Filters: []string{"All Traffic"} }}})
-//}
 
 func maxGoroutinesPerInterval(metricConfigs []*metricConfig) int {
 	requests := 0

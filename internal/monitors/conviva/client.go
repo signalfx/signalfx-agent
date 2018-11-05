@@ -8,8 +8,9 @@ import (
 	"net/http"
 )
 
-// errorResponse for Conviva error response
-type errorResponse struct {
+// responseError for Conviva error response
+type responseError struct {
+	statusCode  int
 	Message string
 	Code    float64
 	Request string
@@ -18,7 +19,7 @@ type errorResponse struct {
 
 // httpClient interface to provide for Conviva API specific implementation
 type httpClient interface {
-	Get(ctx context.Context, v interface{}, url string) error
+	get(ctx context.Context, v interface{}, url string) (int, error)
 }
 
 type convivaHTTPClient struct {
@@ -37,29 +38,29 @@ func newConvivaClient(client *http.Client, username string, password string) htt
 }
 
 // Get method for Conviva API specific gets
-func (c *convivaHTTPClient) Get(ctx context.Context, v interface{}, url string) error {
+func (c *convivaHTTPClient) get(ctx context.Context, v interface{}, url string) (int, error) {
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
-		return err
+		return 0, err
 	}
 	req = req.WithContext(ctx)
 	req.SetBasicAuth(c.username, c.password)
 	res, err := c.client.Do(req)
 	if err != nil {
-		return err
+		return 0, err
 	}
 	defer res.Body.Close()
 	body, err := ioutil.ReadAll(res.Body)
 	if err != nil {
-		return err
+		return 0, err
 	}
 	if res.StatusCode != 200  {
-		errorResponse := errorResponse{}
-		if err := json.Unmarshal(body, &errorResponse); err == nil {
-			return fmt.Errorf("%+v", errorResponse)
+		responseError := responseError{statusCode: res.StatusCode}
+		if err := json.Unmarshal(body, &responseError); err == nil {
+			return res.StatusCode, fmt.Errorf("%+v", responseError)
 		}
-		return fmt.Errorf("%+v", res)
+		return res.StatusCode, fmt.Errorf("%+v", res)
 	}
 	err = json.Unmarshal(body, v)
-	return err
+	return res.StatusCode, err
 }
