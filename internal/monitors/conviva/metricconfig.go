@@ -44,11 +44,11 @@ func (m *metricConfig) init(service accountsService) {
 	if !m.isInitialized {
 		// setting account id and default account if necessary
 		if m.Account == ""  {
-			if defaultAccount, err := service.getDefault(); err != nil {
+			if defaultAccount, err := service.getDefault(); err == nil {
+				m.Account = defaultAccount.Name
+			} else {
 				logger.Error(err)
 				return
-			} else {
-				m.Account = defaultAccount.Name
 			}
 		}
 		m.Account = strings.TrimSpace(m.Account)
