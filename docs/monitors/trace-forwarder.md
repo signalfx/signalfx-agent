@@ -21,7 +21,7 @@ Monitor Type: `trace-forwarder`
 
 | Config option | Required | Type | Description |
 | --- | --- | --- | --- |
-| `listenAddress` | no | `string` | The host:port on which to listen for spans.  This server accepts spans in all of the formats that we support on our regular ingest server.  The HTTP path used is irrelevant and will be ignored. (**default:** `127.0.0.1:9080`) |
+| `listenAddress` | no | `string` | The host:port on which to listen for spans.  This server accepts spans in all of the formats that we support on our regular ingest server.  The listening server accepts spans on the same HTTP path that ingest accepts them (e.g. `/v1/trace`).  Requests to other paths will return 404s. (**default:** `127.0.0.1:9080`) |
 | `serverTimeout` | no | `int64` | HTTP timeout duration for both read and writes. This should be a duration string that is accepted by https://golang.org/pkg/time/#ParseDuration (**default:** `5s`) |
 | `sendInternalMetrics` | no | `bool` | Whether to send internal metrics about the HTTP listener (**default:** `false`) |
 

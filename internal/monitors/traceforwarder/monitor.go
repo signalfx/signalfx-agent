@@ -33,7 +33,8 @@ type Config struct {
 	config.MonitorConfig `yaml:",inline" acceptsEndpoints:"false" singleInstance:"true"`
 	// The host:port on which to listen for spans.  This server accepts spans
 	// in all of the formats that we support on our regular ingest server.  The
-	// HTTP path used is irrelevant and will be ignored.
+	// listening server accepts spans on the same HTTP path that ingest accepts
+	// them (e.g. `/v1/trace`).  Requests to other paths will return 404s.
 	ListenAddress string `yaml:"listenAddress" default:"127.0.0.1:9080"`
 	// HTTP timeout duration for both read and writes. This should be a
 	// duration string that is accepted by https://golang.org/pkg/time/#ParseDuration
