@@ -90,7 +90,6 @@ var logger = log.WithFields(log.Fields{"monitorType": monitorType})
 const (
 	metricURLFormat     = "https://api.conviva.com/insights/2.4/metrics.json?metrics=%s&account=%s&filter_ids=%s"
 	metricLensURLFormat = metricURLFormat + "&metriclens_dimension_id=%d"
-		//metricLensURLFormat = "https://api.conviva.com/insights/2.4/metrics.json?metrics=%s&account=%s&filter_ids=%s&metriclens_dimension_id=%d"
 )
 
 // Config for this monitor
@@ -167,7 +166,7 @@ func (m *Monitor) fetchMetrics(contextTimeout time.Duration, semaphore chan stru
 			}
 			dps := make([]*datapoint.Datapoint, 0)
 			for metricName, series := range res {
-				series.Meta.logErrorFilterStatus()
+				series.Meta.logErrorFilterStatus(url)
 				prefixedMetricName := "conviva." + metricName
 				for filterID, metricValues := range series.FilterIDValuesMap {
 					for i, metricValue := range metricValues {
@@ -222,7 +221,7 @@ func (m *Monitor) fetchMetriclensMetrics(contextTimeout time.Duration, semaphore
 				}
 				dps := make([]*datapoint.Datapoint, 0)
 				for metricName, metricTable := range res {
-					metricTable.Meta.logErrorFilterStatus()
+					metricTable.Meta.logErrorFilterStatus(url)
 					for filterID, tableValue := range metricTable.Tables {
 						for rowIndex, row := range tableValue.Rows {
 							select {
