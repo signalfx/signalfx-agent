@@ -4,7 +4,7 @@ import (
 	"strings"
 )
 
-var prefixedMetriclensMetrics = map[string][]string {
+var prefixedMetriclensMetrics = map[string][]string{
 	"quality_metriclens": {
 		"conviva.quality_metriclens.total_attempts",
 		"conviva.quality_metriclens.video_start_failures_percent",
@@ -28,10 +28,10 @@ var prefixedMetriclensMetrics = map[string][]string {
 // metricConfig for configuring individual metric
 type metricConfig struct {
 	// Conviva customer account name. The default account is used if not specified.
-	Account                string   `yaml:"account"`
-	Metric                 string   `yaml:"metric" default:"quality_metriclens"`
+	Account string `yaml:"account"`
+	Metric  string `yaml:"metric" default:"quality_metriclens"`
 	// Filter names. The default is `All Traffic` filter
-	Filters                []string `yaml:"filters"`
+	Filters []string `yaml:"filters"`
 	// Metriclens dimension names.
 	MetriclensDimensions   []string `yaml:"metriclensDimensions"`
 	accountID              string
@@ -43,7 +43,7 @@ type metricConfig struct {
 func (m *metricConfig) init(service accountsService) {
 	if !m.isInitialized {
 		// setting account id and default account if necessary
-		if m.Account == ""  {
+		if m.Account == "" {
 			if defaultAccount, err := service.getDefault(); err == nil {
 				m.Account = defaultAccount.Name
 			} else {
@@ -58,9 +58,9 @@ func (m *metricConfig) init(service accountsService) {
 			return
 		}
 		if len(m.Filters) == 0 {
-			m.Filters   = []string{"All Traffic",}
+			m.Filters = []string{"All Traffic"}
 			if id, err := service.getFilterID(m.Account, "All Traffic"); err == nil {
-				m.filterMap = map[string]string{id: "All Traffic",}
+				m.filterMap = map[string]string{id: "All Traffic"}
 			} else {
 				logger.Error(err)
 				return
@@ -79,7 +79,7 @@ func (m *metricConfig) init(service accountsService) {
 					return
 				}
 			}
-			m.Filters   = make([]string, 0, len(allFilters))
+			m.Filters = make([]string, 0, len(allFilters))
 			m.filterMap = make(map[string]string, len(allFilters))
 			for id, name := range allFilters {
 				m.Filters = append(m.Filters, name)
@@ -135,4 +135,3 @@ func (m *metricConfig) filterIDs() []string {
 	}
 	return ids
 }
-

@@ -96,7 +96,7 @@ const (
 type Config struct {
 	config.MonitorConfig
 	// Conviva Pulse username required with each API request.
-	Username       string          `yaml:"pulseUsername" validate:"required"`
+	Username string `yaml:"pulseUsername" validate:"required"`
 	// Conviva Pulse password required with each API request.
 	Password       string          `yaml:"pulsePassword" validate:"required" neverLog:"true"`
 	TimeoutSeconds int             `yaml:"timeoutSeconds" default:"10"`
@@ -126,7 +126,7 @@ func (m *Monitor) Configure(conf *Config) error {
 		Transport: &http.Transport{
 			MaxIdleConnsPerHost: 100,
 		},
-	}, conf.Username , conf.Password)
+	}, conf.Username, conf.Password)
 
 	m.ctx, m.cancel = context.WithCancel(context.Background())
 	semaphore := make(chan struct{}, maxGoroutinesPerInterval(conf.MetricConfigs))
@@ -156,7 +156,7 @@ func (m *Monitor) fetchMetrics(contextTimeout time.Duration, semaphore chan stru
 	select {
 	case semaphore <- struct{}{}:
 		go func(contextTimeout time.Duration, m *Monitor, url string) {
-			defer func() { <- semaphore }()
+			defer func() { <-semaphore }()
 			ctx, cancel := context.WithTimeout(m.ctx, contextTimeout)
 			defer cancel()
 			var res map[string]metricResponse
@@ -171,16 +171,18 @@ func (m *Monitor) fetchMetrics(contextTimeout time.Duration, semaphore chan stru
 				for filterID, metricValues := range series.FilterIDValuesMap {
 					for i, metricValue := range metricValues {
 						select {
-						case <-ctx.Done(): logger.Error(ctx.Err()); return
+						case <-ctx.Done():
+							logger.Error(ctx.Err())
+							return
 						default:
 							dp := sfxclient.GaugeF(
 								prefixedMetricName,
-								map[string]string{"account": conf.Account, "filter": conf.filterMap[filterID],},
+								map[string]string{"account": conf.Account, "filter": conf.filterMap[filterID]},
 								metricValue)
 							// Checking the type of series and setting dimensions accordingly
 							switch series.Type {
 							case "time_series":
-								dp.Timestamp = time.Unix(int64(0.001 * series.Timestamps[i]), 0)
+								dp.Timestamp = time.Unix(int64(0.001*series.Timestamps[i]), 0)
 							case "label_series":
 								dp.Dimensions["label"] = series.Xvalues[i]
 								fallthrough
@@ -200,7 +202,7 @@ func (m *Monitor) fetchMetrics(contextTimeout time.Duration, semaphore chan stru
 	}
 }
 
-func (m *Monitor) fetchMetriclensMetrics(contextTimeout time.Duration, semaphore chan struct{}, conf *metricConfig)  {
+func (m *Monitor) fetchMetriclensMetrics(contextTimeout time.Duration, semaphore chan struct{}, conf *metricConfig) {
 	for _, dim := range conf.MetriclensDimensions {
 		select {
 		case semaphore <- struct{}{}:
@@ -211,7 +213,7 @@ func (m *Monitor) fetchMetriclensMetrics(contextTimeout time.Duration, semaphore
 				continue
 			}
 			go func(contextTimeout time.Duration, m *Monitor, conf *metricConfig, metriclensDimension string, url string) {
-				defer func() { <- semaphore }()
+				defer func() { <-semaphore }()
 				ctx, cancel := context.WithTimeout(m.ctx, contextTimeout)
 				defer cancel()
 				var res map[string]metricResponse
@@ -225,7 +227,7 @@ func (m *Monitor) fetchMetriclensMetrics(contextTimeout time.Duration, semaphore
 					for filterID, tableValue := range metricTable.Tables {
 						for rowIndex, row := range tableValue.Rows {
 							select {
-							case <- ctx.Done():
+							case <-ctx.Done():
 								logger.Error(ctx.Err())
 								return
 							default:

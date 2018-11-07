@@ -3,9 +3,9 @@ package conviva
 import (
 	"context"
 	"fmt"
+	"golang.org/x/sync/errgroup"
 	"sync"
 	"time"
-	"golang.org/x/sync/errgroup"
 )
 
 const (
@@ -25,12 +25,12 @@ type account struct {
 
 // AccountService interface for Account related methods
 type accountsService interface {
-	getDefault()                                                             (*account, error)
-	getMetricLensDimensionMap(accountName string)                            (map[string]float64, error)
-	getID(accountName string)                                                (string, error)
-	getFilters(accountName string)                                           (map[string]string, error)
-	getMetricLensFilters(accountName string)                                 (map[string]string, error)
-	getFilterID(accountName string, filterName string)                       (string, error)
+	getDefault() (*account, error)
+	getMetricLensDimensionMap(accountName string) (map[string]float64, error)
+	getID(accountName string) (string, error)
+	getFilters(accountName string) (map[string]string, error)
+	getMetricLensFilters(accountName string) (map[string]string, error)
+	getFilterID(accountName string, filterName string) (string, error)
 	getMetricLensDimensionID(accountName string, metricLensDimension string) (float64, error)
 }
 
@@ -46,7 +46,7 @@ type accountsServiceImpl struct {
 
 // NewAccountService factory function creating AccountService
 func newAccountsService(ctx context.Context, timeout *time.Duration, client *httpClient) accountsService {
-	service := accountsServiceImpl{ctx: ctx, timeout: timeout, client: client, mutex: &sync.RWMutex{},}
+	service := accountsServiceImpl{ctx: ctx, timeout: timeout, client: client, mutex: &sync.RWMutex{}}
 	return &service
 }
 
@@ -65,7 +65,7 @@ func (s *accountsServiceImpl) getMetricLensDimensionMap(accountName string) (map
 		return nil, err
 	}
 	if a := s.accounts[accountName]; a != nil {
-			return a.metricLensDimensions, nil
+		return a.metricLensDimensions, nil
 	}
 	return nil, fmt.Errorf("could not find account %s", accountName)
 }
@@ -105,12 +105,12 @@ func (s *accountsServiceImpl) getFilterID(accountName string, filterName string)
 		return "", err
 	}
 	if a := s.accounts[accountName]; a != nil {
-			for id, name := range a.filters {
-				if name == filterName {
-					return id, nil
-				}
+		for id, name := range a.filters {
+			if name == filterName {
+				return id, nil
 			}
 		}
+	}
 	return "", fmt.Errorf("no filter id for filter %s in account %s", filterName, accountName)
 }
 
@@ -142,7 +142,7 @@ func (s *accountsServiceImpl) init() error {
 		}
 		s.accounts = make(map[string]*account, len(res.Accounts))
 		for name, id := range res.Accounts {
-			a := account{Name: name, id: id,}
+			a := account{Name: name, id: id}
 			if a.Name == res.Default {
 				s.defaultAccount = &a
 			}
@@ -201,15 +201,15 @@ func (s *accountsServiceImpl) initMetriclensDimensions() error {
 // A filter is not MetricLens enabled if the status code is 400. Otherwise an error occurred and that error gets returned.
 func (s *accountsServiceImpl) initMetricLensFilters() error {
 	var (
-		g errgroup.Group
-		mutex  sync.RWMutex
+		g     errgroup.Group
+		mutex sync.RWMutex
 	)
 	for _, a := range s.accounts {
 		newA := a
 		newA.metricLensFilters = map[string]string{}
 		for filterID, filter := range newA.filters {
 			newFilterID := filterID
-			newFilter   := filter
+			newFilter := filter
 			g.Go(func() error {
 				ctx, cancel := context.WithTimeout(s.ctx, *s.timeout)
 				defer cancel()
