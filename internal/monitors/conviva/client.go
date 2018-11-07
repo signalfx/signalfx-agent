@@ -10,11 +10,11 @@ import (
 
 // responseError for Conviva error response
 type responseError struct {
-	statusCode  int
-	Message string
-	Code    float64
-	Request string
-	Reason  string
+	statusCode int
+	Message    string
+	Code       float64
+	Request    string
+	Reason     string
 }
 
 // httpClient interface to provide for Conviva API specific implementation
@@ -23,7 +23,7 @@ type httpClient interface {
 }
 
 type convivaHTTPClient struct {
-	client  *http.Client
+	client   *http.Client
 	username string
 	password string
 }
@@ -31,9 +31,9 @@ type convivaHTTPClient struct {
 // newConvivaClient factory function for creating HTTPClientt
 func newConvivaClient(client *http.Client, username string, password string) httpClient {
 	return &convivaHTTPClient{
-			client:   client,
-			username: username,
-			password: password,
+		client:   client,
+		username: username,
+		password: password,
 	}
 }
 
@@ -54,7 +54,7 @@ func (c *convivaHTTPClient) get(ctx context.Context, v interface{}, url string) 
 	if err != nil {
 		return 0, err
 	}
-	if res.StatusCode != 200  {
+	if res.StatusCode != 200 {
 		responseError := responseError{statusCode: res.StatusCode}
 		if err := json.Unmarshal(body, &responseError); err == nil {
 			return res.StatusCode, fmt.Errorf("%+v", responseError)
