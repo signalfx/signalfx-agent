@@ -25,6 +25,10 @@ vetall: templates
 lint:
 	CGO_ENABLED=0 golint -set_exit_status ./cmd/... ./internal/...
 
+.PHONY: gofmt
+gofmt:
+	CGO_ENABLED=0 go fmt ./...
+
 templates:
 ifneq ($(OS),Windows_NT)
 	scripts/make-templates
