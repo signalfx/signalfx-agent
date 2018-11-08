@@ -20,7 +20,7 @@ import (
 
 const monitorType = "conviva"
 
-// MONITOR(Conviva): This monitor uses version 2.4 of the Conviva Experience Insights REST APIs to pull
+// MONITOR(conviva): This monitor uses version 2.4 of the Conviva Experience Insights REST APIs to pull
 // `Real-Time/Live` video playing experience metrics from Conviva.
 //
 // Only `Live` conviva metrics listed
