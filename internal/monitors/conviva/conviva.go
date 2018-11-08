@@ -25,9 +25,9 @@ const monitorType = "conviva"
 // Only `Live` conviva metrics listed
 // [here](https://community.conviva.com/site/global/apis_data/experience_insights_api/index.gsp#metrics)
 // are supported. The metrics are gauges. They are converted to SignalFx metrics with account and filter
-// name dimensions. In the case of MetricLenses, the names of the constituent metrics and the
-// Conviva MetricLens dimensions are included. The values of the Conviva dimensions are derived from
-// the values of the associated MetricLens dimension entities.
+// name dimensions. In the case of MetricLenses, the constituent metrics and the Conviva MetricLens dimensions
+// are included. The values of the Conviva dimensions are derived from the values of the associated
+// MetricLens dimension entities.
 //
 // Below is a sample YAML configuration showing the most basic configuration of the Conviva monitor
 // using the required fields. For this configuration the monitor will default to fetching quality MetricLens

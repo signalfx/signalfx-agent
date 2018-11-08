@@ -80,14 +80,14 @@ func (mc *metricConfig) init(service accountsService) {
 
 // setting account id and default account if necessary
 func (mc *metricConfig) setAccount(service accountsService) error {
-	if strings.TrimSpace(mc.Account) == "" {
+	mc.Account = strings.TrimSpace(mc.Account)
+	if mc.Account == "" {
 		if defaultAccount, err := service.getDefault(); err == nil {
 			mc.Account = defaultAccount.Name
 		} else {
 			return err
 		}
 	}
-	mc.Account = strings.TrimSpace(mc.Account)
 	var err error
 	if mc.accountID, err = service.getID(mc.Account); err != nil {
 		return err
