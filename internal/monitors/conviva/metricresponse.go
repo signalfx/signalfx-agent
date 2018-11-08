@@ -20,15 +20,3 @@ type meta struct {
 	FiltersNotExist       []float64 `json:"filters_not_exist,omitempty"`
 	FiltersIncompleteData []float64 `json:"filters_incomplete_data,omitempty"`
 }
-
-func (m *meta) logErrorFilterStatus(requestURL string) {
-	if len(m.FiltersWarmup) != 0 {
-		logger.Errorf("filters_warmup: %+v, request url: %s", m.FiltersWarmup, requestURL)
-	}
-	if len(m.FiltersNotExist) != 0 {
-		logger.Errorf("filters_not_exist: %+v, request url: %s", m.FiltersNotExist, requestURL)
-	}
-	if len(m.FiltersIncompleteData) != 0 {
-		logger.Errorf("filters_incomplete_data: %+v, request url: %s", m.FiltersIncompleteData, requestURL)
-	}
-}
