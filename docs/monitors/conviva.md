@@ -5,7 +5,7 @@
  This monitor uses version 2.4 of the Conviva Experience Insights REST APIs to pull
 `Real-Time/Live` video playing experience metrics from Conviva.
 
-Only `Live` conviva metrics listed
+Only `Live` conviva metrics
 [here](https://community.conviva.com/site/global/apis_data/experience_insights_api/index.gsp#metrics)
 are supported. The metrics are gauges. They are converted to SignalFx metrics with account and filter
 name dimensions. In the case of MetricLenses, the constituent metrics and the Conviva MetricLens dimensions
@@ -23,7 +23,9 @@ monitors:
  pulsePassword: <password>
 ```
 
-Individual metrics are configured as a list of metricConfigs as shown in sample configuration below.
+Individual metrics are configured as a list of metricConfigs as shown in sample configuration below. The
+metrics a fetched using the specified metricParameter. Find the list of metric parameters
+[here](https://github.com/signalfx/integrations/blob/master/conviva/docs/conviva_metrics.md)
 The Conviva metrics reported to SignalFx are prefixed by `conviva.`, `conviva.quality_metriclens.` and
 `conviva.audience_metriclens.` accordingly. The metric names are the `titles` of the metrics
 [here](https://github.com/signalfx/integrations/tree/master/conviva/docs) which correspond to the Conviva
@@ -40,16 +42,16 @@ monitors:
  pulsePassword: <password>
  metricConfigs:
    - account: c3.NBC
-     metric: quality_metriclens
+     metricParameter: quality_metriclens
      filters:
        - All Traffic
      metricLensDimensions:
        - Cities
-   - metric: avg_bitrate
+   - metricParameter: avg_bitrate
      filters:
        - _ALL_
-   - metric: concurrent_plays
-   - metric: audience_metriclens
+   - metricParameter: concurrent_plays
+   - metricParameter: audience_metriclens
      filters:
        - All Traffic
      metricLensDimensions:
@@ -94,7 +96,7 @@ The **nested** `metricConfigs` config object has the following fields:
 | Config option | Required | Type | Description |
 | --- | --- | --- | --- |
 | `account` | no | `string` | Conviva customer account name. The default account is fetched used if not specified. |
-| `metric` | no | `string` |  (**default:** `quality_metriclens`) |
+| `metricParameter` | no | `string` |  (**default:** `quality_metriclens`) |
 | `filters` | no | `list of string` | Filter names. The default is `All Traffic` filter |
 | `metricLensDimensions` | no | `list of string` | MetricLens dimension names. The default is names of all MetricLens dimensions of the account |
 | `excludeMetricLensDimensions` | no | `list of string` | MetricLens dimension names to exclude. |
