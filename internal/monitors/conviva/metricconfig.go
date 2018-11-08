@@ -7,7 +7,7 @@ import (
 	"sync"
 )
 
-var prefixedMetricLensMetrics = map[string][]string{
+var metricLensMetrics = map[string][]string{
 	"quality_metriclens": {
 		"conviva.quality_metriclens.total_attempts",
 		"conviva.quality_metriclens.video_start_failures_percent",
@@ -31,8 +31,8 @@ var prefixedMetricLensMetrics = map[string][]string{
 // metricConfig for configuring individual metric
 type metricConfig struct {
 	// Conviva customer account name. The default account is fetched used if not specified.
-	Account string `yaml:"account"`
-	Metric  string `yaml:"metric" default:"quality_metriclens"`
+	Account         string `yaml:"account"`
+	MetricParameter string `yaml:"metricParameter" default:"quality_metriclens"`
 	// Filter names. The default is `All Traffic` filter
 	Filters []string `yaml:"filters"`
 	// MetricLens dimension names. The default is names of all MetricLens dimensions of the account
@@ -59,19 +59,19 @@ func (mc *metricConfig) init(service accountsService) {
 	defer mc.mutex.Unlock()
 	if !mc.isInitialized {
 		if err := mc.setAccount(service); err != nil {
-			logger.Errorf("Metric %s account setting failure. %+v", mc.Metric, err)
+			logger.Errorf("Metric %s account setting failure. %+v", mc.MetricParameter, err)
 			return
 		}
 		if err := mc.setFilters(service); err != nil {
-			logger.Errorf("Metric %s filter(s) setting failure. %+v", mc.Metric, err)
+			logger.Errorf("Metric %s filter(s) setting failure. %+v", mc.MetricParameter, err)
 			return
 		}
 		if err := mc.setMetricLensDimensions(service); err != nil {
-			logger.Errorf("Metric %s MetricLens dimension(s) setting failure. %+v", mc.Metric, err)
+			logger.Errorf("Metric %s MetricLens dimension(s) setting failure. %+v", mc.MetricParameter, err)
 			return
 		}
 		if err := mc.excludeMetricLensDimensions(service); err != nil {
-			logger.Errorf("Metric %s MetricLens dimension(s) exclusion failure. %+v", mc.Metric, err)
+			logger.Errorf("Metric %s MetricLens dimension(s) exclusion failure. %+v", mc.MetricParameter, err)
 			return
 		}
 		mc.isInitialized = true
@@ -106,7 +106,7 @@ func (mc *metricConfig) setFilters(service accountsService) error {
 	} else if strings.TrimSpace(mc.Filters[0]) == "_ALL_" {
 		var allFilters map[string]string
 		var err error
-		if strings.Contains(mc.Metric, "metriclens") {
+		if strings.Contains(mc.MetricParameter, "metriclens") {
 			if allFilters, err = service.getMetricLensFilters(mc.Account); err != nil {
 				return err
 			}
@@ -136,7 +136,7 @@ func (mc *metricConfig) setFilters(service accountsService) error {
 }
 
 func (mc *metricConfig) setMetricLensDimensions(service accountsService) error {
-	if strings.Contains(mc.Metric, "metriclens") {
+	if strings.Contains(mc.MetricParameter, "metriclens") {
 		if len(mc.MetricLensDimensions) == 0 || strings.TrimSpace(mc.MetricLensDimensions[0]) == "_ALL_" {
 			if metricLensDimensionMap, err := service.getMetricLensDimensionMap(mc.Account); err == nil {
 				mc.MetricLensDimensions = make([]string, 0, len(metricLensDimensionMap))
@@ -193,9 +193,9 @@ func (mc *metricConfig) filterIDs() []string {
 
 // logs filter status only when the filter status changes
 func (mc *metricConfig) logFilterStatuses(filtersWarmupIds []float64, filtersNotExistIds []float64, filtersIncompleteDataIds []float64) {
-	mc.filtersWarmup = logFilterStatusesHelper(mc.Metric, mc.filtersMap, mc.filtersWarmup, filtersWarmupIds, "filters_warmup")
-	mc.filtersNotExist = logFilterStatusesHelper(mc.Metric, mc.filtersMap, mc.filtersNotExist, filtersNotExistIds, "filters_not_exist")
-	mc.filtersIncompleteData = logFilterStatusesHelper(mc.Metric, mc.filtersMap, mc.filtersIncompleteData, filtersIncompleteDataIds, "filters_incomplete_data")
+	mc.filtersWarmup = logFilterStatusesHelper(mc.MetricParameter, mc.filtersMap, mc.filtersWarmup, filtersWarmupIds, "filters_warmup")
+	mc.filtersNotExist = logFilterStatusesHelper(mc.MetricParameter, mc.filtersMap, mc.filtersNotExist, filtersNotExistIds, "filters_not_exist")
+	mc.filtersIncompleteData = logFilterStatusesHelper(mc.MetricParameter, mc.filtersMap, mc.filtersIncompleteData, filtersIncompleteDataIds, "filters_incomplete_data")
 }
 
 func logFilterStatusesHelper(metric string, filters map[string]string, filterStatusesCurrent map[string]string, filterStatusesIDsNew []float64, status string) map[string]string {
