@@ -14,6 +14,7 @@ import (
 	"math"
 	"net/http"
 	"strings"
+	"sync"
 	"time"
 )
 
@@ -24,14 +25,14 @@ const monitorType = "conviva"
 //
 // Only `Live` conviva metrics listed
 // [here](https://community.conviva.com/site/global/apis_data/experience_insights_api/index.gsp#metrics)
-// are supported. The metrics are gauges. They are converted to SignalFx metrics with dimensions for the
-// account name, filter name. In the case of metriclenses, the names of the constituent metrics and the
-// conviva metriclens dimensions are included. The values of the conviva dimensions are derived from
-// the values of the associated metriclens dimension entities.
+// are supported. The metrics are gauges. They are converted to SignalFx metrics with account and filter
+// name dimensions. In the case of MetricLenses, the names of the constituent metrics and the
+// Conviva MetricLens dimensions are included. The values of the Conviva dimensions are derived from
+// the values of the associated MetricLens dimension entities.
 //
-// Below is a sample YAML configuration showing the most basic configuration of the conviva monitor
-// using the required fields. For this configuration the monitor will default to fetching quality metriclens
-// metrics from the default conviva account using the `All Traffic` filter.
+// Below is a sample YAML configuration showing the most basic configuration of the Conviva monitor
+// using the required fields. For this configuration the monitor will default to fetching quality MetricLens
+// metrics from the default Conviva account using the `All Traffic` filter.
 //
 // ```
 //monitors:
@@ -40,14 +41,14 @@ const monitorType = "conviva"
 //  pulsePassword: <password>
 // ```
 //
-// Individual metrics are configured in a list of metricConfigs as shown in sample configuration below.
-// Metric values are the titles of the metrics
-// [here](https://github.com/signalfx/integrations/tree/master/conviva/docs) which are the same as
-// the Conviva metric parameters
-// [here](https://community.conviva.com/site/global/apis_data/experience_insights_api/index.gsp#metrics)
+// Individual metrics are configured as a list of metricConfigs as shown in sample configuration below.
+// The Conviva metrics reported to SignalFx are prefixed by `conviva.`, `conviva.quality_metriclens` and
+// `conviva.audience_metriclens.` accordingly. The metric names are the `titles` of the metrics
+// [here](https://github.com/signalfx/integrations/tree/master/conviva/docs) which correspond to the Conviva
+// `metric parameters` [here](https://community.conviva.com/site/global/apis_data/experience_insights_api/index.gsp#metrics)
 // Where an account is not provided the default account is used. Where no filters are specified the
-// `All Traffic` filter is used. Where metriclens dimensions are not specified all metriclens dimensions
-// are used. The `_ALL_` keyword means all. Dimensions only apply to metriclenses. If specified for a
+// `All Traffic` filter is used. Where MetricLens dimensions are not specified all MetricLens dimensions
+// are used. The `_ALL_` keyword means all. Dimensions only apply to MetricLenses. If specified for a
 // regular metric they will be ignored.
 //
 // ```
@@ -98,9 +99,10 @@ type Config struct {
 	// Conviva Pulse username required with each API request.
 	Username string `yaml:"pulseUsername" validate:"required"`
 	// Conviva Pulse password required with each API request.
-	Password       string          `yaml:"pulsePassword" validate:"required" neverLog:"true"`
-	TimeoutSeconds int             `yaml:"timeoutSeconds" default:"10"`
-	MetricConfigs  []*metricConfig `yaml:"metricConfigs"`
+	Password       string `yaml:"pulsePassword" validate:"required" neverLog:"true"`
+	TimeoutSeconds int    `yaml:"timeoutSeconds" default:"10"`
+	// Conviva metrics to fetch. The default is quality_metriclens metric with the "All Traffic" filter applied and all quality_metriclens dimensions.
+	MetricConfigs []*metricConfig `yaml:"metricConfigs"`
 }
 
 // Monitor for conviva metrics
@@ -120,6 +122,9 @@ func init() {
 func (m *Monitor) Configure(conf *Config) error {
 	if conf.MetricConfigs == nil {
 		conf.MetricConfigs = []*metricConfig{{Metric: "quality_metriclens"}}
+	}
+	for _, metricConf := range conf.MetricConfigs {
+		metricConf.mutex = &sync.RWMutex{}
 	}
 	m.timeout = time.Duration(conf.TimeoutSeconds) * time.Second
 	m.client = newConvivaClient(&http.Client{
@@ -166,7 +171,7 @@ func (m *Monitor) fetchMetrics(contextTimeout time.Duration, semaphore chan stru
 			}
 			dps := make([]*datapoint.Datapoint, 0)
 			for metricName, series := range res {
-				series.Meta.logErrorFilterStatus(url)
+				conf.logFilterStatuses(series.Meta.FiltersWarmup, series.Meta.FiltersNotExist, series.Meta.FiltersIncompleteData)
 				prefixedMetricName := "conviva." + metricName
 				for filterID, metricValues := range series.FilterIDValuesMap {
 					for i, metricValue := range metricValues {
@@ -177,7 +182,7 @@ func (m *Monitor) fetchMetrics(contextTimeout time.Duration, semaphore chan stru
 						default:
 							dp := sfxclient.GaugeF(
 								prefixedMetricName,
-								map[string]string{"account": conf.Account, "filter": conf.filterMap[filterID]},
+								map[string]string{"account": conf.Account, "filter": conf.filters[filterID]},
 								metricValue)
 							// Checking the type of series and setting dimensions accordingly
 							switch series.Type {
@@ -223,7 +228,7 @@ func (m *Monitor) fetchMetriclensMetrics(contextTimeout time.Duration, semaphore
 				}
 				dps := make([]*datapoint.Datapoint, 0)
 				for metricName, metricTable := range res {
-					metricTable.Meta.logErrorFilterStatus(url)
+					conf.logFilterStatuses(metricTable.Meta.FiltersWarmup, metricTable.Meta.FiltersNotExist, metricTable.Meta.FiltersIncompleteData)
 					for filterID, tableValue := range metricTable.Tables {
 						for rowIndex, row := range tableValue.Rows {
 							select {
@@ -236,7 +241,7 @@ func (m *Monitor) fetchMetriclensMetrics(contextTimeout time.Duration, semaphore
 										prefixedMetriclensMetrics[metricName][metricIndex],
 										map[string]string{
 											"account":           conf.Account,
-											"filter":            conf.filterMap[filterID],
+											"filter":            conf.filters[filterID],
 											metriclensDimension: metricTable.Xvalues[rowIndex],
 										},
 										metricValue))

@@ -14,7 +14,7 @@ const (
 	metriclensDimensionsURLFormat = "https://api.conviva.com/insights/2.4/metriclens_dimension_list.json?account=%s"
 )
 
-// Account for Conviva account data
+// account for Conviva account data
 type account struct {
 	id                   string
 	Name                 string
@@ -23,7 +23,7 @@ type account struct {
 	metricLensDimensions map[string]float64
 }
 
-// AccountService interface for Account related methods
+// accountsService interface for accounts related methods
 type accountsService interface {
 	getDefault() (*account, error)
 	getMetricLensDimensionMap(accountName string) (map[string]float64, error)
@@ -44,7 +44,7 @@ type accountsServiceImpl struct {
 	accountsInitialized bool
 }
 
-// NewAccountService factory function creating AccountService
+// newAccountsService factory function creating accountsService
 func newAccountsService(ctx context.Context, timeout *time.Duration, client *httpClient) accountsService {
 	service := accountsServiceImpl{ctx: ctx, timeout: timeout, client: client, mutex: &sync.RWMutex{}}
 	return &service

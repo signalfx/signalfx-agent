@@ -1,7 +1,10 @@
 package conviva
 
 import (
+	"encoding/json"
+	"strconv"
 	"strings"
+	"sync"
 )
 
 var prefixedMetriclensMetrics = map[string][]string{
@@ -27,70 +30,74 @@ var prefixedMetriclensMetrics = map[string][]string{
 
 // metricConfig for configuring individual metric
 type metricConfig struct {
-	// Conviva customer account name. The default account is used if not specified.
-	Account string `yaml:"account"`
-	Metric  string `yaml:"metric" default:"quality_metriclens"`
-	// Filter names. The default is `All Traffic` filter
-	Filters []string `yaml:"filters"`
-	// Metriclens dimension names.
-	MetriclensDimensions   []string `yaml:"metriclensDimensions"`
+	// Conviva customer account name. The default account is fetched used if not specified.
+	Account                string   `yaml:"account"`
+	Metric                 string   `yaml:"metric" default:"quality_metriclens"`
+	Filters                []string `yaml:"filters"`              // Filter names. The default is `All Traffic` filter
+	MetriclensDimensions   []string `yaml:"metriclensDimensions"` // Metriclens dimension names. The default is names of all MetricLens dimensions of the account
 	accountID              string
-	filterMap              map[string]string
-	metriclensDimensionMap map[string]float64
+	filters                map[string]string  // id:name map of filters derived from the configured Filters
+	metriclensDimensionMap map[string]float64 // name:id map of Metriclens dimensions derived from configured MetriclensDimensions
 	isInitialized          bool
+	filtersWarmup          map[string]string // id:name map of filters in filters_warmup status on response
+	filtersNotExist        map[string]string // id:name map of filters in filters_not_exist status on response
+	filtersIncompleteData  map[string]string // id:name map of filters in filters_incomplete_data status on response
+	mutex                  *sync.RWMutex
 }
 
-func (m *metricConfig) init(service accountsService) {
-	if !m.isInitialized {
+func (mc *metricConfig) init(service accountsService) {
+	mc.mutex.Lock()
+	defer mc.mutex.Unlock()
+	if !mc.isInitialized {
 		// setting account id and default account if necessary
-		if m.Account == "" {
+		if mc.Account == "" {
 			if defaultAccount, err := service.getDefault(); err == nil {
-				m.Account = defaultAccount.Name
+				mc.Account = defaultAccount.Name
 			} else {
 				logger.Error(err)
 				return
 			}
 		}
-		m.Account = strings.TrimSpace(m.Account)
+		mc.Account = strings.TrimSpace(mc.Account)
 		var err error
-		if m.accountID, err = service.getID(m.Account); err != nil {
+		if mc.accountID, err = service.getID(mc.Account); err != nil {
 			logger.Error(err)
 			return
 		}
-		if len(m.Filters) == 0 {
-			m.Filters = []string{"All Traffic"}
-			if id, err := service.getFilterID(m.Account, "All Traffic"); err == nil {
-				m.filterMap = map[string]string{id: "All Traffic"}
+		if len(mc.Filters) == 0 {
+			mc.Filters = []string{"All Traffic"}
+			if id, err := service.getFilterID(mc.Account, "All Traffic"); err == nil {
+				mc.filters = map[string]string{id: "All Traffic"}
 			} else {
 				logger.Error(err)
 				return
 			}
-		} else if m.Filters[0] == "_ALL_" {
+		} else if mc.Filters[0] == "_ALL_" {
 			var allFilters map[string]string
 			var err error
-			if strings.Contains(m.Metric, "metriclens") {
-				if allFilters, err = service.getMetricLensFilters(m.Account); err != nil {
+			if strings.Contains(mc.Metric, "metriclens") {
+				if allFilters, err = service.getMetricLensFilters(mc.Account); err != nil {
 					logger.Error(err)
 					return
 				}
 			} else {
-				if allFilters, err = service.getFilters(m.Account); err != nil {
+				if allFilters, err = service.getFilters(mc.Account); err != nil {
 					logger.Error(err)
 					return
 				}
 			}
-			m.Filters = make([]string, 0, len(allFilters))
-			m.filterMap = make(map[string]string, len(allFilters))
+			mc.Filters = make([]string, 0, len(allFilters))
+			mc.filters = make(map[string]string, len(allFilters))
 			for id, name := range allFilters {
-				m.Filters = append(m.Filters, name)
-				m.filterMap[id] = name
+				mc.Filters = append(mc.Filters, name)
+				mc.filters[id] = name
 			}
 		} else {
-			m.filterMap = make(map[string]string, len(m.Filters))
-			for _, name := range m.Filters {
+			mc.filters = make(map[string]string, len(mc.Filters))
+			for _, name := range mc.Filters {
 				name = strings.TrimSpace(name)
-				if id, err := service.getFilterID(m.Account, name); err == nil {
-					m.filterMap[id] = name
+				if id, err := service.getFilterID(mc.Account, name); err == nil {
+					mc.filters[id] = name
 				} else {
 					logger.Error(err)
 					return
@@ -98,14 +105,14 @@ func (m *metricConfig) init(service accountsService) {
 			}
 		}
 		// setting metriclens dimensions
-		if strings.Contains(m.Metric, "metriclens") {
-			if len(m.MetriclensDimensions) == 0 || m.MetriclensDimensions[0] == "_ALL_" {
-				if metricLensDimensionMap, err := service.getMetricLensDimensionMap(m.Account); err == nil {
-					m.MetriclensDimensions = make([]string, 0, len(metricLensDimensionMap))
-					m.metriclensDimensionMap = make(map[string]float64, len(metricLensDimensionMap))
+		if strings.Contains(mc.Metric, "metriclens") {
+			if len(mc.MetriclensDimensions) == 0 || mc.MetriclensDimensions[0] == "_ALL_" {
+				if metricLensDimensionMap, err := service.getMetricLensDimensionMap(mc.Account); err == nil {
+					mc.MetriclensDimensions = make([]string, 0, len(metricLensDimensionMap))
+					mc.metriclensDimensionMap = make(map[string]float64, len(metricLensDimensionMap))
 					for name, id := range metricLensDimensionMap {
-						m.MetriclensDimensions = append(m.MetriclensDimensions, name)
-						m.metriclensDimensionMap[name] = id
+						mc.MetriclensDimensions = append(mc.MetriclensDimensions, name)
+						mc.metriclensDimensionMap[name] = id
 					}
 				} else {
 					logger.Error(err)
@@ -113,10 +120,10 @@ func (m *metricConfig) init(service accountsService) {
 				}
 
 			} else {
-				m.metriclensDimensionMap = make(map[string]float64, len(m.MetriclensDimensions))
-				for _, name := range m.MetriclensDimensions {
-					if id, err := service.getMetricLensDimensionID(m.Account, name); err == nil {
-						m.metriclensDimensionMap[name] = id
+				mc.metriclensDimensionMap = make(map[string]float64, len(mc.MetriclensDimensions))
+				for _, name := range mc.MetriclensDimensions {
+					if id, err := service.getMetricLensDimensionID(mc.Account, name); err == nil {
+						mc.metriclensDimensionMap[name] = id
 					} else {
 						logger.Error(err)
 						return
@@ -124,14 +131,53 @@ func (m *metricConfig) init(service accountsService) {
 				}
 			}
 		}
-		m.isInitialized = true
+		mc.isInitialized = true
 	}
 }
 
-func (m *metricConfig) filterIDs() []string {
-	ids := make([]string, 0, len(m.filterMap))
-	for id := range m.filterMap {
+func (mc *metricConfig) filterIDs() []string {
+	ids := make([]string, 0, len(mc.filters))
+	for id := range mc.filters {
 		ids = append(ids, id)
 	}
 	return ids
+}
+
+// logs filter status only when the filter status changes
+func (mc *metricConfig) logFilterStatuses(filtersWarmupIds []float64, filtersNotExistIds []float64, filtersIncompleteDataIds []float64) {
+	mc.filtersWarmup = logFilterStatusesHelper(mc.Metric, mc.filters, mc.filtersWarmup, filtersWarmupIds, "filters_warmup")
+	mc.filtersNotExist = logFilterStatusesHelper(mc.Metric, mc.filters, mc.filtersNotExist, filtersNotExistIds, "filters_not_exist")
+	mc.filtersIncompleteData = logFilterStatusesHelper(mc.Metric, mc.filters, mc.filtersIncompleteData, filtersIncompleteDataIds, "filters_incomplete_data")
+}
+
+func logFilterStatusesHelper(metric string, filters map[string]string, filterStatusesCurrent map[string]string, filterStatusesIDsNew []float64, status string) map[string]string {
+	filterStatusesNew := map[string]string{}
+	filterStatusesToLog := map[string]string{}
+	if filterStatusesCurrent == nil {
+		filterStatusesCurrent = map[string]string{}
+	}
+	for _, id := range filterStatusesIDsNew {
+		id := strconv.FormatFloat(id, 'f', 0, 64)
+		if filterStatusesCurrent[id] == "" {
+			filterStatusesToLog[id] = filters[id]
+		} else {
+			delete(filterStatusesCurrent, id)
+		}
+		filterStatusesNew[id] = filters[id]
+	}
+	if len(filterStatusesToLog) != 0 {
+		if m, err := json.Marshal(filterStatusesToLog); err == nil {
+			logger.Warnf("GET metric %s has filters in the unresponsive %s status. Set log level to debug to see status change to responsive in future requests. Filters in %s status: %s", metric, status, status, m)
+		} else {
+			logger.Errorf("Failed marshalling id:name map of filters in %s status. %+v", status, err)
+		}
+	}
+	if len(filterStatusesCurrent) != 0 {
+		if m, err := json.Marshal(filterStatusesCurrent); err == nil {
+			logger.Debugf("GET metric %s has filters whose status changed from %s to responsive. Filters whose status changed: %s", metric, status, m)
+		} else {
+			logger.Errorf("Failed marshalling id:name map of filters out of %s status. %+v", status, err)
+		}
+	}
+	return filterStatusesNew
 }
