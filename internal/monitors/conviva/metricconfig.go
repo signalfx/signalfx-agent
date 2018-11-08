@@ -51,7 +51,7 @@ type metricConfig struct {
 	filtersNotExist             map[string]string
 	// id:name map of filters in filters_incomplete_data status on response
 	filtersIncompleteData       map[string]string
-	mutex                       *sync.RWMutex
+	mutex                       sync.RWMutex
 }
 
 func (mc *metricConfig) init(service accountsService) {

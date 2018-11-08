@@ -40,13 +40,13 @@ type accountsServiceImpl struct {
 	ctx                 context.Context
 	timeout             *time.Duration
 	client              httpClient
-	mutex               *sync.RWMutex
+	mutex               sync.RWMutex
 	accountsInitialized bool
 }
 
 // newAccountsService factory function creating accountsService
 func newAccountsService(ctx context.Context, timeout *time.Duration, client httpClient) accountsService {
-	service := accountsServiceImpl{ctx: ctx, timeout: timeout, client: client, mutex: &sync.RWMutex{}}
+	service := accountsServiceImpl{ctx: ctx, timeout: timeout, client: client}
 	return &service
 }
 
