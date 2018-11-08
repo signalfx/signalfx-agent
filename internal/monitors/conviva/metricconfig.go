@@ -33,16 +33,24 @@ type metricConfig struct {
 	// Conviva customer account name. The default account is fetched used if not specified.
 	Account                     string   `yaml:"account"`
 	Metric                      string   `yaml:"metric" default:"quality_metriclens"`
-	Filters                     []string `yaml:"filters"`                     // Filter names. The default is `All Traffic` filter
-	MetricLensDimensions        []string `yaml:"metricLensDimensions"`        // MetricLens dimension names. The default is names of all MetricLens dimensions of the account
-	ExcludeMetricLensDimensions []string `yaml:"excludeMetricLensDimensions"` // MetricLens dimension names to exclude.
+	// Filter names. The default is `All Traffic` filter
+	Filters                     []string `yaml:"filters"`
+	// MetricLens dimension names. The default is names of all MetricLens dimensions of the account
+	MetricLensDimensions        []string `yaml:"metricLensDimensions"`
+	// MetricLens dimension names to exclude.
+	ExcludeMetricLensDimensions []string `yaml:"excludeMetricLensDimensions"`
 	accountID                   string
-	filters                     map[string]string  // id:name map of filters derived from the configured Filters
-	metricLensDimensionMap      map[string]float64 // name:id map of MetricLens dimensions derived from configured MetricLensDimensions
+	// id:name map of filters derived from the configured Filters
+	filters                     map[string]string
+	// name:id map of MetricLens dimensions derived from configured MetricLensDimensions
+	metricLensDimensionMap      map[string]float64
 	isInitialized               bool
-	filtersWarmup               map[string]string // id:name map of filters in filters_warmup status on response
-	filtersNotExist             map[string]string // id:name map of filters in filters_not_exist status on response
-	filtersIncompleteData       map[string]string // id:name map of filters in filters_incomplete_data status on response
+	// id:name map of filters in filters_warmup status on response
+	filtersWarmup               map[string]string
+	// id:name map of filters in filters_not_exist status on response
+	filtersNotExist             map[string]string
+	// id:name map of filters in filters_incomplete_data status on response
+	filtersIncompleteData       map[string]string
 	mutex                       *sync.RWMutex
 }
 
