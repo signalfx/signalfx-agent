@@ -51,7 +51,7 @@ func newAccountsService(ctx context.Context, timeout *time.Duration, client http
 }
 
 func (s *accountsServiceImpl) getDefault() (*account, error) {
-	if err := s.init(); err != nil {
+	if err := s.initAccounts(); err != nil {
 		return nil, err
 	}
 	if s.defaultAccount == nil {
@@ -61,7 +61,7 @@ func (s *accountsServiceImpl) getDefault() (*account, error) {
 }
 
 func (s *accountsServiceImpl) getMetricLensDimensionMap(accountName string) (map[string]float64, error) {
-	if err := s.init(); err != nil {
+	if err := s.initAccounts(); err != nil {
 		return nil, err
 	}
 	if a := s.accounts[accountName]; a != nil {
@@ -71,7 +71,7 @@ func (s *accountsServiceImpl) getMetricLensDimensionMap(accountName string) (map
 }
 
 func (s *accountsServiceImpl) getID(accountName string) (string, error) {
-	if err := s.init(); err != nil {
+	if err := s.initAccounts(); err != nil {
 		return "", err
 	}
 	if a := s.accounts[accountName]; a != nil {
@@ -81,7 +81,7 @@ func (s *accountsServiceImpl) getID(accountName string) (string, error) {
 }
 
 func (s *accountsServiceImpl) getFilters(accountName string) (map[string]string, error) {
-	if err := s.init(); err != nil {
+	if err := s.initAccounts(); err != nil {
 		return nil, err
 	}
 	if a := s.accounts[accountName]; a != nil {
@@ -91,7 +91,7 @@ func (s *accountsServiceImpl) getFilters(accountName string) (map[string]string,
 }
 
 func (s *accountsServiceImpl) getMetricLensFilters(accountName string) (map[string]string, error) {
-	if err := s.init(); err != nil {
+	if err := s.initAccounts(); err != nil {
 		return nil, err
 	}
 	if a := s.accounts[accountName]; a != nil {
@@ -101,7 +101,7 @@ func (s *accountsServiceImpl) getMetricLensFilters(accountName string) (map[stri
 }
 
 func (s *accountsServiceImpl) getFilterID(accountName string, filterName string) (string, error) {
-	if err := s.init(); err != nil {
+	if err := s.initAccounts(); err != nil {
 		return "", err
 	}
 	if a := s.accounts[accountName]; a != nil {
@@ -115,7 +115,7 @@ func (s *accountsServiceImpl) getFilterID(accountName string, filterName string)
 }
 
 func (s *accountsServiceImpl) getMetricLensDimensionID(accountName string, metricLensDimension string) (float64, error) {
-	if err := s.init(); err != nil {
+	if err := s.initAccounts(); err != nil {
 		return 0, err
 	}
 	if a := s.accounts[accountName]; a != nil {
@@ -126,7 +126,7 @@ func (s *accountsServiceImpl) getMetricLensDimensionID(accountName string, metri
 	return 0, fmt.Errorf("account %s has no MetricLens dimensions", accountName)
 }
 
-func (s *accountsServiceImpl) init() error {
+func (s *accountsServiceImpl) initAccounts() error {
 	s.mutex.Lock()
 	defer s.mutex.Unlock()
 	if !s.accountsInitialized {
@@ -148,13 +148,13 @@ func (s *accountsServiceImpl) init() error {
 			}
 			s.accounts[name] = &a
 		}
-		if err := s.initFilters(); err != nil {
+		if err := s.setAccountsFilters(); err != nil {
 			return err
 		}
-		if err := s.initMetricLensDimensions(); err != nil {
+		if err := s.setAccountsMetricLensDimensions(); err != nil {
 			return err
 		}
-		if err := s.initMetricLensFilters(); err != nil {
+		if err := s.setAccountsMetricLensFilters(); err != nil {
 			return err
 		}
 		s.accountsInitialized = true
@@ -162,7 +162,7 @@ func (s *accountsServiceImpl) init() error {
 	return nil
 }
 
-func (s *accountsServiceImpl) initFilters() error {
+func (s *accountsServiceImpl) setAccountsFilters() error {
 	var g errgroup.Group
 	for _, a := range s.accounts {
 		newA := a
@@ -179,7 +179,7 @@ func (s *accountsServiceImpl) initFilters() error {
 	return g.Wait()
 }
 
-func (s *accountsServiceImpl) initMetricLensDimensions() error {
+func (s *accountsServiceImpl) setAccountsMetricLensDimensions() error {
 	var g errgroup.Group
 	for _, a := range s.accounts {
 		newA := a
@@ -196,10 +196,10 @@ func (s *accountsServiceImpl) initMetricLensDimensions() error {
 	return g.Wait()
 }
 
-// initMetricLensFilters() creates a map of MetricLens enabled filters from the map of filters of accounts.
+// setAccountsMetricLensFilters() creates a map of MetricLens enabled filters from the map of filters of accounts.
 // A filter is MetricLens enabled if getting quality_metriclens metrics is successful (i.e. no errors and the status code is 200).
 // A filter is not MetricLens enabled if the status code is 400. Otherwise an error occurred and that error gets returned.
-func (s *accountsServiceImpl) initMetricLensFilters() error {
+func (s *accountsServiceImpl) setAccountsMetricLensFilters() error {
 	var (
 		g     errgroup.Group
 		mutex sync.RWMutex

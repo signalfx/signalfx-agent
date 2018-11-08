@@ -41,7 +41,7 @@ const monitorType = "conviva"
 // ```
 //
 // Individual metrics are configured as a list of metricConfigs as shown in sample configuration below.
-// The Conviva metrics reported to SignalFx are prefixed by `conviva.`, `conviva.quality_metriclens` and
+// The Conviva metrics reported to SignalFx are prefixed by `conviva.`, `conviva.quality_metriclens.` and
 // `conviva.audience_metriclens.` accordingly. The metric names are the `titles` of the metrics
 // [here](https://github.com/signalfx/integrations/tree/master/conviva/docs) which correspond to the Conviva
 // `metric parameters` [here](https://community.conviva.com/site/global/apis_data/experience_insights_api/index.gsp#metrics)
@@ -155,7 +155,7 @@ func (m *Monitor) Shutdown() {
 	}
 }
 
-func (m *Monitor) fetchMetrics(contextTimeout time.Duration, semaphore chan struct{}, conf *metricConfig) {
+func (m *Monitor) fetchMetrics(contextTimeout time.Duration, semaphore chan struct{}, metricConf *metricConfig) {
 	select {
 	case semaphore <- struct{}{}:
 		go func(contextTimeout time.Duration, m *Monitor, url string) {
@@ -164,12 +164,12 @@ func (m *Monitor) fetchMetrics(contextTimeout time.Duration, semaphore chan stru
 			defer cancel()
 			var res map[string]metricResponse
 			if _, err := m.client.get(ctx, &res, url); err != nil {
-				logger.Errorf("GET metric %s failed. %+v", conf.Metric, err)
+				logger.Errorf("GET metric %s failed. %+v", metricConf.Metric, err)
 				return
 			}
 			dps := make([]*datapoint.Datapoint, 0)
 			for metricName, series := range res {
-				conf.logFilterStatuses(series.Meta.FiltersWarmup, series.Meta.FiltersNotExist, series.Meta.FiltersIncompleteData)
+				metricConf.logFilterStatuses(series.Meta.FiltersWarmup, series.Meta.FiltersNotExist, series.Meta.FiltersIncompleteData)
 				prefixedMetricName := "conviva." + metricName
 				for filterID, metricValues := range series.FilterIDValuesMap {
 					for i, metricValue := range metricValues {
@@ -180,7 +180,7 @@ func (m *Monitor) fetchMetrics(contextTimeout time.Duration, semaphore chan stru
 						default:
 							dp := sfxclient.GaugeF(
 								prefixedMetricName,
-								map[string]string{"account": conf.Account, "filter": conf.filters[filterID]},
+								map[string]string{"account": metricConf.Account, "filter": metricConf.filtersMap[filterID]},
 								metricValue)
 							// Checking the type of series and setting dimensions accordingly
 							switch series.Type {
@@ -201,16 +201,16 @@ func (m *Monitor) fetchMetrics(contextTimeout time.Duration, semaphore chan stru
 			for i := range dps {
 				m.Output.SendDatapoint(dps[i])
 			}
-		}(contextTimeout, m, fmt.Sprintf(metricURLFormat, conf.Metric, conf.accountID, strings.Join(conf.filterIDs(), ",")))
+		}(contextTimeout, m, fmt.Sprintf(metricURLFormat, metricConf.Metric, metricConf.accountID, strings.Join(metricConf.filterIDs(), ",")))
 	}
 }
 
-func (m *Monitor) fetchMetricLensMetrics(contextTimeout time.Duration, semaphore chan struct{}, conf *metricConfig) {
-	for _, dim := range conf.MetricLensDimensions {
+func (m *Monitor) fetchMetricLensMetrics(contextTimeout time.Duration, semaphore chan struct{}, metricConf *metricConfig) {
+	for _, dim := range metricConf.MetricLensDimensions {
 		select {
 		case semaphore <- struct{}{}:
 			dim = strings.TrimSpace(dim)
-			dimID := conf.metricLensDimensionMap[dim]
+			dimID := metricConf.metricLensDimensionMap[dim]
 			if dimID == 0.0 {
 				logger.Errorf("No id for MetricLens dimension %s. Wrong MetricLens dimension name.", dim)
 				continue
@@ -239,7 +239,7 @@ func (m *Monitor) fetchMetricLensMetrics(contextTimeout time.Duration, semaphore
 										prefixedMetricLensMetrics[metricName][metricIndex],
 										map[string]string{
 											"account":           conf.Account,
-											"filter":            conf.filters[filterID],
+											"filter":            conf.filtersMap[filterID],
 											metricLensDimension: metricTable.Xvalues[rowIndex],
 										},
 										metricValue))
@@ -254,7 +254,7 @@ func (m *Monitor) fetchMetricLensMetrics(contextTimeout time.Duration, semaphore
 					dps[i].Meta[dpmeta.NotHostSpecificMeta] = true
 					m.Output.SendDatapoint(dps[i])
 				}
-			}(contextTimeout, m, conf, dim, fmt.Sprintf(metricLensURLFormat, conf.Metric, conf.accountID, strings.Join(conf.filterIDs(), ","), int(dimID)))
+			}(contextTimeout, m, metricConf, dim, fmt.Sprintf(metricLensURLFormat, metricConf.Metric, metricConf.accountID, strings.Join(metricConf.filterIDs(), ","), int(dimID)))
 		}
 	}
 }

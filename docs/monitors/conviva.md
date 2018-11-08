@@ -24,7 +24,7 @@ monitors:
 ```
 
 Individual metrics are configured as a list of metricConfigs as shown in sample configuration below.
-The Conviva metrics reported to SignalFx are prefixed by `conviva.`, `conviva.quality_metriclens` and
+The Conviva metrics reported to SignalFx are prefixed by `conviva.`, `conviva.quality_metriclens.` and
 `conviva.audience_metriclens.` accordingly. The metric names are the `titles` of the metrics
 [here](https://github.com/signalfx/integrations/tree/master/conviva/docs) which correspond to the Conviva
 `metric parameters` [here](https://community.conviva.com/site/global/apis_data/experience_insights_api/index.gsp#metrics)
