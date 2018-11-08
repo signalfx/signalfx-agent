@@ -180,6 +180,15 @@ jobs:
       - run: |
           make vet
 
+  gofmt:
+    executor: goexecutor
+    steps:
+      - checkout
+      - goexecutor_setup
+      - run: |
+          make gofmt
+          git diff --exit-code || (echo 'go files need to be reformatted. Run `make gofmt` in the dev image and commit the changes.' && exit 1)
+
   gotests:
     executor: goexecutor
     steps:
@@ -367,6 +376,7 @@ workflows:
       - build-windows
       - lint
       - vet
+      - gofmt
       - gotests
       - integration_tests:
           requires:
