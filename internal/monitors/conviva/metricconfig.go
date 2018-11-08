@@ -31,27 +31,27 @@ var prefixedMetricLensMetrics = map[string][]string{
 // metricConfig for configuring individual metric
 type metricConfig struct {
 	// Conviva customer account name. The default account is fetched used if not specified.
-	Account                     string   `yaml:"account"`
-	Metric                      string   `yaml:"metric" default:"quality_metriclens"`
+	Account string `yaml:"account"`
+	Metric  string `yaml:"metric" default:"quality_metriclens"`
 	// Filter names. The default is `All Traffic` filter
-	Filters                     []string `yaml:"filters"`
+	Filters []string `yaml:"filters"`
 	// MetricLens dimension names. The default is names of all MetricLens dimensions of the account
-	MetricLensDimensions        []string `yaml:"metricLensDimensions"`
+	MetricLensDimensions []string `yaml:"metricLensDimensions"`
 	// MetricLens dimension names to exclude.
 	ExcludeMetricLensDimensions []string `yaml:"excludeMetricLensDimensions"`
 	accountID                   string
 	// id:name map of filters derived from the configured Filters
-	filters                     map[string]string
+	filters map[string]string
 	// name:id map of MetricLens dimensions derived from configured MetricLensDimensions
-	metricLensDimensionMap      map[string]float64
-	isInitialized               bool
+	metricLensDimensionMap map[string]float64
+	isInitialized          bool
 	// id:name map of filters in filters_warmup status on response
-	filtersWarmup               map[string]string
+	filtersWarmup map[string]string
 	// id:name map of filters in filters_not_exist status on response
-	filtersNotExist             map[string]string
+	filtersNotExist map[string]string
 	// id:name map of filters in filters_incomplete_data status on response
-	filtersIncompleteData       map[string]string
-	mutex                       sync.RWMutex
+	filtersIncompleteData map[string]string
+	mutex                 sync.RWMutex
 }
 
 func (mc *metricConfig) init(service accountsService) {
