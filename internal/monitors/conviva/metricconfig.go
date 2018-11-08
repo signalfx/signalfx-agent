@@ -41,7 +41,7 @@ type metricConfig struct {
 	ExcludeMetricLensDimensions []string `yaml:"excludeMetricLensDimensions"`
 	accountID                   string
 	// id:name map of filters derived from the configured Filters
-	filters map[string]string
+	filtersMap map[string]string
 	// name:id map of MetricLens dimensions derived from configured MetricLensDimensions
 	metricLensDimensionMap map[string]float64
 	isInitialized          bool
@@ -99,7 +99,7 @@ func (mc *metricConfig) setFilters(service accountsService) error {
 	if len(mc.Filters) == 0 {
 		mc.Filters = []string{"All Traffic"}
 		if id, err := service.getFilterID(mc.Account, "All Traffic"); err == nil {
-			mc.filters = map[string]string{id: "All Traffic"}
+			mc.filtersMap = map[string]string{id: "All Traffic"}
 		} else {
 			return err
 		}
@@ -116,17 +116,17 @@ func (mc *metricConfig) setFilters(service accountsService) error {
 			}
 		}
 		mc.Filters = make([]string, 0, len(allFilters))
-		mc.filters = make(map[string]string, len(allFilters))
+		mc.filtersMap = make(map[string]string, len(allFilters))
 		for id, name := range allFilters {
 			mc.Filters = append(mc.Filters, name)
-			mc.filters[id] = name
+			mc.filtersMap[id] = name
 		}
 	} else {
-		mc.filters = make(map[string]string, len(mc.Filters))
+		mc.filtersMap = make(map[string]string, len(mc.Filters))
 		for _, name := range mc.Filters {
 			name = strings.TrimSpace(name)
 			if id, err := service.getFilterID(mc.Account, name); err == nil {
-				mc.filters[id] = name
+				mc.filtersMap[id] = name
 			} else {
 				return err
 			}
@@ -184,8 +184,8 @@ func (mc *metricConfig) excludeMetricLensDimensions(service accountsService) err
 }
 
 func (mc *metricConfig) filterIDs() []string {
-	ids := make([]string, 0, len(mc.filters))
-	for id := range mc.filters {
+	ids := make([]string, 0, len(mc.filtersMap))
+	for id := range mc.filtersMap {
 		ids = append(ids, id)
 	}
 	return ids
@@ -193,9 +193,9 @@ func (mc *metricConfig) filterIDs() []string {
 
 // logs filter status only when the filter status changes
 func (mc *metricConfig) logFilterStatuses(filtersWarmupIds []float64, filtersNotExistIds []float64, filtersIncompleteDataIds []float64) {
-	mc.filtersWarmup = logFilterStatusesHelper(mc.Metric, mc.filters, mc.filtersWarmup, filtersWarmupIds, "filters_warmup")
-	mc.filtersNotExist = logFilterStatusesHelper(mc.Metric, mc.filters, mc.filtersNotExist, filtersNotExistIds, "filters_not_exist")
-	mc.filtersIncompleteData = logFilterStatusesHelper(mc.Metric, mc.filters, mc.filtersIncompleteData, filtersIncompleteDataIds, "filters_incomplete_data")
+	mc.filtersWarmup = logFilterStatusesHelper(mc.Metric, mc.filtersMap, mc.filtersWarmup, filtersWarmupIds, "filters_warmup")
+	mc.filtersNotExist = logFilterStatusesHelper(mc.Metric, mc.filtersMap, mc.filtersNotExist, filtersNotExistIds, "filters_not_exist")
+	mc.filtersIncompleteData = logFilterStatusesHelper(mc.Metric, mc.filtersMap, mc.filtersIncompleteData, filtersIncompleteDataIds, "filters_incomplete_data")
 }
 
 func logFilterStatusesHelper(metric string, filters map[string]string, filterStatusesCurrent map[string]string, filterStatusesIDsNew []float64, status string) map[string]string {
