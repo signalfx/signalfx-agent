@@ -141,4 +141,3 @@ package haproxy
 // GAUGE(gauge.throttle): Corresponds to HAProxy's `throttle` metric -  Current throttle percentage for the server, when slowstart is active, or no value if not in slowstart.
 
 // GAUGE(gauge.zlib_mem_usage): Corresponds to HAProxy's `ZlibMemUsage` metric.
-

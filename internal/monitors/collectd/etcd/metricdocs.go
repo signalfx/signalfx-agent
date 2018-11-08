@@ -57,4 +57,3 @@ package etcd
 // GAUGE(gauge.etcd.self.sendpkg.rate): Rate at which a leader sends packages
 
 // GAUGE(gauge.etcd.store.watchers): Number of watchers
-

@@ -39,7 +39,7 @@ type Config struct {
 	// Cluster name to which the node belongs. This is an optional config that
 	// will override the cluster name fetched from a node and will be used to
 	// populate the plugin_instance dimension
-	Cluster           string `yaml:"cluster"`
+	Cluster string `yaml:"cluster"`
 	// DetailedMetrics turns on additional metric time series
 	DetailedMetrics *bool `yaml:"detailedMetrics" default:"true"`
 	// EnableClusterHealth enables reporting on the cluster health
@@ -101,7 +101,7 @@ func (m *Monitor) Configure(conf *Config) error {
 				"values":   conf.AdditionalMetrics,
 			},
 			"Indexes": map[string]interface{}{
-				"values":   conf.Indexes,
+				"values": conf.Indexes,
 			},
 			"Password": conf.Password,
 			"Protocol": conf.Protocol,

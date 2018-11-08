@@ -56,7 +56,7 @@ type Config struct {
 	MBeansToCollect []string `yaml:"mBeansToCollect"`
 	// A list of the MBeans to omit. This will come handy in cases where only a
 	// few MBeans need to omitted from the default list
-	MBeansToOmit    []string `yaml:"mBeansToOmit"`
+	MBeansToOmit []string `yaml:"mBeansToOmit"`
 	// Specifies how to map JMX MBean values to metrics.  If using a specific
 	// service monitor such as cassandra, kafka, or activemq, they come
 	// pre-loaded with a set of mappings, and any that you add in this option

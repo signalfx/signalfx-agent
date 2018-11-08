@@ -3,9 +3,9 @@
 package haproxy
 
 import (
+	"errors"
 	"fmt"
 	"strings"
-	"errors"
 
 	"github.com/signalfx/signalfx-agent/internal/monitors/collectd"
 
@@ -50,7 +50,7 @@ func (c *Config) PythonConfig() *python.Config {
 
 // Validate check config if host is TCP or socket. TCP requires port.
 func (c *Config) Validate() error {
-    if (!strings.HasPrefix(c.Host, "/") && c.Port == 0 ) {
+	if !strings.HasPrefix(c.Host, "/") && c.Port == 0 {
 		return errors.New("when using TCP for HAProxy connection, port must be specified")
 	}
 	return nil
@@ -63,10 +63,10 @@ type Monitor struct {
 
 // Configure configures and runs the plugin in collectd
 func (m *Monitor) Configure(conf *Config) error {
-    socket := conf.Host
-    if conf.Port != 0 {
-        socket += fmt.Sprintf(":%d", conf.Port)
-    }
+	socket := conf.Host
+	if conf.Port != 0 {
+		socket += fmt.Sprintf(":%d", conf.Port)
+	}
 	conf.pyConf = &python.Config{
 		MonitorConfig: conf.MonitorConfig,
 		Host:          conf.Host,
