@@ -14,7 +14,6 @@ import (
 	"math"
 	"net/http"
 	"strings"
-	"sync"
 	"time"
 )
 
@@ -124,9 +123,6 @@ func init() {
 func (m *Monitor) Configure(conf *Config) error {
 	if conf.MetricConfigs == nil {
 		conf.MetricConfigs = []*metricConfig{{Metric: "quality_metriclens"}}
-	}
-	for _, metricConf := range conf.MetricConfigs {
-		metricConf.mutex = &sync.RWMutex{}
 	}
 	m.timeout = time.Duration(conf.TimeoutSeconds) * time.Second
 	m.client = newConvivaClient(&http.Client{
