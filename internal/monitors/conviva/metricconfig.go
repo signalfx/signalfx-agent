@@ -7,7 +7,7 @@ import (
 	"sync"
 )
 
-var prefixedMetriclensMetrics = map[string][]string{
+var prefixedMetricLensMetrics = map[string][]string{
 	"quality_metriclens": {
 		"conviva.quality_metriclens.total_attempts",
 		"conviva.quality_metriclens.video_start_failures_percent",
@@ -31,108 +31,148 @@ var prefixedMetriclensMetrics = map[string][]string{
 // metricConfig for configuring individual metric
 type metricConfig struct {
 	// Conviva customer account name. The default account is fetched used if not specified.
-	Account                string   `yaml:"account"`
-	Metric                 string   `yaml:"metric" default:"quality_metriclens"`
-	Filters                []string `yaml:"filters"`              // Filter names. The default is `All Traffic` filter
-	MetriclensDimensions   []string `yaml:"metriclensDimensions"` // Metriclens dimension names. The default is names of all MetricLens dimensions of the account
-	accountID              string
-	filters                map[string]string  // id:name map of filters derived from the configured Filters
-	metriclensDimensionMap map[string]float64 // name:id map of Metriclens dimensions derived from configured MetriclensDimensions
-	isInitialized          bool
-	filtersWarmup          map[string]string // id:name map of filters in filters_warmup status on response
-	filtersNotExist        map[string]string // id:name map of filters in filters_not_exist status on response
-	filtersIncompleteData  map[string]string // id:name map of filters in filters_incomplete_data status on response
-	mutex                  *sync.RWMutex
+	Account                     string   `yaml:"account"`
+	Metric                      string   `yaml:"metric" default:"quality_metriclens"`
+	Filters                     []string `yaml:"filters"`                     // Filter names. The default is `All Traffic` filter
+	MetricLensDimensions        []string `yaml:"metricLensDimensions"`        // MetricLens dimension names. The default is names of all MetricLens dimensions of the account
+	ExcludeMetricLensDimensions []string `yaml:"excludeMetricLensDimensions"` // MetricLens dimension names to exclude.
+	accountID                   string
+	filters                     map[string]string  // id:name map of filters derived from the configured Filters
+	metricLensDimensionMap      map[string]float64 // name:id map of MetricLens dimensions derived from configured MetricLensDimensions
+	isInitialized               bool
+	filtersWarmup               map[string]string // id:name map of filters in filters_warmup status on response
+	filtersNotExist             map[string]string // id:name map of filters in filters_not_exist status on response
+	filtersIncompleteData       map[string]string // id:name map of filters in filters_incomplete_data status on response
+	mutex                       *sync.RWMutex
 }
 
 func (mc *metricConfig) init(service accountsService) {
 	mc.mutex.Lock()
 	defer mc.mutex.Unlock()
 	if !mc.isInitialized {
-		// setting account id and default account if necessary
-		if mc.Account == "" {
-			if defaultAccount, err := service.getDefault(); err == nil {
-				mc.Account = defaultAccount.Name
-			} else {
-				logger.Error(err)
-				return
-			}
-		}
-		mc.Account = strings.TrimSpace(mc.Account)
-		var err error
-		if mc.accountID, err = service.getID(mc.Account); err != nil {
-			logger.Error(err)
+		if err := mc.setAccount(service); err != nil {
+			logger.Errorf("Metric %s account setting failure. %+v", mc.Metric, err)
 			return
 		}
-		if len(mc.Filters) == 0 {
-			mc.Filters = []string{"All Traffic"}
-			if id, err := service.getFilterID(mc.Account, "All Traffic"); err == nil {
-				mc.filters = map[string]string{id: "All Traffic"}
-			} else {
-				logger.Error(err)
-				return
-			}
-		} else if mc.Filters[0] == "_ALL_" {
-			var allFilters map[string]string
-			var err error
-			if strings.Contains(mc.Metric, "metriclens") {
-				if allFilters, err = service.getMetricLensFilters(mc.Account); err != nil {
-					logger.Error(err)
-					return
-				}
-			} else {
-				if allFilters, err = service.getFilters(mc.Account); err != nil {
-					logger.Error(err)
-					return
-				}
-			}
-			mc.Filters = make([]string, 0, len(allFilters))
-			mc.filters = make(map[string]string, len(allFilters))
-			for id, name := range allFilters {
-				mc.Filters = append(mc.Filters, name)
-				mc.filters[id] = name
-			}
-		} else {
-			mc.filters = make(map[string]string, len(mc.Filters))
-			for _, name := range mc.Filters {
-				name = strings.TrimSpace(name)
-				if id, err := service.getFilterID(mc.Account, name); err == nil {
-					mc.filters[id] = name
-				} else {
-					logger.Error(err)
-					return
-				}
-			}
+		if err := mc.setFilters(service); err != nil {
+			logger.Errorf("Metric %s filter(s) setting failure. %+v", mc.Metric, err)
+			return
 		}
-		// setting metriclens dimensions
-		if strings.Contains(mc.Metric, "metriclens") {
-			if len(mc.MetriclensDimensions) == 0 || mc.MetriclensDimensions[0] == "_ALL_" {
-				if metricLensDimensionMap, err := service.getMetricLensDimensionMap(mc.Account); err == nil {
-					mc.MetriclensDimensions = make([]string, 0, len(metricLensDimensionMap))
-					mc.metriclensDimensionMap = make(map[string]float64, len(metricLensDimensionMap))
-					for name, id := range metricLensDimensionMap {
-						mc.MetriclensDimensions = append(mc.MetriclensDimensions, name)
-						mc.metriclensDimensionMap[name] = id
-					}
-				} else {
-					logger.Error(err)
-					return
-				}
-
-			} else {
-				mc.metriclensDimensionMap = make(map[string]float64, len(mc.MetriclensDimensions))
-				for _, name := range mc.MetriclensDimensions {
-					if id, err := service.getMetricLensDimensionID(mc.Account, name); err == nil {
-						mc.metriclensDimensionMap[name] = id
-					} else {
-						logger.Error(err)
-						return
-					}
-				}
-			}
+		if err := mc.setMetricLensDimensions(service); err != nil {
+			logger.Errorf("Metric %s MetricLens dimension(s) setting failure. %+v", mc.Metric, err)
+			return
+		}
+		if err := mc.excludeMetricLensDimensions(service); err != nil {
+			logger.Errorf("Metric %s MetricLens dimension(s) exclusion failure. %+v", mc.Metric, err)
+			return
 		}
 		mc.isInitialized = true
 	}
+}
+
+// setting account id and default account if necessary
+func (mc *metricConfig) setAccount(service accountsService) error {
+	if strings.TrimSpace(mc.Account) == "" {
+		if defaultAccount, err := service.getDefault(); err == nil {
+			mc.Account = defaultAccount.Name
+		} else {
+			return err
+		}
+	}
+	mc.Account = strings.TrimSpace(mc.Account)
+	var err error
+	if mc.accountID, err = service.getID(mc.Account); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (mc *metricConfig) setFilters(service accountsService) error {
+	if len(mc.Filters) == 0 {
+		mc.Filters = []string{"All Traffic"}
+		if id, err := service.getFilterID(mc.Account, "All Traffic"); err == nil {
+			mc.filters = map[string]string{id: "All Traffic"}
+		} else {
+			return err
+		}
+	} else if strings.TrimSpace(mc.Filters[0]) == "_ALL_" {
+		var allFilters map[string]string
+		var err error
+		if strings.Contains(mc.Metric, "metriclens") {
+			if allFilters, err = service.getMetricLensFilters(mc.Account); err != nil {
+				return err
+			}
+		} else {
+			if allFilters, err = service.getFilters(mc.Account); err != nil {
+				return err
+			}
+		}
+		mc.Filters = make([]string, 0, len(allFilters))
+		mc.filters = make(map[string]string, len(allFilters))
+		for id, name := range allFilters {
+			mc.Filters = append(mc.Filters, name)
+			mc.filters[id] = name
+		}
+	} else {
+		mc.filters = make(map[string]string, len(mc.Filters))
+		for _, name := range mc.Filters {
+			name = strings.TrimSpace(name)
+			if id, err := service.getFilterID(mc.Account, name); err == nil {
+				mc.filters[id] = name
+			} else {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
+func (mc *metricConfig) setMetricLensDimensions(service accountsService) error {
+	if strings.Contains(mc.Metric, "metriclens") {
+		if len(mc.MetricLensDimensions) == 0 || strings.TrimSpace(mc.MetricLensDimensions[0]) == "_ALL_" {
+			if metricLensDimensionMap, err := service.getMetricLensDimensionMap(mc.Account); err == nil {
+				mc.MetricLensDimensions = make([]string, 0, len(metricLensDimensionMap))
+				mc.metricLensDimensionMap = make(map[string]float64, len(metricLensDimensionMap))
+				for name, id := range metricLensDimensionMap {
+					mc.MetricLensDimensions = append(mc.MetricLensDimensions, name)
+					mc.metricLensDimensionMap[name] = id
+				}
+			} else {
+				return err
+			}
+
+		} else {
+			mc.metricLensDimensionMap = make(map[string]float64, len(mc.MetricLensDimensions))
+			for i, name := range mc.MetricLensDimensions {
+				name := strings.TrimSpace(name)
+				if id, err := service.getMetricLensDimensionID(mc.Account, name); err == nil {
+					mc.MetricLensDimensions[i] = name
+					mc.metricLensDimensionMap[name] = id
+				} else {
+					return err
+				}
+			}
+		}
+	}
+	return nil
+}
+
+func (mc *metricConfig) excludeMetricLensDimensions(service accountsService) error {
+	for _, excludeName := range mc.ExcludeMetricLensDimensions {
+		excludeName := strings.TrimSpace(excludeName)
+		if _, err := service.getMetricLensDimensionID(mc.Account, excludeName); err == nil {
+			delete(mc.metricLensDimensionMap, excludeName)
+		} else {
+			return err
+		}
+	}
+	if len(mc.metricLensDimensionMap) < len(mc.MetricLensDimensions) {
+		mc.MetricLensDimensions = make([]string, 0, len(mc.metricLensDimensionMap))
+		for name := range mc.metricLensDimensionMap {
+			mc.MetricLensDimensions = append(mc.MetricLensDimensions, name)
+		}
+	}
+	return nil
 }
 
 func (mc *metricConfig) filterIDs() []string {

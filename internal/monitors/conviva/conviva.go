@@ -49,7 +49,7 @@ const monitorType = "conviva"
 // Where an account is not provided the default account is used. Where no filters are specified the
 // `All Traffic` filter is used. Where MetricLens dimensions are not specified all MetricLens dimensions
 // are used. The `_ALL_` keyword means all. Dimensions only apply to MetricLenses. If specified for a
-// regular metric they will be ignored.
+// regular metric they will be ignored. MetricLens dimensions listed in `excludeMetricLensDimensions` will be excluded.
 //
 // ```
 //monitors:
@@ -58,20 +58,22 @@ const monitorType = "conviva"
 //  pulsePassword: <password>
 //  metricConfigs:
 //    - account: c3.NBC
-//      metric: audience_metriclens
+//      metric: quality_metriclens
 //      filters:
 //        - All Traffic
-//      metriclensDimensions:
+//      metricLensDimensions:
 //        - Cities
 //    - metric: avg_bitrate
 //      filters:
 //        - _ALL_
 //    - metric: concurrent_plays
-//    - metric: quality_metriclens
+//    - metric: audience_metriclens
 //      filters:
 //        - All Traffic
-//      metriclensDimensions:
+//      metricLensDimensions:
 //        - _ALL_
+//      excludeMetricLensDimensions:
+//        - CDNs
 // ```
 //
 // Add the extra dimension metric_source as shown in sample configuration below for the convenience of searching
@@ -136,12 +138,12 @@ func (m *Monitor) Configure(conf *Config) error {
 	m.ctx, m.cancel = context.WithCancel(context.Background())
 	semaphore := make(chan struct{}, maxGoroutinesPerInterval(conf.MetricConfigs))
 	interval := time.Duration(conf.IntervalSeconds) * time.Second
-	service := newAccountsService(m.ctx, &m.timeout, &m.client)
+	service := newAccountsService(m.ctx, &m.timeout, m.client)
 	utils.RunOnInterval(m.ctx, func() {
 		for _, metricConf := range conf.MetricConfigs {
 			metricConf.init(service)
 			if strings.Contains(metricConf.Metric, "metriclens") {
-				m.fetchMetriclensMetrics(interval, semaphore, metricConf)
+				m.fetchMetricLensMetrics(interval, semaphore, metricConf)
 			} else {
 				m.fetchMetrics(interval, semaphore, metricConf)
 			}
@@ -207,17 +209,17 @@ func (m *Monitor) fetchMetrics(contextTimeout time.Duration, semaphore chan stru
 	}
 }
 
-func (m *Monitor) fetchMetriclensMetrics(contextTimeout time.Duration, semaphore chan struct{}, conf *metricConfig) {
-	for _, dim := range conf.MetriclensDimensions {
+func (m *Monitor) fetchMetricLensMetrics(contextTimeout time.Duration, semaphore chan struct{}, conf *metricConfig) {
+	for _, dim := range conf.MetricLensDimensions {
 		select {
 		case semaphore <- struct{}{}:
 			dim = strings.TrimSpace(dim)
-			dimID := conf.metriclensDimensionMap[dim]
+			dimID := conf.metricLensDimensionMap[dim]
 			if dimID == 0.0 {
-				logger.Errorf("No id for metriclens dimension %s. Wrong metriclens dimension name.", dim)
+				logger.Errorf("No id for MetricLens dimension %s. Wrong MetricLens dimension name.", dim)
 				continue
 			}
-			go func(contextTimeout time.Duration, m *Monitor, conf *metricConfig, metriclensDimension string, url string) {
+			go func(contextTimeout time.Duration, m *Monitor, conf *metricConfig, metricLensDimension string, url string) {
 				defer func() { <-semaphore }()
 				ctx, cancel := context.WithTimeout(m.ctx, contextTimeout)
 				defer cancel()
@@ -238,11 +240,11 @@ func (m *Monitor) fetchMetriclensMetrics(contextTimeout time.Duration, semaphore
 							default:
 								for metricIndex, metricValue := range row {
 									dps = append(dps, sfxclient.GaugeF(
-										prefixedMetriclensMetrics[metricName][metricIndex],
+										prefixedMetricLensMetrics[metricName][metricIndex],
 										map[string]string{
 											"account":           conf.Account,
 											"filter":            conf.filters[filterID],
-											metriclensDimension: metricTable.Xvalues[rowIndex],
+											metricLensDimension: metricTable.Xvalues[rowIndex],
 										},
 										metricValue))
 								}
@@ -264,8 +266,8 @@ func (m *Monitor) fetchMetriclensMetrics(contextTimeout time.Duration, semaphore
 func maxGoroutinesPerInterval(metricConfigs []*metricConfig) int {
 	requests := 0
 	for _, metricConfig := range metricConfigs {
-		if metriclensDimensionsLength := len(metricConfig.MetriclensDimensions); metriclensDimensionsLength != 0 {
-			requests += len(metricConfig.Filters) * metriclensDimensionsLength
+		if metricLensDimensionsLength := len(metricConfig.MetricLensDimensions); metricLensDimensionsLength != 0 {
+			requests += len(metricConfig.Filters) * metricLensDimensionsLength
 		} else {
 			requests += len(metricConfig.Filters)
 		}
