@@ -11,7 +11,7 @@ import (
 const (
 	accountsURLFormat             = "https://api.conviva.com/insights/2.4/accounts.json"
 	filtersURLFormat              = "https://api.conviva.com/insights/2.4/filters.json?account=%s"
-	metriclensDimensionsURLFormat = "https://api.conviva.com/insights/2.4/metriclens_dimension_list.json?account=%s"
+	metricLensDimensionsURLFormat = "https://api.conviva.com/insights/2.4/metriclens_dimension_list.json?account=%s"
 )
 
 // account for Conviva account data
@@ -39,13 +39,13 @@ type accountsServiceImpl struct {
 	accounts            map[string]*account
 	ctx                 context.Context
 	timeout             *time.Duration
-	client              *httpClient
+	client              httpClient
 	mutex               *sync.RWMutex
 	accountsInitialized bool
 }
 
 // newAccountsService factory function creating accountsService
-func newAccountsService(ctx context.Context, timeout *time.Duration, client *httpClient) accountsService {
+func newAccountsService(ctx context.Context, timeout *time.Duration, client httpClient) accountsService {
 	service := accountsServiceImpl{ctx: ctx, timeout: timeout, client: client, mutex: &sync.RWMutex{}}
 	return &service
 }
@@ -137,7 +137,7 @@ func (s *accountsServiceImpl) init() error {
 			Count    float64           `json:"count"`
 			Accounts map[string]string `json:"accounts"`
 		}{}
-		if _, err := (*s.client).get(ctx, &res, accountsURLFormat); err != nil {
+		if _, err := s.client.get(ctx, &res, accountsURLFormat); err != nil {
 			return err
 		}
 		s.accounts = make(map[string]*account, len(res.Accounts))
@@ -151,7 +151,7 @@ func (s *accountsServiceImpl) init() error {
 		if err := s.initFilters(); err != nil {
 			return err
 		}
-		if err := s.initMetriclensDimensions(); err != nil {
+		if err := s.initMetricLensDimensions(); err != nil {
 			return err
 		}
 		if err := s.initMetricLensFilters(); err != nil {
@@ -170,7 +170,7 @@ func (s *accountsServiceImpl) initFilters() error {
 		g.Go(func() error {
 			ctx, cancel := context.WithTimeout(s.ctx, *s.timeout)
 			defer cancel()
-			if _, err := (*s.client).get(ctx, &newA.filters, fmt.Sprintf(filtersURLFormat, newA.id)); err != nil {
+			if _, err := s.client.get(ctx, &newA.filters, fmt.Sprintf(filtersURLFormat, newA.id)); err != nil {
 				return err
 			}
 			return nil
@@ -179,7 +179,7 @@ func (s *accountsServiceImpl) initFilters() error {
 	return g.Wait()
 }
 
-func (s *accountsServiceImpl) initMetriclensDimensions() error {
+func (s *accountsServiceImpl) initMetricLensDimensions() error {
 	var g errgroup.Group
 	for _, a := range s.accounts {
 		newA := a
@@ -187,7 +187,7 @@ func (s *accountsServiceImpl) initMetriclensDimensions() error {
 		g.Go(func() error {
 			ctx, cancel := context.WithTimeout(s.ctx, *s.timeout)
 			defer cancel()
-			if _, err := (*s.client).get(ctx, &newA.metricLensDimensions, fmt.Sprintf(metriclensDimensionsURLFormat, newA.id)); err != nil {
+			if _, err := s.client.get(ctx, &newA.metricLensDimensions, fmt.Sprintf(metricLensDimensionsURLFormat, newA.id)); err != nil {
 				return err
 			}
 			return nil
@@ -214,7 +214,7 @@ func (s *accountsServiceImpl) initMetricLensFilters() error {
 				ctx, cancel := context.WithTimeout(s.ctx, *s.timeout)
 				defer cancel()
 				for _, dimID := range newA.metricLensDimensions {
-					if statusCode, err := (*s.client).get(ctx, &map[string]interface{}{}, fmt.Sprintf(metricLensURLFormat, "quality_metriclens", newA.id, newFilterID, int(dimID))); err == nil && statusCode == 200 {
+					if statusCode, err := s.client.get(ctx, &map[string]interface{}{}, fmt.Sprintf(metricLensURLFormat, "quality_metriclens", newA.id, newFilterID, int(dimID))); err == nil && statusCode == 200 {
 						mutex.Lock()
 						newA.metricLensFilters[newFilterID] = newFilter
 						mutex.Unlock()
