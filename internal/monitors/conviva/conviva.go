@@ -22,7 +22,7 @@ const monitorType = "conviva"
 // MONITOR(conviva): This monitor uses version 2.4 of the Conviva Experience Insights REST APIs to pull
 // `Real-Time/Live` video playing experience metrics from Conviva.
 //
-// Only `Live` conviva metrics listed
+// Only `Live` conviva metrics
 // [here](https://community.conviva.com/site/global/apis_data/experience_insights_api/index.gsp#metrics)
 // are supported. The metrics are gauges. They are converted to SignalFx metrics with account and filter
 // name dimensions. In the case of MetricLenses, the constituent metrics and the Conviva MetricLens dimensions
@@ -40,7 +40,9 @@ const monitorType = "conviva"
 //  pulsePassword: <password>
 // ```
 //
-// Individual metrics are configured as a list of metricConfigs as shown in sample configuration below.
+// Individual metrics are configured as a list of metricConfigs as shown in sample configuration below. The
+// metrics a fetched using the specified metricParameter. Find the list of metric parameters
+// [here](https://github.com/signalfx/integrations/blob/master/conviva/docs/conviva_metrics.md)
 // The Conviva metrics reported to SignalFx are prefixed by `conviva.`, `conviva.quality_metriclens.` and
 // `conviva.audience_metriclens.` accordingly. The metric names are the `titles` of the metrics
 // [here](https://github.com/signalfx/integrations/tree/master/conviva/docs) which correspond to the Conviva
@@ -57,16 +59,16 @@ const monitorType = "conviva"
 //  pulsePassword: <password>
 //  metricConfigs:
 //    - account: c3.NBC
-//      metric: quality_metriclens
+//      metricParameter: quality_metriclens
 //      filters:
 //        - All Traffic
 //      metricLensDimensions:
 //        - Cities
-//    - metric: avg_bitrate
+//    - metricParameter: avg_bitrate
 //      filters:
 //        - _ALL_
-//    - metric: concurrent_plays
-//    - metric: audience_metriclens
+//    - metricParameter: concurrent_plays
+//    - metricParameter: audience_metriclens
 //      filters:
 //        - All Traffic
 //      metricLensDimensions:
@@ -122,7 +124,7 @@ func init() {
 // Configure monitor
 func (m *Monitor) Configure(conf *Config) error {
 	if conf.MetricConfigs == nil {
-		conf.MetricConfigs = []*metricConfig{{Metric: "quality_metriclens"}}
+		conf.MetricConfigs = []*metricConfig{{MetricParameter: "quality_metriclens"}}
 	}
 	m.timeout = time.Duration(conf.TimeoutSeconds) * time.Second
 	m.client = newConvivaClient(&http.Client{
@@ -138,7 +140,7 @@ func (m *Monitor) Configure(conf *Config) error {
 	utils.RunOnInterval(m.ctx, func() {
 		for _, metricConf := range conf.MetricConfigs {
 			metricConf.init(service)
-			if strings.Contains(metricConf.Metric, "metriclens") {
+			if strings.Contains(metricConf.MetricParameter, "metriclens") {
 				m.fetchMetricLensMetrics(interval, semaphore, metricConf)
 			} else {
 				m.fetchMetrics(interval, semaphore, metricConf)
@@ -164,13 +166,13 @@ func (m *Monitor) fetchMetrics(contextTimeout time.Duration, semaphore chan stru
 			defer cancel()
 			var res map[string]metricResponse
 			if _, err := m.client.get(ctx, &res, url); err != nil {
-				logger.Errorf("GET metric %s failed. %+v", metricConf.Metric, err)
+				logger.Errorf("GET metric %s failed. %+v", metricConf.MetricParameter, err)
 				return
 			}
 			dps := make([]*datapoint.Datapoint, 0)
-			for metricName, series := range res {
+			for metricParameter, series := range res {
 				metricConf.logFilterStatuses(series.Meta.FiltersWarmup, series.Meta.FiltersNotExist, series.Meta.FiltersIncompleteData)
-				prefixedMetricName := "conviva." + metricName
+				metricName := "conviva." + metricParameter
 				for filterID, metricValues := range series.FilterIDValuesMap {
 					for i, metricValue := range metricValues {
 						select {
@@ -179,7 +181,7 @@ func (m *Monitor) fetchMetrics(contextTimeout time.Duration, semaphore chan stru
 							return
 						default:
 							dp := sfxclient.GaugeF(
-								prefixedMetricName,
+								metricName,
 								map[string]string{"account": metricConf.Account, "filter": metricConf.filtersMap[filterID]},
 								metricValue)
 							// Checking the type of series and setting dimensions accordingly
@@ -201,7 +203,7 @@ func (m *Monitor) fetchMetrics(contextTimeout time.Duration, semaphore chan stru
 			for i := range dps {
 				m.Output.SendDatapoint(dps[i])
 			}
-		}(contextTimeout, m, fmt.Sprintf(metricURLFormat, metricConf.Metric, metricConf.accountID, strings.Join(metricConf.filterIDs(), ",")))
+		}(contextTimeout, m, fmt.Sprintf(metricURLFormat, metricConf.MetricParameter, metricConf.accountID, strings.Join(metricConf.filterIDs(), ",")))
 	}
 }
 
@@ -221,11 +223,11 @@ func (m *Monitor) fetchMetricLensMetrics(contextTimeout time.Duration, semaphore
 				defer cancel()
 				var res map[string]metricResponse
 				if _, err := m.client.get(ctx, &res, url); err != nil {
-					logger.Errorf("GET metric %s failed. %+v", conf.Metric, err)
+					logger.Errorf("GET metric %s failed. %+v", conf.MetricParameter, err)
 					return
 				}
 				dps := make([]*datapoint.Datapoint, 0)
-				for metricName, metricTable := range res {
+				for metricParameter, metricTable := range res {
 					conf.logFilterStatuses(metricTable.Meta.FiltersWarmup, metricTable.Meta.FiltersNotExist, metricTable.Meta.FiltersIncompleteData)
 					for filterID, tableValue := range metricTable.Tables {
 						for rowIndex, row := range tableValue.Rows {
@@ -236,7 +238,7 @@ func (m *Monitor) fetchMetricLensMetrics(contextTimeout time.Duration, semaphore
 							default:
 								for metricIndex, metricValue := range row {
 									dps = append(dps, sfxclient.GaugeF(
-										prefixedMetricLensMetrics[metricName][metricIndex],
+										metricLensMetrics[metricParameter][metricIndex],
 										map[string]string{
 											"account":           conf.Account,
 											"filter":            conf.filtersMap[filterID],
@@ -254,7 +256,7 @@ func (m *Monitor) fetchMetricLensMetrics(contextTimeout time.Duration, semaphore
 					dps[i].Meta[dpmeta.NotHostSpecificMeta] = true
 					m.Output.SendDatapoint(dps[i])
 				}
-			}(contextTimeout, m, metricConf, dim, fmt.Sprintf(metricLensURLFormat, metricConf.Metric, metricConf.accountID, strings.Join(metricConf.filterIDs(), ","), int(dimID)))
+			}(contextTimeout, m, metricConf, dim, fmt.Sprintf(metricLensURLFormat, metricConf.MetricParameter, metricConf.accountID, strings.Join(metricConf.filterIDs(), ","), int(dimID)))
 		}
 	}
 }
