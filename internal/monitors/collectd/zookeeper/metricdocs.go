@@ -25,4 +25,3 @@ package zookeeper
 // GAUGE(gauge.zk_watch_count): Number of watches placed on Z-Nodes on a ZooKeeper server
 
 // GAUGE(gauge.zk_znode_count): Number of z-nodes that a ZooKeeper server has in its data tree
-

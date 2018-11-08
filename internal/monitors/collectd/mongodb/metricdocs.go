@@ -113,4 +113,3 @@ package mongodb
 // COUNTER(gauge.uptime): Uptime of this server in milliseconds
 
 // DIMENSION(plugin_instance): Port number of the MongoDB instance
-
