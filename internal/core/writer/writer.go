@@ -70,6 +70,7 @@ type SignalFxWriter struct {
 	traceSpanRequestsActive int64
 	traceSpansInFlight      int64
 	traceSpansSent          int64
+	traceSpansDropped       int64
 	eventsSent              int64
 	startTime               time.Time
 }
