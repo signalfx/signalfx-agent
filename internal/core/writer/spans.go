@@ -56,6 +56,7 @@ func (sw *SignalFxWriter) listenForTraceSpans() {
 					log.WithFields(log.Fields{
 						"error": err,
 					}).Errorf("Error shipping %d trace spans to SignalFx", len(buf))
+					atomic.AddInt64(&sw.traceSpansDropped, int64(len(buf)))
 					// If there is an error sending spans then just forget about them.
 					return
 				}

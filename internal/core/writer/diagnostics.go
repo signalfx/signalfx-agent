@@ -58,6 +58,7 @@ func (sw *SignalFxWriter) InternalMetrics() []*datapoint.Datapoint {
 		sfxclient.Gauge("sfxagent.datapoint_requests_active", nil, sw.dpRequestsActive),
 		sfxclient.Gauge("sfxagent.events_buffered", nil, int64(len(sw.eventBuffer))),
 		sfxclient.Cumulative("sfxagent.trace_spans_sent", nil, int64(sw.traceSpansSent)),
+		sfxclient.Cumulative("sfxagent.trace_spans_dropped", nil, int64(sw.traceSpansDropped)),
 		sfxclient.Gauge("sfxagent.trace_spans_buffered", nil, int64(len(sw.spanChan))),
 		sfxclient.Gauge("sfxagent.trace_spans_in_flight", nil, sw.traceSpansInFlight),
 		sfxclient.Gauge("sfxagent.trace_span_requests_active", nil, sw.traceSpanRequestsActive),
