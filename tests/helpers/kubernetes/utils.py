@@ -1,30 +1,16 @@
 import os
 import re
-import socket
-from contextlib import contextmanager
 from functools import partial as p
 
-import docker
 import yaml
 from kubernetes import client as kube_client
 from kubernetes.client.rest import ApiException
+from kubernetes.stream import stream
 
 from tests.helpers.assertions import has_any_metric_or_dim
-from tests.helpers.formatting import print_dp_or_event
-from tests.helpers.util import container_ip, fake_backend, get_host_ip, get_observer_dims_from_selfdescribe, wait_for
+from tests.helpers.util import get_observer_dims_from_selfdescribe, wait_for
 
-CUR_DIR = os.path.dirname(os.path.realpath(__file__))
-AGENT_YAMLS_DIR = os.environ.get("AGENT_YAMLS_DIR", os.path.realpath(os.path.join(CUR_DIR, "../../../deployments/k8s")))
-AGENT_CONFIGMAP_PATH = os.environ.get("AGENT_CONFIGMAP_PATH", os.path.join(AGENT_YAMLS_DIR, "configmap.yaml"))
-AGENT_DAEMONSET_PATH = os.environ.get("AGENT_DAEMONSET_PATH", os.path.join(AGENT_YAMLS_DIR, "daemonset.yaml"))
-AGENT_SERVICEACCOUNT_PATH = os.environ.get(
-    "AGENT_SERVICEACCOUNT_PATH", os.path.join(AGENT_YAMLS_DIR, "serviceaccount.yaml")
-)
-AGENT_CLUSTERROLE_PATH = os.environ.get("AGENT_CLUSTERROLE_PATH", os.path.join(AGENT_YAMLS_DIR, "clusterrole.yaml"))
-AGENT_CLUSTERROLEBINDING_PATH = os.environ.get(
-    "AGENT_CLUSTERROLEBINDING_PATH", os.path.join(AGENT_YAMLS_DIR, "clusterrolebinding.yaml")
-)
-K8S_CREATE_TIMEOUT = 180
+K8S_CREATE_TIMEOUT = int(os.environ.get("K8S_CREATE_TIMEOUT", 300))
 K8S_DELETE_TIMEOUT = 10
 
 
@@ -68,6 +54,13 @@ def run_k8s_monitors_test(  # pylint: disable=too-many-locals,too-many-arguments
                                              agent container logs
     test_timeout (int):                    Timeout in seconds to wait for metrics/dimensions
     """
+    try:
+        monitors = yaml.load(monitors)
+    except AttributeError:
+        pass
+    if isinstance(monitors, dict):
+        monitors = [monitors]
+    assert isinstance(monitors, list), "unknown type/defintion for monitors:\n%s\n" % monitors
     if not yamls:
         yamls = []
     if not expected_metrics:
@@ -80,82 +73,20 @@ def run_k8s_monitors_test(  # pylint: disable=too-many-locals,too-many-arguments
     if passwords is None:
         passwords = ["testing123"]
 
-    with run_k8s_with_agent(agent_image, minikube, monitors, observer, namespace, yamls, yamls_timeout) as [
-        backend,
-        agent,
-    ]:
-        assert wait_for(
-            p(has_any_metric_or_dim, backend, expected_metrics, expected_dims), timeout_seconds=test_timeout
-        ), (
-            "timed out waiting for metrics in %s with any dimensions in %s!\n\n"
-            "AGENT STATUS:\n%s\n\n"
-            "AGENT CONTAINER LOGS:\n%s\n"
-            % (expected_metrics, expected_dims, agent.get_status(), agent.get_container_logs())
-        )
-        agent_status = agent.get_status()
-        container_logs = agent.get_container_logs()
-        assert all([p not in agent_status for p in passwords]), (
-            "cleartext password(s) found in agent-status output!\n\n%s\n" % agent_status
-        )
-        assert all([p not in container_logs for p in passwords]), (
-            "cleartext password(s) found in agent container logs!\n\n%s\n" % container_logs
-        )
-
-
-@contextmanager
-def run_k8s_with_agent(
-    agent_image, minikube, monitors, observer=None, namespace="default", yamls=None, yamls_timeout=K8S_CREATE_TIMEOUT
-):
-    """
-    Runs a minikube environment with the agent and a set of specified
-    resources.
-
-    Required Args:
-    agent_image (dict):                    Dict object from the agent_image fixture
-    minikube (Minikube):                   Minkube object from the minikube fixture
-    monitors (str, dict, or list of dict): YAML-based definition of monitor(s) for the smart agent agent.yaml
-
-    Optional Args:
-    observer (str):                        Observer for the smart agent agent.yaml (if None,
-                                             the agent.yaml will not be configured for an observer)
-    namespace (str):                       K8S namespace for the smart agent and deployments
-    yamls (list of str):                   Path(s) to K8S deployment yamls to create
-    yamls_timeout (int):                   Timeout in seconds to wait for the K8S deployments to be ready
-    """
-    if yamls is None:
-        yamls = []
-    try:
-        monitors = yaml.load(monitors)
-    except AttributeError:
-        pass
-    if isinstance(monitors, dict):
-        monitors = [monitors]
-    assert isinstance(monitors, list), "unknown type/defintion for monitors:\n%s\n" % monitors
-    with fake_backend.start(ip_addr=get_host_ip()) as backend:
-        with minikube.deploy_k8s_yamls(yamls, namespace=namespace, timeout=yamls_timeout):
-            with minikube.deploy_agent(
-                AGENT_CONFIGMAP_PATH,
-                AGENT_DAEMONSET_PATH,
-                AGENT_SERVICEACCOUNT_PATH,
-                AGENT_CLUSTERROLE_PATH,
-                AGENT_CLUSTERROLEBINDING_PATH,
-                observer=observer,
-                monitors=monitors,
-                cluster_name="minikube",
-                backend=backend,
-                image_name=agent_image["name"],
-                image_tag=agent_image["tag"],
-                namespace=namespace,
-            ) as agent:
-                try:
-                    yield [backend, agent]
-                finally:
-                    print("\nDatapoints received:")
-                    for dp in backend.datapoints:
-                        print_dp_or_event(dp)
-                    print("\nEvents received:")
-                    for event in backend.events:
-                        print_dp_or_event(event)
+    with minikube.create_resources(yamls, namespace=namespace, timeout=yamls_timeout):
+        with minikube.run_agent(agent_image, observer=observer, monitors=monitors, namespace=namespace) as [
+            agent,
+            backend,
+        ]:
+            assert wait_for(
+                p(has_any_metric_or_dim, backend, expected_metrics, expected_dims), timeout_seconds=test_timeout
+            ), "timed out waiting for metrics in %s with any dimensions in %s!" % (expected_metrics, expected_dims)
+            assert all(
+                [p not in agent.get_status() for p in passwords]
+            ), "cleartext password(s) found in agent-status output!"
+            assert all(
+                [p not in agent.get_logs() for p in passwords]
+            ), "cleartext password(s) found in agent container logs!"
 
 
 def has_namespace(name):
@@ -215,10 +146,7 @@ def create_serviceaccount(body, namespace=None, timeout=K8S_CREATE_TIMEOUT):
     if namespace:
         body["metadata"]["namespace"] = namespace
     else:
-        try:
-            namespace = body["metadata"]["namespace"]
-        except KeyError:
-            namespace = "default"
+        namespace = body["metadata"].get("namespace", "default")
     if not has_namespace(namespace):
         create_namespace(namespace)
     serviceaccount = api.create_namespaced_service_account(body=body, namespace=namespace)
@@ -373,26 +301,14 @@ def has_deployment(name, namespace="default"):
         raise
 
 
-def deployment_is_ready(name, replicas, namespace="default"):
+def deployment_is_ready(name, namespace="default"):
     api = kube_client.ExtensionsV1beta1Api()
     if not has_deployment(name, namespace=namespace):
         return False
-    if api.read_namespaced_deployment_status(name, namespace=namespace).status.ready_replicas == replicas:
-        return True
+    status = api.read_namespaced_deployment_status(name, namespace=namespace).status
+    if status and status.ready_replicas and status.available_replicas:
+        return status.ready_replicas == status.available_replicas
     return False
-
-
-def wait_for_deployment(deployment, timeout):
-    """
-    Waits for all pods in a deployment to be ready
-    """
-    name = deployment["metadata"]["name"]
-    replicas = deployment["spec"]["replicas"]
-    namespace = deployment["metadata"]["namespace"]
-
-    assert wait_for(
-        p(deployment_is_ready, name, replicas, namespace=namespace), timeout_seconds=timeout, interval_seconds=2
-    ), 'timed out waiting for deployment "%s" to be ready!\n%s' % (name, get_pod_logs(name, namespace=namespace))
 
 
 def delete_deployment(name, namespace="default", timeout=K8S_DELETE_TIMEOUT):
@@ -424,25 +340,16 @@ def daemonset_is_ready(name, namespace="default"):
     api = kube_client.ExtensionsV1beta1Api()
     if not has_daemonset(name, namespace=namespace):
         return False
-    if api.read_namespaced_daemon_set_status(name, namespace=namespace).status.number_ready > 0:
-        return True
+    status = api.read_namespaced_daemon_set_status(name, namespace=namespace).status
+    if status and status.number_ready and status.number_ready:
+        return status.number_ready == status.number_available
     return False
 
 
 def create_daemonset(body, namespace=None, timeout=K8S_CREATE_TIMEOUT):
-    api = kube_client.ExtensionsV1beta1Api()
     name = body["metadata"]["name"]
-    body["apiVersion"] = "extensions/v1beta1"
-    if namespace:
-        body["metadata"]["namespace"] = namespace
-    else:
-        try:
-            namespace = body["metadata"]["namespace"]
-        except KeyError:
-            namespace = "default"
-    if not has_namespace(namespace):
-        create_namespace(namespace)
-    daemonset = api.create_namespaced_daemon_set(body=body, namespace=namespace)
+    api = api_client_from_version(body["apiVersion"])
+    daemonset = create_resource(body, api, namespace=namespace, timeout=timeout)
     assert wait_for(p(daemonset_is_ready, name, namespace=namespace), timeout_seconds=timeout), (
         'timed out waiting for daemonset "%s" to be ready!' % name
     )
@@ -463,24 +370,48 @@ def delete_daemonset(name, namespace="default", timeout=K8S_DELETE_TIMEOUT):
     )
 
 
+def get_pods_by_labels(labels, namespace="default"):
+    """
+    Returns a list of pods matching `labels` within `namespace`.
+    `labels` should be a comma-separated string of "key=value" pairs.
+    """
+    api = kube_client.CoreV1Api()
+    return api.list_namespaced_pod(namespace, label_selector=labels).items
+
+
 def exec_pod_command(name, command, namespace="default"):
     api = kube_client.CoreV1Api()
-    pods = get_all_pods_starting_with_name(name, namespace=namespace)
-    assert len(pods) == 1, 'multiple pods found with name "%s"!\n%s' % (
-        name,
-        "\n".join([p.metadata.name for p in pods]),
-    )
-    return api.connect_post_namespaced_pod_exec(name=pods[0].metadata.name, command=command, namespace=namespace)
+    pod = api.read_namespaced_pod(name, namespace=namespace)
+    return stream(
+        api.connect_get_namespaced_pod_exec,
+        name=pod.metadata.name,
+        command=command,
+        namespace=namespace,
+        stderr=True,
+        stdin=False,
+        stdout=True,
+        tty=False,
+        _preload_content=True,
+        _request_timeout=5,
+    ).strip()
 
 
 def get_pod_logs(name, namespace="default"):
     api = kube_client.CoreV1Api()
     pods = get_all_pods_starting_with_name(name, namespace=namespace)
-    assert len(pods) == 1, 'multiple pods found with name "%s"!\n%s' % (
-        name,
-        "\n".join([p.metadata.name for p in pods]),
-    )
-    return api.read_namespaced_pod_log(name=pods[0].metadata.name, namespace=namespace)
+    assert pods, "no pods found with name '%s'" % name
+    logs = ""
+    for pod in pods:
+        for container in pod.status.container_statuses:
+            logs += "%s container log:\n" % container.name
+            try:
+                logs += api.read_namespaced_pod_log(
+                    name=pod.metadata.name, container=container.name, namespace=namespace
+                ).strip()
+            except ApiException as e:
+                logs += "failed to get log:\n%s" % str(e).strip()
+            logs += "\n"
+    return logs.strip()
 
 
 def get_all_pods(namespace=None):
@@ -557,79 +488,12 @@ def all_pods_have_ips(namespace="default"):
     return False
 
 
-def get_all_logs(minikube):
-    """
-    Args:
-    minikube (Minikube): Minikube instance
-
-    Returns:
-    String containing:
-    - the output from 'agent-status'
-    - the agent container logs
-    - the output from 'minikube logs'
-    - the minikube container logs
-    - the status of all pods
-    """
-    try:
-        agent_status = "AGENT STATUS:\n" + minikube.agent.get_status()
-    except:  # noqa pylint: disable=bare-except
-        agent_status = ""
-
-    try:
-        agent_container_logs = "AGENT CONTAINER LOGS:\n" + minikube.agent.get_container_logs()
-    except:  # noqa pylint: disable=bare-except
-        agent_container_logs = ""
-
-    try:
-        minikube_logs = minikube.get_logs()
-    except:  # noqa pylint: disable=bare-except
-        minikube_logs = ""
-
-    try:
-        pods_status = ""
-        for pod in get_all_pods():
-            pods_status += "%s\t%s\t%s\n" % (pod.status.pod_ip, pod.metadata.namespace, pod.metadata.name)
-        pods_status = "PODS STATUS:\n" + pods_status.strip()
-    except:  # noqa pylint: disable=bare-except
-        pods_status = ""
-    return "%s\n\n%s\n\n%s\n\n%s\n" % (agent_status, agent_container_logs, minikube_logs, pods_status)
-
-
-def has_docker_image(client, name, tag=None):
-    try:
-        if tag:
-            client.images.get(name + ":" + tag)
-        else:
-            client.images.get(name)
-        return True
-    except docker.errors.ImageNotFound:
-        return False
-
-
-def container_is_running(client, name):
-    try:
-        cont = client.containers.get(name)
-        cont.reload()
-        if cont.status.lower() != "running":
-            return False
-        return container_ip(cont)
-    except docker.errors.NotFound:
-        return False
-    except docker.errors.APIError as e:
-        if "is not running" in str(e):
-            return False
-        raise
-
-
-def pod_port_open(container, host, port):
-    exit_code, _ = container.exec_run("nc -z %s %d" % (host, port))
-    return exit_code == 0
-
-
-def get_free_port():
-    sock = socket.socket()
-    sock.bind(("", 0))
-    return sock.getsockname()[1]
+def pod_is_ready(name, namespace="default"):
+    api = kube_client.CoreV1Api()
+    pod = api.read_namespaced_pod(name, namespace=namespace)
+    return pod.status.phase.lower() == "running" and all(
+        [container.ready for container in pod.status.container_statuses]
+    )
 
 
 def get_discovery_rule(yaml_file, observer, namespace="", container_index=0):

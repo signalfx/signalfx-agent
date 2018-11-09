@@ -88,6 +88,7 @@ def print_lines(msg):
 
 
 def container_ip(container):
+    container.reload()
     return container.attrs["NetworkSettings"]["IPAddress"]
 
 

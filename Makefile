@@ -124,7 +124,7 @@ run-integration-tests:
 	AGENT_BIN=/bundle/bin/signalfx-agent \
 	pytest \
 		-m "not packaging and not installer and not k8s and not windows_only and not deployment" \
-		-n 4 \
+		-n auto \
 		--verbose \
 		--html=test_output/results.html \
 		--self-contained-html \
@@ -138,17 +138,17 @@ ifdef K8S_SFX_AGENT
 endif
 .PHONY: run-k8s-tests
 run-k8s-tests:
-	docker rm -f -v minikube || true
 	pytest \
 		-m "k8s" \
-		-n 4 \
+		-n auto \
 		--verbose \
 		--exitfirst \
 		--k8s-observers=k8s-api,k8s-kubelet \
 		--html=test_output/k8s_results.html \
 		--self-contained-html \
-		$(agent_image_arg) $(k8s_version_arg) tests || true
-	docker rm -f -v minikube
+		$(agent_image_arg) $(k8s_version_arg) tests || \
+	(docker ps | grep -q minikube && echo "minikube container is left running for debugging purposes"; return 1) && \
+	docker rm -fv minikube
 
 .PHONY: docs
 docs:
@@ -202,3 +202,9 @@ run-devstack:
 .PHONY: run-chef-tests
 run-chef-tests:
 	pytest -v -n auto -m chef --html=test_output/chef_results.html --self-contained-html tests/deployments
+
+K8S_VERSION ?= latest
+.PHONY: run-minikube
+run-minikube:
+	python -c 'from tests.helpers.kubernetes.minikube import Minikube; mk = Minikube(); mk.deploy("$(K8S_VERSION)")' && \
+	docker exec -it $(docker_env) minikube /bin/bash
