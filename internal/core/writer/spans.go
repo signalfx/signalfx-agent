@@ -48,20 +48,20 @@ func (sw *SignalFxWriter) listenForTraceSpans() {
 				atomic.AddInt64(&sw.traceSpanRequestsActive, 1)
 				// This sends synchonously
 				err := sw.client.AddSpans(context.Background(), buf)
+				<-reqSema
+				atomic.AddInt64(&sw.traceSpanRequestsActive, -1)
+				atomic.AddInt64(&sw.traceSpansInFlight, -int64(len(buf)))
+
 				if err != nil {
 					log.WithFields(log.Fields{
 						"error": err,
-					}).Error("Error shipping trace spans to SignalFx")
+					}).Errorf("Error shipping %d trace spans to SignalFx", len(buf))
 					// If there is an error sending spans then just forget about them.
 					return
 				}
 				atomic.AddInt64(&sw.traceSpansSent, int64(len(buf)))
 				log.Debugf("Sent %d trace spans to SignalFx", len(buf))
 
-				<-reqSema
-
-				atomic.AddInt64(&sw.traceSpanRequestsActive, -1)
-				atomic.AddInt64(&sw.traceSpansInFlight, -int64(len(buf)))
 			}()
 		}
 	}
