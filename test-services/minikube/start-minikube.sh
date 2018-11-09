@@ -19,6 +19,7 @@
 
 exec &> >(tee -a /var/log/start-minikube.log)
 
+KUBECONFIG_PATH=${KUBECONFIG_PATH:-"/kubeconfig"}
 TIMEOUT=${TIMEOUT:-"300"}
 K8S_VERSION=${K8S_VERSION:-"latest"}
 if [ "$K8S_VERSION" = "latest" ]; then
@@ -124,5 +125,5 @@ if ! cluster_is_ready; then
     exit 1
 fi
 kubectl version
-kubectl config view --merge=true --flatten=true > /kubeconfig
+kubectl config view --merge=true --flatten=true > "$KUBECONFIG_PATH"
 exit 0

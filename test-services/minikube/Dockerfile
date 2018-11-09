@@ -99,4 +99,4 @@ COPY config.json /root/.minikube/config/config.json
 RUN apt-get clean && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
-CMD /lib/systemd/systemd
+ENTRYPOINT ["/lib/systemd/systemd"]
