@@ -1,7 +1,6 @@
 import os
 import re
 import socket
-from contextlib import contextmanager
 from functools import partial as p
 
 import docker
@@ -10,21 +9,9 @@ from kubernetes import client as kube_client
 from kubernetes.client.rest import ApiException
 
 from tests.helpers.assertions import has_any_metric_or_dim
-from tests.helpers.formatting import print_dp_or_event
-from tests.helpers.util import container_ip, fake_backend, get_host_ip, get_observer_dims_from_selfdescribe, wait_for
+from tests.helpers.util import container_ip, get_observer_dims_from_selfdescribe, wait_for
 
-CUR_DIR = os.path.dirname(os.path.realpath(__file__))
-AGENT_YAMLS_DIR = os.environ.get("AGENT_YAMLS_DIR", os.path.realpath(os.path.join(CUR_DIR, "../../../deployments/k8s")))
-AGENT_CONFIGMAP_PATH = os.environ.get("AGENT_CONFIGMAP_PATH", os.path.join(AGENT_YAMLS_DIR, "configmap.yaml"))
-AGENT_DAEMONSET_PATH = os.environ.get("AGENT_DAEMONSET_PATH", os.path.join(AGENT_YAMLS_DIR, "daemonset.yaml"))
-AGENT_SERVICEACCOUNT_PATH = os.environ.get(
-    "AGENT_SERVICEACCOUNT_PATH", os.path.join(AGENT_YAMLS_DIR, "serviceaccount.yaml")
-)
-AGENT_CLUSTERROLE_PATH = os.environ.get("AGENT_CLUSTERROLE_PATH", os.path.join(AGENT_YAMLS_DIR, "clusterrole.yaml"))
-AGENT_CLUSTERROLEBINDING_PATH = os.environ.get(
-    "AGENT_CLUSTERROLEBINDING_PATH", os.path.join(AGENT_YAMLS_DIR, "clusterrolebinding.yaml")
-)
-K8S_CREATE_TIMEOUT = 180
+K8S_CREATE_TIMEOUT = int(os.environ.get("K8S_CREATE_TIMEOUT", 300))
 K8S_DELETE_TIMEOUT = 10
 
 
@@ -68,6 +55,13 @@ def run_k8s_monitors_test(  # pylint: disable=too-many-locals,too-many-arguments
                                              agent container logs
     test_timeout (int):                    Timeout in seconds to wait for metrics/dimensions
     """
+    try:
+        monitors = yaml.load(monitors)
+    except AttributeError:
+        pass
+    if isinstance(monitors, dict):
+        monitors = [monitors]
+    assert isinstance(monitors, list), "unknown type/defintion for monitors:\n%s\n" % monitors
     if not yamls:
         yamls = []
     if not expected_metrics:
@@ -80,82 +74,17 @@ def run_k8s_monitors_test(  # pylint: disable=too-many-locals,too-many-arguments
     if passwords is None:
         passwords = ["testing123"]
 
-    with run_k8s_with_agent(agent_image, minikube, monitors, observer, namespace, yamls, yamls_timeout) as [
-        backend,
-        agent,
-    ]:
+    config = dict(observer=observer, monitors=monitors, namespace=namespace)
+    with minikube.run_agent(agent_image, yamls=yamls, yamls_timeout=yamls_timeout, **config) as [agent, backend]:
         assert wait_for(
             p(has_any_metric_or_dim, backend, expected_metrics, expected_dims), timeout_seconds=test_timeout
-        ), (
-            "timed out waiting for metrics in %s with any dimensions in %s!\n\n"
-            "AGENT STATUS:\n%s\n\n"
-            "AGENT CONTAINER LOGS:\n%s\n"
-            % (expected_metrics, expected_dims, agent.get_status(), agent.get_container_logs())
-        )
-        agent_status = agent.get_status()
-        container_logs = agent.get_container_logs()
-        assert all([p not in agent_status for p in passwords]), (
-            "cleartext password(s) found in agent-status output!\n\n%s\n" % agent_status
-        )
-        assert all([p not in container_logs for p in passwords]), (
-            "cleartext password(s) found in agent container logs!\n\n%s\n" % container_logs
-        )
-
-
-@contextmanager
-def run_k8s_with_agent(
-    agent_image, minikube, monitors, observer=None, namespace="default", yamls=None, yamls_timeout=K8S_CREATE_TIMEOUT
-):
-    """
-    Runs a minikube environment with the agent and a set of specified
-    resources.
-
-    Required Args:
-    agent_image (dict):                    Dict object from the agent_image fixture
-    minikube (Minikube):                   Minkube object from the minikube fixture
-    monitors (str, dict, or list of dict): YAML-based definition of monitor(s) for the smart agent agent.yaml
-
-    Optional Args:
-    observer (str):                        Observer for the smart agent agent.yaml (if None,
-                                             the agent.yaml will not be configured for an observer)
-    namespace (str):                       K8S namespace for the smart agent and deployments
-    yamls (list of str):                   Path(s) to K8S deployment yamls to create
-    yamls_timeout (int):                   Timeout in seconds to wait for the K8S deployments to be ready
-    """
-    if yamls is None:
-        yamls = []
-    try:
-        monitors = yaml.load(monitors)
-    except AttributeError:
-        pass
-    if isinstance(monitors, dict):
-        monitors = [monitors]
-    assert isinstance(monitors, list), "unknown type/defintion for monitors:\n%s\n" % monitors
-    with fake_backend.start(ip_addr=get_host_ip()) as backend:
-        with minikube.deploy_k8s_yamls(yamls, namespace=namespace, timeout=yamls_timeout):
-            with minikube.deploy_agent(
-                AGENT_CONFIGMAP_PATH,
-                AGENT_DAEMONSET_PATH,
-                AGENT_SERVICEACCOUNT_PATH,
-                AGENT_CLUSTERROLE_PATH,
-                AGENT_CLUSTERROLEBINDING_PATH,
-                observer=observer,
-                monitors=monitors,
-                cluster_name="minikube",
-                backend=backend,
-                image_name=agent_image["name"],
-                image_tag=agent_image["tag"],
-                namespace=namespace,
-            ) as agent:
-                try:
-                    yield [backend, agent]
-                finally:
-                    print("\nDatapoints received:")
-                    for dp in backend.datapoints:
-                        print_dp_or_event(dp)
-                    print("\nEvents received:")
-                    for event in backend.events:
-                        print_dp_or_event(event)
+        ), "timed out waiting for metrics in %s with any dimensions in %s!" % (expected_metrics, expected_dims)
+        assert all(
+            [p not in agent.get_status() for p in passwords]
+        ), "cleartext password(s) found in agent-status output!"
+        assert all(
+            [p not in agent.get_container_logs() for p in passwords]
+        ), "cleartext password(s) found in agent container logs!"
 
 
 def has_namespace(name):
@@ -480,7 +409,17 @@ def get_pod_logs(name, namespace="default"):
         name,
         "\n".join([p.metadata.name for p in pods]),
     )
-    return api.read_namespaced_pod_log(name=pods[0].metadata.name, namespace=namespace)
+    logs = ""
+    for container in pods[0].status.container_statuses:
+        logs += "%s container log:\n" % container.name
+        try:
+            logs += api.read_namespaced_pod_log(
+                name=pods[0].metadata.name, container=container.name, namespace=namespace
+            ).strip()
+        except ApiException as e:
+            logs += "failed to get log:\n%s" % str(e).strip()
+        logs += "\n"
+    return logs
 
 
 def get_all_pods(namespace=None):

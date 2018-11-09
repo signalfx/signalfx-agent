@@ -8,6 +8,7 @@ import tempfile
 import threading
 import time
 from contextlib import contextmanager
+from functools import partial as p
 
 import docker
 import yaml
@@ -280,3 +281,15 @@ def get_agent_status(config_path="/etc/signalfx/agent.yaml"):
         [AGENT_BIN, "status", "-config", config_path], stdout=subprocess.PIPE, stderr=subprocess.STDOUT
     )
     return status_proc.stdout.read().decode("utf-8")
+
+
+def retry(function, exception, max_attempts=5, interval_seconds=5):
+    """
+    Retry function up to max_attempts if exception is caught
+    """
+    for attempt in range(max_attempts):
+        try:
+            return function()
+        except exception as e:
+            assert attempt < (max_attempts - 1), "%s failed after %d attempts!\n%s" % (function, max_attempts, str(e))
+        time.sleep(interval_seconds)

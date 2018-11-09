@@ -123,7 +123,7 @@ run-integration-tests:
 	AGENT_BIN=/bundle/bin/signalfx-agent \
 	pytest \
 		-m "not packaging and not installer and not k8s and not windows_only" \
-		-n 4 \
+		-n auto \
 		--verbose \
 		--html=test_output/results.html \
 		--self-contained-html \
@@ -140,7 +140,7 @@ run-k8s-tests:
 	docker rm -f -v minikube || true
 	pytest \
 		-m "k8s" \
-		-n 4 \
+		-n auto \
 		--verbose \
 		--exitfirst \
 		--k8s-observers=k8s-api,k8s-kubelet \

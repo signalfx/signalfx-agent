@@ -1,4 +1,6 @@
+import os
 import time
+from contextlib import contextmanager
 from functools import partial as p
 
 import yaml
@@ -22,6 +24,18 @@ from tests.helpers.kubernetes.utils import (
     has_serviceaccount,
 )
 from tests.helpers.util import get_internal_status_host, wait_for
+
+CUR_DIR = os.path.dirname(os.path.realpath(__file__))
+AGENT_YAMLS_DIR = os.environ.get("AGENT_YAMLS_DIR", os.path.realpath(os.path.join(CUR_DIR, "../../../deployments/k8s")))
+AGENT_CONFIGMAP_PATH = os.environ.get("AGENT_CONFIGMAP_PATH", os.path.join(AGENT_YAMLS_DIR, "configmap.yaml"))
+AGENT_DAEMONSET_PATH = os.environ.get("AGENT_DAEMONSET_PATH", os.path.join(AGENT_YAMLS_DIR, "daemonset.yaml"))
+AGENT_SERVICEACCOUNT_PATH = os.environ.get(
+    "AGENT_SERVICEACCOUNT_PATH", os.path.join(AGENT_YAMLS_DIR, "serviceaccount.yaml")
+)
+AGENT_CLUSTERROLE_PATH = os.environ.get("AGENT_CLUSTERROLE_PATH", os.path.join(AGENT_YAMLS_DIR, "clusterrole.yaml"))
+AGENT_CLUSTERROLEBINDING_PATH = os.environ.get(
+    "AGENT_CLUSTERROLEBINDING_PATH", os.path.join(AGENT_YAMLS_DIR, "clusterrolebinding.yaml")
+)
 
 
 class Agent:  # pylint: disable=too-many-instance-attributes
@@ -156,16 +170,17 @@ class Agent:  # pylint: disable=too-many-instance-attributes
             "timed out waiting for the %s pod to be created!" % self.daemonset_name
         )
 
+    @contextmanager
     def deploy(
         self,
         client,
-        configmap_path,
-        daemonset_path,
-        serviceaccount_path,
-        clusterrole_path,
-        clusterrolebinding_path,
-        observer,
-        monitors,
+        configmap_path=AGENT_CONFIGMAP_PATH,
+        daemonset_path=AGENT_DAEMONSET_PATH,
+        serviceaccount_path=AGENT_SERVICEACCOUNT_PATH,
+        clusterrole_path=AGENT_CLUSTERROLE_PATH,
+        clusterrolebinding_path=AGENT_CLUSTERROLEBINDING_PATH,
+        observer=None,
+        monitors=None,
         cluster_name="minikube",
         backend=None,
         image_name=None,
@@ -197,7 +212,7 @@ class Agent:  # pylint: disable=too-many-instance-attributes
         except Exception:  # pylint: disable=broad-except
             status = "exited"
         assert status == "running", "agent container is not running!"
-        return self
+        yield self
 
     def delete_agent_daemonset(self):
         if self.daemonset_name and has_daemonset(self.daemonset_name, namespace=self.namespace):
