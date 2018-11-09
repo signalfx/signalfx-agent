@@ -22,7 +22,7 @@ const monitorType = "conviva"
 // MONITOR(conviva): This monitor uses version 2.4 of the Conviva Experience Insights REST APIs to pull
 // `Real-Time/Live` video playing experience metrics from Conviva.
 //
-// Only `Live` conviva metrics
+// Only `Live` conviva metrics listed
 // [here](https://community.conviva.com/site/global/apis_data/experience_insights_api/index.gsp#metrics)
 // are supported. The metrics are gauges. They are converted to SignalFx metrics with account and filter
 // name dimensions. In the case of MetricLenses, the constituent metrics and the Conviva MetricLens dimensions
@@ -42,14 +42,14 @@ const monitorType = "conviva"
 //
 // Individual metrics are configured as a list of metricConfigs as shown in sample configuration below. The
 // metrics a fetched using the specified metricParameter. Find the list of metric parameters
-// [here](https://github.com/signalfx/integrations/blob/master/conviva/docs/conviva_metrics.md)
+// [here](https://github.com/signalfx/integrations/blob/master/conviva/docs/conviva_metrics.md).
 // The Conviva metrics reported to SignalFx are prefixed by `conviva.`, `conviva.quality_metriclens.` and
 // `conviva.audience_metriclens.` accordingly. The metric names are the `titles` of the metrics
 // [here](https://github.com/signalfx/integrations/tree/master/conviva/docs) which correspond to the Conviva
-// `metric parameters` [here](https://community.conviva.com/site/global/apis_data/experience_insights_api/index.gsp#metrics)
-// Where an account is not provided the default account is used. Where no filters are specified the
+// `metric parameters` [here](https://community.conviva.com/site/global/apis_data/experience_insights_api/index.gsp#metrics).
+// Where an account is not provided the default account is fetched and used. Where no filters are specified the
 // `All Traffic` filter is used. Where MetricLens dimensions are not specified all MetricLens dimensions
-// are used. The `_ALL_` keyword means all. Dimensions only apply to MetricLenses. If specified for a
+// are fetched and used. The `_ALL_` keyword means all. Dimensions only apply to MetricLenses. If specified for a
 // regular metric they will be ignored. MetricLens dimensions listed in `excludeMetricLensDimensions` will be excluded.
 //
 // ```
