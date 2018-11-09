@@ -10,10 +10,9 @@ from http.client import HTTPException
 
 
 def has_datapoint_with_metric_name(fake_services, metric_name):
-    for dp in fake_services.datapoints:
-        if dp.metric == metric_name:
-            return True
-    return False
+    if hasattr(metric_name, "match"):
+        return any(metric_name.match(dp.metric) for dp in fake_services.datapoints)
+    return any(dp.metric == metric_name for dp in fake_services.datapoints)
 
 
 def has_datapoint_with_dim_key(fake_services, dim_key):
@@ -245,3 +244,32 @@ def has_all_tags(span, tags):
     Tests if `tags`'s are all in a certain trace span
     """
     return tags.items() <= span.get("tags").items()
+
+
+def all_datapoints_have_metric_name(fake_services, metric_name):
+    if hasattr(metric_name, "match"):
+        return all(metric_name.match(dp.metric) for dp in fake_services.datapoints)
+    return all(dp.metric == metric_name for dp in fake_services.datapoints)
+
+
+def all_datapoints_have_dims(fake_services, dims):
+    return all(has_all_dims(dp, dims) for dp in fake_services.datapoints)
+
+
+def all_datapoints_have_dim_key(fake_services, dim_key):
+    if not fake_services.datapoints:
+        return False
+    for dp in fake_services.datapoints:
+        if not any(dim.key == dim_key for dim in dp.dimensions):
+            return False
+    return True
+
+
+def all_datapoints_have_metric_name_and_dims(fake_services, metric_name, dims):
+    return all_datapoints_have_metric_name(fake_services, metric_name) and all_datapoints_have_dims(fake_services, dims)
+
+
+def all_datapoints_have_metric_name_and_dim_key(fake_services, metric_name, dim_key):
+    return all_datapoints_have_metric_name(fake_services, metric_name) and all_datapoints_have_dim_key(
+        fake_services, dim_key
+    )

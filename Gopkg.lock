@@ -682,6 +682,12 @@
 
 [[projects]]
   branch = "master"
+  name = "golang.org/x/sync"
+  packages = ["errgroup"]
+  revision = "1d60e4601c6fd243af51cc01ddf169918a5407ca"
+
+[[projects]]
+  branch = "master"
   name = "golang.org/x/sys"
   packages = [
     "unix",
@@ -912,6 +918,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "a52b10c59753bc8a70ca45a70e312d2bb1a1e8b7d0ea004a8831488e2f2ff335"
+  inputs-digest = "4c1800af18ee35bfe5a05756aef72d665647c65a0266ae2b6ec3601b5bd8630c"
   solver-name = "gps-cdcl"
   solver-version = 1

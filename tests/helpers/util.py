@@ -142,6 +142,9 @@ def run_agent_with_fake_backend(config_text, fake_services):
 
 
 def setup_config(config_text, path, fake_services):
+    if config_text is None and os.path.isfile(path):
+        return path
+
     conf = yaml.load(config_text)
 
     run_dir = os.path.dirname(path)
@@ -169,6 +172,8 @@ def setup_config(config_text, path, fake_services):
     with open(path, "w") as fd:
         print("CONFIG: %s\n%s" % (path, conf))
         fd.write(yaml.dump(conf))
+
+    return path
 
 
 @contextmanager
@@ -250,3 +255,10 @@ def send_udp_message(host, port, msg):
     """
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)  # Internet  # UDP
     sock.sendto(msg.encode("utf-8"), (host, port))
+
+
+def get_agent_status(config_path="/etc/signalfx/agent.yaml"):
+    status_proc = subprocess.Popen(
+        [AGENT_BIN, "status", "-config", config_path], stdout=subprocess.PIPE, stderr=subprocess.STDOUT
+    )
+    return status_proc.stdout.read().decode("utf-8")

@@ -234,6 +234,9 @@ jobs:
             if ! scripts/changes-include-dir internal/monitors/collectd/openstack tests/monitors/openstack test-services/devstack; then
                 MARKERS="$MARKERS and not openstack"
             fi
+            if ! scripts/changes-include-dir internal/monitors/conviva tests/monitors/conviva; then
+                MARKERS="$MARKERS and not conviva"
+            fi
             echo "export BUNDLE_DIR='$BUNDLE_DIR'" >> $BASH_ENV
             echo "export AGENT_BIN='$AGENT_BIN'" >> $BASH_ENV
             echo "export TEST_SERVICES_DIR='$TEST_SERVICES_DIR'" >> $BASH_ENV
