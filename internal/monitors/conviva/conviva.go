@@ -174,6 +174,7 @@ func (m *Monitor) fetchMetrics(contextTimeout time.Duration, semaphore chan stru
 				metricConf.logFilterStatuses(series.Meta.FiltersWarmup, series.Meta.FiltersNotExist, series.Meta.FiltersIncompleteData)
 				metricName := "conviva." + metricParameter
 				for filterID, metricValues := range series.FilterIDValuesMap {
+					L:
 					for i, metricValue := range metricValues {
 						select {
 						case <-ctx.Done():
@@ -184,18 +185,19 @@ func (m *Monitor) fetchMetrics(contextTimeout time.Duration, semaphore chan stru
 								metricName,
 								map[string]string{"account": metricConf.Account, "filter": metricConf.filtersMap[filterID]},
 								metricValue)
+							dps = append(dps, dp)
+							dp.Meta[dpmeta.NotHostSpecificMeta] = true
 							// Checking the type of series and setting dimensions accordingly
 							switch series.Type {
 							case "time_series":
-								dp.Timestamp = time.Unix(int64(0.001*series.Timestamps[i]), 0)
+								dp.Timestamp = time.Unix(int64(0.001*series.Timestamps[len(series.Timestamps)-1]), 0)
+								break L
 							case "label_series":
 								dp.Dimensions["label"] = series.Xvalues[i]
 								fallthrough
 							default:
 								dp.Timestamp = time.Now()
 							}
-							dp.Meta[dpmeta.NotHostSpecificMeta] = true
-							dps = append(dps, dp)
 						}
 					}
 				}
