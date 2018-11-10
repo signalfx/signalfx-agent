@@ -169,6 +169,7 @@ func (m *Monitor) fetchMetrics(contextTimeout time.Duration, semaphore chan stru
 				logger.Errorf("GET metric %s failed. %+v", metricConf.MetricParameter, err)
 				return
 			}
+			timestamp := time.Now()
 			dps := make([]*datapoint.Datapoint, 0)
 			for metricParameter, series := range res {
 				metricConf.logFilterStatuses(series.Meta.FiltersWarmup, series.Meta.FiltersNotExist, series.Meta.FiltersIncompleteData)
@@ -181,22 +182,20 @@ func (m *Monitor) fetchMetrics(contextTimeout time.Duration, semaphore chan stru
 							logger.Error(ctx.Err())
 							return
 						default:
-							dp := sfxclient.GaugeF(
-								metricName,
-								map[string]string{"account": metricConf.Account, "filter": metricConf.filtersMap[filterID]},
-								metricValue)
+							dp := sfxclient.GaugeF(metricName, map[string]string{"account": metricConf.Account, "filter": metricConf.filtersMap[filterID]}, metricValue)
 							dps = append(dps, dp)
 							dp.Meta[dpmeta.NotHostSpecificMeta] = true
-							// Checking the type of series and setting dimensions accordingly
 							switch series.Type {
+							// Getting the latest time_series metric value and timestamp only
 							case "time_series":
+								dp.Value     = datapoint.NewFloatValue(metricValues[len(metricValues)-1])
 								dp.Timestamp = time.Unix(int64(0.001*series.Timestamps[len(series.Timestamps)-1]), 0)
 								break L
 							case "label_series":
 								dp.Dimensions["label"] = series.Xvalues[i]
 								fallthrough
 							default:
-								dp.Timestamp = time.Now()
+								dp.Timestamp = timestamp
 							}
 						}
 					}
