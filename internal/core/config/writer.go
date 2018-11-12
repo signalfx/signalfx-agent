@@ -23,7 +23,8 @@ type WriterConfig struct {
 	// The maximum number of concurrent requests to make to a single ingest server
 	// with datapoints/events/trace spans.  This number multipled by
 	// `datapointMaxBatchSize` is more or less the maximum number of datapoints
-	// that can be "in-flight" at any given time.
+	// that can be "in-flight" at any given time.  Same thing for the
+	// `traceSpanMaxBatchSize` option and trace spans.
 	MaxRequests int `yaml:"maxRequests" default:"10"`
 	// The agent does not send events immediately upon a monitor generating
 	// them, but buffers them and sends them in batches.  The lower this
@@ -56,6 +57,22 @@ type WriterConfig struct {
 	// https://golang.org/pkg/time/#ParseDuration.  This option is irrelvant if
 	// `sendTraceHostCorrelationMetrics` is false.
 	TraceHostCorrelationMetricsInterval time.Duration `yaml:"traceHostCorrelationMetricsInterval" default:"1m"`
+	// How many trace spans are allowed to be in the process of sending.  While
+	// this number is exceeded, new spans generated will be dropped to avoid
+	// memory exhaustion.  If you see log messages about "Aborting pending
+	// trace requests..." or "Dropping new trace spans..." it means that the
+	// downstream target for traces is not able to accept them fast enough.
+	// Usually if the downstream is offline you will get connection refused
+	// errors and most likely spans will not build up in the agent. In the case
+	// of slow downstreams, you might be able to increase `maxRequests` to
+	// increase the concurrent stream of spans downstream (if the target can
+	// make efficient use of additional connections) or, less likely, increase
+	// `traceSpanMaxBatchSize` if your batches are maxing out (turn on debug
+	// logging to see the batch sizes being sent) and being split up too much.
+	// If neither of those options helps, your downstream is likely too slow to
+	// handle the volume of trace spans and should be upgraded to more powerful
+	// hardware/networking.
+	MaxTraceSpansInFlight uint `yaml:"maxTraceSpansInFlight" default:"100000"`
 	// The following are propagated from elsewhere
 	HostIDDims          map[string]string      `yaml:"-"`
 	IngestURL           *url.URL               `yaml:"-"`
