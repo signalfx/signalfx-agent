@@ -10,12 +10,12 @@ by the `-config` flag to the agent binary (`signalfx-agent`).
   
 | Config option | Required | Type | Description |
 | --- | --- | --- | --- |
-| `signalFxAccessToken` | **yes** | string | The access token for the org that should receive the metrics emitted by the agent. |
+| `signalFxAccessToken` | no | string | The access token for the org that should receive the metrics emitted by the agent. |
 | `ingestUrl` | no | string | The URL of SignalFx ingest server.  Should be overridden if using the Metric Proxy.  If you want to send trace spans to a different location, set the `traceEndpointUrl` option. (**default:** `"https://ingest.signalfx.com"`) |
 | `traceEndpointUrl` | no | string | The full URL (including path) to the trace ingest server.  If this is not set, all trace spans will be sent to the `ingestUrl` configured above. |
 | `apiUrl` | no | string | The SignalFx API base URL (**default:** `"https://api.signalfx.com"`) |
 | `hostname` | no | string | The hostname that will be reported as the `host` dimension. If blank, this will be auto-determined by the agent based on a reverse lookup of the machine's IP address. |
-| `useFullyQualifiedHost` | no | bool | If true (the default), and the `hostname` option is not set, the hostname will be determined by doing a reverse DNS query on the IP address that is returned by querying for the bare hostname.  This is useful in cases where the hostname reported by the kernel is a short name. |
+| `useFullyQualifiedHost` | no | bool | If true (the default), and the `hostname` option is not set, the hostname will be determined by doing a reverse DNS query on the IP address that is returned by querying for the bare hostname.  This is useful in cases where the hostname reported by the kernel is a short name. (**default**: `true`) |
 | `disableHostDimensions` | no | bool | Our standard agent model is to collect metrics for services running on the same host as the agent.  Therefore, host-specific dimensions (e.g. `host`, `AWSUniqueId`, etc) are automatically added to every datapoint that is emitted from the agent by default.  Set this to true if you are using the agent primarily to monitor things on other hosts.  You can set this option at the monitor level as well. (**default:** `false`) |
 | `intervalSeconds` | no | integer | How often to send metrics to SignalFx.  Monitors can override this individually. (**default:** `10`) |
 | `globalDimensions` | no | map of string | Dimensions (key:value pairs) that will be added to every datapoint emitted by the agent. To specify that all metrics should be high-resolution, add the dimension `sf_hires:1` |

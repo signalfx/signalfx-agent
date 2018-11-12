@@ -12066,8 +12066,8 @@
       {
         "yamlName": "signalFxAccessToken",
         "doc": "The access token for the org that should receive the metrics emitted by the agent.",
-        "default": null,
-        "required": true,
+        "default": "",
+        "required": false,
         "type": "string",
         "elementKind": ""
       },
@@ -12105,7 +12105,7 @@
       },
       {
         "yamlName": "useFullyQualifiedHost",
-        "doc": "If true (the default), and the `hostname` option is not set, the hostname will be determined by doing a reverse DNS query on the IP address that is returned by querying for the bare hostname.  This is useful in cases where the hostname reported by the kernel is a short name.",
+        "doc": "If true (the default), and the `hostname` option is not set, the hostname will be determined by doing a reverse DNS query on the IP address that is returned by querying for the bare hostname.  This is useful in cases where the hostname reported by the kernel is a short name. (**default**: `true`)",
         "default": null,
         "required": false,
         "type": "bool",
