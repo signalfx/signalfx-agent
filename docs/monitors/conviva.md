@@ -7,14 +7,14 @@
 
 Only `Live` conviva metrics listed
 [here](https://community.conviva.com/site/global/apis_data/experience_insights_api/index.gsp#metrics)
-are supported. The metrics are gauges. They are converted to SignalFx metrics with account and filter
-name dimensions. In the case of MetricLenses, the constituent metrics and the Conviva MetricLens dimensions
-are included. The values of the Conviva dimensions are derived from the values of the associated
+are supported. All metrics are gauges. The Conviva metrics are converted to SignalFx metrics with account and filter
+name dimensions. In the case of MetricLenses, the constituent MetricLens metrics and the MetricLens dimensions
+are included. The values of the MetricLens dimensions are derived from the values of the associated
 MetricLens dimension entities.
 
 Below is a sample YAML configuration showing the most basic configuration of the Conviva monitor
-using the required fields. For this configuration the monitor will default to fetching quality MetricLens
-metrics from the default Conviva account using the `All Traffic` filter.
+using only the required fields. For this configuration the monitor will default to fetching quality MetricLens
+metrics for all dimensions from the default Conviva account using the `All Traffic` filter.
 
 ```
 monitors:
@@ -32,7 +32,7 @@ The Conviva metrics reported to SignalFx are prefixed by `conviva.`, `conviva.qu
 `metric parameters` [here](https://community.conviva.com/site/global/apis_data/experience_insights_api/index.gsp#metrics).
 Where an account is not provided the default account is fetched and used. Where no filters are specified the
 `All Traffic` filter is used. Where MetricLens dimensions are not specified all MetricLens dimensions
-are fetched and used. The `_ALL_` keyword means all. Dimensions only apply to MetricLenses. If specified for a
+are fetched and used. The `_ALL_` keyword means all. MetricLens dimension configuration only apply to MetricLenses. If specified for a
 regular metric they will be ignored. MetricLens dimensions listed in `excludeMetricLensDimensions` will be excluded.
 
 ```
