@@ -10,11 +10,10 @@ import (
 
 // responseError for Conviva error response
 type responseError struct {
-	statusCode int
-	Message    string
-	Code       float64
-	Request    string
-	Reason     string
+	Message string
+	Code    int64
+	Request string
+	Reason  string
 }
 
 // httpClient interface to provide for Conviva API specific implementation
@@ -55,7 +54,7 @@ func (c *convivaHTTPClient) get(ctx context.Context, v interface{}, url string) 
 		return 0, err
 	}
 	if res.StatusCode != 200 {
-		responseError := responseError{statusCode: res.StatusCode}
+		responseError := responseError{}
 		if err := json.Unmarshal(body, &responseError); err == nil {
 			return res.StatusCode, fmt.Errorf("%+v", responseError)
 		}

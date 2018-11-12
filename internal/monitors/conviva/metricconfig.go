@@ -54,6 +54,13 @@ type metricConfig struct {
 	mutex                 sync.RWMutex
 }
 
+func (mc *metricConfig) filterName(filterID string) string {
+	if len(mc.filtersMap) != 0 {
+		return mc.filtersMap[filterID]
+	}
+	return ""
+}
+
 func (mc *metricConfig) init(service accountsService) {
 	mc.mutex.Lock()
 	defer mc.mutex.Unlock()
@@ -192,20 +199,20 @@ func (mc *metricConfig) filterIDs() []string {
 }
 
 // logs filter status only when the filter status changes
-func (mc *metricConfig) logFilterStatuses(filtersWarmupIds []float64, filtersNotExistIds []float64, filtersIncompleteDataIds []float64) {
+func (mc *metricConfig) logFilterStatuses(filtersWarmupIds []int64, filtersNotExistIds []int64, filtersIncompleteDataIds []int64) {
 	mc.filtersWarmup = logFilterStatusesHelper(mc.MetricParameter, mc.filtersMap, mc.filtersWarmup, filtersWarmupIds, "filters_warmup")
 	mc.filtersNotExist = logFilterStatusesHelper(mc.MetricParameter, mc.filtersMap, mc.filtersNotExist, filtersNotExistIds, "filters_not_exist")
 	mc.filtersIncompleteData = logFilterStatusesHelper(mc.MetricParameter, mc.filtersMap, mc.filtersIncompleteData, filtersIncompleteDataIds, "filters_incomplete_data")
 }
 
-func logFilterStatusesHelper(metric string, filters map[string]string, filterStatusesCurrent map[string]string, filterStatusesIDsNew []float64, status string) map[string]string {
+func logFilterStatusesHelper(metric string, filters map[string]string, filterStatusesCurrent map[string]string, filterStatusesIDsNew []int64, status string) map[string]string {
 	filterStatusesNew := map[string]string{}
 	filterStatusesToLog := map[string]string{}
 	if filterStatusesCurrent == nil {
 		filterStatusesCurrent = map[string]string{}
 	}
 	for _, id := range filterStatusesIDsNew {
-		id := strconv.FormatFloat(id, 'f', 0, 64)
+		id := strconv.FormatInt(id, 10)
 		if filterStatusesCurrent[id] == "" {
 			filterStatusesToLog[id] = filters[id]
 		} else {
