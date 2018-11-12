@@ -132,7 +132,6 @@ func (m *Monitor) Configure(conf *Config) error {
 			MaxIdleConnsPerHost: 100,
 		},
 	}, conf.Username, conf.Password)
-
 	m.ctx, m.cancel = context.WithCancel(context.Background())
 	semaphore := make(chan struct{}, maxGoroutinesPerInterval(conf.MetricConfigs))
 	interval := time.Duration(conf.IntervalSeconds) * time.Second
@@ -175,7 +174,7 @@ func (m *Monitor) fetchMetrics(contextTimeout time.Duration, semaphore chan stru
 				metricConf.logFilterStatuses(series.Meta.FiltersWarmup, series.Meta.FiltersNotExist, series.Meta.FiltersIncompleteData)
 				metricName := "conviva." + metricParameter
 				for filterID, metricValues := range series.FilterIDValuesMap {
-					L:
+				L:
 					for i, metricValue := range metricValues {
 						select {
 						case <-ctx.Done():
@@ -188,8 +187,9 @@ func (m *Monitor) fetchMetrics(contextTimeout time.Duration, semaphore chan stru
 							switch series.Type {
 							// Getting the latest time_series metric value and timestamp only
 							case "time_series":
-								dp.Value     = datapoint.NewFloatValue(metricValues[len(metricValues)-1])
-								dp.Timestamp = time.Unix(int64(0.001*series.Timestamps[len(series.Timestamps)-1]), 0)
+								dp.Value = datapoint.NewFloatValue(metricValues[len(metricValues)-1])
+								// Series timestamps are in milliseconds
+								dp.Timestamp = time.Unix(series.Timestamps[len(series.Timestamps)-1]/1000, 0)
 								break L
 							case "label_series":
 								dp.Dimensions["label"] = series.Xvalues[i]
