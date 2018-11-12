@@ -24,7 +24,7 @@ import (
 type Config struct {
 	// The access token for the org that should receive the metrics emitted by
 	// the agent.
-	SignalFxAccessToken string `yaml:"signalFxAccessToken" neverLog:"true" validate:"required"`
+	SignalFxAccessToken string `yaml:"signalFxAccessToken" neverLog:"true"`
 	// The URL of SignalFx ingest server.  Should be overridden if using the
 	// Metric Proxy.  If you want to send trace spans to a different location,
 	// set the `traceEndpointUrl` option.
@@ -43,7 +43,7 @@ type Config struct {
 	// hostname will be determined by doing a reverse DNS query on the IP
 	// address that is returned by querying for the bare hostname.  This is
 	// useful in cases where the hostname reported by the kernel is a short
-	// name.
+	// name. (**default**: `true`)
 	UseFullyQualifiedHost *bool `yaml:"useFullyQualifiedHost"`
 	// Our standard agent model is to collect metrics for services running on
 	// the same host as the agent.  Therefore, host-specific dimensions (e.g.
