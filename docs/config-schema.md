@@ -93,7 +93,7 @@ The **nested** `writer` config object has the following fields:
 | `datapointMaxBatchSize` | no | integer | The maximum number of datapoints to include in a batch before sending the batch to the ingest server.  Smaller batch sizes than this will be sent if datapoints originate in smaller chunks. (**default:** `1000`) |
 | `traceSpanMaxBatchSize` | no | integer | The analogue of `datapointMaxBatchSize` for trace spans. (**default:** `1000`) |
 | `datapointMaxRequests` | no | integer | Deprecated: use `maxRequests` instead. (**default:** `0`) |
-| `maxRequests` | no | integer | The maximum number of concurrent requests to make to a single ingest server with datapoints/events/trace spans.  This number multipled by `datapointMaxBatchSize` is more or less the maximum number of datapoints that can be "in-flight" at any given time. (**default:** `10`) |
+| `maxRequests` | no | integer | The maximum number of concurrent requests to make to a single ingest server with datapoints/events/trace spans.  This number multipled by `datapointMaxBatchSize` is more or less the maximum number of datapoints that can be "in-flight" at any given time.  Same thing for the `traceSpanMaxBatchSize` option and trace spans. (**default:** `10`) |
 | `eventSendIntervalSeconds` | no | integer | The agent does not send events immediately upon a monitor generating them, but buffers them and sends them in batches.  The lower this number, the less delay for events to appear in SignalFx. (**default:** `1`) |
 | `propertiesMaxRequests` | no | unsigned integer | The analogue of `maxRequests` for dimension property requests. (**default:** `10`) |
 | `propertiesHistorySize` | no | unsigned integer | Properties that are synced to SignalFx are cached to prevent duplicate requests from being sent, causing unnecessary load on our backend. (**default:** `1000`) |
@@ -103,6 +103,7 @@ The **nested** `writer` config object has the following fields:
 | `sendTraceHostCorrelationMetrics` | no | bool | Whether to send host correlation metrics to correlation traced services with the underlying host (**default:** `false`) |
 | `staleServiceTimeout` | no | int64 | How long to wait after a trace span's service name is last seen to continue sending the correlation datapoints for that service.  This should be a duration string that is accepted by https://golang.org/pkg/time/#ParseDuration.  This option is irrelvant if `sendTraceHostCorrelationMetrics` is false. (**default:** `"5m"`) |
 | `traceHostCorrelationMetricsInterval` | no | int64 | How frequently to send host correlation metrics that are generated from the service name seen in trace spans sent through or by the agent.  This should be a duration string that is accepted by https://golang.org/pkg/time/#ParseDuration.  This option is irrelvant if `sendTraceHostCorrelationMetrics` is false. (**default:** `"1m"`) |
+| `maxTraceSpansInFlight` | no | unsigned integer | How many trace spans are allowed to be in the process of sending.  While this number is exceeded, new spans generated will be dropped to avoid memory exhaustion.  If you see log messages about "Aborting pending trace requests..." or "Dropping new trace spans..." it means that the downstream target for traces is not able to accept them fast enough. Usually if the downstream is offline you will get connection refused errors and most likely spans will not build up in the agent. In the case of slow downstreams, you might be able to increase `maxRequests` to increase the concurrent stream of spans downstream (if the target can make efficient use of additional connections) or, less likely, increase `traceSpanMaxBatchSize` if your batches are maxing out (turn on debug logging to see the batch sizes being sent) and being split up too much. If neither of those options helps, your downstream is likely too slow to handle the volume of trace spans and should be upgraded to more powerful hardware/networking. (**default:** `100000`) |
 
 
 
@@ -268,6 +269,7 @@ where applicable:
     sendTraceHostCorrelationMetrics: false
     staleServiceTimeout: "5m"
     traceHostCorrelationMetricsInterval: "1m"
+    maxTraceSpansInFlight: 100000
   logging: 
     level: "info"
   collectd: 
