@@ -54,6 +54,13 @@ type metricConfig struct {
 	mutex                 sync.RWMutex
 }
 
+func (mc *metricConfig) filterName(filterID string) string {
+	if len(mc.filtersMap) != 0 {
+		return mc.filtersMap[filterID]
+	}
+	return ""
+}
+
 func (mc *metricConfig) init(service accountsService) {
 	mc.mutex.Lock()
 	defer mc.mutex.Unlock()
