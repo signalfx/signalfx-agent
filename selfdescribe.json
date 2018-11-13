@@ -9898,6 +9898,14 @@
           "elementKind": "string"
         },
         {
+          "yamlName": "envToDimensions",
+          "doc": "A mapping of container environment variable names to dimension names.  The corresponding env var values become the dimension values on the emitted metrics.  E.g. `APP_VERSION: version` would result in datapoints having a dimension called `version` whose value is the value of the `APP_VERSION` envvar configured for that particular container, if present.",
+          "default": null,
+          "required": false,
+          "type": "map",
+          "elementKind": "string"
+        },
+        {
           "yamlName": "excludedImages",
           "doc": "A list of filters of images to exclude.  Supports literals, globs, and regex.",
           "default": null,
