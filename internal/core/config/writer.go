@@ -58,20 +58,21 @@ type WriterConfig struct {
 	// `sendTraceHostCorrelationMetrics` is false.
 	TraceHostCorrelationMetricsInterval time.Duration `yaml:"traceHostCorrelationMetricsInterval" default:"1m"`
 	// How many trace spans are allowed to be in the process of sending.  While
-	// this number is exceeded, new spans generated will be dropped to avoid
-	// memory exhaustion.  If you see log messages about "Aborting pending
-	// trace requests..." or "Dropping new trace spans..." it means that the
+	// this number is exceeded, existing pending spans will be randomly dropped
+	// if possible to accommodate new spans generated to avoid memory
+	// exhaustion.  If you see log messages about "Aborting pending trace
+	// requests..." or "Dropping new trace spans..." it means that the
 	// downstream target for traces is not able to accept them fast enough.
 	// Usually if the downstream is offline you will get connection refused
-	// errors and most likely spans will not build up in the agent. In the case
-	// of slow downstreams, you might be able to increase `maxRequests` to
-	// increase the concurrent stream of spans downstream (if the target can
-	// make efficient use of additional connections) or, less likely, increase
-	// `traceSpanMaxBatchSize` if your batches are maxing out (turn on debug
-	// logging to see the batch sizes being sent) and being split up too much.
-	// If neither of those options helps, your downstream is likely too slow to
-	// handle the volume of trace spans and should be upgraded to more powerful
-	// hardware/networking.
+	// errors and most likely spans will not build up in the agent (there is no
+	// retry mechanism). In the case of slow downstreams, you might be able to
+	// increase `maxRequests` to increase the concurrent stream of spans
+	// downstream (if the target can make efficient use of additional
+	// connections) or, less likely, increase `traceSpanMaxBatchSize` if your
+	// batches are maxing out (turn on debug logging to see the batch sizes
+	// being sent) and being split up too much. If neither of those options
+	// helps, your downstream is likely too slow to handle the volume of trace
+	// spans and should be upgraded to more powerful hardware/networking.
 	MaxTraceSpansInFlight uint `yaml:"maxTraceSpansInFlight" default:"100000"`
 	// The following are propagated from elsewhere
 	HostIDDims          map[string]string      `yaml:"-"`
