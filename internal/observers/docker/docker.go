@@ -142,7 +142,7 @@ type Config struct {
 	DockerURL string `yaml:"dockerURL" default:"unix:///var/run/docker.sock"`
 	// A mapping of container label names to dimension names that will get
 	// applied to the metrics of all discovered services. The corresponding
-	// label values will become the dimension value for the mapped name.  E.g.
+	// label values will become the dimension values for the mapped name.  E.g.
 	// `io.kubernetes.container.name: container_spec_name` would result in a
 	// dimension called `container_spec_name` that has the value of the
 	// `io.kubernetes.container.name` container label.

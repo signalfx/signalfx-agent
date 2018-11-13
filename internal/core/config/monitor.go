@@ -24,7 +24,7 @@ type MonitorConfig struct {
 	DiscoveryRule string `yaml:"discoveryRule" json:"discoveryRule"`
 	// A set of extra dimensions (key:value pairs) to include on datapoints emitted by the
 	// monitor(s) created from this configuration. To specify metrics from this
-	// monitor should be high-resolution, add the dimension `sf_hires:1`
+	// monitor should be high-resolution, add the dimension `sf_hires: 1`
 	ExtraDimensions map[string]string `yaml:"extraDimensions" json:"extraDimensions"`
 	// The interval (in seconds) at which to emit datapoints from the
 	// monitor(s) created by this configuration.  If not set (or set to 0), the

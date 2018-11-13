@@ -109,9 +109,6 @@ Examples:
     # Exclude 'pod-template-hash' from syncing to any dimension
     - propertyName: pod-template-hash
 
-    # Exclude 'pod-template-hash' from syncing to any dimension
-    - propertyName: pod-template-hash
-
     # Do not sync any properties to 'kubernetes_pod_uid'
     - dimensionName: kubernetes_pod_uid
     
