@@ -149,10 +149,6 @@ func (c *Config) setupEnvironment() {
 
 // Validate everything that we can about the main config
 func (c *Config) validate() error {
-	if c.SignalFxAccessToken == "" {
-		return fmt.Errorf("signalFxAccessToken must be set")
-	}
-
 	if _, err := url.Parse(c.IngestURL); err != nil {
 		return errors.WithMessage(err, fmt.Sprintf("%s is not a valid ingest URL", c.IngestURL))
 	}
