@@ -47,6 +47,7 @@ func convertStatsToMetrics(container *dtypes.ContainerJSON, cstats *dtypes.Conta
 		dps[i].Dimensions["plugin_instance"] = name
 		dps[i].Dimensions["container_image"] = container.Config.Image
 		dps[i].Dimensions["container_id"] = container.ID
+		dps[i].Dimensions["container_hostname"] = container.Config.Hostname
 	}
 
 	return dps, nil

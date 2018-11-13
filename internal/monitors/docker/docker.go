@@ -4,6 +4,7 @@ package docker
 
 import (
 	"context"
+	"strings"
 	"sync"
 	"time"
 
@@ -56,6 +57,13 @@ type Config struct {
 	// dimension called `container_spec_name` that has the value of the
 	// `io.kubernetes.container.name` container label.
 	LabelsToDimensions map[string]string `yaml:"labelsToDimensions"`
+	// A mapping of container environment variable names to dimension
+	// names.  The corresponding env var values become the dimension values on
+	// the emitted metrics.  E.g. `APP_VERSION: version` would result in
+	// datapoints having a dimension called `version` whose value is the value
+	// of the `APP_VERSION` envvar configured for that particular container, if
+	// present.
+	EnvToDimensions map[string]string `yaml:"envToDimensions"`
 	// A list of filters of images to exclude.  Supports literals, globs, and
 	// regex.
 	ExcludedImages []string `yaml:"excludedImages"`
@@ -68,6 +76,11 @@ type Monitor struct {
 	ctx     context.Context
 	client  *docker.Client
 	timeout time.Duration
+}
+
+type dockerContainer struct {
+	*dtypes.ContainerJSON
+	EnvMap map[string]string
 }
 
 // Configure the monitor and kick off volume metric syncing
@@ -90,7 +103,7 @@ func (m *Monitor) Configure(conf *Config) error {
 	}
 
 	lock := sync.Mutex{}
-	containers := map[string]*dtypes.ContainerJSON{}
+	containers := map[string]dockerContainer{}
 	isRegistered := false
 
 	changeHandler := func(old *dtypes.ContainerJSON, new *dtypes.ContainerJSON) {
@@ -114,7 +127,10 @@ func (m *Monitor) Configure(conf *Config) error {
 			return
 		}
 		logger.Infof("Monitoring docker container %s", id)
-		containers[id] = new
+		containers[id] = dockerContainer{
+			ContainerJSON: new,
+			EnvMap:        parseContainerEnvSlice(new.Config.Env),
+		}
 	}
 
 	utils.RunOnInterval(m.ctx, func() {
@@ -134,7 +150,7 @@ func (m *Monitor) Configure(conf *Config) error {
 		// only the map that holds them.
 		lock.Lock()
 		for id := range containers {
-			go m.fetchStats(containers[id], conf.LabelsToDimensions)
+			go m.fetchStats(containers[id], conf.LabelsToDimensions, conf.EnvToDimensions)
 		}
 		lock.Unlock()
 
@@ -147,7 +163,7 @@ func (m *Monitor) Configure(conf *Config) error {
 // parallel in individual goroutines.  This is much easier on CPU usage since
 // we aren't doing something every second across all containers, but only
 // something once every metric interval.
-func (m *Monitor) fetchStats(container *dtypes.ContainerJSON, labelMap map[string]string) {
+func (m *Monitor) fetchStats(container dockerContainer, labelMap map[string]string, envMap map[string]string) {
 	ctx, cancel := context.WithTimeout(m.ctx, m.timeout)
 	stats, err := m.client.ContainerStats(ctx, container.ID, false)
 	if err != nil {
@@ -156,7 +172,7 @@ func (m *Monitor) fetchStats(container *dtypes.ContainerJSON, labelMap map[strin
 		return
 	}
 
-	dps, err := convertStatsToMetrics(container, &stats)
+	dps, err := convertStatsToMetrics(container.ContainerJSON, &stats)
 	cancel()
 	if err != nil {
 		logger.WithError(err).Errorf("Could not convert docker stats for container id %s", container.ID)
@@ -164,6 +180,11 @@ func (m *Monitor) fetchStats(container *dtypes.ContainerJSON, labelMap map[strin
 	}
 
 	for i := range dps {
+		for k, dimName := range envMap {
+			if v := container.EnvMap[k]; v != "" {
+				dps[i].Dimensions[dimName] = v
+			}
+		}
 		for k, dimName := range labelMap {
 			if v := container.Config.Labels[k]; v != "" {
 				dps[i].Dimensions[dimName] = v
@@ -171,6 +192,18 @@ func (m *Monitor) fetchStats(container *dtypes.ContainerJSON, labelMap map[strin
 		}
 		m.Output.SendDatapoint(dps[i])
 	}
+}
+
+func parseContainerEnvSlice(env []string) map[string]string {
+	out := make(map[string]string, len(env))
+	for _, v := range env {
+		parts := strings.Split(v, "=")
+		if len(parts) < 2 || strings.TrimSpace(parts[1]) == "" {
+			continue
+		}
+		out[parts[0]] = parts[1]
+	}
+	return out
 }
 
 // Shutdown stops the metric sync
