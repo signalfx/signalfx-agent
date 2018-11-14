@@ -60,6 +60,22 @@ def test_docker_label_dimensions():
             ), "Didn't get datapoint with service dim"
 
 
+def test_docker_envvar_dimensions():
+    with run_service("nginx", environment={"APP": "myserver"}):
+        with run_agent(
+            """
+    monitors:
+      - type: docker-container-stats
+        envToDimensions:
+          APP: app
+
+    """
+        ) as [backend, _, _]:
+            assert wait_for(
+                p(has_datapoint_with_dim, backend, "app", "myserver")
+            ), "Didn't get datapoint with service app"
+
+
 def test_docker_detects_new_containers():
     with run_agent(
         """
