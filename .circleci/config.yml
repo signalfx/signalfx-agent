@@ -254,7 +254,7 @@ jobs:
       - checkout
       - import_image
       - run_pytest:
-          pytest_options: "-n4 -m 'k8s' --exitfirst --k8s-version='<< parameters.k8s_version >>' --k8s-sfx-agent=quay.io/signalfx/signalfx-agent-dev:latest"
+          pytest_options: "-n4 -m 'k8s' --exitfirst --k8s-version='<< parameters.k8s_version >>' --k8s-sfx-agent=quay.io/signalfx/signalfx-agent-dev:latest --k8s-timeout=600"
           tests_dir: "./tests"
 
   installer_tests:

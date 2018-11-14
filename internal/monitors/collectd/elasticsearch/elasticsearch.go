@@ -96,21 +96,13 @@ func (m *Monitor) Configure(conf *Config) error {
 			"IndexSummaryOnly":     conf.IndexSummaryOnly,
 			"Interval":             conf.IntervalSeconds,
 			"Verbose":              false,
-			"AdditionalMetrics": map[string]interface{}{
-				"#flatten": true,
-				"values":   conf.AdditionalMetrics,
-			},
-			"Indexes": map[string]interface{}{
-				"values": conf.Indexes,
-			},
-			"Password": conf.Password,
-			"Protocol": conf.Protocol,
-			"Username": conf.Username,
-			"ThreadPools": map[string]interface{}{
-				"#flatten": true,
-				"values":   conf.ThreadPools,
-			},
-			"Version": conf.Version,
+			"AdditionalMetrics":    conf.AdditionalMetrics,
+			"Indexes":              conf.Indexes,
+			"Password":             conf.Password,
+			"Protocol":             conf.Protocol,
+			"Username":             conf.Username,
+			"ThreadPools":          conf.ThreadPools,
+			"Version":              conf.Version,
 		},
 	}
 
