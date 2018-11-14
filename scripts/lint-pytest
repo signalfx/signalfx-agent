@@ -1,0 +1,20 @@
+#!/bin/bash
+
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+RC=0
+
+LC_ALL=C.UTF-8 LANG=C.UTF-8 black --config ${SCRIPT_DIR}/../tests/pyproject.toml tests/
+(( RC += $? ))
+
+cd ${SCRIPT_DIR}/../tests
+pylint -j4 `find . -maxdepth 1 -mindepth 1 -type d -o -name "*.py"`
+(( RC += $? ))
+
+for pyfile in $(find ${SCRIPT_DIR}/../tests -name "*.py"); do
+    if ! [[ $(basename $pyfile) =~ ^(test_.*|.*_test)\.py$ ]] && grep -q 'def test_' $pyfile; then
+        echo "${pyfile#${SCRIPT_DIR}/../} needs to be renamed for pytest collection, e.g. test_something.py or something_test.py"
+        (( RC += 1 ))
+    fi
+done
+
+exit $RC

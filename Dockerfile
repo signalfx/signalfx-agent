@@ -362,6 +362,8 @@ RUN go get -u golang.org/x/lint/golint &&\
     go get github.com/tebeka/go2xunit
 
 # Get integration test deps in here
+COPY python/setup.py /tmp/
+RUN pip3 install -e /tmp/
 COPY tests/requirements.txt /tmp/
 RUN pip3 install --upgrade pip==9.0.1 && pip3 install -r /tmp/requirements.txt
 RUN wget -O /usr/bin/gomplate https://github.com/hairyhenderson/gomplate/releases/download/v2.3.0/gomplate_linux-amd64-slim &&\

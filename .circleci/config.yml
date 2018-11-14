@@ -114,27 +114,6 @@ commands:
             fi
       - save_test_results
 
-  install_pylint_black:
-    description: Install pylint, black, and dependencies from `dir` (only if `dir` has changes).
-    parameters:
-      dir:
-        type: string
-    steps:
-      - run:
-          name: Install pylint, black, and dependencies
-          command: |
-            if ! scripts/changes-include-dir << parameters.dir >>; then
-                echo "<< parameters.dir >> code has not changed, skipping pylint/black install!"
-                touch ~/.skip
-                exit 0
-            fi
-            cd << parameters.dir >>
-            pip install --upgrade 'pip==10.0.1'
-            [ -f setup.py ] && pip install -e .
-            [ -f test-requirements.txt ] && pip install -r test-requirements.txt
-            [ -f requirements.txt ] && pip install -r requirements.txt
-            exit 0
-
 jobs:
   build:
     executor: docker1809
@@ -389,26 +368,30 @@ jobs:
   pylint_black:
     executor: python36
     parameters:
-      dir:
+      target:
         default: "python"
         type: enum
-        enum: ["python", "tests"]
+        enum: ["python", "pytest"]
     steps:
       - checkout
-      - install_pylint_black:
-          dir: << parameters.dir >>
       - run: |
-          TARGET=<< parameters.dir >>
-          if [ -f ~/.skip ]; then
-              echo "Code in $TARGET directory has not changed, skipping pylint/black!"
+          TARGET=<< parameters.target >>
+          TARGET_DIR=$TARGET
+          if [ "$TARGET" = "pytest" ]; then
+              TARGET_DIR="tests"
+          fi
+          if ! scripts/changes-include-dir $TARGET_DIR; then
+              echo "$TARGET code has not changed, skipping pylint/black!"
               exit 0
           fi
-          declare -A cmd=( ["python"]="make lint-python" ["tests"]="make lint-pytest" )
-          cd $TARGET
-          (black --config pyproject.toml . && git diff --exit-code) || \
-              (echo "Code in $TARGET directory need to be reformatted. Run \`${cmd[$TARGET]}\` in the dev image, resolve any issues, and commit the changes." && exit 1)
-          pylint -j4 $(find . -maxdepth 1 -mindepth 1 -type d -o -name "*.py") || \
-              (echo "Pylint issue(s) found in $TARGET directory. Resolve the issues, run \`${cmd[$TARGET]}\` in the dev image, and commit the changes." && exit 1)
+          if [ "$TARGET" = "pytest" ]; then
+              pip install -q -r tests/requirements.txt
+          else
+              pip install -q -e python
+              pip install -q -r python/test-requirements.txt
+          fi
+          (make lint-$TARGET && git diff --exit-code $TARGET_DIR ) || \
+              (echo "Pylint/black issue(s) found in $TARGET_DIR directory. Run \`make lint-$TARGET\` in the dev image, resolve the issues, and commit the changes." && exit 1)
 
   update_stage_cache:
     docker:
@@ -491,10 +474,10 @@ workflows:
           deployment_type: "ansible"
       - pylint_black:
           name: "pytest_lint"
-          dir: "tests"
+          target: "pytest"
       - pylint_black:
           name: "python_lint"
-          dir: "python"
+          target: "python"
   stage_cache_job:
     jobs:
       - update_stage_cache
