@@ -184,16 +184,11 @@ collectd-commit:
 
 .PHONY: lint-pytest
 lint-pytest:
-	pip install -q -r tests/requirements.txt
-	LC_ALL=C.UTF-8 LANG=C.UTF-8 black --config tests/pyproject.toml tests/
-	cd tests && pylint -j4 `find . -maxdepth 1 -mindepth 1 -type d -o -name "*.py"`
+	scripts/lint-pytest
 
 .PHONY: lint-python
 lint-python:
-	pip install -q -e python/
-	pip install -q -r python/test-requirements.txt
-	LC_ALL=C.UTF-8 LANG=C.UTF-8 black --config python/pyproject.toml python/
-	cd python && pylint -j4 `find . -maxdepth 1 -mindepth 1 -type d -o -name "*.py"`
+	scripts/lint-python
 
 .PHONY: devstack
 devstack:

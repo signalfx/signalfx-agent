@@ -137,7 +137,6 @@ class Values(object):  # pylint: disable=too-many-instance-attributes
         # because that is what collectd does
         self.values = [int(value) if isinstance(value, bool) else value for value in self.values]
         Values._dispatcher_func(self)
-        return
 
     @classmethod
     def set_dispatcher_func(cls, func):

@@ -1,0 +1,15 @@
+#!/bin/bash
+
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+RC=0
+
+pip install -q -e ${SCRIPT_DIR}/../python/ || exit 1
+
+LC_ALL=C.UTF-8 LANG=C.UTF-8 black --config ${SCRIPT_DIR}/../python/pyproject.toml python/
+(( RC += $? ))
+
+cd ${SCRIPT_DIR}/../python
+pylint -j4 `find . -maxdepth 1 -mindepth 1 -type d -o -name "*.py"`
+(( RC += $? ))
+
+exit $RC

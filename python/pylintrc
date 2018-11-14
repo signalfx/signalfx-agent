@@ -136,7 +136,8 @@ disable=print-statement,
         comprehension-escape,
         missing-docstring,
         fixme,
-        bad-continuation  # We use black so this shouldn't ever be relevant
+        bad-continuation,  # We use black so this shouldn't ever be relevant
+        useless-object-inheritance  # This project still uses py2 so this isn't useful
 
 # Enable the message, report, category or checker with the given id(s). You can
 # either give multiple identifier separated by comma (,) or put this option
