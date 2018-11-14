@@ -82,31 +82,32 @@ To specify custom metrics you want to monitor, add a negated `metricsToExclude` 
 Note that some of the custom metrics require you to set a flag as well as add them to the list. Check the monitor configuration file to see if a flag is required for gathering additional metrics.
 ```yaml 
 metricsToExclude:
-  - blkio.io_service_bytes_recursive.async
-  - blkio.io_service_bytes_recursive.sync
-  - blkio.io_service_bytes_recursive.total
-  - blkio.io_serviced_recursive.async
-  - blkio.io_serviced_recursive.read
-  - blkio.io_serviced_recursive.sync
-  - blkio.io_serviced_recursive.total
-  - blkio.io_serviced_recursive.write
-  - cpu.percent
-  - cpu.percpu.usage
-  - cpu.percpu.usage
-  - cpu.throttling_data.periods
-  - cpu.throttling_data.throttled_periods
-  - cpu.throttling_data.throttled_time
-  - cpu.usage.kernelmode
-  - cpu.usage.usermode
-  - memory.percent
-  - memory.stats.swap
-  - memory.usage.max
-  - network.usage.rx_dropped
-  - network.usage.rx_errors
-  - network.usage.rx_packets
-  - network.usage.tx_dropped
-  - network.usage.tx_errors
-  - network.usage.tx_packets
+  metricNames:
+    - blkio.io_service_bytes_recursive.async
+    - blkio.io_service_bytes_recursive.sync
+    - blkio.io_service_bytes_recursive.total
+    - blkio.io_serviced_recursive.async
+    - blkio.io_serviced_recursive.read
+    - blkio.io_serviced_recursive.sync
+    - blkio.io_serviced_recursive.total
+    - blkio.io_serviced_recursive.write
+    - cpu.percent
+    - cpu.percpu.usage
+    - cpu.percpu.usage
+    - cpu.throttling_data.periods
+    - cpu.throttling_data.throttled_periods
+    - cpu.throttling_data.throttled_time
+    - cpu.usage.kernelmode
+    - cpu.usage.usermode
+    - memory.percent
+    - memory.stats.swap
+    - memory.usage.max
+    - network.usage.rx_dropped
+    - network.usage.rx_errors
+    - network.usage.rx_packets
+    - network.usage.tx_dropped
+    - network.usage.tx_errors
+    - network.usage.tx_packets
   negated: true
 ```
 

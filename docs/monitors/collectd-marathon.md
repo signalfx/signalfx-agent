@@ -83,13 +83,14 @@ To specify custom metrics you want to monitor, add a negated `metricsToExclude` 
 Note that some of the custom metrics require you to set a flag as well as add them to the list. Check the monitor configuration file to see if a flag is required for gathering additional metrics.
 ```yaml 
 metricsToExclude:
-  - gauge.marathon-api-metric
-  - gauge.marathon.app.delayed
-  - gauge.marathon.app.deployments.total
-  - gauge.marathon.app.gpu.allocated
-  - gauge.marathon.app.gpu.allocated.per.instance
-  - gauge.marathon.task.staged.time.elapsed
-  - gauge.marathon.task.start.time.elapsed
+  metricNames:
+    - gauge.marathon-api-metric
+    - gauge.marathon.app.delayed
+    - gauge.marathon.app.deployments.total
+    - gauge.marathon.app.gpu.allocated
+    - gauge.marathon.app.gpu.allocated.per.instance
+    - gauge.marathon.task.staged.time.elapsed
+    - gauge.marathon.task.start.time.elapsed
   negated: true
 ```
 

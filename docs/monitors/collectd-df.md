@@ -50,16 +50,17 @@ To specify custom metrics you want to monitor, add a negated `metricsToExclude` 
 Note that some of the custom metrics require you to set a flag as well as add them to the list. Check the monitor configuration file to see if a flag is required for gathering additional metrics.
 ```yaml 
 metricsToExclude:
-  - df_complex.reserved
-  - df_inodes.free
-  - df_inodes.reserved
-  - df_inodes.used
-  - percent_bytes.free
-  - percent_bytes.reserved
-  - percent_bytes.used
-  - percent_inodes.free
-  - percent_inodes.reserved
-  - percent_inodes.used
+  metricNames:
+    - df_complex.reserved
+    - df_inodes.free
+    - df_inodes.reserved
+    - df_inodes.used
+    - percent_bytes.free
+    - percent_bytes.reserved
+    - percent_bytes.used
+    - percent_inodes.free
+    - percent_inodes.reserved
+    - percent_inodes.used
   negated: true
 ```
 

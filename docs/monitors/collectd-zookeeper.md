@@ -54,9 +54,10 @@ To specify custom metrics you want to monitor, add a negated `metricsToExclude` 
 Note that some of the custom metrics require you to set a flag as well as add them to the list. Check the monitor configuration file to see if a flag is required for gathering additional metrics.
 ```yaml 
 metricsToExclude:
-  - gauge.zk_max_latency
-  - gauge.zk_min_latency
-  - gauge.zk_outstanding_requests
+  metricNames:
+    - gauge.zk_max_latency
+    - gauge.zk_min_latency
+    - gauge.zk_outstanding_requests
   negated: true
 ```
 
