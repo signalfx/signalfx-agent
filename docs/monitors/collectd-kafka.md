@@ -107,20 +107,21 @@ To specify custom metrics you want to monitor, add a negated `metricsToExclude` 
 Note that some of the custom metrics require you to set a flag as well as add them to the list. Check the monitor configuration file to see if a flag is required for gathering additional metrics.
 ```yaml 
 metricsToExclude:
-  - counter.kafka-all-bytes-in
-  - counter.kafka-all-bytes-out
-  - counter.kafka-log-flushes
-  - counter.kafka.fetch-follower.total-time.count
-  - counter.kafka.produce.total-time.99th
-  - counter.kafka.produce.total-time.median
-  - gauge.kafka-log-flush-time-ms
-  - gauge.kafka-log-flush-time-ms-p95
-  - kafka-isr-expands
-  - kafka-isr-shrinks
-  - kafka-leader-election-rate
-  - kafka-max-lag
-  - kafka-offline-partitions-count
-  - kafka-unclean-elections
+  metricNames:
+    - counter.kafka-all-bytes-in
+    - counter.kafka-all-bytes-out
+    - counter.kafka-log-flushes
+    - counter.kafka.fetch-follower.total-time.count
+    - counter.kafka.produce.total-time.99th
+    - counter.kafka.produce.total-time.median
+    - gauge.kafka-log-flush-time-ms
+    - gauge.kafka-log-flush-time-ms-p95
+    - kafka-isr-expands
+    - kafka-isr-shrinks
+    - kafka-leader-election-rate
+    - kafka-max-lag
+    - kafka-offline-partitions-count
+    - kafka-unclean-elections
   negated: true
 ```
 

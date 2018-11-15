@@ -82,11 +82,12 @@ To specify custom metrics you want to monitor, add a negated `metricsToExclude` 
 Note that some of the custom metrics require you to set a flag as well as add them to the list. Check the monitor configuration file to see if a flag is required for gathering additional metrics.
 ```yaml 
 metricsToExclude:
-  - kubernetes.container_ready
-  - kubernetes.namespace_phase
-  - kubernetes.node_ready
-  - kubernetes.resource_quota_hard
-  - kubernetes.resource_quota_used
+  metricNames:
+    - kubernetes.container_ready
+    - kubernetes.namespace_phase
+    - kubernetes.node_ready
+    - kubernetes.resource_quota_hard
+    - kubernetes.resource_quota_used
   negated: true
 ```
 
