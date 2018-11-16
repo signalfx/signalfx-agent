@@ -274,10 +274,10 @@ var _ = Describe("Kubernetes plugin", func() {
 		dps := waitForDatapoints(7)
 
 		By("Reporting on existing deployments")
-		expectIntMetric(dps, "uid", "abcd", "kubernetes.deployment.desired", 10)
-		expectIntMetric(dps, "uid", "abcd", "kubernetes.deployment.available", 5)
-		expectIntMetric(dps, "uid", "efgh", "kubernetes.deployment.desired", 1)
-		expectIntMetric(dps, "uid", "efgh", "kubernetes.deployment.available", 1)
+		expectIntMetric(dps, "kubernetes_uid", "abcd", "kubernetes.deployment.desired", 10)
+		expectIntMetric(dps, "kubernetes_uid", "abcd", "kubernetes.deployment.available", 5)
+		expectIntMetric(dps, "kubernetes_uid", "efgh", "kubernetes.deployment.desired", 1)
+		expectIntMetric(dps, "kubernetes_uid", "efgh", "kubernetes.deployment.available", 1)
 
 		fakeK8s.EventInput <- watch.Event{watch.Modified, &v1beta1.Deployment{
 			TypeMeta: metav1.TypeMeta{
@@ -299,10 +299,10 @@ var _ = Describe("Kubernetes plugin", func() {
 		_ = waitForDatapoints(7)
 		dps = waitForDatapoints(7)
 		By("Responding to events pushed on the watch API")
-		expectIntMetric(dps, "uid", "abcd", "kubernetes.deployment.desired", 10)
-		expectIntMetric(dps, "uid", "abcd", "kubernetes.deployment.available", 5)
-		expectIntMetric(dps, "uid", "efgh", "kubernetes.deployment.desired", 1)
-		expectIntMetric(dps, "uid", "efgh", "kubernetes.deployment.available", 0)
+		expectIntMetric(dps, "kubernetes_uid", "abcd", "kubernetes.deployment.desired", 10)
+		expectIntMetric(dps, "kubernetes_uid", "abcd", "kubernetes.deployment.available", 5)
+		expectIntMetric(dps, "kubernetes_uid", "efgh", "kubernetes.deployment.desired", 1)
+		expectIntMetric(dps, "kubernetes_uid", "efgh", "kubernetes.deployment.available", 0)
 	})
 
 })
