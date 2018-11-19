@@ -76,16 +76,17 @@ To specify custom metrics you want to monitor, add a negated `metricsToExclude` 
 Note that some of the custom metrics require you to set a flag as well as add them to the list. Check the monitor configuration file to see if a flag is required for gathering additional metrics.
 ```yaml 
 metricsToExclude:
-  - apache_scoreboard.closing
-  - apache_scoreboard.dnslookup
-  - apache_scoreboard.finishing
-  - apache_scoreboard.idle_cleanup
-  - apache_scoreboard.keepalive
-  - apache_scoreboard.logging
-  - apache_scoreboard.reading
-  - apache_scoreboard.sending
-  - apache_scoreboard.starting
-  - apache_scoreboard.waiting
+  metricNames:
+    - apache_scoreboard.closing
+    - apache_scoreboard.dnslookup
+    - apache_scoreboard.finishing
+    - apache_scoreboard.idle_cleanup
+    - apache_scoreboard.keepalive
+    - apache_scoreboard.logging
+    - apache_scoreboard.reading
+    - apache_scoreboard.sending
+    - apache_scoreboard.starting
+    - apache_scoreboard.waiting
   negated: true
 ```
 

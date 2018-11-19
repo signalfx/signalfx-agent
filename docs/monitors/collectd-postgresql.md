@@ -146,13 +146,14 @@ To specify custom metrics you want to monitor, add a negated `metricsToExclude` 
 Note that some of the custom metrics require you to set a flag as well as add them to the list. Check the monitor configuration file to see if a flag is required for gathering additional metrics.
 ```yaml 
 metricsToExclude:
-  - pg_blks.tidx_hit
-  - pg_blks.tidx_read
-  - pg_blks.toast_hit
-  - pg_blks.toast_read
-  - pg_n_tup_c.hot_upd
-  - pg_n_tup_g.dead
-  - pg_xact.num_deadlocks
+  metricNames:
+    - pg_blks.tidx_hit
+    - pg_blks.tidx_read
+    - pg_blks.toast_hit
+    - pg_blks.toast_read
+    - pg_n_tup_c.hot_upd
+    - pg_n_tup_g.dead
+    - pg_xact.num_deadlocks
   negated: true
 ```
 

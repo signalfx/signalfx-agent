@@ -3,7 +3,7 @@ from textwrap import dedent
 import os
 import pytest
 
-from helpers.assertions import has_datapoint_with_dim, http_status, has_log_message
+from helpers.assertions import has_datapoint_with_dim, http_status, has_log_message, has_datapoint_with_metric_name
 from helpers.kubernetes.utils import get_discovery_rule, run_k8s_monitors_test
 from helpers.util import (
     get_monitor_dims_from_selfdescribe,
@@ -19,7 +19,7 @@ pytestmark = [pytest.mark.collectd, pytest.mark.elasticsearch, pytest.mark.monit
 
 @pytest.mark.flaky(reruns=2)
 def test_elasticsearch_without_cluster_option():
-    with run_service("elasticsearch", environment={"cluster.name": "testCluster"}) as es_container:
+    with run_service("elasticsearch/6.4.2", environment={"cluster.name": "testCluster"}) as es_container:
         host = container_ip(es_container)
         assert wait_for(
             p(http_status, url=f"http://{host}:9200/_nodes/_local", status=[200]), 180
@@ -46,7 +46,7 @@ def test_elasticsearch_without_cluster_option():
 
 @pytest.mark.flaky(reruns=2)
 def test_elasticsearch_with_cluster_option():
-    with run_service("elasticsearch", environment={"cluster.name": "testCluster"}) as es_container:
+    with run_service("elasticsearch/6.4.2", environment={"cluster.name": "testCluster"}) as es_container:
         host = container_ip(es_container)
         assert wait_for(
             p(http_status, url=f"http://{host}:9200/_nodes/_local", status=[200]), 180
@@ -81,7 +81,7 @@ def test_elasticsearch_with_cluster_option():
 def test_elasticsearch_without_cluster():
     # start the ES container without the service
     with run_service(
-        "elasticsearch", environment={"cluster.name": "testCluster"}, entrypoint="sleep inf"
+        "elasticsearch/6.4.2", environment={"cluster.name": "testCluster"}, entrypoint="sleep inf"
     ) as es_container:
         host = container_ip(es_container)
         config = dedent(
@@ -108,11 +108,77 @@ def test_elasticsearch_without_cluster():
             ), "Didn't get elasticsearch datapoints"
 
 
+@pytest.mark.flaky(reruns=2)
+def test_elasticsearch_with_threadpool():
+    with run_service("elasticsearch/6.2.0", environment={"cluster.name": "testCluster"}) as es_container:
+        host = container_ip(es_container)
+        assert wait_for(
+            p(http_status, url=f"http://{host}:9200/_nodes/_local", status=[200]), 180
+        ), "service didn't start"
+        config = dedent(
+            f"""
+            monitors:
+            - type: collectd/elasticsearch
+              host: {host}
+              port: 9200
+              username: elastic
+              password: testing123
+              threadPools:
+               - bulk
+               - index
+               - search
+            """
+        )
+        with run_agent(config) as [backend, get_output, _]:
+            assert wait_for(
+                p(has_datapoint_with_dim, backend, "plugin", "elasticsearch")
+            ), "Didn't get elasticsearch datapoints"
+            assert wait_for(
+                p(has_datapoint_with_dim, backend, "thread_pool", "bulk")
+            ), "Didn't get bulk thread pool metrics"
+            assert not has_log_message(get_output().lower(), "error"), "error found in agent output!"
+
+
+@pytest.mark.flaky(reruns=2)
+def test_elasticsearch_with_additional_metrics():
+    with run_service("elasticsearch/6.2.0", environment={"cluster.name": "testCluster"}) as es_container:
+        host = container_ip(es_container)
+        assert wait_for(
+            p(http_status, url=f"http://{host}:9200/_nodes/_local", status=[200]), 180
+        ), "service didn't start"
+        config = dedent(
+            f"""
+            monitors:
+            - type: collectd/elasticsearch
+              host: {host}
+              port: 9200
+              username: elastic
+              password: testing123
+              additionalMetrics:
+               - cluster.initializing-shards
+               - thread_pool.threads
+            """
+        )
+        with run_agent(config) as [backend, get_output, _]:
+            assert wait_for(
+                p(has_datapoint_with_dim, backend, "plugin", "elasticsearch")
+            ), "Didn't get elasticsearch datapoints"
+            assert wait_for(
+                p(has_datapoint_with_metric_name, backend, "gauge.cluster.initializing-shards")
+            ), "Didn't get gauge.cluster.initializing-shards metric"
+            assert wait_for(
+                p(has_datapoint_with_metric_name, backend, "gauge.thread_pool.threads")
+            ), "Didn't get gauge.thread_pool.threads metric"
+            assert not has_log_message(get_output().lower(), "error"), "error found in agent output!"
+
+
 @pytest.mark.k8s
 @pytest.mark.kubernetes
 def test_elasticsearch_in_k8s(agent_image, minikube, k8s_observer, k8s_test_timeout, k8s_namespace):
     yaml = os.path.join(os.path.dirname(os.path.realpath(__file__)), "elasticsearch-k8s.yaml")
-    dockerfile_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)), "../../../test-services/elasticsearch")
+    dockerfile_dir = os.path.join(
+        os.path.dirname(os.path.realpath(__file__)), "../../../test-services/elasticsearch/6.4.2"
+    )
     build_opts = {"tag": "elasticsearch:k8s-test"}
     minikube.build_image(dockerfile_dir, build_opts)
     monitors = [

@@ -58,18 +58,19 @@ To specify custom metrics you want to monitor, add a negated `metricsToExclude` 
 Note that some of the custom metrics require you to set a flag as well as add them to the list. Check the monitor configuration file to see if a flag is required for gathering additional metrics.
 ```yaml 
 metricsToExclude:
-  - sfxagent.go_frees
-  - sfxagent.go_heap_alloc
-  - sfxagent.go_heap_idle
-  - sfxagent.go_heap_inuse
-  - sfxagent.go_heap_released
-  - sfxagent.go_heap_sys
-  - sfxagent.go_mallocs
-  - sfxagent.go_next_gc
-  - sfxagent.go_num_gc
-  - sfxagent.go_stack_inuse
-  - sfxagent.go_total_alloc
-  - sfxgent.go_num_goroutine
+  metricNames:
+    - sfxagent.go_frees
+    - sfxagent.go_heap_alloc
+    - sfxagent.go_heap_idle
+    - sfxagent.go_heap_inuse
+    - sfxagent.go_heap_released
+    - sfxagent.go_heap_sys
+    - sfxagent.go_mallocs
+    - sfxagent.go_next_gc
+    - sfxagent.go_num_gc
+    - sfxagent.go_stack_inuse
+    - sfxagent.go_total_alloc
+    - sfxgent.go_num_goroutine
   negated: true
 ```
 
