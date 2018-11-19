@@ -15,7 +15,7 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 . $SCRIPT_DIR/common.sh
 
-DEV_IMAGE=${DEV_IMAGE:-"quay.io/signalfx/signalfx-agent-dev"}
+DEV_IMAGE=${DEV_IMAGE:-"quay.io/signalfx/signalfx-agent-image-cache"}
 
 for s in $($SCRIPT_DIR/dockerfile-stages); do
   do_docker_build $DEV_IMAGE "stage-$s" $s "cache"
