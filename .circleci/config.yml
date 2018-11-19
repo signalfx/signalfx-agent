@@ -371,6 +371,18 @@ jobs:
           pylint -j4 $(find . -maxdepth 1 -mindepth 1 -type d -o -name "*.py") || \
               (echo "Pylint issue(s) found in $TARGET directory. Resolve the issues, run \`${cmd[$TARGET]}\` in the dev image, and commit the changes." && exit 1)
 
+  update_stage_cache:
+    docker:
+      - image: docker:18.09
+    steps:
+      - checkout
+      - setup_remote_docker:
+          docker_layer_caching: false
+      - run: |
+          apk add make bash
+          docker login -u="signalfx+circleci" -p="$CIRCLECI_QUAY_TOKEN" quay.io
+          PULL_CACHE=yes make stage-cache
+
 workflows:
   build_test:
     jobs:
@@ -440,3 +452,14 @@ workflows:
       - pylint_black:
           name: "python_lint"
           dir: "python"
+  stage_cache_job:
+    jobs:
+      - update_stage_cache
+    triggers:
+      - schedule:
+          # Run every two hours during US workdays
+          cron: "0 10,12,14,16,18,20,22,0 * * 1-5"
+          filters:
+            branches:
+              only:
+                - master
