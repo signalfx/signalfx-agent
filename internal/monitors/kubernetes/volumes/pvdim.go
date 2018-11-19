@@ -51,7 +51,11 @@ func dimsForPersistentVolumeSource(pvs v1.PersistentVolumeSource) map[string]str
 	if pvs.AWSElasticBlockStore != nil {
 		return awsElasticBlockStoreDims(*pvs.AWSElasticBlockStore)
 	} else if pvs.Glusterfs != nil {
-		return glusterfsDims(*pvs.Glusterfs)
+		return glusterfsDims(v1.GlusterfsVolumeSource{
+			EndpointsName: pvs.Glusterfs.EndpointsName,
+			Path:          pvs.Glusterfs.Path,
+			ReadOnly:      pvs.Glusterfs.ReadOnly,
+		})
 	}
 	return nil
 }
