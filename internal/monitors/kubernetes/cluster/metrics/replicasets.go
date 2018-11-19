@@ -43,7 +43,7 @@ func dimPropsForReplicaSet(rs *v1beta1.ReplicaSet) *atypes.DimProperties {
 
 	return &atypes.DimProperties{
 		Dimension: atypes.Dimension{
-			Name:  "kubernetes_replicaset_uid",
+			Name:  "kubernetes_uid",
 			Value: string(rs.UID),
 		},
 		Properties: props,

@@ -44,7 +44,7 @@ func dimPropsForDeployment(dep *v1beta1.Deployment) *atypes.DimProperties {
 
 	return &atypes.DimProperties{
 		Dimension: atypes.Dimension{
-			Name:  "kubernetes_deployment_uid",
+			Name:  "kubernetes_uid",
 			Value: string(dep.UID),
 		},
 		Properties: props,
