@@ -11,7 +11,7 @@ set -euo pipefail
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
-DEV_IMAGE=${DEV_IMAGE:-"quay.io/signalfx/signalfx-agent-dev"}
+DEV_IMAGE=${DEV_IMAGE:-"quay.io/signalfx/signalfx-agent-image-cache"}
 
 stages=$($SCRIPT_DIR/dockerfile-stages ${1-})
 
