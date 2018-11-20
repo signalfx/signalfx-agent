@@ -30,8 +30,10 @@ You can do this by setting the `negated` option to `true` on a filter item.
 This makes all metric name and dimension matching negated so that only
 datapoints with that name or dimension are allowed through.  You would also
 use this option to specify custom metrics that you want to send to SignalFx.
-The `monitorType`option is never negated, and always serves to scope a filter 
-item to the specified monitor type, if given.
+The `monitorType` option is never negated, and always serves to scope a filter 
+item to the specified monitor type, if given. In the case where multiple filters
+overlap, they will be combined by the agent. If metrics are matched by two filters
+which have opposite negation, the agent will favor exclusion.
 
 Examples:
 
@@ -86,6 +88,11 @@ Examples:
       - gauge.thread_pool.inactive
       monitorType: collectd/elasticsearch
       negated: true
+
+    # This will override the above filter, exclusion is always favored
+    - metricNames:
+      - gauge.thread_pool.inactive
+      monitorType: collectd/elasticsearch
 ```
 
 ## Property Filtering

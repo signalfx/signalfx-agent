@@ -86,6 +86,46 @@ metricsToExclude:
         assert ensure_always(lambda: not has_datapoint_with_metric_name(backend, "uptime"), 5)
 
 
+# Test overlapping filters with different negation. Blacklist is favored
+def test_overlapping_filter_with_monitor_type():
+    with run_agent(
+        """
+monitors:
+  - type: collectd/memory
+  - type: collectd/uptime
+metricsToExclude:
+  - metricName: uptime
+    negated: true
+    monitorType: collectd/uptime
+  - metricName: uptime
+    monitorType: collectd/uptime
+"""
+    ) as [backend, _, _]:
+        assert wait_for(lambda: has_datapoint_with_metric_name(backend, "memory.used"))
+        assert wait_for(lambda: has_datapoint_with_metric_name(backend, "memory.free"))
+        assert ensure_always(lambda: not has_datapoint_with_metric_name(backend, "uptime"), 5)
+
+
+# Test overlapping filters with different negation. Blacklist is favored
+def test_overlapping_filter_with_monitor_type2():
+    with run_agent(
+        """
+monitors:
+  - type: collectd/memory
+  - type: collectd/uptime
+metricsToExclude:
+  - metricName: uptime
+    monitorType: collectd/uptime
+  - metricName: uptime
+    negated: true
+    monitorType: collectd/uptime
+"""
+    ) as [backend, _, _]:
+        assert wait_for(lambda: has_datapoint_with_metric_name(backend, "memory.used"))
+        assert wait_for(lambda: has_datapoint_with_metric_name(backend, "memory.free"))
+        assert ensure_always(lambda: not has_datapoint_with_metric_name(backend, "uptime"), 5)
+
+
 # Ensure the filters get updated properly when the agent reloads a new config
 def test_filter_with_restart():
     with run_agent(
