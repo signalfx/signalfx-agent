@@ -33,14 +33,12 @@ commands:
   install_pytest:
     description: Install pytest and dependencies with pyenv 3.6.3.
     steps:
+      - restore_cache:
+          key: v1-pytest-{{ checksum "tests/requirements.txt" }}
       - run:
           name: Install pytest and dependencies
           command: |
-            if [ -f ~/.skip ]; then
-                echo "Found ~/.skip, skipping pytest install!"
-                exit 0
-            fi
-            pyenv install 3.6.3
+            pyenv install --skip-existing 3.6.3
             pyenv global 3.6.3
             if which pip; then
                 pip install --upgrade 'pip==10.0.1'
@@ -50,6 +48,10 @@ commands:
             fi
             pip install -r tests/requirements.txt
             pyenv rehash
+      - save_cache:
+          key: v1-pytest-{{ checksum "tests/requirements.txt" }}
+          paths:
+            - /opt/circleci/.pyenv
 
   save_test_results:
     description: Collect and archive test results from `dir`.
