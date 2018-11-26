@@ -274,6 +274,9 @@ func (sw *SignalFxWriter) listenForDatapoints() {
 
 		case dp := <-sw.dpChan:
 			if !sw.shouldSendDatapoint(dp) {
+				if sw.conf.LogDroppedDatapoints {
+					log.Debugf("Dropping datapoint:\n%s", utils.DatapointToString(dp))
+				}
 				continue
 			}
 			buf := append(sw.dpBufferPool.Get().([]*datapoint.Datapoint), dp)
@@ -308,7 +311,12 @@ func (sw *SignalFxWriter) drainDpChan(buf []*datapoint.Datapoint) []*datapoint.D
 	for {
 		select {
 		case dp := <-sw.dpChan:
+			// TODO: Reduce duplication with the main datapoint loop in
+			// listenForDatapoints
 			if !sw.shouldSendDatapoint(dp) {
+				if sw.conf.LogDroppedDatapoints {
+					log.Debugf("Dropping datapoint:\n%s", utils.DatapointToString(dp))
+				}
 				continue
 			}
 

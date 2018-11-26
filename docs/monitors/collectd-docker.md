@@ -36,4 +36,3 @@ Monitor Type: `collectd/docker`
 
 
 
-

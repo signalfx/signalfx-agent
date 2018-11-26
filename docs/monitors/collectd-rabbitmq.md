@@ -159,10 +159,20 @@ The following table lists the metrics available for this monitor. Metrics that a
 | `gauge.queue.messages_unacknowledged_details.rate` | gauge | X | How much the count of unacknowledged messages has changed per second in the most recent sampling interval. |
 | `gauge.queue.messages_unacknowledged_ram` | gauge | X | Number of messages from messages_unacknowledged which are resident in RAM. |
 
-To specify custom metrics you want to monitor, add a negated `metricsToExclude` to the monitor configuration, as shown in the code snippet below. The snippet lists all available custom metrics. You can copy and paste the snippet into your configuration file, then delete any custom metrics that you do not want to monitor. 
-Note that some of the custom metrics require you to set a flag as well as add them to the list. Check the monitor configuration file to see if a flag is required for gathering additional metrics.
-```yaml 
-metricsToExclude:
+
+To specify custom metrics you want to monitor, add a `metricsToInclude` filter
+to the agent configuration, as shown in the code snippet below. The snippet
+lists all available custom metrics. You can copy and paste the snippet into
+your configuration file, then delete any custom metrics that you do not want
+sent.
+
+Note that some of the custom metrics require you to set a flag as well as add
+them to the list. Check the monitor configuration file to see if a flag is
+required for gathering additional metrics.
+
+```yaml
+
+metricsToInclude:
   - metricNames:
     - counter.channel.message_stats.ack
     - counter.channel.message_stats.confirm
@@ -257,9 +267,8 @@ metricsToExclude:
     - gauge.queue.messages_unacknowledged
     - gauge.queue.messages_unacknowledged_details.rate
     - gauge.queue.messages_unacknowledged_ram
-  negated: true
+    monitorType: collectd/rabbitmq
 ```
-
 
 
 

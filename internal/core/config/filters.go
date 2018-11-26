@@ -31,12 +31,18 @@ func (mf *MetricFilter) MakeFilter() (dpfilters.DatapointFilter, error) {
 	return dpfilters.New(mf.MonitorType, mf.MetricNames, mf.Dimensions, mf.Negated)
 }
 
-func makeFilterSet(conf []MetricFilter) (*dpfilters.FilterSet, error) {
-	fs := make([]dpfilters.DatapointFilter, 0)
-	mtes := make([]MetricFilter, 0, len(conf))
+func makeFilterSet(excludes []MetricFilter, includes []MetricFilter) (*dpfilters.FilterSet, error) {
+	excludeSet := make([]dpfilters.DatapointFilter, 0)
+	includeSet := make([]dpfilters.DatapointFilter, 0)
+	mtes := make([]MetricFilter, 0, len(excludes))
+	mtis := make([]MetricFilter, 0, len(includes))
 
-	for _, mte := range conf {
+	for _, mte := range excludes {
 		mtes = AddOrMerge(mtes, mte)
+	}
+
+	for _, mti := range includes {
+		mtis = AddOrMerge(mtis, mti)
 	}
 
 	for _, mte := range mtes {
@@ -44,11 +50,20 @@ func makeFilterSet(conf []MetricFilter) (*dpfilters.FilterSet, error) {
 		if err != nil {
 			return nil, err
 		}
-		fs = append(fs, f)
+		excludeSet = append(excludeSet, f)
+	}
+
+	for _, mti := range mtis {
+		f, err := mti.MakeFilter()
+		if err != nil {
+			return nil, err
+		}
+		includeSet = append(includeSet, f)
 	}
 
 	return &dpfilters.FilterSet{
-		Filters: fs,
+		ExcludeFilters: excludeSet,
+		IncludeFilters: includeSet,
 	}, nil
 }
 

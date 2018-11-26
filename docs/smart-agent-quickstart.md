@@ -21,7 +21,7 @@ More detailed installation steps to install via a config management tool or usin
 #### Step 2: Configuration
 
 The default configuration file should be located at `/etc/signalfx/agent.yaml`
-Also, by default, the file containing your SignalFx API token should be located at `/etc/signalfx/token`. 
+Also, by default, the file containing your SignalFx API token should be located at `/etc/signalfx/token`.
 
 In the example agent.yaml configuration file shown below, the default location for the token file is used.
 
@@ -57,16 +57,16 @@ monitors:
   - type: collectd/signalfx-metadata
   - type: collectd/uptime
   - type: collectd/vmem
-  
+
 metricsToExclude:
 ```
 
-You can add more [monitors](./monitor-config.md) and configure them as appropriate. 
+You can add more [monitors](./monitor-config.md) and configure them as appropriate.
 
-##### Example of adding a new monitor 
+##### Example of adding a new monitor
 
 To start collecting apache metrics, you would add the [apache monitor](./monitors/collectd-apache.md) to the agent.yaml file.
-Your monitor list would then look similar to this: 
+Your monitor list would then look similar to this:
 
 ```
 monitors:
@@ -81,7 +81,7 @@ monitors:
 
 ##### Example of adding a new observer
 
-To start collecting docker container metrics, your first step would be to add a [docker observer](./observers/docker.md). 
+To start collecting docker container metrics, your first step would be to add a [docker observer](./observers/docker.md).
 
 Your observer list would then look similar to this:
 
@@ -91,7 +91,7 @@ observers:
   - type: docker
 ```
 
-Next, you would add a [docker metrics monitor](./monitors/docker-container-stats.md) to the agent.yaml file. Your type list would now include this monitor (docker-container-stats): 
+Next, you would add a [docker metrics monitor](./monitors/docker-container-stats.md) to the agent.yaml file. Your type list would now include this monitor (docker-container-stats):
 
 ```
 monitors:
@@ -101,11 +101,11 @@ monitors:
   .
   .
   - type: docker-container-stats
-```  
+```
 
 The agent automatically picks up any changes to the configuration file, so a restart is not required.
 
-For troubleshooting, you can also check the status of the agent: 
+For troubleshooting, you can also check the status of the agent:
 
 ```
 sudo signalfx-agent status

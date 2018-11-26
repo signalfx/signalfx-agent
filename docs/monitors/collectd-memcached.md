@@ -59,10 +59,20 @@ The following table lists the metrics available for this monitor. Metrics that a
 | `ps_cputime.syst` | cumulative | X | Total system time for this instance |
 | `ps_cputime.user` | cumulative | X | Total user time for this instance |
 
-To specify custom metrics you want to monitor, add a negated `metricsToExclude` to the monitor configuration, as shown in the code snippet below. The snippet lists all available custom metrics. You can copy and paste the snippet into your configuration file, then delete any custom metrics that you do not want to monitor. 
-Note that some of the custom metrics require you to set a flag as well as add them to the list. Check the monitor configuration file to see if a flag is required for gathering additional metrics.
-```yaml 
-metricsToExclude:
+
+To specify custom metrics you want to monitor, add a `metricsToInclude` filter
+to the agent configuration, as shown in the code snippet below. The snippet
+lists all available custom metrics. You can copy and paste the snippet into
+your configuration file, then delete any custom metrics that you do not want
+sent.
+
+Note that some of the custom metrics require you to set a flag as well as add
+them to the list. Check the monitor configuration file to see if a flag is
+required for gathering additional metrics.
+
+```yaml
+
+metricsToInclude:
   - metricNames:
     - memcached_command.flush
     - memcached_command.touch
@@ -74,9 +84,8 @@ metricsToExclude:
     - ps_count.threads
     - ps_cputime.syst
     - ps_cputime.user
-  negated: true
+    monitorType: collectd/memcached
 ```
-
 
 
 

@@ -12393,6 +12393,14 @@
               "elementKind": ""
             },
             {
+              "yamlName": "logDroppedDatapoints",
+              "doc": "If true, and the log level is `debug`, filtered out datapoints will be logged.",
+              "default": false,
+              "required": false,
+              "type": "bool",
+              "elementKind": ""
+            },
+            {
               "yamlName": "sendTraceHostCorrelationMetrics",
               "doc": "Whether to send host correlation metrics to correlation traced services with the underlying host",
               "default": false,
@@ -12548,6 +12556,61 @@
               "default": "/var/run/signalfx-agent/collectd",
               "required": false,
               "type": "string",
+              "elementKind": ""
+            }
+          ]
+        }
+      },
+      {
+        "yamlName": "metricsToInclude",
+        "doc": "A list of metric filters that will whitelist/include metrics.  These filters take priority over the filters specified in `metricsToExclude`.",
+        "default": "",
+        "required": false,
+        "type": "slice",
+        "elementKind": "struct",
+        "elementStruct": {
+          "name": "MetricFilter",
+          "doc": "MetricFilter describes a set of subtractive filters applied to datapoints right before they are sent.",
+          "package": "internal/core/config",
+          "fields": [
+            {
+              "yamlName": "dimensions",
+              "doc": "A map of dimension key/values to match against.  All key/values must match a datapoint for it to be matched.",
+              "default": "",
+              "required": false,
+              "type": "map",
+              "elementKind": "string"
+            },
+            {
+              "yamlName": "metricNames",
+              "doc": "A list of metric names to match against, OR'd together",
+              "default": null,
+              "required": false,
+              "type": "slice",
+              "elementKind": "string"
+            },
+            {
+              "yamlName": "metricName",
+              "doc": "A single metric name to match against",
+              "default": "",
+              "required": false,
+              "type": "string",
+              "elementKind": ""
+            },
+            {
+              "yamlName": "monitorType",
+              "doc": "(**Only applicable for the top level filters**) Limits this scope of the filter to datapoints from a specific monitor. If specified, any datapoints not from this monitor type will never match against this filter.",
+              "default": "",
+              "required": false,
+              "type": "string",
+              "elementKind": ""
+            },
+            {
+              "yamlName": "negated",
+              "doc": "Negates the result of the match so that it matches all datapoints that do NOT match the metric name and dimension values given. This does not negate monitorType, if given.",
+              "default": false,
+              "required": false,
+              "type": "bool",
               "elementKind": ""
             }
           ]

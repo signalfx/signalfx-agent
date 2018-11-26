@@ -245,10 +245,20 @@ The following table lists the metrics available for this monitor. Metrics that a
 | `threads.running` | gauge | X | The number of MySQL threads that are processing a query.  A MySQL thread corresponds to a single MySQL connection. |
 | `total_threads.created` | cumulative | X | The total number of threads created by MySQL for client connections.  A MySQL thread corresponds to a single MySQL connection. |
 
-To specify custom metrics you want to monitor, add a negated `metricsToExclude` to the monitor configuration, as shown in the code snippet below. The snippet lists all available custom metrics. You can copy and paste the snippet into your configuration file, then delete any custom metrics that you do not want to monitor. 
-Note that some of the custom metrics require you to set a flag as well as add them to the list. Check the monitor configuration file to see if a flag is required for gathering additional metrics.
-```yaml 
-metricsToExclude:
+
+To specify custom metrics you want to monitor, add a `metricsToInclude` filter
+to the agent configuration, as shown in the code snippet below. The snippet
+lists all available custom metrics. You can copy and paste the snippet into
+your configuration file, then delete any custom metrics that you do not want
+sent.
+
+Note that some of the custom metrics require you to set a flag as well as add
+them to the list. Check the monitor configuration file to see if a flag is
+required for gathering additional metrics.
+
+```yaml
+
+metricsToInclude:
   - metricNames:
     - cache_results.cache_size
     - cache_results.qcache-not_cached
@@ -407,9 +417,8 @@ metricsToExclude:
     - mysql_sort.scan
     - threads.running
     - total_threads.created
-  negated: true
+    monitorType: collectd/mysql
 ```
-
 
 
 

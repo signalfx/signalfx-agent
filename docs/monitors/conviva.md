@@ -110,4 +110,3 @@ The **nested** `metricConfigs` config object has the following fields:
 
 
 
-

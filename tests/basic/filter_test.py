@@ -132,6 +132,36 @@ metricsToExclude:
         assert ensure_always(lambda: not has_datapoint_with_metric_name(backend, "uptime"), 5)
 
 
+def test_include_filter_with_monitor_type():
+    """
+    Test that include filters will override exclude filters
+    """
+    with run_agent(
+        """
+monitors:
+  - type: collectd/disk
+  - type: collectd/uptime
+metricsToExclude:
+  - metricNames:
+    - disk_time.read
+    monitorType: collectd/disk
+  - metricNames:
+    - disk_ops.read
+    - disk_ops.write
+    monitorType: collectd/disk
+    negated: true
+metricsToInclude:
+  - metricNames:
+    - disk_time.read
+"""
+    ) as [backend, _, _]:
+        assert wait_for(lambda: has_datapoint_with_metric_name(backend, "disk_ops.read"))
+        assert wait_for(lambda: has_datapoint_with_metric_name(backend, "disk_ops.write"), 5)
+        assert wait_for(lambda: has_datapoint_with_metric_name(backend, "disk_time.read"), 5)
+        assert ensure_always(lambda: not has_datapoint_with_metric_name(backend, "disk_time.write"), 5)
+        assert wait_for(lambda: has_datapoint_with_metric_name(backend, "uptime"), 5)
+
+
 def test_filter_with_restart():
     """
     Ensure the filters get updated properly when the agent reloads a new config
