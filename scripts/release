@@ -27,6 +27,7 @@ parse_args_and_release() {
   local build_rpm_package=no
   local build_bundle=no
   local force=no
+  local allow_uncommitted=no
   local github_username="${GITHUB_USERNAME-}"
   local github_token="${GITHUB_TOKEN-}"
 
@@ -69,6 +70,9 @@ parse_args_and_release() {
       --force)
         force=yes
         ;;
+      --allow-uncommitted-files)
+        allow_uncommitted=yes
+        ;;
       --component)
         case "$2" in
           docker) build_docker_image=yes build_all=no ;;
@@ -92,9 +96,14 @@ parse_args_and_release() {
     stage=$(stage_from_version $new_version)
   fi
 
-  if [[ "$stage" != "test" ]] && ! git diff --exit-code && [[ "$force" != "yes" ]]; then
+  if [[ "$stage" != "test" ]] && ! git diff --exit-code && [[ "$allow_uncommitted" != "yes" ]]; then
     echo "You are making a non-test release and have changes in your local workspace.  Stash them first for a pristine build." >&2
     exit 1
+  fi
+
+  if [[ "$stage" != "test" ]] && [[ $(git symbolic-ref HEAD) != "refs/heads/master" ]]; then
+	echo "You are releasing a beta/final release from a branch other than master, which is not allowed." >&2
+	exit 1
   fi
 
   read -p "This is a $stage release of version $new_version, please confirm: [y/N] "
@@ -141,6 +150,12 @@ parse_args_and_release() {
     fi
   fi
 
+  # Do these updates after everything has been pushed so that nobody ever sees
+  # versions in the master branch that haven't been released.
+  if [[ "$stage" == "final" ]]; then
+    update_deployment_files "$new_version" "$force"
+  fi
+
   echo "Successfully released $new_version"
 }
 
@@ -159,11 +174,30 @@ Options:
   --component docker|deb|rpm|bundle Releases only the selected component if specified, otherwise does everything
   --[no-]push                       Whether to push the components to remote sources or not (default, yes)
   --force                           Ignore checks for uncommited local changes and package repo confirmation
+  --allow-uncommitted-files         Whether to ignore uncommitted files in the current directory
   --stage test|beta|final           What kind of release this is.  If not specified, will be inferred from the version
   --github-user <username>          Github username of a user that has permisssions to manage releases
   --github-token <token>            Github API token for the given user
 
 EOH
+}
+
+update_deployment_files() {
+  local new_version=$1
+
+  $SCRIPT_DIR/update-deployments-version $new_version
+
+  # Don't do anything if there aren't any changed files
+  if ! git --no-pager diff --exit-code deployments; then
+    if [[ $force != "yes" ]]; then
+      read -p "Above is the diff for deployment files for $new_version, please confirm: [y/N] "
+      [[ ! "$REPLY" =~ ^[Yy]$ ]] && echo "Not pushing deployment updates" >&2 && return 1
+    fi
+
+    git add deployments
+    git commit -m"Update deployment versions to ${new_version}"
+    git push origin
+  fi
 }
 
 create_and_push_tag() {
