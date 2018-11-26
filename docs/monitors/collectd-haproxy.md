@@ -106,10 +106,20 @@ The following table lists the metrics available for this monitor. Metrics that a
 | `gauge.throttle` | gauge | X | Corresponds to HAProxy's `throttle` metric -  Current throttle percentage for the server, when slowstart is active, or no value if not in slowstart. |
 | `gauge.zlib_mem_usage` | gauge | X | Corresponds to HAProxy's `ZlibMemUsage` metric. |
 
-To specify custom metrics you want to monitor, add a negated `metricsToExclude` to the monitor configuration, as shown in the code snippet below. The snippet lists all available custom metrics. You can copy and paste the snippet into your configuration file, then delete any custom metrics that you do not want to monitor. 
-Note that some of the custom metrics require you to set a flag as well as add them to the list. Check the monitor configuration file to see if a flag is required for gathering additional metrics.
-```yaml 
-metricsToExclude:
+
+To specify custom metrics you want to monitor, add a `metricsToInclude` filter
+to the agent configuration, as shown in the code snippet below. The snippet
+lists all available custom metrics. You can copy and paste the snippet into
+your configuration file, then delete any custom metrics that you do not want
+sent.
+
+Note that some of the custom metrics require you to set a flag as well as add
+them to the list. Check the monitor configuration file to see if a flag is
+required for gathering additional metrics.
+
+```yaml
+
+metricsToInclude:
   - metricNames:
     - counter.connection_total
     - derive.cli_abrt
@@ -162,9 +172,8 @@ metricsToExclude:
     - gauge.tasks
     - gauge.throttle
     - gauge.zlib_mem_usage
-  negated: true
+    monitorType: collectd/haproxy
 ```
-
 
 
 

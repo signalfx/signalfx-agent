@@ -50,17 +50,26 @@ The following table lists the metrics available for this monitor. Metrics that a
 | `gauge.zk_watch_count` | gauge |  | Number of watches placed on Z-Nodes on a ZooKeeper server |
 | `gauge.zk_znode_count` | gauge |  | Number of z-nodes that a ZooKeeper server has in its data tree |
 
-To specify custom metrics you want to monitor, add a negated `metricsToExclude` to the monitor configuration, as shown in the code snippet below. The snippet lists all available custom metrics. You can copy and paste the snippet into your configuration file, then delete any custom metrics that you do not want to monitor. 
-Note that some of the custom metrics require you to set a flag as well as add them to the list. Check the monitor configuration file to see if a flag is required for gathering additional metrics.
-```yaml 
-metricsToExclude:
+
+To specify custom metrics you want to monitor, add a `metricsToInclude` filter
+to the agent configuration, as shown in the code snippet below. The snippet
+lists all available custom metrics. You can copy and paste the snippet into
+your configuration file, then delete any custom metrics that you do not want
+sent.
+
+Note that some of the custom metrics require you to set a flag as well as add
+them to the list. Check the monitor configuration file to see if a flag is
+required for gathering additional metrics.
+
+```yaml
+
+metricsToInclude:
   - metricNames:
     - gauge.zk_max_latency
     - gauge.zk_min_latency
     - gauge.zk_outstanding_requests
-  negated: true
+    monitorType: collectd/zookeeper
 ```
-
 
 
 

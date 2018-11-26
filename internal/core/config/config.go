@@ -72,6 +72,9 @@ type Config struct {
 	Logging LogConfig `yaml:"logging" default:"{}"`
 	// Configuration of the managed collectd subprocess
 	Collectd CollectdConfig `yaml:"collectd" default:"{}"`
+	// A list of metric filters that will whitelist/include metrics.  These
+	// filters take priority over the filters specified in `metricsToExclude`.
+	MetricsToInclude []MetricFilter `yaml:"metricsToInclude" default:"[]"`
 	// A list of metric filters
 	MetricsToExclude []MetricFilter `yaml:"metricsToExclude" default:"[]"`
 	// A list of properties filters
@@ -169,7 +172,7 @@ func (c *Config) validate() error {
 // Send values from the top of the config down to nested configs that might
 // need them
 func (c *Config) propagateValuesDown() error {
-	dpFilterSet, err := makeFilterSet(c.MetricsToExclude)
+	dpFilterSet, err := makeFilterSet(c.MetricsToExclude, c.MetricsToInclude)
 	if err != nil {
 		return err
 	}

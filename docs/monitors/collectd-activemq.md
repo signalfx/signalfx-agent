@@ -95,10 +95,20 @@ The following table lists the metrics available for this monitor. Metrics that a
 | `gauge.amq.topic.QueueSize` | gauge |  | Number of messages in the topic that have yet to be consumed. |
 | `gauge.amq.topic.TotalBlockedTime` | gauge | X | The total time (ms) that messages have spent blocked by Flow Control |
 
-To specify custom metrics you want to monitor, add a negated `metricsToExclude` to the monitor configuration, as shown in the code snippet below. The snippet lists all available custom metrics. You can copy and paste the snippet into your configuration file, then delete any custom metrics that you do not want to monitor. 
-Note that some of the custom metrics require you to set a flag as well as add them to the list. Check the monitor configuration file to see if a flag is required for gathering additional metrics.
-```yaml 
-metricsToExclude:
+
+To specify custom metrics you want to monitor, add a `metricsToInclude` filter
+to the agent configuration, as shown in the code snippet below. The snippet
+lists all available custom metrics. You can copy and paste the snippet into
+your configuration file, then delete any custom metrics that you do not want
+sent.
+
+Note that some of the custom metrics require you to set a flag as well as add
+them to the list. Check the monitor configuration file to see if a flag is
+required for gathering additional metrics.
+
+```yaml
+
+metricsToInclude:
   - metricNames:
     - gauge.amq.TotalDequeueCount
     - gauge.amq.queue.AverageBlockedTime
@@ -112,9 +122,8 @@ metricsToExclude:
     - gauge.amq.topic.DequeueCount
     - gauge.amq.topic.ForwardCount
     - gauge.amq.topic.TotalBlockedTime
-  negated: true
+    monitorType: collectd/activemq
 ```
-
 
 
 

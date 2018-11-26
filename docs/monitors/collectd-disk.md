@@ -41,10 +41,20 @@ The following table lists the metrics available for this monitor. Metrics that a
 | `disk_time.read` | cumulative | X | The average amount of time it took to do a read operation. |
 | `disk_time.write` | cumulative | X | The average amount of time it took to do a write operation. |
 
-To specify custom metrics you want to monitor, add a negated `metricsToExclude` to the monitor configuration, as shown in the code snippet below. The snippet lists all available custom metrics. You can copy and paste the snippet into your configuration file, then delete any custom metrics that you do not want to monitor. 
-Note that some of the custom metrics require you to set a flag as well as add them to the list. Check the monitor configuration file to see if a flag is required for gathering additional metrics.
-```yaml 
-metricsToExclude:
+
+To specify custom metrics you want to monitor, add a `metricsToInclude` filter
+to the agent configuration, as shown in the code snippet below. The snippet
+lists all available custom metrics. You can copy and paste the snippet into
+your configuration file, then delete any custom metrics that you do not want
+sent.
+
+Note that some of the custom metrics require you to set a flag as well as add
+them to the list. Check the monitor configuration file to see if a flag is
+required for gathering additional metrics.
+
+```yaml
+
+metricsToInclude:
   - metricNames:
     - disk_merged.read
     - disk_merged.write
@@ -52,9 +62,8 @@ metricsToExclude:
     - disk_octets.write
     - disk_time.read
     - disk_time.write
-  negated: true
+    monitorType: collectd/disk
 ```
-
 
 
 

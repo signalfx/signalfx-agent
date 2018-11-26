@@ -104,10 +104,20 @@ The following table lists the metrics available for this monitor. Metrics that a
 | `gauge.consul.serf.queue.Query.max` | gauge | X | Maximum number of serf queries in queue yet to be processed during the interval |
 | `gauge.consul.serf.queue.Query.min` | gauge | X | Minimum number of serf queries in queue yet to be processed during the interval |
 
-To specify custom metrics you want to monitor, add a negated `metricsToExclude` to the monitor configuration, as shown in the code snippet below. The snippet lists all available custom metrics. You can copy and paste the snippet into your configuration file, then delete any custom metrics that you do not want to monitor. 
-Note that some of the custom metrics require you to set a flag as well as add them to the list. Check the monitor configuration file to see if a flag is required for gathering additional metrics.
-```yaml 
-metricsToExclude:
+
+To specify custom metrics you want to monitor, add a `metricsToInclude` filter
+to the agent configuration, as shown in the code snippet below. The snippet
+lists all available custom metrics. You can copy and paste the snippet into
+your configuration file, then delete any custom metrics that you do not want
+sent.
+
+Note that some of the custom metrics require you to set a flag as well as add
+them to the list. Check the monitor configuration file to see if a flag is
+required for gathering additional metrics.
+
+```yaml
+
+metricsToInclude:
   - metricNames:
     - consul.dns.stale_queries
     - consul.memberlist.msg.suspect
@@ -130,9 +140,8 @@ metricsToExclude:
     - gauge.consul.serf.queue.Query.avg
     - gauge.consul.serf.queue.Query.max
     - gauge.consul.serf.queue.Query.min
-  negated: true
+    monitorType: collectd/consul
 ```
-
 
 
 ## Dimensions

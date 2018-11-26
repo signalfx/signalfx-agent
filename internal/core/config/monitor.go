@@ -61,7 +61,7 @@ type MonitorConfig struct {
 // deserialization.
 func (mc *MonitorConfig) initialize() error {
 	var err error
-	mc.Filter, err = makeFilterSet(mc.MetricsToExclude)
+	mc.Filter, err = makeFilterSet(mc.MetricsToExclude, nil)
 	if err != nil {
 		return err
 	}

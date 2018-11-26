@@ -97,10 +97,20 @@ The following table lists the metrics available for this monitor. Metrics that a
 | `gauge.storageSize` | gauge |  | Total bytes allocated to collections for document storage |
 | `gauge.uptime` | counter |  | Uptime of this server in milliseconds |
 
-To specify custom metrics you want to monitor, add a negated `metricsToExclude` to the monitor configuration, as shown in the code snippet below. The snippet lists all available custom metrics. You can copy and paste the snippet into your configuration file, then delete any custom metrics that you do not want to monitor. 
-Note that some of the custom metrics require you to set a flag as well as add them to the list. Check the monitor configuration file to see if a flag is required for gathering additional metrics.
-```yaml 
-metricsToExclude:
+
+To specify custom metrics you want to monitor, add a `metricsToInclude` filter
+to the agent configuration, as shown in the code snippet below. The snippet
+lists all available custom metrics. You can copy and paste the snippet into
+your configuration file, then delete any custom metrics that you do not want
+sent.
+
+Note that some of the custom metrics require you to set a flag as well as add
+them to the list. Check the monitor configuration file to see if a flag is
+required for gathering additional metrics.
+
+```yaml
+
+metricsToInclude:
   - metricNames:
     - counter.collection.commandsCount
     - counter.collection.commandsTime
@@ -133,9 +143,8 @@ metricsToExclude:
     - gauge.globalLock.activeClients.total
     - gauge.globalLock.currentQueue.total
     - gauge.indexes
-  negated: true
+    monitorType: collectd/mongodb
 ```
-
 
 
 ## Dimensions

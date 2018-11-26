@@ -85,10 +85,20 @@ The following table lists the metrics available for this monitor. Metrics that a
 | `pod_network_transmit_packets_dropped_total` | counter | X | Cumulative count of packets dropped while transmitting |
 | `pod_network_transmit_packets_total` | counter | X | Cumulative count of packets transmitted |
 
-To specify custom metrics you want to monitor, add a negated `metricsToExclude` to the monitor configuration, as shown in the code snippet below. The snippet lists all available custom metrics. You can copy and paste the snippet into your configuration file, then delete any custom metrics that you do not want to monitor. 
-Note that some of the custom metrics require you to set a flag as well as add them to the list. Check the monitor configuration file to see if a flag is required for gathering additional metrics.
-```yaml 
-metricsToExclude:
+
+To specify custom metrics you want to monitor, add a `metricsToInclude` filter
+to the agent configuration, as shown in the code snippet below. The snippet
+lists all available custom metrics. You can copy and paste the snippet into
+your configuration file, then delete any custom metrics that you do not want
+sent.
+
+Note that some of the custom metrics require you to set a flag as well as add
+them to the list. Check the monitor configuration file to see if a flag is
+required for gathering additional metrics.
+
+```yaml
+
+metricsToInclude:
   - metricNames:
     - container_cpu_cfs_periods
     - container_cpu_cfs_throttled_periods
@@ -122,9 +132,8 @@ metricsToExclude:
     - pod_network_receive_packets_total
     - pod_network_transmit_packets_dropped_total
     - pod_network_transmit_packets_total
-  negated: true
+    monitorType: cadvisor
 ```
-
 
 
 ## Dimensions
