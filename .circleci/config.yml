@@ -117,14 +117,15 @@ commands:
 
 jobs:
   build:
-    executor: machine_image
+    docker:
+      - image: docker:18.09
     steps:
       - checkout
+      - setup_remote_docker:
+          docker_layer_caching: false
       - run: |
-          set -x
-          export PULL_CACHE=yes
-          export AGENT_VERSION=latest
-          make image
+          apk add make bash
+          PULL_CACHE=yes AGENT_VERSION=latest make image
       - run: |
           mkdir -p /tmp/workspace
           docker save -o /tmp/workspace/image.tar quay.io/signalfx/signalfx-agent-dev:latest
