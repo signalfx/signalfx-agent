@@ -137,17 +137,20 @@ jobs:
             - image.tar
 
   build_dev_image:
-    executor: machine_image
+    docker:
+      - image: docker:18.09
     steps:
       - checkout
+      - setup_remote_docker:
+          docker_layer_caching: false
       - run: |
-          set -x
+          apk add make bash git
+          git checkout -b $CIRCLE_BRANCH
           if ! scripts/changes-include-dir Dockerfile; then
               echo "Dockerfile has not changed, skipping build!"
               exit 0
           fi
-          export PULL_CACHE=yes
-          make dev-image
+          PULL_CACHE=yes make dev-image
 
   build-windows:
     executor: machine_image
