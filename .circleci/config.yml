@@ -18,6 +18,10 @@ executors:
     docker:
       - image: python:3.6
 
+  docker1809:
+    docker:
+      - image: docker:18.09
+
 commands:
   goexecutor_setup:
     steps:
@@ -119,8 +123,7 @@ commands:
 
 jobs:
   build:
-    docker:
-      - image: docker:18.09
+    executor: docker1809
     steps:
       - checkout
       - setup_remote_docker:
@@ -137,8 +140,7 @@ jobs:
             - image.tar
 
   build_dev_image:
-    docker:
-      - image: docker:18.09
+    executor: docker1809
     steps:
       - checkout
       - setup_remote_docker:
@@ -153,18 +155,19 @@ jobs:
           PULL_CACHE=yes make dev-image
 
   build-windows:
-    executor: machine_image
+    executor: docker1809
     steps:
       - checkout
+      - setup_remote_docker:
+          docker_layer_caching: false
       - run: |
-          set -x
+          apk add make bash git
           export PULL_CACHE=yes
           COLLECTD_VERSION=$(make collectd-version) COLLECTD_COMMIT=$(make collectd-commit) ./scripts/build-binary windows
           if [ ! -f ~/project/signalfx-agent.exe ] ; then
               echo "signalfx-agent.exe not found!"
               exit 1
           fi
-      - save_test_results
       - store_artifacts:
           path: ~/project/signalfx-agent.exe
           destination: /signalfx-agent.exe
