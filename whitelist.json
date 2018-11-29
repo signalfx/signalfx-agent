@@ -653,22 +653,6 @@
         ]
     },
     {
-        "monitorType": "internal-metrics",
-        "negated": true,
-        "metricNames": [
-            "sfxagent.active_monitors",
-            "sfxagent.active_observers",
-            "sfxagent.configured_monitors",
-            "sfxagent.datapoint_requests_active",
-            "sfxagent.datapoints_buffered",
-            "sfxagent.datapoints_in_flight",
-            "sfxagent.datapoints_sent",
-            "sfxagent.discovered_endpoints",
-            "sfxagent.events_buffered",
-            "sfxagent.events_sent"
-        ]
-    },
-    {
         "monitorType": "collectd/mesos",
         "negated": true,
         "metricNames": [
