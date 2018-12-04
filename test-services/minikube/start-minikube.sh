@@ -20,19 +20,23 @@
 exec &> >(tee -a /var/log/start-minikube.log)
 
 TIMEOUT=${TIMEOUT:-"300"}
-K8S_VERSION=${K8S_VERSION:-"v1.11.0"}
+K8S_VERSION=${K8S_VERSION:-"latest"}
 if [ "$K8S_VERSION" = "latest" ]; then
-    K8S_VERSION="v1.11.0"
+    K8S_VERSION=`curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt`
 fi
-BOOTSTRAPPER="localkube"
-if [[ "$K8S_VERSION" =~ ^v(1\.11|1\.12)\. ]]; then
-    BOOTSTRAPPER="kubeadm"
+BOOTSTRAPPER="kubeadm"
+MAJOR_VERSION=`echo ${K8S_VERSION#v} | cut -d. -f1`
+MINOR_VERSION=`echo $K8S_VERSION | cut -d. -f2`
+if [[ "$MAJOR_VERSION" =~ ^[0-9]+$ ]] && [[ "$MINOR_VERSION" =~ ^[0-9]+$ ]]; then
+    if [[ $MAJOR_VERSION -le 1 && $MINOR_VERSION -lt 11 ]]; then
+        BOOTSTRAPPER="localkube"
+    fi
+else
+    echo "Unknown K8s version '$K8S_VERSION'!"
+    exit 1
 fi
 
 KUBECTL_VERSION=$K8S_VERSION
-if [ "$KUBECTL_VERSION" = "latest" ]; then
-    KUBECTL_VERSION=`curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt`
-fi
 KUBECTL_URL="https://storage.googleapis.com/kubernetes-release/release/${KUBECTL_VERSION}/bin/linux/amd64/kubectl"
 
 MINIKUBE_OPTIONS="--vm-driver=none --bootstrapper=${BOOTSTRAPPER} --kubernetes-version=${K8S_VERSION}"

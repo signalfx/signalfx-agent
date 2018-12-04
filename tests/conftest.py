@@ -1,61 +1,46 @@
-import json
-import os
 import random
 import re
 import string
 import subprocess
-import sys
 import time
-import urllib.request
+import urllib
 from functools import partial as p
 
 import pytest
-import semver
 
 from helpers.assertions import has_log_message
 from helpers.kubernetes.minikube import Minikube
 from helpers.kubernetes.utils import container_is_running, has_docker_image
 from helpers.util import wait_for, get_docker_client, run_container
 
-SCRIPTS_DIR = os.path.join(os.path.dirname(os.path.realpath(__file__)), "..", "scripts")
+
+def get_latest_k8s_version(url="https://storage.googleapis.com/kubernetes-release/release/stable.txt", max_attempts=3):
+    version = None
+    attempt = 0
+    while attempt < max_attempts:
+        attempt += 1
+        try:
+            with urllib.request.urlopen(url) as resp:
+                version = resp.read().decode("utf-8").strip()
+            break
+        except urllib.error.HTTPError as e:
+            if attempt == max_attempts:
+                raise e
+        time.sleep(5)
+        version = None
+    assert version, "Failed to get latest K8S version from %s" % url
+    assert re.match(r"^v?\d+\.\d+\.\d+$", version), "Unknown version '%s' from %s" % (version, url)
+    return version
+
+
 K8S_MIN_VERSION = "1.7.0"
-K8S_MAX_VERSION = "1.12.0"
+K8S_LATEST_VERSION = get_latest_k8s_version()
+K8S_DEFAULT_VERSION = re.sub(r"\.\d+$", ".0", K8S_LATEST_VERSION)
 K8S_DEFAULT_TIMEOUT = 300
 K8S_DEFAULT_TEST_TIMEOUT = 120
 K8S_DEFAULT_CONTAINER_NAME = "minikube"
-KUBEADM_VERSIONS = ["1.12.0", "1.11.0"]
-
-
-def get_k8s_supported_versions():
-    k8s_releases_json = None
-    attempt = 0
-    while attempt < 3:
-        try:
-            with urllib.request.urlopen("https://storage.googleapis.com/minikube/k8s_releases.json") as resp:
-                k8s_releases_json = json.loads(resp.read().decode("utf-8"))
-            break
-        except:  # noqa pylint: disable=bare-except
-            time.sleep(5)
-            k8s_releases_json = None
-            attempt += 1
-    if not k8s_releases_json:
-        print("Failed to get K8S releases from https://storage.googleapis.com/minikube/k8s_releases.json !")
-        sys.exit(1)
-    versions = []
-    for release in k8s_releases_json:
-        version = release["version"].strip().strip("v")
-        if semver.match(version, ">=" + K8S_MIN_VERSION) and semver.match(version, "<=" + K8S_MAX_VERSION):
-            versions.append(version)
-    versions += KUBEADM_VERSIONS
-    return sorted(versions, key=lambda v: list(map(int, v.split("."))), reverse=True)
-
-
-K8S_SUPPORTED_VERSIONS = get_k8s_supported_versions()
-K8S_MAJOR_MINOR_VERSIONS = [v for v in K8S_SUPPORTED_VERSIONS if semver.parse_version_info(v).patch == 0]
-K8S_DEFAULT_VERSION = K8S_MAJOR_MINOR_VERSIONS[0]
-
 K8S_SUPPORTED_OBSERVERS = ["k8s-api", "k8s-kubelet"]
-K8S_DEFAULT_OBSERVERS = ["k8s-api", "k8s-kubelet"]
+K8S_DEFAULT_OBSERVERS = K8S_SUPPORTED_OBSERVERS
 
 
 # pylint: disable=line-too-long
@@ -111,10 +96,10 @@ def pytest_generate_tests(metafunc):
         if not k8s_version:
             version_to_test = K8S_DEFAULT_VERSION
         elif k8s_version.lower() == "latest":
-            version_to_test = [K8S_SUPPORTED_VERSIONS[0]]
+            version_to_test = K8S_LATEST_VERSION
         else:
-            assert k8s_version.strip("v") in K8S_SUPPORTED_VERSIONS, 'K8S version "%s" not supported!' % k8s_version
             version_to_test = k8s_version
+        assert re.match(r"^v?\d+\.\d+\.\d+$", version_to_test), "Invalid K8S version '%s'" % version_to_test
         metafunc.parametrize(
             "minikube",
             [version_to_test],
