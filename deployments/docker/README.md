@@ -57,7 +57,7 @@ set the following environment variables on the agent container:
 | Environment Variable  | Required | Description |
 | --------- | -------- | ----------- |
 | `SFX_ACCESS_TOKEN` | **yes** | The SignalFx API access token. |
-| `SFX_INGEST_URL` | no | Often used in conjunction with the [SignalFx Metric Proxy](https://github.com/signalfx/metricproxy) to specify a different target URL for datapoints and events. If not specified, this defaults to the global SignalFx ingest server. |
+| `SFX_INGEST_URL` | no | Often used in conjunction with the [SignalFx Gateway](https://github.com/signalfx/metricproxy) to specify a different target URL for datapoints and events. If not specified, this defaults to the global SignalFx ingest server. |
 
 The supplied configuration will also load any additional yaml files found in `/etc/signalfx/monitors/` as
 part of the `monitors` list in the agent config like so:

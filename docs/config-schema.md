@@ -11,7 +11,7 @@ by the `-config` flag to the agent binary (`signalfx-agent`).
 | Config option | Required | Type | Description |
 | --- | --- | --- | --- |
 | `signalFxAccessToken` | **yes** | string | The access token for the org that should receive the metrics emitted by the agent. |
-| `ingestUrl` | no | string | The URL of SignalFx ingest server.  Can be overridden if using the Metric Proxy. (**default:** `"https://ingest.signalfx.com"`) |
+| `ingestUrl` | no | string | The URL of SignalFx ingest server.  Can be overridden if using the SignalFx Gateway. (**default:** `"https://ingest.signalfx.com"`) |
 | `apiUrl` | no | string | The SignalFx API base URL (**default:** `"https://api.signalfx.com"`) |
 | `hostname` | no | string | The hostname that will be reported as the `host` dimension. If blank, this will be auto-determined by the agent based on a reverse lookup of the machine's IP address. |
 | `useFullyQualifiedHost` | no | bool | If true (the default), and the `hostname` option is not set, the hostname will be determined by doing a reverse DNS query on the IP address that is returned by querying for the bare hostname.  This is useful in cases where the hostname reported by the kernel is a short name. |
