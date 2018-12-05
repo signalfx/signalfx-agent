@@ -108,9 +108,7 @@ RUN sed -i -e '/^deb-src/d' /etc/apt/sources.list &&\
 
 RUN wget https://dev.mysql.com/get/mysql-apt-config_0.8.10-1_all.deb && \
     dpkg -i mysql-apt-config_0.8.10-1_all.deb && \
-    apt-get update && apt-get install -y libmysqlclient-dev
-
-RUN apt install -y libcurl4-gnutls-dev patchelf
+    apt-get update && apt-get install -y libmysqlclient-dev libcurl4-gnutls-dev patchelf
 
 ARG collectd_version=""
 ARG collectd_commit=""
@@ -314,7 +312,7 @@ WORKDIR /
 # the build tools for building collectd and the go agent, along with some other
 # useful utilities.  The agent image is copied from the final-image stage to
 # the /bundle dir in here and the SIGNALFX_BUNDLE_DIR is set to point to that.
-FROM ubuntu:16.04 as dev-extras
+FROM ubuntu:18.04 as dev-extras
 
 RUN apt update &&\
     apt install -y \
@@ -348,7 +346,7 @@ RUN wget -O /usr/bin/dep https://github.com/golang/dep/releases/download/v0.4.1/
 RUN curl -fsSL get.docker.com -o /tmp/get-docker.sh &&\
     sh /tmp/get-docker.sh
 
-RUN go get -u github.com/golang/lint/golint &&\
+RUN go get -u golang.org/x/lint/golint &&\
     go get github.com/derekparker/delve/cmd/dlv &&\
     go get github.com/tebeka/go2xunit
 

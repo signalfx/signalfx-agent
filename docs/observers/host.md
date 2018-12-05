@@ -16,7 +16,11 @@ Observer Type: `host`
 
 ## Configuration
 
-This observer has no configuration options.
+| Config option | Required | Type | Description |
+| --- | --- | --- | --- |
+| `pollIntervalSeconds` | no | `integer` |  (**default:** `10`) |
+
+
 
 
 ## Endpoint Variables

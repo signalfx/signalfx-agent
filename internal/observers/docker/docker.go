@@ -142,7 +142,7 @@ type Config struct {
 	DockerURL string `yaml:"dockerURL" default:"unix:///var/run/docker.sock"`
 	// A mapping of container label names to dimension names that will get
 	// applied to the metrics of all discovered services. The corresponding
-	// label values will become the dimension value for the mapped name.  E.g.
+	// label values will become the dimension values for the mapped name.  E.g.
 	// `io.kubernetes.container.name: container_spec_name` would result in a
 	// dimension called `container_spec_name` that has the value of the
 	// `io.kubernetes.container.name` container label.
@@ -152,6 +152,14 @@ type Config struct {
 	// monitors.  If false or if no hostname is configured, the field
 	// `NetworkSettings.IPAddress` is used instead.
 	UseHostnameIfPresent bool `yaml:"useHostnameIfPresent"`
+	// If true, the observer will configure monitors for matching container endpoints
+	// using the host bound ip and port.  This is useful if containers exist that are not
+	// accessible to an instance of the agent running outside of the docker network stack.
+	UseHostBindings bool `yaml:"useHostBindings" default:"false"`
+	// If true, the observer will ignore discovered container endpoints that are not bound
+	// to host ports.  This is useful if containers exist that are not accessible
+	// to an instance of the agent running outside of the docker network stack.
+	IgnoreNonHostBindings bool `yaml:"ignoreNonHostBindings" default:"false"`
 }
 
 func init() {
@@ -246,6 +254,11 @@ func (docker *Docker) endpointsForContainer(cont *dtypes.ContainerJSON) []servic
 
 			endpoint := docker.endpointForPort(portObj, cont, serviceContainer)
 
+			// the endpoint was not set, so we'll drop it
+			if endpoint == nil {
+				continue
+			}
+
 			if labelConf := labelConfigs[portObj]; labelConf != nil {
 				endpoint.MonitorType = labelConf.MonitorType
 				endpoint.Configuration = labelConf.Configuration
@@ -262,12 +275,32 @@ func (docker *Docker) endpointForPort(portObj contPort, cont *dtypes.ContainerJS
 	port := portObj.Int()
 	protocol := portObj.Proto()
 
+	mappedPort, mappedIP := dockercommon.FindHostMappedPort(cont, portObj.Port)
+
+	// if IgnoreNonHostBindings is set to true and there isn't a host binding
+	// return nil to skip this endpoint
+	if docker.config.IgnoreNonHostBindings && mappedPort == 0 && mappedIP == "" {
+		return nil
+	}
+
 	id := serviceContainer.PrimaryName() + "-" + cont.ID[:12] + "-" + strconv.Itoa(int(port))
 	if portObj.Name != "" {
 		id += "-" + portObj.Name
 	}
 
-	endpoint := services.NewEndpointCore(id, portObj.Name, observerType)
+	orchDims := map[string]string{}
+	for k, dimName := range docker.config.LabelsToDimensions {
+		if v := cont.Config.Labels[k]; v != "" {
+			orchDims[dimName] = v
+		}
+	}
+
+	endpoint := &services.ContainerEndpoint{
+		EndpointCore:  *services.NewEndpointCore(id, portObj.Name, observerType),
+		Container:     *serviceContainer,
+		Orchestration: *services.NewOrchestration("docker", services.DOCKER, orchDims, services.PRIVATE),
+	}
+
 	if docker.config.UseHostnameIfPresent && cont.Config.Hostname != "" {
 		endpoint.Host = cont.Config.Hostname
 	} else {
@@ -278,24 +311,23 @@ func (docker *Docker) endpointForPort(portObj contPort, cont *dtypes.ContainerJS
 			break
 		}
 	}
+
 	endpoint.PortType = services.PortType(strings.ToUpper(protocol))
-	endpoint.Port = uint16(port)
 
-	orchDims := map[string]string{}
-	for k, dimName := range docker.config.LabelsToDimensions {
-		if v := cont.Config.Labels[k]; v != "" {
-			orchDims[dimName] = v
+	if docker.config.UseHostBindings && mappedPort != 0 && mappedIP != "" {
+		endpoint.Orchestration.PortPref = services.PUBLIC
+		endpoint.Port = uint16(mappedPort)
+		endpoint.AltPort = uint16(port)
+		endpoint.Host = mappedIP
+		if endpoint.Host == "0.0.0.0" {
+			endpoint.Host = "127.0.0.1"
 		}
+	} else {
+		endpoint.Port = uint16(port)
+		endpoint.AltPort = uint16(mappedPort)
 	}
 
-	orchestration := services.NewOrchestration("docker", services.DOCKER, orchDims, services.PRIVATE)
-
-	return &services.ContainerEndpoint{
-		EndpointCore:  *endpoint,
-		AltPort:       uint16(dockercommon.FindHostMappedPort(cont, portObj.Port)),
-		Container:     *serviceContainer,
-		Orchestration: *orchestration,
-	}
+	return endpoint
 }
 
 // Shutdown the service differ routine

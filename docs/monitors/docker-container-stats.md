@@ -32,6 +32,7 @@ Monitor Type: `docker-container-stats`
 | `dockerURL` | no | `string` | The URL of the docker server (**default:** `unix:///var/run/docker.sock`) |
 | `timeoutSeconds` | no | `integer` | The maximum amount of time to wait for docker API requests (**default:** `5`) |
 | `labelsToDimensions` | no | `map of string` | A mapping of container label names to dimension names. The corresponding label values will become the dimension value for the mapped name.  E.g. `io.kubernetes.container.name: container_spec_name` would result in a dimension called `container_spec_name` that has the value of the `io.kubernetes.container.name` container label. |
+| `envToDimensions` | no | `map of string` | A mapping of container environment variable names to dimension names.  The corresponding env var values become the dimension values on the emitted metrics.  E.g. `APP_VERSION: version` would result in datapoints having a dimension called `version` whose value is the value of the `APP_VERSION` envvar configured for that particular container, if present. |
 | `excludedImages` | no | `list of string` | A list of filters of images to exclude.  Supports literals, globs, and regex. |
 
 
@@ -44,10 +45,10 @@ The following table lists the metrics available for this monitor. Metrics that a
 | Name | Type | Custom | Description |
 | ---  | ---  | ---    | ---         |
 | `blkio.io_service_bytes_recursive.async` | cumulative | X | Volume, in bytes, of asynchronous block I/O |
-| `blkio.io_service_bytes_recursive.read` | cumulative | X | Volume, in bytes, of reads from block devices |
+| `blkio.io_service_bytes_recursive.read` | cumulative |  | Volume, in bytes, of reads from block devices |
 | `blkio.io_service_bytes_recursive.sync` | cumulative | X | Volume, in bytes, of synchronous block I/O |
 | `blkio.io_service_bytes_recursive.total` | cumulative | X | Total volume, in bytes, of all block I/O |
-| `blkio.io_service_bytes_recursive.write` | cumulative | X | Volume, in bytes, of writes to block devices |
+| `blkio.io_service_bytes_recursive.write` | cumulative |  | Volume, in bytes, of writes to block devices |
 | `blkio.io_serviced_recursive.async` | cumulative | X | Number of asynchronous block I/O requests |
 | `blkio.io_serviced_recursive.read` | cumulative | X | Number of reads requests from block devices |
 | `blkio.io_serviced_recursive.sync` | cumulative | X | Number of synchronous block I/O requests |
@@ -63,6 +64,7 @@ The following table lists the metrics available for this monitor. Metrics that a
 | `cpu.usage.system` | cumulative |  | Jiffies of CPU time used by the system |
 | `cpu.usage.total` | cumulative |  | Jiffies of CPU time used by the container |
 | `cpu.usage.usermode` | cumulative | X | Jiffies of CPU time spent in user mode by the container |
+| `memory.percent` | gauge | X | Percent of memory (0-100) used by the container relative to its limit (excludes page cache usage) |
 | `memory.stats.swap` | gauge | X | Bytes of swap memory used by container |
 | `memory.usage.limit` | gauge |  | Memory usage limit of the container, in bytes |
 | `memory.usage.max` | gauge | X | Maximum measured memory usage of the container, in bytes |
@@ -76,39 +78,48 @@ The following table lists the metrics available for this monitor. Metrics that a
 | `network.usage.tx_errors` | cumulative | X | Errors sending network packets |
 | `network.usage.tx_packets` | cumulative | X | Network packets sent by the container via its network interface |
 
-To specify custom metrics you want to monitor, add a negated `metricsToExclude` to the monitor configuration, as shown in the code snippet below. The snippet lists all available custom metrics. You can copy and paste the snippet into your configuration file, then delete any custom metrics that you do not want to monitor. 
-Note that some of the custom metrics require you to set a flag as well as add them to the list. Check the monitor configuration file to see if a flag is required for gathering additional metrics.
-```yaml 
-metricsToExclude:
-  - blkio.io_service_bytes_recursive.async
-  - blkio.io_service_bytes_recursive.read
-  - blkio.io_service_bytes_recursive.sync
-  - blkio.io_service_bytes_recursive.total
-  - blkio.io_service_bytes_recursive.write
-  - blkio.io_serviced_recursive.async
-  - blkio.io_serviced_recursive.read
-  - blkio.io_serviced_recursive.sync
-  - blkio.io_serviced_recursive.total
-  - blkio.io_serviced_recursive.write
-  - cpu.percent
-  - cpu.percpu.usage
-  - cpu.percpu.usage
-  - cpu.throttling_data.periods
-  - cpu.throttling_data.throttled_periods
-  - cpu.throttling_data.throttled_time
-  - cpu.usage.kernelmode
-  - cpu.usage.usermode
-  - memory.stats.swap
-  - memory.usage.max
-  - network.usage.rx_dropped
-  - network.usage.rx_errors
-  - network.usage.rx_packets
-  - network.usage.tx_dropped
-  - network.usage.tx_errors
-  - network.usage.tx_packets
-  negated: true
-```
 
+To specify custom metrics you want to monitor, add a `metricsToInclude` filter
+to the agent configuration, as shown in the code snippet below. The snippet
+lists all available custom metrics. You can copy and paste the snippet into
+your configuration file, then delete any custom metrics that you do not want
+sent.
+
+Note that some of the custom metrics require you to set a flag as well as add
+them to the list. Check the monitor configuration file to see if a flag is
+required for gathering additional metrics.
+
+```yaml
+
+metricsToInclude:
+  - metricNames:
+    - blkio.io_service_bytes_recursive.async
+    - blkio.io_service_bytes_recursive.sync
+    - blkio.io_service_bytes_recursive.total
+    - blkio.io_serviced_recursive.async
+    - blkio.io_serviced_recursive.read
+    - blkio.io_serviced_recursive.sync
+    - blkio.io_serviced_recursive.total
+    - blkio.io_serviced_recursive.write
+    - cpu.percent
+    - cpu.percpu.usage
+    - cpu.percpu.usage
+    - cpu.throttling_data.periods
+    - cpu.throttling_data.throttled_periods
+    - cpu.throttling_data.throttled_time
+    - cpu.usage.kernelmode
+    - cpu.usage.usermode
+    - memory.percent
+    - memory.stats.swap
+    - memory.usage.max
+    - network.usage.rx_dropped
+    - network.usage.rx_errors
+    - network.usage.rx_packets
+    - network.usage.tx_dropped
+    - network.usage.tx_errors
+    - network.usage.tx_packets
+    monitorType: docker-container-stats
+```
 
 
 

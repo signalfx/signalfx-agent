@@ -72,23 +72,33 @@ The following table lists the metrics available for this monitor. Metrics that a
 | `apache_scoreboard.starting` | gauge | X | Number of workers starting up |
 | `apache_scoreboard.waiting` | gauge | X | Number of workers waiting for requests |
 
-To specify custom metrics you want to monitor, add a negated `metricsToExclude` to the monitor configuration, as shown in the code snippet below. The snippet lists all available custom metrics. You can copy and paste the snippet into your configuration file, then delete any custom metrics that you do not want to monitor. 
-Note that some of the custom metrics require you to set a flag as well as add them to the list. Check the monitor configuration file to see if a flag is required for gathering additional metrics.
-```yaml 
-metricsToExclude:
-  - apache_scoreboard.closing
-  - apache_scoreboard.dnslookup
-  - apache_scoreboard.finishing
-  - apache_scoreboard.idle_cleanup
-  - apache_scoreboard.keepalive
-  - apache_scoreboard.logging
-  - apache_scoreboard.reading
-  - apache_scoreboard.sending
-  - apache_scoreboard.starting
-  - apache_scoreboard.waiting
-  negated: true
-```
 
+To specify custom metrics you want to monitor, add a `metricsToInclude` filter
+to the agent configuration, as shown in the code snippet below. The snippet
+lists all available custom metrics. You can copy and paste the snippet into
+your configuration file, then delete any custom metrics that you do not want
+sent.
+
+Note that some of the custom metrics require you to set a flag as well as add
+them to the list. Check the monitor configuration file to see if a flag is
+required for gathering additional metrics.
+
+```yaml
+
+metricsToInclude:
+  - metricNames:
+    - apache_scoreboard.closing
+    - apache_scoreboard.dnslookup
+    - apache_scoreboard.finishing
+    - apache_scoreboard.idle_cleanup
+    - apache_scoreboard.keepalive
+    - apache_scoreboard.logging
+    - apache_scoreboard.reading
+    - apache_scoreboard.sending
+    - apache_scoreboard.starting
+    - apache_scoreboard.waiting
+    monitorType: collectd/apache
+```
 
 
 ## Dimensions

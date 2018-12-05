@@ -47,6 +47,7 @@ func convertStatsToMetrics(container *dtypes.ContainerJSON, cstats *dtypes.Conta
 		dps[i].Dimensions["plugin_instance"] = name
 		dps[i].Dimensions["container_image"] = container.Config.Image
 		dps[i].Dimensions["container_id"] = container.ID
+		dps[i].Dimensions["container_hostname"] = container.Config.Hostname
 	}
 
 	return dps, nil
@@ -133,7 +134,8 @@ func convertMemoryStats(stats *dtypes.MemoryStats) []*datapoint.Datapoint {
 		sfxclient.Gauge("memory.usage.max", nil, int64(stats.MaxUsage)),
 		sfxclient.Gauge("memory.usage.total", nil, int64(stats.Usage)),
 		sfxclient.GaugeF("memory.percent", nil,
-			100.0*float64(stats.Usage)/float64(stats.Limit)),
+			// If cache is not present it will use the default value of 0
+			100.0*(float64(stats.Usage)-float64(stats.Stats["cache"]))/float64(stats.Limit)),
 	}...)
 
 	for k, v := range stats.Stats {

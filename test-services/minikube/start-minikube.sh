@@ -17,34 +17,83 @@
 # Based on:
 # https://github.com/kubernetes/minikube/tree/master/deploy/docker/localkube-dind
 
-docker version >/dev/null 2>&1 || /usr/local/bin/start-docker.sh
+exec &> >(tee -a /var/log/start-minikube.log)
 
-if [ -f /kubeconfig ]; then
-    rm -f /kubeconfig
-fi
-
-K8S_VERSION=${K8S_VERSION:-"latest"}
-MINIKUBE_OPTIONS="--vm-driver=none --bootstrapper=localkube"
-if [ "$K8S_VERSION" = "latest" ]; then
-    curl -sSl -o /usr/local/bin/kubectl https://storage.googleapis.com/kubernetes-release/release/`curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt`/bin/linux/amd64/kubectl
-else
-    curl -sSl -o /usr/local/bin/kubectl https://storage.googleapis.com/kubernetes-release/release/${K8S_VERSION}/bin/linux/amd64/kubectl
-    MINIKUBE_OPTIONS="$MINIKUBE_OPTIONS --kubernetes-version $K8S_VERSION"
-fi
-chmod a+x /usr/local/bin/kubectl
-minikube config set ShowBootstrapperDeprecationNotification false || true
-minikube config set WantNoneDriverWarning false || true
-minikube start $MINIKUBE_OPTIONS
-minikube config set dashboard false || true
-sleep 2
-minikube status || true
-kubectl version || true
-
-# wait for the cluster to be ready
 TIMEOUT=${TIMEOUT:-"300"}
-START_TIME=`date +%s`
-while [ 0 ]; do
-    if [ $(expr `date +%s` - $START_TIME) -gt $TIMEOUT ]; then
+K8S_VERSION=${K8S_VERSION:-"latest"}
+if [ "$K8S_VERSION" = "latest" ]; then
+    K8S_VERSION=`curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt`
+fi
+BOOTSTRAPPER="kubeadm"
+MAJOR_VERSION=`echo ${K8S_VERSION#v} | cut -d. -f1`
+MINOR_VERSION=`echo $K8S_VERSION | cut -d. -f2`
+if [[ "$MAJOR_VERSION" =~ ^[0-9]+$ ]] && [[ "$MINOR_VERSION" =~ ^[0-9]+$ ]]; then
+    if [[ $MAJOR_VERSION -le 1 && $MINOR_VERSION -lt 11 ]]; then
+        BOOTSTRAPPER="localkube"
+    fi
+else
+    echo "Unknown K8s version '$K8S_VERSION'!"
+    exit 1
+fi
+
+KUBECTL_VERSION=$K8S_VERSION
+KUBECTL_URL="https://storage.googleapis.com/kubernetes-release/release/${KUBECTL_VERSION}/bin/linux/amd64/kubectl"
+
+MINIKUBE_OPTIONS="--vm-driver=none --bootstrapper=${BOOTSTRAPPER} --kubernetes-version=${K8S_VERSION}"
+
+KUBEADM_OPTIONS="--feature-gates=CoreDNS=true \
+    --extra-config=kubelet.authorization-mode=AlwaysAllow \
+    --extra-config=kubelet.anonymous-auth=true"
+if [[ "$K8S_VERSION" =~ ^v1\.11\. ]]; then
+    KUBEADM_OPTIONS="$KUBEADM_OPTIONS --extra-config=kubelet.cadvisor-port=4194"
+fi
+
+if [ "$BOOTSTRAPPER" = "kubeadm" ]; then
+    MINIKUBE_OPTIONS="$MINIKUBE_OPTIONS $KUBEADM_OPTIONS"
+fi
+
+function download_kubectl() {
+    [ -f /usr/local/bin/kubectl ] && rm -f /usr/local/bin/kubectl
+    curl -sSl -o /usr/local/bin/kubectl $KUBECTL_URL
+    chmod a+x /usr/local/bin/kubectl
+}
+
+function start_minikube() {
+    if minikube delete >/dev/null 2>&1; then
+        echo "Deleted minikube cluster"
+    fi
+    if [ "$BOOTSTRAPPER" = "kubeadm" ]; then
+        # Initialize minikube but expect "kubeadm init" to fail due to preflight errors.
+        if ! minikube start $MINIKUBE_OPTIONS; then
+            # Run "kubeadm init" again but ignore preflight errors.
+            kubeadm init --config /var/lib/kubeadm.yaml --ignore-preflight-errors=all
+        fi
+    elif [ "$BOOTSTRAPPER" = "localkube" ]; then
+        # Use fake systemctl shim to bypass localkube service checks
+        mv /usr/local/bin/fake-systemctl.sh /usr/local/bin/systemctl
+        chmod a+x /usr/local/bin/systemctl
+        export PATH=/usr/local/bin:$PATH
+        minikube start $MINIKUBE_OPTIONS
+    else
+        echo "Unsupported bootstrapper \"${BOOTSTRAPPER}\"!"
+        exit 1
+    fi
+}
+
+function cluster_is_ready() {
+    echo "Waiting for the cluster to be ready ..."
+    local start_time=`date +%s`
+    while [ $(expr `date +%s` - $start_time) -lt $TIMEOUT ]; do
+        if kubectl get all --all-namespaces; then
+            return 0
+        fi
+        sleep 5
+    done
+    return 1
+}
+
+function print_logs() {
+    if [ "$BOOTSTRAPPER" = "localkube" ]; then
         if [ -f /var/lib/localkube/localkube.out ]; then
             echo
             echo "/var/lib/localkube/localkube.out:"
@@ -57,21 +106,23 @@ while [ 0 ]; do
             cat /var/lib/localkube/localkube.err
             echo
         fi
-        kubectl get pods --all-namespaces
-        echo "Timed out after $TIMEOUT seconds waiting for the cluster to be ready!"
-        exit 1
+    else
+        echo
+        echo "minikube logs:"
+        minikube logs
+        echo
     fi
-    npods=`kubectl get pods --all-namespaces 2>/dev/null | grep 'kube-system' | wc -l`
-    nrunning=`kubectl get pods --all-namespaces 2>/dev/null | grep 'kube-system' | grep 'Running' | wc -l`
-    if [[ $npods -gt 1 && $npods -eq $nrunning ]]; then
-        sleep 5
-        break
-    fi
-    sleep 5
-done
+}
 
-kubectl get pods --all-namespaces
-
+mount --make-rshared /
+/usr/local/bin/start-docker.sh
+download_kubectl
+start_minikube
+if ! cluster_is_ready; then
+    print_logs
+    echo "Timed out after $TIMEOUT seconds waiting for the cluster to be ready!"
+    exit 1
+fi
+kubectl version
 kubectl config view --merge=true --flatten=true > /kubeconfig
-
 exit 0

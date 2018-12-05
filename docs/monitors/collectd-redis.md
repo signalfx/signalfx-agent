@@ -105,35 +105,45 @@ The following table lists the metrics available for this monitor. Metrics that a
 | `gauge.uptime_in_days` | gauge | X | Number of days up |
 | `gauge.uptime_in_seconds` | gauge | X | Number of seconds up |
 
-To specify custom metrics you want to monitor, add a negated `metricsToExclude` to the monitor configuration, as shown in the code snippet below. The snippet lists all available custom metrics. You can copy and paste the snippet into your configuration file, then delete any custom metrics that you do not want to monitor. 
-Note that some of the custom metrics require you to set a flag as well as add them to the list. Check the monitor configuration file to see if a flag is required for gathering additional metrics.
-```yaml 
-metricsToExclude:
-  - bytes.used_memory_lua
-  - bytes.used_memory_peak
-  - counter.connections_received
-  - counter.lru_clock
-  - counter.used_cpu_sys_children
-  - counter.used_cpu_user_children
-  - gauge.changes_since_last_save
-  - gauge.client_biggest_input_buf
-  - gauge.client_longest_output_list
-  - gauge.connected_slaves
-  - gauge.db0_avg_ttl
-  - gauge.db0_expires
-  - gauge.db0_keys
-  - gauge.instantaneous_ops_per_sec
-  - gauge.key_llen
-  - gauge.latest_fork_usec
-  - gauge.master_last_io_seconds_ago
-  - gauge.mem_fragmentation_ratio
-  - gauge.rdb_bgsave_in_progress
-  - gauge.repl_backlog_first_byte_offset
-  - gauge.uptime_in_days
-  - gauge.uptime_in_seconds
-  negated: true
-```
 
+To specify custom metrics you want to monitor, add a `metricsToInclude` filter
+to the agent configuration, as shown in the code snippet below. The snippet
+lists all available custom metrics. You can copy and paste the snippet into
+your configuration file, then delete any custom metrics that you do not want
+sent.
+
+Note that some of the custom metrics require you to set a flag as well as add
+them to the list. Check the monitor configuration file to see if a flag is
+required for gathering additional metrics.
+
+```yaml
+
+metricsToInclude:
+  - metricNames:
+    - bytes.used_memory_lua
+    - bytes.used_memory_peak
+    - counter.connections_received
+    - counter.lru_clock
+    - counter.used_cpu_sys_children
+    - counter.used_cpu_user_children
+    - gauge.changes_since_last_save
+    - gauge.client_biggest_input_buf
+    - gauge.client_longest_output_list
+    - gauge.connected_slaves
+    - gauge.db0_avg_ttl
+    - gauge.db0_expires
+    - gauge.db0_keys
+    - gauge.instantaneous_ops_per_sec
+    - gauge.key_llen
+    - gauge.latest_fork_usec
+    - gauge.master_last_io_seconds_ago
+    - gauge.mem_fragmentation_ratio
+    - gauge.rdb_bgsave_in_progress
+    - gauge.repl_backlog_first_byte_offset
+    - gauge.uptime_in_days
+    - gauge.uptime_in_seconds
+    monitorType: collectd/redis
+```
 
 
 

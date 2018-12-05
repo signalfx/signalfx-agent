@@ -87,4 +87,3 @@ package elasticsearch
 // COUNTER(gauge.thread_pool.queue): Number of Tasks in thread pool
 
 // COUNTER(gauge.thread_pool.threads): Number of Threads in thread pool
-

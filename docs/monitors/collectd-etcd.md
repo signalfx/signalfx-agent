@@ -26,8 +26,8 @@ Monitor Type: `collectd/etcd`
 | `sslKeyFile` | no | `string` |  |
 | `sslCertificate` | no | `string` |  |
 | `sslCACerts` | no | `string` |  |
-| `skipSSLValidation` | no | `bool` |  (**default:** `false`) |
-| `enhancedMetrics` | no | `bool` |  (**default:** `false`) |
+| `skipSSLValidation` | no | `bool` |  |
+| `enhancedMetrics` | no | `bool` |  |
 
 
 
@@ -68,17 +68,27 @@ The following table lists the metrics available for this monitor. Metrics that a
 | `gauge.etcd.self.sendpkg.rate` | gauge |  | Rate at which a leader sends packages |
 | `gauge.etcd.store.watchers` | gauge |  | Number of watchers |
 
-To specify custom metrics you want to monitor, add a negated `metricsToExclude` to the monitor configuration, as shown in the code snippet below. The snippet lists all available custom metrics. You can copy and paste the snippet into your configuration file, then delete any custom metrics that you do not want to monitor. 
-Note that some of the custom metrics require you to set a flag as well as add them to the list. Check the monitor configuration file to see if a flag is required for gathering additional metrics.
-```yaml 
-metricsToExclude:
-  - gauge.etcd.leader.latency.average
-  - gauge.etcd.leader.latency.max
-  - gauge.etcd.leader.latency.min
-  - gauge.etcd.leader.latency.stddev
-  negated: true
-```
 
+To specify custom metrics you want to monitor, add a `metricsToInclude` filter
+to the agent configuration, as shown in the code snippet below. The snippet
+lists all available custom metrics. You can copy and paste the snippet into
+your configuration file, then delete any custom metrics that you do not want
+sent.
+
+Note that some of the custom metrics require you to set a flag as well as add
+them to the list. Check the monitor configuration file to see if a flag is
+required for gathering additional metrics.
+
+```yaml
+
+metricsToInclude:
+  - metricNames:
+    - gauge.etcd.leader.latency.average
+    - gauge.etcd.leader.latency.max
+    - gauge.etcd.leader.latency.min
+    - gauge.etcd.leader.latency.stddev
+    monitorType: collectd/etcd
+```
 
 
 

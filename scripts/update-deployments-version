@@ -1,0 +1,17 @@
+#!/bin/bash
+
+set -euo pipefail
+
+set -x
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+files_to_update=(
+  deployments/k8s/daemonset.yaml
+  deployments/ecs/signalfx-agent-task.json
+)
+
+new_version=$1
+
+for f in ${files_to_update[@]}; do
+  sed -i '' -E -e "s/[0-9]+\.[0-9]+\.[0-9]+/$new_version/g" $f
+done

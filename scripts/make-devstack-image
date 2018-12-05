@@ -1,0 +1,18 @@
+#!/bin/bash -ex
+
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+PROJECT_DIR="$( cd "${SCRIPT_DIR}/../" && pwd )"
+
+docker build -t devstack:latest ${PROJECT_DIR}/test-services/devstack
+docker run -d --privileged \
+    --name devstack \
+    -v /lib/modules:/lib/modules:ro \
+    -v /sys/fs/cgroup:/sys/fs/cgroup:ro \
+    -e container=docker \
+    devstack:latest
+docker exec devstack start-devstack.sh
+docker exec devstack stop-devstack.sh
+docker export -o /tmp/devstack.tar devstack
+docker import /tmp/devstack.tar quay.io/signalfx/devstack:latest
+docker rm -fv devstack
+rm -f /tmp/devstack.tar

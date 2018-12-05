@@ -33,7 +33,7 @@ Monitor Type: `collectd/consul`
 | `port` | **yes** | `integer` |  |
 | `aclToken` | no | `string` |  |
 | `useHTTPS` | no | `bool` |  (**default:** `false`) |
-| `enhancedMetrics` | no | `bool` |  (**default:** `false`) |
+| `enhancedMetrics` | no | `bool` |  |
 | `caCertificate` | no | `string` |  |
 | `clientCertificate` | no | `string` |  |
 | `clientKey` | no | `string` |  |
@@ -104,34 +104,44 @@ The following table lists the metrics available for this monitor. Metrics that a
 | `gauge.consul.serf.queue.Query.max` | gauge | X | Maximum number of serf queries in queue yet to be processed during the interval |
 | `gauge.consul.serf.queue.Query.min` | gauge | X | Minimum number of serf queries in queue yet to be processed during the interval |
 
-To specify custom metrics you want to monitor, add a negated `metricsToExclude` to the monitor configuration, as shown in the code snippet below. The snippet lists all available custom metrics. You can copy and paste the snippet into your configuration file, then delete any custom metrics that you do not want to monitor. 
-Note that some of the custom metrics require you to set a flag as well as add them to the list. Check the monitor configuration file to see if a flag is required for gathering additional metrics.
-```yaml 
-metricsToExclude:
-  - consul.dns.stale_queries
-  - consul.memberlist.msg.suspect
-  - consul.serf.member.flap
-  - gauge.consul.consul.dns.domain_query.AGENT.avg
-  - gauge.consul.consul.dns.domain_query.AGENT.max
-  - gauge.consul.consul.dns.domain_query.AGENT.min
-  - gauge.consul.consul.dns.ptr_query.AGENT.avg
-  - gauge.consul.consul.dns.ptr_query.AGENT.max
-  - gauge.consul.consul.dns.ptr_query.AGENT.min
-  - gauge.consul.network.dc.latency.max
-  - gauge.consul.network.dc.latency.min
-  - gauge.consul.raft.replication.appendEntries.rpc.AGENT.avg
-  - gauge.consul.raft.replication.appendEntries.rpc.AGENT.max
-  - gauge.consul.raft.replication.appendEntries.rpc.AGENT.min
-  - gauge.consul.runtime.alloc_bytes
-  - gauge.consul.runtime.heap_objects
-  - gauge.consul.runtime.num_goroutines
-  - gauge.consul.serf.queue.Event.min
-  - gauge.consul.serf.queue.Query.avg
-  - gauge.consul.serf.queue.Query.max
-  - gauge.consul.serf.queue.Query.min
-  negated: true
-```
 
+To specify custom metrics you want to monitor, add a `metricsToInclude` filter
+to the agent configuration, as shown in the code snippet below. The snippet
+lists all available custom metrics. You can copy and paste the snippet into
+your configuration file, then delete any custom metrics that you do not want
+sent.
+
+Note that some of the custom metrics require you to set a flag as well as add
+them to the list. Check the monitor configuration file to see if a flag is
+required for gathering additional metrics.
+
+```yaml
+
+metricsToInclude:
+  - metricNames:
+    - consul.dns.stale_queries
+    - consul.memberlist.msg.suspect
+    - consul.serf.member.flap
+    - gauge.consul.consul.dns.domain_query.AGENT.avg
+    - gauge.consul.consul.dns.domain_query.AGENT.max
+    - gauge.consul.consul.dns.domain_query.AGENT.min
+    - gauge.consul.consul.dns.ptr_query.AGENT.avg
+    - gauge.consul.consul.dns.ptr_query.AGENT.max
+    - gauge.consul.consul.dns.ptr_query.AGENT.min
+    - gauge.consul.network.dc.latency.max
+    - gauge.consul.network.dc.latency.min
+    - gauge.consul.raft.replication.appendEntries.rpc.AGENT.avg
+    - gauge.consul.raft.replication.appendEntries.rpc.AGENT.max
+    - gauge.consul.raft.replication.appendEntries.rpc.AGENT.min
+    - gauge.consul.runtime.alloc_bytes
+    - gauge.consul.runtime.heap_objects
+    - gauge.consul.runtime.num_goroutines
+    - gauge.consul.serf.queue.Event.min
+    - gauge.consul.serf.queue.Query.avg
+    - gauge.consul.serf.queue.Query.max
+    - gauge.consul.serf.queue.Query.min
+    monitorType: collectd/consul
+```
 
 
 ## Dimensions

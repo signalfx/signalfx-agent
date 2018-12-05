@@ -135,8 +135,8 @@
         "monitorType": "collectd/docker",
         "negated": true,
         "metricNames": [
-            "blkio.io_service_bytes_recursive*.read",
-            "blkio.io_service_bytes_recursive*.write",
+            "blkio.io_service_bytes_recursive.read",
+            "blkio.io_service_bytes_recursive.write",
             "cpu.idle",
             "cpu.usage.system",
             "cpu.usage.total",
@@ -361,8 +361,8 @@
         "monitorType": "docker-container-stats",
         "negated": true,
         "metricNames": [
-            "blkio.io_service_bytes_recursive*.read",
-            "blkio.io_service_bytes_recursive*.write",
+            "blkio.io_service_bytes_recursive.read",
+            "blkio.io_service_bytes_recursive.write",
             "cpu.idle",
             "cpu.usage.system",
             "cpu.usage.total",
@@ -399,8 +399,11 @@
         "negated": true,
         "metricNames": [
             "cpu.utilization",
+            "disk.summary_utilization",
             "disk.utilization",
-            "memory.utilization"
+            "disk_ops.total",
+            "memory.utilization",
+            "network.total"
         ]
     },
     {
@@ -647,22 +650,6 @@
             "pod_network_receive_errors_total",
             "pod_network_transmit_bytes_total",
             "pod_network_transmit_errors_total"
-        ]
-    },
-    {
-        "monitorType": "internal-metrics",
-        "negated": true,
-        "metricNames": [
-            "sfxagent.active_monitors",
-            "sfxagent.active_observers",
-            "sfxagent.configured_monitors",
-            "sfxagent.datapoint_requests_active",
-            "sfxagent.datapoints_buffered",
-            "sfxagent.datapoints_in_flight",
-            "sfxagent.datapoints_sent",
-            "sfxagent.discovered_endpoints",
-            "sfxagent.events_buffered",
-            "sfxagent.events_sent"
         ]
     },
     {

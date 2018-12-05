@@ -39,6 +39,13 @@ spec:
           volumeMounts:
             - name: nginx-conf
               mountPath: /etc/nginx/conf.d
+          readinessProbe:
+            httpGet:
+              path: /nginx_status
+              port: 80
+            initialDelaySeconds: 5
+            periodSeconds: 1
+            timeoutSeconds: 60
       volumes:
         - name: nginx-conf
           configMap:

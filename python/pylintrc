@@ -3,15 +3,15 @@
 # A comma-separated list of package or module names from where C extensions may
 # be loaded. Extensions are loading into the active Python interpreter and may
 # run arbitrary code
-extension-pkg-whitelist=ujson
+extension-pkg-whitelist=signalfx.generated_protocol_buffers.signal_fx_protocol_buffers_pb2,netifaces,ujson
 
 # Add files or directories to the blacklist. They should be base names, not
 # paths.
-ignore=CVS
+ignore=CVS,virtualenv,.git,__pycache__
 
 # Add files or directories matching the regex patterns to the blacklist. The
 # regex matches against base names, not paths.
-ignore-patterns=
+ignore-patterns=.*\.egg-info
 
 # Python code to execute, usually for sys.path manipulation such as
 # pygtk.require().
@@ -134,7 +134,9 @@ disable=print-statement,
         deprecated-sys-function,
         exception-escape,
         comprehension-escape,
-		too-few-public-methods
+        missing-docstring,
+        fixme,
+        bad-continuation  # We use black so this shouldn't ever be relevant
 
 # Enable the message, report, category or checker with the given id(s). You can
 # either give multiple identifier separated by comma (,) or put this option
@@ -339,10 +341,10 @@ ignore-comments=yes
 ignore-docstrings=yes
 
 # Ignore imports when computing similarities.
-ignore-imports=no
+ignore-imports=yes
 
 # Minimum lines number of a similarity.
-min-similarity-lines=4
+min-similarity-lines=10
 
 
 [BASIC]
@@ -401,16 +403,21 @@ function-naming-style=snake_case
 #function-rgx=
 
 # Good variable names which should always be accepted, separated by a comma
-good-names=i,
+good-names=e,
+           i,
            j,
            k,
-           v,
+           db,
            ex,
+           dp,
            fd,
-           e,
-           logger,
+           pytestmark,
            Run,
-           _
+           do_POST,
+           do_PUT,
+           _,
+           logger,
+           runner
 
 # Include a hint for the correct naming format with invalid-name
 include-naming-hint=no
@@ -442,7 +449,8 @@ name-group=
 
 # Regular expression which should only match function or class names that do
 # not require a docstring.
-no-docstring-rgx=^_
+no-docstring-rgx=^_,
+                 ^test_
 
 # List of decorators that produce properties, such as abc.abstractproperty. Add
 # to this list to register other decorators that produce valid properties.
@@ -514,7 +522,7 @@ valid-metaclass-classmethod-first-arg=mcs
 [DESIGN]
 
 # Maximum number of arguments for function / method
-max-args=5
+max-args=7
 
 # Maximum number of attributes for a class (see R0902).
 max-attributes=7

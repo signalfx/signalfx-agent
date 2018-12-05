@@ -91,8 +91,16 @@ func networkValues(net []info.InterfaceStats, valueFn func(*info.InterfaceStats)
 // COUNTER(container_cpu_system_seconds_total): Cumulative system cpu time consumed in nanoseconds
 // COUNTER(container_cpu_usage_seconds_total): Cumulative cpu time consumed per cpu in nanoseconds
 // COUNTER(container_cpu_user_seconds_total): Cumulative user cpu time consumed in nanoseconds
-// COUNTER(container_cpu_utilization): Cumulative cpu utilization in percentages
-// COUNTER(container_cpu_percent): Cumulative cpu utilization as a percentage of the host total CPU available
+
+// COUNTER(container_cpu_utilization): Cumulative cpu utilization in
+// percentages.  This is equivalent to "centicores", or hundreths of CPU cores
+// consumed.  This metric is **NOT** normalized by the total # of cores on the
+// system.
+
+// COUNTER(container_cpu_percent): Cumulative cpu utilization as a percentage
+// of the total host CPU available.  This metric is equivalent to
+// `container_cpu_utilization` / <# of CPUs/cores on host>.
+
 // COUNTER(container_cpu_cfs_periods): Total number of elapsed CFS enforcement intervals
 // COUNTER(container_cpu_cfs_throttled_periods): Total number of times tasks in the cgroup have been throttled
 // COUNTER(container_cpu_cfs_throttled_time): Total time duration, in nanoseconds, for which tasks in the cgroup have been throttled

@@ -25,6 +25,10 @@ vetall: templates
 lint:
 	CGO_ENABLED=0 golint -set_exit_status ./cmd/... ./internal/...
 
+.PHONY: gofmt
+gofmt:
+	CGO_ENABLED=0 go fmt ./...
+
 templates:
 ifneq ($(OS),Windows_NT)
 	scripts/make-templates
@@ -162,3 +166,24 @@ collectd-version:
 .PHONY: collectd-commit
 collectd-commit:
 	@echo ${COLLECTD_COMMIT}
+
+.PHONY: lint-pytest
+lint-pytest:
+	pip install -q -r tests/requirements.txt
+	LC_ALL=C.UTF-8 LANG=C.UTF-8 black --config tests/pyproject.toml tests/
+	cd tests && pylint -j4 `find . -maxdepth 1 -mindepth 1 -type d -o -name "*.py"`
+
+.PHONY: lint-python
+lint-python:
+	pip install -q -e python/
+	pip install -q -r python/test-requirements.txt
+	LC_ALL=C.UTF-8 LANG=C.UTF-8 black --config python/pyproject.toml python/
+	cd python && pylint -j4 `find . -maxdepth 1 -mindepth 1 -type d -o -name "*.py"`
+
+.PHONY: devstack
+devstack:
+	scripts/make-devstack-image
+
+.PHONY: run-devstack
+run-devstack:
+	scripts/run-devstack-image

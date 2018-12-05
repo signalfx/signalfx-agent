@@ -249,7 +249,7 @@ func (f *FakeK8s) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 		rw.Header().Add("Transfer-Encoding", "chunked")
 		// This must block in order to continue to be able to write to the
 		// ResponseWriter
-		f.startWatcher(resource, rw, f.stoppers[resource])
+		f.startWatcher(resource, rw)
 	} else {
 		f.sendList(resource, rw)
 	}
@@ -259,7 +259,7 @@ func (f *FakeK8s) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 
 // Start a long running routine that will send everything received on the
 // `EventInput` channel as JSON back to the client
-func (f *FakeK8s) startWatcher(resType ResourceType, rw http.ResponseWriter, stopper <-chan struct{}) {
+func (f *FakeK8s) startWatcher(resType ResourceType, rw http.ResponseWriter) {
 	f.subsMutex.Lock()
 
 	if f.subs[resType] != nil {
@@ -268,6 +268,8 @@ func (f *FakeK8s) startWatcher(resType ResourceType, rw http.ResponseWriter, sto
 
 	eventCh := make(chan watch.Event)
 	f.stoppers[resType] = make(chan struct{})
+	// Alias so we only access map inside lock
+	stopper := f.stoppers[resType]
 	f.subs[resType] = eventCh
 
 	f.subsMutex.Unlock()

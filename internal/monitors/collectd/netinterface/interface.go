@@ -1,4 +1,4 @@
-// +build !windows
+// +build linux
 
 // Package netinterface wraps the "interface" collectd plugin for gather
 // network interface metrics.  It is called netinterface because "interface" is

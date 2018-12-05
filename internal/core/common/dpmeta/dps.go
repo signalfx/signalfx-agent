@@ -10,9 +10,9 @@ const (
 	EndpointIDMeta = "signalfx-endpoint-id"
 	// A hash of the configuration struct instance for the monitor instance
 	// that generated the datapoint.
-	ConfigHashMeta = "config-hash"
+	ConfigHashMeta = "sfx-config-hash"
 	// Should be set to true if the datapoint is not specific to the particular
 	// host that collectd is running on (e.g. cluster wide metrics in a k8s
 	// cluster).
-	NotHostSpecificMeta = "not-host-specific"
+	NotHostSpecificMeta = "sfx-not-host-specific"
 )

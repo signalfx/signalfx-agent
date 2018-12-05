@@ -74,18 +74,18 @@
 
 [[constraint]]
   name = "github.com/signalfx/golib"
-  revision = "0bcb5ca7f1efc1ba4a2fbaadd3dfb3c1d32e8429"
+  revision = "271e7b77c46c2cb201be901a302cb181a9d1645a"
 
 [[constraint]]
   name = "github.com/signalfx/metricproxy"
-  revision = "6d1b2d7f104e77f09d6df1fc62ce1c092d8ab3de"
+  revision = "fb7c5a67e736790e403947f8616f2221071e0cf0"
 
 [[constraint]]
   name = "github.com/sirupsen/logrus"
 
 [[constraint]]
   name = "github.com/stretchr/testify"
-  version = "~1.1.4"
+  version = "~1.2.2"
 
 [[constraint]]
   name = "github.com/x-cray/logrus-prefixed-formatter"
@@ -121,11 +121,11 @@
 
 [[constraint]]
   name = "k8s.io/client-go"
-  version = "6.0.0"
+  version = "8.0.0"
 
 [[override]]
   name = "k8s.io/apimachinery"
-  revision = "180eddb345a5be3a157cea1c624700ad5bd27b8f"
+  revision = "103fd098999dc9c0c88536f5c9ad2e5da39373ae"
 
 [[override]]
   name = "golang.org/x/text"
@@ -137,7 +137,11 @@
 
 [[constraint]]
   name = "k8s.io/kubernetes"
-  version = "1.9.5"
+  version = "1.12.0"
+
+[[override]]
+  name = "github.com/json-iterator/go"
+  revision = "f2b4162afba35581b6d4a50d3b8f34e33c144682"
 
 [[constraint]]
   name = "github.com/Microsoft/go-winio"

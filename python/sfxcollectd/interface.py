@@ -51,7 +51,8 @@ class CollectdInterface(object):
             func = callback
 
         self.read_initializers.append(
-            partial(self.scheduler.run_on_interval, interval or self.default_interval, func, immediately=True))
+            partial(self.scheduler.run_on_interval, interval or self.default_interval, func, immediately=True)
+        )
 
     @staticmethod
     def register_init(callback):
@@ -74,29 +75,42 @@ class Values(object):  # pylint: disable=too-many-instance-attributes
 
     See https://collectd.org/documentation/manpages/collectd-python.5.shtml#values
     """
+
     # Slots improves memory efficiency of value lists
     __slots__ = [
-        'type', 'values', 'host', 'plugin', 'plugin_instance', 'time', 'type_instance', 'interval', 'meta', 'dsnames',
-        'dstypes', 'message', 'severity'
+        "type",
+        "values",
+        "host",
+        "plugin",
+        "plugin_instance",
+        "time",
+        "type_instance",
+        "interval",
+        "meta",
+        "dsnames",
+        "dstypes",
+        "message",
+        "severity",
     ]
 
     def __init__(  # pylint: disable=too-many-arguments
-            self,
-            type=None,  # pylint: disable=redefined-builtin
-            values=None,
-            host="",
-            plugin=None,
-            plugin_instance=None,
-            time=None,  # pylint: disable=redefined-outer-name
-            type_instance="",
-            interval=None,
-            meta=None,
-            # This gives us the ability to have python plugins that specify
-            # their own types in code instead of being dependent on types.db
-            dsnames=None,
-            dstypes=None,
-            message=None,
-            severity=None):
+        self,
+        type=None,  # pylint: disable=redefined-builtin
+        values=None,
+        host="",
+        plugin=None,
+        plugin_instance="",
+        time=None,  # pylint: disable=redefined-outer-name
+        type_instance="",
+        interval=None,
+        meta=None,
+        # This gives us the ability to have python plugins that specify
+        # their own types in code instead of being dependent on types.db
+        dsnames=None,
+        dstypes=None,
+        message=None,
+        severity=None,
+    ):
         self.type = type
         self.values = values or []
         self.host = host
@@ -119,6 +133,9 @@ class Values(object):  # pylint: disable=too-many-instance-attributes
         if not self.time:
             self.time = time.time()
         logger.debug("Dispatching value %s", repr(self))
+        # convert boolean values to their integer type
+        # because that is what collectd does
+        self.values = [int(value) if isinstance(value, bool) else value for value in self.values]
         Values._dispatcher_func(self)
         return
 
@@ -131,11 +148,25 @@ class Values(object):  # pylint: disable=too-many-instance-attributes
         cls._dispatcher_func = func
 
     def __repr__(self):
-        return ("{plugin: %s; plugin_instance: %s; type: %s; type_instance: %s; "
-                "host: %s; values: %s; time: %s; meta: %s; dsnames: %s; "
-                "dstypes: %s; message: %s; severity: %s}" %
-                (self.plugin, self.plugin_instance, self.type, self.type_instance, self.host, self.values, self.time,
-                 self.meta, self.dsnames, self.dstypes, self.message, self.severity))
+        return (
+            "{plugin: %s; plugin_instance: %s; type: %s; type_instance: %s; "
+            "host: %s; values: %s; time: %s; meta: %s; dsnames: %s; "
+            "dstypes: %s; message: %s; severity: %s}"
+            % (
+                self.plugin,
+                self.plugin_instance,
+                self.type,
+                self.type_instance,
+                self.host,
+                self.values,
+                self.time,
+                self.meta,
+                self.dsnames,
+                self.dstypes,
+                self.message,
+                self.severity,
+            )
+        )
 
 
 def inject_collectd_module(interface, send_values_func):
@@ -143,19 +174,20 @@ def inject_collectd_module(interface, send_values_func):
     Creates and registers the collectd python module so that plugins can import
     it properly.  This should only be called once per python interpreter.
     """
-    assert 'collectd' not in sys.modules, 'collectd module should only be created once'
+    assert "collectd" not in sys.modules, "collectd module should only be created once"
 
-    mod = types.ModuleType('collectd')
+    mod = types.ModuleType("collectd")
     mod.register_config = interface.register_config
     mod.register_init = interface.register_init
     mod.register_read = interface.register_read
     mod.register_shutdown = interface.register_shutdown
     mod.info = logger.info
     mod.error = logger.error
+    mod.warning = logger.warning
     mod.notice = logger.warning
     mod.info = logger.info
     mod.debug = logger.debug
 
     Values.set_dispatcher_func(send_values_func)
     mod.Values = Values
-    sys.modules['collectd'] = mod
+    sys.modules["collectd"] = mod

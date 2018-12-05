@@ -34,6 +34,12 @@ spec:
           volumeMounts:
             - name: haproxy-conf
               mountPath: /usr/local/etc/haproxy/haproxy.cfg
+          readinessProbe:
+            tcpSocket:
+              port: 9000
+            initialDelaySeconds: 5
+            periodSeconds: 1
+            timeoutSeconds: 60
       volumes:
         - name: haproxy-conf
           configMap:

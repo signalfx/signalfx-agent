@@ -1,6 +1,5 @@
 import io
 import os
-import re
 import select
 import socket
 import subprocess
@@ -10,9 +9,9 @@ import time
 from contextlib import contextmanager
 
 import docker
+import yaml
 
 import netifaces as ni
-import yaml
 
 from . import fake_backend
 from .formatting import print_dp_or_event
@@ -30,35 +29,55 @@ def get_docker_client():
     return docker.from_env(version=DOCKER_API_VERSION)
 
 
-# Repeatedly calls the test function for timeout_seconds until either test
-# returns a truthy value, at which point the function returns True -- or the
-# timeout is exceeded, at which point it will return False.
-def wait_for(test, timeout_seconds=DEFAULT_TIMEOUT):
+def wait_for(test, timeout_seconds=DEFAULT_TIMEOUT, interval_seconds=0.2):
+    """
+    Repeatedly calls the test function for timeout_seconds until either test
+    returns a truthy value, at which point the function returns True -- or the
+    timeout is exceeded, at which point it will return False.
+    """
     start = time.time()
     while True:
         if test():
             return True
         if time.time() - start > timeout_seconds:
             return False
-        time.sleep(0.5)
+        time.sleep(interval_seconds)
 
 
-# Repeatedly calls the given test.  If it ever returns false before the timeout
-# given is completed, returns False, otherwise True.
 def ensure_always(test, timeout_seconds=DEFAULT_TIMEOUT):
+    """
+    Repeatedly calls the given test.  If it ever returns false before the timeout
+    given is completed, returns False, otherwise True.
+    """
     start = time.time()
     while True:
         if not test():
             return False
         if time.time() - start > timeout_seconds:
             return True
-        time.sleep(0.5)
+        time.sleep(0.2)
 
 
-# Print each line separately to make it easier to read in pytest output
+def ensure_never(test, timeout_seconds=DEFAULT_TIMEOUT):
+    """
+    Repeatedly calls the given test.  If it ever returns true before the timeout
+    given is completed, returns False, otherwise True.
+    """
+    start = time.time()
+    while True:
+        if test():
+            return False
+        if time.time() - start > timeout_seconds:
+            return True
+        time.sleep(0.2)
+
+
 def print_lines(msg):
-    for l in msg.splitlines():
-        print(l)
+    """
+    Print each line separately to make it easier to read in pytest output
+    """
+    for line in msg.splitlines():
+        print(line)
 
 
 def container_ip(container):
@@ -68,8 +87,8 @@ def container_ip(container):
 @contextmanager
 def run_agent(config_text):
     with fake_backend.start() as fake_services:
-        with run_agent_with_fake_backend(config_text, fake_services) as [_, get_output, c]:
-            yield [fake_services, get_output, c]
+        with run_agent_with_fake_backend(config_text, fake_services) as [_, get_output, setup_conf]:
+            yield [fake_services, get_output, setup_conf]
 
 
 @contextmanager
@@ -88,10 +107,10 @@ def run_agent_with_fake_backend(config_text, fake_services):
                 # If any output is waiting, grab it.
                 ready, _, _ = select.select([proc.stdout], [], [], 0)
                 if ready:
-                    b = proc.stdout.read(1)
-                    if not b:
+                    byt = proc.stdout.read(1)
+                    if not byt:
                         return
-                    output.write(b)
+                    output.write(byt)
 
         def get_output():
             return output.getvalue().decode("utf-8")
@@ -119,10 +138,13 @@ def run_agent_with_fake_backend(config_text, fake_services):
                 print_dp_or_event(event)
 
             if exc is not None:
-                raise exc
+                raise exc  # pylint: disable=raising-bad-type
 
 
 def setup_config(config_text, path, fake_services):
+    if config_text is None and os.path.isfile(path):
+        return path
+
     conf = yaml.load(config_text)
 
     run_dir = os.path.dirname(path)
@@ -147,9 +169,11 @@ def setup_config(config_text, path, fake_services):
     conf["configSources"]["file"] = conf["configSources"].get("file", {})
     conf["configSources"]["file"]["pollRateSeconds"] = 1
 
-    with open(path, "w") as f:
+    with open(path, "w") as fd:
         print("CONFIG: %s\n%s" % (path, conf))
-        f.write(yaml.dump(conf))
+        fd.write(yaml.dump(conf))
+
+    return path
 
 
 @contextmanager
@@ -168,28 +192,31 @@ def run_container(image_name, wait_for_ip=True, print_logs=True, **kwargs):
     finally:
         try:
             if print_logs:
-                print_lines("Container %s logs:\n%s" % (image_name, container.logs().decode('utf-8')))
+                print_lines("Container %s logs:\n%s" % (image_name, container.logs().decode("utf-8")))
             container.remove(force=True, v=True)
         except docker.errors.NotFound:
             pass
 
 
 @contextmanager
-def run_service(service_name, name=None, buildargs={}, print_logs=True, **kwargs):
+def run_service(service_name, name=None, buildargs=None, print_logs=True, **kwargs):
+    if buildargs is None:
+        buildargs = {}
     client = get_docker_client()
-    image, logs = client.images.build(
-        path=os.path.join(TEST_SERVICES_DIR, service_name), rm=True, forcerm=True, buildargs=buildargs)
+    image, _ = client.images.build(
+        path=os.path.join(TEST_SERVICES_DIR, service_name), rm=True, forcerm=True, buildargs=buildargs
+    )
     with run_container(image.id, name=name, print_logs=print_logs, **kwargs) as cont:
         yield cont
 
 
 def get_monitor_metrics_from_selfdescribe(monitor, json_path=SELFDESCRIBE_JSON):
     metrics = set()
-    with open(json_path, "r", encoding='utf-8') as fd:
+    with open(json_path, "r", encoding="utf-8") as fd:
         doc = yaml.load(fd.read())
-        for mon in doc['Monitors']:
-            if monitor == mon['monitorType'] and 'metrics' in mon.keys() and mon['metrics']:
-                metrics = set([metric['name'] for metric in mon['metrics']])
+        for mon in doc["Monitors"]:
+            if monitor == mon["monitorType"] and "metrics" in mon.keys() and mon["metrics"]:
+                metrics = {metric["name"] for metric in mon["metrics"]}
                 break
     return metrics
 
@@ -198,9 +225,9 @@ def get_monitor_dims_from_selfdescribe(monitor, json_path=SELFDESCRIBE_JSON):
     dims = set()
     with open(json_path, "r", encoding="utf-8") as fd:
         doc = yaml.load(fd.read())
-        for mon in doc['Monitors']:
-            if monitor == mon['monitorType'] and 'dimensions' in mon.keys() and mon['dimensions']:
-                dims = set([dim['name'] for dim in mon['dimensions']])
+        for mon in doc["Monitors"]:
+            if monitor == mon["monitorType"] and "dimensions" in mon.keys() and mon["dimensions"]:
+                dims = {dim["name"] for dim in mon["dimensions"]}
                 break
     return dims
 
@@ -209,24 +236,29 @@ def get_observer_dims_from_selfdescribe(observer, json_path=SELFDESCRIBE_JSON):
     dims = set()
     with open(json_path, "r", encoding="utf-8") as fd:
         doc = yaml.load(fd.read())
-        for obs in doc['Observers']:
-            if observer == obs['observerType'] and 'dimensions' in obs.keys() and obs['dimensions']:
-                dims = set([dim['name'] for dim in obs['dimensions']])
+        for obs in doc["Observers"]:
+            if observer == obs["observerType"] and "dimensions" in obs.keys() and obs["dimensions"]:
+                dims = {dim["name"] for dim in obs["dimensions"]}
                 break
     return dims
 
 
 def get_host_ip():
     gws = ni.gateways()
-    interface = gws['default'][ni.AF_INET][1]
-    return ni.ifaddresses(interface)[ni.AF_INET][0]['addr']
+    interface = gws["default"][ni.AF_INET][1]
+    return ni.ifaddresses(interface)[ni.AF_INET][0]["addr"]
 
 
 def send_udp_message(host, port, msg):
     """
     Send a datagram to the given host/port
     """
-    sock = socket.socket(
-        socket.AF_INET,  # Internet
-        socket.SOCK_DGRAM)  # UDP
+    sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)  # Internet  # UDP
     sock.sendto(msg.encode("utf-8"), (host, port))
+
+
+def get_agent_status(config_path="/etc/signalfx/agent.yaml"):
+    status_proc = subprocess.Popen(
+        [AGENT_BIN, "status", "-config", config_path], stdout=subprocess.PIPE, stderr=subprocess.STDOUT
+    )
+    return status_proc.stdout.read().decode("utf-8")

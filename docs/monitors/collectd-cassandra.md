@@ -19,7 +19,7 @@ Monitor Type: `collectd/cassandra`
 | Config option | Required | Type | Description |
 | --- | --- | --- | --- |
 | `host` | **yes** | `string` | Host to connect to -- JMX must be configured for remote access and accessible from the agent |
-| `port` | **yes** | `integer` | JMX RMI port on the host |
+| `port` | **yes** | `integer` | JMX connection port (NOT the RMI port) on the application.  This correponds to the `com.sun.management.jmxremote.port` Java property that should be set on the JVM when running the application. |
 | `name` | no | `string` |  |
 | `serviceName` | no | `string` | This is how the service type is identified in the SignalFx UI so that you can get built-in content for it.  For custom JMX integrations, it can be set to whatever you like and metrics will get the special property `sf_hostHasService` set to this value. |
 | `serviceURL` | no | `string` | The JMX connection string.  This is rendered as a Go template and has access to the other values in this config. NOTE: under normal circumstances it is not advised to set this string directly - setting the host and port as specified above is preferred. (**default:** `service:jmx:rmi:///jndi/rmi://{{.Host}}:{{.Port}}/jmxrmi`) |
@@ -86,17 +86,27 @@ The following table lists the metrics available for this monitor. Metrics that a
 | `gauge.cassandra.Storage.TotalHints.Count` | gauge | X | Total hints since node start |
 | `gauge.cassandra.Storage.TotalHintsInProgress.Count` | gauge |  | Total pending hints |
 
-To specify custom metrics you want to monitor, add a negated `metricsToExclude` to the monitor configuration, as shown in the code snippet below. The snippet lists all available custom metrics. You can copy and paste the snippet into your configuration file, then delete any custom metrics that you do not want to monitor. 
-Note that some of the custom metrics require you to set a flag as well as add them to the list. Check the monitor configuration file to see if a flag is required for gathering additional metrics.
-```yaml 
-metricsToExclude:
-  - counter.cassandra.Compaction.TotalCompactionsCompleted.Count
-  - gauge.cassandra.ClientRequest.RangeSlice.Latency.50thPercentile
-  - gauge.cassandra.ClientRequest.RangeSlice.Latency.Max
-  - gauge.cassandra.Storage.TotalHints.Count
-  negated: true
-```
 
+To specify custom metrics you want to monitor, add a `metricsToInclude` filter
+to the agent configuration, as shown in the code snippet below. The snippet
+lists all available custom metrics. You can copy and paste the snippet into
+your configuration file, then delete any custom metrics that you do not want
+sent.
+
+Note that some of the custom metrics require you to set a flag as well as add
+them to the list. Check the monitor configuration file to see if a flag is
+required for gathering additional metrics.
+
+```yaml
+
+metricsToInclude:
+  - metricNames:
+    - counter.cassandra.Compaction.TotalCompactionsCompleted.Count
+    - gauge.cassandra.ClientRequest.RangeSlice.Latency.50thPercentile
+    - gauge.cassandra.ClientRequest.RangeSlice.Latency.Max
+    - gauge.cassandra.Storage.TotalHints.Count
+    monitorType: collectd/cassandra
+```
 
 
 

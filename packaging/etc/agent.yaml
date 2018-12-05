@@ -2,6 +2,7 @@
 # *Required* The access token for the org that you wish to send metrics to.
 signalFxAccessToken: {"#from": "/etc/signalfx/token"}
 ingestUrl: {"#from": "/etc/signalfx/ingest_url", default: "https://ingest.signalfx.com"}
+apiUrl: {"#from": "/etc/signalfx/api_url", default: "https://api.signalfx.com"}
 
 intervalSeconds: 10
 

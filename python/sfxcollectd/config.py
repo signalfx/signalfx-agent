@@ -8,7 +8,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-class Config(object):
+class Config(object):  # pylint: disable=too-few-public-methods
     """
     Dummy class that we use to put config that conforms to the collectd-python
     Config class
@@ -32,20 +32,41 @@ class Config(object):
 
         conf = cls(root=None)
         conf.children = []
-        for k, v in monitor_plugin_config.items():
+        for key, val in monitor_plugin_config.items():
             values = None
             children = None
-            if isinstance(v, (tuple, list)):
-                values = v
-            elif isinstance(v, (int, str, unicode)):
-                values = (v,)
-            elif isinstance(v, dict):
-                dict_conf = cls.from_monitor_config(v)
+            if val is None:
+                logging.debug("dropping configuration %s because its value is None", key)
+                continue
+            if isinstance(val, (tuple, list)):
+                if not val:
+                    logging.debug("dropping configuration %s because its value is an empty list or tuple", key)
+                    continue
+                values = val
+            elif isinstance(val, (str, unicode)):  # pylint: disable=undefined-variable
+                if val == "":
+                    logging.debug("dropping configuration %s because its value is an empty string", key)
+                    continue
+                values = (val,)
+            elif isinstance(val, (int, bool)):
+                values = (val,)
+            elif isinstance(val, dict):
+                if not val:
+                    logging.debug("dropping configuration %s because its value is an empty dictionary", key)
+                    continue
+                if "#flatten" in val and "values" in val:
+                    conf.children += [
+                        cls(root=conf, key=key, values=item, children=[])
+                        for item in val.get("values") or []
+                        if item is not None
+                    ]
+                    continue
+                dict_conf = cls.from_monitor_config(val)
                 children = dict_conf.children
                 values = dict_conf.values
             else:
-                logging.error("Cannot convert monitor config to collectd config: %s: %s", k, v)
+                logging.error("Cannot convert monitor config to collectd config: %s: %s", key, val)
 
-            conf.children.append(cls(root=conf, key=k, values=values, children=children))
+            conf.children.append(cls(root=conf, key=key, values=values, children=children))
 
         return conf

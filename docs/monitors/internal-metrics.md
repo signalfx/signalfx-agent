@@ -31,16 +31,16 @@ The following table lists the metrics available for this monitor. Metrics that a
 
 | Name | Type | Custom | Description |
 | ---  | ---  | ---    | ---         |
-| `sfxagent.active_monitors` | gauge |  | The total number of monitor instances actively working |
-| `sfxagent.active_observers` | gauge |  | The number of observers configured and running |
-| `sfxagent.configured_monitors` | gauge |  | The total number of monitor configurations |
-| `sfxagent.datapoint_requests_active` | gauge |  | The total number of outstanding requests to ingest currently active. |
-| `sfxagent.datapoints_buffered` | gauge |  | The total number of datapoints that have been emitted by monitors but have yet to be processed by the writer |
-| `sfxagent.datapoints_in_flight` | gauge |  | The total number of datapoints that have been accepted by the writer but still lack confirmation from ingest that they have been received. |
-| `sfxagent.datapoints_sent` | cumulative |  | The total number of datapoints sent by the agent since it last started |
-| `sfxagent.discovered_endpoints` | gauge |  | The number of discovered service endpoints.  This includes endpoints that do not have any matching monitor configuration discovery rule. |
-| `sfxagent.events_buffered` | gauge |  | The total number of events that have been emitted by monitors but have yet to be sent to SignalFx |
-| `sfxagent.events_sent` | cumulative |  | The total number of events sent by the agent since it last started |
+| `sfxagent.active_monitors` | gauge | X | The total number of monitor instances actively working |
+| `sfxagent.active_observers` | gauge | X | The number of observers configured and running |
+| `sfxagent.configured_monitors` | gauge | X | The total number of monitor configurations |
+| `sfxagent.datapoint_requests_active` | gauge | X | The total number of outstanding requests to ingest currently active. |
+| `sfxagent.datapoints_buffered` | gauge | X | The total number of datapoints that have been emitted by monitors but have yet to be processed by the writer |
+| `sfxagent.datapoints_in_flight` | gauge | X | The total number of datapoints that have been accepted by the writer but still lack confirmation from ingest that they have been received. |
+| `sfxagent.datapoints_sent` | cumulative | X | The total number of datapoints sent by the agent since it last started |
+| `sfxagent.discovered_endpoints` | gauge | X | The number of discovered service endpoints.  This includes endpoints that do not have any matching monitor configuration discovery rule. |
+| `sfxagent.events_buffered` | gauge | X | The total number of events that have been emitted by monitors but have yet to be sent to SignalFx |
+| `sfxagent.events_sent` | cumulative | X | The total number of events sent by the agent since it last started |
 | `sfxagent.go_frees` | cumulative | X | Total number of heap objects freed throughout the lifetime of the agent |
 | `sfxagent.go_heap_alloc` | gauge | X | Bytes of live heap memory (memory that has been allocated but not freed) |
 | `sfxagent.go_heap_idle` | gauge | X | Bytes of memory that consist of idle spans (that is, completely empty spans of memory) |
@@ -54,25 +54,45 @@ The following table lists the metrics available for this monitor. Metrics that a
 | `sfxagent.go_total_alloc` | cumulative | X | Total number of bytes allocated to the heap throughout the lifetime of the agent |
 | `sfxgent.go_num_goroutine` | gauge | X | Number of goroutines in the agent |
 
-To specify custom metrics you want to monitor, add a negated `metricsToExclude` to the monitor configuration, as shown in the code snippet below. The snippet lists all available custom metrics. You can copy and paste the snippet into your configuration file, then delete any custom metrics that you do not want to monitor. 
-Note that some of the custom metrics require you to set a flag as well as add them to the list. Check the monitor configuration file to see if a flag is required for gathering additional metrics.
-```yaml 
-metricsToExclude:
-  - sfxagent.go_frees
-  - sfxagent.go_heap_alloc
-  - sfxagent.go_heap_idle
-  - sfxagent.go_heap_inuse
-  - sfxagent.go_heap_released
-  - sfxagent.go_heap_sys
-  - sfxagent.go_mallocs
-  - sfxagent.go_next_gc
-  - sfxagent.go_num_gc
-  - sfxagent.go_stack_inuse
-  - sfxagent.go_total_alloc
-  - sfxgent.go_num_goroutine
-  negated: true
-```
 
+To specify custom metrics you want to monitor, add a `metricsToInclude` filter
+to the agent configuration, as shown in the code snippet below. The snippet
+lists all available custom metrics. You can copy and paste the snippet into
+your configuration file, then delete any custom metrics that you do not want
+sent.
+
+Note that some of the custom metrics require you to set a flag as well as add
+them to the list. Check the monitor configuration file to see if a flag is
+required for gathering additional metrics.
+
+```yaml
+
+metricsToInclude:
+  - metricNames:
+    - sfxagent.active_monitors
+    - sfxagent.active_observers
+    - sfxagent.configured_monitors
+    - sfxagent.datapoint_requests_active
+    - sfxagent.datapoints_buffered
+    - sfxagent.datapoints_in_flight
+    - sfxagent.datapoints_sent
+    - sfxagent.discovered_endpoints
+    - sfxagent.events_buffered
+    - sfxagent.events_sent
+    - sfxagent.go_frees
+    - sfxagent.go_heap_alloc
+    - sfxagent.go_heap_idle
+    - sfxagent.go_heap_inuse
+    - sfxagent.go_heap_released
+    - sfxagent.go_heap_sys
+    - sfxagent.go_mallocs
+    - sfxagent.go_next_gc
+    - sfxagent.go_num_gc
+    - sfxagent.go_stack_inuse
+    - sfxagent.go_total_alloc
+    - sfxgent.go_num_goroutine
+    monitorType: internal-metrics
+```
 
 
 

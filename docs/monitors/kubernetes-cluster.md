@@ -78,18 +78,28 @@ The following table lists the metrics available for this monitor. Metrics that a
 | `kubernetes.resource_quota_hard` | gauge | X | The upper limit for a particular resource in a specific namespace.  Will only be sent if a quota is specified.  CPU requests/limits will be sent as millicores. |
 | `kubernetes.resource_quota_used` | gauge | X | The usage for a particular resource in a specific namespace.  Will only be sent if a quota is specified.  CPU requests/limits will be sent as millicores. |
 
-To specify custom metrics you want to monitor, add a negated `metricsToExclude` to the monitor configuration, as shown in the code snippet below. The snippet lists all available custom metrics. You can copy and paste the snippet into your configuration file, then delete any custom metrics that you do not want to monitor. 
-Note that some of the custom metrics require you to set a flag as well as add them to the list. Check the monitor configuration file to see if a flag is required for gathering additional metrics.
-```yaml 
-metricsToExclude:
-  - kubernetes.container_ready
-  - kubernetes.namespace_phase
-  - kubernetes.node_ready
-  - kubernetes.resource_quota_hard
-  - kubernetes.resource_quota_used
-  negated: true
-```
 
+To specify custom metrics you want to monitor, add a `metricsToInclude` filter
+to the agent configuration, as shown in the code snippet below. The snippet
+lists all available custom metrics. You can copy and paste the snippet into
+your configuration file, then delete any custom metrics that you do not want
+sent.
+
+Note that some of the custom metrics require you to set a flag as well as add
+them to the list. Check the monitor configuration file to see if a flag is
+required for gathering additional metrics.
+
+```yaml
+
+metricsToInclude:
+  - metricNames:
+    - kubernetes.container_ready
+    - kubernetes.namespace_phase
+    - kubernetes.node_ready
+    - kubernetes.resource_quota_hard
+    - kubernetes.resource_quota_used
+    monitorType: kubernetes-cluster
+```
 
 
 ## Dimensions

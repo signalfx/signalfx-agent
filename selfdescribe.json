@@ -22,7 +22,7 @@
       },
       {
         "yamlName": "extraDimensions",
-        "doc": "A set of extra dimensions (key:value pairs) to include on datapoints emitted by the monitor(s) created from this configuration. To specify metrics from this monitor should be high-resolution, add the dimension `sf_hires:1`",
+        "doc": "A set of extra dimensions (key:value pairs) to include on datapoints emitted by the monitor(s) created from this configuration. To specify metrics from this monitor should be high-resolution, add the dimension `sf_hires: 1`",
         "default": null,
         "required": false,
         "type": "map",
@@ -199,7 +199,7 @@
         {
           "name": "container_cpu_percent",
           "type": "counter",
-          "description": "Cumulative cpu utilization as a percentage of the host total CPU available"
+          "description": "Cumulative cpu utilization as a percentage of the total host CPU available.  This metric is equivalent to `container_cpu_utilization` / \u003c# of CPUs/cores on host\u003e."
         },
         {
           "name": "container_cpu_system_seconds_total",
@@ -219,7 +219,7 @@
         {
           "name": "container_cpu_utilization",
           "type": "counter",
-          "description": "Cumulative cpu utilization in percentages"
+          "description": "Cumulative cpu utilization in percentages.  This is equivalent to \"centicores\", or hundreths of CPU cores consumed.  This metric is **NOT** normalized by the total # of cores on the system."
         },
         {
           "name": "container_fs_io_current",
@@ -419,7 +419,7 @@
         },
         {
           "yamlName": "port",
-          "doc": "JMX RMI port on the host",
+          "doc": "JMX connection port (NOT the RMI port) on the application.  This correponds to the `com.sun.management.jmxremote.port` Java property that should be set on the JVM when running the application.",
           "default": null,
           "required": true,
           "type": "uint16",
@@ -925,7 +925,7 @@
         },
         {
           "yamlName": "port",
-          "doc": "JMX RMI port on the host",
+          "doc": "JMX connection port (NOT the RMI port) on the application.  This correponds to the `com.sun.management.jmxremote.port` Java property that should be set on the JVM when running the application.",
           "default": null,
           "required": true,
           "type": "uint16",
@@ -1306,7 +1306,7 @@
         {
           "yamlName": "enhancedMetrics",
           "doc": "",
-          "default": false,
+          "default": null,
           "required": false,
           "type": "bool",
           "elementKind": ""
@@ -2284,8 +2284,8 @@
           "yamlName": "disks",
           "doc": "Which devices to include/exclude",
           "default": [
-            "/^loop\\d+$/",
-            "/^dm-\\d+$/"
+            "/^loop[0-9]+$/",
+            "/^dm-[0-9]+$/"
           ],
           "required": false,
           "type": "slice",
@@ -2437,6 +2437,14 @@
           "required": false,
           "type": "slice",
           "elementKind": "string"
+        },
+        {
+          "yamlName": "cluster",
+          "doc": "Cluster name to which the node belongs. This is an optional config that will override the cluster name fetched from a node and will be used to populate the plugin_instance dimension",
+          "default": "",
+          "required": false,
+          "type": "string",
+          "elementKind": ""
         },
         {
           "yamlName": "detailedMetrics",
@@ -2824,7 +2832,7 @@
         {
           "yamlName": "skipSSLValidation",
           "doc": "",
-          "default": false,
+          "default": null,
           "required": false,
           "type": "bool",
           "elementKind": ""
@@ -2832,7 +2840,7 @@
         {
           "yamlName": "enhancedMetrics",
           "doc": "",
-          "default": false,
+          "default": null,
           "required": false,
           "type": "bool",
           "elementKind": ""
@@ -2993,7 +3001,7 @@
     },
     {
       "name": "Config",
-      "doc": " Monitors Java services that expose metrics on\nJMX using collectd's GenericJMX plugin.\n\nSee https://github.com/signalfx/integrations/tree/master/collectd-genericjmx\nand https://collectd.org/documentation/manpages/collectd-java.5.shtml\n\nExample (gets the thread count from a standard JMX MBean available on all\nJava JMX-enabled apps):\n\n```yaml\n\nmonitors:\n - type: collectd/genericjmx\n   host: my-java-app\n   port: 7099\n   mBeanDefinitions:\n     threading:\n       objectName: java.lang:type=Threading\n       values:\n       - type: gauge\n         table: false\n         instancePrefix: jvm.threads.count\n         attribute: ThreadCount\n```\n",
+      "doc": " Monitors Java services that expose metrics on\nJMX using collectd's GenericJMX plugin.\n\nSee https://github.com/signalfx/integrations/tree/master/collectd-genericjmx\nand https://collectd.org/documentation/manpages/collectd-java.5.shtml\n\nExample (gets the thread count from a standard JMX MBean available on all\nJava JMX-enabled apps):\n\n```yaml\n\nmonitors:\n - type: collectd/genericjmx\n   host: my-java-app\n   port: 7099\n   mBeanDefinitions:\n     threading:\n       objectName: java.lang:type=Threading\n       values:\n       - type: gauge\n         table: false\n         instancePrefix: jvm.threads.count\n         attribute: ThreadCount\n```\n## Troubleshooting\n\nExposing JMX in your Java application can be a tricky process.  Oracle has a\n[helpful guide for Java\n8](https://docs.oracle.com/javase/8/docs/technotes/guides/management/agent.html)\nthat explains how to expose JMX metrics automatically by setting Java\nproperties on your application.  Here are a set of Java properties that are\nknown to work with Java 7+:\n\n```\njava \\\n  -Dcom.sun.management.jmxremote.port=5000 \\\n  -Dcom.sun.management.jmxremote.authenticate=false \\\n  -Dcom.sun.management.jmxremote.ssl=false \\\n  -Dcom.sun.management.jmxremote.rmi.port=5000 \\\n  ...\n```\n\nThis should work as long as the agent is allowed to access port 5000 on the\nJava app's host (i.e. there is no firewall blocking it).  Note that this\ndoes not enable authentication or encryption, but these can be added if\ndesired.\n\nAssuming you have the `host` config set to `172.17.0.3` and the port set to\n`5000` (this is a totally arbitrary port and your JMX app will probably be\nsomething different), here are some errors you might receive and their\nmeanings:\n\n### Connection Refused\n```\nCreating MBean server connection failed: java.io.IOException: Failed to retrieve RMIServer stub: javax.naming.ServiceUnavailableException [Root exception is java.rmi.ConnectException: Connection refused to host: 172.17.0.3; nested exception is:\n     java.net.ConnectException: Connection refused (Connection refused)]\n```\n\nThis error indicates that the JMX connect port is not open on the specified\nhost.  Confirm (via netstat/ss or some other tool) that this port\nis indeed open on the configured host, and is listening on an appropriate\naddress (i.e. if the agent is running on a remote server then JMX should not\nbe listening on localhost only).\n\n### RMI Connection Issues\n\n```\nCreating MBean server connection failed: java.rmi.ConnectException: Connection refused to host: 172.17.0.3; nested exception is:\n     java.net.ConnectException: Connection timed out (Connection timed out)\n```\n\nThis indicates that the JMX connect port was reached successfully, but the\nRMI port that it was directed to is being blocked, probably by a firewall.\nThe easiest thing to do here is to make sure the\n`com.sun.management.jmxremote.rmi.port` property in your Java app is set to\nthe same port as the JMX connect port.  There may be other variations of\nthis that say `Connection reset` or `Connection refused` but they all\ngeneraly indicate a similar cause.\n\n## Useful links\n\n - https://realjenius.com/2012/11/21/java7-jmx-tunneling-freedom/\n",
       "package": "internal/monitors/collectd/genericjmx",
       "fields": [
         {
@@ -3006,7 +3014,7 @@
         },
         {
           "yamlName": "port",
-          "doc": "JMX RMI port on the host",
+          "doc": "JMX connection port (NOT the RMI port) on the application.  This correponds to the `com.sun.management.jmxremote.port` Java property that should be set on the JVM when running the application.",
           "default": null,
           "required": true,
           "type": "uint16",
@@ -3218,7 +3226,7 @@
         {
           "yamlName": "verbose",
           "doc": "Log verbose information about the plugin",
-          "default": false,
+          "default": null,
           "required": false,
           "type": "bool",
           "elementKind": ""
@@ -3246,7 +3254,7 @@
         },
         {
           "yamlName": "port",
-          "doc": "JMX RMI port on the host",
+          "doc": "JMX connection port (NOT the RMI port) on the application.  This correponds to the `com.sun.management.jmxremote.port` Java property that should be set on the JVM when running the application.",
           "default": null,
           "required": true,
           "type": "uint16",
@@ -3458,8 +3466,8 @@
         {
           "yamlName": "port",
           "doc": "",
-          "default": null,
-          "required": true,
+          "default": 0,
+          "required": false,
           "type": "uint16",
           "elementKind": ""
         },
@@ -3482,7 +3490,7 @@
         {
           "yamlName": "enhancedMetrics",
           "doc": "",
-          "default": false,
+          "default": null,
           "required": false,
           "type": "bool",
           "elementKind": ""
@@ -4011,7 +4019,7 @@
         {
           "yamlName": "enhancedMetrics",
           "doc": "Whether to enable enhanced metrics",
-          "default": false,
+          "default": null,
           "required": false,
           "type": "bool",
           "elementKind": ""
@@ -4158,7 +4166,7 @@
         },
         {
           "yamlName": "port",
-          "doc": "JMX RMI port on the host",
+          "doc": "JMX connection port (NOT the RMI port) on the application.  This correponds to the `com.sun.management.jmxremote.port` Java property that should be set on the JVM when running the application.",
           "default": null,
           "required": true,
           "type": "uint16",
@@ -4490,7 +4498,7 @@
         },
         {
           "yamlName": "port",
-          "doc": "JMX RMI port on the host",
+          "doc": "JMX connection port (NOT the RMI port) on the application.  This correponds to the `com.sun.management.jmxremote.port` Java property that should be set on the JVM when running the application.",
           "default": null,
           "required": true,
           "type": "uint16",
@@ -4719,7 +4727,7 @@
         },
         {
           "yamlName": "port",
-          "doc": "JMX RMI port on the host",
+          "doc": "JMX connection port (NOT the RMI port) on the application.  This correponds to the `com.sun.management.jmxremote.port` Java property that should be set on the JVM when running the application.",
           "default": null,
           "required": true,
           "type": "uint16",
@@ -5779,7 +5787,7 @@
         {
           "yamlName": "useTLS",
           "doc": "",
-          "default": false,
+          "default": null,
           "required": false,
           "type": "bool",
           "elementKind": ""
@@ -7226,137 +7234,197 @@
       "dimensions": null,
       "metrics": [
         {
-          "name": "openstack.cinder.limit.maxTotalVolumeGigabytes",
+          "name": "counter.openstack.nova.server.cpu_time",
+          "type": "counter",
+          "description": "Virtual CPU time consumed in nanoseconds"
+        },
+        {
+          "name": "counter.openstack.nova.server.rx",
+          "type": "counter",
+          "description": "Size of network packet received in bytes"
+        },
+        {
+          "name": "counter.openstack.nova.server.rx_packets",
+          "type": "counter",
+          "description": "Received packets at an instance"
+        },
+        {
+          "name": "counter.openstack.nova.server.tx",
+          "type": "counter",
+          "description": "Size of network packet transmitted in bytes"
+        },
+        {
+          "name": "counter.openstack.nova.server.tx_packets",
+          "type": "counter",
+          "description": "Transmitted packets at an instance"
+        },
+        {
+          "name": "gauge.openstack.cinder.limit.maxTotalVolumeGigabytes",
           "type": "gauge",
           "description": "Total available block storage at cinder component for project"
         },
         {
-          "name": "openstack.cinder.limit.maxTotalVolumes",
+          "name": "gauge.openstack.cinder.limit.maxTotalVolumes",
           "type": "gauge",
           "description": "Maximum volume resources available at cinder component for project"
         },
         {
-          "name": "openstack.cinder.limit.totalGigabytesUsed",
+          "name": "gauge.openstack.cinder.limit.totalGigabytesUsed",
           "type": "gauge",
           "description": "Total block storage used at cinder component for project"
         },
         {
-          "name": "openstack.cinder.limit.totalVolumesUsed",
+          "name": "gauge.openstack.cinder.limit.totalVolumesUsed",
           "type": "gauge",
           "description": "Volume resources used at cinder component for project"
         },
         {
-          "name": "openstack.neutron.floatingip.count",
+          "name": "gauge.openstack.neutron.floatingip.count",
           "type": "gauge",
           "description": "Overall floating IPs used across projects"
         },
         {
-          "name": "openstack.neutron.network.count",
+          "name": "gauge.openstack.neutron.network.count",
           "type": "gauge",
           "description": "Overall Network resources used across projects"
         },
         {
-          "name": "openstack.neutron.router.count",
+          "name": "gauge.openstack.neutron.router.count",
           "type": "gauge",
           "description": "Overall router resources used across projects"
         },
         {
-          "name": "openstack.neutron.securitygroup.count",
+          "name": "gauge.openstack.neutron.securitygroup.count",
           "type": "gauge",
           "description": "Overall securitygroup resources used across projects"
         },
         {
-          "name": "openstack.nova.hypervisor.load_average",
+          "name": "gauge.openstack.neutron.subnet.count",
+          "type": "gauge",
+          "description": "Overall subnet resources used in all projects"
+        },
+        {
+          "name": "gauge.openstack.nova.hypervisor.disk_available_least",
+          "type": "gauge",
+          "description": "Minimum free disk space available in Gigabyte"
+        },
+        {
+          "name": "gauge.openstack.nova.hypervisor.free_disk_gb",
+          "type": "gauge",
+          "description": "Maximum free disk space available in Gigabyte"
+        },
+        {
+          "name": "gauge.openstack.nova.hypervisor.load_average",
           "type": "gauge",
           "description": "Average CPU load on the hypervisor"
         },
         {
-          "name": "openstack.nova.hypervisor.memory_mb",
+          "name": "gauge.openstack.nova.hypervisor.local_gb",
+          "type": "gauge",
+          "description": "Maximum available local disk space in Gigabyte"
+        },
+        {
+          "name": "gauge.openstack.nova.hypervisor.local_gb_used",
+          "type": "gauge",
+          "description": "Total disk space used in Gigabyte"
+        },
+        {
+          "name": "gauge.openstack.nova.hypervisor.memory_mb",
           "type": "gauge",
           "description": "Maximum available memory in MB at hypervisor"
         },
         {
-          "name": "openstack.nova.hypervisor.memory_mb_used",
+          "name": "gauge.openstack.nova.hypervisor.memory_mb_used",
           "type": "gauge",
           "description": "Total memory used in MB at hypervisor"
         },
         {
-          "name": "openstack.nova.hypervisor.running_vms",
+          "name": "gauge.openstack.nova.hypervisor.running_vms",
           "type": "gauge",
           "description": "Total running VMs at hypervisor"
         },
         {
-          "name": "openstack.nova.hypervisor.vcpus",
+          "name": "gauge.openstack.nova.hypervisor.vcpus",
           "type": "gauge",
           "description": "Available physical cores at hypervisor"
         },
         {
-          "name": "openstack.nova.hypervisor.vcpus_used",
+          "name": "gauge.openstack.nova.hypervisor.vcpus_used",
           "type": "gauge",
           "description": "Used virtual CPUs used"
         },
         {
-          "name": "openstack.nova.limit.maxSecurityGroups",
+          "name": "gauge.openstack.nova.limit.maxSecurityGroups",
           "type": "gauge",
           "description": "Maximum available security groups for project"
         },
         {
-          "name": "openstack.nova.limit.maxTotalCores",
+          "name": "gauge.openstack.nova.limit.maxTotalCores",
           "type": "gauge",
           "description": "Maximum available VCPUs in project"
         },
         {
-          "name": "openstack.nova.limit.maxTotalFloatingIps",
+          "name": "gauge.openstack.nova.limit.maxTotalFloatingIps",
           "type": "gauge",
           "description": "Maximum available floating IPs for project"
         },
         {
-          "name": "openstack.nova.limit.maxTotalInstances",
+          "name": "gauge.openstack.nova.limit.maxTotalInstances",
           "type": "gauge",
           "description": "Maximum available instances in project"
         },
         {
-          "name": "openstack.nova.limit.maxTotalRAMSize",
+          "name": "gauge.openstack.nova.limit.maxTotalRAMSize",
           "type": "gauge",
           "description": "Maximum available RAM size for project"
         },
         {
-          "name": "openstack.nova.limit.totalCoresUsed",
+          "name": "gauge.openstack.nova.limit.totalCoresUsed",
           "type": "gauge",
           "description": "Total cores used in the project"
         },
         {
-          "name": "openstack.nova.limit.totalInstancesUsed",
+          "name": "gauge.openstack.nova.limit.totalInstancesUsed",
           "type": "gauge",
           "description": "Total instances used in the project"
         },
         {
-          "name": "openstack.nova.limit.totalRAMUsed",
+          "name": "gauge.openstack.nova.limit.totalRAMUsed",
           "type": "gauge",
           "description": "Total RAM used in the project"
         },
         {
-          "name": "openstack.nova.server.memory",
+          "name": "gauge.openstack.nova.server.memory",
           "type": "gauge",
           "description": "Memory provisioned at an instance"
         },
         {
-          "name": "openstack.nova.server.memory-actual",
+          "name": "gauge.openstack.nova.server.memory-actual",
           "type": "gauge",
           "description": "Actual memory used at an instance"
         },
         {
-          "name": "openstack.nova.server.memory-rss",
+          "name": "gauge.openstack.nova.server.memory-rss",
           "type": "gauge",
           "description": "Memory used not including disk pages at an instance"
         },
         {
-          "name": "openstack.nova.server.vda_read_req",
+          "name": "gauge.openstack.nova.server.vda_read",
+          "type": "gauge",
+          "description": "Size of virtual disk read requests in bytes"
+        },
+        {
+          "name": "gauge.openstack.nova.server.vda_read_req",
           "type": "gauge",
           "description": "Virtual disk read requests from an instance"
         },
         {
-          "name": "openstack.nova.server.vda_write_req",
+          "name": "gauge.openstack.nova.server.vda_write",
+          "type": "gauge",
+          "description": "Size of virtual disk write requests in bytes"
+        },
+        {
+          "name": "gauge.openstack.nova.server.vda_write_req",
           "type": "gauge",
           "description": "Virtual disk write requests from an instance"
         }
@@ -7902,7 +7970,7 @@
         {
           "yamlName": "collectChannels",
           "doc": "",
-          "default": false,
+          "default": null,
           "required": false,
           "type": "bool",
           "elementKind": ""
@@ -7910,7 +7978,7 @@
         {
           "yamlName": "collectConnections",
           "doc": "",
-          "default": false,
+          "default": null,
           "required": false,
           "type": "bool",
           "elementKind": ""
@@ -7918,7 +7986,7 @@
         {
           "yamlName": "collectExchanges",
           "doc": "",
-          "default": false,
+          "default": null,
           "required": false,
           "type": "bool",
           "elementKind": ""
@@ -7926,7 +7994,7 @@
         {
           "yamlName": "collectNodes",
           "doc": "",
-          "default": false,
+          "default": null,
           "required": false,
           "type": "bool",
           "elementKind": ""
@@ -7934,7 +8002,7 @@
         {
           "yamlName": "collectQueues",
           "doc": "",
-          "default": false,
+          "default": null,
           "required": false,
           "type": "bool",
           "elementKind": ""
@@ -7942,7 +8010,7 @@
         {
           "yamlName": "httpTimeout",
           "doc": "",
-          "default": 0,
+          "default": null,
           "required": false,
           "type": "int",
           "elementKind": ""
@@ -9710,6 +9778,98 @@
     },
     {
       "name": "Config",
+      "doc": " This monitor uses version 2.4 of the Conviva Experience Insights REST APIs to pull\n`Real-Time/Live` video playing experience metrics from Conviva.\n\nOnly `Live` conviva metrics listed\n[here](https://community.conviva.com/site/global/apis_data/experience_insights_api/index.gsp#metrics)\nare supported. All metrics are gauges. The Conviva metrics are converted to SignalFx metrics with dimensions\nnamed account and filter. The account dimension is the name of the Conviva account and the filter dimension\nis the name of the Conviva filter applied to the metric. In the case of MetricLenses, the constituent\nMetricLens metrics and MetricLens dimensions are included. The values of the MetricLens dimensions are\nderived from the values of the associated MetricLens dimension entities.\n\nBelow is a sample YAML configuration showing the most basic configuration of the Conviva monitor\nusing only the required fields. For this configuration the monitor will default to fetching quality MetricLens\nmetrics for all dimensions from the default Conviva account using the `All Traffic` filter.\n\n```\nmonitors:\n- type: conviva\n pulseUsername: \u003cusername\u003e\n pulsePassword: \u003cpassword\u003e\n```\n\nIndividual metrics are configured as a list of metricConfigs as shown in sample configuration below. The\nmetrics a fetched using the specified metricParameter. Find the list of metric parameters\n[here](https://github.com/signalfx/integrations/blob/master/conviva/docs/conviva_metrics.md).\nThe Conviva metrics reported to SignalFx are prefixed by `conviva.`, `conviva.quality_metriclens.` and\n`conviva.audience_metriclens.` accordingly. The metric names are the `titles` of the metrics\n[here](https://github.com/signalfx/integrations/tree/master/conviva/docs) which correspond to the Conviva\n`metric parameters` [here](https://community.conviva.com/site/global/apis_data/experience_insights_api/index.gsp#metrics).\nWhere an account is not provided the default account is fetched and used. Where no filters are specified the\n`All Traffic` filter is used. Where MetricLens dimensions are not specified all MetricLens dimensions\nare fetched and used. The `_ALL_` keyword means all. MetricLens dimension configuration applies only to MetricLenses.\nIf specified for a regular metric they will be ignored. MetricLens dimensions listed in `excludeMetricLensDimensions`\nwill be excluded.\n\n```\nmonitors:\n- type: conviva\n pulseUsername: \u003cusername\u003e\n pulsePassword: \u003cpassword\u003e\n metricConfigs:\n   - account: c3.NBC\n     metricParameter: quality_metriclens\n     filters:\n       - All Traffic\n     metricLensDimensions:\n       - Cities\n   - metricParameter: avg_bitrate\n     filters:\n       - _ALL_\n   - metricParameter: concurrent_plays\n   - metricParameter: audience_metriclens\n     filters:\n       - All Traffic\n     metricLensDimensions:\n       - _ALL_\n     excludeMetricLensDimensions:\n       - CDNs\n```\n\nAdd the extra dimension metric_source as shown in sample configuration below for the convenience of searching\nfor your metrics in SignalFx using the metric_source value you specify.\n\n```\nmonitors:\n- type: conviva\n pulseUsername: \u003cusername\u003e\n pulsePassword: \u003cpassword\u003e\n extraDimensions:\n   metric_source: conviva\n```\n",
+      "package": "internal/monitors/conviva",
+      "fields": [
+        {
+          "yamlName": "pulseUsername",
+          "doc": "Conviva Pulse username required with each API request.",
+          "default": null,
+          "required": true,
+          "type": "string",
+          "elementKind": ""
+        },
+        {
+          "yamlName": "pulsePassword",
+          "doc": "Conviva Pulse password required with each API request.",
+          "default": null,
+          "required": true,
+          "type": "string",
+          "elementKind": ""
+        },
+        {
+          "yamlName": "timeoutSeconds",
+          "doc": "",
+          "default": 10,
+          "required": false,
+          "type": "int",
+          "elementKind": ""
+        },
+        {
+          "yamlName": "metricConfigs",
+          "doc": "Conviva metrics to fetch. The default is quality_metriclens metric with the \"All Traffic\" filter applied and all quality_metriclens dimensions.",
+          "default": null,
+          "required": false,
+          "type": "slice",
+          "elementKind": "struct",
+          "elementStruct": {
+            "name": "metricConfig",
+            "doc": "metricConfig for configuring individual metric",
+            "package": "internal/monitors/conviva",
+            "fields": [
+              {
+                "yamlName": "account",
+                "doc": "Conviva customer account name. The default account is fetched used if not specified.",
+                "default": "",
+                "required": false,
+                "type": "string",
+                "elementKind": ""
+              },
+              {
+                "yamlName": "metricParameter",
+                "doc": "",
+                "default": "quality_metriclens",
+                "required": false,
+                "type": "string",
+                "elementKind": ""
+              },
+              {
+                "yamlName": "filters",
+                "doc": "Filter names. The default is `All Traffic` filter",
+                "default": null,
+                "required": false,
+                "type": "slice",
+                "elementKind": "string"
+              },
+              {
+                "yamlName": "metricLensDimensions",
+                "doc": "MetricLens dimension names. The default is names of all MetricLens dimensions of the account",
+                "default": null,
+                "required": false,
+                "type": "slice",
+                "elementKind": "string"
+              },
+              {
+                "yamlName": "excludeMetricLensDimensions",
+                "doc": "MetricLens dimension names to exclude.",
+                "default": null,
+                "required": false,
+                "type": "slice",
+                "elementKind": "string"
+              }
+            ]
+          }
+        }
+      ],
+      "monitorType": "conviva",
+      "acceptsEndpoints": false,
+      "singleInstance": false,
+      "dimensions": null,
+      "metrics": null,
+      "properties": null
+    },
+    {
+      "name": "Config",
       "doc": " This monitor reads container stats from a\nDocker API server.  It is meant as a metric-compatible replacement of our\n[docker-collectd](https://github.com/signalfx/docker-collectd-plugin)\nplugin, which scales rather poorly against a large number of containers.\n\nThis currently does not support CPU share/quota metrics.\n\nIf you are running the agent directly on a host (outside of a container\nitself) and you are using the default Docker UNIX socket URL, you will\nprobably need to add the `signalfx-agent` user to the `docker` group in\norder to have permission to access the Docker API via the socket.\n\nRequires Docker API version 1.22+.\n",
       "package": "internal/monitors/docker",
       "fields": [
@@ -9732,6 +9892,14 @@
         {
           "yamlName": "labelsToDimensions",
           "doc": "A mapping of container label names to dimension names. The corresponding label values will become the dimension value for the mapped name.  E.g. `io.kubernetes.container.name: container_spec_name` would result in a dimension called `container_spec_name` that has the value of the `io.kubernetes.container.name` container label.",
+          "default": null,
+          "required": false,
+          "type": "map",
+          "elementKind": "string"
+        },
+        {
+          "yamlName": "envToDimensions",
+          "doc": "A mapping of container environment variable names to dimension names.  The corresponding env var values become the dimension values on the emitted metrics.  E.g. `APP_VERSION: version` would result in datapoints having a dimension called `version` whose value is the value of the `APP_VERSION` envvar configured for that particular container, if present.",
           "default": null,
           "required": false,
           "type": "map",
@@ -9850,6 +10018,11 @@
           "name": "cpu.usage.usermode",
           "type": "cumulative",
           "description": "Jiffies of CPU time spent in user mode by the container"
+        },
+        {
+          "name": "memory.percent",
+          "type": "gauge",
+          "description": "Percent of memory (0-100) used by the container relative to its limit (excludes page cache usage)"
         },
         {
           "name": "memory.stats.swap",
@@ -10226,7 +10399,7 @@
         {
           "name": "container_cpu_percent",
           "type": "counter",
-          "description": "Cumulative cpu utilization as a percentage of the host total CPU available"
+          "description": "Cumulative cpu utilization as a percentage of the total host CPU available.  This metric is equivalent to `container_cpu_utilization` / \u003c# of CPUs/cores on host\u003e."
         },
         {
           "name": "container_cpu_system_seconds_total",
@@ -10246,7 +10419,7 @@
         {
           "name": "container_cpu_utilization",
           "type": "counter",
-          "description": "Cumulative cpu utilization in percentages"
+          "description": "Cumulative cpu utilization in percentages.  This is equivalent to \"centicores\", or hundreths of CPU cores consumed.  This metric is **NOT** normalized by the total # of cores on the system."
         },
         {
           "name": "container_fs_io_current",
@@ -10991,6 +11164,43 @@
       "dimensions": null,
       "metrics": null,
       "properties": null
+    },
+    {
+      "name": "Config",
+      "doc": " Runs an HTTP server that listens for trace spans\nand forwards them to SignalFx (or the configured ingest host in the `writer`\nsection of the agent config).  This supports the same span formats that our\ningest server supports and at the same path (`/v1/trace`).  By default, the\nserver listens on localhost port 9080 but can be configured to anything.\n",
+      "package": "internal/monitors/traceforwarder",
+      "fields": [
+        {
+          "yamlName": "listenAddress",
+          "doc": "The host:port on which to listen for spans.  This server accepts spans in all of the formats that we support on our regular ingest server.  The listening server accepts spans on the same HTTP path that ingest accepts them (e.g. `/v1/trace`).  Requests to other paths will return 404s.",
+          "default": "127.0.0.1:9080",
+          "required": false,
+          "type": "string",
+          "elementKind": ""
+        },
+        {
+          "yamlName": "serverTimeout",
+          "doc": "HTTP timeout duration for both read and writes. This should be a duration string that is accepted by https://golang.org/pkg/time/#ParseDuration",
+          "default": "5s",
+          "required": false,
+          "type": "int64",
+          "elementKind": ""
+        },
+        {
+          "yamlName": "sendInternalMetrics",
+          "doc": "Whether to send internal metrics about the HTTP listener",
+          "default": false,
+          "required": false,
+          "type": "bool",
+          "elementKind": ""
+        }
+      ],
+      "monitorType": "trace-forwarder",
+      "acceptsEndpoints": false,
+      "singleInstance": true,
+      "dimensions": null,
+      "metrics": null,
+      "properties": null
     }
   ],
   "Observers": [
@@ -11009,7 +11219,7 @@
         },
         {
           "yamlName": "labelsToDimensions",
-          "doc": "A mapping of container label names to dimension names that will get applied to the metrics of all discovered services. The corresponding label values will become the dimension value for the mapped name.  E.g. `io.kubernetes.container.name: container_spec_name` would result in a dimension called `container_spec_name` that has the value of the `io.kubernetes.container.name` container label.",
+          "doc": "A mapping of container label names to dimension names that will get applied to the metrics of all discovered services. The corresponding label values will become the dimension values for the mapped name.  E.g. `io.kubernetes.container.name: container_spec_name` would result in a dimension called `container_spec_name` that has the value of the `io.kubernetes.container.name` container label.",
           "default": null,
           "required": false,
           "type": "map",
@@ -11018,6 +11228,22 @@
         {
           "yamlName": "useHostnameIfPresent",
           "doc": "If true, the \"Config.Hostname\" field (if present) of the docker container will be used as the discovered host that is used to configure monitors.  If false or if no hostname is configured, the field `NetworkSettings.IPAddress` is used instead.",
+          "default": false,
+          "required": false,
+          "type": "bool",
+          "elementKind": ""
+        },
+        {
+          "yamlName": "useHostBindings",
+          "doc": "If true, the observer will configure monitors for matching container endpoints using the host bound ip and port.  This is useful if containers exist that are not accessible to an instance of the agent running outside of the docker network stack.",
+          "default": false,
+          "required": false,
+          "type": "bool",
+          "elementKind": ""
+        },
+        {
+          "yamlName": "ignoreNonHostBindings",
+          "doc": "If true, the observer will ignore discovered container endpoints that are not bound to host ports.  This is useful if containers exist that are not accessible to an instance of the agent running outside of the docker network stack.",
           "default": false,
           "required": false,
           "type": "bool",
@@ -11162,7 +11388,16 @@
       "name": "Config",
       "doc": " Looks at the current host for listening network endpoints.\nIt uses the `/proc` filesystem and requires the `SYS_PTRACE` and\n`DAC_READ_SEARCH` capabilities so that it can determine what processes own\nthe listening sockets.\n\nIt will look for all listening sockets on TCP and UDP over IPv4 and IPv6.\n",
       "package": "internal/observers/host",
-      "fields": [],
+      "fields": [
+        {
+          "yamlName": "pollIntervalSeconds",
+          "doc": "",
+          "default": 10,
+          "required": false,
+          "type": "int",
+          "elementKind": ""
+        }
+      ],
       "observerType": "host",
       "dimensions": [
         {
@@ -11839,15 +12074,23 @@
       {
         "yamlName": "signalFxAccessToken",
         "doc": "The access token for the org that should receive the metrics emitted by the agent.",
-        "default": null,
-        "required": true,
+        "default": "",
+        "required": false,
         "type": "string",
         "elementKind": ""
       },
       {
         "yamlName": "ingestUrl",
-        "doc": "The URL of SignalFx ingest server.  Can be overridden if using the Metric Proxy.",
+        "doc": "The URL of SignalFx ingest server.  Should be overridden if using the Metric Proxy.  If you want to send trace spans to a different location, set the `traceEndpointUrl` option.",
         "default": "https://ingest.signalfx.com",
+        "required": false,
+        "type": "string",
+        "elementKind": ""
+      },
+      {
+        "yamlName": "traceEndpointUrl",
+        "doc": "The full URL (including path) to the trace ingest server.  If this is not set, all trace spans will be sent to the `ingestUrl` configured above.",
+        "default": "",
         "required": false,
         "type": "string",
         "elementKind": ""
@@ -11870,7 +12113,7 @@
       },
       {
         "yamlName": "useFullyQualifiedHost",
-        "doc": "If true (the default), and the `hostname` option is not set, the hostname will be determined by doing a reverse DNS query on the IP address that is returned by querying for the bare hostname.  This is useful in cases where the hostname reported by the kernel is a short name.",
+        "doc": "If true (the default), and the `hostname` option is not set, the hostname will be determined by doing a reverse DNS query on the IP address that is returned by querying for the bare hostname.  This is useful in cases where the hostname reported by the kernel is a short name. (**default**: `true`)",
         "default": null,
         "required": false,
         "type": "bool",
@@ -11894,7 +12137,7 @@
       },
       {
         "yamlName": "globalDimensions",
-        "doc": "Dimensions (key:value pairs) that will be added to every datapoint emitted by the agent. To specify that all metrics should be high-resolution, add the dimension `sf_hires:1`",
+        "doc": "Dimensions (key:value pairs) that will be added to every datapoint emitted by the agent. To specify that all metrics should be high-resolution, add the dimension `sf_hires: 1`",
         "default": "",
         "required": false,
         "type": "map",
@@ -11961,7 +12204,7 @@
             },
             {
               "yamlName": "extraDimensions",
-              "doc": "A set of extra dimensions (key:value pairs) to include on datapoints emitted by the monitor(s) created from this configuration. To specify metrics from this monitor should be high-resolution, add the dimension `sf_hires:1`",
+              "doc": "A set of extra dimensions (key:value pairs) to include on datapoints emitted by the monitor(s) created from this configuration. To specify metrics from this monitor should be high-resolution, add the dimension `sf_hires: 1`",
               "default": null,
               "required": false,
               "type": "map",
@@ -12078,8 +12321,24 @@
               "elementKind": ""
             },
             {
+              "yamlName": "traceSpanMaxBatchSize",
+              "doc": "The analogue of `datapointMaxBatchSize` for trace spans.",
+              "default": 1000,
+              "required": false,
+              "type": "int",
+              "elementKind": ""
+            },
+            {
               "yamlName": "datapointMaxRequests",
-              "doc": "The maximum number of concurrent requests to make to the ingest server with datapoints.  This number multipled by `datapointMaxBatchSize` is more or less the maximum number of datapoints that can be \"in-flight\" at any given time.",
+              "doc": "Deprecated: use `maxRequests` instead.",
+              "default": 0,
+              "required": false,
+              "type": "int",
+              "elementKind": ""
+            },
+            {
+              "yamlName": "maxRequests",
+              "doc": "The maximum number of concurrent requests to make to a single ingest server with datapoints/events/trace spans.  This number multipled by `datapointMaxBatchSize` is more or less the maximum number of datapoints that can be \"in-flight\" at any given time.  Same thing for the `traceSpanMaxBatchSize` option and trace spans.",
               "default": 10,
               "required": false,
               "type": "int",
@@ -12095,7 +12354,7 @@
             },
             {
               "yamlName": "propertiesMaxRequests",
-              "doc": "The analogue of `datapointMaxRequests` for dimension property requests.",
+              "doc": "The analogue of `maxRequests` for dimension property requests.",
               "default": 10,
               "required": false,
               "type": "uint",
@@ -12123,6 +12382,54 @@
               "default": false,
               "required": false,
               "type": "bool",
+              "elementKind": ""
+            },
+            {
+              "yamlName": "logTraceSpans",
+              "doc": "The analogue of `logDatapoints` for trace spans.",
+              "default": false,
+              "required": false,
+              "type": "bool",
+              "elementKind": ""
+            },
+            {
+              "yamlName": "logDroppedDatapoints",
+              "doc": "If true, and the log level is `debug`, filtered out datapoints will be logged.",
+              "default": false,
+              "required": false,
+              "type": "bool",
+              "elementKind": ""
+            },
+            {
+              "yamlName": "sendTraceHostCorrelationMetrics",
+              "doc": "Whether to send host correlation metrics to correlation traced services with the underlying host",
+              "default": false,
+              "required": false,
+              "type": "bool",
+              "elementKind": ""
+            },
+            {
+              "yamlName": "staleServiceTimeout",
+              "doc": "How long to wait after a trace span's service name is last seen to continue sending the correlation datapoints for that service.  This should be a duration string that is accepted by https://golang.org/pkg/time/#ParseDuration.  This option is irrelvant if `sendTraceHostCorrelationMetrics` is false.",
+              "default": "5m",
+              "required": false,
+              "type": "int64",
+              "elementKind": ""
+            },
+            {
+              "yamlName": "traceHostCorrelationMetricsInterval",
+              "doc": "How frequently to send host correlation metrics that are generated from the service name seen in trace spans sent through or by the agent.  This should be a duration string that is accepted by https://golang.org/pkg/time/#ParseDuration.  This option is irrelvant if `sendTraceHostCorrelationMetrics` is false.",
+              "default": "1m",
+              "required": false,
+              "type": "int64",
+              "elementKind": ""
+            },
+            {
+              "yamlName": "maxTraceSpansInFlight",
+              "doc": "How many trace spans are allowed to be in the process of sending.  While this number is exceeded, existing pending spans will be randomly dropped if possible to accommodate new spans generated to avoid memory exhaustion.  If you see log messages about \"Aborting pending trace requests...\" or \"Dropping new trace spans...\" it means that the downstream target for traces is not able to accept them fast enough. Usually if the downstream is offline you will get connection refused errors and most likely spans will not build up in the agent (there is no retry mechanism). In the case of slow downstreams, you might be able to increase `maxRequests` to increase the concurrent stream of spans downstream (if the target can make efficient use of additional connections) or, less likely, increase `traceSpanMaxBatchSize` if your batches are maxing out (turn on debug logging to see the batch sizes being sent) and being split up too much. If neither of those options helps, your downstream is likely too slow to handle the volume of trace spans and should be upgraded to more powerful hardware/networking.",
+              "default": 100000,
+              "required": false,
+              "type": "uint",
               "elementKind": ""
             }
           ]
@@ -12255,6 +12562,61 @@
         }
       },
       {
+        "yamlName": "metricsToInclude",
+        "doc": "A list of metric filters that will whitelist/include metrics.  These filters take priority over the filters specified in `metricsToExclude`.",
+        "default": "",
+        "required": false,
+        "type": "slice",
+        "elementKind": "struct",
+        "elementStruct": {
+          "name": "MetricFilter",
+          "doc": "MetricFilter describes a set of subtractive filters applied to datapoints right before they are sent.",
+          "package": "internal/core/config",
+          "fields": [
+            {
+              "yamlName": "dimensions",
+              "doc": "A map of dimension key/values to match against.  All key/values must match a datapoint for it to be matched.",
+              "default": "",
+              "required": false,
+              "type": "map",
+              "elementKind": "string"
+            },
+            {
+              "yamlName": "metricNames",
+              "doc": "A list of metric names to match against, OR'd together",
+              "default": null,
+              "required": false,
+              "type": "slice",
+              "elementKind": "string"
+            },
+            {
+              "yamlName": "metricName",
+              "doc": "A single metric name to match against",
+              "default": "",
+              "required": false,
+              "type": "string",
+              "elementKind": ""
+            },
+            {
+              "yamlName": "monitorType",
+              "doc": "(**Only applicable for the top level filters**) Limits this scope of the filter to datapoints from a specific monitor. If specified, any datapoints not from this monitor type will never match against this filter.",
+              "default": "",
+              "required": false,
+              "type": "string",
+              "elementKind": ""
+            },
+            {
+              "yamlName": "negated",
+              "doc": "Negates the result of the match so that it matches all datapoints that do NOT match the metric name and dimension values given. This does not negate monitorType, if given.",
+              "default": false,
+              "required": false,
+              "type": "bool",
+              "elementKind": ""
+            }
+          ]
+        }
+      },
+      {
         "yamlName": "metricsToExclude",
         "doc": "A list of metric filters",
         "default": "",
@@ -12304,6 +12666,53 @@
               "default": false,
               "required": false,
               "type": "bool",
+              "elementKind": ""
+            }
+          ]
+        }
+      },
+      {
+        "yamlName": "propertiesToExclude",
+        "doc": "A list of properties filters",
+        "default": "",
+        "required": false,
+        "type": "slice",
+        "elementKind": "struct",
+        "elementStruct": {
+          "name": "PropertyFilterConfig",
+          "doc": "PropertyFilterConfig describes a set of subtractive filters applied to properties used to create a PropertyFilter",
+          "package": "internal/core/config",
+          "fields": [
+            {
+              "yamlName": "propertyName",
+              "doc": "A single property name to match",
+              "default": "*",
+              "required": false,
+              "type": "string",
+              "elementKind": ""
+            },
+            {
+              "yamlName": "propertyValue",
+              "doc": "A property value to match",
+              "default": "*",
+              "required": false,
+              "type": "string",
+              "elementKind": ""
+            },
+            {
+              "yamlName": "dimensionName",
+              "doc": "A dimension name to match",
+              "default": "*",
+              "required": false,
+              "type": "string",
+              "elementKind": ""
+            },
+            {
+              "yamlName": "dimensionValue",
+              "doc": "A dimension value to match",
+              "default": "*",
+              "required": false,
+              "type": "string",
               "elementKind": ""
             }
           ]

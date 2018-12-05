@@ -339,4 +339,3 @@ package mysql
 // GAUGE(threads.connected): The number of currently open MySQL connections.  A MySQL thread corresponds to a single MySQL connection.
 
 // GAUGE(threads.running): The number of MySQL threads that are processing a query.  A MySQL thread corresponds to a single MySQL connection.
-

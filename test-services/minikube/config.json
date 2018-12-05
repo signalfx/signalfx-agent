@@ -1,0 +1,9 @@
+{
+    "ShowBootstrapperDeprecationNotification": false,
+    "WantNoneDriverWarning": false,
+    "addon-manager": false,
+    "dashboard": false,
+    "default-storageclass": false,
+    "kube-dns": false,
+    "storage-provisioner": false
+}

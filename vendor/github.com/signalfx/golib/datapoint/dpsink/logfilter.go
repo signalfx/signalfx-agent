@@ -150,12 +150,14 @@ func (f *ItemFlagger) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 		err := json.NewDecoder(req.Body).Decode(&newDimensions)
 		if err != nil {
 			rw.WriteHeader(http.StatusBadRequest)
-			fmt.Fprintf(rw, "Cannot decode request JSON: %s", err.Error())
+			_, err = fmt.Fprintf(rw, "Cannot decode request JSON: %s", err.Error())
+			log.IfErr(f.Logger, err)
 			return
 		}
 		log.IfErr(f.Logger, req.Body.Close())
 		f.SetDimensions(newDimensions)
-		fmt.Fprintf(rw, "Dimensions updated!")
+		_, err = fmt.Fprintf(rw, "Dimensions updated!")
+		log.IfErr(f.Logger, err)
 		return
 	}
 	if req.Method == "GET" {

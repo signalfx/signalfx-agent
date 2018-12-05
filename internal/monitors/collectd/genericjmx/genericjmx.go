@@ -1,4 +1,4 @@
-// +build !windows
+// +build linux
 
 // Package genericjmx coordinates the various monitors that rely on the
 // GenericJMX Collectd plugin to pull JMX metrics.  All of the GenericJMX
@@ -32,7 +32,9 @@ type Config struct {
 	// Host to connect to -- JMX must be configured for remote access and
 	// accessible from the agent
 	Host string `yaml:"host" validate:"required"`
-	// JMX RMI port on the host
+	// JMX connection port (NOT the RMI port) on the application.  This
+	// correponds to the `com.sun.management.jmxremote.port` Java property that
+	// should be set on the JVM when running the application.
 	Port uint16 `yaml:"port" validate:"required"`
 	Name string `yaml:"name"`
 
@@ -56,7 +58,7 @@ type Config struct {
 	MBeansToCollect []string `yaml:"mBeansToCollect"`
 	// A list of the MBeans to omit. This will come handy in cases where only a
 	// few MBeans need to omitted from the default list
-	MBeansToOmit    []string `yaml:"mBeansToOmit"`
+	MBeansToOmit []string `yaml:"mBeansToOmit"`
 	// Specifies how to map JMX MBean values to metrics.  If using a specific
 	// service monitor such as cassandra, kafka, or activemq, they come
 	// pre-loaded with a set of mappings, and any that you add in this option

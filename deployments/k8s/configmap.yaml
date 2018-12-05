@@ -49,6 +49,11 @@ data:
     - type: kubelet-stats
       kubeletAPI:
         authType: serviceAccount
+        # Replace the above with the following if using GKE/PKE or any
+        # environment where RBAC is not effective for the kubelet's /stats
+        # endpoint
+        # authType: none
+        # url: http://${MY_NODE_NAME}:10255
 
     # Collects k8s cluster-level metrics
     - type: kubernetes-cluster
@@ -126,8 +131,6 @@ data:
     - type: collectd/zookeeper
       discoveryRule: container_image =~ "zookeeper" && private_port == 2181
 
-
-
     collectd:
       readThreads: 5
       writeQueueLimitHigh: 500000
@@ -137,3 +140,7 @@ data:
 
     metricsToExclude:
       - {"#from": "/lib/whitelist.json", flatten: true}
+      # The StackDriver metadata-agent pod on GKE restarts every few minutes so
+      # ignore its containers
+      - dimensions:
+          container_spec_name: metadata-agent

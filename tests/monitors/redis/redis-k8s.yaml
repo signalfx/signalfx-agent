@@ -20,3 +20,9 @@ spec:
           image: redis:latest
           ports:
             - containerPort: 6379
+          readinessProbe:
+            tcpSocket:
+              port: 6379
+            initialDelaySeconds: 5
+            periodSeconds: 1
+            timeoutSeconds: 60

@@ -4,7 +4,7 @@ Logic around the actual runner that manages the lifecycle of the plugin.
 import logging
 
 from sfxrunner.logs import log_exc_traceback_as_error
-from sfxrunner.messages import (MSG_TYPE_CONFIGURE, MSG_TYPE_CONFIGURE_RESULT, MSG_TYPE_SHUTDOWN)
+from sfxrunner.messages import MSG_TYPE_CONFIGURE, MSG_TYPE_CONFIGURE_RESULT, MSG_TYPE_SHUTDOWN
 
 from .collectd import CollectdMonitorProxy
 
@@ -48,9 +48,9 @@ class Runner(object):
             log_exc_traceback_as_error()
             err = e
 
-        self.output_writer.send_msg(MSG_TYPE_CONFIGURE_RESULT, {
-            "error": repr(err) if err else None,
-        })
+        self.output_writer.send_msg(MSG_TYPE_CONFIGURE_RESULT, {"error": repr(err) if err else None})
+
+        self._monitor_proxy.start_reading()
 
         msg = self.input_reader.recv_msg()
         assert msg.type == MSG_TYPE_SHUTDOWN, "Expected shutdown message, got %d" % msg.type

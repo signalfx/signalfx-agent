@@ -1,4 +1,4 @@
-// +build !windows
+// +build linux
 
 package disk
 
@@ -39,7 +39,7 @@ type Config struct {
 	config.MonitorConfig `singleInstance:"true"`
 
 	// Which devices to include/exclude
-	Disks []string `yaml:"disks" default:"[\"/^loop\\\\d+$/\", \"/^dm-\\\\d+$/\"]"`
+	Disks []string `yaml:"disks" default:"[\"/^loop[0-9]+$/\", \"/^dm-[0-9]+$/\"]"`
 
 	// If true, the disks selected by `disks` will be excluded and all others
 	// included.

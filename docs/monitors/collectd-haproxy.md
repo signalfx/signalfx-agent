@@ -20,10 +20,10 @@ Monitor Type: `collectd/haproxy`
 | Config option | Required | Type | Description |
 | --- | --- | --- | --- |
 | `host` | **yes** | `string` |  |
-| `port` | **yes** | `integer` |  |
+| `port` | no | `integer` |  (**default:** `0`) |
 | `proxiesToMonitor` | no | `list of string` |  |
 | `excludedMetrics` | no | `list of string` |  |
-| `enhancedMetrics` | no | `bool` |  (**default:** `false`) |
+| `enhancedMetrics` | no | `bool` |  |
 
 
 
@@ -106,64 +106,74 @@ The following table lists the metrics available for this monitor. Metrics that a
 | `gauge.throttle` | gauge | X | Corresponds to HAProxy's `throttle` metric -  Current throttle percentage for the server, when slowstart is active, or no value if not in slowstart. |
 | `gauge.zlib_mem_usage` | gauge | X | Corresponds to HAProxy's `ZlibMemUsage` metric. |
 
-To specify custom metrics you want to monitor, add a negated `metricsToExclude` to the monitor configuration, as shown in the code snippet below. The snippet lists all available custom metrics. You can copy and paste the snippet into your configuration file, then delete any custom metrics that you do not want to monitor. 
-Note that some of the custom metrics require you to set a flag as well as add them to the list. Check the monitor configuration file to see if a flag is required for gathering additional metrics.
-```yaml 
-metricsToExclude:
-  - counter.connection_total
-  - derive.cli_abrt
-  - derive.comp_byp
-  - derive.comp_in
-  - derive.comp_out
-  - derive.comp_rsp
-  - derive.compress_bps_in
-  - derive.compress_bps_out
-  - derive.connections
-  - derive.downtime
-  - derive.failed_checks
-  - derive.request_total
-  - derive.response_1xx
-  - derive.response_3xx
-  - derive.response_other
-  - derive.session_total
-  - derive.srv_abrt
-  - derive.ssl_cache_lookups
-  - derive.ssl_cache_misses
-  - derive.ssl_connections
-  - derive.uptime_seconds
-  - gauge.active_servers
-  - gauge.backup_servers
-  - gauge.check_duration
-  - gauge.connection_rate_max
-  - gauge.current_connections
-  - gauge.current_ssl_connections
-  - gauge.denied_tcp_connections
-  - gauge.denied_tcp_sessions
-  - gauge.intercepted_requests
-  - gauge.last_session
-  - gauge.max_connection_rate
-  - gauge.max_connections
-  - gauge.max_pipes
-  - gauge.max_session_rate
-  - gauge.max_ssl_connections
-  - gauge.pipes_free
-  - gauge.pipes_used
-  - gauge.queue_limit
-  - gauge.queue_max
-  - gauge.request_rate_max
-  - gauge.run_queue
-  - gauge.session_rate_limit
-  - gauge.session_rate_max
-  - gauge.session_time_average
-  - gauge.ssl_backend_key_rate
-  - gauge.ssl_frontend_key_rate
-  - gauge.ssl_rate
-  - gauge.tasks
-  - gauge.throttle
-  - gauge.zlib_mem_usage
-  negated: true
-```
 
+To specify custom metrics you want to monitor, add a `metricsToInclude` filter
+to the agent configuration, as shown in the code snippet below. The snippet
+lists all available custom metrics. You can copy and paste the snippet into
+your configuration file, then delete any custom metrics that you do not want
+sent.
+
+Note that some of the custom metrics require you to set a flag as well as add
+them to the list. Check the monitor configuration file to see if a flag is
+required for gathering additional metrics.
+
+```yaml
+
+metricsToInclude:
+  - metricNames:
+    - counter.connection_total
+    - derive.cli_abrt
+    - derive.comp_byp
+    - derive.comp_in
+    - derive.comp_out
+    - derive.comp_rsp
+    - derive.compress_bps_in
+    - derive.compress_bps_out
+    - derive.connections
+    - derive.downtime
+    - derive.failed_checks
+    - derive.request_total
+    - derive.response_1xx
+    - derive.response_3xx
+    - derive.response_other
+    - derive.session_total
+    - derive.srv_abrt
+    - derive.ssl_cache_lookups
+    - derive.ssl_cache_misses
+    - derive.ssl_connections
+    - derive.uptime_seconds
+    - gauge.active_servers
+    - gauge.backup_servers
+    - gauge.check_duration
+    - gauge.connection_rate_max
+    - gauge.current_connections
+    - gauge.current_ssl_connections
+    - gauge.denied_tcp_connections
+    - gauge.denied_tcp_sessions
+    - gauge.intercepted_requests
+    - gauge.last_session
+    - gauge.max_connection_rate
+    - gauge.max_connections
+    - gauge.max_pipes
+    - gauge.max_session_rate
+    - gauge.max_ssl_connections
+    - gauge.pipes_free
+    - gauge.pipes_used
+    - gauge.queue_limit
+    - gauge.queue_max
+    - gauge.request_rate_max
+    - gauge.run_queue
+    - gauge.session_rate_limit
+    - gauge.session_rate_max
+    - gauge.session_time_average
+    - gauge.ssl_backend_key_rate
+    - gauge.ssl_frontend_key_rate
+    - gauge.ssl_rate
+    - gauge.tasks
+    - gauge.throttle
+    - gauge.zlib_mem_usage
+    monitorType: collectd/haproxy
+```
 
 
 

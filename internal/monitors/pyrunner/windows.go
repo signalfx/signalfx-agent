@@ -23,6 +23,7 @@ func pythonBinaryExecutable() string {
 
 func pythonBinaryArgs(pkgName string) []string {
 	return []string{
+		"-u",
 		"-m",
 		pkgName,
 	}

@@ -1,6 +1,3 @@
-"""
-"""
-
 import logging
 import time
 from functools import partial as p

@@ -57,7 +57,7 @@ Monitor Type: `collectd/jenkins`
 | `host` | **yes** | `string` |  |
 | `port` | **yes** | `integer` |  |
 | `metricsKey` | **yes** | `string` | Key required for collecting metrics.  The access key located at `Manage Jenkins > Configure System > Metrics > ADD.` If empty, click `Generate`. |
-| `enhancedMetrics` | no | `bool` | Whether to enable enhanced metrics (**default:** `false`) |
+| `enhancedMetrics` | no | `bool` | Whether to enable enhanced metrics |
 | `includeMetrics` | no | `list of string` | Used to enable individual enhanced metrics when `enhancedMetrics` is false |
 | `username` | no | `string` | User with security access to jenkins |
 | `apiToken` | no | `string` | API Token of the user |
@@ -89,13 +89,23 @@ The following table lists the metrics available for this monitor. Metrics that a
 | `gauge.jenkins.node.vm.memory.non-heap.used` | gauge |  | Total amount of non-heap memory used |
 | `gauge.jenkins.node.vm.memory.total.used` | gauge |  | Total Memory used by instance |
 
-To specify custom metrics you want to monitor, add a negated `metricsToExclude` to the monitor configuration, as shown in the code snippet below. The snippet lists all available custom metrics. You can copy and paste the snippet into your configuration file, then delete any custom metrics that you do not want to monitor. 
-Note that some of the custom metrics require you to set a flag as well as add them to the list. Check the monitor configuration file to see if a flag is required for gathering additional metrics.
-```yaml 
-metricsToExclude:
-  negated: true
-```
 
+To specify custom metrics you want to monitor, add a `metricsToInclude` filter
+to the agent configuration, as shown in the code snippet below. The snippet
+lists all available custom metrics. You can copy and paste the snippet into
+your configuration file, then delete any custom metrics that you do not want
+sent.
+
+Note that some of the custom metrics require you to set a flag as well as add
+them to the list. Check the monitor configuration file to see if a flag is
+required for gathering additional metrics.
+
+```yaml
+
+metricsToInclude:
+  - metricNames:
+    monitorType: collectd/jenkins
+```
 
 
 

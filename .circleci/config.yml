@@ -1,7 +1,11 @@
-version: 2
-references:
+---
+version: 2.1
+executors:
+  machine_image:
+    machine:
+      image: circleci/classic:201711-01
 
-  goexecutor: &goexecutor
+  goexecutor:
     working_directory: /go/src/github.com/signalfx/signalfx-agent
     docker:
       - image: golang:1.10-alpine
@@ -9,249 +13,261 @@ references:
           CGO_ENABLED: 0
           AGENT_BIN: /go/src/github.com/signalfx/signalfx-agent/signalfx-agent
 
-  goexecutor_setup: &goexecutor_setup
-    run: |
-      apk add --no-cache curl make git bash coreutils
+  python36:
+    working_directory: /opt/signalfx-agent
+    docker:
+      - image: python:3.6
 
-  executor: &executor
-    machine:
-      image: circleci/classic:201711-01
+  docker1809:
+    docker:
+      - image: docker:18.09
 
-  attach_workspace: &attach_workspace
-    attach_workspace:
-      at: /tmp/workspace
+commands:
+  goexecutor_setup:
+    steps:
+      - run: apk add --no-cache curl make git bash coreutils
 
-  import_image: &import_image
-    run: |
-      docker load -i /tmp/workspace/image.tar
+  import_image:
+    description: Import the agent image archive from the build job.
+    steps:
+      - attach_workspace:
+          at: /tmp/workspace
+      - run: docker load -i /tmp/workspace/image.tar
 
-  install_pytest: &install_pytest
-    run: |
-      if [ -f ~/.skip ]; then
-          echo "Found ~/.skip. Skipping pytest install."
-          exit 0
-      fi
-      set -e
-      sudo apt-get update && sudo apt-get install -y python3-dev
-      curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
-      sudo python3 get-pip.py 'pip==10.0.1'
-      sudo pip3 install -r tests/requirements.txt
+  install_pytest:
+    description: Install pytest and dependencies with pyenv 3.6.3.
+    steps:
+      - restore_cache:
+          key: v1-pytest-{{ checksum "tests/requirements.txt" }}
+      - run:
+          name: Install pytest and dependencies
+          command: |
+            pyenv install --skip-existing 3.6.3
+            pyenv global 3.6.3
+            if which pip; then
+                pip install --upgrade 'pip==10.0.1'
+            else
+                curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
+                python get-pip.py 'pip==10.0.1'
+            fi
+            pip install -r tests/requirements.txt
+            pyenv rehash
+      - save_cache:
+          key: v1-pytest-{{ checksum "tests/requirements.txt" }}
+          paths:
+            - /opt/circleci/.pyenv
 
-  run_k8s_integration_tests: &run_k8s_integration_tests
-    run:
-      no_output_timeout: 30m
-      command: |
-        mkdir ~/testresults
-        mkdir -p /tmp/scratch
-        pytest \
-            -n4 \
-            -m "$PYTEST_MARKERS" \
-            --exitfirst \
-            --verbose \
-            --junitxml=~/testresults/k8s_integration_tests.xml \
-            --html=~/testresults/k8s_integration_tests.html \
-            --self-contained-html \
-            --k8s-version="$K8S_VERSION" \
-            --k8s-observers="$K8S_OBSERVERS" \
-            --k8s-timeout=300 \
-            --k8s-test-timeout=120 \
-            --k8s-sfx-agent=quay.io/signalfx/signalfx-agent-dev:latest \
-            tests
+  save_test_results:
+    description: Collect and archive test results from `dir`.
+    parameters:
+      dir:
+        type: string
+        default: "~/testresults"
+    steps:
+      - store_test_results:
+          path: << parameters.dir >>
+      - store_artifacts:
+          path: << parameters.dir >>
+
+  run_pytest:
+    description: Install and run pytest with `pytest_options` for `tests_dir` and save the results.
+    parameters:
+      pytest_options:
+        type: string
+      tests_dir:
+        type: string
+        default: "./tests"
+      with_sudo:
+        type: boolean
+        default: false
+    steps:
+      - install_pytest
+      - run:
+          name: Run pytest
+          no_output_timeout: 30m
+          command: |
+            if [ -f ~/.skip ]; then
+                echo "Found ~/.skip, skipping tests!"
+                exit 0
+            fi
+            mkdir /tmp/scratch
+            mkdir ~/testresults
+            OPTS="--verbose --junitxml=~/testresults/results.xml --html=~/testresults/results.html --self-contained-html"
+            if [ "<< parameters.with_sudo >>" = "true" ]; then
+                sudo -E $PYENV_ROOT/shims/pytest $OPTS << parameters.pytest_options >> << parameters.tests_dir >>
+            else
+                pytest $OPTS << parameters.pytest_options >> << parameters.tests_dir >>
+            fi
+      - save_test_results
+
+  install_pylint_black:
+    description: Install pylint, black, and dependencies from `dir` (only if `dir` has changes).
+    parameters:
+      dir:
+        type: string
+    steps:
+      - run:
+          name: Install pylint, black, and dependencies
+          command: |
+            if ! scripts/changes-include-dir << parameters.dir >>; then
+                echo "<< parameters.dir >> code has not changed, skipping pylint/black install!"
+                touch ~/.skip
+                exit 0
+            fi
+            cd << parameters.dir >>
+            pip install --upgrade 'pip==10.0.1'
+            [ -f setup.py ] && pip install -e .
+            [ -f test-requirements.txt ] && pip install -r test-requirements.txt
+            [ -f requirements.txt ] && pip install -r requirements.txt
+            exit 0
 
 jobs:
   build:
-    <<: *executor
-    steps:
-     - checkout
-     - run: |
-         set -x
-         export PULL_CACHE=yes
-         export AGENT_VERSION=latest
-         make image
-     - run: |
-         mkdir -p /tmp/workspace
-         docker save -o /tmp/workspace/image.tar quay.io/signalfx/signalfx-agent-dev:latest
-     - persist_to_workspace:
-         root: /tmp/workspace
-         paths:
-           - image.tar
-
-  build_dev_image:
-    <<: *executor
-    steps:
-     - checkout
-     - run: |
-         set -x
-         if ! scripts/changes-include-dir Dockerfile; then
-             echo "Dockerfile has not changed, skipping build!"
-             exit 0
-         fi
-         export PULL_CACHE=yes
-         make dev-image
-
-  build-windows:
-    <<: *executor
+    executor: docker1809
     steps:
       - checkout
+      - setup_remote_docker:
+          docker_layer_caching: false
       - run: |
-          set -x
+          apk add make bash
+          PULL_CACHE=yes AGENT_VERSION=latest make image
+      - run: |
+          mkdir -p /tmp/workspace
+          docker save -o /tmp/workspace/image.tar quay.io/signalfx/signalfx-agent-dev:latest
+      - persist_to_workspace:
+          root: /tmp/workspace
+          paths:
+            - image.tar
+
+  build_dev_image:
+    executor: docker1809
+    steps:
+      - checkout
+      - setup_remote_docker:
+          docker_layer_caching: false
+      - run: |
+          apk add make bash git
+          git checkout -b $CIRCLE_BRANCH
+          if ! scripts/changes-include-dir Dockerfile; then
+              echo "Dockerfile has not changed, skipping build!"
+              exit 0
+          fi
+          PULL_CACHE=yes make dev-image
+
+  build-windows:
+    executor: docker1809
+    steps:
+      - checkout
+      - setup_remote_docker:
+          docker_layer_caching: false
+      - run: |
+          apk add make bash git
           export PULL_CACHE=yes
           COLLECTD_VERSION=$(make collectd-version) COLLECTD_COMMIT=$(make collectd-commit) ./scripts/build-binary windows
           if [ ! -f ~/project/signalfx-agent.exe ] ; then
-            echo "signalfx-agent.exe not found!"
-            exit 1
+              echo "signalfx-agent.exe not found!"
+              exit 1
           fi
-
-      - store_test_results:
-          path: ~/testresults
-
       - store_artifacts:
           path: ~/project/signalfx-agent.exe
           destination: /signalfx-agent.exe
 
-  lint: 
-    <<: *goexecutor
+  lint:
+    executor: goexecutor
     steps:
       - checkout
-      - <<: *goexecutor_setup
+      - goexecutor_setup
       - run: |
           go get -u golang.org/x/lint/golint
           make lint
 
-  vet: 
-    <<: *goexecutor
+  vet:
+    executor: goexecutor
     steps:
       - checkout
-      - <<: *goexecutor_setup
+      - goexecutor_setup
       - run: |
           make vet
 
-  gotests: 
-    <<: *goexecutor
+  gofmt:
+    executor: goexecutor
     steps:
       - checkout
-      - <<: *goexecutor_setup
+      - goexecutor_setup
+      - run: |
+          make gofmt
+          git diff --exit-code || (echo 'go files need to be reformatted. Run `make gofmt` in the dev image and commit the changes.' && exit 1)
+
+  gotests:
+    executor: goexecutor
+    steps:
+      - checkout
+      - goexecutor_setup
       - run: |
           mkdir ~/testresults
           go get github.com/tebeka/go2xunit
           bash -eo pipefail -c "make templates >/dev/null && go test -v ./... | tee /dev/stderr | go2xunit" > ~/testresults/unit.xml
-      - store_test_results:
-          path: ~/testresults
+      - save_test_results
 
-  docs_test: 
-    <<: *goexecutor
+  docs_test:
+    executor: goexecutor
     steps:
       - checkout
-      - <<: *goexecutor_setup
+      - goexecutor_setup
       - run: |
           apk add --no-cache jq
-          curl -LOk https://github.com/hairyhenderson/gomplate/releases/download/v2.3.0/gomplate_linux-amd64-slim 
+          curl -LOk https://github.com/hairyhenderson/gomplate/releases/download/v2.3.0/gomplate_linux-amd64-slim
           mv gomplate_linux-amd64-slim /usr/bin/gomplate
           chmod +x /usr/bin/gomplate
           make signalfx-agent
           bash -ec "make docs && git diff --exit-code" || \
           (echo 'Autogenerated docs and/or the selfdescribe.json file are not in sync with their source! If you directly edited a doc file, please move the changes to the source where the doc is generated from (use grep to find where based on existing doc content). In either case, you need to run `make docs` in the dev image and commit those changes.' && exit 1)
 
-  integration_tests: 
-    <<: *executor
+  integration_tests:
+    executor: machine_image
     steps:
-      - *attach_workspace
-      - *import_image
       - checkout
-      - *install_pytest
-      - run: |
-          mkdir ~/testresults
-          mkdir -p /tmp/scratch
-          mkdir bundle
-          cid=$(docker create quay.io/signalfx/signalfx-agent-dev:latest true)
-          docker export $cid | tar -C $(pwd)/bundle/ -xf -
-          docker rm -fv $cid
-          export AGENT_BIN=$(pwd)/bundle/bin/signalfx-agent
-          export BUNDLE_DIR=$(pwd)/bundle
-          export TEST_SERVICES_DIR=$(pwd)/test-services
-          sudo -E pytest \
-              -n4 \
-              -m "not packaging and not installer and not k8s" \
-              --verbose \
-              --junitxml=~/testresults/integration_tests.xml \
-              --html=~/testresults/integration_tests.html \
-              --self-contained-html \
-              tests
-      - store_test_results:
-          path: ~/testresults
-      - store_artifacts:
-          path: ~/testresults/integration_tests.html
+      - import_image
+      - run:
+          name: Setup test environment
+          command: |
+            BUNDLE_DIR="$(pwd)/bundle"
+            AGENT_BIN="$BUNDLE_DIR/bin/signalfx-agent"
+            TEST_SERVICES_DIR="$(pwd)/test-services"
+            MARKERS="not packaging and not installer and not k8s"
+            mkdir -p "$BUNDLE_DIR"
+            cid=$(docker create quay.io/signalfx/signalfx-agent-dev:latest true)
+            docker export $cid | tar -C "$BUNDLE_DIR" -xf -
+            docker rm -fv $cid
+            [ -f "$AGENT_BIN" ] || (echo "$AGENT_BIN not found!" && exit 1)
+            if ! scripts/changes-include-dir internal/monitors/collectd/openstack tests/monitors/openstack test-services/devstack; then
+                MARKERS="$MARKERS and not openstack"
+            fi
+            if ! scripts/changes-include-dir internal/monitors/conviva tests/monitors/conviva; then
+                MARKERS="$MARKERS and not conviva"
+            fi
+            echo "export BUNDLE_DIR='$BUNDLE_DIR'" >> $BASH_ENV
+            echo "export AGENT_BIN='$AGENT_BIN'" >> $BASH_ENV
+            echo "export TEST_SERVICES_DIR='$TEST_SERVICES_DIR'" >> $BASH_ENV
+            echo "export MARKERS='$MARKERS'" >> $BASH_ENV
+      - run_pytest:
+          pytest_options: "-n4 -m \"$MARKERS\""
+          with_sudo: true
 
-  k8s_v1.10.0_integration_tests:
-    <<: *executor
-    environment:
-      K8S_VERSION: "v1.10.0"
-      K8S_OBSERVERS: "k8s-api,k8s-kubelet"
-      PYTEST_MARKERS: "k8s"
+  k8s_integration_tests:
+    executor: machine_image
+    parameters:
+      k8s_version:
+        type: string
     steps:
-      - *attach_workspace
-      - *import_image
       - checkout
-      - *install_pytest
-      - *run_k8s_integration_tests
-      - store_test_results:
-          path: ~/testresults
-      - store_artifacts:
-          path: ~/testresults/k8s_integration_tests.html
-
-  k8s_v1.9.0_integration_tests:
-    <<: *executor
-    environment:
-      K8S_VERSION: "v1.9.0"
-      K8S_OBSERVERS: "k8s-api,k8s-kubelet"
-      PYTEST_MARKERS: "k8s"
-    steps:
-      - *attach_workspace
-      - *import_image
-      - checkout
-      - *install_pytest
-      - *run_k8s_integration_tests
-      - store_test_results:
-          path: ~/testresults
-      - store_artifacts:
-          path: ~/testresults/k8s_integration_tests.html
-
-  k8s_v1.8.0_integration_tests:
-    <<: *executor
-    environment:
-      K8S_VERSION: "v1.8.0"
-      K8S_OBSERVERS: "k8s-api,k8s-kubelet"
-      PYTEST_MARKERS: "k8s"
-    steps:
-      - *attach_workspace
-      - *import_image
-      - checkout
-      - *install_pytest
-      - *run_k8s_integration_tests
-      - store_test_results:
-          path: ~/testresults
-      - store_artifacts:
-          path: ~/testresults/k8s_integration_tests.html
-
-  k8s_v1.7.0_integration_tests:
-    <<: *executor
-    environment:
-      K8S_VERSION: "v1.7.0"
-      K8S_OBSERVERS: "k8s-api,k8s-kubelet"
-      PYTEST_MARKERS: "k8s"
-    steps:
-      - *attach_workspace
-      - *import_image
-      - checkout
-      - *install_pytest
-      - *run_k8s_integration_tests
-      - store_test_results:
-          path: ~/testresults
-      - store_artifacts:
-          path: ~/testresults/k8s_integration_tests.html
+      - import_image
+      - run_pytest:
+          pytest_options: "-n4 -m 'k8s' --exitfirst --k8s-version='<< parameters.k8s_version >>' --k8s-sfx-agent=quay.io/signalfx/signalfx-agent-dev:latest --k8s-timeout=600"
+          tests_dir: "./tests"
 
   installer_tests:
-    <<: *executor
+    executor: machine_image
     steps:
       - checkout
       - run: |
@@ -260,240 +276,204 @@ jobs:
               touch ~/.skip
               exit 0
           fi
-      - *install_pytest
-      - run:
-          no_output_timeout: 30m
-          command: |
-            if [ -f ~/.skip ]; then
-                echo "Installer code has not changed, skipping tests!"
-                exit 0
-            fi
-            mkdir /tmp/scratch
-            mkdir ~/testresults
-            pytest \
-                -n auto \
-                -m "installer" \
-                --verbose \
-                --junitxml=~/testresults/installer.xml \
-                --html=~/testresults/installer.html \
-                --self-contained-html \
-                ./tests/packaging/
+      - run_pytest:
+          pytest_options: "-n auto -m 'installer'"
+          tests_dir: "./tests/packaging/"
 
-      - store_test_results:
-          path: ~/testresults
-
-      - store_artifacts:
-          path: ~/testresults/installer.html
-
-  rpm_package_tests:
-    <<: *executor
+  package_tests:
+    executor: machine_image
+    parameters:
+      package_type:
+        default: "rpm"
+        type: enum
+        enum: ["rpm", "deb"]
     steps:
       - checkout
       - run: |
-          if ! scripts/changes-include-dir Dockerfile packaging/rpm tests/packaging; then
-              echo "RPM packaging code has not changed, skipping tests!"
+          if ! scripts/changes-include-dir Dockerfile packaging/<< parameters.package_type >> tests/packaging; then
+              echo "<< parameters.package_type >> packaging code has not changed, skipping tests!"
               touch ~/.skip
               exit 0
           fi
           export PULL_CACHE=yes
-          make rpm-test-package
-      - *install_pytest
-      - run:
-          no_output_timeout: 30m
-          command: |
-            if [ -f ~/.skip ]; then
-                echo "RPM packaging code has not changed, skipping tests!"
-                exit 0
-            fi
-            mkdir /tmp/scratch
-            mkdir ~/testresults
-            pytest \
-                -n auto \
-                -m "rpm" \
-                --verbose \
-                --junitxml=~/testresults/rpm.xml \
-                --html=~/testresults/rpm.html \
-                --self-contained-html \
-                ./tests/packaging
+          make << parameters.package_type >>-test-package
+      - run_pytest:
+          pytest_options: "-n auto -m '<< parameters.package_type >>'"
+          tests_dir: "./tests/packaging"
 
-      - store_test_results:
-          path: ~/testresults
-
-      - store_artifacts:
-          path: ~/project/packaging/rpm/output
-          destination: /packages/
-
-      - store_artifacts:
-          path: ~/testresults/rpm.html
-
-  deb_package_tests:
-    <<: *executor
+  deployment_tests:
+    executor: machine_image
+    parameters:
+      deployment_type:
+        default: "chef"
+        type: enum
+        enum: ["chef", "puppet", "salt", "ansible"]
     steps:
       - checkout
       - run: |
-          if ! scripts/changes-include-dir Dockerfile packaging/deb tests/packaging; then
-              echo "Debian packaging code has not changed, skipping tests!"
-              touch ~/.skip
-              exit 0
-          fi
-          export PULL_CACHE=yes
-          make deb-test-package
-      - *install_pytest
-      - run:
-          no_output_timeout: 30m
-          command: |
-            if [ -f ~/.skip ]; then
-                echo "Debian packaging code has not changed, skipping tests!"
-                exit 0
-            fi
-            mkdir ~/testresults
-            mkdir /tmp/scratch
-            pytest \
-                -n auto \
-                -m "deb" \
-                --verbose \
-                --junitxml=~/testresults/deb.xml \
-                --html=~/testresults/deb.html \
-                --self-contained-html \
-                ./tests/packaging
-
-      - store_test_results:
-          path: ~/testresults
-
-      - store_artifacts:
-          path: ~/project/packaging/deb/output
-          destination: /packages/
-
-      - store_artifacts:
-          path: ~/testresults/deb.html
-
-  chef_tests:
-    <<: *executor
-    steps:
-      - checkout
-      - run: |
+          DEPLOYMENT=<< parameters.deployment_type >>
           mkdir ~/testresults
-
-          if ! scripts/changes-include-dir Dockerfile deployments/chef; then
-              echo "Chef cookbook code has not changed, skipping tests!"
+          if ! scripts/changes-include-dir Dockerfile deployments/$DEPLOYMENT; then
+              echo "$DEPLOYMENT code has not changed, skipping tests!"
               exit 0
           fi
-
-          cd deployments/chef
+          cd deployments/$DEPLOYMENT
           make dev-image
-          docker run --rm \
-            signalfx-agent-chef-dev \
-            chef exec rspec --format RspecJunitFormatter > ~/testresults/chefspec.xml
+          case "$DEPLOYMENT" in
+          chef)
+              docker run --rm \
+                  signalfx-agent-chef-dev \
+                  chef exec rspec --format RspecJunitFormatter > ~/testresults/chefspec.xml
+              docker run --rm \
+                  signalfx-agent-chef-dev \
+                  foodcritic .
+              ;;
+          puppet)
+              docker run --rm \
+                  signalfx-agent-puppet-dev \
+                  rspec spec --format RspecJunitFormatter > ~/testresults/puppetspec.xml
+              docker run --rm \
+                  signalfx-agent-puppet-dev \
+                  puppet-lint .
+              ;;
+          salt)
+              docker run --rm \
+                  signalfx-agent-salt-dev \
+                  salt '*' state.apply > ~/testresults/salt.out
+              ;;
+          ansible)
+              docker run --rm \
+                  signalfx-agent-ansible-dev \
+                  ansible-playbook -i inventory example-playbook.yml --connection=local \
+                  -e '{"sfx_agent_config": {"signalFxAccessToken": "MyToken"}}' > ~/testresults/ansible.out
+              docker run --rm \
+                  signalfx-agent-ansible-dev \
+                  ansible-lint .
+              ;;
+          *)
+              echo "Deployment $DEPLOYMENT not supported!"
+              exit 1
+          esac
+      - save_test_results
 
-          docker run --rm \
-            signalfx-agent-chef-dev \
-            foodcritic .
-
-      - store_test_results:
-          path: ~/testresults
-
-  puppet_tests:
-    <<: *executor
+  pylint_black:
+    executor: python36
+    parameters:
+      dir:
+        default: "python"
+        type: enum
+        enum: ["python", "tests"]
     steps:
       - checkout
+      - install_pylint_black:
+          dir: << parameters.dir >>
       - run: |
-          mkdir ~/testresults
-
-          if ! scripts/changes-include-dir Dockerfile deployments/puppet; then
-              echo "Puppet module code has not changed, skipping tests!"
+          TARGET=<< parameters.dir >>
+          if [ -f ~/.skip ]; then
+              echo "Code in $TARGET directory has not changed, skipping pylint/black!"
               exit 0
           fi
+          declare -A cmd=( ["python"]="make lint-python" ["tests"]="make lint-pytest" )
+          cd $TARGET
+          (black --config pyproject.toml . && git diff --exit-code) || \
+              (echo "Code in $TARGET directory need to be reformatted. Run \`${cmd[$TARGET]}\` in the dev image, resolve any issues, and commit the changes." && exit 1)
+          pylint -j4 $(find . -maxdepth 1 -mindepth 1 -type d -o -name "*.py") || \
+              (echo "Pylint issue(s) found in $TARGET directory. Resolve the issues, run \`${cmd[$TARGET]}\` in the dev image, and commit the changes." && exit 1)
 
-          cd deployments/puppet
-          make dev-image
-          docker run --rm \
-            signalfx-agent-puppet-dev \
-            rspec spec --format RspecJunitFormatter > ~/testresults/puppetspec.xml
-
-          docker run --rm \
-            signalfx-agent-puppet-dev \
-            puppet-lint .
-
-      - store_test_results:
-          path: ~/testresults
-
-  salt_tests:
-    <<: *executor
+  update_stage_cache:
+    docker:
+      - image: docker:18.09
     steps:
       - checkout
+      - setup_remote_docker:
+          docker_layer_caching: false
       - run: |
-          mkdir ~/testresults
-
-          if ! scripts/changes-include-dir Dockerfile deployments/salt; then
-              echo "Salt module code has not changed, skipping tests!"
-              exit 0
-          fi
-
-          cd deployments/salt
-          make dev-image
-          docker run --rm \
-          signalfx-agent-salt-dev salt '*' state.apply > ~/testresults/salt.out
-
-
-      - store_test_results:
-          path: ~/testresults
-
-  ansible_tests:
-    <<: *executor
-    steps:
-      - checkout
-      - run: |
-          mkdir ~/testresults
-
-          if ! scripts/changes-include-dir Dockerfile deployments/ansible; then
-              echo "Ansible playbook code has not changed, skipping tests!"
-              exit 0
-          fi
-
-          cd deployments/ansible
-          make dev-image
-          docker run --rm \
-            signalfx-agent-ansible-dev \
-            ansible-playbook -i inventory example-playbook.yml --connection=local \
-            -e '{"sfx_agent_config": {"signalFxAccessToken": "MyToken"}}' > ~/testresults/ansible.out
-
-          docker run --rm \
-            signalfx-agent-ansible-dev \
-            ansible-lint .
-
-      - store_test_results:
-          path: ~/testresults
+          apk add make bash
+          docker login -u="signalfx+circleci" -p="$CIRCLECI_QUAY_TOKEN" quay.io
+          PULL_CACHE=yes make stage-cache
 
 workflows:
-  version: 2
   build_test:
     jobs:
-     - build
-     - build_dev_image
-     - build-windows
-     - lint
-     - vet
-     - gotests
-     - integration_tests:
-        requires:
-         - build
-     - k8s_v1.10.0_integration_tests:
-        requires:
-         - build
-     - k8s_v1.9.0_integration_tests:
-        requires:
-         - build
-     - k8s_v1.8.0_integration_tests:
-        requires:
-         - build
-     - k8s_v1.7.0_integration_tests:
-        requires:
-         - build
-     - docs_test
-     - installer_tests
-     - rpm_package_tests
-     - deb_package_tests
-     - chef_tests
-     - puppet_tests
-     - salt_tests
-     - ansible_tests
+      - build
+      - build_dev_image
+      - build-windows
+      - lint
+      - vet
+      - gofmt
+      - gotests
+      - integration_tests:
+          requires:
+            - build
+      - k8s_integration_tests:
+          name: "k8s_v1.13.0_integration_tests"
+          k8s_version: "v1.13.0"
+          requires:
+            - build
+      - k8s_integration_tests:
+          name: "k8s_v1.12.0_integration_tests"
+          k8s_version: "v1.12.0"
+          requires:
+            - build
+      - k8s_integration_tests:
+          name: "k8s_v1.11.0_integration_tests"
+          k8s_version: "v1.11.0"
+          requires:
+            - build
+      - k8s_integration_tests:
+          name: "k8s_v1.10.0_integration_tests"
+          k8s_version: "v1.10.0"
+          requires:
+            - build
+      - k8s_integration_tests:
+          name: "k8s_v1.9.0_integration_tests"
+          k8s_version: "v1.9.0"
+          requires:
+            - build
+      - k8s_integration_tests:
+          name: "k8s_v1.8.0_integration_tests"
+          k8s_version: "v1.8.0"
+          requires:
+            - build
+      - k8s_integration_tests:
+          name: "k8s_v1.7.0_integration_tests"
+          k8s_version: "v1.7.0"
+          requires:
+            - build
+      - docs_test
+      - installer_tests
+      - package_tests:
+          name: "rpm_package_tests"
+          package_type: "rpm"
+      - package_tests:
+          name: "deb_package_tests"
+          package_type: "deb"
+      - deployment_tests:
+          name: "chef_tests"
+          deployment_type: "chef"
+      - deployment_tests:
+          name: "puppet_tests"
+          deployment_type: "puppet"
+      - deployment_tests:
+          name: "salt_tests"
+          deployment_type: "salt"
+      - deployment_tests:
+          name: "ansible_tests"
+          deployment_type: "ansible"
+      - pylint_black:
+          name: "pytest_lint"
+          dir: "tests"
+      - pylint_black:
+          name: "python_lint"
+          dir: "python"
+  stage_cache_job:
+    jobs:
+      - update_stage_cache
+    triggers:
+      - schedule:
+          # Run every two hours during US workdays
+          cron: "0 10,12,14,16,18,20,22,0 * * 1-5"
+          filters:
+            branches:
+              only:
+                - master

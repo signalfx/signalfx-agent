@@ -25,7 +25,7 @@ Monitor Type: `collectd/mongodb`
 | `databases` | **yes** | `list of string` |  |
 | `username` | no | `string` |  |
 | `password` | no | `string` |  |
-| `useTLS` | no | `bool` |  (**default:** `false`) |
+| `useTLS` | no | `bool` |  |
 | `caCerts` | no | `string` |  |
 | `tlsClientCert` | no | `string` |  |
 | `tlsClientKey` | no | `string` |  |
@@ -97,44 +97,54 @@ The following table lists the metrics available for this monitor. Metrics that a
 | `gauge.storageSize` | gauge |  | Total bytes allocated to collections for document storage |
 | `gauge.uptime` | counter |  | Uptime of this server in milliseconds |
 
-To specify custom metrics you want to monitor, add a negated `metricsToExclude` to the monitor configuration, as shown in the code snippet below. The snippet lists all available custom metrics. You can copy and paste the snippet into your configuration file, then delete any custom metrics that you do not want to monitor. 
-Note that some of the custom metrics require you to set a flag as well as add them to the list. Check the monitor configuration file to see if a flag is required for gathering additional metrics.
-```yaml 
-metricsToExclude:
-  - counter.collection.commandsCount
-  - counter.collection.commandsTime
-  - counter.collection.getmoreCount
-  - counter.collection.getmoreTime
-  - counter.collection.index.accesses.ops
-  - counter.collection.insertCount
-  - counter.collection.insertTime
-  - counter.collection.queriesCount
-  - counter.collection.queriesTime
-  - counter.collection.readLockCount
-  - counter.collection.readLockTime
-  - counter.collection.removeCount
-  - counter.collection.removeTime
-  - counter.collection.totalCount
-  - counter.collection.totalTime
-  - counter.collection.updateCount
-  - counter.collection.updateTime
-  - counter.collection.writeLockCount
-  - counter.collection.writeLockTime
-  - gauge.collection.avgObjSize
-  - gauge.collection.count
-  - gauge.collection.indexSize
-  - gauge.collection.max
-  - gauge.collection.maxSize
-  - gauge.collection.size
-  - gauge.collection.storageSize
-  - gauge.collections
-  - gauge.connections.available
-  - gauge.globalLock.activeClients.total
-  - gauge.globalLock.currentQueue.total
-  - gauge.indexes
-  negated: true
-```
 
+To specify custom metrics you want to monitor, add a `metricsToInclude` filter
+to the agent configuration, as shown in the code snippet below. The snippet
+lists all available custom metrics. You can copy and paste the snippet into
+your configuration file, then delete any custom metrics that you do not want
+sent.
+
+Note that some of the custom metrics require you to set a flag as well as add
+them to the list. Check the monitor configuration file to see if a flag is
+required for gathering additional metrics.
+
+```yaml
+
+metricsToInclude:
+  - metricNames:
+    - counter.collection.commandsCount
+    - counter.collection.commandsTime
+    - counter.collection.getmoreCount
+    - counter.collection.getmoreTime
+    - counter.collection.index.accesses.ops
+    - counter.collection.insertCount
+    - counter.collection.insertTime
+    - counter.collection.queriesCount
+    - counter.collection.queriesTime
+    - counter.collection.readLockCount
+    - counter.collection.readLockTime
+    - counter.collection.removeCount
+    - counter.collection.removeTime
+    - counter.collection.totalCount
+    - counter.collection.totalTime
+    - counter.collection.updateCount
+    - counter.collection.updateTime
+    - counter.collection.writeLockCount
+    - counter.collection.writeLockTime
+    - gauge.collection.avgObjSize
+    - gauge.collection.count
+    - gauge.collection.indexSize
+    - gauge.collection.max
+    - gauge.collection.maxSize
+    - gauge.collection.size
+    - gauge.collection.storageSize
+    - gauge.collections
+    - gauge.connections.available
+    - gauge.globalLock.activeClients.total
+    - gauge.globalLock.currentQueue.total
+    - gauge.indexes
+    monitorType: collectd/mongodb
+```
 
 
 ## Dimensions

@@ -43,11 +43,11 @@ The following table lists the metrics available for this monitor. Metrics that a
 | `container_cpu_cfs_periods` | counter | X | Total number of elapsed CFS enforcement intervals |
 | `container_cpu_cfs_throttled_periods` | counter | X | Total number of times tasks in the cgroup have been throttled |
 | `container_cpu_cfs_throttled_time` | counter | X | Total time duration, in nanoseconds, for which tasks in the cgroup have been throttled |
-| `container_cpu_percent` | counter | X | Cumulative cpu utilization as a percentage of the host total CPU available |
+| `container_cpu_percent` | counter | X | Cumulative cpu utilization as a percentage of the total host CPU available.  This metric is equivalent to `container_cpu_utilization` / <# of CPUs/cores on host>. |
 | `container_cpu_system_seconds_total` | counter | X | Cumulative system cpu time consumed in nanoseconds |
 | `container_cpu_usage_seconds_total` | counter | X | Cumulative cpu time consumed per cpu in nanoseconds |
 | `container_cpu_user_seconds_total` | counter | X | Cumulative user cpu time consumed in nanoseconds |
-| `container_cpu_utilization` | counter |  | Cumulative cpu utilization in percentages |
+| `container_cpu_utilization` | counter |  | Cumulative cpu utilization in percentages.  This is equivalent to "centicores", or hundreths of CPU cores consumed.  This metric is **NOT** normalized by the total # of cores on the system. |
 | `container_fs_io_current` | gauge | X | Number of I/Os currently in progress |
 | `container_fs_io_time_seconds_total` | counter | X | Cumulative count of seconds spent doing I/Os |
 | `container_fs_io_time_weighted_seconds_total` | counter | X | Cumulative weighted I/O time in seconds |
@@ -85,45 +85,55 @@ The following table lists the metrics available for this monitor. Metrics that a
 | `pod_network_transmit_packets_dropped_total` | counter | X | Cumulative count of packets dropped while transmitting |
 | `pod_network_transmit_packets_total` | counter | X | Cumulative count of packets transmitted |
 
-To specify custom metrics you want to monitor, add a negated `metricsToExclude` to the monitor configuration, as shown in the code snippet below. The snippet lists all available custom metrics. You can copy and paste the snippet into your configuration file, then delete any custom metrics that you do not want to monitor. 
-Note that some of the custom metrics require you to set a flag as well as add them to the list. Check the monitor configuration file to see if a flag is required for gathering additional metrics.
-```yaml 
-metricsToExclude:
-  - container_cpu_cfs_periods
-  - container_cpu_cfs_throttled_periods
-  - container_cpu_cfs_throttled_time
-  - container_cpu_percent
-  - container_cpu_system_seconds_total
-  - container_cpu_usage_seconds_total
-  - container_cpu_user_seconds_total
-  - container_fs_io_current
-  - container_fs_io_time_seconds_total
-  - container_fs_io_time_weighted_seconds_total
-  - container_fs_limit_bytes
-  - container_fs_read_seconds_total
-  - container_fs_reads_merged_total
-  - container_fs_reads_total
-  - container_fs_sector_reads_total
-  - container_fs_sector_writes_total
-  - container_fs_usage_bytes
-  - container_fs_write_seconds_total
-  - container_fs_writes_merged_total
-  - container_fs_writes_total
-  - container_last_seen
-  - container_memory_failcnt
-  - container_memory_working_set_bytes
-  - container_spec_cpu_shares
-  - container_spec_memory_swap_limit_bytes
-  - container_start_time_seconds
-  - container_tasks_state
-  - machine_cpu_frequency_khz
-  - pod_network_receive_packets_dropped_total
-  - pod_network_receive_packets_total
-  - pod_network_transmit_packets_dropped_total
-  - pod_network_transmit_packets_total
-  negated: true
-```
 
+To specify custom metrics you want to monitor, add a `metricsToInclude` filter
+to the agent configuration, as shown in the code snippet below. The snippet
+lists all available custom metrics. You can copy and paste the snippet into
+your configuration file, then delete any custom metrics that you do not want
+sent.
+
+Note that some of the custom metrics require you to set a flag as well as add
+them to the list. Check the monitor configuration file to see if a flag is
+required for gathering additional metrics.
+
+```yaml
+
+metricsToInclude:
+  - metricNames:
+    - container_cpu_cfs_periods
+    - container_cpu_cfs_throttled_periods
+    - container_cpu_cfs_throttled_time
+    - container_cpu_percent
+    - container_cpu_system_seconds_total
+    - container_cpu_usage_seconds_total
+    - container_cpu_user_seconds_total
+    - container_fs_io_current
+    - container_fs_io_time_seconds_total
+    - container_fs_io_time_weighted_seconds_total
+    - container_fs_limit_bytes
+    - container_fs_read_seconds_total
+    - container_fs_reads_merged_total
+    - container_fs_reads_total
+    - container_fs_sector_reads_total
+    - container_fs_sector_writes_total
+    - container_fs_usage_bytes
+    - container_fs_write_seconds_total
+    - container_fs_writes_merged_total
+    - container_fs_writes_total
+    - container_last_seen
+    - container_memory_failcnt
+    - container_memory_working_set_bytes
+    - container_spec_cpu_shares
+    - container_spec_memory_swap_limit_bytes
+    - container_start_time_seconds
+    - container_tasks_state
+    - machine_cpu_frequency_khz
+    - pod_network_receive_packets_dropped_total
+    - pod_network_receive_packets_total
+    - pod_network_transmit_packets_dropped_total
+    - pod_network_transmit_packets_total
+    monitorType: cadvisor
+```
 
 
 ## Dimensions

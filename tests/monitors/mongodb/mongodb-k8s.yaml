@@ -25,3 +25,9 @@ spec:
               value: testuser
             - name: MONGO_INITDB_ROOT_PASSWORD
               value: testing123
+          readinessProbe:
+            tcpSocket:
+              port: 27017
+            initialDelaySeconds: 5
+            periodSeconds: 1
+            timeoutSeconds: 60

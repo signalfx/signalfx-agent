@@ -41,7 +41,7 @@ type Observer struct {
 // Config specific to the host observer
 type Config struct {
 	config.ObserverConfig
-	PollIntervalSeconds int `default:"10"`
+	PollIntervalSeconds int `default:"10" yaml:"pollIntervalSeconds"`
 }
 
 func init() {
@@ -85,7 +85,8 @@ func (o *Observer) discover() []services.Endpoint {
 
 	var endpoints []services.Endpoint
 	for _, c := range conns {
-		isIPSocket := c.Family == syscall.AF_INET || c.Family == syscall.AF_INET6
+		// TODO: Add support for ipv6 to all observers
+		isIPSocket := c.Family == syscall.AF_INET
 		isTCPOrUDP := c.Type == syscall.SOCK_STREAM || c.Type == syscall.SOCK_DGRAM
 		isListening := c.Status == "LISTEN"
 

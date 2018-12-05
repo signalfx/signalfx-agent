@@ -30,3 +30,9 @@ spec:
             - name: SPARK_PUBLIC_DNS
               value: localhost
           command: ["bin/spark-class", "org.apache.spark.deploy.master.Master", "-h", $(POD_IP)]
+          readinessProbe:
+            tcpSocket:
+              port: 8080
+            initialDelaySeconds: 5
+            periodSeconds: 1
+            timeoutSeconds: 60

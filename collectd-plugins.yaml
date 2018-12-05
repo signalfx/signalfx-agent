@@ -1,18 +1,18 @@
 ---
 - name: consul
-  version: v1.0.0
+  version: v1.0.1
   repo: signalfx/collectd-consul
 
 - name: couchbase
-  version: v1.0.1
+  version: v1.0.2
   repo: signalfx/collectd-couchbase
 
 - name: docker
-  version: v2.0.5
+  version: v3.0.0
   repo: signalfx/docker-collectd-plugin
 
 - name: elasticsearch
-  version: v1.3.4
+  version: v1.3.5
   repo: signalfx/collectd-elasticsearch
   can_remove:
     - tests
@@ -26,7 +26,7 @@
   repo: signalfx/collectd-hadoop
 
 - name: haproxy
-  version: v1.0.1
+  version: v1.0.4
   repo: signalfx/collectd-haproxy
 
 - name: health_checker
@@ -34,7 +34,7 @@
   repo: signalfx/collectd-health_checker
 
 - name: jenkins
-  version: v1.0.4
+  version: v1.0.6
   repo: signalfx/collectd-jenkins
 
 - name: kong
@@ -66,7 +66,7 @@
     - integration-test
 
 - name: redis
-  version: v1.1.1
+  version: v1.1.2
   repo: signalfx/redis-collectd-plugin
   can_remove:
     - screenshots
@@ -75,16 +75,15 @@
 - name: signalfx
   # Hardcode the metadata plugin commit until we can get it merged into master
   # and tagged properly
-  version: f921b95839e00c326e4dd4e8389b864d6651965b
+  version: 754ca15d68de5bbec64a6c4f08da9bd92b0c512e
   repo: signalfx/signalfx-collectd-plugin
 
 - name: spark
   version: v1.0.2
   repo: signalfx/collectd-spark
 
-
 - name: zookeeper
-  version: v0.0.3
+  version: v0.0.4
   repo: signalfx/collectd-zookeeper
 
 - name: vmstat

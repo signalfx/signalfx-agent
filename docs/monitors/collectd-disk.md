@@ -20,7 +20,7 @@ Monitor Type: `collectd/disk`
 
 | Config option | Required | Type | Description |
 | --- | --- | --- | --- |
-| `disks` | no | `list of string` | Which devices to include/exclude (**default:** `[/^loop\d+$/ /^dm-\d+$/]`) |
+| `disks` | no | `list of string` | Which devices to include/exclude (**default:** `[/^loop[0-9]+$/ /^dm-[0-9]+$/]`) |
 | `ignoreSelected` | no | `bool` | If true, the disks selected by `disks` will be excluded and all others included. (**default:** `true`) |
 
 
@@ -41,19 +41,29 @@ The following table lists the metrics available for this monitor. Metrics that a
 | `disk_time.read` | cumulative | X | The average amount of time it took to do a read operation. |
 | `disk_time.write` | cumulative | X | The average amount of time it took to do a write operation. |
 
-To specify custom metrics you want to monitor, add a negated `metricsToExclude` to the monitor configuration, as shown in the code snippet below. The snippet lists all available custom metrics. You can copy and paste the snippet into your configuration file, then delete any custom metrics that you do not want to monitor. 
-Note that some of the custom metrics require you to set a flag as well as add them to the list. Check the monitor configuration file to see if a flag is required for gathering additional metrics.
-```yaml 
-metricsToExclude:
-  - disk_merged.read
-  - disk_merged.write
-  - disk_octets.read
-  - disk_octets.write
-  - disk_time.read
-  - disk_time.write
-  negated: true
-```
 
+To specify custom metrics you want to monitor, add a `metricsToInclude` filter
+to the agent configuration, as shown in the code snippet below. The snippet
+lists all available custom metrics. You can copy and paste the snippet into
+your configuration file, then delete any custom metrics that you do not want
+sent.
+
+Note that some of the custom metrics require you to set a flag as well as add
+them to the list. Check the monitor configuration file to see if a flag is
+required for gathering additional metrics.
+
+```yaml
+
+metricsToInclude:
+  - metricNames:
+    - disk_merged.read
+    - disk_merged.write
+    - disk_octets.read
+    - disk_octets.write
+    - disk_time.read
+    - disk_time.write
+    monitorType: collectd/disk
+```
 
 
 

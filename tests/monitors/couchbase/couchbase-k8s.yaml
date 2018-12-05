@@ -25,3 +25,9 @@ spec:
               value: administrator
             - name: PASSWORD
               value: testing123
+          readinessProbe:
+            tcpSocket:
+              port: 8091
+            initialDelaySeconds: 5
+            periodSeconds: 1
+            timeoutSeconds: 60

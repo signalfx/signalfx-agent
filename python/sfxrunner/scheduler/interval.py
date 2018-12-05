@@ -10,7 +10,7 @@ import time
 from threading import Event, Lock, Thread
 
 
-class IntervalScheduler(object):
+class IntervalScheduler(object):  # pylint: disable=too-many-instance-attributes
     """
     Facilitates executing a set of functions at some regular interval
     across a shared set of threads.
@@ -35,7 +35,7 @@ class IntervalScheduler(object):
         # first time that needs to run before the next scheduled item in the
         # heap.
         self.new_earlier_event = Event()
-        self.next_scheduled = sys.maxint
+        self.next_scheduled = sys.maxint  # pylint: disable=no-member
 
     def _add_thread(self):
         if len(self.threads) >= self.max_thread_count:
@@ -81,8 +81,8 @@ class IntervalScheduler(object):
             with self.heap_lock:
                 # The func should only be in either the heap once, or in a
                 # single gather thread awaiting execution.
-                for i, (_, f, _) in enumerate(self.heap):
-                    if f == func:
+                for i, (_, heap_func, _) in enumerate(self.heap):
+                    if heap_func == func:
                         del self.heap[i]
                         heapq.heapify(self.heap)
                         cancel.was_called = True

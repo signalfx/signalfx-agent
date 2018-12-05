@@ -1,18 +1,18 @@
-from base64 import b64encode
+"""
+Assertions about requests/data received on the fake backend
+"""
 import os
 import re
 import socket
 import urllib.request
-from tests.helpers.util import wait_for, DEFAULT_TIMEOUT
-from functools import partial as p
+from base64 import b64encode
 from http.client import HTTPException
 
 
 def has_datapoint_with_metric_name(fake_services, metric_name):
-    for dp in fake_services.datapoints:
-        if dp.metric == metric_name:
-            return True
-    return False
+    if hasattr(metric_name, "match"):
+        return any(metric_name.match(dp.metric) for dp in fake_services.datapoints)
+    return any(dp.metric == metric_name for dp in fake_services.datapoints)
 
 
 def has_datapoint_with_dim_key(fake_services, dim_key):
@@ -23,8 +23,10 @@ def has_datapoint_with_dim_key(fake_services, dim_key):
     return False
 
 
-# Tests if `dims`'s are all in a certain datapoint or event
 def has_all_dims(dp_or_event, dims):
+    """
+    Tests if `dims`'s are all in a certain datapoint or event
+    """
     return dims.items() <= {d.key: d.value for d in dp_or_event.dimensions}.items()
 
 
@@ -67,59 +69,107 @@ def has_datapoint(fake_services, metric_name=None, dimensions=None, value=None):
         return True
     return False
 
-# Tests if any event received has the given dim key/value on it.
+
 def has_event_with_dim(fake_services, key, value):
-    for ev in fake_services.events:
-        if has_all_dims(ev, {key: value}):
+    """
+    Tests if any event received has the given dim key/value on it.
+    """
+    for event in fake_services.events:
+        if has_all_dims(event, {key: value}):
             return True
     return False
 
 
-# Tests if a command run against a container returns with an exit code of 0
 def container_cmd_exit_0(container, command):
+    """
+    Tests if a command run against a container returns with an exit code of 0
+    """
     code, _ = container.exec_run(command)
     return code == 0
 
 
-# This won't work very robustly if the text spans multiple lines.
 def text_is_in_stream(stream, text):
+    """
+    Checks if the given text exists in a larger block of text, while ignoring
+    line breaks.
+    """
     return text.encode("utf-8") in b"".join(stream.readlines())
 
 
 def has_log_message(output, level="info", message=""):
-    for l in output.splitlines():
-        m = re.search(r'(?<=level=)\w+', l)
-        if m is None:
+    """
+    Returns True if the given message occurs in the output text at the given
+    log level.
+    """
+    for line in output.splitlines():
+        match = re.search(r"(?<=level=)\w+", line)
+        if match is None:
             continue
-        if level == m.group(0) and message in l:
+        if level == match.group(0) and message in line:
             return True
     return False
 
+
 def regex_search_matches_output(get_output, search):
+    """
+    Applies a regex search func to the current output
+    """
     return search(get_output())
 
+
 def udp_port_open_locally(port):
+    """
+    Returns true is the given port # is open on the local host
+    """
     return os.system("cat /proc/net/udp | grep %s" % (hex(port)[2:].upper(),)) == 0
 
 
-# check if any metric in `metrics` exist
+def tcp_port_open_locally(port):
+    """
+    Returns True if the given TCP port is open on the local machine
+    """
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    result = sock.connect_ex(("127.0.0.1", port))
+    return result == 0
+
+
 def any_metric_found(fake_services, metrics):
+    """
+    Check if any metric in `metrics` exist
+    """
     return any([has_datapoint_with_metric_name(fake_services, m) for m in metrics])
 
 
-# check if any dimension key in `dim_keys` exist
 def any_dim_key_found(fake_services, dim_keys):
+    """
+    Check if any dimension key in `dim_keys` exist
+    """
     return any([has_datapoint_with_dim_key(fake_services, k) for k in dim_keys])
 
 
-# check if any metric in `metrics` with any dimension key in `dim_keys` exist
 def any_metric_has_any_dim_key(fake_services, metrics, dim_keys):
+    """
+    Check if any metric in `metrics` with any dimension key in `dim_keys` exist
+    """
     for dp in fake_services.datapoints:
         if dp.metric in metrics:
             for dim in dp.dimensions:
                 if dim.key in dim_keys:
-                    print("Found metric \"%s\" with dimension key \"%s\"." % (dp.metric, dim.key))
+                    print('Found metric "%s" with dimension key "%s".' % (dp.metric, dim.key))
                     return True
+    return False
+
+
+def has_any_metric_or_dim(fake_services, metrics, dims):
+    """
+    Returns True if any of the given metrics or dims are present in the fake backend
+    """
+    if metrics and dims:
+        return any_metric_has_any_dim_key(fake_services, metrics, dims)
+    if metrics:
+        return any_metric_found(fake_services, metrics)
+    if dims:
+        return any_dim_key_found(fake_services, dims)
     return False
 
 
@@ -135,35 +185,91 @@ def tcp_socket_open(host, port):
         return False
 
 
-def http_status(url=None, status=[], username=None, password=None, timeout=1, **kwargs):
+def http_status(url=None, status=None, username=None, password=None, timeout=1, **kwargs):
     """
     Wrapper around urllib.request.urlopen() that returns True if
     the request returns the any of the specified HTTP status codes.  Accepts
     username and password keyword arguments for basic authorization.
     """
+    if status is None:
+        status = []
+
     try:
         # urllib expects url argument to either be a string url or a request object
         req = url if isinstance(url, urllib.request.Request) else urllib.request.Request(url)
 
         if username and password:
             # create basic authorization header
-            auth = b64encode('{0}:{1}'.format(username, password).encode('ascii')).decode('utf-8')
-            req.add_header('Authorization', 'Basic {0}'.format(auth))
+            auth = b64encode("{0}:{1}".format(username, password).encode("ascii")).decode("utf-8")
+            req.add_header("Authorization", "Basic {0}".format(auth))
 
         return urllib.request.urlopen(req, timeout=timeout, **kwargs).getcode() in status
     except urllib.error.HTTPError as err:
         # urllib raises exceptions for some http error statuses
         return err.code in status
-    except (urllib.error.URLError, socket.timeout, HTTPException,
-            ConnectionResetError, ConnectionError):
+    except (urllib.error.URLError, socket.timeout, HTTPException, ConnectionResetError, ConnectionError):
         return False
 
 
-def has_any_metric_or_dim(fake_services, metrics, dims, timeout=DEFAULT_TIMEOUT):
-    if metrics and dims:
-        return wait_for(p(any_metric_has_any_dim_key, fake_services, metrics, dims), timeout_seconds=timeout)
-    elif metrics:
-        return wait_for(p(any_metric_found, fake_services, metrics), timeout_seconds=timeout)
-    elif dims:
-        return wait_for(p(any_dim_key_found, fake_services, dims), timeout_seconds=timeout)
+def has_trace_span(  # pylint: disable=too-many-arguments
+    fake_services, trace_id=None, span_id=None, parent_id=None, name=None, local_service_name=None, kind=None, tags=None
+):
+    """
+    Returns True if there is a trace span seen in the fake_services backend that
+    has the given attributes.  If a property is not specified it will not be
+    considered.  `tags`, if provided, will be tested as a subset of total
+    set of tags on the span and not the complete set.
+    """
+    for span in fake_services.spans:
+        if trace_id and span.get("traceId") != trace_id:
+            continue
+        if span_id and span.get("id") != span_id:
+            continue
+        if parent_id and span.get("parentId") != parent_id:
+            continue
+        if name and span.get("name") != name:
+            continue
+        if kind and span.get("kind") != kind:
+            continue
+        if local_service_name and span.get("localEndpoint", {}).get("serviceName") != local_service_name:
+            continue
+        if tags and not has_all_tags(span, tags):
+            continue
+        return True
     return False
+
+
+def has_all_tags(span, tags):
+    """
+    Tests if `tags`'s are all in a certain trace span
+    """
+    return tags.items() <= span.get("tags").items()
+
+
+def all_datapoints_have_metric_name(fake_services, metric_name):
+    if hasattr(metric_name, "match"):
+        return all(metric_name.match(dp.metric) for dp in fake_services.datapoints)
+    return all(dp.metric == metric_name for dp in fake_services.datapoints)
+
+
+def all_datapoints_have_dims(fake_services, dims):
+    return all(has_all_dims(dp, dims) for dp in fake_services.datapoints)
+
+
+def all_datapoints_have_dim_key(fake_services, dim_key):
+    if not fake_services.datapoints:
+        return False
+    for dp in fake_services.datapoints:
+        if not any(dim.key == dim_key for dim in dp.dimensions):
+            return False
+    return True
+
+
+def all_datapoints_have_metric_name_and_dims(fake_services, metric_name, dims):
+    return all_datapoints_have_metric_name(fake_services, metric_name) and all_datapoints_have_dims(fake_services, dims)
+
+
+def all_datapoints_have_metric_name_and_dim_key(fake_services, metric_name, dim_key):
+    return all_datapoints_have_metric_name(fake_services, metric_name) and all_datapoints_have_dim_key(
+        fake_services, dim_key
+    )

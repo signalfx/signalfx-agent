@@ -75,31 +75,36 @@ class CollectdMonitorProxy(object):
         Calls the config callback with the given config, properly converted to
         the object that the collectd plugin expects.
         """
-        assert 'pluginConfig' in monitor_config, \
-            "Monitor config for collectd python should have a field called 'pluginConfig'"
+        assert (
+            "pluginConfig" in monitor_config
+        ), "Monitor config for collectd python should have a field called 'pluginConfig'"
 
         self.config = monitor_config
-        self.interface = CollectdInterface(self.scheduler, monitor_config['intervalSeconds'])
+        self.interface = CollectdInterface(self.scheduler, monitor_config["intervalSeconds"])
 
-        self.init_types_db_data_sets(monitor_config.get('typesDBPaths', []))
+        self.init_types_db_data_sets(monitor_config.get("typesDBPaths", []))
 
         inject_collectd_module(self.interface, self.send_value_list_with_dataset)
 
-        module_paths = monitor_config.get('modulePaths', [])
-        import_name = monitor_config['moduleName']
+        module_paths = monitor_config.get("modulePaths", [])
+        import_name = monitor_config["moduleName"]
 
         load_plugin_module(module_paths, import_name)
 
         if not self.interface.config_callback:
             raise RuntimeError("No config callback was registered, cannot configure")
 
-        collectd_config = Config.from_monitor_config(monitor_config['pluginConfig'])
+        collectd_config = Config.from_monitor_config(monitor_config["pluginConfig"])
 
         self.interface.config_callback(collectd_config)
 
         if not self.interface.read_initializers:
             raise RuntimeError("No read callbacks were registered after configuring, this plugin is useless!")
 
+    def start_reading(self):
+        """
+        Kicks off the read callback cycle
+        """
         for read_init in self.interface.read_initializers:
             read_init()
 
@@ -111,12 +116,13 @@ class CollectdMonitorProxy(object):
         logger.info("Loading types.db files: %s", paths)
 
         for types_db_path in paths:
-            with open(types_db_path, 'r') as fd:
+            with open(types_db_path, "r") as fd:
                 for dataset in parse_types_db(fd.read()):
                     self.datasets[dataset.name] = DataSetCache(
                         sources=dataset.sources,
                         names=[s.name for s in dataset.sources],
-                        types=[s.type for s in dataset.sources])
+                        types=[s.type for s in dataset.sources],
+                    )
 
         logger.debug("Registered data sets: %s", self.datasets)
 
@@ -127,8 +133,11 @@ class CollectdMonitorProxy(object):
         """
         ds_cache = self.datasets.get(value_list.type)
         if not ds_cache:
-            logger.error("Type %s was not found in the types.db files configured (%s)", value_list.type,
-                         self.config.get('typesDBPaths'))
+            logger.error(
+                "Type %s was not found in the types.db files configured (%s)",
+                value_list.type,
+                self.config.get("typesDBPaths"),
+            )
             return
 
         value_list.dsnames = ds_cache.names
