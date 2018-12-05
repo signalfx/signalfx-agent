@@ -32,7 +32,11 @@ commands:
     steps:
       - attach_workspace:
           at: /tmp/workspace
-      - run: docker load -i /tmp/workspace/image.tar
+      - run:
+          name: Load agent image
+          command: |
+            [ -f ~/.skip ] && echo "Found ~/.skip, skipping docker image load!" && exit 0
+            docker load -i /tmp/workspace/image.tar
 
   install_pytest:
     description: Install pytest and dependencies with pyenv 3.6.3.
@@ -85,18 +89,28 @@ commands:
       - run:
           name: Run pytest
           no_output_timeout: 30m
+          environment:
+            PYTEST_OPTIONS: "--verbose --junitxml=~/testresults/results.xml --html=~/testresults/results.html --self-contained-html"
+            TESTS_DIR: "<< parameters.tests_dir >>"
           command: |
-            if [ -f ~/.skip ]; then
-                echo "Found ~/.skip, skipping tests!"
-                exit 0
-            fi
+            [ -f ~/.skip ] && echo "Found ~/.skip, skipping tests!" && exit 0
+            [ -d "$TESTS_DIR" ] || (echo "Directory '$TESTS_DIR' not found!" && exit 1)
             mkdir /tmp/scratch
             mkdir ~/testresults
-            OPTS="--verbose --junitxml=~/testresults/results.xml --html=~/testresults/results.html --self-contained-html"
-            if [ "<< parameters.with_sudo >>" = "true" ]; then
-                sudo -E $PYENV_ROOT/shims/pytest $OPTS << parameters.pytest_options >> << parameters.tests_dir >>
+            MAX_CIRCLE_NODES=${MAX_CIRCLE_NODES:-$CIRCLE_NODE_TOTAL}
+            if [[ $MAX_CIRCLE_NODES -gt 1 && -n "$MARKERS" ]]; then
+                # Collect tests based on MARKERS and split them for parallelism
+                TESTS=$(pytest --collect-only -m "$MARKERS" $TESTS_DIR | grep '<Module.*>' | cut -d "'" -f2 | \
+                    circleci tests split --split-by=timings --total=$MAX_CIRCLE_NODES --index=$CIRCLE_NODE_INDEX)
+                [ -n "$TESTS" ] || (echo "No test files found after splitting based on '$MARKERS' marker(s)!" && exit 1)
             else
-                pytest $OPTS << parameters.pytest_options >> << parameters.tests_dir >>
+                TESTS=$TESTS_DIR
+            fi
+            echo "Executing test(s) from $TESTS"
+            if [ "<< parameters.with_sudo >>" = "true" ]; then
+                sudo -E $PYENV_ROOT/shims/pytest << parameters.pytest_options >> $PYTEST_OPTIONS $TESTS
+            else
+                pytest << parameters.pytest_options >> $PYTEST_OPTIONS $TESTS
             fi
       - save_test_results
 
@@ -147,7 +161,7 @@ jobs:
           docker_layer_caching: false
       - run: |
           apk add make bash git
-          git checkout -b $CIRCLE_BRANCH
+          [ "$CIRCLE_BRANCH" = "master" ] || git checkout -b $CIRCLE_BRANCH
           if ! scripts/changes-include-dir Dockerfile; then
               echo "Dockerfile has not changed, skipping build!"
               exit 0
@@ -164,10 +178,7 @@ jobs:
           apk add make bash git
           export PULL_CACHE=yes
           COLLECTD_VERSION=$(make collectd-version) COLLECTD_COMMIT=$(make collectd-commit) ./scripts/build-binary windows
-          if [ ! -f ~/project/signalfx-agent.exe ] ; then
-              echo "signalfx-agent.exe not found!"
-              exit 1
-          fi
+          [ -f ~/project/signalfx-agent.exe ] || (echo "signalfx-agent.exe not found!" && exit 1)
       - store_artifacts:
           path: ~/project/signalfx-agent.exe
           destination: /signalfx-agent.exe
@@ -225,6 +236,7 @@ jobs:
 
   integration_tests:
     executor: machine_image
+    parallelism: 4
     steps:
       - checkout
       - import_image
@@ -240,11 +252,14 @@ jobs:
             docker export $cid | tar -C "$BUNDLE_DIR" -xf -
             docker rm -fv $cid
             [ -f "$AGENT_BIN" ] || (echo "$AGENT_BIN not found!" && exit 1)
-            if ! scripts/changes-include-dir internal/monitors/collectd/openstack tests/monitors/openstack test-services/devstack; then
+            if ! scripts/changes-include-dir $(find . -iname "*devstack*" -o -iname "*openstack*" | sed 's|^\./||' | grep -v '^docs/'); then
                 MARKERS="$MARKERS and not openstack"
             fi
-            if ! scripts/changes-include-dir internal/monitors/conviva tests/monitors/conviva; then
+            if ! scripts/changes-include-dir $(find . -iname "*conviva*" | sed 's|^\./||' | grep -v '^docs/'); then
                 MARKERS="$MARKERS and not conviva"
+            fi
+            if ! scripts/changes-include-dir $(find . -iname "*jenkins*" | sed 's|^\./||' | grep -v '^docs/'); then
+                MARKERS="$MARKERS and not jenkins"
             fi
             echo "export BUNDLE_DIR='$BUNDLE_DIR'" >> $BASH_ENV
             echo "export AGENT_BIN='$AGENT_BIN'" >> $BASH_ENV
@@ -256,15 +271,38 @@ jobs:
 
   k8s_integration_tests:
     executor: machine_image
+    parallelism: 2
     parameters:
       k8s_version:
         type: string
+    environment:
+      K8S_MIN_VERSION: "v1.7.0"
+      K8S_MAX_VERSION: "v1.13.0"
     steps:
       - checkout
+      - run:
+          name: Setup test environment
+          command: |
+            if scripts/changes-include-dir Gopkg.toml $(find . -iname "*k8s*" -o -iname "*kube*" | sed 's|^\./||' | grep -v '^docs/'); then
+                # Run k8s tests for all versions, but "disable" parallelism by running all tests on node 0,
+                # and free other node quickly by skipping subsequent steps.
+                MAX_CIRCLE_NODES=1
+                if [ $CIRCLE_NODE_INDEX -ge $MAX_CIRCLE_NODES ]; then
+                    touch ~/.skip
+                fi
+            else
+                # Only run k8s tests for K8S_MIN_VERSION and K8S_MAX_VERSION with parallelism if there are no relevant changes.
+                MAX_CIRCLE_NODES=$CIRCLE_NODE_TOTAL
+                if [[ "<< parameters.k8s_version >>" != "$K8S_MIN_VERSION" && "<< parameters.k8s_version >>" != "$K8S_MAX_VERSION" ]]; then
+                    echo "Skipping K8S << parameters.k8s_version >> integration tests."
+                    touch ~/.skip
+                fi
+            fi
+            echo "export MARKERS=k8s" >> $BASH_ENV
+            echo "export MAX_CIRCLE_NODES=$MAX_CIRCLE_NODES" >> $BASH_ENV
       - import_image
       - run_pytest:
-          pytest_options: "-n4 -m 'k8s' --exitfirst --k8s-version='<< parameters.k8s_version >>' --k8s-sfx-agent=quay.io/signalfx/signalfx-agent-dev:latest --k8s-timeout=600"
-          tests_dir: "./tests"
+          pytest_options: "-n4 -m \"$MARKERS\" --exitfirst --k8s-version=<< parameters.k8s_version >> --k8s-sfx-agent=quay.io/signalfx/signalfx-agent-dev:latest --k8s-timeout=$K8S_TIMEOUT"
 
   installer_tests:
     executor: machine_image
