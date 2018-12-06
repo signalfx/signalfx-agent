@@ -26,7 +26,7 @@ type Config struct {
 	// the agent.
 	SignalFxAccessToken string `yaml:"signalFxAccessToken" neverLog:"true"`
 	// The URL of SignalFx ingest server.  Should be overridden if using the
-	// Metric Proxy.  If you want to send trace spans to a different location,
+	// SignalFx Gateway.  If you want to send trace spans to a different location,
 	// set the `traceEndpointUrl` option.
 	IngestURL string `yaml:"ingestUrl" default:"https://ingest.signalfx.com"`
 	// The full URL (including path) to the trace ingest server.  If this is
