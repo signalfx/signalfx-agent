@@ -10618,6 +10618,14 @@
           "elementKind": ""
         },
         {
+          "yamlName": "namespace",
+          "doc": "If specified, only resources within the given namespace will be monitored.  If omitted (blank) all supported resources across all namespaces will be monitored.",
+          "default": "",
+          "required": false,
+          "type": "string",
+          "elementKind": ""
+        },
+        {
           "yamlName": "useNodeName",
           "doc": "If set to true, the Kubernetes node name will be used as the dimension to which to sync properties about each respective node.  This is necessary if your cluster's machines do not have unique machine-id values, as can happen when machine images are improperly cloned.",
           "default": false,
@@ -11461,6 +11469,14 @@
       "doc": " Discovers services running in a Kubernetes cluster by\nquerying the Kubernetes API server.  This observer is designed to only\ndiscover pod endpoints exposed on the same node that the agent is running,\nso that the monitoring of services does not generate cross-node traffic.  To\nknow which node the agent is running on, you should set an environment\nvariable called `MY_NODE_NAME` using the downward API `spec.nodeName` value\nin the pod spec.  Our provided K8s DaemonSet resource does this already and\nprovides an example.\n\nNote that this observer discovers exposed ports on pod containers, not K8s\nEndpoint resources, so don't let the terminology of agent \"endpoints\"\nconfuse you.\n",
       "package": "internal/observers/kubernetes",
       "fields": [
+        {
+          "yamlName": "namespace",
+          "doc": "If specified, only pods within the given namespace on the same node as the agent will be discovered. If blank, all pods on the same node as the agent will be discovered.",
+          "default": "",
+          "required": false,
+          "type": "string",
+          "elementKind": ""
+        },
         {
           "yamlName": "kubernetesAPI",
           "doc": "Configuration for the K8s API client",
