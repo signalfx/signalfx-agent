@@ -20,6 +20,7 @@ var noticeChans []chan<- bool
 var lock sync.Mutex
 var started bool
 var isLeader bool
+var leaderIdentity string
 
 // RequestLeaderNotification provides a simple way for monitors to only send
 // metrics from a single instance of the agent.  It wraps client-go's
@@ -106,6 +107,7 @@ func startLeaderElection(v1Client corev1.CoreV1Interface) error {
 				defer lock.Unlock()
 
 				log.Infof("K8s leader is now node %s", identity)
+				leaderIdentity = identity
 				if identity == nodeName && !isLeader {
 					for i := range noticeChans {
 						noticeChans[i] <- true
@@ -130,4 +132,11 @@ func startLeaderElection(v1Client corev1.CoreV1Interface) error {
 	}()
 
 	return nil
+}
+
+// CurrentLeader returns the current cluster leader node, if the current agent
+// instance has successfully participated in the election process and been
+// notified of the leader.
+func CurrentLeader() string {
+	return leaderIdentity
 }
