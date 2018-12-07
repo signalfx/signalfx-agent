@@ -78,6 +78,10 @@ type Config struct {
 	config.MonitorConfig
 	// If `true`, leader election is skipped and metrics are always reported.
 	AlwaysClusterReporter bool `yaml:"alwaysClusterReporter"`
+	// If specified, only resources within the given namespace will be
+	// monitored.  If omitted (blank) all supported resources across all
+	// namespaces will be monitored.
+	Namespace string `yaml:"namespace"`
 	// If set to true, the Kubernetes node name will be used as the dimension
 	// to which to sync properties about each respective node.  This is
 	// necessary if your cluster's machines do not have unique machine-id
@@ -133,7 +137,7 @@ func (m *Monitor) Start() error {
 
 	shouldReport := m.config.AlwaysClusterReporter
 
-	clusterState := newState(m.k8sClient, m.datapointCache)
+	clusterState := newState(m.k8sClient, m.datapointCache, m.config.Namespace)
 
 	var leaderCh <-chan bool
 	var unregister func()

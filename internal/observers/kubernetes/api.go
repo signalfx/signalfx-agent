@@ -72,6 +72,10 @@ func init() {
 // Config for Kubernetes API observer
 type Config struct {
 	config.ObserverConfig
+	// If specified, only pods within the given namespace on the same node as
+	// the agent will be discovered. If blank, all pods on the same node as the
+	// agent will be discovered.
+	Namespace string `yaml:"namespace"`
 	// Configuration for the K8s API client
 	KubernetesAPI *kubernetes.APIConfig `yaml:"kubernetesAPI" default:"{}"`
 }
@@ -111,6 +115,7 @@ func (o *Observer) Configure(config *Config) error {
 		return nil
 	}
 
+	o.config = config
 	o.thisNode = os.Getenv(nodeEnvVar)
 
 	var err error
@@ -122,8 +127,6 @@ func (o *Observer) Configure(config *Config) error {
 	o.stopIfRunning()
 	o.watchPods()
 
-	o.config = config
-
 	return nil
 }
 
@@ -131,7 +134,7 @@ func (o *Observer) watchPods() {
 	o.stopper = make(chan struct{})
 
 	client := o.clientset.Core().RESTClient()
-	watchList := cache.NewListWatchFromClient(client, "pods", "", fields.ParseSelectorOrDie("spec.nodeName="+o.thisNode))
+	watchList := cache.NewListWatchFromClient(client, "pods", o.config.Namespace, fields.ParseSelectorOrDie("spec.nodeName="+o.thisNode))
 
 	_, controller := cache.NewInformer(
 		watchList,
