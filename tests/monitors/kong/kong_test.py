@@ -5,6 +5,7 @@ from io import BytesIO
 from textwrap import dedent
 
 import pytest
+from docker.errors import BuildError
 from requests import RequestException, get
 
 from tests.helpers.assertions import has_datapoint_with_dim
@@ -14,6 +15,7 @@ from tests.helpers.util import (
     get_docker_client,
     get_monitor_dims_from_selfdescribe,
     get_monitor_metrics_from_selfdescribe,
+    retry,
     run_agent,
     run_container,
     wait_for,
@@ -48,13 +50,14 @@ def kong_image():
         )
     )
     client = get_docker_client()
-    image, _ = client.images.build(fileobj=dockerfile, forcerm=True)
+    image, _ = retry(p(client.images.build, fileobj=dockerfile, forcerm=True), BuildError)
     try:
         yield image.short_id
     finally:
         client.images.remove(image=image.id, force=True)
 
 
+@pytest.mark.flaky(reruns=2, reruns_delay=5)
 def test_kong(kong_image):  # pylint: disable=redefined-outer-name
     kong_env = dict(
         KONG_ADMIN_LISTEN="0.0.0.0:8001", KONG_LOG_LEVEL="warn", KONG_DATABASE="postgres", KONG_PG_DATABASE="kong"
