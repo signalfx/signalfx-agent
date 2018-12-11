@@ -8,7 +8,6 @@ import tempfile
 import threading
 import time
 from contextlib import contextmanager
-from functools import partial as p
 
 import docker
 import yaml
@@ -198,7 +197,7 @@ def setup_config(config_text, path, fake_services, debug=True):
 @contextmanager
 def run_container(image_name, wait_for_ip=True, print_logs=True, **kwargs):
     client = get_docker_client()
-    container = client.containers.run(image_name, detach=True, **kwargs)
+    container = retry(lambda: client.containers.run(image_name, detach=True, **kwargs), docker.errors.DockerException)
 
     def has_ip_addr():
         container.reload()
@@ -222,8 +221,11 @@ def run_service(service_name, name=None, buildargs=None, print_logs=True, **kwar
     if buildargs is None:
         buildargs = {}
     client = get_docker_client()
-    image, _ = client.images.build(
-        path=os.path.join(TEST_SERVICES_DIR, service_name), rm=True, forcerm=True, buildargs=buildargs
+    image, _ = retry(
+        lambda: client.images.build(
+            path=os.path.join(TEST_SERVICES_DIR, service_name), rm=True, forcerm=True, buildargs=buildargs
+        ),
+        docker.errors.BuildError,
     )
     with run_container(image.id, name=name, print_logs=print_logs, **kwargs) as cont:
         yield cont
