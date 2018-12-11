@@ -197,7 +197,7 @@ def setup_config(config_text, path, fake_services, debug=True):
 @contextmanager
 def run_container(image_name, wait_for_ip=True, print_logs=True, **kwargs):
     client = get_docker_client()
-    container = client.containers.run(image_name, detach=True, **kwargs)
+    container = retry(lambda: client.containers.run(image_name, detach=True, **kwargs), docker.errors.DockerException)
 
     def has_ip_addr():
         container.reload()
@@ -221,8 +221,11 @@ def run_service(service_name, name=None, buildargs=None, print_logs=True, **kwar
     if buildargs is None:
         buildargs = {}
     client = get_docker_client()
-    image, _ = client.images.build(
-        path=os.path.join(TEST_SERVICES_DIR, service_name), rm=True, forcerm=True, buildargs=buildargs
+    image, _ = retry(
+        lambda: client.images.build(
+            path=os.path.join(TEST_SERVICES_DIR, service_name), rm=True, forcerm=True, buildargs=buildargs
+        ),
+        docker.errors.BuildError,
     )
     with run_container(image.id, name=name, print_logs=print_logs, **kwargs) as cont:
         yield cont
@@ -280,3 +283,15 @@ def get_agent_status(config_path="/etc/signalfx/agent.yaml"):
         [AGENT_BIN, "status", "-config", config_path], stdout=subprocess.PIPE, stderr=subprocess.STDOUT
     )
     return status_proc.stdout.read().decode("utf-8")
+
+
+def retry(function, exception, max_attempts=5, interval_seconds=5):
+    """
+    Retry function up to max_attempts if exception is caught
+    """
+    for attempt in range(max_attempts):
+        try:
+            return function()
+        except exception as e:
+            assert attempt < (max_attempts - 1), "%s failed after %d attempts!\n%s" % (function, max_attempts, str(e))
+        time.sleep(interval_seconds)
