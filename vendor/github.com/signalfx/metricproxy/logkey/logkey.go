@@ -27,6 +27,8 @@ var (
 	RemoteAddr = log.Key("remote_addr")
 	// CarbonLine is a direct line received from carbon protocol
 	CarbonLine = log.Key("carbon_line")
+	// Capacity is a size
+	Capacity = log.Key("capacity")
 	// TotalPipeline is the total number of things buffered and downstream of a forwarder
 	TotalPipeline = log.Key("total_pipeline")
 	// Protocol is the type of connection (signalfx/collectd/etc)

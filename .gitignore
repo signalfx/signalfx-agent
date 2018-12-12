@@ -15,7 +15,7 @@ tmp/
 test_output/
 .pytest_cache
 __pycache__
-/vendor_orig/
+/vendor.orig/
 .idea/
 *.exe
 .mypy_cache/

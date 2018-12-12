@@ -51,9 +51,13 @@
   name = "google.golang.org/cloud"
   revision = "15454a9f4f17e9fc086c36d48d595f8dbef13e24"
 
-[[constraint]]
+[[override]]
   name = "github.com/gogo/protobuf"
   revision = "c0656edd0d9eab7c66d1eb0c568f9039345796f7"
+  
+[[override]]
+  name = "github.com/golang/protobuf"
+  revision = "aa810b61a9c79d51363740d207bb46cf8e620ed5"
 
 [[constraint]]
   name = "github.com/google/cadvisor"
@@ -78,7 +82,7 @@
 
 [[constraint]]
   name = "github.com/signalfx/metricproxy"
-  revision = "fb7c5a67e736790e403947f8616f2221071e0cf0"
+  revision = "eb3480c6a51888f40f33d96e62509a41b08483c8"
 
 [[constraint]]
   name = "github.com/sirupsen/logrus"
@@ -89,9 +93,6 @@
 
 [[constraint]]
   name = "github.com/x-cray/logrus-prefixed-formatter"
-
-[[constraint]]
-  name = "golang.org/x/net"
 
 [[constraint]]
   name = "gopkg.in/fatih/set.v0"
@@ -113,7 +114,15 @@
 
 [[constraint]]
   name = "github.com/coreos/etcd"
-  version = "3.3.0"
+  revision = "27fc7e2296f506182f58ce846e48f36b34fe6842"
+
+[[override]]
+  name = "google.golang.org/grpc"
+  revision = "41344da2231b913fa3d983840a57a6b1b7b631a1"
+
+[[override]]
+  name = "google.golang.org/genproto"
+  revision = "11c7f9e547da6db876260ce49ea7536985904c9b"
 
 [[constraint]]
   name = "github.com/gobwas/glob"
@@ -150,3 +159,12 @@
 [[constraint]]
   name = "github.com/signalfx/telegraf"
   revision = "e2e44a3374c4963a78c7bf87ed85b8b4059074aa"
+
+[[override]]
+  name = "github.com/coreos/bbolt"
+  revision = "7ee3ded59d4835e10f3e7d0f7603c42aa5e83820"
+
+[[override]]
+  name = "github.com/quentin-m/etcd-cloud-operator"
+  source = "github.com/signalfx/etcd-cloud-operator"
+  revision = "b18fdd887d97ccf755e4737d14d8a9b9e97bbc9e"
