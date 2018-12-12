@@ -4,13 +4,14 @@ set -euxo pipefail
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
-[ -z ${AGENT_CHART_DIR-} ] && echo 'Please set $AGENT_CHART_DIR' && exit 1
+AGENT_CHART_DIR="$SCRIPT_DIR/helm/signalfx-agent"
 
-AGENT_VERSION=${AGENT_VERSION-$($SCRIPT_DIR/../../scripts/latest-release)}
+AGENT_VERSION=${AGENT_VERSION-$($SCRIPT_DIR/../../scripts/latest-final-release)}
 
 templates="configmap.yaml daemonset.yaml clusterrole.yaml clusterrolebinding.yaml serviceaccount.yaml"
 for f in $templates; do
   helm template \
+    --namespace signalfx-agent \
     --set signalFxAccessToken=MY_TOKEN \
     --set clusterName=MY-CLUSTER \
     --set fullnameOverride=signalfx-agent \
@@ -22,7 +23,7 @@ for f in $templates; do
       grep -v 'chart: signalfx-agent' | \
       grep -v 'namespace: signalfx-agent' | \
       grep -v 'heritage: Tiller' | \
-      grep -v 'release: RELEASE-NAME' \
+      grep -iv 'release: RELEASE-NAME' \
     > $SCRIPT_DIR/$f
   echo "Wrote resource $f"
 done
