@@ -70,8 +70,6 @@ const monitorType = "prometheus-exporter"
 //    discoveryRule: port >= 9100 && port <= 9500 && container_image =~ "exporter"
 //    extraDimensions:
 //      metric_source: prometheus
-//    host: 127.0.0.1
-//    port: 9100
 // ```
 
 var logger = log.WithFields(log.Fields{"monitorType": monitorType})
