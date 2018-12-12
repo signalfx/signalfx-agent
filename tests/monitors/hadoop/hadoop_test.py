@@ -10,7 +10,6 @@ from helpers.util import (
     print_lines,
     run_agent,
     run_container,
-    run_service,
     wait_for,
     get_monitor_metrics_from_selfdescribe,
     get_monitor_dims_from_selfdescribe,
@@ -44,10 +43,19 @@ def distribute_hostnames(containers):
                 )
 
 
+@pytest.mark.flaky(reruns=2, reruns_delay=5)
 @pytest.mark.parametrize("version", ["2.9.1", "3.0.3"])
 def test_hadoop(version):
-    with run_service("hadoop", buildargs={"HADOOP_VER": version}, hostname="hadoop-master") as hadoop_master:
-        with run_container(hadoop_master.image, hostname="hadoop-worker1") as hadoop_worker1:
+    """
+    Any new versions of hadoop should be manually built, tagged, and pushed to quay.io, i.e.
+    docker build \
+        -t quay.io/signalfx/hadoop-test:<version> \
+        --build-arg HADOOP_VER=<version> \
+        <repo_root>/test-services/hadoop
+    docker push quay.io/signalfx/hadoop-test:<version>
+    """
+    with run_container("quay.io/signalfx/hadoop-test:%s" % version, hostname="hadoop-master") as hadoop_master:
+        with run_container("quay.io/signalfx/hadoop-test:%s" % version, hostname="hadoop-worker1") as hadoop_worker1:
             containers = {"hadoop-master": hadoop_master, "hadoop-worker1": hadoop_worker1}
 
             # distribute the ip and hostnames for each container
