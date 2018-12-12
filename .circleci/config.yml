@@ -320,6 +320,7 @@ jobs:
 
   package_tests:
     executor: machine_image
+    parallelism: 2
     parameters:
       package_type:
         default: "rpm"
@@ -335,8 +336,14 @@ jobs:
           fi
           export PULL_CACHE=yes
           make << parameters.package_type >>-test-package
+          # Run non-upgrade tests on node 0, and upgrade tests on node 1
+          if [ $CIRCLE_NODE_INDEX -eq 0 ]; then
+              echo "export TEST_MARKERS='<< parameters.package_type >> and not upgrade'" >> $BASH_ENV
+          else
+              echo "export TEST_MARKERS='<< parameters.package_type >> and upgrade'" >> $BASH_ENV
+          fi
       - run_pytest:
-          pytest_options: "-n auto -m '<< parameters.package_type >>'"
+          pytest_options: "-n auto -m \"$TEST_MARKERS\""
           tests_dir: "./tests/packaging"
 
   deployment_tests:
