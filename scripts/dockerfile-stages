@@ -7,4 +7,4 @@ set -euo pipefail
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
-grep 'FROM .* as .*' $SCRIPT_DIR/../Dockerfile | sed -e 's/.*as //' | sed -e "/${1:-wontmatch}/q"
+grep 'FROM .* as .*' $SCRIPT_DIR/../Dockerfile | sed -e 's/.*as //' | sed -e "/${1:-wontmatch}/q" | grep -v -e "-ignore"
