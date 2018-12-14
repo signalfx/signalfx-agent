@@ -36,12 +36,15 @@ def run_kafka(version, **kwargs):
             buildargs={"KAFKA_VERSION": version},
             **kwargs,
         ) as kafka_container:
+            kafka_host = container_ip(kafka_container)
+            assert wait_for(p(tcp_socket_open, kafka_host, 9092), 60), "kafka broker didn't start"
+            assert wait_for(p(tcp_socket_open, kafka_host, 7099), 60), "kafka broker jmx didn't start"
             yield kafka_container
 
 
 def test_omitting_kafka_metrics(version="1.0.1"):
     with run_kafka(version) as kafka:
-        kafkahost = container_ip(kafka)
+        kafka_host = container_ip(kafka)
         with run_agent(
             textwrap.dedent(
                 """
@@ -53,7 +56,7 @@ def test_omitting_kafka_metrics(version="1.0.1"):
            mBeansToOmit:
              - kafka-active-controllers
         """.format(
-                    kafkahost
+                    kafka_host
                 )
             )
         ) as [backend, _, _]:
@@ -69,19 +72,19 @@ VERSIONS = ["0.9.0.0", "0.10.0.0", "0.11.0.0", "1.0.0", "1.0.1", "1.1.1", "2.0.0
 @pytest.mark.parametrize("version", VERSIONS)
 def test_all_kafka_monitors(version):
     with run_kafka(version) as kafka:
-        kafkahost = container_ip(kafka)
-        with run_service(
-            "kafka",
-            environment={"JMX_PORT": "8099", "START_AS": "producer", "KAFKA_BROKER": "%s:9092" % (kafkahost,)},
-            buildargs={"KAFKA_VERSION": version},
+        kafka_host = container_ip(kafka)
+        with run_container(
+            kafka.image.id,
+            environment={"JMX_PORT": "8099", "START_AS": "producer", "KAFKA_BROKER": "%s:9092" % (kafka_host,)},
         ) as kafka_producer:
             kafkaproducerhost = container_ip(kafka_producer)
-            with run_service(
-                "kafka",
-                environment={"JMX_PORT": "9099", "START_AS": "consumer", "KAFKA_BROKER": "%s:9092" % (kafkahost,)},
-                buildargs={"KAFKA_VERSION": version},
+            assert wait_for(p(tcp_socket_open, kafkaproducerhost, 8099), 60), "kafka producer jmx didn't start"
+            with run_container(
+                kafka.image.id,
+                environment={"JMX_PORT": "9099", "START_AS": "consumer", "KAFKA_BROKER": "%s:9092" % (kafka_host,)},
             ) as kafka_consumer:
                 kafkaconsumerhost = container_ip(kafka_consumer)
+                assert wait_for(p(tcp_socket_open, kafkaconsumerhost, 9099), 60), "kafka consumer jmx didn't start"
                 with run_agent(
                     textwrap.dedent(
                         """
@@ -97,7 +100,7 @@ def test_all_kafka_monitors(version):
                    host: {2}
                    port: 9099
                 """.format(
-                            kafkahost, kafkaproducerhost, kafkaconsumerhost
+                            kafka_host, kafkaproducerhost, kafkaconsumerhost
                         )
                     )
                 ) as [backend, _, _]:
