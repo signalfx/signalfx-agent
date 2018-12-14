@@ -1,3 +1,4 @@
+ARG GO_VERSION=1.10.6
 
 ###### Agent Build Image ########
 FROM ubuntu:16.04 as agent-builder
@@ -5,7 +6,8 @@ FROM ubuntu:16.04 as agent-builder
 RUN apt update &&\
     apt install -y curl wget pkg-config parallel
 
-ENV GO_VERSION=1.10.2 PATH=$PATH:/usr/local/go/bin
+ARG GO_VERSION
+ENV PATH=$PATH:/usr/local/go/bin
 RUN cd /tmp &&\
     wget https://storage.googleapis.com/golang/go${GO_VERSION}.linux-amd64.tar.gz &&\
 	tar -C /usr/local -xf go*.tar.gz
@@ -307,6 +309,11 @@ COPY whitelist.json /lib/whitelist.json
 WORKDIR /
 
 
+# Workaround to utilize the global GO_VERSION argument
+# since "COPY --from" doesn't support variables.
+FROM golang:${GO_VERSION}-stretch as golang-ignore
+
+
 ####### Dev Image ########
 # This is an image to facilitate development of the agent.  It installs all of
 # the build tools for building collectd and the go agent, along with some other
@@ -338,7 +345,7 @@ WORKDIR /go/src/github.com/signalfx/signalfx-agent
 CMD ["/bin/bash"]
 ENV PATH=$PATH:/usr/local/go/bin:/go/bin GOPATH=/go
 
-COPY --from=golang:1.10.2-stretch /usr/local/go/ /usr/local/go
+COPY --from=golang-ignore /usr/local/go/ /usr/local/go
 
 RUN wget -O /usr/bin/dep https://github.com/golang/dep/releases/download/v0.5.0/dep-linux-amd64 &&\
     chmod +x /usr/bin/dep
