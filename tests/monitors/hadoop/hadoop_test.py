@@ -43,6 +43,27 @@ def distribute_hostnames(containers):
                 )
 
 
+def start_hadoop(hadoop_master, hadoop_worker1):
+    containers = {"hadoop-master": hadoop_master, "hadoop-worker1": hadoop_worker1}
+
+    # distribute the ip and hostnames for each container
+    distribute_hostnames(containers)
+
+    # format hdfs
+    print_lines(hadoop_master.exec_run(["/usr/local/hadoop/bin/hdfs", "namenode", "-format"])[1])
+
+    # start hadoop and yarn
+    print_lines(hadoop_master.exec_run("start-dfs.sh")[1])
+    print_lines(hadoop_master.exec_run("start-yarn.sh")[1])
+
+    # wait for yarn api to be available
+    host = container_ip(hadoop_master)
+    assert wait_for(p(tcp_socket_open, host, 8088), 60), "service not listening on port"
+    assert wait_for(p(http_status, url="http://{0}:8088".format(host), status=[200]), 120), "service didn't start"
+
+    return host
+
+
 @pytest.mark.flaky(reruns=2, reruns_delay=5)
 @pytest.mark.parametrize("version", ["2.9.1", "3.0.3"])
 def test_hadoop(version):
@@ -56,24 +77,7 @@ def test_hadoop(version):
     """
     with run_container("quay.io/signalfx/hadoop-test:%s" % version, hostname="hadoop-master") as hadoop_master:
         with run_container("quay.io/signalfx/hadoop-test:%s" % version, hostname="hadoop-worker1") as hadoop_worker1:
-            containers = {"hadoop-master": hadoop_master, "hadoop-worker1": hadoop_worker1}
-
-            # distribute the ip and hostnames for each container
-            distribute_hostnames(containers)
-
-            # format hdfs
-            print_lines(hadoop_master.exec_run(["/usr/local/hadoop/bin/hdfs", "namenode", "-format"])[1])
-
-            # start hadoop and yarn
-            print_lines(hadoop_master.exec_run("start-dfs.sh")[1])
-            print_lines(hadoop_master.exec_run("start-yarn.sh")[1])
-
-            # wait for yarn api to be available
-            host = container_ip(hadoop_master)
-            assert wait_for(p(tcp_socket_open, host, 8088), 60), "service not listening on port"
-            assert wait_for(
-                p(http_status, url="http://{0}:8088".format(host), status=[200]), 120
-            ), "service didn't start"
+            host = start_hadoop(hadoop_master, hadoop_worker1)
 
             # start the agent with hadoop config
             config = HADOOP_CONFIG.substitute(host=host, port=8088)
