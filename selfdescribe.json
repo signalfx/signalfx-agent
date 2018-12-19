@@ -12097,7 +12097,7 @@
       },
       {
         "yamlName": "ingestUrl",
-        "doc": "The URL of SignalFx ingest server.  Should be overridden if using the Metric Proxy.  If you want to send trace spans to a different location, set the `traceEndpointUrl` option.",
+        "doc": "The URL of SignalFx ingest server.  Should be overridden if using the SignalFx Gateway.  If you want to send trace spans to a different location, set the `traceEndpointUrl` option.",
         "default": "https://ingest.signalfx.com",
         "required": false,
         "type": "string",

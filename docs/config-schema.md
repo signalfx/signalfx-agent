@@ -11,7 +11,7 @@ by the `-config` flag to the agent binary (`signalfx-agent`).
 | Config option | Required | Type | Description |
 | --- | --- | --- | --- |
 | `signalFxAccessToken` | no | string | The access token for the org that should receive the metrics emitted by the agent. |
-| `ingestUrl` | no | string | The URL of SignalFx ingest server.  Should be overridden if using the Metric Proxy.  If you want to send trace spans to a different location, set the `traceEndpointUrl` option. (**default:** `"https://ingest.signalfx.com"`) |
+| `ingestUrl` | no | string | The URL of SignalFx ingest server.  Should be overridden if using the SignalFx Gateway.  If you want to send trace spans to a different location, set the `traceEndpointUrl` option. (**default:** `"https://ingest.signalfx.com"`) |
 | `traceEndpointUrl` | no | string | The full URL (including path) to the trace ingest server.  If this is not set, all trace spans will be sent to the `ingestUrl` configured above. |
 | `apiUrl` | no | string | The SignalFx API base URL (**default:** `"https://api.signalfx.com"`) |
 | `hostname` | no | string | The hostname that will be reported as the `host` dimension. If blank, this will be auto-determined by the agent based on a reverse lookup of the machine's IP address. |
