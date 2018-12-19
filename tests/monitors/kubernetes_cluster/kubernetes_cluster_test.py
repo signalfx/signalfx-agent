@@ -5,7 +5,12 @@ import pytest
 
 from helpers.assertions import has_datapoint
 from helpers.kubernetes.utils import run_k8s_monitors_test, run_k8s_with_agent
-from helpers.util import get_monitor_dims_from_selfdescribe, get_monitor_metrics_from_selfdescribe, wait_for
+from helpers.util import (
+    ensure_always,
+    get_monitor_dims_from_selfdescribe,
+    get_monitor_metrics_from_selfdescribe,
+    wait_for,
+)
 
 pytestmark = [pytest.mark.kubernetes_cluster, pytest.mark.monitor_without_endpoints]
 
@@ -77,3 +82,28 @@ def test_resource_quota_metrics(agent_image, minikube, k8s_namespace):
                 value=2,
             )
         )
+
+
+def local_file(path):
+    return os.path.join(os.path.dirname(os.path.realpath(__file__)), path)
+
+
+@pytest.mark.k8s
+@pytest.mark.kubernetes
+def test_kubernetes_cluster_namespace_scope(agent_image, minikube, k8s_namespace):
+    monitors = [{"type": "kubernetes-cluster", "kubernetesAPI": {"authType": "serviceAccount"}, "namespace": "good"}]
+
+    with run_k8s_with_agent(
+        agent_image,
+        minikube,
+        monitors,
+        namespace=k8s_namespace,
+        yamls=[local_file("good-pod.yaml"), local_file("bad-pod.yaml")],
+    ) as [backend, _]:
+        assert wait_for(
+            p(has_datapoint, backend, dimensions={"kubernetes_namespace": "good"})
+        ), "timed out waiting for good pod metrics"
+
+        assert ensure_always(
+            lambda: not has_datapoint(backend, dimensions={"kubernetes_namespace": "bad"})
+        ), "got pod metrics from unspecified namespace"

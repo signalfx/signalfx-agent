@@ -112,18 +112,20 @@ func convertJaegerSpan(tSpan *jThrift.Span, tProcess *jThrift.Process) *trace.Sp
 		ServiceName: &tProcess.ServiceName,
 	}
 
-	for _, t := range tProcess.Tags {
-		if t.Key == "ip" && t.VStr != nil {
-			localEndpoint.Ipv4 = t.VStr
-		}
-	}
-
 	var ptrDebug *bool
 	if tSpan.Flags&2 > 0 {
 		ptrDebug = pointer.Bool(true)
 	}
 
 	kind, remoteEndpoint, tags := processJaegerTags(tSpan)
+
+	for _, t := range tProcess.Tags {
+		if t.Key == "ip" && t.VStr != nil {
+			localEndpoint.Ipv4 = t.VStr
+		} else {
+			tags[t.Key] = tagValueToString(t)
+		}
+	}
 
 	traceID := padID(strconv.FormatUint(uint64(tSpan.TraceIdLow), 16))
 	if tSpan.TraceIdHigh != 0 {

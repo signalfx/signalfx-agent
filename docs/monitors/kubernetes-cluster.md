@@ -37,6 +37,7 @@ Monitor Type: `kubernetes-cluster`
 | Config option | Required | Type | Description |
 | --- | --- | --- | --- |
 | `alwaysClusterReporter` | no | `bool` | If `true`, leader election is skipped and metrics are always reported. (**default:** `false`) |
+| `namespace` | no | `string` | If specified, only resources within the given namespace will be monitored.  If omitted (blank) all supported resources across all namespaces will be monitored. |
 | `useNodeName` | no | `bool` | If set to true, the Kubernetes node name will be used as the dimension to which to sync properties about each respective node.  This is necessary if your cluster's machines do not have unique machine-id values, as can happen when machine images are improperly cloned. (**default:** `false`) |
 | `kubernetesAPI` | no | `object (see below)` | Config for the K8s API client |
 

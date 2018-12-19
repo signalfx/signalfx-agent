@@ -21,16 +21,18 @@ import (
 type State struct {
 	clientset  *k8s.Clientset
 	reflectors map[string]*cache.Reflector
+	namespace  string
 	cancel     func()
 
 	metricCache *metrics.DatapointCache
 }
 
-func newState(clientset *k8s.Clientset, metricCache *metrics.DatapointCache) *State {
+func newState(clientset *k8s.Clientset, metricCache *metrics.DatapointCache, namespace string) *State {
 	return &State{
 		clientset:   clientset,
 		reflectors:  make(map[string]*cache.Reflector),
 		metricCache: metricCache,
+		namespace:   namespace,
 	}
 }
 
@@ -44,17 +46,21 @@ func (cs *State) Start() {
 	coreClient := cs.clientset.CoreV1().RESTClient()
 	extV1beta1Client := cs.clientset.ExtensionsV1beta1().RESTClient()
 
-	cs.beginSyncForType(ctx, &v1.Pod{}, "pods", coreClient)
-	cs.beginSyncForType(ctx, &v1beta1.DaemonSet{}, "daemonsets", extV1beta1Client)
-	cs.beginSyncForType(ctx, &v1beta1.Deployment{}, "deployments", extV1beta1Client)
-	cs.beginSyncForType(ctx, &v1.ReplicationController{}, "replicationcontrollers", coreClient)
-	cs.beginSyncForType(ctx, &v1beta1.ReplicaSet{}, "replicasets", extV1beta1Client)
-	cs.beginSyncForType(ctx, &v1.Node{}, "nodes", coreClient)
-	cs.beginSyncForType(ctx, &v1.Namespace{}, "namespaces", coreClient)
-	cs.beginSyncForType(ctx, &v1.ResourceQuota{}, "resourcequotas", coreClient)
+	cs.beginSyncForType(ctx, &v1.Pod{}, "pods", cs.namespace, coreClient)
+	cs.beginSyncForType(ctx, &v1beta1.DaemonSet{}, "daemonsets", cs.namespace, extV1beta1Client)
+	cs.beginSyncForType(ctx, &v1beta1.Deployment{}, "deployments", cs.namespace, extV1beta1Client)
+	cs.beginSyncForType(ctx, &v1.ReplicationController{}, "replicationcontrollers", cs.namespace, coreClient)
+	cs.beginSyncForType(ctx, &v1beta1.ReplicaSet{}, "replicasets", cs.namespace, extV1beta1Client)
+	cs.beginSyncForType(ctx, &v1.ResourceQuota{}, "resourcequotas", cs.namespace, coreClient)
+	// Node and Namespace are NOT namespaced resources, so we don't need to
+	// fetch them if we are scoped to a specific namespace
+	if cs.namespace == "" {
+		cs.beginSyncForType(ctx, &v1.Node{}, "nodes", "", coreClient)
+		cs.beginSyncForType(ctx, &v1.Namespace{}, "namespaces", "", coreClient)
+	}
 }
 
-func (cs *State) beginSyncForType(ctx context.Context, resType runtime.Object, resName string, client rest.Interface) {
+func (cs *State) beginSyncForType(ctx context.Context, resType runtime.Object, resName string, namespace string, client rest.Interface) {
 	keysSeen := make(map[interface{}]bool)
 
 	store := k8sutil.FixedFakeCustomStore{
@@ -97,7 +103,7 @@ func (cs *State) beginSyncForType(ctx context.Context, resType runtime.Object, r
 		return nil
 	}
 
-	watchList := cache.NewListWatchFromClient(client, resName, v1.NamespaceAll, fields.Everything())
+	watchList := cache.NewListWatchFromClient(client, resName, namespace, fields.Everything())
 	cs.reflectors[resName] = cache.NewReflector(watchList, resType, &store, 0)
 
 	go cs.reflectors[resName].Run(ctx.Done())

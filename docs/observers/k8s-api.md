@@ -24,6 +24,7 @@ Observer Type: `k8s-api`
 
 | Config option | Required | Type | Description |
 | --- | --- | --- | --- |
+| `namespace` | no | `string` | If specified, only pods within the given namespace on the same node as the agent will be discovered. If blank, all pods on the same node as the agent will be discovered. |
 | `kubernetesAPI` | no | `object (see below)` | Configuration for the K8s API client |
 
 

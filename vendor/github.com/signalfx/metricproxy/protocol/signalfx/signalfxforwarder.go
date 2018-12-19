@@ -13,6 +13,7 @@ import (
 	"github.com/signalfx/golib/sfxclient"
 	"github.com/signalfx/golib/trace"
 	"github.com/signalfx/metricproxy/protocol/filtering"
+	"github.com/signalfx/metricproxy/sampling"
 	"net"
 	"net/http"
 	"runtime"
@@ -34,6 +35,7 @@ type Forwarder struct {
 	jsonMarshal func(v interface{}) ([]byte, error)
 	Logger      log.Logger
 	stats       stats
+	sampler     *sampling.SmartSampler
 }
 
 type stats struct {
@@ -42,6 +44,7 @@ type stats struct {
 	requests                 *sfxclient.RollingBucket
 	drainSize                *sfxclient.RollingBucket
 	totalSpansForwarded      int64
+	pipeline                 int64
 }
 
 // ForwarderConfig controls optional parameters for a signalfx forwarder
@@ -59,6 +62,7 @@ type ForwarderConfig struct {
 	JSONMarshal        func(v interface{}) ([]byte, error)
 	Logger             log.Logger
 	DisableCompression *bool
+	TraceSample        *sampling.SmartSampleConfig
 }
 
 var defaultForwarderConfig = &ForwarderConfig{
@@ -76,7 +80,7 @@ var defaultForwarderConfig = &ForwarderConfig{
 }
 
 // NewForwarder creates a new JSON forwarder
-func NewForwarder(conf *ForwarderConfig) (*Forwarder, error) {
+func NewForwarder(conf *ForwarderConfig) (ret *Forwarder, err error) {
 	conf = pointer.FillDefaultFrom(conf, defaultForwarderConfig).(*ForwarderConfig)
 	tr := &http.Transport{
 		Proxy:                 http.ProxyFromEnvironment,
@@ -98,7 +102,7 @@ func NewForwarder(conf *ForwarderConfig) (*Forwarder, error) {
 	sendingSink.DatapointEndpoint = *conf.DatapointURL
 	sendingSink.EventEndpoint = *conf.EventURL
 	sendingSink.TraceEndpoint = *conf.TraceURL
-	ret := &Forwarder{
+	ret = &Forwarder{
 		defaultAuthToken: sendingSink.AuthToken,
 		userAgent:        sendingSink.UserAgent,
 		tr:               tr,
@@ -117,25 +121,28 @@ func NewForwarder(conf *ForwarderConfig) (*Forwarder, error) {
 			}),
 		},
 	}
-	err := ret.Setup(conf.Filters)
-	if err != nil {
-		return nil, err
+	err = ret.Setup(conf.Filters)
+	if err == nil {
+		ret.sampler, err = sampling.New(conf.TraceSample, conf.Logger, sendingSink)
+		ret.sampler.ConfigureHTTPSink(sendingSink)
+		return ret, err
 	}
-	return ret, nil
+	return nil, err
 }
 
-// Datapoints returns nothing.
+// Datapoints returns datapoints
 func (connector *Forwarder) Datapoints() []*datapoint.Datapoint {
 	dps := connector.stats.requests.Datapoints()
 	dps = append(dps, connector.stats.drainSize.Datapoints()...)
 	dps = append(dps, connector.GetFilteredDatapoints()...)
+	dps = append(dps, connector.sampler.Datapoints()...)
 	return dps
 }
 
 // Close will terminate idle HTTP client connections
 func (connector *Forwarder) Close() error {
 	connector.tr.CloseIdleConnections()
-	return nil
+	return connector.sampler.Close()
 }
 
 // TokenHeaderName is the header key for the auth token in the HTTP request
@@ -144,6 +151,8 @@ const TokenHeaderName = "X-SF-TOKEN"
 // AddDatapoints forwards datapoints to SignalFx
 func (connector *Forwarder) AddDatapoints(ctx context.Context, datapoints []*datapoint.Datapoint) error {
 	start := time.Now()
+	atomic.AddInt64(&connector.stats.pipeline, int64(len(datapoints)))
+	defer atomic.AddInt64(&connector.stats.pipeline, -int64(len(datapoints)))
 	defer connector.stats.requests.Add(float64(time.Now().Sub(start).Nanoseconds()))
 	defer connector.stats.drainSize.Add(float64(len(datapoints)))
 	atomic.AddInt64(&connector.stats.totalDatapointsForwarded, int64(len(datapoints)))
@@ -157,6 +166,8 @@ func (connector *Forwarder) AddDatapoints(ctx context.Context, datapoints []*dat
 
 // AddEvents forwards events to SignalFx
 func (connector *Forwarder) AddEvents(ctx context.Context, events []*event.Event) error {
+	atomic.AddInt64(&connector.stats.pipeline, int64(len(events)))
+	defer atomic.AddInt64(&connector.stats.pipeline, -int64(len(events)))
 	atomic.AddInt64(&connector.stats.totalEventsForwarded, int64(len(events)))
 	// could filter here
 	if len(events) == 0 {
@@ -165,19 +176,19 @@ func (connector *Forwarder) AddEvents(ctx context.Context, events []*event.Event
 	return connector.sink.AddEvents(ctx, events)
 }
 
-// AddSpans forwards traces to SignalFx
-func (connector *Forwarder) AddSpans(ctx context.Context, traces []*trace.Span) error {
-	atomic.AddInt64(&connector.stats.totalSpansForwarded, int64(len(traces)))
+// AddSpans forwards traces to SignalFx, optionally through the sampler
+func (connector *Forwarder) AddSpans(ctx context.Context, spans []*trace.Span) error {
+	atomic.AddInt64(&connector.stats.pipeline, int64(len(spans)))
+	defer atomic.AddInt64(&connector.stats.pipeline, -int64(len(spans)))
+	atomic.AddInt64(&connector.stats.totalSpansForwarded, int64(len(spans)))
 	// could filter here
-	if len(traces) == 0 {
+	if len(spans) == 0 {
 		return nil
 	}
-	return connector.sink.AddSpans(ctx, traces)
+	return connector.sampler.AddSpans(ctx, spans, connector.sink)
 }
 
 // Pipeline returns the total of all things forwarded
 func (connector *Forwarder) Pipeline() int64 {
-	return atomic.LoadInt64(&connector.stats.totalDatapointsForwarded) +
-		atomic.LoadInt64(&connector.stats.totalEventsForwarded) +
-		atomic.LoadInt64(&connector.stats.totalSpansForwarded)
+	return atomic.LoadInt64(&connector.stats.pipeline)
 }
