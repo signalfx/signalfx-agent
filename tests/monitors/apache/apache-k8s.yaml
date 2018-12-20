@@ -41,8 +41,9 @@ spec:
               path: /mod_status?auto
               port: 80
             initialDelaySeconds: 5
-            periodSeconds: 1
-            timeoutSeconds: 60
+            periodSeconds: 5
+            timeoutSeconds: 5
+            failureThreshold: 30
       volumes:
         - name: apache-conf
           configMap:

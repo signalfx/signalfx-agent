@@ -25,9 +25,17 @@ spec:
               value: administrator
             - name: PASSWORD
               value: testing123
+            - name: POD_IP
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.podIP
           readinessProbe:
-            tcpSocket:
-              port: 8091
+            exec:
+              command:
+                - bash
+                - -c
+                - curl -u ${USERNAME}:${PASSWORD} http://${POD_IP}:8091/pools/default
             initialDelaySeconds: 5
-            periodSeconds: 1
-            timeoutSeconds: 60
+            periodSeconds: 5
+            timeoutSeconds: 5
+            failureThreshold: 30

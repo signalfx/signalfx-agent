@@ -29,5 +29,6 @@ spec:
             tcpSocket:
               port: 15672
             initialDelaySeconds: 5
-            periodSeconds: 1
-            timeoutSeconds: 60
+            periodSeconds: 5
+            timeoutSeconds: 5
+            failureThreshold: 30

@@ -23,8 +23,10 @@ spec:
           ports:
             - containerPort: 8088
           readinessProbe:
-            tcpSocket:
+            httpGet:
+              path: /ws/v1/cluster/metrics
               port: 8088
             initialDelaySeconds: 5
-            periodSeconds: 1
-            timeoutSeconds: 300
+            periodSeconds: 5
+            timeoutSeconds: 5
+            failureThreshold: 60

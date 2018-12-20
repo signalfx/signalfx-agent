@@ -33,8 +33,9 @@ spec:
             tcpSocket:
               port: 8001
             initialDelaySeconds: 5
-            periodSeconds: 1
-            timeoutSeconds: 60
+            periodSeconds: 5
+            timeoutSeconds: 5
+            failureThreshold: 30
         - name: postgres
           image: postgres:9.6
           env:
@@ -50,5 +51,6 @@ spec:
             tcpSocket:
               port: 5432
             initialDelaySeconds: 5
-            periodSeconds: 1
-            timeoutSeconds: 60
+            periodSeconds: 5
+            timeoutSeconds: 5
+            failureThreshold: 30
