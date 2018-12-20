@@ -162,14 +162,16 @@ type propertyLink struct {
 // them to the cache
 func (dc *DatapointCache) addDimPropsToCache(key cachedResourceKey, dimProps *atypes.DimProperties) {
 	links := []propertyLink{
-		propertyLink{
-			SourceKind:     "ReplicaSet",
-			SourceProperty: "deployment",
-			SourceJoinKey:  "name",
-			TargetKind:     "Pod",
-			TargetProperty: "deployment",
-			TargetJoinKey:  "replicaSet",
-		},
+		// TODO: disable linking until we figure out a more efficient way of
+		// doing this.  This DOESN'T scale with 1000s of pods/resources.
+		//propertyLink{
+		//	SourceKind:     "ReplicaSet",
+		//	SourceProperty: "deployment",
+		//	SourceJoinKey:  "name",
+		//	TargetKind:     "Pod",
+		//	TargetProperty: "deployment",
+		//	TargetJoinKey:  "replicaSet",
+		//},
 	}
 
 	for _, link := range links {
