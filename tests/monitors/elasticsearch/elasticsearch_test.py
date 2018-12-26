@@ -201,3 +201,4 @@ def test_elasticsearch_in_k8s(agent_image, minikube, k8s_observer, k8s_test_time
         expected_dims=get_monitor_dims_from_selfdescribe(monitors[0]["type"]),
         test_timeout=k8s_test_timeout,
     )
+
