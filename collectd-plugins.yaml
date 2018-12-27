@@ -12,7 +12,7 @@
   repo: signalfx/docker-collectd-plugin
 
 - name: elasticsearch
-  version: v1.3.5
+  version: 643d5557ba860fd2779d0ddeb760adcae4ff25b0
   repo: signalfx/collectd-elasticsearch
   can_remove:
     - tests
