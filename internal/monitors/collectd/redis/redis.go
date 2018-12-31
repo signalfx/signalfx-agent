@@ -86,6 +86,14 @@ func (c *Config) PythonConfig() *python.Config {
 	return c.pyConf
 }
 
+func (c *Config) sendListLengthsTuples() [][]interface{} {
+	var out [][]interface{}
+	for _, ll := range c.SendListLengths {
+		out = append(out, []interface{}{ll.DBIndex, ll.KeyPattern})
+	}
+	return out
+}
+
 // Monitor is the main type that represents the monitor
 type Monitor struct {
 	python.PyMonitor
@@ -107,12 +115,15 @@ func (rm *Monitor) Configure(conf *Config) error {
 		ModulePaths:   []string{collectd.MakePath("redis")},
 		TypesDBPaths:  []string{collectd.MakePath("types.db")},
 		PluginConfig: map[string]interface{}{
-			"Host":                                 conf.Host,
-			"Port":                                 conf.Port,
-			"Instance":                             instanceID,
-			"Auth":                                 conf.Auth,
-			"Name":                                 conf.Name,
-			"SendListLength":                       conf.SendListLengths,
+			"Host":     conf.Host,
+			"Port":     conf.Port,
+			"Instance": instanceID,
+			"Auth":     conf.Auth,
+			"Name":     conf.Name,
+			"SendListLength": map[string]interface{}{
+				"#flatten": true,
+				"values":   conf.sendListLengthsTuples(),
+			},
 			"Verbose":                              false,
 			"Redis_uptime_in_seconds":              "gauge",
 			"Redis_used_cpu_sys":                   "counter",
