@@ -52,4 +52,5 @@ import (
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/collectd/uptime"
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/collectd/vmem"
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/collectd/zookeeper"
+	_ "github.com/signalfx/signalfx-agent/internal/monitors/collectd/solr"
 )
