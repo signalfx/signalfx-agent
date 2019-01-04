@@ -198,6 +198,7 @@ func (mm *MonitorManager) makeMonitorsForMatchingEndpoints(conf config.MonitorCu
 		}).Debug("Trying to find config that matches discovered endpoint")
 
 		if mm.isEndpointIDMonitoredByConfig(conf, id) {
+			log.Debug("The monitor is already monitored")
 			continue
 		}
 
@@ -214,6 +215,8 @@ func (mm *MonitorManager) makeMonitorsForMatchingEndpoints(conf config.MonitorCu
 					"monitorType": conf.MonitorConfigCore().Type,
 				}).Info("Now monitoring discovered endpoint")
 			}
+		} else {
+			log.Debug("The monitor did not match")
 		}
 	}
 }
@@ -235,7 +238,7 @@ func (mm *MonitorManager) monitorEndpointIfRuleMatches(config config.MonitorCust
 
 	err := mm.createAndConfigureNewMonitor(config, endpoint)
 	if err != nil {
-		return false, err
+		return true, err
 	}
 
 	return true, nil
@@ -253,14 +256,20 @@ func (mm *MonitorManager) EndpointAdded(endpoint services.Endpoint) {
 	// have all of its configuration already set in the endpoint and discovery
 	// rules will be ignored.
 	if endpoint.Core().IsSelfConfigured() {
-		mm.monitorSelfConfiguredEndpoint(endpoint)
+		if err := mm.monitorSelfConfiguredEndpoint(endpoint); err != nil {
+			log.WithFields(log.Fields{
+				"error":       err,
+				"monitorType": endpoint.Core().MonitorType,
+				"endpoint":    endpoint,
+			}).Error("Could not create monitor for self-configured endpoint")
+		}
 		return
 	}
 
 	mm.findConfigForMonitorAndRun(endpoint)
 }
 
-func (mm *MonitorManager) monitorSelfConfiguredEndpoint(endpoint services.Endpoint) {
+func (mm *MonitorManager) monitorSelfConfiguredEndpoint(endpoint services.Endpoint) error {
 	monitorType := endpoint.Core().MonitorType
 	conf := &config.MonitorConfig{
 		Type: monitorType,
@@ -271,21 +280,13 @@ func (mm *MonitorManager) monitorSelfConfiguredEndpoint(endpoint services.Endpoi
 
 	monConfig, err := getCustomConfigForMonitor(conf)
 	if err != nil {
-		log.WithFields(log.Fields{
-			"error":       err,
-			"monitorType": monitorType,
-		}).Error("Could not create monitor config for self-configured endpoint")
-		return
+		return err
 	}
 
-	err = mm.createAndConfigureNewMonitor(monConfig, endpoint)
-	if err != nil {
-		log.WithFields(log.Fields{
-			"error":    err,
-			"endpoint": endpoint,
-		}).Error("Could not create monitor for self-configured endpoint")
-		return
+	if err = mm.createAndConfigureNewMonitor(monConfig, endpoint); err != nil {
+		return err
 	}
+	return nil
 }
 
 func (mm *MonitorManager) findConfigForMonitorAndRun(endpoint services.Endpoint) {

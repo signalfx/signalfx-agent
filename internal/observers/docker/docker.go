@@ -296,9 +296,9 @@ func (docker *Docker) endpointForPort(portObj contPort, cont *dtypes.ContainerJS
 	}
 
 	endpoint := &services.ContainerEndpoint{
-		EndpointCore:  *services.NewEndpointCore(id, portObj.Name, observerType),
+		EndpointCore:  *services.NewEndpointCore(id, portObj.Name, observerType, orchDims),
 		Container:     *serviceContainer,
-		Orchestration: *services.NewOrchestration("docker", services.DOCKER, orchDims, services.PRIVATE),
+		Orchestration: *services.NewOrchestration("docker", services.DOCKER, services.PRIVATE),
 	}
 
 	if docker.config.UseHostnameIfPresent && cont.Config.Hostname != "" {

@@ -1,9 +1,10 @@
 package services
 
 import (
-	"errors"
 	"fmt"
 
+	"github.com/davecgh/go-spew/spew"
+	"github.com/pkg/errors"
 	"github.com/signalfx/signalfx-agent/internal/utils"
 	log "github.com/sirupsen/logrus"
 
@@ -14,25 +15,32 @@ var errNoValueFound = errors.New("no value was found in the map with the key")
 
 // get returns the value of the specified key in the supplied map
 func get(args ...interface{}) (interface{}, error) {
-	if len(args) != 2 {
+	if len(args) < 2 {
 		return nil, errors.New("Get takes 2 args")
 	}
 	inputMap := args[0]
 	key := args[1]
 
-	labelInterfaceMap, ok := inputMap.(map[interface{}]interface{})
+	var defVal interface{}
+	if len(args) == 3 {
+		defVal = args[2]
+	}
+
+	interfaceMap, ok := inputMap.(map[interface{}]interface{})
 	if !ok {
 		return nil, errors.New("label must be a map[string]string")
 	}
 
-	label, ok := key.(string)
+	keyStr, ok := key.(string)
 	if !ok {
 		return nil, errors.New("label must be of type string")
 	}
 
-	labelMap := utils.InterfaceMapToStringMap(labelInterfaceMap)
-	if val, ok := labelMap[label]; ok {
+	stringMap := utils.InterfaceMapToStringMap(interfaceMap)
+	if val, ok := stringMap[keyStr]; ok {
 		return val, nil
+	} else if defVal != nil {
+		return defVal, nil
 	}
 
 	return nil, nil
@@ -53,53 +61,47 @@ func parseRuleText(text string) (*govaluate.EvaluableExpression, error) {
 	return govaluate.NewEvaluableExpressionWithFunctions(text, ruleFunctions)
 }
 
-// DoesServiceMatchRule returns true if service endpoint satisfies the rule
-// given
-func DoesServiceMatchRule(si Endpoint, ruleText string) bool {
+func evaluateRule(si Endpoint, ruleText string, errorOnMissing bool) (interface{}, error) {
 	rule, err := parseRuleText(ruleText)
 	if err != nil {
-		log.WithFields(log.Fields{
-			"discoveryRule": ruleText,
-		}).Error("Could not parse discovery rule")
-		return false
+		return nil, errors.WithMessage(err, "Could not parse rule")
 	}
 
 	asMap := utils.DuplicateInterfaceMapKeysAsCamelCase(EndpointAsMap(si))
 	if err := endpointMapHasAllVars(asMap, rule.Vars()); err != nil {
-		log.WithFields(log.Fields{
-			"discoveryRule":   rule.String(),
-			"values":          asMap,
-			"serviceInstance": si,
-			"error":           err,
-		}).Debug("Endpoint does not include some variables used in rule, assuming does not match")
-		return false
+		// If there are missing vars
+		if !errorOnMissing {
+			return nil, nil
+		}
 	}
 
-	ret, err := rule.Evaluate(asMap)
+	return rule.Evaluate(asMap)
+}
+
+// DoesServiceMatchRule returns true if service endpoint satisfies the rule
+// given
+func DoesServiceMatchRule(si Endpoint, ruleText string) bool {
+	ret, err := evaluateRule(si, ruleText, false)
 	if err != nil {
 		log.WithFields(log.Fields{
-			"discoveryRule":   rule.String(),
-			"values":          asMap,
-			"serviceInstance": si,
+			"discoveryRule":   ruleText,
+			"serviceInstance": spew.Sdump(si),
 			"error":           err,
 		}).Error("Could not evaluate discovery rule")
 		return false
 	}
 
+	if ret == nil {
+		return false
+	}
 	exprVal, ok := ret.(bool)
 	if !ok {
 		log.WithFields(log.Fields{
-			"discoveryRule": rule.String(),
-			"values":        asMap,
+			"discoveryRule":   ruleText,
+			"serviceInstance": spew.Sdump(si),
 		}).Errorf("Discovery rule did not evaluate to a true/false value")
 		return false
 	}
-
-	log.WithFields(log.Fields{
-		"rule":      ruleText,
-		"variables": asMap,
-		"result":    exprVal,
-	}).Debug("Rule evaluated")
 
 	return exprVal
 }

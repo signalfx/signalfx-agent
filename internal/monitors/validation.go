@@ -15,20 +15,28 @@ func validateConfig(monConfig config.MonitorCustomConfig) error {
 	conf := monConfig.MonitorConfigCore()
 
 	if _, ok := MonitorFactories[conf.Type]; !ok {
-		return errors.New("Monitor type not recognized")
+		return errors.New("monitor type not recognized")
+	}
+
+	if conf.IntervalSeconds <= 0 {
+		return fmt.Errorf("invalid intervalSeconds provided: %d", conf.IntervalSeconds)
 	}
 
 	takesEndpoints := configAcceptsEndpoints(monConfig)
 	if !takesEndpoints && conf.DiscoveryRule != "" {
-		return fmt.Errorf("Monitor %s does not support discovery but has a discovery rule", conf.Type)
+		return fmt.Errorf("monitor %s does not support discovery but has a discovery rule", conf.Type)
 	}
 
 	// Validate discovery rules
 	if conf.DiscoveryRule != "" {
 		err := services.ValidateDiscoveryRule(conf.DiscoveryRule)
 		if err != nil {
-			return errors.New("Could not validate discovery rule: " + err.Error())
+			return errors.New("discovery rule is invalid: " + err.Error())
 		}
+	}
+
+	if len(conf.ConfigEndpointMappings) > 0 && len(conf.DiscoveryRule) == 0 {
+		return errors.New("configEndpointMappings is not useful without a discovery rule")
 	}
 
 	if err := validation.ValidateStruct(monConfig); err != nil {
