@@ -3,7 +3,6 @@
 package net
 
 import (
-	"context"
 	"errors"
 	"os/exec"
 	"strconv"
@@ -13,10 +12,6 @@ import (
 )
 
 func IOCounters(pernic bool) ([]IOCountersStat, error) {
-	return IOCountersWithContext(context.Background(), pernic)
-}
-
-func IOCountersWithContext(ctx context.Context, pernic bool) ([]IOCountersStat, error) {
 	netstat, err := exec.LookPath("/usr/bin/netstat")
 	if err != nil {
 		return nil, err
@@ -97,18 +92,10 @@ func IOCountersWithContext(ctx context.Context, pernic bool) ([]IOCountersStat, 
 
 // NetIOCountersByFile is an method which is added just a compatibility for linux.
 func IOCountersByFile(pernic bool, filename string) ([]IOCountersStat, error) {
-	return IOCountersByFileWithContext(context.Background(), pernic, filename)
-}
-
-func IOCountersByFileWithContext(ctx context.Context, pernic bool, filename string) ([]IOCountersStat, error) {
 	return IOCounters(pernic)
 }
 
 func FilterCounters() ([]FilterStat, error) {
-	return FilterCountersWithContext(context.Background())
-}
-
-func FilterCountersWithContext(ctx context.Context) ([]FilterStat, error) {
 	return nil, errors.New("NetFilterCounters not implemented for freebsd")
 }
 
@@ -117,9 +104,5 @@ func FilterCountersWithContext(ctx context.Context) ([]FilterStat, error) {
 // just the protocols in the list are returned.
 // Not Implemented for FreeBSD
 func ProtoCounters(protocols []string) ([]ProtoCountersStat, error) {
-	return ProtoCountersWithContext(context.Background(), protocols)
-}
-
-func ProtoCountersWithContext(ctx context.Context, protocols []string) ([]ProtoCountersStat, error) {
 	return nil, errors.New("NetProtoCounters not implemented for freebsd")
 }
