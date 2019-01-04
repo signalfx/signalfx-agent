@@ -36,11 +36,11 @@ type Config struct {
 	// EnhancedMetrics boolean to indicate whether stats from /metrics are needed
 	EnhancedMetrics *bool `yaml:"enhancedMetrics" default:"false"`
 	// IncludeMetric metric name from the /admin/metrics endpoint to include (valid when EnhancedMetrics is "false")
-	IncludeMetric string `yaml:"includeMetric""`
+	IncludeMetric string `yaml:"includeMetric"`
 	// ExcludeMetric metric name from the /admin/metrics endpoint to exclude (valid when EnhancedMetrics is "true")
-	ExcludeMetric string `yaml:"excludeMetric""`
+	ExcludeMetric string `yaml:"excludeMetric"`
 	// Dimension space-separated key-value pair for a user-defined dimension
-	Dimension string `yaml:"dimension""`
+	Dimension string `yaml:"dimension"`
 }
 
 // PythonConfig returns the embedded python.Config struct from the interface
