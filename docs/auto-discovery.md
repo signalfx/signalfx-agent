@@ -57,6 +57,9 @@ In addition, these extra functions are provided:
    discoveryRule: Get(container_labels, "mapKey") == "mapValue"
    ```
 
+   `Get` accepts an optional third argument that will act as a default value in
+   the case that the key is not present in the input map.
+
  - `Contains(map, key)` - returns true if key is inside map, otherwise false
 
    ```yaml
@@ -67,6 +70,30 @@ In addition, these extra functions are provided:
 There are no implicit rules built into the agent, so each rule must be specified
 manually in the config file, in conjunction with the monitor that should monitor the
 discovered service.
+
+## Endpoint Config Mapping
+
+Sometimes it might be useful to use certain live attribute of a discovered
+endpoint (see [Autodiscovery](./auto-discovery.md)).  These discovered
+endpoints are created by [observers](./observer-config.md) and will usually
+contain a full set of metadata that the observer obtains coincidently when it
+is doing discovery (e.g. container labels).  This metadata can be mapped
+directly to monitor configuration for the monitor that is instantiated for that
+endpoint.
+
+To do this, you can set the [`configEndpointMappings` option](./monitor-config)
+on a monitor config block.   For example, the `collectd/kafka` monitor has
+the `clusterName` config option, which is an arbirary value used to group
+together broker instances.  You could derive this from the `cluster` container
+label on the kafka container instances like this:
+
+```yaml
+monitors:
+ - type: collectd/kafka
+   discoveryRule: 'container_image =~ "kafka" && port == 9999'
+   configEndpointMappings:
+     clusterName: 'Get(container_labels, "cluster")'
+```
 
 ## Troubleshooting
 

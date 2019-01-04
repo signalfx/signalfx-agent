@@ -35,15 +35,14 @@ const (
 // Orchestration contains information about the orchestrator that the service
 // is deployed on (see OrchestrationType)
 type Orchestration struct {
-	ID         string            `yaml:"-"`
-	Type       OrchestrationType `yaml:"orchestrator"`
-	Dimensions map[string]string `yaml:"-"`
-	PortPref   PortPreference    `yaml:"-"`
+	ID       string            `yaml:"-"`
+	Type     OrchestrationType `yaml:"orchestrator"`
+	PortPref PortPreference    `yaml:"-"`
 }
 
 // NewOrchestration constructor
-func NewOrchestration(id string, orchType OrchestrationType, dims map[string]string, portPref PortPreference) *Orchestration {
-	return &Orchestration{id, orchType, dims, portPref}
+func NewOrchestration(id string, orchType OrchestrationType, portPref PortPreference) *Orchestration {
+	return &Orchestration{id, orchType, portPref}
 }
 
 func (o *Orchestration) String() string {

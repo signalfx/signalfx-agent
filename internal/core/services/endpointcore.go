@@ -3,6 +3,7 @@ package services
 import (
 	"regexp"
 
+	"github.com/signalfx/signalfx-agent/internal/core/config"
 	"github.com/signalfx/signalfx-agent/internal/utils"
 )
 
@@ -18,6 +19,8 @@ const (
 )
 
 var ipAddrRegexp = regexp.MustCompile(`\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}`)
+
+var _ config.CustomConfigurable = &EndpointCore{}
 
 // EndpointCore represents an exposed network port
 type EndpointCore struct {
@@ -41,16 +44,17 @@ type EndpointCore struct {
 }
 
 // NewEndpointCore returns a new initialized endpoint core struct
-func NewEndpointCore(id string, name string, discoveredBy string) *EndpointCore {
+func NewEndpointCore(id string, name string, discoveredBy string, dims map[string]string) *EndpointCore {
 	if id == "" {
 		// Observers must provide an ID or else they are majorly broken
 		panic("EndpointCore cannot be created without an id")
 	}
 
 	ec := &EndpointCore{
-		ID:           ID(id),
-		Name:         name,
-		DiscoveredBy: discoveredBy,
+		ID:              ID(id),
+		Name:            name,
+		DiscoveredBy:    discoveredBy,
+		extraDimensions: dims,
 	}
 
 	return ec
@@ -78,13 +82,13 @@ func (e *EndpointCore) DerivedFields() map[string]interface{} {
 }
 
 // ExtraConfig returns a map of values to be considered when configuring a monitor
-func (e *EndpointCore) ExtraConfig() map[string]interface{} {
+func (e *EndpointCore) ExtraConfig() (map[string]interface{}, error) {
 	return utils.MergeInterfaceMaps(
 		map[string]interface{}{
 			"host": e.Host,
 			"port": e.Port,
 			"name": utils.FirstNonEmpty(e.Name, string(e.ID)),
-		}, e.Configuration)
+		}, e.Configuration), nil
 }
 
 // IsSelfConfigured tells whether this endpoint comes with enough configuration

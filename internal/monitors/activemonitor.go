@@ -1,6 +1,7 @@
 package monitors
 
 import (
+	"fmt"
 	"reflect"
 
 	"github.com/creasty/defaults"
@@ -41,6 +42,17 @@ func (am *ActiveMonitor) configureMonitor(monConfig config.MonitorCustomConfig) 
 		err := config.DecodeExtraConfig(am.endpoint, monConfig, false)
 		if err != nil {
 			return errors.Wrap(err, "Could not inject endpoint config into monitor config")
+		}
+
+		for configKey, rule := range monConfig.MonitorConfigCore().ConfigEndpointMappings {
+			cem := &services.ConfigEndpointMapping{
+				Endpoint:  am.endpoint,
+				ConfigKey: configKey,
+				Rule:      rule,
+			}
+			if err := config.DecodeExtraConfig(cem, monConfig, false); err != nil {
+				return fmt.Errorf("could not process config mapping: %s => %s -- %s", configKey, rule, err.Error())
+			}
 		}
 	}
 

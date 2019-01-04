@@ -69,7 +69,6 @@ func (ce *ContainerEndpoint) DerivedFields() map[string]interface{} {
 func (ce *ContainerEndpoint) Dimensions() map[string]string {
 	return utils.MergeStringMaps(
 		ce.EndpointCore.Dimensions(),
-		ce.Orchestration.Dimensions,
 		utils.RemoveEmptyMapValues(map[string]string{
 			"container_name":  ce.Container.PrimaryName(),
 			"container_image": ce.Container.Image,

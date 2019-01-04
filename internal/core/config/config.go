@@ -216,7 +216,7 @@ func (c *Config) propagateValuesDown() error {
 // concept of generic other config that is initially deserialized into a
 // map[string]interface{} to be later transformed to another form.
 type CustomConfigurable interface {
-	ExtraConfig() map[string]interface{}
+	ExtraConfig() (map[string]interface{}, error)
 }
 
 // LogConfig contains configuration related to logging

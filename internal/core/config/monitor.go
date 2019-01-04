@@ -26,6 +26,11 @@ type MonitorConfig struct {
 	// monitor(s) created from this configuration. To specify metrics from this
 	// monitor should be high-resolution, add the dimension `sf_hires: 1`
 	ExtraDimensions map[string]string `yaml:"extraDimensions" json:"extraDimensions"`
+	// A set of mappings from a configuration option on this montitor to
+	// attributes of a discovered endpoint.  They keys are the config option on
+	// this monitor and the value can be any valid expression used in discovery
+	// rules.
+	ConfigEndpointMappings map[string]string `yaml:"configEndpointMappings" json:"configEndpointMappings"`
 	// The interval (in seconds) at which to emit datapoints from the
 	// monitor(s) created by this configuration.  If not set (or set to 0), the
 	// global agent intervalSeconds config option will be used instead.
@@ -57,6 +62,8 @@ type MonitorConfig struct {
 	Filter          *dpfilters.FilterSet `yaml:"-" json:"-" hash:"ignore"`
 }
 
+var _ CustomConfigurable = &MonitorConfig{}
+
 // initialize does basic setup of the config struct and should always be called after
 // deserialization.
 func (mc *MonitorConfig) initialize() error {
@@ -77,8 +84,8 @@ func (mc *MonitorConfig) Equals(other *MonitorConfig) bool {
 }
 
 // ExtraConfig returns generic config as a map
-func (mc *MonitorConfig) ExtraConfig() map[string]interface{} {
-	return mc.OtherConfig
+func (mc *MonitorConfig) ExtraConfig() (map[string]interface{}, error) {
+	return mc.OtherConfig, nil
 }
 
 // HasAutoDiscovery returns whether the monitor is static (i.e. doesn't rely on

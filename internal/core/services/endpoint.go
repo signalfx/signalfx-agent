@@ -13,6 +13,7 @@ package services
 
 import (
 	"github.com/davecgh/go-spew/spew"
+	"github.com/signalfx/signalfx-agent/internal/core/config"
 	"github.com/signalfx/signalfx-agent/internal/utils"
 	log "github.com/sirupsen/logrus"
 )
@@ -23,10 +24,10 @@ type ID string
 // Endpoint is the generic interface that all types of service instances should
 // implement.  All consumers of services should use this interface only.
 type Endpoint interface {
+	config.CustomConfigurable
+
 	// Core returns the EndpointCore that all endpoints are required to have
 	Core() *EndpointCore
-
-	ExtraConfig() map[string]interface{}
 
 	// Dimensions that are specific to this endpoint (e.g. container name)
 	Dimensions() map[string]string

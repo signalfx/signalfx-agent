@@ -219,7 +219,7 @@ func (k *Observer) discover() []services.Endpoint {
 				"kubernetes_pod_uid":   pod.Metadata.UID,
 				"kubernetes_namespace": pod.Metadata.Namespace,
 			}
-			orchestration := services.NewOrchestration("kubernetes", services.KUBERNETES, dims, services.PRIVATE)
+			orchestration := services.NewOrchestration("kubernetes", services.KUBERNETES, services.PRIVATE)
 
 			for _, port := range container.Ports {
 				for _, status := range pod.Status.ContainerStatuses {
@@ -237,7 +237,7 @@ func (k *Observer) discover() []services.Endpoint {
 
 					id := fmt.Sprintf("%s-%s-%d", pod.Metadata.Name, pod.Metadata.UID[:7], port.ContainerPort)
 
-					endpoint := services.NewEndpointCore(id, port.Name, observerType)
+					endpoint := services.NewEndpointCore(id, port.Name, observerType, dims)
 					endpoint.Host = podIP
 					endpoint.PortType = port.Protocol
 					endpoint.Port = port.ContainerPort

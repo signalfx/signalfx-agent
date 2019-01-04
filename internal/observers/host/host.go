@@ -107,8 +107,12 @@ func (o *Observer) discover() []services.Endpoint {
 			continue
 		}
 
+		dims := map[string]string{
+			"pid": strconv.Itoa(int(c.Pid)),
+		}
+
 		se := services.NewEndpointCore(
-			fmt.Sprintf("%s-%d-%d", c.Laddr.IP, c.Laddr.Port, c.Pid), name, observerType)
+			fmt.Sprintf("%s-%d-%d", c.Laddr.IP, c.Laddr.Port, c.Pid), name, observerType, dims)
 
 		ip := c.Laddr.IP
 		// An IP addr of 0.0.0.0 means it listens on all interfaces, including
@@ -120,8 +124,6 @@ func (o *Observer) discover() []services.Endpoint {
 		se.Host = ip
 		se.Port = uint16(c.Laddr.Port)
 		se.PortType = portTypeMap[c.Type]
-
-		se.AddDimension("pid", strconv.Itoa(int(c.Pid)))
 
 		endpoints = append(endpoints, se)
 	}

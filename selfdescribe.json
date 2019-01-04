@@ -29,6 +29,14 @@
         "elementKind": "string"
       },
       {
+        "yamlName": "configEndpointMappings",
+        "doc": "A set of mappings from a configuration option on this montitor to attributes of a discovered endpoint.  They keys are the config option on this monitor and the value can be any valid expression used in discovery rules.",
+        "default": null,
+        "required": false,
+        "type": "map",
+        "elementKind": "string"
+      },
+      {
         "yamlName": "intervalSeconds",
         "doc": "The interval (in seconds) at which to emit datapoints from the monitor(s) created by this configuration.  If not set (or set to 0), the global agent intervalSeconds config option will be used instead.",
         "default": 0,
@@ -15541,6 +15549,14 @@
             {
               "yamlName": "extraDimensions",
               "doc": "A set of extra dimensions (key:value pairs) to include on datapoints emitted by the monitor(s) created from this configuration. To specify metrics from this monitor should be high-resolution, add the dimension `sf_hires: 1`",
+              "default": null,
+              "required": false,
+              "type": "map",
+              "elementKind": "string"
+            },
+            {
+              "yamlName": "configEndpointMappings",
+              "doc": "A set of mappings from a configuration option on this montitor to attributes of a discovered endpoint.  They keys are the config option on this monitor and the value can be any valid expression used in discovery rules.",
               "default": null,
               "required": false,
               "type": "map",

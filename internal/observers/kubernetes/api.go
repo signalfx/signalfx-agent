@@ -213,15 +213,9 @@ func endpointsInPod(pod *v1.Pod, client *k8s.Clientset) []services.Endpoint {
 
 	annotationConfs := annotationsForPod(pod)
 
-	for _, container := range pod.Spec.Containers {
-		dims := map[string]string{
-			"container_spec_name":  container.Name,
-			"kubernetes_pod_name":  pod.Name,
-			"kubernetes_pod_uid":   string(pod.UID),
-			"kubernetes_namespace": pod.Namespace,
-		}
-		orchestration := services.NewOrchestration("kubernetes", services.KUBERNETES, dims, services.PRIVATE)
+	orchestration := services.NewOrchestration("kubernetes", services.KUBERNETES, services.PRIVATE)
 
+	for _, container := range pod.Spec.Containers {
 		var containerState string
 		var containerID string
 		var containerName string
@@ -243,10 +237,17 @@ func endpointsInPod(pod *v1.Pod, client *k8s.Clientset) []services.Endpoint {
 			continue
 		}
 
+		dims := map[string]string{
+			"container_spec_name":  container.Name,
+			"kubernetes_pod_name":  pod.Name,
+			"kubernetes_pod_uid":   string(pod.UID),
+			"kubernetes_namespace": pod.Namespace,
+		}
+
 		for _, port := range container.Ports {
 			id := fmt.Sprintf("%s-%s-%d", pod.Name, pod.UID[:7], port.ContainerPort)
 
-			endpoint := services.NewEndpointCore(id, port.Name, observerType)
+			endpoint := services.NewEndpointCore(id, port.Name, observerType, dims)
 
 			portAnnotations := annotationConfs.FilterByPortOrPortName(port.ContainerPort, port.Name)
 			monitorType, extraConf, err := configFromAnnotations(container.Name, portAnnotations, pod, client)

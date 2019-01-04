@@ -26,7 +26,12 @@ func DecodeExtraConfigStrict(in CustomConfigurable, out interface{}) error {
 func DecodeExtraConfig(in CustomConfigurable, out interface{}, strict bool) error {
 	pkgPaths := strings.Split(reflect.Indirect(reflect.ValueOf(out)).Type().PkgPath(), "/")
 
-	otherYaml, err := yaml.Marshal(in.ExtraConfig())
+	extra, err := in.ExtraConfig()
+	if err != nil {
+		return err
+	}
+
+	otherYaml, err := yaml.Marshal(extra)
 	if err != nil {
 		return err
 	}
