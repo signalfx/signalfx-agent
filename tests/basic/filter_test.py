@@ -1,5 +1,5 @@
-from helpers.assertions import has_datapoint_with_metric_name
-from helpers.util import ensure_always, run_agent, wait_for
+from tests.helpers.assertions import has_datapoint_with_metric_name
+from tests.helpers.util import ensure_always, run_agent, wait_for
 
 BASIC_CONFIG = """
 monitors:

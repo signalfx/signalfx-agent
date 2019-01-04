@@ -9,8 +9,8 @@ from io import BytesIO
 
 import docker
 
-from helpers import fake_backend
-from helpers.util import get_docker_client, get_host_ip, run_container
+from tests.helpers import fake_backend
+from tests.helpers.util import get_docker_client, get_host_ip, run_container
 
 PROJECT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "../.."))
 PACKAGING_DIR = os.path.join(PROJECT_DIR, "packaging")

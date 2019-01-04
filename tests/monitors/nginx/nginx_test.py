@@ -7,9 +7,9 @@ from functools import partial as p
 
 import pytest
 
-from helpers.assertions import has_datapoint_with_dim, tcp_socket_open
-from helpers.kubernetes.utils import get_discovery_rule, run_k8s_monitors_test
-from helpers.util import (
+from tests.helpers.assertions import has_datapoint_with_dim, tcp_socket_open
+from tests.helpers.kubernetes.utils import get_discovery_rule, run_k8s_monitors_test
+from tests.helpers.util import (
     container_ip,
     get_monitor_dims_from_selfdescribe,
     get_monitor_metrics_from_selfdescribe,

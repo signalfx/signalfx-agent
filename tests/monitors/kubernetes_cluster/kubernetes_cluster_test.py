@@ -3,9 +3,9 @@ from functools import partial as p
 
 import pytest
 
-from helpers.assertions import has_datapoint
-from helpers.kubernetes.utils import run_k8s_monitors_test, run_k8s_with_agent
-from helpers.util import (
+from tests.helpers.assertions import has_datapoint
+from tests.helpers.kubernetes.utils import run_k8s_monitors_test, run_k8s_with_agent
+from tests.helpers.util import (
     ensure_always,
     get_monitor_dims_from_selfdescribe,
     get_monitor_metrics_from_selfdescribe,

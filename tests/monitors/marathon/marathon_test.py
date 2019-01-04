@@ -3,8 +3,8 @@ from textwrap import dedent
 
 import pytest
 
-from helpers.assertions import has_datapoint_with_dim, http_status, tcp_socket_open
-from helpers.util import container_ip, run_agent, run_container, wait_for
+from tests.helpers.assertions import has_datapoint_with_dim, http_status, tcp_socket_open
+from tests.helpers.util import container_ip, run_agent, run_container, wait_for
 
 pytestmark = [pytest.mark.collectd, pytest.mark.marathon, pytest.mark.monitor_with_endpoints]
 

@@ -8,10 +8,10 @@ from functools import partial as p
 
 import pytest
 
-from helpers.assertions import has_log_message
-from helpers.kubernetes.minikube import Minikube
-from helpers.kubernetes.utils import container_is_running, has_docker_image
-from helpers.util import wait_for, get_docker_client, run_container
+from tests.helpers.assertions import has_log_message
+from tests.helpers.kubernetes.minikube import Minikube
+from tests.helpers.kubernetes.utils import container_is_running, has_docker_image
+from tests.helpers.util import wait_for, get_docker_client, run_container
 
 
 def get_latest_k8s_version(url="https://storage.googleapis.com/kubernetes-release/release/stable.txt", max_attempts=3):

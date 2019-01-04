@@ -2,8 +2,8 @@ from functools import partial as p
 
 import pytest
 
-from helpers.kubernetes.utils import run_k8s_with_agent
-from helpers.util import ensure_always, wait_for
+from tests.helpers.kubernetes.utils import run_k8s_with_agent
+from tests.helpers.util import ensure_always, wait_for
 
 pytestmark = [pytest.mark.kubernetes_events, pytest.mark.monitor_without_endpoints]
 

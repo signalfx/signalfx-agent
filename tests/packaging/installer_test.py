@@ -4,8 +4,8 @@ from functools import partial as p
 
 import pytest
 
-from helpers.assertions import has_datapoint_with_dim
-from helpers.util import print_lines, wait_for
+from tests.helpers.assertions import has_datapoint_with_dim
+from tests.helpers.util import print_lines, wait_for
 
 from .common import (
     INIT_SYSTEMD,

@@ -2,8 +2,8 @@ import time
 
 import pytest
 
-from helpers.assertions import has_log_message
-from helpers.util import run_agent
+from tests.helpers.assertions import has_log_message
+from tests.helpers.util import run_agent
 
 pytestmark = [pytest.mark.collectd, pytest.mark.cpufreq, pytest.mark.monitor_without_endpoints]
 

@@ -9,9 +9,9 @@ import yaml
 from kubernetes import client as kube_client
 from kubernetes.client.rest import ApiException
 
-from helpers.assertions import has_any_metric_or_dim
-from helpers.formatting import print_dp_or_event
-from helpers.util import container_ip, fake_backend, get_host_ip, get_observer_dims_from_selfdescribe, wait_for
+from tests.helpers.assertions import has_any_metric_or_dim
+from tests.helpers.formatting import print_dp_or_event
+from tests.helpers.util import container_ip, fake_backend, get_host_ip, get_observer_dims_from_selfdescribe, wait_for
 
 CUR_DIR = os.path.dirname(os.path.realpath(__file__))
 AGENT_YAMLS_DIR = os.environ.get("AGENT_YAMLS_DIR", os.path.realpath(os.path.join(CUR_DIR, "../../../deployments/k8s")))
