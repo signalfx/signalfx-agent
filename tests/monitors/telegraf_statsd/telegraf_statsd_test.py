@@ -2,8 +2,8 @@ from functools import partial as p
 import pytest
 import time
 
-from helpers.util import *
-from helpers.assertions import *
+from tests.helpers.util import *
+from tests.helpers.assertions import *
 
 
 pytestmark = [pytest.mark.windows, pytest.mark.telegraf_statsd, pytest.mark.telegraf]

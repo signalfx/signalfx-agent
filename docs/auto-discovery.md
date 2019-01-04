@@ -73,8 +73,8 @@ discovered service.
 
 ## Endpoint Config Mapping
 
-Sometimes it might be useful to use certain live attribute of a discovered
-endpoint (see [Autodiscovery](./auto-discovery.md)).  These discovered
+Sometimes it might be useful to use certain attributes of a discovered
+endpoint (see [Autodiscovery](endpoint-discovery)).  These discovered
 endpoints are created by [observers](./observer-config.md) and will usually
 contain a full set of metadata that the observer obtains coincidently when it
 is doing discovery (e.g. container labels).  This metadata can be mapped

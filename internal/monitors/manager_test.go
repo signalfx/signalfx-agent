@@ -19,7 +19,7 @@ var collectdConf config.CollectdConfig
 func newService(imageName string, publicPort int) services.Endpoint {
 	serviceID++
 
-	endpoint := services.NewEndpointCore(string(serviceID), "", "test")
+	endpoint := services.NewEndpointCore(string(serviceID), "", "test", nil)
 	endpoint.Host = "example.com"
 	endpoint.Port = uint16(publicPort)
 

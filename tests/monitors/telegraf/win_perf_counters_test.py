@@ -2,8 +2,8 @@ from functools import partial as p
 import pytest
 import string
 
-from helpers.util import wait_for, run_agent
-from helpers.assertions import *
+from tests.helpers.util import wait_for, run_agent
+from tests.helpers.assertions import *
 
 pytestmark = [pytest.mark.windows_only, pytest.mark.windows, pytest.mark.telegraf, pytest.mark.win_perf_counters]
 

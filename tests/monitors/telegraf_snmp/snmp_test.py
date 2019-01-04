@@ -2,8 +2,8 @@ from functools import partial as p
 import pytest
 import string
 
-from helpers.util import wait_for, run_agent, run_container, container_ip
-from helpers.assertions import has_datapoint_with_dim
+from tests.helpers.util import wait_for, run_agent, run_container, container_ip
+from tests.helpers.assertions import has_datapoint_with_dim
 
 pytestmark = [pytest.mark.telegraf, pytest.mark.snmp, pytest.mark.monitor_with_endpoints]
 
