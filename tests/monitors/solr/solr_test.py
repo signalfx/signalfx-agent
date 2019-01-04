@@ -14,6 +14,12 @@ monitors:
 - type: collectd/solr
   host: $host
   port: 8983
+  includeMetrics:
+  - solr.core_deleted_docs
+    solr.core_index_size
+  excludeMetrics:
+  - solr.core_max_docs
+    solr.core_num_docs
 """
 )
 

@@ -14,6 +14,31 @@ const monitorType = "collectd/solr"
 //
 // See https://github.com/signalfx/collectd-solr and
 // https://github.com/signalfx/integrations/tree/master/collectd-solr
+//
+// Sample YAML configuration:
+//
+// ```yaml
+// monitors:
+// - type: collectd/solr
+//   host: 127.0.0.1
+//   port: 8983
+// ```
+//
+// Sample YAML configuration with list lengths:
+//
+// ```yaml
+// monitors:
+// - type: collectd/solr
+//   host: 127.0.0.1
+//   port: 8983
+//   includeMetrics:
+//   - solr.core_deleted_docs
+//     solr.core_index_size
+//   excludeMetrics:
+//   - solr.core_max_docs
+//     solr.core_num_docs
+// ```
+//
 
 func init() {
 	monitors.Register(monitorType, func() interface{} {
@@ -35,10 +60,10 @@ type Config struct {
 	Cluster string `yaml:"cluster"`
 	// EnhancedMetrics boolean to indicate whether stats from /metrics are needed
 	EnhancedMetrics *bool `yaml:"enhancedMetrics" default:"false"`
-	// IncludeMetric metric name from the /admin/metrics endpoint to include (valid when EnhancedMetrics is "false")
-	IncludeMetric string `yaml:"includeMetric"`
-	// ExcludeMetric metric name from the /admin/metrics endpoint to exclude (valid when EnhancedMetrics is "true")
-	ExcludeMetric string `yaml:"excludeMetric"`
+	// IncludeMetrics metric names from the /admin/metrics endpoint to include (valid when EnhancedMetrics is "false")
+	IncludeMetrics []string `yaml:"includeMetrics"`
+	// ExcludeMetrics metric names from the /admin/metrics endpoint to exclude (valid when EnhancedMetrics is "true")
+	ExcludeMetrics []string `yaml:"excludeMetrics"`
 }
 
 // PythonConfig returns the embedded python.Config struct from the interface
@@ -65,9 +90,15 @@ func (m *Monitor) Configure(conf *Config) error {
 			"Port":            conf.Port,
 			"Cluster":         conf.Cluster,
 			"EnhancedMetrics": conf.EnhancedMetrics,
-			"IncludeMetric":   conf.IncludeMetric,
-			"ExcludeMetric":   conf.ExcludeMetric,
-			"Interval":        conf.IntervalSeconds,
+			"IncludeMetric": map[string]interface{}{
+				"#flatten": true,
+				"values":   [][]string{conf.IncludeMetrics},
+			},
+			"ExcludeMetric": map[string]interface{}{
+				"#flatten": true,
+				"values":   [][]string{conf.ExcludeMetrics},
+			},
+			"Interval": conf.IntervalSeconds,
 		},
 	}
 
