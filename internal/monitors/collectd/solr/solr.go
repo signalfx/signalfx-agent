@@ -39,8 +39,6 @@ type Config struct {
 	IncludeMetric string `yaml:"includeMetric"`
 	// ExcludeMetric metric name from the /admin/metrics endpoint to exclude (valid when EnhancedMetrics is "true")
 	ExcludeMetric string `yaml:"excludeMetric"`
-	// Dimension space-separated key-value pair for a user-defined dimension
-	Dimension string `yaml:"dimension"`
 }
 
 // PythonConfig returns the embedded python.Config struct from the interface
@@ -69,7 +67,6 @@ func (m *Monitor) Configure(conf *Config) error {
 			"EnhancedMetrics": conf.EnhancedMetrics,
 			"IncludeMetric":   conf.IncludeMetric,
 			"ExcludeMetric":   conf.ExcludeMetric,
-			"Dimension":       conf.Dimension,
 			"Interval":        conf.IntervalSeconds,
 		},
 	}
