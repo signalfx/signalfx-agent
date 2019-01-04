@@ -48,6 +48,7 @@ along with their possible configuration options:
 - [collectd/rabbitmq](./monitors/collectd-rabbitmq.md)
 - [collectd/redis](./monitors/collectd-redis.md)
 - [collectd/signalfx-metadata](./monitors/collectd-signalfx-metadata.md)
+- [collectd/solr](./monitors/collectd-solr.md)
 - [collectd/spark](./monitors/collectd-spark.md)
 - [collectd/statsd](./monitors/collectd-statsd.md)
 - [collectd/uptime](./monitors/collectd-uptime.md)
