@@ -1,7 +1,7 @@
 from functools import partial as p
 
-from helpers.assertions import has_datapoint_with_all_dims, has_datapoint_with_dim, has_event_with_dim
-from helpers.util import ensure_always, run_agent, wait_for
+from tests.helpers.assertions import has_datapoint_with_all_dims, has_datapoint_with_dim, has_event_with_dim
+from tests.helpers.util import ensure_always, run_agent, wait_for
 
 
 def test_sets_hostname():

@@ -1,8 +1,8 @@
 import os
 import pytest
 
-from helpers.util import get_monitor_metrics_from_selfdescribe, get_monitor_dims_from_selfdescribe
-from helpers.kubernetes.utils import run_k8s_monitors_test, get_discovery_rule
+from tests.helpers.util import get_monitor_metrics_from_selfdescribe, get_monitor_dims_from_selfdescribe
+from tests.helpers.kubernetes.utils import run_k8s_monitors_test, get_discovery_rule
 
 pytestmark = [pytest.mark.collectd, pytest.mark.spark, pytest.mark.monitor_with_endpoints]
 

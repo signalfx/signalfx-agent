@@ -10,8 +10,8 @@ import time
 from functools import partial as p
 from textwrap import dedent
 
-from helpers.assertions import *
-from helpers.util import run_agent, wait_for, ensure_always, get_agent_status
+from tests.helpers.assertions import *
+from tests.helpers.util import run_agent, wait_for, ensure_always, get_agent_status
 
 pytestmark = [pytest.mark.conviva, pytest.mark.monitor_without_endpoints]
 

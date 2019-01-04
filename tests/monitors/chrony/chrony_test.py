@@ -1,8 +1,8 @@
 """
 Integration tests for chrony monitor.
 """
-from helpers.assertions import has_log_message
-from helpers.util import run_agent, wait_for
+from tests.helpers.assertions import has_log_message
+from tests.helpers.util import run_agent, wait_for
 
 CHRONY_CONFIG = """
 monitors:

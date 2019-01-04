@@ -2,8 +2,8 @@ from functools import partial as p
 
 import pytest
 
-from helpers.assertions import has_datapoint_with_metric_name
-from helpers.util import run_agent, wait_for
+from tests.helpers.assertions import has_datapoint_with_metric_name
+from tests.helpers.util import run_agent, wait_for
 
 pytestmark = [pytest.mark.internal_metrics, pytest.mark.monitor_without_endpoints]
 

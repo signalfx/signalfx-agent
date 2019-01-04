@@ -5,9 +5,9 @@ from textwrap import dedent
 
 import pytest
 
-from helpers.assertions import has_datapoint_with_dim, tcp_socket_open
-from helpers.kubernetes.utils import get_discovery_rule, run_k8s_monitors_test
-from helpers.util import container_ip, run_agent, run_service, wait_for
+from tests.helpers.assertions import has_datapoint_with_dim, tcp_socket_open
+from tests.helpers.kubernetes.utils import get_discovery_rule, run_k8s_monitors_test
+from tests.helpers.util import container_ip, run_agent, run_service, wait_for
 
 pytestmark = [pytest.mark.collectd, pytest.mark.health_checker, pytest.mark.monitor_with_endpoints]
 

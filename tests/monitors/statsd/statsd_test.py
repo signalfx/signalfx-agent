@@ -5,9 +5,9 @@ from functools import partial as p
 
 import pytest
 
-from helpers.assertions import has_datapoint_with_dim, has_datapoint_with_metric_name, udp_port_open_locally
-from helpers.kubernetes.utils import run_k8s_monitors_test
-from helpers.util import run_agent, send_udp_message, wait_for
+from tests.helpers.assertions import has_datapoint_with_dim, has_datapoint_with_metric_name, udp_port_open_locally
+from tests.helpers.kubernetes.utils import run_k8s_monitors_test
+from tests.helpers.util import run_agent, send_udp_message, wait_for
 
 pytestmark = [pytest.mark.collectd, pytest.mark.statsd, pytest.mark.monitor_without_endpoints]
 

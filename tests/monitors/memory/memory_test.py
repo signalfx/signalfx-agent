@@ -2,8 +2,8 @@ from functools import partial as p
 
 import pytest
 
-from helpers.assertions import has_any_metric_or_dim, has_log_message
-from helpers.util import get_monitor_dims_from_selfdescribe, get_monitor_metrics_from_selfdescribe, run_agent, wait_for
+from tests.helpers.assertions import has_any_metric_or_dim, has_log_message
+from tests.helpers.util import get_monitor_dims_from_selfdescribe, get_monitor_metrics_from_selfdescribe, run_agent, wait_for
 
 pytestmark = [pytest.mark.collectd, pytest.mark.memory, pytest.mark.monitor_without_endpoints]
 

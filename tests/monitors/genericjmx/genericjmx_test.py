@@ -2,7 +2,7 @@ import os
 
 import pytest
 
-from helpers.kubernetes.utils import get_discovery_rule, run_k8s_monitors_test
+from tests.helpers.kubernetes.utils import get_discovery_rule, run_k8s_monitors_test
 
 pytestmark = [pytest.mark.collectd, pytest.mark.genericjmx, pytest.mark.monitor_with_endpoints]
 

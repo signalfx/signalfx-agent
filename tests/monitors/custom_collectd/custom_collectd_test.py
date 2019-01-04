@@ -4,8 +4,8 @@ from textwrap import dedent
 
 import pytest
 
-from helpers.assertions import has_datapoint_with_dim
-from helpers.util import ensure_always, run_agent, wait_for
+from tests.helpers.assertions import has_datapoint_with_dim
+from tests.helpers.util import ensure_always, run_agent, wait_for
 
 pytestmark = [
     pytest.mark.collectd,

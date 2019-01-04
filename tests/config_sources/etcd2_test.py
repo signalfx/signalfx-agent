@@ -1,8 +1,8 @@
 import string
 from functools import partial as p
 
-from helpers.assertions import container_cmd_exit_0, has_datapoint_with_dim, has_event_with_dim
-from helpers.util import container_ip, run_agent, run_container, wait_for
+from tests.helpers.assertions import container_cmd_exit_0, has_datapoint_with_dim, has_event_with_dim
+from tests.helpers.util import container_ip, run_agent, run_container, wait_for
 
 
 def create_path(container, path, value):

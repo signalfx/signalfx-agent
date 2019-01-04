@@ -9,8 +9,8 @@ from textwrap import dedent
 import pytest
 import requests
 
-from helpers.assertions import has_trace_span, tcp_port_open_locally
-from helpers.util import run_agent, wait_for
+from tests.helpers.assertions import has_trace_span, tcp_port_open_locally
+from tests.helpers.util import run_agent, wait_for
 
 pytestmark = [pytest.mark.trace_forwarder, pytest.mark.monitor_without_endpoints]
 

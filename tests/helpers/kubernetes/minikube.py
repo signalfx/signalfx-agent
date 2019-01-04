@@ -9,9 +9,9 @@ import semver
 import yaml
 from kubernetes import config as kube_config
 
-from helpers.assertions import container_cmd_exit_0
-from helpers.kubernetes.agent import Agent
-from helpers.kubernetes.utils import (
+from tests.helpers.assertions import container_cmd_exit_0
+from tests.helpers.kubernetes.agent import Agent
+from tests.helpers.kubernetes.utils import (
     api_client_from_version,
     container_is_running,
     create_resource,
@@ -22,7 +22,7 @@ from helpers.kubernetes.utils import (
     has_resource,
     wait_for_deployment,
 )
-from helpers.util import container_ip, get_docker_client, wait_for
+from tests.helpers.util import container_ip, get_docker_client, wait_for
 
 MINIKUBE_VERSION = os.environ.get("MINIKUBE_VERSION")
 MINIKUBE_LOCALKUBE_VERSION = "v0.28.2"

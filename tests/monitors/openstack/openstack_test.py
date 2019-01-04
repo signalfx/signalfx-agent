@@ -2,8 +2,8 @@ from functools import partial as p
 from textwrap import dedent
 import pytest
 
-from helpers.util import container_ip, wait_for, run_agent, get_monitor_metrics_from_selfdescribe
-from helpers.assertions import any_metric_found
+from tests.helpers.util import container_ip, wait_for, run_agent, get_monitor_metrics_from_selfdescribe
+from tests.helpers.assertions import any_metric_found
 
 pytestmark = [pytest.mark.collectd, pytest.mark.openstack, pytest.mark.monitor_without_endpoints]
 

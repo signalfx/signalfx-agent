@@ -5,8 +5,8 @@ from functools import partial as p
 
 import pytest
 
-from helpers.assertions import has_datapoint_with_metric_name, regex_search_matches_output, udp_port_open_locally
-from helpers.util import fake_backend, run_agent_with_fake_backend, send_udp_message, wait_for
+from tests.helpers.assertions import has_datapoint_with_metric_name, regex_search_matches_output, udp_port_open_locally
+from tests.helpers.util import fake_backend, run_agent_with_fake_backend, send_udp_message, wait_for
 
 pytestmark = [pytest.mark.collectd, pytest.mark.dogstatsd, pytest.mark.monitor_without_endpoints]
 

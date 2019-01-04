@@ -9,8 +9,8 @@ from textwrap import dedent
 
 import requests
 
-from helpers.assertions import has_datapoint, has_trace_span, tcp_port_open_locally
-from helpers.util import ensure_never, run_agent, wait_for
+from tests.helpers.assertions import has_datapoint, has_trace_span, tcp_port_open_locally
+from tests.helpers.util import ensure_never, run_agent, wait_for
 
 
 # Make this a function so it returns a fresh copy on each call

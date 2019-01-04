@@ -7,9 +7,9 @@ from textwrap import dedent
 import pytest
 import semver
 
-from helpers.assertions import any_metric_found, tcp_socket_open
-from helpers.kubernetes.utils import run_k8s_monitors_test
-from helpers.util import (
+from tests.helpers.assertions import any_metric_found, tcp_socket_open
+from tests.helpers.kubernetes.utils import run_k8s_monitors_test
+from tests.helpers.util import (
     get_monitor_dims_from_selfdescribe,
     get_monitor_metrics_from_selfdescribe,
     run_container,

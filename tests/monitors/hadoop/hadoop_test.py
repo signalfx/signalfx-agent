@@ -4,8 +4,8 @@ from functools import partial as p
 
 import pytest
 
-from helpers.assertions import has_datapoint, has_datapoint_with_dim, http_status, tcp_socket_open
-from helpers.util import (
+from tests.helpers.assertions import has_datapoint, has_datapoint_with_dim, http_status, tcp_socket_open
+from tests.helpers.util import (
     container_ip,
     print_lines,
     run_agent,
@@ -14,7 +14,7 @@ from helpers.util import (
     get_monitor_metrics_from_selfdescribe,
     get_monitor_dims_from_selfdescribe,
 )
-from helpers.kubernetes.utils import get_discovery_rule, run_k8s_monitors_test
+from tests.helpers.kubernetes.utils import get_discovery_rule, run_k8s_monitors_test
 
 pytestmark = [pytest.mark.collectd, pytest.mark.hadoop, pytest.mark.monitor_with_endpoints]
 

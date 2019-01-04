@@ -7,10 +7,9 @@ from contextlib import contextmanager
 from functools import partial as p
 
 import pytest
-
-from helpers.assertions import has_datapoint_with_dim, has_datapoint_with_metric_name, tcp_socket_open
-from helpers.kubernetes.utils import get_discovery_rule, run_k8s_monitors_test
-from helpers.util import (
+from tests.helpers.assertions import has_datapoint_with_dim, has_datapoint_with_metric_name, tcp_socket_open
+from tests.helpers.kubernetes.utils import get_discovery_rule, run_k8s_monitors_test
+from tests.helpers.util import (
     container_ip,
     get_monitor_dims_from_selfdescribe,
     get_monitor_metrics_from_selfdescribe,
@@ -24,7 +23,7 @@ pytestmark = [pytest.mark.collectd, pytest.mark.kafka, pytest.mark.monitor_with_
 
 
 @contextmanager
-def run_kafka(version):
+def run_kafka(version, **kwargs):
     """
     Runs a kafka container with zookeeper
     """
@@ -33,14 +32,10 @@ def run_kafka(version):
         assert wait_for(p(tcp_socket_open, zkhost, 2181), 60), "zookeeper didn't start"
         with run_service(
             "kafka",
-            environment={"JMX_PORT": "7099", "KAFKA_ZOOKEEPER_CONNECT": "%s:2181" % (zkhost,), "START_AS": "broker"},
+            environment={"KAFKA_ZOOKEEPER_CONNECT": "%s:2181" % (zkhost,), "START_AS": "broker"},
             buildargs={"KAFKA_VERSION": version},
+            **kwargs,
         ) as kafka_container:
-            run_service(
-                "kafka",
-                environment={"START_AS": "create-topic", "KAFKA_ZOOKEEPER_CONNECT": "%s:2181" % (zkhost,)},
-                buildargs={"KAFKA_VERSION": version},
-            )
             yield kafka_container
 
 
