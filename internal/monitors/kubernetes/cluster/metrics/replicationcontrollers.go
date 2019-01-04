@@ -15,8 +15,8 @@ func datapointsForReplicationController(rc *v1.ReplicationController) []*datapoi
 	dimensions := map[string]string{
 		"metric_source":        "kubernetes",
 		"kubernetes_namespace": rc.Namespace,
-		"uid":             string(rc.UID),
-		"kubernetes_name": rc.Name,
+		"uid":                  string(rc.UID),
+		"kubernetes_name":      rc.Name,
 	}
 
 	if rc.Spec.Replicas == nil {

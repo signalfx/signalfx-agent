@@ -332,14 +332,14 @@ func (mm *MonitorManager) createAndConfigureNewMonitor(config config.MonitorCust
 		monitorID:                 id,
 		notHostSpecific:           config.MonitorConfigCore().DisableHostDimensions,
 		disableEndpointDimensions: config.MonitorConfigCore().DisableEndpointDimensions,
-		filter:      config.MonitorConfigCore().Filter,
-		configHash:  configHash,
-		endpoint:    endpoint,
-		dpChan:      mm.DPs,
-		eventChan:   mm.Events,
-		dimPropChan: mm.DimensionProps,
-		spanChan:    mm.TraceSpans,
-		extraDims:   map[string]string{},
+		filter:                    config.MonitorConfigCore().Filter,
+		configHash:                configHash,
+		endpoint:                  endpoint,
+		dpChan:                    mm.DPs,
+		eventChan:                 mm.Events,
+		dimPropChan:               mm.DimensionProps,
+		spanChan:                  mm.TraceSpans,
+		extraDims:                 map[string]string{},
 	}
 
 	am := &ActiveMonitor{

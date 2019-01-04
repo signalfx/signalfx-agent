@@ -100,7 +100,7 @@ func (m *PyMonitor) Configure(conf PyConfig) error {
 
 			template, err := template.New("nested").Parse(v)
 			if err != nil {
-				m.Logger().WithError(err).Error("Could not parse value '%s' as template", v)
+				m.Logger().WithError(err).Errorf("Could not parse value '%s' as template", v)
 				continue
 			}
 
