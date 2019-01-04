@@ -4,7 +4,6 @@ package net
 
 import (
 	"bytes"
-	"context"
 	"encoding/hex"
 	"errors"
 	"fmt"
@@ -24,19 +23,11 @@ import (
 // every network interface installed on the system is returned
 // separately.
 func IOCounters(pernic bool) ([]IOCountersStat, error) {
-	return IOCountersWithContext(context.Background(), pernic)
-}
-
-func IOCountersWithContext(ctx context.Context, pernic bool) ([]IOCountersStat, error) {
 	filename := common.HostProc("net/dev")
 	return IOCountersByFile(pernic, filename)
 }
 
 func IOCountersByFile(pernic bool, filename string) ([]IOCountersStat, error) {
-	return IOCountersByFileWithContext(context.Background(), pernic, filename)
-}
-
-func IOCountersByFileWithContext(ctx context.Context, pernic bool, filename string) ([]IOCountersStat, error) {
 	lines, err := common.ReadLines(filename)
 	if err != nil {
 		return nil, err
@@ -141,10 +132,6 @@ var netProtocols = []string{
 // Available protocols:
 //   ip,icmp,icmpmsg,tcp,udp,udplite
 func ProtoCounters(protocols []string) ([]ProtoCountersStat, error) {
-	return ProtoCountersWithContext(context.Background(), protocols)
-}
-
-func ProtoCountersWithContext(ctx context.Context, protocols []string) ([]ProtoCountersStat, error) {
 	if len(protocols) == 0 {
 		protocols = netProtocols
 	}
@@ -204,10 +191,6 @@ func ProtoCountersWithContext(ctx context.Context, protocols []string) ([]ProtoC
 // the currently in use conntrack count and the max.
 // If the file does not exist or is invalid it will return nil.
 func FilterCounters() ([]FilterStat, error) {
-	return FilterCountersWithContext(context.Background())
-}
-
-func FilterCountersWithContext(ctx context.Context) ([]FilterStat, error) {
 	countfile := common.HostProc("sys/net/netfilter/nf_conntrack_count")
 	maxfile := common.HostProc("sys/net/netfilter/nf_conntrack_max")
 
@@ -311,29 +294,17 @@ type connTmp struct {
 
 // Return a list of network connections opened.
 func Connections(kind string) ([]ConnectionStat, error) {
-	return ConnectionsWithContext(context.Background(), kind)
-}
-
-func ConnectionsWithContext(ctx context.Context, kind string) ([]ConnectionStat, error) {
 	return ConnectionsPid(kind, 0)
 }
 
 // Return a list of network connections opened returning at most `max`
 // connections for each running process.
 func ConnectionsMax(kind string, max int) ([]ConnectionStat, error) {
-	return ConnectionsMaxWithContext(context.Background(), kind, max)
-}
-
-func ConnectionsMaxWithContext(ctx context.Context, kind string, max int) ([]ConnectionStat, error) {
 	return ConnectionsPidMax(kind, 0, max)
 }
 
 // Return a list of network connections opened by a process.
 func ConnectionsPid(kind string, pid int32) ([]ConnectionStat, error) {
-	return ConnectionsPidWithContext(context.Background(), kind, pid)
-}
-
-func ConnectionsPidWithContext(ctx context.Context, kind string, pid int32) ([]ConnectionStat, error) {
 	tmap, ok := netConnectionKindMap[kind]
 	if !ok {
 		return nil, fmt.Errorf("invalid kind, %s", kind)
@@ -358,10 +329,6 @@ func ConnectionsPidWithContext(ctx context.Context, kind string, pid int32) ([]C
 
 // Return up to `max` network connections opened by a process.
 func ConnectionsPidMax(kind string, pid int32, max int) ([]ConnectionStat, error) {
-	return ConnectionsPidMaxWithContext(context.Background(), kind, pid, max)
-}
-
-func ConnectionsPidMaxWithContext(ctx context.Context, kind string, pid int32, max int) ([]ConnectionStat, error) {
 	tmap, ok := netConnectionKindMap[kind]
 	if !ok {
 		return nil, fmt.Errorf("invalid kind, %s", kind)
@@ -492,10 +459,6 @@ func getProcInodes(root string, pid int32, max int) (map[string][]inodeMap, erro
 // FIXME: Import process occures import cycle.
 // move to common made other platform breaking. Need consider.
 func Pids() ([]int32, error) {
-	return PidsWithContext(context.Background())
-}
-
-func PidsWithContext(ctx context.Context) ([]int32, error) {
 	var ret []int32
 
 	d, err := os.Open(common.HostProc())
@@ -629,10 +592,6 @@ func decodeAddress(family uint32, src string) (Addr, error) {
 
 // Reverse reverses array of bytes.
 func Reverse(s []byte) []byte {
-	return ReverseWithContext(context.Background(), s)
-}
-
-func ReverseWithContext(ctx context.Context, s []byte) []byte {
 	for i, j := 0, len(s)-1; i < j; i, j = i+1, j-1 {
 		s[i], s[j] = s[j], s[i]
 	}

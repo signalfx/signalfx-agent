@@ -3,7 +3,6 @@
 package mem
 
 import (
-	"context"
 	"errors"
 	"os/exec"
 	"strconv"
@@ -13,10 +12,6 @@ import (
 )
 
 func VirtualMemory() (*VirtualMemoryStat, error) {
-	return VirtualMemoryWithContext(context.Background())
-}
-
-func VirtualMemoryWithContext(ctx context.Context) (*VirtualMemoryStat, error) {
 	pageSize, err := unix.SysctlUint32("vm.stats.vm.v_page_size")
 	if err != nil {
 		return nil, err
@@ -71,10 +66,6 @@ func VirtualMemoryWithContext(ctx context.Context) (*VirtualMemoryStat, error) {
 // Return swapinfo
 // FreeBSD can have multiple swap devices. but use only first device
 func SwapMemory() (*SwapMemoryStat, error) {
-	return SwapMemoryWithContext(context.Background())
-}
-
-func SwapMemoryWithContext(ctx context.Context) (*SwapMemoryStat, error) {
 	swapinfo, err := exec.LookPath("swapinfo")
 	if err != nil {
 		return nil, err
