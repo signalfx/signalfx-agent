@@ -8991,7 +8991,7 @@
     },
     {
       "name": "Config",
-      "doc": " Monitors Solr instances.\n\nSee https://github.com/signalfx/collectd-solr and\nhttps://github.com/signalfx/integrations/tree/master/collectd-solr\n",
+      "doc": " Monitors Solr instances.\n\nSee https://github.com/signalfx/collectd-solr and\nhttps://github.com/signalfx/integrations/tree/master/collectd-solr\n\nSample YAML configuration:\n\n```yaml\nmonitors:\n- type: collectd/solr\n  host: 127.0.0.1\n  port: 8983\n```\n\nSample YAML configuration with list lengths:\n\n```yaml\nmonitors:\n- type: collectd/solr\n  host: 127.0.0.1\n  port: 8983\n  includeMetrics:\n  - solr.core_deleted_docs\n    solr.core_index_size\n  excludeMetrics:\n  - solr.core_max_docs\n    solr.core_num_docs\n```\n",
       "package": "internal/monitors/collectd/solr",
       "fields": [
         {
@@ -9027,28 +9027,20 @@
           "elementKind": ""
         },
         {
-          "yamlName": "includeMetric",
-          "doc": "IncludeMetric metric name from the /admin/metrics endpoint to include (valid when EnhancedMetrics is \"false\")",
-          "default": "",
+          "yamlName": "includeMetrics",
+          "doc": "IncludeMetrics metric names from the /admin/metrics endpoint to include (valid when EnhancedMetrics is \"false\")",
+          "default": null,
           "required": false,
-          "type": "string",
-          "elementKind": ""
+          "type": "slice",
+          "elementKind": "string"
         },
         {
-          "yamlName": "excludeMetric",
-          "doc": "ExcludeMetric metric name from the /admin/metrics endpoint to exclude (valid when EnhancedMetrics is \"true\")",
-          "default": "",
+          "yamlName": "excludeMetrics",
+          "doc": "ExcludeMetrics metric names from the /admin/metrics endpoint to exclude (valid when EnhancedMetrics is \"true\")",
+          "default": null,
           "required": false,
-          "type": "string",
-          "elementKind": ""
-        },
-        {
-          "yamlName": "dimension",
-          "doc": "Dimension space-separated key-value pair for a user-defined dimension",
-          "default": "",
-          "required": false,
-          "type": "string",
-          "elementKind": ""
+          "type": "slice",
+          "elementKind": "string"
         }
       ],
       "monitorType": "collectd/solr",

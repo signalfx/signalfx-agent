@@ -7,6 +7,30 @@
 See https://github.com/signalfx/collectd-solr and
 https://github.com/signalfx/integrations/tree/master/collectd-solr
 
+Sample YAML configuration:
+
+```yaml
+monitors:
+- type: collectd/solr
+  host: 127.0.0.1
+  port: 8983
+```
+
+Sample YAML configuration with list lengths:
+
+```yaml
+monitors:
+- type: collectd/solr
+  host: 127.0.0.1
+  port: 8983
+  includeMetrics:
+  - solr.core_deleted_docs
+    solr.core_index_size
+  excludeMetrics:
+  - solr.core_max_docs
+    solr.core_num_docs
+```
+
 
 Monitor Type: `collectd/solr`
 
@@ -24,9 +48,8 @@ Monitor Type: `collectd/solr`
 | `port` | **yes** | `integer` |  |
 | `cluster` | no | `string` | Cluster name of this solr cluster. |
 | `enhancedMetrics` | no | `bool` | EnhancedMetrics boolean to indicate whether stats from /metrics are needed (**default:** `false`) |
-| `includeMetric` | no | `string` | IncludeMetric metric name from the /admin/metrics endpoint to include (valid when EnhancedMetrics is "false") |
-| `excludeMetric` | no | `string` | ExcludeMetric metric name from the /admin/metrics endpoint to exclude (valid when EnhancedMetrics is "true") |
-| `dimension` | no | `string` | Dimension space-separated key-value pair for a user-defined dimension |
+| `includeMetrics` | no | `list of string` | IncludeMetrics metric names from the /admin/metrics endpoint to include (valid when EnhancedMetrics is "false") |
+| `excludeMetrics` | no | `list of string` | ExcludeMetrics metric names from the /admin/metrics endpoint to exclude (valid when EnhancedMetrics is "true") |
 
 
 
