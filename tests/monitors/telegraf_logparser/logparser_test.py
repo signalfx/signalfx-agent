@@ -3,8 +3,8 @@ import pytest
 import string
 import tempfile
 
-from helpers.util import wait_for, run_agent
-from helpers.assertions import has_datapoint_with_dim
+from tests.helpers.util import wait_for, run_agent
+from tests.helpers.assertions import has_datapoint_with_dim
 
 
 pytestmark = [pytest.mark.windows, pytest.mark.logparser, pytest.mark.telegraf]

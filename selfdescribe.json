@@ -30,7 +30,7 @@
       },
       {
         "yamlName": "configEndpointMappings",
-        "doc": "A set of mappings from a configuration option on this montitor to attributes of a discovered endpoint.  They keys are the config option on this monitor and the value can be any valid expression used in discovery rules.",
+        "doc": "A set of mappings from a configuration option on this monitor to attributes of a discovered endpoint.  The keys are the config option on this monitor and the value can be any valid expression used in discovery rules.",
         "default": null,
         "required": false,
         "type": "map",
@@ -15556,7 +15556,7 @@
             },
             {
               "yamlName": "configEndpointMappings",
-              "doc": "A set of mappings from a configuration option on this montitor to attributes of a discovered endpoint.  They keys are the config option on this monitor and the value can be any valid expression used in discovery rules.",
+              "doc": "A set of mappings from a configuration option on this monitor to attributes of a discovered endpoint.  The keys are the config option on this monitor and the value can be any valid expression used in discovery rules.",
               "default": null,
               "required": false,
               "type": "map",

@@ -1,8 +1,8 @@
 from functools import partial as p
 import pytest
 
-from helpers.util import *
-from helpers.assertions import *
+from tests.helpers.util import *
+from tests.helpers.assertions import *
 
 
 pytestmark = [pytest.mark.windows, pytest.mark.telegraf_procstat, pytest.mark.telegraf]

@@ -2,9 +2,13 @@ from functools import partial as p
 from textwrap import dedent
 
 import pytest
-
-from helpers.assertions import has_datapoint_with_dim, has_log_message, tcp_socket_open, has_datapoint_with_metric_name
-from helpers.util import container_ip, run_service, run_agent, wait_for, ensure_always
+from tests.helpers.assertions import (
+    has_datapoint_with_dim,
+    has_datapoint_with_metric_name,
+    has_log_message,
+    tcp_socket_open,
+)
+from tests.helpers.util import container_ip, ensure_always, run_agent, run_service, wait_for
 
 pytestmark = [pytest.mark.collectd, pytest.mark.etcd, pytest.mark.monitor_with_endpoints]
 

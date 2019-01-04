@@ -3,7 +3,12 @@ from textwrap import dedent
 import os
 import pytest
 
-from tests.helpers.assertions import has_datapoint_with_dim, http_status, has_log_message, has_datapoint_with_metric_name
+from tests.helpers.assertions import (
+    has_datapoint_with_dim,
+    http_status,
+    has_log_message,
+    has_datapoint_with_metric_name,
+)
 from tests.helpers.kubernetes.utils import get_discovery_rule, run_k8s_monitors_test
 from tests.helpers.util import (
     get_monitor_dims_from_selfdescribe,

@@ -1,7 +1,7 @@
 from functools import partial as p
 import pytest
-from helpers.util import wait_for, run_agent
-from helpers.assertions import has_datapoint_with_dim
+from tests.helpers.util import wait_for, run_agent
+from tests.helpers.assertions import has_datapoint_with_dim
 
 
 pytestmark = [pytest.mark.windows_only, pytest.mark.windows, pytest.mark.win_services, pytest.mark.telegraf]

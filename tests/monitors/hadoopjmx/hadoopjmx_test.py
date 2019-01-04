@@ -5,7 +5,7 @@ import pytest
 
 from tests.helpers.assertions import has_datapoint_with_dim, tcp_socket_open
 from tests.helpers.util import container_ip, print_lines, run_agent, run_container, wait_for
-from monitors.hadoop.hadoop_test import start_hadoop
+from tests.monitors.hadoop.hadoop_test import start_hadoop
 
 pytestmark = [pytest.mark.collectd, pytest.mark.hadoopjmx, pytest.mark.monitor_with_endpoints]
 
