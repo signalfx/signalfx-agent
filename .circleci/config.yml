@@ -8,7 +8,7 @@ executors:
   goexecutor:
     working_directory: /go/src/github.com/signalfx/signalfx-agent
     docker:
-      - image: golang:1.10-alpine
+      - image: golang:1.11-alpine
         environment:
           CGO_ENABLED: 0
           AGENT_BIN: /go/src/github.com/signalfx/signalfx-agent/signalfx-agent
