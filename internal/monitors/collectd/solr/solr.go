@@ -24,21 +24,6 @@ const monitorType = "collectd/solr"
 //   port: 8983
 // ```
 //
-// Sample YAML configuration with list lengths:
-//
-// ```yaml
-// monitors:
-// - type: collectd/solr
-//   host: 127.0.0.1
-//   port: 8983
-//   includeMetrics:
-//   - solr.core_deleted_docs
-//     solr.core_index_size
-//   excludeMetrics:
-//   - solr.core_max_docs
-//     solr.core_num_docs
-// ```
-//
 
 func init() {
 	monitors.Register(monitorType, func() interface{} {
@@ -92,11 +77,11 @@ func (m *Monitor) Configure(conf *Config) error {
 			"EnhancedMetrics": conf.EnhancedMetrics,
 			"IncludeMetric": map[string]interface{}{
 				"#flatten": true,
-				"values":   [][]string{conf.IncludeMetrics},
+				"values":   conf.IncludeMetrics,
 			},
 			"ExcludeMetric": map[string]interface{}{
 				"#flatten": true,
-				"values":   [][]string{conf.ExcludeMetrics},
+				"values":   conf.ExcludeMetrics,
 			},
 			"Interval": conf.IntervalSeconds,
 		},

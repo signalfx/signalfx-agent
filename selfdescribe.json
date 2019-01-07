@@ -8991,7 +8991,7 @@
     },
     {
       "name": "Config",
-      "doc": " Monitors Solr instances.\n\nSee https://github.com/signalfx/collectd-solr and\nhttps://github.com/signalfx/integrations/tree/master/collectd-solr\n\nSample YAML configuration:\n\n```yaml\nmonitors:\n- type: collectd/solr\n  host: 127.0.0.1\n  port: 8983\n```\n\nSample YAML configuration with list lengths:\n\n```yaml\nmonitors:\n- type: collectd/solr\n  host: 127.0.0.1\n  port: 8983\n  includeMetrics:\n  - solr.core_deleted_docs\n    solr.core_index_size\n  excludeMetrics:\n  - solr.core_max_docs\n    solr.core_num_docs\n```\n",
+      "doc": " Monitors Solr instances.\n\nSee https://github.com/signalfx/collectd-solr and\nhttps://github.com/signalfx/integrations/tree/master/collectd-solr\n\nSample YAML configuration:\n\n```yaml\nmonitors:\n- type: collectd/solr\n  host: 127.0.0.1\n  port: 8983\n```\n",
       "package": "internal/monitors/collectd/solr",
       "fields": [
         {

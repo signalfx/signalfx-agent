@@ -16,21 +16,6 @@ monitors:
   port: 8983
 ```
 
-Sample YAML configuration with list lengths:
-
-```yaml
-monitors:
-- type: collectd/solr
-  host: 127.0.0.1
-  port: 8983
-  includeMetrics:
-  - solr.core_deleted_docs
-    solr.core_index_size
-  excludeMetrics:
-  - solr.core_max_docs
-    solr.core_num_docs
-```
-
 
 Monitor Type: `collectd/solr`
 
