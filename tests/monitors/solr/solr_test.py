@@ -13,7 +13,7 @@ def test_solr_monitor():
     with run_service("solr") as solr_container:
         host = container_ip(solr_container)
         config = dedent(
-        f"""
+            f"""
         monitors:
         - type: collectd/solr
           host: {host}
