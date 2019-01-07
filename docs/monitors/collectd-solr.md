@@ -60,52 +60,52 @@ The following table lists the metrics available for this monitor. Metrics that a
 
 | Name | Type | Custom | Description |
 | ---  | ---  | ---    | ---         |
-| `solr.core_deleted_docs` | gauge | X | Number of deleted docs in Solr core |
-| `solr.core_index_size` | gauge | X | Size of a core index |
-| `solr.core_max_docs` | gauge | X | Total number of docs in Sor core |
-| `solr.core_num_docs` | gauge | X | Total number of indexed docs in Sor core |
-| `solr.core_totalspace` | gauge | X | Total space allocated for core |
-| `solr.core_usablespace` | gauge | X | Usable space available in core |
-| `solr.document_cache_cumulative_hitratio` | gauge | X | Cummulative hit ration of document cache |
-| `solr.field_value_cache_cumulative_hitratio` | gauge | X | Cummulative hit ration of filed value cache |
-| `solr.http_2xx_responses` | counter | X | Total number of 2xx http responses |
-| `solr.http_4xx_responses` | counter | X | Total number of 4xx http responses |
-| `solr.http_5xx_responses` | counter | X | Total number of 5xx http responses |
-| `solr.http_active_requests` | gauge | X | Number of http active requests |
-| `solr.jetty_get_request_latency` | gauge | X | Time to process http get request |
-| `solr.jetty_post_request_latency` | gauge | X | Time to process http post request |
-| `solr.jetty_request_latency` | gauge | X | Http request response time |
-| `solr.jvm_classes_loaded` | counter | X | Number of JVM classes loaded |
-| `solr.jvm_gc_cms_count` | gauge | X | JVM Garbage Collector - CMS invocation count |
-| `solr.jvm_gc_cms_time` | gauge | X | JVM Garbage Collector - CMS prcoess time |
-| `solr.jvm_gc_parnew_count` | gauge | X | JVM Garbage Collector - Parnew invocation count |
-| `solr.jvm_gc_parnew_time` | gauge | X | JVM Garbage Collector - Parnew process time |
-| `solr.jvm_heap_usage` | gauge | X | JVM Heap usage |
-| `solr.jvm_mapped_memory_capacity` | gauge | X | Total JVM mapped memory capacity |
-| `solr.jvm_mapped_memory_used` | gauge | X | Total JVM mapped memory used |
-| `solr.jvm_memory_pools_Code-Cache_usage` | gauge | X | JVM memory pools - PCode Cache usage |
-| `solr.jvm_memory_pools_Metaspace_usage` | gauge | X | JVM memory pools - Metaspace usage |
-| `solr.jvm_memory_pools_Par-Eden-Space_usage` | gauge | X | JVM memory pools - Par Eden space usage |
-| `solr.jvm_memory_pools_Par-Survivor-Space_usage` | gauge | X | JVM memory pools - Par Survivor space usage |
-| `solr.jvm_total_memory` | gauge | X | JVM total memory allocated |
-| `solr.jvm_total_memory_used` | gauge | X | JVM memory used |
-| `solr.node_collections_requests` | counter | X | Number of collection level requets to Solr node |
-| `solr.node_cores_requests` | counter | X | Number of core level requets to Solr node |
-| `solr.node_metric_request_count` | counter | X | Number of metric requests |
-| `solr.node_metric_request_time` | gauge | X | Time to process a metric request |
-| `solr.node_metrics_requests` | counter | X | Number of metrics level requets to Solr node |
-| `solr.node_zookeeper_requests` | counter | X | Number of zookeeper level requets to Solr node |
-| `solr.openFileDescriptorCount` | counter | X | Number of open file descriptors |
-| `solr.query_result_cache_cumulative_hitratio` | gauge | X | Cummulative hit ration of query cache |
-| `solr.replication_handler_requests` | counter | X | Number of replication handler requets |
-| `solr.replication_handler_response` | gauge | X | Resplication handler response time |
-| `solr.search_query_requests` | counter | X | Number of search query requests |
-| `solr.search_query_response` | gauge | X | Search query response time |
-| `solr.searcher_warmup` | gauge | X | Time to new searcher to warm up |
-| `solr.update_handler_requests` | counter | X | Number of update handler requets |
-| `solr.update_request_handler_response` | gauge | X | Update request handler response time |
-| `solr.zookeeper_errors` | counter | X | Number of failures/error at Zookeeper |
-| `solr.zookeeper_request_time` | gauge | X | Time to process a request at zookeeper |
+| `counter.solr.http_2xx_responses` | counter |  | Total number of 2xx http responses |
+| `counter.solr.http_4xx_responses` | counter |  | Total number of 4xx http responses |
+| `counter.solr.http_5xx_responses` | counter |  | Total number of 5xx http responses |
+| `counter.solr.jvm_classes_loaded` | counter | X | Number of JVM classes loaded |
+| `counter.solr.node_collections_requests` | counter |  | Number of collection level requets to Solr node |
+| `counter.solr.node_cores_requests` | counter |  | Number of core level requets to Solr node |
+| `counter.solr.node_metric_request_count` | counter | X | Number of metric requests |
+| `counter.solr.node_metrics_requests` | counter |  | Number of metrics level requets to Solr node |
+| `counter.solr.node_zookeeper_requests` | counter |  | Number of zookeeper level requets to Solr node |
+| `counter.solr.openFileDescriptorCount` | counter | X | Number of open file descriptors |
+| `counter.solr.replication_handler_requests` | counter | X | Number of replication handler requets |
+| `counter.solr.search_query_requests` | counter |  | Number of search query requests |
+| `counter.solr.update_handler_requests` | counter |  | Number of update handler requets |
+| `counter.solr.zookeeper_errors` | counter | X | Number of failures/error at Zookeeper |
+| `gauge.solr.core_deleted_docs` | gauge |  | Number of deleted docs in Solr core |
+| `gauge.solr.core_index_size` | gauge |  | Size of a core index |
+| `gauge.solr.core_max_docs` | gauge |  | Total number of docs in Sor core |
+| `gauge.solr.core_num_docs` | gauge |  | Total number of indexed docs in Sor core |
+| `gauge.solr.core_totalspace` | gauge |  | Total space allocated for core |
+| `gauge.solr.core_usablespace` | gauge |  | Usable space available in core |
+| `gauge.solr.document_cache_cumulative_hitratio` | gauge |  | Cummulative hit ration of document cache |
+| `gauge.solr.field_value_cache_cumulative_hitratio` | gauge |  | Cummulative hit ration of filed value cache |
+| `gauge.solr.http_active_requests` | gauge | X | Number of http active requests |
+| `gauge.solr.jetty_get_request_latency` | gauge | X | Time to process http get request |
+| `gauge.solr.jetty_post_request_latency` | gauge | X | Time to process http post request |
+| `gauge.solr.jetty_request_latency` | gauge |  | Http request response time |
+| `gauge.solr.jvm_gc_cms_count` | gauge |  | JVM Garbage Collector - CMS invocation count |
+| `gauge.solr.jvm_gc_cms_time` | gauge |  | JVM Garbage Collector - CMS prcoess time |
+| `gauge.solr.jvm_gc_parnew_count` | gauge |  | JVM Garbage Collector - Parnew invocation count |
+| `gauge.solr.jvm_gc_parnew_time` | gauge |  | JVM Garbage Collector - Parnew process time |
+| `gauge.solr.jvm_heap_usage` | gauge |  | JVM Heap usage |
+| `gauge.solr.jvm_mapped_memory_capacity` | gauge | X | Total JVM mapped memory capacity |
+| `gauge.solr.jvm_mapped_memory_used` | gauge | X | Total JVM mapped memory used |
+| `gauge.solr.jvm_memory_pools_Code-Cache_usage` | gauge |  | JVM memory pools - PCode Cache usage |
+| `gauge.solr.jvm_memory_pools_Metaspace_usage` | gauge |  | JVM memory pools - Metaspace usage |
+| `gauge.solr.jvm_memory_pools_Par-Eden-Space_usage` | gauge |  | JVM memory pools - Par Eden space usage |
+| `gauge.solr.jvm_memory_pools_Par-Survivor-Space_usage` | gauge |  | JVM memory pools - Par Survivor space usage |
+| `gauge.solr.jvm_total_memory` | gauge |  | JVM total memory allocated |
+| `gauge.solr.jvm_total_memory_used` | gauge |  | JVM memory used |
+| `gauge.solr.node_metric_request_time` | gauge | X | Time to process a metric request |
+| `gauge.solr.query_result_cache_cumulative_hitratio` | gauge |  | Cummulative hit ration of query cache |
+| `gauge.solr.replication_handler_response` | gauge | X | Resplication handler response time |
+| `gauge.solr.search_query_response` | gauge |  | Search query response time |
+| `gauge.solr.searcher_warmup` | gauge |  | Time to new searcher to warm up |
+| `gauge.solr.update_request_handler_response` | gauge |  | Update request handler response time |
+| `gauge.solr.zookeeper_request_time` | gauge | X | Time to process a request at zookeeper |
 
 
 To specify custom metrics you want to monitor, add a `metricsToInclude` filter
@@ -122,52 +122,19 @@ required for gathering additional metrics.
 
 metricsToInclude:
   - metricNames:
-    - solr.core_deleted_docs
-    - solr.core_index_size
-    - solr.core_max_docs
-    - solr.core_num_docs
-    - solr.core_totalspace
-    - solr.core_usablespace
-    - solr.document_cache_cumulative_hitratio
-    - solr.field_value_cache_cumulative_hitratio
-    - solr.http_2xx_responses
-    - solr.http_4xx_responses
-    - solr.http_5xx_responses
-    - solr.http_active_requests
-    - solr.jetty_get_request_latency
-    - solr.jetty_post_request_latency
-    - solr.jetty_request_latency
-    - solr.jvm_classes_loaded
-    - solr.jvm_gc_cms_count
-    - solr.jvm_gc_cms_time
-    - solr.jvm_gc_parnew_count
-    - solr.jvm_gc_parnew_time
-    - solr.jvm_heap_usage
-    - solr.jvm_mapped_memory_capacity
-    - solr.jvm_mapped_memory_used
-    - solr.jvm_memory_pools_Code-Cache_usage
-    - solr.jvm_memory_pools_Metaspace_usage
-    - solr.jvm_memory_pools_Par-Eden-Space_usage
-    - solr.jvm_memory_pools_Par-Survivor-Space_usage
-    - solr.jvm_total_memory
-    - solr.jvm_total_memory_used
-    - solr.node_collections_requests
-    - solr.node_cores_requests
-    - solr.node_metric_request_count
-    - solr.node_metric_request_time
-    - solr.node_metrics_requests
-    - solr.node_zookeeper_requests
-    - solr.openFileDescriptorCount
-    - solr.query_result_cache_cumulative_hitratio
-    - solr.replication_handler_requests
-    - solr.replication_handler_response
-    - solr.search_query_requests
-    - solr.search_query_response
-    - solr.searcher_warmup
-    - solr.update_handler_requests
-    - solr.update_request_handler_response
-    - solr.zookeeper_errors
-    - solr.zookeeper_request_time
+    - counter.solr.jvm_classes_loaded
+    - counter.solr.node_metric_request_count
+    - counter.solr.openFileDescriptorCount
+    - counter.solr.replication_handler_requests
+    - counter.solr.zookeeper_errors
+    - gauge.solr.http_active_requests
+    - gauge.solr.jetty_get_request_latency
+    - gauge.solr.jetty_post_request_latency
+    - gauge.solr.jvm_mapped_memory_capacity
+    - gauge.solr.jvm_mapped_memory_used
+    - gauge.solr.node_metric_request_time
+    - gauge.solr.replication_handler_response
+    - gauge.solr.zookeeper_request_time
     monitorType: collectd/solr
 ```
 
