@@ -9049,232 +9049,232 @@
       "dimensions": null,
       "metrics": [
         {
-          "name": "solr.core_deleted_docs",
-          "type": "gauge",
-          "description": "Number of deleted docs in Solr core"
-        },
-        {
-          "name": "solr.core_index_size",
-          "type": "gauge",
-          "description": "Size of a core index"
-        },
-        {
-          "name": "solr.core_max_docs",
-          "type": "gauge",
-          "description": "Total number of docs in Sor core"
-        },
-        {
-          "name": "solr.core_num_docs",
-          "type": "gauge",
-          "description": "Total number of indexed docs in Sor core"
-        },
-        {
-          "name": "solr.core_totalspace",
-          "type": "gauge",
-          "description": "Total space allocated for core"
-        },
-        {
-          "name": "solr.core_usablespace",
-          "type": "gauge",
-          "description": "Usable space available in core"
-        },
-        {
-          "name": "solr.document_cache_cumulative_hitratio",
-          "type": "gauge",
-          "description": "Cummulative hit ration of document cache"
-        },
-        {
-          "name": "solr.field_value_cache_cumulative_hitratio",
-          "type": "gauge",
-          "description": "Cummulative hit ration of filed value cache"
-        },
-        {
-          "name": "solr.http_2xx_responses",
+          "name": "counter.solr.http_2xx_responses",
           "type": "counter",
           "description": "Total number of 2xx http responses"
         },
         {
-          "name": "solr.http_4xx_responses",
+          "name": "counter.solr.http_4xx_responses",
           "type": "counter",
           "description": "Total number of 4xx http responses"
         },
         {
-          "name": "solr.http_5xx_responses",
+          "name": "counter.solr.http_5xx_responses",
           "type": "counter",
           "description": "Total number of 5xx http responses"
         },
         {
-          "name": "solr.http_active_requests",
-          "type": "gauge",
-          "description": "Number of http active requests"
-        },
-        {
-          "name": "solr.jetty_get_request_latency",
-          "type": "gauge",
-          "description": "Time to process http get request"
-        },
-        {
-          "name": "solr.jetty_post_request_latency",
-          "type": "gauge",
-          "description": "Time to process http post request"
-        },
-        {
-          "name": "solr.jetty_request_latency",
-          "type": "gauge",
-          "description": "Http request response time"
-        },
-        {
-          "name": "solr.jvm_classes_loaded",
+          "name": "counter.solr.jvm_classes_loaded",
           "type": "counter",
           "description": "Number of JVM classes loaded"
         },
         {
-          "name": "solr.jvm_gc_cms_count",
-          "type": "gauge",
-          "description": "JVM Garbage Collector - CMS invocation count"
-        },
-        {
-          "name": "solr.jvm_gc_cms_time",
-          "type": "gauge",
-          "description": "JVM Garbage Collector - CMS prcoess time"
-        },
-        {
-          "name": "solr.jvm_gc_parnew_count",
-          "type": "gauge",
-          "description": "JVM Garbage Collector - Parnew invocation count"
-        },
-        {
-          "name": "solr.jvm_gc_parnew_time",
-          "type": "gauge",
-          "description": "JVM Garbage Collector - Parnew process time"
-        },
-        {
-          "name": "solr.jvm_heap_usage",
-          "type": "gauge",
-          "description": "JVM Heap usage"
-        },
-        {
-          "name": "solr.jvm_mapped_memory_capacity",
-          "type": "gauge",
-          "description": "Total JVM mapped memory capacity"
-        },
-        {
-          "name": "solr.jvm_mapped_memory_used",
-          "type": "gauge",
-          "description": "Total JVM mapped memory used"
-        },
-        {
-          "name": "solr.jvm_memory_pools_Code-Cache_usage",
-          "type": "gauge",
-          "description": "JVM memory pools - PCode Cache usage"
-        },
-        {
-          "name": "solr.jvm_memory_pools_Metaspace_usage",
-          "type": "gauge",
-          "description": "JVM memory pools - Metaspace usage"
-        },
-        {
-          "name": "solr.jvm_memory_pools_Par-Eden-Space_usage",
-          "type": "gauge",
-          "description": "JVM memory pools - Par Eden space usage"
-        },
-        {
-          "name": "solr.jvm_memory_pools_Par-Survivor-Space_usage",
-          "type": "gauge",
-          "description": "JVM memory pools - Par Survivor space usage"
-        },
-        {
-          "name": "solr.jvm_total_memory",
-          "type": "gauge",
-          "description": "JVM total memory allocated"
-        },
-        {
-          "name": "solr.jvm_total_memory_used",
-          "type": "gauge",
-          "description": "JVM memory used"
-        },
-        {
-          "name": "solr.node_collections_requests",
+          "name": "counter.solr.node_collections_requests",
           "type": "counter",
           "description": "Number of collection level requets to Solr node"
         },
         {
-          "name": "solr.node_cores_requests",
+          "name": "counter.solr.node_cores_requests",
           "type": "counter",
           "description": "Number of core level requets to Solr node"
         },
         {
-          "name": "solr.node_metric_request_count",
+          "name": "counter.solr.node_metric_request_count",
           "type": "counter",
           "description": "Number of metric requests"
         },
         {
-          "name": "solr.node_metric_request_time",
-          "type": "gauge",
-          "description": "Time to process a metric request"
-        },
-        {
-          "name": "solr.node_metrics_requests",
+          "name": "counter.solr.node_metrics_requests",
           "type": "counter",
           "description": "Number of metrics level requets to Solr node"
         },
         {
-          "name": "solr.node_zookeeper_requests",
+          "name": "counter.solr.node_zookeeper_requests",
           "type": "counter",
           "description": "Number of zookeeper level requets to Solr node"
         },
         {
-          "name": "solr.openFileDescriptorCount",
+          "name": "counter.solr.openFileDescriptorCount",
           "type": "counter",
           "description": "Number of open file descriptors"
         },
         {
-          "name": "solr.query_result_cache_cumulative_hitratio",
-          "type": "gauge",
-          "description": "Cummulative hit ration of query cache"
-        },
-        {
-          "name": "solr.replication_handler_requests",
+          "name": "counter.solr.replication_handler_requests",
           "type": "counter",
           "description": "Number of replication handler requets"
         },
         {
-          "name": "solr.replication_handler_response",
-          "type": "gauge",
-          "description": "Resplication handler response time"
-        },
-        {
-          "name": "solr.search_query_requests",
+          "name": "counter.solr.search_query_requests",
           "type": "counter",
           "description": "Number of search query requests"
         },
         {
-          "name": "solr.search_query_response",
-          "type": "gauge",
-          "description": "Search query response time"
-        },
-        {
-          "name": "solr.searcher_warmup",
-          "type": "gauge",
-          "description": "Time to new searcher to warm up"
-        },
-        {
-          "name": "solr.update_handler_requests",
+          "name": "counter.solr.update_handler_requests",
           "type": "counter",
           "description": "Number of update handler requets"
         },
         {
-          "name": "solr.update_request_handler_response",
-          "type": "gauge",
-          "description": "Update request handler response time"
-        },
-        {
-          "name": "solr.zookeeper_errors",
+          "name": "counter.solr.zookeeper_errors",
           "type": "counter",
           "description": "Number of failures/error at Zookeeper"
         },
         {
-          "name": "solr.zookeeper_request_time",
+          "name": "gauge.solr.core_deleted_docs",
+          "type": "gauge",
+          "description": "Number of deleted docs in Solr core"
+        },
+        {
+          "name": "gauge.solr.core_index_size",
+          "type": "gauge",
+          "description": "Size of a core index"
+        },
+        {
+          "name": "gauge.solr.core_max_docs",
+          "type": "gauge",
+          "description": "Total number of docs in Sor core"
+        },
+        {
+          "name": "gauge.solr.core_num_docs",
+          "type": "gauge",
+          "description": "Total number of indexed docs in Sor core"
+        },
+        {
+          "name": "gauge.solr.core_totalspace",
+          "type": "gauge",
+          "description": "Total space allocated for core"
+        },
+        {
+          "name": "gauge.solr.core_usablespace",
+          "type": "gauge",
+          "description": "Usable space available in core"
+        },
+        {
+          "name": "gauge.solr.document_cache_cumulative_hitratio",
+          "type": "gauge",
+          "description": "Cummulative hit ration of document cache"
+        },
+        {
+          "name": "gauge.solr.field_value_cache_cumulative_hitratio",
+          "type": "gauge",
+          "description": "Cummulative hit ration of filed value cache"
+        },
+        {
+          "name": "gauge.solr.http_active_requests",
+          "type": "gauge",
+          "description": "Number of http active requests"
+        },
+        {
+          "name": "gauge.solr.jetty_get_request_latency",
+          "type": "gauge",
+          "description": "Time to process http get request"
+        },
+        {
+          "name": "gauge.solr.jetty_post_request_latency",
+          "type": "gauge",
+          "description": "Time to process http post request"
+        },
+        {
+          "name": "gauge.solr.jetty_request_latency",
+          "type": "gauge",
+          "description": "Http request response time"
+        },
+        {
+          "name": "gauge.solr.jvm_gc_cms_count",
+          "type": "gauge",
+          "description": "JVM Garbage Collector - CMS invocation count"
+        },
+        {
+          "name": "gauge.solr.jvm_gc_cms_time",
+          "type": "gauge",
+          "description": "JVM Garbage Collector - CMS prcoess time"
+        },
+        {
+          "name": "gauge.solr.jvm_gc_parnew_count",
+          "type": "gauge",
+          "description": "JVM Garbage Collector - Parnew invocation count"
+        },
+        {
+          "name": "gauge.solr.jvm_gc_parnew_time",
+          "type": "gauge",
+          "description": "JVM Garbage Collector - Parnew process time"
+        },
+        {
+          "name": "gauge.solr.jvm_heap_usage",
+          "type": "gauge",
+          "description": "JVM Heap usage"
+        },
+        {
+          "name": "gauge.solr.jvm_mapped_memory_capacity",
+          "type": "gauge",
+          "description": "Total JVM mapped memory capacity"
+        },
+        {
+          "name": "gauge.solr.jvm_mapped_memory_used",
+          "type": "gauge",
+          "description": "Total JVM mapped memory used"
+        },
+        {
+          "name": "gauge.solr.jvm_memory_pools_Code-Cache_usage",
+          "type": "gauge",
+          "description": "JVM memory pools - PCode Cache usage"
+        },
+        {
+          "name": "gauge.solr.jvm_memory_pools_Metaspace_usage",
+          "type": "gauge",
+          "description": "JVM memory pools - Metaspace usage"
+        },
+        {
+          "name": "gauge.solr.jvm_memory_pools_Par-Eden-Space_usage",
+          "type": "gauge",
+          "description": "JVM memory pools - Par Eden space usage"
+        },
+        {
+          "name": "gauge.solr.jvm_memory_pools_Par-Survivor-Space_usage",
+          "type": "gauge",
+          "description": "JVM memory pools - Par Survivor space usage"
+        },
+        {
+          "name": "gauge.solr.jvm_total_memory",
+          "type": "gauge",
+          "description": "JVM total memory allocated"
+        },
+        {
+          "name": "gauge.solr.jvm_total_memory_used",
+          "type": "gauge",
+          "description": "JVM memory used"
+        },
+        {
+          "name": "gauge.solr.node_metric_request_time",
+          "type": "gauge",
+          "description": "Time to process a metric request"
+        },
+        {
+          "name": "gauge.solr.query_result_cache_cumulative_hitratio",
+          "type": "gauge",
+          "description": "Cummulative hit ration of query cache"
+        },
+        {
+          "name": "gauge.solr.replication_handler_response",
+          "type": "gauge",
+          "description": "Resplication handler response time"
+        },
+        {
+          "name": "gauge.solr.search_query_response",
+          "type": "gauge",
+          "description": "Search query response time"
+        },
+        {
+          "name": "gauge.solr.searcher_warmup",
+          "type": "gauge",
+          "description": "Time to new searcher to warm up"
+        },
+        {
+          "name": "gauge.solr.update_request_handler_response",
+          "type": "gauge",
+          "description": "Update request handler response time"
+        },
+        {
+          "name": "gauge.solr.zookeeper_request_time",
           "type": "gauge",
           "description": "Time to process a request at zookeeper"
         }
