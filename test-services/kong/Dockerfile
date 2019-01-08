@@ -1,4 +1,4 @@
-FROM kong:latest
+FROM kong:0.14-alpine
 
 WORKDIR /usr/local/share/lua/5.1/kong
 RUN sed -i '38ilua_shared_dict kong_signalfx_aggregation 10m;' templates/nginx_kong.lua
