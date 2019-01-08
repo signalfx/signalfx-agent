@@ -15,8 +15,8 @@ import (
 
 const monitorType = "trace-forwarder"
 
-var logger = log.WithFields(log.Fields{"monitorType": monitorType})
-var golibLogger = &utils.LogrusGolibShim{FieldLogger: logger}
+var logger = utils.NewThrottledLogger(log.WithFields(log.Fields{"monitorType": monitorType}), 30*time.Second)
+var golibLogger = &utils.LogrusGolibShim{FieldLogger: logger.FieldLogger}
 
 func init() {
 	monitors.Register(monitorType, func() interface{} { return &Monitor{} }, &Config{})

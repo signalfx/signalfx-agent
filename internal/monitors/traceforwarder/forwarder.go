@@ -65,7 +65,8 @@ func setupHandler(ctx context.Context, router *mux.Router, chainType string, sin
 }
 
 func notFoundHandler(w http.ResponseWriter, r *http.Request) {
-	errMsg := fmt.Sprintf("Trace span request received on invalid path '%s'. You should send to the same path that you would on the Smart Gateway.", r.URL.Path)
-	logger.Error(errMsg)
+	errMsg := fmt.Sprintf("Trace span request received on invalid path '%s'. "+
+		"You should send to the same path that you would on the Smart Gateway.", r.URL.Path)
+	logger.ThrottledError(errMsg)
 	w.Write([]byte(errMsg + "\n"))
 }

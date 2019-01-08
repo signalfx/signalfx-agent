@@ -8,15 +8,16 @@ import (
 	"github.com/signalfx/golib/datapoint"
 	"github.com/signalfx/golib/pointer"
 	"github.com/signalfx/golib/trace"
+	"github.com/signalfx/signalfx-agent/internal/neotest"
 	"github.com/stretchr/testify/assert"
 )
 
 func setTime(a *ActiveServiceTracker, t time.Time) {
-	a.timeNow = func() time.Time { return t }
+	a.timeNow = neotest.PinnedNow(t)
 }
 
 func advanceTime(a *ActiveServiceTracker, minutes int64) {
-	setTime(a, time.Unix(a.timeNow().Unix()+minutes*60, 0))
+	a.timeNow = neotest.AdvancedNow(a.timeNow, time.Duration(minutes)*time.Minute)
 }
 
 func TestDatapointsAreGenerated(t *testing.T) {
