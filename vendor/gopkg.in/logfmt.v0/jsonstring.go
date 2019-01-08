@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"io"
 	"strconv"
-	"sync"
 	"unicode"
 	"unicode/utf16"
 	"unicode/utf8"
@@ -18,24 +17,9 @@ import (
 
 var hex = "0123456789abcdef"
 
-var bufferPool = sync.Pool{
-	New: func() interface{} {
-		return &bytes.Buffer{}
-	},
-}
-
-func getBuffer() *bytes.Buffer {
-	return bufferPool.Get().(*bytes.Buffer)
-}
-
-func poolBuffer(buf *bytes.Buffer) {
-	buf.Reset()
-	bufferPool.Put(buf)
-}
-
 // NOTE: keep in sync with writeQuotedBytes below.
 func writeQuotedString(w io.Writer, s string) (int, error) {
-	buf := getBuffer()
+	buf := &bytes.Buffer{}
 	buf.WriteByte('"')
 	start := 0
 	for i := 0; i < len(s); {
@@ -71,7 +55,7 @@ func writeQuotedString(w io.Writer, s string) (int, error) {
 			continue
 		}
 		c, size := utf8.DecodeRuneInString(s[i:])
-		if c == utf8.RuneError {
+		if c == utf8.RuneError && size == 1 {
 			if start < i {
 				buf.WriteString(s[start:i])
 			}
@@ -86,14 +70,12 @@ func writeQuotedString(w io.Writer, s string) (int, error) {
 		buf.WriteString(s[start:])
 	}
 	buf.WriteByte('"')
-	n, err := w.Write(buf.Bytes())
-	poolBuffer(buf)
-	return n, err
+	return w.Write(buf.Bytes())
 }
 
 // NOTE: keep in sync with writeQuoteString above.
 func writeQuotedBytes(w io.Writer, s []byte) (int, error) {
-	buf := getBuffer()
+	buf := &bytes.Buffer{}
 	buf.WriteByte('"')
 	start := 0
 	for i := 0; i < len(s); {
@@ -129,7 +111,7 @@ func writeQuotedBytes(w io.Writer, s []byte) (int, error) {
 			continue
 		}
 		c, size := utf8.DecodeRune(s[i:])
-		if c == utf8.RuneError {
+		if c == utf8.RuneError && size == 1 {
 			if start < i {
 				buf.Write(s[start:i])
 			}
@@ -144,9 +126,7 @@ func writeQuotedBytes(w io.Writer, s []byte) (int, error) {
 		buf.Write(s[start:])
 	}
 	buf.WriteByte('"')
-	n, err := w.Write(buf.Bytes())
-	poolBuffer(buf)
-	return n, err
+	return w.Write(buf.Bytes())
 }
 
 // getu4 decodes \uXXXX from the beginning of s, returning the hex value,
@@ -182,7 +162,7 @@ func unquoteBytes(s []byte) (t []byte, ok bool) {
 			continue
 		}
 		rr, size := utf8.DecodeRune(s[r:])
-		if rr == utf8.RuneError {
+		if rr == utf8.RuneError && size == 1 {
 			break
 		}
 		r += size

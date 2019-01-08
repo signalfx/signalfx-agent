@@ -15,8 +15,8 @@ type Span struct {
 	ParentID       *string           `json:"parentId"`
 	ID             string            `json:"id"` // required
 	Kind           *string           `json:"kind"`
-	Timestamp      *float64          `json:"timestamp"`
-	Duration       *float64          `json:"duration"`
+	Timestamp      *int64            `json:"timestamp"`
+	Duration       *int64            `json:"duration"`
 	Debug          *bool             `json:"debug"`
 	Shared         *bool             `json:"shared"`
 	LocalEndpoint  *Endpoint         `json:"localEndpoint"`
@@ -36,8 +36,8 @@ type Endpoint struct {
 // Annotation associates an event that explains latency with a timestamp.
 // Unlike log statements, annotations are often codes. Ex. “ws” for WireSend
 type Annotation struct {
-	Timestamp *float64 `json:"timestamp"`
-	Value     *string  `json:"value"`
+	Timestamp *int64  `json:"timestamp"`
+	Value     *string `json:"value"`
 }
 
 // DefaultLogger is used by package structs that don't have a default logger set.

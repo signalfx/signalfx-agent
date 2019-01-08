@@ -155,9 +155,9 @@ func easyjson72863a49DecodeGithubComSignalfxGolibTrace(in *jlexer.Lexer, out *tr
 				out.Timestamp = nil
 			} else {
 				if out.Timestamp == nil {
-					out.Timestamp = new(float64)
+					out.Timestamp = new(int64)
 				}
-				*out.Timestamp = float64(in.Float64())
+				*out.Timestamp = int64(in.Int64())
 			}
 		case "duration":
 			if in.IsNull() {
@@ -165,9 +165,9 @@ func easyjson72863a49DecodeGithubComSignalfxGolibTrace(in *jlexer.Lexer, out *tr
 				out.Duration = nil
 			} else {
 				if out.Duration == nil {
-					out.Duration = new(float64)
+					out.Duration = new(int64)
 				}
-				*out.Duration = float64(in.Float64())
+				*out.Duration = int64(in.Int64())
 			}
 		case "debug":
 			if in.IsNull() {
@@ -347,7 +347,7 @@ func easyjson72863a49EncodeGithubComSignalfxGolibTrace(out *jwriter.Writer, in t
 		if in.Timestamp == nil {
 			out.RawString("null")
 		} else {
-			out.Float64(float64(*in.Timestamp))
+			out.Int64(int64(*in.Timestamp))
 		}
 	}
 	{
@@ -361,7 +361,7 @@ func easyjson72863a49EncodeGithubComSignalfxGolibTrace(out *jwriter.Writer, in t
 		if in.Duration == nil {
 			out.RawString("null")
 		} else {
-			out.Float64(float64(*in.Duration))
+			out.Int64(int64(*in.Duration))
 		}
 	}
 	{
@@ -498,9 +498,9 @@ func easyjson72863a49DecodeGithubComSignalfxGolibTrace2(in *jlexer.Lexer, out *t
 				out.Timestamp = nil
 			} else {
 				if out.Timestamp == nil {
-					out.Timestamp = new(float64)
+					out.Timestamp = new(int64)
 				}
-				*out.Timestamp = float64(in.Float64())
+				*out.Timestamp = int64(in.Int64())
 			}
 		case "value":
 			if in.IsNull() {
@@ -537,7 +537,7 @@ func easyjson72863a49EncodeGithubComSignalfxGolibTrace2(out *jwriter.Writer, in 
 		if in.Timestamp == nil {
 			out.RawString("null")
 		} else {
-			out.Float64(float64(*in.Timestamp))
+			out.Int64(int64(*in.Timestamp))
 		}
 	}
 	{
@@ -746,9 +746,9 @@ func easyjson72863a49DecodeGithubComSignalfxGolibTraceFormat1(in *jlexer.Lexer, 
 				out.Timestamp = nil
 			} else {
 				if out.Timestamp == nil {
-					out.Timestamp = new(float64)
+					out.Timestamp = new(int64)
 				}
-				*out.Timestamp = float64(in.Float64())
+				*out.Timestamp = int64(in.Int64())
 			}
 		case "duration":
 			if in.IsNull() {
@@ -756,9 +756,9 @@ func easyjson72863a49DecodeGithubComSignalfxGolibTraceFormat1(in *jlexer.Lexer, 
 				out.Duration = nil
 			} else {
 				if out.Duration == nil {
-					out.Duration = new(float64)
+					out.Duration = new(int64)
 				}
-				*out.Duration = float64(in.Float64())
+				*out.Duration = int64(in.Int64())
 			}
 		case "debug":
 			if in.IsNull() {
@@ -938,7 +938,7 @@ func easyjson72863a49EncodeGithubComSignalfxGolibTraceFormat1(out *jwriter.Write
 		if in.Timestamp == nil {
 			out.RawString("null")
 		} else {
-			out.Float64(float64(*in.Timestamp))
+			out.Int64(int64(*in.Timestamp))
 		}
 	}
 	{
@@ -952,7 +952,7 @@ func easyjson72863a49EncodeGithubComSignalfxGolibTraceFormat1(out *jwriter.Write
 		if in.Duration == nil {
 			out.RawString("null")
 		} else {
-			out.Float64(float64(*in.Duration))
+			out.Int64(int64(*in.Duration))
 		}
 	}
 	{
@@ -1268,9 +1268,9 @@ func easyjson72863a49DecodeGithubComSignalfxGolibTraceFormat3(in *jlexer.Lexer, 
 				out.Timestamp = nil
 			} else {
 				if out.Timestamp == nil {
-					out.Timestamp = new(float64)
+					out.Timestamp = new(int64)
 				}
-				*out.Timestamp = float64(in.Float64())
+				*out.Timestamp = int64(in.Int64())
 			}
 		case "value":
 			if in.IsNull() {
@@ -1307,7 +1307,7 @@ func easyjson72863a49EncodeGithubComSignalfxGolibTraceFormat3(out *jwriter.Write
 		if in.Timestamp == nil {
 			out.RawString("null")
 		} else {
-			out.Float64(float64(*in.Timestamp))
+			out.Int64(int64(*in.Timestamp))
 		}
 	}
 	{

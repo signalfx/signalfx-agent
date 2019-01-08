@@ -12,5 +12,5 @@ var (
 	// Err is the suggested Log() key for errors
 	Err = Key("err")
 	// Msg is the suggested Log() key for messages
-	Msg = Key("msg")
+	Msg = Key("message")
 )
