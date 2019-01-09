@@ -29,10 +29,8 @@ by the `-config` flag to the agent binary (`signalfx-agent`).
 | `metricsToExclude` | no | [list of object (see below)](#metricstoexclude) | A list of metric filters |
 | `propertiesToExclude` | no | [list of object (see below)](#propertiestoexclude) | A list of properties filters |
 | `pythonEnabled` | no | bool | (**NOT FUNCTIONAL**) Whether to enable the Python sub-agent ("neopy") that can directly use DataDog and Collectd Python plugins.  This is not the same as Collectd's Python plugin, which is always enabled. (**default:** `false`) |
-| `diagnosticsNamedPipePath` | no | string | The path where the agent will create a named pipe and serve diagnostic output (windows only) (**default:** `"\\\\.\\pipe\\signalfx-agent-diagnostics"`) |
-| `diagnosticsSocketPath` | no | string | The path where the agent will create UNIX socket and serve diagnostic output (linux only) (**default:** `"/var/run/signalfx-agent/diagnostics.sock"`) |
-| `internalMetricsNamedPipePath` | no | string | The path where the agent will create a named pipe that serves internal metrics (used by the internal-metrics monitor) (windows only) (**default:** `"\\\\.\\pipe\\signalfx-agent-internal-metrics"`) |
-| `internalMetricsSocketPath` | no | string | The path where the agent will create a socket that serves internal metrics (used by the internal-metrics monitor) (linux only) (**default:** `"/var/run/signalfx-agent/internal-metrics.sock"`) |
+| `internalStatusHost` | no | string | The host on which the internal status server will listen.  The internal status HTTP server serves internal metrics and diagnostic information about the agent and can be scraped by the `internal-metrics` monitor. Can be set to `0.0.0.0` if you want to monitor the agent from another host.  If you set this to blank/null, the internal status server will not be started. (**default:** `"localhost"`) |
+| `internalStatusPort` | no | integer | The port on which the internal status server will listen.  See `internalMetricsHost`. (**default:** `8095`) |
 | `profiling` | no | bool | Enables Go pprof endpoint on port 6060 that serves profiling data for development (**default:** `false`) |
 | `bundleDir` | no | string | Path to the directory holding the agent dependencies.  This will normally be derived automatically. Overrides the envvar SIGNALFX_BUNDLE_DIR if set. |
 | `scratch` | no | any | This exists purely to give the user a place to put common yaml values to reference in other parts of the config file. |
@@ -306,10 +304,8 @@ where applicable:
   metricsToExclude: []
   propertiesToExclude: []
   pythonEnabled: false
-  diagnosticsNamedPipePath: "\\\\.\\pipe\\signalfx-agent-diagnostics"
-  diagnosticsSocketPath: "/var/run/signalfx-agent/diagnostics.sock"
-  internalMetricsNamedPipePath: "\\\\.\\pipe\\signalfx-agent-internal-metrics"
-  internalMetricsSocketPath: "/var/run/signalfx-agent/internal-metrics.sock"
+  internalStatusHost: "localhost"
+  internalStatusPort: 8095
   profiling: false
   bundleDir: 
   scratch: 

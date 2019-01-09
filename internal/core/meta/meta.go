@@ -6,5 +6,6 @@ package meta
 // access.
 // TODO: get rid of this since it's hacky
 type AgentMeta struct {
-	InternalMetricsServerPath string
+	InternalStatusHost string
+	InternalStatusPort uint16
 }

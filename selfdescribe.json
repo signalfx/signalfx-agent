@@ -10441,9 +10441,34 @@
     },
     {
       "name": "Config",
-      "doc": " Emits metrics about the internal state of the\nagent.  Useful for debugging performance issues with the agent and to ensure\nthe agent isn't overloaded.\n\n```yaml\nmonitors:\n  - type: internal-metrics\n```\n",
+      "doc": " Emits metrics about the internal state of the\nagent.  Useful for debugging performance issues with the agent and to ensure\nthe agent isn't overloaded.\n\nThis can also scrape any HTTP endpoint that exposes metrics as a JSON array\ncontaining JSON-formatted SignalFx datapoint objects.  It is roughly\nanalogous to the `prometheus-exporter` monitor except for SignalFx\ndatapoints.\n\n```yaml\nmonitors:\n  - type: internal-metrics\n```\n",
       "package": "internal/monitors/internalmetrics",
-      "fields": [],
+      "fields": [
+        {
+          "yamlName": "host",
+          "doc": "Defaults to the top-level `internalStatusHost` option",
+          "default": "",
+          "required": false,
+          "type": "string",
+          "elementKind": ""
+        },
+        {
+          "yamlName": "port",
+          "doc": "Defaults to the top-level `internalStatusPort` option",
+          "default": null,
+          "required": false,
+          "type": "uint16",
+          "elementKind": ""
+        },
+        {
+          "yamlName": "path",
+          "doc": "The HTTP request path to use to retrieve the metrics",
+          "default": "/metrics",
+          "required": false,
+          "type": "string",
+          "elementKind": ""
+        }
+      ],
       "monitorType": "internal-metrics",
       "acceptsEndpoints": false,
       "singleInstance": false,
@@ -13035,35 +13060,19 @@
         "elementKind": ""
       },
       {
-        "yamlName": "diagnosticsNamedPipePath",
-        "doc": "The path where the agent will create a named pipe and serve diagnostic output (windows only)",
-        "default": "\\\\.\\pipe\\signalfx-agent-diagnostics",
+        "yamlName": "internalStatusHost",
+        "doc": "The host on which the internal status server will listen.  The internal status HTTP server serves internal metrics and diagnostic information about the agent and can be scraped by the `internal-metrics` monitor. Can be set to `0.0.0.0` if you want to monitor the agent from another host.  If you set this to blank/null, the internal status server will not be started.",
+        "default": "localhost",
         "required": false,
         "type": "string",
         "elementKind": ""
       },
       {
-        "yamlName": "diagnosticsSocketPath",
-        "doc": "The path where the agent will create UNIX socket and serve diagnostic output (linux only)",
-        "default": "/var/run/signalfx-agent/diagnostics.sock",
+        "yamlName": "internalStatusPort",
+        "doc": "The port on which the internal status server will listen.  See `internalMetricsHost`.",
+        "default": 8095,
         "required": false,
-        "type": "string",
-        "elementKind": ""
-      },
-      {
-        "yamlName": "internalMetricsNamedPipePath",
-        "doc": "The path where the agent will create a named pipe that serves internal metrics (used by the internal-metrics monitor) (windows only)",
-        "default": "\\\\.\\pipe\\signalfx-agent-internal-metrics",
-        "required": false,
-        "type": "string",
-        "elementKind": ""
-      },
-      {
-        "yamlName": "internalMetricsSocketPath",
-        "doc": "The path where the agent will create a socket that serves internal metrics (used by the internal-metrics monitor) (linux only)",
-        "default": "/var/run/signalfx-agent/internal-metrics.sock",
-        "required": false,
-        "type": "string",
+        "type": "uint16",
         "elementKind": ""
       },
       {
