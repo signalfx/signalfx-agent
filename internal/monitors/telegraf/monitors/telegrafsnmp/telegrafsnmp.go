@@ -95,9 +95,9 @@ type Table struct {
 type Config struct {
 	config.MonitorConfig `acceptsEndpoints:"true"`
 	// Host and port will be concatenated and appended to the list of SNMP agents to connect to.
-	Host                 string `yaml:"host"`
+	Host string `yaml:"host"`
 	// Port and Host will be concatenated and appended to the list of SNMP agents to connect to.
-	Port                 uint16 `yaml:"port"`
+	Port uint16 `yaml:"port"`
 	// SNMP agent address and ports to query for information.  An example address is `0.0.0.0:5555`
 	// If an address is supplied with out a port, the default port `161` will be used.
 	Agents []string `yaml:"agents"`
@@ -147,7 +147,7 @@ type Monitor struct {
 var factory = telegrafInputs.Inputs["snmp"]
 
 // converts our config struct for field to a telegraf field
-func getTelegrafFields(incoming []Field) []telegrafPlugin.Field{
+func getTelegrafFields(incoming []Field) []telegrafPlugin.Field {
 	// initialize telegraf fields
 	fields := make([]telegrafPlugin.Field, 0, len(incoming))
 

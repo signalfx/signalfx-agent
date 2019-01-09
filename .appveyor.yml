@@ -3,7 +3,7 @@ version: "{build}"
 clone_folder: c:\gopath\src\github.com\signalfx\signalfx-agent
 environment:
   AGENT_BIN: c:\gopath\src\github.com\signalfx\signalfx-agent\build\signalfx-agent\bin\signalfx-agent.exe
-  GOROOT: c:\go110
+  GOROOT: c:\go111
   GOPATH: c:\gopath
   PYTHONHOME: c:\Python36-x64
   PYTHONPATH: c:\Python36-x64

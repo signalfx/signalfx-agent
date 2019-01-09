@@ -169,7 +169,7 @@ jobs:
           PULL_CACHE=yes make dev-image
 
   lint: 
-    <<: *goexecutor
+    executor: goexecutor
     steps:
       - checkout
       - goexecutor_setup
