@@ -5,9 +5,12 @@ set -ex
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 # read in environment variable for version and map to boxcutter version
-WIN_NAME="eval-win2016-standard-ssh"
+WIN_NAME="eval-win2008r2-standard-ssh"
 if [ "$WIN_VER" == "server_2008" ]; then 
     WIN_NAME="eval-win2008r2-standard-ssh"
+fi
+if [ "$WIN_VER" == "server_2012" ]; then 
+    WIN_NAME="eval-win2012r2-standard-ssh"
 fi
 if [ "$WIN_VER" == "server_2016" ]; then
     WIN_NAME="eval-win2016-standard-ssh"

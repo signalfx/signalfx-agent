@@ -1,7 +1,7 @@
 RUN_CONTAINER := neo-agent-tmp
 COLLECTD_VERSION := 5.8.0-sfx0
 COLLECTD_COMMIT := 4da1c1cbbe83f881945088a41063fe86d1682ecb
-WIN_VER ?= server_2016
+WIN_VER ?= server_2008
 
 .PHONY: check
 check: lint vet test
@@ -207,9 +207,16 @@ run-devstack:
 win-vagrant-base-box:
 	WIN_VER=$(WIN_VER) scripts/windows/vagrant/build_vagrant_base_box.sh
 
-.PHONY: win-vagrant-up
-win-vagrant-up:
+.PHONY: win-vagrant-reload
+win-vagrant-reload:
+	cd scripts/windows/vagrant/$(WIN_VER); vagrant reload
+
+.PHONY: win-vagrant-up-helper
+win-vagrant-up-helper:
 	cd scripts/windows/vagrant/$(WIN_VER); vagrant up
+
+.PHONY: win-vagrant-up
+win-vagrant-up: win-vagrant-up-helper win-vagrant-reload
 
 .PHONY: win-vagrant-suspend
 win-vagrant-suspend:
@@ -219,6 +226,9 @@ win-vagrant-suspend:
 win-vagrant-destroy:
 	cd scripts/windows/vagrant/$(WIN_VER); vagrant destroy
 
-.PHONY: win-vagrant-provision
-win-vagrant-provision:
+.PHONY: win-vagrant-provision-helper
+win-vagrant-provision-helper:
 	cd scripts/windows/vagrant/$(WIN_VER); vagrant provision
+
+.PHONY: win-vagrant-provision
+win-vagrant-provision: win-vagrant-provision-helper win-vagrant-reload
