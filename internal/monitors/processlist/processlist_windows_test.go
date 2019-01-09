@@ -27,7 +27,7 @@ func TestMonitor_Configure(t *testing.T) {
 			name: "test1",
 			m:    &Monitor{Output: neotest.NewTestOutput()},
 			processes: []Win32Process{
-				Win32Process{
+				{
 					Name:           "testProcess1",
 					ExecutablePath: pointer.String("C:\\HelloWorld.exe"),
 					CommandLine:    pointer.String("HelloWorld.exe"),
@@ -41,7 +41,7 @@ func TestMonitor_Configure(t *testing.T) {
 					WorkingSetSize: 1800,
 					VirtualSize:    1900,
 				},
-				Win32Process{
+				{
 					Name:           "testProcess2",
 					ExecutablePath: pointer.String("C:\\HelloWorld2.exe"),
 					CommandLine:    pointer.String("HelloWorld2.exe"),
@@ -65,7 +65,7 @@ func TestMonitor_Configure(t *testing.T) {
 				1: "barneyStinson",
 			},
 			want: []*event.Event{
-				&event.Event{
+				{
 					EventType:  "objects.top-info",
 					Category:   event.AGENT,
 					Dimensions: map[string]string{},

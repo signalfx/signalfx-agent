@@ -147,10 +147,10 @@ func ProcessList() (*bytes.Buffer, error) {
 
 		//example process "3":["root",20,"0",0,0,0,"S",0.0,0.0,"01:28.31","[ksoftirqd/0]"]
 		fmt.Fprintf(processes, "\"%d\":[\"%s\",%d,\"%s\",%d,%d,%d,\"%s\",%.2f,%.2f,\"%s\",\"%s\"]",
-			p.ProcessID, // pid
-			username,    // username
-			p.Priority,  // priority
-			"",          // nice value is not available on windows
+			p.ProcessID,           // pid
+			username,              // username
+			p.Priority,            // priority
+			"",                    // nice value is not available on windows
 			p.PageFileUsage/1024,  // virtual memory size in kb
 			p.WorkingSetSize/1024, // resident memory size in kb
 			0/1024,                // shared memory
