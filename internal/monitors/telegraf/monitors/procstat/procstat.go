@@ -49,18 +49,18 @@ type Config struct {
 	// environments.
 	ProcFSPath string `yaml:"procFSPath" default:"/proc"`
 	// The name of an executable to monitor.  (ie: `exe: "signalfx-agent*"`)
-	Exe         string `yaml:"exe"`
+	Exe string `yaml:"exe"`
 	// Pattern to match against.  On Windows the pattern should be in the form of a WMI query.
 	// (ie: `pattern: "%signalfx-agent%"`)
-	Pattern     string `yaml:"pattern"`
+	Pattern string `yaml:"pattern"`
 	// Username to match against
-	User        string `yaml:"user"`
+	User string `yaml:"user"`
 	// Path to Pid file to monitor.  (ie: `pidFile: "/var/run/signalfx-agent.pid"`)
-	PidFile     string `yaml:"pidFile"`
+	PidFile string `yaml:"pidFile"`
 	// Used to override the process name dimension
 	ProcessName string `yaml:"processName"`
 	// Prefix to be added to each dimension
-	Prefix      string `yaml:"prefix"`
+	Prefix string `yaml:"prefix"`
 	// Whether to add PID as a dimension instead of part of the metric name
 	PidTag bool `yaml:"pidTag"`
 }
