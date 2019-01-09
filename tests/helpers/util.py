@@ -1,5 +1,6 @@
 import io
 import os
+import re
 import select
 import socket
 import subprocess
@@ -157,8 +158,13 @@ def setup_config(config_text, path, fake_services):
 
     conf["ingestUrl"] = fake_services.ingest_url
     conf["apiUrl"] = fake_services.api_url
-    conf["internalMetricsSocketPath"] = os.path.join(run_dir, "internal.sock")
-    conf["diagnosticsSocketPath"] = os.path.join(run_dir, "diagnostics.sock")
+
+    # Ensure a unique internal status server host address.  This supports up to
+    # 255 concurrent agents on the same pytest worker process, and up to 255
+    # pytest workers, which should be plenty
+    setup_config.counter += 1
+    worker = int(re.sub(r"\D", "", os.environ.get("PYTEST_XDIST_WORKER", 0)))
+    conf["internalStatusHost"] = "127.%d.%d.0" % (worker, setup_config.counter % 255)
     conf["logging"] = dict(level="debug")
 
     conf["collectd"] = conf.get("collectd", {})
@@ -174,6 +180,9 @@ def setup_config(config_text, path, fake_services):
         fd.write(yaml.dump(conf))
 
     return path
+
+
+setup_config.counter = 0
 
 
 @contextmanager

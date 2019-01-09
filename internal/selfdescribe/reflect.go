@@ -48,6 +48,9 @@ func getDefault(f reflect.StructField) interface{} {
 		return nil
 	}
 	if f.Type.Kind() != reflect.Struct {
+		if f.Tag.Get("noDefault") == "true" {
+			return nil
+		}
 		return reflect.Zero(f.Type).Interface()
 	}
 	return nil

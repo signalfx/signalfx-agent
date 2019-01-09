@@ -84,19 +84,16 @@ type Config struct {
 	// the same as Collectd's Python plugin, which is always enabled.
 	PythonEnabled bool `yaml:"pythonEnabled" default:"false"`
 
-	DiagnosticsServerPath string `yaml:"-"`
-	// The path where the agent will create a named pipe and serve diagnostic output (windows only)
-	DiagnosticsServerNamedPipePath string `yaml:"diagnosticsNamedPipePath" default:"\\\\.\\pipe\\signalfx-agent-diagnostics" copyTo:"DiagnosticsServerPath,GOOS=windows"`
-	// The path where the agent will create UNIX socket and serve diagnostic output (linux only)
-	DiagnosticsSocketPath string `yaml:"diagnosticsSocketPath" default:"/var/run/signalfx-agent/diagnostics.sock" copyTo:"DiagnosticsServerPath,GOOS=!windows"`
-
-	InternalMetricsServerPath string `yaml:"-"`
-	// The path where the agent will create a named pipe that serves internal
-	// metrics (used by the internal-metrics monitor) (windows only)
-	InternalMetricsServerNamedPipePath string `yaml:"internalMetricsNamedPipePath" default:"\\\\.\\pipe\\signalfx-agent-internal-metrics" copyTo:"InternalMetricsServerPath,GOOS=windows"`
-	// The path where the agent will create a socket that serves internal
-	// metrics (used by the internal-metrics monitor) (linux only)
-	InternalMetricsSocketPath string `yaml:"internalMetricsSocketPath" default:"/var/run/signalfx-agent/internal-metrics.sock" copyTo:"InternalMetricsServerPath,GOOS=!windows"`
+	// The host on which the internal status server will listen.  The internal
+	// status HTTP server serves internal metrics and diagnostic information
+	// about the agent and can be scraped by the `internal-metrics` monitor.
+	// Can be set to `0.0.0.0` if you want to monitor the agent from another
+	// host.  If you set this to blank/null, the internal status server will
+	// not be started.
+	InternalStatusHost string `yaml:"internalStatusHost" default:"localhost"`
+	// The port on which the internal status server will listen.  See
+	// `internalMetricsHost`.
+	InternalStatusPort uint16 `yaml:"internalStatusPort" default:"8095"`
 
 	// Enables Go pprof endpoint on port 6060 that serves profiling data for
 	// development

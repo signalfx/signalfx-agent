@@ -4,7 +4,7 @@ package core
 
 import (
 	"context"
-	"errors"
+	"net/http"
 	"os"
 
 	log "github.com/sirupsen/logrus"
@@ -45,9 +45,8 @@ type Agent struct {
 	propertyChan chan *types.DimProperties
 	spanChan     chan *trace.Span
 
-	diagnosticServerStop      func()
-	internalMetricsServerStop func()
-	profileServerRunning      bool
+	diagnosticServer     *http.Server
+	profileServerRunning bool
 }
 
 // NewAgent creates an unconfigured agent instance
@@ -101,7 +100,8 @@ func (a *Agent) configure(conf *config.Config) {
 		os.Exit(4)
 	}
 
-	a.meta.InternalMetricsServerPath = conf.InternalMetricsServerPath
+	a.meta.InternalStatusHost = conf.InternalStatusHost
+	a.meta.InternalStatusPort = conf.InternalStatusPort
 
 	//if conf.PythonEnabled {
 	//neopy.Instance().Configure()
@@ -166,14 +166,9 @@ func Startup(configPath string) (context.CancelFunc, <-chan struct{}) {
 				agent.configure(config)
 				log.Info("Done configuring agent")
 
-				if config.DiagnosticsServerPath != "" {
-					if err := agent.serveDiagnosticInfo(config.DiagnosticsServerPath); err != nil {
-						log.WithError(err).Error("Could not start diagnostic socket")
-					}
-				}
-				if config.InternalMetricsServerPath != "" {
-					if err := agent.serveInternalMetrics(config.InternalMetricsServerPath); err != nil {
-						log.WithError(err).Error("Could not start internal metrics socket")
+				if config.InternalStatusHost != "" {
+					if err := agent.serveDiagnosticInfo(config.InternalStatusHost, config.InternalStatusPort); err != nil {
+						log.WithError(err).Error("Could not start internal status server")
 					}
 				}
 
@@ -197,9 +192,6 @@ func Status(configPath string) ([]byte, error) {
 
 	select {
 	case conf := <-configLoads:
-		if conf.DiagnosticsServerPath == "" {
-			return nil, errors.New("diagnosticsSocketPath is blank so cannot get status")
-		}
-		return readDiagnosticInfo(conf.DiagnosticsServerPath)
+		return readStatusInfo(conf.InternalStatusHost, conf.InternalStatusPort)
 	}
 }

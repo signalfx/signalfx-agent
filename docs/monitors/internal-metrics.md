@@ -6,6 +6,11 @@
 agent.  Useful for debugging performance issues with the agent and to ensure
 the agent isn't overloaded.
 
+This can also scrape any HTTP endpoint that exposes metrics as a JSON array
+containing JSON-formatted SignalFx datapoint objects.  It is roughly
+analogous to the `prometheus-exporter` monitor except for SignalFx
+datapoints.
+
 ```yaml
 monitors:
   - type: internal-metrics
@@ -22,7 +27,13 @@ Monitor Type: `internal-metrics`
 
 ## Configuration
 
-This monitor has no configuration options.
+| Config option | Required | Type | Description |
+| --- | --- | --- | --- |
+| `host` | no | `string` | Defaults to the top-level `internalStatusHost` option |
+| `port` | no | `integer` | Defaults to the top-level `internalStatusPort` option |
+| `path` | no | `string` | The HTTP request path to use to retrieve the metrics (**default:** `/metrics`) |
+
+
 
 
 ## Metrics

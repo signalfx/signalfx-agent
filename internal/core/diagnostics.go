@@ -4,10 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	"net"
 	"net/http"
-	"os"
-	"path/filepath"
 	"runtime"
 	"time"
 
@@ -18,7 +15,6 @@ import (
 	"github.com/signalfx/golib/sfxclient"
 	"github.com/signalfx/signalfx-agent/internal/core/config"
 	"github.com/signalfx/signalfx-agent/internal/utils"
-	"github.com/signalfx/signalfx-agent/internal/utils/network/simpleserver"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -27,36 +23,49 @@ import (
 var VersionLine string
 
 // Serves the diagnostic status on the specified path
-func (a *Agent) serveDiagnosticInfo(path string) error {
-	if a.diagnosticServerStop != nil {
-		a.diagnosticServerStop()
+func (a *Agent) serveDiagnosticInfo(host string, port uint16) error {
+	if a.diagnosticServer != nil {
+		a.diagnosticServer.Close()
 	}
 
-	if runtime.GOOS != "windows" {
-		if err := os.MkdirAll(filepath.Dir(path), 0700); err != nil {
-			return err
+	mux := http.NewServeMux()
+	mux.Handle("/", http.HandlerFunc(a.diagnosticTextHandler))
+	mux.Handle("/metrics", http.HandlerFunc(a.internalMetricsHandler))
+
+	a.diagnosticServer = &http.Server{
+		Addr:         fmt.Sprintf("%s:%d", host, port),
+		Handler:      mux,
+		ReadTimeout:  5 * time.Second,
+		WriteTimeout: 5 * time.Second,
+	}
+
+	go func() {
+		log.Infof("Serving internal metrics at %s:%d", host, port)
+		err := a.diagnosticServer.ListenAndServe()
+		if err != nil && err != http.ErrServerClosed {
+			log.WithFields(log.Fields{
+				"host":  host,
+				"port":  port,
+				"error": err,
+			}).Error("Problem with diagnostic server")
 		}
-	}
+	}()
 
-	var err error
-	a.diagnosticServerStop, err = simpleserver.Run(path, func(_ net.Conn) string {
-		return a.DiagnosticText()
-	}, func(err error) {
-		log.WithFields(log.Fields{
-			"path":  path,
-			"error": err,
-		}).Error("Problem with diagnostic socket")
-	})
-	return err
+	return nil
 }
 
-func readDiagnosticInfo(path string) ([]byte, error) {
-	conn, err := simpleserver.Dial(path)
+func readStatusInfo(host string, port uint16) ([]byte, error) {
+	resp, err := http.Get(fmt.Sprintf("http://%s:%d/", host, port))
 	if err != nil {
 		return nil, err
 	}
+	defer resp.Body.Close()
 
-	return ioutil.ReadAll(conn)
+	return ioutil.ReadAll(resp.Body)
+}
+
+func (a *Agent) diagnosticTextHandler(rw http.ResponseWriter, req *http.Request) {
+	rw.Write([]byte(a.DiagnosticText()))
 }
 
 // DiagnosticText returns a simple textual output of the agent's status
@@ -78,32 +87,19 @@ func (a *Agent) DiagnosticText() string {
 
 }
 
-func (a *Agent) serveInternalMetrics(path string) error {
-	if a.internalMetricsServerStop != nil {
-		a.internalMetricsServerStop()
+func (a *Agent) internalMetricsHandler(rw http.ResponseWriter, req *http.Request) {
+	jsonOut, err := json.Marshal(a.InternalMetrics())
+	if err != nil {
+		log.WithError(err).Error("Could not serialize internal metrics to JSON")
+		rw.WriteHeader(500)
+		rw.Write([]byte(err.Error()))
+		return
 	}
 
-	if runtime.GOOS != "windows" {
-		if err := os.MkdirAll(filepath.Dir(path), 0700); err != nil {
-			return err
-		}
-	}
+	rw.Header().Add("Content-Type", "application/json")
+	rw.WriteHeader(200)
 
-	var err error
-	a.internalMetricsServerStop, err = simpleserver.Run(path, func(_ net.Conn) string {
-		jsonOut, err := json.MarshalIndent(a.InternalMetrics(), "", "  ")
-		if err != nil {
-			log.WithError(err).Error("Could not serialize internal metrics to JSON")
-			return "[]"
-		}
-		return string(jsonOut)
-	}, func(err error) {
-		log.WithFields(log.Fields{
-			"path":  path,
-			"error": err,
-		}).Error("Problem with internal metrics socket")
-	})
-	return err
+	rw.Write(jsonOut)
 }
 
 // InternalMetrics aggregates internal metrics from subcomponents and returns a

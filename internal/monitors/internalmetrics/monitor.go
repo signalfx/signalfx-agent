@@ -3,7 +3,8 @@ package internalmetrics
 import (
 	"context"
 	"encoding/json"
-	"io/ioutil"
+	"fmt"
+	"net/http"
 	"time"
 
 	"github.com/signalfx/golib/datapoint"
@@ -12,7 +13,6 @@ import (
 	"github.com/signalfx/signalfx-agent/internal/monitors"
 	"github.com/signalfx/signalfx-agent/internal/monitors/types"
 	"github.com/signalfx/signalfx-agent/internal/utils"
-	"github.com/signalfx/signalfx-agent/internal/utils/network/simpleserver"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -23,6 +23,11 @@ const (
 // MONITOR(internal-metrics): Emits metrics about the internal state of the
 // agent.  Useful for debugging performance issues with the agent and to ensure
 // the agent isn't overloaded.
+//
+// This can also scrape any HTTP endpoint that exposes metrics as a JSON array
+// containing JSON-formatted SignalFx datapoint objects.  It is roughly
+// analogous to the `prometheus-exporter` monitor except for SignalFx
+// datapoints.
 //
 // ```yaml
 // monitors:
@@ -102,6 +107,13 @@ const (
 // Config for internal metric monitoring
 type Config struct {
 	config.MonitorConfig
+
+	// Defaults to the top-level `internalStatusHost` option
+	Host string `yaml:"host"`
+	// Defaults to the top-level `internalStatusPort` option
+	Port uint16 `yaml:"port" noDefault:"true"`
+	// The HTTP request path to use to retrieve the metrics
+	Path string `yaml:"path" default:"/metrics"`
 }
 
 // Monitor for collecting internal metrics from the simple server that dumps
@@ -118,35 +130,47 @@ func init() {
 
 // Configure and kick off internal metric collection
 func (m *Monitor) Configure(conf *Config) error {
-	m.Shutdown()
 
 	var ctx context.Context
 	ctx, m.cancel = context.WithCancel(context.Background())
+
+	client := &http.Client{
+		Timeout: 5 * time.Second,
+	}
+
 	utils.RunOnInterval(ctx, func() {
-		c, err := simpleserver.Dial(m.AgentMeta.InternalMetricsServerPath)
-		if err != nil {
-			log.WithFields(log.Fields{
-				"error":       err,
-				"monitorType": monitorType,
-				"path":        m.AgentMeta.InternalMetricsServerPath,
-			}).Error("Could not connect to internal metric server")
-			return
+		// Derive the url each time since the AgentMeta data can change but
+		// there is no notification system for it.
+		host := conf.Host
+		if host == "" {
+			host = m.AgentMeta.InternalStatusHost
 		}
 
-		c.SetReadDeadline(time.Now().Add(5 * time.Second))
-		jsonIn, err := ioutil.ReadAll(c)
-		c.Close()
+		port := conf.Port
+		if port == 0 {
+			port = m.AgentMeta.InternalStatusPort
+		}
+
+		url := fmt.Sprintf("http://%s:%d%s", host, port, conf.Path)
+
+		logger := log.WithFields(log.Fields{
+			"monitorType": monitorType,
+			"url":         url,
+		})
+
+		resp, err := client.Get(url)
 		if err != nil {
-			log.WithFields(log.Fields{
-				"error":       err,
-				"monitorType": monitorType,
-				"path":        m.AgentMeta.InternalMetricsServerPath,
-			}).Error("Could not read metrics from internal metric server")
+			logger.WithError(err).Error("Could not connect to internal metric server")
 			return
 		}
+		defer resp.Body.Close()
 
 		dps := make([]*datapoint.Datapoint, 0)
-		err = json.Unmarshal(jsonIn, &dps)
+		err = json.NewDecoder(resp.Body).Decode(&dps)
+		if err != nil {
+			logger.WithError(err).Error("Could not parse metrics from internal metric server")
+			return
+		}
 
 		for _, dp := range dps {
 			m.Output.SendDatapoint(dp)
