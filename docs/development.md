@@ -117,3 +117,85 @@ tool](https://github.com/golang/lint), which can be run with `make lint`.
 ### Vet
 We also require 100% passing for [go vet](https://golang.org/cmd/vet/) for
 non-test code.  Test code can fail if there is a good reason.
+
+### Windows
+
+We develop on a [VirtualBox](https://www.virtualbox.org/) Windows Server 2008 [Vagrant](https://www.vagrantup.com/).
+
+#### Base Box
+
+If you have a valid Windows Vagrant base box,
+set the box name in the windows [Vagrant File](./scripts/windows/Vagrantfile).
+
+If you do not have a base box, the makefile target `win-vagrant-base-box` will
+checkout the [Windows Boxcutter Project](https://github.com/boxcutter/windows) and build
+the Windows Server base box image using the evaluation copy of Windows.
+
+Please ensure that the requisites for Boxcutter are satisfied, including the installation of VirtualBox and Vagrant.
+
+#### Make File Targets
+
+For convenience the makefile at the root of this project has the following targets:
+
+| Target | Description | Example |
+| ------ | ----------- | ------- |
+| `win-vagrant-base-box` | Builds a base box using the [Windows Boxcutter Project](https://github.com/boxcutter/windows) | `make win-vagrant-base-box` |
+| `win-vagrant-up` | Alias for `vagrant up` that will start and provision the vagrant if necessary. You should be presented with virtualbox vm GUI window when complete. | `make win-vagrant-up` |
+| `win-vagrant-destroy` | Alias for `vagrant destroy` that will destroy the vagrant | `make win-vagrant-destroy` |
+| `win-vagrant-suspend` | Alias for `vagrant suspend` that will suspend the vagrant | `make win-vagrant-suspend` |
+| `win-vagrant-provision` | Alias for `vagrant provision` that will suspend the vagrant | `make win-vagrant-provision` |
+
+By default the makefile uses Windows Server 2008.  If you want to override this, set the environment variable `WINDOWS_VER` to choose a different version.
+
+The following values are supported for `WINDOWS_VER`
+
+| Value | Windows Version | Vagrant Base Box Name | Virtual Box VM Name |
+| ----- | --------------- | --------------------- | ------------------- |
+| server_2008 | Windows Server 2008 r2 | eval-win2008r2-standard-ssh | Windows_Server_2008_SignalFx_Agent |
+| server_2012 | Windows Server 2012 r2 | eval-win2012r2-standard-ssh | Windows_Server_2012_SignalFx_Agent |
+| server_2016 | Windows Server 2016 | eval-win2016-standard-ssh | Windows_Server_2016_SignalFx_Agent |
+
+#### Building and Starting the Vagrant
+
+The following snippet will create the vagrant base box, start the vagrant, provision, suspend, and destroy it.
+
+    $ cd $GOPATH/src/github.com/signalfx/signalfx-agent
+    $ WIN_VERSION=server_2008 make win-vagrant-base-box
+      ...
+    $ WIN_VERSION=server_2008 make win-vagrant-up
+      ...
+    $ WIN_VERSION=server_2008 make win-vagrant-suspend
+      ...
+    $ WIN_VERSION=server_2008 make win-vagrant-destroy
+
+`win-vagrant-base-box`, `win-vagrant-up`, and `win-vagrant-provision`
+can take a significant amount of time to complete and depend on the
+characteristics of your host environment.
+
+#### Software Provisioned in the Vagrant
+
+The vagrant will be provisioned with:
+* [Chocolatey](https://chocolatey.org/)
+* [Make](https://chocolatey.org/packages/make)
+* [Go Lang](https://chocolatey.org/packages/golang)
+* [Python3](https://chocolatey.org/packages/python)
+* [Dep](https://github.com/golang/dep)
+* [git](https://chocolatey.org/packages/git)
+* [git credential manager for windows](https://chocolatey.org/packages/Git-Credential-Manager-for-Windows)
+* [Visual Studio Code](https://chocolatey.org/packages/VisualStudioCode)
+* [Jetbrains Goland](https://chocolatey.org/packages/goland)
+* [Jetrains Pycharm](https://chocolatey.org/packages/Pycharm)
+* [Firefox](https://chocolatey.org/packages/Firefox)
+
+#### Host Files Included in the Vagrant
+
+This github project `github.com/signalfx/signalfx-agent` will be mapped as a synced directory
+to `C:\Users\vagrant\go\src\github.com\signalfx\signalfx-agent`.
+
+#### Building For Windows
+
+The vagrant box should have enough dependencies installed that you can build the agent bundle.  To do this navigate to the project in the GOPATH.
+
+    $ cd C:\Users\vagrant\go\src\github.com\signalfx\signalfx-agent
+
+    $ & { . ./scripts/windows/make.ps1; bundle }

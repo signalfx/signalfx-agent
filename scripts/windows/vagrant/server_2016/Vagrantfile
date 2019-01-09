@@ -1,0 +1,47 @@
+Vagrant.require_version ">= 2.0.0"
+
+Vagrant.configure("2") do | config |
+    # Base Box #
+    config.vm.box = "eval-win2016-standard-ssh"
+
+    # Configure Box #
+    config.vm.provider "virtualbox" do |v|
+        # override paravirtual provider to be hyperv
+        v.customize ["startvm", :id, "--type", "separate"]
+        v.customize ["modifyvm", :id, "--paravirtprovider", "hyperv"]
+        v.customize ["modifyvm", :id, "--clipboard", "bidirectional"]
+        v.customize ["modifyvm", :id, "--accelerate3d", "on"]
+        v.customize ["modifyvm", :id, "--accelerate2dvideo", "on"]
+        v.cpus = 4
+        v.name = "Windows_Server_2016_SignalFx_Agent"
+        v.memory = "6144"
+    end
+
+    # Mount Directories #
+
+    # Agent Source Directory
+    config.vm.synced_folder "../../../../.", "C:\\Users\\vagrant\\go\\src\\github.com\\signalfx\\signalfx-agent"
+
+    # Copy Files #
+    
+    # SSH Keys (disabled for now)#
+    # config.vm.provision "file", source: "~/.ssh", destination: "C:\\Users\\vagrant\\.ssh"
+
+    # Provision Box #
+    config.vm.provision "shell" do |s|
+        s.path = "../common/1_chocolatey.ps1"
+    end
+    config.vm.provision "shell" do |s|
+        s.path = "../common/2_useful_stuff.ps1"
+    end
+    config.vm.provision "shell" do |s|
+        s.path = "../common/3_golang.ps1"
+    end
+    config.vm.provision "shell" do |s|
+        s.path = "../common/4_jetbrains.ps1"
+    end
+    config.vm.provision "shell" do |s|
+        s.path = "../common/5_visual_studio_code.ps1"
+    end
+
+end
