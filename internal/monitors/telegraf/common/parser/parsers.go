@@ -81,43 +81,43 @@ type Config struct {
 	// grok
 
 	// A list of patterns to match. (`grok` only)
-	GrokPatterns           []string `yaml:"grokPatterns"`
+	GrokPatterns []string `yaml:"grokPatterns"`
 	// A list of named grok patterns to match.  (`grok` only)
-	GrokNamedPatterns      []string `yaml:"grokNamedPatterns"`
+	GrokNamedPatterns []string `yaml:"grokNamedPatterns"`
 	// Custom grok patterns. (`grok` only)
-	GrokCustomPatterns     string `yaml:"grokCustomPatterns"`
+	GrokCustomPatterns string `yaml:"grokCustomPatterns"`
 	// List of paths to custom grok pattern files. (`grok` only)
 	GrokCustomPatternFiles []string `yaml:"grokCustomPatternFiles"`
 	// Specifies the timezone.  The default is UTC time.  Other options are `Local` for the
 	// local time on the machine, `UTC`, and `Canada/Eastern` (unix style timezones).  (`grok` only)
-	GrokTimeZone           string `yaml:"grokTimezone"`
+	GrokTimeZone string `yaml:"grokTimezone"`
 
 	//csv
 
 	// The delimiter used between fields in the csv. (`csv` only)
-	CSVDelimiter         string `yaml:"CSVDelimiter"`
+	CSVDelimiter string `yaml:"CSVDelimiter"`
 	// The character used to mark rows as comments. (`csv` only)
-	CSVComment           string `yaml:"CSVComment"`
+	CSVComment string `yaml:"CSVComment"`
 	// Indicates whether to trim leading white from fields. (`csv` only)
-	CSVTrimSpace         bool `yaml:"CSVTrimSpace"`
+	CSVTrimSpace bool `yaml:"CSVTrimSpace"`
 	// List of custom column names.  All columns must have names.  Unnamed columns are ignored.
 	// This configuration must be set when `CSVHeaderRowCount` is 0. (`csv` only)
-	CSVColumnNames       []string `yaml:"CSVColumnNames"`
+	CSVColumnNames []string `yaml:"CSVColumnNames"`
 	// List of columns that should be added as tags.  Unspecified columns will be added as fields. (`csv` only)
-	CSVTagColumns        []string `yaml:"CSVTagColumns"`
+	CSVTagColumns []string `yaml:"CSVTagColumns"`
 	//  The name of the column to extract the metric name from (`csv` only)
 	CSVMeasurementColumn string `yaml:"CSVMeasurementColumn"`
 	// The name of the column to extract the metric timestamp from.
 	// `CSVTimestampFormat` must be set when using this option.  (`csv` only)
-	CSVTimestampColumn   string `yaml:"CSVTimestampColumn"`
+	CSVTimestampColumn string `yaml:"CSVTimestampColumn"`
 	//  The format to use for extracting timestamps. (`csv` only)
-	CSVTimestampFormat   string `yaml:"CSVTimestampFormat"`
+	CSVTimestampFormat string `yaml:"CSVTimestampFormat"`
 	// The number of rows that are headers.  By default no rows are treated as headers.  (`csv` only)
-	CSVHeaderRowCount    int `yaml:"CSVHeaderRowCount"`
+	CSVHeaderRowCount int `yaml:"CSVHeaderRowCount"`
 	// The number of rows to ignore before looking for headers. (`csv` only)
-	CSVSkipRows          int `yaml:"CSVSkipRows"`
+	CSVSkipRows int `yaml:"CSVSkipRows"`
 	// The number of columns to ignore before parsing data on a given row. (`csv` only)
-	CSVSkipColumns       int `yaml:"CSVSkipColumns"`
+	CSVSkipColumns int `yaml:"CSVSkipColumns"`
 }
 
 // GetTelegrafConfig returns the configuration as a Telegraf *parsers.Config
