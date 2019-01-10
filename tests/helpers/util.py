@@ -163,7 +163,7 @@ def setup_config(config_text, path, fake_services):
     # 255 concurrent agents on the same pytest worker process, and up to 255
     # pytest workers, which should be plenty
     setup_config.counter += 1
-    worker = int(re.sub(r"\D", "", os.environ.get("PYTEST_XDIST_WORKER", 0)))
+    worker = int(re.sub(r"\D", "", os.environ.get("PYTEST_XDIST_WORKER", "0")))
     conf["internalStatusHost"] = "127.%d.%d.0" % (worker, setup_config.counter % 255)
     conf["logging"] = dict(level="debug")
 
