@@ -12,3 +12,15 @@ func init() {
 		FixedTime = func() time.Time { return fixedTime }
 	}
 }
+
+// PinnedNow returns a function that is compatible with time.Now that always
+// returns the given t Time.
+func PinnedNow(t time.Time) func() time.Time {
+	return func() time.Time { return t }
+}
+
+// AdvancedNow returns a now time.Now-compatible function that returns the time
+// returned from oldNow advanced by the given Duration d.
+func AdvancedNow(oldNow func() time.Time, d time.Duration) func() time.Time {
+	return PinnedNow(oldNow().Add(d))
+}

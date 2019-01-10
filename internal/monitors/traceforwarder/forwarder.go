@@ -2,6 +2,7 @@ package traceforwarder
 
 import (
 	"context"
+	"fmt"
 	"net"
 	"net/http"
 	"time"
@@ -35,6 +36,8 @@ func startListeningForSpans(ctx context.Context, listenAddr string, timeout time
 		return &signalfx.JSONTraceDecoderV1{Logger: golibLogger, Sink: sink}
 	}, httpChain, signalfx.SetupJSONByPaths)
 
+	router.NotFoundHandler = http.HandlerFunc(notFoundHandler)
+
 	server := http.Server{
 		Handler:      router,
 		ReadTimeout:  timeout,
@@ -59,4 +62,11 @@ func setupHandler(ctx context.Context, router *mux.Router, chainType string, sin
 	handler, internalMetrics := signalfx.SetupChain(ctx, sink, chainType, getReader, httpChain, golibLogger)
 	pathSetup(router, handler, signalfx.DefaultTracePathV1)
 	return internalMetrics
+}
+
+func notFoundHandler(w http.ResponseWriter, r *http.Request) {
+	errMsg := fmt.Sprintf("Trace span request received on invalid path '%s'. "+
+		"You should send to the same path that you would on the Smart Gateway.", r.URL.Path)
+	logger.ThrottledError(errMsg)
+	w.Write([]byte(errMsg + "\n"))
 }
