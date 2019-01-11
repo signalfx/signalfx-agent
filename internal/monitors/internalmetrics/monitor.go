@@ -106,7 +106,7 @@ const (
 
 // Config for internal metric monitoring
 type Config struct {
-	config.MonitorConfig
+	config.MonitorConfig `yaml:",inline" acceptsEndpoints:"true"`
 
 	// Defaults to the top-level `internalStatusHost` option
 	Host string `yaml:"host"`
