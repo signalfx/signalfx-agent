@@ -21,7 +21,7 @@ Monitor Type: `internal-metrics`
 
 [Monitor Source Code](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/internalmetrics)
 
-**Accepts Endpoints**: No
+**Accepts Endpoints**: **Yes**
 
 **Multiple Instances Allowed**: Yes
 

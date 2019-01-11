@@ -10470,7 +10470,7 @@
         }
       ],
       "monitorType": "internal-metrics",
-      "acceptsEndpoints": false,
+      "acceptsEndpoints": true,
       "singleInstance": false,
       "dimensions": null,
       "metrics": [
