@@ -1,8 +1,8 @@
 PyYAML==3.13
 black==18.9b0
-docker==3.0.1
+docker==3.5.0
 kubernetes==7.0.0
-netifaces==0.10.7
+netifaces==0.10.8
 protobuf==3.5.1
 pylint==2.1.1
 pytest-html
