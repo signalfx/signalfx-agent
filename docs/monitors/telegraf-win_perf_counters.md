@@ -48,13 +48,13 @@ The **nested** `objects` config object has the following fields:
 
 | Config option | Required | Type | Description |
 | --- | --- | --- | --- |
-| `objectName` | no | `string` |  |
-| `counters` | no | `list of string` |  |
-| `instances` | no | `list of string` |  |
-| `measurement` | no | `string` |  |
-| `warnOnMissing` | no | `bool` |  (**default:** `false`) |
-| `failOnMissing` | no | `bool` |  (**default:** `false`) |
-| `includeTotal` | no | `bool` |  (**default:** `false`) |
+| `objectName` | no | `string` | the name of a windows performance counter object |
+| `counters` | no | `list of string` | the name of the counters to collect from the performance counter object |
+| `instances` | no | `list of string` | the windows performance counter instances to fetch for the performance counter object |
+| `measurement` | no | `string` | the name of the telegraf measurement that will be used as a metric name |
+| `warnOnMissing` | no | `bool` | log a warning if the perf counter object is missing (**default:** `false`) |
+| `failOnMissing` | no | `bool` | panic if the performance counter object is missing (this will stop the agent) (**default:** `false`) |
+| `includeTotal` | no | `bool` | include the total instance when collecting performance counter metrics (**default:** `false`) |
 
 
 
