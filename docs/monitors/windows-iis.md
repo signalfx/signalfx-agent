@@ -10,6 +10,7 @@ It is used to drive the Windows IIS dashboard content.
 The underlying source for these metrics are Windows Performance Counters.
 Most of the performance counters that we query in this monitor are actually Gauges
 that represent rates per second and percentages.
+
 This monitor reports the instantaneous values for these Windows Performance Counters.
 This means that in between a collection interval, spikes could occur on the
 Performance Counters.  The best way to mitigate this limitation is to increase
