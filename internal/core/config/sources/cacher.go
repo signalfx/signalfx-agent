@@ -3,7 +3,7 @@ package sources
 import (
 	"time"
 
-	"github.com/signalfx/signalfx-agent/internal/core/config/sources/types"
+	"github.com/signalfx/signalfx-agent/internal/core/config/types"
 	"github.com/signalfx/signalfx-agent/internal/utils"
 	log "github.com/sirupsen/logrus"
 )

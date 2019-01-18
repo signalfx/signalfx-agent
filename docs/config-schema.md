@@ -196,6 +196,7 @@ For more information about how to use config sources, see [Remote Config](./remo
 | `zookeeper` | no | [object (see below)](#zookeeper) | Configuration for a Zookeeper remote config source |
 | `etcd2` | no | [object (see below)](#etcd2) | Configuration for an Etcd 2 remote config source |
 | `consul` | no | [object (see below)](#consul) | Configuration for a Consul remote config source |
+| `vault` | no | [object (see below)](#vault) | Configuration for a Hashicorp Vault remote config source |
 
 
 ## file
@@ -246,6 +247,18 @@ The **nested** `consul` config object has the following fields:
 | `password` | no | string | An optional password to use when connecting |
 | `token` | no | string | An authentication token, if needed |
 | `datacenter` | no | string | The Consul datacenter to use |
+
+
+
+## vault
+The **nested** `vault` config object has the following fields:
+
+
+
+| Config option | Required | Type | Description |
+| --- | --- | --- | --- |
+| `vaultAddr` | no | string | The Vault Address.  Can also be provided by the standard Vault envvar `VAULT_ADDR`.  This option takes priority over the envvar if provided. |
+| `vaultToken` | no | string | The Vault token, can also be provided by it the standard Vault envvar `VAULT_TOKEN`.  This option takes priority over the envvar if provided. |
 
 
 
@@ -326,5 +339,8 @@ where applicable:
       password: 
       token: 
       datacenter: 
+    vault: 
+      vaultAddr: 
+      vaultToken: 
 
 ```

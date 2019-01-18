@@ -14,7 +14,7 @@ import (
 
 	"github.com/creasty/defaults"
 	"github.com/samuel/go-zookeeper/zk"
-	"github.com/signalfx/signalfx-agent/internal/core/config/sources/types"
+	"github.com/signalfx/signalfx-agent/internal/core/config/types"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -32,6 +32,18 @@ type Config struct {
 	// Client timeout
 	TimeoutSeconds uint `yaml:"timeoutSeconds" default:"10"`
 }
+
+// New creates a new Zookeeper remote config source from the target config
+func (c *Config) New() (types.ConfigSource, error) {
+	return New(c), nil
+}
+
+// Validate the config
+func (c *Config) Validate() error {
+	return nil
+}
+
+var _ types.ConfigSourceConfig = &Config{}
 
 // New creates a new Zookeeper config source with the given config.  All gets
 // and watches will use the same client.

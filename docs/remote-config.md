@@ -24,6 +24,13 @@ YAML and inserted into the config as if it had been literally in the config as
 such.  The replacement is done in such a way that you don't need to worry
 about matching indentation of remote values.
 
+## Configuration of Remote Configuration
+
+The sources for remote configuration can be configured via the [`configSources`
+option](./config-schema.md#configsources) in the main agent config file.  A
+full list of config sources and their options are also [documented in the
+config reference](./config-schema.md#configsources).
+
 ## Simple paths
 
 The most basic way to reference a value is to use a single, non-globbed path.
@@ -32,13 +39,42 @@ integers, or YAML collections such as sequences or maps.  The only requirement
 is that they deserialize from YAML properly.  Note that JSON is a subset of
 YAML, so any valid JSON can also be used.
 
+## Nested Values (Vault only)
+
+**Only supported by Vault remote config.**
+
+The Vault remote config source supports reaching into secret data that is of a
+map type and pulling out a specific value.  This is necessary in Vault because
+of how secrets are structured.
+
+Accessing nested data uses a syntax similar to many programming languages for
+accessing a "map-like" object: square brackets.  E.g. to access the `password`
+field of a Vault secret, you would use the following:
+
+`{"#from": "vault:secret/my-database[password]"}`
+
+You can also reach into nested map values by separating the keys by `.`.  For
+example, when using the KV v2 secret engine in Vault, all data will be nested
+under a separate `data` map within the secret.  You would access the same
+password field in that by doing:
+
+`{"#from": "vault:secret/data/my-database[data.password]"}`
+
+If the given key doesn't exist in the secret, the value will resolve to null
+and the agent config will fail to load (unless the option has `optional: true`
+on it, see below).
+
+Unless debug logging is enabled, the secret values will never be logged.
+
 ## Globbed paths
 
-If there is a glob in the source path, the YAML content of the matching paths
-will be read and deserialized.  All of the values must be YAML collections of
-the same type (i.e. either all a sequence or all a map), or else an error is
-raised.  All of those collections will be merged together and treated as
-one collection.
+**Not supported by Vault remote config.**
+
+Some config sources support globbing in the source path.  If there is a glob in
+the source path, the YAML content of the matching paths will be read and
+deserialized.  All of the values must be YAML collections of the same type
+(i.e. either all a sequence or all a map), or else an error is raised.  All of
+those collections will be merged together and treated as one collection.
 
 ### Flattening
 
@@ -73,7 +109,7 @@ monitors:
     - name: their-db2
 ```
 
-### Optional paths
+## Optional paths
 You may want to allow for globbed paths that don't actually match anything.
 This is very useful for specifying a directory of extra monitor configurations
 that may be empty, such as the following:
@@ -94,7 +130,7 @@ stated that you are ok with no matches.
 `optional` also works in scalar contexts as well, assuming that the config value
 is not required by the agent.
 
-### Raw Values
+## Raw Values
 If you have values in files/KV stores that you don't want interpreted as YAML,
 but rather as plain strings, you can add the `raw: true` option to the remote
 value specification.  Everything else acts as it would otherwise.
