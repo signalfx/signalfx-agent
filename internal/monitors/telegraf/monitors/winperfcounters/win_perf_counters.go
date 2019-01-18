@@ -63,8 +63,9 @@ type PerfCounterObj struct {
 type Config struct {
 	config.MonitorConfig `acceptsEndpoints:"false" deepcopier:"skip"`
 	Object               []PerfCounterObj `yaml:"objects" default:"[]"`
-	// Number of nanoseconds that wildcards in counter paths should be expanded
-	// and how often to refresh counters from configuration
+	// The frequency that counter paths should be expanded
+	// and how often to refresh counters from configuration.
+	// This is expressed as a duration.
 	CountersRefreshInterval time.Duration `yaml:"counterRefreshInterval" default:"5s"`
 	// If `true`, instance indexes will be included in instance names, and wildcards will
 	// be expanded and localized (if applicable).  If `false`, non partial wildcards will

@@ -16,7 +16,7 @@ const monitorType = "system-utilization"
 // Hosts.  It is used to drive the Windows Smart Agent host navigator view and dashboard
 // content.
 //
-// Windows Performance Counters
+// ## Windows Performance Counters
 // The underlying source for these metrics on Windows are Windows Performance Counters.
 // All of the performance counters that we query in this monitor are actually Gauges
 // that represent rates per second and percentages.
@@ -30,7 +30,6 @@ const monitorType = "system-utilization"
 // ```yaml
 // monitors:
 //  - type: system-utilization
-//    intervalSeconds: 2
 // ```
 
 var logger = log.WithFields(log.Fields{"monitorType": monitorType})
@@ -38,8 +37,9 @@ var logger = log.WithFields(log.Fields{"monitorType": monitorType})
 // Config for this monitor
 type Config struct {
 	config.MonitorConfig `singleInstance:"true" acceptsEndpoints:"false"`
-	// (Windows Only) Number of seconds that wildcards in counter paths should
+	// (Windows Only) The frequency that wildcards in counter paths should
 	// be expanded and how often to refresh counters from configuration.
+	// This is expressed as a duration.
 	CountersRefreshInterval time.Duration `yaml:"counterRefreshInterval" default:"60s"`
 	// (Windows Only) Print out the configurations that match available
 	// performance counters.  This used for debugging.
