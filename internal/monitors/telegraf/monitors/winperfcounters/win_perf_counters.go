@@ -1,6 +1,8 @@
 package winperfcounters
 
 import (
+	"time"
+
 	"github.com/signalfx/signalfx-agent/internal/core/config"
 	"github.com/signalfx/signalfx-agent/internal/monitors"
 	"github.com/signalfx/signalfx-agent/internal/monitors/types"
@@ -39,29 +41,37 @@ func init() {
 	monitors.Register(monitorType, func() interface{} { return &Monitor{} }, &Config{})
 }
 
-// Perfcounterobj represents a perfcounter object to monitor
-type Perfcounterobj struct {
-	ObjectName    string   `yaml:"objectName"`
-	Counters      []string `yaml:"counters" default:"[]"`
-	Instances     []string `yaml:"instances" default:"[]"`
-	Measurement   string   `yaml:"measurement"`
-	WarnOnMissing bool     `yaml:"warnOnMissing" default:"false"`
-	FailOnMissing bool     `yaml:"failOnMissing" default:"false"`
-	IncludeTotal  bool     `yaml:"includeTotal" default:"false"`
+// PerfCounterObj represents a windows performance counter object to monitor
+type PerfCounterObj struct {
+	// The name of a windows performance counter object
+	ObjectName string `yaml:"objectName"`
+	// The name of the counters to collect from the performance counter object
+	Counters []string `yaml:"counters" default:"[]"`
+	// The windows performance counter instances to fetch for the performance counter object
+	Instances []string `yaml:"instances" default:"[]"`
+	// The name of the telegraf measurement that will be used as a metric name
+	Measurement string `yaml:"measurement"`
+	// Log a warning if the perf counter object is missing
+	WarnOnMissing bool `yaml:"warnOnMissing" default:"false"`
+	// Panic if the performance counter object is missing (this will stop the agent)
+	FailOnMissing bool `yaml:"failOnMissing" default:"false"`
+	// Include the total instance when collecting performance counter metrics
+	IncludeTotal bool `yaml:"includeTotal" default:"false"`
 }
 
 // Config for this monitor
 type Config struct {
 	config.MonitorConfig `acceptsEndpoints:"false" deepcopier:"skip"`
-	Object               []Perfcounterobj `yaml:"objects" default:"[]"`
-	// number of nanoseconds that wildcards in counter paths should be expanded
-	// and how often to refresh counters from configuration
-	CountersRefreshInterval int `yaml:"counterRefreshInterval" default:"60"`
-	// if `true`, instance indexes will be included in instance names, and wildcards will
+	Object               []PerfCounterObj `yaml:"objects" default:"[]"`
+	// The frequency that counter paths should be expanded
+	// and how often to refresh counters from configuration.
+	// This is expressed as a duration.
+	CountersRefreshInterval time.Duration `yaml:"counterRefreshInterval" default:"5s"`
+	// If `true`, instance indexes will be included in instance names, and wildcards will
 	// be expanded and localized (if applicable).  If `false`, non partial wildcards will
 	// be expanded and instance names will not include instance indexes.
 	UseWildcardsExpansion bool `yaml:"useWildCardExpansion"`
-	// print out the configurations that match available performance counters
+	// Print out the configurations that match available performance counters
 	PrintValid bool `yaml:"printValid"`
 }
 
