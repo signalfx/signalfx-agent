@@ -33,7 +33,7 @@ operators are:
 | =~ | Regex matches |
 | !~ | Regex does not match |
 | && | And |
-| || | Or | 
+| \|\| | Or | 
 
 For all available operators, see [the govaluate
 documentation](https://github.com/Knetic/govaluate/blob/master/MANUAL.md). 
