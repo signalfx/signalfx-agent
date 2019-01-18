@@ -12,7 +12,7 @@ import (
 )
 
 func TestPageFileMeasurement(t *testing.T) {
-	var monitorType = "signalfx-system-utilization"
+	var monitorType = "system-utilization"
 	var Measurement = "win_paging_file"
 	var perf = PageFile()
 	type args struct {

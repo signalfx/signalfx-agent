@@ -12,7 +12,7 @@ import (
 )
 
 func TestProcessMeasurement(t *testing.T) {
-	var monitorType = "signalfx-system-utilization"
+	var monitorType = "system-utilization"
 	var Measurement = "win_network_interface"
 	type args struct {
 		ms          []*measurement.Measurement

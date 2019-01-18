@@ -39,22 +39,22 @@ Monitor Type: `telegraf/win_perf_counters`
 | Config option | Required | Type | Description |
 | --- | --- | --- | --- |
 | `objects` | no | `list of object (see below)` |  |
-| `counterRefreshInterval` | no | `integer` | number of nanoseconds that wildcards in counter paths should be expanded and how often to refresh counters from configuration (**default:** `60`) |
-| `useWildCardExpansion` | no | `bool` | if `true`, instance indexes will be included in instance names, and wildcards will be expanded and localized (if applicable).  If `false`, non partial wildcards will be expanded and instance names will not include instance indexes. (**default:** `false`) |
-| `printValid` | no | `bool` | print out the configurations that match available performance counters (**default:** `false`) |
+| `counterRefreshInterval` | no | `int64` | Number of nanoseconds that wildcards in counter paths should be expanded and how often to refresh counters from configuration (**default:** `5s`) |
+| `useWildCardExpansion` | no | `bool` | If `true`, instance indexes will be included in instance names, and wildcards will be expanded and localized (if applicable).  If `false`, non partial wildcards will be expanded and instance names will not include instance indexes. (**default:** `false`) |
+| `printValid` | no | `bool` | Print out the configurations that match available performance counters (**default:** `false`) |
 
 
 The **nested** `objects` config object has the following fields:
 
 | Config option | Required | Type | Description |
 | --- | --- | --- | --- |
-| `objectName` | no | `string` | the name of a windows performance counter object |
-| `counters` | no | `list of string` | the name of the counters to collect from the performance counter object |
-| `instances` | no | `list of string` | the windows performance counter instances to fetch for the performance counter object |
-| `measurement` | no | `string` | the name of the telegraf measurement that will be used as a metric name |
-| `warnOnMissing` | no | `bool` | log a warning if the perf counter object is missing (**default:** `false`) |
-| `failOnMissing` | no | `bool` | panic if the performance counter object is missing (this will stop the agent) (**default:** `false`) |
-| `includeTotal` | no | `bool` | include the total instance when collecting performance counter metrics (**default:** `false`) |
+| `objectName` | no | `string` | The name of a windows performance counter object |
+| `counters` | no | `list of string` | The name of the counters to collect from the performance counter object |
+| `instances` | no | `list of string` | The windows performance counter instances to fetch for the performance counter object |
+| `measurement` | no | `string` | The name of the telegraf measurement that will be used as a metric name |
+| `warnOnMissing` | no | `bool` | Log a warning if the perf counter object is missing (**default:** `false`) |
+| `failOnMissing` | no | `bool` | Panic if the performance counter object is missing (this will stop the agent) (**default:** `false`) |
+| `includeTotal` | no | `bool` | Include the total instance when collecting performance counter metrics (**default:** `false`) |
 
 
 

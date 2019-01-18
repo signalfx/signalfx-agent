@@ -125,8 +125,6 @@ func (l *LogicalDiskImpl) ProcessMeasurement(ms *measurement.Measurement, monito
 		return
 	}
 
-	var dimensions map[string]string
-
 	// check for a plugin instance
 	var ok bool
 	var instance string
@@ -136,7 +134,7 @@ func (l *LogicalDiskImpl) ProcessMeasurement(ms *measurement.Measurement, monito
 	}
 
 	// set the dimensions map
-	dimensions = map[string]string{"plugin": monitorType, l.instanceDimensionKey: instance}
+	dimensions := map[string]string{"plugin": monitorType, l.instanceDimensionKey: instance}
 
 	var utilization *float64
 	if val, ok := ms.Fields["Percent_Free_Space"]; ok {
@@ -262,9 +260,9 @@ func PhysicalDisk() PerfCounter {
 		instances:            []string{"_Total"},
 		metricNameMapping: map[string]string{
 			// perfcounter: "Disk Reads/sec"; perfcounter reporter: ""; collectd: "disk_ops.read"
-			"Disk_Reads_persec": "disk.read.per_second",
+			"Disk_Reads_persec": "disk.read_ops.per_second",
 			// perfcounter: "Disk Writes/sec"; perfcounter reporter: ""; collectd: "disk_ops.write"
-			"Disk_Writes_persec": "disk.write.per_second",
+			"Disk_Writes_persec": "disk.write_ops.per_second",
 		},
 	}
 }

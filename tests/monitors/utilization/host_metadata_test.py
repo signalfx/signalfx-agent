@@ -17,7 +17,7 @@ def test_utilization():
     config = dedent(
         """
         monitors:
-         - type: signalfx-system-utilization
+         - type: system-utilization
         """
     )
     with run_agent(config) as [backend, get_output, _]:
@@ -43,8 +43,12 @@ def test_utilization():
         assert wait_for(
             p(has_datapoint, backend, metric_name="network_interface.errors_sent.per_second")
         ), "network_interface.errors_sent.per_second missing"
-        assert wait_for(p(has_datapoint, backend, metric_name="disk.read.per_second")), "disk.read.per_second missing"
-        assert wait_for(p(has_datapoint, backend, metric_name="disk.write.per_second")), "disk.write.per_second missing"
+        assert wait_for(
+            p(has_datapoint, backend, metric_name="disk.read_ops.per_second")
+        ), "disk.read.per_second missing"
+        assert wait_for(
+            p(has_datapoint, backend, metric_name="disk.write_ops.per_second")
+        ), "disk.write.per_second missing"
         assert wait_for(p(has_datapoint, backend, metric_name="paging_file.pct_usage")), "paging_file.pct_usage missing"
         assert wait_for(
             p(has_datapoint, backend, metric_name="vmpage.swapped_in.per_second")

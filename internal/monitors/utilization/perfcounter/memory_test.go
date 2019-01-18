@@ -12,7 +12,7 @@ import (
 )
 
 func TestMemoryMeasurement(t *testing.T) {
-	var monitorType = "signalfx-system-utilization"
+	var monitorType = "system-utilization"
 	var Measurement = "win_memory"
 	type args struct {
 		ms          []*measurement.Measurement

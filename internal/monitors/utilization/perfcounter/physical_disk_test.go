@@ -12,7 +12,7 @@ import (
 )
 
 func TestPhysicalDisk(t *testing.T) {
-	var monitorType = "signalfx-system-utilization"
+	var monitorType = "system-utilization"
 	var Measurement = "win_physical_disk"
 	type args struct {
 		ms          []*measurement.Measurement
@@ -27,7 +27,7 @@ func TestPhysicalDisk(t *testing.T) {
 		wantErrors []error
 	}{
 		{
-			name: "disk.read.per_second",
+			name: "disk.read_ops.per_second",
 			args: args{
 				ms: []*measurement.Measurement{
 					{
@@ -45,12 +45,12 @@ func TestPhysicalDisk(t *testing.T) {
 			},
 			perf: PhysicalDisk(),
 			want: []*datapoint.Datapoint{
-				datapoint.New("disk.read.per_second", map[string]string{"plugin": monitorType, "plugin_instance": "C:"}, datapoint.NewIntValue(80), datapoint.Gauge, time.Time{}),
+				datapoint.New("disk.read_ops.per_second", map[string]string{"plugin": monitorType, "plugin_instance": "C:"}, datapoint.NewIntValue(80), datapoint.Gauge, time.Time{}),
 			},
 			wantErrors: nil,
 		},
 		{
-			name: "disk.write.per_second",
+			name: "disk.write_ops.per_second",
 			args: args{
 				ms: []*measurement.Measurement{
 					{
@@ -68,7 +68,7 @@ func TestPhysicalDisk(t *testing.T) {
 			},
 			perf: PhysicalDisk(),
 			want: []*datapoint.Datapoint{
-				datapoint.New("disk.write.per_second", map[string]string{"plugin": monitorType, "plugin_instance": "D:"}, datapoint.NewIntValue(90), datapoint.Gauge, time.Time{}),
+				datapoint.New("disk.write_ops.per_second", map[string]string{"plugin": monitorType, "plugin_instance": "D:"}, datapoint.NewIntValue(90), datapoint.Gauge, time.Time{}),
 			},
 			wantErrors: nil,
 		},

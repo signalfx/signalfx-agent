@@ -12,7 +12,7 @@ import (
 )
 
 func TestLogicalDiskMeasurement(t *testing.T) {
-	var monitorType = "signalfx-system-utilization"
+	var monitorType = "system-utilization"
 	var Measurement = "win_logical_disk"
 	var percentFreeSpace = float32(80)
 	var utilization = float64(100 - percentFreeSpace)

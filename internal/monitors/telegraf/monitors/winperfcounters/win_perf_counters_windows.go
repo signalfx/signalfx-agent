@@ -28,7 +28,7 @@ func GetPlugin(conf *Config) *telegrafPlugin.Win_PerfCounters {
 
 	// Telegraf has a struct wrapper around time.Duration, but it's defined
 	// in an internal package which the gocomplier won't compile from
-	plugin.CountersRefreshInterval.Duration = time.Duration(conf.CountersRefreshInterval) * time.Millisecond
+	plugin.CountersRefreshInterval.Duration = conf.CountersRefreshInterval * time.Millisecond
 
 	// copy nested perf objects
 	for _, perfobj := range conf.Object {
