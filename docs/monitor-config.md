@@ -74,6 +74,7 @@ along with their possible configuration options:
 - [telegraf/win_perf_counters](./monitors/telegraf-win_perf_counters.md)
 - [telegraf/win_services](./monitors/telegraf-win_services.md)
 - [trace-forwarder](./monitors/trace-forwarder.md)
+- [windows-iis](./monitors/windows-iis.md)
 
 
 ## Common Configuration
