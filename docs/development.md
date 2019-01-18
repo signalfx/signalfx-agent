@@ -120,7 +120,15 @@ non-test code.  Test code can fail if there is a good reason.
 
 ### Windows
 
-We develop on a [VirtualBox](https://www.virtualbox.org/) Windows Server 2008 [Vagrant](https://www.vagrantup.com/).
+We develop on a [VirtualBox](https://www.virtualbox.org/) Windows Server 2008 
+[Vagrant](https://www.vagrantup.com/).  You might want to develop on Windows 
+Server 2012+ if you're using the evaluation boxes because the Windows Server 
+2008 evaluation only has a 10 day trial that can be renewed up to 5 times.
+To renew the Windows Server 2008 evaluation you must manually reset the 
+activation period by using the slmgr.vbs script from the command prompt and 
+restart the vm.
+
+    slmgr.vbs –rearm
 
 #### Base Box
 

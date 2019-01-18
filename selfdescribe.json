@@ -11512,6 +11512,126 @@
     },
     {
       "name": "Config",
+      "doc": "\nThis monitor reports utilization metrics for Windows\nHosts.  It is used to drive the Windows Smart Agent host navigator view and dashboard\ncontent.\n\n## Windows Performance Counters\nThe underlying source for these metrics on Windows are Windows Performance Counters.\nAll of the performance counters that we query in this monitor are actually Gauges\nthat represent rates per second and percentages.\nThis monitor reports the instantaneous values for these Windows Performance Counters.\nThis means that in between a collection interval, spikes could occur on the\nPerformance Counters.  The best way to mitigate this limitation is to increase\nthe reporting interval on this monitor to collect more frequently.\n\nSample YAML configuration:\n\n```yaml\nmonitors:\n - type: system-utilization\n```\n",
+      "package": "internal/monitors/utilization",
+      "fields": [
+        {
+          "yamlName": "counterRefreshInterval",
+          "doc": "(Windows Only) The frequency that wildcards in counter paths should be expanded and how often to refresh counters from configuration. This is expressed as a duration.",
+          "default": "60s",
+          "required": false,
+          "type": "int64",
+          "elementKind": ""
+        },
+        {
+          "yamlName": "printValid",
+          "doc": "(Windows Only) Print out the configurations that match available performance counters.  This used for debugging.",
+          "default": false,
+          "required": false,
+          "type": "bool",
+          "elementKind": ""
+        }
+      ],
+      "monitorType": "system-utilization",
+      "acceptsEndpoints": false,
+      "singleInstance": true,
+      "dimensions": null,
+      "metrics": [
+        {
+          "name": "cpu.utilization",
+          "type": "gauge",
+          "description": "This metric shows the amount of CPU in use on this machine, as a percent of total CPU available."
+        },
+        {
+          "name": "cpu.utilization_per_core",
+          "type": "gauge",
+          "description": "This metric shows the amount of CPU in use on each core, as a percent of total CPU available per core."
+        },
+        {
+          "name": "df_complex.free",
+          "type": "gauge",
+          "description": "This metric measures free disk space in bytes on this file system."
+        },
+        {
+          "name": "df_complex.used",
+          "type": "gauge",
+          "description": "This metric measures used disk space in bytes on this file system."
+        },
+        {
+          "name": "disk.reads.per_second",
+          "type": "gauge",
+          "description": "The rate of read operations per second against a disk."
+        },
+        {
+          "name": "disk.utilization",
+          "type": "gauge",
+          "description": "This metric shows the amount of disk space in use on this volume, as a percentage of total disk space available on the volume."
+        },
+        {
+          "name": "disk.write.per_second",
+          "type": "gauge",
+          "description": "The rate of write operations per second against a disk."
+        },
+        {
+          "name": "memory.free",
+          "type": "gauge",
+          "description": "Amount of memory that can be immediately used, in bytes."
+        },
+        {
+          "name": "memory.used",
+          "type": "gauge",
+          "description": "The amount of memory consumed by processes and the system, in bytes."
+        },
+        {
+          "name": "memory.utilization",
+          "type": "gauge",
+          "description": "This metric shows the amount of memory in use on this machine, as a percent of total memory available."
+        },
+        {
+          "name": "network_interface.bytes_received.per_second",
+          "type": "gauge",
+          "description": "The rate of bytes received per second."
+        },
+        {
+          "name": "network_interface.bytes_sent.per_second",
+          "type": "gauge",
+          "description": "The rate of bytes sent per second."
+        },
+        {
+          "name": "network_interface.errors_received.per_second",
+          "type": "gauge",
+          "description": "The rate of errors encountered per second while receiving."
+        },
+        {
+          "name": "network_interface.errors_sent.per_second",
+          "type": "gauge",
+          "description": "The rate of errors encountered per second while sending."
+        },
+        {
+          "name": "paging_file.pct_usage",
+          "type": "gauge",
+          "description": "(WINDOWS ONLY) The percentage of page file usage."
+        },
+        {
+          "name": "vmpage.swapped.per_second",
+          "type": "gauge",
+          "description": "The rate of swap operations (read and write) per second."
+        },
+        {
+          "name": "vmpage.swapped_in.per_second",
+          "type": "gauge",
+          "description": "The rate of swap operations per second into memory."
+        },
+        {
+          "name": "vmpage.swapped_out.per_second",
+          "type": "gauge",
+          "description": "The rate of swap operations per second out of memory."
+        }
+      ],
+      "properties": null
+    },
+    {
+      "name": "Config",
       "doc": " This monitor is based on the Telegraf logparser plugin.\nThe monitor tails log files. More information about the Telegraf plugin\ncan be found [here](https://github.com/influxdata/telegraf/tree/master/plugins/inputs/logparser).\nAll metrics emitted from this monitor will have the `plugin` dimension set to `telegraf-logparser`\n\nSample YAML configuration:\n\n```yaml\n - type: telegraf/logparser\n   files:\n    - '$file'\n   watchMethod: poll       # specify the file watch method (\"inotify\" or \"poll\")\n   fromBeginning: true     # specify to read from the beginning\n   measurementName: test-measurement # the metric name prefix\n   patterns:\n    - \"%{COMMON_LOG_FORMAT}\" # specifies the apache common log format\n   timezone: UTC\n```\n",
       "package": "internal/monitors/telegraf/monitors/telegraflogparser",
       "fields": [
@@ -12573,13 +12693,13 @@
           "type": "slice",
           "elementKind": "struct",
           "elementStruct": {
-            "name": "Perfcounterobj",
-            "doc": "Perfcounterobj represents a perfcounter object to monitor",
+            "name": "PerfCounterObj",
+            "doc": "PerfCounterObj represents a windows performance counter object to monitor",
             "package": "internal/monitors/telegraf/monitors/winperfcounters",
             "fields": [
               {
                 "yamlName": "objectName",
-                "doc": "",
+                "doc": "The name of a windows performance counter object",
                 "default": "",
                 "required": false,
                 "type": "string",
@@ -12587,7 +12707,7 @@
               },
               {
                 "yamlName": "counters",
-                "doc": "",
+                "doc": "The name of the counters to collect from the performance counter object",
                 "default": "",
                 "required": false,
                 "type": "slice",
@@ -12595,7 +12715,7 @@
               },
               {
                 "yamlName": "instances",
-                "doc": "",
+                "doc": "The windows performance counter instances to fetch for the performance counter object",
                 "default": "",
                 "required": false,
                 "type": "slice",
@@ -12603,7 +12723,7 @@
               },
               {
                 "yamlName": "measurement",
-                "doc": "",
+                "doc": "The name of the telegraf measurement that will be used as a metric name",
                 "default": "",
                 "required": false,
                 "type": "string",
@@ -12611,7 +12731,7 @@
               },
               {
                 "yamlName": "warnOnMissing",
-                "doc": "",
+                "doc": "Log a warning if the perf counter object is missing",
                 "default": false,
                 "required": false,
                 "type": "bool",
@@ -12619,7 +12739,7 @@
               },
               {
                 "yamlName": "failOnMissing",
-                "doc": "",
+                "doc": "Panic if the performance counter object is missing (this will stop the agent)",
                 "default": false,
                 "required": false,
                 "type": "bool",
@@ -12627,7 +12747,7 @@
               },
               {
                 "yamlName": "includeTotal",
-                "doc": "",
+                "doc": "Include the total instance when collecting performance counter metrics",
                 "default": false,
                 "required": false,
                 "type": "bool",
@@ -12638,15 +12758,15 @@
         },
         {
           "yamlName": "counterRefreshInterval",
-          "doc": "number of nanoseconds that wildcards in counter paths should be expanded and how often to refresh counters from configuration",
-          "default": 60,
+          "doc": "The frequency that counter paths should be expanded and how often to refresh counters from configuration. This is expressed as a duration.",
+          "default": "5s",
           "required": false,
-          "type": "int",
+          "type": "int64",
           "elementKind": ""
         },
         {
           "yamlName": "useWildCardExpansion",
-          "doc": "if `true`, instance indexes will be included in instance names, and wildcards will be expanded and localized (if applicable).  If `false`, non partial wildcards will be expanded and instance names will not include instance indexes.",
+          "doc": "If `true`, instance indexes will be included in instance names, and wildcards will be expanded and localized (if applicable).  If `false`, non partial wildcards will be expanded and instance names will not include instance indexes.",
           "default": false,
           "required": false,
           "type": "bool",
@@ -12654,7 +12774,7 @@
         },
         {
           "yamlName": "printValid",
-          "doc": "print out the configurations that match available performance counters",
+          "doc": "Print out the configurations that match available performance counters",
           "default": false,
           "required": false,
           "type": "bool",
