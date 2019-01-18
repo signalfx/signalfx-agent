@@ -10,8 +10,9 @@ from functools import partial as p
 
 import pytest
 import redis
+from signalfx.generated_protocol_buffers import signal_fx_protocol_buffers_pb2 as sf_pbuf
 
-from helpers.assertions import has_datapoint_with_dim, regex_search_matches_output, tcp_socket_open
+from helpers.assertions import has_datapoint, has_datapoint_with_dim, regex_search_matches_output, tcp_socket_open
 from helpers.util import BUNDLE_DIR, container_ip, run_agent, run_container, wait_for
 
 pytestmark = [pytest.mark.pyrunner]
@@ -30,6 +31,7 @@ monitors:
       Port: 6379
       Verbose: true
       Redis_uptime_in_seconds: "gauge"
+      Redis_lru_clock: "counter"
 """
 )
 
@@ -57,3 +59,8 @@ def test_python_runner_with_redis():
             assert wait_for(
                 p(has_datapoint_with_dim, backend, "plugin", "redis_info")
             ), "didn't get datapoints after Python process was killed"
+
+            assert wait_for(
+                p(has_datapoint, backend, metric_name="counter.lru_clock", metric_type=sf_pbuf.CUMULATIVE_COUNTER),
+                timeout_seconds=3,
+            ), "metric type was wrong"
