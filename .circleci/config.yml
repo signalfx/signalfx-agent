@@ -95,6 +95,7 @@ commands:
           command: |
             [ -f ~/.skip ] && echo "Found ~/.skip, skipping tests!" && exit 0
             [ -d "$TESTS_DIR" ] || (echo "Directory '$TESTS_DIR' not found!" && exit 1)
+            [ -n "$TEST_SERVICES_DIR" ] || export TEST_SERVICES_DIR="$(pwd)/test-services"
             mkdir -p /tmp/scratch
             mkdir -p ~/testresults
             MAX_CIRCLE_NODES=${MAX_CIRCLE_NODES:-$CIRCLE_NODE_TOTAL}
@@ -227,7 +228,6 @@ jobs:
             fi
             echo "export BUNDLE_DIR='$BUNDLE_DIR'" >> $BASH_ENV
             echo "export AGENT_BIN='$AGENT_BIN'" >> $BASH_ENV
-            echo "export TEST_SERVICES_DIR='$TEST_SERVICES_DIR'" >> $BASH_ENV
             echo "export MARKERS='$MARKERS'" >> $BASH_ENV
       - run_pytest:
           pytest_options: "-n4 -m \"$MARKERS\""

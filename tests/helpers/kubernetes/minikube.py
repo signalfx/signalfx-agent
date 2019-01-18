@@ -269,7 +269,7 @@ class Minikube:  # pylint: disable=too-many-instance-attributes
             build_opts = {}
         if client is None:
             client = self.get_client()
-        print("\nBuilding docker image from %s ..." % os.path.realpath(dockerfile_dir))
+        print("\nBuilding image from %s ..." % dockerfile_dir)
         return retry(
             p(client.images.build, path=dockerfile_dir, rm=True, forcerm=True, **build_opts), docker.errors.BuildError
         )
