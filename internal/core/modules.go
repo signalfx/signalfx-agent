@@ -40,6 +40,7 @@ import (
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/telegraf/monitors/winservices"
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/traceforwarder"
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/utilization"
+	_ "github.com/signalfx/signalfx-agent/internal/monitors/windowsiis"
 	_ "github.com/signalfx/signalfx-agent/internal/observers/docker"
 	_ "github.com/signalfx/signalfx-agent/internal/observers/file"
 	_ "github.com/signalfx/signalfx-agent/internal/observers/host"
