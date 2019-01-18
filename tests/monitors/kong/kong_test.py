@@ -113,9 +113,8 @@ def test_kong(kong_image):  # pylint: disable=redefined-outer-name
 @pytest.mark.kubernetes
 def test_kong_in_k8s(agent_image, minikube, k8s_observer, k8s_test_timeout, k8s_namespace):
     yaml = os.path.join(os.path.dirname(os.path.realpath(__file__)), "kong-k8s.yaml")
-    dockerfile_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)), "../../../test-services/kong")
     build_opts = {"tag": "kong:k8s-test"}
-    minikube.build_image(dockerfile_dir, build_opts)
+    minikube.build_image("kong", build_opts)
     monitors = [
         {"type": "collectd/kong", "discoveryRule": get_discovery_rule(yaml, k8s_observer, namespace=k8s_namespace)}
     ]

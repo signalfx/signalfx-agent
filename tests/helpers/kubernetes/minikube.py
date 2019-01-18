@@ -40,9 +40,6 @@ MINIKUBE_LOCALKUBE_VERSION = "v0.28.2"
 MINIKUBE_KUBEADM_VERSION = "v0.32.0"
 MINIKUBE_IMAGE_TIMEOUT = int(os.environ.get("MINIKUBE_IMAGE_TIMEOUT", 300))
 K8S_API_PORT = 8443
-TEST_SERVICES_DIR = os.path.realpath(
-    os.path.join(os.path.dirname(os.path.realpath(__file__)), "../../../test-services")
-)
 
 
 class Minikube:  # pylint: disable=too-many-instance-attributes
@@ -155,7 +152,7 @@ class Minikube:  # pylint: disable=too-many-instance-attributes
             options["command"] = "sleep inf"
         print("\nBuilding minikube:%s image ..." % self.version)
         build_opts = dict(buildargs={"MINIKUBE_VERSION": self.version}, tag="minikube:%s" % self.version)
-        image, _ = self.build_image(os.path.join(TEST_SERVICES_DIR, "minikube"), build_opts, self.host_client)
+        image, _ = self.build_image("minikube", build_opts, self.host_client)
         print("\nDeploying minikube %s cluster ..." % self.k8s_version)
         self.container = self.host_client.containers.run(image.id, detach=True, **options)
         self.name = self.container.name
@@ -187,11 +184,14 @@ class Minikube:  # pylint: disable=too-many-instance-attributes
         ), "timed out waiting for registry to start!"
 
     def build_image(self, dockerfile_dir, build_opts=None, client=None):
+        if os.path.isdir(os.path.join(TEST_SERVICES_DIR, dockerfile_dir)):
+            dockerfile_dir = os.path.join(TEST_SERVICES_DIR, dockerfile_dir)
+        assert os.path.isdir(dockerfile_dir), "Dockerfile directory %s not found!" % dockerfile_dir
         if build_opts is None:
             build_opts = {}
         if client is None:
             client = self.get_client()
-        print("\nBuilding docker image from %s ..." % os.path.realpath(dockerfile_dir))
+        print("\nBuilding image from %s ..." % dockerfile_dir)
         return retry(
             p(client.images.build, path=dockerfile_dir, rm=True, forcerm=True, **build_opts), docker.errors.BuildError
         )

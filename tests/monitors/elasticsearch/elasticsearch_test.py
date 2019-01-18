@@ -181,11 +181,8 @@ def test_elasticsearch_with_additional_metrics():
 @pytest.mark.kubernetes
 def test_elasticsearch_in_k8s(agent_image, minikube, k8s_observer, k8s_test_timeout, k8s_namespace):
     yaml = os.path.join(os.path.dirname(os.path.realpath(__file__)), "elasticsearch-k8s.yaml")
-    dockerfile_dir = os.path.join(
-        os.path.dirname(os.path.realpath(__file__)), "../../../test-services/elasticsearch/6.4.2"
-    )
     build_opts = {"tag": "elasticsearch:k8s-test"}
-    minikube.build_image(dockerfile_dir, build_opts)
+    minikube.build_image("elasticsearch/6.4.2", build_opts)
     monitors = [
         {
             "type": "collectd/elasticsearch",

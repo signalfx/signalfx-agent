@@ -45,9 +45,8 @@ def test_activemq():
 @pytest.mark.kubernetes
 def test_activemq_in_k8s(agent_image, minikube, k8s_observer, k8s_test_timeout, k8s_namespace):
     yaml = os.path.join(os.path.dirname(os.path.realpath(__file__)), "activemq-k8s.yaml")
-    dockerfile_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)), "../../../test-services/activemq")
     build_opts = {"tag": "activemq:k8s-test"}
-    minikube.build_image(dockerfile_dir, build_opts)
+    minikube.build_image("activemq", build_opts)
     monitors = [
         {
             "type": "collectd/activemq",
