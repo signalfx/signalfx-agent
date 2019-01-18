@@ -24,10 +24,19 @@ function bundle (
         [bool]$DOWNLOAD_COLLECTD=$true,
         [bool]$DOWNLOAD_COLLECTD_PLUGINS=$true,
         [bool]$REMOVE_UNECESSARY_FILES=$true,
-        [bool]$ZIP_BUNDLE=$true) {
+        [bool]$ZIP_BUNDLE=$true,
+        [bool]$ONLY_BUILD_AGENT=$false) {
 
     if ((!$AGENT_VERSION) -Or ($AGENT_VERSION="")){
         $AGENT_VERSION = & git rev-parse HEAD
+    }
+
+    if ($ONLY_BUILD_AGENT) {
+        $DOWNLOAD_COLLECTD = $false
+        $DOWNLOAD_PYTHON = $false
+        $DOWNLOAD_COLLECTD_PLUGINS = $false
+        $REMOVE_UNECESSARY_FILES = $false
+        $ZIP_BUNDLE = $false
     }
 
     $buildDir = "$buildDir\signalfx-agent"
@@ -42,8 +51,8 @@ function bundle (
         download_python -outputDir $buildDir
         install_python -buildDir $buildDir
         install_pip -buildDir $buildDir
+        bundle_python_runner -buildDir $buildDir
     }
-    bundle_python_runner -buildDir $buildDir
     if ($DOWNLOAD_COLLECTD_PLUGINS) {
         Remove-Item -Recurse -Force "$buildDir\plugins\collectd" -ErrorAction Ignore
         get_collectd_plugins -buildDir "$buildDir"

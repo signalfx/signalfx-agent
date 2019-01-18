@@ -11,6 +11,8 @@ monitor_config = """
 monitors:
   - type: telegraf/procstat
     exe: "signalfx-agent*"
+  - type: telegraf/procstat
+    exe: "SIGNALFX-AGENT*"
 """
 
 
