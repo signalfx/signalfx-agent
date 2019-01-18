@@ -56,10 +56,9 @@ def test_jenkins(version):
 @pytest.mark.k8s
 @pytest.mark.kubernetes
 def test_jenkins_in_k8s(agent_image, minikube, k8s_observer, k8s_test_timeout, k8s_namespace):
-    dockerfile_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)), "../../../test-services/jenkins")
-    build_opts = {"buildargs": {"JENKINS_VERSION": "2.60.3-alpine", "JENKINS_PORT": "8080"}, "tag": "jenkins:test"}
-    minikube.build_image(dockerfile_dir, build_opts)
     yaml = os.path.join(os.path.dirname(os.path.realpath(__file__)), "jenkins-k8s.yaml")
+    build_opts = {"buildargs": {"JENKINS_VERSION": "2.60.3-alpine", "JENKINS_PORT": "8080"}, "tag": "jenkins:test"}
+    minikube.build_image("jenkins", build_opts)
     monitors = [
         {
             "type": "collectd/jenkins",
