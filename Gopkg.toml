@@ -168,3 +168,7 @@
   name = "github.com/quentin-m/etcd-cloud-operator"
   source = "github.com/signalfx/etcd-cloud-operator"
   revision = "b18fdd887d97ccf755e4737d14d8a9b9e97bbc9e"
+
+[[constraint]]
+  name = "github.com/hashicorp/vault"
+  version = "=1.0.2"

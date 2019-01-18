@@ -7,7 +7,7 @@ import (
 
 	"github.com/coreos/etcd/client"
 	"github.com/gobwas/glob"
-	"github.com/signalfx/signalfx-agent/internal/core/config/sources/types"
+	"github.com/signalfx/signalfx-agent/internal/core/config/types"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -25,6 +25,18 @@ type Config struct {
 	// An optional password to use when connecting
 	Password string `yaml:"password" neverLog:"true"`
 }
+
+// New creates a new Etcd2 remote config source from the target config
+func (c *Config) New() (types.ConfigSource, error) {
+	return New(c)
+}
+
+// Validate the config
+func (c *Config) Validate() error {
+	return nil
+}
+
+var _ types.ConfigSourceConfig = &Config{}
 
 // New creates a new etcd2 config source
 func New(conf *Config) (types.ConfigSource, error) {

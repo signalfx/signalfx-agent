@@ -1,5 +1,14 @@
 package types
 
+import "github.com/signalfx/signalfx-agent/internal/core/config/validation"
+
+// ConfigSourceConfig is a config type for a ConfigSource.  It can make new
+// ConfigSource instances.
+type ConfigSourceConfig interface {
+	validation.Validatable
+	New() (ConfigSource, error)
+}
+
 // ConfigSource represents a data store for which we can get and watch paths.
 type ConfigSource interface {
 	// Name should return the name used as the scheme of the URL that is

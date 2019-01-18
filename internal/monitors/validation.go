@@ -4,13 +4,10 @@ import (
 	"errors"
 	"fmt"
 	"reflect"
-	"strings"
-
-	validator "gopkg.in/go-playground/validator.v9"
 
 	"github.com/signalfx/signalfx-agent/internal/core/config"
+	"github.com/signalfx/signalfx-agent/internal/core/config/validation"
 	"github.com/signalfx/signalfx-agent/internal/core/services"
-	"github.com/signalfx/signalfx-agent/internal/utils"
 )
 
 // Used to validate configuration that is common to all monitors up front
@@ -34,21 +31,11 @@ func validateConfig(monConfig config.MonitorCustomConfig) error {
 		}
 	}
 
-	validate := validator.New()
-	err := validate.Struct(monConfig)
-	if err != nil {
-		if ves, ok := err.(validator.ValidationErrors); ok {
-			var msgs []string
-			for _, e := range ves {
-				fieldName := utils.YAMLNameOfFieldInStruct(e.Field(), monConfig)
-				msgs = append(msgs, fmt.Sprintf("Validation error in field '%s': %s", fieldName, e.Tag()))
-			}
-			return errors.New(strings.Join(msgs, "; "))
-		}
+	if err := validation.ValidateStruct(monConfig); err != nil {
 		return err
 	}
 
-	return config.ValidateCustomConfig(monConfig)
+	return validation.ValidateCustomConfig(monConfig)
 }
 
 func configAcceptsEndpoints(monConfig config.MonitorCustomConfig) bool {

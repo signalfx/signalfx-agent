@@ -3,7 +3,7 @@ package env
 import (
 	"os"
 
-	"github.com/signalfx/signalfx-agent/internal/core/config/sources/types"
+	"github.com/signalfx/signalfx-agent/internal/core/config/types"
 )
 
 // Config for the file-based config source
@@ -11,6 +11,18 @@ type Config struct {
 }
 
 type envConfigSource struct{}
+
+// New creates a new envvar remote config source from the target config
+func (c *Config) New() (types.ConfigSource, error) {
+	return New(), nil
+}
+
+// Validate the config
+func (c *Config) Validate() error {
+	return nil
+}
+
+var _ types.ConfigSourceConfig = &Config{}
 
 // New makes a new fileConfigSource with the given config
 func New() types.ConfigSource {

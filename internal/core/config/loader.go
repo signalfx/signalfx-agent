@@ -30,8 +30,10 @@ func LoadConfig(ctx context.Context, configPath string) (<-chan *Config, error) 
 		return nil, errors.WithMessage(err, "Could not read config file "+configPath)
 	}
 
+	dynamicProvider := sources.DynamicValueProvider{}
+
 	dynamicValueCtx, cancelDynamic := context.WithCancel(ctx)
-	finalYAML, dynamicChanges, err := sources.ReadDynamicValues(configYAML, dynamicValueCtx.Done())
+	finalYAML, dynamicChanges, err := dynamicProvider.ReadDynamicValues(configYAML, dynamicValueCtx.Done())
 	if err != nil {
 		cancelDynamic()
 		return nil, err
@@ -61,7 +63,7 @@ func LoadConfig(ctx context.Context, configPath string) (<-chan *Config, error) 
 
 					dynamicValueCtx, cancelDynamic = context.WithCancel(ctx)
 
-					finalYAML, dynamicChanges, err = sources.ReadDynamicValues(configYAML, dynamicValueCtx.Done())
+					finalYAML, dynamicChanges, err = dynamicProvider.ReadDynamicValues(configYAML, dynamicValueCtx.Done())
 					if err != nil {
 						log.WithError(err).Error("Could not read dynamic values in config after change")
 						time.Sleep(5 * time.Second)

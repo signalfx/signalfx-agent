@@ -6,15 +6,20 @@ package sources
 
 import (
 	"fmt"
+	"reflect"
 	"time"
 
 	"github.com/creasty/defaults"
+	"github.com/mitchellh/hashstructure"
+	"github.com/pkg/errors"
 	"github.com/signalfx/signalfx-agent/internal/core/config/sources/consul"
 	"github.com/signalfx/signalfx-agent/internal/core/config/sources/env"
 	"github.com/signalfx/signalfx-agent/internal/core/config/sources/etcd2"
 	"github.com/signalfx/signalfx-agent/internal/core/config/sources/file"
-	"github.com/signalfx/signalfx-agent/internal/core/config/sources/types"
+	"github.com/signalfx/signalfx-agent/internal/core/config/sources/vault"
 	"github.com/signalfx/signalfx-agent/internal/core/config/sources/zookeeper"
+	"github.com/signalfx/signalfx-agent/internal/core/config/types"
+	"github.com/signalfx/signalfx-agent/internal/core/config/validation"
 	"github.com/signalfx/signalfx-agent/internal/utils"
 	log "github.com/sirupsen/logrus"
 
@@ -42,6 +47,18 @@ type SourceConfig struct {
 	Etcd2 *etcd2.Config `yaml:"etcd2"`
 	// Configuration for a Consul remote config source
 	Consul *consul.Config `yaml:"consul"`
+	// Configuration for a Hashicorp Vault remote config source
+	Vault *vault.Config `yaml:"vault"`
+}
+
+// Hash calculates a unique hash value for this config struct
+func (sc *SourceConfig) Hash() uint64 {
+	hash, err := hashstructure.Hash(sc, nil)
+	if err != nil {
+		log.WithError(err).Error("Could not get hash of SourceConfig struct")
+		return 0
+	}
+	return hash
 }
 
 // SourceInstances returns a map of instantiated sources based on the config
@@ -54,23 +71,27 @@ func (sc *SourceConfig) SourceInstances() (map[string]types.ConfigSource, error)
 	env := env.New()
 	sources[env.Name()] = env
 
-	if sc.Zookeeper != nil {
-		zk := zookeeper.New(sc.Zookeeper)
-		sources[zk.Name()] = zk
-	}
-	if sc.Etcd2 != nil {
-		e2, err := etcd2.New(sc.Etcd2)
-		if err != nil {
-			return nil, err
+	for _, csc := range []types.ConfigSourceConfig{
+		sc.Zookeeper,
+		sc.Etcd2,
+		sc.Consul,
+		sc.Vault,
+	} {
+		if !reflect.ValueOf(csc).IsNil() {
+			if err := validation.ValidateStruct(csc); err != nil {
+				return nil, errors.WithMessage(err, "error initializing remote config sources")
+			}
+
+			if err := csc.Validate(); err != nil {
+				return nil, errors.WithMessage(err, fmt.Sprintf("error validating remote config"))
+			}
+
+			s, err := csc.New()
+			if err != nil {
+				return nil, errors.WithMessage(err, "error initializing remote config source")
+			}
+			sources[s.Name()] = s
 		}
-		sources[e2.Name()] = e2
-	}
-	if sc.Consul != nil {
-		c, err := consul.New(sc.Consul)
-		if err != nil {
-			return nil, err
-		}
-		sources[c.Name()] = c
 	}
 	return sources, nil
 }
@@ -153,20 +174,39 @@ func ReadConfig(configPath string, stop <-chan struct{}) ([]byte, <-chan []byte,
 	return configContent, nil, nil
 }
 
+// DynamicValueProvider handles setting up and providing dynamic values from
+// remote config sources.
+type DynamicValueProvider struct {
+	lastRemoteConfigSourceHash uint64
+	sources                    map[string]types.ConfigSource
+}
+
 // ReadDynamicValues takes the config file content and processes it for any
 // dynamic values of the form `{"#from": ...`.  It returns a YAML document that
 // contains the rendered values.  It will optionally watch the sources of any
 // dynamic values configured and send updated YAML docs on the returned
 // channel.
-func ReadDynamicValues(configContent []byte, stop <-chan struct{}) ([]byte, <-chan []byte, error) {
+func (dvp *DynamicValueProvider) ReadDynamicValues(configContent []byte, stop <-chan struct{}) ([]byte, <-chan []byte, error) {
 	sourceConfig, err := parseSourceConfig(configContent)
 	if err != nil {
 		return nil, nil, err
 	}
 
-	sources, err := sourceConfig.SourceInstances()
-	if err != nil {
-		return nil, nil, err
+	hash := sourceConfig.Hash()
+	if hash != dvp.lastRemoteConfigSourceHash {
+		for name, source := range dvp.sources {
+			if stoppable, ok := source.(types.Stoppable); ok {
+				log.Infof("Stopping stale %s remote config source", name)
+				if err := stoppable.Stop(); err != nil {
+					log.WithError(err).Errorf("Could not stop stale %s remote config source", name)
+				}
+			}
+		}
+		dvp.sources, err = sourceConfig.SourceInstances()
+		if err != nil {
+			return nil, nil, err
+		}
+		dvp.lastRemoteConfigSourceHash = hash
 	}
 
 	// This is what the cacher will notify on with the names of dynamic value
@@ -174,7 +214,7 @@ func ReadDynamicValues(configContent []byte, stop <-chan struct{}) ([]byte, <-ch
 	pathChanges := make(chan string)
 
 	cachers := make(map[string]*configSourceCacher)
-	for name, source := range sources {
+	for name, source := range dvp.sources {
 		cacher := newConfigSourceCacher(source, pathChanges, stop, sourceConfig.Watch)
 		cachers[name] = cacher
 	}

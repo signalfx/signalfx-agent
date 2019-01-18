@@ -8,7 +8,7 @@ import (
 	log "github.com/sirupsen/logrus"
 
 	"github.com/hashicorp/consul/api"
-	"github.com/signalfx/signalfx-agent/internal/core/config/sources/types"
+	"github.com/signalfx/signalfx-agent/internal/core/config/types"
 	"github.com/signalfx/signalfx-agent/internal/utils"
 )
 
@@ -30,6 +30,18 @@ type Config struct {
 	// The Consul datacenter to use
 	Datacenter string `yaml:"datacenter"`
 }
+
+// New creates a new Consul remote config source from the target config
+func (c *Config) New() (types.ConfigSource, error) {
+	return New(c)
+}
+
+// Validate the config
+func (c *Config) Validate() error {
+	return nil
+}
+
+var _ types.ConfigSourceConfig = &Config{}
 
 // New creates a new consul ConfigSource
 func New(conf *Config) (types.ConfigSource, error) {

@@ -8,7 +8,7 @@ import (
 	"sort"
 	"time"
 
-	"github.com/signalfx/signalfx-agent/internal/core/config/sources/types"
+	"github.com/signalfx/signalfx-agent/internal/core/config/types"
 )
 
 // Config for the file-based config source
@@ -20,6 +20,18 @@ type Config struct {
 	// agent restart.
 	PollRateSeconds int `yaml:"pollRateSeconds" default:"5"`
 }
+
+// New creates a new file remote config source from the target config
+func (c *Config) New() (types.ConfigSource, error) {
+	return New(time.Duration(c.PollRateSeconds) * time.Second), nil
+}
+
+// Validate the config
+func (c *Config) Validate() error {
+	return nil
+}
+
+var _ types.ConfigSourceConfig = &Config{}
 
 type fileConfigSource struct {
 	table        *crc64.Table

@@ -86,20 +86,24 @@ def container_ip(container):
 
 
 @contextmanager
-def run_agent(config_text):
+def run_agent(config_text, debug=True):
     with fake_backend.start() as fake_services:
-        with run_agent_with_fake_backend(config_text, fake_services) as [_, get_output, setup_conf]:
+        with run_agent_with_fake_backend(config_text, fake_services, debug) as [_, get_output, setup_conf]:
             yield [fake_services, get_output, setup_conf]
 
 
 @contextmanager
-def run_agent_with_fake_backend(config_text, fake_services):
+def run_agent_with_fake_backend(config_text, fake_services, debug=True):
     with tempfile.TemporaryDirectory() as run_dir:
         config_path = os.path.join(run_dir, "agent.yaml")
 
-        setup_config(config_text, config_path, fake_services)
+        setup_config(config_text, config_path, fake_services, debug)
 
-        proc = subprocess.Popen([AGENT_BIN, "-config", config_path], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        proc = subprocess.Popen(
+            [AGENT_BIN, "-config", config_path] + (["-debug"] if debug else []),
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+        )
 
         output = io.BytesIO()
 
@@ -154,7 +158,7 @@ def get_internal_status_host():
 get_internal_status_host.counter = 0
 
 
-def setup_config(config_text, path, fake_services):
+def setup_config(config_text, path, fake_services, debug=True):
     if config_text is None and os.path.isfile(path):
         return path
 
@@ -172,7 +176,7 @@ def setup_config(config_text, path, fake_services):
     conf["apiUrl"] = fake_services.api_url
 
     conf["internalStatusHost"] = get_internal_status_host()
-    conf["logging"] = dict(level="debug")
+    conf["logging"] = dict(level="debug" if debug else "info")
 
     conf["collectd"] = conf.get("collectd", {})
     conf["collectd"]["configDir"] = os.path.join(run_dir, "collectd")

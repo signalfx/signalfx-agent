@@ -1,6 +1,7 @@
 PyYAML==3.13
 black==18.9b0
 docker==3.0.1
+hvac==0.7.2
 kubernetes==7.0.0
 netifaces==0.10.7
 protobuf==3.5.1

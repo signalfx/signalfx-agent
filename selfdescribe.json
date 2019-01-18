@@ -12396,6 +12396,37 @@
             }
           ]
         }
+      },
+      {
+        "yamlName": "vault",
+        "doc": "Configuration for a Hashicorp Vault remote config source",
+        "default": null,
+        "required": false,
+        "type": "struct",
+        "elementKind": "",
+        "elementStruct": {
+          "name": "Config",
+          "doc": "Config for the vault remote config",
+          "package": "internal/core/config/sources/vault",
+          "fields": [
+            {
+              "yamlName": "vaultAddr",
+              "doc": "The Vault Address.  Can also be provided by the standard Vault envvar `VAULT_ADDR`.  This option takes priority over the envvar if provided.",
+              "default": "",
+              "required": false,
+              "type": "string",
+              "elementKind": ""
+            },
+            {
+              "yamlName": "vaultToken",
+              "doc": "The Vault token, can also be provided by it the standard Vault envvar `VAULT_TOKEN`.  This option takes priority over the envvar if provided.",
+              "default": "",
+              "required": false,
+              "type": "string",
+              "elementKind": ""
+            }
+          ]
+        }
       }
     ]
   },
@@ -13259,6 +13290,37 @@
                   {
                     "yamlName": "datacenter",
                     "doc": "The Consul datacenter to use",
+                    "default": "",
+                    "required": false,
+                    "type": "string",
+                    "elementKind": ""
+                  }
+                ]
+              }
+            },
+            {
+              "yamlName": "vault",
+              "doc": "Configuration for a Hashicorp Vault remote config source",
+              "default": null,
+              "required": false,
+              "type": "struct",
+              "elementKind": "",
+              "elementStruct": {
+                "name": "Config",
+                "doc": "Config for the vault remote config",
+                "package": "internal/core/config/sources/vault",
+                "fields": [
+                  {
+                    "yamlName": "vaultAddr",
+                    "doc": "The Vault Address.  Can also be provided by the standard Vault envvar `VAULT_ADDR`.  This option takes priority over the envvar if provided.",
+                    "default": "",
+                    "required": false,
+                    "type": "string",
+                    "elementKind": ""
+                  },
+                  {
+                    "yamlName": "vaultToken",
+                    "doc": "The Vault token, can also be provided by it the standard Vault envvar `VAULT_TOKEN`.  This option takes priority over the envvar if provided.",
                     "default": "",
                     "required": false,
                     "type": "string",
