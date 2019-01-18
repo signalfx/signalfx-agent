@@ -17,8 +17,10 @@ import (
 // fetch the factory used to generate the perf counter plugin
 var factory = telegrafInputs.Inputs["win_perf_counters"]
 
-// Configure the monitor and kick off metric syncing
-func (m *Monitor) Configure(conf *Config) error {
+// GetPlugin takes a perf counter monitor config and returns a configured perf counter plugin.
+// This is used for other monitors based on perf counter that manage their own life cycle
+// (i.e. system utilization, windows iis)
+func GetPlugin(conf *Config) *telegrafPlugin.Win_PerfCounters {
 	plugin := factory().(*telegrafPlugin.Win_PerfCounters)
 
 	// copy top level struct fields
@@ -26,7 +28,7 @@ func (m *Monitor) Configure(conf *Config) error {
 
 	// Telegraf has a struct wrapper around time.Duration, but it's defined
 	// in an internal package which the gocomplier won't compile from
-	plugin.CountersRefreshInterval.Duration = time.Duration(conf.CountersRefreshInterval) * time.Second
+	plugin.CountersRefreshInterval.Duration = conf.CountersRefreshInterval * time.Millisecond
 
 	// copy nested perf objects
 	for _, perfobj := range conf.Object {
@@ -50,6 +52,12 @@ func (m *Monitor) Configure(conf *Config) error {
 			perfobj.IncludeTotal,
 		})
 	}
+	return plugin
+}
+
+// Configure the monitor and kick off metric syncing
+func (m *Monitor) Configure(conf *Config) error {
+	plugin := GetPlugin(conf)
 
 	// create the accumulator
 	ac := accumulator.NewAccumulator(baseemitter.NewEmitter(m.Output, logger))
