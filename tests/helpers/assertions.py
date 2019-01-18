@@ -43,7 +43,7 @@ def has_datapoint_with_dim(fake_services, key, value):
     return has_datapoint_with_all_dims(fake_services, {key: value})
 
 
-def has_datapoint(fake_services, metric_name=None, dimensions=None, value=None):
+def has_datapoint(fake_services, metric_name=None, dimensions=None, value=None, metric_type=None):
     """
     Returns True if there is a datapoint seen in the fake_services backend that
     has the given attributes.  If a property is not specified it will not be
@@ -54,6 +54,8 @@ def has_datapoint(fake_services, metric_name=None, dimensions=None, value=None):
         if metric_name and dp.metric != metric_name:
             continue
         if dimensions and not has_all_dims(dp, dimensions):
+            continue
+        if metric_type and dp.metricType != metric_type:
             continue
         if value is not None:
             if dp.value.HasField("intValue"):
