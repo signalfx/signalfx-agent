@@ -2,6 +2,7 @@ package perfhelper
 
 import (
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/signalfx/golib/datapoint"
@@ -37,11 +38,15 @@ func ProcessMeasurements(measurements []*measurement.Measurement, mappings map[s
 			continue
 		}
 
+		// sanitize instanceVal
+		instanceVal = strings.ToLower(instanceVal)
+		instanceVal = strings.Replace(instanceVal, ":", "_", -1)
+
 		for field, val := range ms.Fields {
 			var metricType = datapoint.Gauge
 			var instanceKey = defaultInstanceKey
 			var monitorType = defaultMonitorType
-			metricName := fmt.Sprintf("%s.%s", ms.Measurement, field)
+			metricName := strings.ToLower(fmt.Sprintf("%s.%s", ms.Measurement, field))
 
 			if mapping := mappings[metricName]; mapping != nil {
 				// use the mapping if it exists

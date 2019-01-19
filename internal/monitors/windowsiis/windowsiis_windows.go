@@ -39,13 +39,13 @@ var metricMap = map[string]*perfhelper.MetricMapper{
 	// ISAPI requests
 	"web_service.isapi_extension_requests_persec": {Name: "web_service.isapi_extension_requests_sec"},
 	// Process PerfCounters
-	"Process.Handle_Count":           {Name: "process.handle_count"},
-	"Process.Percent_Processor_Time": {Name: "process.pct_processor_time"},
-	"Process.ID_Process":             {Name: "process.id_process"},
-	"Process.Private_Bytes":          {Name: "process.private_bytes"},
-	"Thread_Count":                   {Name: "process.thread_count"},
-	"Virtual_Bytes":                  {Name: "process.virtual_bytes"},
-	"Working_Set":                    {Name: "process.working_set"},
+	"process.handle_count":           {Name: "process.handle_count"},
+	"process.percent_processor_time": {Name: "process.pct_processor_time"},
+	"process.id_process":             {Name: "process.id_process"},
+	"process.private_bytes":          {Name: "process.private_bytes"},
+	"process.thread_count":           {Name: "process.thread_count"},
+	"process.virtual_bytes":          {Name: "process.virtual_bytes"},
+	"process.working_set":            {Name: "process.working_set"},
 }
 
 // Configure the monitor and kick off metric syncing
