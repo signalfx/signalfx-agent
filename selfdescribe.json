@@ -10381,6 +10381,91 @@
     },
     {
       "name": "Config",
+      "doc": "\nThis monitor reports metrics for dot net applications.\n\nThe most critical .NET performance counters\n* exceptions\n* logical threads\n* physical threads\n* heap bytes\n* time in GC\n* committed bytes\n* pinned objects\n\n## Windows Performance Counters\nThe underlying source for these metrics are Windows Performance Counters.\nMost of the performance counters that we query in this monitor are actually Gauges\nthat represent rates per second and percentages.\n\nThis monitor reports the instantaneous values for these Windows Performance Counters.\nThis means that in between a collection interval, spikes could occur on the\nPerformance Counters.  The best way to mitigate this limitation is to increase\nthe reporting interval on this monitor to collect more frequently.\n\nSample YAML configuration:\n\n```yaml\nmonitors:\n - type: dotnet\n```\n",
+      "package": "internal/monitors/dotnet",
+      "fields": [
+        {
+          "yamlName": "counterRefreshInterval",
+          "doc": "(Windows Only) Number of seconds that wildcards in counter paths should be expanded and how often to refresh counters from configuration.",
+          "default": "60s",
+          "required": false,
+          "type": "int64",
+          "elementKind": ""
+        },
+        {
+          "yamlName": "printValid",
+          "doc": "(Windows Only) Print out the configurations that match available performance counters.  This used for debugging.",
+          "default": false,
+          "required": false,
+          "type": "bool",
+          "elementKind": ""
+        }
+      ],
+      "monitorType": "dotnet",
+      "acceptsEndpoints": false,
+      "singleInstance": true,
+      "dimensions": null,
+      "metrics": [
+        {
+          "name": "net_clr_exceptions.num_exceps_thrown_sec",
+          "type": "gauge",
+          "description": "The number of exceptions thrown by .NET applications."
+        },
+        {
+          "name": "net_clr_locksandthreads.contention_rate_sec",
+          "type": "gauge",
+          "description": "The rate of thread of thread contention per second for .NET applications."
+        },
+        {
+          "name": "net_clr_locksandthreads.current_queue_length",
+          "type": "gauge",
+          "description": "The current thread queue length for .NET applications."
+        },
+        {
+          "name": "net_clr_locksandthreads.num_of_current_logical_threads",
+          "type": "gauge",
+          "description": "The number of current logical threads for .NET applications."
+        },
+        {
+          "name": "net_clr_locksandthreads.num_of_current_physical_threads",
+          "type": "gauge",
+          "description": "The number of current physical threads for .NET applications."
+        },
+        {
+          "name": "net_clr_memory.num_bytes_in_all_heaps",
+          "type": "gauge",
+          "description": "The number of bytes in all heaps for .NET applications."
+        },
+        {
+          "name": "net_clr_memory.num_gc_handles",
+          "type": "gauge",
+          "description": "The number of garbage collection handles held by .NET applications."
+        },
+        {
+          "name": "net_clr_memory.num_of_pinned_objects",
+          "type": "gauge",
+          "description": "The number of objects pinned in memory by .NET applications."
+        },
+        {
+          "name": "net_clr_memory.num_total_committed_bytes",
+          "type": "gauge",
+          "description": "The total number of bytes committed to memory by .NET applications."
+        },
+        {
+          "name": "net_clr_memory.num_total_reserved_bytes",
+          "type": "gauge",
+          "description": "The total number of bytes reserved by .NET applications."
+        },
+        {
+          "name": "net_clr_memory.pct_time_in_gc",
+          "type": "gauge",
+          "description": "The percentage of time spent garbage collecting by .NET applications."
+        }
+      ],
+      "properties": null
+    },
+    {
+      "name": "Config",
       "doc": " This monitor collects metadata properties about a\nhost.  It is required for some views in SignalFx to operate.\n\n```yaml\nmonitors:\n  - type: host-metadata\n```\n\nIn containerized environments host `/etc` and `/proc` may not be located\ndirectly under the root path.  You can specify the path to `proc` and `etc`\nusing the monitor configurations `procFSPath` and `etcPath`\n\n```yaml\nmonitors:\n  - type: host-metadata\n    procFSPath: \"/hostfs/proc\"\n    etcPath: \"/hostfs/etc\"\n```\n\nMetadata updates occur on a sparse interval of approximately\n1m, 1m, 1h, 1d and continues repeating once per day.\nSetting the `Interval` configuration for this monitor will not affect the\nsparse interval on which metadata is collected.\n",
       "package": "internal/monitors/metadata/hostmetadata",
       "fields": [

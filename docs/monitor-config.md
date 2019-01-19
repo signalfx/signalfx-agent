@@ -56,6 +56,7 @@ along with their possible configuration options:
 - [collectd/zookeeper](./monitors/collectd-zookeeper.md)
 - [conviva](./monitors/conviva.md)
 - [docker-container-stats](./monitors/docker-container-stats.md)
+- [dotnet](./monitors/dotnet.md)
 - [host-metadata](./monitors/host-metadata.md)
 - [internal-metrics](./monitors/internal-metrics.md)
 - [kubelet-stats](./monitors/kubelet-stats.md)
