@@ -3,7 +3,7 @@
 # dotnet
 
 
-This monitor reports metrics for dot net applications.
+(Windows Only) This monitor reports metrics for .NET applications.
 
 The most critical .NET performance counters
 * exceptions
