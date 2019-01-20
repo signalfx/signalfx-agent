@@ -39,8 +39,7 @@ func ProcessMeasurements(measurements []*measurement.Measurement, mappings map[s
 		}
 
 		// sanitize instanceVal
-		instanceVal = strings.ToLower(instanceVal)
-		instanceVal = strings.Replace(instanceVal, ":", "_", -1)
+		instanceVal = strings.Replace(strings.Replace(strings.ToLower(instanceVal), ":", "_", -1), "__", "_", -1)
 
 		for field, val := range ms.Fields {
 			var metricType = datapoint.Gauge
