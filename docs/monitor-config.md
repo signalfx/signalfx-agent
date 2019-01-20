@@ -7,6 +7,7 @@ configured in a list called `monitors` in the [main agent config
 file](./config-schema.md). These are all of the monitors included in the agent,
 along with their possible configuration options:
 
+- [aspdotnet](./monitors/aspdotnet.md)
 - [cadvisor](./monitors/cadvisor.md)
 - [collectd/activemq](./monitors/collectd-activemq.md)
 - [collectd/apache](./monitors/collectd-apache.md)

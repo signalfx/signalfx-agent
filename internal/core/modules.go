@@ -5,6 +5,7 @@ package core
 
 import (
 	// Import everything that isn't referenced anywhere else
+	_ "github.com/signalfx/signalfx-agent/internal/monitors/aspdotnet"
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/cadvisor"
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/collectd/consul"
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/collectd/couchbase"

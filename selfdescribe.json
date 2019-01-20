@@ -134,6 +134,111 @@
   },
   "Monitors": [
     {
+      "name": "Config",
+      "doc": "\n(Windows Only) This monitor reports metrics about requests, errors, sessions,\nworker processes for ASP.NET applications.\n\n## Windows Performance Counters\nThe underlying source for these metrics are Windows Performance Counters.\nMost of the performance counters that we query in this monitor are actually Gauges\nthat represent rates per second and percentages.\n\nThis monitor reports the instantaneous values for these Windows Performance Counters.\nThis means that in between a collection interval, spikes could occur on the\nPerformance Counters.  The best way to mitigate this limitation is to increase\nthe reporting interval on this monitor to collect more frequently.\n\nSample YAML configuration:\n\n```yaml\nmonitors:\n - type: aspdotnet\n```\n",
+      "package": "internal/monitors/aspdotnet",
+      "fields": [
+        {
+          "yamlName": "counterRefreshInterval",
+          "doc": "(Windows Only) Number of seconds that wildcards in counter paths should be expanded and how often to refresh counters from configuration.",
+          "default": "60s",
+          "required": false,
+          "type": "int64",
+          "elementKind": ""
+        },
+        {
+          "yamlName": "printValid",
+          "doc": "(Windows Only) Print out the configurations that match available performance counters.  This used for debugging.",
+          "default": false,
+          "required": false,
+          "type": "bool",
+          "elementKind": ""
+        }
+      ],
+      "monitorType": "aspdotnet",
+      "acceptsEndpoints": false,
+      "singleInstance": true,
+      "dimensions": null,
+      "metrics": [
+        {
+          "name": "asp_net.application_restarts",
+          "type": "counter",
+          "description": "Count of ASP.NET application restarts."
+        },
+        {
+          "name": "asp_net.applications_running",
+          "type": "gauge",
+          "description": "Number of running ASP.NET applications."
+        },
+        {
+          "name": "asp_net.requests_current",
+          "type": "gauge",
+          "description": "Current number of ASP.NET requests."
+        },
+        {
+          "name": "asp_net.requests_queue",
+          "type": "gauge",
+          "description": "Number of queued ASP.NET requests."
+        },
+        {
+          "name": "asp_net.requests_rejected",
+          "type": "counter",
+          "description": "Count of rejected ASP.NET requests."
+        },
+        {
+          "name": "asp_net.worker_process_restarts",
+          "type": "counter",
+          "description": "Count of ASP.NET worker process restarts."
+        },
+        {
+          "name": "asp_net.worker_processes_running",
+          "type": "gauge",
+          "description": "Number of running ASP.NET worker processes."
+        },
+        {
+          "name": "asp_net_applications.errors_during_execution",
+          "type": "counter",
+          "description": "Count of errors encountered by ASP.NET application durring execution."
+        },
+        {
+          "name": "asp_net_applications.errors_total_sec",
+          "type": "gauge",
+          "description": "Error rate per second for the given ASP.NET application."
+        },
+        {
+          "name": "asp_net_applications.errors_unhandled_during_execution_sec",
+          "type": "gauge",
+          "description": "Unhandled error rate per second countered while an ASP.NET application is running."
+        },
+        {
+          "name": "asp_net_applications.pipeline_instance_count",
+          "type": "gauge",
+          "description": "Number of instances in the ASP.NET application pipeline."
+        },
+        {
+          "name": "asp_net_applications.requests_failed",
+          "type": "counter",
+          "description": "Count of failed requests in the ASP.NET application"
+        },
+        {
+          "name": "asp_net_applications.requests_sec",
+          "type": "gauge",
+          "description": "Rate of requests in the ASP.NET application per second."
+        },
+        {
+          "name": "asp_net_applications.session_sql_server_connections_total",
+          "type": "gauge",
+          "description": "Number of connections to microsoft sql server by an ASP.NET application."
+        },
+        {
+          "name": "asp_net_applications.sessions_active",
+          "type": "gauge",
+          "description": "Number of active sessions in the ASP.NET application."
+        }
+      ],
+      "properties": null
+    },
+    {
       "name": "CHTTPConfig",
       "doc": " This monitor pulls metrics directly from cadvisor, which\nconventionally runs on port 4194, but can be configured to anything.  If you\nare running on Kubernetes, consider the [kubelet-stats](./kubelet-stats.md)\nmonitor because many K8s nodes do not expose cAdvisor on a network port,\neven though they are running it within Kubelet.\n\nIf you are running containers with Docker, there is a fair amount of\nduplication with the `collectd/docker` monitor in terms of the metrics sent\n(under distinct metric names) so you may want to consider not enabling the\nDocker monitor in a K8s environment, or else use filtering to whitelist only\ncertain metrics.  Note that this will cause the built-in Docker dashboards\nto be blank, but container metrics will be available on the Kubernetes\ndashboards instead.\n",
       "package": "internal/monitors/cadvisor",
@@ -10381,7 +10486,7 @@
     },
     {
       "name": "Config",
-      "doc": "\nThis monitor reports metrics for dot net applications.\n\nThe most critical .NET performance counters\n* exceptions\n* logical threads\n* physical threads\n* heap bytes\n* time in GC\n* committed bytes\n* pinned objects\n\n## Windows Performance Counters\nThe underlying source for these metrics are Windows Performance Counters.\nMost of the performance counters that we query in this monitor are actually Gauges\nthat represent rates per second and percentages.\n\nThis monitor reports the instantaneous values for these Windows Performance Counters.\nThis means that in between a collection interval, spikes could occur on the\nPerformance Counters.  The best way to mitigate this limitation is to increase\nthe reporting interval on this monitor to collect more frequently.\n\nSample YAML configuration:\n\n```yaml\nmonitors:\n - type: dotnet\n```\n",
+      "doc": "\nThis monitor reports metrics for .NET applications.\n\nThe most critical .NET performance counters\n* exceptions\n* logical threads\n* physical threads\n* heap bytes\n* time in GC\n* committed bytes\n* pinned objects\n\n## Windows Performance Counters\nThe underlying source for these metrics are Windows Performance Counters.\nMost of the performance counters that we query in this monitor are actually Gauges\nthat represent rates per second and percentages.\n\nThis monitor reports the instantaneous values for these Windows Performance Counters.\nThis means that in between a collection interval, spikes could occur on the\nPerformance Counters.  The best way to mitigate this limitation is to increase\nthe reporting interval on this monitor to collect more frequently.\n\nSample YAML configuration:\n\n```yaml\nmonitors:\n - type: dotnet\n```\n",
       "package": "internal/monitors/dotnet",
       "fields": [
         {
