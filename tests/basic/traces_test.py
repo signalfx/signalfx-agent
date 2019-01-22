@@ -82,7 +82,7 @@ def test_tracing_output():
         ), "Didn't get host correlation datapoint"
 
         # Service names expire after 5s in the config provided in this test
-        time.sleep(6)
+        time.sleep(8)
         backend.datapoints.clear()
 
         assert ensure_never(
