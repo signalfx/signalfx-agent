@@ -5,6 +5,7 @@ package core
 
 import (
 	// Import everything that isn't referenced anywhere else
+	_ "github.com/signalfx/signalfx-agent/internal/monitors/aspdotnet"
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/cadvisor"
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/collectd/consul"
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/collectd/couchbase"
@@ -25,6 +26,7 @@ import (
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/collectd/zookeeper"
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/conviva"
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/docker"
+	_ "github.com/signalfx/signalfx-agent/internal/monitors/dotnet"
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/internalmetrics"
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/kubernetes"
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/metadata/hostmetadata"
