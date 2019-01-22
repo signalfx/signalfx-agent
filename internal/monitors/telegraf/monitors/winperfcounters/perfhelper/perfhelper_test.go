@@ -45,7 +45,7 @@ func TestProcessMeasurements(t *testing.T) {
 			},
 			output: neotest.NewTestOutput(),
 			want: []*datapoint.Datapoint{
-				datapoint.New("win_physical_disk.Disk_Reads_persec", map[string]string{"plugin": "disk_ops", "instance": "C:"}, datapoint.NewIntValue(80), datapoint.Gauge, time.Time{}),
+				datapoint.New("win_physical_disk.disk_reads_persec", map[string]string{"plugin": "disk_ops", "instance": "c_"}, datapoint.NewIntValue(80), datapoint.Gauge, time.Time{}),
 			},
 		},
 		{
@@ -63,7 +63,7 @@ func TestProcessMeasurements(t *testing.T) {
 					},
 				},
 				mappings: map[string]*MetricMapper{
-					"win_physical_disk.Disk_Reads_persec": {
+					"win_physical_disk.disk_reads_persec": {
 						Name:     "alternate_metric_name",
 						Type:     datapoint.Counter,
 						Monitor:  "alternate_monitor_name",
@@ -75,7 +75,7 @@ func TestProcessMeasurements(t *testing.T) {
 			},
 			output: neotest.NewTestOutput(),
 			want: []*datapoint.Datapoint{
-				datapoint.New("alternate_metric_name", map[string]string{"plugin": "alternate_monitor_name", "alternate_instance": "C:"}, datapoint.NewIntValue(80), datapoint.Counter, time.Time{}),
+				datapoint.New("alternate_metric_name", map[string]string{"plugin": "alternate_monitor_name", "alternate_instance": "c_"}, datapoint.NewIntValue(80), datapoint.Counter, time.Time{}),
 			},
 		},
 		{
