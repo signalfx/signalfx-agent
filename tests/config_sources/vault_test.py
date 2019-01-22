@@ -97,7 +97,10 @@ def test_basic_vault_config():
         ) as [backend, _, _]:
             assert wait_for(p(has_datapoint, backend, dimensions={"env": "prod"}))
             assert wait_for(p(has_datapoint, backend, dimensions={"user": "me"}))
-            assert audit_read_paths(get_audit_events()) == ["secret/data/appinfo", "kv/usernames"], "expected two reads"
+            assert sorted(audit_read_paths(get_audit_events())) == [
+                "kv/usernames",
+                "secret/data/appinfo",
+            ], "expected two reads"
 
 
 def test_vault_nonrenewable_secret_refresh():
