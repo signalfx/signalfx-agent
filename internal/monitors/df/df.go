@@ -98,7 +98,7 @@ func calculateUtil(used float64, total float64) (percent float64, err error) {
 	}
 
 	if percent < 0 {
-		err = fmt.Errorf("percent %v <= 0 total: %v used: %v", percent, used, total)
+		err = fmt.Errorf("percent %v < 0 total: %v used: %v", percent, used, total)
 	}
 
 	if percent > 100 {
@@ -179,7 +179,7 @@ func (m *Monitor) emitDatapoints(conf *Config) {
 		total += (disk.Used + disk.Free)
 	}
 
-	if total > 0 {
+	if total >= 0 {
 		diskSummary, err := calculateUtil(float64(used), float64(total))
 		if err != nil {
 			logger.WithError(err).Errorf("failed to calculate utilization data")
