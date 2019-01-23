@@ -752,10 +752,11 @@
   revision = "c4fab1ac1bec58281ad0667dc3f0907a9476ac47"
 
 [[projects]]
-  digest = "1:c977abde44ff4b33ec304d050073d528b530253f4ddbf7caf0d31e0e1bcb3dbd"
+  digest = "1:5331094ce2c687a921af5ec1367fe96e894e5b6866c2c3b8d415e86b65e69bce"
   name = "github.com/shirou/gopsutil"
   packages = [
     "cpu",
+    "disk",
     "host",
     "internal/common",
     "mem",
@@ -763,8 +764,8 @@
     "process",
   ]
   pruneopts = "NUT"
-  revision = "0ffcfc901f82fc83dc98c51c25ea60c996a1c781"
-  source = "github.com/pytimer/gopsutil"
+  revision = "ccc1c1016bc5d10e803189ee43417c50cdde7f1b"
+  version = "v2.18.12"
 
 [[projects]]
   branch = "master"
@@ -832,6 +833,14 @@
   ]
   pruneopts = "NUT"
   revision = "951bd0ba96011685e7ebcc24bc02a9fab93333b5"
+
+[[projects]]
+  digest = "1:2cf6851dc900b79bec555d61b2bfb3d6544a3146822da2d874c8245561650904"
+  name = "github.com/signalfx/gopsutil"
+  packages = ["disk"]
+  pruneopts = "NUT"
+  revision = "fc04d2dd9a512906a2604242b35275179e250eda"
+  version = "v2.18.03"
 
 [[projects]]
   digest = "1:c9f50228e0992a1856d2ba6d6894c85c9819aff77e702989f884e23f3a337e6b"
@@ -1383,6 +1392,8 @@
     "github.com/prometheus/client_model/go",
     "github.com/prometheus/common/expfmt",
     "github.com/samuel/go-zookeeper/zk",
+    "github.com/shirou/gopsutil/cpu",
+    "github.com/shirou/gopsutil/disk",
     "github.com/shirou/gopsutil/mem",
     "github.com/shirou/gopsutil/net",
     "github.com/shirou/gopsutil/process",
@@ -1397,6 +1408,7 @@
     "github.com/signalfx/golib/sfxclient",
     "github.com/signalfx/golib/trace",
     "github.com/signalfx/golib/web",
+    "github.com/signalfx/gopsutil/disk",
     "github.com/signalfx/metricproxy/protocol/collectd",
     "github.com/signalfx/metricproxy/protocol/collectd/format",
     "github.com/signalfx/metricproxy/protocol/signalfx",
