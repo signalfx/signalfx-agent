@@ -102,13 +102,7 @@
 
 [[constraint]]
   name = "github.com/shirou/gopsutil"
-  version = "=2.18.07"
-
-# temporarily overriding until https://github.com/shirou/gopsutil/pull/549 is merged
-[[override]]
-  name = "github.com/shirou/gopsutil"
-  source = "github.com/pytimer/gopsutil"
-  revision = "0ffcfc901f82fc83dc98c51c25ea60c996a1c781"
+  version = "=2.18.12"
 
 [[constraint]]
   branch = "master"
