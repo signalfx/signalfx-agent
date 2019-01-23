@@ -85,7 +85,7 @@ func (m *Monitor) emitPerCoreDatapoints(conf *Config) {
 		current := cpuTimeStatTototalUsed(&core)
 
 		// calculate utilization
-		if prev, ok := conf.previousPerCore[core.CPU]; ok {
+		if prev, ok := conf.previousPerCore[core.CPU]; ok && prev != nil {
 			utilization, err := getUtilization(prev, current)
 
 			if err != nil {
@@ -146,23 +146,6 @@ func (m *Monitor) emitDatapoints(conf *Config) {
 	return
 }
 
-func calculateUtil(used float64, total float64) (percent float64, err error) {
-	if total == 0 {
-		percent = 0
-	} else {
-		percent = used / total * 100
-	}
-
-	if percent < 0 {
-		err = fmt.Errorf("percent %v <= 0 total: %v used: %v", percent, used, total)
-	}
-
-	if percent > 100 {
-		err = fmt.Errorf("percent %v > 100 total: %v used: %v ", percent, used, total)
-	}
-	return percent, err
-}
-
 func getUtilization(prev *totalUsed, current *totalUsed) (utilization float64, err error) {
 	if prev.Total == 0 {
 		err = fmt.Errorf("prev.Total == 0 will skip until previous Total is > 0")
@@ -172,11 +155,17 @@ func getUtilization(prev *totalUsed, current *totalUsed) (utilization float64, e
 	totalDiff := current.Total - prev.Total
 	if usedDiff < 0 || totalDiff < 0 {
 		err = fmt.Errorf("usedDiff (%v) or totalDiff (%v) are < 0", usedDiff, totalDiff)
-	} else if usedDiff == 0 && totalDiff == 0 {
-		err = fmt.Errorf("usedDiff and totalDiff are both 0")
+	} else if (usedDiff == 0 && totalDiff == 0) || totalDiff == 0 {
+		utilization = 0
 	} else {
 		// calculate utilization
-		utilization, err = calculateUtil(usedDiff, totalDiff)
+		utilization = usedDiff / totalDiff * 100
+		if utilization < 0 {
+			err = fmt.Errorf("percent %v < 0 total: %v used: %v", utilization, usedDiff, totalDiff)
+		}
+		if utilization > 100 {
+			err = fmt.Errorf("percent %v > 100 total: %v used: %v ", utilization, usedDiff, totalDiff)
+		}
 	}
 
 	return
