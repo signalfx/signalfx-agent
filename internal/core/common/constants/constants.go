@@ -7,4 +7,6 @@ const (
 	AgentVersionEnvVar = "SIGNALFX_AGENT_VERSION"
 	// BundleDirEnvVar is a path to the root of the collectd/python bundle
 	BundleDirEnvVar = "SIGNALFX_BUNDLE_DIR"
+	// UtilizationMetricPluginName is the name used for the plugin dimension on utilization metrics
+	UtilizationMetricPluginName = "system-utilization"
 )

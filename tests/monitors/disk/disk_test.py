@@ -8,7 +8,7 @@ from helpers.util import get_monitor_dims_from_selfdescribe, get_monitor_metrics
 pytestmark = [pytest.mark.collectd, pytest.mark.disk, pytest.mark.monitor_without_endpoints]
 
 
-def test_disk():
+def test_collectd_disk():
     expected_metrics = get_monitor_metrics_from_selfdescribe("collectd/disk")
     expected_dims = get_monitor_dims_from_selfdescribe("collectd/disk")
     with run_agent(

@@ -5,16 +5,16 @@ import pytest
 from helpers.assertions import has_any_metric_or_dim, has_log_message
 from helpers.util import get_monitor_dims_from_selfdescribe, get_monitor_metrics_from_selfdescribe, run_agent, wait_for
 
-pytestmark = [pytest.mark.collectd, pytest.mark.memory, pytest.mark.monitor_without_endpoints]
+pytestmark = [pytest.mark.windows, pytest.mark.interface, pytest.mark.monitor_without_endpoints]
 
 
-def test_collectd_memory():
-    expected_metrics = get_monitor_metrics_from_selfdescribe("collectd/memory")
-    expected_dims = get_monitor_dims_from_selfdescribe("collectd/memory")
+def test_interface():
+    expected_metrics = get_monitor_metrics_from_selfdescribe("interface")
+    expected_dims = get_monitor_dims_from_selfdescribe("interface")
     with run_agent(
         """
     monitors:
-      - type: collectd/memory
+      - type: interface
     """
     ) as [backend, get_output, _]:
         assert wait_for(

@@ -8,7 +8,7 @@ from helpers.util import get_monitor_dims_from_selfdescribe, get_monitor_metrics
 pytestmark = [pytest.mark.collectd, pytest.mark.df, pytest.mark.monitor_without_endpoints]
 
 
-def test_df():
+def test_collectd_df():
     expected_metrics = get_monitor_metrics_from_selfdescribe("collectd/df")
     expected_dims = get_monitor_dims_from_selfdescribe("collectd/df")
     with run_agent(
