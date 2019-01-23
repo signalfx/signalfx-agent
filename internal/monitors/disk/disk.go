@@ -116,7 +116,7 @@ func shouldSkipDisk(conf *Config, disk *gopsutil.IOCountersStat) (shouldSkip boo
 func (m *Monitor) emitDatapoints(conf *Config) {
 	iocounts, err := iOCounters()
 	if err != nil {
-		logger.WithError(err).Errorf("failed to load io counters")
+		logger.WithError(err).Warningf("failed to load io counters. if this message repeates frequently there may be a problem")
 	}
 	// var total uint64
 	for key, disk := range iocounts {
