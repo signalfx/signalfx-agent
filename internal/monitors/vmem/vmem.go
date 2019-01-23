@@ -1,4 +1,4 @@
-package utilization
+package vmem
 
 import (
 	"time"
@@ -9,34 +9,26 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-const monitorType = "system-utilization"
+const monitorType = "vmem"
 
-// MONITOR(system-utilization):
-// This monitor reports utilization metrics for Windows
-// Hosts.  It is used to drive the Windows Smart Agent host navigator view and dashboard
-// content.
-//
-// ## Windows Performance Counters
-// The underlying source for these metrics on Windows are Windows Performance Counters.
-// All of the performance counters that we query in this monitor are actually Gauges
-// that represent rates per second and percentages.
-// This monitor reports the instantaneous values for these Windows Performance Counters.
-// This means that in between a collection interval, spikes could occur on the
-// Performance Counters.  The best way to mitigate this limitation is to increase
-// the reporting interval on this monitor to collect more frequently.
-//
-// Sample YAML configuration:
+// MONITOR(vmem): Collects information about the virtual memory
+// subsystem of the kernel.
 //
 // ```yaml
 // monitors:
-//  - type: system-utilization
+//  - type: vmem
 // ```
 
 var logger = log.WithFields(log.Fields{"monitorType": monitorType})
 
+// TODO: make ProcFSPath a global config
+
 // Config for this monitor
 type Config struct {
 	config.MonitorConfig `singleInstance:"true" acceptsEndpoints:"false"`
+	// (Linux Only) The path to the proc filesystem. Useful to override in containerized
+	// environments.
+	ProcFSPath string `yaml:"procFSPath" default:"/proc"`
 	// (Windows Only) The frequency that wildcards in counter paths should
 	// be expanded and how often to refresh counters from configuration.
 	// This is expressed as a duration.
@@ -44,6 +36,13 @@ type Config struct {
 	// (Windows Only) Print out the configurations that match available
 	// performance counters.  This used for debugging.
 	PrintValid bool `yaml:"printValid"`
+}
+
+// Shutdown stops the metric sync
+func (m *Monitor) Shutdown() {
+	if m.cancel != nil {
+		m.cancel()
+	}
 }
 
 func init() {

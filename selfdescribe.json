@@ -10267,6 +10267,284 @@
     },
     {
       "name": "Config",
+      "doc": "\nThis monitor reports cpu and cpu utilization metrics.\n\n```yaml\nmonitors:\n - type: cpu\n```\n",
+      "package": "internal/monitors/cpu",
+      "fields": [
+        {
+          "yamlName": "procFSPath",
+          "doc": "The path to the proc filesystem. Useful to override in containerized environments.  (Does not apply to windows)",
+          "default": "/proc",
+          "required": false,
+          "type": "string",
+          "elementKind": ""
+        }
+      ],
+      "monitorType": "cpu",
+      "acceptsEndpoints": false,
+      "singleInstance": true,
+      "dimensions": null,
+      "metrics": [
+        {
+          "name": "cpu.utilization",
+          "type": "gauge",
+          "description": "Percent of CPU used on this host. This metric is emitted with a plugin dimension set to \"system-utilization\"."
+        },
+        {
+          "name": "cpu.utilization_per_core",
+          "type": "gauge",
+          "description": "Percent of CPU used on each core. This metric is emitted with the plugin dimension set to \"system-utilization\""
+        }
+      ],
+      "properties": null
+    },
+    {
+      "name": "Config",
+      "doc": "\nThis monitor reports metrics about free disk space.\n\n```yaml\nmonitors:\n - type: df\n```\n",
+      "package": "internal/monitors/df",
+      "fields": [
+        {
+          "yamlName": "procFSPath",
+          "doc": "The path to the proc filesystem. Useful to override in containerized environments.  (Does not apply to windows)",
+          "default": "/proc",
+          "required": false,
+          "type": "string",
+          "elementKind": ""
+        },
+        {
+          "yamlName": "ignoreSelected",
+          "doc": "If true, the filesystems selected by `fsTypes` and `mountPoints` will be excluded and all others included.",
+          "default": null,
+          "required": false,
+          "type": "bool",
+          "elementKind": ""
+        },
+        {
+          "yamlName": "fsTypes",
+          "doc": "The filesystem types to include/exclude.",
+          "default": [
+            "aufs",
+            "overlay",
+            "tmpfs",
+            "proc",
+            "sysfs",
+            "nsfs",
+            "cgroup",
+            "devpts",
+            "selinuxfs",
+            "devtmpfs",
+            "debugfs",
+            "mqueue",
+            "hugetlbfs",
+            "securityfs",
+            "pstore",
+            "binfmt_misc",
+            "autofs"
+          ],
+          "required": false,
+          "type": "slice",
+          "elementKind": "string"
+        },
+        {
+          "yamlName": "mountPoints",
+          "doc": "The mount paths to include/exclude, is interpreted as a regex if surrounded by `/`.  Note that you need to include the full path as the agent will see it, irrespective of the hostFSPath option.",
+          "default": [
+            "/^/var/lib/docker/containers/",
+            "/^/var/lib/rkt/pods/",
+            "/^/net//",
+            "/^/smb//"
+          ],
+          "required": false,
+          "type": "slice",
+          "elementKind": "string"
+        },
+        {
+          "yamlName": "reportByDevice",
+          "doc": "",
+          "default": false,
+          "required": false,
+          "type": "bool",
+          "elementKind": ""
+        },
+        {
+          "yamlName": "reportInodes",
+          "doc": "",
+          "default": false,
+          "required": false,
+          "type": "bool",
+          "elementKind": ""
+        }
+      ],
+      "monitorType": "df",
+      "acceptsEndpoints": false,
+      "singleInstance": true,
+      "dimensions": null,
+      "metrics": [
+        {
+          "name": "df_complex.free",
+          "type": "gauge",
+          "description": "Free disk space in bytes"
+        },
+        {
+          "name": "df_complex.used",
+          "type": "gauge",
+          "description": "Used disk space in bytes"
+        },
+        {
+          "name": "df_inodes.free",
+          "type": "gauge",
+          "description": "(Linux Only) Number of inodes that are free."
+        },
+        {
+          "name": "df_inodes.used",
+          "type": "gauge",
+          "description": "(Linux Only) Number of inodes that are used."
+        },
+        {
+          "name": "disk.summary_utilization",
+          "type": "gauge",
+          "description": "Percent of disk space utilized on all volumes on this host. This metric reports with plugin dimension set to \"system-utilization\"."
+        },
+        {
+          "name": "disk.utilization",
+          "type": "gauge",
+          "description": "Percent of disk used on this volume. This metric reports with plugin dimension set to \"system-utilization\"."
+        },
+        {
+          "name": "percent_bytes.free",
+          "type": "gauge",
+          "description": "Free disk space on the file system, expressed as a percentage."
+        },
+        {
+          "name": "percent_bytes.used",
+          "type": "gauge",
+          "description": "Used disk space on the file system, expressed as a percentage."
+        },
+        {
+          "name": "percent_inodes.free",
+          "type": "gauge",
+          "description": "(Linux Only) Free inodes on the file system, expressed as a percentage."
+        },
+        {
+          "name": "percent_inodes.used",
+          "type": "gauge",
+          "description": "(Linux Only) Used inodes on the file system, expressed as a percentage."
+        }
+      ],
+      "properties": null
+    },
+    {
+      "name": "Config",
+      "doc": "\nThis monitor reports metrics about free disk space.\n\n```yaml\nmonitors:\n - type: disk\n```\n",
+      "package": "internal/monitors/disk",
+      "fields": [
+        {
+          "yamlName": "procFSPath",
+          "doc": "The path to the proc filesystem. Useful to override in containerized environments.  (Does not apply to windows)",
+          "default": "/proc",
+          "required": false,
+          "type": "string",
+          "elementKind": ""
+        },
+        {
+          "yamlName": "disks",
+          "doc": "Which devices to include/exclude",
+          "default": [
+            "/^loop[0-9]+$/",
+            "/^dm-[0-9]+$/"
+          ],
+          "required": false,
+          "type": "slice",
+          "elementKind": "string"
+        },
+        {
+          "yamlName": "ignoreSelected",
+          "doc": "If true, the disks selected by `disks` will be excluded and all others included.",
+          "default": null,
+          "required": false,
+          "type": "bool",
+          "elementKind": ""
+        }
+      ],
+      "monitorType": "disk",
+      "acceptsEndpoints": false,
+      "singleInstance": true,
+      "dimensions": null,
+      "metrics": [
+        {
+          "name": "disk_merged.read",
+          "type": "cumulative",
+          "description": "(Linux Only) The number of disk reads merged into single physical disk access operations."
+        },
+        {
+          "name": "disk_merged.write",
+          "type": "cumulative",
+          "description": "(Linux Only) The number of disk writes merged into single physical disk access operations."
+        },
+        {
+          "name": "disk_octets.avg_read",
+          "type": "gauge",
+          "description": "(Windows Only) The average number of octets (bytes) read."
+        },
+        {
+          "name": "disk_octets.avg_write",
+          "type": "gauge",
+          "description": "(Windows Only) The average number of octets (bytes) written."
+        },
+        {
+          "name": "disk_octets.read",
+          "type": "cumulative",
+          "description": "(Linux Only) The number of bytes (octets) read from a disk."
+        },
+        {
+          "name": "disk_octets.write",
+          "type": "cumulative",
+          "description": "(Linux Only) The number of bytes (octets) written to a disk."
+        },
+        {
+          "name": "disk_ops.avg_read",
+          "type": "gauge",
+          "description": "(Windows Only) The average disk read queue length."
+        },
+        {
+          "name": "disk_ops.avg_write",
+          "type": "gauge",
+          "description": "(Windows Only) The average disk write queue length."
+        },
+        {
+          "name": "disk_ops.read",
+          "type": "cumulative",
+          "description": "(Linux Only) The number of disk read operations."
+        },
+        {
+          "name": "disk_ops.write",
+          "type": "cumulative",
+          "description": "(Linux Only) The number of disk write operations."
+        },
+        {
+          "name": "disk_time.avg_read",
+          "type": "gauge",
+          "description": "(Windows Only) The average time spent reading from the disk."
+        },
+        {
+          "name": "disk_time.avg_write",
+          "type": "gauge",
+          "description": "(Windows Only) The average time spent writing to the disk"
+        },
+        {
+          "name": "disk_time.read",
+          "type": "cumulative",
+          "description": "(Linux Only) The average amount of time it took to do a read operation."
+        },
+        {
+          "name": "disk_time.write",
+          "type": "cumulative",
+          "description": "(Linux Only) The average amount of time it took to do a write operation."
+        }
+      ],
+      "properties": null
+    },
+    {
+      "name": "Config",
       "doc": " This monitor reads container stats from a\nDocker API server.  It is meant as a metric-compatible replacement of our\n[docker-collectd](https://github.com/signalfx/docker-collectd-plugin)\nplugin, which scales rather poorly against a large number of containers.\n\nThis currently does not support CPU share/quota metrics.\n\nIf you are running the agent directly on a host (outside of a container\nitself) and you are using the default Docker UNIX socket URL, you will\nprobably need to add the `signalfx-agent` user to the `docker` group in\norder to have permission to access the Docker API via the socket.\n\nRequires Docker API version 1.22+.\n",
       "package": "internal/monitors/docker",
       "fields": [
@@ -10625,6 +10903,85 @@
           "name": "sfxagent.hostmetadata",
           "type": "gauge",
           "description": "The time the hostmetadata monitor has been running in seconds.  It includes dimensional metadata about the host and agent."
+        }
+      ],
+      "properties": null
+    },
+    {
+      "name": "Config",
+      "doc": "\nThis monitor reports network interface and network interface total metrics.\n\n```yaml\nmonitors:\n - type: interface\n```\n",
+      "package": "internal/monitors/netinterface",
+      "fields": [
+        {
+          "yamlName": "procFSPath",
+          "doc": "The path to the proc filesystem. Useful to override in containerized environments.  (Does not apply to windows)",
+          "default": "/proc",
+          "required": false,
+          "type": "string",
+          "elementKind": ""
+        },
+        {
+          "yamlName": "ignoreSelected",
+          "doc": "If true, the interfaces selected by `selectInterfaces` will be excluded and all others included.",
+          "default": null,
+          "required": false,
+          "type": "bool",
+          "elementKind": ""
+        },
+        {
+          "yamlName": "interfaces",
+          "doc": "The interfaces to include/exclude, is interpreted as a regex if surrounded by `/`.",
+          "default": [
+            "/^lo\\d*$/",
+            "/^docker.*/",
+            "/^t(un|ap)\\d*$/",
+            "/^veth.*$/",
+            "/^Loopback*/"
+          ],
+          "required": false,
+          "type": "slice",
+          "elementKind": "string"
+        }
+      ],
+      "monitorType": "interface",
+      "acceptsEndpoints": false,
+      "singleInstance": true,
+      "dimensions": null,
+      "metrics": [
+        {
+          "name": "if_errors.rx",
+          "type": "cumulative",
+          "description": "Count of receive errors on the interface"
+        },
+        {
+          "name": "if_errors.tx",
+          "type": "cumulative",
+          "description": "Count of transmit errors on the interface"
+        },
+        {
+          "name": "if_octets.rx",
+          "type": "cumulative",
+          "description": "Count of bytes (octets) received on the interface"
+        },
+        {
+          "name": "if_octets.tx",
+          "type": "cumulative",
+          "description": "Count of bytes (octets) transmitted by the interface"
+        },
+        {
+          "name": "if_packets.rx",
+          "type": "cumulative",
+          "description": "Count of packets received on the interface"
+        },
+        {
+          "name": "if_packets.tx",
+          "type": "cumulative",
+          "description": "Count of packets transmitted by the interface"
+        },
+        {
+          "name": "network.total",
+          "type": "cumulative",
+          "description": "Total amount of inbound and outbound network traffic on this host, in bytes.  This metric reports with plugin dimension set to \"system-utilization\"."
         }
       ],
       "properties": null
@@ -11604,6 +11961,68 @@
     },
     {
       "name": "Config",
+      "doc": "\nThis monitor reports memory and memory utilization metrics.\n\n```yaml\nmonitors:\n - type: memory\n```\n",
+      "package": "internal/monitors/memory",
+      "fields": [
+        {
+          "yamlName": "procFSPath",
+          "doc": "The path to the proc filesystem. Useful to override in containerized environments.  (Does not apply to windows)",
+          "default": "/proc",
+          "required": false,
+          "type": "string",
+          "elementKind": ""
+        }
+      ],
+      "monitorType": "memory",
+      "acceptsEndpoints": false,
+      "singleInstance": true,
+      "dimensions": null,
+      "metrics": [
+        {
+          "name": "memory.available",
+          "type": "gauge",
+          "description": "(Windows Only) Bytes of memory available for use."
+        },
+        {
+          "name": "memory.buffered",
+          "type": "gauge",
+          "description": "(Linux Only) Bytes of memory used for buffering I/O."
+        },
+        {
+          "name": "memory.cached",
+          "type": "gauge",
+          "description": "(Linux Only) Bytes of memory used for disk caching."
+        },
+        {
+          "name": "memory.free",
+          "type": "gauge",
+          "description": "(Linux Only) Bytes of memory available for use."
+        },
+        {
+          "name": "memory.slab_recl",
+          "type": "gauge",
+          "description": "(Linux Only) Bytes of memory, used for SLAB-allocation of kernel objects, that can be reclaimed."
+        },
+        {
+          "name": "memory.slab_unrecl",
+          "type": "gauge",
+          "description": "(Linux Only) Bytes of memory, used for SLAB-allocation of kernel objects, that can't be reclaimed."
+        },
+        {
+          "name": "memory.used",
+          "type": "gauge",
+          "description": "Bytes of memory in use by the system."
+        },
+        {
+          "name": "memory.utilization",
+          "type": "gauge",
+          "description": "Percent of memory in use on this host. This metric reports with plugin dimension set to \"system-utilization\"."
+        }
+      ],
+      "properties": null
+    },
+    {
+      "name": "Config",
       "doc": " This monitor reports processlist information for Windows\nHosts.\n\nSample YAML configuration:\n\n```yaml\nmonitors:\n - type: processlist\n```\n",
       "package": "internal/monitors/processlist",
       "fields": [],
@@ -11665,126 +12084,6 @@
       "singleInstance": false,
       "dimensions": null,
       "metrics": null,
-      "properties": null
-    },
-    {
-      "name": "Config",
-      "doc": "\nThis monitor reports utilization metrics for Windows\nHosts.  It is used to drive the Windows Smart Agent host navigator view and dashboard\ncontent.\n\n## Windows Performance Counters\nThe underlying source for these metrics on Windows are Windows Performance Counters.\nAll of the performance counters that we query in this monitor are actually Gauges\nthat represent rates per second and percentages.\nThis monitor reports the instantaneous values for these Windows Performance Counters.\nThis means that in between a collection interval, spikes could occur on the\nPerformance Counters.  The best way to mitigate this limitation is to increase\nthe reporting interval on this monitor to collect more frequently.\n\nSample YAML configuration:\n\n```yaml\nmonitors:\n - type: system-utilization\n```\n",
-      "package": "internal/monitors/utilization",
-      "fields": [
-        {
-          "yamlName": "counterRefreshInterval",
-          "doc": "(Windows Only) The frequency that wildcards in counter paths should be expanded and how often to refresh counters from configuration. This is expressed as a duration.",
-          "default": "60s",
-          "required": false,
-          "type": "int64",
-          "elementKind": ""
-        },
-        {
-          "yamlName": "printValid",
-          "doc": "(Windows Only) Print out the configurations that match available performance counters.  This used for debugging.",
-          "default": false,
-          "required": false,
-          "type": "bool",
-          "elementKind": ""
-        }
-      ],
-      "monitorType": "system-utilization",
-      "acceptsEndpoints": false,
-      "singleInstance": true,
-      "dimensions": null,
-      "metrics": [
-        {
-          "name": "cpu.utilization",
-          "type": "gauge",
-          "description": "This metric shows the amount of CPU in use on this machine, as a percent of total CPU available."
-        },
-        {
-          "name": "cpu.utilization_per_core",
-          "type": "gauge",
-          "description": "This metric shows the amount of CPU in use on each core, as a percent of total CPU available per core."
-        },
-        {
-          "name": "df_complex.free",
-          "type": "gauge",
-          "description": "This metric measures free disk space in bytes on this file system."
-        },
-        {
-          "name": "df_complex.used",
-          "type": "gauge",
-          "description": "This metric measures used disk space in bytes on this file system."
-        },
-        {
-          "name": "disk.reads.per_second",
-          "type": "gauge",
-          "description": "The rate of read operations per second against a disk."
-        },
-        {
-          "name": "disk.utilization",
-          "type": "gauge",
-          "description": "This metric shows the amount of disk space in use on this volume, as a percentage of total disk space available on the volume."
-        },
-        {
-          "name": "disk.write.per_second",
-          "type": "gauge",
-          "description": "The rate of write operations per second against a disk."
-        },
-        {
-          "name": "memory.free",
-          "type": "gauge",
-          "description": "Amount of memory that can be immediately used, in bytes."
-        },
-        {
-          "name": "memory.used",
-          "type": "gauge",
-          "description": "The amount of memory consumed by processes and the system, in bytes."
-        },
-        {
-          "name": "memory.utilization",
-          "type": "gauge",
-          "description": "This metric shows the amount of memory in use on this machine, as a percent of total memory available."
-        },
-        {
-          "name": "network_interface.bytes_received.per_second",
-          "type": "gauge",
-          "description": "The rate of bytes received per second."
-        },
-        {
-          "name": "network_interface.bytes_sent.per_second",
-          "type": "gauge",
-          "description": "The rate of bytes sent per second."
-        },
-        {
-          "name": "network_interface.errors_received.per_second",
-          "type": "gauge",
-          "description": "The rate of errors encountered per second while receiving."
-        },
-        {
-          "name": "network_interface.errors_sent.per_second",
-          "type": "gauge",
-          "description": "The rate of errors encountered per second while sending."
-        },
-        {
-          "name": "paging_file.pct_usage",
-          "type": "gauge",
-          "description": "(WINDOWS ONLY) The percentage of page file usage."
-        },
-        {
-          "name": "vmpage.swapped.per_second",
-          "type": "gauge",
-          "description": "The rate of swap operations (read and write) per second."
-        },
-        {
-          "name": "vmpage.swapped_in.per_second",
-          "type": "gauge",
-          "description": "The rate of swap operations per second into memory."
-        },
-        {
-          "name": "vmpage.swapped_out.per_second",
-          "type": "gauge",
-          "description": "The rate of swap operations per second out of memory."
-        }
-      ],
       "properties": null
     },
     {
@@ -13012,6 +13311,99 @@
       "singleInstance": true,
       "dimensions": null,
       "metrics": null,
+      "properties": null
+    },
+    {
+      "name": "Config",
+      "doc": " Collects information about the virtual memory\nsubsystem of the kernel.\n\n```yaml\nmonitors:\n - type: vmem\n```\n",
+      "package": "internal/monitors/vmem",
+      "fields": [
+        {
+          "yamlName": "procFSPath",
+          "doc": "(Linux Only) The path to the proc filesystem. Useful to override in containerized environments.",
+          "default": "/proc",
+          "required": false,
+          "type": "string",
+          "elementKind": ""
+        },
+        {
+          "yamlName": "counterRefreshInterval",
+          "doc": "(Windows Only) The frequency that wildcards in counter paths should be expanded and how often to refresh counters from configuration. This is expressed as a duration.",
+          "default": "60s",
+          "required": false,
+          "type": "int64",
+          "elementKind": ""
+        },
+        {
+          "yamlName": "printValid",
+          "doc": "(Windows Only) Print out the configurations that match available performance counters.  This used for debugging.",
+          "default": false,
+          "required": false,
+          "type": "bool",
+          "elementKind": ""
+        }
+      ],
+      "monitorType": "vmem",
+      "acceptsEndpoints": false,
+      "singleInstance": true,
+      "dimensions": null,
+      "metrics": [
+        {
+          "name": "vmpage.swap.in_per_second",
+          "type": "gauge",
+          "description": "(Windows Only)"
+        },
+        {
+          "name": "vmpage.swap.out_per_second",
+          "type": "gauge",
+          "description": "(Windows Only)"
+        },
+        {
+          "name": "vmpage.swap.total.per_second",
+          "type": "gauge",
+          "description": "(Windows Only)"
+        },
+        {
+          "name": "vmpage_faults.majflt",
+          "type": "cumulative",
+          "description": "(Linux Only) Number of major page faults on the system"
+        },
+        {
+          "name": "vmpage_faults.minflt",
+          "type": "cumulative",
+          "description": "(Linux Only) Number of minor page faults on the system"
+        },
+        {
+          "name": "vmpage_io.memory.in",
+          "type": "cumulative",
+          "description": "(Linux Only) Page Ins for Memory"
+        },
+        {
+          "name": "vmpage_io.memory.out",
+          "type": "cumulative",
+          "description": "(Linux Only) Page Outs for Memory"
+        },
+        {
+          "name": "vmpage_io.swap.in",
+          "type": "cumulative",
+          "description": "(Linux Only) Page Ins for Swap"
+        },
+        {
+          "name": "vmpage_io.swap.out",
+          "type": "cumulative",
+          "description": "(Linux Only) Page Outs for Swap"
+        },
+        {
+          "name": "vmpage_number.free_pages",
+          "type": "cumulative",
+          "description": "(Linux Only) Number of free memory pages"
+        },
+        {
+          "name": "vmpage_number.mapped",
+          "type": "cumulative",
+          "description": "(Linux Only) Number of mapped pages"
+        }
+      ],
       "properties": null
     },
     {
