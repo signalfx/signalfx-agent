@@ -281,6 +281,7 @@ COPY --from=extra-packages /opt/bins/ /bin
 
 COPY --from=collectd /usr/sbin/collectd /bin/collectd
 COPY --from=collectd /opt/deps/ /lib
+COPY --from=collectd /etc/nsswitch.conf /etc/nsswitch.conf
 
 COPY --from=collectd /usr/share/collectd/postgresql_default.conf /plugins/collectd/postgresql_default.conf
 COPY --from=collectd /usr/share/collectd/types.db /plugins/collectd/types.db
