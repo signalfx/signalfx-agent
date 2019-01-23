@@ -239,7 +239,7 @@ ensure_github_release() {
 
 docker_repo_from_stage() {
   local stage=$1
-  if [[ "$stage" != "final" ]]; then
+  if [[ "$stage" != "final" && "$stage" != "beta" ]]; then
     echo -n "quay.io/signalfx/signalfx-agent-dev"
   else
     echo -n "quay.io/signalfx/signalfx-agent"
