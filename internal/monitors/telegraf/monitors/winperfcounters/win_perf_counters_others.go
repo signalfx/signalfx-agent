@@ -4,7 +4,7 @@ package winperfcounters
 
 import "fmt"
 
-// Configure the monitor and kick off volume metric syncing
+// Configure the monitor
 func (m *Monitor) Configure(conf *Config) error {
 	return fmt.Errorf("%s monitor is only supported on Windows", monitorType)
 }

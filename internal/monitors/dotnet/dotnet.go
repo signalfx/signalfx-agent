@@ -62,3 +62,10 @@ type Monitor struct {
 	Output types.Output
 	cancel func()
 }
+
+// Shutdown stops the metric sync
+func (m *Monitor) Shutdown() {
+	if m.cancel != nil {
+		m.cancel()
+	}
+}

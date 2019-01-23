@@ -2,8 +2,9 @@ package telegrafstatsd
 
 import (
 	"context"
-	"github.com/ulule/deepcopier"
 	"time"
+
+	"github.com/ulule/deepcopier"
 
 	telegrafInputs "github.com/influxdata/telegraf/plugins/inputs"
 	telegrafPlugin "github.com/influxdata/telegraf/plugins/inputs/statsd"
@@ -137,6 +138,8 @@ func (m *Monitor) Configure(conf *Config) (err error) {
 func (m *Monitor) Shutdown() {
 	if m.cancel != nil {
 		m.cancel()
+	}
+	if m.plugin != nil {
 		m.plugin.Stop()
 	}
 }
