@@ -75,10 +75,3 @@ func (m *Monitor) Configure(conf *Config) error {
 
 	return nil
 }
-
-// Shutdown stops the metric sync
-func (m *Monitor) Shutdown() {
-	if m.cancel != nil {
-		m.cancel()
-	}
-}

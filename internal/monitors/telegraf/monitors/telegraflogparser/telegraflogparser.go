@@ -2,6 +2,8 @@ package telegraflogparser
 
 import (
 	"context"
+	"time"
+
 	telegrafInputs "github.com/influxdata/telegraf/plugins/inputs"
 	telegrafPlugin "github.com/influxdata/telegraf/plugins/inputs/logparser"
 	"github.com/signalfx/signalfx-agent/internal/core/config"
@@ -12,7 +14,6 @@ import (
 	"github.com/signalfx/signalfx-agent/internal/utils"
 	log "github.com/sirupsen/logrus"
 	"github.com/ulule/deepcopier"
-	"time"
 )
 
 const monitorType = "telegraf/logparser"
@@ -128,9 +129,11 @@ func (m *Monitor) Configure(conf *Config) (err error) {
 
 // Shutdown stops the metric sync
 func (m *Monitor) Shutdown() {
-	if m.plugin != nil {
+	if m.cancel != nil {
 		// stop the collection interval
 		m.cancel()
+	}
+	if m.plugin != nil {
 		// stop the telegraf plugin
 		m.plugin.Stop()
 	}

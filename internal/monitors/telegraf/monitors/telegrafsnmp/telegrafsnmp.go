@@ -3,8 +3,9 @@ package telegrafsnmp
 import (
 	"context"
 	"fmt"
-	"github.com/ulule/deepcopier"
 	"time"
+
+	"github.com/ulule/deepcopier"
 
 	telegrafInputs "github.com/influxdata/telegraf/plugins/inputs"
 	telegrafPlugin "github.com/influxdata/telegraf/plugins/inputs/snmp"
