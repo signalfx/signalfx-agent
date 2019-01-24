@@ -25,7 +25,7 @@ var part = gopsutil.Partitions
 var usage = gopsutil.Usage
 
 // MONITOR(df):
-// This monitor reports metrics about free disk space.
+// This monitor reports metrics about free disk space on mounted devices.
 //
 //
 // ```yaml
@@ -39,7 +39,7 @@ var logger = log.WithFields(log.Fields{"monitorType": monitorType})
 
 // Config for this monitor
 type Config struct {
-	config.MonitorConfig `singleInstance:"true" acceptsEndpoints:"false"`
+	config.MonitorConfig `singleInstance:"false" acceptsEndpoints:"false"`
 	// The path to the proc filesystem. Useful to override in containerized
 	// environments.  (Does not apply to windows)
 	ProcFSPath string `yaml:"procFSPath" default:"/proc"`
@@ -54,21 +54,31 @@ type Config struct {
 	// The mount paths to include/exclude, is interpreted as a regex if
 	// surrounded by `/`.  Note that you need to include the full path as the
 	// agent will see it, irrespective of the hostFSPath option.
-	MountPoints       []string `yaml:"mountPoints" default:"[\"/^/var/lib/docker/containers/\", \"/^/var/lib/rkt/pods/\", \"/^/net//\", \"/^/smb//\"]"`
-	ReportByDevice    bool     `yaml:"reportByDevice" default:"false"`
-	ReportInodes      bool     `yaml:"reportInodes" default:"false"`
+	MountPoints []string `yaml:"mountPoints" default:"[\"/^/var/lib/docker/containers/\", \"/^/var/lib/rkt/pods/\", \"/^/net//\", \"/^/smb//\"]"`
+	// If true, then metrics will report with their plugin_instance set to the
+	// device's name instead of the mountpoint.
+	ReportByDevice bool `yaml:"reportByDevice" default:"false"`
+	// (Linux Only) If true metrics will be reported about inodes.
+	ReportInodes      bool `yaml:"reportInodes" default:"false"`
 	fsTypes           map[string]bool
 	mountPoints       []*regexp.Regexp
 	stringMountPoints map[string]struct{}
 }
 
-func getPluginInstance(conf *Config, partition *gopsutil.PartitionStat) (pluginInstance string) {
-	if conf.ReportByDevice {
-		pluginInstance = strings.Replace(partition.Device, " ", "_", -1)
-	} else {
-		pluginInstance = strings.Replace(partition.Mountpoint, " ", "_", -1)
+// returns common dimensions map according to reportInodes configuration
+func getCommonDimensions(conf *Config, partition *gopsutil.PartitionStat) map[string]string {
+	dims := map[string]string{
+		"mountpoint":      strings.Replace(partition.Mountpoint, " ", "_", -1),
+		"device":          strings.Replace(partition.Device, " ", "_", -1),
+		"plugin_instance": "",
 	}
-	return pluginInstance
+	if conf.ReportByDevice {
+		dims["plugin_instance"] = dims["device"]
+	} else {
+		dims["plugin_instance"] = dims["mountpoint"]
+	}
+
+	return dims
 }
 
 func shouldSkipFileSystem(conf *Config, partition *gopsutil.PartitionStat) (shouldSkip bool) {
@@ -156,13 +166,18 @@ func (m *Monitor) emitDatapoints(conf *Config) {
 			continue
 		}
 
-		// set plugin instance according to reportByDevice config
-		pluginInstance := getPluginInstance(conf, &partition)
+		// get common dimensions according to reportByDevice config
+		commonDims := getCommonDimensions(conf, &partition)
 
 		// disk utilization
-		m.Output.SendDatapoint(datapoint.New("disk.utilization", map[string]string{"plugin": types.UtilizationMetricPluginName, "plugin_instance": pluginInstance}, datapoint.NewFloatValue(disk.UsedPercent), datapoint.Gauge, time.Time{}))
+		m.Output.SendDatapoint(datapoint.New("disk.utilization",
+			utils.MergeStringMaps(map[string]string{"plugin": types.UtilizationMetricPluginName}, commonDims),
+			datapoint.NewFloatValue(disk.UsedPercent),
+			datapoint.Gauge,
+			time.Time{}),
+		)
 
-		dimensions := map[string]string{"plugin": monitorType, "plugin_instance": pluginInstance}
+		dimensions := utils.MergeStringMaps(map[string]string{"plugin": monitorType}, commonDims)
 		m.reportDFComplex(dimensions, disk)
 
 		// report

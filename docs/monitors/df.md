@@ -3,7 +3,7 @@
 # df
 
 
-This monitor reports metrics about free disk space.
+This monitor reports metrics about free disk space on mounted devices.
 
 ```yaml
 monitors:
@@ -17,7 +17,7 @@ Monitor Type: `df`
 
 **Accepts Endpoints**: No
 
-**Multiple Instances Allowed**: **No**
+**Multiple Instances Allowed**: Yes
 
 ## Configuration
 
@@ -27,8 +27,8 @@ Monitor Type: `df`
 | `ignoreSelected` | no | `bool` | If true, the filesystems selected by `fsTypes` and `mountPoints` will be excluded and all others included. |
 | `fsTypes` | no | `list of string` | The filesystem types to include/exclude. (**default:** `[aufs overlay tmpfs proc sysfs nsfs cgroup devpts selinuxfs devtmpfs debugfs mqueue hugetlbfs securityfs pstore binfmt_misc autofs]`) |
 | `mountPoints` | no | `list of string` | The mount paths to include/exclude, is interpreted as a regex if surrounded by `/`.  Note that you need to include the full path as the agent will see it, irrespective of the hostFSPath option. (**default:** `[/^/var/lib/docker/containers/ /^/var/lib/rkt/pods/ /^/net// /^/smb//]`) |
-| `reportByDevice` | no | `bool` |  (**default:** `false`) |
-| `reportInodes` | no | `bool` |  (**default:** `false`) |
+| `reportByDevice` | no | `bool` | If true, then metrics will report with their plugin_instance set to the device's name instead of the mountpoint. (**default:** `false`) |
+| `reportInodes` | no | `bool` | (Linux Only) If true metrics will be reported about inodes. (**default:** `false`) |
 
 
 
@@ -41,14 +41,14 @@ The following table lists the metrics available for this monitor. Metrics that a
 | ---  | ---  | ---    | ---         |
 | `df_complex.free` | gauge |  | Free disk space in bytes |
 | `df_complex.used` | gauge |  | Used disk space in bytes |
-| `df_inodes.free` | gauge | X | (Linux Only) Number of inodes that are free. |
-| `df_inodes.used` | gauge | X | (Linux Only) Number of inodes that are used. |
+| `df_inodes.free` | gauge | X | (Linux Only) Number of inodes that are free.  This is is only reported if the configuration option `reportInodes` is set to `true`. |
+| `df_inodes.used` | gauge | X | (Linux Only) Number of inodes that are used.  This is only reported if the configuration option `reportInodes` is set to `true`. |
 | `disk.summary_utilization` | gauge |  | Percent of disk space utilized on all volumes on this host. This metric reports with plugin dimension set to "signalfx-metadata". |
 | `disk.utilization` | gauge |  | Percent of disk used on this volume. This metric reports with plugin dimension set to "signalfx-metadata". |
 | `percent_bytes.free` | gauge | X | Free disk space on the file system, expressed as a percentage. |
 | `percent_bytes.used` | gauge | X | Used disk space on the file system, expressed as a percentage. |
-| `percent_inodes.free` | gauge | X | (Linux Only) Free inodes on the file system, expressed as a percentage. |
-| `percent_inodes.used` | gauge | X | (Linux Only) Used inodes on the file system, expressed as a percentage. |
+| `percent_inodes.free` | gauge | X | (Linux Only) Free inodes on the file system, expressed as a percentage.  This is only reported if the configuration option `reportInodes` is set to `true`. |
+| `percent_inodes.used` | gauge | X | (Linux Only) Used inodes on the file system, expressed as a percentage.  This is only reported if the configuration option `reportInodes` is set to `true`. |
 
 
 To specify custom metrics you want to monitor, add a `metricsToInclude` filter

@@ -10299,7 +10299,7 @@
     },
     {
       "name": "Config",
-      "doc": "\nThis monitor reports metrics about free disk space.\n\n```yaml\nmonitors:\n - type: df\n```\n",
+      "doc": "\nThis monitor reports metrics about free disk space on mounted devices.\n\n```yaml\nmonitors:\n - type: df\n```\n",
       "package": "internal/monitors/df",
       "fields": [
         {
@@ -10359,7 +10359,7 @@
         },
         {
           "yamlName": "reportByDevice",
-          "doc": "",
+          "doc": "If true, then metrics will report with their plugin_instance set to the device's name instead of the mountpoint.",
           "default": false,
           "required": false,
           "type": "bool",
@@ -10367,7 +10367,7 @@
         },
         {
           "yamlName": "reportInodes",
-          "doc": "",
+          "doc": "(Linux Only) If true metrics will be reported about inodes.",
           "default": false,
           "required": false,
           "type": "bool",
@@ -10376,7 +10376,7 @@
       ],
       "monitorType": "df",
       "acceptsEndpoints": false,
-      "singleInstance": true,
+      "singleInstance": false,
       "dimensions": null,
       "metrics": [
         {
@@ -10392,12 +10392,12 @@
         {
           "name": "df_inodes.free",
           "type": "gauge",
-          "description": "(Linux Only) Number of inodes that are free."
+          "description": "(Linux Only) Number of inodes that are free.  This is is only reported if the configuration option `reportInodes` is set to `true`."
         },
         {
           "name": "df_inodes.used",
           "type": "gauge",
-          "description": "(Linux Only) Number of inodes that are used."
+          "description": "(Linux Only) Number of inodes that are used.  This is only reported if the configuration option `reportInodes` is set to `true`."
         },
         {
           "name": "disk.summary_utilization",
@@ -10422,12 +10422,12 @@
         {
           "name": "percent_inodes.free",
           "type": "gauge",
-          "description": "(Linux Only) Free inodes on the file system, expressed as a percentage."
+          "description": "(Linux Only) Free inodes on the file system, expressed as a percentage.  This is only reported if the configuration option `reportInodes` is set to `true`."
         },
         {
           "name": "percent_inodes.used",
           "type": "gauge",
-          "description": "(Linux Only) Used inodes on the file system, expressed as a percentage."
+          "description": "(Linux Only) Used inodes on the file system, expressed as a percentage.  This is only reported if the configuration option `reportInodes` is set to `true`."
         }
       ],
       "properties": null

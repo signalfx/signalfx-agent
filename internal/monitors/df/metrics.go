@@ -4,9 +4,11 @@ package df
 
 // GAUGE(df_complex.used): Used disk space in bytes
 
-// GAUGE(df_inodes.free): (Linux Only) Number of inodes that are free.
+// GAUGE(df_inodes.free): (Linux Only) Number of inodes that are free.  This is
+// is only reported if the configuration option `reportInodes` is set to `true`.
 
-// GAUGE(df_inodes.used): (Linux Only) Number of inodes that are used.
+// GAUGE(df_inodes.used): (Linux Only) Number of inodes that are used.  This is
+// only reported if the configuration option `reportInodes` is set to `true`.
 
 // GAUGE(percent_bytes.free): Free disk space on the file system,
 // expressed as a percentage.
@@ -15,10 +17,12 @@ package df
 // expressed as a percentage.
 
 // GAUGE(percent_inodes.free): (Linux Only) Free inodes on the file system, expressed
-// as a percentage.
+// as a percentage.  This is only reported if the configuration option `reportInodes`
+// is set to `true`.
 
 // GAUGE(percent_inodes.used): (Linux Only) Used inodes on the file system, expressed
-// as a percentage.
+// as a percentage.  This is only reported if the configuration option `reportInodes`
+// is set to `true`.
 
 // GAUGE(disk.summary_utilization): Percent of disk space utilized on all
 // volumes on this host. This metric reports with plugin dimension set to
