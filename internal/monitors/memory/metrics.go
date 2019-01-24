@@ -17,4 +17,4 @@ package memory
 // GAUGE(memory.used): Bytes of memory in use by the system.
 
 // GAUGE(memory.utilization): Percent of memory in use on this host.
-// This metric reports with plugin dimension set to "system-utilization".
+// This metric reports with plugin dimension set to "signalfx-metadata".

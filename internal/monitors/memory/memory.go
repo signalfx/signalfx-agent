@@ -7,7 +7,6 @@ import (
 
 	"github.com/shirou/gopsutil/mem"
 	"github.com/signalfx/golib/datapoint"
-	"github.com/signalfx/signalfx-agent/internal/core/common/constants"
 	"github.com/signalfx/signalfx-agent/internal/core/config"
 	"github.com/signalfx/signalfx-agent/internal/monitors"
 	"github.com/signalfx/signalfx-agent/internal/monitors/types"
@@ -76,7 +75,7 @@ func (m *Monitor) emitDatapoints() {
 	dimensions := map[string]string{"plugin": monitorType}
 
 	// all platforms
-	m.Output.SendDatapoint(datapoint.New("memory.utilization", map[string]string{"plugin": constants.UtilizationMetricPluginName}, datapoint.NewFloatValue(memInfo.UsedPercent), datapoint.Gauge, time.Time{}))
+	m.Output.SendDatapoint(datapoint.New("memory.utilization", map[string]string{"plugin": types.UtilizationMetricPluginName}, datapoint.NewFloatValue(memInfo.UsedPercent), datapoint.Gauge, time.Time{}))
 	m.Output.SendDatapoint(datapoint.New("memory.used", dimensions, datapoint.NewIntValue(int64(memInfo.Used)), datapoint.Gauge, time.Time{}))
 
 	// windows only

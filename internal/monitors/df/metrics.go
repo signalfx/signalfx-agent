@@ -22,7 +22,7 @@ package df
 
 // GAUGE(disk.summary_utilization): Percent of disk space utilized on all
 // volumes on this host. This metric reports with plugin dimension set to
-// "system-utilization".
+// "signalfx-metadata".
 
 // GAUGE(disk.utilization): Percent of disk used on this volume. This metric
-// reports with plugin dimension set to "system-utilization".
+// reports with plugin dimension set to "signalfx-metadata".

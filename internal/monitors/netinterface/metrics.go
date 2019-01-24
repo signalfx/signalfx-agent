@@ -14,4 +14,4 @@ package netinterface
 
 // CUMULATIVE(network.total): Total amount of inbound and outbound network
 // traffic on this host, in bytes.  This metric reports with plugin dimension
-// set to "system-utilization".
+// set to "signalfx-metadata".

@@ -10,7 +10,6 @@ import (
 
 	gopsutil "github.com/shirou/gopsutil/disk"
 	"github.com/signalfx/golib/datapoint"
-	"github.com/signalfx/signalfx-agent/internal/core/common/constants"
 	"github.com/signalfx/signalfx-agent/internal/core/config"
 	"github.com/signalfx/signalfx-agent/internal/monitors"
 	"github.com/signalfx/signalfx-agent/internal/monitors/types"
@@ -161,7 +160,7 @@ func (m *Monitor) emitDatapoints(conf *Config) {
 		pluginInstance := getPluginInstance(conf, &partition)
 
 		// disk utilization
-		m.Output.SendDatapoint(datapoint.New("disk.utilization", map[string]string{"plugin": constants.UtilizationMetricPluginName, "plugin_instance": pluginInstance}, datapoint.NewFloatValue(disk.UsedPercent), datapoint.Gauge, time.Time{}))
+		m.Output.SendDatapoint(datapoint.New("disk.utilization", map[string]string{"plugin": types.UtilizationMetricPluginName, "plugin_instance": pluginInstance}, datapoint.NewFloatValue(disk.UsedPercent), datapoint.Gauge, time.Time{}))
 
 		dimensions := map[string]string{"plugin": monitorType, "plugin_instance": pluginInstance}
 		m.reportDFComplex(dimensions, disk)
@@ -185,7 +184,7 @@ func (m *Monitor) emitDatapoints(conf *Config) {
 			logger.WithError(err).Errorf("failed to calculate utilization data")
 			return
 		}
-		m.Output.SendDatapoint(datapoint.New("disk.summary_utilization", map[string]string{"plugin": constants.UtilizationMetricPluginName}, datapoint.NewFloatValue(diskSummary), datapoint.Gauge, time.Time{}))
+		m.Output.SendDatapoint(datapoint.New("disk.summary_utilization", map[string]string{"plugin": types.UtilizationMetricPluginName}, datapoint.NewFloatValue(diskSummary), datapoint.Gauge, time.Time{}))
 	}
 }
 

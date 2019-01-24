@@ -34,8 +34,8 @@ The following table lists the metrics available for this monitor. Metrics that a
 
 | Name | Type | Custom | Description |
 | ---  | ---  | ---    | ---         |
-| `cpu.utilization` | gauge |  | Percent of CPU used on this host. This metric is emitted with a plugin dimension set to "system-utilization". |
-| `cpu.utilization_per_core` | gauge | X | Percent of CPU used on each core. This metric is emitted with the plugin dimension set to "system-utilization" |
+| `cpu.utilization` | gauge |  | Percent of CPU used on this host. This metric is emitted with a plugin dimension set to "signalfx-metadata". |
+| `cpu.utilization_per_core` | gauge | X | Percent of CPU used on each core. This metric is emitted with the plugin dimension set to "signalfx-metadata" |
 
 
 To specify custom metrics you want to monitor, add a `metricsToInclude` filter

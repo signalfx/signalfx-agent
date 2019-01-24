@@ -9,7 +9,6 @@ import (
 
 	"github.com/shirou/gopsutil/net"
 	"github.com/signalfx/golib/datapoint"
-	"github.com/signalfx/signalfx-agent/internal/core/common/constants"
 	"github.com/signalfx/signalfx-agent/internal/core/config"
 	"github.com/signalfx/signalfx-agent/internal/monitors"
 	"github.com/signalfx/signalfx-agent/internal/monitors/types"
@@ -127,7 +126,7 @@ func (m *Monitor) EmitDatapoints(conf *Config) {
 	}
 
 	// network.total
-	m.Output.SendDatapoint(datapoint.New("network.total", map[string]string{"plugin": constants.UtilizationMetricPluginName}, datapoint.NewIntValue(int64(conf.networkTotal)), datapoint.Counter, time.Time{}))
+	m.Output.SendDatapoint(datapoint.New("network.total", map[string]string{"plugin": types.UtilizationMetricPluginName}, datapoint.NewIntValue(int64(conf.networkTotal)), datapoint.Counter, time.Time{}))
 }
 
 // Configure is the main function of the monitor, it will report host metadata

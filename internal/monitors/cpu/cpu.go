@@ -8,7 +8,6 @@ import (
 
 	"github.com/shirou/gopsutil/cpu"
 	"github.com/signalfx/golib/datapoint"
-	"github.com/signalfx/signalfx-agent/internal/core/common/constants"
 	"github.com/signalfx/signalfx-agent/internal/core/config"
 	"github.com/signalfx/signalfx-agent/internal/monitors"
 	"github.com/signalfx/signalfx-agent/internal/monitors/types"
@@ -97,7 +96,7 @@ func (m *Monitor) emitPerCoreDatapoints(conf *Config) {
 			m.Output.SendDatapoint(
 				datapoint.New(
 					percoreMetricName,
-					map[string]string{"plugin": constants.UtilizationMetricPluginName, "core": core.CPU},
+					map[string]string{"plugin": types.UtilizationMetricPluginName, "core": core.CPU},
 					datapoint.NewFloatValue(utilization),
 					datapoint.Gauge,
 					time.Time{},
@@ -132,7 +131,7 @@ func (m *Monitor) emitDatapoints(conf *Config) {
 			m.Output.SendDatapoint(
 				datapoint.New(
 					cpuUtilName,
-					map[string]string{"plugin": constants.UtilizationMetricPluginName},
+					map[string]string{"plugin": types.UtilizationMetricPluginName},
 					datapoint.NewFloatValue(utilization),
 					datapoint.Gauge,
 					time.Time{},

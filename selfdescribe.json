@@ -10287,12 +10287,12 @@
         {
           "name": "cpu.utilization",
           "type": "gauge",
-          "description": "Percent of CPU used on this host. This metric is emitted with a plugin dimension set to \"system-utilization\"."
+          "description": "Percent of CPU used on this host. This metric is emitted with a plugin dimension set to \"signalfx-metadata\"."
         },
         {
           "name": "cpu.utilization_per_core",
           "type": "gauge",
-          "description": "Percent of CPU used on each core. This metric is emitted with the plugin dimension set to \"system-utilization\""
+          "description": "Percent of CPU used on each core. This metric is emitted with the plugin dimension set to \"signalfx-metadata\""
         }
       ],
       "properties": null
@@ -10402,12 +10402,12 @@
         {
           "name": "disk.summary_utilization",
           "type": "gauge",
-          "description": "Percent of disk space utilized on all volumes on this host. This metric reports with plugin dimension set to \"system-utilization\"."
+          "description": "Percent of disk space utilized on all volumes on this host. This metric reports with plugin dimension set to \"signalfx-metadata\"."
         },
         {
           "name": "disk.utilization",
           "type": "gauge",
-          "description": "Percent of disk used on this volume. This metric reports with plugin dimension set to \"system-utilization\"."
+          "description": "Percent of disk used on this volume. This metric reports with plugin dimension set to \"signalfx-metadata\"."
         },
         {
           "name": "percent_bytes.free",
@@ -10981,7 +10981,7 @@
         {
           "name": "network.total",
           "type": "cumulative",
-          "description": "Total amount of inbound and outbound network traffic on this host, in bytes.  This metric reports with plugin dimension set to \"system-utilization\"."
+          "description": "Total amount of inbound and outbound network traffic on this host, in bytes.  This metric reports with plugin dimension set to \"signalfx-metadata\"."
         }
       ],
       "properties": null
@@ -12041,7 +12041,7 @@
         {
           "name": "memory.utilization",
           "type": "gauge",
-          "description": "Percent of memory in use on this host. This metric reports with plugin dimension set to \"system-utilization\"."
+          "description": "Percent of memory in use on this host. This metric reports with plugin dimension set to \"signalfx-metadata\"."
         }
       ],
       "properties": null

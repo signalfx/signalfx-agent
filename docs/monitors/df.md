@@ -43,8 +43,8 @@ The following table lists the metrics available for this monitor. Metrics that a
 | `df_complex.used` | gauge |  | Used disk space in bytes |
 | `df_inodes.free` | gauge | X | (Linux Only) Number of inodes that are free. |
 | `df_inodes.used` | gauge | X | (Linux Only) Number of inodes that are used. |
-| `disk.summary_utilization` | gauge |  | Percent of disk space utilized on all volumes on this host. This metric reports with plugin dimension set to "system-utilization". |
-| `disk.utilization` | gauge |  | Percent of disk used on this volume. This metric reports with plugin dimension set to "system-utilization". |
+| `disk.summary_utilization` | gauge |  | Percent of disk space utilized on all volumes on this host. This metric reports with plugin dimension set to "signalfx-metadata". |
+| `disk.utilization` | gauge |  | Percent of disk used on this volume. This metric reports with plugin dimension set to "signalfx-metadata". |
 | `percent_bytes.free` | gauge | X | Free disk space on the file system, expressed as a percentage. |
 | `percent_bytes.used` | gauge | X | Used disk space on the file system, expressed as a percentage. |
 | `percent_inodes.free` | gauge | X | (Linux Only) Free inodes on the file system, expressed as a percentage. |

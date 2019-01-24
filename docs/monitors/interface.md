@@ -42,7 +42,7 @@ The following table lists the metrics available for this monitor. Metrics that a
 | `if_octets.tx` | cumulative |  | Count of bytes (octets) transmitted by the interface |
 | `if_packets.rx` | cumulative | X | Count of packets received on the interface |
 | `if_packets.tx` | cumulative | X | Count of packets transmitted by the interface |
-| `network.total` | cumulative |  | Total amount of inbound and outbound network traffic on this host, in bytes.  This metric reports with plugin dimension set to "system-utilization". |
+| `network.total` | cumulative |  | Total amount of inbound and outbound network traffic on this host, in bytes.  This metric reports with plugin dimension set to "signalfx-metadata". |
 
 
 To specify custom metrics you want to monitor, add a `metricsToInclude` filter
