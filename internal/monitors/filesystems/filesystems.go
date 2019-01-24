@@ -3,18 +3,17 @@ package filesystems
 import (
 	"context"
 	"fmt"
-	"regexp"
 	"runtime"
 	"strings"
 	"time"
 
 	gopsutil "github.com/shirou/gopsutil/disk"
 	"github.com/signalfx/golib/datapoint"
-	"github.com/signalfx/golib/pointer"
 	"github.com/signalfx/signalfx-agent/internal/core/config"
 	"github.com/signalfx/signalfx-agent/internal/monitors"
 	"github.com/signalfx/signalfx-agent/internal/monitors/types"
 	"github.com/signalfx/signalfx-agent/internal/utils"
+	"github.com/signalfx/signalfx-agent/internal/utils/filter"
 
 	log "github.com/sirupsen/logrus"
 )
@@ -47,17 +46,14 @@ func init() {
 type Config struct {
 	config.MonitorConfig `singleInstance:"false" acceptsEndpoints:"false"`
 
-	// If true, the filesystems selected by `fsTypes` and `mountPoints` will be
-	// excluded and all others included.
-	IgnoreSelected *bool `yaml:"ignoreSelected" default:"true"`
-
-	// The filesystem types to include/exclude.
-	FSTypes []string `yaml:"fsTypes" default:"[\"aufs\", \"overlay\", \"tmpfs\", \"proc\", \"sysfs\", \"nsfs\", \"cgroup\", \"devpts\", \"selinuxfs\", \"devtmpfs\", \"debugfs\", \"mqueue\", \"hugetlbfs\", \"securityfs\", \"pstore\", \"binfmt_misc\", \"autofs\"]"`
+	// The filesystem types to include/exclude, is interpreted as a regex if
+	// surrounded by `/`.
+	FSTypes []string `yaml:"fsTypes" default:"[\"*\", \"!aufs\", \"!overlay\", \"!tmpfs\", \"!proc\", \"!sysfs\", \"!nsfs\", \"!cgroup\", \"!devpts\", \"!selinuxfs\", \"!devtmpfs\", \"!debugfs\", \"!mqueue\", \"!hugetlbfs\", \"!securityfs\", \"!pstore\", \"!binfmt_misc\", \"!autofs\"]"`
 
 	// The mount paths to include/exclude, is interpreted as a regex if
 	// surrounded by `/`.  Note that you need to include the full path as the
 	// agent will see it, irrespective of the hostFSPath option.
-	MountPoints []string `yaml:"mountPoints" default:"[\"/^/var/lib/docker/containers/\", \"/^/var/lib/rkt/pods/\", \"/^/net//\", \"/^/smb//\", \"/^/tmp/scratch/\"]"`
+	MountPoints []string `yaml:"mountPoints" default:"[\"*\", \"!/^/var/lib/docker/containers/\", \"!/^/var/lib/rkt/pods/\", \"!/^/net//\", \"!/^/smb//\", \"!/^/tmp/scratch/\"]"`
 	// If true, then metrics will report with their plugin_instance set to the
 	// device's name instead of the mountpoint.
 	ReportByDevice bool `yaml:"reportByDevice" default:"false"`
@@ -67,12 +63,11 @@ type Config struct {
 
 // Monitor for Utilization
 type Monitor struct {
-	Output            types.Output
-	cancel            func()
-	conf              *Config
-	fsTypes           map[string]bool
-	mountPoints       []*regexp.Regexp
-	stringMountPoints map[string]struct{}
+	Output      types.Output
+	cancel      func()
+	conf        *Config
+	fsTypes     *filter.ExhaustiveStringFilter
+	mountPoints *filter.ExhaustiveStringFilter
 }
 
 // returns common dimensions map according to reportInodes configuration
@@ -89,24 +84,6 @@ func (m *Monitor) getCommonDimensions(partition *gopsutil.PartitionStat) map[str
 	}
 
 	return dims
-}
-
-func (m *Monitor) shouldSkipFileSystem(partition *gopsutil.PartitionStat) (shouldSkip bool) {
-	if _, ok := m.fsTypes[partition.Fstype]; (ok && *m.conf.IgnoreSelected) || (!ok && !*m.conf.IgnoreSelected) {
-		shouldSkip = true
-	}
-	return
-}
-
-func (m *Monitor) shouldSkipMountpoint(partition *gopsutil.PartitionStat) (shouldSkip bool) {
-	// check for plain string match
-	_, match := m.stringMountPoints[partition.Mountpoint]
-	// check for regex match
-	match = match || utils.FindMatchString(partition.Mountpoint, m.mountPoints)
-	if (match && *m.conf.IgnoreSelected) || (!match && !*m.conf.IgnoreSelected) {
-		shouldSkip = true
-	}
-	return
 }
 
 func (m *Monitor) reportInodeDatapoints(dimensions map[string]string, disk *gopsutil.UsageStat) {
@@ -140,14 +117,14 @@ func (m *Monitor) emitDatapoints() {
 	var total uint64
 	for _, partition := range partitions {
 
-		// handle selecting fs types
-		if m.shouldSkipFileSystem(&partition) {
+		// skip it if the filesystem doesn't match
+		if !m.fsTypes.Matches(partition.Fstype) {
 			logger.Debugf("skipping mountpoint `%s` with fs type `%s`", partition.Mountpoint, partition.Fstype)
 			continue
 		}
 
-		// handle selecting mountpoints
-		if m.shouldSkipMountpoint(&partition) {
+		// skip it if the mountpoint doesn't match
+		if !m.mountPoints.Matches(partition.Mountpoint) {
 			logger.Debugf("skipping mountpoint '%s'", partition.Mountpoint)
 			continue
 		}
@@ -210,21 +187,31 @@ func (m *Monitor) Configure(conf *Config) error {
 	// save conf to monitor for quick reference
 	m.conf = conf
 
-	// convert fstypes array to map for quick lookup
-	m.fsTypes = utils.StringSliceToMap(m.conf.FSTypes)
-
-	// set IgnoreSelected to true by default
-	if m.conf.IgnoreSelected == nil {
-		m.conf.IgnoreSelected = pointer.Bool(true)
+	// configure filters
+	var err error
+	if len(m.conf.FSTypes) == 0 {
+		m.fsTypes, err = filter.NewExhaustiveStringFilter([]string{"*"})
+		logger.Debugf("empty fsTypes list, defaulting to '*'")
+	} else {
+		m.fsTypes, err = filter.NewExhaustiveStringFilter(m.conf.FSTypes)
 	}
 
-	// convert array of strings and/or regexp to map of strings and array of regexp
-	var errs []error
-	m.mountPoints, m.stringMountPoints, errs = utils.RegexpStringsToRegexp(m.conf.MountPoints)
-	for _, err := range errs {
-		if err != nil {
-			return err
-		}
+	// return an error if we can't set the filter
+	if err != nil {
+		return err
+	}
+
+	// configure filters
+	if len(m.conf.MountPoints) == 0 {
+		m.mountPoints, err = filter.NewExhaustiveStringFilter([]string{"*"})
+		logger.Debugf("empty mountPoints list, defaulting to '*'")
+	} else {
+		m.mountPoints, err = filter.NewExhaustiveStringFilter(m.conf.MountPoints)
+	}
+
+	// return an error if we can't set the filter
+	if err != nil {
+		return err
 	}
 
 	// gather metrics on the specified interval
