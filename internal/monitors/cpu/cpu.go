@@ -34,9 +34,8 @@ var times = cpu.Times
 
 var logger = log.WithFields(log.Fields{"monitorType": monitorType})
 
-type totalUsed struct {
-	Total float64
-	Used  float64
+func init() {
+	monitors.Register(monitorType, func() interface{} { return &Monitor{} }, &Config{})
 }
 
 // TODO: make ProcFSPath a global config
@@ -49,26 +48,18 @@ type Config struct {
 	ProcFSPath string `yaml:"procFSPath" default:"/proc"`
 }
 
-// cpuTimeStatTototalUsed converts a cpu.TimesStat to a totalUsed with Total and Used values
-func cpuTimeStatTototalUsed(t *cpu.TimesStat) *totalUsed {
-	// add up all times if a value doesn't apply then the struct field
-	// will be 0 and shouldn't affect anything
-	total := t.User +
-		t.System +
-		t.Idle +
-		t.Nice +
-		t.Iowait +
-		t.Irq +
-		t.Softirq +
-		t.Steal +
-		t.Guest +
-		t.GuestNice +
-		t.Stolen
+type totalUsed struct {
+	Total float64
+	Used  float64
+}
 
-	return &totalUsed{
-		Total: total,
-		Used:  total - t.Idle,
-	}
+// Monitor for Utilization
+type Monitor struct {
+	Output          types.Output
+	cancel          func()
+	conf            *Config
+	previousPerCore map[string]*totalUsed
+	previousTotal   *totalUsed
 }
 
 func (m *Monitor) emitPerCoreDatapoints() {
@@ -235,15 +226,24 @@ func (m *Monitor) Shutdown() {
 	}
 }
 
-func init() {
-	monitors.Register(monitorType, func() interface{} { return &Monitor{} }, &Config{})
-}
+// cpuTimeStatTototalUsed converts a cpu.TimesStat to a totalUsed with Total and Used values
+func cpuTimeStatTototalUsed(t *cpu.TimesStat) *totalUsed {
+	// add up all times if a value doesn't apply then the struct field
+	// will be 0 and shouldn't affect anything
+	total := t.User +
+		t.System +
+		t.Idle +
+		t.Nice +
+		t.Iowait +
+		t.Irq +
+		t.Softirq +
+		t.Steal +
+		t.Guest +
+		t.GuestNice +
+		t.Stolen
 
-// Monitor for Utilization
-type Monitor struct {
-	Output          types.Output
-	cancel          func()
-	conf            *Config
-	previousPerCore map[string]*totalUsed
-	previousTotal   *totalUsed
+	return &totalUsed{
+		Total: total,
+		Used:  total - t.Idle,
+	}
 }

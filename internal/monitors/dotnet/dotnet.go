@@ -42,6 +42,10 @@ const monitorType = "dotnet"
 
 var logger = log.WithFields(log.Fields{"monitorType": monitorType})
 
+func init() {
+	monitors.Register(monitorType, func() interface{} { return &Monitor{} }, &Config{})
+}
+
 // Config for this monitor
 type Config struct {
 	config.MonitorConfig `singleInstance:"true" acceptsEndpoints:"false"`
@@ -51,10 +55,6 @@ type Config struct {
 	// (Windows Only) Print out the configurations that match available
 	// performance counters.  This used for debugging.
 	PrintValid bool `yaml:"printValid"`
-}
-
-func init() {
-	monitors.Register(monitorType, func() interface{} { return &Monitor{} }, &Config{})
 }
 
 // Monitor for Utilization

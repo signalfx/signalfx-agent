@@ -21,6 +21,10 @@ const monitorType = "vmem"
 
 var logger = log.WithFields(log.Fields{"monitorType": monitorType})
 
+func init() {
+	monitors.Register(monitorType, func() interface{} { return &Monitor{} }, &Config{})
+}
+
 // TODO: make ProcFSPath a global config
 
 // Config for this monitor
@@ -38,19 +42,15 @@ type Config struct {
 	PrintValid bool `yaml:"printValid"`
 }
 
+// Monitor for Utilization
+type Monitor struct {
+	Output types.Output
+	cancel func()
+}
+
 // Shutdown stops the metric sync
 func (m *Monitor) Shutdown() {
 	if m.cancel != nil {
 		m.cancel()
 	}
-}
-
-func init() {
-	monitors.Register(monitorType, func() interface{} { return &Monitor{} }, &Config{})
-}
-
-// Monitor for Utilization
-type Monitor struct {
-	Output types.Output
-	cancel func()
 }

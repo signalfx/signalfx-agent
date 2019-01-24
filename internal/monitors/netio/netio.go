@@ -36,6 +36,10 @@ var iOCounters = net.IOCounters
 
 var logger = log.WithFields(log.Fields{"monitorType": monitorType})
 
+func init() {
+	monitors.Register(monitorType, func() interface{} { return &Monitor{} }, &Config{})
+}
+
 // Config for this monitor
 type Config struct {
 	config.MonitorConfig `singleInstance:"true" acceptsEndpoints:"false"`
@@ -48,6 +52,17 @@ type Config struct {
 	// The interfaces to include/exclude, is interpreted as a regex if
 	// surrounded by `/`.
 	Interfaces []string `yaml:"interfaces" default:"[\"/^lo\\\\d*$/\", \"/^docker.*/\", \"/^t(un|ap)\\\\d*$/\", \"/^veth.*$/\", \"/^Loopback*/\"]"`
+}
+
+// Monitor for Utilization
+type Monitor struct {
+	Output                 types.Output
+	cancel                 func()
+	conf                   *Config
+	interfaces             []*regexp.Regexp
+	stringInterfaces       map[string]struct{}
+	networkTotal           uint64
+	previousInterfaceStats map[string]*net.IOCountersStat
 }
 
 func (m *Monitor) updateTotals(pluginInstance string, intf *net.IOCountersStat) {
@@ -170,19 +185,4 @@ func (m *Monitor) Shutdown() {
 	if m.cancel != nil {
 		m.cancel()
 	}
-}
-
-func init() {
-	monitors.Register(monitorType, func() interface{} { return &Monitor{} }, &Config{})
-}
-
-// Monitor for Utilization
-type Monitor struct {
-	Output                 types.Output
-	cancel                 func()
-	conf                   *Config
-	interfaces             []*regexp.Regexp
-	stringInterfaces       map[string]struct{}
-	networkTotal           uint64
-	previousInterfaceStats map[string]*net.IOCountersStat
 }

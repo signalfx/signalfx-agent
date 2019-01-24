@@ -33,6 +33,10 @@ const monitorType = "disk-io"
 
 var logger = log.WithFields(log.Fields{"monitorType": monitorType})
 
+func init() {
+	monitors.Register(monitorType, func() interface{} { return &Monitor{} }, &Config{})
+}
+
 // TODO: make ProcFSPath a global config
 
 // Config for this monitor
@@ -48,6 +52,15 @@ type Config struct {
 	// If true, the disks selected by `disks` will be excluded and all others
 	// included.
 	IgnoreSelected *bool `yaml:"ignoreSelected"`
+}
+
+// Monitor for Utilization
+type Monitor struct {
+	Output       types.Output
+	cancel       func()
+	conf         *Config
+	ignoreRegex  []*regexp.Regexp
+	ignoreString map[string]struct{}
 }
 
 func (m *Monitor) processWindowsDatapoints(disk *gopsutil.IOCountersStat, dimensions map[string]string) {
@@ -179,17 +192,4 @@ func (m *Monitor) Shutdown() {
 	if m.cancel != nil {
 		m.cancel()
 	}
-}
-
-func init() {
-	monitors.Register(monitorType, func() interface{} { return &Monitor{} }, &Config{})
-}
-
-// Monitor for Utilization
-type Monitor struct {
-	Output       types.Output
-	cancel       func()
-	conf         *Config
-	ignoreRegex  []*regexp.Regexp
-	ignoreString map[string]struct{}
 }

@@ -36,6 +36,10 @@ var usage = gopsutil.Usage
 
 var logger = log.WithFields(log.Fields{"monitorType": monitorType})
 
+func init() {
+	monitors.Register(monitorType, func() interface{} { return &Monitor{} }, &Config{})
+}
+
 // TODO: make ProcFSPath a global config
 
 // Config for this monitor
@@ -61,6 +65,16 @@ type Config struct {
 	ReportByDevice bool `yaml:"reportByDevice" default:"false"`
 	// (Linux Only) If true metrics will be reported about inodes.
 	ReportInodes bool `yaml:"reportInodes" default:"false"`
+}
+
+// Monitor for Utilization
+type Monitor struct {
+	Output            types.Output
+	cancel            func()
+	conf              *Config
+	fsTypes           map[string]bool
+	mountPoints       []*regexp.Regexp
+	stringMountPoints map[string]struct{}
 }
 
 // returns common dimensions map according to reportInodes configuration
@@ -95,23 +109,6 @@ func (m *Monitor) shouldSkipMountpoint(partition *gopsutil.PartitionStat) (shoul
 		shouldSkip = true
 	}
 	return
-}
-
-func calculateUtil(used float64, total float64) (percent float64, err error) {
-	if total == 0 {
-		percent = 0
-	} else {
-		percent = used / total * 100
-	}
-
-	if percent < 0 {
-		err = fmt.Errorf("percent %v < 0 total: %v used: %v", percent, used, total)
-	}
-
-	if percent > 100 {
-		err = fmt.Errorf("percent %v > 100 total: %v used: %v ", percent, used, total)
-	}
-	return percent, err
 }
 
 func (m *Monitor) reportInodeDatapoints(dimensions map[string]string, disk *gopsutil.UsageStat) {
@@ -252,16 +249,19 @@ func (m *Monitor) Shutdown() {
 	}
 }
 
-func init() {
-	monitors.Register(monitorType, func() interface{} { return &Monitor{} }, &Config{})
-}
+func calculateUtil(used float64, total float64) (percent float64, err error) {
+	if total == 0 {
+		percent = 0
+	} else {
+		percent = used / total * 100
+	}
 
-// Monitor for Utilization
-type Monitor struct {
-	Output            types.Output
-	cancel            func()
-	conf              *Config
-	fsTypes           map[string]bool
-	mountPoints       []*regexp.Regexp
-	stringMountPoints map[string]struct{}
+	if percent < 0 {
+		err = fmt.Errorf("percent %v < 0 total: %v used: %v", percent, used, total)
+	}
+
+	if percent > 100 {
+		err = fmt.Errorf("percent %v > 100 total: %v used: %v ", percent, used, total)
+	}
+	return percent, err
 }
