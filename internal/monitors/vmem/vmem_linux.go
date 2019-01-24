@@ -72,7 +72,7 @@ func (m *Monitor) Configure(conf *Config) (err error) {
 	utils.RunOnInterval(ctx, func() {
 		contents, err := ioutil.ReadFile(vmstatPath)
 		if err != nil {
-			logger.Errorf(err.Error())
+			logger.WithError(err).Errorf("unable to load vmstat file from path '%s'", vmstatPath)
 			return
 		}
 		m.parseFile(contents)
