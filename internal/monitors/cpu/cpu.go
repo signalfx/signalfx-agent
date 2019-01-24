@@ -146,6 +146,7 @@ func (m *Monitor) emitDatapoints() {
 func getUtilization(prev *totalUsed, current *totalUsed) (utilization float64, err error) {
 	if prev.Total == 0 {
 		err = fmt.Errorf("prev.Total == 0 will skip until previous Total is > 0")
+		return
 	}
 
 	usedDiff := current.Used - prev.Used
