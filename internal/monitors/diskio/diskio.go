@@ -126,7 +126,7 @@ func (m *Monitor) emitDatapoints() {
 		}
 
 		pluginInstance := strings.Replace(key, " ", "_", -1)
-		dimensions := map[string]string{"plugin": monitorType, "plugin_instance": pluginInstance}
+		dimensions := map[string]string{"plugin": monitorType, "plugin_instance": pluginInstance, "disk": pluginInstance}
 		if runtime.GOOS == "windows" {
 			m.processWindowsDatapoints(&disk, dimensions)
 		} else {
