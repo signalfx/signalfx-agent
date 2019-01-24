@@ -6,7 +6,7 @@ import pytest
 from helpers.assertions import has_any_metric_or_dim, has_log_message
 from helpers.util import get_monitor_dims_from_selfdescribe, run_agent, wait_for
 
-pytestmark = [pytest.mark.windows, pytest.mark.df, pytest.mark.monitor_without_endpoints]
+pytestmark = [pytest.mark.windows, pytest.mark.filesystems, pytest.mark.monitor_without_endpoints]
 
 
 def test_filesystems():
