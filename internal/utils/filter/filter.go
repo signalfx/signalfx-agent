@@ -24,13 +24,31 @@ type regexMatcher struct {
 	negated bool
 }
 
-type basicStringFilter struct {
+// BasicStringFilter will match if any one of the given strings is a match.
+type BasicStringFilter struct {
 	staticSet map[string]bool
 	regexps   []regexMatcher
 }
 
-// NewStringFilter returns a filter that can match against the provided items.
-func NewStringFilter(items []string) (StringFilter, error) {
+var _ StringFilter = &BasicStringFilter{}
+
+// Matches returns true if any one of the strings in the filter matches the
+// input s
+func (f *BasicStringFilter) Matches(s string) bool {
+	staticMatch := false
+	for val, negated := range f.staticSet {
+		staticMatch = staticMatch || (val == s != negated)
+	}
+
+	regexMatch := false
+	for _, reMatch := range f.regexps {
+		regexMatch = regexMatch || (reMatch.re.MatchString(s) != reMatch.negated)
+	}
+	return staticMatch || regexMatch
+}
+
+// NewBasicStringFilter returns a filter that can match against the provided items.
+func NewBasicStringFilter(items []string) (*BasicStringFilter, error) {
 	staticSet := make(map[string]bool)
 	var regexps []regexMatcher
 	for _, i := range items {
@@ -56,23 +74,10 @@ func NewStringFilter(items []string) (StringFilter, error) {
 		}
 	}
 
-	return &basicStringFilter{
+	return &BasicStringFilter{
 		staticSet: staticSet,
 		regexps:   regexps,
 	}, nil
-}
-
-func (f *basicStringFilter) Matches(s string) bool {
-	staticMatch := false
-	for val, negated := range f.staticSet {
-		staticMatch = staticMatch || (val == s != negated)
-	}
-
-	regexMatch := false
-	for _, reMatch := range f.regexps {
-		regexMatch = regexMatch || (reMatch.re.MatchString(s) != reMatch.negated)
-	}
-	return staticMatch || regexMatch
 }
 
 // NewStringMapFilter returns a filter that matches against the provided map.
