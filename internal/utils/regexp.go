@@ -44,7 +44,7 @@ func RegexpStringsToRegexp(regexpStrings []string) ([]*regexp.Regexp, map[string
 			regexString = strings.TrimPrefix(strings.TrimSuffix(r, "/"), "/")
 			exp, err := regexp.Compile(regexString)
 			if err != nil {
-				errors = append(errors, fmt.Errorf("failed to compile mountpoint expression '%s'", r))
+				errors = append(errors, fmt.Errorf("failed to compile regexp '%s'", r))
 				continue
 			}
 			regexes = append(regexes, exp)
