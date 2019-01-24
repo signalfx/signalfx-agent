@@ -26,7 +26,7 @@ import (
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/collectd/zookeeper"
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/conviva"
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/cpu"
-	_ "github.com/signalfx/signalfx-agent/internal/monitors/disk"
+	_ "github.com/signalfx/signalfx-agent/internal/monitors/diskio"
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/docker"
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/dotnet"
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/filesystems"

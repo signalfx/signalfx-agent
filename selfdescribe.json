@@ -10299,8 +10299,8 @@
     },
     {
       "name": "Config",
-      "doc": "\nThis monitor reports metrics about free disk space.\n\n```yaml\nmonitors:\n - type: disk\n```\n",
-      "package": "internal/monitors/disk",
+      "doc": "\nThis monitor reports I/O metrics about disks.\n\n```yaml\nmonitors:\n - type: disk-io\n```\n",
+      "package": "internal/monitors/diskio",
       "fields": [
         {
           "yamlName": "procFSPath",
@@ -10330,9 +10330,9 @@
           "elementKind": ""
         }
       ],
-      "monitorType": "disk",
+      "monitorType": "disk-io",
       "acceptsEndpoints": false,
-      "singleInstance": true,
+      "singleInstance": false,
       "dimensions": null,
       "metrics": [
         {

@@ -1,4 +1,4 @@
-package disk
+package diskio
 
 import (
 	"context"
@@ -20,15 +20,15 @@ import (
 
 var iOCounters = gopsutil.IOCounters
 
-const monitorType = "disk"
+const monitorType = "disk-io"
 
-// MONITOR(disk):
-// This monitor reports metrics about disks.
+// MONITOR(disk-io):
+// This monitor reports I/O metrics about disks.
 //
 //
 // ```yaml
 // monitors:
-//  - type: disk
+//  - type: disk-io
 // ```
 
 var logger = log.WithFields(log.Fields{"monitorType": monitorType})
@@ -37,7 +37,7 @@ var logger = log.WithFields(log.Fields{"monitorType": monitorType})
 
 // Config for this monitor
 type Config struct {
-	config.MonitorConfig `singleInstance:"true" acceptsEndpoints:"false"`
+	config.MonitorConfig `singleInstance:"false" acceptsEndpoints:"false"`
 	// The path to the proc filesystem. Useful to override in containerized
 	// environments.  (Does not apply to windows)
 	ProcFSPath string `yaml:"procFSPath" default:"/proc"`

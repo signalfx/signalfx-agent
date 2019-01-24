@@ -6,10 +6,10 @@ import pytest
 from helpers.assertions import has_any_metric_or_dim, has_log_message
 from helpers.util import get_monitor_dims_from_selfdescribe, run_agent, wait_for
 
-pytestmark = [pytest.mark.windows, pytest.mark.disk, pytest.mark.monitor_without_endpoints]
+pytestmark = [pytest.mark.windows, pytest.mark.diskio, pytest.mark.monitor_without_endpoints]
 
 
-def test_disk():
+def test_diskio():
     # TODO: make the helper that fetches metrics from selfdescribe.json check for platform specificity
     expected_metrics = []
     if sys.platform == "linux":
@@ -36,11 +36,11 @@ def test_disk():
                 "disk_time.avg_write",
             ]
         )
-    expected_dims = get_monitor_dims_from_selfdescribe("disk")
+    expected_dims = get_monitor_dims_from_selfdescribe("disk-io")
     with run_agent(
         """
     monitors:
-      - type: disk
+      - type: disk-io
     """
     ) as [backend, get_output, _]:
         print(expected_metrics)

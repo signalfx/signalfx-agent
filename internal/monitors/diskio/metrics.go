@@ -1,4 +1,4 @@
-package disk
+package diskio
 
 // CUMULATIVE(disk_merged.read): (Linux Only) The number of disk reads merged into single physical disk access operations.
 
