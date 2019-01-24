@@ -1,4 +1,4 @@
-package df
+package filesystems
 
 import (
 	"context"
@@ -20,18 +20,18 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-const monitorType = "df"
+const monitorType = "filesystems"
 
 var part = gopsutil.Partitions
 var usage = gopsutil.Usage
 
-// MONITOR(df):
+// MONITOR(filesystems):
 // This monitor reports metrics about free disk space on mounted devices.
 //
 //
 // ```yaml
 // monitors:
-//  - type: df
+//  - type: filesystems
 // ```
 
 var logger = log.WithFields(log.Fields{"monitorType": monitorType})

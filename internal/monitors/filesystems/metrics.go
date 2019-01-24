@@ -1,4 +1,4 @@
-package df
+package filesystems
 
 // GAUGE(df_complex.free): Free disk space in bytes
 

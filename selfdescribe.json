@@ -10299,142 +10299,6 @@
     },
     {
       "name": "Config",
-      "doc": "\nThis monitor reports metrics about free disk space on mounted devices.\n\n```yaml\nmonitors:\n - type: df\n```\n",
-      "package": "internal/monitors/df",
-      "fields": [
-        {
-          "yamlName": "procFSPath",
-          "doc": "The path to the proc filesystem. Useful to override in containerized environments.  (Does not apply to windows)",
-          "default": "/proc",
-          "required": false,
-          "type": "string",
-          "elementKind": ""
-        },
-        {
-          "yamlName": "ignoreSelected",
-          "doc": "If true, the filesystems selected by `fsTypes` and `mountPoints` will be excluded and all others included.",
-          "default": true,
-          "required": false,
-          "type": "bool",
-          "elementKind": ""
-        },
-        {
-          "yamlName": "fsTypes",
-          "doc": "The filesystem types to include/exclude.",
-          "default": [
-            "aufs",
-            "overlay",
-            "tmpfs",
-            "proc",
-            "sysfs",
-            "nsfs",
-            "cgroup",
-            "devpts",
-            "selinuxfs",
-            "devtmpfs",
-            "debugfs",
-            "mqueue",
-            "hugetlbfs",
-            "securityfs",
-            "pstore",
-            "binfmt_misc",
-            "autofs"
-          ],
-          "required": false,
-          "type": "slice",
-          "elementKind": "string"
-        },
-        {
-          "yamlName": "mountPoints",
-          "doc": "The mount paths to include/exclude, is interpreted as a regex if surrounded by `/`.  Note that you need to include the full path as the agent will see it, irrespective of the hostFSPath option.",
-          "default": [
-            "/^/var/lib/docker/containers/",
-            "/^/var/lib/rkt/pods/",
-            "/^/net//",
-            "/^/smb//",
-            "/^/tmp/scratch/"
-          ],
-          "required": false,
-          "type": "slice",
-          "elementKind": "string"
-        },
-        {
-          "yamlName": "reportByDevice",
-          "doc": "If true, then metrics will report with their plugin_instance set to the device's name instead of the mountpoint.",
-          "default": false,
-          "required": false,
-          "type": "bool",
-          "elementKind": ""
-        },
-        {
-          "yamlName": "reportInodes",
-          "doc": "(Linux Only) If true metrics will be reported about inodes.",
-          "default": false,
-          "required": false,
-          "type": "bool",
-          "elementKind": ""
-        }
-      ],
-      "monitorType": "df",
-      "acceptsEndpoints": false,
-      "singleInstance": false,
-      "dimensions": null,
-      "metrics": [
-        {
-          "name": "df_complex.free",
-          "type": "gauge",
-          "description": "Free disk space in bytes"
-        },
-        {
-          "name": "df_complex.used",
-          "type": "gauge",
-          "description": "Used disk space in bytes"
-        },
-        {
-          "name": "df_inodes.free",
-          "type": "gauge",
-          "description": "(Linux Only) Number of inodes that are free.  This is is only reported if the configuration option `reportInodes` is set to `true`."
-        },
-        {
-          "name": "df_inodes.used",
-          "type": "gauge",
-          "description": "(Linux Only) Number of inodes that are used.  This is only reported if the configuration option `reportInodes` is set to `true`."
-        },
-        {
-          "name": "disk.summary_utilization",
-          "type": "gauge",
-          "description": "Percent of disk space utilized on all volumes on this host. This metric reports with plugin dimension set to \"signalfx-metadata\"."
-        },
-        {
-          "name": "disk.utilization",
-          "type": "gauge",
-          "description": "Percent of disk used on this volume. This metric reports with plugin dimension set to \"signalfx-metadata\"."
-        },
-        {
-          "name": "percent_bytes.free",
-          "type": "gauge",
-          "description": "Free disk space on the file system, expressed as a percentage."
-        },
-        {
-          "name": "percent_bytes.used",
-          "type": "gauge",
-          "description": "Used disk space on the file system, expressed as a percentage."
-        },
-        {
-          "name": "percent_inodes.free",
-          "type": "gauge",
-          "description": "(Linux Only) Free inodes on the file system, expressed as a percentage.  This is only reported if the configuration option `reportInodes` is set to `true`."
-        },
-        {
-          "name": "percent_inodes.used",
-          "type": "gauge",
-          "description": "(Linux Only) Used inodes on the file system, expressed as a percentage.  This is only reported if the configuration option `reportInodes` is set to `true`."
-        }
-      ],
-      "properties": null
-    },
-    {
-      "name": "Config",
       "doc": "\nThis monitor reports metrics about free disk space.\n\n```yaml\nmonitors:\n - type: disk\n```\n",
       "package": "internal/monitors/disk",
       "fields": [
@@ -10844,6 +10708,142 @@
           "name": "net_clr_memory.pct_time_in_gc",
           "type": "gauge",
           "description": "The percentage of time spent garbage collecting by .NET applications."
+        }
+      ],
+      "properties": null
+    },
+    {
+      "name": "Config",
+      "doc": "\nThis monitor reports metrics about free disk space on mounted devices.\n\n```yaml\nmonitors:\n - type: filesystems\n```\n",
+      "package": "internal/monitors/filesystems",
+      "fields": [
+        {
+          "yamlName": "procFSPath",
+          "doc": "The path to the proc filesystem. Useful to override in containerized environments.  (Does not apply to windows)",
+          "default": "/proc",
+          "required": false,
+          "type": "string",
+          "elementKind": ""
+        },
+        {
+          "yamlName": "ignoreSelected",
+          "doc": "If true, the filesystems selected by `fsTypes` and `mountPoints` will be excluded and all others included.",
+          "default": true,
+          "required": false,
+          "type": "bool",
+          "elementKind": ""
+        },
+        {
+          "yamlName": "fsTypes",
+          "doc": "The filesystem types to include/exclude.",
+          "default": [
+            "aufs",
+            "overlay",
+            "tmpfs",
+            "proc",
+            "sysfs",
+            "nsfs",
+            "cgroup",
+            "devpts",
+            "selinuxfs",
+            "devtmpfs",
+            "debugfs",
+            "mqueue",
+            "hugetlbfs",
+            "securityfs",
+            "pstore",
+            "binfmt_misc",
+            "autofs"
+          ],
+          "required": false,
+          "type": "slice",
+          "elementKind": "string"
+        },
+        {
+          "yamlName": "mountPoints",
+          "doc": "The mount paths to include/exclude, is interpreted as a regex if surrounded by `/`.  Note that you need to include the full path as the agent will see it, irrespective of the hostFSPath option.",
+          "default": [
+            "/^/var/lib/docker/containers/",
+            "/^/var/lib/rkt/pods/",
+            "/^/net//",
+            "/^/smb//",
+            "/^/tmp/scratch/"
+          ],
+          "required": false,
+          "type": "slice",
+          "elementKind": "string"
+        },
+        {
+          "yamlName": "reportByDevice",
+          "doc": "If true, then metrics will report with their plugin_instance set to the device's name instead of the mountpoint.",
+          "default": false,
+          "required": false,
+          "type": "bool",
+          "elementKind": ""
+        },
+        {
+          "yamlName": "reportInodes",
+          "doc": "(Linux Only) If true metrics will be reported about inodes.",
+          "default": false,
+          "required": false,
+          "type": "bool",
+          "elementKind": ""
+        }
+      ],
+      "monitorType": "filesystems",
+      "acceptsEndpoints": false,
+      "singleInstance": false,
+      "dimensions": null,
+      "metrics": [
+        {
+          "name": "df_complex.free",
+          "type": "gauge",
+          "description": "Free disk space in bytes"
+        },
+        {
+          "name": "df_complex.used",
+          "type": "gauge",
+          "description": "Used disk space in bytes"
+        },
+        {
+          "name": "df_inodes.free",
+          "type": "gauge",
+          "description": "(Linux Only) Number of inodes that are free.  This is is only reported if the configuration option `reportInodes` is set to `true`."
+        },
+        {
+          "name": "df_inodes.used",
+          "type": "gauge",
+          "description": "(Linux Only) Number of inodes that are used.  This is only reported if the configuration option `reportInodes` is set to `true`."
+        },
+        {
+          "name": "disk.summary_utilization",
+          "type": "gauge",
+          "description": "Percent of disk space utilized on all volumes on this host. This metric reports with plugin dimension set to \"signalfx-metadata\"."
+        },
+        {
+          "name": "disk.utilization",
+          "type": "gauge",
+          "description": "Percent of disk used on this volume. This metric reports with plugin dimension set to \"signalfx-metadata\"."
+        },
+        {
+          "name": "percent_bytes.free",
+          "type": "gauge",
+          "description": "Free disk space on the file system, expressed as a percentage."
+        },
+        {
+          "name": "percent_bytes.used",
+          "type": "gauge",
+          "description": "Used disk space on the file system, expressed as a percentage."
+        },
+        {
+          "name": "percent_inodes.free",
+          "type": "gauge",
+          "description": "(Linux Only) Free inodes on the file system, expressed as a percentage.  This is only reported if the configuration option `reportInodes` is set to `true`."
+        },
+        {
+          "name": "percent_inodes.used",
+          "type": "gauge",
+          "description": "(Linux Only) Used inodes on the file system, expressed as a percentage.  This is only reported if the configuration option `reportInodes` is set to `true`."
         }
       ],
       "properties": null

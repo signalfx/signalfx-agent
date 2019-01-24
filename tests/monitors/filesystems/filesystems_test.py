@@ -9,7 +9,7 @@ from helpers.util import get_monitor_dims_from_selfdescribe, run_agent, wait_for
 pytestmark = [pytest.mark.windows, pytest.mark.df, pytest.mark.monitor_without_endpoints]
 
 
-def test_df():
+def test_filesystems():
     # TODO: make the helper that fetches metrics from selfdescribe.json check for platform specificity
     expected_metrics = [
         "df_complex.free",
@@ -21,11 +21,11 @@ def test_df():
     ]
     if sys.platform == "linux":
         expected_metrics.extend(["df_inodes.free", "df_inodes.used", "percent_inodes.free", "percent_inodes.used"])
-    expected_dims = get_monitor_dims_from_selfdescribe("df")
+    expected_dims = get_monitor_dims_from_selfdescribe("filesystems")
     with run_agent(
         """
     monitors:
-      - type: df
+      - type: filesystems
     """
     ) as [backend, get_output, _]:
         assert wait_for(
