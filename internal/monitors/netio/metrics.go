@@ -1,4 +1,4 @@
-package netinterface
+package netio
 
 // CUMULATIVE(if_errors.rx): Count of receive errors on the interface
 

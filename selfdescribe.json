@@ -10910,85 +10910,6 @@
     },
     {
       "name": "Config",
-      "doc": "\nThis monitor reports network interface and network interface total metrics.\n\n```yaml\nmonitors:\n - type: interface\n```\n",
-      "package": "internal/monitors/netinterface",
-      "fields": [
-        {
-          "yamlName": "procFSPath",
-          "doc": "The path to the proc filesystem. Useful to override in containerized environments.  (Does not apply to windows)",
-          "default": "/proc",
-          "required": false,
-          "type": "string",
-          "elementKind": ""
-        },
-        {
-          "yamlName": "ignoreSelected",
-          "doc": "If true, the interfaces selected by `selectInterfaces` will be excluded and all others included.",
-          "default": null,
-          "required": false,
-          "type": "bool",
-          "elementKind": ""
-        },
-        {
-          "yamlName": "interfaces",
-          "doc": "The interfaces to include/exclude, is interpreted as a regex if surrounded by `/`.",
-          "default": [
-            "/^lo\\d*$/",
-            "/^docker.*/",
-            "/^t(un|ap)\\d*$/",
-            "/^veth.*$/",
-            "/^Loopback*/"
-          ],
-          "required": false,
-          "type": "slice",
-          "elementKind": "string"
-        }
-      ],
-      "monitorType": "interface",
-      "acceptsEndpoints": false,
-      "singleInstance": true,
-      "dimensions": null,
-      "metrics": [
-        {
-          "name": "if_errors.rx",
-          "type": "cumulative",
-          "description": "Count of receive errors on the interface"
-        },
-        {
-          "name": "if_errors.tx",
-          "type": "cumulative",
-          "description": "Count of transmit errors on the interface"
-        },
-        {
-          "name": "if_octets.rx",
-          "type": "cumulative",
-          "description": "Count of bytes (octets) received on the interface"
-        },
-        {
-          "name": "if_octets.tx",
-          "type": "cumulative",
-          "description": "Count of bytes (octets) transmitted by the interface"
-        },
-        {
-          "name": "if_packets.rx",
-          "type": "cumulative",
-          "description": "Count of packets received on the interface"
-        },
-        {
-          "name": "if_packets.tx",
-          "type": "cumulative",
-          "description": "Count of packets transmitted by the interface"
-        },
-        {
-          "name": "network.total",
-          "type": "cumulative",
-          "description": "Total amount of inbound and outbound network traffic on this host, in bytes.  This metric reports with plugin dimension set to \"signalfx-metadata\"."
-        }
-      ],
-      "properties": null
-    },
-    {
-      "name": "Config",
       "doc": " Emits metrics about the internal state of the\nagent.  Useful for debugging performance issues with the agent and to ensure\nthe agent isn't overloaded.\n\nThis can also scrape any HTTP endpoint that exposes metrics as a JSON array\ncontaining JSON-formatted SignalFx datapoint objects.  It is roughly\nanalogous to the `prometheus-exporter` monitor except for SignalFx\ndatapoints.\n\n```yaml\nmonitors:\n  - type: internal-metrics\n```\n",
       "package": "internal/monitors/internalmetrics",
       "fields": [
@@ -12043,6 +11964,85 @@
           "name": "memory.utilization",
           "type": "gauge",
           "description": "Percent of memory in use on this host. This metric reports with plugin dimension set to \"signalfx-metadata\"."
+        }
+      ],
+      "properties": null
+    },
+    {
+      "name": "Config",
+      "doc": "\nThis monitor reports I/O metrics about network interfaces.\n\n```yaml\nmonitors:\n - type: net-io\n```\n",
+      "package": "internal/monitors/netio",
+      "fields": [
+        {
+          "yamlName": "procFSPath",
+          "doc": "The path to the proc filesystem. Useful to override in containerized environments.  (Does not apply to windows)",
+          "default": "/proc",
+          "required": false,
+          "type": "string",
+          "elementKind": ""
+        },
+        {
+          "yamlName": "ignoreSelected",
+          "doc": "If true, the interfaces selected by `selectInterfaces` will be excluded and all others included.",
+          "default": null,
+          "required": false,
+          "type": "bool",
+          "elementKind": ""
+        },
+        {
+          "yamlName": "interfaces",
+          "doc": "The interfaces to include/exclude, is interpreted as a regex if surrounded by `/`.",
+          "default": [
+            "/^lo\\d*$/",
+            "/^docker.*/",
+            "/^t(un|ap)\\d*$/",
+            "/^veth.*$/",
+            "/^Loopback*/"
+          ],
+          "required": false,
+          "type": "slice",
+          "elementKind": "string"
+        }
+      ],
+      "monitorType": "net-io",
+      "acceptsEndpoints": false,
+      "singleInstance": true,
+      "dimensions": null,
+      "metrics": [
+        {
+          "name": "if_errors.rx",
+          "type": "cumulative",
+          "description": "Count of receive errors on the interface"
+        },
+        {
+          "name": "if_errors.tx",
+          "type": "cumulative",
+          "description": "Count of transmit errors on the interface"
+        },
+        {
+          "name": "if_octets.rx",
+          "type": "cumulative",
+          "description": "Count of bytes (octets) received on the interface"
+        },
+        {
+          "name": "if_octets.tx",
+          "type": "cumulative",
+          "description": "Count of bytes (octets) transmitted by the interface"
+        },
+        {
+          "name": "if_packets.rx",
+          "type": "cumulative",
+          "description": "Count of packets received on the interface"
+        },
+        {
+          "name": "if_packets.tx",
+          "type": "cumulative",
+          "description": "Count of packets transmitted by the interface"
+        },
+        {
+          "name": "network.total",
+          "type": "cumulative",
+          "description": "Total amount of inbound and outbound network traffic on this host, in bytes.  This metric reports with plugin dimension set to \"signalfx-metadata\"."
         }
       ],
       "properties": null

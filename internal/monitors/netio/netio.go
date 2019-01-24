@@ -1,4 +1,4 @@
-package netinterface
+package netio
 
 import (
 	"context"
@@ -18,18 +18,18 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-const monitorType = "interface"
+const monitorType = "net-io"
 
 // setting net.IOCounters to a package variable for testing purposes
 var iOCounters = net.IOCounters
 
-// MONITOR(interface):
-// This monitor reports network interface and network interface total metrics.
+// MONITOR(net-io):
+// This monitor reports I/O metrics about network interfaces.
 //
 //
 // ```yaml
 // monitors:
-//  - type: interface
+//  - type: net-io
 // ```
 
 // TODO: make ProcFSPath a global config

@@ -34,7 +34,7 @@ import (
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/kubernetes"
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/memory"
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/metadata/hostmetadata"
-	_ "github.com/signalfx/signalfx-agent/internal/monitors/netinterface"
+	_ "github.com/signalfx/signalfx-agent/internal/monitors/netio"
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/processlist"
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/prometheus"
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/telegraf/monitors/mssqlserver"
