@@ -101,7 +101,7 @@ func (m *Monitor) EmitDatapoints() {
 
 		m.updateTotals(pluginInstance, &intf)
 
-		dimensions := map[string]string{"plugin": monitorType, "plugin_instance": pluginInstance}
+		dimensions := map[string]string{"plugin": monitorType, "plugin_instance": pluginInstance, "interface": pluginInstance}
 
 		// if_errors.rx
 		m.Output.SendDatapoint(datapoint.New("if_errors.rx", dimensions, datapoint.NewIntValue(int64(intf.Errin)), datapoint.Counter, time.Time{}))
