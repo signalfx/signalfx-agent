@@ -11947,7 +11947,7 @@
       ],
       "monitorType": "net-io",
       "acceptsEndpoints": false,
-      "singleInstance": true,
+      "singleInstance": false,
       "dimensions": null,
       "metrics": [
         {

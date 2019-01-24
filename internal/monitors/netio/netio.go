@@ -43,7 +43,7 @@ func init() {
 
 // Config for this monitor
 type Config struct {
-	config.MonitorConfig `singleInstance:"true" acceptsEndpoints:"false"`
+	config.MonitorConfig `singleInstance:"false" acceptsEndpoints:"false"`
 	// If true, the interfaces selected by `selectInterfaces` will be
 	// excluded and all others included.
 	IgnoreSelected *bool `yaml:"ignoreSelected"`

@@ -22,7 +22,7 @@ Monitor Type: `net-io`
 
 **Accepts Endpoints**: No
 
-**Multiple Instances Allowed**: **No**
+**Multiple Instances Allowed**: Yes
 
 ## Configuration
 
