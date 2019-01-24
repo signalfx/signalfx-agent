@@ -9,6 +9,7 @@ import (
 
 	gopsutil "github.com/shirou/gopsutil/disk"
 	"github.com/signalfx/golib/datapoint"
+	"github.com/signalfx/golib/pointer"
 	"github.com/signalfx/signalfx-agent/internal/core/config"
 	"github.com/signalfx/signalfx-agent/internal/monitors"
 	"github.com/signalfx/signalfx-agent/internal/monitors/types"
@@ -22,7 +23,7 @@ var iOCounters = gopsutil.IOCounters
 const monitorType = "disk"
 
 // MONITOR(disk):
-// This monitor reports metrics about free disk space.
+// This monitor reports metrics about disks.
 //
 //
 // ```yaml
@@ -47,8 +48,6 @@ type Config struct {
 	// If true, the disks selected by `disks` will be excluded and all others
 	// included.
 	IgnoreSelected *bool `yaml:"ignoreSelected"`
-	ignoreRegex    []*regexp.Regexp
-	ignoreString   map[string]struct{}
 }
 
 func (m *Monitor) processWindowsDatapoints(disk *gopsutil.IOCountersStat, dimensions map[string]string) {
@@ -103,17 +102,17 @@ func (m *Monitor) processLinuxDatapoints(disk *gopsutil.IOCountersStat, dimensio
 	m.Output.SendDatapoint(datapoint.New("disk_time.write", dimensions, datapoint.NewIntValue(int64(disk.WriteTime)), datapoint.Counter, time.Time{}))
 }
 
-func shouldSkipDisk(conf *Config, disk *gopsutil.IOCountersStat) (shouldSkip bool) {
-	_, match := conf.ignoreString[disk.Name]
-	match = match || utils.FindMatchString(disk.Name, conf.ignoreRegex)
-	if (match && *conf.IgnoreSelected) || (!match && !*conf.IgnoreSelected) {
+func (m *Monitor) shouldSkipDisk(disk *gopsutil.IOCountersStat) (shouldSkip bool) {
+	_, match := m.ignoreString[disk.Name]
+	match = match || utils.FindMatchString(disk.Name, m.ignoreRegex)
+	if (match && *m.conf.IgnoreSelected) || (!match && !*m.conf.IgnoreSelected) {
 		shouldSkip = true
 	}
 	return
 }
 
 // EmitDatapoints emits a set of memory datapoints
-func (m *Monitor) emitDatapoints(conf *Config) {
+func (m *Monitor) emitDatapoints() {
 	iocounts, err := iOCounters()
 	if err != nil {
 		logger.WithError(err).Warningf("failed to load io counters. if this message repeates frequently there may be a problem")
@@ -121,7 +120,7 @@ func (m *Monitor) emitDatapoints(conf *Config) {
 	// var total uint64
 	for key, disk := range iocounts {
 		// handle selecting disk
-		if shouldSkipDisk(conf, &disk) {
+		if m.shouldSkipDisk(&disk) {
 			logger.Debugf("skipping disk '%s'", disk.Name)
 			continue
 		}
@@ -147,27 +146,29 @@ func (m *Monitor) Configure(conf *Config) error {
 	var ctx context.Context
 	ctx, m.cancel = context.WithCancel(context.Background())
 
+	// save conf to monitor for convenience
+	m.conf = conf
+
 	// set env vars for gopsutil
-	if err := gopsutilhelper.SetEnvVars(map[string]string{gopsutilhelper.HostProc: conf.ProcFSPath}); err != nil {
+	if err := gopsutilhelper.SetEnvVars(map[string]string{gopsutilhelper.HostProc: m.conf.ProcFSPath}); err != nil {
 		return err
 	}
 
 	// convert array of strings and/or regexp to map of strings and array of regexp
 	var errs []error
-	conf.ignoreRegex, conf.ignoreString, errs = utils.RegexpStringsToRegexp(conf.Disks)
+	m.ignoreRegex, m.ignoreString, errs = utils.RegexpStringsToRegexp(m.conf.Disks)
 	for _, err := range errs {
 		logger.Errorf(err.Error())
 	}
 
 	// default IgnoreSelected to true
-	if conf.IgnoreSelected == nil {
-		t := true
-		conf.IgnoreSelected = &t
+	if m.conf.IgnoreSelected == nil {
+		m.conf.IgnoreSelected = pointer.Bool(true)
 	}
 
 	// gather metrics on the specified interval
 	utils.RunOnInterval(ctx, func() {
-		m.emitDatapoints(conf)
+		m.emitDatapoints()
 	}, time.Duration(conf.IntervalSeconds)*time.Second)
 
 	return nil
@@ -186,6 +187,9 @@ func init() {
 
 // Monitor for Utilization
 type Monitor struct {
-	Output types.Output
-	cancel func()
+	Output       types.Output
+	cancel       func()
+	conf         *Config
+	ignoreRegex  []*regexp.Regexp
+	ignoreString map[string]struct{}
 }
