@@ -14,7 +14,6 @@ import (
 	"github.com/signalfx/signalfx-agent/internal/monitors"
 	"github.com/signalfx/signalfx-agent/internal/monitors/types"
 	"github.com/signalfx/signalfx-agent/internal/utils"
-	"github.com/signalfx/signalfx-agent/internal/utils/gopsutilhelper"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -26,13 +25,15 @@ var iOCounters = net.IOCounters
 // MONITOR(net-io):
 // This monitor reports I/O metrics about network interfaces.
 //
+// On Linux hosts, this monitor relies on the `/proc` filesystem.
+// If the underlying host's `/proc` file system is mounted somewhere other than
+// /proc please specify the path using the top level configuration `procPath`.
 //
 // ```yaml
+// procPath: /proc
 // monitors:
 //  - type: net-io
 // ```
-
-// TODO: make ProcFSPath a global config
 
 var logger = log.WithFields(log.Fields{"monitorType": monitorType})
 
@@ -43,9 +44,6 @@ func init() {
 // Config for this monitor
 type Config struct {
 	config.MonitorConfig `singleInstance:"true" acceptsEndpoints:"false"`
-	// The path to the proc filesystem. Useful to override in containerized
-	// environments.  (Does not apply to windows)
-	ProcFSPath string `yaml:"procFSPath" default:"/proc"`
 	// If true, the interfaces selected by `selectInterfaces` will be
 	// excluded and all others included.
 	IgnoreSelected *bool `yaml:"ignoreSelected"`
@@ -165,11 +163,6 @@ func (m *Monitor) Configure(conf *Config) error {
 	m.interfaces, m.stringInterfaces, errs = utils.RegexpStringsToRegexp(conf.Interfaces)
 	for _, err := range errs {
 		logger.Errorf(err.Error())
-	}
-
-	// set HOST_PROC for gopsutil
-	if err := gopsutilhelper.SetEnvVars(map[string]string{gopsutilhelper.HostProc: conf.ProcFSPath}); err != nil {
-		return err
 	}
 
 	// gather metrics on the specified interval

@@ -18,6 +18,7 @@ import (
 	"github.com/signalfx/signalfx-agent/internal/core/common/constants"
 	"github.com/signalfx/signalfx-agent/internal/core/config/sources"
 	"github.com/signalfx/signalfx-agent/internal/utils"
+	"github.com/signalfx/signalfx-agent/internal/utils/hostfs"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -108,6 +109,21 @@ type Config struct {
 	Scratch interface{} `yaml:"scratch" neverLog:"omit"`
 	// Configuration of remote config stores
 	Sources sources.SourceConfig `yaml:"configSources"`
+	// Path to the host's `/proc` filesystem.
+	// This is useful for containerized environments.
+	ProcPath string `yaml:"procPath" default:"/proc"`
+	// Path to the host's `/etc` directory.
+	// This is useful for containerized environments.
+	EtcPath string `yaml:"etcPath" default:"/etc"`
+	// Path to the host's `/var` directory.
+	// This is useful for containerized environments.
+	VarPath string `yaml:"varPath" default:"/var"`
+	// Path to the host's `/run` directory.
+	// This is useful for containerized environments.
+	RunPath string `yaml:"runPath" default:"/run"`
+	// Path to the host's `/sys` directory.
+	// This is useful for containerized environments.
+	SysPath string `yaml:"sysPath" default:"/sys"`
 }
 
 func (c *Config) initialize() (*Config, error) {
@@ -150,6 +166,12 @@ func (c *Config) setupEnvironment() {
 	} else {
 		os.Setenv("PYTHONHOME", c.BundleDir)
 	}
+	// set the environment variables for gopsutil based on configured values
+	os.Setenv(hostfs.HostProcVar, c.ProcPath)
+	os.Setenv(hostfs.HostEtcVar, c.EtcPath)
+	os.Setenv(hostfs.HostVarVar, c.VarPath)
+	os.Setenv(hostfs.HostRunVar, c.RunPath)
+	os.Setenv(hostfs.HostSysVar, c.SysPath)
 }
 
 // Validate everything that we can about the main config

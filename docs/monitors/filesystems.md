@@ -5,7 +5,12 @@
 
 This monitor reports metrics about free disk space on mounted devices.
 
+On Linux hosts, this monitor relies on the `/proc` filesystem.
+If the underlying host's `/proc` file system is mounted somewhere other than
+/proc please specify the path using the top level configuration `procPath`.
+
 ```yaml
+procPath: /proc
 monitors:
  - type: filesystems
 ```
@@ -23,7 +28,6 @@ Monitor Type: `filesystems`
 
 | Config option | Required | Type | Description |
 | --- | --- | --- | --- |
-| `procFSPath` | no | `string` | The path to the proc filesystem. Useful to override in containerized environments.  (Does not apply to windows) (**default:** `/proc`) |
 | `ignoreSelected` | no | `bool` | If true, the filesystems selected by `fsTypes` and `mountPoints` will be excluded and all others included. (**default:** `true`) |
 | `fsTypes` | no | `list of string` | The filesystem types to include/exclude. (**default:** `[aufs overlay tmpfs proc sysfs nsfs cgroup devpts selinuxfs devtmpfs debugfs mqueue hugetlbfs securityfs pstore binfmt_misc autofs]`) |
 | `mountPoints` | no | `list of string` | The mount paths to include/exclude, is interpreted as a regex if surrounded by `/`.  Note that you need to include the full path as the agent will see it, irrespective of the hostFSPath option. (**default:** `[/^/var/lib/docker/containers/ /^/var/lib/rkt/pods/ /^/net// /^/smb// /^/tmp/scratch/]`) |

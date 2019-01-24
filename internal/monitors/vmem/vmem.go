@@ -14,7 +14,12 @@ const monitorType = "vmem"
 // MONITOR(vmem): Collects information about the virtual memory
 // subsystem of the kernel.
 //
+// On Linux hosts, this monitor relies on the `/proc` filesystem.
+// If the underlying host's `/proc` file system is mounted somewhere other than
+// /proc please specify the path using the top level configuration `procPath`.
+//
 // ```yaml
+// procPath: /proc
 // monitors:
 //  - type: vmem
 // ```
@@ -25,14 +30,9 @@ func init() {
 	monitors.Register(monitorType, func() interface{} { return &Monitor{} }, &Config{})
 }
 
-// TODO: make ProcFSPath a global config
-
 // Config for this monitor
 type Config struct {
 	config.MonitorConfig `singleInstance:"true" acceptsEndpoints:"false"`
-	// (Linux Only) The path to the proc filesystem. Useful to override in containerized
-	// environments.
-	ProcFSPath string `yaml:"procFSPath" default:"/proc"`
 	// (Windows Only) The frequency that wildcards in counter paths should
 	// be expanded and how often to refresh counters from configuration.
 	// This is expressed as a duration.

@@ -12,7 +12,6 @@ import (
 	"github.com/signalfx/signalfx-agent/internal/monitors"
 	"github.com/signalfx/signalfx-agent/internal/monitors/types"
 	"github.com/signalfx/signalfx-agent/internal/utils"
-	"github.com/signalfx/signalfx-agent/internal/utils/gopsutilhelper"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -26,8 +25,12 @@ var times = cpu.Times
 // MONITOR(cpu):
 // This monitor reports cpu metrics.
 //
+// On Linux hosts, this monitor relies on the `/proc` filesystem.
+// If the underlying host's `/proc` file system is mounted somewhere other than
+// /proc please specify the path using the top level configuration `procPath`.
 //
 // ```yaml
+// procPath: /proc
 // monitors:
 //  - type: cpu
 // ```
@@ -38,14 +41,9 @@ func init() {
 	monitors.Register(monitorType, func() interface{} { return &Monitor{} }, &Config{})
 }
 
-// TODO: make ProcFSPath a global config
-
 // Config for this monitor
 type Config struct {
 	config.MonitorConfig `singleInstance:"true" acceptsEndpoints:"false"`
-	// The path to the proc filesystem. Useful to override in containerized
-	// environments.  (Does not apply to windows)
-	ProcFSPath string `yaml:"procFSPath" default:"/proc"`
 }
 
 type totalUsed struct {
@@ -198,11 +196,6 @@ func (m *Monitor) Configure(conf *Config) error {
 
 	// save config to monitor for convenience
 	m.conf = conf
-
-	// set env vars for gopsutil
-	if err := gopsutilhelper.SetEnvVars(map[string]string{gopsutilhelper.HostProc: m.conf.ProcFSPath}); err != nil {
-		return err
-	}
 
 	// initialize cpu times and per core cpu times so that we don't have to wait an entire reporting interval to report utilization
 	m.initializeCPUTimes()

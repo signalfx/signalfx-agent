@@ -11,7 +11,6 @@ import (
 	"github.com/signalfx/signalfx-agent/internal/monitors"
 	"github.com/signalfx/signalfx-agent/internal/monitors/types"
 	"github.com/signalfx/signalfx-agent/internal/utils"
-	"github.com/signalfx/signalfx-agent/internal/utils/gopsutilhelper"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -23,8 +22,12 @@ var virtualMemory = mem.VirtualMemory
 // MONITOR(memory):
 // This monitor reports memory and memory utilization metrics.
 //
+// On Linux hosts, this monitor relies on the `/proc` filesystem.
+// If the underlying host's `/proc` file system is mounted somewhere other than
+// /proc please specify the path using the top level configuration `procPath`.
 //
 // ```yaml
+// procPath: /proc
 // monitors:
 //  - type: memory
 // ```
@@ -35,14 +38,9 @@ func init() {
 	monitors.Register(monitorType, func() interface{} { return &Monitor{} }, &Config{})
 }
 
-// TODO: make ProcFSPath a global config
-
 // Config for this monitor
 type Config struct {
 	config.MonitorConfig `singleInstance:"true" acceptsEndpoints:"false"`
-	// The path to the proc filesystem. Useful to override in containerized
-	// environments.  (Does not apply to windows)
-	ProcFSPath string `yaml:"procFSPath" default:"/proc"`
 }
 
 // Monitor for Utilization
@@ -119,11 +117,6 @@ func (m *Monitor) Configure(conf *Config) error {
 	// create contexts for managing the the plugin loop
 	var ctx context.Context
 	ctx, m.cancel = context.WithCancel(context.Background())
-
-	// set env vars for gopsutil
-	if err := gopsutilhelper.SetEnvVars(map[string]string{gopsutilhelper.HostProc: conf.ProcFSPath}); err != nil {
-		return err
-	}
 
 	// gather metrics on the specified interval
 	utils.RunOnInterval(ctx, func() {

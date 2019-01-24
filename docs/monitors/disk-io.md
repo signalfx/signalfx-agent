@@ -5,7 +5,12 @@
 
 This monitor reports I/O metrics about disks.
 
+On Linux hosts, this monitor relies on the `/proc` filesystem.
+If the underlying host's `/proc` file system is mounted somewhere other than
+/proc please specify the path using the top level configuration `procPath`.
+
 ```yaml
+procPath: /proc
 monitors:
  - type: disk-io
 ```
@@ -23,7 +28,6 @@ Monitor Type: `disk-io`
 
 | Config option | Required | Type | Description |
 | --- | --- | --- | --- |
-| `procFSPath` | no | `string` | The path to the proc filesystem. Useful to override in containerized environments.  (Does not apply to windows) (**default:** `/proc`) |
 | `disks` | no | `list of string` | Which devices to include/exclude (**default:** `[/^loop[0-9]+$/ /^dm-[0-9]+$/]`) |
 | `ignoreSelected` | no | `bool` | If true, the disks selected by `disks` will be excluded and all others included. |
 

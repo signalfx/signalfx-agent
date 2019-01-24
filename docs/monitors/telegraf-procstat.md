@@ -9,9 +9,14 @@ can be found [here](https://github.com/influxdata/telegraf/tree/master/plugins/i
 Please note that the Smart Agent only supports the `native` pid finder and the options
 `cgroup` and `systemd unit` are not supported at this time.
 
-Sample YAML configuration:
+On Linux hosts, this monitor relies on the `/proc` filesystem.
+If the underlying host's `/proc` file system is mounted somewhere other than
+/proc please specify the path using the top level configuration `procPath`.
+
+Sample Yaml Configuration
 
 ```yaml
+procPath: /proc
 monitors:
  - type: telegraf/procstat
    exe: "signalfx-agent*"
@@ -30,7 +35,6 @@ Monitor Type: `telegraf/procstat`
 
 | Config option | Required | Type | Description |
 | --- | --- | --- | --- |
-| `procFSPath` | no | `string` | The path to the proc filesystem. Useful to override in containerized environments. (**default:** `/proc`) |
 | `exe` | no | `string` | The name of an executable to monitor.  (ie: `exe: "signalfx-agent*"`) |
 | `pattern` | no | `string` | Pattern to match against.  On Windows the pattern should be in the form of a WMI query. (ie: `pattern: "%signalfx-agent%"`) |
 | `user` | no | `string` | Username to match against |

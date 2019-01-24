@@ -5,7 +5,12 @@
 
 This monitor reports cpu metrics.
 
+On Linux hosts, this monitor relies on the `/proc` filesystem.
+If the underlying host's `/proc` file system is mounted somewhere other than
+/proc please specify the path using the top level configuration `procPath`.
+
 ```yaml
+procPath: /proc
 monitors:
  - type: cpu
 ```
@@ -21,11 +26,7 @@ Monitor Type: `cpu`
 
 ## Configuration
 
-| Config option | Required | Type | Description |
-| --- | --- | --- | --- |
-| `procFSPath` | no | `string` | The path to the proc filesystem. Useful to override in containerized environments.  (Does not apply to windows) (**default:** `/proc`) |
-
-
+This monitor has no configuration options.
 
 
 ## Metrics

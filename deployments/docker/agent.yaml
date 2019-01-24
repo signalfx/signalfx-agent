@@ -5,6 +5,12 @@ apiUrl: ${SFX_API_URL}
 
 intervalSeconds: 10
 
+etcPath: /hostfs/etc
+procPath: /hostfs/proc
+runPath: /hostfs/run
+varPath: /hostfs/var
+sysPath: /hostfs/sys
+
 logging:
   # Valid values are 'debug', 'info', 'warning', and 'error'
   level: info
@@ -26,7 +32,6 @@ monitors:
   - type: collectd/protocols
   - type: collectd/signalfx-metadata
   - type: host-metadata
-    etcPath: /hostfs/etc
   - type: collectd/uptime
   - type: collectd/vmem
   - type: docker-container-stats

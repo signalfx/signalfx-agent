@@ -7896,7 +7896,7 @@
     },
     {
       "name": "Config",
-      "doc": " Gathers information about processes running on\nthe host.  See\nhttps://collectd.org/documentation/manpages/collectd.conf.5.shtml#plugin_processes\nand https://collectd.org/wiki/index.php/Plugin:Processes for more\ninformation on the configuration options.\n\nExample:\n\n```yaml\n  - type: collectd/processes\n    processes:\n      - mysql\n      - myapp\n    processMatch:\n      docker: \"docker.*\"\n    collectContextSwitch: true\n```\n\nThe above config will send process metrics for processes named *mysql* and\n*myapp*, along with additional metrics on the number of context switches the\nprocess has made.  Also, all processes that start with `docker` will have\ntheir process metrics aggregated together and sent with a `plugin_instance`\nvalue of `docker`.\n",
+      "doc": " Gathers information about processes running on\nthe host.  See\nhttps://collectd.org/documentation/manpages/collectd.conf.5.shtml#plugin_processes\nand https://collectd.org/wiki/index.php/Plugin:Processes for more\ninformation on the configuration options.\n\nExample:\n\n```yaml\n procPath: /proc\n monitors:\n  - type: collectd/processes\n    processes:\n      - mysql\n      - myapp\n    processMatch:\n      docker: \"docker.*\"\n    collectContextSwitch: true\n```\n\nThe above config will send process metrics for processes named *mysql* and\n*myapp*, along with additional metrics on the number of context switches the\nprocess has made.  Also, all processes that start with `docker` will have\ntheir process metrics aggregated together and sent with a `plugin_instance`\nvalue of `docker`.\n",
       "package": "internal/monitors/collectd/processes",
       "fields": [
         {
@@ -7925,8 +7925,8 @@
         },
         {
           "yamlName": "procFSPath",
-          "doc": "The path to the proc filesystem -- useful to override if the agent is running in a container.",
-          "default": "/proc",
+          "doc": "(Deprecated) Please set the agent configuration `procPath` instead of this monitor configuration option. The path to the proc filesystem -- useful to override if the agent is running in a container.",
+          "default": "",
           "required": false,
           "type": "string",
           "elementKind": ""
@@ -8980,16 +8980,16 @@
         },
         {
           "yamlName": "procFSPath",
-          "doc": "The path to the proc filesystem. Useful to override in containerized environments.",
-          "default": "/proc",
+          "doc": "(Deprecated) Please set the agent configuration `procPath` instead of this monitor configuration option. The path to the proc filesystem. Useful to override in containerized environments.",
+          "default": "",
           "required": false,
           "type": "string",
           "elementKind": ""
         },
         {
           "yamlName": "etcPath",
-          "doc": "The path to the main host config dir. Useful to override in containerized environments.",
-          "default": "/etc",
+          "doc": "(Deprecated) Please set the agent configuration `etcPath` instead of this monitor configuration option. The path to the main host config dir. Useful to override in containerized environments.",
+          "default": "",
           "required": false,
           "type": "string",
           "elementKind": ""
@@ -10267,18 +10267,9 @@
     },
     {
       "name": "Config",
-      "doc": "\nThis monitor reports cpu metrics.\n\n```yaml\nmonitors:\n - type: cpu\n```\n",
+      "doc": "\nThis monitor reports cpu metrics.\n\nOn Linux hosts, this monitor relies on the `/proc` filesystem.\nIf the underlying host's `/proc` file system is mounted somewhere other than\n/proc please specify the path using the top level configuration `procPath`.\n\n```yaml\nprocPath: /proc\nmonitors:\n - type: cpu\n```\n",
       "package": "internal/monitors/cpu",
-      "fields": [
-        {
-          "yamlName": "procFSPath",
-          "doc": "The path to the proc filesystem. Useful to override in containerized environments.  (Does not apply to windows)",
-          "default": "/proc",
-          "required": false,
-          "type": "string",
-          "elementKind": ""
-        }
-      ],
+      "fields": [],
       "monitorType": "cpu",
       "acceptsEndpoints": false,
       "singleInstance": true,
@@ -10299,17 +10290,9 @@
     },
     {
       "name": "Config",
-      "doc": "\nThis monitor reports I/O metrics about disks.\n\n```yaml\nmonitors:\n - type: disk-io\n```\n",
+      "doc": "\nThis monitor reports I/O metrics about disks.\n\nOn Linux hosts, this monitor relies on the `/proc` filesystem.\nIf the underlying host's `/proc` file system is mounted somewhere other than\n/proc please specify the path using the top level configuration `procPath`.\n\n```yaml\nprocPath: /proc\nmonitors:\n - type: disk-io\n```\n",
       "package": "internal/monitors/diskio",
       "fields": [
-        {
-          "yamlName": "procFSPath",
-          "doc": "The path to the proc filesystem. Useful to override in containerized environments.  (Does not apply to windows)",
-          "default": "/proc",
-          "required": false,
-          "type": "string",
-          "elementKind": ""
-        },
         {
           "yamlName": "disks",
           "doc": "Which devices to include/exclude",
@@ -10714,17 +10697,9 @@
     },
     {
       "name": "Config",
-      "doc": "\nThis monitor reports metrics about free disk space on mounted devices.\n\n```yaml\nmonitors:\n - type: filesystems\n```\n",
+      "doc": "\nThis monitor reports metrics about free disk space on mounted devices.\n\nOn Linux hosts, this monitor relies on the `/proc` filesystem.\nIf the underlying host's `/proc` file system is mounted somewhere other than\n/proc please specify the path using the top level configuration `procPath`.\n\n```yaml\nprocPath: /proc\nmonitors:\n - type: filesystems\n```\n",
       "package": "internal/monitors/filesystems",
       "fields": [
-        {
-          "yamlName": "procFSPath",
-          "doc": "The path to the proc filesystem. Useful to override in containerized environments.  (Does not apply to windows)",
-          "default": "/proc",
-          "required": false,
-          "type": "string",
-          "elementKind": ""
-        },
         {
           "yamlName": "ignoreSelected",
           "doc": "If true, the filesystems selected by `fsTypes` and `mountPoints` will be excluded and all others included.",
@@ -10850,26 +10825,9 @@
     },
     {
       "name": "Config",
-      "doc": " This monitor collects metadata properties about a\nhost.  It is required for some views in SignalFx to operate.\n\n```yaml\nmonitors:\n  - type: host-metadata\n```\n\nIn containerized environments host `/etc` and `/proc` may not be located\ndirectly under the root path.  You can specify the path to `proc` and `etc`\nusing the monitor configurations `procFSPath` and `etcPath`\n\n```yaml\nmonitors:\n  - type: host-metadata\n    procFSPath: \"/hostfs/proc\"\n    etcPath: \"/hostfs/etc\"\n```\n\nMetadata updates occur on a sparse interval of approximately\n1m, 1m, 1h, 1d and continues repeating once per day.\nSetting the `Interval` configuration for this monitor will not affect the\nsparse interval on which metadata is collected.\n",
+      "doc": " This monitor collects metadata properties about a\nhost.  It is required for some views in SignalFx to operate.\n\n```yaml\nmonitors:\n  - type: host-metadata\n```\n\nIn containerized environments host `/etc` and `/proc` may not be located\ndirectly under the root path.  You can specify the path to `proc` and `etc`\nusing the top level agent configurations `procPath` and `etcPath`\n\n```yaml\nprocPath: /proc\netcPath: /etc\nmonitors:\n  - type: host-metadata\n```\n\nMetadata updates occur on a sparse interval of approximately\n1m, 1m, 1h, 1d and continues repeating once per day.\nSetting the `Interval` configuration for this monitor will not affect the\nsparse interval on which metadata is collected.\n",
       "package": "internal/monitors/metadata/hostmetadata",
-      "fields": [
-        {
-          "yamlName": "procFSPath",
-          "doc": "The path to the proc filesystem. Useful to override in containerized environments.",
-          "default": "/proc",
-          "required": false,
-          "type": "string",
-          "elementKind": ""
-        },
-        {
-          "yamlName": "etcPath",
-          "doc": "The path to the main host config dir. Useful to override in containerized environments.",
-          "default": "/etc",
-          "required": false,
-          "type": "string",
-          "elementKind": ""
-        }
-      ],
+      "fields": [],
       "monitorType": "host-metadata",
       "acceptsEndpoints": false,
       "singleInstance": true,
@@ -11908,18 +11866,9 @@
     },
     {
       "name": "Config",
-      "doc": "\nThis monitor reports memory and memory utilization metrics.\n\n```yaml\nmonitors:\n - type: memory\n```\n",
+      "doc": "\nThis monitor reports memory and memory utilization metrics.\n\nOn Linux hosts, this monitor relies on the `/proc` filesystem.\nIf the underlying host's `/proc` file system is mounted somewhere other than\n/proc please specify the path using the top level configuration `procPath`.\n\n```yaml\nprocPath: /proc\nmonitors:\n - type: memory\n```\n",
       "package": "internal/monitors/memory",
-      "fields": [
-        {
-          "yamlName": "procFSPath",
-          "doc": "The path to the proc filesystem. Useful to override in containerized environments.  (Does not apply to windows)",
-          "default": "/proc",
-          "required": false,
-          "type": "string",
-          "elementKind": ""
-        }
-      ],
+      "fields": [],
       "monitorType": "memory",
       "acceptsEndpoints": false,
       "singleInstance": true,
@@ -11970,17 +11919,9 @@
     },
     {
       "name": "Config",
-      "doc": "\nThis monitor reports I/O metrics about network interfaces.\n\n```yaml\nmonitors:\n - type: net-io\n```\n",
+      "doc": "\nThis monitor reports I/O metrics about network interfaces.\n\nOn Linux hosts, this monitor relies on the `/proc` filesystem.\nIf the underlying host's `/proc` file system is mounted somewhere other than\n/proc please specify the path using the top level configuration `procPath`.\n\n```yaml\nprocPath: /proc\nmonitors:\n - type: net-io\n```\n",
       "package": "internal/monitors/netio",
       "fields": [
-        {
-          "yamlName": "procFSPath",
-          "doc": "The path to the proc filesystem. Useful to override in containerized environments.  (Does not apply to windows)",
-          "default": "/proc",
-          "required": false,
-          "type": "string",
-          "elementKind": ""
-        },
         {
           "yamlName": "ignoreSelected",
           "doc": "If true, the interfaces selected by `selectInterfaces` will be excluded and all others included.",
@@ -12199,17 +12140,9 @@
     },
     {
       "name": "Config",
-      "doc": " This monitor reports metrics about processes.\nThis monitor is based on the Telegraf procstat plugin.  More information about the Telegraf plugin\ncan be found [here](https://github.com/influxdata/telegraf/tree/master/plugins/inputs/procstat).\n\nPlease note that the Smart Agent only supports the `native` pid finder and the options\n`cgroup` and `systemd unit` are not supported at this time.\n\nSample YAML configuration:\n\n```yaml\nmonitors:\n - type: telegraf/procstat\n   exe: \"signalfx-agent*\"\n```\n",
+      "doc": " This monitor reports metrics about processes.\nThis monitor is based on the Telegraf procstat plugin.  More information about the Telegraf plugin\ncan be found [here](https://github.com/influxdata/telegraf/tree/master/plugins/inputs/procstat).\n\nPlease note that the Smart Agent only supports the `native` pid finder and the options\n`cgroup` and `systemd unit` are not supported at this time.\n\nOn Linux hosts, this monitor relies on the `/proc` filesystem.\nIf the underlying host's `/proc` file system is mounted somewhere other than\n/proc please specify the path using the top level configuration `procPath`.\n\nSample Yaml Configuration\n\n```yaml\nprocPath: /proc\nmonitors:\n - type: telegraf/procstat\n   exe: \"signalfx-agent*\"\n```\n",
       "package": "internal/monitors/telegraf/monitors/procstat",
       "fields": [
-        {
-          "yamlName": "procFSPath",
-          "doc": "The path to the proc filesystem. Useful to override in containerized environments.",
-          "default": "/proc",
-          "required": false,
-          "type": "string",
-          "elementKind": ""
-        },
         {
           "yamlName": "exe",
           "doc": "The name of an executable to monitor.  (ie: `exe: \"signalfx-agent*\"`)",
@@ -13341,17 +13274,9 @@
     },
     {
       "name": "Config",
-      "doc": " Collects information about the virtual memory\nsubsystem of the kernel.\n\n```yaml\nmonitors:\n - type: vmem\n```\n",
+      "doc": " Collects information about the virtual memory\nsubsystem of the kernel.\n\nOn Linux hosts, this monitor relies on the `/proc` filesystem.\nIf the underlying host's `/proc` file system is mounted somewhere other than\n/proc please specify the path using the top level configuration `procPath`.\n\n```yaml\nprocPath: /proc\nmonitors:\n - type: vmem\n```\n",
       "package": "internal/monitors/vmem",
       "fields": [
-        {
-          "yamlName": "procFSPath",
-          "doc": "(Linux Only) The path to the proc filesystem. Useful to override in containerized environments.",
-          "default": "/proc",
-          "required": false,
-          "type": "string",
-          "elementKind": ""
-        },
         {
           "yamlName": "counterRefreshInterval",
           "doc": "(Windows Only) The frequency that wildcards in counter paths should be expanded and how often to refresh counters from configuration. This is expressed as a duration.",
@@ -15371,6 +15296,46 @@
             }
           ]
         }
+      },
+      {
+        "yamlName": "procPath",
+        "doc": "Path to the host's `/proc` filesystem. This is useful for containerized environments.",
+        "default": "/proc",
+        "required": false,
+        "type": "string",
+        "elementKind": ""
+      },
+      {
+        "yamlName": "etcPath",
+        "doc": "Path to the host's `/etc` directory. This is useful for containerized environments.",
+        "default": "/etc",
+        "required": false,
+        "type": "string",
+        "elementKind": ""
+      },
+      {
+        "yamlName": "varPath",
+        "doc": "Path to the host's `/var` directory. This is useful for containerized environments.",
+        "default": "/var",
+        "required": false,
+        "type": "string",
+        "elementKind": ""
+      },
+      {
+        "yamlName": "runPath",
+        "doc": "Path to the host's `/run` directory. This is useful for containerized environments.",
+        "default": "/run",
+        "required": false,
+        "type": "string",
+        "elementKind": ""
+      },
+      {
+        "yamlName": "sysPath",
+        "doc": "Path to the host's `/sys` directory. This is useful for containerized environments.",
+        "default": "/sys",
+        "required": false,
+        "type": "string",
+        "elementKind": ""
       }
     ]
   }

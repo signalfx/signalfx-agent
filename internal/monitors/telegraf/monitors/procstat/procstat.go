@@ -2,10 +2,9 @@ package procstat
 
 import (
 	"context"
-	"fmt"
-	"github.com/ulule/deepcopier"
-	"os"
 	"time"
+
+	"github.com/ulule/deepcopier"
 
 	telegrafInputs "github.com/influxdata/telegraf/plugins/inputs"
 	telegrafPlugin "github.com/influxdata/telegraf/plugins/inputs/procstat"
@@ -27,9 +26,14 @@ const monitorType = "telegraf/procstat"
 // Please note that the Smart Agent only supports the `native` pid finder and the options
 // `cgroup` and `systemd unit` are not supported at this time.
 //
-// Sample YAML configuration:
+// On Linux hosts, this monitor relies on the `/proc` filesystem.
+// If the underlying host's `/proc` file system is mounted somewhere other than
+// /proc please specify the path using the top level configuration `procPath`.
+//
+// Sample Yaml Configuration
 //
 // ```yaml
+// procPath: /proc
 // monitors:
 //  - type: telegraf/procstat
 //    exe: "signalfx-agent*"
@@ -45,9 +49,6 @@ func init() {
 // Config for this monitor
 type Config struct {
 	config.MonitorConfig `acceptsEndpoints:"false"`
-	// The path to the proc filesystem. Useful to override in containerized
-	// environments.
-	ProcFSPath string `yaml:"procFSPath" default:"/proc"`
 	// The name of an executable to monitor.  (ie: `exe: "signalfx-agent*"`)
 	Exe string `yaml:"exe"`
 	// Pattern to match against.  On Windows the pattern should be in the form of a WMI query.
@@ -77,13 +78,6 @@ var factory = telegrafInputs.Inputs["procstat"]
 // Configure the monitor and kick off metric syncing
 func (m *Monitor) Configure(conf *Config) (err error) {
 	plugin := factory().(*telegrafPlugin.Procstat)
-
-	// set HOST_PROC and HOST_ETC for gopsutil
-	if conf.ProcFSPath != "" {
-		if err := os.Setenv("HOST_PROC", conf.ProcFSPath); err != nil {
-			return fmt.Errorf("Error setting HOST_PROC env var %v", err)
-		}
-	}
 
 	// create the accumulator
 	ac := accumulator.NewAccumulator(baseemitter.NewEmitter(m.Output, logger))

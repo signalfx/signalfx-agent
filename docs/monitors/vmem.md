@@ -5,7 +5,12 @@
  Collects information about the virtual memory
 subsystem of the kernel.
 
+On Linux hosts, this monitor relies on the `/proc` filesystem.
+If the underlying host's `/proc` file system is mounted somewhere other than
+/proc please specify the path using the top level configuration `procPath`.
+
 ```yaml
+procPath: /proc
 monitors:
  - type: vmem
 ```
@@ -23,7 +28,6 @@ Monitor Type: `vmem`
 
 | Config option | Required | Type | Description |
 | --- | --- | --- | --- |
-| `procFSPath` | no | `string` | (Linux Only) The path to the proc filesystem. Useful to override in containerized environments. (**default:** `/proc`) |
 | `counterRefreshInterval` | no | `int64` | (Windows Only) The frequency that wildcards in counter paths should be expanded and how often to refresh counters from configuration. This is expressed as a duration. (**default:** `60s`) |
 | `printValid` | no | `bool` | (Windows Only) Print out the configurations that match available performance counters.  This used for debugging. (**default:** `false`) |
 

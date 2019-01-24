@@ -12,6 +12,7 @@ import (
 
 	"github.com/signalfx/golib/datapoint"
 	"github.com/signalfx/signalfx-agent/internal/utils"
+	"github.com/signalfx/signalfx-agent/internal/utils/hostfs"
 )
 
 var cumulativeCounters = map[string]string{
@@ -66,7 +67,7 @@ func (m *Monitor) Configure(conf *Config) (err error) {
 	var ctx context.Context
 	ctx, m.cancel = context.WithCancel(context.Background())
 
-	vmstatPath := path.Join(conf.ProcFSPath, "vmstat")
+	vmstatPath := path.Join(hostfs.HostProc(), "vmstat")
 
 	// gather metrics on the specified interval
 	utils.RunOnInterval(ctx, func() {

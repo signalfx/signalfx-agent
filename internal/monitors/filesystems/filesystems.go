@@ -15,7 +15,6 @@ import (
 	"github.com/signalfx/signalfx-agent/internal/monitors"
 	"github.com/signalfx/signalfx-agent/internal/monitors/types"
 	"github.com/signalfx/signalfx-agent/internal/utils"
-	"github.com/signalfx/signalfx-agent/internal/utils/gopsutilhelper"
 
 	log "github.com/sirupsen/logrus"
 )
@@ -28,8 +27,12 @@ var usage = gopsutil.Usage
 // MONITOR(filesystems):
 // This monitor reports metrics about free disk space on mounted devices.
 //
+// On Linux hosts, this monitor relies on the `/proc` filesystem.
+// If the underlying host's `/proc` file system is mounted somewhere other than
+// /proc please specify the path using the top level configuration `procPath`.
 //
 // ```yaml
+// procPath: /proc
 // monitors:
 //  - type: filesystems
 // ```
@@ -40,14 +43,9 @@ func init() {
 	monitors.Register(monitorType, func() interface{} { return &Monitor{} }, &Config{})
 }
 
-// TODO: make ProcFSPath a global config
-
 // Config for this monitor
 type Config struct {
 	config.MonitorConfig `singleInstance:"false" acceptsEndpoints:"false"`
-	// The path to the proc filesystem. Useful to override in containerized
-	// environments.  (Does not apply to windows)
-	ProcFSPath string `yaml:"procFSPath" default:"/proc"`
 
 	// If true, the filesystems selected by `fsTypes` and `mountPoints` will be
 	// excluded and all others included.
@@ -211,11 +209,6 @@ func (m *Monitor) Configure(conf *Config) error {
 
 	// save conf to monitor for quick reference
 	m.conf = conf
-
-	// set env vars for gopsutil
-	if err := gopsutilhelper.SetEnvVars(map[string]string{gopsutilhelper.HostProc: m.conf.ProcFSPath}); err != nil {
-		return err
-	}
 
 	// convert fstypes array to map for quick lookup
 	m.fsTypes = utils.StringSliceToMap(m.conf.FSTypes)

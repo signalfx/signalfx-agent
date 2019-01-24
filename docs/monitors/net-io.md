@@ -5,7 +5,12 @@
 
 This monitor reports I/O metrics about network interfaces.
 
+On Linux hosts, this monitor relies on the `/proc` filesystem.
+If the underlying host's `/proc` file system is mounted somewhere other than
+/proc please specify the path using the top level configuration `procPath`.
+
 ```yaml
+procPath: /proc
 monitors:
  - type: net-io
 ```
@@ -23,7 +28,6 @@ Monitor Type: `net-io`
 
 | Config option | Required | Type | Description |
 | --- | --- | --- | --- |
-| `procFSPath` | no | `string` | The path to the proc filesystem. Useful to override in containerized environments.  (Does not apply to windows) (**default:** `/proc`) |
 | `ignoreSelected` | no | `bool` | If true, the interfaces selected by `selectInterfaces` will be excluded and all others included. |
 | `interfaces` | no | `list of string` | The interfaces to include/exclude, is interpreted as a regex if surrounded by `/`. (**default:** `[/^lo\d*$/ /^docker.*/ /^t(un|ap)\d*$/ /^veth.*$/ /^Loopback*/]`) |
 
