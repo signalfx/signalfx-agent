@@ -3,7 +3,7 @@
 # cpu
 
 
-This monitor reports cpu and cpu utilization metrics.
+This monitor reports cpu metrics.
 
 ```yaml
 monitors:

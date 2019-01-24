@@ -10267,7 +10267,7 @@
     },
     {
       "name": "Config",
-      "doc": "\nThis monitor reports cpu and cpu utilization metrics.\n\n```yaml\nmonitors:\n - type: cpu\n```\n",
+      "doc": "\nThis monitor reports cpu metrics.\n\n```yaml\nmonitors:\n - type: cpu\n```\n",
       "package": "internal/monitors/cpu",
       "fields": [
         {
