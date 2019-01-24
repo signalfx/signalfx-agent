@@ -28,8 +28,7 @@ Monitor Type: `net-io`
 
 | Config option | Required | Type | Description |
 | --- | --- | --- | --- |
-| `ignoreSelected` | no | `bool` | If true, the interfaces selected by `selectInterfaces` will be excluded and all others included. |
-| `interfaces` | no | `list of string` | The interfaces to include/exclude, is interpreted as a regex if surrounded by `/`. (**default:** `[/^lo\d*$/ /^docker.*/ /^t(un|ap)\d*$/ /^veth.*$/ /^Loopback*/]`) |
+| `interfaces` | no | `list of string` | The interfaces to include/exclude, is interpreted as a regex if surrounded by `/`. (**default:** `[* !/^lo\d*$/ !/^docker.*/ !/^t(un|ap)\d*$/ !/^veth.*$/ !/^Loopback*/]`) |
 
 
 

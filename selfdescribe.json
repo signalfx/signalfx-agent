@@ -11916,22 +11916,15 @@
       "package": "internal/monitors/netio",
       "fields": [
         {
-          "yamlName": "ignoreSelected",
-          "doc": "If true, the interfaces selected by `selectInterfaces` will be excluded and all others included.",
-          "default": null,
-          "required": false,
-          "type": "bool",
-          "elementKind": ""
-        },
-        {
           "yamlName": "interfaces",
           "doc": "The interfaces to include/exclude, is interpreted as a regex if surrounded by `/`.",
           "default": [
-            "/^lo\\d*$/",
-            "/^docker.*/",
-            "/^t(un|ap)\\d*$/",
-            "/^veth.*$/",
-            "/^Loopback*/"
+            "*",
+            "!/^lo\\d*$/",
+            "!/^docker.*/",
+            "!/^t(un|ap)\\d*$/",
+            "!/^veth.*$/",
+            "!/^Loopback*/"
           ],
           "required": false,
           "type": "slice",

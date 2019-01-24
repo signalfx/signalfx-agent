@@ -2,18 +2,17 @@ package netio
 
 import (
 	"context"
-	"regexp"
 	"runtime"
 	"strings"
 	"time"
 
 	"github.com/shirou/gopsutil/net"
 	"github.com/signalfx/golib/datapoint"
-	"github.com/signalfx/golib/pointer"
 	"github.com/signalfx/signalfx-agent/internal/core/config"
 	"github.com/signalfx/signalfx-agent/internal/monitors"
 	"github.com/signalfx/signalfx-agent/internal/monitors/types"
 	"github.com/signalfx/signalfx-agent/internal/utils"
+	"github.com/signalfx/signalfx-agent/internal/utils/filter"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -44,12 +43,9 @@ func init() {
 // Config for this monitor
 type Config struct {
 	config.MonitorConfig `singleInstance:"false" acceptsEndpoints:"false"`
-	// If true, the interfaces selected by `selectInterfaces` will be
-	// excluded and all others included.
-	IgnoreSelected *bool `yaml:"ignoreSelected"`
 	// The interfaces to include/exclude, is interpreted as a regex if
 	// surrounded by `/`.
-	Interfaces []string `yaml:"interfaces" default:"[\"/^lo\\\\d*$/\", \"/^docker.*/\", \"/^t(un|ap)\\\\d*$/\", \"/^veth.*$/\", \"/^Loopback*/\"]"`
+	Interfaces []string `yaml:"interfaces" default:"[\"*\", \"!/^lo\\\\d*$/\", \"!/^docker.*/\", \"!/^t(un|ap)\\\\d*$/\", \"!/^veth.*$/\", \"!/^Loopback*/\"]"`
 }
 
 // Monitor for Utilization
@@ -57,8 +53,7 @@ type Monitor struct {
 	Output                 types.Output
 	cancel                 func()
 	conf                   *Config
-	interfaces             []*regexp.Regexp
-	stringInterfaces       map[string]struct{}
+	filter                 *filter.ExhaustiveStringFilter
 	networkTotal           uint64
 	previousInterfaceStats map[string]*net.IOCountersStat
 }
@@ -86,17 +81,6 @@ func (m *Monitor) updateTotals(pluginInstance string, intf *net.IOCountersStat) 
 	m.previousInterfaceStats[pluginInstance] = intf
 }
 
-func (m *Monitor) shouldSkipInterface(intf *net.IOCountersStat) (shouldSkip bool) {
-	// check for plain string match
-	_, match := m.stringInterfaces[intf.Name]
-	// check for regex match
-	match = match || utils.FindMatchString(intf.Name, m.interfaces)
-	if (match && *m.conf.IgnoreSelected) || (!match && !*m.conf.IgnoreSelected) {
-		shouldSkip = true
-	}
-	return
-}
-
 // EmitDatapoints emits a set of memory datapoints
 func (m *Monitor) EmitDatapoints() {
 	info, err := iOCounters(true)
@@ -104,8 +88,8 @@ func (m *Monitor) EmitDatapoints() {
 		logger.Errorf(err.Error())
 	}
 	for _, intf := range info {
-		// handle selecting mountpoints
-		if m.shouldSkipInterface(&intf) {
+		// skip it if the interface doesn't match
+		if !m.filter.Matches(intf.Name) {
 			logger.Debugf("skipping interface '%s'", intf.Name)
 			continue
 		}
@@ -151,18 +135,22 @@ func (m *Monitor) Configure(conf *Config) error {
 
 	m.conf = conf
 
-	// initialize previous stats map
+	// initialize previous stats map and network total
 	m.previousInterfaceStats = map[string]*net.IOCountersStat{}
+	m.networkTotal = 0
 
-	// default to true when not set
-	if m.conf.IgnoreSelected == nil {
-		m.conf.IgnoreSelected = pointer.Bool(true)
+	// configure filters
+	var err error
+	if len(conf.Interfaces) == 0 {
+		m.filter, err = filter.NewExhaustiveStringFilter([]string{"*"})
+		logger.Debugf("empty interface list, defaulting to '*'")
+	} else {
+		m.filter, err = filter.NewExhaustiveStringFilter(conf.Interfaces)
 	}
 
-	var errs []error
-	m.interfaces, m.stringInterfaces, errs = utils.RegexpStringsToRegexp(conf.Interfaces)
-	for _, err := range errs {
-		logger.Errorf(err.Error())
+	// return an error if we can't set the filter
+	if err != nil {
+		return err
 	}
 
 	// gather metrics on the specified interval
