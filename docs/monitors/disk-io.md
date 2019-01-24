@@ -28,8 +28,7 @@ Monitor Type: `disk-io`
 
 | Config option | Required | Type | Description |
 | --- | --- | --- | --- |
-| `disks` | no | `list of string` | Which devices to include/exclude (**default:** `[/^loop[0-9]+$/ /^dm-[0-9]+$/]`) |
-| `ignoreSelected` | no | `bool` | If true, the disks selected by `disks` will be excluded and all others included. |
+| `disks` | no | `list of string` | Which devices to include/exclude (**default:** `[* !/^loop[0-9]+$/ !/^dm-[0-9]+$/]`) |
 
 
 

@@ -2,18 +2,17 @@ package diskio
 
 import (
 	"context"
-	"regexp"
 	"runtime"
 	"strings"
 	"time"
 
 	gopsutil "github.com/shirou/gopsutil/disk"
 	"github.com/signalfx/golib/datapoint"
-	"github.com/signalfx/golib/pointer"
 	"github.com/signalfx/signalfx-agent/internal/core/config"
 	"github.com/signalfx/signalfx-agent/internal/monitors"
 	"github.com/signalfx/signalfx-agent/internal/monitors/types"
 	"github.com/signalfx/signalfx-agent/internal/utils"
+	"github.com/signalfx/signalfx-agent/internal/utils/filter"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -45,20 +44,15 @@ type Config struct {
 	config.MonitorConfig `singleInstance:"false" acceptsEndpoints:"false"`
 
 	// Which devices to include/exclude
-	Disks []string `yaml:"disks" default:"[\"/^loop[0-9]+$/\", \"/^dm-[0-9]+$/\"]"`
-
-	// If true, the disks selected by `disks` will be excluded and all others
-	// included.
-	IgnoreSelected *bool `yaml:"ignoreSelected"`
+	Disks []string `yaml:"disks" default:"[\"*\", \"!/^loop[0-9]+$/\", \"!/^dm-[0-9]+$/\"]"`
 }
 
 // Monitor for Utilization
 type Monitor struct {
-	Output       types.Output
-	cancel       func()
-	conf         *Config
-	ignoreRegex  []*regexp.Regexp
-	ignoreString map[string]struct{}
+	Output types.Output
+	cancel func()
+	conf   *Config
+	filter *filter.ExhaustiveStringFilter
 }
 
 func (m *Monitor) processWindowsDatapoints(disk *gopsutil.IOCountersStat, dimensions map[string]string) {
@@ -113,15 +107,6 @@ func (m *Monitor) processLinuxDatapoints(disk *gopsutil.IOCountersStat, dimensio
 	m.Output.SendDatapoint(datapoint.New("disk_time.write", dimensions, datapoint.NewIntValue(int64(disk.WriteTime)), datapoint.Counter, time.Time{}))
 }
 
-func (m *Monitor) shouldSkipDisk(disk *gopsutil.IOCountersStat) (shouldSkip bool) {
-	_, match := m.ignoreString[disk.Name]
-	match = match || utils.FindMatchString(disk.Name, m.ignoreRegex)
-	if (match && *m.conf.IgnoreSelected) || (!match && !*m.conf.IgnoreSelected) {
-		shouldSkip = true
-	}
-	return
-}
-
 // EmitDatapoints emits a set of memory datapoints
 func (m *Monitor) emitDatapoints() {
 	iocounts, err := iOCounters()
@@ -130,8 +115,8 @@ func (m *Monitor) emitDatapoints() {
 	}
 	// var total uint64
 	for key, disk := range iocounts {
-		// handle selecting disk
-		if m.shouldSkipDisk(&disk) {
+		// skip it if the disk doesn't match
+		if !m.filter.Matches(disk.Name) {
 			logger.Debugf("skipping disk '%s'", disk.Name)
 			continue
 		}
@@ -160,16 +145,18 @@ func (m *Monitor) Configure(conf *Config) error {
 	// save conf to monitor for convenience
 	m.conf = conf
 
-	// convert array of strings and/or regexp to map of strings and array of regexp
-	var errs []error
-	m.ignoreRegex, m.ignoreString, errs = utils.RegexpStringsToRegexp(m.conf.Disks)
-	for _, err := range errs {
-		logger.Errorf(err.Error())
+	// configure filters
+	var err error
+	if len(conf.Disks) == 0 {
+		m.filter, err = filter.NewExhaustiveStringFilter([]string{"*"})
+		logger.Debugf("empty disk list defaulting to '*'")
+	} else {
+		m.filter, err = filter.NewExhaustiveStringFilter(conf.Disks)
 	}
 
-	// default IgnoreSelected to true
-	if m.conf.IgnoreSelected == nil {
-		m.conf.IgnoreSelected = pointer.Bool(true)
+	// return an error if we can't set the filter
+	if err != nil {
+		return err
 	}
 
 	// gather metrics on the specified interval

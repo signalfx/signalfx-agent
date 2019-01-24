@@ -10297,20 +10297,13 @@
           "yamlName": "disks",
           "doc": "Which devices to include/exclude",
           "default": [
-            "/^loop[0-9]+$/",
-            "/^dm-[0-9]+$/"
+            "*",
+            "!/^loop[0-9]+$/",
+            "!/^dm-[0-9]+$/"
           ],
           "required": false,
           "type": "slice",
           "elementKind": "string"
-        },
-        {
-          "yamlName": "ignoreSelected",
-          "doc": "If true, the disks selected by `disks` will be excluded and all others included.",
-          "default": null,
-          "required": false,
-          "type": "bool",
-          "elementKind": ""
         }
       ],
       "monitorType": "disk-io",
