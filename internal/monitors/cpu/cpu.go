@@ -24,7 +24,7 @@ const percoreMetricName = "cpu.utilization_per_core"
 var times = cpu.Times
 
 // MONITOR(cpu):
-// This monitor reports cpu and cpu utilization metrics.
+// This monitor reports cpu metrics.
 //
 //
 // ```yaml
@@ -46,9 +46,7 @@ type Config struct {
 	config.MonitorConfig `singleInstance:"true" acceptsEndpoints:"false"`
 	// The path to the proc filesystem. Useful to override in containerized
 	// environments.  (Does not apply to windows)
-	ProcFSPath      string `yaml:"procFSPath" default:"/proc"`
-	previousPerCore map[string]*totalUsed
-	previousTotal   *totalUsed
+	ProcFSPath string `yaml:"procFSPath" default:"/proc"`
 }
 
 // cpuTimeStatTototalUsed converts a cpu.TimesStat to a totalUsed with Total and Used values
@@ -73,7 +71,7 @@ func cpuTimeStatTototalUsed(t *cpu.TimesStat) *totalUsed {
 	}
 }
 
-func (m *Monitor) emitPerCoreDatapoints(conf *Config) {
+func (m *Monitor) emitPerCoreDatapoints() {
 	totals, err := times(true)
 	if err != nil {
 		logger.WithError(err).Errorf("unable to get cpu times per core")
@@ -84,7 +82,7 @@ func (m *Monitor) emitPerCoreDatapoints(conf *Config) {
 		current := cpuTimeStatTototalUsed(&core)
 
 		// calculate utilization
-		if prev, ok := conf.previousPerCore[core.CPU]; ok && prev != nil {
+		if prev, ok := m.previousPerCore[core.CPU]; ok && prev != nil {
 			utilization, err := getUtilization(prev, current)
 
 			if err != nil {
@@ -96,7 +94,7 @@ func (m *Monitor) emitPerCoreDatapoints(conf *Config) {
 			m.Output.SendDatapoint(
 				datapoint.New(
 					percoreMetricName,
-					map[string]string{"plugin": types.UtilizationMetricPluginName, "core": core.CPU},
+					map[string]string{"plugin": types.UtilizationMetricPluginName, "plugin_instance": core.CPU, "core": core.CPU},
 					datapoint.NewFloatValue(utilization),
 					datapoint.Gauge,
 					time.Time{},
@@ -104,11 +102,11 @@ func (m *Monitor) emitPerCoreDatapoints(conf *Config) {
 		}
 
 		// store current as previous value for next time
-		conf.previousPerCore[core.CPU] = current
+		m.previousPerCore[core.CPU] = current
 	}
 }
 
-func (m *Monitor) emitDatapoints(conf *Config) {
+func (m *Monitor) emitDatapoints() {
 	total, err := times(false)
 	if err != nil {
 		logger.WithError(err).Errorf("unable to get cpu times")
@@ -118,8 +116,8 @@ func (m *Monitor) emitDatapoints(conf *Config) {
 		current := cpuTimeStatTototalUsed(&total[0])
 
 		// calculate utilization
-		if conf.previousTotal != nil {
-			utilization, err := getUtilization(conf.previousTotal, current)
+		if m.previousTotal != nil {
+			utilization, err := getUtilization(m.previousTotal, current)
 
 			// append errors
 			if err != nil {
@@ -139,7 +137,7 @@ func (m *Monitor) emitDatapoints(conf *Config) {
 		}
 
 		// store current as previous value for next time
-		conf.previousTotal = current
+		m.previousTotal = current
 	}
 
 	return
@@ -170,7 +168,7 @@ func getUtilization(prev *totalUsed, current *totalUsed) (utilization float64, e
 	return
 }
 
-func initializeCPUTimes(conf *Config) {
+func (m *Monitor) initializeCPUTimes() {
 	// initialize previous values
 	var total []cpu.TimesStat
 	var err error
@@ -178,20 +176,20 @@ func initializeCPUTimes(conf *Config) {
 		logger.WithError(err).Errorf("failed to initialize cpu times")
 	}
 	if len(total) > 0 {
-		conf.previousTotal = cpuTimeStatTototalUsed(&total[0])
+		m.previousTotal = cpuTimeStatTototalUsed(&total[0])
 	}
 }
 
-func initializePerCoreCPUTimes(conf *Config) {
+func (m *Monitor) initializePerCoreCPUTimes() {
 	// initialize per core cpu times
 	var totals []cpu.TimesStat
 	var err error
 	if totals, err = times(true); err != nil {
 		logger.WithError(err).Errorf("failed to initialize per core cpu times")
 	}
-	conf.previousPerCore = make(map[string]*totalUsed, len(totals))
+	m.previousPerCore = make(map[string]*totalUsed, len(totals))
 	for _, core := range totals {
-		conf.previousPerCore[core.CPU] = cpuTimeStatTototalUsed(&core)
+		m.previousPerCore[core.CPU] = cpuTimeStatTototalUsed(&core)
 	}
 }
 
@@ -206,21 +204,24 @@ func (m *Monitor) Configure(conf *Config) error {
 	var ctx context.Context
 	ctx, m.cancel = context.WithCancel(context.Background())
 
+	// save config to monitor for convenience
+	m.conf = conf
+
 	// set env vars for gopsutil
-	if err := gopsutilhelper.SetEnvVars(map[string]string{gopsutilhelper.HostProc: conf.ProcFSPath}); err != nil {
+	if err := gopsutilhelper.SetEnvVars(map[string]string{gopsutilhelper.HostProc: m.conf.ProcFSPath}); err != nil {
 		return err
 	}
 
 	// initialize cpu times and per core cpu times so that we don't have to wait an entire reporting interval to report utilization
-	initializeCPUTimes(conf)
-	initializePerCoreCPUTimes(conf)
+	m.initializeCPUTimes()
+	m.initializePerCoreCPUTimes()
 
 	// gather metrics on the specified interval
 	utils.RunOnInterval(ctx, func() {
-		m.emitDatapoints(conf)
+		m.emitDatapoints()
 		// NOTE: If this monitor ever fails to complete in a reporting interval
 		// maybe run this on a separate go routine
-		m.emitPerCoreDatapoints(conf)
+		m.emitPerCoreDatapoints()
 	}, time.Duration(conf.IntervalSeconds)*time.Second)
 
 	return nil
@@ -239,6 +240,9 @@ func init() {
 
 // Monitor for Utilization
 type Monitor struct {
-	Output types.Output
-	cancel func()
+	Output          types.Output
+	cancel          func()
+	conf            *Config
+	previousPerCore map[string]*totalUsed
+	previousTotal   *totalUsed
 }
