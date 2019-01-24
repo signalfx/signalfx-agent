@@ -97,7 +97,7 @@ func (m *Monitor) Configure(conf *Config) error {
 
 	m.ctx, m.cancel = context.WithCancel(context.Background())
 
-	imageFilter, err := filter.NewStringFilter(conf.ExcludedImages)
+	imageFilter, err := filter.NewBasicStringFilter(conf.ExcludedImages)
 	if err != nil {
 		return err
 	}
