@@ -9,6 +9,7 @@ import (
 
 	"github.com/shirou/gopsutil/net"
 	"github.com/signalfx/golib/datapoint"
+	"github.com/signalfx/golib/pointer"
 	"github.com/signalfx/signalfx-agent/internal/core/config"
 	"github.com/signalfx/signalfx-agent/internal/monitors"
 	"github.com/signalfx/signalfx-agent/internal/monitors/types"
@@ -46,63 +47,59 @@ type Config struct {
 	IgnoreSelected *bool `yaml:"ignoreSelected"`
 	// The interfaces to include/exclude, is interpreted as a regex if
 	// surrounded by `/`.
-	Interfaces             []string `yaml:"interfaces" default:"[\"/^lo\\\\d*$/\", \"/^docker.*/\", \"/^t(un|ap)\\\\d*$/\", \"/^veth.*$/\", \"/^Loopback*/\"]"`
-	interfaces             []*regexp.Regexp
-	stringInterfaces       map[string]struct{}
-	networkTotal           uint64
-	previousInterfaceStats map[string]*net.IOCountersStat
+	Interfaces []string `yaml:"interfaces" default:"[\"/^lo\\\\d*$/\", \"/^docker.*/\", \"/^t(un|ap)\\\\d*$/\", \"/^veth.*$/\", \"/^Loopback*/\"]"`
 }
 
-func (m *Monitor) updateTotals(conf *Config, pluginInstance string, intf *net.IOCountersStat) {
-	prev, ok := conf.previousInterfaceStats[pluginInstance]
+func (m *Monitor) updateTotals(pluginInstance string, intf *net.IOCountersStat) {
+	prev, ok := m.previousInterfaceStats[pluginInstance]
 
 	// update total received
 	// if there's a previous value and the counter didn't reset
 	if ok && prev.BytesRecv >= 0 && intf.BytesRecv >= prev.BytesRecv {
-		conf.networkTotal += (intf.BytesRecv - prev.BytesRecv)
+		m.networkTotal += (intf.BytesRecv - prev.BytesRecv)
 	} else {
-		conf.networkTotal += intf.BytesRecv
+		m.networkTotal += intf.BytesRecv
 	}
 
 	// update total sent
 	// if there's a previous value and the counter didn't reset
 	if ok && prev.BytesSent >= 0 && intf.BytesSent >= prev.BytesSent {
-		conf.networkTotal += (intf.BytesSent - prev.BytesSent)
+		m.networkTotal += (intf.BytesSent - prev.BytesSent)
 	} else {
-		conf.networkTotal += intf.BytesSent
+		m.networkTotal += intf.BytesSent
 	}
 
 	// store values for reference next interval
-	conf.previousInterfaceStats[pluginInstance] = intf
+	m.previousInterfaceStats[pluginInstance] = intf
 }
 
-func shouldSkipInterface(conf *Config, intf *net.IOCountersStat) (shouldSkip bool) {
+func (m *Monitor) shouldSkipInterface(intf *net.IOCountersStat) (shouldSkip bool) {
 	// check for plain string match
-	_, match := conf.stringInterfaces[intf.Name]
+	_, match := m.stringInterfaces[intf.Name]
 	// check for regex match
-	match = match || utils.FindMatchString(intf.Name, conf.interfaces)
-	if (match && *conf.IgnoreSelected) || (!match && !*conf.IgnoreSelected) {
+	match = match || utils.FindMatchString(intf.Name, m.interfaces)
+	if (match && *m.conf.IgnoreSelected) || (!match && !*m.conf.IgnoreSelected) {
 		shouldSkip = true
 	}
 	return
 }
 
 // EmitDatapoints emits a set of memory datapoints
-func (m *Monitor) EmitDatapoints(conf *Config) {
+func (m *Monitor) EmitDatapoints() {
 	info, err := iOCounters(true)
 	if err != nil {
 		logger.Errorf(err.Error())
 	}
 	for _, intf := range info {
 		// handle selecting mountpoints
-		if shouldSkipInterface(conf, &intf) {
+		if m.shouldSkipInterface(&intf) {
 			logger.Debugf("skipping interface '%s'", intf.Name)
 			continue
 		}
 
 		pluginInstance := strings.Replace(intf.Name, " ", "_", -1)
 
-		m.updateTotals(conf, pluginInstance, &intf)
+		m.updateTotals(pluginInstance, &intf)
 
 		dimensions := map[string]string{"plugin": monitorType, "plugin_instance": pluginInstance}
 
@@ -126,7 +123,7 @@ func (m *Monitor) EmitDatapoints(conf *Config) {
 	}
 
 	// network.total
-	m.Output.SendDatapoint(datapoint.New("network.total", map[string]string{"plugin": types.UtilizationMetricPluginName}, datapoint.NewIntValue(int64(conf.networkTotal)), datapoint.Counter, time.Time{}))
+	m.Output.SendDatapoint(datapoint.New("network.total", map[string]string{"plugin": types.UtilizationMetricPluginName}, datapoint.NewIntValue(int64(m.networkTotal)), datapoint.Counter, time.Time{}))
 }
 
 // Configure is the main function of the monitor, it will report host metadata
@@ -139,17 +136,18 @@ func (m *Monitor) Configure(conf *Config) error {
 	var ctx context.Context
 	ctx, m.cancel = context.WithCancel(context.Background())
 
+	m.conf = conf
+
 	// initialize previous stats map
-	conf.previousInterfaceStats = map[string]*net.IOCountersStat{}
+	m.previousInterfaceStats = map[string]*net.IOCountersStat{}
 
 	// default to true when not set
-	if conf.IgnoreSelected == nil {
-		t := true
-		conf.IgnoreSelected = &t
+	if m.conf.IgnoreSelected == nil {
+		m.conf.IgnoreSelected = pointer.Bool(true)
 	}
 
 	var errs []error
-	conf.interfaces, conf.stringInterfaces, errs = utils.RegexpStringsToRegexp(conf.Interfaces)
+	m.interfaces, m.stringInterfaces, errs = utils.RegexpStringsToRegexp(conf.Interfaces)
 	for _, err := range errs {
 		logger.Errorf(err.Error())
 	}
@@ -161,7 +159,7 @@ func (m *Monitor) Configure(conf *Config) error {
 
 	// gather metrics on the specified interval
 	utils.RunOnInterval(ctx, func() {
-		m.EmitDatapoints(conf)
+		m.EmitDatapoints()
 	}, time.Duration(conf.IntervalSeconds)*time.Second)
 
 	return nil
@@ -180,6 +178,11 @@ func init() {
 
 // Monitor for Utilization
 type Monitor struct {
-	Output types.Output
-	cancel func()
+	Output                 types.Output
+	cancel                 func()
+	conf                   *Config
+	interfaces             []*regexp.Regexp
+	stringInterfaces       map[string]struct{}
+	networkTotal           uint64
+	previousInterfaceStats map[string]*net.IOCountersStat
 }
