@@ -10313,7 +10313,7 @@
         {
           "yamlName": "ignoreSelected",
           "doc": "If true, the filesystems selected by `fsTypes` and `mountPoints` will be excluded and all others included.",
-          "default": null,
+          "default": true,
           "required": false,
           "type": "bool",
           "elementKind": ""
@@ -10351,7 +10351,8 @@
             "/^/var/lib/docker/containers/",
             "/^/var/lib/rkt/pods/",
             "/^/net//",
-            "/^/smb//"
+            "/^/smb//",
+            "/^/tmp/scratch/"
           ],
           "required": false,
           "type": "slice",

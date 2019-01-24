@@ -10,6 +10,7 @@ import (
 
 	gopsutil "github.com/shirou/gopsutil/disk"
 	"github.com/signalfx/golib/datapoint"
+	"github.com/signalfx/golib/pointer"
 	"github.com/signalfx/signalfx-agent/internal/core/config"
 	"github.com/signalfx/signalfx-agent/internal/monitors"
 	"github.com/signalfx/signalfx-agent/internal/monitors/types"
@@ -46,7 +47,7 @@ type Config struct {
 
 	// If true, the filesystems selected by `fsTypes` and `mountPoints` will be
 	// excluded and all others included.
-	IgnoreSelected *bool `yaml:"ignoreSelected"`
+	IgnoreSelected *bool `yaml:"ignoreSelected" default:"true"`
 
 	// The filesystem types to include/exclude.
 	FSTypes []string `yaml:"fsTypes" default:"[\"aufs\", \"overlay\", \"tmpfs\", \"proc\", \"sysfs\", \"nsfs\", \"cgroup\", \"devpts\", \"selinuxfs\", \"devtmpfs\", \"debugfs\", \"mqueue\", \"hugetlbfs\", \"securityfs\", \"pstore\", \"binfmt_misc\", \"autofs\"]"`
@@ -54,25 +55,22 @@ type Config struct {
 	// The mount paths to include/exclude, is interpreted as a regex if
 	// surrounded by `/`.  Note that you need to include the full path as the
 	// agent will see it, irrespective of the hostFSPath option.
-	MountPoints []string `yaml:"mountPoints" default:"[\"/^/var/lib/docker/containers/\", \"/^/var/lib/rkt/pods/\", \"/^/net//\", \"/^/smb//\"]"`
+	MountPoints []string `yaml:"mountPoints" default:"[\"/^/var/lib/docker/containers/\", \"/^/var/lib/rkt/pods/\", \"/^/net//\", \"/^/smb//\", \"/^/tmp/scratch/\"]"`
 	// If true, then metrics will report with their plugin_instance set to the
 	// device's name instead of the mountpoint.
 	ReportByDevice bool `yaml:"reportByDevice" default:"false"`
 	// (Linux Only) If true metrics will be reported about inodes.
-	ReportInodes      bool `yaml:"reportInodes" default:"false"`
-	fsTypes           map[string]bool
-	mountPoints       []*regexp.Regexp
-	stringMountPoints map[string]struct{}
+	ReportInodes bool `yaml:"reportInodes" default:"false"`
 }
 
 // returns common dimensions map according to reportInodes configuration
-func getCommonDimensions(conf *Config, partition *gopsutil.PartitionStat) map[string]string {
+func (m *Monitor) getCommonDimensions(partition *gopsutil.PartitionStat) map[string]string {
 	dims := map[string]string{
 		"mountpoint":      strings.Replace(partition.Mountpoint, " ", "_", -1),
 		"device":          strings.Replace(partition.Device, " ", "_", -1),
 		"plugin_instance": "",
 	}
-	if conf.ReportByDevice {
+	if m.conf.ReportByDevice {
 		dims["plugin_instance"] = dims["device"]
 	} else {
 		dims["plugin_instance"] = dims["mountpoint"]
@@ -81,19 +79,19 @@ func getCommonDimensions(conf *Config, partition *gopsutil.PartitionStat) map[st
 	return dims
 }
 
-func shouldSkipFileSystem(conf *Config, partition *gopsutil.PartitionStat) (shouldSkip bool) {
-	if _, ok := conf.fsTypes[partition.Fstype]; (ok && *conf.IgnoreSelected) || (!ok && !*conf.IgnoreSelected) {
+func (m *Monitor) shouldSkipFileSystem(partition *gopsutil.PartitionStat) (shouldSkip bool) {
+	if _, ok := m.fsTypes[partition.Fstype]; (ok && *m.conf.IgnoreSelected) || (!ok && !*m.conf.IgnoreSelected) {
 		shouldSkip = true
 	}
 	return
 }
 
-func shouldSkipMountpoint(conf *Config, partition *gopsutil.PartitionStat) (shouldSkip bool) {
+func (m *Monitor) shouldSkipMountpoint(partition *gopsutil.PartitionStat) (shouldSkip bool) {
 	// check for plain string match
-	_, match := conf.stringMountPoints[partition.Mountpoint]
+	_, match := m.stringMountPoints[partition.Mountpoint]
 	// check for regex match
-	match = match || utils.FindMatchString(partition.Mountpoint, conf.mountPoints)
-	if (match && *conf.IgnoreSelected) || (!match && !*conf.IgnoreSelected) {
+	match = match || utils.FindMatchString(partition.Mountpoint, m.mountPoints)
+	if (match && *m.conf.IgnoreSelected) || (!match && !*m.conf.IgnoreSelected) {
 		shouldSkip = true
 	}
 	return
@@ -138,7 +136,7 @@ func (m *Monitor) reportPercentBytes(dimensions map[string]string, disk *gopsuti
 }
 
 // emitDatapoints emits a set of memory datapoints
-func (m *Monitor) emitDatapoints(conf *Config) {
+func (m *Monitor) emitDatapoints() {
 	partitions, err := part(true)
 	if err != nil {
 		logger.WithError(err).Errorf("failed to collect list of mountpoints")
@@ -148,13 +146,13 @@ func (m *Monitor) emitDatapoints(conf *Config) {
 	for _, partition := range partitions {
 
 		// handle selecting fs types
-		if shouldSkipFileSystem(conf, &partition) {
+		if m.shouldSkipFileSystem(&partition) {
 			logger.Debugf("skipping mountpoint `%s` with fs type `%s`", partition.Mountpoint, partition.Fstype)
 			continue
 		}
 
 		// handle selecting mountpoints
-		if shouldSkipMountpoint(conf, &partition) {
+		if m.shouldSkipMountpoint(&partition) {
 			logger.Debugf("skipping mountpoint '%s'", partition.Mountpoint)
 			continue
 		}
@@ -167,7 +165,7 @@ func (m *Monitor) emitDatapoints(conf *Config) {
 		}
 
 		// get common dimensions according to reportByDevice config
-		commonDims := getCommonDimensions(conf, &partition)
+		commonDims := m.getCommonDimensions(&partition)
 
 		// disk utilization
 		m.Output.SendDatapoint(datapoint.New("disk.utilization",
@@ -184,7 +182,7 @@ func (m *Monitor) emitDatapoints(conf *Config) {
 		m.reportPercentBytes(dimensions, disk)
 
 		// inodes are not available on windows
-		if runtime.GOOS != "windows" && conf.ReportInodes {
+		if runtime.GOOS != "windows" && m.conf.ReportInodes {
 			m.reportInodeDatapoints(dimensions, disk)
 		}
 
@@ -214,23 +212,25 @@ func (m *Monitor) Configure(conf *Config) error {
 	var ctx context.Context
 	ctx, m.cancel = context.WithCancel(context.Background())
 
+	// save conf to monitor for quick reference
+	m.conf = conf
+
 	// set env vars for gopsutil
-	if err := gopsutilhelper.SetEnvVars(map[string]string{gopsutilhelper.HostProc: conf.ProcFSPath}); err != nil {
+	if err := gopsutilhelper.SetEnvVars(map[string]string{gopsutilhelper.HostProc: m.conf.ProcFSPath}); err != nil {
 		return err
 	}
 
 	// convert fstypes array to map for quick lookup
-	conf.fsTypes = utils.StringSliceToMap(conf.FSTypes)
+	m.fsTypes = utils.StringSliceToMap(m.conf.FSTypes)
 
 	// set IgnoreSelected to true by default
-	if conf.IgnoreSelected == nil {
-		t := true
-		conf.IgnoreSelected = &t
+	if m.conf.IgnoreSelected == nil {
+		m.conf.IgnoreSelected = pointer.Bool(true)
 	}
 
 	// convert array of strings and/or regexp to map of strings and array of regexp
 	var errs []error
-	conf.mountPoints, conf.stringMountPoints, errs = utils.RegexpStringsToRegexp(conf.MountPoints)
+	m.mountPoints, m.stringMountPoints, errs = utils.RegexpStringsToRegexp(m.conf.MountPoints)
 	for _, err := range errs {
 		if err != nil {
 			return err
@@ -239,8 +239,8 @@ func (m *Monitor) Configure(conf *Config) error {
 
 	// gather metrics on the specified interval
 	utils.RunOnInterval(ctx, func() {
-		m.emitDatapoints(conf)
-	}, time.Duration(conf.IntervalSeconds)*time.Second)
+		m.emitDatapoints()
+	}, time.Duration(m.conf.IntervalSeconds)*time.Second)
 
 	return nil
 }
@@ -258,6 +258,10 @@ func init() {
 
 // Monitor for Utilization
 type Monitor struct {
-	Output types.Output
-	cancel func()
+	Output            types.Output
+	cancel            func()
+	conf              *Config
+	fsTypes           map[string]bool
+	mountPoints       []*regexp.Regexp
+	stringMountPoints map[string]struct{}
 }
