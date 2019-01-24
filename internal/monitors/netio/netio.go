@@ -48,6 +48,12 @@ type Config struct {
 	Interfaces []string `yaml:"interfaces" default:"[\"*\", \"!/^lo\\\\d*$/\", \"!/^docker.*/\", \"!/^t(un|ap)\\\\d*$/\", \"!/^veth.*$/\", \"!/^Loopback*/\"]"`
 }
 
+// structure for storing sent and recieved values
+type netio struct {
+	sent uint64
+	recv uint64
+}
+
 // Monitor for Utilization
 type Monitor struct {
 	Output                 types.Output
@@ -55,7 +61,7 @@ type Monitor struct {
 	conf                   *Config
 	filter                 *filter.ExhaustiveStringFilter
 	networkTotal           uint64
-	previousInterfaceStats map[string]*net.IOCountersStat
+	previousInterfaceStats map[string]*netio
 }
 
 func (m *Monitor) updateTotals(pluginInstance string, intf *net.IOCountersStat) {
@@ -63,22 +69,24 @@ func (m *Monitor) updateTotals(pluginInstance string, intf *net.IOCountersStat) 
 
 	// update total received
 	// if there's a previous value and the counter didn't reset
-	if ok && prev.BytesRecv >= 0 && intf.BytesRecv >= prev.BytesRecv {
-		m.networkTotal += (intf.BytesRecv - prev.BytesRecv)
+	if ok && intf.BytesRecv >= prev.recv { // previous value exists and counter incremented
+		m.networkTotal += (intf.BytesRecv - prev.recv)
 	} else {
+		// counter instance is either uninitialized or reset so add current value
 		m.networkTotal += intf.BytesRecv
 	}
 
 	// update total sent
 	// if there's a previous value and the counter didn't reset
-	if ok && prev.BytesSent >= 0 && intf.BytesSent >= prev.BytesSent {
-		m.networkTotal += (intf.BytesSent - prev.BytesSent)
+	if ok && intf.BytesSent >= prev.sent {
+		m.networkTotal += intf.BytesSent - prev.sent
 	} else {
+		// counter instance is either uninitialized or reset so add current value
 		m.networkTotal += intf.BytesSent
 	}
 
 	// store values for reference next interval
-	m.previousInterfaceStats[pluginInstance] = intf
+	m.previousInterfaceStats[pluginInstance] = &netio{sent: intf.BytesSent, recv: intf.BytesRecv}
 }
 
 // EmitDatapoints emits a set of memory datapoints
@@ -136,7 +144,7 @@ func (m *Monitor) Configure(conf *Config) error {
 	m.conf = conf
 
 	// initialize previous stats map and network total
-	m.previousInterfaceStats = map[string]*net.IOCountersStat{}
+	m.previousInterfaceStats = map[string]*netio{}
 	m.networkTotal = 0
 
 	// configure filters
