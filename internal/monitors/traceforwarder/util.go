@@ -3,10 +3,10 @@ package traceforwarder
 import (
 	"context"
 
+	"github.com/signalfx/gateway/protocol/signalfx"
 	"github.com/signalfx/golib/datapoint"
 	"github.com/signalfx/golib/event"
 	"github.com/signalfx/golib/trace"
-	"github.com/signalfx/metricproxy/protocol/signalfx"
 )
 
 type traceOnlySink struct {

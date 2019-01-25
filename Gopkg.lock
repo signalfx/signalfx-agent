@@ -752,7 +752,7 @@
   revision = "93e507b42f43f458a109ca278d1542a26a0b87fc"
 
 [[projects]]
-  digest = "1:e8c67324102bf0065c7551219b000488d1b39976740faeacb5ac7924d009ceb5"
+  digest = "1:8e067e5858dd483d03ee344e9975dc024de8ebc3841b29c7db8ada14c7373a9d"
   name = "github.com/signalfx/gateway"
   packages = [
     "etcdIntf",
@@ -763,12 +763,12 @@
     "protocol/filtering",
     "protocol/signalfx",
     "protocol/signalfx/format",
+    "protocol/signalfx/tagreplace",
     "protocol/zipper",
     "sampling",
   ]
   pruneopts = "NUT"
-  revision = "d07d53d0851a27c8d71480399b43263f214f0fee"
-  version = "v1.0.2"
+  revision = "8421d05558e88bce0d8342f2cdebad6e6b109c89"
 
 [[projects]]
   branch = "master"
@@ -801,17 +801,6 @@
   ]
   pruneopts = "NUT"
   revision = "951bd0ba96011685e7ebcc24bc02a9fab93333b5"
-
-[[projects]]
-  digest = "1:c9f50228e0992a1856d2ba6d6894c85c9819aff77e702989f884e23f3a337e6b"
-  name = "github.com/signalfx/metricproxy"
-  packages = [
-    "protocol/collectd",
-    "protocol/collectd/format",
-    "protocol/signalfx",
-  ]
-  pruneopts = "NUT"
-  revision = "d07d53d0851a27c8d71480399b43263f214f0fee"
 
 [[projects]]
   digest = "1:5eddda7da877381c06e82250de85055fc40245378ef18bbacd455963d70109ac"
@@ -1262,6 +1251,8 @@
     "github.com/shirou/gopsutil/net",
     "github.com/shirou/gopsutil/process",
     "github.com/signalfx/com_signalfx_metrics_protobuf",
+    "github.com/signalfx/gateway/protocol/collectd",
+    "github.com/signalfx/gateway/protocol/collectd/format",
     "github.com/signalfx/gateway/protocol/signalfx",
     "github.com/signalfx/golib/datapoint",
     "github.com/signalfx/golib/event",
@@ -1272,9 +1263,6 @@
     "github.com/signalfx/golib/sfxclient",
     "github.com/signalfx/golib/trace",
     "github.com/signalfx/golib/web",
-    "github.com/signalfx/metricproxy/protocol/collectd",
-    "github.com/signalfx/metricproxy/protocol/collectd/format",
-    "github.com/signalfx/metricproxy/protocol/signalfx",
     "github.com/signalfx/telegraf/plugins/outputs/signalfx/parse",
     "github.com/sirupsen/logrus",
     "github.com/stretchr/testify/assert",

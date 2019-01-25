@@ -3,10 +3,10 @@ package collectdutil
 import (
 	"strings"
 
+	"github.com/signalfx/gateway/protocol/collectd"
 	"github.com/signalfx/golib/datapoint"
 	"github.com/signalfx/golib/event"
 	"github.com/signalfx/golib/pointer"
-	"github.com/signalfx/metricproxy/protocol/collectd"
 	"github.com/signalfx/signalfx-agent/internal/utils"
 )
 

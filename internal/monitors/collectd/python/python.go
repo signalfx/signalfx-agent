@@ -14,10 +14,10 @@ import (
 
 	"github.com/davecgh/go-spew/spew"
 	"github.com/mailru/easyjson"
+	mpCollectd "github.com/signalfx/gateway/protocol/collectd"
+	"github.com/signalfx/gateway/protocol/collectd/format"
 	"github.com/signalfx/golib/datapoint"
 	"github.com/signalfx/golib/event"
-	mpCollectd "github.com/signalfx/metricproxy/protocol/collectd"
-	"github.com/signalfx/metricproxy/protocol/collectd/format"
 	"github.com/signalfx/signalfx-agent/internal/core/config"
 	"github.com/signalfx/signalfx-agent/internal/monitors"
 	"github.com/signalfx/signalfx-agent/internal/monitors/collectd"
