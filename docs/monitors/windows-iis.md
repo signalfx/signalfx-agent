@@ -67,7 +67,7 @@ The following table lists the metrics available for this monitor. Metrics that a
 | `web_service.nonanonymous_users_sec` | gauge | X | Rate at which users are making nonanonymous requests to the web service |
 | `web_service.not_found_errors_sec` | gauge | X | Rate of 'Not Found' Errors |
 | `web_service.post_requests_sec` | gauge | X | Rate of HTTP POST requests |
-| `web_service.service_uptime` | counter | X | Service uptime |
+| `web_service.service_uptime` | gauge | X | Service uptime |
 | `web_service.total_method_requests_sec` | gauge | X | Rate at which all HTTP requests are received |
 
 

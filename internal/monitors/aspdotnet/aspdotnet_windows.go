@@ -6,7 +6,6 @@ import (
 	"context"
 	"time"
 
-	"github.com/signalfx/golib/datapoint"
 	"github.com/signalfx/signalfx-agent/internal/monitors/telegraf/common/accumulator"
 	"github.com/signalfx/signalfx-agent/internal/monitors/telegraf/common/emitter/batchemitter"
 	"github.com/signalfx/signalfx-agent/internal/monitors/telegraf/monitors/winperfcounters"
@@ -15,18 +14,18 @@ import (
 )
 
 var metricMap = map[string]*perfhelper.MetricMapper{
-	"asp_net.application_restarts":                                  {Name: "asp_net.application_restarts", Type: datapoint.Counter},
+	"asp_net.application_restarts":                                  {Name: "asp_net.application_restarts"},
 	"asp_net.applications_running":                                  {Name: "asp_net.applications_running"},
 	"asp_net.requests_current":                                      {Name: "asp_net.requests_current"},
 	"asp_net.requests_queued":                                       {Name: "asp_net.requests_queued"},
-	"asp_net.requests_rejected":                                     {Name: "asp_net.requests_rejected", Type: datapoint.Counter},
-	"asp_net.worker_process_restarts":                               {Name: "asp_net.worker_process_restarts", Type: datapoint.Counter},
+	"asp_net.requests_rejected":                                     {Name: "asp_net.requests_rejected"},
+	"asp_net.worker_process_restarts":                               {Name: "asp_net.worker_process_restarts"},
 	"asp_net.worker_processes_running":                              {Name: "asp_net.worker_processes_running"},
-	"asp_net_applications.errors_during_execution":                  {Name: "asp_net_applications.errors_during_execution", Type: datapoint.Counter},
+	"asp_net_applications.errors_during_execution":                  {Name: "asp_net_applications.errors_during_execution"},
 	"asp_net_applications.errors_total_persec":                      {Name: "asp_net_applications.errors_total_sec"},
 	"asp_net_applications.errors_unhandled_during_execution_persec": {Name: "asp_net_applications.errors_unhandled_during_execution_sec"},
 	"asp_net_applications.pipeline_instance_count":                  {Name: "asp_net_applications.pipeline_instance_count"},
-	"asp_net_applications.requests_failed":                          {Name: "asp_net_applications.requests_failed", Type: datapoint.Counter},
+	"asp_net_applications.requests_failed":                          {Name: "asp_net_applications.requests_failed"},
 	"asp_net_applications.requests_persec":                          {Name: "asp_net_applications.requests_sec"},
 	"asp_net_applications.session_sql_server_connections_total":     {Name: "asp_net_applications.session_sql_server_connections_total"},
 	"asp_net_applications.sessions_active":                          {Name: "asp_net_applications.sessions_active"},

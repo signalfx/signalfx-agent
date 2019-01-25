@@ -6,7 +6,6 @@ import (
 	"context"
 	"time"
 
-	"github.com/signalfx/golib/datapoint"
 	"github.com/signalfx/signalfx-agent/internal/monitors/telegraf/common/accumulator"
 	"github.com/signalfx/signalfx-agent/internal/monitors/telegraf/common/emitter/batchemitter"
 	"github.com/signalfx/signalfx-agent/internal/monitors/telegraf/monitors/winperfcounters"
@@ -35,7 +34,7 @@ var metricMap = map[string]*perfhelper.MetricMapper{
 	"web_service.anonymous_users_persec":    {Name: "web_service.anonymous_users_sec"},
 	"web_service.nonanonymous_users_persec": {Name: "web_service.nonanonymous_users_sec"},
 	// Uptime
-	"web_service.service_uptime": {Name: "web_service.service_uptime", Type: datapoint.Counter},
+	"web_service.service_uptime": {Name: "web_service.service_uptime"},
 	// ISAPI requests
 	"web_service.isapi_extension_requests_persec": {Name: "web_service.isapi_extension_requests_sec"},
 	// Process PerfCounters

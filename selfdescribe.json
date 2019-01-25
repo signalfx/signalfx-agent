@@ -162,7 +162,7 @@
       "metrics": [
         {
           "name": "asp_net.application_restarts",
-          "type": "counter",
+          "type": "gauge",
           "description": "Count of ASP.NET application restarts."
         },
         {
@@ -182,12 +182,12 @@
         },
         {
           "name": "asp_net.requests_rejected",
-          "type": "counter",
+          "type": "gauge",
           "description": "Count of rejected ASP.NET requests."
         },
         {
           "name": "asp_net.worker_process_restarts",
-          "type": "counter",
+          "type": "gauge",
           "description": "Count of ASP.NET worker process restarts."
         },
         {
@@ -197,7 +197,7 @@
         },
         {
           "name": "asp_net_applications.errors_during_execution",
-          "type": "counter",
+          "type": "gauge",
           "description": "Count of errors encountered by ASP.NET application durring execution."
         },
         {
@@ -217,7 +217,7 @@
         },
         {
           "name": "asp_net_applications.requests_failed",
-          "type": "counter",
+          "type": "gauge",
           "description": "Count of failed requests in the ASP.NET application"
         },
         {
@@ -13461,7 +13461,7 @@
         },
         {
           "name": "web_service.service_uptime",
-          "type": "counter",
+          "type": "gauge",
           "description": "Service uptime"
         },
         {
