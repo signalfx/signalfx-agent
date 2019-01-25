@@ -3,8 +3,8 @@ from textwrap import dedent
 import pytest
 import sys
 
-from helpers.util import wait_for, run_agent
-from helpers.assertions import *
+from helpers.assertions import has_any_metric_or_dim, has_log_message
+from helpers.util import get_monitor_dims_from_selfdescribe, get_monitor_metrics_from_selfdescribe, run_agent, wait_for
 
 pytestmark = [
     pytest.mark.skipif(sys.platform != "win32", reason="only runs on windows"),
@@ -14,6 +14,8 @@ pytestmark = [
 
 
 def test_dotnet():
+    expected_metrics = get_monitor_metrics_from_selfdescribe("dotnet")
+    expected_dims = get_monitor_dims_from_selfdescribe("dotnet")
     config = dedent(
         """
         monitors:
@@ -22,35 +24,6 @@ def test_dotnet():
     )
     with run_agent(config) as [backend, get_output, _]:
         assert wait_for(
-            p(has_datapoint, backend, metric_name="net_clr_exceptions.num_exceps_thrown_sec")
-        ), "net_clr_exceptions.num_exceps_thrown_sec missing"
-        assert wait_for(
-            p(has_datapoint, backend, metric_name="net_clr_locksandthreads.num_of_current_logical_threads")
-        ), "net_clr_locksandthreads.num_of_current_logical_threads missing"
-        assert wait_for(
-            p(has_datapoint, backend, metric_name="net_clr_locksandthreads.num_of_current_physical_threads")
-        ), "net_clr_locksandthreads.num_of_current_physical_threads missing"
-        assert wait_for(
-            p(has_datapoint, backend, metric_name="net_clr_locksandthreads.contention_rate_sec")
-        ), "net_clr_locksandthreads.contention_rate_sec missing"
-        assert wait_for(
-            p(has_datapoint, backend, metric_name="net_clr_locksandthreads.current_queue_length")
-        ), "net_clr_locksandthreads.current_queue_length missing"
-        assert wait_for(
-            p(has_datapoint, backend, metric_name="net_clr_memory.num_bytes_in_all_heaps")
-        ), "net_clr_memory.num_bytes_in_all_heaps missing"
-        assert wait_for(
-            p(has_datapoint, backend, metric_name="net_clr_memory.pct_time_in_gc")
-        ), "net_clr_memory.pct_time_in_gc missing"
-        assert wait_for(
-            p(has_datapoint, backend, metric_name="net_clr_memory.num_gc_handles")
-        ), "net_clr_memory.num_gc_handles"
-        assert wait_for(
-            p(has_datapoint, backend, metric_name="net_clr_memory.num_total_committed_bytes")
-        ), "net_clr_memory.num_total_committed_bytes"
-        assert wait_for(
-            p(has_datapoint, backend, metric_name="net_clr_memory.num_total_reserved_bytes")
-        ), "net_clr_memory.num_total_reserved_bytes"
-        assert wait_for(
-            p(has_datapoint, backend, metric_name="net_clr_memory.num_of_pinned_objects")
-        ), "net_clr_memory.num_of_pinned_objects missing"
+            p(has_any_metric_or_dim, backend, expected_metrics, expected_dims), timeout_seconds=60
+        ), "timed out waiting for metrics and/or dimensions!"
+        assert not has_log_message(get_output().lower(), "error"), "error found in agent output!"
