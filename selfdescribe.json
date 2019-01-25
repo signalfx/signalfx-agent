@@ -13471,6 +13471,191 @@
         }
       ],
       "properties": null
+    },
+    {
+      "name": "Config",
+      "doc": "\nThis monitor reports metrics for Windows system Performance Counters.\nThe metric names are intended to match what was originally reported by\nthe SignalFx [PerfCounterReporter](https://github.com/signalfx/PerfCounterReporter)\nThe metric types are all gauges as originally reported by the PerfCounterReporter.\n\n## Windows Performance Counters\nThe underlying source for these metrics are Windows Performance Counters.\nMost of the performance counters that we query in this monitor are actually\nrates per second and percentages that we report as instantaneous Gauge values\neach collection interval.\n\nSample YAML configuration:\n\n```yaml\nmonitors:\n - type: windows-iis\n```\n",
+      "package": "internal/monitors/windowslegacy",
+      "fields": [
+        {
+          "yamlName": "counterRefreshInterval",
+          "doc": "(Windows Only) Number of seconds that wildcards in counter paths should be expanded and how often to refresh counters from configuration.",
+          "default": "60s",
+          "required": false,
+          "type": "int64",
+          "elementKind": ""
+        },
+        {
+          "yamlName": "printValid",
+          "doc": "(Windows Only) Print out the configurations that match available performance counters.  This used for debugging.",
+          "default": false,
+          "required": false,
+          "type": "bool",
+          "elementKind": ""
+        }
+      ],
+      "monitorType": "windows-legacy",
+      "acceptsEndpoints": false,
+      "singleInstance": true,
+      "dimensions": null,
+      "metrics": [
+        {
+          "name": "logicaldisk.disk_read_bytes_sec",
+          "type": "gauge",
+          "description": "The number of bytes read from disk per second."
+        },
+        {
+          "name": "logicaldisk.disk_reads_sec",
+          "type": "gauge",
+          "description": "The number of read operations per second."
+        },
+        {
+          "name": "logicaldisk.disk_transfers_sec",
+          "type": "gauge",
+          "description": "The number of transfers per second."
+        },
+        {
+          "name": "logicaldisk.disk_write_bytes_sec",
+          "type": "gauge",
+          "description": "The number of bytes written to disk per second."
+        },
+        {
+          "name": "logicaldisk.disk_writes_sec",
+          "type": "gauge",
+          "description": "The number of write operations per second."
+        },
+        {
+          "name": "logicaldisk.free_megabytes",
+          "type": "gauge",
+          "description": "The number of available megabytes."
+        },
+        {
+          "name": "logicaldisk.pct_free_space",
+          "type": "gauge",
+          "description": "The percentage of free disk space available."
+        },
+        {
+          "name": "memory.available_mbytes",
+          "type": "gauge",
+          "description": "Unused physical memory (not page file)."
+        },
+        {
+          "name": "memory.pages_input_sec",
+          "type": "gauge",
+          "description": "Reads from hard disk per second to resolve hard pages."
+        },
+        {
+          "name": "network_interface.bytes_received_sec",
+          "type": "gauge",
+          "description": "Bytes Received/sec is the rate at which bytes are received over each network adapter, including framing characters."
+        },
+        {
+          "name": "network_interface.bytes_sent_sec",
+          "type": "gauge",
+          "description": "Bytes Sent/sec is the rate at which bytes are sent over each network adapter, including framing characters."
+        },
+        {
+          "name": "network_interface.bytes_total_sec",
+          "type": "gauge",
+          "description": "The number of bytes sent and received over a specific network adapter, including framing characters."
+        },
+        {
+          "name": "network_interface.current_bandwidth",
+          "type": "gauge",
+          "description": "Current Bandwidth is an estimate of the current bandwidth of the network interface in bits per second (BPS)."
+        },
+        {
+          "name": "network_interface.outbound_discarded",
+          "type": "gauge",
+          "description": "The number of outbound packets discarded"
+        },
+        {
+          "name": "network_interface.packets_outbound_errors",
+          "type": "gauge",
+          "description": "The number of packets sent that encountered an error."
+        },
+        {
+          "name": "network_interface.packets_received_errors",
+          "type": "gauge",
+          "description": "The number of packets received that encountered an error."
+        },
+        {
+          "name": "network_interface.packets_received_sec",
+          "type": "gauge",
+          "description": "Tracking the packets received over time can give you a good indication of the typical use of the system's network."
+        },
+        {
+          "name": "network_interface.packets_sent_sec",
+          "type": "gauge",
+          "description": "The number of packets sent per second."
+        },
+        {
+          "name": "network_interface.received_discarded",
+          "type": "gauge",
+          "description": "The number of received packets discarded."
+        },
+        {
+          "name": "paging_file.pct_usage",
+          "type": "gauge",
+          "description": "Amount of Page File in use, which indicates the server is substituting disk space for memory."
+        },
+        {
+          "name": "paging_file.pct_usage_peak",
+          "type": "gauge",
+          "description": "Highest %Usage metric since the last time the server was restarted."
+        },
+        {
+          "name": "physicaldisk.avg_disk_sec_read",
+          "type": "gauge",
+          "description": "The average time, in milliseconds, of each read from disk."
+        },
+        {
+          "name": "physicaldisk.avg_disk_sec_transfer",
+          "type": "gauge",
+          "description": "The average time in milliseconds spent transfering data on disk."
+        },
+        {
+          "name": "physicaldisk.avg_disk_sec_write",
+          "type": "gauge",
+          "description": "The average time, in milliseconds, of each write to disk."
+        },
+        {
+          "name": "processor.interrupts_sec",
+          "type": "gauge",
+          "description": "Rate of processor interrupts per second."
+        },
+        {
+          "name": "processor.pct_privileged_time",
+          "type": "gauge",
+          "description": "Percentage of elapsed time the processor spends on privileged tasks."
+        },
+        {
+          "name": "processor.pct_processor_time",
+          "type": "gauge",
+          "description": "Percentage of elapsed time the processor spends executing non-idle threads."
+        },
+        {
+          "name": "processor.pct_user_time",
+          "type": "gauge",
+          "description": "Percentage of elapsed time the processor spends executing user threads."
+        },
+        {
+          "name": "system.context_switches_sec",
+          "type": "gauge",
+          "description": "Number of execution contexts switched in the last second, where \u003e6000 is poor, \u003c3000 is good, and \u003c1500 is excellent."
+        },
+        {
+          "name": "system.processor_queue_length",
+          "type": "gauge",
+          "description": "Number of threads waiting for CPU cycles, where \u003c 12 per CPU is good/fair, \u003c 8 is better, \u003c 4 is best"
+        },
+        {
+          "name": "system.system_calls_sec",
+          "type": "gauge",
+          "description": "The number of system calls being serviced by the CPU per second."
+        }
+      ],
+      "properties": null
     }
   ],
   "Observers": [

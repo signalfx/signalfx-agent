@@ -82,6 +82,7 @@ along with their possible configuration options:
 - [trace-forwarder](./monitors/trace-forwarder.md)
 - [vmem](./monitors/vmem.md)
 - [windows-iis](./monitors/windows-iis.md)
+- [windows-legacy](./monitors/windows-legacy.md)
 
 
 ## Common Configuration

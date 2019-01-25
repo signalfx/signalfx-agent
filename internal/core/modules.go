@@ -48,6 +48,7 @@ import (
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/traceforwarder"
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/vmem"
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/windowsiis"
+	_ "github.com/signalfx/signalfx-agent/internal/monitors/windowslegacy"
 	_ "github.com/signalfx/signalfx-agent/internal/observers/docker"
 	_ "github.com/signalfx/signalfx-agent/internal/observers/file"
 	_ "github.com/signalfx/signalfx-agent/internal/observers/host"
