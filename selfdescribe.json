@@ -11970,7 +11970,7 @@
     },
     {
       "name": "Config",
-      "doc": " This monitor reports processlist information for Windows\nHosts.\n\nSample YAML configuration:\n\n```yaml\nmonitors:\n - type: processlist\n```\n",
+      "doc": " (Windows Only) This monitor reports processlist\ninformation for Windows Hosts.\n\nSample YAML configuration:\n\n```yaml\nmonitors:\n - type: processlist\n```\n",
       "package": "internal/monitors/processlist",
       "fields": [],
       "monitorType": "processlist",
@@ -12184,7 +12184,213 @@
       "acceptsEndpoints": false,
       "singleInstance": false,
       "dimensions": null,
-      "metrics": null,
+      "metrics": [
+        {
+          "name": "procstat.cpu_time",
+          "type": "gauge",
+          "description": "Amount of cpu time consumed by the process."
+        },
+        {
+          "name": "procstat.cpu_usage",
+          "type": "gauge",
+          "description": "CPU used by the process."
+        },
+        {
+          "name": "procstat.involuntary_context_switches",
+          "type": "gauge",
+          "description": "Number of involuntary context switches."
+        },
+        {
+          "name": "procstat.memory_data",
+          "type": "gauge",
+          "description": "VMData memory used by the process."
+        },
+        {
+          "name": "procstat.memory_locked",
+          "type": "gauge",
+          "description": "VMLocked memory used by the process."
+        },
+        {
+          "name": "procstat.memory_rss",
+          "type": "gauge",
+          "description": "VMRSS memory used by the process."
+        },
+        {
+          "name": "procstat.memory_stack",
+          "type": "gauge",
+          "description": "VMStack memory used by the process."
+        },
+        {
+          "name": "procstat.memory_swap",
+          "type": "gauge",
+          "description": "VMSwap memory used by the process."
+        },
+        {
+          "name": "procstat.memory_vms",
+          "type": "gauge",
+          "description": "VMS memory used by the process."
+        },
+        {
+          "name": "procstat.nice_priority",
+          "type": "gauge",
+          "description": "Nice priority number of the process."
+        },
+        {
+          "name": "procstat.num_fds",
+          "type": "gauge",
+          "description": "Number of file descriptors.  This may require the agent to be running as root."
+        },
+        {
+          "name": "procstat.num_threads",
+          "type": "gauge",
+          "description": "Number of threads used by the process."
+        },
+        {
+          "name": "procstat.read_bytes",
+          "type": "gauge",
+          "description": "Number of bytes read by the process.  This may require the agent to be running as root."
+        },
+        {
+          "name": "procstat.read_count",
+          "type": "gauge",
+          "description": "Number of read operations by the process.  This may require the agent to be running as root."
+        },
+        {
+          "name": "procstat.realtime_priority",
+          "type": "gauge",
+          "description": "Real time priority of the process."
+        },
+        {
+          "name": "procstat.rlimit_cpu_time_hard",
+          "type": "gauge",
+          "description": "The hard cpu rlimit."
+        },
+        {
+          "name": "procstat.rlimit_cpu_time_soft",
+          "type": "gauge",
+          "description": "The soft cpu rlimit."
+        },
+        {
+          "name": "procstat.rlimit_file_locks_hard",
+          "type": "gauge",
+          "description": "The hard file lock rlimit."
+        },
+        {
+          "name": "procstat.rlimit_file_locks_soft",
+          "type": "gauge",
+          "description": "The soft file lock rlimit."
+        },
+        {
+          "name": "procstat.rlimit_memory_data_hard",
+          "type": "gauge",
+          "description": "The hard data memory rlimit."
+        },
+        {
+          "name": "procstat.rlimit_memory_data_soft",
+          "type": "gauge",
+          "description": "The soft data memory rlimit."
+        },
+        {
+          "name": "procstat.rlimit_memory_locked_hard",
+          "type": "gauge",
+          "description": "The hard locked memory rlimit."
+        },
+        {
+          "name": "procstat.rlimit_memory_locked_soft",
+          "type": "gauge",
+          "description": "The soft locked memory rlimit."
+        },
+        {
+          "name": "procstat.rlimit_memory_rss_hard",
+          "type": "gauge",
+          "description": "The hard rss memory rlimit."
+        },
+        {
+          "name": "procstat.rlimit_memory_rss_soft",
+          "type": "gauge",
+          "description": "The soft rss memory rlimit."
+        },
+        {
+          "name": "procstat.rlimit_memory_stack_hard",
+          "type": "gauge",
+          "description": "The hard stack memory rlimit."
+        },
+        {
+          "name": "procstat.rlimit_memory_stack_soft",
+          "type": "gauge",
+          "description": "The soft stack memory rlimit."
+        },
+        {
+          "name": "procstat.rlimit_memory_vms_hard",
+          "type": "gauge",
+          "description": "The hard vms memory rlimit."
+        },
+        {
+          "name": "procstat.rlimit_memory_vms_soft",
+          "type": "gauge",
+          "description": "The soft vms memory rlimit."
+        },
+        {
+          "name": "procstat.rlimit_nice_priority_hard",
+          "type": "gauge",
+          "description": "The hard nice priority rlimit."
+        },
+        {
+          "name": "procstat.rlimit_nice_priority_soft",
+          "type": "gauge",
+          "description": "The soft nice priority rlimit."
+        },
+        {
+          "name": "procstat.rlimit_num_fds_hard",
+          "type": "gauge",
+          "description": "The hard file descriptor rlimit."
+        },
+        {
+          "name": "procstat.rlimit_num_fds_soft",
+          "type": "gauge",
+          "description": "The soft file descriptor rlimit."
+        },
+        {
+          "name": "procstat.rlimit_realtime_priority_hard",
+          "type": "gauge",
+          "description": "The hard realtime priority rlimit."
+        },
+        {
+          "name": "procstat.rlimit_realtime_priority_soft",
+          "type": "gauge",
+          "description": "The soft realtime priority rlimit."
+        },
+        {
+          "name": "procstat.rlimit_signals_pending_hard",
+          "type": "gauge",
+          "description": "The hard pending signal rlimit."
+        },
+        {
+          "name": "procstat.rlimit_signals_pending_soft",
+          "type": "gauge",
+          "description": "The soft pendidng signal rlimit."
+        },
+        {
+          "name": "procstat.signals_pending",
+          "type": "gauge",
+          "description": "The number of signals pending."
+        },
+        {
+          "name": "procstat.write_bytes",
+          "type": "gauge",
+          "description": "Number of bytes written by the process.  This may require the agent to be running as root."
+        },
+        {
+          "name": "procstat.write_count",
+          "type": "gauge",
+          "description": "Number of write operations by the process.  This may require the agent to be running as root."
+        },
+        {
+          "name": "procstat_lookup.pid_count",
+          "type": "gauge",
+          "description": "The number of pids. This metric emits with the plugin dimension set to \"procstat_lookup\"."
+        }
+      ],
       "properties": null
     },
     {
@@ -12591,7 +12797,603 @@
       "acceptsEndpoints": true,
       "singleInstance": false,
       "dimensions": null,
-      "metrics": null,
+      "metrics": [
+        {
+          "name": "sqlserver_database_io.read_bytes",
+          "type": "gauge",
+          "description": "Bytes read by the database."
+        },
+        {
+          "name": "sqlserver_database_io.read_latency_ms",
+          "type": "gauge",
+          "description": "Latency in milliseconds reading from the database."
+        },
+        {
+          "name": "sqlserver_database_io.reads",
+          "type": "gauge",
+          "description": "Number of reads from the database."
+        },
+        {
+          "name": "sqlserver_database_io.write_bytes",
+          "type": "gauge",
+          "description": "Bytes written to the database."
+        },
+        {
+          "name": "sqlserver_database_io.write_latency_ms",
+          "type": "gauge",
+          "description": "Latency in milliseconds writing to the database."
+        },
+        {
+          "name": "sqlserver_database_io.writes",
+          "type": "gauge",
+          "description": "Number of writes to the database."
+        },
+        {
+          "name": "sqlserver_memory_clerks.size_kb.bound_trees",
+          "type": "gauge",
+          "description": "Size in KB of bound trees memory clerk."
+        },
+        {
+          "name": "sqlserver_memory_clerks.size_kb.buffer_pool",
+          "type": "gauge",
+          "description": "Size in KB of buffer pool memory clerk."
+        },
+        {
+          "name": "sqlserver_memory_clerks.size_kb.connection_pool",
+          "type": "gauge",
+          "description": "Size in KB of connection pool memory clerk."
+        },
+        {
+          "name": "sqlserver_memory_clerks.size_kb.general",
+          "type": "gauge",
+          "description": "Size in KB of general memory clerk."
+        },
+        {
+          "name": "sqlserver_memory_clerks.size_kb.in-memory_oltp",
+          "type": "gauge",
+          "description": "Size in KB of in in-memoory oltp memory clerk."
+        },
+        {
+          "name": "sqlserver_memory_clerks.size_kb.log_pool",
+          "type": "gauge",
+          "description": "Size in KB of log pool memory clerk."
+        },
+        {
+          "name": "sqlserver_memory_clerks.size_kb.memoryclerk_sqltrace",
+          "type": "gauge",
+          "description": "Size in KB of sql trace memory clerk."
+        },
+        {
+          "name": "sqlserver_memory_clerks.size_kb.schema_manager_user_store",
+          "type": "gauge",
+          "description": "Size in KB of user store schema manager memory clerk."
+        },
+        {
+          "name": "sqlserver_memory_clerks.size_kb.sos_node",
+          "type": "gauge",
+          "description": "Size in KB of sos node memory clerk."
+        },
+        {
+          "name": "sqlserver_memory_clerks.size_kb.sql_optimizer",
+          "type": "gauge",
+          "description": "Size in KB of SQL optimizer memory clerk."
+        },
+        {
+          "name": "sqlserver_memory_clerks.size_kb.sql_plans",
+          "type": "gauge",
+          "description": "Size in KB of sql plans memory clerk."
+        },
+        {
+          "name": "sqlserver_memory_clerks.size_kb.sql_reservations",
+          "type": "gauge",
+          "description": "Size in KB of sql reservations memory clerk."
+        },
+        {
+          "name": "sqlserver_memory_clerks.size_kb.sql_storage_engine",
+          "type": "gauge",
+          "description": "Size in KB of sql storage engine memory clerk."
+        },
+        {
+          "name": "sqlserver_memory_clerks.size_kb.system_rowset_store",
+          "type": "gauge",
+          "description": "Size in KB of system rowset store memory clerk."
+        },
+        {
+          "name": "sqlserver_performance.active_memory_grant_amount_kb",
+          "type": "gauge",
+          "description": "Amount of active memory in KB granted."
+        },
+        {
+          "name": "sqlserver_performance.active_temp_tables",
+          "type": "gauge",
+          "description": "Number of active temporary tables."
+        },
+        {
+          "name": "sqlserver_performance.background_writer_pages_persec",
+          "type": "gauge",
+          "description": "Rate per second of pages written in the background."
+        },
+        {
+          "name": "sqlserver_performance.backup/restore_throughput_persec",
+          "type": "gauge",
+          "description": "Rate per second of backup/restore throughput."
+        },
+        {
+          "name": "sqlserver_performance.batch_requests_persec",
+          "type": "gauge",
+          "description": "Rate per second of batch requests."
+        },
+        {
+          "name": "sqlserver_performance.blocked_tasks",
+          "type": "gauge",
+          "description": "Number of blocked tasks."
+        },
+        {
+          "name": "sqlserver_performance.buffer_cache_hit_ratio",
+          "type": "gauge",
+          "description": "Buffer cache hit ration."
+        },
+        {
+          "name": "sqlserver_performance.bytes_received_from_replica_persec",
+          "type": "gauge",
+          "description": "Rate per second of bytes received from replicas."
+        },
+        {
+          "name": "sqlserver_performance.bytes_sent_to_replica_persec",
+          "type": "gauge",
+          "description": "Rate per second of bytes sent to replicas."
+        },
+        {
+          "name": "sqlserver_performance.bytes_sent_to_transport_persec",
+          "type": "gauge",
+          "description": "Rate per second of bytes sent to transports."
+        },
+        {
+          "name": "sqlserver_performance.checkpoint_pages_persec",
+          "type": "gauge",
+          "description": "Rate per second of checkpoint pages."
+        },
+        {
+          "name": "sqlserver_performance.cpu_limit_violation_count",
+          "type": "gauge",
+          "description": "Number of cpu limit violations."
+        },
+        {
+          "name": "sqlserver_performance.cpu_usage_percent",
+          "type": "gauge",
+          "description": "CPU usage percentage."
+        },
+        {
+          "name": "sqlserver_performance.cpu_usage_time",
+          "type": "gauge",
+          "description": "CPU usage time."
+        },
+        {
+          "name": "sqlserver_performance.data_files_size_kb",
+          "type": "gauge",
+          "description": "Size in KB of data files."
+        },
+        {
+          "name": "sqlserver_performance.disk_read_bytes_persec",
+          "type": "gauge",
+          "description": "Rate per second of bytes from disk."
+        },
+        {
+          "name": "sqlserver_performance.disk_read_io_persec",
+          "type": "gauge",
+          "description": "Rate per second of read operations from disk."
+        },
+        {
+          "name": "sqlserver_performance.disk_read_io_throttled_persec",
+          "type": "gauge",
+          "description": "Rate per second of throttled read operations."
+        },
+        {
+          "name": "sqlserver_performance.disk_write_bytes_persec",
+          "type": "gauge",
+          "description": "Rate per second of bytes written to disk."
+        },
+        {
+          "name": "sqlserver_performance.disk_write_io_persec",
+          "type": "gauge",
+          "description": "Rate per second of write operations to disk."
+        },
+        {
+          "name": "sqlserver_performance.disk_write_io_throttled_persec",
+          "type": "gauge",
+          "description": "Rate per second of write operations throttled."
+        },
+        {
+          "name": "sqlserver_performance.errors_persec",
+          "type": "gauge",
+          "description": "Rate of errors per second."
+        },
+        {
+          "name": "sqlserver_performance.flow_control_persec",
+          "type": "gauge",
+          "description": "Rate per second of flow control."
+        },
+        {
+          "name": "sqlserver_performance.flow_control_time_ms_persec",
+          "type": "gauge",
+          "description": "Rate per second of ms of flow control time."
+        },
+        {
+          "name": "sqlserver_performance.forwarded_records_persec",
+          "type": "gauge",
+          "description": "Rate per second of record forwarding."
+        },
+        {
+          "name": "sqlserver_performance.free_list_stalls_persec",
+          "type": "gauge",
+          "description": "Rate per second of stalled free list."
+        },
+        {
+          "name": "sqlserver_performance.free_space_in_tempdb_kb",
+          "type": "gauge",
+          "description": "Free space in KB of tempdb."
+        },
+        {
+          "name": "sqlserver_performance.full_scans_persec",
+          "type": "gauge",
+          "description": "Rate per second of full scans."
+        },
+        {
+          "name": "sqlserver_performance.index_searches_persec",
+          "type": "gauge",
+          "description": "Rate per second of index searches."
+        },
+        {
+          "name": "sqlserver_performance.latch_waits_persec",
+          "type": "gauge",
+          "description": "Rate per second of latch waits."
+        },
+        {
+          "name": "sqlserver_performance.lazy_writes_persec",
+          "type": "gauge",
+          "description": "Rate per second of lazy writes."
+        },
+        {
+          "name": "sqlserver_performance.lock_timeouts_persec",
+          "type": "gauge",
+          "description": "Rate per second of lock timeouts."
+        },
+        {
+          "name": "sqlserver_performance.lock_wait_count",
+          "type": "gauge",
+          "description": "Number of lock waits."
+        },
+        {
+          "name": "sqlserver_performance.lock_wait_time",
+          "type": "gauge",
+          "description": "Lock wait time."
+        },
+        {
+          "name": "sqlserver_performance.lock_waits_persec",
+          "type": "gauge",
+          "description": "Rate per second of lock waits."
+        },
+        {
+          "name": "sqlserver_performance.log_apply_pending_queue",
+          "type": "gauge",
+          "description": "Size of the log apply pending queue."
+        },
+        {
+          "name": "sqlserver_performance.log_apply_ready_queue",
+          "type": "gauge",
+          "description": "Size of log apply ready queue."
+        },
+        {
+          "name": "sqlserver_performance.log_bytes_flushed_persec",
+          "type": "gauge",
+          "description": "Rate per second of log bytes flushed."
+        },
+        {
+          "name": "sqlserver_performance.log_bytes_received_persec",
+          "type": "gauge",
+          "description": "Rate per second of log bytes received."
+        },
+        {
+          "name": "sqlserver_performance.log_files_size_kb",
+          "type": "gauge",
+          "description": "Size in KB of log file."
+        },
+        {
+          "name": "sqlserver_performance.log_files_used_size_kb",
+          "type": "gauge",
+          "description": "Size in KB of log file used."
+        },
+        {
+          "name": "sqlserver_performance.log_flush_wait_time",
+          "type": "gauge",
+          "description": "Time spent flushing the log."
+        },
+        {
+          "name": "sqlserver_performance.log_flushes_persec",
+          "type": "gauge",
+          "description": "Rate per second of log flushes."
+        },
+        {
+          "name": "sqlserver_performance.log_send_queue",
+          "type": "gauge",
+          "description": "Size of the log send queue."
+        },
+        {
+          "name": "sqlserver_performance.logins_persec",
+          "type": "gauge",
+          "description": "Rate of logins per second."
+        },
+        {
+          "name": "sqlserver_performance.logouts_persec",
+          "type": "gauge",
+          "description": "Rate of logouts per second."
+        },
+        {
+          "name": "sqlserver_performance.memory_broker_clerk_size",
+          "type": "gauge",
+          "description": "Size of memory broker clerk."
+        },
+        {
+          "name": "sqlserver_performance.memory_grants_outstanding",
+          "type": "gauge",
+          "description": "Number of outstanding memory grants."
+        },
+        {
+          "name": "sqlserver_performance.memory_grants_pending",
+          "type": "gauge",
+          "description": "Number of pending memory grants."
+        },
+        {
+          "name": "sqlserver_performance.number_of_deadlocks_persec",
+          "type": "gauge",
+          "description": "Rate of deadlocks per second."
+        },
+        {
+          "name": "sqlserver_performance.page_life_expectancy",
+          "type": "gauge",
+          "description": "Page life expectancy."
+        },
+        {
+          "name": "sqlserver_performance.page_lookups_persec",
+          "type": "gauge",
+          "description": "Rate of page look ups per second."
+        },
+        {
+          "name": "sqlserver_performance.page_reads_persec",
+          "type": "gauge",
+          "description": "Rate of page reads per second."
+        },
+        {
+          "name": "sqlserver_performance.page_splits_persec",
+          "type": "gauge",
+          "description": "Rate of page splits per second."
+        },
+        {
+          "name": "sqlserver_performance.page_writes_persec",
+          "type": "gauge",
+          "description": "Rate of page writes per second."
+        },
+        {
+          "name": "sqlserver_performance.percent_log_used",
+          "type": "gauge",
+          "description": "Percentage of log used."
+        },
+        {
+          "name": "sqlserver_performance.processes_blocked",
+          "type": "gauge",
+          "description": "Number of blocked processes."
+        },
+        {
+          "name": "sqlserver_performance.queued_request_count",
+          "type": "gauge",
+          "description": "Number of queued requests."
+        },
+        {
+          "name": "sqlserver_performance.queued_requests",
+          "type": "gauge",
+          "description": "Average number of queued requests."
+        },
+        {
+          "name": "sqlserver_performance.readahead_pages_persec",
+          "type": "gauge",
+          "description": "Rate per second of read ahead pages."
+        },
+        {
+          "name": "sqlserver_performance.receives_from_replica_persec",
+          "type": "gauge",
+          "description": "Rate receives from replicas per second."
+        },
+        {
+          "name": "sqlserver_performance.recovery_queue",
+          "type": "gauge",
+          "description": "Size of recovery queue."
+        },
+        {
+          "name": "sqlserver_performance.redone_bytes_persec",
+          "type": "gauge",
+          "description": "Rate of redone bytes per second."
+        },
+        {
+          "name": "sqlserver_performance.reduced_memory_grant_count",
+          "type": "gauge",
+          "description": "Number of reduced memory grants."
+        },
+        {
+          "name": "sqlserver_performance.request_count",
+          "type": "gauge",
+          "description": "Number of requests."
+        },
+        {
+          "name": "sqlserver_performance.requests_completed_persec",
+          "type": "gauge",
+          "description": "Rate of completed requests per second."
+        },
+        {
+          "name": "sqlserver_performance.resent_messages_persec",
+          "type": "gauge",
+          "description": "Rate of resent messages per second."
+        },
+        {
+          "name": "sqlserver_performance.sends_to_replica_persec",
+          "type": "gauge",
+          "description": "Rate of sends to replicas per second."
+        },
+        {
+          "name": "sqlserver_performance.sends_to_transport_persec",
+          "type": "gauge",
+          "description": "Rate of sends to transports per second."
+        },
+        {
+          "name": "sqlserver_performance.sql_compilations_persec",
+          "type": "gauge",
+          "description": "Rate of sql compilations per second."
+        },
+        {
+          "name": "sqlserver_performance.sql_re-compilations_persec",
+          "type": "gauge",
+          "description": "Rate of sql recompilations per sec."
+        },
+        {
+          "name": "sqlserver_performance.target_server_memory_kb",
+          "type": "gauge",
+          "description": "Size of target server memory in KB."
+        },
+        {
+          "name": "sqlserver_performance.temp_tables_creation_rate",
+          "type": "gauge",
+          "description": "Rate of temporary table creations."
+        },
+        {
+          "name": "sqlserver_performance.temp_tables_for_destruction",
+          "type": "gauge",
+          "description": "Number of temporary tables marked for destruction."
+        },
+        {
+          "name": "sqlserver_performance.total_server_memory_kb",
+          "type": "gauge",
+          "description": "Total server memory in KB."
+        },
+        {
+          "name": "sqlserver_performance.transaction_delay",
+          "type": "gauge",
+          "description": "Number of delayed transactions."
+        },
+        {
+          "name": "sqlserver_performance.transactions_persec",
+          "type": "gauge",
+          "description": "Rate of transactions per second."
+        },
+        {
+          "name": "sqlserver_performance.used_memory_kb",
+          "type": "gauge",
+          "description": "Used memory in KB."
+        },
+        {
+          "name": "sqlserver_performance.user_connections",
+          "type": "gauge",
+          "description": "Number of user connections."
+        },
+        {
+          "name": "sqlserver_performance.version_store_size_kb",
+          "type": "gauge",
+          "description": "Size of the version store in KB."
+        },
+        {
+          "name": "sqlserver_performance.write_transactions_persec",
+          "type": "gauge",
+          "description": "Rate of write transactions per second."
+        },
+        {
+          "name": "sqlserver_performance.xtp_memory_used_kb",
+          "type": "gauge",
+          "description": "Size of xtp memory used in KB."
+        },
+        {
+          "name": "sqlserver_server_properties.available_storage_mb",
+          "type": "gauge",
+          "description": "Available storage in MB."
+        },
+        {
+          "name": "sqlserver_server_properties.cpu_count",
+          "type": "gauge",
+          "description": "Number of cpus."
+        },
+        {
+          "name": "sqlserver_server_properties.db_offline",
+          "type": "gauge",
+          "description": "Number of offline databases."
+        },
+        {
+          "name": "sqlserver_server_properties.db_online",
+          "type": "gauge",
+          "description": "Number of online databases."
+        },
+        {
+          "name": "sqlserver_server_properties.db_recovering",
+          "type": "gauge",
+          "description": "Number of databases recovering."
+        },
+        {
+          "name": "sqlserver_server_properties.db_recoveryPending",
+          "type": "gauge",
+          "description": "Number of databases pending recovery."
+        },
+        {
+          "name": "sqlserver_server_properties.db_restoring",
+          "type": "gauge",
+          "description": "Number of databases restoring."
+        },
+        {
+          "name": "sqlserver_server_properties.db_suspect",
+          "type": "gauge",
+          "description": "Number of suspect databases."
+        },
+        {
+          "name": "sqlserver_server_properties.engine_edition",
+          "type": "gauge",
+          "description": "Sql server engine edition version."
+        },
+        {
+          "name": "sqlserver_server_properties.server_memory",
+          "type": "gauge",
+          "description": "Amount of memory on the sql server."
+        },
+        {
+          "name": "sqlserver_server_properties.total_storage_mb",
+          "type": "gauge",
+          "description": "Amount of storage in MB of the sql server."
+        },
+        {
+          "name": "sqlserver_server_properties.uptime",
+          "type": "gauge",
+          "description": "Uptime of the sql server."
+        },
+        {
+          "name": "sqlserver_waitstats.max_wait_time_ms",
+          "type": "gauge",
+          "description": "Maximum time in millisecond spent waiting."
+        },
+        {
+          "name": "sqlserver_waitstats.resource_wait_ms",
+          "type": "gauge",
+          "description": "Time in milliseconds spent waiting on a resource."
+        },
+        {
+          "name": "sqlserver_waitstats.signal_wait_time_ms",
+          "type": "gauge",
+          "description": "Time in milliseconds waiting on a signal."
+        },
+        {
+          "name": "sqlserver_waitstats.wait_time_ms",
+          "type": "gauge",
+          "description": "Time in milliseconds waiting."
+        },
+        {
+          "name": "sqlserver_waitstats.waiting_tasks_count",
+          "type": "gauge",
+          "description": "Time in milliseconds"
+        }
+      ],
       "properties": null
     },
     {
@@ -13185,7 +13987,7 @@
     },
     {
       "name": "Config",
-      "doc": " This monitor reports metrics about Windows services.\nThis monitor is based on the Telegraf win_services plugin.  More information about the Telegraf plugin\ncan be found [here](https://github.com/influxdata/telegraf/tree/master/plugins/inputs/win_services).\n\nSample YAML configuration:\n\n```yaml\nmonitors:\n - type: telegraf/win_services  # monitor all services\n```\n\n```yaml\nmonitors:\n - type: telegraf/win_services\n   serviceNames:\n     - exampleService1  # only monitor exampleService1\n```\n",
+      "doc": " (Windows Only) This monitor reports metrics about Windows services.\nThis monitor is based on the Telegraf win_services plugin.  More information about the Telegraf plugin\ncan be found [here](https://github.com/influxdata/telegraf/tree/master/plugins/inputs/win_services).\n\nSample YAML configuration:\n\n```yaml\nmonitors:\n - type: telegraf/win_services  # monitor all services\n```\n\n```yaml\nmonitors:\n - type: telegraf/win_services\n   serviceNames:\n     - exampleService1  # only monitor exampleService1\n```\n",
       "package": "internal/monitors/telegraf/monitors/winservices",
       "fields": [
         {
@@ -13205,7 +14007,17 @@
         {
           "name": "win_services.startup_mode",
           "type": "gauge",
+          "description": "The configured start up mode of the window windows service.  Possible values are: `0` (Boot Start), `1` (System Start), `2` (Auto Start), `3` (Demand Start), `4` (disabled)."
+        },
+        {
+          "name": "win_services.startup_mode",
+          "type": "gauge",
           "description": "The startup mode configured for the service: 0 `boot start`, 1 `system start`, 2 `auto start`, 3 `demand start`, or 4 `disabled`"
+        },
+        {
+          "name": "win_services.state",
+          "type": "gauge",
+          "description": "The state of the windows service.  Possible values are: `1` (Stopped), `2` (Start Pending), `3` (Stop Pending), `4` (Running), `5` (Continue Pending), `6` (Pause Pending), and `7` (Paused)."
         },
         {
           "name": "win_services.state",
@@ -13339,7 +14151,7 @@
     },
     {
       "name": "Config",
-      "doc": "\nThis monitor reports metrics for Windows Internet Information Services.\nIt is used to drive the Windows IIS dashboard content.\n\n## Windows Performance Counters\nThe underlying source for these metrics are Windows Performance Counters.\nMost of the performance counters that we query in this monitor are actually Gauges\nthat represent rates per second and percentages.\n\nThis monitor reports the instantaneous values for these Windows Performance Counters.\nThis means that in between a collection interval, spikes could occur on the\nPerformance Counters.  The best way to mitigate this limitation is to increase\nthe reporting interval on this monitor to collect more frequently.\n\nSample YAML configuration:\n\n```yaml\nmonitors:\n - type: windows-iis\n```\n",
+      "doc": "\n(Windows Only) This monitor reports metrics for Windows Internet Information Services.\nIt is used to drive the Windows IIS dashboard content.\n\n## Windows Performance Counters\nThe underlying source for these metrics are Windows Performance Counters.\nMost of the performance counters that we query in this monitor are actually Gauges\nthat represent rates per second and percentages.\n\nThis monitor reports the instantaneous values for these Windows Performance Counters.\nThis means that in between a collection interval, spikes could occur on the\nPerformance Counters.  The best way to mitigate this limitation is to increase\nthe reporting interval on this monitor to collect more frequently.\n\nSample YAML configuration:\n\n```yaml\nmonitors:\n - type: windows-iis\n```\n",
       "package": "internal/monitors/windowsiis",
       "fields": [
         {
@@ -13474,7 +14286,7 @@
     },
     {
       "name": "Config",
-      "doc": "\nThis monitor reports metrics for Windows system Performance Counters.\nThe metric names are intended to match what was originally reported by\nthe SignalFx [PerfCounterReporter](https://github.com/signalfx/PerfCounterReporter)\nThe metric types are all gauges as originally reported by the PerfCounterReporter.\n\n## Windows Performance Counters\nThe underlying source for these metrics are Windows Performance Counters.\nMost of the performance counters that we query in this monitor are actually\nrates per second and percentages that we report as instantaneous Gauge values\neach collection interval.\n\nSample YAML configuration:\n\n```yaml\nmonitors:\n - type: windows-iis\n```\n",
+      "doc": "\n(Windows Only) This monitor reports metrics for Windows system Performance Counters.\nThe metric names are intended to match what was originally reported by\nthe SignalFx [PerfCounterReporter](https://github.com/signalfx/PerfCounterReporter)\nThe metric types are all gauges as originally reported by the PerfCounterReporter.\n\n## Windows Performance Counters\nThe underlying source for these metrics are Windows Performance Counters.\nMost of the performance counters that we query in this monitor are actually\nrates per second and percentages that we report as instantaneous Gauge values\neach collection interval.\n\nSample YAML configuration:\n\n```yaml\nmonitors:\n - type: windows-iis\n```\n",
       "package": "internal/monitors/windowslegacy",
       "fields": [
         {

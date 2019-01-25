@@ -2,8 +2,8 @@
 
 # processlist
 
- This monitor reports processlist information for Windows
-Hosts.
+ (Windows Only) This monitor reports processlist
+information for Windows Hosts.
 
 Sample YAML configuration:
 

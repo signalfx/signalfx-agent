@@ -3,7 +3,7 @@
 # windows-iis
 
 
-This monitor reports metrics for Windows Internet Information Services.
+(Windows Only) This monitor reports metrics for Windows Internet Information Services.
 It is used to drive the Windows IIS dashboard content.
 
 ## Windows Performance Counters

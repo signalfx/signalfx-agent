@@ -3,7 +3,7 @@
 # windows-legacy
 
 
-This monitor reports metrics for Windows system Performance Counters.
+(Windows Only) This monitor reports metrics for Windows system Performance Counters.
 The metric names are intended to match what was originally reported by
 the SignalFx [PerfCounterReporter](https://github.com/signalfx/PerfCounterReporter)
 The metric types are all gauges as originally reported by the PerfCounterReporter.
