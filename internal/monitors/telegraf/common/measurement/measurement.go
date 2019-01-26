@@ -19,15 +19,14 @@ type Measurement struct {
 }
 
 // RenameFieldWithTag - takes the value of a specified tag and uses it to rename a specified field
-func (m *Measurement) RenameFieldWithTag(tagName string, fieldName string, replacer *strings.Replacer) {
-	var tagVal string
-	var ok bool
-	if tagVal, ok = m.Tags[tagName]; ok {
+// the tag is deleted and the original field name is overwritten
+func RenameFieldWithTag(m *Measurement, tagName string, fieldName string, replacer *strings.Replacer) {
+	if tagVal, ok := m.Tags[tagName]; ok {
 		tagVal = replacer.Replace(strings.ToLower(tagVal))
-		delete(m.Tags, tagName)
-	}
-	if val, ok := m.Fields[fieldName]; ok && tagVal != "" {
-		delete(m.Fields, fieldName)
-		m.Fields[tagVal] = val
+		if val, ok := m.Fields[fieldName]; ok && tagVal != "" {
+			m.Fields[tagVal] = val
+			delete(m.Fields, fieldName)
+			delete(m.Tags, tagName)
+		}
 	}
 }
