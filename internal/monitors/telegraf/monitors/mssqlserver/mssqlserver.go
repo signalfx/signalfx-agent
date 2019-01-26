@@ -12,6 +12,7 @@ import (
 	"github.com/signalfx/signalfx-agent/internal/monitors"
 	"github.com/signalfx/signalfx-agent/internal/monitors/telegraf/common/accumulator"
 	"github.com/signalfx/signalfx-agent/internal/monitors/telegraf/common/emitter/batchemitter"
+	"github.com/signalfx/signalfx-agent/internal/monitors/telegraf/common/measurement"
 	"github.com/signalfx/signalfx-agent/internal/monitors/types"
 	"github.com/signalfx/signalfx-agent/internal/utils"
 	log "github.com/sirupsen/logrus"
@@ -126,7 +127,7 @@ func (m *Monitor) Configure(conf *Config) error {
 	// gather metrics on the specified interval
 	utils.RunOnInterval(ctx, func() {
 		if err := plugin.Gather(ac); err != nil {
-			logger.Error(err)
+			logger.WithError(err).Errorf("an error occurred while gathering metrics from the plugin")
 		}
 
 		// catch performance counters and process them differently
@@ -135,13 +136,13 @@ func (m *Monitor) Configure(conf *Config) error {
 			// remap the counter and value to a field
 			// if it's a sqlserver_performance metric
 			if ms.Measurement == "sqlserver_performance" {
-				ms.RenameFieldWithTag("counter", "value", tagSanitizer)
+				measurement.RenameFieldWithTag(ms, "counter", "value", tagSanitizer)
 			}
 
 			// remap clerk type to field if it's a sqlserver_memory_clerks metric
 			if ms.Measurement == "sqlserver_memory_clerks" {
 				ms.Measurement = fmt.Sprintf("sqlserver_memory_clerks.size_kb")
-				ms.RenameFieldWithTag("clerk_type", "size_kb", tagSanitizer)
+				measurement.RenameFieldWithTag(ms, "clerk_type", "size_kb", tagSanitizer)
 			}
 
 			// send the metric on through the base emitter
