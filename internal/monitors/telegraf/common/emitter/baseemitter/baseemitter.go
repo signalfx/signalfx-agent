@@ -213,7 +213,10 @@ func (b *BaseEmitter) Add(measurement string, fields map[string]interface{},
 
 // AddError handles errors reported to a telegraf accumulator
 func (b *BaseEmitter) AddError(err error) {
-	b.Logger.Error(err)
+	// some telegraf plugins will invoke AddError with nil i.e. sqlserver
+	if err != nil {
+		b.Logger.WithError(err).Errorf("an error was emitted from the plugin")
+	}
 }
 
 // NewEmitter returns a new BaseEmitter
