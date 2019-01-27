@@ -63,7 +63,7 @@ type Monitor struct {
 func (m *Monitor) emitPerCoreDatapoints() {
 	totals, err := times(true)
 	if err != nil {
-		logger.WithError(err).Errorf("unable to get cpu times per core")
+		logger.WithField("warning", err).Warningf("unable to get per core cpu times will try again in the next reporting cycle")
 	}
 	// for each core
 	for _, core := range totals {
@@ -97,39 +97,36 @@ func (m *Monitor) emitPerCoreDatapoints() {
 
 func (m *Monitor) emitDatapoints() {
 	total, err := times(false)
-	if err != nil {
-		logger.WithError(err).Errorf("unable to get cpu times")
+	if err != nil || len(total) == 0 {
+		logger.WithField("warning", err).Warningf("unable to get cpu times will try again in the next reporting cycle")
+		return
 	}
-	if len(total) > 0 {
-		// get current times as totalUsed
-		current := cpuTimeStatTototalUsed(&total[0])
+	// get current times as totalUsed
+	current := cpuTimeStatTototalUsed(&total[0])
 
-		// calculate utilization
-		if m.previousTotal != nil {
-			utilization, err := getUtilization(m.previousTotal, current)
+	// calculate utilization
+	if m.previousTotal != nil {
+		utilization, err := getUtilization(m.previousTotal, current)
 
-			// append errors
-			if err != nil {
-				logger.WithError(err).Errorf("failed to calculate utilization for cpu")
-				return
-			}
-
-			// add datapoint to be returned
-			m.Output.SendDatapoint(
-				datapoint.New(
-					cpuUtilName,
-					map[string]string{"plugin": types.UtilizationMetricPluginName},
-					datapoint.NewFloatValue(utilization),
-					datapoint.Gauge,
-					time.Time{},
-				))
+		// append errors
+		if err != nil {
+			logger.WithError(err).Errorf("failed to calculate utilization for cpu")
+			return
 		}
 
-		// store current as previous value for next time
-		m.previousTotal = current
+		// add datapoint to be returned
+		m.Output.SendDatapoint(
+			datapoint.New(
+				cpuUtilName,
+				map[string]string{"plugin": types.UtilizationMetricPluginName},
+				datapoint.NewFloatValue(utilization),
+				datapoint.Gauge,
+				time.Time{},
+			))
 	}
 
-	return
+	// store current as previous value for next time
+	m.previousTotal = current
 }
 
 func getUtilization(prev *totalUsed, current *totalUsed) (utilization float64, err error) {
@@ -163,7 +160,7 @@ func (m *Monitor) initializeCPUTimes() {
 	var total []cpu.TimesStat
 	var err error
 	if total, err = times(false); err != nil {
-		logger.WithError(err).Errorf("failed to initialize cpu times")
+		logger.WithField("warning", err).Warningf("unable to initialize cpu times will try again in the next reporting cycle")
 	}
 	if len(total) > 0 {
 		m.previousTotal = cpuTimeStatTototalUsed(&total[0])
@@ -175,7 +172,7 @@ func (m *Monitor) initializePerCoreCPUTimes() {
 	var totals []cpu.TimesStat
 	var err error
 	if totals, err = times(true); err != nil {
-		logger.WithError(err).Errorf("failed to initialize per core cpu times")
+		logger.WithField("warning", err).Warningf("unable to initialize per core cpu times will try again in the next reporting cycle")
 	}
 	m.previousPerCore = make(map[string]*totalUsed, len(totals))
 	for _, core := range totals {
