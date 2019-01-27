@@ -13976,6 +13976,14 @@
           "required": false,
           "type": "bool",
           "elementKind": ""
+        },
+        {
+          "yamlName": "pcrMetricNames",
+          "doc": "If `true`, metric names will be emitted in the format emitted by the SignalFx PerfCounterReporter",
+          "default": false,
+          "required": false,
+          "type": "bool",
+          "elementKind": ""
         }
       ],
       "monitorType": "telegraf/win_perf_counters",

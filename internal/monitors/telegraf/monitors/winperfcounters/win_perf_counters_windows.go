@@ -59,8 +59,19 @@ func GetPlugin(conf *Config) *telegrafPlugin.Win_PerfCounters {
 func (m *Monitor) Configure(conf *Config) error {
 	plugin := GetPlugin(conf)
 
+	// create the emitter
+	emitter := baseemitter.NewEmitter(m.Output, logger)
+
+	if conf.PCRMetricNames {
+		// set metric name replacements to match SignalFx PerfCounterReporter
+		emitter.AddMetricNameTransformation(NewPCRMetricNamesTransformer())
+
+		// sanitize the instance tag associated with windows perf counter metrics
+		emitter.AddMeasurementTransformation(NewPCRInstanceTagTransformer())
+	}
+
 	// create the accumulator
-	ac := accumulator.NewAccumulator(baseemitter.NewEmitter(m.Output, logger))
+	ac := accumulator.NewAccumulator(emitter)
 
 	// create contexts for managing the the plugin loop
 	var ctx context.Context

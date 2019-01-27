@@ -42,6 +42,7 @@ Monitor Type: `telegraf/win_perf_counters`
 | `counterRefreshInterval` | no | `int64` | The frequency that counter paths should be expanded and how often to refresh counters from configuration. This is expressed as a duration. (**default:** `5s`) |
 | `useWildCardExpansion` | no | `bool` | If `true`, instance indexes will be included in instance names, and wildcards will be expanded and localized (if applicable).  If `false`, non partial wildcards will be expanded and instance names will not include instance indexes. (**default:** `false`) |
 | `printValid` | no | `bool` | Print out the configurations that match available performance counters (**default:** `false`) |
+| `pcrMetricNames` | no | `bool` | If `true`, metric names will be emitted in the format emitted by the SignalFx PerfCounterReporter (**default:** `false`) |
 
 
 The **nested** `objects` config object has the following fields:

@@ -1,10 +1,12 @@
 package winperfcounters
 
 import (
+	"strings"
 	"time"
 
 	"github.com/signalfx/signalfx-agent/internal/core/config"
 	"github.com/signalfx/signalfx-agent/internal/monitors"
+	"github.com/signalfx/signalfx-agent/internal/monitors/telegraf/common/measurement"
 	"github.com/signalfx/signalfx-agent/internal/monitors/types"
 	log "github.com/sirupsen/logrus"
 )
@@ -73,6 +75,9 @@ type Config struct {
 	UseWildcardsExpansion bool `yaml:"useWildCardExpansion"`
 	// Print out the configurations that match available performance counters
 	PrintValid bool `yaml:"printValid"`
+	// If `true`, metric names will be emitted in the format emitted by the
+	// SignalFx PerfCounterReporter
+	PCRMetricNames bool `yaml:"pcrMetricNames" default:"false"`
 }
 
 // Monitor for Utilization
@@ -85,5 +90,50 @@ type Monitor struct {
 func (m *Monitor) Shutdown() {
 	if m.cancel != nil {
 		m.cancel()
+	}
+}
+
+// returns a new replacer for sanitizing metricnames and instances like
+// SignalFx PCR
+func newPCRReplacer() *strings.Replacer {
+	return strings.NewReplacer(
+		" ", "_", // PCR bad char
+		";", "_", // PCR bad char
+		":", "_", // PCR bad char
+		"/", "_", // PCR bad char
+		"(", "_", // PCR bad char
+		")", "_", // PCR bad char
+		"*", "_", // PCR bad char
+		"\\", "_", // PCR bad char
+		"#", "num", // telegraf -> PCR
+		"percent", "pct", // telegraf -> PCR
+		"_persec", "_sec", // telegraf -> PCR
+		"._", "_", // telegraf -> PCR (this is more of a side affect of telegraf's conversion)
+		"____", "_", // telegraf -> PCR (this is also a side affect)
+		"___", "_", // telegraf -> PCR (this is also a side affect)
+		"__", "_") // telegraf/PCR (this is a side affect of both telegraf and PCR conversion)
+}
+
+// NewPCRMetricNamesTransformer returns a function for tranforming perf counter
+// metric names as parsed from telegraf into something matching the
+// SignalFx PerfCounterReporter
+func NewPCRMetricNamesTransformer() func(string) string {
+	replacer := newPCRReplacer()
+	return func(in string) string {
+		return replacer.Replace(strings.ToLower(in))
+	}
+}
+
+// NewPCRInstanceTagTransformer returns a function for transforming perf counter measurements
+func NewPCRInstanceTagTransformer() func(*measurement.Measurement) error {
+	replacer := newPCRReplacer()
+	return func(ms *measurement.Measurement) error {
+		for t, v := range ms.Tags {
+			if t == "instance" {
+				v = replacer.Replace(strings.ToLower(v))
+				ms.Tags["instance"] = v
+			}
+		}
+		return nil
 	}
 }
