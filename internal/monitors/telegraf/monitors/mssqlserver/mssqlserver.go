@@ -11,8 +11,9 @@ import (
 	"github.com/signalfx/signalfx-agent/internal/core/config"
 	"github.com/signalfx/signalfx-agent/internal/monitors"
 	"github.com/signalfx/signalfx-agent/internal/monitors/telegraf/common/accumulator"
-	"github.com/signalfx/signalfx-agent/internal/monitors/telegraf/common/emitter/batchemitter"
+	"github.com/signalfx/signalfx-agent/internal/monitors/telegraf/common/emitter/baseemitter"
 	"github.com/signalfx/signalfx-agent/internal/monitors/telegraf/common/measurement"
+	"github.com/signalfx/signalfx-agent/internal/monitors/telegraf/monitors/winperfcounters"
 	"github.com/signalfx/signalfx-agent/internal/monitors/types"
 	"github.com/signalfx/signalfx-agent/internal/utils"
 	log "github.com/sirupsen/logrus"
@@ -89,9 +90,6 @@ type Monitor struct {
 // fetch the factory used to generate the perf counter plugin
 var factory = telegrafInputs.Inputs["sqlserver"]
 
-// sanitizes tags so that they can be used as metric names
-var tagSanitizer = strings.NewReplacer("/sec", "_persec", "%", "percent", "(", "", ")", "", " ", "_", "__", "_")
-
 // Configure the monitor and kick off metric syncing
 func (m *Monitor) Configure(conf *Config) error {
 	plugin := factory().(*telegrafPlugin.SQLServer)
@@ -115,7 +113,31 @@ func (m *Monitor) Configure(conf *Config) error {
 	plugin.ExcludeQuery = conf.ExcludeQuery
 
 	// create batch emitter
-	emitter := batchemitter.NewEmitter(m.Output, logger)
+	emitter := baseemitter.NewEmitter(m.Output, logger)
+
+	// replacer sanitizes metrics according to our PCR reporter rules
+	replacer := winperfcounters.NewPCRReplacer()
+
+	emitter.AddMeasurementTransformation(
+		func(ms *measurement.Measurement) error {
+			// if it's a sqlserver_performance metric
+			// remap the counter and value to a field
+			if ms.Measurement == "sqlserver_performance" {
+				ms.RenameFieldWithTag("counter", "value", replacer)
+			}
+
+			// if it's a sqlserver_memory_clerks metric remap clerk type to field
+			if ms.Measurement == "sqlserver_memory_clerks" {
+				ms.Measurement = fmt.Sprintf("sqlserver_memory_clerks.size_kb")
+				ms.RenameFieldWithTag("clerk_type", "size_kb", replacer)
+			}
+			return nil
+		})
+
+	// convert the metric name to lower case
+	emitter.AddMetricNameTransformation(func(m string) string {
+		return strings.ToLower(m)
+	})
 
 	// create the accumulator
 	ac := accumulator.NewAccumulator(emitter)
@@ -129,30 +151,6 @@ func (m *Monitor) Configure(conf *Config) error {
 		if err := plugin.Gather(ac); err != nil {
 			logger.WithError(err).Errorf("an error occurred while gathering metrics from the plugin")
 		}
-
-		// catch performance counters and process them differently
-		for _, ms := range emitter.Measurements {
-
-			// remap the counter and value to a field
-			// if it's a sqlserver_performance metric
-			if ms.Measurement == "sqlserver_performance" {
-				measurement.RenameFieldWithTag(ms, "counter", "value", tagSanitizer)
-			}
-
-			// remap clerk type to field if it's a sqlserver_memory_clerks metric
-			if ms.Measurement == "sqlserver_memory_clerks" {
-				ms.Measurement = fmt.Sprintf("sqlserver_memory_clerks.size_kb")
-				measurement.RenameFieldWithTag(ms, "clerk_type", "size_kb", tagSanitizer)
-			}
-
-			// send the metric on through the base emitter
-			emitter.BaseEmitter.Add(ms.Measurement, ms.Fields, ms.Tags, ms.MetricType, ms.OriginalMetricType, ms.Timestamps...)
-		}
-
-		// reset batch emitter
-		// NOTE: we can do this here because this emitter is on a single routine
-		// if that changes, make sure you lock the mutex on the batch emitter
-		emitter.Measurements = emitter.Measurements[:0]
 
 	}, time.Duration(conf.IntervalSeconds)*time.Second)
 

@@ -93,9 +93,9 @@ func (m *Monitor) Shutdown() {
 	}
 }
 
-// returns a new replacer for sanitizing metricnames and instances like
+// NewPCRReplacer returns a new replacer for sanitizing metricnames and instances like
 // SignalFx PCR
-func newPCRReplacer() *strings.Replacer {
+func NewPCRReplacer() *strings.Replacer {
 	return strings.NewReplacer(
 		" ", "_", // PCR bad char
 		";", "_", // PCR bad char
@@ -118,7 +118,7 @@ func newPCRReplacer() *strings.Replacer {
 // metric names as parsed from telegraf into something matching the
 // SignalFx PerfCounterReporter
 func NewPCRMetricNamesTransformer() func(string) string {
-	replacer := newPCRReplacer()
+	replacer := NewPCRReplacer()
 	return func(in string) string {
 		return replacer.Replace(strings.ToLower(in))
 	}
@@ -126,7 +126,7 @@ func NewPCRMetricNamesTransformer() func(string) string {
 
 // NewPCRInstanceTagTransformer returns a function for transforming perf counter measurements
 func NewPCRInstanceTagTransformer() func(*measurement.Measurement) error {
-	replacer := newPCRReplacer()
+	replacer := NewPCRReplacer()
 	return func(ms *measurement.Measurement) error {
 		for t, v := range ms.Tags {
 			if t == "instance" {
