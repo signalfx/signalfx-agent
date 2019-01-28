@@ -15,5 +15,5 @@ monitors:
 def test_win_services():
     with run_agent(monitor_config) as [backend, _, _]:
         assert wait_for(
-            p(has_datapoint_with_dim, backend, "plugin", "win_services")
+            p(has_datapoint_with_dim, backend, "plugin", "telegraf-win_services")
         ), "didn't get datapoint with expected plugin dimension"

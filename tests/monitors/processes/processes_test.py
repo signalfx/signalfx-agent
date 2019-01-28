@@ -14,9 +14,9 @@ def test_processes():
         expected_metrics = {m.strip() for m in fd.readlines() if len(m.strip()) > 0}
     with run_agent(
         """
+    procPath: /proc
     monitors:
       - type: collectd/processes
-        procFSPath: /proc
         collectContextSwitch: true
         processMatch:
           collectd: ".*collectd.*"

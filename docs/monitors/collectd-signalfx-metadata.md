@@ -24,9 +24,9 @@ Monitor Type: `collectd/signalfx-metadata`
 | Config option | Required | Type | Description |
 | --- | --- | --- | --- |
 | `writeServerURL` | no | `string` |  |
-| `procFSPath` | no | `string` | The path to the proc filesystem. Useful to override in containerized environments. (**default:** `/proc`) |
+| `procFSPath` | no | `string` | (Deprecated) Please set the agent configuration `procPath` instead of this monitor configuration option. The path to the proc filesystem. Useful to override in containerized environments. (**default:** `/proc`) |
+| `etcPath` | no | `string` | (Deprecated) Please set the agent configuration `etcPath` instead of this monitor configuration option. The path to the main host config dir. Useful to override in containerized environments. |
 | `perCoreCPUUtil` | no | `bool` | Collect the cpu utilization per core, reported as `cpu.utilization_per_core`. (**default:** `false`) |
-| `etcPath` | no | `string` | The path to the main host config dir. Useful to override in containerized environments. (**default:** `/etc`) |
 | `persistencePath` | no | `string` | A directory where the metadata plugin can persist the history of successful host metadata syncs so that host metadata is not sent redundantly. (**default:** `/var/run/signalfx-agent`) |
 | `omitProcessInfo` | no | `bool` | If true, process "top" information will not be sent.  This can be useful if you have an extremely high number of processes and performance of the plugin is poor. (**default:** `false`) |
 | `dogStatsDPort` | no | `unsigned integer` | Set this to a non-zero value to enable the DogStatsD listener as part of this monitor.  The listener will accept metrics on the DogStatsD format, and sends them as SignalFx datapoints to our backend.  Setting to a value setting the `DogStatsDPort` to `0` will result in a random port assignment. **Note: The listener emits directly to SignalFx and will not be subject to filters configured with the SignalFx Smart Agent.  Internal stats about the SignalFx Smart Agent will not reflect datapoints set through the DogStatsD listener** |

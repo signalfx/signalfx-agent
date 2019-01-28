@@ -20,6 +20,12 @@ data:
 
     sendMachineID: false
 
+    etcPath: /hostfs/etc
+    procPath: /hostfs/proc
+    runPath: /hostfs/run
+    varPath: /hostfs/var
+    sysPath: /hostfs/sys
+
     observers:
     - type: k8s-api
 
@@ -34,10 +40,7 @@ data:
     - type: collectd/memory
     - type: collectd/protocols
     - type: collectd/signalfx-metadata
-      procFSPath: /hostfs/proc
     - type: host-metadata
-      etcPath: /hostfs/etc
-      procFSPath: /hostfs/proc
     - type: collectd/uptime
     - type: collectd/vmem
 

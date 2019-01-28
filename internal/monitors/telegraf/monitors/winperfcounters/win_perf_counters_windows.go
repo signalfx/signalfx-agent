@@ -4,6 +4,7 @@ package winperfcounters
 
 import (
 	"context"
+	"strings"
 	"time"
 
 	telegrafInputs "github.com/influxdata/telegraf/plugins/inputs"
@@ -59,8 +60,23 @@ func GetPlugin(conf *Config) *telegrafPlugin.Win_PerfCounters {
 func (m *Monitor) Configure(conf *Config) error {
 	plugin := GetPlugin(conf)
 
+	// create the emitter
+	emitter := baseemitter.NewEmitter(m.Output, logger)
+
+	// Hard code the plugin name because the emitter will parse out the
+	// configured measurement name as plugin and that is confusing.
+	emitter.AddTag("plugin", strings.Replace(monitorType, "/", "-", -1))
+
+	if conf.PCRMetricNames {
+		// set metric name replacements to match SignalFx PerfCounterReporter
+		emitter.AddMetricNameTransformation(NewPCRMetricNamesTransformer())
+
+		// sanitize the instance tag associated with windows perf counter metrics
+		emitter.AddMeasurementTransformation(NewPCRInstanceTagTransformer())
+	}
+
 	// create the accumulator
-	ac := accumulator.NewAccumulator(baseemitter.NewEmitter(m.Output, logger))
+	ac := accumulator.NewAccumulator(emitter)
 
 	// create contexts for managing the the plugin loop
 	var ctx context.Context
@@ -69,16 +85,9 @@ func (m *Monitor) Configure(conf *Config) error {
 	// gather metrics on the specified interval
 	utils.RunOnInterval(ctx, func() {
 		if err := plugin.Gather(ac); err != nil {
-			logger.Error(err)
+			logger.WithError(err).Errorf("an error occurred while gathering metrics")
 		}
 	}, time.Duration(conf.IntervalSeconds)*time.Second)
 
 	return nil
-}
-
-// Shutdown stops the metric sync
-func (m *Monitor) Shutdown() {
-	if m.cancel != nil {
-		m.cancel()
-	}
 }

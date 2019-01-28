@@ -3,6 +3,7 @@ package mssqlserver
 import (
 	"context"
 	"fmt"
+	"strings"
 	"time"
 
 	telegrafInputs "github.com/influxdata/telegraf/plugins/inputs"
@@ -11,6 +12,8 @@ import (
 	"github.com/signalfx/signalfx-agent/internal/monitors"
 	"github.com/signalfx/signalfx-agent/internal/monitors/telegraf/common/accumulator"
 	"github.com/signalfx/signalfx-agent/internal/monitors/telegraf/common/emitter/baseemitter"
+	"github.com/signalfx/signalfx-agent/internal/monitors/telegraf/common/measurement"
+	"github.com/signalfx/signalfx-agent/internal/monitors/telegraf/monitors/winperfcounters"
 	"github.com/signalfx/signalfx-agent/internal/monitors/types"
 	"github.com/signalfx/signalfx-agent/internal/utils"
 	log "github.com/sirupsen/logrus"
@@ -109,8 +112,39 @@ func (m *Monitor) Configure(conf *Config) error {
 	plugin.AzureDB = conf.AzureDB
 	plugin.ExcludeQuery = conf.ExcludeQuery
 
+	// create batch emitter
+	emitter := baseemitter.NewEmitter(m.Output, logger)
+
+	// Hard code the plugin name because the emitter will parse out the
+	// configured measurement name as plugin and that is confusing.
+	emitter.AddTag("plugin", strings.Replace(monitorType, "/", "-", -1))
+
+	// replacer sanitizes metrics according to our PCR reporter rules
+	replacer := winperfcounters.NewPCRReplacer()
+
+	emitter.AddMeasurementTransformation(
+		func(ms *measurement.Measurement) error {
+			// if it's a sqlserver_performance metric
+			// remap the counter and value to a field
+			if ms.Measurement == "sqlserver_performance" {
+				ms.RenameFieldWithTag("counter", "value", replacer)
+			}
+
+			// if it's a sqlserver_memory_clerks metric remap clerk type to field
+			if ms.Measurement == "sqlserver_memory_clerks" {
+				ms.Measurement = fmt.Sprintf("sqlserver_memory_clerks.size_kb")
+				ms.RenameFieldWithTag("clerk_type", "size_kb", replacer)
+			}
+			return nil
+		})
+
+	// convert the metric name to lower case
+	emitter.AddMetricNameTransformation(func(m string) string {
+		return strings.ToLower(m)
+	})
+
 	// create the accumulator
-	ac := accumulator.NewAccumulator(baseemitter.NewEmitter(m.Output, logger))
+	ac := accumulator.NewAccumulator(emitter)
 
 	// create contexts for managing the the plugin loop
 	var ctx context.Context
@@ -119,8 +153,9 @@ func (m *Monitor) Configure(conf *Config) error {
 	// gather metrics on the specified interval
 	utils.RunOnInterval(ctx, func() {
 		if err := plugin.Gather(ac); err != nil {
-			logger.Error(err)
+			logger.WithError(err).Errorf("an error occurred while gathering metrics from the plugin")
 		}
+
 	}, time.Duration(conf.IntervalSeconds)*time.Second)
 
 	return nil

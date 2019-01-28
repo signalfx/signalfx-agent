@@ -853,10 +853,11 @@
   revision = "c4fab1ac1bec58281ad0667dc3f0907a9476ac47"
 
 [[projects]]
-  digest = "1:c977abde44ff4b33ec304d050073d528b530253f4ddbf7caf0d31e0e1bcb3dbd"
+  digest = "1:5331094ce2c687a921af5ec1367fe96e894e5b6866c2c3b8d415e86b65e69bce"
   name = "github.com/shirou/gopsutil"
   packages = [
     "cpu",
+    "disk",
     "host",
     "internal/common",
     "mem",
@@ -864,8 +865,8 @@
     "process",
   ]
   pruneopts = "NUT"
-  revision = "0ffcfc901f82fc83dc98c51c25ea60c996a1c781"
-  source = "github.com/pytimer/gopsutil"
+  revision = "ccc1c1016bc5d10e803189ee43417c50cdde7f1b"
+  version = "v2.18.12"
 
 [[projects]]
   branch = "master"
@@ -1474,6 +1475,8 @@
     "github.com/prometheus/client_model/go",
     "github.com/prometheus/common/expfmt",
     "github.com/samuel/go-zookeeper/zk",
+    "github.com/shirou/gopsutil/cpu",
+    "github.com/shirou/gopsutil/disk",
     "github.com/shirou/gopsutil/mem",
     "github.com/shirou/gopsutil/net",
     "github.com/shirou/gopsutil/process",

@@ -11,7 +11,7 @@ from helpers.util import get_monitor_dims_from_selfdescribe, get_monitor_metrics
 pytestmark = [pytest.mark.collectd, pytest.mark.cpu, pytest.mark.monitor_without_endpoints]
 
 
-def test_cpu():
+def test_collectd_cpu():
     expected_metrics = get_monitor_metrics_from_selfdescribe("collectd/cpu")
     expected_dims = get_monitor_dims_from_selfdescribe("collectd/cpu")
     with run_agent(

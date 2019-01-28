@@ -2,7 +2,7 @@
 
 # telegraf/win_services
 
- This monitor reports metrics about Windows services.
+ (Windows Only) This monitor reports metrics about Windows services.
 This monitor is based on the Telegraf win_services plugin.  More information about the Telegraf plugin
 can be found [here](https://github.com/influxdata/telegraf/tree/master/plugins/inputs/win_services).
 
@@ -44,8 +44,8 @@ The following table lists the metrics available for this monitor. Metrics that a
 
 | Name | Type | Custom | Description |
 | ---  | ---  | ---    | ---         |
-| `win_services.startup_mode` | gauge | X | The startup mode configured for the service: 0 `boot start`, 1 `system start`, 2 `auto start`, 3 `demand start`, or 4 `disabled` |
-| `win_services.state` | gauge | X | The current state of the service: 1 `stopped`, 2 `start pending`, 3 `stop pending`, 4 `running`, 5 `continue pending`, 6 `pause pending`, or 7 `paused` |
+| `win_services.startup_mode` | gauge | X | The configured start up mode of the window windows service.  Possible values are: `0` (Boot Start), `1` (System Start), `2` (Auto Start), `3` (Demand Start), `4` (disabled). |
+| `win_services.state` | gauge | X | The state of the windows service.  Possible values are: `1` (Stopped), `2` (Start Pending), `3` (Stop Pending), `4` (Running), `5` (Continue Pending), `6` (Pause Pending), and `7` (Paused). |
 
 
 To specify custom metrics you want to monitor, add a `metricsToInclude` filter

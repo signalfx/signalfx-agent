@@ -43,7 +43,7 @@ func New(monitorType string, metricNames []string, dimensions map[string]string,
 	var metricFilter filter.StringFilter
 	if len(metricNames) > 0 {
 		var err error
-		metricFilter, err = filter.NewStringFilter(metricNames)
+		metricFilter, err = filter.NewBasicStringFilter(metricNames)
 		if err != nil {
 			return nil, err
 		}

@@ -2,7 +2,6 @@ package hostmetadata
 
 import (
 	"context"
-	"fmt"
 	"math/rand"
 	"os"
 	"strings"
@@ -35,13 +34,13 @@ const (
 //
 // In containerized environments host `/etc` and `/proc` may not be located
 // directly under the root path.  You can specify the path to `proc` and `etc`
-// using the monitor configurations `procFSPath` and `etcPath`
+// using the top level agent configurations `procPath` and `etcPath`
 //
 // ```yaml
+// procPath: /proc
+// etcPath: /etc
 // monitors:
 //   - type: host-metadata
-//     procFSPath: "/hostfs/proc"
-//     etcPath: "/hostfs/etc"
 // ```
 //
 // Metadata updates occur on a sparse interval of approximately
@@ -72,12 +71,6 @@ func init() {
 // Config for this monitor
 type Config struct {
 	config.MonitorConfig `singleInstance:"true" acceptsEndpoints:"false"`
-	// The path to the proc filesystem. Useful to override in containerized
-	// environments.
-	ProcFSPath string `yaml:"procFSPath" default:"/proc"`
-	// The path to the main host config dir. Useful to override in
-	// containerized environments.
-	EtcPath string `yaml:"etcPath" default:"/etc"`
 }
 
 // Monitor for host-metadata
@@ -100,18 +93,6 @@ func (m *Monitor) Configure(conf *Config) error {
 		time.Duration(rand.Int63n(60)+3600) * time.Second,
 		// 1 day after the previous with some 0-10m dither
 		time.Duration(rand.Int63n(600)+86400) * time.Second,
-	}
-
-	// set HOST_PROC and HOST_ETC for gopsutil
-	if conf.ProcFSPath != "" {
-		if err := os.Setenv("HOST_PROC", conf.ProcFSPath); err != nil {
-			return fmt.Errorf("Error setting HOST_PROC env var %v", err)
-		}
-	}
-	if conf.EtcPath != "" {
-		if err := os.Setenv("HOST_ETC", conf.EtcPath); err != nil {
-			return fmt.Errorf("Error setting HOST_ETC env var %v", err)
-		}
 	}
 
 	// create contexts for managing the the plugin loop
@@ -159,7 +140,7 @@ func (m *Monitor) ReportMetadataProperties() {
 			if err.Error() == errNotAWS {
 				logger.Debug(err)
 			} else {
-				logger.Error(err)
+				logger.WithError(err).Errorf("an error occurred while gathering metrics")
 			}
 			continue
 		}

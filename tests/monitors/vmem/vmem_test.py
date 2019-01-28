@@ -8,7 +8,7 @@ from helpers.util import get_monitor_dims_from_selfdescribe, get_monitor_metrics
 pytestmark = [pytest.mark.collectd, pytest.mark.vmem, pytest.mark.monitor_without_endpoints]
 
 
-def test_vmem():
+def test_collectd_vmem():
     expected_metrics = get_monitor_metrics_from_selfdescribe("collectd/vmem")
     expected_dims = get_monitor_dims_from_selfdescribe("collectd/vmem")
     with run_agent(

@@ -2,8 +2,9 @@ package telegrafstatsd
 
 import (
 	"context"
-	"github.com/ulule/deepcopier"
 	"time"
+
+	"github.com/ulule/deepcopier"
 
 	telegrafInputs "github.com/influxdata/telegraf/plugins/inputs"
 	telegrafPlugin "github.com/influxdata/telegraf/plugins/inputs/statsd"
@@ -126,7 +127,7 @@ func (m *Monitor) Configure(conf *Config) (err error) {
 	// gather metrics on the specified interval
 	utils.RunOnInterval(ctx, func() {
 		if err := m.plugin.Gather(ac); err != nil {
-			logger.Error(err)
+			logger.WithError(err).Errorf("an error occurred while gathering metrics")
 		}
 	}, time.Duration(conf.IntervalSeconds)*time.Second)
 
@@ -137,6 +138,8 @@ func (m *Monitor) Configure(conf *Config) (err error) {
 func (m *Monitor) Shutdown() {
 	if m.cancel != nil {
 		m.cancel()
+	}
+	if m.plugin != nil {
 		m.plugin.Stop()
 	}
 }

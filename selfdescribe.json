@@ -162,7 +162,7 @@
       "metrics": [
         {
           "name": "asp_net.application_restarts",
-          "type": "counter",
+          "type": "gauge",
           "description": "Count of ASP.NET application restarts."
         },
         {
@@ -182,12 +182,12 @@
         },
         {
           "name": "asp_net.requests_rejected",
-          "type": "counter",
+          "type": "gauge",
           "description": "Count of rejected ASP.NET requests."
         },
         {
           "name": "asp_net.worker_process_restarts",
-          "type": "counter",
+          "type": "gauge",
           "description": "Count of ASP.NET worker process restarts."
         },
         {
@@ -197,7 +197,7 @@
         },
         {
           "name": "asp_net_applications.errors_during_execution",
-          "type": "counter",
+          "type": "gauge",
           "description": "Count of errors encountered by ASP.NET application durring execution."
         },
         {
@@ -217,7 +217,7 @@
         },
         {
           "name": "asp_net_applications.requests_failed",
-          "type": "counter",
+          "type": "gauge",
           "description": "Count of failed requests in the ASP.NET application"
         },
         {
@@ -7896,7 +7896,7 @@
     },
     {
       "name": "Config",
-      "doc": " Gathers information about processes running on\nthe host.  See\nhttps://collectd.org/documentation/manpages/collectd.conf.5.shtml#plugin_processes\nand https://collectd.org/wiki/index.php/Plugin:Processes for more\ninformation on the configuration options.\n\nExample:\n\n```yaml\n  - type: collectd/processes\n    processes:\n      - mysql\n      - myapp\n    processMatch:\n      docker: \"docker.*\"\n    collectContextSwitch: true\n```\n\nThe above config will send process metrics for processes named *mysql* and\n*myapp*, along with additional metrics on the number of context switches the\nprocess has made.  Also, all processes that start with `docker` will have\ntheir process metrics aggregated together and sent with a `plugin_instance`\nvalue of `docker`.\n",
+      "doc": " Gathers information about processes running on\nthe host.  See\nhttps://collectd.org/documentation/manpages/collectd.conf.5.shtml#plugin_processes\nand https://collectd.org/wiki/index.php/Plugin:Processes for more\ninformation on the configuration options.\n\nExample:\n\n```yaml\n procPath: /proc\n monitors:\n  - type: collectd/processes\n    processes:\n      - mysql\n      - myapp\n    processMatch:\n      docker: \"docker.*\"\n    collectContextSwitch: true\n```\n\nThe above config will send process metrics for processes named *mysql* and\n*myapp*, along with additional metrics on the number of context switches the\nprocess has made.  Also, all processes that start with `docker` will have\ntheir process metrics aggregated together and sent with a `plugin_instance`\nvalue of `docker`.\n",
       "package": "internal/monitors/collectd/processes",
       "fields": [
         {
@@ -7925,8 +7925,8 @@
         },
         {
           "yamlName": "procFSPath",
-          "doc": "The path to the proc filesystem -- useful to override if the agent is running in a container.",
-          "default": "/proc",
+          "doc": "(Deprecated) Please set the agent configuration `procPath` instead of this monitor configuration option. The path to the proc filesystem -- useful to override if the agent is running in a container.",
+          "default": "",
           "required": false,
           "type": "string",
           "elementKind": ""
@@ -8980,8 +8980,16 @@
         },
         {
           "yamlName": "procFSPath",
-          "doc": "The path to the proc filesystem. Useful to override in containerized environments.",
+          "doc": "(Deprecated) Please set the agent configuration `procPath` instead of this monitor configuration option. The path to the proc filesystem. Useful to override in containerized environments.",
           "default": "/proc",
+          "required": false,
+          "type": "string",
+          "elementKind": ""
+        },
+        {
+          "yamlName": "etcPath",
+          "doc": "(Deprecated) Please set the agent configuration `etcPath` instead of this monitor configuration option. The path to the main host config dir. Useful to override in containerized environments.",
+          "default": "",
           "required": false,
           "type": "string",
           "elementKind": ""
@@ -8992,14 +9000,6 @@
           "default": false,
           "required": false,
           "type": "bool",
-          "elementKind": ""
-        },
-        {
-          "yamlName": "etcPath",
-          "doc": "The path to the main host config dir. Useful to override in containerized environments.",
-          "default": "/etc",
-          "required": false,
-          "type": "string",
           "elementKind": ""
         },
         {
@@ -10275,6 +10275,125 @@
     },
     {
       "name": "Config",
+      "doc": "\nThis monitor reports cpu metrics.\n\nOn Linux hosts, this monitor relies on the `/proc` filesystem.\nIf the underlying host's `/proc` file system is mounted somewhere other than\n/proc please specify the path using the top level configuration `procPath`.\n\n```yaml\nprocPath: /proc\nmonitors:\n - type: cpu\n```\n",
+      "package": "internal/monitors/cpu",
+      "fields": [],
+      "monitorType": "cpu",
+      "acceptsEndpoints": false,
+      "singleInstance": true,
+      "dimensions": null,
+      "metrics": [
+        {
+          "name": "cpu.utilization",
+          "type": "gauge",
+          "description": "Percent of CPU used on this host. This metric is emitted with a plugin dimension set to \"signalfx-metadata\"."
+        },
+        {
+          "name": "cpu.utilization_per_core",
+          "type": "gauge",
+          "description": "Percent of CPU used on each core. This metric is emitted with the plugin dimension set to \"signalfx-metadata\""
+        }
+      ],
+      "properties": null
+    },
+    {
+      "name": "Config",
+      "doc": "\nThis monitor reports I/O metrics about disks.\n\nOn Linux hosts, this monitor relies on the `/proc` filesystem.\nIf the underlying host's `/proc` file system is mounted somewhere other than\n/proc please specify the path using the top level configuration `procPath`.\n\n```yaml\nprocPath: /proc\nmonitors:\n - type: disk-io\n```\n",
+      "package": "internal/monitors/diskio",
+      "fields": [
+        {
+          "yamlName": "disks",
+          "doc": "Which devices to include/exclude",
+          "default": [
+            "*",
+            "!/^loop[0-9]+$/",
+            "!/^dm-[0-9]+$/"
+          ],
+          "required": false,
+          "type": "slice",
+          "elementKind": "string"
+        }
+      ],
+      "monitorType": "disk-io",
+      "acceptsEndpoints": false,
+      "singleInstance": false,
+      "dimensions": null,
+      "metrics": [
+        {
+          "name": "disk_merged.read",
+          "type": "cumulative",
+          "description": "(Linux Only) The number of disk reads merged into single physical disk access operations."
+        },
+        {
+          "name": "disk_merged.write",
+          "type": "cumulative",
+          "description": "(Linux Only) The number of disk writes merged into single physical disk access operations."
+        },
+        {
+          "name": "disk_octets.avg_read",
+          "type": "gauge",
+          "description": "(Windows Only) The average number of octets (bytes) read."
+        },
+        {
+          "name": "disk_octets.avg_write",
+          "type": "gauge",
+          "description": "(Windows Only) The average number of octets (bytes) written."
+        },
+        {
+          "name": "disk_octets.read",
+          "type": "cumulative",
+          "description": "(Linux Only) The number of bytes (octets) read from a disk."
+        },
+        {
+          "name": "disk_octets.write",
+          "type": "cumulative",
+          "description": "(Linux Only) The number of bytes (octets) written to a disk."
+        },
+        {
+          "name": "disk_ops.avg_read",
+          "type": "gauge",
+          "description": "(Windows Only) The average disk read queue length."
+        },
+        {
+          "name": "disk_ops.avg_write",
+          "type": "gauge",
+          "description": "(Windows Only) The average disk write queue length."
+        },
+        {
+          "name": "disk_ops.read",
+          "type": "cumulative",
+          "description": "(Linux Only) The number of disk read operations."
+        },
+        {
+          "name": "disk_ops.write",
+          "type": "cumulative",
+          "description": "(Linux Only) The number of disk write operations."
+        },
+        {
+          "name": "disk_time.avg_read",
+          "type": "gauge",
+          "description": "(Windows Only) The average time spent reading from the disk."
+        },
+        {
+          "name": "disk_time.avg_write",
+          "type": "gauge",
+          "description": "(Windows Only) The average time spent writing to the disk"
+        },
+        {
+          "name": "disk_time.read",
+          "type": "cumulative",
+          "description": "(Linux Only) The average amount of time it took to do a read operation."
+        },
+        {
+          "name": "disk_time.write",
+          "type": "cumulative",
+          "description": "(Linux Only) The average amount of time it took to do a write operation."
+        }
+      ],
+      "properties": null
+    },
+    {
+      "name": "Config",
       "doc": " This monitor reads container stats from a\nDocker API server.  It is meant as a metric-compatible replacement of our\n[docker-collectd](https://github.com/signalfx/docker-collectd-plugin)\nplugin, which scales rather poorly against a large number of containers.\n\nThis currently does not support CPU share/quota metrics.\n\nIf you are running the agent directly on a host (outside of a container\nitself) and you are using the default Docker UNIX socket URL, you will\nprobably need to add the `signalfx-agent` user to the `docker` group in\norder to have permission to access the Docker API via the socket.\n\nRequires Docker API version 1.22+.\n",
       "package": "internal/monitors/docker",
       "fields": [
@@ -10579,26 +10698,131 @@
     },
     {
       "name": "Config",
-      "doc": " This monitor collects metadata properties about a\nhost.  It is required for some views in SignalFx to operate.\n\n```yaml\nmonitors:\n  - type: host-metadata\n```\n\nIn containerized environments host `/etc` and `/proc` may not be located\ndirectly under the root path.  You can specify the path to `proc` and `etc`\nusing the monitor configurations `procFSPath` and `etcPath`\n\n```yaml\nmonitors:\n  - type: host-metadata\n    procFSPath: \"/hostfs/proc\"\n    etcPath: \"/hostfs/etc\"\n```\n\nMetadata updates occur on a sparse interval of approximately\n1m, 1m, 1h, 1d and continues repeating once per day.\nSetting the `Interval` configuration for this monitor will not affect the\nsparse interval on which metadata is collected.\n",
-      "package": "internal/monitors/metadata/hostmetadata",
+      "doc": "\nThis monitor reports metrics about free disk space on mounted devices.\n\nOn Linux hosts, this monitor relies on the `/proc` filesystem.\nIf the underlying host's `/proc` file system is mounted somewhere other than\n/proc please specify the path using the top level configuration `procPath`.\n\n```yaml\nprocPath: /proc\nmonitors:\n - type: filesystems\n```\n",
+      "package": "internal/monitors/filesystems",
       "fields": [
         {
-          "yamlName": "procFSPath",
-          "doc": "The path to the proc filesystem. Useful to override in containerized environments.",
-          "default": "/proc",
+          "yamlName": "fsTypes",
+          "doc": "The filesystem types to include/exclude, is interpreted as a regex if surrounded by `/`.",
+          "default": [
+            "*",
+            "!aufs",
+            "!overlay",
+            "!tmpfs",
+            "!proc",
+            "!sysfs",
+            "!nsfs",
+            "!cgroup",
+            "!devpts",
+            "!selinuxfs",
+            "!devtmpfs",
+            "!debugfs",
+            "!mqueue",
+            "!hugetlbfs",
+            "!securityfs",
+            "!pstore",
+            "!binfmt_misc",
+            "!autofs"
+          ],
           "required": false,
-          "type": "string",
+          "type": "slice",
+          "elementKind": "string"
+        },
+        {
+          "yamlName": "mountPoints",
+          "doc": "The mount paths to include/exclude, is interpreted as a regex if surrounded by `/`.  Note that you need to include the full path as the agent will see it, irrespective of the hostFSPath option.",
+          "default": [
+            "*",
+            "!/^/var/lib/docker/containers/",
+            "!/^/var/lib/rkt/pods/",
+            "!/^/net//",
+            "!/^/smb//",
+            "!/^/tmp/scratch/"
+          ],
+          "required": false,
+          "type": "slice",
+          "elementKind": "string"
+        },
+        {
+          "yamlName": "reportByDevice",
+          "doc": "If true, then metrics will report with their plugin_instance set to the device's name instead of the mountpoint.",
+          "default": false,
+          "required": false,
+          "type": "bool",
           "elementKind": ""
         },
         {
-          "yamlName": "etcPath",
-          "doc": "The path to the main host config dir. Useful to override in containerized environments.",
-          "default": "/etc",
+          "yamlName": "reportInodes",
+          "doc": "(Linux Only) If true metrics will be reported about inodes.",
+          "default": false,
           "required": false,
-          "type": "string",
+          "type": "bool",
           "elementKind": ""
         }
       ],
+      "monitorType": "filesystems",
+      "acceptsEndpoints": false,
+      "singleInstance": false,
+      "dimensions": null,
+      "metrics": [
+        {
+          "name": "df_complex.free",
+          "type": "gauge",
+          "description": "Free disk space in bytes"
+        },
+        {
+          "name": "df_complex.used",
+          "type": "gauge",
+          "description": "Used disk space in bytes"
+        },
+        {
+          "name": "df_inodes.free",
+          "type": "gauge",
+          "description": "(Linux Only) Number of inodes that are free.  This is is only reported if the configuration option `reportInodes` is set to `true`."
+        },
+        {
+          "name": "df_inodes.used",
+          "type": "gauge",
+          "description": "(Linux Only) Number of inodes that are used.  This is only reported if the configuration option `reportInodes` is set to `true`."
+        },
+        {
+          "name": "disk.summary_utilization",
+          "type": "gauge",
+          "description": "Percent of disk space utilized on all volumes on this host. This metric reports with plugin dimension set to \"signalfx-metadata\"."
+        },
+        {
+          "name": "disk.utilization",
+          "type": "gauge",
+          "description": "Percent of disk used on this volume. This metric reports with plugin dimension set to \"signalfx-metadata\"."
+        },
+        {
+          "name": "percent_bytes.free",
+          "type": "gauge",
+          "description": "Free disk space on the file system, expressed as a percentage."
+        },
+        {
+          "name": "percent_bytes.used",
+          "type": "gauge",
+          "description": "Used disk space on the file system, expressed as a percentage."
+        },
+        {
+          "name": "percent_inodes.free",
+          "type": "gauge",
+          "description": "(Linux Only) Free inodes on the file system, expressed as a percentage.  This is only reported if the configuration option `reportInodes` is set to `true`."
+        },
+        {
+          "name": "percent_inodes.used",
+          "type": "gauge",
+          "description": "(Linux Only) Used inodes on the file system, expressed as a percentage.  This is only reported if the configuration option `reportInodes` is set to `true`."
+        }
+      ],
+      "properties": null
+    },
+    {
+      "name": "Config",
+      "doc": " This monitor collects metadata properties about a\nhost.  It is required for some views in SignalFx to operate.\n\n```yaml\nmonitors:\n  - type: host-metadata\n```\n\nIn containerized environments host `/etc` and `/proc` may not be located\ndirectly under the root path.  You can specify the path to `proc` and `etc`\nusing the top level agent configurations `procPath` and `etcPath`\n\n```yaml\nprocPath: /proc\netcPath: /etc\nmonitors:\n  - type: host-metadata\n```\n\nMetadata updates occur on a sparse interval of approximately\n1m, 1m, 1h, 1d and continues repeating once per day.\nSetting the `Interval` configuration for this monitor will not affect the\nsparse interval on which metadata is collected.\n",
+      "package": "internal/monitors/metadata/hostmetadata",
+      "fields": [],
       "monitorType": "host-metadata",
       "acceptsEndpoints": false,
       "singleInstance": true,
@@ -11637,7 +11861,124 @@
     },
     {
       "name": "Config",
-      "doc": " This monitor reports processlist information for Windows\nHosts.\n\nSample YAML configuration:\n\n```yaml\nmonitors:\n - type: processlist\n```\n",
+      "doc": "\nThis monitor reports memory and memory utilization metrics.\n\nOn Linux hosts, this monitor relies on the `/proc` filesystem.\nIf the underlying host's `/proc` file system is mounted somewhere other than\n/proc please specify the path using the top level configuration `procPath`.\n\n```yaml\nprocPath: /proc\nmonitors:\n - type: memory\n```\n",
+      "package": "internal/monitors/memory",
+      "fields": [],
+      "monitorType": "memory",
+      "acceptsEndpoints": false,
+      "singleInstance": true,
+      "dimensions": null,
+      "metrics": [
+        {
+          "name": "memory.available",
+          "type": "gauge",
+          "description": "(Windows Only) Bytes of memory available for use."
+        },
+        {
+          "name": "memory.buffered",
+          "type": "gauge",
+          "description": "(Linux Only) Bytes of memory used for buffering I/O."
+        },
+        {
+          "name": "memory.cached",
+          "type": "gauge",
+          "description": "(Linux Only) Bytes of memory used for disk caching."
+        },
+        {
+          "name": "memory.free",
+          "type": "gauge",
+          "description": "(Linux Only) Bytes of memory available for use."
+        },
+        {
+          "name": "memory.slab_recl",
+          "type": "gauge",
+          "description": "(Linux Only) Bytes of memory, used for SLAB-allocation of kernel objects, that can be reclaimed."
+        },
+        {
+          "name": "memory.slab_unrecl",
+          "type": "gauge",
+          "description": "(Linux Only) Bytes of memory, used for SLAB-allocation of kernel objects, that can't be reclaimed."
+        },
+        {
+          "name": "memory.used",
+          "type": "gauge",
+          "description": "Bytes of memory in use by the system."
+        },
+        {
+          "name": "memory.utilization",
+          "type": "gauge",
+          "description": "Percent of memory in use on this host. This metric reports with plugin dimension set to \"signalfx-metadata\"."
+        }
+      ],
+      "properties": null
+    },
+    {
+      "name": "Config",
+      "doc": "\nThis monitor reports I/O metrics about network interfaces.\n\nOn Linux hosts, this monitor relies on the `/proc` filesystem.\nIf the underlying host's `/proc` file system is mounted somewhere other than\n/proc please specify the path using the top level configuration `procPath`.\n\n```yaml\nprocPath: /proc\nmonitors:\n - type: net-io\n```\n",
+      "package": "internal/monitors/netio",
+      "fields": [
+        {
+          "yamlName": "interfaces",
+          "doc": "The interfaces to include/exclude, is interpreted as a regex if surrounded by `/`.",
+          "default": [
+            "*",
+            "!/^lo\\d*$/",
+            "!/^docker.*/",
+            "!/^t(un|ap)\\d*$/",
+            "!/^veth.*$/",
+            "!/^Loopback*/"
+          ],
+          "required": false,
+          "type": "slice",
+          "elementKind": "string"
+        }
+      ],
+      "monitorType": "net-io",
+      "acceptsEndpoints": false,
+      "singleInstance": false,
+      "dimensions": null,
+      "metrics": [
+        {
+          "name": "if_errors.rx",
+          "type": "cumulative",
+          "description": "Count of receive errors on the interface"
+        },
+        {
+          "name": "if_errors.tx",
+          "type": "cumulative",
+          "description": "Count of transmit errors on the interface"
+        },
+        {
+          "name": "if_octets.rx",
+          "type": "cumulative",
+          "description": "Count of bytes (octets) received on the interface"
+        },
+        {
+          "name": "if_octets.tx",
+          "type": "cumulative",
+          "description": "Count of bytes (octets) transmitted by the interface"
+        },
+        {
+          "name": "if_packets.rx",
+          "type": "cumulative",
+          "description": "Count of packets received on the interface"
+        },
+        {
+          "name": "if_packets.tx",
+          "type": "cumulative",
+          "description": "Count of packets transmitted by the interface"
+        },
+        {
+          "name": "network.total",
+          "type": "cumulative",
+          "description": "Total amount of inbound and outbound network traffic on this host, in bytes.  This metric reports with plugin dimension set to \"signalfx-metadata\"."
+        }
+      ],
+      "properties": null
+    },
+    {
+      "name": "Config",
+      "doc": " (Windows Only) This monitor reports processlist\ninformation for Windows Hosts.\n\nSample YAML configuration:\n\n```yaml\nmonitors:\n - type: processlist\n```\n",
       "package": "internal/monitors/processlist",
       "fields": [],
       "monitorType": "processlist",
@@ -11698,126 +12039,6 @@
       "singleInstance": false,
       "dimensions": null,
       "metrics": null,
-      "properties": null
-    },
-    {
-      "name": "Config",
-      "doc": "\nThis monitor reports utilization metrics for Windows\nHosts.  It is used to drive the Windows Smart Agent host navigator view and dashboard\ncontent.\n\n## Windows Performance Counters\nThe underlying source for these metrics on Windows are Windows Performance Counters.\nAll of the performance counters that we query in this monitor are actually Gauges\nthat represent rates per second and percentages.\nThis monitor reports the instantaneous values for these Windows Performance Counters.\nThis means that in between a collection interval, spikes could occur on the\nPerformance Counters.  The best way to mitigate this limitation is to increase\nthe reporting interval on this monitor to collect more frequently.\n\nSample YAML configuration:\n\n```yaml\nmonitors:\n - type: system-utilization\n```\n",
-      "package": "internal/monitors/utilization",
-      "fields": [
-        {
-          "yamlName": "counterRefreshInterval",
-          "doc": "(Windows Only) The frequency that wildcards in counter paths should be expanded and how often to refresh counters from configuration. This is expressed as a duration.",
-          "default": "60s",
-          "required": false,
-          "type": "int64",
-          "elementKind": ""
-        },
-        {
-          "yamlName": "printValid",
-          "doc": "(Windows Only) Print out the configurations that match available performance counters.  This used for debugging.",
-          "default": false,
-          "required": false,
-          "type": "bool",
-          "elementKind": ""
-        }
-      ],
-      "monitorType": "system-utilization",
-      "acceptsEndpoints": false,
-      "singleInstance": true,
-      "dimensions": null,
-      "metrics": [
-        {
-          "name": "cpu.utilization",
-          "type": "gauge",
-          "description": "This metric shows the amount of CPU in use on this machine, as a percent of total CPU available."
-        },
-        {
-          "name": "cpu.utilization_per_core",
-          "type": "gauge",
-          "description": "This metric shows the amount of CPU in use on each core, as a percent of total CPU available per core."
-        },
-        {
-          "name": "df_complex.free",
-          "type": "gauge",
-          "description": "This metric measures free disk space in bytes on this file system."
-        },
-        {
-          "name": "df_complex.used",
-          "type": "gauge",
-          "description": "This metric measures used disk space in bytes on this file system."
-        },
-        {
-          "name": "disk.reads.per_second",
-          "type": "gauge",
-          "description": "The rate of read operations per second against a disk."
-        },
-        {
-          "name": "disk.utilization",
-          "type": "gauge",
-          "description": "This metric shows the amount of disk space in use on this volume, as a percentage of total disk space available on the volume."
-        },
-        {
-          "name": "disk.write.per_second",
-          "type": "gauge",
-          "description": "The rate of write operations per second against a disk."
-        },
-        {
-          "name": "memory.free",
-          "type": "gauge",
-          "description": "Amount of memory that can be immediately used, in bytes."
-        },
-        {
-          "name": "memory.used",
-          "type": "gauge",
-          "description": "The amount of memory consumed by processes and the system, in bytes."
-        },
-        {
-          "name": "memory.utilization",
-          "type": "gauge",
-          "description": "This metric shows the amount of memory in use on this machine, as a percent of total memory available."
-        },
-        {
-          "name": "network_interface.bytes_received.per_second",
-          "type": "gauge",
-          "description": "The rate of bytes received per second."
-        },
-        {
-          "name": "network_interface.bytes_sent.per_second",
-          "type": "gauge",
-          "description": "The rate of bytes sent per second."
-        },
-        {
-          "name": "network_interface.errors_received.per_second",
-          "type": "gauge",
-          "description": "The rate of errors encountered per second while receiving."
-        },
-        {
-          "name": "network_interface.errors_sent.per_second",
-          "type": "gauge",
-          "description": "The rate of errors encountered per second while sending."
-        },
-        {
-          "name": "paging_file.pct_usage",
-          "type": "gauge",
-          "description": "(WINDOWS ONLY) The percentage of page file usage."
-        },
-        {
-          "name": "vmpage.swapped.per_second",
-          "type": "gauge",
-          "description": "The rate of swap operations (read and write) per second."
-        },
-        {
-          "name": "vmpage.swapped_in.per_second",
-          "type": "gauge",
-          "description": "The rate of swap operations per second into memory."
-        },
-        {
-          "name": "vmpage.swapped_out.per_second",
-          "type": "gauge",
-          "description": "The rate of swap operations per second out of memory."
-        }
-      ],
       "properties": null
     },
     {
@@ -11907,17 +12128,9 @@
     },
     {
       "name": "Config",
-      "doc": " This monitor reports metrics about processes.\nThis monitor is based on the Telegraf procstat plugin.  More information about the Telegraf plugin\ncan be found [here](https://github.com/influxdata/telegraf/tree/master/plugins/inputs/procstat).\n\nPlease note that the Smart Agent only supports the `native` pid finder and the options\n`cgroup` and `systemd unit` are not supported at this time.\n\nSample YAML configuration:\n\n```yaml\nmonitors:\n - type: telegraf/procstat\n   exe: \"signalfx-agent*\"\n```\n",
+      "doc": " This monitor reports metrics about processes.\nThis monitor is based on the Telegraf procstat plugin.  More information about the Telegraf plugin\ncan be found [here](https://github.com/influxdata/telegraf/tree/master/plugins/inputs/procstat).\n\nPlease note that the Smart Agent only supports the `native` pid finder and the options\n`cgroup` and `systemd unit` are not supported at this time.\n\nOn Linux hosts, this monitor relies on the `/proc` filesystem.\nIf the underlying host's `/proc` file system is mounted somewhere other than\n/proc please specify the path using the top level configuration `procPath`.\n\nSample Yaml Configuration\n\n```yaml\nprocPath: /proc\nmonitors:\n - type: telegraf/procstat\n   exe: \"signalfx-agent*\"\n```\n",
       "package": "internal/monitors/telegraf/monitors/procstat",
       "fields": [
-        {
-          "yamlName": "procFSPath",
-          "doc": "The path to the proc filesystem. Useful to override in containerized environments.",
-          "default": "/proc",
-          "required": false,
-          "type": "string",
-          "elementKind": ""
-        },
         {
           "yamlName": "exe",
           "doc": "The name of an executable to monitor.  (ie: `exe: \"signalfx-agent*\"`)",
@@ -11979,7 +12192,213 @@
       "acceptsEndpoints": false,
       "singleInstance": false,
       "dimensions": null,
-      "metrics": null,
+      "metrics": [
+        {
+          "name": "procstat.cpu_time",
+          "type": "gauge",
+          "description": "Amount of cpu time consumed by the process."
+        },
+        {
+          "name": "procstat.cpu_usage",
+          "type": "gauge",
+          "description": "CPU used by the process."
+        },
+        {
+          "name": "procstat.involuntary_context_switches",
+          "type": "gauge",
+          "description": "Number of involuntary context switches."
+        },
+        {
+          "name": "procstat.memory_data",
+          "type": "gauge",
+          "description": "VMData memory used by the process."
+        },
+        {
+          "name": "procstat.memory_locked",
+          "type": "gauge",
+          "description": "VMLocked memory used by the process."
+        },
+        {
+          "name": "procstat.memory_rss",
+          "type": "gauge",
+          "description": "VMRSS memory used by the process."
+        },
+        {
+          "name": "procstat.memory_stack",
+          "type": "gauge",
+          "description": "VMStack memory used by the process."
+        },
+        {
+          "name": "procstat.memory_swap",
+          "type": "gauge",
+          "description": "VMSwap memory used by the process."
+        },
+        {
+          "name": "procstat.memory_vms",
+          "type": "gauge",
+          "description": "VMS memory used by the process."
+        },
+        {
+          "name": "procstat.nice_priority",
+          "type": "gauge",
+          "description": "Nice priority number of the process."
+        },
+        {
+          "name": "procstat.num_fds",
+          "type": "gauge",
+          "description": "Number of file descriptors.  This may require the agent to be running as root."
+        },
+        {
+          "name": "procstat.num_threads",
+          "type": "gauge",
+          "description": "Number of threads used by the process."
+        },
+        {
+          "name": "procstat.read_bytes",
+          "type": "gauge",
+          "description": "Number of bytes read by the process.  This may require the agent to be running as root."
+        },
+        {
+          "name": "procstat.read_count",
+          "type": "gauge",
+          "description": "Number of read operations by the process.  This may require the agent to be running as root."
+        },
+        {
+          "name": "procstat.realtime_priority",
+          "type": "gauge",
+          "description": "Real time priority of the process."
+        },
+        {
+          "name": "procstat.rlimit_cpu_time_hard",
+          "type": "gauge",
+          "description": "The hard cpu rlimit."
+        },
+        {
+          "name": "procstat.rlimit_cpu_time_soft",
+          "type": "gauge",
+          "description": "The soft cpu rlimit."
+        },
+        {
+          "name": "procstat.rlimit_file_locks_hard",
+          "type": "gauge",
+          "description": "The hard file lock rlimit."
+        },
+        {
+          "name": "procstat.rlimit_file_locks_soft",
+          "type": "gauge",
+          "description": "The soft file lock rlimit."
+        },
+        {
+          "name": "procstat.rlimit_memory_data_hard",
+          "type": "gauge",
+          "description": "The hard data memory rlimit."
+        },
+        {
+          "name": "procstat.rlimit_memory_data_soft",
+          "type": "gauge",
+          "description": "The soft data memory rlimit."
+        },
+        {
+          "name": "procstat.rlimit_memory_locked_hard",
+          "type": "gauge",
+          "description": "The hard locked memory rlimit."
+        },
+        {
+          "name": "procstat.rlimit_memory_locked_soft",
+          "type": "gauge",
+          "description": "The soft locked memory rlimit."
+        },
+        {
+          "name": "procstat.rlimit_memory_rss_hard",
+          "type": "gauge",
+          "description": "The hard rss memory rlimit."
+        },
+        {
+          "name": "procstat.rlimit_memory_rss_soft",
+          "type": "gauge",
+          "description": "The soft rss memory rlimit."
+        },
+        {
+          "name": "procstat.rlimit_memory_stack_hard",
+          "type": "gauge",
+          "description": "The hard stack memory rlimit."
+        },
+        {
+          "name": "procstat.rlimit_memory_stack_soft",
+          "type": "gauge",
+          "description": "The soft stack memory rlimit."
+        },
+        {
+          "name": "procstat.rlimit_memory_vms_hard",
+          "type": "gauge",
+          "description": "The hard vms memory rlimit."
+        },
+        {
+          "name": "procstat.rlimit_memory_vms_soft",
+          "type": "gauge",
+          "description": "The soft vms memory rlimit."
+        },
+        {
+          "name": "procstat.rlimit_nice_priority_hard",
+          "type": "gauge",
+          "description": "The hard nice priority rlimit."
+        },
+        {
+          "name": "procstat.rlimit_nice_priority_soft",
+          "type": "gauge",
+          "description": "The soft nice priority rlimit."
+        },
+        {
+          "name": "procstat.rlimit_num_fds_hard",
+          "type": "gauge",
+          "description": "The hard file descriptor rlimit."
+        },
+        {
+          "name": "procstat.rlimit_num_fds_soft",
+          "type": "gauge",
+          "description": "The soft file descriptor rlimit."
+        },
+        {
+          "name": "procstat.rlimit_realtime_priority_hard",
+          "type": "gauge",
+          "description": "The hard realtime priority rlimit."
+        },
+        {
+          "name": "procstat.rlimit_realtime_priority_soft",
+          "type": "gauge",
+          "description": "The soft realtime priority rlimit."
+        },
+        {
+          "name": "procstat.rlimit_signals_pending_hard",
+          "type": "gauge",
+          "description": "The hard pending signal rlimit."
+        },
+        {
+          "name": "procstat.rlimit_signals_pending_soft",
+          "type": "gauge",
+          "description": "The soft pendidng signal rlimit."
+        },
+        {
+          "name": "procstat.signals_pending",
+          "type": "gauge",
+          "description": "The number of signals pending."
+        },
+        {
+          "name": "procstat.write_bytes",
+          "type": "gauge",
+          "description": "Number of bytes written by the process.  This may require the agent to be running as root."
+        },
+        {
+          "name": "procstat.write_count",
+          "type": "gauge",
+          "description": "Number of write operations by the process.  This may require the agent to be running as root."
+        },
+        {
+          "name": "procstat_lookup.pid_count",
+          "type": "gauge",
+          "description": "The number of pids. This metric emits with the plugin dimension set to \"procstat_lookup\"."
+        }
+      ],
       "properties": null
     },
     {
@@ -12386,7 +12805,603 @@
       "acceptsEndpoints": true,
       "singleInstance": false,
       "dimensions": null,
-      "metrics": null,
+      "metrics": [
+        {
+          "name": "sqlserver_database_io.read_bytes",
+          "type": "gauge",
+          "description": "Bytes read by the database."
+        },
+        {
+          "name": "sqlserver_database_io.read_latency_ms",
+          "type": "gauge",
+          "description": "Latency in milliseconds reading from the database."
+        },
+        {
+          "name": "sqlserver_database_io.reads",
+          "type": "gauge",
+          "description": "Number of reads from the database."
+        },
+        {
+          "name": "sqlserver_database_io.write_bytes",
+          "type": "gauge",
+          "description": "Bytes written to the database."
+        },
+        {
+          "name": "sqlserver_database_io.write_latency_ms",
+          "type": "gauge",
+          "description": "Latency in milliseconds writing to the database."
+        },
+        {
+          "name": "sqlserver_database_io.writes",
+          "type": "gauge",
+          "description": "Number of writes to the database."
+        },
+        {
+          "name": "sqlserver_memory_clerks.size_kb.bound_trees",
+          "type": "gauge",
+          "description": "Size in KB of bound trees memory clerk."
+        },
+        {
+          "name": "sqlserver_memory_clerks.size_kb.buffer_pool",
+          "type": "gauge",
+          "description": "Size in KB of buffer pool memory clerk."
+        },
+        {
+          "name": "sqlserver_memory_clerks.size_kb.connection_pool",
+          "type": "gauge",
+          "description": "Size in KB of connection pool memory clerk."
+        },
+        {
+          "name": "sqlserver_memory_clerks.size_kb.general",
+          "type": "gauge",
+          "description": "Size in KB of general memory clerk."
+        },
+        {
+          "name": "sqlserver_memory_clerks.size_kb.in-memory_oltp",
+          "type": "gauge",
+          "description": "Size in KB of in in-memoory oltp memory clerk."
+        },
+        {
+          "name": "sqlserver_memory_clerks.size_kb.log_pool",
+          "type": "gauge",
+          "description": "Size in KB of log pool memory clerk."
+        },
+        {
+          "name": "sqlserver_memory_clerks.size_kb.memoryclerk_sqltrace",
+          "type": "gauge",
+          "description": "Size in KB of sql trace memory clerk."
+        },
+        {
+          "name": "sqlserver_memory_clerks.size_kb.schema_manager_user_store",
+          "type": "gauge",
+          "description": "Size in KB of user store schema manager memory clerk."
+        },
+        {
+          "name": "sqlserver_memory_clerks.size_kb.sos_node",
+          "type": "gauge",
+          "description": "Size in KB of sos node memory clerk."
+        },
+        {
+          "name": "sqlserver_memory_clerks.size_kb.sql_optimizer",
+          "type": "gauge",
+          "description": "Size in KB of SQL optimizer memory clerk."
+        },
+        {
+          "name": "sqlserver_memory_clerks.size_kb.sql_plans",
+          "type": "gauge",
+          "description": "Size in KB of sql plans memory clerk."
+        },
+        {
+          "name": "sqlserver_memory_clerks.size_kb.sql_reservations",
+          "type": "gauge",
+          "description": "Size in KB of sql reservations memory clerk."
+        },
+        {
+          "name": "sqlserver_memory_clerks.size_kb.sql_storage_engine",
+          "type": "gauge",
+          "description": "Size in KB of sql storage engine memory clerk."
+        },
+        {
+          "name": "sqlserver_memory_clerks.size_kb.system_rowset_store",
+          "type": "gauge",
+          "description": "Size in KB of system rowset store memory clerk."
+        },
+        {
+          "name": "sqlserver_performance.active_memory_grant_amount_kb",
+          "type": "gauge",
+          "description": "Amount of active memory in KB granted."
+        },
+        {
+          "name": "sqlserver_performance.active_temp_tables",
+          "type": "gauge",
+          "description": "Number of active temporary tables."
+        },
+        {
+          "name": "sqlserver_performance.background_writer_pages_persec",
+          "type": "gauge",
+          "description": "Rate per second of pages written in the background."
+        },
+        {
+          "name": "sqlserver_performance.backup/restore_throughput_persec",
+          "type": "gauge",
+          "description": "Rate per second of backup/restore throughput."
+        },
+        {
+          "name": "sqlserver_performance.batch_requests_persec",
+          "type": "gauge",
+          "description": "Rate per second of batch requests."
+        },
+        {
+          "name": "sqlserver_performance.blocked_tasks",
+          "type": "gauge",
+          "description": "Number of blocked tasks."
+        },
+        {
+          "name": "sqlserver_performance.buffer_cache_hit_ratio",
+          "type": "gauge",
+          "description": "Buffer cache hit ration."
+        },
+        {
+          "name": "sqlserver_performance.bytes_received_from_replica_persec",
+          "type": "gauge",
+          "description": "Rate per second of bytes received from replicas."
+        },
+        {
+          "name": "sqlserver_performance.bytes_sent_to_replica_persec",
+          "type": "gauge",
+          "description": "Rate per second of bytes sent to replicas."
+        },
+        {
+          "name": "sqlserver_performance.bytes_sent_to_transport_persec",
+          "type": "gauge",
+          "description": "Rate per second of bytes sent to transports."
+        },
+        {
+          "name": "sqlserver_performance.checkpoint_pages_persec",
+          "type": "gauge",
+          "description": "Rate per second of checkpoint pages."
+        },
+        {
+          "name": "sqlserver_performance.cpu_limit_violation_count",
+          "type": "gauge",
+          "description": "Number of cpu limit violations."
+        },
+        {
+          "name": "sqlserver_performance.cpu_usage_percent",
+          "type": "gauge",
+          "description": "CPU usage percentage."
+        },
+        {
+          "name": "sqlserver_performance.cpu_usage_time",
+          "type": "gauge",
+          "description": "CPU usage time."
+        },
+        {
+          "name": "sqlserver_performance.data_files_size_kb",
+          "type": "gauge",
+          "description": "Size in KB of data files."
+        },
+        {
+          "name": "sqlserver_performance.disk_read_bytes_persec",
+          "type": "gauge",
+          "description": "Rate per second of bytes from disk."
+        },
+        {
+          "name": "sqlserver_performance.disk_read_io_persec",
+          "type": "gauge",
+          "description": "Rate per second of read operations from disk."
+        },
+        {
+          "name": "sqlserver_performance.disk_read_io_throttled_persec",
+          "type": "gauge",
+          "description": "Rate per second of throttled read operations."
+        },
+        {
+          "name": "sqlserver_performance.disk_write_bytes_persec",
+          "type": "gauge",
+          "description": "Rate per second of bytes written to disk."
+        },
+        {
+          "name": "sqlserver_performance.disk_write_io_persec",
+          "type": "gauge",
+          "description": "Rate per second of write operations to disk."
+        },
+        {
+          "name": "sqlserver_performance.disk_write_io_throttled_persec",
+          "type": "gauge",
+          "description": "Rate per second of write operations throttled."
+        },
+        {
+          "name": "sqlserver_performance.errors_persec",
+          "type": "gauge",
+          "description": "Rate of errors per second."
+        },
+        {
+          "name": "sqlserver_performance.flow_control_persec",
+          "type": "gauge",
+          "description": "Rate per second of flow control."
+        },
+        {
+          "name": "sqlserver_performance.flow_control_time_ms_persec",
+          "type": "gauge",
+          "description": "Rate per second of ms of flow control time."
+        },
+        {
+          "name": "sqlserver_performance.forwarded_records_persec",
+          "type": "gauge",
+          "description": "Rate per second of record forwarding."
+        },
+        {
+          "name": "sqlserver_performance.free_list_stalls_persec",
+          "type": "gauge",
+          "description": "Rate per second of stalled free list."
+        },
+        {
+          "name": "sqlserver_performance.free_space_in_tempdb_kb",
+          "type": "gauge",
+          "description": "Free space in KB of tempdb."
+        },
+        {
+          "name": "sqlserver_performance.full_scans_persec",
+          "type": "gauge",
+          "description": "Rate per second of full scans."
+        },
+        {
+          "name": "sqlserver_performance.index_searches_persec",
+          "type": "gauge",
+          "description": "Rate per second of index searches."
+        },
+        {
+          "name": "sqlserver_performance.latch_waits_persec",
+          "type": "gauge",
+          "description": "Rate per second of latch waits."
+        },
+        {
+          "name": "sqlserver_performance.lazy_writes_persec",
+          "type": "gauge",
+          "description": "Rate per second of lazy writes."
+        },
+        {
+          "name": "sqlserver_performance.lock_timeouts_persec",
+          "type": "gauge",
+          "description": "Rate per second of lock timeouts."
+        },
+        {
+          "name": "sqlserver_performance.lock_wait_count",
+          "type": "gauge",
+          "description": "Number of lock waits."
+        },
+        {
+          "name": "sqlserver_performance.lock_wait_time",
+          "type": "gauge",
+          "description": "Lock wait time."
+        },
+        {
+          "name": "sqlserver_performance.lock_waits_persec",
+          "type": "gauge",
+          "description": "Rate per second of lock waits."
+        },
+        {
+          "name": "sqlserver_performance.log_apply_pending_queue",
+          "type": "gauge",
+          "description": "Size of the log apply pending queue."
+        },
+        {
+          "name": "sqlserver_performance.log_apply_ready_queue",
+          "type": "gauge",
+          "description": "Size of log apply ready queue."
+        },
+        {
+          "name": "sqlserver_performance.log_bytes_flushed_persec",
+          "type": "gauge",
+          "description": "Rate per second of log bytes flushed."
+        },
+        {
+          "name": "sqlserver_performance.log_bytes_received_persec",
+          "type": "gauge",
+          "description": "Rate per second of log bytes received."
+        },
+        {
+          "name": "sqlserver_performance.log_files_size_kb",
+          "type": "gauge",
+          "description": "Size in KB of log file."
+        },
+        {
+          "name": "sqlserver_performance.log_files_used_size_kb",
+          "type": "gauge",
+          "description": "Size in KB of log file used."
+        },
+        {
+          "name": "sqlserver_performance.log_flush_wait_time",
+          "type": "gauge",
+          "description": "Time spent flushing the log."
+        },
+        {
+          "name": "sqlserver_performance.log_flushes_persec",
+          "type": "gauge",
+          "description": "Rate per second of log flushes."
+        },
+        {
+          "name": "sqlserver_performance.log_send_queue",
+          "type": "gauge",
+          "description": "Size of the log send queue."
+        },
+        {
+          "name": "sqlserver_performance.logins_persec",
+          "type": "gauge",
+          "description": "Rate of logins per second."
+        },
+        {
+          "name": "sqlserver_performance.logouts_persec",
+          "type": "gauge",
+          "description": "Rate of logouts per second."
+        },
+        {
+          "name": "sqlserver_performance.memory_broker_clerk_size",
+          "type": "gauge",
+          "description": "Size of memory broker clerk."
+        },
+        {
+          "name": "sqlserver_performance.memory_grants_outstanding",
+          "type": "gauge",
+          "description": "Number of outstanding memory grants."
+        },
+        {
+          "name": "sqlserver_performance.memory_grants_pending",
+          "type": "gauge",
+          "description": "Number of pending memory grants."
+        },
+        {
+          "name": "sqlserver_performance.number_of_deadlocks_persec",
+          "type": "gauge",
+          "description": "Rate of deadlocks per second."
+        },
+        {
+          "name": "sqlserver_performance.page_life_expectancy",
+          "type": "gauge",
+          "description": "Page life expectancy."
+        },
+        {
+          "name": "sqlserver_performance.page_lookups_persec",
+          "type": "gauge",
+          "description": "Rate of page look ups per second."
+        },
+        {
+          "name": "sqlserver_performance.page_reads_persec",
+          "type": "gauge",
+          "description": "Rate of page reads per second."
+        },
+        {
+          "name": "sqlserver_performance.page_splits_persec",
+          "type": "gauge",
+          "description": "Rate of page splits per second."
+        },
+        {
+          "name": "sqlserver_performance.page_writes_persec",
+          "type": "gauge",
+          "description": "Rate of page writes per second."
+        },
+        {
+          "name": "sqlserver_performance.percent_log_used",
+          "type": "gauge",
+          "description": "Percentage of log used."
+        },
+        {
+          "name": "sqlserver_performance.processes_blocked",
+          "type": "gauge",
+          "description": "Number of blocked processes."
+        },
+        {
+          "name": "sqlserver_performance.queued_request_count",
+          "type": "gauge",
+          "description": "Number of queued requests."
+        },
+        {
+          "name": "sqlserver_performance.queued_requests",
+          "type": "gauge",
+          "description": "Average number of queued requests."
+        },
+        {
+          "name": "sqlserver_performance.readahead_pages_persec",
+          "type": "gauge",
+          "description": "Rate per second of read ahead pages."
+        },
+        {
+          "name": "sqlserver_performance.receives_from_replica_persec",
+          "type": "gauge",
+          "description": "Rate receives from replicas per second."
+        },
+        {
+          "name": "sqlserver_performance.recovery_queue",
+          "type": "gauge",
+          "description": "Size of recovery queue."
+        },
+        {
+          "name": "sqlserver_performance.redone_bytes_persec",
+          "type": "gauge",
+          "description": "Rate of redone bytes per second."
+        },
+        {
+          "name": "sqlserver_performance.reduced_memory_grant_count",
+          "type": "gauge",
+          "description": "Number of reduced memory grants."
+        },
+        {
+          "name": "sqlserver_performance.request_count",
+          "type": "gauge",
+          "description": "Number of requests."
+        },
+        {
+          "name": "sqlserver_performance.requests_completed_persec",
+          "type": "gauge",
+          "description": "Rate of completed requests per second."
+        },
+        {
+          "name": "sqlserver_performance.resent_messages_persec",
+          "type": "gauge",
+          "description": "Rate of resent messages per second."
+        },
+        {
+          "name": "sqlserver_performance.sends_to_replica_persec",
+          "type": "gauge",
+          "description": "Rate of sends to replicas per second."
+        },
+        {
+          "name": "sqlserver_performance.sends_to_transport_persec",
+          "type": "gauge",
+          "description": "Rate of sends to transports per second."
+        },
+        {
+          "name": "sqlserver_performance.sql_compilations_persec",
+          "type": "gauge",
+          "description": "Rate of sql compilations per second."
+        },
+        {
+          "name": "sqlserver_performance.sql_re-compilations_persec",
+          "type": "gauge",
+          "description": "Rate of sql recompilations per sec."
+        },
+        {
+          "name": "sqlserver_performance.target_server_memory_kb",
+          "type": "gauge",
+          "description": "Size of target server memory in KB."
+        },
+        {
+          "name": "sqlserver_performance.temp_tables_creation_rate",
+          "type": "gauge",
+          "description": "Rate of temporary table creations."
+        },
+        {
+          "name": "sqlserver_performance.temp_tables_for_destruction",
+          "type": "gauge",
+          "description": "Number of temporary tables marked for destruction."
+        },
+        {
+          "name": "sqlserver_performance.total_server_memory_kb",
+          "type": "gauge",
+          "description": "Total server memory in KB."
+        },
+        {
+          "name": "sqlserver_performance.transaction_delay",
+          "type": "gauge",
+          "description": "Number of delayed transactions."
+        },
+        {
+          "name": "sqlserver_performance.transactions_persec",
+          "type": "gauge",
+          "description": "Rate of transactions per second."
+        },
+        {
+          "name": "sqlserver_performance.used_memory_kb",
+          "type": "gauge",
+          "description": "Used memory in KB."
+        },
+        {
+          "name": "sqlserver_performance.user_connections",
+          "type": "gauge",
+          "description": "Number of user connections."
+        },
+        {
+          "name": "sqlserver_performance.version_store_size_kb",
+          "type": "gauge",
+          "description": "Size of the version store in KB."
+        },
+        {
+          "name": "sqlserver_performance.write_transactions_persec",
+          "type": "gauge",
+          "description": "Rate of write transactions per second."
+        },
+        {
+          "name": "sqlserver_performance.xtp_memory_used_kb",
+          "type": "gauge",
+          "description": "Size of xtp memory used in KB."
+        },
+        {
+          "name": "sqlserver_server_properties.available_storage_mb",
+          "type": "gauge",
+          "description": "Available storage in MB."
+        },
+        {
+          "name": "sqlserver_server_properties.cpu_count",
+          "type": "gauge",
+          "description": "Number of cpus."
+        },
+        {
+          "name": "sqlserver_server_properties.db_offline",
+          "type": "gauge",
+          "description": "Number of offline databases."
+        },
+        {
+          "name": "sqlserver_server_properties.db_online",
+          "type": "gauge",
+          "description": "Number of online databases."
+        },
+        {
+          "name": "sqlserver_server_properties.db_recovering",
+          "type": "gauge",
+          "description": "Number of databases recovering."
+        },
+        {
+          "name": "sqlserver_server_properties.db_recoveryPending",
+          "type": "gauge",
+          "description": "Number of databases pending recovery."
+        },
+        {
+          "name": "sqlserver_server_properties.db_restoring",
+          "type": "gauge",
+          "description": "Number of databases restoring."
+        },
+        {
+          "name": "sqlserver_server_properties.db_suspect",
+          "type": "gauge",
+          "description": "Number of suspect databases."
+        },
+        {
+          "name": "sqlserver_server_properties.engine_edition",
+          "type": "gauge",
+          "description": "Sql server engine edition version."
+        },
+        {
+          "name": "sqlserver_server_properties.server_memory",
+          "type": "gauge",
+          "description": "Amount of memory on the sql server."
+        },
+        {
+          "name": "sqlserver_server_properties.total_storage_mb",
+          "type": "gauge",
+          "description": "Amount of storage in MB of the sql server."
+        },
+        {
+          "name": "sqlserver_server_properties.uptime",
+          "type": "gauge",
+          "description": "Uptime of the sql server."
+        },
+        {
+          "name": "sqlserver_waitstats.max_wait_time_ms",
+          "type": "gauge",
+          "description": "Maximum time in millisecond spent waiting."
+        },
+        {
+          "name": "sqlserver_waitstats.resource_wait_ms",
+          "type": "gauge",
+          "description": "Time in milliseconds spent waiting on a resource."
+        },
+        {
+          "name": "sqlserver_waitstats.signal_wait_time_ms",
+          "type": "gauge",
+          "description": "Time in milliseconds waiting on a signal."
+        },
+        {
+          "name": "sqlserver_waitstats.wait_time_ms",
+          "type": "gauge",
+          "description": "Time in milliseconds waiting."
+        },
+        {
+          "name": "sqlserver_waitstats.waiting_tasks_count",
+          "type": "gauge",
+          "description": "Time in milliseconds"
+        }
+      ],
       "properties": null
     },
     {
@@ -12969,6 +13984,14 @@
           "required": false,
           "type": "bool",
           "elementKind": ""
+        },
+        {
+          "yamlName": "pcrMetricNames",
+          "doc": "If `true`, metric names will be emitted in the format emitted by the SignalFx PerfCounterReporter",
+          "default": false,
+          "required": false,
+          "type": "bool",
+          "elementKind": ""
         }
       ],
       "monitorType": "telegraf/win_perf_counters",
@@ -12980,7 +14003,7 @@
     },
     {
       "name": "Config",
-      "doc": " This monitor reports metrics about Windows services.\nThis monitor is based on the Telegraf win_services plugin.  More information about the Telegraf plugin\ncan be found [here](https://github.com/influxdata/telegraf/tree/master/plugins/inputs/win_services).\n\nSample YAML configuration:\n\n```yaml\nmonitors:\n - type: telegraf/win_services  # monitor all services\n```\n\n```yaml\nmonitors:\n - type: telegraf/win_services\n   serviceNames:\n     - exampleService1  # only monitor exampleService1\n```\n",
+      "doc": " (Windows Only) This monitor reports metrics about Windows services.\nThis monitor is based on the Telegraf win_services plugin.  More information about the Telegraf plugin\ncan be found [here](https://github.com/influxdata/telegraf/tree/master/plugins/inputs/win_services).\n\nSample YAML configuration:\n\n```yaml\nmonitors:\n - type: telegraf/win_services  # monitor all services\n```\n\n```yaml\nmonitors:\n - type: telegraf/win_services\n   serviceNames:\n     - exampleService1  # only monitor exampleService1\n```\n",
       "package": "internal/monitors/telegraf/monitors/winservices",
       "fields": [
         {
@@ -13000,12 +14023,12 @@
         {
           "name": "win_services.startup_mode",
           "type": "gauge",
-          "description": "The startup mode configured for the service: 0 `boot start`, 1 `system start`, 2 `auto start`, 3 `demand start`, or 4 `disabled`"
+          "description": "The configured start up mode of the window windows service.  Possible values are: `0` (Boot Start), `1` (System Start), `2` (Auto Start), `3` (Demand Start), `4` (disabled)."
         },
         {
           "name": "win_services.state",
           "type": "gauge",
-          "description": "The current state of the service: 1 `stopped`, 2 `start pending`, 3 `stop pending`, 4 `running`, 5 `continue pending`, 6 `pause pending`, or 7 `paused`"
+          "description": "The state of the windows service.  Possible values are: `1` (Stopped), `2` (Start Pending), `3` (Stop Pending), `4` (Running), `5` (Continue Pending), `6` (Pause Pending), and `7` (Paused)."
         }
       ],
       "properties": null
@@ -13049,7 +14072,92 @@
     },
     {
       "name": "Config",
-      "doc": "\nThis monitor reports metrics for Windows Internet Information Services.\nIt is used to drive the Windows IIS dashboard content.\n\n## Windows Performance Counters\nThe underlying source for these metrics are Windows Performance Counters.\nMost of the performance counters that we query in this monitor are actually Gauges\nthat represent rates per second and percentages.\n\nThis monitor reports the instantaneous values for these Windows Performance Counters.\nThis means that in between a collection interval, spikes could occur on the\nPerformance Counters.  The best way to mitigate this limitation is to increase\nthe reporting interval on this monitor to collect more frequently.\n\nSample YAML configuration:\n\n```yaml\nmonitors:\n - type: windows-iis\n```\n",
+      "doc": " Collects information about the virtual memory\nsubsystem of the kernel.\n\nOn Linux hosts, this monitor relies on the `/proc` filesystem.\nIf the underlying host's `/proc` file system is mounted somewhere other than\n/proc please specify the path using the top level configuration `procPath`.\n\n```yaml\nprocPath: /proc\nmonitors:\n - type: vmem\n```\n",
+      "package": "internal/monitors/vmem",
+      "fields": [
+        {
+          "yamlName": "counterRefreshInterval",
+          "doc": "(Windows Only) The frequency that wildcards in counter paths should be expanded and how often to refresh counters from configuration. This is expressed as a duration.",
+          "default": "60s",
+          "required": false,
+          "type": "int64",
+          "elementKind": ""
+        },
+        {
+          "yamlName": "printValid",
+          "doc": "(Windows Only) Print out the configurations that match available performance counters.  This used for debugging.",
+          "default": false,
+          "required": false,
+          "type": "bool",
+          "elementKind": ""
+        }
+      ],
+      "monitorType": "vmem",
+      "acceptsEndpoints": false,
+      "singleInstance": true,
+      "dimensions": null,
+      "metrics": [
+        {
+          "name": "vmpage.swap.in_per_second",
+          "type": "gauge",
+          "description": "(Windows Only)"
+        },
+        {
+          "name": "vmpage.swap.out_per_second",
+          "type": "gauge",
+          "description": "(Windows Only)"
+        },
+        {
+          "name": "vmpage.swap.total.per_second",
+          "type": "gauge",
+          "description": "(Windows Only)"
+        },
+        {
+          "name": "vmpage_faults.majflt",
+          "type": "cumulative",
+          "description": "(Linux Only) Number of major page faults on the system"
+        },
+        {
+          "name": "vmpage_faults.minflt",
+          "type": "cumulative",
+          "description": "(Linux Only) Number of minor page faults on the system"
+        },
+        {
+          "name": "vmpage_io.memory.in",
+          "type": "cumulative",
+          "description": "(Linux Only) Page Ins for Memory"
+        },
+        {
+          "name": "vmpage_io.memory.out",
+          "type": "cumulative",
+          "description": "(Linux Only) Page Outs for Memory"
+        },
+        {
+          "name": "vmpage_io.swap.in",
+          "type": "cumulative",
+          "description": "(Linux Only) Page Ins for Swap"
+        },
+        {
+          "name": "vmpage_io.swap.out",
+          "type": "cumulative",
+          "description": "(Linux Only) Page Outs for Swap"
+        },
+        {
+          "name": "vmpage_number.free_pages",
+          "type": "cumulative",
+          "description": "(Linux Only) Number of free memory pages"
+        },
+        {
+          "name": "vmpage_number.mapped",
+          "type": "cumulative",
+          "description": "(Linux Only) Number of mapped pages"
+        }
+      ],
+      "properties": null
+    },
+    {
+      "name": "Config",
+      "doc": "\n(Windows Only) This monitor reports metrics for Windows Internet Information Services.\nIt is used to drive the Windows IIS dashboard content.\n\n## Windows Performance Counters\nThe underlying source for these metrics are Windows Performance Counters.\nMost of the performance counters that we query in this monitor are actually Gauges\nthat represent rates per second and percentages.\n\nThis monitor reports the instantaneous values for these Windows Performance Counters.\nThis means that in between a collection interval, spikes could occur on the\nPerformance Counters.  The best way to mitigate this limitation is to increase\nthe reporting interval on this monitor to collect more frequently.\n\nSample YAML configuration:\n\n```yaml\nmonitors:\n - type: windows-iis\n```\n",
       "package": "internal/monitors/windowsiis",
       "fields": [
         {
@@ -13171,13 +14279,198 @@
         },
         {
           "name": "web_service.service_uptime",
-          "type": "counter",
+          "type": "gauge",
           "description": "Service uptime"
         },
         {
           "name": "web_service.total_method_requests_sec",
           "type": "gauge",
           "description": "Rate at which all HTTP requests are received"
+        }
+      ],
+      "properties": null
+    },
+    {
+      "name": "Config",
+      "doc": "\n(Windows Only) This monitor reports metrics for Windows system Performance Counters.\nThe metric names are intended to match what was originally reported by\nthe SignalFx [PerfCounterReporter](https://github.com/signalfx/PerfCounterReporter)\nThe metric types are all gauges as originally reported by the PerfCounterReporter.\n\n## Windows Performance Counters\nThe underlying source for these metrics are Windows Performance Counters.\nMost of the performance counters that we query in this monitor are actually\nrates per second and percentages that we report as instantaneous Gauge values\neach collection interval.\n\nSample YAML configuration:\n\n```yaml\nmonitors:\n - type: windows-iis\n```\n",
+      "package": "internal/monitors/windowslegacy",
+      "fields": [
+        {
+          "yamlName": "counterRefreshInterval",
+          "doc": "(Windows Only) Number of seconds that wildcards in counter paths should be expanded and how often to refresh counters from configuration.",
+          "default": "60s",
+          "required": false,
+          "type": "int64",
+          "elementKind": ""
+        },
+        {
+          "yamlName": "printValid",
+          "doc": "(Windows Only) Print out the configurations that match available performance counters.  This used for debugging.",
+          "default": false,
+          "required": false,
+          "type": "bool",
+          "elementKind": ""
+        }
+      ],
+      "monitorType": "windows-legacy",
+      "acceptsEndpoints": false,
+      "singleInstance": true,
+      "dimensions": null,
+      "metrics": [
+        {
+          "name": "logicaldisk.disk_read_bytes_sec",
+          "type": "gauge",
+          "description": "The number of bytes read from disk per second."
+        },
+        {
+          "name": "logicaldisk.disk_reads_sec",
+          "type": "gauge",
+          "description": "The number of read operations per second."
+        },
+        {
+          "name": "logicaldisk.disk_transfers_sec",
+          "type": "gauge",
+          "description": "The number of transfers per second."
+        },
+        {
+          "name": "logicaldisk.disk_write_bytes_sec",
+          "type": "gauge",
+          "description": "The number of bytes written to disk per second."
+        },
+        {
+          "name": "logicaldisk.disk_writes_sec",
+          "type": "gauge",
+          "description": "The number of write operations per second."
+        },
+        {
+          "name": "logicaldisk.free_megabytes",
+          "type": "gauge",
+          "description": "The number of available megabytes."
+        },
+        {
+          "name": "logicaldisk.pct_free_space",
+          "type": "gauge",
+          "description": "The percentage of free disk space available."
+        },
+        {
+          "name": "memory.available_mbytes",
+          "type": "gauge",
+          "description": "Unused physical memory (not page file)."
+        },
+        {
+          "name": "memory.pages_input_sec",
+          "type": "gauge",
+          "description": "Reads from hard disk per second to resolve hard pages."
+        },
+        {
+          "name": "network_interface.bytes_received_sec",
+          "type": "gauge",
+          "description": "Bytes Received/sec is the rate at which bytes are received over each network adapter, including framing characters."
+        },
+        {
+          "name": "network_interface.bytes_sent_sec",
+          "type": "gauge",
+          "description": "Bytes Sent/sec is the rate at which bytes are sent over each network adapter, including framing characters."
+        },
+        {
+          "name": "network_interface.bytes_total_sec",
+          "type": "gauge",
+          "description": "The number of bytes sent and received over a specific network adapter, including framing characters."
+        },
+        {
+          "name": "network_interface.current_bandwidth",
+          "type": "gauge",
+          "description": "Current Bandwidth is an estimate of the current bandwidth of the network interface in bits per second (BPS)."
+        },
+        {
+          "name": "network_interface.outbound_discarded",
+          "type": "gauge",
+          "description": "The number of outbound packets discarded"
+        },
+        {
+          "name": "network_interface.packets_outbound_errors",
+          "type": "gauge",
+          "description": "The number of packets sent that encountered an error."
+        },
+        {
+          "name": "network_interface.packets_received_errors",
+          "type": "gauge",
+          "description": "The number of packets received that encountered an error."
+        },
+        {
+          "name": "network_interface.packets_received_sec",
+          "type": "gauge",
+          "description": "Tracking the packets received over time can give you a good indication of the typical use of the system's network."
+        },
+        {
+          "name": "network_interface.packets_sent_sec",
+          "type": "gauge",
+          "description": "The number of packets sent per second."
+        },
+        {
+          "name": "network_interface.received_discarded",
+          "type": "gauge",
+          "description": "The number of received packets discarded."
+        },
+        {
+          "name": "paging_file.pct_usage",
+          "type": "gauge",
+          "description": "Amount of Page File in use, which indicates the server is substituting disk space for memory."
+        },
+        {
+          "name": "paging_file.pct_usage_peak",
+          "type": "gauge",
+          "description": "Highest %Usage metric since the last time the server was restarted."
+        },
+        {
+          "name": "physicaldisk.avg_disk_sec_read",
+          "type": "gauge",
+          "description": "The average time, in milliseconds, of each read from disk."
+        },
+        {
+          "name": "physicaldisk.avg_disk_sec_transfer",
+          "type": "gauge",
+          "description": "The average time in milliseconds spent transfering data on disk."
+        },
+        {
+          "name": "physicaldisk.avg_disk_sec_write",
+          "type": "gauge",
+          "description": "The average time, in milliseconds, of each write to disk."
+        },
+        {
+          "name": "processor.interrupts_sec",
+          "type": "gauge",
+          "description": "Rate of processor interrupts per second."
+        },
+        {
+          "name": "processor.pct_privileged_time",
+          "type": "gauge",
+          "description": "Percentage of elapsed time the processor spends on privileged tasks."
+        },
+        {
+          "name": "processor.pct_processor_time",
+          "type": "gauge",
+          "description": "Percentage of elapsed time the processor spends executing non-idle threads."
+        },
+        {
+          "name": "processor.pct_user_time",
+          "type": "gauge",
+          "description": "Percentage of elapsed time the processor spends executing user threads."
+        },
+        {
+          "name": "system.context_switches_sec",
+          "type": "gauge",
+          "description": "Number of execution contexts switched in the last second, where \u003e6000 is poor, \u003c3000 is good, and \u003c1500 is excellent."
+        },
+        {
+          "name": "system.processor_queue_length",
+          "type": "gauge",
+          "description": "Number of threads waiting for CPU cycles, where \u003c 12 per CPU is good/fair, \u003c 8 is better, \u003c 4 is best"
+        },
+        {
+          "name": "system.system_calls_sec",
+          "type": "gauge",
+          "description": "The number of system calls being serviced by the CPU per second."
         }
       ],
       "properties": null
@@ -15002,6 +16295,46 @@
             }
           ]
         }
+      },
+      {
+        "yamlName": "procPath",
+        "doc": "Path to the host's `/proc` filesystem. This is useful for containerized environments.",
+        "default": "/proc",
+        "required": false,
+        "type": "string",
+        "elementKind": ""
+      },
+      {
+        "yamlName": "etcPath",
+        "doc": "Path to the host's `/etc` directory. This is useful for containerized environments.",
+        "default": "/etc",
+        "required": false,
+        "type": "string",
+        "elementKind": ""
+      },
+      {
+        "yamlName": "varPath",
+        "doc": "Path to the host's `/var` directory. This is useful for containerized environments.",
+        "default": "/var",
+        "required": false,
+        "type": "string",
+        "elementKind": ""
+      },
+      {
+        "yamlName": "runPath",
+        "doc": "Path to the host's `/run` directory. This is useful for containerized environments.",
+        "default": "/run",
+        "required": false,
+        "type": "string",
+        "elementKind": ""
+      },
+      {
+        "yamlName": "sysPath",
+        "doc": "Path to the host's `/sys` directory. This is useful for containerized environments.",
+        "default": "/sys",
+        "required": false,
+        "type": "string",
+        "elementKind": ""
       }
     ]
   }

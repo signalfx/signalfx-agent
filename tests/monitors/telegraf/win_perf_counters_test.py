@@ -114,7 +114,7 @@ def monitor_config(request):
 def test_win_perf_counters(monitor_config):
     measurement, config, include_total, metrics = monitor_config
     with run_agent(config) as [backend, get_output, _]:
-        assert wait_for(p(has_datapoint_with_dim, backend, "plugin", measurement)), (
+        assert wait_for(p(has_datapoint_with_dim, backend, "plugin", "telegraf-win_perf_counters")), (
             "Didn't get %s datapoints" % measurement
         )
         if include_total:

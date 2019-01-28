@@ -6,10 +6,12 @@ package metadata
 
 import (
 	"errors"
+	"fmt"
 
 	"github.com/signalfx/signalfx-agent/internal/core/config"
 	"github.com/signalfx/signalfx-agent/internal/monitors"
 	"github.com/signalfx/signalfx-agent/internal/monitors/collectd"
+	"github.com/signalfx/signalfx-agent/internal/utils/hostfs"
 )
 
 const monitorType = "collectd/signalfx-metadata"
@@ -42,14 +44,18 @@ func init() {
 type Config struct {
 	config.MonitorConfig `singleInstance:"true"`
 	WriteServerURL       string `yaml:"writeServerURL"`
+	// (Deprecated) Please set the agent configuration `procPath` instead of
+	// this monitor configuration option.
 	// The path to the proc filesystem. Useful to override in containerized
 	// environments.
 	ProcFSPath string `yaml:"procFSPath" default:"/proc"`
-	// Collect the cpu utilization per core, reported as `cpu.utilization_per_core`.
-	PerCoreCPUUtil bool `yaml:"perCoreCPUUtil"`
+	// (Deprecated) Please set the agent configuration `etcPath` instead of this
+	// monitor configuration option.
 	// The path to the main host config dir. Useful to override in
 	// containerized environments.
-	EtcPath string `yaml:"etcPath" default:"/etc"`
+	EtcPath string `yaml:"etcPath" default:""`
+	// Collect the cpu utilization per core, reported as `cpu.utilization_per_core`.
+	PerCoreCPUUtil bool `yaml:"perCoreCPUUtil"`
 	// A directory where the metadata plugin can persist the history of
 	// successful host metadata syncs so that host metadata is not sent
 	// redundantly.
@@ -99,6 +105,15 @@ type Monitor struct {
 // Configure configures and runs the plugin in collectd
 func (m *Monitor) Configure(conf *Config) error {
 	conf.WriteServerURL = collectd.MainInstance().WriteServerURL()
-
+	if conf.ProcFSPath != "" {
+		return fmt.Errorf("please set the `procPath` top level agent configuration instead of the monitor level configuration")
+	}
+	// get top level configuration for /proc path
+	conf.ProcFSPath = hostfs.HostProc()
+	if conf.EtcPath != "" {
+		return fmt.Errorf("Please set the `etcPath` top level agent configuration instead of the monitor level configuration")
+	}
+	// get top level configuraiton for /etc path
+	conf.EtcPath = hostfs.HostEtc()
 	return m.SetConfigurationAndRun(conf)
 }
