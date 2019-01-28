@@ -6,43 +6,16 @@ import (
 	"context"
 	"time"
 
-	"github.com/signalfx/golib/datapoint"
 	"github.com/signalfx/signalfx-agent/internal/monitors/telegraf/common/accumulator"
-	"github.com/signalfx/signalfx-agent/internal/monitors/telegraf/common/emitter/batchemitter"
-	"github.com/signalfx/signalfx-agent/internal/monitors/telegraf/common/measurement"
+	"github.com/signalfx/signalfx-agent/internal/monitors/telegraf/common/emitter/baseemitter"
 	"github.com/signalfx/signalfx-agent/internal/monitors/telegraf/monitors/winperfcounters"
 	"github.com/signalfx/signalfx-agent/internal/utils"
 )
 
 var metricNameMapping = map[string]string{
-	"Pages_Input_persec":  "vmpage.swap.in_per_second",
-	"Pages_Output_persec": "vmpage.swap.out_per_second",
-	"Pages_persec":        "vmpage.swap.total_per_second",
-}
-
-func (m *Monitor) processMeasurement(ms *measurement.Measurement) {
-	if len(ms.Fields) == 0 {
-		logger.Errorf("no fields on measurement '%s'", ms.Measurement)
-	}
-	dimensions := map[string]string{"plugin": monitorType}
-	for field, val := range ms.Fields {
-		metricName, ok := metricNameMapping[field]
-		if !ok {
-			logger.Errorf("unable to map field '%s' to a metricname while parsing measurement '%s'",
-				field, ms.Measurement)
-			continue
-		}
-
-		// parse metric value
-		var metricVal datapoint.Value
-		var err error
-		if metricVal, err = datapoint.CastMetricValue(val); err != nil {
-			logger.WithError(err).Errorf("failed to cast metric value for field '%s' on measurement '%s'", field, ms.Measurement)
-			continue
-		}
-
-		m.Output.SendDatapoint(datapoint.New(metricName, dimensions, metricVal, datapoint.Gauge, time.Time{}))
-	}
+	"win_memory.Pages_Input_persec":  "vmpage.swap.in_per_second",
+	"win_memory.Pages_Output_persec": "vmpage.swap.out_per_second",
+	"win_memory.Pages_persec":        "vmpage.swap.total_per_second",
 }
 
 // Configure and run the monitor on windows
@@ -75,7 +48,17 @@ func (m *Monitor) Configure(conf *Config) (err error) {
 	plugin := winperfcounters.GetPlugin(perfcounterConf)
 
 	// create batch emitter
-	emitter := batchemitter.NewEmitter(m.Output, logger)
+	emitter := baseemitter.NewEmitter(m.Output, logger)
+
+	// add metric map to rename metrics
+	emitter.RenameMetrics(metricNameMapping)
+
+	// Hard code the plugin name because the emitter will parse out the
+	// configured measurement name as plugin and that is confusing.
+	emitter.AddTag("plugin", monitorType)
+
+	// omit instance tags from dimensions
+	emitter.OmitTag("instance")
 
 	// create the accumulator
 	ac := accumulator.NewAccumulator(emitter)
@@ -83,17 +66,8 @@ func (m *Monitor) Configure(conf *Config) (err error) {
 	// gather metrics on the specified interval
 	utils.RunOnInterval(ctx, func() {
 		if err := plugin.Gather(ac); err != nil {
-			logger.Error(err)
+			logger.WithError(err).Errorf("unable to gather metrics from plugin")
 		}
-
-		// reset batch emitter
-		// NOTE: we can do this here because this emitter is on a single routine
-		// if that changes, make sure you lock the mutex on the batch emitter
-		for _, ms := range emitter.Measurements {
-			m.processMeasurement(ms)
-		}
-		emitter.Measurements = emitter.Measurements[:0]
-
 	}, time.Duration(conf.IntervalSeconds)*time.Second)
 
 	return nil
