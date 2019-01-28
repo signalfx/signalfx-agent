@@ -12424,6 +12424,14 @@
               "required": false,
               "type": "string",
               "elementKind": ""
+            },
+            {
+              "yamlName": "kvV2PollInterval",
+              "doc": "The polling interval for checking KV V2 secrets for a new version.  This can be any string value that can be parsed by https://golang.org/pkg/time/#ParseDuration.",
+              "default": "60s",
+              "required": false,
+              "type": "int64",
+              "elementKind": ""
             }
           ]
         }
@@ -13324,6 +13332,14 @@
                     "default": "",
                     "required": false,
                     "type": "string",
+                    "elementKind": ""
+                  },
+                  {
+                    "yamlName": "kvV2PollInterval",
+                    "doc": "The polling interval for checking KV V2 secrets for a new version.  This can be any string value that can be parsed by https://golang.org/pkg/time/#ParseDuration.",
+                    "default": "60s",
+                    "required": false,
+                    "type": "int64",
                     "elementKind": ""
                   }
                 ]
