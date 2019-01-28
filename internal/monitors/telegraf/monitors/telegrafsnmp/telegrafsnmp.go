@@ -3,6 +3,7 @@ package telegrafsnmp
 import (
 	"context"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/ulule/deepcopier"
@@ -169,8 +170,9 @@ func (m *Monitor) Configure(conf *Config) (err error) {
 	// create the emitter
 	em := baseemitter.NewEmitter(m.Output, logger)
 
-	// set a default plugin dimension
-	em.AddTag("plugin", "snmp")
+	// Hard code the plugin name because the emitter will parse out the
+	// configured measurement name as plugin and that is confusing.
+	em.AddTag("plugin", strings.Replace(monitorType, "/", "-", -1))
 
 	// create the accumulator
 	ac := accumulator.NewAccumulator(em)

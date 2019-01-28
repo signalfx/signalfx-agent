@@ -4,6 +4,7 @@ package winperfcounters
 
 import (
 	"context"
+	"strings"
 	"time"
 
 	telegrafInputs "github.com/influxdata/telegraf/plugins/inputs"
@@ -61,6 +62,10 @@ func (m *Monitor) Configure(conf *Config) error {
 
 	// create the emitter
 	emitter := baseemitter.NewEmitter(m.Output, logger)
+
+	// Hard code the plugin name because the emitter will parse out the
+	// configured measurement name as plugin and that is confusing.
+	emitter.AddTag("plugin", strings.Replace(monitorType, "/", "-", -1))
 
 	if conf.PCRMetricNames {
 		// set metric name replacements to match SignalFx PerfCounterReporter

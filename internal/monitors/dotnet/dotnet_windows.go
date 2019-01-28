@@ -4,6 +4,7 @@ package dotnet
 
 import (
 	"context"
+	"strings"
 	"time"
 
 	"github.com/signalfx/signalfx-agent/internal/monitors/telegraf/common/accumulator"
@@ -63,6 +64,10 @@ func (m *Monitor) Configure(conf *Config) error {
 
 	// create base emitter
 	emitter := baseemitter.NewEmitter(m.Output, logger)
+
+	// Hard code the plugin name because the emitter will parse out the
+	// configured measurement name as plugin and that is confusing.
+	emitter.AddTag("plugin", strings.Replace(monitorType, "/", "-", -1))
 
 	// set metric name replacements to match SignalFx PerfCounterReporter
 	emitter.AddMetricNameTransformation(winperfcounters.NewPCRMetricNamesTransformer())

@@ -2,6 +2,7 @@ package procstat
 
 import (
 	"context"
+	"strings"
 	"time"
 
 	"github.com/ulule/deepcopier"
@@ -79,8 +80,15 @@ var factory = telegrafInputs.Inputs["procstat"]
 func (m *Monitor) Configure(conf *Config) (err error) {
 	plugin := factory().(*telegrafPlugin.Procstat)
 
+	// create the emitter
+	em := baseemitter.NewEmitter(m.Output, logger)
+
+	// Hard code the plugin name because the emitter will parse out the
+	// configured measurement name as plugin and that is confusing.
+	em.AddTag("plugin", strings.Replace(monitorType, "/", "-", -1))
+
 	// create the accumulator
-	ac := accumulator.NewAccumulator(baseemitter.NewEmitter(m.Output, logger))
+	ac := accumulator.NewAccumulator(em)
 
 	// copy configurations to the plugin
 	if err = deepcopier.Copy(conf).To(plugin); err != nil {

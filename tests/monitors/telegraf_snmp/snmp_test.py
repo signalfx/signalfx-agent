@@ -31,4 +31,4 @@ def test_snmp():
         config = monitor_config.substitute(host=host)
 
         with run_agent(config) as [backend, _, _]:
-            assert wait_for(p(has_datapoint_with_dim, backend, "plugin", "snmp")), "didn't get database io datapoints"
+            assert wait_for(p(has_datapoint_with_dim, backend, "plugin", "telegraf-snmp")), "didn't get database io datapoints"

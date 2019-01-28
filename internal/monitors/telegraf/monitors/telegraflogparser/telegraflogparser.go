@@ -2,6 +2,7 @@ package telegraflogparser
 
 import (
 	"context"
+	"strings"
 	"time"
 
 	telegrafInputs "github.com/influxdata/telegraf/plugins/inputs"
@@ -107,7 +108,7 @@ func (m *Monitor) Configure(conf *Config) (err error) {
 
 	// Hard code the plugin name because the emitter will parse out the
 	// configured measurement name as plugin and that is confusing.
-	em.AddTag("plugin", "telegraf-logparser")
+	em.AddTag("plugin", strings.Replace(monitorType, "/", "-", -1))
 
 	// create the accumulator
 	ac := accumulator.NewAccumulator(em)
