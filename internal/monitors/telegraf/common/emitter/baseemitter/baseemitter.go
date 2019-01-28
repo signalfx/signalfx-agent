@@ -206,14 +206,14 @@ func (b *BaseEmitter) Add(measurement string, fields map[string]interface{},
 	originalMetricType string, t ...time.Time) {
 
 	// create a measurement
-	ms := measure.New(measurement, fields, tags, metricType, originalMetricType, t...)
+	// telegraf doc says that tags are owned by the calling plugin and they
+	// shouldn't be mutated.  So we copy the tags map
+	ms := measure.New(measurement, fields, utils.CloneStringMap(tags), metricType, originalMetricType, t...)
 
 	// apply transformation functions to the measurement
 	b.TransformMeasurement(ms)
 
 	for field, val := range ms.Fields {
-		// telegraf doc says that tags are owned by the calling plugin and they
-		// shouldn't be mutated.  So we copy the tags map
 		metricDims := utils.CloneAndFilterStringMapWithFunc(ms.Tags, b.FilterTags)
 
 		// add additional tags to the metricDims
