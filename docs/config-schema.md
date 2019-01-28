@@ -259,6 +259,7 @@ The **nested** `vault` config object has the following fields:
 | --- | --- | --- | --- |
 | `vaultAddr` | no | string | The Vault Address.  Can also be provided by the standard Vault envvar `VAULT_ADDR`.  This option takes priority over the envvar if provided. |
 | `vaultToken` | no | string | The Vault token, can also be provided by it the standard Vault envvar `VAULT_TOKEN`.  This option takes priority over the envvar if provided. |
+| `kvV2PollInterval` | no | int64 | The polling interval for checking KV V2 secrets for a new version.  This can be any string value that can be parsed by https://golang.org/pkg/time/#ParseDuration. (**default:** `"60s"`) |
 
 
 
@@ -342,5 +343,6 @@ where applicable:
     vault: 
       vaultAddr: 
       vaultToken: 
+      kvV2PollInterval: "60s"
 
 ```

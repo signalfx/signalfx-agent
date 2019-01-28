@@ -89,15 +89,17 @@ func (a *Agent) configure(conf *config.Config) {
 		a.ensureProfileServerRunning()
 	}
 
-	if a.writer != nil {
-		a.writer.Shutdown()
-	}
-	var err error
-	a.writer, err = writer.New(&conf.Writer, a.dpChan, a.eventChan, a.propertyChan, a.spanChan)
-	if err != nil {
-		// This is a catastrophic error if we can't write datapoints.
-		log.WithError(err).Error("Could not configure SignalFx datapoint writer, unable to start up")
-		os.Exit(4)
+	if a.lastConfig == nil || a.lastConfig.Writer.Hash() != conf.Writer.Hash() {
+		if a.writer != nil {
+			a.writer.Shutdown()
+		}
+		var err error
+		a.writer, err = writer.New(&conf.Writer, a.dpChan, a.eventChan, a.propertyChan, a.spanChan)
+		if err != nil {
+			// This is a catastrophic error if we can't write datapoints.
+			log.WithError(err).Error("Could not configure SignalFx datapoint writer, unable to start up")
+			os.Exit(4)
+		}
 	}
 
 	a.meta.InternalStatusHost = conf.InternalStatusHost

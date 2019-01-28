@@ -236,3 +236,35 @@ def test_vault_token_renewal():
             time.sleep(10)
 
             assert len(audit_token_renewals(get_audit_events())) >= 3, "token has renewed three times now"
+
+
+def test_vault_kv_poll_refetch():
+    """
+    Test the KV v2 token refetch operation
+    """
+    with run_vault() as [vault_client, get_audit_events]:
+        vault_client.write("secret/data/app", data={"env": "dev"})
+        with run_agent(
+            dedent(
+                f"""
+            intervalSeconds: 2
+            globalDimensions:
+               env: {{"#from": "vault:secret/data/app[data.env]"}}
+            configSources:
+              vault:
+                vaultToken: {vault_client.token}
+                vaultAddr: {vault_client.url}
+                kvV2PollInterval: 10s
+            monitors:
+             - type: collectd/uptime
+        """
+            )
+        ) as [backend, _, _]:
+            assert wait_for(p(has_datapoint, backend, dimensions={"env": "dev"}))
+
+            assert audit_read_paths(get_audit_events()) == ["secret/data/app"], "expected one read"
+
+            vault_client.write("secret/data/app", data={"env": "prod"})
+            assert wait_for(p(has_datapoint, backend, dimensions={"env": "prod"}))
+
+            assert "secret/metadata/app" in audit_read_paths(get_audit_events())

@@ -78,12 +78,17 @@ func (sc *SourceConfig) SourceInstances() (map[string]types.ConfigSource, error)
 		sc.Vault,
 	} {
 		if !reflect.ValueOf(csc).IsNil() {
+			err := defaults.Set(csc)
+			if err != nil {
+				panic("Could not set default on source config: " + err.Error())
+			}
+
 			if err := validation.ValidateStruct(csc); err != nil {
-				return nil, errors.WithMessage(err, "error initializing remote config sources")
+				return nil, errors.WithMessage(err, "error validating remote config sources")
 			}
 
 			if err := csc.Validate(); err != nil {
-				return nil, errors.WithMessage(err, fmt.Sprintf("error validating remote config"))
+				return nil, errors.WithMessage(err, fmt.Sprintf("error validating remote config sources"))
 			}
 
 			s, err := csc.New()
@@ -100,13 +105,15 @@ func parseSourceConfig(config []byte) (SourceConfig, error) {
 	var out struct {
 		Sources SourceConfig `yaml:"configSources"`
 	}
-	err := defaults.Set(&out.Sources)
-	if err != nil {
-		panic("Could not set default on source config: " + err.Error())
-	}
-	err = yaml.Unmarshal(config, &out)
+
+	err := yaml.Unmarshal(config, &out)
 	if err != nil {
 		return out.Sources, err
+	}
+
+	err = defaults.Set(&out.Sources)
+	if err != nil {
+		panic("Could not set default on source config: " + err.Error())
 	}
 
 	return out.Sources, nil
