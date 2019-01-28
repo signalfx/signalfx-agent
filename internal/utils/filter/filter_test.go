@@ -7,7 +7,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestStringFilter(t *testing.T) {
+func TestBasicStringFilter(t *testing.T) {
 	for _, tc := range []struct {
 		filter      []string
 		input       string
@@ -105,7 +105,7 @@ func TestStringFilter(t *testing.T) {
 			shouldMatch: false,
 		},
 	} {
-		f, err := NewStringFilter(tc.filter)
+		f, err := NewBasicStringFilter(tc.filter)
 		if tc.shouldError {
 			assert.NotNil(t, err, spew.Sdump(tc))
 		} else {

@@ -11,6 +11,12 @@ intervalSeconds: {"#from": "env:INTERVAL_SECONDS", default: 10}
 logging:
   level: {"#from": "env:LOG_LEVEL", default: "info"}
 
+etcPath: /hostfs/etc
+procPath: /hostfs/proc
+runPath: /hostfs/run
+varPath: /hostfs/var
+sysPath: /hostfs/sys
+
 # observers are what discover running services in the environment
 observers:
     # Enable the docker observer to discover other ECS tasks running on the
@@ -40,7 +46,6 @@ monitors:
   - type: collectd/protocols
   - type: collectd/signalfx-metadata
   - type: host-metadata
-    etcPath: /hostfs/etc
   - type: collectd/uptime
   - type: collectd/vmem
 

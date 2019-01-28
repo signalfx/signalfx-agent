@@ -6,47 +6,11 @@ import (
 	"context"
 	"time"
 
-	"github.com/signalfx/golib/datapoint"
 	"github.com/signalfx/signalfx-agent/internal/monitors/telegraf/common/accumulator"
-	"github.com/signalfx/signalfx-agent/internal/monitors/telegraf/common/emitter/batchemitter"
+	"github.com/signalfx/signalfx-agent/internal/monitors/telegraf/common/emitter/baseemitter"
 	"github.com/signalfx/signalfx-agent/internal/monitors/telegraf/monitors/winperfcounters"
-	"github.com/signalfx/signalfx-agent/internal/monitors/telegraf/monitors/winperfcounters/perfhelper"
 	"github.com/signalfx/signalfx-agent/internal/utils"
 )
-
-var metricMap = map[string]*perfhelper.MetricMapper{
-	// Web Service PerfCounters
-	// Connections
-	"web_service.current_connections":        {Name: "web_service.current_connections"},
-	"web_service.connection_attempts_persec": {Name: "web_service.connection_attempts_sec"},
-	// Requests
-	"web_service.post_requests_persec":         {Name: "web_service.post_requests_sec"},
-	"web_service.get_requests_persec":          {Name: "web_service.get_requests_sec"},
-	"web_service.total_method_requests_persec": {Name: "web_service.total_method_requests_sec"},
-	// Bytes Transferred
-	"web_service.bytes_received_persec": {Name: "web_service.bytes_received_sec"},
-	"web_service.bytes_sent_persec":     {Name: "web_service.bytes_sent_sec"},
-	// Files Transferred
-	"web_service.files_received_persec": {Name: "web_service.files_received_sec"},
-	"web_service.files_sent_persec":     {Name: "web_service.files_sent_sec"},
-	// Not Found Errors
-	"web_service.not_found_errors_persec": {Name: "web_service.not_found_errors_sec"},
-	// Users
-	"web_service.anonymous_users_persec":    {Name: "web_service.anonymous_users_sec"},
-	"web_service.nonanonymous_users_persec": {Name: "web_service.nonanonymous_users_sec"},
-	// Uptime
-	"web_service.service_uptime": {Name: "web_service.service_uptime", Type: datapoint.Counter},
-	// ISAPI requests
-	"web_service.isapi_extension_requests_persec": {Name: "web_service.isapi_extension_requests_sec"},
-	// Process PerfCounters
-	"process.handle_count":           {Name: "process.handle_count"},
-	"process.percent_processor_time": {Name: "process.pct_processor_time"},
-	"process.id_process":             {Name: "process.id_process"},
-	"process.private_bytes":          {Name: "process.private_bytes"},
-	"process.thread_count":           {Name: "process.thread_count"},
-	"process.virtual_bytes":          {Name: "process.virtual_bytes"},
-	"process.working_set":            {Name: "process.working_set"},
-}
 
 // Configure the monitor and kick off metric syncing
 func (m *Monitor) Configure(conf *Config) error {
@@ -122,7 +86,17 @@ func (m *Monitor) Configure(conf *Config) error {
 	plugin := winperfcounters.GetPlugin(perfcounterConf)
 
 	// create batch emitter
-	emitter := batchemitter.NewEmitter(m.Output, logger)
+	emitter := baseemitter.NewEmitter(m.Output, logger)
+
+	// Hard code the plugin name because the emitter will parse out the
+	// configured measurement name as plugin and that is confusing.
+	emitter.AddTag("plugin", monitorType)
+
+	// set metric name replacements to match SignalFx PerfCounterReporter
+	emitter.AddMetricNameTransformation(winperfcounters.NewPCRMetricNamesTransformer())
+
+	// sanitize the instance tag associated with windows perf counter metrics
+	emitter.AddMeasurementTransformation(winperfcounters.NewPCRInstanceTagTransformer())
 
 	// create the accumulator
 	ac := accumulator.NewAccumulator(emitter)
@@ -134,27 +108,9 @@ func (m *Monitor) Configure(conf *Config) error {
 	// gather metrics on the specified interval
 	utils.RunOnInterval(ctx, func() {
 		if err := plugin.Gather(ac); err != nil {
-			logger.Error(err)
+			logger.WithError(err).Errorf("an error occurred while gathering metrics from the plugin")
 		}
-
-		// process measurements retrieved from perf counter monitor
-		for _, e := range perfhelper.ProcessMeasurements(emitter.Measurements, metricMap, m.Output.SendDatapoint, monitorType, "instance") {
-			logger.Error(e.Error())
-		}
-
-		// reset batch emitter
-		// NOTE: we can do this here because this emitter is on a single routine
-		// if that changes, make sure you lock the mutex on the batch emitter
-		emitter.Measurements = emitter.Measurements[:0]
-
 	}, time.Duration(conf.IntervalSeconds)*time.Second)
 
 	return nil
-}
-
-// Shutdown stops the metric sync
-func (m *Monitor) Shutdown() {
-	if m.cancel != nil {
-		m.cancel()
-	}
 }

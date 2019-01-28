@@ -32,7 +32,7 @@ package windowsiis
 // GAUGE(web_service.nonanonymous_users_sec): Rate at which users are making
 // nonanonymous requests to the web service
 
-// COUNTER(web_service.service_uptime): Service uptime
+// GAUGE(web_service.service_uptime): Service uptime
 
 // GAUGE(web_service.isapi_extension_requests_sec): Rate of ISAPI extension
 // request processed simultaneously by the web service

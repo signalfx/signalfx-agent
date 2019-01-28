@@ -35,6 +35,11 @@ by the `-config` flag to the agent binary (`signalfx-agent`).
 | `bundleDir` | no | string | Path to the directory holding the agent dependencies.  This will normally be derived automatically. Overrides the envvar SIGNALFX_BUNDLE_DIR if set. |
 | `scratch` | no | any | This exists purely to give the user a place to put common yaml values to reference in other parts of the config file. |
 | `configSources` | no | [object (see below)](#configsources) | Configuration of remote config stores |
+| `procPath` | no | string | Path to the host's `/proc` filesystem. This is useful for containerized environments. (**default:** `"/proc"`) |
+| `etcPath` | no | string | Path to the host's `/etc` directory. This is useful for containerized environments. (**default:** `"/etc"`) |
+| `varPath` | no | string | Path to the host's `/var` directory. This is useful for containerized environments. (**default:** `"/var"`) |
+| `runPath` | no | string | Path to the host's `/run` directory. This is useful for containerized environments. (**default:** `"/run"`) |
+| `sysPath` | no | string | Path to the host's `/sys` directory. This is useful for containerized environments. (**default:** `"/sys"`) |
 
 
 ## observers
@@ -344,5 +349,10 @@ where applicable:
       vaultAddr: 
       vaultToken: 
       kvV2PollInterval: "60s"
+  procPath: "/proc"
+  etcPath: "/etc"
+  varPath: "/var"
+  runPath: "/run"
+  sysPath: "/sys"
 
 ```

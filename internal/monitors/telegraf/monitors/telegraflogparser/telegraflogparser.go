@@ -2,6 +2,9 @@ package telegraflogparser
 
 import (
 	"context"
+	"strings"
+	"time"
+
 	telegrafInputs "github.com/influxdata/telegraf/plugins/inputs"
 	telegrafPlugin "github.com/influxdata/telegraf/plugins/inputs/logparser"
 	"github.com/signalfx/signalfx-agent/internal/core/config"
@@ -12,7 +15,6 @@ import (
 	"github.com/signalfx/signalfx-agent/internal/utils"
 	log "github.com/sirupsen/logrus"
 	"github.com/ulule/deepcopier"
-	"time"
 )
 
 const monitorType = "telegraf/logparser"
@@ -106,7 +108,7 @@ func (m *Monitor) Configure(conf *Config) (err error) {
 
 	// Hard code the plugin name because the emitter will parse out the
 	// configured measurement name as plugin and that is confusing.
-	em.AddTag("plugin", "telegraf-logparser")
+	em.AddTag("plugin", strings.Replace(monitorType, "/", "-", -1))
 
 	// create the accumulator
 	ac := accumulator.NewAccumulator(em)
@@ -119,7 +121,7 @@ func (m *Monitor) Configure(conf *Config) (err error) {
 	// look for new files to tail on the defined interval
 	utils.RunOnInterval(ctx, func() {
 		if err := m.plugin.Gather(ac); err != nil {
-			logger.Error(err)
+			logger.WithError(err).Errorf("an error occurred while gathering metrics")
 		}
 	}, time.Duration(conf.IntervalSeconds)*time.Second)
 
@@ -128,9 +130,11 @@ func (m *Monitor) Configure(conf *Config) (err error) {
 
 // Shutdown stops the metric sync
 func (m *Monitor) Shutdown() {
-	if m.plugin != nil {
+	if m.cancel != nil {
 		// stop the collection interval
 		m.cancel()
+	}
+	if m.plugin != nil {
 		// stop the telegraf plugin
 		m.plugin.Stop()
 	}

@@ -5,9 +5,12 @@ package processes
 //go:generate collectd-template-to-go processes.tmpl
 
 import (
+	"fmt"
+
 	"github.com/signalfx/signalfx-agent/internal/core/config"
 	"github.com/signalfx/signalfx-agent/internal/monitors"
 	"github.com/signalfx/signalfx-agent/internal/monitors/collectd"
+	"github.com/signalfx/signalfx-agent/internal/utils/hostfs"
 )
 
 const monitorType = "collectd/processes"
@@ -21,6 +24,8 @@ const monitorType = "collectd/processes"
 // Example:
 //
 // ```yaml
+//  procPath: /proc
+//  monitors:
 //   - type: collectd/processes
 //     processes:
 //       - mysql
@@ -55,9 +60,11 @@ type Config struct {
 	ProcessMatch map[string]string `yaml:"processMatch"`
 	// Collect metrics on the number of context switches made by the process
 	CollectContextSwitch bool `yaml:"collectContextSwitch" default:"false"`
+	// (Deprecated) Please set the agent configuration `procPath` instead of
+	// this monitor configuration option.
 	// The path to the proc filesystem -- useful to override if the agent is
 	// running in a container.
-	ProcFSPath string `yaml:"procFSPath" default:"/proc"`
+	ProcFSPath string `yaml:"procFSPath" default:""`
 }
 
 // Validate will check the config for correctness.
@@ -72,5 +79,10 @@ type Monitor struct {
 
 // Configure configures and runs the plugin in collectd
 func (am *Monitor) Configure(conf *Config) error {
+	if conf.ProcFSPath != "" {
+		return fmt.Errorf("Please set the `procPath` top level agent configuration instead of the monitor level configuration")
+	}
+	// get top level configuration for /proc path
+	conf.ProcFSPath = hostfs.HostProc()
 	return am.SetConfigurationAndRun(conf)
 }

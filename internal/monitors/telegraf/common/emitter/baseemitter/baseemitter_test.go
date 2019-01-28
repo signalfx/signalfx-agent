@@ -10,22 +10,26 @@ import (
 
 	"github.com/signalfx/golib/datapoint"
 	"github.com/signalfx/golib/event"
+	measure "github.com/signalfx/signalfx-agent/internal/monitors/telegraf/common/measurement"
 	"github.com/signalfx/signalfx-agent/internal/neotest"
 	log "github.com/sirupsen/logrus"
 )
 
 func TestImmediateEmitter_Emit(t *testing.T) {
 	type args struct {
-		measurement        string
-		fields             map[string]interface{}
-		tags               map[string]string
-		metricType         datapoint.MetricType
-		originalMetricType string
-		t                  []time.Time
-		includeEvent       []string
-		excludeData        []string
-		excludeTag         []string
-		addTag             map[string]string
+		measurement                string
+		fields                     map[string]interface{}
+		tags                       map[string]string
+		metricType                 datapoint.MetricType
+		originalMetricType         string
+		t                          []time.Time
+		includeEvent               []string
+		excludeData                []string
+		excludeTag                 []string
+		addTag                     map[string]string
+		nameMap                    map[string]string
+		metricNameTransformations  []func(metricName string) string
+		measurementTransformations []func(*measure.Measurement) error
 	}
 	ts := time.Now()
 	tests := []struct {
@@ -278,6 +282,95 @@ func TestImmediateEmitter_Emit(t *testing.T) {
 			wantEvents:     nil,
 			wantDatapoints: nil,
 		},
+		{
+			name: "rename datapoint using metric name map",
+			args: args{
+				measurement: "name",
+				fields: map[string]interface{}{
+					"fieldname": 5,
+				},
+				tags: map[string]string{
+					"dim1Key": "dim1Val",
+				},
+				metricType: datapoint.Gauge,
+				t:          []time.Time{ts},
+				nameMap: map[string]string{
+					"name.fieldname": "alt_name.fieldname",
+				},
+			},
+			wantDatapoints: []*datapoint.Datapoint{
+				datapoint.New(
+					"alt_name.fieldname",
+					map[string]string{
+						"dim1Key": "dim1Val",
+						"plugin":  "name",
+					},
+					datapoint.NewIntValue(int64(5)),
+					datapoint.Gauge,
+					ts),
+			},
+		},
+		{
+			name: "apply metric name transformation function",
+			args: args{
+				measurement: "name",
+				fields: map[string]interface{}{
+					"fieldname": 5,
+				},
+				tags: map[string]string{
+					"dim1Key": "dim1Val",
+				},
+				metricType: datapoint.Gauge,
+				t:          []time.Time{ts},
+				metricNameTransformations: []func(metricName string) string{
+					func(metricName string) string {
+						return fmt.Sprintf("transformed.%s", metricName)
+					},
+				},
+			},
+			wantDatapoints: []*datapoint.Datapoint{
+				datapoint.New(
+					"transformed.name.fieldname",
+					map[string]string{
+						"dim1Key": "dim1Val",
+						"plugin":  "name",
+					},
+					datapoint.NewIntValue(int64(5)),
+					datapoint.Gauge,
+					ts),
+			},
+		},
+		{
+			name: "apply measurement transformation function",
+			args: args{
+				measurement: "name",
+				fields: map[string]interface{}{
+					"fieldname": 5,
+				},
+				tags: map[string]string{
+					"dim1Key": "dim1Val",
+				},
+				metricType: datapoint.Gauge,
+				t:          []time.Time{ts},
+				measurementTransformations: []func(*measure.Measurement) error{
+					func(m *measure.Measurement) error {
+						m.Fields["fieldname"] = 55
+						return nil
+					},
+				},
+			},
+			wantDatapoints: []*datapoint.Datapoint{
+				datapoint.New(
+					"name.fieldname",
+					map[string]string{
+						"dim1Key": "dim1Val",
+						"plugin":  "name",
+					},
+					datapoint.NewIntValue(int64(55)),
+					datapoint.Gauge,
+					ts),
+			},
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -288,9 +381,11 @@ func TestImmediateEmitter_Emit(t *testing.T) {
 			I.IncludeEvents(tt.args.includeEvent)
 			I.ExcludeData(tt.args.excludeData)
 			I.OmitTags(tt.args.excludeTag)
+			I.RenameMetrics(tt.args.nameMap)
+			I.AddMetricNameTransformations(tt.args.metricNameTransformations)
+			I.AddMeasurementTransformations(tt.args.measurementTransformations)
 			I.Add(tt.args.measurement, tt.args.fields, tt.args.tags,
 				tt.args.metricType, tt.args.originalMetricType, tt.args.t...)
-
 			dps := out.FlushDatapoints()
 			if !reflect.DeepEqual(dps, tt.wantDatapoints) {
 				t.Errorf("actual output: datapoints %v does not match desired: %v", dps, tt.wantDatapoints)

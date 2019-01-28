@@ -2,8 +2,15 @@ from functools import partial as p
 import pytest
 import string
 
-from helpers.util import wait_for, run_agent, run_container, container_ip
-from helpers.assertions import tcp_socket_open, has_datapoint_with_dim
+from helpers.assertions import has_any_metric_or_dim, has_log_message, tcp_socket_open
+from helpers.util import (
+    container_ip,
+    get_monitor_dims_from_selfdescribe,
+    get_monitor_metrics_from_selfdescribe,
+    run_agent,
+    run_container,
+    wait_for,
+)
 
 pytestmark = [pytest.mark.telegraf, pytest.mark.sqlserver, pytest.mark.monitor_with_endpoints]
 
@@ -22,6 +29,8 @@ monitors:
 
 @pytest.mark.parametrize("image", ["microsoft/mssql-server-linux:2017-latest"])
 def test_sql(image):
+    expected_metrics = get_monitor_metrics_from_selfdescribe("telegraf/sqlserver")
+    expected_dims = get_monitor_dims_from_selfdescribe("telegraf/sqlserver")
     with run_container(
         image, environment={"ACCEPT_EULA": "Y", "MSSQL_PID": "Developer", "SA_PASSWORD": "P@ssw0rd!"}
     ) as test_container:
@@ -29,19 +38,8 @@ def test_sql(image):
         config = monitor_config.substitute(host=host)
         assert wait_for(p(tcp_socket_open, host, 1433), 60), "service not listening on port"
 
-        with run_agent(config) as [backend, _, _]:
+        with run_agent(config) as [backend, get_output, _]:
             assert wait_for(
-                p(has_datapoint_with_dim, backend, "plugin", "sqlserver_database_io")
-            ), "didn't get database io datapoints"
-            assert wait_for(
-                p(has_datapoint_with_dim, backend, "plugin", "sqlserver_waitstats")
-            ), "didn't get waitstats datapoints"
-            assert wait_for(
-                p(has_datapoint_with_dim, backend, "plugin", "sqlserver_memory_clerks")
-            ), "didn't get datapoints"
-            assert wait_for(
-                p(has_datapoint_with_dim, backend, "plugin", "sqlserver_performance")
-            ), "didn't get performance datapoints"
-            assert wait_for(
-                p(has_datapoint_with_dim, backend, "plugin", "sqlserver_server_properties")
-            ), "didn't get performance datapoints"
+                p(has_any_metric_or_dim, backend, expected_metrics, expected_dims), timeout_seconds=60
+            ), "timed out waiting for metrics and/or dimensions!"
+            assert not has_log_message(get_output().lower(), "error"), "error found in agent output!"

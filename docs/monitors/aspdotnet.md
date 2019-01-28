@@ -48,18 +48,18 @@ The following table lists the metrics available for this monitor. Metrics that a
 
 | Name | Type | Custom | Description |
 | ---  | ---  | ---    | ---         |
-| `asp_net.application_restarts` | counter | X | Count of ASP.NET application restarts. |
+| `asp_net.application_restarts` | gauge | X | Count of ASP.NET application restarts. |
 | `asp_net.applications_running` | gauge | X | Number of running ASP.NET applications. |
 | `asp_net.requests_current` | gauge | X | Current number of ASP.NET requests. |
 | `asp_net.requests_queue` | gauge | X | Number of queued ASP.NET requests. |
-| `asp_net.requests_rejected` | counter | X | Count of rejected ASP.NET requests. |
-| `asp_net.worker_process_restarts` | counter | X | Count of ASP.NET worker process restarts. |
+| `asp_net.requests_rejected` | gauge | X | Count of rejected ASP.NET requests. |
+| `asp_net.worker_process_restarts` | gauge | X | Count of ASP.NET worker process restarts. |
 | `asp_net.worker_processes_running` | gauge | X | Number of running ASP.NET worker processes. |
-| `asp_net_applications.errors_during_execution` | counter | X | Count of errors encountered by ASP.NET application durring execution. |
+| `asp_net_applications.errors_during_execution` | gauge | X | Count of errors encountered by ASP.NET application durring execution. |
 | `asp_net_applications.errors_total_sec` | gauge | X | Error rate per second for the given ASP.NET application. |
 | `asp_net_applications.errors_unhandled_during_execution_sec` | gauge | X | Unhandled error rate per second countered while an ASP.NET application is running. |
 | `asp_net_applications.pipeline_instance_count` | gauge | X | Number of instances in the ASP.NET application pipeline. |
-| `asp_net_applications.requests_failed` | counter | X | Count of failed requests in the ASP.NET application |
+| `asp_net_applications.requests_failed` | gauge | X | Count of failed requests in the ASP.NET application |
 | `asp_net_applications.requests_sec` | gauge | X | Rate of requests in the ASP.NET application per second. |
 | `asp_net_applications.session_sql_server_connections_total` | gauge | X | Number of connections to microsoft sql server by an ASP.NET application. |
 | `asp_net_applications.sessions_active` | gauge | X | Number of active sessions in the ASP.NET application. |

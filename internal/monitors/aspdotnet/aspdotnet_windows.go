@@ -4,33 +4,14 @@ package aspdotnet
 
 import (
 	"context"
+	"strings"
 	"time"
 
-	"github.com/signalfx/golib/datapoint"
 	"github.com/signalfx/signalfx-agent/internal/monitors/telegraf/common/accumulator"
-	"github.com/signalfx/signalfx-agent/internal/monitors/telegraf/common/emitter/batchemitter"
+	"github.com/signalfx/signalfx-agent/internal/monitors/telegraf/common/emitter/baseemitter"
 	"github.com/signalfx/signalfx-agent/internal/monitors/telegraf/monitors/winperfcounters"
-	"github.com/signalfx/signalfx-agent/internal/monitors/telegraf/monitors/winperfcounters/perfhelper"
 	"github.com/signalfx/signalfx-agent/internal/utils"
 )
-
-var metricMap = map[string]*perfhelper.MetricMapper{
-	"asp_net.application_restarts":                                  {Name: "asp_net.application_restarts", Type: datapoint.Counter},
-	"asp_net.applications_running":                                  {Name: "asp_net.applications_running"},
-	"asp_net.requests_current":                                      {Name: "asp_net.requests_current"},
-	"asp_net.requests_queued":                                       {Name: "asp_net.requests_queued"},
-	"asp_net.requests_rejected":                                     {Name: "asp_net.requests_rejected", Type: datapoint.Counter},
-	"asp_net.worker_process_restarts":                               {Name: "asp_net.worker_process_restarts", Type: datapoint.Counter},
-	"asp_net.worker_processes_running":                              {Name: "asp_net.worker_processes_running"},
-	"asp_net_applications.errors_during_execution":                  {Name: "asp_net_applications.errors_during_execution", Type: datapoint.Counter},
-	"asp_net_applications.errors_total_persec":                      {Name: "asp_net_applications.errors_total_sec"},
-	"asp_net_applications.errors_unhandled_during_execution_persec": {Name: "asp_net_applications.errors_unhandled_during_execution_sec"},
-	"asp_net_applications.pipeline_instance_count":                  {Name: "asp_net_applications.pipeline_instance_count"},
-	"asp_net_applications.requests_failed":                          {Name: "asp_net_applications.requests_failed", Type: datapoint.Counter},
-	"asp_net_applications.requests_persec":                          {Name: "asp_net_applications.requests_sec"},
-	"asp_net_applications.session_sql_server_connections_total":     {Name: "asp_net_applications.session_sql_server_connections_total"},
-	"asp_net_applications.sessions_active":                          {Name: "asp_net_applications.sessions_active"},
-}
 
 // Configure the monitor and kick off metric syncing
 func (m *Monitor) Configure(conf *Config) error {
@@ -77,7 +58,20 @@ func (m *Monitor) Configure(conf *Config) error {
 	plugin := winperfcounters.GetPlugin(perfcounterConf)
 
 	// create batch emitter
-	emitter := batchemitter.NewEmitter(m.Output, logger)
+	emitter := baseemitter.NewEmitter(m.Output, logger)
+
+	// create base emitter
+	emitter = baseemitter.NewEmitter(m.Output, logger)
+
+	// Hard code the plugin name because the emitter will parse out the
+	// configured measurement name as plugin and that is confusing.
+	emitter.AddTag("plugin", strings.Replace(monitorType, "/", "-", -1))
+
+	// set metric name replacements to match SignalFx PerfCounterReporter
+	emitter.AddMetricNameTransformation(winperfcounters.NewPCRMetricNamesTransformer())
+
+	// sanitize the instance tag associated with windows perf counter metrics
+	emitter.AddMeasurementTransformation(winperfcounters.NewPCRInstanceTagTransformer())
 
 	// create the accumulator
 	ac := accumulator.NewAccumulator(emitter)
@@ -89,27 +83,9 @@ func (m *Monitor) Configure(conf *Config) error {
 	// gather metrics on the specified interval
 	utils.RunOnInterval(ctx, func() {
 		if err := plugin.Gather(ac); err != nil {
-			logger.Error(err)
+			logger.WithError(err).Errorf("an error occurred while gathering metrics from the plugin")
 		}
-
-		// process measurements retrieved from perf counter monitor
-		for _, e := range perfhelper.ProcessMeasurements(emitter.Measurements, metricMap, m.Output.SendDatapoint, monitorType, "instance") {
-			logger.Error(e.Error())
-		}
-
-		// reset batch emitter
-		// NOTE: we can do this here because this emitter is on a single routine
-		// if that changes, make sure you lock the mutex on the batch emitter
-		emitter.Measurements = emitter.Measurements[:0]
-
 	}, time.Duration(conf.IntervalSeconds)*time.Second)
 
 	return nil
-}
-
-// Shutdown stops the metric sync
-func (m *Monitor) Shutdown() {
-	if m.cancel != nil {
-		m.cancel()
-	}
 }

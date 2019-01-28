@@ -22,4 +22,4 @@ def test_telegraf_procstat():
         assert wait_for(
             p(has_datapoint_with_metric_name, backend, "procstat.cpu_usage")
         ), "no cpu usage datapoint found for process"
-        assert wait_for(p(has_datapoint_with_dim, backend, "plugin", "procstat")), "plugin dimension not set"
+        assert wait_for(p(has_datapoint_with_dim, backend, "plugin", "telegraf-procstat")), "plugin dimension not set"
