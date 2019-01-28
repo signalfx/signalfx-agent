@@ -16,6 +16,7 @@ import (
 	"github.com/signalfx/gateway/logkey"
 	"github.com/signalfx/gateway/protocol"
 	"github.com/signalfx/gateway/protocol/collectd"
+	"github.com/signalfx/gateway/protocol/signalfx/tagreplace"
 	"github.com/signalfx/gateway/protocol/zipper"
 	"github.com/signalfx/golib/datapoint"
 	"github.com/signalfx/golib/datapoint/dpsink"
@@ -92,23 +93,25 @@ func (e *ErrorTrackerHandler) ServeHTTPC(ctx context.Context, rw http.ResponseWr
 
 // ListenerConfig controls optional parameters for the listener
 type ListenerConfig struct {
-	ListenAddr   *string
-	HealthCheck  *string
-	Timeout      *time.Duration
-	Logger       log.Logger
-	RootContext  context.Context
-	JSONMarshal  func(v interface{}) ([]byte, error)
-	DebugContext *web.HeaderCtxFlag
-	HTTPChain    web.NextConstructor
+	ListenAddr               *string
+	HealthCheck              *string
+	Timeout                  *time.Duration
+	Logger                   log.Logger
+	RootContext              context.Context
+	JSONMarshal              func(v interface{}) ([]byte, error)
+	DebugContext             *web.HeaderCtxFlag
+	HTTPChain                web.NextConstructor
+	SpanNameReplacementRules []string
 }
 
 var defaultListenerConfig = &ListenerConfig{
-	ListenAddr:  pointer.String("127.0.0.1:12345"),
-	HealthCheck: pointer.String("/healthz"),
-	Timeout:     pointer.Duration(time.Second * 30),
-	Logger:      log.Discard,
-	RootContext: context.Background(),
-	JSONMarshal: json.Marshal,
+	ListenAddr:               pointer.String("127.0.0.1:12345"),
+	HealthCheck:              pointer.String("/healthz"),
+	Timeout:                  pointer.Duration(time.Second * 30),
+	Logger:                   log.Discard,
+	RootContext:              context.Background(),
+	JSONMarshal:              json.Marshal,
+	SpanNameReplacementRules: []string{},
 }
 
 type metricHandler struct {
@@ -195,6 +198,15 @@ func NewListener(sink Sink, conf *ListenerConfig) (*ListenerServer, error) {
 	r.Handle("/v1/metric", &listenServer.metricHandler)
 	r.Handle("/metric", &listenServer.metricHandler)
 
+	traceSink := sink
+	if len(conf.SpanNameReplacementRules) > 0 {
+		var err error
+		traceSink, err = tagreplace.New(conf.SpanNameReplacementRules, sink)
+		if err != nil {
+			return nil, errors.Annotatef(err, "cannot parse tag replacement rules %v", conf.SpanNameReplacementRules)
+		}
+	}
+
 	listenServer.internalCollectors = sfxclient.NewMultiCollector(
 		setupNotFoundHandler(conf.RootContext, r),
 		setupProtobufV1(conf.RootContext, r, sink, &listenServer.metricHandler, conf.Logger, conf.HTTPChain),
@@ -204,8 +216,8 @@ func NewListener(sink Sink, conf *ListenerConfig) (*ListenerServer, error) {
 		setupJSONV2(conf.RootContext, r, sink, conf.Logger, conf.DebugContext, conf.HTTPChain),
 		setupJSONEventV2(conf.RootContext, r, sink, conf.Logger, conf.DebugContext, conf.HTTPChain),
 		setupCollectd(conf.RootContext, r, sink, conf.DebugContext, conf.HTTPChain, conf.Logger),
-		setupThriftTraceV1(conf.RootContext, r, sink, conf.Logger, conf.HTTPChain),
-		setupJSONTraceV1(conf.RootContext, r, sink, conf.Logger, conf.HTTPChain),
+		setupThriftTraceV1(conf.RootContext, r, traceSink, conf.Logger, conf.HTTPChain),
+		setupJSONTraceV1(conf.RootContext, r, traceSink, conf.Logger, conf.HTTPChain),
 	)
 
 	go func() {

@@ -106,6 +106,11 @@ func convertJaegerSpan(tSpan *jThrift.Span, tProcess *jThrift.Process) *trace.Sp
 	var ptrParentID *string
 	if tSpan.ParentSpanId != 0 {
 		ptrParentID = pointer.String(padID(strconv.FormatUint(uint64(tSpan.ParentSpanId), 16)))
+	} else {
+		refs := tSpan.GetReferences()
+		if len(refs) > 0 {
+			ptrParentID = pointer.String(padID(strconv.FormatUint(uint64(getPreferredParentRef(refs)), 16)))
+		}
 	}
 
 	localEndpoint := &trace.Endpoint{
@@ -147,6 +152,17 @@ func convertJaegerSpan(tSpan *jThrift.Span, tProcess *jThrift.Process) *trace.Sp
 		Tags:           tags,
 	}
 	return span
+}
+
+func getPreferredParentRef(refs []*jThrift.SpanRef) int64 {
+	preferredRef := refs[0]
+	for i := range refs {
+		if jThrift.SpanRefType_CHILD_OF == refs[i].RefType && jThrift.SpanRefType_CHILD_OF != preferredRef.RefType {
+			preferredRef = refs[i]
+			break
+		}
+	}
+	return preferredRef.SpanId
 }
 
 func convertJaegerLogs(logs []*jThrift.Log) []*trace.Annotation {

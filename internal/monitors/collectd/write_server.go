@@ -10,10 +10,10 @@ import (
 	"github.com/mailru/easyjson"
 	log "github.com/sirupsen/logrus"
 
+	"github.com/signalfx/gateway/protocol/collectd"
+	"github.com/signalfx/gateway/protocol/collectd/format"
 	"github.com/signalfx/golib/datapoint"
 	"github.com/signalfx/golib/event"
-	"github.com/signalfx/metricproxy/protocol/collectd"
-	"github.com/signalfx/metricproxy/protocol/collectd/format"
 	"github.com/signalfx/signalfx-agent/internal/utils/collectdutil"
 )
 
