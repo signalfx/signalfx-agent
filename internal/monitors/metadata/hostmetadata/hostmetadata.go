@@ -140,7 +140,7 @@ func (m *Monitor) ReportMetadataProperties() {
 			if err.Error() == errNotAWS {
 				logger.Debug(err)
 			} else {
-				logger.Error(err)
+				logger.WithError(err).Errorf("an error occurred while gathering metrics")
 			}
 			continue
 		}

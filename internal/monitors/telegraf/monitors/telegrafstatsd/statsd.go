@@ -127,7 +127,7 @@ func (m *Monitor) Configure(conf *Config) (err error) {
 	// gather metrics on the specified interval
 	utils.RunOnInterval(ctx, func() {
 		if err := m.plugin.Gather(ac); err != nil {
-			logger.Error(err)
+			logger.WithError(err).Errorf("an error occurred while gathering metrics")
 		}
 	}, time.Duration(conf.IntervalSeconds)*time.Second)
 

@@ -121,7 +121,7 @@ func (m *Monitor) Configure(conf *Config) (err error) {
 	// look for new files to tail on the defined interval
 	utils.RunOnInterval(ctx, func() {
 		if err := m.plugin.Gather(ac); err != nil {
-			logger.Error(err)
+			logger.WithError(err).Errorf("an error occurred while gathering metrics")
 		}
 	}, time.Duration(conf.IntervalSeconds)*time.Second)
 
