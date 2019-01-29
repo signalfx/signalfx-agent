@@ -43,7 +43,8 @@ func init() {
 type Config struct {
 	config.MonitorConfig `singleInstance:"false" acceptsEndpoints:"false"`
 
-	// Which devices to include/exclude
+	// Which devices to include/exclude. For more information on filtering see
+	// [Generic Filters](https://github.com/signalfx/signalfx-agent/blob/master/docs/filtering.md#generic-filters).
 	Disks []string `yaml:"disks" default:"[\"*\", \"!/^loop[0-9]+$/\", \"!/^dm-[0-9]+$/\"]"`
 }
 

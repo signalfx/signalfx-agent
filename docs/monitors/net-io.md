@@ -28,7 +28,7 @@ Monitor Type: `net-io`
 
 | Config option | Required | Type | Description |
 | --- | --- | --- | --- |
-| `interfaces` | no | `list of string` | The interfaces to include/exclude, is interpreted as a regex if surrounded by `/`. (**default:** `[* !/^lo\d*$/ !/^docker.*/ !/^t(un|ap)\d*$/ !/^veth.*$/ !/^Loopback*/]`) |
+| `interfaces` | no | `list of string` | The interfaces to include/exclude, is interpreted as a regex if surrounded by `/`.   For more information on filtering see [Generic Filters](https://github.com/signalfx/signalfx-agent/blob/master/docs/filtering.md#generic-filters). (**default:** `[* !/^lo\d*$/ !/^docker.*/ !/^t(un|ap)\d*$/ !/^veth.*$/ !/^Loopback*/]`) |
 
 
 
