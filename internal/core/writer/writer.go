@@ -23,6 +23,7 @@ import (
 	"github.com/signalfx/golib/trace"
 	"github.com/signalfx/signalfx-agent/internal/core/common/dpmeta"
 	"github.com/signalfx/signalfx-agent/internal/core/config"
+	"github.com/signalfx/signalfx-agent/internal/core/dpfilters"
 	"github.com/signalfx/signalfx-agent/internal/core/writer/tracetracker"
 	"github.com/signalfx/signalfx-agent/internal/monitors/types"
 	"github.com/signalfx/signalfx-agent/internal/utils"
@@ -54,7 +55,8 @@ type SignalFxWriter struct {
 	conf   *config.WriterConfig
 
 	// map that holds host-specific ids like AWSUniqueID
-	hostIDDims map[string]string
+	hostIDDims       map[string]string
+	datapointFilters *dpfilters.FilterSet
 
 	dpBufferPool   *sync.Pool
 	spanBufferPool *sync.Pool
@@ -80,10 +82,15 @@ type SignalFxWriter struct {
 func New(conf *config.WriterConfig, dpChan chan *datapoint.Datapoint, eventChan chan *event.Event,
 	propertyChan chan *types.DimProperties, spanChan chan *trace.Span) (*SignalFxWriter, error) {
 
+	dimPropClient, err := newDimensionPropertyClient(conf)
+	if err != nil {
+		return nil, err
+	}
+
 	sw := &SignalFxWriter{
 		conf:          conf,
 		client:        sfxclient.NewHTTPSink(),
-		dimPropClient: newDimensionPropertyClient(conf),
+		dimPropClient: dimPropClient,
 		hostIDDims:    conf.HostIDDims,
 		dpChan:        dpChan,
 		eventChan:     eventChan,
@@ -118,39 +125,44 @@ func New(conf *config.WriterConfig, dpChan chan *datapoint.Datapoint, eventChan 
 		TLSHandshakeTimeout: 10 * time.Second,
 	}
 
-	dpEndpointURL, err := conf.IngestURL.Parse("v2/datapoint")
+	dpEndpointURL, err := conf.ParsedIngestURL().Parse("v2/datapoint")
 	if err != nil {
 		log.WithFields(log.Fields{
 			"error":     err,
-			"ingestURL": conf.IngestURL.String(),
+			"ingestURL": conf.ParsedIngestURL().String(),
 		}).Error("Could not construct datapoint ingest URL")
 		return nil, err
 	}
 	sw.client.DatapointEndpoint = dpEndpointURL.String()
 
-	eventEndpointURL, err := conf.IngestURL.Parse("v2/event")
+	eventEndpointURL, err := conf.ParsedIngestURL().Parse("v2/event")
 	if err != nil {
 		log.WithFields(log.Fields{
 			"error":     err,
-			"ingestURL": conf.IngestURL.String(),
+			"ingestURL": conf.ParsedIngestURL().String(),
 		}).Error("Could not construct event ingest URL")
 		return nil, err
 	}
 	sw.client.EventEndpoint = eventEndpointURL.String()
 
-	traceEndpointURL := conf.TraceEndpointURL
+	traceEndpointURL := conf.ParsedTraceEndpointURL()
 	if traceEndpointURL == nil {
 		var err error
-		traceEndpointURL, err = conf.IngestURL.Parse("v1/trace")
+		traceEndpointURL, err = conf.ParsedIngestURL().Parse("v1/trace")
 		if err != nil {
 			log.WithFields(log.Fields{
 				"error":     err,
-				"ingestURL": conf.IngestURL.String(),
+				"ingestURL": conf.ParsedIngestURL().String(),
 			}).Error("Could not construct trace ingest URL")
 			return nil, err
 		}
 	}
 	sw.client.TraceEndpoint = traceEndpointURL.String()
+
+	sw.datapointFilters, err = sw.conf.DatapointFilters()
+	if err != nil {
+		return nil, err
+	}
 
 	go sw.listenForDatapoints()
 	go sw.listenForEventsAndDimProps()
@@ -160,7 +172,7 @@ func New(conf *config.WriterConfig, dpChan chan *datapoint.Datapoint, eventChan 
 }
 
 func (sw *SignalFxWriter) shouldSendDatapoint(dp *datapoint.Datapoint) bool {
-	return sw.conf.DatapointFilter == nil || !sw.conf.DatapointFilter.Matches(dp)
+	return sw.datapointFilters == nil || !sw.datapointFilters.Matches(dp)
 }
 
 func (sw *SignalFxWriter) preprocessDatapoint(dp *datapoint.Datapoint) {

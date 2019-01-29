@@ -79,13 +79,14 @@ type WriterConfig struct {
 	MaxTraceSpansInFlight uint `yaml:"maxTraceSpansInFlight" default:"100000"`
 	// The following are propagated from elsewhere
 	HostIDDims          map[string]string      `yaml:"-"`
-	IngestURL           *url.URL               `yaml:"-"`
-	APIURL              *url.URL               `yaml:"-"`
-	TraceEndpointURL    *url.URL               `yaml:"-"`
+	IngestURL           string                 `yaml:"-"`
+	APIURL              string                 `yaml:"-"`
+	TraceEndpointURL    string                 `yaml:"-"`
 	SignalFxAccessToken string                 `yaml:"-"`
 	GlobalDimensions    map[string]string      `yaml:"-"`
-	DatapointFilter     *dpfilters.FilterSet   `yaml:"-"`
-	PropertyFilter      *propfilters.FilterSet `yaml:"-"`
+	MetricsToInclude    []MetricFilter         `yaml:"-"`
+	MetricsToExclude    []MetricFilter         `yaml:"-"`
+	PropertiesToExclude []PropertyFilterConfig `yaml:"-"`
 }
 
 func (wc *WriterConfig) initialize() {
@@ -94,6 +95,46 @@ func (wc *WriterConfig) initialize() {
 	} else {
 		wc.DatapointMaxRequests = wc.MaxRequests
 	}
+}
+
+// ParsedIngestURL parses and returns the ingest URL
+func (wc *WriterConfig) ParsedIngestURL() *url.URL {
+	ingestURL, err := url.Parse(wc.IngestURL)
+	if err != nil {
+		panic("IngestURL was supposed to be validated already")
+	}
+	return ingestURL
+}
+
+// ParsedAPIURL parses and returns the API server URL
+func (wc *WriterConfig) ParsedAPIURL() *url.URL {
+	apiURL, err := url.Parse(wc.APIURL)
+	if err != nil {
+		panic("apiUrl was supposed to be validated already")
+	}
+	return apiURL
+}
+
+// ParsedTraceEndpointURL parses and returns the trace endpoint server URL
+func (wc *WriterConfig) ParsedTraceEndpointURL() *url.URL {
+	if wc.TraceEndpointURL != "" {
+		traceEndpointURL, err := url.Parse(wc.TraceEndpointURL)
+		if err != nil {
+			panic("traceEndpointUrl was supposed to be validated already")
+		}
+		return traceEndpointURL
+	}
+	return nil
+}
+
+// DatapointFilters creates the filter set for datapoints
+func (wc *WriterConfig) DatapointFilters() (*dpfilters.FilterSet, error) {
+	return makeFilterSet(wc.MetricsToExclude, wc.MetricsToInclude)
+}
+
+// PropertyFilters creates the filter set for dimension properties
+func (wc *WriterConfig) PropertyFilters() (*propfilters.FilterSet, error) {
+	return makePropertyFilterSet(wc.PropertiesToExclude)
 }
 
 // Hash calculates a unique hash value for this config struct
