@@ -10690,9 +10690,17 @@
     },
     {
       "name": "Config",
-      "doc": "\nThis monitor reports metrics about free disk space on mounted devices.\n\nOn Linux hosts, this monitor relies on the `/proc` filesystem.\nIf the underlying host's `/proc` file system is mounted somewhere other than\n/proc please specify the path using the top level configuration `procPath`.\n\n```yaml\nprocPath: /proc\nmonitors:\n - type: filesystems\n```\n",
+      "doc": "\nThis monitor reports metrics about free disk space on mounted devices.\n\nOn Linux hosts, this monitor relies on the `/proc` filesystem.\nIf the underlying host's `/proc` file system is mounted somewhere other than\n/proc please specify the path using the top level configuration `procPath`.\n\n```yaml\nprocPath: /hostfs/proc\nmonitors:\n - type: filesystems\n   hostFSPath: /hostfs\n```\n",
       "package": "internal/monitors/filesystems",
       "fields": [
+        {
+          "yamlName": "hostFSPath",
+          "doc": "Path to the root of the host filesystem.  Useful when running in a container and the host filesystem is mounted in some subdirectory under /.",
+          "default": "",
+          "required": false,
+          "type": "string",
+          "elementKind": ""
+        },
         {
           "yamlName": "fsTypes",
           "doc": "The filesystem types to include/exclude, is interpreted as a regex if surrounded by `/`.",
@@ -10734,6 +10742,14 @@
           "required": false,
           "type": "slice",
           "elementKind": "string"
+        },
+        {
+          "yamlName": "includeLogical",
+          "doc": "(Linux Only) If true, then metrics will be reported about logical devices.",
+          "default": false,
+          "required": false,
+          "type": "bool",
+          "elementKind": ""
         },
         {
           "yamlName": "reportByDevice",

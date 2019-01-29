@@ -31,9 +31,10 @@ var usage = gopsutil.Usage
 // /proc please specify the path using the top level configuration `procPath`.
 //
 // ```yaml
-// procPath: /proc
+// procPath: /hostfs/proc
 // monitors:
 //  - type: filesystems
+//    hostFSPath: /hostfs
 // ```
 
 var logger = log.WithFields(log.Fields{"monitorType": monitorType})
@@ -46,6 +47,11 @@ func init() {
 type Config struct {
 	config.MonitorConfig `singleInstance:"false" acceptsEndpoints:"false"`
 
+	// Path to the root of the host filesystem.  Useful when running in a
+	// container and the host filesystem is mounted in some subdirectory under
+	// /.
+	HostFSPath string `yaml:"hostFSPath"`
+
 	// The filesystem types to include/exclude, is interpreted as a regex if
 	// surrounded by `/`.
 	FSTypes []string `yaml:"fsTypes" default:"[\"*\", \"!aufs\", \"!overlay\", \"!tmpfs\", \"!proc\", \"!sysfs\", \"!nsfs\", \"!cgroup\", \"!devpts\", \"!selinuxfs\", \"!devtmpfs\", \"!debugfs\", \"!mqueue\", \"!hugetlbfs\", \"!securityfs\", \"!pstore\", \"!binfmt_misc\", \"!autofs\"]"`
@@ -54,13 +60,13 @@ type Config struct {
 	// surrounded by `/`.  Note that you need to include the full path as the
 	// agent will see it, irrespective of the hostFSPath option.
 	MountPoints []string `yaml:"mountPoints" default:"[\"*\", \"!/^/var/lib/docker/containers/\", \"!/^/var/lib/rkt/pods/\", \"!/^/net//\", \"!/^/smb//\", \"!/^/tmp/scratch/\"]"`
+	// (Linux Only) If true, then metrics will be reported about logical devices.
+	IncludeLogical bool `yaml:"includeLogical" default:"false"`
 	// If true, then metrics will report with their plugin_instance set to the
 	// device's name instead of the mountpoint.
 	ReportByDevice bool `yaml:"reportByDevice" default:"false"`
 	// (Linux Only) If true metrics will be reported about inodes.
 	ReportInodes bool `yaml:"reportInodes" default:"false"`
-	// (Linux Only) If true, then metrics will be reported about logical devices.
-	IncludeLogical bool `yaml:"includeLogical" default:"false"`
 }
 
 // Monitor for Utilization
@@ -68,6 +74,7 @@ type Monitor struct {
 	Output      types.Output
 	cancel      func()
 	conf        *Config
+	hostFSPath  string
 	fsTypes     *filter.ExhaustiveStringFilter
 	mountPoints *filter.ExhaustiveStringFilter
 }
@@ -78,6 +85,10 @@ func (m *Monitor) getCommonDimensions(partition *gopsutil.PartitionStat) map[str
 		"mountpoint":      strings.Replace(partition.Mountpoint, " ", "_", -1),
 		"device":          strings.Replace(partition.Device, " ", "_", -1),
 		"plugin_instance": "",
+	}
+	if m.hostFSPath != "" {
+		// strip configured hostFSPath from mountpoint
+		dims["mountpoint"] = strings.Replace(partition.Mountpoint, m.hostFSPath, "", 1)
 	}
 	if m.conf.ReportByDevice {
 		dims["plugin_instance"] = dims["device"]
@@ -202,6 +213,10 @@ func (m *Monitor) Configure(conf *Config) error {
 	if err != nil {
 		return err
 	}
+
+	// strip trailing / from HostFSPath so when we do string replacement later
+	// we are left with a path starting at /
+	m.hostFSPath = strings.TrimRight(m.conf.HostFSPath, "/")
 
 	// configure filters
 	if len(m.conf.MountPoints) == 0 {
