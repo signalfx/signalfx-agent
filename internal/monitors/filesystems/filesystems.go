@@ -84,9 +84,13 @@ type Monitor struct {
 // returns common dimensions map according to reportInodes configuration
 func (m *Monitor) getCommonDimensions(partition *gopsutil.PartitionStat) map[string]string {
 	dims := map[string]string{
-		"mountpoint":      strings.Replace(strings.Replace(partition.Mountpoint, m.hostFSPath, "", 1), " ", "_", -1),
+		"mountpoint":      strings.Replace(partition.Mountpoint, " ", "_", -1),
 		"device":          strings.Replace(partition.Device, " ", "_", -1),
 		"plugin_instance": "",
+	}
+	// sanitize hostfs path in mountpoint
+	if m.hostFSPath != "" {
+		dims["mountpoint"] = strings.Replace(dims["mountpoint"], m.hostFSPath, "", 1)
 	}
 	if m.conf.ReportByDevice {
 		dims["plugin_instance"] = dims["device"]
@@ -134,8 +138,15 @@ func (m *Monitor) emitDatapoints() {
 			continue
 		}
 
+		var mount string
+		if m.hostFSPath != "" {
+			mount = strings.Replace(partition.Mountpoint, m.hostFSPath, "", 1)
+		} else {
+			mount = partition.Mountpoint
+		}
+
 		// skip it if the mountpoint doesn't match
-		if !m.mountPoints.Matches(strings.Replace(partition.Mountpoint, m.hostFSPath, "", 1)) {
+		if !m.mountPoints.Matches(mount) {
 			logger.Debugf("skipping mountpoint '%s'", partition.Mountpoint)
 			continue
 		}
