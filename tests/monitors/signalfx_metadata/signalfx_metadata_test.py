@@ -2,15 +2,13 @@ from functools import partial as p
 
 import pytest
 
-from helpers.assertions import has_any_metric_or_dim, has_log_message
-from helpers.util import get_monitor_dims_from_selfdescribe, get_monitor_metrics_from_selfdescribe, run_agent, wait_for
+from helpers.assertions import has_datapoint, has_log_message
+from helpers.util import ensure_always, run_agent, wait_for
 
 pytestmark = [pytest.mark.collectd, pytest.mark.signalfx_metadata, pytest.mark.monitor_without_endpoints]
 
 
 def test_signalfx_metadata():
-    expected_metrics = get_monitor_metrics_from_selfdescribe("collectd/signalfx-metadata")
-    expected_dims = get_monitor_dims_from_selfdescribe("collectd/signalfx-metadata")
     with run_agent(
         """
     monitors:
@@ -19,9 +17,34 @@ def test_signalfx_metadata():
         etcPath: /etc
         persistencePath: /var/run/signalfx-agent
       - type: collectd/cpu
+      - type: collectd/disk
+      - type: collectd/memory
     """
     ) as [backend, get_output, _]:
-        assert wait_for(
-            p(has_any_metric_or_dim, backend, expected_metrics, expected_dims), timeout_seconds=60
-        ), "timed out waiting for metrics and/or dimensions!"
+        assert wait_for(p(has_datapoint, backend, "cpu.utilization", {"plugin": "signalfx-metadata"}))
+        assert wait_for(p(has_datapoint, backend, "disk_ops.total", {"plugin": "signalfx-metadata"}))
+        assert wait_for(p(has_datapoint, backend, "memory.utilization", {"plugin": "signalfx-metadata"}))
+        assert ensure_always(
+            lambda: not has_datapoint(backend, "cpu.utilization_per_core", {"plugin": "signalfx-metadata"})
+        )
+        assert not has_log_message(get_output().lower(), "error"), "error found in agent output!"
+
+
+def test_cpu_utilization_per_core():
+    with run_agent(
+        """
+    monitors:
+      - type: collectd/signalfx-metadata
+        procFSPath: /proc
+        etcPath: /etc
+        persistencePath: /var/run/signalfx-agent
+        perCoreCPUUtil: true
+      - type: collectd/cpu
+    metricsToInclude:
+      - metricNames:
+        - cpu.utilization_per_core
+        monitorType: collectd/signalfx-metadata
+        """
+    ) as [backend, get_output, _]:
+        assert wait_for(p(has_datapoint, backend, "cpu.utilization_per_core", {"plugin": "signalfx-metadata"}))
         assert not has_log_message(get_output().lower(), "error"), "error found in agent output!"
