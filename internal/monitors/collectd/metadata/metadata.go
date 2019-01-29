@@ -23,7 +23,7 @@ const monitorType = "collectd/signalfx-metadata"
 // [Integrations docs](https://github.com/signalfx/integrations/tree/master/signalfx-metadata).
 
 // GAUGE(cpu.utilization): Percent of CPU used on this host.
-// GAUGE(cpu.utilization_per_core): Percent of CPU used on each core.
+// GAUGE(cpu.utilization_per_core): Percent of CPU used on each core. `perCoreCPUUtil` config must be set to true.
 // GAUGE(disk.summary_utilization): Percent of disk space utilized on all volumes on this host.
 // GAUGE(disk.utilization): Percent of disk used on this volume.
 // CUMULATIVE(disk_ops.total): Total number of disk read and write operations on this host.
@@ -45,6 +45,8 @@ type Config struct {
 	// The path to the proc filesystem. Useful to override in containerized
 	// environments.
 	ProcFSPath string `yaml:"procFSPath" default:"/proc"`
+	// Collect the cpu utilization per core, reported as `cpu.utilization_per_core`.
+	PerCoreCPUUtil bool `yaml:"perCoreCPUUtil"`
 	// The path to the main host config dir. Useful to override in
 	// containerized environments.
 	EtcPath string `yaml:"etcPath" default:"/etc"`

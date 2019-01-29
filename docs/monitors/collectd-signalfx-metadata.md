@@ -25,6 +25,7 @@ Monitor Type: `collectd/signalfx-metadata`
 | --- | --- | --- | --- |
 | `writeServerURL` | no | `string` |  |
 | `procFSPath` | no | `string` | The path to the proc filesystem. Useful to override in containerized environments. (**default:** `/proc`) |
+| `perCoreCPUUtil` | no | `bool` | Collect the cpu utilization per core, reported as `cpu.utilization_per_core`. (**default:** `false`) |
 | `etcPath` | no | `string` | The path to the main host config dir. Useful to override in containerized environments. (**default:** `/etc`) |
 | `persistencePath` | no | `string` | A directory where the metadata plugin can persist the history of successful host metadata syncs so that host metadata is not sent redundantly. (**default:** `/var/run/signalfx-agent`) |
 | `omitProcessInfo` | no | `bool` | If true, process "top" information will not be sent.  This can be useful if you have an extremely high number of processes and performance of the plugin is poor. (**default:** `false`) |
@@ -44,7 +45,7 @@ The following table lists the metrics available for this monitor. Metrics that a
 | Name | Type | Custom | Description |
 | ---  | ---  | ---    | ---         |
 | `cpu.utilization` | gauge |  | Percent of CPU used on this host. |
-| `cpu.utilization_per_core` | gauge | X | Percent of CPU used on each core. |
+| `cpu.utilization_per_core` | gauge | X | Percent of CPU used on each core. `perCoreCPUUtil` config must be set to true. |
 | `disk.summary_utilization` | gauge |  | Percent of disk space utilized on all volumes on this host. |
 | `disk.utilization` | gauge |  | Percent of disk used on this volume. |
 | `disk_ops.total` | cumulative |  | Total number of disk read and write operations on this host. |

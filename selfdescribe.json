@@ -8882,6 +8882,14 @@
           "elementKind": ""
         },
         {
+          "yamlName": "perCoreCPUUtil",
+          "doc": "Collect the cpu utilization per core, reported as `cpu.utilization_per_core`.",
+          "default": false,
+          "required": false,
+          "type": "bool",
+          "elementKind": ""
+        },
+        {
           "yamlName": "etcPath",
           "doc": "The path to the main host config dir. Useful to override in containerized environments.",
           "default": "/etc",
@@ -8959,7 +8967,7 @@
         {
           "name": "cpu.utilization_per_core",
           "type": "gauge",
-          "description": "Percent of CPU used on each core."
+          "description": "Percent of CPU used on each core. `perCoreCPUUtil` config must be set to true."
         },
         {
           "name": "disk.summary_utilization",
