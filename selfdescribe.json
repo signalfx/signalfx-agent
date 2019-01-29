@@ -8967,7 +8967,7 @@
         {
           "name": "cpu.utilization_per_core",
           "type": "gauge",
-          "description": "Percent of CPU used on each core. PerCoreCPUUtil config must be set to true."
+          "description": "Percent of CPU used on each core. `perCoreCPUUtil` config must be set to true."
         },
         {
           "name": "disk.summary_utilization",

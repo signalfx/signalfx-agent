@@ -45,7 +45,7 @@ The following table lists the metrics available for this monitor. Metrics that a
 | Name | Type | Custom | Description |
 | ---  | ---  | ---    | ---         |
 | `cpu.utilization` | gauge |  | Percent of CPU used on this host. |
-| `cpu.utilization_per_core` | gauge | X | Percent of CPU used on each core. PerCoreCPUUtil config must be set to true. |
+| `cpu.utilization_per_core` | gauge | X | Percent of CPU used on each core. `perCoreCPUUtil` config must be set to true. |
 | `disk.summary_utilization` | gauge |  | Percent of disk space utilized on all volumes on this host. |
 | `disk.utilization` | gauge |  | Percent of disk used on this volume. |
 | `disk_ops.total` | cumulative |  | Total number of disk read and write operations on this host. |

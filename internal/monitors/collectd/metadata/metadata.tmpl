@@ -17,7 +17,7 @@ TypesDB "{{ pluginRoot }}/signalfx/types.db.plugin"
     ProcPath "{{ .ProcFSPath }}"
     EtcPath "{{ .EtcPath }}"
     HostMetadata false
-    PerCoreCPUUtil "{{ .PerCoreCPUUtil }}"
+    PerCoreCPUUtil {{ .PerCoreCPUUtil }}
     Datapoints false
     PersistencePath "{{ .PersistencePath }}"
     ProcessInfo {{if .OmitProcessInfo}}false{{else}}true{{end}}

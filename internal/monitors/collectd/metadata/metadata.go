@@ -23,7 +23,7 @@ const monitorType = "collectd/signalfx-metadata"
 // [Integrations docs](https://github.com/signalfx/integrations/tree/master/signalfx-metadata).
 
 // GAUGE(cpu.utilization): Percent of CPU used on this host.
-// GAUGE(cpu.utilization_per_core): Percent of CPU used on each core. PerCoreCPUUtil config must be set to true.
+// GAUGE(cpu.utilization_per_core): Percent of CPU used on each core. `perCoreCPUUtil` config must be set to true.
 // GAUGE(disk.summary_utilization): Percent of disk space utilized on all volumes on this host.
 // GAUGE(disk.utilization): Percent of disk used on this volume.
 // CUMULATIVE(disk_ops.total): Total number of disk read and write operations on this host.
