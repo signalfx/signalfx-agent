@@ -52,16 +52,15 @@ type Config struct {
 	// /.
 	HostFSPath string `yaml:"hostFSPath"`
 
-	// The filesystem types to include/exclude, is interpreted as a regex if
-	// surrounded by `/`.  For more information on filtering see
-	// [Generic Filters](https://github.com/signalfx/signalfx-agent/blob/master/docs/filtering.md#generic-filters).
+	// The filesystem types to include/exclude.  This is a
+	// [filter set](https://github.com/signalfx/signalfx-agent/blob/master/docs/filtering.md#generic-filters).
 	FSTypes []string `yaml:"fsTypes" default:"[\"*\", \"!aufs\", \"!overlay\", \"!tmpfs\", \"!proc\", \"!sysfs\", \"!nsfs\", \"!cgroup\", \"!devpts\", \"!selinuxfs\", \"!devtmpfs\", \"!debugfs\", \"!mqueue\", \"!hugetlbfs\", \"!securityfs\", \"!pstore\", \"!binfmt_misc\", \"!autofs\"]"`
 
-	// The mount paths to include/exclude, is interpreted as a regex if
-	// surrounded by `/`.  Note that you need to include the full path as the
-	// agent will see it, irrespective of the hostFSPath option.
-	// For more information on filtering see
-	// [Generic Filters](https://github.com/signalfx/signalfx-agent/blob/master/docs/filtering.md#generic-filters).
+	// The mount paths to include/exclude.
+	// This is a
+	// [filter set](https://github.com/signalfx/signalfx-agent/blob/master/docs/filtering.md#generic-filters).
+	// NOTE: If you are using the hostFSPath option you should not include the
+	// `/hostfs/` mount in the filter.
 	MountPoints []string `yaml:"mountPoints" default:"[\"*\", \"!/^/var/lib/docker/containers/\", \"!/^/var/lib/rkt/pods/\", \"!/^/net//\", \"!/^/smb//\", \"!/^/tmp/scratch/\"]"`
 	// (Linux Only) If true, then metrics will be reported about logical devices.
 	IncludeLogical bool `yaml:"includeLogical" default:"false"`
@@ -85,13 +84,9 @@ type Monitor struct {
 // returns common dimensions map according to reportInodes configuration
 func (m *Monitor) getCommonDimensions(partition *gopsutil.PartitionStat) map[string]string {
 	dims := map[string]string{
-		"mountpoint":      strings.Replace(partition.Mountpoint, " ", "_", -1),
+		"mountpoint":      strings.Replace(strings.Replace(partition.Mountpoint, m.hostFSPath, "", 1), " ", "_", -1),
 		"device":          strings.Replace(partition.Device, " ", "_", -1),
 		"plugin_instance": "",
-	}
-	if m.hostFSPath != "" {
-		// strip configured hostFSPath from mountpoint
-		dims["mountpoint"] = strings.Replace(partition.Mountpoint, m.hostFSPath, "", 1)
 	}
 	if m.conf.ReportByDevice {
 		dims["plugin_instance"] = dims["device"]
@@ -140,7 +135,7 @@ func (m *Monitor) emitDatapoints() {
 		}
 
 		// skip it if the mountpoint doesn't match
-		if !m.mountPoints.Matches(partition.Mountpoint) {
+		if !m.mountPoints.Matches(strings.Replace(partition.Mountpoint, m.hostFSPath, "", 1)) {
 			logger.Debugf("skipping mountpoint '%s'", partition.Mountpoint)
 			continue
 		}

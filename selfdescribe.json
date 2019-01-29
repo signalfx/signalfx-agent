@@ -10295,7 +10295,7 @@
       "fields": [
         {
           "yamlName": "disks",
-          "doc": "Which devices to include/exclude. For more information on filtering see [Generic Filters](https://github.com/signalfx/signalfx-agent/blob/master/docs/filtering.md#generic-filters).",
+          "doc": "The devices to include/exclude. This is a [filter set](https://github.com/signalfx/signalfx-agent/blob/master/docs/filtering.md#generic-filters).",
           "default": [
             "*",
             "!/^loop[0-9]+$/",
@@ -10703,7 +10703,7 @@
         },
         {
           "yamlName": "fsTypes",
-          "doc": "The filesystem types to include/exclude, is interpreted as a regex if surrounded by `/`.  For more information on filtering see [Generic Filters](https://github.com/signalfx/signalfx-agent/blob/master/docs/filtering.md#generic-filters).",
+          "doc": "The filesystem types to include/exclude.  This is a [filter set](https://github.com/signalfx/signalfx-agent/blob/master/docs/filtering.md#generic-filters).",
           "default": [
             "*",
             "!aufs",
@@ -10730,7 +10730,7 @@
         },
         {
           "yamlName": "mountPoints",
-          "doc": "The mount paths to include/exclude, is interpreted as a regex if surrounded by `/`.  Note that you need to include the full path as the agent will see it, irrespective of the hostFSPath option. For more information on filtering see [Generic Filters](https://github.com/signalfx/signalfx-agent/blob/master/docs/filtering.md#generic-filters).",
+          "doc": "The mount paths to include/exclude. This is a [filter set](https://github.com/signalfx/signalfx-agent/blob/master/docs/filtering.md#generic-filters). NOTE: If you are using the hostFSPath option you should not include the `/hostfs/` mount in the filter.",
           "default": [
             "*",
             "!/^/var/lib/docker/containers/",
@@ -11927,7 +11927,7 @@
       "fields": [
         {
           "yamlName": "interfaces",
-          "doc": "The interfaces to include/exclude, is interpreted as a regex if surrounded by `/`.   For more information on filtering see [Generic Filters](https://github.com/signalfx/signalfx-agent/blob/master/docs/filtering.md#generic-filters).",
+          "doc": "The network interfaces to send metrics about. This is a [filter set](https://github.com/signalfx/signalfx-agent/blob/master/docs/filtering.md#generic-filters).",
           "default": [
             "*",
             "!/^lo\\d*$/",
