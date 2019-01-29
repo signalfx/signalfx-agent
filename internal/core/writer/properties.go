@@ -35,15 +35,20 @@ type dimensionPropertyClient struct {
 	PropertyFilterSet *propfilters.FilterSet
 }
 
-func newDimensionPropertyClient(conf *config.WriterConfig) *dimensionPropertyClient {
+func newDimensionPropertyClient(conf *config.WriterConfig) (*dimensionPropertyClient, error) {
 	history, err := lru.New(int(conf.PropertiesHistorySize))
 	if err != nil {
 		panic("could not create properties history cache: " + err.Error())
 	}
 
+	propFilters, err := conf.PropertyFilters()
+	if err != nil {
+		return nil, err
+	}
+
 	return &dimensionPropertyClient{
 		Token:  conf.SignalFxAccessToken,
-		APIURL: conf.APIURL,
+		APIURL: conf.ParsedAPIURL(),
 		client: &http.Client{
 			Timeout: 10 * time.Second,
 			Transport: &http.Transport{
@@ -61,8 +66,8 @@ func newDimensionPropertyClient(conf *config.WriterConfig) *dimensionPropertyCli
 		},
 		history:           history,
 		reqSema:           make(chan struct{}, int(conf.PropertiesMaxRequests)),
-		PropertyFilterSet: conf.PropertyFilter,
-	}
+		PropertyFilterSet: propFilters,
+	}, nil
 }
 
 // SetPropertiesOnDimension will set custom properties on a specific dimension

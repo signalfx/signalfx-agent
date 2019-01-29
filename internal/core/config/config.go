@@ -169,36 +169,6 @@ func (c *Config) validate() error {
 // Send values from the top of the config down to nested configs that might
 // need them
 func (c *Config) propagateValuesDown() error {
-	dpFilterSet, err := makeFilterSet(c.MetricsToExclude, c.MetricsToInclude)
-	if err != nil {
-		return err
-	}
-
-	propertyFilterSet, err := makePropertyFilterSet(c.PropertiesToExclude)
-	if err != nil {
-		return err
-	}
-
-	ingestURL, err := url.Parse(c.IngestURL)
-	if err != nil {
-		panic("IngestURL was supposed to be validated already")
-	}
-	c.Writer.IngestURL = ingestURL
-
-	apiURL, err := url.Parse(c.APIURL)
-	if err != nil {
-		panic("apiUrl was supposed to be validated already")
-	}
-	c.Writer.APIURL = apiURL
-
-	if c.TraceEndpointURL != "" {
-		traceEndpointURL, err := url.Parse(c.TraceEndpointURL)
-		if err != nil {
-			panic("traceEndpointUrl was supposed to be validated already")
-		}
-		c.Writer.TraceEndpointURL = traceEndpointURL
-	}
-
 	for i := range c.Monitors {
 		if err := c.Monitors[i].initialize(); err != nil {
 			return errors.WithMessage(err, fmt.Sprintf("Could not initialize monitor %s", c.Monitors[i].Type))
@@ -208,8 +178,11 @@ func (c *Config) propagateValuesDown() error {
 	c.Collectd.IntervalSeconds = utils.FirstNonZero(c.Collectd.IntervalSeconds, c.IntervalSeconds)
 	c.Collectd.BundleDir = c.BundleDir
 
-	c.Writer.DatapointFilter = dpFilterSet
-	c.Writer.PropertyFilter = propertyFilterSet
+	c.Writer.MetricsToInclude = c.MetricsToInclude
+	c.Writer.MetricsToExclude = c.MetricsToExclude
+	c.Writer.IngestURL = c.IngestURL
+	c.Writer.APIURL = c.APIURL
+	c.Writer.TraceEndpointURL = c.TraceEndpointURL
 	c.Writer.SignalFxAccessToken = c.SignalFxAccessToken
 	c.Writer.GlobalDimensions = c.GlobalDimensions
 
