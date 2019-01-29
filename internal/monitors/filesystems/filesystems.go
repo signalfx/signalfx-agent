@@ -59,6 +59,8 @@ type Config struct {
 	ReportByDevice bool `yaml:"reportByDevice" default:"false"`
 	// (Linux Only) If true metrics will be reported about inodes.
 	ReportInodes bool `yaml:"reportInodes" default:"false"`
+	// (Linux Only) If true, then metrics will be reported about logical devices.
+	IncludeLogical bool `yaml:"includeLogical" default:"false"`
 }
 
 // Monitor for Utilization
@@ -109,7 +111,7 @@ func (m *Monitor) reportPercentBytes(dimensions map[string]string, disk *gopsuti
 
 // emitDatapoints emits a set of memory datapoints
 func (m *Monitor) emitDatapoints() {
-	partitions, err := part(true)
+	partitions, err := part(m.conf.IncludeLogical)
 	if err != nil {
 		logger.WithError(err).Errorf("failed to collect list of mountpoints")
 	}
