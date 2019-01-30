@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 	"os/signal"
+	"path/filepath"
 	"runtime"
 	"strings"
 	"syscall"
@@ -31,12 +32,27 @@ var (
 	BuiltTime string
 )
 
-const defaultConfigPath = "/etc/signalfx/agent.yaml"
+var defaultLinuxConfig = getDefaultConfigPath()
 
 func init() {
 	log.SetFormatter(&prefixed.TextFormatter{})
 	log.SetLevel(log.InfoLevel)
 	log.SetOutput(os.Stdout)
+}
+
+func getDefaultConfigPath() string {
+	if runtime.GOOS == "windows" {
+		exePath, err := os.Executable()
+		if err != nil {
+			panic("Cannot determine agent executable path, cannot continue")
+		}
+		configPath, err := filepath.Abs(filepath.Join(filepath.Dir(exePath), "..", "etc", "signalfx", "agent.yaml"))
+		if err != nil {
+			panic("Cannot determine absolute path of executable parent dir " + exePath)
+		}
+		return configPath
+	}
+	return "/etc/signalfx/agent.yaml"
 }
 
 // Set an envvar with the agent's version so that plugins can have easy access
