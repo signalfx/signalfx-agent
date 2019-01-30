@@ -32,6 +32,7 @@ function bundle (
     }
 
     # create directories in the agent directory
+    Remove-Item -Recurse -Force "$buildDir\$AGENT_NAME\*" -ErrorAction Ignore
     mkdir "$buildDir\$AGENT_NAME\bin" -ErrorAction Ignore
     mkdir "$buildDir\$AGENT_NAME\etc\signalfx" -ErrorAction Ignore
     mkdir "$buildDir\$AGENT_NAME\lib" -ErrorAction Ignore
