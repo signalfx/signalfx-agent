@@ -32,7 +32,7 @@ var (
 	BuiltTime string
 )
 
-var defaultLinuxConfig = getDefaultConfigPath()
+var defaultConfigPath = getDefaultConfigPath()
 
 func init() {
 	log.SetFormatter(&prefixed.TextFormatter{})
