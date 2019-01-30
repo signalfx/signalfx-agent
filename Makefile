@@ -203,6 +203,9 @@ devstack:
 run-devstack:
 	scripts/run-devstack-image
 
+ifneq ($(OS), Windows_NT)
+VAGRANT_NOT_CREATED := $(shell cd scripts/windows/vagrant/$(WIN_VER); vagrant status | grep "not created")
+
 .PHONY: win-vagrant-base-box
 win-vagrant-base-box:
 	WIN_VER=$(WIN_VER) scripts/windows/vagrant/build_vagrant_base_box.sh
@@ -211,12 +214,14 @@ win-vagrant-base-box:
 win-vagrant-reload:
 	cd scripts/windows/vagrant/$(WIN_VER); vagrant reload
 
-.PHONY: win-vagrant-up-helper
-win-vagrant-up-helper:
-	cd scripts/windows/vagrant/$(WIN_VER); vagrant up
-
 .PHONY: win-vagrant-up
-win-vagrant-up: win-vagrant-up-helper win-vagrant-reload
+win-vagrant-up:
+	cd scripts/windows/vagrant/$(WIN_VER); vagrant up
+	# only reload if the vagrant wasn't created
+ifneq ($(strip $(VAGRANT_NOT_CREATED)),)
+	cd scripts/windows/vagrant/$(WIN_VER); vagrant reload
+endif
+
 
 .PHONY: win-vagrant-suspend
 win-vagrant-suspend:
@@ -226,9 +231,7 @@ win-vagrant-suspend:
 win-vagrant-destroy:
 	cd scripts/windows/vagrant/$(WIN_VER); vagrant destroy
 
-.PHONY: win-vagrant-provision-helper
-win-vagrant-provision-helper:
-	cd scripts/windows/vagrant/$(WIN_VER); vagrant provision
-
 .PHONY: win-vagrant-provision
-win-vagrant-provision: win-vagrant-provision-helper win-vagrant-reload
+win-vagrant-provision:
+	cd scripts/windows/vagrant/$(WIN_VER); vagrant provision
+endif
