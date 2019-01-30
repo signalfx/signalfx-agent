@@ -343,6 +343,8 @@ func pluralNameToKind(name string) resourceKind {
 		return "Node"
 	case "secrets":
 		return "Secret"
+	case "services":
+		return "Service"
 	default:
 		panic("Unknown resource type: " + name)
 	}
@@ -367,6 +369,8 @@ func typeMeta(rt resourceKind) metav1.TypeMeta {
 		return metav1.TypeMeta{Kind: "NodeList", APIVersion: "v1"}
 	case "Secret":
 		return metav1.TypeMeta{Kind: "SecretList", APIVersion: "v1"}
+	case "Service":
+		return metav1.TypeMeta{Kind: "ServiceList", APIVersion: "v1"}
 	default:
 		panic("Unknown resource type: " + string(rt))
 	}

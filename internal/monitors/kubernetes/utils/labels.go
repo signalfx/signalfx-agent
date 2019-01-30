@@ -1,4 +1,4 @@
-package metrics
+package utils
 
 import "strings"
 
@@ -6,7 +6,9 @@ var propNameSanitizer = strings.NewReplacer(
 	".", "_",
 	"/", "_")
 
-func propsAndTagsFromLabels(labels map[string]string) (map[string]string, map[string]bool) {
+// PropsAndTagsFromLabels converts k8s label set into SignalFx
+// properties and tags formatted sets.
+func PropsAndTagsFromLabels(labels map[string]string) (map[string]string, map[string]bool) {
 	props := make(map[string]string)
 	tags := make(map[string]bool)
 

@@ -255,7 +255,7 @@ jobs:
             echo "export TEST_SERVICES_DIR='$TEST_SERVICES_DIR'" >> $BASH_ENV
             echo "export MARKERS='$MARKERS'" >> $BASH_ENV
       - run_pytest:
-          pytest_options: "-n2 -m \"$MARKERS\""
+          pytest_options: "-n1 -m \"$MARKERS\""
           with_sudo: true
       - store_artifacts:
           path: /tmp/pprof/

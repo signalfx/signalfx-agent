@@ -17,3 +17,24 @@ type Dimension struct {
 	// Value of the dimension
 	Value string
 }
+
+// Copy creates a copy of the the given dimProps object
+func (dp *DimProperties) Copy() *DimProperties {
+	clonedDimension := dp.Dimension
+
+	clonedProperties := make(map[string]string)
+	for k, v := range dp.Properties {
+		clonedProperties[k] = v
+	}
+
+	clonedTags := make(map[string]bool)
+	for k, v := range dp.Tags {
+		clonedTags[k] = v
+	}
+
+	return &DimProperties{
+		Dimension:  clonedDimension,
+		Properties: clonedProperties,
+		Tags:       clonedTags,
+	}
+}

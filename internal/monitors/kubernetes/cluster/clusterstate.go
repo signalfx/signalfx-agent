@@ -52,6 +52,7 @@ func (cs *State) Start() {
 	cs.beginSyncForType(ctx, &v1.ReplicationController{}, "replicationcontrollers", cs.namespace, coreClient)
 	cs.beginSyncForType(ctx, &v1beta1.ReplicaSet{}, "replicasets", cs.namespace, extV1beta1Client)
 	cs.beginSyncForType(ctx, &v1.ResourceQuota{}, "resourcequotas", cs.namespace, coreClient)
+	cs.beginSyncForType(ctx, &v1.Service{}, "services", cs.namespace, coreClient)
 	// Node and Namespace are NOT namespaced resources, so we don't need to
 	// fetch them if we are scoped to a specific namespace
 	if cs.namespace == "" {
