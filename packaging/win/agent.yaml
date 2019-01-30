@@ -1,6 +1,6 @@
 ---
 # *Required* The access token for the org that you wish to send metrics to.
-signalFxAccessToken: {"#from": 'C:\Program Files\SignalFx\SignalFxAgent\SignalFx\SignalFxAgent\etc\signalfx\token'}
+signalFxAccessToken: {"#from": 'C:\Program Files\SignalFx\SignalFxAgent\etc\signalfx\token'}
 ingestUrl: {"#from": 'C:\Program Files\SignalFx\SignalFxAgent\etc\signalfx\ingest_url', default: "https://ingest.signalfx.com"}
 apiUrl: {"#from": 'C:\Program Files\SignalFx\SignalFxAgent\etc\signalfx\api_url', default: "https://api.signalfx.com"}
 
