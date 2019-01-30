@@ -176,3 +176,36 @@ Examples:
       dimensionName: kubernetes_pod_uid
       dimensionValue: "abc*"
 ```
+
+## Generic Filters
+
+Some config options for monitors and observers support comprehensive filtering that
+accepts a list of strings that define the filter.  These config options support
+string literals, globbed values, and regular expressions.  Filter items can be prefixed
+by `!` to exclude the given values (which can then also be literal values,
+globbed values, or regular expressions).
+
+Regular expressions are processed by the [Golang regexp package](https://golang.org/pkg/regexp/syntax/),
+so the syntax can be anything supported by that.
+
+Globs can be anything with `*` (zero or more characters) or `?` (zero or one character).
+
+Examples:
+
+```yaml
+ # Would allow the values "a" and "b" and nothing else
+ filter:
+  - a
+  - b
+
+ # Would allow all values except for "a"
+ filter:
+  - "*"
+  - "!a"
+
+ # Would allow all values matching the pattern disk_* except for "disk_tmp"
+ filter:
+  - "/disk_.*/"
+  - "!disk_tmp"
+
+```

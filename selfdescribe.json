@@ -10303,7 +10303,7 @@
       "fields": [
         {
           "yamlName": "disks",
-          "doc": "Which devices to include/exclude",
+          "doc": "The devices to include/exclude. This is a [filter set](https://github.com/signalfx/signalfx-agent/blob/master/docs/filtering.md#generic-filters).",
           "default": [
             "*",
             "!/^loop[0-9]+$/",
@@ -10698,12 +10698,20 @@
     },
     {
       "name": "Config",
-      "doc": "\nThis monitor reports metrics about free disk space on mounted devices.\n\nOn Linux hosts, this monitor relies on the `/proc` filesystem.\nIf the underlying host's `/proc` file system is mounted somewhere other than\n/proc please specify the path using the top level configuration `procPath`.\n\n```yaml\nprocPath: /proc\nmonitors:\n - type: filesystems\n```\n",
+      "doc": "\nThis monitor reports metrics about free disk space on mounted devices.\n\nOn Linux hosts, this monitor relies on the `/proc` filesystem.\nIf the underlying host's `/proc` file system is mounted somewhere other than\n/proc please specify the path using the top level configuration `procPath`.\n\n```yaml\nprocPath: /hostfs/proc\nmonitors:\n - type: filesystems\n   hostFSPath: /hostfs\n```\n",
       "package": "internal/monitors/filesystems",
       "fields": [
         {
+          "yamlName": "hostFSPath",
+          "doc": "Path to the root of the host filesystem.  Useful when running in a container and the host filesystem is mounted in some subdirectory under /.",
+          "default": "",
+          "required": false,
+          "type": "string",
+          "elementKind": ""
+        },
+        {
           "yamlName": "fsTypes",
-          "doc": "The filesystem types to include/exclude, is interpreted as a regex if surrounded by `/`.",
+          "doc": "The filesystem types to include/exclude.  This is a [filter set](https://github.com/signalfx/signalfx-agent/blob/master/docs/filtering.md#generic-filters).",
           "default": [
             "*",
             "!aufs",
@@ -10730,7 +10738,7 @@
         },
         {
           "yamlName": "mountPoints",
-          "doc": "The mount paths to include/exclude, is interpreted as a regex if surrounded by `/`.  Note that you need to include the full path as the agent will see it, irrespective of the hostFSPath option.",
+          "doc": "The mount paths to include/exclude. This is a [filter set](https://github.com/signalfx/signalfx-agent/blob/master/docs/filtering.md#generic-filters). NOTE: If you are using the hostFSPath option you should not include the `/hostfs/` mount in the filter.",
           "default": [
             "*",
             "!/^/var/lib/docker/containers/",
@@ -10742,6 +10750,14 @@
           "required": false,
           "type": "slice",
           "elementKind": "string"
+        },
+        {
+          "yamlName": "includeLogical",
+          "doc": "(Linux Only) If true, then metrics will be reported about logical devices.",
+          "default": false,
+          "required": false,
+          "type": "bool",
+          "elementKind": ""
         },
         {
           "yamlName": "reportByDevice",
@@ -11919,7 +11935,7 @@
       "fields": [
         {
           "yamlName": "interfaces",
-          "doc": "The interfaces to include/exclude, is interpreted as a regex if surrounded by `/`.",
+          "doc": "The network interfaces to send metrics about. This is a [filter set](https://github.com/signalfx/signalfx-agent/blob/master/docs/filtering.md#generic-filters).",
           "default": [
             "*",
             "!/^lo\\d*$/",

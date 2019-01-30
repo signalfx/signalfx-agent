@@ -10,9 +10,10 @@ If the underlying host's `/proc` file system is mounted somewhere other than
 /proc please specify the path using the top level configuration `procPath`.
 
 ```yaml
-procPath: /proc
+procPath: /hostfs/proc
 monitors:
  - type: filesystems
+   hostFSPath: /hostfs
 ```
 
 
@@ -28,8 +29,10 @@ Monitor Type: `filesystems`
 
 | Config option | Required | Type | Description |
 | --- | --- | --- | --- |
-| `fsTypes` | no | `list of string` | The filesystem types to include/exclude, is interpreted as a regex if surrounded by `/`. (**default:** `[* !aufs !overlay !tmpfs !proc !sysfs !nsfs !cgroup !devpts !selinuxfs !devtmpfs !debugfs !mqueue !hugetlbfs !securityfs !pstore !binfmt_misc !autofs]`) |
-| `mountPoints` | no | `list of string` | The mount paths to include/exclude, is interpreted as a regex if surrounded by `/`.  Note that you need to include the full path as the agent will see it, irrespective of the hostFSPath option. (**default:** `[* !/^/var/lib/docker/containers/ !/^/var/lib/rkt/pods/ !/^/net// !/^/smb// !/^/tmp/scratch/]`) |
+| `hostFSPath` | no | `string` | Path to the root of the host filesystem.  Useful when running in a container and the host filesystem is mounted in some subdirectory under /. |
+| `fsTypes` | no | `list of string` | The filesystem types to include/exclude.  This is a [filter set](https://github.com/signalfx/signalfx-agent/blob/master/docs/filtering.md#generic-filters). (**default:** `[* !aufs !overlay !tmpfs !proc !sysfs !nsfs !cgroup !devpts !selinuxfs !devtmpfs !debugfs !mqueue !hugetlbfs !securityfs !pstore !binfmt_misc !autofs]`) |
+| `mountPoints` | no | `list of string` | The mount paths to include/exclude. This is a [filter set](https://github.com/signalfx/signalfx-agent/blob/master/docs/filtering.md#generic-filters). NOTE: If you are using the hostFSPath option you should not include the `/hostfs/` mount in the filter. (**default:** `[* !/^/var/lib/docker/containers/ !/^/var/lib/rkt/pods/ !/^/net// !/^/smb// !/^/tmp/scratch/]`) |
+| `includeLogical` | no | `bool` | (Linux Only) If true, then metrics will be reported about logical devices. (**default:** `false`) |
 | `reportByDevice` | no | `bool` | If true, then metrics will report with their plugin_instance set to the device's name instead of the mountpoint. (**default:** `false`) |
 | `reportInodes` | no | `bool` | (Linux Only) If true metrics will be reported about inodes. (**default:** `false`) |
 

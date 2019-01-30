@@ -31,9 +31,10 @@ var usage = gopsutil.Usage
 // /proc please specify the path using the top level configuration `procPath`.
 //
 // ```yaml
-// procPath: /proc
+// procPath: /hostfs/proc
 // monitors:
 //  - type: filesystems
+//    hostFSPath: /hostfs
 // ```
 
 var logger = log.WithFields(log.Fields{"monitorType": monitorType})
@@ -46,14 +47,23 @@ func init() {
 type Config struct {
 	config.MonitorConfig `singleInstance:"false" acceptsEndpoints:"false"`
 
-	// The filesystem types to include/exclude, is interpreted as a regex if
-	// surrounded by `/`.
+	// Path to the root of the host filesystem.  Useful when running in a
+	// container and the host filesystem is mounted in some subdirectory under
+	// /.
+	HostFSPath string `yaml:"hostFSPath"`
+
+	// The filesystem types to include/exclude.  This is a
+	// [filter set](https://github.com/signalfx/signalfx-agent/blob/master/docs/filtering.md#generic-filters).
 	FSTypes []string `yaml:"fsTypes" default:"[\"*\", \"!aufs\", \"!overlay\", \"!tmpfs\", \"!proc\", \"!sysfs\", \"!nsfs\", \"!cgroup\", \"!devpts\", \"!selinuxfs\", \"!devtmpfs\", \"!debugfs\", \"!mqueue\", \"!hugetlbfs\", \"!securityfs\", \"!pstore\", \"!binfmt_misc\", \"!autofs\"]"`
 
-	// The mount paths to include/exclude, is interpreted as a regex if
-	// surrounded by `/`.  Note that you need to include the full path as the
-	// agent will see it, irrespective of the hostFSPath option.
+	// The mount paths to include/exclude.
+	// This is a
+	// [filter set](https://github.com/signalfx/signalfx-agent/blob/master/docs/filtering.md#generic-filters).
+	// NOTE: If you are using the hostFSPath option you should not include the
+	// `/hostfs/` mount in the filter.
 	MountPoints []string `yaml:"mountPoints" default:"[\"*\", \"!/^/var/lib/docker/containers/\", \"!/^/var/lib/rkt/pods/\", \"!/^/net//\", \"!/^/smb//\", \"!/^/tmp/scratch/\"]"`
+	// (Linux Only) If true, then metrics will be reported about logical devices.
+	IncludeLogical bool `yaml:"includeLogical" default:"false"`
 	// If true, then metrics will report with their plugin_instance set to the
 	// device's name instead of the mountpoint.
 	ReportByDevice bool `yaml:"reportByDevice" default:"false"`
@@ -66,6 +76,7 @@ type Monitor struct {
 	Output      types.Output
 	cancel      func()
 	conf        *Config
+	hostFSPath  string
 	fsTypes     *filter.ExhaustiveStringFilter
 	mountPoints *filter.ExhaustiveStringFilter
 }
@@ -76,6 +87,10 @@ func (m *Monitor) getCommonDimensions(partition *gopsutil.PartitionStat) map[str
 		"mountpoint":      strings.Replace(partition.Mountpoint, " ", "_", -1),
 		"device":          strings.Replace(partition.Device, " ", "_", -1),
 		"plugin_instance": "",
+	}
+	// sanitize hostfs path in mountpoint
+	if m.hostFSPath != "" {
+		dims["mountpoint"] = strings.Replace(dims["mountpoint"], m.hostFSPath, "", 1)
 	}
 	if m.conf.ReportByDevice {
 		dims["plugin_instance"] = dims["device"]
@@ -109,7 +124,7 @@ func (m *Monitor) reportPercentBytes(dimensions map[string]string, disk *gopsuti
 
 // emitDatapoints emits a set of memory datapoints
 func (m *Monitor) emitDatapoints() {
-	partitions, err := part(true)
+	partitions, err := part(m.conf.IncludeLogical)
 	if err != nil {
 		logger.WithError(err).Errorf("failed to collect list of mountpoints")
 	}
@@ -123,8 +138,15 @@ func (m *Monitor) emitDatapoints() {
 			continue
 		}
 
+		var mount string
+		if m.hostFSPath != "" {
+			mount = strings.Replace(partition.Mountpoint, m.hostFSPath, "", 1)
+		} else {
+			mount = partition.Mountpoint
+		}
+
 		// skip it if the mountpoint doesn't match
-		if !m.mountPoints.Matches(partition.Mountpoint) {
+		if !m.mountPoints.Matches(mount) {
 			logger.Debugf("skipping mountpoint '%s'", partition.Mountpoint)
 			continue
 		}
@@ -132,7 +154,7 @@ func (m *Monitor) emitDatapoints() {
 		// if we can't collect usage stats about the mountpoint then skip it
 		disk, err := usage(partition.Mountpoint)
 		if err != nil {
-			logger.WithError(err).Errorf("failed to collect usage for mountpiont '%s'", partition.Mountpoint)
+			logger.WithError(err).Errorf("failed to collect usage for mountpoint '%s'", partition.Mountpoint)
 			continue
 		}
 
@@ -200,6 +222,10 @@ func (m *Monitor) Configure(conf *Config) error {
 	if err != nil {
 		return err
 	}
+
+	// strip trailing / from HostFSPath so when we do string replacement later
+	// we are left with a path starting at /
+	m.hostFSPath = strings.TrimRight(m.conf.HostFSPath, "/")
 
 	// configure filters
 	if len(m.conf.MountPoints) == 0 {
