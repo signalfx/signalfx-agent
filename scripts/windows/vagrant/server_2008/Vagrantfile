@@ -29,6 +29,9 @@ Vagrant.configure("2") do | config |
 
     # Provision Box #
     config.vm.provision "shell" do |s|
+        s.path = "../common/activate_windows.ps1"
+    end
+    config.vm.provision "shell" do |s|
         s.path = "../common/1_chocolatey.ps1"
     end
     config.vm.provision "shell" do |s|

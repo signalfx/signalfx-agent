@@ -1,0 +1,29 @@
+---
+# *Required* The access token for the org that you wish to send metrics to.
+signalFxAccessToken: {"#from": 'C:\Program Files\SignalFx\SignalFxAgent\etc\signalfx\token'}
+ingestUrl: {"#from": 'C:\Program Files\SignalFx\SignalFxAgent\etc\signalfx\ingest_url', default: "https://ingest.signalfx.com"}
+apiUrl: {"#from": 'C:\Program Files\SignalFx\SignalFxAgent\etc\signalfx\api_url', default: "https://api.signalfx.com"}
+
+intervalSeconds: 10
+
+logging:
+  # Valid values are 'debug', 'info', 'warning', and 'error'
+  level: info
+
+# observers are what discover running services in the environment
+observers:
+  - type: host
+
+monitors:
+  - {"#from": 'C:\Program Files\SignalFx\SignalFxAgent\etc\signalfx\monitors\*.yaml', flatten: true, optional: true}
+  - type: host-metadata
+  - type: processlist
+  - type: cpu
+  - type: disk-io
+  - type: filesystems
+  - type: memory
+  - type: net-io
+  - type: vmem
+
+metricsToExclude:
+  - {"#from": 'C:\Program Files\SignalFx\SignalFxAgent\lib\whitelist.json', flatten: true}

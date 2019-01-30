@@ -12,3 +12,5 @@ packaging/*/output
 tests/**/__pycache__
 vendor_orig/**
 python/virtualenv
+scripts/windows/boxcutter/**
+**/.vagrant/**

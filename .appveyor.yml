@@ -2,7 +2,7 @@ image: Visual Studio 2017
 version: "{build}"
 clone_folder: c:\gopath\src\github.com\signalfx\signalfx-agent
 environment:
-  AGENT_BIN: c:\gopath\src\github.com\signalfx\signalfx-agent\build\signalfx-agent\bin\signalfx-agent.exe
+  AGENT_BIN: c:\gopath\src\github.com\signalfx\signalfx-agent\build\SignalFxAgent\bin\signalfx-agent.exe
   GOROOT: c:\go111
   GOPATH: c:\gopath
   PYTHONHOME: c:\Python36-x64
@@ -30,7 +30,7 @@ build_script:
   - ps: "& { . $env:APPVEYOR_BUILD_FOLDER/scripts/windows/make.ps1; bundle }"
   - ps: ls $env:APPVEYOR_BUILD_FOLDER/build
   - echo Bundled Collectd Plugins
-  - ps: ls $env:APPVEYOR_BUILD_FOLDER/build/signalfx-agent/plugins/collectd
+  - ps: ls $env:APPVEYOR_BUILD_FOLDER/build/SignalFxAgent/plugins/collectd
 before_test:
   - echo Installing test dependencies
   - go get github.com/tebeka/go2xunit
@@ -54,5 +54,5 @@ test_script:
 artifacts:
   - path: integration_results.html
   # upload any agent build bundles
-  - path: build/signalfx-agent-*-win*.zip
+  - path: build/SignalFxAgent-*-win*.zip
 deploy: off
