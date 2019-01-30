@@ -3,6 +3,7 @@ package metrics
 import (
 	"github.com/signalfx/golib/datapoint"
 	"github.com/signalfx/golib/sfxclient"
+	k8sutil "github.com/signalfx/signalfx-agent/internal/monitors/kubernetes/utils"
 	atypes "github.com/signalfx/signalfx-agent/internal/monitors/types"
 	"k8s.io/api/core/v1"
 )
@@ -45,7 +46,7 @@ func datapointsForNode(node *v1.Node, useNodeName bool) []*datapoint.Datapoint {
 }
 
 func dimPropsForNode(node *v1.Node, useNodeName bool) *atypes.DimProperties {
-	props, tags := propsAndTagsFromLabels(node.Labels)
+	props, tags := k8sutil.PropsAndTagsFromLabels(node.Labels)
 
 	if len(props) == 0 && len(tags) == 0 {
 		return nil

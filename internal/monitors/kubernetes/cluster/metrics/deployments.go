@@ -2,6 +2,7 @@ package metrics
 
 import (
 	"github.com/signalfx/golib/datapoint"
+	k8sutil "github.com/signalfx/signalfx-agent/internal/monitors/kubernetes/utils"
 	atypes "github.com/signalfx/signalfx-agent/internal/monitors/types"
 	"github.com/signalfx/signalfx-agent/internal/utils"
 	"k8s.io/api/extensions/v1beta1"
@@ -30,7 +31,7 @@ func datapointsForDeployment(dep *v1beta1.Deployment) []*datapoint.Datapoint {
 }
 
 func dimPropsForDeployment(dep *v1beta1.Deployment) *atypes.DimProperties {
-	props, tags := propsAndTagsFromLabels(dep.Labels)
+	props, tags := k8sutil.PropsAndTagsFromLabels(dep.Labels)
 	props["name"] = dep.Name
 
 	for _, or := range dep.OwnerReferences {

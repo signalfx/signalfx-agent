@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/signalfx/golib/datapoint"
+	k8sutil "github.com/signalfx/signalfx-agent/internal/monitors/kubernetes/utils"
 	atypes "github.com/signalfx/signalfx-agent/internal/monitors/types"
 	"github.com/signalfx/signalfx-agent/internal/utils"
 	"k8s.io/api/core/v1"
@@ -73,12 +74,16 @@ func datapointsForPod(pod *v1.Pod) []*datapoint.Datapoint {
 	return dps
 }
 
-func dimPropsForPod(pod *v1.Pod) *atypes.DimProperties {
-	props, tags := propsAndTagsFromLabels(pod.Labels)
-
-	for _, or := range pod.OwnerReferences {
+func dimPropsForPod(cachedPod *k8sutil.CachedPod, sc *k8sutil.ServiceCache) *atypes.DimProperties {
+	props, tags := k8sutil.PropsAndTagsFromLabels(cachedPod.LabelSet)
+	for _, or := range cachedPod.OwnerReferences {
 		props[utils.LowercaseFirstChar(or.Kind)] = or.Name
 		props[utils.LowercaseFirstChar(or.Kind)+"_uid"] = string(or.UID)
+	}
+
+	serviceTags := sc.GetMatchingServices(cachedPod)
+	for _, tag := range serviceTags {
+		tags["kubernetes_service_"+tag] = true
 	}
 
 	if len(props) == 0 && len(tags) == 0 {
@@ -88,7 +93,7 @@ func dimPropsForPod(pod *v1.Pod) *atypes.DimProperties {
 	return &atypes.DimProperties{
 		Dimension: atypes.Dimension{
 			Name:  "kubernetes_pod_uid",
-			Value: string(pod.UID),
+			Value: string(cachedPod.UID),
 		},
 		Properties: props,
 		Tags:       tags,

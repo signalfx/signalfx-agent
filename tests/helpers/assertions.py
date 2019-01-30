@@ -301,7 +301,10 @@ def has_dim_tag(fake_services, dim_name, dim_value, tag_value):
     Tests if the given dimension has a certain tag
     """
     dim = fake_services.dims[dim_name][dim_value]
-    return tag_value in dim.get("tags", [])
+    tags = dim.get("tags", [])
+    if tags is not None:
+        return tag_value in tags
+    return False
 
 
 def has_dim_prop(fake_services, dim_name, dim_value, prop_name, prop_value=None):
@@ -311,4 +314,6 @@ def has_dim_prop(fake_services, dim_name, dim_value, prop_name, prop_value=None)
     """
     dim = fake_services.dims[dim_name][dim_value]
     props = dim.get("customProperties", {})
-    return prop_name in props and props.get(prop_name) == prop_value
+    if props is not None:
+        return prop_name in props and props.get(prop_name) == prop_value
+    return False
