@@ -5,15 +5,16 @@ package processes
 //go:generate collectd-template-to-go processes.tmpl
 
 import (
-	"fmt"
-
 	"github.com/signalfx/signalfx-agent/internal/core/config"
 	"github.com/signalfx/signalfx-agent/internal/monitors"
 	"github.com/signalfx/signalfx-agent/internal/monitors/collectd"
 	"github.com/signalfx/signalfx-agent/internal/utils/hostfs"
+	log "github.com/sirupsen/logrus"
 )
 
 const monitorType = "collectd/processes"
+
+var logger = log.WithFields(log.Fields{"monitorType": monitorType})
 
 // MONITOR(collectd/processes): Gathers information about processes running on
 // the host.  See
@@ -80,9 +81,10 @@ type Monitor struct {
 // Configure configures and runs the plugin in collectd
 func (am *Monitor) Configure(conf *Config) error {
 	if conf.ProcFSPath != "" {
-		return fmt.Errorf("Please set the `procPath` top level agent configuration instead of the monitor level configuration")
+		logger.Warningf("Please set the `procPath` top level agent configuration instead of the monitor level configuration")
+	} else {
+		// get top level configuration for /proc path
+		conf.ProcFSPath = hostfs.HostProc()
 	}
-	// get top level configuration for /proc path
-	conf.ProcFSPath = hostfs.HostProc()
 	return am.SetConfigurationAndRun(conf)
 }

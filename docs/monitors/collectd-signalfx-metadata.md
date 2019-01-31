@@ -24,7 +24,7 @@ Monitor Type: `collectd/signalfx-metadata`
 | Config option | Required | Type | Description |
 | --- | --- | --- | --- |
 | `writeServerURL` | no | `string` |  |
-| `procFSPath` | no | `string` | (Deprecated) Please set the agent configuration `procPath` instead of this monitor configuration option. The path to the proc filesystem. Useful to override in containerized environments. (**default:** `/proc`) |
+| `procFSPath` | no | `string` | (Deprecated) Please set the agent configuration `procPath` instead of this monitor configuration option. The path to the proc filesystem. Useful to override in containerized environments. |
 | `etcPath` | no | `string` | (Deprecated) Please set the agent configuration `etcPath` instead of this monitor configuration option. The path to the main host config dir. Useful to override in containerized environments. |
 | `perCoreCPUUtil` | no | `bool` | Collect the cpu utilization per core, reported as `cpu.utilization_per_core`. (**default:** `false`) |
 | `persistencePath` | no | `string` | A directory where the metadata plugin can persist the history of successful host metadata syncs so that host metadata is not sent redundantly. (**default:** `/var/run/signalfx-agent`) |

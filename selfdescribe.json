@@ -8981,7 +8981,7 @@
         {
           "yamlName": "procFSPath",
           "doc": "(Deprecated) Please set the agent configuration `procPath` instead of this monitor configuration option. The path to the proc filesystem. Useful to override in containerized environments.",
-          "default": "/proc",
+          "default": "",
           "required": false,
           "type": "string",
           "elementKind": ""
