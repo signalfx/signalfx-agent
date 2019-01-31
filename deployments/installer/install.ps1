@@ -7,8 +7,8 @@
 .SYNOPSIS
     Installs the SignalFx Agent from the package repos.
 .DESCRIPTION
-    Installs the SignalFx Agent from the package repos.  If access_token is not
-    provided, it will prompted for on stdin.  If you want to view full documentation
+    Installs the SignalFx Agent from the package repos. If access_token is not
+    provided, it will prompted for on the console. If you want to view full documentation
     execute Get-Help with the parameter "-Full".
 .PARAMETER access_token
     The token used to send metric data to SignalFx.
@@ -19,21 +19,21 @@
     .EXAMPLE
     .\install.ps1 -access_token "ACCESSTOKEN" -stage "test"
 .PARAMETER ingest_url
-    (OPTIONAL) Base URL of the SignalFx ingest server.  Defaults to 'https://ingest.signalfx.com'.
+    (OPTIONAL) Base URL of the SignalFx ingest server. Defaults to 'https://ingest.signalfx.com'.
     .EXAMPLE
     .\install.ps1 -access_token "ACCESSTOKEN" -ingest_url "https://ingest.signalfx.com"
-.PARAMETER api_URL
-    (OPTIONAL) Base URL of the SignalFx API server.  Defaults to 'https://api.signalfx.com'.
+.PARAMETER api_url
+    (OPTIONAL) Base URL of the SignalFx API server. Defaults to 'https://api.signalfx.com'.
     .EXAMPLE
-    .\install.ps1 -access_token "ACCESSTOKEN" -ingest_url "https://api.signalfx.com"
+    .\install.ps1 -access_token "ACCESSTOKEN" -api_url "https://api.signalfx.com"
 .PARAMETER insecure
-    (OPTIONAL) If true then certificates will not be checked when downloading resources Defaults to '$false'.
+    (OPTIONAL) If true then certificates will not be checked when downloading resources. Defaults to '$false'.
     .EXAMPLE
     .\install.ps1 -access_token "ACCESSTOKEN" -insecure $true
-.PARAMETER package_version
+.PARAMETER agent_version
     (OPTIONAL) Specify a specific version of the agent to install.  Defaults to the latest version available.
     .EXAMPLE
-    .\install.ps1 -access_token "ACCESSTOKEN" -package_version "4.0.0"
+    .\install.ps1 -access_token "ACCESSTOKEN" -agent_version "4.0.0"
 #>
 
 param (
@@ -44,7 +44,7 @@ param (
     [string]$ingest_url = "https://ingest.signalfx.com",
     [string]$api_url = "https://api.signalfx.com",
     [bool]$insecure = $false,
-    [string]$package_version = "",
+    [string]$agent_version = "",
     [bool]$UNIT_TEST = $false
 )
 
@@ -223,16 +223,16 @@ function uninstall_agent($installation_path=$installation_path, $config_path=$co
 }
 
 # download agent package from repo
-function download_agent_package([string]$package_version=$package_version, [string]$tempdir=$tempdir, [string]$stage=$stage, [string]$arch=$arch, [string]$format=$format){
+function download_agent_package([string]$agent_version=$agent_version, [string]$tempdir=$tempdir, [string]$stage=$stage, [string]$arch=$arch, [string]$format=$format){
     # determine package version to fetch
-    if ($package_version -Eq ""){
+    if ($agent_version -Eq ""){
         echo 'Determining latest release...'
-        $package_version = get_latest -stage $stage -format $format
-        echo "- Latest release is $package_version"
+        $agent_version = get_latest -stage $stage -format $format
+        echo "- Latest release is $agent_version"
     }
     
     # get the filename to download
-    $filename = get_filename -tag $package_version -format $format -arch $arch
+    $filename = get_filename -tag $agent_version -format $format -arch $arch
     echo $filename
     
     # get url for file to download
@@ -271,8 +271,8 @@ $signalfx_dir = create_signalfx_dir -installation_path $installation_path
 # set up a temporary directory under signalfx directory
 $tempdir = create_temp_dir -installation_path $installation_path
 
-# download the agent package with the specified package_version or latest
-download_agent_package -package_version $package_version -tempdir $tempdir -stage $stage -arch $arch -format $format
+# download the agent package with the specified agent_version or latest
+download_agent_package -agent_version $agent_version -tempdir $tempdir -stage $stage -arch $arch -format $format
 
 # check for an existing installation
 if (Test-Path -Path "$installation_path\SignalFx\SignalFxAgent\bin\signalfx-agent.exe") {
