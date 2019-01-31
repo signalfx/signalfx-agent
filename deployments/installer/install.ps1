@@ -290,11 +290,11 @@ if (Test-Path -Path "$installation_path\SignalFx\SignalFxAgent\bin\signalfx-agen
     uninstall_agent -installation_path $installation_path -config_path $config_path
 } else {
     # write the access token file
-    Add-Content -NoNewline -Path "$tempdir\SignalFxAgent\etc\signalfx\token" -Value $access_token
+    [System.IO.File]::WriteAllText("$tempdir\SignalFxAgent\etc\signalfx\token","$access_token",[System.Text.Encoding]::ASCII)
     # write the ingest url file
-    Add-Content -NoNewline -Path "$tempdir\SignalFxAgent\etc\signalfx\ingest_url" -Value $ingest_url
+    [System.IO.File]::WriteAllText("$tempdir\SignalFxAgent\etc\signalfx\ingest_url","$ingest_url",[System.Text.Encoding]::ASCII)
     # write the api url file
-    Add-Content -NoNewline -Path "$tempdir\SignalFxAgent\etc\signalfx\api_url" -Value $api_url
+    [System.IO.File]::WriteAllText("$tempdir\SignalFxAgent\etc\signalfx\api_url"," $api_url",[System.Text.Encoding]::ASCII)
 }
 echo "Copying agent files into place..."
 Copy-Item -Recurse "$tempdir\SignalFxAgent" "$installation_path\SignalFx\SignalFxAgent"
