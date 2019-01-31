@@ -82,6 +82,7 @@ function check_if_admin(){
 # get latest package tag given a stage and format
 function get_latest([string]$stage=$stage,[string]$format=$format) {
     try {
+        [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
         $latest = (New-Object System.Net.WebClient).DownloadString("$signalfx_dl/windows/$stage/$format/latest/latest.txt")
     }catch {
         $err = $_.Exception.Message
@@ -129,13 +130,20 @@ function ensure_file_exists([string]$path="C:\"){
 
 # unzip a file
 function unzip_file($zipFile, $outputDir){
-    Expand-Archive -Path $zipFile -DestinationPath $outputDir
+    if (!(Test-Path -Path "$zipFile")){
+        throw "can't find zip file"
+    }
+    # found the following on https://www.howtogeek.com/tips/how-to-extract-zip-files-using-powershell/
+    $shell = new-object -com shell.application
+    foreach($item in ($shell.NameSpace($zipfile)).items()){
+        $shell.Namespace($outputDir).copyhere($item)
+    }
 }
 
 # verify a SignalFx access token
 function verify_access_token([string]$access_token="", [string]$ingest_url=$INGEST_URL, [bool]$insecure=$INSECURE) {
     if ($inscure) {
-        # turn of certificate validation
+        # turn off certificate validation
         [System.Net.ServicePointManager]::ServerCertificateValidationCallback = {$true} ;
     }
     $url = "$ingest_url/v2/event"
