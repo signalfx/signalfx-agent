@@ -259,7 +259,7 @@ check_policy
 
 # verify access token
 echo 'Verifying Access Token...'
-if (!(verify_access_token -access_token $access_token -ingest_url $ingest_url -inesecure $insecure)) {
+if (!(verify_access_token -access_token $access_token -ingest_url $ingest_url -insecure $insecure)) {
     throw "Failed to authenticate access token please verify that your access token is correct"
 } else {
     echo '- Verified Access Token'
