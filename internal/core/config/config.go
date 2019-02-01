@@ -93,8 +93,7 @@ type Config struct {
 	// host.  If you set this to blank/null, the internal status server will
 	// not be started.
 	InternalStatusHost string `yaml:"internalStatusHost" default:"localhost"`
-	// The port on which the internal status server will listen.  See
-	// `internalMetricsHost`.
+	// The port on which the internal status server will listen.
 	InternalStatusPort uint16 `yaml:"internalStatusPort" default:"8095"`
 
 	// Enables Go pprof endpoint on port 6060 that serves profiling data for

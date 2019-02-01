@@ -16072,7 +16072,7 @@
       },
       {
         "yamlName": "internalStatusPort",
-        "doc": "The port on which the internal status server will listen.  See `internalMetricsHost`.",
+        "doc": "The port on which the internal status server will listen.",
         "default": 8095,
         "required": false,
         "type": "uint16",
