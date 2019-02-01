@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"runtime"
-	"strings"
 	"time"
 
 	"github.com/shirou/gopsutil/cpu"
@@ -22,6 +21,9 @@ const percoreMetricName = "cpu.utilization_per_core"
 
 // setting cpu.Times to a package variable for testing purposes
 var times = cpu.Times
+
+var errorUsedDiffLessThanZero = fmt.Errorf("usedDiff < 0")
+var errorTotalDiffLessThanZero = fmt.Errorf("totalDiff < 0")
 
 // MONITOR(cpu):
 // This monitor reports cpu metrics.
@@ -119,7 +121,7 @@ func (m *Monitor) emitDatapoints() {
 
 		// append errors
 		if err != nil {
-			if strings.HasSuffix(err.Error(), "are < 0") {
+			if err == errorTotalDiffLessThanZero || err == errorUsedDiffLessThanZero {
 				logger.WithField("debug", err).Debugf("failed to calculate utilization for cpu")
 			} else {
 				logger.WithError(err).Errorf("failed to calculate utilization for cpu")
@@ -150,8 +152,10 @@ func getUtilization(prev *totalUsed, current *totalUsed) (utilization float64, e
 
 	usedDiff := current.Used - prev.Used
 	totalDiff := current.Total - prev.Total
-	if usedDiff < 0 || totalDiff < 0 {
-		err = fmt.Errorf("usedDiff (%v) or totalDiff (%v) are < 0", usedDiff, totalDiff)
+	if usedDiff < 0 {
+		err = errorUsedDiffLessThanZero
+	} else if totalDiff < 0 {
+		err = errorTotalDiffLessThanZero
 	} else if (usedDiff == 0 && totalDiff == 0) || totalDiff == 0 {
 		utilization = 0
 	} else {
