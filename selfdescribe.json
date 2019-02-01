@@ -16064,7 +16064,7 @@
       },
       {
         "yamlName": "internalStatusHost",
-        "doc": "The host on which the internal status server will listen.  The internal status HTTP server serves internal metrics and diagnostic information about the agent and can be scraped by the `internal-metrics` monitor. Can be set to `0.0.0.0` if you want to monitor the agent from another host.  If you set this to blank/null, the internal status server will not be started.",
+        "doc": "The host on which the internal status server will listen.  The internal status HTTP server serves internal metrics and diagnostic information about the agent and can be scraped by the `internal-metrics` monitor. Can be set to `0.0.0.0` if you want to monitor the agent from another host.  If you set this to blank/null, the internal status server will not be started.  See `internalStatusPort`.",
         "default": "localhost",
         "required": false,
         "type": "string",
@@ -16072,7 +16072,7 @@
       },
       {
         "yamlName": "internalStatusPort",
-        "doc": "The port on which the internal status server will listen.",
+        "doc": "The port on which the internal status server will listen.  See `internalStatusHost`.",
         "default": 8095,
         "required": false,
         "type": "uint16",
