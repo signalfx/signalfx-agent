@@ -188,28 +188,28 @@ function copy_existing_etc([string]$installation_path=$installation_path, [strin
 
 # start the service if it's stopped
 function start_service([string]$installation_path=$installation_path, [string]$config_path=$config_path) {
-    if ((WmiObject win32_service -Filter "Name = 'SignalFx Smart Agent'" | Select Name, State).State -Eq "Stopped"){
+    if ((Get-CimInstance -ClassName win32_service -Filter "Name = 'SignalFx Smart Agent'" | Select Name, State).State -Eq "Stopped"){
         & "$installation_path\SignalFx\SignalFxAgent\bin\signalfx-agent.exe" -service "start" -config "$config_path"
     }
 }
 
 # stop the service if it's running
 function stop_service([string]$installation_path=$installation_path, [string]$config_path=$config_path) {
-    if ((WmiObject win32_service -Filter "Name = 'SignalFx Smart Agent'" | Select Name, State).State -Eq "Running"){
+    if ((Get-CimInstance -ClassName win32_service -Filter "Name = 'SignalFx Smart Agent'" | Select Name, State).State -Eq "Running"){
         & "$installation_path\SignalFx\SignalFxAgent\bin\signalfx-agent.exe" -service "stop" -config "$config_path"
     }
 }
 
 # install the service if it's not already installed
 function install_service([string]$installation_path=$installation_path, [string]$config_path=$config_path) {
-    if (!((WmiObject win32_service -Filter "Name = 'SignalFx Smart Agent'" | Select Name, State).Name)){
+    if (!((Get-CimInstance -ClassName win32_service -Filter "Name = 'SignalFx Smart Agent'" | Select Name, State).Name)){
         & "$installation_path\SignalFx\SignalFxAgent\bin\signalfx-agent.exe" -service "install" -logEvents -config "$config_path"
     }
 }
 
 # uninstall the service
 function uninstall_service([string]$installation_path=$installation_path, [string]$config_path=$config_path) {
-    if ((WmiObject win32_service -Filter "Name = 'SignalFx Smart Agent'" | Select Name, State).Name -Eq "SignalFx Smart Agent"){
+    if ((Get-CimInstance -ClassName win32_service -Filter "Name = 'SignalFx Smart Agent'" | Select Name, State).Name -Eq "SignalFx Smart Agent"){
         stop_service -installation_path $installation_path -config_path $config_path
         & "$installation_path\SignalFx\SignalFxAgent\bin\signalfx-agent.exe" -service "uninstall" -config "$config_path"
     }
@@ -304,7 +304,7 @@ install_service -installation_path $installation_path -config_path $config_path
 echo "- Done"
 echo "Starting agent service..."
 start_service -installation_path $installation_path -config_path $config_path
-if (!((WmiObject win32_service -Filter "Name = 'SignalFx Smart Agent'" | Select Name, State).State -Eq "Running")){
+if (!((Get-CimInstance -ClassName win32_service -Filter "Name = 'SignalFx Smart Agent'" | Select Name, State).State -Eq "Running")){
     throw "Agent service is not running.  Something went wrong durring the installation.  Please rerun the installer"
 }
 echo "- Started"
