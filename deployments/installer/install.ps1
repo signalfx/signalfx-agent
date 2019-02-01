@@ -8,7 +8,7 @@
     Installs the SignalFx Agent from the package repos.
 .DESCRIPTION
     Installs the SignalFx Agent from the package repos. If access_token is not
-    provided, it will prompted for on the console. If you want to view full documentation
+    provided, it will be prompted for on the console. If you want to view full documentation
     execute Get-Help with the parameter "-Full".
 .PARAMETER access_token
     The token used to send metric data to SignalFx.

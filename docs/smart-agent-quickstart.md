@@ -36,84 +36,17 @@ More detailed installation steps to install via a config management tool or usin
 
 #### Step 2: Configuration
 
-The default configuration file should be located at `/etc/signalfx/agent.yaml` linux
+The default configuration file should be located at `/etc/signalfx/agent.yaml` on Linux
 and `C:\Program Files\SignalFx\SignalFxAgent\etc\signalfx\agent.yaml` on Windows.
 Also, by default, the file containing your SignalFx API token should be located at
-`/etc/signalfx/token` on linux and `C:\Program Files\SignalFx\SignalFxAgent\etc\signalfx\token`.
+`/etc/signalfx/token` on Linux and `C:\Program Files\SignalFx\SignalFxAgent\etc\signalfx\token`.
 
-In the example agent.yaml configuration file shown below, the default location for the token file is used.
+In the referenced example agent.yaml configuration files below, the default
+location for the token file is used.
 
-Linux Default Configuration File
+- [Linux Default Configuration File](https://github.com/signalfx/signalfx-agent/blob/master/packaging/etc/agent.yaml)
 
-```
----
-# *Required* The access token for the org that you wish to send metrics to.
-signalFxAccessToken: {"#from": "/etc/signalfx/token"}
-ingestUrl: {"#from": "/etc/signalfx/ingest_url", default: "https://ingest.signalfx.com"}
-
-intervalSeconds: 10
-
-logging:
-  # Valid values are 'debug', 'info', 'warning', and 'error'
-  level: info
-
-# observers discover running services in the environment
-observers:
-  - type: host
-
-monitors:
-  - {"#from": "/etc/signalfx/monitors/*.yaml", flatten: true, optional: true}
-  - type: internal-metrics
-  - type: host-metadata
-  - type: collectd/cpu
-  - type: collectd/cpufreq
-  - type: collectd/df
-  - type: collectd/disk
-  - type: collectd/interface
-  - type: collectd/load
-  - type: collectd/memory
-  - type: collectd/protocols
-  - type: collectd/signalfx-metadata
-  - type: collectd/uptime
-  - type: collectd/vmem
-
-metricsToExclude:
-```
-
-Windows Default Configuration File
-
-```
----
-# *Required* The access token for the org that you wish to send metrics to.
-signalFxAccessToken: {"#from": 'C:\Program Files\SignalFx\SignalFxAgent\etc\signalfx\token'}
-ingestUrl: {"#from": 'C:\Program Files\SignalFx\SignalFxAgent\etc\signalfx\ingest_url', default: "https://ingest.signalfx.com"}
-apiUrl: {"#from": 'C:\Program Files\SignalFx\SignalFxAgent\etc\signalfx\api_url', default: "https://api.signalfx.com"}
-
-intervalSeconds: 10
-
-logging:
-  # Valid values are 'debug', 'info', 'warning', and 'error'
-  level: info
-
-# observers are what discover running services in the environment
-observers:
-  - type: host
-
-monitors:
-  - {"#from": 'C:\Program Files\SignalFx\SignalFxAgent\etc\signalfx\monitors\*.yaml', flatten: true, optional: true}
-  - type: host-metadata
-  - type: processlist
-  - type: cpu
-  - type: disk-io
-  - type: filesystems
-  - type: memory
-  - type: net-io
-  - type: vmem
-
-metricsToExclude:
-  - {"#from": 'C:\Program Files\SignalFx\SignalFxAgent\lib\whitelist.json', flatten: true}
-
-```
+- [Windows Default Configuration File](https://github.com/signalfx/signalfx-agent/blob/master/packaging/win/agent.yaml)
 
 You can add more [monitors](./monitor-config.md) and configure them as appropriate.
 

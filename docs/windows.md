@@ -1,6 +1,6 @@
 # Windows Setup
 
-The agent supports standalone installations on Windows hosts.  
+The agent supports standalone installations on Windows Server 2008 and above.
 
 ## Installation
 
@@ -11,7 +11,7 @@ To get started deploying the Smart Agent directly on a Windows host, see the
 
 The agent supports all of the python based collectd monitors as well as all
 Go-based monitors.  C-based collectd monitors are not available on Windows.
-The following monitors are available on windows.
+The following monitors are available on Windows.
 
 - [aspdotnet](./monitors/aspdotnet.md)
 - [collectd/consul](./monitors/collectd-consul.md)
@@ -66,7 +66,7 @@ see logged events from the agent service under `Windows Logs > Application`.
 
 ## Service Configuration
 
-The agent can be registered as a windows service by invoking the agent executable
+The agent can be registered as a Windows service by invoking the agent executable
 with a few command line flags in powershell.
 
 - Install Service

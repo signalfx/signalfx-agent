@@ -70,17 +70,18 @@ single agent.
 
 ## Installation
 
-The agent is available for Linux in both a containerized and standalone form. Whatever form you use, the dependencies are completely bundled along with the
+The agent is available for Linux in both a containerized and standalone form.
+Whatever form you use, the dependencies are completely bundled along with the
 agent, including a Java JRE runtime and a Python runtime, so there are no
 additional dependencies required.  This means that the agent should work on any
 relatively modern Linux distribution (kernel version 2.6+).  
 
 The agent is also available on Windows in standalone form.  It
-contains it's own Python runtime, but has an external depencency on the [Visual C++ Compiler for Python 2.7](https://www.microsoft.com/EN-US/DOWNLOAD/DETAILS.ASPX?ID=44266)
+contains its own Python runtime, but has an external depencency on the
+[Visual C++ Compiler for Python 2.7](https://www.microsoft.com/EN-US/DOWNLOAD/DETAILS.ASPX?ID=44266)
 in order to operate.  The agent supports Windows Server 2008 and above.
 
-To get started
-deploying the Smart Agent directly on a host, see the
+To get started deploying the Smart Agent directly on a host, see the
 [Smart Agent Quickstart](./docs/smart-agent-quickstart.md) guide.
 
 ### Deployment
@@ -120,21 +121,21 @@ and use it on your hosts in powershell by running:
 ```
 
 #### Chef
-We offer a Chef cookbook to install and configure the agent on linux.  See [the cookbook
+We offer a Chef cookbook to install and configure the agent on Linux.  See [the cookbook
 source](./deployments/chef) and [on the Chef
 Supermarket](https://supermarket.chef.io/cookbooks/signalfx_agent).
 
 #### Puppet
-We also offer a Puppet manifest to install and configure the agent on linux.  See [the
+We also offer a Puppet manifest to install and configure the agent on Linux.  See [the
 manifest source](./deployments/puppet) and [on the Puppet
 Forge](https://forge.puppet.com/signalfx/signalfx_agent/readme).
 
 #### Ansible
-We also offer an Ansible Role to install and configure the Smart Agent on linux.  See [the
+We also offer an Ansible Role to install and configure the Smart Agent on Linux.  See [the
 role source](https://github.com/signalfx/signalfx-agent/tree/master/deployments/ansible).
 
 #### Salt
-We also offer a Salt Formula to install and configure the Smart Agent on linux.  See [the
+We also offer a Salt Formula to install and configure the Smart Agent on Linux.  See [the
 formula source](https://github.com/signalfx/signalfx-agent/tree/master/deployments/salt).
 
 #### Docker Image
@@ -201,13 +202,13 @@ options that you will especially want to consider:
  - `internalStatusHost` - This is the host name that
 	 the agent will listen on so that the `signalfx-agent status` command can
 	 read diagnostic information from a running agent.  This is also the host name the
-	 agent will listen on to serves internal metrics about the agent.  These metrics can
+	 agent will listen on to serve internal metrics about the agent.  These metrics can
 	 can be scraped by the `internal-metrics` monitor.  This will default to `localhost`
 	 if left blank.
 
  - `internalStatusPort` - This is the port that the agent will listen on so that
 	 the `signalfx-agent status` command can read diagnostic information from
-	 a running agent.  This is also the host name the agent will listen on to serves
+	 a running agent.  This is also the host name the agent will listen on to serve
 	 internal metrics about the agent.  These metrics can can be scraped by the
 	 `internal-metrics` monitor.  This will default to `8095`.
 
@@ -248,7 +249,7 @@ To use the bundle:
 1) Unzip it to a directory of your choice on the target system.
 
 2) Ensure a valid configuration file is available somewhere on the target
-system.  The main thing that the installer script provide -- but that you will
+system.  The main thing that the installer script provides -- but that you will
 have to provide manually with the bundle -- is a run directory for the agent to
 use.  Since you aren't installing from a package, there are three config
 options that you will especially want to consider:
@@ -256,20 +257,20 @@ options that you will especially want to consider:
  - `internalStatusHost` - This is the host name that
 	 the agent will listen on so that the `signalfx-agent status` command can
 	 read diagnostic information from a running agent.  This is also the host name the
-	 agent will listen on to serves internal metrics about the agent.  These metrics can
+	 agent will listen on to serve internal metrics about the agent.  These metrics can
 	 can be scraped by the `internal-metrics` monitor.  This will default to `localhost`
 	 if left blank.
 
  - `internalStatusPort` - This is the port that the agent will listen on so that
 	 the `signalfx-agent status` command can read diagnostic information from
-	 a running agent.  This is also the host name the agent will listen on to serves
+	 a running agent.  This is also the host name the agent will listen on to serve
 	 internal metrics about the agent.  These metrics can can be scraped by the
 	 `internal-metrics` monitor.  This will default to `8095`.
 
 See the section on [Privileges](#privileges) for information on the
 capabilities the agent requires.
 
-3) Run the agent by invoking agent executable
+3) Run the agent by invoking the agent executable
 `SignalFxAgent\bin\signalfx-agent.exe -config <path to config.yaml>`.  The agent
 logs only to stdout/err so it is up to you to direct that to a log file or
 other log management system if you wish to persist logs.  See the
