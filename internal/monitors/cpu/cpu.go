@@ -22,6 +22,9 @@ const percoreMetricName = "cpu.utilization_per_core"
 // setting cpu.Times to a package variable for testing purposes
 var times = cpu.Times
 
+var errorUsedDiffLessThanZero = fmt.Errorf("usedDiff < 0")
+var errorTotalDiffLessThanZero = fmt.Errorf("totalDiff < 0")
+
 // MONITOR(cpu):
 // This monitor reports cpu metrics.
 //
@@ -63,7 +66,11 @@ type Monitor struct {
 func (m *Monitor) emitPerCoreDatapoints() {
 	totals, err := times(true)
 	if err != nil {
-		logger.WithField("warning", err).Warningf("unable to get per core cpu times will try again in the next reporting cycle")
+		if err == context.DeadlineExceeded {
+			logger.WithField("debug", err).Debugf("unable to get per core cpu times will try again in the next reporting cycle")
+		} else {
+			logger.WithField("warning", err).Warningf("unable to get per core cpu times will try again in the next reporting cycle")
+		}
 	}
 	// for each core
 	for _, core := range totals {
@@ -98,7 +105,11 @@ func (m *Monitor) emitPerCoreDatapoints() {
 func (m *Monitor) emitDatapoints() {
 	total, err := times(false)
 	if err != nil || len(total) == 0 {
-		logger.WithField("warning", err).Warningf("unable to get cpu times will try again in the next reporting cycle")
+		if err == context.DeadlineExceeded {
+			logger.WithField("debug", err).Debugf("unable to get cpu times will try again in the next reporting cycle")
+		} else {
+			logger.WithError(err).Errorf("unable to get cpu times will try again in the next reporting cycle")
+		}
 		return
 	}
 	// get current times as totalUsed
@@ -110,7 +121,11 @@ func (m *Monitor) emitDatapoints() {
 
 		// append errors
 		if err != nil {
-			logger.WithError(err).Errorf("failed to calculate utilization for cpu")
+			if err == errorTotalDiffLessThanZero || err == errorUsedDiffLessThanZero {
+				logger.WithField("debug", err).Debugf("failed to calculate utilization for cpu")
+			} else {
+				logger.WithError(err).Errorf("failed to calculate utilization for cpu")
+			}
 			return
 		}
 
@@ -137,8 +152,10 @@ func getUtilization(prev *totalUsed, current *totalUsed) (utilization float64, e
 
 	usedDiff := current.Used - prev.Used
 	totalDiff := current.Total - prev.Total
-	if usedDiff < 0 || totalDiff < 0 {
-		err = fmt.Errorf("usedDiff (%v) or totalDiff (%v) are < 0", usedDiff, totalDiff)
+	if usedDiff < 0 {
+		err = errorUsedDiffLessThanZero
+	} else if totalDiff < 0 {
+		err = errorTotalDiffLessThanZero
 	} else if (usedDiff == 0 && totalDiff == 0) || totalDiff == 0 {
 		utilization = 0
 	} else {
@@ -160,7 +177,7 @@ func (m *Monitor) initializeCPUTimes() {
 	var total []cpu.TimesStat
 	var err error
 	if total, err = times(false); err != nil {
-		logger.WithField("warning", err).Warningf("unable to initialize cpu times will try again in the next reporting cycle")
+		logger.WithField("debug", err).Debugf("unable to initialize cpu times will try again in the next reporting cycle")
 	}
 	if len(total) > 0 {
 		m.previousTotal = cpuTimeStatTototalUsed(&total[0])
@@ -172,7 +189,7 @@ func (m *Monitor) initializePerCoreCPUTimes() {
 	var totals []cpu.TimesStat
 	var err error
 	if totals, err = times(true); err != nil {
-		logger.WithField("warning", err).Warningf("unable to initialize per core cpu times will try again in the next reporting cycle")
+		logger.WithField("debug", err).Debugf("unable to initialize per core cpu times will try again in the next reporting cycle")
 	}
 	m.previousPerCore = make(map[string]*totalUsed, len(totals))
 	for _, core := range totals {
