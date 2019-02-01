@@ -6,7 +6,7 @@
 The SignalFx Smart Agent is a metric agent written in Go for monitoring
 infrastructure and application services in a variety of different environments.
 It is meant as a successor to our previous [collectd
-agent](https://github.com/signalfx/collectd), but still uses that internally on linux --
+agent](https://github.com/signalfx/collectd), but still uses that internally on Linux --
 so any existing Python or C-based collectd plugins will still work without
 modification.  On Windows collectd is not included, but the agent is capable of
 running python based collectd plugins without collectd.  C-based collectd plugins
@@ -225,9 +225,9 @@ See the section on [Privileges](#privileges) for information on the
 capabilities the agent requires.
 
 3) Run the agent by invoking the archive path
-`signalfx-agent/bin/signalfx-agent -config <path to config.yaml>`.  The agent
-logs only to stdout/err so it is up to you to direct that to a log file or
-other log management system if you wish to persist logs.  See the
+`signalfx-agent/bin/signalfx-agent -config <path to config.yaml>`.  By default,
+the agent logs only to stdout/err. If you want to persist logs, you must direct
+the output to a log file or other log management system.  See the
 [signalfx-agent command](./docs/signalfx-agent.1.man) doc for more information on
 supported command flags.
 
@@ -238,11 +238,9 @@ download on the [Github Releases
 Page](https://github.com/signalfx/signalfx-agent/releases) for each new
 release.
 
-Before proceeding please satisfy the following three requirements are installed
-on the target host.
-* [Microsoft Visual C++ 2008 SP1 Redistributable Package (x64)](https://www.microsoft.com/en-us/download/details.aspx?id=2092)
-* [.Net Framework 3.5](https://docs.microsoft.com/en-us/dotnet/framework/install/dotnet-35-windows-10) (Windows 8+)
-* [Visual C++ Compiler for Python 2.7](https://www.microsoft.com/EN-US/DOWNLOAD/DETAILS.ASPX?ID=44266)
+Before proceeding make sure the following requirements are met.
+- [.Net Framework 3.5](https://docs.microsoft.com/en-us/dotnet/framework/install/dotnet-35-windows-10) (Windows 8+)
+- [Visual C++ Compiler for Python 2.7](https://www.microsoft.com/EN-US/DOWNLOAD/DETAILS.ASPX?ID=44266)
 
 To use the bundle:
 
@@ -251,7 +249,7 @@ To use the bundle:
 2) Ensure a valid configuration file is available somewhere on the target
 system.  The main thing that the installer script provides -- but that you will
 have to provide manually with the bundle -- is a run directory for the agent to
-use.  Since you aren't installing from a package, there are three config
+use.  Since you aren't installing from a package, there are two config
 options that you will especially want to consider:
 
  - `internalStatusHost` - This is the host name that
@@ -271,14 +269,15 @@ See the section on [Privileges](#privileges) for information on the
 capabilities the agent requires.
 
 3) Run the agent by invoking the agent executable
-`SignalFxAgent\bin\signalfx-agent.exe -config <path to config.yaml>`.  The agent
-logs only to stdout/err so it is up to you to direct that to a log file or
-other log management system if you wish to persist logs.  See the
+`SignalFxAgent\bin\signalfx-agent.exe -config <path to config.yaml>`.  By default,
+the agent logs only to stdout/err. If you want to persist logs, you must direct
+the output to a log file or other log management system.  See the
 [signalfx-agent command](./docs/signalfx-agent.1.man) doc for more information on
 supported command flags.
 
-4) You may optionally install the agent as a windows service by invoking the
-agent executable and specifying a few command line flags
+4) You may optionally install the agent as a Windows service by invoking the
+agent executable and specifying a few command line flags.  The examples below
+show how to do install and start the agent as a Windows service.
 
 - Install Service
 
@@ -311,8 +310,9 @@ On Windows the agent must be installed and run under an administrator account.
 ## Configuration
 
 The agent is configured primarily from a YAML file. By default, the agent config
-is installed at and looked for at `/etc/signalfx/agent.yaml` on linux and `C:\SignalFx\SignalFxAgent\etc\signalfx\agent.yaml` on 
-windows. This can be overridden by the `-config` command line flag.  
+is installed at and looked for at `/etc/signalfx/agent.yaml` on Linux and
+`C:\SignalFx\SignalFxAgent\etc\signalfx\agent.yaml` on Windows. This can be
+overridden by the `-config` command line flag.  
 
 For the full schema of the config, see [Config Schema](./docs/config-schema.md).
 
@@ -333,8 +333,8 @@ log output and should only be used when trying to resolve a problem with the
 agent.
 
 ### Windows
-On Windows the agent will log to the console when executed directly in a shell.
-If the agent is configured as a windows service log events will be logged to the
+On Windows, the agent will log to the console when executed directly in a shell.
+If the agent is configured as a windows service, log events will be logged to the
 Windows Event Log.  Use the Event Viewer application to read the logs.  The Event
 Viewer is located under `Start > Administrative Tools > Event Viewer`.  You can
 see logged events from the agent service under `Windows Logs > Application`.
