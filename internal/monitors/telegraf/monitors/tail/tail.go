@@ -73,8 +73,7 @@ type Config struct {
 	// Whether to start tailing from the beginning of the file
 	FromBeginning bool `yaml:"fromBeginning" default:"false"`
 	// telegrafParser is a nested object that defines configurations for a Telegraf parser.
-	// Please refer to the Telegraf (documentation)[https://github.com/influxdata/telegraf/blob/master/docs/DATA_FORMATS_INPUT.md]
-	// for more information on Telegraf parsers.
+	// Please refer to the Telegraf for more information on Telegraf parsers.
 	TelegrafParser *parser.Config `yaml:"telegrafParser"`
 	parser         telegrafParsers.Parser
 }

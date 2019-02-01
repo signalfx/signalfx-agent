@@ -116,7 +116,7 @@ Once the dependencies have been installed, please run the installer script below
 You can [view the source for the installer script](./deployments/installer/install.ps1)
 and use it on your hosts in powershell by running:
 
-```ps
+```sh
 & {Set-ExecutionPolicy Bypass -Scope Process -Force; $script = ((New-Object System.Net.WebClient).DownloadString('https://dl.signalfx.com/signalfx-agent.ps1')); $params = @{access_token = "YOUR_SIGNALFX_API_TOKEN"}; Invoke-Command -ScriptBlock ([scriptblock]::Create(". {$script} $(&{$args} @params)"))}
 ```
 

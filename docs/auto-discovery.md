@@ -74,14 +74,14 @@ discovered service.
 ## Endpoint Config Mapping
 
 Sometimes it might be useful to use certain attributes of a discovered
-endpoint (see [Autodiscovery](endpoint-discovery)).  These discovered
+endpoint (see [Autodiscovery](./endpoint-discovery)).  These discovered
 endpoints are created by [observers](./observer-config.md) and will usually
 contain a full set of metadata that the observer obtains coincidently when it
 is doing discovery (e.g. container labels).  This metadata can be mapped
 directly to monitor configuration for the monitor that is instantiated for that
 endpoint.
 
-To do this, you can set the [`configEndpointMappings` option](./monitor-config)
+To do this, you can set the [configEndpointMappings option](./monitor-config)
 on a monitor config block.   For example, the `collectd/kafka` monitor has
 the `clusterName` config option, which is an arbirary value used to group
 together broker instances.  You could derive this from the `cluster` container

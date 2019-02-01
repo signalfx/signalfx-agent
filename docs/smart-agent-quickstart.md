@@ -26,7 +26,7 @@ Once the dependencies have been installed, use the following powershell script
 to install the agent.  The agent will be installed as a Windows service and will
 log to the Windows Event Log.
 
-```ps
+```sh
 & {Set-ExecutionPolicy Bypass -Scope Process -Force; $script = ((New-Object System.Net.WebClient).DownloadString('https://dl.signalfx.com/signalfx-agent.ps1')); $params = @{access_token = "YOUR_SIGNALFX_API_TOKEN"}; Invoke-Command -ScriptBlock ([scriptblock]::Create(". {$script} $(&{$args} @params)"))}
 ```
 
