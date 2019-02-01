@@ -4,7 +4,7 @@ from functools import partial as p
 import pytest
 
 from tests.helpers.assertions import has_datapoint
-from tests.helpers.kubernetes.utils import run_k8s_monitors_test, run_k8s_with_agent
+from tests.helpers.kubernetes.utils import run_k8s_monitors_test
 from tests.helpers.util import (
     ensure_always,
     get_monitor_dims_from_selfdescribe,
@@ -13,6 +13,10 @@ from tests.helpers.util import (
 )
 
 pytestmark = [pytest.mark.kubernetes_cluster, pytest.mark.monitor_without_endpoints]
+
+
+def local_file(path):
+    return os.path.join(os.path.dirname(os.path.realpath(__file__)), path)
 
 
 @pytest.mark.k8s
@@ -33,16 +37,9 @@ def test_kubernetes_cluster_in_k8s(agent_image, minikube, k8s_test_timeout, k8s_
 @pytest.mark.k8s
 @pytest.mark.kubernetes
 def test_resource_quota_metrics(agent_image, minikube, k8s_namespace):
+    yamls = [local_file("resource_quota.yaml")]
     monitors = [{"type": "kubernetes-cluster", "kubernetesAPI": {"authType": "serviceAccount"}}]
-
-    with run_k8s_with_agent(
-        agent_image,
-        minikube,
-        monitors,
-        namespace=k8s_namespace,
-        yamls=[os.path.join(os.path.dirname(os.path.realpath(__file__)), "resource_quota.yaml")],
-    ) as [backend, _]:
-
+    with minikube.run_agent(agent_image, yamls=yamls, monitors=monitors, namespace=k8s_namespace) as [_, backend]:
         assert wait_for(
             p(
                 has_datapoint,
@@ -84,26 +81,15 @@ def test_resource_quota_metrics(agent_image, minikube, k8s_namespace):
         )
 
 
-def local_file(path):
-    return os.path.join(os.path.dirname(os.path.realpath(__file__)), path)
-
-
 @pytest.mark.k8s
 @pytest.mark.kubernetes
 def test_kubernetes_cluster_namespace_scope(agent_image, minikube, k8s_namespace):
+    yamls = [local_file("good-pod.yaml"), local_file("bad-pod.yaml")]
     monitors = [{"type": "kubernetes-cluster", "kubernetesAPI": {"authType": "serviceAccount"}, "namespace": "good"}]
-
-    with run_k8s_with_agent(
-        agent_image,
-        minikube,
-        monitors,
-        namespace=k8s_namespace,
-        yamls=[local_file("good-pod.yaml"), local_file("bad-pod.yaml")],
-    ) as [backend, _]:
+    with minikube.run_agent(agent_image, yamls=yamls, monitors=monitors, namespace=k8s_namespace) as [_, backend]:
         assert wait_for(
             p(has_datapoint, backend, dimensions={"kubernetes_namespace": "good"})
         ), "timed out waiting for good pod metrics"
-
         assert ensure_always(
             lambda: not has_datapoint(backend, dimensions={"kubernetes_namespace": "bad"})
         ), "got pod metrics from unspecified namespace"
