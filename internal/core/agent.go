@@ -105,13 +105,6 @@ func (a *Agent) configure(conf *config.Config) {
 	a.meta.InternalStatusHost = conf.InternalStatusHost
 	a.meta.InternalStatusPort = conf.InternalStatusPort
 
-	//if conf.PythonEnabled {
-	//neopy.Instance().Configure()
-	//neopy.Instance().EnsureMonitorsRegistered()
-	//} else if a.lastConfig != nil && a.lastConfig.PythonEnabled {
-	//neopy.Instance().Shutdown()
-	//}
-
 	// The order of Configure calls is very important!
 	a.monitors.Configure(conf.Monitors, &conf.Collectd, conf.IntervalSeconds)
 	a.observers.Configure(conf.Observers)
