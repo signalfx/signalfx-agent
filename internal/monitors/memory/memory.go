@@ -76,7 +76,11 @@ func (m *Monitor) emitDatapoints() {
 	// mem.VirtualMemory is a gopsutil function
 	memInfo, err := virtualMemory()
 	if err != nil {
-		logger.WithError(err).Errorf("unable to collect memory time info")
+		if err == context.DeadlineExceeded {
+			logger.WithField("debug", err).Debugf("unable to collect memory time info")
+		} else {
+			logger.WithError(err).Errorf("unable to collect memory time info")
+		}
 		return
 	}
 

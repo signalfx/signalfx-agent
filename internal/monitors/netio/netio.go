@@ -93,7 +93,11 @@ func (m *Monitor) updateTotals(pluginInstance string, intf *net.IOCountersStat) 
 func (m *Monitor) EmitDatapoints() {
 	info, err := iOCounters(true)
 	if err != nil {
-		logger.Errorf(err.Error())
+		if err == context.DeadlineExceeded {
+			logger.WithField("debug", err).Debugf("failed to load net io counters. if this message repeats frequently there may be a problem")
+		} else {
+			logger.WithError(err).Errorf("failed to load net io counters. if this message repeats frequently there may be a problem")
+		}
 	}
 	for _, intf := range info {
 		// skip it if the interface doesn't match

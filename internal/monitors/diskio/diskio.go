@@ -112,7 +112,11 @@ func (m *Monitor) processLinuxDatapoints(disk *gopsutil.IOCountersStat, dimensio
 func (m *Monitor) emitDatapoints() {
 	iocounts, err := iOCounters()
 	if err != nil {
-		logger.WithError(err).Warningf("failed to load io counters. if this message repeates frequently there may be a problem")
+		if err == context.DeadlineExceeded {
+			logger.WithField("debug", err).Debugf("failed to load io counters. if this message repeats frequently there may be a problem")
+		} else {
+			logger.WithError(err).Errorf("failed to load io counters. if this message repeats frequently there may be a problem")
+		}
 	}
 	// var total uint64
 	for key, disk := range iocounts {

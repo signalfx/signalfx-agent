@@ -126,7 +126,11 @@ func (m *Monitor) reportPercentBytes(dimensions map[string]string, disk *gopsuti
 func (m *Monitor) emitDatapoints() {
 	partitions, err := part(m.conf.IncludeLogical)
 	if err != nil {
-		logger.WithError(err).Errorf("failed to collect list of mountpoints")
+		if err == context.DeadlineExceeded {
+			logger.WithField("debug", err).Debugf("failed to collect list of mountpoints")
+		} else {
+			logger.WithError(err).Errorf("failed to collect list of mountpoints")
+		}
 	}
 	var used uint64
 	var total uint64
@@ -154,7 +158,11 @@ func (m *Monitor) emitDatapoints() {
 		// if we can't collect usage stats about the mountpoint then skip it
 		disk, err := usage(partition.Mountpoint)
 		if err != nil {
-			logger.WithError(err).Errorf("failed to collect usage for mountpoint '%s'", partition.Mountpoint)
+			if err == context.DeadlineExceeded {
+				logger.WithField("debug", err).Debugf("failed to collect usage for mountpoint '%s'", partition.Mountpoint)
+			} else {
+				logger.WithError(err).Errorf("failed to collect usage for mountpoint '%s'", partition.Mountpoint)
+			}
 			continue
 		}
 
