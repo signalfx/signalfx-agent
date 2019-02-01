@@ -74,7 +74,8 @@ def test_conviva_basic():
           pulseUsername: {{"#from": "env:CONVIVA_PULSE_USERNAME"}}
           pulsePassword: {{"#from": "env:CONVIVA_PULSE_PASSWORD"}}
     """
-        )
+        ),
+        debug=False,
     ) as [backend, get_output, agent_config]:
         assert wait_for(lambda: len(backend.datapoints) > 0), "Didn't get conviva datapoints"
         pattern = re.compile("^conviva\.quality_metriclens\..*")
