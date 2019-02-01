@@ -72,6 +72,14 @@ def has_datapoint(fake_services, metric_name=None, dimensions=None, value=None, 
     return False
 
 
+def has_event_type(fake_services, event_type):
+    for evt in fake_services.events:
+        if evt.eventType == event_type:
+            return True
+    return False
+
+
+# Tests if any event received has the given dim key/value on it.
 def has_event_with_dim(fake_services, key, value):
     """
     Tests if any event received has the given dim key/value on it.

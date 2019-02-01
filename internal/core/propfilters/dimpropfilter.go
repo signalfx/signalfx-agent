@@ -35,7 +35,7 @@ func New(propertyNames []string, propertyValues []string, dimensionNames []strin
 	var propertyNameFilter filter.StringFilter
 	if len(propertyNames) > 0 {
 		var err error
-		propertyNameFilter, err = filter.NewStringFilter(propertyNames)
+		propertyNameFilter, err = filter.NewBasicStringFilter(propertyNames)
 		if err != nil {
 			return nil, err
 		}
@@ -44,7 +44,7 @@ func New(propertyNames []string, propertyValues []string, dimensionNames []strin
 	var propertyValueFilter filter.StringFilter
 	if len(propertyValues) > 0 {
 		var err error
-		propertyValueFilter, err = filter.NewStringFilter(propertyValues)
+		propertyValueFilter, err = filter.NewBasicStringFilter(propertyValues)
 		if err != nil {
 			return nil, err
 		}
@@ -53,7 +53,7 @@ func New(propertyNames []string, propertyValues []string, dimensionNames []strin
 	var dimensionNameFilter filter.StringFilter
 	if len(dimensionNames) > 0 {
 		var err error
-		dimensionNameFilter, err = filter.NewStringFilter(dimensionNames)
+		dimensionNameFilter, err = filter.NewBasicStringFilter(dimensionNames)
 		if err != nil {
 			return nil, err
 		}
@@ -62,7 +62,7 @@ func New(propertyNames []string, propertyValues []string, dimensionNames []strin
 	var dimensionValueFilter filter.StringFilter
 	if len(dimensionValues) > 0 {
 		var err error
-		dimensionValueFilter, err = filter.NewStringFilter(dimensionValues)
+		dimensionValueFilter, err = filter.NewBasicStringFilter(dimensionValues)
 		if err != nil {
 			return nil, err
 		}

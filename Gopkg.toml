@@ -102,7 +102,7 @@
 
 [[constraint]]
   name = "github.com/shirou/gopsutil"
-  version = "^2.18.0"
+  version = "=2.18.12"
 
 [[constraint]]
   branch = "master"
@@ -126,7 +126,7 @@
 
 [[constraint]]
   name = "github.com/gobwas/glob"
-  version = "=0.2.2"
+  version = "=0.2.3"
 
 [[constraint]]
   name = "k8s.io/client-go"
@@ -154,11 +154,15 @@
 
 [[constraint]]
   name = "github.com/Microsoft/go-winio"
-  revision = "ab35fc04b6365e8fcb18e6e9e41ea4a02b10b175"
+  version = "=0.4.9"
+
+[[override]]
+  source = "https://github.com/fsnotify/fsnotify/archive/v1.4.7.tar.gz"
+  name = "gopkg.in/fsnotify.v1"
 
 [[constraint]]
   name = "github.com/signalfx/telegraf"
-  revision = "e2e44a3374c4963a78c7bf87ed85b8b4059074aa"
+  revision = "888c034dc63b1420acc06188f1af72a5b19872e2"
 
 [[override]]
   name = "github.com/coreos/bbolt"
@@ -172,3 +176,19 @@
 [[constraint]]
   name = "github.com/hashicorp/vault"
   version = "=1.0.2"
+
+[[constraint]]
+  name = "github.com/influxdata/telegraf"
+  version = "=1.8.3"
+
+[[constraint]]
+  name = "github.com/ulule/deepcopier"
+  revision = "ca99b135e50f526fde9cd88705f0ff2f3f95b77c"
+
+[[constraint]]
+  name = "github.com/kardianos/service"
+  revision = "615a14ed75099c9eaac6949e22ac2341bf9d3197"
+
+[[override]]
+  name = "github.com/StackExchange/wmi"
+  revision = "b12b22c5341f0c26d88c4d66176330500e84db68"

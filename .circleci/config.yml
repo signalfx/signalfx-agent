@@ -168,22 +168,7 @@ jobs:
           fi
           PULL_CACHE=yes make dev-image
 
-  build-windows:
-    executor: docker1809
-    steps:
-      - checkout
-      - setup_remote_docker:
-          docker_layer_caching: false
-      - run: |
-          apk add make bash git
-          export PULL_CACHE=yes
-          COLLECTD_VERSION=$(make collectd-version) COLLECTD_COMMIT=$(make collectd-commit) ./scripts/build-binary windows
-          [ -f ~/project/signalfx-agent.exe ] || (echo "signalfx-agent.exe not found!" && exit 1)
-      - store_artifacts:
-          path: ~/project/signalfx-agent.exe
-          destination: /signalfx-agent.exe
-
-  lint:
+  lint: 
     executor: goexecutor
     steps:
       - checkout
@@ -246,7 +231,7 @@ jobs:
             BUNDLE_DIR="$(pwd)/bundle"
             AGENT_BIN="$BUNDLE_DIR/bin/signalfx-agent"
             TEST_SERVICES_DIR="$(pwd)/test-services"
-            MARKERS="not packaging and not installer and not k8s"
+            MARKERS="not packaging and not installer and not k8s and not windows_only"
             mkdir -p "$BUNDLE_DIR"
             cid=$(docker create quay.io/signalfx/signalfx-agent-dev:latest true)
             docker export $cid | tar -C "$BUNDLE_DIR" -xf -
@@ -442,7 +427,6 @@ workflows:
     jobs:
       - build
       - build_dev_image
-      - build-windows
       - lint
       - vet
       - gofmt

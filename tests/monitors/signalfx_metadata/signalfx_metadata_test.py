@@ -11,10 +11,10 @@ pytestmark = [pytest.mark.collectd, pytest.mark.signalfx_metadata, pytest.mark.m
 def test_signalfx_metadata():
     with run_agent(
         """
+    procPath: /proc
+    etcPath: /etc
     monitors:
       - type: collectd/signalfx-metadata
-        procFSPath: /proc
-        etcPath: /etc
         persistencePath: /var/run/signalfx-agent
       - type: collectd/cpu
       - type: collectd/disk

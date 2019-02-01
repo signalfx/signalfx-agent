@@ -12,13 +12,13 @@ monitors:
 
 In containerized environments host `/etc` and `/proc` may not be located
 directly under the root path.  You can specify the path to `proc` and `etc`
-using the monitor configurations `procFSPath` and `etcPath`
+using the top level agent configurations `procPath` and `etcPath`
 
 ```yaml
+procPath: /proc
+etcPath: /etc
 monitors:
   - type: host-metadata
-    procFSPath: "/hostfs/proc"
-    etcPath: "/hostfs/etc"
 ```
 
 Metadata updates occur on a sparse interval of approximately
@@ -37,12 +37,7 @@ Monitor Type: `host-metadata`
 
 ## Configuration
 
-| Config option | Required | Type | Description |
-| --- | --- | --- | --- |
-| `procFSPath` | no | `string` | The path to the proc filesystem. Useful to override in containerized environments. (**default:** `/proc`) |
-| `etcPath` | no | `string` | The path to the main host config dir. Useful to override in containerized environments. (**default:** `/etc`) |
-
-
+This monitor has no configuration options.
 
 
 ## Metrics

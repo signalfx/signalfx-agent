@@ -1,11 +1,11 @@
 package baseemitter
 
 import (
-	"sync"
 	"time"
 
 	"github.com/signalfx/golib/datapoint"
 	"github.com/signalfx/golib/event"
+	measure "github.com/signalfx/signalfx-agent/internal/monitors/telegraf/common/measurement"
 	"github.com/signalfx/signalfx-agent/internal/monitors/types"
 	"github.com/signalfx/signalfx-agent/internal/utils"
 	"github.com/signalfx/telegraf/plugins/outputs/signalfx/parse"
@@ -23,7 +23,6 @@ func GetTime(t ...time.Time) time.Time {
 // BaseEmitter immediately converts a telegraf measurement into datapoints and
 // sends them through Output
 type BaseEmitter struct {
-	lock   sync.RWMutex
 	Output types.Output
 	Logger log.FieldLogger
 	// omittedTags are tags that should be removed from measurements before
@@ -41,14 +40,22 @@ type BaseEmitter struct {
 	// ExcludeDatum(string) and ExcludeData(string).  You should look up
 	// excluded events and metrics using Excluded(string)bool
 	excluded map[string]bool
+	// name map is a map of metric names to their desired metricname
+	// this is used for overriding metric names
+	nameMap map[string]string
+	// metricNameTransformatinos is an array of functions to apply to parsed metric name
+	// from a telegraf metric.
+	metricNameTransformations []func(metricName string) string
+	// measurementTransformations is an array of functions to apply to an incoming measurement
+	// before retrieving the metric name, checking for inclusion/exclusion, etc.
+	// Use great discretion with this.
+	measurementTransformations []func(*measure.Measurement) error
 }
 
 // AddTag adds a key/value pair to all measurement tags.  If a key conflicts
 // the key value pair in AddTag will override the original key on the
 // measurement
 func (b *BaseEmitter) AddTag(key string, val string) {
-	b.lock.Lock()
-	defer b.lock.Unlock()
 	b.addTags[key] = val
 }
 
@@ -61,16 +68,14 @@ func (b *BaseEmitter) AddTags(tags map[string]string) {
 	}
 }
 
-// IncludeEvent a thread safe function for registering an event name to include
+// IncludeEvent registers an event name to include
 // during emission. We disable all events by default because Telegraf has some
 // junk events.
 func (b *BaseEmitter) IncludeEvent(name string) {
-	b.lock.Lock()
-	defer b.lock.Unlock()
 	b.included[name] = true
 }
 
-// IncludeEvents a thread safe function for registering a list of event names to
+// IncludeEvents registers a list of event names to
 // include during emission. We disable all events by default because Telegraf
 // has some junk events.
 func (b *BaseEmitter) IncludeEvents(names []string) {
@@ -79,21 +84,16 @@ func (b *BaseEmitter) IncludeEvents(names []string) {
 	}
 }
 
-// Included - A thread safe function for checking if events should be included
+// Included - checks if events should be included
 // during emission.  We disable all events by default because Telegraf has some
 // junk events.
-func (b *BaseEmitter) Included(name string) (included bool) {
-	b.lock.RLock()
-	included = b.included[name]
-	b.lock.RUnlock()
-	return included
+func (b *BaseEmitter) Included(name string) bool {
+	return b.included[name]
 }
 
 // ExcludeDatum adds a name to the list of metrics and events to
 // exclude
 func (b *BaseEmitter) ExcludeDatum(name string) {
-	b.lock.Lock()
-	defer b.lock.Unlock()
 	b.excluded[name] = true
 }
 
@@ -105,19 +105,14 @@ func (b *BaseEmitter) ExcludeData(names []string) {
 	}
 }
 
-// IsExcluded - A thread safe function for checking if events or metrics should be
+// IsExcluded - checks if events or metrics should be
 // excluded from emission
-func (b *BaseEmitter) IsExcluded(name string) (excluded bool) {
-	b.lock.RLock()
-	excluded = b.excluded[name]
-	b.lock.RUnlock()
-	return excluded
+func (b *BaseEmitter) IsExcluded(name string) bool {
+	return b.excluded[name]
 }
 
 // OmitTag adds a tag to the list of tags to remove from measurements
 func (b *BaseEmitter) OmitTag(tag string) {
-	b.lock.Lock()
-	defer b.lock.Unlock()
 	b.omittedTags[tag] = true
 }
 
@@ -130,31 +125,104 @@ func (b *BaseEmitter) OmitTags(tags []string) {
 
 // FilterTags - filter function for util.CloneAndFilterStringMapWithFunc()
 // it returns true if the supplied key is not in the omittedTags map
-func (b *BaseEmitter) FilterTags(key string, value string) (include bool) {
-	b.lock.RLock()
-	include = !b.omittedTags[key]
-	b.lock.RUnlock()
-	return include
+func (b *BaseEmitter) FilterTags(key string, value string) bool {
+	return !b.omittedTags[key]
+}
+
+// RenameMetric adds a mapping to rename a metric by it's name
+func (b *BaseEmitter) RenameMetric(original string, override string) {
+	b.nameMap[original] = override
+}
+
+// RenameMetrics takes a map of metric name overrides map[original]override
+func (b *BaseEmitter) RenameMetrics(mappings map[string]string) {
+	for original, override := range mappings {
+		b.RenameMetric(original, override)
+	}
+}
+
+// GetMetricName parses the metric name and takes name overrides into account
+// if a name is overridden it will not have transformations applied to it
+func (b *BaseEmitter) GetMetricName(measurement string, field string, metricDims map[string]string) (string, bool) {
+	var name, isSFX = parse.GetMetricName(measurement, field, metricDims)
+
+	if altName := b.nameMap[name]; altName != "" {
+		return altName, isSFX
+	}
+
+	// apply metricname transformations
+	for _, f := range b.metricNameTransformations {
+		name = f(name)
+	}
+
+	return name, isSFX
+}
+
+// AddMetricNameTransformation adds a function for mutating metric names.  GetMetricNames()
+// will invoke each of the transformation functions after the metric name is parsed
+// from the incoming measurement.
+func (b *BaseEmitter) AddMetricNameTransformation(f func(string) string) {
+	b.metricNameTransformations = append(b.metricNameTransformations, f)
+}
+
+// AddMetricNameTransformations adds a list of functions for mutating metric names.  GetMetricNames()
+// will invoke each of the transformation functions after the metric name is parsed
+// from the incoming measurement.
+func (b *BaseEmitter) AddMetricNameTransformations(fns []func(string) string) {
+	for _, f := range fns {
+		b.AddMetricNameTransformation(f)
+	}
+}
+
+// AddMeasurementTransformation adds a function to the list of functions the emitter
+// will pass an incoming measurement through.  This is useful for manipulating tags
+// and fields before the measurement is converted to a SignalFx datapoint.
+func (b *BaseEmitter) AddMeasurementTransformation(f func(*measure.Measurement) error) {
+	b.measurementTransformations = append(b.measurementTransformations, f)
+}
+
+// AddMeasurementTransformations a list of functions to the list of functions the emitter
+// will pass an incoming measurement through.  This is useful for manipulating tags
+// and fields before the measurement is converted to a SignalFx datapoint.
+func (b *BaseEmitter) AddMeasurementTransformations(fns []func(*measure.Measurement) error) {
+	for _, f := range fns {
+		b.AddMeasurementTransformation(f)
+	}
+}
+
+// TransformMeasurement applies all measurementTransformations to the supplied measurement
+func (b *BaseEmitter) TransformMeasurement(m *measure.Measurement) {
+	// apply transformation functions to incoming measurement
+	for _, tf := range b.measurementTransformations {
+		if err := tf(m); err != nil {
+			b.Logger.WithError(err).Errorf("an error occurred applying a transformation to the measurement %v", m)
+		}
+	}
 }
 
 // Add parses measurements from telegraf and emits them through Output
 func (b *BaseEmitter) Add(measurement string, fields map[string]interface{},
 	tags map[string]string, metricType datapoint.MetricType,
 	originalMetricType string, t ...time.Time) {
-	for field, val := range fields {
-		// telegraf doc says that tags are owned by the calling plugin and they
-		// shouldn't be mutated.  So we copy the tags map
-		metricDims := utils.CloneAndFilterStringMapWithFunc(tags, b.FilterTags)
+
+	// create a measurement
+	// telegraf doc says that tags are owned by the calling plugin and they
+	// shouldn't be mutated.  So we copy the tags map
+	ms := measure.New(measurement, fields, utils.CloneStringMap(tags), metricType, originalMetricType, t...)
+
+	// apply transformation functions to the measurement
+	b.TransformMeasurement(ms)
+
+	for field, val := range ms.Fields {
+		metricDims := utils.CloneAndFilterStringMapWithFunc(ms.Tags, b.FilterTags)
 
 		// add additional tags to the metricDims
 		if len(b.addTags) > 0 {
-			b.lock.Lock()
 			metricDims = utils.MergeStringMaps(metricDims, b.addTags)
-			b.lock.Unlock()
 		}
 
 		// Generate the metric name
-		metricName, isSFX := parse.GetMetricName(measurement, field, metricDims)
+		metricName, isSFX := b.GetMetricName(ms.Measurement, field, metricDims)
 
 		// Check if the metric is explicitly excluded
 		if b.IsExcluded(metricName) {
@@ -174,7 +242,7 @@ func (b *BaseEmitter) Add(measurement string, fields map[string]interface{},
 			// only add telegraf_type if we override the original type
 			metricDims["telegraf_type"] = originalMetricType
 		}
-		parse.SetPluginDimension(measurement, metricDims)
+		parse.SetPluginDimension(ms.Measurement, metricDims)
 		parse.RemoveSFXDimensions(metricDims)
 
 		// Get the metric value as a datapoint value
@@ -184,7 +252,7 @@ func (b *BaseEmitter) Add(measurement string, fields map[string]interface{},
 				metricDims,
 				metricValue,
 				metricType,
-				GetTime(t...),
+				GetTime(ms.Timestamps...),
 			)
 			b.Output.SendDatapoint(dp)
 		} else {
@@ -199,7 +267,7 @@ func (b *BaseEmitter) Add(measurement string, fields map[string]interface{},
 				event.AGENT,
 				metricDims,
 				metricProps,
-				GetTime(t...),
+				GetTime(ms.Timestamps...),
 			)
 			b.Output.SendEvent(ev)
 		}
@@ -208,15 +276,23 @@ func (b *BaseEmitter) Add(measurement string, fields map[string]interface{},
 
 // AddError handles errors reported to a telegraf accumulator
 func (b *BaseEmitter) AddError(err error) {
-	b.Logger.Error(err)
+	// some telegraf plugins will invoke AddError with nil i.e. sqlserver
+	if err != nil {
+		b.Logger.WithError(err).Errorf("an error was emitted from the plugin")
+	}
 }
 
 // NewEmitter returns a new BaseEmitter
-func NewEmitter() *BaseEmitter {
+func NewEmitter(Output types.Output, Logger log.FieldLogger) *BaseEmitter {
 	return &BaseEmitter{
-		omittedTags: map[string]bool{},
-		addTags:     map[string]string{},
-		included:    map[string]bool{},
-		excluded:    map[string]bool{},
+		Output:                     Output,
+		Logger:                     Logger,
+		omittedTags:                map[string]bool{},
+		included:                   map[string]bool{},
+		excluded:                   map[string]bool{},
+		addTags:                    map[string]string{},
+		nameMap:                    map[string]string{},
+		metricNameTransformations:  []func(string) string{},
+		measurementTransformations: []func(*measure.Measurement) error{},
 	}
 }

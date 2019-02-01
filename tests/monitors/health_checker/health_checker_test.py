@@ -56,6 +56,26 @@ def test_health_checker_http():
             ), "Didn't get health_checker datapoints"
 
 
+@pytest.mark.windows
+def test_health_checker_http_windows():
+    with run_agent(
+        string.Template(
+            dedent(
+                """
+    monitors:
+      - type: collectd/health-checker
+        host: $host
+        port: 80
+        path: /
+    """
+            )
+        ).substitute(host="localhost")
+    ) as [backend, _, _]:
+        assert wait_for(
+            p(has_datapoint_with_dim, backend, "plugin", "health_checker")
+        ), "Didn't get health_checker datapoints"
+
+
 @pytest.mark.k8s
 @pytest.mark.kubernetes
 def test_health_checker_in_k8s(agent_image, minikube, k8s_observer, k8s_test_timeout, k8s_namespace):

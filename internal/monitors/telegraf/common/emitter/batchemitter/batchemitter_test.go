@@ -58,9 +58,8 @@ func TestImmediateEmitter_Emit(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			out := neotest.NewTestOutput()
-			I := NewEmitter()
-			I.Logger = log.NewEntry(log.New())
-			I.Output = out
+			lg := log.NewEntry(log.New())
+			I := NewEmitter(out, lg)
 			I.IncludeEvents(tt.args.includeEvent)
 			I.ExcludeData(tt.args.excludeData)
 			I.Add(tt.args.measurement, tt.args.fields, tt.args.tags,

@@ -7,6 +7,7 @@ configured in a list called `monitors` in the [main agent config
 file](./config-schema.md). These are all of the monitors included in the agent,
 along with their possible configuration options:
 
+- [aspdotnet](./monitors/aspdotnet.md)
 - [cadvisor](./monitors/cadvisor.md)
 - [collectd/activemq](./monitors/collectd-activemq.md)
 - [collectd/apache](./monitors/collectd-apache.md)
@@ -55,15 +56,33 @@ along with their possible configuration options:
 - [collectd/vmem](./monitors/collectd-vmem.md)
 - [collectd/zookeeper](./monitors/collectd-zookeeper.md)
 - [conviva](./monitors/conviva.md)
+- [cpu](./monitors/cpu.md)
+- [disk-io](./monitors/disk-io.md)
 - [docker-container-stats](./monitors/docker-container-stats.md)
+- [dotnet](./monitors/dotnet.md)
+- [filesystems](./monitors/filesystems.md)
 - [host-metadata](./monitors/host-metadata.md)
 - [internal-metrics](./monitors/internal-metrics.md)
 - [kubelet-stats](./monitors/kubelet-stats.md)
 - [kubernetes-cluster](./monitors/kubernetes-cluster.md)
 - [kubernetes-events](./monitors/kubernetes-events.md)
 - [kubernetes-volumes](./monitors/kubernetes-volumes.md)
+- [memory](./monitors/memory.md)
+- [net-io](./monitors/net-io.md)
+- [processlist](./monitors/processlist.md)
 - [prometheus-exporter](./monitors/prometheus-exporter.md)
+- [telegraf/logparser](./monitors/telegraf-logparser.md)
+- [telegraf/procstat](./monitors/telegraf-procstat.md)
+- [telegraf/snmp](./monitors/telegraf-snmp.md)
+- [telegraf/sqlserver](./monitors/telegraf-sqlserver.md)
+- [telegraf/statsd](./monitors/telegraf-statsd.md)
+- [telegraf/tail](./monitors/telegraf-tail.md)
+- [telegraf/win_perf_counters](./monitors/telegraf-win_perf_counters.md)
+- [telegraf/win_services](./monitors/telegraf-win_services.md)
 - [trace-forwarder](./monitors/trace-forwarder.md)
+- [vmem](./monitors/vmem.md)
+- [windows-iis](./monitors/windows-iis.md)
+- [windows-legacy](./monitors/windows-legacy.md)
 
 
 ## Common Configuration

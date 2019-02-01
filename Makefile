@@ -1,13 +1,15 @@
 RUN_CONTAINER := neo-agent-tmp
 COLLECTD_VERSION := 5.8.0-sfx0
 COLLECTD_COMMIT := 4da1c1cbbe83f881945088a41063fe86d1682ecb
+WIN_VER ?= server_2008
+
 .PHONY: check
 check: lint vet test
 
 .PHONY: test
 test: templates
 ifeq ($(OS),Windows_NT)
-	powershell -Command $$env:CGO_ENABLED=0; go test ./...
+	powershell "& { . $(CURDIR)/scripts/windows/make.ps1; test }"
 else
 	CGO_ENABLED=0 go test ./...
 endif
@@ -23,7 +25,11 @@ vetall: templates
 
 .PHONY: lint
 lint:
+ifeq ($(OS),Windows_NT)
+	powershell "& { . $(CURDIR)/scripts/windows/make.ps1; lint }"
+else
 	CGO_ENABLED=0 golint -set_exit_status ./cmd/... ./internal/...
+endif
 
 .PHONY: gofmt
 gofmt:
@@ -40,12 +46,17 @@ image:
 
 .PHONY: vendor
 vendor:
+ifeq ($(OS), Windows_NT)
+	powershell "& { . $(CURDIR)/scripts/windows/make.ps1; vendor }"
+else
 	CGO_ENABLED=0 dep ensure
+endif
+
 
 signalfx-agent: templates
 	echo "building SignalFx agent for operating system: $(GOOS)"
 ifeq ($(OS),Windows_NT)
-	powershell -Command $$env:CGO_ENABLED=0; go build -ldflags \"-X main.Version=$(AGENT_VERSION) -X main.BuiltTime=$$(Get-Date  -UFormat \"%Y-%m-%dT%T%Z\")\" -o signalfx-agent.exe github.com/signalfx/signalfx-agent/cmd/agent
+	powershell "& { . $(CURDIR)/scripts/windows/make.ps1; signalfx-agent $(AGENT_VERSION)}"
 else
 	CGO_ENABLED=0 go build \
 		-ldflags "-X main.Version=$(AGENT_VERSION) -X main.CollectdVersion=$(COLLECTD_VERSION) -X main.BuiltTime=$$(date +%FT%T%z)" \
@@ -55,7 +66,11 @@ endif
 
 .PHONY: bundle
 bundle:
+ifeq ($(OS),Windows_NT)
+	powershell "& { . $(CURDIR)/scripts/windows/make.ps1; bundle $(COLLECTD_COMMIT) $(AGENT_VERSION)}"
+else
 	BUILD_BUNDLE=true COLLECTD_VERSION=$(COLLECTD_VERSION) COLLECTD_COMMIT=$(COLLECTD_COMMIT) scripts/build
+endif
 
 .PHONY: deb-package
 deb-%-package:
@@ -73,7 +88,7 @@ run-shell:
 .PHONY: dev-image
 dev-image:
 ifeq ($(OS),Windows_NT)
-	powershell -Command . $(CURDIR)\scripts\windows\common.ps1; do_docker_build signalfx-agent-dev latest dev-extras
+	powershell -Command "& { . $(CURDIR)\scripts\windows\common.ps1; do_docker_build signalfx-agent-dev latest dev-extras }"
 else
 	bash -ec "COLLECTD_VERSION=$(COLLECTD_VERSION) COLLECTD_COMMIT=$(COLLECTD_COMMIT) && source scripts/common.sh && do_docker_build signalfx-agent-dev latest dev-extras"
 endif
@@ -107,7 +122,7 @@ run-dev-image:
 run-integration-tests:
 	AGENT_BIN=/bundle/bin/signalfx-agent \
 	pytest \
-		-m "not packaging and not installer and not k8s" \
+		-m "not packaging and not installer and not k8s and not windows_only" \
 		-n 4 \
 		--verbose \
 		--html=test_output/results.html \
@@ -187,3 +202,36 @@ devstack:
 .PHONY: run-devstack
 run-devstack:
 	scripts/run-devstack-image
+
+ifneq ($(OS), Windows_NT)
+VAGRANT_NOT_CREATED := $(shell cd scripts/windows/vagrant/$(WIN_VER); vagrant status | grep "not created")
+
+.PHONY: win-vagrant-base-box
+win-vagrant-base-box:
+	WIN_VER=$(WIN_VER) scripts/windows/vagrant/build_vagrant_base_box.sh
+
+.PHONY: win-vagrant-reload
+win-vagrant-reload:
+	cd scripts/windows/vagrant/$(WIN_VER); vagrant reload
+
+.PHONY: win-vagrant-up
+win-vagrant-up:
+	cd scripts/windows/vagrant/$(WIN_VER); vagrant up
+	# only reload if the vagrant wasn't created
+ifneq ($(strip $(VAGRANT_NOT_CREATED)),)
+	cd scripts/windows/vagrant/$(WIN_VER); vagrant reload
+endif
+
+
+.PHONY: win-vagrant-suspend
+win-vagrant-suspend:
+	cd scripts/windows/vagrant/$(WIN_VER); vagrant suspend
+
+.PHONY: win-vagrant-destroy
+win-vagrant-destroy:
+	cd scripts/windows/vagrant/$(WIN_VER); vagrant destroy
+
+.PHONY: win-vagrant-provision
+win-vagrant-provision:
+	cd scripts/windows/vagrant/$(WIN_VER); vagrant provision
+endif

@@ -10,9 +10,13 @@ import (
 	"github.com/signalfx/signalfx-agent/internal/core/config"
 	"github.com/signalfx/signalfx-agent/internal/monitors"
 	"github.com/signalfx/signalfx-agent/internal/monitors/collectd"
+	"github.com/signalfx/signalfx-agent/internal/utils/hostfs"
+	log "github.com/sirupsen/logrus"
 )
 
 const monitorType = "collectd/signalfx-metadata"
+
+var logger = log.WithFields(log.Fields{"monitorType": monitorType})
 
 // MONITOR(collectd/signalfx-metadata): Collectd Python plugin that aggregates
 // various metrics from other collectd plugins.  It also sends host metadata to
@@ -42,14 +46,18 @@ func init() {
 type Config struct {
 	config.MonitorConfig `singleInstance:"true"`
 	WriteServerURL       string `yaml:"writeServerURL"`
+	// (Deprecated) Please set the agent configuration `procPath` instead of
+	// this monitor configuration option.
 	// The path to the proc filesystem. Useful to override in containerized
 	// environments.
-	ProcFSPath string `yaml:"procFSPath" default:"/proc"`
-	// Collect the cpu utilization per core, reported as `cpu.utilization_per_core`.
-	PerCoreCPUUtil bool `yaml:"perCoreCPUUtil"`
+	ProcFSPath string `yaml:"procFSPath" default:""`
+	// (Deprecated) Please set the agent configuration `etcPath` instead of this
+	// monitor configuration option.
 	// The path to the main host config dir. Useful to override in
 	// containerized environments.
-	EtcPath string `yaml:"etcPath" default:"/etc"`
+	EtcPath string `yaml:"etcPath" default:""`
+	// Collect the cpu utilization per core, reported as `cpu.utilization_per_core`.
+	PerCoreCPUUtil bool `yaml:"perCoreCPUUtil"`
 	// A directory where the metadata plugin can persist the history of
 	// successful host metadata syncs so that host metadata is not sent
 	// redundantly.
@@ -99,6 +107,17 @@ type Monitor struct {
 // Configure configures and runs the plugin in collectd
 func (m *Monitor) Configure(conf *Config) error {
 	conf.WriteServerURL = collectd.MainInstance().WriteServerURL()
-
+	if conf.ProcFSPath != "" {
+		logger.Warningf("please set the `procPath` top level agent configuration instead of the monitor level configuration")
+	} else {
+		// get top level configuration for /proc path
+		conf.ProcFSPath = hostfs.HostProc()
+	}
+	if conf.EtcPath != "" {
+		logger.Warningf("Please set the `etcPath` top level agent configuration instead of the monitor level configuration")
+	} else {
+		// get top level configuraiton for /etc path
+		conf.EtcPath = hostfs.HostEtc()
+	}
 	return m.SetConfigurationAndRun(conf)
 }

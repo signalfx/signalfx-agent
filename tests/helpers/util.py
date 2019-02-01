@@ -1,9 +1,9 @@
 import io
 import os
 import re
-import select
 import socket
 import subprocess
+import sys
 import tempfile
 import threading
 import time
@@ -17,9 +17,12 @@ import netifaces as ni
 from . import fake_backend
 from .formatting import print_dp_or_event
 
-AGENT_BIN = os.environ.get("AGENT_BIN", "/bundle/bin/signalfx-agent")
-BUNDLE_DIR = os.environ.get("BUNDLE_DIR", "/bundle")
 PROJECT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+if sys.platform == "win32":
+    AGENT_BIN = os.environ.get("AGENT_BIN", os.path.join(PROJECT_DIR, "..", "signalfx-agent.exe"))
+else:
+    AGENT_BIN = os.environ.get("AGENT_BIN", "/bundle/bin/signalfx-agent")
+BUNDLE_DIR = os.environ.get("BUNDLE_DIR", "/bundle")
 TEST_SERVICES_DIR = os.environ.get("TEST_SERVICES_DIR", "/test-services")
 DEFAULT_TIMEOUT = os.environ.get("DEFAULT_TIMEOUT", 30)
 DOCKER_API_VERSION = "1.34"
@@ -110,12 +113,10 @@ def run_agent_with_fake_backend(config_text, fake_services, debug=True):
         def pull_output():
             while True:
                 # If any output is waiting, grab it.
-                ready, _, _ = select.select([proc.stdout], [], [], 0)
-                if ready:
-                    byt = proc.stdout.read(1)
-                    if not byt:
-                        return
-                    output.write(byt)
+                byt = proc.stdout.read(1)
+                if not byt:
+                    return
+                output.write(byt)
 
         def get_output():
             return output.getvalue().decode("utf-8")

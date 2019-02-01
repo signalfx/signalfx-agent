@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"os"
 	"os/signal"
+	"path/filepath"
+	"runtime"
 	"strings"
 	"syscall"
 	"time"
@@ -30,12 +32,27 @@ var (
 	BuiltTime string
 )
 
-const defaultConfigPath = "/etc/signalfx/agent.yaml"
+var defaultConfigPath = getDefaultConfigPath()
 
 func init() {
 	log.SetFormatter(&prefixed.TextFormatter{})
 	log.SetLevel(log.InfoLevel)
 	log.SetOutput(os.Stdout)
+}
+
+func getDefaultConfigPath() string {
+	if runtime.GOOS == "windows" {
+		exePath, err := os.Executable()
+		if err != nil {
+			panic("Cannot determine agent executable path, cannot continue")
+		}
+		configPath, err := filepath.Abs(filepath.Join(filepath.Dir(exePath), "..", "etc", "signalfx", "agent.yaml"))
+		if err != nil {
+			panic("Cannot determine absolute path of executable parent dir " + exePath)
+		}
+		return configPath
+	}
+	return "/etc/signalfx/agent.yaml"
 }
 
 // Set an envvar with the agent's version so that plugins can have easy access
@@ -83,15 +100,35 @@ func fixGlogFlags() {
 	flag.Set("logtostderr", "true")
 }
 
-func runAgent() {
+// flags is used to store parsed flag values
+type flags struct {
+	// version is a bool flag for printing the agent version string
+	version bool
+	// configPath is a string flag for specifying the agent.yaml config file
+	configPath string
+	// debug is a bool flag for printing debug level information
+	debug bool
+	// service is a string flag used for starting, stopping, installing or uninstalling the agent as a windows service (windows only)
+	service string
+	// logEvents is a bool flag for logging events to the Windows Application Event log.
+	// This flag is only intended to be used when the agent is launched as a Windows Service.
+	logEvents bool
+}
+
+// getFlags retrieves flags passed to the agent at runtime and return them in a flags struct
+func getFlags() *flags {
+	flags := &flags{}
 	set := flag.NewFlagSet(os.Args[0], flag.ExitOnError)
 
-	version := set.Bool("version", false, "print agent version")
-	configPath := set.String("config", defaultConfigPath, "agent config path")
-	debug := set.Bool("debug", false, "print debugging output")
+	set.BoolVar(&flags.version, "version", false, "print agent version")
+	set.StringVar(&flags.configPath, "config", defaultConfigPath, "agent config path")
+	set.BoolVar(&flags.debug, "debug", false, "print debugging output")
 
-	core.VersionLine = fmt.Sprintf("agent-version: %s, built-time: %s\n",
-		Version, BuiltTime)
+	// service is a windows only feature and should only be added to the flag set on windows
+	if runtime.GOOS == "windows" {
+		set.StringVar(&flags.service, "service", "", "'start', 'stop', 'install' or 'uninstall' agent as a windows service.  You may specify an alternate config file path with the -config flag when installing the service.")
+		set.BoolVar(&flags.logEvents, "logEvents", false, "copy log events from the agent to the Windows Application Event Log.  This is only used when the agent is deployed as a Windows service.  The agent will write to stdout under all other deployment scenarios.")
+	}
 
 	// The set is configured to exit on errors so we don't need to check the
 	// return value here.
@@ -102,30 +139,19 @@ func runAgent() {
 		os.Exit(2)
 	}
 	fixGlogFlags()
+	return flags
+}
 
-	if *debug {
-		log.SetLevel(log.DebugLevel)
-	}
-
-	if *version {
-		fmt.Printf(core.VersionLine)
-		os.Exit(0)
-	}
-
-	exit := make(chan struct{})
-
+func runAgent(flags *flags, interruptCh chan os.Signal, exit chan struct{}) {
 	var shutdown context.CancelFunc
 	var shutdownComplete <-chan struct{}
 	init := func() {
 		log.Info("Starting up agent version " + Version)
-		shutdown, shutdownComplete = core.Startup(*configPath)
+		shutdown, shutdownComplete = core.Startup(flags.configPath)
 	}
 
 	init()
 
-	interruptCh := make(chan os.Signal, 1)
-	signal.Notify(interruptCh, os.Interrupt)
-	signal.Notify(interruptCh, syscall.SIGTERM)
 	go func() {
 		select {
 		case <-interruptCh:
@@ -138,7 +164,6 @@ func runAgent() {
 				log.Error("Shutdown timed out, forcing process down")
 				break
 			}
-
 			close(exit)
 		}
 	}()
@@ -164,6 +189,10 @@ func main() {
 	setVersionEnvvar()
 	setCollectdVersionEnvvar()
 
+	// set the agent version string
+	core.VersionLine = fmt.Sprintf("agent-version: %s, built-time: %s\n",
+		Version, BuiltTime)
+
 	// Make it so the symlink from agent-status to this binary invokes the
 	// status command
 	if len(os.Args) == 1 && strings.HasSuffix(os.Args[0], "agent-status") {
@@ -185,7 +214,33 @@ func main() {
 			log.Errorf("Unknown subcommand '%s'", firstArg)
 			os.Exit(127)
 		}
-		runAgent()
+
+		// fetch the commandline flags passed in at runtime
+		flags := getFlags()
+
+		if flags.debug {
+			log.SetLevel(log.DebugLevel)
+		}
+
+		if flags.version {
+			fmt.Printf(core.VersionLine)
+			os.Exit(0)
+		}
+
+		// set up interrupt channel
+		interruptCh := make(chan os.Signal, 1)
+		signal.Notify(interruptCh, os.Interrupt)
+		signal.Notify(interruptCh, syscall.SIGTERM)
+
+		// On windows we start the agent through the package github.com/kardianos/service.
+		// The package provides hooks for installing and managing the agent as a windows service.
+		if runtime.GOOS == "windows" {
+			runAgentWindows(flags, interruptCh)
+		} else {
+			// create the exit channel that will block until agent is shutdown
+			exitCh := make(chan struct{}, 1)
+			runAgent(flags, interruptCh, exitCh)
+		}
 	}
 
 	os.Exit(0)

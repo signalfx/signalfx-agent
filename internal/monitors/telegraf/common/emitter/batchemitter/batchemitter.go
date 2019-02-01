@@ -7,7 +7,9 @@ import (
 	"github.com/signalfx/golib/datapoint"
 	"github.com/signalfx/signalfx-agent/internal/monitors/telegraf/common/emitter/baseemitter"
 	"github.com/signalfx/signalfx-agent/internal/monitors/telegraf/common/measurement"
+	"github.com/signalfx/signalfx-agent/internal/monitors/types"
 	"github.com/signalfx/signalfx-agent/internal/utils"
+	log "github.com/sirupsen/logrus"
 )
 
 // BatchEmitter gathers a batch of telegraf measurements that can be modified
@@ -42,14 +44,15 @@ func (b *BatchEmitter) Send() {
 		b.BaseEmitter.Add(m.Measurement, m.Fields, m.Tags, m.MetricType,
 			m.OriginalMetricType, m.Timestamps...)
 	}
+	b.Measurements = b.Measurements[:0]
 	b.lock.Unlock()
 }
 
 // NewEmitter returns a new BatchEmitter that gathers a batch of telegraf
 // measurements so they can be modified and then emitted
-func NewEmitter() *BatchEmitter {
+func NewEmitter(Output types.Output, Logger log.FieldLogger) *BatchEmitter {
 	return &BatchEmitter{
-		BaseEmitter:  baseemitter.NewEmitter(),
+		BaseEmitter:  baseemitter.NewEmitter(Output, Logger),
 		Measurements: []*measurement.Measurement{},
 	}
 }

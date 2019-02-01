@@ -9,9 +9,25 @@ This tutorial assumes you are starting fresh and have no existing collectd agent
 
 #### Step 1: Download and install the agent
 
+##### Linux
+
 ```sh
 curl -sSL https://dl.signalfx.com/signalfx-agent.sh > /tmp/signalfx-agent.sh
 sudo sh /tmp/signalfx-agent.sh YOUR_SIGNALFX_API_TOKEN
+```
+
+##### Windows
+
+Ensure that the folowing dependencies are installed:
+- [.Net Framework 3.5](https://docs.microsoft.com/en-us/dotnet/framework/install/dotnet-35-windows-10) (Windows 8+)
+- [Visual C++ Compiler for Python 2.7](https://www.microsoft.com/EN-US/DOWNLOAD/DETAILS.ASPX?ID=44266)
+
+Once the dependencies have been installed, use the following powershell script
+to install the agent.  The agent will be installed as a Windows service and will
+log to the Windows Event Log.
+
+```ps
+& {Set-ExecutionPolicy Bypass -Scope Process -Force; $script = ((New-Object System.Net.WebClient).DownloadString('https://dl.signalfx.com/signalfx-agent.ps1')); $params = @{access_token = "YOUR_SIGNALFX_API_TOKEN"}; Invoke-Command -ScriptBlock ([scriptblock]::Create(". {$script} $(&{$args} @params)"))}
 ```
 
 Your SignalFx API Token can be obtained from the Organization->Access Token tab in [SignalFx](https://app.signalfx.com).
@@ -20,46 +36,17 @@ More detailed installation steps to install via a config management tool or usin
 
 #### Step 2: Configuration
 
-The default configuration file should be located at `/etc/signalfx/agent.yaml`
-Also, by default, the file containing your SignalFx API token should be located at `/etc/signalfx/token`.
+The default configuration file should be located at `/etc/signalfx/agent.yaml` on Linux
+and `C:\Program Files\SignalFx\SignalFxAgent\etc\signalfx\agent.yaml` on Windows.
+Also, by default, the file containing your SignalFx API token should be located at
+`/etc/signalfx/token` on Linux and `C:\Program Files\SignalFx\SignalFxAgent\etc\signalfx\token`.
 
-In the example agent.yaml configuration file shown below, the default location for the token file is used.
+In the referenced example agent.yaml configuration files below, the default
+location for the token file is used.
 
+- [Linux Default Configuration File](https://github.com/signalfx/signalfx-agent/blob/master/packaging/etc/agent.yaml)
 
-```
----
-# *Required* The access token for the org that you wish to send metrics to.
-signalFxAccessToken: {"#from": "/etc/signalfx/token"}
-ingestUrl: {"#from": "/etc/signalfx/ingest_url", default: "https://ingest.signalfx.com"}
-
-intervalSeconds: 10
-
-logging:
-  # Valid values are 'debug', 'info', 'warning', and 'error'
-  level: info
-
-# observers discover running services in the environment
-observers:
-  - type: host
-
-monitors:
-  - {"#from": "/etc/signalfx/monitors/*.yaml", flatten: true, optional: true}
-  - type: internal-metrics
-  - type: host-metadata
-  - type: collectd/cpu
-  - type: collectd/cpufreq
-  - type: collectd/df
-  - type: collectd/disk
-  - type: collectd/interface
-  - type: collectd/load
-  - type: collectd/memory
-  - type: collectd/protocols
-  - type: collectd/signalfx-metadata
-  - type: collectd/uptime
-  - type: collectd/vmem
-
-metricsToExclude:
-```
+- [Windows Default Configuration File](https://github.com/signalfx/signalfx-agent/blob/master/packaging/win/agent.yaml)
 
 You can add more [monitors](./monitor-config.md) and configure them as appropriate.
 
