@@ -81,10 +81,6 @@ type Config struct {
 	MetricsToExclude []MetricFilter `yaml:"metricsToExclude" default:"[]"`
 	// A list of properties filters
 	PropertiesToExclude []PropertyFilterConfig `yaml:"propertiesToExclude" default:"[]"`
-	// (**NOT FUNCTIONAL**) Whether to enable the Python sub-agent ("neopy")
-	// that can directly use DataDog and Collectd Python plugins.  This is not
-	// the same as Collectd's Python plugin, which is always enabled.
-	PythonEnabled bool `yaml:"pythonEnabled" default:"false"`
 
 	// The host on which the internal status server will listen.  The internal
 	// status HTTP server serves internal metrics and diagnostic information
