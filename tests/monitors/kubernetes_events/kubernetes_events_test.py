@@ -2,7 +2,6 @@ from functools import partial as p
 
 import pytest
 
-from tests.helpers.kubernetes.utils import run_k8s_with_agent
 from tests.helpers.util import ensure_always, wait_for
 
 pytestmark = [pytest.mark.kubernetes_events, pytest.mark.monitor_without_endpoints]
@@ -34,14 +33,13 @@ def test_k8s_events_with_whitelist(agent_image, minikube, k8s_observer, k8s_test
             "whitelistedEvents": expected_events,
         }
     ]
-    with run_k8s_with_agent(agent_image, minikube, monitors, observer=k8s_observer, namespace=k8s_namespace) as [
+    with minikube.run_agent(agent_image, monitors=monitors, observer=k8s_observer, namespace=k8s_namespace) as [
+        _,
         backend,
-        agent,
     ]:
         for expected_event in expected_events:
             assert wait_for(p(has_event, backend, expected_event), k8s_test_timeout), (
-                "timed out waiting for event '%s'!\n\nAGENT STATUS:\n%s\n\nAGENT CONTAINER LOGS:\n%s\n"
-                % (expected_event, agent.get_status(), agent.get_container_logs())
+                "timed out waiting for event '%s'!" % expected_event
             )
 
 
@@ -49,11 +47,8 @@ def test_k8s_events_with_whitelist(agent_image, minikube, k8s_observer, k8s_test
 @pytest.mark.kubernetes
 def test_k8s_events_without_whitelist(agent_image, minikube, k8s_observer, k8s_namespace):
     monitors = [{"type": "kubernetes-events", "kubernetesAPI": {"authType": "serviceAccount"}}]
-    with run_k8s_with_agent(agent_image, minikube, monitors, observer=k8s_observer, namespace=k8s_namespace) as [
+    with minikube.run_agent(agent_image, monitors=monitors, observer=k8s_observer, namespace=k8s_namespace) as [
+        _,
         backend,
-        agent,
     ]:
-        assert ensure_always(lambda: not backend.events, 30), (
-            "event received!\n\nAGENT STATUS:\n%s\n\nAGENT CONTAINER LOGS:\n%s\n"
-            % (agent.get_status(), agent.get_container_logs())
-        )
+        assert ensure_always(lambda: not backend.events, 30), "event received!"
