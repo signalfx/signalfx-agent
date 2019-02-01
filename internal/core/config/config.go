@@ -91,10 +91,10 @@ type Config struct {
 	// about the agent and can be scraped by the `internal-metrics` monitor.
 	// Can be set to `0.0.0.0` if you want to monitor the agent from another
 	// host.  If you set this to blank/null, the internal status server will
-	// not be started.
+	// not be started.  See `internalStatusPort`.
 	InternalStatusHost string `yaml:"internalStatusHost" default:"localhost"`
 	// The port on which the internal status server will listen.  See
-	// `internalMetricsHost`.
+	// `internalStatusHost`.
 	InternalStatusPort uint16 `yaml:"internalStatusPort" default:"8095"`
 
 	// Enables Go pprof endpoint on port 6060 that serves profiling data for

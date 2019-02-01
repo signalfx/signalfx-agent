@@ -6,8 +6,8 @@ $scriptDir = split-path -parent $MyInvocation.MyCommand.Definition
 . "$scriptDir\bundle.ps1"
 
 function signalfx-agent([string]$AGENT_VERSION="", [string]$AGENT_BIN=".\signalfx-agent.exe", [string]$COLLECTD_VERSION="") {
-    if ((!$AGENT_VERSION) -Or ($AGENT_VERSION="")){
-        $AGENT_VERSION = & git rev-parse HEAD
+    if ((!$AGENT_VERSION) -Or ($AGENT_VERSION -Eq "")){
+        $AGENT_VERSION = & git -C "$scriptdir\..\..\" rev-parse HEAD
     }
     $date = Get-Date -UFormat "%Y-%m-%dT%T%Z"
     go build -ldflags "-X main.Version='$AGENT_VERSION' -X main.CollectdVersion='$COLLECTD_VERSION' -X main.BuiltTime='$date'" -o "$AGENT_BIN" github.com/signalfx/signalfx-agent/cmd/agent    
@@ -27,8 +27,8 @@ function bundle (
         [bool]$ONLY_BUILD_AGENT=$false,
         [string]$AGENT_NAME="SignalFxAgent") {
 
-    if ((!$AGENT_VERSION) -Or ($AGENT_VERSION="")){
-        $AGENT_VERSION = & git rev-parse HEAD
+    if ((!$AGENT_VERSION) -Or ($AGENT_VERSION -Eq "")){
+        $AGENT_VERSION = & git -C "$scriptdir\..\..\" rev-parse HEAD
     }
 
     # create directories in the agent directory
@@ -77,6 +77,12 @@ function bundle (
         zip_file -src "$buildDir\$AGENT_NAME" -dest "$buildDir\$AGENT_NAME"
         mv "$buildDir\$AGENT_NAME.zip" "$buildDir\$AGENT_NAME-$AGENT_VERSION-win64.zip"
     }
+    # remove latest.txt if it already exists
+    if (Test-Path -Path "$buildDir\latest.txt"){
+        Remove-Item "$buildDir\latest.txt"
+    }
+    # generate latest.txt file with agent version/tag
+    Add-Content -NoNewline -Path "$buildDir\latest.txt" -Value $AGENT_VERSION
 }
 
 function lint() {

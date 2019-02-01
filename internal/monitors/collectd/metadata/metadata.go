@@ -6,15 +6,17 @@ package metadata
 
 import (
 	"errors"
-	"fmt"
 
 	"github.com/signalfx/signalfx-agent/internal/core/config"
 	"github.com/signalfx/signalfx-agent/internal/monitors"
 	"github.com/signalfx/signalfx-agent/internal/monitors/collectd"
 	"github.com/signalfx/signalfx-agent/internal/utils/hostfs"
+	log "github.com/sirupsen/logrus"
 )
 
 const monitorType = "collectd/signalfx-metadata"
+
+var logger = log.WithFields(log.Fields{"monitorType": monitorType})
 
 // MONITOR(collectd/signalfx-metadata): Collectd Python plugin that aggregates
 // various metrics from other collectd plugins.  It also sends host metadata to
@@ -48,7 +50,7 @@ type Config struct {
 	// this monitor configuration option.
 	// The path to the proc filesystem. Useful to override in containerized
 	// environments.
-	ProcFSPath string `yaml:"procFSPath" default:"/proc"`
+	ProcFSPath string `yaml:"procFSPath" default:""`
 	// (Deprecated) Please set the agent configuration `etcPath` instead of this
 	// monitor configuration option.
 	// The path to the main host config dir. Useful to override in
@@ -106,14 +108,16 @@ type Monitor struct {
 func (m *Monitor) Configure(conf *Config) error {
 	conf.WriteServerURL = collectd.MainInstance().WriteServerURL()
 	if conf.ProcFSPath != "" {
-		return fmt.Errorf("please set the `procPath` top level agent configuration instead of the monitor level configuration")
+		logger.Warningf("please set the `procPath` top level agent configuration instead of the monitor level configuration")
+	} else {
+		// get top level configuration for /proc path
+		conf.ProcFSPath = hostfs.HostProc()
 	}
-	// get top level configuration for /proc path
-	conf.ProcFSPath = hostfs.HostProc()
 	if conf.EtcPath != "" {
-		return fmt.Errorf("Please set the `etcPath` top level agent configuration instead of the monitor level configuration")
+		logger.Warningf("Please set the `etcPath` top level agent configuration instead of the monitor level configuration")
+	} else {
+		// get top level configuraiton for /etc path
+		conf.EtcPath = hostfs.HostEtc()
 	}
-	// get top level configuraiton for /etc path
-	conf.EtcPath = hostfs.HostEtc()
 	return m.SetConfigurationAndRun(conf)
 }
