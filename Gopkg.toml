@@ -192,3 +192,7 @@
 [[override]]
   name = "github.com/StackExchange/wmi"
   revision = "b12b22c5341f0c26d88c4d66176330500e84db68"
+
+[[override]]
+  name = "golang.org/x/sys"
+  revision = "afcc84fd7533758f95a6e93ae710aa945a0b7e73"
