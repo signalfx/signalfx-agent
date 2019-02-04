@@ -10320,6 +10320,22 @@
           "required": false,
           "type": "slice",
           "elementKind": "string"
+        },
+        {
+          "yamlName": "counterRefreshInterval",
+          "doc": "(Windows Only) The frequency that wildcards in counter paths should be expanded and how often to refresh counters from configuration. This is expressed as a duration.",
+          "default": "60s",
+          "required": false,
+          "type": "int64",
+          "elementKind": ""
+        },
+        {
+          "yamlName": "printValid",
+          "doc": "(Windows Only) Print out the configurations that match available performance counters.  This used for debugging.",
+          "default": false,
+          "required": false,
+          "type": "bool",
+          "elementKind": ""
         }
       ],
       "monitorType": "disk-io",
