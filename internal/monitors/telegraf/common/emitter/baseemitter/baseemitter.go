@@ -43,13 +43,16 @@ type BaseEmitter struct {
 	// name map is a map of metric names to their desired metricname
 	// this is used for overriding metric names
 	nameMap map[string]string
-	// metricNameTransformatinos is an array of functions to apply to parsed metric name
+	// metricNameTransformations is an array of functions to apply to parsed metric name
 	// from a telegraf metric.
 	metricNameTransformations []func(metricName string) string
 	// measurementTransformations is an array of functions to apply to an incoming measurement
 	// before retrieving the metric name, checking for inclusion/exclusion, etc.
 	// Use great discretion with this.
 	measurementTransformations []func(*measure.Measurement) error
+	// whether to omit the "telegraf_type"
+	// dimension for documenting original metric type
+	omitOriginalMetricType bool
 }
 
 // AddTag adds a key/value pair to all measurement tags.  If a key conflicts
@@ -238,7 +241,7 @@ func (b *BaseEmitter) Add(measurement string, fields map[string]interface{},
 		}
 
 		// Add common dimensions
-		if originalMetricType != "" {
+		if originalMetricType != "" && !b.omitOriginalMetricType {
 			// only add telegraf_type if we override the original type
 			metricDims["telegraf_type"] = originalMetricType
 		}
@@ -280,6 +283,12 @@ func (b *BaseEmitter) AddError(err error) {
 	if err != nil {
 		b.Logger.WithError(err).Errorf("an error was emitted from the plugin")
 	}
+}
+
+// SetOmitOrignalMetricType accepts a boolean to indicate whether the emitter should
+// add the original metric type or not to each metric
+func (b *BaseEmitter) SetOmitOrignalMetricType(in bool) {
+	b.omitOriginalMetricType = in
 }
 
 // NewEmitter returns a new BaseEmitter
