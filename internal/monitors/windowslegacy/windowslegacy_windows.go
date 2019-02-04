@@ -124,6 +124,12 @@ func (m *Monitor) Configure(conf *Config) error {
 	// configured measurement name as plugin and that is confusing.
 	emitter.AddTag("plugin", monitorType)
 
+	// omit objectname tag from dimensions
+	emitter.OmitTag("objectname")
+
+	// don't include the telegraf_type dimension
+	emitter.SetOmitOrignalMetricType(true)
+
 	// set metric name replacements to match SignalFx PerfCounterReporter
 	emitter.AddMetricNameTransformation(winperfcounters.NewPCRMetricNamesTransformer())
 

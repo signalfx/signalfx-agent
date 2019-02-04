@@ -53,12 +53,18 @@ func (m *Monitor) Configure(conf *Config) (err error) {
 	// add metric map to rename metrics
 	emitter.RenameMetrics(metricNameMapping)
 
+	// don't include the telegraf_type dimension
+	emitter.SetOmitOrignalMetricType(true)
+
 	// Hard code the plugin name because the emitter will parse out the
 	// configured measurement name as plugin and that is confusing.
 	emitter.AddTag("plugin", monitorType)
 
 	// omit instance tags from dimensions
 	emitter.OmitTag("instance")
+
+	// omit objectname tag from dimensions
+	emitter.OmitTag("objectname")
 
 	// create the accumulator
 	ac := accumulator.NewAccumulator(emitter)
