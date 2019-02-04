@@ -19,9 +19,6 @@ const monitorType = "cpu"
 const cpuUtilName = "cpu.utilization"
 const percoreMetricName = "cpu.utilization_per_core"
 
-// setting cpu.Times to a package variable for testing purposes
-var times = cpu.Times
-
 var errorUsedDiffLessThanZero = fmt.Errorf("usedDiff < 0")
 var errorTotalDiffLessThanZero = fmt.Errorf("totalDiff < 0")
 

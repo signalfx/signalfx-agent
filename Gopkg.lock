@@ -1096,8 +1096,7 @@
   revision = "1d60e4601c6fd243af51cc01ddf169918a5407ca"
 
 [[projects]]
-  branch = "master"
-  digest = "1:1c9f78c3181969a5f18d33cda30f66505ef749156a652dcdeee9f6f6e3f6a2c3"
+  digest = "1:416b8c410816cb1a122a979949d4dbc74b073dad804557e24cc1bdfe8dfef4fc"
   name = "golang.org/x/sys"
   packages = [
     "unix",
@@ -1108,7 +1107,7 @@
     "windows/svc/mgr",
   ]
   pruneopts = "NUT"
-  revision = "37707fdb30a5b38865cfb95e5aab41707daec7fd"
+  revision = "afcc84fd7533758f95a6e93ae710aa945a0b7e73"
 
 [[projects]]
   digest = "1:8a12cbc891b7130d3f660f8a309e5c0b083f831e6ac38cdaa1f12e63c12d6bea"
