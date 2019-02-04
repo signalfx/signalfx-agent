@@ -139,12 +139,12 @@ func getTimes(perCore bool) ([]cpu.TimesStat, error) {
 	// Some have issues open complaining about hanging wmi calls, but none have a clear solution.
 	// In general if you search for information about WMI it is the best of a bad situation.  It
 	// is known to be buggy and slow.  A more performant solution is to
-	// get the System Processor Performance Information from the ntQuerySystemInformationfunction.
+	// get the System Processor Performance Information from the ntQuerySystemInformation function.
 
 	// attempt to use the windows api to get information on per core cpu times
 	res, err := ntQuerySystemInformation()
 	if err == nil {
-		return res, err
+		return res, nil
 	}
 
 	// fall back to gopsutil if there was an error or the dll and proc weren't loaded/found
