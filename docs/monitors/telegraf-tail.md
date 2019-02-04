@@ -52,7 +52,7 @@ Monitor Type: `telegraf/tail`
 | `watchMethod` | no | `string` | Method for watching changes to files ("ionotify" or "poll") (**default:** `poll`) |
 | `pipe` | no | `bool` | Indicates if the file is a named pipe (**default:** `false`) |
 | `fromBeginning` | no | `bool` | Whether to start tailing from the beginning of the file (**default:** `false`) |
-| `telegrafParser` | no | `object (see below)` | telegrafParser is a nested object that defines configurations for a Telegraf parser. Please refer to the Telegraf (documentation)[https://github.com/influxdata/telegraf/blob/master/docs/DATA_FORMATS_INPUT.md] for more information on Telegraf parsers. |
+| `telegrafParser` | no | `object (see below)` | telegrafParser is a nested object that defines configurations for a Telegraf parser. Please refer to the Telegraf for more information on Telegraf parsers. |
 
 
 The **nested** `telegrafParser` config object has the following fields:
