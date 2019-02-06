@@ -520,7 +520,7 @@
   revision = "c43482518d410361b6c383d7aebce33d0471d7bc"
 
 [[projects]]
-  digest = "1:cb943ba21dd64a6a645538a82f99b1894b62823b694bb98bab1acde36afc706d"
+  digest = "1:2e92909fcbac3cb7ce3796afeb9560b49fd572424ceee6999c68ee6171b3cc4f"
   name = "github.com/influxdata/telegraf"
   packages = [
     ".",
@@ -552,8 +552,8 @@
     "selfstat",
   ]
   pruneopts = "NUT"
-  revision = "f297910623fc8797618fe6b2ee3e393c1c41697c"
-  version = "1.8.3"
+  revision = "4da8d0a4b3abb81e06d3d9ce13b9b8a0bfe153bb"
+  version = "1.9.4"
 
 [[projects]]
   digest = "1:ed32dc822d051bf443e256bb9d535b6328423d9e22355da2d9e2efb943593e5f"
