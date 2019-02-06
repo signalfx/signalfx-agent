@@ -2,16 +2,22 @@ package utils
 
 import (
 	"context"
+	"runtime"
+	"sync/atomic"
 	"testing"
 	"time"
 )
 
 type testMonitor struct {
-	executions int
+	executions int64
 }
 
 func (t *testMonitor) Execute() {
-	t.executions++
+	atomic.AddInt64(&t.executions, 1)
+}
+
+func (t *testMonitor) Count() int64 {
+	return atomic.LoadInt64(&t.executions)
 }
 
 func TestRunOnArrayOfIntervals(t *testing.T) {
@@ -22,12 +28,11 @@ func TestRunOnArrayOfIntervals(t *testing.T) {
 		monitor      *testMonitor
 		intervals    []time.Duration
 		repeatPolicy RepeatPolicy
-		wait         time.Duration
 	}
 	tests := []struct {
 		name       string
 		args       args
-		comparison func(got int) bool
+		comparison func(got int64) bool
 		want       string
 	}{
 		{
@@ -37,9 +42,8 @@ func TestRunOnArrayOfIntervals(t *testing.T) {
 				monitor:      &testMonitor{},
 				intervals:    []time.Duration{10 * time.Millisecond, 10 * time.Millisecond, 10 * time.Millisecond, 10 * time.Millisecond},
 				repeatPolicy: RepeatNone,
-				wait:         1 * time.Second,
 			},
-			comparison: func(got int) bool { return got == 4 },
+			comparison: func(got int64) bool { return got == 4 },
 			want:       "equal to 4",
 		},
 		{
@@ -47,11 +51,10 @@ func TestRunOnArrayOfIntervals(t *testing.T) {
 			args: args{
 				ctx:          context.Background(),
 				monitor:      &testMonitor{},
-				intervals:    []time.Duration{100 * time.Millisecond, 100 * time.Millisecond, 100 * time.Millisecond, 300 * time.Millisecond},
+				intervals:    []time.Duration{10 * time.Millisecond, 10 * time.Millisecond, 10 * time.Millisecond, 30 * time.Millisecond},
 				repeatPolicy: RepeatLast,
-				wait:         1 * time.Second,
 			},
-			comparison: func(got int) bool { return got > 4 },
+			comparison: func(got int64) bool { return got > 4 },
 			want:       "greater than 4",
 		},
 		{
@@ -59,11 +62,10 @@ func TestRunOnArrayOfIntervals(t *testing.T) {
 			args: args{
 				ctx:          context.Background(),
 				monitor:      &testMonitor{},
-				intervals:    []time.Duration{100 * time.Millisecond, 100 * time.Millisecond, 100 * time.Millisecond, 100 * time.Millisecond},
+				intervals:    []time.Duration{10 * time.Millisecond, 10 * time.Millisecond, 10 * time.Millisecond, 10 * time.Millisecond},
 				repeatPolicy: RepeatAll,
-				wait:         1 * time.Second,
 			},
-			comparison: func(got int) bool { return got > 8 },
+			comparison: func(got int64) bool { return got > 8 },
 			want:       "greater than 8",
 		},
 		{
@@ -73,9 +75,8 @@ func TestRunOnArrayOfIntervals(t *testing.T) {
 				monitor:      &testMonitor{},
 				intervals:    []time.Duration{},
 				repeatPolicy: RepeatAll,
-				wait:         1 * time.Second,
 			},
-			comparison: func(got int) bool { return got == 0 },
+			comparison: func(got int64) bool { return got == 0 },
 			want:       "0",
 		},
 		{
@@ -83,20 +84,34 @@ func TestRunOnArrayOfIntervals(t *testing.T) {
 			args: args{
 				ctx:          cancelledContext,
 				monitor:      &testMonitor{},
-				intervals:    []time.Duration{100 * time.Millisecond, 100 * time.Millisecond, 100 * time.Millisecond, 100 * time.Millisecond},
+				intervals:    []time.Duration{10 * time.Millisecond, 10 * time.Millisecond, 10 * time.Millisecond, 10 * time.Millisecond},
 				repeatPolicy: RepeatAll,
-				wait:         1 * time.Second,
 			},
-			comparison: func(got int) bool { return got == 0 },
+			comparison: func(got int64) bool { return got == 0 },
 			want:       "0",
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			RunOnArrayOfIntervals(tt.args.ctx, tt.args.monitor.Execute, tt.args.intervals, tt.args.repeatPolicy)
-			time.Sleep(tt.args.wait)
-			if !tt.comparison(tt.args.monitor.executions) {
-				t.Errorf("expected nubmer of executions to be %v , but got %v", tt.want, tt.args.monitor.executions)
+			for !tt.comparison(tt.args.monitor.Count()) {
+				runtime.Gosched()
+			}
+			// ensure we don't continue repeating when repeat policy is set to none
+			if tt.args.repeatPolicy == RepeatNone {
+				time.Sleep(1 * time.Second)
+				runtime.Gosched()
+				if !tt.comparison(tt.args.monitor.Count()) {
+					t.Errorf("repeat none policy violated")
+				}
+			}
+			// ensure that when the # of intervals is 0 nothing is executed
+			if len(tt.args.intervals) == 0 {
+				time.Sleep(1 * time.Second)
+				runtime.Gosched()
+				if !tt.comparison(tt.args.monitor.Count()) {
+					t.Errorf("empty interval array violated")
+				}
 			}
 		})
 	}
