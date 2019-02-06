@@ -55,12 +55,19 @@ const monitorType = "collectd/postgresql"
 //     - type: "gauge"
 //       valuesFrom:
 //       - "test"
+//       instancePrefix: "test"
 //  databases:
 //  - name: "test"
 //    username: "username2"
 //    password: "password2"
 //    queries:
 //    - "exampleQuery"
+//
+//
+//metricsToInclude:
+//    - metricNames:
+//      - gauge.test
+//      monitorType: collectd/postgresql
 // ```
 
 func init() {
@@ -89,11 +96,11 @@ type Database struct {
 	// Specify the Kerberos service name used to authenticate with kerberos 5 or
 	// GSSAPI
 	KRBSrvName string `yaml:"krbSrvName"`
-	// Queries used to generate metrics.  If no queries are specified, the
-	// default set will be used [`custom_deadlocks`, `backends`, `transactions`,
-	// `queries`, `queries_by_table`, `query_plans`, `table_states`,
-	// `query_plans_by_table`, `table_states_by_table`, `disk_io`,
-	// `disk_io_by_table`, `disk_usage`]
+	// Queries used to generate metrics. These will override the default set.
+	// If no queries are specified, the default set will be used
+	// [`custom_deadlocks`, `backends`, `transactions`, `queries`, `queries_by_table`,
+	// `query_plans`, `table_states`, `query_plans_by_table`, `table_states_by_table`,
+	//  `disk_io`, `disk_io_by_table`, `disk_usage`]
 	Queries []string `yaml:"queries"`
 }
 
