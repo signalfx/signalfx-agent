@@ -12226,6 +12226,22 @@
           "required": false,
           "type": "bool",
           "elementKind": ""
+        },
+        {
+          "yamlName": "cGroup",
+          "doc": "The name of the cgroup to monitor.  This cgroup name will be appended to the configured `sysPath`.  See the agent config schema for more information about the `sysPath` agent configuration.",
+          "default": "",
+          "required": false,
+          "type": "string",
+          "elementKind": ""
+        },
+        {
+          "yamlName": "WinService",
+          "doc": "The name of a windows service to report procstat information on.",
+          "default": "",
+          "required": false,
+          "type": "string",
+          "elementKind": ""
         }
       ],
       "monitorType": "telegraf/procstat",
@@ -13853,6 +13869,14 @@
               {
                 "yamlName": "CSVColumnNames",
                 "doc": "List of custom column names.  All columns must have names.  Unnamed columns are ignored. This configuration must be set when `CSVHeaderRowCount` is 0. (`csv` only)",
+                "default": null,
+                "required": false,
+                "type": "slice",
+                "elementKind": "string"
+              },
+              {
+                "yamlName": "CSVColumnTypes",
+                "doc": "List of types to assign to columns.  Acceptable values are `int`, `float`, `bool`, or `string` (`csv` only).",
                 "default": null,
                 "required": false,
                 "type": "slice",

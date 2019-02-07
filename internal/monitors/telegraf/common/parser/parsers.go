@@ -103,6 +103,9 @@ type Config struct {
 	// List of custom column names.  All columns must have names.  Unnamed columns are ignored.
 	// This configuration must be set when `CSVHeaderRowCount` is 0. (`csv` only)
 	CSVColumnNames []string `yaml:"CSVColumnNames"`
+	// List of types to assign to columns.  Acceptable values are `int`,
+	// `float`, `bool`, or `string` (`csv` only).
+	CSVColumnTypes []string `yaml:"CSVColumnTypes"`
 	// List of columns that should be added as tags.  Unspecified columns will be added as fields. (`csv` only)
 	CSVTagColumns []string `yaml:"CSVTagColumns"`
 	//  The name of the column to extract the metric name from (`csv` only)
