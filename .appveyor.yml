@@ -3,7 +3,8 @@ version: "{build}"
 configuration:
   - Lint
   - Vet
-  # - Build
+  - Build
+  - GoTest
   # - IntegrationTest
 
 
@@ -17,8 +18,8 @@ environment:
   AGENT_BIN: c:\gopath\src\github.com\signalfx\signalfx-agent\build\SignalFxAgent\bin\signalfx-agent.exe
   GOROOT: c:\go111
   GOPATH: c:\gopath
-  # PYTHONHOME: c:\Python36-x64
-  # PYTHONPATH: c:\Python36-x64
+  PYTHONHOME: c:\Python36-x64
+  PYTHONPATH: c:\Python36-x64
   TEST_SERVICES_DIR: c:\gopath\src\github.com\signalfx\signalfx-agent\test-services
 
 install:
@@ -37,6 +38,8 @@ matrix:
     - configuration: Lint
       image: Visual Studio 2013
     - configuration: Vet
+      image: Visual Studio 2013
+    - configuration: Build
       image: Visual Studio 2013
 
 for:
@@ -58,6 +61,29 @@ for:
   - echo Running go vet
   - ps: "& { . $env:APPVEYOR_BUILD_FOLDER/scripts/windows/make.ps1; vet }"
 
+-
+  matrix:
+    only:
+      - configuration: Build
+
+  build_script:
+    - echo Building Agent
+    - ps: "$env:AGENT_VERSION = & { git rev-parse HEAD };"
+    - ps: "& { . $env:APPVEYOR_BUILD_FOLDER/scripts/windows/make.ps1; signalfx-agent }"
+
+-
+  matrix:
+    only:
+      - configuration: GoTest
+
+  test_script:
+    - echo Running unit tests
+    - ps: "& { . $env:APPVEYOR_BUILD_FOLDER/scripts/windows/make.ps1; $env:TEST_RC=unit_test }"
+    - ps: |
+        $wc = New-Object 'System.Net.WebClient'
+        $wc.UploadFile("https://ci.appveyor.com/api/testresults/junit/$($env:APPVEYOR_JOB_ID)", (Resolve-Path .\unit_results.xml))
+    - ps: if ($env:TEST_RC -ne 0){ Write-Host "One or more unit tests failed!"; exit 1 }
+
 # build_script:
 #   - ps: "$env:AGENT_VERSION = & { git rev-parse HEAD };"
 #   - echo Building Bundle
@@ -75,12 +101,6 @@ for:
 #   - pytest --version
 
 # test_script:
-#   - echo Running unit tests
-#   - ps: "& { . $env:APPVEYOR_BUILD_FOLDER/scripts/windows/make.ps1; $env:TEST_RC=unit_test }"
-#   - ps: |
-#       $wc = New-Object 'System.Net.WebClient'
-#       $wc.UploadFile("https://ci.appveyor.com/api/testresults/junit/$($env:APPVEYOR_JOB_ID)", (Resolve-Path .\unit_results.xml))
-#   - ps: if ($env:TEST_RC -ne 0){ Write-Host "One or more unit tests failed!"; exit 1 }
 #   - echo Running integration tests
 #   - ps: "& { . $env:APPVEYOR_BUILD_FOLDER/scripts/windows/make.ps1; integration_test; $env:TEST_RC=$lastexitcode }"
 #   - ps: |
