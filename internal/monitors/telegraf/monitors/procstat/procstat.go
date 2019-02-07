@@ -94,7 +94,7 @@ func (m *Monitor) Configure(conf *Config) (err error) {
 
 	// use the agent's configured host sys to get cgroup information
 	if conf.CGroup != "" {
-		conf.CGroup = path.Join(os.Getenv(gopsutilhelper.HostSys), "fs", "cgroup")
+		conf.CGroup = path.Join(os.Getenv(gopsutilhelper.HostSys), "fs", "cgroup", conf.CGroup)
 	}
 
 	// Hard code the plugin name because the emitter will parse out the
