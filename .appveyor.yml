@@ -35,9 +35,9 @@ build: Off
 for:
 -
   matrix:
-    only:
-      - image: Visual Studio 2017 #only lint on 2017
+    only: 
       - configuration: Lint
+        image: Visual Studio 2017 #only lint on 2017
   test_script:    
   - echo Running go lint
   - go get -u golang.org/x/lint/golint
@@ -46,8 +46,9 @@ for:
 -
   matrix:
     only:
-      - image: Visual Studio 2017 # only vet on server 2016
       - configuration: Vet
+        image: Visual Studio 2017 # only vet on server 2016
+
   test_script:
   - echo Running go vet
   - ps: "& { . $env:APPVEYOR_BUILD_FOLDER/scripts/windows/make.ps1; vet }"
