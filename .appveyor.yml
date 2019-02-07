@@ -32,12 +32,18 @@ install:
 
 build: Off
 
+matrix:
+  exclude:
+    - configuration: Lint
+      image: Visual Studio 2013
+    - configuration: Vet
+      image: Visual Studio 2013
+
 for:
 -
   matrix:
     only: 
       - configuration: Lint
-        image: Visual Studio 2017 #only lint on 2017
   test_script:    
   - echo Running go lint
   - go get -u golang.org/x/lint/golint
@@ -47,7 +53,6 @@ for:
   matrix:
     only:
       - configuration: Vet
-        image: Visual Studio 2017 # only vet on server 2016
 
   test_script:
   - echo Running go vet
