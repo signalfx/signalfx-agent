@@ -1,23 +1,31 @@
 package baseemitter
 
 import (
-	"time"
+	"fmt"
 
+	"github.com/influxdata/telegraf"
 	"github.com/signalfx/golib/datapoint"
 	"github.com/signalfx/golib/event"
-	measure "github.com/signalfx/signalfx-agent/internal/monitors/telegraf/common/measurement"
 	"github.com/signalfx/signalfx-agent/internal/monitors/types"
-	"github.com/signalfx/signalfx-agent/internal/utils"
-	"github.com/signalfx/telegraf/plugins/outputs/signalfx/parse"
 	log "github.com/sirupsen/logrus"
 )
 
-// GetTime returns the first timestamp from an array of timestamps
-func GetTime(t ...time.Time) time.Time {
-	if len(t) > 0 {
-		return t[0]
+// TelegrafToSFXMetricType returns the signalfx metric type for a telegraf metric
+func TelegrafToSFXMetricType(m telegraf.Metric) (datapoint.MetricType, string) {
+	switch m.Type() {
+	case telegraf.Gauge:
+		return datapoint.Gauge, ""
+	case telegraf.Counter:
+		return datapoint.Counter, ""
+	case telegraf.Summary:
+		return datapoint.Gauge, "summary"
+	case telegraf.Histogram:
+		return datapoint.Gauge, "histogram"
+	case telegraf.Untyped:
+		return datapoint.Gauge, "untyped"
+	default:
+		return datapoint.Gauge, "unrecognized"
 	}
-	return time.Now()
 }
 
 // BaseEmitter immediately converts a telegraf measurement into datapoints and
@@ -49,7 +57,7 @@ type BaseEmitter struct {
 	// measurementTransformations is an array of functions to apply to an incoming measurement
 	// before retrieving the metric name, checking for inclusion/exclusion, etc.
 	// Use great discretion with this.
-	measurementTransformations []func(*measure.Measurement) error
+	measurementTransformations []func(telegraf.Metric) error
 	// whether to omit the "telegraf_type"
 	// dimension for documenting original metric type
 	omitOriginalMetricType bool
@@ -146,11 +154,21 @@ func (b *BaseEmitter) RenameMetrics(mappings map[string]string) {
 
 // GetMetricName parses the metric name and takes name overrides into account
 // if a name is overridden it will not have transformations applied to it
-func (b *BaseEmitter) GetMetricName(measurement string, field string, metricDims map[string]string) (string, bool) {
-	var name, isSFX = parse.GetMetricName(measurement, field, metricDims)
+func (b *BaseEmitter) GetMetricName(metricName string, field string) string {
+	var name string
+
+	if field != "value" {
+		name = field
+	}
+
+	if name == "" {
+		name = metricName
+	} else {
+		name = fmt.Sprintf("%s.%s", metricName, name)
+	}
 
 	if altName := b.nameMap[name]; altName != "" {
-		return altName, isSFX
+		return altName
 	}
 
 	// apply metricname transformations
@@ -158,7 +176,7 @@ func (b *BaseEmitter) GetMetricName(measurement string, field string, metricDims
 		name = f(name)
 	}
 
-	return name, isSFX
+	return name
 }
 
 // AddMetricNameTransformation adds a function for mutating metric names.  GetMetricNames()
@@ -180,21 +198,21 @@ func (b *BaseEmitter) AddMetricNameTransformations(fns []func(string) string) {
 // AddMeasurementTransformation adds a function to the list of functions the emitter
 // will pass an incoming measurement through.  This is useful for manipulating tags
 // and fields before the measurement is converted to a SignalFx datapoint.
-func (b *BaseEmitter) AddMeasurementTransformation(f func(*measure.Measurement) error) {
+func (b *BaseEmitter) AddMeasurementTransformation(f func(telegraf.Metric) error) {
 	b.measurementTransformations = append(b.measurementTransformations, f)
 }
 
 // AddMeasurementTransformations a list of functions to the list of functions the emitter
 // will pass an incoming measurement through.  This is useful for manipulating tags
 // and fields before the measurement is converted to a SignalFx datapoint.
-func (b *BaseEmitter) AddMeasurementTransformations(fns []func(*measure.Measurement) error) {
+func (b *BaseEmitter) AddMeasurementTransformations(fns []func(telegraf.Metric) error) {
 	for _, f := range fns {
 		b.AddMeasurementTransformation(f)
 	}
 }
 
 // TransformMeasurement applies all measurementTransformations to the supplied measurement
-func (b *BaseEmitter) TransformMeasurement(m *measure.Measurement) {
+func (b *BaseEmitter) TransformMeasurement(m telegraf.Metric) {
 	// apply transformation functions to incoming measurement
 	for _, tf := range b.measurementTransformations {
 		if err := tf(m); err != nil {
@@ -203,29 +221,40 @@ func (b *BaseEmitter) TransformMeasurement(m *measure.Measurement) {
 	}
 }
 
-// Add parses measurements from telegraf and emits them through Output
-func (b *BaseEmitter) Add(measurement string, fields map[string]interface{},
-	tags map[string]string, metricType datapoint.MetricType,
-	originalMetricType string, t ...time.Time) {
-
-	// create a measurement
-	// telegraf doc says that tags are owned by the calling plugin and they
-	// shouldn't be mutated.  So we copy the tags map
-	ms := measure.New(measurement, fields, utils.CloneStringMap(tags), metricType, originalMetricType, t...)
+// AddMetric parses metrics from telegraf and emits them through Output
+func (b *BaseEmitter) AddMetric(m telegraf.Metric) {
 
 	// apply transformation functions to the measurement
-	b.TransformMeasurement(ms)
+	b.TransformMeasurement(m)
 
-	for field, val := range ms.Fields {
-		metricDims := utils.CloneAndFilterStringMapWithFunc(ms.Tags, b.FilterTags)
+	// remove tags from metric
+	for key := range b.omittedTags {
+		m.RemoveTag(key)
+	}
 
-		// add additional tags to the metricDims
-		if len(b.addTags) > 0 {
-			metricDims = utils.MergeStringMaps(metricDims, b.addTags)
-		}
+	// add tags to metric
+	for key, val := range b.addTags {
+		m.AddTag(key, val)
+	}
 
+	// get metric type and original metric type
+	metricType, originalMetricType := TelegrafToSFXMetricType(m)
+
+	// Add common dimensions
+	if originalMetricType != "" && !b.omitOriginalMetricType {
+		// only add telegraf_type if we override the original type
+		m.AddTag("telegraf_type", originalMetricType)
+	}
+
+	// add plugin dimension if it doesn't exist
+	if !m.HasTag("plugin") {
+		m.AddTag("plugin", m.Name())
+	}
+
+	// process fields
+	for field, val := range m.Fields() {
 		// Generate the metric name
-		metricName, isSFX := b.GetMetricName(ms.Measurement, field, metricDims)
+		metricName := b.GetMetricName(m.Name(), field)
 
 		// Check if the metric is explicitly excluded
 		if b.IsExcluded(metricName) {
@@ -233,44 +262,29 @@ func (b *BaseEmitter) Add(measurement string, fields map[string]interface{},
 			continue
 		}
 
-		// If eligible, move the dimension "property" to properties
-		metricProps, propErr := parse.ExtractProperty(metricName, metricDims)
-		if propErr != nil {
-			b.Logger.Error(propErr)
-			continue
-		}
-
-		// Add common dimensions
-		if originalMetricType != "" && !b.omitOriginalMetricType {
-			// only add telegraf_type if we override the original type
-			metricDims["telegraf_type"] = originalMetricType
-		}
-		parse.SetPluginDimension(ms.Measurement, metricDims)
-		parse.RemoveSFXDimensions(metricDims)
-
 		// Get the metric value as a datapoint value
 		if metricValue, err := datapoint.CastMetricValue(val); err == nil {
 			var dp = datapoint.New(
 				metricName,
-				metricDims,
+				m.Tags(),
 				metricValue,
 				metricType,
-				GetTime(ms.Timestamps...),
+				m.Time(),
 			)
 			b.Output.SendDatapoint(dp)
 		} else {
-			// Skip if it's not an sfx event and it's not included
-			if !isSFX && !b.Included(metricName) {
+			// Skip if it's not included
+			if !b.Included(metricName) {
 				continue
 			}
 			// We've already type checked field, so set property with value
-			metricProps["message"] = val
+			metricProps := map[string]interface{}{"message": val}
 			var ev = event.NewWithProperties(
 				metricName,
 				event.AGENT,
-				metricDims,
+				m.Tags(),
 				metricProps,
-				GetTime(ms.Timestamps...),
+				m.Time(),
 			)
 			b.Output.SendEvent(ev)
 		}
@@ -282,6 +296,13 @@ func (b *BaseEmitter) AddError(err error) {
 	// some telegraf plugins will invoke AddError with nil i.e. sqlserver
 	if err != nil {
 		b.Logger.WithError(err).Errorf("an error was emitted from the plugin")
+	}
+}
+
+// AddDebug logs a debug statement
+func (b *BaseEmitter) AddDebug(deb string, args ...interface{}) {
+	if deb != "" {
+		b.Logger.Debugf(deb, args...)
 	}
 }
 
@@ -302,6 +323,6 @@ func NewEmitter(Output types.Output, Logger log.FieldLogger) *BaseEmitter {
 		addTags:                    map[string]string{},
 		nameMap:                    map[string]string{},
 		metricNameTransformations:  []func(string) string{},
-		measurementTransformations: []func(*measure.Measurement) error{},
+		measurementTransformations: []func(telegraf.Metric) error{},
 	}
 }

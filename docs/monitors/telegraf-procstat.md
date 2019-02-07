@@ -42,6 +42,8 @@ Monitor Type: `telegraf/procstat`
 | `processName` | no | `string` | Used to override the process name dimension |
 | `prefix` | no | `string` | Prefix to be added to each dimension |
 | `pidTag` | no | `bool` | Whether to add PID as a dimension instead of part of the metric name (**default:** `false`) |
+| `cGroup` | no | `string` | The name of the cgroup to monitor.  This cgroup name will be appended to the configured `sysPath`.  See the agent config schema for more information about the `sysPath` agent configuration. |
+| `WinService` | no | `string` | The name of a windows service to report procstat information on. |
 
 
 

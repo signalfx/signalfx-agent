@@ -89,6 +89,7 @@ The **nested** `telegrafParser` config object has the following fields:
 | `CSVComment` | no | `string` | The character used to mark rows as comments. (`csv` only) |
 | `CSVTrimSpace` | no | `bool` | Indicates whether to trim leading white from fields. (`csv` only) (**default:** `false`) |
 | `CSVColumnNames` | no | `list of string` | List of custom column names.  All columns must have names.  Unnamed columns are ignored. This configuration must be set when `CSVHeaderRowCount` is 0. (`csv` only) |
+| `CSVColumnTypes` | no | `list of string` | List of types to assign to columns.  Acceptable values are `int`, `float`, `bool`, or `string` (`csv` only). |
 | `CSVTagColumns` | no | `list of string` | List of columns that should be added as tags.  Unspecified columns will be added as fields. (`csv` only) |
 | `CSVMeasurementColumn` | no | `string` | The name of the column to extract the metric name from (`csv` only) |
 | `CSVTimestampColumn` | no | `string` | The name of the column to extract the metric timestamp from. `CSVTimestampFormat` must be set when using this option.  (`csv` only) |

@@ -2,6 +2,8 @@ package procstat
 
 import (
 	"context"
+	"os"
+	"path"
 	"strings"
 	"time"
 
@@ -15,6 +17,7 @@ import (
 	"github.com/signalfx/signalfx-agent/internal/monitors/telegraf/common/emitter/baseemitter"
 	"github.com/signalfx/signalfx-agent/internal/monitors/types"
 	"github.com/signalfx/signalfx-agent/internal/utils"
+	"github.com/signalfx/signalfx-agent/internal/utils/gopsutilhelper"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -65,6 +68,12 @@ type Config struct {
 	Prefix string `yaml:"prefix"`
 	// Whether to add PID as a dimension instead of part of the metric name
 	PidTag bool `yaml:"pidTag"`
+	// The name of the cgroup to monitor.  This cgroup name will be appended to
+	// the configured `sysPath`.  See the agent config schema for more information
+	// about the `sysPath` agent configuration.
+	CGroup string `yaml:"cGroup"`
+	// The name of a windows service to report procstat information on.
+	WinService string `yaml:"WinService"`
 }
 
 // Monitor for Utilization
@@ -82,6 +91,11 @@ func (m *Monitor) Configure(conf *Config) (err error) {
 
 	// create the emitter
 	em := baseemitter.NewEmitter(m.Output, logger)
+
+	// use the agent's configured host sys to get cgroup information
+	if conf.CGroup != "" {
+		conf.CGroup = path.Join(os.Getenv(gopsutilhelper.HostSys), "fs", "cgroup", conf.CGroup)
+	}
 
 	// Hard code the plugin name because the emitter will parse out the
 	// configured measurement name as plugin and that is confusing.

@@ -4,9 +4,9 @@ import (
 	"strings"
 	"time"
 
+	"github.com/influxdata/telegraf"
 	"github.com/signalfx/signalfx-agent/internal/core/config"
 	"github.com/signalfx/signalfx-agent/internal/monitors"
-	"github.com/signalfx/signalfx-agent/internal/monitors/telegraf/common/measurement"
 	"github.com/signalfx/signalfx-agent/internal/monitors/types"
 	log "github.com/sirupsen/logrus"
 )
@@ -125,14 +125,12 @@ func NewPCRMetricNamesTransformer() func(string) string {
 }
 
 // NewPCRInstanceTagTransformer returns a function for transforming perf counter measurements
-func NewPCRInstanceTagTransformer() func(*measurement.Measurement) error {
+func NewPCRInstanceTagTransformer() func(telegraf.Metric) error {
 	replacer := NewPCRReplacer()
-	return func(ms *measurement.Measurement) error {
-		for t, v := range ms.Tags {
-			if t == "instance" {
-				v = replacer.Replace(strings.ToLower(v))
-				ms.Tags["instance"] = v
-			}
+	return func(ms telegraf.Metric) error {
+		val, ok := ms.GetTag("instance")
+		if ok {
+			ms.AddTag("instance", replacer.Replace(strings.ToLower(val)))
 		}
 		return nil
 	}
