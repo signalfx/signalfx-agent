@@ -69,7 +69,7 @@ for:
     - echo Building Agent
     - ps: "$env:AGENT_VERSION = & { git rev-parse HEAD };"
     - ps: "& { . $env:APPVEYOR_BUILD_FOLDER/scripts/windows/make.ps1; signalfx-agent }"
-    - ps: '"$env:APPVEYOR_BUILD_FOLDER/signalfx-agent.exe" -version'
+    - ps: "ls $env:APPVEYOR_BUILD_FOLDER"
 
 -
   matrix:
