@@ -139,7 +139,9 @@ If you do not have a base box, the makefile target `win-vagrant-base-box` will
 checkout the [Windows Boxcutter Project](https://github.com/boxcutter/windows) and build
 the Windows Server base box image using the evaluation copy of Windows.
 
-Please ensure that the requisites for Boxcutter are satisfied, including the installation of VirtualBox and Vagrant.
+Please ensure that the requisites for Boxcutter are satisfied, including the 
+installation of [Packer](https://www.packer.io/), 
+[VirtualBox](https://www.virtualbox.org/), and [Vagrant](https://www.vagrantup.com/).
 
 #### Make File Targets
 
