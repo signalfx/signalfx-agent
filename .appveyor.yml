@@ -7,6 +7,11 @@ configuration:
   - GoTest
   # - IntegrationTest
 
+
+image:
+  - Visual Studio 2013 # windows server 2012
+  - Visual Studio 2017 # windows server 2016
+
 clone_folder: c:\gopath\src\github.com\signalfx\signalfx-agent
 
 environment:
@@ -42,8 +47,6 @@ for:
   matrix:
     only: 
       - configuration: Lint
-  image:
-    - Visual Studio 2017 # windows server 2016
   test_script:    
   - echo Running go lint
   - go get -u golang.org/x/lint/golint
@@ -53,8 +56,7 @@ for:
   matrix:
     only:
       - configuration: Vet
-  image:
-    - Visual Studio 2017 # windows server 2016
+
   test_script:
   - echo Running go vet
   - ps: "& { . $env:APPVEYOR_BUILD_FOLDER/scripts/windows/make.ps1; vet }"
@@ -63,8 +65,7 @@ for:
   matrix:
     only:
       - configuration: Build
-  image:
-    - Visual Studio 2017 # windows server 2016
+
   build_script:
     - echo Building Agent
     - ps: "$env:AGENT_VERSION = & { git rev-parse HEAD };"
@@ -74,9 +75,9 @@ for:
   matrix:
     only:
       - configuration: GoTest
-  image:
-    - Visual Studio 2013 # windows server 2012
-    - Visual Studio 2017 # windows server 2016
+  before_test:
+    - echo Installing test dependencies
+    - go get github.com/tebeka/go2xunit
   test_script:
     - echo Running unit tests
     - ps: "& { . $env:APPVEYOR_BUILD_FOLDER/scripts/windows/make.ps1; $env:TEST_RC=unit_test }"
