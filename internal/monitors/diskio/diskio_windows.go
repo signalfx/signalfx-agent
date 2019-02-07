@@ -7,9 +7,9 @@ import (
 	"strings"
 	"time"
 
+	"github.com/influxdata/telegraf"
 	"github.com/signalfx/signalfx-agent/internal/monitors/telegraf/common/accumulator"
 	"github.com/signalfx/signalfx-agent/internal/monitors/telegraf/common/emitter/baseemitter"
-	"github.com/signalfx/signalfx-agent/internal/monitors/telegraf/common/measurement"
 	"github.com/signalfx/signalfx-agent/internal/monitors/telegraf/monitors/winperfcounters"
 	"github.com/signalfx/signalfx-agent/internal/monitors/types"
 	"github.com/signalfx/signalfx-agent/internal/utils"
@@ -35,21 +35,23 @@ var metricNameMapping = map[string]string{
 }
 
 // applies exhuastive filter to measurements
-func (m *Monitor) filterMeasurements(ms *measurement.Measurement) error {
-	instance, ok := ms.Tags["instance"]
+func (m *Monitor) filterMeasurements(ms telegraf.Metric) error {
+	instance, ok := ms.GetTag("instance")
 
 	// skip it if the disk doesn't match
 	if !ok || !m.filter.Matches(instance) {
 		logger.Debugf("skipping disk '%s'", instance)
-		// explicitly set fields to an empty map so no metrics are emitted
-		ms.Fields = map[string]interface{}{}
+		// explicitly remove all fields to an empty map so no metrics are emitted
+		for field := range ms.Fields() {
+			ms.RemoveField(field)
+		}
 		return nil
 	}
 
-	delete(ms.Tags, "instance")
+	ms.RemoveTag("instance")
 	pluginInstance := strings.Replace(instance, " ", "_", -1)
-	ms.Tags["plugin_instance"] = pluginInstance
-	ms.Tags["disk"] = pluginInstance
+	ms.AddTag("plugin_instance", pluginInstance)
+	ms.AddTag("disk", pluginInstance)
 	return nil
 }
 

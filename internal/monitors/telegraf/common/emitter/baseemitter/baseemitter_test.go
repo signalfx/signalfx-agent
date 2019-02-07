@@ -8,9 +8,10 @@ import (
 	"testing"
 	"time"
 
+	"github.com/influxdata/telegraf"
+	"github.com/influxdata/telegraf/metric"
 	"github.com/signalfx/golib/datapoint"
 	"github.com/signalfx/golib/event"
-	measure "github.com/signalfx/signalfx-agent/internal/monitors/telegraf/common/measurement"
 	"github.com/signalfx/signalfx-agent/internal/neotest"
 	log "github.com/sirupsen/logrus"
 )
@@ -20,16 +21,15 @@ func TestImmediateEmitter_Emit(t *testing.T) {
 		measurement                string
 		fields                     map[string]interface{}
 		tags                       map[string]string
-		metricType                 datapoint.MetricType
-		originalMetricType         string
-		t                          []time.Time
+		metricType                 telegraf.ValueType
+		t                          time.Time
 		includeEvent               []string
 		excludeData                []string
 		excludeTag                 []string
 		addTag                     map[string]string
 		nameMap                    map[string]string
 		metricNameTransformations  []func(metricName string) string
-		measurementTransformations []func(*measure.Measurement) error
+		measurementTransformations []func(telegraf.Metric) error
 	}
 	ts := time.Now()
 	tests := []struct {
@@ -48,8 +48,8 @@ func TestImmediateEmitter_Emit(t *testing.T) {
 				tags: map[string]string{
 					"dim1Key": "dim1Val",
 				},
-				metricType: datapoint.Gauge,
-				t:          []time.Time{ts},
+				metricType: telegraf.Gauge,
+				t:          ts,
 			},
 			wantDatapoints: []*datapoint.Datapoint{
 				datapoint.New(
@@ -74,8 +74,8 @@ func TestImmediateEmitter_Emit(t *testing.T) {
 					"dim1Key": "dim1Val",
 					"plugin":  "pluginname",
 				},
-				metricType: datapoint.Gauge,
-				t:          []time.Time{ts},
+				metricType: telegraf.Gauge,
+				t:          ts,
 			},
 			wantDatapoints: []*datapoint.Datapoint{
 				datapoint.New(
@@ -100,9 +100,8 @@ func TestImmediateEmitter_Emit(t *testing.T) {
 					"dim1Key": "dim1Val",
 					"plugin":  "pluginname",
 				},
-				metricType:         datapoint.Gauge,
-				originalMetricType: "untyped",
-				t:                  []time.Time{ts},
+				metricType: telegraf.Untyped,
+				t:          ts,
 			},
 			wantDatapoints: []*datapoint.Datapoint{
 				datapoint.New(
@@ -128,8 +127,8 @@ func TestImmediateEmitter_Emit(t *testing.T) {
 					"dim1Key": "dim1Val",
 					"plugin":  "pluginname",
 				},
-				metricType: datapoint.Gauge,
-				t:          []time.Time{ts},
+				metricType: telegraf.Gauge,
+				t:          ts,
 				excludeTag: []string{"dim1Key"},
 			},
 			wantDatapoints: []*datapoint.Datapoint{
@@ -153,8 +152,8 @@ func TestImmediateEmitter_Emit(t *testing.T) {
 				tags: map[string]string{
 					"plugin": "pluginname",
 				},
-				metricType: datapoint.Gauge,
-				t:          []time.Time{ts},
+				metricType: telegraf.Gauge,
+				t:          ts,
 				addTag:     map[string]string{"dim1Key": "dim1Val"},
 			},
 			wantDatapoints: []*datapoint.Datapoint{
@@ -180,8 +179,8 @@ func TestImmediateEmitter_Emit(t *testing.T) {
 					"dim1Key": "dim1Val",
 					"plugin":  "pluginname",
 				},
-				metricType: datapoint.Gauge,
-				t:          []time.Time{ts},
+				metricType: telegraf.Gauge,
+				t:          ts,
 				addTag:     map[string]string{"dim1Key": "dim1Override"},
 			},
 			wantDatapoints: []*datapoint.Datapoint{
@@ -206,8 +205,8 @@ func TestImmediateEmitter_Emit(t *testing.T) {
 				tags: map[string]string{
 					"dim1Key": "dim1Val",
 				},
-				metricType: datapoint.Gauge,
-				t:          []time.Time{ts},
+				metricType: telegraf.Gauge,
+				t:          ts,
 				includeEvent: []string{
 					"name.fieldname",
 				},
@@ -237,8 +236,8 @@ func TestImmediateEmitter_Emit(t *testing.T) {
 					"dim1Key": "dim1Val",
 					"plugin":  "pluginname",
 				},
-				metricType:   datapoint.Gauge,
-				t:            []time.Time{ts},
+				metricType:   telegraf.Gauge,
+				t:            ts,
 				includeEvent: []string{},
 			},
 			wantEvents: nil,
@@ -254,8 +253,8 @@ func TestImmediateEmitter_Emit(t *testing.T) {
 					"dim1Key": "dim1Val",
 					"plugin":  "pluginname",
 				},
-				metricType:   datapoint.Gauge,
-				t:            []time.Time{ts},
+				metricType:   telegraf.Gauge,
+				t:            ts,
 				includeEvent: []string{},
 				excludeData:  []string{"name.fieldname"},
 			},
@@ -274,8 +273,8 @@ func TestImmediateEmitter_Emit(t *testing.T) {
 					"plugin":    "signalfx-metadata",
 					"severity":  "4",
 				},
-				metricType:   datapoint.Gauge,
-				t:            []time.Time{ts},
+				metricType:   telegraf.Gauge,
+				t:            ts,
 				includeEvent: []string{},
 				excludeData:  []string{"name.fieldname"},
 			},
@@ -292,8 +291,8 @@ func TestImmediateEmitter_Emit(t *testing.T) {
 				tags: map[string]string{
 					"dim1Key": "dim1Val",
 				},
-				metricType: datapoint.Gauge,
-				t:          []time.Time{ts},
+				metricType: telegraf.Gauge,
+				t:          ts,
 				nameMap: map[string]string{
 					"name.fieldname": "alt_name.fieldname",
 				},
@@ -320,8 +319,8 @@ func TestImmediateEmitter_Emit(t *testing.T) {
 				tags: map[string]string{
 					"dim1Key": "dim1Val",
 				},
-				metricType: datapoint.Gauge,
-				t:          []time.Time{ts},
+				metricType: telegraf.Gauge,
+				t:          ts,
 				metricNameTransformations: []func(metricName string) string{
 					func(metricName string) string {
 						return fmt.Sprintf("transformed.%s", metricName)
@@ -350,11 +349,11 @@ func TestImmediateEmitter_Emit(t *testing.T) {
 				tags: map[string]string{
 					"dim1Key": "dim1Val",
 				},
-				metricType: datapoint.Gauge,
-				t:          []time.Time{ts},
-				measurementTransformations: []func(*measure.Measurement) error{
-					func(m *measure.Measurement) error {
-						m.Fields["fieldname"] = 55
+				metricType: telegraf.Gauge,
+				t:          ts,
+				measurementTransformations: []func(telegraf.Metric) error{
+					func(m telegraf.Metric) error {
+						m.AddField("fieldname", 55)
 						return nil
 					},
 				},
@@ -384,8 +383,8 @@ func TestImmediateEmitter_Emit(t *testing.T) {
 			I.RenameMetrics(tt.args.nameMap)
 			I.AddMetricNameTransformations(tt.args.metricNameTransformations)
 			I.AddMeasurementTransformations(tt.args.measurementTransformations)
-			I.Add(tt.args.measurement, tt.args.fields, tt.args.tags,
-				tt.args.metricType, tt.args.originalMetricType, tt.args.t...)
+			met, _ := metric.New(tt.args.measurement, tt.args.tags, tt.args.fields, tt.args.t, tt.args.metricType)
+			I.AddMetric(met)
 			dps := out.FlushDatapoints()
 			if !reflect.DeepEqual(dps, tt.wantDatapoints) {
 				t.Errorf("actual output: datapoints %v does not match desired: %v", dps, tt.wantDatapoints)
@@ -397,14 +396,6 @@ func TestImmediateEmitter_Emit(t *testing.T) {
 			}
 		})
 	}
-}
-
-func Test_GetTime(t *testing.T) {
-	t.Run("current time is returned when no time is supplied", func(t *testing.T) {
-		if got := GetTime([]time.Time{}...); got.Unix() < 1 {
-			t.Error("GetTime() did not return a time")
-		}
-	})
 }
 
 func TestBaseEmitter_AddError(t *testing.T) {
@@ -422,4 +413,63 @@ func TestBaseEmitter_AddError(t *testing.T) {
 			t.Errorf("AddError() expected error string with 'errorz test' but got '%s'", buffer.String())
 		}
 	})
+}
+
+func getTelegrafMetricWithOutErr(name string, tags map[string]string, fields map[string]interface{}, t time.Time, metricType telegraf.ValueType) telegraf.Metric {
+	m, _ := metric.New(name, tags, fields, t, metricType)
+	return m
+}
+
+func TestTelegrafToSFXMetricType(t *testing.T) {
+	type args struct {
+		m telegraf.Metric
+	}
+	tests := []struct {
+		name     string
+		args     args
+		want     datapoint.MetricType
+		wantOrig string
+	}{
+		{
+			name:     "gauge",
+			args:     args{getTelegrafMetricWithOutErr("test", map[string]string{}, map[string]interface{}{}, time.Now(), telegraf.Gauge)},
+			want:     datapoint.Gauge,
+			wantOrig: "",
+		},
+		{
+			name:     "counter",
+			args:     args{getTelegrafMetricWithOutErr("test", map[string]string{}, map[string]interface{}{}, time.Now(), telegraf.Counter)},
+			want:     datapoint.Counter,
+			wantOrig: "",
+		},
+		{
+			name:     "summary",
+			args:     args{getTelegrafMetricWithOutErr("test", map[string]string{}, map[string]interface{}{}, time.Now(), telegraf.Summary)},
+			want:     datapoint.Gauge,
+			wantOrig: "summary",
+		},
+		{
+			name:     "histogram",
+			args:     args{getTelegrafMetricWithOutErr("test", map[string]string{}, map[string]interface{}{}, time.Now(), telegraf.Histogram)},
+			want:     datapoint.Gauge,
+			wantOrig: "histogram",
+		},
+		{
+			name:     "untyped",
+			args:     args{getTelegrafMetricWithOutErr("test", map[string]string{}, map[string]interface{}{}, time.Now(), telegraf.Untyped)},
+			want:     datapoint.Gauge,
+			wantOrig: "untyped",
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, got1 := TelegrafToSFXMetricType(tt.args.m)
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("TelegrafToSFXMetricType() got = %v, want %v", got, tt.want)
+			}
+			if got1 != tt.wantOrig {
+				t.Errorf("TelegrafToSFXMetricType() gotOrig = %v, want %v", got1, tt.wantOrig)
+			}
+		})
+	}
 }

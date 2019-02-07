@@ -6,13 +6,14 @@ import (
 	"strings"
 	"time"
 
+	"github.com/influxdata/telegraf"
 	telegrafInputs "github.com/influxdata/telegraf/plugins/inputs"
 	telegrafPlugin "github.com/influxdata/telegraf/plugins/inputs/sqlserver"
 	"github.com/signalfx/signalfx-agent/internal/core/config"
 	"github.com/signalfx/signalfx-agent/internal/monitors"
 	"github.com/signalfx/signalfx-agent/internal/monitors/telegraf/common/accumulator"
+	"github.com/signalfx/signalfx-agent/internal/monitors/telegraf/common/emitter"
 	"github.com/signalfx/signalfx-agent/internal/monitors/telegraf/common/emitter/baseemitter"
-	"github.com/signalfx/signalfx-agent/internal/monitors/telegraf/common/measurement"
 	"github.com/signalfx/signalfx-agent/internal/monitors/telegraf/monitors/winperfcounters"
 	"github.com/signalfx/signalfx-agent/internal/monitors/types"
 	"github.com/signalfx/signalfx-agent/internal/utils"
@@ -113,38 +114,38 @@ func (m *Monitor) Configure(conf *Config) error {
 	plugin.ExcludeQuery = conf.ExcludeQuery
 
 	// create batch emitter
-	emitter := baseemitter.NewEmitter(m.Output, logger)
+	emit := baseemitter.NewEmitter(m.Output, logger)
 
 	// Hard code the plugin name because the emitter will parse out the
 	// configured measurement name as plugin and that is confusing.
-	emitter.AddTag("plugin", strings.Replace(monitorType, "/", "-", -1))
+	emit.AddTag("plugin", strings.Replace(monitorType, "/", "-", -1))
 
 	// replacer sanitizes metrics according to our PCR reporter rules
 	replacer := winperfcounters.NewPCRReplacer()
 
-	emitter.AddMeasurementTransformation(
-		func(ms *measurement.Measurement) error {
+	emit.AddMeasurementTransformation(
+		func(ms telegraf.Metric) error {
 			// if it's a sqlserver_performance metric
 			// remap the counter and value to a field
-			if ms.Measurement == "sqlserver_performance" {
-				ms.RenameFieldWithTag("counter", "value", replacer)
+			if ms.Name() == "sqlserver_performance" {
+				emitter.RenameFieldWithTag(ms, "counter", "value", replacer)
 			}
 
 			// if it's a sqlserver_memory_clerks metric remap clerk type to field
-			if ms.Measurement == "sqlserver_memory_clerks" {
-				ms.Measurement = fmt.Sprintf("sqlserver_memory_clerks.size_kb")
-				ms.RenameFieldWithTag("clerk_type", "size_kb", replacer)
+			if ms.Name() == "sqlserver_memory_clerks" {
+				ms.SetName(fmt.Sprintf("sqlserver_memory_clerks.size_kb"))
+				emitter.RenameFieldWithTag(ms, "clerk_type", "size_kb", replacer)
 			}
 			return nil
 		})
 
 	// convert the metric name to lower case
-	emitter.AddMetricNameTransformation(func(m string) string {
+	emit.AddMetricNameTransformation(func(m string) string {
 		return strings.ToLower(m)
 	})
 
 	// create the accumulator
-	ac := accumulator.NewAccumulator(emitter)
+	ac := accumulator.NewAccumulator(emit)
 
 	// create contexts for managing the the plugin loop
 	var ctx context.Context

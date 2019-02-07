@@ -5,6 +5,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/influxdata/telegraf"
+	"github.com/influxdata/telegraf/metric"
 	"github.com/signalfx/golib/datapoint"
 	"github.com/signalfx/golib/event"
 	"github.com/signalfx/signalfx-agent/internal/neotest"
@@ -16,9 +18,9 @@ func TestImmediateEmitter_Emit(t *testing.T) {
 		measurement        string
 		fields             map[string]interface{}
 		tags               map[string]string
-		metricType         datapoint.MetricType
+		metricType         telegraf.ValueType
 		originalMetricType string
-		t                  []time.Time
+		t                  time.Time
 		includeEvent       []string
 		excludeData        []string
 	}
@@ -39,8 +41,8 @@ func TestImmediateEmitter_Emit(t *testing.T) {
 				tags: map[string]string{
 					"dim1Key": "dim1Val",
 				},
-				metricType: datapoint.Gauge,
-				t:          []time.Time{ts},
+				metricType: telegraf.Gauge,
+				t:          ts,
 			},
 			wantDatapoints: []*datapoint.Datapoint{
 				datapoint.New(
@@ -62,8 +64,8 @@ func TestImmediateEmitter_Emit(t *testing.T) {
 			I := NewEmitter(out, lg)
 			I.IncludeEvents(tt.args.includeEvent)
 			I.ExcludeData(tt.args.excludeData)
-			I.Add(tt.args.measurement, tt.args.fields, tt.args.tags,
-				tt.args.metricType, tt.args.originalMetricType, tt.args.t...)
+			m, _ := metric.New(tt.args.measurement, tt.args.tags, tt.args.fields, tt.args.t, tt.args.metricType)
+			I.AddMetric(m)
 			I.Send()
 
 			dps := out.FlushDatapoints()

@@ -6,27 +6,26 @@ import (
 	"testing"
 	"time"
 
-	"github.com/signalfx/golib/datapoint"
+	"github.com/influxdata/telegraf"
 )
 
 type testEmitter struct {
 	measurement        string
 	fields             map[string]interface{}
 	tags               map[string]string
-	metricType         datapoint.MetricType
+	metricType         telegraf.ValueType
 	originalMetricType string
 	t                  time.Time
 	err                error
+	deb                string
 }
 
-func (e *testEmitter) Add(measurement string, fields map[string]interface{},
-	tags map[string]string, metricType datapoint.MetricType, originalMetricType string, t ...time.Time) {
-	e.measurement = measurement
-	e.fields = fields
-	e.tags = tags
-	e.metricType = metricType
-	e.originalMetricType = originalMetricType
-	e.t = t[0]
+func (e *testEmitter) AddMetric(m telegraf.Metric) {
+	e.measurement = m.Name()
+	e.fields = m.Fields()
+	e.tags = m.Tags()
+	e.metricType = m.Type()
+	e.t = m.Time()
 }
 func (e *testEmitter) IncludeEvent(string)       {}
 func (e *testEmitter) IncludeEvents([]string)    {}
@@ -38,6 +37,9 @@ func (e *testEmitter) OmitTag(string)            {}
 func (e *testEmitter) OmitTags([]string)         {}
 func (e *testEmitter) AddError(err error) {
 	e.err = err
+}
+func (e *testEmitter) AddDebug(deb string) {
+	e.deb = deb
 }
 
 func TestAccumulator(t *testing.T) {
@@ -53,7 +55,7 @@ func TestAccumulator(t *testing.T) {
 				measurement:        "field_measurement",
 				fields:             map[string]interface{}{"dim1": "dimval1"},
 				tags:               map[string]string{"tag1": "tagval1"},
-				metricType:         datapoint.Gauge,
+				metricType:         telegraf.Gauge,
 				originalMetricType: "untyped",
 				t:                  time.Now(),
 			},
@@ -65,7 +67,7 @@ func TestAccumulator(t *testing.T) {
 				measurement:        "gauge_measurement",
 				fields:             map[string]interface{}{"dim1": "dimval1"},
 				tags:               map[string]string{"tag1": "tagval1"},
-				metricType:         datapoint.Gauge,
+				metricType:         telegraf.Gauge,
 				originalMetricType: "gauge",
 				t:                  time.Now(),
 			},
@@ -77,7 +79,7 @@ func TestAccumulator(t *testing.T) {
 				measurement:        "counter_measurement",
 				fields:             map[string]interface{}{"dim1": "dimval1"},
 				tags:               map[string]string{"tag1": "tagval1"},
-				metricType:         datapoint.Counter,
+				metricType:         telegraf.Counter,
 				originalMetricType: "counter",
 				t:                  time.Now(),
 			},
@@ -89,7 +91,7 @@ func TestAccumulator(t *testing.T) {
 				measurement:        "summary_measurement",
 				fields:             map[string]interface{}{"dim1": "dimval1"},
 				tags:               map[string]string{"tag1": "tagval1"},
-				metricType:         datapoint.Gauge,
+				metricType:         telegraf.Gauge,
 				originalMetricType: "summary",
 				t:                  time.Now(),
 			},
@@ -101,7 +103,7 @@ func TestAccumulator(t *testing.T) {
 				measurement:        "histogram_measurement",
 				fields:             map[string]interface{}{"dim1": "dimval1"},
 				tags:               map[string]string{"tag1": "tagval1"},
-				metricType:         datapoint.Gauge,
+				metricType:         telegraf.Gauge,
 				originalMetricType: "histogram",
 				t:                  time.Now(),
 			},

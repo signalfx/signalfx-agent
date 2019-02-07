@@ -1,9 +1,9 @@
 package emitter
 
 import (
-	"time"
+	"strings"
 
-	"github.com/signalfx/golib/datapoint"
+	"github.com/influxdata/telegraf"
 )
 
 // Emitter interface to telegraf accumulator for processing metrics from
@@ -13,7 +13,7 @@ type Emitter interface {
 	// through the agent.  Pleaes note that if the emitter is a BatchEmitter
 	// you will have to invoke the Send() function to send the batch of
 	// datapoints and events collected by the Emit function
-	Add(measurement string, fields map[string]interface{}, tags map[string]string, metricType datapoint.MetricType, originalMetricType string, t ...time.Time)
+	AddMetric(telegraf.Metric)
 	// AddTag adds a key/value pair to all measurement tags.  If a key conflicts
 	// the key value pair in AddTag will override the original key on the
 	// measurement
@@ -43,4 +43,19 @@ type Emitter interface {
 	// AddError handles errors added to the accumulator by telegraf plugins
 	// the default behavior is to log the error
 	AddError(err error)
+	// AddDebug logs a debug statement through the emitter
+	AddDebug(deb string)
+}
+
+// RenameFieldWithTag - takes the value of a specified tag and uses it to rename a specified field
+// the tag is deleted and the original field name is overwritten
+func RenameFieldWithTag(m telegraf.Metric, tagName string, fieldName string, replacer *strings.Replacer) {
+	if tagVal, ok := m.GetTag(tagName); ok {
+		tagVal = replacer.Replace(tagVal)
+		if val, ok := m.GetField(fieldName); ok && tagVal != "" {
+			m.AddField(tagVal, val)
+			m.RemoveField(fieldName)
+			m.RemoveTag(tagName)
+		}
+	}
 }
