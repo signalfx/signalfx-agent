@@ -14,9 +14,6 @@ environment:
   PYTHONPATH: c:\Python36-x64
   TEST_SERVICES_DIR: c:\gopath\src\github.com\signalfx\signalfx-agent\test-services
 
-matrix:
-  - fast_finish: true
-
 install:
   - set PATH=%GOPATH%\bin;%GOROOT%\bin;%PATH%
   - set PATH=%PYTHONHOME%;%PYTHONHOME%\Scripts;%PATH%
