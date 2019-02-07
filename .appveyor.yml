@@ -29,9 +29,7 @@ install:
   - echo Installing Visual C++ Compiler For Python
   - ps: "choco install --no-progress --limitoutput vcpython27"
 
-build:
-  parallel: true
-  verbosity: minimal
+build: Off
 
 for:
 -
