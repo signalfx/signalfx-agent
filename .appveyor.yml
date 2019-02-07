@@ -7,9 +7,9 @@ configuration:
   # - IntegrationTest
 
 
-# image:
-#   - Visual Studio 2013 # windows server 2012
-#   - Visual Studio 2017 # windows server 2016
+image:
+  - Visual Studio 2013 # windows server 2012
+  - Visual Studio 2017 # windows server 2016
 
 clone_folder: c:\gopath\src\github.com\signalfx\signalfx-agent
 
@@ -36,11 +36,8 @@ for:
 -
   matrix:
     only:
+      - image: Visual Studio 2017 #only lint on 2017
       - configuration: Lint
-   image:
-     - Visual Studio 2013 # windows server 2012
-     - Visual Studio 2017 # windows server 2016
-
   test_script:    
   - echo Running go lint
   - go get -u golang.org/x/lint/golint
@@ -49,10 +46,8 @@ for:
 -
   matrix:
     only:
+      - image: Visual Studio 2017 # only vet on server 2016
       - configuration: Vet
-   image:
-     - Visual Studio 2013 # windows server 2012
-     - Visual Studio 2017 # windows server 2016
   test_script:
   - echo Running go vet
   - ps: "& { . $env:APPVEYOR_BUILD_FOLDER/scripts/windows/make.ps1; vet }"
