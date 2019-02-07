@@ -1,14 +1,15 @@
 version: "{build}"
 
-image:
-  - Visual Studio 2013 # windows server 2012
-  - Visual Studio 2017 # windows server 2016
-
 configuration:
   - Lint
   - Vet
   # - Build
   # - IntegrationTest
+
+
+image:
+  - Visual Studio 2013 # windows server 2012
+  - Visual Studio 2017 # windows server 2016
 
 clone_folder: c:\gopath\src\github.com\signalfx\signalfx-agent
 
@@ -16,8 +17,8 @@ environment:
   AGENT_BIN: c:\gopath\src\github.com\signalfx\signalfx-agent\build\SignalFxAgent\bin\signalfx-agent.exe
   GOROOT: c:\go111
   GOPATH: c:\gopath
-  PYTHONHOME: c:\Python36-x64
-  PYTHONPATH: c:\Python36-x64
+  # PYTHONHOME: c:\Python36-x64
+  # PYTHONPATH: c:\Python36-x64
   TEST_SERVICES_DIR: c:\gopath\src\github.com\signalfx\signalfx-agent\test-services
 
 install:
@@ -26,8 +27,8 @@ install:
   - go version
   - go env
   - python --version
-  - echo Installing Visual C++ Compiler For Python
-  - ps: "choco install --no-progress --limitoutput vcpython27"
+  # - echo Installing Visual C++ Compiler For Python
+  # - ps: "choco install --no-progress --limitoutput vcpython27"
 
 build: Off
 
