@@ -1,6 +1,11 @@
-image: Visual Studio 2017
 version: "{build}"
+
+image:
+  - Visual Studio 2013 # windows server 2012
+  - Visual Studio 2017 # windows server 2016
+
 clone_folder: c:\gopath\src\github.com\signalfx\signalfx-agent
+
 environment:
   AGENT_BIN: c:\gopath\src\github.com\signalfx\signalfx-agent\build\SignalFxAgent\bin\signalfx-agent.exe
   GOROOT: c:\go111
@@ -8,6 +13,10 @@ environment:
   PYTHONHOME: c:\Python36-x64
   PYTHONPATH: c:\Python36-x64
   TEST_SERVICES_DIR: c:\gopath\src\github.com\signalfx\signalfx-agent\test-services
+
+matrix:
+  - fast_vinish: true
+
 install:
   - set PATH=%GOPATH%\bin;%GOROOT%\bin;%PATH%
   - set PATH=%PYTHONHOME%;%PYTHONHOME%\Scripts;%PATH%
@@ -16,14 +25,17 @@ install:
   - python --version
   - echo Installing Visual C++ Compiler For Python
   - ps: "choco install --no-progress --limitoutput vcpython27"
+
 build:
   verbosity: minimal
+
 before_build:
   - echo Running go lint
   - go get -u golang.org/x/lint/golint
   - ps: "& { . $env:APPVEYOR_BUILD_FOLDER/scripts/windows/make.ps1; lint }"
   - echo Running go vet
   - ps: "& { . $env:APPVEYOR_BUILD_FOLDER/scripts/windows/make.ps1; vet }"
+
 build_script:
   - ps: "$env:AGENT_VERSION = & { git rev-parse HEAD };"
   - echo Building Bundle
@@ -31,6 +43,7 @@ build_script:
   - ps: ls $env:APPVEYOR_BUILD_FOLDER/build
   - echo Bundled Collectd Plugins
   - ps: ls $env:APPVEYOR_BUILD_FOLDER/build/SignalFxAgent/plugins/collectd
+
 before_test:
   - echo Installing test dependencies
   - go get github.com/tebeka/go2xunit
@@ -38,6 +51,7 @@ before_test:
   - python get-pip.py "pip==10.0.1"
   - pip install -qq -r tests\requirements.txt
   - pytest --version
+
 test_script:
   - echo Running unit tests
   - ps: "& { . $env:APPVEYOR_BUILD_FOLDER/scripts/windows/make.ps1; $env:TEST_RC=unit_test }"
@@ -51,8 +65,10 @@ test_script:
       $wc = New-Object 'System.Net.WebClient'
       $wc.UploadFile("https://ci.appveyor.com/api/testresults/junit/$($env:APPVEYOR_JOB_ID)", (Resolve-Path .\integration_results.xml))
   - ps: if ($env:TEST_RC -ne 0){ Write-Host "One or more integration tests failed!"; exit 1 }
+
 artifacts:
   - path: integration_results.html
   # upload any agent build bundles
   - path: build/SignalFxAgent-*-win*.zip
+
 deploy: off
