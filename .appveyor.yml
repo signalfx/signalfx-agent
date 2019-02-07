@@ -40,8 +40,8 @@ matrix:
       image: Visual Studio 2017
     - configuration: Build
       image: Visual Studio 2017
-    - configuration: IntegrationTest
-      image: Visual Studio 2013
+    - configuration: GoTest
+      image: Visual Studio 2017
 
 for:
 -
