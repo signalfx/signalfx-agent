@@ -69,6 +69,11 @@ const monitorType = "collectd/postgresql"
 //      - gauge.test
 //      monitorType: collectd/postgresql
 // ```
+// Note that the metric names for the additional metrics picked up from the
+// queries provided depend on the type, instancePrefix and/or instancesFrom
+// parameters being passed in.
+// See [PostgreSQL plugin](https://collectd.org/wiki/index.php/Plugin:PostgreSQL)
+// for details.
 
 func init() {
 	monitors.Register(monitorType, func() interface{} {
@@ -100,7 +105,7 @@ type Database struct {
 	// If no queries are specified, the default set will be used
 	// [`custom_deadlocks`, `backends`, `transactions`, `queries`, `queries_by_table`,
 	// `query_plans`, `table_states`, `query_plans_by_table`, `table_states_by_table`,
-	//  `disk_io`, `disk_io_by_table`, `disk_usage`]
+	// `disk_io`, `disk_io_by_table`, `disk_usage`]
 	Queries []string `yaml:"queries"`
 }
 

@@ -56,6 +56,11 @@ metricsToInclude:
      - gauge.test
      monitorType: collectd/postgresql
 ```
+Note that the metric names for the additional metrics picked up from the
+queries provided depend on the type, instancePrefix and/or instancesFrom
+parameters being passed in.
+See [PostgreSQL plugin](https://collectd.org/wiki/index.php/Plugin:PostgreSQL)
+for details.
 
 
 Monitor Type: `collectd/postgresql`
@@ -90,8 +95,7 @@ The **nested** `databases` config object has the following fields:
 | `expireDelay` | no | `integer` | Skip expired values in query output (**default:** `0`) |
 | `sslMode` | no | `string` | Specify whether to use an ssl connection with PostgreSQL. (prefer(default), disable, allow, require) |
 | `krbSrvName` | no | `string` | Specify the Kerberos service name used to authenticate with kerberos 5 or GSSAPI |
-| `queries` | no | `list of string` | Queries used to generate metrics. These will override the default set. If no queries are specified, the default set will be used [`custom_deadlocks`, `backends`, `transactions`, `queries`, `queries_by_table`, `query_plans`, `table_states`, `query_plans_by_table`, `table_states_by_table`,
- `disk_io`, `disk_io_by_table`, `disk_usage`] |
+| `queries` | no | `list of string` | Queries used to generate metrics. These will override the default set. If no queries are specified, the default set will be used [`custom_deadlocks`, `backends`, `transactions`, `queries`, `queries_by_table`, `query_plans`, `table_states`, `query_plans_by_table`, `table_states_by_table`, `disk_io`, `disk_io_by_table`, `disk_usage`] |
 
 
 The **nested** `queries` config object has the following fields:
