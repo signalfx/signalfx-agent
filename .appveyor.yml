@@ -5,7 +5,7 @@ configuration:
   - Vet
   - Build
   - GoTest
-  # - IntegrationTest
+  - IntegrationTest
 
 
 image:
@@ -28,8 +28,6 @@ install:
   - go version
   - go env
   - python --version
-  # - echo Installing Visual C++ Compiler For Python
-  # - ps: "choco install --no-progress --limitoutput vcpython27"
 
 build: Off
 
@@ -47,6 +45,7 @@ for:
   matrix:
     only: 
       - configuration: Lint
+
   test_script:    
   - echo Running go lint
   - go get -u golang.org/x/lint/golint
@@ -70,14 +69,17 @@ for:
     - echo Building Agent
     - ps: "$env:AGENT_VERSION = & { git rev-parse HEAD };"
     - ps: "& { . $env:APPVEYOR_BUILD_FOLDER/scripts/windows/make.ps1; signalfx-agent }"
+    - ps: "$env:APPVEYOR_BUILD_FOLDER/signalfx-agent.exe -version"
 
 -
   matrix:
     only:
       - configuration: GoTest
+
   before_test:
     - echo Installing test dependencies
     - go get github.com/tebeka/go2xunit
+
   test_script:
     - echo Running unit tests
     - ps: "& { . $env:APPVEYOR_BUILD_FOLDER/scripts/windows/make.ps1; $env:TEST_RC=unit_test }"
@@ -85,6 +87,42 @@ for:
         $wc = New-Object 'System.Net.WebClient'
         $wc.UploadFile("https://ci.appveyor.com/api/testresults/junit/$($env:APPVEYOR_JOB_ID)", (Resolve-Path .\unit_results.xml))
     - ps: if ($env:TEST_RC -ne 0){ Write-Host "One or more unit tests failed!"; exit 1 }
+
+-
+  matrix:
+    only:
+      - configuration: IntegrationTest
+
+  before_build:
+    - echo Installing Visual C++ Compiler For Python
+    - ps: "choco install --no-progress --limitoutput vcpython27"
+
+  build_script:
+    - ps: "$env:AGENT_VERSION = & { git rev-parse HEAD };"
+    - echo Building Bundle
+    - ps: "& { . $env:APPVEYOR_BUILD_FOLDER/scripts/windows/make.ps1; bundle }"
+    - ps: ls $env:APPVEYOR_BUILD_FOLDER/build
+    - echo Bundled Collectd Plugins
+    - ps: ls $env:APPVEYOR_BUILD_FOLDER/build/SignalFxAgent/plugins/collectd
+
+  before_test:
+    - curl -sSLo get-pip.py https://bootstrap.pypa.io/get-pip.py
+    - python get-pip.py "pip==10.0.1"
+    - pip install -qq -r tests\requirements.txt
+    - pytest --version
+
+  test_script:
+    - echo Running unit tests
+    - ps: "& { . $env:APPVEYOR_BUILD_FOLDER/scripts/windows/make.ps1; $env:TEST_RC=unit_test }"
+    - ps: |
+        $wc = New-Object 'System.Net.WebClient'
+        $wc.UploadFile("https://ci.appveyor.com/api/testresults/junit/$($env:APPVEYOR_JOB_ID)", (Resolve-Path .\unit_results.xml))
+    - ps: if ($env:TEST_RC -ne 0){ Write-Host "One or more unit tests failed!"; exit 1 }
+
+  artifacts:
+    - path: integration_results.html
+    # upload any agent build bundles
+    - path: build/SignalFxAgent-*-win*.zip
 
 # build_script:
 #   - ps: "$env:AGENT_VERSION = & { git rev-parse HEAD };"
