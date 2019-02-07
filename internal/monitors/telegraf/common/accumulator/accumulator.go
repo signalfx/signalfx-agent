@@ -1,7 +1,6 @@
 package accumulator
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/influxdata/telegraf"
@@ -139,6 +138,6 @@ func (ta *TrackingAccumulator) deliveryCallback(i telegraf.DeliveryInfo) {
 	select {
 	case ta.done <- i:
 	default:
-		ta.Accumulator.emit.AddDebug(fmt.Sprintf("unable to return delivery Status '%t' for ID '%v' channel is full", i.Delivered(), i.ID()))
+		ta.Accumulator.emit.AddDebug("unable to return delivery Status '%t' for ID '%v' channel is full", i.Delivered(), i.ID())
 	}
 }

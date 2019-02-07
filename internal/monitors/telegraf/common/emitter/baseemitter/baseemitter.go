@@ -300,9 +300,9 @@ func (b *BaseEmitter) AddError(err error) {
 }
 
 // AddDebug logs a debug statement
-func (b *BaseEmitter) AddDebug(deb string) {
+func (b *BaseEmitter) AddDebug(deb string, args ...interface{}) {
 	if deb != "" {
-		b.Logger.Debugf(deb)
+		b.Logger.Debugf(deb, args...)
 	}
 }
 

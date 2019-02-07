@@ -44,7 +44,7 @@ type Emitter interface {
 	// the default behavior is to log the error
 	AddError(err error)
 	// AddDebug logs a debug statement through the emitter
-	AddDebug(deb string)
+	AddDebug(deb string, args ...interface{})
 }
 
 // RenameFieldWithTag - takes the value of a specified tag and uses it to rename a specified field
