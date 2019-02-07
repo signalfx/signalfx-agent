@@ -24,6 +24,7 @@ install:
   - ps: "choco install --no-progress --limitoutput vcpython27"
 
 build:
+  parallel: true
   verbosity: minimal
 
 before_build:
