@@ -15,7 +15,7 @@ environment:
   TEST_SERVICES_DIR: c:\gopath\src\github.com\signalfx\signalfx-agent\test-services
 
 matrix:
-  - fast_vinish: true
+  - fast_finish: true
 
 install:
   - set PATH=%GOPATH%\bin;%GOROOT%\bin;%PATH%
