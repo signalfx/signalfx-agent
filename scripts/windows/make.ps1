@@ -6,8 +6,8 @@ $scriptDir = split-path -parent $MyInvocation.MyCommand.Definition
 . "$scriptDir\bundle.ps1"
 
 function signalfx-agent([string]$AGENT_VERSION="", [string]$AGENT_BIN=".\signalfx-agent.exe", [string]$COLLECTD_VERSION="") {
-    if ((!$AGENT_VERSION) -Or ($AGENT_VERSION -Eq "")){
-        $AGENT_VERSION = & git -C "$scriptdir\..\..\" rev-parse HEAD
+    if ($AGENT_VERSION -Eq ""){
+        $AGENT_VERSION = getGitTag
     }
     $date = Get-Date -UFormat "%Y-%m-%dT%T%Z"
     go build -ldflags "-X main.Version='$AGENT_VERSION' -X main.CollectdVersion='$COLLECTD_VERSION' -X main.BuiltTime='$date'" -o "$AGENT_BIN" github.com/signalfx/signalfx-agent/cmd/agent    
@@ -27,10 +27,10 @@ function bundle (
         [bool]$ONLY_BUILD_AGENT=$false,
         [string]$AGENT_NAME="SignalFxAgent") {
 
-    if ((!$AGENT_VERSION) -Or ($AGENT_VERSION -Eq "")){
-        $AGENT_VERSION = & git -C "$scriptdir\..\..\" rev-parse HEAD
+    if ($AGENT_VERSION -Eq ""){
+        $AGENT_VERSION = getGitTag
     }
-
+    
     # create directories in the agent directory
     Remove-Item -Recurse -Force "$buildDir\$AGENT_NAME\*" -ErrorAction Ignore
     mkdir "$buildDir\$AGENT_NAME\bin" -ErrorAction Ignore
