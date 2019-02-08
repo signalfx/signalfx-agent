@@ -67,7 +67,7 @@ endif
 .PHONY: bundle
 bundle:
 ifeq ($(OS),Windows_NT)
-	powershell "& { . $(CURDIR)/scripts/windows/make.ps1; bundle $(COLLECTD_COMMIT) $(AGENT_VERSION)}"
+	powershell "& { . $(CURDIR)/scripts/windows/make.ps1; bundle $(COLLECTD_COMMIT)}"
 else
 	BUILD_BUNDLE=true COLLECTD_VERSION=$(COLLECTD_VERSION) COLLECTD_COMMIT=$(COLLECTD_COMMIT) scripts/build
 endif
