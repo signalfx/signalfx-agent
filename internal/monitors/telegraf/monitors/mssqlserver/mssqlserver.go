@@ -22,9 +22,39 @@ import (
 
 const monitorType = "telegraf/sqlserver"
 
-// MONITOR(telegraf/sqlserver): This monitor reports metrics about microsoft sql servers.
+// MONITOR(telegraf/sqlserver): This monitor reports metrics about Microsoft SQL servers.
 // This monitor is based on the telegraf sqlserver plugin.  More information about the telegraf plugin
 // can be found [here](https://github.com/influxdata/telegraf/tree/master/plugins/inputs/sqlserver).
+//
+// You will need to create a login on the SQL server for the monitor to use.  You can create this login by
+// executing the following commands in an a SQL client while logged in as an administrator.
+//
+// ```
+// USE master;
+// GO
+// CREATE LOGIN [signalfxagent] WITH PASSWORD = N'<YOUR PASSWORD HERE>';
+// GO
+// GRANT VIEW SERVER STATE TO [signalfxagent];
+// GO
+// GRANT VIEW ANY DEFINITION TO [signalfxagent];
+// GO
+// ```
+//
+// Troubleshooting:
+//
+// On some Windows based SQL server distributions TCP/IP has been disabled by default.  This behavior
+// has been observed on Azure SQL server instances.  You may need to explicitly turn on TCP/IP for the
+// SQL server if you see error messages simillar to the following.
+//
+// ```
+// Cannot read handshake packet: read tcp: wsarecv: An existing connection was forcibly closed by the remote host.
+// ```
+//
+// 1. Verify agent configurations are correct.
+// 2. Ensure TCP/IP is enabled for the SQL server by going to `Start` -> `Administrative Tools` -> `Computer Management`
+// 3. In the `Computer Management` side bar, drill down to `Services and Applications` -> `SQL Server Configuration Manager` -> `SQL Server Network Configuration`
+// 4. Select `Protocols for <YOUR SQL SERVER NAME>`.
+// 5. In the protocol list to the right, right-click on the `TCP/IP` protocol and `enable` it.
 //
 // Sample YAML configuration:
 //
@@ -37,7 +67,7 @@ const monitorType = "telegraf/sqlserver"
 //    password: P@ssw0rd!
 //    appName: signalfxagent
 //    azureDB: true
-//    excludeQuery:
+//    excludedQueries:
 //     - PerformanceCounters
 //     # - WaitStatsCategorized
 //     # - DatabaseIO
