@@ -50,7 +50,7 @@ const monitorType = "telegraf/sqlserver"
 // Cannot read handshake packet: read tcp: wsarecv: An existing connection was forcibly closed by the remote host.
 // ```
 //
-// 1. Verify agent configurations are correct.  
+// 1. Verify agent configurations are correct.
 // 2. Ensure TCP/IP is enabled for the SQL server by going to `Start` -> `Administrative Tools` -> `Computer Management`
 // 3. In the `Computer Management` side bar, drill down to `Services and Applications` -> `SQL Server Configuration Manager` -> `SQL Server Network Configuration`
 // 4. Select `Protocols for <YOUR SQL SERVER NAME>`.
