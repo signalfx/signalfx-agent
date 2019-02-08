@@ -81,3 +81,15 @@ function bundle_python_runner($buildDir=".\build") {
     # unset the python home enviornment variable
     Remove-Item Env:\PYTHONHOME
 }
+
+# retrieves the git tag or revision for the currently checked out agent project
+function getGitTag(){
+    $version = (git -C "$scriptdir\..\..\" describe --exact-match --tags)  # null if no tag found
+    if ($version) {
+        $version = $version.TrimStart("v")
+    }
+    if (!$version){ # if the version is null use the revision
+       $version = (git -C "$scriptdir\..\..\" rev-parse HEAD)
+    }
+    return $version
+}
