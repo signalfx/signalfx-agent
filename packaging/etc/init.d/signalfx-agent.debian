@@ -105,6 +105,7 @@ case "$1" in
         echo "Running with pid `get_pid`"
       else
         echo "Not running"
+        exit 1
       fi
     ;;
 
