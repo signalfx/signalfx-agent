@@ -26,6 +26,7 @@ parse_args_and_release() {
   local build_deb_package=no
   local build_rpm_package=no
   local build_bundle=no
+  local build_deployments=no
   local force=no
   local allow_uncommitted=no
   local github_username="${GITHUB_USERNAME-}"
@@ -79,6 +80,7 @@ parse_args_and_release() {
           deb) build_deb_package=yes build_all=no ;;
           rpm) build_rpm_package=yes build_all=no ;;
           bundle) build_bundle=yes build_all=no ;;
+          deployments) build_bundle=yes build_all=no ;;
           *) echo "component "$1" not recognized, quitting" >&2 && exit 1 ;;
         esac
         shift 1
@@ -101,7 +103,7 @@ parse_args_and_release() {
     exit 1
   fi
 
-  if [[ "$stage" != "test" ]] && [[ $(git symbolic-ref HEAD) != "refs/heads/master" ]]; then
+  if [[ "$stage" != "test" ]] && [[ $(git symbolic-ref HEAD) != "refs/heads/master" ]] && [[ "$force" != "yes" ]]; then
 	echo "You are releasing a beta/final release from a branch other than master, which is not allowed." >&2
 	exit 1
   fi
@@ -152,7 +154,7 @@ parse_args_and_release() {
 
   # Do these updates after everything has been pushed so that nobody ever sees
   # versions in the master branch that haven't been released.
-  if [[ "$stage" == "final" ]]; then
+  if [[ "$stage" == "final" ]] && ([["$build_deployments" == "yes"]] || [["$build_all" == "yes"]]); then
     update_deployment_files "$new_version" "$force"
   fi
 
