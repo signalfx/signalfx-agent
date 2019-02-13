@@ -26,7 +26,7 @@ Monitor Type: `kubernetes-events`
 | Config option | Required | Type | Description |
 | --- | --- | --- | --- |
 | `kubernetesAPI` | no | `object (see below)` | Configuration of the Kubernetes API client |
-| `whitelistedEvents` | no | `list of object (see below)` | A list of event types to send events for.  Only events matching these items will be sent. |
+| `whitelistedEvents` | no | `list of objects (see below)` | A list of event types to send events for.  Only events matching these items will be sent. |
 | `alwaysClusterReporter` | no | `bool` | Whether to always send events from this agent instance or to do leader election to only send from one agent instance. (**default:** `false`) |
 
 

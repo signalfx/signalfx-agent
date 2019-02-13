@@ -50,7 +50,7 @@ Monitor Type: `telegraf/snmp`
 | --- | --- | --- | --- |
 | `host` | no | `string` | Host and port will be concatenated and appended to the list of SNMP agents to connect to. |
 | `port` | no | `integer` | Port and Host will be concatenated and appended to the list of SNMP agents to connect to. (**default:** `0`) |
-| `agents` | no | `list of string` | SNMP agent address and ports to query for information.  An example address is `0.0.0.0:5555` If an address is supplied with out a port, the default port `161` will be used. |
+| `agents` | no | `list of strings` | SNMP agent address and ports to query for information.  An example address is `0.0.0.0:5555` If an address is supplied with out a port, the default port `161` will be used. |
 | `retries` | no | `integer` | The number of times to retry. (**default:** `0`) |
 | `community` | no | `string` | The SNMP community to use. (**default:** `public`) |
 | `maxRepetitions` | no | `uint8` | Maximum number of iterations for reqpeating variables (**default:** `50`) |
@@ -65,8 +65,8 @@ Monitor Type: `telegraf/snmp`
 | `engineBoots` | no | `uint32` | The SNMP v3 engine boots. (**default:** `0`) |
 | `engineTime` | no | `uint32` | The SNMP v3 engine time. (**default:** `0`) |
 | `name` | no | `string` | The top-level measurement name |
-| `fields` | no | `list of object (see below)` | The top-level SNMP fields |
-| `tables` | no | `list of object (see below)` | SNMP Tables |
+| `fields` | no | `list of objects (see below)` | The top-level SNMP fields |
+| `tables` | no | `list of objects (see below)` | SNMP Tables |
 
 
 The **nested** `fields` config object has the following fields:
@@ -86,9 +86,9 @@ The **nested** `tables` config object has the following fields:
 | Config option | Required | Type | Description |
 | --- | --- | --- | --- |
 | `name` | no | `string` | Metric name.  If not supplied the OID will be used. |
-| `inheritTags` | no | `list of string` | Top level tags to inherit. |
+| `inheritTags` | no | `list of strings` | Top level tags to inherit. |
 | `indexAsTag` | no | `bool` | Add a tag for the table index for each row. (**default:** `false`) |
-| `field` | no | `list of object (see below)` | Specifies the ags and values to look up. |
+| `field` | no | `list of objects (see below)` | Specifies the ags and values to look up. |
 | `oid` | no | `string` | The OID to fetch. |
 
 

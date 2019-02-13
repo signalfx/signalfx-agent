@@ -46,11 +46,11 @@ Monitor Type: `telegraf/statsd`
 | `deleteCounters` | no | `bool` | Whether to clear the counter cache every interval.  Setting this to false means the cache will only be cleared when the monitor is restarted. (**default:** `true`) |
 | `deleteSets` | no | `bool` | Whether to clear the sets cache every interval.  Setting this to false means the cache will only be cleared when the monitor is restarted. (**default:** `true`) |
 | `deleteTimings` | no | `bool` | Whether to clear the timings cache every interval.  Setting this to false means the cache will only be cleared when the monitor is restarted. (**default:** `true`) |
-| `percentiles` | no | `list of integer` | The percentiles that are collected for timing and histogram stats. |
+| `percentiles` | no | `list of integers (see below)` | The percentiles that are collected for timing and histogram stats. |
 | `allowedPendingMessages` | no | `integer` | Number of messages allowed to queue up between each collection interval. Packets will be dropped until the next collection interval if this buffer fills up. (**default:** `10000`) |
 | `percentileLimit` | no | `integer` | The maximum number of histogram values to track each measurement when calculating percentiles. Increasing the limit will increase memory consumption but will also improve accuracy. (**default:** `1000`) |
 | `metricSeparator` | no | `string` | The separator used to separate parts of a metric name (**default:** `_`) |
-| `templates` | no | `list of string` | Templates that transform telegrafstatsd metrics into influx tags and measurements. Please refer to the Telegraf (documentation)[https://github.com/influxdata/telegraf/tree/master/plugins/inputs/statsd#statsd-bucket---influxdb-line-protocol-templates] for more information on templates. |
+| `templates` | no | `list of strings` | Templates that transform telegrafstatsd metrics into influx tags and measurements. Please refer to the Telegraf (documentation)[https://github.com/influxdata/telegraf/tree/master/plugins/inputs/statsd#statsd-bucket---influxdb-line-protocol-templates] for more information on templates. |
 | `parseDataDogTags` | no | `bool` | Indicates whether to parse dogstatsd tags (**default:** `false`) |
 
 

@@ -90,7 +90,7 @@ Monitor Type: `conviva`
 | `pulseUsername` | **yes** | `string` | Conviva Pulse username required with each API request. |
 | `pulsePassword` | **yes** | `string` | Conviva Pulse password required with each API request. |
 | `timeoutSeconds` | no | `integer` |  (**default:** `10`) |
-| `metricConfigs` | no | `list of object (see below)` | Conviva metrics to fetch. The default is quality_metriclens metric with the "All Traffic" filter applied and all quality_metriclens dimensions. |
+| `metricConfigs` | no | `list of objects (see below)` | Conviva metrics to fetch. The default is quality_metriclens metric with the "All Traffic" filter applied and all quality_metriclens dimensions. |
 
 
 The **nested** `metricConfigs` config object has the following fields:
@@ -99,9 +99,9 @@ The **nested** `metricConfigs` config object has the following fields:
 | --- | --- | --- | --- |
 | `account` | no | `string` | Conviva customer account name. The default account is fetched used if not specified. |
 | `metricParameter` | no | `string` |  (**default:** `quality_metriclens`) |
-| `filters` | no | `list of string` | Filter names. The default is `All Traffic` filter |
-| `metricLensDimensions` | no | `list of string` | MetricLens dimension names. The default is names of all MetricLens dimensions of the account |
-| `excludeMetricLensDimensions` | no | `list of string` | MetricLens dimension names to exclude. |
+| `filters` | no | `list of strings` | Filter names. The default is `All Traffic` filter |
+| `metricLensDimensions` | no | `list of strings` | MetricLens dimension names. The default is names of all MetricLens dimensions of the account |
+| `excludeMetricLensDimensions` | no | `list of strings` | MetricLens dimension names to exclude. |
 
 
 

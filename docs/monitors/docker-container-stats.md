@@ -31,9 +31,9 @@ Monitor Type: `docker-container-stats`
 | --- | --- | --- | --- |
 | `dockerURL` | no | `string` | The URL of the docker server (**default:** `unix:///var/run/docker.sock`) |
 | `timeoutSeconds` | no | `integer` | The maximum amount of time to wait for docker API requests (**default:** `5`) |
-| `labelsToDimensions` | no | `map of string` | A mapping of container label names to dimension names. The corresponding label values will become the dimension value for the mapped name.  E.g. `io.kubernetes.container.name: container_spec_name` would result in a dimension called `container_spec_name` that has the value of the `io.kubernetes.container.name` container label. |
-| `envToDimensions` | no | `map of string` | A mapping of container environment variable names to dimension names.  The corresponding env var values become the dimension values on the emitted metrics.  E.g. `APP_VERSION: version` would result in datapoints having a dimension called `version` whose value is the value of the `APP_VERSION` envvar configured for that particular container, if present. |
-| `excludedImages` | no | `list of string` | A list of filters of images to exclude.  Supports literals, globs, and regex. |
+| `labelsToDimensions` | no | `map of strings` | A mapping of container label names to dimension names. The corresponding label values will become the dimension value for the mapped name.  E.g. `io.kubernetes.container.name: container_spec_name` would result in a dimension called `container_spec_name` that has the value of the `io.kubernetes.container.name` container label. |
+| `envToDimensions` | no | `map of strings` | A mapping of container environment variable names to dimension names.  The corresponding env var values become the dimension values on the emitted metrics.  E.g. `APP_VERSION: version` would result in datapoints having a dimension called `version` whose value is the value of the `APP_VERSION` envvar configured for that particular container, if present. |
+| `excludedImages` | no | `list of strings` | A list of filters of images to exclude.  Supports literals, globs, and regex. |
 
 
 

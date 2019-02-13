@@ -22,11 +22,11 @@ Monitor Type: `collectd/docker`
 
 | Config option | Required | Type | Description |
 | --- | --- | --- | --- |
-| `dimensions` | no | `map of string` | A set of dimensions to add to container metrics (see https://github.com/signalfx/docker-collectd-plugin#extracting-additional-dimensions). |
+| `dimensions` | no | `map of strings` | A set of dimensions to add to container metrics (see https://github.com/signalfx/docker-collectd-plugin#extracting-additional-dimensions). |
 | `dockerURL` | **yes** | `string` | URL of the Docker engine, can be a unix socket path. |
-| `excludedImages` | no | `list of string` |  |
-| `excludedNames` | no | `list of string` |  |
-| `excludedLabels` | no | `map of string` |  |
+| `excludedImages` | no | `list of strings` |  |
+| `excludedNames` | no | `list of strings` |  |
+| `excludedLabels` | no | `map of strings` |  |
 | `collectNetworkStats` | no | `bool` |  (**default:** `false`) |
 
 

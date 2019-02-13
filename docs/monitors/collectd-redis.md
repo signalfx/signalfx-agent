@@ -47,7 +47,7 @@ Monitor Type: `collectd/redis`
 | `port` | **yes** | `integer` |  |
 | `name` | no | `string` | The name for the node is a canonical identifier which is used as plugin instance. It is limited to 64 characters in length.  (**default**: "{host}:{port}") |
 | `auth` | no | `string` | Password to use for authentication. |
-| `sendListLengths` | no | `list of object (see below)` | Specify a pattern of keys to lists for which to send their length as a metric. See below for more details. |
+| `sendListLengths` | no | `list of objects (see below)` | Specify a pattern of keys to lists for which to send their length as a metric. See below for more details. |
 
 
 The **nested** `sendListLengths` config object has the following fields:
