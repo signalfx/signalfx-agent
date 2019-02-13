@@ -46,18 +46,6 @@ monitors:
    userID: sa
    password: P@ssw0rd!
    appName: signalfxagent
-   azureDB: true
-   excludedQueries:
-    - PerformanceCounters
-    # - WaitStatsCategorized
-    # - DatabaseIO
-    # - DatabaseProperties
-    # - CPUHistory
-    # - DatabaseSize
-    # - DatabaseStats
-    # - MemoryClerk
-    # - VolumeSpace
-    # - PerformanceMetrics
 ```
 
 
