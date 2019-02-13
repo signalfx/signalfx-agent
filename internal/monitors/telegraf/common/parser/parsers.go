@@ -7,9 +7,8 @@ import (
 
 // Config implements Telegraf parsers.Config, but with SignalFx Smart Agent struct tags
 // and a methods for returning a Telegraf parsers.Config struct and a Telegraf parsers.Parser.
-// Please refer to Telegraf's
-// (documentation)[https://github.com/influxdata/telegraf/blob/master/docs/DATA_FORMATS_INPUT.md#influx]
-// for more information about the different parsers and their specific configurations
+// Please refer to Telegraf's documentation for more information about the different parsers
+// and their specific configurations
 type Config struct {
 	// dataFormat specifies a data format to parse: `json`, `value`, `influx`, `graphite`, `value`, `nagios`,
 	// `collectd`, `dropwizard`, `wavefront`, `grok`, `csv`, or `logfmt`.

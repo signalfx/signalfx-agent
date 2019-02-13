@@ -87,8 +87,7 @@ type Config struct {
 	// The app name used by the monitor when connecting to the SQLServer.
 	AppName string `yaml:"appName" default:"signalfxagent"`
 	// The version of queries to use when accessing the cluster
-	// Please refer to the telegraf [documentation](https://github.com/influxdata/telegraf/tree/master/plugins/inputs/sqlserver)
-	// for more information.
+	// Please refer to the telegraf documentation for more information.
 	QueryVersion int `yaml:"queryVersion" default:"2"`
 	// Whether the database is an azure database or not.
 	AzureDB bool `yaml:"azureDB"`

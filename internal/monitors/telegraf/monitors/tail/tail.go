@@ -23,7 +23,7 @@ const monitorType = "telegraf/tail"
 
 // MONITOR(telegraf/tail): This monitor is based on the Telegraf tail plugin.  The monitor tails files and
 // named pipes.  The Telegraf parser configured with this monitor extracts metrics in different
-// (formats)[https://github.com/influxdata/telegraf/blob/master/docs/DATA_FORMATS_INPUT.md]
+// [formats[(https://github.com/influxdata/telegraf/blob/master/docs/DATA_FORMATS_INPUT.md)
 // from the tailed output. More information about the Telegraf plugin
 // can be found [here](https://github.com/influxdata/telegraf/tree/master/plugins/inputs/tail).
 // All metrics emitted from this monitor will have the `plugin` dimension set to `telegraf-tail`
@@ -73,9 +73,7 @@ type Config struct {
 	// Whether to start tailing from the beginning of the file
 	FromBeginning bool `yaml:"fromBeginning" default:"false"`
 	// telegrafParser is a nested object that defines configurations for a Telegraf parser.
-	// Please refer to the Telegraf
-	// (documentation)[https://github.com/influxdata/telegraf/tree/master/plugins/parsers]
-	// for more information on Telegraf parsers.
+	// Please refer to the Telegraf documentation for more information on Telegraf parsers.
 	TelegrafParser *parser.Config `yaml:"telegrafParser"`
 	parser         telegrafParsers.Parser
 }
