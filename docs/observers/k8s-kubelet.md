@@ -19,7 +19,7 @@ Observer Type: `k8s-kubelet`
 | Config option | Required | Type | Description |
 | --- | --- | --- | --- |
 | `pollIntervalSeconds` | no | `integer` | How often to poll the Kubelet instance for pod information (**default:** `10`) |
-| `kubeletAPI` | no | `object` | Config for the Kubelet HTTP client |
+| `kubeletAPI` | no | `object (see below)` | Config for the Kubelet HTTP client |
 
 
 The **nested** `kubeletAPI` config object has the following fields:
