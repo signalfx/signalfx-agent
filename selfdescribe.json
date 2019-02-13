@@ -12826,7 +12826,7 @@
         },
         {
           "yamlName": "queryVersion",
-          "doc": "The version of queries to use when accessing the cluster Please refer to the telegraf documentation for more information.",
+          "doc": "The version of queries to use when accessing the cluster. Please refer to the telegraf documentation for more information.",
           "default": 2,
           "required": false,
           "type": "int",

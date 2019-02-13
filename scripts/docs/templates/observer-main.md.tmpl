@@ -19,5 +19,5 @@ The following config options are common to all observers:
 | Config option | Default | Required | Type | Description |
 | --- | --- | --- | --- | --- |
 {{ range (ds "agent").GenericObserverConfig.fields -}}
-| `{{.yamlName}}` | {{if .default | print}}`{{.default}}`{{end}} | {{if .required}}**yes**{{else}}no{{end}} | `{{or (index $doc_types .type) .type}}{{if (eq .type "struct") }} (see below){{end}}{{if .elementKind}} of {{or (index $doc_types .elementKind) .elementKind}}s{{if (index (ds "monitor").doc_types .elementKind) "object"}} (see below){{end}}{{end}}` | {{.doc | strings.TrimSpace}} |
+| `{{.yamlName}}` | {{if .default | print}}`{{.default}}`{{end}} | {{if .required}}**yes**{{else}}no{{end}} | `{{or (index $doc_types .type) .type}}{{if (eq .type "struct") }} (see below){{end}}{{if .elementKind}} of {{or (index $doc_types .elementKind) .elementKind}}{{if ne .elementKind "interface"}}s{{end}}{{if (eq .elementKind "struct") and (ne .elementKind "interface")}} (see below){{end}}{{end}}` | {{.doc | strings.TrimSpace}} |
 {{end}}

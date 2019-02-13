@@ -6,7 +6,7 @@
 {{ range . -}}
 | `{{.yamlName}}` |
 {{- ` `}}{{if .required}}**yes**{{else}}no{{end}} |
-{{- ` `}}{{if has . "elementStruct"}}[{{end}}{{or (index $doc_types .type) .type}}{{if (eq .type "struct") }} (see below){{end}}{{if .elementKind}} of {{or (index $doc_types .elementKind) .elementKind}}s{{if (index $doc_types .elementKind) "object"}} (see below){{end}}{{end}}{{if has . "elementStruct"}}](#{{.yamlName | toLower}}){{end}} |
+{{- ` `}}{{if has . "elementStruct"}}[{{end}}{{or (index $doc_types .type) .type}}{{if (eq .type "struct") }} (see below){{end}}{{if .elementKind}} of {{or (index $doc_types .elementKind) .elementKind}}{{if ne .elementKind "interface"}}s{{end}}{{if (eq .elementKind "struct") and (ne .elementKind "interface")}} (see below){{end}}{{end}}{{if has . "elementStruct"}}](#{{.yamlName | toLower}}){{end}} |
 {{- ` `}}{{ .doc | strings.TrimSpace}}{{if .default | print}} (**default:** `{{.default | data.ToJSON}}`){{end}} |
 {{end}}
 
