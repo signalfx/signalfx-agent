@@ -26,7 +26,7 @@ The following table lists the metrics available for this monitor. Metrics that a
 
 | Name | Type | Custom | Description |
 | ---  | ---  | ---    | ---         |
-| `uptime` | gauge |  | Seconds since system boot |
+| `uptime` | gauge | X | Seconds since system boot |
 
 
 To specify custom metrics you want to monitor, add a `metricsToInclude` filter
@@ -43,6 +43,7 @@ required for gathering additional metrics.
 
 metricsToInclude:
   - metricNames:
+    - uptime
     monitorType: collectd/uptime
 ```
 
