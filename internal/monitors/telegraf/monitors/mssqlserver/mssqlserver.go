@@ -86,7 +86,7 @@ type Config struct {
 	Password string `yaml:"password" neverLog:"true"`
 	// The app name used by the monitor when connecting to the SQLServer.
 	AppName string `yaml:"appName" default:"signalfxagent"`
-	// The version of queries to use when accessing the cluster
+	// The version of queries to use when accessing the cluster.
 	// Please refer to the telegraf documentation for more information.
 	QueryVersion int `yaml:"queryVersion" default:"2"`
 	// Whether the database is an azure database or not.
