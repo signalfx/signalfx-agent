@@ -10573,9 +10573,169 @@
           "description": "Percent of memory (0-100) used by the container relative to its limit (excludes page cache usage)"
         },
         {
+          "name": "memory.stats.active_anon",
+          "type": "gauge",
+          "description": ""
+        },
+        {
+          "name": "memory.stats.active_file",
+          "type": "gauge",
+          "description": ""
+        },
+        {
+          "name": "memory.stats.cache",
+          "type": "gauge",
+          "description": ""
+        },
+        {
+          "name": "memory.stats.dirty",
+          "type": "gauge",
+          "description": ""
+        },
+        {
+          "name": "memory.stats.hierarchical_memory_limit",
+          "type": "gauge",
+          "description": ""
+        },
+        {
+          "name": "memory.stats.hierarchical_memsw_limit",
+          "type": "gauge",
+          "description": ""
+        },
+        {
+          "name": "memory.stats.inactive_anon",
+          "type": "gauge",
+          "description": ""
+        },
+        {
+          "name": "memory.stats.inactive_file",
+          "type": "gauge",
+          "description": ""
+        },
+        {
+          "name": "memory.stats.mapped_file",
+          "type": "gauge",
+          "description": ""
+        },
+        {
+          "name": "memory.stats.pgfault",
+          "type": "cumulative",
+          "description": ""
+        },
+        {
+          "name": "memory.stats.pgmajfault",
+          "type": "cumulative",
+          "description": ""
+        },
+        {
+          "name": "memory.stats.pgpgin",
+          "type": "cumulative",
+          "description": ""
+        },
+        {
+          "name": "memory.stats.pgpgout",
+          "type": "cumulative",
+          "description": ""
+        },
+        {
+          "name": "memory.stats.rss",
+          "type": "gauge",
+          "description": ""
+        },
+        {
+          "name": "memory.stats.rss_huge",
+          "type": "gauge",
+          "description": ""
+        },
+        {
           "name": "memory.stats.swap",
           "type": "gauge",
           "description": "Bytes of swap memory used by container"
+        },
+        {
+          "name": "memory.stats.total_active_anon",
+          "type": "gauge",
+          "description": ""
+        },
+        {
+          "name": "memory.stats.total_active_file",
+          "type": "gauge",
+          "description": ""
+        },
+        {
+          "name": "memory.stats.total_cache",
+          "type": "gauge",
+          "description": ""
+        },
+        {
+          "name": "memory.stats.total_dirty",
+          "type": "gauge",
+          "description": ""
+        },
+        {
+          "name": "memory.stats.total_inactive_anon",
+          "type": "gauge",
+          "description": ""
+        },
+        {
+          "name": "memory.stats.total_inactive_file",
+          "type": "gauge",
+          "description": ""
+        },
+        {
+          "name": "memory.stats.total_mapped_file",
+          "type": "gauge",
+          "description": ""
+        },
+        {
+          "name": "memory.stats.total_pgfault",
+          "type": "cumulative",
+          "description": ""
+        },
+        {
+          "name": "memory.stats.total_pgmajfault",
+          "type": "cumulative",
+          "description": ""
+        },
+        {
+          "name": "memory.stats.total_pgpgin",
+          "type": "cumulative",
+          "description": ""
+        },
+        {
+          "name": "memory.stats.total_pgpgout",
+          "type": "cumulative",
+          "description": ""
+        },
+        {
+          "name": "memory.stats.total_rss",
+          "type": "gauge",
+          "description": ""
+        },
+        {
+          "name": "memory.stats.total_rss_huge",
+          "type": "gauge",
+          "description": ""
+        },
+        {
+          "name": "memory.stats.total_unevictable",
+          "type": "gauge",
+          "description": ""
+        },
+        {
+          "name": "memory.stats.total_writeback",
+          "type": "gauge",
+          "description": ""
+        },
+        {
+          "name": "memory.stats.unevictable",
+          "type": "gauge",
+          "description": ""
+        },
+        {
+          "name": "memory.stats.writeback",
+          "type": "gauge",
+          "description": ""
         },
         {
           "name": "memory.usage.limit",
