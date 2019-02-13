@@ -45,7 +45,7 @@ type Config struct {
 	// be expanded and how often to refresh counters from configuration.
 	CountersRefreshInterval time.Duration `yaml:"counterRefreshInterval" default:"60s"`
 	// (Windows Only) Print out the configurations that match available
-	// performance counters.  This used for debugging.
+	// performance counters.  This is used for debugging.
 	PrintValid bool `yaml:"printValid"`
 }
 
