@@ -45,69 +45,97 @@ package docker
 
 // GAUGE(memory.stats.swap): Bytes of swap memory used by container
 
-// GAUGE(memory.stats.active_anon): 
+// GAUGE(memory.stats.active_anon): Amount of memory that has been identified as active by
+// the kernel. Anonymous memory is memory that is not linked to disk pages.
 
-// GAUGE(memory.stats.active_file): 
+// GAUGE(memory.stats.active_file): Amount of active file cache memory.
+// Cache memory = active_file + inactive_file + tmpfs
 
-// GAUGE(memory.stats.cache): 
+// GAUGE(memory.stats.cache): The amount of memory used by the processes of this control group
+// that can be associated with a block on a block device. Also accounts for memory used by
+// tmpfs.
 
-// GAUGE(memory.stats.dirty): 
+// GAUGE(memory.stats.dirty): The amount of memory waiting to get written to disk
 
-// GAUGE(memory.stats.hierarchical_memory_limit): 
+// GAUGE(memory.stats.hierarchical_memory_limit): The memory limit in place by the hierarchy cgroup
 
-// GAUGE(memory.stats.hierarchical_memsw_limit): 
+// GAUGE(memory.stats.hierarchical_memsw_limit): The memory+swap limit in place by the hierarchy cgroup
 
-// GAUGE(memory.stats.inactive_anon): 
+// GAUGE(memory.stats.inactive_anon): Amount of memory that has been identified as inactive by
+// the kernel. Anonymous memory is memory that is not linked to disk pages.
 
-// GAUGE(memory.stats.inactive_file): 
+// GAUGE(memory.stats.inactive_file): Amount of inactive file cache memory.
+// Cache memory = active_file + inactive_file + tmpfs
 
-// GAUGE(memory.stats.mapped_file): 
+// GAUGE(memory.stats.mapped_file): Indicates the amount of memory mapped by the processes in
+// the control group. It doesn’t give you information about how much memory is used;
+// it rather tells you how it is used.
 
-// CUMULATIVE(memory.stats.pgfault): 
+// CUMULATIVE(memory.stats.pgfault): Number of times that a process of the cgroup triggered
+// a page fault. Page faults occur when a process accesses part of its virtual memory space
+// which is nonexistent or protected. See https://docs.docker.com/config/containers/runmetrics
+// for more info.
 
-// CUMULATIVE(memory.stats.pgmajfault): 
+// CUMULATIVE(memory.stats.pgmajfault): Number of times that a process of the cgroup triggered
+// a major page fault. Page faults occur when a process accesses part of its virtual memory space
+// which is nonexistent or protected. See https://docs.docker.com/config/containers/runmetrics
+// for more info.
 
-// CUMULATIVE(memory.stats.pgpgin): 
+// CUMULATIVE(memory.stats.pgpgin): Number of charging events to the memory cgroup. Charging events
+// happen each time a page is accounted as either mapped anon page(RSS) or cache page to the cgroup.
 
-// CUMULATIVE(memory.stats.pgpgout): 
+// CUMULATIVE(memory.stats.pgpgout): Number of uncharging events to the memory cgroup. Uncharging events
+// happen each time a page is unaccounted from the cgroup.
 
-// GAUGE(memory.stats.rss): 
+// GAUGE(memory.stats.rss): The amount of memory that doesn’t correspond to anything
+// on disk: stacks, heaps, and anonymous memory maps.
 
-// GAUGE(memory.stats.rss_huge): 
+// GAUGE(memory.stats.rss_huge): Amount of memory due to anonymous transparent hugepages.
 
-// GAUGE(memory.stats.total_active_anon): 
+// GAUGE(memory.stats.total_active_anon): Total amount of memory that has been identified as active by
+// the kernel. Anonymous memory is memory that is not linked to disk pages.
 
-// GAUGE(memory.stats.total_active_file): 
+// GAUGE(memory.stats.total_active_file): Total amount of active file cache memory.
+// Cache memory = active_file + inactive_file + tmpfs
 
-// GAUGE(memory.stats.total_cache): 
+// GAUGE(memory.stats.total_cache): Total amount of memory used by the processes of this control group
+// that can be associated with a block on a block device. Also accounts for memory used by
+// tmpfs.
 
-// GAUGE(memory.stats.total_dirty): 
+// GAUGE(memory.stats.total_dirty): Total amount of memory waiting to get written to disk
 
-// GAUGE(memory.stats.total_inactive_anon): 
+// GAUGE(memory.stats.total_inactive_anon): Total amount of memory that has been identified as inactive by
+// the kernel. Anonymous memory is memory that is not linked to disk pages.
 
-// GAUGE(memory.stats.total_inactive_file): 
+// GAUGE(memory.stats.total_inactive_file): Total amount of inactive file cache memory.
+// Cache memory = active_file + inactive_file + tmpfs
 
-// GAUGE(memory.stats.total_mapped_file): 
+// GAUGE(memory.stats.total_mapped_file): Total amount of memory mapped by the processes in
+// the control group. It doesn’t give you information about how much memory is used;
+// it rather tells you how it is used.
 
-// CUMULATIVE(memory.stats.total_pgfault): 
+// CUMULATIVE(memory.stats.total_pgfault): Total number of page faults
 
-// CUMULATIVE(memory.stats.total_pgmajfault): 
+// CUMULATIVE(memory.stats.total_pgmajfault): Total number of major page faults
 
-// CUMULATIVE(memory.stats.total_pgpgin): 
+// CUMULATIVE(memory.stats.total_pgpgin): Total number of charging events
 
-// CUMULATIVE(memory.stats.total_pgpgout): 
+// CUMULATIVE(memory.stats.total_pgpgout): Total number of uncharging events
 
-// GAUGE(memory.stats.total_rss): 
+// GAUGE(memory.stats.total_rss): Total amount of memory that doesn’t correspond to anything
+// on disk: stacks, heaps, and anonymous memory maps.
 
-// GAUGE(memory.stats.total_rss_huge): 
+// GAUGE(memory.stats.total_rss_huge): Total amount of memory due to anonymous transparent hugepages.
 
-// GAUGE(memory.stats.total_unevictable): 
+// GAUGE(memory.stats.total_unevictable): Total amount of memory that can not be reclaimed
 
-// GAUGE(memory.stats.total_writeback): 
+// GAUGE(memory.stats.total_writeback): Total amount of memory from file/anon cache that
+// are queued for syncing to the disk
 
-// GAUGE(memory.stats.unevictable): 
+// GAUGE(memory.stats.unevictable): The amount of memory that cannot be reclaimed.
 
-// GAUGE(memory.stats.writeback): 
+// GAUGE(memory.stats.writeback): The amount of memory from file/anon cache that are queued
+// for syncing to the disk
 
 // GAUGE(memory.usage.limit): Memory usage limit of the container, in bytes
 
