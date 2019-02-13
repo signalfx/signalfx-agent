@@ -14356,7 +14356,7 @@
     },
     {
       "name": "Config",
-      "doc": "\n(Windows Only) This monitor reports metrics for Windows system Performance Counters.\nThe metric names are intended to match what was originally reported by\nthe SignalFx [PerfCounterReporter](https://github.com/signalfx/PerfCounterReporter)\nThe metric types are all gauges as originally reported by the PerfCounterReporter.\n\n## Windows Performance Counters\nThe underlying source for these metrics are Windows Performance Counters.\nMost of the performance counters that we query in this monitor are actually\nrates per second and percentages that we report as instantaneous Gauge values\neach collection interval.\n\nSample YAML configuration:\n\n```yaml\nmonitors:\n - type: windows-iis\n```\n",
+      "doc": "\n(Windows Only) This monitor reports metrics for Windows system Performance Counters.\nThe metric names are intended to match what was originally reported by\nthe SignalFx [PerfCounterReporter](https://github.com/signalfx/PerfCounterReporter)\nThe metric types are all gauges as originally reported by the PerfCounterReporter.\n\n## Windows Performance Counters\nThe underlying source for these metrics are Windows Performance Counters.\nMost of the performance counters that we query in this monitor are actually\nrates per second and percentages that we report as instantaneous Gauge values\neach collection interval.\n\nSample YAML configuration:\n\n```yaml\nmonitors:\n - type: windows-legacy\n```\n",
       "package": "internal/monitors/windowslegacy",
       "fields": [
         {
