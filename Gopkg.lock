@@ -936,13 +936,6 @@
   revision = "951bd0ba96011685e7ebcc24bc02a9fab93333b5"
 
 [[projects]]
-  digest = "1:332054668ed749bea01aeb5d2d53391acf386a348bb42c2668630aa6151694a7"
-  name = "github.com/signalfx/telegraf"
-  packages = ["plugins/outputs/signalfx/parse"]
-  pruneopts = "NUT"
-  revision = "888c034dc63b1420acc06188f1af72a5b19872e2"
-
-[[projects]]
   digest = "1:6201742366c1518fc5f0df9ccdb4d193fc8a2aef2cc57bf164c9bca23bd5f869"
   name = "github.com/sirupsen/logrus"
   packages = ["."]
@@ -1454,6 +1447,8 @@
     "github.com/hashicorp/golang-lru",
     "github.com/hashicorp/vault/api",
     "github.com/iancoleman/strcase",
+    "github.com/influxdata/telegraf",
+    "github.com/influxdata/telegraf/metric",
     "github.com/influxdata/telegraf/plugins/inputs",
     "github.com/influxdata/telegraf/plugins/inputs/logparser",
     "github.com/influxdata/telegraf/plugins/inputs/procstat",
@@ -1492,7 +1487,6 @@
     "github.com/signalfx/golib/sfxclient",
     "github.com/signalfx/golib/trace",
     "github.com/signalfx/golib/web",
-    "github.com/signalfx/telegraf/plugins/outputs/signalfx/parse",
     "github.com/sirupsen/logrus",
     "github.com/stretchr/testify/assert",
     "github.com/ulule/deepcopier",
