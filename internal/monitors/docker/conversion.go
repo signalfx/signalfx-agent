@@ -13,14 +13,14 @@ import (
 )
 
 var memoryStatCounters = map[string]bool{
-    "pgfault": true,
-    "pgmajfault": true,
-    "pgpgin": true,
-    "pgpgout": true,
-    "total_pgfault": true,
-    "total_pgmajfault": true,
-    "total_pgpgin": true,
-    "total_pgpgout": true,
+	"pgfault":          true,
+	"pgmajfault":       true,
+	"pgpgin":           true,
+	"pgpgout":          true,
+	"total_pgfault":    true,
+	"total_pgmajfault": true,
+	"total_pgpgin":     true,
+	"total_pgpgout":    true,
 }
 
 func convertStatsToMetrics(container *dtypes.ContainerJSON, cstats *dtypes.ContainerStats) ([]*datapoint.Datapoint, error) {
@@ -149,11 +149,11 @@ func convertMemoryStats(stats *dtypes.MemoryStats) []*datapoint.Datapoint {
 			100.0*(float64(stats.Usage)-float64(stats.Stats["cache"]))/float64(stats.Limit)),
 	}...)
 	for k, v := range stats.Stats {
-        if _, exists := memoryStatCounters[k]; exists {
-	        out = append(out, sfxclient.Cumulative("memory.stats."+k, nil, int64(v)))
-        } else {
-	        out = append(out, sfxclient.Gauge("memory.stats."+k, nil, int64(v)))
-        }
+		if _, exists := memoryStatCounters[k]; exists {
+			out = append(out, sfxclient.Cumulative("memory.stats."+k, nil, int64(v)))
+		} else {
+			out = append(out, sfxclient.Gauge("memory.stats."+k, nil, int64(v)))
+		}
 	}
 
 	return out

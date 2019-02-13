@@ -10575,77 +10575,77 @@
         {
           "name": "memory.stats.active_anon",
           "type": "gauge",
-          "description": ""
+          "description": "Amount of memory that has been identified as active by the kernel. Anonymous memory is memory that is not linked to disk pages."
         },
         {
           "name": "memory.stats.active_file",
           "type": "gauge",
-          "description": ""
+          "description": "Amount of active file cache memory. Cache memory = active_file + inactive_file + tmpfs"
         },
         {
           "name": "memory.stats.cache",
           "type": "gauge",
-          "description": ""
+          "description": "The amount of memory used by the processes of this control group that can be associated with a block on a block device. Also accounts for memory used by tmpfs."
         },
         {
           "name": "memory.stats.dirty",
           "type": "gauge",
-          "description": ""
+          "description": "The amount of memory waiting to get written to disk"
         },
         {
           "name": "memory.stats.hierarchical_memory_limit",
           "type": "gauge",
-          "description": ""
+          "description": "The memory limit in place by the hierarchy cgroup"
         },
         {
           "name": "memory.stats.hierarchical_memsw_limit",
           "type": "gauge",
-          "description": ""
+          "description": "The memory+swap limit in place by the hierarchy cgroup"
         },
         {
           "name": "memory.stats.inactive_anon",
           "type": "gauge",
-          "description": ""
+          "description": "Amount of memory that has been identified as inactive by the kernel. Anonymous memory is memory that is not linked to disk pages."
         },
         {
           "name": "memory.stats.inactive_file",
           "type": "gauge",
-          "description": ""
+          "description": "Amount of inactive file cache memory. Cache memory = active_file + inactive_file + tmpfs"
         },
         {
           "name": "memory.stats.mapped_file",
           "type": "gauge",
-          "description": ""
+          "description": "Indicates the amount of memory mapped by the processes in the control group. It doesn’t give you information about how much memory is used; it rather tells you how it is used."
         },
         {
           "name": "memory.stats.pgfault",
           "type": "cumulative",
-          "description": ""
+          "description": "Number of times that a process of the cgroup triggered a page fault. Page faults occur when a process accesses part of its virtual memory space which is nonexistent or protected. See https://docs.docker.com/config/containers/runmetrics for more info."
         },
         {
           "name": "memory.stats.pgmajfault",
           "type": "cumulative",
-          "description": ""
+          "description": "Number of times that a process of the cgroup triggered a major page fault. Page faults occur when a process accesses part of its virtual memory space which is nonexistent or protected. See https://docs.docker.com/config/containers/runmetrics for more info."
         },
         {
           "name": "memory.stats.pgpgin",
           "type": "cumulative",
-          "description": ""
+          "description": "Number of charging events to the memory cgroup. Charging events happen each time a page is accounted as either mapped anon page(RSS) or cache page to the cgroup."
         },
         {
           "name": "memory.stats.pgpgout",
           "type": "cumulative",
-          "description": ""
+          "description": "Number of uncharging events to the memory cgroup. Uncharging events happen each time a page is unaccounted from the cgroup."
         },
         {
           "name": "memory.stats.rss",
           "type": "gauge",
-          "description": ""
+          "description": "The amount of memory that doesn’t correspond to anything on disk: stacks, heaps, and anonymous memory maps."
         },
         {
           "name": "memory.stats.rss_huge",
           "type": "gauge",
-          "description": ""
+          "description": "Amount of memory due to anonymous transparent hugepages."
         },
         {
           "name": "memory.stats.swap",
@@ -10655,87 +10655,87 @@
         {
           "name": "memory.stats.total_active_anon",
           "type": "gauge",
-          "description": ""
+          "description": "Total amount of memory that has been identified as active by the kernel. Anonymous memory is memory that is not linked to disk pages."
         },
         {
           "name": "memory.stats.total_active_file",
           "type": "gauge",
-          "description": ""
+          "description": "Total amount of active file cache memory. Cache memory = active_file + inactive_file + tmpfs"
         },
         {
           "name": "memory.stats.total_cache",
           "type": "gauge",
-          "description": ""
+          "description": "Total amount of memory used by the processes of this control group that can be associated with a block on a block device. Also accounts for memory used by tmpfs."
         },
         {
           "name": "memory.stats.total_dirty",
           "type": "gauge",
-          "description": ""
+          "description": "Total amount of memory waiting to get written to disk"
         },
         {
           "name": "memory.stats.total_inactive_anon",
           "type": "gauge",
-          "description": ""
+          "description": "Total amount of memory that has been identified as inactive by the kernel. Anonymous memory is memory that is not linked to disk pages."
         },
         {
           "name": "memory.stats.total_inactive_file",
           "type": "gauge",
-          "description": ""
+          "description": "Total amount of inactive file cache memory. Cache memory = active_file + inactive_file + tmpfs"
         },
         {
           "name": "memory.stats.total_mapped_file",
           "type": "gauge",
-          "description": ""
+          "description": "Total amount of memory mapped by the processes in the control group. It doesn’t give you information about how much memory is used; it rather tells you how it is used."
         },
         {
           "name": "memory.stats.total_pgfault",
           "type": "cumulative",
-          "description": ""
+          "description": "Total number of page faults"
         },
         {
           "name": "memory.stats.total_pgmajfault",
           "type": "cumulative",
-          "description": ""
+          "description": "Total number of major page faults"
         },
         {
           "name": "memory.stats.total_pgpgin",
           "type": "cumulative",
-          "description": ""
+          "description": "Total number of charging events"
         },
         {
           "name": "memory.stats.total_pgpgout",
           "type": "cumulative",
-          "description": ""
+          "description": "Total number of uncharging events"
         },
         {
           "name": "memory.stats.total_rss",
           "type": "gauge",
-          "description": ""
+          "description": "Total amount of memory that doesn’t correspond to anything on disk: stacks, heaps, and anonymous memory maps."
         },
         {
           "name": "memory.stats.total_rss_huge",
           "type": "gauge",
-          "description": ""
+          "description": "Total amount of memory due to anonymous transparent hugepages."
         },
         {
           "name": "memory.stats.total_unevictable",
           "type": "gauge",
-          "description": ""
+          "description": "Total amount of memory that can not be reclaimed"
         },
         {
           "name": "memory.stats.total_writeback",
           "type": "gauge",
-          "description": ""
+          "description": "Total amount of memory from file/anon cache that are queued for syncing to the disk"
         },
         {
           "name": "memory.stats.unevictable",
           "type": "gauge",
-          "description": ""
+          "description": "The amount of memory that cannot be reclaimed."
         },
         {
           "name": "memory.stats.writeback",
           "type": "gauge",
-          "description": ""
+          "description": "The amount of memory from file/anon cache that are queued for syncing to the disk"
         },
         {
           "name": "memory.usage.limit",

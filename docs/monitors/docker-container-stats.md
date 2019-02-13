@@ -65,39 +65,39 @@ The following table lists the metrics available for this monitor. Metrics that a
 | `cpu.usage.total` | cumulative |  | Jiffies of CPU time used by the container |
 | `cpu.usage.usermode` | cumulative | X | Jiffies of CPU time spent in user mode by the container |
 | `memory.percent` | gauge | X | Percent of memory (0-100) used by the container relative to its limit (excludes page cache usage) |
-| `memory.stats.active_anon` | gauge | X |  |
-| `memory.stats.active_file` | gauge | X |  |
-| `memory.stats.cache` | gauge | X |  |
-| `memory.stats.dirty` | gauge | X |  |
-| `memory.stats.hierarchical_memory_limit` | gauge | X |  |
-| `memory.stats.hierarchical_memsw_limit` | gauge | X |  |
-| `memory.stats.inactive_anon` | gauge | X |  |
-| `memory.stats.inactive_file` | gauge | X |  |
-| `memory.stats.mapped_file` | gauge | X |  |
-| `memory.stats.pgfault` | cumulative | X |  |
-| `memory.stats.pgmajfault` | cumulative | X |  |
-| `memory.stats.pgpgin` | cumulative | X |  |
-| `memory.stats.pgpgout` | cumulative | X |  |
-| `memory.stats.rss` | gauge | X |  |
-| `memory.stats.rss_huge` | gauge | X |  |
+| `memory.stats.active_anon` | gauge | X | Amount of memory that has been identified as active by the kernel. Anonymous memory is memory that is not linked to disk pages. |
+| `memory.stats.active_file` | gauge | X | Amount of active file cache memory. Cache memory = active_file + inactive_file + tmpfs |
+| `memory.stats.cache` | gauge | X | The amount of memory used by the processes of this control group that can be associated with a block on a block device. Also accounts for memory used by tmpfs. |
+| `memory.stats.dirty` | gauge | X | The amount of memory waiting to get written to disk |
+| `memory.stats.hierarchical_memory_limit` | gauge | X | The memory limit in place by the hierarchy cgroup |
+| `memory.stats.hierarchical_memsw_limit` | gauge | X | The memory+swap limit in place by the hierarchy cgroup |
+| `memory.stats.inactive_anon` | gauge | X | Amount of memory that has been identified as inactive by the kernel. Anonymous memory is memory that is not linked to disk pages. |
+| `memory.stats.inactive_file` | gauge | X | Amount of inactive file cache memory. Cache memory = active_file + inactive_file + tmpfs |
+| `memory.stats.mapped_file` | gauge | X | Indicates the amount of memory mapped by the processes in the control group. It doesn’t give you information about how much memory is used; it rather tells you how it is used. |
+| `memory.stats.pgfault` | cumulative | X | Number of times that a process of the cgroup triggered a page fault. Page faults occur when a process accesses part of its virtual memory space which is nonexistent or protected. See https://docs.docker.com/config/containers/runmetrics for more info. |
+| `memory.stats.pgmajfault` | cumulative | X | Number of times that a process of the cgroup triggered a major page fault. Page faults occur when a process accesses part of its virtual memory space which is nonexistent or protected. See https://docs.docker.com/config/containers/runmetrics for more info. |
+| `memory.stats.pgpgin` | cumulative | X | Number of charging events to the memory cgroup. Charging events happen each time a page is accounted as either mapped anon page(RSS) or cache page to the cgroup. |
+| `memory.stats.pgpgout` | cumulative | X | Number of uncharging events to the memory cgroup. Uncharging events happen each time a page is unaccounted from the cgroup. |
+| `memory.stats.rss` | gauge | X | The amount of memory that doesn’t correspond to anything on disk: stacks, heaps, and anonymous memory maps. |
+| `memory.stats.rss_huge` | gauge | X | Amount of memory due to anonymous transparent hugepages. |
 | `memory.stats.swap` | gauge | X | Bytes of swap memory used by container |
-| `memory.stats.total_active_anon` | gauge | X |  |
-| `memory.stats.total_active_file` | gauge | X |  |
-| `memory.stats.total_cache` | gauge | X |  |
-| `memory.stats.total_dirty` | gauge | X |  |
-| `memory.stats.total_inactive_anon` | gauge | X |  |
-| `memory.stats.total_inactive_file` | gauge | X |  |
-| `memory.stats.total_mapped_file` | gauge | X |  |
-| `memory.stats.total_pgfault` | cumulative | X |  |
-| `memory.stats.total_pgmajfault` | cumulative | X |  |
-| `memory.stats.total_pgpgin` | cumulative | X |  |
-| `memory.stats.total_pgpgout` | cumulative | X |  |
-| `memory.stats.total_rss` | gauge | X |  |
-| `memory.stats.total_rss_huge` | gauge | X |  |
-| `memory.stats.total_unevictable` | gauge | X |  |
-| `memory.stats.total_writeback` | gauge | X |  |
-| `memory.stats.unevictable` | gauge | X |  |
-| `memory.stats.writeback` | gauge | X |  |
+| `memory.stats.total_active_anon` | gauge | X | Total amount of memory that has been identified as active by the kernel. Anonymous memory is memory that is not linked to disk pages. |
+| `memory.stats.total_active_file` | gauge | X | Total amount of active file cache memory. Cache memory = active_file + inactive_file + tmpfs |
+| `memory.stats.total_cache` | gauge | X | Total amount of memory used by the processes of this control group that can be associated with a block on a block device. Also accounts for memory used by tmpfs. |
+| `memory.stats.total_dirty` | gauge | X | Total amount of memory waiting to get written to disk |
+| `memory.stats.total_inactive_anon` | gauge | X | Total amount of memory that has been identified as inactive by the kernel. Anonymous memory is memory that is not linked to disk pages. |
+| `memory.stats.total_inactive_file` | gauge | X | Total amount of inactive file cache memory. Cache memory = active_file + inactive_file + tmpfs |
+| `memory.stats.total_mapped_file` | gauge | X | Total amount of memory mapped by the processes in the control group. It doesn’t give you information about how much memory is used; it rather tells you how it is used. |
+| `memory.stats.total_pgfault` | cumulative | X | Total number of page faults |
+| `memory.stats.total_pgmajfault` | cumulative | X | Total number of major page faults |
+| `memory.stats.total_pgpgin` | cumulative | X | Total number of charging events |
+| `memory.stats.total_pgpgout` | cumulative | X | Total number of uncharging events |
+| `memory.stats.total_rss` | gauge | X | Total amount of memory that doesn’t correspond to anything on disk: stacks, heaps, and anonymous memory maps. |
+| `memory.stats.total_rss_huge` | gauge | X | Total amount of memory due to anonymous transparent hugepages. |
+| `memory.stats.total_unevictable` | gauge | X | Total amount of memory that can not be reclaimed |
+| `memory.stats.total_writeback` | gauge | X | Total amount of memory from file/anon cache that are queued for syncing to the disk |
+| `memory.stats.unevictable` | gauge | X | The amount of memory that cannot be reclaimed. |
+| `memory.stats.writeback` | gauge | X | The amount of memory from file/anon cache that are queued for syncing to the disk |
 | `memory.usage.limit` | gauge |  | Memory usage limit of the container, in bytes |
 | `memory.usage.max` | gauge | X | Maximum measured memory usage of the container, in bytes |
 | `memory.usage.total` | gauge |  | Bytes of memory used by the container |
