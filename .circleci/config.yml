@@ -293,8 +293,8 @@ jobs:
     steps:
       - checkout
       - run: |
-          if ! scripts/changes-include-dir Dockerfile packaging/<< parameters.package_type >> tests/packaging; then
-              echo "<< parameters.package_type >> packaging code has not changed, skipping tests!"
+          if ! scripts/changes-include-dir Dockerfile packaging tests/packaging; then
+              echo "packaging code has not changed, skipping tests!"
               touch ~/.skip
               exit 0
           fi
