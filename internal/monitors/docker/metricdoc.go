@@ -45,6 +45,70 @@ package docker
 
 // GAUGE(memory.stats.swap): Bytes of swap memory used by container
 
+// GAUGE(memory.stats.active_anon): 
+
+// GAUGE(memory.stats.active_file): 
+
+// GAUGE(memory.stats.cache): 
+
+// GAUGE(memory.stats.dirty): 
+
+// GAUGE(memory.stats.hierarchical_memory_limit): 
+
+// GAUGE(memory.stats.hierarchical_memsw_limit): 
+
+// GAUGE(memory.stats.inactive_anon): 
+
+// GAUGE(memory.stats.inactive_file): 
+
+// GAUGE(memory.stats.mapped_file): 
+
+// CUMULATIVE(memory.stats.pgfault): 
+
+// CUMULATIVE(memory.stats.pgmajfault): 
+
+// CUMULATIVE(memory.stats.pgpgin): 
+
+// CUMULATIVE(memory.stats.pgpgout): 
+
+// GAUGE(memory.stats.rss): 
+
+// GAUGE(memory.stats.rss_huge): 
+
+// GAUGE(memory.stats.total_active_anon): 
+
+// GAUGE(memory.stats.total_active_file): 
+
+// GAUGE(memory.stats.total_cache): 
+
+// GAUGE(memory.stats.total_dirty): 
+
+// GAUGE(memory.stats.total_inactive_anon): 
+
+// GAUGE(memory.stats.total_inactive_file): 
+
+// GAUGE(memory.stats.total_mapped_file): 
+
+// CUMULATIVE(memory.stats.total_pgfault): 
+
+// CUMULATIVE(memory.stats.total_pgmajfault): 
+
+// CUMULATIVE(memory.stats.total_pgpgin): 
+
+// CUMULATIVE(memory.stats.total_pgpgout): 
+
+// GAUGE(memory.stats.total_rss): 
+
+// GAUGE(memory.stats.total_rss_huge): 
+
+// GAUGE(memory.stats.total_unevictable): 
+
+// GAUGE(memory.stats.total_writeback): 
+
+// GAUGE(memory.stats.unevictable): 
+
+// GAUGE(memory.stats.writeback): 
+
 // GAUGE(memory.usage.limit): Memory usage limit of the container, in bytes
 
 // GAUGE(memory.usage.max): Maximum measured memory usage of the container, in bytes
