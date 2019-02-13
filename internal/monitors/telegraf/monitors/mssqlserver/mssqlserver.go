@@ -94,7 +94,7 @@ type Config struct {
 	AzureDB bool `yaml:"azureDB"`
 	// Queries to exclude possible values are `PerformanceCounters`, `WaitStatsCategorized`,
 	// `DatabaseIO`, `DatabaseProperties`, `CPUHistory`, `DatabaseSize`, `DatabaseStats`, `MemoryClerk`
-	// `VolumeSpace`, `PerformanceMetrics`.
+	// `VolumeSpace`, and `PerformanceMetrics`.
 	ExcludeQuery []string `yaml:"excludedQueries"`
 	// Log level to use when accessing the database
 	Log uint `yaml:"log" default:"1"`

@@ -68,7 +68,7 @@ Monitor Type: `telegraf/sqlserver`
 | `appName` | no | `string` | The app name used by the monitor when connecting to the SQLServer. (**default:** `signalfxagent`) |
 | `queryVersion` | no | `integer` | The version of queries to use when accessing the cluster Please refer to the telegraf [documentation](https://github.com/influxdata/telegraf/tree/master/plugins/inputs/sqlserver) for more information. (**default:** `2`) |
 | `azureDB` | no | `bool` | Whether the database is an azure database or not. (**default:** `false`) |
-| `excludedQueries` | no | `list of string` | Queries to exclude possible values are `PerformanceCounters`, `WaitStatsCategorized`, `DatabaseIO`, `DatabaseProperties`, `CPUHistory`, `DatabaseSize`, `DatabaseStats`, `MemoryClerk` `VolumeSpace`, `PerformanceMetrics`. |
+| `excludedQueries` | no | `list of string` | Queries to exclude possible values are `PerformanceCounters`, `WaitStatsCategorized`, `DatabaseIO`, `DatabaseProperties`, `CPUHistory`, `DatabaseSize`, `DatabaseStats`, `MemoryClerk` `VolumeSpace`, and `PerformanceMetrics`. |
 | `log` | no | `unsigned integer` | Log level to use when accessing the database (**default:** `1`) |
 
 

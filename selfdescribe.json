@@ -12842,7 +12842,7 @@
         },
         {
           "yamlName": "excludedQueries",
-          "doc": "Queries to exclude possible values are `PerformanceCounters`, `WaitStatsCategorized`, `DatabaseIO`, `DatabaseProperties`, `CPUHistory`, `DatabaseSize`, `DatabaseStats`, `MemoryClerk` `VolumeSpace`, `PerformanceMetrics`.",
+          "doc": "Queries to exclude possible values are `PerformanceCounters`, `WaitStatsCategorized`, `DatabaseIO`, `DatabaseProperties`, `CPUHistory`, `DatabaseSize`, `DatabaseStats`, `MemoryClerk` `VolumeSpace`, and `PerformanceMetrics`.",
           "default": null,
           "required": false,
           "type": "slice",
