@@ -35,7 +35,7 @@ type SourceConfig struct {
 	// disruption.  This is generally better than restarting the agent on
 	// config changes since that can result in larger gaps in metric data.  The
 	// main disadvantage of watching is slightly greater network and compute
-	// resource usage. This option is not itself watched for changes. If you 
+	// resource usage. This option is not itself watched for changes. If you
 	// change the value of this option, you must restart the agent.
 	Watch bool `yaml:"watch" default:"true"`
 	// Configuration for other file sources
