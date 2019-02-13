@@ -10,8 +10,10 @@ import (
 	"github.com/signalfx/signalfx-agent/internal/core/services"
 )
 
-// Used to validate configuration that is common to all monitors up front
-func validateConfig(monConfig config.MonitorCustomConfig) error {
+// Used to validate configuration that is common to all monitors up front.
+// allowSuppliedFields will allow host/port and configEndpointMappings fields
+// to fail validation if they aren't present.
+func validateConfig(monConfig config.MonitorCustomConfig, allowSuppliedFields bool) error {
 	conf := monConfig.MonitorConfigCore()
 
 	if _, ok := MonitorFactories[conf.Type]; !ok {
@@ -28,7 +30,7 @@ func validateConfig(monConfig config.MonitorCustomConfig) error {
 	}
 
 	// Validate discovery rules
-	if conf.DiscoveryRule != "" {
+	if conf.HasAutoDiscovery() {
 		err := services.ValidateDiscoveryRule(conf.DiscoveryRule)
 		if err != nil {
 			return errors.New("discovery rule is invalid: " + err.Error())
@@ -40,10 +42,44 @@ func validateConfig(monConfig config.MonitorCustomConfig) error {
 	}
 
 	if err := validation.ValidateStruct(monConfig); err != nil {
-		return err
+		if !allowSuppliedFields || !errorMightBeAcceptable(err, conf) {
+			return err
+		}
 	}
 
-	return validation.ValidateCustomConfig(monConfig)
+	if err := validation.ValidateCustomConfig(monConfig); err != nil {
+		if !allowSuppliedFields || !errorMightBeAcceptable(err, conf) {
+			return err
+		}
+	}
+
+	return nil
+}
+
+// Also prunes the FieldErrors field on the passed in err if applicable
+func errorMightBeAcceptable(origErr error, conf *config.MonitorConfig) bool {
+	outIdx := 0
+	if err, ok := origErr.(*validation.StructError); ok {
+		acceptable := true
+		for _, fe := range err.FieldErrors {
+			if conf.HasAutoDiscovery() && (fe.Field == "host" || fe.Field == "port") {
+				continue
+			} else if _, ok := conf.ConfigEndpointMappings[fe.Field]; ok {
+				// Config might be supplied by the endpoint metadata so let it through,
+				// it should be validated later again before the monitor is actually
+				// instantiated.
+				continue
+			} else {
+				acceptable = false
+				// Only keep field errors that aren't acceptable
+				err.FieldErrors[outIdx] = fe
+				outIdx++
+			}
+		}
+		err.FieldErrors = err.FieldErrors[:outIdx]
+		return acceptable
+	}
+	return false
 }
 
 func configAcceptsEndpoints(monConfig config.MonitorCustomConfig) bool {

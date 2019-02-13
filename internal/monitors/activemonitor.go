@@ -74,7 +74,7 @@ func (am *ActiveMonitor) configureMonitor(monConfig config.MonitorCustomConfig) 
 		am.output.AddExtraDimension(k, fmt.Sprintf("%v", val))
 	}
 
-	if err := validateConfig(monConfig); err != nil {
+	if err := validateConfig(monConfig, false); err != nil {
 		return err
 	}
 

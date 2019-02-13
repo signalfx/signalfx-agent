@@ -152,7 +152,7 @@ func (sw *SignalFxWriter) preprocessSpan(span *trace.Span) {
 	}
 
 	if sw.conf.LogTraceSpans {
-		log.Debugf("Sending trace span:\n%s", spew.Sdump(span))
+		log.Infof("Sending trace span:\n%s", spew.Sdump(span))
 	}
 }
 

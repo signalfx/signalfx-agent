@@ -216,7 +216,7 @@ func (sw *SignalFxWriter) preprocessDatapoint(dp *datapoint.Datapoint) {
 	utils.TruncateDimensionValuesInPlace(dp.Dimensions)
 
 	if sw.conf.LogDatapoints {
-		log.Debugf("Sending datapoint:\n%s", utils.DatapointToString(dp))
+		log.Infof("Sending datapoint:\n%s", utils.DatapointToString(dp))
 	}
 }
 
@@ -259,7 +259,7 @@ func (sw *SignalFxWriter) sendEvents(events []*event.Event) error {
 		if sw.conf.LogEvents {
 			log.WithFields(log.Fields{
 				"event": spew.Sdump(events[i]),
-			}).Debug("Sending event")
+			}).Info("Sending event")
 		}
 	}
 
