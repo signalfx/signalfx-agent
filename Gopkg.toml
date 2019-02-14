@@ -160,10 +160,6 @@
   source = "https://github.com/fsnotify/fsnotify/archive/v1.4.7.tar.gz"
   name = "gopkg.in/fsnotify.v1"
 
-[[constraint]]
-  name = "github.com/signalfx/telegraf"
-  revision = "888c034dc63b1420acc06188f1af72a5b19872e2"
-
 [[override]]
   name = "github.com/coreos/bbolt"
   revision = "7ee3ded59d4835e10f3e7d0f7603c42aa5e83820"
