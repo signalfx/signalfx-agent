@@ -25,16 +25,13 @@ spec:
               value: administrator
             - name: PASSWORD
               value: testing123
-            - name: POD_IP
-              valueFrom:
-                fieldRef:
-                  fieldPath: status.podIP
           readinessProbe:
-            exec:
-              command:
-                - bash
-                - -c
-                - curl -u ${USERNAME}:${PASSWORD} http://${POD_IP}:8091/pools/default
+            httpGet:
+              path: /pools/default
+              port: 8091
+              httpHeaders:
+                - name: Authorization
+                  value: Basic YWRtaW5pc3RyYXRvcjp0ZXN0aW5nMTIz
             initialDelaySeconds: 5
             periodSeconds: 5
             timeoutSeconds: 5
