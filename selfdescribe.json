@@ -46,7 +46,7 @@
       },
       {
         "yamlName": "solo",
-        "doc": "If one or more configurations have this set to true, only those configurations will be considered. This setting can be useful",
+        "doc": "If one or more configurations have this set to true, only those configurations will be considered. This setting can be useful for testing.",
         "default": false,
         "required": false,
         "type": "bool",
@@ -15612,7 +15612,7 @@
             },
             {
               "yamlName": "solo",
-              "doc": "If one or more configurations have this set to true, only those configurations will be considered. This setting can be useful",
+              "doc": "If one or more configurations have this set to true, only those configurations will be considered. This setting can be useful for testing.",
               "default": false,
               "required": false,
               "type": "bool",
