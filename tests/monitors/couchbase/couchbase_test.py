@@ -40,7 +40,14 @@ def test_couchbase(tag):
         config = COUCHBASE_CONFIG.substitute(host=host)
         assert wait_for(p(tcp_socket_open, host, 8091), 60), "service not listening on port"
         assert wait_for(
-            p(http_status, url="http://{0}:8091/pools".format(host), status=[401]), 120
+            p(
+                http_status,
+                url=f"http://{host}:8091/pools/default",
+                status=[200],
+                username="administrator",
+                password="password",
+            ),
+            120,
         ), "service didn't start"
 
         with run_agent(config) as [backend, _, _]:
