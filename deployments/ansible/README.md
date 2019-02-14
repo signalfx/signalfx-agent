@@ -37,10 +37,8 @@ This role sources the following variables:
         - type: collectd/interface
         - type: collectd/load
         - type: collectd/memory
-        - type: collectd/protocols
         - type: collectd/signalfx-metadata
         - type: host-metadata
-        - type: collectd/uptime
         - type: collectd/vmem
     ```
 

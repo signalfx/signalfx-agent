@@ -299,13 +299,6 @@
         ]
     },
     {
-        "monitorType": "collectd/protocols",
-        "negated": true,
-        "metricNames": [
-            "protocol_counter.ActiveOpens"
-        ]
-    },
-    {
         "monitorType": "collectd/consul",
         "negated": true,
         "metricNames": [
@@ -865,13 +858,6 @@
         "metricNames": [
             "vmpage_io.swap.in",
             "vmpage_io.swap.out"
-        ]
-    },
-    {
-        "monitorType": "collectd/uptime",
-        "negated": true,
-        "metricNames": [
-            "uptime"
         ]
     },
     {
