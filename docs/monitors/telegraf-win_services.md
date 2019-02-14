@@ -33,7 +33,7 @@ Monitor Type: `telegraf/win_services`
 
 | Config option | Required | Type | Description |
 | --- | --- | --- | --- |
-| `serviceNames` | no | `list of string` | Names of services to monitor.  All services will be monitored if none are specified. |
+| `serviceNames` | no | `list of strings` | Names of services to monitor.  All services will be monitored if none are specified. |
 
 
 

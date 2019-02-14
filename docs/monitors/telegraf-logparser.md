@@ -34,14 +34,14 @@ Monitor Type: `telegraf/logparser`
 
 | Config option | Required | Type | Description |
 | --- | --- | --- | --- |
-| `files` | **yes** | `list of string` | Paths to files to be tailed |
+| `files` | **yes** | `list of strings` | Paths to files to be tailed |
 | `watchMethod` | no | `string` | Method for watching changes to files ("ionotify" or "poll") (**default:** `poll`) |
 | `fromBeginning` | no | `bool` | Whether to start tailing from the beginning of the file (**default:** `false`) |
 | `measurementName` | no | `string` | Name of the measurement |
-| `patterns` | no | `list of string` | A list of patterns to match. |
-| `namedPatterns` | no | `list of string` | A list of named grok patterns to match. |
+| `patterns` | no | `list of strings` | A list of patterns to match. |
+| `namedPatterns` | no | `list of strings` | A list of named grok patterns to match. |
 | `customPatterns` | no | `string` | Custom grok patterns. (`grok` only) |
-| `customPatternFiles` | no | `list of string` | List of paths to custom grok pattern files. |
+| `customPatternFiles` | no | `list of strings` | List of paths to custom grok pattern files. |
 | `timezone` | no | `string` | Specifies the timezone.  The default is UTC time.  Other options are `Local` for the local time on the machine, `UTC`, and `Canada/Eastern` (unix style timezones). |
 
 

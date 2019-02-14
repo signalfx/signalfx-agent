@@ -50,10 +50,10 @@ Monitor Type: `collectd/kafka_consumer`
 | `instancePrefix` | no | `string` |  |
 | `username` | no | `string` |  |
 | `password` | no | `string` |  |
-| `customDimensions` | no | `map of string` | Takes in key-values pairs of custom dimensions at the connection level. |
-| `mBeansToCollect` | no | `list of string` | A list of the MBeans defined in `mBeanDefinitions` to actually collect. If not provided, then all defined MBeans will be collected. |
-| `mBeansToOmit` | no | `list of string` | A list of the MBeans to omit. This will come handy in cases where only a few MBeans need to omitted from the default list |
-| `mBeanDefinitions` | no | `map of object (see below)` | Specifies how to map JMX MBean values to metrics.  If using a specific service monitor such as cassandra, kafka, or activemq, they come pre-loaded with a set of mappings, and any that you add in this option will be merged with those.  See [collectd GenericJMX](https://collectd.org/documentation/manpages/collectd-java.5.shtml#genericjmx_plugin) for more details. |
+| `customDimensions` | no | `map of strings` | Takes in key-values pairs of custom dimensions at the connection level. |
+| `mBeansToCollect` | no | `list of strings` | A list of the MBeans defined in `mBeanDefinitions` to actually collect. If not provided, then all defined MBeans will be collected. |
+| `mBeansToOmit` | no | `list of strings` | A list of the MBeans to omit. This will come handy in cases where only a few MBeans need to omitted from the default list |
+| `mBeanDefinitions` | no | `map of objects (see below)` | Specifies how to map JMX MBean values to metrics.  If using a specific service monitor such as cassandra, kafka, or activemq, they come pre-loaded with a set of mappings, and any that you add in this option will be merged with those.  See [collectd GenericJMX](https://collectd.org/documentation/manpages/collectd-java.5.shtml#genericjmx_plugin) for more details. |
 
 
 The **nested** `mBeanDefinitions` config object has the following fields:
@@ -62,9 +62,9 @@ The **nested** `mBeanDefinitions` config object has the following fields:
 | --- | --- | --- | --- |
 | `objectName` | no | `string` |  |
 | `instancePrefix` | no | `string` |  |
-| `instanceFrom` | no | `list of string` |  |
-| `values` | no | `list of object (see below)` |  |
-| `dimensions` | no | `list of string` |  |
+| `instanceFrom` | no | `list of strings` |  |
+| `values` | no | `list of objects (see below)` |  |
+| `dimensions` | no | `list of strings` |  |
 
 
 The **nested** `values` config object has the following fields:
@@ -74,7 +74,7 @@ The **nested** `values` config object has the following fields:
 | `type` | no | `string` |  |
 | `table` | no | `bool` |  (**default:** `false`) |
 | `instancePrefix` | no | `string` |  |
-| `instanceFrom` | no | `list of string` |  |
+| `instanceFrom` | no | `list of strings` |  |
 | `attribute` | no | `string` |  |
 
 

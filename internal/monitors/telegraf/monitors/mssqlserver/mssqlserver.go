@@ -66,18 +66,6 @@ const monitorType = "telegraf/sqlserver"
 //    userID: sa
 //    password: P@ssw0rd!
 //    appName: signalfxagent
-//    azureDB: true
-//    excludedQueries:
-//     - PerformanceCounters
-//     # - WaitStatsCategorized
-//     # - DatabaseIO
-//     # - DatabaseProperties
-//     # - CPUHistory
-//     # - DatabaseSize
-//     # - DatabaseStats
-//     # - MemoryClerk
-//     # - VolumeSpace
-//     # - PerformanceMetrics
 // ```
 //
 
@@ -98,15 +86,14 @@ type Config struct {
 	Password string `yaml:"password" neverLog:"true"`
 	// The app name used by the monitor when connecting to the SQLServer.
 	AppName string `yaml:"appName" default:"signalfxagent"`
-	// The version of queries to use when accessing the cluster
-	// Please refer to the telegraf [documentation](https://github.com/influxdata/telegraf/tree/master/plugins/inputs/sqlserver)
-	// for more information.
+	// The version of queries to use when accessing the cluster.
+	// Please refer to the telegraf documentation for more information.
 	QueryVersion int `yaml:"queryVersion" default:"2"`
 	// Whether the database is an azure database or not.
 	AzureDB bool `yaml:"azureDB"`
 	// Queries to exclude possible values are `PerformanceCounters`, `WaitStatsCategorized`,
 	// `DatabaseIO`, `DatabaseProperties`, `CPUHistory`, `DatabaseSize`, `DatabaseStats`, `MemoryClerk`
-	// `VolumeSpace`, `PerformanceMetrics`.
+	// `VolumeSpace`, and `PerformanceMetrics`.
 	ExcludeQuery []string `yaml:"excludedQueries"`
 	// Log level to use when accessing the database
 	Log uint `yaml:"log" default:"1"`

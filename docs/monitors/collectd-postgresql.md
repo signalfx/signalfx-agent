@@ -77,8 +77,8 @@ Monitor Type: `collectd/postgresql`
 | --- | --- | --- | --- |
 | `host` | **yes** | `string` |  |
 | `port` | **yes** | `integer` |  |
-| `databases` | **yes** | `list of object (see below)` | A list of databases along with optional authentication credentials. |
-| `queries` | no | `list of object (see below)` | PostgreSQL queries and metric mappings |
+| `databases` | **yes** | `list of objects (see below)` | A list of databases along with optional authentication credentials. |
+| `queries` | no | `list of objects (see below)` | PostgreSQL queries and metric mappings |
 | `username` | no | `string` | A username that serves as a default for all databases if not overridden |
 | `password` | no | `string` | A password that serves as a default for all databases if not overridden |
 | `reportHost` | no | `bool` | A SignalFx extension to the plugin that allows us to disable the normal behavior of the PostgreSQL collectd plugin where the `host` dimension is set to the hostname of the PostgreSQL database server.  When `false` (the recommended and default setting), the globally configured `hostname` config is used instead. (**default:** `false`) |
@@ -95,7 +95,7 @@ The **nested** `databases` config object has the following fields:
 | `expireDelay` | no | `integer` | Skip expired values in query output (**default:** `0`) |
 | `sslMode` | no | `string` | Specify whether to use an ssl connection with PostgreSQL. (prefer(default), disable, allow, require) |
 | `krbSrvName` | no | `string` | Specify the Kerberos service name used to authenticate with kerberos 5 or GSSAPI |
-| `queries` | no | `list of string` | Queries used to generate metrics. These will override the default set. If no queries are specified, the default set will be used [`custom_deadlocks`, `backends`, `transactions`, `queries`, `queries_by_table`, `query_plans`, `table_states`, `query_plans_by_table`, `table_states_by_table`, `disk_io`, `disk_io_by_table`, `disk_usage`] |
+| `queries` | no | `list of strings` | Queries used to generate metrics. These will override the default set. If no queries are specified, the default set will be used [`custom_deadlocks`, `backends`, `transactions`, `queries`, `queries_by_table`, `query_plans`, `table_states`, `query_plans_by_table`, `table_states_by_table`, `disk_io`, `disk_io_by_table`, `disk_usage`] |
 
 
 The **nested** `queries` config object has the following fields:
@@ -104,8 +104,8 @@ The **nested** `queries` config object has the following fields:
 | --- | --- | --- | --- |
 | `name` | **yes** | `string` | Name used to refer to the query in the database block |
 | `statement` | **yes** | `string` | Statement is a SQL statement to execute |
-| `results` | **yes** | `list of object (see below)` | Result blocks that define mappings of SQL query results to metrics |
-| `params` | no | `list of string` | Parameters used to fill in $1,$2,$... tokens in the SQL statement.  Acceptable values are hostname, database, instance, username, interval |
+| `results` | **yes** | `list of objects (see below)` | Result blocks that define mappings of SQL query results to metrics |
+| `params` | no | `list of strings` | Parameters used to fill in $1,$2,$... tokens in the SQL statement.  Acceptable values are hostname, database, instance, username, interval |
 | `pluginInstanceFrom` | no | `string` | Specifies the column that should be used to populate plugin instance |
 | `minVersion` | no | `integer` | The minimum version of PostgreSQL that the query is compatible with.  The version must be specified as a two decimal digit. Ex. 7.2.3 -> 70203 (**default:** `0`) |
 | `maxVersion` | no | `integer` | The maximum version of PostgreSQL that the query is compatible with.  The version must be specified as a two decimal digit. Ex. 7.2.3 -> 70203 (**default:** `0`) |
@@ -116,9 +116,9 @@ The **nested** `results` config object has the following fields:
 | Config option | Required | Type | Description |
 | --- | --- | --- | --- |
 | `type` | **yes** | `string` | Type defines a metric type |
-| `valuesFrom` | **yes** | `list of string` | Specifies columns in the SQL result to use as the metric value.  The number of columns must match the expected number of values for the metric type. |
+| `valuesFrom` | **yes** | `list of strings` | Specifies columns in the SQL result to use as the metric value.  The number of columns must match the expected number of values for the metric type. |
 | `instancePrefix` | no | `string` | A prefix for the type instance |
-| `instancesFrom` | no | `list of string` | Specifies columns in the SQL result to uses for the type instance.  Multiple columns are joined with a hyphen "-". |
+| `instancesFrom` | no | `list of strings` | Specifies columns in the SQL result to uses for the type instance.  Multiple columns are joined with a hyphen "-". |
 
 
 

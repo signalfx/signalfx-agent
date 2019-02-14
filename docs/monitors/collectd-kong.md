@@ -72,7 +72,7 @@ Monitor Type: `collectd/kong`
 | `clientCert` | no | `string` | Client certificate file (with or without included key) |
 | `clientCertKey` | no | `string` | Client cert key if not bundled with clientCert |
 | `verbose` | no | `bool` | Whether to use debug logging for collectd-kong |
-| `metrics` | no | `list of object (see below)` | List of metric names and report flags. See monitor description for more details. |
+| `metrics` | no | `list of objects (see below)` | List of metric names and report flags. See monitor description for more details. |
 | `reportApiIds` | no | `bool` | Report metrics for distinct API IDs where applicable |
 | `reportApiNames` | no | `bool` | Report metrics for distinct API names where applicable |
 | `reportServiceIds` | no | `bool` | Report metrics for distinct Service IDs where applicable |
@@ -81,20 +81,20 @@ Monitor Type: `collectd/kong`
 | `reportHttpMethods` | no | `bool` | Report metrics for distinct HTTP methods where applicable |
 | `reportStatusCodeGroups` | no | `bool` | Report metrics for distinct HTTP status code groups (eg. "5xx") where applicable |
 | `reportStatusCodes` | no | `bool` | Report metrics for distinct HTTP status codes where applicable (mutually exclusive with ReportStatusCodeGroups) |
-| `apiIds` | no | `list of string` | List of API ID patterns to report distinct metrics for, if reportApiIds is false |
-| `apiIdsBlacklist` | no | `list of string` | List of API ID patterns to not report distinct metrics for, if reportApiIds is true or apiIds are specified |
-| `apiNames` | no | `list of string` | List of API name patterns to report distinct metrics for, if reportApiNames is false |
-| `apiNamesBlacklist` | no | `list of string` | List of API name patterns to not report distinct metrics for, if reportApiNames is true or apiNames are specified |
-| `serviceIds` | no | `list of string` | List of Service ID patterns to report distinct metrics for, if reportServiceIds is false |
-| `serviceIdsBlacklist` | no | `list of string` | List of Service ID patterns to not report distinct metrics for, if reportServiceIds is true or serviceIds are specified |
-| `serviceNames` | no | `list of string` | List of Service name patterns to report distinct metrics for, if reportServiceNames is false |
-| `serviceNamesBlacklist` | no | `list of string` | List of Service name patterns to not report distinct metrics for, if reportServiceNames is true or serviceNames are specified |
-| `routeIds` | no | `list of string` | List of Route ID patterns to report distinct metrics for, if reportRouteIds is false |
-| `routeIdsBlacklist` | no | `list of string` | List of Route ID patterns to not report distinct metrics for, if reportRouteIds is true or routeIds are specified |
-| `httpMethods` | no | `list of string` | List of HTTP method patterns to report distinct metrics for, if reportHttpMethods is false |
-| `httpMethodsBlacklist` | no | `list of string` | List of HTTP method patterns to not report distinct metrics for, if reportHttpMethods is true or httpMethods are specified |
-| `statusCodes` | no | `list of string` | List of HTTP status code patterns to report distinct metrics for, if reportStatusCodes is false |
-| `statusCodesBlacklist` | no | `list of string` | List of HTTP status code patterns to not report distinct metrics for, if reportStatusCodes is true or statusCodes are specified |
+| `apiIds` | no | `list of strings` | List of API ID patterns to report distinct metrics for, if reportApiIds is false |
+| `apiIdsBlacklist` | no | `list of strings` | List of API ID patterns to not report distinct metrics for, if reportApiIds is true or apiIds are specified |
+| `apiNames` | no | `list of strings` | List of API name patterns to report distinct metrics for, if reportApiNames is false |
+| `apiNamesBlacklist` | no | `list of strings` | List of API name patterns to not report distinct metrics for, if reportApiNames is true or apiNames are specified |
+| `serviceIds` | no | `list of strings` | List of Service ID patterns to report distinct metrics for, if reportServiceIds is false |
+| `serviceIdsBlacklist` | no | `list of strings` | List of Service ID patterns to not report distinct metrics for, if reportServiceIds is true or serviceIds are specified |
+| `serviceNames` | no | `list of strings` | List of Service name patterns to report distinct metrics for, if reportServiceNames is false |
+| `serviceNamesBlacklist` | no | `list of strings` | List of Service name patterns to not report distinct metrics for, if reportServiceNames is true or serviceNames are specified |
+| `routeIds` | no | `list of strings` | List of Route ID patterns to report distinct metrics for, if reportRouteIds is false |
+| `routeIdsBlacklist` | no | `list of strings` | List of Route ID patterns to not report distinct metrics for, if reportRouteIds is true or routeIds are specified |
+| `httpMethods` | no | `list of strings` | List of HTTP method patterns to report distinct metrics for, if reportHttpMethods is false |
+| `httpMethodsBlacklist` | no | `list of strings` | List of HTTP method patterns to not report distinct metrics for, if reportHttpMethods is true or httpMethods are specified |
+| `statusCodes` | no | `list of strings` | List of HTTP status code patterns to report distinct metrics for, if reportStatusCodes is false |
+| `statusCodesBlacklist` | no | `list of strings` | List of HTTP status code patterns to not report distinct metrics for, if reportStatusCodes is true or statusCodes are specified |
 
 
 The **nested** `authHeader` config object has the following fields:

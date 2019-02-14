@@ -18,7 +18,7 @@ Sample YAML configuration:
 
 ```yaml
 monitors:
- - type: windows-iis
+ - type: windows-legacy
 ```
 
 

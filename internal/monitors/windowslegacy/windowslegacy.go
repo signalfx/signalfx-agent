@@ -27,7 +27,7 @@ const monitorType = "windows-legacy"
 //
 // ```yaml
 // monitors:
-//  - type: windows-iis
+//  - type: windows-legacy
 // ```
 
 var logger = log.WithFields(log.Fields{"monitorType": monitorType})

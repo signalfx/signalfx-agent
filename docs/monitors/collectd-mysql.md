@@ -51,7 +51,7 @@ Monitor Type: `collectd/mysql`
 | `host` | **yes** | `string` |  |
 | `port` | **yes** | `integer` |  |
 | `name` | no | `string` |  |
-| `databases` | **yes** | `list of object (see below)` | A list of databases along with optional authentication credentials. |
+| `databases` | **yes** | `list of objects (see below)` | A list of databases along with optional authentication credentials. |
 | `username` | no | `string` | These credentials serve as defaults for all databases if not overridden |
 | `password` | no | `string` |  |
 | `reportHost` | no | `bool` | A SignalFx extension to the plugin that allows us to disable the normal behavior of the MySQL collectd plugin where the `host` dimension is set to the hostname of the MySQL database server.  When `false` (the recommended and default setting), the globally configured `hostname` config is used instead. (**default:** `false`) |

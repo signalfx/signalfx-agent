@@ -33,8 +33,8 @@ Monitor Type: `collectd/solr`
 | `port` | **yes** | `integer` |  |
 | `cluster` | no | `string` | Cluster name of this solr cluster. |
 | `enhancedMetrics` | no | `bool` | EnhancedMetrics boolean to indicate whether stats from /metrics are needed (**default:** `false`) |
-| `includeMetrics` | no | `list of string` | IncludeMetrics metric names from the /admin/metrics endpoint to include (valid when EnhancedMetrics is "false") |
-| `excludeMetrics` | no | `list of string` | ExcludeMetrics metric names from the /admin/metrics endpoint to exclude (valid when EnhancedMetrics is "true") |
+| `includeMetrics` | no | `list of strings` | IncludeMetrics metric names from the /admin/metrics endpoint to include (valid when EnhancedMetrics is "false") |
+| `excludeMetrics` | no | `list of strings` | ExcludeMetrics metric names from the /admin/metrics endpoint to exclude (valid when EnhancedMetrics is "true") |
 
 
 

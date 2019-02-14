@@ -36,7 +36,7 @@ type MonitorConfig struct {
 	// global agent intervalSeconds config option will be used instead.
 	IntervalSeconds int `yaml:"intervalSeconds" json:"intervalSeconds"`
 	// If one or more configurations have this set to true, only those
-	// configurations will be considered -- useful for testing
+	// configurations will be considered. This setting can be useful for testing.
 	Solo bool `yaml:"solo" json:"solo"`
 	// A list of metric filters
 	MetricsToExclude []MetricFilter `yaml:"metricsToExclude" json:"metricsToExclude" default:"[]"`

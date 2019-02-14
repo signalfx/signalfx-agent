@@ -43,7 +43,7 @@ Monitor Type: `collectd/apache`
 | `host` | **yes** | `string` | The hostname of the Apache server |
 | `port` | **yes** | `integer` | The port number of the Apache server |
 | `name` | no | `string` | This will be sent as the `plugin_instance` dimension and can be any name you like. |
-| `url` | no | `string` | The URL, either a final url or a Go template that will be populated with the host and port values. (**default:** `http://{{.Host}}:{{.Port}}/mod_status?auto`) |
+| `url` | no | `string` | The URL, either a final URL or a Go template that will be populated with the host and port values. (**default:** `http://{{.Host}}:{{.Port}}/mod_status?auto`) |
 | `username` | no | `string` |  |
 | `password` | no | `string` |  |
 
