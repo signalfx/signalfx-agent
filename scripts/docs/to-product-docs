@@ -15,6 +15,7 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 AGENT_REPO_BASE="$SCRIPT_DIR/../.."
 PRODUCT_DOCS_REPO="${PRODUCT_DOCS_REPO:-$AGENT_REPO_BASE/../product-docs}"
 AGENT_PRODUCT_DOCS="$PRODUCT_DOCS_REPO/integrations/agent"
+MANAGE_GIT="${MANAGE_GIT-'yes'}"
 
 check_pandoc_version() {
 	pandoc --version | grep 'pandoc 2.5'
@@ -38,7 +39,7 @@ convert_relative_links() {
 
 # Changes .md extensions to .html
 convert_doc_extensions() {
-  sed -E -e '/(development|signalfx-agent.1).md/! s/\.md(#.*)?[[:>:]]/.html\1/g' -e'/(development|signalfx-agent.1).md/! s@\./docs/@./@g'
+  sed -E -e '/(development|signalfx-agent.1|MANUAL).md/! s/\.md(#.*)?[[:>:]]/.html\1/g' -e'/(development|signalfx-agent.1).md/! s@\./docs/@./@g'
 }
 
 reset_repo() {
@@ -61,7 +62,9 @@ check_pandoc_version
 [ -d $PRODUCT_DOCS_REPO ] || \
   (echo "product-docs repo dir cannot be found at $PRODUCT_DOCS_REPO; please set \$PRODUCT_DOCS_REPO" && exit 1)
 
-reset_repo
+if [[ "$MANAGE_GIT" == "yes" ]]; then
+  reset_repo
+fi
 
 mkdir -p $AGENT_PRODUCT_DOCS/{monitors,observers}
 
