@@ -30,7 +30,7 @@ The following table lists the metrics available for this monitor. Metrics that a
 
 | Name | Type | Custom | Description |
 | ---  | ---  | ---    | ---         |
-| `protocol_counter.ActiveOpens` | cumulative |  | The number of times TCP connections transitioned from the CLOSED state to the SYN-SENT state. |
+| `protocol_counter.ActiveOpens` | cumulative | X | The number of times TCP connections transitioned from the CLOSED state to the SYN-SENT state. |
 | `protocol_counter.CurrEstab` | cumulative | X | The number of TCP connections currently in either ESTABLISHED or CLOSE-WAIT state. |
 | `protocol_counter.DelayedACKs` | cumulative | X | The number of acknowledgements delayed by TCP Delayed Acknowledgement |
 | `protocol_counter.InDestUnreachs` | cumulative | X | The number of ICMP Destination Unreachable messages received |
@@ -52,6 +52,7 @@ required for gathering additional metrics.
 
 metricsToInclude:
   - metricNames:
+    - protocol_counter.ActiveOpens
     - protocol_counter.CurrEstab
     - protocol_counter.DelayedACKs
     - protocol_counter.InDestUnreachs
