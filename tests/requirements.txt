@@ -11,7 +11,7 @@ pytest-rerunfailures==4.1
 pytest-xdist==1.22.0
 pytest==3.4.0
 redis==2.10.6
-requests==2.19.1
+requests==2.21.0
 semver==2.8.0
 signalfx==1.0.16
 sanic==18.12.0
