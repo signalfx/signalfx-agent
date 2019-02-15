@@ -145,7 +145,7 @@ installation of [Packer](https://www.packer.io/),
 
 #### Make File Targets
 
-For convenience the makefile at the root of this project has the following targets:
+For convenience the Makefile in the `scripts/windows/vagrant` directory of this project has the following targets:
 
 | Target | Description | Example |
 | ------ | ----------- | ------- |
@@ -169,7 +169,7 @@ The following values are supported for `WINDOWS_VER`
 
 The following snippet will create the vagrant base box, start the vagrant, provision, suspend, and destroy it.
 
-    $ cd $GOPATH/src/github.com/signalfx/signalfx-agent
+    $ cd $GOPATH/src/github.com/signalfx/signalfx-agent/scripts/windows/vagrant
     $ WIN_VERSION=server_2008 make win-vagrant-base-box
       ...
     $ WIN_VERSION=server_2008 make win-vagrant-up

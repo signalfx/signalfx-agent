@@ -1,7 +1,6 @@
 RUN_CONTAINER := neo-agent-tmp
 COLLECTD_VERSION := 5.8.0-sfx0
 COLLECTD_COMMIT := 4da1c1cbbe83f881945088a41063fe86d1682ecb
-WIN_VER ?= server_2008
 
 .PHONY: check
 check: lint vet test
@@ -197,36 +196,3 @@ devstack:
 .PHONY: run-devstack
 run-devstack:
 	scripts/run-devstack-image
-
-ifneq ($(OS), Windows_NT)
-VAGRANT_NOT_CREATED := $(shell cd scripts/windows/vagrant/$(WIN_VER); vagrant status | grep "not created")
-
-.PHONY: win-vagrant-base-box
-win-vagrant-base-box:
-	WIN_VER=$(WIN_VER) scripts/windows/vagrant/build_vagrant_base_box.sh
-
-.PHONY: win-vagrant-reload
-win-vagrant-reload:
-	cd scripts/windows/vagrant/$(WIN_VER); vagrant reload
-
-.PHONY: win-vagrant-up
-win-vagrant-up:
-	cd scripts/windows/vagrant/$(WIN_VER); vagrant up
-	# only reload if the vagrant wasn't created
-ifneq ($(strip $(VAGRANT_NOT_CREATED)),)
-	cd scripts/windows/vagrant/$(WIN_VER); vagrant reload
-endif
-
-
-.PHONY: win-vagrant-suspend
-win-vagrant-suspend:
-	cd scripts/windows/vagrant/$(WIN_VER); vagrant suspend
-
-.PHONY: win-vagrant-destroy
-win-vagrant-destroy:
-	cd scripts/windows/vagrant/$(WIN_VER); vagrant destroy
-
-.PHONY: win-vagrant-provision
-win-vagrant-provision:
-	cd scripts/windows/vagrant/$(WIN_VER); vagrant provision
-endif
