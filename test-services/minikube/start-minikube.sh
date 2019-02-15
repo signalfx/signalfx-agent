@@ -70,10 +70,6 @@ function start_minikube() {
             kubeadm init --config /var/lib/kubeadm.yaml --ignore-preflight-errors=all
         fi
     elif [ "$BOOTSTRAPPER" = "localkube" ]; then
-        # Use fake systemctl shim to bypass localkube service checks
-        mv /usr/local/bin/fake-systemctl.sh /usr/local/bin/systemctl
-        chmod a+x /usr/local/bin/systemctl
-        export PATH=/usr/local/bin:$PATH
         minikube start $MINIKUBE_OPTIONS
     else
         echo "Unsupported bootstrapper \"${BOOTSTRAPPER}\"!"
