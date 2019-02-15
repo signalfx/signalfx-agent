@@ -71,11 +71,6 @@ ENV MINIKUBE_WANTREPORTERRORPROMPT=false
 ENV CHANGE_MINIKUBE_NONE_USER=true
 EXPOSE 8443
 
-# minikube --vm-driver=none checks systemctl before starting.  Instead of
-# setting up a real systemd environment, install this shim to tell minikube
-# what it wants to know: localkube isn't started yet.
-COPY fake-systemctl.sh /usr/local/bin/fake-systemctl.sh
-
 # Copy local start scripts
 COPY start-docker.sh /usr/local/bin/start-docker.sh
 RUN chmod a+x /usr/local/bin/start-docker.sh
