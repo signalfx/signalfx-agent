@@ -33,7 +33,9 @@ end
 package 'signalfx-agent' do  # ~FC009
   action :install
   version node['signalfx_agent']['package_version'] if !node['signalfx_agent']['package_version'].nil?
-  options '--allow-downgrades' if platform_family?('debian')
+  options '--allow-downgrades' if platform_family?('debian') \
+    && node['packages']['apt'] \
+    && Gem::Version.new(node['packages']['apt']['version']) >= Gem::Version.new('1.1.0')
   allow_downgrade true if platform_family?('rhel', 'amazon', 'fedora')
   notifies :restart, 'service[signalfx-agent]', :delayed
 end
