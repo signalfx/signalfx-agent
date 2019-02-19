@@ -14,10 +14,12 @@
       {"type": "collectd/interface"},
       {"type": "collectd/load"},
       {"type": "collectd/memory"},
-      {"type": "collectd/protocols"},
       {"type": "collectd/signalfx-metadata"},
-      {"type": "collectd/uptime"},
       {"type": "collectd/vmem"}
+      {"type": "host-metadata"},
+    ],
+    "metricsToExclude": [
+      {"#from": "/usr/lib/signalfx-agent/lib/whitelist.json", "flatten": true}
     ]
   }
 }}

@@ -10,6 +10,7 @@
 Gemfile.lock
 bin/*
 .bundle/*
+nodes/
 
 # test kitchen
 .kitchen/

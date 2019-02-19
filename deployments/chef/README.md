@@ -9,20 +9,22 @@ versions in the repos.
 
 The cookbook tries to be as flexible as possible with the configuration of the
 agent and does not impose any agent configuration policy.  The default config
-file (`/etc/signalfx/agent.yaml`) that comes from the package will be
+file (`/etc/signalfx/agent.yaml` on Linux) that comes from the package will be
 overwritten with what you provide in the `node['signalfx_agent']['conf']`
 object.
 
 # Attributes
 
 `node['signalfx_agent']['conf_file_path']`: The path where the agent config
- will be rendered (default: `/etc/signalfx/agent.yaml`)
+will be rendered (default: `/etc/signalfx/agent.yaml` (Linux);
+`\\ProgramData\SignalFxAgent\agent.yaml` (Windows))
 
 `node['signalfx_agent']['package_version']`: The agent package version.  This is
 of the form `<agent version>-<package revision>` (e.g. package version
 `3.0.1-1` is the first package revision that contains the agent version
 `3.0.1`).  Releases with package revision > 1 contain changes to some aspect of
 the packaging scripts (e.g. init scripts) but contain the same agent bundle.
+Note that Windows packages are just equivalent to the agent version right now.
 
 `node['signalfx_agent']['package_stage']`: The package repository to use.  Can
 be `final` (default, for main releases), `beta` (for beta releases), or `test`
@@ -47,14 +49,21 @@ node['signalfx_agent']['conf'] = {
     {type: "collectd/interface"},
     {type: "collectd/load"},
     {type: "collectd/memory"},
-    {type: "collectd/protocols"},
     {type: "collectd/signalfx-metadata"},
-    {type: "host-metadata"},
-    {type: "collectd/uptime"},
     {type: "collectd/vmem"}
+    {type: "host-metadata"},
+  ],
+  "metricsToExclude": [
+    {"#from": "/usr/lib/signalfx-agent/lib/whitelist.json", "flatten": true}
   ]
 }
 ```
+
+## Windows
+This cookbook should work on Windows as well.  Note that we have come across
+some issues with Python having a side-by-side manifest issue at times.  If this
+is the case, make sure you have installed the [Microsoft Visual C++ Compiler
+for Python 2.7](https://www.microsoft.com/EN-US/DOWNLOAD/DETAILS.ASPX?ID=44266) first.
 
 ## Development
 
