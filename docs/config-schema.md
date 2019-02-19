@@ -7,7 +7,7 @@ by the `-config` flag to the agent binary (`signalfx-agent`).
 
 ## Config Schema
 
-  
+
 | Config option | Required | Type | Description |
 | --- | --- | --- | --- |
 | `signalFxAccessToken` | no | string | The access token for the org that should receive the metrics emitted by the agent. |
@@ -159,22 +159,6 @@ The **nested** `metricsToInclude` config object has the following fields:
 
 
 
-## metricsToExclude
-The **nested** `metricsToExclude` config object has the following fields:
-
-For more information on filtering see [Datapoint Filtering](./filtering.md).
-
-
-| Config option | Required | Type | Description |
-| --- | --- | --- | --- |
-| `dimensions` | no | map of strings | A map of dimension key/values to match against.  All key/values must match a datapoint for it to be matched. |
-| `metricNames` | no | list of strings | A list of metric names to match against, OR'd together |
-| `metricName` | no | string | A single metric name to match against |
-| `monitorType` | no | string | (**Only applicable for the top level filters**) Limits this scope of the filter to datapoints from a specific monitor. If specified, any datapoints not from this monitor type will never match against this filter. |
-| `negated` | no | bool | Negates the result of the match so that it matches all datapoints that do NOT match the metric name and dimension values given. This does not negate monitorType, if given. (**default:** `false`) |
-
-
-
 ## propertiesToExclude
 The **nested** `propertiesToExclude` config object has the following fields:
 
@@ -277,19 +261,19 @@ where applicable:
 
 
 ```yaml
-  signalFxAccessToken: 
+  signalFxAccessToken:
   ingestUrl: "https://ingest.signalfx.com"
-  traceEndpointUrl: 
+  traceEndpointUrl:
   apiUrl: "https://api.signalfx.com"
-  hostname: 
-  useFullyQualifiedHost: 
+  hostname:
+  useFullyQualifiedHost:
   disableHostDimensions: false
   intervalSeconds: 10
-  globalDimensions: 
+  globalDimensions:
   sendMachineID: false
   observers: []
   monitors: []
-  writer: 
+  writer:
     datapointMaxBatchSize: 1000
     traceSpanMaxBatchSize: 1000
     datapointMaxRequests: 0
@@ -305,9 +289,9 @@ where applicable:
     staleServiceTimeout: "5m"
     traceHostCorrelationMetricsInterval: "1m"
     maxTraceSpansInFlight: 100000
-  logging: 
+  logging:
     level: "info"
-  collectd: 
+  collectd:
     disableCollectd: false
     timeout: 40
     readThreads: 5
@@ -325,28 +309,28 @@ where applicable:
   internalStatusHost: "localhost"
   internalStatusPort: 8095
   profiling: false
-  bundleDir: 
-  scratch: 
-  configSources: 
+  bundleDir:
+  scratch:
+  configSources:
     watch: true
-    file: 
+    file:
       pollRateSeconds: 5
-    zookeeper: 
+    zookeeper:
       endpoints: []
       timeoutSeconds: 10
-    etcd2: 
+    etcd2:
       endpoints: []
-      username: 
-      password: 
-    consul: 
-      endpoint: 
-      username: 
-      password: 
-      token: 
-      datacenter: 
-    vault: 
-      vaultAddr: 
-      vaultToken: 
+      username:
+      password:
+    consul:
+      endpoint:
+      username:
+      password:
+      token:
+      datacenter:
+    vault:
+      vaultAddr:
+      vaultToken:
       kvV2PollInterval: "60s"
   procPath: "/proc"
   etcPath: "/etc"
