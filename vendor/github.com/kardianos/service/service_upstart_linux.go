@@ -8,11 +8,10 @@ import (
 	"errors"
 	"fmt"
 	"os"
-	"os/exec"
 	"os/signal"
 	"regexp"
-	"strconv"
 	"strings"
+	"syscall"
 	"text/template"
 	"time"
 )
@@ -21,9 +20,9 @@ func isUpstart() bool {
 	if _, err := os.Stat("/sbin/upstart-udev-bridge"); err == nil {
 		return true
 	}
-	if _, err := os.Stat("/sbin/init"); err == nil {
-		if out, err := exec.Command("/sbin/init", "--version").Output(); err == nil {
-			if strings.Contains(string(out), "init (upstart") {
+	if _, err := os.Stat("/sbin/initctl"); err == nil {
+		if _, out, err := runWithOutput("/sbin/initctl", "--version"); err == nil {
+			if strings.Contains(out, "initctl (upstart") {
 				return true
 			}
 		}
@@ -32,14 +31,16 @@ func isUpstart() bool {
 }
 
 type upstart struct {
-	i Interface
+	i        Interface
+	platform string
 	*Config
 }
 
-func newUpstartService(i Interface, c *Config) (Service, error) {
+func newUpstartService(i Interface, platform string, c *Config) (Service, error) {
 	s := &upstart{
-		i:      i,
-		Config: c,
+		i:        i,
+		platform: platform,
+		Config:   c,
 	}
 
 	return s, nil
@@ -50,6 +51,10 @@ func (s *upstart) String() string {
 		return s.DisplayName
 	}
 	return s.Name
+}
+
+func (s *upstart) Platform() string {
+	return s.platform
 }
 
 // Upstart has some support for user services in graphical sessions.
@@ -68,46 +73,57 @@ func (s *upstart) configPath() (cp string, err error) {
 
 func (s *upstart) hasKillStanza() bool {
 	defaultValue := true
-
-	out, err := exec.Command("/sbin/init", "--version").Output()
-	if err != nil {
+	version := s.getUpstartVersion()
+	if version == nil {
 		return defaultValue
-	}
-
-	re := regexp.MustCompile(`init \(upstart (\d+.\d+.\d+)\)`)
-	matches := re.FindStringSubmatch(string(out))
-	if len(matches) != 2 {
-		return defaultValue
-	}
-
-	version := make([]int, 3)
-	for idx, vStr := range strings.Split(matches[1], ".") {
-		version[idx], err = strconv.Atoi(vStr)
-		if err != nil {
-			return defaultValue
-		}
 	}
 
 	maxVersion := []int{0, 6, 5}
-	if versionAtMost(version, maxVersion) {
+	if matches, err := versionAtMost(version, maxVersion); err != nil || matches {
 		return false
 	}
 
 	return defaultValue
 }
 
-func versionAtMost(version, max []int) bool {
-	for idx, m := range max {
-		v := version[idx]
-		if v > m {
-			return false
-		}
+func (s *upstart) hasSetUIDStanza() bool {
+	defaultValue := true
+	version := s.getUpstartVersion()
+	if version == nil {
+		return defaultValue
 	}
-	return true
+
+	maxVersion := []int{1, 4, 0}
+	if matches, err := versionAtMost(version, maxVersion); err != nil || matches {
+		return false
+	}
+
+	return defaultValue
+}
+
+func (s *upstart) getUpstartVersion() []int {
+	_, out, err := runWithOutput("/sbin/initctl", "--version")
+	if err != nil {
+		return nil
+	}
+
+	re := regexp.MustCompile(`initctl \(upstart (\d+.\d+.\d+)\)`)
+	matches := re.FindStringSubmatch(out)
+	if len(matches) != 2 {
+		return nil
+	}
+
+	return parseVersion(matches[1])
 }
 
 func (s *upstart) template() *template.Template {
-	return template.Must(template.New("").Funcs(tf).Parse(upstartScript))
+	customScript := s.Option.string(optionUpstartScript, "")
+
+	if customScript != "" {
+		return template.Must(template.New("").Funcs(tf).Parse(customScript))
+	} else {
+		return template.Must(template.New("").Funcs(tf).Parse(upstartScript))
+	}
 }
 
 func (s *upstart) Install() error {
@@ -133,12 +149,16 @@ func (s *upstart) Install() error {
 
 	var to = &struct {
 		*Config
-		Path          string
-		HasKillStanza bool
+		Path            string
+		HasKillStanza   bool
+		HasSetUIDStanza bool
+		LogOutput       bool
 	}{
 		s.Config,
 		path,
 		s.hasKillStanza(),
+		s.hasSetUIDStanza(),
+		s.Option.bool(optionLogOutput, optionLogOutputDefault),
 	}
 
 	return s.template().Execute(f, to)
@@ -173,11 +193,27 @@ func (s *upstart) Run() (err error) {
 
 	s.Option.funcSingle(optionRunWait, func() {
 		var sigChan = make(chan os.Signal, 3)
-		signal.Notify(sigChan, os.Interrupt, os.Kill)
+		signal.Notify(sigChan, syscall.SIGTERM, os.Interrupt)
 		<-sigChan
 	})()
 
 	return s.i.Stop(s)
+}
+
+func (s *upstart) Status() (Status, error) {
+	exitCode, out, err := runWithOutput("initctl", "status", s.Name)
+	if exitCode == 0 && err != nil {
+		return StatusUnknown, err
+	}
+
+	switch {
+	case strings.HasPrefix(out, fmt.Sprintf("%s start/running", s.Name)):
+		return StatusRunning, nil
+	case strings.HasPrefix(out, fmt.Sprintf("%s stop/waiting", s.Name)):
+		return StatusStopped, nil
+	default:
+		return StatusUnknown, ErrNotInstalled
+	}
 }
 
 func (s *upstart) Start() error {
@@ -209,7 +245,7 @@ const upstartScript = `# {{.Description}}
 start on filesystem or runlevel [2345]
 stop on runlevel [!2345]
 
-{{if .UserName}}setuid {{.UserName}}{{end}}
+{{if and .UserName .HasSetUIDStanza}}setuid {{.UserName}}{{end}}
 
 respawn
 respawn limit 10 5
@@ -222,5 +258,18 @@ pre-start script
 end script
 
 # Start
-exec {{.Path}}{{range .Arguments}} {{.|cmd}}{{end}}
+script
+	{{if .LogOutput}}
+	stdout_log="/var/log/{{.Name}}.out"
+	stderr_log="/var/log/{{.Name}}.err"
+	{{end}}
+	
+	if [ -f "/etc/sysconfig/{{.Name}}" ]; then
+		set -a
+		source /etc/sysconfig/{{.Name}}
+		set +a
+	fi
+
+	exec {{if and .UserName (not .HasSetUIDStanza)}}sudo -E -u {{.UserName}} {{end}}{{.Path}}{{range .Arguments}} {{.|cmd}}{{end}}{{if .LogOutput}} >> $stdout_log 2>> $stderr_log{{end}}
+end script
 `

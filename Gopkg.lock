@@ -571,19 +571,12 @@
   revision = "f2b4162afba35581b6d4a50d3b8f34e33c144682"
 
 [[projects]]
-  branch = "master"
-  digest = "1:263f9b0a0bcbfff9d5e7d9f2aa11f53995d98214fe0fb97e429e7a5f4534a0f9"
-  name = "github.com/kardianos/osext"
-  packages = ["."]
-  pruneopts = "NUT"
-  revision = "ae77be60afb1dcacde03767a8c37337fad28ac14"
-
-[[projects]]
-  digest = "1:320c5a199bdfddb72c3c53786f16734279ea73fd3fccad51a753728413189cbf"
+  digest = "1:eb3be7952b8a9ac04baaa962706b6a569eaed5e68eb10f52ecdb7fa3e42794f2"
   name = "github.com/kardianos/service"
   packages = ["."]
   pruneopts = "NUT"
-  revision = "615a14ed75099c9eaac6949e22ac2341bf9d3197"
+  revision = "56787a3ea05e9b262708192e7ce3b500aba73561"
+  version = "v1.0.0"
 
 [[projects]]
   branch = "master"

@@ -183,7 +183,7 @@
 
 [[constraint]]
   name = "github.com/kardianos/service"
-  revision = "615a14ed75099c9eaac6949e22ac2341bf9d3197"
+  version = "=1.0.0"
 
 [[override]]
   name = "github.com/StackExchange/wmi"
