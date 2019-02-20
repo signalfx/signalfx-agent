@@ -213,12 +213,20 @@ function stop_service([string]$installation_path=$installation_path, [string]$co
 
 # remove registry entries created by the agent service
 function remove_agent_registry_entries() {
-    try {
-        if (Test-Path "HKLM:\System\CurrentControlSet\services\SignalFx Smart Agent") {
+    try
+    {
+        if (Test-Path "HKLM:\System\CurrentControlSet\services\SignalFx Smart Agent")
+        {
             Remove-Item "HKLM:\System\CurrentControlSet\services\SignalFx Smart Agent"
+        }
+        if (Test-Path "HKLM:\SYSTEM\CurrentControlSet\Services\EventLog\Application\SignalFx Smart Agent"){
+            Remove-Item "HKLM:\SYSTEM\CurrentControlSet\Services\EventLog\Application\SignalFx Smart Agent"
         }
         if (Test-Path "HKLM:\System\CurrentControlSet\services\signalfx-agent") {
             Remove-Item "HKLM:\System\CurrentControlSet\services\signalfx-agent"
+        }
+        if (Test-Path "HKLM:\SYSTEM\CurrentControlSet\Services\EventLog\Application\signalfx-agent"){
+            Remove-Item "HKLM:\SYSTEM\CurrentControlSet\Services\EventLog\Application\signalfx-agent"
         }
     } catch {
         $err = $_.Exception.Message
