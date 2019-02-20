@@ -76,7 +76,7 @@ func (p *program) Stop(s service.Service) error {
 // is invoked by service.Service.Run()
 func runAgentWindows(flags *flags, interruptCh chan os.Signal) {
 	config := &service.Config{
-		Name:        "SignalFx Smart Agent",
+		Name:        "signalfx-agent",
 		DisplayName: "SignalFx Smart Agent",
 		Description: "Collects and publishes metric data to SignalFx",
 		Arguments:   []string{"-config", flags.configPath},
