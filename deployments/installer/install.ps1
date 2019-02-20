@@ -149,6 +149,7 @@ function verify_access_token([string]$access_token="", [string]$ingest_url=$INGE
     $url = "$ingest_url/v2/event"
     echo $url
     try {
+        [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
         $resp = Invoke-WebRequest -Uri $url -Method POST -ContentType "application/json" -Headers @{"X-Sf-Token"="$access_token"} -Body "[]"
     } catch {
         $err = $_.Exception.Message
