@@ -187,32 +187,69 @@ function copy_existing_etc([string]$installation_path=$installation_path, [strin
     Copy-Item -Recurse -Force "$installation_path\SignalFx\SignalFxAgent\etc" "$tempdir\SignalFxAgent\etc"
 }
 
+# whether the agent service is running
+function service_running() {
+   return (((Get-CimInstance -ClassName win32_service -Filter "Name = 'SignalFx Smart Agent'" | Select Name, State).State -Eq "Running") -Or ((Get-CimInstance -ClassName win32_service -Filter "Name = 'signalfx-agent'" | Select Name, State).State -Eq "Running"))
+}
+
+# whether the agent service is installed
+function service_installed() {
+    return (((Get-CimInstance -ClassName win32_service -Filter "Name = 'SignalFx Smart Agent'" | Select Name, State).Name -Eq "SignalFx Smart Agent") -Or ((Get-CimInstance -ClassName win32_service -Filter "Name = 'signalfx-agent'" | Select Name, State).Name -Eq "signalfx-agent"))
+}
+
 # start the service if it's stopped
 function start_service([string]$installation_path=$installation_path, [string]$config_path=$config_path) {
-    if ((Get-CimInstance -ClassName win32_service -Filter "Name = 'SignalFx Smart Agent'" | Select Name, State).State -Eq "Stopped"){
+    if (!(service_running)){
         & "$installation_path\SignalFx\SignalFxAgent\bin\signalfx-agent.exe" -service "start" -config "$config_path"
     }
 }
 
 # stop the service if it's running
 function stop_service([string]$installation_path=$installation_path, [string]$config_path=$config_path) {
-    if ((Get-CimInstance -ClassName win32_service -Filter "Name = 'SignalFx Smart Agent'" | Select Name, State).State -Eq "Running"){
+    if ((service_running)){
         & "$installation_path\SignalFx\SignalFxAgent\bin\signalfx-agent.exe" -service "stop" -config "$config_path"
+    }
+}
+
+# remove registry entries created by the agent service
+function remove_agent_registry_entries() {
+    try
+    {
+        if (Test-Path "HKLM:\System\CurrentControlSet\services\SignalFx Smart Agent")
+        {
+            Remove-Item "HKLM:\System\CurrentControlSet\services\SignalFx Smart Agent"
+        }
+        if (Test-Path "HKLM:\SYSTEM\CurrentControlSet\Services\EventLog\Application\SignalFx Smart Agent"){
+            Remove-Item "HKLM:\SYSTEM\CurrentControlSet\Services\EventLog\Application\SignalFx Smart Agent"
+        }
+        if (Test-Path "HKLM:\System\CurrentControlSet\services\signalfx-agent") {
+            Remove-Item "HKLM:\System\CurrentControlSet\services\signalfx-agent"
+        }
+        if (Test-Path "HKLM:\SYSTEM\CurrentControlSet\Services\EventLog\Application\signalfx-agent"){
+            Remove-Item "HKLM:\SYSTEM\CurrentControlSet\Services\EventLog\Application\signalfx-agent"
+        }
+    } catch {
+        $err = $_.Exception.Message
+        $message = "
+        unable to remove registry entries at HKLM:\System\CurrentControlSet\services\SignalFx Smart Agent
+        $err
+        "
+        throw "$message"
     }
 }
 
 # install the service if it's not already installed
 function install_service([string]$installation_path=$installation_path, [string]$config_path=$config_path) {
-    if (!((Get-CimInstance -ClassName win32_service -Filter "Name = 'SignalFx Smart Agent'" | Select Name, State).Name)){
+    if (!(service_installed)){
         & "$installation_path\SignalFx\SignalFxAgent\bin\signalfx-agent.exe" -service "install" -logEvents -config "$config_path"
     }
 }
 
 # uninstall the service
 function uninstall_service([string]$installation_path=$installation_path, [string]$config_path=$config_path) {
-    if ((Get-CimInstance -ClassName win32_service -Filter "Name = 'SignalFx Smart Agent'" | Select Name, State).Name -Eq "SignalFx Smart Agent"){
+    if ((service_installed)){
         stop_service -installation_path $installation_path -config_path $config_path
-        & "$installation_path\SignalFx\SignalFxAgent\bin\signalfx-agent.exe" -service "uninstall" -config "$config_path"
+        & "$installation_path\SignalFx\SignalFxAgent\bin\signalfx-agent.exe" -service "uninstall" -logEvents -config "$config_path"
     }
 }
 
@@ -221,10 +258,11 @@ function uninstall_agent($installation_path=$installation_path, $config_path=$co
     if (Test-Path -Path "$installation_path\SignalFx\SignalFxAgent\bin\signalfx-agent.exe") {
         echo "Uninstalling agent..."
         # stop the agent and uninstall it as a service
-        uninstall_service -bundle_path $installation_path -config_path $config_path
+        uninstall_service -installation_path $installation_path -config_path $config_path
         echo "- Done"
         echo "Removing old agent..."
         Remove-Item -Recurse "$installation_path\SignalFx\SignalFxAgent"
+        remove_agent_registry_entries
         echo "- Done"
     } else {
         throw "No agent installation found!"
@@ -290,6 +328,8 @@ if (Test-Path -Path "$installation_path\SignalFx\SignalFxAgent\bin\signalfx-agen
     # uninstall existing agent
     uninstall_agent -installation_path $installation_path -config_path $config_path
 } else {
+    # be doubly sure we don't have previously existing registry entries
+    remove_agent_registry_entries
     # write the access token file
     [System.IO.File]::WriteAllText("$tempdir\SignalFxAgent\etc\signalfx\token","$access_token",[System.Text.Encoding]::ASCII)
     # write the ingest url file
@@ -305,8 +345,16 @@ install_service -installation_path $installation_path -config_path $config_path
 echo "- Done"
 echo "Starting agent service..."
 start_service -installation_path $installation_path -config_path $config_path
-if (!((Get-CimInstance -ClassName win32_service -Filter "Name = 'SignalFx Smart Agent'" | Select Name, State).State -Eq "Running")){
-    throw "Agent service is not running.  Something went wrong durring the installation.  Please rerun the installer"
+
+# wait for the service to start
+$startTime = Get-Date
+while (!(service_running)){
+    # timeout after 30 seconds
+    if ((New-TimeSpan -Start $startTime -End (Get-Date)).TotalSeconds -gt 60){
+        throw "Agent service is not running.  Something went wrong durring the installation.  Please rerun the installer"
+    }
+    # give windows a second to synchronize service status
+    Start-Sleep -Seconds 1
 }
 echo "- Started"
 # remove the temporary directory
