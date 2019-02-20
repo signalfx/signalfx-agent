@@ -8,16 +8,24 @@ function download_file([string]$url, [string]$outputDir, [string]$fileName) {
 }
 
 function unzip_file($zipFile, $outputDir){
-    Set-PSDebug -Trace 0
-    Expand-Archive -Path $zipFile -DestinationPath $outputDir
-    Set-PSDebug -Trace 1
+    # this requires .net 4.5 and above
+    Add-Type -assembly "system.io.compression.filesystem"
+    [System.IO.Compression.ZipFile]::ExtractToDirectory($zipFile, $outputDir)
 }
 
 function zip_file($src, $dest) {
+    # this requires .net 4.5 and above
+    Add-Type -assembly "system.io.compression.filesystem"
     $SRC = Resolve-Path -Path $src
-    $DEST = Resolve-Path -Path $dest
+    [System.IO.Compression.ZipFile]::CreateFromDirectory($SRC, "$dest", 1, $true)
+}
+
+function remove_empty_directories ($buildDir) {
     Set-PSDebug -Trace 0
-    Compress-Archive -Path $SRC -DestinationPath $DEST
+    do {
+        $dirs = gci $buildDir -directory -recurse | Where { (gci $_.fullName -Force).count -eq 0 } | select -expandproperty FullName
+        $dirs | Foreach-Object { Remove-Item $_ }
+    } while ($dirs.count -gt 0)
     Set-PSDebug -Trace 1
 }
 
