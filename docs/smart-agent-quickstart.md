@@ -48,6 +48,21 @@ location for the token file is used.
 
 - [Windows Default Configuration File](https://github.com/signalfx/signalfx-agent/blob/master/packaging/win/agent.yaml)
 
+##### Configure your endpoints
+
+By default, the Smart Agent will send data to the `us0` realm.
+If you are not in this realm, you will need to explicitly set the
+ingest and api endpoints in your agent.yaml configuration file, as shown below.
+To determine if you are in a different realm and need to
+explicitly set the endpoints, check your profile page in the SignalFx
+web application.
+
+```
+ingestUrl: "https://ingest.{REALM}.signalfx.com"
+apiUrl: "https://api.{REALM}.signalfx.com"
+traceEndpointUrl: "https://ingest.{REALM}.signalfx.com/v1/trace"
+```
+
 You can add more [monitors](./monitor-config.md) and configure them as appropriate.
 
 ##### Example of adding a new monitor
