@@ -3,7 +3,7 @@
 signalFxAccessToken: {"#from": '\ProgramData\SignalFxAgent\token'}
 ingestUrl: {"#from": '\ProgramData\SignalFxAgent\ingest_url', default: "https://ingest.signalfx.com"}
 apiUrl: {"#from": '\ProgramData\SignalFxAgent\api_url', default: "https://api.signalfx.com"}
- 
+
 intervalSeconds: 10
 
 logging:
