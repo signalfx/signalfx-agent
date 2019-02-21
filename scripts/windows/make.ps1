@@ -74,8 +74,9 @@ function bundle (
     copy_types_db -collectdCommit $COLLECTD_COMMIT -buildDir "$buildDir" -agentName "$AGENT_NAME"
 
     if ($ZIP_BUNDLE -And !$ONLY_BUILD_AGENT) {
-        zip_file -src "$buildDir\$AGENT_NAME" -dest "$buildDir\$AGENT_NAME"
-        mv "$buildDir\$AGENT_NAME.zip" "$buildDir\$AGENT_NAME-$AGENT_VERSION-win64.zip"
+        # clean up empty directories
+        remove_empty_directories -buildDir $buildDir
+        zip_file -src "$buildDir\$AGENT_NAME" -dest "$buildDir\$AGENT_NAME-$AGENT_VERSION-win64.zip"
     }
     # remove latest.txt if it already exists
     if (Test-Path -Path "$buildDir\latest.txt"){
