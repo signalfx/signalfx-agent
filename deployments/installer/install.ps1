@@ -51,9 +51,11 @@ param (
 $format = "zip"
 $arch ="win64"
 $signalfx_dl = "https://dl.signalfx.com"
-$installation_path = "C:\Program Files"
-$tempdir = "C:\Program Files\SignalFx\temp"
-$config_path = "C:\Program Files\SignalFx\SignalFxAgent\etc\signalfx\agent.yaml"
+$installation_path = "\Program Files"
+$tempdir = "\tmp\SignalFx"
+$program_data_path = "\ProgramData\SignalFxAgent"
+$old_config_path = "\Program Files\SignalFx\SignalFxAgent\etc\signalfx\agent.yaml"
+$config_path = "\ProgramData\SignalFxAgent\agent.yaml"
 
 # check that we're not running with a restricted execution policy
 function check_policy(){
@@ -173,12 +175,19 @@ function create_signalfx_dir($installation_path=$installation_path){
     }
 }
 
-# create the siganlfx directory if it doesn't exist
-function create_temp_dir($installation_path=$installation_path){
-    if ((Test-Path -Path "$installation_path\SignalFx\temp")) {
-        Remove-Item -Recurse -Force "$installation_path\SignalFx\temp"
+# create directories in program data
+function create_program_data() {
+    if (!(Test-Path -Path "$program_data_path")) {
+        mkdir "$program_data_path" -ErrorAction Ignore
     }
-    mkdir "$installation_path\SignalFx\temp" -ErrorAction Ignore
+}
+
+# create the signalfx directory if it doesn't exist
+function create_temp_dir($tempdir=$tempdir){
+    if ((Test-Path -Path "$tempdir")) {
+        Remove-Item -Recurse -Force "$tempdir"
+    }
+    mkdir "$tempdir" -ErrorAction Ignore
 }
 
 # copy etc from an existing installation in to the unzipped package
@@ -200,14 +209,16 @@ function service_installed() {
 # start the service if it's stopped
 function start_service([string]$installation_path=$installation_path, [string]$config_path=$config_path) {
     if (!(service_running)){
-        & "$installation_path\SignalFx\SignalFxAgent\bin\signalfx-agent.exe" -service "start" -config "$config_path"
+        $agent_bin = Resolve-Path "$installation_path\SignalFx\SignalFxAgent\bin\signalfx-agent.exe"
+        & $agent_bin -service "start" -config "$config_path"
     }
 }
 
 # stop the service if it's running
 function stop_service([string]$installation_path=$installation_path, [string]$config_path=$config_path) {
     if ((service_running)){
-        & "$installation_path\SignalFx\SignalFxAgent\bin\signalfx-agent.exe" -service "stop" -config "$config_path"
+        $agent_bin = Resolve-Path "$installation_path\SignalFx\SignalFxAgent\bin\signalfx-agent.exe"
+        & $agent_bin -service "stop" -config "$config_path"
     }
 }
 
@@ -215,15 +226,8 @@ function stop_service([string]$installation_path=$installation_path, [string]$co
 function remove_agent_registry_entries() {
     try
     {
-        if (Test-Path "HKLM:\System\CurrentControlSet\services\SignalFx Smart Agent")
-        {
-            Remove-Item "HKLM:\System\CurrentControlSet\services\SignalFx Smart Agent"
-        }
         if (Test-Path "HKLM:\SYSTEM\CurrentControlSet\Services\EventLog\Application\SignalFx Smart Agent"){
             Remove-Item "HKLM:\SYSTEM\CurrentControlSet\Services\EventLog\Application\SignalFx Smart Agent"
-        }
-        if (Test-Path "HKLM:\System\CurrentControlSet\services\signalfx-agent") {
-            Remove-Item "HKLM:\System\CurrentControlSet\services\signalfx-agent"
         }
         if (Test-Path "HKLM:\SYSTEM\CurrentControlSet\Services\EventLog\Application\signalfx-agent"){
             Remove-Item "HKLM:\SYSTEM\CurrentControlSet\Services\EventLog\Application\signalfx-agent"
@@ -231,7 +235,7 @@ function remove_agent_registry_entries() {
     } catch {
         $err = $_.Exception.Message
         $message = "
-        unable to remove registry entries at HKLM:\System\CurrentControlSet\services\SignalFx Smart Agent
+        unable to remove registry entries at HKLM:\SYSTEM\CurrentControlSet\Services\EventLog\Application\SignalFx Smart Agent
         $err
         "
         throw "$message"
@@ -241,31 +245,41 @@ function remove_agent_registry_entries() {
 # install the service if it's not already installed
 function install_service([string]$installation_path=$installation_path, [string]$config_path=$config_path) {
     if (!(service_installed)){
-        & "$installation_path\SignalFx\SignalFxAgent\bin\signalfx-agent.exe" -service "install" -logEvents -config "$config_path"
+        $agent_bin = Resolve-Path "$installation_path\SignalFx\SignalFxAgent\bin\signalfx-agent.exe"
+        & $agent_bin -service "install" -logEvents -config "$config_path"
     }
 }
 
 # uninstall the service
-function uninstall_service([string]$installation_path=$installation_path, [string]$config_path=$config_path) {
+function uninstall_service([string]$installation_path=$installation_path) {
     if ((service_installed)){
         stop_service -installation_path $installation_path -config_path $config_path
-        & "$installation_path\SignalFx\SignalFxAgent\bin\signalfx-agent.exe" -service "uninstall" -logEvents -config "$config_path"
+        $agent_bin = Resolve-Path "$installation_path\SignalFx\SignalFxAgent\bin\signalfx-agent.exe"
+        & $agent_bin -service "uninstall" -logEvents
     }
 }
 
 # uninstall the agent
-function uninstall_agent($installation_path=$installation_path, $config_path=$config_path) {
-    if (Test-Path -Path "$installation_path\SignalFx\SignalFxAgent\bin\signalfx-agent.exe") {
+function uninstall_agent($installation_path=$installation_path) {
+    if (Test-Path -Path "$installation_path\SignalFx\SignalFxAgent") {
         echo "Uninstalling agent..."
         # stop the agent and uninstall it as a service
-        uninstall_service -installation_path $installation_path -config_path $config_path
+        uninstall_service -installation_path $installation_path
         echo "- Done"
         echo "Removing old agent..."
-        Remove-Item -Recurse "$installation_path\SignalFx\SignalFxAgent"
+
+        # if the \etc\signalfx directory is a symlink remove it before recursively deleting the rest
+        if (Test-Path -Path "$installation_path\SignalFx\SignalFxAgent\etc\signalfx"){
+            if ([bool]((Get-Item "$installation_path\SignalFx\SignalFxAgent\etc\signalfx" -Force -ea SilentlyContinue).Attributes -band [IO.FileAttributes]::ReparsePoint)){
+                cmd /c rmdir "$installation_path\SignalFx\SignalFxAgent\etc\signalfx"
+            }
+        }
+
+        Remove-Item -Recurse -Force "$installation_path\SignalFx\SignalFxAgent"
         remove_agent_registry_entries
         echo "- Done"
     } else {
-        throw "No agent installation found!"
+        echo "No existing agent installation found!"
     }
 }
 
@@ -316,20 +330,20 @@ if (!(verify_access_token -access_token $access_token -ingest_url $ingest_url -i
 $signalfx_dir = create_signalfx_dir -installation_path $installation_path
 
 # set up a temporary directory under signalfx directory
-$tempdir = create_temp_dir -installation_path $installation_path
+$tempdir = create_temp_dir -tempdir $tempdir
 
 # download the agent package with the specified agent_version or latest
 download_agent_package -agent_version $agent_version -tempdir $tempdir -stage $stage -arch $arch -format $format
 
-# check for an existing installation
-if (Test-Path -Path "$installation_path\SignalFx\SignalFxAgent\bin\signalfx-agent.exe") {
+# stage configurations
+if (Test-Path -Path "$program_data_path") {
+    # copy existing program data into temp dir
+    Remove-Item -Recurse "$tempdir\SignalFxAgent\etc\signalfx"
+    Copy-Item -Recurse "$program_data_path" "$tempdir\SignalFxAgent\etc\signalfx"
+} elseif (Test-Path -Path "$installation_path\SignalFx\SignalFxAgent\etc") {
     # copy existing \etc directory
     copy_existing_etc -installation_path $installation_path -tempdir $tempdir
-    # uninstall existing agent
-    uninstall_agent -installation_path $installation_path -config_path $config_path
 } else {
-    # be doubly sure we don't have previously existing registry entries
-    remove_agent_registry_entries
     # write the access token file
     [System.IO.File]::WriteAllText("$tempdir\SignalFxAgent\etc\signalfx\token","$access_token",[System.Text.Encoding]::ASCII)
     # write the ingest url file
@@ -337,12 +351,38 @@ if (Test-Path -Path "$installation_path\SignalFx\SignalFxAgent\bin\signalfx-agen
     # write the api url file
     [System.IO.File]::WriteAllText("$tempdir\SignalFxAgent\etc\signalfx\api_url"," $api_url",[System.Text.Encoding]::ASCII)
 }
+
+# uninstall existing agent
+uninstall_agent -installation_path $installation_path
+
 echo "Copying agent files into place..."
+
+# create program data directory
+create_program_data
+
+# empty the program data directory
+Remove-Item "$program_data_path\*" -Recurse -Force
+
+# copy configs to program data
+Copy-Item -Recurse "$tempdir\SignalFxAgent\etc\signalfx\*" "$program_data_path\"
+
+# remove the packaged etc before copying agent dir into place
+Remove-Item "$tempdir\SignalFxAgent\etc\*" -Recurse -Force
+
+# copy agent files into place
 Copy-Item -Recurse "$tempdir\SignalFxAgent" "$installation_path\SignalFx\SignalFxAgent"
+
+# create symlink in old config location to new config location for backwards compatability
+cmd /c mklink /D "$installation_path\SignalFx\SignalFxAgent\etc\signalfx" "$program_data_path"
+
 echo "- Done"
+
 echo "Installing agent service..."
+# be doubly sure we don't have previously existing registry entries
+remove_agent_registry_entries
 install_service -installation_path $installation_path -config_path $config_path
 echo "- Done"
+
 echo "Starting agent service..."
 start_service -installation_path $installation_path -config_path $config_path
 
@@ -357,6 +397,7 @@ while (!(service_running)){
     Start-Sleep -Seconds 1
 }
 echo "- Started"
+
 # remove the temporary directory
 Remove-Item -Recurse "$tempdir"
 echo "Installation Complete!"

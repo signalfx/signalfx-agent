@@ -118,8 +118,11 @@ and use it on your hosts in powershell by running:
 
 `& {Set-ExecutionPolicy Bypass -Scope Process -Force; $script = ((New-Object System.Net.WebClient).DownloadString('https://dl.signalfx.com/signalfx-agent.ps1')); $params = @{access_token = "YOUR_SIGNALFX_API_TOKEN"}; Invoke-Command -ScriptBlock ([scriptblock]::Create(". {$script} $(&{$args} @params)"))}`
 
+The agent should be installed to `\Program Files\SignalFx\SignalFxAgent`, and the default configuration file
+should be installed at `\ProgramData\SignalFxAgent`.
+
 #### Chef
-We offer a Chef cookbook to install and configure the agent on Linux.  See [the cookbook
+We offer a Chef cookbook to install and configure the agent.  See [the cookbook
 source](./deployments/chef) and [on the Chef
 Supermarket](https://supermarket.chef.io/cookbooks/signalfx_agent).
 
@@ -309,7 +312,7 @@ On Windows the agent must be installed and run under an administrator account.
 
 The agent is configured primarily from a YAML file. By default, the agent config
 is installed at and looked for at `/etc/signalfx/agent.yaml` on Linux and
-`C:\SignalFx\SignalFxAgent\etc\signalfx\agent.yaml` on Windows. This can be
+`\ProgramData\SignalFxAgent\agent.yaml` on Windows. This can be
 overridden by the `-config` command line flag.  
 
 For the full schema of the config, see [Config Schema](./docs/config-schema.md).
