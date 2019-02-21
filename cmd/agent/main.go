@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"os"
 	"os/signal"
-	"path/filepath"
 	"runtime"
 	"strings"
 	"syscall"
@@ -42,15 +41,7 @@ func init() {
 
 func getDefaultConfigPath() string {
 	if runtime.GOOS == "windows" {
-		exePath, err := os.Executable()
-		if err != nil {
-			panic("Cannot determine agent executable path, cannot continue")
-		}
-		configPath, err := filepath.Abs(filepath.Join(filepath.Dir(exePath), "..", "etc", "signalfx", "agent.yaml"))
-		if err != nil {
-			panic("Cannot determine absolute path of executable parent dir " + exePath)
-		}
-		return configPath
+		return "\\ProgramData\\SignalFxAgent\\agent.yaml"
 	}
 	return "/etc/signalfx/agent.yaml"
 }
