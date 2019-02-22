@@ -16,3 +16,7 @@ execute "add-rhel-key" do
   command "rpm --import #{node['signalfx_agent']['rhel_gpg_key_url']}"
   action :nothing
 end
+
+execute "yum-clean" do
+  command "yum --disablerepo='*' --enablerepo='signalfx-agent' clean all"
+end
