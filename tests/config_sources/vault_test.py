@@ -6,6 +6,7 @@ from functools import partial as p
 from textwrap import dedent
 
 import hvac
+
 from tests.helpers.assertions import has_datapoint, tcp_socket_open
 from tests.helpers.util import container_ip, run_agent, run_container, wait_for
 
@@ -195,7 +196,7 @@ def test_vault_renewable_secret_refresh():
             for ren in renewals:
                 assert "database/creds/my-role" in ren, "expected renewal of right secret"
 
-            backend.datapoints.clear()
+            backend.reset_datapoints()
             assert wait_for(p(has_datapoint, backend, dimensions={"plugin": "mongo"})), "plugin lost access to mongo"
 
 

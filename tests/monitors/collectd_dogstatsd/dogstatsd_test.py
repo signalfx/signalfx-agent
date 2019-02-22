@@ -4,7 +4,6 @@ import time
 from functools import partial as p
 
 import pytest
-
 from tests.helpers.assertions import has_datapoint_with_metric_name, regex_search_matches_output, udp_port_open_locally
 from tests.helpers.util import fake_backend, run_agent_with_fake_backend, send_udp_message, wait_for
 
@@ -32,7 +31,7 @@ def test_collectd_dogstatsd():
         config = DOGSTATSD_CONFIG.substitute(ingestEndpoint=f_backend.ingest_url)
 
         # start the agent with the dogstatsd plugin config
-        with run_agent_with_fake_backend(config, f_backend) as [backend, get_output, _]:
+        with run_agent_with_fake_backend(config, f_backend) as [backend, get_output, _, _]:
             # wait until the dogstatsd plugin logs the address and port it is listening on
             assert wait_for(p(regex_search_matches_output, get_output, DOGSTATSD_RE.search))
 

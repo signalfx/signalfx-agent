@@ -53,6 +53,8 @@ func (sw *SignalFxWriter) InternalMetrics() []*datapoint.Datapoint {
 		sfxclient.Cumulative("sfxagent.datapoints_sent", nil, int64(sw.dpsSent)),
 		sfxclient.Cumulative("sfxagent.events_sent", nil, int64(sw.eventsSent)),
 		sfxclient.Cumulative("sfxagent.dim_prop_sets_sent", nil, int64(sw.dimPropClient.TotalPropUpdates)),
+		sfxclient.Cumulative("sfxagent.dim_prop_requests_active", nil, int64(sw.dimPropClient.RequestsActive)),
+		sfxclient.Cumulative("sfxagent.dim_prop_sets_in_flight", nil, int64(sw.dimPropClient.UpdatesInFlight)),
 		sfxclient.Gauge("sfxagent.datapoints_buffered", nil, int64(len(sw.dpChan))),
 		sfxclient.Gauge("sfxagent.datapoints_in_flight", nil, sw.dpsInFlight),
 		sfxclient.Gauge("sfxagent.datapoint_requests_active", nil, sw.dpRequestsActive),

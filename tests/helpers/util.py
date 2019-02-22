@@ -8,6 +8,7 @@ import tempfile
 import threading
 import time
 from contextlib import contextmanager
+from typing import Dict, List
 
 import docker
 import yaml
@@ -16,12 +17,14 @@ import netifaces as ni
 
 from . import fake_backend
 from .formatting import print_dp_or_event
+from .profiling import PProfClient
 
 PROJECT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 if sys.platform == "win32":
     AGENT_BIN = os.environ.get("AGENT_BIN", os.path.join(PROJECT_DIR, "..", "signalfx-agent.exe"))
 else:
     AGENT_BIN = os.environ.get("AGENT_BIN", "/bundle/bin/signalfx-agent")
+REPO_ROOT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "../.."))
 BUNDLE_DIR = os.environ.get("BUNDLE_DIR", "/bundle")
 TEST_SERVICES_DIR = os.environ.get("TEST_SERVICES_DIR", "/test-services")
 DEFAULT_TIMEOUT = os.environ.get("DEFAULT_TIMEOUT", 30)
@@ -48,7 +51,7 @@ def wait_for(test, timeout_seconds=DEFAULT_TIMEOUT, interval_seconds=0.2):
         time.sleep(interval_seconds)
 
 
-def ensure_always(test, timeout_seconds=DEFAULT_TIMEOUT):
+def ensure_always(test, timeout_seconds=DEFAULT_TIMEOUT, interval_seconds=0.2):
     """
     Repeatedly calls the given test.  If it ever returns false before the timeout
     given is completed, returns False, otherwise True.
@@ -59,7 +62,7 @@ def ensure_always(test, timeout_seconds=DEFAULT_TIMEOUT):
             return False
         if time.time() - start > timeout_seconds:
             return True
-        time.sleep(0.2)
+        time.sleep(interval_seconds)
 
 
 def ensure_never(test, timeout_seconds=DEFAULT_TIMEOUT):
@@ -89,77 +92,89 @@ def container_ip(container):
 
 
 @contextmanager
-def run_agent(config_text, debug=True):
-    with fake_backend.start() as fake_services:
-        with run_agent_with_fake_backend(config_text, fake_services, debug) as [_, get_output, setup_conf]:
-            yield [fake_services, get_output, setup_conf]
+def run_agent(config_text, debug=True, profile=False, extra_env=None, backend_options=None):
+    host = get_unique_localhost()
+
+    with fake_backend.start(host, **(backend_options or {})) as fake_services:
+        with run_agent_with_fake_backend(
+            config_text, fake_services, debug=debug, host=host, profile=profile, extra_env=extra_env
+        ) as [_, get_output, setup_conf, conf]:
+            if profile:
+                yield [
+                    fake_services,
+                    get_output,
+                    setup_conf,
+                    PProfClient(conf["profilingHost"], conf.get("profilingPort", 6060)),
+                ]
+            else:
+                yield [fake_services, get_output, setup_conf]
 
 
 @contextmanager
-def run_agent_with_fake_backend(config_text, fake_services, debug=True):
+def run_agent_with_fake_backend(config_text, fake_services, debug=True, host=None, profile=False, extra_env=None):
     with tempfile.TemporaryDirectory() as run_dir:
         config_path = os.path.join(run_dir, "agent.yaml")
 
-        setup_config(config_text, config_path, fake_services, debug)
+        conf = render_config(config_text, config_path, fake_services, debug=debug, host=host, profile=profile)
 
-        proc = subprocess.Popen(
-            [AGENT_BIN, "-config", config_path] + (["-debug"] if debug else []),
-            stdout=subprocess.PIPE,
-            stderr=subprocess.STDOUT,
-        )
+        agent_env = {**os.environ.copy(), **(extra_env or {})}
 
-        output = io.BytesIO()
-
-        def pull_output():
-            while True:
-                # If any output is waiting, grab it.
-                byt = proc.stdout.read(1)
-                if not byt:
-                    return
-                output.write(byt)
-
-        def get_output():
-            return output.getvalue().decode("utf-8")
-
-        threading.Thread(target=pull_output).start()
-
-        try:
-            yield [fake_services, get_output, lambda c: setup_config(c, config_path, fake_services)]
-        finally:
-            exc = None
-
-            proc.terminate()
+        with run_subprocess(
+            [AGENT_BIN, "-config", config_path] + (["-debug"] if debug else []), env=agent_env
+        ) as get_output:
             try:
-                proc.wait(15)
-            except subprocess.TimeoutExpired as e:
-                exc = e
+                yield [fake_services, get_output, lambda c: render_config(c, config_path, fake_services), conf]
+            finally:
+                print("\nAgent output:")
+                print_lines(get_output())
+                if debug:
+                    print("\nDatapoints received:")
+                    for dp in fake_services.datapoints:
+                        print_dp_or_event(dp)
+                    print("\nEvents received:")
+                    for event in fake_services.events:
+                        print_dp_or_event(event)
 
-            print("\nAgent output:")
-            print_lines(get_output())
-            print("\nDatapoints received:")
-            for dp in fake_services.datapoints:
-                print_dp_or_event(dp)
-            print("\nEvents received:")
-            for event in fake_services.events:
-                print_dp_or_event(event)
 
-            if exc is not None:
-                raise exc  # pylint: disable=raising-bad-type
+@contextmanager
+def run_subprocess(command: List[str], env: Dict[any, any] = None):
+    proc = subprocess.Popen(command, env=env, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+
+    output = io.BytesIO()
+
+    def pull_output():
+        while True:
+            # If any output is waiting, grab it.
+            byt = proc.stdout.read(1)
+            if not byt:
+                return
+            output.write(byt)
+
+    def get_output():
+        return output.getvalue().decode("utf-8")
+
+    threading.Thread(target=pull_output).start()
+
+    try:
+        yield get_output
+    finally:
+        proc.terminate()
+        proc.wait(15)
 
 
 # Ensure a unique internal status server host address.  This supports up to
 # 255 concurrent agents on the same pytest worker process, and up to 255
 # pytest workers, which should be plenty
-def get_internal_status_host():
+def get_unique_localhost():
     worker = int(re.sub(r"\D", "", os.environ.get("PYTEST_XDIST_WORKER", "0")))
-    get_internal_status_host.counter += 1
-    return "127.%d.%d.0" % (worker, get_internal_status_host.counter % 255)
+    get_unique_localhost.counter += 1
+    return "127.%d.%d.0" % (worker, get_unique_localhost.counter % 255)
 
 
-get_internal_status_host.counter = 0
+get_unique_localhost.counter = 0
 
 
-def setup_config(config_text, path, fake_services, debug=True):
+def render_config(config_text, path, fake_services, debug=True, host=None, profile=False) -> Dict:
     if config_text is None and os.path.isfile(path):
         return path
 
@@ -176,7 +191,14 @@ def setup_config(config_text, path, fake_services, debug=True):
     conf["ingestUrl"] = fake_services.ingest_url
     conf["apiUrl"] = fake_services.api_url
 
-    conf["internalStatusHost"] = get_internal_status_host()
+    if host is None:
+        host = get_unique_localhost()
+
+    conf["internalStatusHost"] = host
+    if profile:
+        conf["profiling"] = True
+        conf["profilingHost"] = host
+
     conf["logging"] = dict(level="debug" if debug else "info")
 
     conf["collectd"] = conf.get("collectd", {})
@@ -191,7 +213,7 @@ def setup_config(config_text, path, fake_services, debug=True):
         print("CONFIG: %s\n%s" % (path, conf))
         fd.write(yaml.dump(conf))
 
-    return path
+    return conf
 
 
 @contextmanager
@@ -217,14 +239,17 @@ def run_container(image_name, wait_for_ip=True, print_logs=True, **kwargs):
 
 
 @contextmanager
-def run_service(service_name, name=None, buildargs=None, print_logs=True, **kwargs):
+def run_service(
+    service_name, name=None, buildargs=None, print_logs=True, path=None, dockerfile="./Dockerfile", **kwargs
+):
     if buildargs is None:
         buildargs = {}
+    if path is None:
+        path = os.path.join(TEST_SERVICES_DIR, service_name)
+
     client = get_docker_client()
     image, _ = retry(
-        lambda: client.images.build(
-            path=os.path.join(TEST_SERVICES_DIR, service_name), rm=True, forcerm=True, buildargs=buildargs
-        ),
+        lambda: client.images.build(path=path, dockerfile=dockerfile, rm=True, forcerm=True, buildargs=buildargs),
         docker.errors.BuildError,
     )
     with run_container(image.id, name=name, print_logs=print_logs, **kwargs) as cont:

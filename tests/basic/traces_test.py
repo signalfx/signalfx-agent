@@ -8,7 +8,6 @@ from functools import partial as p
 from textwrap import dedent
 
 import requests
-
 from tests.helpers.assertions import has_datapoint, has_trace_span, tcp_port_open_locally
 from tests.helpers.util import ensure_never, run_agent, wait_for
 
@@ -83,7 +82,7 @@ def test_tracing_output():
 
         # Service names expire after 5s in the config provided in this test
         time.sleep(8)
-        backend.datapoints.clear()
+        backend.reset_datapoints()
 
         assert ensure_never(
             p(has_datapoint, backend, metric_name="sf.int.service.heartbeat"), timeout_seconds=5
@@ -143,7 +142,7 @@ def test_tracing_load():
             ), "Didn't get host correlation datapoint"
 
         time.sleep(10)
-        backend.datapoints.clear()
+        backend.reset_datapoints()
 
         assert ensure_never(
             p(has_datapoint, backend, metric_name="sf.int.service.heartbeat"), timeout_seconds=5

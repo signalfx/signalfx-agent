@@ -3,7 +3,6 @@ from functools import partial as p
 from textwrap import dedent
 
 import pytest
-
 from tests.helpers.assertions import has_datapoint_with_dim
 from tests.helpers.util import ensure_always, run_agent, wait_for
 
@@ -83,7 +82,7 @@ def test_custom_collectd_shutdown():
         )
 
         time.sleep(3)
-        backend.datapoints.clear()
+        backend.reset_datapoints()
 
         assert ensure_always(
             lambda: not has_datapoint_with_dim(backend, "plugin", "ping")

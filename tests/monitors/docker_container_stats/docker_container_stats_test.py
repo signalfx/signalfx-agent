@@ -2,7 +2,6 @@ import time
 from functools import partial as p
 
 import pytest
-
 from tests.helpers.assertions import has_datapoint_with_dim, has_datapoint_with_metric_name
 from tests.helpers.util import ensure_always, run_agent, run_service, wait_for
 
@@ -105,7 +104,7 @@ def test_docker_stops_watching_paused_containers():
             ), "Didn't get nginx datapoints"
             nginx_container.pause()
             time.sleep(5)
-            backend.datapoints.clear()
+            backend.reset_datapoints()
             assert ensure_always(lambda: not has_datapoint_with_dim(backend, "container_id", nginx_container.id))
 
 
@@ -123,7 +122,7 @@ def test_docker_stops_watching_stopped_containers():
             ), "Didn't get nginx datapoints"
             nginx_container.stop(timeout=10)
             time.sleep(5)
-            backend.datapoints.clear()
+            backend.reset_datapoints()
             assert ensure_always(lambda: not has_datapoint_with_dim(backend, "container_id", nginx_container.id))
 
 
@@ -141,5 +140,5 @@ def test_docker_stops_watching_destroyed_containers():
             ), "Didn't get nginx datapoints"
             nginx_container.remove(force=True)
             time.sleep(5)
-            backend.datapoints.clear()
+            backend.reset_datapoints()
             assert ensure_always(lambda: not has_datapoint_with_dim(backend, "container_id", nginx_container.id))

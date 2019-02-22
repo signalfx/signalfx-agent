@@ -30,8 +30,12 @@ type dimensionPropertyClient struct {
 	lock    sync.Mutex
 	// A buffered channel that mimics a semaphore when performance isn't that
 	// big of a deal.
-	reqSema           chan struct{}
-	TotalPropUpdates  int64
+	reqSema chan struct{}
+
+	TotalPropUpdates int64
+	RequestsActive   int64
+	UpdatesInFlight  int64
+
 	PropertyFilterSet *propfilters.FilterSet
 }
 
@@ -74,6 +78,9 @@ func newDimensionPropertyClient(conf *config.WriterConfig) (*dimensionPropertyCl
 // value.  It will wipe out any description or tags on the dimension.  There is
 // no retry logic here so any failures are terminal.
 func (dpc *dimensionPropertyClient) SetPropertiesOnDimension(dimProps *types.DimProperties) error {
+	atomic.AddInt64(&dpc.UpdatesInFlight, int64(1))
+	defer atomic.AddInt64(&dpc.UpdatesInFlight, int64(-1))
+
 	filteredDimProps := &(*dimProps)
 
 	filteredDimProps = dpc.PropertyFilterSet.FilterDimProps(filteredDimProps)
@@ -83,9 +90,11 @@ func (dpc *dimensionPropertyClient) SetPropertiesOnDimension(dimProps *types.Dim
 
 	if !dpc.isDuplicate(filteredDimProps) {
 		dpc.reqSema <- struct{}{}
+		atomic.AddInt64(&dpc.RequestsActive, int64(1))
 		err := dpc.doReq(filteredDimProps.Name, filteredDimProps.Value,
 			filteredDimProps.Properties, filteredDimProps.Tags)
 		<-dpc.reqSema
+		atomic.AddInt64(&dpc.RequestsActive, int64(-1))
 		if err != nil {
 			return err
 		}
