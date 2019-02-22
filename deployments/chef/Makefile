@@ -18,3 +18,7 @@ run-dev-image:
 .PHONY: release
 release:
 	./release
+
+.PHONY: run-tests
+run-tests:
+	./test/run_tests.sh

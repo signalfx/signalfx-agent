@@ -1,0 +1,11 @@
+FROM centos:6
+
+ARG CHEF_RPM=https://packages.chef.io/files/stable/chef/12.8.1/el/6/chef-12.8.1-1.el6.x86_64.rpm
+
+RUN yum install -y upstart initscripts
+
+RUN yum install -y $CHEF_RPM
+
+COPY init-fake.conf /etc/init/fake-container-events.conf
+
+CMD ["/sbin/init", "-v"]
