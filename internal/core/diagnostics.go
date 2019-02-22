@@ -143,7 +143,7 @@ func (a *Agent) InternalMetrics() []*datapoint.Datapoint {
 	return out
 }
 
-func (a *Agent) ensureProfileServerRunning() {
+func (a *Agent) ensureProfileServerRunning(host string, port int) {
 	if !a.profileServerRunning {
 		// We don't use that much memory so the default mem sampling rate is
 		// too small to be very useful. Setting to 1 profiles ALL allocations
@@ -157,7 +157,7 @@ func (a *Agent) ensureProfileServerRunning() {
 			a.profileServerRunning = true
 			// This is very difficult to access from the host on mac without
 			// exposing it on all interfaces
-			log.Println(http.ListenAndServe("0.0.0.0:6060", nil))
+			log.Println(http.ListenAndServe(fmt.Sprintf("%s:%d", host, port), nil))
 		}()
 	}
 }

@@ -98,7 +98,7 @@ for:
 
   before_build:
     - echo Installing Visual C++ Compiler For Python
-    - ps: "choco install --no-progress --limitoutput vcpython27"
+    - ps: "$output = (choco install --no-progress --limitoutput vcpython27 vcredist2015 vcbuildtools); echo $output"
 
   build_script:
     - ps: "$env:AGENT_VERSION = & { git rev-parse HEAD };"
@@ -116,6 +116,7 @@ for:
 
   test_script:
     - echo Running integration tests
+    - set SANIC_NO_UVLOOP=true
     - ps: "& { . $env:APPVEYOR_BUILD_FOLDER/scripts/windows/make.ps1; integration_test; $env:TEST_RC=$lastexitcode }"
     - ps: |
         $wc = New-Object 'System.Net.WebClient'

@@ -21,7 +21,7 @@ from tests.helpers.kubernetes.utils import (
     has_secret,
     has_serviceaccount,
 )
-from tests.helpers.util import get_internal_status_host, wait_for
+from tests.helpers.util import get_unique_localhost, wait_for
 
 
 class Agent:  # pylint: disable=too-many-instance-attributes
@@ -120,7 +120,7 @@ class Agent:  # pylint: disable=too-many-instance-attributes
         self.agent_yaml["intervalSeconds"] = 5
         self.agent_yaml["sendMachineID"] = True
         self.agent_yaml["useFullyQualifiedHost"] = False
-        self.agent_yaml["internalStatusHost"] = get_internal_status_host()
+        self.agent_yaml["internalStatusHost"] = get_unique_localhost()
         if self.backend:
             self.agent_yaml["ingestUrl"] = "http://%s:%d" % (self.backend.ingest_host, self.backend.ingest_port)
             self.agent_yaml["apiUrl"] = "http://%s:%d" % (self.backend.api_host, self.backend.api_port)

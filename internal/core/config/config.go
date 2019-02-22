@@ -96,6 +96,12 @@ type Config struct {
 	// Enables Go pprof endpoint on port 6060 that serves profiling data for
 	// development
 	EnableProfiling bool `yaml:"profiling" default:"false"`
+	// The host/ip address for the pprof profile server to listen on.
+	// `profiling` must be enabled for this to have any effect.
+	ProfilingHost string `yaml:"profilingHost" default:"127.0.0.1"`
+	// The port for the pprof profile server to listen on. `profiling` must be
+	// enabled for this to have any effect.
+	ProfilingPort int `yaml:"profilingPort" default:"6060"`
 	// Path to the directory holding the agent dependencies.  This will
 	// normally be derived automatically. Overrides the envvar
 	// SIGNALFX_BUNDLE_DIR if set.

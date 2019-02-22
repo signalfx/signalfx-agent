@@ -86,7 +86,7 @@ func (a *Agent) configure(conf *config.Config) {
 	}
 
 	if conf.EnableProfiling {
-		a.ensureProfileServerRunning()
+		a.ensureProfileServerRunning(conf.ProfilingHost, conf.ProfilingPort)
 	}
 
 	if a.lastConfig == nil || a.lastConfig.Writer.Hash() != conf.Writer.Hash() {

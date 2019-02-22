@@ -19,5 +19,5 @@ def test_basic_service_discovery():
             assert wait_for(p(has_datapoint_with_dim, backend, "plugin", "nginx")), "Didn't get nginx datapoints"
         # Let nginx be removed by docker observer and collectd restart
         time.sleep(5)
-        backend.datapoints.clear()
+        backend.reset_datapoints()
         assert ensure_always(lambda: not has_datapoint_with_dim(backend, "plugin", "nginx"), 10)

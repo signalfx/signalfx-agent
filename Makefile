@@ -116,6 +116,7 @@ run-dev-image:
 		-v $(CURDIR)/local-etc:/etc/signalfx \
 		-v $(CURDIR):/go/src/github.com/signalfx/signalfx-agent:cached \
 		-v $(CURDIR)/collectd:/usr/src/collectd:cached \
+		-v $(CURDIR)/tmp/pprof:/tmp/pprof \
 		signalfx-agent-dev /bin/bash
 
 .PHONY: run-integration-tests

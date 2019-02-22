@@ -53,7 +53,7 @@ def test_python_runner_with_redis():
             os.kill(pid, signal.SIGTERM)
 
             time.sleep(3)
-            backend.datapoints.clear()
+            backend.reset_datapoints()
 
             assert wait_for(
                 p(has_datapoint_with_dim, backend, "plugin", "redis_info")
