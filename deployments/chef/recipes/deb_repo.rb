@@ -14,4 +14,3 @@ execute 'apt-get update' do
   action :nothing
   subscribes :run, 'file[/etc/apt/sources.list.d/signalfx-agent.list]', :immediately
 end
-
