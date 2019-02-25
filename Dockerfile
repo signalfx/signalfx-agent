@@ -276,15 +276,15 @@ CMD ["/bin/signalfx-agent"]
 
 COPY --from=collectd /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt
 
+COPY --from=collectd /usr/sbin/collectd /bin/collectd
+COPY --from=collectd /opt/deps/ /lib
+COPY --from=collectd /etc/nsswitch.conf /etc/nsswitch.conf
+
 COPY --from=extra-packages /lib/x86_64-linux-gnu/ld-2.23.so /lib64/ld-linux-x86-64.so.2
 COPY --from=extra-packages /opt/jvm/ /jvm
 COPY --from=extra-packages /opt/signalfx_types_db /plugins/collectd/java/
 COPY --from=extra-packages /opt/deps/ /lib
 COPY --from=extra-packages /opt/bins/ /bin
-
-COPY --from=collectd /usr/sbin/collectd /bin/collectd
-COPY --from=collectd /opt/deps/ /lib
-COPY --from=collectd /etc/nsswitch.conf /etc/nsswitch.conf
 
 COPY --from=collectd /usr/share/collectd/postgresql_default.conf /plugins/collectd/postgresql_default.conf
 COPY --from=collectd /usr/share/collectd/types.db /plugins/collectd/types.db
