@@ -1,6 +1,6 @@
 {"signalfx_agent": {
-  "package_stage": "test",
-  "package_version": "3.0.0-post-1",
+  "package_stage": "final",
+  "package_version": "4.0.0-1",
   "conf": {
     "signalFxAccessToken": "testing",
     "observers": [
@@ -15,8 +15,8 @@
       {"type": "collectd/load"},
       {"type": "collectd/memory"},
       {"type": "collectd/signalfx-metadata"},
-      {"type": "collectd/vmem"}
-      {"type": "host-metadata"},
+      {"type": "collectd/vmem"},
+      {"type": "host-metadata"}
     ],
     "metricsToExclude": [
       {"#from": "/usr/lib/signalfx-agent/lib/whitelist.json", "flatten": true}

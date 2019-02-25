@@ -336,6 +336,9 @@ jobs:
               docker run --rm \
                   signalfx-agent-chef-dev \
                   foodcritic .
+              docker run --rm \
+                  signalfx-agent-chef-dev \
+                  cookstyle .
               ;;
           puppet)
               docker run --rm \

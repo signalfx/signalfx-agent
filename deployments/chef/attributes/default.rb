@@ -1,6 +1,6 @@
 
 
-default['signalfx_agent']['repo_base_url'] = "https://dl.signalfx.com"
+default['signalfx_agent']['repo_base_url'] = 'https://dl.signalfx.com'
 default['signalfx_agent']['package_stage'] = 'final'
 
 default['signalfx_agent']['debian_repo_url'] = "#{node['signalfx_agent']['repo_base_url']}/debs/signalfx-agent"
