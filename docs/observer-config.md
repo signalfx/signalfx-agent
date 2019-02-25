@@ -8,6 +8,7 @@ file](./config-schema.md). These are all of the observers included in the agent
 along with their possible configuration options:
 
 - [docker](./observers/docker.md)
+- [ecs](./observers/ecs.md)
 - [host](./observers/host.md)
 - [k8s-api](./observers/k8s-api.md)
 - [k8s-kubelet](./observers/k8s-kubelet.md)

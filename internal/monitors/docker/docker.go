@@ -4,6 +4,8 @@ package docker
 
 import (
 	"context"
+	"encoding/json"
+	"io"
 	"strings"
 	"sync"
 	"time"
@@ -43,9 +45,22 @@ func init() {
 	monitors.Register(monitorType, func() interface{} { return &Monitor{} }, &Config{})
 }
 
+// EnhancedMetricsConfig to decide if it will send out all custom metrics
+type EnhancedMetricsConfig struct {
+	// Whether it will send all extra block IO metrics as well.
+	EnableExtraBlockIOMetrics bool `yaml:"enableExtraBlockIOMetrics" default:"false"`
+	// Whether it will send all extra CPU metrics as well.
+	EnableExtraCPUMetrics bool `yaml:"enableExtraCPUMetrics" default:"false"`
+	// Whether it will send all extra memory metrics as well.
+	EnableExtraMemoryMetrics bool `yaml:"enableExtraMemoryMetrics" default:"false"`
+	// Whether it will send all extra network metrics as well.
+	EnableExtraNetworkMetrics bool `yaml:"enableExtraNetworkMetrics" default:"false"`
+}
+
 // Config for this monitor
 type Config struct {
-	config.MonitorConfig `acceptsEndpoints:"false"`
+	config.MonitorConfig  `acceptsEndpoints:"false"`
+	EnhancedMetricsConfig `yaml:",inline"`
 
 	// The URL of the docker server
 	DockerURL string `yaml:"dockerURL" default:"unix:///var/run/docker.sock"`
@@ -150,7 +165,12 @@ func (m *Monitor) Configure(conf *Config) error {
 		// only the map that holds them.
 		lock.Lock()
 		for id := range containers {
-			go m.fetchStats(containers[id], conf.LabelsToDimensions, conf.EnvToDimensions)
+			go m.fetchStats(containers[id], conf.LabelsToDimensions, conf.EnvToDimensions, EnhancedMetricsConfig{
+				EnableExtraBlockIOMetrics: conf.EnableExtraBlockIOMetrics,
+				EnableExtraCPUMetrics:     conf.EnableExtraCPUMetrics,
+				EnableExtraMemoryMetrics:  conf.EnableExtraMemoryMetrics,
+				EnableExtraNetworkMetrics: conf.EnableExtraNetworkMetrics,
+			})
 		}
 		lock.Unlock()
 
@@ -163,7 +183,7 @@ func (m *Monitor) Configure(conf *Config) error {
 // parallel in individual goroutines.  This is much easier on CPU usage since
 // we aren't doing something every second across all containers, but only
 // something once every metric interval.
-func (m *Monitor) fetchStats(container dockerContainer, labelMap map[string]string, envMap map[string]string) {
+func (m *Monitor) fetchStats(container dockerContainer, labelMap map[string]string, envMap map[string]string, enhancedMetricsConfig EnhancedMetricsConfig) {
 	ctx, cancel := context.WithTimeout(m.ctx, m.timeout)
 	stats, err := m.client.ContainerStats(ctx, container.ID, false)
 	if err != nil {
@@ -172,7 +192,21 @@ func (m *Monitor) fetchStats(container dockerContainer, labelMap map[string]stri
 		return
 	}
 
-	dps, err := convertStatsToMetrics(container.ContainerJSON, &stats)
+	var parsed dtypes.StatsJSON
+	err = json.NewDecoder(stats.Body).Decode(&parsed)
+	stats.Body.Close()
+	if err != nil {
+		cancel()
+		// EOF means that there aren't any stats, perhaps because the container
+		// is gone.  Just return nothing and no error.
+		if err == io.EOF {
+			return
+		}
+		logger.WithError(err).Errorf("Could not parse docker stats for container id %s", container.ID)
+		return
+	}
+
+	dps, err := ConvertStatsToMetrics(container.ContainerJSON, &parsed, enhancedMetricsConfig)
 	cancel()
 	if err != nil {
 		logger.WithError(err).Errorf("Could not convert docker stats for container id %s", container.ID)

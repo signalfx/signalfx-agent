@@ -1,0 +1,113 @@
+{
+    "Cluster": "arn:aws:ecs:us-east-1:906383545488:cluster/seon-fargate-test",
+    "TaskARN": "arn:aws:ecs:us-east-1:906383545488:task/01f5855c-2335-4f1d-bddb-049aaa418317",
+    "Family": "seon-fargate-test",
+    "Revision": "3",
+    "DesiredStatus": "RUNNING",
+    "KnownStatus": "RUNNING",
+    "Containers": [
+        {
+            "DockerId": "a04608e77784f8e57a091e20982b9a9ccf71351a103049227e48338bd4d12ee2",
+            "Name": "~internal~ecs~pause",
+            "DockerName": "ecs-seon-fargate-test-3-internalecspause-aec6fbdde6f382f2fd01",
+            "Image": "fg-proxy:tinyproxy",
+            "ImageID": "",
+            "Labels": {
+                "com.amazonaws.ecs.cluster": "arn:aws:ecs:us-east-1:906383545488:cluster/seon-fargate-test",
+                "com.amazonaws.ecs.container-name": "~internal~ecs~pause",
+                "com.amazonaws.ecs.task-arn": "arn:aws:ecs:us-east-1:906383545488:task/01f5855c-2335-4f1d-bddb-049aaa418317",
+                "com.amazonaws.ecs.task-definition-family": "seon-fargate-test",
+                "com.amazonaws.ecs.task-definition-version": "3"
+            },
+            "DesiredStatus": "RESOURCES_PROVISIONED",
+            "KnownStatus": "RESOURCES_PROVISIONED",
+            "Limits": {
+                "CPU": 0,
+                "Memory": 0
+            },
+            "CreatedAt": "2019-02-07T18:27:40.912060863Z",
+            "StartedAt": "2019-02-07T18:27:41.44491944Z",
+            "Type": "CNI_PAUSE",
+            "Networks": [
+                {
+                    "NetworkMode": "awsvpc",
+                    "IPv4Addresses": [
+                        "172.31.103.125"
+                    ]
+                }
+            ]
+        },
+        {
+            "DockerId": "c42fa5a73634bcb6e301dfb7b13ac7ead2af473210be6a15da75a290c283b66c",
+            "Name": "redis",
+            "DockerName": "ecs-seon-fargate-test-3-redis-baf2cfda88f8d8ee4900",
+            "Image": "redis:latest",
+            "ImageID": "sha256:0f55cf3661e92cc44014f9d93e6f7cbd2a59b7220a26edcdb0828289cf6a361f",
+            "Labels": {
+                "com.amazonaws.ecs.cluster": "arn:aws:ecs:us-east-1:906383545488:cluster/seon-fargate-test",
+                "com.amazonaws.ecs.container-name": "redis",
+                "com.amazonaws.ecs.task-arn": "arn:aws:ecs:us-east-1:906383545488:task/01f5855c-2335-4f1d-bddb-049aaa418317",
+                "com.amazonaws.ecs.task-definition-family": "seon-fargate-test",
+                "com.amazonaws.ecs.task-definition-version": "3",
+                "agent.signalfx.com.port.6379": "true",
+                "agent.signalfx.com.config.6379.intervalSeconds": "1",
+                "agent.signalfx.com.port.27017": "true",
+                "agent.signalfx.com.config.27017.databases": "['testdb1', 'testdb2']"
+            },
+            "DesiredStatus": "RUNNING",
+            "KnownStatus": "RUNNING",
+            "Limits": {
+                "CPU": 0,
+                "Memory": 0
+            },
+            "CreatedAt": "2019-02-07T18:27:46.564677923Z",
+            "StartedAt": "2019-02-07T18:27:49.385226517Z",
+            "Type": "NORMAL",
+            "Networks": [
+                {
+                    "NetworkMode": "awsvpc",
+                    "IPv4Addresses": [
+                        "TARGET_IP"
+                    ]
+                }
+            ]
+        },
+        {
+            "DockerId": "dd983d2a25221d9bf07de9b0c2b0c9dd5d38e3285272a7e0e5848a918479dedf",
+            "Name": "sidecar",
+            "DockerName": "ecs-seon-fargate-test-3-sidecar-8ef6f1dbb0f6d3bdd801",
+            "Image": "906383545488.dkr.ecr.us-east-1.amazonaws.com/seon-metadata-wrap:latest",
+            "ImageID": "sha256:6be9f81a7b99971b88a8aea2fa9ec78ede5c691adf5d5e3edbdd21e1ff60ba26",
+            "Labels": {
+                "com.amazonaws.ecs.cluster": "arn:aws:ecs:us-east-1:906383545488:cluster/seon-fargate-test",
+                "com.amazonaws.ecs.container-name": "sidecar",
+                "com.amazonaws.ecs.task-arn": "arn:aws:ecs:us-east-1:906383545488:task/01f5855c-2335-4f1d-bddb-049aaa418317",
+                "com.amazonaws.ecs.task-definition-family": "seon-fargate-test",
+                "com.amazonaws.ecs.task-definition-version": "3"
+            },
+            "DesiredStatus": "RUNNING",
+            "KnownStatus": "RUNNING",
+            "Limits": {
+                "CPU": 0,
+                "Memory": 0
+            },
+            "CreatedAt": "2019-02-07T18:27:48.980470292Z",
+            "StartedAt": "2019-02-07T18:27:49.308136916Z",
+            "Type": "NORMAL",
+            "Networks": [
+                {
+                    "NetworkMode": "awsvpc",
+                    "IPv4Addresses": [
+                        "127.0.0.1"
+                    ]
+                }
+            ]
+        }
+    ],
+    "Limits": {
+        "CPU": 0.25,
+        "Memory": 512
+    },
+    "PullStartedAt": "2019-02-07T18:27:41.558209485Z",
+    "PullStoppedAt": "2019-02-07T18:27:48.977188589Z"
+}

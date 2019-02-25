@@ -1,0 +1,52 @@
+# This agent config file is designed for use within an ECS task.  The agent
+# should be as a Fargate service within an ECS task.
+signalFxAccessToken: {"#from": "env:ACCESS_TOKEN"}
+ingestUrl: {"#from": "env:INGEST_URL", optional: true}
+apiUrl: {"#from": "env:API_URL", optional: true}
+
+intervalSeconds: {"#from": "env:INTERVAL_SECONDS", default: 10}
+
+logging:
+  level: {"#from": "env:LOG_LEVEL", default: "info"}
+
+# observers are what discover running services in the environment
+observers:
+    # Enable the ecs observer to discover other ECS containers running on the
+    # same ECS task.
+  - type: ecs
+    labelsToDimensions: &labelMap
+      com.amazonaws.ecs.container-name: container_spec_name
+
+monitors:
+  - type: collectd/cpu
+  - type: collectd/cpufreq
+  - type: collectd/disk
+  - type: collectd/interface
+  - type: collectd/load
+  - type: collectd/memory
+  - type: collectd/protocols
+  - type: collectd/signalfx-metadata
+  - type: collectd/uptime
+  - type: collectd/vmem
+  - type: collectd/redis
+
+  - type: ecs-metadata
+    excludedImages:
+      - signalfx-agent
+    labelsToDimensions:
+      <<: *labelMap
+
+    # You can set this envvar in your task definition to provide extra monitor
+    # configuration to monitor applications running as ECS tasks.  You should
+    # probably use discovery rules so that you don't have to have a specific
+    # config for each EC2 instance.
+  - {"#from": "env:EXTRA_MONITOR_CONFIG", default: [], flatten: true}
+
+metricsToExclude:
+  - {"#from": "/lib/whitelist.json", flatten: true}
+  - {"#from": "env:METRICS_TO_EXCLUDE", default: [], flatten: true}
+
+
+# This allows any config above to be completely overridden.  CONFIG_OVERRIDE
+# must be given as a YAML/JSON object.
+_: {"#from": "env:CONFIG_OVERRIDE", optional: true, flatten: true}
