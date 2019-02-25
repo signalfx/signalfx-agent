@@ -18,5 +18,9 @@ execute 'add-rhel-key' do
 end
 
 execute 'yum-clean' do
-  command "yum --disablerepo='*' --enablerepo='signalfx-agent' clean all"
+  command "yum clean all --disablerepo='*' --enablerepo='signalfx-agent'"
+end
+
+execute 'yum-metadata-refresh' do
+  command "yum -q -y makecache --disablerepo=* --enablerepo='signalfx-agent'"
 end
