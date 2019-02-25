@@ -108,8 +108,8 @@ RUN sed -i -e '/^deb-src/d' /etc/apt/sources.list &&\
       python-virtualenv \
       quilt
 
-RUN wget https://dev.mysql.com/get/mysql-apt-config_0.8.10-1_all.deb && \
-    dpkg -i mysql-apt-config_0.8.10-1_all.deb && \
+RUN wget https://dev.mysql.com/get/mysql-apt-config_0.8.12-1_all.deb && \
+    dpkg -i mysql-apt-config_0.8.12-1_all.deb && \
     apt-get update && apt-get install -y libmysqlclient-dev libcurl4-gnutls-dev patchelf
 
 ARG collectd_version=""
