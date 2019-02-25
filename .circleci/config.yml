@@ -330,15 +330,13 @@ jobs:
           make dev-image
           case "$DEPLOYMENT" in
           chef)
-              docker run --rm \
-                  signalfx-agent-chef-dev \
-                  chef exec rspec --format RspecJunitFormatter > ~/testresults/chefspec.xml
-              docker run --rm \
-                  signalfx-agent-chef-dev \
-                  foodcritic .
-              docker run --rm \
-                  signalfx-agent-chef-dev \
-                  cookstyle .
+              CHEF_DEV="docker run --rm \
+                  --workdir /chef-repo/cookbooks/signalfx_agent \
+                  signalfx-agent-chef-dev"
+
+              $CHEF_DEV chef exec rspec --format RspecJunitFormatter > ~/testresults/chefspec.xml
+              $CHEF_DEV foodcritic .
+              $CHEF_DEV cookstyle .
               ;;
           puppet)
               docker run --rm \

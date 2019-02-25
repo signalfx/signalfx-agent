@@ -6,5 +6,7 @@ RUN apt update &&\
 RUN wget -O /tmp/chefdk.deb https://packages.chef.io/files/stable/chefdk/3.7.23/ubuntu/16.04/chefdk_3.7.23-1_amd64.deb &&\
     dpkg -i /tmp/chefdk.deb
 
-WORKDIR /chef-repo/cookbooks/signalfx_agent
-COPY ./ ./
+COPY ./ /tmp/cookbook
+WORKDIR /chef-repo
+
+RUN berks vendor -b /tmp/cookbook/Berksfile cookbooks/

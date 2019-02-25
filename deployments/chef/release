@@ -9,13 +9,13 @@ version_from_metadata() {
 }
 
 run_knife_command() {
-	docker run \
-		--rm \
-		-v $SCRIPT_DIR:/chef-repo/cookbooks/signalfx_agent \
-		-v $HOME/.chef:/root/.chef \
-    --workdir /chef-repo \
-		signalfx-agent-chef-dev \
-    knife $@
+  docker run \
+      --rm \
+      -v $SCRIPT_DIR:/chef-repo/cookbooks/signalfx_agent \
+      -v $HOME/.chef:/root/.chef \
+      --workdir /chef-repo \
+      signalfx-agent-chef-dev \
+      knife $@
 }
 
 has_existing_version() {
