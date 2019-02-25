@@ -35,6 +35,7 @@ else
   package 'signalfx-agent' do # ~FC009
     action :install
     version node['signalfx_agent']['package_version'] unless node['signalfx_agent']['package_version'].nil?
+    flush_cache [ :before ] if platform_family?('rhel')
     options '--allow-downgrades' if platform_family?('debian') \
       && node['packages']['apt'] \
       && Gem::Version.new(node['packages']['apt']['version']) >= Gem::Version.new('1.1.0')
