@@ -95,8 +95,8 @@ commands:
           command: |
             [ -f ~/.skip ] && echo "Found ~/.skip, skipping tests!" && exit 0
             [ -d "$TESTS_DIR" ] || (echo "Directory '$TESTS_DIR' not found!" && exit 1)
-            mkdir /tmp/scratch
-            mkdir ~/testresults
+            mkdir -p /tmp/scratch
+            mkdir -p ~/testresults
             MAX_CIRCLE_NODES=${MAX_CIRCLE_NODES:-$CIRCLE_NODE_TOTAL}
             if [[ $MAX_CIRCLE_NODES -gt 1 && -n "$MARKERS" ]]; then
                 # Collect tests based on MARKERS and split them for parallelism
@@ -319,52 +319,63 @@ jobs:
         enum: ["chef", "puppet", "salt", "ansible"]
     steps:
       - checkout
-      - run: |
-          DEPLOYMENT=<< parameters.deployment_type >>
-          mkdir ~/testresults
-          if ! scripts/changes-include-dir Dockerfile deployments/$DEPLOYMENT; then
-              echo "$DEPLOYMENT code has not changed, skipping tests!"
-              exit 0
-          fi
-          cd deployments/$DEPLOYMENT
-          make dev-image
-          case "$DEPLOYMENT" in
-          chef)
-              CHEF_DEV="docker run --rm \
-                  --workdir /chef-repo/cookbooks/signalfx_agent \
-                  signalfx-agent-chef-dev"
+      - run:
+          name: Run << parameters.deployment_type >> tests
+          command: |
+            DEPLOYMENT=<< parameters.deployment_type >>
+            mkdir ~/testresults
+            if ! scripts/changes-include-dir Dockerfile deployments/$DEPLOYMENT tests/deployments/$DEPLOYMENT; then
+                echo "$DEPLOYMENT code has not changed, skipping tests!"
+                touch ~/.skip
+                exit 0
+            fi
+            if [ ! -d tests/deployments/$DEPLOYMENT ]; then
+                # no pytest tests to execute for deployment
+                touch ~/.skip
+            fi
+            cd deployments/$DEPLOYMENT
+            make dev-image
+            case "$DEPLOYMENT" in
+            chef)
+                CHEF_DEV="docker run --rm \
+                    --workdir /chef-repo/cookbooks/signalfx_agent \
+                    signalfx-agent-chef-dev"
 
-              $CHEF_DEV chef exec rspec --format RspecJunitFormatter > ~/testresults/chefspec.xml
-              $CHEF_DEV foodcritic .
-              $CHEF_DEV cookstyle .
-              ;;
-          puppet)
-              docker run --rm \
-                  signalfx-agent-puppet-dev \
-                  rspec spec --format RspecJunitFormatter > ~/testresults/puppetspec.xml
-              docker run --rm \
-                  signalfx-agent-puppet-dev \
-                  puppet-lint .
-              ;;
-          salt)
-              docker run --rm \
-                  signalfx-agent-salt-dev \
-                  salt '*' state.apply > ~/testresults/salt.out
-              ;;
-          ansible)
-              docker run --rm \
-                  signalfx-agent-ansible-dev \
-                  ansible-playbook -i inventory example-playbook.yml --connection=local \
-                  -e '{"sfx_agent_config": {"signalFxAccessToken": "MyToken"}}' > ~/testresults/ansible.out
-              docker run --rm \
-                  signalfx-agent-ansible-dev \
-                  ansible-lint .
-              ;;
-          *)
-              echo "Deployment $DEPLOYMENT not supported!"
-              exit 1
-          esac
+                $CHEF_DEV chef exec rspec --format RspecJunitFormatter | sed '/No examples found./d' > ~/testresults/chefspec.xml
+                $CHEF_DEV foodcritic .
+                $CHEF_DEV cookstyle .
+                ;;
+            puppet)
+                docker run --rm \
+                    signalfx-agent-puppet-dev \
+                    rspec spec --format RspecJunitFormatter > ~/testresults/puppetspec.xml
+                docker run --rm \
+                    signalfx-agent-puppet-dev \
+                    puppet-lint .
+                ;;
+            salt)
+                docker run --rm \
+                    signalfx-agent-salt-dev \
+                    salt '*' state.apply > ~/testresults/salt.out
+                ;;
+            ansible)
+                docker run --rm \
+                    signalfx-agent-ansible-dev \
+                    ansible-playbook -i inventory example-playbook.yml --connection=local \
+                    -e '{"sfx_agent_config": {"signalFxAccessToken": "MyToken"}}' > ~/testresults/ansible.out
+                docker run --rm \
+                    signalfx-agent-ansible-dev \
+                    ansible-lint .
+                ;;
+            *)
+                echo "Deployment $DEPLOYMENT not supported!"
+                exit 1
+            esac
+            echo "export TEST_MARKERS='$DEPLOYMENT'" >> $BASH_ENV
       - save_test_results
+      - run_pytest:
+          pytest_options: "-n auto -m \"$TEST_MARKERS\""
+          tests_dir: "./tests/deployments/"
 
   pylint_black:
     executor: python36
