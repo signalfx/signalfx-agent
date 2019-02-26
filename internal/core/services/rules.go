@@ -71,10 +71,15 @@ func evaluateRule(si Endpoint, ruleText string, errorOnMissing bool) (interface{
 	if err := endpointMapHasAllVars(asMap, rule.Vars()); err != nil {
 		// If there are missing vars
 		if !errorOnMissing {
+			log.WithField("discoveryRule", ruleText).Warnf(err.Error())
 			return nil, nil
 		}
 	}
 
+	log.WithFields(log.Fields{
+		"ruleText": ruleText,
+		"asMap":    spew.Sdump(asMap),
+	}).Debug("Evaluating rule")
 	return rule.Evaluate(asMap)
 }
 
