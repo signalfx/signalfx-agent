@@ -10,7 +10,7 @@ from io import BytesIO
 import docker
 
 from tests.helpers import fake_backend
-from tests.helpers.util import get_docker_client, get_host_ip, run_container
+from tests.helpers.util import get_docker_client, get_host_ip, retry, run_container
 
 PROJECT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "../.."))
 PACKAGING_DIR = os.path.join(PROJECT_DIR, "packaging")
@@ -34,15 +34,11 @@ monitors:
 """
 
 
-def build_base_image(name):
+def build_base_image(name, path=DOCKERFILES_DIR, dockerfile=None):
     client = get_docker_client()
-    image, _ = client.images.build(
-        path=DOCKERFILES_DIR,
-        dockerfile=os.path.join(DOCKERFILES_DIR, "Dockerfile.%s" % name),
-        pull=True,
-        rm=True,
-        forcerm=True,
-    )
+    if not dockerfile:
+        dockerfile = os.path.join(path, "Dockerfile.%s" % name)
+    image, _ = client.images.build(path=path, dockerfile=dockerfile, pull=True, rm=True, forcerm=True)
 
     return image.id
 
@@ -163,8 +159,8 @@ def copy_file_into_container(path, container, target_path):
 
 
 @contextmanager
-def run_init_system_image(base_image, with_socat=True):
-    image_id = build_base_image(base_image)
+def run_init_system_image(base_image, with_socat=True, path=DOCKERFILES_DIR, dockerfile=None):
+    image_id = retry(lambda: build_base_image(base_image, path, dockerfile), docker.errors.BuildError)
     print("Image ID: %s" % image_id)
     if with_socat:
         backend_ip = "127.0.0.1"

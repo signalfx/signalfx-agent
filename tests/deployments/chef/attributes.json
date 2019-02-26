@@ -1,0 +1,24 @@
+{"signalfx_agent": {
+  "package_stage": "final",
+  "conf": {
+    "signalFxAccessToken": "testing",
+    "observers": [
+      {"type": "host"}
+    ], 
+    "monitors": [
+      {"type": "collectd/cpu"},
+      {"type": "collectd/cpufreq"},
+      {"type": "collectd/df"},
+      {"type": "collectd/disk"},
+      {"type": "collectd/interface"},
+      {"type": "collectd/load"},
+      {"type": "collectd/memory"},
+      {"type": "collectd/signalfx-metadata"},
+      {"type": "collectd/vmem"},
+      {"type": "host-metadata"}
+    ],
+    "metricsToExclude": [
+      {"#from": "/usr/lib/signalfx-agent/lib/whitelist.json", "flatten": true}
+    ]
+  }
+}}

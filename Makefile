@@ -196,3 +196,7 @@ devstack:
 .PHONY: run-devstack
 run-devstack:
 	scripts/run-devstack-image
+
+.PHONY: run-chef-tests
+run-chef-tests:
+	pytest -v -n auto -m chef --html=test_output/chef_results.html --self-contained-html tests/deployments
