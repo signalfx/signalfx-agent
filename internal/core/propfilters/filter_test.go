@@ -3,7 +3,6 @@ package propfilters
 import (
 	"testing"
 
-	"github.com/davecgh/go-spew/spew"
 	"github.com/signalfx/signalfx-agent/internal/monitors/types"
 	"github.com/stretchr/testify/assert"
 )
@@ -16,7 +15,6 @@ func TestFilters(t *testing.T) {
 		properties := map[string]string{"pod-template-hash": "123", "replicaSet": "abc"}
 		filteredProperties := f.FilterProperties(properties)
 
-		spew.Dump(f)
 		expectedProperties := map[string]string{"replicaSet": "abc"}
 		assert.Equal(t, filteredProperties, expectedProperties)
 	})
@@ -28,7 +26,6 @@ func TestFilters(t *testing.T) {
 		properties := map[string]string{"pod-template-hash": "123", "replicaSet": "abc"}
 		filteredProperties := f.FilterProperties(properties)
 
-		spew.Dump(f)
 		expectedProperties := map[string]string{"replicaSet": "abc"}
 		assert.Equal(t, filteredProperties, expectedProperties)
 	})
@@ -40,7 +37,6 @@ func TestFilters(t *testing.T) {
 		properties := map[string]string{"pod-template-hash": "123", "replicaSet": "abc"}
 		filteredProperties := f.FilterProperties(properties)
 
-		spew.Dump(f)
 		expectedProperties := map[string]string{"replicaSet": "abc"}
 		assert.Equal(t, filteredProperties, expectedProperties)
 	})
@@ -52,7 +48,6 @@ func TestFilters(t *testing.T) {
 		properties := map[string]string{"pod-template-hash": "123", "replicaSet": "abc"}
 		filteredProperties := f.FilterProperties(properties)
 
-		spew.Dump(f)
 		expectedProperties := map[string]string{"replicaSet": "abc"}
 		assert.Equal(t, filteredProperties, expectedProperties)
 	})
@@ -64,7 +59,6 @@ func TestFilters(t *testing.T) {
 		properties := map[string]string{"pod-template-hash": "123", "replicaSet": "abc"}
 		filteredProperties := f.FilterProperties(properties)
 
-		spew.Dump(f)
 		expectedProperties := map[string]string{"replicaSet": "abc"}
 		assert.Equal(t, filteredProperties, expectedProperties)
 	})
@@ -76,7 +70,6 @@ func TestFilters(t *testing.T) {
 		properties := map[string]string{"pod-template-hash": "123", "replicaSet": "abc"}
 		filteredProperties := f.FilterProperties(properties)
 
-		spew.Dump(f)
 		expectedProperties := map[string]string{"replicaSet": "abc"}
 		assert.Equal(t, filteredProperties, expectedProperties)
 	})
@@ -88,7 +81,6 @@ func TestFilters(t *testing.T) {
 		properties := map[string]string{"pod-template-hash": "abc", "replicaSet": "abc"}
 		filteredProperties := f.FilterProperties(properties)
 
-		spew.Dump(filteredProperties)
 		expectedProperties := map[string]string{"replicaSet": "abc"}
 		assert.Equal(t, filteredProperties, expectedProperties)
 	})
@@ -100,7 +92,6 @@ func TestFilters(t *testing.T) {
 		dimensionName := "kubernetes_pod_uid"
 		dimensionValue := "789"
 
-		spew.Dump(f)
 		assert.True(t, f.MatchesDimension(dimensionName, dimensionValue))
 		assert.False(t, f.MatchesDimension("kubernetes_node_name", dimensionValue))
 	})
@@ -112,7 +103,6 @@ func TestFilters(t *testing.T) {
 		dimensionName := "kubernetes_pod_uid"
 		dimensionValue := "789"
 
-		spew.Dump(f)
 		assert.True(t, f.MatchesDimension(dimensionName, dimensionValue))
 	})
 
@@ -123,7 +113,6 @@ func TestFilters(t *testing.T) {
 		dimensionName := "kubernetes_pod_uid"
 		dimensionValue := "789"
 
-		spew.Dump(f)
 		assert.True(t, f.MatchesDimension(dimensionName, dimensionValue))
 		assert.False(t, f.MatchesDimension("kubernetes_node", dimensionValue))
 	})
@@ -135,7 +124,6 @@ func TestFilters(t *testing.T) {
 		dimensionName := "kubernetes_pod_uid"
 		dimensionValue := "789"
 
-		spew.Dump(f)
 		assert.True(t, f.MatchesDimension(dimensionName, dimensionValue))
 		assert.False(t, f.MatchesDimension(dimensionName, "456"))
 	})
@@ -147,7 +135,6 @@ func TestFilters(t *testing.T) {
 		dimensionName := "kubernetes_pod_uid"
 		dimensionValue := "789"
 
-		spew.Dump(f)
 		assert.True(t, f.MatchesDimension(dimensionName, dimensionValue))
 		assert.False(t, f.MatchesDimension("kubernetes_node", dimensionValue))
 	})
@@ -159,7 +146,6 @@ func TestFilters(t *testing.T) {
 		dimensionName := "kubernetes_pod_uid"
 		dimensionValue := "789"
 
-		spew.Dump(f)
 		assert.True(t, f.MatchesDimension(dimensionName, dimensionValue))
 		assert.False(t, f.MatchesDimension(dimensionName, "456"))
 	})
@@ -171,7 +157,6 @@ func TestFilters(t *testing.T) {
 		dimensionName := "kubernetes_pod_uid"
 		dimensionValue := "789"
 
-		spew.Dump(f)
 		assert.True(t, f.MatchesDimension(dimensionName, dimensionValue))
 		assert.False(t, f.MatchesDimension("kubernetes_node", dimensionValue))
 		assert.False(t, f.MatchesDimension(dimensionName, "123"))
@@ -191,8 +176,9 @@ func TestFilters(t *testing.T) {
 			Tags:       nil,
 		}
 
-		spew.Dump(f)
-		assert.Nil(t, f.FilterDimProps(dimProps))
+		filtered := f.FilterDimProps(dimProps)
+		assert.Len(t, filtered.Properties, 0)
+		assert.Nil(t, filtered.Tags)
 	})
 
 	t.Run("Filter a dimprops object given property name", func(t *testing.T) {
@@ -210,7 +196,6 @@ func TestFilters(t *testing.T) {
 		}
 		filteredDimProps := f.FilterDimProps(dimProps)
 
-		spew.Dump(f)
 		expectedProperties := map[string]string{"replicaSet": "abc"}
 		assert.Equal(t, filteredDimProps.Properties, expectedProperties)
 	})
@@ -231,7 +216,6 @@ func TestFilters(t *testing.T) {
 
 		filteredDimProps := f.FilterDimProps(dimProps)
 
-		spew.Dump(f)
 		expectedProperties := map[string]string{"replicaSet": "abc"}
 		assert.Equal(t, filteredDimProps.Properties, expectedProperties)
 	})
@@ -250,7 +234,6 @@ func TestFilters(t *testing.T) {
 			Tags:       nil,
 		}
 		filteredDimProps := f.FilterDimProps(dimProps)
-		spew.Dump(f)
 		expectedProperties := map[string]string{"replicaSet": "abc", "service_uid": "123"}
 		assert.Equal(t, filteredDimProps.Properties, expectedProperties)
 	})
@@ -269,8 +252,9 @@ func TestFilters(t *testing.T) {
 			Tags:       nil,
 		}
 
-		spew.Dump(f)
-		assert.Nil(t, f.FilterDimProps(dimProps))
+		filtered := f.FilterDimProps(dimProps)
+		assert.Len(t, filtered.Properties, 0)
+		assert.Nil(t, filtered.Tags)
 	})
 
 	t.Run("Filter a dimprops object given dimension name and property name", func(t *testing.T) {
@@ -297,7 +281,6 @@ func TestFilters(t *testing.T) {
 		}
 		filteredDimProps := f.FilterDimProps(dimProps)
 		nodeFilteredDimProps := f.FilterDimProps(dimPropsNode)
-		spew.Dump(f)
 		expectedProperties := map[string]string{"replicaSet": "abc", "service_uid": "123"}
 		assert.Equal(t, filteredDimProps.Properties, expectedProperties)
 		assert.Equal(t, nodeFilteredDimProps.Properties, properties)
@@ -327,7 +310,6 @@ func TestFilters(t *testing.T) {
 		}
 		filteredDimProps := f.FilterDimProps(dimProps)
 		nodeFilteredDimProps := f.FilterDimProps(dimPropsNode)
-		spew.Dump(f)
 		expectedProperties := map[string]string{"replicaSet": "abc", "service_uid": "123"}
 		assert.Equal(t, filteredDimProps.Properties, expectedProperties)
 		assert.Equal(t, nodeFilteredDimProps.Properties, nodeProperties)
@@ -357,7 +339,6 @@ func TestFilters(t *testing.T) {
 		}
 		filteredDimProps := f.FilterDimProps(dimProps)
 		nodeFilteredDimProps := f.FilterDimProps(dimPropsNode)
-		spew.Dump(f)
 		expectedProperties := map[string]string{"replicaSet": "abc", "service_uid": "123"}
 		assert.Equal(t, filteredDimProps.Properties, expectedProperties)
 		assert.Equal(t, nodeFilteredDimProps.Properties, nodeProperties)
@@ -387,7 +368,6 @@ func TestFilters(t *testing.T) {
 		}
 		filteredDimProps := f.FilterDimProps(dimProps)
 		nodeFilteredDimProps := f.FilterDimProps(dimPropsNode)
-		spew.Dump(f)
 		expectedProperties := map[string]string{"replicaSet": "abc", "service_uid": "123"}
 		assert.Equal(t, filteredDimProps.Properties, expectedProperties)
 		assert.Equal(t, nodeFilteredDimProps.Properties, nodeProperties)
@@ -401,7 +381,6 @@ func TestFilters(t *testing.T) {
 		properties := map[string]string{"pod-template-hash": "123", "replicaSet": "abc"}
 		filteredProperties := f.FilterProperties(properties)
 
-		spew.Dump(f)
 		expectedProperties := map[string]string{"pod-template-hash": "123"}
 		assert.Equal(t, filteredProperties, expectedProperties)
 	})
@@ -413,7 +392,6 @@ func TestFilters(t *testing.T) {
 		properties := map[string]string{"pod-template-hash": "123", "replicaSet": "abc"}
 		filteredProperties := f.FilterProperties(properties)
 
-		spew.Dump(f)
 		expectedProperties := map[string]string{"pod-template-hash": "123"}
 		assert.Equal(t, filteredProperties, expectedProperties)
 	})
@@ -425,7 +403,6 @@ func TestFilters(t *testing.T) {
 		dimensionName := "kubernetes_pod_uid"
 		dimensionValue := "789"
 
-		spew.Dump(f)
 		assert.False(t, f.MatchesDimension(dimensionName, dimensionValue))
 		assert.True(t, f.MatchesDimension("kubernetes_node_name", dimensionValue))
 	})
@@ -437,7 +414,6 @@ func TestFilters(t *testing.T) {
 		dimensionName := "kubernetes_pod_uid"
 		dimensionValue := "789"
 
-		spew.Dump(f)
 		assert.False(t, f.MatchesDimension(dimensionName, dimensionValue))
 		assert.True(t, f.MatchesDimension(dimensionName, "123"))
 	})

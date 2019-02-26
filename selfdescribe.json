@@ -12720,6 +12720,48 @@
           "isCustom": true
         },
         {
+          "name": "sfxagent.dim_request_senders",
+          "type": "gauge",
+          "description": "Current number of worker goroutines active that can send dimension updates.",
+          "isCustom": true
+        },
+        {
+          "name": "sfxagent.dim_updates_completed",
+          "type": "cumulative",
+          "description": "Total number of dimension property updates successfully completed",
+          "isCustom": true
+        },
+        {
+          "name": "sfxagent.dim_updates_currently_delayed",
+          "type": "gauge",
+          "description": "Current number of dimension updates that are being delayed to avoid sending spurious updates due to flappy dimension property sets.",
+          "isCustom": true
+        },
+        {
+          "name": "sfxagent.dim_updates_dropped",
+          "type": "cumulative",
+          "description": "Total number of dimension property updates that were dropped, due to an overfull buffer of dimension updates pending.",
+          "isCustom": true
+        },
+        {
+          "name": "sfxagent.dim_updates_failed",
+          "type": "cumulative",
+          "description": "Total number of dimension property updates that failed for some reason.  The failures should be logged.",
+          "isCustom": true
+        },
+        {
+          "name": "sfxagent.dim_updates_flappy_total",
+          "type": "cumulative",
+          "description": "Total number of dimension property updates that ended up replacing a dimension property set that was being delayed.",
+          "isCustom": true
+        },
+        {
+          "name": "sfxagent.dim_updates_started",
+          "type": "cumulative",
+          "description": "Total number of dimension property updates requests started, but not necessarily completed or failed.",
+          "isCustom": true
+        },
+        {
           "name": "sfxagent.discovered_endpoints",
           "type": "gauge",
           "description": "The number of discovered service endpoints.  This includes endpoints that do not have any matching monitor configuration discovery rule.",
@@ -17969,7 +18011,23 @@
             {
               "yamlName": "propertiesMaxRequests",
               "doc": "The analogue of `maxRequests` for dimension property requests.",
-              "default": 10,
+              "default": 20,
+              "required": false,
+              "type": "uint",
+              "elementKind": ""
+            },
+            {
+              "yamlName": "propertiesMaxBuffered",
+              "doc": "How many dimension property updates to hold pending being sent before dropping subsequent property updates.  Property updates will be resent eventually and they are slow to change so dropping them (esp on agent start up) usually isn't a big deal.",
+              "default": 10000,
+              "required": false,
+              "type": "uint",
+              "elementKind": ""
+            },
+            {
+              "yamlName": "propertiesSendDelaySeconds",
+              "doc": "How long to wait for property updates to be sent once they are generated.  Any duplicate updates to the same dimension within this time frame will result in the latest property set being sent.  This helps prevent spurious updates that get immediately overwritten by very flappy property generation.",
+              "default": 30,
               "required": false,
               "type": "uint",
               "elementKind": ""
@@ -17977,7 +18035,7 @@
             {
               "yamlName": "propertiesHistorySize",
               "doc": "Properties that are synced to SignalFx are cached to prevent duplicate requests from being sent, causing unnecessary load on our backend.",
-              "default": 1000,
+              "default": 10000,
               "required": false,
               "type": "uint",
               "elementKind": ""

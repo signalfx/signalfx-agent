@@ -49,12 +49,9 @@ func (sw *SignalFxWriter) DiagnosticText() string {
 // InternalMetrics returns a set of metrics showing how the writer is currently
 // doing.
 func (sw *SignalFxWriter) InternalMetrics() []*datapoint.Datapoint {
-	return append([]*datapoint.Datapoint{
+	return append(append([]*datapoint.Datapoint{
 		sfxclient.Cumulative("sfxagent.datapoints_sent", nil, int64(sw.dpsSent)),
 		sfxclient.Cumulative("sfxagent.events_sent", nil, int64(sw.eventsSent)),
-		sfxclient.Cumulative("sfxagent.dim_prop_sets_sent", nil, int64(sw.dimPropClient.TotalPropUpdates)),
-		sfxclient.Cumulative("sfxagent.dim_prop_requests_active", nil, int64(sw.dimPropClient.RequestsActive)),
-		sfxclient.Cumulative("sfxagent.dim_prop_sets_in_flight", nil, int64(sw.dimPropClient.UpdatesInFlight)),
 		sfxclient.Gauge("sfxagent.datapoints_buffered", nil, int64(len(sw.dpChan))),
 		sfxclient.Gauge("sfxagent.datapoints_in_flight", nil, sw.dpsInFlight),
 		sfxclient.Gauge("sfxagent.datapoint_requests_active", nil, sw.dpRequestsActive),
@@ -65,5 +62,5 @@ func (sw *SignalFxWriter) InternalMetrics() []*datapoint.Datapoint {
 		sfxclient.Gauge("sfxagent.trace_spans_buffered", nil, int64(len(sw.spanChan))),
 		sfxclient.Gauge("sfxagent.trace_spans_in_flight", nil, sw.traceSpansInFlight),
 		sfxclient.Gauge("sfxagent.trace_span_requests_active", nil, sw.traceSpanRequestsActive),
-	}, sw.serviceTracker.InternalMetrics()...)
+	}, sw.serviceTracker.InternalMetrics()...), sw.dimPropClient.InternalMetrics()...)
 }
