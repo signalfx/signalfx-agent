@@ -13,7 +13,7 @@ pytestmark = [pytest.mark.kubernetes_cluster, pytest.mark.perf_test]
 
 def test_large_kubernetes_clusters():
     pod_count = 5000
-    with fake_k8s_api_server(print_logs=True) as [fake_k8s_client, k8s_envvars]:
+    with fake_k8s_api_server(print_logs=False) as [fake_k8s_client, k8s_envvars]:
         pod_names = []
         uids = []
 
@@ -40,8 +40,9 @@ def test_large_kubernetes_clusters():
                 f"""
           writer:
             maxRequests: 100
-            propertiesMaxRequests: 100
+            propertiesMaxRequests: 10
             propertiesHistorySize: 10000
+            propertiesSendDelaySeconds: 5
           monitors:
            - type: internal-metrics
              intervalSeconds: 1
@@ -103,10 +104,10 @@ def test_large_kubernetes_clusters():
 
 
 # pylint: disable=too-many-locals
-def test_large_kubernetes_cluster_service_tags():
+def test_service_tag_sync():
     pod_count = 5000
     service_count = 25
-    with fake_k8s_api_server(print_logs=True) as [fake_k8s_client, k8s_envvars]:
+    with fake_k8s_api_server(print_logs=False) as [fake_k8s_client, k8s_envvars]:
         pod_names = []
         uids = []
         service_names = []
@@ -148,8 +149,9 @@ def test_large_kubernetes_cluster_service_tags():
                 f"""
           writer:
             maxRequests: 100
-            propertiesMaxRequests: 100
+            propertiesMaxRequests: 10
             propertiesHistorySize: 10000
+            propertiesSendDelaySeconds: 5
           monitors:
            - type: internal-metrics
              intervalSeconds: 1
@@ -220,7 +222,7 @@ def test_large_kubernetes_cluster_service_tags():
 
             pprof_client.save_goroutines()
             assert wait_for(
-                lambda: backend.datapoints_by_metric["sfxagent.go_num_goroutine"][-1].value.intValue < 100,
+                lambda: backend.datapoints_by_metric["sfxagent.go_num_goroutine"][-1].value.intValue < 150,
                 timeout_seconds=5,
             ), "too many goroutines"
 

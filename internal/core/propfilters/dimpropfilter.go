@@ -90,15 +90,11 @@ func (f *basicDimPropsFilter) FilterDimProps(dimProps *types.DimProperties) *typ
 		filteredProperties = dimProps.Properties
 	}
 
-	if len(filteredProperties) > 0 {
-		return &types.DimProperties{
-			Dimension:  dimProps.Dimension,
-			Properties: filteredProperties,
-			Tags:       dimProps.Tags,
-		}
+	return &types.DimProperties{
+		Dimension:  dimProps.Dimension,
+		Properties: filteredProperties,
+		Tags:       dimProps.Tags,
 	}
-
-	return nil
 }
 
 // FilterProperties uses the propertyNameFilter and propertyValueFilter given to

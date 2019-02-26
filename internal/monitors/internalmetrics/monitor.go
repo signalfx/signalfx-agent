@@ -54,6 +54,30 @@ const (
 // GAUGE(sfxagent.events_buffered): The total number of events that have been
 // emitted by monitors but have yet to be sent to SignalFx
 
+// CUMULATIVE(sfxagent.dim_updates_started): Total number of dimension property
+// updates requests started, but not necessarily completed or failed.
+
+// CUMULATIVE(sfxagent.dim_updates_completed): Total number of dimension
+// property updates successfully completed
+
+// CUMULATIVE(sfxagent.dim_updates_failed): Total number of dimension property
+// updates that failed for some reason.  The failures should be logged.
+
+// GAUGE(sfxagent.dim_request_senders): Current number of worker goroutines
+// active that can send dimension updates.
+
+// GAUGE(sfxagent.dim_updates_currently_delayed): Current number of dimension
+// updates that are being delayed to avoid sending spurious updates due to
+// flappy dimension property sets.
+
+// CUMULATIVE(sfxagent.dim_updates_dropped): Total number of dimension property
+// updates that were dropped, due to an overfull buffer of dimension updates
+// pending.
+
+// CUMULATIVE(sfxagent.dim_updates_flappy_total): Total number of dimension
+// property updates that ended up replacing a dimension property set that was
+// being delayed.
+
 // GAUGE(sfxagent.active_monitors): The total number of monitor instances
 // actively working
 

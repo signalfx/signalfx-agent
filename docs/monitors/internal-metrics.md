@@ -49,6 +49,13 @@ The following table lists the metrics available for this monitor. Metrics that a
 | `sfxagent.datapoints_buffered` | gauge | X | The total number of datapoints that have been emitted by monitors but have yet to be processed by the writer |
 | `sfxagent.datapoints_in_flight` | gauge | X | The total number of datapoints that have been accepted by the writer but still lack confirmation from ingest that they have been received. |
 | `sfxagent.datapoints_sent` | cumulative | X | The total number of datapoints sent by the agent since it last started |
+| `sfxagent.dim_request_senders` | gauge | X | Current number of worker goroutines active that can send dimension updates. |
+| `sfxagent.dim_updates_completed` | cumulative | X | Total number of dimension property updates successfully completed |
+| `sfxagent.dim_updates_currently_delayed` | gauge | X | Current number of dimension updates that are being delayed to avoid sending spurious updates due to flappy dimension property sets. |
+| `sfxagent.dim_updates_dropped` | cumulative | X | Total number of dimension property updates that were dropped, due to an overfull buffer of dimension updates pending. |
+| `sfxagent.dim_updates_failed` | cumulative | X | Total number of dimension property updates that failed for some reason.  The failures should be logged. |
+| `sfxagent.dim_updates_flappy_total` | cumulative | X | Total number of dimension property updates that ended up replacing a dimension property set that was being delayed. |
+| `sfxagent.dim_updates_started` | cumulative | X | Total number of dimension property updates requests started, but not necessarily completed or failed. |
 | `sfxagent.discovered_endpoints` | gauge | X | The number of discovered service endpoints.  This includes endpoints that do not have any matching monitor configuration discovery rule. |
 | `sfxagent.events_buffered` | gauge | X | The total number of events that have been emitted by monitors but have yet to be sent to SignalFx |
 | `sfxagent.events_sent` | cumulative | X | The total number of events sent by the agent since it last started |
@@ -87,6 +94,13 @@ metricsToInclude:
     - sfxagent.datapoints_buffered
     - sfxagent.datapoints_in_flight
     - sfxagent.datapoints_sent
+    - sfxagent.dim_request_senders
+    - sfxagent.dim_updates_completed
+    - sfxagent.dim_updates_currently_delayed
+    - sfxagent.dim_updates_dropped
+    - sfxagent.dim_updates_failed
+    - sfxagent.dim_updates_flappy_total
+    - sfxagent.dim_updates_started
     - sfxagent.discovered_endpoints
     - sfxagent.events_buffered
     - sfxagent.events_sent

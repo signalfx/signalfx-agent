@@ -24,6 +24,7 @@ import (
 	"github.com/signalfx/signalfx-agent/internal/core/common/dpmeta"
 	"github.com/signalfx/signalfx-agent/internal/core/config"
 	"github.com/signalfx/signalfx-agent/internal/core/dpfilters"
+	"github.com/signalfx/signalfx-agent/internal/core/writer/properties"
 	"github.com/signalfx/signalfx-agent/internal/core/writer/tracetracker"
 	"github.com/signalfx/signalfx-agent/internal/monitors/types"
 	"github.com/signalfx/signalfx-agent/internal/utils"
@@ -41,7 +42,7 @@ const (
 // SignalFx on a regular interval.
 type SignalFxWriter struct {
 	client        *sfxclient.HTTPSink
-	dimPropClient *dimensionPropertyClient
+	dimPropClient *properties.DimensionPropertyClient
 
 	// Monitors should send datapoints to this
 	dpChan chan *datapoint.Datapoint
@@ -82,12 +83,17 @@ type SignalFxWriter struct {
 func New(conf *config.WriterConfig, dpChan chan *datapoint.Datapoint, eventChan chan *event.Event,
 	propertyChan chan *types.DimProperties, spanChan chan *trace.Span) (*SignalFxWriter, error) {
 
-	dimPropClient, err := newDimensionPropertyClient(conf)
+	ctx, cancel := context.WithCancel(context.Background())
+
+	dimPropClient, err := properties.NewDimensionPropertyClient(ctx, conf)
 	if err != nil {
+		cancel()
 		return nil, err
 	}
 
 	sw := &SignalFxWriter{
+		ctx:           ctx,
+		cancel:        cancel,
 		conf:          conf,
 		client:        sfxclient.NewHTTPSink(),
 		dimPropClient: dimPropClient,
@@ -108,8 +114,6 @@ func New(conf *config.WriterConfig, dpChan chan *datapoint.Datapoint, eventChan 
 			},
 		},
 	}
-	sw.ctx, sw.cancel = context.WithCancel(context.Background())
-
 	sw.client.AuthToken = conf.SignalFxAccessToken
 
 	sw.client.Client.Transport = &http.Transport{
@@ -164,6 +168,7 @@ func New(conf *config.WriterConfig, dpChan chan *datapoint.Datapoint, eventChan 
 		return nil, err
 	}
 
+	sw.dimPropClient.Start()
 	go sw.listenForDatapoints()
 	go sw.listenForEventsAndDimProps()
 	go sw.listenForTraceSpans()
@@ -372,16 +377,12 @@ func (sw *SignalFxWriter) listenForEventsAndDimProps() {
 				initEventBuffer()
 			}
 		case dimProps := <-sw.propertyChan:
-			// Run the sync async so we don't block other cases in this select
-			go func(innerProps *types.DimProperties) {
-				err := sw.dimPropClient.SetPropertiesOnDimension(innerProps)
-				if err != nil {
-					log.WithFields(log.Fields{
-						"error":    err,
-						"dimProps": innerProps,
-					}).Error("Could not sync properties to dimension")
-				}
-			}(dimProps)
+			if err := sw.dimPropClient.AcceptDimProp(dimProps); err != nil {
+				log.WithFields(log.Fields{
+					"dimName":  dimProps.Dimension.Name,
+					"dimValue": dimProps.Dimension.Value,
+				}).WithError(err).Warn("Dropping dimension update")
+			}
 		}
 	}
 }
