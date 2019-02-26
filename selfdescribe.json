@@ -15891,7 +15891,7 @@
             {
               "yamlName": "maxRequests",
               "doc": "The maximum number of concurrent requests to make to a single ingest server with datapoints/events/trace spans.  This number multipled by `datapointMaxBatchSize` is more or less the maximum number of datapoints that can be \"in-flight\" at any given time.  Same thing for the `traceSpanMaxBatchSize` option and trace spans.",
-              "default": 10,
+              "default": 100,
               "required": false,
               "type": "int",
               "elementKind": ""
@@ -15907,7 +15907,7 @@
             {
               "yamlName": "propertiesMaxRequests",
               "doc": "The analogue of `maxRequests` for dimension property requests.",
-              "default": 10,
+              "default": 100,
               "required": false,
               "type": "uint",
               "elementKind": ""
@@ -15915,7 +15915,7 @@
             {
               "yamlName": "propertiesHistorySize",
               "doc": "Properties that are synced to SignalFx are cached to prevent duplicate requests from being sent, causing unnecessary load on our backend.",
-              "default": 1000,
+              "default": 10000,
               "required": false,
               "type": "uint",
               "elementKind": ""
