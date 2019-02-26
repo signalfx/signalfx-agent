@@ -37,6 +37,7 @@ else
     version node['signalfx_agent']['package_version'] unless node['signalfx_agent']['package_version'].nil?
     flush_cache [ :before ] if platform_family?('rhel')
     options '--allow-downgrades' if platform_family?('debian') \
+      && node['packages'] \
       && node['packages']['apt'] \
       && Gem::Version.new(node['packages']['apt']['version']) >= Gem::Version.new('1.1.0')
     allow_downgrade true if platform_family?('rhel', 'amazon', 'fedora')
