@@ -249,6 +249,22 @@
   version = "v0.16.0"
 
 [[projects]]
+  digest = "1:3850265a71f35e60a66cc8309fcb83747d12cea2823790ec2c4d014627c14145"
+  name = "github.com/go-redis/redis"
+  packages = [
+    ".",
+    "internal",
+    "internal/consistenthash",
+    "internal/hashtag",
+    "internal/pool",
+    "internal/proto",
+    "internal/util",
+  ]
+  pruneopts = "NUT"
+  revision = "22be8a3eaf992c828cecb69dc07348313bf08d2e"
+  version = "v6.15.1"
+
+[[projects]]
   digest = "1:6a7159c5f8f8826207545407a458b43ab6599c1c8a2271465c2e979ecea1dcd4"
   name = "github.com/gobwas/glob"
   packages = [
@@ -1432,6 +1448,7 @@
     "github.com/docker/docker/api/types/filters",
     "github.com/docker/docker/client",
     "github.com/docker/go-connections/nat",
+    "github.com/go-redis/redis",
     "github.com/gobwas/glob",
     "github.com/google/cadvisor/client",
     "github.com/google/cadvisor/info/v1",

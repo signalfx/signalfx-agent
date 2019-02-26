@@ -192,3 +192,7 @@
 [[override]]
   name = "golang.org/x/sys"
   revision = "afcc84fd7533758f95a6e93ae710aa945a0b7e73"
+
+[[constraint]]
+  name = "github.com/go-redis/redis"
+  version = "6.15.1"
