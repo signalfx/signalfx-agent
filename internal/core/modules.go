@@ -37,6 +37,7 @@ import (
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/netio"
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/processlist"
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/prometheus"
+	_ "github.com/signalfx/signalfx-agent/internal/monitors/redis"
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/telegraf/monitors/mssqlserver"
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/telegraf/monitors/procstat"
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/telegraf/monitors/tail"
