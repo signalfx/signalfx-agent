@@ -17,7 +17,6 @@ RUN cat /*.cert >> /etc/pki/tls/certs/ca-bundle.crt
 COPY tests/packaging/images/init-fake.conf /etc/init/fake-container-events.conf
 
 COPY deployments/chef /opt/cookbooks/signalfx_agent
-COPY tests/deployments/chef/attributes.json /opt/cookbooks/signalfx_agent/attributes.json
 
 WORKDIR /opt
 

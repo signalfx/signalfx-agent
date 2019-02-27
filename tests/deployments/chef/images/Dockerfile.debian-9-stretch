@@ -1,5 +1,7 @@
 FROM debian:stretch-slim
 
+ENV DEBIAN_FRONTEND noninteractive
+
 RUN apt-get update &&\
     apt-get install -yq ca-certificates procps systemd wget libcap2-bin apt-transport-https curl
 
@@ -32,7 +34,6 @@ RUN systemctl set-default multi-user.target
 ENV init /lib/systemd/systemd
 
 COPY deployments/chef /opt/cookbooks/signalfx_agent
-COPY tests/deployments/chef/attributes.json /opt/cookbooks/signalfx_agent/attributes.json
 
 WORKDIR /opt
 
