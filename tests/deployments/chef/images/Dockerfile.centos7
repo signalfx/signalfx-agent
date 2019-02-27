@@ -27,7 +27,6 @@ COPY tests/packaging/images/certs/*.signalfx.com.* /
 RUN cat /*.cert >> /etc/pki/tls/certs/ca-bundle.crt
 
 COPY deployments/chef /opt/cookbooks/signalfx_agent
-COPY tests/deployments/chef/attributes.json /opt/cookbooks/signalfx_agent/attributes.json
 
 WORKDIR /opt
 

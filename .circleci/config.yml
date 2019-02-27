@@ -339,6 +339,7 @@ jobs:
 
   deployment_tests:
     executor: machine_image
+    parallelism: 2
     parameters:
       deployment_type:
         default: "chef"
@@ -350,7 +351,7 @@ jobs:
           name: Run << parameters.deployment_type >> tests
           command: |
             DEPLOYMENT=<< parameters.deployment_type >>
-            mkdir ~/testresults
+            mkdir -p ~/testresults
             if ! scripts/changes-include-dir Dockerfile deployments/$DEPLOYMENT tests/deployments/$DEPLOYMENT; then
                 echo "$DEPLOYMENT code has not changed, skipping tests!"
                 touch ~/.skip
@@ -371,6 +372,11 @@ jobs:
                 $CHEF_DEV chef exec rspec --format RspecJunitFormatter | sed '/No examples found./d' > ~/testresults/chefspec.xml
                 $CHEF_DEV foodcritic .
                 $CHEF_DEV cookstyle .
+                if [ $CIRCLE_NODE_INDEX -eq 0 ]; then
+                    echo "export TEST_MARKERS='chef and not upgrade_downgrade'" >> $BASH_ENV
+                else
+                    echo "export TEST_MARKERS='chef and upgrade_downgrade'" >> $BASH_ENV
+                fi
                 ;;
             puppet)
                 docker run --rm \
@@ -398,7 +404,6 @@ jobs:
                 echo "Deployment $DEPLOYMENT not supported!"
                 exit 1
             esac
-            echo "export TEST_MARKERS='$DEPLOYMENT'" >> $BASH_ENV
       - save_test_results
       - run_pytest:
           pytest_options: "-n auto -m \"$TEST_MARKERS\""
