@@ -65,8 +65,9 @@ var now = time.Now
 type ThrottledLogger struct {
 	logrus.FieldLogger
 
-	errorsSeen *lru.Cache
-	duration   time.Duration
+	errorsSeen   *lru.Cache
+	warningsSeen *lru.Cache
+	duration     time.Duration
 }
 
 // NewThrottledLogger returns an initialized ThrottleLogger.  The duration
@@ -80,10 +81,16 @@ func NewThrottledLogger(logger logrus.FieldLogger, duration time.Duration) *Thro
 		panic("could not create throttled logger LRU cache")
 	}
 
+	warningsSeen, err := lru.New(10)
+	if err != nil {
+		panic("could not create throttled logger LRU cache")
+	}
+
 	return &ThrottledLogger{
-		FieldLogger: logger,
-		duration:    duration,
-		errorsSeen:  errorsSeen,
+		FieldLogger:  logger,
+		duration:     duration,
+		errorsSeen:   errorsSeen,
+		warningsSeen: warningsSeen,
 	}
 }
 
@@ -126,4 +133,22 @@ func (tl *ThrottledLogger) ThrottledError(args ...interface{}) {
 	tl.errorsSeen.Add(key, &rightNow)
 
 	tl.FieldLogger.Error(args...)
+}
+
+// ThrottledWarning logs a warning message, throttled.  Make the throttling
+// explicit in the function name instead of implicit to the logger type since
+// some warning messages should be logged at full blast without having to use a
+// different logger instance.
+func (tl *ThrottledLogger) ThrottledWarning(args ...interface{}) {
+	key := fmt.Sprint(args...)
+	rightNow := now()
+
+	if lastSeen, present := tl.warningsSeen.Get(key); present {
+		if lastSeen.(*time.Time).Add(tl.duration).After(rightNow) {
+			return
+		}
+	}
+	tl.warningsSeen.Add(key, &rightNow)
+
+	tl.FieldLogger.Warn(args...)
 }

@@ -2,6 +2,7 @@ package writer
 
 import (
 	"fmt"
+	"sync/atomic"
 	"time"
 
 	"github.com/signalfx/golib/datapoint"
@@ -24,6 +25,7 @@ func (sw *SignalFxWriter) DiagnosticText() string {
 			"DPs Sent:                   %d\n"+
 			"Events Sent:                %d\n"+
 			"DPs In Flight:              %d\n"+
+			"DPs Waiting:                %d\n"+
 			"DP Requests Active:         %d\n"+
 			"Trace spans In Flight:      %d\n"+
 			"Trace Span Requests Active: %d\n"+
@@ -36,6 +38,7 @@ func (sw *SignalFxWriter) DiagnosticText() string {
 		sw.dpsSent,
 		sw.eventsSent,
 		sw.dpsInFlight,
+		sw.dpsWaiting,
 		sw.dpRequestsActive,
 		sw.traceSpansInFlight,
 		sw.traceSpanRequestsActive,
@@ -50,11 +53,14 @@ func (sw *SignalFxWriter) DiagnosticText() string {
 // doing.
 func (sw *SignalFxWriter) InternalMetrics() []*datapoint.Datapoint {
 	return append(append([]*datapoint.Datapoint{
-		sfxclient.Cumulative("sfxagent.datapoints_sent", nil, int64(sw.dpsSent)),
+		sfxclient.CumulativeP("sfxagent.datapoints_sent", nil, &sw.dpsSent),
+		sfxclient.CumulativeP("sfxagent.datapoints_produced", nil, &sw.dpsReceived),
+		sfxclient.CumulativeP("sfxagent.datapoints_filtered", nil, &sw.dpsFiltered),
 		sfxclient.Cumulative("sfxagent.events_sent", nil, int64(sw.eventsSent)),
-		sfxclient.Gauge("sfxagent.datapoints_buffered", nil, int64(len(sw.dpChan))),
-		sfxclient.Gauge("sfxagent.datapoints_in_flight", nil, sw.dpsInFlight),
-		sfxclient.Gauge("sfxagent.datapoint_requests_active", nil, sw.dpRequestsActive),
+		sfxclient.Gauge("sfxagent.datapoint_channel_len", nil, int64(len(sw.dpChan))),
+		sfxclient.Gauge("sfxagent.datapoints_in_flight", nil, atomic.LoadInt64(&sw.dpsInFlight)),
+		sfxclient.Gauge("sfxagent.datapoints_waiting", nil, atomic.LoadInt64(&sw.dpsWaiting)),
+		sfxclient.Gauge("sfxagent.datapoint_requests_active", nil, atomic.LoadInt64(&sw.dpRequestsActive)),
 		sfxclient.Gauge("sfxagent.events_buffered", nil, int64(len(sw.eventBuffer))),
 		sfxclient.Cumulative("sfxagent.trace_spans_sent", nil, int64(sw.traceSpansSent)),
 		sfxclient.Cumulative("sfxagent.trace_spans_failed", nil, int64(sw.traceSpansFailedToSend)),
