@@ -14,8 +14,17 @@ import (
 type WriterConfig struct {
 	// The maximum number of datapoints to include in a batch before sending the
 	// batch to the ingest server.  Smaller batch sizes than this will be sent
-	// if datapoints originate in smaller chunks.
+	// if datapoints originate in smaller chunks.  Larger batch sizes may also
+	// be used if the `maxRequests` requests limit is hit -- the next request
+	// will consist of all of the datapoints queued in the meantime.
 	DatapointMaxBatchSize int `yaml:"datapointMaxBatchSize" default:"1000"`
+	// The maximum number of datapoints that are allowed to be buffered in the
+	// agent (i.e. received from a monitor but have not yet received
+	// confirmation of successful receipt by the target ingest/gateway server
+	// downstream).  Any datapoints that come in beyond this number will
+	// overwrite existing datapoints if they have not been sent yet, starting
+	// with the oldest.
+	MaxDatapointsBuffered int `yaml:"maxDatapointsBuffered" default:"5000"`
 	// The analogue of `datapointMaxBatchSize` for trace spans.
 	TraceSpanMaxBatchSize int `yaml:"traceSpanMaxBatchSize" default:"1000"`
 	// Deprecated: use `maxRequests` instead.

@@ -96,7 +96,8 @@ The **nested** `writer` config object has the following fields:
 
 | Config option | Required | Type | Description |
 | --- | --- | --- | --- |
-| `datapointMaxBatchSize` | no | integer | The maximum number of datapoints to include in a batch before sending the batch to the ingest server.  Smaller batch sizes than this will be sent if datapoints originate in smaller chunks. (**default:** `1000`) |
+| `datapointMaxBatchSize` | no | integer | The maximum number of datapoints to include in a batch before sending the batch to the ingest server.  Smaller batch sizes than this will be sent if datapoints originate in smaller chunks.  Larger batch sizes may also be used if the `maxRequests` requests limit is hit -- the next request will consist of all of the datapoints queued in the meantime. (**default:** `1000`) |
+| `maxDatapointsBuffered` | no | integer | The maximum number of datapoints that are allowed to be buffered in the agent (i.e. received from a monitor but have not yet received confirmation of successful receipt by the target ingest/gateway server downstream).  Any datapoints that come in beyond this number will overwrite existing datapoints if they have not been sent yet, starting with the oldest. (**default:** `5000`) |
 | `traceSpanMaxBatchSize` | no | integer | The analogue of `datapointMaxBatchSize` for trace spans. (**default:** `1000`) |
 | `datapointMaxRequests` | no | integer | Deprecated: use `maxRequests` instead. (**default:** `0`) |
 | `maxRequests` | no | integer | The maximum number of concurrent requests to make to a single ingest server with datapoints/events/trace spans.  This number multipled by `datapointMaxBatchSize` is more or less the maximum number of datapoints that can be "in-flight" at any given time.  Same thing for the `traceSpanMaxBatchSize` option and trace spans. (**default:** `10`) |
@@ -295,6 +296,7 @@ where applicable:
   monitors: []
   writer: 
     datapointMaxBatchSize: 1000
+    maxDatapointsBuffered: 5000
     traceSpanMaxBatchSize: 1000
     datapointMaxRequests: 0
     maxRequests: 10

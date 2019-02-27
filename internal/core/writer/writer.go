@@ -10,6 +10,7 @@ package writer
 
 import (
 	"context"
+	"fmt"
 	"net"
 	"net/http"
 	"sync"
@@ -36,6 +37,8 @@ const (
 	// given time.  This should be big enough for any reasonable use case.
 	eventBufferCapacity = 1000
 )
+
+var logger = utils.NewThrottledLogger(log.WithFields(log.Fields{"component": "writer"}), 20*time.Second)
 
 // SignalFxWriter is what sends events and datapoints to SignalFx ingest.  It
 // receives events/datapoints on two buffered channels and writes them to
@@ -68,8 +71,12 @@ type SignalFxWriter struct {
 	serviceTracker *tracetracker.ActiveServiceTracker
 
 	dpRequestsActive        int64
+	dpRequestsWaiting       int64
 	dpsInFlight             int64
+	dpsWaiting              int64
 	dpsSent                 int64
+	dpsReceived             int64
+	dpsFiltered             int64
 	traceSpanRequestsActive int64
 	traceSpansInFlight      int64
 	traceSpansSent          int64
@@ -204,8 +211,7 @@ func (sw *SignalFxWriter) sendDatapoints(dps []*datapoint.Datapoint) error {
 		// If there is an error sending datapoints then just forget about them.
 		return err
 	}
-	atomic.AddInt64(&sw.dpsSent, int64(len(dps)))
-	log.Debugf("Sent %d datapoints to SignalFx", len(dps))
+	log.Debugf("Sent %d datapoints out of the agent", len(dps))
 
 	return nil
 }
@@ -277,12 +283,112 @@ func (sw *SignalFxWriter) addhostIDFields(fields map[string]string) map[string]s
 // listenForDatapoints waits for datapoints to come in on the provided
 // channels and forwards them to SignalFx.
 func (sw *SignalFxWriter) listenForDatapoints() {
+	bufferSize := sw.conf.MaxDatapointsBuffered
+	maxRequests := int64(sw.conf.DatapointMaxRequests)
+	// Ring buffer of datapoints, initialized to its maximum length to avoid
+	// reallocations.
+	dpBuffer := make([]*datapoint.Datapoint, bufferSize)
+	// The index that marks the end of the last chunk of datapoints that was
+	// sent.  It is one greater than the actual index, to match the golang
+	// slice high range.
+	lastHighStarted := 0
+	// The next index within the buffer that a datapoint should be added to.
+	nextDatapointIdx := 0
+	// Corresponds to nextDatapointIdx but is easier to work with without modulo
+	batched := 0
+	requestDoneCh := make(chan struct{}, maxRequests)
 
-	// This acts like a semaphore if a request goroutine pushes into it before
-	// making the request and pulling out of it when the request is done.
-	// Pushes will block if there are more than the max number of outstanding
-	// requests.
-	dpSema := make(chan struct{}, sw.conf.DatapointMaxRequests)
+	// How many times around the ring buffer we have gone when putting
+	// datapoints onto the buffer
+	bufferedCircuits := int64(0)
+	// How many times around the ring buffer we have gone when starting
+	// requests
+	startedCircuits := int64(0)
+
+	targetHighStarted := func() int {
+		if nextDatapointIdx < lastHighStarted {
+			// Wrap around happened, just take what we have left until wrap
+			// around so that we can take a single slice of it since slice
+			// ranges can't wrap around.
+			return bufferSize
+		}
+
+		return nextDatapointIdx
+	}
+
+	tryToSendBufferChunk := func(newHigh int) bool {
+		if newHigh == lastHighStarted { // Nothing added
+			return false
+		}
+
+		if sw.dpRequestsActive >= maxRequests {
+			sw.dpRequestsWaiting++
+			sw.dpsWaiting += int64(newHigh - lastHighStarted)
+			log.Debugf("Max datapoint requests hit, %d requests will be combined", sw.dpRequestsWaiting)
+			return false
+		}
+
+		sw.dpRequestsActive++
+		go func(low, high int) {
+			dpCount := int64(high - low)
+			atomic.AddInt64(&sw.dpsInFlight, int64(dpCount))
+
+			log.Debugf("Sending dpBuffer[%d:%d]", low, high)
+			sw.sendDatapoints(dpBuffer[low:high])
+
+			atomic.AddInt64(&sw.dpsInFlight, -int64(dpCount))
+			atomic.AddInt64(&sw.dpsSent, int64(dpCount))
+
+			requestDoneCh <- struct{}{}
+		}(lastHighStarted, newHigh)
+
+		lastHighStarted = newHigh
+		if lastHighStarted == bufferSize { // Wrap back to 0
+			lastHighStarted = 0
+			startedCircuits++
+		}
+
+		batched = 0
+		sw.dpRequestsWaiting = 0
+		sw.dpsWaiting = 0
+		return true
+	}
+
+	handleRequestDone := func() {
+		sw.dpRequestsActive--
+		if sw.dpRequestsWaiting > 0 {
+			tryToSendBufferChunk(targetHighStarted())
+		}
+	}
+
+	processDP := func(dp *datapoint.Datapoint) {
+		if !sw.shouldSendDatapoint(dp) {
+			sw.dpsFiltered++
+			if sw.conf.LogDroppedDatapoints {
+				log.Debugf("Dropping datapoint:\n%s", utils.DatapointToString(dp))
+			}
+			return
+		}
+
+		sw.dpsReceived++
+		sw.preprocessDatapoint(dp)
+		dpBuffer[nextDatapointIdx] = dp
+
+		nextDatapointIdx++
+		if nextDatapointIdx == bufferSize { // Wrap around the buffer
+			nextDatapointIdx = 0
+			bufferedCircuits++
+		}
+
+		if lastHighStarted < nextDatapointIdx && bufferedCircuits > startedCircuits {
+			logger.ThrottledWarning(fmt.Sprintf("Datapoint ring buffer overflowed, some datapoints were dropped. Set writer.maxDatapointsBuffered to something higher (currently %d)", bufferSize))
+		}
+		batched++
+
+		if batched >= sw.conf.DatapointMaxBatchSize {
+			tryToSendBufferChunk(targetHighStarted())
+		}
+	}
 
 	for {
 		select {
@@ -290,59 +396,28 @@ func (sw *SignalFxWriter) listenForDatapoints() {
 			return
 
 		case dp := <-sw.dpChan:
-			if !sw.shouldSendDatapoint(dp) {
-				if sw.conf.LogDroppedDatapoints {
-					log.Debugf("Dropping datapoint:\n%s", utils.DatapointToString(dp))
-				}
-				continue
-			}
-			buf := append(sw.dpBufferPool.Get().([]*datapoint.Datapoint), dp)
-			buf = sw.drainDpChan(buf)
+			processDP(dp)
 
-			for i := range buf {
-				sw.preprocessDatapoint(buf[i])
-			}
+		case <-requestDoneCh:
+			handleRequestDone()
 
-			atomic.AddInt64(&sw.dpsInFlight, int64(len(buf)))
-
-			go func() {
-				// Wait if there are more than the max outstanding requests
-				dpSema <- struct{}{}
-
-				atomic.AddInt64(&sw.dpRequestsActive, 1)
-				sw.sendDatapoints(buf)
-
-				<-dpSema
-
-				atomic.AddInt64(&sw.dpRequestsActive, -1)
-				atomic.AddInt64(&sw.dpsInFlight, -int64(len(buf)))
-
-				sw.dpBufferPool.Put(buf[:0])
-			}()
-		}
-
-	}
-}
-
-func (sw *SignalFxWriter) drainDpChan(buf []*datapoint.Datapoint) []*datapoint.Datapoint {
-	for {
-		select {
-		case dp := <-sw.dpChan:
-			// TODO: Reduce duplication with the main datapoint loop in
-			// listenForDatapoints
-			if !sw.shouldSendDatapoint(dp) {
-				if sw.conf.LogDroppedDatapoints {
-					log.Debugf("Dropping datapoint:\n%s", utils.DatapointToString(dp))
-				}
-				continue
-			}
-
-			buf = append(buf, dp)
-			if len(buf) >= sw.conf.DatapointMaxBatchSize {
-				return buf
-			}
 		default:
-			return buf
+			newHigh := targetHighStarted()
+			// Could be less if wrapped around
+			if newHigh != lastHighStarted {
+				tryToSendBufferChunk(newHigh)
+			}
+
+			select {
+			case <-sw.ctx.Done():
+				return
+
+			case <-requestDoneCh:
+				handleRequestDone()
+
+			case dp := <-sw.dpChan:
+				processDP(dp)
+			}
 		}
 	}
 }
