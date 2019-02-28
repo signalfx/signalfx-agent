@@ -11767,7 +11767,7 @@
     },
     {
       "name": "Config",
-      "doc": " This monitor sends Kubernetes events as SignalFx\nevents.  Upon startup, it will send all of the events that K8s has that are\nstill persisted and then send any new events that come in.  The various\nagents perform leader election amongs themselves to decide which instance\nwill send events, unless the `alwaysClusterReporter` config option is set to\ntrue.\n\nYou can see the types of events happening in your cluster with `kubectl get\nevents -o yaml --all-namespaces`.\n",
+      "doc": " This monitor sends Kubernetes events as SignalFx\nevents.  Upon startup, it will send all of the events that K8s has that are\nstill persisted and then send any new events that come in.  The various\nagents perform leader election amongst themselves to decide which instance\nwill send events, unless the `alwaysClusterReporter` config option is set to\ntrue.\n\nTo use this monitor, will need to configure which events to send. You can\nsee the types of events happening in your cluster with\n`kubectl get events -o yaml --all-namespaces`.\nFrom the output, you can select which events you would like to send by picking\nout the Reason (Started, Created, Scheduled...) and\nKind (Pod, ReplicaSet, Deployment...) combinations. These are placed in the\nwhitelistedEvents configuration option as a list of events you want to send.\n\nExample YAML Configuration\n\n```\n- type: kubernetes-events\n  whitelistedEvents:\n    - reason: Created\n      involvedObjectKind: Pod\n    - reason: SuccessfulCreate\n      invovledObjectKind: ReplicaSet\n```\n\nEvent names will match the `reason` name.\n",
       "package": "internal/monitors/kubernetes/events",
       "fields": [
         {
