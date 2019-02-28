@@ -210,7 +210,7 @@ jobs:
             BUNDLE_DIR="$(pwd)/bundle"
             AGENT_BIN="$BUNDLE_DIR/bin/signalfx-agent"
             TEST_SERVICES_DIR="$(pwd)/test-services"
-            MARKERS="not packaging and not installer and not k8s and not windows_only"
+            MARKERS="not packaging and not installer and not k8s and not windows_only and not deployment"
             mkdir -p "$BUNDLE_DIR"
             cid=$(docker create quay.io/signalfx/signalfx-agent-dev:latest true)
             docker export $cid | tar -C "$BUNDLE_DIR" -xf -
