@@ -122,7 +122,7 @@ run-dev-image:
 run-integration-tests:
 	AGENT_BIN=/bundle/bin/signalfx-agent \
 	pytest \
-		-m "not packaging and not installer and not k8s and not windows_only" \
+		-m "not packaging and not installer and not k8s and not windows_only and not deployment" \
 		-n 4 \
 		--verbose \
 		--html=test_output/results.html \

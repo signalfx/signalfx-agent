@@ -18,7 +18,7 @@ from tests.packaging.common import (
     run_init_system_image,
 )
 
-pytestmark = pytest.mark.chef
+pytestmark = [pytest.mark.chef, pytest.mark.deployment]
 
 CHEF_CMD = "chef-client -z -o 'recipe[signalfx_agent::default]' -j cookbooks/signalfx_agent/attributes.json"
 DOCKERFILES_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "images"))
