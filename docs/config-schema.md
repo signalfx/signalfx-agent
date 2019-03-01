@@ -31,6 +31,8 @@ by the `-config` flag to the agent binary (`signalfx-agent`).
 | `internalStatusHost` | no | string | The host on which the internal status server will listen.  The internal status HTTP server serves internal metrics and diagnostic information about the agent and can be scraped by the `internal-metrics` monitor. Can be set to `0.0.0.0` if you want to monitor the agent from another host.  If you set this to blank/null, the internal status server will not be started.  See `internalStatusPort`. (**default:** `"localhost"`) |
 | `internalStatusPort` | no | integer | The port on which the internal status server will listen.  See `internalStatusHost`. (**default:** `8095`) |
 | `profiling` | no | bool | Enables Go pprof endpoint on port 6060 that serves profiling data for development (**default:** `false`) |
+| `profilingHost` | no | string | The host/ip address for the pprof profile server to listen on. `profiling` must be enabled for this to have any effect. (**default:** `"127.0.0.1"`) |
+| `profilingPort` | no | integer | The port for the pprof profile server to listen on. `profiling` must be enabled for this to have any effect. (**default:** `6060`) |
 | `bundleDir` | no | string | Path to the directory holding the agent dependencies.  This will normally be derived automatically. Overrides the envvar SIGNALFX_BUNDLE_DIR if set. |
 | `scratch` | no | any | This exists purely to give the user a place to put common yaml values to reference in other parts of the config file. |
 | `configSources` | no | [object (see below)](#configsources) | Configuration of remote config stores |
@@ -325,6 +327,8 @@ where applicable:
   internalStatusHost: "localhost"
   internalStatusPort: 8095
   profiling: false
+  profilingHost: "127.0.0.1"
+  profilingPort: 6060
   bundleDir: 
   scratch: 
   configSources: 

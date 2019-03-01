@@ -136,6 +136,7 @@ disable=print-statement,
         comprehension-escape,
         missing-docstring,
         fixme,
+        too-many-branches,
         bad-continuation  # We use black so this shouldn't ever be relevant
 
 # Enable the message, report, category or checker with the given id(s). You can
@@ -407,6 +408,7 @@ good-names=e,
            i,
            j,
            k,
+           v,
            db,
            ex,
            dp,

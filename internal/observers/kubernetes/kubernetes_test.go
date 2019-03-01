@@ -9,6 +9,7 @@ import (
 
 	"k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/types"
 
 	"github.com/signalfx/signalfx-agent/internal/core/common/kubernetes"
@@ -17,7 +18,7 @@ import (
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	. "github.com/signalfx/signalfx-agent/internal/neotest/k8s/testhelpers"
+	. "github.com/signalfx/signalfx-agent/internal/neotest/k8s/testhelpers/fakek8s"
 )
 
 var _ = Describe("Kubernetes Observer", func() {
@@ -67,8 +68,12 @@ var _ = Describe("Kubernetes Observer", func() {
 	})
 
 	It("Converts a pod to a set of endpoints", func() {
-		fakeK8s.SetInitialList([]*v1.Pod{
+		fakeK8s.SetInitialList([]runtime.Object{
 			&v1.Pod{
+				TypeMeta: metav1.TypeMeta{
+					Kind:       "Pod",
+					APIVersion: "v1",
+				},
 				ObjectMeta: metav1.ObjectMeta{
 					Name: "test1",
 					UID:  "abcdefghij",
@@ -110,8 +115,12 @@ var _ = Describe("Kubernetes Observer", func() {
 	})
 
 	It("Maps configuration from pod annotations", func() {
-		fakeK8s.SetInitialList([]*v1.Pod{
+		fakeK8s.SetInitialList([]runtime.Object{
 			&v1.Pod{
+				TypeMeta: metav1.TypeMeta{
+					Kind:       "Pod",
+					APIVersion: "v1",
+				},
 				ObjectMeta: metav1.ObjectMeta{
 					Name:      "test1",
 					UID:       "abcdefghij",
@@ -165,7 +174,11 @@ var _ = Describe("Kubernetes Observer", func() {
 			},
 		})
 
-		fakeK8s.AddSecret(&v1.Secret{
+		fakeK8s.CreateOrReplaceResource(&v1.Secret{
+			TypeMeta: metav1.TypeMeta{
+				Kind:       "Secret",
+				APIVersion: "v1",
+			},
 			ObjectMeta: metav1.ObjectMeta{
 				Name:      "mongo",
 				Namespace: "default",

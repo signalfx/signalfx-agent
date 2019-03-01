@@ -16295,6 +16295,22 @@
         "elementKind": ""
       },
       {
+        "yamlName": "profilingHost",
+        "doc": "The host/ip address for the pprof profile server to listen on. `profiling` must be enabled for this to have any effect.",
+        "default": "127.0.0.1",
+        "required": false,
+        "type": "string",
+        "elementKind": ""
+      },
+      {
+        "yamlName": "profilingPort",
+        "doc": "The port for the pprof profile server to listen on. `profiling` must be enabled for this to have any effect.",
+        "default": 6060,
+        "required": false,
+        "type": "int",
+        "elementKind": ""
+      },
+      {
         "yamlName": "bundleDir",
         "doc": "Path to the directory holding the agent dependencies.  This will normally be derived automatically. Overrides the envvar SIGNALFX_BUNDLE_DIR if set.",
         "default": "",

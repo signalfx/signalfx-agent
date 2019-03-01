@@ -109,19 +109,21 @@ run-dev-image:
 		$(extra_run_flags) \
 		--cap-add DAC_READ_SEARCH \
 		--cap-add SYS_PTRACE \
-		--net host \
 		-p 6060:6060 \
+		-p 9080:9080 \
+		-p 8095:8095 \
 		--name signalfx-agent-dev \
 		-v $(CURDIR)/local-etc:/etc/signalfx \
 		-v $(CURDIR):/go/src/github.com/signalfx/signalfx-agent:cached \
 		-v $(CURDIR)/collectd:/usr/src/collectd:cached \
+		-v $(CURDIR)/tmp/pprof:/tmp/pprof \
 		signalfx-agent-dev /bin/bash
 
 .PHONY: run-integration-tests
 run-integration-tests:
 	AGENT_BIN=/bundle/bin/signalfx-agent \
 	pytest \
-		-m "not packaging and not installer and not k8s and not windows_only" \
+		-m "not packaging and not installer and not k8s and not windows_only and not deployment" \
 		-n 4 \
 		--verbose \
 		--html=test_output/results.html \

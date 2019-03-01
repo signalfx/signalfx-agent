@@ -1,10 +1,10 @@
 """
 Integration tests for the docker observer
 """
+import string
 import time
 from functools import partial as p
 from textwrap import dedent
-import string
 
 from tests.helpers.assertions import has_datapoint_with_dim
 from tests.helpers.util import ensure_always, run_agent, run_service, wait_for
@@ -48,7 +48,7 @@ def test_docker_observer():
             assert wait_for(p(has_datapoint_with_dim, backend, "mydim", "abc")), "Didn't get custom label dimension"
         # Let nginx be removed by docker observer and collectd restart
         time.sleep(5)
-        backend.datapoints.clear()
+        backend.reset_datapoints()
         assert ensure_always(lambda: not has_datapoint_with_dim(backend, "container_name", "nginx-discovery"), 10)
 
 
@@ -97,7 +97,7 @@ def test_docker_observer_labels():
             assert wait_for(p(has_datapoint_with_dim, backend, "plugin", "nginx")), "Didn't get nginx datapoints"
         # Let nginx be removed by docker observer and collectd restart
         time.sleep(5)
-        backend.datapoints.clear()
+        backend.reset_datapoints()
         assert ensure_always(lambda: not has_datapoint_with_dim(backend, "container_name", "nginx-disco-full"), 10)
 
 
@@ -126,7 +126,7 @@ def test_docker_observer_labels_partial():
             assert wait_for(p(has_datapoint_with_dim, backend, "mydim", "myvalue")), "Didn't get extra dimension"
         # Let nginx be removed by docker observer and collectd restart
         time.sleep(5)
-        backend.datapoints.clear()
+        backend.reset_datapoints()
         assert ensure_always(lambda: not has_datapoint_with_dim(backend, "container_name", "nginx-disco-partial"), 10)
 
 
@@ -159,5 +159,5 @@ def test_docker_observer_labels_multiple_monitors_per_port():
             assert wait_for(p(has_datapoint_with_dim, backend, "app", "other")), "Didn't get extra dims"
         # Let nginx be removed by docker observer and collectd restart
         time.sleep(5)
-        backend.datapoints.clear()
+        backend.reset_datapoints()
         assert ensure_always(lambda: not has_datapoint_with_dim(backend, "container_name", "nginx-multi-monitors"), 10)

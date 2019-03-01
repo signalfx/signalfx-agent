@@ -50,6 +50,17 @@ def has_datapoint(fake_services, metric_name=None, dimensions=None, value=None, 
     considered.  Dimensions, if provided, will be tested as a subset of total
     set of dimensions on the datapoint and not the complete set.
     """
+    # Try and cull the number of datapoints that have to be searched since we
+    # have to check each datapoint.
+    if dimensions is not None:
+        datapoints = []
+        for k, v in dimensions.items():
+            datapoints += fake_services.datapoints_by_dim[f"{k}:{v}"]
+    elif metric_name is not None:
+        datapoints = fake_services.datapoints_by_metric[metric_name]
+    else:
+        datapoints = fake_services.datapoints
+
     for dp in fake_services.datapoints:
         if metric_name and dp.metric != metric_name:
             continue
@@ -283,3 +294,21 @@ def all_datapoints_have_metric_name_and_dim_key(fake_services, metric_name, dim_
     return all_datapoints_have_metric_name(fake_services, metric_name) and all_datapoints_have_dim_key(
         fake_services, dim_key
     )
+
+
+def has_dim_tag(fake_services, dim_name, dim_value, tag_value):
+    """
+    Tests if the given dimension has a certain tag
+    """
+    dim = fake_services.dims[dim_name][dim_value]
+    return tag_value in dim.get("tags", [])
+
+
+def has_dim_prop(fake_services, dim_name, dim_value, prop_name, prop_value=None):
+    """
+    Tests if the given dimension has a property.  If prop_value is None, tests
+    for the presence of the property regardless of value.
+    """
+    dim = fake_services.dims[dim_name][dim_value]
+    props = dim.get("customProperties", {})
+    return prop_name in props and props.get(prop_name) == prop_value

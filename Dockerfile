@@ -330,7 +330,9 @@ RUN apt update &&\
       curl \
       git \
       inotify-tools \
+      iproute2 \
       jq \
+      net-tools \
       python3-pip \
       socat \
       vim \
@@ -341,7 +343,9 @@ ENV SIGNALFX_BUNDLE_DIR=/bundle \
     TEST_SERVICES_DIR=/go/src/github.com/signalfx/signalfx-agent/test-services \
     AGENT_BIN=/go/src/github.com/signalfx/signalfx-agent/signalfx-agent \
     PYTHONPATH=/go/src/github.com/signalfx/signalfx-agent/python \
-    GOOS=linux
+    GOOS=linux \
+    LC_ALL=C.UTF-8 \
+    LANG=C.UTF-8
 
 RUN pip3 install ipython ipdb
 

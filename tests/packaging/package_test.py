@@ -4,7 +4,6 @@ import re
 from functools import partial as p
 
 import pytest
-
 from tests.helpers.assertions import has_datapoint_with_dim
 from tests.helpers.util import print_lines, wait_for
 
@@ -140,7 +139,7 @@ def _test_service_start(container, init_system, backend):
     code, output = container.exec_run(INIT_START_COMMAND[init_system])
     print("Init start command output:")
     print_lines(output)
-    backend.datapoints.clear()
+    backend.reset_datapoints()
     assert code == 0, "Agent could not be started"
     assert wait_for(p(is_agent_running_as_non_root, container), timeout_seconds=INIT_START_TIMEOUT)
     assert wait_for(p(has_datapoint_with_dim, backend, "plugin", "signalfx-metadata")), "Datapoints didn't come through"
@@ -151,7 +150,7 @@ def _test_service_restart(container, init_system, backend):
     code, output = container.exec_run(INIT_RESTART_COMMAND[init_system])
     print("Init restart command output:")
     print_lines(output)
-    backend.datapoints.clear()
+    backend.reset_datapoints()
     assert code == 0, "Agent could not be restarted"
     assert wait_for(p(is_agent_running_as_non_root, container), timeout_seconds=INIT_RESTART_TIMEOUT)
     assert agent_has_new_pid(container, old_pid), "Agent pid the same after service restart"
@@ -168,13 +167,13 @@ def _test_service_stop(container, init_system, backend):
     ), "Timed out waiting for agent process to stop"
     if init_system in [INIT_SYSV, INIT_UPSTART]:
         assert not path_exists_in_container(container, PIDFILE_PATH), "%s exists when agent is stopped" % PIDFILE_PATH
-    backend.datapoints.clear()
+    backend.reset_datapoints()
 
 
 def _test_system_restart(container, init_system, backend):
     print("Restarting container")
     container.stop(timeout=3)
-    backend.datapoints.clear()
+    backend.reset_datapoints()
     container.start()
     assert wait_for(p(is_agent_running_as_non_root, container), timeout_seconds=INIT_RESTART_TIMEOUT)
     _test_service_status(container, init_system, "active")

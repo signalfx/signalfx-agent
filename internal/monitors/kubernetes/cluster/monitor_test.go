@@ -11,7 +11,7 @@ import (
 	"k8s.io/api/core/v1"
 	"k8s.io/api/extensions/v1beta1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/apimachinery/pkg/watch"
+	"k8s.io/apimachinery/pkg/runtime"
 
 	"github.com/signalfx/golib/datapoint"
 	"github.com/signalfx/signalfx-agent/internal/core/common/kubernetes"
@@ -20,7 +20,7 @@ import (
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	. "github.com/signalfx/signalfx-agent/internal/neotest/k8s/testhelpers"
+	. "github.com/signalfx/signalfx-agent/internal/neotest/k8s/testhelpers/fakek8s"
 )
 
 var _ = Describe("Kubernetes plugin", func() {
@@ -107,11 +107,16 @@ var _ = Describe("Kubernetes plugin", func() {
 
 	It("Sends pod phase metrics", func() {
 		log.SetLevel(log.DebugLevel)
-		fakeK8s.SetInitialList([]*v1.Pod{
+		fakeK8s.SetInitialList([]runtime.Object{
 			&v1.Pod{
+				TypeMeta: metav1.TypeMeta{
+					Kind:       "Pod",
+					APIVersion: "v1",
+				},
 				ObjectMeta: metav1.ObjectMeta{
-					Name: "test1",
-					UID:  "abcd",
+					Name:      "test1",
+					UID:       "abcd",
+					Namespace: "default",
 					OwnerReferences: []metav1.OwnerReference{
 						metav1.OwnerReference{
 							Kind: "DaemonSet",
@@ -152,14 +157,15 @@ var _ = Describe("Kubernetes plugin", func() {
 		dims := dps[0].Dimensions
 		Expect(dims["metric_source"]).To(Equal("kubernetes"))
 
-		fakeK8s.EventInput <- watch.Event{watch.Added, &v1.Pod{
+		fakeK8s.CreateOrReplaceResource(&v1.Pod{
 			TypeMeta: metav1.TypeMeta{
 				Kind:       "Pod",
 				APIVersion: "v1",
 			},
 			ObjectMeta: metav1.ObjectMeta{
-				Name: "pod2",
-				UID:  "1234",
+				Name:      "pod2",
+				UID:       "1234",
+				Namespace: "default",
 			},
 			Status: v1.PodStatus{
 				Phase: v1.PodFailed,
@@ -170,20 +176,21 @@ var _ = Describe("Kubernetes plugin", func() {
 					},
 				},
 			},
-		}}
+		})
 
 		_ = waitForDatapoints(6)
 		dps = waitForDatapoints(6)
 		expectIntMetric(dps, "kubernetes_pod_uid", "1234", "kubernetes.container_restart_count", 0)
 
-		fakeK8s.EventInput <- watch.Event{watch.Modified, &v1.Pod{
+		fakeK8s.CreateOrReplaceResource(&v1.Pod{
 			TypeMeta: metav1.TypeMeta{
 				Kind:       "Pod",
 				APIVersion: "v1",
 			},
 			ObjectMeta: metav1.ObjectMeta{
-				Name: "pod2",
-				UID:  "1234",
+				Name:      "pod2",
+				UID:       "1234",
+				Namespace: "default",
 			},
 			Status: v1.PodStatus{
 				Phase: v1.PodFailed,
@@ -194,20 +201,21 @@ var _ = Describe("Kubernetes plugin", func() {
 					},
 				},
 			},
-		}}
+		})
 
 		_ = waitForDatapoints(6)
 		dps = waitForDatapoints(6)
 		expectIntMetric(dps, "kubernetes_pod_uid", "1234", "kubernetes.container_restart_count", 2)
 
-		fakeK8s.EventInput <- watch.Event{watch.Deleted, &v1.Pod{
+		fakeK8s.DeleteResource(&v1.Pod{
 			TypeMeta: metav1.TypeMeta{
 				Kind:       "Pod",
 				APIVersion: "v1",
 			},
 			ObjectMeta: metav1.ObjectMeta{
-				Name: "pod2",
-				UID:  "1234",
+				Name:      "pod2",
+				UID:       "1234",
+				Namespace: "default",
 			},
 			Status: v1.PodStatus{
 				Phase: v1.PodFailed,
@@ -218,7 +226,7 @@ var _ = Describe("Kubernetes plugin", func() {
 					},
 				},
 			},
-		}}
+		})
 
 		// Throw away the next set of dps since they could still have the pod
 		// metrics if sent before the update but after the previous assertion.
@@ -230,23 +238,30 @@ var _ = Describe("Kubernetes plugin", func() {
 	}, 5)
 
 	It("Sends Deployment metrics", func() {
-		fakeK8s.SetInitialList([]*v1.Pod{
+		fakeK8s.SetInitialList([]runtime.Object{
 			&v1.Pod{
+				TypeMeta: metav1.TypeMeta{
+					Kind:       "Pod",
+					APIVersion: "v1",
+				},
 				ObjectMeta: metav1.ObjectMeta{
-					Name: "test1",
-					UID:  "1234",
+					Name:      "test1",
+					UID:       "1234",
+					Namespace: "default",
 				},
 				Status: v1.PodStatus{
 					Phase: v1.PodRunning,
 				},
 			},
-		})
-
-		fakeK8s.SetInitialList([]*v1beta1.Deployment{
 			&v1beta1.Deployment{
+				TypeMeta: metav1.TypeMeta{
+					Kind:       "Deployment",
+					APIVersion: "extensions/v1beta1",
+				},
 				ObjectMeta: metav1.ObjectMeta{
-					Name: "deploy1",
-					UID:  "abcd",
+					Name:      "deploy1",
+					UID:       "abcd",
+					Namespace: "default",
 				},
 				Spec: v1beta1.DeploymentSpec{
 					Replicas: intp(int32(10)),
@@ -256,9 +271,14 @@ var _ = Describe("Kubernetes plugin", func() {
 				},
 			},
 			&v1beta1.Deployment{
+				TypeMeta: metav1.TypeMeta{
+					Kind:       "Deployment",
+					APIVersion: "extensions/v1beta1",
+				},
 				ObjectMeta: metav1.ObjectMeta{
-					Name: "deploy2",
-					UID:  "efgh",
+					Name:      "deploy2",
+					UID:       "efgh",
+					Namespace: "default",
 				},
 				Spec: v1beta1.DeploymentSpec{
 					Replicas: intp(int32(1)),
@@ -279,14 +299,15 @@ var _ = Describe("Kubernetes plugin", func() {
 		expectIntMetric(dps, "kubernetes_uid", "efgh", "kubernetes.deployment.desired", 1)
 		expectIntMetric(dps, "kubernetes_uid", "efgh", "kubernetes.deployment.available", 1)
 
-		fakeK8s.EventInput <- watch.Event{watch.Modified, &v1beta1.Deployment{
+		fakeK8s.CreateOrReplaceResource(&v1beta1.Deployment{
 			TypeMeta: metav1.TypeMeta{
 				Kind:       "Deployment",
 				APIVersion: "extensions/v1beta1",
 			},
 			ObjectMeta: metav1.ObjectMeta{
-				Name: "deploy2",
-				UID:  "efgh",
+				Name:      "deploy2",
+				UID:       "efgh",
+				Namespace: "default",
 			},
 			Spec: v1beta1.DeploymentSpec{
 				Replicas: intp(int32(1)),
@@ -294,7 +315,7 @@ var _ = Describe("Kubernetes plugin", func() {
 			Status: v1beta1.DeploymentStatus{
 				AvailableReplicas: 0,
 			},
-		}}
+		})
 
 		_ = waitForDatapoints(7)
 		dps = waitForDatapoints(7)

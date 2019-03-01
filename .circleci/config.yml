@@ -210,7 +210,7 @@ jobs:
             BUNDLE_DIR="$(pwd)/bundle"
             AGENT_BIN="$BUNDLE_DIR/bin/signalfx-agent"
             TEST_SERVICES_DIR="$(pwd)/test-services"
-            MARKERS="not packaging and not installer and not k8s and not windows_only"
+            MARKERS="not packaging and not installer and not k8s and not windows_only and not deployment and not perf_test"
             mkdir -p "$BUNDLE_DIR"
             cid=$(docker create quay.io/signalfx/signalfx-agent-dev:latest true)
             docker export $cid | tar -C "$BUNDLE_DIR" -xf -
@@ -232,6 +232,33 @@ jobs:
       - run_pytest:
           pytest_options: "-n4 -m \"$MARKERS\""
           with_sudo: true
+
+  perf_tests:
+    executor: machine_image
+    steps:
+      - checkout
+      - import_image
+      - run:
+          name: Setup test environment
+          command: |
+            BUNDLE_DIR="$(pwd)/bundle"
+            AGENT_BIN="$BUNDLE_DIR/bin/signalfx-agent"
+            TEST_SERVICES_DIR="$(pwd)/test-services"
+            MARKERS="perf_test"
+            mkdir -p "$BUNDLE_DIR"
+            cid=$(docker create quay.io/signalfx/signalfx-agent-dev:latest true)
+            docker export $cid | tar -C "$BUNDLE_DIR" -xf -
+            docker rm -fv $cid
+            [ -f "$AGENT_BIN" ] || (echo "$AGENT_BIN not found!" && exit 1)
+            echo "export BUNDLE_DIR='$BUNDLE_DIR'" >> $BASH_ENV
+            echo "export AGENT_BIN='$AGENT_BIN'" >> $BASH_ENV
+            echo "export TEST_SERVICES_DIR='$TEST_SERVICES_DIR'" >> $BASH_ENV
+            echo "export MARKERS='$MARKERS'" >> $BASH_ENV
+      - run_pytest:
+          pytest_options: "-n2 -m \"$MARKERS\""
+          with_sudo: true
+      - store_artifacts:
+          path: /tmp/pprof/
 
   k8s_integration_tests:
     executor: machine_image
@@ -427,6 +454,9 @@ workflows:
       - gofmt
       - gotests
       - integration_tests:
+          requires:
+            - build
+      - perf_tests:
           requires:
             - build
       - k8s_integration_tests:
