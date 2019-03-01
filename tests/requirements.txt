@@ -5,7 +5,7 @@ hvac==0.7.2
 kubernetes==7.0.0
 netifaces==0.10.8
 protobuf==3.5.1
-pylint==2.1.1
+pylint==2.3.0
 pytest-html
 pytest-rerunfailures==4.1
 pytest-xdist==1.22.0
