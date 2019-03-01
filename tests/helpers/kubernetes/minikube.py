@@ -1,3 +1,4 @@
+import json
 import os
 import re
 import socket
@@ -222,9 +223,9 @@ class Minikube:  # pylint: disable=too-many-instance-attributes
         options.setdefault("detach", True)
         print("\nBuilding %s image ..." % self.image_tag)
         build_opts = dict(buildargs={"MINIKUBE_VERSION": self.version}, tag=self.image_tag)
-        image, _ = self.build_image("minikube", build_opts, self.host_client)
+        image_id = self.build_image("minikube", build_opts, "unix://var/run/docker.sock")
         print("\nDeploying minikube %s cluster ..." % self.k8s_version)
-        self.container = self.host_client.containers.run(image.id, **options)
+        self.container = self.host_client.containers.run(image_id, **options)
         self.container_name = self.container.name
         assert wait_for(self.is_running, timeout_seconds=30, interval_seconds=2), (
             "timed out waiting for %s container" % self.container_name
@@ -260,19 +261,42 @@ class Minikube:  # pylint: disable=too-many-instance-attributes
 
         return self.client.images.pull(name, tag=tag)
 
-    def build_image(self, dockerfile_dir, build_opts=None, client=None):
+    def build_image(self, dockerfile_dir, build_opts=None, docker_url=None):
+        """
+        Use low-level api client to build images in order to get build logs.
+        Returns the image id.
+        """
+
+        def _build():
+            client = docker.APIClient(base_url=docker_url, version="auto")
+            build_log = []
+            has_error = False
+            image_id = None
+            for line in client.build(path=dockerfile_dir, rm=True, forcerm=True, **build_opts):
+                json_line = json.loads(line)
+                keys = json_line.keys()
+                if "stream" in keys:
+                    build_log.append(json_line.get("stream").strip())
+                else:
+                    build_log.append(str(json_line))
+                    if "error" in keys:
+                        has_error = True
+                    elif "aux" in keys:
+                        image_id = json_line.get("aux").get("ID")
+            assert not has_error, "build failed for %s:\n%s" % (dockerfile_dir, "\n".join(build_log))
+            assert image_id, "failed to get id from output for built image:\n%s" % "\n".join(build_log)
+            return image_id
+
         if os.path.isdir(os.path.join(TEST_SERVICES_DIR, dockerfile_dir)):
             dockerfile_dir = os.path.join(TEST_SERVICES_DIR, dockerfile_dir)
         else:
             assert os.path.isdir(dockerfile_dir), "Dockerfile directory %s not found!" % dockerfile_dir
         if build_opts is None:
             build_opts = {}
-        if client is None:
-            client = self.get_client()
+        if not docker_url:
+            docker_url = "tcp://%s:2375" % self.container_ip
         print("\nBuilding image from %s ..." % dockerfile_dir)
-        return retry(
-            p(client.images.build, path=dockerfile_dir, rm=True, forcerm=True, **build_opts), docker.errors.BuildError
-        )
+        return retry(_build, AssertionError)
 
     def delete_resources(self):
         for doc in self.resources:
