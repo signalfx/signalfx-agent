@@ -39,7 +39,7 @@ More detailed installation steps to install via a config management tool or usin
 The default configuration file should be located at `/etc/signalfx/agent.yaml` on Linux
 and `\ProgramData\SignalFxAgent\agent.yaml` on Windows.
 Also, by default, the file containing your SignalFx API token should be located at
-`/etc/signalfx/token` on Linux and `\ProgramData\SignalFxAgent\token`.
+`/etc/signalfx/token` on Linux and `\ProgramData\SignalFxAgent\token` on Windows.
 
 In the referenced example agent.yaml configuration files below, the default
 location for the token file is used.
