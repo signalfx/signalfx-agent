@@ -139,7 +139,7 @@ endif
 .PHONY: run-k8s-tests
 run-k8s-tests:
 	pytest \
-		-m "k8s" \
+		-m "k8s and not collectd" \
 		-n auto \
 		--verbose \
 		--exitfirst \

@@ -262,7 +262,6 @@ jobs:
 
   k8s_integration_tests:
     executor: machine_image
-    parallelism: 2
     parameters:
       k8s_version:
         type: string
@@ -274,23 +273,15 @@ jobs:
       - run:
           name: Setup test environment
           command: |
-            if scripts/changes-include-dir Gopkg.toml $(find . -iname "*k8s*" -o -iname "*kube*" | sed 's|^\./||' | grep -v '^docs/'); then
-                # Run k8s tests for all versions, but "disable" parallelism by running all tests on node 0,
-                # and free other node quickly by skipping subsequent steps.
-                MAX_CIRCLE_NODES=1
-                if [ $CIRCLE_NODE_INDEX -ge $MAX_CIRCLE_NODES ]; then
-                    touch ~/.skip
-                fi
-            else
-                # Only run k8s tests for K8S_MIN_VERSION and K8S_MAX_VERSION with parallelism if there are no relevant changes.
-                MAX_CIRCLE_NODES=$CIRCLE_NODE_TOTAL
-                if [[ "<< parameters.k8s_version >>" != "$K8S_MIN_VERSION" && "<< parameters.k8s_version >>" != "$K8S_MAX_VERSION" ]]; then
-                    echo "Skipping K8S << parameters.k8s_version >> integration tests."
+            K8S_VERSION=<< parameters.k8s_version >>
+            if ! scripts/changes-include-dir Gopkg.toml $(find . -iname "*k8s*" -o -iname "*kube*" | sed 's|^\./||' | grep -v '^docs/'); then
+                # Only run k8s tests for K8S_MIN_VERSION and K8S_MAX_VERSION if there are no relevant changes.
+                if [[ "$K8S_VERSION" != "$K8S_MIN_VERSION" && "$K8S_VERSION" != "$K8S_MAX_VERSION" ]]; then
+                    echo "Skipping K8S $K8S_VERSION integration tests."
                     touch ~/.skip
                 fi
             fi
-            echo "export MARKERS=k8s" >> $BASH_ENV
-            echo "export MAX_CIRCLE_NODES=$MAX_CIRCLE_NODES" >> $BASH_ENV
+            echo "export MARKERS='k8s and not collectd'" >> $BASH_ENV
       - import_image
       - run_pytest:
           pytest_options: "-n4 -m \"$MARKERS\" --exitfirst --k8s-version=<< parameters.k8s_version >> --k8s-sfx-agent=quay.io/signalfx/signalfx-agent-dev:latest --k8s-timeout=$K8S_TIMEOUT"
