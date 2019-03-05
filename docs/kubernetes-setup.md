@@ -31,6 +31,12 @@ monitor.
        Kubernetes daemon set configuration
    -  [configmap.yaml](https://github.com/signalfx/signalfx-agent/blob/master/deployments/k8s/configmap.yaml):
        SignalFx agent configuration
+   -  [serviceaccount.yaml](https://github.com/signalfx/signalfx-agent/blob/master/deployments/k8s/serviceaccount.yaml):
+       SignalFx service account
+   -  [clusterrole.yaml](https://github.com/signalfx/signalfx-agent/blob/master/deployments/k8s/clusterrole.yaml):
+       SignalFx cluster role 
+   -  [clusterrolebinding.yaml](https://github.com/signalfx/signalfx-agent/blob/master/deployments/k8s/clusterrolebinding.yaml):
+       SignalFx cluster role binding 
 
      -  Using a text editor, replace the default value `MY-CLUSTER` with the
          desired name for your cluster. This will appear in the dimension
@@ -74,7 +80,10 @@ monitor.
 
    ```sh
       $ kubectl create -f configmap.yaml \
-                       -f daemonset.yaml
+                       -f daemonset.yaml \
+                       -f serviceaccount.yaml \
+                       -f clusterrole.yaml
+                       -f clusterrolebinding.yaml
    ```
 
 4. Data will begin streaming into SignalFx. After a few minutes, verify that
