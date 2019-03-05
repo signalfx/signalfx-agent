@@ -82,8 +82,8 @@ monitor.
       $ kubectl create -f configmap.yaml \
                        -f daemonset.yaml \
                        -f serviceaccount.yaml \
-                       -f clusterrole.yaml
-                       -f clusterrolebinding.yaml
+                       -f clusterrole.yaml \
+                       -f clusterrolebinding.yaml  # BE SURE TO CHANGE MY_AGENT_NAMESPACE IN THIS FILE FIRST
    ```
 
 4. Data will begin streaming into SignalFx. After a few minutes, verify that
