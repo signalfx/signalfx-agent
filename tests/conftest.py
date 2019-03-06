@@ -88,7 +88,9 @@ def minikube(request, worker_id):
             inst.container.remove(force=True, v=True)
 
     request.addfinalizer(teardown)
-    k8s_version = request.config.getoption("--k8s-version")
+    k8s_version = os.environ.get("K8S_VERSION")
+    if not k8s_version:
+        k8s_version = request.config.getoption("--k8s-version")
     k8s_timeout = int(request.config.getoption("--k8s-timeout"))
     k8s_container = request.config.getoption("--k8s-container")
     k8s_skip_teardown = request.config.getoption("--k8s-skip-teardown")
@@ -120,7 +122,9 @@ def agent_image(minikube, request, worker_id):  # pylint: disable=redefined-oute
                 pass
 
     request.addfinalizer(teardown)
-    sfx_agent_name = request.config.getoption("--k8s-sfx-agent")
+    sfx_agent_name = os.environ.get("K8S_SFX_AGENT")
+    if not sfx_agent_name:
+        sfx_agent_name = request.config.getoption("--k8s-sfx-agent")
     if sfx_agent_name:
         try:
             agent_image_name, agent_image_tag = sfx_agent_name.rsplit(":", maxsplit=1)

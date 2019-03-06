@@ -118,34 +118,29 @@ run-dev-image:
 		-v $(CURDIR)/tmp/pprof:/tmp/pprof \
 		signalfx-agent-dev /bin/bash
 
+MARKERS ?= not packaging and not installer and not k8s and not windows_only and not deployment and not perf_test
 .PHONY: run-integration-tests
 run-integration-tests:
 	AGENT_BIN=/bundle/bin/signalfx-agent \
 	pytest \
-		-m "not packaging and not installer and not k8s and not windows_only and not deployment and not perf_test" \
+		-m "$(MARKERS)" \
 		-n auto \
 		--verbose \
 		--html=test_output/results.html \
 		--self-contained-html \
 		tests
 
-ifdef K8S_VERSION
-    k8s_version_arg = --k8s-version=$(K8S_VERSION)
-endif
-ifdef K8S_SFX_AGENT
-    agent_image_arg = --k8s-sfx-agent=$(K8S_SFX_AGENT)
-endif
+MARKERS ?= k8s and not collectd
 .PHONY: run-k8s-tests
 run-k8s-tests:
 	pytest \
-		-m "k8s and not collectd" \
+		-m "$(MARKERS)" \
 		-n auto \
 		--verbose \
 		--exitfirst \
-		--k8s-observers=k8s-api,k8s-kubelet \
 		--html=test_output/k8s_results.html \
 		--self-contained-html \
-		$(agent_image_arg) $(k8s_version_arg) tests || \
+		tests || \
 	(docker ps | grep -q minikube && echo "minikube container is left running for debugging purposes"; return 1) && \
 	docker rm -fv minikube
 
