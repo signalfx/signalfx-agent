@@ -13,7 +13,7 @@ from tests.helpers.util import (
 
 pytestmark = [
     pytest.mark.skipif(sys.platform != "win32", reason="only runs on windows"),
-    pytest.mark.windows,
+    pytest.mark.windows_only,
     pytest.mark.dotnet,
 ]
 
