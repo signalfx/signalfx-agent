@@ -266,14 +266,16 @@ jobs:
       k8s_version:
         type: string
     environment:
+      K8S_VERSION: "<< parameters.k8s_version >>"
       K8S_MIN_VERSION: "v1.7.0"
       K8S_MAX_VERSION: "v1.13.0"
+      K8S_SFX_AGENT: "quay.io/signalfx/signalfx-agent-dev:latest"
+      MARKERS: "k8s and not collectd"
     steps:
       - checkout
       - run:
           name: Setup test environment
           command: |
-            K8S_VERSION=<< parameters.k8s_version >>
             if ! scripts/changes-include-dir Gopkg.toml $(find . -iname "*k8s*" -o -iname "*kube*" | sed 's|^\./||' | grep -v '^docs/'); then
                 # Only run k8s tests for K8S_MIN_VERSION and K8S_MAX_VERSION if there are no relevant changes.
                 if [[ "$K8S_VERSION" != "$K8S_MIN_VERSION" && "$K8S_VERSION" != "$K8S_MAX_VERSION" ]]; then
@@ -281,10 +283,9 @@ jobs:
                     touch ~/.skip
                 fi
             fi
-            echo "export MARKERS='k8s and not collectd'" >> $BASH_ENV
       - import_image
       - run_pytest:
-          pytest_options: "-n4 -m \"$MARKERS\" --exitfirst --k8s-version=<< parameters.k8s_version >> --k8s-sfx-agent=quay.io/signalfx/signalfx-agent-dev:latest --k8s-timeout=$K8S_TIMEOUT"
+          pytest_options: "-n4 -m \"$MARKERS\" --exitfirst --k8s-timeout=$K8S_TIMEOUT"
 
   installer_tests:
     executor: machine_image
