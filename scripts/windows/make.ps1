@@ -109,5 +109,5 @@ function unit_test() {
 }
 
 function integration_test() {
-    pytest -m 'windows' --verbose --junitxml=integration_results.xml --html=integration_results.html --self-contained-html tests
+    pytest -m 'windows or windows_only' --verbose --junitxml=integration_results.xml --html=integration_results.html --self-contained-html tests
 }
