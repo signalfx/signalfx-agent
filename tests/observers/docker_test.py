@@ -1,10 +1,13 @@
 """
 Integration tests for the docker observer
 """
+import os
 import string
 import time
 from functools import partial as p
 from textwrap import dedent
+
+import pytest
 
 from tests.helpers.assertions import has_datapoint_with_dim
 from tests.helpers.util import ensure_always, run_agent, run_service, wait_for
@@ -52,6 +55,9 @@ def test_docker_observer():
         assert ensure_always(lambda: not has_datapoint_with_dim(backend, "container_name", "nginx-discovery"), 10)
 
 
+@pytest.mark.skipif(
+    not os.environ.get("CIRCLE_BUILD_NUM"), reason="can't run in dev-image (requires host network binding)"
+)
 def test_docker_observer_use_host_bindings():
     with run_service("nginx", name="nginx-non-host-binding", labels={"mylabel": "non-host-binding"}):
         with run_service(
