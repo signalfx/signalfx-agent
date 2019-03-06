@@ -45,8 +45,9 @@ func Debounce0(fn func(), duration time.Duration) (func(), chan<- struct{}) {
 func RunOnInterval(ctx context.Context, fn func(), interval time.Duration) {
 	timer := time.NewTicker(interval)
 
-	fn()
 	go func() {
+		fn()
+
 		defer timer.Stop()
 
 		for {
