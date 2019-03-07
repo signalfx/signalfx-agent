@@ -5,12 +5,25 @@ $scriptDir = split-path -parent $MyInvocation.MyCommand.Definition
 . "$scriptDir\common.ps1"
 . "$scriptDir\bundle.ps1"
 
-function signalfx-agent([string]$AGENT_VERSION="", [string]$AGENT_BIN=".\signalfx-agent.exe", [string]$COLLECTD_VERSION="") {
+
+function versions_go() {
     if ($AGENT_VERSION -Eq ""){
         $AGENT_VERSION = getGitTag
     }
     $date = Get-Date -UFormat "%Y-%m-%dT%T%Z"
-    go build -ldflags "-X main.Version='$AGENT_VERSION' -X main.CollectdVersion='$COLLECTD_VERSION' -X main.BuiltTime='$date'" -o "$AGENT_BIN" github.com/signalfx/signalfx-agent/cmd/agent    
+
+    $versionfile = ".\internal\core\common\constants\versions.go"
+
+    cp "$versionfile.tmpl" "$versionfile"
+    replace_text -filepath "$versionfile" -find '${COLLECTD_VERSION}' -replacement "$COLLECTD_VERSION"
+    replace_text -filepath "$versionfile" -find '${AGENT_VERSION}' -replacement "$AGENT_VERSION"
+    replace_text -filepath "$versionfile" -find '${BUILD_TIME}' -replacement "$date"
+}
+
+function signalfx-agent([string]$AGENT_VERSION="", [string]$AGENT_BIN=".\signalfx-agent.exe", [string]$COLLECTD_VERSION="") {
+    versions_go
+
+    go build -o "$AGENT_BIN" github.com/signalfx/signalfx-agent/cmd/agent
     if ($lastexitcode -ne 0){ exit $lastexitcode }
 }
 
@@ -30,7 +43,7 @@ function bundle (
     if ($AGENT_VERSION -Eq ""){
         $AGENT_VERSION = getGitTag
     }
-    
+
     # create directories in the agent directory
     Remove-Item -Recurse -Force "$buildDir\$AGENT_NAME\*" -ErrorAction Ignore
     mkdir "$buildDir\$AGENT_NAME\bin" -ErrorAction Ignore
@@ -87,6 +100,7 @@ function bundle (
 }
 
 function lint() {
+    versions_go
     golint -set_exit_status ./cmd/... ./internal/...
     if ($lastexitcode -ne 0){ exit $lastexitcode }
 }
@@ -97,11 +111,13 @@ function vendor() {
 }
 
 function vet() {
+    versions_go
     go vet ./... 2>&1 | Select-String -Pattern "\.go" | Select-String -NotMatch -Pattern "_test\.go" -outvariable gofiles
     if ($gofiles){ Write-Host $gofiles; exit 1 }
 }
 
 function unit_test() {
+    versions_go
     go generate ./internal/monitors/...
     if ($lastexitcode -ne 0){ exit $lastexitcode }
     $(& go test -v ./... 2>&1; $rc=$lastexitcode) | go2xunit > unit_results.xml

@@ -22,7 +22,7 @@ COPY vendor/ ./vendor/
 RUN cd vendor && find . -type d -not -empty | grep -v '\btest' | parallel go install {} 2>/dev/null || true
 
 COPY cmd/ ./cmd/
-COPY scripts/make-templates ./scripts/
+COPY scripts/make-templates scripts/make-versions ./scripts/
 COPY scripts/collectd-template-to-go ./scripts/
 COPY Makefile .
 COPY internal/ ./internal/
@@ -343,6 +343,7 @@ ENV SIGNALFX_BUNDLE_DIR=/bundle \
     TEST_SERVICES_DIR=/go/src/github.com/signalfx/signalfx-agent/test-services \
     AGENT_BIN=/go/src/github.com/signalfx/signalfx-agent/signalfx-agent \
     PYTHONPATH=/go/src/github.com/signalfx/signalfx-agent/python \
+    BUILD_TIME=2017-01-25T13:17:17-0500 \
     GOOS=linux \
     LC_ALL=C.UTF-8 \
     LANG=C.UTF-8

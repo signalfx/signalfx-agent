@@ -20,17 +20,6 @@ import (
 	prefixed "github.com/x-cray/logrus-prefixed-formatter"
 )
 
-var (
-	// Version for agent
-	Version string
-
-	// CollectdVersion for collectd
-	CollectdVersion string
-
-	// BuiltTime for the agent
-	BuiltTime string
-)
-
 var defaultConfigPath = getDefaultConfigPath()
 
 func init() {
@@ -49,12 +38,12 @@ func getDefaultConfigPath() string {
 // Set an envvar with the agent's version so that plugins can have easy access
 // to it (e.g. metadata plugin).
 func setVersionEnvvar() {
-	os.Setenv(constants.AgentVersionEnvVar, Version)
+	os.Setenv(constants.AgentVersionEnvVar, constants.Version)
 }
 
 // Set an envvar with the collectd version so that plugins have easy access to it
 func setCollectdVersionEnvvar() {
-	os.Setenv(constants.CollectdVersionEnvVar, CollectdVersion)
+	os.Setenv(constants.CollectdVersionEnvVar, constants.CollectdVersion)
 }
 
 // Print out status about an existing instance of the agent.
@@ -137,7 +126,7 @@ func runAgent(flags *flags, interruptCh chan os.Signal, exit chan struct{}) {
 	var shutdown context.CancelFunc
 	var shutdownComplete <-chan struct{}
 	init := func() {
-		log.Info("Starting up agent version " + Version)
+		log.Info("Starting up agent version " + constants.Version)
 		shutdown, shutdownComplete = core.Startup(flags.configPath)
 	}
 
@@ -182,7 +171,7 @@ func main() {
 
 	// set the agent version string
 	core.VersionLine = fmt.Sprintf("agent-version: %s, built-time: %s\n",
-		Version, BuiltTime)
+		constants.Version, constants.BuildTime)
 
 	// Make it so the symlink from agent-status to this binary invokes the
 	// status command

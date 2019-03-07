@@ -25,6 +25,7 @@ class PProfClient:
         """
         path = f"/tmp/pprof/goroutine.{self.host}-{self.port}"
         with open(path, "wb") as fd:
+            print(f"Saving goroutines to {path}")
             fd.write(self.fetch_goroutines())
 
         return path
