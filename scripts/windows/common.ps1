@@ -52,3 +52,7 @@ function do_docker_build([string]$image_name,
     $(extra_cflags_build_arg) `
     $MY_SCRIPT_DIR\..\.. 
 }
+
+function replace_text([string]$filepath, [string]$find, [string]$replacement) {
+	(Get-Content $filepath).replace($find, $replacement) | Set-Content $filepath
+}

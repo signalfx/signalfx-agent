@@ -1,12 +1,15 @@
-RUN_CONTAINER := neo-agent-tmp
 COLLECTD_VERSION := 5.8.0-sfx0
 COLLECTD_COMMIT := 4da1c1cbbe83f881945088a41063fe86d1682ecb
+BUILD_TIME ?= $$(date +%FT%T%z)
 
 .PHONY: check
 check: lint vet test
 
+.PHONY: compileDeps
+compileDeps: templates internal/core/common/constants/versions.go
+
 .PHONY: test
-test: templates
+test: compileDeps
 ifeq ($(OS),Windows_NT)
 	powershell "& { . $(CURDIR)/scripts/windows/make.ps1; test }"
 else
@@ -14,12 +17,12 @@ else
 endif
 
 .PHONY: vet
-vet: templates
+vet: compileDeps
 	# Only consider it a failure if issues are in non-test files
 	! CGO_ENABLED=0 go vet ./... 2>&1 | tee /dev/tty | grep '.go' | grep -v '_test.go'
 
 .PHONY: vetall
-vetall: templates
+vetall: compileDeps
 	CGO_ENABLED=0 go vet ./...
 
 .PHONY: lint
@@ -51,14 +54,15 @@ else
 	CGO_ENABLED=0 dep ensure
 endif
 
+internal/core/common/constants/versions.go: FORCE
+	AGENT_VERSION=$(AGENT_VERSION) COLLECTD_VERSION=$(COLLECTD_VERSION) BUILD_TIME=$(BUILD_TIME) scripts/make-versions
 
-signalfx-agent: templates
+signalfx-agent: compileDeps
 	echo "building SignalFx agent for operating system: $(GOOS)"
 ifeq ($(OS),Windows_NT)
 	powershell "& { . $(CURDIR)/scripts/windows/make.ps1; signalfx-agent $(AGENT_VERSION)}"
 else
 	CGO_ENABLED=0 go build \
-		-ldflags "-X main.Version=$(AGENT_VERSION) -X main.CollectdVersion=$(COLLECTD_VERSION) -X main.BuiltTime=$$(date +%FT%T%z)" \
 		-o signalfx-agent \
 		github.com/signalfx/signalfx-agent/cmd/agent
 endif
@@ -78,11 +82,6 @@ deb-%-package:
 .PHONY: rpm-package
 rpm-%-package:
 	COLLECTD_VERSION=$(COLLECTD_VERSION) COLLECTD_COMMIT=$(COLLECTD_COMMIT) packaging/rpm/build $*
-
-.PHONY: attach-image
-run-shell:
-# Attach to the running container kicked off by `make run-image`.
-	docker exec -it $(RUN_CONTAINER) bash
 
 .PHONY: dev-image
 dev-image:
@@ -208,3 +207,5 @@ K8S_VERSION ?= latest
 run-minikube:
 	python -c 'from tests.helpers.kubernetes.minikube import Minikube; mk = Minikube(); mk.deploy("$(K8S_VERSION)")' && \
 	docker exec -it $(docker_env) minikube /bin/bash
+
+FORCE:

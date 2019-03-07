@@ -92,8 +92,9 @@ def test_large_kubernetes_clusters():
             assert ensure_always(has_no_pod_datapoints, interval_seconds=2)
 
             pprof_client.save_goroutines()
-            assert (
-                backend.datapoints_by_metric["sfxagent.go_num_goroutine"][-1].value.intValue < 100
+            assert wait_for(
+                lambda: backend.datapoints_by_metric["sfxagent.go_num_goroutine"][-1].value.intValue < 100,
+                timeout_seconds=7,
             ), "too many goroutines"
 
             assert (
@@ -218,8 +219,9 @@ def test_large_kubernetes_cluster_service_tags():
             assert wait_for(missing_service_tags, interval_seconds=2, timeout_seconds=60)
 
             pprof_client.save_goroutines()
-            assert (
-                backend.datapoints_by_metric["sfxagent.go_num_goroutine"][-1].value.intValue < 100
+            assert wait_for(
+                lambda: backend.datapoints_by_metric["sfxagent.go_num_goroutine"][-1].value.intValue < 100,
+                timeout_seconds=5,
             ), "too many goroutines"
 
             assert (

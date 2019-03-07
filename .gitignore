@@ -2,6 +2,7 @@ build/
 local-etc/
 /agent
 internal/monitors/**/template.go
+internal/core/common/constants/versions.go
 internal/monitors/collectd/collectd.conf.go
 /signalfx-agent
 *.tar.gz

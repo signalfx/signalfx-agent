@@ -182,7 +182,7 @@ jobs:
       - run: |
           mkdir ~/testresults
           go get github.com/tebeka/go2xunit
-          bash -eo pipefail -c "make templates >/dev/null && go test -v ./... | tee /dev/stderr | go2xunit" > ~/testresults/unit.xml
+          bash -eo pipefail -c "make -s test | tee /dev/stderr | go2xunit" > ~/testresults/unit.xml
       - save_test_results
 
   docs_test:
@@ -384,6 +384,8 @@ jobs:
                 ;;
             ansible)
                 docker run --rm \
+                    --cap-add DAC_READ_SEARCH \
+                    --cap-add SYS_PTRACE \
                     signalfx-agent-ansible-dev \
                     ansible-playbook -i inventory example-playbook.yml --connection=local \
                     -e '{"sfx_agent_config": {"signalFxAccessToken": "MyToken"}}' > ~/testresults/ansible.out
