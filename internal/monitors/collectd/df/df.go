@@ -68,6 +68,9 @@ type Config struct {
 	MountPoints    []string `yaml:"mountPoints" default:"[\"/^/var/lib/docker/containers/\", \"/^/var/lib/rkt/pods/\", \"/^/net//\", \"/^/smb//\"]"`
 	ReportByDevice bool     `yaml:"reportByDevice" default:"false"`
 	ReportInodes   bool     `yaml:"reportInodes" default:"false"`
+
+	// If true percent based metrics will be reported.
+	ValuesPercentage bool `yaml:"valuesPercentage" default:"false"`
 }
 
 // Monitor is the main type that represents the monitor

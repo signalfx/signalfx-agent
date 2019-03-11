@@ -23,6 +23,7 @@ Monitor Type: `collectd/df`
 | `mountPoints` | no | `list of strings` | The mount paths to include/exclude, is interpreted as a regex if surrounded by `/`.  Note that you need to include the full path as the agent will see it, irrespective of the hostFSPath option. (**default:** `[/^/var/lib/docker/containers/ /^/var/lib/rkt/pods/ /^/net// /^/smb//]`) |
 | `reportByDevice` | no | `bool` |  (**default:** `false`) |
 | `reportInodes` | no | `bool` |  (**default:** `false`) |
+| `valuesPercentage` | no | `bool` | If true percent based metrics will be reported. (**default:** `false`) |
 
 
 

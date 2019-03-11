@@ -2567,6 +2567,14 @@
           "required": false,
           "type": "bool",
           "elementKind": ""
+        },
+        {
+          "yamlName": "valuesPercentage",
+          "doc": "If true percent based metrics will be reported.",
+          "default": false,
+          "required": false,
+          "type": "bool",
+          "elementKind": ""
         }
       ],
       "monitorType": "collectd/df",
