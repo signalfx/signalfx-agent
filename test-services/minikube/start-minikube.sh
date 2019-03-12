@@ -70,7 +70,7 @@ function start_minikube() {
             kubeadm init --config /var/lib/kubeadm.yaml --ignore-preflight-errors=all
         fi
     elif [ "$BOOTSTRAPPER" = "localkube" ]; then
-        minikube start $MINIKUBE_OPTIONS
+        minikube start $MINIKUBE_OPTIONS --extra-config=apiserver.Authorization.Mode=RBAC
     else
         echo "Unsupported bootstrapper \"${BOOTSTRAPPER}\"!"
         exit 1

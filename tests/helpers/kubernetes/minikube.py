@@ -40,6 +40,8 @@ K8S_API_PORT = 8443
 K8S_RELEASE_URL = "https://storage.googleapis.com/kubernetes-release/release/stable.txt"
 K8S_MIN_VERSION = "1.7.0"
 K8S_MIN_KUBEADM_VERSION = "1.11.0"
+PROJECT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../.."))
+MINIKUBE_DOCKERFILE_PATH = os.path.join(TEST_SERVICES_DIR, "minikube/Dockerfile")
 
 
 def get_free_port():
@@ -123,13 +125,21 @@ class Minikube:  # pylint: disable=too-many-instance-attributes
 
         return self.is_running() and tcp_socket_open(self.container_ip, K8S_API_PORT) and kubeconfig_exists()
 
-    def exec_kubectl(self, command, namespace=None):
+    def exec_cmd(self, command):
         if self.container:
-            command = "kubectl %s" % command
-            if namespace:
-                command += " -n %s" % namespace
-            return self.container.exec_run(command).output.decode("utf-8")
+            print("Executing '%s' ..." % command)
+            code, output = self.container.exec_run(command)
+            output = output.decode("utf-8")
+            assert code == 0, output
+            print(output)
+            return output
         return ""
+
+    def exec_kubectl(self, command, namespace=None):
+        command = "kubectl %s" % command
+        if namespace:
+            command += " -n %s" % namespace
+        return self.exec_cmd(command)
 
     def get_cluster_version(self):
         version_yaml = self.exec_kubectl("version --output=yaml")
@@ -184,7 +194,6 @@ class Minikube:  # pylint: disable=too-many-instance-attributes
             fd.flush()
             kube_config.load_kube_config(config_file=fd.name)
         self.get_client()
-        print(self.exec_kubectl("version").strip())
 
     def connect(self, name=MINIKUBE_CONTAINER_NAME, k8s_version=None, timeout=300):
         self.container_name = name
@@ -222,8 +231,10 @@ class Minikube:  # pylint: disable=too-many-instance-attributes
         options.setdefault("ports", {"%d/tcp" % self.registry_port: self.registry_port})
         options.setdefault("detach", True)
         print("\nBuilding %s image ..." % self.image_tag)
-        build_opts = dict(buildargs={"MINIKUBE_VERSION": self.version}, tag=self.image_tag)
-        image_id = self.build_image("minikube", build_opts, "unix://var/run/docker.sock")
+        build_opts = dict(
+            buildargs={"MINIKUBE_VERSION": self.version}, tag=self.image_tag, dockerfile=MINIKUBE_DOCKERFILE_PATH
+        )
+        image_id = self.build_image(PROJECT_DIR, build_opts, "unix://var/run/docker.sock")
         print("\nDeploying minikube %s cluster ..." % self.k8s_version)
         self.container = self.host_client.containers.run(image_id, **options)
         self.container_name = self.container.name
@@ -322,9 +333,9 @@ class Minikube:  # pylint: disable=too-many-instance-attributes
                     ), 'timed out waiting for deployment "%s" to be ready!\n%s' % (name, k8s.get_pod_logs(name, nspace))
                     print("Waited %d seconds" % (time.time() - start_time))
                 finally:
-                    print(self.exec_kubectl("describe deployment %s" % name, nspace))
+                    print(self.exec_kubectl("describe deployment %s" % name, namespace=nspace))
                     for pod in k8s.get_all_pods(nspace):
-                        print(self.exec_kubectl("describe pod %s" % pod.metadata.name, nspace))
+                        print(self.exec_kubectl("describe pod %s" % pod.metadata.name, namespace=nspace))
 
         if yamls is None:
             yamls = []

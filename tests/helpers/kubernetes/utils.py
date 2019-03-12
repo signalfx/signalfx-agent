@@ -168,7 +168,6 @@ def has_clusterrole(name):
 
 
 def create_clusterrole(body, timeout=K8S_CREATE_TIMEOUT):
-    body["apiVersion"] = "rbac.authorization.k8s.io/v1beta1"
     api = api_client_from_version(body["apiVersion"])
     name = body["metadata"]["name"]
     clusterrole = api.create_cluster_role(body=body)
@@ -190,7 +189,6 @@ def has_clusterrolebinding(name):
 
 
 def create_clusterrolebinding(body, timeout=K8S_CREATE_TIMEOUT):
-    body["apiVersion"] = "rbac.authorization.k8s.io/v1beta1"
     api = api_client_from_version(body["apiVersion"])
     name = body["metadata"]["name"]
     clusterrolebinding = api.create_cluster_role_binding(body=body)
@@ -279,11 +277,13 @@ def has_configmap(name, namespace="default"):
 
 
 def create_configmap(body, namespace=None, timeout=K8S_CREATE_TIMEOUT):
-    return create_resource(body, kube_client.CoreV1Api(), namespace=namespace, timeout=timeout)
+    api = api_client_from_version(body["apiVersion"])
+    return create_resource(body, api, namespace=namespace, timeout=timeout)
 
 
 def patch_configmap(body, namespace=None, timeout=K8S_CREATE_TIMEOUT):
-    return patch_resource(body, kube_client.CoreV1Api(), namespace=namespace, timeout=timeout)
+    api = api_client_from_version(body["apiVersion"])
+    return patch_resource(body, api, namespace=namespace, timeout=timeout)
 
 
 def delete_configmap(name, namespace="default", timeout=K8S_DELETE_TIMEOUT):
