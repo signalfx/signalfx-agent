@@ -57,6 +57,18 @@ extraPodLabels: {}
 # since they are used to render a default config (see configmap.yaml template).
 agentConfig:
 
+# The URL of SignalFx ingest server. Should be overridden if using the SignalFx
+# Gateway. If you want to send trace spans to a different location, set the
+# traceEndpointUrl option. (default: "https://ingest.signalfx.com")
+ingestUrl:
+
+# The full URL (including path) to the trace ingest server. If this is not set,
+# all trace spans will be sent to the ingestUrl configured above.
+traceEndpointUrl:
+
+# The SignalFx API base URL. (default: "https://api.signalfx.com")
+apiUrl:
+
 # clusterName must be provided.  It is an arbitrary value that identifies this
 # K8s cluster in SignalFx.  This will be the value of the 'kubernetes_cluster'
 # dimension on every metric sent by the agent.
