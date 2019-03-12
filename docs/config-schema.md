@@ -9,16 +9,27 @@ by the `-config` flag to the agent binary (`signalfx-agent`).
 
 By default, the Smart Agent will send data to the `us0` realm.
 If you are not in this realm, you will need to explicitly set the
-ingest and api endpoints in your agent.yaml configuration file, as shown below.
+`signalFxRealm` option in your config like this:
+
+```
+signalFxRealm: <MY REALM>
+```
+
 To determine if you are in a different realm and need to
 explicitly set the endpoints, check your profile page in the SignalFx
 web application.
+
+If you want to explicitly set the ingest, API server, and trace endpoint URLs,
+you can set them individually like so:
 
 ```
 ingestUrl: "https://ingest.{REALM}.signalfx.com"
 apiUrl: "https://api.{REALM}.signalfx.com"
 traceEndpointUrl: "https://ingest.{REALM}.signalfx.com/v1/trace"
 ```
+
+They will default to the endpoints for the realm configured in `signalFxRealm`
+if not set.
 
 
 ## Config Schema
@@ -27,9 +38,10 @@ traceEndpointUrl: "https://ingest.{REALM}.signalfx.com/v1/trace"
 | Config option | Required | Type | Description |
 | --- | --- | --- | --- |
 | `signalFxAccessToken` | no | string | The access token for the org that should receive the metrics emitted by the agent. |
-| `ingestUrl` | no | string | The URL of SignalFx ingest server.  Should be overridden if using the SignalFx Gateway.  If you want to send trace spans to a different location, set the `traceEndpointUrl` option. (**default:** `"https://ingest.signalfx.com"`) |
-| `traceEndpointUrl` | no | string | The full URL (including path) to the trace ingest server.  If this is not set, all trace spans will be sent to the `ingestUrl` configured above. |
-| `apiUrl` | no | string | The SignalFx API base URL (**default:** `"https://api.signalfx.com"`) |
+| `ingestUrl` | no | string | The URL of SignalFx ingest server.  Should be overridden if using the SignalFx Gateway.  If not set, this will be determined by the `signalFxRealm` option below.  If you want to send trace spans to a different location, set the `traceEndpointUrl` option. |
+| `traceEndpointUrl` | no | string | The full URL (including path) to the trace ingest server.  If this is not set, all trace spans will be sent to the same place as `ingestUrl` above. |
+| `apiUrl` | no | string | The SignalFx API base URL.  If not set, this will determined by the `signalFxRealm` option below. |
+| `signalFxRealm` | no | string | The SignalFx Realm that the organization you want to send to is a part of.  This defaults to the original realm (`us0`) but if you are setting up the agent for the first time, you quite likely need to change this. (**default:** `"us0"`) |
 | `hostname` | no | string | The hostname that will be reported as the `host` dimension. If blank, this will be auto-determined by the agent based on a reverse lookup of the machine's IP address. |
 | `useFullyQualifiedHost` | no | bool | If true (the default), and the `hostname` option is not set, the hostname will be determined by doing a reverse DNS query on the IP address that is returned by querying for the bare hostname.  This is useful in cases where the hostname reported by the kernel is a short name. (**default**: `true`) |
 | `disableHostDimensions` | no | bool | Our standard agent model is to collect metrics for services running on the same host as the agent.  Therefore, host-specific dimensions (e.g. `host`, `AWSUniqueId`, etc) are automatically added to every datapoint that is emitted from the agent by default.  Set this to true if you are using the agent primarily to monitor things on other hosts.  You can set this option at the monitor level as well. (**default:** `false`) |
@@ -296,9 +308,10 @@ where applicable:
 
 ```yaml
   signalFxAccessToken: 
-  ingestUrl: "https://ingest.signalfx.com"
+  ingestUrl: 
   traceEndpointUrl: 
-  apiUrl: "https://api.signalfx.com"
+  apiUrl: 
+  signalFxRealm: "us0"
   hostname: 
   useFullyQualifiedHost: 
   disableHostDimensions: false

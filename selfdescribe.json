@@ -17679,15 +17679,15 @@
       },
       {
         "yamlName": "ingestUrl",
-        "doc": "The URL of SignalFx ingest server.  Should be overridden if using the SignalFx Gateway.  If you want to send trace spans to a different location, set the `traceEndpointUrl` option.",
-        "default": "https://ingest.signalfx.com",
+        "doc": "The URL of SignalFx ingest server.  Should be overridden if using the SignalFx Gateway.  If not set, this will be determined by the `signalFxRealm` option below.  If you want to send trace spans to a different location, set the `traceEndpointUrl` option.",
+        "default": "",
         "required": false,
         "type": "string",
         "elementKind": ""
       },
       {
         "yamlName": "traceEndpointUrl",
-        "doc": "The full URL (including path) to the trace ingest server.  If this is not set, all trace spans will be sent to the `ingestUrl` configured above.",
+        "doc": "The full URL (including path) to the trace ingest server.  If this is not set, all trace spans will be sent to the same place as `ingestUrl` above.",
         "default": "",
         "required": false,
         "type": "string",
@@ -17695,8 +17695,16 @@
       },
       {
         "yamlName": "apiUrl",
-        "doc": "The SignalFx API base URL",
-        "default": "https://api.signalfx.com",
+        "doc": "The SignalFx API base URL.  If not set, this will determined by the `signalFxRealm` option below.",
+        "default": "",
+        "required": false,
+        "type": "string",
+        "elementKind": ""
+      },
+      {
+        "yamlName": "signalFxRealm",
+        "doc": "The SignalFx Realm that the organization you want to send to is a part of.  This defaults to the original realm (`us0`) but if you are setting up the agent for the first time, you quite likely need to change this.",
+        "default": "us0",
         "required": false,
         "type": "string",
         "elementKind": ""
