@@ -19,6 +19,7 @@
 FROM ubuntu:16.04
 ARG MINIKUBE_VERSION=latest
 ARG CRI_VERSION=v1.11.1
+ARG HELM_VERSION=v2.13.0
 
 # Install minikube dependencies
 ENV DEBIAN_FRONTEND=noninteractive
@@ -71,11 +72,12 @@ ENV MINIKUBE_WANTREPORTERRORPROMPT=false
 ENV CHANGE_MINIKUBE_NONE_USER=true
 EXPOSE 8443
 
-# Copy local start scripts
-COPY start-docker.sh /usr/local/bin/start-docker.sh
-RUN chmod a+x /usr/local/bin/start-docker.sh
-COPY start-minikube.sh /usr/local/bin/start-minikube.sh
-RUN chmod a+x /usr/local/bin/start-minikube.sh
+# Install helm
+WORKDIR /tmp
+RUN curl -sSl -o helm.tar.gz https://storage.googleapis.com/kubernetes-helm/helm-${HELM_VERSION}-linux-amd64.tar.gz && \
+    tar -zxvf /tmp/helm.tar.gz && \
+    mv linux-amd64/helm /usr/local/bin/helm && \
+    chmod a+x /usr/local/bin/helm
 
 ENV container docker
 RUN rm -f /lib/systemd/system/multi-user.target.wants/* \
@@ -88,10 +90,19 @@ RUN rm -f /lib/systemd/system/multi-user.target.wants/* \
 RUN systemctl set-default multi-user.target
 ENV init /lib/systemd/systemd
 
-COPY config.json /root/.minikube/config/config.json
-
-
 RUN apt-get clean && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+
+# Copy local start scripts
+COPY test-services/minikube/start-docker.sh /usr/local/bin/start-docker.sh
+RUN chmod a+x /usr/local/bin/start-docker.sh
+COPY test-services/minikube/start-minikube.sh /usr/local/bin/start-minikube.sh
+RUN chmod a+x /usr/local/bin/start-minikube.sh
+
+COPY test-services/minikube/config.json /root/.minikube/config/config.json
+
+COPY deployments/k8s /opt/deployments/k8s
+
+WORKDIR /
 
 ENTRYPOINT ["/lib/systemd/systemd"]
