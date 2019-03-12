@@ -118,8 +118,8 @@ run-dev-image:
 		-v $(CURDIR)/tmp/pprof:/tmp/pprof \
 		signalfx-agent-dev /bin/bash
 
-MARKERS ?= not packaging and not installer and not k8s and not windows_only and not deployment and not perf_test
 .PHONY: run-integration-tests
+run-integration-tests: MARKERS ?= not packaging and not installer and not k8s and not windows_only and not deployment and not perf_test
 run-integration-tests:
 	AGENT_BIN=/bundle/bin/signalfx-agent \
 	pytest \
@@ -130,8 +130,8 @@ run-integration-tests:
 		--self-contained-html \
 		tests
 
-MARKERS ?= k8s and not collectd
 .PHONY: run-k8s-tests
+run-k8s-tests: MARKERS ?= (k8s or helm) and not collectd
 run-k8s-tests:
 	pytest \
 		-m "$(MARKERS)" \
