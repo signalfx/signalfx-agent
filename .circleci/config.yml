@@ -24,7 +24,7 @@ executors:
 
   helm:
     docker:
-     - image: alpine/helm
+     - image: alpine/helm:2.13.0
 
 
 commands:
@@ -210,8 +210,15 @@ jobs:
       - checkout
       - run: |
           apk add --no-cache git bash
+          [ "$CIRCLE_BRANCH" = "master" ] || git checkout -b $CIRCLE_BRANCH
+          if ! scripts/changes-include-dir deployments/k8s; then
+              echo "No changes in deployments/k8s, skipping check."
+              exit 0
+          fi
           bash -ec "./deployments/k8s/generate-from-helm && git diff --exit-code" || \
-          (echo 'Helm charts and generated sample K8s resources are out of sync.  Please run deployments/k8s/generate-from-helm and commit the changes.' && exit 1)
+          (echo 'Helm charts and generated sample K8s resources are out of sync.  Please run "./deployments/k8s/generate-from-helm" in the dev-image and commit the changes.' && exit 1)
+          helm lint ./deployments/k8s/helm/signalfx-agent || \
+          (echo 'Helm lint issues found. Please run "helm lint ./deployments/k8s/helm/signalfx-agent" in the dev-image, resolve the issues, and commit the changes' && exit 1)
 
   integration_tests:
     executor: machine_image
@@ -290,7 +297,10 @@ jobs:
       - run:
           name: Setup test environment
           command: |
-            if ! scripts/changes-include-dir Gopkg.toml $(find . -iname "*k8s*" -o -iname "*kube*" | sed 's|^\./||' | grep -v '^docs/'); then
+            if scripts/changes-include-dir deployments/k8s tests/deployments/helm; then
+                # Run k8s and helm tests for all K8S versions if there are deployment changes
+                echo "MARKERS='(k8s or helm) and not collectd'" >> $BASH_ENV
+            elif ! scripts/changes-include-dir Gopkg.toml $(find . -iname "*k8s*" -o -iname "*kube*" | sed 's|^\./||' | grep -v '^docs/'); then
                 # Only run k8s tests for K8S_MIN_VERSION and K8S_MAX_VERSION if there are no relevant changes.
                 if [[ "$K8S_VERSION" != "$K8S_MIN_VERSION" && "$K8S_VERSION" != "$K8S_MAX_VERSION" ]]; then
                     echo "Skipping K8S $K8S_VERSION integration tests."
@@ -351,14 +361,15 @@ jobs:
         default: "chef"
         type: enum
         enum: ["chef", "puppet", "salt", "ansible"]
+    environment:
+      DEPLOYMENT: "<< parameters.deployment_type >>"
     steps:
       - checkout
       - run:
           name: Run << parameters.deployment_type >> tests
           command: |
-            DEPLOYMENT=<< parameters.deployment_type >>
             mkdir -p ~/testresults
-            if ! scripts/changes-include-dir Dockerfile deployments/$DEPLOYMENT tests/deployments/$DEPLOYMENT; then
+            if ! scripts/changes-include-dir deployments/$DEPLOYMENT tests/deployments/$DEPLOYMENT; then
                 echo "$DEPLOYMENT code has not changed, skipping tests!"
                 touch ~/.skip
                 exit 0
@@ -367,6 +378,8 @@ jobs:
                 # no pytest tests to execute for deployment
                 touch ~/.skip
             fi
+            # only run subsequent steps on node 0
+            [ $CIRCLE_NODE_INDEX -eq 0 ] || exit 0
             cd deployments/$DEPLOYMENT
             make dev-image
             case "$DEPLOYMENT" in
@@ -375,7 +388,7 @@ jobs:
                     --workdir /chef-repo/cookbooks/signalfx_agent \
                     signalfx-agent-chef-dev"
 
-                $CHEF_DEV chef exec rspec --format RspecJunitFormatter | sed '/No examples found./d' > ~/testresults/chefspec.xml
+                $CHEF_DEV chef exec rspec --format RspecJunitFormatter | sed '/No examples found./d' | tee ~/testresults/chefspec.xml
                 $CHEF_DEV foodcritic .
                 $CHEF_DEV cookstyle .
                 if [ $CIRCLE_NODE_INDEX -eq 0 ]; then
@@ -387,7 +400,7 @@ jobs:
             puppet)
                 docker run --rm \
                     signalfx-agent-puppet-dev \
-                    rspec spec --format RspecJunitFormatter > ~/testresults/puppetspec.xml
+                    rspec spec --format RspecJunitFormatter | tee ~/testresults/puppetspec.xml
                 docker run --rm \
                     signalfx-agent-puppet-dev \
                     puppet-lint .
@@ -395,7 +408,7 @@ jobs:
             salt)
                 docker run --rm \
                     signalfx-agent-salt-dev \
-                    salt '*' state.apply > ~/testresults/salt.out
+                    salt '*' state.apply | tee ~/testresults/salt.out
                 ;;
             ansible)
                 docker run --rm \
@@ -403,7 +416,7 @@ jobs:
                     --cap-add SYS_PTRACE \
                     signalfx-agent-ansible-dev \
                     ansible-playbook -i inventory example-playbook.yml --connection=local \
-                    -e '{"sfx_agent_config": {"signalFxAccessToken": "MyToken"}}' > ~/testresults/ansible.out
+                    -e '{"sfx_agent_config": {"signalFxAccessToken": "MyToken"}}' | tee ~/testresults/ansible.out
                 docker run --rm \
                     signalfx-agent-ansible-dev \
                     ansible-lint .
@@ -477,36 +490,43 @@ workflows:
           k8s_version: "v1.13.0"
           requires:
             - build
+            - helm_check
       - k8s_integration_tests:
           name: "k8s_v1.12.0_integration_tests"
           k8s_version: "v1.12.0"
           requires:
             - build
+            - helm_check
       - k8s_integration_tests:
           name: "k8s_v1.11.0_integration_tests"
           k8s_version: "v1.11.0"
           requires:
             - build
+            - helm_check
       - k8s_integration_tests:
           name: "k8s_v1.10.0_integration_tests"
           k8s_version: "v1.10.0"
           requires:
             - build
+            - helm_check
       - k8s_integration_tests:
           name: "k8s_v1.9.0_integration_tests"
           k8s_version: "v1.9.0"
           requires:
             - build
+            - helm_check
       - k8s_integration_tests:
           name: "k8s_v1.8.0_integration_tests"
           k8s_version: "v1.8.0"
           requires:
             - build
+            - helm_check
       - k8s_integration_tests:
           name: "k8s_v1.7.0_integration_tests"
           k8s_version: "v1.7.0"
           requires:
             - build
+            - helm_check
       - docs_test
       - installer_tests
       - package_tests:
