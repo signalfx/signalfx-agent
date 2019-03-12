@@ -28,15 +28,21 @@ type Config struct {
 	// the agent.
 	SignalFxAccessToken string `yaml:"signalFxAccessToken" neverLog:"true"`
 	// The URL of SignalFx ingest server.  Should be overridden if using the
-	// SignalFx Gateway.  If you want to send trace spans to a different location,
-	// set the `traceEndpointUrl` option.
-	IngestURL string `yaml:"ingestUrl" default:"https://ingest.signalfx.com"`
+	// SignalFx Gateway.  If not set, this will be determined by the
+	// `signalFxRealm` option below.  If you want to send trace spans to a
+	// different location, set the `traceEndpointUrl` option.
+	IngestURL string `yaml:"ingestUrl"`
 	// The full URL (including path) to the trace ingest server.  If this is
-	// not set, all trace spans will be sent to the `ingestUrl` configured
+	// not set, all trace spans will be sent to the same place as `ingestUrl`
 	// above.
 	TraceEndpointURL string `yaml:"traceEndpointUrl"`
-	// The SignalFx API base URL
-	APIURL string `yaml:"apiUrl" default:"https://api.signalfx.com"`
+	// The SignalFx API base URL.  If not set, this will determined by the
+	// `signalFxRealm` option below.
+	APIURL string `yaml:"apiUrl"`
+	// The SignalFx Realm that the organization you want to send to is a part
+	// of.  This defaults to the original realm (`us0`) but if you are setting
+	// up the agent for the first time, you quite likely need to change this.
+	SignalFxRealm string `yaml:"signalFxRealm" default:"us0"`
 	// The hostname that will be reported as the `host` dimension. If blank,
 	// this will be auto-determined by the agent based on a reverse lookup of
 	// the machine's IP address.
@@ -129,6 +135,18 @@ type Config struct {
 }
 
 func (c *Config) initialize() (*Config, error) {
+	if c.SignalFxRealm != "" {
+		if c.IngestURL == "" {
+			c.IngestURL = fmt.Sprintf("https://ingest.%s.signalfx.com", c.SignalFxRealm)
+		}
+		if c.APIURL == "" {
+			c.APIURL = fmt.Sprintf("https://api.%s.signalfx.com", c.SignalFxRealm)
+		}
+		if c.TraceEndpointURL == "" {
+			c.TraceEndpointURL = fmt.Sprintf("%s/v1/trace", c.IngestURL)
+		}
+	}
+
 	c.Writer.initialize()
 	c.setupEnvironment()
 

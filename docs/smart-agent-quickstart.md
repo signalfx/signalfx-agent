@@ -52,16 +52,27 @@ location for the token file is used.
 
 By default, the Smart Agent will send data to the `us0` realm.
 If you are not in this realm, you will need to explicitly set the
-ingest and api endpoints in your agent.yaml configuration file, as shown below.
+`signalFxRealm` option in your config like this:
+
+```
+signalFxRealm: <MY REALM>
+```
+
 To determine if you are in a different realm and need to
 explicitly set the endpoints, check your profile page in the SignalFx
 web application.
+
+If you want to explicitly set the ingest, API server, and trace endpoint URLs,
+you can set them individually like so:
 
 ```
 ingestUrl: "https://ingest.{REALM}.signalfx.com"
 apiUrl: "https://api.{REALM}.signalfx.com"
 traceEndpointUrl: "https://ingest.{REALM}.signalfx.com/v1/trace"
 ```
+
+They will default to the endpoints for the realm configured in `signalFxRealm`
+if not set.
 
 You can add more [monitors](./monitor-config.md) and configure them as appropriate.
 
