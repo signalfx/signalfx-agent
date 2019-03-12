@@ -350,6 +350,14 @@ ENV SIGNALFX_BUNDLE_DIR=/bundle \
 
 RUN pip3 install ipython ipdb
 
+# Install helm
+ARG HELM_VERSION=v2.13.0
+WORKDIR /tmp
+RUN wget -O helm.tar.gz https://storage.googleapis.com/kubernetes-helm/helm-${HELM_VERSION}-linux-amd64.tar.gz && \
+    tar -zxvf /tmp/helm.tar.gz && \
+    mv linux-amd64/helm /usr/local/bin/helm && \
+    chmod a+x /usr/local/bin/helm
+
 WORKDIR /go/src/github.com/signalfx/signalfx-agent
 CMD ["/bin/bash"]
 ENV PATH=$PATH:/usr/local/go/bin:/go/bin GOPATH=/go
