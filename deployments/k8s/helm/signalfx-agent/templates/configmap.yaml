@@ -16,6 +16,18 @@ data:
 {{- else }}
     signalFxAccessToken: ${SFX_ACCESS_TOKEN}
 
+    {{- if .Values.ingestUrl }}
+    ingestUrl: {{ .Values.ingestUrl }}
+    {{- end }}
+
+    {{- if .Values.apiUrl }}
+    apiUrl: {{ .Values.apiUrl }}
+    {{- end }}
+
+    {{- if .Values.traceEndpointUrl }}
+    traceEndpointUrl: {{ .Values.traceEndpointUrl }}
+    {{- end }}
+
     intervalSeconds: {{ .Values.metricIntervalSeconds }}
 
     logging:
