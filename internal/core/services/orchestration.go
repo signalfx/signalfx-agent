@@ -15,6 +15,8 @@ const (
 	SWARM
 	// DOCKER orchestrator
 	DOCKER
+	// ECS orchestrator
+	ECS
 	// NONE orchestrator
 	NONE
 )

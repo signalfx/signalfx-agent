@@ -6,6 +6,7 @@ import (
 	"path/filepath"
 	"reflect"
 	"sort"
+	"strconv"
 	"strings"
 
 	log "github.com/sirupsen/logrus"
@@ -17,6 +18,7 @@ type metricMetadata struct {
 	Name        string `json:"name"`
 	Type        string `json:"type"`
 	Description string `json:"description"`
+	IsCustom    bool   `json:"isCustom" default:"true"`
 }
 
 type propMetadata struct {
@@ -112,6 +114,23 @@ func dimensionsFromNotes(allDocs []*doc.Package) []dimMetadata {
 
 func metricsFromNotes(allDocs []*doc.Package) []metricMetadata {
 	var mm []metricMetadata
+	isCustom := make(map[string]bool)
+
+	// Extract metric properties
+	for noteMarker, property := range map[string]string{
+		"CUSTOM": "custom",
+	} {
+		for _, note := range notesFromDocs(allDocs, noteMarker) {
+			if property == "custom" {
+				b, err := strconv.ParseBool(note.Body)
+				if err != nil {
+					isCustom[note.UID] = b
+				}
+			}
+		}
+	}
+
+	// Extract metrics with following metric types
 	for noteMarker, metaType := range map[string]string{
 		"GAUGE":      "gauge",
 		"TIMESTAMP":  "timestamp",
@@ -119,10 +138,12 @@ func metricsFromNotes(allDocs []*doc.Package) []metricMetadata {
 		"CUMULATIVE": "cumulative",
 	} {
 		for _, note := range notesFromDocs(allDocs, noteMarker) {
+			customValue, customExists := isCustom[note.UID]
 			mm = append(mm, metricMetadata{
 				Type:        metaType,
 				Name:        note.UID,
 				Description: commentTextToParagraphs(note.Body),
+				IsCustom:    !customExists || customValue,
 			})
 		}
 	}

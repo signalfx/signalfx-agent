@@ -239,15 +239,15 @@ func (docker *Docker) endpointsForContainer(cont *dtypes.ContainerJSON) []servic
 			Labels:  cont.Config.Labels,
 		}
 
-		labelConfigs := getConfigLabels(cont.Config.Labels)
-		knownPorts := map[contPort]bool{}
+		labelConfigs := GetConfigLabels(cont.Config.Labels)
+		knownPorts := map[ContPort]bool{}
 
 		for port := range labelConfigs {
 			knownPorts[port] = true
 		}
 
 		for k := range cont.Config.ExposedPorts {
-			knownPorts[contPort{Port: k}] = true
+			knownPorts[ContPort{Port: k}] = true
 		}
 
 		for portObj := range knownPorts {
@@ -271,7 +271,7 @@ func (docker *Docker) endpointsForContainer(cont *dtypes.ContainerJSON) []servic
 	return instances
 }
 
-func (docker *Docker) endpointForPort(portObj contPort, cont *dtypes.ContainerJSON, serviceContainer *services.Container) *services.ContainerEndpoint {
+func (docker *Docker) endpointForPort(portObj ContPort, cont *dtypes.ContainerJSON, serviceContainer *services.Container) *services.ContainerEndpoint {
 	port := portObj.Int()
 	protocol := portObj.Proto()
 

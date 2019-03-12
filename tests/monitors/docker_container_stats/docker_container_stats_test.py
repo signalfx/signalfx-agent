@@ -14,7 +14,8 @@ def test_docker_container_stats():
             """
     monitors:
       - type: docker-container-stats
-
+        enableExtraCPUMetrics: true
+        enableExtraMemoryMetrics: true
     """
         ) as [backend, _, _]:
             assert wait_for(

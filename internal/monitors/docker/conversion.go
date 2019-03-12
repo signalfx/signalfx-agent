@@ -1,8 +1,6 @@
 package docker
 
 import (
-	"encoding/json"
-	"io"
 	"strconv"
 	"strings"
 	"time"
@@ -23,24 +21,18 @@ var memoryStatCounters = map[string]bool{
 	"total_pgpgout":    true,
 }
 
-func convertStatsToMetrics(container *dtypes.ContainerJSON, cstats *dtypes.ContainerStats) ([]*datapoint.Datapoint, error) {
-	var parsed dtypes.StatsJSON
-	err := json.NewDecoder(cstats.Body).Decode(&parsed)
-	if err != nil {
-		// EOF means that there aren't any stats, perhaps because the container
-		// is gone.  Just return nothing and no error.
-		if err == io.EOF {
-			return nil, nil
-		}
-		return nil, err
-	}
-	cstats.Body.Close()
+var basicBlockIOMetrics = map[string]bool{
+	"blkio.io_service_bytes_recursive.read":  true,
+	"blkio.io_service_bytes_recursive.write": true,
+}
 
+// ConvertStatsToMetrics converts a docker container stats object into an array of datapoints
+func ConvertStatsToMetrics(container *dtypes.ContainerJSON, parsed *dtypes.StatsJSON, enhancedMetricsConfig EnhancedMetricsConfig) ([]*datapoint.Datapoint, error) {
 	var dps []*datapoint.Datapoint
-	dps = append(dps, convertBlkioStats(&parsed.BlkioStats)...)
-	dps = append(dps, convertCPUStats(&parsed.CPUStats, &parsed.PreCPUStats)...)
-	dps = append(dps, convertMemoryStats(&parsed.MemoryStats)...)
-	dps = append(dps, convertNetworkStats(&parsed.Networks)...)
+	dps = append(dps, convertBlkioStats(&parsed.BlkioStats, enhancedMetricsConfig.EnableExtraBlockIOMetrics)...)
+	dps = append(dps, convertCPUStats(&parsed.CPUStats, &parsed.PreCPUStats, enhancedMetricsConfig.EnableExtraCPUMetrics)...)
+	dps = append(dps, convertMemoryStats(&parsed.MemoryStats, enhancedMetricsConfig.EnableExtraMemoryMetrics)...)
+	dps = append(dps, convertNetworkStats(&parsed.Networks, enhancedMetricsConfig.EnableExtraNetworkMetrics)...)
 
 	now := time.Now()
 	for i := range dps {
@@ -64,7 +56,7 @@ func convertStatsToMetrics(container *dtypes.ContainerJSON, cstats *dtypes.Conta
 	return dps, nil
 }
 
-func convertBlkioStats(stats *dtypes.BlkioStats) []*datapoint.Datapoint {
+func convertBlkioStats(stats *dtypes.BlkioStats, enhancedMetrics bool) []*datapoint.Datapoint {
 	var out []*datapoint.Datapoint
 
 	for k, v := range map[string][]dtypes.BlkioStatEntry{
@@ -78,40 +70,51 @@ func convertBlkioStats(stats *dtypes.BlkioStats) []*datapoint.Datapoint {
 		"sectors_recursive":          stats.SectorsRecursive,
 	} {
 		for _, bs := range v {
-			dims := map[string]string{
-				"device_major": strconv.FormatUint(bs.Major, 10),
-				"device_minor": strconv.FormatUint(bs.Minor, 10),
+			metricName := "blkio." + k + "." + strings.ToLower(bs.Op)
+
+			if _, exists := basicBlockIOMetrics[metricName]; enhancedMetrics || exists {
+				dims := map[string]string{
+					"device_major": strconv.FormatUint(bs.Major, 10),
+					"device_minor": strconv.FormatUint(bs.Minor, 10),
+				}
+				out = append(out, sfxclient.Cumulative("blkio."+k+"."+strings.ToLower(bs.Op), dims, int64(bs.Value)))
 			}
-			out = append(out, sfxclient.Cumulative("blkio."+k+"."+strings.ToLower(bs.Op), dims, int64(bs.Value)))
 		}
 	}
+
 	return out
 }
 
-func convertCPUStats(stats *dtypes.CPUStats, prior *dtypes.CPUStats) []*datapoint.Datapoint {
+func convertCPUStats(stats *dtypes.CPUStats, prior *dtypes.CPUStats, enhancedMetrics bool) []*datapoint.Datapoint {
 	var out []*datapoint.Datapoint
 
 	out = append(out, []*datapoint.Datapoint{
 		sfxclient.Cumulative("cpu.usage.total", nil, int64(stats.CPUUsage.TotalUsage)),
-		sfxclient.Cumulative("cpu.usage.kernelmode", nil, int64(stats.CPUUsage.UsageInKernelmode)),
-		sfxclient.Cumulative("cpu.usage.usermode", nil, int64(stats.CPUUsage.UsageInUsermode)),
 		sfxclient.Cumulative("cpu.usage.system", nil, int64(stats.SystemUsage)),
 	}...)
 
-	for i, v := range stats.CPUUsage.PercpuUsage {
-		dims := map[string]string{
-			"core": "cpu" + strconv.Itoa(i),
+	// Except two metrics above, everything else will be added only when enhnacedMetrics is enabled
+	if enhancedMetrics {
+		out = append(out, []*datapoint.Datapoint{
+			sfxclient.Cumulative("cpu.usage.kernelmode", nil, int64(stats.CPUUsage.UsageInKernelmode)),
+			sfxclient.Cumulative("cpu.usage.usermode", nil, int64(stats.CPUUsage.UsageInUsermode)),
+		}...)
+
+		for i, v := range stats.CPUUsage.PercpuUsage {
+			dims := map[string]string{
+				"core": "cpu" + strconv.Itoa(i),
+			}
+			out = append(out, sfxclient.Cumulative("cpu.percpu.usage", dims, int64(v)))
 		}
-		out = append(out, sfxclient.Cumulative("cpu.percpu.usage", dims, int64(v)))
+
+		out = append(out, []*datapoint.Datapoint{
+			sfxclient.Cumulative("cpu.throttling_data.periods", nil, int64(stats.ThrottlingData.Periods)),
+			sfxclient.Cumulative("cpu.throttling_data.throttled_periods", nil, int64(stats.ThrottlingData.ThrottledPeriods)),
+			sfxclient.Cumulative("cpu.throttling_data.throttled_time", nil, int64(stats.ThrottlingData.ThrottledTime)),
+		}...)
+
+		out = append(out, sfxclient.GaugeF("cpu.percent", nil, calculateCPUPercent(prior, stats)))
 	}
-
-	out = append(out, []*datapoint.Datapoint{
-		sfxclient.Cumulative("cpu.throttling_data.periods", nil, int64(stats.ThrottlingData.Periods)),
-		sfxclient.Cumulative("cpu.throttling_data.throttled_periods", nil, int64(stats.ThrottlingData.ThrottledPeriods)),
-		sfxclient.Cumulative("cpu.throttling_data.throttled_time", nil, int64(stats.ThrottlingData.ThrottledTime)),
-	}...)
-
-	out = append(out, sfxclient.GaugeF("cpu.percent", nil, calculateCPUPercent(prior, stats)))
 
 	return out
 }
@@ -137,29 +140,36 @@ func calculateCPUPercent(previous *dtypes.CPUStats, v *dtypes.CPUStats) float64 
 	return cpuPercent
 }
 
-func convertMemoryStats(stats *dtypes.MemoryStats) []*datapoint.Datapoint {
+func convertMemoryStats(stats *dtypes.MemoryStats, enhancedMetrics bool) []*datapoint.Datapoint {
 	var out []*datapoint.Datapoint
 
 	out = append(out, []*datapoint.Datapoint{
 		sfxclient.Gauge("memory.usage.limit", nil, int64(stats.Limit)),
-		sfxclient.Gauge("memory.usage.max", nil, int64(stats.MaxUsage)),
 		sfxclient.Gauge("memory.usage.total", nil, int64(stats.Usage)),
-		sfxclient.GaugeF("memory.percent", nil,
-			// If cache is not present it will use the default value of 0
-			100.0*(float64(stats.Usage)-float64(stats.Stats["cache"]))/float64(stats.Limit)),
 	}...)
-	for k, v := range stats.Stats {
-		if _, exists := memoryStatCounters[k]; exists {
-			out = append(out, sfxclient.Cumulative("memory.stats."+k, nil, int64(v)))
-		} else {
-			out = append(out, sfxclient.Gauge("memory.stats."+k, nil, int64(v)))
+
+	// Except two metrics above, everything else will be added only when enhnacedMetrics is enabled
+	if enhancedMetrics {
+		out = append(out, []*datapoint.Datapoint{
+			sfxclient.Gauge("memory.usage.max", nil, int64(stats.MaxUsage)),
+			sfxclient.GaugeF("memory.percent", nil,
+				// If cache is not present it will use the default value of 0
+				100.0*(float64(stats.Usage)-float64(stats.Stats["cache"]))/float64(stats.Limit)),
+		}...)
+
+		for k, v := range stats.Stats {
+			if _, exists := memoryStatCounters[k]; exists {
+				out = append(out, sfxclient.Cumulative("memory.stats."+k, nil, int64(v)))
+			} else {
+				out = append(out, sfxclient.Gauge("memory.stats."+k, nil, int64(v)))
+			}
 		}
 	}
 
 	return out
 }
 
-func convertNetworkStats(stats *map[string]dtypes.NetworkStats) []*datapoint.Datapoint {
+func convertNetworkStats(stats *map[string]dtypes.NetworkStats, enhancedMetrics bool) []*datapoint.Datapoint {
 	if stats == nil {
 		return nil
 	}
@@ -171,14 +181,20 @@ func convertNetworkStats(stats *map[string]dtypes.NetworkStats) []*datapoint.Dat
 
 		out = append(out, []*datapoint.Datapoint{
 			sfxclient.Cumulative("network.usage.rx_bytes", dims, int64(s.RxBytes)),
-			sfxclient.Cumulative("network.usage.rx_dropped", dims, int64(s.RxDropped)),
-			sfxclient.Cumulative("network.usage.rx_errors", dims, int64(s.RxErrors)),
-			sfxclient.Cumulative("network.usage.rx_packets", dims, int64(s.RxPackets)),
 			sfxclient.Cumulative("network.usage.tx_bytes", dims, int64(s.TxBytes)),
-			sfxclient.Cumulative("network.usage.tx_dropped", dims, int64(s.TxDropped)),
-			sfxclient.Cumulative("network.usage.tx_errors", dims, int64(s.TxErrors)),
-			sfxclient.Cumulative("network.usage.tx_packets", dims, int64(s.TxPackets)),
 		}...)
+
+		if enhancedMetrics {
+			out = append(out, []*datapoint.Datapoint{
+				sfxclient.Cumulative("network.usage.rx_dropped", dims, int64(s.RxDropped)),
+				sfxclient.Cumulative("network.usage.rx_errors", dims, int64(s.RxErrors)),
+				sfxclient.Cumulative("network.usage.rx_packets", dims, int64(s.RxPackets)),
+				sfxclient.Cumulative("network.usage.tx_dropped", dims, int64(s.TxDropped)),
+				sfxclient.Cumulative("network.usage.tx_errors", dims, int64(s.TxErrors)),
+				sfxclient.Cumulative("network.usage.tx_packets", dims, int64(s.TxPackets)),
+			}...)
+		}
 	}
+
 	return out
 }

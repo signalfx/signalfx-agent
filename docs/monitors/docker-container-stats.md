@@ -29,6 +29,10 @@ Monitor Type: `docker-container-stats`
 
 | Config option | Required | Type | Description |
 | --- | --- | --- | --- |
+| `enableExtraBlockIOMetrics` | no | `bool` | Whether it will send all extra block IO metrics as well. (**default:** `false`) |
+| `enableExtraCPUMetrics` | no | `bool` | Whether it will send all extra CPU metrics as well. (**default:** `false`) |
+| `enableExtraMemoryMetrics` | no | `bool` | Whether it will send all extra memory metrics as well. (**default:** `false`) |
+| `enableExtraNetworkMetrics` | no | `bool` | Whether it will send all extra network metrics as well. (**default:** `false`) |
 | `dockerURL` | no | `string` | The URL of the docker server (**default:** `unix:///var/run/docker.sock`) |
 | `timeoutSeconds` | no | `integer` | The maximum amount of time to wait for docker API requests (**default:** `5`) |
 | `labelsToDimensions` | no | `map of strings` | A mapping of container label names to dimension names. The corresponding label values will become the dimension value for the mapped name.  E.g. `io.kubernetes.container.name: container_spec_name` would result in a dimension called `container_spec_name` that has the value of the `io.kubernetes.container.name` container label. |

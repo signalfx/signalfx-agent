@@ -60,6 +60,7 @@ along with their possible configuration options:
 - [disk-io](./monitors/disk-io.md)
 - [docker-container-stats](./monitors/docker-container-stats.md)
 - [dotnet](./monitors/dotnet.md)
+- [ecs-metadata](./monitors/ecs-metadata.md)
 - [filesystems](./monitors/filesystems.md)
 - [host-metadata](./monitors/host-metadata.md)
 - [internal-metrics](./monitors/internal-metrics.md)

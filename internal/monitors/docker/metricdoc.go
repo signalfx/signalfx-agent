@@ -3,12 +3,14 @@ package docker
 // CUMULATIVE(blkio.io_service_bytes_recursive.async): Volume, in bytes, of asynchronous block I/O
 
 // CUMULATIVE(blkio.io_service_bytes_recursive.read): Volume, in bytes, of reads from block devices
+// CUSTOM(blkio.io_service_bytes_recursive.read): false
 
 // CUMULATIVE(blkio.io_service_bytes_recursive.sync): Volume, in bytes, of synchronous block I/O
 
 // CUMULATIVE(blkio.io_service_bytes_recursive.total): Total volume, in bytes, of all block I/O
 
 // CUMULATIVE(blkio.io_service_bytes_recursive.write): Volume, in bytes, of writes to block devices
+// CUSTOM(blkio.io_service_bytes_recursive.write): false
 
 // CUMULATIVE(blkio.io_serviced_recursive.async): Number of asynchronous block I/O requests
 
@@ -35,8 +37,10 @@ package docker
 // CUMULATIVE(cpu.usage.kernelmode): Jiffies of CPU time spent in kernel mode by the container
 
 // CUMULATIVE(cpu.usage.system): Jiffies of CPU time used by the system
+// CUSTOM(cpu.usage.system): false
 
 // CUMULATIVE(cpu.usage.total): Jiffies of CPU time used by the container
+// CUSTOM(cpu.usage.total): false
 
 // CUMULATIVE(cpu.usage.usermode): Jiffies of CPU time spent in user mode by the container
 
@@ -138,12 +142,15 @@ package docker
 // for syncing to the disk
 
 // GAUGE(memory.usage.limit): Memory usage limit of the container, in bytes
+// CUSTOM(memory.usage.limit): false
 
 // GAUGE(memory.usage.max): Maximum measured memory usage of the container, in bytes
 
 // GAUGE(memory.usage.total): Bytes of memory used by the container
+// CUSTOM(memory.usage.total): false
 
 // CUMULATIVE(network.usage.rx_bytes): Bytes received by the container via its network interface
+// CUSTOM(network.usage.rx_bytes): false
 
 // CUMULATIVE(network.usage.rx_dropped): Number of inbound network packets dropped by the container
 
@@ -152,6 +159,7 @@ package docker
 // CUMULATIVE(network.usage.rx_packets): Network packets received by the container via its network interface
 
 // CUMULATIVE(network.usage.tx_bytes): Bytes sent by the container via its network interface
+// CUSTOM(network.usage.tx_bytes): false
 
 // CUMULATIVE(network.usage.tx_dropped): Number of outbound network packets dropped by the container
 
