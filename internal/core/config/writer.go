@@ -149,7 +149,7 @@ func (wc *WriterConfig) ParsedTraceEndpointURL() *url.URL {
 
 // DatapointFilters creates the filter set for datapoints
 func (wc *WriterConfig) DatapointFilters() (*dpfilters.FilterSet, error) {
-	return makeFilterSet(wc.MetricsToExclude, wc.MetricsToInclude)
+	return makeOldFilterSet(wc.MetricsToExclude, wc.MetricsToInclude)
 }
 
 // PropertyFilters creates the filter set for dimension properties

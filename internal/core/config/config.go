@@ -212,8 +212,8 @@ func (c *Config) validate() error {
 // need them
 func (c *Config) propagateValuesDown() error {
 	for i := range c.Monitors {
-		if err := c.Monitors[i].initialize(); err != nil {
-			return errors.WithMessage(err, fmt.Sprintf("Could not initialize monitor %s", c.Monitors[i].Type))
+		if err := c.Monitors[i].Validate(); err != nil {
+			return fmt.Errorf("monitor config for type '%s' is invalid: %v", c.Monitors[i].Type, err)
 		}
 	}
 

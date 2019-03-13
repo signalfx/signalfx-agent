@@ -7,7 +7,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestExhaustiveStringFilter(t *testing.T) {
+func TestOverridableStringFilter(t *testing.T) {
 	for _, tc := range []struct {
 		filter      []string
 		inputs      []string
@@ -73,7 +73,7 @@ func TestExhaustiveStringFilter(t *testing.T) {
 				"process_",
 			},
 			inputs:      []string{"other", "app", "process_cpu", "process_"},
-			shouldMatch: []bool{false, true, false, true},
+			shouldMatch: []bool{false, true, false, false},
 		},
 		{
 			filter: []string{
@@ -101,6 +101,16 @@ func TestExhaustiveStringFilter(t *testing.T) {
 		},
 		{
 			filter: []string{
+				"metric_?",
+				"!metric_a",
+				"!metric_b",
+				"random",
+			},
+			inputs:      []string{"metric_a", "metric_b", "metric_c", "asdf", "random"},
+			shouldMatch: []bool{false, false, true, false, true},
+		},
+		{
+			filter: []string{
 				"!process_cpu",
 				// Order doesn't matter
 				"*",
@@ -113,21 +123,21 @@ func TestExhaustiveStringFilter(t *testing.T) {
 				"/a.*/",
 				"!/.*z/",
 				"b",
-				// Static match will override the negated regex above
+				// Static match should not override the negated regex above
 				"alz",
 			},
 			inputs:      []string{"", "asdf", "asdz", "b", "wrong", "alz"},
-			shouldMatch: []bool{false, true, false, true, false, true},
+			shouldMatch: []bool{false, true, false, true, false, false},
 		},
 	} {
-		f, err := NewExhaustiveStringFilter(tc.filter)
+		f, err := NewOverridableStringFilter(tc.filter)
 		if tc.shouldError {
 			assert.NotNil(t, err, spew.Sdump(tc))
 		} else {
 			assert.Nil(t, err, spew.Sdump(tc))
 		}
 		for i := range tc.inputs {
-			assert.Equal(t, tc.shouldMatch[i], f.Matches(tc.inputs[i]), "%d input of %s\n%s", i, spew.Sdump(tc), spew.Sdump(f))
+			assert.Equal(t, tc.shouldMatch[i], f.Matches(tc.inputs[i]), "input[%d] of %s\n%s", i, spew.Sdump(tc), spew.Sdump(f))
 		}
 	}
 }

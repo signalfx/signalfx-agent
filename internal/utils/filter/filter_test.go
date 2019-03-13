@@ -77,8 +77,9 @@ func TestBasicStringFilter(t *testing.T) {
 				"!other",
 				"!/^process_/",
 			},
-			input:       "other",
-			shouldMatch: true,
+			input: "other",
+			// Since "other" is explicitly excluded, it should not ever match.
+			shouldMatch: false,
 		},
 		{
 			filter: []string{
@@ -118,27 +119,28 @@ func TestBasicStringFilter(t *testing.T) {
 
 func TestStringMapFilter(t *testing.T) {
 	for _, tc := range []struct {
-		filter      map[string]string
+		filter      map[string][]string
 		input       map[string]string
 		shouldMatch bool
 		shouldError bool
 	}{
 		{
-			filter:      map[string]string{},
-			input:       map[string]string{},
-			shouldMatch: true,
+			filter: map[string][]string{},
+			input:  map[string]string{},
+			// Empty map never matches anything, even blank filter
+			shouldMatch: false,
 		},
 		{
-			filter: map[string]string{
-				"app": "test",
+			filter: map[string][]string{
+				"app": {"test"},
 			},
 			input:       map[string]string{},
 			shouldMatch: false,
 		},
 		{
-			filter: map[string]string{
-				"app":     "test",
-				"version": "*",
+			filter: map[string][]string{
+				"app":     {"test"},
+				"version": {"*"},
 			},
 			input: map[string]string{
 				"app": "test",
@@ -146,8 +148,8 @@ func TestStringMapFilter(t *testing.T) {
 			shouldMatch: false,
 		},
 		{
-			filter: map[string]string{
-				"app": "test",
+			filter: map[string][]string{
+				"app": {"test"},
 			},
 			input: map[string]string{
 				"app":     "test",
@@ -156,8 +158,8 @@ func TestStringMapFilter(t *testing.T) {
 			shouldMatch: true,
 		},
 		{
-			filter: map[string]string{
-				"version": `/\d+\.\d+/`,
+			filter: map[string][]string{
+				"version": {`/\d+\.\d+/`},
 			},
 			input: map[string]string{
 				"app":     "test",
@@ -166,8 +168,8 @@ func TestStringMapFilter(t *testing.T) {
 			shouldMatch: true,
 		},
 		{
-			filter: map[string]string{
-				"version": `/\d+\.\d+/`,
+			filter: map[string][]string{
+				"version": {`/\d+\.\d+/`},
 			},
 			input: map[string]string{
 				"app":     "test",
