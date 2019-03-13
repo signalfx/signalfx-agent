@@ -6,9 +6,9 @@ set -x
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 files_to_update=(
-  deployments/k8s/helm/values.yaml
+  deployments/k8s/helm/signalfx-agent/values.yaml
   deployments/ecs/signalfx-agent-task.json
-  deployments/ecs/signalfx-agent-fargate-task.json
+  deployments/fargate/signalfx-agent-fargate-task.json
 )
 
 new_version=$1

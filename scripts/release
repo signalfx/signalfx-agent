@@ -80,7 +80,7 @@ parse_args_and_release() {
           deb) build_deb_package=yes build_all=no ;;
           rpm) build_rpm_package=yes build_all=no ;;
           bundle) build_bundle=yes build_all=no ;;
-          deployments) build_bundle=yes build_all=no ;;
+          deployments) build_deployments=yes build_all=no ;;
           *) echo "component "$1" not recognized, quitting" >&2 && exit 1 ;;
         esac
         shift 1
@@ -154,7 +154,7 @@ parse_args_and_release() {
 
   # Do these updates after everything has been pushed so that nobody ever sees
   # versions in the master branch that haven't been released.
-  if [[ "$stage" == "final" ]] && ([["$build_deployments" == "yes"]] || [["$build_all" == "yes"]]); then
+  if [[ "$stage" == "final" ]] && ([[ "$build_deployments" == "yes" ]] || [[ "$build_all" == "yes" ]]); then
     update_deployment_files "$new_version" "$force"
   fi
 
