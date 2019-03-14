@@ -16,3 +16,6 @@ new_version=$1
 for f in ${files_to_update[@]}; do
   sed -i '' -E -e "s/[0-9]+\.[0-9]+\.[0-9]+/$new_version/g" $f
 done
+
+# This will update the derived k8s resources with the new version
+deployments/k8s/generate-from-helm
