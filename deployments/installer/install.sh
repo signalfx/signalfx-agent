@@ -13,8 +13,9 @@ yum_gpg_key_url="$repo_base/yum-rpm.key"
 
 parse_args_and_install() {
   local stage="final"
-  local ingest_url="https://ingest.signalfx.com"
-  local api_url="https://api.signalfx.com"
+  local realm="us0"
+  local ingest_url=
+  local api_url=
   local access_token=
   local insecure=
   local package_version=
@@ -33,6 +34,10 @@ parse_args_and_install() {
         ;;
       --api-url)
         api_url="$2"
+        shift 1
+        ;;
+      --realm)
+        realm="$2"
         shift 1
         ;;
       --insecure)
@@ -63,6 +68,17 @@ parse_args_and_install() {
     esac
     shift 1
   done
+
+  if [ -z "$ingest_url" ]; then
+    ingest_url="https://ingest.$realm.signalfx.com"
+  fi
+
+  if [ -z "$api_url" ]; then
+    api_url="https://api.$realm.signalfx.com"
+  fi
+
+  echo "Ingest URL: $ingest_url"
+  echo "API URL: $api_url"
 
   install "$stage" "$ingest_url" "$api_url" "$access_token" "$insecure" "$package_version"
   exit 0
