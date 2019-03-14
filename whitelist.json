@@ -172,6 +172,16 @@
         ]
     },
     {
+        "monitorType": "net-io",
+        "negated": true,
+        "metricNames": [
+            "if_errors.rx",
+            "if_errors.tx",
+            "if_octets.rx",
+            "if_octets.tx"
+        ]
+    },
+    {
         "monitorType": "kubernetes-cluster",
         "negated": true,
         "metricNames": [
