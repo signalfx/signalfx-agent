@@ -8,7 +8,6 @@ from contextlib import contextmanager
 from io import BytesIO
 
 import docker
-
 from tests.helpers import fake_backend
 from tests.helpers.util import get_docker_client, get_host_ip, retry, run_container
 
@@ -159,7 +158,14 @@ def copy_file_into_container(path, container, target_path):
 
 
 @contextmanager
-def run_init_system_image(base_image, with_socat=True, path=DOCKERFILES_DIR, dockerfile=None):
+def run_init_system_image(
+    base_image,
+    with_socat=True,
+    path=DOCKERFILES_DIR,
+    dockerfile=None,
+    ingest_host="ingest.us0.signalfx.com",  # Whatever value is used here needs a self-signed cert in ./images/certs/
+    api_host="api.us0.signalfx.com",  # Whatever value is used here needs a self-signed cert in ./images/certs/
+):
     image_id = retry(lambda: build_base_image(base_image, path, dockerfile), docker.errors.BuildError)
     print("Image ID: %s" % image_id)
     if with_socat:
@@ -177,8 +183,8 @@ def run_init_system_image(base_image, with_socat=True, path=DOCKERFILES_DIR, doc
             "extra_hosts": {
                 # Socat will be running on localhost to forward requests to
                 # these hosts to the fake backend
-                "ingest.signalfx.com": backend.ingest_host,
-                "api.signalfx.com": backend.api_host,
+                ingest_host: backend.ingest_host,
+                api_host: backend.api_host,
             },
         }
         with run_container(image_id, wait_for_ip=True, **container_options) as cont:
@@ -189,8 +195,8 @@ def run_init_system_image(base_image, with_socat=True, path=DOCKERFILES_DIR, doc
                 # included in the images dir so that the agent doesn't throw TLS
                 # verification errors.
                 with socat_https_proxy(
-                    cont, backend.ingest_host, backend.ingest_port, "ingest.signalfx.com", "127.0.0.1"
-                ), socat_https_proxy(cont, backend.api_host, backend.api_port, "api.signalfx.com", "127.0.0.2"):
+                    cont, backend.ingest_host, backend.ingest_port, ingest_host, "127.0.0.1"
+                ), socat_https_proxy(cont, backend.api_host, backend.api_port, api_host, "127.0.0.2"):
                     yield [cont, backend]
             else:
                 yield [cont, backend]

@@ -3,7 +3,6 @@
 from functools import partial as p
 
 import pytest
-
 from tests.helpers.assertions import has_datapoint_with_dim
 from tests.helpers.util import print_lines, wait_for
 
@@ -34,15 +33,14 @@ SUPPORTED_DISTROS = [
 ]
 
 
-@pytest.mark.parametrize("base_image,init_system", SUPPORTED_DISTROS)
-def test_intaller(base_image, init_system):
-    with run_init_system_image(base_image) as [cont, backend]:
+def _run_tests(base_image, init_system, installer_args, **extra_run_kwargs):
+    with run_init_system_image(base_image, **extra_run_kwargs) as [cont, backend]:
         copy_file_into_container(INSTALLER_PATH, cont, "/opt/install.sh")
 
         # Unfortunately, wget and curl both don't like self-signed certs, even
         # if they are in the system bundle, so we need to use the --insecure
         # flag.
-        code, output = cont.exec_run("sh /opt/install.sh MYTOKEN --beta --insecure")
+        code, output = cont.exec_run(f"sh /opt/install.sh --insecure {installer_args}")
         print("Output of install script:")
         print_lines(output)
         assert code == 0, "Agent could not be installed!"
@@ -55,3 +53,18 @@ def test_intaller(base_image, init_system):
         finally:
             print("Agent log:")
             print_lines(get_agent_logs(cont, init_system))
+
+
+@pytest.mark.parametrize("base_image,init_system", SUPPORTED_DISTROS)
+def test_intaller_on_all_distros(base_image, init_system):
+    _run_tests(base_image, init_system, "MYTOKEN")
+
+
+def test_installer_different_realm():
+    _run_tests(
+        "ubuntu1804",
+        INIT_SYSTEMD,
+        "MYTOKEN --realm us1",
+        ingest_host="ingest.us1.signalfx.com",
+        api_host="api.us1.signalfx.com",
+    )
