@@ -1,0 +1,45 @@
+- dimensions:
+  - description: (*EBS volumes only*) The EBS volume id of the underlying volume source
+    name: VolumeId
+  - description: (*GlusterFS volumes only*) The endpoint name used for the GlusterFS
+      volume
+    name: endpoints_name
+  - description: (*GlusterFS volumes only*) The GlusterFS volume path
+    name: glusterfs_path
+  - description: The namespace of the pod that has this volume
+    name: kubernetes_namespace
+  - description: The name of the pod that has this volume
+    name: kubernetes_pod_name
+  - description: The UID of the pod that has this volume
+    name: kubernetes_pod_uid
+  - description: (*EBS volumes only*) The partition number of the underlying EBS volume
+      (`0` indicates the entire disk)
+    name: partition
+  - description: The volume name as given in the pod spec under `volumes`
+    name: volume
+  - description: The type of the underlying volume -- this will be the key used in
+      the k8s volume config spec (e.g. awsElasticBlockStore, etc.)
+    name: volume_type
+  doc: |
+    This monitor sends usage stats about volumes
+    mounted to Kubernetes pods (e.g. free space/inodes).  This information is
+    gotten from the Kubelet /stats/summary endpoint.  The normal `collectd/df`
+    monitor generally will not report Persistent Volume usage metrics because
+    those volumes are not seen by the agent since they can be mounted
+    dynamically and older versions of K8s don't support mount propagation of
+    those mounts to the agent container.
+
+    Dimensions that identify the underlying volume source will be added for
+    `awsElasticBlockStore` and `glusterfs` volumes.  Support for more can be
+    easily added as needed.
+  metrics:
+  - description: The number of available bytes in the volume
+    included: false
+    name: kubernetes.volume_available_bytes
+    type: gauge
+  - description: The total capacity in bytes of the volume
+    included: false
+    name: kubernetes.volume_capacity_bytes
+    type: gauge
+  monitorType: kubernetes-volumes
+  properties: null

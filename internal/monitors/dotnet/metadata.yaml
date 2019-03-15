@@ -1,0 +1,76 @@
+- dimensions: null
+  doc: |
+    (Windows Only) This monitor reports metrics for .NET applications.
+
+    The most critical .NET performance counters
+    * exceptions
+    * logical threads
+    * physical threads
+    * heap bytes
+    * time in GC
+    * committed bytes
+    * pinned objects
+
+    ## Windows Performance Counters
+    The underlying source for these metrics are Windows Performance Counters.
+    Most of the performance counters that we query in this monitor are actually Gauges
+    that represent rates per second and percentages.
+
+    This monitor reports the instantaneous values for these Windows Performance Counters.
+    This means that in between a collection interval, spikes could occur on the
+    Performance Counters.  The best way to mitigate this limitation is to increase
+    the reporting interval on this monitor to collect more frequently.
+
+    Sample YAML configuration:
+
+    ```yaml
+    monitors:
+     - type: dotnet
+    ```
+  metrics:
+  - description: The number of exceptions thrown by .NET applications.
+    included: false
+    name: net_clr_exceptions.num_exceps_thrown_sec
+    type: gauge
+  - description: The rate of thread of thread contention per second for .NET applications.
+    included: false
+    name: net_clr_locksandthreads.contention_rate_sec
+    type: gauge
+  - description: The current thread queue length for .NET applications.
+    included: false
+    name: net_clr_locksandthreads.current_queue_length
+    type: gauge
+  - description: The number of current logical threads for .NET applications.
+    included: false
+    name: net_clr_locksandthreads.num_of_current_logical_threads
+    type: gauge
+  - description: The number of current physical threads for .NET applications.
+    included: false
+    name: net_clr_locksandthreads.num_of_current_physical_threads
+    type: gauge
+  - description: The number of bytes in all heaps for .NET applications.
+    included: false
+    name: net_clr_memory.num_bytes_in_all_heaps
+    type: gauge
+  - description: The number of garbage collection handles held by .NET applications.
+    included: false
+    name: net_clr_memory.num_gc_handles
+    type: gauge
+  - description: The number of objects pinned in memory by .NET applications.
+    included: false
+    name: net_clr_memory.num_of_pinned_objects
+    type: gauge
+  - description: The total number of bytes committed to memory by .NET applications.
+    included: false
+    name: net_clr_memory.num_total_committed_bytes
+    type: gauge
+  - description: The total number of bytes reserved by .NET applications.
+    included: false
+    name: net_clr_memory.num_total_reserved_bytes
+    type: gauge
+  - description: The percentage of time spent garbage collecting by .NET applications.
+    included: false
+    name: net_clr_memory.pct_time_in_gc
+    type: gauge
+  monitorType: dotnet
+  properties: null

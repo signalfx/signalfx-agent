@@ -1,0 +1,61 @@
+- dimensions: null
+  doc: |
+    Collects information about the virtual memory
+    subsystem of the kernel.
+
+    On Linux hosts, this monitor relies on the `/proc` filesystem.
+    If the underlying host's `/proc` file system is mounted somewhere other than
+    /proc please specify the path using the top level configuration `procPath`.
+
+    ```yaml
+    procPath: /proc
+    monitors:
+     - type: vmem
+    ```
+  metrics:
+  - description: (Windows Only)
+    included: false
+    name: vmpage.swap.in_per_second
+    type: gauge
+  - description: (Windows Only)
+    included: false
+    name: vmpage.swap.out_per_second
+    type: gauge
+  - description: (Windows Only)
+    included: false
+    name: vmpage.swap.total.per_second
+    type: gauge
+  - description: (Linux Only) Number of major page faults on the system
+    included: false
+    name: vmpage_faults.majflt
+    type: cumulative
+  - description: (Linux Only) Number of minor page faults on the system
+    included: false
+    name: vmpage_faults.minflt
+    type: cumulative
+  - description: (Linux Only) Page Ins for Memory
+    included: false
+    name: vmpage_io.memory.in
+    type: cumulative
+  - description: (Linux Only) Page Outs for Memory
+    included: false
+    name: vmpage_io.memory.out
+    type: cumulative
+  - description: (Linux Only) Page Ins for Swap
+    included: false
+    name: vmpage_io.swap.in
+    type: cumulative
+  - description: (Linux Only) Page Outs for Swap
+    included: false
+    name: vmpage_io.swap.out
+    type: cumulative
+  - description: (Linux Only) Number of free memory pages
+    included: false
+    name: vmpage_number.free_pages
+    type: cumulative
+  - description: (Linux Only) Number of mapped pages
+    included: false
+    name: vmpage_number.mapped
+    type: cumulative
+  monitorType: vmem
+  properties: null

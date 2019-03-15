@@ -1,0 +1,14 @@
+- dimensions: null
+  doc: |
+    (Windows Only) This monitor reports processlist
+    information for Windows Hosts.
+
+    Sample YAML configuration:
+
+    ```yaml
+    monitors:
+     - type: processlist
+    ```
+  metrics: null
+  monitorType: processlist
+  properties: null

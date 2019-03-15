@@ -1,0 +1,33 @@
+- dimensions: null
+  doc: |
+    Sends memory usage stats for the underlying host.
+    See https://collectd.org/wiki/index.php/Plugin:Memory
+  metrics:
+  - description: Bytes of memory used for buffering I/O
+    included: true
+    name: memory.buffered
+    type: gauge
+  - description: Bytes of memory used for disk caching
+    included: true
+    name: memory.cached
+    type: gauge
+  - description: Bytes of memory available for use
+    included: true
+    name: memory.free
+    type: gauge
+  - description: Bytes of memory, used for SLAB-allocation of kernel objects, that
+      can be reclaimed.
+    included: true
+    name: memory.slab_recl
+    type: gauge
+  - description: Bytes of memory, used for SLAB-allocation of kernel objects, that
+      can't be reclaimed
+    included: true
+    name: memory.slab_unrecl
+    type: gauge
+  - description: Bytes of memory in use by the system.
+    included: true
+    name: memory.used
+    type: gauge
+  monitorType: collectd/memory
+  properties: null

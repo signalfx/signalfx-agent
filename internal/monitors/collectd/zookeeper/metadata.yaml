@@ -1,0 +1,65 @@
+- dimensions: null
+  doc: |
+    Monitors an Apache Zookeeper instance.
+
+    See the [Python plugin
+    source](https://github.com/signalfx/collectd-zookeeper) and the
+    [integrations repo
+    page](https://github.com/signalfx/integrations/tree/master/collectd-zookeeper)
+    for more information.
+  metrics:
+  - description: Count of the number of ZooKeeper packets received by a server
+    included: true
+    name: counter.zk_packets_received
+    type: cumulative
+  - description: Count of the number of ZooKeeper packets sent from a server
+    included: true
+    name: counter.zk_packets_sent
+    type: cumulative
+  - description: Size of data in bytes that a ZooKeeper server has in its data tree
+    included: true
+    name: gauge.zk_approximate_data_size
+    type: gauge
+  - description: Average time in milliseconds for requests to be processed
+    included: true
+    name: gauge.zk_avg_latency
+    type: gauge
+  - description: Number of ephemeral nodes that a ZooKeeper server has in its data
+      tree
+    included: true
+    name: gauge.zk_ephemerals_count
+    type: gauge
+  - description: Maximum number of file descriptors that a ZooKeeper server can open
+    included: true
+    name: gauge.zk_max_file_descriptor_count
+    type: gauge
+  - description: Maximum time in milliseconds for a request to be processed
+    included: false
+    name: gauge.zk_max_latency
+    type: gauge
+  - description: Minimum time in milliseconds for a request to be processed
+    included: false
+    name: gauge.zk_min_latency
+    type: gauge
+  - description: Number of active clients connected to a ZooKeeper server
+    included: true
+    name: gauge.zk_num_alive_connections
+    type: gauge
+  - description: Number of file descriptors that a ZooKeeper server has open
+    included: true
+    name: gauge.zk_open_file_descriptor_count
+    type: gauge
+  - description: Number of currently executing requests
+    included: false
+    name: gauge.zk_outstanding_requests
+    type: gauge
+  - description: Number of watches placed on Z-Nodes on a ZooKeeper server
+    included: true
+    name: gauge.zk_watch_count
+    type: gauge
+  - description: Number of z-nodes that a ZooKeeper server has in its data tree
+    included: true
+    name: gauge.zk_znode_count
+    type: gauge
+  monitorType: collectd/zookeeper
+  properties: null

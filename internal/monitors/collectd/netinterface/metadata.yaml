@@ -1,0 +1,36 @@
+- dimensions: null
+  doc: |
+    Collectd stats about network interfaces on the
+    system by using the [collectd interface
+    plugin](https://collectd.org/wiki/index.php/Plugin:Interface).
+
+    See the [integrations
+    doc](https://github.com/signalfx/integrations/tree/master/collectd-interface)
+    for more information.
+  metrics:
+  - description: Count of receive errors on the interface
+    included: true
+    name: if_errors.rx
+    type: cumulative
+  - description: Count of transmit errors on the interface
+    included: true
+    name: if_errors.tx
+    type: cumulative
+  - description: Count of bytes (octets) received on the interface
+    included: true
+    name: if_octets.rx
+    type: cumulative
+  - description: Count of bytes (octets) transmitted by the interface
+    included: true
+    name: if_octets.tx
+    type: cumulative
+  - description: Count of packets received on the interface
+    included: false
+    name: if_packets.rx
+    type: cumulative
+  - description: Count of packets transmitted by the interface
+    included: false
+    name: if_packets.tx
+    type: cumulative
+  monitorType: collectd/interface
+  properties: null
