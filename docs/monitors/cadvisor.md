@@ -2,7 +2,7 @@
 
 # cadvisor
 
- This monitor pulls metrics directly from cadvisor, which
+This monitor pulls metrics directly from cadvisor, which
 conventionally runs on port 4194, but can be configured to anything.  If you
 are running on Kubernetes, consider the [kubelet-stats](./kubelet-stats.md)
 monitor because many K8s nodes do not expose cAdvisor on a network port,

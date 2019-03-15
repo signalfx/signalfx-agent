@@ -2,7 +2,7 @@
 
 # collectd/custom
 
- This monitor lets you provide custom collectd
+This monitor lets you provide custom collectd
 configuration to be run by the managed collectd instance.  You can provide
 configuration for as many plugins as you want in a single instance of this
 monitor configuration by either putting multiple `<Plugin>` blocks in a

@@ -2,7 +2,7 @@
 
 # collectd/hadoop
 
- Collects metrics about a Hadoop cluster using the
+Collects metrics about a Hadoop cluster using the
 [collectd Hadoop Python plugin](https://github.com/signalfx/collectd-hadoop).
 Also see
 https://github.com/signalfx/integrations/tree/master/collectd-hadoop.

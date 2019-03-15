@@ -2,7 +2,7 @@
 
 # collectd/mysql
 
- Monitors a MySQL database server using collectd's
+Monitors a MySQL database server using collectd's
 [MySQL plugin](https://collectd.org/wiki/index.php/Plugin:MySQL).
 
 On Unix, MySQL programs treat the host name `localhost` specially, in a way

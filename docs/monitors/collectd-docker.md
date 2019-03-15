@@ -2,7 +2,7 @@
 
 # collectd/docker
 
- Pulls container stats from the Docker Engine.  We
+Pulls container stats from the Docker Engine.  We
 strongly recommend using the
 [docker-container-stats](./docker-container-stats.md) monitor instead, as it
 will scale to large number of containers much better.

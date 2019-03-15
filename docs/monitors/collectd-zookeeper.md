@@ -2,7 +2,7 @@
 
 # collectd/zookeeper
 
- Monitors an Apache Zookeeper instance.
+Monitors an Apache Zookeeper instance.
 
 See the [Python plugin
 source](https://github.com/signalfx/collectd-zookeeper) and the

@@ -2,7 +2,7 @@
 
 # collectd/df
 
- Tracks free disk space on the host.
+Tracks free disk space on the host.
 
 
 Monitor Type: `collectd/df`

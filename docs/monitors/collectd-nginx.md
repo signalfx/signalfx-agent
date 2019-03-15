@@ -2,7 +2,7 @@
 
 # collectd/nginx
 
- Monitors an nginx instance using our fork of the
+Monitors an nginx instance using our fork of the
 collectd nginx plugin based on the [collectd nginx
 plugin](https://collectd.org/wiki/index.php/Plugin:nginx).
 

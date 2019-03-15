@@ -2,7 +2,7 @@
 
 # collectd/solr
 
- Monitors Solr instances.
+Monitors Solr instances.
 
 See https://github.com/signalfx/collectd-solr and
 https://github.com/signalfx/integrations/tree/master/collectd-solr

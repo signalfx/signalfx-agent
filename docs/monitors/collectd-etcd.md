@@ -2,7 +2,7 @@
 
 # collectd/etcd
 
- Monitors an etcd key/value store.
+Monitors an etcd key/value store.
 
 See https://github.com/signalfx/integrations/tree/master/collectd-etcd and
 https://github.com/signalfx/collectd-etcd

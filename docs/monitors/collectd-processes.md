@@ -2,7 +2,7 @@
 
 # collectd/processes
 
- Gathers information about processes running on
+Gathers information about processes running on
 the host.  See
 https://collectd.org/documentation/manpages/collectd.conf.5.shtml#plugin_processes
 and https://collectd.org/wiki/index.php/Plugin:Processes for more

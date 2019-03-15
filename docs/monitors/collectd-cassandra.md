@@ -2,7 +2,7 @@
 
 # collectd/cassandra
 
- Monitors Cassandra using the GenericJMX collectd
+Monitors Cassandra using the GenericJMX collectd
 plugin.
 
 

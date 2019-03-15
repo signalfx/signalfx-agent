@@ -2,7 +2,7 @@
 
 # collectd/jenkins
 
- Monitors jenkins by using the
+Monitors jenkins by using the
 [jenkins collectd Python
 plugin](https://github.com/signalfx/collectd-jenkins), which collects
 metrics from jenkins instances

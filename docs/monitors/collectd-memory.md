@@ -2,7 +2,7 @@
 
 # collectd/memory
 
- Sends memory usage stats for the underlying host.
+Sends memory usage stats for the underlying host.
 See https://collectd.org/wiki/index.php/Plugin:Memory
 
 

@@ -2,7 +2,7 @@
 
 # collectd/statsd
 
- The StatsD plugin for collectd listens for StatsD
+The StatsD plugin for collectd listens for StatsD
 events, aggregates them and transmits them according to collectd's
 configuration. Use this plugin to send data from StatsD to SignalFx [statsd
 plugin](https://collectd.org/wiki/index.php/Plugin:StatsD).

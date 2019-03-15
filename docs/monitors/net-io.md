@@ -2,7 +2,6 @@
 
 # net-io
 
-
 This monitor reports I/O metrics about network interfaces.
 
 On Linux hosts, this monitor relies on the `/proc` filesystem.

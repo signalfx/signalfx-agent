@@ -2,7 +2,7 @@
 
 # collectd/redis
 
- Monitors a redis instance using the [collectd
+Monitors a redis instance using the [collectd
 Python Redis plugin](https://github.com/signalfx/redis-collectd-plugin).
 
 See the [integrations

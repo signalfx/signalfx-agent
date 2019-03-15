@@ -2,7 +2,7 @@
 
 # collectd/mongodb
 
- Monitors an instance of MongoDB using the
+Monitors an instance of MongoDB using the
 [collectd MongoDB Python plugin](https://github.com/signalfx/collectd-mongodb).
 
 Also see https://github.com/signalfx/integrations/tree/master/collectd-mongodb.

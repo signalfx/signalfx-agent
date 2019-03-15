@@ -2,7 +2,7 @@
 
 # vmem
 
- Collects information about the virtual memory
+Collects information about the virtual memory
 subsystem of the kernel.
 
 On Linux hosts, this monitor relies on the `/proc` filesystem.

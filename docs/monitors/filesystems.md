@@ -2,7 +2,6 @@
 
 # filesystems
 
-
 This monitor reports metrics about free disk space on mounted devices.
 
 On Linux hosts, this monitor relies on the `/proc` filesystem.

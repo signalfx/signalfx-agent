@@ -2,7 +2,7 @@
 
 # collectd/health-checker
 
- A simple Collectd Python-based monitor
+A simple Collectd Python-based monitor
 that hits an endpoint and checks if the configured JSON value is returned in
 the response body.
 

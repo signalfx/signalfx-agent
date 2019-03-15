@@ -2,7 +2,7 @@
 
 # collectd/haproxy
 
- Monitors an HAProxy instance.
+Monitors an HAProxy instance.
 
 See https://github.com/signalfx/integrations/tree/master/collectd-haproxy.
 

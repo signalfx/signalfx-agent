@@ -2,7 +2,7 @@
 
 # collectd/rabbitmq
 
- Monitors an instance of RabbitMQ using the
+Monitors an instance of RabbitMQ using the
 [collectd RabbitMQ Python
 Plugin](https://github.com/signalfx/collectd-rabbitmq).
 

@@ -2,7 +2,7 @@
 
 # collectd/vmem
 
- Collects information about the virtual memory
+Collects information about the virtual memory
 subsystem of the kernel using the [collectd vmem
 plugin](https://collectd.org/wiki/index.php/Plugin:vmem).  There is no
 configuration available for this plugin.

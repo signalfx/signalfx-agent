@@ -2,7 +2,6 @@
 
 # disk-io
 
-
 This monitor reports I/O metrics about disks.
 
 On Linux hosts, this monitor relies on the `/proc` filesystem.

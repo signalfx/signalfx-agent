@@ -2,7 +2,7 @@
 
 # collectd/protocols
 
- Gathers metrics about the network protocol
+Gathers metrics about the network protocol
 stacks running on the system by using the [collectd protocols
 plugin](https://collectd.org/wiki/index.php/Plugin:Protocols).
 

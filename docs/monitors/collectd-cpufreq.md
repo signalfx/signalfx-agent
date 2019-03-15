@@ -2,7 +2,7 @@
 
 # collectd/cpufreq
 
- Monitors the actual clock speed of each CPU on a
+Monitors the actual clock speed of each CPU on a
 host.  Useful for systems that vary the clock speed to conserve energy.
 
 See https://collectd.org/wiki/index.php/Plugin:CPUFreq

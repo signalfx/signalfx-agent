@@ -2,7 +2,7 @@
 
 # telegraf/sqlserver
 
- This monitor reports metrics about Microsoft SQL servers.
+This monitor reports metrics about Microsoft SQL servers.
 This monitor is based on the telegraf sqlserver plugin.  More information about the telegraf plugin
 can be found [here](https://github.com/influxdata/telegraf/tree/master/plugins/inputs/sqlserver).
 

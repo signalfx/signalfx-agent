@@ -2,7 +2,7 @@
 
 # collectd/kafka
 
- Monitors a Kafka instance using collectd's
+Monitors a Kafka instance using collectd's
 GenericJMX plugin.
 
 This monitor has a set of [built in MBeans

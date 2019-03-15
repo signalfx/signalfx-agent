@@ -2,7 +2,7 @@
 
 # telegraf/snmp
 
- This monitor reports metrics from snmp agents.
+This monitor reports metrics from snmp agents.
 This monitor is based on the Telegraf SNMP plugin.  More information about the Telegraf plugin
 can be found [here](https://github.com/influxdata/telegraf/tree/master/plugins/inputs/snmp).
 

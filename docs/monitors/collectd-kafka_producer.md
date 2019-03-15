@@ -2,7 +2,7 @@
 
 # collectd/kafka_producer
 
- Monitors a Java based Kafka producer using GenericJMX.
+Monitors a Java based Kafka producer using GenericJMX.
 
 See the [integration documentation](https://github.com/signalfx/integrations/tree/master/collectd-kafka)
 for more information.

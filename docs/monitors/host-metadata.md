@@ -2,7 +2,7 @@
 
 # host-metadata
 
- This monitor collects metadata properties about a
+This monitor collects metadata properties about a
 host.  It is required for some views in SignalFx to operate.
 
 ```yaml
