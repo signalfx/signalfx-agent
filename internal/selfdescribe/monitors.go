@@ -1,24 +1,27 @@
 package selfdescribe
 
 import (
+	"github.com/pkg/errors"
+	log "github.com/sirupsen/logrus"
 	"go/doc"
+	"gopkg.in/yaml.v2"
+	"io/ioutil"
 	"os"
 	"path/filepath"
 	"reflect"
 	"sort"
-	"strconv"
-	"strings"
-
-	log "github.com/sirupsen/logrus"
 
 	"github.com/signalfx/signalfx-agent/internal/monitors"
 )
+
+// Monitor metadata file.
+const monitorMetadataFile = "metadata.yaml"
 
 type metricMetadata struct {
 	Name        string `json:"name"`
 	Type        string `json:"type"`
 	Description string `json:"description"`
-	IsCustom    bool   `json:"isCustom" default:"true"`
+	Included    bool   `json:"included" default:"false"`
 }
 
 type propMetadata struct {
@@ -27,11 +30,19 @@ type propMetadata struct {
 	Description string `json:"description"`
 }
 
+type monitorDocMetadata struct {
+	MonitorType string           `yaml:"monitorType"`
+	Dimensions  []dimMetadata    `yaml:"dimensions"`
+	Metrics     []metricMetadata `yaml:"metrics"`
+	Properties  []propMetadata   `yaml:"properties"`
+	Doc         string           `yaml:"doc"`
+}
+
 type monitorMetadata struct {
 	structMetadata
-	MonitorType      string           `json:"monitorType"`
 	AcceptsEndpoints bool             `json:"acceptsEndpoints"`
 	SingleInstance   bool             `json:"singleInstance"`
+	MonitorType      string           `json:"monitorType"`
 	Dimensions       []dimMetadata    `json:"dimensions"`
 	Metrics          []metricMetadata `json:"metrics"`
 	Properties       []propMetadata   `json:"properties"`
@@ -42,41 +53,55 @@ func monitorsStructMetadata() []monitorMetadata {
 	// Set to track undocumented monitors
 	monTypesSeen := make(map[string]bool)
 
-	filepath.Walk("internal/monitors", func(path string, info os.FileInfo, err error) error {
-		if !info.IsDir() || err != nil {
+	if err := filepath.Walk("internal/monitors", func(path string, info os.FileInfo, err error) error {
+		if err != nil {
 			return err
 		}
-		pkgDoc := packageDoc(path)
-		if pkgDoc == nil {
+
+		if info.IsDir() || info.Name() != monitorMetadataFile {
 			return nil
 		}
-		for monType, monDoc := range monitorDocsInPackage(pkgDoc) {
+
+		var monitorDocs []monitorDocMetadata
+
+		if bytes, err := ioutil.ReadFile(path); err != nil {
+			return errors.Errorf("Unable to read metadata file %s: %s", path, err)
+		} else if err := yaml.Unmarshal(bytes, &monitorDocs); err != nil {
+			return err
+		}
+
+		for _, monitor := range monitorDocs {
+			monType := monitor.MonitorType
+
 			if _, ok := monitors.ConfigTemplates[monType]; !ok {
-				log.Errorf("Found MONITOR doc for monitor type %s but it doesn't appear to be registered", monType)
+				log.Errorf("Found metadata for %s monitor in %s but it doesn't appear to be registered",
+					monType, path)
 				continue
 			}
 			t := reflect.TypeOf(monitors.ConfigTemplates[monType]).Elem()
 			monTypesSeen[monType] = true
 
-			allDocs := nestedPackageDocs(path)
-
 			mc, _ := t.FieldByName("MonitorConfig")
 			mmd := monitorMetadata{
 				structMetadata:   getStructMetadata(t),
 				MonitorType:      monType,
+				Dimensions:       monitor.Dimensions,
+				Metrics:          monitor.Metrics,
+				Properties:       monitor.Properties,
 				AcceptsEndpoints: mc.Tag.Get("acceptsEndpoints") == "true",
 				SingleInstance:   mc.Tag.Get("singleInstance") == "true",
-				Dimensions:       dimensionsFromNotes(allDocs),
-				Metrics:          metricsFromNotes(allDocs),
-				Properties:       propertiesFromNotes(allDocs),
 			}
-			mmd.Doc = monDoc
-			mmd.Package = path
+			mmd.Doc = monitor.Doc
+			mmd.Package = filepath.Dir(path)
 
 			sms = append(sms, mmd)
 		}
+
 		return nil
-	})
+	}); err != nil {
+		log.Fatal(err)
+	}
+
 	sort.Slice(sms, func(i, j int) bool {
 		return sms[i].MonitorType < sms[j].MonitorType
 	})
@@ -88,14 +113,6 @@ func monitorsStructMetadata() []monitorMetadata {
 	}
 
 	return sms
-}
-
-func monitorDocsInPackage(pkgDoc *doc.Package) map[string]string {
-	out := make(map[string]string)
-	for _, note := range pkgDoc.Notes["MONITOR"] {
-		out[note.UID] = note.Body
-	}
-	return out
 }
 
 func dimensionsFromNotes(allDocs []*doc.Package) []dimMetadata {
@@ -110,67 +127,4 @@ func dimensionsFromNotes(allDocs []*doc.Package) []dimMetadata {
 		return dm[i].Name < dm[j].Name
 	})
 	return dm
-}
-
-func metricsFromNotes(allDocs []*doc.Package) []metricMetadata {
-	var mm []metricMetadata
-	isCustom := make(map[string]bool)
-
-	// Extract metric properties
-	for noteMarker, property := range map[string]string{
-		"CUSTOM": "custom",
-	} {
-		for _, note := range notesFromDocs(allDocs, noteMarker) {
-			if property == "custom" {
-				b, err := strconv.ParseBool(note.Body)
-				if err != nil {
-					isCustom[note.UID] = b
-				}
-			}
-		}
-	}
-
-	// Extract metrics with following metric types
-	for noteMarker, metaType := range map[string]string{
-		"GAUGE":      "gauge",
-		"TIMESTAMP":  "timestamp",
-		"COUNTER":    "counter",
-		"CUMULATIVE": "cumulative",
-	} {
-		for _, note := range notesFromDocs(allDocs, noteMarker) {
-			customValue, customExists := isCustom[note.UID]
-			mm = append(mm, metricMetadata{
-				Type:        metaType,
-				Name:        note.UID,
-				Description: commentTextToParagraphs(note.Body),
-				IsCustom:    !customExists || customValue,
-			})
-		}
-	}
-
-	sort.Slice(mm, func(i, j int) bool {
-		return mm[i].Name < mm[j].Name
-	})
-	return mm
-}
-
-func propertiesFromNotes(allDocs []*doc.Package) []propMetadata {
-	var pm []propMetadata
-	for _, note := range notesFromDocs(allDocs, "PROPERTY") {
-		parts := strings.Split(note.UID, ":")
-		if len(parts) != 2 {
-			log.Errorf("Property comment 'PROPERTY(%s): %s' in package %s should have form "+
-				"'PROPERTY(dimension_name:prop_name): desc'", note.UID, note.Body, allDocs[0].Name)
-		}
-
-		pm = append(pm, propMetadata{
-			Name:        parts[1],
-			Dimension:   parts[0],
-			Description: commentTextToParagraphs(note.Body),
-		})
-	}
-	sort.Slice(pm, func(i, j int) bool {
-		return pm[i].Name < pm[j].Name
-	})
-	return pm
 }
