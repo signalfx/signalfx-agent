@@ -17736,6 +17736,77 @@
               "required": false,
               "type": "int64",
               "elementKind": ""
+            },
+            {
+              "yamlName": "authMethod",
+              "doc": "The authetication method to use, if any, to obtain the Vault token.  If `vaultToken` is specified above, this option will have no effect. Currently supported values are: `iam`.",
+              "default": "",
+              "required": false,
+              "type": "string",
+              "elementKind": ""
+            },
+            {
+              "yamlName": "iam",
+              "doc": "Further config options for the `iam` auth method.  These options are identical to the [CLI helper tool options](https://github.com/hashicorp/vault/blob/v1.1.0/builtin/credential/aws/cli.go#L148)",
+              "default": "",
+              "required": false,
+              "type": "struct",
+              "elementKind": "",
+              "elementStruct": {
+                "name": "IAMConfig",
+                "doc": "IAMConfig is the config for the AWS Auth method in Vault",
+                "package": "internal/core/config/sources/vault/auth",
+                "fields": [
+                  {
+                    "yamlName": "awsAccessKeyId",
+                    "doc": "Explicit AWS access key ID",
+                    "default": null,
+                    "required": false,
+                    "type": "string",
+                    "elementKind": ""
+                  },
+                  {
+                    "yamlName": "awsSecretAccessKey",
+                    "doc": "Explicit AWS secret access key",
+                    "default": null,
+                    "required": false,
+                    "type": "string",
+                    "elementKind": ""
+                  },
+                  {
+                    "yamlName": "awsSecurityToken",
+                    "doc": "Explicit AWS security token for temporary credentials",
+                    "default": null,
+                    "required": false,
+                    "type": "string",
+                    "elementKind": ""
+                  },
+                  {
+                    "yamlName": "headerValue",
+                    "doc": "Value for the x-vault-aws-iam-server-id header in requests",
+                    "default": null,
+                    "required": false,
+                    "type": "string",
+                    "elementKind": ""
+                  },
+                  {
+                    "yamlName": "mount",
+                    "doc": "Path where the AWS credential method is mounted. This is usually provided via the -path flag in the \"vault login\" command, but it can be specified here as well. If specified here, it takes precedence over the value for -path. The default value is \"aws\".",
+                    "default": null,
+                    "required": false,
+                    "type": "string",
+                    "elementKind": ""
+                  },
+                  {
+                    "yamlName": "role",
+                    "doc": "Name of the Vault role to request a token against",
+                    "default": null,
+                    "required": false,
+                    "type": "string",
+                    "elementKind": ""
+                  }
+                ]
+              }
             }
           ]
         }
@@ -18693,6 +18764,77 @@
                     "required": false,
                     "type": "int64",
                     "elementKind": ""
+                  },
+                  {
+                    "yamlName": "authMethod",
+                    "doc": "The authetication method to use, if any, to obtain the Vault token.  If `vaultToken` is specified above, this option will have no effect. Currently supported values are: `iam`.",
+                    "default": "",
+                    "required": false,
+                    "type": "string",
+                    "elementKind": ""
+                  },
+                  {
+                    "yamlName": "iam",
+                    "doc": "Further config options for the `iam` auth method.  These options are identical to the [CLI helper tool options](https://github.com/hashicorp/vault/blob/v1.1.0/builtin/credential/aws/cli.go#L148)",
+                    "default": "",
+                    "required": false,
+                    "type": "struct",
+                    "elementKind": "",
+                    "elementStruct": {
+                      "name": "IAMConfig",
+                      "doc": "IAMConfig is the config for the AWS Auth method in Vault",
+                      "package": "internal/core/config/sources/vault/auth",
+                      "fields": [
+                        {
+                          "yamlName": "awsAccessKeyId",
+                          "doc": "Explicit AWS access key ID",
+                          "default": null,
+                          "required": false,
+                          "type": "string",
+                          "elementKind": ""
+                        },
+                        {
+                          "yamlName": "awsSecretAccessKey",
+                          "doc": "Explicit AWS secret access key",
+                          "default": null,
+                          "required": false,
+                          "type": "string",
+                          "elementKind": ""
+                        },
+                        {
+                          "yamlName": "awsSecurityToken",
+                          "doc": "Explicit AWS security token for temporary credentials",
+                          "default": null,
+                          "required": false,
+                          "type": "string",
+                          "elementKind": ""
+                        },
+                        {
+                          "yamlName": "headerValue",
+                          "doc": "Value for the x-vault-aws-iam-server-id header in requests",
+                          "default": null,
+                          "required": false,
+                          "type": "string",
+                          "elementKind": ""
+                        },
+                        {
+                          "yamlName": "mount",
+                          "doc": "Path where the AWS credential method is mounted. This is usually provided via the -path flag in the \"vault login\" command, but it can be specified here as well. If specified here, it takes precedence over the value for -path. The default value is \"aws\".",
+                          "default": null,
+                          "required": false,
+                          "type": "string",
+                          "elementKind": ""
+                        },
+                        {
+                          "yamlName": "role",
+                          "doc": "Name of the Vault role to request a token against",
+                          "default": null,
+                          "required": false,
+                          "type": "string",
+                          "elementKind": ""
+                        }
+                      ]
+                    }
                   }
                 ]
               }
