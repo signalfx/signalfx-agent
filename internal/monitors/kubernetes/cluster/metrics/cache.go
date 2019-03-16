@@ -89,7 +89,7 @@ func (dc *DatapointCache) HandleDelete(oldObj runtime.Object) interface{} {
 
 // HandleAdd accepts a new (or updated) object and updates the datapoint/prop
 // cache as needed.  MUST HOLD LOCK!!
-func (dc *DatapointCache) HandleAdd(newObj runtime.Object) interface{} {
+func (dc *DatapointCache) HandleAdd(newObj runtime.Object, nodeConditionTypesToReport []string) interface{} {
 	var dps []*datapoint.Datapoint
 	var dimProps *atypes.DimProperties
 	var kind string
@@ -119,7 +119,7 @@ func (dc *DatapointCache) HandleAdd(newObj runtime.Object) interface{} {
 		dps = datapointsForResourceQuota(o)
 		kind = "ResourceQuota"
 	case *v1.Node:
-		dps = datapointsForNode(o, dc.useNodeName)
+		dps = datapointsForNode(o, dc.useNodeName, nodeConditionTypesToReport)
 		dimProps = dimPropsForNode(o, dc.useNodeName)
 		kind = "Node"
 	case *v1.Service:

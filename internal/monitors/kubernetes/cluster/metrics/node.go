@@ -28,7 +28,11 @@ import (
 // A map to check for duplicate machine IDs
 var machineIDToNodeNameMap = make(map[string]string)
 
-func datapointsForNode(node *v1.Node, useNodeName bool) []*datapoint.Datapoint {
+func datapointsForNode(
+		node *v1.Node,
+		useNodeName bool,
+		nodeConditionTypesToReport []string,
+) []*datapoint.Datapoint {
 	dims := map[string]string{
 		"kubernetes_node": node.Name,
 	}
@@ -40,9 +44,20 @@ func datapointsForNode(node *v1.Node, useNodeName bool) []*datapoint.Datapoint {
 		dims["machine_id"] = node.Status.NodeInfo.MachineID
 	}
 
-	return []*datapoint.Datapoint{
-		sfxclient.Gauge("kubernetes.node_ready", dims, nodeConditionValue(node, v1.NodeReady)),
+	datapoints := make([]*datapoint.Datapoint, 0)
+	for _, nodeConditionTypeValue := range nodeConditionTypesToReport {
+		v1NodeConditionTypeValue := v1.NodeConditionType(nodeConditionTypeValue)
+		nodeConditionMetric, ok := nodeConditionTypeToMetric[v1NodeConditionTypeValue]
+		if ok {
+			datapoints = append(
+				datapoints,
+				sfxclient.Gauge(
+					nodeConditionMetric, dims, nodeConditionValue(node, v1NodeConditionTypeValue),
+				),
+			)
+		}
 	}
+	return datapoints
 }
 
 func dimPropsForNode(node *v1.Node, useNodeName bool) *atypes.DimProperties {
@@ -86,6 +101,15 @@ var nodeConditionValues = map[v1.ConditionStatus]int64{
 	v1.ConditionTrue:    1,
 	v1.ConditionFalse:   0,
 	v1.ConditionUnknown: -1,
+}
+
+var nodeConditionTypeToMetric = map[v1.NodeConditionType]string{
+	v1.NodeReady:              "kubernetes.node_ready",
+	v1.NodeOutOfDisk:          "kubernetes.node_out_of_disk",
+	v1.NodeMemoryPressure:     "kubernetes.node_memory_pressure",
+	v1.NodeDiskPressure:       "kubernetes.node_disk_pressure",
+	v1.NodePIDPressure:        "kubernetes.node_pid_pressure",
+	v1.NodeNetworkUnavailable: "kubernetes.node_network_unavailable",
 }
 
 func nodeConditionValue(node *v1.Node, condType v1.NodeConditionType) int64 {

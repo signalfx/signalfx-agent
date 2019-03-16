@@ -19,20 +19,22 @@ import (
 // State makes use of the K8s client's "reflector" helper to watch the API
 // server for changes and keep the datapoint cache up to date,
 type State struct {
-	clientset  *k8s.Clientset
-	reflectors map[string]*cache.Reflector
-	namespace  string
-	cancel     func()
+	clientset                  *k8s.Clientset
+	reflectors                 map[string]*cache.Reflector
+	namespace                  string
+	nodeConditionTypesToReport []string
+	cancel                     func()
 
 	metricCache *metrics.DatapointCache
 }
 
-func newState(clientset *k8s.Clientset, metricCache *metrics.DatapointCache, namespace string) *State {
+func newState(clientset *k8s.Clientset, metricCache *metrics.DatapointCache, namespace string, nodeConditionTypesToReport []string) *State {
 	return &State{
-		clientset:   clientset,
-		reflectors:  make(map[string]*cache.Reflector),
-		metricCache: metricCache,
-		namespace:   namespace,
+		clientset:                  clientset,
+		reflectors:                 make(map[string]*cache.Reflector),
+		metricCache:                metricCache,
+		namespace:                  namespace,
+		nodeConditionTypesToReport: nodeConditionTypesToReport,
 	}
 }
 
@@ -71,7 +73,7 @@ func (cs *State) beginSyncForType(ctx context.Context, resType runtime.Object, r
 		cs.metricCache.Lock()
 		defer cs.metricCache.Unlock()
 
-		if key := cs.metricCache.HandleAdd(obj.(runtime.Object)); key != nil {
+		if key := cs.metricCache.HandleAdd(obj.(runtime.Object), cs.nodeConditionTypesToReport); key != nil {
 			keysSeen[key] = true
 		}
 
@@ -97,7 +99,7 @@ func (cs *State) beginSyncForType(ctx context.Context, resType runtime.Object, r
 			delete(keysSeen, k)
 		}
 		for i := range list {
-			if key := cs.metricCache.HandleAdd(list[i].(runtime.Object)); key != nil {
+			if key := cs.metricCache.HandleAdd(list[i].(runtime.Object), cs.nodeConditionTypesToReport); key != nil {
 				keysSeen[key] = true
 			}
 		}
