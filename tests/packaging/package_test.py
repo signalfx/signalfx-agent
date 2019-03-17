@@ -120,7 +120,7 @@ def update_agent_yaml(container, backend, hostname="test-hostname"):
 
 def _test_service_status(container, init_system, expected_status):
     _, output = container.exec_run(INIT_STATUS_COMMAND[init_system])
-    print("Init status command output:")
+    print("%s status command output:" % init_system)
     print_lines(output)
     assert INIT_STATUS_OUTPUT[init_system][expected_status] in output.decode("utf-8"), (
         "'%s' expected in status output" % INIT_STATUS_OUTPUT[init_system][expected_status]
@@ -129,7 +129,7 @@ def _test_service_status(container, init_system, expected_status):
 
 def _test_service_list(container, init_system, service_name="signalfx-agent"):
     code, output = container.exec_run(INIT_LIST_COMMAND[init_system])
-    print("Init list command output:")
+    print("%s list command output:" % init_system)
     print_lines(output)
     assert code == 0, "Failed to get service list"
     assert service_name in output.decode("utf-8"), "Agent service not registered"
@@ -137,7 +137,7 @@ def _test_service_list(container, init_system, service_name="signalfx-agent"):
 
 def _test_service_start(container, init_system, backend):
     code, output = container.exec_run(INIT_START_COMMAND[init_system])
-    print("Init start command output:")
+    print("%s start command output:" % init_system)
     print_lines(output)
     backend.reset_datapoints()
     assert code == 0, "Agent could not be started"
@@ -148,7 +148,7 @@ def _test_service_start(container, init_system, backend):
 def _test_service_restart(container, init_system, backend):
     old_pid = get_agent_pid(container)
     code, output = container.exec_run(INIT_RESTART_COMMAND[init_system])
-    print("Init restart command output:")
+    print("%s restart command output:" % init_system)
     print_lines(output)
     backend.reset_datapoints()
     assert code == 0, "Agent could not be restarted"
@@ -159,7 +159,7 @@ def _test_service_restart(container, init_system, backend):
 
 def _test_service_stop(container, init_system, backend):
     code, output = container.exec_run(INIT_STOP_COMMAND[init_system])
-    print("Init stop command output:")
+    print("%s stop command output:" % init_system)
     print_lines(output)
     assert code == 0, "Agent could not be stop"
     assert wait_for(
@@ -180,6 +180,13 @@ def _test_system_restart(container, init_system, backend):
     assert wait_for(p(has_datapoint_with_dim, backend, "plugin", "signalfx-metadata")), "Datapoints didn't come through"
 
 
+def _test_service_status_redirect(container):
+    code, output = container.exec_run(INIT_STATUS_COMMAND[INIT_SYSV])
+    print("%s status command output:" % INIT_SYSV)
+    print_lines(output)
+    assert code == 0 and "/lib/systemd/system/signalfx-agent.service; enabled" in output.decode("utf-8")
+
+
 INSTALL_COMMAND = {
     ".rpm": "yum --nogpgcheck localinstall -y /opt/signalfx-agent.rpm",
     ".deb": "dpkg -i /opt/signalfx-agent.deb",
@@ -196,6 +203,11 @@ def _test_package_install(base_image, package_path, init_system):
         print_lines(output)
         assert code == 0, "Package could not be installed!"
 
+        if init_system == INIT_SYSTEMD:
+            assert not path_exists_in_container(cont, "/etc/init.d/signalfx-agent")
+        else:
+            assert path_exists_in_container(cont, "/etc/init.d/signalfx-agent")
+
         cont.exec_run("bash -ec 'echo -n testing123 > /etc/signalfx/token'")
         update_agent_yaml(cont, backend, hostname="test-" + base_image)
 
@@ -209,6 +221,8 @@ def _test_package_install(base_image, package_path, init_system):
             _test_service_status(cont, init_system, "active")
             _test_service_stop(cont, init_system, backend)
             _test_system_restart(cont, init_system, backend)
+            if init_system == INIT_SYSTEMD:
+                _test_service_status_redirect(cont)
         finally:
             cont.reload()
             if cont.status.lower() == "running":
@@ -247,6 +261,11 @@ def _test_package_upgrade(base_image, package_path, init_system):
         print_lines(output)
         assert code == 0, "Package could not be upgraded!"
 
+        if init_system == INIT_SYSTEMD:
+            assert not path_exists_in_container(cont, "/etc/init.d/signalfx-agent")
+        else:
+            assert path_exists_in_container(cont, "/etc/init.d/signalfx-agent")
+
         new_agent_yaml = get_container_file_content(cont, AGENT_YAML_PATH)
         diff = get_agent_yaml_diff(old_agent_yaml, new_agent_yaml)
         assert not diff, "%s different after upgrade!\n%s" % (AGENT_YAML_PATH, diff)
@@ -261,6 +280,8 @@ def _test_package_upgrade(base_image, package_path, init_system):
             _test_service_status(cont, init_system, "active")
             _test_service_stop(cont, init_system, backend)
             _test_system_restart(cont, init_system, backend)
+            if init_system == INIT_SYSTEMD:
+                _test_service_status_redirect(cont)
         finally:
             cont.reload()
             if cont.status.lower() == "running":
