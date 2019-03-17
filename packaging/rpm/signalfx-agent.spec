@@ -31,14 +31,12 @@ cp -a %{_sourcedir}/signalfx-agent/* $RPM_BUILD_ROOT/usr/lib/signalfx-agent/
 install -d -m 755 $RPM_BUILD_ROOT/%{_bindir}
 ln -sf /usr/lib/signalfx-agent/bin/signalfx-agent $RPM_BUILD_ROOT/%{_bindir}/signalfx-agent
 
-install -d $RPM_BUILD_ROOT/%{_initddir}
-install -p -m 755 %{_sourcedir}/signalfx-agent.init $RPM_BUILD_ROOT/%{_initddir}/signalfx-agent
-
 install -d $RPM_BUILD_ROOT/%{_unitdir}
 install -p -m 644 %{_sourcedir}/systemd/signalfx-agent.service $RPM_BUILD_ROOT/%{_unitdir}/signalfx-agent.service
 
 install -d $RPM_BUILD_ROOT/%{_tmpfilesdir}
 install -p -m 644 %{_sourcedir}/systemd/signalfx-agent.tmpfile $RPM_BUILD_ROOT/%{_tmpfilesdir}/signalfx-agent.conf
+install -p -m 755 %{_sourcedir}/signalfx-agent.init $RPM_BUILD_ROOT/%{_tmpfilesdir}/signalfx-agent.init
 
 install -d -m 755 $RPM_BUILD_ROOT/etc/signalfx
 install -p -m 644 %{_sourcedir}/agent.yaml $RPM_BUILD_ROOT/etc/signalfx/agent.yaml
@@ -53,8 +51,8 @@ install -p -m 644 %{_sourcedir}/signalfx-agent.1 $RPM_BUILD_ROOT/%{_mandir}/man1
 /%{_unitdir}/signalfx-agent.service
 /%{_bindir}/signalfx-agent
 /%{_tmpfilesdir}/signalfx-agent.conf
+/%{_tmpfilesdir}/signalfx-agent.init
 /%{_mandir}/man1/signalfx-agent.1
-/%{_initddir}/signalfx-agent
 
 %pre
 getent passwd signalfx-agent >/dev/null || \
@@ -76,6 +74,9 @@ if command -v systemctl; then
 else
   if [ $1 -eq 0 ]; then
     /sbin/chkconfig --del signalfx-agent
+    if [ -e /%{_initddir}/signalfx-agent ]; then
+      rm -f /%{_initddir}/signalfx-agent
+    fi
   fi
 fi
 
@@ -86,6 +87,11 @@ fi
 
 %posttrans
 if ! command -v systemctl; then
+  %tmpfiles_create %{_tmpfilesdir}/signalfx-agent.init
+  if [ -e /%{_initddir}/signalfx-agent ]; then
+    rm -f /%{_initddir}/signalfx-agent
+  fi
+  cp -a %{_tmpfilesdir}/signalfx-agent.init /%{_initddir}/signalfx-agent
   /sbin/service signalfx-agent restart > /dev/null 2>&1
   /sbin/chkconfig --add signalfx-agent
 fi

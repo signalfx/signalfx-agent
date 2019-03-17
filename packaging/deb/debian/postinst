@@ -58,6 +58,10 @@ if [ "$1" = "configure" ] || [ "$1" = "abort-upgrade" ]; then
         # necessary tmpfiles (if any) are created before starting.
         if [ -d /run/systemd/system ] ; then
                 systemd-tmpfiles --create /usr/lib/tmpfiles.d/signalfx-agent.conf >/dev/null || true
+                if command -v update-rc.d && [ -e "/etc/init.d/signalfx-agent" ]; then
+                    rm -f /etc/init.d/signalfx-agent
+                    update-rc.d -f signalfx-agent remove >/dev/null || exit $?
+                fi
         fi
 fi
 
