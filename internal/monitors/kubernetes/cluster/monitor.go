@@ -128,7 +128,7 @@ func (m *Monitor) Configure(config *Config) error {
 	}
 
 	m.k8sClient = k8sClient
-	m.datapointCache = metrics.NewDatapointCache(config.UseNodeName)
+	m.datapointCache = metrics.NewDatapointCache(config.UseNodeName, m.config.NodeConditionTypesToReport)
 	m.stop = make(chan struct{})
 
 	m.Start()
@@ -142,7 +142,7 @@ func (m *Monitor) Start() error {
 
 	shouldReport := m.config.AlwaysClusterReporter
 
-	clusterState := newState(m.k8sClient, m.datapointCache, m.config.Namespace, m.config.NodeConditionTypesToReport)
+	clusterState := newState(m.k8sClient, m.datapointCache, m.config.Namespace)
 
 	var leaderCh <-chan bool
 	var unregister func()

@@ -27,23 +27,25 @@ var logger = log.WithFields(log.Fields{
 // K8s resources.
 type DatapointCache struct {
 	sync.Mutex
-	dpCache      map[types.UID][]*datapoint.Datapoint
-	dimPropCache map[types.UID]*atypes.DimProperties
-	uidKindCache map[types.UID]string
-	podCache     *k8sutil.PodCache
-	serviceCache *k8sutil.ServiceCache
-	useNodeName  bool
+	dpCache                    map[types.UID][]*datapoint.Datapoint
+	dimPropCache               map[types.UID]*atypes.DimProperties
+	uidKindCache               map[types.UID]string
+	podCache                   *k8sutil.PodCache
+	serviceCache               *k8sutil.ServiceCache
+	useNodeName                bool
+	nodeConditionTypesToReport []string
 }
 
 // NewDatapointCache creates a new clean cache
-func NewDatapointCache(useNodeName bool) *DatapointCache {
+func NewDatapointCache(useNodeName bool, nodeConditionTypesToReport []string) *DatapointCache {
 	return &DatapointCache{
-		dpCache:      make(map[types.UID][]*datapoint.Datapoint),
-		dimPropCache: make(map[types.UID]*atypes.DimProperties),
-		uidKindCache: make(map[types.UID]string),
-		podCache:     k8sutil.NewPodCache(),
-		serviceCache: k8sutil.NewServiceCache(),
-		useNodeName:  useNodeName,
+		dpCache:                    make(map[types.UID][]*datapoint.Datapoint),
+		dimPropCache:               make(map[types.UID]*atypes.DimProperties),
+		uidKindCache:               make(map[types.UID]string),
+		podCache:                   k8sutil.NewPodCache(),
+		serviceCache:               k8sutil.NewServiceCache(),
+		useNodeName:                useNodeName,
+		nodeConditionTypesToReport: nodeConditionTypesToReport,
 	}
 }
 
@@ -89,7 +91,7 @@ func (dc *DatapointCache) HandleDelete(oldObj runtime.Object) interface{} {
 
 // HandleAdd accepts a new (or updated) object and updates the datapoint/prop
 // cache as needed.  MUST HOLD LOCK!!
-func (dc *DatapointCache) HandleAdd(newObj runtime.Object, nodeConditionTypesToReport []string) interface{} {
+func (dc *DatapointCache) HandleAdd(newObj runtime.Object) interface{} {
 	var dps []*datapoint.Datapoint
 	var dimProps *atypes.DimProperties
 	var kind string
@@ -119,7 +121,7 @@ func (dc *DatapointCache) HandleAdd(newObj runtime.Object, nodeConditionTypesToR
 		dps = datapointsForResourceQuota(o)
 		kind = "ResourceQuota"
 	case *v1.Node:
-		dps = datapointsForNode(o, dc.useNodeName, nodeConditionTypesToReport)
+		dps = datapointsForNode(o, dc.useNodeName, dc.nodeConditionTypesToReport)
 		dimProps = dimPropsForNode(o, dc.useNodeName)
 		kind = "Node"
 	case *v1.Service:
