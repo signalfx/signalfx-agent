@@ -13333,6 +13333,16 @@
               }
             ]
           }
+        },
+        {
+          "yamlName": "nodeConditionTypesToReport",
+          "doc": "A list of node status condition types to report as metrics.  The metrics will be reported as datapoints of the form `kubernetes.node_\u003ctype_snake_cased\u003e` with a value of `0` corresponding to \"False\", `1` to \"True\", and `-1` to \"Unknown\".",
+          "default": [
+            "Ready"
+          ],
+          "required": false,
+          "type": "slice",
+          "elementKind": "string"
         }
       ],
       "monitorType": "kubernetes-cluster",

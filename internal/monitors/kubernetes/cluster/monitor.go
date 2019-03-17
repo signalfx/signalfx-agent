@@ -89,6 +89,11 @@ type Config struct {
 	UseNodeName bool `yaml:"useNodeName"`
 	// Config for the K8s API client
 	KubernetesAPI *kubernetes.APIConfig `yaml:"kubernetesAPI" default:"{}"`
+	// A list of node status condition types to report as metrics.  The metrics
+	// will be reported as datapoints of the form `kubernetes.node_<type_snake_cased>`
+	// with a value of `0` corresponding to "False", `1` to "True", and `-1`
+	// to "Unknown".
+	NodeConditionTypesToReport []string `yaml:"nodeConditionTypesToReport" default:"[\"Ready\"]"`
 }
 
 // Validate the k8s-specific config
@@ -123,7 +128,7 @@ func (m *Monitor) Configure(config *Config) error {
 	}
 
 	m.k8sClient = k8sClient
-	m.datapointCache = metrics.NewDatapointCache(config.UseNodeName)
+	m.datapointCache = metrics.NewDatapointCache(config.UseNodeName, m.config.NodeConditionTypesToReport)
 	m.stop = make(chan struct{})
 
 	m.Start()

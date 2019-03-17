@@ -40,6 +40,7 @@ Monitor Type: `kubernetes-cluster`
 | `namespace` | no | `string` | If specified, only resources within the given namespace will be monitored.  If omitted (blank) all supported resources across all namespaces will be monitored. |
 | `useNodeName` | no | `bool` | If set to true, the Kubernetes node name will be used as the dimension to which to sync properties about each respective node.  This is necessary if your cluster's machines do not have unique machine-id values, as can happen when machine images are improperly cloned. (**default:** `false`) |
 | `kubernetesAPI` | no | `object (see below)` | Config for the K8s API client |
+| `nodeConditionTypesToReport` | no | `list of strings` | A list of node status condition types to report as metrics.  The metrics will be reported as datapoints of the form `kubernetes.node_<type_snake_cased>` with a value of `0` corresponding to "False", `1` to "True", and `-1` to "Unknown". (**default:** `[Ready]`) |
 
 
 The **nested** `kubernetesAPI` config object has the following fields:

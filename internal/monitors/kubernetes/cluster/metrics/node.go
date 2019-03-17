@@ -1,6 +1,10 @@
 package metrics
 
 import (
+	"fmt"
+
+	"github.com/iancoleman/strcase"
+
 	"github.com/signalfx/golib/datapoint"
 	"github.com/signalfx/golib/sfxclient"
 	k8sutil "github.com/signalfx/signalfx-agent/internal/monitors/kubernetes/utils"
@@ -28,7 +32,11 @@ import (
 // A map to check for duplicate machine IDs
 var machineIDToNodeNameMap = make(map[string]string)
 
-func datapointsForNode(node *v1.Node, useNodeName bool) []*datapoint.Datapoint {
+func datapointsForNode(
+	node *v1.Node,
+	useNodeName bool,
+	nodeConditionTypesToReport []string,
+) []*datapoint.Datapoint {
 	dims := map[string]string{
 		"kubernetes_node": node.Name,
 	}
@@ -40,9 +48,18 @@ func datapointsForNode(node *v1.Node, useNodeName bool) []*datapoint.Datapoint {
 		dims["machine_id"] = node.Status.NodeInfo.MachineID
 	}
 
-	return []*datapoint.Datapoint{
-		sfxclient.Gauge("kubernetes.node_ready", dims, nodeConditionValue(node, v1.NodeReady)),
+	datapoints := make([]*datapoint.Datapoint, 0)
+	for _, nodeConditionTypeValue := range nodeConditionTypesToReport {
+		nodeConditionMetric := fmt.Sprintf("kubernetes.node_%s", strcase.ToSnake(nodeConditionTypeValue))
+		v1NodeConditionTypeValue := v1.NodeConditionType(nodeConditionTypeValue)
+		datapoints = append(
+			datapoints,
+			sfxclient.Gauge(
+				nodeConditionMetric, dims, nodeConditionValue(node, v1NodeConditionTypeValue),
+			),
+		)
 	}
+	return datapoints
 }
 
 func dimPropsForNode(node *v1.Node, useNodeName bool) *atypes.DimProperties {
