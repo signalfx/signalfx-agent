@@ -13,7 +13,7 @@ This tutorial assumes you are starting fresh and have no existing collectd agent
 
 ```sh
 curl -sSL https://dl.signalfx.com/signalfx-agent.sh > /tmp/signalfx-agent.sh
-sudo sh /tmp/signalfx-agent.sh YOUR_SIGNALFX_API_TOKEN
+sudo sh /tmp/signalfx-agent.sh --realm YOUR_SIGNALFX_REALM YOUR_SIGNALFX_API_TOKEN
 ```
 
 ##### Windows
