@@ -55,7 +55,7 @@ If you are not in this realm, you will need to explicitly set the
 `signalFxRealm` option in your config like this:
 
 ```
-signalFxRealm: <MY REALM>
+signalFxRealm: YOUR_SIGNALFX_REALM
 ```
 
 To determine if you are in a different realm and need to
