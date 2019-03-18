@@ -66,9 +66,9 @@ If you want to explicitly set the ingest, API server, and trace endpoint URLs,
 you can set them individually like so:
 
 ```
-ingestUrl: "https://ingest.{REALM}.signalfx.com"
-apiUrl: "https://api.{REALM}.signalfx.com"
-traceEndpointUrl: "https://ingest.{REALM}.signalfx.com/v1/trace"
+ingestUrl: "https://ingest.YOUR_SIGNALFX_REALM.signalfx.com"
+apiUrl: "https://api.YOUR_SIGNALFX_REALM.signalfx.com"
+traceEndpointUrl: "https://ingest.YOUR_SIGNALFX_REALM.signalfx.com/v1/trace"
 ```
 
 They will default to the endpoints for the realm configured in `signalFxRealm`
