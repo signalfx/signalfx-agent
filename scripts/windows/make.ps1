@@ -23,7 +23,7 @@ function versions_go() {
 function signalfx-agent([string]$AGENT_VERSION="", [string]$AGENT_BIN=".\signalfx-agent.exe", [string]$COLLECTD_VERSION="") {
     versions_go
 
-    go build -o "$AGENT_BIN" github.com/signalfx/signalfx-agent/cmd/agent
+    go build -mod vendor -o "$AGENT_BIN" github.com/signalfx/signalfx-agent/cmd/agent
     if ($lastexitcode -ne 0){ exit $lastexitcode }
 }
 
@@ -106,21 +106,22 @@ function lint() {
 }
 
 function vendor() {
-    dep ensure
+    go mod tidy
+    go mod vendor
     if ($lastexitcode -ne 0){ exit $lastexitcode }
 }
 
 function vet() {
     versions_go
-    go vet ./... 2>&1 | Select-String -Pattern "\.go" | Select-String -NotMatch -Pattern "_test\.go" -outvariable gofiles
+    go vet -mod vendor ./... 2>&1 | Select-String -Pattern "\.go" | Select-String -NotMatch -Pattern "_test\.go" -outvariable gofiles
     if ($gofiles){ Write-Host $gofiles; exit 1 }
 }
 
 function unit_test() {
     versions_go
-    go generate ./internal/monitors/...
+    go generate -mod vendor ./internal/monitors/...
     if ($lastexitcode -ne 0){ exit $lastexitcode }
-    $(& go test -v ./... 2>&1; $rc=$lastexitcode) | go2xunit > unit_results.xml
+    $(& go test -mod vendor -v ./... 2>&1; $rc=$lastexitcode) | go2xunit > unit_results.xml
     return $rc
 }
 

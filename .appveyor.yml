@@ -12,19 +12,22 @@ image:
   - Visual Studio 2013 # windows server 2012
   - Visual Studio 2017 # windows server 2016
 
-clone_folder: c:\gopath\src\github.com\signalfx\signalfx-agent
+clone_folder: c:\signalfx-agent
 
 environment:
-  AGENT_BIN: c:\gopath\src\github.com\signalfx\signalfx-agent\build\SignalFxAgent\bin\signalfx-agent.exe
-  GOROOT: c:\go111
+  AGENT_BIN: c:\signalfx-agent\build\SignalFxAgent\bin\signalfx-agent.exe
+  GOROOT: c:\Go
   GOPATH: c:\gopath
   PYTHONHOME: c:\Python36-x64
   PYTHONPATH: c:\Python36-x64
-  TEST_SERVICES_DIR: c:\gopath\src\github.com\signalfx\signalfx-agent\test-services
+  TEST_SERVICES_DIR: c:\signalfx-agent\test-services
 
 install:
+  - rd /s /q "%GOROOT%"
+  - choco install golang --version 1.12
   - set PATH=%GOPATH%\bin;%GOROOT%\bin;%PATH%
   - set PATH=%PYTHONHOME%;%PYTHONHOME%\Scripts;%PATH%
+  - set GO111MODULE=on
   - go version
   - go env
   - python --version

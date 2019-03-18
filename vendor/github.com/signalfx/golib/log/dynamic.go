@@ -1,9 +1,10 @@
 package log
 
 import (
-	"github.com/signalfx/golib/timekeeper"
-	"gopkg.in/stack.v1"
 	"time"
+
+	"github.com/go-stack/stack"
+	"github.com/signalfx/golib/timekeeper"
 )
 
 // Dynamic values are evaluated at Log() time, not when they are added to the context. They are also only evaulated by

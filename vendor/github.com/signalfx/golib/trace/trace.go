@@ -10,34 +10,35 @@ type Trace []*Span
 
 // Span defines a span
 type Span struct {
-	TraceID        string            `json:"traceId"` // required
-	Name           *string           `json:"name"`
-	ParentID       *string           `json:"parentId"`
-	ID             string            `json:"id"` // required
-	Kind           *string           `json:"kind"`
-	Timestamp      *int64            `json:"timestamp"`
-	Duration       *int64            `json:"duration"`
-	Debug          *bool             `json:"debug"`
-	Shared         *bool             `json:"shared"`
-	LocalEndpoint  *Endpoint         `json:"localEndpoint"`
-	RemoteEndpoint *Endpoint         `json:"remoteEndpoint"`
-	Annotations    []*Annotation     `json:"annotations"`
-	Tags           map[string]string `json:"tags"`
+	TraceID        string                 `json:"traceId"` // required
+	Name           *string                `json:"name,omitempty"`
+	ParentID       *string                `json:"parentId,omitempty"`
+	ID             string                 `json:"id"` // required
+	Kind           *string                `json:"kind,omitempty"`
+	Timestamp      *int64                 `json:"timestamp,omitempty"`
+	Duration       *int64                 `json:"duration,omitempty"`
+	Debug          *bool                  `json:"debug,omitempty"`
+	Shared         *bool                  `json:"shared,omitempty"`
+	LocalEndpoint  *Endpoint              `json:"localEndpoint,omitempty"`
+	RemoteEndpoint *Endpoint              `json:"remoteEndpoint,omitempty"`
+	Annotations    []*Annotation          `json:"annotations,omitempty"`
+	Tags           map[string]string      `json:"tags,omitempty"`
+	Meta           map[string]interface{} `json:"-"` // non serializeable field to hold any meta data we want to keep around
 }
 
 // Endpoint is the network context of a node in the service graph
 type Endpoint struct {
-	ServiceName *string `json:"serviceName"`
-	Ipv4        *string `json:"ipv4"`
-	Ipv6        *string `json:"ipv6"`
-	Port        *int32  `json:"port"`
+	ServiceName *string `json:"serviceName,omitempty"`
+	Ipv4        *string `json:"ipv4,omitempty"`
+	Ipv6        *string `json:"ipv6,omitempty"`
+	Port        *int32  `json:"port,omitempty"`
 }
 
 // Annotation associates an event that explains latency with a timestamp.
 // Unlike log statements, annotations are often codes. Ex. “ws” for WireSend
 type Annotation struct {
-	Timestamp *int64  `json:"timestamp"`
-	Value     *string `json:"value"`
+	Timestamp *int64  `json:"timestamp,omitempty"`
+	Value     *string `json:"value,omitempty"`
 }
 
 // DefaultLogger is used by package structs that don't have a default logger set.

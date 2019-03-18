@@ -171,7 +171,8 @@ func (s *Scheduler) Var() expvar.Var {
 	})
 }
 
-func (s *Scheduler) collectDatapoints() []*datapoint.Datapoint {
+// CollectDatapoints gives a scheduler an external endpoint to be called
+func (s *Scheduler) CollectDatapoints() []*datapoint.Datapoint {
 	ret := make([]*datapoint.Datapoint, 0, len(s.previousDatapoints))
 	now := s.Timer.Now()
 	for _, p := range s.callbackMap {
@@ -243,7 +244,7 @@ func (s *Scheduler) ReportOnce(ctx context.Context) error {
 		// Only take the mutex here so that we don't hold it during the HTTP call
 		s.callbackMutex.Lock()
 		defer s.callbackMutex.Unlock()
-		datapoints := s.collectDatapoints()
+		datapoints := s.CollectDatapoints()
 		s.previousDatapoints = datapoints
 		return datapoints
 	}()
