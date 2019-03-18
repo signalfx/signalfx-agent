@@ -14,6 +14,10 @@ class PProfClient:
     def _base_url(self):
         return f"http://{self.host}:{self.port}"
 
+    def fetch_heap(self):
+        resp = requests.get(f"{self._base_url}/debug/pprof/heap")
+        return resp.content
+
     def fetch_goroutines(self):
         resp = requests.get(f"{self._base_url}/debug/pprof/goroutine")
         return resp.content
@@ -27,5 +31,16 @@ class PProfClient:
         with open(path, "wb") as fd:
             print(f"Saving goroutines to {path}")
             fd.write(self.fetch_goroutines())
+
+        return path
+
+    def save_heap(self):
+        """
+        Saves the pprof heap stack output to a tmpfile and returns the
+        path
+        """
+        path = f"/tmp/pprof/heap.{self.host}-{self.port}"
+        with open(path, "wb") as fd:
+            fd.write(self.fetch_heap())
 
         return path

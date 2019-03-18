@@ -244,20 +244,57 @@ def test_large_k8s_cluster_deployment_prop():
     with fake_k8s_api_server(print_logs=True) as [fake_k8s_client, k8s_envvars]:
         v1_client = client.CoreV1Api(fake_k8s_client)
         v1beta1_client = client.ExtensionsV1beta1Api(fake_k8s_client)
+        replica_sets = {}
+        for i in range(0, dp_count):
+            dp_name = f"dp-{i}"
+            dp_uid = f"dpuid{i}"
+            rs_name = dp_name + "-replicaset"
+            rs_uid = dp_uid + "-rs"
+            replica_sets[rs_uid] = {
+                "dp_name": dp_name,
+                "dp_uid": dp_uid,
+                "rs_name": rs_name,
+                "rs_uid": rs_uid,
+                "pod_uids": [],
+                "pod_names": [],
+            }
 
-        ## create small subset of resources in a different namespace to get baseline of heap usage
-        v1_client.create_namespace(body={"apiVersion": "v1", "kind": "Namespace", "metadata": {"name": "dev"}})
-        for i in range(0, 10):
-            v1_client.create_namespaced_pod(
+            v1beta1_client.create_namespaced_replica_set(
                 body={
-                    "apiVersion": "v1",
-                    "kind": "Pod",
-                    "metadata": {"name": f"pod-{i}", "uid": f"abcpod{i}", "namespace": "dev"},
+                    "apiVersion": "extensions/v1beta1",
+                    "kind": "ReplicaSet",
+                    "metadata": {
+                        "name": rs_name,
+                        "uid": rs_uid,
+                        "namespace": "default",
+                        "ownerReferences": [{"kind": "Deployment", "name": dp_name, "uid": dp_uid}],
+                    },
                     "spec": {},
+                    "status": {},
                 },
-                namespace="dev",
+                namespace="default",
             )
 
+            for j in range(0, pods_per_dp):
+                pod_name = f"pod-{rs_name}-{j}"
+                pod_uid = f"abcdef{i}-{j}"
+                replica_sets[rs_uid]["pod_uids"].append(pod_uid)
+                replica_sets[rs_uid]["pod_names"].append(pod_name)
+                v1_client.create_namespaced_pod(
+                    body={
+                        "apiVersion": "v1",
+                        "kind": "Pod",
+                        "metadata": {
+                            "name": pod_name,
+                            "uid": pod_uid,
+                            "namespace": "default",
+                            "labels": {"app": "my-app"},
+                            "ownerReferences": [{"kind": "ReplicaSet", "name": rs_name, "uid": rs_uid}],
+                        },
+                        "spec": {},
+                    },
+                    namespace="default",
+                )
         with run_agent(
             dedent(
                 f"""
@@ -280,76 +317,21 @@ def test_large_k8s_cluster_deployment_prop():
             debug=False,
             extra_env=k8s_envvars,
         ) as [backend, _, _, pprof_client]:
-            assert wait_for(p(has_datapoint, backend, dimensions={"kubernetes_pod_name": "pod-0"}))
-            assert wait_for(p(has_datapoint, backend, dimensions={"kubernetes_pod_name": "pod-9"}))
+            assert wait_for(p(has_datapoint, backend, dimensions={"kubernetes_pod_name": "pod-dp-0-replicaset-0"}))
+            assert wait_for(p(has_datapoint, backend, dimensions={"kubernetes_pod_name": "pod-dp-49-replicaset-99"}))
 
-            ## get heap baseline heap usage
-            time.sleep(10)
-            pprof_client.save_goroutines()
+            ## get heap usage with 5k pods
             heap_usage_baseline = backend.datapoints_by_metric["sfxagent.go_heap_alloc"][-1].value.intValue
 
-            ## create 50 replica sets with 100 pods each
-            replicaSets = {}
-            for i in range(0, dp_count):
-                dp_name = f"dp-{i}"
-                dp_uid = f"dpuid{i}"
-                rs_name = dp_name + "-replicaset"
-                rs_uid = dp_uid + "-rs"
-                replicaSets[rs_uid] = {
-                    "dp_name": dp_name,
-                    "dp_uid": dp_uid,
-                    "rs_name": rs_name,
-                    "rs_uid": rs_uid,
-                    "pod_uids": [],
-                    "pod_names": [],
-                }
-
-                v1beta1_client.create_namespaced_replica_set(
-                    body={
-                        "apiVersion": "extensions/v1beta1",
-                        "kind": "ReplicaSet",
-                        "metadata": {
-                            "name": rs_name,
-                            "uid": rs_uid,
-                            "namespace": "default",
-                            "ownerReferences": [{"kind": "Deployment", "name": dp_name, "uid": dp_uid}],
-                        },
-                        "spec": {},
-                        "status": {},
-                    },
-                    namespace="default",
-                )
-
-                for j in range(0, pods_per_dp):
-                    pod_name = f"pod-{rs_name}-{j}"
-                    pod_uid = f"abcdef{i}-{j}"
-                    replicaSets[rs_uid]["pod_uids"].append(pod_uid)
-                    replicaSets[rs_uid]["pod_names"].append(pod_name)
-                    v1_client.create_namespaced_pod(
-                        body={
-                            "apiVersion": "v1",
-                            "kind": "Pod",
-                            "metadata": {
-                                "name": pod_name,
-                                "uid": pod_uid,
-                                "namespace": "default",
-                                "labels": {"app": "my-app"},
-                                "ownerReferences": [{"kind": "ReplicaSet", "name": rs_name, "uid": rs_uid}],
-                            },
-                            "spec": {},
-                        },
-                        namespace="default",
-                    )
-
             def has_all_deployment_props():
-                for _, rs in replicaSets.items():
-                    for pod_uid in rs["pod_uids"]:
+                for _, replica_set in replica_sets.items():
+                    for pod_uid in replica_set["pod_uids"]:
                         if not has_dim_prop(
                             backend,
                             dim_name="kubernetes_pod_uid",
                             dim_value=pod_uid,
                             prop_name="deployment",
-                            prop_value=rs["dp_name"],
+                            prop_value=replica_set["dp_name"],
                         ):
                             return False
                         if not has_dim_prop(
@@ -357,20 +339,20 @@ def test_large_k8s_cluster_deployment_prop():
                             dim_name="kubernetes_pod_uid",
                             dim_value=pod_uid,
                             prop_name="deployment_uid",
-                            prop_value=rs["dp_uid"],
+                            prop_value=replica_set["dp_uid"],
                         ):
                             return False
                     return True
 
-            def has_all_replicaSet_props():
-                for _, rs in replicaSets.items():
-                    for pod_uid in rs["pod_uids"]:
+            def has_all_replica_set_props():
+                for _, replica_set in replica_sets.items():
+                    for pod_uid in replica_set["pod_uids"]:
                         if not has_dim_prop(
                             backend,
                             dim_name="kubernetes_pod_uid",
                             dim_value=pod_uid,
                             prop_name="replicaSet",
-                            prop_value=rs["rs_name"],
+                            prop_value=replica_set["rs_name"],
                         ):
                             return False
                         if not has_dim_prop(
@@ -378,19 +360,17 @@ def test_large_k8s_cluster_deployment_prop():
                             dim_name="kubernetes_pod_uid",
                             dim_value=pod_uid,
                             prop_name="replicaSet_uid",
-                            prop_value=rs["rs_uid"],
+                            prop_value=replica_set["rs_uid"],
                         ):
                             return False
                     return True
 
-            assert wait_for(p(has_datapoint, backend, dimensions={"kubernetes_pod_name": "pod-dp-0-replicaset-0"}))
-            assert wait_for(p(has_datapoint, backend, dimensions={"kubernetes_pod_name": "pod-dp-49-replicaset-99"}))
+            assert wait_for(has_all_deployment_props, interval_seconds=2, timeout_seconds=60)
+            assert wait_for(has_all_replica_set_props, interval_seconds=2)
 
-            assert wait_for(has_all_deployment_props, interval_seconds=2)
-
-            for _, rs in replicaSets.items():
-                v1beta1_client.delete_namespaced_replica_set(name=rs["rs_name"], namespace="default", body={})
-                for pod_name in rs["pod_names"]:
+            for _, replica_set in replica_sets.items():
+                v1beta1_client.delete_namespaced_replica_set(name=replica_set["rs_name"], namespace="default", body={})
+                for pod_name in replica_set["pod_names"]:
                     v1_client.delete_namespaced_pod(name=pod_name, namespace="default", body={})
 
             def go_routines():
@@ -400,14 +380,8 @@ def test_large_k8s_cluster_deployment_prop():
             assert wait_for(go_routines, interval_seconds=2, timeout_seconds=60)
 
             def heap_baselined():
-                pprof_client.save_goroutines()
+                pprof_client.save_heap()
                 heap_usage = backend.datapoints_by_metric["sfxagent.go_heap_alloc"][-1].value.intValue
-                print("-------------------------")
-                print(heap_usage_baseline)
-                print(heap_usage)
-                return (
-                    backend.datapoints_by_metric["sfxagent.go_heap_alloc"][-1].value.intValue
-                    < 1.25 * heap_usage_baseline
-                )
+                return heap_usage < (heap_usage_baseline / 2)
 
             assert wait_for(heap_baselined, interval_seconds=2, timeout_seconds=60)
