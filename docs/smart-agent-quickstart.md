@@ -124,6 +124,6 @@ For troubleshooting, you can also check the status of the agent:
 sudo signalfx-agent status
 ```
 
-#### Step 3: Log into [SignalFx](https://app.signalfx.com) and see your data!
+#### Step 3: Log into SignalFx and see your data!
 
 
