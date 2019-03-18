@@ -5,14 +5,15 @@ import (
 	"encoding/json"
 	"expvar"
 	"fmt"
-	"github.com/signalfx/golib/datapoint"
-	"github.com/signalfx/golib/event"
-	"github.com/signalfx/golib/log"
-	"github.com/signalfx/golib/trace"
 	"net/http"
 	"sync"
 	"sync/atomic"
 	"time"
+
+	"github.com/signalfx/golib/datapoint"
+	"github.com/signalfx/golib/event"
+	"github.com/signalfx/golib/log"
+	"github.com/signalfx/golib/trace"
 )
 
 // FlagCheck checks a context to see if a debug flag is set

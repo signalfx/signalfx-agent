@@ -1,6 +1,5 @@
 # TODO: centralize these
-$depVersion = "v0.5.0"
-$goVersion = "1.11.4"
+$goVersion = "1.12.1"
 
 # ensure choco in path
 $env:Path = [Environment]::GetEnvironmentVariable('Path',[System.EnvironmentVariableTarget]::Machine);
@@ -20,11 +19,5 @@ Set-ItemProperty -Path "Registry::HKEY_LOCAL_MACHINE\System\CurrentControlSet\Co
 
 # set gopath variable
 [Environment]::SetEnvironmentVariable("GOPATH", "c:\users\vagrant\go", "Machine")
-
-# install go dep
-$url = "https://raw.githubusercontent.com/golang/dep/master/install.sh"
-$output = "C:\tmp\dep\install.sh"
-mkdir c:\tmp\dep -ea 0
-(New-Object System.Net.WebClient).DownloadFile($url, $output)
 
 & 'C:\Program Files\Git\git-bash.exe' -i -l -c "GOBIN=/C/Users/vagrant/go/bin DEP_RELEASE_TAG=$depVersion echo $DEP_RELEASE_TAG; /C/tmp/dep/install.sh"

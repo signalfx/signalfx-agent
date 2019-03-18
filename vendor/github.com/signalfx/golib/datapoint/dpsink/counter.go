@@ -31,19 +31,24 @@ type Counter struct {
 	Logger             log.Logger
 	LoggerFunc         func(context.Context) string
 	LoggerKey          log.Key
+	DroppedReason      string
 }
 
 // Datapoints returns counter stats
 func (c *Counter) Datapoints() []*datapoint.Datapoint {
+	var dims map[string]string
+	if c.DroppedReason != "" {
+		dims = map[string]string{"reason": c.DroppedReason}
+	}
 	return []*datapoint.Datapoint{
 		sfxclient.Cumulative("total_process_errors", nil, atomic.LoadInt64(&c.TotalProcessErrors)),
 		sfxclient.Cumulative("total_datapoints", nil, atomic.LoadInt64(&c.TotalDatapoints)),
 		sfxclient.Cumulative("total_events", nil, atomic.LoadInt64(&c.TotalEvents)),
 		sfxclient.Cumulative("total_spans", nil, atomic.LoadInt64(&c.TotalSpans)),
 		sfxclient.Cumulative("total_process_calls", nil, atomic.LoadInt64(&c.TotalProcessCalls)),
-		sfxclient.Cumulative("dropped_points", nil, atomic.LoadInt64(&c.ProcessErrorPoints)),
-		sfxclient.Cumulative("dropped_events", nil, atomic.LoadInt64(&c.ProcessErrorEvents)),
-		sfxclient.Cumulative("dropped_spans", nil, atomic.LoadInt64(&c.ProcessErrorSpans)),
+		sfxclient.Cumulative("dropped_points", dims, atomic.LoadInt64(&c.ProcessErrorPoints)),
+		sfxclient.Cumulative("dropped_events", dims, atomic.LoadInt64(&c.ProcessErrorEvents)),
+		sfxclient.Cumulative("dropped_spans", dims, atomic.LoadInt64(&c.ProcessErrorSpans)),
 		sfxclient.Cumulative("process_time_ns", nil, atomic.LoadInt64(&c.TotalProcessTimeNs)),
 		sfxclient.Gauge("calls_in_flight", nil, atomic.LoadInt64(&c.CallsInFlight)),
 	}

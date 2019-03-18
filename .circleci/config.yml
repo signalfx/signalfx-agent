@@ -6,12 +6,12 @@ executors:
       image: circleci/classic:201711-01
 
   goexecutor:
-    working_directory: /go/src/github.com/signalfx/signalfx-agent
+    working_directory: /code
     docker:
-      - image: golang:1.11-alpine
+      - image: golang:1.12.1-alpine
         environment:
           CGO_ENABLED: 0
-          AGENT_BIN: /go/src/github.com/signalfx/signalfx-agent/signalfx-agent
+          AGENT_BIN: /code/signalfx-agent
 
   python36:
     working_directory: /opt/signalfx-agent
@@ -61,6 +61,11 @@ commands:
             fi
             pip install -r tests/requirements.txt
             pyenv rehash
+
+            # Machine image only has Go 1.9 installed
+            cd /tmp
+            wget https://dl.google.com/go/go1.12.1.linux-amd64.tar.gz
+            sudo tar -C /usr/local -xzf go1.12.1.linux-amd64.tar.gz
       - save_cache:
           key: v1-pytest-{{ checksum "tests/requirements.txt" }}
           paths:
@@ -138,20 +143,15 @@ jobs:
           paths:
             - image.tar
 
-  build_dev_image:
-    executor: docker1809
+  modules:
+    executor: goexecutor
     steps:
       - checkout
-      - setup_remote_docker:
-          docker_layer_caching: false
+      - goexecutor_setup
       - run: |
-          apk add make bash git
-          [ "$CIRCLE_BRANCH" = "master" ] || git checkout -b $CIRCLE_BRANCH
-          if ! scripts/changes-include-dir Dockerfile; then
-              echo "Dockerfile has not changed, skipping build!"
-              exit 0
-          fi
-          PULL_CACHE=yes make dev-image
+          go mod tidy
+          go mod vendor
+          git diff --exit-code || (echo 'go modules are not properly vendored. Run `make vendor` and commit the changes.' && exit 1)
 
   lint: 
     executor: goexecutor
@@ -474,7 +474,7 @@ workflows:
   build_test:
     jobs:
       - build
-      - build_dev_image
+      - modules
       - lint
       - vet
       - gofmt

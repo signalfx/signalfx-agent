@@ -13,17 +13,17 @@ test: compileDeps
 ifeq ($(OS),Windows_NT)
 	powershell "& { . $(CURDIR)/scripts/windows/make.ps1; test }"
 else
-	CGO_ENABLED=0 go test ./...
+	CGO_ENABLED=0 go test -mod vendor ./...
 endif
 
 .PHONY: vet
 vet: compileDeps
 	# Only consider it a failure if issues are in non-test files
-	! CGO_ENABLED=0 go vet ./... 2>&1 | tee /dev/tty | grep '.go' | grep -v '_test.go'
+	! CGO_ENABLED=0 go vet -mod vendor ./... 2>&1 | tee /dev/tty | grep '.go' | grep -v '_test.go'
 
 .PHONY: vetall
 vetall: compileDeps
-	CGO_ENABLED=0 go vet ./...
+	CGO_ENABLED=0 go vet -mod vendor ./...
 
 .PHONY: lint
 lint:
@@ -51,7 +51,7 @@ vendor:
 ifeq ($(OS), Windows_NT)
 	powershell "& { . $(CURDIR)/scripts/windows/make.ps1; vendor }"
 else
-	CGO_ENABLED=0 dep ensure
+	go mod tidy && go mod vendor
 endif
 
 internal/core/common/constants/versions.go: FORCE
@@ -63,8 +63,9 @@ ifeq ($(OS),Windows_NT)
 	powershell "& { . $(CURDIR)/scripts/windows/make.ps1; signalfx-agent $(AGENT_VERSION)}"
 else
 	CGO_ENABLED=0 go build \
+		-mod vendor \
 		-o signalfx-agent \
-		github.com/signalfx/signalfx-agent/cmd/agent
+		./cmd/agent
 endif
 
 .PHONY: bundle
@@ -113,7 +114,7 @@ run-dev-image:
 		-p 8095:8095 \
 		--name signalfx-agent-dev \
 		-v $(CURDIR)/local-etc:/etc/signalfx \
-		-v $(CURDIR):/go/src/github.com/signalfx/signalfx-agent:cached \
+		-v $(CURDIR):/usr/src/signalfx-agent:cached \
 		-v $(CURDIR)/collectd:/usr/src/collectd:cached \
 		-v $(CURDIR)/tmp/pprof:/tmp/pprof \
 		signalfx-agent-dev /bin/bash

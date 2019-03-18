@@ -1,4 +1,4 @@
-ARG GO_VERSION=1.11.4
+ARG GO_VERSION=1.12.1
 
 ###### Agent Build Image ########
 FROM ubuntu:16.04 as agent-builder
@@ -13,18 +13,19 @@ RUN cd /tmp &&\
 	tar -C /usr/local -xf go*.tar.gz
 
 ENV GOPATH=/go
-WORKDIR /go/src/github.com/signalfx/signalfx-agent
+WORKDIR /usr/src/signalfx-agent
 
 COPY vendor/ ./vendor/
 # Precompile and cache vendor compilation outputs so that building the app is
-# faster.  A bunch of these fail because dep pulls in more than necessary, but
+# faster.  A bunch of these fail because go get pulls in more than necessary, but
 # a lot do compile
-RUN cd vendor && find . -type d -not -empty | grep -v '\btest' | parallel go install {} 2>/dev/null || true
+RUN cd vendor && find . -type d -not -empty | grep -v '\btest' | parallel go install -mod vendor {} 2>/dev/null || true
 
 COPY cmd/ ./cmd/
 COPY scripts/make-templates scripts/make-versions ./scripts/
 COPY scripts/collectd-template-to-go ./scripts/
 COPY Makefile .
+COPY go.mod go.sum ./
 COPY internal/ ./internal/
 
 ARG collectd_version=""
@@ -340,9 +341,9 @@ RUN apt update &&\
 
 
 ENV SIGNALFX_BUNDLE_DIR=/bundle \
-    TEST_SERVICES_DIR=/go/src/github.com/signalfx/signalfx-agent/test-services \
-    AGENT_BIN=/go/src/github.com/signalfx/signalfx-agent/signalfx-agent \
-    PYTHONPATH=/go/src/github.com/signalfx/signalfx-agent/python \
+    TEST_SERVICES_DIR=/usr/src/signalfx-agent/test-services \
+    AGENT_BIN=/usr/src/signalfx-agent/signalfx-agent \
+    PYTHONPATH=/usr/src/signalfx-agent/python \
     BUILD_TIME=2017-01-25T13:17:17-0500 \
     GOOS=linux \
     LC_ALL=C.UTF-8 \
@@ -358,14 +359,11 @@ RUN wget -O helm.tar.gz https://storage.googleapis.com/kubernetes-helm/helm-${HE
     mv linux-amd64/helm /usr/local/bin/helm && \
     chmod a+x /usr/local/bin/helm
 
-WORKDIR /go/src/github.com/signalfx/signalfx-agent
+WORKDIR /usr/src/signalfx-agent
 CMD ["/bin/bash"]
 ENV PATH=$PATH:/usr/local/go/bin:/go/bin GOPATH=/go
 
 COPY --from=golang-ignore /usr/local/go/ /usr/local/go
-
-RUN wget -O /usr/bin/dep https://github.com/golang/dep/releases/download/v0.5.0/dep-linux-amd64 &&\
-    chmod +x /usr/bin/dep
 
 RUN curl -fsSL get.docker.com -o /tmp/get-docker.sh &&\
     sh /tmp/get-docker.sh

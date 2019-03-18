@@ -60,20 +60,17 @@ run for that commit.
 
 ## Go Dependencies
 
-We are using [dep](https://github.com/golang/dep) to manage dependencies.
-Vendoring the Kubernetes client-go requires a bit of hacking in the Gopkg.toml
-depedencies but wasn't too bad to get working, despite the fact that they
-officially don't recommend using it with dep.
+We are using [Go modules](https://github.com/golang/go/wiki/Modules) to manage
+dependencies.
 
 We commit all of our go dependencies to the git repository.  This results in a
 significantly larger repository but makes the agent build more self-contained
 and consistent.
 
-If you add another Go package dependency, you should manually add it to the
-[Gopkg.toml](../Gopkg.toml) and specify a dependency version.  Then run `dep
-ensure` and commit the new vendored source to the repository.  Please make
-commits to the vendor directory separate from commits to the application code
-for easier code review.
+If you add another Go package dependency, you can just run `go get
+<package>@<optional_version>`.  Then run `go mod tidy && go mod vendor` and
+commit the new vendored source to the repository in the same commit that
+depends on the new dependencies.
 
 
 ## Development in Kubernetes (K8s)

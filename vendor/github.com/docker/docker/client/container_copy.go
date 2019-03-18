@@ -1,6 +1,7 @@
-package client
+package client // import "github.com/docker/docker/client"
 
 import (
+	"context"
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
@@ -9,8 +10,6 @@ import (
 	"net/url"
 	"path/filepath"
 	"strings"
-
-	"golang.org/x/net/context"
 
 	"github.com/docker/docker/api/types"
 )
@@ -51,6 +50,7 @@ func (cli *Client) CopyToContainer(ctx context.Context, containerID, dstPath str
 	}
 	defer ensureReaderClosed(response)
 
+	// TODO this code converts non-error status-codes (e.g., "204 No Content") into an error; verify if this is the desired behavior
 	if response.statusCode != http.StatusOK {
 		return fmt.Errorf("unexpected status code from daemon: %d", response.statusCode)
 	}
@@ -70,6 +70,7 @@ func (cli *Client) CopyFromContainer(ctx context.Context, containerID, srcPath s
 		return nil, types.ContainerPathStat{}, wrapResponseError(err, response, "container:path", containerID+":"+srcPath)
 	}
 
+	// TODO this code converts non-error status-codes (e.g., "204 No Content") into an error; verify if this is the desired behavior
 	if response.statusCode != http.StatusOK {
 		return nil, types.ContainerPathStat{}, fmt.Errorf("unexpected status code from daemon: %d", response.statusCode)
 	}
