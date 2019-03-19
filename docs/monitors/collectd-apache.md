@@ -2,7 +2,7 @@
 
 # collectd/apache
 
- Monitors Apache webservice instances using
+Monitors Apache webservice instances using
 the information provided by `mod_status`.
 
 See https://github.com/signalfx/integrations/tree/master/collectd-apache

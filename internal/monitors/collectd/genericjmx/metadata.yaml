@@ -1,0 +1,87 @@
+- dimensions: null
+  doc: |
+    Monitors Java services that expose metrics on
+    JMX using collectd's GenericJMX plugin.
+
+    See https://github.com/signalfx/integrations/tree/master/collectd-genericjmx
+    and https://collectd.org/documentation/manpages/collectd-java.5.shtml
+
+    Example (gets the thread count from a standard JMX MBean available on all
+    Java JMX-enabled apps):
+
+    ```yaml
+
+    monitors:
+     - type: collectd/genericjmx
+       host: my-java-app
+       port: 7099
+       mBeanDefinitions:
+         threading:
+           objectName: java.lang:type=Threading
+           values:
+           - type: gauge
+             table: false
+             instancePrefix: jvm.threads.count
+             attribute: ThreadCount
+    ```
+    ## Troubleshooting
+
+    Exposing JMX in your Java application can be a tricky process.  Oracle has a
+    [helpful guide for Java
+    8](https://docs.oracle.com/javase/8/docs/technotes/guides/management/agent.html)
+    that explains how to expose JMX metrics automatically by setting Java
+    properties on your application.  Here are a set of Java properties that are
+    known to work with Java 7+:
+
+    ```
+    java \
+      -Dcom.sun.management.jmxremote.port=5000 \
+      -Dcom.sun.management.jmxremote.authenticate=false \
+      -Dcom.sun.management.jmxremote.ssl=false \
+      -Dcom.sun.management.jmxremote.rmi.port=5000 \
+      ...
+    ```
+
+    This should work as long as the agent is allowed to access port 5000 on the
+    Java app's host (i.e. there is no firewall blocking it).  Note that this
+    does not enable authentication or encryption, but these can be added if
+    desired.
+
+    Assuming you have the `host` config set to `172.17.0.3` and the port set to
+    `5000` (this is a totally arbitrary port and your JMX app will probably be
+    something different), here are some errors you might receive and their
+    meanings:
+
+    ### Connection Refused
+    ```
+    Creating MBean server connection failed: java.io.IOException: Failed to retrieve RMIServer stub: javax.naming.ServiceUnavailableException [Root exception is java.rmi.ConnectException: Connection refused to host: 172.17.0.3; nested exception is:
+         java.net.ConnectException: Connection refused (Connection refused)]
+    ```
+
+    This error indicates that the JMX connect port is not open on the specified
+    host.  Confirm (via netstat/ss or some other tool) that this port
+    is indeed open on the configured host, and is listening on an appropriate
+    address (i.e. if the agent is running on a remote server then JMX should not
+    be listening on localhost only).
+
+    ### RMI Connection Issues
+
+    ```
+    Creating MBean server connection failed: java.rmi.ConnectException: Connection refused to host: 172.17.0.3; nested exception is:
+         java.net.ConnectException: Connection timed out (Connection timed out)
+    ```
+
+    This indicates that the JMX connect port was reached successfully, but the
+    RMI port that it was directed to is being blocked, probably by a firewall.
+    The easiest thing to do here is to make sure the
+    `com.sun.management.jmxremote.rmi.port` property in your Java app is set to
+    the same port as the JMX connect port.  There may be other variations of
+    this that say `Connection reset` or `Connection refused` but they all
+    generaly indicate a similar cause.
+
+    ## Useful links
+
+     - https://realjenius.com/2012/11/21/java7-jmx-tunneling-freedom/
+  metrics: null
+  monitorType: collectd/genericjmx
+  properties: null

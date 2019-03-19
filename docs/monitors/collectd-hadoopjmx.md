@@ -2,7 +2,7 @@
 
 # collectd/hadoopjmx
 
- Collects metrics about a Hadoop cluster using
+Collects metrics about a Hadoop cluster using
 using collectd's GenericJMX plugin.
 
 Also see

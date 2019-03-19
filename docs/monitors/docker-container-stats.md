@@ -2,7 +2,7 @@
 
 # docker-container-stats
 
- This monitor reads container stats from a
+This monitor reads container stats from a
 Docker API server.  It is meant as a metric-compatible replacement of our
 [docker-collectd](https://github.com/signalfx/docker-collectd-plugin)
 plugin, which scales rather poorly against a large number of containers.

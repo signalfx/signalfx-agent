@@ -2,7 +2,7 @@
 
 # collectd/marathon
 
- Monitors a Mesos Marathon instance using the
+Monitors a Mesos Marathon instance using the
 [collectd Marathon Python plugin](https://github.com/signalfx/collectd-marathon).
 
 See the [integrations

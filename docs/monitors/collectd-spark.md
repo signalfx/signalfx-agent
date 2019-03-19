@@ -2,7 +2,7 @@
 
 # collectd/spark
 
- Collects metrics about a Spark cluster using the
+Collects metrics about a Spark cluster using the
 [collectd Spark Python plugin](https://github.com/signalfx/collectd-spark).
 Also see
 https://github.com/signalfx/integrations/tree/master/collectd-spark.

@@ -1,0 +1,54 @@
+- dimensions: null
+  doc: |
+    Tracks free disk space on the host.
+  metrics:
+  - description: Free disk space in bytes
+    included: true
+    name: df_complex.free
+    type: gauge
+  - description: Reserved disk space in bytes
+    included: false
+    name: df_complex.reserved
+    type: gauge
+  - description: Used disk space in bytes
+    included: true
+    name: df_complex.used
+    type: gauge
+  - description: Number of inodes that are free.
+    included: false
+    name: df_inodes.free
+    type: gauge
+  - description: Number of inodes reserved for the super user.
+    included: false
+    name: df_inodes.reserved
+    type: gauge
+  - description: Number of inodes that are used.
+    included: false
+    name: df_inodes.used
+    type: gauge
+  - description: Free disk space on the file system, expressed as a percentage.
+    included: false
+    name: percent_bytes.free
+    type: gauge
+  - description: Reserved disk space on the filesystem, expressed as a percentage.
+    included: false
+    name: percent_bytes.reserved
+    type: gauge
+  - description: Used disk space on the file system, expressed as a percentage.
+    included: false
+    name: percent_bytes.used
+    type: gauge
+  - description: Free inodes on the file system, expressed as a percentage.
+    included: false
+    name: percent_inodes.free
+    type: gauge
+  - description: Reserved inodes on the file system, expressed as a percentage.
+    included: false
+    name: percent_inodes.reserved
+    type: gauge
+  - description: Used inodes on the file system, expressed as a percentage.
+    included: false
+    name: percent_inodes.used
+    type: gauge
+  monitorType: collectd/df
+  properties: null

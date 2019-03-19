@@ -2,7 +2,7 @@
 
 # telegraf/logparser
 
- This monitor is based on the Telegraf logparser plugin.
+This monitor is based on the Telegraf logparser plugin.
 The monitor tails log files. More information about the Telegraf plugin
 can be found [here](https://github.com/influxdata/telegraf/tree/master/plugins/inputs/logparser).
 All metrics emitted from this monitor will have the `plugin` dimension set to `telegraf-logparser`

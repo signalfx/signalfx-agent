@@ -2,7 +2,7 @@
 
 # kubernetes-cluster
 
- Collects cluster-level metrics from the
+Collects cluster-level metrics from the
 Kubernetes API server.  It uses the _watch_ functionality of the K8s API
 to listen for updates about the cluster and maintains a cache of metrics
 that get sent on a regular interval.

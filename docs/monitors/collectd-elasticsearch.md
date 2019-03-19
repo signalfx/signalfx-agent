@@ -2,7 +2,7 @@
 
 # collectd/elasticsearch
 
- Monitors ElasticSearch instances.
+Monitors ElasticSearch instances.
 
 See https://github.com/signalfx/collectd-elasticsearch and
 https://github.com/signalfx/integrations/tree/master/collectd-elasticsearch

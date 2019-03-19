@@ -1,0 +1,184 @@
+- dimensions: null
+  doc: |
+    Monitors a redis instance using the [collectd
+    Python Redis plugin](https://github.com/signalfx/redis-collectd-plugin).
+
+    See the [integrations
+    doc](https://github.com/signalfx/integrations/tree/master/collectd-redis)
+    for more information.
+
+    Sample YAML configuration:
+
+    ```yaml
+    monitors:
+    - type: collectd/redis
+      host: 127.0.0.1
+      port: 9100
+    ```
+
+    Sample YAML configuration with list lengths:
+
+    ```yaml
+    monitors:
+    - type: collectd/redis
+      host: 127.0.0.1
+      port: 9100
+      sendListLengths:
+      - databaseIndex: 0
+        keyPattern: 'mylist*'
+    ```
+  metrics:
+  - description: Number of bytes allocated by Redis
+    included: true
+    name: bytes.used_memory
+    type: gauge
+  - description: Number of bytes used by the Lua engine
+    included: false
+    name: bytes.used_memory_lua
+    type: gauge
+  - description: Peak Number of bytes allocated by Redis
+    included: false
+    name: bytes.used_memory_peak
+    type: gauge
+  - description: Number of bytes allocated by Redis as seen by the OS
+    included: true
+    name: bytes.used_memory_rss
+    type: gauge
+  - description: Total number of commands processed by the server
+    included: true
+    name: counter.commands_processed
+    type: cumulative
+  - description: Total number of connections accepted by the server
+    included: false
+    name: counter.connections_received
+    type: cumulative
+  - description: Number of evicted keys due to maxmemory limit
+    included: true
+    name: counter.evicted_keys
+    type: cumulative
+  - description: Total number of key expiration events
+    included: true
+    name: counter.expired_keys
+    type: cumulative
+  - description: Clock incrementing every minute, for LRU management
+    included: false
+    name: counter.lru_clock
+    type: cumulative
+  - description: Number of connections rejected because of maxclients limit
+    included: true
+    name: counter.rejected_connections
+    type: cumulative
+  - description: Total number of bytes inputted
+    included: true
+    name: counter.total_net_input_bytes
+    type: cumulative
+  - description: Total number of bytes outputted
+    included: true
+    name: counter.total_net_output_bytes
+    type: cumulative
+  - description: System CPU consumed by the Redis server
+    included: true
+    name: counter.used_cpu_sys
+    type: cumulative
+  - description: System CPU consumed by the background processes
+    included: false
+    name: counter.used_cpu_sys_children
+    type: cumulative
+  - description: User CPU consumed by the Redis server
+    included: true
+    name: counter.used_cpu_user
+    type: cumulative
+  - description: User CPU consumed by the background processes
+    included: false
+    name: counter.used_cpu_user_children
+    type: cumulative
+  - description: Number of successful lookup of keys in the main dictionary
+    included: true
+    name: derive.keyspace_hits
+    type: cumulative
+  - description: Number of failed lookup of keys in the main dictionary
+    included: true
+    name: derive.keyspace_misses
+    type: cumulative
+  - description: Number of clients pending on a blocking call
+    included: true
+    name: gauge.blocked_clients
+    type: gauge
+  - description: Number of changes since the last dump
+    included: false
+    name: gauge.changes_since_last_save
+    type: gauge
+  - description: Biggest input buffer among current client connections
+    included: false
+    name: gauge.client_biggest_input_buf
+    type: gauge
+  - description: Longest output list among current client connections
+    included: false
+    name: gauge.client_longest_output_list
+    type: gauge
+  - description: Number of client connections (excluding connections from slaves)
+    included: true
+    name: gauge.connected_clients
+    type: gauge
+  - description: Number of connected slaves
+    included: false
+    name: gauge.connected_slaves
+    type: gauge
+  - description: The average time to live for all keys in redis
+    included: false
+    name: gauge.db0_avg_ttl
+    type: gauge
+  - description: The total number of keys in redis that will expire
+    included: false
+    name: gauge.db0_expires
+    type: gauge
+  - description: The total number of keys stored in redis
+    included: false
+    name: gauge.db0_keys
+    type: gauge
+  - description: Number of commands processed per second
+    included: false
+    name: gauge.instantaneous_ops_per_sec
+    type: gauge
+  - description: Length of an list key
+    included: false
+    name: gauge.key_llen
+    type: gauge
+  - description: Duration of the latest fork operation in microseconds
+    included: false
+    name: gauge.latest_fork_usec
+    type: gauge
+  - description: Number of seconds since the last interaction with master
+    included: false
+    name: gauge.master_last_io_seconds_ago
+    type: gauge
+  - description: Master replication offset
+    included: true
+    name: gauge.master_repl_offset
+    type: gauge
+  - description: Ratio between used_memory_rss and used_memory
+    included: false
+    name: gauge.mem_fragmentation_ratio
+    type: gauge
+  - description: Flag indicating a RDB save is on-going
+    included: false
+    name: gauge.rdb_bgsave_in_progress
+    type: gauge
+  - description: Slave replication backlog offset
+    included: false
+    name: gauge.repl_backlog_first_byte_offset
+    type: gauge
+  - description: Slave replication offset
+    included: true
+    name: gauge.slave_repl_offset
+    type: gauge
+  - description: Number of days up
+    included: false
+    name: gauge.uptime_in_days
+    type: gauge
+  - description: Number of seconds up
+    included: false
+    name: gauge.uptime_in_seconds
+    type: gauge
+  monitorType: collectd/redis
+  properties: null

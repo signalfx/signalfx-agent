@@ -2,7 +2,7 @@
 
 # kubernetes-volumes
 
- This monitor sends usage stats about volumes
+This monitor sends usage stats about volumes
 mounted to Kubernetes pods (e.g. free space/inodes).  This information is
 gotten from the Kubelet /stats/summary endpoint.  The normal `collectd/df`
 monitor generally will not report Persistent Volume usage metrics because

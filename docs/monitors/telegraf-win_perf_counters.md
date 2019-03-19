@@ -2,7 +2,7 @@
 
 # telegraf/win_perf_counters
 
- This monitor reads Windows performance
+This monitor reads Windows performance
 counters
 
 Sample YAML configuration:

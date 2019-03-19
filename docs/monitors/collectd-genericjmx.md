@@ -2,7 +2,7 @@
 
 # collectd/genericjmx
 
- Monitors Java services that expose metrics on
+Monitors Java services that expose metrics on
 JMX using collectd's GenericJMX plugin.
 
 See https://github.com/signalfx/integrations/tree/master/collectd-genericjmx

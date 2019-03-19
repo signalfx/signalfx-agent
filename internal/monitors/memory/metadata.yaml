@@ -1,0 +1,51 @@
+- dimensions: null
+  doc: |
+    This monitor reports memory and memory utilization metrics.
+
+    On Linux hosts, this monitor relies on the `/proc` filesystem.
+    If the underlying host's `/proc` file system is mounted somewhere other than
+    /proc please specify the path using the top level configuration `procPath`.
+
+    ```yaml
+    procPath: /proc
+    monitors:
+     - type: memory
+    ```
+  metrics:
+  - description: (Windows Only) Bytes of memory available for use.
+    included: false
+    name: memory.available
+    type: gauge
+  - description: (Linux Only) Bytes of memory used for buffering I/O.
+    included: false
+    name: memory.buffered
+    type: gauge
+  - description: (Linux Only) Bytes of memory used for disk caching.
+    included: false
+    name: memory.cached
+    type: gauge
+  - description: (Linux Only) Bytes of memory available for use.
+    included: false
+    name: memory.free
+    type: gauge
+  - description: (Linux Only) Bytes of memory, used for SLAB-allocation of kernel
+      objects, that can be reclaimed.
+    included: false
+    name: memory.slab_recl
+    type: gauge
+  - description: (Linux Only) Bytes of memory, used for SLAB-allocation of kernel
+      objects, that can't be reclaimed.
+    included: false
+    name: memory.slab_unrecl
+    type: gauge
+  - description: Bytes of memory in use by the system.
+    included: false
+    name: memory.used
+    type: gauge
+  - description: Percent of memory in use on this host. This metric reports with plugin
+      dimension set to "signalfx-metadata".
+    included: false
+    name: memory.utilization
+    type: gauge
+  monitorType: memory
+  properties: null

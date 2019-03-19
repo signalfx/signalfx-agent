@@ -2,7 +2,7 @@
 
 # collectd/load
 
- Monitors process load on the host using the collectd
+Monitors process load on the host using the collectd
 [Load plugin](https://collectd.org/wiki/index.php/Plugin:Load).
 
 

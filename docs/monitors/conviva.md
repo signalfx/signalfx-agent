@@ -2,7 +2,7 @@
 
 # conviva
 
- This monitor uses version 2.4 of the Conviva Experience Insights REST APIs to pull
+This monitor uses version 2.4 of the Conviva Experience Insights REST APIs to pull
 `Real-Time/Live` video playing experience metrics from Conviva.
 
 Only `Live` conviva metrics listed

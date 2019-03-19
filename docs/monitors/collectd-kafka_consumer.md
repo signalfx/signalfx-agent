@@ -2,7 +2,7 @@
 
 # collectd/kafka_consumer
 
- Monitors a Java based Kafka consumer using GenericJMX.
+Monitors a Java based Kafka consumer using GenericJMX.
 
 See the [integration documentation](https://github.com/signalfx/integrations/tree/master/collectd-kafka)
 for more information.

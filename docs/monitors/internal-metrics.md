@@ -2,7 +2,7 @@
 
 # internal-metrics
 
- Emits metrics about the internal state of the
+Emits metrics about the internal state of the
 agent.  Useful for debugging performance issues with the agent and to ensure
 the agent isn't overloaded.
 

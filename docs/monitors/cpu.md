@@ -2,7 +2,6 @@
 
 # cpu
 
-
 This monitor reports cpu metrics.
 
 On Linux hosts, this monitor relies on the `/proc` filesystem.

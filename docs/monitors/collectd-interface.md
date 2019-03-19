@@ -2,7 +2,7 @@
 
 # collectd/interface
 
- Collectd stats about network interfaces on the
+Collectd stats about network interfaces on the
 system by using the [collectd interface
 plugin](https://collectd.org/wiki/index.php/Plugin:Interface).
 

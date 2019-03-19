@@ -2,7 +2,7 @@
 
 # prometheus-exporter
 
- This monitor reads metrics from a [Prometheus
+This monitor reads metrics from a [Prometheus
 exporter](https://prometheus.io/docs/instrumenting/exporters/) endpoint.
 
 All metric types are supported.  See

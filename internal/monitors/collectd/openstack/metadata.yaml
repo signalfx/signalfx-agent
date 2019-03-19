@@ -1,0 +1,173 @@
+- dimensions: null
+  doc: |
+    Monitors Openstack by using the
+    [Openstack collectd Python
+    plugin](https://github.com/signalfx/collectd-openstack), which collects metrics
+    from Openstack instances
+
+    ```yaml
+    monitors:
+    - type: collectd/openstack
+      authURL: "http://192.168.11.111/identity/v3"
+      username: "admin"
+      password: "secret"
+    ```
+  metrics:
+  - description: Virtual CPU time consumed in nanoseconds
+    included: false
+    name: counter.openstack.nova.server.cpu_time
+    type: counter
+  - description: Size of network packet received in bytes
+    included: true
+    name: counter.openstack.nova.server.rx
+    type: counter
+  - description: Received packets at an instance
+    included: true
+    name: counter.openstack.nova.server.rx_packets
+    type: counter
+  - description: Size of network packet transmitted in bytes
+    included: true
+    name: counter.openstack.nova.server.tx
+    type: counter
+  - description: Transmitted packets at an instance
+    included: true
+    name: counter.openstack.nova.server.tx_packets
+    type: counter
+  - description: Total available block storage at cinder component for project
+    included: true
+    name: gauge.openstack.cinder.limit.maxTotalVolumeGigabytes
+    type: gauge
+  - description: Maximum volume resources available at cinder component for project
+    included: true
+    name: gauge.openstack.cinder.limit.maxTotalVolumes
+    type: gauge
+  - description: Total block storage used at cinder component for project
+    included: true
+    name: gauge.openstack.cinder.limit.totalGigabytesUsed
+    type: gauge
+  - description: Volume resources used at cinder component for project
+    included: true
+    name: gauge.openstack.cinder.limit.totalVolumesUsed
+    type: gauge
+  - description: Overall floating IPs used across projects
+    included: true
+    name: gauge.openstack.neutron.floatingip.count
+    type: gauge
+  - description: Overall Network resources used across projects
+    included: true
+    name: gauge.openstack.neutron.network.count
+    type: gauge
+  - description: Overall router resources used across projects
+    included: true
+    name: gauge.openstack.neutron.router.count
+    type: gauge
+  - description: Overall securitygroup resources used across projects
+    included: true
+    name: gauge.openstack.neutron.securitygroup.count
+    type: gauge
+  - description: Overall subnet resources used in all projects
+    included: true
+    name: gauge.openstack.neutron.subnet.count
+    type: gauge
+  - description: Minimum free disk space available in Gigabyte
+    included: true
+    name: gauge.openstack.nova.hypervisor.disk_available_least
+    type: gauge
+  - description: Maximum free disk space available in Gigabyte
+    included: true
+    name: gauge.openstack.nova.hypervisor.free_disk_gb
+    type: gauge
+  - description: Average CPU load on the hypervisor
+    included: false
+    name: gauge.openstack.nova.hypervisor.load_average
+    type: gauge
+  - description: Maximum available local disk space in Gigabyte
+    included: true
+    name: gauge.openstack.nova.hypervisor.local_gb
+    type: gauge
+  - description: Total disk space used in Gigabyte
+    included: true
+    name: gauge.openstack.nova.hypervisor.local_gb_used
+    type: gauge
+  - description: Maximum available memory in MB at hypervisor
+    included: true
+    name: gauge.openstack.nova.hypervisor.memory_mb
+    type: gauge
+  - description: Total memory used in MB at hypervisor
+    included: true
+    name: gauge.openstack.nova.hypervisor.memory_mb_used
+    type: gauge
+  - description: Total running VMs at hypervisor
+    included: true
+    name: gauge.openstack.nova.hypervisor.running_vms
+    type: gauge
+  - description: Available physical cores at hypervisor
+    included: true
+    name: gauge.openstack.nova.hypervisor.vcpus
+    type: gauge
+  - description: Used virtual CPUs used
+    included: true
+    name: gauge.openstack.nova.hypervisor.vcpus_used
+    type: gauge
+  - description: Maximum available security groups for project
+    included: true
+    name: gauge.openstack.nova.limit.maxSecurityGroups
+    type: gauge
+  - description: Maximum available VCPUs in project
+    included: true
+    name: gauge.openstack.nova.limit.maxTotalCores
+    type: gauge
+  - description: Maximum available floating IPs for project
+    included: true
+    name: gauge.openstack.nova.limit.maxTotalFloatingIps
+    type: gauge
+  - description: Maximum available instances in project
+    included: true
+    name: gauge.openstack.nova.limit.maxTotalInstances
+    type: gauge
+  - description: Maximum available RAM size for project
+    included: true
+    name: gauge.openstack.nova.limit.maxTotalRAMSize
+    type: gauge
+  - description: Total cores used in the project
+    included: true
+    name: gauge.openstack.nova.limit.totalCoresUsed
+    type: gauge
+  - description: Total instances used in the project
+    included: true
+    name: gauge.openstack.nova.limit.totalInstancesUsed
+    type: gauge
+  - description: Total RAM used in the project
+    included: true
+    name: gauge.openstack.nova.limit.totalRAMUsed
+    type: gauge
+  - description: Memory provisioned at an instance
+    included: true
+    name: gauge.openstack.nova.server.memory
+    type: gauge
+  - description: Actual memory used at an instance
+    included: true
+    name: gauge.openstack.nova.server.memory-actual
+    type: gauge
+  - description: Memory used not including disk pages at an instance
+    included: true
+    name: gauge.openstack.nova.server.memory-rss
+    type: gauge
+  - description: Size of virtual disk read requests in bytes
+    included: true
+    name: gauge.openstack.nova.server.vda_read
+    type: gauge
+  - description: Virtual disk read requests from an instance
+    included: true
+    name: gauge.openstack.nova.server.vda_read_req
+    type: gauge
+  - description: Size of virtual disk write requests in bytes
+    included: true
+    name: gauge.openstack.nova.server.vda_write
+    type: gauge
+  - description: Virtual disk write requests from an instance
+    included: true
+    name: gauge.openstack.nova.server.vda_write_req
+    type: gauge
+  monitorType: collectd/openstack
+  properties: null
