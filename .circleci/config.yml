@@ -377,9 +377,9 @@ jobs:
             if [ ! -d tests/deployments/$DEPLOYMENT ]; then
                 # no pytest tests to execute for deployment
                 touch ~/.skip
+                # only run subsequent steps on node 0
+                [ $CIRCLE_NODE_INDEX -eq 0 ] || exit 0
             fi
-            # only run subsequent steps on node 0
-            [ $CIRCLE_NODE_INDEX -eq 0 ] || exit 0
             cd deployments/$DEPLOYMENT
             make dev-image
             case "$DEPLOYMENT" in
