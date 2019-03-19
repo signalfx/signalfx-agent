@@ -2,6 +2,8 @@
 
 export DH_VERBOSE=1
 
+export CPU_ARCH=$(shell echo `uname -m`)
+
 %:
 	dh $@
 
@@ -24,4 +26,8 @@ override_dh_strip_nondeterminism:
 
 # Stop it from trying to take away the executable bit on our bundled loader
 override_dh_fixperms:
+ifeq ($(CPU_ARCH), aarch64)
+	dh_fixperms --exclude ld-linux-aarch64.so
+else
 	dh_fixperms --exclude ld-linux-x86-64.so
+endif

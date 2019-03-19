@@ -13,6 +13,11 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 REPO_STAGE=${1:-test}
 
+TARGET_ARCH="amd64"
+if [ `uname -m` == "aarch64" ]; then
+  TARGET_ARCH="arm64"
+fi
+
 case $REPO_STAGE in
   final|beta|test) ;;
   *) echo "REPO_STAGE must be 'final', 'beta' or 'test'" >&2 && exit 1 ;;
@@ -41,7 +46,7 @@ COLLECTD_VERSION=${COLLECTD_VERSION} COLLECTD_COMMIT=${COLLECTD_COMMIT} do_docke
 OUTPUT_DIR=${OUTPUT_DIR:-$SCRIPT_DIR/output}
 
 create_deb() {
-  output_prefix="$OUTPUT_DIR/signalfx-agent_${package_version}_amd64"
+  output_prefix="$OUTPUT_DIR/signalfx-agent_${package_version}_${TARGET_ARCH}"
 
   find $OUTPUT_DIR -type f | xargs rm || true 
 
