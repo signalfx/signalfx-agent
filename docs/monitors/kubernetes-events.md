@@ -2,7 +2,7 @@
 
 # kubernetes-events
 
- This monitor sends Kubernetes events as SignalFx
+This monitor sends Kubernetes events as SignalFx
 events.  Upon startup, it will send all of the events that K8s has that are
 still persisted and then send any new events that come in.  The various
 agents perform leader election amongst themselves to decide which instance

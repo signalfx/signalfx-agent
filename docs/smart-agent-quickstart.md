@@ -13,7 +13,7 @@ This tutorial assumes you are starting fresh and have no existing collectd agent
 
 ```sh
 curl -sSL https://dl.signalfx.com/signalfx-agent.sh > /tmp/signalfx-agent.sh
-sudo sh /tmp/signalfx-agent.sh YOUR_SIGNALFX_API_TOKEN
+sudo sh /tmp/signalfx-agent.sh --realm YOUR_SIGNALFX_REALM YOUR_SIGNALFX_API_TOKEN
 ```
 
 ##### Windows
@@ -55,7 +55,7 @@ If you are not in this realm, you will need to explicitly set the
 `signalFxRealm` option in your config like this:
 
 ```
-signalFxRealm: <MY REALM>
+signalFxRealm: YOUR_SIGNALFX_REALM
 ```
 
 To determine if you are in a different realm and need to
@@ -66,9 +66,9 @@ If you want to explicitly set the ingest, API server, and trace endpoint URLs,
 you can set them individually like so:
 
 ```
-ingestUrl: "https://ingest.{REALM}.signalfx.com"
-apiUrl: "https://api.{REALM}.signalfx.com"
-traceEndpointUrl: "https://ingest.{REALM}.signalfx.com/v1/trace"
+ingestUrl: "https://ingest.YOUR_SIGNALFX_REALM.signalfx.com"
+apiUrl: "https://api.YOUR_SIGNALFX_REALM.signalfx.com"
+traceEndpointUrl: "https://ingest.YOUR_SIGNALFX_REALM.signalfx.com/v1/trace"
 ```
 
 They will default to the endpoints for the realm configured in `signalFxRealm`
@@ -124,6 +124,6 @@ For troubleshooting, you can also check the status of the agent:
 sudo signalfx-agent status
 ```
 
-#### Step 3: Log into [SignalFx](https://app.signalfx.com) and see your data!
+#### Step 3: Log into SignalFx and see your data!
 
 

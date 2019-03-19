@@ -2,7 +2,7 @@
 
 # collectd/memcached
 
- Monitors an instance of memcached using the
+Monitors an instance of memcached using the
 [collectd memcached
 plugin](https://collectd.org/wiki/index.php/Plugin:memcached).
 

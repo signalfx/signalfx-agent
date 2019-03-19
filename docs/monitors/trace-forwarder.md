@@ -2,7 +2,7 @@
 
 # trace-forwarder
 
- Runs an HTTP server that listens for trace spans
+Runs an HTTP server that listens for trace spans
 and forwards them to SignalFx (or the configured ingest host in the `writer`
 section of the agent config).  This supports the same span formats that our
 ingest server supports and at the same path (`/v1/trace`).  By default, the

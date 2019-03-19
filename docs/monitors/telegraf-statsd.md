@@ -2,7 +2,7 @@
 
 # telegraf/statsd
 
- This monitor acts as a Telegraf StatsD listener for receiving telegrafstatsd metrics.
+This monitor acts as a Telegraf StatsD listener for receiving telegrafstatsd metrics.
 This monitor is based on the Telegraf Statsd input plugin.  More information about the Telegraf plugin
 can be found [here](https://github.com/influxdata/telegraf/tree/master/plugins/inputs/statsd).
 

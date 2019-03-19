@@ -2,7 +2,7 @@
 
 # collectd/postgresql
 
- Monitors a PostgreSQL database server using collectd's
+Monitors a PostgreSQL database server using collectd's
 [PostgreSQL plugin](https://collectd.org/wiki/index.php/Plugin:PostgreSQL).
 
 You have to specify each database you want to monitor individually under the

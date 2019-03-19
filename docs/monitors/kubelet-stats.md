@@ -2,7 +2,7 @@
 
 # kubelet-stats
 
- This monitor pulls cadvisor metrics through a
+This monitor pulls cadvisor metrics through a
 Kubernetes kubelet instance via the `/stats/container` endpoint.
 
 

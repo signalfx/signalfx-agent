@@ -1,0 +1,91 @@
+- dimensions:
+  - description: Set to whatever you set in the `name` config option.
+    name: plugin_instance
+  doc: |
+    Monitors Apache webservice instances using
+    the information provided by `mod_status`.
+
+    See https://github.com/signalfx/integrations/tree/master/collectd-apache
+
+    Sample YAML configuration:
+
+    ```
+    monitors:
+     - type: collectd/apache
+       host: localhost
+       port: 80
+    ```
+
+    If `mod_status` is exposed on an endpoint other than `/mod_status`, you can
+    use the `url` config option to specify the path:
+
+    ```
+    monitors:
+     - type: collectd/apache
+       host: localhost
+       port: 80
+       url: "http://{{.Host}}:{{.Port}}/server-status?auto"
+    ```
+  metrics:
+  - description: Bytes served by Apache
+    included: true
+    name: apache_bytes
+    type: cumulative
+  - description: Connections served by Apache
+    included: true
+    name: apache_connections
+    type: gauge
+  - description: Apache workers that are idle
+    included: true
+    name: apache_idle_workers
+    type: gauge
+  - description: Requests served by Apache
+    included: true
+    name: apache_requests
+    type: cumulative
+  - description: Number of workers in the process of closing connections
+    included: false
+    name: apache_scoreboard.closing
+    type: gauge
+  - description: Number of workers performing DNS lookup
+    included: false
+    name: apache_scoreboard.dnslookup
+    type: gauge
+  - description: Number of workers that are finishing
+    included: false
+    name: apache_scoreboard.finishing
+    type: gauge
+  - description: Number of idle threads ready for cleanup
+    included: false
+    name: apache_scoreboard.idle_cleanup
+    type: gauge
+  - description: Number of keep-alive connections
+    included: false
+    name: apache_scoreboard.keepalive
+    type: gauge
+  - description: Number of workers writing to log file
+    included: false
+    name: apache_scoreboard.logging
+    type: gauge
+  - description: Number of worker thread slots that are open
+    included: true
+    name: apache_scoreboard.open
+    type: gauge
+  - description: Number of workers reading requests
+    included: false
+    name: apache_scoreboard.reading
+    type: gauge
+  - description: Number of workers sending responses
+    included: false
+    name: apache_scoreboard.sending
+    type: gauge
+  - description: Number of workers starting up
+    included: false
+    name: apache_scoreboard.starting
+    type: gauge
+  - description: Number of workers waiting for requests
+    included: false
+    name: apache_scoreboard.waiting
+    type: gauge
+  monitorType: collectd/apache
+  properties: null

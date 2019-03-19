@@ -1,0 +1,26 @@
+- dimensions: null
+  doc: |
+    This monitor reports cpu metrics.
+
+    On Linux hosts, this monitor relies on the `/proc` filesystem.
+    If the underlying host's `/proc` file system is mounted somewhere other than
+    /proc please specify the path using the top level configuration `procPath`.
+
+    ```yaml
+    procPath: /proc
+    monitors:
+     - type: cpu
+    ```
+  metrics:
+  - description: Percent of CPU used on this host. This metric is emitted with a plugin
+      dimension set to "signalfx-metadata".
+    included: false
+    name: cpu.utilization
+    type: gauge
+  - description: Percent of CPU used on each core. This metric is emitted with the
+      plugin dimension set to "signalfx-metadata"
+    included: false
+    name: cpu.utilization_per_core
+    type: gauge
+  monitorType: cpu
+  properties: null

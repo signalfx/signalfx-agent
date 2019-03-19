@@ -2,7 +2,7 @@
 
 # collectd/disk
 
- This monitor collects information about the usage of
+This monitor collects information about the usage of
 physical disks and logical disks (partitions).
 
 See https://collectd.org/wiki/index.php/Plugin:Disk.

@@ -2,7 +2,6 @@
 
 # aspdotnet
 
-
 (Windows Only) This monitor reports metrics about requests, errors, sessions,
 worker processes for ASP.NET applications.
 

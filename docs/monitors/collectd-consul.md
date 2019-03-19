@@ -2,7 +2,7 @@
 
 # collectd/consul
 
- Monitors the Consul data store by using the
+Monitors the Consul data store by using the
 [Consul collectd Python
 plugin](https://github.com/signalfx/collectd-consul), which collects metrics
 from Consul instances by hitting these endpoints:

@@ -284,7 +284,7 @@ func easyjson72863a49EncodeGithubComSignalfxGolibTrace(out *jwriter.Writer, in t
 		}
 		out.String(string(in.TraceID))
 	}
-	{
+	if in.Name != nil {
 		const prefix string = ",\"name\":"
 		if first {
 			first = false
@@ -292,13 +292,9 @@ func easyjson72863a49EncodeGithubComSignalfxGolibTrace(out *jwriter.Writer, in t
 		} else {
 			out.RawString(prefix)
 		}
-		if in.Name == nil {
-			out.RawString("null")
-		} else {
-			out.String(string(*in.Name))
-		}
+		out.String(string(*in.Name))
 	}
-	{
+	if in.ParentID != nil {
 		const prefix string = ",\"parentId\":"
 		if first {
 			first = false
@@ -306,11 +302,7 @@ func easyjson72863a49EncodeGithubComSignalfxGolibTrace(out *jwriter.Writer, in t
 		} else {
 			out.RawString(prefix)
 		}
-		if in.ParentID == nil {
-			out.RawString("null")
-		} else {
-			out.String(string(*in.ParentID))
-		}
+		out.String(string(*in.ParentID))
 	}
 	{
 		const prefix string = ",\"id\":"
@@ -322,7 +314,7 @@ func easyjson72863a49EncodeGithubComSignalfxGolibTrace(out *jwriter.Writer, in t
 		}
 		out.String(string(in.ID))
 	}
-	{
+	if in.Kind != nil {
 		const prefix string = ",\"kind\":"
 		if first {
 			first = false
@@ -330,13 +322,9 @@ func easyjson72863a49EncodeGithubComSignalfxGolibTrace(out *jwriter.Writer, in t
 		} else {
 			out.RawString(prefix)
 		}
-		if in.Kind == nil {
-			out.RawString("null")
-		} else {
-			out.String(string(*in.Kind))
-		}
+		out.String(string(*in.Kind))
 	}
-	{
+	if in.Timestamp != nil {
 		const prefix string = ",\"timestamp\":"
 		if first {
 			first = false
@@ -344,13 +332,9 @@ func easyjson72863a49EncodeGithubComSignalfxGolibTrace(out *jwriter.Writer, in t
 		} else {
 			out.RawString(prefix)
 		}
-		if in.Timestamp == nil {
-			out.RawString("null")
-		} else {
-			out.Int64(int64(*in.Timestamp))
-		}
+		out.Int64(int64(*in.Timestamp))
 	}
-	{
+	if in.Duration != nil {
 		const prefix string = ",\"duration\":"
 		if first {
 			first = false
@@ -358,13 +342,9 @@ func easyjson72863a49EncodeGithubComSignalfxGolibTrace(out *jwriter.Writer, in t
 		} else {
 			out.RawString(prefix)
 		}
-		if in.Duration == nil {
-			out.RawString("null")
-		} else {
-			out.Int64(int64(*in.Duration))
-		}
+		out.Int64(int64(*in.Duration))
 	}
-	{
+	if in.Debug != nil {
 		const prefix string = ",\"debug\":"
 		if first {
 			first = false
@@ -372,13 +352,9 @@ func easyjson72863a49EncodeGithubComSignalfxGolibTrace(out *jwriter.Writer, in t
 		} else {
 			out.RawString(prefix)
 		}
-		if in.Debug == nil {
-			out.RawString("null")
-		} else {
-			out.Bool(bool(*in.Debug))
-		}
+		out.Bool(bool(*in.Debug))
 	}
-	{
+	if in.Shared != nil {
 		const prefix string = ",\"shared\":"
 		if first {
 			first = false
@@ -386,13 +362,9 @@ func easyjson72863a49EncodeGithubComSignalfxGolibTrace(out *jwriter.Writer, in t
 		} else {
 			out.RawString(prefix)
 		}
-		if in.Shared == nil {
-			out.RawString("null")
-		} else {
-			out.Bool(bool(*in.Shared))
-		}
+		out.Bool(bool(*in.Shared))
 	}
-	{
+	if in.LocalEndpoint != nil {
 		const prefix string = ",\"localEndpoint\":"
 		if first {
 			first = false
@@ -400,13 +372,9 @@ func easyjson72863a49EncodeGithubComSignalfxGolibTrace(out *jwriter.Writer, in t
 		} else {
 			out.RawString(prefix)
 		}
-		if in.LocalEndpoint == nil {
-			out.RawString("null")
-		} else {
-			easyjson72863a49EncodeGithubComSignalfxGolibTrace1(out, *in.LocalEndpoint)
-		}
+		easyjson72863a49EncodeGithubComSignalfxGolibTrace1(out, *in.LocalEndpoint)
 	}
-	{
+	if in.RemoteEndpoint != nil {
 		const prefix string = ",\"remoteEndpoint\":"
 		if first {
 			first = false
@@ -414,13 +382,9 @@ func easyjson72863a49EncodeGithubComSignalfxGolibTrace(out *jwriter.Writer, in t
 		} else {
 			out.RawString(prefix)
 		}
-		if in.RemoteEndpoint == nil {
-			out.RawString("null")
-		} else {
-			easyjson72863a49EncodeGithubComSignalfxGolibTrace1(out, *in.RemoteEndpoint)
-		}
+		easyjson72863a49EncodeGithubComSignalfxGolibTrace1(out, *in.RemoteEndpoint)
 	}
-	{
+	if len(in.Annotations) != 0 {
 		const prefix string = ",\"annotations\":"
 		if first {
 			first = false
@@ -428,9 +392,7 @@ func easyjson72863a49EncodeGithubComSignalfxGolibTrace(out *jwriter.Writer, in t
 		} else {
 			out.RawString(prefix)
 		}
-		if in.Annotations == nil && (out.Flags&jwriter.NilSliceAsEmpty) == 0 {
-			out.RawString("null")
-		} else {
+		{
 			out.RawByte('[')
 			for v6, v7 := range in.Annotations {
 				if v6 > 0 {
@@ -445,7 +407,7 @@ func easyjson72863a49EncodeGithubComSignalfxGolibTrace(out *jwriter.Writer, in t
 			out.RawByte(']')
 		}
 	}
-	{
+	if len(in.Tags) != 0 {
 		const prefix string = ",\"tags\":"
 		if first {
 			first = false
@@ -453,9 +415,7 @@ func easyjson72863a49EncodeGithubComSignalfxGolibTrace(out *jwriter.Writer, in t
 		} else {
 			out.RawString(prefix)
 		}
-		if in.Tags == nil && (out.Flags&jwriter.NilMapAsEmpty) == 0 {
-			out.RawString(`null`)
-		} else {
+		{
 			out.RawByte('{')
 			v8First := true
 			for v8Name, v8Value := range in.Tags {
@@ -526,7 +486,7 @@ func easyjson72863a49EncodeGithubComSignalfxGolibTrace2(out *jwriter.Writer, in 
 	out.RawByte('{')
 	first := true
 	_ = first
-	{
+	if in.Timestamp != nil {
 		const prefix string = ",\"timestamp\":"
 		if first {
 			first = false
@@ -534,13 +494,9 @@ func easyjson72863a49EncodeGithubComSignalfxGolibTrace2(out *jwriter.Writer, in 
 		} else {
 			out.RawString(prefix)
 		}
-		if in.Timestamp == nil {
-			out.RawString("null")
-		} else {
-			out.Int64(int64(*in.Timestamp))
-		}
+		out.Int64(int64(*in.Timestamp))
 	}
-	{
+	if in.Value != nil {
 		const prefix string = ",\"value\":"
 		if first {
 			first = false
@@ -548,11 +504,7 @@ func easyjson72863a49EncodeGithubComSignalfxGolibTrace2(out *jwriter.Writer, in 
 		} else {
 			out.RawString(prefix)
 		}
-		if in.Value == nil {
-			out.RawString("null")
-		} else {
-			out.String(string(*in.Value))
-		}
+		out.String(string(*in.Value))
 	}
 	out.RawByte('}')
 }
@@ -629,7 +581,7 @@ func easyjson72863a49EncodeGithubComSignalfxGolibTrace1(out *jwriter.Writer, in 
 	out.RawByte('{')
 	first := true
 	_ = first
-	{
+	if in.ServiceName != nil {
 		const prefix string = ",\"serviceName\":"
 		if first {
 			first = false
@@ -637,13 +589,9 @@ func easyjson72863a49EncodeGithubComSignalfxGolibTrace1(out *jwriter.Writer, in 
 		} else {
 			out.RawString(prefix)
 		}
-		if in.ServiceName == nil {
-			out.RawString("null")
-		} else {
-			out.String(string(*in.ServiceName))
-		}
+		out.String(string(*in.ServiceName))
 	}
-	{
+	if in.Ipv4 != nil {
 		const prefix string = ",\"ipv4\":"
 		if first {
 			first = false
@@ -651,13 +599,9 @@ func easyjson72863a49EncodeGithubComSignalfxGolibTrace1(out *jwriter.Writer, in 
 		} else {
 			out.RawString(prefix)
 		}
-		if in.Ipv4 == nil {
-			out.RawString("null")
-		} else {
-			out.String(string(*in.Ipv4))
-		}
+		out.String(string(*in.Ipv4))
 	}
-	{
+	if in.Ipv6 != nil {
 		const prefix string = ",\"ipv6\":"
 		if first {
 			first = false
@@ -665,13 +609,9 @@ func easyjson72863a49EncodeGithubComSignalfxGolibTrace1(out *jwriter.Writer, in 
 		} else {
 			out.RawString(prefix)
 		}
-		if in.Ipv6 == nil {
-			out.RawString("null")
-		} else {
-			out.String(string(*in.Ipv6))
-		}
+		out.String(string(*in.Ipv6))
 	}
-	{
+	if in.Port != nil {
 		const prefix string = ",\"port\":"
 		if first {
 			first = false
@@ -679,11 +619,7 @@ func easyjson72863a49EncodeGithubComSignalfxGolibTrace1(out *jwriter.Writer, in 
 		} else {
 			out.RawString(prefix)
 		}
-		if in.Port == nil {
-			out.RawString("null")
-		} else {
-			out.Int32(int32(*in.Port))
-		}
+		out.Int32(int32(*in.Port))
 	}
 	out.RawByte('}')
 }
@@ -875,7 +811,7 @@ func easyjson72863a49EncodeGithubComSignalfxGolibTraceFormat1(out *jwriter.Write
 		}
 		out.String(string(in.TraceID))
 	}
-	{
+	if in.Name != nil {
 		const prefix string = ",\"name\":"
 		if first {
 			first = false
@@ -883,13 +819,9 @@ func easyjson72863a49EncodeGithubComSignalfxGolibTraceFormat1(out *jwriter.Write
 		} else {
 			out.RawString(prefix)
 		}
-		if in.Name == nil {
-			out.RawString("null")
-		} else {
-			out.String(string(*in.Name))
-		}
+		out.String(string(*in.Name))
 	}
-	{
+	if in.ParentID != nil {
 		const prefix string = ",\"parentId\":"
 		if first {
 			first = false
@@ -897,11 +829,7 @@ func easyjson72863a49EncodeGithubComSignalfxGolibTraceFormat1(out *jwriter.Write
 		} else {
 			out.RawString(prefix)
 		}
-		if in.ParentID == nil {
-			out.RawString("null")
-		} else {
-			out.String(string(*in.ParentID))
-		}
+		out.String(string(*in.ParentID))
 	}
 	{
 		const prefix string = ",\"id\":"
@@ -913,7 +841,7 @@ func easyjson72863a49EncodeGithubComSignalfxGolibTraceFormat1(out *jwriter.Write
 		}
 		out.String(string(in.ID))
 	}
-	{
+	if in.Kind != nil {
 		const prefix string = ",\"kind\":"
 		if first {
 			first = false
@@ -921,13 +849,9 @@ func easyjson72863a49EncodeGithubComSignalfxGolibTraceFormat1(out *jwriter.Write
 		} else {
 			out.RawString(prefix)
 		}
-		if in.Kind == nil {
-			out.RawString("null")
-		} else {
-			out.String(string(*in.Kind))
-		}
+		out.String(string(*in.Kind))
 	}
-	{
+	if in.Timestamp != nil {
 		const prefix string = ",\"timestamp\":"
 		if first {
 			first = false
@@ -935,13 +859,9 @@ func easyjson72863a49EncodeGithubComSignalfxGolibTraceFormat1(out *jwriter.Write
 		} else {
 			out.RawString(prefix)
 		}
-		if in.Timestamp == nil {
-			out.RawString("null")
-		} else {
-			out.Int64(int64(*in.Timestamp))
-		}
+		out.Int64(int64(*in.Timestamp))
 	}
-	{
+	if in.Duration != nil {
 		const prefix string = ",\"duration\":"
 		if first {
 			first = false
@@ -949,13 +869,9 @@ func easyjson72863a49EncodeGithubComSignalfxGolibTraceFormat1(out *jwriter.Write
 		} else {
 			out.RawString(prefix)
 		}
-		if in.Duration == nil {
-			out.RawString("null")
-		} else {
-			out.Int64(int64(*in.Duration))
-		}
+		out.Int64(int64(*in.Duration))
 	}
-	{
+	if in.Debug != nil {
 		const prefix string = ",\"debug\":"
 		if first {
 			first = false
@@ -963,13 +879,9 @@ func easyjson72863a49EncodeGithubComSignalfxGolibTraceFormat1(out *jwriter.Write
 		} else {
 			out.RawString(prefix)
 		}
-		if in.Debug == nil {
-			out.RawString("null")
-		} else {
-			out.Bool(bool(*in.Debug))
-		}
+		out.Bool(bool(*in.Debug))
 	}
-	{
+	if in.Shared != nil {
 		const prefix string = ",\"shared\":"
 		if first {
 			first = false
@@ -977,13 +889,9 @@ func easyjson72863a49EncodeGithubComSignalfxGolibTraceFormat1(out *jwriter.Write
 		} else {
 			out.RawString(prefix)
 		}
-		if in.Shared == nil {
-			out.RawString("null")
-		} else {
-			out.Bool(bool(*in.Shared))
-		}
+		out.Bool(bool(*in.Shared))
 	}
-	{
+	if in.LocalEndpoint != nil {
 		const prefix string = ",\"localEndpoint\":"
 		if first {
 			first = false
@@ -991,13 +899,9 @@ func easyjson72863a49EncodeGithubComSignalfxGolibTraceFormat1(out *jwriter.Write
 		} else {
 			out.RawString(prefix)
 		}
-		if in.LocalEndpoint == nil {
-			out.RawString("null")
-		} else {
-			easyjson72863a49EncodeGithubComSignalfxGolibTrace1(out, *in.LocalEndpoint)
-		}
+		easyjson72863a49EncodeGithubComSignalfxGolibTrace1(out, *in.LocalEndpoint)
 	}
-	{
+	if in.RemoteEndpoint != nil {
 		const prefix string = ",\"remoteEndpoint\":"
 		if first {
 			first = false
@@ -1005,13 +909,9 @@ func easyjson72863a49EncodeGithubComSignalfxGolibTraceFormat1(out *jwriter.Write
 		} else {
 			out.RawString(prefix)
 		}
-		if in.RemoteEndpoint == nil {
-			out.RawString("null")
-		} else {
-			easyjson72863a49EncodeGithubComSignalfxGolibTrace1(out, *in.RemoteEndpoint)
-		}
+		easyjson72863a49EncodeGithubComSignalfxGolibTrace1(out, *in.RemoteEndpoint)
 	}
-	{
+	if len(in.Annotations) != 0 {
 		const prefix string = ",\"annotations\":"
 		if first {
 			first = false
@@ -1019,9 +919,7 @@ func easyjson72863a49EncodeGithubComSignalfxGolibTraceFormat1(out *jwriter.Write
 		} else {
 			out.RawString(prefix)
 		}
-		if in.Annotations == nil && (out.Flags&jwriter.NilSliceAsEmpty) == 0 {
-			out.RawString("null")
-		} else {
+		{
 			out.RawByte('[')
 			for v11, v12 := range in.Annotations {
 				if v11 > 0 {
@@ -1036,7 +934,7 @@ func easyjson72863a49EncodeGithubComSignalfxGolibTraceFormat1(out *jwriter.Write
 			out.RawByte(']')
 		}
 	}
-	{
+	if len(in.Tags) != 0 {
 		const prefix string = ",\"tags\":"
 		if first {
 			first = false
@@ -1044,9 +942,7 @@ func easyjson72863a49EncodeGithubComSignalfxGolibTraceFormat1(out *jwriter.Write
 		} else {
 			out.RawString(prefix)
 		}
-		if in.Tags == nil && (out.Flags&jwriter.NilMapAsEmpty) == 0 {
-			out.RawString(`null`)
-		} else {
+		{
 			out.RawByte('{')
 			v13First := true
 			for v13Name, v13Value := range in.Tags {
@@ -1161,7 +1057,7 @@ func easyjson72863a49EncodeGithubComSignalfxGolibTraceFormat2(out *jwriter.Write
 	out.RawByte('{')
 	first := true
 	_ = first
-	{
+	if in.ServiceName != nil {
 		const prefix string = ",\"serviceName\":"
 		if first {
 			first = false
@@ -1169,13 +1065,9 @@ func easyjson72863a49EncodeGithubComSignalfxGolibTraceFormat2(out *jwriter.Write
 		} else {
 			out.RawString(prefix)
 		}
-		if in.ServiceName == nil {
-			out.RawString("null")
-		} else {
-			out.String(string(*in.ServiceName))
-		}
+		out.String(string(*in.ServiceName))
 	}
-	{
+	if in.Ipv4 != nil {
 		const prefix string = ",\"ipv4\":"
 		if first {
 			first = false
@@ -1183,13 +1075,9 @@ func easyjson72863a49EncodeGithubComSignalfxGolibTraceFormat2(out *jwriter.Write
 		} else {
 			out.RawString(prefix)
 		}
-		if in.Ipv4 == nil {
-			out.RawString("null")
-		} else {
-			out.String(string(*in.Ipv4))
-		}
+		out.String(string(*in.Ipv4))
 	}
-	{
+	if in.Ipv6 != nil {
 		const prefix string = ",\"ipv6\":"
 		if first {
 			first = false
@@ -1197,13 +1085,9 @@ func easyjson72863a49EncodeGithubComSignalfxGolibTraceFormat2(out *jwriter.Write
 		} else {
 			out.RawString(prefix)
 		}
-		if in.Ipv6 == nil {
-			out.RawString("null")
-		} else {
-			out.String(string(*in.Ipv6))
-		}
+		out.String(string(*in.Ipv6))
 	}
-	{
+	if in.Port != nil {
 		const prefix string = ",\"port\":"
 		if first {
 			first = false
@@ -1211,11 +1095,7 @@ func easyjson72863a49EncodeGithubComSignalfxGolibTraceFormat2(out *jwriter.Write
 		} else {
 			out.RawString(prefix)
 		}
-		if in.Port == nil {
-			out.RawString("null")
-		} else {
-			out.Int32(int32(*in.Port))
-		}
+		out.Int32(int32(*in.Port))
 	}
 	out.RawByte('}')
 }
@@ -1296,7 +1176,7 @@ func easyjson72863a49EncodeGithubComSignalfxGolibTraceFormat3(out *jwriter.Write
 	out.RawByte('{')
 	first := true
 	_ = first
-	{
+	if in.Timestamp != nil {
 		const prefix string = ",\"timestamp\":"
 		if first {
 			first = false
@@ -1304,13 +1184,9 @@ func easyjson72863a49EncodeGithubComSignalfxGolibTraceFormat3(out *jwriter.Write
 		} else {
 			out.RawString(prefix)
 		}
-		if in.Timestamp == nil {
-			out.RawString("null")
-		} else {
-			out.Int64(int64(*in.Timestamp))
-		}
+		out.Int64(int64(*in.Timestamp))
 	}
-	{
+	if in.Value != nil {
 		const prefix string = ",\"value\":"
 		if first {
 			first = false
@@ -1318,11 +1194,7 @@ func easyjson72863a49EncodeGithubComSignalfxGolibTraceFormat3(out *jwriter.Write
 		} else {
 			out.RawString(prefix)
 		}
-		if in.Value == nil {
-			out.RawString("null")
-		} else {
-			out.String(string(*in.Value))
-		}
+		out.String(string(*in.Value))
 	}
 	out.RawByte('}')
 }

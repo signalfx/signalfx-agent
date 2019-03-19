@@ -1,0 +1,142 @@
+- dimensions:
+  - description: The name of the resource that the metric describes
+    name: kubernetes_name
+  - description: The namespace of the resource that the metric describes
+    name: kubernetes_namespace
+  - description: The name of the node, as defined by the `name` field of the node
+      resource.
+    name: kubernetes_node
+  - description: The UID of the pod that the metric describes
+    name: kubernetes_pod_uid
+  - description: The machine ID from /etc/machine-id.  This should be unique across
+      all nodes in your cluster, but some cluster deployment tools don't guarantee
+      this.  This will not be sent if the `useNodeName` config option is set to true.
+    name: machine_id
+  - description: This is always set to `kubernetes`
+    name: metric_source
+  - description: The name of the k8s ResourceQuota object that the quota is part of
+    name: quota_name
+  - description: The k8s resource that the quota applies to
+    name: resource
+  doc: |
+    Collects cluster-level metrics from the
+    Kubernetes API server.  It uses the _watch_ functionality of the K8s API
+    to listen for updates about the cluster and maintains a cache of metrics
+    that get sent on a regular interval.
+
+    Since the agent is generally running in multiple places in a K8s cluster and
+    since it is generally more convenient to share the same configuration across
+    all agent instances, this monitor by default makes use of a leader election
+    process to ensure that it is the only agent sending metrics in a cluster.
+    All of the agents running in the same namespace that have this monitor
+    configured will decide amongst themselves which should send metrics for this
+    monitor, and the rest will stand by ready to activate if the leader agent
+    dies.  You can override leader election by setting the config option
+    `alwaysClusterReporter` to true, which will make the monitor always report
+    metrics.
+
+    This monitor is similar to
+    [kube-state-metrics](https://github.com/kubernetes/kube-state-metrics), and
+    sends many of the same metrics, but in a way that is less verbose and better
+    fitted for the SignalFx backend.
+  metrics:
+  - description: Whether a container has passed its readiness probe (0 for no, 1 for
+      yes)
+    included: false
+    name: kubernetes.container_ready
+    type: gauge
+  - description: How many times the container has restarted in the recent past.  This
+      value is pulled directly from [the K8s API](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.11/#containerstatus-v1-core)
+      and the value can go indefinitely high and be reset to 0 at any time depending
+      on how your [kubelet is configured to prune dead containers](https://kubernetes.io/docs/concepts/cluster-administration/kubelet-garbage-collection/).
+      It is best to not depend too much on the exact value but rather look at it as
+      either `== 0`, in which case you can conclude there were no restarts in the
+      recent past, or `> 0`, in which case you can conclude there were restarts in
+      the recent past, and not try and analyze the value beyond that.
+    included: true
+    name: kubernetes.container_restart_count
+    type: gauge
+  - description: The number of nodes that are running at least 1 daemon pod and are
+      supposed to run the daemon pod
+    included: true
+    name: kubernetes.daemon_set.current_scheduled
+    type: gauge
+  - description: The total number of nodes that should be running the daemon pod (including
+      nodes currently running the daemon pod)
+    included: true
+    name: kubernetes.daemon_set.desired_scheduled
+    type: gauge
+  - description: The number of nodes that are running the daemon pod, but are not
+      supposed to run the daemon pod
+    included: true
+    name: kubernetes.daemon_set.misscheduled
+    type: gauge
+  - description: The number of nodes that should be running the daemon pod and have
+      one or more of the daemon pod running and ready
+    included: true
+    name: kubernetes.daemon_set.ready
+    type: gauge
+  - description: Total number of available pods (ready for at least minReadySeconds)
+      targeted by this deployment.
+    included: true
+    name: kubernetes.deployment.available
+    type: gauge
+  - description: Number of desired pods in this deployment
+    included: true
+    name: kubernetes.deployment.desired
+    type: gauge
+  - description: The current phase of namespaces (`1` for _active_ and `0` for _terminating_)
+    included: false
+    name: kubernetes.namespace_phase
+    type: gauge
+  - description: Whether this node is ready (1), not ready (0) or in an unknown state
+      (-1)
+    included: false
+    name: kubernetes.node_ready
+    type: gauge
+  - description: Current phase of the pod (1 - Pending, 2 - Running, 3 - Succeeded,
+      4 - Failed, 5 - Unknown)
+    included: true
+    name: kubernetes.pod_phase
+    type: gauge
+  - description: Total number of available pods (ready for at least minReadySeconds)
+      targeted by this replica set
+    included: true
+    name: kubernetes.replica_set.available
+    type: gauge
+  - description: Number of desired pods in this replica set
+    included: true
+    name: kubernetes.replica_set.desired
+    type: gauge
+  - description: Total number of available pods (ready for at least minReadySeconds)
+      targeted by this replication controller.
+    included: true
+    name: kubernetes.replication_controller.available
+    type: gauge
+  - description: Number of desired pods
+    included: true
+    name: kubernetes.replication_controller.desired
+    type: gauge
+  - description: The upper limit for a particular resource in a specific namespace.  Will
+      only be sent if a quota is specified.  CPU requests/limits will be sent as millicores.
+    included: false
+    name: kubernetes.resource_quota_hard
+    type: gauge
+  - description: The usage for a particular resource in a specific namespace.  Will
+      only be sent if a quota is specified.  CPU requests/limits will be sent as millicores.
+    included: false
+    name: kubernetes.resource_quota_used
+    type: gauge
+  monitorType: kubernetes-cluster
+  properties:
+  - description: All non-blank labels on a given node will be synced as properties
+      to the `machine_id` or `kubernetes_node` dimension value for that node.  Which
+      dimension gets the properties is determined by the `useNodeName` config option.  Any
+      blank values will be synced as tags on that same dimension.
+    dimension: machine_id/kubernetes_node
+    name: <node label>
+  - description: Any labels with non-blank values on the pod will be synced as properties
+      to the `kubernetes_pod_uid` dimension. Any blank labels will be synced as tags
+      on that same dimension.
+    dimension: kubernetes_pod_uid
+    name: <pod label>

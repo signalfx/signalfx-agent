@@ -2,7 +2,6 @@
 
 # memory
 
-
 This monitor reports memory and memory utilization metrics.
 
 On Linux hosts, this monitor relies on the `/proc` filesystem.

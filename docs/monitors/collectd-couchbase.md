@@ -2,7 +2,7 @@
 
 # collectd/couchbase
 
- Monitors couchbase by using the
+Monitors couchbase by using the
 [couchbase collectd Python
 plugin](https://github.com/signalfx/collectd-couchbase), which collects
 metrics from couchbase instances

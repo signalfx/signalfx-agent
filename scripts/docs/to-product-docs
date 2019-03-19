@@ -18,7 +18,7 @@ AGENT_PRODUCT_DOCS="$PRODUCT_DOCS_REPO/integrations/agent"
 MANAGE_GIT="${MANAGE_GIT-'yes'}"
 
 check_pandoc_version() {
-	pandoc --version | grep 'pandoc 2.5'
+	pandoc --version | grep 'pandoc 2.[57]'
 }
 
 header_comment() {

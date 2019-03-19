@@ -2,7 +2,7 @@
 
 # collectd/openstack
 
- Monitors Openstack by using the
+Monitors Openstack by using the
 [Openstack collectd Python
 plugin](https://github.com/signalfx/collectd-openstack), which collects metrics
 from Openstack instances

@@ -1,0 +1,96 @@
+- dimensions: null
+  doc: |
+    Monitors an instance of memcached using the
+    [collectd memcached
+    plugin](https://collectd.org/wiki/index.php/Plugin:memcached).
+
+    See the [integrations
+    doc](https://github.com/signalfx/integrations/tree/master/collectd-memcached)
+    for more information.
+  metrics:
+  - description: Unused storage bytes
+    included: true
+    name: df.cache.free
+    type: gauge
+  - description: Current number of bytes used to store items
+    included: true
+    name: df.cache.used
+    type: gauge
+  - description: Number of flush requests
+    included: false
+    name: memcached_command.flush
+    type: cumulative
+  - description: Number of retrieval requests
+    included: true
+    name: memcached_command.get
+    type: cumulative
+  - description: Number of storage requests
+    included: true
+    name: memcached_command.set
+    type: cumulative
+  - description: Number of touch requests
+    included: false
+    name: memcached_command.touch
+    type: cumulative
+  - description: Current number of open connections
+    included: true
+    name: memcached_connections.current
+    type: gauge
+  - description: Number of times connection limit has been exceeded
+    included: false
+    name: memcached_connections.listen_disabled
+    type: gauge
+  - description: Current number of items stored by this instance
+    included: true
+    name: memcached_items.current
+    type: gauge
+  - description: Total network bytes read by this server
+    included: true
+    name: memcached_octets.rx
+    type: cumulative
+  - description: Total network bytes written by this server
+    included: true
+    name: memcached_octets.tx
+    type: cumulative
+  - description: Number of successful Decr requests
+    included: false
+    name: memcached_ops.decr_hits
+    type: cumulative
+  - description: Number of decr requests against missing keys
+    included: false
+    name: memcached_ops.decr_misses
+    type: cumulative
+  - description: Number of valid items removed from cache
+    included: true
+    name: memcached_ops.evictions
+    type: cumulative
+  - description: Number of keys that have been requested and found present
+    included: true
+    name: memcached_ops.hits
+    type: cumulative
+  - description: Number of successful incr requests
+    included: false
+    name: memcached_ops.incr_hits
+    type: cumulative
+  - description: Number of incr requests against missing keys
+    included: false
+    name: memcached_ops.incr_misses
+    type: cumulative
+  - description: Number of items that have been requested and not found
+    included: true
+    name: memcached_ops.misses
+    type: cumulative
+  - description: Number of worker threads requested
+    included: false
+    name: ps_count.threads
+    type: gauge
+  - description: Total system time for this instance
+    included: false
+    name: ps_cputime.syst
+    type: cumulative
+  - description: Total user time for this instance
+    included: false
+    name: ps_cputime.user
+    type: cumulative
+  monitorType: collectd/memcached
+  properties: null

@@ -2,7 +2,7 @@
 
 # collectd/kong
 
- Monitors a Kong instance using [collectd-kong](https://github.com/signalfx/collectd-kong).
+Monitors a Kong instance using [collectd-kong](https://github.com/signalfx/collectd-kong).
 
 See the [integration documentation](https://github.com/signalfx/integrations/tree/master/collectd-kong)
 for more information.

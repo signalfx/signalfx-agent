@@ -1,0 +1,262 @@
+- dimensions:
+  - description: Whether this consul instance is running as a server or client
+    name: consul_mode
+  - description: The name of the consul node
+    name: consul_node
+  - description: The name of the consul datacenter
+    name: datacenter
+  doc: |
+    Monitors the Consul data store by using the
+    [Consul collectd Python
+    plugin](https://github.com/signalfx/collectd-consul), which collects metrics
+    from Consul instances by hitting these endpoints:
+    - [/agent/self](https://www.consul.io/api/agent.html#read-configuration)
+    - [/agent/metrics](https://www.consul.io/api/agent.html#view-metrics)
+    - [/catalog/nodes](https://www.consul.io/api/catalog.html#list-nodes)
+    - [/catalog/node/:node](https://www.consul.io/api/catalog.html#list-services-for-node)
+    - [/status/leader](https://www.consul.io/api/status.html#get-raft-leader)
+    - [/status/peers](https://www.consul.io/api/status.html#list-raft-peers)
+    - [/coordinate/datacenters](https://www.consul.io/api/coordinate.html#read-wan-coordinates)
+    - [/coordinate/nodes](https://www.consul.io/api/coordinate.html#read-lan-coordinates)
+    - [/health/state/any](https://www.consul.io/api/health.html#list-checks-in-state)
+  metrics:
+  - description: Number of times an agent serves a DNS query with stale information
+    included: false
+    name: consul.dns.stale_queries
+    type: gauge
+  - description: Number of suspect messages received per interval
+    included: false
+    name: consul.memberlist.msg.suspect
+    type: gauge
+  - description: Tracks flapping agents
+    included: false
+    name: consul.serf.member.flap
+    type: gauge
+  - description: Number of nodes in the Consul datacenter
+    included: true
+    name: gauge.consul.catalog.nodes.total
+    type: gauge
+  - description: Number of nodes providing a given service
+    included: true
+    name: gauge.consul.catalog.nodes_by_service
+    type: gauge
+  - description: Total number of services registered with Consul in the given datacenter
+    included: true
+    name: gauge.consul.catalog.services.total
+    type: gauge
+  - description: Number of services registered with a node
+    included: true
+    name: gauge.consul.catalog.services_by_node
+    type: gauge
+  - description: Average time to complete a forward DNS query
+    included: false
+    name: gauge.consul.consul.dns.domain_query.AGENT.avg
+    type: gauge
+  - description: Max time to complete a forward DNS query
+    included: false
+    name: gauge.consul.consul.dns.domain_query.AGENT.max
+    type: gauge
+  - description: Min time to complete a forward DNS query
+    included: false
+    name: gauge.consul.consul.dns.domain_query.AGENT.min
+    type: gauge
+  - description: Average time to complete a Reverse DNS query
+    included: false
+    name: gauge.consul.consul.dns.ptr_query.AGENT.avg
+    type: gauge
+  - description: Max time to complete a Reverse DNS query
+    included: false
+    name: gauge.consul.consul.dns.ptr_query.AGENT.max
+    type: gauge
+  - description: Min time to complete a Reverse DNS query
+    included: false
+    name: gauge.consul.consul.dns.ptr_query.AGENT.min
+    type: gauge
+  - description: Leader time to reconcile the differences between Serf membership
+      and Consul's store
+    included: true
+    name: gauge.consul.consul.leader.reconcile.avg
+    type: gauge
+  - description: Number of nodes for which health checks are reporting Critical state
+    included: true
+    name: gauge.consul.health.nodes.critical
+    type: gauge
+  - description: Number of nodes for which health checks are reporting Passing state
+    included: true
+    name: gauge.consul.health.nodes.passing
+    type: gauge
+  - description: Number of nodes for which health checks are reporting Warning state
+    included: true
+    name: gauge.consul.health.nodes.warning
+    type: gauge
+  - description: Number of services for which health checks are reporting Critical
+      state
+    included: true
+    name: gauge.consul.health.services.critical
+    type: gauge
+  - description: Number of services for which health checks are reporting Passing
+      state
+    included: true
+    name: gauge.consul.health.services.passing
+    type: gauge
+  - description: Number of services for which health checks are reporting Warning
+      state
+    included: true
+    name: gauge.consul.health.services.warning
+    type: gauge
+  - description: Metric to map consul server's in leader or follower state
+    included: true
+    name: gauge.consul.is_leader
+    type: gauge
+  - description: Average network latency between 2 datacenters
+    included: true
+    name: gauge.consul.network.dc.latency.avg
+    type: gauge
+  - description: Maximum network latency between 2 datacenters
+    included: false
+    name: gauge.consul.network.dc.latency.max
+    type: gauge
+  - description: Minimum network latency between 2 datacenters
+    included: false
+    name: gauge.consul.network.dc.latency.min
+    type: gauge
+  - description: Average network latency between given node and other nodes in the
+      datacenter
+    included: true
+    name: gauge.consul.network.node.latency.avg
+    type: gauge
+  - description: Minimum network latency between given node and other nodes in the
+      datacenter
+    included: true
+    name: gauge.consul.network.node.latency.max
+    type: gauge
+  - description: Minimum network latency between given node and other nodes in the
+      datacenter
+    included: true
+    name: gauge.consul.network.node.latency.min
+    type: gauge
+  - description: Number of Raft peers in Consul datacenter
+    included: true
+    name: gauge.consul.peers
+    type: gauge
+  - description: Number of raft transactions
+    included: true
+    name: gauge.consul.raft.apply
+    type: gauge
+  - description: Average of the time it takes to commit an entry on the leader
+    included: true
+    name: gauge.consul.raft.commitTime.avg
+    type: gauge
+  - description: Max of the time it takes to commit an entry on the leader
+    included: true
+    name: gauge.consul.raft.commitTime.max
+    type: gauge
+  - description: Minimum of the time it takes to commit an entry on the leader
+    included: true
+    name: gauge.consul.raft.commitTime.min
+    type: gauge
+  - description: Average of the time it takes for the leader to write log entries
+      to disk
+    included: true
+    name: gauge.consul.raft.leader.dispatchLog.avg
+    type: gauge
+  - description: Maximum of the time it takes for the leader to write log entries
+      to disk
+    included: true
+    name: gauge.consul.raft.leader.dispatchLog.max
+    type: gauge
+  - description: Minimum of the time it takes for the leader to write log entries
+      to disk
+    included: true
+    name: gauge.consul.raft.leader.dispatchLog.min
+    type: gauge
+  - description: Mean of the time since the leader was last able to contact follower
+      nodes
+    included: true
+    name: gauge.consul.raft.leader.lastContact.avg
+    type: gauge
+  - description: Max of the time since the leader was last able to contact follower
+      nodes
+    included: true
+    name: gauge.consul.raft.leader.lastContact.max
+    type: gauge
+  - description: Min of the time since the leader was last able to contact follower
+      nodes
+    included: true
+    name: gauge.consul.raft.leader.lastContact.min
+    type: gauge
+  - description: Mean time taken to complete the AppendEntries RPC
+    included: false
+    name: gauge.consul.raft.replication.appendEntries.rpc.AGENT.avg
+    type: gauge
+  - description: Max time taken to complete the AppendEntries RPC
+    included: false
+    name: gauge.consul.raft.replication.appendEntries.rpc.AGENT.max
+    type: gauge
+  - description: Min time taken to complete the AppendEntries RPC
+    included: false
+    name: gauge.consul.raft.replication.appendEntries.rpc.AGENT.min
+    type: gauge
+  - description: Tracks the number of times given node enters the candidate state
+    included: true
+    name: gauge.consul.raft.state.candidate
+    type: gauge
+  - description: Tracks the number of leadership transitions per interval
+    included: true
+    name: gauge.consul.raft.state.leader
+    type: gauge
+  - description: Number of bytes allocated to Consul process on the node
+    included: false
+    name: gauge.consul.runtime.alloc_bytes
+    type: gauge
+  - description: Number of heap objects allocated to Consul
+    included: false
+    name: gauge.consul.runtime.heap_objects
+    type: gauge
+  - description: Number of GO routines run by Consul process
+    included: false
+    name: gauge.consul.runtime.num_goroutines
+    type: gauge
+  - description: Number of serf events processed
+    included: true
+    name: gauge.consul.serf.events
+    type: gauge
+  - description: Tracks successful node joins
+    included: true
+    name: gauge.consul.serf.member.join
+    type: gauge
+  - description: Tracks successful node leaves
+    included: true
+    name: gauge.consul.serf.member.left
+    type: gauge
+  - description: Average number of serf events in queue yet to be processed
+    included: true
+    name: gauge.consul.serf.queue.Event.avg
+    type: gauge
+  - description: Maximum number of serf events in queue yet to be processed during
+      the interval
+    included: true
+    name: gauge.consul.serf.queue.Event.max
+    type: gauge
+  - description: Minimum number of serf events in queue yet to be processed during
+      the interval
+    included: false
+    name: gauge.consul.serf.queue.Event.min
+    type: gauge
+  - description: Average number of serf queries in queue yet to be processed during
+      the interval
+    included: false
+    name: gauge.consul.serf.queue.Query.avg
+    type: gauge
+  - description: Maximum number of serf queries in queue yet to be processed during
+      the interval
+    included: false
+    name: gauge.consul.serf.queue.Query.max
+    type: gauge
+  - description: Minimum number of serf queries in queue yet to be processed during
+      the interval
+    included: false
+    name: gauge.consul.serf.queue.Query.min
+    type: gauge
+  monitorType: collectd/consul
+  properties: null

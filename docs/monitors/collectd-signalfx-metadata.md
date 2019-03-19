@@ -2,7 +2,7 @@
 
 # collectd/signalfx-metadata
 
- Collectd Python plugin that aggregates
+Collectd Python plugin that aggregates
 various metrics from other collectd plugins.  It also sends host metadata to
 SignalFx through specially formatted events, and sends active process
 ("top") lists on a periodic basis.

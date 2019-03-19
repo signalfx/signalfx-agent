@@ -1,0 +1,41 @@
+- dimensions: null
+  doc: |
+    Collects information about the virtual memory
+    subsystem of the kernel using the [collectd vmem
+    plugin](https://collectd.org/wiki/index.php/Plugin:vmem).  There is no
+    configuration available for this plugin.
+  metrics:
+  - description: Number of major page faults on the system
+    included: false
+    name: vmpage_faults.majflt
+    type: cumulative
+  - description: Number of minor page faults on the system
+    included: false
+    name: vmpage_faults.minflt
+    type: cumulative
+  - description: Page Ins for Memory
+    included: false
+    name: vmpage_io.memory.in
+    type: cumulative
+  - description: Page Outs for Memory
+    included: false
+    name: vmpage_io.memory.out
+    type: cumulative
+  - description: Page Ins for Swap
+    included: true
+    name: vmpage_io.swap.in
+    type: cumulative
+  - description: Page Outs for Swap
+    included: true
+    name: vmpage_io.swap.out
+    type: cumulative
+  - description: Number of free memory pages
+    included: false
+    name: vmpage_number.free_pages
+    type: cumulative
+  - description: Number of mapped pages
+    included: false
+    name: vmpage_number.mapped
+    type: cumulative
+  monitorType: collectd/vmem
+  properties: null

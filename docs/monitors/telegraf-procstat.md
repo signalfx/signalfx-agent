@@ -2,7 +2,7 @@
 
 # telegraf/procstat
 
- This monitor reports metrics about processes.
+This monitor reports metrics about processes.
 This monitor is based on the Telegraf procstat plugin.  More information about the Telegraf plugin
 can be found [here](https://github.com/influxdata/telegraf/tree/master/plugins/inputs/procstat).
 

@@ -2,7 +2,7 @@
 
 # telegraf/win_services
 
- (Windows Only) This monitor reports metrics about Windows services.
+(Windows Only) This monitor reports metrics about Windows services.
 This monitor is based on the Telegraf win_services plugin.  More information about the Telegraf plugin
 can be found [here](https://github.com/influxdata/telegraf/tree/master/plugins/inputs/win_services).
 

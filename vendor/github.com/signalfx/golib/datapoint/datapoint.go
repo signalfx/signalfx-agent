@@ -21,7 +21,7 @@ const (
 	// Count is a number per a given interval (such as a statsd flushInterval); not very useful
 	Count
 	// Enum is an added type: Values aren't important relative to each other but are just important as distinct
-	//             items in a set.  Usually used when Value is type "string"
+	// items in a set.  Usually used when Value is type "string"
 	Enum
 	// Counter is a number that keeps increasing over time (but might wrap/reset at some points)
 	// (no statsd counterpart), i.e. a gauge with the added notion of "i usually want to derive this"
@@ -96,7 +96,7 @@ const (
 	tsProperty metadata = iota
 )
 
-//SetProperty sets a property to be used when the time series associated with the datapoint is created
+// SetProperty sets a property to be used when the time series associated with the datapoint is created
 func (dp *Datapoint) SetProperty(key string, value interface{}) {
 	if dp.Meta[tsProperty] == nil {
 		dp.Meta[tsProperty] = make(map[string]interface{}, 1)
@@ -104,7 +104,7 @@ func (dp *Datapoint) SetProperty(key string, value interface{}) {
 	dp.GetProperties()[key] = value
 }
 
-//RemoveProperty removes a property from the map of properties to be used when the time series associated with the datapoint is created
+// RemoveProperty removes a property from the map of properties to be used when the time series associated with the datapoint is created
 func (dp *Datapoint) RemoveProperty(key string) {
 	if dp.Meta[tsProperty] != nil {
 		delete(dp.GetProperties(), key)
@@ -114,7 +114,7 @@ func (dp *Datapoint) RemoveProperty(key string) {
 	}
 }
 
-//GetProperties gets the map of properties to set when creating the time series associated with the datapoint. nil if no properties are set.
+// GetProperties gets the map of properties to set when creating the time series associated with the datapoint. nil if no properties are set.
 func (dp *Datapoint) GetProperties() map[string]interface{} {
 	m, ok := dp.Meta[tsProperty].(map[string]interface{})
 	if !ok {

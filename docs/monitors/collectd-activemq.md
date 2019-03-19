@@ -2,7 +2,7 @@
 
 # collectd/activemq
 
- Monitors Apache ActiveMQ via the collectd
+Monitors Apache ActiveMQ via the collectd
 GenericJMX plugin.
 
 
