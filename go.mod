@@ -4,8 +4,6 @@ go 1.12
 
 replace github.com/creasty/defaults => github.com/signalfx/defaults v1.2.2-0.20180531161417-70562fe60657
 
-replace github.com/influxdata/telegraf => github.com/signalfx/telegraf v0.10.2-0.20190317204528-caaaafdbcc78
-
 require (
 	cloud.google.com/go v0.35.1 // indirect
 	collectd.org v0.3.0 // indirect
@@ -103,7 +101,7 @@ require (
 	github.com/influxdata/influxdb v1.7.4 // indirect
 	github.com/influxdata/platform v0.0.0-20190117200541-d500d3cf5589 // indirect
 	github.com/influxdata/tail v1.0.0 // indirect
-	github.com/influxdata/telegraf v0.10.2-0.20190205193308-4da8d0a4b3ab
+	github.com/influxdata/telegraf v0.10.2-0.20190319005412-5e88824c153e
 	github.com/influxdata/toml v0.0.0-20180607005434-2a2e3012f7cf // indirect
 	github.com/influxdata/wlog v0.0.0-20160411224016-7c63b0a71ef8 // indirect
 	github.com/jaegertracing/jaeger v1.7.0 // indirect
