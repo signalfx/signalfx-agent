@@ -176,7 +176,7 @@ github.com/hpcloud/tail
 github.com/iancoleman/strcase
 # github.com/influxdata/tail v1.0.0
 github.com/influxdata/tail
-# github.com/influxdata/telegraf v0.10.2-0.20190205193308-4da8d0a4b3ab => github.com/signalfx/telegraf v0.10.2-0.20190317204528-caaaafdbcc78
+# github.com/influxdata/telegraf v0.10.2-0.20190319005412-5e88824c153e
 github.com/influxdata/telegraf
 github.com/influxdata/telegraf/metric
 github.com/influxdata/telegraf/plugins/parsers

@@ -374,6 +374,8 @@ github.com/influxdata/platform v0.0.0-20190117200541-d500d3cf5589/go.mod h1:YVhy
 github.com/influxdata/tail v1.0.0 h1:RGikfjB/b5C/YP3p47YD48eE0WSsJyAVbBHNpoTHdX0=
 github.com/influxdata/tail v1.0.0/go.mod h1:xTFF2SILpIYc5N+Srb0d5qpx7d+f733nBrbasb13DtQ=
 github.com/influxdata/tdigest v0.0.0-20181121200506-bf2b5ad3c0a9/go.mod h1:Js0mqiSBE6Ffsg94weZZ2c+v/ciT8QRHFOap7EKDrR0=
+github.com/influxdata/telegraf v0.10.2-0.20190319005412-5e88824c153e h1:tfGPLDKE2X1PaU0TQn7H0ZkoNrcVW2a33CnSd8uSTi4=
+github.com/influxdata/telegraf v0.10.2-0.20190319005412-5e88824c153e/go.mod h1:HIOhVICa+3kYiBmzfDt9LEnDA++FNzRzf9eP0o365us=
 github.com/influxdata/toml v0.0.0-20180607005434-2a2e3012f7cf h1:SDlFXYATjEbWThjvSTGdLmHyPozB8QsUFQs/LQ/bOcE=
 github.com/influxdata/toml v0.0.0-20180607005434-2a2e3012f7cf/go.mod h1:zApaNFpP/bTpQItGZNNUMISDMDAnTXu9UqJ4yT3ocz8=
 github.com/influxdata/usage-client v0.0.0-20160829180054-6d3895376368/go.mod h1:Wbbw6tYNvwa5dlB6304Sd+82Z3f7PmVZHVKU637d4po=
@@ -593,8 +595,6 @@ github.com/signalfx/gohistogram v0.0.0-20160107210732-1ccfd2ff5083 h1:WsShHmu12Z
 github.com/signalfx/gohistogram v0.0.0-20160107210732-1ccfd2ff5083/go.mod h1:adPDS6s7WaajdFBV9mQ7i0dKfQ8xiDnF9ZNETVPpp7c=
 github.com/signalfx/golib v2.3.2-0.20190318133519-8fb3debf0ac4+incompatible h1:jSK6jjSL9N4TzeA4LJWTV2/dc1RN5VxO0ENWME0Ua2Y=
 github.com/signalfx/golib v2.3.2-0.20190318133519-8fb3debf0ac4+incompatible/go.mod h1:nWYefOwlUKWm/SpN/LgVSBnyH1T9NpT1ANlmgRIi1Cs=
-github.com/signalfx/telegraf v0.10.2-0.20190317204528-caaaafdbcc78 h1:81X4hhZD9EtfWaGfpPhX5vpkt1IEXKC6NkU0897hN7w=
-github.com/signalfx/telegraf v0.10.2-0.20190317204528-caaaafdbcc78/go.mod h1:1gnMOcwGO3lAxfoMq28M8gjooF2MqVwquPVEvgZ1its=
 github.com/sirupsen/logrus v1.0.6/go.mod h1:pMByvHTf9Beacp5x1UXfOR9xyW/9antXMhjMPG0dEzc=
 github.com/sirupsen/logrus v1.2.0 h1:juTguoYk5qI21pwyTXY3B3Y5cOTH3ZUyZCg1v/mihuo=
 github.com/sirupsen/logrus v1.2.0/go.mod h1:LxeOpSwHxABJmUn/MG1IvRgCAasNZTLOkJPxbbu5VWo=
