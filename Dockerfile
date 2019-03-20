@@ -140,6 +140,9 @@ ENV CXXFLAGS $CFLAGS
 # exists at /jvm
 ENV JAVA_LDFLAGS "-Wl,-rpath -Wl,\$\$\ORIGIN/../../jvm/jre/lib/${TARGET_ARCH}/server"
 
+# turbostat is not supported by ARM, let it be a ARG
+ARG DISABLE_TURBOSTAT
+
 RUN autoreconf -vif &&\
     ./configure \
         --prefix="/usr" \
@@ -169,7 +172,7 @@ RUN autoreconf -vif &&\
         --disable-sigrok \
         --disable-tape \
         --disable-tokyotyrant \
-        --disable-turbostat \
+        ${DISABLE_TURBOSTAT} \
         --disable-write_mongodb \
         --disable-write_redis \
         --disable-write_riemann \
