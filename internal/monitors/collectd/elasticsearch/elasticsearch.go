@@ -7,11 +7,15 @@ import (
 	"github.com/signalfx/signalfx-agent/internal/monitors"
 	"github.com/signalfx/signalfx-agent/internal/monitors/collectd/python"
 	"github.com/signalfx/signalfx-agent/internal/monitors/pyrunner"
+	log "github.com/sirupsen/logrus"
 )
 
 const monitorType = "collectd/elasticsearch"
 
-// MONITOR(collectd/elasticsearch): Monitors ElasticSearch instances.
+// MONITOR(collectd/elasticsearch): Monitors ElasticSearch instances. We
+// strongly recommend using the
+// [elasticsearch](./elasticsearch.md) monitor instead, as it
+// will scale much better.
 //
 // See https://github.com/signalfx/collectd-elasticsearch and
 // https://github.com/signalfx/integrations/tree/master/collectd-elasticsearch
@@ -75,6 +79,7 @@ type Monitor struct {
 
 // Configure configures and runs the plugin in collectd
 func (m *Monitor) Configure(conf *Config) error {
+	log.Warn("The collectd/elasticsearch monitor is deprecated in favor of the elasticsearch monitor.")
 	conf.pyConf = &python.Config{
 		MonitorConfig: conf.MonitorConfig,
 		Host:          conf.Host,
