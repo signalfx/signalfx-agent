@@ -159,7 +159,7 @@ jobs:
       - checkout
       - goexecutor_setup
       - run: |
-          go get -u golang.org/x/lint/golint
+          (cd /tmp; GO111MODULE=on go get -u golang.org/x/lint/golint)
           make lint
 
   vet:
@@ -186,7 +186,7 @@ jobs:
       - goexecutor_setup
       - run: |
           mkdir ~/testresults
-          go get github.com/tebeka/go2xunit
+          (cd /tmp; GO111MODULE=on go get github.com/tebeka/go2xunit)
           bash -eo pipefail -c "make -s test | tee /dev/stderr | go2xunit" > ~/testresults/unit.xml
       - save_test_results
 
