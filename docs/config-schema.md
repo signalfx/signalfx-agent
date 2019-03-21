@@ -300,6 +300,7 @@ The **nested** `vault` config object has the following fields:
 | `kvV2PollInterval` | no | int64 | The polling interval for checking KV V2 secrets for a new version.  This can be any string value that can be parsed by https://golang.org/pkg/time/#ParseDuration. (**default:** `"60s"`) |
 | `authMethod` | no | string | The authetication method to use, if any, to obtain the Vault token.  If `vaultToken` is specified above, this option will have no effect. Currently supported values are: `iam`. |
 | `iam` | no | [object (see below)](#iam) | Further config options for the `iam` auth method.  These options are identical to the [CLI helper tool options](https://github.com/hashicorp/vault/blob/v1.1.0/builtin/credential/aws/cli.go#L148) |
+| `gcp` | no | [object (see below)](#gcp) | Further config options for the `gcp` auth method. These options are identical to the [CLI helper tool options](https://github.com/hashicorp/vault-plugin-auth-gcp/blob/e1f6784b379d277038ca0661606aa8d23791e392/plugin/cli.go#L120). You must provide a valid GCP IAM credential JSON either explicitly via the `credentials` option (not recommended), or through any GCP Application Default Credentials. |
 
 
 ## iam
@@ -315,6 +316,22 @@ The **nested** `iam` config object has the following fields:
 | `headerValue` | no | string | Value for the x-vault-aws-iam-server-id header in requests |
 | `mount` | no | string | Path where the AWS credential method is mounted. This is usually provided via the -path flag in the "vault login" command, but it can be specified here as well. If specified here, it takes precedence over the value for -path. The default value is "aws". |
 | `role` | no | string | Name of the Vault role to request a token against |
+
+
+
+## gcp
+The **nested** `gcp` config object has the following fields:
+
+
+
+| Config option | Required | Type | Description |
+| --- | --- | --- | --- |
+| `role` | no | string | Required. The name of the role you're requesting a token for. |
+| `mount` | no | string | This is usually provided via the -path flag in the "vault login" command, but it can be specified here as well. If specified here, it takes precedence over the value for -path.  Defaults to `gcp`. |
+| `credentials` | no | string | Explicitly specified GCP credentials in JSON string format (not recommended) |
+| `jwt_exp` | no | integer | Time until the generated JWT expires in minutes. The given IAM role will have a max_jwt_exp field, the time in minutes that all valid authentication JWTs must expire within (from time of authentication). Defaults to 15 minutes, the default max_jwt_exp for a role. Must be less than an hour. |
+| `service_account` | no | string | Service account to generate a JWT for. Defaults to credentials "client_email" if "credentials" specified and this value is not. The actual credential must have the "iam.serviceAccounts.signJWT" permissions on this service account. |
+| `project` | no | string | Project for the service account who will be authenticating to Vault. Defaults to the credential's "project_id" (if credentials are specified)." |
 
 
 
@@ -413,6 +430,13 @@ where applicable:
         headerValue: 
         mount: 
         role: 
+      gcp: 
+        role: 
+        mount: 
+        credentials: 
+        jwt_exp: 
+        service_account: 
+        project: 
   procPath: "/proc"
   etcPath: "/etc"
   varPath: "/var"

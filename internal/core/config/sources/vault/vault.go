@@ -56,6 +56,13 @@ type Config struct {
 	// Further config options for the `iam` auth method.  These options are
 	// identical to the [CLI helper tool options](https://github.com/hashicorp/vault/blob/v1.1.0/builtin/credential/aws/cli.go#L148)
 	IAM auth.IAMConfig `yaml:"iam" default:"{}"`
+	// Further config options for the `gcp` auth method. These options are
+	// identical to the [CLI helper tool
+	// options](https://github.com/hashicorp/vault-plugin-auth-gcp/blob/e1f6784b379d277038ca0661606aa8d23791e392/plugin/cli.go#L120).
+	// You must provide a valid GCP IAM credential JSON either explicitly via
+	// the `credentials` option (not recommended), or through any GCP
+	// Application Default Credentials.
+	GCP auth.GCPConfig `yaml:"gcp" default:"{}"`
 }
 
 // Validate the config
@@ -90,6 +97,7 @@ func (c *Config) Validate() error {
 func (c *Config) supportedAuthMethods() []auth.Method {
 	return []auth.Method{
 		&c.IAM,
+		&c.GCP,
 	}
 }
 
