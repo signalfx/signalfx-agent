@@ -5,10 +5,10 @@ import (
 	"context"
 	"math"
 
-	"github.com/coreos/etcd/client"
 	"github.com/gobwas/glob"
 	"github.com/signalfx/signalfx-agent/internal/core/config/types"
 	log "github.com/sirupsen/logrus"
+	"go.etcd.io/etcd/client"
 )
 
 type etcd2ConfigSource struct {
