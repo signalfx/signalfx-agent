@@ -12,7 +12,7 @@ from tests.helpers.util import wait_for, get_docker_client, run_container
 
 REPO_ROOT_DIR = os.path.join(os.path.dirname(os.path.realpath(__file__)), "..")
 K8S_DEFAULT_VERSION = "1.13.0"
-K8S_DEFAULT_TIMEOUT = 300
+K8S_DEFAULT_TIMEOUT = int(os.environ.get("K8S_TIMEOUT", 300))
 K8S_DEFAULT_TEST_TIMEOUT = 60
 K8S_SUPPORTED_OBSERVERS = ["k8s-api", "k8s-kubelet"]
 K8S_DEFAULT_OBSERVERS = K8S_SUPPORTED_OBSERVERS
@@ -91,7 +91,11 @@ def minikube(request, worker_id):
     k8s_version = os.environ.get("K8S_VERSION")
     if not k8s_version:
         k8s_version = request.config.getoption("--k8s-version")
-    k8s_timeout = int(request.config.getoption("--k8s-timeout"))
+    k8s_timeout = request.config.getoption("--k8s-timeout")
+    if not k8s_timeout:
+        k8s_timeout = K8S_DEFAULT_TIMEOUT
+    else:
+        k8s_timeout = int(k8s_timeout)
     k8s_container = request.config.getoption("--k8s-container")
     k8s_skip_teardown = request.config.getoption("--k8s-skip-teardown")
     inst = Minikube()

@@ -298,6 +298,24 @@ The **nested** `vault` config object has the following fields:
 | `vaultAddr` | no | string | The Vault Address.  Can also be provided by the standard Vault envvar `VAULT_ADDR`.  This option takes priority over the envvar if provided. |
 | `vaultToken` | no | string | The Vault token, can also be provided by it the standard Vault envvar `VAULT_TOKEN`.  This option takes priority over the envvar if provided. |
 | `kvV2PollInterval` | no | int64 | The polling interval for checking KV V2 secrets for a new version.  This can be any string value that can be parsed by https://golang.org/pkg/time/#ParseDuration. (**default:** `"60s"`) |
+| `authMethod` | no | string | The authetication method to use, if any, to obtain the Vault token.  If `vaultToken` is specified above, this option will have no effect. Currently supported values are: `iam`. |
+| `iam` | no | [object (see below)](#iam) | Further config options for the `iam` auth method.  These options are identical to the [CLI helper tool options](https://github.com/hashicorp/vault/blob/v1.1.0/builtin/credential/aws/cli.go#L148) |
+
+
+## iam
+The **nested** `iam` config object has the following fields:
+
+
+
+| Config option | Required | Type | Description |
+| --- | --- | --- | --- |
+| `awsAccessKeyId` | no | string | Explicit AWS access key ID |
+| `awsSecretAccessKey` | no | string | Explicit AWS secret access key |
+| `awsSecurityToken` | no | string | Explicit AWS security token for temporary credentials |
+| `headerValue` | no | string | Value for the x-vault-aws-iam-server-id header in requests |
+| `mount` | no | string | Path where the AWS credential method is mounted. This is usually provided via the -path flag in the "vault login" command, but it can be specified here as well. If specified here, it takes precedence over the value for -path. The default value is "aws". |
+| `role` | no | string | Name of the Vault role to request a token against |
+
 
 
 
@@ -387,6 +405,14 @@ where applicable:
       vaultAddr: 
       vaultToken: 
       kvV2PollInterval: "60s"
+      authMethod: 
+      iam: 
+        awsAccessKeyId: 
+        awsSecretAccessKey: 
+        awsSecurityToken: 
+        headerValue: 
+        mount: 
+        role: 
   procPath: "/proc"
   etcPath: "/etc"
   varPath: "/var"

@@ -19,7 +19,7 @@ require (
 	github.com/aliyun/alibaba-cloud-sdk-go v0.0.0-20190315122603-6f9e54af456e // indirect
 	github.com/apache/thrift v0.0.0-20180411174621-858809fad01d // indirect
 	github.com/araddon/gou v0.0.0-20190110011759-c797efecbb61 // indirect
-	github.com/aws/aws-sdk-go v1.18.3 // indirect
+	github.com/aws/aws-sdk-go v1.18.4 // indirect
 	github.com/bmizerany/perks v0.0.0-20141205001514-d9a9656a3a4b // indirect
 	github.com/boombuler/barcode v1.0.0 // indirect
 	github.com/briankassouf/jose v0.9.1 // indirect
@@ -115,9 +115,12 @@ require (
 	github.com/kardianos/service v1.0.0
 	github.com/karrick/godirwalk v1.8.0 // indirect
 	github.com/keybase/go-crypto v0.0.0-20190312101036-b475f2ecc1fe // indirect
+	github.com/konsorten/go-windows-terminal-sequences v1.0.2 // indirect
 	github.com/kr/pretty v0.1.0
 	github.com/mailru/easyjson v0.0.0-20180606163543-3fdea8d05856
 	github.com/mattbaird/elastigo v0.0.0-20170123220020-2fe47fd29e4b // indirect
+	github.com/mattn/go-colorable v0.1.1 // indirect
+	github.com/mattn/go-isatty v0.0.7 // indirect
 	github.com/mgutz/ansi v0.0.0-20170206155736-9520e82c474b // indirect
 	github.com/michaelklishin/rabbit-hole v1.5.0 // indirect
 	github.com/mitchellh/hashstructure v0.0.0-20170609045927-2bca23e0e452
@@ -146,7 +149,7 @@ require (
 	github.com/signalfx/gohelpers v0.0.0-20151202220853-ac9f0e053f15 // indirect
 	github.com/signalfx/gohistogram v0.0.0-20160107210732-1ccfd2ff5083 // indirect
 	github.com/signalfx/golib v2.3.2-0.20190318133519-8fb3debf0ac4+incompatible
-	github.com/sirupsen/logrus v1.2.0
+	github.com/sirupsen/logrus v1.4.0
 	github.com/smartystreets/goconvey v0.0.0-20190306220146-200a235640ff // indirect
 	github.com/soheilhy/cmux v0.1.4 // indirect
 	github.com/soniah/gosnmp v0.0.0-20190220004421-68e8beac0db9 // indirect
@@ -167,8 +170,10 @@ require (
 	github.com/x-cray/logrus-prefixed-formatter v0.5.2
 	github.com/xiang90/probing v0.0.0-20190116061207-43a291ad63a2 // indirect
 	go.etcd.io/bbolt v1.3.2 // indirect
+	golang.org/x/crypto v0.0.0-20190313024323-a1f597ede03a // indirect
+	golang.org/x/net v0.0.0-20190318221613-d196dffd7c2b // indirect
 	golang.org/x/sync v0.0.0-20181221193216-37e7f081c4d4
-	golang.org/x/sys v0.0.0-20190204203706-41f3e6584952
+	golang.org/x/sys v0.0.0-20190318195719-6c81ef8f67ca
 	gopkg.in/asn1-ber.v1 v1.0.0-20181015200546-f715ec2f112d // indirect
 	gopkg.in/fatih/set.v0 v0.1.0
 	gopkg.in/go-playground/assert.v1 v1.2.1 // indirect
@@ -178,7 +183,7 @@ require (
 	gopkg.in/logfmt.v0 v0.1.0 // indirect
 	gopkg.in/ory-am/dockertest.v2 v2.2.3 // indirect
 	gopkg.in/square/go-jose.v2 v2.3.0 // indirect
-	gopkg.in/yaml.v2 v2.2.1
+	gopkg.in/yaml.v2 v2.2.2
 	k8s.io/api v0.0.0-20181110191121-a33c8200050f
 	k8s.io/apimachinery v0.0.0-20180621070125-103fd098999d
 	k8s.io/client-go v8.0.0+incompatible

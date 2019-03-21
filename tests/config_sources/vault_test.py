@@ -6,16 +6,15 @@ from functools import partial as p
 from textwrap import dedent
 
 import hvac
-
 from tests.helpers.assertions import has_datapoint, tcp_socket_open
-from tests.helpers.util import container_ip, run_agent, run_container, wait_for
+from tests.helpers.util import container_ip, run_agent, run_container, run_service, wait_for
 
 AUDIT_PREFIX = "AUDIT: "
 
 
 @contextmanager
 def run_vault():
-    with run_container("vault:1.0.2") as vault_cont:
+    with run_container("vault:1.0.3") as vault_cont:
         vault_ip = container_ip(vault_cont)
         assert wait_for(p(tcp_socket_open, vault_ip, 8200), 30)
         assert wait_for(lambda: "Root Token:" in vault_cont.logs().decode("utf-8"), 10)
@@ -272,3 +271,72 @@ def test_vault_kv_poll_refetch():
             assert wait_for(p(has_datapoint, backend, dimensions={"env": "prod"}))
 
             assert "secret/metadata/app" in audit_read_paths(get_audit_events())
+
+
+READ_ALL_SECRETS_POLICY = """
+path "secret/*" {
+  policy = "read"
+}
+"""
+
+
+def run_vault_iam_test(iam_config):
+    """
+    Test that Vault will authenticate a user with IAM crednetials and provide a
+    token
+    """
+    with run_vault() as [vault_client, _], run_service("awsapi") as aws_cont:
+        aws_ip = container_ip(aws_cont)
+        assert wait_for(p(tcp_socket_open, aws_ip, 8080), 30)
+        vault_client.sys.enable_auth_method("aws")
+
+        vault_client.write(
+            "auth/aws/config/client",
+            **{
+                "iam_endpoint": f"http://{aws_ip}:8080/iam",
+                "sts_endpoint": f"http://{aws_ip}:8080/sts",
+                "ec2_endpoint": f"http://{aws_ip}:8080/ec2",
+                "secret_key": "MY_SECRET_KEY",
+                "access_key": "MY_ACCESS_KEY",
+            },
+        )
+
+        vault_client.sys.create_or_update_policy(name="dev", policy=READ_ALL_SECRETS_POLICY)
+
+        vault_client.write(
+            "auth/aws/role/dev-role-iam",
+            **{"auth_type": "iam", "policies": "dev", "bound_iam_principal_arn": "arn:aws:iam::0123456789:*"},
+        )
+
+        vault_client.write("secret/data/app", data={"env": "dev"})
+
+        with run_agent(
+            dedent(
+                f"""
+            intervalSeconds: 1
+            globalDimensions:
+               env: {{"#from": "vault:secret/data/app[data.env]"}}
+            configSources:
+              vault:
+                vaultAddr: {vault_client.url}
+                authMethod: iam
+                iam: {json.dumps(iam_config)}
+            monitors:
+             - type: collectd/uptime
+        """
+            )
+        ) as [backend, _, _]:
+            assert wait_for(p(has_datapoint, backend, dimensions={"env": "dev"}), timeout_seconds=10)
+
+
+def test_vault_iam_token_with_explicit_credentials():
+    run_vault_iam_test(
+        {"awsAccessKeyId": "MY_ACCESS_KEY", "awsSecretAccessKey": "MY_SECRET_KEY", "role": "dev-role-iam"}
+    )
+
+
+def test_vault_iam_token_with_env_credentials(monkeypatch):
+    monkeypatch.setenv("AWS_SECRET_ACCESS_KEY", "MY_SECRET_KEY")
+    monkeypatch.setenv("AWS_ACCESS_KEY_ID", "MY_ACCESS_KEY")
+
+    run_vault_iam_test({"role": "dev-role-iam"})
