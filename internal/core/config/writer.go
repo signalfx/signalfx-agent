@@ -67,7 +67,7 @@ type WriterConfig struct {
 	LogDroppedDatapoints bool `yaml:"logDroppedDatapoints"`
 	// Whether to send host correlation metrics to correlation traced services
 	// with the underlying host
-	SendTraceHostCorrelationMetrics *bool `yaml:"sendTraceHostCorrelationMetrics" default:"false"`
+	SendTraceHostCorrelationMetrics *bool `yaml:"sendTraceHostCorrelationMetrics" default:"true"`
 	// How long to wait after a trace span's service name is last seen to
 	// continue sending the correlation datapoints for that service.  This
 	// should be a duration string that is accepted by
