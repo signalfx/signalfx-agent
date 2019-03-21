@@ -7,6 +7,9 @@
 
 This tutorial assumes you are starting fresh and have no existing collectd agent running on your instance.
 
+Certain installation statements include `YOUR_SIGNALFX_REALM`. If this value is not set, SignalFx assumes your organization is in the us0 realm. To determine if you are in a different realm and need to supply your realm value in those statements, check your profile page in the SignalFx web application. 
+
+
 #### Step 1: Download and install the agent
 
 ##### Linux
