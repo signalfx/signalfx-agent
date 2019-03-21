@@ -56,6 +56,11 @@ func NewFakeK8s() *FakeK8s {
 	}
 
 	r := mux.NewRouter()
+
+	r.HandleFunc(`/api/v1/namespaces`, f.handleCreateOrReplaceResource).Methods("POST")
+	r.HandleFunc(`/api/v1/namespaces`, f.handleCreateOrReplaceResource).Methods("PUT")
+	r.HandleFunc(`/api/v1/namespaces`, f.handleCreateOrReplaceResource).Methods("DELETE")
+
 	r.HandleFunc(`/api/v1/namespaces/{namespace}/{resource}/{name}`, f.handleGetResourceByName).Methods("GET")
 	r.HandleFunc(`/apis/extensions/v1beta1/namespaces/{namespace}/{resource}/{name}`, f.handleGetResourceByName).Methods("GET")
 
@@ -63,6 +68,9 @@ func NewFakeK8s() *FakeK8s {
 	r.HandleFunc("/apis/extensions/v1beta1/namespaces/{namespace}/{resource}", f.handleListResource).Methods("GET")
 	r.HandleFunc("/apis/extensions/v1beta1/{resource}", f.handleListResource).Methods("GET")
 	r.HandleFunc("/api/v1/{resource}", f.handleListResource).Methods("GET")
+
+	r.HandleFunc("/apis/extensions/v1beta1/namespaces/{namespace}/{resource}", f.handleCreateOrReplaceResource).Methods("POST")
+	r.HandleFunc("/apis/extensions/v1beta1/namespaces/{namespace}/{resource}/{name}", f.handleDeleteResource).Methods("DELETE")
 
 	r.HandleFunc(`/api/v1/namespaces/{namespace}/{resource}`, f.handleCreateOrReplaceResource).Methods("POST")
 	r.HandleFunc(`/api/v1/namespaces/{namespace}/{resource}/{name}`, f.handleCreateOrReplaceResource).Methods("PUT")

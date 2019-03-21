@@ -229,3 +229,159 @@ def test_service_tag_sync():
             assert (
                 backend.datapoints_by_metric["sfxagent.go_heap_alloc"][-1].value.intValue < 200 * 1024 * 1024
             ), "too much memory used"
+
+
+# pylint: disable=too-many-locals
+def test_large_k8s_cluster_deployment_prop():
+    """
+    Creates 50 replica sets with 100 pods per replica set.
+    Check that the deployment name is being synced to
+    kubernetes_pod_uid, which is taken off the replica set's
+    owner references.
+    """
+    dp_count = 50
+    pods_per_dp = 100
+    with fake_k8s_api_server(print_logs=True) as [fake_k8s_client, k8s_envvars]:
+        v1_client = client.CoreV1Api(fake_k8s_client)
+        v1beta1_client = client.ExtensionsV1beta1Api(fake_k8s_client)
+        replica_sets = {}
+        for i in range(0, dp_count):
+            dp_name = f"dp-{i}"
+            dp_uid = f"dpuid{i}"
+            rs_name = dp_name + "-replicaset"
+            rs_uid = dp_uid + "-rs"
+            replica_sets[rs_uid] = {
+                "dp_name": dp_name,
+                "dp_uid": dp_uid,
+                "rs_name": rs_name,
+                "rs_uid": rs_uid,
+                "pod_uids": [],
+                "pod_names": [],
+            }
+
+            v1beta1_client.create_namespaced_replica_set(
+                body={
+                    "apiVersion": "extensions/v1beta1",
+                    "kind": "ReplicaSet",
+                    "metadata": {
+                        "name": rs_name,
+                        "uid": rs_uid,
+                        "namespace": "default",
+                        "ownerReferences": [{"kind": "Deployment", "name": dp_name, "uid": dp_uid}],
+                    },
+                    "spec": {},
+                    "status": {},
+                },
+                namespace="default",
+            )
+
+            for j in range(0, pods_per_dp):
+                pod_name = f"pod-{rs_name}-{j}"
+                pod_uid = f"abcdef{i}-{j}"
+                replica_sets[rs_uid]["pod_uids"].append(pod_uid)
+                replica_sets[rs_uid]["pod_names"].append(pod_name)
+                v1_client.create_namespaced_pod(
+                    body={
+                        "apiVersion": "v1",
+                        "kind": "Pod",
+                        "metadata": {
+                            "name": pod_name,
+                            "uid": pod_uid,
+                            "namespace": "default",
+                            "labels": {"app": "my-app"},
+                            "ownerReferences": [{"kind": "ReplicaSet", "name": rs_name, "uid": rs_uid}],
+                        },
+                        "spec": {},
+                    },
+                    namespace="default",
+                )
+        with run_agent(
+            dedent(
+                f"""
+          writer:
+            maxRequests: 100
+            propertiesMaxRequests: 100
+            propertiesHistorySize: 10000
+          monitors:
+           - type: internal-metrics
+             intervalSeconds: 1
+           - type: kubernetes-cluster
+             alwaysClusterReporter: true
+             intervalSeconds: 10
+             kubernetesAPI:
+                skipVerify: true
+                authType: none
+        """
+            ),
+            profile=True,
+            debug=False,
+            extra_env=k8s_envvars,
+        ) as [backend, _, _, pprof_client]:
+            assert wait_for(p(has_datapoint, backend, dimensions={"kubernetes_pod_name": "pod-dp-0-replicaset-0"}))
+            assert wait_for(p(has_datapoint, backend, dimensions={"kubernetes_pod_name": "pod-dp-49-replicaset-99"}))
+
+            ## get heap usage with 5k pods
+            heap_usage_baseline = backend.datapoints_by_metric["sfxagent.go_heap_alloc"][-1].value.intValue
+
+            def has_all_deployment_props():
+                for _, replica_set in replica_sets.items():
+                    for pod_uid in replica_set["pod_uids"]:
+                        if not has_dim_prop(
+                            backend,
+                            dim_name="kubernetes_pod_uid",
+                            dim_value=pod_uid,
+                            prop_name="deployment",
+                            prop_value=replica_set["dp_name"],
+                        ):
+                            return False
+                        if not has_dim_prop(
+                            backend,
+                            dim_name="kubernetes_pod_uid",
+                            dim_value=pod_uid,
+                            prop_name="deployment_uid",
+                            prop_value=replica_set["dp_uid"],
+                        ):
+                            return False
+                    return True
+
+            def has_all_replica_set_props():
+                for _, replica_set in replica_sets.items():
+                    for pod_uid in replica_set["pod_uids"]:
+                        if not has_dim_prop(
+                            backend,
+                            dim_name="kubernetes_pod_uid",
+                            dim_value=pod_uid,
+                            prop_name="replicaSet",
+                            prop_value=replica_set["rs_name"],
+                        ):
+                            return False
+                        if not has_dim_prop(
+                            backend,
+                            dim_name="kubernetes_pod_uid",
+                            dim_value=pod_uid,
+                            prop_name="replicaSet_uid",
+                            prop_value=replica_set["rs_uid"],
+                        ):
+                            return False
+                    return True
+
+            assert wait_for(has_all_deployment_props, interval_seconds=2, timeout_seconds=60)
+            assert wait_for(has_all_replica_set_props, interval_seconds=2)
+
+            for _, replica_set in replica_sets.items():
+                v1beta1_client.delete_namespaced_replica_set(name=replica_set["rs_name"], namespace="default", body={})
+                for pod_name in replica_set["pod_names"]:
+                    v1_client.delete_namespaced_pod(name=pod_name, namespace="default", body={})
+
+            def go_routines():
+                pprof_client.save_goroutines()
+                return backend.datapoints_by_metric["sfxagent.go_num_goroutine"][-1].value.intValue < 100
+
+            assert wait_for(go_routines, interval_seconds=2, timeout_seconds=60)
+
+            def heap_baselined():
+                pprof_client.save_heap()
+                heap_usage = backend.datapoints_by_metric["sfxagent.go_heap_alloc"][-1].value.intValue
+                return heap_usage < (heap_usage_baseline / 2)
+
+            assert wait_for(heap_baselined, interval_seconds=2, timeout_seconds=60)

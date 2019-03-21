@@ -69,6 +69,9 @@ func (pc *PodCache) AddPod(pod *v1.Pod) {
 func (pc *PodCache) DeleteByKey(key types.UID) {
 	namespace := pc.cachedPods[key].Namespace
 	delete(pc.namespacePodUIDCache[namespace], key)
+	if len(pc.namespacePodUIDCache[namespace]) == 0 {
+		delete(pc.namespacePodUIDCache, namespace)
+	}
 	delete(pc.cachedPods, key)
 }
 
