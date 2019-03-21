@@ -18190,7 +18190,7 @@
             {
               "yamlName": "sendTraceHostCorrelationMetrics",
               "doc": "Whether to send host correlation metrics to correlation traced services with the underlying host",
-              "default": false,
+              "default": true,
               "required": false,
               "type": "bool",
               "elementKind": ""
