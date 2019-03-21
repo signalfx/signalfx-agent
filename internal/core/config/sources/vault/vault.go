@@ -11,6 +11,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/signalfx/signalfx-agent/internal/core/config/sources/vault/auth"
 	"github.com/signalfx/signalfx-agent/internal/core/config/types"
 	log "github.com/sirupsen/logrus"
 
@@ -48,6 +49,13 @@ type Config struct {
 	// can be any string value that can be parsed by
 	// https://golang.org/pkg/time/#ParseDuration.
 	KVV2PollInterval time.Duration `yaml:"kvV2PollInterval" default:"60s"`
+	// The authetication method to use, if any, to obtain the Vault token.  If
+	// `vaultToken` is specified above, this option will have no effect.
+	// Currently supported values are: `iam`.
+	AuthMethod string `yaml:"authMethod"`
+	// Further config options for the `iam` auth method.  These options are
+	// identical to the [CLI helper tool options](https://github.com/hashicorp/vault/blob/v1.1.0/builtin/credential/aws/cli.go#L148)
+	IAM auth.IAMConfig `yaml:"iam" default:"{}"`
 }
 
 // Validate the config
@@ -56,14 +64,33 @@ func (c *Config) Validate() error {
 	if c.KVV2PollInterval == time.Duration(0) {
 		c.KVV2PollInterval = 60 * time.Second
 	}
-	if c.VaultToken == "" {
+	if c.VaultToken == "" && c.AuthMethod == "" {
 		if os.Getenv("VAULT_TOKEN") == "" {
-			return errors.New("vault token is required, either in the agent config or the envvar VAULT_TOKEN")
+			return errors.New("vault token is required, either in the agent config, the envvar VAULT_TOKEN, or via an authMethod")
 		}
 
 		c.VaultToken = os.Getenv("VAULT_TOKEN")
 	}
+
+	if c.AuthMethod != "" {
+		matched := false
+		for _, method := range c.supportedAuthMethods() {
+			if method.Name() == c.AuthMethod {
+				matched = true
+			}
+		}
+		if !matched {
+			return errors.New("unsupported auth method: " + c.AuthMethod)
+		}
+	}
+
 	return nil
+}
+
+func (c *Config) supportedAuthMethods() []auth.Method {
+	return []auth.Method{
+		&c.IAM,
+	}
 }
 
 var _ types.ConfigSourceConfig = &Config{}
@@ -84,7 +111,19 @@ func New(conf *Config) (types.ConfigSource, error) {
 		return nil, err
 	}
 
-	c.SetToken(conf.VaultToken)
+	if conf.AuthMethod == "" {
+		c.SetToken(conf.VaultToken)
+	} else {
+		for _, am := range conf.supportedAuthMethods() {
+			if conf.AuthMethod == am.Name() {
+				tokenSecret, err := am.GetToken(c)
+				if err != nil {
+					return nil, fmt.Errorf("could not get token from auth method %s: %v", conf.AuthMethod, err)
+				}
+				c.SetToken(tokenSecret.Auth.ClientToken)
+			}
+		}
+	}
 
 	vcs := &vaultConfigSource{
 		client:                            c,

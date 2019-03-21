@@ -11,9 +11,8 @@ from contextlib import contextmanager
 from typing import Dict, List
 
 import docker
-import yaml
-
 import netifaces as ni
+import yaml
 
 from . import fake_backend
 from .formatting import print_dp_or_event
@@ -233,16 +232,16 @@ def run_container(image_name, wait_for_ip=True, print_logs=True, **kwargs):
     finally:
         try:
             if print_logs:
-                print_lines("Container %s logs:\n%s" % (image_name, container.logs().decode("utf-8")))
+                print_lines(
+                    "Container %s/%s logs:\n%s" % (image_name, container.name, container.logs().decode("utf-8"))
+                )
             container.remove(force=True, v=True)
         except docker.errors.NotFound:
             pass
 
 
 @contextmanager
-def run_service(
-    service_name, name=None, buildargs=None, print_logs=True, path=None, dockerfile="./Dockerfile", **kwargs
-):
+def run_service(service_name, buildargs=None, print_logs=True, path=None, dockerfile="./Dockerfile", **kwargs):
     if buildargs is None:
         buildargs = {}
     if path is None:
@@ -253,7 +252,7 @@ def run_service(
         lambda: client.images.build(path=path, dockerfile=dockerfile, rm=True, forcerm=True, buildargs=buildargs),
         docker.errors.BuildError,
     )
-    with run_container(image.id, name=name, print_logs=print_logs, **kwargs) as cont:
+    with run_container(image.id, print_logs=print_logs, **kwargs) as cont:
         yield cont
 
 
