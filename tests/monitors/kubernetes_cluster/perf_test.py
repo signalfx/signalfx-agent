@@ -375,7 +375,7 @@ def test_large_k8s_cluster_deployment_prop():
 
             def go_routines():
                 pprof_client.save_goroutines()
-                return backend.datapoints_by_metric["sfxagent.go_num_goroutine"][-1].value.intValue < 100
+                return backend.datapoints_by_metric["sfxagent.go_num_goroutine"][-1].value.intValue < 200
 
             assert wait_for(go_routines, interval_seconds=2, timeout_seconds=60)
 
