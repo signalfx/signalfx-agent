@@ -27,6 +27,7 @@ parse_args_and_release() {
   local build_rpm_package=no
   local build_bundle=no
   local build_deployments=no
+  local push_windows=no
   local force=no
   local allow_uncommitted=no
   local github_username="${GITHUB_USERNAME-}"
@@ -81,6 +82,7 @@ parse_args_and_release() {
           rpm) build_rpm_package=yes build_all=no ;;
           bundle) build_bundle=yes build_all=no ;;
           deployments) build_deployments=yes build_all=no ;;
+          windows) push_windows=yes build_all=no ;;
           *) echo "component "$1" not recognized, quitting" >&2 && exit 1 ;;
         esac
         shift 1
@@ -110,6 +112,11 @@ parse_args_and_release() {
 
   read -p "This is a $stage release of version $new_version, please confirm: [y/N] "
   [[ ! "$REPLY" =~ ^[Yy]$ ]] && echo "Cancelling release" && exit 1
+
+  if [[ "$push_windows" == "yes" ]]; then
+    push_windows_bundle "$new_version" "$stage" "$push"
+    exit 0
+  fi
 
   if [[ "$stage" != "test" ]] && [[ "$($SCRIPT_DIR/current-version)" != "$new_version" ]]; then
     create_and_push_tag $new_version
@@ -171,15 +178,15 @@ distro packaging, as well as making a new standalone bundle.
 
 Options:
 
-  --new-version <version>           The new version to release.  If not specified, will be inferred from the latest git tag
-                                    Note that the version should not include a leading 'v'!
-  --component docker|deb|rpm|bundle Releases only the selected component if specified, otherwise does everything
-  --[no-]push                       Whether to push the components to remote sources or not (default, yes)
-  --force                           Ignore checks for uncommited local changes and package repo confirmation
-  --allow-uncommitted-files         Whether to ignore uncommitted files in the current directory
-  --stage test|beta|final           What kind of release this is.  If not specified, will be inferred from the version
-  --github-user <username>          Github username of a user that has permisssions to manage releases
-  --github-token <token>            Github API token for the given user
+  --new-version <version>                    The new version to release.  If not specified, will be inferred from the latest git tag
+                                             Note that the version should not include a leading 'v'!
+  --component docker|deb|rpm|bundle|windows  Releases only the selected component if specified, otherwise does everything except windows
+  --[no-]push                                Whether to push the components to remote sources or not (default, yes)
+  --force                                    Ignore checks for uncommited local changes and package repo confirmation
+  --allow-uncommitted-files                  Whether to ignore uncommitted files in the current directory
+  --stage test|beta|final                    What kind of release this is.  If not specified, will be inferred from the version
+  --github-user <username>                   Github username of a user that has permisssions to manage releases
+  --github-token <token>                     Github API token for the given user
 
 EOH
 }
@@ -290,6 +297,35 @@ push_bundle_to_github() {
 
   . $SCRIPT_DIR/github-releases.sh
   upload_asset_to_release v$new_version $bundle_path application/gzip $username $token
+}
+
+push_windows_bundle() {
+  local new_version="$1"
+  local stage="$2"
+  local push="$3"
+  local src_dir="$SCRIPT_DIR/../build"
+  local dest_dir="s3://public-downloads--signalfuse-com/windows/$stage/zip"
+
+  if [[ ! -f "$src_dir/SignalFxAgent-${new_version}-win64.zip" ]]; then
+    echo "$src_dir/SignalFxAgent-${new_version}-win64.zip not found!"
+    echo "The $new_version Windows agent bundle must be manually built."
+    exit 1
+  fi
+
+  # ensure that latest.txt is created and has the same version of the bundle
+  echo -n "$new_version" > "$src_dir/latest.txt"
+
+  if [[ "$push" == "yes" ]]; then
+    if aws s3 ls "$dest_dir/SignalFxAgent-${new_version}-win64.zip"; then
+      read -p "SignalFxAgent-${new_version}-win64.zip already exists in $dest_dir. Overwrite? [y/N] "
+      [[ ! "$REPLY" =~ ^[Yy]$ ]] && echo "Not pushing windows bundle" >&2 && return 1
+    fi
+    aws s3 cp "$src_dir/SignalFxAgent-${new_version}-win64.zip" "$dest_dir/SignalFxAgent-${new_version}-win64.zip"
+    aws s3 cp "$src_dir/latest.txt" "${dest_dir}/latest/latest.txt"
+    $SCRIPT_DIR/invalidate-cloudfront "/windows/$stage/zip/*"
+  else
+    echo "Nothing to do"
+  fi
 }
 
 parse_args_and_release $@
