@@ -4,6 +4,9 @@ To release the agent make sure you have the following configured on your
 workstation.  We will ideally make this released by CircleCI or Jenkins at some
 point but for now the process is manual.
 
+*Note:* The Windows release process is currently separate from everything else
+(see the "Windows Release Process" section below).
+
 # Setup
 
  1. Add a profile called `prod` to your AWS CLI tool config that contains your
@@ -119,3 +122,48 @@ point but for now the process is manual.
     Mac you can do `brew install pandoc`).  Next checkout the git repo
     github.com/signalfx/product-docs to your local workstation and run
     `PRODUCT_DOCS_REPO=<path to product docs> scripts/docs/to-product-docs`.
+
+# Windows Release Process
+
+## Setup
+
+ 1. You must have access to the `SFX_Windows.pfx` code signing certificate and password.
+
+ 2. You must have your AWS CLI set up on your local workstation and have access to our
+    S3 bucket.
+
+ 3. Build, provision, and start the Windows Server 2008 vagrant box. See the "Windows"
+    section in [development.md](docs/development.md) for details.
+
+ 4. Copy `SFX_Windows.pfx` to some folder in the virtual machine.
+
+## Release Process
+
+ 1. Open a Powershell terminal in the Windows virtual machine and execute:
+
+    ```
+    $ cd c:\users\vagrant\signalfx-agent
+    $ & { . ./scripts/windows/make.ps1; bundle -AGENT_VERSION "<X.Y.Z>" -PFX_PATH "<PFX_PATH>" -PFX_PASSWORD "<PFX_PASSWORD>" }
+    ```
+
+    Where `<X.Y.Z>` is the release version, `<PFX_PATH>` is the path to `SFX_Windows.pfx`
+    in the virtual machine, and `<PFX_PASSWORD>` is the password for `SFX_Windows.pfx`.
+
+ 2. If the build is successful, verify that
+    `c:\users\vagrant\signalfx-agent\build\SignalFxAgent\bin\signalfx-agent.exe` is signed and that
+    `c:\users\vagrant\signalfx-agent\build\SignalFxAgent-X.Y.Z-win64.zip` exists.
+
+ 3. If everything looks good, run the release script from your local workstation:
+
+    ```
+    $ scripts/release --stage <STAGE> --push --new-version <X.Y.Z> --component windows
+    ```
+
+    Where `<STAGE>` is `test`, `beta`, or `final` and `<X.Y.Z>` is the same version from step 1.
+
+ 4. Install/deploy the new release by running the installer script in a Powershell terminal
+    (replace `YOUR_SIGNALFX_API_TOKEN` and `STAGE` with the appropriate values):
+
+    ```
+    $ & {Set-ExecutionPolicy Bypass -Scope Process -Force; $script = ((New-Object System.Net.WebClient).DownloadString('https://dl.signalfx.com/signalfx-agent.ps1')); $params = @{access_token = "YOUR_SIGNALFX_API_TOKEN"; stage = "STAGE"}; Invoke-Command -ScriptBlock ([scriptblock]::Create(". {$script} $(&{$args} @params)"))}
+    ```
