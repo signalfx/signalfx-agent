@@ -25,3 +25,4 @@ __pycache__
 **boxcutter/
 integration_results.*
 .DS_Store
+*.pfx
