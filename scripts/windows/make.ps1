@@ -24,7 +24,7 @@ function signalfx-agent([string]$AGENT_VERSION="", [string]$AGENT_BIN=".\signalf
     versions_go
 
     go build -mod vendor -o "$AGENT_BIN" github.com/signalfx/signalfx-agent/cmd/agent
-    if ($lastexitcode -ne 0){ exit $lastexitcode }
+    if ($lastexitcode -ne 0){ throw }
 }
 
 # make the build bundle
@@ -38,10 +38,25 @@ function bundle (
         [bool]$DOWNLOAD_COLLECTD_PLUGINS=$false,
         [bool]$ZIP_BUNDLE=$true,
         [bool]$ONLY_BUILD_AGENT=$false,
+        [string]$PFX_PATH="",
+        [string]$PFX_PASSWORD="",
         [string]$AGENT_NAME="SignalFxAgent") {
 
     if ($AGENT_VERSION -Eq ""){
         $AGENT_VERSION = getGitTag
+    }
+
+    if ($PFX_PASSWORD -ne "" -And $PFX_PATH -eq "") {
+        throw "PFX_PATH is required if PFX_PASSWORD is specified"
+    }
+
+    if ($PFX_PATH -ne "") {
+        if (!(Test-Path -Path "$PFX_PATH")) {
+            throw "$PFX_PATH does not exist!"
+        }
+        if ($PFX_PASSWORD -eq "") {
+            throw "PFX_PASSWORD is required for $PFX_PATH"
+        }
     }
 
     # create directories in the agent directory
@@ -53,6 +68,14 @@ function bundle (
     if ($BUILD_AGENT) {
         Remove-Item -Recurse -Force "$buildDir\$AGENT_NAME\bin\signalfx-agent.exe" -ErrorAction Ignore
         signalfx-agent -AGENT_VERSION "$AGENT_VERSION" -AGENT_BIN "$buildDir\$AGENT_NAME\bin\signalfx-agent.exe"
+    }
+
+    if ($PFX_PATH -ne "" -And $PFX_PASSWORD -ne "") {
+        if (!(Test-Path -Path "$buildDir\$AGENT_NAME\bin\signalfx-agent.exe")) {
+            throw "$buildDir\$AGENT_NAME\bin\signalfx-agent.exe not found!"
+        }
+        signtool sign /f "$PFX_PATH" /p $PFX_PASSWORD /tr http://timestamp.digicert.com /fd sha256 /td SHA256 /n "SignalFx, Inc." "$buildDir\$AGENT_NAME\bin\signalfx-agent.exe"
+        if ($lastexitcode -ne 0){ throw }
     }
 
     if (($DOWNLOAD_PYTHON -Or !(Test-Path -Path "$buildDir\python")) -And !$ONLY_BUILD_AGENT) {
