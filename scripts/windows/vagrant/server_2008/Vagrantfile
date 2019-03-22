@@ -46,5 +46,8 @@ Vagrant.configure("2") do | config |
     config.vm.provision "shell" do |s|
         s.path = "../common/5_visual_studio_code.ps1"
     end
+    config.vm.provision "shell" do |s|
+        s.path = "../common/6_windows_sdk_7.ps1"
+    end
 
 end
