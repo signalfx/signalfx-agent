@@ -17807,6 +17807,69 @@
                   }
                 ]
               }
+            },
+            {
+              "yamlName": "gcp",
+              "doc": "Further config options for the `gcp` auth method. These options are identical to the [CLI helper tool options](https://github.com/hashicorp/vault-plugin-auth-gcp/blob/e1f6784b379d277038ca0661606aa8d23791e392/plugin/cli.go#L120). You must provide a valid GCP IAM credential JSON either explicitly via the `credentials` option (not recommended), or through any GCP Application Default Credentials.",
+              "default": "",
+              "required": false,
+              "type": "struct",
+              "elementKind": "",
+              "elementStruct": {
+                "name": "GCPConfig",
+                "doc": "GCPConfig is the config for the GCP Auth method in Vault",
+                "package": "internal/core/config/sources/vault/auth",
+                "fields": [
+                  {
+                    "yamlName": "role",
+                    "doc": "Required. The name of the role you're requesting a token for.",
+                    "default": null,
+                    "required": false,
+                    "type": "string",
+                    "elementKind": ""
+                  },
+                  {
+                    "yamlName": "mount",
+                    "doc": "This is usually provided via the -path flag in the \"vault login\" command, but it can be specified here as well. If specified here, it takes precedence over the value for -path.  Defaults to `gcp`.",
+                    "default": null,
+                    "required": false,
+                    "type": "string",
+                    "elementKind": ""
+                  },
+                  {
+                    "yamlName": "credentials",
+                    "doc": "Explicitly specified GCP credentials in JSON string format (not recommended)",
+                    "default": null,
+                    "required": false,
+                    "type": "string",
+                    "elementKind": ""
+                  },
+                  {
+                    "yamlName": "jwt_exp",
+                    "doc": "Time until the generated JWT expires in minutes. The given IAM role will have a max_jwt_exp field, the time in minutes that all valid authentication JWTs must expire within (from time of authentication). Defaults to 15 minutes, the default max_jwt_exp for a role. Must be less than an hour.",
+                    "default": null,
+                    "required": false,
+                    "type": "int",
+                    "elementKind": ""
+                  },
+                  {
+                    "yamlName": "service_account",
+                    "doc": "Service account to generate a JWT for. Defaults to credentials \"client_email\" if \"credentials\" specified and this value is not. The actual credential must have the \"iam.serviceAccounts.signJWT\" permissions on this service account.",
+                    "default": null,
+                    "required": false,
+                    "type": "string",
+                    "elementKind": ""
+                  },
+                  {
+                    "yamlName": "project",
+                    "doc": "Project for the service account who will be authenticating to Vault. Defaults to the credential's \"project_id\" (if credentials are specified).\"",
+                    "default": null,
+                    "required": false,
+                    "type": "string",
+                    "elementKind": ""
+                  }
+                ]
+              }
             }
           ]
         }
@@ -18190,7 +18253,7 @@
             {
               "yamlName": "sendTraceHostCorrelationMetrics",
               "doc": "Whether to send host correlation metrics to correlation traced services with the underlying host",
-              "default": false,
+              "default": true,
               "required": false,
               "type": "bool",
               "elementKind": ""
@@ -18828,6 +18891,69 @@
                         {
                           "yamlName": "role",
                           "doc": "Name of the Vault role to request a token against",
+                          "default": null,
+                          "required": false,
+                          "type": "string",
+                          "elementKind": ""
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "yamlName": "gcp",
+                    "doc": "Further config options for the `gcp` auth method. These options are identical to the [CLI helper tool options](https://github.com/hashicorp/vault-plugin-auth-gcp/blob/e1f6784b379d277038ca0661606aa8d23791e392/plugin/cli.go#L120). You must provide a valid GCP IAM credential JSON either explicitly via the `credentials` option (not recommended), or through any GCP Application Default Credentials.",
+                    "default": "",
+                    "required": false,
+                    "type": "struct",
+                    "elementKind": "",
+                    "elementStruct": {
+                      "name": "GCPConfig",
+                      "doc": "GCPConfig is the config for the GCP Auth method in Vault",
+                      "package": "internal/core/config/sources/vault/auth",
+                      "fields": [
+                        {
+                          "yamlName": "role",
+                          "doc": "Required. The name of the role you're requesting a token for.",
+                          "default": null,
+                          "required": false,
+                          "type": "string",
+                          "elementKind": ""
+                        },
+                        {
+                          "yamlName": "mount",
+                          "doc": "This is usually provided via the -path flag in the \"vault login\" command, but it can be specified here as well. If specified here, it takes precedence over the value for -path.  Defaults to `gcp`.",
+                          "default": null,
+                          "required": false,
+                          "type": "string",
+                          "elementKind": ""
+                        },
+                        {
+                          "yamlName": "credentials",
+                          "doc": "Explicitly specified GCP credentials in JSON string format (not recommended)",
+                          "default": null,
+                          "required": false,
+                          "type": "string",
+                          "elementKind": ""
+                        },
+                        {
+                          "yamlName": "jwt_exp",
+                          "doc": "Time until the generated JWT expires in minutes. The given IAM role will have a max_jwt_exp field, the time in minutes that all valid authentication JWTs must expire within (from time of authentication). Defaults to 15 minutes, the default max_jwt_exp for a role. Must be less than an hour.",
+                          "default": null,
+                          "required": false,
+                          "type": "int",
+                          "elementKind": ""
+                        },
+                        {
+                          "yamlName": "service_account",
+                          "doc": "Service account to generate a JWT for. Defaults to credentials \"client_email\" if \"credentials\" specified and this value is not. The actual credential must have the \"iam.serviceAccounts.signJWT\" permissions on this service account.",
+                          "default": null,
+                          "required": false,
+                          "type": "string",
+                          "elementKind": ""
+                        },
+                        {
+                          "yamlName": "project",
+                          "doc": "Project for the service account who will be authenticating to Vault. Defaults to the credential's \"project_id\" (if credentials are specified).\"",
                           "default": null,
                           "required": false,
                           "type": "string",

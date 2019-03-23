@@ -96,6 +96,9 @@ func (sc *ServiceCache) DeleteByKey(svcUID types.UID) []types.UID {
 	}
 	namespace := sc.cachedServices[svcUID].Namespace
 	delete(sc.namespaceSvcUIDCache[namespace], svcUID)
+	if len(sc.namespaceSvcUIDCache[namespace]) == 0 {
+		delete(sc.namespaceSvcUIDCache, namespace)
+	}
 	delete(sc.cachedServices, svcUID)
 
 	return pods
