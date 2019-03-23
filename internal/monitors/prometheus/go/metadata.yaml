@@ -1,0 +1,122 @@
+- monitorType: prometheus/go
+  doc: |
+    This monitor scrapes [Prmoetheus Go
+    collector](https://godoc.org/github.com/prometheus/client_golang/prometheus#NewGoCollector)
+    and [Prometheus process
+    collector](https://godoc.org/github.com/prometheus/client_golang/prometheus#NewProcessCollector)
+    metrics from a Prometheus exporter and sends them to SignalFx.  It is a
+    wrapper around the [prometheus-exporter](./prometheus-exporter.md) monitor
+    that provides a restricted but expandable set of metrics.
+  metrics:
+  - name: go_gc_duration_seconds
+    type: cumulative
+    description: A summary of the GC invocation durations
+  - name: go_gc_duration_seconds_bucket
+    type: cumulative
+    description: A summary of the GC invocation durations
+  - name: go_gc_duration_seconds_count
+    type: cumulative
+    description: A summary of the GC invocation durations
+  - name: go_goroutines
+    type: gauge
+    description: Number of goroutines that currently exist
+  - name: go_info
+    type: gauge
+    description: Information about the Go environment
+  - name: go_memstats_alloc_bytes
+    type: gauge
+    description: Number of bytes allocated and still in use
+  - name: go_memstats_alloc_bytes_total
+    type: cumulative
+    description: Total number of bytes allocated, even if freed
+  - name: go_memstats_buck_hash_sys_bytes
+    type: gauge
+    description: Number of bytes used by the profiling bucket hash table
+  - name: go_memstats_frees_total
+    type: cumulative
+    description: Total number of frees
+  - name: go_memstats_gc_cpu_fraction
+    type: gauge
+    description: The fraction of this program's available CPU time used by the GC since the program started
+  - name: go_memstats_gc_sys_bytes
+    type: gauge
+    description: Number of bytes used for garbage collection system metadata
+  - name: go_memstats_heap_alloc_bytes
+    type: gauge
+    description: Number of heap bytes allocated and still in use
+  - name: go_memstats_heap_idle_bytes
+    type: gauge
+    description: Number of heap bytes waiting to be used
+  - name: go_memstats_heap_inuse_bytes
+    type: gauge
+    description: Number of heap bytes that are in use
+  - name: go_memstats_heap_objects
+    type: gauge
+    description: Number of allocated objects
+  - name: go_memstats_heap_released_bytes
+    type: gauge
+    description: Number of heap bytes released to OS
+  - name: go_memstats_heap_sys_bytes
+    type: gauge
+    description: Number of heap bytes obtained from system
+  - name: go_memstats_last_gc_time_seconds
+    type: gauge
+    description: Number of seconds since 1970 of last garbage collection
+  - name: go_memstats_lookups_total
+    type: cumulative
+    description: Total number of pointer lookups
+  - name: go_memstats_mallocs_total
+    type: cumulative
+    description: Total number of mallocs
+  - name: go_memstats_mcache_inuse_bytes
+    type: gauge
+    description: Number of bytes in use by mcache structures
+  - name: go_memstats_mcache_sys_bytes
+    type: gauge
+    description: Number of bytes used for mcache structures obtained from system
+  - name: go_memstats_mspan_inuse_bytes
+    type: gauge
+    description: Number of bytes in use by mspan structures
+  - name: go_memstats_mspan_sys_bytes
+    type: gauge
+    description: Number of bytes used for mspan structures obtained from system
+  - name: go_memstats_next_gc_bytes
+    type: gauge
+    description: Number of heap bytes when next garbage collection will take place
+  - name: go_memstats_other_sys_bytes
+    type: gauge
+    description: Number of bytes used for other system allocations
+  - name: go_memstats_stack_inuse_bytes
+    type: gauge
+    description: Number of bytes in use by the stack allocator
+  - name: go_memstats_stack_sys_bytes
+    type: gauge
+    description: Number of bytes obtained from system for stack allocator
+  - name: go_memstats_sys_bytes
+    type: gauge
+    description: Number of bytes obtained from system
+  - name: go_threads
+    type: gauge
+    description: Number of OS threads created
+  - name: process_cpu_seconds_total
+    type: cumulative
+    description: Total user and system CPU time spent in seconds
+  - name: process_max_fds
+    type: gauge
+    description: Maximum number of open file descriptors
+  - name: process_open_fds
+    type: gauge
+    description: Number of open file descriptors
+  - name: process_resident_memory_bytes
+    type: gauge
+    description: Resident memory size in bytes
+  - name: process_start_time_seconds
+    included: true
+    type: gauge
+    description: Start time of the process since unix epoch in seconds
+  - name: process_virtual_memory_bytes
+    type: gauge
+    description: Virtual memory size in bytes
+  - name: process_virtual_memory_max_bytes
+    type: gauge
+    description: Maximum amount of virtual memory available in bytes
