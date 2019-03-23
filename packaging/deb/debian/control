@@ -8,6 +8,6 @@ Maintainer: SignalFx, Inc. <support+deb@signalfx.com>
 Package: signalfx-agent
 Depends: libcap2-bin
 Priority: optional
-Architecture: amd64
+Architecture: amd64 arm64
 Homepage: https://signalfx.com
 Description: The SignalFx metric agent

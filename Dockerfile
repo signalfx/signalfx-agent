@@ -7,9 +7,11 @@ RUN apt update &&\
     apt install -y curl wget pkg-config parallel
 
 ARG GO_VERSION
+ARG TARGET_ARCH
+
 ENV PATH=$PATH:/usr/local/go/bin
 RUN cd /tmp &&\
-    wget https://storage.googleapis.com/golang/go${GO_VERSION}.linux-amd64.tar.gz &&\
+    wget https://storage.googleapis.com/golang/go${GO_VERSION}.linux-${TARGET_ARCH}.tar.gz &&\
 	tar -C /usr/local -xf go*.tar.gz
 
 ENV GOPATH=/go
@@ -37,6 +39,8 @@ RUN AGENT_VERSION=${agent_version} COLLECTD_VERSION=${collectd_version} make sig
 
 ###### Collectd builder image ######
 FROM ubuntu:16.04 as collectd
+
+ARG TARGET_ARCH
 
 ENV DEBIAN_FRONTEND noninteractive
 
@@ -134,7 +138,10 @@ ENV CXXFLAGS $CFLAGS
 
 # In the bundle, the java plugin will live in /plugins/collectd and the JVM
 # exists at /jvm
-ENV JAVA_LDFLAGS "-Wl,-rpath -Wl,\$\$\ORIGIN/../../jvm/jre/lib/amd64/server"
+ENV JAVA_LDFLAGS "-Wl,-rpath -Wl,\$\$\ORIGIN/../../jvm/jre/lib/${TARGET_ARCH}/server"
+
+# turbostat is not supported by ARM, let it be a ARG
+ARG DISABLE_TURBOSTAT
 
 RUN autoreconf -vif &&\
     ./configure \
@@ -165,6 +172,7 @@ RUN autoreconf -vif &&\
         --disable-sigrok \
         --disable-tape \
         --disable-tokyotyrant \
+        ${DISABLE_TURBOSTAT} \
         --disable-write_mongodb \
         --disable-write_redis \
         --disable-write_riemann \
@@ -219,6 +227,8 @@ RUN find /usr/lib/python2.7 /usr/local/lib/python2.7/dist-packages -name "*.pyc"
 ####### Extra packages that don't make sense to pull down in any other stage ########
 FROM ubuntu:16.04 as extra-packages
 
+ARG TARGET_ARCH
+
 RUN apt update &&\
     apt install -y \
 	  host \
@@ -229,7 +239,7 @@ RUN apt update &&\
 	  vim
 
 RUN apt install -y openjdk-8-jre-headless &&\
-    cp -rL /usr/lib/jvm/java-8-openjdk-amd64 /opt/jvm &&\
+    cp -rL /usr/lib/jvm/java-8-openjdk-${TARGET_ARCH} /opt/jvm &&\
 	rm -rf /opt/jvm/docs &&\
 	rm -rf /opt/jvm/man
 
@@ -273,6 +283,9 @@ RUN mkdir -p /opt/bins &&\
 # below this are special-purpose.
 FROM scratch as final-image
 
+ARG CPU_ARCH
+ARG LDSO_BIN
+
 CMD ["/bin/signalfx-agent"]
 
 COPY --from=collectd /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt
@@ -281,7 +294,7 @@ COPY --from=collectd /usr/sbin/collectd /bin/collectd
 COPY --from=collectd /opt/deps/ /lib
 COPY --from=collectd /etc/nsswitch.conf /etc/nsswitch.conf
 
-COPY --from=extra-packages /lib/x86_64-linux-gnu/ld-2.23.so /lib64/ld-linux-x86-64.so.2
+COPY --from=extra-packages /lib/${CPU_ARCH}-linux-gnu/ld-2.23.so ${LDSO_BIN}
 COPY --from=extra-packages /opt/jvm/ /jvm
 COPY --from=extra-packages /opt/signalfx_types_db /plugins/collectd/java/
 COPY --from=extra-packages /opt/deps/ /lib
@@ -326,6 +339,8 @@ FROM golang:${GO_VERSION}-stretch as golang-ignore
 # the /bundle dir in here and the SIGNALFX_BUNDLE_DIR is set to point to that.
 FROM ubuntu:18.04 as dev-extras
 
+ARG TARGET_ARCH
+
 RUN apt update &&\
     apt install -y \
       curl \
@@ -354,9 +369,9 @@ RUN pip3 install ipython ipdb
 # Install helm
 ARG HELM_VERSION=v2.13.0
 WORKDIR /tmp
-RUN wget -O helm.tar.gz https://storage.googleapis.com/kubernetes-helm/helm-${HELM_VERSION}-linux-amd64.tar.gz && \
+RUN wget -O helm.tar.gz https://storage.googleapis.com/kubernetes-helm/helm-${HELM_VERSION}-linux-${TARGET_ARCH}.tar.gz && \
     tar -zxvf /tmp/helm.tar.gz && \
-    mv linux-amd64/helm /usr/local/bin/helm && \
+    mv linux-${TARGET_ARCH}/helm /usr/local/bin/helm && \
     chmod a+x /usr/local/bin/helm
 
 WORKDIR /usr/src/signalfx-agent
@@ -369,7 +384,7 @@ RUN curl -fsSL get.docker.com -o /tmp/get-docker.sh &&\
     sh /tmp/get-docker.sh
 
 RUN go get -u golang.org/x/lint/golint &&\
-    go get github.com/derekparker/delve/cmd/dlv &&\
+    if [ `uname -m` != "aarch64" ]; then go get github.com/derekparker/delve/cmd/dlv; fi &&\
     go get github.com/tebeka/go2xunit
 
 # Get integration test deps in here
@@ -377,7 +392,7 @@ COPY python/setup.py /tmp/
 RUN pip3 install -e /tmp/
 COPY tests/requirements.txt /tmp/
 RUN pip3 install --upgrade pip==9.0.1 && pip3 install -r /tmp/requirements.txt
-RUN wget -O /usr/bin/gomplate https://github.com/hairyhenderson/gomplate/releases/download/v2.3.0/gomplate_linux-amd64-slim &&\
+RUN wget -O /usr/bin/gomplate https://github.com/hairyhenderson/gomplate/releases/download/2.8.0/gomplate_linux-${TARGET_ARCH}-slim &&\
     chmod +x /usr/bin/gomplate
 RUN ln -s /usr/bin/python3 /usr/bin/python &&\
     ln -s /usr/bin/pip3 /usr/bin/pip
