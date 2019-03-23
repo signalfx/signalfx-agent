@@ -42,7 +42,7 @@
   metrics:
   - description: Whether a container has passed its readiness probe (0 for no, 1 for
       yes)
-    included: false
+    included: true
     name: kubernetes.container_ready
     type: gauge
   - description: How many times the container has restarted in the recent past.  This
@@ -86,12 +86,12 @@
     name: kubernetes.deployment.desired
     type: gauge
   - description: The current phase of namespaces (`1` for _active_ and `0` for _terminating_)
-    included: false
+    included: true
     name: kubernetes.namespace_phase
     type: gauge
   - description: Whether this node is ready (1), not ready (0) or in an unknown state
       (-1)
-    included: false
+    included: true
     name: kubernetes.node_ready
     type: gauge
   - description: Current phase of the pod (1 - Pending, 2 - Running, 3 - Succeeded,
@@ -119,12 +119,12 @@
     type: gauge
   - description: The upper limit for a particular resource in a specific namespace.  Will
       only be sent if a quota is specified.  CPU requests/limits will be sent as millicores.
-    included: false
+    included: true
     name: kubernetes.resource_quota_hard
     type: gauge
   - description: The usage for a particular resource in a specific namespace.  Will
       only be sent if a quota is specified.  CPU requests/limits will be sent as millicores.
-    included: false
+    included: true
     name: kubernetes.resource_quota_used
     type: gauge
   monitorType: kubernetes-cluster

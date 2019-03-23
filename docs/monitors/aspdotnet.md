@@ -64,38 +64,6 @@ The following table lists the metrics available for this monitor. Metrics that a
 | `asp_net_applications.sessions_active` | gauge | X | Number of active sessions in the ASP.NET application. |
 
 
-To specify custom metrics you want to monitor, add a `metricsToInclude` filter
-to the agent configuration, as shown in the code snippet below. The snippet
-lists all available custom metrics. You can copy and paste the snippet into
-your configuration file, then delete any custom metrics that you do not want
-sent.
-
-Note that some of the custom metrics require you to set a flag as well as add
-them to the list. Check the monitor configuration file to see if a flag is
-required for gathering additional metrics.
-
-```yaml
-
-metricsToInclude:
-  - metricNames:
-    - asp_net.application_restarts
-    - asp_net.applications_running
-    - asp_net.requests_current
-    - asp_net.requests_queue
-    - asp_net.requests_rejected
-    - asp_net.worker_process_restarts
-    - asp_net.worker_processes_running
-    - asp_net_applications.errors_during_execution
-    - asp_net_applications.errors_total_sec
-    - asp_net_applications.errors_unhandled_during_execution_sec
-    - asp_net_applications.pipeline_instance_count
-    - asp_net_applications.requests_failed
-    - asp_net_applications.requests_sec
-    - asp_net_applications.session_sql_server_connections_total
-    - asp_net_applications.sessions_active
-    monitorType: aspdotnet
-```
-
 
 
 

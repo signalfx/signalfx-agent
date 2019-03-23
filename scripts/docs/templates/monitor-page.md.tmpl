@@ -46,11 +46,11 @@ The following table lists the metrics available for this monitor. Metrics that a
 | Name | Type | Custom | Description |
 | ---  | ---  | ---    | ---         |
 {{ range . -}}
-| `{{.name}}` | {{.type}} | {{if and (not (index (ds "monitor").whitelisted_metrics .name)) (not .included)}}X{{end}} | {{.description | strings.TrimSpace}} |
+| `{{.name}}`{{if has . "alias"}}<br>_or_ `{{.alias}}`{{end}} | {{.type}} | {{if and (not (index (ds "monitor").whitelisted_metrics .name)) (not .included)}}X{{end}} | {{.description | strings.TrimSpace}} |
 {{end}}
 {{end -}}
 
-{{if .metrics}}
+{{if and .metrics (not .sendAll)}}
 To specify custom metrics you want to monitor, add a `metricsToInclude` filter
 to the agent configuration, as shown in the code snippet below. The snippet
 lists all available custom metrics. You can copy and paste the snippet into

@@ -19,6 +19,7 @@
      - type: telegraf/procstat
        exe: "signalfx-agent*"
     ```
+  sendAll: true
   metrics:
   - description: Amount of cpu time consumed by the process.
     included: false

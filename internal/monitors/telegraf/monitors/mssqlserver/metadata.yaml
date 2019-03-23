@@ -45,6 +45,7 @@
        password: P@ssw0rd!
        appName: signalfxagent
     ```
+  sendAll: true
   metrics:
   - description: Bytes read by the database.
     included: false

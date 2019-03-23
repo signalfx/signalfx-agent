@@ -42,11 +42,11 @@
     name: vmpage_io.memory.out
     type: cumulative
   - description: (Linux Only) Page Ins for Swap
-    included: false
+    included: true
     name: vmpage_io.swap.in
     type: cumulative
   - description: (Linux Only) Page Outs for Swap
-    included: false
+    included: true
     name: vmpage_io.swap.out
     type: cumulative
   - description: (Linux Only) Number of free memory pages

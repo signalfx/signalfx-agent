@@ -32,6 +32,7 @@
     Dimensions that identify the underlying volume source will be added for
     `awsElasticBlockStore` and `glusterfs` volumes.  Support for more can be
     easily added as needed.
+  sendAll: true
   metrics:
   - description: The number of available bytes in the volume
     included: false

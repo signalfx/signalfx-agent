@@ -67,20 +67,20 @@ Monitor Type: `collectd/kong`
 | `name` | no | `string` | Registration name when using multiple instances in Smart Agent |
 | `url` | no | `string` | kong-plugin-signalfx metric plugin (**default:** `http://{{.Host}}:{{.Port}}/signalfx`) |
 | `authHeader` | no | `object (see below)` | Header and its value to use for requests to SFx metric endpoint |
-| `verifyCerts` | no | `bool` | Whether to verify certificates when using ssl/tls |
+| `verifyCerts` | no | `bool` | Whether to verify certificates when using ssl/tls (**default:** `false`) |
 | `caBundle` | no | `string` | CA Bundle file or directory |
 | `clientCert` | no | `string` | Client certificate file (with or without included key) |
 | `clientCertKey` | no | `string` | Client cert key if not bundled with clientCert |
-| `verbose` | no | `bool` | Whether to use debug logging for collectd-kong |
+| `verbose` | no | `bool` | Whether to use debug logging for collectd-kong (**default:** `false`) |
 | `metrics` | no | `list of objects (see below)` | List of metric names and report flags. See monitor description for more details. |
-| `reportApiIds` | no | `bool` | Report metrics for distinct API IDs where applicable |
-| `reportApiNames` | no | `bool` | Report metrics for distinct API names where applicable |
-| `reportServiceIds` | no | `bool` | Report metrics for distinct Service IDs where applicable |
-| `reportServiceNames` | no | `bool` | Report metrics for distinct Service names where applicable |
-| `reportRouteIds` | no | `bool` | Report metrics for distinct Route IDs where applicable |
-| `reportHttpMethods` | no | `bool` | Report metrics for distinct HTTP methods where applicable |
-| `reportStatusCodeGroups` | no | `bool` | Report metrics for distinct HTTP status code groups (eg. "5xx") where applicable |
-| `reportStatusCodes` | no | `bool` | Report metrics for distinct HTTP status codes where applicable (mutually exclusive with ReportStatusCodeGroups) |
+| `reportApiIds` | no | `bool` | Report metrics for distinct API IDs where applicable (**default:** `false`) |
+| `reportApiNames` | no | `bool` | Report metrics for distinct API names where applicable (**default:** `false`) |
+| `reportServiceIds` | no | `bool` | Report metrics for distinct Service IDs where applicable (**default:** `false`) |
+| `reportServiceNames` | no | `bool` | Report metrics for distinct Service names where applicable (**default:** `false`) |
+| `reportRouteIds` | no | `bool` | Report metrics for distinct Route IDs where applicable (**default:** `false`) |
+| `reportHttpMethods` | no | `bool` | Report metrics for distinct HTTP methods where applicable (**default:** `false`) |
+| `reportStatusCodeGroups` | no | `bool` | Report metrics for distinct HTTP status code groups (eg. "5xx") where applicable (**default:** `false`) |
+| `reportStatusCodes` | no | `bool` | Report metrics for distinct HTTP status codes where applicable (mutually exclusive with ReportStatusCodeGroups) (**default:** `false`) |
 | `apiIds` | no | `list of strings` | List of API ID patterns to report distinct metrics for, if reportApiIds is false |
 | `apiIdsBlacklist` | no | `list of strings` | List of API ID patterns to not report distinct metrics for, if reportApiIds is true or apiIds are specified |
 | `apiNames` | no | `list of strings` | List of API name patterns to report distinct metrics for, if reportApiNames is false |

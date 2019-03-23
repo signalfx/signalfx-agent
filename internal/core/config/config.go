@@ -52,7 +52,7 @@ type Config struct {
 	// address that is returned by querying for the bare hostname.  This is
 	// useful in cases where the hostname reported by the kernel is a short
 	// name. (**default**: `true`)
-	UseFullyQualifiedHost *bool `yaml:"useFullyQualifiedHost"`
+	UseFullyQualifiedHost *bool `yaml:"useFullyQualifiedHost" noDefault:"true"`
 	// Our standard agent model is to collect metrics for services running on
 	// the same host as the agent.  Therefore, host-specific dimensions (e.g.
 	// `host`, `AWSUniqueId`, etc) are automatically added to every datapoint

@@ -60,7 +60,6 @@ The following table lists the metrics available for this monitor. Metrics that a
 | `blkio.io_serviced_recursive.write` | cumulative | X | Number of write requests to block devices |
 | `cpu.percent` | gauge | X | Percentage of host CPU resources used by the container |
 | `cpu.percpu.usage` | cumulative | X | Jiffies of CPU time spent by the container, per CPU core |
-| `cpu.percpu.usage` | cumulative | X | Jiffies of CPU time spent by the container, per CPU core |
 | `cpu.throttling_data.periods` | cumulative | X | Number of periods |
 | `cpu.throttling_data.throttled_periods` | cumulative | X | Number of periods throttled |
 | `cpu.throttling_data.throttled_time` | cumulative | X | Throttling time in nano seconds |
@@ -138,7 +137,6 @@ metricsToInclude:
     - blkio.io_serviced_recursive.total
     - blkio.io_serviced_recursive.write
     - cpu.percent
-    - cpu.percpu.usage
     - cpu.percpu.usage
     - cpu.throttling_data.periods
     - cpu.throttling_data.throttled_periods

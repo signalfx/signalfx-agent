@@ -26,6 +26,7 @@
     collect the MBean referenced by `fetch-size-avg-per-topic`. Here is a
     [list](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/kafkaconsumer/mbeans.go)
     of metrics collected by default
+  sendAll: true
   metrics:
   - description: Average number of bytes consumed per second. This metric has either
       client-id dimension or, both client-id and topic dimensions. The former is an

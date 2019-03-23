@@ -17,34 +17,34 @@
     name: memory.available
     type: gauge
   - description: (Linux Only) Bytes of memory used for buffering I/O.
-    included: false
+    included: true
     name: memory.buffered
     type: gauge
   - description: (Linux Only) Bytes of memory used for disk caching.
-    included: false
+    included: true
     name: memory.cached
     type: gauge
   - description: (Linux Only) Bytes of memory available for use.
-    included: false
+    included: true
     name: memory.free
     type: gauge
   - description: (Linux Only) Bytes of memory, used for SLAB-allocation of kernel
       objects, that can be reclaimed.
-    included: false
+    included: true
     name: memory.slab_recl
     type: gauge
   - description: (Linux Only) Bytes of memory, used for SLAB-allocation of kernel
       objects, that can't be reclaimed.
-    included: false
+    included: true
     name: memory.slab_unrecl
     type: gauge
   - description: Bytes of memory in use by the system.
-    included: false
+    included: true
     name: memory.used
     type: gauge
   - description: Percent of memory in use on this host. This metric reports with plugin
       dimension set to "signalfx-metadata".
-    included: false
+    included: true
     name: memory.utilization
     type: gauge
   monitorType: memory

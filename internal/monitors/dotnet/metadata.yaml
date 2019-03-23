@@ -27,6 +27,7 @@
     monitors:
      - type: dotnet
     ```
+  sendAll: true
   metrics:
   - description: The number of exceptions thrown by .NET applications.
     included: false

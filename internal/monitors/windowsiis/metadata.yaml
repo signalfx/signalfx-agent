@@ -65,35 +65,35 @@
     name: process.working_set
     type: gauge
   - description: Rate at which users are making anonymous requests to the web service
-    included: false
+    included: true
     name: web_service.anonymous_users_sec
     type: gauge
   - description: Rate that data is received by web service
-    included: false
+    included: true
     name: web_service.bytes_received_sec
     type: gauge
   - description: Rate that data is sent by web service
-    included: false
+    included: true
     name: web_service.bytes_sent_sec
     type: gauge
   - description: Rate that connections to web service are attempted Requests
-    included: false
+    included: true
     name: web_service.connection_attempts_sec
     type: gauge
   - description: Number of current connections to the web service
-    included: false
+    included: true
     name: web_service.current_connections
     type: gauge
   - description: Rate at which files are received by web service
-    included: false
+    included: true
     name: web_service.files_received_sec
     type: gauge
   - description: Rate at which files are sent by web service
-    included: false
+    included: true
     name: web_service.files_sent_sec
     type: gauge
   - description: Rate of HTTP GET requests
-    included: false
+    included: true
     name: web_service.get_requests_sec
     type: gauge
   - description: Rate of ISAPI extension request processed simultaneously by the web
@@ -102,15 +102,15 @@
     name: web_service.isapi_extension_requests_sec
     type: gauge
   - description: Rate at which users are making nonanonymous requests to the web service
-    included: false
+    included: true
     name: web_service.nonanonymous_users_sec
     type: gauge
   - description: Rate of 'Not Found' Errors
-    included: false
+    included: true
     name: web_service.not_found_errors_sec
     type: gauge
   - description: Rate of HTTP POST requests
-    included: false
+    included: true
     name: web_service.post_requests_sec
     type: gauge
   - description: Service uptime
@@ -118,7 +118,7 @@
     name: web_service.service_uptime
     type: gauge
   - description: Rate at which all HTTP requests are received
-    included: false
+    included: true
     name: web_service.total_method_requests_sec
     type: gauge
   monitorType: windows-iis
