@@ -47,11 +47,11 @@
     name: disk_ops.avg_write
     type: gauge
   - description: (Linux Only) The number of disk read operations.
-    included: false
+    included: true
     name: disk_ops.read
     type: cumulative
   - description: (Linux Only) The number of disk write operations.
-    included: false
+    included: true
     name: disk_ops.write
     type: cumulative
   - description: (Windows Only) The average time spent reading from the disk.

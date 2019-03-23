@@ -5,7 +5,7 @@
     plugin](https://collectd.org/wiki/index.php/Plugin:Uptime).
   metrics:
   - description: Seconds since system boot
-    included: false
+    included: true
     name: uptime
     type: gauge
   monitorType: collectd/uptime

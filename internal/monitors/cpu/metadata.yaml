@@ -14,7 +14,7 @@
   metrics:
   - description: Percent of CPU used on this host. This metric is emitted with a plugin
       dimension set to "signalfx-metadata".
-    included: false
+    included: true
     name: cpu.utilization
     type: gauge
   - description: Percent of CPU used on each core. This metric is emitted with the

@@ -24,6 +24,10 @@ func getDefault(f reflect.StructField) interface{} {
 	if getRequired(f) {
 		return nil
 	}
+	if f.Tag.Get("noDefault") == "true" {
+		return nil
+	}
+
 	defTag := f.Tag.Get("default")
 	if defTag != "" {
 		// These are essentialy just noop defaults so don't return them
@@ -45,12 +49,12 @@ func getDefault(f reflect.StructField) interface{} {
 		return defTag
 	}
 	if f.Type.Kind() == reflect.Ptr {
+		if f.Type.Elem().Kind() == reflect.Bool {
+			return "false"
+		}
 		return nil
 	}
 	if f.Type.Kind() != reflect.Struct {
-		if f.Tag.Get("noDefault") == "true" {
-			return nil
-		}
 		return reflect.Zero(f.Type).Interface()
 	}
 	return nil

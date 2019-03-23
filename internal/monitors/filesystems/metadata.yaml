@@ -14,11 +14,11 @@
     ```
   metrics:
   - description: Free disk space in bytes
-    included: false
+    included: true
     name: df_complex.free
     type: gauge
   - description: Used disk space in bytes
-    included: false
+    included: true
     name: df_complex.used
     type: gauge
   - description: (Linux Only) Number of inodes that are free.  This is is only reported
@@ -33,12 +33,12 @@
     type: gauge
   - description: Percent of disk space utilized on all volumes on this host. This
       metric reports with plugin dimension set to "signalfx-metadata".
-    included: false
+    included: true
     name: disk.summary_utilization
     type: gauge
   - description: Percent of disk used on this volume. This metric reports with plugin
       dimension set to "signalfx-metadata".
-    included: false
+    included: true
     name: disk.utilization
     type: gauge
   - description: Free disk space on the file system, expressed as a percentage.

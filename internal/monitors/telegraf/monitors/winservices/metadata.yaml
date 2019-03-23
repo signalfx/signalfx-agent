@@ -17,6 +17,7 @@
        serviceNames:
          - exampleService1  # only monitor exampleService1
     ```
+  sendAll: true
   metrics:
   - description: 'The configured start up mode of the window windows service.  Possible
       values are: `0` (Boot Start), `1` (System Start), `2` (Auto Start), `3` (Demand

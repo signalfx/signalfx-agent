@@ -54,20 +54,20 @@ The following table lists the metrics available for this monitor. Metrics that a
 | `process.thread_count` | gauge | X | The number of threads currently active in this process. Every running process has at least one thread. |
 | `process.virtual_bytes` | gauge | X | The current size, in bytes, of the virtual address space the process is using. Use of virtual address space does not necessarily imply corresponding use of either disk or main memory pages. Virtual space is finite, and the process can limit its ability to load libraries. |
 | `process.working_set` | gauge | X | The current size, in bytes, of the Working Set of this process. The Working Set is the set of memory pages touched recently by the threads in the process. If free memory in the computer is above a threshold, pages are left in the Working Set of a process even if they are not in use. When free memory falls below a threshold, pages are trimmed from Working Sets. If they are needed, they will then be soft-faulted back into the Working Set before leaving main memory. |
-| `web_service.anonymous_users_sec` | gauge | X | Rate at which users are making anonymous requests to the web service |
-| `web_service.bytes_received_sec` | gauge | X | Rate that data is received by web service |
-| `web_service.bytes_sent_sec` | gauge | X | Rate that data is sent by web service |
-| `web_service.connection_attempts_sec` | gauge | X | Rate that connections to web service are attempted Requests |
-| `web_service.current_connections` | gauge | X | Number of current connections to the web service |
-| `web_service.files_received_sec` | gauge | X | Rate at which files are received by web service |
-| `web_service.files_sent_sec` | gauge | X | Rate at which files are sent by web service |
-| `web_service.get_requests_sec` | gauge | X | Rate of HTTP GET requests |
+| `web_service.anonymous_users_sec` | gauge |  | Rate at which users are making anonymous requests to the web service |
+| `web_service.bytes_received_sec` | gauge |  | Rate that data is received by web service |
+| `web_service.bytes_sent_sec` | gauge |  | Rate that data is sent by web service |
+| `web_service.connection_attempts_sec` | gauge |  | Rate that connections to web service are attempted Requests |
+| `web_service.current_connections` | gauge |  | Number of current connections to the web service |
+| `web_service.files_received_sec` | gauge |  | Rate at which files are received by web service |
+| `web_service.files_sent_sec` | gauge |  | Rate at which files are sent by web service |
+| `web_service.get_requests_sec` | gauge |  | Rate of HTTP GET requests |
 | `web_service.isapi_extension_requests_sec` | gauge | X | Rate of ISAPI extension request processed simultaneously by the web service |
-| `web_service.nonanonymous_users_sec` | gauge | X | Rate at which users are making nonanonymous requests to the web service |
-| `web_service.not_found_errors_sec` | gauge | X | Rate of 'Not Found' Errors |
-| `web_service.post_requests_sec` | gauge | X | Rate of HTTP POST requests |
+| `web_service.nonanonymous_users_sec` | gauge |  | Rate at which users are making nonanonymous requests to the web service |
+| `web_service.not_found_errors_sec` | gauge |  | Rate of 'Not Found' Errors |
+| `web_service.post_requests_sec` | gauge |  | Rate of HTTP POST requests |
 | `web_service.service_uptime` | gauge | X | Service uptime |
-| `web_service.total_method_requests_sec` | gauge | X | Rate at which all HTTP requests are received |
+| `web_service.total_method_requests_sec` | gauge |  | Rate at which all HTTP requests are received |
 
 
 To specify custom metrics you want to monitor, add a `metricsToInclude` filter
@@ -91,20 +91,8 @@ metricsToInclude:
     - process.thread_count
     - process.virtual_bytes
     - process.working_set
-    - web_service.anonymous_users_sec
-    - web_service.bytes_received_sec
-    - web_service.bytes_sent_sec
-    - web_service.connection_attempts_sec
-    - web_service.current_connections
-    - web_service.files_received_sec
-    - web_service.files_sent_sec
-    - web_service.get_requests_sec
     - web_service.isapi_extension_requests_sec
-    - web_service.nonanonymous_users_sec
-    - web_service.not_found_errors_sec
-    - web_service.post_requests_sec
     - web_service.service_uptime
-    - web_service.total_method_requests_sec
     monitorType: windows-iis
 ```
 

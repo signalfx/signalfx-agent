@@ -26,8 +26,8 @@ Monitor Type: `collectd/etcd`
 | `sslKeyFile` | no | `string` |  |
 | `sslCertificate` | no | `string` |  |
 | `sslCACerts` | no | `string` |  |
-| `skipSSLValidation` | no | `bool` |  |
-| `enhancedMetrics` | no | `bool` |  |
+| `skipSSLValidation` | no | `bool` |  (**default:** `false`) |
+| `enhancedMetrics` | no | `bool` |  (**default:** `false`) |
 
 
 

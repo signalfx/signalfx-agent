@@ -76,55 +76,6 @@ The following table lists the metrics available for this monitor. Metrics that a
 | `sfxgent.go_num_goroutine` | gauge | X | Number of goroutines in the agent |
 
 
-To specify custom metrics you want to monitor, add a `metricsToInclude` filter
-to the agent configuration, as shown in the code snippet below. The snippet
-lists all available custom metrics. You can copy and paste the snippet into
-your configuration file, then delete any custom metrics that you do not want
-sent.
-
-Note that some of the custom metrics require you to set a flag as well as add
-them to the list. Check the monitor configuration file to see if a flag is
-required for gathering additional metrics.
-
-```yaml
-
-metricsToInclude:
-  - metricNames:
-    - sfxagent.active_monitors
-    - sfxagent.active_observers
-    - sfxagent.configured_monitors
-    - sfxagent.datapoint_channel_len
-    - sfxagent.datapoint_requests_active
-    - sfxagent.datapoints_filtered
-    - sfxagent.datapoints_in_flight
-    - sfxagent.datapoints_received
-    - sfxagent.datapoints_sent
-    - sfxagent.datapoints_waiting
-    - sfxagent.dim_request_senders
-    - sfxagent.dim_updates_completed
-    - sfxagent.dim_updates_currently_delayed
-    - sfxagent.dim_updates_dropped
-    - sfxagent.dim_updates_failed
-    - sfxagent.dim_updates_flappy_total
-    - sfxagent.dim_updates_started
-    - sfxagent.discovered_endpoints
-    - sfxagent.events_buffered
-    - sfxagent.events_sent
-    - sfxagent.go_frees
-    - sfxagent.go_heap_alloc
-    - sfxagent.go_heap_idle
-    - sfxagent.go_heap_inuse
-    - sfxagent.go_heap_released
-    - sfxagent.go_heap_sys
-    - sfxagent.go_mallocs
-    - sfxagent.go_next_gc
-    - sfxagent.go_num_gc
-    - sfxagent.go_stack_inuse
-    - sfxagent.go_total_alloc
-    - sfxgent.go_num_goroutine
-    monitorType: internal-metrics
-```
-
 
 
 

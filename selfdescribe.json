@@ -166,6 +166,7 @@
       "acceptsEndpoints": false,
       "singleInstance": true,
       "monitorType": "aspdotnet",
+      "sendAll": true,
       "dimensions": null,
       "metrics": [
         {
@@ -278,6 +279,7 @@
       "acceptsEndpoints": false,
       "singleInstance": false,
       "monitorType": "cadvisor",
+      "sendAll": false,
       "dimensions": [
         {
           "name": "container_id",
@@ -775,6 +777,7 @@
       "acceptsEndpoints": true,
       "singleInstance": false,
       "monitorType": "collectd/activemq",
+      "sendAll": false,
       "dimensions": null,
       "metrics": [
         {
@@ -1029,6 +1032,7 @@
       "acceptsEndpoints": true,
       "singleInstance": false,
       "monitorType": "collectd/apache",
+      "sendAll": false,
       "dimensions": [
         {
           "name": "plugin_instance",
@@ -1328,6 +1332,7 @@
       "acceptsEndpoints": true,
       "singleInstance": false,
       "monitorType": "collectd/cassandra",
+      "sendAll": false,
       "dimensions": null,
       "metrics": [
         {
@@ -1504,6 +1509,7 @@
       "acceptsEndpoints": false,
       "singleInstance": true,
       "monitorType": "collectd/chrony",
+      "sendAll": false,
       "dimensions": null,
       "metrics": null,
       "properties": null
@@ -1548,7 +1554,7 @@
         {
           "yamlName": "enhancedMetrics",
           "doc": "",
-          "default": null,
+          "default": "false",
           "required": false,
           "type": "bool",
           "elementKind": ""
@@ -1589,6 +1595,7 @@
       "acceptsEndpoints": true,
       "singleInstance": false,
       "monitorType": "collectd/consul",
+      "sendAll": false,
       "dimensions": [
         {
           "name": "consul_mode",
@@ -2010,6 +2017,7 @@
       "acceptsEndpoints": true,
       "singleInstance": false,
       "monitorType": "collectd/couchbase",
+      "sendAll": false,
       "dimensions": null,
       "metrics": [
         {
@@ -2401,6 +2409,7 @@
       "acceptsEndpoints": false,
       "singleInstance": true,
       "monitorType": "collectd/cpu",
+      "sendAll": false,
       "dimensions": null,
       "metrics": [
         {
@@ -2420,6 +2429,7 @@
       "acceptsEndpoints": false,
       "singleInstance": true,
       "monitorType": "collectd/cpufreq",
+      "sendAll": true,
       "dimensions": null,
       "metrics": [
         {
@@ -2488,6 +2498,7 @@
       "acceptsEndpoints": true,
       "singleInstance": false,
       "monitorType": "collectd/custom",
+      "sendAll": false,
       "dimensions": null,
       "metrics": null,
       "properties": null
@@ -2508,7 +2519,7 @@
         {
           "yamlName": "ignoreSelected",
           "doc": "If true, the filesystems selected by `fsTypes` and `mountPoints` will be excluded and all others included.",
-          "default": null,
+          "default": "false",
           "required": false,
           "type": "bool",
           "elementKind": ""
@@ -2580,6 +2591,7 @@
       "acceptsEndpoints": false,
       "singleInstance": true,
       "monitorType": "collectd/df",
+      "sendAll": false,
       "dimensions": null,
       "metrics": [
         {
@@ -2685,6 +2697,7 @@
       "acceptsEndpoints": false,
       "singleInstance": true,
       "monitorType": "collectd/disk",
+      "sendAll": false,
       "dimensions": null,
       "metrics": [
         {
@@ -2795,6 +2808,7 @@
       "acceptsEndpoints": false,
       "singleInstance": false,
       "monitorType": "collectd/docker",
+      "sendAll": false,
       "dimensions": null,
       "metrics": null,
       "properties": null
@@ -2941,6 +2955,7 @@
       "acceptsEndpoints": true,
       "singleInstance": false,
       "monitorType": "collectd/elasticsearch",
+      "sendAll": false,
       "dimensions": null,
       "metrics": [
         {
@@ -3266,7 +3281,7 @@
         {
           "yamlName": "skipSSLValidation",
           "doc": "",
-          "default": null,
+          "default": "false",
           "required": false,
           "type": "bool",
           "elementKind": ""
@@ -3274,7 +3289,7 @@
         {
           "yamlName": "enhancedMetrics",
           "doc": "",
-          "default": null,
+          "default": "false",
           "required": false,
           "type": "bool",
           "elementKind": ""
@@ -3283,6 +3298,7 @@
       "acceptsEndpoints": true,
       "singleInstance": false,
       "monitorType": "collectd/etcd",
+      "sendAll": false,
       "dimensions": null,
       "metrics": [
         {
@@ -3661,6 +3677,7 @@
       "acceptsEndpoints": true,
       "singleInstance": false,
       "monitorType": "collectd/genericjmx",
+      "sendAll": false,
       "dimensions": null,
       "metrics": null,
       "properties": null
@@ -3689,7 +3706,7 @@
         {
           "yamlName": "verbose",
           "doc": "Log verbose information about the plugin",
-          "default": null,
+          "default": "false",
           "required": false,
           "type": "bool",
           "elementKind": ""
@@ -3698,6 +3715,7 @@
       "acceptsEndpoints": true,
       "singleInstance": false,
       "monitorType": "collectd/hadoop",
+      "sendAll": false,
       "dimensions": null,
       "metrics": null,
       "properties": null
@@ -3909,6 +3927,7 @@
       "acceptsEndpoints": true,
       "singleInstance": false,
       "monitorType": "collectd/hadoopjmx",
+      "sendAll": false,
       "dimensions": null,
       "metrics": null,
       "properties": null
@@ -3953,7 +3972,7 @@
         {
           "yamlName": "enhancedMetrics",
           "doc": "",
-          "default": null,
+          "default": "false",
           "required": false,
           "type": "bool",
           "elementKind": ""
@@ -3962,6 +3981,7 @@
       "acceptsEndpoints": true,
       "singleInstance": false,
       "monitorType": "collectd/haproxy",
+      "sendAll": false,
       "dimensions": null,
       "metrics": [
         {
@@ -4474,6 +4494,7 @@
       "acceptsEndpoints": true,
       "singleInstance": false,
       "monitorType": "collectd/health-checker",
+      "sendAll": false,
       "dimensions": null,
       "metrics": null,
       "properties": null
@@ -4486,6 +4507,7 @@
       "acceptsEndpoints": false,
       "singleInstance": true,
       "monitorType": "collectd/interface",
+      "sendAll": false,
       "dimensions": null,
       "metrics": [
         {
@@ -4559,7 +4581,7 @@
         {
           "yamlName": "enhancedMetrics",
           "doc": "Whether to enable enhanced metrics",
-          "default": null,
+          "default": "false",
           "required": false,
           "type": "bool",
           "elementKind": ""
@@ -4616,6 +4638,7 @@
       "acceptsEndpoints": true,
       "singleInstance": false,
       "monitorType": "collectd/jenkins",
+      "sendAll": false,
       "dimensions": null,
       "metrics": [
         {
@@ -4912,6 +4935,7 @@
       "acceptsEndpoints": true,
       "singleInstance": false,
       "monitorType": "collectd/kafka",
+      "sendAll": false,
       "dimensions": null,
       "metrics": [
         {
@@ -5260,6 +5284,7 @@
       "acceptsEndpoints": true,
       "singleInstance": false,
       "monitorType": "collectd/kafka_consumer",
+      "sendAll": true,
       "dimensions": null,
       "metrics": [
         {
@@ -5494,6 +5519,7 @@
       "acceptsEndpoints": true,
       "singleInstance": false,
       "monitorType": "collectd/kafka_producer",
+      "sendAll": true,
       "dimensions": null,
       "metrics": [
         {
@@ -5630,7 +5656,7 @@
         {
           "yamlName": "verifyCerts",
           "doc": "Whether to verify certificates when using ssl/tls",
-          "default": null,
+          "default": "false",
           "required": false,
           "type": "bool",
           "elementKind": ""
@@ -5662,7 +5688,7 @@
         {
           "yamlName": "verbose",
           "doc": "Whether to use debug logging for collectd-kong",
-          "default": null,
+          "default": "false",
           "required": false,
           "type": "bool",
           "elementKind": ""
@@ -5701,7 +5727,7 @@
         {
           "yamlName": "reportApiIds",
           "doc": "Report metrics for distinct API IDs where applicable",
-          "default": null,
+          "default": "false",
           "required": false,
           "type": "bool",
           "elementKind": ""
@@ -5709,7 +5735,7 @@
         {
           "yamlName": "reportApiNames",
           "doc": "Report metrics for distinct API names where applicable",
-          "default": null,
+          "default": "false",
           "required": false,
           "type": "bool",
           "elementKind": ""
@@ -5717,7 +5743,7 @@
         {
           "yamlName": "reportServiceIds",
           "doc": "Report metrics for distinct Service IDs where applicable",
-          "default": null,
+          "default": "false",
           "required": false,
           "type": "bool",
           "elementKind": ""
@@ -5725,7 +5751,7 @@
         {
           "yamlName": "reportServiceNames",
           "doc": "Report metrics for distinct Service names where applicable",
-          "default": null,
+          "default": "false",
           "required": false,
           "type": "bool",
           "elementKind": ""
@@ -5733,7 +5759,7 @@
         {
           "yamlName": "reportRouteIds",
           "doc": "Report metrics for distinct Route IDs where applicable",
-          "default": null,
+          "default": "false",
           "required": false,
           "type": "bool",
           "elementKind": ""
@@ -5741,7 +5767,7 @@
         {
           "yamlName": "reportHttpMethods",
           "doc": "Report metrics for distinct HTTP methods where applicable",
-          "default": null,
+          "default": "false",
           "required": false,
           "type": "bool",
           "elementKind": ""
@@ -5749,7 +5775,7 @@
         {
           "yamlName": "reportStatusCodeGroups",
           "doc": "Report metrics for distinct HTTP status code groups (eg. \"5xx\") where applicable",
-          "default": null,
+          "default": "false",
           "required": false,
           "type": "bool",
           "elementKind": ""
@@ -5757,7 +5783,7 @@
         {
           "yamlName": "reportStatusCodes",
           "doc": "Report metrics for distinct HTTP status codes where applicable (mutually exclusive with ReportStatusCodeGroups)",
-          "default": null,
+          "default": "false",
           "required": false,
           "type": "bool",
           "elementKind": ""
@@ -5878,6 +5904,7 @@
       "acceptsEndpoints": true,
       "singleInstance": false,
       "monitorType": "collectd/kong",
+      "sendAll": false,
       "dimensions": null,
       "metrics": [
         {
@@ -5975,6 +6002,7 @@
       "acceptsEndpoints": false,
       "singleInstance": true,
       "monitorType": "collectd/load",
+      "sendAll": false,
       "dimensions": null,
       "metrics": [
         {
@@ -6055,6 +6083,7 @@
       "acceptsEndpoints": true,
       "singleInstance": true,
       "monitorType": "collectd/marathon",
+      "sendAll": false,
       "dimensions": null,
       "metrics": [
         {
@@ -6215,6 +6244,7 @@
       "acceptsEndpoints": true,
       "singleInstance": false,
       "monitorType": "collectd/memcached",
+      "sendAll": false,
       "dimensions": null,
       "metrics": [
         {
@@ -6354,6 +6384,7 @@
       "acceptsEndpoints": false,
       "singleInstance": true,
       "monitorType": "collectd/memory",
+      "sendAll": false,
       "dimensions": null,
       "metrics": [
         {
@@ -6443,7 +6474,7 @@
         {
           "yamlName": "useTLS",
           "doc": "",
-          "default": null,
+          "default": "false",
           "required": false,
           "type": "bool",
           "elementKind": ""
@@ -6484,6 +6515,7 @@
       "acceptsEndpoints": true,
       "singleInstance": false,
       "monitorType": "collectd/mongodb",
+      "sendAll": false,
       "dimensions": [
         {
           "name": "plugin_instance",
@@ -6926,6 +6958,7 @@
       "acceptsEndpoints": true,
       "singleInstance": false,
       "monitorType": "collectd/mysql",
+      "sendAll": false,
       "dimensions": null,
       "metrics": [
         {
@@ -8016,6 +8049,7 @@
       "acceptsEndpoints": true,
       "singleInstance": false,
       "monitorType": "collectd/nginx",
+      "sendAll": false,
       "dimensions": null,
       "metrics": [
         {
@@ -8120,6 +8154,7 @@
       "acceptsEndpoints": false,
       "singleInstance": false,
       "monitorType": "collectd/openstack",
+      "sendAll": false,
       "dimensions": null,
       "metrics": [
         {
@@ -8597,6 +8632,7 @@
       "acceptsEndpoints": true,
       "singleInstance": false,
       "monitorType": "collectd/postgresql",
+      "sendAll": false,
       "dimensions": null,
       "metrics": [
         {
@@ -8781,6 +8817,7 @@
       "acceptsEndpoints": false,
       "singleInstance": true,
       "monitorType": "collectd/processes",
+      "sendAll": false,
       "dimensions": null,
       "metrics": null,
       "properties": null
@@ -8793,13 +8830,14 @@
       "acceptsEndpoints": false,
       "singleInstance": true,
       "monitorType": "collectd/protocols",
+      "sendAll": false,
       "dimensions": null,
       "metrics": [
         {
           "name": "protocol_counter.ActiveOpens",
           "type": "cumulative",
           "description": "The number of times TCP connections transitioned from the CLOSED state to the SYN-SENT state.",
-          "included": false
+          "included": true
         },
         {
           "name": "protocol_counter.CurrEstab",
@@ -8891,6 +8929,7 @@
       "acceptsEndpoints": true,
       "singleInstance": false,
       "monitorType": "collectd/python",
+      "sendAll": false,
       "dimensions": null,
       "metrics": null,
       "properties": null
@@ -8927,7 +8966,7 @@
         {
           "yamlName": "collectChannels",
           "doc": "",
-          "default": null,
+          "default": "false",
           "required": false,
           "type": "bool",
           "elementKind": ""
@@ -8935,7 +8974,7 @@
         {
           "yamlName": "collectConnections",
           "doc": "",
-          "default": null,
+          "default": "false",
           "required": false,
           "type": "bool",
           "elementKind": ""
@@ -8943,7 +8982,7 @@
         {
           "yamlName": "collectExchanges",
           "doc": "",
-          "default": null,
+          "default": "false",
           "required": false,
           "type": "bool",
           "elementKind": ""
@@ -8951,7 +8990,7 @@
         {
           "yamlName": "collectNodes",
           "doc": "",
-          "default": null,
+          "default": "false",
           "required": false,
           "type": "bool",
           "elementKind": ""
@@ -8959,7 +8998,7 @@
         {
           "yamlName": "collectQueues",
           "doc": "",
-          "default": null,
+          "default": "false",
           "required": false,
           "type": "bool",
           "elementKind": ""
@@ -9000,6 +9039,7 @@
       "acceptsEndpoints": true,
       "singleInstance": false,
       "monitorType": "collectd/rabbitmq",
+      "sendAll": false,
       "dimensions": null,
       "metrics": [
         {
@@ -9731,6 +9771,7 @@
       "acceptsEndpoints": true,
       "singleInstance": false,
       "monitorType": "collectd/redis",
+      "sendAll": false,
       "dimensions": null,
       "metrics": [
         {
@@ -10061,6 +10102,7 @@
       "acceptsEndpoints": false,
       "singleInstance": true,
       "monitorType": "collectd/signalfx-metadata",
+      "sendAll": false,
       "dimensions": null,
       "metrics": [
         {
@@ -10165,6 +10207,7 @@
       "acceptsEndpoints": true,
       "singleInstance": false,
       "monitorType": "collectd/solr",
+      "sendAll": false,
       "dimensions": null,
       "metrics": [
         {
@@ -10503,6 +10546,7 @@
       "acceptsEndpoints": true,
       "singleInstance": false,
       "monitorType": "collectd/spark",
+      "sendAll": false,
       "dimensions": null,
       "metrics": [
         {
@@ -11145,6 +11189,7 @@
       "acceptsEndpoints": false,
       "singleInstance": true,
       "monitorType": "collectd/statsd",
+      "sendAll": false,
       "dimensions": null,
       "metrics": null,
       "properties": null
@@ -11157,13 +11202,14 @@
       "acceptsEndpoints": false,
       "singleInstance": true,
       "monitorType": "collectd/uptime",
+      "sendAll": false,
       "dimensions": null,
       "metrics": [
         {
           "name": "uptime",
           "type": "gauge",
           "description": "Seconds since system boot",
-          "included": false
+          "included": true
         }
       ],
       "properties": null
@@ -11176,6 +11222,7 @@
       "acceptsEndpoints": false,
       "singleInstance": true,
       "monitorType": "collectd/vmem",
+      "sendAll": false,
       "dimensions": null,
       "metrics": [
         {
@@ -11262,6 +11309,7 @@
       "acceptsEndpoints": true,
       "singleInstance": false,
       "monitorType": "collectd/zookeeper",
+      "sendAll": false,
       "dimensions": null,
       "metrics": [
         {
@@ -11433,6 +11481,7 @@
       "acceptsEndpoints": false,
       "singleInstance": false,
       "monitorType": "conviva",
+      "sendAll": false,
       "dimensions": null,
       "metrics": null,
       "properties": null
@@ -11445,13 +11494,14 @@
       "acceptsEndpoints": false,
       "singleInstance": true,
       "monitorType": "cpu",
+      "sendAll": false,
       "dimensions": null,
       "metrics": [
         {
           "name": "cpu.utilization",
           "type": "gauge",
           "description": "Percent of CPU used on this host. This metric is emitted with a plugin dimension set to \"signalfx-metadata\".",
-          "included": false
+          "included": true
         },
         {
           "name": "cpu.utilization_per_core",
@@ -11499,6 +11549,7 @@
       "acceptsEndpoints": false,
       "singleInstance": false,
       "monitorType": "disk-io",
+      "sendAll": false,
       "dimensions": null,
       "metrics": [
         {
@@ -11553,13 +11604,13 @@
           "name": "disk_ops.read",
           "type": "cumulative",
           "description": "(Linux Only) The number of disk read operations.",
-          "included": false
+          "included": true
         },
         {
           "name": "disk_ops.write",
           "type": "cumulative",
           "description": "(Linux Only) The number of disk write operations.",
-          "included": false
+          "included": true
         },
         {
           "name": "disk_time.avg_read",
@@ -11669,6 +11720,7 @@
       "acceptsEndpoints": false,
       "singleInstance": false,
       "monitorType": "docker-container-stats",
+      "sendAll": false,
       "dimensions": null,
       "metrics": [
         {
@@ -11681,7 +11733,7 @@
           "name": "blkio.io_service_bytes_recursive.read",
           "type": "cumulative",
           "description": "Volume, in bytes, of reads from block devices",
-          "included": false
+          "included": true
         },
         {
           "name": "blkio.io_service_bytes_recursive.sync",
@@ -11699,7 +11751,7 @@
           "name": "blkio.io_service_bytes_recursive.write",
           "type": "cumulative",
           "description": "Volume, in bytes, of writes to block devices",
-          "included": false
+          "included": true
         },
         {
           "name": "blkio.io_serviced_recursive.async",
@@ -11744,12 +11796,6 @@
           "included": false
         },
         {
-          "name": "cpu.percpu.usage",
-          "type": "cumulative",
-          "description": "Jiffies of CPU time spent by the container, per CPU core",
-          "included": false
-        },
-        {
           "name": "cpu.throttling_data.periods",
           "type": "cumulative",
           "description": "Number of periods",
@@ -11777,13 +11823,13 @@
           "name": "cpu.usage.system",
           "type": "cumulative",
           "description": "Jiffies of CPU time used by the system",
-          "included": false
+          "included": true
         },
         {
           "name": "cpu.usage.total",
           "type": "cumulative",
           "description": "Jiffies of CPU time used by the container",
-          "included": false
+          "included": true
         },
         {
           "name": "cpu.usage.usermode",
@@ -11999,7 +12045,7 @@
           "name": "memory.usage.limit",
           "type": "gauge",
           "description": "Memory usage limit of the container, in bytes",
-          "included": false
+          "included": true
         },
         {
           "name": "memory.usage.max",
@@ -12011,13 +12057,13 @@
           "name": "memory.usage.total",
           "type": "gauge",
           "description": "Bytes of memory used by the container",
-          "included": false
+          "included": true
         },
         {
           "name": "network.usage.rx_bytes",
           "type": "cumulative",
           "description": "Bytes received by the container via its network interface",
-          "included": false
+          "included": true
         },
         {
           "name": "network.usage.rx_dropped",
@@ -12041,7 +12087,7 @@
           "name": "network.usage.tx_bytes",
           "type": "cumulative",
           "description": "Bytes sent by the container via its network interface",
-          "included": false
+          "included": true
         },
         {
           "name": "network.usage.tx_dropped",
@@ -12089,6 +12135,7 @@
       "acceptsEndpoints": false,
       "singleInstance": true,
       "monitorType": "dotnet",
+      "sendAll": true,
       "dimensions": null,
       "metrics": [
         {
@@ -12241,6 +12288,7 @@
       "acceptsEndpoints": false,
       "singleInstance": false,
       "monitorType": "ecs-metadata",
+      "sendAll": false,
       "dimensions": null,
       "metrics": [
         {
@@ -12253,7 +12301,7 @@
           "name": "blkio.io_service_bytes_recursive.read",
           "type": "cumulative",
           "description": "Volume, in bytes, of reads from block devices",
-          "included": false
+          "included": true
         },
         {
           "name": "blkio.io_service_bytes_recursive.sync",
@@ -12271,7 +12319,7 @@
           "name": "blkio.io_service_bytes_recursive.write",
           "type": "cumulative",
           "description": "Volume, in bytes, of writes to block devices",
-          "included": false
+          "included": true
         },
         {
           "name": "blkio.io_serviced_recursive.async",
@@ -12322,12 +12370,6 @@
           "included": false
         },
         {
-          "name": "cpu.percpu.usage",
-          "type": "cumulative",
-          "description": "Jiffies of CPU time spent by the container, per CPU core",
-          "included": false
-        },
-        {
           "name": "cpu.throttling_data.periods",
           "type": "cumulative",
           "description": "Number of periods",
@@ -12355,13 +12397,13 @@
           "name": "cpu.usage.system",
           "type": "cumulative",
           "description": "Jiffies of CPU time used by the system",
-          "included": false
+          "included": true
         },
         {
           "name": "cpu.usage.total",
           "type": "cumulative",
           "description": "Jiffies of CPU time used by the container",
-          "included": false
+          "included": true
         },
         {
           "name": "cpu.usage.usermode",
@@ -12385,7 +12427,7 @@
           "name": "memory.usage.limit",
           "type": "gauge",
           "description": "Memory usage limit of the container, in bytes",
-          "included": false
+          "included": true
         },
         {
           "name": "memory.usage.max",
@@ -12397,13 +12439,13 @@
           "name": "memory.usage.total",
           "type": "gauge",
           "description": "Bytes of memory used by the container",
-          "included": false
+          "included": true
         },
         {
           "name": "network.usage.rx_bytes",
           "type": "cumulative",
           "description": "Bytes received by the container via its network interface",
-          "included": false
+          "included": true
         },
         {
           "name": "network.usage.rx_dropped",
@@ -12427,7 +12469,7 @@
           "name": "network.usage.tx_bytes",
           "type": "cumulative",
           "description": "Bytes sent by the container via its network interface",
-          "included": false
+          "included": true
         },
         {
           "name": "network.usage.tx_dropped",
@@ -12533,19 +12575,20 @@
       "acceptsEndpoints": false,
       "singleInstance": false,
       "monitorType": "filesystems",
+      "sendAll": false,
       "dimensions": null,
       "metrics": [
         {
           "name": "df_complex.free",
           "type": "gauge",
           "description": "Free disk space in bytes",
-          "included": false
+          "included": true
         },
         {
           "name": "df_complex.used",
           "type": "gauge",
           "description": "Used disk space in bytes",
-          "included": false
+          "included": true
         },
         {
           "name": "df_inodes.free",
@@ -12563,13 +12606,13 @@
           "name": "disk.summary_utilization",
           "type": "gauge",
           "description": "Percent of disk space utilized on all volumes on this host. This metric reports with plugin dimension set to \"signalfx-metadata\".",
-          "included": false
+          "included": true
         },
         {
           "name": "disk.utilization",
           "type": "gauge",
           "description": "Percent of disk used on this volume. This metric reports with plugin dimension set to \"signalfx-metadata\".",
-          "included": false
+          "included": true
         },
         {
           "name": "percent_bytes.free",
@@ -12606,6 +12649,7 @@
       "acceptsEndpoints": false,
       "singleInstance": true,
       "monitorType": "host-metadata",
+      "sendAll": false,
       "dimensions": [
         {
           "name": "collectd",
@@ -12675,6 +12719,7 @@
       "acceptsEndpoints": true,
       "singleInstance": false,
       "monitorType": "internal-metrics",
+      "sendAll": true,
       "dimensions": null,
       "metrics": [
         {
@@ -12952,6 +12997,7 @@
       "acceptsEndpoints": false,
       "singleInstance": false,
       "monitorType": "kubelet-stats",
+      "sendAll": false,
       "dimensions": [
         {
           "name": "container_id",
@@ -13348,6 +13394,7 @@
       "acceptsEndpoints": false,
       "singleInstance": false,
       "monitorType": "kubernetes-cluster",
+      "sendAll": false,
       "dimensions": [
         {
           "name": "kubernetes_name",
@@ -13387,7 +13434,7 @@
           "name": "kubernetes.container_ready",
           "type": "gauge",
           "description": "Whether a container has passed its readiness probe (0 for no, 1 for yes)",
-          "included": false
+          "included": true
         },
         {
           "name": "kubernetes.container_restart_count",
@@ -13435,13 +13482,13 @@
           "name": "kubernetes.namespace_phase",
           "type": "gauge",
           "description": "The current phase of namespaces (`1` for _active_ and `0` for _terminating_)",
-          "included": false
+          "included": true
         },
         {
           "name": "kubernetes.node_ready",
           "type": "gauge",
           "description": "Whether this node is ready (1), not ready (0) or in an unknown state (-1)",
-          "included": false
+          "included": true
         },
         {
           "name": "kubernetes.pod_phase",
@@ -13477,13 +13524,13 @@
           "name": "kubernetes.resource_quota_hard",
           "type": "gauge",
           "description": "The upper limit for a particular resource in a specific namespace.  Will only be sent if a quota is specified.  CPU requests/limits will be sent as millicores.",
-          "included": false
+          "included": true
         },
         {
           "name": "kubernetes.resource_quota_used",
           "type": "gauge",
           "description": "The usage for a particular resource in a specific namespace.  Will only be sent if a quota is specified.  CPU requests/limits will be sent as millicores.",
-          "included": false
+          "included": true
         }
       ],
       "properties": [
@@ -13602,6 +13649,7 @@
       "acceptsEndpoints": false,
       "singleInstance": false,
       "monitorType": "kubernetes-events",
+      "sendAll": false,
       "dimensions": null,
       "metrics": null,
       "properties": null
@@ -13741,6 +13789,7 @@
       "acceptsEndpoints": false,
       "singleInstance": false,
       "monitorType": "kubernetes-volumes",
+      "sendAll": true,
       "dimensions": [
         {
           "name": "VolumeId",
@@ -13803,6 +13852,7 @@
       "acceptsEndpoints": false,
       "singleInstance": true,
       "monitorType": "memory",
+      "sendAll": false,
       "dimensions": null,
       "metrics": [
         {
@@ -13815,43 +13865,43 @@
           "name": "memory.buffered",
           "type": "gauge",
           "description": "(Linux Only) Bytes of memory used for buffering I/O.",
-          "included": false
+          "included": true
         },
         {
           "name": "memory.cached",
           "type": "gauge",
           "description": "(Linux Only) Bytes of memory used for disk caching.",
-          "included": false
+          "included": true
         },
         {
           "name": "memory.free",
           "type": "gauge",
           "description": "(Linux Only) Bytes of memory available for use.",
-          "included": false
+          "included": true
         },
         {
           "name": "memory.slab_recl",
           "type": "gauge",
           "description": "(Linux Only) Bytes of memory, used for SLAB-allocation of kernel objects, that can be reclaimed.",
-          "included": false
+          "included": true
         },
         {
           "name": "memory.slab_unrecl",
           "type": "gauge",
           "description": "(Linux Only) Bytes of memory, used for SLAB-allocation of kernel objects, that can't be reclaimed.",
-          "included": false
+          "included": true
         },
         {
           "name": "memory.used",
           "type": "gauge",
           "description": "Bytes of memory in use by the system.",
-          "included": false
+          "included": true
         },
         {
           "name": "memory.utilization",
           "type": "gauge",
           "description": "Percent of memory in use on this host. This metric reports with plugin dimension set to \"signalfx-metadata\".",
-          "included": false
+          "included": true
         }
       ],
       "properties": null
@@ -13880,31 +13930,32 @@
       "acceptsEndpoints": false,
       "singleInstance": false,
       "monitorType": "net-io",
+      "sendAll": false,
       "dimensions": null,
       "metrics": [
         {
           "name": "if_errors.rx",
           "type": "cumulative",
           "description": "Count of receive errors on the interface",
-          "included": false
+          "included": true
         },
         {
           "name": "if_errors.tx",
           "type": "cumulative",
           "description": "Count of transmit errors on the interface",
-          "included": false
+          "included": true
         },
         {
           "name": "if_octets.rx",
           "type": "cumulative",
           "description": "Count of bytes (octets) received on the interface",
-          "included": false
+          "included": true
         },
         {
           "name": "if_octets.tx",
           "type": "cumulative",
           "description": "Count of bytes (octets) transmitted by the interface",
-          "included": false
+          "included": true
         },
         {
           "name": "if_packets.rx",
@@ -13922,7 +13973,7 @@
           "name": "network.total",
           "type": "cumulative",
           "description": "Total amount of inbound and outbound network traffic on this host, in bytes.  This metric reports with plugin dimension set to \"signalfx-metadata\".",
-          "included": false
+          "included": true
         }
       ],
       "properties": null
@@ -13935,6 +13986,7 @@
       "acceptsEndpoints": false,
       "singleInstance": true,
       "monitorType": "processlist",
+      "sendAll": false,
       "dimensions": null,
       "metrics": null,
       "properties": null
@@ -13942,7 +13994,7 @@
     {
       "name": "Config",
       "doc": "This monitor reads metrics from a [Prometheus\nexporter](https://prometheus.io/docs/instrumenting/exporters/) endpoint.\n\nAll metric types are supported.  See\nhttps://prometheus.io/docs/concepts/metric_types/ for a description of the\nPrometheus metric types.  The conversion happens as follows:\n\n - Gauges are converted directly to SignalFx gauges\n - Counters are converted directly to SignalFx cumulative counters\n - Untyped metrics are converted directly to SignalFx gauges\n - Summary metrics are converted to three distinct metrics, where\n   `\u003cbasename\u003e` is the root name of the metric:\n   - The total count gets converted to a cumulative counter called `\u003cbasename\u003e_count`\n   - The total sum gets converted to a cumulative counter called `\u003cbasename\u003e`\n   - Each quantile value is converted to a gauge called\n     `\u003cbasename\u003e_quantile` and will include a dimension called `quantile` that\n     specifies the quantile.\n - Histogram metrics are converted to three distinct metrics, where\n   `\u003cbasename\u003e` is the root name of the metric:\n   - The total count gets converted to a cumulative counter called `\u003cbasename\u003e_count`\n   - The total sum gets converted to a cumulative counter called `\u003cbasename\u003e`\n   - Each histogram bucket is converted to a cumulative counter called\n     `\u003cbasename\u003e_bucket` and will include a dimension called `upper_bound` that\n     specifies the maximum value in that bucket.  This metric specifies the\n     number of events with a value that is less than or equal to the upper\n     bound.\n\nAll Prometheus labels will be converted directly to SignalFx dimensions.\n\nThis supports service discovery so you can set a discovery rule such as:\n\n`port \u003e= 9100 \u0026\u0026 port \u003c= 9500 \u0026\u0026 containerImage =~ \"exporter\"`\n\nassuming you are running exporters in container images that have the word\n\"exporter\" in them and fall within the standard exporter port range.  In\nK8s, you could also try matching on the container port name as defined in\nthe pod spec, which is the `name` variable in discovery rules for the\n`k8s-api` observer.\n\nFiltering can be very useful here since exporters tend to be fairly verbose.\n\nSample YAML configuration:\n\n```\nmonitors:\n - type: prometheus-exporter\n   discoveryRule: port \u003e= 9100 \u0026\u0026 port \u003c= 9500 \u0026\u0026 container_image =~ \"exporter\"\n   extraDimensions:\n     metric_source: prometheus\n```\n",
-      "package": "internal/monitors/prometheus",
+      "package": "internal/monitors/prometheusexporter",
       "fields": [
         {
           "yamlName": "host",
@@ -13988,6 +14040,7 @@
       "acceptsEndpoints": true,
       "singleInstance": false,
       "monitorType": "prometheus-exporter",
+      "sendAll": false,
       "dimensions": null,
       "metrics": null,
       "properties": null
@@ -14073,6 +14126,7 @@
       "acceptsEndpoints": false,
       "singleInstance": false,
       "monitorType": "telegraf/logparser",
+      "sendAll": false,
       "dimensions": null,
       "metrics": null,
       "properties": null
@@ -14158,6 +14212,7 @@
       "acceptsEndpoints": false,
       "singleInstance": false,
       "monitorType": "telegraf/procstat",
+      "sendAll": true,
       "dimensions": null,
       "metrics": [
         {
@@ -14727,6 +14782,7 @@
       "acceptsEndpoints": true,
       "singleInstance": false,
       "monitorType": "telegraf/snmp",
+      "sendAll": false,
       "dimensions": null,
       "metrics": null,
       "properties": null
@@ -14812,6 +14868,7 @@
       "acceptsEndpoints": true,
       "singleInstance": false,
       "monitorType": "telegraf/sqlserver",
+      "sendAll": true,
       "dimensions": null,
       "metrics": [
         {
@@ -15652,6 +15709,7 @@
       "acceptsEndpoints": false,
       "singleInstance": false,
       "monitorType": "telegraf/statsd",
+      "sendAll": false,
       "dimensions": null,
       "metrics": null,
       "properties": null
@@ -16016,6 +16074,7 @@
       "acceptsEndpoints": false,
       "singleInstance": false,
       "monitorType": "telegraf/tail",
+      "sendAll": false,
       "dimensions": null,
       "metrics": null,
       "properties": null
@@ -16132,6 +16191,7 @@
       "acceptsEndpoints": false,
       "singleInstance": false,
       "monitorType": "telegraf/win_perf_counters",
+      "sendAll": false,
       "dimensions": null,
       "metrics": null,
       "properties": null
@@ -16153,6 +16213,7 @@
       "acceptsEndpoints": false,
       "singleInstance": false,
       "monitorType": "telegraf/win_services",
+      "sendAll": true,
       "dimensions": null,
       "metrics": [
         {
@@ -16203,6 +16264,7 @@
       "acceptsEndpoints": false,
       "singleInstance": true,
       "monitorType": "trace-forwarder",
+      "sendAll": false,
       "dimensions": null,
       "metrics": null,
       "properties": null
@@ -16232,6 +16294,7 @@
       "acceptsEndpoints": false,
       "singleInstance": true,
       "monitorType": "vmem",
+      "sendAll": false,
       "dimensions": null,
       "metrics": [
         {
@@ -16280,13 +16343,13 @@
           "name": "vmpage_io.swap.in",
           "type": "cumulative",
           "description": "(Linux Only) Page Ins for Swap",
-          "included": false
+          "included": true
         },
         {
           "name": "vmpage_io.swap.out",
           "type": "cumulative",
           "description": "(Linux Only) Page Outs for Swap",
-          "included": false
+          "included": true
         },
         {
           "name": "vmpage_number.free_pages",
@@ -16328,6 +16391,7 @@
       "acceptsEndpoints": false,
       "singleInstance": true,
       "monitorType": "windows-iis",
+      "sendAll": false,
       "dimensions": null,
       "metrics": [
         {
@@ -16376,49 +16440,49 @@
           "name": "web_service.anonymous_users_sec",
           "type": "gauge",
           "description": "Rate at which users are making anonymous requests to the web service",
-          "included": false
+          "included": true
         },
         {
           "name": "web_service.bytes_received_sec",
           "type": "gauge",
           "description": "Rate that data is received by web service",
-          "included": false
+          "included": true
         },
         {
           "name": "web_service.bytes_sent_sec",
           "type": "gauge",
           "description": "Rate that data is sent by web service",
-          "included": false
+          "included": true
         },
         {
           "name": "web_service.connection_attempts_sec",
           "type": "gauge",
           "description": "Rate that connections to web service are attempted Requests",
-          "included": false
+          "included": true
         },
         {
           "name": "web_service.current_connections",
           "type": "gauge",
           "description": "Number of current connections to the web service",
-          "included": false
+          "included": true
         },
         {
           "name": "web_service.files_received_sec",
           "type": "gauge",
           "description": "Rate at which files are received by web service",
-          "included": false
+          "included": true
         },
         {
           "name": "web_service.files_sent_sec",
           "type": "gauge",
           "description": "Rate at which files are sent by web service",
-          "included": false
+          "included": true
         },
         {
           "name": "web_service.get_requests_sec",
           "type": "gauge",
           "description": "Rate of HTTP GET requests",
-          "included": false
+          "included": true
         },
         {
           "name": "web_service.isapi_extension_requests_sec",
@@ -16430,19 +16494,19 @@
           "name": "web_service.nonanonymous_users_sec",
           "type": "gauge",
           "description": "Rate at which users are making nonanonymous requests to the web service",
-          "included": false
+          "included": true
         },
         {
           "name": "web_service.not_found_errors_sec",
           "type": "gauge",
           "description": "Rate of 'Not Found' Errors",
-          "included": false
+          "included": true
         },
         {
           "name": "web_service.post_requests_sec",
           "type": "gauge",
           "description": "Rate of HTTP POST requests",
-          "included": false
+          "included": true
         },
         {
           "name": "web_service.service_uptime",
@@ -16454,7 +16518,7 @@
           "name": "web_service.total_method_requests_sec",
           "type": "gauge",
           "description": "Rate at which all HTTP requests are received",
-          "included": false
+          "included": true
         }
       ],
       "properties": null
@@ -16484,6 +16548,7 @@
       "acceptsEndpoints": false,
       "singleInstance": true,
       "monitorType": "windows-legacy",
+      "sendAll": false,
       "dimensions": null,
       "metrics": [
         {
@@ -16496,7 +16561,7 @@
           "name": "logicaldisk.disk_reads_sec",
           "type": "gauge",
           "description": "The number of read operations per second.",
-          "included": false
+          "included": true
         },
         {
           "name": "logicaldisk.disk_transfers_sec",
@@ -16514,49 +16579,49 @@
           "name": "logicaldisk.disk_writes_sec",
           "type": "gauge",
           "description": "The number of write operations per second.",
-          "included": false
+          "included": true
         },
         {
           "name": "logicaldisk.free_megabytes",
           "type": "gauge",
           "description": "The number of available megabytes.",
-          "included": false
+          "included": true
         },
         {
           "name": "logicaldisk.pct_free_space",
           "type": "gauge",
           "description": "The percentage of free disk space available.",
-          "included": false
+          "included": true
         },
         {
           "name": "memory.available_mbytes",
           "type": "gauge",
           "description": "Unused physical memory (not page file).",
-          "included": false
+          "included": true
         },
         {
           "name": "memory.pages_input_sec",
           "type": "gauge",
           "description": "Reads from hard disk per second to resolve hard pages.",
-          "included": false
+          "included": true
         },
         {
           "name": "network_interface.bytes_received_sec",
           "type": "gauge",
           "description": "Bytes Received/sec is the rate at which bytes are received over each network adapter, including framing characters.",
-          "included": false
+          "included": true
         },
         {
           "name": "network_interface.bytes_sent_sec",
           "type": "gauge",
           "description": "Bytes Sent/sec is the rate at which bytes are sent over each network adapter, including framing characters.",
-          "included": false
+          "included": true
         },
         {
           "name": "network_interface.bytes_total_sec",
           "type": "gauge",
           "description": "The number of bytes sent and received over a specific network adapter, including framing characters.",
-          "included": false
+          "included": true
         },
         {
           "name": "network_interface.current_bandwidth",
@@ -16574,13 +16639,13 @@
           "name": "network_interface.packets_outbound_errors",
           "type": "gauge",
           "description": "The number of packets sent that encountered an error.",
-          "included": false
+          "included": true
         },
         {
           "name": "network_interface.packets_received_errors",
           "type": "gauge",
           "description": "The number of packets received that encountered an error.",
-          "included": false
+          "included": true
         },
         {
           "name": "network_interface.packets_received_sec",
@@ -16604,7 +16669,7 @@
           "name": "paging_file.pct_usage",
           "type": "gauge",
           "description": "Amount of Page File in use, which indicates the server is substituting disk space for memory.",
-          "included": false
+          "included": true
         },
         {
           "name": "paging_file.pct_usage_peak",
@@ -16646,7 +16711,7 @@
           "name": "processor.pct_processor_time",
           "type": "gauge",
           "description": "Percentage of elapsed time the processor spends executing non-idle threads.",
-          "included": false
+          "included": true
         },
         {
           "name": "processor.pct_user_time",

@@ -56,7 +56,7 @@ monitors:
 
 Monitor Type: `prometheus-exporter`
 
-[Monitor Source Code](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/prometheus)
+[Monitor Source Code](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/prometheusexporter)
 
 **Accepts Endpoints**: **Yes**
 

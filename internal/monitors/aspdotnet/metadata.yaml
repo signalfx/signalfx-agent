@@ -19,6 +19,7 @@
     monitors:
      - type: aspdotnet
     ```
+  sendAll: true
   metrics:
   - description: Count of ASP.NET application restarts.
     included: false

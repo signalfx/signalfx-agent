@@ -10,7 +10,7 @@
   metrics:
   - description: The number of times TCP connections transitioned from the CLOSED
       state to the SYN-SENT state.
-    included: false
+    included: true
     name: protocol_counter.ActiveOpens
     type: cumulative
   - description: The number of TCP connections currently in either ESTABLISHED or

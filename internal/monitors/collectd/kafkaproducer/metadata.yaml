@@ -18,6 +18,7 @@
     ```
 
     Note that this monitor requires Kafka v0.9.0.0 or above and collects metrics from the new producer API.
+  sendAll: true
   metrics:
   - description: Average number of bytes sent per second for a topic. This metric
       has client-id and topic dimensions.

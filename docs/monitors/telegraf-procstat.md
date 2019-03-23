@@ -97,64 +97,6 @@ The following table lists the metrics available for this monitor. Metrics that a
 | `procstat_lookup.pid_count` | gauge | X | The number of pids. This metric emits with the plugin dimension set to "procstat_lookup". |
 
 
-To specify custom metrics you want to monitor, add a `metricsToInclude` filter
-to the agent configuration, as shown in the code snippet below. The snippet
-lists all available custom metrics. You can copy and paste the snippet into
-your configuration file, then delete any custom metrics that you do not want
-sent.
-
-Note that some of the custom metrics require you to set a flag as well as add
-them to the list. Check the monitor configuration file to see if a flag is
-required for gathering additional metrics.
-
-```yaml
-
-metricsToInclude:
-  - metricNames:
-    - procstat.cpu_time
-    - procstat.cpu_usage
-    - procstat.involuntary_context_switches
-    - procstat.memory_data
-    - procstat.memory_locked
-    - procstat.memory_rss
-    - procstat.memory_stack
-    - procstat.memory_swap
-    - procstat.memory_vms
-    - procstat.nice_priority
-    - procstat.num_fds
-    - procstat.num_threads
-    - procstat.read_bytes
-    - procstat.read_count
-    - procstat.realtime_priority
-    - procstat.rlimit_cpu_time_hard
-    - procstat.rlimit_cpu_time_soft
-    - procstat.rlimit_file_locks_hard
-    - procstat.rlimit_file_locks_soft
-    - procstat.rlimit_memory_data_hard
-    - procstat.rlimit_memory_data_soft
-    - procstat.rlimit_memory_locked_hard
-    - procstat.rlimit_memory_locked_soft
-    - procstat.rlimit_memory_rss_hard
-    - procstat.rlimit_memory_rss_soft
-    - procstat.rlimit_memory_stack_hard
-    - procstat.rlimit_memory_stack_soft
-    - procstat.rlimit_memory_vms_hard
-    - procstat.rlimit_memory_vms_soft
-    - procstat.rlimit_nice_priority_hard
-    - procstat.rlimit_nice_priority_soft
-    - procstat.rlimit_num_fds_hard
-    - procstat.rlimit_num_fds_soft
-    - procstat.rlimit_realtime_priority_hard
-    - procstat.rlimit_realtime_priority_soft
-    - procstat.rlimit_signals_pending_hard
-    - procstat.rlimit_signals_pending_soft
-    - procstat.signals_pending
-    - procstat.write_bytes
-    - procstat.write_count
-    - procstat_lookup.pid_count
-    monitorType: telegraf/procstat
-```
-
 
 
 

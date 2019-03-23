@@ -13,6 +13,7 @@
     monitors:
       - type: internal-metrics
     ```
+  sendAll: true
   metrics:
   - description: The total number of monitor instances actively working
     included: false
