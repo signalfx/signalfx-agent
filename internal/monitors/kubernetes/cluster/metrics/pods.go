@@ -74,16 +74,27 @@ func datapointsForPod(pod *v1.Pod) []*datapoint.Datapoint {
 	return dps
 }
 
-func dimPropsForPod(cachedPod *k8sutil.CachedPod, sc *k8sutil.ServiceCache) *atypes.DimProperties {
+func dimPropsForPod(cachedPod *k8sutil.CachedPod, sc *k8sutil.ServiceCache,
+	rsc *k8sutil.ReplicaSetCache) *atypes.DimProperties {
 	props, tags := k8sutil.PropsAndTagsFromLabels(cachedPod.LabelSet)
 	for _, or := range cachedPod.OwnerReferences {
 		props[utils.LowercaseFirstChar(or.Kind)] = or.Name
 		props[utils.LowercaseFirstChar(or.Kind)+"_uid"] = string(or.UID)
 	}
 
+	// if pod is selected by a service, sync service as a tag
 	serviceTags := sc.GetMatchingServices(cachedPod)
 	for _, tag := range serviceTags {
 		tags["kubernetes_service_"+tag] = true
+	}
+
+	// if pod was created by a replicaSet, sync its deployment name as a property
+	if replicaSetName, exists := props["replicaSet"]; exists {
+		deploymentName, deploymentUID := rsc.GetMatchingDeployment(cachedPod.Namespace, replicaSetName)
+		if deploymentName != nil {
+			props["deployment"] = *deploymentName
+			props["deployment_uid"] = string(deploymentUID)
+		}
 	}
 
 	if len(props) == 0 && len(tags) == 0 {

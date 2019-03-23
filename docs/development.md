@@ -203,12 +203,12 @@ The vagrant will be provisioned with:
 #### Host Files Included in the Vagrant
 
 This github project `github.com/signalfx/signalfx-agent` will be mapped as a synced directory
-to `C:\Users\vagrant\go\src\github.com\signalfx\signalfx-agent`.
+to `C:\Users\vagrant\signalfx-agent`.
 
 #### Building For Windows
 
 The vagrant box should have enough dependencies installed that you can build the agent bundle.  To do this navigate to the project in the GOPATH.
 
-    $ cd C:\Users\vagrant\go\src\github.com\signalfx\signalfx-agent
+    $ cd C:\Users\vagrant\signalfx-agent
 
     $ & { . ./scripts/windows/make.ps1; bundle }

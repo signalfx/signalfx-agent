@@ -32,7 +32,7 @@ func datapointsForDeployment(dep *v1beta1.Deployment) []*datapoint.Datapoint {
 
 func dimPropsForDeployment(dep *v1beta1.Deployment) *atypes.DimProperties {
 	props, tags := k8sutil.PropsAndTagsFromLabels(dep.Labels)
-	props["name"] = dep.Name
+	props["deployment"] = dep.Name
 
 	for _, or := range dep.OwnerReferences {
 		props[utils.LowercaseFirstChar(or.Kind)] = or.Name

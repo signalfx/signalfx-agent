@@ -7,6 +7,9 @@
 
 This tutorial assumes you are starting fresh and have no existing collectd agent running on your instance.
 
+Certain installation statements include `YOUR_SIGNALFX_REALM`. If this value is not set, SignalFx assumes your organization is in the us0 realm. To determine if you are in a different realm and need to supply your realm value in those statements, check your profile page in the SignalFx web application. 
+
+
 #### Step 1: Download and install the agent
 
 ##### Linux
@@ -27,7 +30,7 @@ to install the agent.  The agent will be installed as a Windows service and will
 log to the Windows Event Log.
 
 ```sh
-& {Set-ExecutionPolicy Bypass -Scope Process -Force; $script = ((New-Object System.Net.WebClient).DownloadString('https://dl.signalfx.com/signalfx-agent.ps1')); $params = @{access_token = "YOUR_SIGNALFX_API_TOKEN"}; Invoke-Command -ScriptBlock ([scriptblock]::Create(". {$script} $(&{$args} @params)"))}
+& {Set-ExecutionPolicy Bypass -Scope Process -Force; $script = ((New-Object System.Net.WebClient).DownloadString('https://dl.signalfx.com/signalfx-agent.ps1')); $params = @{access_token = "YOUR_SIGNALFX_API_TOKEN"; ingest_url = "https://ingest.YOUR_SIGNALFX_REALM.signalfx.com"; api_url = "https://api.YOUR_SIGNALFX_REALM.signalfx.com"}; Invoke-Command -ScriptBlock ([scriptblock]::Create(". {$script} $(&{$args} @params)"))}
 ```
 
 Your SignalFx API Token can be obtained from the Organization->Access Token tab in [SignalFx](https://app.signalfx.com).
