@@ -277,9 +277,6 @@ jobs:
             echo "export MARKERS='$MARKERS'" >> $BASH_ENV
       - run_pytest:
           pytest_options: "-n1 -m \"$MARKERS\""
-          with_sudo: true
-      - store_artifacts:
-          path: /tmp/pprof/
 
   k8s_integration_tests:
     executor: machine_image

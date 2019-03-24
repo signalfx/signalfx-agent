@@ -137,6 +137,7 @@ disable=print-statement,
         missing-docstring,
         fixme,
         too-many-branches,
+        too-few-public-methods,
         bad-continuation  # We use black so this shouldn't ever be relevant
 
 # Enable the message, report, category or checker with the given id(s). You can
