@@ -139,3 +139,19 @@ func StringInterfaceMapToAllInterfaceMap(in map[string]interface{}) map[interfac
 	}
 	return out
 }
+
+// FormatStringMapCompact formats a string map as a string in a compact form
+func FormatStringMapCompact(in map[string]string) string {
+	out := "{"
+
+	for k, v := range in {
+		out += k + ": " + v + ", "
+	}
+
+	if len(in) > 0 {
+		// Strip last comma
+		out = out[:len(out)-2]
+	}
+
+	return out + "}"
+}

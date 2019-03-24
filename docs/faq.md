@@ -69,11 +69,11 @@ Run the following command on the host with the agent. (If you are using the
 containerized agent, you don't need to use `sudo`.)
 
 ```sh
-$ sudo signalfx-agent status
+$ sudo signalfx-agent status endpoints
 ```
 
-This command dumps out some text that includes a section listing the discovered
-service endpoints that the agent knows about.
+This command dumps out some text listing the discovered service endpoints that
+the agent knows about.
 
 
 ## Why do other pods in my Kubernetes cluster get stuck terminating?

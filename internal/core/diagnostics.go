@@ -13,8 +13,6 @@ import (
 
 	"github.com/signalfx/golib/datapoint"
 	"github.com/signalfx/golib/sfxclient"
-	"github.com/signalfx/signalfx-agent/internal/core/config"
-	"github.com/signalfx/signalfx-agent/internal/utils"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -54,37 +52,14 @@ func (a *Agent) serveDiagnosticInfo(host string, port uint16) error {
 	return nil
 }
 
-func readStatusInfo(host string, port uint16) ([]byte, error) {
-	resp, err := http.Get(fmt.Sprintf("http://%s:%d/", host, port))
+func readStatusInfo(host string, port uint16, section string) ([]byte, error) {
+	resp, err := http.Get(fmt.Sprintf("http://%s:%d/?section=%s", host, port, section))
 	if err != nil {
 		return nil, err
 	}
 	defer resp.Body.Close()
 
 	return ioutil.ReadAll(resp.Body)
-}
-
-func (a *Agent) diagnosticTextHandler(rw http.ResponseWriter, req *http.Request) {
-	rw.Write([]byte(a.DiagnosticText()))
-}
-
-// DiagnosticText returns a simple textual output of the agent's status
-func (a *Agent) DiagnosticText() string {
-	return fmt.Sprintf(
-		"SignalFx Agent Status"+
-			"\n=====================\n"+
-			"\nVersion: %s"+
-			"\nAgent Configuration:"+
-			"\n%s\n\n"+
-			"%s\n"+
-			"%s\n"+
-			"%s",
-		VersionLine,
-		utils.IndentLines(config.ToString(a.lastConfig), 2),
-		a.writer.DiagnosticText(),
-		a.observers.DiagnosticText(),
-		a.monitors.DiagnosticText())
-
 }
 
 func (a *Agent) internalMetricsHandler(rw http.ResponseWriter, req *http.Request) {

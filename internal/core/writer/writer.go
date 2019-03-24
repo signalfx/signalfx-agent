@@ -70,6 +70,13 @@ type SignalFxWriter struct {
 	// emitted by the agent
 	serviceTracker *tracetracker.ActiveServiceTracker
 
+	// Datapoints sent in the last minute
+	datapointsLastMinute int64
+	// Events sent in the last minute
+	eventsLastMinute int64
+	// Spans sent in the last minute
+	spansLastMinute int64
+
 	dpRequestsActive        int64
 	dpRequestsWaiting       int64
 	dpsInFlight             int64
@@ -121,6 +128,8 @@ func New(conf *config.WriterConfig, dpChan chan *datapoint.Datapoint, eventChan 
 			},
 		},
 	}
+	go sw.maintainLastMinuteActivity()
+
 	sw.client.AuthToken = conf.SignalFxAccessToken
 
 	sw.client.Client.Transport = &http.Transport{

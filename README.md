@@ -364,35 +364,11 @@ Then execute `systemctl daemon-reload` and `systemctl restart signalfx-agent.ser
 to restart the agent service with proxy support.
 
 ## Diagnostics
-The agent serves diagnostic information on a UNIX domain socket at the path
-configured by the `diagnosticsSocketPath` option.  The socket takes no input,
-but simply dumps its current status back upon connection.  As a convenience,
-the command `signalfx-agent status` will read this socket and dump out its
-contents.
-
-The agent status output has the following sections:
-
- - **Version**: The agent version and build time
- - **Agent Configuration**: The current configuration in use by the agent, with
-	 secret values replaced by `*`s.  Default values will be shown here if they
-	 were not set in the agent config file.
- - **Writer Status**: The status and metrics about the writer component which
-	 writes datapoints to SignalFx.
- - **Observers**: The active observers in the agent
- - **Monitor Configurations (Not necessarily active)**: A list of monitor
-	 configurations that are in place.  If a configuration has a discovery rule
-	 but no discovered endpoints match that rule, there will not be any active
-	 instances of this monitor.
- - **Active Monitors**: Monitors instances that are actively monitoring
-	 something.  There may be multiple instances of these per configuration
-	 above if there is a discovery rule that matches multiple services.
- - **Discovered Endpoints**: A list of the endpoints discovered by the agent's
-	 observers.  The fields shown there will be the fields used when matching
-	 discovery rules to a discovered endpoint.
- - **Bad Monitor Configurations**: This will be a set of monitor configurations
-	 that did not validate and the associated error.  Bad monitor configuration
-	 generally does not prevent the agent from starting up, but will prevent
-	 that monitor from ever instantiating.
+The agent serves diagnostic information on an HTTP server at the address
+configured by the `internalStatusHost` and `internalStatusPort` option.  As a
+convenience, the command `signalfx-agent status` will read this server and dump
+out its contents.  That command will also explain how to get further diagnostic
+information.
 
 Also see our [FAQ](./docs/faq.md) for more troubleshooting help.
 

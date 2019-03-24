@@ -97,10 +97,9 @@ monitors:
 
 ## Troubleshooting
 
-The simplest way to see what services an instance of the agent has discovered,
-along with the variables that can be matched against this service, is to run
-the command `signalfx-agent status`.  Near the end of this output will be a
-list of discovered endpoints that the agent knows about.
+The simplest way to see what services an instance of the agent has discovered
+is to run the command `signalfx-agent status endpoints`.  The fields shown will
+be the same values that can be used in discovery rules.
 
 ## Manually Defined Services
 

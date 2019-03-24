@@ -344,6 +344,7 @@ ENV SIGNALFX_BUNDLE_DIR=/bundle \
     TEST_SERVICES_DIR=/usr/src/signalfx-agent/test-services \
     AGENT_BIN=/usr/src/signalfx-agent/signalfx-agent \
     PYTHONPATH=/usr/src/signalfx-agent/python \
+    AGENT_VERSION=latest \
     BUILD_TIME=2017-01-25T13:17:17-0500 \
     GOOS=linux \
     LC_ALL=C.UTF-8 \

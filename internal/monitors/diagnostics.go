@@ -2,6 +2,7 @@ package monitors
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/signalfx/golib/datapoint"
 	"github.com/signalfx/golib/sfxclient"
@@ -12,38 +13,57 @@ import (
 )
 
 func endpointToDiagnosticText(endpoint services.Endpoint, isMonitored bool) string {
-	var containerInfo string
+	var items []string
+
+	items = append(items, "internalId: "+string(endpoint.Core().ID))
+	if !isMonitored {
+		items[0] += " (UNMONITORED)"
+	}
+
 	endpointMap := services.EndpointAsMap(endpoint)
 	sortedKeys := utils.SortMapKeys(endpointMap)
 	for _, k := range sortedKeys {
-		val := endpointMap[k]
-		containerInfo += fmt.Sprintf("%s: %v\n", k, val)
-	}
-	var unmonitoredText string
-	if !isMonitored {
-		unmonitoredText = "(Unmonitored)"
+		items = append(items, fmt.Sprintf("%s: %v", k, endpointMap[k]))
 	}
 
-	text := fmt.Sprintf(
-		"- Internal ID: %s %s\n"+
-			"%s\n",
-		endpoint.Core().ID,
-		unmonitoredText,
-		utils.IndentLines(containerInfo, 2))
-	return text
+	out := " - " + strings.Join(items, "\n   ")
+
+	return out
+}
+
+// EndpointsDiagnosticText returns diagnostic text about discovered endpoints
+func (mm *MonitorManager) EndpointsDiagnosticText() string {
+	mm.lock.Lock()
+	defer mm.lock.Unlock()
+
+	out := "Discovered Endpoints:             "
+	for _, endpoint := range mm.discoveredEndpoints {
+		out += "\n" + endpointToDiagnosticText(endpoint, mm.isEndpointMonitored(endpoint)) + "\n"
+	}
+	if len(out) == 0 {
+		out = "None"
+	}
+	return out
+}
+
+// SummaryDiagnosticText is a shorter version of DiagnosticText()
+func (mm *MonitorManager) SummaryDiagnosticText() string {
+	return fmt.Sprintf(
+		"Active Monitors:                  %d\n"+
+			"Configured Monitors:              %d\n"+
+			"Discovered Endpoint Count:        %d\n"+
+			"Bad Monitor Config:               %s",
+		len(mm.activeMonitors),
+		len(mm.monitorConfigs),
+		len(mm.discoveredEndpoints),
+		mm.BadConfigDiagnosticText(),
+	)
 }
 
 // DiagnosticText returns a string to be served on the diagnostic socket
 func (mm *MonitorManager) DiagnosticText() string {
 	mm.lock.Lock()
 	defer mm.lock.Unlock()
-
-	configurationText := "\n"
-	for i := range mm.monitorConfigs {
-		configurationText += fmt.Sprintf(
-			"%s\n",
-			utils.IndentLines(config.ToString(mm.monitorConfigs[i]), 2))
-	}
 
 	activeMonText := ""
 	for i := range mm.activeMonitors {
@@ -68,30 +88,25 @@ func (mm *MonitorManager) DiagnosticText() string {
 			utils.IndentLines(serviceStats, 4),
 			utils.IndentLines(config.ToString(am.config), 6))
 	}
+	return "Active Monitors:\n" + activeMonText
+}
 
-	var discoveredEndpointsText string
-	for _, endpoint := range mm.discoveredEndpoints {
-		discoveredEndpointsText += endpointToDiagnosticText(endpoint, mm.isEndpointMonitored(endpoint))
-	}
-	if len(discoveredEndpointsText) == 0 {
-		discoveredEndpointsText = "None\n"
-	}
+// BadConfigDiagnosticText returns a text representation of any bad monitor
+// config that is preventing things from being monitored.
+func (mm *MonitorManager) BadConfigDiagnosticText() string {
+	mm.lock.Lock()
+	defer mm.lock.Unlock()
 
-	return fmt.Sprintf(
-		"Kubernetes Leader Node: %s\n\n"+
-			"Monitor Configurations (Not necessarily active):\n"+
-			"%s"+
-			"Active Monitors:\n"+
-			"%s"+
-			"Discovered Endpoints:\n"+
-			"%s\n"+
-			"Bad Monitor Configurations:\n\n"+
-			"%s\n",
-		leadership.CurrentLeader(),
-		configurationText,
-		activeMonText,
-		discoveredEndpointsText,
-		badConfigText(mm.badConfigs))
+	if len(mm.badConfigs) > 0 {
+		var texts []string
+		for k := range mm.badConfigs {
+			conf := mm.badConfigs[k]
+			texts = append(texts, fmt.Sprintf("[type: %s, error: %s]",
+				conf.Type, conf.ValidationError))
+		}
+		return strings.Join(texts, " ")
+	}
+	return "None"
 }
 
 // InternalMetrics returns a list of datapoints about the internal status of
@@ -103,17 +118,4 @@ func (mm *MonitorManager) InternalMetrics() []*datapoint.Datapoint {
 		sfxclient.Gauge("sfxagent.discovered_endpoints", nil, int64(len(mm.discoveredEndpoints))),
 		sfxclient.Gauge("sfxagent.k8s_leader", map[string]string{"leader_node": leadership.CurrentLeader()}, 1),
 	}
-}
-
-func badConfigText(confs map[uint64]*config.MonitorConfig) string {
-	if len(confs) > 0 {
-		var text string
-		for k := range confs {
-			conf := confs[k]
-			text += fmt.Sprintf("Type: %s\nError: %s\n\n",
-				conf.Type, conf.ValidationError)
-		}
-		return text
-	}
-	return "None"
 }

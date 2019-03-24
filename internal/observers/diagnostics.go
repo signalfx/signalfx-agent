@@ -2,6 +2,7 @@ package observers
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/signalfx/golib/datapoint"
 	"github.com/signalfx/golib/sfxclient"
@@ -9,14 +10,11 @@ import (
 
 // DiagnosticText outputs human-readable text about the active observers.
 func (om *ObserverManager) DiagnosticText() string {
-	var out string
-	out += "Observers:\n"
+	var observerTypes []string
 	for i := range om.observers {
-		out += fmt.Sprintf(
-			" - %s\n",
-			om.observers[i]._type)
+		observerTypes = append(observerTypes, om.observers[i]._type)
 	}
-	return out
+	return fmt.Sprintf("Observers active:                 %s", strings.Join(observerTypes, ", "))
 }
 
 // InternalMetrics returns a list of datapoints relevant to the internal status
