@@ -1,19 +1,16 @@
 # Tests of the chef cookbook
 
+import json
 import os
 import re
 import tempfile
 from functools import partial as p
 
-import json
 import pytest
-
 from tests.helpers.assertions import has_datapoint_with_dim
 from tests.helpers.util import print_lines, wait_for
-
 from tests.packaging.common import (
     INIT_SYSTEMD,
-    INIT_SYSV,
     INIT_UPSTART,
     PROJECT_DIR,
     get_agent_logs,
@@ -28,7 +25,6 @@ CHEF_CMD = "chef-client -z -o 'recipe[signalfx_agent::default]' -j {0}"
 DOCKERFILES_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "images"))
 
 SUPPORTED_DISTROS = [
-    ("debian-7-wheezy", INIT_SYSV),
     ("debian-8-jessie", INIT_SYSTEMD),
     ("debian-9-stretch", INIT_SYSTEMD),
     ("ubuntu1404", INIT_UPSTART),

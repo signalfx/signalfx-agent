@@ -307,7 +307,6 @@ def test_rpm_package(base_image, init_system):
 @pytest.mark.parametrize(
     "base_image,init_system",
     [
-        ("debian-7-wheezy", INIT_SYSV),
         ("debian-8-jessie", INIT_SYSTEMD),
         ("debian-9-stretch", INIT_SYSTEMD),
         ("ubuntu1404", INIT_UPSTART),
@@ -339,7 +338,6 @@ def test_rpm_package_upgrade(base_image, init_system):
 @pytest.mark.parametrize(
     "base_image,init_system",
     [
-        ("debian-7-wheezy", INIT_SYSV),
         ("debian-8-jessie", INIT_SYSTEMD),
         ("debian-9-stretch", INIT_SYSTEMD),
         ("ubuntu1404", INIT_UPSTART),
