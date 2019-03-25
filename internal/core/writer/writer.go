@@ -127,12 +127,12 @@ func New(conf *config.WriterConfig, dpChan chan *datapoint.Datapoint, eventChan 
 		Proxy: http.ProxyFromEnvironment,
 		DialContext: (&net.Dialer{
 			Timeout:   3 * time.Second,
-			KeepAlive: 90 * time.Second,
+			KeepAlive: 30 * time.Second,
 			DualStack: true,
 		}).DialContext,
 		MaxIdleConns:        100,
 		MaxIdleConnsPerHost: conf.MaxRequests,
-		IdleConnTimeout:     90 * time.Second,
+		IdleConnTimeout:     30 * time.Second,
 		TLSHandshakeTimeout: 10 * time.Second,
 	}
 
