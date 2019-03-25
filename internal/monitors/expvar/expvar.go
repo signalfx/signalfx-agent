@@ -291,7 +291,7 @@ func (mConf *MetricConfig) dimensions() map[string]string {
 	return dimensions
 }
 
-// setDatapoints the dp argument should be zero
+// setDatapoints the dp argument should be a pointer to a zero value datapoint
 // setDatapoints traverses v recursively following metric path parts in mConf.keys[]
 // setDatapoints adds dimensions along the way and sets metric value in the end
 // setDatapoints clones datapoints and add array index dimension for array values in v
