@@ -72,12 +72,12 @@ func NewDimensionPropertyClient(ctx context.Context, conf *config.WriterConfig) 
 			Proxy: http.ProxyFromEnvironment,
 			DialContext: (&net.Dialer{
 				Timeout:   5 * time.Second,
-				KeepAlive: 90 * time.Second,
+				KeepAlive: 30 * time.Second,
 				DualStack: true,
 			}).DialContext,
 			MaxIdleConns:        int(conf.PropertiesMaxRequests),
 			MaxIdleConnsPerHost: int(conf.PropertiesMaxRequests),
-			IdleConnTimeout:     90 * time.Second,
+			IdleConnTimeout:     30 * time.Second,
 			TLSHandshakeTimeout: 10 * time.Second,
 		},
 	}
