@@ -16,6 +16,7 @@ import yaml
 
 from . import fake_backend
 from .formatting import print_dp_or_event
+from .internalmetrics import InternalMetricsClient
 from .profiling import PProfClient
 
 PROJECT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
@@ -33,6 +34,18 @@ SELFDESCRIBE_JSON = os.path.join(PROJECT_DIR, "../selfdescribe.json")
 
 def get_docker_client():
     return docker.from_env(version=DOCKER_API_VERSION)
+
+
+def assert_wait_for(test, timeout_seconds=DEFAULT_TIMEOUT, interval_seconds=0.2, on_fail=None):
+    """
+    Runs `wait_for` but raises an assertion if it fails, optionally calling
+    `on_fail` before raising an AssertionError
+    """
+    if not wait_for(test, timeout_seconds, interval_seconds):
+        if on_fail:
+            on_fail()
+
+        raise AssertionError("test '%s' still failng after %d seconds" % (test, timeout_seconds))
 
 
 def wait_for(test, timeout_seconds=DEFAULT_TIMEOUT, interval_seconds=0.2):
@@ -92,22 +105,19 @@ def container_ip(container):
 
 
 @contextmanager
-def run_agent(config_text, debug=True, profile=False, extra_env=None, backend_options=None):
+def run_agent(config_text, debug=True, profile=False, extra_env=None, internal_metrics=False, backend_options=None):
     host = get_unique_localhost()
 
     with fake_backend.start(host, **(backend_options or {})) as fake_services:
         with run_agent_with_fake_backend(
             config_text, fake_services, debug=debug, host=host, profile=profile, extra_env=extra_env
         ) as [_, get_output, setup_conf, conf]:
+            to_yield = [fake_services, get_output, setup_conf]
             if profile:
-                yield [
-                    fake_services,
-                    get_output,
-                    setup_conf,
-                    PProfClient(conf["profilingHost"], conf.get("profilingPort", 6060)),
-                ]
-            else:
-                yield [fake_services, get_output, setup_conf]
+                to_yield += [PProfClient(conf["profilingHost"], conf.get("profilingPort", 6060))]
+            if internal_metrics:
+                to_yield += [InternalMetricsClient(conf["internalStatusHost"], conf["internalStatusPort"])]
+            yield to_yield
 
 
 @contextmanager
@@ -195,6 +205,7 @@ def render_config(config_text, path, fake_services, debug=True, host=None, profi
         host = get_unique_localhost()
 
     conf["internalStatusHost"] = host
+    conf["internalStatusPort"] = 8095
     if profile:
         conf["profiling"] = True
         conf["profilingHost"] = host

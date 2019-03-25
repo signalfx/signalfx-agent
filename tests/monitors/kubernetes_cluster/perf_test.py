@@ -1,3 +1,4 @@
+# pylint: disable=too-many-locals
 import time
 from functools import partial as p
 from textwrap import dedent
@@ -40,12 +41,9 @@ def test_large_kubernetes_clusters():
                 f"""
           writer:
             maxRequests: 100
-            propertiesMaxRequests: 10
+            propertiesMaxRequests: 100
             propertiesHistorySize: 10000
-            propertiesSendDelaySeconds: 5
           monitors:
-           - type: internal-metrics
-             intervalSeconds: 1
            - type: kubernetes-cluster
              alwaysClusterReporter: true
              intervalSeconds: 10
@@ -55,9 +53,10 @@ def test_large_kubernetes_clusters():
         """
             ),
             profile=True,
+            internal_metrics=True,
             debug=False,
             extra_env=k8s_envvars,
-        ) as [backend, _, _, pprof_client]:
+        ) as [backend, _, _, pprof_client, internal_metrics]:
             assert wait_for(p(has_datapoint, backend, dimensions={"kubernetes_pod_name": "pod-0"}))
             assert wait_for(p(has_datapoint, backend, dimensions={"kubernetes_pod_name": "pod-4999"}))
 
@@ -78,6 +77,10 @@ def test_large_kubernetes_clusters():
             assert wait_for(has_all_pod_datapoints, interval_seconds=2)
             assert wait_for(has_all_pod_properties, interval_seconds=2)
 
+            assert (
+                internal_metrics.get()["sfxagent.dim_updates_completed"] == 5000
+            ), "Got wrong number of dimension updates"
+
             for name in pod_names:
                 v1_client.delete_namespaced_pod(name=name, namespace="default", body={})
 
@@ -92,15 +95,8 @@ def test_large_kubernetes_clusters():
 
             assert ensure_always(has_no_pod_datapoints, interval_seconds=2)
 
-            pprof_client.save_goroutines()
-            assert wait_for(
-                lambda: backend.datapoints_by_metric["sfxagent.go_num_goroutine"][-1].value.intValue < 100,
-                timeout_seconds=7,
-            ), "too many goroutines"
-
-            assert (
-                backend.datapoints_by_metric["sfxagent.go_heap_alloc"][-1].value.intValue < 200 * 1024 * 1024
-            ), "too much memory used"
+            pprof_client.assert_goroutine_count_under(200)
+            pprof_client.assert_heap_alloc_under(200 * 1024 * 1024)
 
 
 # pylint: disable=too-many-locals
@@ -153,8 +149,6 @@ def test_service_tag_sync():
             propertiesHistorySize: 10000
             propertiesSendDelaySeconds: 5
           monitors:
-           - type: internal-metrics
-             intervalSeconds: 1
            - type: kubernetes-cluster
              alwaysClusterReporter: true
              intervalSeconds: 10
@@ -220,15 +214,8 @@ def test_service_tag_sync():
 
             assert wait_for(missing_service_tags, interval_seconds=2, timeout_seconds=60)
 
-            pprof_client.save_goroutines()
-            assert wait_for(
-                lambda: backend.datapoints_by_metric["sfxagent.go_num_goroutine"][-1].value.intValue < 150,
-                timeout_seconds=5,
-            ), "too many goroutines"
-
-            assert (
-                backend.datapoints_by_metric["sfxagent.go_heap_alloc"][-1].value.intValue < 200 * 1024 * 1024
-            ), "too much memory used"
+            pprof_client.assert_goroutine_count_under(150)
+            pprof_client.assert_heap_alloc_under(200 * 1024 * 1024)
 
 
 # pylint: disable=too-many-locals
@@ -241,7 +228,7 @@ def test_large_k8s_cluster_deployment_prop():
     """
     dp_count = 50
     pods_per_dp = 100
-    with fake_k8s_api_server(print_logs=True) as [fake_k8s_client, k8s_envvars]:
+    with fake_k8s_api_server(print_logs=False) as [fake_k8s_client, k8s_envvars]:
         v1_client = client.CoreV1Api(fake_k8s_client)
         v1beta1_client = client.ExtensionsV1beta1Api(fake_k8s_client)
         replica_sets = {}
@@ -303,8 +290,6 @@ def test_large_k8s_cluster_deployment_prop():
             propertiesMaxRequests: 100
             propertiesHistorySize: 10000
           monitors:
-           - type: internal-metrics
-             intervalSeconds: 1
            - type: kubernetes-cluster
              alwaysClusterReporter: true
              intervalSeconds: 10
@@ -314,14 +299,15 @@ def test_large_k8s_cluster_deployment_prop():
         """
             ),
             profile=True,
+            internal_metrics=True,
             debug=False,
             extra_env=k8s_envvars,
-        ) as [backend, _, _, pprof_client]:
+        ) as [backend, _, _, pprof_client, internal_metrics]:
             assert wait_for(p(has_datapoint, backend, dimensions={"kubernetes_pod_name": "pod-dp-0-replicaset-0"}))
             assert wait_for(p(has_datapoint, backend, dimensions={"kubernetes_pod_name": "pod-dp-49-replicaset-99"}))
 
             ## get heap usage with 5k pods
-            heap_usage_baseline = backend.datapoints_by_metric["sfxagent.go_heap_alloc"][-1].value.intValue
+            heap_profile_baseline = pprof_client.get_heap_profile()
 
             def has_all_deployment_props():
                 for _, replica_set in replica_sets.items():
@@ -368,20 +354,14 @@ def test_large_k8s_cluster_deployment_prop():
             assert wait_for(has_all_deployment_props, interval_seconds=2, timeout_seconds=60)
             assert wait_for(has_all_replica_set_props, interval_seconds=2)
 
+            assert (
+                internal_metrics.get()["sfxagent.dim_updates_completed"] == 5050
+            ), "Got wrong number of dimension updates"
+
             for _, replica_set in replica_sets.items():
                 v1beta1_client.delete_namespaced_replica_set(name=replica_set["rs_name"], namespace="default", body={})
                 for pod_name in replica_set["pod_names"]:
                     v1_client.delete_namespaced_pod(name=pod_name, namespace="default", body={})
 
-            def go_routines():
-                pprof_client.save_goroutines()
-                return backend.datapoints_by_metric["sfxagent.go_num_goroutine"][-1].value.intValue < 100
-
-            assert wait_for(go_routines, interval_seconds=2, timeout_seconds=60)
-
-            def heap_baselined():
-                pprof_client.save_heap()
-                heap_usage = backend.datapoints_by_metric["sfxagent.go_heap_alloc"][-1].value.intValue
-                return heap_usage < (heap_usage_baseline / 2)
-
-            assert wait_for(heap_baselined, interval_seconds=2, timeout_seconds=60)
+            pprof_client.assert_goroutine_count_under(200)
+            pprof_client.assert_heap_alloc_under(heap_profile_baseline.total * 1.2)
