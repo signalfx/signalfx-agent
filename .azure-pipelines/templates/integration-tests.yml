@@ -1,0 +1,52 @@
+parameters:
+  dependsOn: ''
+  displayName: ''
+  jobName: ''
+  vmImage: ''
+  markers: 'windows or windows_only'
+
+jobs:
+- job: ${{ parameters.jobName }}
+  displayName: ${{ parameters.displayName }}
+  dependsOn: ${{ parameters.dependsOn }}
+  pool:
+    vmImage: ${{ parameters.vmImage }}
+  steps:
+  - template: 'extract-bundle.yml'
+  - template: 'install-choco.yml'
+  - powershell: |
+      if ((Get-Command "conda.exe" -ErrorAction SilentlyContinue) -eq $null) {
+          choco install -y --no-progress --limitoutput miniconda3
+          $env:PATH = "C:\tools\miniconda3\Scripts;C:\tools\miniconda3;C:\tools\miniconda3\Library\bin;$env:PATH"
+          echo "##vso[task.setvariable variable=PATH]$env:PATH"
+          $env:LIB = "C:\tools\miniconda3\Library\lib;$env:LIB"
+          echo "##vso[task.setvariable variable=LIB]$env:LIB"
+      } else {
+          echo "conda already installed"
+      }
+      conda --version
+    displayName: 'Install conda'
+  - powershell: |
+      conda install --yes python=3.6.7 pip=10.0.1
+      python --version
+      pip --version
+      pip install -q -r tests\requirements.txt
+      pytest --version
+    displayName: 'Install pytest'
+  - powershell: |
+      echo "Executing '$env:MARKERS' tests"
+      pytest -n auto -m "$env:MARKERS" --verbose --junitxml=integration_results.xml --html=integration_results.html --self-contained-html tests
+      if ($lastexitcode -gt 1) { throw }
+    env:
+      MARKERS: ${{ parameters.markers }}
+    displayName: 'Run pytest'
+  - task: PublishBuildArtifacts@1
+    inputs:
+      pathtoPublish: 'integration_results.html'
+      artifactName: ${{ parameters.jobName }}
+  - task: PublishTestResults@2
+    inputs:
+      searchFolder: '$(Build.SourcesDirectory)'
+      testResultsFormat: 'JUnit'
+      testResultsFiles: 'integration_results.xml'
+      failTaskOnFailedTests: true

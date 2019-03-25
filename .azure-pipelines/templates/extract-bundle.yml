@@ -1,0 +1,16 @@
+parameters:
+  artifactName: 'bundle'
+  bundle: 'bundle\SignalFxAgent-*-win64.zip'
+  dest: 'build'
+  downloadPath: '$(Build.SourcesDirectory)'
+
+steps:
+- task: DownloadBuildArtifacts@0
+  inputs:
+    artifactName: ${{ parameters.artifactName }}
+    downloadPath: ${{ parameters.downloadPath }}
+- task: ExtractFiles@1
+  inputs:
+    archiveFilePatterns: ${{ parameters.bundle }}
+    destinationFolder: ${{ parameters.dest }}
+    cleanDestinationFolder: true
