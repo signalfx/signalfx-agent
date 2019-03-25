@@ -30,6 +30,7 @@ import (
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/docker"
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/dotnet"
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/ecs"
+	_ "github.com/signalfx/signalfx-agent/internal/monitors/expvar"
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/filesystems"
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/internalmetrics"
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/kubernetes"
