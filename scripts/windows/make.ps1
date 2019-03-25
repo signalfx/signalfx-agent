@@ -165,10 +165,10 @@ function unit_test() {
     compile_deps
     go generate -mod vendor ./internal/monitors/...
     if ($lastexitcode -ne 0){ throw }
-    $(& go test -mod vendor -v ./... 2>&1; $rc=$lastexitcode) | go2xunit > unit_results.xml
+    $(& go test -mod vendor -v ./... 2>&1; $rc=$lastexitcode) | go2xunit -output unit_results.xml
     return $rc
 }
 
 function integration_test() {
-    pytest -m 'windows or windows_only' --verbose --junitxml=integration_results.xml --html=integration_results.html --self-contained-html tests
+    pytest -n auto -m 'windows or windows_only' --verbose --junitxml=integration_results.xml --html=integration_results.html --self-contained-html tests
 }
