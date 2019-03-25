@@ -1,0 +1,108 @@
+resources:
+- repo: self
+
+trigger:
+  branches:
+    include:
+    - master
+  tags:
+    include:
+    - v*
+
+pr:
+  autoCancel: true
+
+variables:
+  AGENT_BIN: '$(Build.SourcesDirectory)\build\SignalFxAgent\bin\signalfx-agent.exe'
+  GO111MODULE: 'on'
+  GOPATH: '$(Build.SourcesDirectory)\gopath'
+  SANIC_NO_UVLOOP: 'true'
+  TEST_SERVICES_DIR: '$(Build.SourcesDirectory)\test-services'
+
+jobs:
+- job: 'win_go_vet'
+  pool:
+    vmImage: 'vs2015-win2012r2'
+  steps:
+  - template: 'templates/install-go.yml'
+  - powershell: 'powershell -command "& { . ./scripts/windows/make.ps1; vet }"'
+    displayName: 'Run go vet'
+- job: 'win_go_lint'
+  pool:
+    vmImage: 'vs2015-win2012r2'
+  steps:
+  - template: 'templates/install-go.yml'
+    parameters:
+      packages: 'golang.org/x/lint/golint'
+  - powershell: 'powershell -command "& { . ./scripts/windows/make.ps1; lint }"'
+    displayName: 'Run golint'
+- job: 'win_go_build'
+  pool:
+    vmImage: 'vs2015-win2012r2'
+  steps:
+  - template: 'templates/install-go.yml'
+  - powershell: |
+      if ("$(Build.SourceBranch)" -match "^refs/tags/v\d+\.\d+\.\d+$") {
+          $env:AGENT_VERSION = ("$(Build.SourceBranchName)").Replace("v", "")
+      } else {
+          $env:AGENT_VERSION = "$(Build.SourceVersion)"
+      }
+      powershell -command "& { . ./scripts/windows/make.ps1; signalfx-agent }"
+    displayName: 'Run go build'
+  - task: PublishBuildArtifacts@1
+    inputs:
+      pathtoPublish: 'signalfx-agent.exe'
+      artifactName: 'exe'
+- job: 'win_go_test'
+  pool:
+    vmImage: 'vs2015-win2012r2'
+  steps:
+  - template: 'templates/install-go.yml'
+    parameters:
+      packages: 'github.com/tebeka/go2xunit'
+  - powershell: 'powershell -command "& { . ./scripts/windows/make.ps1; unit_test }"'
+    displayName: 'Run go test'
+  - task: PublishTestResults@2
+    inputs:
+      searchFolder: '$(Build.SourcesDirectory)'
+      testResultsFormat: 'JUnit'
+      testResultsFiles: 'unit_results.xml'
+      failTaskOnFailedTests: true
+- job: 'win_bundle_build'
+  pool:
+    vmImage: 'vs2015-win2012r2'
+  steps:
+  - template: 'templates/install-go.yml'
+  - template: 'templates/install-choco.yml'
+    parameters:
+      packages: 'vcpython27'
+  - powershell: |
+      if ("$(Build.SourceBranch)" -match "^refs/tags/v\d+\.\d+\.\d+$") {
+          $env:AGENT_VERSION = ("$(Build.SourceBranchName)").Replace("v", "")
+      } else {
+          $env:AGENT_VERSION = "$(Build.SourceVersion)"
+      }
+      powershell -command "& { . ./scripts/windows/make.ps1; bundle }"
+    displayName: 'Build bundle'
+  - task: CopyFiles@2
+    inputs:
+      sourceFolder: 'build'
+      contents: 'SignalFxAgent-*-win64.zip'
+      targetFolder: '$(Build.ArtifactStagingDirectory)'
+      cleanTargetFolder: true
+      overWrite: true
+      flattenFolders: true
+  - task: PublishBuildArtifacts@1
+    inputs:
+      pathtoPublish: '$(Build.ArtifactStagingDirectory)'
+      artifactName: 'bundle'
+- template: 'templates/integration-tests.yml'
+  parameters:
+    dependsOn: 'win_bundle_build'
+    jobName: 'win_2012_integration_tests'
+    vmImage: 'vs2015-win2012r2'
+- template: 'templates/integration-tests.yml'
+  parameters:
+    dependsOn: 'win_bundle_build'
+    jobName: 'win_2016_integration_tests'
+    vmImage: 'vs2017-win2016'
