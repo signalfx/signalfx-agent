@@ -143,7 +143,7 @@ require (
 	github.com/signalfx/gateway v1.0.8
 	github.com/signalfx/gohelpers v0.0.0-20151202220853-ac9f0e053f15 // indirect
 	github.com/signalfx/gohistogram v0.0.0-20160107210732-1ccfd2ff5083 // indirect
-	github.com/signalfx/golib v2.3.2-0.20190318133519-8fb3debf0ac4+incompatible
+	github.com/signalfx/golib v2.3.3+incompatible
 	github.com/sirupsen/logrus v1.4.0
 	github.com/smartystreets/goconvey v0.0.0-20190306220146-200a235640ff // indirect
 	github.com/soniah/gosnmp v0.0.0-20190220004421-68e8beac0db9 // indirect

@@ -31,21 +31,21 @@ func TestSetURL(t *testing.T) {
 
 type MetricsConfigTest struct {
 	conf *Config
-	want *metric
+	want *MetricConfig
 }
 
 var MetricsTest = []MetricsConfigTest{
-	{&Config{Metrics: []*metric{{JSONPath: "System.Cpu", Type: gauge}}}, &metric{JSONPath: "System.Cpu", Name: "system.cpu", Type: gauge}},
-	{&Config{Metrics: []*metric{{JSONPath: "System.Cpu[0]", Type: gauge}}}, &metric{JSONPath: "System.Cpu[0]", Name: "system.cpu[0]", Type: gauge}},
-	{&Config{Metrics: []*metric{{JSONPath: "System.Cpu[0].CacheGCCPUFraction", Type: gauge}}}, &metric{JSONPath: "System.Cpu[0].CacheGCCPUFraction", Name: "system.cpu[0].cache_gccpu_fraction", Type: gauge}},
-	{&Config{Metrics: []*metric{{JSONPath: "System.Cpu.CacheGCCPUFraction", Type: gauge}}}, &metric{JSONPath: "System.Cpu.CacheGCCPUFraction", Name: "system.cpu.cache_gccpu_fraction", Type: gauge}},
+	{&Config{MetricConfigs: []*MetricConfig{{JSONPath: "System.Cpu", Type: gauge}}}, &MetricConfig{JSONPath: "System.Cpu", Name: "system.cpu", Type: gauge}},
+	{&Config{MetricConfigs: []*MetricConfig{{JSONPath: "System.Cpu[0]", Type: gauge}}}, &MetricConfig{JSONPath: "System.Cpu[0]", Name: "system.cpu[0]", Type: gauge}},
+	{&Config{MetricConfigs: []*MetricConfig{{JSONPath: "System.Cpu[0].CacheGCCPUFraction", Type: gauge}}}, &MetricConfig{JSONPath: "System.Cpu[0].CacheGCCPUFraction", Name: "system.cpu[0].cache_gccpu_fraction", Type: gauge}},
+	{&Config{MetricConfigs: []*MetricConfig{{JSONPath: "System.Cpu.CacheGCCPUFraction", Type: gauge}}}, &MetricConfig{JSONPath: "System.Cpu.CacheGCCPUFraction", Name: "system.cpu.cache_gccpu_fraction", Type: gauge}},
 }
 
 func TestSetMetrics(t *testing.T) {
 	for _, test := range MetricsTest {
 		test.conf.initMetrics()
-		var got *metric
-		for _, got = range test.conf.Metrics {
+		var got *MetricConfig
+		for _, got = range test.conf.MetricConfigs {
 			if (*got).JSONPath == (*test.want).JSONPath {
 				if (*got).Name != (*test.want).Name {
 					t.Errorf("got metric name: %s, want metric name: %s", (*got).Name, (*test.want).Name)

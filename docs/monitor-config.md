@@ -61,6 +61,7 @@ along with their possible configuration options:
 - [docker-container-stats](./monitors/docker-container-stats.md)
 - [dotnet](./monitors/dotnet.md)
 - [ecs-metadata](./monitors/ecs-metadata.md)
+- [expvar](./monitors/expvar.md)
 - [filesystems](./monitors/filesystems.md)
 - [host-metadata](./monitors/host-metadata.md)
 - [internal-metrics](./monitors/internal-metrics.md)

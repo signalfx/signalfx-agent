@@ -21,88 +21,6 @@ import (
 
 const monitorType = "expvar"
 
-// MONITOR(expvar): This monitor exports metrics derived from [expvar](https://golang.org/pkg/expvar/)
-// variables in JSON objects retrieved from a HTTP endpoint.
-//
-// The monitor uses configured JSON paths to get metric and dimension values from the JSON objects.
-// [Memstats metrics](https://github.com/signalfx/integrations/blob/master/expvar/docs/expvar_metrics.md)
-// are created by default. They do not require configuration. They are derived from variable
-// [memstats](https://golang.org/pkg/runtime/) that is exposed by default.
-//
-// Below is a sample YAML configuration showing the minimal configuration of the expvar monitor for
-// exporting memstats metrics. The `extraDimensions` field is not required but recommended.
-//```
-// monitors:
-// - type: expvar
-//   host: 172.17.0.3
-//   path: /debug/vars
-//   port: 8000
-//   extraDimensions:
-//     metric_source: expvar
-//```
-//
-// Below is a sample YAML configuration showing the configuration of custom metrics `xyz` and `h.i`.
-// `name` is an optional configuration for metrics and dimensions. If not provided then the required
-// `JSONPath` is used for `name`.
-//```
-// monitors:
-// - type: expvar
-//   host: 172.12.0.6
-//   path: /debug/vars
-//   port: 8123
-//     metrics:
-//       - name: xyz
-//         JSONPath: a.b.c.d
-//         type: counter
-//         dimensions:
-//           - name: rst
-//             JSONPath: a.b
-//       - JSONPath: h.i
-//         type: gauge
-//       - JSONPath: j
-//         type: gauge
-//         dimensions:
-//           - name: kl
-//             value: mno
-//   extraDimensions:
-//     metric_source: expvar
-//```
-//
-// Below is an example JSON object that the above configuration may apply to.
-//```
-//{
-//  "a": {
-//    "b": {
-//      "c": [
-//        {
-//          "d": 4
-//        },
-//        {
-//          "d": 9
-//        },
-//      ]
-//    }
-//  },
-//  "h": [
-//    {
-//      "i": 1.2
-//    }
-//  ],
-//  "j" : 0.8
-//}
-//```
-// Two data points will be created for the metric `a.b.c.d`. The first data point will have the value 4 and
-// dimensions `a.b: c`, `a.b.c: 0` and `metric_source: expvar`. The second data point will have the value 9
-// and dimensions `a.b: c`, `a.b.c: 1` and `metric_source: expvar`. The monitor creates dimensions such as
-// `a.b.c` to store array indexes.
-//
-// For metric `h.i`, a data point of value 1.2, dimensions `h: 0` and `metric_source: expvar` will be created.
-//
-// For metric `j`, a data point of value 0.8, dimensions `kl: mno` and `metric_source: expvar` will be created.
-// Note that the value for dimension `kl` was provided.
-//
-// The path of a dimension must follow the path of its metric and be shorter.
-
 const (
 	gauge                                  = "gauge"
 	counter                                = "counter"
@@ -119,65 +37,52 @@ const (
 
 var logger = log.WithFields(log.Fields{"monitorType": monitorType})
 
-//
-type metric struct {
+// Config for this monitor
+type Config struct {
+	config.MonitorConfig `yaml:",inline" acceptsEndpoints:"true"`
+	// Host of the expvar endpoint
+	Host string `yaml:"host" validate:"required"`
+	// Port of the expvar endpoint
+	Port uint16 `yaml:"port" validate:"required"`
+	// If true, the agent will connect to the host using HTTPS instead of plain HTTP.
+	UseHTTPS bool `yaml:"useHTTPS"`
+	// If useHTTPS is true and this option is also true, the host's TLS cert will not be verified.
+	SkipVerify bool `yaml:"skipVerify"`
+	// Path to the expvar endpoint, usually `/debug/vars` (the default).
+	Path string `yaml:"path" default:"/debug/vars"`
+	// Excludes metrics memstats.alloc, memstats.by_size.size, memstats.by_size.mallocs and memstats.by_size.frees if false
+	EnhancedMetrics bool `yaml:"enhancedMetrics"`
+	// Metrics configurations
+	MetricConfigs []*MetricConfig `yaml:"metrics"`
+	url           *url2.URL
+	runInterval   time.Duration
+}
+
+// MetricConfig for metric
+type MetricConfig struct {
 	// Metric name
 	Name string `yaml:"name"`
-	// JSON path of metric value
+	// JSON path of the metric value
 	JSONPath string `yaml:"JSONPath" validate:"required"`
 	// SignalFx metric type. Possible values are "gauge" or "counter"
-	Type  string `yaml:"type" validate:"required"`
-	Dims  []*dim `yaml:"dimensions"`
-	_type datapoint.MetricType
+	Type string `yaml:"type" validate:"required"`
+	// Metric dimensions
+	DimensionConfigs []*DimensionConfig `yaml:"dimensions"`
+	metricType       datapoint.MetricType
 	// Slice of Path substrings separated by .
 	keys []string
 }
 
-func (met *metric) dims() map[string]string {
-	var dims map[string]string
-	if len(met.Dims) > 0 {
-		dims = make(map[string]string, len(met.Dims))
-		for _, _dim := range met.Dims {
-			if strings.TrimSpace(_dim.Name) != "" && strings.TrimSpace(_dim.Value) != "" {
-				dims[_dim.Name] = _dim.Value
-			}
-		}
-	}
-	return dims
-}
-
-type dim struct {
+// DimensionConfig for metric dimension
+type DimensionConfig struct {
 	// Dimension name
 	Name string `yaml:"name"`
-	// JSON path of dimension value
+	// JSON path of the dimension value
 	JSONPath string `yaml:"JSONPath"`
 	// Dimension value
 	Value string `yaml:"value"`
-	// Slice of Path substrings separated by .
+	// Slice of JSONPath substrings separated by .
 	splits []string
-}
-
-// Exclude EnableGC, DebugGC,
-
-// Config for this monitor
-type Config struct {
-	config.MonitorConfig `yaml:",inline" acceptsEndpoints:"true"`
-	// Host of the exporter
-	Host string `yaml:"host" validate:"required"`
-	// Port of the exporter
-	Port uint16 `yaml:"port" validate:"required"`
-	// If true, the agent will connect to the exporter using HTTPS instead of plain HTTP.
-	UseHTTPS bool `yaml:"useHTTPS"`
-	// If useHTTPS is true and this option is also true, the exporter's TLS cert will not be verified.
-	SkipVerify bool `yaml:"skipVerify"`
-	// Path to the metrics endpoint on the exporter server, usually `/debug/vars` (the default).
-	Path            string `yaml:"path" default:"/debug/vars"`
-	EnhancedMetrics bool   `yaml:"enhancedMetrics"`
-	// Custom metrics
-	Metrics []*metric `yaml:"metrics"`
-	// Default metrics
-	url         *url2.URL
-	runInterval time.Duration
 }
 
 // Monitor for Expvar metrics
@@ -194,20 +99,74 @@ func init() {
 
 // Validate validates configuration
 func (conf *Config) Validate() error {
-	if conf.Metrics != nil {
-		for _, m := range conf.Metrics {
-			_type := strings.TrimSpace(strings.ToLower(m.Type))
+	if conf.MetricConfigs != nil {
+		for _, mConf := range conf.MetricConfigs {
+			_type := strings.TrimSpace(strings.ToLower(mConf.Type))
 			if _type != gauge && _type != counter {
-				return fmt.Errorf("unsupported metric type %s. Supported metric types are: %s, %s", m.Type, gauge, counter)
+				return fmt.Errorf("unsupported metric type %s. Supported metric types are: %s, %s", mConf.Type, gauge, counter)
 			}
-			for _, d := range m.Dims {
-				if d != nil && strings.TrimSpace(d.JSONPath) != "" && !strings.HasPrefix(m.JSONPath, d.JSONPath) {
-					return fmt.Errorf("invalid dimension path %s. Dimension path not parent path of metric path %s", d.JSONPath, m.JSONPath)
+			for _, dConf := range mConf.DimensionConfigs {
+				if dConf != nil && strings.TrimSpace(dConf.JSONPath) != "" && !strings.HasPrefix(mConf.JSONPath, dConf.JSONPath) {
+					return fmt.Errorf("invalid dimension path %s. Dimension path not parent path of metric path %s", dConf.JSONPath, mConf.JSONPath)
 				}
 			}
 		}
 	}
 	return nil
+}
+
+func (conf *Config) setURL() {
+	conf.url = &url2.URL{
+		Scheme: func() string {
+			if conf.UseHTTPS {
+				return "https"
+			}
+			return "http"
+		}(),
+		Host: conf.Host + ":" + fmt.Sprint(conf.Port),
+		Path: conf.Path,
+	}
+}
+
+func (conf *Config) setRunInterval() {
+	conf.runInterval = time.Duration(conf.IntervalSeconds) * time.Second
+}
+
+func (conf *Config) initMetrics() {
+	// Default metrics paths
+	memstatsMetricPathsGauge := []string{"memstats.HeapAlloc", "memstats.HeapSys", "memstats.HeapIdle", "memstats.HeapInuse", "memstats.HeapReleased", "memstats.HeapObjects", "memstats.StackInuse", "memstats.StackSys", "memstats.MSpanInuse", "memstats.MSpanSys", "memstats.MCacheInuse", "memstats.MCacheSys", "memstats.BuckHashSys", "memstats.GCSys", "memstats.OtherSys", "memstats.Sys", "memstats.NextGC", "memstats.LastGC", "memstats.GCCPUFraction", "memstats.EnableGC", "memstats.DebugGC", memstatsPauseNsMetricPath, memstatsPauseEndMetricPath}
+	memstatsMetricPathsCounter := []string{"memstats.TotalAlloc", "memstats.Lookups", "memstats.Mallocs", "memstats.Frees", "memstats.PauseTotalNs", memstatsNumGCMetricPath, "memstats.NumForcedGC"}
+
+	if conf.EnhancedMetrics {
+		memstatsMetricPathsGauge = append(memstatsMetricPathsGauge, "memstats.Alloc")
+		memstatsMetricPathsCounter = append(memstatsMetricPathsCounter, memstatsBySizeSizeMetricPath, memstatsBySizeMallocsMetricPath, memstatsBySizeFreesMetricPath)
+	}
+	if conf.MetricConfigs == nil {
+		conf.MetricConfigs = make([]*MetricConfig, 0, len(memstatsMetricPathsGauge)+len(memstatsMetricPathsCounter))
+	}
+	// Initializing custom metrics
+	for _, mConf := range conf.MetricConfigs {
+		if strings.TrimSpace(mConf.Name) == "" {
+			mConf.Name = toSnakeCase(mConf.JSONPath)
+		}
+		mConf.metricType = func() datapoint.MetricType {
+			if strings.TrimSpace(strings.ToLower(mConf.Type)) == gauge {
+				return datapoint.Gauge
+			}
+			return datapoint.Counter
+		}()
+		if mConf.DimensionConfigs == nil {
+			mConf.DimensionConfigs = []*DimensionConfig{{}}
+		}
+		mConf.keys = strings.Split(mConf.JSONPath, ".")
+	}
+	// Initializing default metrics
+	for _, path := range memstatsMetricPathsGauge {
+		conf.MetricConfigs = append(conf.MetricConfigs, &MetricConfig{Name: toSnakeCase(path), JSONPath: path, Type: gauge, metricType: datapoint.Gauge, DimensionConfigs: []*DimensionConfig{{}}, keys: strings.Split(path, ".")})
+	}
+	for _, path := range memstatsMetricPathsCounter {
+		conf.MetricConfigs = append(conf.MetricConfigs, &MetricConfig{Name: toSnakeCase(path), JSONPath: path, Type: counter, metricType: datapoint.Counter, DimensionConfigs: []*DimensionConfig{{}}, keys: strings.Split(path, ".")})
+	}
 }
 
 // Configure monitor
@@ -244,7 +203,7 @@ func (m *Monitor) sendDatapoint(conf *Config, dp *datapoint.Datapoint, metricPat
 			if metricPath == memstatsPauseEndMetricPath {
 				dp.Metric = memstatsMostRecentGCPauseEndMetricName
 			}
-			// For metrics memstats.PauseNs and memstats.PauseEnd the key of dimensions for is equal metric path
+			// For index dimension key is equal to metric path for default metrics memstats.PauseNs and memstats.PauseEnd
 			delete(dp.Dimensions, metricPath)
 		} else {
 			if err != nil {
@@ -253,71 +212,17 @@ func (m *Monitor) sendDatapoint(conf *Config, dp *datapoint.Datapoint, metricPat
 			return err
 		}
 	}
-	// Renaming dimension to class
+	// Renaming auto created dimension 'memstats.BySize' to 'class'
 	if metricPath == memstatsBySizeSizeMetricPath || metricPath == memstatsBySizeMallocsMetricPath || metricPath == memstatsBySizeFreesMetricPath {
 		dp.Dimensions["class"] = dp.Dimensions[memstatsBySizeDimensionPath]
 		delete(dp.Dimensions, memstatsBySizeDimensionPath)
 	}
 	dp.Timestamp = *now
-	dp.Dimensions["process_host"] = conf.Host
-	dp.Dimensions["process_expvar_port"] = strconv.FormatInt(int64(conf.Port), 10)
+	dp.Dimensions["application_host"] = conf.Host
+	dp.Dimensions["application_expvar_port"] = strconv.FormatInt(int64(conf.Port), 10)
 	dp.Dimensions["plugin"] = monitorType
 	m.Output.SendDatapoint(dp)
 	return nil
-}
-
-func (conf *Config) setURL() {
-	conf.url = &url2.URL{
-		Scheme: func() string {
-			if conf.UseHTTPS {
-				return "https"
-			}
-			return "http"
-		}(),
-		Host: conf.Host + ":" + fmt.Sprint(conf.Port),
-		Path: conf.Path,
-	}
-}
-
-func (conf *Config) setRunInterval() {
-	conf.runInterval = time.Duration(conf.IntervalSeconds) * time.Second
-}
-
-func (conf *Config) initMetrics() {
-	// Default metrics paths
-	memstatsMetricPathsGauge := []string{"memstats.HeapAlloc", "memstats.HeapSys", "memstats.HeapIdle", "memstats.HeapInuse", "memstats.HeapReleased", "memstats.HeapObjects", "memstats.StackInuse", "memstats.StackSys", "memstats.MSpanInuse", "memstats.MSpanSys", "memstats.MCacheInuse", "memstats.MCacheSys", "memstats.BuckHashSys", "memstats.GCSys", "memstats.OtherSys", "memstats.Sys", "memstats.NextGC", "memstats.LastGC", "memstats.GCCPUFraction", "memstats.EnableGC"}
-	memstatsMetricPathsCounter := []string{"memstats.TotalAlloc", "memstats.Lookups", "memstats.Mallocs", "memstats.Frees", "memstats.PauseTotalNs", memstatsNumGCMetricPath, "memstats.NumForcedGC"}
-
-	if conf.EnhancedMetrics {
-		memstatsMetricPathsGauge = append(memstatsMetricPathsGauge, "memstats.Alloc", memstatsPauseNsMetricPath, memstatsPauseEndMetricPath)
-		memstatsMetricPathsCounter = append(memstatsMetricPathsCounter, memstatsBySizeSizeMetricPath, memstatsBySizeMallocsMetricPath, memstatsBySizeFreesMetricPath)
-	}
-	if conf.Metrics == nil {
-		conf.Metrics = make([]*metric, 0, len(memstatsMetricPathsGauge)+len(memstatsMetricPathsCounter))
-	}
-	// Initializing custom metrics
-	for _, m := range conf.Metrics {
-		if strings.TrimSpace(m.Name) == "" {
-			m.Name = toSnakeCase(m.JSONPath)
-		}
-		m._type = func() datapoint.MetricType {
-			if m.Type == gauge {
-				return datapoint.Gauge
-			}
-			return datapoint.Counter
-		}()
-		if m.Dims == nil {
-			m.Dims = []*dim{{}}
-		}
-		m.keys = strings.Split(m.JSONPath, ".")
-	}
-	// Initializing default metrics
-	for _, path := range memstatsMetricPathsGauge {
-		conf.Metrics = append(conf.Metrics, &metric{Name: toSnakeCase(path), JSONPath: path, Type: gauge, _type: datapoint.Gauge, Dims: []*dim{{}}, keys: strings.Split(path, ".")})
-	}
-	for _, path := range memstatsMetricPathsCounter {
-		conf.Metrics = append(conf.Metrics, &metric{Name: toSnakeCase(path), JSONPath: path, Type: counter, _type: datapoint.Counter, Dims: []*dim{{}}, keys: strings.Split(path, ".")})
-	}
 }
 
 func (m *Monitor) setContext() {
@@ -348,22 +253,94 @@ func (m *Monitor) fetchMetrics(conf *Config) (*map[string][]*datapoint.Datapoint
 		return nil, err
 	}
 	var dpsMap map[string][]*datapoint.Datapoint
-	var processName string
+	var applicationName string
 	if _map, ok := metricsJSON.(map[string]interface{}); ok {
-		if processName, err = getProcessName(_map); err != nil {
+		if applicationName, err = getApplicationName(_map); err != nil {
 			logger.Error(err)
 		}
 		dpsMap = make(map[string][]*datapoint.Datapoint)
-		for _, _metric := range conf.Metrics {
+		for _, _metric := range conf.MetricConfigs {
 			dp := datapoint.Datapoint{Dimensions: map[string]string{}}
-			if processName != "" {
-				dp.Dimensions["process_name"] = processName
+			if applicationName != "" {
+				dp.Dimensions["application_name"] = applicationName
 			}
 			dpsMap[_metric.JSONPath] = make([]*datapoint.Datapoint, 0)
 			setDatapoints(_map[_metric.keys[0]], _metric, &dp, &dpsMap, 0)
 		}
 	}
 	return &dpsMap, nil
+}
+
+// Shutdown stops the metric sync
+func (m *Monitor) Shutdown() {
+	if m.cancel != nil {
+		m.cancel()
+	}
+}
+
+func (mConf *MetricConfig) dimensions() map[string]string {
+	var dimensions map[string]string
+	if len(mConf.DimensionConfigs) > 0 {
+		dimensions = make(map[string]string, len(mConf.DimensionConfigs))
+		for _, dConf := range mConf.DimensionConfigs {
+			if strings.TrimSpace(dConf.Name) != "" && strings.TrimSpace(dConf.Value) != "" {
+				dimensions[dConf.Name] = dConf.Value
+			}
+		}
+	}
+	return dimensions
+}
+
+// setDatapoints the dp argument should be zero
+// setDatapoints traverses v recursively following metric path parts in mConf.keys[]
+// setDatapoints adds dimensions along the way and sets metric value in the end
+// setDatapoints clones datapoints and add array index dimension for array values in v
+func setDatapoints(v interface{}, mConf *MetricConfig, dp *datapoint.Datapoint, dpsMap *map[string][]*datapoint.Datapoint, i int) {
+	if _map, ok := v.(map[string]interface{}); ok {
+		for _, dConf := range mConf.DimensionConfigs {
+			if len(dConf.splits) != 0 && len(dConf.splits) == i {
+				dp.Dimensions[dConf.Name] = mConf.keys[i]
+			}
+		}
+		setDatapoints(_map[mConf.keys[i+1]], mConf, dp, dpsMap, i+1)
+	} else if arr, ok := v.([]interface{}); ok {
+		_dp := dp
+		for _i, _v := range arr {
+			if _i > 0 {
+				// At this point nothing is set for the do except possibly some dimensions
+				_dp = &datapoint.Datapoint{Dimensions: copyDims(dp)}
+			}
+			makeNewIndexDimension := true
+			for _, dConf := range mConf.DimensionConfigs {
+				if len(dConf.splits) == i+1 {
+					_dp.Dimensions[dConf.Name] = strconv.Itoa(_i)
+					makeNewIndexDimension = false
+				}
+			}
+			if makeNewIndexDimension {
+				_dp.Dimensions[strings.Join(mConf.keys[:(i+1)], ".")] = strconv.Itoa(_i)
+			}
+			setDatapoints(_v, mConf, _dp, dpsMap, i)
+		}
+	} else {
+		if v == nil {
+			logger.Errorf("failed to find value for metric %s with JSON path %s", mConf.Name, mConf.JSONPath)
+			return
+		}
+		dp.Metric, dp.MetricType = mConf.Name, mConf.metricType
+		for _, dConf := range mConf.DimensionConfigs {
+			if strings.TrimSpace(dConf.Name) != "" && strings.TrimSpace(dConf.Value) != "" {
+				dp.Dimensions[dConf.Name] = dConf.Value
+			}
+		}
+		var err error
+		if dp.Value, err = datapoint.CastMetricValueWithBool(v); err == nil {
+			(*dpsMap)[mConf.JSONPath] = append((*dpsMap)[mConf.JSONPath], dp)
+		} else {
+			logger.Errorf("failed to set value for metric %s with JSON path %s because of type conversion error due to %+v", mConf.Name, mConf.JSONPath, err)
+			return
+		}
+	}
 }
 
 // getMostRecentGCPauseIndex logic is derived from https://golang.org/pkg/runtime/ in the PauseNs section of the 'type MemStats' section
@@ -380,76 +357,21 @@ func getMostRecentGCPauseIndex(dpsMap *map[string][]*datapoint.Datapoint) int64 
 
 var slashLastRegexp = regexp.MustCompile("[^\\/]*$")
 
-func getProcessName(_map map[string]interface{}) (string, error) {
+func getApplicationName(_map map[string]interface{}) (string, error) {
 	if cmdline, ok := _map["cmdline"].([]interface{}); ok && len(cmdline) > 0 {
-		if processName := strings.TrimSpace(slashLastRegexp.FindStringSubmatch(cmdline[0].(string))[0]); processName != "" {
-			return processName, nil
+		if applicationName := strings.TrimSpace(slashLastRegexp.FindStringSubmatch(cmdline[0].(string))[0]); applicationName != "" {
+			return applicationName, nil
 		}
 	}
-	return "", fmt.Errorf("failed to get process name from the first array value of cmdline in map: %+v", _map)
-}
-
-// setDatapoints follows metric path down the v map setting dimensions along the way and metric value in the end
-func setDatapoints(v interface{}, _metric *metric, dp *datapoint.Datapoint, dpsMap *map[string][]*datapoint.Datapoint, i int) {
-	if _map, ok := v.(map[string]interface{}); ok {
-		for _, _dim := range _metric.Dims {
-			if len(_dim.splits) != 0 && len(_dim.splits) == i {
-				dp.Dimensions[_dim.Name] = _metric.keys[i]
-			}
-		}
-		setDatapoints(_map[_metric.keys[i+1]], _metric, dp, dpsMap, i+1)
-	} else if arr, ok := v.([]interface{}); ok {
-		_dp := dp
-		for _i, _v := range arr {
-			if _i > 0 {
-				_dp = &datapoint.Datapoint{Dimensions: copyDims(dp)}
-			}
-			newDim := true
-			for _, _dim := range _metric.Dims {
-				if len(_dim.splits) == i+1 {
-					_dp.Dimensions[_dim.Name] = strconv.Itoa(_i)
-					newDim = false
-				}
-			}
-			if newDim {
-				_dp.Dimensions[strings.Join(_metric.keys[:(i+1)], ".")] = strconv.Itoa(_i)
-			}
-			setDatapoints(_v, _metric, _dp, dpsMap, i)
-		}
-	} else {
-		if v == nil {
-			logger.Errorf("failed to find value for metric %s with JSON path %s", _metric.Name, _metric.JSONPath)
-			return
-		}
-		dp.Metric, dp.MetricType = _metric.Name, _metric._type
-		for _, _dim := range _metric.Dims {
-			if strings.TrimSpace(_dim.Name) != "" && strings.TrimSpace(_dim.Value) != "" {
-				dp.Dimensions[_dim.Name] = _dim.Value
-			}
-		}
-		var err error
-		if dp.Value, err = datapoint.CastMetricValue(v); err == nil {
-			(*dpsMap)[_metric.JSONPath] = append((*dpsMap)[_metric.JSONPath], dp)
-		} else {
-			logger.Errorf("failed to set value for metric %s with JSON path %s because of type conversion error due to %+v", _metric.Name, _metric.JSONPath, err)
-			return
-		}
-	}
+	return "", fmt.Errorf("failed to get application name from the first array value of cmdline in map: %+v", _map)
 }
 
 func copyDims(dp *datapoint.Datapoint) map[string]string {
-	dims := map[string]string{}
+	dimensions := map[string]string{}
 	for k, v := range dp.Dimensions {
-		dims[k] = v
+		dimensions[k] = v
 	}
-	return dims
-}
-
-// Shutdown stops the metric sync
-func (m *Monitor) Shutdown() {
-	if m.cancel != nil {
-		m.cancel()
-	}
+	return dimensions
 }
 
 var camelRegexp = regexp.MustCompile("(^[^A-Z]*|[A-Z]*)([A-Z][^A-Z]+|$)")

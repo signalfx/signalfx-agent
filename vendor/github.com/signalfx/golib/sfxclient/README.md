@@ -16,12 +16,27 @@ libraries.
 The simplest way to send metrics to SignalFx is with HTTPSink. The only
 struct parameter that needs to be configured is AuthToken. To make it easier to
 create common Datapoint objects, wrappers exist for Gauge and Cumulative. An
-example of sending a hello world metric would look like this:
+example of sending a hello world metric would look like as shown below.
+
+#### Configuring your endpoints
+
+If no endpoints are set manually, this library uses the `us0` realm by default.
+If you are not in this realm, you will need to explicitly set the
+endpoint urls above as shown below. To determine if you are in a different realm and need to
+explicitly set the endpoints, check your profile page in the SignalFx
+web application. You will also need to specify an organization access token when making requests
+with the client. For more information on access tokens,
+see the API's [authentication documentation](https://developers.signalfx.com/basics/authentication.html).
 
 ```go
 func SendHelloWorld() {
     client := NewHTTPSink()
-    client.AuthToken = "ABCDXYZ"
+    // modify endpoints if needed
+    client.DatapointEndpoint = "https://ingest.{REALM}.signalfx.com/v2/datapoint"
+    client.EventEndpoint = "https://ingest.{REALM}.signalfx.com/v2/event"
+    client.TraceEndpoint = "https://ingest.{REALM}.signalfx.com/v1/trace"
+
+    client.AuthToken = "ORG_TOKEN"
     ctx := context.Background()
     client.AddDatapoints(ctx, []*datapoint.Datapoint{
         GaugeF("hello.world", nil, 1.0),
@@ -51,7 +66,12 @@ func (c *CustomApplication) Datapoints() []*datapoint.Datapoint {
 }
 func main() {
     scheduler := sfxclient.NewScheduler()
-    scheduler.Sink.(*HTTPSink).AuthToken = "ABCD-XYZ"
+    // endpoint configuration examples
+    scheduler.Sink.(*HTTPSink).DatapointEndpoint = "https://ingest.{REALM}.signalfx.com/v2/datapoint"
+    scheduler.Sink.(*HTTPSink).EventEndpoint = "https://ingest.{REALM}.signalfx.com/v2/event"
+    scheduler.Sink.(*HTTPSink).TraceEndpoint = "https://ingest.{REALM}.signalfx.com/v1/trace"
+
+    scheduler.Sink.(*HTTPSink).AuthToken = "ORG_TOKEN"
     app := &CustomApplication{}
     scheduler.AddCallback(app)
     go scheduler.Schedule(context.Background())
