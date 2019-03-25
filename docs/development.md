@@ -115,6 +115,12 @@ tool](https://github.com/golang/lint), which can be run with `make lint`.
 We also require 100% passing for [go vet](https://golang.org/cmd/vet/) for
 non-test code.  Test code can fail if there is a good reason.
 
+### ARM targets
+
+Building and testing for Linux targets with ARM processors can be done on
+any ARM environment. Amazon EC2 instances running Amazon Linux 2 for arm64
+are known to support the build and test process.
+
 ### Windows
 
 We develop on a [VirtualBox](https://www.virtualbox.org/) Windows Server 2008 

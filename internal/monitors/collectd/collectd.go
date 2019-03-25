@@ -12,6 +12,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"regexp"
+	"runtime"
 	"sync"
 	"syscall"
 	"time"
@@ -468,6 +469,10 @@ func (cm *Manager) rerenderConf(writeHTTPPort int) error {
 
 func (cm *Manager) makeChildCommand() (*exec.Cmd, io.ReadCloser) {
 	loader := filepath.Join(cm.conf.BundleDir, "lib64/ld-linux-x86-64.so.2")
+	if runtime.GOARCH == "arm64" {
+		loader = filepath.Join(cm.conf.BundleDir, "lib/ld-linux-aarch64.so.1")
+	}
+
 	collectdBin := filepath.Join(cm.conf.BundleDir, "bin/collectd")
 	args := []string{"-f", "-C", cm.conf.ConfigFilePath()}
 

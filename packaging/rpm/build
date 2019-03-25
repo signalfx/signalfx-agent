@@ -13,6 +13,8 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 REPO_STAGE=${1:-test}
 
+cpu_arch="$(uname -m)"
+
 case $REPO_STAGE in
   final|beta|test) ;;
   *) echo "REPO_STAGE must be 'final', 'beta' or 'test'" >&2 && exit 1 ;;
@@ -55,7 +57,7 @@ create_rpm() {
         --define "_rpmdir /output" \
         SPECS/signalfx-agent.spec
 
-  if ! test -e ${OUTPUT_DIR}/x86_64/signalfx-agent-${clean_agent_version}-${rpm_revision}.x86_64.rpm
+  if ! test -e ${OUTPUT_DIR}/${cpu_arch}/signalfx-agent-${clean_agent_version}-${rpm_revision}.${cpu_arch}.rpm
   then
     echo "Could not find output package, something went wrong" >&2
     exit 1
