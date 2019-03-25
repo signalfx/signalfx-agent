@@ -1,114 +1,65 @@
 package selfdescribe
 
 import (
+	log "github.com/sirupsen/logrus"
 	"go/doc"
-	"io/ioutil"
-	"os"
-	"path/filepath"
 	"reflect"
 	"sort"
-
-	"github.com/pkg/errors"
-	log "github.com/sirupsen/logrus"
-	"gopkg.in/yaml.v2"
 
 	"github.com/signalfx/signalfx-agent/internal/monitors"
 )
 
-// Monitor metadata file.
-const monitorMetadataFile = "metadata.yaml"
-
-type metricMetadata struct {
-	Name        string `json:"name"`
-	Alias       string `json:"alias,omitempty"`
-	Type        string `json:"type"`
-	Description string `json:"description"`
-	Included    bool   `json:"included" default:"false"`
+type monitorDoc struct {
+	monitors.MonitorMetadata
+	Config           structMetadata `json:"config"`
+	AcceptsEndpoints bool           `json:"acceptsEndpoints"`
+	SingleInstance   bool           `json:"singleInstance"`
 }
 
-type propMetadata struct {
-	Name        string `json:"name"`
-	Dimension   string `json:"dimension"`
-	Description string `json:"description"`
-}
-
-type monitorDocMetadata struct {
-	MonitorType string           `yaml:"monitorType"`
-	SendAll     bool             `yaml:"sendAll"`
-	Dimensions  []dimMetadata    `yaml:"dimensions"`
-	Metrics     []metricMetadata `yaml:"metrics"`
-	Properties  []propMetadata   `yaml:"properties"`
-	Doc         string           `yaml:"doc"`
-}
-
-type monitorMetadata struct {
-	structMetadata
-	AcceptsEndpoints bool             `json:"acceptsEndpoints"`
-	SingleInstance   bool             `json:"singleInstance"`
-	MonitorType      string           `json:"monitorType"`
-	SendAll          bool             `json:"sendAll"`
-	Dimensions       []dimMetadata    `json:"dimensions"`
-	Metrics          []metricMetadata `json:"metrics"`
-	Properties       []propMetadata   `json:"properties"`
-}
-
-func monitorsStructMetadata() []monitorMetadata {
-	sms := []monitorMetadata{}
+func monitorsStructMetadata() []monitorDoc {
+	sms := []monitorDoc{}
 	// Set to track undocumented monitors
-	monTypesSeen := make(map[string]bool)
+	monTypesSeen := map[string]bool{}
 
-	if err := filepath.Walk("internal/monitors", func(path string, info os.FileInfo, err error) error {
-		if err != nil {
-			return err
-		}
-
-		if info.IsDir() || info.Name() != monitorMetadataFile {
-			return nil
-		}
-
-		var monitorDocs []monitorDocMetadata
-
-		if bytes, err := ioutil.ReadFile(path); err != nil {
-			return errors.Errorf("Unable to read metadata file %s: %s", path, err)
-		} else if err := yaml.UnmarshalStrict(bytes, &monitorDocs); err != nil {
-			return err
-		}
-
-		for _, monitor := range monitorDocs {
-			monType := monitor.MonitorType
-
-			if _, ok := monitors.ConfigTemplates[monType]; !ok {
-				log.Errorf("Found metadata for %s monitor in %s but it doesn't appear to be registered",
-					monType, path)
-				continue
-			}
-			t := reflect.TypeOf(monitors.ConfigTemplates[monType]).Elem()
-			monTypesSeen[monType] = true
-
-			checkSendAllLogic(monType, monitor.Metrics, monitor.SendAll)
-			checkDuplicateMetrics(path, monitor.Metrics)
-			checkMetricTypes(path, monitor.Metrics)
-
-			mc, _ := t.FieldByName("MonitorConfig")
-			mmd := monitorMetadata{
-				structMetadata:   getStructMetadata(t),
-				SendAll:          monitor.SendAll,
-				MonitorType:      monType,
-				Dimensions:       monitor.Dimensions,
-				Metrics:          monitor.Metrics,
-				Properties:       monitor.Properties,
-				AcceptsEndpoints: mc.Tag.Get("acceptsEndpoints") == "true",
-				SingleInstance:   mc.Tag.Get("singleInstance") == "true",
-			}
-			mmd.Doc = monitor.Doc
-			mmd.Package = filepath.Dir(path)
-
-			sms = append(sms, mmd)
-		}
-
-		return nil
-	}); err != nil {
+	if packages, err := monitors.CollectMetadata("internal/monitors"); err != nil {
 		log.Fatal(err)
+	} else {
+		for _, pkg := range packages {
+			for _, monitor := range pkg.Monitors {
+				monType := monitor.MonitorType
+
+				if _, ok := monitors.ConfigTemplates[monType]; !ok {
+					log.Errorf("Found metadata for %s monitor in %s but it doesn't appear to be registered",
+						monType, pkg.Path)
+					continue
+				}
+				t := reflect.TypeOf(monitors.ConfigTemplates[monType]).Elem()
+				monTypesSeen[monType] = true
+
+				checkSendAllLogic(monType, monitor.Metrics, monitor.SendAll)
+				checkDuplicateMetrics(pkg.Path, monitor.Metrics)
+				checkMetricTypes(pkg.Path, monitor.Metrics)
+
+				mc, _ := t.FieldByName("MonitorConfig")
+				mmd := monitorDoc{
+					Config: getStructMetadata(t),
+					MonitorMetadata: monitors.MonitorMetadata{
+						SendAll:     monitor.SendAll,
+						MonitorType: monType,
+						Dimensions:  monitor.Dimensions,
+						Groups:      monitor.Groups,
+						Metrics:     monitor.Metrics,
+						Properties:  monitor.Properties,
+						Doc:         monitor.Doc,
+					},
+					AcceptsEndpoints: mc.Tag.Get("acceptsEndpoints") == "true",
+					SingleInstance:   mc.Tag.Get("singleInstance") == "true",
+				}
+				mmd.Config.Package = pkg.Package
+
+				sms = append(sms, mmd)
+			}
+		}
 	}
 
 	sort.Slice(sms, func(i, j int) bool {
@@ -124,10 +75,10 @@ func monitorsStructMetadata() []monitorMetadata {
 	return sms
 }
 
-func dimensionsFromNotes(allDocs []*doc.Package) []dimMetadata {
-	var dm []dimMetadata
+func dimensionsFromNotes(allDocs []*doc.Package) []monitors.DimMetadata {
+	var dm []monitors.DimMetadata
 	for _, note := range notesFromDocs(allDocs, "DIMENSION") {
-		dm = append(dm, dimMetadata{
+		dm = append(dm, monitors.DimMetadata{
 			Name:        note.UID,
 			Description: commentTextToParagraphs(note.Body),
 		})
@@ -138,7 +89,7 @@ func dimensionsFromNotes(allDocs []*doc.Package) []dimMetadata {
 	return dm
 }
 
-func checkDuplicateMetrics(path string, metrics []metricMetadata) {
+func checkDuplicateMetrics(path string, metrics []monitors.MetricMetadata) {
 	seen := map[string]bool{}
 
 	for i := range metrics {
@@ -149,7 +100,7 @@ func checkDuplicateMetrics(path string, metrics []metricMetadata) {
 	}
 }
 
-func checkMetricTypes(path string, metrics []metricMetadata) {
+func checkMetricTypes(path string, metrics []monitors.MetricMetadata) {
 	for i := range metrics {
 		t := metrics[i].Type
 		if t != "gauge" && t != "counter" && t != "cumulative" {
@@ -158,7 +109,7 @@ func checkMetricTypes(path string, metrics []metricMetadata) {
 	}
 }
 
-func checkSendAllLogic(monType string, metrics []metricMetadata, sendAll bool) {
+func checkSendAllLogic(monType string, metrics []monitors.MetricMetadata, sendAll bool) {
 	if len(metrics) == 0 {
 		return
 	}

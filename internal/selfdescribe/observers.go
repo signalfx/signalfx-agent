@@ -1,6 +1,7 @@
 package selfdescribe
 
 import (
+	"github.com/signalfx/signalfx-agent/internal/monitors"
 	"go/doc"
 	"os"
 	"path/filepath"
@@ -14,9 +15,9 @@ import (
 
 type observerMetadata struct {
 	structMetadata
-	ObserverType      string        `json:"observerType"`
-	Dimensions        []dimMetadata `json:"dimensions"`
-	EndpointVariables []endpointVar `json:"endpointVariables"`
+	ObserverType      string                 `json:"observerType"`
+	Dimensions        []monitors.DimMetadata `json:"dimensions"`
+	EndpointVariables []endpointVar          `json:"endpointVariables"`
 }
 
 type endpointVar struct {
@@ -85,12 +86,12 @@ func observerDocsInPackage(pkgDoc *doc.Package) map[string]string {
 	return out
 }
 
-func dimensionsFromNotesAndServicesPackage(allDocs []*doc.Package) []dimMetadata {
-	var containerDims []dimMetadata
+func dimensionsFromNotesAndServicesPackage(allDocs []*doc.Package) []monitors.DimMetadata {
+	var containerDims []monitors.DimMetadata
 	if isContainerObserver(allDocs) {
 		servicesDocs := nestedPackageDocs("internal/core/services")
 		for _, note := range notesFromDocs(servicesDocs, "CONTAINER_DIMENSION") {
-			containerDims = append(containerDims, dimMetadata{
+			containerDims = append(containerDims, monitors.DimMetadata{
 				Name:        note.UID,
 				Description: commentTextToParagraphs(note.Body),
 			})
