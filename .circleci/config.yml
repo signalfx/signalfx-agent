@@ -197,7 +197,7 @@ jobs:
       - goexecutor_setup
       - run: |
           apk add --no-cache jq
-          curl -LOk https://github.com/hairyhenderson/gomplate/releases/download/2.8.0/gomplate_linux-amd64-slim
+          curl -LOk https://github.com/hairyhenderson/gomplate/releases/download/v2.3.0/gomplate_linux-amd64-slim
           mv gomplate_linux-amd64-slim /usr/bin/gomplate
           chmod +x /usr/bin/gomplate
           make signalfx-agent
