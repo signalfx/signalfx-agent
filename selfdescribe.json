@@ -12554,7 +12554,7 @@
           "elementKind": "struct",
           "elementStruct": {
             "name": "MetricConfig",
-            "doc": "Config for metric",
+            "doc": "MetricConfig for metric",
             "package": "internal/monitors/expvar",
             "fields": [
               {
@@ -12590,7 +12590,7 @@
                 "elementKind": "struct",
                 "elementStruct": {
                   "name": "DimensionConfig",
-                  "doc": "Config for metric dimension",
+                  "doc": "DimensionConfig for metric dimension",
                   "package": "internal/monitors/expvar",
                   "fields": [
                     {
