@@ -26,16 +26,16 @@ This monitor has no configuration options.
 
 ## Metrics
 
-The following table lists the metrics available for this monitor. Metrics that are not marked as Custom are standard metrics and are monitored by default.
+The following table lists the metrics available for this monitor. Metrics that are marked as Included are standard metrics and are monitored by default.
 
-| Name | Type | Custom | Description |
+| Name | Type | Included | Description |
 | ---  | ---  | ---    | ---         |
-| `if_errors.rx` | cumulative |  | Count of receive errors on the interface |
-| `if_errors.tx` | cumulative |  | Count of transmit errors on the interface |
-| `if_octets.rx` | cumulative |  | Count of bytes (octets) received on the interface |
-| `if_octets.tx` | cumulative |  | Count of bytes (octets) transmitted by the interface |
-| `if_packets.rx` | cumulative | X | Count of packets received on the interface |
-| `if_packets.tx` | cumulative | X | Count of packets transmitted by the interface |
+| `if_errors.rx` | cumulative | ✔ | Count of receive errors on the interface |
+| `if_errors.tx` | cumulative | ✔ | Count of transmit errors on the interface |
+| `if_octets.rx` | cumulative | ✔ | Count of bytes (octets) received on the interface |
+| `if_octets.tx` | cumulative | ✔ | Count of bytes (octets) transmitted by the interface |
+| `if_packets.rx` | cumulative |  | Count of packets received on the interface |
+| `if_packets.tx` | cumulative |  | Count of packets transmitted by the interface |
 
 
 To specify custom metrics you want to monitor, add a `metricsToInclude` filter

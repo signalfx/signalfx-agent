@@ -74,9 +74,9 @@ The **nested** `values` config object has the following fields:
 
 ## Metrics
 
-The following table lists the metrics available for this monitor. Metrics that are not marked as Custom are standard metrics and are monitored by default.
+The following table lists the metrics available for this monitor. Metrics that are marked as Included are standard metrics and are monitored by default.
 
-| Name | Type | Custom | Description |
+| Name | Type | Included | Description |
 | ---  | ---  | ---    | ---         |
 | `kafka.producer.byte-rate` | gauge |  | Average number of bytes sent per second for a topic. This metric has client-id and topic dimensions. |
 | `kafka.producer.compression-rate` | gauge |  | Average compression rate of record batches for a topic. This metric has client-id and topic dimensions. |

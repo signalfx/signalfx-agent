@@ -40,17 +40,17 @@ Monitor Type: `collectd/signalfx-metadata`
 
 ## Metrics
 
-The following table lists the metrics available for this monitor. Metrics that are not marked as Custom are standard metrics and are monitored by default.
+The following table lists the metrics available for this monitor. Metrics that are marked as Included are standard metrics and are monitored by default.
 
-| Name | Type | Custom | Description |
+| Name | Type | Included | Description |
 | ---  | ---  | ---    | ---         |
-| `cpu.utilization` | gauge |  | Percent of CPU used on this host. |
-| `cpu.utilization_per_core` | gauge | X | Percent of CPU used on each core. `perCoreCPUUtil` config must be set to true. |
-| `disk.summary_utilization` | gauge |  | Percent of disk space utilized on all volumes on this host. |
-| `disk.utilization` | gauge |  | Percent of disk used on this volume. |
-| `disk_ops.total` | cumulative |  | Total number of disk read and write operations on this host. |
-| `memory.utilization` | gauge |  | Percent of memory in use on this host. |
-| `network.total` | cumulative |  | Total amount of inbound and outbound network traffic on this host, in bytes. |
+| `cpu.utilization` | gauge | ✔ | Percent of CPU used on this host. |
+| `cpu.utilization_per_core` | gauge |  | Percent of CPU used on each core. `perCoreCPUUtil` config must be set to true. |
+| `disk.summary_utilization` | gauge | ✔ | Percent of disk space utilized on all volumes on this host. |
+| `disk.utilization` | gauge | ✔ | Percent of disk used on this volume. |
+| `disk_ops.total` | cumulative | ✔ | Total number of disk read and write operations on this host. |
+| `memory.utilization` | gauge | ✔ | Percent of memory in use on this host. |
+| `network.total` | cumulative | ✔ | Total amount of inbound and outbound network traffic on this host, in bytes. |
 
 
 To specify custom metrics you want to monitor, add a `metricsToInclude` filter

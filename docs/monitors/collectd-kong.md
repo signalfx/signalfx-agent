@@ -117,24 +117,24 @@ The **nested** `metrics` config object has the following fields:
 
 ## Metrics
 
-The following table lists the metrics available for this monitor. Metrics that are not marked as Custom are standard metrics and are monitored by default.
+The following table lists the metrics available for this monitor. Metrics that are marked as Included are standard metrics and are monitored by default.
 
-| Name | Type | Custom | Description |
+| Name | Type | Included | Description |
 | ---  | ---  | ---    | ---         |
-| `counter.kong.connections.accepted` | cumulative | X | Total number of all accepted connections. |
-| `counter.kong.connections.handled` | cumulative | X | Total number of all handled connections (accounting for resource limits). |
-| `counter.kong.kong.latency` | cumulative |  | Time spent in Kong request handling and balancer (ms). |
-| `counter.kong.requests.count` | cumulative |  | Total number of all requests made to Kong API and proxy server. |
-| `counter.kong.requests.latency` | cumulative |  | Time elapsed between the first bytes being read from each client request and the log writes after the last bytes were sent to the clients (ms). |
-| `counter.kong.requests.size` | cumulative |  | Total bytes received/proxied from client requests. |
-| `counter.kong.responses.count` | cumulative |  | Total number of responses provided to clients. |
-| `counter.kong.responses.size` | cumulative |  | Total bytes sent/proxied to clients. |
-| `counter.kong.upstream.latency` | cumulative |  | Time spent waiting for upstream response (ms). |
-| `gauge.kong.connections.active` | gauge |  | The current number of active client connections (includes waiting). |
-| `gauge.kong.connections.reading` | gauge |  | The current number of connections where nginx is reading the request header. |
-| `gauge.kong.connections.waiting` | gauge |  | The current number of idle client connections waiting for a request. |
-| `gauge.kong.connections.writing` | gauge |  | The current number of connections where nginx is writing the response back to the client. |
-| `gauge.kong.database.reachable` | gauge |  | kong.dao:db.reachable() at time of metric query |
+| `counter.kong.connections.accepted` | cumulative |  | Total number of all accepted connections. |
+| `counter.kong.connections.handled` | cumulative |  | Total number of all handled connections (accounting for resource limits). |
+| `counter.kong.kong.latency` | cumulative | ✔ | Time spent in Kong request handling and balancer (ms). |
+| `counter.kong.requests.count` | cumulative | ✔ | Total number of all requests made to Kong API and proxy server. |
+| `counter.kong.requests.latency` | cumulative | ✔ | Time elapsed between the first bytes being read from each client request and the log writes after the last bytes were sent to the clients (ms). |
+| `counter.kong.requests.size` | cumulative | ✔ | Total bytes received/proxied from client requests. |
+| `counter.kong.responses.count` | cumulative | ✔ | Total number of responses provided to clients. |
+| `counter.kong.responses.size` | cumulative | ✔ | Total bytes sent/proxied to clients. |
+| `counter.kong.upstream.latency` | cumulative | ✔ | Time spent waiting for upstream response (ms). |
+| `gauge.kong.connections.active` | gauge | ✔ | The current number of active client connections (includes waiting). |
+| `gauge.kong.connections.reading` | gauge | ✔ | The current number of connections where nginx is reading the request header. |
+| `gauge.kong.connections.waiting` | gauge | ✔ | The current number of idle client connections waiting for a request. |
+| `gauge.kong.connections.writing` | gauge | ✔ | The current number of connections where nginx is writing the response back to the client. |
+| `gauge.kong.database.reachable` | gauge | ✔ | kong.dao:db.reachable() at time of metric query |
 
 
 To specify custom metrics you want to monitor, add a `metricsToInclude` filter

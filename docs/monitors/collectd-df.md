@@ -30,22 +30,22 @@ Monitor Type: `collectd/df`
 
 ## Metrics
 
-The following table lists the metrics available for this monitor. Metrics that are not marked as Custom are standard metrics and are monitored by default.
+The following table lists the metrics available for this monitor. Metrics that are marked as Included are standard metrics and are monitored by default.
 
-| Name | Type | Custom | Description |
+| Name | Type | Included | Description |
 | ---  | ---  | ---    | ---         |
-| `df_complex.free` | gauge |  | Free disk space in bytes |
-| `df_complex.reserved` | gauge | X | Reserved disk space in bytes |
-| `df_complex.used` | gauge |  | Used disk space in bytes |
-| `df_inodes.free` | gauge | X | Number of inodes that are free. |
-| `df_inodes.reserved` | gauge | X | Number of inodes reserved for the super user. |
-| `df_inodes.used` | gauge | X | Number of inodes that are used. |
-| `percent_bytes.free` | gauge | X | Free disk space on the file system, expressed as a percentage. |
-| `percent_bytes.reserved` | gauge | X | Reserved disk space on the filesystem, expressed as a percentage. |
-| `percent_bytes.used` | gauge | X | Used disk space on the file system, expressed as a percentage. |
-| `percent_inodes.free` | gauge | X | Free inodes on the file system, expressed as a percentage. |
-| `percent_inodes.reserved` | gauge | X | Reserved inodes on the file system, expressed as a percentage. |
-| `percent_inodes.used` | gauge | X | Used inodes on the file system, expressed as a percentage. |
+| `df_complex.free` | gauge | ✔ | Free disk space in bytes |
+| `df_complex.reserved` | gauge |  | Reserved disk space in bytes |
+| `df_complex.used` | gauge | ✔ | Used disk space in bytes |
+| `df_inodes.free` | gauge |  | Number of inodes that are free. |
+| `df_inodes.reserved` | gauge |  | Number of inodes reserved for the super user. |
+| `df_inodes.used` | gauge |  | Number of inodes that are used. |
+| `percent_bytes.free` | gauge |  | Free disk space on the file system, expressed as a percentage. |
+| `percent_bytes.reserved` | gauge |  | Reserved disk space on the filesystem, expressed as a percentage. |
+| `percent_bytes.used` | gauge |  | Used disk space on the file system, expressed as a percentage. |
+| `percent_inodes.free` | gauge |  | Free inodes on the file system, expressed as a percentage. |
+| `percent_inodes.reserved` | gauge |  | Reserved inodes on the file system, expressed as a percentage. |
+| `percent_inodes.used` | gauge |  | Used inodes on the file system, expressed as a percentage. |
 
 
 To specify custom metrics you want to monitor, add a `metricsToInclude` filter

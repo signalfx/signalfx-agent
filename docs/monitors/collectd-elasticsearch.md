@@ -42,54 +42,54 @@ Monitor Type: `collectd/elasticsearch`
 
 ## Metrics
 
-The following table lists the metrics available for this monitor. Metrics that are not marked as Custom are standard metrics and are monitored by default.
+The following table lists the metrics available for this monitor. Metrics that are marked as Included are standard metrics and are monitored by default.
 
-| Name | Type | Custom | Description |
+| Name | Type | Included | Description |
 | ---  | ---  | ---    | ---         |
-| `counter.indices.get.total` | counter |  | The total number of get requests since node startup |
-| `counter.indices.indexing.index-total` | counter |  | The total number of index requests since node startup |
-| `counter.indices.merges.total` | counter |  | Total number of merges since node startup |
-| `counter.indices.search.query-time` | counter |  | Total time spent in search queries (milliseconds) |
-| `counter.indices.search.query-total` | counter |  | The total number of search requests since node startup |
-| `counter.indices.total.indexing.index-total` | counter |  | The total number of index requests per cluster |
-| `counter.indices.total.merges.total` | counter |  | Total number of merges per cluster |
-| `counter.indices.total.search.query-total` | counter |  | The total number of search requests per cluster |
-| `counter.jvm.gc.time` | counter |  | Total garbage collection time (milliseconds) |
-| `counter.thread_pool.bulk.rejected` | counter |  | Number of rejected bulk requests |
-| `counter.thread_pool.flush.rejected` | counter |  | Number of rejected flush requests |
-| `counter.thread_pool.generic.rejected` | counter |  | Number of rejected generic requests |
-| `counter.thread_pool.get.rejected` | counter |  | Number of rejected get requests |
-| `counter.thread_pool.index.rejected` | counter |  | Number of rejected index requests |
-| `counter.thread_pool.merge.rejected` | counter |  | Number of rejected merge requests |
-| `counter.thread_pool.optimize.rejected` | counter |  | Number of rejected optimize requests |
-| `counter.thread_pool.refresh.rejected` | counter |  | Number of rejected refresh requests |
-| `counter.thread_pool.rejected` | counter |  | Number of rejected thread pool requests |
-| `counter.thread_pool.search.rejected` | counter |  | Number of rejected search requests |
-| `counter.thread_pool.snapshot.rejected` | counter |  | Number of rejected snapshot requests |
-| `gauge.cluster.active-primary-shards` | gauge |  | The number of active primary shards |
-| `gauge.cluster.active-shards` | gauge |  | The number of active shards |
-| `gauge.cluster.initializing-shards` | gauge | X | The number of currently initializing shards |
-| `gauge.cluster.number-of-data_nodes` | gauge |  | The current number of data nodes in the cluster |
-| `gauge.cluster.number-of-nodes` | gauge |  | Total number of nodes in the cluster |
-| `gauge.cluster.relocating-shards` | gauge |  | The number of shards that are currently being relocated |
-| `gauge.cluster.status` | gauge | X | The health status of the cluster |
-| `gauge.cluster.unassigned-shards` | gauge |  | The number of shards that are currently unassigned |
-| `gauge.indices.cache.field.size` | gauge |  | Field data size (bytes) |
-| `gauge.indices.cache.filter.size` | gauge |  | Filter cache size (bytes) |
-| `gauge.indices.docs.count` | gauge |  | Number of documents on this node |
-| `gauge.indices.docs.deleted` | gauge |  | Number of deleted documents on this node |
-| `gauge.indices.merges.current` | gauge |  | Number of active merges |
-| `gauge.indices.segments.count` | gauge |  | Number of segments on this node |
-| `gauge.indices.total.docs.count` | gauge |  | Number of documents in the cluster |
-| `gauge.indices.total.fielddata.memory-size` | gauge |  | Field data size (bytes) |
-| `gauge.indices.total.filter-cache.memory-size` | gauge |  | Filter cache size (bytes) |
-| `gauge.jvm.mem.heap-committed` | gauge |  | Total heap committed by the process (bytes) |
-| `gauge.jvm.mem.heap-used` | gauge |  | Total heap used (bytes) |
-| `gauge.process.open_file_descriptors` | gauge |  | Number of currently open file descriptors |
-| `gauge.thread_pool.active` | counter | X | Number of active threads |
-| `gauge.thread_pool.largest` | counter | X | Highest active threads in thread pool |
-| `gauge.thread_pool.queue` | counter | X | Number of Tasks in thread pool |
-| `gauge.thread_pool.threads` | counter | X | Number of Threads in thread pool |
+| `counter.indices.get.total` | counter | ✔ | The total number of get requests since node startup |
+| `counter.indices.indexing.index-total` | counter | ✔ | The total number of index requests since node startup |
+| `counter.indices.merges.total` | counter | ✔ | Total number of merges since node startup |
+| `counter.indices.search.query-time` | counter | ✔ | Total time spent in search queries (milliseconds) |
+| `counter.indices.search.query-total` | counter | ✔ | The total number of search requests since node startup |
+| `counter.indices.total.indexing.index-total` | counter | ✔ | The total number of index requests per cluster |
+| `counter.indices.total.merges.total` | counter | ✔ | Total number of merges per cluster |
+| `counter.indices.total.search.query-total` | counter | ✔ | The total number of search requests per cluster |
+| `counter.jvm.gc.time` | counter | ✔ | Total garbage collection time (milliseconds) |
+| `counter.thread_pool.bulk.rejected` | counter | ✔ | Number of rejected bulk requests |
+| `counter.thread_pool.flush.rejected` | counter | ✔ | Number of rejected flush requests |
+| `counter.thread_pool.generic.rejected` | counter | ✔ | Number of rejected generic requests |
+| `counter.thread_pool.get.rejected` | counter | ✔ | Number of rejected get requests |
+| `counter.thread_pool.index.rejected` | counter | ✔ | Number of rejected index requests |
+| `counter.thread_pool.merge.rejected` | counter | ✔ | Number of rejected merge requests |
+| `counter.thread_pool.optimize.rejected` | counter | ✔ | Number of rejected optimize requests |
+| `counter.thread_pool.refresh.rejected` | counter | ✔ | Number of rejected refresh requests |
+| `counter.thread_pool.rejected` | counter | ✔ | Number of rejected thread pool requests |
+| `counter.thread_pool.search.rejected` | counter | ✔ | Number of rejected search requests |
+| `counter.thread_pool.snapshot.rejected` | counter | ✔ | Number of rejected snapshot requests |
+| `gauge.cluster.active-primary-shards` | gauge | ✔ | The number of active primary shards |
+| `gauge.cluster.active-shards` | gauge | ✔ | The number of active shards |
+| `gauge.cluster.initializing-shards` | gauge |  | The number of currently initializing shards |
+| `gauge.cluster.number-of-data_nodes` | gauge | ✔ | The current number of data nodes in the cluster |
+| `gauge.cluster.number-of-nodes` | gauge | ✔ | Total number of nodes in the cluster |
+| `gauge.cluster.relocating-shards` | gauge | ✔ | The number of shards that are currently being relocated |
+| `gauge.cluster.status` | gauge |  | The health status of the cluster |
+| `gauge.cluster.unassigned-shards` | gauge | ✔ | The number of shards that are currently unassigned |
+| `gauge.indices.cache.field.size` | gauge | ✔ | Field data size (bytes) |
+| `gauge.indices.cache.filter.size` | gauge | ✔ | Filter cache size (bytes) |
+| `gauge.indices.docs.count` | gauge | ✔ | Number of documents on this node |
+| `gauge.indices.docs.deleted` | gauge | ✔ | Number of deleted documents on this node |
+| `gauge.indices.merges.current` | gauge | ✔ | Number of active merges |
+| `gauge.indices.segments.count` | gauge | ✔ | Number of segments on this node |
+| `gauge.indices.total.docs.count` | gauge | ✔ | Number of documents in the cluster |
+| `gauge.indices.total.fielddata.memory-size` | gauge | ✔ | Field data size (bytes) |
+| `gauge.indices.total.filter-cache.memory-size` | gauge | ✔ | Filter cache size (bytes) |
+| `gauge.jvm.mem.heap-committed` | gauge | ✔ | Total heap committed by the process (bytes) |
+| `gauge.jvm.mem.heap-used` | gauge | ✔ | Total heap used (bytes) |
+| `gauge.process.open_file_descriptors` | gauge | ✔ | Number of currently open file descriptors |
+| `gauge.thread_pool.active` | counter |  | Number of active threads |
+| `gauge.thread_pool.largest` | counter |  | Highest active threads in thread pool |
+| `gauge.thread_pool.queue` | counter |  | Number of Tasks in thread pool |
+| `gauge.thread_pool.threads` | counter |  | Number of Threads in thread pool |
 
 
 To specify custom metrics you want to monitor, add a `metricsToInclude` filter

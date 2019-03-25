@@ -59,12 +59,12 @@ The **nested** `kubernetesAPI` config object has the following fields:
 
 ## Metrics
 
-The following table lists the metrics available for this monitor. Metrics that are not marked as Custom are standard metrics and are monitored by default.
+The following table lists the metrics available for this monitor. Metrics that are marked as Included are standard metrics and are monitored by default.
 
-| Name | Type | Custom | Description |
+| Name | Type | Included | Description |
 | ---  | ---  | ---    | ---         |
-| `kubernetes.volume_available_bytes` | gauge | X | The number of available bytes in the volume |
-| `kubernetes.volume_capacity_bytes` | gauge | X | The total capacity in bytes of the volume |
+| `kubernetes.volume_available_bytes` | gauge |  | The number of available bytes in the volume |
+| `kubernetes.volume_capacity_bytes` | gauge |  | The total capacity in bytes of the volume |
 
 
 

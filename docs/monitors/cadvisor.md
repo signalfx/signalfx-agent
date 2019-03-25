@@ -36,54 +36,54 @@ Monitor Type: `cadvisor`
 
 ## Metrics
 
-The following table lists the metrics available for this monitor. Metrics that are not marked as Custom are standard metrics and are monitored by default.
+The following table lists the metrics available for this monitor. Metrics that are marked as Included are standard metrics and are monitored by default.
 
-| Name | Type | Custom | Description |
+| Name | Type | Included | Description |
 | ---  | ---  | ---    | ---         |
-| `container_cpu_cfs_periods` | counter | X | Total number of elapsed CFS enforcement intervals |
-| `container_cpu_cfs_throttled_periods` | counter | X | Total number of times tasks in the cgroup have been throttled |
-| `container_cpu_cfs_throttled_time` | counter | X | Total time duration, in nanoseconds, for which tasks in the cgroup have been throttled |
-| `container_cpu_percent` | counter | X | Cumulative cpu utilization as a percentage of the total host CPU available.  This metric is equivalent to `container_cpu_utilization` / <# of CPUs/cores on host>. |
-| `container_cpu_system_seconds_total` | counter | X | Cumulative system cpu time consumed in nanoseconds |
-| `container_cpu_usage_seconds_total` | counter | X | Cumulative cpu time consumed per cpu in nanoseconds |
-| `container_cpu_user_seconds_total` | counter | X | Cumulative user cpu time consumed in nanoseconds |
-| `container_cpu_utilization` | counter |  | Cumulative cpu utilization in percentages.  This is equivalent to "centicores", or hundreths of CPU cores consumed.  This metric is **NOT** normalized by the total # of cores on the system. |
-| `container_fs_io_current` | gauge | X | Number of I/Os currently in progress |
-| `container_fs_io_time_seconds_total` | counter | X | Cumulative count of seconds spent doing I/Os |
-| `container_fs_io_time_weighted_seconds_total` | counter | X | Cumulative weighted I/O time in seconds |
-| `container_fs_limit_bytes` | gauge | X | Number of bytes that the container may occupy on this filesystem |
-| `container_fs_read_seconds_total` | counter | X | Cumulative count of seconds spent reading |
-| `container_fs_reads_merged_total` | counter | X | Cumulative count of reads merged |
-| `container_fs_reads_total` | counter | X | Cumulative count of reads completed |
-| `container_fs_sector_reads_total` | counter | X | Cumulative count of sector reads completed |
-| `container_fs_sector_writes_total` | counter | X | Cumulative count of sector writes completed |
-| `container_fs_usage_bytes` | gauge | X | Number of bytes that are consumed by the container on this filesystem |
-| `container_fs_write_seconds_total` | counter | X | Cumulative count of seconds spent writing |
-| `container_fs_writes_merged_total` | counter | X | Cumulative count of writes merged |
-| `container_fs_writes_total` | counter | X | Cumulative count of writes completed |
-| `container_last_seen` | gauge | X | Last time a container was seen by the exporter |
-| `container_memory_failcnt` | counter | X | Number of memory usage hits limits |
-| `container_memory_failures_total` | counter |  | Cumulative count of memory allocation failures |
-| `container_memory_usage_bytes` | gauge |  | Current memory usage in bytes |
-| `container_memory_working_set_bytes` | gauge | X | Current working set in bytes |
-| `container_spec_cpu_period` | gauge |  | The number of microseconds that the [CFS scheduler](https://www.kernel.org/doc/Documentation/scheduler/sched-bwc.txt) uses as a window when limiting container processes |
-| `container_spec_cpu_quota` | gauge |  | In CPU quota for the CFS process scheduler. In K8s this is equal to the containers's CPU limit as a fraction of 1 core and multiplied by the `container_spec_cpu_period`.  So if the CPU limit is `500m` (500 millicores) for a container and the `container_spec_cpu_period` is set to 100,000, this value will be 50,000. |
-| `container_spec_cpu_shares` | gauge | X | CPU share of the container |
-| `container_spec_memory_limit_bytes` | gauge |  | Memory limit for the container. |
-| `container_spec_memory_swap_limit_bytes` | gauge | X | Memory swap limit for the container. |
-| `container_start_time_seconds` | gauge | X | Start time of the container since unix epoch in seconds. |
-| `container_tasks_state` | gauge | X | Number of tasks in given state |
-| `machine_cpu_cores` | gauge |  | Number of CPU cores on the node. |
-| `machine_cpu_frequency_khz` | gauge | X | Node's CPU frequency. |
-| `machine_memory_bytes` | gauge |  | Amount of memory installed on the node. |
-| `pod_network_receive_bytes_total` | counter |  | Cumulative count of bytes received |
-| `pod_network_receive_errors_total` | counter |  | Cumulative count of errors encountered while receiving |
-| `pod_network_receive_packets_dropped_total` | counter | X | Cumulative count of packets dropped while receiving |
-| `pod_network_receive_packets_total` | counter | X | Cumulative count of packets received |
-| `pod_network_transmit_bytes_total` | counter |  | Cumulative count of bytes transmitted |
-| `pod_network_transmit_errors_total` | counter |  | Cumulative count of errors encountered while transmitting |
-| `pod_network_transmit_packets_dropped_total` | counter | X | Cumulative count of packets dropped while transmitting |
-| `pod_network_transmit_packets_total` | counter | X | Cumulative count of packets transmitted |
+| `container_cpu_cfs_periods` | counter |  | Total number of elapsed CFS enforcement intervals |
+| `container_cpu_cfs_throttled_periods` | counter |  | Total number of times tasks in the cgroup have been throttled |
+| `container_cpu_cfs_throttled_time` | counter |  | Total time duration, in nanoseconds, for which tasks in the cgroup have been throttled |
+| `container_cpu_percent` | counter |  | Cumulative cpu utilization as a percentage of the total host CPU available.  This metric is equivalent to `container_cpu_utilization` / <# of CPUs/cores on host>. |
+| `container_cpu_system_seconds_total` | counter |  | Cumulative system cpu time consumed in nanoseconds |
+| `container_cpu_usage_seconds_total` | counter |  | Cumulative cpu time consumed per cpu in nanoseconds |
+| `container_cpu_user_seconds_total` | counter |  | Cumulative user cpu time consumed in nanoseconds |
+| `container_cpu_utilization` | counter | ✔ | Cumulative cpu utilization in percentages.  This is equivalent to "centicores", or hundreths of CPU cores consumed.  This metric is **NOT** normalized by the total # of cores on the system. |
+| `container_fs_io_current` | gauge |  | Number of I/Os currently in progress |
+| `container_fs_io_time_seconds_total` | counter |  | Cumulative count of seconds spent doing I/Os |
+| `container_fs_io_time_weighted_seconds_total` | counter |  | Cumulative weighted I/O time in seconds |
+| `container_fs_limit_bytes` | gauge |  | Number of bytes that the container may occupy on this filesystem |
+| `container_fs_read_seconds_total` | counter |  | Cumulative count of seconds spent reading |
+| `container_fs_reads_merged_total` | counter |  | Cumulative count of reads merged |
+| `container_fs_reads_total` | counter |  | Cumulative count of reads completed |
+| `container_fs_sector_reads_total` | counter |  | Cumulative count of sector reads completed |
+| `container_fs_sector_writes_total` | counter |  | Cumulative count of sector writes completed |
+| `container_fs_usage_bytes` | gauge |  | Number of bytes that are consumed by the container on this filesystem |
+| `container_fs_write_seconds_total` | counter |  | Cumulative count of seconds spent writing |
+| `container_fs_writes_merged_total` | counter |  | Cumulative count of writes merged |
+| `container_fs_writes_total` | counter |  | Cumulative count of writes completed |
+| `container_last_seen` | gauge |  | Last time a container was seen by the exporter |
+| `container_memory_failcnt` | counter |  | Number of memory usage hits limits |
+| `container_memory_failures_total` | counter | ✔ | Cumulative count of memory allocation failures |
+| `container_memory_usage_bytes` | gauge | ✔ | Current memory usage in bytes |
+| `container_memory_working_set_bytes` | gauge |  | Current working set in bytes |
+| `container_spec_cpu_period` | gauge | ✔ | The number of microseconds that the [CFS scheduler](https://www.kernel.org/doc/Documentation/scheduler/sched-bwc.txt) uses as a window when limiting container processes |
+| `container_spec_cpu_quota` | gauge | ✔ | In CPU quota for the CFS process scheduler. In K8s this is equal to the containers's CPU limit as a fraction of 1 core and multiplied by the `container_spec_cpu_period`.  So if the CPU limit is `500m` (500 millicores) for a container and the `container_spec_cpu_period` is set to 100,000, this value will be 50,000. |
+| `container_spec_cpu_shares` | gauge |  | CPU share of the container |
+| `container_spec_memory_limit_bytes` | gauge | ✔ | Memory limit for the container. |
+| `container_spec_memory_swap_limit_bytes` | gauge |  | Memory swap limit for the container. |
+| `container_start_time_seconds` | gauge |  | Start time of the container since unix epoch in seconds. |
+| `container_tasks_state` | gauge |  | Number of tasks in given state |
+| `machine_cpu_cores` | gauge | ✔ | Number of CPU cores on the node. |
+| `machine_cpu_frequency_khz` | gauge |  | Node's CPU frequency. |
+| `machine_memory_bytes` | gauge | ✔ | Amount of memory installed on the node. |
+| `pod_network_receive_bytes_total` | counter | ✔ | Cumulative count of bytes received |
+| `pod_network_receive_errors_total` | counter | ✔ | Cumulative count of errors encountered while receiving |
+| `pod_network_receive_packets_dropped_total` | counter |  | Cumulative count of packets dropped while receiving |
+| `pod_network_receive_packets_total` | counter |  | Cumulative count of packets received |
+| `pod_network_transmit_bytes_total` | counter | ✔ | Cumulative count of bytes transmitted |
+| `pod_network_transmit_errors_total` | counter | ✔ | Cumulative count of errors encountered while transmitting |
+| `pod_network_transmit_packets_dropped_total` | counter |  | Cumulative count of packets dropped while transmitting |
+| `pod_network_transmit_packets_total` | counter |  | Cumulative count of packets transmitted |
 
 
 To specify custom metrics you want to monitor, add a `metricsToInclude` filter

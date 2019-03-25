@@ -40,20 +40,20 @@ Monitor Type: `filesystems`
 
 ## Metrics
 
-The following table lists the metrics available for this monitor. Metrics that are not marked as Custom are standard metrics and are monitored by default.
+The following table lists the metrics available for this monitor. Metrics that are marked as Included are standard metrics and are monitored by default.
 
-| Name | Type | Custom | Description |
+| Name | Type | Included | Description |
 | ---  | ---  | ---    | ---         |
-| `df_complex.free` | gauge |  | Free disk space in bytes |
-| `df_complex.used` | gauge |  | Used disk space in bytes |
-| `df_inodes.free` | gauge | X | (Linux Only) Number of inodes that are free.  This is is only reported if the configuration option `reportInodes` is set to `true`. |
-| `df_inodes.used` | gauge | X | (Linux Only) Number of inodes that are used.  This is only reported if the configuration option `reportInodes` is set to `true`. |
-| `disk.summary_utilization` | gauge |  | Percent of disk space utilized on all volumes on this host. This metric reports with plugin dimension set to "signalfx-metadata". |
-| `disk.utilization` | gauge |  | Percent of disk used on this volume. This metric reports with plugin dimension set to "signalfx-metadata". |
-| `percent_bytes.free` | gauge | X | Free disk space on the file system, expressed as a percentage. |
-| `percent_bytes.used` | gauge | X | Used disk space on the file system, expressed as a percentage. |
-| `percent_inodes.free` | gauge | X | (Linux Only) Free inodes on the file system, expressed as a percentage.  This is only reported if the configuration option `reportInodes` is set to `true`. |
-| `percent_inodes.used` | gauge | X | (Linux Only) Used inodes on the file system, expressed as a percentage.  This is only reported if the configuration option `reportInodes` is set to `true`. |
+| `df_complex.free` | gauge | ✔ | Free disk space in bytes |
+| `df_complex.used` | gauge | ✔ | Used disk space in bytes |
+| `df_inodes.free` | gauge |  | (Linux Only) Number of inodes that are free.  This is is only reported if the configuration option `reportInodes` is set to `true`. |
+| `df_inodes.used` | gauge |  | (Linux Only) Number of inodes that are used.  This is only reported if the configuration option `reportInodes` is set to `true`. |
+| `disk.summary_utilization` | gauge | ✔ | Percent of disk space utilized on all volumes on this host. This metric reports with plugin dimension set to "signalfx-metadata". |
+| `disk.utilization` | gauge | ✔ | Percent of disk used on this volume. This metric reports with plugin dimension set to "signalfx-metadata". |
+| `percent_bytes.free` | gauge |  | Free disk space on the file system, expressed as a percentage. |
+| `percent_bytes.used` | gauge |  | Used disk space on the file system, expressed as a percentage. |
+| `percent_inodes.free` | gauge |  | (Linux Only) Free inodes on the file system, expressed as a percentage.  This is only reported if the configuration option `reportInodes` is set to `true`. |
+| `percent_inodes.used` | gauge |  | (Linux Only) Used inodes on the file system, expressed as a percentage.  This is only reported if the configuration option `reportInodes` is set to `true`. |
 
 
 To specify custom metrics you want to monitor, add a `metricsToInclude` filter

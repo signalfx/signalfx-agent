@@ -40,12 +40,12 @@ Monitor Type: `telegraf/win_services`
 
 ## Metrics
 
-The following table lists the metrics available for this monitor. Metrics that are not marked as Custom are standard metrics and are monitored by default.
+The following table lists the metrics available for this monitor. Metrics that are marked as Included are standard metrics and are monitored by default.
 
-| Name | Type | Custom | Description |
+| Name | Type | Included | Description |
 | ---  | ---  | ---    | ---         |
-| `win_services.startup_mode` | gauge | X | The configured start up mode of the window windows service.  Possible values are: `0` (Boot Start), `1` (System Start), `2` (Auto Start), `3` (Demand Start), `4` (disabled). |
-| `win_services.state` | gauge | X | The state of the windows service.  Possible values are: `1` (Stopped), `2` (Start Pending), `3` (Stop Pending), `4` (Running), `5` (Continue Pending), `6` (Pause Pending), and `7` (Paused). |
+| `win_services.startup_mode` | gauge |  | The configured start up mode of the window windows service.  Possible values are: `0` (Boot Start), `1` (System Start), `2` (Auto Start), `3` (Demand Start), `4` (disabled). |
+| `win_services.state` | gauge |  | The state of the windows service.  Possible values are: `1` (Stopped), `2` (Start Pending), `3` (Stop Pending), `4` (Running), `5` (Continue Pending), `6` (Pause Pending), and `7` (Paused). |
 
 
 

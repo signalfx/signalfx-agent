@@ -52,25 +52,25 @@ Monitor Type: `collectd/apache`
 
 ## Metrics
 
-The following table lists the metrics available for this monitor. Metrics that are not marked as Custom are standard metrics and are monitored by default.
+The following table lists the metrics available for this monitor. Metrics that are marked as Included are standard metrics and are monitored by default.
 
-| Name | Type | Custom | Description |
+| Name | Type | Included | Description |
 | ---  | ---  | ---    | ---         |
-| `apache_bytes` | cumulative |  | Bytes served by Apache |
-| `apache_connections` | gauge |  | Connections served by Apache |
-| `apache_idle_workers` | gauge |  | Apache workers that are idle |
-| `apache_requests` | cumulative |  | Requests served by Apache |
-| `apache_scoreboard.closing` | gauge | X | Number of workers in the process of closing connections |
-| `apache_scoreboard.dnslookup` | gauge | X | Number of workers performing DNS lookup |
-| `apache_scoreboard.finishing` | gauge | X | Number of workers that are finishing |
-| `apache_scoreboard.idle_cleanup` | gauge | X | Number of idle threads ready for cleanup |
-| `apache_scoreboard.keepalive` | gauge | X | Number of keep-alive connections |
-| `apache_scoreboard.logging` | gauge | X | Number of workers writing to log file |
-| `apache_scoreboard.open` | gauge |  | Number of worker thread slots that are open |
-| `apache_scoreboard.reading` | gauge | X | Number of workers reading requests |
-| `apache_scoreboard.sending` | gauge | X | Number of workers sending responses |
-| `apache_scoreboard.starting` | gauge | X | Number of workers starting up |
-| `apache_scoreboard.waiting` | gauge | X | Number of workers waiting for requests |
+| `apache_bytes` | cumulative | ✔ | Bytes served by Apache |
+| `apache_connections` | gauge | ✔ | Connections served by Apache |
+| `apache_idle_workers` | gauge | ✔ | Apache workers that are idle |
+| `apache_requests` | cumulative | ✔ | Requests served by Apache |
+| `apache_scoreboard.closing` | gauge |  | Number of workers in the process of closing connections |
+| `apache_scoreboard.dnslookup` | gauge |  | Number of workers performing DNS lookup |
+| `apache_scoreboard.finishing` | gauge |  | Number of workers that are finishing |
+| `apache_scoreboard.idle_cleanup` | gauge |  | Number of idle threads ready for cleanup |
+| `apache_scoreboard.keepalive` | gauge |  | Number of keep-alive connections |
+| `apache_scoreboard.logging` | gauge |  | Number of workers writing to log file |
+| `apache_scoreboard.open` | gauge | ✔ | Number of worker thread slots that are open |
+| `apache_scoreboard.reading` | gauge |  | Number of workers reading requests |
+| `apache_scoreboard.sending` | gauge |  | Number of workers sending responses |
+| `apache_scoreboard.starting` | gauge |  | Number of workers starting up |
+| `apache_scoreboard.waiting` | gauge |  | Number of workers waiting for requests |
 
 
 To specify custom metrics you want to monitor, add a `metricsToInclude` filter

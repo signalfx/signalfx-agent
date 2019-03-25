@@ -70,24 +70,24 @@ Monitor Type: `collectd/jenkins`
 
 ## Metrics
 
-The following table lists the metrics available for this monitor. Metrics that are not marked as Custom are standard metrics and are monitored by default.
+The following table lists the metrics available for this monitor. Metrics that are marked as Included are standard metrics and are monitored by default.
 
-| Name | Type | Custom | Description |
+| Name | Type | Included | Description |
 | ---  | ---  | ---    | ---         |
-| `gauge.jenkins.job.duration` | gauge |  | Time taken to complete the job in ms. |
-| `gauge.jenkins.node.executor.count.value` | gauge |  | Total Number of executors in an instance |
-| `gauge.jenkins.node.executor.in-use.value` | gauge |  | Total number of executors being used in an instance |
-| `gauge.jenkins.node.health-check.score` | gauge |  | Mean health score of an instance |
-| `gauge.jenkins.node.health.disk.space` | gauge |  | Binary value of disk space health |
-| `gauge.jenkins.node.health.plugins` | gauge |  | Boolean value indicating state of plugins |
-| `gauge.jenkins.node.health.temporary.space` | gauge |  | Binary value of temporary space health |
-| `gauge.jenkins.node.health.thread-deadlock` | gauge |  | Boolean value indicating a deadlock |
-| `gauge.jenkins.node.online.status` | gauge |  | Boolean value of instance is reachable or not |
-| `gauge.jenkins.node.queue.size.value` | gauge |  | Total number pending jobs in queue |
-| `gauge.jenkins.node.slave.online.status` | gauge |  | Boolean value for slave is reachable or not |
-| `gauge.jenkins.node.vm.memory.heap.usage` | gauge |  | Percent utilization of the heap memory |
-| `gauge.jenkins.node.vm.memory.non-heap.used` | gauge |  | Total amount of non-heap memory used |
-| `gauge.jenkins.node.vm.memory.total.used` | gauge |  | Total Memory used by instance |
+| `gauge.jenkins.job.duration` | gauge | ✔ | Time taken to complete the job in ms. |
+| `gauge.jenkins.node.executor.count.value` | gauge | ✔ | Total Number of executors in an instance |
+| `gauge.jenkins.node.executor.in-use.value` | gauge | ✔ | Total number of executors being used in an instance |
+| `gauge.jenkins.node.health-check.score` | gauge | ✔ | Mean health score of an instance |
+| `gauge.jenkins.node.health.disk.space` | gauge | ✔ | Binary value of disk space health |
+| `gauge.jenkins.node.health.plugins` | gauge | ✔ | Boolean value indicating state of plugins |
+| `gauge.jenkins.node.health.temporary.space` | gauge | ✔ | Binary value of temporary space health |
+| `gauge.jenkins.node.health.thread-deadlock` | gauge | ✔ | Boolean value indicating a deadlock |
+| `gauge.jenkins.node.online.status` | gauge | ✔ | Boolean value of instance is reachable or not |
+| `gauge.jenkins.node.queue.size.value` | gauge | ✔ | Total number pending jobs in queue |
+| `gauge.jenkins.node.slave.online.status` | gauge | ✔ | Boolean value for slave is reachable or not |
+| `gauge.jenkins.node.vm.memory.heap.usage` | gauge | ✔ | Percent utilization of the heap memory |
+| `gauge.jenkins.node.vm.memory.non-heap.used` | gauge | ✔ | Total amount of non-heap memory used |
+| `gauge.jenkins.node.vm.memory.total.used` | gauge | ✔ | Total Memory used by instance |
 
 
 To specify custom metrics you want to monitor, add a `metricsToInclude` filter

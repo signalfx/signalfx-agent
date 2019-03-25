@@ -82,9 +82,9 @@ The **nested** `values` config object has the following fields:
 
 ## Metrics
 
-The following table lists the metrics available for this monitor. Metrics that are not marked as Custom are standard metrics and are monitored by default.
+The following table lists the metrics available for this monitor. Metrics that are marked as Included are standard metrics and are monitored by default.
 
-| Name | Type | Custom | Description |
+| Name | Type | Included | Description |
 | ---  | ---  | ---    | ---         |
 | `kafka.consumer.bytes-consumed-rate` | gauge |  | Average number of bytes consumed per second. This metric has either client-id dimension or, both client-id and topic dimensions. The former is an aggregate across all topics of the latter. |
 | `kafka.consumer.fetch-rate` | gauge |  | Number of records consumed per second. |

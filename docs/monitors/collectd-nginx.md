@@ -36,17 +36,17 @@ Monitor Type: `collectd/nginx`
 
 ## Metrics
 
-The following table lists the metrics available for this monitor. Metrics that are not marked as Custom are standard metrics and are monitored by default.
+The following table lists the metrics available for this monitor. Metrics that are marked as Included are standard metrics and are monitored by default.
 
-| Name | Type | Custom | Description |
+| Name | Type | Included | Description |
 | ---  | ---  | ---    | ---         |
-| `connections.accepted` | cumulative |  | Connections accepted by Nginx Web Server |
-| `connections.handled` | cumulative |  | Connections handled by Nginx Web Server |
-| `nginx_connections.active` | gauge |  | Connections active in Nginx Web Server |
-| `nginx_connections.reading` | gauge |  | Connections being read by Nginx Web Server |
-| `nginx_connections.waiting` | gauge |  | Connections waited on by Nginx Web Server |
-| `nginx_connections.writing` | gauge |  | Connections being written by Nginx Web Server |
-| `nginx_requests` | cumulative |  | Requests handled by Nginx Web Server |
+| `connections.accepted` | cumulative | ✔ | Connections accepted by Nginx Web Server |
+| `connections.handled` | cumulative | ✔ | Connections handled by Nginx Web Server |
+| `nginx_connections.active` | gauge | ✔ | Connections active in Nginx Web Server |
+| `nginx_connections.reading` | gauge | ✔ | Connections being read by Nginx Web Server |
+| `nginx_connections.waiting` | gauge | ✔ | Connections waited on by Nginx Web Server |
+| `nginx_connections.writing` | gauge | ✔ | Connections being written by Nginx Web Server |
+| `nginx_requests` | cumulative | ✔ | Requests handled by Nginx Web Server |
 
 
 To specify custom metrics you want to monitor, add a `metricsToInclude` filter

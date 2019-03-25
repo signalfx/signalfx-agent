@@ -36,21 +36,21 @@ Monitor Type: `vmem`
 
 ## Metrics
 
-The following table lists the metrics available for this monitor. Metrics that are not marked as Custom are standard metrics and are monitored by default.
+The following table lists the metrics available for this monitor. Metrics that are marked as Included are standard metrics and are monitored by default.
 
-| Name | Type | Custom | Description |
+| Name | Type | Included | Description |
 | ---  | ---  | ---    | ---         |
-| `vmpage.swap.in_per_second` | gauge | X | (Windows Only) |
-| `vmpage.swap.out_per_second` | gauge | X | (Windows Only) |
-| `vmpage.swap.total.per_second` | gauge | X | (Windows Only) |
-| `vmpage_faults.majflt` | cumulative | X | (Linux Only) Number of major page faults on the system |
-| `vmpage_faults.minflt` | cumulative | X | (Linux Only) Number of minor page faults on the system |
-| `vmpage_io.memory.in` | cumulative | X | (Linux Only) Page Ins for Memory |
-| `vmpage_io.memory.out` | cumulative | X | (Linux Only) Page Outs for Memory |
-| `vmpage_io.swap.in` | cumulative |  | (Linux Only) Page Ins for Swap |
-| `vmpage_io.swap.out` | cumulative |  | (Linux Only) Page Outs for Swap |
-| `vmpage_number.free_pages` | cumulative | X | (Linux Only) Number of free memory pages |
-| `vmpage_number.mapped` | cumulative | X | (Linux Only) Number of mapped pages |
+| `vmpage.swap.in_per_second` | gauge |  | (Windows Only) |
+| `vmpage.swap.out_per_second` | gauge |  | (Windows Only) |
+| `vmpage.swap.total.per_second` | gauge |  | (Windows Only) |
+| `vmpage_faults.majflt` | cumulative |  | (Linux Only) Number of major page faults on the system |
+| `vmpage_faults.minflt` | cumulative |  | (Linux Only) Number of minor page faults on the system |
+| `vmpage_io.memory.in` | cumulative |  | (Linux Only) Page Ins for Memory |
+| `vmpage_io.memory.out` | cumulative |  | (Linux Only) Page Outs for Memory |
+| `vmpage_io.swap.in` | cumulative | ✔ | (Linux Only) Page Ins for Swap |
+| `vmpage_io.swap.out` | cumulative | ✔ | (Linux Only) Page Outs for Swap |
+| `vmpage_number.free_pages` | cumulative |  | (Linux Only) Number of free memory pages |
+| `vmpage_number.mapped` | cumulative |  | (Linux Only) Number of mapped pages |
 
 
 To specify custom metrics you want to monitor, add a `metricsToInclude` filter

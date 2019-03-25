@@ -33,31 +33,31 @@ Monitor Type: `collectd/memcached`
 
 ## Metrics
 
-The following table lists the metrics available for this monitor. Metrics that are not marked as Custom are standard metrics and are monitored by default.
+The following table lists the metrics available for this monitor. Metrics that are marked as Included are standard metrics and are monitored by default.
 
-| Name | Type | Custom | Description |
+| Name | Type | Included | Description |
 | ---  | ---  | ---    | ---         |
-| `df.cache.free` | gauge |  | Unused storage bytes |
-| `df.cache.used` | gauge |  | Current number of bytes used to store items |
-| `memcached_command.flush` | cumulative | X | Number of flush requests |
-| `memcached_command.get` | cumulative |  | Number of retrieval requests |
-| `memcached_command.set` | cumulative |  | Number of storage requests |
-| `memcached_command.touch` | cumulative | X | Number of touch requests |
-| `memcached_connections.current` | gauge |  | Current number of open connections |
-| `memcached_connections.listen_disabled` | gauge | X | Number of times connection limit has been exceeded |
-| `memcached_items.current` | gauge |  | Current number of items stored by this instance |
-| `memcached_octets.rx` | cumulative |  | Total network bytes read by this server |
-| `memcached_octets.tx` | cumulative |  | Total network bytes written by this server |
-| `memcached_ops.decr_hits` | cumulative | X | Number of successful Decr requests |
-| `memcached_ops.decr_misses` | cumulative | X | Number of decr requests against missing keys |
-| `memcached_ops.evictions` | cumulative |  | Number of valid items removed from cache |
-| `memcached_ops.hits` | cumulative |  | Number of keys that have been requested and found present |
-| `memcached_ops.incr_hits` | cumulative | X | Number of successful incr requests |
-| `memcached_ops.incr_misses` | cumulative | X | Number of incr requests against missing keys |
-| `memcached_ops.misses` | cumulative |  | Number of items that have been requested and not found |
-| `ps_count.threads` | gauge | X | Number of worker threads requested |
-| `ps_cputime.syst` | cumulative | X | Total system time for this instance |
-| `ps_cputime.user` | cumulative | X | Total user time for this instance |
+| `df.cache.free` | gauge | ✔ | Unused storage bytes |
+| `df.cache.used` | gauge | ✔ | Current number of bytes used to store items |
+| `memcached_command.flush` | cumulative |  | Number of flush requests |
+| `memcached_command.get` | cumulative | ✔ | Number of retrieval requests |
+| `memcached_command.set` | cumulative | ✔ | Number of storage requests |
+| `memcached_command.touch` | cumulative |  | Number of touch requests |
+| `memcached_connections.current` | gauge | ✔ | Current number of open connections |
+| `memcached_connections.listen_disabled` | gauge |  | Number of times connection limit has been exceeded |
+| `memcached_items.current` | gauge | ✔ | Current number of items stored by this instance |
+| `memcached_octets.rx` | cumulative | ✔ | Total network bytes read by this server |
+| `memcached_octets.tx` | cumulative | ✔ | Total network bytes written by this server |
+| `memcached_ops.decr_hits` | cumulative |  | Number of successful Decr requests |
+| `memcached_ops.decr_misses` | cumulative |  | Number of decr requests against missing keys |
+| `memcached_ops.evictions` | cumulative | ✔ | Number of valid items removed from cache |
+| `memcached_ops.hits` | cumulative | ✔ | Number of keys that have been requested and found present |
+| `memcached_ops.incr_hits` | cumulative |  | Number of successful incr requests |
+| `memcached_ops.incr_misses` | cumulative |  | Number of incr requests against missing keys |
+| `memcached_ops.misses` | cumulative | ✔ | Number of items that have been requested and not found |
+| `ps_count.threads` | gauge |  | Number of worker threads requested |
+| `ps_cputime.syst` | cumulative |  | Total system time for this instance |
+| `ps_cputime.user` | cumulative |  | Total user time for this instance |
 
 
 To specify custom metrics you want to monitor, add a `metricsToInclude` filter
