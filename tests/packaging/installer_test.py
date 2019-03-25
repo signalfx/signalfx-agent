@@ -8,7 +8,6 @@ from tests.helpers.util import print_lines, wait_for
 
 from .common import (
     INIT_SYSTEMD,
-    INIT_SYSV,
     INIT_UPSTART,
     INSTALLER_PATH,
     copy_file_into_container,
@@ -20,7 +19,6 @@ from .common import (
 pytestmark = pytest.mark.installer
 
 SUPPORTED_DISTROS = [
-    ("debian-7-wheezy", INIT_SYSV),
     ("debian-8-jessie", INIT_SYSTEMD),
     ("debian-9-stretch", INIT_SYSTEMD),
     ("ubuntu1404", INIT_UPSTART),
