@@ -71,9 +71,9 @@ type Config struct {
 	// machine-id value.
 	SendMachineID bool `yaml:"sendMachineID"`
 	// A list of observers to use (see observer config)
-	Observers []ObserverConfig `yaml:"observers" default:"[]" neverLog:"omit"`
+	Observers []ObserverConfig `yaml:"observers" default:"[]"`
 	// A list of monitors to use (see monitor config)
-	Monitors []MonitorConfig `yaml:"monitors" default:"[]" neverLog:"omit"`
+	Monitors []MonitorConfig `yaml:"monitors" default:"[]"`
 	// Configuration of the datapoint/event writer
 	Writer WriterConfig `yaml:"writer"`
 	// Log configuration

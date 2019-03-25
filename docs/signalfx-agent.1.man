@@ -8,7 +8,7 @@
 
 | **signalfx-agent** \[**-config** path] \[**-debug**] \[**-version**]
 
-| **signalfx-agent** **status**
+| **signalfx-agent** **status** \[all | config | monitors | endpoints]
 
 # DESCRIPTION
 
@@ -19,7 +19,9 @@ SignalFx backend for processing.
 The agent does not fork to the background and has no such option to do so.
 
 If the **status** subcommand is invoked it connects to the configured diagnostic
-socket and dumps diagnostic information about the agent to stdout.
+server and dumps diagnostic information about the agent to stdout.  An optional
+section can be provided that provides extended output about a certain aspect of
+the agent.  If no section is specified, a short summary of the agent is output.
 
 See https://github.com/signalfx/signalfx-agent for more information and
 configuration documentation, as well as to file bug reports or ask questions.

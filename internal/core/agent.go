@@ -179,7 +179,7 @@ func Startup(configPath string) (context.CancelFunc, <-chan struct{}) {
 }
 
 // Status reads the text from the diagnostic socket and returns it if available.
-func Status(configPath string) ([]byte, error) {
+func Status(configPath string, section string) ([]byte, error) {
 	configLoads, err := config.LoadConfig(context.Background(), configPath)
 	if err != nil {
 		return nil, err
@@ -187,6 +187,6 @@ func Status(configPath string) ([]byte, error) {
 
 	select {
 	case conf := <-configLoads:
-		return readStatusInfo(conf.InternalStatusHost, conf.InternalStatusPort)
+		return readStatusInfo(conf.InternalStatusHost, conf.InternalStatusPort, section)
 	}
 }

@@ -7,46 +7,50 @@ import (
 
 	"github.com/signalfx/golib/datapoint"
 	"github.com/signalfx/golib/sfxclient"
+	"github.com/signalfx/signalfx-agent/internal/utils"
 )
 
-func (sw *SignalFxWriter) averageDPM() uint {
-	minutesActive := time.Since(sw.startTime).Minutes()
-	return uint(float64(sw.dpsSent) / minutesActive)
+// Call this in a goroutine to maintain a moving window average DPM, EPM, and
+// SPM, updated every 10 seconds.
+func (sw *SignalFxWriter) maintainLastMinuteActivity() {
+	t := time.NewTicker(10 * time.Second)
+	defer t.Stop()
+
+	var dpSamples [6]int64
+	var eventSamples [6]int64
+	var spanSamples [6]int64
+	idx := 0
+	for {
+		select {
+		case <-sw.ctx.Done():
+			return
+		case <-t.C:
+			sw.datapointsLastMinute = atomic.LoadInt64(&sw.dpsSent) - dpSamples[idx]
+			dpSamples[idx] += sw.datapointsLastMinute
+
+			sw.eventsLastMinute = atomic.LoadInt64(&sw.eventsSent) - eventSamples[idx]
+			eventSamples[idx] += sw.eventsLastMinute
+
+			sw.spansLastMinute = atomic.LoadInt64(&sw.traceSpansSent) - spanSamples[idx]
+			spanSamples[idx] += sw.spansLastMinute
+
+			idx = (idx + 1) % 6
+		}
+	}
 }
 
 // DiagnosticText outputs a string that describes the state of the writer to a
 // human.
 func (sw *SignalFxWriter) DiagnosticText() string {
 	return fmt.Sprintf(
-		"Writer Status:\n"+
-			"Global Dims:                %s\n"+
-			"Host ID Dims:               %s\n"+
-			"Average DPM:                %d\n"+
-			"DPs Sent:                   %d\n"+
-			"Events Sent:                %d\n"+
-			"DPs In Flight:              %d\n"+
-			"DPs Waiting:                %d\n"+
-			"DP Requests Active:         %d\n"+
-			"Trace spans In Flight:      %d\n"+
-			"Trace Span Requests Active: %d\n"+
-			"Events Buffered:            %d\n"+
-			"DPs Channel (len/cap) :     %d/%d\n"+
-			"Events Channel (len/cap):   %d/%d\n",
-		sw.conf.GlobalDimensions,
-		sw.hostIDDims,
-		sw.averageDPM(),
-		sw.dpsSent,
-		sw.eventsSent,
-		sw.dpsInFlight,
-		sw.dpsWaiting,
-		sw.dpRequestsActive,
-		sw.traceSpansInFlight,
-		sw.traceSpanRequestsActive,
-		len(sw.eventBuffer),
-		len(sw.dpChan),
-		cap(sw.dpChan),
-		len(sw.eventChan),
-		cap(sw.eventChan))
+		"Global Dimensions:                %s\n"+
+			"Datapoints sent (last minute):    %d\n"+
+			"Events Sent (last minute):        %d\n"+
+			"Trace Spans Sent (last minute):   %d",
+		utils.FormatStringMapCompact(utils.MergeStringMaps(sw.conf.GlobalDimensions, sw.hostIDDims)),
+		sw.datapointsLastMinute,
+		sw.eventsLastMinute,
+		sw.spansLastMinute)
 }
 
 // InternalMetrics returns a set of metrics showing how the writer is currently

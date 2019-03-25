@@ -50,12 +50,30 @@ func setCollectdVersionEnvvar() {
 func doStatus() {
 	set := flag.NewFlagSet("status", flag.ExitOnError)
 	configPath := set.String("config", defaultConfigPath, "agent config path")
+	set.Usage = func() {
+		fmt.Fprintf(set.Output(), "Usage: signalfx-agent status [all | monitors | config | endpoints]\n\n"+
+			"  The optional section arg can be one of the following:\n"+
+			"    all - Dump everything available\n"+
+			"    monitors - Show information about all active monitors\n"+
+			"    config - Show the fully resolved configuration currently in use by the agent\n"+
+			"    endpoints - Show the discovered endpoints available to discovery rules\n"+
+			"  If no section arg is provided, a short summary of the agent is output\n\n")
+		set.PrintDefaults()
+	}
 
 	set.Parse(os.Args[2:])
 
 	log.SetLevel(log.ErrorLevel)
 
-	status, err := core.Status(*configPath)
+	var section string
+	if len(set.Args()) == 1 {
+		section = set.Args()[0]
+	} else if len(set.Args()) > 1 {
+		set.Usage()
+		os.Exit(4)
+	}
+
+	status, err := core.Status(*configPath, section)
 	if err != nil {
 		fmt.Printf("Could not get status: %s\nAre you sure the agent is currently running?\n", err)
 		os.Exit(1)
