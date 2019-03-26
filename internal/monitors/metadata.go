@@ -73,7 +73,7 @@ func CollectMetadata(root string) ([]PackageMetadata, error) {
 		var monitorDocs []MonitorMetadata
 
 		if bytes, err := ioutil.ReadFile(path); err != nil {
-			return errors.Errorf("unable to read metadata file %s: %s", path, err)
+			return errors.Wrapf(err, "unable to read metadata file %s: %s", path)
 		} else if err := yaml.UnmarshalStrict(bytes, &monitorDocs); err != nil {
 			return errors.Wrapf(err, "unable to unmarshal file %s", path)
 		}
