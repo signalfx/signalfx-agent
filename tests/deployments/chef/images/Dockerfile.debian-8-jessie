@@ -2,6 +2,10 @@ FROM debian:jessie-slim
 
 ENV DEBIAN_FRONTEND noninteractive
 
+RUN sed -i '/security/d' /etc/apt/sources.list
+RUN sed -i '/updates/d' /etc/apt/sources.list
+RUN sed -i 's|http://.*\.debian.org|http://archive.debian.org|' /etc/apt/sources.list
+
 RUN apt-get update &&\
     apt-get install -yq ca-certificates procps wget apt-transport-https init-system-helpers curl
 
