@@ -30,18 +30,18 @@ This monitor has no configuration options.
 
 ## Metrics
 
-The following table lists the metrics available for this monitor. Metrics that are not marked as Custom are standard metrics and are monitored by default.
+The following table lists the metrics available for this monitor. Metrics that are marked as Included are standard metrics and are monitored by default.
 
-| Name | Type | Custom | Description |
+| Name | Type | Included | Description |
 | ---  | ---  | ---    | ---         |
-| `memory.available` | gauge | X | (Windows Only) Bytes of memory available for use. |
-| `memory.buffered` | gauge |  | (Linux Only) Bytes of memory used for buffering I/O. |
-| `memory.cached` | gauge |  | (Linux Only) Bytes of memory used for disk caching. |
-| `memory.free` | gauge |  | (Linux Only) Bytes of memory available for use. |
-| `memory.slab_recl` | gauge |  | (Linux Only) Bytes of memory, used for SLAB-allocation of kernel objects, that can be reclaimed. |
-| `memory.slab_unrecl` | gauge |  | (Linux Only) Bytes of memory, used for SLAB-allocation of kernel objects, that can't be reclaimed. |
-| `memory.used` | gauge |  | Bytes of memory in use by the system. |
-| `memory.utilization` | gauge |  | Percent of memory in use on this host. This metric reports with plugin dimension set to "signalfx-metadata". |
+| `memory.available` | gauge |  | (Windows Only) Bytes of memory available for use. |
+| `memory.buffered` | gauge | ✔ | (Linux Only) Bytes of memory used for buffering I/O. |
+| `memory.cached` | gauge | ✔ | (Linux Only) Bytes of memory used for disk caching. |
+| `memory.free` | gauge | ✔ | (Linux Only) Bytes of memory available for use. |
+| `memory.slab_recl` | gauge | ✔ | (Linux Only) Bytes of memory, used for SLAB-allocation of kernel objects, that can be reclaimed. |
+| `memory.slab_unrecl` | gauge | ✔ | (Linux Only) Bytes of memory, used for SLAB-allocation of kernel objects, that can't be reclaimed. |
+| `memory.used` | gauge | ✔ | Bytes of memory in use by the system. |
+| `memory.utilization` | gauge | ✔ | Percent of memory in use on this host. This metric reports with plugin dimension set to "signalfx-metadata". |
 
 
 To specify custom metrics you want to monitor, add a `metricsToInclude` filter

@@ -42,11 +42,11 @@ This monitor has no configuration options.
 
 ## Metrics
 
-The following table lists the metrics available for this monitor. Metrics that are not marked as Custom are standard metrics and are monitored by default.
+The following table lists the metrics available for this monitor. Metrics that are marked as Included are standard metrics and are monitored by default.
 
-| Name | Type | Custom | Description |
+| Name | Type | Included | Description |
 | ---  | ---  | ---    | ---         |
-| `sfxagent.hostmetadata` | gauge |  | The time the hostmetadata monitor has been running in seconds.  It includes dimensional metadata about the host and agent. |
+| `sfxagent.hostmetadata` | gauge | ✔ | The time the hostmetadata monitor has been running in seconds.  It includes dimensional metadata about the host and agent. |
 
 
 To specify custom metrics you want to monitor, add a `metricsToInclude` filter

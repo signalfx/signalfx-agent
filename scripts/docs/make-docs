@@ -51,6 +51,5 @@ for i in $(seq 0 $(($(j '.Monitors | length')-1))); do
 
   j ".Monitors[$i]" |\
     inject_to_obj "doc_types" "$doc_types" | \
-    inject_to_obj "whitelisted_metrics" "$(cat $SCRIPT_DIR/../../whitelist.json | jq 'reduce {([.[] | .metricNames] | flatten | unique[]): true} as $item ({}; . + $item)')" | \
     gomplate --file $SCRIPT_DIR/templates/monitor-page.md.tmpl --datasource monitor=stdin:///monitor.json > $mon_dir/${monitorType//\//-}.md
 done

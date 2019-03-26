@@ -34,39 +34,39 @@ Monitor Type: `collectd/etcd`
 
 ## Metrics
 
-The following table lists the metrics available for this monitor. Metrics that are not marked as Custom are standard metrics and are monitored by default.
+The following table lists the metrics available for this monitor. Metrics that are marked as Included are standard metrics and are monitored by default.
 
-| Name | Type | Custom | Description |
+| Name | Type | Included | Description |
 | ---  | ---  | ---    | ---         |
-| `counter.etcd.leader.counts.fail` | counter |  | Total number of failed rpc requests to with a follower |
-| `counter.etcd.leader.counts.success` | counter |  | Total number of successful rpc requests to with a follower |
-| `counter.etcd.self.recvappendreq.cnt` | counter |  | Total number of append requests received by a member |
-| `counter.etcd.self.sendappendreq.cnt` | counter |  | Total number of append requests sent by a member |
-| `counter.etcd.store.compareanddelete.fail` | counter |  | Total number of failed compare-and-delete operations |
-| `counter.etcd.store.compareanddelete.success` | counter |  | Total number of successful compare-and-delete operations |
-| `counter.etcd.store.compareandswap.fail` | counter |  | Total number of failed compare-and-swap operations |
-| `counter.etcd.store.compareandswap.success` | counter |  | Total number of successful compare-and-swap operations |
-| `counter.etcd.store.create.fail` | counter |  | Total number of failed create operations |
-| `counter.etcd.store.create.success` | counter |  | Total number of successful create operations |
-| `counter.etcd.store.delete.fail` | counter |  | Total number of failed delete operations |
-| `counter.etcd.store.delete.success` | counter |  | Total number of successful delete operations |
-| `counter.etcd.store.expire.count` | counter |  | Total number of items expired due to TTL |
-| `counter.etcd.store.gets.fail` | counter |  | Total number of failed get operations |
-| `counter.etcd.store.gets.success` | counter |  | Total number of successful get operations |
-| `counter.etcd.store.sets.fail` | counter |  | Total number of failed set operations |
-| `counter.etcd.store.sets.success` | counter |  | Total number of successful set operations |
-| `counter.etcd.store.update.fail` | counter |  | Total number of failed update operations |
-| `counter.etcd.store.update.success` | counter |  | Total number of successful update operations |
-| `gauge.etcd.leader.latency.average` | gauge | X | Average latency of a follower with respect to the leader |
-| `gauge.etcd.leader.latency.current` | gauge |  | Current latency of a follower with respect to the leader |
-| `gauge.etcd.leader.latency.max` | gauge | X | Max latency of a follower with respect to the leader |
-| `gauge.etcd.leader.latency.min` | gauge | X | Min latency of a follower with respect to the leader |
-| `gauge.etcd.leader.latency.stddev` | gauge | X | Std dev latency of a follower with respect to the leader |
-| `gauge.etcd.self.recvbandwidth.rate` | gauge |  | Bandwidth rate of a follower |
-| `gauge.etcd.self.recvpkg.rate` | gauge |  | Rate at which a follower receives packages |
-| `gauge.etcd.self.sendbandwidth.rate` | gauge |  | Bandwidth rate of a leader |
-| `gauge.etcd.self.sendpkg.rate` | gauge |  | Rate at which a leader sends packages |
-| `gauge.etcd.store.watchers` | gauge |  | Number of watchers |
+| `counter.etcd.leader.counts.fail` | counter | ✔ | Total number of failed rpc requests to with a follower |
+| `counter.etcd.leader.counts.success` | counter | ✔ | Total number of successful rpc requests to with a follower |
+| `counter.etcd.self.recvappendreq.cnt` | counter | ✔ | Total number of append requests received by a member |
+| `counter.etcd.self.sendappendreq.cnt` | counter | ✔ | Total number of append requests sent by a member |
+| `counter.etcd.store.compareanddelete.fail` | counter | ✔ | Total number of failed compare-and-delete operations |
+| `counter.etcd.store.compareanddelete.success` | counter | ✔ | Total number of successful compare-and-delete operations |
+| `counter.etcd.store.compareandswap.fail` | counter | ✔ | Total number of failed compare-and-swap operations |
+| `counter.etcd.store.compareandswap.success` | counter | ✔ | Total number of successful compare-and-swap operations |
+| `counter.etcd.store.create.fail` | counter | ✔ | Total number of failed create operations |
+| `counter.etcd.store.create.success` | counter | ✔ | Total number of successful create operations |
+| `counter.etcd.store.delete.fail` | counter | ✔ | Total number of failed delete operations |
+| `counter.etcd.store.delete.success` | counter | ✔ | Total number of successful delete operations |
+| `counter.etcd.store.expire.count` | counter | ✔ | Total number of items expired due to TTL |
+| `counter.etcd.store.gets.fail` | counter | ✔ | Total number of failed get operations |
+| `counter.etcd.store.gets.success` | counter | ✔ | Total number of successful get operations |
+| `counter.etcd.store.sets.fail` | counter | ✔ | Total number of failed set operations |
+| `counter.etcd.store.sets.success` | counter | ✔ | Total number of successful set operations |
+| `counter.etcd.store.update.fail` | counter | ✔ | Total number of failed update operations |
+| `counter.etcd.store.update.success` | counter | ✔ | Total number of successful update operations |
+| `gauge.etcd.leader.latency.average` | gauge |  | Average latency of a follower with respect to the leader |
+| `gauge.etcd.leader.latency.current` | gauge | ✔ | Current latency of a follower with respect to the leader |
+| `gauge.etcd.leader.latency.max` | gauge |  | Max latency of a follower with respect to the leader |
+| `gauge.etcd.leader.latency.min` | gauge |  | Min latency of a follower with respect to the leader |
+| `gauge.etcd.leader.latency.stddev` | gauge |  | Std dev latency of a follower with respect to the leader |
+| `gauge.etcd.self.recvbandwidth.rate` | gauge | ✔ | Bandwidth rate of a follower |
+| `gauge.etcd.self.recvpkg.rate` | gauge | ✔ | Rate at which a follower receives packages |
+| `gauge.etcd.self.sendbandwidth.rate` | gauge | ✔ | Bandwidth rate of a leader |
+| `gauge.etcd.self.sendpkg.rate` | gauge | ✔ | Rate at which a leader sends packages |
+| `gauge.etcd.store.watchers` | gauge | ✔ | Number of watchers |
 
 
 To specify custom metrics you want to monitor, add a `metricsToInclude` filter

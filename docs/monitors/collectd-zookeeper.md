@@ -32,23 +32,23 @@ Monitor Type: `collectd/zookeeper`
 
 ## Metrics
 
-The following table lists the metrics available for this monitor. Metrics that are not marked as Custom are standard metrics and are monitored by default.
+The following table lists the metrics available for this monitor. Metrics that are marked as Included are standard metrics and are monitored by default.
 
-| Name | Type | Custom | Description |
+| Name | Type | Included | Description |
 | ---  | ---  | ---    | ---         |
-| `counter.zk_packets_received` | cumulative |  | Count of the number of ZooKeeper packets received by a server |
-| `counter.zk_packets_sent` | cumulative |  | Count of the number of ZooKeeper packets sent from a server |
-| `gauge.zk_approximate_data_size` | gauge |  | Size of data in bytes that a ZooKeeper server has in its data tree |
-| `gauge.zk_avg_latency` | gauge |  | Average time in milliseconds for requests to be processed |
-| `gauge.zk_ephemerals_count` | gauge |  | Number of ephemeral nodes that a ZooKeeper server has in its data tree |
-| `gauge.zk_max_file_descriptor_count` | gauge |  | Maximum number of file descriptors that a ZooKeeper server can open |
-| `gauge.zk_max_latency` | gauge | X | Maximum time in milliseconds for a request to be processed |
-| `gauge.zk_min_latency` | gauge | X | Minimum time in milliseconds for a request to be processed |
-| `gauge.zk_num_alive_connections` | gauge |  | Number of active clients connected to a ZooKeeper server |
-| `gauge.zk_open_file_descriptor_count` | gauge |  | Number of file descriptors that a ZooKeeper server has open |
-| `gauge.zk_outstanding_requests` | gauge | X | Number of currently executing requests |
-| `gauge.zk_watch_count` | gauge |  | Number of watches placed on Z-Nodes on a ZooKeeper server |
-| `gauge.zk_znode_count` | gauge |  | Number of z-nodes that a ZooKeeper server has in its data tree |
+| `counter.zk_packets_received` | cumulative | ✔ | Count of the number of ZooKeeper packets received by a server |
+| `counter.zk_packets_sent` | cumulative | ✔ | Count of the number of ZooKeeper packets sent from a server |
+| `gauge.zk_approximate_data_size` | gauge | ✔ | Size of data in bytes that a ZooKeeper server has in its data tree |
+| `gauge.zk_avg_latency` | gauge | ✔ | Average time in milliseconds for requests to be processed |
+| `gauge.zk_ephemerals_count` | gauge | ✔ | Number of ephemeral nodes that a ZooKeeper server has in its data tree |
+| `gauge.zk_max_file_descriptor_count` | gauge | ✔ | Maximum number of file descriptors that a ZooKeeper server can open |
+| `gauge.zk_max_latency` | gauge |  | Maximum time in milliseconds for a request to be processed |
+| `gauge.zk_min_latency` | gauge |  | Minimum time in milliseconds for a request to be processed |
+| `gauge.zk_num_alive_connections` | gauge | ✔ | Number of active clients connected to a ZooKeeper server |
+| `gauge.zk_open_file_descriptor_count` | gauge | ✔ | Number of file descriptors that a ZooKeeper server has open |
+| `gauge.zk_outstanding_requests` | gauge |  | Number of currently executing requests |
+| `gauge.zk_watch_count` | gauge | ✔ | Number of watches placed on Z-Nodes on a ZooKeeper server |
+| `gauge.zk_znode_count` | gauge | ✔ | Number of z-nodes that a ZooKeeper server has in its data tree |
 
 
 To specify custom metrics you want to monitor, add a `metricsToInclude` filter

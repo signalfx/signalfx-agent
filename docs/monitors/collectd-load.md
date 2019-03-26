@@ -21,13 +21,13 @@ This monitor has no configuration options.
 
 ## Metrics
 
-The following table lists the metrics available for this monitor. Metrics that are not marked as Custom are standard metrics and are monitored by default.
+The following table lists the metrics available for this monitor. Metrics that are marked as Included are standard metrics and are monitored by default.
 
-| Name | Type | Custom | Description |
+| Name | Type | Included | Description |
 | ---  | ---  | ---    | ---         |
-| `load.longterm` | gauge |  | Average CPU load per core over the last 15 minutes |
-| `load.midterm` | gauge |  | Average CPU load per core over the last five minutes |
-| `load.shortterm` | gauge |  | Average CPU load per core over the last one minute |
+| `load.longterm` | gauge | ✔ | Average CPU load per core over the last 15 minutes |
+| `load.midterm` | gauge | ✔ | Average CPU load per core over the last five minutes |
+| `load.shortterm` | gauge | ✔ | Average CPU load per core over the last one minute |
 
 
 To specify custom metrics you want to monitor, add a `metricsToInclude` filter

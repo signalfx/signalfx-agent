@@ -70,180 +70,180 @@ The **nested** `databases` config object has the following fields:
 
 ## Metrics
 
-The following table lists the metrics available for this monitor. Metrics that are not marked as Custom are standard metrics and are monitored by default.
+The following table lists the metrics available for this monitor. Metrics that are marked as Included are standard metrics and are monitored by default.
 
-| Name | Type | Custom | Description |
+| Name | Type | Included | Description |
 | ---  | ---  | ---    | ---         |
-| `cache_result.qcache-hits` | cumulative |  | The number of hits on MySQL query cache. |
-| `cache_result.qcache-inserts` | cumulative |  | The number of inserts into MySQL query cache. |
-| `cache_results.cache_size` | gauge | X | MySQL Qcache Size |
-| `cache_results.qcache-not_cached` | cumulative | X | The number of MySQL queries that were not cacheable or not cached. |
-| `cache_results.qcache-prunes` | cumulative | X | The number of queries that were pruned from query cache because of low-memory condition. |
-| `cache_size.qcache` | gauge |  | The number of queries in MySQL query cache. |
-| `mysql_commands.admin_commands` | counter | X | The number of MySQL ADMIN commands executed |
-| `mysql_commands.alter_db` | counter | X | The number of MySQL ALTER DB commands executed |
-| `mysql_commands.alter_db_upgrade` | counter | X | The number of MySQL ALTER DB UPGRADE commands executed |
-| `mysql_commands.alter_event` | counter | X | The number of MySQL ALTER EVENT commands executed |
-| `mysql_commands.alter_function` | counter | X | The number of MySQL ALTER FUNCTION commands executed |
-| `mysql_commands.alter_procedure` | counter | X | The number of MySQL ALTER PROCEDURE commands executed |
-| `mysql_commands.alter_server` | counter | X | The number of MySQL ALTER SERVER commands executed |
-| `mysql_commands.alter_table` | counter | X | The number of MySQL ALTER TABLE commands executed |
-| `mysql_commands.alter_tablespace` | counter | X | The number of MySQL ALTER TABLESPACE commands executed |
-| `mysql_commands.alter_user` | counter | X | The number of MySQL ALTER USER commands executed |
-| `mysql_commands.analyze` | counter | X | The number of MySQL ANALYZE commands executed |
-| `mysql_commands.assign_to_keycache` | counter | X | The number of MySQL ASSIGN TO KEYCACHE commands executed |
-| `mysql_commands.begin` | counter | X | The number of MySQL BEGIN commands executed |
-| `mysql_commands.binlog` | counter | X | The number of MySQL BINLOG commands executed |
-| `mysql_commands.call_procedure` | counter | X | The number of MySQL CALL PROCEDURE commands executed |
-| `mysql_commands.change_db` | counter | X | The number of MySQL CHANGE DB commands executed |
-| `mysql_commands.change_master` | counter | X | The number of MySQL CHANGE MASTER commands executed |
-| `mysql_commands.check` | counter | X | The number of MySQL CHECK commands executed |
-| `mysql_commands.checksum` | counter | X | The number of MySQL CHECKSUM commands executed |
-| `mysql_commands.commit` | counter | X | The number of MySQL COMMIT commands executed |
-| `mysql_commands.create_db` | counter | X | The number of MySQL CREATE DB commands executed |
-| `mysql_commands.create_event` | counter | X | The number of MySQL CREATE EVENT commands executed |
-| `mysql_commands.create_function` | counter | X | The number of MySQL CREATE FUNCTION commands executed |
-| `mysql_commands.create_index` | counter | X | The number of MySQL CREATE INDEX commands executed |
-| `mysql_commands.create_procedure` | counter | X | The number of MySQL CREATE PROCEDURE commands executed |
-| `mysql_commands.create_server` | counter | X | The number of MySQL CREATE SERVER commands executed |
-| `mysql_commands.create_table` | counter | X | The number of MySQL CREATE TABLE commands executed |
-| `mysql_commands.create_trigger` | counter | X | The number of MySQL CREATE TRIGGER commands executed |
-| `mysql_commands.create_udf` | counter | X | The number of MySQL CREATE UDF commands executed |
-| `mysql_commands.create_user` | counter | X | The number of MySQL CREATE USER commands executed |
-| `mysql_commands.create_view` | counter | X | The number of MySQL CREATE VIEW commands executed |
-| `mysql_commands.dealloc_sql` | counter | X | The number of MySQL DEALLOC SQL commands executed |
-| `mysql_commands.delete` | counter |  | The number of MySQL DELETE commands executed |
-| `mysql_commands.delete_multi` | counter | X | The number of MySQL DELETE MULTI commands executed |
-| `mysql_commands.do` | counter | X | The number of MySQL DO commands executed |
-| `mysql_commands.drop_db` | counter | X | The number of MySQL DROP DB commands executed |
-| `mysql_commands.drop_event` | counter | X | The number of MySQL DROP EVENT commands executed |
-| `mysql_commands.drop_function` | counter | X | The number of MySQL DROP FUNCTION commands executed |
-| `mysql_commands.drop_index` | counter | X | The number of MySQL DROP INDEX commands executed |
-| `mysql_commands.drop_procedure` | counter | X | The number of MySQL DROP PROCEDURE commands executed |
-| `mysql_commands.drop_server` | counter | X | The number of MySQL DROP SERVER commands executed |
-| `mysql_commands.drop_table` | counter | X | The number of MySQL DROP TABLE commands executed |
-| `mysql_commands.drop_trigger` | counter | X | The number of MySQL DROP TRIGGER commands executed |
-| `mysql_commands.drop_user` | counter | X | The number of MySQL DROP USER commands executed |
-| `mysql_commands.drop_view` | counter | X | The number of MySQL DROP VIEW commands executed |
-| `mysql_commands.empty_query` | counter | X | The number of MySQL EMPTY QUERY commands executed |
-| `mysql_commands.execute_sql` | counter | X | The number of MySQL EXECUTE SQL commands executed |
-| `mysql_commands.flush` | counter | X | The number of MySQL FLUSH commands executed |
-| `mysql_commands.get_diagnostics` | counter | X | The number of MySQL GET DIAGNOSTICS commands executed |
-| `mysql_commands.grant` | counter | X | The number of MySQL GRANT commands executed |
-| `mysql_commands.ha_close` | counter | X | The number of MySQL HA CLOSE commands executed |
-| `mysql_commands.ha_open` | counter | X | The number of MySQL HA OPEN commands executed |
-| `mysql_commands.ha_read` | counter | X | The number of MySQL HA READ commands executed |
-| `mysql_commands.help` | counter | X | The number of MySQL HELP commands executed |
-| `mysql_commands.insert` | counter |  | The number of MySQL INSERT commands executed |
-| `mysql_commands.insert_select` | counter | X | The number of MySQL INSERT SELECT commands executed |
-| `mysql_commands.install_plugin` | counter | X | The number of MySQL INSTALL PLUGIN commands executed |
-| `mysql_commands.kill` | counter | X | The number of MySQL KILL commands executed |
-| `mysql_commands.load` | counter | X | The number of MySQL LOAD commands executed |
-| `mysql_commands.lock_tables` | counter | X | The number of MySQL LOCK TABLES commands executed |
-| `mysql_commands.optimize` | counter | X | The number of MySQL OPTIMIZE commands executed |
-| `mysql_commands.preload_keys` | counter | X | The number of MySQL PRELOAD KEYS commands executed |
-| `mysql_commands.prepare_sql` | counter | X | The number of MySQL PREPARE SQL commands executed |
-| `mysql_commands.purge` | counter | X | The number of MySQL PURGE commands executed |
-| `mysql_commands.purge_before_date` | counter | X | The number of MySQL PURGE BEFORE DATE commands executed |
-| `mysql_commands.release_savepoint` | counter | X | The number of MySQL RELEASE SAVEPOINT commands executed |
-| `mysql_commands.rename_table` | counter | X | The number of MySQL RENAME TABLE commands executed |
-| `mysql_commands.rename_user` | counter | X | The number of MySQL RENAME USER commands executed |
-| `mysql_commands.repair` | counter | X | The number of MySQL REPAIR commands executed |
-| `mysql_commands.replace` | counter | X | The number of MySQL REPLACE commands executed |
-| `mysql_commands.replace_select` | counter | X | The number of MySQL REPLACE SELECT commands executed |
-| `mysql_commands.reset` | counter | X | The number of MySQL RESET commands executed |
-| `mysql_commands.resignal` | counter | X | The number of MySQL RESIGNAL commands executed |
-| `mysql_commands.revoke` | counter | X | The number of MySQL REVOKE commands executed |
-| `mysql_commands.revoke_all` | counter | X | The number of MySQL REVOKE ALL commands executed |
-| `mysql_commands.rollback` | counter | X | The number of MySQL ROLLBACK commands executed |
-| `mysql_commands.rollback_to_savepoint` | counter | X | The number of MySQL ROLLBACK TO SAVEPOINT commands executed |
-| `mysql_commands.savepoint` | counter | X | The number of MySQL SAVEPOINT commands executed |
-| `mysql_commands.select` | counter |  | The number of MySQL SELECT commands executed |
-| `mysql_commands.set_option` | counter | X | The number of MySQL SET OPTION commands executed |
-| `mysql_commands.show_binlog_events` | counter | X | The number of MySQL SHOW BINLOG EVENTS commands executed |
-| `mysql_commands.show_binlogs` | counter | X | The number of MySQL SHOW BINLOGS commands executed |
-| `mysql_commands.show_charsets` | counter | X | The number of MySQL SHOW CHARSETS commands executed |
-| `mysql_commands.show_collations` | counter | X | The number of MySQL SHOW COLLATIONS commands executed |
-| `mysql_commands.show_create_db` | counter | X | The number of MySQL SHOW CREATE DB commands executed |
-| `mysql_commands.show_create_event` | counter | X | The number of MySQL SHOW CREATE EVENT commands executed |
-| `mysql_commands.show_create_func` | counter | X | The number of MySQL SHOW CREATE FUNC commands executed |
-| `mysql_commands.show_create_proc` | counter | X | The number of MySQL SHOW CREATE PROC commands executed |
-| `mysql_commands.show_create_table` | counter | X | The number of MySQL SHOW CREATE TABLE commands executed |
-| `mysql_commands.show_create_trigger` | counter | X | The number of MySQL SHOW CREATE TRIGGER commands executed |
-| `mysql_commands.show_databases` | counter | X | The number of MySQL SHOW DATABASES commands executed |
-| `mysql_commands.show_engine_logs` | counter | X | The number of MySQL SHOW ENGINE LOGS commands executed |
-| `mysql_commands.show_engine_mutex` | counter | X | The number of MySQL SHOW ENGINE MUTEX commands executed |
-| `mysql_commands.show_engine_status` | counter | X | The number of MySQL SHOW ENGINE STATUS commands executed |
-| `mysql_commands.show_errors` | counter | X | The number of MySQL SHOW ERRORS commands executed |
-| `mysql_commands.show_events` | counter | X | The number of MySQL SHOW EVENTS commands executed |
-| `mysql_commands.show_fields` | counter | X | The number of MySQL SHOW FIELDS commands executed |
-| `mysql_commands.show_function_code` | counter | X | The number of MySQL SHOW FUNCTION CODE commands executed |
-| `mysql_commands.show_function_status` | counter | X | The number of MySQL SHOW FUNCTION STATUS commands executed |
-| `mysql_commands.show_grants` | counter | X | The number of MySQL SHOW GRANTS commands executed |
-| `mysql_commands.show_keys` | counter | X | The number of MySQL SHOW KEYS commands executed |
-| `mysql_commands.show_master_status` | counter | X | The number of MySQL SHOW MASTER STATUS commands executed |
-| `mysql_commands.show_open_tables` | counter | X | The number of MySQL SHOW OPEN TABLES commands executed |
-| `mysql_commands.show_plugins` | counter | X | The number of MySQL SHOW PLUGINS commands executed |
-| `mysql_commands.show_privileges` | counter | X | The number of MySQL SHOW PRIVILEGES commands executed |
-| `mysql_commands.show_procedure_code` | counter | X | The number of MySQL SHOW PROCEDURE CODE commands executed |
-| `mysql_commands.show_procedure_status` | counter | X | The number of MySQL SHOW PROCEDURE STATUS commands executed |
-| `mysql_commands.show_processlist` | counter | X | The number of MySQL SHOW PROCESSLIST commands executed |
-| `mysql_commands.show_profile` | counter | X | The number of MySQL SHOW PROFILE commands executed |
-| `mysql_commands.show_profiles` | counter | X | The number of MySQL SHOW PROFILES commands executed |
-| `mysql_commands.show_relaylog_events` | counter | X | The number of MySQL SHOW RELAYLOG EVENTS commands executed |
-| `mysql_commands.show_slave_hosts` | counter | X | The number of MySQL SHOW SLAVE HOSTS commands executed |
-| `mysql_commands.show_slave_status` | counter | X | The number of MySQL SHOW SLAVE STATUS commands executed |
-| `mysql_commands.show_status` | counter | X | The number of MySQL SHOW STATUS commands executed |
-| `mysql_commands.show_storage_engines` | counter | X | The number of MySQL SHOW STORAGE ENGINES commands executed |
-| `mysql_commands.show_table_status` | counter | X | The number of MySQL SHOW TABLE STATUS commands executed |
-| `mysql_commands.show_tables` | counter | X | The number of MySQL SHOW TABLES commands executed |
-| `mysql_commands.show_triggers` | counter | X | The number of MySQL SHOW TRIGGERS commands executed |
-| `mysql_commands.show_variables` | counter | X | The number of MySQL SHOW VARIABLES commands executed |
-| `mysql_commands.show_warnings` | counter | X | The number of MySQL SHOW WARNINGS commands executed |
-| `mysql_commands.signal` | counter | X | The number of MySQL SIGNAL commands executed |
-| `mysql_commands.slave_start` | counter | X | The number of MySQL SLAVE START commands executed |
-| `mysql_commands.slave_stop` | counter | X | The number of MySQL SLAVE STOP commands executed |
-| `mysql_commands.truncate` | counter | X | The number of MySQL TRUNCATE commands executed |
-| `mysql_commands.uninstall_plugin` | counter | X | The number of MySQL UNINSTALL PLUGIN commands executed |
-| `mysql_commands.unlock_tables` | counter | X | The number of MySQL UNLOCK TABLES commands executed |
-| `mysql_commands.update` | counter |  | The number of MySQL UPDATE commands executed |
-| `mysql_commands.update_multi` | counter | X | The number of MySQL UPDATE MULTI commands executed |
-| `mysql_commands.xa_commit` | counter | X | The number of MySQL XA COMMIT commands executed |
-| `mysql_commands.xa_end` | counter | X | The number of MySQL XA END commands executed |
-| `mysql_commands.xa_prepare` | counter | X | The number of MySQL XA PREPARE commands executed |
-| `mysql_commands.xa_recover` | counter | X | The number of MySQL XA RECOVER commands executed |
-| `mysql_commands.xa_rollback` | counter | X | The number of MySQL XA ROLLBACK commands executed |
-| `mysql_commands.xa_start` | counter | X | The number of MySQL XA START commands executed |
-| `mysql_handler.commit` | counter | X | The number of internal COMMIT statements. |
-| `mysql_handler.delete` | counter | X | The number of times rows have been deleted from tables. |
-| `mysql_handler.prepare` | counter | X | The number of times "Prepare" phase was executed in the two-phase commit operations. |
-| `mysql_handler.read_first` | counter | X | The number of times the first entry in an index was read. |
-| `mysql_handler.read_key` | counter | X | The number of times a row was read based on a key. |
-| `mysql_handler.read_next` | counter | X | The number of requests to read the next row in key order. |
-| `mysql_handler.read_prev` | counter | X | The number of requests to read the previous row in key order. |
-| `mysql_handler.read_rnd` | counter | X | The number of requests that read a random fixed position in the data file. |
-| `mysql_handler.read_rnd_next` | counter | X | The number of requests for the next row in the data file. |
-| `mysql_handler.rollback` | counter | X | The number of requests for a rollback operation on the storage engine. |
-| `mysql_handler.savepoint` | counter | X | The number of requests to place a savepoint on the storage engine.  This can be used to roll back later. |
-| `mysql_handler.savepoint_rollback` | counter | X | The number of requests to roll back to a savepoint. |
-| `mysql_handler.update` | counter | X | The number of requests to update a row in a table. |
-| `mysql_handler.write` | counter | X | The number of requests to insert a row in a table. |
-| `mysql_locks.immediate` | counter |  | The number of MySQL table locks which were granted immediately. |
-| `mysql_locks.waited` | counter |  | The number of MySQL table locks which had to wait before being granted. |
-| `mysql_octets.rx` | cumulative |  | The number of bytes received by MySQL server from all clients. |
-| `mysql_octets.tx` | cumulative |  | The number of bytes sent by MySQL server to all clients. |
-| `mysql_select.full_join` | counter | X | The number of joins that perform full table scans. |
-| `mysql_select.full_range_join` | counter | X | The number of joins that used a range search on a reference table. |
-| `mysql_select.range` | counter | X | The number of joins that used a range on the first table. |
-| `mysql_select.range_check` | counter | X | The number of joins without keys that check for key usage after each row. |
-| `mysql_sort.merge_passes` | counter | X | The number of merge passes done by the sorting algorithm. |
-| `mysql_sort.range` | counter | X | The number of sorts that were done using ranges. |
-| `mysql_sort.rows` | counter | X | The number of rows that were sorted. |
-| `mysql_sort.scan` | counter | X | The number of sorts that were done by scanning the table. |
-| `threads.cached` | gauge |  | The number of threads cached by MySQL for re-use on a new client connection.  A MySQL thread corresponds to a single MySQL connection. |
-| `threads.connected` | gauge |  | The number of currently open MySQL connections.  A MySQL thread corresponds to a single MySQL connection. |
-| `threads.running` | gauge | X | The number of MySQL threads that are processing a query.  A MySQL thread corresponds to a single MySQL connection. |
-| `total_threads.created` | cumulative | X | The total number of threads created by MySQL for client connections.  A MySQL thread corresponds to a single MySQL connection. |
+| `cache_result.qcache-hits` | cumulative | ✔ | The number of hits on MySQL query cache. |
+| `cache_result.qcache-inserts` | cumulative | ✔ | The number of inserts into MySQL query cache. |
+| `cache_results.cache_size` | gauge |  | MySQL Qcache Size |
+| `cache_results.qcache-not_cached` | cumulative |  | The number of MySQL queries that were not cacheable or not cached. |
+| `cache_results.qcache-prunes` | cumulative |  | The number of queries that were pruned from query cache because of low-memory condition. |
+| `cache_size.qcache` | gauge | ✔ | The number of queries in MySQL query cache. |
+| `mysql_commands.admin_commands` | counter |  | The number of MySQL ADMIN commands executed |
+| `mysql_commands.alter_db` | counter |  | The number of MySQL ALTER DB commands executed |
+| `mysql_commands.alter_db_upgrade` | counter |  | The number of MySQL ALTER DB UPGRADE commands executed |
+| `mysql_commands.alter_event` | counter |  | The number of MySQL ALTER EVENT commands executed |
+| `mysql_commands.alter_function` | counter |  | The number of MySQL ALTER FUNCTION commands executed |
+| `mysql_commands.alter_procedure` | counter |  | The number of MySQL ALTER PROCEDURE commands executed |
+| `mysql_commands.alter_server` | counter |  | The number of MySQL ALTER SERVER commands executed |
+| `mysql_commands.alter_table` | counter |  | The number of MySQL ALTER TABLE commands executed |
+| `mysql_commands.alter_tablespace` | counter |  | The number of MySQL ALTER TABLESPACE commands executed |
+| `mysql_commands.alter_user` | counter |  | The number of MySQL ALTER USER commands executed |
+| `mysql_commands.analyze` | counter |  | The number of MySQL ANALYZE commands executed |
+| `mysql_commands.assign_to_keycache` | counter |  | The number of MySQL ASSIGN TO KEYCACHE commands executed |
+| `mysql_commands.begin` | counter |  | The number of MySQL BEGIN commands executed |
+| `mysql_commands.binlog` | counter |  | The number of MySQL BINLOG commands executed |
+| `mysql_commands.call_procedure` | counter |  | The number of MySQL CALL PROCEDURE commands executed |
+| `mysql_commands.change_db` | counter |  | The number of MySQL CHANGE DB commands executed |
+| `mysql_commands.change_master` | counter |  | The number of MySQL CHANGE MASTER commands executed |
+| `mysql_commands.check` | counter |  | The number of MySQL CHECK commands executed |
+| `mysql_commands.checksum` | counter |  | The number of MySQL CHECKSUM commands executed |
+| `mysql_commands.commit` | counter |  | The number of MySQL COMMIT commands executed |
+| `mysql_commands.create_db` | counter |  | The number of MySQL CREATE DB commands executed |
+| `mysql_commands.create_event` | counter |  | The number of MySQL CREATE EVENT commands executed |
+| `mysql_commands.create_function` | counter |  | The number of MySQL CREATE FUNCTION commands executed |
+| `mysql_commands.create_index` | counter |  | The number of MySQL CREATE INDEX commands executed |
+| `mysql_commands.create_procedure` | counter |  | The number of MySQL CREATE PROCEDURE commands executed |
+| `mysql_commands.create_server` | counter |  | The number of MySQL CREATE SERVER commands executed |
+| `mysql_commands.create_table` | counter |  | The number of MySQL CREATE TABLE commands executed |
+| `mysql_commands.create_trigger` | counter |  | The number of MySQL CREATE TRIGGER commands executed |
+| `mysql_commands.create_udf` | counter |  | The number of MySQL CREATE UDF commands executed |
+| `mysql_commands.create_user` | counter |  | The number of MySQL CREATE USER commands executed |
+| `mysql_commands.create_view` | counter |  | The number of MySQL CREATE VIEW commands executed |
+| `mysql_commands.dealloc_sql` | counter |  | The number of MySQL DEALLOC SQL commands executed |
+| `mysql_commands.delete` | counter | ✔ | The number of MySQL DELETE commands executed |
+| `mysql_commands.delete_multi` | counter |  | The number of MySQL DELETE MULTI commands executed |
+| `mysql_commands.do` | counter |  | The number of MySQL DO commands executed |
+| `mysql_commands.drop_db` | counter |  | The number of MySQL DROP DB commands executed |
+| `mysql_commands.drop_event` | counter |  | The number of MySQL DROP EVENT commands executed |
+| `mysql_commands.drop_function` | counter |  | The number of MySQL DROP FUNCTION commands executed |
+| `mysql_commands.drop_index` | counter |  | The number of MySQL DROP INDEX commands executed |
+| `mysql_commands.drop_procedure` | counter |  | The number of MySQL DROP PROCEDURE commands executed |
+| `mysql_commands.drop_server` | counter |  | The number of MySQL DROP SERVER commands executed |
+| `mysql_commands.drop_table` | counter |  | The number of MySQL DROP TABLE commands executed |
+| `mysql_commands.drop_trigger` | counter |  | The number of MySQL DROP TRIGGER commands executed |
+| `mysql_commands.drop_user` | counter |  | The number of MySQL DROP USER commands executed |
+| `mysql_commands.drop_view` | counter |  | The number of MySQL DROP VIEW commands executed |
+| `mysql_commands.empty_query` | counter |  | The number of MySQL EMPTY QUERY commands executed |
+| `mysql_commands.execute_sql` | counter |  | The number of MySQL EXECUTE SQL commands executed |
+| `mysql_commands.flush` | counter |  | The number of MySQL FLUSH commands executed |
+| `mysql_commands.get_diagnostics` | counter |  | The number of MySQL GET DIAGNOSTICS commands executed |
+| `mysql_commands.grant` | counter |  | The number of MySQL GRANT commands executed |
+| `mysql_commands.ha_close` | counter |  | The number of MySQL HA CLOSE commands executed |
+| `mysql_commands.ha_open` | counter |  | The number of MySQL HA OPEN commands executed |
+| `mysql_commands.ha_read` | counter |  | The number of MySQL HA READ commands executed |
+| `mysql_commands.help` | counter |  | The number of MySQL HELP commands executed |
+| `mysql_commands.insert` | counter | ✔ | The number of MySQL INSERT commands executed |
+| `mysql_commands.insert_select` | counter |  | The number of MySQL INSERT SELECT commands executed |
+| `mysql_commands.install_plugin` | counter |  | The number of MySQL INSTALL PLUGIN commands executed |
+| `mysql_commands.kill` | counter |  | The number of MySQL KILL commands executed |
+| `mysql_commands.load` | counter |  | The number of MySQL LOAD commands executed |
+| `mysql_commands.lock_tables` | counter |  | The number of MySQL LOCK TABLES commands executed |
+| `mysql_commands.optimize` | counter |  | The number of MySQL OPTIMIZE commands executed |
+| `mysql_commands.preload_keys` | counter |  | The number of MySQL PRELOAD KEYS commands executed |
+| `mysql_commands.prepare_sql` | counter |  | The number of MySQL PREPARE SQL commands executed |
+| `mysql_commands.purge` | counter |  | The number of MySQL PURGE commands executed |
+| `mysql_commands.purge_before_date` | counter |  | The number of MySQL PURGE BEFORE DATE commands executed |
+| `mysql_commands.release_savepoint` | counter |  | The number of MySQL RELEASE SAVEPOINT commands executed |
+| `mysql_commands.rename_table` | counter |  | The number of MySQL RENAME TABLE commands executed |
+| `mysql_commands.rename_user` | counter |  | The number of MySQL RENAME USER commands executed |
+| `mysql_commands.repair` | counter |  | The number of MySQL REPAIR commands executed |
+| `mysql_commands.replace` | counter |  | The number of MySQL REPLACE commands executed |
+| `mysql_commands.replace_select` | counter |  | The number of MySQL REPLACE SELECT commands executed |
+| `mysql_commands.reset` | counter |  | The number of MySQL RESET commands executed |
+| `mysql_commands.resignal` | counter |  | The number of MySQL RESIGNAL commands executed |
+| `mysql_commands.revoke` | counter |  | The number of MySQL REVOKE commands executed |
+| `mysql_commands.revoke_all` | counter |  | The number of MySQL REVOKE ALL commands executed |
+| `mysql_commands.rollback` | counter |  | The number of MySQL ROLLBACK commands executed |
+| `mysql_commands.rollback_to_savepoint` | counter |  | The number of MySQL ROLLBACK TO SAVEPOINT commands executed |
+| `mysql_commands.savepoint` | counter |  | The number of MySQL SAVEPOINT commands executed |
+| `mysql_commands.select` | counter | ✔ | The number of MySQL SELECT commands executed |
+| `mysql_commands.set_option` | counter |  | The number of MySQL SET OPTION commands executed |
+| `mysql_commands.show_binlog_events` | counter |  | The number of MySQL SHOW BINLOG EVENTS commands executed |
+| `mysql_commands.show_binlogs` | counter |  | The number of MySQL SHOW BINLOGS commands executed |
+| `mysql_commands.show_charsets` | counter |  | The number of MySQL SHOW CHARSETS commands executed |
+| `mysql_commands.show_collations` | counter |  | The number of MySQL SHOW COLLATIONS commands executed |
+| `mysql_commands.show_create_db` | counter |  | The number of MySQL SHOW CREATE DB commands executed |
+| `mysql_commands.show_create_event` | counter |  | The number of MySQL SHOW CREATE EVENT commands executed |
+| `mysql_commands.show_create_func` | counter |  | The number of MySQL SHOW CREATE FUNC commands executed |
+| `mysql_commands.show_create_proc` | counter |  | The number of MySQL SHOW CREATE PROC commands executed |
+| `mysql_commands.show_create_table` | counter |  | The number of MySQL SHOW CREATE TABLE commands executed |
+| `mysql_commands.show_create_trigger` | counter |  | The number of MySQL SHOW CREATE TRIGGER commands executed |
+| `mysql_commands.show_databases` | counter |  | The number of MySQL SHOW DATABASES commands executed |
+| `mysql_commands.show_engine_logs` | counter |  | The number of MySQL SHOW ENGINE LOGS commands executed |
+| `mysql_commands.show_engine_mutex` | counter |  | The number of MySQL SHOW ENGINE MUTEX commands executed |
+| `mysql_commands.show_engine_status` | counter |  | The number of MySQL SHOW ENGINE STATUS commands executed |
+| `mysql_commands.show_errors` | counter |  | The number of MySQL SHOW ERRORS commands executed |
+| `mysql_commands.show_events` | counter |  | The number of MySQL SHOW EVENTS commands executed |
+| `mysql_commands.show_fields` | counter |  | The number of MySQL SHOW FIELDS commands executed |
+| `mysql_commands.show_function_code` | counter |  | The number of MySQL SHOW FUNCTION CODE commands executed |
+| `mysql_commands.show_function_status` | counter |  | The number of MySQL SHOW FUNCTION STATUS commands executed |
+| `mysql_commands.show_grants` | counter |  | The number of MySQL SHOW GRANTS commands executed |
+| `mysql_commands.show_keys` | counter |  | The number of MySQL SHOW KEYS commands executed |
+| `mysql_commands.show_master_status` | counter |  | The number of MySQL SHOW MASTER STATUS commands executed |
+| `mysql_commands.show_open_tables` | counter |  | The number of MySQL SHOW OPEN TABLES commands executed |
+| `mysql_commands.show_plugins` | counter |  | The number of MySQL SHOW PLUGINS commands executed |
+| `mysql_commands.show_privileges` | counter |  | The number of MySQL SHOW PRIVILEGES commands executed |
+| `mysql_commands.show_procedure_code` | counter |  | The number of MySQL SHOW PROCEDURE CODE commands executed |
+| `mysql_commands.show_procedure_status` | counter |  | The number of MySQL SHOW PROCEDURE STATUS commands executed |
+| `mysql_commands.show_processlist` | counter |  | The number of MySQL SHOW PROCESSLIST commands executed |
+| `mysql_commands.show_profile` | counter |  | The number of MySQL SHOW PROFILE commands executed |
+| `mysql_commands.show_profiles` | counter |  | The number of MySQL SHOW PROFILES commands executed |
+| `mysql_commands.show_relaylog_events` | counter |  | The number of MySQL SHOW RELAYLOG EVENTS commands executed |
+| `mysql_commands.show_slave_hosts` | counter |  | The number of MySQL SHOW SLAVE HOSTS commands executed |
+| `mysql_commands.show_slave_status` | counter |  | The number of MySQL SHOW SLAVE STATUS commands executed |
+| `mysql_commands.show_status` | counter |  | The number of MySQL SHOW STATUS commands executed |
+| `mysql_commands.show_storage_engines` | counter |  | The number of MySQL SHOW STORAGE ENGINES commands executed |
+| `mysql_commands.show_table_status` | counter |  | The number of MySQL SHOW TABLE STATUS commands executed |
+| `mysql_commands.show_tables` | counter |  | The number of MySQL SHOW TABLES commands executed |
+| `mysql_commands.show_triggers` | counter |  | The number of MySQL SHOW TRIGGERS commands executed |
+| `mysql_commands.show_variables` | counter |  | The number of MySQL SHOW VARIABLES commands executed |
+| `mysql_commands.show_warnings` | counter |  | The number of MySQL SHOW WARNINGS commands executed |
+| `mysql_commands.signal` | counter |  | The number of MySQL SIGNAL commands executed |
+| `mysql_commands.slave_start` | counter |  | The number of MySQL SLAVE START commands executed |
+| `mysql_commands.slave_stop` | counter |  | The number of MySQL SLAVE STOP commands executed |
+| `mysql_commands.truncate` | counter |  | The number of MySQL TRUNCATE commands executed |
+| `mysql_commands.uninstall_plugin` | counter |  | The number of MySQL UNINSTALL PLUGIN commands executed |
+| `mysql_commands.unlock_tables` | counter |  | The number of MySQL UNLOCK TABLES commands executed |
+| `mysql_commands.update` | counter | ✔ | The number of MySQL UPDATE commands executed |
+| `mysql_commands.update_multi` | counter |  | The number of MySQL UPDATE MULTI commands executed |
+| `mysql_commands.xa_commit` | counter |  | The number of MySQL XA COMMIT commands executed |
+| `mysql_commands.xa_end` | counter |  | The number of MySQL XA END commands executed |
+| `mysql_commands.xa_prepare` | counter |  | The number of MySQL XA PREPARE commands executed |
+| `mysql_commands.xa_recover` | counter |  | The number of MySQL XA RECOVER commands executed |
+| `mysql_commands.xa_rollback` | counter |  | The number of MySQL XA ROLLBACK commands executed |
+| `mysql_commands.xa_start` | counter |  | The number of MySQL XA START commands executed |
+| `mysql_handler.commit` | counter |  | The number of internal COMMIT statements. |
+| `mysql_handler.delete` | counter |  | The number of times rows have been deleted from tables. |
+| `mysql_handler.prepare` | counter |  | The number of times "Prepare" phase was executed in the two-phase commit operations. |
+| `mysql_handler.read_first` | counter |  | The number of times the first entry in an index was read. |
+| `mysql_handler.read_key` | counter |  | The number of times a row was read based on a key. |
+| `mysql_handler.read_next` | counter |  | The number of requests to read the next row in key order. |
+| `mysql_handler.read_prev` | counter |  | The number of requests to read the previous row in key order. |
+| `mysql_handler.read_rnd` | counter |  | The number of requests that read a random fixed position in the data file. |
+| `mysql_handler.read_rnd_next` | counter |  | The number of requests for the next row in the data file. |
+| `mysql_handler.rollback` | counter |  | The number of requests for a rollback operation on the storage engine. |
+| `mysql_handler.savepoint` | counter |  | The number of requests to place a savepoint on the storage engine.  This can be used to roll back later. |
+| `mysql_handler.savepoint_rollback` | counter |  | The number of requests to roll back to a savepoint. |
+| `mysql_handler.update` | counter |  | The number of requests to update a row in a table. |
+| `mysql_handler.write` | counter |  | The number of requests to insert a row in a table. |
+| `mysql_locks.immediate` | counter | ✔ | The number of MySQL table locks which were granted immediately. |
+| `mysql_locks.waited` | counter | ✔ | The number of MySQL table locks which had to wait before being granted. |
+| `mysql_octets.rx` | cumulative | ✔ | The number of bytes received by MySQL server from all clients. |
+| `mysql_octets.tx` | cumulative | ✔ | The number of bytes sent by MySQL server to all clients. |
+| `mysql_select.full_join` | counter |  | The number of joins that perform full table scans. |
+| `mysql_select.full_range_join` | counter |  | The number of joins that used a range search on a reference table. |
+| `mysql_select.range` | counter |  | The number of joins that used a range on the first table. |
+| `mysql_select.range_check` | counter |  | The number of joins without keys that check for key usage after each row. |
+| `mysql_sort.merge_passes` | counter |  | The number of merge passes done by the sorting algorithm. |
+| `mysql_sort.range` | counter |  | The number of sorts that were done using ranges. |
+| `mysql_sort.rows` | counter |  | The number of rows that were sorted. |
+| `mysql_sort.scan` | counter |  | The number of sorts that were done by scanning the table. |
+| `threads.cached` | gauge | ✔ | The number of threads cached by MySQL for re-use on a new client connection.  A MySQL thread corresponds to a single MySQL connection. |
+| `threads.connected` | gauge | ✔ | The number of currently open MySQL connections.  A MySQL thread corresponds to a single MySQL connection. |
+| `threads.running` | gauge |  | The number of MySQL threads that are processing a query.  A MySQL thread corresponds to a single MySQL connection. |
+| `total_threads.created` | cumulative |  | The total number of threads created by MySQL for client connections.  A MySQL thread corresponds to a single MySQL connection. |
 
 
 To specify custom metrics you want to monitor, add a `metricsToInclude` filter

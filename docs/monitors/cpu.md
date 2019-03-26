@@ -30,12 +30,12 @@ This monitor has no configuration options.
 
 ## Metrics
 
-The following table lists the metrics available for this monitor. Metrics that are not marked as Custom are standard metrics and are monitored by default.
+The following table lists the metrics available for this monitor. Metrics that are marked as Included are standard metrics and are monitored by default.
 
-| Name | Type | Custom | Description |
+| Name | Type | Included | Description |
 | ---  | ---  | ---    | ---         |
-| `cpu.utilization` | gauge |  | Percent of CPU used on this host. This metric is emitted with a plugin dimension set to "signalfx-metadata". |
-| `cpu.utilization_per_core` | gauge | X | Percent of CPU used on each core. This metric is emitted with the plugin dimension set to "signalfx-metadata" |
+| `cpu.utilization` | gauge | ✔ | Percent of CPU used on this host. This metric is emitted with a plugin dimension set to "signalfx-metadata". |
+| `cpu.utilization_per_core` | gauge |  | Percent of CPU used on each core. This metric is emitted with the plugin dimension set to "signalfx-metadata" |
 
 
 To specify custom metrics you want to monitor, add a `metricsToInclude` filter

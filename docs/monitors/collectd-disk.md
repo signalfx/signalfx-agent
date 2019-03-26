@@ -28,18 +28,18 @@ Monitor Type: `collectd/disk`
 
 ## Metrics
 
-The following table lists the metrics available for this monitor. Metrics that are not marked as Custom are standard metrics and are monitored by default.
+The following table lists the metrics available for this monitor. Metrics that are marked as Included are standard metrics and are monitored by default.
 
-| Name | Type | Custom | Description |
+| Name | Type | Included | Description |
 | ---  | ---  | ---    | ---         |
-| `disk_merged.read` | cumulative | X | The number of disk reads merged into single physical disk access operations. |
-| `disk_merged.write` | cumulative | X | The number of disk writes merged into single physical disk access operations. |
-| `disk_octets.read` | cumulative | X | The number of bytes (octets) read from a disk. |
-| `disk_octets.write` | cumulative | X | The number of bytes (octets) written to a disk. |
-| `disk_ops.read` | cumulative |  | The number of disk read operations. |
-| `disk_ops.write` | cumulative |  | The number of disk write operations. |
-| `disk_time.read` | cumulative | X | The average amount of time it took to do a read operation. |
-| `disk_time.write` | cumulative | X | The average amount of time it took to do a write operation. |
+| `disk_merged.read` | cumulative |  | The number of disk reads merged into single physical disk access operations. |
+| `disk_merged.write` | cumulative |  | The number of disk writes merged into single physical disk access operations. |
+| `disk_octets.read` | cumulative |  | The number of bytes (octets) read from a disk. |
+| `disk_octets.write` | cumulative |  | The number of bytes (octets) written to a disk. |
+| `disk_ops.read` | cumulative | ✔ | The number of disk read operations. |
+| `disk_ops.write` | cumulative | ✔ | The number of disk write operations. |
+| `disk_time.read` | cumulative |  | The average amount of time it took to do a read operation. |
+| `disk_time.write` | cumulative |  | The average amount of time it took to do a write operation. |
 
 
 To specify custom metrics you want to monitor, add a `metricsToInclude` filter

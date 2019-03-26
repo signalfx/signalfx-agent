@@ -23,18 +23,18 @@ This monitor has no configuration options.
 
 ## Metrics
 
-The following table lists the metrics available for this monitor. Metrics that are not marked as Custom are standard metrics and are monitored by default.
+The following table lists the metrics available for this monitor. Metrics that are marked as Included are standard metrics and are monitored by default.
 
-| Name | Type | Custom | Description |
+| Name | Type | Included | Description |
 | ---  | ---  | ---    | ---         |
-| `vmpage_faults.majflt` | cumulative | X | Number of major page faults on the system |
-| `vmpage_faults.minflt` | cumulative | X | Number of minor page faults on the system |
-| `vmpage_io.memory.in` | cumulative | X | Page Ins for Memory |
-| `vmpage_io.memory.out` | cumulative | X | Page Outs for Memory |
-| `vmpage_io.swap.in` | cumulative |  | Page Ins for Swap |
-| `vmpage_io.swap.out` | cumulative |  | Page Outs for Swap |
-| `vmpage_number.free_pages` | cumulative | X | Number of free memory pages |
-| `vmpage_number.mapped` | cumulative | X | Number of mapped pages |
+| `vmpage_faults.majflt` | cumulative |  | Number of major page faults on the system |
+| `vmpage_faults.minflt` | cumulative |  | Number of minor page faults on the system |
+| `vmpage_io.memory.in` | cumulative |  | Page Ins for Memory |
+| `vmpage_io.memory.out` | cumulative |  | Page Outs for Memory |
+| `vmpage_io.swap.in` | cumulative | ✔ | Page Ins for Swap |
+| `vmpage_io.swap.out` | cumulative | ✔ | Page Outs for Swap |
+| `vmpage_number.free_pages` | cumulative |  | Number of free memory pages |
+| `vmpage_number.mapped` | cumulative |  | Number of mapped pages |
 
 
 To specify custom metrics you want to monitor, add a `metricsToInclude` filter

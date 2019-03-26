@@ -21,16 +21,16 @@ This monitor has no configuration options.
 
 ## Metrics
 
-The following table lists the metrics available for this monitor. Metrics that are not marked as Custom are standard metrics and are monitored by default.
+The following table lists the metrics available for this monitor. Metrics that are marked as Included are standard metrics and are monitored by default.
 
-| Name | Type | Custom | Description |
+| Name | Type | Included | Description |
 | ---  | ---  | ---    | ---         |
-| `memory.buffered` | gauge |  | Bytes of memory used for buffering I/O |
-| `memory.cached` | gauge |  | Bytes of memory used for disk caching |
-| `memory.free` | gauge |  | Bytes of memory available for use |
-| `memory.slab_recl` | gauge |  | Bytes of memory, used for SLAB-allocation of kernel objects, that can be reclaimed. |
-| `memory.slab_unrecl` | gauge |  | Bytes of memory, used for SLAB-allocation of kernel objects, that can't be reclaimed |
-| `memory.used` | gauge |  | Bytes of memory in use by the system. |
+| `memory.buffered` | gauge | ✔ | Bytes of memory used for buffering I/O |
+| `memory.cached` | gauge | ✔ | Bytes of memory used for disk caching |
+| `memory.free` | gauge | ✔ | Bytes of memory available for use |
+| `memory.slab_recl` | gauge | ✔ | Bytes of memory, used for SLAB-allocation of kernel objects, that can be reclaimed. |
+| `memory.slab_unrecl` | gauge | ✔ | Bytes of memory, used for SLAB-allocation of kernel objects, that can't be reclaimed |
+| `memory.used` | gauge | ✔ | Bytes of memory in use by the system. |
 
 
 To specify custom metrics you want to monitor, add a `metricsToInclude` filter

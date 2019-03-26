@@ -26,16 +26,16 @@ This monitor has no configuration options.
 
 ## Metrics
 
-The following table lists the metrics available for this monitor. Metrics that are not marked as Custom are standard metrics and are monitored by default.
+The following table lists the metrics available for this monitor. Metrics that are marked as Included are standard metrics and are monitored by default.
 
-| Name | Type | Custom | Description |
+| Name | Type | Included | Description |
 | ---  | ---  | ---    | ---         |
-| `protocol_counter.ActiveOpens` | cumulative |  | The number of times TCP connections transitioned from the CLOSED state to the SYN-SENT state. |
-| `protocol_counter.CurrEstab` | cumulative | X | The number of TCP connections currently in either ESTABLISHED or CLOSE-WAIT state. |
-| `protocol_counter.DelayedACKs` | cumulative | X | The number of acknowledgements delayed by TCP Delayed Acknowledgement |
-| `protocol_counter.InDestUnreachs` | cumulative | X | The number of ICMP Destination Unreachable messages received |
-| `protocol_counter.PassiveOpens` | cumulative | X | The number of times that a server opened a connection, due to receiving a TCP SYN packet. |
-| `protocol_counter.RetransSegs` | cumulative | X | The total number of segments retransmitted |
+| `protocol_counter.ActiveOpens` | cumulative | ✔ | The number of times TCP connections transitioned from the CLOSED state to the SYN-SENT state. |
+| `protocol_counter.CurrEstab` | cumulative |  | The number of TCP connections currently in either ESTABLISHED or CLOSE-WAIT state. |
+| `protocol_counter.DelayedACKs` | cumulative |  | The number of acknowledgements delayed by TCP Delayed Acknowledgement |
+| `protocol_counter.InDestUnreachs` | cumulative |  | The number of ICMP Destination Unreachable messages received |
+| `protocol_counter.PassiveOpens` | cumulative |  | The number of times that a server opened a connection, due to receiving a TCP SYN packet. |
+| `protocol_counter.RetransSegs` | cumulative |  | The total number of segments retransmitted |
 
 
 To specify custom metrics you want to monitor, add a `metricsToInclude` filter

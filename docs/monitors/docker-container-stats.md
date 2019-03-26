@@ -44,74 +44,74 @@ Monitor Type: `docker-container-stats`
 
 ## Metrics
 
-The following table lists the metrics available for this monitor. Metrics that are not marked as Custom are standard metrics and are monitored by default.
+The following table lists the metrics available for this monitor. Metrics that are marked as Included are standard metrics and are monitored by default.
 
-| Name | Type | Custom | Description |
+| Name | Type | Included | Description |
 | ---  | ---  | ---    | ---         |
-| `blkio.io_service_bytes_recursive.async` | cumulative | X | Volume, in bytes, of asynchronous block I/O |
-| `blkio.io_service_bytes_recursive.read` | cumulative |  | Volume, in bytes, of reads from block devices |
-| `blkio.io_service_bytes_recursive.sync` | cumulative | X | Volume, in bytes, of synchronous block I/O |
-| `blkio.io_service_bytes_recursive.total` | cumulative | X | Total volume, in bytes, of all block I/O |
-| `blkio.io_service_bytes_recursive.write` | cumulative |  | Volume, in bytes, of writes to block devices |
-| `blkio.io_serviced_recursive.async` | cumulative | X | Number of asynchronous block I/O requests |
-| `blkio.io_serviced_recursive.read` | cumulative | X | Number of reads requests from block devices |
-| `blkio.io_serviced_recursive.sync` | cumulative | X | Number of synchronous block I/O requests |
-| `blkio.io_serviced_recursive.total` | cumulative | X | Total number of block I/O requests |
-| `blkio.io_serviced_recursive.write` | cumulative | X | Number of write requests to block devices |
-| `cpu.percent` | gauge | X | Percentage of host CPU resources used by the container |
-| `cpu.percpu.usage` | cumulative | X | Jiffies of CPU time spent by the container, per CPU core |
-| `cpu.throttling_data.periods` | cumulative | X | Number of periods |
-| `cpu.throttling_data.throttled_periods` | cumulative | X | Number of periods throttled |
-| `cpu.throttling_data.throttled_time` | cumulative | X | Throttling time in nano seconds |
-| `cpu.usage.kernelmode` | cumulative | X | Jiffies of CPU time spent in kernel mode by the container |
-| `cpu.usage.system` | cumulative |  | Jiffies of CPU time used by the system |
-| `cpu.usage.total` | cumulative |  | Jiffies of CPU time used by the container |
-| `cpu.usage.usermode` | cumulative | X | Jiffies of CPU time spent in user mode by the container |
-| `memory.percent` | gauge | X | Percent of memory (0-100) used by the container relative to its limit (excludes page cache usage) |
-| `memory.stats.active_anon` | gauge | X | Amount of memory that has been identified as active by the kernel. Anonymous memory is memory that is not linked to disk pages. |
-| `memory.stats.active_file` | gauge | X | Amount of active file cache memory. Cache memory = active_file + inactive_file + tmpfs |
-| `memory.stats.cache` | gauge | X | The amount of memory used by the processes of this control group that can be associated with a block on a block device. Also accounts for memory used by tmpfs. |
-| `memory.stats.dirty` | gauge | X | The amount of memory waiting to get written to disk |
-| `memory.stats.hierarchical_memory_limit` | gauge | X | The memory limit in place by the hierarchy cgroup |
-| `memory.stats.hierarchical_memsw_limit` | gauge | X | The memory+swap limit in place by the hierarchy cgroup |
-| `memory.stats.inactive_anon` | gauge | X | Amount of memory that has been identified as inactive by the kernel. Anonymous memory is memory that is not linked to disk pages. |
-| `memory.stats.inactive_file` | gauge | X | Amount of inactive file cache memory. Cache memory = active_file + inactive_file + tmpfs |
-| `memory.stats.mapped_file` | gauge | X | Indicates the amount of memory mapped by the processes in the control group. It doesn’t give you information about how much memory is used; it rather tells you how it is used. |
-| `memory.stats.pgfault` | cumulative | X | Number of times that a process of the cgroup triggered a page fault. Page faults occur when a process accesses part of its virtual memory space which is nonexistent or protected. See https://docs.docker.com/config/containers/runmetrics for more info. |
-| `memory.stats.pgmajfault` | cumulative | X | Number of times that a process of the cgroup triggered a major page fault. Page faults occur when a process accesses part of its virtual memory space which is nonexistent or protected. See https://docs.docker.com/config/containers/runmetrics for more info. |
-| `memory.stats.pgpgin` | cumulative | X | Number of charging events to the memory cgroup. Charging events happen each time a page is accounted as either mapped anon page(RSS) or cache page to the cgroup. |
-| `memory.stats.pgpgout` | cumulative | X | Number of uncharging events to the memory cgroup. Uncharging events happen each time a page is unaccounted from the cgroup. |
-| `memory.stats.rss` | gauge | X | The amount of memory that doesn’t correspond to anything on disk: stacks, heaps, and anonymous memory maps. |
-| `memory.stats.rss_huge` | gauge | X | Amount of memory due to anonymous transparent hugepages. |
-| `memory.stats.swap` | gauge | X | Bytes of swap memory used by container |
-| `memory.stats.total_active_anon` | gauge | X | Total amount of memory that has been identified as active by the kernel. Anonymous memory is memory that is not linked to disk pages. |
-| `memory.stats.total_active_file` | gauge | X | Total amount of active file cache memory. Cache memory = active_file + inactive_file + tmpfs |
-| `memory.stats.total_cache` | gauge | X | Total amount of memory used by the processes of this control group that can be associated with a block on a block device. Also accounts for memory used by tmpfs. |
-| `memory.stats.total_dirty` | gauge | X | Total amount of memory waiting to get written to disk |
-| `memory.stats.total_inactive_anon` | gauge | X | Total amount of memory that has been identified as inactive by the kernel. Anonymous memory is memory that is not linked to disk pages. |
-| `memory.stats.total_inactive_file` | gauge | X | Total amount of inactive file cache memory. Cache memory = active_file + inactive_file + tmpfs |
-| `memory.stats.total_mapped_file` | gauge | X | Total amount of memory mapped by the processes in the control group. It doesn’t give you information about how much memory is used; it rather tells you how it is used. |
-| `memory.stats.total_pgfault` | cumulative | X | Total number of page faults |
-| `memory.stats.total_pgmajfault` | cumulative | X | Total number of major page faults |
-| `memory.stats.total_pgpgin` | cumulative | X | Total number of charging events |
-| `memory.stats.total_pgpgout` | cumulative | X | Total number of uncharging events |
-| `memory.stats.total_rss` | gauge | X | Total amount of memory that doesn’t correspond to anything on disk: stacks, heaps, and anonymous memory maps. |
-| `memory.stats.total_rss_huge` | gauge | X | Total amount of memory due to anonymous transparent hugepages. |
-| `memory.stats.total_unevictable` | gauge | X | Total amount of memory that can not be reclaimed |
-| `memory.stats.total_writeback` | gauge | X | Total amount of memory from file/anon cache that are queued for syncing to the disk |
-| `memory.stats.unevictable` | gauge | X | The amount of memory that cannot be reclaimed. |
-| `memory.stats.writeback` | gauge | X | The amount of memory from file/anon cache that are queued for syncing to the disk |
-| `memory.usage.limit` | gauge |  | Memory usage limit of the container, in bytes |
-| `memory.usage.max` | gauge | X | Maximum measured memory usage of the container, in bytes |
-| `memory.usage.total` | gauge |  | Bytes of memory used by the container |
-| `network.usage.rx_bytes` | cumulative |  | Bytes received by the container via its network interface |
-| `network.usage.rx_dropped` | cumulative | X | Number of inbound network packets dropped by the container |
-| `network.usage.rx_errors` | cumulative | X | Errors receiving network packets |
-| `network.usage.rx_packets` | cumulative | X | Network packets received by the container via its network interface |
-| `network.usage.tx_bytes` | cumulative |  | Bytes sent by the container via its network interface |
-| `network.usage.tx_dropped` | cumulative | X | Number of outbound network packets dropped by the container |
-| `network.usage.tx_errors` | cumulative | X | Errors sending network packets |
-| `network.usage.tx_packets` | cumulative | X | Network packets sent by the container via its network interface |
+| `blkio.io_service_bytes_recursive.async` | cumulative |  | Volume, in bytes, of asynchronous block I/O |
+| `blkio.io_service_bytes_recursive.read` | cumulative | ✔ | Volume, in bytes, of reads from block devices |
+| `blkio.io_service_bytes_recursive.sync` | cumulative |  | Volume, in bytes, of synchronous block I/O |
+| `blkio.io_service_bytes_recursive.total` | cumulative |  | Total volume, in bytes, of all block I/O |
+| `blkio.io_service_bytes_recursive.write` | cumulative | ✔ | Volume, in bytes, of writes to block devices |
+| `blkio.io_serviced_recursive.async` | cumulative |  | Number of asynchronous block I/O requests |
+| `blkio.io_serviced_recursive.read` | cumulative |  | Number of reads requests from block devices |
+| `blkio.io_serviced_recursive.sync` | cumulative |  | Number of synchronous block I/O requests |
+| `blkio.io_serviced_recursive.total` | cumulative |  | Total number of block I/O requests |
+| `blkio.io_serviced_recursive.write` | cumulative |  | Number of write requests to block devices |
+| `cpu.percent` | gauge |  | Percentage of host CPU resources used by the container |
+| `cpu.percpu.usage` | cumulative |  | Jiffies of CPU time spent by the container, per CPU core |
+| `cpu.throttling_data.periods` | cumulative |  | Number of periods |
+| `cpu.throttling_data.throttled_periods` | cumulative |  | Number of periods throttled |
+| `cpu.throttling_data.throttled_time` | cumulative |  | Throttling time in nano seconds |
+| `cpu.usage.kernelmode` | cumulative |  | Jiffies of CPU time spent in kernel mode by the container |
+| `cpu.usage.system` | cumulative | ✔ | Jiffies of CPU time used by the system |
+| `cpu.usage.total` | cumulative | ✔ | Jiffies of CPU time used by the container |
+| `cpu.usage.usermode` | cumulative |  | Jiffies of CPU time spent in user mode by the container |
+| `memory.percent` | gauge |  | Percent of memory (0-100) used by the container relative to its limit (excludes page cache usage) |
+| `memory.stats.active_anon` | gauge |  | Amount of memory that has been identified as active by the kernel. Anonymous memory is memory that is not linked to disk pages. |
+| `memory.stats.active_file` | gauge |  | Amount of active file cache memory. Cache memory = active_file + inactive_file + tmpfs |
+| `memory.stats.cache` | gauge |  | The amount of memory used by the processes of this control group that can be associated with a block on a block device. Also accounts for memory used by tmpfs. |
+| `memory.stats.dirty` | gauge |  | The amount of memory waiting to get written to disk |
+| `memory.stats.hierarchical_memory_limit` | gauge |  | The memory limit in place by the hierarchy cgroup |
+| `memory.stats.hierarchical_memsw_limit` | gauge |  | The memory+swap limit in place by the hierarchy cgroup |
+| `memory.stats.inactive_anon` | gauge |  | Amount of memory that has been identified as inactive by the kernel. Anonymous memory is memory that is not linked to disk pages. |
+| `memory.stats.inactive_file` | gauge |  | Amount of inactive file cache memory. Cache memory = active_file + inactive_file + tmpfs |
+| `memory.stats.mapped_file` | gauge |  | Indicates the amount of memory mapped by the processes in the control group. It doesn’t give you information about how much memory is used; it rather tells you how it is used. |
+| `memory.stats.pgfault` | cumulative |  | Number of times that a process of the cgroup triggered a page fault. Page faults occur when a process accesses part of its virtual memory space which is nonexistent or protected. See https://docs.docker.com/config/containers/runmetrics for more info. |
+| `memory.stats.pgmajfault` | cumulative |  | Number of times that a process of the cgroup triggered a major page fault. Page faults occur when a process accesses part of its virtual memory space which is nonexistent or protected. See https://docs.docker.com/config/containers/runmetrics for more info. |
+| `memory.stats.pgpgin` | cumulative |  | Number of charging events to the memory cgroup. Charging events happen each time a page is accounted as either mapped anon page(RSS) or cache page to the cgroup. |
+| `memory.stats.pgpgout` | cumulative |  | Number of uncharging events to the memory cgroup. Uncharging events happen each time a page is unaccounted from the cgroup. |
+| `memory.stats.rss` | gauge |  | The amount of memory that doesn’t correspond to anything on disk: stacks, heaps, and anonymous memory maps. |
+| `memory.stats.rss_huge` | gauge |  | Amount of memory due to anonymous transparent hugepages. |
+| `memory.stats.swap` | gauge |  | Bytes of swap memory used by container |
+| `memory.stats.total_active_anon` | gauge |  | Total amount of memory that has been identified as active by the kernel. Anonymous memory is memory that is not linked to disk pages. |
+| `memory.stats.total_active_file` | gauge |  | Total amount of active file cache memory. Cache memory = active_file + inactive_file + tmpfs |
+| `memory.stats.total_cache` | gauge |  | Total amount of memory used by the processes of this control group that can be associated with a block on a block device. Also accounts for memory used by tmpfs. |
+| `memory.stats.total_dirty` | gauge |  | Total amount of memory waiting to get written to disk |
+| `memory.stats.total_inactive_anon` | gauge |  | Total amount of memory that has been identified as inactive by the kernel. Anonymous memory is memory that is not linked to disk pages. |
+| `memory.stats.total_inactive_file` | gauge |  | Total amount of inactive file cache memory. Cache memory = active_file + inactive_file + tmpfs |
+| `memory.stats.total_mapped_file` | gauge |  | Total amount of memory mapped by the processes in the control group. It doesn’t give you information about how much memory is used; it rather tells you how it is used. |
+| `memory.stats.total_pgfault` | cumulative |  | Total number of page faults |
+| `memory.stats.total_pgmajfault` | cumulative |  | Total number of major page faults |
+| `memory.stats.total_pgpgin` | cumulative |  | Total number of charging events |
+| `memory.stats.total_pgpgout` | cumulative |  | Total number of uncharging events |
+| `memory.stats.total_rss` | gauge |  | Total amount of memory that doesn’t correspond to anything on disk: stacks, heaps, and anonymous memory maps. |
+| `memory.stats.total_rss_huge` | gauge |  | Total amount of memory due to anonymous transparent hugepages. |
+| `memory.stats.total_unevictable` | gauge |  | Total amount of memory that can not be reclaimed |
+| `memory.stats.total_writeback` | gauge |  | Total amount of memory from file/anon cache that are queued for syncing to the disk |
+| `memory.stats.unevictable` | gauge |  | The amount of memory that cannot be reclaimed. |
+| `memory.stats.writeback` | gauge |  | The amount of memory from file/anon cache that are queued for syncing to the disk |
+| `memory.usage.limit` | gauge | ✔ | Memory usage limit of the container, in bytes |
+| `memory.usage.max` | gauge |  | Maximum measured memory usage of the container, in bytes |
+| `memory.usage.total` | gauge | ✔ | Bytes of memory used by the container |
+| `network.usage.rx_bytes` | cumulative | ✔ | Bytes received by the container via its network interface |
+| `network.usage.rx_dropped` | cumulative |  | Number of inbound network packets dropped by the container |
+| `network.usage.rx_errors` | cumulative |  | Errors receiving network packets |
+| `network.usage.rx_packets` | cumulative |  | Network packets received by the container via its network interface |
+| `network.usage.tx_bytes` | cumulative | ✔ | Bytes sent by the container via its network interface |
+| `network.usage.tx_dropped` | cumulative |  | Number of outbound network packets dropped by the container |
+| `network.usage.tx_errors` | cumulative |  | Errors sending network packets |
+| `network.usage.tx_packets` | cumulative |  | Network packets sent by the container via its network interface |
 
 
 To specify custom metrics you want to monitor, add a `metricsToInclude` filter
