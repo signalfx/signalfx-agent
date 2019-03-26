@@ -1,7 +1,12 @@
+windows_service node['signalfx_agent']['service_name'] do
+  action :stop
+  only_if { ::File.exist?(node['signalfx_agent']['version_file']) && (::File.readlines(node['signalfx_agent']['version_file']).first.strip != node['signalfx_agent']['package_version']) }
+end
 
 windows_zipfile node['signalfx_agent']['install_dir'] do
   source node['signalfx_agent']['package_url']
   action :unzip
+  overwrite true
   only_if { !::File.exist?(node['signalfx_agent']['version_file']) || (::File.readlines(node['signalfx_agent']['version_file']).first.strip != node['signalfx_agent']['package_version']) }
   notifies :restart, 'service[signalfx-agent]', :delayed
 end
