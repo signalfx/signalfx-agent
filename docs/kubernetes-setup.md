@@ -22,10 +22,11 @@ monitor.
    ```
 
 2. If you use [Helm](https://github.com/kubernetes/helm), you can use [our
-   chart](https://github.com/kubernetes/charts/tree/master/stable/signalfx-agent)
-   in the stable Helm chart repository.  Otherwise, download the following
-   files from SignalFx's Github repository to the machine you usually run
-   `kubectl` from, and modify them as indicated.
+   chart](https://github.com/signalfx/signalfx-agent/tree/master/deployments/k8s/helm/signalfx-agent).
+   Instructions for how to add our own Helm repostiory to your Helm instance is
+   in that directory.  Otherwise, download the following files from SignalFx's
+   Github repository to the machine you usually run `kubectl` from, and modify
+   them as indicated.
 
    -  [daemonset.yaml](https://github.com/signalfx/signalfx-agent/blob/master/deployments/k8s/daemonset.yaml):
        Kubernetes daemon set configuration
