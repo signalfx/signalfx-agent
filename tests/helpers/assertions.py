@@ -43,13 +43,14 @@ def has_datapoint_with_dim(fake_services, key, value):
     return has_datapoint_with_all_dims(fake_services, {key: value})
 
 
-def has_datapoint(fake_services, metric_name=None, dimensions=None, value=None, metric_type=None):
+def has_datapoint(fake_services, metric_name=None, dimensions=None, value=None, metric_type=None, count=1):
     """
     Returns True if there is a datapoint seen in the fake_services backend that
     has the given attributes.  If a property is not specified it will not be
     considered.  Dimensions, if provided, will be tested as a subset of total
     set of dimensions on the datapoint and not the complete set.
     """
+    found = 0
     # Try and cull the number of datapoints that have to be searched since we
     # have to check each datapoint.
     if dimensions is not None:
@@ -79,7 +80,9 @@ def has_datapoint(fake_services, metric_name=None, dimensions=None, value=None, 
                 # Non-numeric values aren't supported, so they always fail to
                 # match
                 continue
-        return True
+        found += 1
+        if found >= count:
+            return True
     return False
 
 
