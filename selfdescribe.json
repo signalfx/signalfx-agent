@@ -12575,7 +12575,7 @@
               },
               {
                 "yamlName": "type",
-                "doc": "SignalFx metric type. Possible values are \"gauge\" or \"Cumulative\"",
+                "doc": "SignalFx metric type. Possible values are \"gauge\" or \"cumulative\"",
                 "default": null,
                 "required": true,
                 "type": "string",

@@ -90,10 +90,14 @@ func (conf *Config) Validate() error {
 			// Validating dimension configuration
 			for _, dConf := range mConf.DimensionConfigs {
 				switch {
-				case dConf == nil: continue
-				case dConf.Name == "" || strings.ReplaceAll(dConf.Name, " ", "") != dConf.Name: return fmt.Errorf("dimension name cannot be blank or have whitespaces")
-				case dConf.JSONPath != "" && dConf.Value != "": return fmt.Errorf("dimension path %s and dimension value %s cannot be configure simultaneously", dConf.JSONPath, dConf.Value)
-				case dConf.JSONPath != "" && !strings.HasPrefix(mConf.JSONPath, dConf.JSONPath): return fmt.Errorf("dimension path %s must be shorter than metric path %s and start from the same root", dConf.JSONPath, mConf.JSONPath)
+				case dConf == nil:
+					continue
+				case dConf.Name == "" || strings.ReplaceAll(dConf.Name, " ", "") != dConf.Name:
+					return fmt.Errorf("dimension name cannot be blank or have whitespaces")
+				case dConf.JSONPath != "" && dConf.Value != "":
+					return fmt.Errorf("dimension path %s and dimension value %s cannot be configure simultaneously", dConf.JSONPath, dConf.Value)
+				case dConf.JSONPath != "" && !strings.HasPrefix(mConf.JSONPath, dConf.JSONPath):
+					return fmt.Errorf("dimension path %s must be shorter than metric path %s and start from the same root", dConf.JSONPath, mConf.JSONPath)
 				}
 			}
 		}
@@ -141,10 +145,10 @@ func init() {
 
 // Configure monitor
 func (m *Monitor) Configure(conf *Config) error {
-	m.metricTypes         = map[*MetricConfig]datapoint.MetricType{}
-	m.metricPathsParts    = map[*MetricConfig][]string{}
+	m.metricTypes = map[*MetricConfig]datapoint.MetricType{}
+	m.metricPathsParts = map[*MetricConfig][]string{}
 	m.dimensionPathsParts = map[*DimensionConfig][]string{}
-	m.allMetricConfigs    = []*MetricConfig{}
+	m.allMetricConfigs = []*MetricConfig{}
 	m.addDefaultMetricConfigs(conf.EnhancedMetrics)
 	for _, mConf := range conf.MetricConfigs {
 		if m.metricTypes[mConf] = datapoint.Gauge; strings.TrimSpace(strings.ToLower(mConf.Type)) == cumulative {
@@ -191,14 +195,14 @@ func (m *Monitor) Configure(conf *Config) error {
 }
 
 func (m *Monitor) addDefaultMetricConfigs(enhancedMetrics bool) {
-	memstatsMetricPathsGauge      := []string {
+	memstatsMetricPathsGauge := []string{
 		"memstats.HeapAlloc", "memstats.HeapSys", "memstats.HeapIdle", "memstats.HeapInuse", "memstats.HeapReleased",
 		"memstats.HeapObjects", "memstats.StackInuse", "memstats.StackSys", "memstats.MSpanInuse", "memstats.MSpanSys",
 		"memstats.MCacheInuse", "memstats.MCacheSys", "memstats.BuckHashSys", "memstats.GCSys", "memstats.OtherSys",
 		"memstats.Sys", "memstats.NextGC", "memstats.LastGC", "memstats.GCCPUFraction", "memstats.EnableGC",
 		"memstats.DebugGC", memstatsPauseNsMetricPath, memstatsPauseEndMetricPath,
 	}
-	memstatsMetricPathsCumulative := []string {
+	memstatsMetricPathsCumulative := []string{
 		"memstats.TotalAlloc", "memstats.Lookups", "memstats.Mallocs", "memstats.Frees", "memstats.PauseTotalNs",
 		memstatsNumGCMetricPath, "memstats.NumForcedGC",
 	}

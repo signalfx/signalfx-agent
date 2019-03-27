@@ -174,7 +174,7 @@ The **nested** `metrics` config object has the following fields:
 | --- | --- | --- | --- |
 | `name` | no | `string` | Metric name |
 | `JSONPath` | **yes** | `string` | JSON path of the metric value |
-| `type` | **yes** | `string` | SignalFx metric type. Possible values are "gauge" or "Cumulative" |
+| `type` | **yes** | `string` | SignalFx metric type. Possible values are "gauge" or "cumulative" |
 | `dimensions` | no | `list of objects (see below)` | Metric dimensions |
 
 

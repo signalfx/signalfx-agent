@@ -6,7 +6,7 @@ import (
 
 type MetricsConfigTest struct {
 	mConf *MetricConfig
-	want string
+	want  string
 }
 
 var MetricsTest = []MetricsConfigTest{
@@ -19,8 +19,8 @@ var MetricsTest = []MetricsConfigTest{
 func TestSetMetrics(t *testing.T) {
 	for _, test := range MetricsTest {
 		got := test.mConf.name()
-			if got != test.want {
-				t.Errorf("got metric name: %s, want metric name: %s", got, test.want)
+		if got != test.want {
+			t.Errorf("got metric name: %s, want metric name: %s", got, test.want)
 		}
 	}
 }
