@@ -13,6 +13,19 @@ docs](https://docs.signalfx.com/en/latest/integrations/kubernetes-quickstart.htm
 for more information on how the agent works.  The installation steps will be
 different since you are using Helm but the agent otherwise behaves identically.
 
+## Use
+
+To use this chart with Helm, add our SignalFx Helm chart repository to Helm
+like this:
+
+`$ helm repo add signalfx https://dl.signalfx.com/helm-repo`
+
+Then to ensure the latest state of the repository, run:
+
+`$ helm repo update`
+
+Then you can install the agent using the chart name `signalfx/signalfx-agent`.
+
 ## Configuration
 
 See the [values.yaml](./values.yaml) file for more information on how to

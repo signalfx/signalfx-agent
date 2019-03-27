@@ -22,10 +22,11 @@ monitor.
    ```
 
 2. If you use [Helm](https://github.com/kubernetes/helm), you can use [our
-   chart](https://github.com/kubernetes/charts/tree/master/stable/signalfx-agent)
-   in the stable Helm chart repository.  Otherwise, download the following
-   files from SignalFx's Github repository to the machine you usually run
-   `kubectl` from, and modify them as indicated.
+   chart](https://github.com/signalfx/signalfx-agent/tree/master/deployments/k8s/helm/signalfx-agent).
+   Instructions for how to add our own Helm repostiory to your Helm instance is
+   in that directory.  Otherwise, download the following files from SignalFx's
+   Github repository to the machine you usually run `kubectl` from, and modify
+   them as indicated.
 
    -  [daemonset.yaml](https://github.com/signalfx/signalfx-agent/blob/master/deployments/k8s/daemonset.yaml):
        Kubernetes daemon set configuration
@@ -335,17 +336,18 @@ OpenShift 3.0 is based on Kubernetes and thus most of the above instructions
 apply.  There are more restrictive security policies that disallow some of the
 things our agent needs to be effective, such as running in privileged mode and
 mounting host filesystems to the agent container, as well as reading from the
-Kubelet and Kubernetes API with service accounts.
+Kubelet and Kubernetes API with service accounts. If you cannot use the
+`default` namespace, you will need to modify each resource and the commands
+below to run in a separate accessible namespace.
 
 First we need a service account for the agent (you will need to be a cluster
 administrator to do the following):
 
 `oc create serviceaccount signalfx-agent`
 
-We need to make this service account able to read information about the
-cluster:
+We need to make the agent run as root in the container:
 
-`oadm policy add-cluster-role-to-user cluster-reader
+`oadm policy add-cluster-role-to-user anyuid
 system:serviceaccount:default:signalfx-agent`
 
 Next we need to add this service account to the privileged SCC.  Run `oc edit

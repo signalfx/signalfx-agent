@@ -97,17 +97,51 @@ type Config struct {
 	// Path to the metrics endpoint on the exporter server, usually `/metrics`
 	// (the default).
 	MetricPath string `yaml:"metricPath" default:"/metrics"`
+
+	// Send all the metrics that come out of the Prometheus exporter without
+	// any filtering.  This option has no effect when using the prometheus
+	// exporter monitor directly since there is no built-in filtering, only
+	// when embedding it in other monitors.
+	SendAllMetrics bool `yaml:"sendAllMetrics"`
 }
 
 // Monitor for prometheus exporter metrics
 type Monitor struct {
 	Output types.Output
-	cancel func()
-	client *http.Client
+	// Optional set of metric names that will be sent by default, all other
+	// metrics derived from the exporter being dropped.
+	IncludedMetrics map[string]bool
+	// Extra dimensions to add in addition to those specified in the config.
+	ExtraDimensions map[string]string
+	// If true, IncludedMetrics is ignored and everything is sent.
+	SendAll bool
+	cancel  func()
+	client  *http.Client
+}
+
+type filteringOutput struct {
+	types.Output
+	includedMetrics map[string]bool
+}
+
+var _ types.Output = &filteringOutput{}
+
+func (fo *filteringOutput) SendDatapoint(dp *datapoint.Datapoint) {
+	if !fo.includedMetrics[dp.Metric] {
+		return
+	}
+	fo.Output.SendDatapoint(dp)
 }
 
 // Configure the monitor and kick off volume metric syncing
 func (m *Monitor) Configure(conf *Config) error {
+	// This is a temporary hack until the generic metric filtering/grouping
+	// work is done.  This should be removable once that is done and the logic
+	// lives in the core Output instance.
+	if m.IncludedMetrics != nil && !conf.SendAllMetrics {
+		m.Output = &filteringOutput{Output: m.Output, includedMetrics: m.IncludedMetrics}
+	}
+
 	m.client = &http.Client{
 		Timeout: 10 * time.Second,
 		Transport: &http.Transport{
