@@ -285,8 +285,8 @@ jobs:
         type: string
     environment:
       K8S_VERSION: "<< parameters.k8s_version >>"
-      K8S_MIN_VERSION: "v1.7.0"
-      K8S_MAX_VERSION: "v1.13.0"
+      K8S_MIN_VERSION: "v1.8.0"
+      K8S_MAX_VERSION: "v1.14.0"
       K8S_SFX_AGENT: "quay.io/signalfx/signalfx-agent-dev:latest"
       MARKERS: "k8s and not collectd"
     steps:
@@ -483,6 +483,12 @@ workflows:
           requires:
             - build
       - k8s_integration_tests:
+          name: "k8s_v1.14.0_integration_tests"
+          k8s_version: "v1.14.0"
+          requires:
+            - build
+            - helm_check
+      - k8s_integration_tests:
           name: "k8s_v1.13.0_integration_tests"
           k8s_version: "v1.13.0"
           requires:
@@ -515,12 +521,6 @@ workflows:
       - k8s_integration_tests:
           name: "k8s_v1.8.0_integration_tests"
           k8s_version: "v1.8.0"
-          requires:
-            - build
-            - helm_check
-      - k8s_integration_tests:
-          name: "k8s_v1.7.0_integration_tests"
-          k8s_version: "v1.7.0"
           requires:
             - build
             - helm_check
