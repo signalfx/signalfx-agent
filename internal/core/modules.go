@@ -46,6 +46,7 @@ import (
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/prometheus/prometheus"
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/prometheus/redis"
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/prometheusexporter"
+	_ "github.com/signalfx/signalfx-agent/internal/monitors/pyrunner/signalfx"
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/telegraf/monitors/mssqlserver"
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/telegraf/monitors/procstat"
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/telegraf/monitors/tail"

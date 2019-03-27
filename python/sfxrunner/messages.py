@@ -113,7 +113,7 @@ class PipeMessageWriter(_PipeMessageBase):
         Sends a message with the with the size prefixed to determine the
         message boundary on the receiving side.
         """
-        msg_bytes = ujson.dumps(msg_obj)
+        msg_bytes = ujson.dumps(msg_obj).encode("utf-8")
 
         with self.lock:
             self.file.write(struct.pack("i", msg_type))

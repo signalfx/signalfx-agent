@@ -401,11 +401,11 @@ github.com/signalfx/com_signalfx_metrics_protobuf
 github.com/signalfx/gateway/protocol/collectd
 github.com/signalfx/gateway/protocol/collectd/format
 github.com/signalfx/gateway/protocol/signalfx
+github.com/signalfx/gateway/protocol/signalfx/format
 github.com/signalfx/gateway/protocol
 github.com/signalfx/gateway/protocol/zipper
 github.com/signalfx/gateway/logkey
 github.com/signalfx/gateway/protocol/filtering
-github.com/signalfx/gateway/protocol/signalfx/format
 github.com/signalfx/gateway/protocol/signalfx/tagreplace
 github.com/signalfx/gateway/sampling
 github.com/signalfx/gateway/etcdIntf

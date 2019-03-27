@@ -22545,6 +22545,64 @@
       "singleInstance": false
     },
     {
+      "monitorType": "python-monitor",
+      "sendAll": false,
+      "dimensions": null,
+      "doc": "This monitor allows you to generate metrics from a Python script.\n\nYour Python code should be Python 2.7+ *AND* 3.0+ compatible.  The Python\nruntime bundled with the agent is currently version 2.7 but this could be\nupgraded at anytime to Python 3.  If you want to use Python 3 at this time,\nyou can specify a custom Python binary with the `pythonBinary` config\noption.\n\n## Module Loading\nThe full file path to the Python script that you want to run should be\nspecified in the `scriptFilePath` config option.  This file will be loaded in\nPython by adding the directory containing the file to the front of the Python\npath (`sys.path`) and then dynamically importing the file as a module.  For\na hypothetical script at `/opt/scripts/mymonitor.py`, this is roughly\nequivalent to the following Python code:\n\n```\nimport sys\nsys.path.insert(0, \"/opt/scripts\")\n\nimport mymodule\n```\n\nThere are two ways you can implement a monitor in Python, a simple way or a\ncomplex, but more powerful way.  \n\n## Simple monitor \nThe simple way is to write a script that has a `run` function in it.  This\nfunction should accept two parameters: `config` and `output`.  The `run`\nfunction will be called on a regular interval, specified by the common\n`intervalSeconds` config option on the monitor config.\n\nHere is [an example of a simple monitor](https://github.com/signalfx/signalfx-agent/tree/master/python/sample/monitor_simple.py).\n\n## Complex monitor\n\nIf you need more power and flexibility in defining your monitor, you can\nuse the complex monitor format.  With this, you define a class called\n`Monitor` in a Python module. Here is [a documented example of a complex\nmonitor](https://github.com/signalfx/signalfx-agent/tree/master/python/sample/monitor_complex.py).\n\n## Auto-discovery\n\nThis monitor works with auto-discovery just like other monitors.  If you\nset a `discoveryRule` on the monitor config, a new instance of the monitor\nwill be created for each matching endpoint and the `host` and `port` config\nfields will be populated with the appropriate values and passed to the\nPython script in the `config` dictionary.\n\n## Example Config\n\nThis shows loading a Python module from the agent repo using a single custom config value (`myconfig`):\n\n```yaml\nmonitors:\n - type: python-monitor\n   # pythonBinary: /usr/bin/python\n   scriptFilePath: /usr/src/signalfx-agent/python/sample/monitor_complex.py\n   myconfig: [1,2,3]\n```\n",
+      "groups": null,
+      "metrics": null,
+      "properties": null,
+      "config": {
+        "name": "Config",
+        "doc": "Config specifies configurations that are specific to the individual python based monitor",
+        "package": "internal/monitors/pyrunner/signalfx",
+        "fields": [
+          {
+            "yamlName": "host",
+            "doc": "Host will be filled in by auto-discovery if this monitor has a discovery rule.  It can then be used under pluginConfig by the template `{{.Host}}`",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "port",
+            "doc": "Port will be filled in by auto-discovery if this monitor has a discovery rule.  It can then be used under pluginConfig by the template `{{.Port}}`",
+            "default": 0,
+            "required": false,
+            "type": "uint16",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "scriptFilePath",
+            "doc": "Path to the Python script that implements the monitoring logic.",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "pythonBinary",
+            "doc": "By default, the agent will use its bundled Python runtime (version 2.7). If you wish to use a Python runtime that already exists on the system, specify the full path to the `python` binary here, e.g. `/usr/bin/python3`.",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "pythonPath",
+            "doc": "The PYTHONPATH that will be used when importing the script specified at `scriptPath`.  The directory of `scriptPath` will always be included in the path.",
+            "default": null,
+            "required": false,
+            "type": "slice",
+            "elementKind": "string"
+          }
+        ]
+      },
+      "acceptsEndpoints": true,
+      "singleInstance": false
+    },
+    {
       "monitorType": "telegraf/logparser",
       "sendAll": false,
       "dimensions": null,

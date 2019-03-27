@@ -105,18 +105,22 @@ def container_ip(container):
 
 
 @contextmanager
-def run_agent(config_text, debug=True, profile=False, extra_env=None, internal_metrics=False, backend_options=None):
+def run_agent(
+    config_text, debug=True, profile=False, extra_env=None, internal_metrics=False, backend_options=None, with_pid=False
+):
     host = get_unique_localhost()
 
     with fake_backend.start(host, **(backend_options or {})) as fake_services:
         with run_agent_with_fake_backend(
             config_text, fake_services, debug=debug, host=host, profile=profile, extra_env=extra_env
-        ) as [_, get_output, setup_conf, conf]:
+        ) as [get_output, setup_conf, conf, pid]:
             to_yield = [fake_services, get_output, setup_conf]
             if profile:
                 to_yield += [PProfClient(conf["profilingHost"], conf.get("profilingPort", 6060))]
             if internal_metrics:
                 to_yield += [InternalMetricsClient(conf["internalStatusHost"], conf["internalStatusPort"])]
+            if with_pid:
+                to_yield += [pid]
             yield to_yield
 
 
@@ -129,11 +133,12 @@ def run_agent_with_fake_backend(config_text, fake_services, debug=True, host=Non
 
         agent_env = {**os.environ.copy(), **(extra_env or {})}
 
-        with run_subprocess(
-            [AGENT_BIN, "-config", config_path] + (["-debug"] if debug else []), env=agent_env
-        ) as get_output:
+        with run_subprocess([AGENT_BIN, "-config", config_path] + (["-debug"] if debug else []), env=agent_env) as [
+            get_output,
+            pid,
+        ]:
             try:
-                yield [fake_services, get_output, lambda c: render_config(c, config_path, fake_services), conf]
+                yield [get_output, lambda c: render_config(c, config_path, fake_services), conf, pid]
             finally:
                 print("\nAgent output:")
                 print_lines(get_output())
@@ -166,7 +171,7 @@ def run_subprocess(command: List[str], env: Dict[any, any] = None):
     threading.Thread(target=pull_output).start()
 
     try:
-        yield get_output
+        yield [get_output, proc.pid]
     finally:
         proc.terminate()
         proc.wait(15)
