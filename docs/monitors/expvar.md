@@ -33,11 +33,13 @@ monitors:
 ```
 Below is an example showing part of a JSON payload containing the exposed variable requestsPerSecond containing
 requests per second metric information.
+```
 {
   ...
   "requestsPerSecond": 919,
   ...
 }
+```
 Suppose that the payload is emanating from endpoint `http://172.17.0.4:6000/appmetrics`. The monitor can be
 configured as shown below in order to scrape requestsPerSecond. The metric name is optional. If not provided,
 the JSONPath value `requestsPerSecond` snake cased to `requests_per_second` will be used instead.
