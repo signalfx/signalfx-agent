@@ -61,6 +61,7 @@ along with their possible configuration options:
 - [docker-container-stats](./monitors/docker-container-stats.md)
 - [dotnet](./monitors/dotnet.md)
 - [ecs-metadata](./monitors/ecs-metadata.md)
+- [expvar](./monitors/expvar.md)
 - [filesystems](./monitors/filesystems.md)
 - [gitlab](./monitors/gitlab.md)
 - [gitlab-gitaly](./monitors/gitlab-gitaly.md)

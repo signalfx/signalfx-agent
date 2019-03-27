@@ -624,8 +624,8 @@ github.com/signalfx/gohelpers v0.0.0-20151202220853-ac9f0e053f15 h1:fpg8nIesNCgM
 github.com/signalfx/gohelpers v0.0.0-20151202220853-ac9f0e053f15/go.mod h1:Zx1eNCg/RuM9/sBhW4qej5BN7uwxAYziXHvC7nTOcFg=
 github.com/signalfx/gohistogram v0.0.0-20160107210732-1ccfd2ff5083 h1:WsShHmu12ZztYPfh9b+I+VjYD1o8iOHhB67WZCMEEE8=
 github.com/signalfx/gohistogram v0.0.0-20160107210732-1ccfd2ff5083/go.mod h1:adPDS6s7WaajdFBV9mQ7i0dKfQ8xiDnF9ZNETVPpp7c=
-github.com/signalfx/golib v2.3.2-0.20190318133519-8fb3debf0ac4+incompatible h1:jSK6jjSL9N4TzeA4LJWTV2/dc1RN5VxO0ENWME0Ua2Y=
-github.com/signalfx/golib v2.3.2-0.20190318133519-8fb3debf0ac4+incompatible/go.mod h1:nWYefOwlUKWm/SpN/LgVSBnyH1T9NpT1ANlmgRIi1Cs=
+github.com/signalfx/golib v2.3.3+incompatible h1:qUN+V6teerbsgEOOzSiBaMo8rv7M8KfU9DAG2dX4GEc=
+github.com/signalfx/golib v2.3.3+incompatible/go.mod h1:nWYefOwlUKWm/SpN/LgVSBnyH1T9NpT1ANlmgRIi1Cs=
 github.com/sirupsen/logrus v1.0.5/go.mod h1:pMByvHTf9Beacp5x1UXfOR9xyW/9antXMhjMPG0dEzc=
 github.com/sirupsen/logrus v1.0.6/go.mod h1:pMByvHTf9Beacp5x1UXfOR9xyW/9antXMhjMPG0dEzc=
 github.com/sirupsen/logrus v1.2.0 h1:juTguoYk5qI21pwyTXY3B3Y5cOTH3ZUyZCg1v/mihuo=
