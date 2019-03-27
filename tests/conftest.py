@@ -11,7 +11,7 @@ from tests.helpers.kubernetes.minikube import Minikube, has_docker_image
 from tests.helpers.util import wait_for, get_docker_client, run_container
 
 REPO_ROOT_DIR = os.path.join(os.path.dirname(os.path.realpath(__file__)), "..")
-K8S_DEFAULT_VERSION = "1.13.0"
+K8S_DEFAULT_VERSION = "1.14.0"
 K8S_DEFAULT_TIMEOUT = int(os.environ.get("K8S_TIMEOUT", 300))
 K8S_DEFAULT_TEST_TIMEOUT = 60
 K8S_SUPPORTED_OBSERVERS = ["k8s-api", "k8s-kubelet"]

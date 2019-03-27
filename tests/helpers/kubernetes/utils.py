@@ -402,15 +402,16 @@ def get_pod_logs(name, namespace="default"):
     assert pods, "no pods found with name '%s'" % name
     logs = ""
     for pod in pods:
-        for container in pod.status.container_statuses:
-            logs += "%s container log:\n" % container.name
-            try:
-                logs += api.read_namespaced_pod_log(
-                    name=pod.metadata.name, container=container.name, namespace=namespace
-                ).strip()
-            except ApiException as e:
-                logs += "failed to get log:\n%s" % str(e).strip()
-            logs += "\n"
+        if pod.status.container_statuses:
+            for container in pod.status.container_statuses:
+                logs += "%s container log:\n" % container.name
+                try:
+                    logs += api.read_namespaced_pod_log(
+                        name=pod.metadata.name, container=container.name, namespace=namespace
+                    ).strip()
+                except ApiException as e:
+                    logs += "failed to get log:\n%s" % str(e).strip()
+                logs += "\n"
     return logs.strip()
 
 
