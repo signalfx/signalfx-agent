@@ -12494,7 +12494,7 @@
     },
     {
       "name": "Config",
-      "doc": "This monitor exports metrics derived from [expvar](https://golang.org/pkg/expvar/)\nvariables in JSON objects retrieved from a HTTP endpoint.\n\nThe monitor uses configured JSON paths to get metric and dimension values from the fetched JSON objects.\n[Memstats metrics](https://github.com/signalfx/integrations/blob/master/expvar/docs/expvar_metrics.md)\nare created by default. They do not require any configuration. They are derived from variable\n[memstats](https://golang.org/pkg/runtime/) that is exposed by default.\n\nBelow is a sample YAML configuration showing the minimal configuration of the expvar monitor. Only\nmemstats metrics will be exported for this configuration. The `extraDimensions` field is not required but recommended.\n```\nmonitors:\n- type: expvar\n  host: 172.17.0.3\n  path: /debug/vars\n  port: 8000\n```\nIt is recommended to add the `metric_source` extra dimension as show below in order to facilitate filtering in\nSignalFx.\n```\nmonitors:\n- type: expvar\n  host: 172.17.0.3\n  path: /debug/vars\n  port: 8000\n  extraDimensions:\n    metric_source: expvar\n```\n\nBelow is a sample YAML configuration showing the configuration of custom metrics `xyz` and `h.i`. The `name`s\nof metrics and dimensionals are optional. The `JSONPath` is used for `name` instead if not provided.\n```\nmonitors:\n- type: expvar\n  host: 172.12.0.6\n  path: /debug/vars\n  port: 8123\n    metrics:\n      - name: xyz\n        JSONPath: a.b.c.d\n        type: counter\n        dimensions:\n          - name: rst\n            JSONPath: a.b\n      - JSONPath: h.i\n        type: gauge\n      - JSONPath: j\n        type: gauge\n        dimensions:\n          - name: kl\n            value: mno\n  extraDimensions:\n    metric_source: expvar\n```\n\nBelow is an example JSON object that the above configuration may apply to.\n```\n{\n \"a\": {\n   \"b\": {\n     \"c\": [\n       {\n         \"d\": 4\n       },\n       {\n         \"d\": 9\n       },\n     ]\n   }\n },\n \"h\": [\n   {\n     \"i\": 1.2\n   }\n ],\n \"j\" : 0.8\n}\n```\n\nTwo data points will be created for the metric `a.b.c.d`. The first data point will have the value 4 and\ndimensions `a.b = c`, `a.b.c = 0` and `metric_source = expvar`. The second data point will have the value 9\nand dimensions `a.b = c`, `a.b.c = 1` and `metric_source = expvar`. The monitor creates dimensions such as\n`a.b.c` automatically to store array indexes.\n\nFor metric `h.i`, a data point of value 1.2, dimensions `h = 0` and `metric_source = expvar` will be created.\n\nFor metric `j`, a data point of value 0.8, dimensions `kl = mno` and `metric_source = expvar` will be created.\nNote that the value for dimension `kl` was provided.\n\nThe path of a dimension must follow the path of its metric and be shorter.\n",
+      "doc": "The expvar monitor is a SignalFx Smart Agent monitor that scrapes metrics from variables exposed in JSON\nformat at an HTTP endpoint by [expvar](https://golang.org/pkg/expvar/). The monitor uses configured paths\nto get metric and dimension values from fetched JSON objects.\n\nThe Metrics section in this document shows metrics derived from expvar variable\n[memstats](https://golang.org/pkg/runtime/). The memstat variable is exposed by default. These memstat\nmetrics are referred to as standard or default metrics. The configuration examples shown are excerpts\nlimited to the monitor configuration section of the SignalFx Smart Agent configuration file `agent.yml`.\n\nBelow is an example showing the minimal required expvar monitor configuration for exporting\nthe default metrics from endpoint `http://172.17.0.3:8000/debug/vars`. `/debug/vars` is the default path.\n```\nmonitors:\n- type: expvar\n  host: 172.17.0.3\n  path: /debug/vars\n  port: 8000\n```\nWe recommend you include the extra dimension `metric_source` with a meaningful value in order to facilitate\nfiltering in the SignalFx app. See below.\n```\nmonitors:\n- type: expvar\n  host: 172.17.0.3\n  path: /debug/vars\n  port: 8000\n  extraDimensions:\n    metric_source: expvar\n```\nBelow is an example showing part of a JSON payload containing the exposed variable requestsPerSecond containing\nrequests per second metric information.\n{\n  ...\n  \"requestsPerSecond\": 919,\n  ...\n}\nSuppose that the payload is emanating from endpoint `http://172.17.0.4:6000/appmetrics`. The monitor can be\nconfigured as shown below in order to scrape requestsPerSecond. The metric name is optional. If not provided,\nthe JSONPath value `requestsPerSecond` snake cased to `requests_per_second` will be used instead.\n```\nmonitors:\n- type: expvar\n  host: 172.17.0.4\n  path: /debug/vars\n  port: 6000\n  metrics:\n    - name: requests.sec\n      JSONPath: requestsPerSecond\n      type: gauge\n  extraDimensions:\n    metric_source: expvar-aws\n```\nThe expvar monitor can be configured to extract metric values from complex JSON objects such as the one shown\nbelow. Suppose the `memstats` variable shown below is exposed at endpoint `http://172.17.0.5:5000/debug/vars`\nand you want to extract the cumulative `Mallocs` values.\n```\n{\n  ...\n  \"memstats\": {\n                ...\n                \"GCCPUFraction\": 0.0000032707490586459204,\n                \"BySize\": [\n                  {\n                      \"Size\": 32,\n                      \"Mallocs\": 35387,\n                      \"Frees\": 35021\n                  },\n                  {\n                      \"Size\": 48,\n                      \"Mallocs\": 35387,\n                      \"Frees\": 63283\n                  }\n                ]\n                \"HeapAlloc\": 2138088,\n                ...\n              }\n  ...\n}\n```\nThe should be configured as shown below so as to fetch the `Mallocs` values. The JSONPath is what maps the\nlocation of values with the JSON object. The path must terminate primitive values or an array containing\nprimitive values. It cannot terminated on embedded object(s).\n```\nmonitors:\n- type: expvar\n  host: 172.12.0.5\n  path: /debug/vars\n  port: 5000\n  metrics:\n    - JSONPath: memstats.BySize.Mallocs\n      type: cumulative\n  extraDimensions:\n    metric_source: expvar\n```\nNo metric name was provided for this configuration so the metric name defaults to memstats.by_size.mallocs.\nBecause memstats.BySize is an array of size 2 there are 2 values for memstats.BySize.Mallocs (35387 and 35387).\nTwo data points are created for metric memstats.by_size.mallocs for the 2 values. Additionaly, a dimension\nname memstats.by_size containing array index created for each respective datapoint.\n\nAlso, custom dimensions can be added to metric as shown below. The dimension name required if a dimension\nvalue is provided whereas it is optional when a JSONPath is provided instead.\n```\nmonitors:\n- type: expvar\n  host: 172.12.0.5\n  path: /debug/vars\n  port: 5000\n  metrics:\n    - JSONPath: memstats.BySize.Mallocs\n      type: cumulative\n      - dimensions:\n        name: physical_memory\n        value: 4GiB\n      - name: app_mem\n        value: \"10 MiB\"\n  extraDimensions:\n    metric_source: expvar\n```\nA dimension JSONPath is configured as shown below. The monitor gets JSON key at the specified path as the\ndimension value. The dimension name is optional if the dimension JSONPath is specified. When not provided\nthe monitor snake cases the dimension JSONPath and uses that for the dimension name. The dimension JSONPath\nmust be shorter than the metric JSONPath and have the same root.\n```\nmonitors:\n- type: expvar\n  host: 172.12.0.5\n  path: /debug/vars\n  port: 5000\n  metrics:\n    - JSONPath: memstats.BySize.Mallocs\n      type: cumulative\n      - dimensions:\n        JSONPath: memstats\n      - dimensions:\n        name: by_size_index\n        JSONPath: memstats.BySize\n  extraDimensions:\n    metric_source: expvar\n```\nDO NOT configure the monitor for memstats metrics because they are standard metrics provided by default.\nmemstats was used to provide a realistic example.\n",
       "package": "internal/monitors/expvar",
       "fields": [
         {
@@ -12539,7 +12539,7 @@
         },
         {
           "yamlName": "enhancedMetrics",
-          "doc": "Excludes metrics memstats.alloc, memstats.by_size.size, memstats.by_size.mallocs and memstats.by_size.frees if false",
+          "doc": "If true, sends metrics memstats.alloc, memstats.by_size.size, memstats.by_size.mallocs and memstats.by_size.frees",
           "default": false,
           "required": false,
           "type": "bool",
@@ -12554,7 +12554,7 @@
           "elementKind": "struct",
           "elementStruct": {
             "name": "MetricConfig",
-            "doc": "MetricConfig for metric",
+            "doc": "MetricConfig for metric configuration",
             "package": "internal/monitors/expvar",
             "fields": [
               {
@@ -12575,7 +12575,7 @@
               },
               {
                 "yamlName": "type",
-                "doc": "SignalFx metric type. Possible values are \"gauge\" or \"counter\"",
+                "doc": "SignalFx metric type. Possible values are \"gauge\" or \"Cumulative\"",
                 "default": null,
                 "required": true,
                 "type": "string",
@@ -12590,7 +12590,7 @@
                 "elementKind": "struct",
                 "elementStruct": {
                   "name": "DimensionConfig",
-                  "doc": "DimensionConfig for metric dimension",
+                  "doc": "DimensionConfig for metric dimension configuration",
                   "package": "internal/monitors/expvar",
                   "fields": [
                     {
@@ -12627,6 +12627,7 @@
       "acceptsEndpoints": true,
       "singleInstance": false,
       "monitorType": "expvar",
+      "sendAll": false,
       "dimensions": null,
       "metrics": [
         {
@@ -12818,7 +12819,7 @@
         {
           "name": "memstats.by_size.size",
           "type": "counter",
-          "description": "The maximum byte size of a class identified by dimension class. It is the class interval upper limit. The values of dimension class are numbers between 0 and 60 inclusive. Consecutive classes are of consecutive dimension class values. The lower limit of a class is the upper limit of the consecutive class below. Metrics memstats.by_size.size, memstats.by_size.mallocs and memstats.by_size.frees of the same class are related",
+          "description": "The maximum byte size of a class as identified by dimension class. It is the class interval upper limit. The values of dimension class are numbers between 0 and 60 inclusive. Consecutive classes are of consecutive dimension class values. The lower limit of a class is the upper limit of the consecutive class below. Metrics memstats.by_size.size, memstats.by_size.mallocs and memstats.by_size.frees of the same class are related",
           "included": false
         },
         {

@@ -7,10 +7,9 @@ import (
 
 type MetricsConfigTest struct {
 	monitor *Monitor
-	conf *Config
-	want *MetricConfig
+	conf    *Config
+	want    *MetricConfig
 }
-
 
 var MetricsTest = []MetricsConfigTest{
 	{monitor: &Monitor{metricTypes: map[*MetricConfig]datapoint.MetricType{}, metricPathsParts: map[*MetricConfig][]string{}, dimensionPathsParts: map[*DimensionConfig][]string{}}, conf: &Config{MetricConfigs: []*MetricConfig{{JSONPath: "System.Cpu", Type: gauge}}}, want: &MetricConfig{JSONPath: "System.Cpu", Name: "system.cpu", Type: gauge}},

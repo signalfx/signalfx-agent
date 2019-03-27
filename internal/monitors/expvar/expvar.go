@@ -80,12 +80,12 @@ type DimensionConfig struct {
 
 // Monitor for expvar metrics
 type Monitor struct {
-	Output types.Output
-	cancel func()
-	ctx    context.Context
-	client *http.Client
-	url    *url.URL
-	runInterval   time.Duration
+	Output              types.Output
+	cancel              func()
+	ctx                 context.Context
+	client              *http.Client
+	url                 *url.URL
+	runInterval         time.Duration
 	metricTypes         map[*MetricConfig]datapoint.MetricType
 	metricPathsParts    map[*MetricConfig][]string
 	dimensionPathsParts map[*DimensionConfig][]string
@@ -156,13 +156,18 @@ func (m *Monitor) initMetrics(conf *Config) {
 // Configure monitor
 func (m *Monitor) Configure(conf *Config) error {
 	m.url = &url.URL{
-		Scheme: func() string {if conf.UseHTTPS {return "https"}; return "http"}(),
+		Scheme: func() string {
+			if conf.UseHTTPS {
+				return "https"
+			}
+			return "http"
+		}(),
 		Host: conf.Host + ":" + fmt.Sprint(conf.Port),
 		Path: conf.Path,
 	}
 	m.runInterval = time.Duration(conf.IntervalSeconds) * time.Second
-	m.metricTypes         = map[*MetricConfig]datapoint.MetricType{}
-	m.metricPathsParts    = map[*MetricConfig][]string{}
+	m.metricTypes = map[*MetricConfig]datapoint.MetricType{}
+	m.metricPathsParts = map[*MetricConfig][]string{}
 	m.dimensionPathsParts = map[*DimensionConfig][]string{}
 	m.initMetrics(conf)
 	m.ctx, m.cancel = context.WithCancel(context.Background())
@@ -347,7 +352,6 @@ func getApplicationName(aMap map[string]interface{}) (string, error) {
 	}
 	return "", fmt.Errorf("failed to get application name from the first array value of cmdline in map: %+v", aMap)
 }
-
 
 var camelRegexp = regexp.MustCompile("(^[^A-Z]*|[A-Z]*)([A-Z][^A-Z]+|$)")
 
