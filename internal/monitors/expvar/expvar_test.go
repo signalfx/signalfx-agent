@@ -5,31 +5,6 @@ import (
 	"testing"
 )
 
-type URLTest struct {
-	useHTTPS bool
-	host     string
-	port     uint16
-	path     string
-	want     string
-}
-
-//var urlTests = []URLTest{
-//	{useHTTPS: false, host: "localhost", port: 8080, path: "/debug/vars", want: "http://localhost:8080/debug/vars"},
-//	{useHTTPS: false, host: "localhost", port: 8080, path: "debug/vars", want: "http://localhost:8080/debug/vars"},
-//	{useHTTPS: true, host: "localhost", port: 8080, path: "/debug/vars", want: "https://localhost:8080/debug/vars"},
-//}
-//
-//func TestSetURL(t *testing.T) {
-//	for _, test := range urlTests {
-//		conf := Config{UseHTTPS: test.useHTTPS, Host: test.host, Port: test.port, Path: test.path}
-//		conf.setURL()
-//		got := conf.url.String()
-//		if got != test.want {
-//			t.Errorf("Config(UseHTTPS: %t, Host: %s, Port: %d, Path: %s) = %s; want %s", test.useHTTPS, test.host, test.port, test.path, got, test.want)
-//		}
-//	}
-//}
-
 type MetricsConfigTest struct {
 	monitor *Monitor
 	conf *Config
