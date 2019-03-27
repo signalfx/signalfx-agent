@@ -62,7 +62,7 @@ type MetricConfig struct {
 	Name string `yaml:"name"`
 	// JSON path of the metric value
 	JSONPath string `yaml:"JSONPath" validate:"required"`
-	// SignalFx metric type. Possible values are "gauge" or "Cumulative"
+	// SignalFx metric type. Possible values are "gauge" or "cumulative"
 	Type string `yaml:"type" validate:"required"`
 	// Metric dimensions
 	DimensionConfigs []*DimensionConfig `yaml:"dimensions"`
@@ -78,6 +78,49 @@ type DimensionConfig struct {
 	Value string `yaml:"value"`
 }
 
+// Validate validates configuration
+func (conf *Config) Validate() error {
+	if conf.MetricConfigs != nil {
+		for _, mConf := range conf.MetricConfigs {
+			// Validating metric type configuration
+			metricTypeString := strings.TrimSpace(strings.ToLower(mConf.Type))
+			if metricTypeString != gauge && metricTypeString != cumulative {
+				return fmt.Errorf("unsupported metric type %s. Supported metric types are: %s, %s", mConf.Type, gauge, cumulative)
+			}
+			// Validating dimension configuration
+			for _, dConf := range mConf.DimensionConfigs {
+				switch {
+				case dConf == nil: continue
+				case dConf.Name == "" || strings.ReplaceAll(dConf.Name, " ", "") != dConf.Name: return fmt.Errorf("dimension name cannot be blank or have whitespaces")
+				case dConf.JSONPath != "" && dConf.Value != "": return fmt.Errorf("dimension path %s and dimension value %s cannot be configure simultaneously", dConf.JSONPath, dConf.Value)
+				case dConf.JSONPath != "" && !strings.HasPrefix(mConf.JSONPath, dConf.JSONPath): return fmt.Errorf("dimension path %s must be shorter than metric path %s and start from the same root", dConf.JSONPath, mConf.JSONPath)
+				}
+			}
+		}
+	}
+	return nil
+}
+
+func (mConf *MetricConfig) name() string {
+	if strings.TrimSpace(mConf.Name) == "" {
+		return toSnakeCase(mConf.JSONPath)
+	}
+	return mConf.Name
+}
+
+func (mConf *MetricConfig) dimensions() map[string]string {
+	var dimensions map[string]string
+	if len(mConf.DimensionConfigs) > 0 {
+		dimensions = make(map[string]string, len(mConf.DimensionConfigs))
+		for _, dConf := range mConf.DimensionConfigs {
+			if strings.TrimSpace(dConf.Name) != "" && strings.TrimSpace(dConf.Value) != "" {
+				dimensions[dConf.Name] = dConf.Value
+			}
+		}
+	}
+	return dimensions
+}
+
 // Monitor for expvar metrics
 type Monitor struct {
 	Output              types.Output
@@ -89,72 +132,27 @@ type Monitor struct {
 	metricTypes         map[*MetricConfig]datapoint.MetricType
 	metricPathsParts    map[*MetricConfig][]string
 	dimensionPathsParts map[*DimensionConfig][]string
+	allMetricConfigs    []*MetricConfig
 }
 
 func init() {
 	monitors.Register(monitorType, func() interface{} { return &Monitor{} }, &Config{})
 }
 
-// Validate validates configuration
-func (conf *Config) Validate() error {
-	if conf.MetricConfigs != nil {
-		for _, mConf := range conf.MetricConfigs {
-			metricTypeString := strings.TrimSpace(strings.ToLower(mConf.Type))
-			if metricTypeString != gauge && metricTypeString != cumulative {
-				return fmt.Errorf("unsupported metric type %s. Supported metric types are: %s, %s", mConf.Type, gauge, cumulative)
-			}
-			for _, dConf := range mConf.DimensionConfigs {
-				if dConf != nil && strings.TrimSpace(dConf.JSONPath) != "" && !strings.HasPrefix(mConf.JSONPath, dConf.JSONPath) {
-					return fmt.Errorf("invalid dimension path %s. Dimension path not parent path of metric path %s", dConf.JSONPath, mConf.JSONPath)
-				}
-			}
-		}
-	}
-	return nil
-}
-
-func (m *Monitor) initMetrics(conf *Config) {
-	// Default metrics paths
-	memstatsMetricPathsGauge := []string{"memstats.HeapAlloc", "memstats.HeapSys", "memstats.HeapIdle", "memstats.HeapInuse", "memstats.HeapReleased", "memstats.HeapObjects", "memstats.StackInuse", "memstats.StackSys", "memstats.MSpanInuse", "memstats.MSpanSys", "memstats.MCacheInuse", "memstats.MCacheSys", "memstats.BuckHashSys", "memstats.GCSys", "memstats.OtherSys", "memstats.Sys", "memstats.NextGC", "memstats.LastGC", "memstats.GCCPUFraction", "memstats.EnableGC", "memstats.DebugGC", memstatsPauseNsMetricPath, memstatsPauseEndMetricPath}
-	memstatsMetricPathsCumulative := []string{"memstats.TotalAlloc", "memstats.Lookups", "memstats.Mallocs", "memstats.Frees", "memstats.PauseTotalNs", memstatsNumGCMetricPath, "memstats.NumForcedGC"}
-
-	if conf.EnhancedMetrics {
-		memstatsMetricPathsGauge = append(memstatsMetricPathsGauge, "memstats.Alloc")
-		memstatsMetricPathsCumulative = append(memstatsMetricPathsCumulative, memstatsBySizeSizeMetricPath, memstatsBySizeMallocsMetricPath, memstatsBySizeFreesMetricPath)
-	}
-	if conf.MetricConfigs == nil {
-		conf.MetricConfigs = make([]*MetricConfig, 0, len(memstatsMetricPathsGauge)+len(memstatsMetricPathsCumulative))
-	}
-	// Initializing custom metrics
+// Configure monitor
+func (m *Monitor) Configure(conf *Config) error {
+	m.metricTypes         = map[*MetricConfig]datapoint.MetricType{}
+	m.metricPathsParts    = map[*MetricConfig][]string{}
+	m.dimensionPathsParts = map[*DimensionConfig][]string{}
+	m.allMetricConfigs    = []*MetricConfig{}
+	m.addDefaultMetricConfigs(conf.EnhancedMetrics)
 	for _, mConf := range conf.MetricConfigs {
-		if strings.TrimSpace(mConf.Name) == "" {
-			mConf.Name = toSnakeCase(mConf.JSONPath)
-		}
 		if m.metricTypes[mConf] = datapoint.Gauge; strings.TrimSpace(strings.ToLower(mConf.Type)) == cumulative {
 			m.metricTypes[mConf] = datapoint.Counter
 		}
-		if mConf.DimensionConfigs == nil {
-			mConf.DimensionConfigs = []*DimensionConfig{{}}
-		}
 		m.metricPathsParts[mConf] = strings.Split(mConf.JSONPath, ".")
+		m.allMetricConfigs = append(m.allMetricConfigs, mConf)
 	}
-	// Initializing default metrics
-	for _, path := range memstatsMetricPathsGauge {
-		mConf := &MetricConfig{Name: toSnakeCase(path), JSONPath: path, Type: gauge, DimensionConfigs: []*DimensionConfig{{}}}
-		m.metricTypes[mConf] = datapoint.Gauge
-		m.metricPathsParts[mConf] = strings.Split(path, ".")
-		conf.MetricConfigs = append(conf.MetricConfigs, mConf)
-	}
-	for _, path := range memstatsMetricPathsCumulative {
-		mConf := &MetricConfig{Name: toSnakeCase(path), JSONPath: path, Type: cumulative, DimensionConfigs: []*DimensionConfig{{}}}
-		m.metricTypes[mConf] = datapoint.Counter
-		m.metricPathsParts[mConf] = strings.Split(path, ".")
-		conf.MetricConfigs = append(conf.MetricConfigs, mConf)
-	}
-}
-
-// Configure monitor
-func (m *Monitor) Configure(conf *Config) error {
 	m.url = &url.URL{
 		Scheme: func() string {
 			if conf.UseHTTPS {
@@ -166,10 +164,6 @@ func (m *Monitor) Configure(conf *Config) error {
 		Path: conf.Path,
 	}
 	m.runInterval = time.Duration(conf.IntervalSeconds) * time.Second
-	m.metricTypes = map[*MetricConfig]datapoint.MetricType{}
-	m.metricPathsParts = map[*MetricConfig][]string{}
-	m.dimensionPathsParts = map[*DimensionConfig][]string{}
-	m.initMetrics(conf)
 	m.ctx, m.cancel = context.WithCancel(context.Background())
 	m.client = &http.Client{
 		Transport: &http.Transport{
@@ -196,31 +190,34 @@ func (m *Monitor) Configure(conf *Config) error {
 	return nil
 }
 
-func (m *Monitor) sendDatapoint(conf *Config, dp *datapoint.Datapoint, metricPath string, mostRecentGCPauseIndex int64, now *time.Time) (err error) {
-	if metricPath == memstatsPauseNsMetricPath || metricPath == memstatsPauseEndMetricPath {
-		var index int64
-		if index, err = strconv.ParseInt(dp.Dimensions[metricPath], 10, 0); err == nil && index == mostRecentGCPauseIndex {
-			dp.Metric = memstatsMostRecentGCPauseNsMetricName
-			if metricPath == memstatsPauseEndMetricPath {
-				dp.Metric = memstatsMostRecentGCPauseEndMetricName
-			}
-			// For index dimension key is equal to metric path for default metrics memstats.PauseNs and memstats.PauseEnd
-			delete(dp.Dimensions, metricPath)
-		} else {
-			if err != nil {
-				err = fmt.Errorf("failed to set metric most recent GC pause metric. %+v", err)
-			}
-			return err
-		}
+func (m *Monitor) addDefaultMetricConfigs(enhancedMetrics bool) {
+	memstatsMetricPathsGauge      := []string {
+		"memstats.HeapAlloc", "memstats.HeapSys", "memstats.HeapIdle", "memstats.HeapInuse", "memstats.HeapReleased",
+		"memstats.HeapObjects", "memstats.StackInuse", "memstats.StackSys", "memstats.MSpanInuse", "memstats.MSpanSys",
+		"memstats.MCacheInuse", "memstats.MCacheSys", "memstats.BuckHashSys", "memstats.GCSys", "memstats.OtherSys",
+		"memstats.Sys", "memstats.NextGC", "memstats.LastGC", "memstats.GCCPUFraction", "memstats.EnableGC",
+		"memstats.DebugGC", memstatsPauseNsMetricPath, memstatsPauseEndMetricPath,
 	}
-	// Renaming auto created dimension 'memstats.BySize' to 'class'
-	if metricPath == memstatsBySizeSizeMetricPath || metricPath == memstatsBySizeMallocsMetricPath || metricPath == memstatsBySizeFreesMetricPath {
-		dp.Dimensions["class"] = dp.Dimensions[memstatsBySizeDimensionPath]
-		delete(dp.Dimensions, memstatsBySizeDimensionPath)
+	memstatsMetricPathsCumulative := []string {
+		"memstats.TotalAlloc", "memstats.Lookups", "memstats.Mallocs", "memstats.Frees", "memstats.PauseTotalNs",
+		memstatsNumGCMetricPath, "memstats.NumForcedGC",
 	}
-	dp.Timestamp = *now
-	m.Output.SendDatapoint(dp)
-	return nil
+	if enhancedMetrics {
+		memstatsMetricPathsGauge = append(memstatsMetricPathsGauge, "memstats.Alloc")
+		memstatsMetricPathsCumulative = append(memstatsMetricPathsCumulative, memstatsBySizeSizeMetricPath, memstatsBySizeMallocsMetricPath, memstatsBySizeFreesMetricPath)
+	}
+	for _, path := range memstatsMetricPathsGauge {
+		mConf := &MetricConfig{Name: toSnakeCase(path), JSONPath: path, Type: gauge, DimensionConfigs: []*DimensionConfig{{}}}
+		m.metricTypes[mConf] = datapoint.Gauge
+		m.metricPathsParts[mConf] = strings.Split(path, ".")
+		m.allMetricConfigs = append(m.allMetricConfigs, mConf)
+	}
+	for _, path := range memstatsMetricPathsCumulative {
+		mConf := &MetricConfig{Name: toSnakeCase(path), JSONPath: path, Type: cumulative, DimensionConfigs: []*DimensionConfig{{}}}
+		m.metricTypes[mConf] = datapoint.Counter
+		m.metricPathsParts[mConf] = strings.Split(path, ".")
+		m.allMetricConfigs = append(m.allMetricConfigs, mConf)
+	}
 }
 
 func (m *Monitor) fetchMetrics(conf *Config) (*map[string][]*datapoint.Datapoint, error) {
@@ -245,51 +242,34 @@ func (m *Monitor) fetchMetrics(conf *Config) (*map[string][]*datapoint.Datapoint
 			logger.Error(err)
 		}
 		dpsMap = make(map[string][]*datapoint.Datapoint)
-		for _, mConf := range conf.MetricConfigs {
+		for _, mConf := range m.allMetricConfigs {
 			dp := datapoint.Datapoint{Dimensions: map[string]string{}}
 			if applicationName != "" {
 				dp.Dimensions["application_name"] = applicationName
 			}
 			dpsMap[mConf.JSONPath] = make([]*datapoint.Datapoint, 0)
-
 			m.setDatapoints(aMap[m.metricPathsParts[mConf][0]], mConf, &dp, &dpsMap, 0)
 		}
 	}
 	return &dpsMap, nil
 }
 
-// Shutdown stops the metric sync
-func (m *Monitor) Shutdown() {
-	if m.cancel != nil {
-		m.cancel()
-	}
-}
-
-func (mConf *MetricConfig) dimensions() map[string]string {
-	var dimensions map[string]string
-	if len(mConf.DimensionConfigs) > 0 {
-		dimensions = make(map[string]string, len(mConf.DimensionConfigs))
-		for _, dConf := range mConf.DimensionConfigs {
-			if strings.TrimSpace(dConf.Name) != "" && strings.TrimSpace(dConf.Value) != "" {
-				dimensions[dConf.Name] = dConf.Value
-			}
-		}
-	}
-	return dimensions
-}
-
 // setDatapoints the dp argument should be a pointer to a zero value datapoint
 // setDatapoints traverses v recursively following metric path parts in mConf.keys[]
 // setDatapoints adds dimensions along the way and sets metric value in the end
 // setDatapoints clones datapoints and add array index dimension for array values in v
-func (m *Monitor) setDatapoints(v interface{}, mConf *MetricConfig, dp *datapoint.Datapoint, dpsMap *map[string][]*datapoint.Datapoint, i int) {
+func (m *Monitor) setDatapoints(v interface{}, mConf *MetricConfig, dp *datapoint.Datapoint, dpsMap *map[string][]*datapoint.Datapoint, metricPathIndex int) {
+	if metricPathIndex >= len(m.metricPathsParts[mConf]) {
+		logger.Errorf("failed to find metric value in path: %s", mConf.JSONPath)
+		return
+	}
 	if aMap, ok := v.(map[string]interface{}); ok {
 		for _, dConf := range mConf.DimensionConfigs {
-			if len(m.dimensionPathsParts[dConf]) != 0 && len(m.dimensionPathsParts[dConf]) == i {
-				dp.Dimensions[dConf.Name] = m.metricPathsParts[mConf][i]
+			if len(m.dimensionPathsParts[dConf]) != 0 && len(m.dimensionPathsParts[dConf]) == metricPathIndex {
+				dp.Dimensions[dConf.Name] = m.metricPathsParts[mConf][metricPathIndex]
 			}
 		}
-		m.setDatapoints(aMap[m.metricPathsParts[mConf][i+1]], mConf, dp, dpsMap, i+1)
+		m.setDatapoints(aMap[m.metricPathsParts[mConf][metricPathIndex+1]], mConf, dp, dpsMap, metricPathIndex+1)
 	} else if array, ok := v.([]interface{}); ok {
 		newDP := dp
 		for arrayIndex, arrayValue := range array {
@@ -299,22 +279,22 @@ func (m *Monitor) setDatapoints(v interface{}, mConf *MetricConfig, dp *datapoin
 			}
 			makeNewIndexDimension := true
 			for _, dConf := range mConf.DimensionConfigs {
-				if len(m.dimensionPathsParts[dConf]) == i+1 {
+				if len(m.dimensionPathsParts[dConf]) == metricPathIndex+1 {
 					newDP.Dimensions[dConf.Name] = strconv.Itoa(arrayIndex)
 					makeNewIndexDimension = false
 				}
 			}
 			if makeNewIndexDimension {
-				newDP.Dimensions[strings.Join(m.metricPathsParts[mConf][:(i+1)], ".")] = strconv.Itoa(arrayIndex)
+				newDP.Dimensions[strings.Join(m.metricPathsParts[mConf][:(metricPathIndex+1)], ".")] = strconv.Itoa(arrayIndex)
 			}
-			m.setDatapoints(arrayValue, mConf, newDP, dpsMap, i)
+			m.setDatapoints(arrayValue, mConf, newDP, dpsMap, metricPathIndex)
 		}
 	} else {
 		if v == nil {
-			logger.Errorf("failed to find value for metric %s with JSON path %s", mConf.Name, mConf.JSONPath)
+			logger.Errorf("failed to find value for metric %s with JSON path %s", mConf.name(), mConf.JSONPath)
 			return
 		}
-		dp.Metric, dp.MetricType = mConf.Name, m.metricTypes[mConf]
+		dp.Metric, dp.MetricType = mConf.name(), m.metricTypes[mConf]
 		for _, dConf := range mConf.DimensionConfigs {
 			if strings.TrimSpace(dConf.Name) != "" && strings.TrimSpace(dConf.Value) != "" {
 				dp.Dimensions[dConf.Name] = dConf.Value
@@ -324,9 +304,43 @@ func (m *Monitor) setDatapoints(v interface{}, mConf *MetricConfig, dp *datapoin
 		if dp.Value, err = datapoint.CastMetricValueWithBool(v); err == nil {
 			(*dpsMap)[mConf.JSONPath] = append((*dpsMap)[mConf.JSONPath], dp)
 		} else {
-			logger.Errorf("failed to set value for metric %s with JSON path %s because of type conversion error due to %+v", mConf.Name, mConf.JSONPath, err)
+			logger.Errorf("failed to set value for metric %s with JSON path %s because of type conversion error due to %+v", mConf.name(), mConf.JSONPath, err)
 			return
 		}
+	}
+}
+
+func (m *Monitor) sendDatapoint(conf *Config, dp *datapoint.Datapoint, metricPath string, mostRecentGCPauseIndex int64, now *time.Time) (err error) {
+	if metricPath == memstatsPauseNsMetricPath || metricPath == memstatsPauseEndMetricPath {
+		var index int64
+		if index, err = strconv.ParseInt(dp.Dimensions[metricPath], 10, 0); err == nil && index == mostRecentGCPauseIndex {
+			dp.Metric = memstatsMostRecentGCPauseNsMetricName
+			if metricPath == memstatsPauseEndMetricPath {
+				dp.Metric = memstatsMostRecentGCPauseEndMetricName
+			}
+			// For index dimension key is equal to metric path for default metrics memstats.PauseNs and memstats.PauseEnd
+			delete(dp.Dimensions, metricPath)
+		} else {
+			if err != nil {
+				err = fmt.Errorf("failed to set metric most recent GC pause metric. %+v", err)
+			}
+			return err
+		}
+	}
+	// Renaming auto created dimension 'memstats.BySize' that stores array index to 'class'
+	if metricPath == memstatsBySizeSizeMetricPath || metricPath == memstatsBySizeMallocsMetricPath || metricPath == memstatsBySizeFreesMetricPath {
+		dp.Dimensions["class"] = dp.Dimensions[memstatsBySizeDimensionPath]
+		delete(dp.Dimensions, memstatsBySizeDimensionPath)
+	}
+	dp.Timestamp = *now
+	m.Output.SendDatapoint(dp)
+	return nil
+}
+
+// Shutdown stops the metric sync
+func (m *Monitor) Shutdown() {
+	if m.cancel != nil {
+		m.cancel()
 	}
 }
 
