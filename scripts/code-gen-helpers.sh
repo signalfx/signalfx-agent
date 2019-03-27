@@ -6,6 +6,19 @@ AGENT_BIN=${AGENT_BIN:-signalfx-agent}
 
 MY_SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 selfdescribe_json="$MY_SCRIPT_DIR/../selfdescribe.json"
+NUM_CORES=$(getconf _NPROCESSORS_ONLN)
+
+doc_types=$(cat <<EOH
+{
+  "slice": "list",
+  "uint16": "integer",
+  "uint": "unsigned integer",
+  "int": "integer",
+  "struct": "object",
+  "interface": "any"
+}
+EOH
+)
 
 generate_selfdescribe_json() {
   $AGENT_BIN selfdescribe > $selfdescribe_json
