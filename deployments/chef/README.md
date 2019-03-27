@@ -4,7 +4,7 @@ This cookbook installs and configures the SignalFx Agent.
 
 To install the agent, simply include the `signalfx_agent::default` recipe.  We
 recommend pinning the agent to a specific version by setting the
-`node['signalfx_agent']['package_version']` attribute.  We will keep all old
+`node['signalfx_agent']['agent_version']` attribute.  We will keep all old
 versions in the repos.
 
 The cookbook tries to be as flexible as possible with the configuration of the
@@ -19,12 +19,15 @@ object.
 will be rendered (default: `/etc/signalfx/agent.yaml` (Linux);
 `\\ProgramData\SignalFxAgent\agent.yaml` (Windows))
 
-`node['signalfx_agent']['package_version']`: The agent package version.  This is
-of the form `<agent version>-<package revision>` (e.g. package version
-`3.0.1-1` is the first package revision that contains the agent version
-`3.0.1`).  Releases with package revision > 1 contain changes to some aspect of
-the packaging scripts (e.g. init scripts) but contain the same agent bundle.
-Note that Windows packages are just equivalent to the agent version right now.
+`node['signalfx_agent']['agent_version']`: The agent release version, in the
+form `1.1.1`.  This corresponds to the [Github
+releases](https://github.com/signalfx/signalfx-agent/releases) _without_ the
+`v` prefix.
+
+`node['signalfx_agent']['package_version']`: The agent package version
+(optional).  If not specified, for deb/rpm systems, this is automatically set
+to `<agent_version>-1` based on the `node['signalfx_agent']['agent_version']`
+attribute above.  For Windows, it is equivalent to the agent version attribute. 
 
 `node['signalfx_agent']['package_stage']`: The package repository to use.  Can
 be `final` (default, for main releases), `beta` (for beta releases), or `test`

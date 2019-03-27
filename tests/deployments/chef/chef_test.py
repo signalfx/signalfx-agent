@@ -46,9 +46,10 @@ def get_agent_version(cont):
     return match.group(1).strip()
 
 
-def run_chef_client(cont, package_version=None):
+def run_chef_client(cont, agent_version=None):
     attributes = json.loads(open(ATTRIBUTES_PATH, "r").read())
-    attributes["signalfx_agent"]["package_version"] = package_version
+    if agent_version:
+        attributes["signalfx_agent"]["agent_version"] = agent_version
     attributes["signalfx_agent"]["conf"]["ingestUrl"] = "https://ingest.us0.signalfx.com"
     attributes["signalfx_agent"]["conf"]["apiUrl"] = "https://api.us0.signalfx.com"
     print(attributes)
@@ -66,12 +67,6 @@ def run_chef_client(cont, package_version=None):
 
 @pytest.mark.parametrize("base_image,init_system", SUPPORTED_DISTROS)
 def test_chef(base_image, init_system):
-    if base_image == "debian-7-wheezy":
-        pytest.skip(
-            "Bug in chef-client, fails with 'Malformed version number string' when parsing the apt version. \
-            Latest chef-client no longer supports debian 7."
-        )
-
     dockerfile = os.path.join(DOCKERFILES_DIR, "Dockerfile.%s" % base_image)
     with run_init_system_image(base_image, path=PROJECT_DIR, dockerfile=dockerfile) as [cont, backend]:
         try:
@@ -88,23 +83,17 @@ def test_chef(base_image, init_system):
 @pytest.mark.upgrade_downgrade
 @pytest.mark.parametrize("base_image,init_system", SUPPORTED_DISTROS)
 def test_chef_upgrade_downgrade(base_image, init_system):
-    if base_image == "debian-7-wheezy":
-        pytest.skip(
-            "Bug in chef-client, fails with 'Malformed version number string' when parsing the apt version. \
-            Latest chef-client no longer supports debian 7."
-        )
-
     dockerfile = os.path.join(DOCKERFILES_DIR, "Dockerfile.%s" % base_image)
     with run_init_system_image(base_image, path=PROJECT_DIR, dockerfile=dockerfile) as [cont, backend]:
         try:
-            agent_version = run_chef_client(cont, "4.1.1-1")
+            agent_version = run_chef_client(cont, "4.1.1")
             assert agent_version == "4.1.1", "agent version is not 4.1.1: %s" % agent_version
             assert wait_for(
                 p(has_datapoint_with_dim, backend, "plugin", "signalfx-metadata")
             ), "Datapoints didn't come through"
 
             # upgrade agent
-            agent_version = run_chef_client(cont, "4.2.0-1")
+            agent_version = run_chef_client(cont, "4.2.0")
             assert agent_version == "4.2.0", "agent version is not 4.2.0: %s" % agent_version
             backend.reset_datapoints()
             assert wait_for(
@@ -113,7 +102,7 @@ def test_chef_upgrade_downgrade(base_image, init_system):
 
             # downgrade agent for distros that support package downgrades
             if base_image not in ("debian-7-wheezy", "debian-8-jessie", "ubuntu1404"):
-                agent_version = run_chef_client(cont, "4.1.0-1")
+                agent_version = run_chef_client(cont, "4.1.0")
                 assert agent_version == "4.1.0", "agent version is not 4.1.0: %s" % agent_version
                 backend.reset_datapoints()
                 assert wait_for(
