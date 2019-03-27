@@ -86,6 +86,7 @@ along with their possible configuration options:
 - [prometheus/postgres](./monitors/prometheus-postgres.md)
 - [prometheus/prometheus](./monitors/prometheus-prometheus.md)
 - [prometheus/redis](./monitors/prometheus-redis.md)
+- [python-monitor](./monitors/python-monitor.md)
 - [telegraf/logparser](./monitors/telegraf-logparser.md)
 - [telegraf/procstat](./monitors/telegraf-procstat.md)
 - [telegraf/snmp](./monitors/telegraf-snmp.md)

@@ -15,7 +15,7 @@ import (
 	"github.com/davecgh/go-spew/spew"
 	"github.com/mailru/easyjson"
 	mpCollectd "github.com/signalfx/gateway/protocol/collectd"
-	"github.com/signalfx/gateway/protocol/collectd/format"
+	collectdformat "github.com/signalfx/gateway/protocol/collectd/format"
 	"github.com/signalfx/golib/datapoint"
 	"github.com/signalfx/golib/event"
 	"github.com/signalfx/signalfx-agent/internal/core/config"
@@ -125,7 +125,7 @@ func (m *PyMonitor) Configure(conf PyConfig) error {
 		}
 	}
 
-	return m.MonitorCore.ConfigureInPython(pyconf, func(dataReader pyrunner.MessageReceiver) {
+	return m.MonitorCore.ConfigureInPython(pyconf, nil, func(dataReader pyrunner.MessageReceiver) {
 		for {
 			m.Logger().Debug("Waiting for messages")
 			msgType, payloadReader, err := dataReader.RecvMessage()

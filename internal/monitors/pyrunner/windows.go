@@ -17,11 +17,11 @@ func procAttrs() *syscall.SysProcAttr {
 	}
 }
 
-func pythonBinaryExecutable() string {
-	return filepath.Join(os.Getenv(constants.BundleDirEnvVar), "python", "python.exe")
+func defaultPythonBinaryExecutable() []string {
+	return []string{filepath.Join(os.Getenv(constants.BundleDirEnvVar), "python", "python.exe")}
 }
 
-func pythonBinaryArgs(pkgName string) []string {
+func defaultPythonBinaryArgs(pkgName string) []string {
 	return []string{
 		"-u",
 		"-m",

@@ -25,11 +25,10 @@ subinterpreter could just be destroyed.
 """
 from __future__ import absolute_import
 
-import importlib
 import logging
-import sys
 from collections import namedtuple
 
+from sfxrunner.imports import load_python_module
 from sfxrunner.scheduler.simple import SimpleScheduler
 
 from .config import Config
@@ -39,20 +38,6 @@ from .typesdb import parse_types_db
 logger = logging.getLogger(__name__)
 
 DataSetCache = namedtuple("DataSetCache", "sources names types")
-
-
-def load_plugin_module(module_paths, import_name):
-    """
-    Imports a collectd plugin module.  This will only have effect the first
-    time it is called and subsequent calls will do nothing.
-    """
-    assert isinstance(module_paths, (tuple, list))
-
-    for path in reversed(module_paths):
-        if path not in sys.path:
-            sys.path.insert(1, path)
-
-    importlib.import_module(import_name)
 
 
 class CollectdMonitorProxy(object):
@@ -89,7 +74,7 @@ class CollectdMonitorProxy(object):
         module_paths = monitor_config.get("modulePaths", [])
         import_name = monitor_config["moduleName"]
 
-        load_plugin_module(module_paths, import_name)
+        load_python_module(module_paths, import_name)
 
         if not self.interface.config_callback:
             raise RuntimeError("No config callback was registered, cannot configure")

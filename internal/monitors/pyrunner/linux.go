@@ -21,16 +21,18 @@ func procAttrs() *syscall.SysProcAttr {
 	}
 }
 
-func pythonBinaryExecutable() string {
+func defaultPythonBinaryExecutable() []string {
+	loader := filepath.Join(os.Getenv(constants.BundleDirEnvVar), "lib64", "ld-linux-x86-64.so.2")
 	if runtime.GOARCH == "arm64" {
-		return filepath.Join(os.Getenv(constants.BundleDirEnvVar), "lib", "ld-linux-aarch64.so.1")
+		loader = filepath.Join(os.Getenv(constants.BundleDirEnvVar), "lib", "ld-linux-aarch64.so.1")
 	}
-	return filepath.Join(os.Getenv(constants.BundleDirEnvVar), "lib64", "ld-linux-x86-64.so.2")
+	pyBin := filepath.Join(os.Getenv(constants.BundleDirEnvVar), "bin", "python")
+
+	return []string{loader, pyBin}
 }
 
-func pythonBinaryArgs(pkgName string) []string {
+func defaultPythonBinaryArgs(pkgName string) []string {
 	return []string{
-		filepath.Join(os.Getenv(constants.BundleDirEnvVar), "bin", "python"),
 		"-u",
 		"-m",
 		pkgName,

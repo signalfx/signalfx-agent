@@ -496,6 +496,7 @@ func (cm *Manager) makeChildCommand() (*exec.Cmd, io.ReadCloser) {
 	cmd.Stderr = w
 	cmd.Env = os.Environ()
 	cmd.Env = append(cmd.Env, fmt.Sprintf("LD_LIBRARY_PATH=%s", filepath.Join(cm.conf.BundleDir, "lib")))
+	cmd.Env = append(cmd.Env, config.BundlePythonHomeEnvvar())
 
 	cmd.SysProcAttr = &syscall.SysProcAttr{
 		// This is Linux-specific and will cause collectd to be killed by the OS if

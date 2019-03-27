@@ -23,6 +23,20 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
+// RuntimeConfig for Python
+type RuntimeConfig struct {
+	PythonBinary []string
+	PythonArgs   []string
+	// Envvars in the form "key=value".
+	PythonEnv []string
+}
+
+// PythonRuntimeCustomizable can be implemented by runners that use MonitorCore
+// to provide extra config about the Python runtime to use.
+type PythonRuntimeCustomizable interface {
+	PythonRuntimeConfig() RuntimeConfig
+}
+
 // MonitorCore is the adapter to the Python monitor runner process.  It
 // communiates with Python using named pipes.  Each general type of Python
 // plugin (e.g. Datadog, collectd, etc.) should get its own generic monitor
@@ -70,23 +84,34 @@ func (mc *MonitorCore) Logger() log.FieldLogger {
 	return mc.logger
 }
 
+// DefaultRuntimeConfig returns the runtime config that uses the bundled Python
+// runtime.
+func (mc *MonitorCore) DefaultRuntimeConfig() *RuntimeConfig {
+	// The PYTHONHOME envvar is set in agent core when config is processed.
+	env := os.Environ()
+	env = append(env,
+		fmt.Sprintf("LD_LIBRARY_PATH=%s", filepath.Join(os.Getenv(constants.BundleDirEnvVar), "lib")))
+	env = append(env, config.BundlePythonHomeEnvvar())
+
+	return &RuntimeConfig{
+		PythonBinary: defaultPythonBinaryExecutable(),
+		PythonArgs:   defaultPythonBinaryArgs(mc.pythonPkg),
+		PythonEnv:    env,
+	}
+}
+
 // run the python subprocess and block until it returns.  Messages from stderr
 // (which is remapped to stdout in the Python process, so any "print"-like
 // output from Python) will be logged as error logs in the agent.
-func (mc *MonitorCore) run(messages *messageReadWriter, stdin io.Reader, stdout io.Writer) error {
+func (mc *MonitorCore) run(runtimeConf RuntimeConfig, messages *messageReadWriter, stdin io.Reader, stdout io.Writer) error {
 	mc.logger.Info("Starting Python runner child process")
 
-	executable := pythonBinaryExecutable()
-	args := pythonBinaryArgs(mc.pythonPkg)
-	cmd := exec.CommandContext(mc.ctx, executable, args...)
+	args := append(runtimeConf.PythonBinary, runtimeConf.PythonArgs...)
+	cmd := exec.CommandContext(mc.ctx, args[0], args[1:]...)
 	cmd.SysProcAttr = procAttrs()
 	cmd.Stdin = stdin
 	cmd.Stdout = stdout
-
-	// The PYTHON_HOME envvar is set in agent core when config is processed.
-	cmd.Env = os.Environ()
-	cmd.Env = append(cmd.Env,
-		fmt.Sprintf("LD_LIBRARY_PATH=%s", filepath.Join(os.Getenv(constants.BundleDirEnvVar), "lib")))
+	cmd.Env = runtimeConf.PythonEnv
 
 	// Stderr is just the normal output from the Python code that isn't
 	// specially encoded
@@ -119,12 +144,12 @@ func (mc *MonitorCore) run(messages *messageReadWriter, stdin io.Reader, stdout 
 
 // run the Python subprocess, restarting it if it stops while this monitor is
 // still active.
-func (mc *MonitorCore) runWithRestart(handler func(MessageReceiver), configBytes []byte) {
+func (mc *MonitorCore) runWithRestart(runtimeConf RuntimeConfig, handler func(MessageReceiver), configBytes []byte) {
 	for {
 		messages, stdin, stdout, err := makePipes()
 		if err != nil {
 			mc.logger.WithError(err).Error("Couldn't create pipes for Python subprocess")
-			continue
+			return
 		}
 
 		go func() {
@@ -136,6 +161,7 @@ func (mc *MonitorCore) runWithRestart(handler func(MessageReceiver), configBytes
 			mc.configCond.Broadcast()
 
 			if err != nil {
+				mc.Shutdown()
 				mc.logger.WithError(mc.configResult).Error("Could not configure Python plugin")
 				return
 			}
@@ -143,7 +169,7 @@ func (mc *MonitorCore) runWithRestart(handler func(MessageReceiver), configBytes
 			handler(messages)
 		}()
 
-		err = mc.run(messages, stdin, stdout)
+		err = mc.run(runtimeConf, messages, stdin, stdout)
 
 		stdin.Close()
 		stdout.Close()
@@ -182,7 +208,7 @@ func makePipes() (*messageReadWriter, io.ReadCloser, io.WriteCloser, error) {
 // once for the lifetime of the monitor.  The returned MessageReceiver can be
 // used to get datapoints/events out of the Python process, the exact format
 // of the data is left up to the users of this core.
-func (mc *MonitorCore) ConfigureInPython(config config.MonitorCustomConfig, handler func(MessageReceiver)) error {
+func (mc *MonitorCore) ConfigureInPython(config config.MonitorCustomConfig, runtimeConfig *RuntimeConfig, handler func(MessageReceiver)) error {
 	if mc.handler != nil {
 		panic("ConfigureInPython should only be called once")
 	}
@@ -201,7 +227,11 @@ func (mc *MonitorCore) ConfigureInPython(config config.MonitorCustomConfig, hand
 	mc.configCond.L.Lock()
 	defer mc.configCond.L.Unlock()
 
-	go mc.runWithRestart(handler, jsonBytes)
+	if runtimeConfig == nil {
+		runtimeConfig = mc.DefaultRuntimeConfig()
+	}
+
+	go mc.runWithRestart(*runtimeConfig, handler, jsonBytes)
 	mc.configCond.Wait()
 
 	return mc.configResult
