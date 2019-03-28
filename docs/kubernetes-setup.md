@@ -94,6 +94,33 @@ monitor.
    `signalfx-agent status` in any of the agent pods to get a diagnostic output
    from the agent.
 
+### Troubleshooting
+
+#### Kubelet auth failure
+If you see errors like this in the agent logs:
+
+`Couldn't get machine info: Kubelet request failed - "401 Unauthorized", response: "Unauthorized"`
+
+`Couldn't get cAdvisor container stats" error="failed to get all container stats from Kubelet URL "https://localhost:10250/stats/container/": Kubelet request failed - "401 Unauthorized", response: "Unauthorized"`
+
+This means that the agent cannot authenticate to the kubelet.  Assuming you
+have the ClusterRole and ClusterRoleBinding properly applied to the agent
+container's service account, this could indicate that the kubelet doesn't honor
+RBAC authentication.  Many times in this case, the kubelet will expose a
+separate endpoint on port 10255 that allows reading stats and metrics about the
+kubelet.  You can configure the agent to read from this port with the following
+config:
+
+```
+monitors:
+ - type: kubelet-stats
+   kubeletAPI:
+     authType: none
+     url: http://localhost:10255
+```
+
+This would replace the original `kubelet-stats` monitor config in the
+`configmap.yaml` above.
 
 ## Discovering your services
 
