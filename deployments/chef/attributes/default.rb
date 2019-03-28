@@ -23,7 +23,7 @@ when 'windows'
   default['signalfx_agent']['user'] = 'Administrator'
   default['signalfx_agent']['group'] = 'Administrator'
   if node['signalfx_agent']['agent_version']
-    default['signalfx_agent']['package_version'] = default['signalfx_agent']['agent_version'].sub('v', '')
+    default['signalfx_agent']['package_version'] = node['signalfx_agent']['agent_version'].sub('v', '')
   end
   default['signalfx_agent']['package_url'] = "#{node['signalfx_agent']['windows_repo_url']}/#{node['signalfx_agent']['package_stage']}/zip/SignalFxAgent-#{node['signalfx_agent']['package_version']}-win64.zip"
 else
