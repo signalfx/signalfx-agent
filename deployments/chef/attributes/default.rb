@@ -22,10 +22,10 @@ when 'windows'
   default['signalfx_agent']['version_file'] = "#{node['signalfx_agent']['install_dir']}\\version.txt"
   default['signalfx_agent']['user'] = 'Administrator'
   default['signalfx_agent']['group'] = 'Administrator'
-  default['signalfx_agent']['package_url'] = "#{node['signalfx_agent']['windows_repo_url']}/#{node['signalfx_agent']['package_stage']}/zip/SignalFxAgent-#{node['signalfx_agent']['package_version']}-win64.zip"
   if node['signalfx_agent']['agent_version']
     default['signalfx_agent']['package_version'] = default['signalfx_agent']['agent_version'].sub('v', '')
   end
+  default['signalfx_agent']['package_url'] = "#{node['signalfx_agent']['windows_repo_url']}/#{node['signalfx_agent']['package_stage']}/zip/SignalFxAgent-#{node['signalfx_agent']['package_version']}-win64.zip"
 else
   default['signalfx_agent']['conf_file_path'] = '/etc/signalfx/agent.yaml'
   default['signalfx_agent']['user'] = 'signalfx-agent'
