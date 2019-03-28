@@ -68,6 +68,7 @@ function bundle (
     if ($BUILD_AGENT) {
         Remove-Item -Recurse -Force "$buildDir\$AGENT_NAME\bin\signalfx-agent.exe" -ErrorAction Ignore
         signalfx-agent -AGENT_VERSION "$AGENT_VERSION" -AGENT_BIN "$buildDir\$AGENT_NAME\bin\signalfx-agent.exe"
+        if ($lastexitcode -ne 0){ throw }
     }
 
     if ($PFX_PATH -ne "" -And $PFX_PASSWORD -ne "") {
@@ -81,21 +82,28 @@ function bundle (
     if (($DOWNLOAD_PYTHON -Or !(Test-Path -Path "$buildDir\python")) -And !$ONLY_BUILD_AGENT) {
         Remove-Item -Recurse -Force "$buildDir\python" -ErrorAction Ignore
         download_python -outputDir $buildDir
+        if ($lastexitcode -ne 0){ throw }
         install_python -buildDir $buildDir
+        if ($lastexitcode -ne 0){ throw }
         install_pip -buildDir $buildDir
+        if ($lastexitcode -ne 0){ throw }
     }
 
     if (($DOWNLOAD_COLLECTD_PLUGINS -Or !(Test-Path -Path "$buildDir\plugins")) -And !$ONLY_BUILD_AGENT) {
         Remove-Item -Recurse -Force "$buildDir\plugins\collectd" -ErrorAction Ignore
         bundle_python_runner -buildDir "$buildDir"
+        if ($lastexitcode -ne 0){ throw }
         get_collectd_plugins -buildDir "$buildDir"
+        if ($lastexitcode -ne 0){ throw }
     }
 
     if (($DOWNLOAD_COLLECTD -Or !(Test-Path -Path "$buildDir\collectd")) -And !$ONLY_BUILD_AGENT) {
         Remove-Item -Recurse -Force "$buildDir\collectd" -ErrorAction Ignore
         mkdir "$buildDir\collectd" -ErrorAction Ignore
         download_collectd -collectdCommit $COLLECTD_COMMIT -outputDir "$buildDir"
+        if ($lastexitcode -ne 0){ throw }
         unzip_file -zipFile "$buildDir\collectd.zip" -outputDir "$buildDir\collectd"
+        if ($lastexitcode -ne 0){ throw }
     }
 
     # copy default whitelist into agent directory
@@ -125,25 +133,26 @@ function bundle (
 function lint() {
     versions_go
     golint -set_exit_status ./cmd/... ./internal/...
-    if ($lastexitcode -ne 0){ exit $lastexitcode }
+    if ($lastexitcode -ne 0){ throw }
 }
 
 function vendor() {
     go mod tidy
+    if ($lastexitcode -ne 0){ throw }
     go mod vendor
-    if ($lastexitcode -ne 0){ exit $lastexitcode }
+    if ($lastexitcode -ne 0){ throw }
 }
 
 function vet() {
     versions_go
     go vet -mod vendor ./... 2>&1 | Select-String -Pattern "\.go" | Select-String -NotMatch -Pattern "_test\.go" -outvariable gofiles
-    if ($gofiles){ Write-Host $gofiles; exit 1 }
+    if ($gofiles){ Write-Host $gofiles; throw }
 }
 
 function unit_test() {
     versions_go
     go generate -mod vendor ./internal/monitors/...
-    if ($lastexitcode -ne 0){ exit $lastexitcode }
+    if ($lastexitcode -ne 0){ throw }
     $(& go test -mod vendor -v ./... 2>&1; $rc=$lastexitcode) | go2xunit > unit_results.xml
     return $rc
 }
