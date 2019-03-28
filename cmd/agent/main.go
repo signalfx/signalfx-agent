@@ -193,8 +193,8 @@ func main() {
 
 	// Make it so the symlink from agent-status to this binary invokes the
 	// status command
-	if len(os.Args) == 1 && strings.HasSuffix(os.Args[0], "agent-status") {
-		os.Args = append(os.Args, "status")
+	if strings.HasSuffix(os.Args[0], "agent-status") {
+		os.Args = append([]string{os.Args[0], "status"}, os.Args[1:]...)
 	}
 
 	var firstArg string
