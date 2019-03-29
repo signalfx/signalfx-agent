@@ -1,3 +1,4 @@
+monitors:
 - monitorType: prometheus/postgres
   doc: |
     This monitor scrapes [Prmoetheus PostgreSQL Server

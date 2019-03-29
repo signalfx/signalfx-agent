@@ -1,3 +1,4 @@
+monitors:
 - dimensions: null
   doc: |
     The expvar monitor is a SignalFx Smart Agent monitor that scrapes metrics from variables exposed in JSON

@@ -1,12 +1,21 @@
 COLLECTD_VERSION := 5.8.0-sfx0
 COLLECTD_COMMIT := 4da1c1cbbe83f881945088a41063fe86d1682ecb
 BUILD_TIME ?= $$(date +%FT%T%z)
+MONITOR_CODE_GEN := bin/monitor-code-gen
 
 .PHONY: check
 check: lint vet test
 
 .PHONY: compileDeps
-compileDeps: templates internal/core/common/constants/versions.go
+compileDeps: code-gen templates internal/core/common/constants/versions.go
+
+.PHONY: code-gen
+code-gen: $(MONITOR_CODE_GEN)
+	$(MONITOR_CODE_GEN)
+
+$(MONITOR_CODE_GEN): $(wildcard cmd/monitorCodeGen/*.go)
+	mkdir -p bin
+	go build -mod vendor -o $@ ./cmd/monitorCodeGen
 
 .PHONY: test
 test: compileDeps

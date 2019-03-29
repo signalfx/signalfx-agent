@@ -1,3 +1,4 @@
+monitors:
 - dimensions: null
   doc: "Collects metrics about a Hadoop cluster using\nusing collectd's GenericJMX\
     \ plugin.\n\nAlso see\nhttps://github.com/signalfx/integrations/tree/master/collectd-hadoop.\n\

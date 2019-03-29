@@ -1,3 +1,4 @@
+monitors:
 - monitorType: prometheus/prometheus
   doc: |
     This monitor scrapes [Prmoetheus server's own internal
