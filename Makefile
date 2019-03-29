@@ -7,7 +7,7 @@ MONITOR_CODE_GEN := bin/monitor-code-gen
 check: lint vet test
 
 .PHONY: compileDeps
-compileDeps: code-gen templates internal/core/common/constants/versions.go
+compileDeps: templates code-gen internal/core/common/constants/versions.go
 
 .PHONY: code-gen
 code-gen: $(MONITOR_CODE_GEN)
