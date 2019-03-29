@@ -69,8 +69,6 @@ var groupMetricsMap = map[string][]string {
 {{- end}}
 }
 
-{{/* var {{namespaceMetadata .MonitorType "monitorMetadata" $.monitors}} */}}
-
 {{range .monitors}}
 var {{if gt (len $.monitors) 1 -}}
 {{- (printf "%s%s" .MonitorType "monitorMetadata") | formatVariable -}}
