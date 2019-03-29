@@ -65,6 +65,12 @@ func (f *basicDatapointFilter) Matches(dp *datapoint.Datapoint) bool {
 		if f.monitorType != "" && dpMonitorType != f.monitorType {
 			return false
 		}
+	} else {
+		// If we have a monitorType on the filter but none on the datapont, it
+		// can never match.
+		if f.monitorType != "" {
+			return false
+		}
 	}
 
 	matched := (f.metricFilter == nil || f.metricFilter.Matches(dp.Metric)) &&
