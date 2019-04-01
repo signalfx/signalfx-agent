@@ -89,7 +89,7 @@ func (m *Monitor) Shutdown() {
 func (m *Monitor) fetchMetrics(contextTimeout time.Duration, semaphore chan struct{}, metricConf *metricConfig) {
 	select {
 	case semaphore <- struct{}{}:
-		go func(contextTimeout time.Duration, m *Monitor,  metricConf *metricConfig) {
+		go func(contextTimeout time.Duration, m *Monitor, metricConf *metricConfig) {
 			defer func() { <-semaphore }()
 			ctx, cancel := context.WithTimeout(m.ctx, contextTimeout)
 			defer cancel()
