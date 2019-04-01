@@ -1,10 +1,10 @@
 import logging
-import pythoncom
-import wmi
+import pythoncom # pylint: disable=import-error
+import wmi # pylint: disable=import-error
 
 logger = logging.getLogger(__name__)
 
-def run(config, output):
+def run(_, output):
     # because run is called in a thread it is necessary to explicitly initialize
     # the COM libraries
     pythoncom.CoInitializeEx(pythoncom.COINIT_APARTMENTTHREADED)
@@ -24,7 +24,7 @@ def run(config, output):
                 bde_locked = 1 if (encryptable_volume.ProtectionStatus == 2) else 0
             output.send_gauge("bitlocker_drive_encryption.enabled", bde_enabled, {"volume": drive})
             output.send_gauge("bitlocker_drive_encryption.locked", bde_locked, {"volume": drive})
-    except Exception as e:
+    except Exception as e: # pylint: disable=broad-except
         # BDE is not installed, report enabled = 0, locked = 0 for all drives
         logger.error("Error connecting to Bitlocker feature, assuming not installed: %s", e)
         mwmi = wmi.WMI()
