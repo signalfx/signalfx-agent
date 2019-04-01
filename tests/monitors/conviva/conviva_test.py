@@ -369,6 +369,7 @@ def test_conviva_all_filter(conviva_filters):
           pulsePassword: {{"#from": "env:CONVIVA_PULSE_PASSWORD"}}
           metricConfigs:
           - metricParameter: concurrent_plays
+            maxFiltersPerRequest: 99
             filters:
               - _ALL_
     """

@@ -39,7 +39,9 @@ type metricConfig struct {
 	MetricLensDimensions []string `yaml:"metricLensDimensions"`
 	// MetricLens dimension names to exclude.
 	ExcludeMetricLensDimensions []string `yaml:"excludeMetricLensDimensions"`
-	accountID                   string
+	// Max number of filters per request. The default is number of filters. Multiple requests if number of filters is more than maxFiltersPerRequest
+	MaxFiltersPerRequest int `yaml:"maxFiltersPerRequest"`
+	accountID            string
 	// id:name map of filters derived from the configured Filters
 	filtersMap map[string]string
 	// name:id map of MetricLens dimensions derived from configured MetricLensDimensions
