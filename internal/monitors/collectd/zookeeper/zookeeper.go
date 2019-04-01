@@ -46,8 +46,8 @@ func (rm *Monitor) Configure(conf *Config) error {
 	conf.pyConf = &python.Config{
 		MonitorConfig: conf.MonitorConfig,
 		ModuleName:    "zk-collectd",
-		ModulePaths:   []string{collectd.MakePath("zookeeper")},
-		TypesDBPaths:  []string{collectd.MakePath("types.db")},
+		ModulePaths:   []string{collectd.MakePythonPluginPath("zookeeper")},
+		TypesDBPaths:  []string{collectd.DefaultTypesDBPath()},
 		Host:          conf.Host,
 		Port:          conf.Port,
 		PluginConfig: map[string]interface{}{

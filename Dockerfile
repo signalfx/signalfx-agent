@@ -85,7 +85,6 @@ RUN sed -i -e '/^deb-src/d' /etc/apt/sources.list &&\
       libmnl-dev \
       libmodbus-dev \
       libnotify-dev \
-      libopenipmi-dev \
       liboping-dev \
       libow-dev \
       libpcap-dev \
@@ -115,7 +114,16 @@ RUN sed -i -e '/^deb-src/d' /etc/apt/sources.list &&\
 
 RUN wget https://dev.mysql.com/get/mysql-apt-config_0.8.12-1_all.deb && \
     dpkg -i mysql-apt-config_0.8.12-1_all.deb && \
-    apt-get update && apt-get install -y libmysqlclient-dev libcurl4-gnutls-dev patchelf
+    apt-get update && apt-get install -y libmysqlclient-dev libcurl4-gnutls-dev
+
+# Compile patchelf statically from source
+RUN cd /tmp &&\
+    wget https://nixos.org/releases/patchelf/patchelf-0.10/patchelf-0.10.tar.gz &&\
+    tar -xf patchelf*.tar.gz &&\
+    cd patchelf-0.10 &&\
+    ./configure LDFLAGS="-static" &&\
+    make &&\
+    make install
 
 ARG collectd_version=""
 ARG collectd_commit=""
@@ -136,12 +144,9 @@ ARG extra_cflags="-O2"
 ENV CFLAGS "-Wall -fPIC $extra_cflags"
 ENV CXXFLAGS $CFLAGS
 
-# In the bundle, the java plugin will live in /plugins/collectd and the JVM
+# In the bundle, the java plugin so will live in /lib/collectd and the JVM
 # exists at /jvm
 ENV JAVA_LDFLAGS "-Wl,-rpath -Wl,\$\$\ORIGIN/../../jvm/jre/lib/${TARGET_ARCH}/server"
-
-# turbostat is not supported by ARM, let it be a ARG
-ARG DISABLE_TURBOSTAT
 
 RUN autoreconf -vif &&\
     ./configure \
@@ -165,6 +170,7 @@ RUN autoreconf -vif &&\
         --disable-mqtt \
         --disable-netapp \
         --disable-nut \
+        --disable-ipmi \
         --disable-oracle \
         --disable-pf \
         --disable-redis \
@@ -172,19 +178,18 @@ RUN autoreconf -vif &&\
         --disable-sigrok \
         --disable-tape \
         --disable-tokyotyrant \
-        ${DISABLE_TURBOSTAT} \
+        --disable-turbostat \
         --disable-write_mongodb \
         --disable-write_redis \
         --disable-write_riemann \
         --disable-xmms \
         --disable-zone \
-        --without-included-ltdl \
         --without-libstatgrab \
         --disable-silent-rules \
         --disable-static
 
 # Compile all of collectd first, including plugins
-RUN make -j8 &&\
+RUN make -j`nproc` &&\
     make install
 
 COPY scripts/collect-libs /opt/collect-libs
@@ -223,6 +228,8 @@ RUN cd /opt/sfxpython && pip install .
 
 # Delete all compiled python to save space
 RUN find /usr/lib/python2.7 /usr/local/lib/python2.7/dist-packages -name "*.pyc" | xargs rm
+# We don't support compiling extension modules so don't need this directory
+RUN rm -rf /usr/lib/python2.7/config-*-linux-gnu
 
 ####### Extra packages that don't make sense to pull down in any other stage ########
 FROM ubuntu:16.04 as extra-packages
@@ -231,17 +238,19 @@ ARG TARGET_ARCH
 
 RUN apt update &&\
     apt install -y \
-	  host \
-	  netcat.openbsd \
-	  netcat \
-	  iproute2 \
 	  curl \
+	  host \
+	  iproute2 \
+	  netcat \
+	  netcat.openbsd \
+	  realpath \
 	  vim
 
 RUN apt install -y openjdk-8-jre-headless &&\
-    cp -rL /usr/lib/jvm/java-8-openjdk-${TARGET_ARCH} /opt/jvm &&\
-	rm -rf /opt/jvm/docs &&\
-	rm -rf /opt/jvm/man
+    mkdir -p /opt/root &&\
+    cp -rL /usr/lib/jvm/java-8-openjdk-${TARGET_ARCH} /opt/root/jvm &&\
+	rm -rf /opt/root/jvm/docs &&\
+	rm -rf /opt/root/jvm/man
 
 RUN curl -Lo /opt/signalfx_types_db https://raw.githubusercontent.com/signalfx/integrations/master/collectd-java/signalfx_types_db
 
@@ -260,7 +269,6 @@ ENV useful_bins=" \
   /bin/mkdir \
   /bin/mount \
   /bin/nc \
-  /bin/nc.openbsd \
   /bin/ps \
   /bin/rm \
   /bin/sh \
@@ -268,14 +276,34 @@ ENV useful_bins=" \
   /bin/umount \
   /usr/bin/curl \
   /usr/bin/dirname \
+  /usr/bin/find \
   /usr/bin/host \
+  /usr/bin/realpath \
   /usr/bin/tail \
   /usr/bin/vim \
   "
-RUN /opt/collect-libs /opt/deps ${useful_bins}
+RUN mkdir -p /opt/root/lib &&\
+    /opt/collect-libs /opt/root/lib ${useful_bins}
 
-RUN mkdir -p /opt/bins &&\
-    cp $useful_bins /opt/bins
+RUN mkdir -p /opt/root/bin &&\
+    cp $useful_bins /opt/root/bin
+
+# Gather all our bins/libs and set rpath on the properly.  Interpreter has to
+# be set at runtime (or in the final docker stage for docker runs).
+COPY --from=collectd /usr/local/bin/patchelf /usr/bin/
+
+# Gather Python dependencies
+COPY --from=python-plugins /usr/lib/python2.7/ /opt/root/lib/python2.7
+COPY --from=python-plugins /usr/local/lib/python2.7/ /opt/root/lib/python2.7
+COPY --from=python-plugins /usr/bin/python /opt/root/bin/python
+
+# Gather compiled collectd plugin libraries
+COPY --from=collectd /usr/sbin/collectd /opt/root/bin/collectd
+COPY --from=collectd /opt/deps/ /opt/root/lib/
+COPY --from=collectd /usr/lib/collectd/*.so /opt/root/lib/collectd/
+
+COPY scripts/patch-rpath /usr/bin/
+RUN patch-rpath /opt/root
 
 ###### Final Agent Image #######
 # This build stage is meant as the final target when running the agent in a
@@ -283,38 +311,36 @@ RUN mkdir -p /opt/bins &&\
 # below this are special-purpose.
 FROM scratch as final-image
 
-ARG CPU_ARCH
-ARG LDSO_BIN
-
 CMD ["/bin/signalfx-agent"]
 
 COPY --from=collectd /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt
-
-COPY --from=collectd /usr/sbin/collectd /bin/collectd
-COPY --from=collectd /opt/deps/ /lib
 COPY --from=collectd /etc/nsswitch.conf /etc/nsswitch.conf
+COPY --from=collectd /usr/local/bin/patchelf /bin/
 
-COPY --from=extra-packages /lib/${CPU_ARCH}-linux-gnu/ld-2.23.so ${LDSO_BIN}
-COPY --from=extra-packages /opt/jvm/ /jvm
-COPY --from=extra-packages /opt/signalfx_types_db /plugins/collectd/java/
-COPY --from=extra-packages /opt/deps/ /lib
-COPY --from=extra-packages /opt/bins/ /bin
+# Pull in the Linux dynamic link loader at a fixed path across all
+# architectures.  Binaries will later be patched to use this interpreter
+# natively.
+COPY --from=extra-packages /lib/*-linux-gnu/ld-2.23.so /bin/ld-linux.so
 
-COPY --from=collectd /usr/share/collectd/postgresql_default.conf /plugins/collectd/postgresql_default.conf
-COPY --from=collectd /usr/share/collectd/types.db /plugins/collectd/types.db
-# All the built-in collectd plugins
-COPY --from=collectd /usr/lib/collectd/*.so /plugins/collectd/
-COPY --from=collectd /usr/share/collectd/java/ /plugins/collectd/java/
+# Java dependencies
+COPY --from=extra-packages /opt/root/jvm/ /jvm
 
-# Pull in non-C collectd plugins
-COPY --from=python-plugins /opt/collectd-python/ /plugins/collectd
-# Grab pip dependencies too
-COPY --from=python-plugins /usr/lib/python2.7/ /lib/python2.7
-COPY --from=python-plugins /usr/local/lib/python2.7/ /lib/python2.7
-COPY --from=python-plugins /usr/bin/python /bin/python
+COPY --from=extra-packages /opt/root/lib/ /lib/
+COPY --from=extra-packages /opt/root/bin/ /bin/
+
+# Some extra non-binary collectd resources
+COPY --from=collectd /usr/share/collectd/postgresql_default.conf /postgresql_default.conf
+COPY --from=collectd /usr/share/collectd/types.db /types.db
+COPY --from=collectd /usr/share/collectd/java/ /collectd-java/
+COPY --from=extra-packages /opt/signalfx_types_db /collectd-java/
+
+# Pull in Python collectd plugin scripts
+COPY --from=python-plugins /opt/collectd-python/ /collectd-python/
 
 COPY scripts/umount-hostfs-non-persistent /bin/umount-hostfs-non-persistent
 COPY deployments/docker/agent.yaml /etc/signalfx/agent.yaml
+COPY scripts/patch-interpreter /bin/
+RUN ["/bin/ld-linux.so", "/bin/sh", "/bin/patch-interpreter", "/"]
 
 RUN mkdir -p /run/collectd /var/run/ &&\
     ln -s /var/run/signalfx-agent /run &&\
@@ -402,6 +428,8 @@ COPY --from=final-image /bin/signalfx-agent ./signalfx-agent
 
 COPY --from=final-image / /bundle/
 COPY ./ ./
+
+RUN /bundle/bin/patch-interpreter /bundle
 
 ####### Pandoc Converter ########
 FROM ubuntu:16.04 as pandoc-converter

@@ -12,12 +12,10 @@ import (
 	"io/ioutil"
 	"os"
 	"os/exec"
-	"path/filepath"
 	"sync"
 	"sync/atomic"
 	"time"
 
-	"github.com/signalfx/signalfx-agent/internal/core/common/constants"
 	"github.com/signalfx/signalfx-agent/internal/core/config"
 	"github.com/signalfx/signalfx-agent/internal/utils"
 	log "github.com/sirupsen/logrus"
@@ -25,7 +23,7 @@ import (
 
 // RuntimeConfig for Python
 type RuntimeConfig struct {
-	PythonBinary []string
+	PythonBinary string
 	PythonArgs   []string
 	// Envvars in the form "key=value".
 	PythonEnv []string
@@ -89,8 +87,6 @@ func (mc *MonitorCore) Logger() log.FieldLogger {
 func (mc *MonitorCore) DefaultRuntimeConfig() *RuntimeConfig {
 	// The PYTHONHOME envvar is set in agent core when config is processed.
 	env := os.Environ()
-	env = append(env,
-		fmt.Sprintf("LD_LIBRARY_PATH=%s", filepath.Join(os.Getenv(constants.BundleDirEnvVar), "lib")))
 	env = append(env, config.BundlePythonHomeEnvvar())
 
 	return &RuntimeConfig{
@@ -106,8 +102,7 @@ func (mc *MonitorCore) DefaultRuntimeConfig() *RuntimeConfig {
 func (mc *MonitorCore) run(runtimeConf RuntimeConfig, messages *messageReadWriter, stdin io.Reader, stdout io.Writer) error {
 	mc.logger.Info("Starting Python runner child process")
 
-	args := append(runtimeConf.PythonBinary, runtimeConf.PythonArgs...)
-	cmd := exec.CommandContext(mc.ctx, args[0], args[1:]...)
+	cmd := exec.CommandContext(mc.ctx, runtimeConf.PythonBinary, runtimeConf.PythonArgs...)
 	cmd.SysProcAttr = procAttrs()
 	cmd.Stdin = stdin
 	cmd.Stdout = stdout

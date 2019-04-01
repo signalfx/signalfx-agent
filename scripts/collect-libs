@@ -53,8 +53,7 @@ libs=$(find_deps $binary_paths)
 transitive_deps=$(find_deps $libs)
 for lib in /lib/`uname -m`-linux-gnu/libnss_{dns,files}* $libs $transitive_deps
 do
-  cp -a $(all_links $lib) $target_path
-
+  cp -a $(all_links $lib) $target_path 
   echo "Pulled in $lib" # to $new_path"
 done
 

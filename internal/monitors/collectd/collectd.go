@@ -6,13 +6,11 @@ package collectd
 
 import (
 	"bytes"
-	"fmt"
 	"io"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"regexp"
-	"runtime"
 	"sync"
 	"syscall"
 	"time"
@@ -221,13 +219,13 @@ func (cm *Manager) ManagedConfigDir() string {
 	return cm.conf.ManagedConfigDir()
 }
 
-// PluginDir returns the base directory that holds both C and Python plugins.
-func (cm *Manager) PluginDir() string {
+// BundleDir returns the base directory of the agent bundle.
+func (cm *Manager) BundleDir() string {
 	if cm.conf == nil {
 		// This is a programming bug if we get here.
 		panic("Collectd must be configured before any monitor tries to use it")
 	}
-	return filepath.Join(cm.conf.BundleDir, "plugins/collectd")
+	return cm.conf.BundleDir
 }
 
 // Manage the subprocess with a basic state machine.  This is a bit tricky
@@ -468,11 +466,6 @@ func (cm *Manager) rerenderConf(writeHTTPPort int) error {
 }
 
 func (cm *Manager) makeChildCommand() (*exec.Cmd, io.ReadCloser) {
-	loader := filepath.Join(cm.conf.BundleDir, "lib64/ld-linux-x86-64.so.2")
-	if runtime.GOARCH == "arm64" {
-		loader = filepath.Join(cm.conf.BundleDir, "lib/ld-linux-aarch64.so.1")
-	}
-
 	collectdBin := filepath.Join(cm.conf.BundleDir, "bin/collectd")
 	args := []string{"-f", "-C", cm.conf.ConfigFilePath()}
 
@@ -480,11 +473,7 @@ func (cm *Manager) makeChildCommand() (*exec.Cmd, io.ReadCloser) {
 	// If running in a container where the bundle is the main filesystem, don't
 	// bother explicitly invoking through the loader (this happens
 	// automatically).
-	if cm.conf.BundleDir == "/" {
-		cmd = exec.Command(collectdBin, args...)
-	} else {
-		cmd = exec.Command(loader, append([]string{collectdBin}, args...)...)
-	}
+	cmd = exec.Command(collectdBin, args...)
 
 	// Send both stdout and stderr to the same buffer
 	r, w, err := os.Pipe()
@@ -495,7 +484,6 @@ func (cm *Manager) makeChildCommand() (*exec.Cmd, io.ReadCloser) {
 	cmd.Stdout = w
 	cmd.Stderr = w
 	cmd.Env = os.Environ()
-	cmd.Env = append(cmd.Env, fmt.Sprintf("LD_LIBRARY_PATH=%s", filepath.Join(cm.conf.BundleDir, "lib")))
 	cmd.Env = append(cmd.Env, config.BundlePythonHomeEnvvar())
 
 	cmd.SysProcAttr = &syscall.SysProcAttr{

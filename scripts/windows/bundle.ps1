@@ -13,8 +13,8 @@ function download_collectd([string]$collectdCommit, [string]$outputDir="$BUILD_D
 }
 
 function get_collectd_plugins ([string]$buildDir=$BUILD_DIR) {
-    mkdir "$buildDir\plugins\collectd" -ErrorAction Ignore
-    $collectdPlugins = Resolve-Path "$buildDir\plugins\collectd"
+    mkdir "$buildDir\collectd-python" -ErrorAction Ignore
+    $collectdPlugins = Resolve-Path "$buildDir\collectd-python"
     $requirements = Resolve-Path "$scriptDir\..\get-collectd-plugins-requirements.txt"
     $script = Resolve-Path "$scriptDir\..\get-collectd-plugins.py"
     $python = "$buildDir\python\python.exe"
@@ -32,7 +32,7 @@ function download_python([string]$url=$PYTHON_MSI_URL, [string]$outputDir=$BUILD
 }
 
 function copy_types_db([string]$collectdCommit, [string]$buildDir=$BUILD_DIR, [string]$agentName="SignalFxAgent") {
-    cp "$buildDir\collectd\collectd-$collectdCommit\src\types.db" "$buildDir\$agentName\plugins\collectd\types.db"
+    cp "$buildDir\collectd\collectd-$collectdCommit\src\types.db" "$buildDir\$agentName\types.db"
 }
 
 function copy_whitelist([string]$buildDir=$BUILD_DIR, [string]$agentName="SignalFxAgent"){

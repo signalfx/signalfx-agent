@@ -24,7 +24,7 @@ monitors:
   - type: collectd/python
     moduleName: redis_info
     modulePaths:
-     - "${bundle_root}/plugins/collectd/redis"
+     - "${bundle_root}/collectd-python/redis"
     pluginConfig:
       Host: $host
       Port: 6379

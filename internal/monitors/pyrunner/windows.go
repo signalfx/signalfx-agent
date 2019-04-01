@@ -17,8 +17,8 @@ func procAttrs() *syscall.SysProcAttr {
 	}
 }
 
-func defaultPythonBinaryExecutable() []string {
-	return []string{filepath.Join(os.Getenv(constants.BundleDirEnvVar), "python", "python.exe")}
+func defaultPythonBinaryExecutable() string {
+	return filepath.Join(os.Getenv(constants.BundleDirEnvVar), "python", "python.exe")
 }
 
 func defaultPythonBinaryArgs(pkgName string) []string {
