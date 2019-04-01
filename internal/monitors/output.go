@@ -17,6 +17,7 @@ type monitorOutput struct {
 	monitorID                 types.MonitorID
 	notHostSpecific           bool
 	disableEndpointDimensions bool
+	additionalFilter          *metricsFilter
 	filter                    *dpfilters.FilterSet
 	configHash                uint64
 	endpoint                  services.Endpoint
@@ -34,8 +35,12 @@ func (mo *monitorOutput) SendDatapoint(dp *datapoint.Datapoint) {
 		return
 	}
 
+	if !mo.additionalFilter.shouldSend(dp) {
+		return
+	}
+
 	if dp.Meta == nil {
-		dp.Meta = make(map[interface{}]interface{})
+		dp.Meta = map[interface{}]interface{}{}
 	}
 
 	dp.Meta[dpmeta.MonitorIDMeta] = mo.monitorID

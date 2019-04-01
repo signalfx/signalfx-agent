@@ -13,7 +13,7 @@ import (
 const monitorType = "collectd/df"
 
 func init() {
-	monitors.Register(monitorType, func() interface{} {
+	monitors.RegisterWithMetadata(&monitorMetadata, func() interface{} {
 		return &Monitor{
 			MonitorCore: *collectd.NewMonitorCore(CollectdTemplate),
 		}

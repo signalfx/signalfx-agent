@@ -105,7 +105,7 @@ func (mm *MonitorManager) Configure(confs []config.MonitorConfig, collectdConf *
 		if err != nil {
 			log.WithFields(log.Fields{
 				"monitorType": conf.Type,
-				"error":       err,
+				"error":       err.Error(),
 			}).Error("Could not process configuration for monitor")
 			conf.ValidationError = err.Error()
 			mm.badConfigs[hash] = &conf
@@ -314,26 +314,38 @@ func (mm *MonitorManager) findConfigForMonitorAndRun(endpoint services.Endpoint)
 // endpoint may be nil for static monitors
 func (mm *MonitorManager) createAndConfigureNewMonitor(config config.MonitorCustomConfig, endpoint services.Endpoint) error {
 	id := types.MonitorID(mm.idGenerator())
+	monitorType := config.MonitorConfigCore().Type
 
 	log.WithFields(log.Fields{
-		"monitorType":   config.MonitorConfigCore().Type,
+		"monitorType":   monitorType,
 		"discoveryRule": config.MonitorConfigCore().DiscoveryRule,
 		"monitorID":     id,
 	}).Info("Creating new monitor")
 
 	instance := newMonitor(config.MonitorConfigCore().Type, id)
 	if instance == nil {
-		return errors.Errorf("Could not create new monitor of type %s", config.MonitorConfigCore().Type)
+		return errors.Errorf("Could not create new monitor of type %s", monitorType)
+	}
+
+	metadata, ok := MonitorMetadatas[monitorType]
+	if !ok {
+		return errors.Errorf("could not find monitor metadata of type %s", monitorType)
 	}
 
 	configHash := config.MonitorConfigCore().Hash()
 
+	additionalFilter, err := newMetricsFilter(metadata, config.MonitorConfigCore().AdditionalMetrics)
+	if err != nil {
+		return errors.Wrapf(err, "unable to construct additionalMetrics filter")
+	}
+
 	output := &monitorOutput{
-		monitorType:               config.MonitorConfigCore().Type,
+		monitorType:               monitorType,
 		monitorID:                 id,
 		notHostSpecific:           config.MonitorConfigCore().DisableHostDimensions,
 		disableEndpointDimensions: config.MonitorConfigCore().DisableEndpointDimensions,
 		filter:                    config.MonitorConfigCore().Filter,
+		additionalFilter:          additionalFilter,
 		configHash:                configHash,
 		endpoint:                  endpoint,
 		dpChan:                    mm.DPs,
@@ -344,12 +356,13 @@ func (mm *MonitorManager) createAndConfigureNewMonitor(config config.MonitorCust
 	}
 
 	am := &ActiveMonitor{
-		id:         id,
-		configHash: configHash,
-		instance:   instance,
-		endpoint:   endpoint,
-		agentMeta:  mm.agentMeta,
-		output:     output,
+		id:             id,
+		configHash:     configHash,
+		instance:       instance,
+		endpoint:       endpoint,
+		agentMeta:      mm.agentMeta,
+		output:         output,
+		enabledMetrics: additionalFilter.enabledMetrics(),
 	}
 
 	if err := am.configureMonitor(config); err != nil {

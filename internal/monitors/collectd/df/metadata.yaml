@@ -2,6 +2,7 @@ monitors:
 - dimensions: null
   doc: |
     Tracks free disk space on the host.
+  metricsExhaustive: true
   metrics:
   - description: Free disk space in bytes
     included: true

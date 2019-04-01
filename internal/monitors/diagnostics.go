@@ -72,19 +72,23 @@ func (mm *MonitorManager) DiagnosticText() string {
 		serviceStats := ""
 		if am.endpoint != nil {
 			serviceStats = fmt.Sprintf(
-				"Discovery Rule: %s\n"+
-					"Monitored Endpoint ID: %s\n",
+				`Discovery Rule: %s
+Monitored Endpoint ID: %s`,
 				am.config.MonitorConfigCore().DiscoveryRule,
 				am.endpoint.Core().ID)
 		}
 		activeMonText += fmt.Sprintf(
-			"%s. %s\n"+
-				"    Reporting Interval (seconds): %d\n"+
-				"%s"+
-				"    Config:\n%s\n",
+			`%s. %s
+    Reporting Interval (seconds): %d
+    Enabled Metrics:
+%s
+%s    Config:
+%s
+`,
 			am.config.MonitorConfigCore().MonitorID,
 			am.config.MonitorConfigCore().Type,
 			am.config.MonitorConfigCore().IntervalSeconds,
+			utils.IndentLines(config.ToString(am.enabledMetrics), 6),
 			utils.IndentLines(serviceStats, 4),
 			utils.IndentLines(config.ToString(am.config), 6))
 	}

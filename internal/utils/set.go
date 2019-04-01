@@ -35,3 +35,8 @@ func StringSetToSlice(set map[string]bool) []string {
 	}
 	return out
 }
+
+// StringSet creates a map set from vararg
+func StringSet(strings ...string) map[string]bool {
+	return StringSliceToMap(strings)
+}

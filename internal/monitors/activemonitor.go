@@ -28,6 +28,8 @@ type ActiveMonitor struct {
 	endpoint   services.Endpoint
 	// Is the monitor marked for deletion?
 	doomed bool
+	// Metrics that have been enabled via the additional metrics filter.
+	enabledMetrics []string
 }
 
 // Does some reflection magic to pass the right type to the Configure method of

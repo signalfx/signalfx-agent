@@ -1,29 +1,62 @@
-from functools import partial as p
-
 import pytest
 
-from tests.helpers.assertions import has_any_metric_or_dim, has_log_message
-from tests.helpers.util import (
-    get_monitor_dims_from_selfdescribe,
-    get_monitor_metrics_from_selfdescribe,
-    run_agent,
-    wait_for,
-)
+from tests.helpers.assertions import has_log_message
+from tests.helpers.metadata import get_metadata
+from tests.helpers.util import run_agent, wait_for
 
 pytestmark = [pytest.mark.collectd, pytest.mark.df, pytest.mark.monitor_without_endpoints]
 
+METADATA = get_metadata("collectd/df")
+
 
 def test_df():
-    expected_metrics = get_monitor_metrics_from_selfdescribe("collectd/df")
-    expected_dims = get_monitor_dims_from_selfdescribe("collectd/df")
     with run_agent(
         """
-    monitors:
-      - type: collectd/df
-        hostFSPath: /
-    """
-    ) as [backend, get_output, _]:
-        assert wait_for(
-            p(has_any_metric_or_dim, backend, expected_metrics, expected_dims), timeout_seconds=60
+        monitors:
+          - type: collectd/df
+            hostFSPath: /
+        """
+    ) as (backend, get_output, _):
+        wait_for(
+            lambda: set(backend.datapoints_by_metric) == METADATA.included_metrics, timeout_seconds=60
         ), "timed out waiting for metrics and/or dimensions!"
+        assert set(backend.datapoints_by_metric) == METADATA.included_metrics
+        assert not has_log_message(get_output().lower(), "error"), "error found in agent output!"
+
+
+def test_df_additional_metrics():
+    expected_metrics = METADATA.included_metrics | {"df_complex.reserved"}
+    with run_agent(
+        """
+        monitors:
+          - type: collectd/df
+            hostFSPath: /
+            additionalMetrics:
+            - metricName: df_complex.reserved
+        """
+    ) as (backend, get_output, _):
+        wait_for(
+            lambda: set(backend.datapoints_by_metric) == expected_metrics, timeout_seconds=60
+        ), "timed out waiting for metrics and/or dimensions!"
+        assert set(backend.datapoints_by_metric) == expected_metrics
+        assert not has_log_message(get_output().lower(), "error"), "error found in agent output!"
+
+def test_df_additional_metrics_all():
+    expected_metrics = METADATA.all_metrics
+    with run_agent(
+        """
+        monitors:
+          - type: collectd/df
+            hostFSPath: /
+            valuesPercentage: true
+            reportInodes: true
+            additionalMetrics:
+            - metricName: df_*
+            - metricName: percent_*
+        """
+    ) as (backend, get_output, _):
+        wait_for(
+            lambda: set(backend.datapoints_by_metric) == expected_metrics, timeout_seconds=60
+        ), "timed out waiting for metrics and/or dimensions!"
+        assert set(backend.datapoints_by_metric) == expected_metrics
         assert not has_log_message(get_output().lower(), "error"), "error found in agent output!"
