@@ -10,6 +10,9 @@ data:
   agent.yaml: |
     signalFxAccessToken: ${SFX_ACCESS_TOKEN}
 
+    etcPath: /hostfs/etc
+    procPath: /hostfs/proc
+
     intervalSeconds: 10
 
     logging:
@@ -34,10 +37,7 @@ data:
     - type: collectd/memory
     - type: collectd/protocols
     - type: collectd/signalfx-metadata
-      procFSPath: /hostfs/proc
     - type: host-metadata
-      etcPath: /hostfs/etc
-      procFSPath: /hostfs/proc
     - type: collectd/uptime
     - type: collectd/vmem
 
