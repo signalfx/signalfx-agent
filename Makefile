@@ -13,9 +13,9 @@ compileDeps: templates code-gen internal/core/common/constants/versions.go
 code-gen: $(MONITOR_CODE_GEN)
 	$(MONITOR_CODE_GEN)
 
-$(MONITOR_CODE_GEN): $(wildcard cmd/monitorCodeGen/*.go)
+$(MONITOR_CODE_GEN): $(wildcard cmd/monitorcodegen/*.go)
 	mkdir -p bin
-	go build -mod vendor -o $@ ./cmd/monitorCodeGen
+	go build -mod vendor -o $@ ./cmd/monitorcodegen
 
 .PHONY: test
 test: compileDeps
