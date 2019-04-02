@@ -11,6 +11,7 @@ import (
 	"github.com/signalfx/signalfx-agent/internal/monitors/types"
 	"github.com/signalfx/signalfx-agent/internal/utils"
 	log "github.com/sirupsen/logrus"
+	"golang.org/x/sync/errgroup"
 	"math"
 	"net/http"
 	"strings"
@@ -106,14 +107,22 @@ func (m *Monitor) fetchMetrics(contextTimeout time.Duration, semaphore chan stru
 				url := fmt.Sprintf(metricURLFormat, metricConf.MetricParameter, metricConf.accountID, strings.Join(metricConf.filterIDs()[low:high], ","))
 				urls = append(urls, &url)
 			}
-			var responses []*map[string]metricResponse
-			for _, url := range urls {
-				res := map[string]metricResponse{}
-				if _, err := m.client.get(ctx, &res, *url); err != nil {
-					logger.Errorf("GET metric %s failed. %+v", metricConf.MetricParameter, err)
-					return
-				}
-				responses = append(responses, &res)
+			responses := make([]*map[string]metricResponse, len(urls))
+			var g errgroup.Group
+			for i, url := range urls {
+				i := i
+				g.Go(func() error {
+					res := map[string]metricResponse{}
+					if _, err := m.client.get(ctx, &res, *url); err != nil {
+						return fmt.Errorf("GET metric %s failed. %+v", metricConf.MetricParameter, err)
+					}
+					responses[i] = &res
+					return nil
+				})
+			}
+			if err := g.Wait(); err != nil {
+				logger.Error(err)
+				return
 			}
 			var dps []*datapoint.Datapoint
 			timestamp := time.Now()
@@ -124,11 +133,17 @@ func (m *Monitor) fetchMetrics(contextTimeout time.Duration, semaphore chan stru
 					for filterID, metricValues := range series.FilterIDValuesMap {
 						switch series.Type {
 						case "time_series":
-							dps = append(dps, timeSeriesDatapoints(metricName, metricValues, series.Timestamps, metricConf.Account, metricConf.filterName(filterID))...)
+							if dp := latestTimeSeriesDatapoint(metricName, metricValues, series.Timestamps, metricConf.Account, metricConf.filterName(filterID)); dp != nil {
+								dps = append(dps, dp)
+							}
 						case "label_series":
-							dps = append(dps, labelSeriesDatapoints(metricName, metricValues, series.Xvalues, timestamp, metricConf.Account, metricConf.filterName(filterID))...)
+							if lsdps := labelSeriesDatapoints(metricName, metricValues, series.Xvalues, timestamp, metricConf.Account, metricConf.filterName(filterID)); lsdps != nil {
+								dps = append(dps, *lsdps...)
+							}
 						default:
-							dps = append(dps, simpleSeriesDatapoints(metricName, metricValues, timestamp, metricConf.Account, metricConf.filterName(filterID))...)
+							if ssdps := simpleSeriesDatapoints(metricName, metricValues, timestamp, metricConf.Account, metricConf.filterName(filterID)); ssdps != nil {
+								dps = append(dps, *ssdps...)
+							}
 						}
 					}
 				}
@@ -165,14 +180,22 @@ func (m *Monitor) fetchMetricLensMetrics(contextTimeout time.Duration, semaphore
 					url := fmt.Sprintf(metricLensURLFormat, metricConf.MetricParameter, metricConf.accountID, strings.Join(metricConf.filterIDs()[low:high], ","), int(dimID))
 					urls = append(urls, &url)
 				}
-				var responses []*map[string]metricResponse
-				for _, url := range urls {
-					var res map[string]metricResponse
-					if _, err := m.client.get(ctx, &res, *url); err != nil {
-						logger.Errorf("GET metric %s failed. %+v", metricConf.MetricParameter, err)
-						return
-					}
-					responses = append(responses, &res)
+				responses := make([]*map[string]metricResponse, len(urls))
+				var g errgroup.Group
+				for i, url := range urls {
+					i := i
+					g.Go(func() error {
+						var res map[string]metricResponse
+						if _, err := m.client.get(ctx, &res, *url); err != nil {
+							return fmt.Errorf("GET metric %s failed. %+v", metricConf.MetricParameter, err)
+						}
+						responses[i] = &res
+						return nil
+					})
+				}
+				if err := g.Wait(); err != nil {
+					logger.Error(err)
+					return
 				}
 				var dps []*datapoint.Datapoint
 				timestamp := time.Now()
@@ -180,7 +203,9 @@ func (m *Monitor) fetchMetricLensMetrics(contextTimeout time.Duration, semaphore
 					for metricParameter, metricTable := range *res {
 						metricConf.logFilterStatuses(metricTable.Meta.FiltersWarmup, metricTable.Meta.FiltersNotExist, metricTable.Meta.FiltersIncompleteData)
 						for filterID, tableValue := range metricTable.Tables {
-							dps = append(dps, tableDatapoints(metricLensMetrics[metricParameter], metricLensDimension, tableValue.Rows, metricTable.Xvalues, timestamp, metricConf.Account, metricConf.filterName(filterID))...)
+							if tdps := tableDatapoints(metricLensMetrics[metricParameter], metricLensDimension, tableValue.Rows, metricTable.Xvalues, timestamp, metricConf.Account, metricConf.filterName(filterID)); tdps != nil {
+								dps = append(dps, *tdps...)
+							}
 						}
 					}
 				}
@@ -208,49 +233,55 @@ func maxGoroutinesPerInterval(metricConfigs []*metricConfig) int {
 	return int(math.Max(float64(requests), float64(2000)))
 }
 
-func timeSeriesDatapoints(metricName string, metricValues []float64, timestamps []int64, accountName string, filterName string) []*datapoint.Datapoint {
-	dps := make([]*datapoint.Datapoint, 0)
-	metricValue := metricValues[len(metricValues)-1]
-	dp := sfxclient.GaugeF(metricName, map[string]string{"account": accountName, "filter": filterName}, metricValue)
-	// Series timestamps are in milliseconds
-	dp.Timestamp = time.Unix(timestamps[len(timestamps)-1]/1000, 0)
-	dp.Meta[dpmeta.NotHostSpecificMeta] = true
-	dps = append(dps, dp)
-	return dps
-}
-
-func labelSeriesDatapoints(metricName string, metricValues []float64, xvalues []string, timestamp time.Time, accountName string, filterName string) []*datapoint.Datapoint {
-	dps := make([]*datapoint.Datapoint, 0)
-	for i, metricValue := range metricValues {
-		dp := sfxclient.GaugeF(metricName, map[string]string{"account": accountName, "filter": filterName}, metricValue)
-		dp.Dimensions["label"] = xvalues[i]
+func latestTimeSeriesDatapoint(metricName string, metricValues []float64, timestamps []int64, accountName string, filterName string) (dp *datapoint.Datapoint) {
+	if len(metricValues) > 0 {
+		dp = sfxclient.GaugeF(metricName, map[string]string{"account": accountName, "filter": filterName}, metricValues[len(metricValues)-1])
+		// Series timestamps are in milliseconds
+		dp.Timestamp = time.Unix(timestamps[len(timestamps)-1]/1000, 0)
 		dp.Meta[dpmeta.NotHostSpecificMeta] = true
-		dp.Timestamp = timestamp
-		dps = append(dps, dp)
 	}
-	return dps
+	return
 }
 
-func simpleSeriesDatapoints(metricName string, metricValues []float64, timestamp time.Time, accountName string, filterName string) []*datapoint.Datapoint {
-	dps := make([]*datapoint.Datapoint, 0)
-	for _, metricValue := range metricValues {
-		dp := sfxclient.GaugeF(metricName, map[string]string{"account": accountName, "filter": filterName}, metricValue)
-		dp.Meta[dpmeta.NotHostSpecificMeta] = true
-		dp.Timestamp = timestamp
-		dps = append(dps, dp)
-	}
-	return dps
-}
-
-func tableDatapoints(metricNames []string, dimension string, rows [][]float64, xvalues []string, timestamp time.Time, accountName string, filterName string) []*datapoint.Datapoint {
-	dps := make([]*datapoint.Datapoint, 0)
-	for rowIndex, row := range rows {
-		for metricIndex, metricValue := range row {
-			dp := sfxclient.GaugeF(metricNames[metricIndex], map[string]string{"account": accountName, "filter": filterName, dimension: xvalues[rowIndex]}, metricValue)
-			dp.Timestamp = timestamp
+func labelSeriesDatapoints(metricName string, metricValues []float64, xvalues []string, timestamp time.Time, accountName string, filterName string) (dps *[]*datapoint.Datapoint) {
+	if len(metricValues) > 0 {
+		dps = &[]*datapoint.Datapoint{}
+		for i, metricValue := range metricValues {
+			dp := sfxclient.GaugeF(metricName, map[string]string{"account": accountName, "filter": filterName}, metricValue)
+			dp.Dimensions["label"] = xvalues[i]
 			dp.Meta[dpmeta.NotHostSpecificMeta] = true
-			dps = append(dps, dp)
+			dp.Timestamp = timestamp
+			*dps = append(*dps, dp)
 		}
 	}
-	return dps
+	return
+}
+
+func simpleSeriesDatapoints(metricName string, metricValues []float64, timestamp time.Time, accountName string, filterName string) (dps *[]*datapoint.Datapoint) {
+	if len(metricValues) > 0 {
+		dps = &[]*datapoint.Datapoint{}
+		for _, metricValue := range metricValues {
+			dp := sfxclient.GaugeF(metricName, map[string]string{"account": accountName, "filter": filterName}, metricValue)
+			dp.Meta[dpmeta.NotHostSpecificMeta] = true
+			dp.Timestamp = timestamp
+			*dps = append(*dps, dp)
+		}
+	}
+	return
+}
+
+func tableDatapoints(metricNames []string, dimension string, rows [][]float64, xvalues []string, timestamp time.Time, accountName string, filterName string) (dps *[]*datapoint.Datapoint) {
+	//dps := make([]*datapoint.Datapoint, 0)
+	if len(rows) > 0 {
+		dps = &[]*datapoint.Datapoint{}
+		for rowIndex, row := range rows {
+			for metricIndex, metricValue := range row {
+				dp := sfxclient.GaugeF(metricNames[metricIndex], map[string]string{"account": accountName, "filter": filterName, dimension: xvalues[rowIndex]}, metricValue)
+				dp.Timestamp = timestamp
+				dp.Meta[dpmeta.NotHostSpecificMeta] = true
+				*dps = append(*dps, dp)
+			}
+		}
+	}
+	return
 }
