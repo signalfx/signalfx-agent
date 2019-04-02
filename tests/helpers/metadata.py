@@ -1,19 +1,21 @@
 import os
 
 import yaml
-
 from tests.helpers.util import REPO_ROOT_DIR
-
-
-def get_metadata(monitor_package_path):
-    """Get monitor metadata from the given path"""
-    return Metadata(monitor_package_path)
 
 
 class Metadata:
     """Metadata information like metrics and dimensions for a monitor"""
 
-    def __init__(self, monitor_package_path, mon_type=None):
+    def __init__(self, monitor_type, included_metrics, nonincluded_metrics, dims):
+        self.monitor_type = monitor_type
+        self.included_metrics = included_metrics
+        self.nonincluded_mertics = nonincluded_metrics
+        self.all_metrics = self.included_metrics | self.nonincluded_mertics
+        self.dims = dims
+
+    @classmethod
+    def from_package(cls, monitor_package_path, mon_type=None):
         with open(
             os.path.join(REPO_ROOT_DIR, "internal", "monitors", monitor_package_path, "metadata.yaml"),
             "r",
@@ -22,11 +24,12 @@ class Metadata:
             doc = yaml.safe_load(fd)
             monitor = _find_monitor(doc["monitors"], mon_type)
 
-            self.monitor_type = monitor["monitorType"]
-            self.included_metrics = frozenset(_get_monitor_metrics(monitor, included=True))
-            self.nonincluded_mertics = frozenset(_get_monitor_metrics(monitor, included=False))
-            self.all_metrics = self.included_metrics | self.nonincluded_mertics
-            self.dims = frozenset(_get_monitor_dims(doc))
+            return cls(
+                monitor_type=monitor["monitorType"],
+                included_metrics=frozenset(_get_monitor_metrics(monitor, included=True)),
+                nonincluded_metrics=frozenset(_get_monitor_metrics(monitor, included=False)),
+                dims=frozenset(_get_monitor_dims(doc)),
+            )
 
 
 def _find_monitor(monitors, mon_type):

@@ -1,14 +1,14 @@
 from functools import partial as p
 from textwrap import dedent
-import pytest
 
-from tests.helpers.assertions import has_datapoint_with_dim, http_status, has_log_message, any_metric_has_any_dim_key
-from tests.helpers.metadata import get_metadata
-from tests.helpers.util import run_service, run_agent, container_ip, wait_for
+import pytest
+from tests.helpers.assertions import any_metric_has_any_dim_key, has_datapoint_with_dim, has_log_message, http_status
+from tests.helpers.metadata import Metadata
+from tests.helpers.util import container_ip, run_agent, run_service, wait_for
 
 pytestmark = [pytest.mark.collectd, pytest.mark.elasticsearch, pytest.mark.monitor_with_endpoints]
 
-METADATA = get_metadata("elasticsearch")
+METADATA = Metadata.from_package("elasticsearch")
 
 
 @pytest.mark.flaky(reruns=2)

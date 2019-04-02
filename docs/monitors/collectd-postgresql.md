@@ -2,6 +2,8 @@
 
 # collectd/postgresql
 
+**This monitor is deprecated in favor of the [postgresql monitor](./postgresql.md).**
+
 Monitors a PostgreSQL database server using collectd's
 [PostgreSQL plugin](https://collectd.org/wiki/index.php/Plugin:PostgreSQL).
 

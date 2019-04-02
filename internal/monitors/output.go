@@ -17,8 +17,7 @@ type monitorOutput struct {
 	monitorID                 types.MonitorID
 	notHostSpecific           bool
 	disableEndpointDimensions bool
-	oldFilter                 *dpfilters.FilterSet
-	newFilter                 *dpfilters.FilterSet
+	filterSet                 *dpfilters.FilterSet
 	configHash                uint64
 	endpoint                  services.Endpoint
 	dpChan                    chan<- *datapoint.Datapoint
@@ -30,14 +29,15 @@ type monitorOutput struct {
 
 var _ types.Output = &monitorOutput{}
 
-func (mo *monitorOutput) SendDatapoint(dp *datapoint.Datapoint) {
-	if mo.oldFilter != nil && mo.oldFilter.Matches(dp) {
-		return
-	}
-	if mo.newFilter != nil && mo.newFilter.Matches(dp) {
-		return
-	}
+// Copy the output so that you can attach a different set of dimensions to it.
+func (mo *monitorOutput) Copy() types.Output {
+	o := *mo
+	o.extraDims = utils.CloneStringMap(mo.extraDims)
+	o.filterSet = &(*mo.filterSet)
+	return &o
+}
 
+func (mo *monitorOutput) SendDatapoint(dp *datapoint.Datapoint) {
 	if dp.Meta == nil {
 		dp.Meta = make(map[interface{}]interface{})
 	}
@@ -56,6 +56,11 @@ func (mo *monitorOutput) SendDatapoint(dp *datapoint.Datapoint) {
 	}
 
 	dp.Dimensions = utils.MergeStringMaps(dp.Dimensions, mo.extraDims, endpointDims)
+	// Defer filtering until here so we have the full dimension set to match
+	// on.
+	if mo.filterSet.Matches(dp) {
+		return
+	}
 
 	mo.dpChan <- dp
 }
@@ -92,4 +97,10 @@ func (mo *monitorOutput) AddExtraDimension(key, value string) {
 // This method is not thread-safe!
 func (mo *monitorOutput) RemoveExtraDimension(key string) {
 	delete(mo.extraDims, key)
+}
+
+// AddDatapointExclusionFilter to the monitor's filter set.  Make sure you do this
+// before any datapoints are sent as it is not thread-safe with SendDatapoint.
+func (mo *monitorOutput) AddDatapointExclusionFilter(filter dpfilters.DatapointFilter) {
+	mo.filterSet.ExcludeFilters = append(mo.filterSet.ExcludeFilters, filter)
 }
