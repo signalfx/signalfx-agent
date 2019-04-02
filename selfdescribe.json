@@ -3156,7 +3156,7 @@
       "monitorType": "collectd/elasticsearch",
       "sendAll": false,
       "dimensions": null,
-      "doc": "Monitors ElasticSearch instances.\n\nSee https://github.com/signalfx/collectd-elasticsearch and\nhttps://github.com/signalfx/integrations/tree/master/collectd-elasticsearch\n",
+      "doc": "Monitors ElasticSearch instances. We strongly recommend using the\n[elasticsearch](./elasticsearch.md) monitor instead, as it will\nscale much better.\n\nSee https://github.com/signalfx/collectd-elasticsearch and\nhttps://github.com/signalfx/integrations/tree/master/collectd-elasticsearch\n",
       "groups": null,
       "metrics": [
         {
@@ -14035,6 +14035,1348 @@
       "singleInstance": false
     },
     {
+      "monitorType": "elasticsearch",
+      "sendAll": false,
+      "dimensions": [
+        {
+          "name": "plugin_instance",
+          "description": "Name of the Elasticsearch cluster. For compatibility with collectd/elasticsearch built-in content"
+        },
+        {
+          "name": "cluster",
+          "description": "Name of Elasticsearch the cluster."
+        },
+        {
+          "name": "node_id",
+          "description": "ID of a Elasticsearch node (only on node mertics)"
+        },
+        {
+          "name": "node_name",
+          "description": "Human readable name of a node (only on node mertics)"
+        },
+        {
+          "name": "thread_pool",
+          "description": "Name of thread pool (only on thread pool mertics)"
+        },
+        {
+          "name": "index",
+          "description": "Name of index (only on per index mertics)"
+        },
+        {
+          "name": "aggregation",
+          "description": "Aggregation of index metrics. Whether the value of the metric is from the primary shard only or across all shards. Valid values - primaries, total respectively (only on index stats)"
+        }
+      ],
+      "doc": "\nMONITOR(elasticsearch): This monitor collects stats from Elasticsearch. It collects node,\ncluster and index level stats. This monitor is compatible with the current collectd plugin\nfound [here] (https://github.com/signalfx/collectd-elasticsearch) in terms of metric naming.\n\nThis monitor collects cluster level and index level stats only from the current master\nin an Elasticsearch cluster by default. It is possible to override this with the\n`clusterHealthStatsMasterOnly` and `indexStatsMasterOnly` config options respectively.\n\nA simple configuration that collects only default metrics looks like the following\n\n```\nmonitors:\n- type: elasticsearch\n host: localhost\n port: 9200\n```\n\nBy default thread pool stats from \"search\" and \"index\" thread pools are collected. To collect\nstats from other thread pools follow the below pattern.\n\n```\nmonitors:\n- type: elasticsearch\n host: localhost\n port: 9200\n threadPools:\n\t- bulk\n\t- warmer\n\t- listener\n```\nThe monitor collects a subset of node stats of JVM, process, HTTP, transport, indices and thread\npool stats. It is possible to enable enhanced stats for each group separately. Here's an example:\n\n```\nmonitors:\n- type: elasticsearch\n host: localhost\n port: 9200\n enableEnhancedHTTPStats: true\n enableEnhancedJVMStats: true\n enableEnhancedProcessStats: true\n enableEnhancedThreadPoolStats: true\n enableEnhancedTransportStats: true\n enableEnhancedNodeIndicesStats:\n\t- indexing\n\t- warmer\n - get\n```\n\nThe `enableEnhancedNodeIndicesStats` option takes a list of index stats groups for which enhanced\nstats will be collected. A comprehensive list of all available such groups can be found\n[here] (https://www.elastic.co/guide/en/elasticsearch/reference/current/cluster-nodes-stats.html#node-indices-stats).\n\nNote that the `enableEnhancedIndexStatsForIndexGroups` is similar to `enableEnhancedNodeIndicesStats`,\nbut for index level stats\n\nBy default the monitor collects a subset of index stats of total aggregation type (see docs for details).\nIt is possible to enable index stats of primaries aggregation type too. Total for an index stat\naggregates across all shards. Whereas, Primaries only reflect the stats from primary shards. An example\nconfiguration to enable index stats from Primary shards too\n\n```\nmonitors:\n- type: elasticsearch\n host: localhost\n port: 9200\n enableIndexStatsPrimaries: true\n```\n\nIt is possible to collect index level stats that are aggregated across all indexes, rather than one a per index level\n\n```\nmonitors:\n- type: elasticsearch\n host: localhost\n port: 9200\n IndexSummaryOnly: true\n```\n",
+      "groups": null,
+      "metrics": [
+        {
+          "name": "elasticsearch.cluster.initializing-shards",
+          "type": "gauge",
+          "description": "Number of shards being initialized",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "elasticsearch.cluster.pending-tasks",
+          "type": "gauge",
+          "description": "Number of pending tasks",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "elasticsearch.cluster.number-of-nodes",
+          "type": "gauge",
+          "description": "Number of nodes",
+          "group": null,
+          "included": true
+        },
+        {
+          "name": "elasticsearch.cluster.task-max-wait-time",
+          "type": "gauge",
+          "description": "Max time a task has to wait",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "elasticsearch.cluster.delayed-unassigned-shards",
+          "type": "gauge",
+          "description": "Number of delayed unassigned shards",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "elasticsearch.cluster.active-shards",
+          "type": "gauge",
+          "description": "Number of active shards",
+          "group": null,
+          "included": true
+        },
+        {
+          "name": "elasticsearch.cluster.in-flight-fetches",
+          "type": "gauge",
+          "description": "Number of fetches in-flight",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "elasticsearch.cluster.unassigned-shards",
+          "type": "gauge",
+          "description": "Number of unassigned shards",
+          "group": null,
+          "included": true
+        },
+        {
+          "name": "elasticsearch.cluster.number-of-data_nodes",
+          "type": "gauge",
+          "description": "Number of data nodes",
+          "group": null,
+          "included": true
+        },
+        {
+          "name": "elasticsearch.cluster.active-primary-shards",
+          "type": "gauge",
+          "description": "Number of active primary shards",
+          "group": null,
+          "included": true
+        },
+        {
+          "name": "elasticsearch.cluster.active-shards-percent",
+          "type": "gauge",
+          "description": "Percentaage of shards active",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "elasticsearch.cluster.status",
+          "type": "gauge",
+          "description": "Cluster stats (0, 1, 2 for green, yellow and red respectively)",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "elasticsearch.cluster.relocating-shards",
+          "type": "gauge",
+          "description": "Number of shards being relocated",
+          "group": null,
+          "included": true
+        },
+        {
+          "name": "elasticsearch.jvm.mem.pools.old.peak_max_in_bytes",
+          "type": "gauge",
+          "description": "Memory pool Old Gen peak max (in bytes)",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "elasticsearch.jvm.mem.buffer_pools.direct.count",
+          "type": "gauge",
+          "description": "Number of direct buffer pools",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "elasticsearch.jvm.mem.pools.young.max_in_bytes",
+          "type": "gauge",
+          "description": "Max memory (in bytes) that can be used by Young Gen",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "elasticsearch.jvm.classes.current-loaded-count",
+          "type": "gauge",
+          "description": "Number of classes currently loaded",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "elasticsearch.jvm.threads.peak",
+          "type": "gauge",
+          "description": "Peak number of threads used",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "elasticsearch.jvm.classes.total-unloaded-count",
+          "type": "counter",
+          "description": "Total number of classes unloaded",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "elasticsearch.jvm.uptime",
+          "type": "counter",
+          "description": "Uptime of JVM",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "elasticsearch.jvm.mem.pools.young.used_in_bytes",
+          "type": "gauge",
+          "description": "Memory used by Young Gen (in bytes)",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "elasticsearch.jvm.mem.heap-used-percent",
+          "type": "gauge",
+          "description": "Percent of heap being used",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "elasticsearch.jvm.mem.buffer_pools.direct.total_capacity_in_bytes",
+          "type": "gauge",
+          "description": "Total capacity of direct buffer pools",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "elasticsearch.jvm.gc.time",
+          "type": "counter",
+          "description": "Total time spent on GC",
+          "group": null,
+          "included": true
+        },
+        {
+          "name": "elasticsearch.jvm.classes.total-loaded-count",
+          "type": "counter",
+          "description": "Number of classes loaded",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "elasticsearch.jvm.mem.pools.young.peak_used_in_bytes",
+          "type": "gauge",
+          "description": "Memory pool Young Gen peak used (in bytes)",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "elasticsearch.jvm.mem.pools.old.max_in_bytes",
+          "type": "gauge",
+          "description": "Memory used by Old Gen (in bytes)",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "elasticsearch.jvm.mem.pools.young.peak_max_in_bytes",
+          "type": "gauge",
+          "description": "Memory pool Young Gen peak max (in bytes)",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "elasticsearch.jvm.mem.heap-used",
+          "type": "gauge",
+          "description": "Memory current being used by JVM heap (in bytes)",
+          "group": null,
+          "included": true
+        },
+        {
+          "name": "elasticsearch.jvm.mem.buffer_pools.direct.used_in_bytes",
+          "type": "gauge",
+          "description": "Memory used by direct buffer pools (in bytes)",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "elasticsearch.jvm.mem.buffer_pools.mapped.used_in_bytes",
+          "type": "gauge",
+          "description": "Memory used by mapped buffer pools (in bytes)",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "elasticsearch.jvm.mem.non-heap-used",
+          "type": "gauge",
+          "description": "Memory current being used by JVM non-heap (in bytes)",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "elasticsearch.jvm.mem.heap-max",
+          "type": "gauge",
+          "description": "Max memory that can be used by JVM heap (in bytes)",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "elasticsearch.jvm.mem.pools.survivor.peak_used_in_bytes",
+          "type": "gauge",
+          "description": "Peak memory used by Survivor space (in bytes)",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "elasticsearch.jvm.mem.pools.old.peak_used_in_bytes",
+          "type": "gauge",
+          "description": "Peak memory used by Old Gen (in bytes)",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "elasticsearch.jvm.mem.non-heap-committed",
+          "type": "gauge",
+          "description": "Memory guaranteed to be available to JVM non-heap",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "elasticsearch.jvm.mem.pools.survivor.peak_max_in_bytes",
+          "type": "gauge",
+          "description": "Memory used by Survivor space (in bytes)",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "elasticsearch.jvm.mem.buffer_pools.mapped.count",
+          "type": "gauge",
+          "description": "Number of buffers in the mapped pool",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "elasticsearch.jvm.mem.pools.old.used_in_bytes",
+          "type": "gauge",
+          "description": "Memory being used by Old Gen (in bytes)",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "elasticsearch.jvm.mem.pools.survivor.max_in_bytes",
+          "type": "gauge",
+          "description": "Max memory that can be used by Survivor space (in bytes)",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "elasticsearch.jvm.gc.old-count",
+          "type": "counter",
+          "description": "Total number of garbage collections on Old Gen",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "elasticsearch.jvm.mem.pools.survivor.used_in_bytes",
+          "type": "gauge",
+          "description": "Memory being used currently by Survivor space (in bytes)",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "elasticsearch.jvm.gc.count",
+          "type": "counter",
+          "description": "Total number of garbage collections",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "elasticsearch.jvm.gc.old-time",
+          "type": "counter",
+          "description": "Total time spent in garbage collections on Old Gen",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "elasticsearch.jvm.mem.heap-committed",
+          "type": "gauge",
+          "description": "Memory guaranteed to be available to JVM heap",
+          "group": null,
+          "included": true
+        },
+        {
+          "name": "elasticsearch.jvm.threads.count",
+          "type": "gauge",
+          "description": "Number of active threads in the JVM",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "elasticsearch.jvm.mem.buffer_pools.mapped.total_capacity_in_bytes",
+          "type": "gauge",
+          "description": "Total capacity of the buffers in the mapped pool",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "elasticsearch.process.max_file_descriptors",
+          "type": "gauge",
+          "description": "Number of opened file descriptors associated with the current process",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "elasticsearch.process.mem.total-virtual-size",
+          "type": "counter",
+          "description": "Size in bytes of virtual memory that is guaranteed to be available to the running process",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "elasticsearch.process.cpu.percent",
+          "type": "gauge",
+          "description": "CPU usage in percent",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "elasticsearch.process.cpu.time",
+          "type": "counter",
+          "description": "CPU time (in milliseconds) used by the process on which the Java virtual machine is running",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "elasticsearch.process.open_file_descriptors",
+          "type": "gauge",
+          "description": "Number of currently open file descriptors",
+          "group": null,
+          "included": true
+        },
+        {
+          "name": "elasticsearch.http.total_open",
+          "type": "counter",
+          "description": "Total number of opened HTTP connections",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "elasticsearch.http.current_open",
+          "type": "gauge",
+          "description": "Number of currently open HTTP connections",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "elasticsearch.transport.server_open",
+          "type": "gauge",
+          "description": "Total number of connections opened for cluster communication",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "elasticsearch.transport.rx.count",
+          "type": "counter",
+          "description": "Total size of data received in cluster communication (in bytes)",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "elasticsearch.thread_pool.queue",
+          "type": "gauge",
+          "description": "Number of Tasks in thread pool",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "elasticsearch.thread_pool.completed",
+          "type": "counter",
+          "description": "Number of threads completed in thread pool",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "elasticsearch.thread_pool.threads",
+          "type": "counter",
+          "description": "Number of Threads in thread pool",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "elasticsearch.thread_pool.active",
+          "type": "gauge",
+          "description": "Number of active threads",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "elasticsearch.thread_pool.rejected",
+          "type": "counter",
+          "description": "Number of rejected threads in thread pool",
+          "group": null,
+          "included": true
+        },
+        {
+          "name": "elasticsearch.indices.merges.current",
+          "type": "gauge",
+          "description": "Number of currently active segment merges",
+          "group": null,
+          "included": true
+        },
+        {
+          "name": "elasticsearch.thread_pool.largest",
+          "type": "gauge",
+          "description": "Highest active threads in thread pool",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "elasticsearch.indices.query-cache.miss-count",
+          "type": "counter",
+          "description": "Number of query cache misses",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "elasticsearch.indices.refresh.time",
+          "type": "counter",
+          "description": "Total time spent on index refreshes",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "elasticsearch.indices.refresh.total",
+          "type": "counter",
+          "description": "Number of index refreshes",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "elasticsearch.indices.request-cache.evictions",
+          "type": "counter",
+          "description": "Number of request cache evictions",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "elasticsearch.indices.search.fetch-time",
+          "type": "counter",
+          "description": "Total time spent on query fetches",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "elasticsearch.indices.merges.stopped-time",
+          "type": "counter",
+          "description": "Total time merges were stopped for",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "elasticsearch.indices.translog.uncommitted_size_in_bytes",
+          "type": "gauge",
+          "description": "Size of uncommitted transaction logs (in bytes)",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "elasticsearch.transport.tx.count",
+          "type": "counter",
+          "description": "Total number of packets sent in cluster communication",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "elasticsearch.indices.filter-cache.evictions",
+          "type": "counter",
+          "description": "Number of evicttions from filter cache",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "elasticsearch.indices.indexing.delete-time",
+          "type": "counter",
+          "description": "Time spent deleting documents from an index",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "elasticsearch.indices.completion.size",
+          "type": "gauge",
+          "description": "Size used by suggest completion (in bytes)",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "elasticsearch.indices.recovery.current-as-target",
+          "type": "gauge",
+          "description": "Number of ongoing recoveries for which a shard serves as a target",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "elasticsearch.indices.refresh.listeners",
+          "type": "gauge",
+          "description": "Number of listeners waiting for a refresh",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "elasticsearch.indices.segments.count",
+          "type": "gauge",
+          "description": "Number of segments in an index shard",
+          "group": null,
+          "included": true
+        },
+        {
+          "name": "elasticsearch.indices.search.query-time",
+          "type": "counter",
+          "description": "Total time spent querying on the primary",
+          "group": null,
+          "included": true
+        },
+        {
+          "name": "elasticsearch.indices.segments.version-map-memory",
+          "type": "gauge",
+          "description": "Memory used by segment version map (in bytes)",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "elasticsearch.indices.search.suggest-current",
+          "type": "gauge",
+          "description": "Number of suggest requests currently active",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "elasticsearch.indices.indexing.delete-total",
+          "type": "counter",
+          "description": "Number of documents deleted from an index",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "elasticsearch.indices.recovery.throttle-time",
+          "type": "counter",
+          "description": "Total time recoveries waited due to throttling",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "elasticsearch.transport.rx.size",
+          "type": "counter",
+          "description": "Total size of data received in cluster communication",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "elasticsearch.transport.tx.size",
+          "type": "counter",
+          "description": "Total size of data sent in cluster communication",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "elasticsearch.indices.merges.throttle-time",
+          "type": "counter",
+          "description": "Total time merges spent waiting due to throttling",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "elasticsearch.indices.indexing.delete-current",
+          "type": "gauge",
+          "description": "Number of documents currently being deleted from an index",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "elasticsearch.indices.flush.total",
+          "type": "counter",
+          "description": "Number of index flushes to disk",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "elasticsearch.indices.merges.current-size",
+          "type": "gauge",
+          "description": "Size of the segments currently being merged",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "elasticsearch.indices.id-cache.memory-size",
+          "type": "gauge",
+          "description": "Size of id cache (in bytes)",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "elasticsearch.indices.query-cache.memory-size",
+          "type": "gauge",
+          "description": "Size of query cache (in bytes)",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "elasticsearch.indices.fielddata.evictions",
+          "type": "counter",
+          "description": "Number of evictions from fielddata cache",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "elasticsearch.indices.percolate.queries",
+          "type": "counter",
+          "description": "Number of percolator queries",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "elasticsearch.indices.warmer.total-time",
+          "type": "counter",
+          "description": "Total time spent by warmers",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "elasticsearch.indices.indexing.index-current",
+          "type": "gauge",
+          "description": "Number of documents currently being indexed to an index",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "elasticsearch.indices.query-cache.evictions",
+          "type": "counter",
+          "description": "Number of query cache evictions",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "elasticsearch.indices.query-cache.total-count",
+          "type": "counter",
+          "description": "Total number of items in the query cache",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "elasticsearch.indices.docs.count",
+          "type": "gauge",
+          "description": "Number of docs",
+          "group": null,
+          "included": true
+        },
+        {
+          "name": "elasticsearch.indices.translog.operations",
+          "type": "gauge",
+          "description": "Number of operations in the transaction log",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "elasticsearch.indices.percolate.current",
+          "type": "gauge",
+          "description": "Number of percolator queries currently running",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "elasticsearch.indices.search.query-total",
+          "type": "counter",
+          "description": "Total number of queries",
+          "group": null,
+          "included": true
+        },
+        {
+          "name": "elasticsearch.indices.get.time",
+          "type": "counter",
+          "description": "Time spent on get requests",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "elasticsearch.indices.indexing.index-total",
+          "type": "counter",
+          "description": "Total number of documents indexed to an index",
+          "group": null,
+          "included": true
+        },
+        {
+          "name": "elasticsearch.indices.filter-cache.memory-size",
+          "type": "gauge",
+          "description": "Filter cache size (in bytes)",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "elasticsearch.indices.get.total",
+          "type": "counter",
+          "description": "Total number of get requests",
+          "group": null,
+          "included": true
+        },
+        {
+          "name": "elasticsearch.indices.warmer.total",
+          "type": "counter",
+          "description": "Total number of warmers",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "elasticsearch.indices.docs.deleted",
+          "type": "gauge",
+          "description": "Number of docs deleted",
+          "group": null,
+          "included": true
+        },
+        {
+          "name": "elasticsearch.indices.get.exists-total",
+          "type": "counter",
+          "description": "Number of get requests where the document existed",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "elasticsearch.indices.search.scroll-total",
+          "type": "counter",
+          "description": "Total number of scroll queries",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "elasticsearch.indices.request-cache.memory-size",
+          "type": "gauge",
+          "description": "Memory used by request cache (in bytes)",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "elasticsearch.indices.suggest.time",
+          "type": "counter",
+          "description": "Total time spent in suggest requests",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "elasticsearch.indices.warmer.current",
+          "type": "gauge",
+          "description": "Number of currently active warmers",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "elasticsearch.indices.indexing.index-time",
+          "type": "counter",
+          "description": "Time spent indexing documents to an index",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "elasticsearch.indices.translog.uncommitted_operations",
+          "type": "gauge",
+          "description": "Number of uncommitted operations in the transaction log",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "elasticsearch.indices.segments.index-writer-max-size",
+          "type": "gauge",
+          "description": "Maximum memory used by the index writer",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "elasticsearch.indices.get.exists-time",
+          "type": "counter",
+          "description": "Time spent on get requests where the document existed",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "elasticsearch.indices.segments.size",
+          "type": "gauge",
+          "description": "Memory used by index segments (in bytes)",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "elasticsearch.indices.request-cache.miss-count",
+          "type": "counter",
+          "description": "Number of request cache misses",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "elasticsearch.indices.search.query-current",
+          "type": "gauge",
+          "description": "Number of currently active queries",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "elasticsearch.indices.merges.auto-throttle-size",
+          "type": "counter",
+          "description": "Merging throttled due to auto-throttling (in bytes)",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "elasticsearch.indices.get.missing-total",
+          "type": "counter",
+          "description": "Number of get requests where the document was missing",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "elasticsearch.indices.recovery.current-as-source",
+          "type": "gauge",
+          "description": "Number of ongoing recoveries for which a shard serves as a source",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "elasticsearch.indices.segments.term-vectors-memory-size",
+          "type": "gauge",
+          "description": "Memory used by term vectors (in bytes)",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "elasticsearch.indices.segments.stored-field-memory-size",
+          "type": "gauge",
+          "description": "Memory used by stored fields (in bytes)",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "elasticsearch.indices.store.throttle-time",
+          "type": "counter",
+          "description": "Total time requests are throttled for",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "elasticsearch.indices.request-cache.hit-count",
+          "type": "counter",
+          "description": "Number of request cache hits",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "elasticsearch.indices.query-cache.cache-count",
+          "type": "gauge",
+          "description": "Number of items in query cache",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "elasticsearch.indices.suggest.total",
+          "type": "counter",
+          "description": "Total number of suggest requests",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "elasticsearch.indices.query-cache.cache-size",
+          "type": "gauge",
+          "description": "Size of query cache (in bytes)",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "elasticsearch.indices.segments.points-memory-size",
+          "type": "gauge",
+          "description": "Memory used by points",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "elasticsearch.indices.store.size",
+          "type": "gauge",
+          "description": "Total size (in bytes)",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "elasticsearch.indices.search.fetch-current",
+          "type": "gauge",
+          "description": "Number of query fetches currently running",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "elasticsearch.indices.merges.total",
+          "type": "counter",
+          "description": "Number of segment merges",
+          "group": null,
+          "included": true
+        },
+        {
+          "name": "elasticsearch.indices.translog.size",
+          "type": "gauge",
+          "description": "Size of the transaction log",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "elasticsearch.indices.segments.index-writer-size",
+          "type": "gauge",
+          "description": "Memory used by the index writer",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "elasticsearch.indices.percolate.total",
+          "type": "counter",
+          "description": "Total number of suggest requests",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "elasticsearch.indices.suggest.current",
+          "type": "gauge",
+          "description": "Number of currently active suggest requests",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "elasticsearch.indices.segments.norms-memory-size",
+          "type": "gauge",
+          "description": "Memory used by norms (in bytes)",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "elasticsearch.indices.search.suggest-total",
+          "type": "counter",
+          "description": "Total number of suggest requests",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "elasticsearch.indices.search.scroll-time",
+          "type": "counter",
+          "description": "Total time spent on scroll queries",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "elasticsearch.indices.percolate.time",
+          "type": "counter",
+          "description": "Total time spent on percolate requests",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "elasticsearch.indices.fielddata.memory-size",
+          "type": "gauge",
+          "description": "Size of fielddata cache (in bytes)",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "elasticsearch.indices.query-cache.hit-count",
+          "type": "counter",
+          "description": "Number of query cache hits",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "elasticsearch.indices.segments.terms-memory-size",
+          "type": "gauge",
+          "description": "Memory used by terms (in bytes)",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "elasticsearch.indices.segments.doc-values-memory-size",
+          "type": "gauge",
+          "description": "Memory used by doc values",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "elasticsearch.indices.get.missing-time",
+          "type": "counter",
+          "description": "Time spent on get requests where the document was missing",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "elasticsearch.indices.translog.earliest_last_modified_age",
+          "type": "gauge",
+          "description": "Earliest last modified age on transaction logs",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "elasticsearch.indices.merges.total-size",
+          "type": "counter",
+          "description": "Total size of merged segments",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "elasticsearch.indices.search.fetch-total",
+          "type": "counter",
+          "description": "Total number of query feches",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "elasticsearch.indices.flush.time",
+          "type": "counter",
+          "description": "Time spent flushing the index to disk",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "elasticsearch.indices.get.current",
+          "type": "gauge",
+          "description": "Number of get requests running",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "elasticsearch.indices.search.suggest-time",
+          "type": "counter",
+          "description": "Total time spent on search suggest",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "elasticsearch.indices.merges.total-docs",
+          "type": "counter",
+          "description": "Number of merged docs across merged segments",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "elasticsearch.indices.merges.time",
+          "type": "counter",
+          "description": "Total time spent on merging",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "elasticsearch.indices.flush.periodic",
+          "type": "gauge",
+          "description": "How long to wait before triggering a flush regardless of translog size",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "elasticsearch.indices.search.scroll-current",
+          "type": "gauge",
+          "description": "Currently active scroll queries count",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "elasticsearch.indices.segments.fixed-bit-set-memory-size",
+          "type": "gauge",
+          "description": "Memory used by fixed bit set",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "elasticsearch.indices.merges.current-docs",
+          "type": "gauge",
+          "description": "Number of docs currently being merged",
+          "group": null,
+          "included": false
+        }
+      ],
+      "properties": null,
+      "config": {
+        "name": "Config",
+        "doc": "Config for this monitor",
+        "package": "internal/monitors/elasticsearch",
+        "fields": [
+          {
+            "yamlName": "host",
+            "doc": "",
+            "default": null,
+            "required": true,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "port",
+            "doc": "",
+            "default": null,
+            "required": true,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "username",
+            "doc": "Username used to access Elasticsearch stats API",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "password",
+            "doc": "Password used to access Elasticsearch stats API",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "useHTTPS",
+            "doc": "Whether to use https or not",
+            "default": false,
+            "required": false,
+            "type": "bool",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "cluster",
+            "doc": "Cluster name to which the node belongs. This is an optional config that will override the cluster name fetched from a node and will be used to populate the plugin_instance dimension",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "enableClusterHealth",
+            "doc": "EnableClusterHealth enables reporting on the cluster health",
+            "default": true,
+            "required": false,
+            "type": "bool",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "clusterHealthStatsMasterOnly",
+            "doc": "Whether or not non master nodes should report cluster health",
+            "default": true,
+            "required": false,
+            "type": "bool",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "enableEnhancedHTTPStats",
+            "doc": "Enable enhanced HTTP stats",
+            "default": false,
+            "required": false,
+            "type": "bool",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "enableEnhancedJVMStats",
+            "doc": "Enable enhanced JVM stats",
+            "default": false,
+            "required": false,
+            "type": "bool",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "enableEnhancedProcessStats",
+            "doc": "Enable enhanced Process stats",
+            "default": false,
+            "required": false,
+            "type": "bool",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "enableEnhancedThreadPoolStats",
+            "doc": "Enable enhanced ThreadPool stats",
+            "default": false,
+            "required": false,
+            "type": "bool",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "enableEnhancedTransportStats",
+            "doc": "Enable enhanced Transport stats",
+            "default": false,
+            "required": false,
+            "type": "bool",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "enableEnhancedNodeIndicesStats",
+            "doc": "Enable enhanced node level index stats groups. A list of index stats groups for which to collect enhanced stats",
+            "default": null,
+            "required": false,
+            "type": "slice",
+            "elementKind": "string"
+          },
+          {
+            "yamlName": "threadPools",
+            "doc": "ThreadPools to report threadpool node stats on",
+            "default": [
+              "search",
+              "index"
+            ],
+            "required": false,
+            "type": "slice",
+            "elementKind": "string"
+          },
+          {
+            "yamlName": "enableEnhancedClusterHealthStats",
+            "doc": "Enable Cluster level stats. These stats report only from master Elasticserach nodes",
+            "default": false,
+            "required": false,
+            "type": "bool",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "indexStatsIntervalSeconds",
+            "doc": "Interval to report IndexStats on",
+            "default": 60,
+            "required": false,
+            "type": "int",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "indexSummaryOnly",
+            "doc": "Collect only aggregated index stats across all indexes",
+            "default": false,
+            "required": false,
+            "type": "bool",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "indexStatsMasterOnly",
+            "doc": "Collect index stats only from Master node",
+            "default": true,
+            "required": false,
+            "type": "bool",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "enableIndexStats",
+            "doc": "Enable Index stats. If set to true, by default the a subset of index stats will be collected (see docs for list of default index metrics collected).",
+            "default": true,
+            "required": false,
+            "type": "bool",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "indexes",
+            "doc": "Indexes to collect stats from (by default stats from all indexes are collected)",
+            "default": null,
+            "required": false,
+            "type": "slice",
+            "elementKind": "string"
+          },
+          {
+            "yamlName": "enableEnhancedIndexStatsForIndexGroups",
+            "doc": "Enable enhanced index level index stats groups. A list of index stats groups for which to collect enhanced stats",
+            "default": null,
+            "required": false,
+            "type": "slice",
+            "elementKind": "string"
+          },
+          {
+            "yamlName": "enableIndexStatsPrimaries",
+            "doc": "To enable index stats from only primary shards. By default the index stats collected are aggregated across all shards",
+            "default": false,
+            "required": false,
+            "type": "bool",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "metadataRefreshIntervalSeconds",
+            "doc": "How often to refresh metadata about the node and cluster",
+            "default": 30,
+            "required": false,
+            "type": "int",
+            "elementKind": ""
+          }
+        ]
+      },
+      "acceptsEndpoints": true,
+      "singleInstance": false
+    },
+    {
       "monitorType": "expvar",
       "sendAll": false,
       "dimensions": null,
@@ -22616,6 +23958,64 @@
             "required": false,
             "type": "bool",
             "elementKind": ""
+          }
+        ]
+      },
+      "acceptsEndpoints": true,
+      "singleInstance": false
+    },
+    {
+      "monitorType": "python-monitor",
+      "sendAll": false,
+      "dimensions": null,
+      "doc": "This monitor allows you to generate metrics from a Python script.\n\nYour Python code should be Python 2.7+ *AND* 3.0+ compatible.  The Python\nruntime bundled with the agent is currently version 2.7 but this could be\nupgraded at anytime to Python 3.  If you want to use Python 3 at this time,\nyou can specify a custom Python binary with the `pythonBinary` config\noption.\n\n## Module Loading\nThe full file path to the Python script that you want to run should be\nspecified in the `scriptFilePath` config option.  This file will be loaded in\nPython by adding the directory containing the file to the front of the Python\npath (`sys.path`) and then dynamically importing the file as a module.  For\na hypothetical script at `/opt/scripts/mymonitor.py`, this is roughly\nequivalent to the following Python code:\n\n```\nimport sys\nsys.path.insert(0, \"/opt/scripts\")\n\nimport mymodule\n```\n\nThere are two ways you can implement a monitor in Python, a simple way or a\ncomplex, but more powerful way.  \n\n## Simple monitor \nThe simple way is to write a script that has a `run` function in it.  This\nfunction should accept two parameters: `config` and `output`.  The `run`\nfunction will be called on a regular interval, specified by the common\n`intervalSeconds` config option on the monitor config.\n\nHere is [an example of a simple monitor](https://github.com/signalfx/signalfx-agent/tree/master/python/sample/monitor_simple.py).\n\n## Complex monitor\n\nIf you need more power and flexibility in defining your monitor, you can\nuse the complex monitor format.  With this, you define a class called\n`Monitor` in a Python module. Here is [a documented example of a complex\nmonitor](https://github.com/signalfx/signalfx-agent/tree/master/python/sample/monitor_complex.py).\n\n## Auto-discovery\n\nThis monitor works with auto-discovery just like other monitors.  If you\nset a `discoveryRule` on the monitor config, a new instance of the monitor\nwill be created for each matching endpoint and the `host` and `port` config\nfields will be populated with the appropriate values and passed to the\nPython script in the `config` dictionary.\n\n## Example Config\n\nThis shows loading a Python module from the agent repo using a single custom config value (`myconfig`):\n\n```yaml\nmonitors:\n - type: python-monitor\n   # pythonBinary: /usr/bin/python\n   scriptFilePath: /usr/src/signalfx-agent/python/sample/monitor_complex.py\n   myconfig: [1,2,3]\n```\n",
+      "groups": null,
+      "metrics": null,
+      "properties": null,
+      "config": {
+        "name": "Config",
+        "doc": "Config specifies configurations that are specific to the individual python based monitor",
+        "package": "internal/monitors/pyrunner/signalfx",
+        "fields": [
+          {
+            "yamlName": "host",
+            "doc": "Host will be filled in by auto-discovery if this monitor has a discovery rule.",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "port",
+            "doc": "Port will be filled in by auto-discovery if this monitor has a discovery rule.",
+            "default": 0,
+            "required": false,
+            "type": "uint16",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "scriptFilePath",
+            "doc": "Path to the Python script that implements the monitoring logic.",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "pythonBinary",
+            "doc": "By default, the agent will use its bundled Python runtime (version 2.7). If you wish to use a Python runtime that already exists on the system, specify the full path to the `python` binary here, e.g. `/usr/bin/python3`.",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "pythonPath",
+            "doc": "The PYTHONPATH that will be used when importing the script specified at `scriptFilePath`.  The directory of `scriptFilePath` will always be included in the path.",
+            "default": null,
+            "required": false,
+            "type": "slice",
+            "elementKind": "string"
           }
         ]
       },

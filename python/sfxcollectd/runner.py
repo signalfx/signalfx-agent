@@ -50,6 +50,9 @@ class Runner(object):
 
         self.output_writer.send_msg(MSG_TYPE_CONFIGURE_RESULT, {"error": repr(err) if err else None})
 
+        if err:
+            return
+
         self._monitor_proxy.start_reading()
 
         msg = self.input_reader.recv_msg()

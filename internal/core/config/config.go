@@ -177,15 +177,10 @@ func (c *Config) setupEnvironment() {
 		if err != nil {
 			panic("Cannot determine absolute path of executable parent dir " + exePath)
 		}
-		os.Setenv(constants.BundleDirEnvVar, c.BundleDir)
 	}
+	os.Setenv(constants.BundleDirEnvVar, c.BundleDir)
 
 	os.Setenv("JAVA_HOME", filepath.Join(c.BundleDir, "jvm/java-8-openjdk-amd64"))
-	if runtime.GOOS == "windows" {
-		os.Setenv("PYTHONHOME", filepath.Join(c.BundleDir, "python"))
-	} else {
-		os.Setenv("PYTHONHOME", c.BundleDir)
-	}
 	// set the environment variables for gopsutil based on configured values
 	os.Setenv(hostfs.HostProcVar, c.ProcPath)
 	os.Setenv(hostfs.HostEtcVar, c.EtcPath)
@@ -387,3 +382,14 @@ var (
 	EnvReplacer   = strings.NewReplacer(".", "_", "-", "_")
 	configTimeout = 10 * time.Second
 )
+
+// BundlePythonHomeEnvvar returns an envvar string that sets the PYTHONHOME envvar to
+// the bundled Python runtime.  It is in a form that is ready to append to
+// cmd.Env.
+func BundlePythonHomeEnvvar() string {
+	bundleDir := os.Getenv(constants.BundleDirEnvVar)
+	if runtime.GOOS == "windows" {
+		return "PYTHONHOME=" + filepath.Join(bundleDir, "python")
+	}
+	return "PYTHONHOME=" + bundleDir
+}

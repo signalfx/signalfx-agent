@@ -105,18 +105,22 @@ def container_ip(container):
 
 
 @contextmanager
-def run_agent(config_text, debug=True, profile=False, extra_env=None, internal_metrics=False, backend_options=None):
+def run_agent(
+    config_text, debug=True, profile=False, extra_env=None, internal_metrics=False, backend_options=None, with_pid=False
+):
     host = get_unique_localhost()
 
     with fake_backend.start(host, **(backend_options or {})) as fake_services:
         with run_agent_with_fake_backend(
             config_text, fake_services, debug=debug, host=host, profile=profile, extra_env=extra_env
-        ) as [_, get_output, setup_conf, conf]:
+        ) as [get_output, setup_conf, conf, pid]:
             to_yield = [fake_services, get_output, setup_conf]
             if profile:
                 to_yield += [PProfClient(conf["profilingHost"], conf.get("profilingPort", 6060))]
             if internal_metrics:
                 to_yield += [InternalMetricsClient(conf["internalStatusHost"], conf["internalStatusPort"])]
+            if with_pid:
+                to_yield += [pid]
             yield to_yield
 
 
@@ -129,11 +133,12 @@ def run_agent_with_fake_backend(config_text, fake_services, debug=True, host=Non
 
         agent_env = {**os.environ.copy(), **(extra_env or {})}
 
-        with run_subprocess(
-            [AGENT_BIN, "-config", config_path] + (["-debug"] if debug else []), env=agent_env
-        ) as get_output:
+        with run_subprocess([AGENT_BIN, "-config", config_path] + (["-debug"] if debug else []), env=agent_env) as [
+            get_output,
+            pid,
+        ]:
             try:
-                yield [fake_services, get_output, lambda c: render_config(c, config_path, fake_services), conf]
+                yield [get_output, lambda c: render_config(c, config_path, fake_services), conf, pid]
             finally:
                 print("\nAgent output:")
                 print_lines(get_output())
@@ -166,7 +171,7 @@ def run_subprocess(command: List[str], env: Dict[any, any] = None):
     threading.Thread(target=pull_output).start()
 
     try:
-        yield get_output
+        yield [get_output, proc.pid]
     finally:
         proc.terminate()
         proc.wait(15)
@@ -292,8 +297,38 @@ def get_monitor_metrics_from_metadata_yaml(monitor_package_path, mon_type=None):
             )
         for monitor in monitors:
             if monitor["monitorType"] == mon_type:
-                return doc.get("metrics")
+                return monitor.get("metrics")
     return None
+
+
+def get_monitor_default_metrics_list_from_metadata_yaml(monitor_package_path, mon_type=None):
+    metrics = get_monitor_metrics_from_metadata_yaml(monitor_package_path, mon_type)
+    ret = []
+    for metric in metrics:
+        if metric.get("included"):
+            ret.append(metric.get("name"))
+    return ret
+
+
+def get_monitor_dimensions_list_from_metadata_yaml(monitor_package_path, mon_type=None):
+    with open(os.path.join(REPO_ROOT_DIR, monitor_package_path, "metadata.yaml"), "r", encoding="utf-8") as fd:
+        doc = yaml.safe_load(fd.read())
+        out = []
+        if len(doc) == 1:
+            for dim in doc[0].get("dimensions"):
+                out.append(dim.get("name"))
+            return out
+
+        if mon_type is None:
+            raise ValueError(
+                "mon_type kwarg must be provided when there is more than one monitor in a metadata.yaml file"
+            )
+        for monitor in doc:
+            if monitor["monitorType"] == mon_type:
+                for dim in monitor[0].get("dimensions"):
+                    out.append(dim.get("name"))
+                return out
+    return out
 
 
 def get_monitor_dims_from_selfdescribe(monitor, json_path=SELFDESCRIBE_JSON):

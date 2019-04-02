@@ -2,7 +2,9 @@
 
 # collectd/elasticsearch
 
-Monitors ElasticSearch instances.
+Monitors ElasticSearch instances. We strongly recommend using the
+[elasticsearch](./elasticsearch.md) monitor instead, as it will
+scale much better.
 
 See https://github.com/signalfx/collectd-elasticsearch and
 https://github.com/signalfx/integrations/tree/master/collectd-elasticsearch

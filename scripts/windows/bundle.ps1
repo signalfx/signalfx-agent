@@ -78,6 +78,11 @@ function bundle_python_runner($buildDir=".\build") {
     $arguments = "-m", "pip", "install", "-qq", "$bundlePath", "--upgrade"
     $env:PYTHONHOME="$buildDir\python"
     & $python $arguments
+
+	# Install the WMI package on windows as a convenience.
+	$wmiInstallArgs = "-m", "pip", "install", "-qq", "WMI==1.4.9"
+	& $python $wmiInstallArgs
+
     # unset the python home enviornment variable
     Remove-Item Env:\PYTHONHOME
 }

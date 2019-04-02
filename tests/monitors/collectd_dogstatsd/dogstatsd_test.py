@@ -26,12 +26,12 @@ monitors:
 
 
 def test_collectd_dogstatsd():
-    with fake_backend.start() as f_backend:
+    with fake_backend.start() as backend:
         # configure the dogstatsd plugin to send to fake ingest
-        config = DOGSTATSD_CONFIG.substitute(ingestEndpoint=f_backend.ingest_url)
+        config = DOGSTATSD_CONFIG.substitute(ingestEndpoint=backend.ingest_url)
 
         # start the agent with the dogstatsd plugin config
-        with run_agent_with_fake_backend(config, f_backend) as [backend, get_output, _, _]:
+        with run_agent_with_fake_backend(config, backend) as [get_output, _, _, _]:
             # wait until the dogstatsd plugin logs the address and port it is listening on
             assert wait_for(p(regex_search_matches_output, get_output, DOGSTATSD_RE.search))
 

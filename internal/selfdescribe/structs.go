@@ -33,7 +33,7 @@ func getStructMetadata(typ reflect.Type) structMetadata {
 			continue
 		}
 
-		if f.Anonymous {
+		if f.Anonymous && indirectKind(f.Type) == reflect.Struct {
 			nestedSM := getStructMetadata(f.Type)
 			fieldMD = append(fieldMD, nestedSM.Fields...)
 			continue
@@ -41,7 +41,7 @@ func getStructMetadata(typ reflect.Type) structMetadata {
 		}
 
 		yamlName := getYAMLName(f)
-		if (yamlName == "" || yamlName == "-" || strings.HasPrefix(yamlName, "_")) && !isInlinedYAML(f) {
+		if (yamlName == "" || yamlName == "-" || strings.HasPrefix(yamlName, "_")) && (!isInlinedYAML(f) || indirectKind(f.Type) != reflect.Struct) {
 			continue
 		}
 
