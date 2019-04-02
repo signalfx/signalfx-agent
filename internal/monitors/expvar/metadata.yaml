@@ -157,6 +157,7 @@ monitors:
   - name: memstats.heap_sys
     type: gauge
     description: Bytes of heap memory obtained from the OS
+    included: false
   - name: memstats.heap_idle
     type: gauge
     description: Bytes in idle (unused) spans

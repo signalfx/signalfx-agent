@@ -1,3 +1,4 @@
+monitors:
 - monitorType: python-monitor
   doc: |
     This monitor allows you to generate metrics from a Python script.
