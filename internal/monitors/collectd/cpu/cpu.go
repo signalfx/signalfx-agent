@@ -12,17 +12,6 @@ import (
 
 const monitorType = "collectd/cpu"
 
-// MONITOR(collectd/cpu): This monitor collects cpu usage data using the
-// collectd `cpu` plugin.  It aggregates the per-core CPU data into a single
-// metric and sends it to the SignalFx Metadata plugin in collectd, where the
-// raw jiffy counts from the `cpu` plugin are converted to percent utilization
-// (the `cpu.utilization` metric).
-//
-// See https://collectd.org/wiki/index.php/Plugin:CPU
-
-// GAUGE(cpu.utilization): Percentage of total CPU used within the last metric
-// interval cycle.
-
 func init() {
 	monitors.Register(monitorType, func() interface{} {
 		return &Monitor{

@@ -13,13 +13,6 @@ import (
 
 const monitorType = "collectd/docker"
 
-// MONITOR(collectd/docker): Pulls container stats from the Docker Engine.  We
-// strongly recommend using the
-// [docker-container-stats](./docker-container-stats.md) monitor instead, as it
-// will scale to large number of containers much better.
-//
-// See https://github.com/signalfx/docker-collectd-plugin.
-
 func init() {
 	monitors.Register(monitorType, func() interface{} {
 		return &Monitor{

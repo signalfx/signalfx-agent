@@ -15,24 +15,6 @@ import (
 
 const monitorType = "collectd/couchbase"
 
-// MONITOR(collectd/couchbase): Monitors couchbase by using the
-// [couchbase collectd Python
-// plugin](https://github.com/signalfx/collectd-couchbase), which collects
-// metrics from couchbase instances
-//
-// Sample YAML configuration with custom query:
-//
-// ```yaml
-// monitors:
-// - type: collectd/couchbase
-//   host: 127.0.0.1
-//   port: 8091
-//   collectTarget: "NODE"
-//   clusterName: "my-cluster"
-//   username: "user"
-//   password: "password"
-// ```
-
 func init() {
 	monitors.Register(monitorType, func() interface{} {
 		return &Monitor{

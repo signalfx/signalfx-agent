@@ -12,33 +12,6 @@ import (
 
 const monitorType = "collectd/df"
 
-// MONITOR(collectd/df): Tracks free disk space on the host.
-
-// GAUGE(df_complex.free): Free disk space in bytes
-// GAUGE(df_complex.reserved): Reserved disk space in bytes
-// GAUGE(df_complex.used): Used disk space in bytes
-// GAUGE(df_inodes.free): Number of inodes that are free.
-// GAUGE(df_inodes.reserved): Number of inodes reserved for the super user.
-// GAUGE(df_inodes.used): Number of inodes that are used.
-
-// GAUGE(percent_bytes.free): Free disk space on the file system,
-// expressed as a percentage.
-
-// GAUGE(percent_bytes.reserved): Reserved disk space on the filesystem,
-// expressed as a percentage.
-
-// GAUGE(percent_bytes.used): Used disk space on the file system,
-// expressed as a percentage.
-
-// GAUGE(percent_inodes.free): Free inodes on the file system, expressed
-// as a percentage.
-
-// GAUGE(percent_inodes.reserved): Reserved inodes on the file system,
-// expressed as a percentage.
-
-// GAUGE(percent_inodes.used): Used inodes on the file system, expressed
-// as a percentage.
-
 func init() {
 	monitors.Register(monitorType, func() interface{} {
 		return &Monitor{

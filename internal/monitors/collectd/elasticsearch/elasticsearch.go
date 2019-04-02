@@ -12,14 +12,6 @@ import (
 
 const monitorType = "collectd/elasticsearch"
 
-// MONITOR(collectd/elasticsearch): Monitors ElasticSearch instances. We
-// strongly recommend using the
-// [elasticsearch](./elasticsearch.md) monitor instead, as it
-// will scale much better.
-//
-// See https://github.com/signalfx/collectd-elasticsearch and
-// https://github.com/signalfx/integrations/tree/master/collectd-elasticsearch
-
 func init() {
 	monitors.Register(monitorType, func() interface{} {
 		return &Monitor{
