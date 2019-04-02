@@ -19,6 +19,7 @@ CUR_DIR = os.path.abspath(os.path.dirname(__file__))
 NGINX_YAML_PATH = os.path.join(PROJECT_DIR, "tests/monitors/nginx/nginx-k8s.yaml")
 CLUSTERROLEBINDING_YAML_PATH = os.path.join(CUR_DIR, "clusterrolebinding.yaml")
 MONITORS_CONFIG = """
+    - type: host-metadata
     - type: collectd/nginx
       discoveryRule: container_image =~ "nginx" && private_port == 80
       url: "http://{{.Host}}:{{.Port}}/nginx_status"
@@ -108,3 +109,4 @@ def test_helm(minikube, k8s_namespace):
             update_values_yaml(minikube, backend, k8s_namespace)
             install_helm_chart(minikube, k8s_namespace)
             assert wait_for(p(has_datapoint_with_dim, backend, "plugin", "nginx"))
+            assert wait_for(p(has_datapoint_with_dim, backend, "plugin", "signalfx-metadata"))
