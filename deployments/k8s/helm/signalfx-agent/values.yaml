@@ -133,6 +133,21 @@ gatherDockerMetrics: true
 metricsToExclude:
  - {"#from": "/lib/whitelist.json", flatten: true}
 
+
+# The path to the 'etc' directory of the underlying K8s node.  This allows the
+# agent to pull certain metadata about the node, such as the Linux distro
+# version.
+etcPath: /hostfs/etc
+
+# The path to the /proc filesystem of the underlying node.  This allows the
+# agent to pull information about processes running on the node, as well as
+# other system information.
+procPath: /hostfs/proc
+
+# The path to the host filesystem, mounted in the agent container.  This is
+# necessary to get filesystem usage information.
+hostFSPath: /hostfs
+
 # A list of monitor configurations to include in the agent config.  These
 # values correspond exactly to what goes under 'monitors' in the agent config.
 # The following are a set of monitors with discovery rules that should cover
