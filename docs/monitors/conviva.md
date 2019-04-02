@@ -105,7 +105,7 @@ The **nested** `metricConfigs` config object has the following fields:
 | `filters` | no | `list of strings` | Filter names. The default is `All Traffic` filter |
 | `metricLensDimensions` | no | `list of strings` | MetricLens dimension names. The default is names of all MetricLens dimensions of the account |
 | `excludeMetricLensDimensions` | no | `list of strings` | MetricLens dimension names to exclude. |
-| `maxFiltersPerRequest` | no | `integer` | Max number of filters per request. The default is number of filters. Multiple requests if number of filters is more than maxFiltersPerRequest (**default:** `0`) |
+| `maxFiltersPerRequest` | no | `integer` | Max number of filters per request. The default is the number of filters. Multiple requests are made if the number of filters is more than maxFiltersPerRequest (**default:** `0`) |
 
 
 

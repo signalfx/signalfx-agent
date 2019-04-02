@@ -12873,7 +12873,7 @@
                 },
                 {
                   "yamlName": "maxFiltersPerRequest",
-                  "doc": "Max number of filters per request. The default is number of filters. Multiple requests if number of filters is more than maxFiltersPerRequest",
+                  "doc": "Max number of filters per request. The default is the number of filters. Multiple requests are made if the number of filters is more than maxFiltersPerRequest",
                   "default": 0,
                   "required": false,
                   "type": "int",
