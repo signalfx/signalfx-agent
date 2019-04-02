@@ -45,10 +45,6 @@ type PyConfig interface {
 	PythonConfig() *Config
 }
 
-// MONITOR(collectd/python): This monitor runs arbitrary collectd Python
-// plugins directly, apart from collectd.  It implements a mock collectd Python
-// interface that supports most, but not all, of the real collectd.
-
 // Config specifies configurations that are specific to the individual python based monitor
 type Config struct {
 	config.MonitorConfig `yaml:",inline" acceptsEndpoints:"true"`

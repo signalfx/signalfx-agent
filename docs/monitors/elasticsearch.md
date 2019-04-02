@@ -2,10 +2,10 @@
 
 # elasticsearch
 
-
-MONITOR(elasticsearch): This monitor collects stats from Elasticsearch. It collects node,
-cluster and index level stats. This monitor is compatible with the current collectd plugin
-found [here] (https://github.com/signalfx/collectd-elasticsearch) in terms of metric naming.
+This monitor collects stats from Elasticsearch. It collects node, cluster
+and index level stats. This monitor is compatible with the current collectd
+plugin found [here] (https://github.com/signalfx/collectd-elasticsearch) in
+terms of metric naming.
 
 This monitor collects cluster level and index level stats only from the current master
 in an Elasticsearch cluster by default. It is possible to override this with the

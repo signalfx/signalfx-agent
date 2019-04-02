@@ -10,19 +10,6 @@ import (
 
 const monitorType = "disk-io"
 
-// MONITOR(disk-io):
-// This monitor reports I/O metrics about disks.
-//
-// On Linux hosts, this monitor relies on the `/proc` filesystem.
-// If the underlying host's `/proc` file system is mounted somewhere other than
-// /proc please specify the path using the top level configuration `procPath`.
-//
-// ```yaml
-// procPath: /proc
-// monitors:
-//  - type: disk-io
-// ```
-
 var logger = log.WithFields(log.Fields{"monitorType": monitorType})
 
 func init() {

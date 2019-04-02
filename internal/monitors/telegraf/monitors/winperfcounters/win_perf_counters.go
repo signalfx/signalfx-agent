@@ -13,30 +13,6 @@ import (
 
 const monitorType = "telegraf/win_perf_counters"
 
-// MONITOR(telegraf/win_perf_counters): This monitor reads Windows performance
-// counters
-//
-// Sample YAML configuration:
-//
-// ```yaml
-// monitors:
-//  - type: telegraf/win_perf_counters
-//    printValid: true
-//    objects:
-//     - objectName: "Processor"
-//       instances:
-//        - "*"
-//       counters:
-//        - "% Idle Time"
-//        - "% Interrupt Time"
-//        - "% Privileged Time"
-//        - "% User Time"
-//        - "% Processor Time"
-//       includeTotal: true
-//       measurement: "win_cpu"
-// ```
-//
-
 var logger = log.WithFields(log.Fields{"monitorType": monitorType})
 
 func init() {

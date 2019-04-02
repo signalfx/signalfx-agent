@@ -19,31 +19,6 @@ import (
 
 const monitorType = "telegraf/statsd"
 
-// MONITOR(telegraf/statsd): This monitor acts as a Telegraf StatsD listener for receiving telegrafstatsd metrics.
-// This monitor is based on the Telegraf Statsd input plugin.  More information about the Telegraf plugin
-// can be found [here](https://github.com/influxdata/telegraf/tree/master/plugins/inputs/statsd).
-//
-// Sample YAML configuration:
-//
-// ```yaml
-// monitors:
-//  - type: telegraf/statsd
-//    protocol: udp
-//    serviceAddress: ":8125"
-//    parseDataDogTags: true
-// ```
-//
-// ```yaml
-// monitors:
-//  - type: telegraf/statsd
-//    protocol: udp
-//    serviceAddress: "127.0.0.1:0"
-//    parseDataDogTags: true
-//    metricSeparator: '.'
-// ```
-//
-//
-
 var logger = log.WithFields(log.Fields{"monitorType": monitorType})
 
 func init() {

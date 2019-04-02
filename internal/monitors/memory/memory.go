@@ -18,20 +18,6 @@ const monitorType = "memory"
 
 // setting mem.VirtualMemory to a package variable for testing purposes
 var virtualMemory = mem.VirtualMemory
-
-// MONITOR(memory):
-// This monitor reports memory and memory utilization metrics.
-//
-// On Linux hosts, this monitor relies on the `/proc` filesystem.
-// If the underlying host's `/proc` file system is mounted somewhere other than
-// /proc please specify the path using the top level configuration `procPath`.
-//
-// ```yaml
-// procPath: /proc
-// monitors:
-//  - type: memory
-// ```
-
 var logger = log.WithFields(log.Fields{"monitorType": monitorType})
 
 func init() {
