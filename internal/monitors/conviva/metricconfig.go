@@ -202,6 +202,8 @@ func (mc *metricConfig) filterIDs() []string {
 
 // logs filter status only when the filter status changes
 func (mc *metricConfig) logFilterStatuses(filtersWarmupIds []int64, filtersNotExistIds []int64, filtersIncompleteDataIds []int64) {
+	mc.mutex.Lock()
+	defer mc.mutex.Unlock()
 	mc.filtersWarmup = logFilterStatusesHelper(mc.MetricParameter, mc.filtersMap, mc.filtersWarmup, filtersWarmupIds, "filters_warmup")
 	mc.filtersNotExist = logFilterStatusesHelper(mc.MetricParameter, mc.filtersMap, mc.filtersNotExist, filtersNotExistIds, "filters_not_exist")
 	mc.filtersIncompleteData = logFilterStatusesHelper(mc.MetricParameter, mc.filtersMap, mc.filtersIncompleteData, filtersIncompleteDataIds, "filters_incomplete_data")
