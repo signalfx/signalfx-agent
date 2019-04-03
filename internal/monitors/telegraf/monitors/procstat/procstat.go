@@ -23,27 +23,6 @@ import (
 
 const monitorType = "telegraf/procstat"
 
-// MONITOR(telegraf/procstat): This monitor reports metrics about processes.
-// This monitor is based on the Telegraf procstat plugin.  More information about the Telegraf plugin
-// can be found [here](https://github.com/influxdata/telegraf/tree/master/plugins/inputs/procstat).
-//
-// Please note that the Smart Agent only supports the `native` pid finder and the options
-// `cgroup` and `systemd unit` are not supported at this time.
-//
-// On Linux hosts, this monitor relies on the `/proc` filesystem.
-// If the underlying host's `/proc` file system is mounted somewhere other than
-// /proc please specify the path using the top level configuration `procPath`.
-//
-// Sample Yaml Configuration
-//
-// ```yaml
-// procPath: /proc
-// monitors:
-//  - type: telegraf/procstat
-//    exe: "signalfx-agent*"
-// ```
-//
-
 var logger = log.WithFields(log.Fields{"monitorType": monitorType})
 
 func init() {

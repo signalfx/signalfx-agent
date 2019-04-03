@@ -12,11 +12,6 @@ import (
 
 const monitorType = "collectd/etcd"
 
-// MONITOR(collectd/etcd): Monitors an etcd key/value store.
-//
-// See https://github.com/signalfx/integrations/tree/master/collectd-etcd and
-// https://github.com/signalfx/collectd-etcd
-
 func init() {
 	monitors.Register(monitorType, func() interface{} {
 		return &Monitor{

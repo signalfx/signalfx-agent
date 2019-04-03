@@ -11,9 +11,6 @@ import (
 
 const monitorType = "collectd/activemq"
 
-// MONITOR(collectd/activemq): Monitors Apache ActiveMQ via the collectd
-// GenericJMX plugin.
-
 var serviceName = "activemq"
 
 // Monitor is the main type that represents the monitor

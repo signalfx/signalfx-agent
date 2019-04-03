@@ -24,41 +24,6 @@ const (
 	uptimeMetricName = "sfxagent.hostmetadata"
 )
 
-// MONITOR(host-metadata): This monitor collects metadata properties about a
-// host.  It is required for some views in SignalFx to operate.
-//
-// ```yaml
-// monitors:
-//   - type: host-metadata
-// ```
-//
-// In containerized environments host `/etc` and `/proc` may not be located
-// directly under the root path.  You can specify the path to `proc` and `etc`
-// using the top level agent configurations `procPath` and `etcPath`
-//
-// ```yaml
-// procPath: /proc
-// etcPath: /etc
-// monitors:
-//   - type: host-metadata
-// ```
-//
-// Metadata updates occur on a sparse interval of approximately
-// 1m, 1m, 1h, 1d and continues repeating once per day.
-// Setting the `Interval` configuration for this monitor will not affect the
-// sparse interval on which metadata is collected.
-//
-// GAUGE(sfxagent.hostmetadata): The time the hostmetadata monitor has been
-// running in seconds.  It includes dimensional metadata about the host and
-// agent.
-//
-// DIMENSION(signalfx_agent): The version of the signalfx-agent
-// DIMENSION(collectd): The version of collectd in the signalfx-agent
-// DIMENSION(kernel_name): The name of the host kernel.
-// DIMENSION(kernel_version): The version of the host kernel.
-// DIMENSION(kernel_release): The release of the host kernel.
-// DIMENSION(os_version): The version of the os on the host.
-
 // the time that the agent started / imported this package
 var startTime = time.Now()
 

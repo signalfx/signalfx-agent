@@ -12,54 +12,6 @@ import (
 
 const monitorType = "collectd/kong"
 
-// MONITOR(collectd/kong): Monitors a Kong instance using [collectd-kong](https://github.com/signalfx/collectd-kong).
-//
-// See the [integration documentation](https://github.com/signalfx/integrations/tree/master/collectd-kong)
-// for more information.
-//
-// The `metrics` field below is populated with a set of metrics that are
-// described at https://github.com/signalfx/collectd-kong/blob/master/README.md.
-//
-// Sample YAML configuration:
-//
-// ```yaml
-// monitors:
-//   - type: collectd/kong
-//     host: 127.0.0.1
-//     port: 8001
-//     metrics:
-//       - metric: request_latency
-//         report: true
-//       - metric: connections_accepted
-//         report: false
-// ```
-//
-// Sample YAML configuration with custom /signalfx route and white and blacklists
-//
-// ```yaml
-// monitors:
-//   - type: collectd/kong
-//     host: 127.0.0.1
-//     port: 8443
-//     url: https://127.0.0.1:8443/routed_signalfx
-//     authHeader:
-//       header: Authorization
-//       value: HeaderValue
-//     metrics:
-//       - metric: request_latency
-//         report: true
-//     reportStatusCodeGroups: true
-//     statusCodes:
-//       - 202
-//       - 403
-//       - 405
-//       - 419
-//       - "5*"
-//     serviceNamesBlacklist:
-//       - "*SomeService*"
-// ```
-//
-
 func init() {
 	monitors.Register(monitorType, func() interface{} {
 		return &Monitor{

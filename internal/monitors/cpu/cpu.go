@@ -21,20 +21,6 @@ const percoreMetricName = "cpu.utilization_per_core"
 
 var errorUsedDiffLessThanZero = fmt.Errorf("usedDiff < 0")
 var errorTotalDiffLessThanZero = fmt.Errorf("totalDiff < 0")
-
-// MONITOR(cpu):
-// This monitor reports cpu metrics.
-//
-// On Linux hosts, this monitor relies on the `/proc` filesystem.
-// If the underlying host's `/proc` file system is mounted somewhere other than
-// /proc please specify the path using the top level configuration `procPath`.
-//
-// ```yaml
-// procPath: /proc
-// monitors:
-//  - type: cpu
-// ```
-
 var logger = log.WithFields(log.Fields{"monitorType": monitorType})
 
 func init() {

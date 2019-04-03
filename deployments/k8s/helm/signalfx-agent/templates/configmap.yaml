@@ -32,6 +32,9 @@ data:
     traceEndpointUrl: {{ .Values.traceEndpointUrl }}
     {{- end }}
 
+    etcPath: {{ .Values.etcPath }}
+    procPath: {{ .Values.procPath }}
+
     intervalSeconds: {{ .Values.metricIntervalSeconds }}
 
     logging:
@@ -53,17 +56,14 @@ data:
     - type: collectd/cpu
     - type: collectd/cpufreq
     - type: collectd/df
-      hostFSPath: /hostfs
+      hostFSPath: {{ .Values.hostFSPath }}
     - type: collectd/disk
     - type: collectd/interface
     - type: collectd/load
     - type: collectd/memory
     - type: collectd/protocols
     - type: collectd/signalfx-metadata
-      procFSPath: /hostfs/proc
     - type: host-metadata
-      etcPath: /hostfs/etc
-      procFSPath: /hostfs/proc
     - type: collectd/uptime
     - type: collectd/vmem
 

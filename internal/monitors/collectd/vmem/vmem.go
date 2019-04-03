@@ -12,20 +12,6 @@ import (
 
 const monitorType = "collectd/vmem"
 
-// MONITOR(collectd/vmem): Collects information about the virtual memory
-// subsystem of the kernel using the [collectd vmem
-// plugin](https://collectd.org/wiki/index.php/Plugin:vmem).  There is no
-// configuration available for this plugin.
-
-// CUMULATIVE(vmpage_faults.majflt): Number of major page faults on the system
-// CUMULATIVE(vmpage_faults.minflt): Number of minor page faults on the system
-// CUMULATIVE(vmpage_io.memory.in): Page Ins for Memory
-// CUMULATIVE(vmpage_io.memory.out): Page Outs for Memory
-// CUMULATIVE(vmpage_io.swap.in): Page Ins for Swap
-// CUMULATIVE(vmpage_io.swap.out): Page Outs for Swap
-// CUMULATIVE(vmpage_number.free_pages): Number of free memory pages
-// CUMULATIVE(vmpage_number.mapped): Number of mapped pages
-
 func init() {
 	monitors.Register(monitorType, func() interface{} {
 		return &Monitor{

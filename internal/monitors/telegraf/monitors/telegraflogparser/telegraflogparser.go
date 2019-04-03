@@ -19,26 +19,6 @@ import (
 
 const monitorType = "telegraf/logparser"
 
-// MONITOR(telegraf/logparser): This monitor is based on the Telegraf logparser plugin.
-// The monitor tails log files. More information about the Telegraf plugin
-// can be found [here](https://github.com/influxdata/telegraf/tree/master/plugins/inputs/logparser).
-// All metrics emitted from this monitor will have the `plugin` dimension set to `telegraf-logparser`
-//
-// Sample YAML configuration:
-//
-// ```yaml
-//  - type: telegraf/logparser
-//    files:
-//     - '$file'
-//    watchMethod: poll       # specify the file watch method ("inotify" or "poll")
-//    fromBeginning: true     # specify to read from the beginning
-//    measurementName: test-measurement # the metric name prefix
-//    patterns:
-//     - "%{COMMON_LOG_FORMAT}" # specifies the apache common log format
-//    timezone: UTC
-// ```
-//
-
 var logger = log.WithFields(log.Fields{"monitorType": monitorType})
 
 func init() {
