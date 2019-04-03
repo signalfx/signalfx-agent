@@ -187,7 +187,7 @@ jobs:
       - run: |
           mkdir ~/testresults
           (cd /tmp; GO111MODULE=on go get github.com/tebeka/go2xunit)
-          bash -eo pipefail -c "make -s test | tee /dev/stderr | go2xunit" > ~/testresults/unit.xml
+          bash -eo pipefail -c "NUM_CORES=4 make -s test | tee /dev/stderr | go2xunit" > ~/testresults/unit.xml
       - save_test_results
 
   docs_test:

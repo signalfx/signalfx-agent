@@ -2,6 +2,7 @@ COLLECTD_VERSION := 5.8.0-sfx0
 COLLECTD_COMMIT := 4da1c1cbbe83f881945088a41063fe86d1682ecb
 BUILD_TIME ?= $$(date +%FT%T%z)
 MONITOR_CODE_GEN := bin/monitor-code-gen
+NUM_CORES ?= $(shell getconf _NPROCESSORS_ONLN)
 
 .PHONY: check
 check: lint vet test
@@ -22,7 +23,7 @@ test: compileDeps
 ifeq ($(OS),Windows_NT)
 	powershell "& { . $(CURDIR)/scripts/windows/make.ps1; test }"
 else
-	CGO_ENABLED=0 go test -mod vendor ./...
+	CGO_ENABLED=0 go test -mod vendor -p $(NUM_CORES) ./...
 endif
 
 .PHONY: vet
