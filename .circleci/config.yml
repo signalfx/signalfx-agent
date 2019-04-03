@@ -153,7 +153,7 @@ jobs:
           go mod vendor
           git diff --exit-code || (echo 'go modules are not properly vendored. Run `make vendor` and commit the changes.' && exit 1)
 
-  lint: 
+  lint:
     executor: goexecutor
     steps:
       - checkout
@@ -184,6 +184,8 @@ jobs:
     steps:
       - checkout
       - goexecutor_setup
+      # Limit to 4 cores because CircleCI reports 36 cores which will cause OOM when go test is run and tries
+      # to build many binaries in parallel. `go build` can use a max of 1 GB per invokation.
       - run: |
           mkdir ~/testresults
           (cd /tmp; GO111MODULE=on go get github.com/tebeka/go2xunit)
