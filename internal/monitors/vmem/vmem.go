@@ -11,19 +11,6 @@ import (
 
 const monitorType = "vmem"
 
-// MONITOR(vmem): Collects information about the virtual memory
-// subsystem of the kernel.
-//
-// On Linux hosts, this monitor relies on the `/proc` filesystem.
-// If the underlying host's `/proc` file system is mounted somewhere other than
-// /proc please specify the path using the top level configuration `procPath`.
-//
-// ```yaml
-// procPath: /proc
-// monitors:
-//  - type: vmem
-// ```
-
 var logger = log.WithFields(log.Fields{"monitorType": monitorType})
 
 func init() {

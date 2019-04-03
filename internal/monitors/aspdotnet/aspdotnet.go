@@ -11,27 +11,6 @@ import (
 
 const monitorType = "aspdotnet"
 
-// MONITOR(aspdotnet):
-// (Windows Only) This monitor reports metrics about requests, errors, sessions,
-// worker processes for ASP.NET applications.
-//
-// ## Windows Performance Counters
-// The underlying source for these metrics are Windows Performance Counters.
-// Most of the performance counters that we query in this monitor are actually Gauges
-// that represent rates per second and percentages.
-//
-// This monitor reports the instantaneous values for these Windows Performance Counters.
-// This means that in between a collection interval, spikes could occur on the
-// Performance Counters.  The best way to mitigate this limitation is to increase
-// the reporting interval on this monitor to collect more frequently.
-//
-// Sample YAML configuration:
-//
-// ```yaml
-// monitors:
-//  - type: aspdotnet
-// ```
-
 var logger = log.WithFields(log.Fields{"monitorType": monitorType})
 
 func init() {

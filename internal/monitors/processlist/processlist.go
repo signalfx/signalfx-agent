@@ -23,16 +23,6 @@ const (
 	version     = "0.0.30"
 )
 
-// MONITOR(processlist): (Windows Only) This monitor reports processlist
-// information for Windows Hosts.
-//
-// Sample YAML configuration:
-//
-// ```yaml
-// monitors:
-//  - type: processlist
-// ```
-
 // EVENT(objects.top-info): Process list event.
 
 var logger = log.WithFields(log.Fields{"monitorType": monitorType})

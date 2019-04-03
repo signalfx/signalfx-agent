@@ -16,10 +16,6 @@ import (
 
 const monitorType = "collectd/haproxy"
 
-// MONITOR(collectd/haproxy): Monitors an HAProxy instance.
-//
-// See https://github.com/signalfx/integrations/tree/master/collectd-haproxy.
-
 func init() {
 	monitors.Register(monitorType, func() interface{} {
 		return &Monitor{

@@ -15,20 +15,6 @@ const (
 	cadvisorType = "cadvisor"
 )
 
-// MONITOR(cadvisor): This monitor pulls metrics directly from cadvisor, which
-// conventionally runs on port 4194, but can be configured to anything.  If you
-// are running on Kubernetes, consider the [kubelet-stats](./kubelet-stats.md)
-// monitor because many K8s nodes do not expose cAdvisor on a network port,
-// even though they are running it within Kubelet.
-//
-// If you are running containers with Docker, there is a fair amount of
-// duplication with the `collectd/docker` monitor in terms of the metrics sent
-// (under distinct metric names) so you may want to consider not enabling the
-// Docker monitor in a K8s environment, or else use filtering to whitelist only
-// certain metrics.  Note that this will cause the built-in Docker dashboards
-// to be blank, but container metrics will be available on the Kubernetes
-// dashboards instead.
-
 func init() {
 	monitors.Register(cadvisorType, func() interface{} { return &Cadvisor{} }, &CHTTPConfig{})
 }

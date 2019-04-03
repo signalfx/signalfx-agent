@@ -12,10 +12,6 @@ import (
 
 const monitorType = "collectd/chrony"
 
-// MONITOR(collectd/chrony): Collectd NTP data from a chronyd instance
-//
-// See https://collectd.org/documentation/manpages/collectd.conf.5.shtml#plugin_chrony
-
 func init() {
 	monitors.Register(monitorType, func() interface{} {
 		return &Monitor{

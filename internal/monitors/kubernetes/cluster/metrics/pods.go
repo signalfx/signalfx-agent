@@ -12,24 +12,6 @@ import (
 	"k8s.io/apimachinery/pkg/types"
 )
 
-// GAUGE(kubernetes.container_restart_count): How many times the container has
-// restarted in the recent past.  This value is pulled directly from [the K8s
-// API](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.11/#containerstatus-v1-core)
-// and the value can go indefinitely high and be reset to 0 at any time
-// depending on how your [kubelet is configured to prune dead
-// containers](https://kubernetes.io/docs/concepts/cluster-administration/kubelet-garbage-collection/).
-// It is best to not depend too much on the exact value but rather look at it
-// as either `== 0`, in which case you can conclude there were no restarts in
-// the recent past, or `> 0`, in which case you can conclude there were
-// restarts in the recent past, and not try and analyze the value beyond that.
-
-// GAUGE(kubernetes.pod_phase): Current phase of the pod (1 - Pending, 2 - Running, 3 - Succeeded, 4 - Failed, 5 - Unknown)
-// GAUGE(kubernetes.container_ready): Whether a container has passed its readiness probe (0 for no, 1 for yes)
-
-// PROPERTY(kubernetes_pod_uid:<pod label>): Any labels with non-blank values
-// on the pod will be synced as properties to the `kubernetes_pod_uid`
-// dimension. Any blank labels will be synced as tags on that same dimension.
-
 func datapointsForPod(pod *v1.Pod) []*datapoint.Datapoint {
 	dimensions := map[string]string{
 		"metric_source": "kubernetes",
