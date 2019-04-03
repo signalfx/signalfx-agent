@@ -414,4 +414,6 @@ def test_conviva_all_filter(conviva_filters):
         ),
         debug=CONVIVA_DEBUG,
     ) as [backend, _, _]:
-        assert wait_for(lambda: sorted(conviva_filters) == get_filters_from_datapoints(backend), 300), "Didn't get datapoints with all filters"
+        assert wait_for(
+            lambda: sorted(conviva_filters) == get_filters_from_datapoints(backend), 300
+        ), "Didn't get datapoints with all filters"
