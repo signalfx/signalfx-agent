@@ -6,9 +6,12 @@ from textwrap import dedent
 
 import pytest
 from tests.helpers.assertions import has_datapoint, tcp_socket_open
-from tests.helpers.util import container_ip, get_monitor_metrics_from_metadata_yaml, run_agent, run_service, wait_for
+from tests.helpers.metadata import get_metadata
+from tests.helpers.util import container_ip, run_agent, run_service, wait_for
 
 pytestmark = [pytest.mark.expvar, pytest.mark.monitor_with_endpoints]
+
+METADATA = get_metadata("expvar")
 
 
 def test_nginx():
@@ -26,10 +29,6 @@ def test_nginx():
          """
             )
         ) as [backend, _, _]:
-            metrics_defined = get_monitor_metrics_from_metadata_yaml("internal/monitors/expvar")
-            for metric in metrics_defined:
-                if metric.get("included", False):
-                    print("Waiting for %s" % metric)
-                    assert wait_for(
-                        p(has_datapoint, backend, metric_name=metric["name"])
-                    ), "Didn't get included datapoints"
+            for metric in METADATA.included_metrics:
+                print("Waiting for %s" % metric)
+                assert wait_for(p(has_datapoint, backend, metric_name=metric)), "Didn't get included datapoints"
