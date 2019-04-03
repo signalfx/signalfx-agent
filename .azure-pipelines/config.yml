@@ -4,6 +4,7 @@ resources:
 trigger:
   branches:
     include:
+    - azure-pipelines
     - master
   tags:
     include:
