@@ -15171,6 +15171,7 @@
         }
       ],
       "properties": null,
+      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config for this monitor",
@@ -23972,6 +23973,7 @@
       "groups": null,
       "metrics": null,
       "properties": null,
+      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config specifies configurations that are specific to the individual python based monitor",
