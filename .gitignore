@@ -6,7 +6,7 @@ internal/monitors/**/genmetadata.go
 internal/core/common/constants/versions.go
 internal/monitors/collectd/collectd.conf.go
 /signalfx-agent
-/bin/monitor-code-gen
+/monitor-code-gen
 *.tar.gz
 *.tgz
 /debug

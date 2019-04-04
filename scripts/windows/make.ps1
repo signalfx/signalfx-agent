@@ -8,6 +8,7 @@ $scriptDir = split-path -parent $MyInvocation.MyCommand.Definition
 function compile_deps() {
     versions_go
     monitor-code-gen
+    .\monitor-code-gen
 }
 
 function versions_go() {
