@@ -1,3 +1,4 @@
+monitors:
 - monitorType: prometheus/node
   doc: |
     This monitor scrapes [Prmoetheus Node

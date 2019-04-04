@@ -1,4 +1,4 @@
-package prometheusinternal
+package prometheus
 
 import (
 	"github.com/signalfx/signalfx-agent/internal/monitors"

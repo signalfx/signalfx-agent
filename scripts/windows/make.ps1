@@ -5,6 +5,11 @@ $scriptDir = split-path -parent $MyInvocation.MyCommand.Definition
 . "$scriptDir\common.ps1"
 . "$scriptDir\bundle.ps1"
 
+function compile_deps() {
+    versions_go
+    monitor-code-gen
+    .\monitor-code-gen
+}
 
 function versions_go() {
     if ($AGENT_VERSION -Eq ""){
@@ -21,9 +26,16 @@ function versions_go() {
 }
 
 function signalfx-agent([string]$AGENT_VERSION="", [string]$AGENT_BIN=".\signalfx-agent.exe", [string]$COLLECTD_VERSION="") {
-    versions_go
+    compile_deps
 
     go build -mod vendor -o "$AGENT_BIN" github.com/signalfx/signalfx-agent/cmd/agent
+    if ($lastexitcode -ne 0){ throw }
+}
+
+function monitor-code-gen([string]$AGENT_VERSION="", [string]$CODEGEN_BIN=".\monitor-code-gen.exe", [string]$COLLECTD_VERSION="") {
+    versions_go
+
+    go build -mod vendor -o "$CODEGEN_BIN" github.com/signalfx/signalfx-agent/cmd/monitorcodegen
     if ($lastexitcode -ne 0){ throw }
 }
 
@@ -123,7 +135,7 @@ function bundle (
 }
 
 function lint() {
-    versions_go
+    compile_deps
     golint -set_exit_status ./cmd/... ./internal/...
     if ($lastexitcode -ne 0){ exit $lastexitcode }
 }
@@ -135,13 +147,13 @@ function vendor() {
 }
 
 function vet() {
-    versions_go
+    compile_deps
     go vet -mod vendor ./... 2>&1 | Select-String -Pattern "\.go" | Select-String -NotMatch -Pattern "_test\.go" -outvariable gofiles
     if ($gofiles){ Write-Host $gofiles; exit 1 }
 }
 
 function unit_test() {
-    versions_go
+    compile_deps
     go generate -mod vendor ./internal/monitors/...
     if ($lastexitcode -ne 0){ exit $lastexitcode }
     $(& go test -mod vendor -v ./... 2>&1; $rc=$lastexitcode) | go2xunit > unit_results.xml

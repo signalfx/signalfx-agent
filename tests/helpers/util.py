@@ -286,14 +286,16 @@ def get_monitor_metrics_from_selfdescribe(monitor, json_path=SELFDESCRIBE_JSON):
 def get_monitor_metrics_from_metadata_yaml(monitor_package_path, mon_type=None):
     with open(os.path.join(REPO_ROOT_DIR, monitor_package_path, "metadata.yaml"), "r", encoding="utf-8") as fd:
         doc = yaml.safe_load(fd.read())
-        if len(doc) == 1:
-            return doc[0].get("metrics")
+        monitors = doc["monitors"]
+
+        if len(monitors) == 1:
+            return monitors[0].get("metrics")
 
         if mon_type is None:
             raise ValueError(
                 "mon_type kwarg must be provided when there is more than one monitor in a metadata.yaml file"
             )
-        for monitor in doc:
+        for monitor in monitors:
             if monitor["monitorType"] == mon_type:
                 return monitor.get("metrics")
     return None
@@ -312,8 +314,9 @@ def get_monitor_dimensions_list_from_metadata_yaml(monitor_package_path, mon_typ
     with open(os.path.join(REPO_ROOT_DIR, monitor_package_path, "metadata.yaml"), "r", encoding="utf-8") as fd:
         doc = yaml.safe_load(fd.read())
         out = []
-        if len(doc) == 1:
-            for dim in doc[0].get("dimensions"):
+        monitors = doc["monitors"]
+        if len(monitors) == 1:
+            for dim in monitors[0].get("dimensions"):
                 out.append(dim.get("name"))
             return out
 
@@ -321,7 +324,7 @@ def get_monitor_dimensions_list_from_metadata_yaml(monitor_package_path, mon_typ
             raise ValueError(
                 "mon_type kwarg must be provided when there is more than one monitor in a metadata.yaml file"
             )
-        for monitor in doc:
+        for monitor in monitors:
             if monitor["monitorType"] == mon_type:
                 for dim in monitor[0].get("dimensions"):
                     out.append(dim.get("name"))

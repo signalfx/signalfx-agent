@@ -1,19 +1,36 @@
 COLLECTD_VERSION := 5.8.0-sfx0
 COLLECTD_COMMIT := 4da1c1cbbe83f881945088a41063fe86d1682ecb
 BUILD_TIME ?= $$(date +%FT%T%z)
+ifeq ($(OS),Windows_NT)
+MONITOR_CODE_GEN := monitor-code-gen.exe
+else
+MONITOR_CODE_GEN := ./monitor-code-gen
+endif
+NUM_CORES ?= $(shell getconf _NPROCESSORS_ONLN)
 
 .PHONY: check
 check: lint vet test
 
 .PHONY: compileDeps
-compileDeps: templates internal/core/common/constants/versions.go
+compileDeps: templates code-gen internal/core/common/constants/versions.go
+
+.PHONY: code-gen
+code-gen: $(MONITOR_CODE_GEN)
+	$(MONITOR_CODE_GEN)
+
+$(MONITOR_CODE_GEN): $(wildcard cmd/monitorcodegen/*.go)
+ifeq ($(OS),Windows_NT)
+	powershell "& { . $(CURDIR)/scripts/windows/make.ps1; monitor-code-gen }"
+else
+	go build -mod vendor -o $@ ./cmd/monitorcodegen
+endif
 
 .PHONY: test
 test: compileDeps
 ifeq ($(OS),Windows_NT)
 	powershell "& { . $(CURDIR)/scripts/windows/make.ps1; test }"
 else
-	CGO_ENABLED=0 go test -mod vendor ./...
+	CGO_ENABLED=0 go test -mod vendor -p $(NUM_CORES) ./...
 endif
 
 .PHONY: vet
@@ -55,7 +72,11 @@ else
 endif
 
 internal/core/common/constants/versions.go: FORCE
+ifeq ($(OS),Windows_NT)
+	powershell "& { . $(CURDIR)/scripts/windows/make.ps1; versions_go }"
+else
 	AGENT_VERSION=$(AGENT_VERSION) COLLECTD_VERSION=$(COLLECTD_VERSION) BUILD_TIME=$(BUILD_TIME) scripts/make-versions
+endif
 
 signalfx-agent: compileDeps
 	echo "building SignalFx agent for operating system: $(GOOS)"

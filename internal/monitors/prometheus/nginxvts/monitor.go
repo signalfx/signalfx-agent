@@ -1,4 +1,4 @@
-package prometheusnginxvts
+package nginxvts
 
 import (
 	"github.com/signalfx/signalfx-agent/internal/monitors"

@@ -1,4 +1,4 @@
-package prometheusredis
+package redis
 
 import (
 	"github.com/signalfx/signalfx-agent/internal/monitors"

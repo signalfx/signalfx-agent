@@ -255,6 +255,7 @@
         }
       ],
       "properties": null,
+      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config for this monitor",
@@ -627,6 +628,7 @@
         }
       ],
       "properties": null,
+      "metricsExhaustive": false,
       "config": {
         "name": "CHTTPConfig",
         "doc": "CHTTPConfig is the monitor-specific config for cAdvisor",
@@ -878,6 +880,7 @@
         }
       ],
       "properties": null,
+      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config has configuration that is specific to GenericJMX. This config should be used by a monitors that use the generic JMX collectd plugin.",
@@ -1197,6 +1200,7 @@
         }
       ],
       "properties": null,
+      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config is the monitor-specific config with the generic config embedded",
@@ -1425,6 +1429,7 @@
         }
       ],
       "properties": null,
+      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config has configuration that is specific to GenericJMX. This config should be used by a monitors that use the generic JMX collectd plugin.",
@@ -1633,6 +1638,7 @@
       "groups": null,
       "metrics": null,
       "properties": null,
+      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config is the monitor-specific config with the generic config embedded",
@@ -2074,6 +2080,7 @@
         }
       ],
       "properties": null,
+      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config is the monitor-specific config with the generic config embedded",
@@ -2606,6 +2613,7 @@
         }
       ],
       "properties": null,
+      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config is the monitor-specific config with the generic config embedded",
@@ -2696,6 +2704,7 @@
         }
       ],
       "properties": null,
+      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config is the monitor-specific config with the generic config embedded",
@@ -2721,6 +2730,7 @@
         }
       ],
       "properties": null,
+      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config is the monitor-specific config with the generic config embedded",
@@ -2738,6 +2748,7 @@
       "groups": null,
       "metrics": null,
       "properties": null,
+      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config is the configuration for the collectd custom monitor",
@@ -2889,6 +2900,7 @@
         }
       ],
       "properties": null,
+      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config is the monitor-specific config with the generic config embedded",
@@ -3043,6 +3055,7 @@
         }
       ],
       "properties": null,
+      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config is the monitor-specific config with the generic config embedded",
@@ -3080,6 +3093,7 @@
       "groups": null,
       "metrics": null,
       "properties": null,
+      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config is the monitor-specific config with the generic config embedded",
@@ -3455,6 +3469,7 @@
         }
       ],
       "properties": null,
+      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config is the monitor-specific config with the generic config embedded",
@@ -3810,6 +3825,7 @@
         }
       ],
       "properties": null,
+      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config is the monitor-specific config with the generic config embedded",
@@ -3892,6 +3908,7 @@
       "groups": null,
       "metrics": null,
       "properties": null,
+      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config has configuration that is specific to GenericJMX. This config should be used by a monitors that use the generic JMX collectd plugin.",
@@ -4100,6 +4117,7 @@
       "groups": null,
       "metrics": null,
       "properties": null,
+      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config is the monitor-specific config with the generic config embedded",
@@ -4142,6 +4160,7 @@
       "groups": null,
       "metrics": null,
       "properties": null,
+      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config is the monitor-specific config with the generic config embedded",
@@ -4856,6 +4875,7 @@
         }
       ],
       "properties": null,
+      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config is the monitor-specific config with the generic config embedded",
@@ -4914,6 +4934,7 @@
       "groups": null,
       "metrics": null,
       "properties": null,
+      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config is the monitor-specific config with the generic config embedded",
@@ -5047,6 +5068,7 @@
         }
       ],
       "properties": null,
+      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config is the monitor-specific config with the generic config embedded",
@@ -5163,6 +5185,7 @@
         }
       ],
       "properties": null,
+      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config is the monitor-specific config with the generic config embedded",
@@ -5430,6 +5453,7 @@
         }
       ],
       "properties": null,
+      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config is the monitor-specific config with the generic config embedded",
@@ -5682,6 +5706,7 @@
         }
       ],
       "properties": null,
+      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config has configuration that is specific to GenericJMX. This config should be used by a monitors that use the generic JMX collectd plugin.",
@@ -5961,6 +5986,7 @@
         }
       ],
       "properties": null,
+      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config has configuration that is specific to GenericJMX. This config should be used by a monitors that use the generic JMX collectd plugin.",
@@ -6268,6 +6294,7 @@
         }
       ],
       "properties": null,
+      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config is the monitor-specific config with the generic config embedded",
@@ -6618,6 +6645,7 @@
         }
       ],
       "properties": null,
+      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config is the monitor-specific config with the generic config embedded",
@@ -6769,6 +6797,7 @@
         }
       ],
       "properties": null,
+      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config is the monitor-specific config with the generic config embedded",
@@ -6983,6 +7012,7 @@
         }
       ],
       "properties": null,
+      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config is the monitor-specific config with the generic config embedded",
@@ -7076,6 +7106,7 @@
         }
       ],
       "properties": null,
+      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config is the monitor-specific config with the generic config embedded",
@@ -7491,6 +7522,7 @@
         }
       ],
       "properties": null,
+      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config is the monitor-specific config with the generic config embedded",
@@ -8780,6 +8812,7 @@
         }
       ],
       "properties": null,
+      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config is the monitor-specific config with the generic config embedded",
@@ -8935,6 +8968,7 @@
         }
       ],
       "properties": null,
+      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config is the monitor-specific config with the generic config embedded",
@@ -9283,6 +9317,7 @@
         }
       ],
       "properties": null,
+      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config is the monitor-specific config with the generic config embedded",
@@ -9511,6 +9546,7 @@
         }
       ],
       "properties": null,
+      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config is the monitor-specific config with the generic config embedded",
@@ -9758,6 +9794,7 @@
       "groups": null,
       "metrics": null,
       "properties": null,
+      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config is the monitor-specific config with the generic config embedded",
@@ -9851,6 +9888,7 @@
         }
       ],
       "properties": null,
+      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config is the monitor-specific config with the generic config embedded",
@@ -9868,6 +9906,7 @@
       "groups": null,
       "metrics": null,
       "properties": null,
+      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config specifies configurations that are specific to the individual python based monitor",
@@ -10698,6 +10737,7 @@
         }
       ],
       "properties": null,
+      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config is the monitor-specific config with the generic config embedded",
@@ -11079,6 +11119,7 @@
         }
       ],
       "properties": null,
+      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config is the monitor-specific config with the generic config embedded",
@@ -11210,6 +11251,7 @@
         }
       ],
       "properties": null,
+      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config is the monitor-specific config with the generic config embedded",
@@ -11639,6 +11681,7 @@
         }
       ],
       "properties": null,
+      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config is the monitor-specific config with the generic config embedded",
@@ -12336,6 +12379,7 @@
         }
       ],
       "properties": null,
+      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config is the monitor-specific config with the generic config embedded",
@@ -12402,6 +12446,7 @@
       "groups": null,
       "metrics": null,
       "properties": null,
+      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config is the monitor-specific config with the generic config embedded",
@@ -12516,6 +12561,7 @@
         }
       ],
       "properties": null,
+      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config is the monitor-specific config with the generic config embedded",
@@ -12590,6 +12636,7 @@
         }
       ],
       "properties": null,
+      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config is the monitor-specific config with the generic config embedded",
@@ -12699,6 +12746,7 @@
         }
       ],
       "properties": null,
+      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config is the monitor-specific config with the generic config embedded",
@@ -12741,6 +12789,7 @@
       "groups": null,
       "metrics": null,
       "properties": null,
+      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config for this monitor",
@@ -12853,6 +12902,7 @@
         }
       ],
       "properties": null,
+      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config for this monitor",
@@ -12969,6 +13019,7 @@
         }
       ],
       "properties": null,
+      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config for this monitor",
@@ -13464,6 +13515,7 @@
         }
       ],
       "properties": null,
+      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config for this monitor",
@@ -13632,6 +13684,7 @@
         }
       ],
       "properties": null,
+      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config for this monitor",
@@ -13898,6 +13951,7 @@
         }
       ],
       "properties": null,
+      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config for this monitor",
@@ -15117,6 +15171,7 @@
         }
       ],
       "properties": null,
+      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config for this monitor",
@@ -15569,6 +15624,7 @@
         }
       ],
       "properties": null,
+      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config for monitor configuration",
@@ -15784,6 +15840,7 @@
         }
       ],
       "properties": null,
+      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config for this monitor",
@@ -16250,6 +16307,7 @@
         }
       ],
       "properties": null,
+      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config for this monitor",
@@ -16408,6 +16466,7 @@
         }
       ],
       "properties": null,
+      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config for this monitor",
@@ -16552,6 +16611,7 @@
         }
       ],
       "properties": null,
+      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config for this monitor",
@@ -16752,6 +16812,7 @@
         }
       ],
       "properties": null,
+      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config for this monitor",
@@ -17029,6 +17090,7 @@
         }
       ],
       "properties": null,
+      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config for this monitor",
@@ -17278,6 +17340,7 @@
         }
       ],
       "properties": null,
+      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config for this monitor",
@@ -17377,6 +17440,7 @@
         }
       ],
       "properties": null,
+      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config for this monitor",
@@ -17619,6 +17683,7 @@
         }
       ],
       "properties": null,
+      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config for internal metric monitoring",
@@ -17999,6 +18064,7 @@
         }
       ],
       "properties": null,
+      "metricsExhaustive": false,
       "config": {
         "name": "KubeletStatsConfig",
         "doc": "KubeletStatsConfig respresents config for the Kubelet stats monitor",
@@ -18252,6 +18318,7 @@
           "description": "Any labels with non-blank values on the pod will be synced as properties to the `kubernetes_pod_uid` dimension. Any blank labels will be synced as tags on that same dimension."
         }
       ],
+      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config for the K8s monitor",
@@ -18359,6 +18426,7 @@
       "groups": null,
       "metrics": null,
       "properties": null,
+      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config for the K8s event monitor",
@@ -18523,6 +18591,7 @@
         }
       ],
       "properties": null,
+      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config for this monitor",
@@ -18724,6 +18793,7 @@
         }
       ],
       "properties": null,
+      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config for this monitor",
@@ -18791,6 +18861,7 @@
         }
       ],
       "properties": null,
+      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config for this monitor",
@@ -18824,6 +18895,7 @@
       "groups": null,
       "metrics": null,
       "properties": null,
+      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config for this monitor",
@@ -18841,6 +18913,7 @@
       "groups": null,
       "metrics": null,
       "properties": null,
+      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config for this monitor",
@@ -19167,6 +19240,7 @@
         }
       ],
       "properties": null,
+      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config for this monitor",
@@ -19360,6 +19434,7 @@
         }
       ],
       "properties": null,
+      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config for this monitor",
@@ -20533,6 +20608,7 @@
         }
       ],
       "properties": null,
+      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config for this monitor",
@@ -22287,6 +22363,7 @@
         }
       ],
       "properties": null,
+      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config for this monitor",
@@ -23348,6 +23425,7 @@
         }
       ],
       "properties": null,
+      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config for this monitor",
@@ -23828,6 +23906,7 @@
         }
       ],
       "properties": null,
+      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config for this monitor",
@@ -23894,6 +23973,7 @@
       "groups": null,
       "metrics": null,
       "properties": null,
+      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config specifies configurations that are specific to the individual python based monitor",
@@ -23952,6 +24032,7 @@
       "groups": null,
       "metrics": null,
       "properties": null,
+      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config for this monitor",
@@ -24330,6 +24411,7 @@
         }
       ],
       "properties": null,
+      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config for this monitor",
@@ -24420,6 +24502,7 @@
       "groups": null,
       "metrics": null,
       "properties": null,
+      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config for this monitor",
@@ -25581,6 +25664,7 @@
         }
       ],
       "properties": null,
+      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config for this monitor",
@@ -25671,6 +25755,7 @@
       "groups": null,
       "metrics": null,
       "properties": null,
+      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config for this monitor",
@@ -25801,6 +25886,7 @@
       "groups": null,
       "metrics": null,
       "properties": null,
+      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config for this monitor",
@@ -26170,6 +26256,7 @@
       "groups": null,
       "metrics": null,
       "properties": null,
+      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config for this monitor",
@@ -26306,6 +26393,7 @@
         }
       ],
       "properties": null,
+      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config for this monitor",
@@ -26332,6 +26420,7 @@
       "groups": null,
       "metrics": null,
       "properties": null,
+      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config for this monitor",
@@ -26452,6 +26541,7 @@
         }
       ],
       "properties": null,
+      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config for this monitor",
@@ -26634,6 +26724,7 @@
         }
       ],
       "properties": null,
+      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config for this monitor",
@@ -26886,6 +26977,7 @@
         }
       ],
       "properties": null,
+      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config for this monitor",

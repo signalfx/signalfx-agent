@@ -1,3 +1,4 @@
+monitors:
 - dimensions: null
   doc: |
     Sends memory usage stats for the underlying host.

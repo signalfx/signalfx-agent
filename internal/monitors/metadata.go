@@ -42,13 +42,19 @@ type MonitorMetadata struct {
 	Groups      []GroupMetadata  `json:"groups"`
 	Metrics     []MetricMetadata `json:"metrics"`
 	Properties  []PropMetadata   `json:"properties"`
+	// True if the list of metrics is definitively the set of metrics
+	// this monitor will ever send. This impacts the additionalMetricsFilter.
+	MetricsExhaustive bool `json:"metricsExhaustive" yaml:"metricsExhaustive" default:"false"`
 }
 
 // PackageMetadata describes a package directory that may have one or more monitors.
 type PackageMetadata struct {
 	Monitors []MonitorMetadata
-	Package  string `yaml:"-"`
-	Path     string `json:"-" yaml:"-"`
+	// Name of the package in go. If not set defaults to the directory name.
+	GoPackage *string `json:"goPackage" yaml:"goPackage"`
+	// Filesystem path to the package directory.
+	PackagePath string `json:"-" yaml:"-"`
+	Path        string `json:"-" yaml:"-"`
 }
 
 // DimMetadata contains a dimension's metadata.
@@ -70,19 +76,18 @@ func CollectMetadata(root string) ([]PackageMetadata, error) {
 			return nil
 		}
 
-		var monitorDocs []MonitorMetadata
+		var pkg PackageMetadata
 
 		if bytes, err := ioutil.ReadFile(path); err != nil {
 			return errors.Wrapf(err, "unable to read metadata file %s", path)
-		} else if err := yaml.UnmarshalStrict(bytes, &monitorDocs); err != nil {
+		} else if err := yaml.UnmarshalStrict(bytes, &pkg); err != nil {
 			return errors.Wrapf(err, "unable to unmarshal file %s", path)
 		}
 
-		packages = append(packages, PackageMetadata{
-			Monitors: monitorDocs,
-			Package:  filepath.Dir(path),
-			Path:     path,
-		})
+		pkg.PackagePath = filepath.Dir(path)
+		pkg.Path = path
+
+		packages = append(packages, pkg)
 
 		return nil
 	}); err != nil {

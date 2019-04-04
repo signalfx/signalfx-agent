@@ -1,3 +1,5 @@
+goPackage: prometheusgo
+monitors:
 - monitorType: prometheus/go
   doc: |
     This monitor scrapes [Prmoetheus Go

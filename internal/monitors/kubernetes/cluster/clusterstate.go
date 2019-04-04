@@ -113,7 +113,7 @@ func (cs *State) beginSyncForType(ctx context.Context, resType runtime.Object, r
 // Stop all running goroutines. There is a bug/limitation in the k8s go
 // client's Controller where goroutines are leaked even when using the stop
 // channel properly.
-// See https://github.com/kubernetes/client-go/blob/release-6.0/tools/cache/controller.go#L144
+// See https://github.com/kubernetes/client-go/blob/release-8.0/tools/cache/controller.go#L144
 func (cs *State) Stop() {
 	log.Info("Stopping all K8s API resource sync")
 	if cs.cancel != nil {
