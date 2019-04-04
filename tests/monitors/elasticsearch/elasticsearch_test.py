@@ -3,16 +3,12 @@ from textwrap import dedent
 import pytest
 
 from tests.helpers.assertions import has_datapoint_with_dim, http_status, has_log_message, any_metric_has_any_dim_key
-from tests.helpers.util import (
-    run_service,
-    run_agent,
-    container_ip,
-    wait_for,
-    get_monitor_default_metrics_list_from_metadata_yaml,
-    get_monitor_dimensions_list_from_metadata_yaml,
-)
+from tests.helpers.metadata import get_metadata
+from tests.helpers.util import run_service, run_agent, container_ip, wait_for
 
 pytestmark = [pytest.mark.collectd, pytest.mark.elasticsearch, pytest.mark.monitor_with_endpoints]
+
+METADATA = get_metadata("elasticsearch")
 
 
 @pytest.mark.flaky(reruns=2)
@@ -134,9 +130,9 @@ def test_elasticsearch_with_threadpool():
             assert not has_log_message(get_output().lower(), "error"), "error found in agent output!"
 
 
-DEFAULT_METRICS = get_monitor_default_metrics_list_from_metadata_yaml("internal/monitors/elasticsearch")
+DEFAULT_METRICS = METADATA.included_metrics
 
-DEFAULT_DIMENSIONS = get_monitor_dimensions_list_from_metadata_yaml("internal/monitors/elasticsearch")
+DEFAULT_DIMENSIONS = METADATA.dims
 
 
 @pytest.mark.flaky(reruns=2)
