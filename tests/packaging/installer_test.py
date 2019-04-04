@@ -54,7 +54,7 @@ def _run_tests(base_image, init_system, installer_args, **extra_run_kwargs):
 
 
 @pytest.mark.parametrize("base_image,init_system", SUPPORTED_DISTROS)
-def test_intaller_on_all_distros(base_image, init_system):
+def test_installer_on_all_distros(base_image, init_system):
     _run_tests(base_image, init_system, "MYTOKEN")
 
 
