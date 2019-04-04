@@ -1,7 +1,11 @@
 COLLECTD_VERSION := 5.8.0-sfx0
 COLLECTD_COMMIT := 4da1c1cbbe83f881945088a41063fe86d1682ecb
 BUILD_TIME ?= $$(date +%FT%T%z)
-MONITOR_CODE_GEN := bin/monitor-code-gen
+ifeq ($(OS),Windows_NT)
+MONITOR_CODE_GEN := monitor-code-gen.exe
+else
+MONITOR_CODE_GEN := ./monitor-code-gen
+endif
 NUM_CORES ?= $(shell getconf _NPROCESSORS_ONLN)
 
 .PHONY: check
@@ -15,8 +19,11 @@ code-gen: $(MONITOR_CODE_GEN)
 	$(MONITOR_CODE_GEN)
 
 $(MONITOR_CODE_GEN): $(wildcard cmd/monitorcodegen/*.go)
-	mkdir -p bin
+ifeq ($(OS),Windows_NT)
+	powershell "& { . $(CURDIR)/scripts/windows/make.ps1; monitor-code-gen }"
+else
 	go build -mod vendor -o $@ ./cmd/monitorcodegen
+endif
 
 .PHONY: test
 test: compileDeps
@@ -65,7 +72,11 @@ else
 endif
 
 internal/core/common/constants/versions.go: FORCE
+ifeq ($(OS),Windows_NT)
+	powershell "& { . $(CURDIR)/scripts/windows/make.ps1; versions_go }"
+else
 	AGENT_VERSION=$(AGENT_VERSION) COLLECTD_VERSION=$(COLLECTD_VERSION) BUILD_TIME=$(BUILD_TIME) scripts/make-versions
+endif
 
 signalfx-agent: compileDeps
 	echo "building SignalFx agent for operating system: $(GOOS)"

@@ -27,6 +27,13 @@ function signalfx-agent([string]$AGENT_VERSION="", [string]$AGENT_BIN=".\signalf
     if ($lastexitcode -ne 0){ throw }
 }
 
+function monitor-code-gen([string]$AGENT_VERSION="", [string]$CODEGEN_BIN=".\monitor-code-gen.exe", [string]$COLLECTD_VERSION="") {
+    versions_go
+
+    go build -mod vendor -o "$CODEGEN_BIN" github.com/signalfx/signalfx-agent/cmd/monitorcodegen
+    if ($lastexitcode -ne 0){ throw }
+}
+
 # make the build bundle
 function bundle (
         [string]$COLLECTD_COMMIT="4da1c1cbbe83f881945088a41063fe86d1682ecb",

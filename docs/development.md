@@ -123,12 +123,12 @@ are known to support the build and test process.
 
 ### Windows
 
-We develop on a [VirtualBox](https://www.virtualbox.org/) Windows Server 2008 
-[Vagrant](https://www.vagrantup.com/).  You might want to develop on Windows 
-Server 2012+ if you're using the evaluation boxes because the Windows Server 
+We develop on a [VirtualBox](https://www.virtualbox.org/) Windows Server 2008
+[Vagrant](https://www.vagrantup.com/).  You might want to develop on Windows
+Server 2012+ if you're using the evaluation boxes because the Windows Server
 2008 evaluation only has a 10 day trial that can be renewed up to 5 times.
-To renew the Windows Server 2008 evaluation you must manually reset the 
-activation period by using the slmgr.vbs script from the command prompt and 
+To renew the Windows Server 2008 evaluation you must manually reset the
+activation period by using the slmgr.vbs script from the command prompt and
 restart the vm.
 
     slmgr.vbs –rearm
@@ -142,8 +142,8 @@ If you do not have a base box, the makefile target `win-vagrant-base-box` will
 checkout the [Windows Boxcutter Project](https://github.com/boxcutter/windows) and build
 the Windows Server base box image using the evaluation copy of Windows.
 
-Please ensure that the requisites for Boxcutter are satisfied, including the 
-installation of [Packer](https://www.packer.io/), 
+Please ensure that the requisites for Boxcutter are satisfied, including the
+installation of [Packer](https://www.packer.io/),
 [VirtualBox](https://www.virtualbox.org/), and [Vagrant](https://www.vagrantup.com/).
 
 #### Make File Targets
@@ -173,13 +173,13 @@ The following values are supported for `WINDOWS_VER`
 The following snippet will create the vagrant base box, start the vagrant, provision, suspend, and destroy it.
 
     $ cd $GOPATH/src/github.com/signalfx/signalfx-agent/scripts/windows/vagrant
-    $ WIN_VERSION=server_2008 make win-vagrant-base-box
+    $ WIN_VER=server_2008 make win-vagrant-base-box
       ...
-    $ WIN_VERSION=server_2008 make win-vagrant-up
+    $ WIN_VER=server_2008 make win-vagrant-up
       ...
-    $ WIN_VERSION=server_2008 make win-vagrant-suspend
+    $ WIN_VER=server_2008 make win-vagrant-suspend
       ...
-    $ WIN_VERSION=server_2008 make win-vagrant-destroy
+    $ WIN_VER=server_2008 make win-vagrant-destroy
 
 `win-vagrant-base-box`, `win-vagrant-up`, and `win-vagrant-provision`
 can take a significant amount of time to complete and depend on the
