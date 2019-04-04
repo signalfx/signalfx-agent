@@ -18,14 +18,11 @@ pytestmark = [pytest.mark.conviva, pytest.mark.monitor_without_endpoints]
 CONVIVA_PULSE_API_URL = os.environ.get("CONVIVA_PULSE_API_URL", "https://api.conviva.com/insights/2.4/")
 CONVIVA_PULSE_USERNAME = os.environ.get("CONVIVA_PULSE_USERNAME")
 CONVIVA_PULSE_PASSWORD = os.environ.get("CONVIVA_PULSE_PASSWORD")
+if not CONVIVA_PULSE_USERNAME or not CONVIVA_PULSE_PASSWORD:
+    pytest.skip("CONVIVA_PULSE_USERNAME and/or CONVIVA_PULSE_PASSWORD env vars not set", allow_module_level=True)
 CONVIVA_DEBUG = False
 if os.environ.get("CONVIVA_DEBUG", "").lower() in ["1", "yes", "true"]:
     CONVIVA_DEBUG = True
-
-pytest.skip("Temporarily disable test while broken", allow_module_level=True)
-
-if not CONVIVA_PULSE_USERNAME or not CONVIVA_PULSE_PASSWORD:
-    pytest.skip("CONVIVA_PULSE_USERNAME and/or CONVIVA_PULSE_PASSWORD env vars not set", allow_module_level=True)
 
 
 def get_conviva_json(path, max_attempts=3):
