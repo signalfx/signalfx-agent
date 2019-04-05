@@ -18,7 +18,7 @@ def test_df():
         """
     ) as (backend, get_output, _):
         _ = (
-            wait_for(lambda: set(backend.datapoints_by_metric) == METADATA.included_metrics, timeout_seconds=60),
+            wait_for(lambda: set(backend.datapoints_by_metric) == METADATA.included_metrics),
             "timed out waiting for metrics and/or dimensions!",
         )
         assert set(backend.datapoints_by_metric) == METADATA.included_metrics
@@ -37,7 +37,7 @@ def test_df_additional_metrics():
         """
     ) as (backend, get_output, _):
         _ = (
-            wait_for(lambda: set(backend.datapoints_by_metric) == expected_metrics, timeout_seconds=60),
+            wait_for(lambda: set(backend.datapoints_by_metric) == expected_metrics),
             "timed out waiting for metrics and/or dimensions!",
         )
         assert set(backend.datapoints_by_metric) == expected_metrics
@@ -59,7 +59,7 @@ def test_df_additional_metrics_all():
         """
     ) as (backend, get_output, _):
         _ = (
-            wait_for(lambda: set(backend.datapoints_by_metric) == expected_metrics, timeout_seconds=60),
+            wait_for(lambda: set(backend.datapoints_by_metric) == expected_metrics),
             "timed out waiting for metrics and/or dimensions!",
         )
         assert set(backend.datapoints_by_metric) == expected_metrics

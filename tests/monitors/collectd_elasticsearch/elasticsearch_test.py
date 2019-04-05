@@ -1,16 +1,19 @@
 from functools import partial as p
 from textwrap import dedent
+
 import pytest
 
 from tests.helpers.assertions import (
     has_datapoint_with_dim,
     http_status,
     has_log_message,
-    has_datapoint_with_metric_name,
 )
+from tests.helpers.metadata import get_metadata
 from tests.helpers.util import run_service, run_agent, container_ip, wait_for
 
 pytestmark = [pytest.mark.collectd, pytest.mark.elasticsearch, pytest.mark.monitor_with_endpoints]
+
+METADATA = get_metadata("collectd/elasticsearch")
 
 
 @pytest.mark.flaky(reruns=2)
@@ -151,18 +154,18 @@ def test_elasticsearch_with_additional_metrics():
               username: elastic
               password: testing123
               additionalMetrics:
-               - cluster.initializing-shards
-               - thread_pool.threads
+               - metricName: cluster.initializing-shards
+               - metricName: thread_pool.threads
             """
         )
+        expected_metrics = METADATA.included_metrics | {
+            "gauge.cluster.initializing-shards",
+            "gauge.thread_pool.threads",
+        }
         with run_agent(config) as [backend, get_output, _]:
-            assert wait_for(
-                p(has_datapoint_with_dim, backend, "plugin", "elasticsearch")
-            ), "Didn't get elasticsearch datapoints"
-            assert wait_for(
-                p(has_datapoint_with_metric_name, backend, "gauge.cluster.initializing-shards")
-            ), "Didn't get gauge.cluster.initializing-shards metric"
-            assert wait_for(
-                p(has_datapoint_with_metric_name, backend, "gauge.thread_pool.threads")
-            ), "Didn't get gauge.thread_pool.threads metric"
+            _ = (
+                wait_for(lambda: set(backend.datapoints_by_metric) == expected_metrics),
+                "Didn't get elasticsearch datapoints",
+            )
+            assert set(backend.datapoints_by_metric) == expected_metrics
             assert not has_log_message(get_output().lower(), "error"), "error found in agent output!"
