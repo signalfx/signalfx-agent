@@ -122,6 +122,37 @@
         "required": false,
         "type": "bool",
         "elementKind": ""
+      },
+      {
+        "yamlName": "additionalMetrics",
+        "doc": "Additional metrics to enable besides the default included ones.",
+        "default": null,
+        "required": false,
+        "type": "slice",
+        "elementKind": "struct",
+        "elementStruct": {
+          "name": "AdditionalMetric",
+          "doc": "AdditionalMetric is a metric name/pattern or group to enable.",
+          "package": "internal/core/config",
+          "fields": [
+            {
+              "yamlName": "metricName",
+              "doc": "",
+              "default": "",
+              "required": false,
+              "type": "string",
+              "elementKind": ""
+            },
+            {
+              "yamlName": "group",
+              "doc": "",
+              "default": "",
+              "required": false,
+              "type": "string",
+              "elementKind": ""
+            }
+          ]
+        }
       }
     ]
   },
@@ -28459,6 +28490,37 @@
               "required": false,
               "type": "bool",
               "elementKind": ""
+            },
+            {
+              "yamlName": "additionalMetrics",
+              "doc": "Additional metrics to enable besides the default included ones.",
+              "default": null,
+              "required": false,
+              "type": "slice",
+              "elementKind": "struct",
+              "elementStruct": {
+                "name": "AdditionalMetric",
+                "doc": "AdditionalMetric is a metric name/pattern or group to enable.",
+                "package": "internal/core/config",
+                "fields": [
+                  {
+                    "yamlName": "metricName",
+                    "doc": "",
+                    "default": "",
+                    "required": false,
+                    "type": "string",
+                    "elementKind": ""
+                  },
+                  {
+                    "yamlName": "group",
+                    "doc": "",
+                    "default": "",
+                    "required": false,
+                    "type": "string",
+                    "elementKind": ""
+                  }
+                ]
+              }
             }
           ]
         }

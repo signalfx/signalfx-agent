@@ -17,9 +17,10 @@ def test_df():
             hostFSPath: /
         """
     ) as (backend, get_output, _):
-        wait_for(
-            lambda: set(backend.datapoints_by_metric) == METADATA.included_metrics, timeout_seconds=60
-        ), "timed out waiting for metrics and/or dimensions!"
+        _ = (
+            wait_for(lambda: set(backend.datapoints_by_metric) == METADATA.included_metrics, timeout_seconds=60),
+            "timed out waiting for metrics and/or dimensions!",
+        )
         assert set(backend.datapoints_by_metric) == METADATA.included_metrics
         assert not has_log_message(get_output().lower(), "error"), "error found in agent output!"
 
@@ -35,11 +36,13 @@ def test_df_additional_metrics():
             - metricName: df_complex.reserved
         """
     ) as (backend, get_output, _):
-        wait_for(
-            lambda: set(backend.datapoints_by_metric) == expected_metrics, timeout_seconds=60
-        ), "timed out waiting for metrics and/or dimensions!"
+        _ = (
+            wait_for(lambda: set(backend.datapoints_by_metric) == expected_metrics, timeout_seconds=60),
+            "timed out waiting for metrics and/or dimensions!",
+        )
         assert set(backend.datapoints_by_metric) == expected_metrics
         assert not has_log_message(get_output().lower(), "error"), "error found in agent output!"
+
 
 def test_df_additional_metrics_all():
     expected_metrics = METADATA.all_metrics
@@ -55,8 +58,9 @@ def test_df_additional_metrics_all():
             - metricName: percent_*
         """
     ) as (backend, get_output, _):
-        wait_for(
-            lambda: set(backend.datapoints_by_metric) == expected_metrics, timeout_seconds=60
-        ), "timed out waiting for metrics and/or dimensions!"
+        _ = (
+            wait_for(lambda: set(backend.datapoints_by_metric) == expected_metrics, timeout_seconds=60),
+            "timed out waiting for metrics and/or dimensions!",
+        )
         assert set(backend.datapoints_by_metric) == expected_metrics
         assert not has_log_message(get_output().lower(), "error"), "error found in agent output!"
