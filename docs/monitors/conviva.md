@@ -50,6 +50,7 @@ monitors:
      metricLensDimensions:
        - Cities
    - metricParameter: avg_bitrate
+     maxFiltersPerRequest: 99
      filters:
        - _ALL_
    - metricParameter: concurrent_plays
@@ -63,7 +64,9 @@ monitors:
 ```
 
 Add the extra dimension metric_source as shown in sample configuration below for the convenience of searching
-for your metrics in SignalFx using the metric_source value you specify.
+for your metrics in SignalFx using the metric_source value you specify. Also, version 2.4 of the Conviva Experience
+Insights REST APIs limits the number of filters per request to 99. Specify the maximum number of filters per request
+using `maxFiltersPerRequest` as shown in the example above in order to limit the number of filters per request.
 
 ```
 monitors:
@@ -102,6 +105,7 @@ The **nested** `metricConfigs` config object has the following fields:
 | `filters` | no | `list of strings` | Filter names. The default is `All Traffic` filter |
 | `metricLensDimensions` | no | `list of strings` | MetricLens dimension names. The default is names of all MetricLens dimensions of the account |
 | `excludeMetricLensDimensions` | no | `list of strings` | MetricLens dimension names to exclude. |
+| `maxFiltersPerRequest` | no | `integer` | Max number of filters per request. The default is the number of filters. Multiple requests are made if the number of filters is more than maxFiltersPerRequest (**default:** `0`) |
 
 
 

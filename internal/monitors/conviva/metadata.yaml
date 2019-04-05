@@ -49,6 +49,7 @@ monitors:
          metricLensDimensions:
            - Cities
        - metricParameter: avg_bitrate
+         maxFiltersPerRequest: 99
          filters:
            - _ALL_
        - metricParameter: concurrent_plays
@@ -62,7 +63,9 @@ monitors:
     ```
 
     Add the extra dimension metric_source as shown in sample configuration below for the convenience of searching
-    for your metrics in SignalFx using the metric_source value you specify.
+    for your metrics in SignalFx using the metric_source value you specify. Also, version 2.4 of the Conviva Experience
+    Insights REST APIs limits the number of filters per request to 99. Specify the maximum number of filters per request
+    using `maxFiltersPerRequest` as shown in the example above in order to limit the number of filters per request.
 
     ```
     monitors:
