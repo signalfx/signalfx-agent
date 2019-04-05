@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/signalfx/signalfx-agent/internal/monitors"
 	log "github.com/sirupsen/logrus"
+	"go/format"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -184,7 +185,12 @@ func generate(force bool) error {
 			return fmt.Errorf("failed executing template for %s: %s", pkg.Path, err)
 		}
 
-		if err := ioutil.WriteFile(filepath.Join(pkg.PackagePath, genMetadata), writer.Bytes(),
+		formatted, err := format.Source(writer.Bytes())
+		if err != nil {
+			return err
+		}
+
+		if err := ioutil.WriteFile(filepath.Join(pkg.PackagePath, genMetadata), formatted,
 			0644); err != nil {
 			return err
 		}
