@@ -35,7 +35,7 @@ func (mo *monitorOutput) SendDatapoint(dp *datapoint.Datapoint) {
 		return
 	}
 
-	if !mo.additionalFilter.shouldSend(dp) {
+	if mo.additionalFilter != nil && !mo.additionalFilter.shouldSend(dp) {
 		return
 	}
 

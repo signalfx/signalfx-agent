@@ -41,6 +41,8 @@ type Metadata struct {
 	MetricsExhaustive bool
 	Groups            map[string]bool
 	GroupMetricsMap   map[string][]string
+	// XXX: Temporary while all the monitors get migrated.
+	OldMetricsStyle bool
 }
 
 // HasMetric returns whether the metric exists at all (custom or included).
@@ -61,7 +63,7 @@ func (metadata *Metadata) HasGroup(group string) bool {
 // Register is the old register interface.
 // Deprecated: use RegisterWithMetadata.
 func Register(_type string, factory MonitorFactory, configTemplate config.MonitorCustomConfig) {
-	RegisterWithMetadata(&Metadata{MonitorType: _type}, factory, configTemplate)
+	RegisterWithMetadata(&Metadata{MonitorType: _type, OldMetricsStyle: true}, factory, configTemplate)
 }
 
 // RegisterWithMetadata a new monitor type with the agent.  This is intended to be called
