@@ -336,12 +336,14 @@ func (mm *MonitorManager) createAndConfigureNewMonitor(config config.MonitorCust
 
 	// XXX: Temporary while all the monitors get updated.
 	var additionalFilter *metricsFilter
+	var enabledMetrics []string
 	if !metadata.OldMetricsStyle {
 		var err error
 		additionalFilter, err = newMetricsFilter(metadata, config.MonitorConfigCore().AdditionalMetrics)
 		if err != nil {
 			return errors.Wrapf(err, "unable to construct additionalMetrics filter")
 		}
+		enabledMetrics = additionalFilter.enabledMetrics()
 	}
 
 	output := &monitorOutput{
@@ -367,7 +369,7 @@ func (mm *MonitorManager) createAndConfigureNewMonitor(config config.MonitorCust
 		endpoint:       endpoint,
 		agentMeta:      mm.agentMeta,
 		output:         output,
-		enabledMetrics: additionalFilter.enabledMetrics(),
+		enabledMetrics: enabledMetrics,
 	}
 
 	if err := am.configureMonitor(config); err != nil {
