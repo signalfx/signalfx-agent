@@ -20,12 +20,8 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-const (
-	kubeletStatsType = "kubelet-stats"
-)
-
 func init() {
-	monitors.Register(kubeletStatsType, func() interface{} { return &KubeletStatsMonitor{} }, &KubeletStatsConfig{})
+	monitors.Register(&kubeletStatsMonitorMetadata, func() interface{} { return &KubeletStatsMonitor{} }, &KubeletStatsConfig{})
 }
 
 // KubeletStatsConfig respresents config for the Kubelet stats monitor

@@ -10,8 +10,6 @@ import (
 	yaml "gopkg.in/yaml.v2"
 )
 
-const monitorType = "collectd/hadoopjmx"
-
 var serviceName = "hadoop"
 
 type nodeType string
@@ -79,7 +77,7 @@ func loadMBeans(mBeanYaml string) genericjmx.MBeanMap {
 }
 
 func init() {
-	monitors.Register(monitorType, func() interface{} {
+	monitors.Register(&monitorMetadata, func() interface{} {
 		return &Monitor{
 			genericjmx.NewJMXMonitorCore(genericjmx.DefaultMBeans, serviceName),
 		}

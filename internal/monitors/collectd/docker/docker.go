@@ -14,7 +14,7 @@ import (
 const monitorType = "collectd/docker"
 
 func init() {
-	monitors.Register(monitorType, func() interface{} {
+	monitors.Register(&monitorMetadata, func() interface{} {
 		return &Monitor{
 			*collectd.NewMonitorCore(CollectdTemplate),
 		}

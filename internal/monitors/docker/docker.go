@@ -28,7 +28,7 @@ const dockerAPIVersion = "v1.22"
 var logger = log.WithFields(log.Fields{"monitorType": monitorType})
 
 func init() {
-	monitors.Register(monitorType, func() interface{} { return &Monitor{} }, &Config{})
+	monitors.Register(&monitorMetadata, func() interface{} { return &Monitor{} }, &Config{})
 }
 
 // EnhancedMetricsConfig to decide if it will send out all custom metrics

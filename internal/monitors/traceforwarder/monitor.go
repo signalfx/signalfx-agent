@@ -19,7 +19,7 @@ var logger = utils.NewThrottledLogger(log.WithFields(log.Fields{"monitorType": m
 var golibLogger = &utils.LogrusGolibShim{FieldLogger: logger.FieldLogger}
 
 func init() {
-	monitors.Register(monitorType, func() interface{} { return &Monitor{} }, &Config{})
+	monitors.Register(&monitorMetadata, func() interface{} { return &Monitor{} }, &Config{})
 }
 
 // Config for this monitor
