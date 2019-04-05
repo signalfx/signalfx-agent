@@ -1,0 +1,22 @@
+parameters:
+  packages: ''
+  options: '-y --no-progress --limitoutput'
+
+steps:
+- powershell: |
+    if ((Get-Command "choco.exe" -ErrorAction SilentlyContinue) -eq $null) {
+        Set-ExecutionPolicy Bypass -Scope Process -Force; iex ((New-Object System.Net.WebClient).DownloadString("https://chocolatey.org/install.ps1"))
+        echo "##vso[task.setvariable variable=PATH]$env:PATH"
+        echo $env:PATH
+    } else {
+        echo "choco already installed"
+    }
+  displayName: 'Install choco'
+- ${{ if ne(parameters.packages, '') }}:
+  - powershell: |
+      choco install ${{ parameters.options }} ${{ parameters.packages }}
+      if ($lastexitcode -ne 0) {
+          get-content -path "C:\ProgramData\chocolatey\logs\chocolatey.log"
+          throw
+      }
+    displayName: "Install choco packages"
