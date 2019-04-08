@@ -1,3 +1,4 @@
+monitors:
 - dimensions: null
   doc: |
     This monitor is based on the Telegraf tail plugin.  The monitor tails files and

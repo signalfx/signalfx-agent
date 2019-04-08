@@ -28,11 +28,6 @@ import (
 
 const monitorType = "ecs-metadata"
 
-// MONITOR(ecs-metadata): This monitor reads container stats from a
-// [ECS Task Metadata Endpoint version 2](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/task-metadata-endpoint-v2.html).
-//
-// This currently does not support CPU share/quota metrics.
-
 var logger = log.WithFields(log.Fields{"monitorType": monitorType})
 
 func init() {

@@ -10,21 +10,6 @@ import (
 
 const monitorType = "collectd/solr"
 
-// MONITOR(collectd/solr): Monitors Solr instances.
-//
-// See https://github.com/signalfx/collectd-solr and
-// https://github.com/signalfx/integrations/tree/master/collectd-solr
-//
-// Sample YAML configuration:
-//
-// ```yaml
-// monitors:
-// - type: collectd/solr
-//   host: 127.0.0.1
-//   port: 8983
-// ```
-//
-
 func init() {
 	monitors.Register(monitorType, func() interface{} {
 		return &Monitor{

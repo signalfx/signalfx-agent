@@ -3,7 +3,7 @@ version: 2.1
 executors:
   machine_image:
     machine:
-      image: circleci/classic:201711-01
+      image: ubuntu-1604:201903-01
 
   goexecutor:
     working_directory: /code
@@ -153,7 +153,7 @@ jobs:
           go mod vendor
           git diff --exit-code || (echo 'go modules are not properly vendored. Run `make vendor` and commit the changes.' && exit 1)
 
-  lint: 
+  lint:
     executor: goexecutor
     steps:
       - checkout
@@ -184,10 +184,12 @@ jobs:
     steps:
       - checkout
       - goexecutor_setup
+      # Limit to 4 cores because CircleCI reports 36 cores which will cause OOM when go test is run and tries
+      # to build many binaries in parallel. `go build` can use a max of 1 GB per invokation.
       - run: |
           mkdir ~/testresults
           (cd /tmp; GO111MODULE=on go get github.com/tebeka/go2xunit)
-          bash -eo pipefail -c "make -s test | tee /dev/stderr | go2xunit" > ~/testresults/unit.xml
+          bash -eo pipefail -c "NUM_CORES=4 make -s test | tee /dev/stderr | go2xunit" > ~/testresults/unit.xml
       - save_test_results
 
   docs_test:

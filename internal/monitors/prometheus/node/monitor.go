@@ -1,4 +1,4 @@
-package prometheusnode
+package node
 
 import (
 	"github.com/signalfx/signalfx-agent/internal/monitors"

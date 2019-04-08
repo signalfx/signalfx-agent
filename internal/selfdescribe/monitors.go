@@ -55,7 +55,7 @@ func monitorsStructMetadata() []monitorDoc {
 					AcceptsEndpoints: mc.Tag.Get("acceptsEndpoints") == "true",
 					SingleInstance:   mc.Tag.Get("singleInstance") == "true",
 				}
-				mmd.Config.Package = pkg.Package
+				mmd.Config.Package = pkg.PackagePath
 
 				sms = append(sms, mmd)
 			}

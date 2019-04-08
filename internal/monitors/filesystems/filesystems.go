@@ -23,20 +23,6 @@ const monitorType = "filesystems"
 var part = gopsutil.Partitions
 var usage = gopsutil.Usage
 
-// MONITOR(filesystems):
-// This monitor reports metrics about free disk space on mounted devices.
-//
-// On Linux hosts, this monitor relies on the `/proc` filesystem.
-// If the underlying host's `/proc` file system is mounted somewhere other than
-// /proc please specify the path using the top level configuration `procPath`.
-//
-// ```yaml
-// procPath: /hostfs/proc
-// monitors:
-//  - type: filesystems
-//    hostFSPath: /hostfs
-// ```
-
 var logger = log.WithFields(log.Fields{"monitorType": monitorType})
 
 func init() {

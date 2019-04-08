@@ -1,4 +1,4 @@
-package prometheuspostgres
+package postgres
 
 import (
 	"github.com/signalfx/signalfx-agent/internal/monitors"

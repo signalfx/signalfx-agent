@@ -1,3 +1,4 @@
+monitors:
 - monitorType: gitlab
   doc: |
     GitLab is an open-source web-based git repository manager developed by

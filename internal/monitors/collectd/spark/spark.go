@@ -24,33 +24,6 @@ const (
 	sparkYarn                        = "Yarn"
 )
 
-// MONITOR(collectd/spark): Collects metrics about a Spark cluster using the
-// [collectd Spark Python plugin](https://github.com/signalfx/collectd-spark).
-// Also see
-// https://github.com/signalfx/integrations/tree/master/collectd-spark.
-//
-// You have to specify distinct monitor configurations and discovery rules for
-// master and worker processes.  For the master configuration, set `isMaster`
-// to true.
-//
-// We only support HTTP endpoints for now.
-//
-// When running Spark on Apache Hadoop / Yarn, this integration is only capable
-// of reporting application metrics from the master node.  Please use the
-// collectd/hadoop monitor to report on the health of the cluster.
-//
-//An example configuration for monitoring applications on Yarn
-// ```yaml
-// monitors:
-//   - type: collectd/spark
-//     host: 000.000.000.000
-//     port: 8088
-//     clusterType: Yarn
-//     isMaster: true
-//     collectApplicationMetrics: true
-// ```
-//
-
 func init() {
 	monitors.Register(monitorType, func() interface{} {
 		return &Monitor{

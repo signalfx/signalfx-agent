@@ -20,20 +20,6 @@ const monitorType = "net-io"
 
 // setting net.IOCounters to a package variable for testing purposes
 var iOCounters = net.IOCounters
-
-// MONITOR(net-io):
-// This monitor reports I/O metrics about network interfaces.
-//
-// On Linux hosts, this monitor relies on the `/proc` filesystem.
-// If the underlying host's `/proc` file system is mounted somewhere other than
-// /proc please specify the path using the top level configuration `procPath`.
-//
-// ```yaml
-// procPath: /proc
-// monitors:
-//  - type: net-io
-// ```
-
 var logger = log.WithFields(log.Fields{"monitorType": monitorType})
 
 func init() {

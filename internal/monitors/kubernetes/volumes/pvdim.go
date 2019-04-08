@@ -97,13 +97,6 @@ func dimsForPersistentVolumeClaim(claimName, namespace string, client *k8s.Clien
 	return dimsForPersistentVolumeSource(pv.Spec.PersistentVolumeSource), nil
 }
 
-// DIMENSION(volume_type): The type of the underlying volume -- this will be
-// the key used in the k8s volume config spec (e.g. awsElasticBlockStore, etc.)
-
-// DIMENSION(VolumeId): (*EBS volumes only*) The EBS volume id of the underlying volume source
-// DIMENSION(partition): (*EBS volumes only*) The partition number of the
-// underlying EBS volume (`0` indicates the entire disk)
-
 func awsElasticBlockStoreDims(vs v1.AWSElasticBlockStoreVolumeSource) map[string]string {
 	return map[string]string{
 		"volume_type": "awsElasticBlockStore",
@@ -111,9 +104,6 @@ func awsElasticBlockStoreDims(vs v1.AWSElasticBlockStoreVolumeSource) map[string
 		"partition":   strconv.Itoa(int(vs.Partition)),
 	}
 }
-
-// DIMENSION(endpoints_name): (*GlusterFS volumes only*) The endpoint name used for the GlusterFS volume
-// DIMENSION(glusterfs_path): (*GlusterFS volumes only*) The GlusterFS volume path
 
 func glusterfsDims(vs v1.GlusterfsVolumeSource) map[string]string {
 	return map[string]string{

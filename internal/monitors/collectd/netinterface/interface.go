@@ -15,21 +15,6 @@ import (
 
 const monitorType = "collectd/interface"
 
-// MONITOR(collectd/interface): Collectd stats about network interfaces on the
-// system by using the [collectd interface
-// plugin](https://collectd.org/wiki/index.php/Plugin:Interface).
-//
-// See the [integrations
-// doc](https://github.com/signalfx/integrations/tree/master/collectd-interface)
-// for more information.
-
-// CUMULATIVE(if_errors.rx): Count of receive errors on the interface
-// CUMULATIVE(if_errors.tx): Count of transmit errors on the interface
-// CUMULATIVE(if_octets.rx): Count of bytes (octets) received on the interface
-// CUMULATIVE(if_octets.tx): Count of bytes (octets) transmitted by the interface
-// CUMULATIVE(if_packets.rx): Count of packets received on the interface
-// CUMULATIVE(if_packets.tx): Count of packets transmitted by the interface
-
 func init() {
 	monitors.Register(monitorType, func() interface{} {
 		return &Monitor{

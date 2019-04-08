@@ -1,3 +1,4 @@
+monitors:
 - dimensions: null
   doc: |
     Monitors the actual clock speed of each CPU on a

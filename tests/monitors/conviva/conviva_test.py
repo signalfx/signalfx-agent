@@ -18,10 +18,11 @@ pytestmark = [pytest.mark.conviva, pytest.mark.monitor_without_endpoints]
 CONVIVA_PULSE_API_URL = os.environ.get("CONVIVA_PULSE_API_URL", "https://api.conviva.com/insights/2.4/")
 CONVIVA_PULSE_USERNAME = os.environ.get("CONVIVA_PULSE_USERNAME")
 CONVIVA_PULSE_PASSWORD = os.environ.get("CONVIVA_PULSE_PASSWORD")
-
-
 if not CONVIVA_PULSE_USERNAME or not CONVIVA_PULSE_PASSWORD:
     pytest.skip("CONVIVA_PULSE_USERNAME and/or CONVIVA_PULSE_PASSWORD env vars not set", allow_module_level=True)
+CONVIVA_DEBUG = False
+if os.environ.get("CONVIVA_DEBUG", "").lower() in ["1", "yes", "true"]:
+    CONVIVA_DEBUG = True
 
 
 def get_conviva_json(path, max_attempts=3):
@@ -31,15 +32,15 @@ def get_conviva_json(path, max_attempts=3):
     attempts = 0
     while attempts < max_attempts:
         with requests.get(url, auth=auth) as resp:
-            json_resp = json.loads(resp.text)
             if resp.status_code == 200:
+                json_resp = json.loads(resp.text)
                 break
         time.sleep(5)
         attempts += 1
     return json_resp
 
 
-@pytest.fixture
+@pytest.fixture(scope="module")
 def conviva_accounts():
     accounts_json = get_conviva_json("accounts.json")
     assert (
@@ -48,14 +49,14 @@ def conviva_accounts():
     return list(accounts_json["accounts"].keys())
 
 
-@pytest.fixture
+@pytest.fixture(scope="module")
 def conviva_filters():
     filters_json = get_conviva_json("filters.json")
     assert filters_json, "No filters found in filters.json response:\n%s" % str(filters_json)
     return list(filters_json.values())
 
 
-@pytest.fixture
+@pytest.fixture(scope="module")
 def conviva_metriclens_dimensions():
     metriclens_dimensions_json = get_conviva_json("metriclens_dimension_list.json")
     assert metriclens_dimensions_json, (
@@ -64,11 +65,16 @@ def conviva_metriclens_dimensions():
     return list(metriclens_dimensions_json.keys())
 
 
-@pytest.mark.flaky(reruns=2, reruns_delay=5)
+def get_dim_key(metriclens_dimension):
+    return re.sub(r"\W", "_", metriclens_dimension)
+
+
+@pytest.mark.flaky(reruns=2, reruns_delay=30)
 def test_conviva_basic():
     with run_agent(
         dedent(
             f"""
+        intervalSeconds: 5
         monitors:
         - type: conviva
           pulseUsername: {{"#from": "env:CONVIVA_PULSE_USERNAME"}}
@@ -93,11 +99,12 @@ def test_conviva_basic():
         )
 
 
-@pytest.mark.flaky(reruns=2, reruns_delay=5)
+@pytest.mark.flaky(reruns=2, reruns_delay=30)
 def test_conviva_extra_dimensions():
     with run_agent(
         dedent(
             f"""
+        intervalSeconds: 5
         monitors:
         - type: conviva
           pulseUsername: {{"#from": "env:CONVIVA_PULSE_USERNAME"}}
@@ -106,7 +113,8 @@ def test_conviva_extra_dimensions():
             metric_source: conviva
             mydim: foo
     """
-        )
+        ),
+        debug=CONVIVA_DEBUG,
     ) as [backend, _, _]:
         assert wait_for(lambda: len(backend.datapoints) > 0), "Didn't get conviva datapoints"
         assert ensure_always(
@@ -114,11 +122,12 @@ def test_conviva_extra_dimensions():
         ), "Received conviva datapoints without extra dimensions"
 
 
-@pytest.mark.flaky(reruns=2, reruns_delay=5)
+@pytest.mark.flaky(reruns=2, reruns_delay=30)
 def test_conviva_single_metric():
     with run_agent(
         dedent(
             f"""
+        intervalSeconds: 5
         monitors:
         - type: conviva
           pulseUsername: {{"#from": "env:CONVIVA_PULSE_USERNAME"}}
@@ -126,7 +135,8 @@ def test_conviva_single_metric():
           metricConfigs:
           - metricParameter: concurrent_plays
     """
-        )
+        ),
+        debug=CONVIVA_DEBUG,
     ) as [backend, _, _]:
         assert wait_for(lambda: len(backend.datapoints) > 0), "Didn't get conviva datapoints"
         assert ensure_always(
@@ -134,7 +144,7 @@ def test_conviva_single_metric():
         ), "Received conviva datapoints for other metrics"
 
 
-@pytest.mark.flaky(reruns=2, reruns_delay=5)
+@pytest.mark.flaky(reruns=2, reruns_delay=30)
 def test_conviva_multi_metric():
     with run_agent(
         dedent(
@@ -147,21 +157,23 @@ def test_conviva_multi_metric():
           - metricParameter: concurrent_plays
           - metricParameter: plays
     """
-        )
+        ),
+        debug=CONVIVA_DEBUG,
     ) as [backend, _, _]:
         assert wait_for(
-            p(has_datapoint_with_metric_name, backend, "conviva.concurrent_plays")
+            p(has_datapoint_with_metric_name, backend, "conviva.concurrent_plays"), 60
         ), "Didn't get conviva datapoints for metric concurrent_plays"
         assert wait_for(
-            p(has_datapoint_with_metric_name, backend, "conviva.plays")
+            p(has_datapoint_with_metric_name, backend, "conviva.plays"), 60
         ), "Didn't get conviva datapoints for metric plays"
 
 
-@pytest.mark.flaky(reruns=2, reruns_delay=5)
+@pytest.mark.flaky(reruns=2, reruns_delay=30)
 def test_conviva_metriclens():
     with run_agent(
         dedent(
             f"""
+        intervalSeconds: 5
         monitors:
         - type: conviva
           pulseUsername: {{"#from": "env:CONVIVA_PULSE_USERNAME"}}
@@ -170,23 +182,25 @@ def test_conviva_metriclens():
           - metricParameter: audience_metriclens
           - metricParameter: quality_metriclens
     """
-        )
+        ),
+        debug=CONVIVA_DEBUG,
     ) as [backend, _, _]:
         pattern = re.compile("^conviva\.audience_metriclens\..*")
         assert wait_for(
-            p(has_datapoint_with_metric_name, backend, pattern)
+            p(has_datapoint_with_metric_name, backend, pattern), 60
         ), "Didn't get conviva datapoints for metriclens audience_metriclens"
         pattern = re.compile("^conviva\.quality_metriclens\..*")
         assert wait_for(
-            p(has_datapoint_with_metric_name, backend, pattern)
+            p(has_datapoint_with_metric_name, backend, pattern), 60
         ), "Didn't get conviva datapoints for metriclens quality_metriclens"
 
 
-@pytest.mark.flaky(reruns=2, reruns_delay=5)
+@pytest.mark.flaky(reruns=2, reruns_delay=30)
 def test_conviva_single_metriclens_dimension(conviva_metriclens_dimensions):
     with run_agent(
         dedent(
             f"""
+        intervalSeconds: 5
         monitors:
         - type: conviva
           pulseUsername: {{"#from": "env:CONVIVA_PULSE_USERNAME"}}
@@ -196,23 +210,25 @@ def test_conviva_single_metriclens_dimension(conviva_metriclens_dimensions):
             metricLensDimensions:
             - {conviva_metriclens_dimensions[0]}
     """
-        )
+        ),
+        debug=CONVIVA_DEBUG,
     ) as [backend, _, _]:
         assert wait_for(lambda: len(backend.datapoints) > 0), "Didn't get conviva datapoints"
         pattern = re.compile("^conviva\.quality_metriclens\..*")
         assert ensure_always(
             p(all_datapoints_have_metric_name, backend, pattern)
         ), "Received conviva datapoints for other metrics"
-        assert ensure_always(
-            p(all_datapoints_have_dim_key, backend, conviva_metriclens_dimensions[0].replace(" ", "_"))
-        ), ("Received conviva datapoints without %s dimension" % conviva_metriclens_dimensions[0])
+        assert ensure_always(p(all_datapoints_have_dim_key, backend, get_dim_key(conviva_metriclens_dimensions[0]))), (
+            "Received conviva datapoints without %s dimension" % conviva_metriclens_dimensions[0]
+        )
 
 
-@pytest.mark.flaky(reruns=2, reruns_delay=5)
+@pytest.mark.flaky(reruns=2, reruns_delay=30)
 def test_conviva_multi_metriclens_dimension(conviva_metriclens_dimensions):
     with run_agent(
         dedent(
             f"""
+        intervalSeconds: 5
         monitors:
         - type: conviva
           pulseUsername: {{"#from": "env:CONVIVA_PULSE_USERNAME"}}
@@ -221,20 +237,22 @@ def test_conviva_multi_metriclens_dimension(conviva_metriclens_dimensions):
           - metricParameter: quality_metriclens
             metricLensDimensions: {conviva_metriclens_dimensions}
     """
-        )
+        ),
+        debug=CONVIVA_DEBUG,
     ) as [backend, _, _]:
-        conviva_metriclens_dimensions.remove("CDNs")
         for dim in conviva_metriclens_dimensions:
-            assert wait_for(p(has_datapoint_with_dim_key, backend, dim.replace(" ", "_"))), (
-                "Didn't get conviva datapoints with %s dimension" % dim
-            )
+            if dim != "CDNs":
+                assert wait_for(p(has_datapoint_with_dim_key, backend, get_dim_key(dim)), 60), (
+                    "Didn't get conviva datapoints with %s dimension" % dim
+                )
 
 
-@pytest.mark.flaky(reruns=2, reruns_delay=5)
+@pytest.mark.flaky(reruns=2, reruns_delay=30)
 def test_conviva_all_metriclens_dimension(conviva_metriclens_dimensions):
     with run_agent(
         dedent(
             f"""
+        intervalSeconds: 5
         monitors:
         - type: conviva
           pulseUsername: {{"#from": "env:CONVIVA_PULSE_USERNAME"}}
@@ -244,20 +262,22 @@ def test_conviva_all_metriclens_dimension(conviva_metriclens_dimensions):
             metricLensDimensions:
             - _ALL_
     """
-        )
+        ),
+        debug=CONVIVA_DEBUG,
     ) as [backend, _, _]:
-        conviva_metriclens_dimensions.remove("CDNs")
         for dim in conviva_metriclens_dimensions:
-            assert wait_for(p(has_datapoint_with_dim_key, backend, dim.replace(" ", "_"))), (
-                "Didn't get conviva datapoints with %s dimension" % dim
-            )
+            if dim != "CDNs":
+                assert wait_for(p(has_datapoint_with_dim_key, backend, get_dim_key(dim)), 60), (
+                    "Didn't get conviva datapoints with %s dimension" % dim
+                )
 
 
-@pytest.mark.flaky(reruns=2, reruns_delay=5)
+@pytest.mark.flaky(reruns=2, reruns_delay=30)
 def test_conviva_exclude_metriclens_dimension(conviva_metriclens_dimensions):
     with run_agent(
         dedent(
             f"""
+        intervalSeconds: 5
         monitors:
         - type: conviva
           pulseUsername: {{"#from": "env:CONVIVA_PULSE_USERNAME"}}
@@ -269,7 +289,8 @@ def test_conviva_exclude_metriclens_dimension(conviva_metriclens_dimensions):
             excludeMetricLensDimensions:
             - CDNs
     """
-        )
+        ),
+        debug=CONVIVA_DEBUG,
     ) as [backend, _, _]:
         assert wait_for(lambda: len(backend.datapoints) > 0), "Didn't get conviva datapoints"
         assert ensure_always(
@@ -277,11 +298,12 @@ def test_conviva_exclude_metriclens_dimension(conviva_metriclens_dimensions):
         ), "Received datapoint with excluded CDNs dimension"
 
 
-@pytest.mark.flaky(reruns=2, reruns_delay=5)
+@pytest.mark.flaky(reruns=2, reruns_delay=30)
 def test_conviva_metric_account(conviva_accounts):
     with run_agent(
         dedent(
             f"""
+        intervalSeconds: 5
         monitors:
         - type: conviva
           pulseUsername: {{"#from": "env:CONVIVA_PULSE_USERNAME"}}
@@ -290,7 +312,8 @@ def test_conviva_metric_account(conviva_accounts):
           - metricParameter: concurrent_plays
             account: {conviva_accounts[0]}
     """
-        )
+        ),
+        debug=CONVIVA_DEBUG,
     ) as [backend, _, _]:
         assert wait_for(lambda: len(backend.datapoints) > 0), "Didn't get conviva datapoints"
         assert ensure_always(
@@ -306,11 +329,12 @@ def test_conviva_metric_account(conviva_accounts):
         )
 
 
-@pytest.mark.flaky(reruns=2, reruns_delay=5)
+@pytest.mark.flaky(reruns=2, reruns_delay=30)
 def test_conviva_single_filter(conviva_filters):
     with run_agent(
         dedent(
             f"""
+        intervalSeconds: 5
         monitors:
         - type: conviva
           pulseUsername: {{"#from": "env:CONVIVA_PULSE_USERNAME"}}
@@ -320,7 +344,8 @@ def test_conviva_single_filter(conviva_filters):
             filters:
               - {conviva_filters[0]}
     """
-        )
+        ),
+        debug=CONVIVA_DEBUG,
     ) as [backend, _, _]:
         assert wait_for(lambda: len(backend.datapoints) > 0), "Didn't get conviva datapoints"
         assert ensure_always(
@@ -336,44 +361,56 @@ def test_conviva_single_filter(conviva_filters):
         )
 
 
-@pytest.mark.flaky(reruns=2, reruns_delay=5)
+@pytest.mark.flaky(reruns=2, reruns_delay=30)
 def test_conviva_multi_filter(conviva_filters):
     with run_agent(
         dedent(
             f"""
+        intervalSeconds: 5
         monitors:
         - type: conviva
           pulseUsername: {{"#from": "env:CONVIVA_PULSE_USERNAME"}}
           pulsePassword: {{"#from": "env:CONVIVA_PULSE_PASSWORD"}}
           metricConfigs:
           - metricParameter: concurrent_plays
-            filters: {conviva_filters}
+            filters: {conviva_filters[:3]}
     """
-        )
+        ),
+        debug=CONVIVA_DEBUG,
     ) as [backend, _, _]:
-        for cf in conviva_filters:
-            assert wait_for(p(has_datapoint, backend, "conviva.concurrent_plays", {"filter": cf})), (
+        for cf in conviva_filters[:3]:
+            assert wait_for(p(has_datapoint, backend, "conviva.concurrent_plays", {"filter": cf}), 60), (
                 "Didn't get conviva datapoints for metric concurrent_plays with dimension {filter: %s}" % cf
             )
 
 
-@pytest.mark.flaky(reruns=2, reruns_delay=5)
+@pytest.mark.flaky(reruns=2, reruns_delay=30)
 def test_conviva_all_filter(conviva_filters):
+    def get_filters_from_datapoints(backend):
+        filters = set()
+        for dp in backend.datapoints:
+            for dim in dp.dimensions:
+                if dim.key == "filter":
+                    filters.add(dim.value)
+        return sorted(list(filters))
+
     with run_agent(
         dedent(
             f"""
+        intervalSeconds: 5
         monitors:
         - type: conviva
           pulseUsername: {{"#from": "env:CONVIVA_PULSE_USERNAME"}}
           pulsePassword: {{"#from": "env:CONVIVA_PULSE_PASSWORD"}}
           metricConfigs:
           - metricParameter: concurrent_plays
+            maxFiltersPerRequest: 99
             filters:
               - _ALL_
     """
-        )
+        ),
+        debug=CONVIVA_DEBUG,
     ) as [backend, _, _]:
-        for cf in conviva_filters:
-            assert wait_for(p(has_datapoint, backend, "conviva.concurrent_plays", {"filter": cf})), (
-                "Didn't get conviva datapoints for metric concurrent_plays with dimension {filter: %s}" % cf
-            )
+        assert wait_for(
+            lambda: sorted(conviva_filters) == get_filters_from_datapoints(backend), 300
+        ), "Didn't get datapoints with all filters"

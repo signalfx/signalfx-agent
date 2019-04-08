@@ -25,20 +25,6 @@ import (
 const monitorType = "docker-container-stats"
 const dockerAPIVersion = "v1.22"
 
-// MONITOR(docker-container-stats): This monitor reads container stats from a
-// Docker API server.  It is meant as a metric-compatible replacement of our
-// [docker-collectd](https://github.com/signalfx/docker-collectd-plugin)
-// plugin, which scales rather poorly against a large number of containers.
-//
-// This currently does not support CPU share/quota metrics.
-//
-// If you are running the agent directly on a host (outside of a container
-// itself) and you are using the default Docker UNIX socket URL, you will
-// probably need to add the `signalfx-agent` user to the `docker` group in
-// order to have permission to access the Docker API via the socket.
-//
-// Requires Docker API version 1.22+.
-
 var logger = log.WithFields(log.Fields{"monitorType": monitorType})
 
 func init() {

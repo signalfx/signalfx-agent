@@ -283,52 +283,6 @@ def get_monitor_metrics_from_selfdescribe(monitor, json_path=SELFDESCRIBE_JSON):
     return metrics
 
 
-def get_monitor_metrics_from_metadata_yaml(monitor_package_path, mon_type=None):
-    with open(os.path.join(REPO_ROOT_DIR, monitor_package_path, "metadata.yaml"), "r", encoding="utf-8") as fd:
-        doc = yaml.safe_load(fd.read())
-        if len(doc) == 1:
-            return doc[0].get("metrics")
-
-        if mon_type is None:
-            raise ValueError(
-                "mon_type kwarg must be provided when there is more than one monitor in a metadata.yaml file"
-            )
-        for monitor in doc:
-            if monitor["monitorType"] == mon_type:
-                return monitor.get("metrics")
-    return None
-
-
-def get_monitor_default_metrics_list_from_metadata_yaml(monitor_package_path, mon_type=None):
-    metrics = get_monitor_metrics_from_metadata_yaml(monitor_package_path, mon_type)
-    ret = []
-    for metric in metrics:
-        if metric.get("included"):
-            ret.append(metric.get("name"))
-    return ret
-
-
-def get_monitor_dimensions_list_from_metadata_yaml(monitor_package_path, mon_type=None):
-    with open(os.path.join(REPO_ROOT_DIR, monitor_package_path, "metadata.yaml"), "r", encoding="utf-8") as fd:
-        doc = yaml.safe_load(fd.read())
-        out = []
-        if len(doc) == 1:
-            for dim in doc[0].get("dimensions"):
-                out.append(dim.get("name"))
-            return out
-
-        if mon_type is None:
-            raise ValueError(
-                "mon_type kwarg must be provided when there is more than one monitor in a metadata.yaml file"
-            )
-        for monitor in doc:
-            if monitor["monitorType"] == mon_type:
-                for dim in monitor[0].get("dimensions"):
-                    out.append(dim.get("name"))
-                return out
-    return out
-
-
 def get_monitor_dims_from_selfdescribe(monitor, json_path=SELFDESCRIBE_JSON):
     dims = set()
     with open(json_path, "r", encoding="utf-8") as fd:

@@ -39,7 +39,9 @@ type metricConfig struct {
 	MetricLensDimensions []string `yaml:"metricLensDimensions"`
 	// MetricLens dimension names to exclude.
 	ExcludeMetricLensDimensions []string `yaml:"excludeMetricLensDimensions"`
-	accountID                   string
+	// Max number of filters per request. The default is the number of filters. Multiple requests are made if the number of filters is more than maxFiltersPerRequest
+	MaxFiltersPerRequest int `yaml:"maxFiltersPerRequest"`
+	accountID            string
 	// id:name map of filters derived from the configured Filters
 	filtersMap map[string]string
 	// name:id map of MetricLens dimensions derived from configured MetricLensDimensions
@@ -200,6 +202,8 @@ func (mc *metricConfig) filterIDs() []string {
 
 // logs filter status only when the filter status changes
 func (mc *metricConfig) logFilterStatuses(filtersWarmupIds []int64, filtersNotExistIds []int64, filtersIncompleteDataIds []int64) {
+	mc.mutex.Lock()
+	defer mc.mutex.Unlock()
 	mc.filtersWarmup = logFilterStatusesHelper(mc.MetricParameter, mc.filtersMap, mc.filtersWarmup, filtersWarmupIds, "filters_warmup")
 	mc.filtersNotExist = logFilterStatusesHelper(mc.MetricParameter, mc.filtersMap, mc.filtersNotExist, filtersNotExistIds, "filters_not_exist")
 	mc.filtersIncompleteData = logFilterStatusesHelper(mc.MetricParameter, mc.filtersMap, mc.filtersIncompleteData, filtersIncompleteDataIds, "filters_incomplete_data")
