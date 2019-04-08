@@ -150,13 +150,11 @@ func (m *Monitor) fetchMetrics(conf *Config) (map[string][]*datapoint.Datapoint,
 	if err != nil {
 		return nil, err
 	}
-	var dpsMap map[string][]*datapoint.Datapoint
-	var applicationName string
-
-	if applicationName, err = getApplicationName(metricsJSON); err != nil {
+	applicationName, err := getApplicationName(metricsJSON)
+	if err != nil {
 		logger.Warn(err)
 	}
-	dpsMap = make(map[string][]*datapoint.Datapoint)
+	dpsMap := make(map[string][]*datapoint.Datapoint)
 	for _, mConf := range m.allMetricConfigs {
 		dp := datapoint.Datapoint{Dimensions: map[string]string{}}
 		if applicationName != "" {
@@ -173,64 +171,64 @@ func (m *Monitor) fetchMetrics(conf *Config) (map[string][]*datapoint.Datapoint,
 // traverses v recursively following metric path parts in mConf.keys[]
 // adds dimensions along the way and sets metric value in the end
 // clones datapoints and add array index dimension for array values in v
-func (m *Monitor) setDatapoints(v interface{}, mConf *MetricConfig, dp *datapoint.Datapoint, dpsMap map[string][]*datapoint.Datapoint, metricPathIndex int) {
-	if metricPathIndex >= len(m.metricPathsParts[mConf]) {
-		logger.Errorf("failed to find metric value in path: %s", mConf.JSONPath)
+func (m *Monitor) setDatapoints(v interface{}, mc *MetricConfig, dp *datapoint.Datapoint, dpsMap map[string][]*datapoint.Datapoint, metricPathIndex int) {
+	if metricPathIndex >= len(m.metricPathsParts[mc]) {
+		logger.Errorf("failed to find metric value in path: %s", mc.JSONPath)
 		return
 	}
 	switch v.(type) {
 	case nil:
-		logger.Errorf("failed to find value %s with JSON path %s", mConf.name(), mConf.JSONPath)
+		logger.Errorf("failed to find value %s with JSON path %s", mc.name(), mc.JSONPath)
 		return
 	case map[string]interface{}:
-		for _, dConf := range mConf.DimensionConfigs {
+		for _, dConf := range mc.DimensionConfigs {
 			if len(m.dimensionPathsParts[dConf]) != 0 && len(m.dimensionPathsParts[dConf]) == metricPathIndex {
-				dp.Dimensions[dConf.Name] = m.metricPathsParts[mConf][metricPathIndex]
+				dp.Dimensions[dConf.Name] = m.metricPathsParts[mc][metricPathIndex]
 			}
 		}
 		set := v.(map[string]interface{})
-		m.setDatapoints(set[m.metricPathsParts[mConf][metricPathIndex+1]], mConf, dp, dpsMap, metricPathIndex+1)
+		m.setDatapoints(set[m.metricPathsParts[mc][metricPathIndex+1]], mc, dp, dpsMap, metricPathIndex+1)
 	case []interface{}:
 		values := v.([]interface{})
 		clone := dp
 		for index, value := range values {
-			if index == 0 {
+			if index > 0 {
 				clone = &datapoint.Datapoint{Dimensions: utils.CloneStringMap(clone.Dimensions)}
 			}
 			createIndexDimension := true
-			for _, conf := range mConf.DimensionConfigs {
+			for _, conf := range mc.DimensionConfigs {
 				if len(m.dimensionPathsParts[conf]) == metricPathIndex+1 {
 					clone.Dimensions[conf.Name] = fmt.Sprint(index)
 					createIndexDimension = false
 				}
 			}
 			if createIndexDimension {
-				clone.Dimensions[strings.Join(m.metricPathsParts[mConf][:metricPathIndex+1], ".")] = fmt.Sprint(index)
+				clone.Dimensions[strings.Join(m.metricPathsParts[mc][:metricPathIndex+1], ".")] = fmt.Sprint(index)
 			}
-			m.setDatapoints(value, mConf, clone, dpsMap, metricPathIndex)
+			m.setDatapoints(value, mc, clone, dpsMap, metricPathIndex)
 		}
 	default:
-		dp.Metric, dp.MetricType = mConf.name(), m.metricTypes[mConf]
-		for _, dConf := range mConf.DimensionConfigs {
+		dp.Metric, dp.MetricType = mc.name(), m.metricTypes[mc]
+		for _, dConf := range mc.DimensionConfigs {
 			if strings.TrimSpace(dConf.Name) != "" && strings.TrimSpace(dConf.Value) != "" {
 				dp.Dimensions[dConf.Name] = dConf.Value
 			}
 		}
 		var err error
 		if dp.Value, err = datapoint.CastMetricValueWithBool(v); err == nil {
-			dpsMap[mConf.JSONPath] = append(dpsMap[mConf.JSONPath], dp)
+			dpsMap[mc.JSONPath] = append(dpsMap[mc.JSONPath], dp)
 		} else {
-			logger.Debugf("failed to set value for metric %s with JSON path %s because of type conversion error due to %+v", mConf.name(), mConf.JSONPath, err)
+			logger.Debugf("failed to set value for metric %s with JSON path %s because of type conversion error due to %+v", mc.name(), mc.JSONPath, err)
 			logger.WithError(err).Error("Unable to set metric value")
 			return
 		}
 	}
 }
 
-func (m *Monitor) sendDatapoint(conf *Config, dp *datapoint.Datapoint, metricPath string, mostRecentGCPauseIndex int64, now *time.Time) (err error) {
+func (m *Monitor) sendDatapoint(conf *Config, dp *datapoint.Datapoint, metricPath string, mostRecentGCPauseIndex int64, now *time.Time) error {
 	if metricPath == memstatsPauseNsMetricPath || metricPath == memstatsPauseEndMetricPath {
-		var index int64
-		if index, err = strconv.ParseInt(dp.Dimensions[metricPath], 10, 0); err == nil && index == mostRecentGCPauseIndex {
+		index, err := strconv.ParseInt(dp.Dimensions[metricPath], 10, 0)
+		if err == nil && index == mostRecentGCPauseIndex {
 			dp.Metric = memstatsMostRecentGCPauseNsMetricName
 			if metricPath == memstatsPauseEndMetricPath {
 				dp.Metric = memstatsMostRecentGCPauseEndMetricName
