@@ -24,6 +24,7 @@ spec:
     spec:
       # Use host network so we can access kubelet directly
       hostNetwork: true
+      dnsPolicy: ClusterFirstWithHostNet
       restartPolicy: Always
       serviceAccountName: signalfx-agent
 
