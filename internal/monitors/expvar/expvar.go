@@ -37,7 +37,14 @@ const (
 var logger = log.WithFields(log.Fields{"monitorType": monitorType})
 
 func init() {
-	monitors.Register(monitorType, func() interface{} { return &Monitor{} }, &Config{})
+	monitors.Register(monitorType, func() interface{} {
+		return &Monitor{
+			metricTypes:         make(map[*MetricConfig]datapoint.MetricType),
+			metricPathsParts:    make(map[*MetricConfig][]string),
+			dimensionPathsParts: make(map[*DimensionConfig][]string),
+			allMetricConfigs:    []*MetricConfig{},
+		}
+	}, &Config{})
 }
 
 // Monitor for expvar metrics
@@ -56,10 +63,6 @@ type Monitor struct {
 
 // Configure monitor
 func (m *Monitor) Configure(conf *Config) error {
-	m.metricTypes = map[*MetricConfig]datapoint.MetricType{}
-	m.metricPathsParts = map[*MetricConfig][]string{}
-	m.dimensionPathsParts = map[*DimensionConfig][]string{}
-	m.allMetricConfigs = []*MetricConfig{}
 	m.addDefaultMetricConfigs(conf.EnhancedMetrics)
 	for _, mConf := range conf.MetricConfigs {
 		if m.metricTypes[mConf] = datapoint.Gauge; strings.TrimSpace(strings.ToLower(mConf.Type)) == cumulative {
@@ -167,7 +170,7 @@ func (m *Monitor) fetchMetrics(conf *Config) (map[string][]*datapoint.Datapoint,
 	return dpsMap, nil
 }
 
-// setDatapoints the dp argument should be a pointer to a zero value datapoint
+// setDatapoints the dp argument should be a pointer to a zero value datapoint and
 // traverses v recursively following metric path parts in mConf.keys[]
 // adds dimensions along the way and sets metric value in the end
 // clones datapoints and add array index dimension for array values in v
@@ -237,7 +240,7 @@ func (m *Monitor) sendDatapoint(conf *Config, dp *datapoint.Datapoint, metricPat
 			delete(dp.Dimensions, metricPath)
 		} else {
 			if err != nil {
-				err = fmt.Errorf("failed to set metric most recent GC pause metric. %+v", err)
+				err = fmt.Errorf("failed to set metric GC pause. %+v", err)
 			}
 			return err
 		}
