@@ -1,0 +1,45 @@
+monitors:
+- dimensions: null
+  doc: |
+
+
+    ### USAGE
+
+    #### Adding dimensions to StatsD metrics
+
+    The StatsD monitor can parse keywords from a statsd metric name by a set of
+    converters that was configured by user.
+
+    ```
+    converters:
+      - pattern: "cluster.cds_{traffic}_{mesh}_{service}-vn_{}.{action}"
+        ...
+    ```
+
+    This converter will parse `traffic`, `mesh`, `service` and `action` as dimensions
+    from a metric name `cluster.cds_egress_ecommerce-demo-mesh_gateway-vn_tcp_8080.update_success`.
+    If a section has only a pair of brackets without a name, it will not capture a dimension.
+
+    When multiple converters were provided, a metric will be converted by the first converter with a
+    matching pattern to the metric name.
+
+    #### Formatting metric name
+
+    You can customize a metric name by providing a format string within the converter configuration.
+    
+    ```
+    converters:
+      - pattern: "cluster.cds_{traffic}_{mesh}_{service}-vn_{}.{action}"
+        metric: "{traffic}.{action}"
+    ```
+    
+    The metrics which match to the given pattern will be reported to SignalFx as `{traffic}.{action}`.
+    For instance, metric `cluster.cds_egress_ecommerce-demo-mesh_gateway-vn_tcp_8080.update_success`
+    will be reported as `egress.update_success`.
+
+    `metric` is required for a converter configuration. A converter will be disabled if `metric` is not provided.
+
+    ```
+  metrics: null
+  monitorType: statsd
+  properties: null
