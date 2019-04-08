@@ -48,26 +48,26 @@ The following table lists the metrics available for this monitor. Metrics that a
 
 | Name | Type | Included | Description |
 | ---  | ---  | ---    | ---         |
-| `counter.indices.get.total` | counter | ✔ | The total number of get requests since node startup |
-| `counter.indices.indexing.index-total` | counter | ✔ | The total number of index requests since node startup |
-| `counter.indices.merges.total` | counter | ✔ | Total number of merges since node startup |
-| `counter.indices.search.query-time` | counter | ✔ | Total time spent in search queries (milliseconds) |
-| `counter.indices.search.query-total` | counter | ✔ | The total number of search requests since node startup |
-| `counter.indices.total.indexing.index-total` | counter | ✔ | The total number of index requests per cluster |
-| `counter.indices.total.merges.total` | counter | ✔ | Total number of merges per cluster |
-| `counter.indices.total.search.query-total` | counter | ✔ | The total number of search requests per cluster |
-| `counter.jvm.gc.time` | counter | ✔ | Total garbage collection time (milliseconds) |
-| `counter.thread_pool.bulk.rejected` | counter | ✔ | Number of rejected bulk requests |
-| `counter.thread_pool.flush.rejected` | counter | ✔ | Number of rejected flush requests |
-| `counter.thread_pool.generic.rejected` | counter | ✔ | Number of rejected generic requests |
-| `counter.thread_pool.get.rejected` | counter | ✔ | Number of rejected get requests |
-| `counter.thread_pool.index.rejected` | counter | ✔ | Number of rejected index requests |
-| `counter.thread_pool.merge.rejected` | counter | ✔ | Number of rejected merge requests |
-| `counter.thread_pool.optimize.rejected` | counter | ✔ | Number of rejected optimize requests |
-| `counter.thread_pool.refresh.rejected` | counter | ✔ | Number of rejected refresh requests |
-| `counter.thread_pool.rejected` | counter | ✔ | Number of rejected thread pool requests |
-| `counter.thread_pool.search.rejected` | counter | ✔ | Number of rejected search requests |
-| `counter.thread_pool.snapshot.rejected` | counter | ✔ | Number of rejected snapshot requests |
+| `counter.indices.get.total` | cumulative | ✔ | The total number of get requests since node startup |
+| `counter.indices.indexing.index-total` | cumulative | ✔ | The total number of index requests since node startup |
+| `counter.indices.merges.total` | cumulative | ✔ | Total number of merges since node startup |
+| `counter.indices.search.query-time` | cumulative | ✔ | Total time spent in search queries (milliseconds) |
+| `counter.indices.search.query-total` | cumulative | ✔ | The total number of search requests since node startup |
+| `counter.indices.total.indexing.index-total` | cumulative | ✔ | The total number of index requests per cluster |
+| `counter.indices.total.merges.total` | cumulative | ✔ | Total number of merges per cluster |
+| `counter.indices.total.search.query-total` | cumulative | ✔ | The total number of search requests per cluster |
+| `counter.jvm.gc.time` | cumulative | ✔ | Total garbage collection time (milliseconds) |
+| `counter.thread_pool.bulk.rejected` | cumulative | ✔ | Number of rejected bulk requests |
+| `counter.thread_pool.flush.rejected` | cumulative | ✔ | Number of rejected flush requests |
+| `counter.thread_pool.generic.rejected` | cumulative | ✔ | Number of rejected generic requests |
+| `counter.thread_pool.get.rejected` | cumulative | ✔ | Number of rejected get requests |
+| `counter.thread_pool.index.rejected` | cumulative | ✔ | Number of rejected index requests |
+| `counter.thread_pool.merge.rejected` | cumulative | ✔ | Number of rejected merge requests |
+| `counter.thread_pool.optimize.rejected` | cumulative | ✔ | Number of rejected optimize requests |
+| `counter.thread_pool.refresh.rejected` | cumulative | ✔ | Number of rejected refresh requests |
+| `counter.thread_pool.rejected` | cumulative | ✔ | Number of rejected thread pool requests |
+| `counter.thread_pool.search.rejected` | cumulative | ✔ | Number of rejected search requests |
+| `counter.thread_pool.snapshot.rejected` | cumulative | ✔ | Number of rejected snapshot requests |
 | `gauge.cluster.active-primary-shards` | gauge | ✔ | The number of active primary shards |
 | `gauge.cluster.active-shards` | gauge | ✔ | The number of active shards |
 | `gauge.cluster.initializing-shards` | gauge |  | The number of currently initializing shards |
@@ -88,10 +88,10 @@ The following table lists the metrics available for this monitor. Metrics that a
 | `gauge.jvm.mem.heap-committed` | gauge | ✔ | Total heap committed by the process (bytes) |
 | `gauge.jvm.mem.heap-used` | gauge | ✔ | Total heap used (bytes) |
 | `gauge.process.open_file_descriptors` | gauge | ✔ | Number of currently open file descriptors |
-| `gauge.thread_pool.active` | counter |  | Number of active threads |
-| `gauge.thread_pool.largest` | counter |  | Highest active threads in thread pool |
-| `gauge.thread_pool.queue` | counter |  | Number of Tasks in thread pool |
-| `gauge.thread_pool.threads` | counter |  | Number of Threads in thread pool |
+| `gauge.thread_pool.active` | gauge |  | Number of active threads |
+| `gauge.thread_pool.largest` | gauge |  | Highest active threads in thread pool |
+| `gauge.thread_pool.queue` | gauge |  | Number of Tasks in thread pool |
+| `gauge.thread_pool.threads` | gauge |  | Number of Threads in thread pool |
 
 
 To specify custom metrics you want to monitor, add a `metricsToInclude` filter

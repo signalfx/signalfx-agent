@@ -147,13 +147,13 @@ The following table lists the metrics available for this monitor. Metrics that a
 | `elasticsearch.jvm.mem.pools.young.max_in_bytes` | gauge |  | Max memory (in bytes) that can be used by Young Gen |
 | `elasticsearch.jvm.classes.current-loaded-count` | gauge |  | Number of classes currently loaded |
 | `elasticsearch.jvm.threads.peak` | gauge |  | Peak number of threads used |
-| `elasticsearch.jvm.classes.total-unloaded-count` | counter |  | Total number of classes unloaded |
-| `elasticsearch.jvm.uptime` | counter |  | Uptime of JVM |
+| `elasticsearch.jvm.classes.total-unloaded-count` | cumulative |  | Total number of classes unloaded |
+| `elasticsearch.jvm.uptime` | cumulative |  | Uptime of JVM |
 | `elasticsearch.jvm.mem.pools.young.used_in_bytes` | gauge |  | Memory used by Young Gen (in bytes) |
 | `elasticsearch.jvm.mem.heap-used-percent` | gauge |  | Percent of heap being used |
 | `elasticsearch.jvm.mem.buffer_pools.direct.total_capacity_in_bytes` | gauge |  | Total capacity of direct buffer pools |
-| `elasticsearch.jvm.gc.time` | counter | ✔ | Total time spent on GC |
-| `elasticsearch.jvm.classes.total-loaded-count` | counter |  | Number of classes loaded |
+| `elasticsearch.jvm.gc.time` | cumulative | ✔ | Total time spent on GC |
+| `elasticsearch.jvm.classes.total-loaded-count` | cumulative |  | Number of classes loaded |
 | `elasticsearch.jvm.mem.pools.young.peak_used_in_bytes` | gauge |  | Memory pool Young Gen peak used (in bytes) |
 | `elasticsearch.jvm.mem.pools.old.max_in_bytes` | gauge |  | Memory used by Old Gen (in bytes) |
 | `elasticsearch.jvm.mem.pools.young.peak_max_in_bytes` | gauge |  | Memory pool Young Gen peak max (in bytes) |
@@ -169,119 +169,119 @@ The following table lists the metrics available for this monitor. Metrics that a
 | `elasticsearch.jvm.mem.buffer_pools.mapped.count` | gauge |  | Number of buffers in the mapped pool |
 | `elasticsearch.jvm.mem.pools.old.used_in_bytes` | gauge |  | Memory being used by Old Gen (in bytes) |
 | `elasticsearch.jvm.mem.pools.survivor.max_in_bytes` | gauge |  | Max memory that can be used by Survivor space (in bytes) |
-| `elasticsearch.jvm.gc.old-count` | counter |  | Total number of garbage collections on Old Gen |
+| `elasticsearch.jvm.gc.old-count` | cumulative |  | Total number of garbage collections on Old Gen |
 | `elasticsearch.jvm.mem.pools.survivor.used_in_bytes` | gauge |  | Memory being used currently by Survivor space (in bytes) |
-| `elasticsearch.jvm.gc.count` | counter |  | Total number of garbage collections |
-| `elasticsearch.jvm.gc.old-time` | counter |  | Total time spent in garbage collections on Old Gen |
+| `elasticsearch.jvm.gc.count` | cumulative |  | Total number of garbage collections |
+| `elasticsearch.jvm.gc.old-time` | cumulative |  | Total time spent in garbage collections on Old Gen |
 | `elasticsearch.jvm.mem.heap-committed` | gauge | ✔ | Memory guaranteed to be available to JVM heap |
 | `elasticsearch.jvm.threads.count` | gauge |  | Number of active threads in the JVM |
 | `elasticsearch.jvm.mem.buffer_pools.mapped.total_capacity_in_bytes` | gauge |  | Total capacity of the buffers in the mapped pool |
 | `elasticsearch.process.max_file_descriptors` | gauge |  | Number of opened file descriptors associated with the current process |
-| `elasticsearch.process.mem.total-virtual-size` | counter |  | Size in bytes of virtual memory that is guaranteed to be available to the running process |
+| `elasticsearch.process.mem.total-virtual-size` | cumulative |  | Size in bytes of virtual memory that is guaranteed to be available to the running process |
 | `elasticsearch.process.cpu.percent` | gauge |  | CPU usage in percent |
-| `elasticsearch.process.cpu.time` | counter |  | CPU time (in milliseconds) used by the process on which the Java virtual machine is running |
+| `elasticsearch.process.cpu.time` | cumulative |  | CPU time (in milliseconds) used by the process on which the Java virtual machine is running |
 | `elasticsearch.process.open_file_descriptors` | gauge | ✔ | Number of currently open file descriptors |
-| `elasticsearch.http.total_open` | counter |  | Total number of opened HTTP connections |
+| `elasticsearch.http.total_open` | cumulative |  | Total number of opened HTTP connections |
 | `elasticsearch.http.current_open` | gauge |  | Number of currently open HTTP connections |
 | `elasticsearch.transport.server_open` | gauge |  | Total number of connections opened for cluster communication |
-| `elasticsearch.transport.rx.count` | counter |  | Total size of data received in cluster communication (in bytes) |
+| `elasticsearch.transport.rx.count` | cumulative |  | Total size of data received in cluster communication (in bytes) |
 | `elasticsearch.thread_pool.queue` | gauge |  | Number of Tasks in thread pool |
-| `elasticsearch.thread_pool.completed` | counter |  | Number of threads completed in thread pool |
-| `elasticsearch.thread_pool.threads` | counter |  | Number of Threads in thread pool |
+| `elasticsearch.thread_pool.completed` | cumulative |  | Number of threads completed in thread pool |
+| `elasticsearch.thread_pool.threads` | cumulative |  | Number of Threads in thread pool |
 | `elasticsearch.thread_pool.active` | gauge |  | Number of active threads |
-| `elasticsearch.thread_pool.rejected` | counter | ✔ | Number of rejected threads in thread pool |
+| `elasticsearch.thread_pool.rejected` | cumulative | ✔ | Number of rejected threads in thread pool |
 | `elasticsearch.indices.merges.current` | gauge | ✔ | Number of currently active segment merges |
 | `elasticsearch.thread_pool.largest` | gauge |  | Highest active threads in thread pool |
-| `elasticsearch.indices.query-cache.miss-count` | counter |  | Number of query cache misses |
-| `elasticsearch.indices.refresh.time` | counter |  | Total time spent on index refreshes |
-| `elasticsearch.indices.refresh.total` | counter |  | Number of index refreshes |
-| `elasticsearch.indices.request-cache.evictions` | counter |  | Number of request cache evictions |
-| `elasticsearch.indices.search.fetch-time` | counter |  | Total time spent on query fetches |
-| `elasticsearch.indices.merges.stopped-time` | counter |  | Total time merges were stopped for |
+| `elasticsearch.indices.query-cache.miss-count` | cumulative |  | Number of query cache misses |
+| `elasticsearch.indices.refresh.time` | cumulative |  | Total time spent on index refreshes |
+| `elasticsearch.indices.refresh.total` | cumulative |  | Number of index refreshes |
+| `elasticsearch.indices.request-cache.evictions` | cumulative |  | Number of request cache evictions |
+| `elasticsearch.indices.search.fetch-time` | cumulative |  | Total time spent on query fetches |
+| `elasticsearch.indices.merges.stopped-time` | cumulative |  | Total time merges were stopped for |
 | `elasticsearch.indices.translog.uncommitted_size_in_bytes` | gauge |  | Size of uncommitted transaction logs (in bytes) |
-| `elasticsearch.transport.tx.count` | counter |  | Total number of packets sent in cluster communication |
-| `elasticsearch.indices.filter-cache.evictions` | counter |  | Number of evicttions from filter cache |
-| `elasticsearch.indices.indexing.delete-time` | counter |  | Time spent deleting documents from an index |
+| `elasticsearch.transport.tx.count` | cumulative |  | Total number of packets sent in cluster communication |
+| `elasticsearch.indices.filter-cache.evictions` | cumulative |  | Number of evicttions from filter cache |
+| `elasticsearch.indices.indexing.delete-time` | cumulative |  | Time spent deleting documents from an index |
 | `elasticsearch.indices.completion.size` | gauge |  | Size used by suggest completion (in bytes) |
 | `elasticsearch.indices.recovery.current-as-target` | gauge |  | Number of ongoing recoveries for which a shard serves as a target |
 | `elasticsearch.indices.refresh.listeners` | gauge |  | Number of listeners waiting for a refresh |
 | `elasticsearch.indices.segments.count` | gauge | ✔ | Number of segments in an index shard |
-| `elasticsearch.indices.search.query-time` | counter | ✔ | Total time spent querying on the primary |
+| `elasticsearch.indices.search.query-time` | cumulative | ✔ | Total time spent querying on the primary |
 | `elasticsearch.indices.segments.version-map-memory` | gauge |  | Memory used by segment version map (in bytes) |
 | `elasticsearch.indices.search.suggest-current` | gauge |  | Number of suggest requests currently active |
-| `elasticsearch.indices.indexing.delete-total` | counter |  | Number of documents deleted from an index |
-| `elasticsearch.indices.recovery.throttle-time` | counter |  | Total time recoveries waited due to throttling |
-| `elasticsearch.transport.rx.size` | counter |  | Total size of data received in cluster communication |
-| `elasticsearch.transport.tx.size` | counter |  | Total size of data sent in cluster communication |
-| `elasticsearch.indices.merges.throttle-time` | counter |  | Total time merges spent waiting due to throttling |
+| `elasticsearch.indices.indexing.delete-total` | cumulative |  | Number of documents deleted from an index |
+| `elasticsearch.indices.recovery.throttle-time` | cumulative |  | Total time recoveries waited due to throttling |
+| `elasticsearch.transport.rx.size` | cumulative |  | Total size of data received in cluster communication |
+| `elasticsearch.transport.tx.size` | cumulative |  | Total size of data sent in cluster communication |
+| `elasticsearch.indices.merges.throttle-time` | cumulative |  | Total time merges spent waiting due to throttling |
 | `elasticsearch.indices.indexing.delete-current` | gauge |  | Number of documents currently being deleted from an index |
-| `elasticsearch.indices.flush.total` | counter |  | Number of index flushes to disk |
+| `elasticsearch.indices.flush.total` | cumulative |  | Number of index flushes to disk |
 | `elasticsearch.indices.merges.current-size` | gauge |  | Size of the segments currently being merged |
 | `elasticsearch.indices.id-cache.memory-size` | gauge |  | Size of id cache (in bytes) |
 | `elasticsearch.indices.query-cache.memory-size` | gauge |  | Size of query cache (in bytes) |
-| `elasticsearch.indices.fielddata.evictions` | counter |  | Number of evictions from fielddata cache |
-| `elasticsearch.indices.percolate.queries` | counter |  | Number of percolator queries |
-| `elasticsearch.indices.warmer.total-time` | counter |  | Total time spent by warmers |
+| `elasticsearch.indices.fielddata.evictions` | cumulative |  | Number of evictions from fielddata cache |
+| `elasticsearch.indices.percolate.queries` | cumulative |  | Number of percolator queries |
+| `elasticsearch.indices.warmer.total-time` | cumulative |  | Total time spent by warmers |
 | `elasticsearch.indices.indexing.index-current` | gauge |  | Number of documents currently being indexed to an index |
-| `elasticsearch.indices.query-cache.evictions` | counter |  | Number of query cache evictions |
-| `elasticsearch.indices.query-cache.total-count` | counter |  | Total number of items in the query cache |
+| `elasticsearch.indices.query-cache.evictions` | cumulative |  | Number of query cache evictions |
+| `elasticsearch.indices.query-cache.total-count` | cumulative |  | Total number of items in the query cache |
 | `elasticsearch.indices.docs.count` | gauge | ✔ | Number of docs |
 | `elasticsearch.indices.translog.operations` | gauge |  | Number of operations in the transaction log |
 | `elasticsearch.indices.percolate.current` | gauge |  | Number of percolator queries currently running |
-| `elasticsearch.indices.search.query-total` | counter | ✔ | Total number of queries |
-| `elasticsearch.indices.get.time` | counter |  | Time spent on get requests |
-| `elasticsearch.indices.indexing.index-total` | counter | ✔ | Total number of documents indexed to an index |
+| `elasticsearch.indices.search.query-total` | cumulative | ✔ | Total number of queries |
+| `elasticsearch.indices.get.time` | cumulative |  | Time spent on get requests |
+| `elasticsearch.indices.indexing.index-total` | cumulative | ✔ | Total number of documents indexed to an index |
 | `elasticsearch.indices.filter-cache.memory-size` | gauge |  | Filter cache size (in bytes) |
-| `elasticsearch.indices.get.total` | counter | ✔ | Total number of get requests |
-| `elasticsearch.indices.warmer.total` | counter |  | Total number of warmers |
+| `elasticsearch.indices.get.total` | cumulative | ✔ | Total number of get requests |
+| `elasticsearch.indices.warmer.total` | cumulative |  | Total number of warmers |
 | `elasticsearch.indices.docs.deleted` | gauge | ✔ | Number of docs deleted |
-| `elasticsearch.indices.get.exists-total` | counter |  | Number of get requests where the document existed |
-| `elasticsearch.indices.search.scroll-total` | counter |  | Total number of scroll queries |
+| `elasticsearch.indices.get.exists-total` | cumulative |  | Number of get requests where the document existed |
+| `elasticsearch.indices.search.scroll-total` | cumulative |  | Total number of scroll queries |
 | `elasticsearch.indices.request-cache.memory-size` | gauge |  | Memory used by request cache (in bytes) |
-| `elasticsearch.indices.suggest.time` | counter |  | Total time spent in suggest requests |
+| `elasticsearch.indices.suggest.time` | cumulative |  | Total time spent in suggest requests |
 | `elasticsearch.indices.warmer.current` | gauge |  | Number of currently active warmers |
-| `elasticsearch.indices.indexing.index-time` | counter |  | Time spent indexing documents to an index |
+| `elasticsearch.indices.indexing.index-time` | cumulative |  | Time spent indexing documents to an index |
 | `elasticsearch.indices.translog.uncommitted_operations` | gauge |  | Number of uncommitted operations in the transaction log |
 | `elasticsearch.indices.segments.index-writer-max-size` | gauge |  | Maximum memory used by the index writer |
-| `elasticsearch.indices.get.exists-time` | counter |  | Time spent on get requests where the document existed |
+| `elasticsearch.indices.get.exists-time` | cumulative |  | Time spent on get requests where the document existed |
 | `elasticsearch.indices.segments.size` | gauge |  | Memory used by index segments (in bytes) |
-| `elasticsearch.indices.request-cache.miss-count` | counter |  | Number of request cache misses |
+| `elasticsearch.indices.request-cache.miss-count` | cumulative |  | Number of request cache misses |
 | `elasticsearch.indices.search.query-current` | gauge |  | Number of currently active queries |
-| `elasticsearch.indices.merges.auto-throttle-size` | counter |  | Merging throttled due to auto-throttling (in bytes) |
-| `elasticsearch.indices.get.missing-total` | counter |  | Number of get requests where the document was missing |
+| `elasticsearch.indices.merges.auto-throttle-size` | cumulative |  | Merging throttled due to auto-throttling (in bytes) |
+| `elasticsearch.indices.get.missing-total` | cumulative |  | Number of get requests where the document was missing |
 | `elasticsearch.indices.recovery.current-as-source` | gauge |  | Number of ongoing recoveries for which a shard serves as a source |
 | `elasticsearch.indices.segments.term-vectors-memory-size` | gauge |  | Memory used by term vectors (in bytes) |
 | `elasticsearch.indices.segments.stored-field-memory-size` | gauge |  | Memory used by stored fields (in bytes) |
-| `elasticsearch.indices.store.throttle-time` | counter |  | Total time requests are throttled for |
-| `elasticsearch.indices.request-cache.hit-count` | counter |  | Number of request cache hits |
+| `elasticsearch.indices.store.throttle-time` | cumulative |  | Total time requests are throttled for |
+| `elasticsearch.indices.request-cache.hit-count` | cumulative |  | Number of request cache hits |
 | `elasticsearch.indices.query-cache.cache-count` | gauge |  | Number of items in query cache |
-| `elasticsearch.indices.suggest.total` | counter |  | Total number of suggest requests |
+| `elasticsearch.indices.suggest.total` | cumulative |  | Total number of suggest requests |
 | `elasticsearch.indices.query-cache.cache-size` | gauge |  | Size of query cache (in bytes) |
 | `elasticsearch.indices.segments.points-memory-size` | gauge |  | Memory used by points |
 | `elasticsearch.indices.store.size` | gauge |  | Total size (in bytes) |
 | `elasticsearch.indices.search.fetch-current` | gauge |  | Number of query fetches currently running |
-| `elasticsearch.indices.merges.total` | counter | ✔ | Number of segment merges |
+| `elasticsearch.indices.merges.total` | cumulative | ✔ | Number of segment merges |
 | `elasticsearch.indices.translog.size` | gauge |  | Size of the transaction log |
 | `elasticsearch.indices.segments.index-writer-size` | gauge |  | Memory used by the index writer |
-| `elasticsearch.indices.percolate.total` | counter |  | Total number of suggest requests |
+| `elasticsearch.indices.percolate.total` | cumulative |  | Total number of suggest requests |
 | `elasticsearch.indices.suggest.current` | gauge |  | Number of currently active suggest requests |
 | `elasticsearch.indices.segments.norms-memory-size` | gauge |  | Memory used by norms (in bytes) |
-| `elasticsearch.indices.search.suggest-total` | counter |  | Total number of suggest requests |
-| `elasticsearch.indices.search.scroll-time` | counter |  | Total time spent on scroll queries |
-| `elasticsearch.indices.percolate.time` | counter |  | Total time spent on percolate requests |
+| `elasticsearch.indices.search.suggest-total` | cumulative |  | Total number of suggest requests |
+| `elasticsearch.indices.search.scroll-time` | cumulative |  | Total time spent on scroll queries |
+| `elasticsearch.indices.percolate.time` | cumulative |  | Total time spent on percolate requests |
 | `elasticsearch.indices.fielddata.memory-size` | gauge |  | Size of fielddata cache (in bytes) |
-| `elasticsearch.indices.query-cache.hit-count` | counter |  | Number of query cache hits |
+| `elasticsearch.indices.query-cache.hit-count` | cumulative |  | Number of query cache hits |
 | `elasticsearch.indices.segments.terms-memory-size` | gauge |  | Memory used by terms (in bytes) |
 | `elasticsearch.indices.segments.doc-values-memory-size` | gauge |  | Memory used by doc values |
-| `elasticsearch.indices.get.missing-time` | counter |  | Time spent on get requests where the document was missing |
+| `elasticsearch.indices.get.missing-time` | cumulative |  | Time spent on get requests where the document was missing |
 | `elasticsearch.indices.translog.earliest_last_modified_age` | gauge |  | Earliest last modified age on transaction logs |
-| `elasticsearch.indices.merges.total-size` | counter |  | Total size of merged segments |
-| `elasticsearch.indices.search.fetch-total` | counter |  | Total number of query feches |
-| `elasticsearch.indices.flush.time` | counter |  | Time spent flushing the index to disk |
+| `elasticsearch.indices.merges.total-size` | cumulative |  | Total size of merged segments |
+| `elasticsearch.indices.search.fetch-total` | cumulative |  | Total number of query feches |
+| `elasticsearch.indices.flush.time` | cumulative |  | Time spent flushing the index to disk |
 | `elasticsearch.indices.get.current` | gauge |  | Number of get requests running |
-| `elasticsearch.indices.search.suggest-time` | counter |  | Total time spent on search suggest |
-| `elasticsearch.indices.merges.total-docs` | counter |  | Number of merged docs across merged segments |
-| `elasticsearch.indices.merges.time` | counter |  | Total time spent on merging |
+| `elasticsearch.indices.search.suggest-time` | cumulative |  | Total time spent on search suggest |
+| `elasticsearch.indices.merges.total-docs` | cumulative |  | Number of merged docs across merged segments |
+| `elasticsearch.indices.merges.time` | cumulative |  | Total time spent on merging |
 | `elasticsearch.indices.flush.periodic` | gauge |  | How long to wait before triggering a flush regardless of translog size |
 | `elasticsearch.indices.search.scroll-current` | gauge |  | Currently active scroll queries count |
 | `elasticsearch.indices.segments.fixed-bit-set-memory-size` | gauge |  | Memory used by fixed bit set |
