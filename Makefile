@@ -140,6 +140,10 @@ run-dev-image:
 		-v $(CURDIR)/tmp/pprof:/tmp/pprof \
 		signalfx-agent-dev /bin/bash
 
+.PHONY: run-dev-image-commands
+run-dev-image-commands:
+	docker exec -t $(docker_env) signalfx-agent-dev /bin/bash -c '$(RUN_DEV_COMMANDS)'
+
 .PHONY: run-integration-tests
 run-integration-tests: MARKERS ?= not packaging and not installer and not k8s and not windows_only and not deployment and not perf_test
 run-integration-tests:
