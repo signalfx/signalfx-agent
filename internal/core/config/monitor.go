@@ -9,12 +9,6 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-// AdditionalMetric is a metric name/pattern or group to enable.
-type AdditionalMetric struct {
-	MetricName string `yaml:"metricName"`
-	Group      string `yaml:"group"`
-}
-
 // MonitorConfig is used to configure monitor instances.  One instance of
 // MonitorConfig may be used to configure multiple monitor instances.  If a
 // monitor's discovery rule does not match any discovered services, the monitor
@@ -57,8 +51,10 @@ type MonitorConfig struct {
 	// is useful when you have an endpoint whose identity is not particularly
 	// important since it acts largely as a proxy or adapter for other metrics.
 	DisableEndpointDimensions bool `yaml:"disableEndpointDimensions" json:"disableEndpointDimensions"`
-	// Additional metrics to enable besides the default included ones.
-	AdditionalMetrics []AdditionalMetric `yaml:"additionalMetrics" json:"additionalMetrics"`
+	// Extra metrics to enable besides the default included ones.
+	ExtraMetrics []string `yaml:"extraMetrics" json:"extraMetrics"`
+	// Extra metric groups to enable besides the metrics that are included by default.
+	ExtraGroups []string `yaml:"extraGroups" json:"extraGroups"`
 	// OtherConfig is everything else that is custom to a particular monitor
 	OtherConfig map[string]interface{} `yaml:",inline" neverLog:"omit"`
 	// ValidationError is where a message concerning validation issues can go

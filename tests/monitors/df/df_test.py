@@ -32,8 +32,8 @@ def test_df_additional_metrics():
         monitors:
           - type: collectd/df
             hostFSPath: /
-            additionalMetrics:
-            - metricName: df_complex.reserved
+            extraMetrics:
+            - df_complex.reserved
         """
     ) as (backend, get_output, _):
         _ = (
@@ -53,9 +53,9 @@ def test_df_additional_metrics_all():
             hostFSPath: /
             valuesPercentage: true
             reportInodes: true
-            additionalMetrics:
-            - metricName: df_*
-            - metricName: percent_*
+            extraMetrics:
+            - df_*
+            - percent_*
         """
     ) as (backend, get_output, _):
         _ = (

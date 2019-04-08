@@ -1,21 +1,20 @@
 package monitors
 
 // Filter of datapoints based on included status and user configuration of
-// additionalMetrics.
+// extraMetrics and extraGroups.
 
 import (
 	"fmt"
 	"github.com/pkg/errors"
 	"github.com/signalfx/golib/datapoint"
-	"github.com/signalfx/signalfx-agent/internal/core/config"
 	"github.com/signalfx/signalfx-agent/internal/utils/filter"
 	"strings"
 )
 
 type metricsFilter struct {
-	metadata          *Metadata
-	additionalMetrics map[string]bool
-	stringFilter      *filter.BasicStringFilter
+	metadata     *Metadata
+	extraMetrics map[string]bool
+	stringFilter *filter.BasicStringFilter
 }
 
 func validateMetricName(metadata *Metadata, metricName string) error {
@@ -63,36 +62,26 @@ func validateGroup(metadata *Metadata, group string) ([]string, error) {
 	return metrics, nil
 }
 
-func newMetricsFilter(
-	metadata *Metadata,
-	additionalMetrics []config.AdditionalMetric) (*metricsFilter, error) {
+func newMetricsFilter(metadata *Metadata, extraMetrics, extraGroups []string) (*metricsFilter, error) {
 	var filterItems []string
 
-	for _, add := range additionalMetrics {
-		switch {
-		case add.MetricName == "" && add.Group == "":
-			return nil, errors.New("either metricName or group must be set")
-		case add.MetricName != "" && add.Group != "":
-			return nil, errors.New("both metricName and group cannot be set")
-		case add.Group != "":
-			metrics, err := validateGroup(metadata, add.Group)
-			if err != nil {
-				return nil, err
-			}
-			filterItems = append(filterItems, metrics...)
-		case add.MetricName != "":
-			if err := validateMetricName(metadata, add.MetricName); err != nil {
-				return nil, err
-			}
-
-			// If the user specified a metric that's already included no need to add it.
-			if !metadata.IncludedMetrics[add.MetricName] {
-				filterItems = append(filterItems, add.MetricName)
-			}
-		default:
-			// Shouldn't be reached.
-			return nil, fmt.Errorf("additionalMetric %v is invalid", add)
+	for _, metric := range extraMetrics {
+		if err := validateMetricName(metadata, metric); err != nil {
+			return nil, err
 		}
+
+		// If the user specified a metric that's already included no need to add it.
+		if !metadata.IncludedMetrics[metric] {
+			filterItems = append(filterItems, metric)
+		}
+	}
+
+	for _, group := range extraGroups {
+		metrics, err := validateGroup(metadata, group)
+		if err != nil {
+			return nil, err
+		}
+		filterItems = append(filterItems, metrics...)
 	}
 
 	basicFilter, err := filter.NewBasicStringFilter(filterItems)
@@ -117,9 +106,9 @@ func newMetricsFilter(
 // enabledMetrics returns list of metrics that are enabled via user-configuration or by
 // being included metrics.
 func (add *metricsFilter) enabledMetrics() []string {
-	metrics := make([]string, 0, len(add.additionalMetrics)+len(add.metadata.IncludedMetrics))
+	metrics := make([]string, 0, len(add.extraMetrics)+len(add.metadata.IncludedMetrics))
 
-	for metric := range add.additionalMetrics {
+	for metric := range add.extraMetrics {
 		metrics = append(metrics, metric)
 	}
 
@@ -140,7 +129,7 @@ func (add *metricsFilter) shouldSend(dp *datapoint.Datapoint) bool {
 		return true
 	}
 
-	if add.additionalMetrics[dp.Metric] {
+	if add.extraMetrics[dp.Metric] {
 		// User has explicitly chosen to send this metric (or a group that this metric belongs to).
 		return true
 	}
@@ -155,10 +144,10 @@ func (add *metricsFilter) shouldSend(dp *datapoint.Datapoint) bool {
 		// If we reach here we don't know about the metric from the metadata
 		// but it might match the filter. We have to check matches against
 		// the filter because for unknown metrics it won't have an entry
-		// in additionalMetrics.
+		// in extraMetrics.
 		return true
 	}
 
-	// If we reach here the user hasn't enabled it in additionalMetrics.
+	// If we reach here the user hasn't enabled it in extraMetrics.
 	return false
 }

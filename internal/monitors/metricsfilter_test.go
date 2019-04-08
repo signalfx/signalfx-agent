@@ -5,7 +5,6 @@ import (
 	"testing"
 
 	"github.com/signalfx/golib/datapoint"
-	"github.com/signalfx/signalfx-agent/internal/core/config"
 	"github.com/signalfx/signalfx-agent/internal/utils"
 )
 
@@ -31,7 +30,7 @@ var nonexhaustiveMetadata = testMetadata(false, false)
 var sendAllMetadata = testMetadata(true, true)
 
 func TestSendAll(t *testing.T) {
-	if filter, err := newMetricsFilter(sendAllMetadata, nil); err != nil {
+	if filter, err := newMetricsFilter(sendAllMetadata, nil, nil); err != nil {
 		t.Error(err)
 	} else {
 		// All included metrics should be sent.
@@ -50,7 +49,7 @@ func TestSendAll(t *testing.T) {
 }
 
 func TestIncludedMetrics(t *testing.T) {
-	if filter, err := newMetricsFilter(exhaustiveMetadata, nil); err != nil {
+	if filter, err := newMetricsFilter(exhaustiveMetadata, nil, nil); err != nil {
 		t.Error(err)
 	} else {
 		// All included metrics should be sent.
@@ -68,21 +67,19 @@ func TestIncludedMetrics(t *testing.T) {
 	}
 }
 
-func TestAdditionalMetricNames(t *testing.T) {
+func TestExtraMetrics(t *testing.T) {
 	t.Run("user specifies already-included metric", func(t *testing.T) {
-		if filter, err := newMetricsFilter(exhaustiveMetadata, []config.AdditionalMetric{
-			{MetricName: "cpu.idle"}}); err != nil {
+		if filter, err := newMetricsFilter(exhaustiveMetadata, []string{"cpu.idle"}, nil); err != nil {
 			t.Error(err)
 		} else {
-			if filter.additionalMetrics["cpu.idle"] {
+			if filter.extraMetrics["cpu.idle"] {
 				t.Error("cpu.idle should not have been in additional metrics because it is already included")
 			}
 		}
 	})
 
 	// Exhaustive
-	if filter, err := newMetricsFilter(exhaustiveMetadata, []config.AdditionalMetric{
-		{MetricName: "mem.used"}}); err != nil {
+	if filter, err := newMetricsFilter(exhaustiveMetadata, []string{"mem.used"}, nil); err != nil {
 		t.Error(err)
 	} else {
 		for metric, shouldSend := range map[string]bool{
@@ -102,9 +99,7 @@ func TestAdditionalMetricNames(t *testing.T) {
 	}
 
 	// Non-exhaustive
-	if filter, err := newMetricsFilter(nonexhaustiveMetadata, []config.AdditionalMetric{
-		{MetricName: "dynamic-metric"},
-		{MetricName: "some-*"}}); err != nil {
+	if filter, err := newMetricsFilter(nonexhaustiveMetadata, []string{"dynamic-metric", "some-*"}, nil); err != nil {
 		t.Error(err)
 	} else {
 		for metric, shouldSend := range map[string]bool{
@@ -126,9 +121,7 @@ func TestAdditionalMetricNames(t *testing.T) {
 }
 
 func TestGlobbedMetricNames(t *testing.T) {
-	if filter, err := newMetricsFilter(exhaustiveMetadata, []config.AdditionalMetric{
-		{MetricName: "mem.*"},
-	}); err != nil {
+	if filter, err := newMetricsFilter(exhaustiveMetadata, []string{"mem.*"}, nil); err != nil {
 		t.Error(err)
 	} else {
 		// All memory metrics should be sent.
@@ -149,9 +142,8 @@ func TestGlobbedMetricNames(t *testing.T) {
 	}
 }
 
-func TestAdditionalMetricGroups(t *testing.T) {
-	if filter, err := newMetricsFilter(exhaustiveMetadata, []config.AdditionalMetric{
-		{Group: "mem"}}); err != nil {
+func TestExtraMetricGroups(t *testing.T) {
+	if filter, err := newMetricsFilter(exhaustiveMetadata, nil, []string{"mem"}); err != nil {
 		t.Error(err)
 	} else {
 		for _, metric := range exhaustiveMetadata.GroupMetricsMap["mem"] {
@@ -164,10 +156,11 @@ func TestAdditionalMetricGroups(t *testing.T) {
 	}
 }
 
-func Test_newAdditionalMetricsFilter(t *testing.T) {
+func Test_newExtraMetricsFilter(t *testing.T) {
 	type args struct {
-		metadata          *Metadata
-		additionalMetrics []config.AdditionalMetric
+		metadata     *Metadata
+		extraMetrics []string
+		extraGroups  []string
 	}
 	tests := []struct {
 		name    string
@@ -176,38 +169,25 @@ func Test_newAdditionalMetricsFilter(t *testing.T) {
 		wantErr bool
 	}{
 		// Exhaustive case errors.
-		{"metricName is whitespace", args{exhaustiveMetadata, []config.AdditionalMetric{
-			{MetricName: "    "},
-		}}, true, true},
-		{"groupName is whitespace", args{exhaustiveMetadata, []config.AdditionalMetric{
-			{Group: "    "},
-		}}, true, true},
-		{"no group name or metric name", args{exhaustiveMetadata, []config.AdditionalMetric{{MetricName: "", Group: ""}}},
+		{"metricName is whitespace", args{exhaustiveMetadata, []string{"    "}, nil}, true, true},
+		{"groupName is whitespace", args{exhaustiveMetadata, nil, []string{"    "}}, true, true},
+		{"no group name or metric name", args{exhaustiveMetadata, []string{""}, []string{""}}, true, true},
+		{"group name and metric name", args{exhaustiveMetadata, []string{"metric"}, []string{"group"}}, true, true},
+		{"unknown metric name", args{exhaustiveMetadata, []string{"unknown-metric"}, []string{""}}, true, true},
+		{"unknown group name", args{exhaustiveMetadata, []string{""}, []string{"unknown-group"}}, true, true},
+		{"metric glob doesn't match any metric", args{exhaustiveMetadata, []string{"unknown-metric.*"}, []string{""}},
 			true, true},
-		{"group name and metric name", args{exhaustiveMetadata, []config.AdditionalMetric{{MetricName: "metric",
-			Group: "group"}}}, true, true},
-		{"unknown metric name", args{exhaustiveMetadata, []config.AdditionalMetric{{MetricName: "unknown-metric",
-			Group: ""}}}, true, true},
-		{"unknown group name", args{exhaustiveMetadata, []config.AdditionalMetric{{MetricName: "",
-			Group: "unknown-group"}}}, true, true},
-		{"metric glob doesn't match any metric", args{exhaustiveMetadata, []config.AdditionalMetric{
-			{MetricName: "unknown-metric.*", Group: ""}}}, true, true},
 
 		// Non-exhaustive cases.
-		{"metricName is whitespace", args{nonexhaustiveMetadata, []config.AdditionalMetric{
-			{MetricName: "    "},
-		}}, true, true},
-		{"groupName is whitespace", args{nonexhaustiveMetadata, []config.AdditionalMetric{
-			{Group: "    "},
-		}}, true, true},
+		{"metricName is whitespace", args{nonexhaustiveMetadata, []string{"    "}, nil}, true, true},
+		{"groupName is whitespace", args{nonexhaustiveMetadata, nil, []string{"    "}}, true, true},
 
 		// Shouldn't error for non-exhaustive case.
-		{"metric does not exist", args{nonexhaustiveMetadata, []config.AdditionalMetric{
-			{MetricName: "unknown-metric"}}}, false, false},
+		{"metric does not exist", args{nonexhaustiveMetadata, []string{"unknown-metric"}, nil}, false, false},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := newMetricsFilter(tt.args.metadata, tt.args.additionalMetrics)
+			got, err := newMetricsFilter(tt.args.metadata, tt.args.extraMetrics, tt.args.extraGroups)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("newMetricsFilter() error = %v, wantErr %v", err, tt.wantErr)
 				return
