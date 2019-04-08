@@ -2,6 +2,7 @@ package monitors
 
 import (
 	"fmt"
+	"github.com/signalfx/golib/datapoint"
 	"reflect"
 
 	"github.com/signalfx/signalfx-agent/internal/core/config"
@@ -32,12 +33,17 @@ type InjectableMonitor interface {
 	RemoveService(services.Endpoint)
 }
 
+// MetricInfo contains metadata about a metric.
+type MetricInfo struct {
+	Type datapoint.MetricType
+}
+
 // Metadata describes information about a monitor.
 type Metadata struct {
 	MonitorType       string
 	SendAll           bool
 	IncludedMetrics   map[string]bool
-	Metrics           map[string]bool
+	Metrics           map[string]MetricInfo
 	MetricsExhaustive bool
 	Groups            map[string]bool
 	GroupMetricsMap   map[string][]string
@@ -45,7 +51,8 @@ type Metadata struct {
 
 // HasMetric returns whether the metric exists at all (custom or included).
 func (metadata *Metadata) HasMetric(metric string) bool {
-	return metadata.Metrics[metric]
+	_, ok := metadata.Metrics[metric]
+	return ok
 }
 
 // HasIncludedMetric returns whether the metric is an included metric.
