@@ -1,6 +1,7 @@
 package core
 
 import (
+	"fmt"
 	"net/http"
 	"time"
 
@@ -35,7 +36,7 @@ func (a *Agent) DiagnosticText(section string) string {
 
 		k8sLeader := leadership.CurrentLeader()
 		if k8sLeader != "" {
-			out += "Kubernetes Leader Node:           %s\n"
+			out += fmt.Sprintf("Kubernetes Leader Node:           %s\n", k8sLeader)
 		}
 
 		if section == "" {
