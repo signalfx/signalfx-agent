@@ -188,12 +188,12 @@ monitors:
   - description: Total number of classes unloaded
     included: false
     name: elasticsearch.jvm.classes.total-unloaded-count
-    type: counter
+    type: cumulative
     # group: node/jvm
   - description: Uptime of JVM
     included: false
     name: elasticsearch.jvm.uptime
-    type: counter
+    type: cumulative
     # group: node/jvm
   - description: Memory used by Young Gen (in bytes)
     included: false
@@ -213,12 +213,12 @@ monitors:
   - description: Total time spent on GC
     included: true
     name: elasticsearch.jvm.gc.time
-    type: counter
+    type: cumulative
     # group: node/jvm
   - description: Number of classes loaded
     included: false
     name: elasticsearch.jvm.classes.total-loaded-count
-    type: counter
+    type: cumulative
     # group: node/jvm
   - description: Memory pool Young Gen peak used (in bytes)
     included: false
@@ -298,7 +298,7 @@ monitors:
   - description: Total number of garbage collections on Old Gen
     included: false
     name: elasticsearch.jvm.gc.old-count
-    type: counter
+    type: cumulative
     # group: node/jvm
   - description: Memory being used currently by Survivor space (in bytes)
     included: false
@@ -308,12 +308,12 @@ monitors:
   - description: Total number of garbage collections
     included: false
     name: elasticsearch.jvm.gc.count
-    type: counter
+    type: cumulative
     # group: node/jvm
   - description: Total time spent in garbage collections on Old Gen
     included: false
     name: elasticsearch.jvm.gc.old-time
-    type: counter
+    type: cumulative
     # group: node/jvm
   - description: Memory guaranteed to be available to JVM heap
     included: true
@@ -338,7 +338,7 @@ monitors:
   - description: Size in bytes of virtual memory that is guaranteed to be available to the running process
     included: false
     name: elasticsearch.process.mem.total-virtual-size
-    type: counter
+    type: cumulative
     # group: node/process
   - description: CPU usage in percent
     included: false
@@ -348,7 +348,7 @@ monitors:
   - description: CPU time (in milliseconds) used by the process on which the Java virtual machine is running
     included: false
     name: elasticsearch.process.cpu.time
-    type: counter
+    type: cumulative
     # group: node/process
   - description: Number of currently open file descriptors
     included: true
@@ -358,7 +358,7 @@ monitors:
   - description: Total number of opened HTTP connections
     included: false
     name: elasticsearch.http.total_open
-    type: counter
+    type: cumulative
     # group: node/http
   - description: Number of currently open HTTP connections
     included: false
@@ -373,7 +373,7 @@ monitors:
   - description: Total size of data received in cluster communication (in bytes)
     included: false
     name: elasticsearch.transport.rx.count
-    type: counter
+    type: cumulative
     # group: node/transport
   - description: Number of Tasks in thread pool
     included: false
@@ -383,12 +383,12 @@ monitors:
   - description: Number of threads completed in thread pool
     included: false
     name: elasticsearch.thread_pool.completed
-    type: counter
+    type: cumulative
     # group: node/thread_pool
   - description: Number of Threads in thread pool
     included: false
     name: elasticsearch.thread_pool.threads
-    type: counter
+    type: cumulative
     # group: node/thread_pool
   - description: Number of active threads
     included: false
@@ -398,7 +398,7 @@ monitors:
   - description: Number of rejected threads in thread pool
     included: true
     name: elasticsearch.thread_pool.rejected
-    type: counter
+    type: cumulative
     # group: node/thread_pool
   - description: Number of currently active segment merges
     included: true
@@ -413,32 +413,32 @@ monitors:
   - description: Number of query cache misses
     included: false
     name: elasticsearch.indices.query-cache.miss-count
-    type: counter
+    type: cumulative
     # group: indices/query_cache
   - description: Total time spent on index refreshes
     included: false
     name: elasticsearch.indices.refresh.time
-    type: counter
+    type: cumulative
     # group: indices/refresh
   - description: Number of index refreshes
     included: false
     name: elasticsearch.indices.refresh.total
-    type: counter
+    type: cumulative
     # group: indices/refresh
   - description: Number of request cache evictions
     included: false
     name: elasticsearch.indices.request-cache.evictions
-    type: counter
+    type: cumulative
     # group: indices/request_cache
   - description: Total time spent on query fetches
     included: false
     name: elasticsearch.indices.search.fetch-time
-    type: counter
+    type: cumulative
     # group: indices/search
   - description: Total time merges were stopped for
     included: false
     name: elasticsearch.indices.merges.stopped-time
-    type: counter
+    type: cumulative
     # group: indices/merges
   - description: Size of uncommitted transaction logs (in bytes)
     included: false
@@ -448,17 +448,17 @@ monitors:
   - description: Total number of packets sent in cluster communication
     included: false
     name: elasticsearch.transport.tx.count
-    type: counter
+    type: cumulative
     # group: nodes/transport
   - description: Number of evicttions from filter cache
     included: false
     name: elasticsearch.indices.filter-cache.evictions
-    type: counter
+    type: cumulative
     # group: indices/get
   - description: Time spent deleting documents from an index
     included: false
     name: elasticsearch.indices.indexing.delete-time
-    type: counter
+    type: cumulative
     # group: indices/indexing
   - description: Size used by suggest completion (in bytes)
     included: false
@@ -483,7 +483,7 @@ monitors:
   - description: Total time spent querying on the primary
     included: true
     name: elasticsearch.indices.search.query-time
-    type: counter
+    type: cumulative
     # group: indices/search
   - description: Memory used by segment version map (in bytes)
     included: false
@@ -498,27 +498,27 @@ monitors:
   - description: Number of documents deleted from an index
     included: false
     name: elasticsearch.indices.indexing.delete-total
-    type: counter
+    type: cumulative
     # group: indices/indexing
   - description: Total time recoveries waited due to throttling
     included: false
     name: elasticsearch.indices.recovery.throttle-time
-    type: counter
+    type: cumulative
     # group: indices/recovery
   - description: Total size of data received in cluster communication
     included: false
     name: elasticsearch.transport.rx.size
-    type: counter
+    type: cumulative
     # group: nodes/transport
   - description: Total size of data sent in cluster communication
     included: false
     name: elasticsearch.transport.tx.size
-    type: counter
+    type: cumulative
         # group: nodes/transport
   - description: Total time merges spent waiting due to throttling
     included: false
     name: elasticsearch.indices.merges.throttle-time
-    type: counter
+    type: cumulative
     # group: indices/merges
   - description: Number of documents currently being deleted from an index
     included: false
@@ -528,7 +528,7 @@ monitors:
   - description: Number of index flushes to disk
     included: false
     name: elasticsearch.indices.flush.total
-    type: counter
+    type: cumulative
     # group: indices/flush
   - description: Size of the segments currently being merged
     included: false
@@ -548,17 +548,17 @@ monitors:
   - description: Number of evictions from fielddata cache
     included: false
     name: elasticsearch.indices.fielddata.evictions
-    type: counter
+    type: cumulative
     # group: indices/fielddata
   - description: Number of percolator queries
     included: false
     name: elasticsearch.indices.percolate.queries
-    type: counter
+    type: cumulative
     # group: indices/percolate
   - description: Total time spent by warmers
     included: false
     name: elasticsearch.indices.warmer.total-time
-    type: counter
+    type: cumulative
     # group: indices/warmer
   - description: Number of documents currently being indexed to an index
     included: false
@@ -568,12 +568,12 @@ monitors:
   - description: Number of query cache evictions
     included: false
     name: elasticsearch.indices.query-cache.evictions
-    type: counter
+    type: cumulative
     # group: indices/query_cache
   - description: Total number of items in the query cache
     included: false
     name: elasticsearch.indices.query-cache.total-count
-    type: counter
+    type: cumulative
     # group: indices/query_cache
   - description: Number of docs
     included: true
@@ -593,17 +593,17 @@ monitors:
   - description: Total number of queries
     included: true
     name: elasticsearch.indices.search.query-total
-    type: counter
+    type: cumulative
     # group: indices/search
   - description: Time spent on get requests
     included: false
     name: elasticsearch.indices.get.time
-    type: counter
+    type: cumulative
     # group: indices/get
   - description: Total number of documents indexed to an index
     included: true
     name: elasticsearch.indices.indexing.index-total
-    type: counter
+    type: cumulative
     # group: indices/indexing
   - description: Filter cache size (in bytes)
     included: false
@@ -613,12 +613,12 @@ monitors:
   - description: Total number of get requests
     included: true
     name: elasticsearch.indices.get.total
-    type: counter
+    type: cumulative
     # group: indices/get
   - description: Total number of warmers
     included: false
     name: elasticsearch.indices.warmer.total
-    type: counter
+    type: cumulative
     # group: indices/warmer
   - description: Number of docs deleted
     included: true
@@ -628,12 +628,12 @@ monitors:
   - description: Number of get requests where the document existed
     included: false
     name: elasticsearch.indices.get.exists-total
-    type: counter
+    type: cumulative
     # group: indices/get
   - description: Total number of scroll queries
     included: false
     name: elasticsearch.indices.search.scroll-total
-    type: counter
+    type: cumulative
     # group: indices/search
   - description: Memory used by request cache (in bytes)
     included: false
@@ -643,7 +643,7 @@ monitors:
   - description: Total time spent in suggest requests
     included: false
     name: elasticsearch.indices.suggest.time
-    type: counter
+    type: cumulative
     # group: indices/suggest
   - description: Number of currently active warmers
     included: false
@@ -653,7 +653,7 @@ monitors:
   - description: Time spent indexing documents to an index
     included: false
     name: elasticsearch.indices.indexing.index-time
-    type: counter
+    type: cumulative
     # group: indices/indexing
   - description: Number of uncommitted operations in the transaction log
     included: false
@@ -668,7 +668,7 @@ monitors:
   - description: Time spent on get requests where the document existed
     included: false
     name: elasticsearch.indices.get.exists-time
-    type: counter
+    type: cumulative
     # group: indices/get
   - description: Memory used by index segments (in bytes)
     included: false
@@ -678,7 +678,7 @@ monitors:
   - description: Number of request cache misses
     included: false
     name: elasticsearch.indices.request-cache.miss-count
-    type: counter
+    type: cumulative
     # group: indices/request_cache
   - description: Number of currently active queries
     included: false
@@ -688,12 +688,12 @@ monitors:
   - description: Merging throttled due to auto-throttling (in bytes)
     included: false
     name: elasticsearch.indices.merges.auto-throttle-size
-    type: counter
+    type: cumulative
     # group: indices/merges
   - description: Number of get requests where the document was missing
     included: false
     name: elasticsearch.indices.get.missing-total
-    type: counter
+    type: cumulative
     # group: indices/get
   - description: Number of ongoing recoveries for which a shard serves as a source
     included: false
@@ -713,12 +713,12 @@ monitors:
   - description: Total time requests are throttled for
     included: false
     name: elasticsearch.indices.store.throttle-time
-    type: counter
+    type: cumulative
     # group: indices/store
   - description: Number of request cache hits
     included: false
     name: elasticsearch.indices.request-cache.hit-count
-    type: counter
+    type: cumulative
     # group: indices/request_cache
   - description: Number of items in query cache
     included: false
@@ -728,7 +728,7 @@ monitors:
   - description: Total number of suggest requests
     included: false
     name: elasticsearch.indices.suggest.total
-    type: counter
+    type: cumulative
     # group: indices/suggest
   - description: Size of query cache (in bytes)
     included: false
@@ -753,7 +753,7 @@ monitors:
   - description: Number of segment merges
     included: true
     name: elasticsearch.indices.merges.total
-    type: counter
+    type: cumulative
     # group: indices/merges
   - description: Size of the transaction log
     included: false
@@ -768,7 +768,7 @@ monitors:
   - description: Total number of suggest requests
     included: false
     name: elasticsearch.indices.percolate.total
-    type: counter
+    type: cumulative
     # group: indices/percolate
   - description: Number of currently active suggest requests
     included: false
@@ -783,17 +783,17 @@ monitors:
   - description: Total number of suggest requests
     included: false
     name: elasticsearch.indices.search.suggest-total
-    type: counter
+    type: cumulative
     # group: indices/search
   - description: Total time spent on scroll queries
     included: false
     name: elasticsearch.indices.search.scroll-time
-    type: counter
+    type: cumulative
     # group: indices/search
   - description: Total time spent on percolate requests
     included: false
     name: elasticsearch.indices.percolate.time
-    type: counter
+    type: cumulative
     # group: indices/percolate
   - description: Size of fielddata cache (in bytes)
     included: false
@@ -803,7 +803,7 @@ monitors:
   - description: Number of query cache hits
     included: false
     name: elasticsearch.indices.query-cache.hit-count
-    type: counter
+    type: cumulative
     # group: indices/query_cache
   - description: Memory used by terms (in bytes)
     included: false
@@ -818,7 +818,7 @@ monitors:
   - description: Time spent on get requests where the document was missing
     included: false
     name: elasticsearch.indices.get.missing-time
-    type: counter
+    type: cumulative
     # group: indices/get
   - description: Earliest last modified age on transaction logs
     included: false
@@ -828,17 +828,17 @@ monitors:
   - description: Total size of merged segments
     included: false
     name: elasticsearch.indices.merges.total-size
-    type: counter
+    type: cumulative
     # group: indices/merges
   - description: Total number of query feches
     included: false
     name: elasticsearch.indices.search.fetch-total
-    type: counter
+    type: cumulative
     # group: indices/search
   - description: Time spent flushing the index to disk
     included: false
     name: elasticsearch.indices.flush.time
-    type: counter
+    type: cumulative
     # group: indices/flush
   - description: Number of get requests running
     included: false
@@ -848,17 +848,17 @@ monitors:
   - description: Total time spent on search suggest
     included: false
     name: elasticsearch.indices.search.suggest-time
-    type: counter
+    type: cumulative
     # group: indices/search
   - description: Number of merged docs across merged segments
     included: false
     name: elasticsearch.indices.merges.total-docs
-    type: counter
+    type: cumulative
     # group: indices/merges
   - description: Total time spent on merging
     included: false
     name: elasticsearch.indices.merges.time
-    type: counter
+    type: cumulative
     # group: indices/merges
   - description: How long to wait before triggering a flush regardless of translog size
     included: false

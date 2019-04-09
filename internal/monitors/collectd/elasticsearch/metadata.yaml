@@ -11,83 +11,83 @@ monitors:
   - description: The total number of get requests since node startup
     included: true
     name: counter.indices.get.total
-    type: counter
+    type: cumulative
   - description: The total number of index requests since node startup
     included: true
     name: counter.indices.indexing.index-total
-    type: counter
+    type: cumulative
   - description: Total number of merges since node startup
     included: true
     name: counter.indices.merges.total
-    type: counter
+    type: cumulative
   - description: Total time spent in search queries (milliseconds)
     included: true
     name: counter.indices.search.query-time
-    type: counter
+    type: cumulative
   - description: The total number of search requests since node startup
     included: true
     name: counter.indices.search.query-total
-    type: counter
+    type: cumulative
   - description: The total number of index requests per cluster
     included: true
     name: counter.indices.total.indexing.index-total
-    type: counter
+    type: cumulative
   - description: Total number of merges per cluster
     included: true
     name: counter.indices.total.merges.total
-    type: counter
+    type: cumulative
   - description: The total number of search requests per cluster
     included: true
     name: counter.indices.total.search.query-total
-    type: counter
+    type: cumulative
   - description: Total garbage collection time (milliseconds)
     included: true
     name: counter.jvm.gc.time
-    type: counter
+    type: cumulative
   - description: Number of rejected bulk requests
     included: true
     name: counter.thread_pool.bulk.rejected
-    type: counter
+    type: cumulative
   - description: Number of rejected flush requests
     included: true
     name: counter.thread_pool.flush.rejected
-    type: counter
+    type: cumulative
   - description: Number of rejected generic requests
     included: true
     name: counter.thread_pool.generic.rejected
-    type: counter
+    type: cumulative
   - description: Number of rejected get requests
     included: true
     name: counter.thread_pool.get.rejected
-    type: counter
+    type: cumulative
   - description: Number of rejected index requests
     included: true
     name: counter.thread_pool.index.rejected
-    type: counter
+    type: cumulative
   - description: Number of rejected merge requests
     included: true
     name: counter.thread_pool.merge.rejected
-    type: counter
+    type: cumulative
   - description: Number of rejected optimize requests
     included: true
     name: counter.thread_pool.optimize.rejected
-    type: counter
+    type: cumulative
   - description: Number of rejected refresh requests
     included: true
     name: counter.thread_pool.refresh.rejected
-    type: counter
+    type: cumulative
   - description: Number of rejected thread pool requests
     included: true
     name: counter.thread_pool.rejected
-    type: counter
+    type: cumulative
   - description: Number of rejected search requests
     included: true
     name: counter.thread_pool.search.rejected
-    type: counter
+    type: cumulative
   - description: Number of rejected snapshot requests
     included: true
     name: counter.thread_pool.snapshot.rejected
-    type: counter
+    type: cumulative
   - description: The number of active primary shards
     included: true
     name: gauge.cluster.active-primary-shards
@@ -171,18 +171,18 @@ monitors:
   - description: Number of active threads
     included: false
     name: gauge.thread_pool.active
-    type: counter
+    type: gauge
   - description: Highest active threads in thread pool
     included: false
     name: gauge.thread_pool.largest
-    type: counter
+    type: gauge
   - description: Number of Tasks in thread pool
     included: false
     name: gauge.thread_pool.queue
-    type: counter
+    type: gauge
   - description: Number of Threads in thread pool
     included: false
     name: gauge.thread_pool.threads
-    type: counter
+    type: gauge
   monitorType: collectd/elasticsearch
   properties: null

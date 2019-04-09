@@ -31,6 +31,7 @@ spec:
     spec:
       # Use host network so we can access kubelet directly
       hostNetwork: true
+      dnsPolicy: ClusterFirstWithHostNet
       restartPolicy: Always
       serviceAccountName: {{ template "signalfx-agent.serviceAccountName" . }}
       {{ with .Values.image.pullSecret -}}

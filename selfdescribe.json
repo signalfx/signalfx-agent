@@ -3177,140 +3177,140 @@
       "metrics": [
         {
           "name": "counter.indices.get.total",
-          "type": "counter",
+          "type": "cumulative",
           "description": "The total number of get requests since node startup",
           "group": null,
           "included": true
         },
         {
           "name": "counter.indices.indexing.index-total",
-          "type": "counter",
+          "type": "cumulative",
           "description": "The total number of index requests since node startup",
           "group": null,
           "included": true
         },
         {
           "name": "counter.indices.merges.total",
-          "type": "counter",
+          "type": "cumulative",
           "description": "Total number of merges since node startup",
           "group": null,
           "included": true
         },
         {
           "name": "counter.indices.search.query-time",
-          "type": "counter",
+          "type": "cumulative",
           "description": "Total time spent in search queries (milliseconds)",
           "group": null,
           "included": true
         },
         {
           "name": "counter.indices.search.query-total",
-          "type": "counter",
+          "type": "cumulative",
           "description": "The total number of search requests since node startup",
           "group": null,
           "included": true
         },
         {
           "name": "counter.indices.total.indexing.index-total",
-          "type": "counter",
+          "type": "cumulative",
           "description": "The total number of index requests per cluster",
           "group": null,
           "included": true
         },
         {
           "name": "counter.indices.total.merges.total",
-          "type": "counter",
+          "type": "cumulative",
           "description": "Total number of merges per cluster",
           "group": null,
           "included": true
         },
         {
           "name": "counter.indices.total.search.query-total",
-          "type": "counter",
+          "type": "cumulative",
           "description": "The total number of search requests per cluster",
           "group": null,
           "included": true
         },
         {
           "name": "counter.jvm.gc.time",
-          "type": "counter",
+          "type": "cumulative",
           "description": "Total garbage collection time (milliseconds)",
           "group": null,
           "included": true
         },
         {
           "name": "counter.thread_pool.bulk.rejected",
-          "type": "counter",
+          "type": "cumulative",
           "description": "Number of rejected bulk requests",
           "group": null,
           "included": true
         },
         {
           "name": "counter.thread_pool.flush.rejected",
-          "type": "counter",
+          "type": "cumulative",
           "description": "Number of rejected flush requests",
           "group": null,
           "included": true
         },
         {
           "name": "counter.thread_pool.generic.rejected",
-          "type": "counter",
+          "type": "cumulative",
           "description": "Number of rejected generic requests",
           "group": null,
           "included": true
         },
         {
           "name": "counter.thread_pool.get.rejected",
-          "type": "counter",
+          "type": "cumulative",
           "description": "Number of rejected get requests",
           "group": null,
           "included": true
         },
         {
           "name": "counter.thread_pool.index.rejected",
-          "type": "counter",
+          "type": "cumulative",
           "description": "Number of rejected index requests",
           "group": null,
           "included": true
         },
         {
           "name": "counter.thread_pool.merge.rejected",
-          "type": "counter",
+          "type": "cumulative",
           "description": "Number of rejected merge requests",
           "group": null,
           "included": true
         },
         {
           "name": "counter.thread_pool.optimize.rejected",
-          "type": "counter",
+          "type": "cumulative",
           "description": "Number of rejected optimize requests",
           "group": null,
           "included": true
         },
         {
           "name": "counter.thread_pool.refresh.rejected",
-          "type": "counter",
+          "type": "cumulative",
           "description": "Number of rejected refresh requests",
           "group": null,
           "included": true
         },
         {
           "name": "counter.thread_pool.rejected",
-          "type": "counter",
+          "type": "cumulative",
           "description": "Number of rejected thread pool requests",
           "group": null,
           "included": true
         },
         {
           "name": "counter.thread_pool.search.rejected",
-          "type": "counter",
+          "type": "cumulative",
           "description": "Number of rejected search requests",
           "group": null,
           "included": true
         },
         {
           "name": "counter.thread_pool.snapshot.rejected",
-          "type": "counter",
+          "type": "cumulative",
           "description": "Number of rejected snapshot requests",
           "group": null,
           "included": true
@@ -3457,28 +3457,28 @@
         },
         {
           "name": "gauge.thread_pool.active",
-          "type": "counter",
+          "type": "gauge",
           "description": "Number of active threads",
           "group": null,
           "included": false
         },
         {
           "name": "gauge.thread_pool.largest",
-          "type": "counter",
+          "type": "gauge",
           "description": "Highest active threads in thread pool",
           "group": null,
           "included": false
         },
         {
           "name": "gauge.thread_pool.queue",
-          "type": "counter",
+          "type": "gauge",
           "description": "Number of Tasks in thread pool",
           "group": null,
           "included": false
         },
         {
           "name": "gauge.thread_pool.threads",
-          "type": "counter",
+          "type": "gauge",
           "description": "Number of Threads in thread pool",
           "group": null,
           "included": false
@@ -14222,14 +14222,14 @@
         },
         {
           "name": "elasticsearch.jvm.classes.total-unloaded-count",
-          "type": "counter",
+          "type": "cumulative",
           "description": "Total number of classes unloaded",
           "group": null,
           "included": false
         },
         {
           "name": "elasticsearch.jvm.uptime",
-          "type": "counter",
+          "type": "cumulative",
           "description": "Uptime of JVM",
           "group": null,
           "included": false
@@ -14257,14 +14257,14 @@
         },
         {
           "name": "elasticsearch.jvm.gc.time",
-          "type": "counter",
+          "type": "cumulative",
           "description": "Total time spent on GC",
           "group": null,
           "included": true
         },
         {
           "name": "elasticsearch.jvm.classes.total-loaded-count",
-          "type": "counter",
+          "type": "cumulative",
           "description": "Number of classes loaded",
           "group": null,
           "included": false
@@ -14376,7 +14376,7 @@
         },
         {
           "name": "elasticsearch.jvm.gc.old-count",
-          "type": "counter",
+          "type": "cumulative",
           "description": "Total number of garbage collections on Old Gen",
           "group": null,
           "included": false
@@ -14390,14 +14390,14 @@
         },
         {
           "name": "elasticsearch.jvm.gc.count",
-          "type": "counter",
+          "type": "cumulative",
           "description": "Total number of garbage collections",
           "group": null,
           "included": false
         },
         {
           "name": "elasticsearch.jvm.gc.old-time",
-          "type": "counter",
+          "type": "cumulative",
           "description": "Total time spent in garbage collections on Old Gen",
           "group": null,
           "included": false
@@ -14432,7 +14432,7 @@
         },
         {
           "name": "elasticsearch.process.mem.total-virtual-size",
-          "type": "counter",
+          "type": "cumulative",
           "description": "Size in bytes of virtual memory that is guaranteed to be available to the running process",
           "group": null,
           "included": false
@@ -14446,7 +14446,7 @@
         },
         {
           "name": "elasticsearch.process.cpu.time",
-          "type": "counter",
+          "type": "cumulative",
           "description": "CPU time (in milliseconds) used by the process on which the Java virtual machine is running",
           "group": null,
           "included": false
@@ -14460,7 +14460,7 @@
         },
         {
           "name": "elasticsearch.http.total_open",
-          "type": "counter",
+          "type": "cumulative",
           "description": "Total number of opened HTTP connections",
           "group": null,
           "included": false
@@ -14481,7 +14481,7 @@
         },
         {
           "name": "elasticsearch.transport.rx.count",
-          "type": "counter",
+          "type": "cumulative",
           "description": "Total size of data received in cluster communication (in bytes)",
           "group": null,
           "included": false
@@ -14495,14 +14495,14 @@
         },
         {
           "name": "elasticsearch.thread_pool.completed",
-          "type": "counter",
+          "type": "cumulative",
           "description": "Number of threads completed in thread pool",
           "group": null,
           "included": false
         },
         {
           "name": "elasticsearch.thread_pool.threads",
-          "type": "counter",
+          "type": "cumulative",
           "description": "Number of Threads in thread pool",
           "group": null,
           "included": false
@@ -14516,7 +14516,7 @@
         },
         {
           "name": "elasticsearch.thread_pool.rejected",
-          "type": "counter",
+          "type": "cumulative",
           "description": "Number of rejected threads in thread pool",
           "group": null,
           "included": true
@@ -14537,42 +14537,42 @@
         },
         {
           "name": "elasticsearch.indices.query-cache.miss-count",
-          "type": "counter",
+          "type": "cumulative",
           "description": "Number of query cache misses",
           "group": null,
           "included": false
         },
         {
           "name": "elasticsearch.indices.refresh.time",
-          "type": "counter",
+          "type": "cumulative",
           "description": "Total time spent on index refreshes",
           "group": null,
           "included": false
         },
         {
           "name": "elasticsearch.indices.refresh.total",
-          "type": "counter",
+          "type": "cumulative",
           "description": "Number of index refreshes",
           "group": null,
           "included": false
         },
         {
           "name": "elasticsearch.indices.request-cache.evictions",
-          "type": "counter",
+          "type": "cumulative",
           "description": "Number of request cache evictions",
           "group": null,
           "included": false
         },
         {
           "name": "elasticsearch.indices.search.fetch-time",
-          "type": "counter",
+          "type": "cumulative",
           "description": "Total time spent on query fetches",
           "group": null,
           "included": false
         },
         {
           "name": "elasticsearch.indices.merges.stopped-time",
-          "type": "counter",
+          "type": "cumulative",
           "description": "Total time merges were stopped for",
           "group": null,
           "included": false
@@ -14586,21 +14586,21 @@
         },
         {
           "name": "elasticsearch.transport.tx.count",
-          "type": "counter",
+          "type": "cumulative",
           "description": "Total number of packets sent in cluster communication",
           "group": null,
           "included": false
         },
         {
           "name": "elasticsearch.indices.filter-cache.evictions",
-          "type": "counter",
+          "type": "cumulative",
           "description": "Number of evicttions from filter cache",
           "group": null,
           "included": false
         },
         {
           "name": "elasticsearch.indices.indexing.delete-time",
-          "type": "counter",
+          "type": "cumulative",
           "description": "Time spent deleting documents from an index",
           "group": null,
           "included": false
@@ -14635,7 +14635,7 @@
         },
         {
           "name": "elasticsearch.indices.search.query-time",
-          "type": "counter",
+          "type": "cumulative",
           "description": "Total time spent querying on the primary",
           "group": null,
           "included": true
@@ -14656,35 +14656,35 @@
         },
         {
           "name": "elasticsearch.indices.indexing.delete-total",
-          "type": "counter",
+          "type": "cumulative",
           "description": "Number of documents deleted from an index",
           "group": null,
           "included": false
         },
         {
           "name": "elasticsearch.indices.recovery.throttle-time",
-          "type": "counter",
+          "type": "cumulative",
           "description": "Total time recoveries waited due to throttling",
           "group": null,
           "included": false
         },
         {
           "name": "elasticsearch.transport.rx.size",
-          "type": "counter",
+          "type": "cumulative",
           "description": "Total size of data received in cluster communication",
           "group": null,
           "included": false
         },
         {
           "name": "elasticsearch.transport.tx.size",
-          "type": "counter",
+          "type": "cumulative",
           "description": "Total size of data sent in cluster communication",
           "group": null,
           "included": false
         },
         {
           "name": "elasticsearch.indices.merges.throttle-time",
-          "type": "counter",
+          "type": "cumulative",
           "description": "Total time merges spent waiting due to throttling",
           "group": null,
           "included": false
@@ -14698,7 +14698,7 @@
         },
         {
           "name": "elasticsearch.indices.flush.total",
-          "type": "counter",
+          "type": "cumulative",
           "description": "Number of index flushes to disk",
           "group": null,
           "included": false
@@ -14726,21 +14726,21 @@
         },
         {
           "name": "elasticsearch.indices.fielddata.evictions",
-          "type": "counter",
+          "type": "cumulative",
           "description": "Number of evictions from fielddata cache",
           "group": null,
           "included": false
         },
         {
           "name": "elasticsearch.indices.percolate.queries",
-          "type": "counter",
+          "type": "cumulative",
           "description": "Number of percolator queries",
           "group": null,
           "included": false
         },
         {
           "name": "elasticsearch.indices.warmer.total-time",
-          "type": "counter",
+          "type": "cumulative",
           "description": "Total time spent by warmers",
           "group": null,
           "included": false
@@ -14754,14 +14754,14 @@
         },
         {
           "name": "elasticsearch.indices.query-cache.evictions",
-          "type": "counter",
+          "type": "cumulative",
           "description": "Number of query cache evictions",
           "group": null,
           "included": false
         },
         {
           "name": "elasticsearch.indices.query-cache.total-count",
-          "type": "counter",
+          "type": "cumulative",
           "description": "Total number of items in the query cache",
           "group": null,
           "included": false
@@ -14789,21 +14789,21 @@
         },
         {
           "name": "elasticsearch.indices.search.query-total",
-          "type": "counter",
+          "type": "cumulative",
           "description": "Total number of queries",
           "group": null,
           "included": true
         },
         {
           "name": "elasticsearch.indices.get.time",
-          "type": "counter",
+          "type": "cumulative",
           "description": "Time spent on get requests",
           "group": null,
           "included": false
         },
         {
           "name": "elasticsearch.indices.indexing.index-total",
-          "type": "counter",
+          "type": "cumulative",
           "description": "Total number of documents indexed to an index",
           "group": null,
           "included": true
@@ -14817,14 +14817,14 @@
         },
         {
           "name": "elasticsearch.indices.get.total",
-          "type": "counter",
+          "type": "cumulative",
           "description": "Total number of get requests",
           "group": null,
           "included": true
         },
         {
           "name": "elasticsearch.indices.warmer.total",
-          "type": "counter",
+          "type": "cumulative",
           "description": "Total number of warmers",
           "group": null,
           "included": false
@@ -14838,14 +14838,14 @@
         },
         {
           "name": "elasticsearch.indices.get.exists-total",
-          "type": "counter",
+          "type": "cumulative",
           "description": "Number of get requests where the document existed",
           "group": null,
           "included": false
         },
         {
           "name": "elasticsearch.indices.search.scroll-total",
-          "type": "counter",
+          "type": "cumulative",
           "description": "Total number of scroll queries",
           "group": null,
           "included": false
@@ -14859,7 +14859,7 @@
         },
         {
           "name": "elasticsearch.indices.suggest.time",
-          "type": "counter",
+          "type": "cumulative",
           "description": "Total time spent in suggest requests",
           "group": null,
           "included": false
@@ -14873,7 +14873,7 @@
         },
         {
           "name": "elasticsearch.indices.indexing.index-time",
-          "type": "counter",
+          "type": "cumulative",
           "description": "Time spent indexing documents to an index",
           "group": null,
           "included": false
@@ -14894,7 +14894,7 @@
         },
         {
           "name": "elasticsearch.indices.get.exists-time",
-          "type": "counter",
+          "type": "cumulative",
           "description": "Time spent on get requests where the document existed",
           "group": null,
           "included": false
@@ -14908,7 +14908,7 @@
         },
         {
           "name": "elasticsearch.indices.request-cache.miss-count",
-          "type": "counter",
+          "type": "cumulative",
           "description": "Number of request cache misses",
           "group": null,
           "included": false
@@ -14922,14 +14922,14 @@
         },
         {
           "name": "elasticsearch.indices.merges.auto-throttle-size",
-          "type": "counter",
+          "type": "cumulative",
           "description": "Merging throttled due to auto-throttling (in bytes)",
           "group": null,
           "included": false
         },
         {
           "name": "elasticsearch.indices.get.missing-total",
-          "type": "counter",
+          "type": "cumulative",
           "description": "Number of get requests where the document was missing",
           "group": null,
           "included": false
@@ -14957,14 +14957,14 @@
         },
         {
           "name": "elasticsearch.indices.store.throttle-time",
-          "type": "counter",
+          "type": "cumulative",
           "description": "Total time requests are throttled for",
           "group": null,
           "included": false
         },
         {
           "name": "elasticsearch.indices.request-cache.hit-count",
-          "type": "counter",
+          "type": "cumulative",
           "description": "Number of request cache hits",
           "group": null,
           "included": false
@@ -14978,7 +14978,7 @@
         },
         {
           "name": "elasticsearch.indices.suggest.total",
-          "type": "counter",
+          "type": "cumulative",
           "description": "Total number of suggest requests",
           "group": null,
           "included": false
@@ -15013,7 +15013,7 @@
         },
         {
           "name": "elasticsearch.indices.merges.total",
-          "type": "counter",
+          "type": "cumulative",
           "description": "Number of segment merges",
           "group": null,
           "included": true
@@ -15034,7 +15034,7 @@
         },
         {
           "name": "elasticsearch.indices.percolate.total",
-          "type": "counter",
+          "type": "cumulative",
           "description": "Total number of suggest requests",
           "group": null,
           "included": false
@@ -15055,21 +15055,21 @@
         },
         {
           "name": "elasticsearch.indices.search.suggest-total",
-          "type": "counter",
+          "type": "cumulative",
           "description": "Total number of suggest requests",
           "group": null,
           "included": false
         },
         {
           "name": "elasticsearch.indices.search.scroll-time",
-          "type": "counter",
+          "type": "cumulative",
           "description": "Total time spent on scroll queries",
           "group": null,
           "included": false
         },
         {
           "name": "elasticsearch.indices.percolate.time",
-          "type": "counter",
+          "type": "cumulative",
           "description": "Total time spent on percolate requests",
           "group": null,
           "included": false
@@ -15083,7 +15083,7 @@
         },
         {
           "name": "elasticsearch.indices.query-cache.hit-count",
-          "type": "counter",
+          "type": "cumulative",
           "description": "Number of query cache hits",
           "group": null,
           "included": false
@@ -15104,7 +15104,7 @@
         },
         {
           "name": "elasticsearch.indices.get.missing-time",
-          "type": "counter",
+          "type": "cumulative",
           "description": "Time spent on get requests where the document was missing",
           "group": null,
           "included": false
@@ -15118,21 +15118,21 @@
         },
         {
           "name": "elasticsearch.indices.merges.total-size",
-          "type": "counter",
+          "type": "cumulative",
           "description": "Total size of merged segments",
           "group": null,
           "included": false
         },
         {
           "name": "elasticsearch.indices.search.fetch-total",
-          "type": "counter",
+          "type": "cumulative",
           "description": "Total number of query feches",
           "group": null,
           "included": false
         },
         {
           "name": "elasticsearch.indices.flush.time",
-          "type": "counter",
+          "type": "cumulative",
           "description": "Time spent flushing the index to disk",
           "group": null,
           "included": false
@@ -15146,21 +15146,21 @@
         },
         {
           "name": "elasticsearch.indices.search.suggest-time",
-          "type": "counter",
+          "type": "cumulative",
           "description": "Total time spent on search suggest",
           "group": null,
           "included": false
         },
         {
           "name": "elasticsearch.indices.merges.total-docs",
-          "type": "counter",
+          "type": "cumulative",
           "description": "Number of merged docs across merged segments",
           "group": null,
           "included": false
         },
         {
           "name": "elasticsearch.indices.merges.time",
-          "type": "counter",
+          "type": "cumulative",
           "description": "Total time spent on merging",
           "group": null,
           "included": false
