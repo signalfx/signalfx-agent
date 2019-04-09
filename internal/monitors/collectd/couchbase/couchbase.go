@@ -13,8 +13,6 @@ import (
 	"github.com/signalfx/signalfx-agent/internal/monitors"
 )
 
-const monitorType = "collectd/couchbase"
-
 func init() {
 	monitors.Register(&monitorMetadata, func() interface{} {
 		return &Monitor{

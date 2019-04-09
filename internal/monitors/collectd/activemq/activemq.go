@@ -9,8 +9,6 @@ import (
 	yaml "gopkg.in/yaml.v2"
 )
 
-const monitorType = "collectd/activemq"
-
 var serviceName = "activemq"
 
 // Monitor is the main type that represents the monitor

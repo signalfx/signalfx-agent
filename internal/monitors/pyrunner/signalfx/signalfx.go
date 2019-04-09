@@ -25,8 +25,6 @@ import (
 
 const messageTypeDatapointList pyrunner.MessageType = 200
 
-const monitorType = "python-monitor"
-
 func init() {
 	monitors.Register(&monitorMetadata, func() interface{} {
 		return &PyMonitor{

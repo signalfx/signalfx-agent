@@ -105,7 +105,7 @@ func (mm *MonitorManager) Configure(confs []config.MonitorConfig, collectdConf *
 		if err != nil {
 			log.WithFields(log.Fields{
 				"monitorType": conf.Type,
-				"error":       err.Error(),
+				"error":       err,
 			}).Error("Could not process configuration for monitor")
 			conf.ValidationError = err.Error()
 			mm.badConfigs[hash] = &conf
@@ -330,14 +330,24 @@ func (mm *MonitorManager) createAndConfigureNewMonitor(config config.MonitorCust
 
 	metadata, ok := MonitorMetadatas[monitorType]
 	if !ok {
-		return errors.Errorf("could not find monitor metadata of type %s", monitorType)
+		panic(fmt.Sprintf("could not find monitor metadata of type %s", monitorType))
 	}
 
 	configHash := config.MonitorConfigCore().Hash()
 
-	extraMetricsFilter, err := newMetricsFilter(metadata, coreConfig.ExtraMetrics, coreConfig.ExtraGroups)
+	var extraMetrics []string
+
+	// Monitors can add additional extra metrics to allow through such as based on config flags.
+	if monitorExtra := config.GetExtraMetrics(); monitorExtra != nil {
+		extraMetrics = append(extraMetrics, coreConfig.ExtraMetrics...)
+		extraMetrics = append(extraMetrics, monitorExtra...)
+	} else {
+		extraMetrics = coreConfig.ExtraMetrics
+	}
+
+	extraMetricsFilter, err := newMetricsFilter(metadata, extraMetrics, coreConfig.ExtraGroups)
 	if err != nil {
-		return errors.Wrapf(err, "unable to construct extraMetrics filter")
+		return fmt.Errorf("unable to construct extraMetrics filter: %s", err)
 	}
 
 	output := &monitorOutput{

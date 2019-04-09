@@ -4,8 +4,8 @@ package monitors
 // extraMetrics and extraGroups.
 
 import (
+	"errors"
 	"fmt"
-	"github.com/pkg/errors"
 	"github.com/signalfx/golib/datapoint"
 	"github.com/signalfx/signalfx-agent/internal/utils/filter"
 	"strings"
@@ -44,7 +44,7 @@ func validateMetricName(metadata *Metadata, metricName string) error {
 	}
 
 	if !metadata.HasMetric(metricName) {
-		return errors.Errorf("metric '%s' does not exist", metricName)
+		return fmt.Errorf("metric '%s' does not exist", metricName)
 	}
 
 	return nil
@@ -57,7 +57,7 @@ func validateGroup(metadata *Metadata, group string) ([]string, error) {
 
 	metrics, ok := metadata.GroupMetricsMap[group]
 	if !ok {
-		return nil, errors.Errorf("group %s does not exist", group)
+		return nil, fmt.Errorf("group %s does not exist", group)
 	}
 	return metrics, nil
 }
@@ -86,7 +86,7 @@ func newMetricsFilter(metadata *Metadata, extraMetrics, extraGroups []string) (*
 
 	basicFilter, err := filter.NewBasicStringFilter(filterItems)
 	if err != nil {
-		return nil, errors.Wrapf(err, "unable to construct filter with items %s", filterItems)
+		return nil, fmt.Errorf("unable to construct filter with items %s: %s", filterItems, err)
 	}
 
 	effectiveMetrics := map[string]bool{}

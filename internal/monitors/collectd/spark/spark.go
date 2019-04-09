@@ -14,8 +14,6 @@ import (
 	"github.com/signalfx/signalfx-agent/internal/monitors"
 )
 
-const monitorType = "collectd/spark"
-
 type sparkClusterType string
 
 const (

@@ -10,8 +10,6 @@ import (
 	"github.com/signalfx/signalfx-agent/internal/monitors/pyrunner"
 )
 
-const monitorType = "collectd/etcd"
-
 func init() {
 	monitors.Register(&monitorMetadata, func() interface{} {
 		return &Monitor{

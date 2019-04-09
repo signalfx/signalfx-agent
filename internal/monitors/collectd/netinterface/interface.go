@@ -13,8 +13,6 @@ import (
 	"github.com/signalfx/signalfx-agent/internal/monitors/collectd"
 )
 
-const monitorType = "collectd/interface"
-
 func init() {
 	monitors.Register(&monitorMetadata, func() interface{} {
 		return &Monitor{

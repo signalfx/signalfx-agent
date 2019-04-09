@@ -11,8 +11,6 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-const monitorType = "collectd/docker"
-
 func init() {
 	monitors.Register(&monitorMetadata, func() interface{} {
 		return &Monitor{
