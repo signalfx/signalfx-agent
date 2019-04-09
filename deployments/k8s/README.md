@@ -34,9 +34,10 @@ has trouble addressing service pods or there are DNS resolution issues), you
 can make the agent run with its own network namespace by doing the following:
 
  1. Change `hostNetwork: true` to `hostNetwork: false` in the DaemonSet.
- 2. Add the item `hostname: ${MY_NODE_NAME}` under `agent.yaml` in the agent
+ 2. Remove the `dnsPolicy` setting or change it to `dnsPolicy: ClusterFirst`.
+ 3. Add the item `hostname: ${MY_NODE_NAME}` under `agent.yaml` in the agent
 	ConfigMap.
- 3. Configure the `kubelet-stats` monitor to use the node name as the hostname
+ 4. Configure the `kubelet-stats` monitor to use the node name as the hostname
 	by using the following config:
 
 	```
