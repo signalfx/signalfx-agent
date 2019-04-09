@@ -2,7 +2,7 @@ apiVersion: v1
 description: The SignalFx Smart Agent
 name: signalfx-agent
 appVersion: 4.4.0
-version: 0.3.6
+version: 0.3.7
 keywords:
 - monitoring
 - alerting
