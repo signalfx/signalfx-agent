@@ -61,7 +61,7 @@ agentConfig:
 # values of `ingestUrl`, `traceEndpointUrl` and `apiUrl` will be automatically
 # set based on this realm value.  If unset, it defaults to the original us0
 # realm in the agent.
-realm:
+signalFxRealm:
 
 # The URL of SignalFx ingest server. Should be overridden if using the SignalFx
 # Gateway. If you want to send trace spans to a different location, set the

@@ -16,8 +16,8 @@ data:
 {{- else }}
     signalFxAccessToken: ${SFX_ACCESS_TOKEN}
 
-    {{- if .Values.realm }}
-    realm: {{ .Values.realm }}
+    {{- if .Values.signalFxRealm }}
+    signalFxRealm: {{ .Values.signalFxRealm }}
     {{- end }}
 
     {{- if .Values.ingestUrl }}
