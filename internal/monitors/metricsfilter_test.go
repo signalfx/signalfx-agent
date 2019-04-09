@@ -10,9 +10,15 @@ import (
 
 func testMetadata(metricsExhaustive, sendAll bool) *Metadata {
 	return &Metadata{
-		MonitorType:       "test-monitor",
-		IncludedMetrics:   utils.StringSet("cpu.idle", "cpu.min", "cpu.max", "mem.used"),
-		Metrics:           utils.StringSet("cpu.idle", "cpu.min", "cpu.max", "mem.used", "mem.free", "mem.available"),
+		MonitorType:     "test-monitor",
+		IncludedMetrics: utils.StringSet("cpu.idle", "cpu.min", "cpu.max", "mem.used"),
+		Metrics: map[string]MetricInfo{
+			"cpu.idle":      {datapoint.Gauge},
+			"cpu.min":       {datapoint.Gauge},
+			"cpu.max":       {datapoint.Gauge},
+			"mem.used":      {datapoint.Counter},
+			"mem.free":      {datapoint.Counter},
+			"mem.available": {datapoint.Counter}},
 		MetricsExhaustive: metricsExhaustive,
 		Groups:            utils.StringSet("cpu", "mem"),
 		GroupMetricsMap: map[string][]string{

@@ -57,7 +57,7 @@ do
 			exit 1
 		fi
 
-		make run-dev-image-commands RUN_DEV_COMMANDS="make docs"
+		make run-dev-image-commands RUN_DEV_COMMANDS="make signalfx-agent docs"
 		if ! git diff -s --exit-code docs; then
 			error ">>> docs have changed, commit before pushing"
 			exit 1
