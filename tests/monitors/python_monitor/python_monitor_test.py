@@ -1,4 +1,5 @@
 import os
+import tempfile
 import time
 from functools import partial as p
 from textwrap import dedent
@@ -65,3 +66,26 @@ def test_python_monitor_restarts_when_killed():
             ), "Didn't get datapoints"
 
             assert len(proc.children()) == 1, "not exactly one subprocess"
+
+
+def test_python_monitor_respects_python_path():
+    with tempfile.TemporaryDirectory() as tmpdir:
+        with open(os.path.join(tmpdir, "randommodule.py"), "w") as fd:
+            fd.write("print('hello')")
+
+        config = dedent(
+            f"""
+                monitors:
+                  - type: python-monitor
+                    scriptFilePath: {script_path("monitor3.py")}
+                    pythonPath:
+                     - {tmpdir}
+                    intervalSeconds: 1
+                    a: test
+                """
+        )
+
+        with run_agent(config) as [backend, _, _]:
+            assert wait_for(
+                p(has_datapoint, backend, metric_name="my.gauge", dimensions={"a": "test"}, count=5)
+            ), "Didn't get datapoints"
