@@ -46,7 +46,7 @@ func TestSendAll(t *testing.T) {
 					Metric:     metric,
 					MetricType: datapoint.Counter,
 				}
-				if !filter.shouldSend(dp) {
+				if !filter.Matches(dp) {
 					t.Error()
 				}
 			})
@@ -65,7 +65,7 @@ func TestIncludedMetrics(t *testing.T) {
 					Metric:     metric,
 					MetricType: datapoint.Counter,
 				}
-				if !filter.shouldSend(dp) {
+				if !filter.Matches(dp) {
 					t.Error()
 				}
 			})
@@ -94,7 +94,7 @@ func TestExtraMetrics(t *testing.T) {
 			"mem.available": false,
 		} {
 			dp := &datapoint.Datapoint{Metric: metric, MetricType: datapoint.Counter}
-			sent := filter.shouldSend(dp)
+			sent := filter.Matches(dp)
 			if sent && !shouldSend {
 				t.Errorf("metric %s should not have sent", metric)
 			}
@@ -115,7 +115,7 @@ func TestExtraMetrics(t *testing.T) {
 			"mem.used":                        true,
 		} {
 			dp := &datapoint.Datapoint{Metric: metric, MetricType: datapoint.Counter}
-			sent := filter.shouldSend(dp)
+			sent := filter.Matches(dp)
 			if sent && !shouldSend {
 				t.Errorf("metric %s should not have sent", metric)
 			}
@@ -141,7 +141,7 @@ func TestGlobbedMetricNames(t *testing.T) {
 				Metric:     metric,
 				MetricType: datapoint.Counter,
 			}
-			if !filter.shouldSend(dp) {
+			if !filter.Matches(dp) {
 				t.Errorf("metric %s should have been sent", metric)
 			}
 		}
@@ -155,7 +155,7 @@ func TestExtraMetricGroups(t *testing.T) {
 		for _, metric := range exhaustiveMetadata.GroupMetricsMap["mem"] {
 			dp := &datapoint.Datapoint{Metric: metric, MetricType: datapoint.Counter}
 
-			if !filter.shouldSend(dp) {
+			if !filter.Matches(dp) {
 				t.Errorf("metric %s should have been sent", metric)
 			}
 		}
@@ -171,35 +171,29 @@ func Test_newExtraMetricsFilter(t *testing.T) {
 	tests := []struct {
 		name    string
 		args    args
-		wantNil bool
 		wantErr bool
 	}{
-		// Exhaustive case errors.
-		{"metricName is whitespace", args{exhaustiveMetadata, []string{"    "}, nil}, true, true},
-		{"groupName is whitespace", args{exhaustiveMetadata, nil, []string{"    "}}, true, true},
-		{"no group name or metric name", args{exhaustiveMetadata, []string{""}, []string{""}}, true, true},
-		{"group name and metric name", args{exhaustiveMetadata, []string{"metric"}, []string{"group"}}, true, true},
-		{"unknown metric name", args{exhaustiveMetadata, []string{"unknown-metric"}, []string{""}}, true, true},
-		{"unknown group name", args{exhaustiveMetadata, []string{""}, []string{"unknown-group"}}, true, true},
-		{"metric glob doesn't match any metric", args{exhaustiveMetadata, []string{"unknown-metric.*"}, []string{""}},
-			true, true},
+		// Error cases.
+		{"unknown group name", args{exhaustiveMetadata, nil, []string{"unknown-group"}}, true},
+		{"metricName is whitespace", args{exhaustiveMetadata, []string{"    "}, nil}, true},
+		{"groupName is whitespace", args{exhaustiveMetadata, nil, []string{"    "}}, true},
+		{"metricName is whitespace", args{nonexhaustiveMetadata, []string{"    "}, nil}, true},
+		{"groupName is whitespace", args{nonexhaustiveMetadata, nil, []string{"    "}}, true},
 
-		// Non-exhaustive cases.
-		{"metricName is whitespace", args{nonexhaustiveMetadata, []string{"    "}, nil}, true, true},
-		{"groupName is whitespace", args{nonexhaustiveMetadata, nil, []string{"    "}}, true, true},
-
-		// Shouldn't error for non-exhaustive case.
-		{"metric does not exist", args{nonexhaustiveMetadata, []string{"unknown-metric"}, nil}, false, false},
+		// Successful cases.
+		{"no group name or metric name", args{exhaustiveMetadata, nil, nil}, false},
+		{"valid group name and unknown metric name", args{exhaustiveMetadata, []string{"unknown-metric"},
+			[]string{"cpu"}}, false},
+		{"unknown metric name", args{exhaustiveMetadata, []string{"unknown-metric"}, nil}, false},
+		{"metric glob doesn't match any metric", args{exhaustiveMetadata, []string{"unknown-metric.*"}, nil}, false},
+		{"metric does not exist", args{nonexhaustiveMetadata, []string{"unknown-metric"}, nil}, false},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := newMetricsFilter(tt.args.metadata, tt.args.extraMetrics, tt.args.extraGroups)
+			_, err := newMetricsFilter(tt.args.metadata, tt.args.extraMetrics, tt.args.extraGroups)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("newMetricsFilter() error = %v, wantErr %v", err, tt.wantErr)
 				return
-			}
-			if (got == nil) != tt.wantNil {
-				t.Errorf("newMetricsFilter() = %v, want %v", got, tt.wantNil)
 			}
 		})
 	}

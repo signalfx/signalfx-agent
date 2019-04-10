@@ -25,7 +25,7 @@ def test_df():
         assert not has_log_message(get_output().lower(), "error"), "error found in agent output!"
 
 
-def test_df_additional_metrics():
+def test_df_extra_metrics():
     expected_metrics = METADATA.included_metrics | {"df_complex.reserved"}
     with run_agent(
         """
@@ -44,7 +44,7 @@ def test_df_additional_metrics():
         assert not has_log_message(get_output().lower(), "error"), "error found in agent output!"
 
 
-def test_df_additional_metrics_all():
+def test_df_extra_metrics_all():
     expected_metrics = METADATA.all_metrics
     with run_agent(
         """

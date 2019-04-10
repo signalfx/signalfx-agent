@@ -2,6 +2,7 @@ package monitors
 
 import (
 	"fmt"
+	"github.com/mitchellh/go-wordwrap"
 	"strings"
 
 	"github.com/signalfx/golib/datapoint"
@@ -11,6 +12,8 @@ import (
 	"github.com/signalfx/signalfx-agent/internal/monitors/kubernetes/leadership"
 	"github.com/signalfx/signalfx-agent/internal/utils"
 )
+
+const maxLineLength = 120
 
 func endpointToDiagnosticText(endpoint services.Endpoint, isMonitored bool) string {
 	var items []string
@@ -60,6 +63,26 @@ func (mm *MonitorManager) SummaryDiagnosticText() string {
 	)
 }
 
+func formatEnabledMetrics(metrics []string, indent int) string {
+	metricList := strings.Join(metrics, ", ")
+
+	emPrefix := utils.IndentLines("Enabled Metrics: ", indent)
+
+	text := fmt.Sprintf("%s[%s]", emPrefix, metricList)
+
+	if len(text) > maxLineLength {
+		// Single line is too long, wrap it on multiple lines instead.
+		// fmt string is equally unreadable so just join it all together.
+		text = strings.Join([]string{
+			emPrefix, "[\n",
+			utils.IndentLines(wordwrap.WrapString(metricList, uint(maxLineLength-indent+2)), indent+2), "\n",
+			utils.IndentLines("]", indent),
+		}, "")
+	}
+
+	return text
+}
+
 // DiagnosticText returns a string to be served on the diagnostic socket
 func (mm *MonitorManager) DiagnosticText() string {
 	mm.lock.Lock()
@@ -80,7 +103,6 @@ Monitored Endpoint ID: %s`,
 		activeMonText += fmt.Sprintf(
 			`%s. %s
     Reporting Interval (seconds): %d
-    Enabled Metrics:
 %s
 %s    Config:
 %s
@@ -88,7 +110,7 @@ Monitored Endpoint ID: %s`,
 			am.config.MonitorConfigCore().MonitorID,
 			am.config.MonitorConfigCore().Type,
 			am.config.MonitorConfigCore().IntervalSeconds,
-			utils.IndentLines(config.ToString(am.enabledMetrics), 6),
+			formatEnabledMetrics(am.enabledMetrics, 4),
 			utils.IndentLines(serviceStats, 4),
 			utils.IndentLines(config.ToString(am.config), 6))
 	}

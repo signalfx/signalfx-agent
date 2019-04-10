@@ -7,11 +7,15 @@ import (
 	"errors"
 	"fmt"
 	"github.com/signalfx/golib/datapoint"
+	"github.com/signalfx/signalfx-agent/internal/core/dpfilters"
 	"github.com/signalfx/signalfx-agent/internal/utils/filter"
+	"github.com/sirupsen/logrus"
 	"strings"
 )
 
-type metricsFilter struct {
+var _ dpfilters.DatapointFilter = &extraMetricsFilter{}
+
+type extraMetricsFilter struct {
 	metadata     *Metadata
 	extraMetrics map[string]bool
 	stringFilter *filter.BasicStringFilter
@@ -40,11 +44,11 @@ func validateMetricName(metadata *Metadata, metricName string) error {
 			}
 		}
 
-		return fmt.Errorf("metric pattern '%s' did not match any available metrics", metricName)
+		logrus.Warnf("extraMetrics: metric pattern '%s' did not match any available metrics", metricName)
 	}
 
 	if !metadata.HasMetric(metricName) {
-		return fmt.Errorf("metric '%s' does not exist", metricName)
+		logrus.Warnf("extraMetrics: metric '%s' does not exist", metricName)
 	}
 
 	return nil
@@ -62,7 +66,7 @@ func validateGroup(metadata *Metadata, group string) ([]string, error) {
 	return metrics, nil
 }
 
-func newMetricsFilter(metadata *Metadata, extraMetrics, extraGroups []string) (*metricsFilter, error) {
+func newMetricsFilter(metadata *Metadata, extraMetrics, extraGroups []string) (*extraMetricsFilter, error) {
 	var filterItems []string
 
 	for _, metric := range extraMetrics {
@@ -100,54 +104,41 @@ func newMetricsFilter(metadata *Metadata, extraMetrics, extraGroups []string) (*
 		}
 	}
 
-	return &metricsFilter{metadata, effectiveMetrics, basicFilter}, nil
+	return &extraMetricsFilter{metadata, effectiveMetrics, basicFilter}, nil
 }
 
-// enabledMetrics returns list of metrics that are enabled via user-configuration or by
+// enabledMetrics returns list of metrics that are enabled via user-configØuration or by
 // being included metrics.
-func (add *metricsFilter) enabledMetrics() []string {
-	metrics := make([]string, 0, len(add.extraMetrics)+len(add.metadata.IncludedMetrics))
+func (mf *extraMetricsFilter) enabledMetrics() []string {
+	metrics := make([]string, 0, len(mf.extraMetrics)+len(mf.metadata.IncludedMetrics))
 
-	for metric := range add.extraMetrics {
+	for metric := range mf.extraMetrics {
 		metrics = append(metrics, metric)
 	}
 
-	for metric := range add.metadata.IncludedMetrics {
+	for metric := range mf.metadata.IncludedMetrics {
 		metrics = append(metrics, metric)
 	}
 
 	return metrics
 }
 
-func (add *metricsFilter) shouldSend(dp *datapoint.Datapoint) bool {
-	if add.metadata.SendAll {
+func (mf *extraMetricsFilter) Matches(dp *datapoint.Datapoint) bool {
+	if mf.metadata.SendAll {
 		return true
 	}
 
-	if add.metadata.HasIncludedMetric(dp.Metric) {
+	if mf.metadata.HasIncludedMetric(dp.Metric) {
 		// It's an included metric so send by default.
 		return true
 	}
 
-	if add.extraMetrics[dp.Metric] {
+	if mf.extraMetrics[dp.Metric] {
 		// User has explicitly chosen to send this metric (or a group that this metric belongs to).
 		return true
 	}
 
-	if add.metadata.MetricsExhaustive && !add.metadata.HasMetric(dp.Metric) {
-		// Metrics list should be exhaustive but we don't know what this metric is.
-		// so we drop it.
-		return false
-	}
-
-	if !add.metadata.MetricsExhaustive && add.stringFilter.Matches(dp.Metric) {
-		// If we reach here we don't know about the metric from the metadata
-		// but it might match the filter. We have to check matches against
-		// the filter because for unknown metrics it won't have an entry
-		// in extraMetrics.
-		return true
-	}
-
-	// If we reach here the user hasn't enabled it in extraMetrics.
-	return false
+	// Lastly check if it matches filter. If it's a known metric from metadata will get matched
+	// above so this is a last check for unknown metrics.
+	return mf.stringFilter.Matches(dp.Metric)
 }

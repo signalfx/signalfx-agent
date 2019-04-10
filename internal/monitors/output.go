@@ -17,7 +17,7 @@ type monitorOutput struct {
 	monitorID                 types.MonitorID
 	notHostSpecific           bool
 	disableEndpointDimensions bool
-	additionalFilter          *metricsFilter
+	extraMetricsFilter        *extraMetricsFilter
 	filter                    *dpfilters.FilterSet
 	configHash                uint64
 	endpoint                  services.Endpoint
@@ -35,7 +35,7 @@ func (mo *monitorOutput) SendDatapoint(dp *datapoint.Datapoint) {
 		return
 	}
 
-	if mo.additionalFilter != nil && !mo.additionalFilter.shouldSend(dp) {
+	if mo.extraMetricsFilter != nil && !mo.extraMetricsFilter.Matches(dp) {
 		return
 	}
 

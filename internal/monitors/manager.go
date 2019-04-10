@@ -339,11 +339,9 @@ func (mm *MonitorManager) createAndConfigureNewMonitor(config config.MonitorCust
 
 	// Monitors can add additional extra metrics to allow through such as based on config flags.
 	if monitorExtra := config.GetExtraMetrics(); monitorExtra != nil {
-		extraMetrics = append(extraMetrics, coreConfig.ExtraMetrics...)
 		extraMetrics = append(extraMetrics, monitorExtra...)
-	} else {
-		extraMetrics = coreConfig.ExtraMetrics
 	}
+	extraMetrics = append(extraMetrics, coreConfig.ExtraMetrics...)
 
 	extraMetricsFilter, err := newMetricsFilter(metadata, extraMetrics, coreConfig.ExtraGroups)
 	if err != nil {
@@ -356,7 +354,7 @@ func (mm *MonitorManager) createAndConfigureNewMonitor(config config.MonitorCust
 		notHostSpecific:           coreConfig.DisableHostDimensions,
 		disableEndpointDimensions: coreConfig.DisableEndpointDimensions,
 		filter:                    coreConfig.Filter,
-		additionalFilter:          extraMetricsFilter,
+		extraMetricsFilter:        extraMetricsFilter,
 		configHash:                configHash,
 		endpoint:                  endpoint,
 		dpChan:                    mm.DPs,
