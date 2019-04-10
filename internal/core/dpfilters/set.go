@@ -13,6 +13,8 @@ type FilterSet struct {
 	IncludeFilters []DatapointFilter
 }
 
+var _ DatapointFilter = &FilterSet{}
+
 // Matches sends a datapoint through each of the filters in the set and returns
 // true if at least one of them matches the datapoint.
 func (fs *FilterSet) Matches(dp *datapoint.Datapoint) bool {

@@ -10,6 +10,7 @@ import (
 	"github.com/signalfx/golib/event"
 	"github.com/signalfx/golib/trace"
 	"github.com/signalfx/signalfx-agent/internal/core/config"
+	"github.com/signalfx/signalfx-agent/internal/core/dpfilters"
 	"github.com/signalfx/signalfx-agent/internal/core/meta"
 	"github.com/signalfx/signalfx-agent/internal/core/services"
 	"github.com/signalfx/signalfx-agent/internal/monitors/collectd"
@@ -342,15 +343,16 @@ func (mm *MonitorManager) createAndConfigureNewMonitor(config config.MonitorCust
 		monitorID:                 id,
 		notHostSpecific:           config.MonitorConfigCore().DisableHostDimensions,
 		disableEndpointDimensions: config.MonitorConfigCore().DisableEndpointDimensions,
-		oldFilter:                 oldFilter,
-		newFilter:                 newFilter,
-		configHash:                configHash,
-		endpoint:                  endpoint,
-		dpChan:                    mm.DPs,
-		eventChan:                 mm.Events,
-		dimPropChan:               mm.DimensionProps,
-		spanChan:                  mm.TraceSpans,
-		extraDims:                 map[string]string{},
+		filterSet: &dpfilters.FilterSet{
+			ExcludeFilters: []dpfilters.DatapointFilter{oldFilter, newFilter},
+		},
+		configHash:  configHash,
+		endpoint:    endpoint,
+		dpChan:      mm.DPs,
+		eventChan:   mm.Events,
+		dimPropChan: mm.DimensionProps,
+		spanChan:    mm.TraceSpans,
+		extraDims:   map[string]string{},
 	}
 
 	am := &ActiveMonitor{
