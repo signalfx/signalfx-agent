@@ -31,6 +31,7 @@ jobs:
   - template: 'templates/install-go.yml'
   - powershell: 'powershell -command "& { . ./scripts/windows/make.ps1; vet }"'
     displayName: 'Run go vet'
+    failOnStderr: true
 - job: 'win_go_lint'
   pool:
     vmImage: 'vs2015-win2012r2'
@@ -40,6 +41,7 @@ jobs:
       packages: 'golang.org/x/lint/golint'
   - powershell: 'powershell -command "& { . ./scripts/windows/make.ps1; lint }"'
     displayName: 'Run golint'
+    failOnStderr: true
 - job: 'win_go_build'
   pool:
     vmImage: 'vs2015-win2012r2'
@@ -53,6 +55,7 @@ jobs:
       }
       powershell -command "& { . ./scripts/windows/make.ps1; signalfx-agent }"
     displayName: 'Run go build'
+    failOnStderr: true
   - task: PublishBuildArtifacts@1
     inputs:
       pathtoPublish: 'signalfx-agent.exe'
@@ -88,6 +91,7 @@ jobs:
       }
       powershell -command "& { . ./scripts/windows/make.ps1; bundle }"
     displayName: 'Build bundle'
+    failOnStderr: true
   - task: CopyFiles@2
     inputs:
       sourceFolder: 'build'
