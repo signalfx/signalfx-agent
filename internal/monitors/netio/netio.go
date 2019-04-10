@@ -29,8 +29,8 @@ func init() {
 // Config for this monitor
 type Config struct {
 	config.MonitorConfig `singleInstance:"false" acceptsEndpoints:"false"`
-	// The network interfaces to send metrics about. This is a
-	// [filter set](https://github.com/signalfx/signalfx-agent/blob/master/docs/filtering.md#generic-filters).
+	// The network interfaces to send metrics about. This is an
+	// [overridble filter](https://github.com/signalfx/signalfx-agent/blob/master/docs/filtering.md#overridable-filters).
 	Interfaces []string `yaml:"interfaces" default:"[\"*\", \"!/^lo\\\\d*$/\", \"!/^docker.*/\", \"!/^t(un|ap)\\\\d*$/\", \"!/^veth.*$/\", \"!/^Loopback*/\"]"`
 }
 
@@ -45,7 +45,7 @@ type Monitor struct {
 	Output                 types.Output
 	cancel                 func()
 	conf                   *Config
-	filter                 *filter.ExhaustiveStringFilter
+	filter                 *filter.OverridableStringFilter
 	networkTotal           uint64
 	previousInterfaceStats map[string]*netio
 }
@@ -140,10 +140,10 @@ func (m *Monitor) Configure(conf *Config) error {
 	// configure filters
 	var err error
 	if len(conf.Interfaces) == 0 {
-		m.filter, err = filter.NewExhaustiveStringFilter([]string{"*"})
+		m.filter, err = filter.NewOverridableStringFilter([]string{"*"})
 		logger.Debugf("empty interface list, defaulting to '*'")
 	} else {
-		m.filter, err = filter.NewExhaustiveStringFilter(conf.Interfaces)
+		m.filter, err = filter.NewOverridableStringFilter(conf.Interfaces)
 	}
 
 	// return an error if we can't set the filter

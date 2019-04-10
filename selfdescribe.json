@@ -54,7 +54,7 @@
       },
       {
         "yamlName": "metricsToExclude",
-        "doc": "A list of metric filters",
+        "doc": "DEPRECATED in favor of the `datapointsToExclude` option.  That option handles negation of filter items differently.",
         "default": "",
         "required": false,
         "type": "slice",
@@ -66,15 +66,15 @@
           "fields": [
             {
               "yamlName": "dimensions",
-              "doc": "A map of dimension key/values to match against.  All key/values must match a datapoint for it to be matched.",
+              "doc": "A map of dimension key/values to match against.  All key/values must match a datapoint for it to be matched.  The map values can be either a single string or a list of strings.",
               "default": "",
               "required": false,
               "type": "map",
-              "elementKind": "string"
+              "elementKind": "interface"
             },
             {
               "yamlName": "metricNames",
-              "doc": "A list of metric names to match against, OR'd together",
+              "doc": "A list of metric names to match against",
               "default": null,
               "required": false,
               "type": "slice",
@@ -98,7 +98,62 @@
             },
             {
               "yamlName": "negated",
-              "doc": "Negates the result of the match so that it matches all datapoints that do NOT match the metric name and dimension values given. This does not negate monitorType, if given.",
+              "doc": "(**Only applicable for the top level filters**) Negates the result of the match so that it matches all datapoints that do NOT match the metric name and dimension values given. This does not negate monitorType, if given.",
+              "default": false,
+              "required": false,
+              "type": "bool",
+              "elementKind": ""
+            }
+          ]
+        }
+      },
+      {
+        "yamlName": "datapointsToExclude",
+        "doc": "A list of datapoint filters.  These filters allow you to comprehensively define which datapoints to exclude by metric name or dimension set, as well as the ability to define overrides to re-include metrics excluded by previous patterns within the same filter item.  See [monitor filtering](https://github.com/signalfx/signalfx-agent/tree/master/docs/filtering.md#monitor-level-filtering) for examples and more information.",
+        "default": "",
+        "required": false,
+        "type": "slice",
+        "elementKind": "struct",
+        "elementStruct": {
+          "name": "MetricFilter",
+          "doc": "MetricFilter describes a set of subtractive filters applied to datapoints right before they are sent.",
+          "package": "internal/core/config",
+          "fields": [
+            {
+              "yamlName": "dimensions",
+              "doc": "A map of dimension key/values to match against.  All key/values must match a datapoint for it to be matched.  The map values can be either a single string or a list of strings.",
+              "default": "",
+              "required": false,
+              "type": "map",
+              "elementKind": "interface"
+            },
+            {
+              "yamlName": "metricNames",
+              "doc": "A list of metric names to match against",
+              "default": null,
+              "required": false,
+              "type": "slice",
+              "elementKind": "string"
+            },
+            {
+              "yamlName": "metricName",
+              "doc": "A single metric name to match against",
+              "default": "",
+              "required": false,
+              "type": "string",
+              "elementKind": ""
+            },
+            {
+              "yamlName": "monitorType",
+              "doc": "(**Only applicable for the top level filters**) Limits this scope of the filter to datapoints from a specific monitor. If specified, any datapoints not from this monitor type will never match against this filter.",
+              "default": "",
+              "required": false,
+              "type": "string",
+              "elementKind": ""
+            },
+            {
+              "yamlName": "negated",
+              "doc": "(**Only applicable for the top level filters**) Negates the result of the match so that it matches all datapoints that do NOT match the metric name and dimension values given. This does not negate monitorType, if given.",
               "default": false,
               "required": false,
               "type": "bool",
@@ -13035,7 +13090,7 @@
         "fields": [
           {
             "yamlName": "disks",
-            "doc": "The devices to include/exclude. This is a [filter set](https://github.com/signalfx/signalfx-agent/blob/master/docs/filtering.md#generic-filters).",
+            "doc": "The devices to include/exclude. This is an [overridable set](https://github.com/signalfx/signalfx-agent/blob/master/docs/filtering.md#overridable-filters).",
             "default": [
               "*",
               "!/^loop[0-9]+$/",
@@ -15864,7 +15919,7 @@
           },
           {
             "yamlName": "fsTypes",
-            "doc": "The filesystem types to include/exclude.  This is a [filter set](https://github.com/signalfx/signalfx-agent/blob/master/docs/filtering.md#generic-filters).",
+            "doc": "The filesystem types to include/exclude.  This is an [overridable set](https://github.com/signalfx/signalfx-agent/blob/master/docs/filtering.md#overridable-filters).",
             "default": [
               "*",
               "!aufs",
@@ -15891,7 +15946,7 @@
           },
           {
             "yamlName": "mountPoints",
-            "doc": "The mount paths to include/exclude. This is a [filter set](https://github.com/signalfx/signalfx-agent/blob/master/docs/filtering.md#generic-filters). NOTE: If you are using the hostFSPath option you should not include the `/hostfs/` mount in the filter.",
+            "doc": "The mount paths to include/exclude. This is a [filter set](https://github.com/signalfx/signalfx-agent/blob/master/docs/filtering.md#overridable-filters). NOTE: If you are using the hostFSPath option you should not include the `/hostfs/` mount in the filter.",
             "default": [
               "*",
               "!/^/var/lib/docker/containers/",
@@ -18877,7 +18932,7 @@
         "fields": [
           {
             "yamlName": "interfaces",
-            "doc": "The network interfaces to send metrics about. This is a [filter set](https://github.com/signalfx/signalfx-agent/blob/master/docs/filtering.md#generic-filters).",
+            "doc": "The network interfaces to send metrics about. This is an [overridble filter](https://github.com/signalfx/signalfx-agent/blob/master/docs/filtering.md#overridable-filters).",
             "default": [
               "*",
               "!/^lo\\d*$/",
@@ -28391,7 +28446,7 @@
             },
             {
               "yamlName": "metricsToExclude",
-              "doc": "A list of metric filters",
+              "doc": "DEPRECATED in favor of the `datapointsToExclude` option.  That option handles negation of filter items differently.",
               "default": "",
               "required": false,
               "type": "slice",
@@ -28403,15 +28458,15 @@
                 "fields": [
                   {
                     "yamlName": "dimensions",
-                    "doc": "A map of dimension key/values to match against.  All key/values must match a datapoint for it to be matched.",
+                    "doc": "A map of dimension key/values to match against.  All key/values must match a datapoint for it to be matched.  The map values can be either a single string or a list of strings.",
                     "default": "",
                     "required": false,
                     "type": "map",
-                    "elementKind": "string"
+                    "elementKind": "interface"
                   },
                   {
                     "yamlName": "metricNames",
-                    "doc": "A list of metric names to match against, OR'd together",
+                    "doc": "A list of metric names to match against",
                     "default": null,
                     "required": false,
                     "type": "slice",
@@ -28435,7 +28490,62 @@
                   },
                   {
                     "yamlName": "negated",
-                    "doc": "Negates the result of the match so that it matches all datapoints that do NOT match the metric name and dimension values given. This does not negate monitorType, if given.",
+                    "doc": "(**Only applicable for the top level filters**) Negates the result of the match so that it matches all datapoints that do NOT match the metric name and dimension values given. This does not negate monitorType, if given.",
+                    "default": false,
+                    "required": false,
+                    "type": "bool",
+                    "elementKind": ""
+                  }
+                ]
+              }
+            },
+            {
+              "yamlName": "datapointsToExclude",
+              "doc": "A list of datapoint filters.  These filters allow you to comprehensively define which datapoints to exclude by metric name or dimension set, as well as the ability to define overrides to re-include metrics excluded by previous patterns within the same filter item.  See [monitor filtering](https://github.com/signalfx/signalfx-agent/tree/master/docs/filtering.md#monitor-level-filtering) for examples and more information.",
+              "default": "",
+              "required": false,
+              "type": "slice",
+              "elementKind": "struct",
+              "elementStruct": {
+                "name": "MetricFilter",
+                "doc": "MetricFilter describes a set of subtractive filters applied to datapoints right before they are sent.",
+                "package": "internal/core/config",
+                "fields": [
+                  {
+                    "yamlName": "dimensions",
+                    "doc": "A map of dimension key/values to match against.  All key/values must match a datapoint for it to be matched.  The map values can be either a single string or a list of strings.",
+                    "default": "",
+                    "required": false,
+                    "type": "map",
+                    "elementKind": "interface"
+                  },
+                  {
+                    "yamlName": "metricNames",
+                    "doc": "A list of metric names to match against",
+                    "default": null,
+                    "required": false,
+                    "type": "slice",
+                    "elementKind": "string"
+                  },
+                  {
+                    "yamlName": "metricName",
+                    "doc": "A single metric name to match against",
+                    "default": "",
+                    "required": false,
+                    "type": "string",
+                    "elementKind": ""
+                  },
+                  {
+                    "yamlName": "monitorType",
+                    "doc": "(**Only applicable for the top level filters**) Limits this scope of the filter to datapoints from a specific monitor. If specified, any datapoints not from this monitor type will never match against this filter.",
+                    "default": "",
+                    "required": false,
+                    "type": "string",
+                    "elementKind": ""
+                  },
+                  {
+                    "yamlName": "negated",
+                    "doc": "(**Only applicable for the top level filters**) Negates the result of the match so that it matches all datapoints that do NOT match the metric name and dimension values given. This does not negate monitorType, if given.",
                     "default": false,
                     "required": false,
                     "type": "bool",
@@ -28762,15 +28872,15 @@
           "fields": [
             {
               "yamlName": "dimensions",
-              "doc": "A map of dimension key/values to match against.  All key/values must match a datapoint for it to be matched.",
+              "doc": "A map of dimension key/values to match against.  All key/values must match a datapoint for it to be matched.  The map values can be either a single string or a list of strings.",
               "default": "",
               "required": false,
               "type": "map",
-              "elementKind": "string"
+              "elementKind": "interface"
             },
             {
               "yamlName": "metricNames",
-              "doc": "A list of metric names to match against, OR'd together",
+              "doc": "A list of metric names to match against",
               "default": null,
               "required": false,
               "type": "slice",
@@ -28794,7 +28904,7 @@
             },
             {
               "yamlName": "negated",
-              "doc": "Negates the result of the match so that it matches all datapoints that do NOT match the metric name and dimension values given. This does not negate monitorType, if given.",
+              "doc": "(**Only applicable for the top level filters**) Negates the result of the match so that it matches all datapoints that do NOT match the metric name and dimension values given. This does not negate monitorType, if given.",
               "default": false,
               "required": false,
               "type": "bool",
@@ -28817,15 +28927,15 @@
           "fields": [
             {
               "yamlName": "dimensions",
-              "doc": "A map of dimension key/values to match against.  All key/values must match a datapoint for it to be matched.",
+              "doc": "A map of dimension key/values to match against.  All key/values must match a datapoint for it to be matched.  The map values can be either a single string or a list of strings.",
               "default": "",
               "required": false,
               "type": "map",
-              "elementKind": "string"
+              "elementKind": "interface"
             },
             {
               "yamlName": "metricNames",
-              "doc": "A list of metric names to match against, OR'd together",
+              "doc": "A list of metric names to match against",
               "default": null,
               "required": false,
               "type": "slice",
@@ -28849,7 +28959,7 @@
             },
             {
               "yamlName": "negated",
-              "doc": "Negates the result of the match so that it matches all datapoints that do NOT match the metric name and dimension values given. This does not negate monitorType, if given.",
+              "doc": "(**Only applicable for the top level filters**) Negates the result of the match so that it matches all datapoints that do NOT match the metric name and dimension values given. This does not negate monitorType, if given.",
               "default": false,
               "required": false,
               "type": "bool",

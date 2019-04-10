@@ -3,12 +3,14 @@ package filter
 import (
 	"regexp"
 	"strings"
+
+	"github.com/gobwas/glob"
 )
 
 // Contains all of the logic for glob and regex based filtering
 
 func isGlobbed(s string) bool {
-	return strings.ContainsAny(s, "*?")
+	return strings.ContainsAny(s, "*?[]{}!")
 }
 
 func isRegex(s string) bool {
@@ -22,27 +24,6 @@ func stripSlashes(s string) string {
 	}
 
 	return s[1 : len(s)-1]
-}
-
-func convertGlobToRegexp(g string) (*regexp.Regexp, error) {
-	reText := ""
-	for _, ch := range g {
-		if ch == '*' {
-			reText += ".*"
-		} else if ch == '?' {
-			reText += ".?"
-		} else if ch == '(' {
-			reText += "\\("
-		} else if ch == ')' {
-			reText += "\\)"
-		} else if ch == '.' {
-			reText += "\\."
-		} else {
-			reText += string(ch)
-		}
-	}
-
-	return regexp.Compile(reText)
 }
 
 func anyRegexMatches(s string, res []*regexp.Regexp) bool {
@@ -62,4 +43,40 @@ func stripNegation(value string) (string, bool) {
 		return value[1:], true
 	}
 	return value, false
+}
+
+type matcher interface {
+	// Returns whether the string matched and whether it was a negated match
+	Matches(s string) (bool, bool)
+}
+
+type staticMatcherSet map[string]bool
+
+var _ matcher = &staticMatcherSet{}
+
+func (m staticMatcherSet) Matches(s string) (bool, bool) {
+	negated, ok := m[s]
+	return ok, negated
+}
+
+type regexMatcher struct {
+	re      *regexp.Regexp
+	negated bool
+}
+
+var _ matcher = &regexMatcher{}
+
+func (m *regexMatcher) Matches(s string) (bool, bool) {
+	return m.re.MatchString(s), m.negated
+}
+
+type globMatcher struct {
+	glob    glob.Glob
+	negated bool
+}
+
+var _ matcher = &globMatcher{}
+
+func (m *globMatcher) Matches(s string) (bool, bool) {
+	return m.glob.Match(s), m.negated
 }

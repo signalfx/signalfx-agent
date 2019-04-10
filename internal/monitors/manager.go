@@ -327,13 +327,23 @@ func (mm *MonitorManager) createAndConfigureNewMonitor(config config.MonitorCust
 	}
 
 	configHash := config.MonitorConfigCore().Hash()
+	oldFilter, err := config.MonitorConfigCore().OldFilterSet()
+	if err != nil {
+		return err
+	}
+
+	newFilter, err := config.MonitorConfigCore().NewFilterSet()
+	if err != nil {
+		return err
+	}
 
 	output := &monitorOutput{
 		monitorType:               config.MonitorConfigCore().Type,
 		monitorID:                 id,
 		notHostSpecific:           config.MonitorConfigCore().DisableHostDimensions,
 		disableEndpointDimensions: config.MonitorConfigCore().DisableEndpointDimensions,
-		filter:                    config.MonitorConfigCore().Filter,
+		oldFilter:                 oldFilter,
+		newFilter:                 newFilter,
 		configHash:                configHash,
 		endpoint:                  endpoint,
 		dpChan:                    mm.DPs,

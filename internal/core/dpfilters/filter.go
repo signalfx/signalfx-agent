@@ -30,7 +30,7 @@ type basicDatapointFilter struct {
 }
 
 // New returns a new filter with the given configuration
-func New(monitorType string, metricNames []string, dimensions map[string]string, negated bool) (DatapointFilter, error) {
+func New(monitorType string, metricNames []string, dimensions map[string][]string, negated bool) (DatapointFilter, error) {
 	var dimFilter filter.StringMapFilter
 	if len(dimensions) > 0 {
 		var err error
@@ -66,7 +66,7 @@ func (f *basicDatapointFilter) Matches(dp *datapoint.Datapoint) bool {
 			return false
 		}
 	} else {
-		// If we have a monitorType on the filter but none on the datapont, it
+		// If we have a monitorType on the filter but none on the datapoint, it
 		// can never match.
 		if f.monitorType != "" {
 			return false

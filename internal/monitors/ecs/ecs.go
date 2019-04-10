@@ -76,7 +76,7 @@ type Monitor struct {
 // Configure the monitor and kick off volume metric syncing
 func (m *Monitor) Configure(conf *Config) error {
 	var err error
-	m.imageFilter, err = filter.NewExhaustiveStringFilter(conf.ExcludedImages)
+	m.imageFilter, err = filter.NewOverridableStringFilter(conf.ExcludedImages)
 	if err != nil {
 		return errors.Wrapf(err, "Could not load excluded image filter")
 	}
