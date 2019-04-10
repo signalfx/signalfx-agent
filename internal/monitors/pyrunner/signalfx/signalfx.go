@@ -111,6 +111,9 @@ func (m *PyMonitor) Configure(conf *Config) error {
 		// needs it
 		conf.PythonBinary = strings.Join(runtimeConf.PythonBinary, " ")
 	}
+	if len(conf.PythonPath) > 0 {
+		runtimeConf.PythonEnv = append(runtimeConf.PythonEnv, "PYTHONPATH="+strings.Join(conf.PythonPath, ":"))
+	}
 
 	return m.MonitorCore.ConfigureInPython(conf, runtimeConf, func(dataReader pyrunner.MessageReceiver) {
 		for {
