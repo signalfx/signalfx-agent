@@ -85,7 +85,7 @@ func doStatus() {
 // Print out agent self-description of config/metadata
 func doSelfDescribe() {
 	log.SetOutput(os.Stderr)
-	fmt.Print(selfdescribe.JSON())
+	selfdescribe.JSON(os.Stdout)
 }
 
 // glog is a transitive dependency of the agent and puts a bunch of flags in

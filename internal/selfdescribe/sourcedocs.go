@@ -12,10 +12,12 @@ import (
 	"strings"
 )
 
-var astCache = make(map[string]struct {
+type astCacheEntry struct {
 	fset *token.FileSet
 	pkgs map[string]*ast.Package
-})
+}
+
+var astCache = map[string]astCacheEntry{}
 
 // Returns the ast node of the struct itself and the comment group on the
 // struct type.
@@ -34,6 +36,7 @@ func structNodes(packageDir, structName string) (*ast.TypeSpec, *ast.CommentGrou
 		if err != nil {
 			panic(err)
 		}
+		astCache[packageDir] = astCacheEntry{fset: fset, pkgs: pkgs}
 	}
 
 	for _, p := range pkgs {
@@ -112,7 +115,7 @@ func notesFromDocs(docs []*doc.Package, noteType string) []*doc.Note {
 
 func structFieldDocs(packageDir, structName string) map[string]string {
 	configStruct, _ := structNodes(packageDir, structName)
-	fieldDocs := make(map[string]string)
+	fieldDocs := map[string]string{}
 	for _, field := range configStruct.Type.(*ast.StructType).Fields.List {
 		if field.Names != nil {
 			fieldDocs[field.Names[0].Name] = commentTextToParagraphs(field.Doc.Text())
