@@ -111,8 +111,8 @@ func (c *Config) GetExtraMetrics() []string {
 		counterType := fmt.Sprintf("counter.%s", metric)
 		gaugeType := fmt.Sprintf("gauge.%s", metric)
 
-		// AdditionalMetrics doesn't specify the full metric name but it's either a counter or a gauge so just check
-		// both.
+		// AdditionalMetrics doesn't specify the full metric name but it's either
+		// a counter or a gauge so just check both.
 		if monitorMetadata.HasMetric(counterType) {
 			extraMetrics = append(extraMetrics, counterType)
 			continue

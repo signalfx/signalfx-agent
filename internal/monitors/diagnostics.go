@@ -65,22 +65,20 @@ func (mm *MonitorManager) SummaryDiagnosticText() string {
 
 func formatEnabledMetrics(metrics []string, indent int) string {
 	metricList := strings.Join(metrics, ", ")
+	enabledMetricsPrefix := utils.IndentLines("Enabled Metrics: ", indent)
+	text := fmt.Sprintf("%s[%s]", enabledMetricsPrefix, metricList)
 
-	emPrefix := utils.IndentLines("Enabled Metrics: ", indent)
-
-	text := fmt.Sprintf("%s[%s]", emPrefix, metricList)
-
-	if len(text) > maxLineLength {
-		// Single line is too long, wrap it on multiple lines instead.
-		// fmt string is equally unreadable so just join it all together.
-		text = strings.Join([]string{
-			emPrefix, "[\n",
-			utils.IndentLines(wordwrap.WrapString(metricList, uint(maxLineLength-indent+2)), indent+2), "\n",
-			utils.IndentLines("]", indent),
-		}, "")
+	if len(text) <= maxLineLength {
+		return text
 	}
 
-	return text
+	// Single line is too long, wrap it on multiple lines instead.
+	// fmt string is equally unreadable so just join it all together.
+	return strings.Join([]string{
+		enabledMetricsPrefix, "[\n",
+		utils.IndentLines(wordwrap.WrapString(metricList, uint(maxLineLength-indent+2)), indent+2), "\n",
+		utils.IndentLines("]", indent),
+	}, "")
 }
 
 // DiagnosticText returns a string to be served on the diagnostic socket

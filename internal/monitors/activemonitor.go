@@ -28,7 +28,7 @@ type ActiveMonitor struct {
 	endpoint   services.Endpoint
 	// Is the monitor marked for deletion?
 	doomed bool
-	// Metrics that have been enabled via the additional metrics filter.
+	// Metrics that have been enabled via the extra metrics filter.
 	enabledMetrics []string
 }
 

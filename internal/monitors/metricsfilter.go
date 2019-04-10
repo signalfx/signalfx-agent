@@ -23,7 +23,7 @@ type extraMetricsFilter struct {
 
 func validateMetricName(metadata *Metadata, metricName string) error {
 	if strings.TrimSpace(metricName) == "" {
-		return errors.New("metricName cannot be empty")
+		return errors.New("metric name cannot be empty")
 	}
 
 	if !metadata.MetricsExhaustive {
@@ -107,7 +107,7 @@ func newMetricsFilter(metadata *Metadata, extraMetrics, extraGroups []string) (*
 	return &extraMetricsFilter{metadata, effectiveMetrics, basicFilter}, nil
 }
 
-// enabledMetrics returns list of metrics that are enabled via user-configØuration or by
+// enabledMetrics returns list of metrics that are enabled via user-configuration or by
 // being included metrics.
 func (mf *extraMetricsFilter) enabledMetrics() []string {
 	metrics := make([]string, 0, len(mf.extraMetrics)+len(mf.metadata.IncludedMetrics))
