@@ -334,6 +334,15 @@ func (mm *MonitorManager) createAndConfigureNewMonitor(config config.MonitorCust
 	}
 
 	configHash := config.MonitorConfigCore().Hash()
+	oldFilter, err := coreConfig.OldFilterSet()
+	if err != nil {
+		return err
+	}
+
+	newFilter, err := coreConfig.NewFilterSet()
+	if err != nil {
+		return err
+	}
 
 	var extraMetrics []string
 
@@ -353,7 +362,8 @@ func (mm *MonitorManager) createAndConfigureNewMonitor(config config.MonitorCust
 		monitorID:                 id,
 		notHostSpecific:           coreConfig.DisableHostDimensions,
 		disableEndpointDimensions: coreConfig.DisableEndpointDimensions,
-		filter:                    coreConfig.Filter,
+		oldFilter:                 oldFilter,
+		newFilter:                 newFilter,
 		extraMetricsFilter:        extraMetricsFilter,
 		configHash:                configHash,
 		endpoint:                  endpoint,

@@ -38,13 +38,13 @@ type Config struct {
 	// /.
 	HostFSPath string `yaml:"hostFSPath"`
 
-	// The filesystem types to include/exclude.  This is a
-	// [filter set](https://github.com/signalfx/signalfx-agent/blob/master/docs/filtering.md#generic-filters).
+	// The filesystem types to include/exclude.  This is an
+	// [overridable set](https://github.com/signalfx/signalfx-agent/blob/master/docs/filtering.md#overridable-filters).
 	FSTypes []string `yaml:"fsTypes" default:"[\"*\", \"!aufs\", \"!overlay\", \"!tmpfs\", \"!proc\", \"!sysfs\", \"!nsfs\", \"!cgroup\", \"!devpts\", \"!selinuxfs\", \"!devtmpfs\", \"!debugfs\", \"!mqueue\", \"!hugetlbfs\", \"!securityfs\", \"!pstore\", \"!binfmt_misc\", \"!autofs\"]"`
 
 	// The mount paths to include/exclude.
 	// This is a
-	// [filter set](https://github.com/signalfx/signalfx-agent/blob/master/docs/filtering.md#generic-filters).
+	// [filter set](https://github.com/signalfx/signalfx-agent/blob/master/docs/filtering.md#overridable-filters).
 	// NOTE: If you are using the hostFSPath option you should not include the
 	// `/hostfs/` mount in the filter.
 	MountPoints []string `yaml:"mountPoints" default:"[\"*\", \"!/^/var/lib/docker/containers/\", \"!/^/var/lib/rkt/pods/\", \"!/^/net//\", \"!/^/smb//\", \"!/^/tmp/scratch/\"]"`
@@ -63,8 +63,8 @@ type Monitor struct {
 	cancel      func()
 	conf        *Config
 	hostFSPath  string
-	fsTypes     *filter.ExhaustiveStringFilter
-	mountPoints *filter.ExhaustiveStringFilter
+	fsTypes     *filter.OverridableStringFilter
+	mountPoints *filter.OverridableStringFilter
 }
 
 // returns common dimensions map according to reportInodes configuration
@@ -206,10 +206,10 @@ func (m *Monitor) Configure(conf *Config) error {
 	// configure filters
 	var err error
 	if len(m.conf.FSTypes) == 0 {
-		m.fsTypes, err = filter.NewExhaustiveStringFilter([]string{"*"})
+		m.fsTypes, err = filter.NewOverridableStringFilter([]string{"*"})
 		logger.Debugf("empty fsTypes list, defaulting to '*'")
 	} else {
-		m.fsTypes, err = filter.NewExhaustiveStringFilter(m.conf.FSTypes)
+		m.fsTypes, err = filter.NewOverridableStringFilter(m.conf.FSTypes)
 	}
 
 	// return an error if we can't set the filter
@@ -223,10 +223,10 @@ func (m *Monitor) Configure(conf *Config) error {
 
 	// configure filters
 	if len(m.conf.MountPoints) == 0 {
-		m.mountPoints, err = filter.NewExhaustiveStringFilter([]string{"*"})
+		m.mountPoints, err = filter.NewOverridableStringFilter([]string{"*"})
 		logger.Debugf("empty mountPoints list, defaulting to '*'")
 	} else {
-		m.mountPoints, err = filter.NewExhaustiveStringFilter(m.conf.MountPoints)
+		m.mountPoints, err = filter.NewOverridableStringFilter(m.conf.MountPoints)
 	}
 
 	// return an error if we can't set the filter

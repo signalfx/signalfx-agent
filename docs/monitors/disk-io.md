@@ -27,7 +27,7 @@ Monitor Type: `disk-io`
 
 | Config option | Required | Type | Description |
 | --- | --- | --- | --- |
-| `disks` | no | `list of strings` | The devices to include/exclude. This is a [filter set](https://github.com/signalfx/signalfx-agent/blob/master/docs/filtering.md#generic-filters). (**default:** `[* !/^loop[0-9]+$/ !/^dm-[0-9]+$/]`) |
+| `disks` | no | `list of strings` | The devices to include/exclude. This is an [overridable set](https://github.com/signalfx/signalfx-agent/blob/master/docs/filtering.md#overridable-filters). (**default:** `[* !/^loop[0-9]+$/ !/^dm-[0-9]+$/]`) |
 | `counterRefreshInterval` | no | `int64` | (Windows Only) The frequency that wildcards in counter paths should be expanded and how often to refresh counters from configuration. This is expressed as a duration. (**default:** `60s`) |
 | `printValid` | no | `bool` | (Windows Only) Print out the configurations that match available performance counters.  This used for debugging. (**default:** `false`) |
 

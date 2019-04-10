@@ -21,7 +21,7 @@ type Monitor struct {
 	Output types.Output
 	cancel func()
 	conf   *Config
-	filter *filter.ExhaustiveStringFilter
+	filter *filter.OverridableStringFilter
 }
 
 // maps telegraf metricnames to sfx metricnames
@@ -69,10 +69,10 @@ func (m *Monitor) Configure(conf *Config) error {
 	// configure filters
 	var err error
 	if len(conf.Disks) == 0 {
-		m.filter, err = filter.NewExhaustiveStringFilter([]string{"*"})
+		m.filter, err = filter.NewOverridableStringFilter([]string{"*"})
 		logger.Debugf("empty disk list defaulting to '*'")
 	} else {
-		m.filter, err = filter.NewExhaustiveStringFilter(conf.Disks)
+		m.filter, err = filter.NewOverridableStringFilter(conf.Disks)
 	}
 
 	// return an error if we can't set the filter
