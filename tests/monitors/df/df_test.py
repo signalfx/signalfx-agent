@@ -1,12 +1,12 @@
 import pytest
 
 from tests.helpers.assertions import has_log_message
-from tests.helpers.metadata import get_metadata
+from tests.helpers.metadata import Metadata
 from tests.helpers.util import run_agent, wait_for
 
 pytestmark = [pytest.mark.collectd, pytest.mark.df, pytest.mark.monitor_without_endpoints]
 
-METADATA = get_metadata("collectd/df")
+METADATA = Metadata.from_package("collectd/df")
 
 
 def test_df():

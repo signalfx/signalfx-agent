@@ -1,6 +1,6 @@
 # cloud.google.com/go v0.35.1
-cloud.google.com/go/compute/metadata
 cloud.google.com/go/civil
+cloud.google.com/go/compute/metadata
 # collectd.org v0.3.0
 collectd.org/api
 collectd.org/network
@@ -115,6 +115,8 @@ github.com/go-playground/locales
 github.com/go-playground/locales/currency
 # github.com/go-playground/universal-translator v0.16.0
 github.com/go-playground/universal-translator
+# github.com/go-sql-driver/mysql v1.4.1
+github.com/go-sql-driver/mysql
 # github.com/go-stack/stack v1.8.0
 github.com/go-stack/stack
 # github.com/gobwas/glob v0.2.3
@@ -296,6 +298,9 @@ github.com/kr/logfmt
 github.com/kr/pretty
 # github.com/kr/text v0.1.0
 github.com/kr/text
+# github.com/lib/pq v1.0.0
+github.com/lib/pq
+github.com/lib/pq/oid
 # github.com/mailru/easyjson v0.0.0-20180606163543-3fdea8d05856
 github.com/mailru/easyjson
 github.com/mailru/easyjson/jlexer
@@ -545,6 +550,7 @@ google.golang.org/api/gensupport
 google.golang.org/api/googleapi
 google.golang.org/api/googleapi/internal/uritemplates
 # google.golang.org/appengine v1.3.0
+google.golang.org/appengine/cloudsql
 google.golang.org/appengine
 google.golang.org/appengine/urlfetch
 google.golang.org/appengine/internal

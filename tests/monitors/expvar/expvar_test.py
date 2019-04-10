@@ -6,12 +6,12 @@ from textwrap import dedent
 
 import pytest
 from tests.helpers.assertions import has_datapoint, tcp_socket_open
-from tests.helpers.metadata import get_metadata
+from tests.helpers.metadata import Metadata
 from tests.helpers.util import container_ip, run_agent, run_service, wait_for
 
 pytestmark = [pytest.mark.expvar, pytest.mark.monitor_with_endpoints]
 
-METADATA = get_metadata("expvar")
+METADATA = Metadata.from_package("expvar")
 
 
 def test_nginx():

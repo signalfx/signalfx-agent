@@ -100,7 +100,7 @@ func (e *EndpointCore) IsSelfConfigured() bool {
 
 // Dimensions returns a map of dimensions set on this endpoint
 func (e *EndpointCore) Dimensions() map[string]string {
-	return e.extraDimensions
+	return utils.CloneStringMap(e.extraDimensions)
 }
 
 // AddDimension adds a dimension to this endpoint
