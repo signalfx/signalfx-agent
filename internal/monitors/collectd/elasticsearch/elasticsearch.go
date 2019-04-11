@@ -21,6 +21,8 @@ func init() {
 	}, &Config{})
 }
 
+var _ config.ExtraMetrics = &Config{}
+
 // Config is the monitor-specific config with the generic config embedded
 type Config struct {
 	config.MonitorConfig `yaml:",inline" acceptsEndpoints:"true"`

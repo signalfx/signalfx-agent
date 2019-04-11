@@ -142,5 +142,9 @@ func (mc *MonitorConfig) GetExtraMetrics() []string {
 // appear in the MonitorConfig struct.
 type MonitorCustomConfig interface {
 	MonitorConfigCore() *MonitorConfig
+}
+
+// ExtraMetrics interface for monitors that support generating additional metrics to allow through.
+type ExtraMetrics interface {
 	GetExtraMetrics() []string
 }

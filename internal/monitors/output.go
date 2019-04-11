@@ -18,7 +18,6 @@ type monitorOutput struct {
 	notHostSpecific           bool
 	disableEndpointDimensions bool
 	filterSet                 *dpfilters.FilterSet
-	extraMetricsFilter        *extraMetricsFilter
 	configHash                uint64
 	endpoint                  services.Endpoint
 	dpChan                    chan<- *datapoint.Datapoint
@@ -60,10 +59,6 @@ func (mo *monitorOutput) SendDatapoint(dp *datapoint.Datapoint) {
 	// Defer filtering until here so we have the full dimension set to match
 	// on.
 	if mo.filterSet.Matches(dp) {
-		return
-	}
-
-	if mo.extraMetricsFilter != nil && !mo.extraMetricsFilter.Matches(dp) {
 		return
 	}
 
