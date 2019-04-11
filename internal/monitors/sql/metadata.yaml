@@ -22,9 +22,14 @@ monitors:
           host: localhost
           port: 5432
           dbDriver: postgres
+          params:
+            user: admin
+            password: s3cr3t
           # The `host` and `port` values from above (or provided through auto-discovery) should be interpolated
           # to the connection string as appropriate for your database driver.
-          connectionString: 'host={{.host}} port={{.port}} dbname=main user=admin password=***** sslmode=disabled'
+          # Also, the values from the `params` config option above can be
+          # interpolated.
+          connectionString: 'host={{.host}} port={{.port}} dbname=main user={{.user}} password={{.password}} sslmode=disabled'
           queries:
             - query: 'SELECT COUNT(*) as count, country, status FROM customers GROUP BY country, status;'
               metrics:
@@ -50,3 +55,11 @@ monitors:
         - `postgres`: https://godoc.org/github.com/lib/pq#hdr-Connection_String_Parameters
         - `mysql`: https://github.com/go-sql-driver/mysql#dsn-data-source-name
         - `mssql`: https://github.com/denisenkom/go-mssqldb#connection-parameters-and-dsn
+
+      ## Parameterized Connection String
+
+      The `connectionString` config option acts as a template with a context
+      consisting of the variables: `host`, `port`, and all the values from
+      the `params` config option map.  You interpolate variables into it
+      with the Go template syntax `{{.varname}}` (see example config
+      above).

@@ -25,8 +25,11 @@ def test_sql_postgresql_db():
                     host: {host}
                     port: 5432
                     dbDriver: postgres
+                    params:
+                      password: test_pwd
+                      username: test_user
                     connectionString: >
-                      user=test_user password=test_pwd dbname=dvdrental sslmode=disable
+                      user={{{{.username}}}} password={{{{.password}}}} dbname=dvdrental sslmode=disable
                       host={{{{.host}}}} port={{{{.port}}}}
                     queries:
                      - query: >

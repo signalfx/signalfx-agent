@@ -26,6 +26,38 @@ Tested with PostgreSQL 9.2+.
 
 If you want to collect additional metrics about PostgreSQL, use the [sql monitor](./sql.md).
 
+## Example Configuration
+
+This example uses the [Vault remote config
+source](https://github.com/signalfx/signalfx-agent/blob/master/docs/remote-config.md#nested-values-vault-only)
+to connect to PostgreSQL using the `params` map that allows you to pull
+out the username and password individually from Vault and interpolate
+them into the `connectionString` config option.
+
+```
+monitors:
+ - type: postgresql
+   connectionString: 'sslmode=disable user={{.username}} password={{.password}}'
+   params: &psqlParams
+     username: {"#from": "vault:secret/my-database[username]"}
+     password: {"#from": "vault:secret/my-database[password]"}
+   discoveryRule: 'container_image =~ "postgres" && port == 5432'
+
+ # This monitor will monitor additional queries from PostgreSQL using the
+ # provided SQL queries.
+ - type: sql
+   dbDriver: postgres
+   connectionString: 'sslmode=disable user={{.username}} password={{.password}}'
+   # This is a YAML reference to avoid duplicating the above config.
+   params: *psqlParams
+   queries:
+     - query: 'SELECT COUNT(*) as count, country, status FROM customers GROUP BY country, status;'
+       metrics:
+         - metricName: "customers"
+           valueColumn: "count"
+           dimensionColumns: ["country", "status"]
+```
+
 
 Monitor Type: `postgresql`
 
@@ -42,6 +74,7 @@ Monitor Type: `postgresql`
 | `host` | no | `string` |  |
 | `port` | no | `integer` |  (**default:** `0`) |
 | `connectionString` | no | `string` | See https://godoc.org/github.com/lib/pq#hdr-Connection_String_Parameters. |
+| `params` | no | `map of strings` | Parameters to the connection string that can be templated into the connection string with the syntax `{{.key}}`. |
 | `databases` | no | `list of strings` | List of databases to send database-specific metrics about.  If omitted, metrics about all databases will be sent.  This is an [overridable filter](https://github.com/signalfx/signalfx-agent/blob/master/docs/filtering.md#overridable-filters). (**default:** `[*]`) |
 | `databasePollIntervalSeconds` | no | `integer` | How frequently to poll for new/deleted databases in the DB server. Defaults to the same as `intervalSeconds` if not set. (**default:** `0`) |
 
