@@ -135,8 +135,8 @@ run-dev-image:
 		-p 8095:8095 \
 		--name signalfx-agent-dev \
 		-v $(CURDIR)/local-etc:/etc/signalfx \
-		-v $(CURDIR):/usr/src/signalfx-agent:cached \
-		-v $(CURDIR)/collectd:/usr/src/collectd:cached \
+		-v $(CURDIR):/usr/src/signalfx-agent:delegated \
+		-v $(CURDIR)/collectd:/usr/src/collectd:delegated \
 		-v $(CURDIR)/tmp/pprof:/tmp/pprof \
 		signalfx-agent-dev /bin/bash
 
