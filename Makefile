@@ -140,6 +140,22 @@ run-dev-image:
 		-v $(CURDIR)/tmp/pprof:/tmp/pprof \
 		signalfx-agent-dev /bin/bash
 
+.PHONY: run-dev-image-sync
+run-dev-image-sync:
+	docker exec -it $(docker_env) signalfx-agent-dev-sync /bin/bash -l -i || \
+	  docker run --rm -it \
+		$(extra_run_flags) \
+		--cap-add DAC_READ_SEARCH \
+		--cap-add SYS_PTRACE \
+		-p 6061:6060 \
+		-p 9081:9080 \
+		-p 8096:8095 \
+		--name signalfx-agent-dev-sync \
+		-v signalfx-agent-sync:/usr/src/signalfx-agent:nocopy \
+		-v $(CURDIR)/local-etc:/etc/signalfx \
+		-v $(CURDIR)/tmp/pprof:/tmp/pprof \
+		signalfx-agent-dev /bin/bash
+
 .PHONY: run-dev-image-commands
 run-dev-image-commands:
 	docker exec -t $(docker_env) signalfx-agent-dev /bin/bash -c '$(RUN_DEV_COMMANDS)'
