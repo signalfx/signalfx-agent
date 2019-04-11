@@ -30,6 +30,30 @@ You can put agent config in the `local-etc` dir of this repo and it will be
 shared into the container at the default place that the agent looks for config
 (`/etc/signalfx`).  The `local-etc` dir is ignored by git.
 
+## Improve build times on Mac
+When developing on Mac and building in a Docker Linux container the source directory is shared using Docker volumes. It is relatively slow and increases build times. A quicker method (2-3x faster) is to do syncing of files to the Docker VM so that file access is in the same host as the Linux container. [docker-sync](http://docker-sync.io) will do this automatically once setup.
+
+Once installed (see below) you run:
+
+```sh
+$ docker-sync start
+```
+
+and use the target `run-dev-image-sync`. Everything else is the same as described in the previous section.
+
+### Installing docker-sync
+Install the `docker-sync` gem:
+
+```sh
+$ gem install --user-install docker-sync
+```
+
+Make sure the user gems bin directory is in your `PATH`, for example:
+
+```sh
+export PATH="${PATH}:$(ruby -r rubygems -e 'puts Gem.user_dir')/bin"
+```
+
 ## Making the Final Docker Image
 To make the final Docker image without all of the development tools, just run
 `make image` (either in or outside of the dev image) and it will make a new

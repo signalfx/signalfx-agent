@@ -135,8 +135,24 @@ run-dev-image:
 		-p 8095:8095 \
 		--name signalfx-agent-dev \
 		-v $(CURDIR)/local-etc:/etc/signalfx \
-		-v $(CURDIR):/usr/src/signalfx-agent:cached \
-		-v $(CURDIR)/collectd:/usr/src/collectd:cached \
+		-v $(CURDIR):/usr/src/signalfx-agent:delegated \
+		-v $(CURDIR)/collectd:/usr/src/collectd:delegated \
+		-v $(CURDIR)/tmp/pprof:/tmp/pprof \
+		signalfx-agent-dev /bin/bash
+
+.PHONY: run-dev-image-sync
+run-dev-image-sync:
+	docker exec -it $(docker_env) signalfx-agent-dev-sync /bin/bash -l -i || \
+	  docker run --rm -it \
+		$(extra_run_flags) \
+		--cap-add DAC_READ_SEARCH \
+		--cap-add SYS_PTRACE \
+		-p 6061:6060 \
+		-p 9081:9080 \
+		-p 8096:8095 \
+		--name signalfx-agent-dev-sync \
+		-v signalfx-agent-sync:/usr/src/signalfx-agent:nocopy \
+		-v $(CURDIR)/local-etc:/etc/signalfx \
 		-v $(CURDIR)/tmp/pprof:/tmp/pprof \
 		signalfx-agent-dev /bin/bash
 
