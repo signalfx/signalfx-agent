@@ -26,6 +26,7 @@ import (
 	"github.com/signalfx/signalfx-agent/internal/core/config"
 	"github.com/signalfx/signalfx-agent/internal/core/dpfilters"
 	"github.com/signalfx/signalfx-agent/internal/core/writer/properties"
+	"github.com/signalfx/signalfx-agent/internal/core/writer/tap"
 	"github.com/signalfx/signalfx-agent/internal/core/writer/tracetracker"
 	"github.com/signalfx/signalfx-agent/internal/monitors/types"
 	"github.com/signalfx/signalfx-agent/internal/utils"
@@ -57,6 +58,7 @@ type SignalFxWriter struct {
 	cancel context.CancelFunc
 	conf   *config.WriterConfig
 	logger *utils.ThrottledLogger
+	dpTap  *tap.DatapointTap
 
 	// map that holds host-specific ids like AWSUniqueID
 	hostIDDims       map[string]string
@@ -227,6 +229,9 @@ func (sw *SignalFxWriter) sendDatapoints(dps []*datapoint.Datapoint) error {
 		return err
 	}
 	log.Debugf("Sent %d datapoints out of the agent", len(dps))
+
+	// dpTap.Accept handles the receiver being nil
+	sw.dpTap.Accept(dps)
 
 	return nil
 }
@@ -479,6 +484,12 @@ func (sw *SignalFxWriter) listenForEventsAndDimProps() {
 			}
 		}
 	}
+}
+
+// SetTap allows you to set one datapoint tap at a time to inspect datapoints
+// going out of the agent.
+func (sw *SignalFxWriter) SetTap(dpTap *tap.DatapointTap) {
+	sw.dpTap = dpTap
 }
 
 // Shutdown the writer and stop sending datapoints
