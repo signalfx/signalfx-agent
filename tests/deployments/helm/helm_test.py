@@ -2,16 +2,15 @@
 
 import os
 import tempfile
-
 from functools import partial as p
 
 import pytest
 import yaml
-
+from tests.helpers import fake_backend
 from tests.helpers.assertions import has_datapoint_with_dim
 from tests.helpers.kubernetes.utils import create_clusterrolebinding, daemonset_is_ready, deployment_is_ready
-from tests.helpers.util import fake_backend, get_host_ip, wait_for
-from tests.packaging.common import copy_file_into_container, PROJECT_DIR
+from tests.helpers.util import get_host_ip, wait_for
+from tests.packaging.common import PROJECT_DIR, copy_file_into_container
 
 LOCAL_CHART_DIR = os.path.join(PROJECT_DIR, "deployments/k8s/helm/signalfx-agent")
 CONTAINER_CHART_DIR = "/opt/deployments/k8s/helm/signalfx-agent"

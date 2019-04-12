@@ -1,17 +1,28 @@
 """
 Tests for the conviva monitor
 """
+
+# pylint: disable=redefined-outer-name
 import json
 import os
-import pytest
 import re
-import requests
 import time
 from functools import partial as p
 from textwrap import dedent
 
-from tests.helpers.assertions import *
-from tests.helpers.util import run_agent, wait_for, ensure_always, get_agent_status
+import pytest
+import requests
+from tests.helpers.agent import Agent
+from tests.helpers.assertions import (
+    all_datapoints_have_dim_key,
+    all_datapoints_have_dims,
+    all_datapoints_have_metric_name,
+    all_datapoints_have_metric_name_and_dims,
+    has_datapoint,
+    has_datapoint_with_dim_key,
+    has_datapoint_with_metric_name,
+)
+from tests.helpers.util import ensure_always, wait_for
 
 pytestmark = [pytest.mark.conviva, pytest.mark.monitor_without_endpoints]
 
@@ -44,7 +55,7 @@ def get_conviva_json(path, max_attempts=3):
 def conviva_accounts():
     accounts_json = get_conviva_json("accounts.json")
     assert (
-        "accounts" in accounts_json.keys() and len(accounts_json["accounts"].keys()) > 0
+        "accounts" in accounts_json.keys() and accounts_json["accounts"].keys()
     ), "No accounts found in accounts.json response:\n%s" % str(accounts_json)
     return list(accounts_json["accounts"].keys())
 
@@ -71,7 +82,7 @@ def get_dim_key(metriclens_dimension):
 
 @pytest.mark.flaky(reruns=2, reruns_delay=30)
 def test_conviva_basic():
-    with run_agent(
+    with Agent.run(
         dedent(
             f"""
         intervalSeconds: 5
@@ -82,26 +93,24 @@ def test_conviva_basic():
     """
         ),
         debug=False,
-    ) as [backend, get_output, agent_config]:
-        assert wait_for(lambda: len(backend.datapoints) > 0), "Didn't get conviva datapoints"
-        pattern = re.compile("^conviva\.quality_metriclens\..*")
+    ) as agent:
+        assert wait_for(lambda: agent.fake_services.datapoints), "Didn't get conviva datapoints"
+        pattern = re.compile(r"^conviva\.quality_metriclens\..*")
         assert ensure_always(
-            p(all_datapoints_have_metric_name_and_dims, backend, pattern, {"filter": "All Traffic"})
+            p(all_datapoints_have_metric_name_and_dims, agent.fake_services, pattern, {"filter": "All Traffic"})
         ), "Received datapoints without metric quality_metriclens or {filter: All Traffic} dimension"
-        config_path = agent_config(None)
-        agent_status = get_agent_status(config_path)
+        agent_status = agent.current_status_text
         assert CONVIVA_PULSE_PASSWORD not in agent_status, (
             "cleartext password(s) found in agent status output!\n\n%s\n" % agent_status
         )
-        agent_output = get_output()
-        assert CONVIVA_PULSE_PASSWORD not in agent_output, (
-            "cleartext password(s) found in agent output!\n\n%s\n" % agent_output
+        assert CONVIVA_PULSE_PASSWORD not in agent.output, (
+            "cleartext password(s) found in agent output!\n\n%s\n" % agent.output
         )
 
 
 @pytest.mark.flaky(reruns=2, reruns_delay=30)
 def test_conviva_extra_dimensions():
-    with run_agent(
+    with Agent.run(
         dedent(
             f"""
         intervalSeconds: 5
@@ -115,16 +124,16 @@ def test_conviva_extra_dimensions():
     """
         ),
         debug=CONVIVA_DEBUG,
-    ) as [backend, _, _]:
-        assert wait_for(lambda: len(backend.datapoints) > 0), "Didn't get conviva datapoints"
+    ) as agent:
+        assert wait_for(lambda: agent.fake_services.datapoints), "Didn't get conviva datapoints"
         assert ensure_always(
-            p(all_datapoints_have_dims, backend, {"metric_source": "conviva", "mydim": "foo"})
+            p(all_datapoints_have_dims, agent.fake_services, {"metric_source": "conviva", "mydim": "foo"})
         ), "Received conviva datapoints without extra dimensions"
 
 
 @pytest.mark.flaky(reruns=2, reruns_delay=30)
 def test_conviva_single_metric():
-    with run_agent(
+    with Agent.run(
         dedent(
             f"""
         intervalSeconds: 5
@@ -137,16 +146,16 @@ def test_conviva_single_metric():
     """
         ),
         debug=CONVIVA_DEBUG,
-    ) as [backend, _, _]:
-        assert wait_for(lambda: len(backend.datapoints) > 0), "Didn't get conviva datapoints"
+    ) as agent:
+        assert wait_for(lambda: agent.fake_services.datapoints), "Didn't get conviva datapoints"
         assert ensure_always(
-            p(all_datapoints_have_metric_name, backend, "conviva.concurrent_plays")
+            p(all_datapoints_have_metric_name, agent.fake_services, "conviva.concurrent_plays")
         ), "Received conviva datapoints for other metrics"
 
 
 @pytest.mark.flaky(reruns=2, reruns_delay=30)
 def test_conviva_multi_metric():
-    with run_agent(
+    with Agent.run(
         dedent(
             f"""
         monitors:
@@ -159,18 +168,18 @@ def test_conviva_multi_metric():
     """
         ),
         debug=CONVIVA_DEBUG,
-    ) as [backend, _, _]:
+    ) as agent:
         assert wait_for(
-            p(has_datapoint_with_metric_name, backend, "conviva.concurrent_plays"), 60
+            p(has_datapoint_with_metric_name, agent.fake_services, "conviva.concurrent_plays"), 60
         ), "Didn't get conviva datapoints for metric concurrent_plays"
         assert wait_for(
-            p(has_datapoint_with_metric_name, backend, "conviva.plays"), 60
+            p(has_datapoint_with_metric_name, agent.fake_services, "conviva.plays"), 60
         ), "Didn't get conviva datapoints for metric plays"
 
 
 @pytest.mark.flaky(reruns=2, reruns_delay=30)
 def test_conviva_metriclens():
-    with run_agent(
+    with Agent.run(
         dedent(
             f"""
         intervalSeconds: 5
@@ -184,20 +193,20 @@ def test_conviva_metriclens():
     """
         ),
         debug=CONVIVA_DEBUG,
-    ) as [backend, _, _]:
-        pattern = re.compile("^conviva\.audience_metriclens\..*")
+    ) as agent:
+        pattern = re.compile(r"^conviva\.audience_metriclens\..*")
         assert wait_for(
-            p(has_datapoint_with_metric_name, backend, pattern), 60
+            p(has_datapoint_with_metric_name, agent.fake_services, pattern), 60
         ), "Didn't get conviva datapoints for metriclens audience_metriclens"
-        pattern = re.compile("^conviva\.quality_metriclens\..*")
+        pattern = re.compile(r"^conviva\.quality_metriclens\..*")
         assert wait_for(
-            p(has_datapoint_with_metric_name, backend, pattern), 60
+            p(has_datapoint_with_metric_name, agent.fake_services, pattern), 60
         ), "Didn't get conviva datapoints for metriclens quality_metriclens"
 
 
 @pytest.mark.flaky(reruns=2, reruns_delay=30)
 def test_conviva_single_metriclens_dimension(conviva_metriclens_dimensions):
-    with run_agent(
+    with Agent.run(
         dedent(
             f"""
         intervalSeconds: 5
@@ -212,20 +221,20 @@ def test_conviva_single_metriclens_dimension(conviva_metriclens_dimensions):
     """
         ),
         debug=CONVIVA_DEBUG,
-    ) as [backend, _, _]:
-        assert wait_for(lambda: len(backend.datapoints) > 0), "Didn't get conviva datapoints"
-        pattern = re.compile("^conviva\.quality_metriclens\..*")
+    ) as agent:
+        assert wait_for(lambda: agent.fake_services.datapoints), "Didn't get conviva datapoints"
+        pattern = re.compile(r"^conviva\.quality_metriclens\..*")
         assert ensure_always(
-            p(all_datapoints_have_metric_name, backend, pattern)
+            p(all_datapoints_have_metric_name, agent.fake_services, pattern)
         ), "Received conviva datapoints for other metrics"
-        assert ensure_always(p(all_datapoints_have_dim_key, backend, get_dim_key(conviva_metriclens_dimensions[0]))), (
-            "Received conviva datapoints without %s dimension" % conviva_metriclens_dimensions[0]
-        )
+        assert ensure_always(
+            p(all_datapoints_have_dim_key, agent.fake_services, get_dim_key(conviva_metriclens_dimensions[0]))
+        ), ("Received conviva datapoints without %s dimension" % conviva_metriclens_dimensions[0])
 
 
 @pytest.mark.flaky(reruns=2, reruns_delay=30)
 def test_conviva_multi_metriclens_dimension(conviva_metriclens_dimensions):
-    with run_agent(
+    with Agent.run(
         dedent(
             f"""
         intervalSeconds: 5
@@ -239,17 +248,17 @@ def test_conviva_multi_metriclens_dimension(conviva_metriclens_dimensions):
     """
         ),
         debug=CONVIVA_DEBUG,
-    ) as [backend, _, _]:
+    ) as agent:
         for dim in conviva_metriclens_dimensions:
             if dim != "CDNs":
-                assert wait_for(p(has_datapoint_with_dim_key, backend, get_dim_key(dim)), 60), (
+                assert wait_for(p(has_datapoint_with_dim_key, agent.fake_services, get_dim_key(dim)), 60), (
                     "Didn't get conviva datapoints with %s dimension" % dim
                 )
 
 
 @pytest.mark.flaky(reruns=2, reruns_delay=30)
 def test_conviva_all_metriclens_dimension(conviva_metriclens_dimensions):
-    with run_agent(
+    with Agent.run(
         dedent(
             f"""
         intervalSeconds: 5
@@ -264,17 +273,17 @@ def test_conviva_all_metriclens_dimension(conviva_metriclens_dimensions):
     """
         ),
         debug=CONVIVA_DEBUG,
-    ) as [backend, _, _]:
+    ) as agent:
         for dim in conviva_metriclens_dimensions:
             if dim != "CDNs":
-                assert wait_for(p(has_datapoint_with_dim_key, backend, get_dim_key(dim)), 60), (
+                assert wait_for(p(has_datapoint_with_dim_key, agent.fake_services, get_dim_key(dim)), 60), (
                     "Didn't get conviva datapoints with %s dimension" % dim
                 )
 
 
 @pytest.mark.flaky(reruns=2, reruns_delay=30)
-def test_conviva_exclude_metriclens_dimension(conviva_metriclens_dimensions):
-    with run_agent(
+def test_conviva_exclude_metriclens_dimension():
+    with Agent.run(
         dedent(
             f"""
         intervalSeconds: 5
@@ -291,16 +300,16 @@ def test_conviva_exclude_metriclens_dimension(conviva_metriclens_dimensions):
     """
         ),
         debug=CONVIVA_DEBUG,
-    ) as [backend, _, _]:
-        assert wait_for(lambda: len(backend.datapoints) > 0), "Didn't get conviva datapoints"
+    ) as agent:
+        assert wait_for(lambda: agent.fake_services.datapoints), "Didn't get conviva datapoints"
         assert ensure_always(
-            lambda: not has_datapoint_with_dim_key(backend, "CDNs")
+            lambda: not has_datapoint_with_dim_key(agent.fake_services, "CDNs")
         ), "Received datapoint with excluded CDNs dimension"
 
 
 @pytest.mark.flaky(reruns=2, reruns_delay=30)
 def test_conviva_metric_account(conviva_accounts):
-    with run_agent(
+    with Agent.run(
         dedent(
             f"""
         intervalSeconds: 5
@@ -314,12 +323,12 @@ def test_conviva_metric_account(conviva_accounts):
     """
         ),
         debug=CONVIVA_DEBUG,
-    ) as [backend, _, _]:
-        assert wait_for(lambda: len(backend.datapoints) > 0), "Didn't get conviva datapoints"
+    ) as agent:
+        assert wait_for(lambda: agent.fake_services.datapoints), "Didn't get conviva datapoints"
         assert ensure_always(
             p(
                 all_datapoints_have_metric_name_and_dims,
-                backend,
+                agent.fake_services,
                 "conviva.concurrent_plays",
                 {"account": conviva_accounts[0]},
             )
@@ -331,7 +340,7 @@ def test_conviva_metric_account(conviva_accounts):
 
 @pytest.mark.flaky(reruns=2, reruns_delay=30)
 def test_conviva_single_filter(conviva_filters):
-    with run_agent(
+    with Agent.run(
         dedent(
             f"""
         intervalSeconds: 5
@@ -346,12 +355,12 @@ def test_conviva_single_filter(conviva_filters):
     """
         ),
         debug=CONVIVA_DEBUG,
-    ) as [backend, _, _]:
-        assert wait_for(lambda: len(backend.datapoints) > 0), "Didn't get conviva datapoints"
+    ) as agent:
+        assert wait_for(lambda: agent.fake_services.datapoints), "Didn't get conviva datapoints"
         assert ensure_always(
             p(
                 all_datapoints_have_metric_name_and_dims,
-                backend,
+                agent.fake_services,
                 "conviva.concurrent_plays",
                 {"filter": conviva_filters[0]},
             )
@@ -363,7 +372,7 @@ def test_conviva_single_filter(conviva_filters):
 
 @pytest.mark.flaky(reruns=2, reruns_delay=30)
 def test_conviva_multi_filter(conviva_filters):
-    with run_agent(
+    with Agent.run(
         dedent(
             f"""
         intervalSeconds: 5
@@ -377,24 +386,24 @@ def test_conviva_multi_filter(conviva_filters):
     """
         ),
         debug=CONVIVA_DEBUG,
-    ) as [backend, _, _]:
-        for cf in conviva_filters[:3]:
-            assert wait_for(p(has_datapoint, backend, "conviva.concurrent_plays", {"filter": cf}), 60), (
-                "Didn't get conviva datapoints for metric concurrent_plays with dimension {filter: %s}" % cf
+    ) as agent:
+        for filt in conviva_filters[:3]:
+            assert wait_for(p(has_datapoint, agent.fake_services, "conviva.concurrent_plays", {"filter": filt}), 60), (
+                "Didn't get conviva datapoints for metric concurrent_plays with dimension {filter: %s}" % filt
             )
 
 
 @pytest.mark.flaky(reruns=2, reruns_delay=30)
 def test_conviva_all_filter(conviva_filters):
-    def get_filters_from_datapoints(backend):
+    def get_filters_from_datapoints(agent):
         filters = set()
-        for dp in backend.datapoints:
+        for dp in agent.fake_services.datapoints:
             for dim in dp.dimensions:
                 if dim.key == "filter":
                     filters.add(dim.value)
         return sorted(list(filters))
 
-    with run_agent(
+    with Agent.run(
         dedent(
             f"""
         intervalSeconds: 5
@@ -410,7 +419,7 @@ def test_conviva_all_filter(conviva_filters):
     """
         ),
         debug=CONVIVA_DEBUG,
-    ) as [backend, _, _]:
+    ) as agent:
         assert wait_for(
-            lambda: sorted(conviva_filters) == get_filters_from_datapoints(backend), 300
+            lambda: sorted(conviva_filters) == get_filters_from_datapoints(agent), 300
         ), "Didn't get datapoints with all filters"
