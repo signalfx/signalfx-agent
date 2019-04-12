@@ -3,14 +3,13 @@ import string
 from functools import partial as p
 
 import pytest
-
+from tests.helpers.agent import Agent
 from tests.helpers.assertions import has_datapoint_with_dim, has_datapoint_with_metric_name, tcp_socket_open
 from tests.helpers.kubernetes.utils import get_discovery_rule, run_k8s_monitors_test
 from tests.helpers.util import (
     container_ip,
     get_monitor_dims_from_selfdescribe,
     get_monitor_metrics_from_selfdescribe,
-    run_agent,
     run_container,
     wait_for,
 )
@@ -55,11 +54,11 @@ def test_postgresql():
         config = CONFIG_TEMP.substitute(host=host)
         assert wait_for(p(tcp_socket_open, host, 5432), 60), "service didn't start"
 
-        with run_agent(config) as [backend, _, _]:
+        with Agent.run(config) as agent:
             assert wait_for(
-                p(has_datapoint_with_dim, backend, "plugin", "postgresql")
+                p(has_datapoint_with_dim, agent.fake_services, "plugin", "postgresql")
             ), "Didn't get postgresql datapoints"
-            assert wait_for(p(has_datapoint_with_metric_name, backend, "pg_blks.toast_hit"))
+            assert wait_for(p(has_datapoint_with_metric_name, agent.fake_services, "pg_blks.toast_hit"))
 
 
 @pytest.mark.k8s

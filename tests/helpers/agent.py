@@ -1,0 +1,150 @@
+import os
+import subprocess
+import tempfile
+from contextlib import contextmanager
+from functools import partial as p
+
+import yaml
+
+from . import fake_backend
+from .formatting import print_dp_or_event
+from .internalmetrics import InternalMetricsClient
+from .profiling import PProfClient
+from .util import AGENT_BIN, get_unique_localhost, print_lines, run_subprocess
+
+# pylint: disable=too-many-arguments,too-many-instance-attributes
+
+
+class Agent:
+    def __init__(self, run_dir, config, fake_services, debug=True, host=None, env=None, profiling=False):
+        assert host is not None
+        self.run_dir = run_dir
+        self.fake_services = fake_services
+        self.debug = debug
+        self.pid = None
+        self.get_output = None
+
+        self.host = host
+
+        self.env = env
+        self.profiling = profiling
+        self.config_path = os.path.join(self.run_dir, "agent.yaml")
+        self.config = yaml.safe_load(config)
+
+    def fill_in_config(self):
+        run_dir = self.run_dir
+
+        if self.config.get("intervalSeconds") is None:
+            self.config["intervalSeconds"] = 3
+
+        if self.config.get("signalFxAccessToken") is None:
+            self.config["signalFxAccessToken"] = "testing123"
+
+        self.config["ingestUrl"] = self.fake_services.ingest_url
+        self.config["apiUrl"] = self.fake_services.api_url
+
+        self.config["internalStatusHost"] = self.host
+        self.config["internalStatusPort"] = 8095
+        if self.profiling:
+            self.config["profiling"] = True
+            self.config["profilingHost"] = self.host
+
+        self.config["logging"] = dict(level="debug" if self.debug else "info")
+
+        self.config["collectd"] = self.config.get("collectd", {})
+        self.config["collectd"]["configDir"] = os.path.join(run_dir, "collectd")
+        self.config["collectd"]["logLevel"] = "info"
+
+        self.config["configSources"] = self.config.get("configSources", {})
+        self.config["configSources"]["file"] = self.config["configSources"].get("file", {})
+        self.config["configSources"]["file"]["pollRateSeconds"] = 1
+
+    def write_config(self):
+        self.fill_in_config()
+        with open(self.config_path, "w") as fd:
+            print("CONFIG: %s\n%s" % (self.config_path, self.config))
+            fd.write(yaml.dump(self.config))
+
+    def update_config(self, config_text):
+        self.config = yaml.safe_load(config_text)
+        self.write_config()
+
+    @property
+    def pprof_client(self):
+        return PProfClient(self.config["profilingHost"], self.config.get("profilingPort", 6060))
+
+    @property
+    def internal_metrics_client(self):
+        return InternalMetricsClient(self.config["internalStatusHost"], self.config["internalStatusPort"])
+
+    @property
+    def current_status_text(self):
+        status_proc = subprocess.run(
+            [AGENT_BIN, "status", "-config", self.config_path],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            encoding="utf-8",
+        )
+        return status_proc.stdout
+
+    @property
+    def output(self):
+        return self.get_output()
+
+    @contextmanager
+    def run_as_subproc(self):
+        self.write_config()
+
+        with run_subprocess(
+            [AGENT_BIN, "-config", self.config_path] + (["-debug"] if self.debug else []), env=self.env
+        ) as [get_output, pid]:
+            self.pid = pid
+            self.get_output = get_output
+            try:
+                yield
+            finally:
+                print("\nAgent output:")
+                print_lines(self.get_output())
+                if self.debug:
+                    print("\nDatapoints received:")
+                    for dp in self.fake_services.datapoints:
+                        print_dp_or_event(dp)
+                    print("\nEvents received:")
+                    for event in self.fake_services.events:
+                        print_dp_or_event(event)
+
+    @classmethod
+    @contextmanager
+    def run(
+        cls,
+        init_config,
+        debug=True,
+        fake_services=None,
+        backend_options=None,
+        host=None,
+        extra_env=None,
+        profiling=False,
+    ):
+        if host is None:
+            host = get_unique_localhost()
+
+        # Hacky way to make the context manager conditionalized.
+        if fake_services:
+            fake_backend_ctx = contextmanager(lambda: iter([fake_services]))
+        else:
+            fake_backend_ctx = p(fake_backend.start, host, **(backend_options or {}))
+
+        with fake_backend_ctx() as _fake_services:
+            with tempfile.TemporaryDirectory() as run_dir:
+                agent_env = {**os.environ.copy(), **(extra_env or {})}
+                agent = cls(
+                    config=init_config,
+                    run_dir=run_dir,
+                    fake_services=_fake_services,
+                    env=agent_env,
+                    host=host,
+                    profiling=profiling,
+                    debug=debug,
+                )
+                with agent.run_as_subproc():
+                    yield agent

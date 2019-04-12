@@ -4,7 +4,6 @@ import re
 import socket
 import subprocess
 import sys
-import tempfile
 import threading
 import time
 from contextlib import contextmanager
@@ -13,11 +12,6 @@ from typing import Dict, List
 import docker
 import netifaces as ni
 import yaml
-
-from . import fake_backend
-from .formatting import print_dp_or_event
-from .internalmetrics import InternalMetricsClient
-from .profiling import PProfClient
 
 PROJECT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 if sys.platform == "win32":
@@ -104,51 +98,16 @@ def container_ip(container):
     return container.attrs["NetworkSettings"]["IPAddress"]
 
 
-@contextmanager
-def run_agent(
-    config_text, debug=True, profile=False, extra_env=None, internal_metrics=False, backend_options=None, with_pid=False
-):
-    host = get_unique_localhost()
-
-    with fake_backend.start(host, **(backend_options or {})) as fake_services:
-        with run_agent_with_fake_backend(
-            config_text, fake_services, debug=debug, host=host, profile=profile, extra_env=extra_env
-        ) as [get_output, setup_conf, conf, pid]:
-            to_yield = [fake_services, get_output, setup_conf]
-            if profile:
-                to_yield += [PProfClient(conf["profilingHost"], conf.get("profilingPort", 6060))]
-            if internal_metrics:
-                to_yield += [InternalMetricsClient(conf["internalStatusHost"], conf["internalStatusPort"])]
-            if with_pid:
-                to_yield += [pid]
-            yield to_yield
+# Ensure a unique internal status server host address.  This supports up to
+# 255 concurrent agents on the same pytest worker process, and up to 255
+# pytest workers, which should be plenty
+def get_unique_localhost():
+    worker = int(re.sub(r"\D", "", os.environ.get("PYTEST_XDIST_WORKER", "0")))
+    get_unique_localhost.counter += 1
+    return "127.%d.%d.0" % (worker, get_unique_localhost.counter % 255)
 
 
-@contextmanager
-def run_agent_with_fake_backend(config_text, fake_services, debug=True, host=None, profile=False, extra_env=None):
-    with tempfile.TemporaryDirectory() as run_dir:
-        config_path = os.path.join(run_dir, "agent.yaml")
-
-        conf = render_config(config_text, config_path, fake_services, debug=debug, host=host, profile=profile)
-
-        agent_env = {**os.environ.copy(), **(extra_env or {})}
-
-        with run_subprocess([AGENT_BIN, "-config", config_path] + (["-debug"] if debug else []), env=agent_env) as [
-            get_output,
-            pid,
-        ]:
-            try:
-                yield [get_output, lambda c: render_config(c, config_path, fake_services), conf, pid]
-            finally:
-                print("\nAgent output:")
-                print_lines(get_output())
-                if debug:
-                    print("\nDatapoints received:")
-                    for dp in fake_services.datapoints:
-                        print_dp_or_event(dp)
-                    print("\nEvents received:")
-                    for event in fake_services.events:
-                        print_dp_or_event(event)
+get_unique_localhost.counter = 0
 
 
 @contextmanager
@@ -175,61 +134,6 @@ def run_subprocess(command: List[str], env: Dict[any, any] = None):
     finally:
         proc.terminate()
         proc.wait(15)
-
-
-# Ensure a unique internal status server host address.  This supports up to
-# 255 concurrent agents on the same pytest worker process, and up to 255
-# pytest workers, which should be plenty
-def get_unique_localhost():
-    worker = int(re.sub(r"\D", "", os.environ.get("PYTEST_XDIST_WORKER", "0")))
-    get_unique_localhost.counter += 1
-    return "127.%d.%d.0" % (worker, get_unique_localhost.counter % 255)
-
-
-get_unique_localhost.counter = 0
-
-
-def render_config(config_text, path, fake_services, debug=True, host=None, profile=False) -> Dict:
-    if config_text is None and os.path.isfile(path):
-        return path
-
-    conf = yaml.load(config_text)
-
-    run_dir = os.path.dirname(path)
-
-    if conf.get("intervalSeconds") is None:
-        conf["intervalSeconds"] = 3
-
-    if conf.get("signalFxAccessToken") is None:
-        conf["signalFxAccessToken"] = "testing123"
-
-    conf["ingestUrl"] = fake_services.ingest_url
-    conf["apiUrl"] = fake_services.api_url
-
-    if host is None:
-        host = get_unique_localhost()
-
-    conf["internalStatusHost"] = host
-    conf["internalStatusPort"] = 8095
-    if profile:
-        conf["profiling"] = True
-        conf["profilingHost"] = host
-
-    conf["logging"] = dict(level="debug" if debug else "info")
-
-    conf["collectd"] = conf.get("collectd", {})
-    conf["collectd"]["configDir"] = os.path.join(run_dir, "collectd")
-    conf["collectd"]["logLevel"] = "info"
-
-    conf["configSources"] = conf.get("configSources", {})
-    conf["configSources"]["file"] = conf["configSources"].get("file", {})
-    conf["configSources"]["file"]["pollRateSeconds"] = 1
-
-    with open(path, "w") as fd:
-        print("CONFIG: %s\n%s" % (path, conf))
-        fd.write(yaml.dump(conf))
-
-    return conf
 
 
 @contextmanager
@@ -317,13 +221,6 @@ def send_udp_message(host, port, msg):
     """
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)  # Internet  # UDP
     sock.sendto(msg.encode("utf-8"), (host, port))
-
-
-def get_agent_status(config_path="/etc/signalfx/agent.yaml"):
-    status_proc = subprocess.Popen(
-        [AGENT_BIN, "status", "-config", config_path], stdout=subprocess.PIPE, stderr=subprocess.STDOUT
-    )
-    return status_proc.stdout.read().decode("utf-8")
 
 
 def retry(function, exception, max_attempts=5, interval_seconds=5):

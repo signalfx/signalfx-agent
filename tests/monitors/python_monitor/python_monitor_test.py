@@ -6,8 +6,9 @@ from textwrap import dedent
 
 import psutil
 import pytest
+from tests.helpers.agent import Agent
 from tests.helpers.assertions import has_datapoint
-from tests.helpers.util import run_agent, wait_for
+from tests.helpers.util import wait_for
 
 pytestmark = [pytest.mark.monitor_with_endpoints]
 
@@ -28,9 +29,9 @@ def test_python_monitor_basics(script):
             """
     )
 
-    with run_agent(config) as [backend, _, _]:
+    with Agent.run(config) as agent:
         assert wait_for(
-            p(has_datapoint, backend, metric_name="my.gauge", dimensions={"a": "test"}, count=5)
+            p(has_datapoint, agent.fake_services, metric_name="my.gauge", dimensions={"a": "test"}, count=5)
         ), "Didn't get datapoints"
 
 
@@ -47,22 +48,22 @@ def test_python_monitor_restarts_when_killed():
             """
     )
 
-    with run_agent(config, with_pid=True) as [backend, _, _, pid]:
+    with Agent.run(config) as agent:
         assert wait_for(
-            p(has_datapoint, backend, metric_name="my.gauge", dimensions={"a": "test"}, count=2)
+            p(has_datapoint, agent.fake_services, metric_name="my.gauge", dimensions={"a": "test"}, count=2)
         ), "Didn't get datapoints"
 
-        proc = psutil.Process(pid)
+        proc = psutil.Process(agent.pid)
         assert len(proc.children()) == 1, "not exactly one subprocess"
 
         for _ in range(0, 5):
             proc.children()[0].terminate()
 
             time.sleep(1)
-            backend.reset_datapoints()
+            agent.fake_services.reset_datapoints()
 
             assert wait_for(
-                p(has_datapoint, backend, metric_name="my.gauge", dimensions={"a": "test"}, count=2)
+                p(has_datapoint, agent.fake_services, metric_name="my.gauge", dimensions={"a": "test"}, count=2)
             ), "Didn't get datapoints"
 
             assert len(proc.children()) == 1, "not exactly one subprocess"
@@ -85,7 +86,7 @@ def test_python_monitor_respects_python_path():
                 """
         )
 
-        with run_agent(config) as [backend, _, _]:
+        with Agent.run(config) as agent:
             assert wait_for(
-                p(has_datapoint, backend, metric_name="my.gauge", dimensions={"a": "test"}, count=5)
+                p(has_datapoint, agent.fake_services, metric_name="my.gauge", dimensions={"a": "test"}, count=5)
             ), "Didn't get datapoints"

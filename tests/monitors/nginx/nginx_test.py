@@ -6,14 +6,13 @@ import string
 from functools import partial as p
 
 import pytest
-
+from tests.helpers.agent import Agent
 from tests.helpers.assertions import has_datapoint_with_dim, tcp_socket_open
 from tests.helpers.kubernetes.utils import get_discovery_rule, run_k8s_monitors_test
 from tests.helpers.util import (
     container_ip,
     get_monitor_dims_from_selfdescribe,
     get_monitor_metrics_from_selfdescribe,
-    run_agent,
     run_service,
     wait_for,
 )
@@ -36,8 +35,10 @@ def test_nginx():
         config = NGINX_CONFIG.substitute(host=host)
         assert wait_for(p(tcp_socket_open, host, 80), 60), "service didn't start"
 
-        with run_agent(config) as [backend, _, _]:
-            assert wait_for(p(has_datapoint_with_dim, backend, "plugin", "nginx")), "Didn't get nginx datapoints"
+        with Agent.run(config) as agent:
+            assert wait_for(
+                p(has_datapoint_with_dim, agent.fake_services, "plugin", "nginx")
+            ), "Didn't get nginx datapoints"
 
 
 @pytest.mark.k8s

@@ -1,5 +1,6 @@
+from tests.helpers.agent import Agent
 from tests.helpers.assertions import has_datapoint_with_metric_name
-from tests.helpers.util import ensure_always, run_agent, wait_for
+from tests.helpers.util import ensure_always, wait_for
 
 BASIC_CONFIG = """
 monitors:
@@ -12,9 +13,9 @@ metricsToExclude:
 
 
 def test_basic_filtering():
-    with run_agent(BASIC_CONFIG) as [backend, _, _]:
-        assert wait_for(lambda: has_datapoint_with_metric_name(backend, "uptime"))
-        assert ensure_always(lambda: not has_datapoint_with_metric_name(backend, "cpu.utilization"), 10)
+    with Agent.run(BASIC_CONFIG) as agent:
+        assert wait_for(lambda: has_datapoint_with_metric_name(agent.fake_services, "uptime"))
+        assert ensure_always(lambda: not has_datapoint_with_metric_name(agent.fake_services, "cpu.utilization"), 10)
 
 
 NEGATIVE_FILTERING_CONFIG = """
@@ -29,9 +30,9 @@ metricsToExclude:
 
 
 def test_negated_filtering():
-    with run_agent(NEGATIVE_FILTERING_CONFIG) as [backend, _, _]:
-        assert wait_for(lambda: has_datapoint_with_metric_name(backend, "memory.used"))
-        assert ensure_always(lambda: not has_datapoint_with_metric_name(backend, "uptime"), 10)
+    with Agent.run(NEGATIVE_FILTERING_CONFIG) as agent:
+        assert wait_for(lambda: has_datapoint_with_metric_name(agent.fake_services, "memory.used"))
+        assert ensure_always(lambda: not has_datapoint_with_metric_name(agent.fake_services, "uptime"), 10)
 
 
 def test_negated_filter_with_monitor_type():
@@ -39,7 +40,7 @@ def test_negated_filter_with_monitor_type():
     Having monitorType in a filter should make that filter only apply to a
     specific monitor type and not to other metrics.
     """
-    with run_agent(
+    with Agent.run(
         """
 monitors:
   - type: collectd/signalfx-metadata
@@ -54,16 +55,16 @@ metricsToExclude:
     negated: true
   - metricName: uptime
 """
-    ) as [backend, _, _]:
-        assert wait_for(lambda: has_datapoint_with_metric_name(backend, "memory.used"))
-        assert wait_for(lambda: has_datapoint_with_metric_name(backend, "memory.free"))
-        assert wait_for(lambda: has_datapoint_with_metric_name(backend, "df_complex.free"))
-        assert ensure_always(lambda: not has_datapoint_with_metric_name(backend, "memory.cached"), 10)
-        assert ensure_always(lambda: not has_datapoint_with_metric_name(backend, "uptime"), 5)
+    ) as agent:
+        assert wait_for(lambda: has_datapoint_with_metric_name(agent.fake_services, "memory.used"))
+        assert wait_for(lambda: has_datapoint_with_metric_name(agent.fake_services, "memory.free"))
+        assert wait_for(lambda: has_datapoint_with_metric_name(agent.fake_services, "df_complex.free"))
+        assert ensure_always(lambda: not has_datapoint_with_metric_name(agent.fake_services, "memory.cached"), 10)
+        assert ensure_always(lambda: not has_datapoint_with_metric_name(agent.fake_services, "uptime"), 5)
 
 
 def test_combined_filter_with_monitor_type():
-    with run_agent(
+    with Agent.run(
         """
 monitors:
   - type: collectd/signalfx-metadata
@@ -81,18 +82,18 @@ metricsToExclude:
     monitorType: collectd/memory
     negated: true
 """
-    ) as [backend, _, _]:
-        assert wait_for(lambda: has_datapoint_with_metric_name(backend, "memory.used"))
-        assert wait_for(lambda: has_datapoint_with_metric_name(backend, "memory.free"))
-        assert ensure_always(lambda: not has_datapoint_with_metric_name(backend, "memory.cached"), 10)
-        assert ensure_always(lambda: not has_datapoint_with_metric_name(backend, "uptime"), 5)
+    ) as agent:
+        assert wait_for(lambda: has_datapoint_with_metric_name(agent.fake_services, "memory.used"))
+        assert wait_for(lambda: has_datapoint_with_metric_name(agent.fake_services, "memory.free"))
+        assert ensure_always(lambda: not has_datapoint_with_metric_name(agent.fake_services, "memory.cached"), 10)
+        assert ensure_always(lambda: not has_datapoint_with_metric_name(agent.fake_services, "uptime"), 5)
 
 
 def test_overlapping_filter_with_monitor_type():
     """
     Test overlapping filters with different negation. Blacklist is favored
     """
-    with run_agent(
+    with Agent.run(
         """
 monitors:
   - type: collectd/memory
@@ -104,17 +105,17 @@ metricsToExclude:
   - metricName: uptime
     monitorType: collectd/uptime
 """
-    ) as [backend, _, _]:
-        assert wait_for(lambda: has_datapoint_with_metric_name(backend, "memory.used"))
-        assert wait_for(lambda: has_datapoint_with_metric_name(backend, "memory.free"))
-        assert ensure_always(lambda: not has_datapoint_with_metric_name(backend, "uptime"), 5)
+    ) as agent:
+        assert wait_for(lambda: has_datapoint_with_metric_name(agent.fake_services, "memory.used"))
+        assert wait_for(lambda: has_datapoint_with_metric_name(agent.fake_services, "memory.free"))
+        assert ensure_always(lambda: not has_datapoint_with_metric_name(agent.fake_services, "uptime"), 5)
 
 
 def test_overlapping_filter_with_monitor_type2():
     """
     Test overlapping filters with different negation. Blacklist is favored
     """
-    with run_agent(
+    with Agent.run(
         """
 monitors:
   - type: collectd/memory
@@ -126,17 +127,17 @@ metricsToExclude:
     negated: true
     monitorType: collectd/uptime
 """
-    ) as [backend, _, _]:
-        assert wait_for(lambda: has_datapoint_with_metric_name(backend, "memory.used"))
-        assert wait_for(lambda: has_datapoint_with_metric_name(backend, "memory.free"))
-        assert ensure_always(lambda: not has_datapoint_with_metric_name(backend, "uptime"), 5)
+    ) as agent:
+        assert wait_for(lambda: has_datapoint_with_metric_name(agent.fake_services, "memory.used"))
+        assert wait_for(lambda: has_datapoint_with_metric_name(agent.fake_services, "memory.free"))
+        assert ensure_always(lambda: not has_datapoint_with_metric_name(agent.fake_services, "uptime"), 5)
 
 
 def test_include_filter_with_monitor_type():
     """
     Test that include filters will override exclude filters
     """
-    with run_agent(
+    with Agent.run(
         """
 monitors:
   - type: collectd/disk
@@ -154,19 +155,19 @@ metricsToInclude:
   - metricNames:
     - disk_time.read
 """
-    ) as [backend, _, _]:
-        assert wait_for(lambda: has_datapoint_with_metric_name(backend, "disk_ops.read"))
-        assert wait_for(lambda: has_datapoint_with_metric_name(backend, "disk_ops.write"), 5)
-        assert wait_for(lambda: has_datapoint_with_metric_name(backend, "disk_time.read"), 5)
-        assert ensure_always(lambda: not has_datapoint_with_metric_name(backend, "disk_time.write"), 5)
-        assert wait_for(lambda: has_datapoint_with_metric_name(backend, "uptime"), 5)
+    ) as agent:
+        assert wait_for(lambda: has_datapoint_with_metric_name(agent.fake_services, "disk_ops.read"))
+        assert wait_for(lambda: has_datapoint_with_metric_name(agent.fake_services, "disk_ops.write"), 5)
+        assert wait_for(lambda: has_datapoint_with_metric_name(agent.fake_services, "disk_time.read"), 5)
+        assert ensure_always(lambda: not has_datapoint_with_metric_name(agent.fake_services, "disk_time.write"), 5)
+        assert wait_for(lambda: has_datapoint_with_metric_name(agent.fake_services, "uptime"), 5)
 
 
 def test_filter_with_restart():
     """
     Ensure the filters get updated properly when the agent reloads a new config
     """
-    with run_agent(
+    with Agent.run(
         """
 monitors:
   - type: collectd/signalfx-metadata
@@ -178,12 +179,12 @@ metricsToExclude:
      - memory.*
     monitorType: collectd/memory
 """
-    ) as [backend, _, update_config]:
-        assert wait_for(lambda: has_datapoint_with_metric_name(backend, "df_complex.free"))
-        assert ensure_always(lambda: not has_datapoint_with_metric_name(backend, "memory.used"))
-        assert ensure_always(lambda: not has_datapoint_with_metric_name(backend, "memory.free"))
+    ) as agent:
+        assert wait_for(lambda: has_datapoint_with_metric_name(agent.fake_services, "df_complex.free"))
+        assert ensure_always(lambda: not has_datapoint_with_metric_name(agent.fake_services, "memory.used"))
+        assert ensure_always(lambda: not has_datapoint_with_metric_name(agent.fake_services, "memory.free"))
 
-        update_config(
+        agent.update_config(
             """
 monitors:
   - type: collectd/signalfx-metadata
@@ -196,14 +197,14 @@ metricsToExclude:
     monitorType: collectd/memory
 """
         )
-        assert wait_for(lambda: has_datapoint_with_metric_name(backend, "memory.free"))
+        assert wait_for(lambda: has_datapoint_with_metric_name(agent.fake_services, "memory.free"))
 
 
 def test_monitor_filter():
     """
     Ensure the filters on monitors get applied
     """
-    with run_agent(
+    with Agent.run(
         """
 monitors:
   - type: collectd/signalfx-metadata
@@ -213,12 +214,12 @@ monitors:
      - metricName: memory.used
   - type: collectd/uptime
 """
-    ) as [backend, _, update_config]:
-        assert wait_for(lambda: has_datapoint_with_metric_name(backend, "df_complex.free"))
-        assert wait_for(lambda: has_datapoint_with_metric_name(backend, "memory.free"))
-        assert ensure_always(lambda: not has_datapoint_with_metric_name(backend, "memory.used"))
+    ) as agent:
+        assert wait_for(lambda: has_datapoint_with_metric_name(agent.fake_services, "df_complex.free"))
+        assert wait_for(lambda: has_datapoint_with_metric_name(agent.fake_services, "memory.free"))
+        assert ensure_always(lambda: not has_datapoint_with_metric_name(agent.fake_services, "memory.used"))
 
-        update_config(
+        agent.update_config(
             """
 monitors:
   - type: collectd/signalfx-metadata
@@ -227,12 +228,12 @@ monitors:
   - type: collectd/uptime
 """
         )
-        assert wait_for(lambda: has_datapoint_with_metric_name(backend, "memory.used"))
-        assert wait_for(lambda: has_datapoint_with_metric_name(backend, "memory.free"))
+        assert wait_for(lambda: has_datapoint_with_metric_name(agent.fake_services, "memory.used"))
+        assert wait_for(lambda: has_datapoint_with_metric_name(agent.fake_services, "memory.free"))
 
 
 def test_mixed_regex_and_non_regex_filters():
-    with run_agent(
+    with Agent.run(
         """
 monitors:
   - type: collectd/signalfx-metadata
@@ -245,7 +246,7 @@ metricsToExclude:
      - asdflkjassdf
     negated: true
 """
-    ) as [backend, _, _]:
-        assert wait_for(lambda: has_datapoint_with_metric_name(backend, "memory.used"))
-        assert ensure_always(lambda: not has_datapoint_with_metric_name(backend, "memory.free"), 10)
-        assert ensure_always(lambda: not has_datapoint_with_metric_name(backend, "uptime"), 5)
+    ) as agent:
+        assert wait_for(lambda: has_datapoint_with_metric_name(agent.fake_services, "memory.used"))
+        assert ensure_always(lambda: not has_datapoint_with_metric_name(agent.fake_services, "memory.free"), 10)
+        assert ensure_always(lambda: not has_datapoint_with_metric_name(agent.fake_services, "uptime"), 5)
