@@ -3,14 +3,13 @@ from functools import partial as p
 from textwrap import dedent
 
 import pytest
-
+from tests.helpers.agent import Agent
 from tests.helpers.assertions import has_datapoint_with_dim, tcp_socket_open
 from tests.helpers.kubernetes.utils import get_discovery_rule, run_k8s_monitors_test
 from tests.helpers.util import (
     container_ip,
     get_monitor_dims_from_selfdescribe,
     get_monitor_metrics_from_selfdescribe,
-    run_agent,
     run_container,
     wait_for,
 )
@@ -36,10 +35,12 @@ def test_rabbitmq():
 
         assert wait_for(p(tcp_socket_open, host, 15672), 60), "service didn't start"
 
-        with run_agent(config) as [backend, _, _]:
-            assert wait_for(p(has_datapoint_with_dim, backend, "plugin", "rabbitmq")), "Didn't get rabbitmq datapoints"
+        with Agent.run(config) as agent:
             assert wait_for(
-                p(has_datapoint_with_dim, backend, "plugin_instance", "%s-15672" % host)
+                p(has_datapoint_with_dim, agent.fake_services, "plugin", "rabbitmq")
+            ), "Didn't get rabbitmq datapoints"
+            assert wait_for(
+                p(has_datapoint_with_dim, agent.fake_services, "plugin_instance", "%s-15672" % host)
             ), "Didn't get expected plugin_instance dimension"
 
 
@@ -48,7 +49,7 @@ def test_rabbitmq_broker_name():
         host = container_ip(rabbitmq_cont)
         assert wait_for(p(tcp_socket_open, host, 15672), 60), "service didn't start"
 
-        with run_agent(
+        with Agent.run(
             dedent(
                 f"""
             monitors:
@@ -62,9 +63,9 @@ def test_rabbitmq_broker_name():
                 collectChannels: true
             """
             )
-        ) as [backend, _, _]:
+        ) as agent:
             assert wait_for(
-                p(has_datapoint_with_dim, backend, "plugin_instance", "%s-guest" % host)
+                p(has_datapoint_with_dim, agent.fake_services, "plugin_instance", "%s-guest" % host)
             ), "Didn't get expected plugin_instance dimension"
 
 

@@ -2,8 +2,9 @@ from functools import partial as p
 from textwrap import dedent
 
 import pytest
+from tests.helpers.agent import Agent
 from tests.helpers.assertions import has_datapoint, tcp_socket_open
-from tests.helpers.util import container_ip, run_agent, run_service, wait_for
+from tests.helpers.util import container_ip, run_service, wait_for
 
 pytestmark = [pytest.mark.collectd, pytest.mark.postgresql, pytest.mark.monitor_with_endpoints]
 
@@ -17,7 +18,7 @@ def test_sql_postgresql_db():
         host = container_ip(postgres_cont)
         assert wait_for(p(tcp_socket_open, host, 5432), 60), "service didn't start"
 
-        with run_agent(
+        with Agent.run(
             dedent(
                 f"""
                 monitors:
@@ -39,7 +40,12 @@ def test_sql_postgresql_db():
                           dimensionColumns: [country]
                 """
             )
-        ) as [backend, _, _]:
+        ) as agent:
             assert wait_for(
-                p(has_datapoint, backend, metric_name="cities_per_country", dimensions={"country": "United States"})
+                p(
+                    has_datapoint,
+                    agent.fake_services,
+                    metric_name="cities_per_country",
+                    dimensions={"country": "United States"},
+                )
             ), f"Didn't get cities_per_country metric for USA"

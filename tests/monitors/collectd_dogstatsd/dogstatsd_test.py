@@ -4,8 +4,9 @@ import time
 from functools import partial as p
 
 import pytest
+from tests.helpers.agent import Agent
 from tests.helpers.assertions import has_datapoint_with_metric_name, regex_search_matches_output, udp_port_open_locally
-from tests.helpers.util import fake_backend, run_agent_with_fake_backend, send_udp_message, wait_for
+from tests.helpers.util import send_udp_message, wait_for
 
 pytestmark = [pytest.mark.collectd, pytest.mark.dogstatsd, pytest.mark.monitor_without_endpoints]
 
@@ -26,27 +27,27 @@ monitors:
 
 
 def test_collectd_dogstatsd():
-    with fake_backend.start() as backend:
-        # configure the dogstatsd plugin to send to fake ingest
-        config = DOGSTATSD_CONFIG.substitute(ingestEndpoint=backend.ingest_url)
+    # configure the dogstatsd plugin to send to fake ingest
+    config = DOGSTATSD_CONFIG.substitute(ingestEndpoint="")
+    # start the agent with the dogstatsd plugin config
+    with Agent.run(config) as agent:
+        agent.update_config(DOGSTATSD_CONFIG.substitute(ingestEndpoint=agent.fake_services.ingest_url))
 
-        # start the agent with the dogstatsd plugin config
-        with run_agent_with_fake_backend(config, backend) as [get_output, _, _, _]:
-            # wait until the dogstatsd plugin logs the address and port it is listening on
-            assert wait_for(p(regex_search_matches_output, get_output, DOGSTATSD_RE.search))
+        # wait until the dogstatsd plugin logs the address and port it is listening on
+        assert wait_for(p(regex_search_matches_output, agent.get_output, DOGSTATSD_RE.search))
 
-            # scrape the host and port that the dogstatsd plugin is listening on
-            regex_results = DOGSTATSD_RE.search(get_output())
-            host = regex_results.groups()[1]
-            port = int(regex_results.groups()[2])
+        # scrape the host and port that the dogstatsd plugin is listening on
+        regex_results = DOGSTATSD_RE.search(agent.output)
+        host = regex_results.groups()[1]
+        port = int(regex_results.groups()[2])
 
-            # wait for dogstatsd port to open
-            assert wait_for(p(udp_port_open_locally, port))
+        # wait for dogstatsd port to open
+        assert wait_for(p(udp_port_open_locally, port))
 
-            # send datapoints to the dogstatsd listener
-            for _ in range(0, 10):
-                send_udp_message(host, port, "dogstatsd.test.metric:55555|g|#dimension1:value1,dimension2:value2")
-                time.sleep(1)
+        # send datapoints to the dogstatsd listener
+        for _ in range(0, 10):
+            send_udp_message(host, port, "dogstatsd.test.metric:55555|g|#dimension1:value1,dimension2:value2")
+            time.sleep(1)
 
-            # wait for fake ingest to receive the dogstatsd metrics
-            assert wait_for(p(has_datapoint_with_metric_name, backend, "dogstatsd.test.metric"))
+        # wait for fake ingest to receive the dogstatsd metrics
+        assert wait_for(p(has_datapoint_with_metric_name, agent.fake_services, "dogstatsd.test.metric"))

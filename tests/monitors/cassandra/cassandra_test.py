@@ -3,14 +3,13 @@ import string
 from functools import partial as p
 
 import pytest
-
+from tests.helpers.agent import Agent
 from tests.helpers.assertions import has_datapoint_with_metric_name, tcp_socket_open
 from tests.helpers.kubernetes.utils import get_discovery_rule, run_k8s_monitors_test
 from tests.helpers.util import (
     container_ip,
     get_monitor_dims_from_selfdescribe,
     get_monitor_metrics_from_selfdescribe,
-    run_agent,
     run_service,
     wait_for,
 )
@@ -39,9 +38,14 @@ def test_cassandra():
         # Wait for the JMX port to be open in the container
         assert wait_for(p(tcp_socket_open, host, 7199), 60), "Cassandra JMX didn't start"
 
-        with run_agent(config) as [backend, _, _]:
+        with Agent.run(config) as agent:
             assert wait_for(
-                p(has_datapoint_with_metric_name, backend, "counter.cassandra.ClientRequest.Read.Latency.Count"), 60
+                p(
+                    has_datapoint_with_metric_name,
+                    agent.fake_services,
+                    "counter.cassandra.ClientRequest.Read.Latency.Count",
+                ),
+                60,
             ), "Didn't get Cassandra datapoints"
 
 

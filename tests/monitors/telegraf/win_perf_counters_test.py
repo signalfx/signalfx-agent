@@ -1,13 +1,14 @@
-from functools import partial as p
-import pytest
 import string
+from functools import partial as p
 
-from tests.helpers.util import wait_for, run_agent
-from tests.helpers.assertions import *
+import pytest
+from tests.helpers.agent import Agent
+from tests.helpers.assertions import has_datapoint_with_dim, has_datapoint_with_metric_name, has_log_message
+from tests.helpers.util import wait_for
 
 pytestmark = [pytest.mark.windows_only, pytest.mark.windows, pytest.mark.telegraf, pytest.mark.win_perf_counters]
 
-config_template = string.Template(
+CONFIG_TEMPLATE = string.Template(
     """
 monitors:
  - type: telegraf/win_perf_counters
@@ -26,7 +27,7 @@ monitors:
 
 
 def get_config(measurement, object_name, instance, include_total):
-    return config_template.substitute(
+    return CONFIG_TEMPLATE.substitute(
         measurement=measurement, object_name=object_name, instance=instance, include_total=str(include_total).lower()
     )
 
@@ -111,14 +112,18 @@ def monitor_config(request):
     return request.getfixturevalue(request.param)
 
 
-def test_win_perf_counters(monitor_config):
+def test_win_perf_counters(monitor_config):  # pylint: disable=redefined-outer-name
     measurement, config, include_total, metrics = monitor_config
-    with run_agent(config) as [backend, get_output, _]:
-        assert wait_for(p(has_datapoint_with_dim, backend, "plugin", "telegraf-win_perf_counters")), (
+    with Agent.run(config) as agent:
+        assert wait_for(p(has_datapoint_with_dim, agent.fake_services, "plugin", "telegraf-win_perf_counters")), (
             "Didn't get %s datapoints" % measurement
         )
         if include_total:
-            assert wait_for(p(has_datapoint_with_dim, backend, "instance", "_Total")), "Didn't get _Total datapoints"
+            assert wait_for(
+                p(has_datapoint_with_dim, agent.fake_services, "instance", "_Total")
+            ), "Didn't get _Total datapoints"
         for metric in metrics:
-            assert wait_for(p(has_datapoint_with_metric_name, backend, metric)), "Didn't get metric %s" % metric
-        assert not has_log_message(get_output().lower(), "error"), "error found in agent output!"
+            assert wait_for(p(has_datapoint_with_metric_name, agent.fake_services, metric)), (
+                "Didn't get metric %s" % metric
+            )
+        assert not has_log_message(agent.output.lower(), "error"), "error found in agent output!"

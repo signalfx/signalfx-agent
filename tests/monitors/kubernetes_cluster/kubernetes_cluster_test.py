@@ -2,7 +2,6 @@ import os
 from functools import partial as p
 
 import pytest
-
 from tests.helpers.assertions import has_datapoint
 from tests.helpers.kubernetes.utils import run_k8s_monitors_test
 from tests.helpers.util import (
@@ -45,11 +44,11 @@ def test_resource_quota_metrics(agent_image, minikube, k8s_namespace):
               kubernetesAPI:
                 authType: serviceAccount
         """
-        with minikube.run_agent(agent_image, config=config, namespace=k8s_namespace) as [_, backend]:
+        with minikube.run_agent(agent_image, config=config, namespace=k8s_namespace) as [_, fake_services]:
             assert wait_for(
                 p(
                     has_datapoint,
-                    backend,
+                    fake_services,
                     metric_name="kubernetes.resource_quota_hard",
                     dimensions={"quota_name": "object-quota-demo", "resource": "requests.cpu"},
                     value=100_000,
@@ -59,7 +58,7 @@ def test_resource_quota_metrics(agent_image, minikube, k8s_namespace):
             assert wait_for(
                 p(
                     has_datapoint,
-                    backend,
+                    fake_services,
                     metric_name="kubernetes.resource_quota_hard",
                     dimensions={"quota_name": "object-quota-demo", "resource": "persistentvolumeclaims"},
                     value=4,
@@ -69,7 +68,7 @@ def test_resource_quota_metrics(agent_image, minikube, k8s_namespace):
             assert wait_for(
                 p(
                     has_datapoint,
-                    backend,
+                    fake_services,
                     metric_name="kubernetes.resource_quota_used",
                     dimensions={"quota_name": "object-quota-demo", "resource": "persistentvolumeclaims"},
                     value=0,
@@ -79,7 +78,7 @@ def test_resource_quota_metrics(agent_image, minikube, k8s_namespace):
             assert wait_for(
                 p(
                     has_datapoint,
-                    backend,
+                    fake_services,
                     metric_name="kubernetes.resource_quota_hard",
                     dimensions={"quota_name": "object-quota-demo", "resource": "services.loadbalancers"},
                     value=2,
@@ -99,10 +98,10 @@ def test_kubernetes_cluster_namespace_scope(agent_image, minikube, k8s_namespace
                 authType: serviceAccount
               namespace: good
         """
-        with minikube.run_agent(agent_image, config=config, namespace=k8s_namespace) as [_, backend]:
+        with minikube.run_agent(agent_image, config=config, namespace=k8s_namespace) as [_, fake_services]:
             assert wait_for(
-                p(has_datapoint, backend, dimensions={"kubernetes_namespace": "good"})
+                p(has_datapoint, fake_services, dimensions={"kubernetes_namespace": "good"})
             ), "timed out waiting for good pod metrics"
             assert ensure_always(
-                lambda: not has_datapoint(backend, dimensions={"kubernetes_namespace": "bad"})
+                lambda: not has_datapoint(fake_services, dimensions={"kubernetes_namespace": "bad"})
             ), "got pod metrics from unspecified namespace"

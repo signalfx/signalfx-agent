@@ -1,8 +1,9 @@
 import string
 from functools import partial as p
 
+from tests.helpers.agent import Agent
 from tests.helpers.assertions import has_datapoint_with_dim, tcp_socket_open
-from tests.helpers.util import container_ip, run_agent, run_container, wait_for
+from tests.helpers.util import container_ip, run_container, wait_for
 
 CONFIG = string.Template(
     """
@@ -46,9 +47,9 @@ def test_basic_zk_config():
         create_znode(zk_cont, "/monitors/signalfx-metadata", "- type: collectd/signalfx-metadata")
 
         final_conf = CONFIG.substitute(zk_endpoint="%s:2181" % zkhost)
-        with run_agent(final_conf) as [backend, _, _]:
-            assert wait_for(p(has_datapoint_with_dim, backend, "plugin", "signalfx-metadata"))
-            assert wait_for(p(has_datapoint_with_dim, backend, "env", "prod"))
+        with Agent.run(final_conf) as agent:
+            assert wait_for(p(has_datapoint_with_dim, agent.fake_services, "plugin", "signalfx-metadata"))
+            assert wait_for(p(has_datapoint_with_dim, agent.fake_services, "env", "prod"))
 
 
 def test_bad_globbing():
@@ -58,5 +59,5 @@ def test_bad_globbing():
         create_znode(zk_cont, "/env", "prod")
 
         final_conf = BAD_GLOB_CONFIG.substitute(zk_endpoint="%s:2181" % zkhost)
-        with run_agent(final_conf) as [_, get_output, _]:
-            assert wait_for(lambda: "Zookeeper only supports globs" in get_output())
+        with Agent.run(final_conf) as agent:
+            assert wait_for(lambda: "Zookeeper only supports globs" in agent.output)
