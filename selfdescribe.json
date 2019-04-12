@@ -7662,6 +7662,22 @@
             "required": false,
             "type": "string",
             "elementKind": ""
+          },
+          {
+            "yamlName": "sendCollectionMetrics",
+            "doc": "",
+            "default": "false",
+            "required": false,
+            "type": "bool",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "sendCollectionTopMetrics",
+            "doc": "",
+            "default": "false",
+            "required": false,
+            "type": "bool",
+            "elementKind": ""
           }
         ]
       },

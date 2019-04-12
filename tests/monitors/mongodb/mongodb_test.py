@@ -4,7 +4,7 @@ from textwrap import dedent
 
 import pytest
 
-from tests.helpers.assertions import has_datapoint_with_dim, tcp_socket_open
+from tests.helpers.assertions import has_datapoint_with_dim, tcp_socket_open, has_datapoint_with_metric_name
 from tests.helpers.kubernetes.utils import get_discovery_rule, run_k8s_monitors_test
 from tests.helpers.util import (
     container_ip,
@@ -34,6 +34,31 @@ def test_mongo():
 
         with run_agent(config) as [backend, _, _]:
             assert wait_for(p(has_datapoint_with_dim, backend, "plugin", "mongo")), "Didn't get mongo datapoints"
+
+
+def test_mongo_enhanced_metrics():
+    with run_container("mongo:3.6") as mongo_cont:
+        host = container_ip(mongo_cont)
+        config = dedent(
+            f"""
+            monitors:
+              - type: collectd/mongodb
+                host: {host}
+                port: 27017
+                databases: [admin]
+                sendCollectionMetrics: true
+                sendCollectionTopMetrics: true
+            """
+        )
+        assert wait_for(p(tcp_socket_open, host, 27017), 60), "service didn't start"
+
+        with run_agent(config) as [backend, _, _]:
+            assert wait_for(
+                p(has_datapoint_with_metric_name, backend, "gauge.collection.size"), 60
+            ), "Did not get datapoint from SendCollectionMetrics config"
+            assert wait_for(
+                p(has_datapoint_with_metric_name, backend, "counter.collection.commandsTime"), 60
+            ), "Did not get datapoint from SendCollectionTopMetrics config"
 
 
 @pytest.mark.k8s
