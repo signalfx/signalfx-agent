@@ -28,7 +28,11 @@ def test_postgresql(version):
                   - type: postgresql
                     host: {host}
                     port: 5432
-                    connectionString: "user=test_user password=test_pwd dbname=postgres sslmode=disable"
+                    params:
+                      password: test_pwd
+                      username: test_user
+                    connectionString: >
+                      user={{{{.username}}}} password={{{{.password}}}} dbname=postgres sslmode=disable
                 """
             )
         ) as [backend, _, _]:
