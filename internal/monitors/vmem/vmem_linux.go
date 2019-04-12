@@ -13,6 +13,7 @@ import (
 	"github.com/signalfx/golib/datapoint"
 	"github.com/signalfx/signalfx-agent/internal/utils"
 	"github.com/signalfx/signalfx-agent/internal/utils/hostfs"
+	"github.com/sirupsen/logrus"
 )
 
 var cumulativeCounters = map[string]string{
@@ -37,12 +38,10 @@ func (m *Monitor) parseFile(contents []byte) {
 		// vmstat file structure is (key, value)
 		// so every even index is a key and every odd index is the value
 		if i%2 == 0 && i+1 < max {
-			keyStr := string(key)
-
 			metricType := datapoint.Gauge
-			metricName, ok := gauges[keyStr]
+			metricName, ok := gauges[string(key)]
 			if !ok {
-				metricName, ok = cumulativeCounters[keyStr]
+				metricName, ok = cumulativeCounters[string(key)]
 				metricType = datapoint.Counter
 			}
 
@@ -50,7 +49,7 @@ func (m *Monitor) parseFile(contents []byte) {
 			if ok {
 				val, err := strconv.ParseInt(string(data[i+1]), 10, 64)
 				if err != nil {
-					logger.Errorf("failed to parse value for metric %s", metricName)
+					m.logger.Errorf("failed to parse value for metric %s", metricName)
 					continue
 				}
 				m.Output.SendDatapoint(datapoint.New(metricName, map[string]string{"plugin": monitorType}, datapoint.NewIntValue(val), metricType, time.Time{}))
@@ -61,7 +60,8 @@ func (m *Monitor) parseFile(contents []byte) {
 
 // Configure and run the monitor on linux
 func (m *Monitor) Configure(conf *Config) (err error) {
-	logger.Warningf("'%s' monitor is in beta on this platform.  For production environments please use 'collectd/%s'.", monitorType, monitorType)
+	m.logger = logrus.WithField("monitorType", monitorType)
+	m.logger.Warningf("'%s' monitor is in beta on this platform.  For production environments please use 'collectd/%s'.", monitorType, monitorType)
 
 	// create contexts for managing the the plugin loop
 	var ctx context.Context
@@ -73,7 +73,7 @@ func (m *Monitor) Configure(conf *Config) (err error) {
 	utils.RunOnInterval(ctx, func() {
 		contents, err := ioutil.ReadFile(vmstatPath)
 		if err != nil {
-			logger.WithError(err).Errorf("unable to load vmstat file from path '%s'", vmstatPath)
+			m.logger.WithError(err).Errorf("unable to load vmstat file from path '%s'", vmstatPath)
 			return
 		}
 		m.parseFile(contents)

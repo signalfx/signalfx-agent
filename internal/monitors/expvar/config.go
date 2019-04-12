@@ -81,16 +81,3 @@ func (mConf *MetricConfig) name() string {
 	}
 	return mConf.Name
 }
-
-func (mConf *MetricConfig) dimensions() map[string]string {
-	var dimensions map[string]string
-	if len(mConf.DimensionConfigs) > 0 {
-		dimensions = make(map[string]string, len(mConf.DimensionConfigs))
-		for _, dConf := range mConf.DimensionConfigs {
-			if strings.TrimSpace(dConf.Name) != "" && strings.TrimSpace(dConf.Value) != "" {
-				dimensions[dConf.Name] = dConf.Value
-			}
-		}
-	}
-	return dimensions
-}

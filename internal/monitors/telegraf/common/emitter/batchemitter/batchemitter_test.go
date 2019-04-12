@@ -15,14 +15,13 @@ import (
 
 func TestImmediateEmitter_Emit(t *testing.T) {
 	type args struct {
-		measurement        string
-		fields             map[string]interface{}
-		tags               map[string]string
-		metricType         telegraf.ValueType
-		originalMetricType string
-		t                  time.Time
-		includeEvent       []string
-		excludeData        []string
+		measurement  string
+		fields       map[string]interface{}
+		tags         map[string]string
+		metricType   telegraf.ValueType
+		t            time.Time
+		includeEvent []string
+		excludeData  []string
 	}
 	ts := time.Now()
 	tests := []struct {
@@ -58,24 +57,28 @@ func TestImmediateEmitter_Emit(t *testing.T) {
 		},
 	}
 	for _, tt := range tests {
+		args := tt.args
+		wantDatapoints := tt.wantDatapoints
+		wantEvents := tt.wantEvents
+
 		t.Run(tt.name, func(t *testing.T) {
 			out := neotest.NewTestOutput()
 			lg := log.NewEntry(log.New())
 			I := NewEmitter(out, lg)
-			I.IncludeEvents(tt.args.includeEvent)
-			I.ExcludeData(tt.args.excludeData)
-			m, _ := metric.New(tt.args.measurement, tt.args.tags, tt.args.fields, tt.args.t, tt.args.metricType)
+			I.IncludeEvents(args.includeEvent)
+			I.ExcludeData(args.excludeData)
+			m, _ := metric.New(args.measurement, args.tags, args.fields, args.t, args.metricType)
 			I.AddMetric(m)
 			I.Send()
 
 			dps := out.FlushDatapoints()
-			if !reflect.DeepEqual(dps, tt.wantDatapoints) {
-				t.Errorf("actual output: datapoints %v does not match desired: %v", dps, tt.wantDatapoints)
+			if !reflect.DeepEqual(dps, wantDatapoints) {
+				t.Errorf("actual output: datapoints %v does not match desired: %v", dps, wantDatapoints)
 			}
 
 			events := out.FlushEvents()
-			if !reflect.DeepEqual(events, tt.wantEvents) {
-				t.Errorf("actual output: events %v does not match desired: %v", dps, tt.wantDatapoints)
+			if !reflect.DeepEqual(events, wantEvents) {
+				t.Errorf("actual output: events %v does not match desired: %v", dps, wantDatapoints)
 			}
 		})
 	}

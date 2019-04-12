@@ -80,7 +80,7 @@ const (
 // intervals array.
 func RunOnArrayOfIntervals(ctx context.Context, fn func(), intervals []time.Duration, repeatPolicy RepeatPolicy) {
 	// copy intervals
-	intvs := intervals[:]
+	intvs := append(intervals[:0:0], intervals...)
 
 	// return if the interval list is empty
 	if len(intvs) < 1 {

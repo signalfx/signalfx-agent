@@ -47,9 +47,9 @@ func convertMetricFamily(mf *dto.MetricFamily) []*datapoint.Datapoint {
 }
 
 func makeSimpleDatapoints(name string, ms []*dto.Metric, dpf dpFactory, e extractor) []*datapoint.Datapoint {
-	var dps []*datapoint.Datapoint
-	for _, m := range ms {
-		dps = append(dps, dpf(name, labelsToDims(m.Label), e(m)))
+	dps := make([]*datapoint.Datapoint, len(ms))
+	for i, m := range ms {
+		dps[i] = dpf(name, labelsToDims(m.Label), e(m))
 	}
 	return dps
 }

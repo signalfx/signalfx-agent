@@ -112,7 +112,7 @@ func (m *Monitor) Configure(conf *Config) error {
 
 	m.monitoredDBs = map[string]*sql.Monitor{}
 
-	m.serverMonitor, err = m.monitorServer(conf.Databases)
+	m.serverMonitor, err = m.monitorServer()
 	if err != nil {
 		m.database.Close()
 		return fmt.Errorf("could not monitor postgresql server: %v", err)
@@ -201,7 +201,7 @@ func (m *Monitor) determineDatabases() ([]string, error) {
 	return out, rows.Close()
 }
 
-func (m *Monitor) monitorServer(dbFilter []string) (*sql.Monitor, error) {
+func (m *Monitor) monitorServer() (*sql.Monitor, error) {
 	sqlMon := &sql.Monitor{Output: m.Output.Copy()}
 
 	connStr, err := m.conf.connStr()

@@ -8,12 +8,9 @@ import (
 	"github.com/signalfx/signalfx-agent/internal/core/config"
 	"github.com/signalfx/signalfx-agent/internal/monitors"
 	"github.com/signalfx/signalfx-agent/internal/monitors/types"
-	log "github.com/sirupsen/logrus"
 )
 
 const monitorType = "telegraf/win_perf_counters"
-
-var logger = log.WithFields(log.Fields{"monitorType": monitorType})
 
 func init() {
 	monitors.Register(monitorType, func() interface{} { return &Monitor{} }, &Config{})

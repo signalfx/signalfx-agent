@@ -154,32 +154,6 @@ jobs:
           go mod vendor
           git diff --exit-code || (echo 'go modules are not properly vendored. Run `make vendor` and commit the changes.' && exit 1)
 
-  lint:
-    executor: goexecutor
-    steps:
-      - checkout
-      - goexecutor_setup
-      - run: |
-          (cd /tmp; GO111MODULE=on go get -u golang.org/x/lint/golint)
-          make lint
-
-  vet:
-    executor: goexecutor
-    steps:
-      - checkout
-      - goexecutor_setup
-      - run: |
-          make vet
-
-  gofmt:
-    executor: goexecutor
-    steps:
-      - checkout
-      - goexecutor_setup
-      - run: |
-          make gofmt
-          git diff --exit-code || (echo 'go files need to be reformatted. Run `make gofmt` in the dev image and commit the changes.' && exit 1)
-
   gotests:
     executor: goexecutor
     steps:
@@ -477,9 +451,6 @@ workflows:
     jobs:
       - build
       - modules
-      - lint
-      - vet
-      - gofmt
       - gotests
       - integration_tests:
           requires:

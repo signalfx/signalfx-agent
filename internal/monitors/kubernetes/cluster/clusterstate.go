@@ -7,12 +7,11 @@ import (
 	"github.com/signalfx/signalfx-agent/internal/utils/k8sutil"
 	log "github.com/sirupsen/logrus"
 
-	"k8s.io/api/core/v1"
+	v1 "k8s.io/api/core/v1"
 	"k8s.io/api/extensions/v1beta1"
 	"k8s.io/apimachinery/pkg/fields"
 	"k8s.io/apimachinery/pkg/runtime"
 	k8s "k8s.io/client-go/kubernetes"
-	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/cache"
 )
 
@@ -61,7 +60,7 @@ func (cs *State) Start() {
 	}
 }
 
-func (cs *State) beginSyncForType(ctx context.Context, resType runtime.Object, resName string, namespace string, client rest.Interface) {
+func (cs *State) beginSyncForType(ctx context.Context, resType runtime.Object, resName string, namespace string, client cache.Getter) {
 	keysSeen := make(map[interface{}]bool)
 
 	store := k8sutil.FixedFakeCustomStore{

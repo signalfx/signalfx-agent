@@ -78,7 +78,7 @@ func (a *ActiveServiceTracker) CorrelationDatapoints() []*datapoint.Datapoint {
 
 // AddSpans accepts a list of trace spans and uses them to update the
 // current list of active services.  This is thread-safe.
-func (a *ActiveServiceTracker) AddSpans(ctx context.Context, spans []*trace.Span) error {
+func (a *ActiveServiceTracker) AddSpans(ctx context.Context, spans []*trace.Span) {
 	// Take current time once since this is a system call.
 	now := a.timeNow()
 
@@ -91,8 +91,6 @@ func (a *ActiveServiceTracker) AddSpans(ctx context.Context, spans []*trace.Span
 
 	// Protected by lock above
 	a.spansProcessed += int64(len(spans))
-
-	return nil
 }
 
 func (a *ActiveServiceTracker) processSpan(span *trace.Span, now time.Time) {

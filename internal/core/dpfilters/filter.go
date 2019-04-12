@@ -19,7 +19,7 @@ type DatapointFilter interface {
 // BasicDatapointFilter is designed to filter SignalFx datapoint objects.  It
 // can filter based on the monitor type, dimensions, or the metric name.  It
 // supports both static, globbed, and regex patterns for filter values. If
-// dimensions are specifed, they must all match for the datapoint to match. If
+// dimensions are specified, they must all match for the datapoint to match. If
 // multiple metric names are given, only one must match for the datapoint to
 // match the filter since datapoints can only have one metric name.
 type basicDatapointFilter struct {

@@ -58,7 +58,7 @@ func (w *walker) doResolution(rawSpec RawDynamicValueSpec) ([]interface{}, *dyna
 		for k := range w.pathsSeen {
 			paths = append(paths, k)
 		}
-		return nil, spec, fmt.Errorf("Dynamic value paths %s have a circular dependency", strings.Join(paths, "; "))
+		return nil, spec, fmt.Errorf("dynamic value paths %s have a circular dependency", strings.Join(paths, "; "))
 	}
 
 	// Set the current path in our path set before we go recursing into the
@@ -102,7 +102,7 @@ func (w *walker) injectDynamicValuesInMap(m map[interface{}]interface{}) (map[in
 			if spec.Flatten {
 				if !strings.HasPrefix(k.(string), "_") {
 					return nil, fmt.Errorf(
-						"When flattening a map into another map, the key should "+
+						"when flattening a map into another map, the key should "+
 							"start with '_' to make the intention clear, you used '%s'", k)
 				}
 				for i := range values {
@@ -111,7 +111,7 @@ func (w *walker) injectDynamicValuesInMap(m map[interface{}]interface{}) (map[in
 							out[k2] = v2
 						}
 					} else {
-						return nil, fmt.Errorf("Cannot flatten non-map at key '%s' in map context", k)
+						return nil, fmt.Errorf("cannot flatten non-map at key '%s' in map context", k)
 					}
 				}
 			} else {
@@ -156,7 +156,7 @@ func (w *walker) injectDynamicValuesInSlice(v []interface{}) ([]interface{}, err
 					}
 					remainder := slice
 					if i < len(out) {
-						remainder = append(slice, out[i:]...)
+						remainder = append(slice, out[i:]...) //nolint: gocritic
 					}
 					out = append(out[:i], remainder...)
 				}
@@ -179,15 +179,16 @@ func mergeValues(v []interface{}) (interface{}, error) {
 		return nil, nil
 	}
 
-	if _, ok := v[0].([]interface{}); ok {
+	switch v[0].(type) {
+	case []interface{}:
 		return mergeSlices(v)
-	} else if _, ok := v[0].(map[interface{}]interface{}); ok {
+	case map[interface{}]interface{}:
 		return mergeMaps(v)
-	} else if len(v) == 1 {
-		return v[0], nil
-	} else {
-		return nil, errors.New("value cannot be merged")
 	}
+	if len(v) == 1 {
+		return v[0], nil
+	}
+	return nil, errors.New("value cannot be merged")
 }
 
 func mergeSlices(v []interface{}) ([]interface{}, error) {

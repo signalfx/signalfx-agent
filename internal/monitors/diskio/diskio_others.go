@@ -24,7 +24,7 @@ type Monitor struct {
 	filter *filter.OverridableStringFilter
 }
 
-func (m *Monitor) processLinuxDatapoints(disk *gopsutil.IOCountersStat, dimensions map[string]string) {
+func (m *Monitor) processLinuxDatapoints(disk gopsutil.IOCountersStat, dimensions map[string]string) {
 	// disk_ops.read
 	m.Output.SendDatapoint(datapoint.New("disk_ops.read", dimensions, datapoint.NewIntValue(int64(disk.ReadCount)), datapoint.Counter, time.Time{}))
 
@@ -69,7 +69,7 @@ func (m *Monitor) emitDatapoints() {
 		}
 
 		pluginInstance := strings.Replace(key, " ", "_", -1)
-		m.processLinuxDatapoints(&disk, map[string]string{"plugin": monitorType, "plugin_instance": pluginInstance, "disk": pluginInstance})
+		m.processLinuxDatapoints(disk, map[string]string{"plugin": monitorType, "plugin_instance": pluginInstance, "disk": pluginInstance})
 	}
 }
 

@@ -1,11 +1,12 @@
 package monitors
 
 import (
-	"github.com/pkg/errors"
-	"gopkg.in/yaml.v2"
 	"io/ioutil"
 	"os"
 	"path/filepath"
+
+	"github.com/pkg/errors"
+	"gopkg.in/yaml.v2"
 )
 
 const monitorMetadataFile = "metadata.yaml"

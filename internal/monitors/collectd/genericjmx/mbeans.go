@@ -1,3 +1,5 @@
+// +build linux
+
 package genericjmx
 
 // MBeanMap is a map from the service name to the mbean definitions that this

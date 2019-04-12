@@ -51,7 +51,7 @@ func (c *Config) PythonConfig() *python.Config {
 // Validate will check the config for correctness.
 func (c *Config) Validate() error {
 	if len(c.Databases) == 0 {
-		return errors.New("You must specify at least one database for MongoDB")
+		return errors.New("must specify at least one database for MongoDB")
 	}
 	return nil
 }

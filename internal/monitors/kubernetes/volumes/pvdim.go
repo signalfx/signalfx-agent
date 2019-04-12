@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"strconv"
 
-	"k8s.io/api/core/v1"
+	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	k8s "k8s.io/client-go/kubernetes"
 )
@@ -25,7 +25,7 @@ func (m *Monitor) volumeIDDimsForPod(podName, namespace, uid, volName string) (m
 
 	vol := findVolumeInPod(pod, volName)
 	if vol == nil {
-		return nil, errors.New("Could not find volume in pod spec")
+		return nil, errors.New("could not find volume in pod spec")
 	}
 
 	dims, err := dimsForVolumeSource(vol.VolumeSource, namespace, m.k8sClient)
@@ -68,11 +68,12 @@ func dimsForVolumeSource(vs v1.VolumeSource, namespace string, client *k8s.Clien
 	// ABOVE TOO!
 	// PersistentVolumeClaim is unique to VolumeSource, PersistentVolumeSource
 	// will not have this.
-	if vs.PersistentVolumeClaim != nil {
+	switch {
+	case vs.PersistentVolumeClaim != nil:
 		return dimsForPersistentVolumeClaim(vs.PersistentVolumeClaim.ClaimName, namespace, client)
-	} else if vs.AWSElasticBlockStore != nil {
+	case vs.AWSElasticBlockStore != nil:
 		return awsElasticBlockStoreDims(*vs.AWSElasticBlockStore), nil
-	} else if vs.Glusterfs != nil {
+	case vs.Glusterfs != nil:
 		return glusterfsDims(*vs.Glusterfs), nil
 	}
 	return nil, nil

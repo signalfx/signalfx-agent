@@ -17,6 +17,6 @@ steps:
     echo $env:PATH
 - ${{ if ne(parameters.packages, '') }}:
   - powershell: |
-      cd "$(GOPATH)"
-      go get -u ${{ parameters.packages }}
+      $env:GO111MODULE = "on"
+      go get ${{ parameters.packages }}
     displayName: 'Install go packages'

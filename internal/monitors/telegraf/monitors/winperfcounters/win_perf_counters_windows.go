@@ -12,20 +12,22 @@ import (
 	"github.com/signalfx/signalfx-agent/internal/monitors/telegraf/common/accumulator"
 	"github.com/signalfx/signalfx-agent/internal/monitors/telegraf/common/emitter/baseemitter"
 	"github.com/signalfx/signalfx-agent/internal/utils"
+	"github.com/sirupsen/logrus"
 	"github.com/ulule/deepcopier"
 )
 
-// fetch the factory used to generate the perf counter plugin
-var factory = telegrafInputs.Inputs["win_perf_counters"]
+var logger = logrus.WithFields(logrus.Fields{"monitorType": monitorType})
 
 // GetPlugin takes a perf counter monitor config and returns a configured perf counter plugin.
 // This is used for other monitors based on perf counter that manage their own life cycle
 // (i.e. system utilization, windows iis)
-func GetPlugin(conf *Config) *telegrafPlugin.Win_PerfCounters {
-	plugin := factory().(*telegrafPlugin.Win_PerfCounters)
+func GetPlugin(conf *Config) (*telegrafPlugin.Win_PerfCounters, error) {
+	plugin := telegrafInputs.Inputs["win_perf_counters"]().(*telegrafPlugin.Win_PerfCounters)
 
 	// copy top level struct fields
-	deepcopier.Copy(conf).To(plugin)
+	if err := deepcopier.Copy(conf).To(plugin); err != nil {
+		return nil, err
+	}
 
 	// Telegraf has a struct wrapper around time.Duration, but it's defined
 	// in an internal package which the gocomplier won't compile from
@@ -53,12 +55,15 @@ func GetPlugin(conf *Config) *telegrafPlugin.Win_PerfCounters {
 			perfobj.IncludeTotal,
 		})
 	}
-	return plugin
+	return plugin, nil
 }
 
 // Configure the monitor and kick off metric syncing
 func (m *Monitor) Configure(conf *Config) error {
-	plugin := GetPlugin(conf)
+	plugin, err := GetPlugin(conf)
+	if err != nil {
+		return err
+	}
 
 	// create the emitter
 	emitter := baseemitter.NewEmitter(m.Output, logger)

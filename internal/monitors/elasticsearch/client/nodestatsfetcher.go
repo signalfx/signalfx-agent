@@ -31,7 +31,7 @@ func getNodeStatsDatapointsHelper(nodeStats NodeStats, defaultDims map[string]st
 	dps = append(dps, nodeStats.Transport.getTransportStats(nodeStatsGroupEnhancedOption[TransportStatsGroup], defaultDims)...)
 	dps = append(dps, nodeStats.HTTP.getHTTPStats(nodeStatsGroupEnhancedOption[HTTPStatsGroup], defaultDims)...)
 	dps = append(dps, fetchThreadPoolStats(nodeStatsGroupEnhancedOption[ThreadpoolStatsGroup], nodeStats.ThreadPool, defaultDims, selectedThreadPools)...)
-	dps = append(dps, nodeStats.Indices.getNodeIndexGroupStats(enhancedStatsForIndexGroups, defaultDims)...)
+	dps = append(dps, nodeStats.Indices.getIndexGroupStats(enhancedStatsForIndexGroups, defaultDims)...)
 
 	return dps
 }
@@ -166,7 +166,7 @@ func (http *HTTP) getHTTPStats(enhanced bool, dims map[string]string) []*datapoi
 	return out
 }
 
-func (indexStatsGroups *IndexStatsGroups) getNodeIndexGroupStats(enhancedStatsForIndexGroups map[string]bool, defaultDims map[string]string) []*datapoint.Datapoint {
+func (indexStatsGroups *IndexStatsGroups) getIndexGroupStats(enhancedStatsForIndexGroups map[string]bool, defaultDims map[string]string) []*datapoint.Datapoint {
 	var out []*datapoint.Datapoint
 
 	out = append(out, indexStatsGroups.Docs.getDocsStats(enhancedStatsForIndexGroups[DocsStatsGroup], defaultDims)...)
@@ -193,7 +193,7 @@ func (indexStatsGroups *IndexStatsGroups) getNodeIndexGroupStats(enhancedStatsFo
 	return out
 }
 
-func (docs *Docs) getDocsStats(enhanced bool, defaultDims map[string]string) []*datapoint.Datapoint {
+func (docs *Docs) getDocsStats(_ bool, defaultDims map[string]string) []*datapoint.Datapoint {
 	var out []*datapoint.Datapoint
 
 	out = append(out, []*datapoint.Datapoint{

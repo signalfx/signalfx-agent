@@ -2,12 +2,12 @@ package monitors
 
 import (
 	"fmt"
-	"github.com/signalfx/golib/datapoint"
 	"reflect"
+
+	"github.com/signalfx/golib/datapoint"
 
 	"github.com/signalfx/signalfx-agent/internal/core/config"
 	"github.com/signalfx/signalfx-agent/internal/core/services"
-	"github.com/signalfx/signalfx-agent/internal/monitors/types"
 	"github.com/signalfx/signalfx-agent/internal/utils"
 	log "github.com/sirupsen/logrus"
 )
@@ -111,7 +111,7 @@ func newUninitializedMonitor(_type string) interface{} {
 
 // Creates a new, unconfigured instance of a monitor of _type.  Returns nil if
 // the monitor type is not registered.
-func newMonitor(_type string, id types.MonitorID) interface{} {
+func newMonitor(_type string) interface{} {
 	mon := newUninitializedMonitor(_type)
 	if initMon, ok := mon.(Initializable); ok {
 		if err := initMon.Init(); err != nil {
@@ -146,7 +146,7 @@ type Shutdownable interface {
 func getCustomConfigForMonitor(conf *config.MonitorConfig) (config.MonitorCustomConfig, error) {
 	confTemplate, ok := ConfigTemplates[conf.Type]
 	if !ok {
-		return nil, fmt.Errorf("Unknown monitor type %s", conf.Type)
+		return nil, fmt.Errorf("unknown monitor type %s", conf.Type)
 	}
 	monConfig := utils.CloneInterface(confTemplate).(config.MonitorCustomConfig)
 
