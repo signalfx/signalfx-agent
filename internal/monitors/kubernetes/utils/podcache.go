@@ -3,7 +3,7 @@ package utils
 import (
 	"reflect"
 
-	"k8s.io/api/core/v1"
+	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/types"
@@ -18,7 +18,7 @@ type PodCache struct {
 	cachedPods           map[types.UID]*CachedPod
 }
 
-// CachedPod is used for holding only the neccessary
+// CachedPod is used for holding only the necessary
 type CachedPod struct {
 	UID             types.UID
 	LabelSet        labels.Set
@@ -55,7 +55,7 @@ func (pc *PodCache) IsCached(pod *v1.Pod) bool {
 
 // AddPod adds or updates a pod in cache
 // This function should only be called after pc.IsCached
-// to prevent unneccesary updates to the internal cache.
+// to prevent unnecessary updates to the internal cache.
 func (pc *PodCache) AddPod(pod *v1.Pod) {
 	// check if any pods exist in this pods namespace
 	if _, exists := pc.namespacePodUIDCache[pod.Namespace]; !exists {

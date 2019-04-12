@@ -153,7 +153,7 @@ func doFetch(client *http.Client, url string) ([]*dto.MetricFamily, error) {
 	defer resp.Body.Close()
 
 	if resp.StatusCode != 200 {
-		return nil, fmt.Errorf("Prometheus exporter at %s returned status %d", url, resp.StatusCode)
+		return nil, fmt.Errorf("prometheus exporter at %s returned status %d", url, resp.StatusCode)
 	}
 
 	decoder := expfmt.NewDecoder(resp.Body, expfmt.ResponseFormat(resp.Header))

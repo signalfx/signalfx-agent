@@ -1,10 +1,12 @@
 package selfdescribe
 
 import (
-	log "github.com/sirupsen/logrus"
 	"go/doc"
 	"reflect"
 	"sort"
+	"strconv"
+
+	log "github.com/sirupsen/logrus"
 
 	"github.com/signalfx/signalfx-agent/internal/monitors"
 )
@@ -52,8 +54,8 @@ func monitorsStructMetadata() []monitorDoc {
 						Properties:  monitor.Properties,
 						Doc:         monitor.Doc,
 					},
-					AcceptsEndpoints: mc.Tag.Get("acceptsEndpoints") == "true",
-					SingleInstance:   mc.Tag.Get("singleInstance") == "true",
+					AcceptsEndpoints: mc.Tag.Get("acceptsEndpoints") == strconv.FormatBool(true),
+					SingleInstance:   mc.Tag.Get("singleInstance") == strconv.FormatBool(true),
 				}
 				mmd.Config.Package = pkg.PackagePath
 

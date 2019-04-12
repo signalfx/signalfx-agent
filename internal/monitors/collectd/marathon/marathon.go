@@ -52,7 +52,7 @@ func (c *Config) PythonConfig() *python.Config {
 // Validate config issues
 func (c *Config) Validate() error {
 	if c.DCOSAuthURL != "" && c.Scheme != "https" {
-		return errors.New("Scheme must be set to https when using a DCOSAuthURL")
+		return errors.New("scheme must be set to https when using a DCOSAuthURL")
 	}
 	return nil
 }

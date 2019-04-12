@@ -1,14 +1,13 @@
 package conviva
 
 import (
-	"encoding/json"
-	"strconv"
+	"fmt"
 	"strings"
 	"sync"
 )
 
-var metricLensMetrics = map[string][]string{
-	"quality_metriclens": {
+func metricLensMetrics() map[string][]string {
+	return map[string][]string{"quality_metriclens": {
 		"conviva.quality_metriclens.total_attempts",
 		"conviva.quality_metriclens.video_start_failures_percent",
 		"conviva.quality_metriclens.exits_before_video_start_percent",
@@ -21,11 +20,12 @@ var metricLensMetrics = map[string][]string{
 		"conviva.quality_metriclens.connection_induced_rebuffering_ratio_percent",
 		"conviva.quality_metriclens.video_restart_time",
 	},
-	"audience_metriclens": {
-		"conviva.audience_metriclens.concurrent_plays",
-		"conviva.audience_metriclens.plays",
-		"conviva.audience_metriclens.ended_plays",
-	},
+		"audience_metriclens": {
+			"conviva.audience_metriclens.concurrent_plays",
+			"conviva.audience_metriclens.plays",
+			"conviva.audience_metriclens.ended_plays",
+		},
+	}
 }
 
 // metricConfig for configuring individual metric
@@ -47,13 +47,7 @@ type metricConfig struct {
 	// name:id map of MetricLens dimensions derived from configured MetricLensDimensions
 	metricLensDimensionMap map[string]float64
 	isInitialized          bool
-	// id:name map of filters in filters_warmup status on response
-	filtersWarmup map[string]string
-	// id:name map of filters in filters_not_exist status on response
-	filtersNotExist map[string]string
-	// id:name map of filters in filters_incomplete_data status on response
-	filtersIncompleteData map[string]string
-	mutex                 sync.RWMutex
+	mutex                  sync.RWMutex
 }
 
 func (mc *metricConfig) filterName(filterID string) string {
@@ -63,28 +57,25 @@ func (mc *metricConfig) filterName(filterID string) string {
 	return ""
 }
 
-func (mc *metricConfig) init(service accountsService) {
+func (mc *metricConfig) init(service accountsService) error {
 	mc.mutex.Lock()
 	defer mc.mutex.Unlock()
 	if !mc.isInitialized {
 		if err := mc.setAccount(service); err != nil {
-			logger.Errorf("Metric %s account setting failure. %+v", mc.MetricParameter, err)
-			return
+			return fmt.Errorf("metric %s account setting failure. %+v", mc.MetricParameter, err)
 		}
 		if err := mc.setFilters(service); err != nil {
-			logger.Errorf("Metric %s filter(s) setting failure. %+v", mc.MetricParameter, err)
-			return
+			return fmt.Errorf("metric %s filter(s) setting failure. %+v", mc.MetricParameter, err)
 		}
 		if err := mc.setMetricLensDimensions(service); err != nil {
-			logger.Errorf("Metric %s MetricLens dimension(s) setting failure. %+v", mc.MetricParameter, err)
-			return
+			return fmt.Errorf("metric %s MetricLens dimension(s) setting failure. %+v", mc.MetricParameter, err)
 		}
 		if err := mc.excludeMetricLensDimensions(service); err != nil {
-			logger.Errorf("Metric %s MetricLens dimension(s) exclusion failure. %+v", mc.MetricParameter, err)
-			return
+			return fmt.Errorf("metric %s MetricLens dimension(s) exclusion failure. %+v", mc.MetricParameter, err)
 		}
 		mc.isInitialized = true
 	}
+	return nil
 }
 
 // setting account id and default account if necessary
@@ -105,14 +96,15 @@ func (mc *metricConfig) setAccount(service accountsService) error {
 }
 
 func (mc *metricConfig) setFilters(service accountsService) error {
-	if len(mc.Filters) == 0 {
+	switch {
+	case len(mc.Filters) == 0:
 		mc.Filters = []string{"All Traffic"}
 		if id, err := service.getFilterID(mc.Account, "All Traffic"); err == nil {
 			mc.filtersMap = map[string]string{id: "All Traffic"}
 		} else {
 			return err
 		}
-	} else if strings.TrimSpace(mc.Filters[0]) == "_ALL_" {
+	case strings.TrimSpace(mc.Filters[0]) == "_ALL_":
 		var allFilters map[string]string
 		var err error
 		if strings.Contains(mc.MetricParameter, "metriclens") {
@@ -130,7 +122,7 @@ func (mc *metricConfig) setFilters(service accountsService) error {
 			mc.Filters = append(mc.Filters, name)
 			mc.filtersMap[id] = name
 		}
-	} else {
+	default:
 		mc.filtersMap = make(map[string]string, len(mc.Filters))
 		for _, name := range mc.Filters {
 			name = strings.TrimSpace(name)
@@ -198,45 +190,4 @@ func (mc *metricConfig) filterIDs() []string {
 		ids = append(ids, id)
 	}
 	return ids
-}
-
-// logs filter status only when the filter status changes
-func (mc *metricConfig) logFilterStatuses(filtersWarmupIds []int64, filtersNotExistIds []int64, filtersIncompleteDataIds []int64) {
-	mc.mutex.Lock()
-	defer mc.mutex.Unlock()
-	mc.filtersWarmup = logFilterStatusesHelper(mc.MetricParameter, mc.filtersMap, mc.filtersWarmup, filtersWarmupIds, "filters_warmup")
-	mc.filtersNotExist = logFilterStatusesHelper(mc.MetricParameter, mc.filtersMap, mc.filtersNotExist, filtersNotExistIds, "filters_not_exist")
-	mc.filtersIncompleteData = logFilterStatusesHelper(mc.MetricParameter, mc.filtersMap, mc.filtersIncompleteData, filtersIncompleteDataIds, "filters_incomplete_data")
-}
-
-func logFilterStatusesHelper(metric string, filters map[string]string, filterStatusesCurrent map[string]string, filterStatusesIDsNew []int64, status string) map[string]string {
-	filterStatusesNew := map[string]string{}
-	filterStatusesToLog := map[string]string{}
-	if filterStatusesCurrent == nil {
-		filterStatusesCurrent = map[string]string{}
-	}
-	for _, id := range filterStatusesIDsNew {
-		id := strconv.FormatInt(id, 10)
-		if filterStatusesCurrent[id] == "" {
-			filterStatusesToLog[id] = filters[id]
-		} else {
-			delete(filterStatusesCurrent, id)
-		}
-		filterStatusesNew[id] = filters[id]
-	}
-	if len(filterStatusesToLog) != 0 {
-		if m, err := json.Marshal(filterStatusesToLog); err == nil {
-			logger.Warnf("GET metric %s has filters in the unresponsive %s status. Set log level to debug to see status change to responsive in future requests. Filters in %s status: %s", metric, status, status, m)
-		} else {
-			logger.Errorf("Failed marshalling id:name map of filters in %s status. %+v", status, err)
-		}
-	}
-	if len(filterStatusesCurrent) != 0 {
-		if m, err := json.Marshal(filterStatusesCurrent); err == nil {
-			logger.Debugf("GET metric %s has filters whose status changed from %s to responsive. Filters whose status changed: %s", metric, status, m)
-		} else {
-			logger.Errorf("Failed marshalling id:name map of filters out of %s status. %+v", status, err)
-		}
-	}
-	return filterStatusesNew
 }

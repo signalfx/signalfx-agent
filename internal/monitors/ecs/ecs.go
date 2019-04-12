@@ -277,7 +277,7 @@ func getTaskLimitMetrics(container ecs.Container, enhancedMetricsConfig dmonitor
 	var taskLimitDps []*datapoint.Datapoint
 
 	if enhancedMetricsConfig.EnableExtraCPUMetrics {
-		cpuDp := sfxclient.Gauge("cpu.limit", nil, int64(container.Limits.CPU))
+		cpuDp := sfxclient.Gauge("cpu.limit", nil, container.Limits.CPU)
 
 		cpuDp.Dimensions = map[string]string{}
 		cpuDp.Dimensions["plugin"] = "ecs"

@@ -18,10 +18,11 @@ import (
 
 // VersionLine should be populated by the startup logic to contain version
 // information that can be reported in diagnostics.
+//nolint: gochecknoglobals
 var VersionLine string
 
 // Serves the diagnostic status on the specified path
-func (a *Agent) serveDiagnosticInfo(host string, port uint16) error {
+func (a *Agent) serveDiagnosticInfo(host string, port uint16) {
 	if a.diagnosticServer != nil {
 		a.diagnosticServer.Close()
 	}
@@ -48,8 +49,6 @@ func (a *Agent) serveDiagnosticInfo(host string, port uint16) error {
 			}).Error("Problem with diagnostic server")
 		}
 	}()
-
-	return nil
 }
 
 func readStatusInfo(host string, port uint16, section string) ([]byte, error) {
@@ -67,14 +66,14 @@ func (a *Agent) internalMetricsHandler(rw http.ResponseWriter, req *http.Request
 	if err != nil {
 		log.WithError(err).Error("Could not serialize internal metrics to JSON")
 		rw.WriteHeader(500)
-		rw.Write([]byte(err.Error()))
+		_, _ = rw.Write([]byte(err.Error()))
 		return
 	}
 
 	rw.Header().Add("Content-Type", "application/json")
 	rw.WriteHeader(200)
 
-	rw.Write(jsonOut)
+	_, _ = rw.Write(jsonOut)
 }
 
 // InternalMetrics aggregates internal metrics from subcomponents and returns a

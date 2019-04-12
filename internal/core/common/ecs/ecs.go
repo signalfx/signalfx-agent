@@ -17,7 +17,7 @@ type TaskMetadata struct {
 
 // GetDimensions returns a set of dimensions based on the task metadata
 func (task *TaskMetadata) GetDimensions() map[string]string {
-	dims := make(map[string]string, 0)
+	dims := make(map[string]string)
 	clusterNameLen := len(task.ClusterName)
 	if idx := strings.Index(task.ClusterName, "/"); idx >= 0 && idx+1 < clusterNameLen {
 		dims["ClusterName"] = task.ClusterName[idx+1 : clusterNameLen]

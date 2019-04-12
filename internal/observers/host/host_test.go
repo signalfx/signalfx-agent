@@ -13,7 +13,8 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-var basicConnectionStatJSON = fmt.Sprintf(`[
+func Test_HostObserver(t *testing.T) {
+	basicConnectionStatJSON := fmt.Sprintf(`[
  {"fd":3,"family":2,"type":1,"localaddr":{"ip":"127.9.8.7","port":14839},"remoteaddr":{"ip":"0.0.0.0","port":0},"status":"LISTEN","uids":[0,0,0,0],"pid":12780}
 ,{"fd":7,"family":2,"type":1,"localaddr":{"ip":"127.9.8.7","port":14839},"remoteaddr":{"ip":"127.0.0.1","port":55128},"status":"ESTABLISHED","uids":[0,0,0,0],"pid":12780}
 ,{"fd":0,"family":2,"type":1,"localaddr":{"ip":"127.9.8.7","port":14839},"remoteaddr":{"ip":"127.0.0.1","port":55264},"status":"TIME_WAIT","uids":[],"pid":0} 
@@ -28,7 +29,6 @@ var basicConnectionStatJSON = fmt.Sprintf(`[
 ,{"fd":0,"family":1,"type":1,"localaddr":{"ip":"/var/run/docker.sock","port":0},"remoteaddr":{"ip":"","port":0},"status":"NONE","uids":[],"pid":0}
 ]`, syscall.AF_INET6)
 
-func Test_HostObserver(t *testing.T) {
 	config := &Config{
 		PollIntervalSeconds: 1,
 	}
@@ -49,7 +49,10 @@ func Test_HostObserver(t *testing.T) {
 				processNameMap:  processNameMap,
 			},
 		}
-		o.Configure(config)
+		err := o.Configure(config)
+		if err != nil {
+			panic("could not setup observer")
+		}
 	}
 
 	t.Run("Basic connections", func(t *testing.T) {

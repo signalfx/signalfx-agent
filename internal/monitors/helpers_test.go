@@ -43,8 +43,6 @@ type _MockMonitor struct {
 	configHook    func(types.MonitorID, MockMonitor)
 }
 
-var lastID = 0
-
 func (m *_MockMonitor) Configure(conf *Config) error {
 	m.MType = conf.Type
 	m.MMyVar = conf.MyVar

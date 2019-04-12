@@ -67,7 +67,8 @@ func NewBasicStringFilter(items []string) (*BasicStringFilter, error) {
 	anyStaticNegated := false
 	for _, i := range items {
 		m, negated := stripNegation(i)
-		if isRegex(m) {
+		switch {
+		case isRegex(m):
 			var re *regexp.Regexp
 			var err error
 
@@ -79,14 +80,14 @@ func NewBasicStringFilter(items []string) (*BasicStringFilter, error) {
 			}
 
 			regexps = append(regexps, regexMatcher{re: re, negated: negated})
-		} else if isGlobbed(m) {
+		case isGlobbed(m):
 			g, err := glob.Compile(m)
 			if err != nil {
 				return nil, err
 			}
 
 			globs = append(globs, globMatcher{glob: g, negated: negated})
-		} else {
+		default:
 			staticSet[m] = negated
 			if negated {
 				anyStaticNegated = true

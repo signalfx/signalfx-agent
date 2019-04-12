@@ -5,7 +5,7 @@ import (
 
 	"github.com/signalfx/golib/datapoint"
 	"github.com/signalfx/golib/sfxclient"
-	"k8s.io/api/core/v1"
+	v1 "k8s.io/api/core/v1"
 )
 
 func datapointsForResourceQuota(rq *v1.ResourceQuota) []*datapoint.Datapoint {
