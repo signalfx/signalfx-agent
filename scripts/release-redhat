@@ -1,0 +1,36 @@
+#!/bin/bash
+
+set -euo pipefail
+set -x
+
+# Updates the redhat-cert branch on github with the newer version of the agent
+# baked into the Dockerfile.rhel.  We can't use build args or run any scripts
+# on the RHEL build service so we have to have the Dockerfile be as
+# self-contained as possible.
+
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+version=${1:$(scripts/latest-final-release)}
+
+update_dockerfile() {
+  sed -i '' -E -e "s/[4-9]+\.[0-9]+\.[0-9]+/$version/g" $SCRIPT_DIR/../Dockerfile.rhel
+}
+
+# Reset the redhat-cert branch to the specified version's tag and ensure the
+# Dockerfile.rhel has the right version on the remote repo for the RHEL builder
+# service to pick up.
+update_branch() {
+  git checkout -B redhat-cert v$version
+  update_dockerfile
+  if ! git diff --exit-code; then
+    git commit -m "Update RHEL Dockerfile version to $version"
+  fi
+  git push -f origin redhat-cert
+}
+
+trigger_build() {
+  echo "Go to https://connect.redhat.com/project/1090391/build-service and click 'Start New Build'"
+}
+
+update_branch
+trigger_build

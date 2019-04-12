@@ -1,0 +1,6 @@
+[signalfx-agent]
+name=SignalFx Agent Repository
+baseurl=https://dl.signalfx.com/rpms/signalfx-agent/final
+gpgcheck=1
+gpgkey=https://dl.signalfx.com/yum-rpm.key
+enabled=1
