@@ -138,6 +138,7 @@ disable=print-statement,
         fixme,
         too-many-branches,
         too-few-public-methods,
+		ungrouped-imports,
         bad-continuation  # We use black so this shouldn't ever be relevant
 
 # Enable the message, report, category or checker with the given id(s). You can

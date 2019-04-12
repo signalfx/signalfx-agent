@@ -3,14 +3,13 @@ import string
 from functools import partial as p
 
 import pytest
-
+from tests.helpers.agent import Agent
 from tests.helpers.assertions import has_datapoint_with_dim, http_status, tcp_socket_open
 from tests.helpers.kubernetes.utils import get_discovery_rule, run_k8s_monitors_test
 from tests.helpers.util import (
     container_ip,
     get_monitor_dims_from_selfdescribe,
     get_monitor_metrics_from_selfdescribe,
-    run_agent,
     run_service,
     wait_for,
 )
@@ -50,9 +49,9 @@ def test_couchbase(tag):
             120,
         ), "service didn't start"
 
-        with run_agent(config) as [backend, _, _]:
+        with Agent.run(config) as agent:
             assert wait_for(
-                p(has_datapoint_with_dim, backend, "plugin", "couchbase")
+                p(has_datapoint_with_dim, agent.fake_services, "plugin", "couchbase")
             ), "Didn't get couchbase datapoints"
 
 

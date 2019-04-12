@@ -103,6 +103,7 @@ commands:
             PYTEST_OPTIONS: "--verbose --junitxml=~/testresults/results.xml --html=~/testresults/results.html --self-contained-html"
             TESTS_DIR: "<< parameters.tests_dir >>"
           command: |
+            set -x
             [ -f ~/.skip ] && echo "Found ~/.skip, skipping tests!" && exit 0
             [ -d "$TESTS_DIR" ] || (echo "Directory '$TESTS_DIR' not found!" && exit 1)
             [ -n "$TEST_SERVICES_DIR" ] || export TEST_SERVICES_DIR="$(pwd)/test-services"
