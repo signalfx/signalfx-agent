@@ -8,7 +8,7 @@ import (
 	"github.com/signalfx/signalfx-agent/internal/utils"
 )
 
-func testMetadata(metricsExhaustive, sendAll bool) *Metadata {
+func testMetadata(metricsExhaustive bool) *Metadata {
 	return &Metadata{
 		MonitorType:     "test-monitor",
 		IncludedMetrics: utils.StringSet("cpu.idle", "cpu.min", "cpu.max", "mem.used"),
@@ -27,32 +27,12 @@ func testMetadata(metricsExhaustive, sendAll bool) *Metadata {
 			// Only some mem metrics are included.
 			"mem": {"mem.used", "mem.free", "mem.available"},
 		},
-		SendAll: sendAll,
+		SendAll: false,
 	}
 }
 
-var exhaustiveMetadata = testMetadata(true, false)
-var nonexhaustiveMetadata = testMetadata(false, false)
-var sendAllMetadata = testMetadata(true, true)
-
-func TestSendAll(t *testing.T) {
-	if filter, err := newMetricsFilter(sendAllMetadata, nil, nil); err != nil {
-		t.Error(err)
-	} else {
-		// All included metrics should be sent.
-		for metric := range sendAllMetadata.Metrics {
-			t.Run(fmt.Sprintf("metric %s should send", metric), func(t *testing.T) {
-				dp := &datapoint.Datapoint{
-					Metric:     metric,
-					MetricType: datapoint.Counter,
-				}
-				if !filter.Matches(dp) {
-					t.Error()
-				}
-			})
-		}
-	}
-}
+var exhaustiveMetadata = testMetadata(true)
+var nonexhaustiveMetadata = testMetadata(false)
 
 func TestIncludedMetrics(t *testing.T) {
 	if filter, err := newMetricsFilter(exhaustiveMetadata, nil, nil); err != nil {
@@ -174,13 +154,13 @@ func Test_newExtraMetricsFilter(t *testing.T) {
 		wantErr bool
 	}{
 		// Error cases.
-		{"unknown group name", args{exhaustiveMetadata, nil, []string{"unknown-group"}}, true},
 		{"metricName is whitespace", args{exhaustiveMetadata, []string{"    "}, nil}, true},
 		{"groupName is whitespace", args{exhaustiveMetadata, nil, []string{"    "}}, true},
 		{"metricName is whitespace", args{nonexhaustiveMetadata, []string{"    "}, nil}, true},
 		{"groupName is whitespace", args{nonexhaustiveMetadata, nil, []string{"    "}}, true},
 
 		// Successful cases.
+		{"unknown group name", args{exhaustiveMetadata, nil, []string{"unknown-group"}}, false},
 		{"no group name or metric name", args{exhaustiveMetadata, nil, nil}, false},
 		{"valid group name and unknown metric name", args{exhaustiveMetadata, []string{"unknown-metric"},
 			[]string{"cpu"}}, false},

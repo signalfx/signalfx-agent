@@ -44,11 +44,12 @@ func validateMetricName(metadata *Metadata, metricName string) error {
 			}
 		}
 
-		logrus.Warnf("extraMetrics: metric pattern '%s' did not match any available metrics", metricName)
+		logrus.Warnf("extraMetrics: metric pattern '%s' did not match any available metrics for monitor %s",
+			metricName, metadata.MonitorType)
 	}
 
 	if !metadata.HasMetric(metricName) {
-		logrus.Warnf("extraMetrics: metric '%s' does not exist", metricName)
+		logrus.Warnf("extraMetrics: metric '%s' does not exist for monitor %s", metricName, metadata.MonitorType)
 	}
 
 	return nil
@@ -61,7 +62,7 @@ func validateGroup(metadata *Metadata, group string) ([]string, error) {
 
 	metrics, ok := metadata.GroupMetricsMap[group]
 	if !ok {
-		return nil, fmt.Errorf("group %s does not exist", group)
+		logrus.Warnf("extraMetrics: group %s does not exist for monitor %s", group, metadata.MonitorType)
 	}
 	return metrics, nil
 }
@@ -124,10 +125,6 @@ func (mf *extraMetricsFilter) enabledMetrics() []string {
 }
 
 func (mf *extraMetricsFilter) Matches(dp *datapoint.Datapoint) bool {
-	if mf.metadata.SendAll {
-		return true
-	}
-
 	if mf.metadata.HasIncludedMetric(dp.Metric) {
 		// It's an included metric so send by default.
 		return true

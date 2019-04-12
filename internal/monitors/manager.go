@@ -312,6 +312,56 @@ func (mm *MonitorManager) findConfigForMonitorAndRun(endpoint services.Endpoint)
 	}
 }
 
+func buildFilterSet(metadata *Metadata, coreConfig *config.MonitorConfig) (
+	filterSet *dpfilters.FilterSet, enabledMetrics []string, err error) {
+
+	oldFilter, err := coreConfig.OldFilterSet()
+	if err != nil {
+		return nil, nil, err
+	}
+
+	newFilter, err := coreConfig.NewFilterSet()
+	if err != nil {
+		return nil, nil, err
+	}
+
+	excludeFilters := []dpfilters.DatapointFilter{oldFilter, newFilter}
+
+	if !metadata.SendAll {
+		// Make a copy of extra metrics from config so we don't alter what the user configured.
+		extraMetrics := append([]string{}, coreConfig.ExtraMetrics...)
+
+		// Monitors can add additional extra metrics to allow through such as based on config flags.
+		if monitorExtra := coreConfig.GetExtraMetrics(); monitorExtra != nil {
+			extraMetrics = append(extraMetrics, monitorExtra...)
+		}
+
+		includedMetricsFilter, err := newMetricsFilter(metadata, extraMetrics, coreConfig.ExtraGroups)
+		if err != nil {
+			return nil, nil, fmt.Errorf("unable to construct extraMetrics filter: %s", err)
+		}
+
+		// Prepend the included metrics filter.
+		excludeFilters = append([]dpfilters.DatapointFilter{dpfilters.Negate(includedMetricsFilter)}, excludeFilters...)
+		enabledMetrics = includedMetricsFilter.enabledMetrics()
+	} else {
+		// Unfortunately can't use a helper because the map value in metadata.Metrics is a non-pointer struct
+		// so it's not considered an interface.
+		enabledMetrics = make([]string, len(metadata.Metrics))
+		i := 0
+		for metric := range metadata.Metrics {
+			enabledMetrics[i] = metric
+			i++
+		}
+	}
+
+	filterSet = &dpfilters.FilterSet{
+		ExcludeFilters: excludeFilters,
+	}
+
+	return
+}
+
 // endpoint may be nil for static monitors
 func (mm *MonitorManager) createAndConfigureNewMonitor(config config.MonitorCustomConfig, endpoint services.Endpoint) error {
 	id := types.MonitorID(mm.idGenerator())
@@ -334,45 +384,26 @@ func (mm *MonitorManager) createAndConfigureNewMonitor(config config.MonitorCust
 		panic(fmt.Sprintf("could not find monitor metadata of type %s", monitorType))
 	}
 
+	filterSet, enabledMetrics, err := buildFilterSet(metadata, coreConfig)
+	if err != nil {
+		return nil
+	}
+
 	configHash := config.MonitorConfigCore().Hash()
-	oldFilter, err := coreConfig.OldFilterSet()
-	if err != nil {
-		return err
-	}
-
-	newFilter, err := coreConfig.NewFilterSet()
-	if err != nil {
-		return err
-	}
-
-	var extraMetrics []string
-
-	// Monitors can add additional extra metrics to allow through such as based on config flags.
-	if monitorExtra := coreConfig.GetExtraMetrics(); monitorExtra != nil {
-		extraMetrics = append(extraMetrics, monitorExtra...)
-	}
-	extraMetrics = append(extraMetrics, coreConfig.ExtraMetrics...)
-
-	includedMetricsFilter, err := newMetricsFilter(metadata, extraMetrics, coreConfig.ExtraGroups)
-	if err != nil {
-		return fmt.Errorf("unable to construct extraMetrics filter: %s", err)
-	}
 
 	output := &monitorOutput{
 		monitorType:               coreConfig.Type,
 		monitorID:                 id,
 		notHostSpecific:           coreConfig.DisableHostDimensions,
 		disableEndpointDimensions: coreConfig.DisableEndpointDimensions,
-		filterSet: &dpfilters.FilterSet{
-			ExcludeFilters: []dpfilters.DatapointFilter{oldFilter, newFilter, dpfilters.Negate(includedMetricsFilter)},
-		},
-		configHash:  configHash,
-		endpoint:    endpoint,
-		dpChan:      mm.DPs,
-		eventChan:   mm.Events,
-		dimPropChan: mm.DimensionProps,
-		spanChan:    mm.TraceSpans,
-		extraDims:   map[string]string{},
+		filterSet:                 filterSet,
+		configHash:                configHash,
+		endpoint:                  endpoint,
+		dpChan:                    mm.DPs,
+		eventChan:                 mm.Events,
+		dimPropChan:               mm.DimensionProps,
+		spanChan:                  mm.TraceSpans,
+		extraDims:                 map[string]string{},
 	}
 
 	am := &ActiveMonitor{
@@ -382,7 +413,7 @@ func (mm *MonitorManager) createAndConfigureNewMonitor(config config.MonitorCust
 		endpoint:       endpoint,
 		agentMeta:      mm.agentMeta,
 		output:         output,
-		enabledMetrics: includedMetricsFilter.enabledMetrics(),
+		enabledMetrics: enabledMetrics,
 	}
 
 	if err := am.configureMonitor(config); err != nil {
