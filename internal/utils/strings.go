@@ -34,11 +34,12 @@ func FirstNonZero(ns ...int) int {
 func IndentLines(ss string, spaces int) string {
 	var output string
 	for i := range ss {
-		if i == 0 {
+		switch {
+		case i == 0:
 			output += strings.Repeat(" ", spaces) + string(ss[i])
-		} else if ss[i] == '\n' && i != len(ss)-1 {
+		case ss[i] == '\n' && i != len(ss)-1:
 			output += "\n" + strings.Repeat(" ", spaces)
-		} else {
+		default:
 			output += string(ss[i])
 		}
 	}
@@ -84,7 +85,7 @@ func EnsurePrefix(s, prefix string) string {
 // returns a scanner that will output that chunk as a single token.  This
 // assumes that the entire chunk comes in a single read call, which will not
 // always be the case.
-func ChunkScanner(output io.ReadCloser) *bufio.Scanner {
+func ChunkScanner(output io.Reader) *bufio.Scanner {
 	s := bufio.NewScanner(output)
 	s.Split(func(data []byte, atEOF bool) (advance int, token []byte, err error) {
 		if atEOF && len(data) == 0 {

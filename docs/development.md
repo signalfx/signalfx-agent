@@ -30,6 +30,30 @@ You can put agent config in the `local-etc` dir of this repo and it will be
 shared into the container at the default place that the agent looks for config
 (`/etc/signalfx`).  The `local-etc` dir is ignored by git.
 
+## Development Practices
+
+ - Try and do logging at the highest level of the component you are work on as
+   possible.  In the lower-level components, return errors (appropriately
+   wrapped with `fmt.Errorf("context of error: %v", err)` to provide context)
+   and only at the highest level where it doesn't make sense to return errors
+   any more, should you log the error.  E.g. for a monitor, the most approrpriate
+   place to do logging is in the function that gets called on an interval.
+
+ - Try and minimize memory allocations as much as possible.  Allocations result
+   in higher garbage collection CPU usage.  Don't go crazy on trying to avoid
+   allocations in every case where it's possible, but be aware of it.  If
+   your code is signficantly harder to understand then it probably isn't worth
+   doing unless profiling shows a large benefit.
+
+## Profiling the agent
+
+You can profile the agent with the
+[pprof](https://blog.golang.org/profiling-go-programs) tool from Go.  To enable
+a profiling HTTP endpoint in the agent, set `profiling: true` in the agent
+config.  Then you can hit various endpoints on
+`http://localhost:6060/debug/pprof/*` ([where `*` is various profiles
+documented here](https://golang.org/pkg/net/http/pprof/)).
+
 ## Improve build times on Mac
 When developing on Mac and building in a Docker Linux container the source directory is shared using Docker volumes. It is relatively slow and increases build times. A quicker method (2-3x faster) is to do syncing of files to the Docker VM so that file access is in the same host as the Linux container. [docker-sync](http://docker-sync.io) will do this automatically once setup.
 

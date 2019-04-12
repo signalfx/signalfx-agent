@@ -5,9 +5,7 @@ import (
 	"os"
 	"testing"
 
-	//"github.com/davecgh/go-spew/spew"
-
-	"k8s.io/api/core/v1"
+	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/types"
@@ -82,7 +80,7 @@ var _ = Describe("Kubernetes Observer", func() {
 					Phase: v1.PodRunning,
 					PodIP: "10.0.4.3",
 					ContainerStatuses: []v1.ContainerStatus{
-						v1.ContainerStatus{
+						{
 							Name:         "container1",
 							RestartCount: 5,
 							State: v1.ContainerState{
@@ -93,10 +91,10 @@ var _ = Describe("Kubernetes Observer", func() {
 				},
 				Spec: v1.PodSpec{
 					Containers: []v1.Container{
-						v1.Container{
+						{
 							Name: "container1",
 							Ports: []v1.ContainerPort{
-								v1.ContainerPort{
+								{
 									Name:          "http",
 									ContainerPort: 80,
 								},
@@ -139,7 +137,7 @@ var _ = Describe("Kubernetes Observer", func() {
 					Phase: v1.PodRunning,
 					PodIP: "10.0.4.3",
 					ContainerStatuses: []v1.ContainerStatus{
-						v1.ContainerStatus{
+						{
 							Name:         "container1",
 							RestartCount: 5,
 							State: v1.ContainerState{
@@ -150,20 +148,20 @@ var _ = Describe("Kubernetes Observer", func() {
 				},
 				Spec: v1.PodSpec{
 					Containers: []v1.Container{
-						v1.Container{
+						{
 							Name: "container1",
 							Env: []v1.EnvVar{
-								v1.EnvVar{
+								{
 									Name:  "USERNAME",
 									Value: "bob123",
 								},
 							},
 							Ports: []v1.ContainerPort{
-								v1.ContainerPort{
+								{
 									Name:          "http",
 									ContainerPort: 80,
 								},
-								v1.ContainerPort{
+								{
 									Name:          "https",
 									ContainerPort: 443,
 								},

@@ -11,7 +11,7 @@ import (
 	log "github.com/sirupsen/logrus"
 
 	"github.com/signalfx/gateway/protocol/collectd"
-	"github.com/signalfx/gateway/protocol/collectd/format"
+	collectdformat "github.com/signalfx/gateway/protocol/collectd/format"
 	"github.com/signalfx/golib/datapoint"
 	"github.com/signalfx/golib/event"
 	"github.com/signalfx/signalfx-agent/internal/utils/collectdutil"
@@ -65,7 +65,7 @@ func (s *WriteHTTPServer) Start() error {
 
 	s.activePort = listener.Addr().(*net.TCPAddr).Port
 
-	go s.server.Serve(listener)
+	go func() { _ = s.server.Serve(listener) }()
 	return nil
 }
 

@@ -313,10 +313,10 @@ func (b *BaseEmitter) SetOmitOrignalMetricType(in bool) {
 }
 
 // NewEmitter returns a new BaseEmitter
-func NewEmitter(Output types.Output, Logger log.FieldLogger) *BaseEmitter {
+func NewEmitter(output types.Output, logger log.FieldLogger) *BaseEmitter {
 	return &BaseEmitter{
-		Output:                     Output,
-		Logger:                     Logger,
+		Output:                     output,
+		Logger:                     logger,
 		omittedTags:                map[string]bool{},
 		included:                   map[string]bool{},
 		excluded:                   map[string]bool{},

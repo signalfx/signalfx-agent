@@ -44,15 +44,13 @@ func startListeningForSpans(ctx context.Context, listenAddr string, timeout time
 		WriteTimeout: timeout,
 	}
 
-	go server.Serve(listener)
+	go func() { _ = server.Serve(listener) }()
 
 	go func() {
-		select {
-		case <-ctx.Done():
-			err := server.Close()
-			if err != nil {
-				logger.WithError(err).Error("Could not close trace forwarding server")
-			}
+		<-ctx.Done()
+		err := server.Close()
+		if err != nil {
+			logger.WithError(err).Error("Could not close trace forwarding server")
 		}
 	}()
 	return sfxclient.NewMultiCollector(jaegerMetrics, zipkinMetrics), nil
@@ -68,5 +66,5 @@ func notFoundHandler(w http.ResponseWriter, r *http.Request) {
 	errMsg := fmt.Sprintf("Trace span request received on invalid path '%s'. "+
 		"You should send to the same path that you would on the Smart Gateway.", r.URL.Path)
 	logger.ThrottledError(errMsg)
-	w.Write([]byte(errMsg + "\n"))
+	_, _ = w.Write([]byte(errMsg + "\n"))
 }

@@ -30,5 +30,5 @@ func JSON(writer io.Writer) {
 	if err != nil {
 		panic(err)
 	}
-	writer.Write(out)
+	_, _ = writer.Write(out)
 }

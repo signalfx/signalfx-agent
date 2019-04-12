@@ -159,25 +159,9 @@ jobs:
       - checkout
       - goexecutor_setup
       - run: |
-          (cd /tmp; GO111MODULE=on go get -u golang.org/x/lint/golint)
-          make lint
-
-  vet:
-    executor: goexecutor
-    steps:
-      - checkout
-      - goexecutor_setup
-      - run: |
-          make vet
-
-  gofmt:
-    executor: goexecutor
-    steps:
-      - checkout
-      - goexecutor_setup
-      - run: |
-          make gofmt
-          git diff --exit-code || (echo 'go files need to be reformatted. Run `make gofmt` in the dev image and commit the changes.' && exit 1)
+          curl -sfL https://install.goreleaser.com/github.com/golangci/golangci-lint.sh | sh -s -- -b $(go env GOPATH)/bin v1.16.0
+          make compileDeps
+          GOGC=40 golangci-lint run
 
   gotests:
     executor: goexecutor
@@ -476,9 +460,7 @@ workflows:
     jobs:
       - build
       - modules
-      - lint
-      - vet
-      - gofmt
+      # - lint
       - gotests
       - integration_tests:
           requires:

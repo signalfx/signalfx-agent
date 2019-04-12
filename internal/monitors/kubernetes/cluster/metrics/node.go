@@ -9,7 +9,7 @@ import (
 	"github.com/signalfx/golib/sfxclient"
 	k8sutil "github.com/signalfx/signalfx-agent/internal/monitors/kubernetes/utils"
 	atypes "github.com/signalfx/signalfx-agent/internal/monitors/types"
-	"k8s.io/api/core/v1"
+	v1 "k8s.io/api/core/v1"
 )
 
 // A map to check for duplicate machine IDs
@@ -97,13 +97,4 @@ func nodeConditionValue(node *v1.Node, condType v1.NodeConditionType) int64 {
 		}
 	}
 	return nodeConditionValues[status]
-}
-
-func firstNodeHostname(node *v1.Node) string {
-	for _, addr := range node.Status.Addresses {
-		if addr.Type == v1.NodeHostName {
-			return addr.Address
-		}
-	}
-	return ""
 }

@@ -1,4 +1,4 @@
-// Package utils hold miscelaneous utility functions
+// Package utils hold miscellaneous utility functions
 package utils
 
 import (

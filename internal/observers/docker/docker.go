@@ -283,7 +283,7 @@ func (docker *Docker) endpointForPort(portObj ContPort, cont *dtypes.ContainerJS
 		return nil
 	}
 
-	id := serviceContainer.PrimaryName() + "-" + cont.ID[:12] + "-" + strconv.Itoa(int(port))
+	id := serviceContainer.PrimaryName() + "-" + cont.ID[:12] + "-" + strconv.Itoa(port)
 	if portObj.Name != "" {
 		id += "-" + portObj.Name
 	}

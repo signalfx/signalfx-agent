@@ -53,7 +53,7 @@ func (c *APIConfig) Validate() error {
 		return errors.New("Invalid authType for kubernetes: " + string(c.AuthType))
 	}
 	if c.AuthType == AuthTypeTLS && (c.ClientCertPath == "" || c.ClientKeyPath == "") {
-		return errors.New("For TLS auth, you must set both the kubernetesAPI.clientCertPath " +
+		return errors.New("for TLS auth, you must set both the kubernetesAPI.clientCertPath " +
 			"and kubernetesAPI.clientKeyPath config values")
 	}
 	return nil

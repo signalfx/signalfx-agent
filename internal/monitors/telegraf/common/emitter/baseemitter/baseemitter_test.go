@@ -372,27 +372,31 @@ func TestImmediateEmitter_Emit(t *testing.T) {
 		},
 	}
 	for _, tt := range tests {
+		args := tt.args
+		wantDatapoints := tt.wantDatapoints
+		wantEvents := tt.wantEvents
+
 		t.Run(tt.name, func(t *testing.T) {
 			out := neotest.NewTestOutput()
 			lg := log.NewEntry(log.New())
 			I := NewEmitter(out, lg)
-			I.AddTags(tt.args.addTag)
-			I.IncludeEvents(tt.args.includeEvent)
-			I.ExcludeData(tt.args.excludeData)
-			I.OmitTags(tt.args.excludeTag)
-			I.RenameMetrics(tt.args.nameMap)
-			I.AddMetricNameTransformations(tt.args.metricNameTransformations)
-			I.AddMeasurementTransformations(tt.args.measurementTransformations)
-			met, _ := metric.New(tt.args.measurement, tt.args.tags, tt.args.fields, tt.args.t, tt.args.metricType)
+			I.AddTags(args.addTag)
+			I.IncludeEvents(args.includeEvent)
+			I.ExcludeData(args.excludeData)
+			I.OmitTags(args.excludeTag)
+			I.RenameMetrics(args.nameMap)
+			I.AddMetricNameTransformations(args.metricNameTransformations)
+			I.AddMeasurementTransformations(args.measurementTransformations)
+			met, _ := metric.New(args.measurement, args.tags, args.fields, args.t, args.metricType)
 			I.AddMetric(met)
 			dps := out.FlushDatapoints()
-			if !reflect.DeepEqual(dps, tt.wantDatapoints) {
-				t.Errorf("actual output: datapoints %v does not match desired: %v", dps, tt.wantDatapoints)
+			if !reflect.DeepEqual(dps, wantDatapoints) {
+				t.Errorf("actual output: datapoints %v does not match desired: %v", dps, wantDatapoints)
 			}
 
 			events := out.FlushEvents()
-			if !reflect.DeepEqual(events, tt.wantEvents) {
-				t.Errorf("actual output: events %v does not match desired: %v", dps, tt.wantDatapoints)
+			if !reflect.DeepEqual(events, wantEvents) {
+				t.Errorf("actual output: events %v does not match desired: %v", dps, wantDatapoints)
 			}
 		})
 	}
@@ -438,37 +442,41 @@ func TestTelegrafToSFXMetricType(t *testing.T) {
 		},
 		{
 			name:     "counter",
-			args:     args{getTelegrafMetricWithOutErr("test", map[string]string{}, map[string]interface{}{}, time.Now(), telegraf.Counter)},
+			args:     args{getTelegrafMetricWithOutErr("test2", map[string]string{}, map[string]interface{}{}, time.Now(), telegraf.Counter)},
 			want:     datapoint.Counter,
 			wantOrig: "",
 		},
 		{
 			name:     "summary",
-			args:     args{getTelegrafMetricWithOutErr("test", map[string]string{}, map[string]interface{}{}, time.Now(), telegraf.Summary)},
+			args:     args{getTelegrafMetricWithOutErr("test3", map[string]string{}, map[string]interface{}{}, time.Now(), telegraf.Summary)},
 			want:     datapoint.Gauge,
 			wantOrig: "summary",
 		},
 		{
 			name:     "histogram",
-			args:     args{getTelegrafMetricWithOutErr("test", map[string]string{}, map[string]interface{}{}, time.Now(), telegraf.Histogram)},
+			args:     args{getTelegrafMetricWithOutErr("test4", map[string]string{}, map[string]interface{}{}, time.Now(), telegraf.Histogram)},
 			want:     datapoint.Gauge,
 			wantOrig: "histogram",
 		},
 		{
 			name:     "untyped",
-			args:     args{getTelegrafMetricWithOutErr("test", map[string]string{}, map[string]interface{}{}, time.Now(), telegraf.Untyped)},
+			args:     args{getTelegrafMetricWithOutErr("test5", map[string]string{}, map[string]interface{}{}, time.Now(), telegraf.Untyped)},
 			want:     datapoint.Gauge,
 			wantOrig: "untyped",
 		},
 	}
 	for _, tt := range tests {
+		args := tt.args
+		want := tt.want
+		wantOrig := tt.wantOrig
+
 		t.Run(tt.name, func(t *testing.T) {
-			got, got1 := TelegrafToSFXMetricType(tt.args.m)
-			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("TelegrafToSFXMetricType() got = %v, want %v", got, tt.want)
+			got, got1 := TelegrafToSFXMetricType(args.m)
+			if !reflect.DeepEqual(got, want) {
+				t.Errorf("TelegrafToSFXMetricType() got = %v, want %v", got, want)
 			}
-			if got1 != tt.wantOrig {
-				t.Errorf("TelegrafToSFXMetricType() gotOrig = %v, want %v", got1, tt.wantOrig)
+			if got1 != wantOrig {
+				t.Errorf("TelegrafToSFXMetricType() gotOrig = %v, want %v", got1, wantOrig)
 			}
 		})
 	}

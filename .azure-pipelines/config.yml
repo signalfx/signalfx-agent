@@ -24,22 +24,16 @@ variables:
   TEST_SERVICES_DIR: '$(Build.SourcesDirectory)\test-services'
 
 jobs:
-- job: 'win_go_vet'
-  pool:
-    vmImage: 'vs2015-win2012r2'
-  steps:
-  - template: 'templates/install-go.yml'
-  - powershell: 'powershell -command "& { . ./scripts/windows/make.ps1; vet }"'
-    displayName: 'Run go vet'
 - job: 'win_go_lint'
   pool:
     vmImage: 'vs2015-win2012r2'
   steps:
   - template: 'templates/install-go.yml'
     parameters:
-      packages: 'golang.org/x/lint/golint'
+      packages: 'github.com/golangci/golangci-lint/cmd/golangci-lint@v1.16.0'
   - powershell: 'powershell -command "& { . ./scripts/windows/make.ps1; lint }"'
     displayName: 'Run golint'
+
 - job: 'win_go_build'
   pool:
     vmImage: 'vs2015-win2012r2'
@@ -57,6 +51,7 @@ jobs:
     inputs:
       pathtoPublish: 'signalfx-agent.exe'
       artifactName: 'exe'
+
 - job: 'win_go_test'
   pool:
     vmImage: 'vs2015-win2012r2'
@@ -72,6 +67,7 @@ jobs:
       testResultsFormat: 'JUnit'
       testResultsFiles: 'unit_results.xml'
       failTaskOnFailedTests: true
+
 - job: 'win_bundle_build'
   pool:
     vmImage: 'vs2015-win2012r2'
@@ -100,11 +96,13 @@ jobs:
     inputs:
       pathtoPublish: '$(Build.ArtifactStagingDirectory)'
       artifactName: 'bundle'
+
 - template: 'templates/integration-tests.yml'
   parameters:
     dependsOn: 'win_bundle_build'
     jobName: 'win_2012_integration_tests'
     vmImage: 'vs2015-win2012r2'
+
 - template: 'templates/integration-tests.yml'
   parameters:
     dependsOn: 'win_bundle_build'

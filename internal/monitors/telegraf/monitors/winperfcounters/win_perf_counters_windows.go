@@ -12,17 +12,17 @@ import (
 	"github.com/signalfx/signalfx-agent/internal/monitors/telegraf/common/accumulator"
 	"github.com/signalfx/signalfx-agent/internal/monitors/telegraf/common/emitter/baseemitter"
 	"github.com/signalfx/signalfx-agent/internal/utils"
+	"github.com/sirupsen/logrus"
 	"github.com/ulule/deepcopier"
 )
 
-// fetch the factory used to generate the perf counter plugin
-var factory = telegrafInputs.Inputs["win_perf_counters"]
+var logger = logrus.WithFields(logrus.Fields{"monitorType": monitorType})
 
 // GetPlugin takes a perf counter monitor config and returns a configured perf counter plugin.
 // This is used for other monitors based on perf counter that manage their own life cycle
 // (i.e. system utilization, windows iis)
 func GetPlugin(conf *Config) *telegrafPlugin.Win_PerfCounters {
-	plugin := factory().(*telegrafPlugin.Win_PerfCounters)
+	plugin := telegrafInputs.Inputs["win_perf_counters"]().(*telegrafPlugin.Win_PerfCounters)
 
 	// copy top level struct fields
 	deepcopier.Copy(conf).To(plugin)

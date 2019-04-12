@@ -144,7 +144,7 @@ function bundle (
 
 function lint() {
     compile_deps
-    golint -set_exit_status ./cmd/... ./internal/...
+    golangci-lint run
     if ($lastexitcode -ne 0){ throw }
 }
 
@@ -153,12 +153,6 @@ function vendor() {
     if ($lastexitcode -ne 0){ throw }
     go mod vendor
     if ($lastexitcode -ne 0){ throw }
-}
-
-function vet() {
-    compile_deps
-    go vet -mod vendor ./... 2>&1 | Select-String -Pattern "\.go" | Select-String -NotMatch -Pattern "_test\.go" -outvariable gofiles
-    if ($gofiles){ Write-Host $gofiles; throw }
 }
 
 function unit_test() {

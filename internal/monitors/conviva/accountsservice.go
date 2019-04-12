@@ -3,9 +3,10 @@ package conviva
 import (
 	"context"
 	"fmt"
-	"golang.org/x/sync/errgroup"
 	"sync"
 	"time"
+
+	"golang.org/x/sync/errgroup"
 )
 
 const (
@@ -218,10 +219,8 @@ func (s *accountsServiceImpl) setAccountsMetricLensFilters() error {
 						mutex.Lock()
 						newA.metricLensFilters[newFilterID] = newFilter
 						mutex.Unlock()
-					} else {
-						if statusCode < 400 || statusCode > 499 {
-							return err
-						}
+					} else if statusCode < 400 || statusCode > 499 {
+						return err
 					}
 					break
 				}

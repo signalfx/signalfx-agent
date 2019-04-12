@@ -5,6 +5,7 @@ package processlist
 import (
 	"bytes"
 	"fmt"
+	"math"
 
 	"github.com/StackExchange/wmi"
 	"github.com/shirou/gopsutil/mem"
@@ -37,6 +38,14 @@ type Win32Process struct {
 type PerfProcProcess struct {
 	IDProcess            uint32
 	PercentProcessorTime uint64
+}
+
+// toTime returns the given seconds as a formatted string "min:sec.dec"
+func toTime(secs float64) string {
+	minutes := int(secs) / 60
+	seconds := math.Mod(secs, 60.0)
+	dec := math.Mod(seconds, 1.0) * 100
+	return fmt.Sprintf("%02d:%02.f.%02.f", minutes, seconds, dec)
 }
 
 // getCPUPercentages is set as a package variable so we can mock it during testing

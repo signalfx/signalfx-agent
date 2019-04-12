@@ -96,7 +96,6 @@ func (p *pollingKVV2Watcher) Run() {
 				continue
 			}
 			if newMetadata.Timestamp != p.latest.Timestamp || newMetadata.Version != p.latest.Version {
-				logger.Debugf("Timestamp or version changed for Vault path %s", p.vaultPath)
 				select {
 				case p.shouldRefetchCh <- struct{}{}:
 					break

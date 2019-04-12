@@ -7,6 +7,7 @@ import (
 	"unsafe"
 
 	"github.com/shirou/gopsutil/cpu"
+	"github.com/sirupsen/logrus"
 	"golang.org/x/sys/windows"
 )
 
@@ -28,7 +29,8 @@ var (
 
 	// set getTimes function to a package variable to make it easier to test and
 	// wrap gopsutil on windows
-	times = getTimes
+	times  = getTimes
+	logger = logrus.WithField("monitorType", monitorType)
 
 	// Windows API DLL
 	ntdll        = windows.NewLazySystemDLL("Ntdll.dll")

@@ -5,15 +5,12 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"net/url"
-	"sync"
 )
 
 // FakeKubelet is a mock of the ingest server.  Holds all of the received
 // datapoints for later inspection
 type FakeKubelet struct {
-	server *httptest.Server
-	lock   sync.Mutex
-
+	server  *httptest.Server
 	PodJSON []byte
 }
 
@@ -49,9 +46,9 @@ func (f *FakeKubelet) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 	if r.URL.Path == "/pods" {
 		rw.WriteHeader(http.StatusOK)
-		rw.Write(f.PodJSON)
+		_, _ = rw.Write(f.PodJSON)
 	} else {
 		rw.WriteHeader(http.StatusNotFound)
-		io.WriteString(rw, "Not found")
+		_, _ = io.WriteString(rw, "Not found")
 	}
 }

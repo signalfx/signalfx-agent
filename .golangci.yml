@@ -1,0 +1,47 @@
+issues:
+  max-same-issues: 0
+  max-per-linter: 0
+  exclude-rules:
+    # We use certain values repeatedly in different test cases. Using consts would only
+    # reduce clarity.
+    - linters:
+       - goconst
+      path: _test\.go
+
+    # Test code can do weird things with context in BeforeEach
+    - text: cancel
+      path: _test\.go
+      linters:
+        - govet
+
+    # There are many places where we let users set TLS InsecureSkipVerify from
+    # config
+    - text: G402
+      linters:
+        - gosec
+
+linters:
+  enable-all: true
+  disable:
+    # Line length is only a problem if it impedes readability, which should be
+    # determined at code review time.
+    - lll
+    # We use init funcs pretty heavily to register montiors at startup
+    - gochecknoinits
+    # A lot of config structs have a certain order due to grouping of options
+    # and they are only allocated once so space optimization isn't important.
+    - maligned
+    # This flags things a lot when it is impossible to know how big the backing
+    # array should be.
+    - prealloc
+    # There are many legitimate uses of globals
+    - gochecknoglobals
+
+run:
+  modules-download-mode: vendor
+
+service:
+  golangci-lint-version: 1.16.x
+  project-path: /usr/src/signalfx-agent
+  prepare:
+    - make compileDeps

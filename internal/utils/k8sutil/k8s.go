@@ -5,7 +5,7 @@ import (
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
-	"k8s.io/api/core/v1"
+	v1 "k8s.io/api/core/v1"
 	k8s "k8s.io/client-go/kubernetes"
 )
 
@@ -44,7 +44,7 @@ func FetchSecretValue(client *k8s.Clientset, secretName, dataKey, namespace stri
 		return "", err
 	}
 	if _, ok := secret.Data[dataKey]; !ok {
-		return "", fmt.Errorf("Secret value %s not found in secret %s", dataKey, secretName)
+		return "", fmt.Errorf("secret value %s not found in secret %s", dataKey, secretName)
 	}
 
 	return string(secret.Data[dataKey]), nil

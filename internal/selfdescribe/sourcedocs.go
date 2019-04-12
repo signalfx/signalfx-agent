@@ -17,6 +17,8 @@ type astCacheEntry struct {
 	pkgs map[string]*ast.Package
 }
 
+//nolint: gochecknoglobals
+// Used to cache the asts parsed from package files
 var astCache = map[string]astCacheEntry{}
 
 // Returns the ast node of the struct itself and the comment group on the
@@ -46,8 +48,7 @@ func structNodes(packageDir, structName string) (*ast.TypeSpec, *ast.CommentGrou
 			// comment on it or else it won't be found.
 			cmap := ast.NewCommentMap(fset, f, f.Comments)
 			for node := range cmap {
-				switch t := node.(type) {
-				case *ast.GenDecl:
+				if t, ok := node.(*ast.GenDecl); ok {
 					if t.Tok != token.TYPE {
 						continue
 					}
@@ -89,7 +90,7 @@ func packageDoc(packageDir string) *doc.Package {
 
 func nestedPackageDocs(packageDir string) []*doc.Package {
 	var out []*doc.Package
-	filepath.Walk(packageDir, func(path string, info os.FileInfo, err error) error {
+	_ = filepath.Walk(packageDir, func(path string, info os.FileInfo, err error) error {
 		if !info.IsDir() || err != nil {
 			return err
 		}
@@ -106,9 +107,7 @@ func nestedPackageDocs(packageDir string) []*doc.Package {
 func notesFromDocs(docs []*doc.Package, noteType string) []*doc.Note {
 	var notes []*doc.Note
 	for _, pkgDoc := range docs {
-		for _, note := range pkgDoc.Notes[noteType] {
-			notes = append(notes, note)
-		}
+		notes = append(notes, pkgDoc.Notes[noteType]...)
 	}
 	return notes
 }
@@ -125,6 +124,7 @@ func structFieldDocs(packageDir, structName string) map[string]string {
 	return fieldDocs
 }
 
+//nolint: gochecknoglobals
 var textRE = regexp.MustCompile(`([^\n])\n([^\s])`)
 
 func commentTextToParagraphs(t string) string {

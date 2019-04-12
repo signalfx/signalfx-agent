@@ -1,12 +1,13 @@
 package selfdescribe
 
 import (
-	"github.com/signalfx/signalfx-agent/internal/monitors"
 	"go/doc"
 	"os"
 	"path/filepath"
 	"reflect"
 	"sort"
+
+	"github.com/signalfx/signalfx-agent/internal/monitors"
 
 	"github.com/signalfx/signalfx-agent/internal/core/services"
 	"github.com/signalfx/signalfx-agent/internal/observers"
@@ -32,7 +33,7 @@ func observersStructMetadata() []observerMetadata {
 	// Set to track undocumented observers
 	obsTypesSeen := make(map[string]bool)
 
-	filepath.Walk("internal/observers", func(path string, info os.FileInfo, err error) error {
+	_ = filepath.Walk("internal/observers", func(path string, info os.FileInfo, err error) error {
 		if !info.IsDir() || err != nil {
 			return err
 		}

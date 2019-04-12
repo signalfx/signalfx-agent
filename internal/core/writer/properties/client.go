@@ -145,24 +145,21 @@ func (dpc *DimensionPropertyClient) AcceptDimProp(dimProps *types.DimProperties)
 }
 
 func (dpc *DimensionPropertyClient) processQueue() {
-	for {
-		select {
-		case delayedDim := <-dpc.delayedQueue:
-			now := dpc.now()
-			if now.Before(delayedDim.TimeToSend) {
-				// dims are always in the channel in order of TimeToSend
-				time.Sleep(delayedDim.TimeToSend.Sub(now))
-			}
-			atomic.AddInt64(&dpc.DimensionsCurrentlyDelayed, int64(-1))
+	for delayedDim := range dpc.delayedQueue {
+		now := dpc.now()
+		if now.Before(delayedDim.TimeToSend) {
+			// dims are always in the channel in order of TimeToSend
+			time.Sleep(delayedDim.TimeToSend.Sub(now))
+		}
+		atomic.AddInt64(&dpc.DimensionsCurrentlyDelayed, int64(-1))
 
-			dpc.Lock()
-			delete(dpc.delayedSet, delayedDim.DimProperties.Dimension)
-			dpc.Unlock()
+		dpc.Lock()
+		delete(dpc.delayedSet, delayedDim.DimProperties.Dimension)
+		dpc.Unlock()
 
-			if !dpc.isDuplicate(delayedDim.DimProperties) {
-				if err := dpc.setPropertiesOnDimension(delayedDim.DimProperties); err != nil {
-					log.WithError(err).WithField("dim", delayedDim.DimProperties.Dimension).Error("Could not send dimension update")
-				}
+		if !dpc.isDuplicate(delayedDim.DimProperties) {
+			if err := dpc.setPropertiesOnDimension(delayedDim.DimProperties); err != nil {
+				log.WithError(err).WithField("dim", delayedDim.DimProperties.Dimension).Error("Could not send dimension update")
 			}
 		}
 	}
@@ -177,7 +174,7 @@ func (dpc *DimensionPropertyClient) setPropertiesOnDimension(dimProps *types.Dim
 		return err
 	}
 
-	req.WithContext(context.WithValue(dpc.ctx, reqDoneCallbackKeyVar, func() {
+	req = req.WithContext(context.WithValue(dpc.ctx, reqDoneCallbackKeyVar, func() {
 		// Add it to the history only after successfully propagated so that we
 		// will end up retrying updates (monitors should send the property
 		// updates through to the writer on the same interval as datapoints).

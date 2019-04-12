@@ -39,10 +39,6 @@ type containerMetric struct {
 	getValues   func(s *info.ContainerStats) metricValues
 }
 
-func (c *containerMetric) getName() string {
-	return c.name
-}
-
 type containerSpecMetric struct {
 	containerMetric
 	getValues func(s *info.ContainerInfo) metricValues
@@ -68,10 +64,10 @@ type CadvisorCollector struct {
 // fsValues is a helper method for assembling per-filesystem stats.
 func fsValues(fsStats []info.FsStats, valueFn func(*info.FsStats) datapoint.Value) metricValues {
 	values := make(metricValues, 0, len(fsStats))
-	for _, stat := range fsStats {
+	for i := range fsStats {
 		values = append(values, metricValue{
-			value:  valueFn(&stat),
-			labels: []string{stat.Device},
+			value:  valueFn(&fsStats[i]),
+			labels: []string{fsStats[i].Device},
 		})
 	}
 	return values
@@ -79,10 +75,10 @@ func fsValues(fsStats []info.FsStats, valueFn func(*info.FsStats) datapoint.Valu
 
 func networkValues(net []info.InterfaceStats, valueFn func(*info.InterfaceStats) datapoint.Value) metricValues {
 	values := make(metricValues, 0, len(net))
-	for _, value := range net {
+	for i := range net {
 		values = append(values, metricValue{
-			value:  valueFn(&value),
-			labels: []string{value.Name},
+			value:  valueFn(&net[i]),
+			labels: []string{net[i].Name},
 		})
 	}
 	return values
@@ -695,7 +691,8 @@ func (c *CadvisorCollector) collectContainersInfo() {
 		log.WithError(err).Error("Couldn't get cAdvisor container stats")
 		return
 	}
-	for _, container := range containers {
+	for i := range containers {
+		container := containers[i]
 		dims := make(map[string]string)
 
 		image := container.Spec.Image
@@ -727,22 +724,23 @@ func (c *CadvisorCollector) collectContainersInfo() {
 		}
 
 		if container.Spec.HasCpu {
-			for _, cm := range c.containerSpecCPUMetrics {
-				for _, metricValue := range cm.getValues(&container) {
+			for i := range c.containerSpecCPUMetrics {
+				for _, metricValue := range c.containerSpecCPUMetrics[i].getValues(&container) {
 					newDims := copyDims(dims)
 
 					// Add extra dimensions
-					for i, label := range cm.extraLabels {
+					for i, label := range c.containerSpecCPUMetrics[i].extraLabels {
 						newDims[label] = metricValue.labels[i]
 					}
 
-					c.sendDatapoint(datapoint.New(cm.name, newDims, metricValue.value, cm.valueType, now))
+					c.sendDatapoint(datapoint.New(c.containerSpecCPUMetrics[i].name, newDims, metricValue.value, c.containerSpecCPUMetrics[i].valueType, now))
 				}
 			}
 		}
 
 		if container.Spec.HasMemory {
-			for _, cm := range c.containerSpecMemMetrics {
+			for i := range c.containerSpecMemMetrics {
+				cm := c.containerSpecMemMetrics[i]
 				for _, metricValue := range cm.getValues(&container) {
 					newDims := copyDims(dims)
 
