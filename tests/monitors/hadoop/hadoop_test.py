@@ -3,18 +3,17 @@ import string
 from functools import partial as p
 
 import pytest
-
+from tests.helpers.agent import Agent
 from tests.helpers.assertions import has_datapoint, has_datapoint_with_dim, http_status, tcp_socket_open
+from tests.helpers.kubernetes.utils import get_discovery_rule, run_k8s_monitors_test
 from tests.helpers.util import (
     container_ip,
+    get_monitor_dims_from_selfdescribe,
+    get_monitor_metrics_from_selfdescribe,
     print_lines,
-    run_agent,
     run_container,
     wait_for,
-    get_monitor_metrics_from_selfdescribe,
-    get_monitor_dims_from_selfdescribe,
 )
-from tests.helpers.kubernetes.utils import get_discovery_rule, run_k8s_monitors_test
 
 pytestmark = [pytest.mark.collectd, pytest.mark.hadoop, pytest.mark.monitor_with_endpoints]
 
@@ -81,12 +80,12 @@ def test_hadoop(version):
 
             # start the agent with hadoop config
             config = HADOOP_CONFIG.substitute(host=host, port=8088)
-            with run_agent(config) as [backend, _, _]:
+            with Agent.run(config) as agent:
                 assert wait_for(
-                    p(has_datapoint_with_dim, backend, "plugin", "apache_hadoop")
+                    p(has_datapoint_with_dim, agent.fake_services, "plugin", "apache_hadoop")
                 ), "Didn't get hadoop datapoints"
                 assert wait_for(
-                    p(has_datapoint, backend, "gauge.hadoop.cluster.metrics.active_nodes", {}, 1)
+                    p(has_datapoint, agent.fake_services, "gauge.hadoop.cluster.metrics.active_nodes", {}, 1)
                 ), "expected 1 hadoop worker node"
 
 

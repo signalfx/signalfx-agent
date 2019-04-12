@@ -11,22 +11,14 @@ from functools import partial as p
 import docker
 import requests
 import semver
+import tests.helpers.kubernetes.utils as k8s
 import yaml
 from kubernetes import config as kube_config
-
-import tests.helpers.kubernetes.utils as k8s
 from tests.helpers.assertions import container_cmd_exit_0, tcp_socket_open
+from tests.helpers.fake_backend import start as start_fake_backend
 from tests.helpers.formatting import print_dp_or_event
 from tests.helpers.kubernetes.agent import Agent
-from tests.helpers.util import (
-    container_ip,
-    fake_backend,
-    get_docker_client,
-    get_host_ip,
-    retry,
-    wait_for,
-    TEST_SERVICES_DIR,
-)
+from tests.helpers.util import TEST_SERVICES_DIR, container_ip, get_docker_client, get_host_ip, retry, wait_for
 from tests.packaging.common import get_container_file_content
 
 MINIKUBE_CONTAINER_NAME = "minikube"
@@ -380,7 +372,7 @@ class Minikube:  # pylint: disable=too-many-instance-attributes
 
         if not monitors:
             monitors = []
-        with fake_backend.start(ip_addr=get_host_ip()) as backend:
+        with start_fake_backend(ip_addr=get_host_ip()) as backend:
             options = dict(
                 image_name=agent_image["name"],
                 image_tag=agent_image["tag"],

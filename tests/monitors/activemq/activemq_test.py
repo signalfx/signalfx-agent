@@ -6,14 +6,13 @@ from functools import partial as p
 from textwrap import dedent
 
 import pytest
-
+from tests.helpers.agent import Agent
 from tests.helpers.assertions import any_metric_found, tcp_socket_open
 from tests.helpers.kubernetes.utils import get_discovery_rule, run_k8s_monitors_test
 from tests.helpers.util import (
     container_ip,
     get_monitor_dims_from_selfdescribe,
     get_monitor_metrics_from_selfdescribe,
-    run_agent,
     run_service,
     wait_for,
 )
@@ -36,9 +35,9 @@ def test_activemq():
         """
         )
         assert wait_for(p(tcp_socket_open, host, 1099), 60), "service didn't start"
-        with run_agent(config) as [backend, _, _]:
+        with Agent.run(config) as agent:
             metrics = get_monitor_metrics_from_selfdescribe("collectd/activemq")
-            assert wait_for(p(any_metric_found, backend, metrics)), "Didn't get activemq datapoints"
+            assert wait_for(p(any_metric_found, agent.fake_services, metrics)), "Didn't get activemq datapoints"
 
 
 @pytest.mark.k8s

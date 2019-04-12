@@ -8,8 +8,9 @@ from functools import partial as p
 from textwrap import dedent
 
 import requests
+from tests.helpers.agent import Agent
 from tests.helpers.assertions import has_datapoint, has_trace_span, tcp_port_open_locally
-from tests.helpers.util import REPO_ROOT_DIR, ensure_never, run_agent, wait_for
+from tests.helpers.util import REPO_ROOT_DIR, ensure_never, wait_for
 
 
 # Make this a function so it returns a fresh copy on each call
@@ -44,7 +45,7 @@ def test_tracing_output():
     Test that the basic trace writer and service tracker work
     """
     port = random.randint(5001, 20000)
-    with run_agent(
+    with Agent.run(
         dedent(
             f"""
         hostname: "testhost"
@@ -58,7 +59,7 @@ def test_tracing_output():
           - {{"#from": "{REPO_ROOT_DIR}/whitelist.json", flatten: true}}
     """
         )
-    ) as [backend, _, _]:
+    ) as agent:
         assert wait_for(p(tcp_port_open_locally, port)), "trace forwarder port never opened!"
         resp = requests.post(
             f"http://localhost:{port}/v1/trace",
@@ -68,14 +69,14 @@ def test_tracing_output():
 
         assert resp.status_code == 200
 
-        assert wait_for(p(has_trace_span, backend, tags={"env": "prod"})), "Didn't get span tag"
+        assert wait_for(p(has_trace_span, agent.fake_services, tags={"env": "prod"})), "Didn't get span tag"
 
-        assert wait_for(p(has_trace_span, backend, name="fetch")), "Didn't get span name"
+        assert wait_for(p(has_trace_span, agent.fake_services, name="fetch")), "Didn't get span name"
 
         assert wait_for(
             p(
                 has_datapoint,
-                backend,
+                agent.fake_services,
                 metric_name="sf.int.service.heartbeat",
                 dimensions={"sf_hasService": "myapp", "host": "testhost"},
             )
@@ -83,10 +84,10 @@ def test_tracing_output():
 
         # Service names expire after 5s in the config provided in this test
         time.sleep(8)
-        backend.reset_datapoints()
+        agent.fake_services.reset_datapoints()
 
         assert ensure_never(
-            p(has_datapoint, backend, metric_name="sf.int.service.heartbeat"), timeout_seconds=5
+            p(has_datapoint, agent.fake_services, metric_name="sf.int.service.heartbeat"), timeout_seconds=5
         ), "Got infra correlation metric when it should have been expired"
 
 
@@ -96,7 +97,7 @@ def test_tracing_load():
     correlation datapoint.
     """
     port = random.randint(5001, 20000)
-    with run_agent(
+    with Agent.run(
         dedent(
             f"""
         hostname: "testhost"
@@ -109,7 +110,7 @@ def test_tracing_load():
             listenAddress: localhost:{port}
     """
         )
-    ) as [backend, _, _]:
+    ) as agent:
         assert wait_for(p(tcp_port_open_locally, port)), "trace forwarder port never opened!"
         for i in range(0, 100):
             spans = _test_trace()
@@ -127,7 +128,7 @@ def test_tracing_load():
             assert wait_for(
                 p(
                     has_datapoint,
-                    backend,
+                    agent.fake_services,
                     metric_name="sf.int.service.heartbeat",
                     dimensions={"sf_hasService": f"myapp-{i}", "host": "testhost"},
                 )
@@ -136,15 +137,15 @@ def test_tracing_load():
             assert wait_for(
                 p(
                     has_datapoint,
-                    backend,
+                    agent.fake_services,
                     metric_name="sf.int.service.heartbeat",
                     dimensions={"sf_hasService": f"file-server-{i}", "host": "testhost"},
                 )
             ), "Didn't get host correlation datapoint"
 
         time.sleep(10)
-        backend.reset_datapoints()
+        agent.fake_services.reset_datapoints()
 
         assert ensure_never(
-            p(has_datapoint, backend, metric_name="sf.int.service.heartbeat"), timeout_seconds=5
+            p(has_datapoint, agent.fake_services, metric_name="sf.int.service.heartbeat"), timeout_seconds=5
         ), "Got infra correlation metric when it should have been expired"

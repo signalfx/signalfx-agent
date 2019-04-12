@@ -1,5 +1,6 @@
+from tests.helpers.agent import Agent
 from tests.helpers.assertions import has_log_message
-from tests.helpers.util import run_agent, wait_for
+from tests.helpers.util import wait_for
 
 CONFIG = """
 monitors:
@@ -9,7 +10,7 @@ monitors:
 
 
 def test_validation_required_log_output():
-    with run_agent(CONFIG) as [_, get_output, _]:
+    with Agent.run(CONFIG) as agent:
         assert wait_for(
-            lambda: has_log_message(get_output(), "error", "Validation error in field 'port': required")
+            lambda: has_log_message(agent.output, "error", "Validation error in field 'port': required")
         ), "Didn't get validation error message"
