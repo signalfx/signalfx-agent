@@ -2,9 +2,9 @@ from functools import partial as p
 from textwrap import dedent
 
 import pytest
-
+from tests.helpers.agent import Agent
 from tests.helpers.assertions import has_datapoint_with_dim, http_status, tcp_socket_open
-from tests.helpers.util import container_ip, run_agent, run_container, wait_for
+from tests.helpers.util import container_ip, run_container, wait_for
 
 pytestmark = [pytest.mark.collectd, pytest.mark.marathon, pytest.mark.monitor_with_endpoints]
 
@@ -33,5 +33,7 @@ def test_marathon(marathon_image):
                 p(http_status, url="http://{0}:8080/v2/info".format(host), status=[200]), 120
             ), "service didn't start"
 
-            with run_agent(config) as [backend, _, _]:
-                assert wait_for(p(has_datapoint_with_dim, backend, "plugin", "marathon")), "didn't get datapoints"
+            with Agent.run(config) as agent:
+                assert wait_for(
+                    p(has_datapoint_with_dim, agent.fake_services, "plugin", "marathon")
+                ), "didn't get datapoints"

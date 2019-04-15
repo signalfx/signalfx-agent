@@ -1,15 +1,15 @@
-from functools import partial as p
-import pytest
 import string
 import tempfile
+from functools import partial as p
 
-from tests.helpers.util import wait_for, run_agent
+import pytest
+from tests.helpers.agent import Agent
 from tests.helpers.assertions import has_datapoint_with_dim
-
+from tests.helpers.util import wait_for
 
 pytestmark = [pytest.mark.windows, pytest.mark.tail, pytest.mark.telegraf]
 
-monitor_config = string.Template(
+MONITOR_CONFIG = string.Template(
     """
 monitors:
   - type: telegraf/tail
@@ -24,19 +24,19 @@ monitors:
 
 
 def test_tail():
-    with tempfile.NamedTemporaryFile("w+b") as f:
-        config = monitor_config.substitute(file=f.name)
-        f.write(b"disk,customtag1=foo bytes=1024\n")
-        f.flush()
-        with run_agent(config) as [backend, _, _]:
+    with tempfile.NamedTemporaryFile("w+b") as tmpfile:
+        config = MONITOR_CONFIG.substitute(file=tmpfile.name)
+        tmpfile.write(b"disk,customtag1=foo bytes=1024\n")
+        tmpfile.flush()
+        with Agent.run(config) as agent:
             assert wait_for(
-                p(has_datapoint_with_dim, backend, "customtag1", "foo")
+                p(has_datapoint_with_dim, agent.fake_services, "customtag1", "foo")
             ), "didn't get datapoint written before startup"
-            f.write(b"mem,customtag2=foo2 bytes=1024\n")
-            f.flush()
+            tmpfile.write(b"mem,customtag2=foo2 bytes=1024\n")
+            tmpfile.flush()
             assert wait_for(
-                p(has_datapoint_with_dim, backend, "customtag2", "foo2")
+                p(has_datapoint_with_dim, agent.fake_services, "customtag2", "foo2")
             ), "didn't get datapoint written after startup"
             assert wait_for(
-                p(has_datapoint_with_dim, backend, "plugin", "telegraf-tail")
+                p(has_datapoint_with_dim, agent.fake_services, "plugin", "telegraf-tail")
             ), "didn't get datapoint with expected plugin dimension"
