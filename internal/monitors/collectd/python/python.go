@@ -62,9 +62,9 @@ type Config struct {
 	ModulePaths []string `yaml:"modulePaths" json:"modulePaths"`
 	// This is a yaml form of the collectd config.
 	PluginConfig map[string]interface{} `yaml:"pluginConfig" json:"pluginConfig" neverLog:"true"`
-	// A set of paths to [types.db files](https://collectd.org/documentation/manpages/types.db.5.shtml)
+	// A set of paths to [../types.db files](https://collectd.org/documentation/manpages/types.db.5.shtml)
 	// that are needed by your plugin.  If not specified, the runner will use
-	// the global collectd types.db file.
+	// the global collectd ../types.db file.
 	TypesDBPaths []string `yaml:"typesDBPaths" json:"typesDBPaths"`
 }
 
@@ -85,7 +85,7 @@ func (m *PyMonitor) Configure(conf PyConfig) error {
 	// get the python config from the supplied config
 	pyconf := conf.PythonConfig()
 	if len(pyconf.TypesDBPaths) == 0 {
-		pyconf.TypesDBPaths = append(pyconf.TypesDBPaths, collectd.MakePath("types.db"))
+		pyconf.TypesDBPaths = append(pyconf.TypesDBPaths, collectd.DefaultTypesDBPath())
 	}
 
 	for k := range pyconf.PluginConfig {

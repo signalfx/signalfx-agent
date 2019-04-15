@@ -101,8 +101,8 @@ function bundle (
         if ($lastexitcode -ne 0){ throw }
     }
 
-    if (($DOWNLOAD_COLLECTD_PLUGINS -Or !(Test-Path -Path "$buildDir\plugins")) -And !$ONLY_BUILD_AGENT) {
-        Remove-Item -Recurse -Force "$buildDir\plugins\collectd" -ErrorAction Ignore
+    if (($DOWNLOAD_COLLECTD_PLUGINS -Or !(Test-Path -Path "$buildDir\collectd-python")) -And !$ONLY_BUILD_AGENT) {
+        Remove-Item -Recurse -Force "$buildDir\collectd-python" -ErrorAction Ignore
         bundle_python_runner -buildDir "$buildDir"
         if ($lastexitcode -ne 0){ throw }
         get_collectd_plugins -buildDir "$buildDir"
@@ -124,8 +124,8 @@ function bundle (
     copy_default_config -buildDir "$buildDir" -AGENT_NAME "$AGENT_NAME"
     # copy python into agent directory
     Copy-Item -Path "$buildDir\python" -Destination "$buildDir\$AGENT_NAME\python" -recurse -Force
-    # copy plugins into agent directory
-    Copy-Item -Path "$buildDir\plugins" -Destination "$buildDir\$AGENT_NAME\plugins" -recurse -Force
+    # copy Python plugins into agent directory
+    Copy-Item -Path "$buildDir\collectd-python" -Destination "$buildDir\$AGENT_NAME\collectd-python" -recurse -Force
     # copy types.db file into agent directory
     copy_types_db -collectdCommit $COLLECTD_COMMIT -buildDir "$buildDir" -agentName "$AGENT_NAME"
 

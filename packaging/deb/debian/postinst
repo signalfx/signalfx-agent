@@ -19,9 +19,14 @@ set -e
 
 case "$1" in
     configure)
+        bundle_dir=/usr/lib/signalfx-agent
         getent passwd signalfx-agent >/dev/null || \
-          useradd --system --home-dir /usr/lib/signalfx-agent --no-create-home --shell /sbin/nologin signalfx-agent
-        setcap CAP_SYS_PTRACE,CAP_DAC_READ_SEARCH=+eip /usr/lib/signalfx-agent/bin/signalfx-agent
+          useradd --system --home-dir $bundle_dir --no-create-home --shell /sbin/nologin signalfx-agent
+        setcap CAP_SYS_PTRACE,CAP_DAC_READ_SEARCH=+eip $bundle_dir/bin/signalfx-agent
+        
+        # Get the binaries' interpreter patched properly
+        ${bundle_dir}/bin/patch-interpreter ${bundle_dir}
+
         echo "The SignalFx agent has been successfully installed."
         echo "If you do not already have a access token configured, please add it to /etc/signalfx/agent.yaml and then start the agent."
     ;;

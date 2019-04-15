@@ -58,8 +58,14 @@ func InjectTemplateFuncs(tmpl *template.Template) *template.Template {
 					"Platform": runtime.GOOS,
 				}
 			},
+			"bundleDir": func() string {
+				return MainInstance().BundleDir()
+			},
 			"pluginRoot": func() string {
-				return MainInstance().PluginDir()
+				return filepath.Join(MainInstance().BundleDir(), "lib/collectd")
+			},
+			"pythonPluginRoot": func() string {
+				return filepath.Join(MainInstance().BundleDir(), "collectd-python")
 			},
 			"withDefault": func(value interface{}, def interface{}) interface{} {
 				v := reflect.ValueOf(value)

@@ -1,5 +1,7 @@
 %global __os_install_post %{nil}
 
+%global bundle_dir /usr/lib/signalfx-agent
+
 Name: signalfx-agent
 Version: %{_version}
 Release: %{_release}
@@ -25,11 +27,11 @@ Provides: signalfx-agent
 
 %install
 
-install -d -m 755 $RPM_BUILD_ROOT/usr/lib/signalfx-agent
-cp -a %{_sourcedir}/signalfx-agent/* $RPM_BUILD_ROOT/usr/lib/signalfx-agent/
+install -d -m 755 $RPM_BUILD_ROOT%{bundle_dir}
+cp -a %{_sourcedir}/signalfx-agent/* $RPM_BUILD_ROOT%{bundle_dir}
 
 install -d -m 755 $RPM_BUILD_ROOT/%{_bindir}
-ln -sf /usr/lib/signalfx-agent/bin/signalfx-agent $RPM_BUILD_ROOT/%{_bindir}/signalfx-agent
+ln -sf %{bundle_dir}/bin/signalfx-agent $RPM_BUILD_ROOT/%{_bindir}/signalfx-agent
 
 install -d $RPM_BUILD_ROOT/%{_unitdir}
 install -p -m 644 %{_sourcedir}/systemd/signalfx-agent.service $RPM_BUILD_ROOT/%{_unitdir}/signalfx-agent.service
@@ -47,7 +49,7 @@ install -p -m 644 %{_sourcedir}/signalfx-agent.1 $RPM_BUILD_ROOT/%{_mandir}/man1
 %files
 
 %config(noreplace) /etc/signalfx/agent.yaml
-/usr/lib/signalfx-agent
+%{bundle_dir}
 /%{_unitdir}/signalfx-agent.service
 /%{_bindir}/signalfx-agent
 /%{_tmpfilesdir}/signalfx-agent.conf
@@ -56,7 +58,7 @@ install -p -m 644 %{_sourcedir}/signalfx-agent.1 $RPM_BUILD_ROOT/%{_mandir}/man1
 
 %pre
 getent passwd signalfx-agent >/dev/null || \
-  useradd --system --home-dir /usr/lib/signalfx-agent --no-create-home --shell /sbin/nologin signalfx-agent
+  useradd --system --home-dir %{bundle_dir} --no-create-home --shell /sbin/nologin signalfx-agent
 
 %post
 if [ $1 -ge 1 ] ; then
@@ -66,7 +68,8 @@ if [ $1 -ge 1 ] ; then
   fi
 fi
 %tmpfiles_create %{_tmpfilesdir}/signalfx-agent.conf
-setcap CAP_SYS_PTRACE,CAP_DAC_READ_SEARCH=+eip /usr/lib/signalfx-agent/bin/signalfx-agent
+setcap CAP_SYS_PTRACE,CAP_DAC_READ_SEARCH=+eip %{bundle_dir}/bin/signalfx-agent
+%{bundle_dir}/bin/patch-interpreter %{bundle_dir}
 
 %preun
 if command -v systemctl; then

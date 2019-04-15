@@ -104,12 +104,12 @@ type PyMonitor struct {
 func (m *PyMonitor) Configure(conf *Config) error {
 	runtimeConf := m.DefaultRuntimeConfig()
 	if conf.PythonBinary != "" {
-		runtimeConf.PythonBinary = []string{conf.PythonBinary}
+		runtimeConf.PythonBinary = conf.PythonBinary
 		runtimeConf.PythonEnv = os.Environ()
 	} else {
 		// Pass down the default runtime binary to the Python script if it
 		// needs it
-		conf.PythonBinary = strings.Join(runtimeConf.PythonBinary, " ")
+		conf.PythonBinary = runtimeConf.PythonBinary
 	}
 	if len(conf.PythonPath) > 0 {
 		runtimeConf.PythonEnv = append(runtimeConf.PythonEnv, "PYTHONPATH="+strings.Join(conf.PythonPath, ":"))

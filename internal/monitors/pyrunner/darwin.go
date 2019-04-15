@@ -16,13 +16,12 @@ func procAttrs() *syscall.SysProcAttr {
 	return &syscall.SysProcAttr{}
 }
 
-func pythonBinaryExecutable() string {
-	return filepath.Join(os.Getenv(constants.BundleDirEnvVar), "lib64/ld-linux-x86-64.so.2")
+func defaultPythonBinaryExecutable() string {
+	return filepath.Join(os.Getenv(constants.BundleDirEnvVar), "bin/python")
 }
 
-func pythonBinaryArgs(pkgName string) []string {
+func defaultPythonBinaryArgs(pkgName string) []string {
 	return []string{
-		filepath.Join(os.Getenv(constants.BundleDirEnvVar), "bin/python"),
 		"-u",
 		"-m",
 		pkgName,
