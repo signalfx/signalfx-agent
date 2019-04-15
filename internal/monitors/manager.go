@@ -312,9 +312,7 @@ func (mm *MonitorManager) findConfigForMonitorAndRun(endpoint services.Endpoint)
 	}
 }
 
-func buildFilterSet(metadata *Metadata, coreConfig *config.MonitorConfig) (
-	filterSet *dpfilters.FilterSet, enabledMetrics []string, err error) {
-
+func buildFilterSet(metadata *Metadata, coreConfig *config.MonitorConfig) (*dpfilters.FilterSet, []string, error) {
 	oldFilter, err := coreConfig.OldFilterSet()
 	if err != nil {
 		return nil, nil, err
@@ -326,6 +324,7 @@ func buildFilterSet(metadata *Metadata, coreConfig *config.MonitorConfig) (
 	}
 
 	excludeFilters := []dpfilters.DatapointFilter{oldFilter, newFilter}
+	var enabledMetrics []string
 
 	if !metadata.SendAll {
 		// Make a copy of extra metrics from config so we don't alter what the user configured.
@@ -355,11 +354,9 @@ func buildFilterSet(metadata *Metadata, coreConfig *config.MonitorConfig) (
 		}
 	}
 
-	filterSet = &dpfilters.FilterSet{
+	return &dpfilters.FilterSet{
 		ExcludeFilters: excludeFilters,
-	}
-
-	return
+	}, enabledMetrics, nil
 }
 
 // endpoint may be nil for static monitors
