@@ -29,8 +29,10 @@ jobs:
     vmImage: 'vs2015-win2012r2'
   steps:
   - template: 'templates/install-go.yml'
-  - powershell: 'powershell -command "& { . ./scripts/windows/make.ps1; vet }"'
+  - powershell: |
+      & { . ./scripts/windows/make.ps1; vet }
     displayName: 'Run go vet'
+    ignoreLASTEXITCODE: true
 - job: 'win_go_lint'
   pool:
     vmImage: 'vs2015-win2012r2'
@@ -38,7 +40,8 @@ jobs:
   - template: 'templates/install-go.yml'
     parameters:
       packages: 'golang.org/x/lint/golint'
-  - powershell: 'powershell -command "& { . ./scripts/windows/make.ps1; lint }"'
+  - powershell: |
+      & { . ./scripts/windows/make.ps1; lint }
     displayName: 'Run golint'
 - job: 'win_go_build'
   pool:
@@ -51,7 +54,7 @@ jobs:
       } else {
           $env:AGENT_VERSION = "$(Build.SourceVersion)"
       }
-      powershell -command "& { . ./scripts/windows/make.ps1; signalfx-agent }"
+      & { . ./scripts/windows/make.ps1; signalfx-agent }
     displayName: 'Run go build'
   - task: PublishBuildArtifacts@1
     inputs:
@@ -64,8 +67,10 @@ jobs:
   - template: 'templates/install-go.yml'
     parameters:
       packages: 'github.com/tebeka/go2xunit'
-  - powershell: 'powershell -command "& { . ./scripts/windows/make.ps1; unit_test }"'
+  - powershell: |
+      & { . ./scripts/windows/make.ps1; unit_test }
     displayName: 'Run go test'
+    ignoreLASTEXITCODE: true
   - task: PublishTestResults@2
     inputs:
       searchFolder: '$(Build.SourcesDirectory)'
@@ -86,7 +91,7 @@ jobs:
       } else {
           $env:AGENT_VERSION = "$(Build.SourceVersion)"
       }
-      powershell -command "& { . ./scripts/windows/make.ps1; bundle }"
+      & { . ./scripts/windows/make.ps1; bundle }
     displayName: 'Build bundle'
   - task: CopyFiles@2
     inputs:
