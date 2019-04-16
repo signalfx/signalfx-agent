@@ -12,8 +12,8 @@ are not available on Windows.
  - [Installation](#installation)
  - [Confirmation](#confirmation)
  - [Troubleshooting](#troubleshooting)
- - [What's Next](#whatsnext)
- - [Other methods of Installation](#othermethodsofinstallation)
+ - [What's Next](#what)
+ - [Other methods of Installation](#other-methods)
  
 
 ## Installation
