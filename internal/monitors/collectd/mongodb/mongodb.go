@@ -25,18 +25,20 @@ func init() {
 
 // Config is the monitor-specific config with the generic config embedded
 type Config struct {
-	config.MonitorConfig   `yaml:",inline" acceptsEndpoints:"true"`
-	pyConf                 *python.Config
-	Host                   string   `yaml:"host" validate:"required"`
-	Port                   uint16   `yaml:"port" validate:"required"`
-	Databases              []string `yaml:"databases" validate:"required"`
-	Username               string   `yaml:"username"`
-	Password               string   `yaml:"password" neverLog:"true"`
-	UseTLS                 *bool    `yaml:"useTLS"`
-	CACerts                string   `yaml:"caCerts"`
-	TLSClientCert          string   `yaml:"tlsClientCert"`
-	TLSClientKey           string   `yaml:"tlsClientKey"`
-	TLSClientKeyPassPhrase string   `yaml:"tlsClientKeyPassPhrase"`
+	config.MonitorConfig     `yaml:",inline" acceptsEndpoints:"true"`
+	pyConf                   *python.Config
+	Host                     string   `yaml:"host" validate:"required"`
+	Port                     uint16   `yaml:"port" validate:"required"`
+	Databases                []string `yaml:"databases" validate:"required"`
+	Username                 string   `yaml:"username"`
+	Password                 string   `yaml:"password" neverLog:"true"`
+	UseTLS                   *bool    `yaml:"useTLS"`
+	CACerts                  string   `yaml:"caCerts"`
+	TLSClientCert            string   `yaml:"tlsClientCert"`
+	TLSClientKey             string   `yaml:"tlsClientKey"`
+	TLSClientKeyPassPhrase   string   `yaml:"tlsClientKeyPassPhrase"`
+	SendCollectionMetrics    *bool    `yaml:"sendCollectionMetrics"`
+	SendCollectionTopMetrics *bool    `yaml:"sendCollectionTopMetrics"`
 }
 
 // PythonConfig returns the embedded python.Config struct from the interface
@@ -64,19 +66,21 @@ func (m *Monitor) Configure(conf *Config) error {
 		Host:          conf.Host,
 		Port:          conf.Port,
 		ModuleName:    "mongodb",
-		ModulePaths:   []string{collectd.MakePath("mongodb")},
-		TypesDBPaths:  []string{collectd.MakePath("types.db")},
+		ModulePaths:   []string{collectd.MakePythonPluginPath("mongodb")},
+		TypesDBPaths:  []string{collectd.DefaultTypesDBPath()},
 		PluginConfig: map[string]interface{}{
-			"Host":                   conf.Host,
-			"Port":                   conf.Port,
-			"Database":               conf.Databases,
-			"UseTLS":                 conf.UseTLS,
-			"User":                   conf.Username,
-			"Password":               conf.Password,
-			"CACerts":                conf.CACerts,
-			"TLSClientCert":          conf.TLSClientCert,
-			"TLSClientKey":           conf.TLSClientKey,
-			"TLSClientKeyPassphrase": conf.TLSClientKeyPassPhrase,
+			"Host":                     conf.Host,
+			"Port":                     conf.Port,
+			"Database":                 conf.Databases,
+			"UseTLS":                   conf.UseTLS,
+			"User":                     conf.Username,
+			"Password":                 conf.Password,
+			"CACerts":                  conf.CACerts,
+			"TLSClientCert":            conf.TLSClientCert,
+			"TLSClientKey":             conf.TLSClientKey,
+			"TLSClientKeyPassphrase":   conf.TLSClientKeyPassPhrase,
+			"SendCollectionMetrics":    conf.SendCollectionMetrics,
+			"SendCollectionTopMetrics": conf.SendCollectionTopMetrics,
 		},
 	}
 

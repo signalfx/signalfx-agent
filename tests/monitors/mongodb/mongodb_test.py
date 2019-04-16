@@ -3,14 +3,13 @@ from functools import partial as p
 from textwrap import dedent
 
 import pytest
-
-from tests.helpers.assertions import has_datapoint_with_dim, tcp_socket_open
+from tests.helpers.agent import Agent
+from tests.helpers.assertions import has_datapoint, tcp_socket_open
 from tests.helpers.kubernetes.utils import get_discovery_rule, run_k8s_monitors_test
 from tests.helpers.util import (
     container_ip,
     get_monitor_dims_from_selfdescribe,
     get_monitor_metrics_from_selfdescribe,
-    run_agent,
     run_container,
     wait_for,
 )
@@ -32,8 +31,35 @@ def test_mongo():
         )
         assert wait_for(p(tcp_socket_open, host, 27017), 60), "service didn't start"
 
-        with run_agent(config) as [backend, _, _]:
-            assert wait_for(p(has_datapoint_with_dim, backend, "plugin", "mongo")), "Didn't get mongo datapoints"
+        with Agent.run(config) as agent:
+            assert wait_for(
+                p(has_datapoint, agent.fake_services, dimensions={"plugin": "mongo"})
+            ), "Didn't get mongo datapoints"
+
+
+def test_mongo_enhanced_metrics():
+    with run_container("mongo:3.6") as mongo_cont:
+        host = container_ip(mongo_cont)
+        config = dedent(
+            f"""
+            monitors:
+              - type: collectd/mongodb
+                host: {host}
+                port: 27017
+                databases: [admin]
+                sendCollectionMetrics: true
+                sendCollectionTopMetrics: true
+            """
+        )
+        assert wait_for(p(tcp_socket_open, host, 27017), 60), "service didn't start"
+
+        with Agent.run(config) as agent:
+            assert wait_for(
+                p(has_datapoint, agent.fake_services, metric_name="gauge.collection.size"), 60
+            ), "Did not get datapoint from SendCollectionMetrics config"
+            assert wait_for(
+                p(has_datapoint, agent.fake_services, metric_name="counter.collection.commandsTime"), 60
+            ), "Did not get datapoint from SendCollectionTopMetrics config"
 
 
 @pytest.mark.k8s

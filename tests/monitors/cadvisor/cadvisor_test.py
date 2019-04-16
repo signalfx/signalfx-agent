@@ -6,16 +6,15 @@ from textwrap import dedent
 
 import pytest
 import semver
-
+from tests.helpers.agent import Agent
 from tests.helpers.assertions import any_metric_found, tcp_socket_open
 from tests.helpers.kubernetes.utils import run_k8s_monitors_test
 from tests.helpers.util import (
+    container_ip,
     get_monitor_dims_from_selfdescribe,
     get_monitor_metrics_from_selfdescribe,
     run_container,
-    container_ip,
     wait_for,
-    run_agent,
 )
 
 pytestmark = [pytest.mark.cadvisor, pytest.mark.monitor_without_endpoints]
@@ -41,9 +40,11 @@ def test_cadvisor():
         """
         )
         assert wait_for(p(tcp_socket_open, host, 8080), 60), "service didn't start"
-        with run_agent(config) as [backend, _, _]:
+        with Agent.run(config) as agent:
             expected_metrics = get_monitor_metrics_from_selfdescribe("cadvisor")
-            assert wait_for(p(any_metric_found, backend, expected_metrics)), "Didn't get cadvisor datapoints"
+            assert wait_for(
+                p(any_metric_found, agent.fake_services, expected_metrics)
+            ), "Didn't get cadvisor datapoints"
 
 
 @pytest.mark.k8s

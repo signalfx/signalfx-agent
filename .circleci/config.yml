@@ -103,6 +103,7 @@ commands:
             PYTEST_OPTIONS: "--verbose --junitxml=~/testresults/results.xml --html=~/testresults/results.html --self-contained-html"
             TESTS_DIR: "<< parameters.tests_dir >>"
           command: |
+            set -x
             [ -f ~/.skip ] && echo "Found ~/.skip, skipping tests!" && exit 0
             [ -d "$TESTS_DIR" ] || (echo "Directory '$TESTS_DIR' not found!" && exit 1)
             [ -n "$TEST_SERVICES_DIR" ] || export TEST_SERVICES_DIR="$(pwd)/test-services"
@@ -238,6 +239,7 @@ jobs:
             mkdir -p "$BUNDLE_DIR"
             cid=$(docker create quay.io/signalfx/signalfx-agent-dev:latest true)
             docker export $cid | tar -C "$BUNDLE_DIR" -xf -
+            $BUNDLE_DIR/bin/patch-interpreter $BUNDLE_DIR
             docker rm -fv $cid
             [ -f "$AGENT_BIN" ] || (echo "$AGENT_BIN not found!" && exit 1)
             if ! scripts/changes-include-dir $(find . -iname "*devstack*" -o -iname "*openstack*" | sed 's|^\./||' | grep -v '^docs/'); then
@@ -271,6 +273,7 @@ jobs:
             mkdir -p "$BUNDLE_DIR"
             cid=$(docker create quay.io/signalfx/signalfx-agent-dev:latest true)
             docker export $cid | tar -C "$BUNDLE_DIR" -xf -
+            $BUNDLE_DIR/bin/patch-interpreter $BUNDLE_DIR
             docker rm -fv $cid
             [ -f "$AGENT_BIN" ] || (echo "$AGENT_BIN not found!" && exit 1)
             echo "export BUNDLE_DIR='$BUNDLE_DIR'" >> $BASH_ENV

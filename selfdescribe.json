@@ -2815,7 +2815,7 @@
       "monitorType": "collectd/custom",
       "sendAll": false,
       "dimensions": null,
-      "doc": "This monitor lets you provide custom collectd\nconfiguration to be run by the managed collectd instance.  You can provide\nconfiguration for as many plugins as you want in a single instance of this\nmonitor configuration by either putting multiple `\u003cPlugin\u003e` blocks in a\nsingle `template` option, or specifying multiple `templates`.\n\nNote that a distinct instance of collectd is run for each instance of this\nmonitor, so it is more efficient to group plugin configurations into a\nsingle monitor configuration (either in one big `template` text blob, or\nsplit into multiple `templates`).  You should not group configurations if\nusing a discoveryRule since that would result in duplicate config for each\ninstance of the service endpoint discovered.\n\nYou can also use your own Python plugins in conjunction with the\n`ModulePath` option in\n[collectd-python](https://collectd.org/documentation/manpages/collectd-python.5.shtml).\nIf your Python plugin has dependencies of its own, you can specify the path\nto them by specifying multiple `ModulePath` options with those paths.\n\nHere is an example of a configuration with a custom Python plugin:\n\n```yaml\n  - type: collectd/custom\n    discoveryRule: container_image =~ \"myservice\"\n    template: |\n      LoadPlugin \"python\"\n      \u003cPlugin python\u003e\n        ModulePath \"/usr/lib/python2.7/dist-packages/health_checker\"\n        Import \"health_checker\"\n        \u003cModule health_checker\u003e\n          URL \"http://{{.Host}}:{{.Port}}\"\n          JSONKey \"isRunning\"\n          JSONVal \"1\"\n        \u003c/Module\u003e\n      \u003c/Plugin\u003e\n```\n\nWe have many collectd plugins included in the image that are not exposed as\nmonitors.  You can see the plugins in the `\u003cAGENT_BUNDLE\u003e/plugins/collectd`\ndirectory, where `\u003cAGENT_BUNDLE\u003e` is blank in the containerized version, and\nis normally `/usr/lib/signalfx-agent` in the non-containerized agent.\n",
+      "doc": "This monitor lets you provide custom collectd\nconfiguration to be run by the managed collectd instance.  You can provide\nconfiguration for as many plugins as you want in a single instance of this\nmonitor configuration by either putting multiple `\u003cPlugin\u003e` blocks in a\nsingle `template` option, or specifying multiple `templates`.\n\nNote that a distinct instance of collectd is run for each instance of this\nmonitor, so it is more efficient to group plugin configurations into a\nsingle monitor configuration (either in one big `template` text blob, or\nsplit into multiple `templates`).  You should not group configurations if\nusing a discoveryRule since that would result in duplicate config for each\ninstance of the service endpoint discovered.\n\nYou can also use your own Python plugins in conjunction with the\n`ModulePath` option in\n[collectd-python](https://collectd.org/documentation/manpages/collectd-python.5.shtml).\nIf your Python plugin has dependencies of its own, you can specify the path\nto them by specifying multiple `ModulePath` options with those paths.\n\nHere is an example of a configuration with a custom Python plugin:\n\n```yaml\n  - type: collectd/custom\n    discoveryRule: container_image =~ \"myservice\"\n    template: |\n      LoadPlugin \"python\"\n      \u003cPlugin python\u003e\n        ModulePath \"/usr/lib/python2.7/dist-packages/health_checker\"\n        Import \"health_checker\"\n        \u003cModule health_checker\u003e\n          URL \"http://{{.Host}}:{{.Port}}\"\n          JSONKey \"isRunning\"\n          JSONVal \"1\"\n        \u003c/Module\u003e\n      \u003c/Plugin\u003e\n```\n\nWe have many collectd plugins included in the image that are not exposed as\nmonitors.  You can see the plugins in the `\u003cAGENT_BUNDLE\u003e/lib/collectd`\ndirectory, where `\u003cAGENT_BUNDLE\u003e` is the root of the filesystem in the\ncontainerized version, and is normally `/usr/lib/signalfx-agent` in the\nnon-containerized agent.\n",
       "groups": null,
       "metrics": null,
       "properties": null,
@@ -7678,6 +7678,22 @@
             "required": false,
             "type": "string",
             "elementKind": ""
+          },
+          {
+            "yamlName": "sendCollectionMetrics",
+            "doc": "",
+            "default": "false",
+            "required": false,
+            "type": "bool",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "sendCollectionTopMetrics",
+            "doc": "",
+            "default": "false",
+            "required": false,
+            "type": "bool",
+            "elementKind": ""
           }
         ]
       },
@@ -10025,7 +10041,7 @@
           },
           {
             "yamlName": "typesDBPaths",
-            "doc": "A set of paths to [types.db files](https://collectd.org/documentation/manpages/types.db.5.shtml) that are needed by your plugin.  If not specified, the runner will use the global collectd types.db file.",
+            "doc": "A set of paths to [../types.db files](https://collectd.org/documentation/manpages/types.db.5.shtml) that are needed by your plugin.  If not specified, the runner will use the global collectd ../types.db file.",
             "default": null,
             "required": false,
             "type": "slice",
@@ -18999,7 +19015,7 @@
           "description": "For table metrics, the tablespace in which the table belongs, if not null."
         }
       ],
-      "doc": "This monitor pulls metrics from all PostgreSQL databases from a specific\nPostgres server instance.  It pulls basic information that is applicable\nto any database.\n\n## Metrics about Queries\n\nIn order to get metrics about query execution time, you must enable the\n`pg_stat_statements` extension.  This extension must be specified in the\n`shared_preload_libraries` config option in the main PostgreSQL\nconfiguration at server start up.  Then the extension must be enabled for\neach database by running `CREATE EXTENSION IF NOT EXISTS\npg_stat_statements;` on each database.\n\nNote that in order to get consistent and accurate query execution time\nmetrics, you must set the [pg_stat_statements.max config\noption](https://www.postgresql.org/docs/9.3/pgstatstatements.html#AEN160631)\nto larger than the number of distinct queries on the server.\n\nHere is a [sample configuration of Postgres to enable statement tracking](https://www.postgresql.org/docs/9.3/pgstatstatements.html#AEN160631).\n\nTested with PostgreSQL 9.2+.\n\nIf you want to collect additional metrics about PostgreSQL, use the [sql monitor](./sql.md).\n",
+      "doc": "This monitor pulls metrics from all PostgreSQL databases from a specific\nPostgres server instance.  It pulls basic information that is applicable\nto any database.\n\n## Metrics about Queries\n\nIn order to get metrics about query execution time, you must enable the\n`pg_stat_statements` extension.  This extension must be specified in the\n`shared_preload_libraries` config option in the main PostgreSQL\nconfiguration at server start up.  Then the extension must be enabled for\neach database by running `CREATE EXTENSION IF NOT EXISTS\npg_stat_statements;` on each database.\n\nNote that in order to get consistent and accurate query execution time\nmetrics, you must set the [pg_stat_statements.max config\noption](https://www.postgresql.org/docs/9.3/pgstatstatements.html#AEN160631)\nto larger than the number of distinct queries on the server.\n\nHere is a [sample configuration of Postgres to enable statement tracking](https://www.postgresql.org/docs/9.3/pgstatstatements.html#AEN160631).\n\nTested with PostgreSQL 9.2+.\n\nIf you want to collect additional metrics about PostgreSQL, use the [sql monitor](./sql.md).\n\n## Example Configuration\n\nThis example uses the [Vault remote config\nsource](https://github.com/signalfx/signalfx-agent/blob/master/docs/remote-config.md#nested-values-vault-only)\nto connect to PostgreSQL using the `params` map that allows you to pull\nout the username and password individually from Vault and interpolate\nthem into the `connectionString` config option.\n\n```\nmonitors:\n - type: postgresql\n   connectionString: 'sslmode=disable user={{.username}} password={{.password}}'\n   params: \u0026psqlParams\n     username: {\"#from\": \"vault:secret/my-database[username]\"}\n     password: {\"#from\": \"vault:secret/my-database[password]\"}\n   discoveryRule: 'container_image =~ \"postgres\" \u0026\u0026 port == 5432'\n\n # This monitor will monitor additional queries from PostgreSQL using the\n # provided SQL queries.\n - type: sql\n   dbDriver: postgres\n   connectionString: 'sslmode=disable user={{.username}} password={{.password}}'\n   # This is a YAML reference to avoid duplicating the above config.\n   params: *psqlParams\n   queries:\n     - query: 'SELECT COUNT(*) as count, country, status FROM customers GROUP BY country, status;'\n       metrics:\n         - metricName: \"customers\"\n           valueColumn: \"count\"\n           dimensionColumns: [\"country\", \"status\"]\n```\n",
       "groups": null,
       "metrics": [
         {
@@ -19124,6 +19140,14 @@
             "required": false,
             "type": "string",
             "elementKind": ""
+          },
+          {
+            "yamlName": "params",
+            "doc": "Parameters to the connection string that can be templated into the connection string with the syntax `{{.key}}`.",
+            "default": null,
+            "required": false,
+            "type": "map",
+            "elementKind": "string"
           },
           {
             "yamlName": "databases",
@@ -24289,7 +24313,7 @@
       "monitorType": "sql",
       "sendAll": false,
       "dimensions": null,
-      "doc": "Run arbitrary SQL queries against a relational database and use the results to generate dataponts.\n\nFor example, if you had a database table `customers` that looked like:\n\n| id | name       | country | status   |\n|----|------------|---------|----------|\n| 1  | Bill       | USA     | active   |\n| 2  | Mary       | USA     | inactive |\n| 3  | Joe        | USA     | active   |\n| 4  | Elizabeth  | Germany | active   |\n\nYou could use the following monitor config to generate metrics about active users and customer counts by country:\n\n```yaml\nmonitors:\n  - type: sql\n    host: localhost\n    port: 5432\n    dbDriver: postgres\n    # The `host` and `port` values from above (or provided through auto-discovery) should be interpolated\n    # to the connection string as appropriate for your database driver.\n    connectionString: 'host={{.host}} port={{.port}} dbname=main user=admin password=***** sslmode=disabled'\n    queries:\n      - query: 'SELECT COUNT(*) as count, country, status FROM customers GROUP BY country, status;'\n        metrics:\n          - metricName: \"customers\"\n            valueColumn: \"count\"\n            dimensionColumns: [\"country\", \"status\"]\n```\n\nThis would generate a series of timeseries, all with the metric name\n`customers` that includes a `county` and `status` dimension.  The value\nis the number of customers that belong to that combination of `country`\nand `status`.  You could also specify multiple `metrics` items to\ngenerate more than one metric from a single query.\n\n## Supported Drivers\n\nThe `dbDriver` config option must specify the database driver to use.\nThese are equivalent to the name of the Golang SQL driver used in the\nagent.  The `connectionString` option will be formatted according to the\ndriver that is going to receive it.  Here is a list of the drivers we\ncurrently support and documentation on the connection string:\n\n  - `postgres`: https://godoc.org/github.com/lib/pq#hdr-Connection_String_Parameters\n  - `mysql`: https://github.com/go-sql-driver/mysql#dsn-data-source-name\n  - `mssql`: https://github.com/denisenkom/go-mssqldb#connection-parameters-and-dsn\n",
+      "doc": "Run arbitrary SQL queries against a relational database and use the results to generate dataponts.\n\nFor example, if you had a database table `customers` that looked like:\n\n| id | name       | country | status   |\n|----|------------|---------|----------|\n| 1  | Bill       | USA     | active   |\n| 2  | Mary       | USA     | inactive |\n| 3  | Joe        | USA     | active   |\n| 4  | Elizabeth  | Germany | active   |\n\nYou could use the following monitor config to generate metrics about active users and customer counts by country:\n\n```yaml\nmonitors:\n  - type: sql\n    host: localhost\n    port: 5432\n    dbDriver: postgres\n    params:\n      user: admin\n      password: s3cr3t\n    # The `host` and `port` values from above (or provided through auto-discovery) should be interpolated\n    # to the connection string as appropriate for your database driver.\n    # Also, the values from the `params` config option above can be\n    # interpolated.\n    connectionString: 'host={{.host}} port={{.port}} dbname=main user={{.user}} password={{.password}} sslmode=disabled'\n    queries:\n      - query: 'SELECT COUNT(*) as count, country, status FROM customers GROUP BY country, status;'\n        metrics:\n          - metricName: \"customers\"\n            valueColumn: \"count\"\n            dimensionColumns: [\"country\", \"status\"]\n```\n\nThis would generate a series of timeseries, all with the metric name\n`customers` that includes a `county` and `status` dimension.  The value\nis the number of customers that belong to that combination of `country`\nand `status`.  You could also specify multiple `metrics` items to\ngenerate more than one metric from a single query.\n\n## Supported Drivers\n\nThe `dbDriver` config option must specify the database driver to use.\nThese are equivalent to the name of the Golang SQL driver used in the\nagent.  The `connectionString` option will be formatted according to the\ndriver that is going to receive it.  Here is a list of the drivers we\ncurrently support and documentation on the connection string:\n\n  - `postgres`: https://godoc.org/github.com/lib/pq#hdr-Connection_String_Parameters\n  - `mysql`: https://github.com/go-sql-driver/mysql#dsn-data-source-name\n  - `mssql`: https://github.com/denisenkom/go-mssqldb#connection-parameters-and-dsn\n\n## Parameterized Connection String\n\nThe `connectionString` config option acts as a template with a context\nconsisting of the variables: `host`, `port`, and all the values from\nthe `params` config option map.  You interpolate variables into it\nwith the Go template syntax `{{.varname}}` (see example config\nabove).\n",
       "groups": null,
       "metrics": null,
       "properties": null,
@@ -24314,6 +24338,14 @@
             "required": false,
             "type": "uint16",
             "elementKind": ""
+          },
+          {
+            "yamlName": "params",
+            "doc": "Parameters to the connectionString that can be templated into that option using Go template syntax (e.g. `{{.key}}`).",
+            "default": null,
+            "required": false,
+            "type": "map",
+            "elementKind": "string"
           },
           {
             "yamlName": "dbDriver",

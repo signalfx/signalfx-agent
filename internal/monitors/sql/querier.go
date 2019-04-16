@@ -88,7 +88,7 @@ func (q *querier) doQuery(ctx context.Context, database *sql.DB, output types.Ou
 			output.SendDatapoint(dps[i])
 		}
 	}
-	return nil
+	return rows.Close()
 }
 
 func (q *querier) convertCurrentRowToDatapoint(rows *sql.Rows) ([]*datapoint.Datapoint, error) {

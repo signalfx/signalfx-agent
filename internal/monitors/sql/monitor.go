@@ -62,6 +62,10 @@ type Config struct {
 	Host string `yaml:"host"`
 	Port uint16 `yaml:"port"`
 
+	// Parameters to the connectionString that can be templated into that option using
+	// Go template syntax (e.g. `{{.key}}`).
+	Params map[string]string `yaml:"params"`
+
 	// The database driver to use, valid values are `postgres` and `mysql`.
 	DBDriver string `yaml:"dbDriver"`
 	// A URL or simple option string used to connect to the database.
@@ -105,6 +109,10 @@ func (c *Config) renderedDataSource() (string, error) {
 	if err != nil {
 		return "", err
 	}
+	for k, v := range c.Params {
+		context[k] = v
+	}
+
 	return utils.RenderSimpleTemplate(c.ConnectionString, context)
 }
 

@@ -6,8 +6,9 @@ from functools import partial as p
 from textwrap import dedent
 
 import hvac
+from tests.helpers.agent import Agent
 from tests.helpers.assertions import has_datapoint, tcp_socket_open
-from tests.helpers.util import container_ip, run_agent, run_container, run_service, wait_for
+from tests.helpers.util import container_ip, run_container, run_service, wait_for
 
 AUDIT_PREFIX = "AUDIT: "
 
@@ -79,7 +80,7 @@ def test_basic_vault_config():
 
         vault_client.write("secret/data/appinfo", data={"env": "prod"})
         vault_client.write("kv/usernames", app="me")
-        with run_agent(
+        with Agent.run(
             dedent(
                 f"""
             intervalSeconds: 2
@@ -94,9 +95,9 @@ def test_basic_vault_config():
              - type: collectd/uptime
         """
             )
-        ) as [backend, _, _]:
-            assert wait_for(p(has_datapoint, backend, dimensions={"env": "prod"}))
-            assert wait_for(p(has_datapoint, backend, dimensions={"user": "me"}))
+        ) as agent:
+            assert wait_for(p(has_datapoint, agent.fake_services, dimensions={"env": "prod"}))
+            assert wait_for(p(has_datapoint, agent.fake_services, dimensions={"user": "me"}))
             assert sorted(audit_read_paths(get_audit_events())) == [
                 "kv/usernames",
                 "secret/data/appinfo",
@@ -108,7 +109,7 @@ def test_vault_nonrenewable_secret_refresh():
         vault_client.sys.enable_secrets_engine(backend_type="kv", options={"version": "1"})
 
         vault_client.write("kv/passwords", app="s3cr3t", ttl="10s")
-        with run_agent(
+        with Agent.run(
             dedent(
                 f"""
             intervalSeconds: 1
@@ -124,8 +125,8 @@ def test_vault_nonrenewable_secret_refresh():
                 - metricName: "!sfxagent.go_num_goroutine"
         """
             )
-        ) as [backend, _, _]:
-            assert wait_for(p(has_datapoint, backend, dimensions={"password": "s3cr3t"}))
+        ) as agent:
+            assert wait_for(p(has_datapoint, agent.fake_services, dimensions={"password": "s3cr3t"}))
             assert audit_read_paths(get_audit_events()) == ["kv/passwords"], "expected one read"
 
             # Renew time is 1/2 of the lease time of 10s
@@ -161,7 +162,7 @@ def test_vault_renewable_secret_refresh():
             max_ttl="24h",
         )
 
-        with run_agent(
+        with Agent.run(
             dedent(
                 f"""
             intervalSeconds: 1
@@ -181,8 +182,8 @@ def test_vault_renewable_secret_refresh():
                 - metricName: "!gauge.objects"
         """
             )
-        ) as [backend, _, _]:
-            assert wait_for(p(has_datapoint, backend, dimensions={"plugin": "mongo"}))
+        ) as agent:
+            assert wait_for(p(has_datapoint, agent.fake_services, dimensions={"plugin": "mongo"}))
             assert audit_read_paths(get_audit_events()) == ["database/creds/my-role"], "expected one read"
 
             time.sleep(10)
@@ -195,8 +196,10 @@ def test_vault_renewable_secret_refresh():
             for ren in renewals:
                 assert "database/creds/my-role" in ren, "expected renewal of right secret"
 
-            backend.reset_datapoints()
-            assert wait_for(p(has_datapoint, backend, dimensions={"plugin": "mongo"})), "plugin lost access to mongo"
+            agent.fake_services.reset_datapoints()
+            assert wait_for(
+                p(has_datapoint, agent.fake_services, dimensions={"plugin": "mongo"})
+            ), "plugin lost access to mongo"
 
 
 def test_vault_token_renewal():
@@ -207,7 +210,7 @@ def test_vault_token_renewal():
         new_token = vault_client.create_token(policies=["root"], renewable=True, ttl="12s")
 
         vault_client.write("secret/data/appinfo", data={"env": "prod"})
-        with run_agent(
+        with Agent.run(
             dedent(
                 f"""
             intervalSeconds: 2
@@ -221,8 +224,8 @@ def test_vault_token_renewal():
              - type: collectd/uptime
         """
             )
-        ) as [backend, _, _]:
-            assert wait_for(p(has_datapoint, backend, dimensions={"env": "prod"}))
+        ) as agent:
+            assert wait_for(p(has_datapoint, agent.fake_services, dimensions={"env": "prod"}))
             assert audit_read_paths(get_audit_events()) == ["secret/data/appinfo"], "expected one reads"
 
             assert audit_token_renewals(get_audit_events()) == [
@@ -247,7 +250,7 @@ def test_vault_kv_poll_refetch():
     """
     with run_vault() as [vault_client, get_audit_events]:
         vault_client.write("secret/data/app", data={"env": "dev"})
-        with run_agent(
+        with Agent.run(
             dedent(
                 f"""
             intervalSeconds: 2
@@ -262,13 +265,13 @@ def test_vault_kv_poll_refetch():
              - type: collectd/uptime
         """
             )
-        ) as [backend, _, _]:
-            assert wait_for(p(has_datapoint, backend, dimensions={"env": "dev"}))
+        ) as agent:
+            assert wait_for(p(has_datapoint, agent.fake_services, dimensions={"env": "dev"}))
 
             assert audit_read_paths(get_audit_events()) == ["secret/data/app"], "expected one read"
 
             vault_client.write("secret/data/app", data={"env": "prod"})
-            assert wait_for(p(has_datapoint, backend, dimensions={"env": "prod"}))
+            assert wait_for(p(has_datapoint, agent.fake_services, dimensions={"env": "prod"}))
 
             assert "secret/metadata/app" in audit_read_paths(get_audit_events())
 
@@ -310,7 +313,7 @@ def run_vault_iam_test(iam_config):
 
         vault_client.write("secret/data/app", data={"env": "dev"})
 
-        with run_agent(
+        with Agent.run(
             dedent(
                 f"""
             intervalSeconds: 1
@@ -325,8 +328,8 @@ def run_vault_iam_test(iam_config):
              - type: collectd/uptime
         """
             )
-        ) as [backend, _, _]:
-            assert wait_for(p(has_datapoint, backend, dimensions={"env": "dev"}), timeout_seconds=10)
+        ) as agent:
+            assert wait_for(p(has_datapoint, agent.fake_services, dimensions={"env": "dev"}), timeout_seconds=10)
 
 
 def test_vault_iam_token_with_explicit_credentials():

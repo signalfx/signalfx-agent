@@ -51,8 +51,8 @@ type Monitor struct {
 func (m *Monitor) Configure(conf *Config) error {
 	conf.pyConf = &python.Config{
 		ModuleName:    "openstack_metrics",
-		ModulePaths:   []string{collectd.MakePath("openstack")},
-		TypesDBPaths:  []string{collectd.MakePath("types.db")},
+		ModulePaths:   []string{collectd.MakePythonPluginPath("openstack")},
+		TypesDBPaths:  []string{collectd.DefaultTypesDBPath()},
 		MonitorConfig: conf.MonitorConfig,
 		PluginConfig: map[string]interface{}{
 			"AuthURL":         conf.AuthURL,

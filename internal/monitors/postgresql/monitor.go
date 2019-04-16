@@ -33,6 +33,9 @@ type Config struct {
 	// See
 	// https://godoc.org/github.com/lib/pq#hdr-Connection_String_Parameters.
 	ConnectionString string `yaml:"connectionString"`
+	// Parameters to the connection string that can be templated into the
+	// connection string with the syntax `{{.key}}`.
+	Params map[string]string `yaml:"params"`
 
 	// List of databases to send database-specific metrics about.  If omitted, metrics about all databases will be sent.  This is an [overridable filter](https://github.com/signalfx/signalfx-agent/blob/master/docs/filtering.md#overridable-filters).
 	Databases []string `yaml:"databases" default:"[\"*\"]"`
@@ -42,7 +45,7 @@ type Config struct {
 	DatabasePollIntervalSeconds int `yaml:"databasePollIntervalSeconds"`
 }
 
-func (c *Config) connStr() string {
+func (c *Config) connStr() (string, error) {
 	connStr := c.ConnectionString
 	if c.Host != "" {
 		connStr += " host=" + c.Host
@@ -51,7 +54,7 @@ func (c *Config) connStr() string {
 		connStr += fmt.Sprintf(" port=%d", c.Port)
 	}
 
-	return connStr
+	return utils.RenderSimpleTemplate(connStr, c.Params)
 }
 
 // Monitor that collects postgresql stats
@@ -74,8 +77,12 @@ func (m *Monitor) Configure(conf *Config) error {
 	m.conf = conf
 	m.ctx, m.cancel = context.WithCancel(context.Background())
 
-	var err error
-	m.database, err = dbsql.Open("postgres", conf.connStr()+" dbname=postgres")
+	connStr, err := conf.connStr()
+	if err != nil {
+		return fmt.Errorf("could not render connectionString template: %v", err)
+	}
+
+	m.database, err = dbsql.Open("postgres", connStr+" dbname=postgres")
 	if err != nil {
 		return err
 	}
@@ -159,7 +166,12 @@ func (m *Monitor) Configure(conf *Config) error {
 }
 
 func (m *Monitor) startMonitoringDatabase(name string) (*sql.Monitor, error) {
-	connStr := m.conf.connStr() + " dbname=" + name
+	connStr, err := m.conf.connStr()
+	if err != nil {
+		return nil, err
+	}
+
+	connStr += " dbname=" + name
 
 	sqlMon := &sql.Monitor{Output: m.Output.Copy()}
 	sqlMon.Output.AddExtraDimension("database", name)
@@ -186,15 +198,20 @@ func (m *Monitor) determineDatabases() ([]string, error) {
 		}
 		out = append(out, name)
 	}
-	return out, nil
+	return out, rows.Close()
 }
 
 func (m *Monitor) monitorServer(dbFilter []string) (*sql.Monitor, error) {
 	sqlMon := &sql.Monitor{Output: m.Output.Copy()}
 
+	connStr, err := m.conf.connStr()
+	if err != nil {
+		return nil, err
+	}
+
 	return sqlMon, sqlMon.Configure(&sql.Config{
 		MonitorConfig:    m.conf.MonitorConfig,
-		ConnectionString: m.conf.connStr() + " dbname=postgres",
+		ConnectionString: connStr + " dbname=postgres",
 		DBDriver:         "postgres",
 		Queries:          defaultServerQueries,
 	})
@@ -210,7 +227,7 @@ func (m *Monitor) Shutdown() {
 	}
 
 	if m.database != nil {
-		m.database.Close()
+		_ = m.database.Close()
 	}
 
 	for i := range m.monitoredDBs {

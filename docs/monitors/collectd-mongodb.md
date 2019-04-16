@@ -30,6 +30,8 @@ Monitor Type: `collectd/mongodb`
 | `tlsClientCert` | no | `string` |  |
 | `tlsClientKey` | no | `string` |  |
 | `tlsClientKeyPassPhrase` | no | `string` |  |
+| `sendCollectionMetrics` | no | `bool` |  (**default:** `false`) |
+| `sendCollectionTopMetrics` | no | `bool` |  (**default:** `false`) |
 
 
 

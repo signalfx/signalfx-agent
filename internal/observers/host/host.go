@@ -129,3 +129,10 @@ func (o *Observer) discover() []services.Endpoint {
 	}
 	return endpoints
 }
+
+// Shutdown the service differ routine
+func (o *Observer) Shutdown() {
+	if o.serviceDiffer != nil {
+		o.serviceDiffer.Stop()
+	}
+}

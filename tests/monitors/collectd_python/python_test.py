@@ -11,8 +11,9 @@ from functools import partial as p
 import pytest
 import redis
 from signalfx.generated_protocol_buffers import signal_fx_protocol_buffers_pb2 as sf_pbuf
+from tests.helpers.agent import Agent
 from tests.helpers.assertions import has_datapoint, has_datapoint_with_dim, regex_search_matches_output, tcp_socket_open
-from tests.helpers.util import BUNDLE_DIR, container_ip, run_agent, run_container, wait_for
+from tests.helpers.util import BUNDLE_DIR, container_ip, run_container, wait_for
 
 pytestmark = [pytest.mark.pyrunner]
 
@@ -24,7 +25,7 @@ monitors:
   - type: collectd/python
     moduleName: redis_info
     modulePaths:
-     - "${bundle_root}/plugins/collectd/redis"
+     - "${bundle_root}/collectd-python/redis"
     pluginConfig:
       Host: $host
       Port: 6379
@@ -44,22 +45,29 @@ def test_python_runner_with_redis():
         redis_client = redis.StrictRedis(host=host, port=6379, db=0)
         assert wait_for(redis_client.ping, 60), "service didn't start"
 
-        with run_agent(config) as [backend, get_output, _]:
-            assert wait_for(p(has_datapoint_with_dim, backend, "plugin", "redis_info")), "didn't get datapoints"
+        with Agent.run(config) as agent:
+            assert wait_for(
+                p(has_datapoint_with_dim, agent.fake_services, "plugin", "redis_info")
+            ), "didn't get datapoints"
 
-            assert wait_for(p(regex_search_matches_output, get_output, PID_RE.search))
-            pid = int(PID_RE.search(get_output()).groups()[0])
+            assert wait_for(p(regex_search_matches_output, agent.get_output, PID_RE.search))
+            pid = int(PID_RE.search(agent.output).groups()[0])
 
             os.kill(pid, signal.SIGTERM)
 
             time.sleep(3)
-            backend.reset_datapoints()
+            agent.fake_services.reset_datapoints()
 
             assert wait_for(
-                p(has_datapoint_with_dim, backend, "plugin", "redis_info")
+                p(has_datapoint_with_dim, agent.fake_services, "plugin", "redis_info")
             ), "didn't get datapoints after Python process was killed"
 
             assert wait_for(
-                p(has_datapoint, backend, metric_name="counter.lru_clock", metric_type=sf_pbuf.CUMULATIVE_COUNTER),
+                p(
+                    has_datapoint,
+                    agent.fake_services,
+                    metric_name="counter.lru_clock",
+                    metric_type=sf_pbuf.CUMULATIVE_COUNTER,
+                ),
                 timeout_seconds=3,
             ), "metric type was wrong"
