@@ -2972,7 +2972,7 @@
           {
             "yamlName": "ignoreSelected",
             "doc": "If true, the filesystems selected by `fsTypes` and `mountPoints` will be excluded and all others included.",
-            "default": "false",
+            "default": true,
             "required": false,
             "type": "bool",
             "elementKind": ""
