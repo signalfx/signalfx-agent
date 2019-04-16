@@ -37,7 +37,7 @@ type Config struct {
 	// connection string with the syntax `{{.key}}`.
 	Params map[string]string `yaml:"params"`
 
-	// List of databases to send database-specific metrics about.  If omitted, metrics about all databases will be sent.  This is an [overridable filter](https://github.com/signalfx/signalfx-agent/blob/master/docs/filtering.md#overridable-filters).
+	// List of databases to send database-specific metrics about.  If omitted, metrics about all databases will be sent.  This is an [overridable set](https://docs.signalfx.com/en/latest/integrations/agent/filtering.html#overridable-filters).
 	Databases []string `yaml:"databases" default:"[\"*\"]"`
 
 	// How frequently to poll for new/deleted databases in the DB server.

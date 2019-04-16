@@ -75,7 +75,7 @@ Monitor Type: `postgresql`
 | `port` | no | `integer` |  (**default:** `0`) |
 | `connectionString` | no | `string` | See https://godoc.org/github.com/lib/pq#hdr-Connection_String_Parameters. |
 | `params` | no | `map of strings` | Parameters to the connection string that can be templated into the connection string with the syntax `{{.key}}`. |
-| `databases` | no | `list of strings` | List of databases to send database-specific metrics about.  If omitted, metrics about all databases will be sent.  This is an [overridable filter](https://github.com/signalfx/signalfx-agent/blob/master/docs/filtering.md#overridable-filters). (**default:** `[*]`) |
+| `databases` | no | `list of strings` | List of databases to send database-specific metrics about.  If omitted, metrics about all databases will be sent.  This is an [overridable set](https://docs.signalfx.com/en/latest/integrations/agent/filtering.html#overridable-filters). (**default:** `[*]`) |
 | `databasePollIntervalSeconds` | no | `integer` | How frequently to poll for new/deleted databases in the DB server. Defaults to the same as `intervalSeconds` if not set. (**default:** `0`) |
 
 

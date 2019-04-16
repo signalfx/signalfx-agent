@@ -13106,7 +13106,7 @@
         "fields": [
           {
             "yamlName": "disks",
-            "doc": "The devices to include/exclude. This is an [overridable set](https://github.com/signalfx/signalfx-agent/blob/master/docs/filtering.md#overridable-filters).",
+            "doc": "The devices to include/exclude. This is an [overridable set](https://docs.signalfx.com/en/latest/integrations/agent/filtering.html#overridable-filters).",
             "default": [
               "*",
               "!/^loop[0-9]+$/",
@@ -15935,7 +15935,7 @@
           },
           {
             "yamlName": "fsTypes",
-            "doc": "The filesystem types to include/exclude.  This is an [overridable set](https://github.com/signalfx/signalfx-agent/blob/master/docs/filtering.md#overridable-filters).",
+            "doc": "The filesystem types to include/exclude.  This is an [overridable set](https://docs.signalfx.com/en/latest/integrations/agent/filtering.html#overridable-filters).",
             "default": [
               "*",
               "!aufs",
@@ -15962,7 +15962,7 @@
           },
           {
             "yamlName": "mountPoints",
-            "doc": "The mount paths to include/exclude. This is a [filter set](https://github.com/signalfx/signalfx-agent/blob/master/docs/filtering.md#overridable-filters). NOTE: If you are using the hostFSPath option you should not include the `/hostfs/` mount in the filter.",
+            "doc": "The mount paths to include/exclude. This is an [overridable set](https://docs.signalfx.com/en/latest/integrations/agent/filtering.html#overridable-filters). NOTE: If you are using the hostFSPath option you should not include the `/hostfs/` mount in the filter.",
             "default": [
               "*",
               "!/^/var/lib/docker/containers/",
@@ -18948,7 +18948,7 @@
         "fields": [
           {
             "yamlName": "interfaces",
-            "doc": "The network interfaces to send metrics about. This is an [overridble filter](https://github.com/signalfx/signalfx-agent/blob/master/docs/filtering.md#overridable-filters).",
+            "doc": "The network interfaces to send metrics about. This is an [overridable set](https://docs.signalfx.com/en/latest/integrations/agent/filtering.html#overridable-filters).",
             "default": [
               "*",
               "!/^lo\\d*$/",
@@ -19135,7 +19135,7 @@
           },
           {
             "yamlName": "databases",
-            "doc": "List of databases to send database-specific metrics about.  If omitted, metrics about all databases will be sent.  This is an [overridable filter](https://github.com/signalfx/signalfx-agent/blob/master/docs/filtering.md#overridable-filters).",
+            "doc": "List of databases to send database-specific metrics about.  If omitted, metrics about all databases will be sent.  This is an [overridable set](https://docs.signalfx.com/en/latest/integrations/agent/filtering.html#overridable-filters).",
             "default": [
               "*"
             ],

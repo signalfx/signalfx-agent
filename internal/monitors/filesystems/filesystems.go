@@ -38,13 +38,12 @@ type Config struct {
 	// /.
 	HostFSPath string `yaml:"hostFSPath"`
 
-	// The filesystem types to include/exclude.  This is an
-	// [overridable set](https://github.com/signalfx/signalfx-agent/blob/master/docs/filtering.md#overridable-filters).
+	// The filesystem types to include/exclude.  This is an [overridable
+	// set](https://docs.signalfx.com/en/latest/integrations/agent/filtering.html#overridable-filters).
 	FSTypes []string `yaml:"fsTypes" default:"[\"*\", \"!aufs\", \"!overlay\", \"!tmpfs\", \"!proc\", \"!sysfs\", \"!nsfs\", \"!cgroup\", \"!devpts\", \"!selinuxfs\", \"!devtmpfs\", \"!debugfs\", \"!mqueue\", \"!hugetlbfs\", \"!securityfs\", \"!pstore\", \"!binfmt_misc\", \"!autofs\"]"`
 
-	// The mount paths to include/exclude.
-	// This is a
-	// [filter set](https://github.com/signalfx/signalfx-agent/blob/master/docs/filtering.md#overridable-filters).
+	// The mount paths to include/exclude. This is an [overridable
+	// set](https://docs.signalfx.com/en/latest/integrations/agent/filtering.html#overridable-filters).
 	// NOTE: If you are using the hostFSPath option you should not include the
 	// `/hostfs/` mount in the filter.
 	MountPoints []string `yaml:"mountPoints" default:"[\"*\", \"!/^/var/lib/docker/containers/\", \"!/^/var/lib/rkt/pods/\", \"!/^/net//\", \"!/^/smb//\", \"!/^/tmp/scratch/\"]"`

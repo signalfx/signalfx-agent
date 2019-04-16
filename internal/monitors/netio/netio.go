@@ -29,8 +29,8 @@ func init() {
 // Config for this monitor
 type Config struct {
 	config.MonitorConfig `singleInstance:"false" acceptsEndpoints:"false"`
-	// The network interfaces to send metrics about. This is an
-	// [overridble filter](https://github.com/signalfx/signalfx-agent/blob/master/docs/filtering.md#overridable-filters).
+	// The network interfaces to send metrics about. This is an [overridable
+	// set](https://docs.signalfx.com/en/latest/integrations/agent/filtering.html#overridable-filters).
 	Interfaces []string `yaml:"interfaces" default:"[\"*\", \"!/^lo\\\\d*$/\", \"!/^docker.*/\", \"!/^t(un|ap)\\\\d*$/\", \"!/^veth.*$/\", \"!/^Loopback*/\"]"`
 }
 
