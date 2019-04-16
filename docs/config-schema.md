@@ -5,7 +5,7 @@ The agent is configured primarily by a YAML document conventionally located at
 `/etc/signalfx/agent.yaml`.  The location of the config file can be specified
 by the `-config` flag to the agent binary (`signalfx-agent`).
 
-## Configuring your ndpoint
+## Configuring your realm
 
 By default, the Smart Agent will send data to the `us0` realm.
 If you are not in this realm, you will need to explicitly set the
