@@ -37,7 +37,7 @@ const (
 var logger = log.WithFields(log.Fields{"monitorType": monitorType})
 
 func init() {
-	monitors.Register(monitorType, func() interface{} {
+	monitors.Register(&monitorMetadata, func() interface{} {
 		return &Monitor{
 			metricTypes:         make(map[*MetricConfig]datapoint.MetricType),
 			metricPathsParts:    make(map[*MetricConfig][]string),

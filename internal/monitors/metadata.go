@@ -43,7 +43,7 @@ type MonitorMetadata struct {
 	Metrics     []MetricMetadata `json:"metrics"`
 	Properties  []PropMetadata   `json:"properties"`
 	// True if the list of metrics is definitively the set of metrics
-	// this monitor will ever send. This impacts the additionalMetricsFilter.
+	// this monitor will ever send. This impacts the sendExtraMetrics.
 	MetricsExhaustive bool `json:"metricsExhaustive" yaml:"metricsExhaustive" default:"false"`
 }
 

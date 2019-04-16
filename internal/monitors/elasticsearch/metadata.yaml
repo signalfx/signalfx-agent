@@ -12,7 +12,9 @@ monitors:
       name: thread_pool
     - description: Name of index (only on per index mertics)
       name: index
-    - description: Aggregation of index metrics. Whether the value of the metric is from the primary shard only or across all shards. Valid values - primaries, total respectively (only on index stats)
+    - description: >
+        Aggregation of index metrics. Whether the value of the metric is from the primary shard only or
+        across all shards. Valid values - primaries, total respectively (only on index stats)
       name: aggregation
   doc: |
     This monitor collects stats from Elasticsearch. It collects node, cluster

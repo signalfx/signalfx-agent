@@ -11,7 +11,7 @@ const monitorType = "prometheus/nginx-vts"
 var logger = log.WithFields(log.Fields{"monitorType": monitorType})
 
 func init() {
-	monitors.Register(monitorType, func() interface{} {
+	monitors.Register(&monitorMetadata, func() interface{} {
 		return &Monitor{Monitor: prometheusexporter.Monitor{IncludedMetrics: includedMetrics}}
 	}, &Config{})
 }

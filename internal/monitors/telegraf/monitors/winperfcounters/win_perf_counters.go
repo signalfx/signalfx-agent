@@ -16,7 +16,7 @@ const monitorType = "telegraf/win_perf_counters"
 var logger = log.WithFields(log.Fields{"monitorType": monitorType})
 
 func init() {
-	monitors.Register(monitorType, func() interface{} { return &Monitor{} }, &Config{})
+	monitors.Register(&monitorMetadata, func() interface{} { return &Monitor{} }, &Config{})
 }
 
 // PerfCounterObj represents a windows performance counter object to monitor

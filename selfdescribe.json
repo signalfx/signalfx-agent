@@ -177,6 +177,22 @@
         "required": false,
         "type": "bool",
         "elementKind": ""
+      },
+      {
+        "yamlName": "extraMetrics",
+        "doc": "Extra metrics to enable besides the default included ones.",
+        "default": null,
+        "required": false,
+        "type": "slice",
+        "elementKind": "string"
+      },
+      {
+        "yamlName": "extraGroups",
+        "doc": "Extra metric groups to enable besides the metrics that are included by default.",
+        "default": null,
+        "required": false,
+        "type": "slice",
+        "elementKind": "string"
       }
     ]
   },
@@ -14127,7 +14143,7 @@
         },
         {
           "name": "aggregation",
-          "description": "Aggregation of index metrics. Whether the value of the metric is from the primary shard only or across all shards. Valid values - primaries, total respectively (only on index stats)"
+          "description": "Aggregation of index metrics. Whether the value of the metric is from the primary shard only or across all shards. Valid values - primaries, total respectively (only on index stats)\n"
         }
       ],
       "doc": "This monitor collects stats from Elasticsearch. It collects node, cluster\nand index level stats. This monitor is compatible with the current collectd\nplugin found [here] (https://github.com/signalfx/collectd-elasticsearch) in\nterms of metric naming.\n\nThis monitor collects cluster level and index level stats only from the current master\nin an Elasticsearch cluster by default. It is possible to override this with the\n`clusterHealthStatsMasterOnly` and `indexStatsMasterOnly` config options respectively.\n\nA simple configuration that collects only default metrics looks like the following\n\n```\nmonitors:\n- type: elasticsearch\n host: localhost\n port: 9200\n```\n\nBy default thread pool stats from \"search\" and \"index\" thread pools are collected. To collect\nstats from other thread pools follow the below pattern.\n\n```\nmonitors:\n- type: elasticsearch\n host: localhost\n port: 9200\n threadPools:\n\t- bulk\n\t- warmer\n\t- listener\n```\nThe monitor collects a subset of node stats of JVM, process, HTTP, transport, indices and thread\npool stats. It is possible to enable enhanced stats for each group separately. Here's an example:\n\n```\nmonitors:\n- type: elasticsearch\n host: localhost\n port: 9200\n enableEnhancedHTTPStats: true\n enableEnhancedJVMStats: true\n enableEnhancedProcessStats: true\n enableEnhancedThreadPoolStats: true\n enableEnhancedTransportStats: true\n enableEnhancedNodeIndicesStats:\n\t- indexing\n\t- warmer\n - get\n```\n\nThe `enableEnhancedNodeIndicesStats` option takes a list of index stats groups for which enhanced\nstats will be collected. A comprehensive list of all available such groups can be found\n[here] (https://www.elastic.co/guide/en/elasticsearch/reference/current/cluster-nodes-stats.html#node-indices-stats).\n\nNote that the `enableEnhancedIndexStatsForIndexGroups` is similar to `enableEnhancedNodeIndicesStats`,\nbut for index level stats\n\nBy default the monitor collects a subset of index stats of total aggregation type (see docs for details).\nIt is possible to enable index stats of primaries aggregation type too. Total for an index stat\naggregates across all shards. Whereas, Primaries only reflect the stats from primary shards. An example\nconfiguration to enable index stats from Primary shards too\n\n```\nmonitors:\n- type: elasticsearch\n host: localhost\n port: 9200\n enableIndexStatsPrimaries: true\n```\n\nIt is possible to collect index level stats that are aggregated across all indexes, rather than one a per index level\n\n```\nmonitors:\n- type: elasticsearch\n host: localhost\n port: 9200\n IndexSummaryOnly: true\n```\n",
@@ -28888,6 +28904,22 @@
               "required": false,
               "type": "bool",
               "elementKind": ""
+            },
+            {
+              "yamlName": "extraMetrics",
+              "doc": "Extra metrics to enable besides the default included ones.",
+              "default": null,
+              "required": false,
+              "type": "slice",
+              "elementKind": "string"
+            },
+            {
+              "yamlName": "extraGroups",
+              "doc": "Extra metric groups to enable besides the metrics that are included by default.",
+              "default": null,
+              "required": false,
+              "type": "slice",
+              "elementKind": "string"
             }
           ]
         }

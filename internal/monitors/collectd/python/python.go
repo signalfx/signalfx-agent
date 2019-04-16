@@ -29,10 +29,8 @@ import (
 
 const messageTypeValueList pyrunner.MessageType = 100
 
-const monitorType = "collectd/python"
-
 func init() {
-	monitors.Register(monitorType, func() interface{} {
+	monitors.Register(&monitorMetadata, func() interface{} {
 		return &PyMonitor{
 			MonitorCore: pyrunner.New("sfxcollectd"),
 		}

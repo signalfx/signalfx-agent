@@ -39,7 +39,7 @@ func (mo *monitorOutput) Copy() types.Output {
 
 func (mo *monitorOutput) SendDatapoint(dp *datapoint.Datapoint) {
 	if dp.Meta == nil {
-		dp.Meta = make(map[interface{}]interface{})
+		dp.Meta = map[interface{}]interface{}{}
 	}
 
 	dp.Meta[dpmeta.MonitorIDMeta] = mo.monitorID

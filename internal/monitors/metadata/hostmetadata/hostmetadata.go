@@ -30,7 +30,10 @@ var startTime = time.Now()
 var logger = log.WithFields(log.Fields{"monitorType": monitorType})
 
 func init() {
-	monitors.Register(monitorType, func() interface{} { return &Monitor{Monitor: metadata.Monitor{}} }, &Config{})
+	monitors.Register(&monitorMetadata, func() interface{} {
+		return &Monitor{Monitor: metadata.
+			Monitor{}}
+	}, &Config{})
 }
 
 // Config for this monitor

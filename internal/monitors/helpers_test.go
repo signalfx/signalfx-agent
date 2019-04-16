@@ -113,10 +113,10 @@ func RegisterFakeMonitors() func() map[types.MonitorID]MockMonitor {
 		}
 	}
 
-	Register("static1", track(func() interface{} { return &Static1{} }), &Config{})
-	Register("static2", track(func() interface{} { return &Static2{} }), &Config{})
-	Register("dynamic1", track(func() interface{} { return &Dynamic1{} }), &DynamicConfig{})
-	Register("dynamic2", track(func() interface{} { return &Dynamic2{} }), &DynamicConfig{})
+	Register(&Metadata{MonitorType: "static1"}, track(func() interface{} { return &Static1{} }), &Config{})
+	Register(&Metadata{MonitorType: "static2"}, track(func() interface{} { return &Static2{} }), &Config{})
+	Register(&Metadata{MonitorType: "dynamic1"}, track(func() interface{} { return &Dynamic1{} }), &DynamicConfig{})
+	Register(&Metadata{MonitorType: "dynamic2"}, track(func() interface{} { return &Dynamic2{} }), &DynamicConfig{})
 
 	return func() map[types.MonitorID]MockMonitor {
 		return instances

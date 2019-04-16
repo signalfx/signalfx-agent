@@ -65,19 +65,11 @@ func (metadata *Metadata) HasGroup(group string) bool {
 	return metadata.Groups[group]
 }
 
-// Register is the old register interface.
-// Deprecated: use RegisterWithMetadata.
-func Register(_type string, factory MonitorFactory, configTemplate config.MonitorCustomConfig) {
-	RegisterWithMetadata(&Metadata{MonitorType: _type}, factory, configTemplate)
-}
-
-// RegisterWithMetadata a new monitor type with the agent.  This is intended to be called
+// Register a new monitor type with the agent.  This is intended to be called
 // from the init function of the module of a specific monitor
 // implementation. configTemplate should be a zero-valued struct that is of the
 // same type as the parameter to the Configure method for this monitor type.
-//
-// TODO: Rename to Register once all monitors have been updated.
-func RegisterWithMetadata(metadata *Metadata, factory MonitorFactory, configTemplate config.MonitorCustomConfig) {
+func Register(metadata *Metadata, factory MonitorFactory, configTemplate config.MonitorCustomConfig) {
 	if _, ok := MonitorFactories[metadata.MonitorType]; ok {
 		panic("Monitor type '" + metadata.MonitorType + "' already registered")
 	}
