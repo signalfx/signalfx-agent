@@ -137,7 +137,7 @@ class Minikube:  # pylint: disable=too-many-instance-attributes
     def get_cluster_version(self):
         version_yaml = self.exec_kubectl("version --output=yaml")
         assert version_yaml, "failed to get kubectl version"
-        cluster_version = yaml.load(version_yaml).get("serverVersion").get("gitVersion")
+        cluster_version = yaml.safe_load(version_yaml).get("serverVersion").get("gitVersion")
         return check_k8s_version(cluster_version)
 
     def get_client(self):
@@ -175,7 +175,7 @@ class Minikube:  # pylint: disable=too-many-instance-attributes
         else:
             self.k8s_version = self.get_cluster_version()
         content = get_container_file_content(self.container, MINIKUBE_KUBECONFIG_PATH)
-        self.kubeconfig = yaml.load(content)
+        self.kubeconfig = yaml.safe_load(content)
         current_context = self.kubeconfig.get("current-context")
         for context in self.kubeconfig.get("contexts"):
             if context.get("name") == current_context:
@@ -335,7 +335,7 @@ class Minikube:  # pylint: disable=too-many-instance-attributes
         for yaml_file in yamls:
             assert os.path.isfile(yaml_file), '"%s" not found!' % yaml_file
             with open(yaml_file, "r") as fd:
-                for doc in yaml.load_all(fd.read()):
+                for doc in yaml.safe_load_all(fd.read()):
                     kind = doc["kind"]
                     name = doc["metadata"]["name"]
                     nspace = doc["metadata"].setdefault("namespace", namespace)

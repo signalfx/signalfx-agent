@@ -41,6 +41,7 @@ RUN AGENT_VERSION=${agent_version} COLLECTD_VERSION=${collectd_version} make sig
 FROM ubuntu:16.04 as collectd
 
 ARG TARGET_ARCH
+ARG PYTHON_VERSION=2.7.16
 
 ENV DEBIAN_FRONTEND noninteractive
 
@@ -75,6 +76,8 @@ RUN sed -i -e '/^deb-src/d' /etc/apt/sources.list &&\
       libdbi0-dev \
       libdistro-info-perl \
       libesmtp-dev \
+      libexpat1-dev \
+      libffi-dev \
       libganglia1-dev \
       libgcrypt11-dev \
       libglib2.0-dev \
@@ -96,6 +99,7 @@ RUN sed -i -e '/^deb-src/d' /etc/apt/sources.list &&\
       librrd-dev \
       libsensors4-dev \
       libsnmp-dev \
+      libssl-dev \
       libtool \
       libudev-dev \
       libvarnishapi-dev \
@@ -110,11 +114,27 @@ RUN sed -i -e '/^deb-src/d' /etc/apt/sources.list &&\
       python-dev \
       python-pip \
       python-virtualenv \
-      quilt
+      quilt \
+      zlib1g-dev
 
 RUN wget https://dev.mysql.com/get/mysql-apt-config_0.8.12-1_all.deb && \
     dpkg -i mysql-apt-config_0.8.12-1_all.deb && \
     apt-get update && apt-get install -y libmysqlclient-dev libcurl4-gnutls-dev
+
+ENV PYTHONHOME=/opt/python
+RUN wget -O /tmp/Python-${PYTHON_VERSION}.tgz https://www.python.org/ftp/python/${PYTHON_VERSION}/Python-${PYTHON_VERSION}.tgz &&\
+    cd /tmp &&\
+    tar xzf Python-${PYTHON_VERSION}.tgz && \
+    cd Python-${PYTHON_VERSION} && \
+    ./configure --prefix=$PYTHONHOME --enable-shared --enable-ipv6 --enable-unicode=ucs4 --with-system-ffi --with-system-expat && \
+    make && make install
+
+RUN echo "$PYTHONHOME/lib" > /etc/ld.so.conf.d/python.conf && \
+    ldconfig
+ENV PATH=$PYTHONHOME/bin:$PATH
+
+RUN wget -O /tmp/get-pip.py https://bootstrap.pypa.io/get-pip.py && \
+    python /tmp/get-pip.py 'pip==18.0'
 
 # Compile patchelf statically from source
 RUN cd /tmp &&\
@@ -186,7 +206,8 @@ RUN autoreconf -vif &&\
         --disable-zone \
         --without-libstatgrab \
         --disable-silent-rules \
-        --disable-static
+        --disable-static \
+        PYTHON_CONFIG="$PYTHONHOME/bin/python-config"
 
 # Compile all of collectd first, including plugins
 RUN make -j`nproc` &&\
@@ -198,20 +219,17 @@ RUN /opt/collect-libs /opt/deps /usr/sbin/collectd /usr/lib/collectd/
 # right.
 RUN patchelf --add-needed libm-2.23.so /opt/deps/libvarnishapi.so.1.0.4
 
-
+# Delete all compiled python to save space
+RUN find $PYTHONHOME -name "*.pyc" -o -name "*.pyo" | xargs rm
+# We don't support compiling extension modules so don't need this directory
+RUN rm -rf $PYTHONHOME/lib/python2.7/config-*-linux-gnu
 
 ###### Python Plugin Image ######
-FROM ubuntu:16.04 as python-plugins
-
-RUN apt update &&\
-    apt install -y git python-pip wget curl &&\
-    pip install --upgrade 'pip==18.0'
+FROM collectd as python-plugins
 
 RUN pip install yq &&\
     wget -O /usr/bin/jq https://github.com/stedolan/jq/releases/download/jq-1.5/jq-linux64 &&\
     chmod +x /usr/bin/jq
-
-RUN apt install -y libffi-dev libssl-dev build-essential python-dev libcurl4-openssl-dev
 
 # Mirror the same dir structure that exists in the original source
 COPY scripts/get-collectd-plugins.py /opt/scripts/
@@ -226,10 +244,12 @@ RUN mkdir -p /opt/collectd-python &&\
 COPY python/ /opt/sfxpython/
 RUN cd /opt/sfxpython && pip install .
 
+RUN pip list
+
 # Delete all compiled python to save space
-RUN find /usr/lib/python2.7 /usr/local/lib/python2.7/dist-packages -name "*.pyc" | xargs rm
+RUN find $PYTHONHOME -name "*.pyc" -o -name "*.pyo" | xargs rm
 # We don't support compiling extension modules so don't need this directory
-RUN rm -rf /usr/lib/python2.7/config-*-linux-gnu
+RUN rm -rf $PYTHONHOME/lib/python2.7/config-*-linux-gnu
 
 ####### Extra packages that don't make sense to pull down in any other stage ########
 FROM ubuntu:16.04 as extra-packages
@@ -293,9 +313,9 @@ RUN mkdir -p /opt/root/bin &&\
 COPY --from=collectd /usr/local/bin/patchelf /usr/bin/
 
 # Gather Python dependencies
-COPY --from=python-plugins /usr/lib/python2.7/ /opt/root/lib/python2.7
-COPY --from=python-plugins /usr/local/lib/python2.7/ /opt/root/lib/python2.7
-COPY --from=python-plugins /usr/bin/python /opt/root/bin/python
+COPY --from=python-plugins /opt/python/lib/python2.7 /opt/root/lib/python2.7
+COPY --from=python-plugins /opt/python/lib/libpython2.7.so.1.0 /opt/root/lib
+COPY --from=python-plugins /opt/python/bin/python /opt/root/bin/python
 
 # Gather compiled collectd plugin libraries
 COPY --from=collectd /usr/sbin/collectd /opt/root/bin/collectd

@@ -172,7 +172,7 @@ def run_service(service_name, buildargs=None, print_logs=True, path=None, docker
 def get_monitor_metrics_from_selfdescribe(monitor, json_path=SELFDESCRIBE_JSON):
     metrics = set()
     with open(json_path, "r", encoding="utf-8") as fd:
-        doc = yaml.load(fd.read())
+        doc = yaml.safe_load(fd.read())
         for mon in doc["Monitors"]:
             if monitor == mon["monitorType"] and "metrics" in mon.keys() and mon["metrics"]:
                 metrics = {metric["name"] for metric in mon["metrics"]}
@@ -183,7 +183,7 @@ def get_monitor_metrics_from_selfdescribe(monitor, json_path=SELFDESCRIBE_JSON):
 def get_monitor_dims_from_selfdescribe(monitor, json_path=SELFDESCRIBE_JSON):
     dims = set()
     with open(json_path, "r", encoding="utf-8") as fd:
-        doc = yaml.load(fd.read())
+        doc = yaml.safe_load(fd.read())
         for mon in doc["Monitors"]:
             if monitor == mon["monitorType"] and "dimensions" in mon.keys() and mon["dimensions"]:
                 dims = {dim["name"] for dim in mon["dimensions"]}
@@ -194,7 +194,7 @@ def get_monitor_dims_from_selfdescribe(monitor, json_path=SELFDESCRIBE_JSON):
 def get_observer_dims_from_selfdescribe(observer, json_path=SELFDESCRIBE_JSON):
     dims = set()
     with open(json_path, "r", encoding="utf-8") as fd:
-        doc = yaml.load(fd.read())
+        doc = yaml.safe_load(fd.read())
         for obs in doc["Observers"]:
             if observer == obs["observerType"] and "dimensions" in obs.keys() and obs["dimensions"]:
                 dims = {dim["name"] for dim in obs["dimensions"]}
