@@ -18,8 +18,8 @@ type sparkClusterType string
 
 const (
 	sparkStandalone sparkClusterType = "Standalone"
-	sparkMesos                       = "Mesos"
-	sparkYarn                        = "Yarn"
+	sparkMesos      sparkClusterType = "Mesos"
+	sparkYarn       sparkClusterType = "Yarn"
 )
 
 func init() {
@@ -56,7 +56,7 @@ func (c *Config) PythonConfig() *python.Config {
 // Validate will check the config for correctness.
 func (c *Config) Validate() error {
 	if c.CollectApplicationMetrics != nil && *c.CollectApplicationMetrics && !c.IsMaster {
-		return errors.New("Cannot collect application metrics from non-master endpoint")
+		return errors.New("cannot collect application metrics from non-master endpoint")
 	}
 	switch c.ClusterType {
 	case sparkYarn, sparkMesos, sparkStandalone:

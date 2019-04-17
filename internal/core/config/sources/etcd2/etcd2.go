@@ -3,7 +3,6 @@ package etcd2
 import (
 	//"github.com/coreos/etcd/client"
 	"context"
-	"math"
 
 	"github.com/gobwas/glob"
 	"github.com/signalfx/signalfx-agent/internal/core/config/types"
@@ -59,10 +58,6 @@ func New(conf *Config) (types.ConfigSource, error) {
 
 func (e *etcd2ConfigSource) Name() string {
 	return "etcd2"
-}
-
-func max(a, b uint64) uint64 {
-	return uint64(math.Max(float64(a), float64(b)))
 }
 
 func matchNodeKeys(node *client.Node, g glob.Glob, contentMap map[string][]byte) {

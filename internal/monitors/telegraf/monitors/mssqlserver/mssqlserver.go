@@ -17,12 +17,11 @@ import (
 	"github.com/signalfx/signalfx-agent/internal/monitors/telegraf/monitors/winperfcounters"
 	"github.com/signalfx/signalfx-agent/internal/monitors/types"
 	"github.com/signalfx/signalfx-agent/internal/utils"
+	"github.com/sirupsen/logrus"
 	log "github.com/sirupsen/logrus"
 )
 
 const monitorType = "telegraf/sqlserver"
-
-var logger = log.WithFields(log.Fields{"monitorType": monitorType})
 
 func init() {
 	monitors.Register(&monitorMetadata, func() interface{} { return &Monitor{} }, &Config{})
@@ -56,14 +55,14 @@ type Config struct {
 type Monitor struct {
 	Output types.Output
 	cancel func()
+	logger logrus.FieldLogger
 }
-
-// fetch the factory used to generate the perf counter plugin
-var factory = telegrafInputs.Inputs["sqlserver"]
 
 // Configure the monitor and kick off metric syncing
 func (m *Monitor) Configure(conf *Config) error {
-	plugin := factory().(*telegrafPlugin.SQLServer)
+	m.logger = logrus.WithFields(log.Fields{"monitorType": monitorType})
+
+	plugin := telegrafInputs.Inputs["sqlserver"]().(*telegrafPlugin.SQLServer)
 
 	server := fmt.Sprintf("Server=%s;Port=%d;", conf.Host, conf.Port)
 
@@ -84,7 +83,7 @@ func (m *Monitor) Configure(conf *Config) error {
 	plugin.ExcludeQuery = conf.ExcludeQuery
 
 	// create batch emitter
-	emit := baseemitter.NewEmitter(m.Output, logger)
+	emit := baseemitter.NewEmitter(m.Output, m.logger)
 
 	// Hard code the plugin name because the emitter will parse out the
 	// configured measurement name as plugin and that is confusing.
@@ -110,9 +109,7 @@ func (m *Monitor) Configure(conf *Config) error {
 		})
 
 	// convert the metric name to lower case
-	emit.AddMetricNameTransformation(func(m string) string {
-		return strings.ToLower(m)
-	})
+	emit.AddMetricNameTransformation(strings.ToLower)
 
 	// create the accumulator
 	ac := accumulator.NewAccumulator(emit)
@@ -124,7 +121,7 @@ func (m *Monitor) Configure(conf *Config) error {
 	// gather metrics on the specified interval
 	utils.RunOnInterval(ctx, func() {
 		if err := plugin.Gather(ac); err != nil {
-			logger.WithError(err).Errorf("an error occurred while gathering metrics from the plugin")
+			m.logger.WithError(err).Errorf("an error occurred while gathering metrics from the plugin")
 		}
 
 	}, time.Duration(conf.IntervalSeconds)*time.Second)

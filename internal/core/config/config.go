@@ -9,7 +9,6 @@ import (
 	"path/filepath"
 	"runtime"
 	"strings"
-	"time"
 
 	set "gopkg.in/fatih/set.v0"
 
@@ -326,7 +325,7 @@ type CollectdConfig struct {
 // Validate the collectd specific config
 func (cc *CollectdConfig) Validate() error {
 	if !validCollectdLogLevels.Has(cc.LogLevel) {
-		return fmt.Errorf("Invalid collectd log level %s.  Valid choices are %v",
+		return fmt.Errorf("invalid collectd log level %s, valid choices are %v",
 			cc.LogLevel, validCollectdLogLevels)
 	}
 
@@ -379,8 +378,7 @@ func (sc *StoreConfig) ExtraConfig() map[string]interface{} {
 
 var (
 	// EnvReplacer replaces . and - with _
-	EnvReplacer   = strings.NewReplacer(".", "_", "-", "_")
-	configTimeout = 10 * time.Second
+	EnvReplacer = strings.NewReplacer(".", "_", "-", "_")
 )
 
 // BundlePythonHomeEnvvar returns an envvar string that sets the PYTHONHOME envvar to

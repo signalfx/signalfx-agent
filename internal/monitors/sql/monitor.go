@@ -25,8 +25,6 @@ func init() {
 	monitors.Register(&monitorMetadata, func() interface{} { return &Monitor{} }, &Config{})
 }
 
-type queryKey string
-
 // Query is used to configure a query statement and the resulting datapoints
 type Query struct {
 	// A SQL query text that selects one or more rows from a database
@@ -87,7 +85,7 @@ func (c *Config) Validate() error {
 	}
 
 	if len(c.Queries) == 0 {
-		return errors.New("You must specify at least one query")
+		return errors.New("must specify at least one query")
 	}
 
 	for i := range c.Queries {
@@ -139,7 +137,7 @@ func (m *Monitor) Configure(conf *Config) error {
 
 	m.database, err = sql.Open(conf.DBDriver, dataSource)
 	if err != nil {
-		return fmt.Errorf("Could not handle %s database config: %v", conf.DBDriver, err)
+		return fmt.Errorf("could not handle %s database config: %v", conf.DBDriver, err)
 	}
 
 	for i := range conf.Queries {

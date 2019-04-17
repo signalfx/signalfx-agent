@@ -60,4 +60,4 @@ def test_bad_globbing():
 
         final_conf = BAD_GLOB_CONFIG.substitute(zk_endpoint="%s:2181" % zkhost)
         with Agent.run(final_conf) as agent:
-            assert wait_for(lambda: "Zookeeper only supports globs" in agent.output)
+            assert wait_for(lambda: "zookeeper only supports globs" in agent.output)

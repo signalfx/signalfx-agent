@@ -412,7 +412,8 @@ RUN curl -fsSL get.docker.com -o /tmp/get-docker.sh &&\
 
 RUN go get -u golang.org/x/lint/golint &&\
     if [ `uname -m` != "aarch64" ]; then go get github.com/derekparker/delve/cmd/dlv; fi &&\
-    go get github.com/tebeka/go2xunit
+    go get github.com/tebeka/go2xunit &&\
+    curl -sfL https://install.goreleaser.com/github.com/golangci/golangci-lint.sh | sh -s -- -b $(go env GOPATH)/bin v1.16.0
 
 # Get integration test deps in here
 COPY python/setup.py /tmp/

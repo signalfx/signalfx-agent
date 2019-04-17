@@ -108,7 +108,7 @@ func (cm *Monitor) Configure(conf *Config) error {
 
 	// Allow blank template text so that we have a standard config item that
 	// configured the monitor with all of the templates in a possibly
-	// non-existant legacy collectd managed_config dir.
+	// non-existent legacy collectd managed_config dir.
 	if templateTextConcatenated == "" {
 		return nil
 	}

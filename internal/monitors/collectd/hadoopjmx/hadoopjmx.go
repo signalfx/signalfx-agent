@@ -16,9 +16,9 @@ type nodeType string
 
 const (
 	nameNode        nodeType = "nameNode"
-	resourceManager          = "resourceManager"
-	nodeManager              = "nodeManager"
-	dataNode                 = "dataNode"
+	resourceManager nodeType = "resourceManager"
+	nodeManager     nodeType = "nodeManager"
+	dataNode        nodeType = "dataNode"
 )
 
 // Config is the monitor-specific config with the generic config embedded

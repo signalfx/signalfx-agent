@@ -111,12 +111,12 @@ type Config struct {
 // Validate will check the config for correctness.
 func (c *Config) Validate() error {
 	if len(c.Databases) == 0 {
-		return errors.New("You must specify at least one database for PostgreSQL")
+		return errors.New("you must specify at least one database for PostgreSQL")
 	}
 
 	for _, db := range c.Databases {
 		if db.Username == "" && c.Username == "" {
-			return errors.New("Username is required for PostgreSQL monitoring")
+			return errors.New("username is required for PostgreSQL monitoring")
 		}
 	}
 	return nil

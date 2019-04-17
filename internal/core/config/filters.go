@@ -144,9 +144,7 @@ func (mf *MetricFilter) MergeWith(mf2 MetricFilter) MetricFilter {
 	if mf2.MetricName != "" {
 		mf2.MetricNames = append(mf2.MetricNames, mf2.MetricName)
 	}
-	for _, metricName := range mf2.MetricNames {
-		mf.MetricNames = append(mf.MetricNames, metricName)
-	}
+	mf.MetricNames = append(mf.MetricNames, mf2.MetricNames...)
 	return *mf
 }
 

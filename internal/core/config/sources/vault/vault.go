@@ -13,12 +13,11 @@ import (
 
 	"github.com/signalfx/signalfx-agent/internal/core/config/sources/vault/auth"
 	"github.com/signalfx/signalfx-agent/internal/core/config/types"
+	"github.com/sirupsen/logrus"
 	log "github.com/sirupsen/logrus"
 
 	"github.com/hashicorp/vault/api"
 )
-
-var logger = log.WithFields(log.Fields{"remoteConfigSource": "vault"})
 
 type vaultConfigSource struct {
 	sync.Mutex
@@ -33,6 +32,7 @@ type vaultConfigSource struct {
 	nowProvider  func() time.Time
 	conf         *Config
 	tokenRenewer *api.Renewer
+	logger       logrus.FieldLogger
 }
 
 var _ types.Stoppable = &vaultConfigSource{}
@@ -110,6 +110,8 @@ func (c *Config) New() (types.ConfigSource, error) {
 
 // New creates a new vault ConfigSource
 func New(conf *Config) (types.ConfigSource, error) {
+	logger := logrus.WithFields(log.Fields{"remoteConfigSource": "vault"})
+
 	logger.Info("Initializing new Vault remote config instance")
 
 	c, err := api.NewClient(&api.Config{
@@ -141,10 +143,13 @@ func New(conf *Config) (types.ConfigSource, error) {
 		nonRenewableVaultPathRefetchTimes: make(map[string]time.Time),
 		nowProvider:                       time.Now,
 		conf:                              conf,
+		logger:                            logger,
 	}
 
-	// This will change if we ever support auth methods for getting the token
-	vcs.initTokenRenewalIfNeeded()
+	err = vcs.initTokenRenewalIfNeeded()
+	if err != nil {
+		return nil, err
+	}
 
 	return vcs, nil
 }
@@ -164,7 +169,7 @@ func (v *vaultConfigSource) Get(path string) (map[string][]byte, uint64, error) 
 
 	secret, ok := v.secretsByVaultPath[vaultPath]
 	if !ok {
-		logger.Debugf("Reading Vault secret at path: %s", vaultPath)
+		v.logger.Debugf("Reading Vault secret at path: %s", vaultPath)
 
 		secret, err = v.client.Logical().Read(vaultPath)
 		if err != nil {
@@ -175,24 +180,25 @@ func (v *vaultConfigSource) Get(path string) (map[string][]byte, uint64, error) 
 			return nil, 0, fmt.Errorf("no secret found at path %s", vaultPath)
 		}
 
-		if secret.Renewable {
+		switch {
+		case secret.Renewable:
 			renewer, err := v.client.NewRenewer(&api.RenewerInput{
 				Secret: secret,
 			})
 			if err == nil {
-				logger.Debugf("Setting up Vault renewer for secret at path %s", vaultPath)
+				v.logger.Debugf("Setting up Vault renewer for secret at path %s", vaultPath)
 				v.renewersByVaultPath[vaultPath] = renewer
 				go renewer.Renew()
 			} else {
-				logger.Errorf("Could not set up renewal on Vault secret at path %s: %v", vaultPath, err)
+				v.logger.Errorf("Could not set up renewal on Vault secret at path %s: %v", vaultPath, err)
 			}
-		} else if secret.LeaseDuration > 0 {
+		case secret.LeaseDuration > 0:
 			// We have a secret that isn't renewable but still expires.  We
 			// need to just refetch it before it expires.  Set the refetch time
 			// to half the lease duration.
-			logger.Debugf("Secret at path %s cannot be renewed, refetching within %d seconds", vaultPath, secret.LeaseDuration)
+			v.logger.Debugf("Secret at path %s cannot be renewed, refetching within %d seconds", vaultPath, secret.LeaseDuration)
 			v.nonRenewableVaultPathRefetchTimes[vaultPath] = time.Now().Add(time.Duration(secret.LeaseDuration/2) * time.Second)
-		} else {
+		default:
 			// This secret is not renewable or on a lease.  If it has a
 			// "metadata" field and has "/data/" in the vault path, then it is
 			// probably a KV v2 secret.  In that case, we do a poll on the
@@ -203,7 +209,7 @@ func (v *vaultConfigSource) Get(path string) (map[string][]byte, uint64, error) 
 				if err != nil {
 					// This isn't really something that should cause the whole
 					// secret to error out, it just won't get refetched.
-					logger.WithError(err).Error("Secret looked like a KV V2 secret but has an unexpected form")
+					v.logger.WithError(err).Error("Secret looked like a KV V2 secret but has an unexpected form")
 				} else {
 					go watcher.Run()
 					v.customWatchersByVaultPath[vaultPath] = watcher
@@ -214,11 +220,11 @@ func (v *vaultConfigSource) Get(path string) (map[string][]byte, uint64, error) 
 	}
 
 	for _, w := range secret.Warnings {
-		logger.Warnf("Warning received for Vault secret at path %s: %s", vaultPath, w)
+		v.logger.Warnf("Warning received for Vault secret at path %s: %s", vaultPath, w)
 	}
 
 	if val := traverseToKey(secret.Data, key); val != nil {
-		logger.Debugf("Fetched secret at %s -> %s", vaultPath, key)
+		v.logger.Debugf("Fetched secret at %s -> %s", vaultPath, key)
 
 		return map[string][]byte{
 			path: []byte(fmt.Sprintf("%#v", val)),
@@ -246,10 +252,7 @@ func (v *vaultConfigSource) WaitForChange(path string, version uint64, stop <-ch
 			if customWatcher == nil {
 				// There is nothing to do except wait for the whole thing to
 				// stop
-				select {
-				case <-stop:
-					break
-				}
+				<-stop
 			} else {
 			WATCHER:
 				for {
@@ -259,7 +262,7 @@ func (v *vaultConfigSource) WaitForChange(path string, version uint64, stop <-ch
 					case <-customWatcher.ShouldRefetchCh():
 						break WATCHER
 					case err := <-customWatcher.ErrorCh():
-						logger.WithError(err).WithFields(log.Fields{
+						v.logger.WithError(err).WithFields(log.Fields{
 							"vaultPath": vaultPath,
 						}).Error("Error watching secret for change")
 						// We don't really want to make it refetch the secret
@@ -298,7 +301,7 @@ func (v *vaultConfigSource) WaitForChange(path string, version uint64, stop <-ch
 	delete(v.customWatchersByVaultPath, vaultPath)
 	v.Unlock()
 
-	logger.Debugf("Path changed or failed to renew: %s", vaultPath)
+	v.logger.Debugf("Path changed or failed to renew: %s", vaultPath)
 
 	return watchErr
 }

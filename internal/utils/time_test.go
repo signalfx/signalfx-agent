@@ -92,24 +92,26 @@ func TestRunOnArrayOfIntervals(t *testing.T) {
 		},
 	}
 	for _, tt := range tests {
+		args := tt.args
+		comparison := tt.comparison
 		t.Run(tt.name, func(t *testing.T) {
-			RunOnArrayOfIntervals(tt.args.ctx, tt.args.monitor.Execute, tt.args.intervals, tt.args.repeatPolicy)
-			for !tt.comparison(tt.args.monitor.Count()) {
+			RunOnArrayOfIntervals(args.ctx, args.monitor.Execute, args.intervals, args.repeatPolicy)
+			for !comparison(args.monitor.Count()) {
 				runtime.Gosched()
 			}
 			// ensure we don't continue repeating when repeat policy is set to none
-			if tt.args.repeatPolicy == RepeatNone {
+			if args.repeatPolicy == RepeatNone {
 				time.Sleep(1 * time.Second)
 				runtime.Gosched()
-				if !tt.comparison(tt.args.monitor.Count()) {
+				if !comparison(args.monitor.Count()) {
 					t.Errorf("repeat none policy violated")
 				}
 			}
 			// ensure that when the # of intervals is 0 nothing is executed
-			if len(tt.args.intervals) == 0 {
+			if len(args.intervals) == 0 {
 				time.Sleep(1 * time.Second)
 				runtime.Gosched()
-				if !tt.comparison(tt.args.monitor.Count()) {
+				if !comparison(args.monitor.Count()) {
 					t.Errorf("empty interval array violated")
 				}
 			}

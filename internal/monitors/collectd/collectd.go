@@ -10,7 +10,6 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
-	"regexp"
 	"sync"
 	"syscall"
 	"time"
@@ -50,7 +49,6 @@ type Manager struct {
 	// Map of each active monitor to its output instance
 	activeMonitors  map[types.MonitorID]types.Output
 	genericJMXUsers map[types.MonitorID]bool
-	active          bool
 	// The port of the active write server, will be 0 if write server isn't
 	// started yet.
 	writeServerPort int
@@ -231,7 +229,7 @@ func (cm *Manager) BundleDir() string {
 // Manage the subprocess with a basic state machine.  This is a bit tricky
 // since we have config coming in asynchronously from multiple sources.  This
 // function should never return.  waitCh will be closed once the write server
-// is setup and right before it is actualy waiting for restart signals.
+// is setup and right before it is actually waiting for restart signals.
 func (cm *Manager) manageCollectd(initCh chan<- struct{}, terminated chan struct{}) {
 	state := Uninitialized
 	// The collectd process manager
@@ -310,7 +308,7 @@ func (cm *Manager) manageCollectd(initCh chan<- struct{}, terminated chan struct
 			}()
 
 			go func() {
-				cmd.Wait()
+				_ = cmd.Wait()
 				output.Close()
 				procDied <- struct{}{}
 			}()
@@ -330,18 +328,18 @@ func (cm *Manager) manageCollectd(initCh chan<- struct{}, terminated chan struct
 			}
 
 		case Restarting:
-			cmd.Process.Kill()
+			_ = cmd.Process.Kill()
 			<-procDied
 			state = Starting
 
 		case ShuttingDown:
-			cmd.Process.Kill()
+			_ = cmd.Process.Kill()
 			<-procDied
 			state = Stopped
 
 		case Stopped:
 			close(restartDebouncedStop)
-			writeServer.Shutdown()
+			_ = writeServer.Shutdown()
 			close(terminated)
 			return
 		}
@@ -400,13 +398,11 @@ func (cm *Manager) receiveDPs(dps []*datapoint.Datapoint) {
 		}
 
 		if output == nil {
-			if output == nil {
-				cm.logger.WithFields(log.Fields{
-					"monitorID": monitorID,
-					"datapoint": dps[i],
-				}).Error("Datapoint has an unknown monitorID")
-				continue
-			}
+			cm.logger.WithFields(log.Fields{
+				"monitorID": monitorID,
+				"datapoint": dps[i],
+			}).Error("Datapoint has an unknown monitorID")
+			continue
 		}
 
 		output.SendDatapoint(dps[i])
@@ -469,11 +465,10 @@ func (cm *Manager) makeChildCommand() (*exec.Cmd, io.ReadCloser) {
 	collectdBin := filepath.Join(cm.conf.BundleDir, "bin/collectd")
 	args := []string{"-f", "-C", cm.conf.ConfigFilePath()}
 
-	var cmd *exec.Cmd
 	// If running in a container where the bundle is the main filesystem, don't
 	// bother explicitly invoking through the loader (this happens
 	// automatically).
-	cmd = exec.Command(collectdBin, args...)
+	cmd := exec.Command(collectdBin, args...)
 
 	// Send both stdout and stderr to the same buffer
 	r, w, err := os.Pipe()
@@ -494,5 +489,3 @@ func (cm *Manager) makeChildCommand() (*exec.Cmd, io.ReadCloser) {
 
 	return cmd, r
 }
-
-var collectdVersionRegexp = regexp.MustCompile(`collectd (?P<version>.*), http://collectd.org/`)

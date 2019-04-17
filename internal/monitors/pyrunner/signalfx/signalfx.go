@@ -172,7 +172,7 @@ func (m *PyMonitor) handleMessage(msgType pyrunner.MessageType, payloadReader io
 	case pyrunner.MessageTypeLog:
 		return m.HandleLogMessage(payloadReader)
 	default:
-		return fmt.Errorf("Unknown message type received %d", msgType)
+		return fmt.Errorf("unknown message type received %d", msgType)
 	}
 
 	return nil

@@ -83,7 +83,8 @@ func NewClient(kubeletAPI *APIConfig) (*Client, error) {
 	}
 
 	var transport http.RoundTripper = &(*http.DefaultTransport.(*http.Transport))
-	if kubeletAPI.AuthType == AuthTypeTLS {
+	switch kubeletAPI.AuthType {
+	case AuthTypeTLS:
 		if kubeletAPI.CACertPath != "" && certs != nil {
 			if err := augmentCertPoolFromCAFile(certs, kubeletAPI.CACertPath); err != nil {
 				return nil, err
@@ -109,7 +110,7 @@ func NewClient(kubeletAPI *APIConfig) (*Client, error) {
 		tlsConfig.RootCAs = certs
 		tlsConfig.BuildNameToCertificate()
 		transport.(*http.Transport).TLSClientConfig = tlsConfig
-	} else if kubeletAPI.AuthType == AuthTypeServiceAccount {
+	case AuthTypeServiceAccount:
 
 		token, err := ioutil.ReadFile("/var/run/secrets/kubernetes.io/serviceaccount/token")
 		if err != nil {
@@ -132,7 +133,7 @@ func NewClient(kubeletAPI *APIConfig) (*Client, error) {
 		}
 
 		log.Debug("Using service account authentication for Kubelet")
-	} else {
+	default:
 		transport.(*http.Transport).TLSClientConfig = tlsConfig
 	}
 
@@ -172,9 +173,9 @@ func (kc *Client) DoRequestAndSetValue(req *http.Request, value interface{}) err
 	}
 
 	if response.StatusCode == http.StatusNotFound {
-		return fmt.Errorf("Kubelet request resulted in 404: %s", req.URL.String())
+		return fmt.Errorf("kubelet request resulted in 404: %s", req.URL.String())
 	} else if response.StatusCode != http.StatusOK {
-		return fmt.Errorf("Kubelet request failed - %q, response: %q", response.Status, string(body))
+		return fmt.Errorf("kubelet request failed - %q, response: %q", response.Status, string(body))
 	}
 
 	if kc.config.LogResponses {
@@ -183,7 +184,7 @@ func (kc *Client) DoRequestAndSetValue(req *http.Request, value interface{}) err
 
 	err = json.Unmarshal(body, value)
 	if err != nil {
-		return fmt.Errorf("Failed to parse Kubelet output. Response: %q. Error: %v", string(body), err)
+		return fmt.Errorf("failed to parse Kubelet output. Response: %q. Error: %v", string(body), err)
 	}
 	return nil
 }

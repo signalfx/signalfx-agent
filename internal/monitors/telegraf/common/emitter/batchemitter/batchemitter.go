@@ -37,9 +37,9 @@ func (b *BatchEmitter) Send() {
 
 // NewEmitter returns a new BatchEmitter that gathers a batch of telegraf
 // measurements so they can be modified and then emitted
-func NewEmitter(Output types.Output, Logger log.FieldLogger) *BatchEmitter {
+func NewEmitter(output types.Output, logger log.FieldLogger) *BatchEmitter {
 	return &BatchEmitter{
-		BaseEmitter: baseemitter.NewEmitter(Output, Logger),
+		BaseEmitter: baseemitter.NewEmitter(output, logger),
 		Metrics:     []telegraf.Metric{},
 	}
 }

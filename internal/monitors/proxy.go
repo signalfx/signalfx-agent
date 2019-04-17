@@ -7,10 +7,6 @@ import (
 	"github.com/signalfx/signalfx-agent/internal/core/services"
 )
 
-const (
-	noProxy = "no_proxy"
-)
-
 func setNoProxyEnvvar(value string) {
 	os.Setenv("no_proxy", value)
 	os.Setenv("NO_PROXY", value)

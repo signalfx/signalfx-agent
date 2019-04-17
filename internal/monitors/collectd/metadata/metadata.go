@@ -75,10 +75,10 @@ type Config struct {
 // Validate will check the config for correctness.
 func (c *Config) Validate() error {
 	if c.DogStatsDPort != nil && c.Token == "" {
-		return errors.New("You must configure 'token' with your SignalFx access token when running the DogStatsD listener")
+		return errors.New("you must configure 'token' with your SignalFx access token when running the DogStatsD listener")
 	}
 	if c.DogStatsDPort == nil && (c.Token != "" || c.IngestEndpoint != "" || c.DogStatsDIP != "") {
-		return errors.New("Optional DogStatsD configurations have been set, but the DogStatsDPort is not configured")
+		return errors.New("optional DogStatsD configurations have been set, but the DogStatsDPort is not configured")
 	}
 	return nil
 }
@@ -100,7 +100,7 @@ func (m *Monitor) Configure(conf *Config) error {
 	if conf.EtcPath != "" {
 		logger.Warningf("Please set the `etcPath` top level agent configuration instead of the monitor level configuration")
 	} else {
-		// get top level configuraiton for /etc path
+		// get top level configuration for /etc path
 		conf.EtcPath = hostfs.HostEtc()
 	}
 	return m.SetConfigurationAndRun(conf)

@@ -10,7 +10,10 @@ import (
 	"github.com/signalfx/signalfx-agent/internal/monitors/telegraf/common/emitter/baseemitter"
 	"github.com/signalfx/signalfx-agent/internal/monitors/telegraf/monitors/winperfcounters"
 	"github.com/signalfx/signalfx-agent/internal/utils"
+	"github.com/sirupsen/logrus"
 )
+
+var logger = logrus.WithField("monitorType", monitorType)
 
 // Configure the monitor and kick off metric syncing
 func (m *Monitor) Configure(conf *Config) error {
@@ -115,7 +118,10 @@ func (m *Monitor) Configure(conf *Config) error {
 		},
 	}
 
-	plugin := winperfcounters.GetPlugin(perfcounterConf)
+	plugin, err := winperfcounters.GetPlugin(perfcounterConf)
+	if err != nil {
+		return err
+	}
 
 	// create batch emitter
 	emitter := baseemitter.NewEmitter(m.Output, logger)

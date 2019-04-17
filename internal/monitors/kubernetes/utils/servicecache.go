@@ -3,7 +3,7 @@ package utils
 import (
 	"reflect"
 
-	"k8s.io/api/core/v1"
+	v1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/types"
 )
@@ -64,7 +64,7 @@ func (sc *ServiceCache) IsCached(svc *v1.Service) bool {
 
 // AddService adds or updates a service in cache
 // This function should only be called after sc.IsCached
-// to prevent unneccesary updates to the internal cache.
+// to prevent unnecessary updates to the internal cache.
 // Returns true if the service is added, false if it was ignored
 func (sc *ServiceCache) AddService(svc *v1.Service) bool {
 	// check if any services exist in this services namespace yet
@@ -90,7 +90,7 @@ func (sc *ServiceCache) Delete(svc *v1.Service) {
 // Returns pods that were previously matched by this service
 // so their properties may be updated accordingly
 func (sc *ServiceCache) DeleteByKey(svcUID types.UID) []types.UID {
-	var pods []types.UID
+	pods := make([]types.UID, 0, len(sc.cachedServices[svcUID].matchedPods))
 	for podUID := range sc.cachedServices[svcUID].matchedPods {
 		pods = append(pods, podUID)
 	}

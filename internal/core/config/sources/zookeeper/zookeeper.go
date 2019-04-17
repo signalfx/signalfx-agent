@@ -48,7 +48,7 @@ var _ types.ConfigSourceConfig = &Config{}
 // New creates a new Zookeeper config source with the given config.  All gets
 // and watches will use the same client.
 func New(conf *Config) types.ConfigSource {
-	defaults.Set(conf)
+	_ = defaults.Set(conf)
 	return &zkConfigSource{
 		endpoints: conf.Endpoints,
 		table:     crc64.MakeTable(crc64.ECMA),
@@ -70,7 +70,7 @@ func (z *zkConfigSource) ensureConnection() error {
 }
 
 // ErrBadGlob gets returned when the globbing in a path is invalid
-var ErrBadGlob = errors.New("Zookeeper only supports globs in the last path segment")
+var ErrBadGlob = errors.New("zookeeper only supports globs in the last path segment")
 
 func isGlob(path string) (string, bool, error) {
 	firstGlobIndex := strings.IndexAny(path, "*?")
@@ -176,7 +176,7 @@ func (z *zkConfigSource) WaitForChange(path string, version uint64, stop <-chan 
 	}
 
 	cases := []reflect.SelectCase{
-		reflect.SelectCase{
+		{
 			Dir:  reflect.SelectRecv,
 			Chan: reflect.ValueOf(stop),
 		},

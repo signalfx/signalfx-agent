@@ -169,7 +169,7 @@ func (mm *MonitorManager) handleNewConfig(conf *config.MonitorConfig) (config.Mo
 
 	if configOnlyAllowsSingleInstance(monConfig) {
 		if len(mm.monitorConfigsForType(conf.Type)) > 0 {
-			return nil, fmt.Errorf("Monitor type %s only allows a single instance at a time", conf.Type)
+			return nil, fmt.Errorf("monitor type %s only allows a single instance at a time", conf.Type)
 		}
 	}
 
@@ -199,7 +199,7 @@ func (mm *MonitorManager) makeMonitorsForMatchingEndpoints(conf config.MonitorCu
 		}).Debug("Trying to find config that matches discovered endpoint")
 
 		if mm.isEndpointIDMonitoredByConfig(conf, id) {
-			log.Debug("The monitor is already monitored")
+			log.Debug("The endpoint is already monitored")
 			continue
 		}
 
@@ -225,7 +225,9 @@ func (mm *MonitorManager) makeMonitorsForMatchingEndpoints(conf config.MonitorCu
 func (mm *MonitorManager) isEndpointIDMonitoredByConfig(conf config.MonitorCustomConfig, id services.ID) bool {
 	for _, am := range mm.activeMonitors {
 		if conf.MonitorConfigCore().Hash() == am.configHash {
-			return true
+			if am.endpointID() == id {
+				return true
+			}
 		}
 	}
 	return false
@@ -371,7 +373,7 @@ func (mm *MonitorManager) createAndConfigureNewMonitor(config config.MonitorCust
 		"monitorID":     id,
 	}).Info("Creating new monitor")
 
-	instance := newMonitor(config.MonitorConfigCore().Type, id)
+	instance := newMonitor(config.MonitorConfigCore().Type)
 	if instance == nil {
 		return errors.Errorf("Could not create new monitor of type %s", monitorType)
 	}
@@ -432,16 +434,13 @@ func (mm *MonitorManager) monitorsForEndpointID(id services.ID) (out []*ActiveMo
 
 func (mm *MonitorManager) monitorConfigsForType(monitorType string) []*config.MonitorCustomConfig {
 	var out []*config.MonitorCustomConfig
-	for _, conf := range mm.monitorConfigs {
+	for i := range mm.monitorConfigs {
+		conf := mm.monitorConfigs[i]
 		if conf.MonitorConfigCore().Type == monitorType {
 			out = append(out, &conf)
 		}
 	}
 	return out
-}
-
-func (mm *MonitorManager) isServiceMonitored(id services.ID) bool {
-	return len(mm.monitorsForEndpointID(id)) > 0
 }
 
 // EndpointRemoved should be called by observers when a service endpoint was

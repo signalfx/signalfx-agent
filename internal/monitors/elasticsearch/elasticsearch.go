@@ -4,6 +4,9 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"sync"
+	"time"
+
 	"github.com/signalfx/golib/datapoint"
 	"github.com/signalfx/signalfx-agent/internal/core/config"
 	"github.com/signalfx/signalfx-agent/internal/monitors"
@@ -11,13 +14,9 @@ import (
 	"github.com/signalfx/signalfx-agent/internal/monitors/types"
 	"github.com/signalfx/signalfx-agent/internal/utils"
 	log "github.com/sirupsen/logrus"
-	"sync"
-	"time"
 )
 
 const monitorType = "elasticsearch"
-
-var logger = utils.NewThrottledLogger(log.WithFields(log.Fields{"monitorType": monitorType}), 20*time.Second)
 
 // Config for this monitor
 type Config struct {
@@ -78,10 +77,10 @@ type Config struct {
 
 // Monitor for conviva metrics
 type Monitor struct {
-	Output  types.Output
-	cancel  context.CancelFunc
-	ctx     context.Context
-	timeout time.Duration
+	Output types.Output
+	cancel context.CancelFunc
+	ctx    context.Context
+	logger *utils.ThrottledLogger
 }
 
 func init() {
@@ -93,24 +92,21 @@ type sharedInfo struct {
 	defaultDimensions    map[string]string
 	nodeMetricDimensions map[string]string
 	lock                 sync.RWMutex
+	logger               *utils.ThrottledLogger
 }
 
 func (sinfo *sharedInfo) fetchNodeAndClusterMetadata(esClient client.ESHttpClient, configuredClusterName string) error {
 
 	// Collect info about master for the cluster
 	masterInfoOutput, err := esClient.GetMasterNodeInfo()
-
 	if err != nil {
-		logger.WithError(err).Errorf("Failed to GET master node info")
-		return err
+		return fmt.Errorf("failed to GET master node info: %v", err)
 	}
 
 	// Collect node info
 	nodeInfoOutput, err := esClient.GetNodeInfo()
-
 	if err != nil {
-		logger.WithError(err).Errorf("Failed to GET node info")
-		return err
+		return fmt.Errorf("failed to GET node info: %v", err)
 	}
 
 	// Hold the lock while updating info shared between different fetchers
@@ -118,25 +114,21 @@ func (sinfo *sharedInfo) fetchNodeAndClusterMetadata(esClient client.ESHttpClien
 	defer sinfo.lock.Unlock()
 
 	nodeDimensions, err := prepareNodeMetricsDimensions(nodeInfoOutput.Nodes)
-
 	if err != nil {
-		logger.WithError(err).Errorf("Failed to prepare node dimensions")
-		return err
+		return fmt.Errorf("failed to prepare node dimensions: %v", err)
 	}
 
 	sinfo.nodeIsCurrentMaster, err = isCurrentMaster(nodeDimensions["node_id"], masterInfoOutput)
-
 	if err != nil {
-		logger.WithError(err).Errorf("Failed to determine whether current node is the master")
-		return err
+		sinfo.logger.ThrottledWarning(err.Error())
+		sinfo.nodeIsCurrentMaster = false
 	}
 
 	clusterName := nodeInfoOutput.ClusterName
 	sinfo.defaultDimensions, err = prepareDefaultDimensions(configuredClusterName, clusterName)
 
 	if err != nil {
-		logger.WithError(err).Errorf("Failed to prepare plugin_instance dimension")
-		return err
+		return fmt.Errorf("failed to prepare plugin_instance dimension: %v", err)
 	}
 
 	sinfo.nodeMetricDimensions = utils.MergeStringMaps(sinfo.defaultDimensions, nodeDimensions)
@@ -154,13 +146,16 @@ func (sinfo *sharedInfo) getAllSharedInfo() (map[string]string, map[string]strin
 
 // Configure monitor
 func (m *Monitor) Configure(conf *Config) error {
+	m.logger = utils.NewThrottledLogger(log.WithFields(log.Fields{"monitorType": monitorType}), 20*time.Second)
+
 	esClient := client.NewESClient(conf.Host, conf.Port, conf.UseHTTPS, conf.Username, conf.Password)
 	m.ctx, m.cancel = context.WithCancel(context.Background())
 	var isInitialized bool
 
 	// To handle metadata about metrics that is shared
 	shared := sharedInfo{
-		lock: sync.RWMutex{},
+		lock:   sync.RWMutex{},
+		logger: m.logger,
 	}
 
 	utils.RunOnInterval(m.ctx, func() {
@@ -171,7 +166,7 @@ func (m *Monitor) Configure(conf *Config) error {
 		// to ensure that the stats are not sent in with faulty dimensions. The monitor will try to fetch this
 		// information again every MetadataRefreshInterval seconds
 		if err != nil {
-			logger.WithError(err).Errorf(fmt.Sprintf("Failed to get Cluster and node metadata upfront. Will try again in %d s.", conf.MetadataRefreshIntervalSeconds))
+			m.logger.WithError(err).Errorf(fmt.Sprintf("Failed to get Cluster and node metadata upfront. Will try again in %d s.", conf.MetadataRefreshIntervalSeconds))
 			return
 		}
 
@@ -218,9 +213,8 @@ func (m *Monitor) Configure(conf *Config) error {
 
 func (m *Monitor) fetchNodeStats(esClient client.ESHttpClient, conf *Config, defaultNodeDimensions map[string]string) {
 	nodeStatsOutput, err := esClient.GetNodeAndThreadPoolStats()
-
 	if err != nil {
-		logger.WithError(err).Errorf("Failed to GET node stats")
+		m.logger.WithError(err).Errorf("Failed to GET node stats")
 		return
 	}
 
@@ -237,7 +231,7 @@ func (m *Monitor) fetchClusterStats(esClient client.ESHttpClient, conf *Config, 
 	clusterStatsOutput, err := esClient.GetClusterStats()
 
 	if err != nil {
-		logger.WithError(err).Errorf("Failed to GET cluster stats")
+		m.logger.WithError(err).Errorf("Failed to GET cluster stats")
 		return
 	}
 
@@ -248,7 +242,7 @@ func (m *Monitor) fetchIndexStats(esClient client.ESHttpClient, conf *Config, de
 	indexStatsOutput, err := esClient.GetIndexStats()
 
 	if err != nil {
-		logger.WithError(err).Errorf("Failed to GET index stats")
+		m.logger.WithError(err).Errorf("Failed to GET index stats")
 		return
 	}
 
@@ -267,7 +261,7 @@ func prepareDefaultDimensions(userProvidedClusterName string, queriedClusterName
 
 	if clusterName == "" {
 		if queriedClusterName == nil {
-			return nil, errors.New("Failed to GET cluster name from Elasticsearch API")
+			return nil, errors.New("failed to GET cluster name from Elasticsearch API")
 		}
 		clusterName = *queriedClusterName
 	}
@@ -284,8 +278,7 @@ func isCurrentMaster(nodeID string, masterInfoOutput *client.MasterInfoOutput) (
 	masterNode := masterInfoOutput.MasterNode
 
 	if masterNode == nil {
-		logger.ThrottledWarning("Unable to identify Elasticsearch cluster master node. Assuming current node is not the current master.")
-		return false, nil
+		return false, errors.New("unable to identify Elasticsearch cluster master node, assuming current node is not the current master")
 	}
 
 	return nodeID == *masterNode, nil
@@ -295,7 +288,7 @@ func prepareNodeMetricsDimensions(nodeInfo map[string]client.NodeInfo) (map[stri
 	var nodeID string
 
 	if len(nodeInfo) != 1 {
-		return nil, fmt.Errorf("Expected info about exactly one node. Received a map with %d entries", len(nodeInfo))
+		return nil, fmt.Errorf("expected info about exactly one node, received a map with %d entries", len(nodeInfo))
 	}
 
 	// nodes will have exactly one entry, for the current node since the monitor hits "_nodes/_local" endpoint
@@ -304,7 +297,7 @@ func prepareNodeMetricsDimensions(nodeInfo map[string]client.NodeInfo) (map[stri
 	}
 
 	if nodeID == "" {
-		return nil, errors.New("Failed to obtain Elastticsearch node id")
+		return nil, errors.New("failed to obtain Elastticsearch node id")
 	}
 
 	dims := map[string]string{}
