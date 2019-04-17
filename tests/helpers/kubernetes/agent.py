@@ -42,16 +42,16 @@ class Agent:  # pylint: disable=too-many-instance-attributes
             k8s.create_secret("signalfx-agent", "access-token", secret, namespace=self.namespace)
 
     def create_agent_serviceaccount(self, serviceaccount_path):
-        serviceaccount_yaml = yaml.load(open(serviceaccount_path).read())
+        serviceaccount_yaml = yaml.safe_load(open(serviceaccount_path).read())
         self.serviceaccount_name = serviceaccount_yaml["metadata"]["name"]
         if not k8s.has_serviceaccount(self.serviceaccount_name, namespace=self.namespace):
             print('Creating service account "%s" from %s ...' % (self.serviceaccount_name, serviceaccount_path))
             k8s.create_serviceaccount(body=serviceaccount_yaml, namespace=self.namespace)
 
     def create_agent_clusterrole(self, clusterrole_path, clusterrolebinding_path):
-        clusterrole_yaml = yaml.load(open(clusterrole_path).read())
+        clusterrole_yaml = yaml.safe_load(open(clusterrole_path).read())
         self.clusterrole_name = clusterrole_yaml["metadata"]["name"]
-        clusterrolebinding_yaml = yaml.load(open(clusterrolebinding_path).read())
+        clusterrolebinding_yaml = yaml.safe_load(open(clusterrolebinding_path).read())
         self.clusterrolebinding_name = clusterrolebinding_yaml["metadata"]["name"]
         if self.namespace != "default":
             self.clusterrole_name = self.clusterrole_name + "-" + self.namespace
@@ -73,11 +73,11 @@ class Agent:  # pylint: disable=too-many-instance-attributes
             k8s.create_clusterrolebinding(clusterrolebinding_yaml)
 
     def create_agent_configmap(self, configmap_path, agent_yaml=None):
-        configmap_yaml = yaml.load(open(configmap_path).read())
+        configmap_yaml = yaml.safe_load(open(configmap_path).read())
         self.configmap_name = configmap_yaml["metadata"]["name"]
         self.delete_agent_configmap()
         if agent_yaml:
-            self.agent_yaml = yaml.load(agent_yaml)
+            self.agent_yaml = yaml.safe_load(agent_yaml)
             self.observer = self.agent_yaml.setdefault("observers")
             self.monitors = self.agent_yaml.setdefault("monitors", [])
             self.agent_yaml.setdefault("globalDimensions", {"kubernetes_cluster": self.cluster_name})
@@ -91,7 +91,7 @@ class Agent:  # pylint: disable=too-many-instance-attributes
                 )
                 self.agent_yaml.setdefault("apiUrl", "http://%s:%d" % (self.backend.api_host, self.backend.api_port))
         else:
-            self.agent_yaml = yaml.load(configmap_yaml["data"]["agent.yaml"])
+            self.agent_yaml = yaml.safe_load(configmap_yaml["data"]["agent.yaml"])
             del self.agent_yaml["observers"]
             if not self.observer and self.agent_yaml.get("observers"):
                 del self.agent_yaml["observers"]
@@ -128,7 +128,7 @@ class Agent:  # pylint: disable=too-many-instance-attributes
         print(self.agent_yaml)
 
     def create_agent_daemonset(self, daemonset_path):
-        daemonset_yaml = yaml.load(open(daemonset_path).read())
+        daemonset_yaml = yaml.safe_load(open(daemonset_path).read())
         self.daemonset_name = daemonset_yaml["metadata"]["name"]
         daemonset_labels = daemonset_yaml["spec"]["selector"]["matchLabels"]
         self.delete_agent_daemonset()

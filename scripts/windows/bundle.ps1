@@ -4,7 +4,7 @@ $scriptDir = split-path -parent $MyInvocation.MyCommand.Definition
 
 $PYTHON_INSTALLER_NAME="python-installer.msi"
 $BUILD_DIR="$scriptDir\..\..\bundle\signalfx-agent"
-$PYTHON_MSI_URL="https://www.python.org/ftp/python/2.7.15/python-2.7.15.amd64.msi"
+$PYTHON_MSI_URL="https://www.python.org/ftp/python/2.7.16/python-2.7.16.amd64.msi"
 
 # download collectd from github.com/signalfx/collectd
 function download_collectd([string]$collectdCommit, [string]$outputDir="$BUILD_DIR\collectd") {

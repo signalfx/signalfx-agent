@@ -15,7 +15,7 @@ target_dir = os.path.join("/", "usr","share","collectd") if len(sys.argv) < 2 el
 python_executable = sys.executable if sys.executable else 'python'
 
 with file(os.path.join(script_dir, "..", "collectd-plugins.yaml"), 'r') as f:
-    plugins = yaml.load(f)
+    plugins = yaml.safe_load(f)
 
 for p in plugins:
     plugin_name = p.get('name')
