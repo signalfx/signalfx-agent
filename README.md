@@ -11,9 +11,9 @@ are not available on Windows.
 
  - [Installation](#installation)
  - [Confirmation](#confirmation)
- - [Troubleshooting](#troubleshooting)
- - [What's Next](#what)
- - [Other methods of Installation](#other-methods)
+ - [Troubleshooting](#troubleshooting-the-installation)
+ - [Next Steps](#next-steps)
+ - [Other methods of Installation](#other-methods-of-installation)
  
 
 ## Installation
@@ -64,9 +64,9 @@ The response you will see is ---
 
 To troubleshoot the Linux installation -- 
 
-To troubleshoot the Windows installation --
+To troubleshoot the Windows installation -- Is this where the link to "Agent Configuration: Configuring your realm" info should be?
 
-## What's Next
+## Next Steps
 
 To install Smart Agent on multiple hosts using configuration Management Tools or Packages, go to the Integrations page, and then click the icon of the tool you want to use.
 
