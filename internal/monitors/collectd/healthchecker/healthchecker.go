@@ -14,8 +14,6 @@ import (
 	"github.com/signalfx/signalfx-agent/internal/monitors"
 )
 
-const monitorType = "collectd/health-checker"
-
 func init() {
 	monitors.Register(monitorType, func() interface{} {
 		return &Monitor{

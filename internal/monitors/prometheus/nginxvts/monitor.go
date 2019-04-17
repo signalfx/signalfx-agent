@@ -5,8 +5,6 @@ import (
 	"github.com/signalfx/signalfx-agent/internal/monitors/prometheusexporter"
 )
 
-const monitorType = "prometheus/nginx-vts"
-
 func init() {
 	monitors.Register(monitorType, func() interface{} {
 		return &Monitor{Monitor: prometheusexporter.Monitor{IncludedMetrics: includedMetrics}}

@@ -19,8 +19,6 @@ import (
 	"github.com/ulule/deepcopier"
 )
 
-const monitorType = "telegraf/tail"
-
 var logger = log.WithFields(log.Fields{"monitorType": monitorType})
 
 func init() {

@@ -20,8 +20,6 @@ import (
 	"golang.org/x/sync/errgroup"
 )
 
-const monitorType = "conviva"
-
 const (
 	metricURLFormat     = "https://api.conviva.com/insights/2.4/metrics.json?metrics=%s&account=%s&filter_ids=%s"
 	metricLensURLFormat = metricURLFormat + "&metriclens_dimension_id=%d"

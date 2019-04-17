@@ -17,10 +17,7 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-const (
-	monitorType = "processlist"
-	version     = "0.0.30"
-)
+const version = "0.0.30"
 
 // EVENT(objects.top-info): Process list event.
 

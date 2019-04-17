@@ -10,8 +10,6 @@ import (
 	yaml "gopkg.in/yaml.v2"
 )
 
-const monitorType = "collectd/hadoopjmx"
-
 var serviceName = "hadoop"
 
 type nodeType string

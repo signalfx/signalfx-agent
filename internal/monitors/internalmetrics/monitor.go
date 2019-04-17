@@ -16,10 +16,6 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-const (
-	monitorType = "internal-metrics"
-)
-
 // Config for internal metric monitoring
 type Config struct {
 	config.MonitorConfig `yaml:",inline" acceptsEndpoints:"true"`

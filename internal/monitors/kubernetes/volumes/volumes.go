@@ -18,8 +18,6 @@ import (
 	stats "k8s.io/kubernetes/pkg/kubelet/apis/stats/v1alpha1"
 )
 
-const monitorType = "kubernetes-volumes"
-
 var logger = log.WithFields(log.Fields{"monitorType": monitorType})
 
 func init() {

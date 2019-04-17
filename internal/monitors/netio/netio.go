@@ -17,8 +17,6 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-const monitorType = "net-io"
-
 //nolint:gochecknoglobals setting net.IOCounters to a package variable for testing purposes
 var iOCounters = net.IOCounters
 

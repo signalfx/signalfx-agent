@@ -13,8 +13,6 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-const monitorType = "trace-forwarder"
-
 var logger = utils.NewThrottledLogger(log.WithFields(log.Fields{"monitorType": monitorType}), 30*time.Second)
 var golibLogger = &utils.LogrusGolibShim{FieldLogger: logger.FieldLogger}
 

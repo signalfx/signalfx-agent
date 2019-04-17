@@ -10,8 +10,6 @@ import (
 	"github.com/signalfx/signalfx-agent/internal/monitors/types"
 )
 
-const monitorType = "telegraf/win_perf_counters"
-
 func init() {
 	monitors.Register(monitorType, func() interface{} { return &Monitor{} }, &Config{})
 }

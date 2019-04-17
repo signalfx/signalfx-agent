@@ -29,8 +29,6 @@ import (
 
 const messageTypeValueList pyrunner.MessageType = 100
 
-const monitorType = "collectd/python"
-
 func init() {
 	monitors.Register(monitorType, func() interface{} {
 		return &PyMonitor{
