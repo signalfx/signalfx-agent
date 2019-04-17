@@ -37,7 +37,6 @@ type Config struct {
 	// should be set on the JVM when running the application.
 	Port uint16 `yaml:"port" validate:"required"`
 	Name string `yaml:"name"`
-
 	// This is how the service type is identified in the SignalFx UI so that
 	// you can get built-in content for it.  For custom JMX integrations, it
 	// can be set to whatever you like and metrics will get the special
@@ -47,10 +46,17 @@ type Config struct {
 	// access to the other values in this config. NOTE: under normal
 	// circumstances it is not advised to set this string directly - setting
 	// the host and port as specified above is preferred.
-	ServiceURL     string `yaml:"serviceURL" default:"service:jmx:rmi:///jndi/rmi://{{.Host}}:{{.Port}}/jmxrmi"`
+	ServiceURL string `yaml:"serviceURL" default:"service:jmx:rmi:///jndi/rmi://{{.Host}}:{{.Port}}/jmxrmi"`
+	// Prefixes the generated plugin instance with prefix.
+	// If a second `instancePrefix` is specified in a referenced MBean block,
+	// the prefix specified in the Connection block will appear at the
+	// beginning of the plugin instance, the prefix specified in the
+	// MBean block will be appended to it
 	InstancePrefix string `yaml:"instancePrefix"`
-	Username       string `yaml:"username"`
-	Password       string `yaml:"password" neverLog:"true"`
+	// Username to authenticate to the server
+	Username string `yaml:"username"`
+	// User password to authenticate to the server
+	Password string `yaml:"password" neverLog:"true"`
 	// Takes in key-values pairs of custom dimensions at the connection level.
 	CustomDimensions map[string]string `yaml:"customDimensions"`
 	// A list of the MBeans defined in `mBeanDefinitions` to actually collect.
