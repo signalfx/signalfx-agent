@@ -983,7 +983,7 @@
           },
           {
             "yamlName": "instancePrefix",
-            "doc": "",
+            "doc": "Prefixes the generated plugin instance with prefix. If a second `instancePrefix` is specified in a referenced MBean block, the prefix specified in the Connection block will appear at the beginning of the plugin instance, the prefix specified in the MBean block will be appended to it",
             "default": "",
             "required": false,
             "type": "string",
@@ -991,7 +991,7 @@
           },
           {
             "yamlName": "username",
-            "doc": "",
+            "doc": "Username to authenticate to the server",
             "default": "",
             "required": false,
             "type": "string",
@@ -999,7 +999,7 @@
           },
           {
             "yamlName": "password",
-            "doc": "",
+            "doc": "User password to authenticate to the server",
             "default": "",
             "required": false,
             "type": "string",
@@ -1043,7 +1043,7 @@
               "fields": [
                 {
                   "yamlName": "objectName",
-                  "doc": "",
+                  "doc": "Sets the pattern which is used to retrieve MBeans from the MBeanServer. If more than one MBean is returned you should use the `instanceFrom` option to make the identifiers unique",
                   "default": "",
                   "required": false,
                   "type": "string",
@@ -1051,7 +1051,7 @@
                 },
                 {
                   "yamlName": "instancePrefix",
-                  "doc": "",
+                  "doc": "Prefixes the generated plugin instance with prefix",
                   "default": "",
                   "required": false,
                   "type": "string",
@@ -1059,7 +1059,7 @@
                 },
                 {
                   "yamlName": "instanceFrom",
-                  "doc": "",
+                  "doc": "The object names used by JMX to identify MBeans include so called \"properties\" which are basically key-value-pairs. If the given object name is not unique and multiple MBeans are returned, the values of those properties usually differ. You can use this option to build the plugin instance from the appropriate property values. This option is optional and may be repeated to generate the plugin instance from multiple property values",
                   "default": null,
                   "required": false,
                   "type": "slice",
@@ -1067,7 +1067,7 @@
                 },
                 {
                   "yamlName": "values",
-                  "doc": "",
+                  "doc": "The `value` blocks map one or more attributes of an MBean to a value list in collectd. There must be at least one `value` block within each MBean block",
                   "default": null,
                   "required": false,
                   "type": "slice",
@@ -1079,7 +1079,7 @@
                     "fields": [
                       {
                         "yamlName": "type",
-                        "doc": "",
+                        "doc": "Sets the data set used within collectd to handle the values of the MBean attribute",
                         "default": "",
                         "required": false,
                         "type": "string",
@@ -1087,7 +1087,7 @@
                       },
                       {
                         "yamlName": "table",
-                        "doc": "",
+                        "doc": "Set this to true if the returned attribute is a composite type. If set to true, the keys within the composite type is appended to the type instance.",
                         "default": false,
                         "required": false,
                         "type": "bool",
@@ -1095,7 +1095,7 @@
                       },
                       {
                         "yamlName": "instancePrefix",
-                        "doc": "",
+                        "doc": "Works like the option of the same name directly beneath the MBean block, but sets the type instance instead",
                         "default": "",
                         "required": false,
                         "type": "string",
@@ -1103,7 +1103,7 @@
                       },
                       {
                         "yamlName": "instanceFrom",
-                        "doc": "",
+                        "doc": "Works like the option of the same name directly beneath the MBean block, but sets the type instance instead",
                         "default": null,
                         "required": false,
                         "type": "slice",
@@ -1111,7 +1111,7 @@
                       },
                       {
                         "yamlName": "attribute",
-                        "doc": "",
+                        "doc": "Sets the name of the attribute from which to read the value. You can access the keys of composite types by using a dot to concatenate the key name to the attribute name. For example: “attrib0.key42”. If `table` is set to true path must point to a composite type, otherwise it must point to a numeric type.",
                         "default": "",
                         "required": false,
                         "type": "string",
@@ -1532,7 +1532,7 @@
           },
           {
             "yamlName": "instancePrefix",
-            "doc": "",
+            "doc": "Prefixes the generated plugin instance with prefix. If a second `instancePrefix` is specified in a referenced MBean block, the prefix specified in the Connection block will appear at the beginning of the plugin instance, the prefix specified in the MBean block will be appended to it",
             "default": "",
             "required": false,
             "type": "string",
@@ -1540,7 +1540,7 @@
           },
           {
             "yamlName": "username",
-            "doc": "",
+            "doc": "Username to authenticate to the server",
             "default": "",
             "required": false,
             "type": "string",
@@ -1548,7 +1548,7 @@
           },
           {
             "yamlName": "password",
-            "doc": "",
+            "doc": "User password to authenticate to the server",
             "default": "",
             "required": false,
             "type": "string",
@@ -1592,7 +1592,7 @@
               "fields": [
                 {
                   "yamlName": "objectName",
-                  "doc": "",
+                  "doc": "Sets the pattern which is used to retrieve MBeans from the MBeanServer. If more than one MBean is returned you should use the `instanceFrom` option to make the identifiers unique",
                   "default": "",
                   "required": false,
                   "type": "string",
@@ -1600,7 +1600,7 @@
                 },
                 {
                   "yamlName": "instancePrefix",
-                  "doc": "",
+                  "doc": "Prefixes the generated plugin instance with prefix",
                   "default": "",
                   "required": false,
                   "type": "string",
@@ -1608,7 +1608,7 @@
                 },
                 {
                   "yamlName": "instanceFrom",
-                  "doc": "",
+                  "doc": "The object names used by JMX to identify MBeans include so called \"properties\" which are basically key-value-pairs. If the given object name is not unique and multiple MBeans are returned, the values of those properties usually differ. You can use this option to build the plugin instance from the appropriate property values. This option is optional and may be repeated to generate the plugin instance from multiple property values",
                   "default": null,
                   "required": false,
                   "type": "slice",
@@ -1616,7 +1616,7 @@
                 },
                 {
                   "yamlName": "values",
-                  "doc": "",
+                  "doc": "The `value` blocks map one or more attributes of an MBean to a value list in collectd. There must be at least one `value` block within each MBean block",
                   "default": null,
                   "required": false,
                   "type": "slice",
@@ -1628,7 +1628,7 @@
                     "fields": [
                       {
                         "yamlName": "type",
-                        "doc": "",
+                        "doc": "Sets the data set used within collectd to handle the values of the MBean attribute",
                         "default": "",
                         "required": false,
                         "type": "string",
@@ -1636,7 +1636,7 @@
                       },
                       {
                         "yamlName": "table",
-                        "doc": "",
+                        "doc": "Set this to true if the returned attribute is a composite type. If set to true, the keys within the composite type is appended to the type instance.",
                         "default": false,
                         "required": false,
                         "type": "bool",
@@ -1644,7 +1644,7 @@
                       },
                       {
                         "yamlName": "instancePrefix",
-                        "doc": "",
+                        "doc": "Works like the option of the same name directly beneath the MBean block, but sets the type instance instead",
                         "default": "",
                         "required": false,
                         "type": "string",
@@ -1652,7 +1652,7 @@
                       },
                       {
                         "yamlName": "instanceFrom",
-                        "doc": "",
+                        "doc": "Works like the option of the same name directly beneath the MBean block, but sets the type instance instead",
                         "default": null,
                         "required": false,
                         "type": "slice",
@@ -1660,7 +1660,7 @@
                       },
                       {
                         "yamlName": "attribute",
-                        "doc": "",
+                        "doc": "Sets the name of the attribute from which to read the value. You can access the keys of composite types by using a dot to concatenate the key name to the attribute name. For example: “attrib0.key42”. If `table` is set to true path must point to a composite type, otherwise it must point to a numeric type.",
                         "default": "",
                         "required": false,
                         "type": "string",
@@ -3959,7 +3959,7 @@
       "monitorType": "collectd/genericjmx",
       "sendAll": false,
       "dimensions": null,
-      "doc": "Monitors Java services that expose metrics on\nJMX using collectd's GenericJMX plugin.\n\nSee https://github.com/signalfx/integrations/tree/master/collectd-genericjmx\nand https://collectd.org/documentation/manpages/collectd-java.5.shtml\n\nExample (gets the thread count from a standard JMX MBean available on all\nJava JMX-enabled apps):\n\n```yaml\n\nmonitors:\n - type: collectd/genericjmx\n   host: my-java-app\n   port: 7099\n   mBeanDefinitions:\n     threading:\n       objectName: java.lang:type=Threading\n       values:\n       - type: gauge\n         table: false\n         instancePrefix: jvm.threads.count\n         attribute: ThreadCount\n```\n## Troubleshooting\n\nExposing JMX in your Java application can be a tricky process.  Oracle has a\n[helpful guide for Java\n8](https://docs.oracle.com/javase/8/docs/technotes/guides/management/agent.html)\nthat explains how to expose JMX metrics automatically by setting Java\nproperties on your application.  Here are a set of Java properties that are\nknown to work with Java 7+:\n\n```\njava \\\n  -Dcom.sun.management.jmxremote.port=5000 \\\n  -Dcom.sun.management.jmxremote.authenticate=false \\\n  -Dcom.sun.management.jmxremote.ssl=false \\\n  -Dcom.sun.management.jmxremote.rmi.port=5000 \\\n  ...\n```\n\nThis should work as long as the agent is allowed to access port 5000 on the\nJava app's host (i.e. there is no firewall blocking it).  Note that this\ndoes not enable authentication or encryption, but these can be added if\ndesired.\n\nAssuming you have the `host` config set to `172.17.0.3` and the port set to\n`5000` (this is a totally arbitrary port and your JMX app will probably be\nsomething different), here are some errors you might receive and their\nmeanings:\n\n### Connection Refused\n```\nCreating MBean server connection failed: java.io.IOException: Failed to retrieve RMIServer stub: javax.naming.ServiceUnavailableException [Root exception is java.rmi.ConnectException: Connection refused to host: 172.17.0.3; nested exception is:\n     java.net.ConnectException: Connection refused (Connection refused)]\n```\n\nThis error indicates that the JMX connect port is not open on the specified\nhost.  Confirm (via netstat/ss or some other tool) that this port\nis indeed open on the configured host, and is listening on an appropriate\naddress (i.e. if the agent is running on a remote server then JMX should not\nbe listening on localhost only).\n\n### RMI Connection Issues\n\n```\nCreating MBean server connection failed: java.rmi.ConnectException: Connection refused to host: 172.17.0.3; nested exception is:\n     java.net.ConnectException: Connection timed out (Connection timed out)\n```\n\nThis indicates that the JMX connect port was reached successfully, but the\nRMI port that it was directed to is being blocked, probably by a firewall.\nThe easiest thing to do here is to make sure the\n`com.sun.management.jmxremote.rmi.port` property in your Java app is set to\nthe same port as the JMX connect port.  There may be other variations of\nthis that say `Connection reset` or `Connection refused` but they all\ngeneraly indicate a similar cause.\n\n## Useful links\n\n - https://realjenius.com/2012/11/21/java7-jmx-tunneling-freedom/\n",
+      "doc": "Monitors Java services that expose metrics on\nJMX using collectd's GenericJMX plugin.\n\nSee the following for more information \n- https://github.com/signalfx/integrations/tree/master/collectd-genericjmx\n- https://collectd.org/documentation/manpages/collectd-java.5.shtml\n- https://collectd.org/wiki/index.php/Plugin:GenericJMX\n\nExample (gets the thread count from a standard JMX MBean available on all\nJava JMX-enabled apps):\n\n```yaml\n\nmonitors:\n - type: collectd/genericjmx\n   host: my-java-app\n   port: 7099\n   mBeanDefinitions:\n     threading:\n       objectName: java.lang:type=Threading\n       values:\n       - type: gauge\n         table: false\n         instancePrefix: jvm.threads.count\n         attribute: ThreadCount\n```\n## Troubleshooting\n\nExposing JMX in your Java application can be a tricky process.  Oracle has a\n[helpful guide for Java\n8](https://docs.oracle.com/javase/8/docs/technotes/guides/management/agent.html)\nthat explains how to expose JMX metrics automatically by setting Java\nproperties on your application.  Here are a set of Java properties that are\nknown to work with Java 7+:\n\n```\njava \\\n  -Dcom.sun.management.jmxremote.port=5000 \\\n  -Dcom.sun.management.jmxremote.authenticate=false \\\n  -Dcom.sun.management.jmxremote.ssl=false \\\n  -Dcom.sun.management.jmxremote.rmi.port=5000 \\\n  ...\n```\n\nThis should work as long as the agent is allowed to access port 5000 on the\nJava app's host (i.e. there is no firewall blocking it).  Note that this\ndoes not enable authentication or encryption, but these can be added if\ndesired.\n\nAssuming you have the `host` config set to `172.17.0.3` and the port set to\n`5000` (this is a totally arbitrary port and your JMX app will probably be\nsomething different), here are some errors you might receive and their\nmeanings:\n\n### Connection Refused\n```\nCreating MBean server connection failed: java.io.IOException: Failed to retrieve RMIServer stub: javax.naming.ServiceUnavailableException [Root exception is java.rmi.ConnectException: Connection refused to host: 172.17.0.3; nested exception is:\n     java.net.ConnectException: Connection refused (Connection refused)]\n```\n\nThis error indicates that the JMX connect port is not open on the specified\nhost.  Confirm (via netstat/ss or some other tool) that this port\nis indeed open on the configured host, and is listening on an appropriate\naddress (i.e. if the agent is running on a remote server then JMX should not\nbe listening on localhost only).\n\n### RMI Connection Issues\n\n```\nCreating MBean server connection failed: java.rmi.ConnectException: Connection refused to host: 172.17.0.3; nested exception is:\n     java.net.ConnectException: Connection timed out (Connection timed out)\n```\n\nThis indicates that the JMX connect port was reached successfully, but the\nRMI port that it was directed to is being blocked, probably by a firewall.\nThe easiest thing to do here is to make sure the\n`com.sun.management.jmxremote.rmi.port` property in your Java app is set to\nthe same port as the JMX connect port.  There may be other variations of\nthis that say `Connection reset` or `Connection refused` but they all\ngeneraly indicate a similar cause.\n\n## Useful links\n\n - https://realjenius.com/2012/11/21/java7-jmx-tunneling-freedom/\n",
       "groups": null,
       "metrics": null,
       "properties": null,
@@ -4011,7 +4011,7 @@
           },
           {
             "yamlName": "instancePrefix",
-            "doc": "",
+            "doc": "Prefixes the generated plugin instance with prefix. If a second `instancePrefix` is specified in a referenced MBean block, the prefix specified in the Connection block will appear at the beginning of the plugin instance, the prefix specified in the MBean block will be appended to it",
             "default": "",
             "required": false,
             "type": "string",
@@ -4019,7 +4019,7 @@
           },
           {
             "yamlName": "username",
-            "doc": "",
+            "doc": "Username to authenticate to the server",
             "default": "",
             "required": false,
             "type": "string",
@@ -4027,7 +4027,7 @@
           },
           {
             "yamlName": "password",
-            "doc": "",
+            "doc": "User password to authenticate to the server",
             "default": "",
             "required": false,
             "type": "string",
@@ -4071,7 +4071,7 @@
               "fields": [
                 {
                   "yamlName": "objectName",
-                  "doc": "",
+                  "doc": "Sets the pattern which is used to retrieve MBeans from the MBeanServer. If more than one MBean is returned you should use the `instanceFrom` option to make the identifiers unique",
                   "default": "",
                   "required": false,
                   "type": "string",
@@ -4079,7 +4079,7 @@
                 },
                 {
                   "yamlName": "instancePrefix",
-                  "doc": "",
+                  "doc": "Prefixes the generated plugin instance with prefix",
                   "default": "",
                   "required": false,
                   "type": "string",
@@ -4087,7 +4087,7 @@
                 },
                 {
                   "yamlName": "instanceFrom",
-                  "doc": "",
+                  "doc": "The object names used by JMX to identify MBeans include so called \"properties\" which are basically key-value-pairs. If the given object name is not unique and multiple MBeans are returned, the values of those properties usually differ. You can use this option to build the plugin instance from the appropriate property values. This option is optional and may be repeated to generate the plugin instance from multiple property values",
                   "default": null,
                   "required": false,
                   "type": "slice",
@@ -4095,7 +4095,7 @@
                 },
                 {
                   "yamlName": "values",
-                  "doc": "",
+                  "doc": "The `value` blocks map one or more attributes of an MBean to a value list in collectd. There must be at least one `value` block within each MBean block",
                   "default": null,
                   "required": false,
                   "type": "slice",
@@ -4107,7 +4107,7 @@
                     "fields": [
                       {
                         "yamlName": "type",
-                        "doc": "",
+                        "doc": "Sets the data set used within collectd to handle the values of the MBean attribute",
                         "default": "",
                         "required": false,
                         "type": "string",
@@ -4115,7 +4115,7 @@
                       },
                       {
                         "yamlName": "table",
-                        "doc": "",
+                        "doc": "Set this to true if the returned attribute is a composite type. If set to true, the keys within the composite type is appended to the type instance.",
                         "default": false,
                         "required": false,
                         "type": "bool",
@@ -4123,7 +4123,7 @@
                       },
                       {
                         "yamlName": "instancePrefix",
-                        "doc": "",
+                        "doc": "Works like the option of the same name directly beneath the MBean block, but sets the type instance instead",
                         "default": "",
                         "required": false,
                         "type": "string",
@@ -4131,7 +4131,7 @@
                       },
                       {
                         "yamlName": "instanceFrom",
-                        "doc": "",
+                        "doc": "Works like the option of the same name directly beneath the MBean block, but sets the type instance instead",
                         "default": null,
                         "required": false,
                         "type": "slice",
@@ -4139,7 +4139,7 @@
                       },
                       {
                         "yamlName": "attribute",
-                        "doc": "",
+                        "doc": "Sets the name of the attribute from which to read the value. You can access the keys of composite types by using a dot to concatenate the key name to the attribute name. For example: “attrib0.key42”. If `table` is set to true path must point to a composite type, otherwise it must point to a numeric type.",
                         "default": "",
                         "required": false,
                         "type": "string",
@@ -4263,7 +4263,7 @@
           },
           {
             "yamlName": "instancePrefix",
-            "doc": "",
+            "doc": "Prefixes the generated plugin instance with prefix. If a second `instancePrefix` is specified in a referenced MBean block, the prefix specified in the Connection block will appear at the beginning of the plugin instance, the prefix specified in the MBean block will be appended to it",
             "default": "",
             "required": false,
             "type": "string",
@@ -4271,7 +4271,7 @@
           },
           {
             "yamlName": "username",
-            "doc": "",
+            "doc": "Username to authenticate to the server",
             "default": "",
             "required": false,
             "type": "string",
@@ -4279,7 +4279,7 @@
           },
           {
             "yamlName": "password",
-            "doc": "",
+            "doc": "User password to authenticate to the server",
             "default": "",
             "required": false,
             "type": "string",
@@ -4323,7 +4323,7 @@
               "fields": [
                 {
                   "yamlName": "objectName",
-                  "doc": "",
+                  "doc": "Sets the pattern which is used to retrieve MBeans from the MBeanServer. If more than one MBean is returned you should use the `instanceFrom` option to make the identifiers unique",
                   "default": "",
                   "required": false,
                   "type": "string",
@@ -4331,7 +4331,7 @@
                 },
                 {
                   "yamlName": "instancePrefix",
-                  "doc": "",
+                  "doc": "Prefixes the generated plugin instance with prefix",
                   "default": "",
                   "required": false,
                   "type": "string",
@@ -4339,7 +4339,7 @@
                 },
                 {
                   "yamlName": "instanceFrom",
-                  "doc": "",
+                  "doc": "The object names used by JMX to identify MBeans include so called \"properties\" which are basically key-value-pairs. If the given object name is not unique and multiple MBeans are returned, the values of those properties usually differ. You can use this option to build the plugin instance from the appropriate property values. This option is optional and may be repeated to generate the plugin instance from multiple property values",
                   "default": null,
                   "required": false,
                   "type": "slice",
@@ -4347,7 +4347,7 @@
                 },
                 {
                   "yamlName": "values",
-                  "doc": "",
+                  "doc": "The `value` blocks map one or more attributes of an MBean to a value list in collectd. There must be at least one `value` block within each MBean block",
                   "default": null,
                   "required": false,
                   "type": "slice",
@@ -4359,7 +4359,7 @@
                     "fields": [
                       {
                         "yamlName": "type",
-                        "doc": "",
+                        "doc": "Sets the data set used within collectd to handle the values of the MBean attribute",
                         "default": "",
                         "required": false,
                         "type": "string",
@@ -4367,7 +4367,7 @@
                       },
                       {
                         "yamlName": "table",
-                        "doc": "",
+                        "doc": "Set this to true if the returned attribute is a composite type. If set to true, the keys within the composite type is appended to the type instance.",
                         "default": false,
                         "required": false,
                         "type": "bool",
@@ -4375,7 +4375,7 @@
                       },
                       {
                         "yamlName": "instancePrefix",
-                        "doc": "",
+                        "doc": "Works like the option of the same name directly beneath the MBean block, but sets the type instance instead",
                         "default": "",
                         "required": false,
                         "type": "string",
@@ -4383,7 +4383,7 @@
                       },
                       {
                         "yamlName": "instanceFrom",
-                        "doc": "",
+                        "doc": "Works like the option of the same name directly beneath the MBean block, but sets the type instance instead",
                         "default": null,
                         "required": false,
                         "type": "slice",
@@ -4391,7 +4391,7 @@
                       },
                       {
                         "yamlName": "attribute",
-                        "doc": "",
+                        "doc": "Sets the name of the attribute from which to read the value. You can access the keys of composite types by using a dot to concatenate the key name to the attribute name. For example: “attrib0.key42”. If `table` is set to true path must point to a composite type, otherwise it must point to a numeric type.",
                         "default": "",
                         "required": false,
                         "type": "string",
@@ -5556,7 +5556,7 @@
           },
           {
             "yamlName": "instancePrefix",
-            "doc": "",
+            "doc": "Prefixes the generated plugin instance with prefix. If a second `instancePrefix` is specified in a referenced MBean block, the prefix specified in the Connection block will appear at the beginning of the plugin instance, the prefix specified in the MBean block will be appended to it",
             "default": "",
             "required": false,
             "type": "string",
@@ -5564,7 +5564,7 @@
           },
           {
             "yamlName": "username",
-            "doc": "",
+            "doc": "Username to authenticate to the server",
             "default": "",
             "required": false,
             "type": "string",
@@ -5572,7 +5572,7 @@
           },
           {
             "yamlName": "password",
-            "doc": "",
+            "doc": "User password to authenticate to the server",
             "default": "",
             "required": false,
             "type": "string",
@@ -5616,7 +5616,7 @@
               "fields": [
                 {
                   "yamlName": "objectName",
-                  "doc": "",
+                  "doc": "Sets the pattern which is used to retrieve MBeans from the MBeanServer. If more than one MBean is returned you should use the `instanceFrom` option to make the identifiers unique",
                   "default": "",
                   "required": false,
                   "type": "string",
@@ -5624,7 +5624,7 @@
                 },
                 {
                   "yamlName": "instancePrefix",
-                  "doc": "",
+                  "doc": "Prefixes the generated plugin instance with prefix",
                   "default": "",
                   "required": false,
                   "type": "string",
@@ -5632,7 +5632,7 @@
                 },
                 {
                   "yamlName": "instanceFrom",
-                  "doc": "",
+                  "doc": "The object names used by JMX to identify MBeans include so called \"properties\" which are basically key-value-pairs. If the given object name is not unique and multiple MBeans are returned, the values of those properties usually differ. You can use this option to build the plugin instance from the appropriate property values. This option is optional and may be repeated to generate the plugin instance from multiple property values",
                   "default": null,
                   "required": false,
                   "type": "slice",
@@ -5640,7 +5640,7 @@
                 },
                 {
                   "yamlName": "values",
-                  "doc": "",
+                  "doc": "The `value` blocks map one or more attributes of an MBean to a value list in collectd. There must be at least one `value` block within each MBean block",
                   "default": null,
                   "required": false,
                   "type": "slice",
@@ -5652,7 +5652,7 @@
                     "fields": [
                       {
                         "yamlName": "type",
-                        "doc": "",
+                        "doc": "Sets the data set used within collectd to handle the values of the MBean attribute",
                         "default": "",
                         "required": false,
                         "type": "string",
@@ -5660,7 +5660,7 @@
                       },
                       {
                         "yamlName": "table",
-                        "doc": "",
+                        "doc": "Set this to true if the returned attribute is a composite type. If set to true, the keys within the composite type is appended to the type instance.",
                         "default": false,
                         "required": false,
                         "type": "bool",
@@ -5668,7 +5668,7 @@
                       },
                       {
                         "yamlName": "instancePrefix",
-                        "doc": "",
+                        "doc": "Works like the option of the same name directly beneath the MBean block, but sets the type instance instead",
                         "default": "",
                         "required": false,
                         "type": "string",
@@ -5676,7 +5676,7 @@
                       },
                       {
                         "yamlName": "instanceFrom",
-                        "doc": "",
+                        "doc": "Works like the option of the same name directly beneath the MBean block, but sets the type instance instead",
                         "default": null,
                         "required": false,
                         "type": "slice",
@@ -5684,7 +5684,7 @@
                       },
                       {
                         "yamlName": "attribute",
-                        "doc": "",
+                        "doc": "Sets the name of the attribute from which to read the value. You can access the keys of composite types by using a dot to concatenate the key name to the attribute name. For example: “attrib0.key42”. If `table` is set to true path must point to a composite type, otherwise it must point to a numeric type.",
                         "default": "",
                         "required": false,
                         "type": "string",
@@ -5809,7 +5809,7 @@
           },
           {
             "yamlName": "instancePrefix",
-            "doc": "",
+            "doc": "Prefixes the generated plugin instance with prefix. If a second `instancePrefix` is specified in a referenced MBean block, the prefix specified in the Connection block will appear at the beginning of the plugin instance, the prefix specified in the MBean block will be appended to it",
             "default": "",
             "required": false,
             "type": "string",
@@ -5817,7 +5817,7 @@
           },
           {
             "yamlName": "username",
-            "doc": "",
+            "doc": "Username to authenticate to the server",
             "default": "",
             "required": false,
             "type": "string",
@@ -5825,7 +5825,7 @@
           },
           {
             "yamlName": "password",
-            "doc": "",
+            "doc": "User password to authenticate to the server",
             "default": "",
             "required": false,
             "type": "string",
@@ -5869,7 +5869,7 @@
               "fields": [
                 {
                   "yamlName": "objectName",
-                  "doc": "",
+                  "doc": "Sets the pattern which is used to retrieve MBeans from the MBeanServer. If more than one MBean is returned you should use the `instanceFrom` option to make the identifiers unique",
                   "default": "",
                   "required": false,
                   "type": "string",
@@ -5877,7 +5877,7 @@
                 },
                 {
                   "yamlName": "instancePrefix",
-                  "doc": "",
+                  "doc": "Prefixes the generated plugin instance with prefix",
                   "default": "",
                   "required": false,
                   "type": "string",
@@ -5885,7 +5885,7 @@
                 },
                 {
                   "yamlName": "instanceFrom",
-                  "doc": "",
+                  "doc": "The object names used by JMX to identify MBeans include so called \"properties\" which are basically key-value-pairs. If the given object name is not unique and multiple MBeans are returned, the values of those properties usually differ. You can use this option to build the plugin instance from the appropriate property values. This option is optional and may be repeated to generate the plugin instance from multiple property values",
                   "default": null,
                   "required": false,
                   "type": "slice",
@@ -5893,7 +5893,7 @@
                 },
                 {
                   "yamlName": "values",
-                  "doc": "",
+                  "doc": "The `value` blocks map one or more attributes of an MBean to a value list in collectd. There must be at least one `value` block within each MBean block",
                   "default": null,
                   "required": false,
                   "type": "slice",
@@ -5905,7 +5905,7 @@
                     "fields": [
                       {
                         "yamlName": "type",
-                        "doc": "",
+                        "doc": "Sets the data set used within collectd to handle the values of the MBean attribute",
                         "default": "",
                         "required": false,
                         "type": "string",
@@ -5913,7 +5913,7 @@
                       },
                       {
                         "yamlName": "table",
-                        "doc": "",
+                        "doc": "Set this to true if the returned attribute is a composite type. If set to true, the keys within the composite type is appended to the type instance.",
                         "default": false,
                         "required": false,
                         "type": "bool",
@@ -5921,7 +5921,7 @@
                       },
                       {
                         "yamlName": "instancePrefix",
-                        "doc": "",
+                        "doc": "Works like the option of the same name directly beneath the MBean block, but sets the type instance instead",
                         "default": "",
                         "required": false,
                         "type": "string",
@@ -5929,7 +5929,7 @@
                       },
                       {
                         "yamlName": "instanceFrom",
-                        "doc": "",
+                        "doc": "Works like the option of the same name directly beneath the MBean block, but sets the type instance instead",
                         "default": null,
                         "required": false,
                         "type": "slice",
@@ -5937,7 +5937,7 @@
                       },
                       {
                         "yamlName": "attribute",
-                        "doc": "",
+                        "doc": "Sets the name of the attribute from which to read the value. You can access the keys of composite types by using a dot to concatenate the key name to the attribute name. For example: “attrib0.key42”. If `table` is set to true path must point to a composite type, otherwise it must point to a numeric type.",
                         "default": "",
                         "required": false,
                         "type": "string",
@@ -6089,7 +6089,7 @@
           },
           {
             "yamlName": "instancePrefix",
-            "doc": "",
+            "doc": "Prefixes the generated plugin instance with prefix. If a second `instancePrefix` is specified in a referenced MBean block, the prefix specified in the Connection block will appear at the beginning of the plugin instance, the prefix specified in the MBean block will be appended to it",
             "default": "",
             "required": false,
             "type": "string",
@@ -6097,7 +6097,7 @@
           },
           {
             "yamlName": "username",
-            "doc": "",
+            "doc": "Username to authenticate to the server",
             "default": "",
             "required": false,
             "type": "string",
@@ -6105,7 +6105,7 @@
           },
           {
             "yamlName": "password",
-            "doc": "",
+            "doc": "User password to authenticate to the server",
             "default": "",
             "required": false,
             "type": "string",
@@ -6149,7 +6149,7 @@
               "fields": [
                 {
                   "yamlName": "objectName",
-                  "doc": "",
+                  "doc": "Sets the pattern which is used to retrieve MBeans from the MBeanServer. If more than one MBean is returned you should use the `instanceFrom` option to make the identifiers unique",
                   "default": "",
                   "required": false,
                   "type": "string",
@@ -6157,7 +6157,7 @@
                 },
                 {
                   "yamlName": "instancePrefix",
-                  "doc": "",
+                  "doc": "Prefixes the generated plugin instance with prefix",
                   "default": "",
                   "required": false,
                   "type": "string",
@@ -6165,7 +6165,7 @@
                 },
                 {
                   "yamlName": "instanceFrom",
-                  "doc": "",
+                  "doc": "The object names used by JMX to identify MBeans include so called \"properties\" which are basically key-value-pairs. If the given object name is not unique and multiple MBeans are returned, the values of those properties usually differ. You can use this option to build the plugin instance from the appropriate property values. This option is optional and may be repeated to generate the plugin instance from multiple property values",
                   "default": null,
                   "required": false,
                   "type": "slice",
@@ -6173,7 +6173,7 @@
                 },
                 {
                   "yamlName": "values",
-                  "doc": "",
+                  "doc": "The `value` blocks map one or more attributes of an MBean to a value list in collectd. There must be at least one `value` block within each MBean block",
                   "default": null,
                   "required": false,
                   "type": "slice",
@@ -6185,7 +6185,7 @@
                     "fields": [
                       {
                         "yamlName": "type",
-                        "doc": "",
+                        "doc": "Sets the data set used within collectd to handle the values of the MBean attribute",
                         "default": "",
                         "required": false,
                         "type": "string",
@@ -6193,7 +6193,7 @@
                       },
                       {
                         "yamlName": "table",
-                        "doc": "",
+                        "doc": "Set this to true if the returned attribute is a composite type. If set to true, the keys within the composite type is appended to the type instance.",
                         "default": false,
                         "required": false,
                         "type": "bool",
@@ -6201,7 +6201,7 @@
                       },
                       {
                         "yamlName": "instancePrefix",
-                        "doc": "",
+                        "doc": "Works like the option of the same name directly beneath the MBean block, but sets the type instance instead",
                         "default": "",
                         "required": false,
                         "type": "string",
@@ -6209,7 +6209,7 @@
                       },
                       {
                         "yamlName": "instanceFrom",
-                        "doc": "",
+                        "doc": "Works like the option of the same name directly beneath the MBean block, but sets the type instance instead",
                         "default": null,
                         "required": false,
                         "type": "slice",
@@ -6217,7 +6217,7 @@
                       },
                       {
                         "yamlName": "attribute",
-                        "doc": "",
+                        "doc": "Sets the name of the attribute from which to read the value. You can access the keys of composite types by using a dot to concatenate the key name to the attribute name. For example: “attrib0.key42”. If `table` is set to true path must point to a composite type, otherwise it must point to a numeric type.",
                         "default": "",
                         "required": false,
                         "type": "string",
