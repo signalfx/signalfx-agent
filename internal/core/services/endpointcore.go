@@ -11,13 +11,12 @@ import (
 type PortType string
 
 const (
-	// UDP port type
-	UDP PortType = "UDP"
-	// TCP port type
-	TCP PortType = "TCP"
-	// PRIVATE Port preference
+	UDP     PortType = "UDP"
+	TCP     PortType = "TCP"
+	UNKNOWN PortType = "UNKNOWN"
 )
 
+//nolint:gochecknoglobals
 var ipAddrRegexp = regexp.MustCompile(`\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}`)
 
 var _ config.CustomConfigurable = &EndpointCore{}

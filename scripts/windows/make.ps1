@@ -134,20 +134,12 @@ function bundle (
 
 function lint() {
     compile_deps
-    golint -set_exit_status ./cmd/... ./internal/...
+    golangci-lint run
 }
 
 function vendor() {
     go mod tidy
     go mod vendor
-}
-
-function vet() {
-    compile_deps
-    $ErrorActionPreference = "Continue"
-    go vet -mod vendor ./... 2>&1 | Select-String -Pattern "\.go" | Select-String -NotMatch -Pattern "_test\.go" -outvariable gofiles
-    if ($gofiles -ne ""){ throw $gofiles }
-    $ErrorActionPreference = "Stop"
 }
 
 function unit_test() {

@@ -4,13 +4,14 @@ import (
 	"bytes"
 	"flag"
 	"fmt"
-	"github.com/signalfx/signalfx-agent/internal/monitors"
-	log "github.com/sirupsen/logrus"
 	"go/format"
 	"io/ioutil"
 	"os"
 	"path/filepath"
 	"text/template"
+
+	"github.com/signalfx/signalfx-agent/internal/monitors"
+	log "github.com/sirupsen/logrus"
 )
 
 const genMetadata = "genmetadata.go"
@@ -151,7 +152,8 @@ func generate(force bool) error {
 		return err
 	}
 
-	for _, pkg := range pkgs {
+	for i := range pkgs {
+		pkg := pkgs[i]
 		if !force {
 			if regenerate, err := shouldRegenerate(&pkg); err != nil {
 				return err
@@ -160,7 +162,7 @@ func generate(force bool) error {
 			}
 		}
 
-		// Go package name can be overriden but default to the directory name.
+		// Go package name can be overridden but default to the directory name.
 		var goPackage string
 		if pkg.GoPackage != nil {
 			goPackage = *pkg.GoPackage

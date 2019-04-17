@@ -19,13 +19,11 @@ import (
 	"github.com/signalfx/signalfx-agent/internal/monitors/types"
 	"github.com/signalfx/signalfx-agent/internal/utils"
 	"github.com/signalfx/signalfx-agent/internal/utils/filter"
-	log "github.com/sirupsen/logrus"
+	"github.com/sirupsen/logrus"
 )
 
 const monitorType = "docker-container-stats"
 const dockerAPIVersion = "v1.22"
-
-var logger = log.WithFields(log.Fields{"monitorType": monitorType})
 
 func init() {
 	monitors.Register(monitorType, func() interface{} { return &Monitor{} }, &Config{})
@@ -77,6 +75,7 @@ type Monitor struct {
 	ctx     context.Context
 	client  *docker.Client
 	timeout time.Duration
+	logger  logrus.FieldLogger
 }
 
 type dockerContainer struct {
@@ -86,6 +85,8 @@ type dockerContainer struct {
 
 // Configure the monitor and kick off volume metric syncing
 func (m *Monitor) Configure(conf *Config) error {
+	m.logger = logrus.WithFields(logrus.Fields{"monitorType": monitorType})
+
 	defaultHeaders := map[string]string{"User-Agent": "signalfx-agent"}
 
 	var err error
@@ -123,11 +124,11 @@ func (m *Monitor) Configure(conf *Config) error {
 		defer lock.Unlock()
 
 		if new == nil || (!new.State.Running || new.State.Paused) {
-			logger.Debugf("Container %s is no longer running", id)
+			m.logger.Debugf("Container %s is no longer running", id)
 			delete(containers, id)
 			return
 		}
-		logger.Infof("Monitoring docker container %s", id)
+		m.logger.Infof("Monitoring docker container %s", id)
 		containers[id] = dockerContainer{
 			ContainerJSON: new,
 			EnvMap:        parseContainerEnvSlice(new.Config.Env),
@@ -138,10 +139,9 @@ func (m *Monitor) Configure(conf *Config) error {
 		// Repeat the watch setup in the face of errors in case the docker
 		// engine is non-responsive when the monitor starts.
 		if !isRegistered {
-			var err error
-			err = dockercommon.ListAndWatchContainers(m.ctx, m.client, changeHandler, imageFilter, logger)
+			err := dockercommon.ListAndWatchContainers(m.ctx, m.client, changeHandler, imageFilter, m.logger)
 			if err != nil {
-				logger.WithError(err).Error("Could not list docker containers")
+				m.logger.WithError(err).Error("Could not list docker containers")
 				return
 			}
 			isRegistered = true
@@ -174,7 +174,7 @@ func (m *Monitor) fetchStats(container dockerContainer, labelMap map[string]stri
 	stats, err := m.client.ContainerStats(ctx, container.ID, false)
 	if err != nil {
 		cancel()
-		logger.WithError(err).Errorf("Could not fetch docker stats for container id %s", container.ID)
+		m.logger.WithError(err).Errorf("Could not fetch docker stats for container id %s", container.ID)
 		return
 	}
 
@@ -188,14 +188,14 @@ func (m *Monitor) fetchStats(container dockerContainer, labelMap map[string]stri
 		if err == io.EOF {
 			return
 		}
-		logger.WithError(err).Errorf("Could not parse docker stats for container id %s", container.ID)
+		m.logger.WithError(err).Errorf("Could not parse docker stats for container id %s", container.ID)
 		return
 	}
 
 	dps, err := ConvertStatsToMetrics(container.ContainerJSON, &parsed, enhancedMetricsConfig)
 	cancel()
 	if err != nil {
-		logger.WithError(err).Errorf("Could not convert docker stats for container id %s", container.ID)
+		m.logger.WithError(err).Errorf("Could not convert docker stats for container id %s", container.ID)
 		return
 	}
 

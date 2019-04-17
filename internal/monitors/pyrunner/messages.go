@@ -12,10 +12,10 @@ type MessageType uint32
 // MessageTypes that are standard
 const (
 	MessageTypeNone            MessageType = 0
-	MessageTypeConfigure                   = 1
-	MessageTypeConfigureResult             = 2
-	MessageTypeShutdown                    = 3
-	MessageTypeLog                         = 4
+	MessageTypeConfigure       MessageType = 1
+	MessageTypeConfigureResult MessageType = 2
+	MessageTypeShutdown        MessageType = 3
+	MessageTypeLog             MessageType = 4
 )
 
 type configResult struct {

@@ -8,7 +8,7 @@ import (
 
 	//"github.com/davecgh/go-spew/spew"
 
-	"k8s.io/api/core/v1"
+	v1 "k8s.io/api/core/v1"
 	"k8s.io/api/extensions/v1beta1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -118,7 +118,7 @@ var _ = Describe("Kubernetes plugin", func() {
 					UID:       "abcd",
 					Namespace: "default",
 					OwnerReferences: []metav1.OwnerReference{
-						metav1.OwnerReference{
+						{
 							Kind: "DaemonSet",
 							Name: "MySet",
 						},
@@ -127,7 +127,7 @@ var _ = Describe("Kubernetes plugin", func() {
 				Status: v1.PodStatus{
 					Phase: v1.PodRunning,
 					ContainerStatuses: []v1.ContainerStatus{
-						v1.ContainerStatus{
+						{
 							Ready:        true,
 							Name:         "container1",
 							RestartCount: 5,
@@ -170,7 +170,7 @@ var _ = Describe("Kubernetes plugin", func() {
 			Status: v1.PodStatus{
 				Phase: v1.PodFailed,
 				ContainerStatuses: []v1.ContainerStatus{
-					v1.ContainerStatus{
+					{
 						Name:         "container2",
 						RestartCount: 0,
 					},
@@ -195,7 +195,7 @@ var _ = Describe("Kubernetes plugin", func() {
 			Status: v1.PodStatus{
 				Phase: v1.PodFailed,
 				ContainerStatuses: []v1.ContainerStatus{
-					v1.ContainerStatus{
+					{
 						Name:         "container2",
 						RestartCount: 2,
 					},
@@ -220,7 +220,7 @@ var _ = Describe("Kubernetes plugin", func() {
 			Status: v1.PodStatus{
 				Phase: v1.PodFailed,
 				ContainerStatuses: []v1.ContainerStatus{
-					v1.ContainerStatus{
+					{
 						Name:         "container2",
 						RestartCount: 2,
 					},

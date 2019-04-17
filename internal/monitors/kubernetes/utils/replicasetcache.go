@@ -64,7 +64,7 @@ func (rsc *ReplicaSetCache) IsCached(rs *v1beta1.ReplicaSet) bool {
 
 // AddReplicaSet adds or updates a replicaset in the cache
 // This function should only be called after rs.IsCached
-// to prevent unneccesary updates to the internal cache.
+// to prevent unnecessary updates to the internal cache.
 func (rsc *ReplicaSetCache) AddReplicaSet(rs *v1beta1.ReplicaSet) {
 	// check if any replicaset exist in this replicaset namespace yet
 	if _, exists := rsc.namespaceRsUIDCache[rs.Namespace]; !exists {

@@ -111,13 +111,15 @@ func TestAccumulator(t *testing.T) {
 		},
 	}
 	for _, tt := range tests {
+		want := tt.want
+		fn := tt.fn
 		t.Run(tt.name, func(t *testing.T) {
 			ac.emit = &testEmitter{}
-			tt.fn(tt.want.measurement, tt.want.fields, tt.want.tags, tt.want.t)
-			if ac.emit.(*testEmitter).measurement != tt.want.measurement ||
-				!reflect.DeepEqual(ac.emit.(*testEmitter).fields, tt.want.fields) ||
-				!reflect.DeepEqual(ac.emit.(*testEmitter).tags, tt.want.tags) {
-				t.Errorf("Accumulator_AddFields() = %v, want %v", ac.emit, tt.want)
+			fn(want.measurement, want.fields, want.tags, want.t)
+			if ac.emit.(*testEmitter).measurement != want.measurement ||
+				!reflect.DeepEqual(ac.emit.(*testEmitter).fields, want.fields) ||
+				!reflect.DeepEqual(ac.emit.(*testEmitter).tags, want.tags) {
+				t.Errorf("Accumulator_AddFields() = %v, want %v", ac.emit, want)
 			}
 		})
 	}

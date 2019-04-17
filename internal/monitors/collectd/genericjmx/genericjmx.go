@@ -9,20 +9,12 @@
 package genericjmx
 
 import (
-	"sync"
-
 	"github.com/signalfx/signalfx-agent/internal/core/config"
 	"github.com/signalfx/signalfx-agent/internal/monitors/collectd"
 	"github.com/signalfx/signalfx-agent/internal/utils"
 )
 
 //go:generate collectd-template-to-go genericjmx.tmpl
-
-type connection struct {
-	ServiceName     string
-	MBeansToCollect []string
-	MBeansToOmit    []string
-}
 
 // Config has configuration that is specific to GenericJMX. This config should
 // be used by a monitors that use the generic JMX collectd plugin.
@@ -82,7 +74,6 @@ type JMXMonitorCore struct {
 
 	DefaultMBeans      MBeanMap
 	defaultServiceName string
-	lock               sync.Mutex
 }
 
 // NewJMXMonitorCore makes a new JMX core as well as the underlying MonitorCore

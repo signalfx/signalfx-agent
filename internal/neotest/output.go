@@ -1,7 +1,6 @@
 package neotest
 
 import (
-	"sync"
 	"time"
 
 	"github.com/signalfx/golib/datapoint"
@@ -18,10 +17,6 @@ type TestOutput struct {
 	eventChan   chan *event.Event
 	spanChan    chan *trace.Span
 	dimPropChan chan *types.DimProperties
-
-	// Use a lock since monitors are allowed to use output from multiple
-	// threads.
-	lock sync.Mutex
 }
 
 // NewTestOutput creates a new initialized TestOutput instance

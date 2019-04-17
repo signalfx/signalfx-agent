@@ -8,10 +8,6 @@ import (
 	"net/http"
 )
 
-var (
-	comps = expvar.NewMap("components")
-)
-
 func init() {
 	expvar.Publish("queues", expvar.Func(func() interface{} {
 		return map[string]interface{}{
@@ -24,11 +20,11 @@ func init() {
 }
 
 func main() {
-	sock, err := net.Listen("tcp", "0.0.0.0:8080")
+	sock, err := net.Listen("tcp", "0.0.0.0:8080") //nolint: gosec
 	if err != nil {
 		panic("Couldn't listen on port 8080")
 	}
 
 	fmt.Println("Serving HTTP expvars on http://0.0.0.0:8080/debug/vars")
-	http.Serve(sock, nil)
+	_ = http.Serve(sock, nil)
 }

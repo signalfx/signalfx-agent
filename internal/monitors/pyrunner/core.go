@@ -99,7 +99,7 @@ func (mc *MonitorCore) DefaultRuntimeConfig() *RuntimeConfig {
 // run the python subprocess and block until it returns.  Messages from stderr
 // (which is remapped to stdout in the Python process, so any "print"-like
 // output from Python) will be logged as error logs in the agent.
-func (mc *MonitorCore) run(runtimeConf RuntimeConfig, messages *messageReadWriter, stdin io.Reader, stdout io.Writer) error {
+func (mc *MonitorCore) run(runtimeConf RuntimeConfig, stdin io.Reader, stdout io.Writer) error {
 	mc.logger.Info("Starting Python runner child process")
 
 	cmd := exec.CommandContext(mc.ctx, runtimeConf.PythonBinary, runtimeConf.PythonArgs...)
@@ -164,7 +164,7 @@ func (mc *MonitorCore) runWithRestart(runtimeConf RuntimeConfig, handler func(Me
 			handler(messages)
 		}()
 
-		err = mc.run(runtimeConf, messages, stdin, stdout)
+		err = mc.run(runtimeConf, stdin, stdout)
 
 		stdin.Close()
 		stdout.Close()
@@ -203,7 +203,8 @@ func makePipes() (*messageReadWriter, io.ReadCloser, io.WriteCloser, error) {
 // once for the lifetime of the monitor.  The returned MessageReceiver can be
 // used to get datapoints/events out of the Python process, the exact format
 // of the data is left up to the users of this core.
-func (mc *MonitorCore) ConfigureInPython(config config.MonitorCustomConfig, runtimeConfig *RuntimeConfig, handler func(MessageReceiver)) error {
+func (mc *MonitorCore) ConfigureInPython(config config.MonitorCustomConfig,
+	runtimeConfig *RuntimeConfig, handler func(MessageReceiver)) error {
 	if mc.handler != nil {
 		panic("ConfigureInPython should only be called once")
 	}
@@ -233,7 +234,9 @@ func (mc *MonitorCore) ConfigureInPython(config config.MonitorCustomConfig, runt
 }
 
 func (mc *MonitorCore) doConfigure(messages *messageReadWriter, jsonBytes []byte) error {
-	messages.SendMessage(MessageTypeConfigure, jsonBytes)
+	if err := messages.SendMessage(MessageTypeConfigure, jsonBytes); err != nil {
+		return err
+	}
 
 	result, err := mc.waitForConfigure(messages)
 	if err != nil {
@@ -247,7 +250,7 @@ func (mc *MonitorCore) doConfigure(messages *messageReadWriter, jsonBytes []byte
 	return nil
 }
 
-func (mc *MonitorCore) waitForConfigure(messages *messageReadWriter) (*configResult, error) {
+func (mc *MonitorCore) waitForConfigure(messages MessageReceiver) (*configResult, error) {
 	for {
 		msgType, payloadReader, err := messages.RecvMessage()
 		if err != nil {

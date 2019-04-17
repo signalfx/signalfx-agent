@@ -10,7 +10,7 @@ import (
 func TestOldFilters(t *testing.T) {
 	t.Run("Make single filter properly", func(t *testing.T) {
 		f, _ := makeOldFilterSet([]MetricFilter{
-			MetricFilter{
+			{
 				MetricNames: []string{
 					"cpu.utilization",
 					"memory.utilization",
@@ -24,14 +24,14 @@ func TestOldFilters(t *testing.T) {
 
 	t.Run("Merges two filters properly", func(t *testing.T) {
 		f, _ := makeOldFilterSet([]MetricFilter{
-			MetricFilter{
+			{
 				MetricNames: []string{
 					"cpu.utilization",
 					"memory.utilization",
 				},
 				Negated: true,
 			},
-			MetricFilter{
+			{
 				MetricNames: []string{
 					"disk.utilization",
 				},
@@ -46,21 +46,21 @@ func TestOldFilters(t *testing.T) {
 
 	t.Run("Merges include filters properly", func(t *testing.T) {
 		f, _ := makeOldFilterSet([]MetricFilter{
-			MetricFilter{
+			{
 				MetricNames: []string{
 					"cpu.utilization",
 					"memory.utilization",
 				},
 				Negated: true,
 			},
-			MetricFilter{
+			{
 				MetricNames: []string{
 					"disk.utilization",
 				},
 				Negated: true,
 			},
 		}, []MetricFilter{
-			MetricFilter{
+			{
 				MetricNames: []string{
 					"my.metric",
 				},
@@ -75,19 +75,19 @@ func TestOldFilters(t *testing.T) {
 
 	t.Run("Include filters with dims take priority", func(t *testing.T) {
 		f, _ := makeOldFilterSet([]MetricFilter{
-			MetricFilter{
+			{
 				MetricNames: []string{
 					"cpu.utilization",
 					"memory.utilization",
 				},
 			},
-			MetricFilter{
+			{
 				Dimensions: map[string]interface{}{
 					"app": "myapp",
 				},
 			},
 		}, []MetricFilter{
-			MetricFilter{
+			{
 				MetricNames: []string{
 					"cpu.utilization",
 				},
@@ -107,7 +107,7 @@ func TestOldFilters(t *testing.T) {
 func TestNewFilters(t *testing.T) {
 	t.Run("Make single filter properly", func(t *testing.T) {
 		f, _ := makeNewFilterSet([]MetricFilter{
-			MetricFilter{
+			{
 				MetricNames: []string{
 					"cpu.utilization",
 					"memory.utilization",
@@ -121,13 +121,13 @@ func TestNewFilters(t *testing.T) {
 
 	t.Run("Merges two filters properly (ORed together)", func(t *testing.T) {
 		f, _ := makeNewFilterSet([]MetricFilter{
-			MetricFilter{
+			{
 				MetricNames: []string{
 					"cpu.utilization",
 					"memory.utilization",
 				},
 			},
-			MetricFilter{
+			{
 				MetricNames: []string{
 					"disk.utilization",
 				},
@@ -141,14 +141,14 @@ func TestNewFilters(t *testing.T) {
 
 	t.Run("Filters can be overridden within a single filter", func(t *testing.T) {
 		f, _ := makeNewFilterSet([]MetricFilter{
-			MetricFilter{
+			{
 				MetricNames: []string{
 					"*.utilization",
 					"!memory.utilization",
 					"!/[a-c].*.utilization/",
 				},
 			},
-			MetricFilter{
+			{
 				MetricNames: []string{
 					"disk.utilization",
 				},
@@ -163,7 +163,7 @@ func TestNewFilters(t *testing.T) {
 
 	t.Run("Filters respect both metric names and dimensions", func(t *testing.T) {
 		f, _ := makeNewFilterSet([]MetricFilter{
-			MetricFilter{
+			{
 				MetricNames: []string{
 					"*.utilization",
 					"!memory.utilization",
@@ -173,12 +173,12 @@ func TestNewFilters(t *testing.T) {
 					"service": []string{"db"},
 				},
 			},
-			MetricFilter{
+			{
 				MetricNames: []string{
 					"disk.utilization",
 				},
 			},
-			MetricFilter{
+			{
 				Dimensions: map[string]interface{}{
 					"service": "es",
 				},

@@ -81,7 +81,7 @@ func (m *Monitor) Configure(conf *Config) error {
 	}
 
 	// get the perfcounter plugin
-	plugin := winperfcounters.GetPlugin(&winperfcounters.Config{
+	plugin, err := winperfcounters.GetPlugin(&winperfcounters.Config{
 		CountersRefreshInterval: conf.CountersRefreshInterval,
 		PrintValid:              conf.PrintValid,
 		Object: []winperfcounters.PerfCounterObj{
@@ -108,6 +108,9 @@ func (m *Monitor) Configure(conf *Config) error {
 			},
 		},
 	})
+	if err != nil {
+		return err
+	}
 
 	// create batch emitter
 	emitter := baseemitter.NewEmitter(m.Output, logger)

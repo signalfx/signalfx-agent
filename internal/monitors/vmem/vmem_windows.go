@@ -10,6 +10,7 @@ import (
 	"github.com/signalfx/signalfx-agent/internal/monitors/telegraf/common/emitter/baseemitter"
 	"github.com/signalfx/signalfx-agent/internal/monitors/telegraf/monitors/winperfcounters"
 	"github.com/signalfx/signalfx-agent/internal/utils"
+	"github.com/sirupsen/logrus"
 )
 
 var metricNameMapping = map[string]string{
@@ -20,6 +21,8 @@ var metricNameMapping = map[string]string{
 
 // Configure and run the monitor on windows
 func (m *Monitor) Configure(conf *Config) (err error) {
+	m.logger = logrus.WithField("monitorType", monitorType)
+
 	// create contexts for managing the the plugin loop
 	var ctx context.Context
 	ctx, m.cancel = context.WithCancel(context.Background())
@@ -45,10 +48,13 @@ func (m *Monitor) Configure(conf *Config) (err error) {
 		},
 	}
 
-	plugin := winperfcounters.GetPlugin(perfcounterConf)
+	plugin, err := winperfcounters.GetPlugin(perfcounterConf)
+	if err != nil {
+		return err
+	}
 
 	// create batch emitter
-	emitter := baseemitter.NewEmitter(m.Output, logger)
+	emitter := baseemitter.NewEmitter(m.Output, m.logger)
 
 	// add metric map to rename metrics
 	emitter.RenameMetrics(metricNameMapping)
@@ -72,7 +78,7 @@ func (m *Monitor) Configure(conf *Config) (err error) {
 	// gather metrics on the specified interval
 	utils.RunOnInterval(ctx, func() {
 		if err := plugin.Gather(ac); err != nil {
-			logger.WithError(err).Errorf("unable to gather metrics from plugin")
+			m.logger.WithError(err).Errorf("unable to gather metrics from plugin")
 		}
 	}, time.Duration(conf.IntervalSeconds)*time.Second)
 

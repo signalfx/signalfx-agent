@@ -48,21 +48,22 @@ func (rs *reqSender) send(req *http.Request) {
 		// Block until we can get through a request
 		rs.requests <- req
 	}
-	return
 }
 
+//nolint: gochecknoglobals
 type writerKey int
 
+//nolint: gochecknoglobals
 var reqDoneCallbackKeyVar writerKey
 
-func (rs *reqSender) processRequests(ctx context.Context) error {
+func (rs *reqSender) processRequests(ctx context.Context) {
 	atomic.AddInt64(&rs.RunningWorkers, int64(1))
 	defer atomic.AddInt64(&rs.RunningWorkers, int64(-1))
 
 	for {
 		select {
 		case <-ctx.Done():
-			return nil
+			return
 		case req := <-rs.requests:
 			atomic.AddInt64(&rs.TotalRequestsStarted, int64(1))
 			if err := sendRequest(rs.client, req); err != nil {

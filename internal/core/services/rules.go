@@ -11,8 +11,6 @@ import (
 	"github.com/Knetic/govaluate"
 )
 
-var errNoValueFound = errors.New("no value was found in the map with the key")
-
 // get returns the value of the specified key in the supplied map
 func get(args ...interface{}) (interface{}, error) {
 	if len(args) < 2 {
@@ -117,7 +115,7 @@ func DoesServiceMatchRule(si Endpoint, ruleText string) bool {
 // rule.
 func ValidateDiscoveryRule(rule string) error {
 	if _, err := parseRuleText(rule); err != nil {
-		return fmt.Errorf("Syntax error in discovery rule '%s': %s", rule, err.Error())
+		return fmt.Errorf("syntax error in discovery rule '%s': %s", rule, err.Error())
 	}
 	return nil
 }
@@ -125,7 +123,7 @@ func ValidateDiscoveryRule(rule string) error {
 func endpointMapHasAllVars(endpointParams map[string]interface{}, vars []string) error {
 	for _, v := range vars {
 		if _, ok := endpointParams[v]; !ok {
-			return fmt.Errorf("Variable '%s' not found in endpoint", v)
+			return fmt.Errorf("variable '%s' not found in endpoint", v)
 		}
 	}
 	return nil

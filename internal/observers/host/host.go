@@ -8,6 +8,7 @@ import (
 	"strconv"
 	"syscall"
 
+	"github.com/sirupsen/logrus"
 	log "github.com/sirupsen/logrus"
 
 	"github.com/signalfx/signalfx-agent/internal/core/config"
@@ -28,14 +29,13 @@ const (
 
 // DIMENSION(pid): The PID of the process that owns the listening endpoint
 
-var logger = log.WithFields(log.Fields{"observerType": observerType})
-
 // Observer that watches the current host
 type Observer struct {
 	serviceCallbacks *observers.ServiceCallbacks
 	serviceDiffer    *observers.ServiceDiffer
 	config           *Config
 	hostInfoProvider hostInfoProvider
+	logger           logrus.FieldLogger
 }
 
 // Config specific to the host observer
@@ -55,6 +55,8 @@ func init() {
 
 // Configure the host observer
 func (o *Observer) Configure(config *Config) error {
+	o.logger = log.WithFields(log.Fields{"observer": observerType})
+
 	if o.serviceDiffer != nil {
 		o.serviceDiffer.Stop()
 	}
@@ -71,19 +73,24 @@ func (o *Observer) Configure(config *Config) error {
 	return nil
 }
 
-var portTypeMap = map[uint32]services.PortType{
-	syscall.SOCK_STREAM: services.TCP,
-	syscall.SOCK_DGRAM:  services.UDP,
+func portTypeToProtocol(t uint32) services.PortType {
+	switch t {
+	case syscall.SOCK_STREAM:
+		return services.TCP
+	case syscall.SOCK_DGRAM:
+		return services.UDP
+	}
+	return services.UNKNOWN
 }
 
 func (o *Observer) discover() []services.Endpoint {
 	conns, err := o.hostInfoProvider.AllConnectionStats()
 	if err != nil {
-		logger.WithError(err).Error("Could not get local network listeners")
+		o.logger.WithError(err).Error("Could not get local network listeners")
 		return nil
 	}
 
-	var endpoints []services.Endpoint
+	endpoints := make([]services.Endpoint, 0, len(conns))
 	for _, c := range conns {
 		// TODO: Add support for ipv6 to all observers
 		isIPSocket := c.Family == syscall.AF_INET
@@ -98,7 +105,7 @@ func (o *Observer) discover() []services.Endpoint {
 
 		name, err := o.hostInfoProvider.ProcessNameFromPID(c.Pid)
 		if err != nil {
-			logger.WithFields(log.Fields{
+			o.logger.WithFields(log.Fields{
 				"pid":          c.Pid,
 				"localAddress": c.Laddr.IP,
 				"localPort":    c.Laddr.Port,
@@ -123,7 +130,7 @@ func (o *Observer) discover() []services.Endpoint {
 
 		se.Host = ip
 		se.Port = uint16(c.Laddr.Port)
-		se.PortType = portTypeMap[c.Type]
+		se.PortType = portTypeToProtocol(c.Type)
 
 		endpoints = append(endpoints, se)
 	}

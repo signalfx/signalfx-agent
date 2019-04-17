@@ -26,15 +26,6 @@ func stripSlashes(s string) string {
 	return s[1 : len(s)-1]
 }
 
-func anyRegexMatches(s string, res []*regexp.Regexp) bool {
-	for _, re := range res {
-		if re.MatchString(s) {
-			return true
-		}
-	}
-	return false
-}
-
 // stripNegation checks if a string is prefixed with "!"
 // and will returned the stripped string and true if so
 // else, return original value and false

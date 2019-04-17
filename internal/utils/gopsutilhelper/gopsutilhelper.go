@@ -28,7 +28,7 @@ func SetEnvVars(paths map[string]string) error {
 	for _, v := range envVars {
 		if path, ok := paths[v]; ok && path != "" {
 			if err := os.Setenv(v, path); err != nil {
-				return fmt.Errorf("Error setting %s env var %s", v, err.Error())
+				return fmt.Errorf("error setting %s env var %s", v, err.Error())
 			}
 		}
 	}

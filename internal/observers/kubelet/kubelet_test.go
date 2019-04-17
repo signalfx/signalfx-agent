@@ -39,14 +39,17 @@ func Test_load(t *testing.T) {
 		{"load succeded", args{podsJSON}, loadedPods, false},
 	}
 	for _, tt := range tests {
+		args := tt.args
+		wantErr := tt.wantErr
+		want := tt.want
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := loadJSON(tt.args.body)
-			if (err != nil) != tt.wantErr {
-				t.Errorf("load() error = %v, wantErr %v", err, tt.wantErr)
+			got, err := loadJSON(args.body)
+			if (err != nil) != wantErr {
+				t.Errorf("load() error = %v, wantErr %v", err, wantErr)
 				return
 			}
-			if !reflect.DeepEqual(got, tt.want) {
-				pretty.Ldiff(t, got, tt.want)
+			if !reflect.DeepEqual(got, want) {
+				pretty.Ldiff(t, got, want)
 				t.Error("Differences detected")
 			}
 		})

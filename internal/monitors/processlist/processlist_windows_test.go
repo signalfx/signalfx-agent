@@ -76,10 +76,13 @@ func TestMonitor_Configure(t *testing.T) {
 			},
 		},
 	}
-	for _, tt := range tests {
+	for i := range tests {
 		origGetAllProcesses := getAllProcesses
 		origGetCPUPercentages := getCPUPercentages
 		origGetUsername := getUsername
+
+		tt := tests[i]
+
 		t.Run(tt.name, func(t *testing.T) {
 			getAllProcesses = func() ([]Win32Process, error) {
 				return tt.processes, nil
