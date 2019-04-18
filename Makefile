@@ -16,7 +16,6 @@ compileDeps: templates code-gen internal/core/common/constants/versions.go
 
 .PHONY: code-gen
 code-gen: $(MONITOR_CODE_GEN)
-	$(MONITOR_CODE_GEN)
 
 $(MONITOR_CODE_GEN): $(wildcard cmd/monitorcodegen/*.go)
 ifeq ($(OS),Windows_NT)
@@ -117,15 +116,13 @@ endif
 debug:
 	dlv debug ./cmd/agent
 
-
 ifneq ($(OS),Windows_NT)
 extra_run_flags = -v /:/hostfs:ro -v /var/run/docker.sock:/var/run/docker.sock:ro -v /tmp/scratch:/tmp/scratch
-ifeq ($(PLATFORM),Linux)
+ifeq ($(shell uname -s),Linux)
 extra_run_flags += -v /var/run/dbus/system_bus_socket:/var/run/dbus/system_bus_socket:ro
 endif
 docker_env = -e COLUMNS=`tput cols` -e LINES=`tput lines`
 endif
-
 
 .PHONY: run-dev-image
 run-dev-image:
