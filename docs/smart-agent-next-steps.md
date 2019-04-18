@@ -6,7 +6,7 @@
  - [Configuration Management Tools](#configuration-management-tools)
  - [Packages](#packages)
 
-## Install Smart Agent on Multiple Hosts
+## Install Smart Agent on multiple hosts
 
 ### Configuration management tools
 We support the following configuration management tools to automate the
@@ -14,12 +14,12 @@ installation process.
 
 #### Chef
 We offer a Chef cookbook to install and configure the agent.  See [the cookbook
-source](./deployments/chef) and [on the Chef
+source](./docs/deployments/chef) and [on the Chef
 Supermarket](https://supermarket.chef.io/cookbooks/signalfx_agent).
 
 #### Puppet
 We also offer a Puppet manifest to install and configure the agent on Linux.  See [the
-manifest source](./deployments/puppet) and [on the Puppet
+manifest source](./docs/deployments/puppet) and [on the Puppet
 Forge](https://forge.puppet.com/signalfx/signalfx_agent/readme).
 
 #### Ansible
@@ -47,7 +47,7 @@ config and task definition for the agent.
 We offer the agent in the following packages:
 
 #### Debian Package
-We provide a Debian package repository that you can make use of with the
+We provide a Debian package repository that you can use with the
 following commands:
 
 ```sh
@@ -58,7 +58,7 @@ apt-get install -y signalfx-agent
 ```
 
 #### RPM Package
-We provide a RHEL/RPM package repository that you can make use of with the
+We provide a RHEL/RPM package repository that you can use with the
 following commands:
 
 ```sh
