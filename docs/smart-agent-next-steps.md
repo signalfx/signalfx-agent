@@ -5,12 +5,11 @@
 
  - [Configuration Management Tools](#configuration-management-tools)
  - [Packages](#packages)
- - 
 
 ## Install Smart Agent on Multiple Hosts
 
 ### Configuration management tools
-We support the following deployment/configuration management tools to automate the
+We support the following configuration management tools to automate the
 installation process. 
 
 #### Chef
