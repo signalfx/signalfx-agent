@@ -86,6 +86,8 @@ type Config struct {
 	MetricsToExclude []MetricFilter `yaml:"metricsToExclude" default:"[]"`
 	// A list of properties filters
 	PropertiesToExclude []PropertyFilterConfig `yaml:"propertiesToExclude" default:"[]"`
+	// Whether to enable new-style metrics filter
+	EnableExtraMetricsFilter bool `yaml:"enableExtraMetricsFilter" default:"false"`
 
 	// The host on which the internal status server will listen.  The internal
 	// status HTTP server serves internal metrics and diagnostic information

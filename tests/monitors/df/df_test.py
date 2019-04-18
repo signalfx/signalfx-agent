@@ -13,6 +13,7 @@ METADATA = Metadata.from_package("collectd/df")
 def test_df():
     with Agent.run(
         """
+        enableExtraMetricsFilter: true
         monitors:
           - type: collectd/df
             hostFSPath: /
@@ -30,6 +31,7 @@ def test_df_extra_metrics():
     expected_metrics = METADATA.included_metrics | {"df_complex.reserved"}
     with Agent.run(
         """
+        enableExtraMetricsFilter: true
         monitors:
           - type: collectd/df
             hostFSPath: /
@@ -49,6 +51,7 @@ def test_df_extra_metrics_all():
     expected_metrics = METADATA.all_metrics
     with Agent.run(
         """
+        enableExtraMetricsFilter: true
         monitors:
           - type: collectd/df
             hostFSPath: /

@@ -5,12 +5,14 @@ package monitors
 
 import (
 	"errors"
+
 	"fmt"
+	"strings"
+
 	"github.com/signalfx/golib/datapoint"
 	"github.com/signalfx/signalfx-agent/internal/core/dpfilters"
 	"github.com/signalfx/signalfx-agent/internal/utils/filter"
 	"github.com/sirupsen/logrus"
-	"strings"
 )
 
 var _ dpfilters.DatapointFilter = &extraMetricsFilter{}
@@ -106,22 +108,6 @@ func newMetricsFilter(metadata *Metadata, extraMetrics, extraGroups []string) (*
 	}
 
 	return &extraMetricsFilter{metadata, effectiveMetrics, basicFilter}, nil
-}
-
-// enabledMetrics returns list of metrics that are enabled via user-configuration or by
-// being included metrics.
-func (mf *extraMetricsFilter) enabledMetrics() []string {
-	metrics := make([]string, 0, len(mf.extraMetrics)+len(mf.metadata.IncludedMetrics))
-
-	for metric := range mf.extraMetrics {
-		metrics = append(metrics, metric)
-	}
-
-	for metric := range mf.metadata.IncludedMetrics {
-		metrics = append(metrics, metric)
-	}
-
-	return metrics
 }
 
 func (mf *extraMetricsFilter) Matches(dp *datapoint.Datapoint) bool {

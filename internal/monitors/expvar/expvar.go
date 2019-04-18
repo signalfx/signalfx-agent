@@ -117,6 +117,7 @@ func (m *Monitor) addDefaultMetricConfigs(enhancedMetrics bool) {
 		"memstats.TotalAlloc", "memstats.Lookups", "memstats.Mallocs", "memstats.Frees", "memstats.PauseTotalNs",
 		memstatsNumGCMetricPath, "memstats.NumForcedGC",
 	}
+
 	if enhancedMetrics {
 		memstatsMetricPathsGauge = append(memstatsMetricPathsGauge, "memstats.Alloc")
 		memstatsMetricPathsCumulative = append(memstatsMetricPathsCumulative, memstatsBySizeSizeMetricPath, memstatsBySizeMallocsMetricPath, memstatsBySizeFreesMetricPath)
@@ -140,7 +141,9 @@ func (m *Monitor) fetchMetrics() (map[string][]*datapoint.Datapoint, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer resp.Body.Close()
+	defer func() {
+		_ = resp.Body.Close()
+	}()
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		return nil, err
@@ -244,6 +247,14 @@ func (m *Monitor) sendDatapoint(dp *datapoint.Datapoint, metricPath string, most
 	}
 	dp.Timestamp = *now
 	m.Output.SendDatapoint(dp)
+	return nil
+}
+
+// GetExtraMetrics returns additional metrics to allow through.
+func (c *Config) GetExtraMetrics() []string {
+	if c.EnhancedMetrics {
+		return monitorMetadata.NonIncludedMetrics()
+	}
 	return nil
 }
 

@@ -107,6 +107,7 @@ func (a *Agent) configure(conf *config.Config) {
 
 	a.meta.InternalStatusHost = conf.InternalStatusHost
 	a.meta.InternalStatusPort = conf.InternalStatusPort
+	a.meta.EnableExtraMetricsFilter = conf.EnableExtraMetricsFilter
 
 	// The order of Configure calls is very important!
 	a.monitors.Configure(conf.Monitors, &conf.Collectd, conf.IntervalSeconds)

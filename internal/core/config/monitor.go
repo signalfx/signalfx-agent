@@ -133,11 +133,6 @@ func (mc *MonitorConfig) Hash() uint64 {
 	return hash
 }
 
-// GetExtraMetrics returns additional metrics that should be allowed through.
-func (mc *MonitorConfig) GetExtraMetrics() []string {
-	return nil
-}
-
 // MonitorCustomConfig represents monitor-specific configuration that doesn't
 // appear in the MonitorConfig struct.
 type MonitorCustomConfig interface {
