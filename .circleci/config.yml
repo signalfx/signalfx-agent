@@ -209,7 +209,7 @@ jobs:
             BUNDLE_DIR="$(pwd)/bundle"
             AGENT_BIN="$BUNDLE_DIR/bin/signalfx-agent"
             TEST_SERVICES_DIR="$(pwd)/test-services"
-            MARKERS="not packaging and not installer and not k8s and not windows_only and not deployment and not perf_test"
+            MARKERS="not packaging and not installer and not kubernetes and not windows_only and not deployment and not perf_test"
             mkdir -p "$BUNDLE_DIR"
             cid=$(docker create quay.io/signalfx/signalfx-agent-dev:latest true)
             docker export $cid | tar -C "$BUNDLE_DIR" -xf -
@@ -267,7 +267,7 @@ jobs:
       K8S_MIN_VERSION: "v1.8.0"
       K8S_MAX_VERSION: "v1.14.0"
       K8S_SFX_AGENT: "quay.io/signalfx/signalfx-agent-dev:latest"
-      MARKERS: "k8s and not collectd"
+      MARKERS: "kubernetes and not collectd"
     steps:
       - checkout
       - run:
@@ -275,7 +275,7 @@ jobs:
           command: |
             if scripts/changes-include-dir deployments/k8s tests/deployments/helm; then
                 # Run k8s and helm tests for all K8S versions if there are deployment changes
-                echo "MARKERS='(k8s or helm) and not collectd'" >> $BASH_ENV
+                echo "MARKERS='(kubernetes or helm) and not collectd'" >> $BASH_ENV
             elif ! scripts/changes-include-dir Gopkg.toml $(find . -iname "*k8s*" -o -iname "*kube*" | sed 's|^\./||' | grep -v '^docs/'); then
                 # Only run k8s tests for K8S_MIN_VERSION and K8S_MAX_VERSION if there are no relevant changes.
                 if [[ "$K8S_VERSION" != "$K8S_MIN_VERSION" && "$K8S_VERSION" != "$K8S_MAX_VERSION" ]]; then
