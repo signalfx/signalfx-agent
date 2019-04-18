@@ -48,7 +48,6 @@ def test_cadvisor():
             ), "Didn't get cadvisor datapoints"
 
 
-@pytest.mark.k8s
 @pytest.mark.kubernetes
 def test_cadvisor_in_k8s(agent_image, minikube, k8s_test_timeout, k8s_namespace):
     if semver.match(minikube.k8s_version.lstrip("v"), ">=1.12.0"):

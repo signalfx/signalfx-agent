@@ -90,7 +90,6 @@ def test_redis_key_lengths():
             ), "didn't get datapoints"
 
 
-@pytest.mark.k8s
 @pytest.mark.kubernetes
 def test_redis_in_k8s(agent_image, minikube, k8s_observer, k8s_test_timeout, k8s_namespace):
     yaml = DIR / "redis-k8s.yaml"

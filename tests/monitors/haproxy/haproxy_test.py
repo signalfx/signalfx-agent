@@ -41,7 +41,6 @@ def test_haproxy(version):
             ), "didn't get datapoints"
 
 
-@pytest.mark.k8s
 @pytest.mark.kubernetes
 def test_haproxy_in_k8s(agent_image, minikube, k8s_observer, k8s_test_timeout, k8s_namespace):
     yaml = DIR / "haproxy-k8s.yaml"

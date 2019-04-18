@@ -125,7 +125,6 @@ def test_all_kafka_monitors(version):
                     ), "Didn't get client-id dimension from kafka_consumer datapoints"
 
 
-@pytest.mark.k8s
 @pytest.mark.kubernetes
 def test_kafka_in_k8s(agent_image, minikube, k8s_observer, k8s_test_timeout, k8s_namespace):
     yaml = DIR / "kafka-k8s.yaml"

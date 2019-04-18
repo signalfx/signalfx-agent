@@ -65,7 +65,6 @@ def test_mongo_enhanced_metrics():
             ), "Did not get datapoint from SendCollectionTopMetrics config"
 
 
-@pytest.mark.k8s
 @pytest.mark.kubernetes
 def test_mongodb_in_k8s(agent_image, minikube, k8s_observer, k8s_test_timeout, k8s_namespace):
     yaml = DIR / "mongodb-k8s.yaml"

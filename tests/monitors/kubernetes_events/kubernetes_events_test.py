@@ -18,7 +18,6 @@ def has_event(fake_services, event_dict):
     return False
 
 
-@pytest.mark.k8s
 @pytest.mark.kubernetes
 def test_k8s_events_with_whitelist(agent_image, minikube, k8s_test_timeout, k8s_namespace):
     expected_events = [
@@ -40,7 +39,6 @@ def test_k8s_events_with_whitelist(agent_image, minikube, k8s_test_timeout, k8s_
             )
 
 
-@pytest.mark.k8s
 @pytest.mark.kubernetes
 def test_k8s_events_without_whitelist(agent_image, minikube, k8s_namespace):
     monitors = [{"type": "kubernetes-events", "kubernetesAPI": {"authType": "serviceAccount"}}]

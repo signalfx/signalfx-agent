@@ -57,7 +57,6 @@ def test_couchbase(tag):
             ), "Didn't get couchbase datapoints"
 
 
-@pytest.mark.k8s
 @pytest.mark.kubernetes
 def test_couchbase_in_k8s(agent_image, minikube, k8s_observer, k8s_test_timeout, k8s_namespace):
     yaml = DIR / "couchbase-k8s.yaml"

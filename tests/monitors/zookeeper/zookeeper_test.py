@@ -10,7 +10,6 @@ pytestmark = [pytest.mark.collectd, pytest.mark.zookeeper, pytest.mark.monitor_w
 DIR = Path(__file__).parent.resolve()
 
 
-@pytest.mark.k8s
 @pytest.mark.kubernetes
 def test_zookeeper_in_k8s(agent_image, minikube, k8s_observer, k8s_test_timeout, k8s_namespace):
     yaml = DIR / "zookeeper-k8s.yaml"

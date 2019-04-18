@@ -64,7 +64,6 @@ def test_postgresql():
             assert wait_for(p(has_datapoint_with_metric_name, agent.fake_services, "pg_blks.toast_hit"))
 
 
-@pytest.mark.k8s
 @pytest.mark.kubernetes
 def test_postgresql_in_k8s(agent_image, minikube, k8s_observer, k8s_test_timeout, k8s_namespace):
     yaml = DIR.resolve("postgresql-k8s.yaml")

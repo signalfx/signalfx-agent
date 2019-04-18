@@ -37,9 +37,8 @@ monitors:
 
 def build_base_image(name, path=DOCKERFILES_DIR, dockerfile=None):
     client = get_docker_client()
-    if not dockerfile:
-        dockerfile = Path(path) / f"Dockerfile.{name}"
-    image, _ = client.images.build(path=path, dockerfile=dockerfile, pull=True, rm=True, forcerm=True)
+    dockerfile = dockerfile or Path(path) / f"Dockerfile.{name}"
+    image, _ = client.images.build(path=str(path), dockerfile=str(dockerfile), pull=True, rm=True, forcerm=True)
 
     return image.id
 

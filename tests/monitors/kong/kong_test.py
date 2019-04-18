@@ -66,7 +66,6 @@ def test_kong(kong_version):  # pylint: disable=redefined-outer-name
                 ), "Didn't get Kong data point"
 
 
-@pytest.mark.k8s
 @pytest.mark.kubernetes
 @pytest.mark.parametrize("kong_version", ["0.14-centos", "1.0.0-centos"])
 def test_kong_in_k8s(agent_image, minikube, k8s_observer, k8s_test_timeout, k8s_namespace, kong_version):

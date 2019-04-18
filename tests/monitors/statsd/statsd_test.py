@@ -38,7 +38,6 @@ monitors:
         assert wait_for(p(has_datapoint_with_dim, agent.fake_services, "foo", "bar")), "Didn't get foo dimension"
 
 
-@pytest.mark.k8s
 @pytest.mark.kubernetes
 def test_statsd_in_k8s(agent_image, minikube, k8s_test_timeout, k8s_namespace):
     # hack to populate data for statsd

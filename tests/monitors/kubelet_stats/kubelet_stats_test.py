@@ -6,7 +6,6 @@ from tests.helpers.util import get_monitor_dims_from_selfdescribe, get_monitor_m
 pytestmark = [pytest.mark.kubelet_stats, pytest.mark.monitor_without_endpoints]
 
 
-@pytest.mark.k8s
 @pytest.mark.kubernetes
 def test_kubelet_stats_in_k8s(agent_image, minikube, k8s_test_timeout, k8s_namespace):
     monitors = [{"type": "kubelet-stats", "kubeletAPI": {"skipVerify": True, "authType": "serviceAccount"}}]

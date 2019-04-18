@@ -43,7 +43,6 @@ def test_activemq():
             assert wait_for(p(any_metric_found, agent.fake_services, metrics)), "Didn't get activemq datapoints"
 
 
-@pytest.mark.k8s
 @pytest.mark.kubernetes
 def test_activemq_in_k8s(agent_image, minikube, k8s_observer, k8s_test_timeout, k8s_namespace):
     yaml = DIR / "activemq-k8s.yaml"
