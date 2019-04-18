@@ -161,7 +161,7 @@ def run_service(service_name, buildargs=None, print_logs=True, path=None, docker
 
     client = get_docker_client()
     image, _ = retry(
-        lambda: client.images.build(path=path, dockerfile=dockerfile, rm=True, forcerm=True, buildargs=buildargs),
+        lambda: client.images.build(path=str(path), dockerfile=dockerfile, rm=True, forcerm=True, buildargs=buildargs),
         docker.errors.BuildError,
     )
     with run_container(image.id, print_logs=print_logs, **kwargs) as cont:

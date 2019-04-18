@@ -21,7 +21,7 @@ from tests.helpers.formatting import print_dp_or_event
 from tests.helpers.kubernetes.agent import Agent
 from tests.helpers.util import container_ip, get_docker_client, get_host_ip, retry, wait_for
 from tests.packaging.common import get_container_file_content
-from tests.paths import TEST_SERVICES_DIR
+from tests.paths import TEST_SERVICES_DIR, REPO_ROOT_DIR
 
 MINIKUBE_CONTAINER_NAME = "minikube"
 MINIKUBE_IMAGE_NAME = "minikube"
@@ -34,8 +34,7 @@ K8S_API_PORT = 8443
 K8S_RELEASE_URL = "https://storage.googleapis.com/kubernetes-release/release/stable.txt"
 K8S_MIN_VERSION = "1.7.0"
 K8S_MIN_KUBEADM_VERSION = "1.11.0"
-PROJECT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../.."))
-MINIKUBE_DOCKERFILE_PATH = os.path.join(TEST_SERVICES_DIR, "minikube/Dockerfile")
+MINIKUBE_DOCKERFILE_PATH = TEST_SERVICES_DIR / "minikube/Dockerfile"
 
 
 def get_free_port():
@@ -228,7 +227,7 @@ class Minikube:  # pylint: disable=too-many-instance-attributes
         build_opts = dict(
             buildargs={"MINIKUBE_VERSION": self.version}, tag=self.image_tag, dockerfile=MINIKUBE_DOCKERFILE_PATH
         )
-        image_id = self.build_image(PROJECT_DIR, build_opts, "unix://var/run/docker.sock")
+        image_id = self.build_image(REPO_ROOT_DIR, build_opts, "unix://var/run/docker.sock")
         print("\nDeploying minikube %s cluster ..." % self.k8s_version)
         self.container = self.host_client.containers.run(image_id, **options)
         self.container_name = self.container.name
