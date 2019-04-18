@@ -11,8 +11,6 @@ import (
 	"strings"
 )
 
-const monitorType = "collectd/systemd"
-
 func init() {
 	monitors.Register(monitorType, func() interface{} {
 		return &Monitor{
