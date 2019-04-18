@@ -119,7 +119,7 @@ debug:
 
 
 ifneq ($(OS),Windows_NT)
-extra_run_flags = -v /:/hostfs:ro -v /var/run/docker.sock:/var/run/docker.sock:ro -v /tmp/scratch:/tmp/scratch
+extra_run_flags = -v /:/hostfs:ro -v /var/run/docker.sock:/var/run/docker.sock:ro -v /tmp/scratch:/tmp/scratch -v /var/run/dbus/system_bus_socket:/var/run/dbus/system_bus_socket:ro
 docker_env = -e COLUMNS=`tput cols` -e LINES=`tput lines`
 endif
 
@@ -127,6 +127,7 @@ endif
 run-dev-image:
 	docker exec -it $(docker_env) signalfx-agent-dev /bin/bash -l -i || \
 	  docker run --rm -it \
+		--privileged \
 		$(extra_run_flags) \
 		--cap-add DAC_READ_SEARCH \
 		--cap-add SYS_PTRACE \

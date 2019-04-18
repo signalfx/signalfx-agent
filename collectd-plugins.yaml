@@ -94,6 +94,9 @@
   version: master
   repo: signalfx/vmstat-collectd
 
+- name: systemd
+  version: master
+  repo: signalfx/collectd-systemd
 
 #- name: timestats
   #version: latest

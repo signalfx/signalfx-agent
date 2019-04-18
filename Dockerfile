@@ -115,7 +115,8 @@ RUN sed -i -e '/^deb-src/d' /etc/apt/sources.list &&\
       python-pip \
       python-virtualenv \
       quilt \
-      zlib1g-dev
+      zlib1g-dev \
+      python-dbus
 
 RUN wget https://dev.mysql.com/get/mysql-apt-config_0.8.12-1_all.deb && \
     dpkg -i mysql-apt-config_0.8.12-1_all.deb && \
@@ -313,9 +314,9 @@ RUN mkdir -p /opt/root/bin &&\
 COPY --from=collectd /usr/local/bin/patchelf /usr/bin/
 
 # Gather Python dependencies
-COPY --from=python-plugins /opt/python/lib/python2.7 /opt/root/lib/python2.7
-COPY --from=python-plugins /opt/python/lib/libpython2.7.so.1.0 /opt/root/lib
-COPY --from=python-plugins /opt/python/bin/python /opt/root/bin/python
+COPY --from=python-plugins /usr/lib/python2.7/ /opt/root/lib/python2.7
+COPY --from=python-plugins /usr/local/lib/python2.7/ /opt/root/lib/python2.7
+COPY --from=python-plugins /usr/bin/python /opt/root/bin/python
 
 # Gather compiled collectd plugin libraries
 COPY --from=collectd /usr/sbin/collectd /opt/root/bin/collectd
