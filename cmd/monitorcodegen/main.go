@@ -27,6 +27,10 @@ import (
 	"github.com/signalfx/signalfx-agent/internal/monitors"
 )
 
+{{if (len .monitors) eq 1 }}
+const monitorType = "{{(index .monitors 0).MonitorType}}"
+{{end}}
+
 {{with .groupMetricsMap}}
 const (
 {{- range $group, $metrics := . }}
@@ -132,7 +136,7 @@ func generate(force bool) error {
 		return err
 	}
 
-	tmpl, err := template.New("").Funcs(template.FuncMap{
+	tmpl, err := template.New("").Option("missingkey=error").Funcs(template.FuncMap{
 		"formatVariable": formatVariable,
 		"convertMetricType": func(metricType string) (output string, err error) {
 			switch metricType {

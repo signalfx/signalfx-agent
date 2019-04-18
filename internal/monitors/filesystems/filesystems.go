@@ -19,8 +19,6 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-const monitorType = "filesystems"
-
 func init() {
 	monitors.Register(&monitorMetadata, func() interface{} { return &Monitor{} }, &Config{})
 }

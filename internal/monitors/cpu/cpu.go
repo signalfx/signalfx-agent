@@ -16,7 +16,6 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-const monitorType = "cpu"
 const cpuUtilName = "cpu.utilization"
 const percoreMetricName = "cpu.utilization_per_core"
 

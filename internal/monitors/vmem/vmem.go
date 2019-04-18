@@ -9,8 +9,6 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-const monitorType = "vmem"
-
 func init() {
 	monitors.Register(&monitorMetadata, func() interface{} { return &Monitor{} }, &Config{})
 }

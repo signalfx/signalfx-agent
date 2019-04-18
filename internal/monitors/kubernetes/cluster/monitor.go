@@ -36,10 +36,6 @@ import (
 	"github.com/signalfx/signalfx-agent/internal/monitors/types"
 )
 
-const (
-	monitorType = "kubernetes-cluster"
-)
-
 // Config for the K8s monitor
 type Config struct {
 	config.MonitorConfig

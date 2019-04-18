@@ -17,8 +17,6 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-const monitorType = "telegraf/statsd"
-
 var logger = log.WithFields(log.Fields{"monitorType": monitorType})
 
 func init() {

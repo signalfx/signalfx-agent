@@ -15,24 +15,19 @@ import (
 	"github.com/signalfx/signalfx-agent/internal/monitors"
 	"github.com/signalfx/signalfx-agent/internal/monitors/types"
 	"github.com/signalfx/signalfx-agent/internal/utils"
-	"github.com/sirupsen/logrus"
 	log "github.com/sirupsen/logrus"
 )
 
-const monitorType = "expvar"
-
 const (
-	gauge                                  = "gauge"
-	cumulative                             = "cumulative"
-	memstatsPauseNsMetricPath              = "memstats.PauseNs"
-	memstatsPauseEndMetricPath             = "memstats.PauseEnd"
-	memstatsNumGCMetricPath                = "memstats.NumGC"
-	memstatsMostRecentGCPauseNsMetricName  = "memstats.most_recent_gc_pause_ns"
-	memstatsMostRecentGCPauseEndMetricName = "memstats.most_recent_gc_pause_end"
-	memstatsBySizeSizeMetricPath           = "memstats.BySize.Size"
-	memstatsBySizeMallocsMetricPath        = "memstats.BySize.Mallocs"
-	memstatsBySizeFreesMetricPath          = "memstats.BySize.Frees"
-	memstatsBySizeDimensionPath            = "memstats.BySize"
+	gauge                           = "gauge"
+	cumulative                      = "cumulative"
+	memstatsPauseNsMetricPath       = "memstats.PauseNs"
+	memstatsPauseEndMetricPath      = "memstats.PauseEnd"
+	memstatsNumGCMetricPath         = "memstats.NumGC"
+	memstatsBySizeSizeMetricPath    = "memstats.BySize.Size"
+	memstatsBySizeMallocsMetricPath = "memstats.BySize.Mallocs"
+	memstatsBySizeFreesMetricPath   = "memstats.BySize.Frees"
+	memstatsBySizeDimensionPath     = "memstats.BySize"
 )
 
 func init() {
@@ -58,12 +53,12 @@ type Monitor struct {
 	metricPathsParts    map[*MetricConfig][]string
 	dimensionPathsParts map[*DimensionConfig][]string
 	allMetricConfigs    []*MetricConfig
-	logger              logrus.FieldLogger
+	logger              log.FieldLogger
 }
 
 // Configure monitor
 func (m *Monitor) Configure(conf *Config) error {
-	m.logger = logrus.WithFields(log.Fields{"monitorType": monitorType})
+	m.logger = log.WithFields(log.Fields{"monitorType": monitorType})
 
 	m.addDefaultMetricConfigs(conf.EnhancedMetrics)
 	for _, mConf := range conf.MetricConfigs {
@@ -229,9 +224,9 @@ func (m *Monitor) sendDatapoint(dp *datapoint.Datapoint, metricPath string, most
 	if metricPath == memstatsPauseNsMetricPath || metricPath == memstatsPauseEndMetricPath {
 		index, err := strconv.ParseInt(dp.Dimensions[metricPath], 10, 0)
 		if err == nil && index == mostRecentGCPauseIndex {
-			dp.Metric = memstatsMostRecentGCPauseNsMetricName
+			dp.Metric = memstatsMostRecentGcPauseNs
 			if metricPath == memstatsPauseEndMetricPath {
-				dp.Metric = memstatsMostRecentGCPauseEndMetricName
+				dp.Metric = memstatsMostRecentGcPauseEnd
 			}
 			// For index dimension key is equal to metric path for default metrics memstats.PauseNs and memstats.PauseEnd
 			delete(dp.Dimensions, metricPath)

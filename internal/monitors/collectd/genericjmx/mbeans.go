@@ -100,7 +100,7 @@ type MBeanValue struct {
 	// Sets the name of the attribute from which to read the value.
 	// You can access the keys of composite types by using a dot to
 	// concatenate the key name to the attribute name.
-	// For example: “attrib0.key42”. If `table` is set to true path
+	// For example: “attrib0.key42”. If `table` is set to true path,
 	// must point to a composite type, otherwise it must point to
 	// a numeric type.
 	Attribute string `yaml:"attribute"`

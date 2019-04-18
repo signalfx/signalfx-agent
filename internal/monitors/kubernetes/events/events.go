@@ -19,8 +19,6 @@ import (
 	"k8s.io/client-go/tools/cache"
 )
 
-const monitorType = "kubernetes-events"
-
 var logger = log.WithFields(log.Fields{"monitorType": monitorType})
 
 func init() {

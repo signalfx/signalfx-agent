@@ -5,8 +5,6 @@ import (
 	"github.com/signalfx/signalfx-agent/internal/monitors/prometheusexporter"
 )
 
-const monitorType = "prometheus/postgres"
-
 func init() {
 	monitors.Register(&monitorMetadata, func() interface{} { return &Monitor{} }, &Config{})
 }

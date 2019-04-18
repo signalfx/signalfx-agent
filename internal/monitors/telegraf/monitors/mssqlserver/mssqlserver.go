@@ -21,8 +21,6 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-const monitorType = "telegraf/sqlserver"
-
 func init() {
 	monitors.Register(&monitorMetadata, func() interface{} { return &Monitor{} }, &Config{})
 }

@@ -22,7 +22,6 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-const monitorType = "docker-container-stats"
 const dockerAPIVersion = "v1.22"
 
 func init() {

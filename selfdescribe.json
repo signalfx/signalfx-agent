@@ -999,7 +999,7 @@
           },
           {
             "yamlName": "instancePrefix",
-            "doc": "Prefixes the generated plugin instance with prefix. If a second `instancePrefix` is specified in a referenced MBean block, the prefix specified in the Connection block will appear at the beginning of the plugin instance, the prefix specified in the MBean block will be appended to it",
+            "doc": "Prefixes the generated plugin instance with prefix. If a second `instancePrefix` is specified in a referenced MBean block, the prefix specified in the Connection block will appear at the beginning of the plugin instance, and the prefix specified in the MBean block will be appended to it",
             "default": "",
             "required": false,
             "type": "string",
@@ -1127,7 +1127,7 @@
                       },
                       {
                         "yamlName": "attribute",
-                        "doc": "Sets the name of the attribute from which to read the value. You can access the keys of composite types by using a dot to concatenate the key name to the attribute name. For example: “attrib0.key42”. If `table` is set to true path must point to a composite type, otherwise it must point to a numeric type.",
+                        "doc": "Sets the name of the attribute from which to read the value. You can access the keys of composite types by using a dot to concatenate the key name to the attribute name. For example: “attrib0.key42”. If `table` is set to true path, must point to a composite type, otherwise it must point to a numeric type.",
                         "default": "",
                         "required": false,
                         "type": "string",
@@ -1548,7 +1548,7 @@
           },
           {
             "yamlName": "instancePrefix",
-            "doc": "Prefixes the generated plugin instance with prefix. If a second `instancePrefix` is specified in a referenced MBean block, the prefix specified in the Connection block will appear at the beginning of the plugin instance, the prefix specified in the MBean block will be appended to it",
+            "doc": "Prefixes the generated plugin instance with prefix. If a second `instancePrefix` is specified in a referenced MBean block, the prefix specified in the Connection block will appear at the beginning of the plugin instance, and the prefix specified in the MBean block will be appended to it",
             "default": "",
             "required": false,
             "type": "string",
@@ -1676,7 +1676,7 @@
                       },
                       {
                         "yamlName": "attribute",
-                        "doc": "Sets the name of the attribute from which to read the value. You can access the keys of composite types by using a dot to concatenate the key name to the attribute name. For example: “attrib0.key42”. If `table` is set to true path must point to a composite type, otherwise it must point to a numeric type.",
+                        "doc": "Sets the name of the attribute from which to read the value. You can access the keys of composite types by using a dot to concatenate the key name to the attribute name. For example: “attrib0.key42”. If `table` is set to true path, must point to a composite type, otherwise it must point to a numeric type.",
                         "default": "",
                         "required": false,
                         "type": "string",
@@ -4027,7 +4027,7 @@
           },
           {
             "yamlName": "instancePrefix",
-            "doc": "Prefixes the generated plugin instance with prefix. If a second `instancePrefix` is specified in a referenced MBean block, the prefix specified in the Connection block will appear at the beginning of the plugin instance, the prefix specified in the MBean block will be appended to it",
+            "doc": "Prefixes the generated plugin instance with prefix. If a second `instancePrefix` is specified in a referenced MBean block, the prefix specified in the Connection block will appear at the beginning of the plugin instance, and the prefix specified in the MBean block will be appended to it",
             "default": "",
             "required": false,
             "type": "string",
@@ -4155,7 +4155,7 @@
                       },
                       {
                         "yamlName": "attribute",
-                        "doc": "Sets the name of the attribute from which to read the value. You can access the keys of composite types by using a dot to concatenate the key name to the attribute name. For example: “attrib0.key42”. If `table` is set to true path must point to a composite type, otherwise it must point to a numeric type.",
+                        "doc": "Sets the name of the attribute from which to read the value. You can access the keys of composite types by using a dot to concatenate the key name to the attribute name. For example: “attrib0.key42”. If `table` is set to true path, must point to a composite type, otherwise it must point to a numeric type.",
                         "default": "",
                         "required": false,
                         "type": "string",
@@ -4279,7 +4279,7 @@
           },
           {
             "yamlName": "instancePrefix",
-            "doc": "Prefixes the generated plugin instance with prefix. If a second `instancePrefix` is specified in a referenced MBean block, the prefix specified in the Connection block will appear at the beginning of the plugin instance, the prefix specified in the MBean block will be appended to it",
+            "doc": "Prefixes the generated plugin instance with prefix. If a second `instancePrefix` is specified in a referenced MBean block, the prefix specified in the Connection block will appear at the beginning of the plugin instance, and the prefix specified in the MBean block will be appended to it",
             "default": "",
             "required": false,
             "type": "string",
@@ -4407,7 +4407,7 @@
                       },
                       {
                         "yamlName": "attribute",
-                        "doc": "Sets the name of the attribute from which to read the value. You can access the keys of composite types by using a dot to concatenate the key name to the attribute name. For example: “attrib0.key42”. If `table` is set to true path must point to a composite type, otherwise it must point to a numeric type.",
+                        "doc": "Sets the name of the attribute from which to read the value. You can access the keys of composite types by using a dot to concatenate the key name to the attribute name. For example: “attrib0.key42”. If `table` is set to true path, must point to a composite type, otherwise it must point to a numeric type.",
                         "default": "",
                         "required": false,
                         "type": "string",
@@ -5572,7 +5572,7 @@
           },
           {
             "yamlName": "instancePrefix",
-            "doc": "Prefixes the generated plugin instance with prefix. If a second `instancePrefix` is specified in a referenced MBean block, the prefix specified in the Connection block will appear at the beginning of the plugin instance, the prefix specified in the MBean block will be appended to it",
+            "doc": "Prefixes the generated plugin instance with prefix. If a second `instancePrefix` is specified in a referenced MBean block, the prefix specified in the Connection block will appear at the beginning of the plugin instance, and the prefix specified in the MBean block will be appended to it",
             "default": "",
             "required": false,
             "type": "string",
@@ -5700,7 +5700,7 @@
                       },
                       {
                         "yamlName": "attribute",
-                        "doc": "Sets the name of the attribute from which to read the value. You can access the keys of composite types by using a dot to concatenate the key name to the attribute name. For example: “attrib0.key42”. If `table` is set to true path must point to a composite type, otherwise it must point to a numeric type.",
+                        "doc": "Sets the name of the attribute from which to read the value. You can access the keys of composite types by using a dot to concatenate the key name to the attribute name. For example: “attrib0.key42”. If `table` is set to true path, must point to a composite type, otherwise it must point to a numeric type.",
                         "default": "",
                         "required": false,
                         "type": "string",
@@ -5825,7 +5825,7 @@
           },
           {
             "yamlName": "instancePrefix",
-            "doc": "Prefixes the generated plugin instance with prefix. If a second `instancePrefix` is specified in a referenced MBean block, the prefix specified in the Connection block will appear at the beginning of the plugin instance, the prefix specified in the MBean block will be appended to it",
+            "doc": "Prefixes the generated plugin instance with prefix. If a second `instancePrefix` is specified in a referenced MBean block, the prefix specified in the Connection block will appear at the beginning of the plugin instance, and the prefix specified in the MBean block will be appended to it",
             "default": "",
             "required": false,
             "type": "string",
@@ -5953,7 +5953,7 @@
                       },
                       {
                         "yamlName": "attribute",
-                        "doc": "Sets the name of the attribute from which to read the value. You can access the keys of composite types by using a dot to concatenate the key name to the attribute name. For example: “attrib0.key42”. If `table` is set to true path must point to a composite type, otherwise it must point to a numeric type.",
+                        "doc": "Sets the name of the attribute from which to read the value. You can access the keys of composite types by using a dot to concatenate the key name to the attribute name. For example: “attrib0.key42”. If `table` is set to true path, must point to a composite type, otherwise it must point to a numeric type.",
                         "default": "",
                         "required": false,
                         "type": "string",
@@ -6105,7 +6105,7 @@
           },
           {
             "yamlName": "instancePrefix",
-            "doc": "Prefixes the generated plugin instance with prefix. If a second `instancePrefix` is specified in a referenced MBean block, the prefix specified in the Connection block will appear at the beginning of the plugin instance, the prefix specified in the MBean block will be appended to it",
+            "doc": "Prefixes the generated plugin instance with prefix. If a second `instancePrefix` is specified in a referenced MBean block, the prefix specified in the Connection block will appear at the beginning of the plugin instance, and the prefix specified in the MBean block will be appended to it",
             "default": "",
             "required": false,
             "type": "string",
@@ -6233,7 +6233,7 @@
                       },
                       {
                         "yamlName": "attribute",
-                        "doc": "Sets the name of the attribute from which to read the value. You can access the keys of composite types by using a dot to concatenate the key name to the attribute name. For example: “attrib0.key42”. If `table` is set to true path must point to a composite type, otherwise it must point to a numeric type.",
+                        "doc": "Sets the name of the attribute from which to read the value. You can access the keys of composite types by using a dot to concatenate the key name to the attribute name. For example: “attrib0.key42”. If `table` is set to true path, must point to a composite type, otherwise it must point to a numeric type.",
                         "default": "",
                         "required": false,
                         "type": "string",

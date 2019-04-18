@@ -8,8 +8,6 @@ import (
 	"github.com/signalfx/signalfx-agent/internal/monitors/types"
 )
 
-const monitorType = "dotnet"
-
 func init() {
 	monitors.Register(&monitorMetadata, func() interface{} { return &Monitor{} }, &Config{})
 }
