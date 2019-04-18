@@ -18,6 +18,7 @@ from tests.packaging.common import (
     run_init_system_image,
     DEPLOYMENTS_DIR,
 )
+from tests.paths import REPO_ROOT_DIR
 
 pytestmark = [pytest.mark.chef, pytest.mark.deployment]
 
@@ -69,7 +70,8 @@ def run_chef_client(cont, agent_version=None):
 
 @pytest.mark.parametrize("base_image,init_system", SUPPORTED_DISTROS)
 def test_chef(base_image, init_system):
-    with run_init_system_image(base_image, path=DOCKERFILES_DIR) as [cont, backend]:
+    dockerfile = DOCKERFILES_DIR / f"Dockerfile.{base_image}"
+    with run_init_system_image(base_image, path=REPO_ROOT_DIR, dockerfile=dockerfile) as [cont, backend]:
         try:
             # install latest agent
             run_chef_client(cont)
@@ -84,7 +86,8 @@ def test_chef(base_image, init_system):
 @pytest.mark.upgrade_downgrade
 @pytest.mark.parametrize("base_image,init_system", SUPPORTED_DISTROS)
 def test_chef_upgrade_downgrade(base_image, init_system):
-    with run_init_system_image(base_image, path=DOCKERFILES_DIR) as [cont, backend]:
+    dockerfile = DOCKERFILES_DIR / f"Dockerfile.{base_image}"
+    with run_init_system_image(base_image, path=REPO_ROOT_DIR, dockerfile=dockerfile) as [cont, backend]:
         try:
             agent_version = run_chef_client(cont, "4.1.1")
             assert agent_version == "4.1.1", "agent version is not 4.1.1: %s" % agent_version
