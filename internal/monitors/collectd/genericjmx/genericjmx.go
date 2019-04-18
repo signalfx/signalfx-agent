@@ -42,7 +42,7 @@ type Config struct {
 	// Prefixes the generated plugin instance with prefix.
 	// If a second `instancePrefix` is specified in a referenced MBean block,
 	// the prefix specified in the Connection block will appear at the
-	// beginning of the plugin instance, the prefix specified in the
+	// beginning of the plugin instance, and the prefix specified in the
 	// MBean block will be appended to it
 	InstancePrefix string `yaml:"instancePrefix"`
 	// Username to authenticate to the server
