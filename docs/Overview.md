@@ -34,7 +34,7 @@ services and automatically configure the agent to send metrics for those
 services.
 
 For a list of supported observers and their configurations,
-see [Observer Config](./doc/observer-config.md).
+see [Observer Config](./observer-config.md).
 
 ### Monitors
 
