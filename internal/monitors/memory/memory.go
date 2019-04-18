@@ -15,7 +15,6 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-const monitorType = "memory"
 const windowsOS = "windows"
 
 func init() {

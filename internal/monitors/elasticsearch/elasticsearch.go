@@ -16,8 +16,6 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-const monitorType = "elasticsearch"
-
 // Config for this monitor
 type Config struct {
 	config.MonitorConfig `yaml:",inline" acceptsEndpoints:"true"`

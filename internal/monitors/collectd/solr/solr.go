@@ -8,8 +8,6 @@ import (
 	"github.com/signalfx/signalfx-agent/internal/monitors/pyrunner"
 )
 
-const monitorType = "collectd/solr"
-
 func init() {
 	monitors.Register(monitorType, func() interface{} {
 		return &Monitor{

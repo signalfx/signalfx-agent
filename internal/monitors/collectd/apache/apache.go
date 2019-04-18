@@ -10,8 +10,6 @@ import (
 	"github.com/signalfx/signalfx-agent/internal/monitors/collectd"
 )
 
-const monitorType = "collectd/apache"
-
 func init() {
 	monitors.Register(monitorType, func() interface{} {
 		return &Monitor{

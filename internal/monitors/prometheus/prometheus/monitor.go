@@ -5,8 +5,6 @@ import (
 	"github.com/signalfx/signalfx-agent/internal/monitors/prometheusexporter"
 )
 
-const monitorType = "prometheus/prometheus"
-
 func init() {
 	monitors.Register(monitorType, func() interface{} { return &Monitor{} }, &Config{})
 }

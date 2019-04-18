@@ -20,8 +20,6 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-const monitorType = "telegraf/snmp"
-
 func init() {
 	monitors.Register(monitorType, func() interface{} { return &Monitor{} }, &Config{})
 }

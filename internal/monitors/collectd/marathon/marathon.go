@@ -12,8 +12,6 @@ import (
 	"github.com/signalfx/signalfx-agent/internal/monitors/pyrunner"
 )
 
-const monitorType = "collectd/marathon"
-
 func init() {
 	monitors.Register(monitorType, func() interface{} {
 		return &Monitor{

@@ -26,8 +26,6 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-const monitorType = "ecs-metadata"
-
 var logger = log.WithFields(log.Fields{"monitorType": monitorType})
 
 func init() {

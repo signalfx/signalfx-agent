@@ -19,7 +19,6 @@ import (
 )
 
 const (
-	monitorType      = "host-metadata"
 	errNotAWS        = "not an aws box"
 	uptimeMetricName = "sfxagent.hostmetadata"
 )

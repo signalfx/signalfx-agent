@@ -8,8 +8,6 @@ import (
 	yaml "gopkg.in/yaml.v2"
 )
 
-const monitorType = "collectd/kafka"
-
 var serviceName = "kafka"
 
 // Monitor is the main type that represents the monitor
