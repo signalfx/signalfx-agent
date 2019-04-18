@@ -104,7 +104,8 @@ get_unique_localhost.counter = 0
 
 @contextmanager
 def run_subprocess(command: List[str], env: Dict[any, any] = None):
-    proc = subprocess.Popen(command, env=env, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    # subprocess on Windows has a bug where it doesn't like Path.
+    proc = subprocess.Popen([str(c) for c in command], env=env, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 
     output = io.BytesIO()
 

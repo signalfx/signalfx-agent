@@ -79,7 +79,7 @@ class Agent:
     @property
     def current_status_text(self):
         status_proc = subprocess.run(
-            [AGENT_BIN, "status", "-config", self.config_path],
+            [str(AGENT_BIN), "status", "-config", self.config_path],
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,
             encoding="utf-8",
