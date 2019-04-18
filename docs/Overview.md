@@ -34,7 +34,7 @@ services and automatically configure the agent to send metrics for those
 services.
 
 For a list of supported observers and their configurations,
-see [Observer Config](./docs/observer-config.md).
+see [Observer Config](/observer-config.md).
 
 ### Monitors
 
@@ -43,14 +43,14 @@ configured under the `monitors` list in the agent config.  For
 application-specific monitors, you can define discovery rules in your monitor
 configuration. A separate monitor instance is created for each discovered
 instance of applications that match a discovery rule. See [Auto
-Discovery](./docs/auto-discovery.md) for more information.
+Discovery](/auto-discovery.md) for more information.
 
 Many of the monitors are built around [collectd](https://collectd.org), an open
 source third-party monitor, and use it to collect metrics. Some other monitors
 do not use collectd. However, either type is configured in the same way.
 
 For a list of supported monitors and their configurations, 
-see [Monitor Config](./docs/monitor-config.md).
+see [Monitor Config](/monitor-config.md).
 
 The agent is primarily intended to monitor services/applications running on the
 same host as the agent.  This is in keeping with the collectd model.  The main
@@ -63,7 +63,7 @@ machine during metric analysis.
 ### Writer
 The writer collects metrics emitted by the configured monitors and sends them
 to SignalFx on a regular basis.  There are a few things that can be
-[configured](./docs/config-schema.md#writer) in the writer, but this is generally
+[configured](/config-schema.md#writer) in the writer, but this is generally
 only necessary if you have a very large number of metrics flowing through a
 single agent.
 
@@ -74,11 +74,11 @@ is installed at and looked for at `/etc/signalfx/agent.yaml` on Linux and
 `\ProgramData\SignalFxAgent\agent.yaml` on Windows. This can be
 overridden by the `-config` command line flag.  
 
-For the full schema of the config, see [Config Schema](./docs/config-schema.md).
+For the full schema of the config, see [Config Schema](/config-schema.md).
 
 For information on how to configure the agent from remote sources, such as
 other files on the filesystem or KV stores such as Etcd, see [Remote
-Configuration](./docs/remote-config.md).
+Configuration](/remote-config.md).
 
 ## Logging
 
@@ -129,10 +129,10 @@ convenience, the command `signalfx-agent status` will read this server and dump
 out its contents.  That command will also explain how to get further diagnostic
 information.
 
-Also see our [FAQ](./docs/faq.md) for more troubleshooting help.
+Also see our [FAQ](/faq.md) for more troubleshooting help.
 
 ## Development
 
 If you wish to contribute to the agent, see the [Developer's
-Guide](./docs/development.md).
+Guide](/development.md).
 
