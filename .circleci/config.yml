@@ -308,17 +308,23 @@ jobs:
       package_type:
         default: "rpm"
         type: enum
-        enum: ["rpm", "deb"]
+        enum: ["rpm", "deb", "bundle"]
+    environment:
+      PACKAGE_TYPE: "<< parameters.package_type >>"
     steps:
       - checkout
       - run: |
-          if ! scripts/changes-include-dir Dockerfile packaging tests/packaging; then
+          if ! scripts/changes-include-dir Dockerfile packaging tests/packaging scripts/patch-interpreter scripts/patch-rpath; then
               echo "packaging code has not changed, skipping tests!"
               touch ~/.skip
               exit 0
           fi
           export PULL_CACHE=yes
-          make << parameters.package_type >>-test-package
+          if [[ $PACKAGE_TYPE == "bundle" ]]; then
+              AGENT_VERSION=latest make bundle
+          else
+              make << parameters.package_type >>-test-package
+          fi
           # Run non-upgrade tests on node 0, and upgrade tests on node 1
           if [ $CIRCLE_NODE_INDEX -eq 0 ]; then
               echo "export TEST_MARKERS='<< parameters.package_type >> and not upgrade'" >> $BASH_ENV
@@ -326,7 +332,7 @@ jobs:
               echo "export TEST_MARKERS='<< parameters.package_type >> and upgrade'" >> $BASH_ENV
           fi
       - run_pytest:
-          pytest_options: "-n auto -m \"$TEST_MARKERS\""
+          pytest_options: "-n auto -m \"$TEST_MARKERS\" --test-bundle-path ./signalfx-agent-latest.tar.gz"
           tests_dir: "./tests/packaging"
 
   deployment_tests:
