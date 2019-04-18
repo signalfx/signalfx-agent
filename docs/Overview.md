@@ -1,7 +1,16 @@
-# SignalFx Smart Agent Concepts
+# SignalFx Smart Agent 
 
 [![GoDoc](https://godoc.org/github.com/signalfx/signalfx-agent?status.svg)](https://godoc.org/github.com/signalfx/signalfx-agent)
 [![CircleCI](https://circleci.com/gh/signalfx/signalfx-agent.svg?style=shield)](https://circleci.com/gh/signalfx/signalfx-agent)
+
+The SignalFx Smart Agent is a metric agent written in Go for monitoring
+infrastructure and application services in a variety of different environments.
+It is meant as a successor to our previous [collectd
+agent](https://github.com/signalfx/collectd), but still uses that internally on Linux --
+so any existing Python or C-based collectd plugins will still work without
+modification.  On Windows collectd is not included, but the agent is capable of
+running python based collectd plugins without collectd.  C-based collectd plugins
+are not available on Windows.
 
  - [Components](#components)
  - [Configuration](#configuration)
@@ -14,8 +23,8 @@
 
 The agent has three main components:
 
-1) _Observers_ that discover applications and services running on the host.
-2) _Monitors_ that collect metrics from the host and applications.
+1) _Observers_ that discover applications and services running on the host
+2) _Monitors_ that collect metrics from the host and applications
 3) The _Writer_ that sends the metrics collected by monitors to SignalFx.
 
 ### Observers
@@ -57,19 +66,6 @@ to SignalFx on a regular basis.  There are a few things that can be
 [configured](./docs/config-schema.md#writer) in the writer, but this is generally
 only necessary if you have a very large number of metrics flowing through a
 single agent.
-
-## Configuration
-
-The agent is configured primarily from a YAML file. By default, the agent config
-is installed at and looked for at `/etc/signalfx/agent.yaml` on Linux and
-`\ProgramData\SignalFxAgent\agent.yaml` on Windows. This can be
-overridden by the `-config` command line flag.  
-
-For the full schema of the config, see [Config Schema](./docs/config-schema.md).
-
-For information on how to configure the agent from remote sources, such as
-other files on the filesystem or KV stores such as Etcd, see [Remote
-Configuration](./docs/remote-config.md).
 
 ## Logging
 

@@ -3,11 +3,6 @@
 [![GoDoc](https://godoc.org/github.com/signalfx/signalfx-agent?status.svg)](https://godoc.org/github.com/signalfx/signalfx-agent)
 [![CircleCI](https://circleci.com/gh/signalfx/signalfx-agent.svg?style=shield)](https://circleci.com/gh/signalfx/signalfx-agent)
 
-The SignalFx Smart Agent is a metric agent written in Go for monitoring
-infrastructure and application services in a variety of different environments.
-It uses collectd internally on Linux, so any existing Python or C-based collectd plugins will still work without modification. On Windows collectd is not included, but the agent is capable of
-running python based collectd plugins without collectd. C-based collectd plugins
-are not available on Windows.
 
  - [Installation](#installation)
  - [Confirmation](#confirmation)
@@ -68,7 +63,7 @@ To troubleshoot the Windows installation -- Is this where the link to "Agent Con
 
 ## Next Steps
 
-To install Smart Agent on multiple hosts using configuration Management Tools or Packages, go to the Integrations page, and then click the icon of the tool you want to use.
+To install Smart Agent on multiple hosts using Configuration Management Tools or Packages, go to the Integrations page, and then click the icon of the tool you want to use. Additional information on Configuration Management tools and Package installations is here.
 
 To configure monitors to use with Smart Agent in your environment, go to [Monitor Configuration](https://docs.signalfx.com/en/latest/integrations/agent/monitor-config.html).
 
