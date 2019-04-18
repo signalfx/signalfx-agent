@@ -67,6 +67,19 @@ to SignalFx on a regular basis.  There are a few things that can be
 only necessary if you have a very large number of metrics flowing through a
 single agent.
 
+## Configuration
+
+The agent is configured primarily from a YAML file. By default, the agent config
+is installed at and looked for at `/etc/signalfx/agent.yaml` on Linux and
+`\ProgramData\SignalFxAgent\agent.yaml` on Windows. This can be
+overridden by the `-config` command line flag.  
+
+For the full schema of the config, see [Config Schema](./docs/config-schema.md).
+
+For information on how to configure the agent from remote sources, such as
+other files on the filesystem or KV stores such as Etcd, see [Remote
+Configuration](./docs/remote-config.md).
+
 ## Logging
 
 ### Linux
