@@ -18,7 +18,7 @@ from tests.helpers.util import (
 
 pytestmark = [pytest.mark.collectd, pytest.mark.hadoop, pytest.mark.monitor_with_endpoints]
 
-DIR = Path(__file__).parent.resolve()
+SCRIPT_DIR = Path(__file__).parent.resolve()
 HADOOP_CONFIG = string.Template(
     """
 monitors:
@@ -93,7 +93,7 @@ def test_hadoop(version):
 
 @pytest.mark.kubernetes
 def test_hadoop_in_k8s(agent_image, minikube, k8s_observer, k8s_test_timeout, k8s_namespace):
-    yaml = DIR / "hadoop-k8s.yaml"
+    yaml = SCRIPT_DIR / "hadoop-k8s.yaml"
     monitors = [
         {"type": "collectd/hadoop", "discoveryRule": get_discovery_rule(yaml, k8s_observer, namespace=k8s_namespace)}
     ]

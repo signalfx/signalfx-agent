@@ -17,7 +17,7 @@ from tests.helpers.util import (
 
 pytestmark = [pytest.mark.collectd, pytest.mark.rabbitmq, pytest.mark.monitor_with_endpoints]
 
-DIR = Path(__file__).parent.resolve()
+SCRIPT_DIR = Path(__file__).parent.resolve()
 
 
 def test_rabbitmq():
@@ -74,7 +74,7 @@ def test_rabbitmq_broker_name():
 
 @pytest.mark.kubernetes
 def test_rabbitmq_in_k8s(agent_image, minikube, k8s_observer, k8s_test_timeout, k8s_namespace):
-    yaml = DIR / "rabbitmq-k8s.yaml"
+    yaml = SCRIPT_DIR / "rabbitmq-k8s.yaml"
     monitors = [
         {
             "type": "collectd/rabbitmq",

@@ -17,7 +17,7 @@ from tests.helpers.util import (
 
 pytestmark = [pytest.mark.collectd, pytest.mark.jenkins, pytest.mark.monitor_with_endpoints]
 
-DIR = Path(__file__).parent.resolve()
+SCRIPT_DIR = Path(__file__).parent.resolve()
 METRICS_KEY = "33DD8B2F1FD645B814993275703F_EE1FD4D4E204446D5F3200E0F6-C55AC14E"
 
 
@@ -58,7 +58,7 @@ def test_jenkins(version):
 
 @pytest.mark.kubernetes
 def test_jenkins_in_k8s(agent_image, minikube, k8s_observer, k8s_test_timeout, k8s_namespace):
-    yaml = DIR / "jenkins-k8s.yaml"
+    yaml = SCRIPT_DIR / "jenkins-k8s.yaml"
     build_opts = {"buildargs": {"JENKINS_VERSION": "2.60.3-alpine", "JENKINS_PORT": "8080"}, "tag": "jenkins:test"}
     minikube.build_image("jenkins", build_opts)
     monitors = [

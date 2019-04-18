@@ -17,7 +17,7 @@ from tests.helpers.util import (
 
 pytestmark = [pytest.mark.collectd, pytest.mark.mongodb, pytest.mark.monitor_with_endpoints]
 
-DIR = Path(__file__).parent.resolve()
+SCRIPT_DIR = Path(__file__).parent.resolve()
 
 
 def test_mongo():
@@ -67,7 +67,7 @@ def test_mongo_enhanced_metrics():
 
 @pytest.mark.kubernetes
 def test_mongodb_in_k8s(agent_image, minikube, k8s_observer, k8s_test_timeout, k8s_namespace):
-    yaml = DIR / "mongodb-k8s.yaml"
+    yaml = SCRIPT_DIR / "mongodb-k8s.yaml"
     monitors = [
         {
             "type": "collectd/mongodb",

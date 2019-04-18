@@ -28,7 +28,7 @@ monitors:
   port: 6379
 """
 )
-DIR = Path(__file__).parent.resolve()
+SCRIPT_DIR = Path(__file__).parent.resolve()
 
 
 @contextmanager
@@ -92,7 +92,7 @@ def test_redis_key_lengths():
 
 @pytest.mark.kubernetes
 def test_redis_in_k8s(agent_image, minikube, k8s_observer, k8s_test_timeout, k8s_namespace):
-    yaml = DIR / "redis-k8s.yaml"
+    yaml = SCRIPT_DIR / "redis-k8s.yaml"
     monitors = [
         {"type": "collectd/redis", "discoveryRule": get_discovery_rule(yaml, k8s_observer, namespace=k8s_namespace)}
     ]

@@ -17,7 +17,7 @@ from tests.helpers.util import (
 )
 
 pytestmark = [pytest.mark.collectd, pytest.mark.kong, pytest.mark.monitor_with_endpoints]
-DIR = Path(__file__).parent.resolve()
+SCRIPT_DIR = Path(__file__).parent.resolve()
 
 
 @pytest.mark.flaky(reruns=2, reruns_delay=5)
@@ -69,7 +69,7 @@ def test_kong(kong_version):  # pylint: disable=redefined-outer-name
 @pytest.mark.kubernetes
 @pytest.mark.parametrize("kong_version", ["0.14-centos", "1.0.0-centos"])
 def test_kong_in_k8s(agent_image, minikube, k8s_observer, k8s_test_timeout, k8s_namespace, kong_version):
-    yaml = DIR / "kong-k8s.yaml"
+    yaml = SCRIPT_DIR / "kong-k8s.yaml"
     build_opts = {"tag": "kong:k8s-test", "buildargs": {"KONG_VERSION": kong_version}}
     minikube.build_image("kong", build_opts)
     monitors = [

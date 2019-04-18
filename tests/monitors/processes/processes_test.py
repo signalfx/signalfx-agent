@@ -10,11 +10,11 @@ from tests.helpers.util import wait_for
 
 pytestmark = [pytest.mark.collectd, pytest.mark.processes, pytest.mark.monitor_without_endpoints]
 
-DIR = Path(__file__).parent.resolve()
+SCRIPT_DIR = Path(__file__).parent.resolve()
 
 
 def test_processes():
-    expected_metrics = get_metrics(DIR)
+    expected_metrics = get_metrics(SCRIPT_DIR)
     with Agent.run(
         """
     procPath: /proc

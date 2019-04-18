@@ -23,7 +23,7 @@ from tests.helpers.util import (
 pytestmark = [pytest.mark.collectd, pytest.mark.kafka, pytest.mark.monitor_with_endpoints]
 
 
-DIR = Path(__file__).parent.resolve()
+SCRIPT_DIR = Path(__file__).parent.resolve()
 
 
 @contextmanager
@@ -127,7 +127,7 @@ def test_all_kafka_monitors(version):
 
 @pytest.mark.kubernetes
 def test_kafka_in_k8s(agent_image, minikube, k8s_observer, k8s_test_timeout, k8s_namespace):
-    yaml = DIR / "kafka-k8s.yaml"
+    yaml = SCRIPT_DIR / "kafka-k8s.yaml"
     monitors = [
         {
             "type": "collectd/kafka",

@@ -17,7 +17,7 @@ from tests.helpers.util import (
 
 pytestmark = [pytest.mark.collectd, pytest.mark.couchbase, pytest.mark.monitor_with_endpoints]
 
-DIR = Path(__file__).parent.resolve()
+SCRIPT_DIR = Path(__file__).parent.resolve()
 COUCHBASE_CONFIG = string.Template(
     """
 monitors:
@@ -59,7 +59,7 @@ def test_couchbase(tag):
 
 @pytest.mark.kubernetes
 def test_couchbase_in_k8s(agent_image, minikube, k8s_observer, k8s_test_timeout, k8s_namespace):
-    yaml = DIR / "couchbase-k8s.yaml"
+    yaml = SCRIPT_DIR / "couchbase-k8s.yaml"
     build_opts = {"buildargs": {"COUCHBASE_VERSION": "enterprise-5.1.0"}, "tag": "couchbase:test"}
     minikube.build_image("couchbase", build_opts)
     monitors = [

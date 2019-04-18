@@ -14,7 +14,7 @@ from tests.helpers.util import (
 
 pytestmark = [pytest.mark.kubernetes_cluster, pytest.mark.monitor_without_endpoints]
 
-DIR = Path(__file__).parent.resolve()
+SCRIPT_DIR = Path(__file__).parent.resolve()
 
 
 @pytest.mark.kubernetes
@@ -33,7 +33,7 @@ def test_kubernetes_cluster_in_k8s(agent_image, minikube, k8s_test_timeout, k8s_
 
 @pytest.mark.kubernetes
 def test_resource_quota_metrics(agent_image, minikube, k8s_namespace):
-    yamls = [DIR / "resource_quota.yaml"]
+    yamls = [SCRIPT_DIR / "resource_quota.yaml"]
     with minikube.create_resources(yamls, namespace=k8s_namespace):
         config = """
             monitors:
@@ -85,7 +85,7 @@ def test_resource_quota_metrics(agent_image, minikube, k8s_namespace):
 
 @pytest.mark.kubernetes
 def test_kubernetes_cluster_namespace_scope(agent_image, minikube, k8s_namespace):
-    yamls = [DIR / "good-pod.yaml", DIR / "bad-pod.yaml"]
+    yamls = [SCRIPT_DIR / "good-pod.yaml", SCRIPT_DIR / "bad-pod.yaml"]
     with minikube.create_resources(yamls, namespace=k8s_namespace):
         config = """
             monitors:

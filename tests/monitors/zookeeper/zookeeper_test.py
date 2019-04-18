@@ -7,12 +7,12 @@ from tests.helpers.util import get_monitor_metrics_from_selfdescribe, get_monito
 
 pytestmark = [pytest.mark.collectd, pytest.mark.zookeeper, pytest.mark.monitor_with_endpoints]
 
-DIR = Path(__file__).parent.resolve()
+SCRIPT_DIR = Path(__file__).parent.resolve()
 
 
 @pytest.mark.kubernetes
 def test_zookeeper_in_k8s(agent_image, minikube, k8s_observer, k8s_test_timeout, k8s_namespace):
-    yaml = DIR / "zookeeper-k8s.yaml"
+    yaml = SCRIPT_DIR / "zookeeper-k8s.yaml"
     monitors = [
         {"type": "collectd/zookeeper", "discoveryRule": get_discovery_rule(yaml, k8s_observer, namespace=k8s_namespace)}
     ]

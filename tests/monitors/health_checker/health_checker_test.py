@@ -22,7 +22,7 @@ monitors:
 """
 )
 
-DIR = Path(__file__).parent.resolve()
+SCRIPT_DIR = Path(__file__).parent.resolve()
 
 
 def test_health_checker_tcp():
@@ -81,7 +81,7 @@ def test_health_checker_http_windows():
 
 @pytest.mark.kubernetes
 def test_health_checker_in_k8s(agent_image, minikube, k8s_observer, k8s_test_timeout, k8s_namespace):
-    yaml = DIR / "health-checker-k8s.yaml"
+    yaml = SCRIPT_DIR / "health-checker-k8s.yaml"
     monitors = [
         {
             "type": "collectd/health-checker",
@@ -91,7 +91,7 @@ def test_health_checker_in_k8s(agent_image, minikube, k8s_observer, k8s_test_tim
             "jsonVal": "ok",
         }
     ]
-    expected_metrics = get_metrics(DIR)
+    expected_metrics = get_metrics(SCRIPT_DIR)
     run_k8s_monitors_test(
         agent_image,
         minikube,

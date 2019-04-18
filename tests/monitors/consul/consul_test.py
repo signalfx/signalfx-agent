@@ -17,7 +17,7 @@ from tests.helpers.util import (
 
 pytestmark = [pytest.mark.collectd, pytest.mark.consul, pytest.mark.monitor_with_endpoints]
 
-DIR = Path(__file__).parent.resolve()
+SCRIPT_DIR = Path(__file__).parent.resolve()
 CONSUL_CONFIG = string.Template(
     """
 monitors:
@@ -44,7 +44,7 @@ def test_consul():
 
 @pytest.mark.kubernetes
 def test_consul_in_k8s(agent_image, minikube, k8s_observer, k8s_test_timeout, k8s_namespace):
-    yaml = DIR / "consul-k8s.yaml"
+    yaml = SCRIPT_DIR / "consul-k8s.yaml"
     monitors = [
         {
             "type": "collectd/consul",
