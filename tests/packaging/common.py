@@ -11,10 +11,10 @@ import docker
 
 from tests.helpers import fake_backend
 from tests.helpers.util import get_docker_client, get_host_ip, retry, run_container
-from tests.paths import PROJECT_DIR
+from tests.paths import REPO_ROOT_DIR
 
-PACKAGING_DIR = PROJECT_DIR / "packaging"
-INSTALLER_PATH = PROJECT_DIR / "deployments/installer/install.sh"
+PACKAGING_DIR = REPO_ROOT_DIR / "packaging"
+INSTALLER_PATH = REPO_ROOT_DIR / "deployments/installer/install.sh"
 RPM_OUTPUT_DIR = PACKAGING_DIR / "rpm/output/x86_64"
 DEB_OUTPUT_DIR = PACKAGING_DIR / "deb/output"
 DOCKERFILES_DIR = Path(__file__).parent.joinpath("images").resolve()
