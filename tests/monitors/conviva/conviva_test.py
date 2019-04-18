@@ -12,6 +12,7 @@ from textwrap import dedent
 
 import pytest
 import requests
+
 from tests.helpers.agent import Agent
 from tests.helpers.assertions import (
     all_datapoints_have_dim_key,

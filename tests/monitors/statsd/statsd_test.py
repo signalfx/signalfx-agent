@@ -4,6 +4,7 @@ Tests the collectd/statsd monitor
 from functools import partial as p
 
 import pytest
+
 from tests.helpers.agent import Agent
 from tests.helpers.assertions import has_datapoint_with_dim, has_datapoint_with_metric_name, udp_port_open_locally
 from tests.helpers.kubernetes.utils import run_k8s_monitors_test

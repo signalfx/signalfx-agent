@@ -2,6 +2,7 @@ from functools import partial as p
 from textwrap import dedent
 
 import pytest
+
 from tests.helpers.agent import Agent
 from tests.helpers.assertions import has_datapoint, tcp_socket_open
 from tests.helpers.metadata import Metadata

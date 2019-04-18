@@ -1,17 +1,20 @@
-import os
 from functools import partial as p
+from pathlib import Path
 
 import pytest
+
 from tests.helpers.agent import Agent
 from tests.helpers.assertions import has_any_metric_or_dim, has_log_message
+from tests.helpers.kubernetes.utils import get_metrics
 from tests.helpers.util import wait_for
 
 pytestmark = [pytest.mark.collectd, pytest.mark.processes, pytest.mark.monitor_without_endpoints]
 
+DIR = Path(__file__).parent.resolve()
+
 
 def test_processes():
-    with open(os.path.join(os.path.dirname(os.path.realpath(__file__)), "metrics.txt"), "r") as fd:
-        expected_metrics = {m.strip() for m in fd.readlines() if len(m.strip()) > 0}
+    expected_metrics = get_metrics(DIR)
     with Agent.run(
         """
     procPath: /proc

@@ -6,6 +6,7 @@ from functools import partial as p
 from textwrap import dedent
 
 import hvac
+
 from tests.helpers.agent import Agent
 from tests.helpers.assertions import has_datapoint, tcp_socket_open
 from tests.helpers.util import container_ip, run_container, run_service, wait_for

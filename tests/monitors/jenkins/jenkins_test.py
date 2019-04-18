@@ -1,8 +1,9 @@
-import os
 from functools import partial as p
+from pathlib import Path
 from textwrap import dedent
 
 import pytest
+
 from tests.helpers.agent import Agent
 from tests.helpers.assertions import has_datapoint_with_dim, http_status, tcp_socket_open
 from tests.helpers.kubernetes.utils import get_discovery_rule, run_k8s_monitors_test
@@ -16,6 +17,7 @@ from tests.helpers.util import (
 
 pytestmark = [pytest.mark.collectd, pytest.mark.jenkins, pytest.mark.monitor_with_endpoints]
 
+DIR = Path(__file__).parent.resolve()
 METRICS_KEY = "33DD8B2F1FD645B814993275703F_EE1FD4D4E204446D5F3200E0F6-C55AC14E"
 
 
@@ -57,7 +59,7 @@ def test_jenkins(version):
 @pytest.mark.k8s
 @pytest.mark.kubernetes
 def test_jenkins_in_k8s(agent_image, minikube, k8s_observer, k8s_test_timeout, k8s_namespace):
-    yaml = os.path.join(os.path.dirname(os.path.realpath(__file__)), "jenkins-k8s.yaml")
+    yaml = DIR / "jenkins-k8s.yaml"
     build_opts = {"buildargs": {"JENKINS_VERSION": "2.60.3-alpine", "JENKINS_PORT": "8080"}, "tag": "jenkins:test"}
     minikube.build_image("jenkins", build_opts)
     monitors = [

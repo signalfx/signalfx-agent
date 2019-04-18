@@ -6,6 +6,7 @@ from functools import partial as p
 
 import pytest
 import yaml
+
 from tests.helpers import fake_backend
 from tests.helpers.assertions import has_datapoint_with_dim
 from tests.helpers.kubernetes.utils import create_clusterrolebinding, daemonset_is_ready, deployment_is_ready

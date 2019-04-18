@@ -1,7 +1,8 @@
-import os
 from functools import partial as p
+from pathlib import Path
 
 import pytest
+
 from tests.helpers.assertions import has_datapoint
 from tests.helpers.kubernetes.utils import run_k8s_monitors_test
 from tests.helpers.util import (
@@ -13,9 +14,7 @@ from tests.helpers.util import (
 
 pytestmark = [pytest.mark.kubernetes_cluster, pytest.mark.monitor_without_endpoints]
 
-
-def local_file(path):
-    return os.path.join(os.path.dirname(os.path.realpath(__file__)), path)
+DIR = Path(__file__).parent.resolve()
 
 
 @pytest.mark.k8s
@@ -36,7 +35,7 @@ def test_kubernetes_cluster_in_k8s(agent_image, minikube, k8s_test_timeout, k8s_
 @pytest.mark.k8s
 @pytest.mark.kubernetes
 def test_resource_quota_metrics(agent_image, minikube, k8s_namespace):
-    yamls = [local_file("resource_quota.yaml")]
+    yamls = [DIR / "resource_quota.yaml"]
     with minikube.create_resources(yamls, namespace=k8s_namespace):
         config = """
             monitors:
@@ -89,7 +88,7 @@ def test_resource_quota_metrics(agent_image, minikube, k8s_namespace):
 @pytest.mark.k8s
 @pytest.mark.kubernetes
 def test_kubernetes_cluster_namespace_scope(agent_image, minikube, k8s_namespace):
-    yamls = [local_file("good-pod.yaml"), local_file("bad-pod.yaml")]
+    yamls = [DIR / "good-pod.yaml", DIR / "bad-pod.yaml"]
     with minikube.create_resources(yamls, namespace=k8s_namespace):
         config = """
             monitors:

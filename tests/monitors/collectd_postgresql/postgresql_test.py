@@ -1,8 +1,9 @@
-import os
 import string
 from functools import partial as p
+from pathlib import Path
 
 import pytest
+
 from tests.helpers.agent import Agent
 from tests.helpers.assertions import has_datapoint_with_dim, has_datapoint_with_metric_name, tcp_socket_open
 from tests.helpers.kubernetes.utils import get_discovery_rule, run_k8s_monitors_test
@@ -15,6 +16,8 @@ from tests.helpers.util import (
 )
 
 pytestmark = [pytest.mark.collectd, pytest.mark.postgresql, pytest.mark.monitor_with_endpoints]
+
+DIR = Path(__file__).parent
 
 CONFIG_TEMP = string.Template(
     """
@@ -64,7 +67,7 @@ def test_postgresql():
 @pytest.mark.k8s
 @pytest.mark.kubernetes
 def test_postgresql_in_k8s(agent_image, minikube, k8s_observer, k8s_test_timeout, k8s_namespace):
-    yaml = os.path.join(os.path.dirname(os.path.realpath(__file__)), "postgresql-k8s.yaml")
+    yaml = DIR.resolve("postgresql-k8s.yaml")
     monitors = [
         {
             "type": "collectd/postgresql",

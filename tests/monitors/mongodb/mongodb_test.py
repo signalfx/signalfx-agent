@@ -1,8 +1,9 @@
-import os
 from functools import partial as p
+from pathlib import Path
 from textwrap import dedent
 
 import pytest
+
 from tests.helpers.agent import Agent
 from tests.helpers.assertions import has_datapoint, tcp_socket_open
 from tests.helpers.kubernetes.utils import get_discovery_rule, run_k8s_monitors_test
@@ -15,6 +16,8 @@ from tests.helpers.util import (
 )
 
 pytestmark = [pytest.mark.collectd, pytest.mark.mongodb, pytest.mark.monitor_with_endpoints]
+
+DIR = Path(__file__).parent.resolve()
 
 
 def test_mongo():
@@ -65,7 +68,7 @@ def test_mongo_enhanced_metrics():
 @pytest.mark.k8s
 @pytest.mark.kubernetes
 def test_mongodb_in_k8s(agent_image, minikube, k8s_observer, k8s_test_timeout, k8s_namespace):
-    yaml = os.path.join(os.path.dirname(os.path.realpath(__file__)), "mongodb-k8s.yaml")
+    yaml = DIR / "mongodb-k8s.yaml"
     monitors = [
         {
             "type": "collectd/mongodb",

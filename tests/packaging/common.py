@@ -6,17 +6,19 @@ import threading
 import time
 from contextlib import contextmanager
 from io import BytesIO
+from pathlib import Path
 
 import docker
+
 from tests.helpers import fake_backend
 from tests.helpers.util import get_docker_client, get_host_ip, retry, run_container
+from tests.paths import PROJECT_DIR
 
-PROJECT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "../.."))
-PACKAGING_DIR = os.path.join(PROJECT_DIR, "packaging")
-INSTALLER_PATH = os.path.join(PROJECT_DIR, "deployments/installer/install.sh")
-RPM_OUTPUT_DIR = os.path.join(PACKAGING_DIR, "rpm/output/x86_64")
-DEB_OUTPUT_DIR = os.path.join(PACKAGING_DIR, "deb/output")
-DOCKERFILES_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "images"))
+PACKAGING_DIR = PROJECT_DIR / "packaging"
+INSTALLER_PATH = PROJECT_DIR / "deployments/installer/install.sh"
+RPM_OUTPUT_DIR = PACKAGING_DIR / "rpm/output/x86_64"
+DEB_OUTPUT_DIR = PACKAGING_DIR / "deb/output"
+DOCKERFILES_DIR = Path(__file__).parent.resolve("images")
 
 INIT_SYSV = "sysv"
 INIT_UPSTART = "upstart"
@@ -36,7 +38,7 @@ monitors:
 def build_base_image(name, path=DOCKERFILES_DIR, dockerfile=None):
     client = get_docker_client()
     if not dockerfile:
-        dockerfile = os.path.join(path, "Dockerfile.%s" % name)
+        dockerfile = Path(path) / f"Dockerfile.{name}"
     image, _ = client.images.build(path=path, dockerfile=dockerfile, pull=True, rm=True, forcerm=True)
 
     return image.id
@@ -67,7 +69,7 @@ def get_rpm_package_to_test():
 
 
 def get_package_to_test(output_dir, extension):
-    pkgs = glob.glob(os.path.join(output_dir, "*.%s" % extension))
+    pkgs = glob.glob(Path(output_dir) / f"*.{extension}")
     if not pkgs:
         raise AssertionError("No .%s files found in %s" % (extension, output_dir))
 
@@ -91,7 +93,7 @@ def socat_https_proxy(container, target_host, target_port, source_host, bind_add
     cert = "/%s.cert" % source_host
     key = "/%s.key" % source_host
 
-    socat_bin = os.path.abspath(os.path.join(os.path.dirname(__file__), "images/socat"))
+    socat_bin = DOCKERFILES_DIR / "socat"
     stopped = False
     socket_path = "/tmp/scratch/%s-%s" % (source_host, container.id[:12])
 

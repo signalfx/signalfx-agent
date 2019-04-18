@@ -1,6 +1,7 @@
 from functools import partial as p
 
 import pytest
+
 from tests.helpers.util import ensure_always, wait_for
 
 pytestmark = [pytest.mark.kubernetes_events, pytest.mark.monitor_without_endpoints]

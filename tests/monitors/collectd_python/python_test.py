@@ -11,9 +11,11 @@ from functools import partial as p
 import pytest
 import redis
 from signalfx.generated_protocol_buffers import signal_fx_protocol_buffers_pb2 as sf_pbuf
+
 from tests.helpers.agent import Agent
 from tests.helpers.assertions import has_datapoint, has_datapoint_with_dim, regex_search_matches_output, tcp_socket_open
-from tests.helpers.util import BUNDLE_DIR, container_ip, run_container, wait_for
+from tests.helpers.util import container_ip, run_container, wait_for
+from tests.paths import BUNDLE_DIR
 
 pytestmark = [pytest.mark.pyrunner]
 

@@ -1,11 +1,12 @@
 """
 Tests for the collectd/apache monitor
 """
-import os
 import string
 from functools import partial as p
+from pathlib import Path
 
 import pytest
+
 from tests.helpers.agent import Agent
 from tests.helpers.assertions import has_datapoint_with_dim, tcp_socket_open
 from tests.helpers.kubernetes.utils import get_discovery_rule, run_k8s_monitors_test
@@ -19,6 +20,7 @@ from tests.helpers.util import (
 
 pytestmark = [pytest.mark.collectd, pytest.mark.apache, pytest.mark.monitor_with_endpoints]
 
+DIR = Path(__file__).parent.resolve()
 APACHE_CONFIG = string.Template(
     """
 monitors:
@@ -44,7 +46,7 @@ def test_apache():
 @pytest.mark.k8s
 @pytest.mark.kubernetes
 def test_apache_in_k8s(agent_image, minikube, k8s_observer, k8s_test_timeout, k8s_namespace):
-    yaml = os.path.join(os.path.dirname(os.path.realpath(__file__)), "apache-k8s.yaml")
+    yaml = DIR / "apache-k8s.yaml"
     monitors = [
         {
             "type": "collectd/apache",

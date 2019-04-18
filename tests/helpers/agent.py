@@ -5,15 +5,15 @@ from contextlib import contextmanager
 
 import yaml
 
+from tests.paths import AGENT_BIN
 from . import fake_backend
 from .formatting import print_dp_or_event
 from .internalmetrics import InternalMetricsClient
 from .profiling import PProfClient
-from .util import AGENT_BIN, get_unique_localhost, print_lines, run_subprocess
+from .util import get_unique_localhost, print_lines, run_subprocess
+
 
 # pylint: disable=too-many-arguments,too-many-instance-attributes
-
-
 class Agent:
     def __init__(self, run_dir, config, fake_services, debug=True, host=None, env=None, profiling=False):
         assert host is not None

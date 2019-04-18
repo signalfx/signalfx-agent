@@ -1,11 +1,12 @@
-import os
 import string
 from contextlib import contextmanager
 from functools import partial as p
+from pathlib import Path
 from textwrap import dedent
 
 import pytest
 import redis
+
 from tests.helpers.agent import Agent
 from tests.helpers.assertions import has_datapoint, tcp_socket_open
 from tests.helpers.kubernetes.utils import get_discovery_rule, run_k8s_monitors_test
@@ -27,6 +28,7 @@ monitors:
   port: 6379
 """
 )
+DIR = Path(__file__).parent.resolve()
 
 
 @contextmanager
@@ -91,7 +93,7 @@ def test_redis_key_lengths():
 @pytest.mark.k8s
 @pytest.mark.kubernetes
 def test_redis_in_k8s(agent_image, minikube, k8s_observer, k8s_test_timeout, k8s_namespace):
-    yaml = os.path.join(os.path.dirname(os.path.realpath(__file__)), "redis-k8s.yaml")
+    yaml = DIR / "redis-k8s.yaml"
     monitors = [
         {"type": "collectd/redis", "discoveryRule": get_discovery_rule(yaml, k8s_observer, namespace=k8s_namespace)}
     ]

@@ -1,7 +1,6 @@
-import os
-
 import yaml
-from tests.helpers.util import REPO_ROOT_DIR
+
+from tests.paths import REPO_ROOT_DIR
 
 
 class Metadata:
@@ -17,9 +16,7 @@ class Metadata:
     @classmethod
     def from_package(cls, monitor_package_path, mon_type=None):
         with open(
-            os.path.join(REPO_ROOT_DIR, "internal", "monitors", monitor_package_path, "metadata.yaml"),
-            "r",
-            encoding="utf-8",
+            REPO_ROOT_DIR / "internal" / "monitors" / monitor_package_path / "metadata.yaml", "r", encoding="utf-8"
         ) as fd:
             doc = yaml.safe_load(fd)
             monitor = _find_monitor(doc["monitors"], mon_type)

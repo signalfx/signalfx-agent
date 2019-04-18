@@ -8,9 +8,11 @@ from functools import partial as p
 from textwrap import dedent
 
 import requests
+
 from tests.helpers.agent import Agent
 from tests.helpers.assertions import has_datapoint, has_trace_span, tcp_port_open_locally
-from tests.helpers.util import REPO_ROOT_DIR, ensure_never, wait_for
+from tests.helpers.util import ensure_never, wait_for
+from tests.paths import REPO_ROOT_DIR
 
 
 # Make this a function so it returns a fresh copy on each call
