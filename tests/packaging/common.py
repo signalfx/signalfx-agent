@@ -1,4 +1,3 @@
-import glob
 import os
 import subprocess
 import tarfile
@@ -18,7 +17,7 @@ PACKAGING_DIR = PROJECT_DIR / "packaging"
 INSTALLER_PATH = PROJECT_DIR / "deployments/installer/install.sh"
 RPM_OUTPUT_DIR = PACKAGING_DIR / "rpm/output/x86_64"
 DEB_OUTPUT_DIR = PACKAGING_DIR / "deb/output"
-DOCKERFILES_DIR = Path(__file__).parent.resolve("images")
+DOCKERFILES_DIR = Path(__file__).parent.joinpath("images").resolve()
 
 INIT_SYSV = "sysv"
 INIT_UPSTART = "upstart"
@@ -68,12 +67,12 @@ def get_rpm_package_to_test():
 
 
 def get_package_to_test(output_dir, extension):
-    pkgs = glob.glob(Path(output_dir) / f"*.{extension}")
+    pkgs = list(Path(output_dir).glob(f"*.{extension}"))
     if not pkgs:
-        raise AssertionError("No .%s files found in %s" % (extension, output_dir))
+        raise AssertionError(f"No .{extension} files found in {output_dir}")
 
     if len(pkgs) > 1:
-        raise AssertionError("More than one .%s file found in %s" % (extension, output_dir))
+        raise AssertionError(f"More than one .{extension} file found in {output_dir}")
 
     return pkgs[0]
 

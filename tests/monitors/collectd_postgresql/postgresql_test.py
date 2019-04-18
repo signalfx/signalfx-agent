@@ -66,7 +66,7 @@ def test_postgresql():
 
 @pytest.mark.kubernetes
 def test_postgresql_in_k8s(agent_image, minikube, k8s_observer, k8s_test_timeout, k8s_namespace):
-    yaml = DIR.resolve("postgresql-k8s.yaml")
+    yaml = DIR / "postgresql-k8s.yaml"
     monitors = [
         {
             "type": "collectd/postgresql",

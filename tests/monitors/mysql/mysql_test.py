@@ -13,7 +13,7 @@ DIR = Path(__file__).parent
 @pytest.mark.kubernetes
 @pytest.mark.parametrize("k8s_yaml", ["mysql57-k8s.yaml", "mysql8-k8s.yaml"], ids=["mysql5.7", "mysql8"])
 def test_mysql_in_k8s(agent_image, minikube, k8s_observer, k8s_yaml, k8s_test_timeout, k8s_namespace):
-    yaml = DIR.resolve(k8s_yaml)
+    yaml = DIR / k8s_yaml
     monitors = [
         {
             "type": "collectd/mysql",
