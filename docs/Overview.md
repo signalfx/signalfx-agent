@@ -34,7 +34,7 @@ services and automatically configure the agent to send metrics for those
 services.
 
 For a list of supported observers and their configurations,
-see [Observer Config](./observer-config.md).
+see [Observer Config](./observers-config.md).
 
 ### Monitors
 
@@ -43,7 +43,7 @@ configured under the `monitors` list in the agent config.  For
 application-specific monitors, you can define discovery rules in your monitor
 configuration. A separate monitor instance is created for each discovered
 instance of applications that match a discovery rule. See [Auto
-Discovery](./doc/auto-discovery.md) for more information.
+Discovery](./auto-discovery.md) for more information.
 
 Many of the monitors are built around [collectd](https://collectd.org), an open
 source third-party monitor, and use it to collect metrics. Some other monitors
