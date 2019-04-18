@@ -105,7 +105,7 @@ Monitor Type: `collectd/genericjmx`
 | `name` | no | `string` |  |
 | `serviceName` | no | `string` | This is how the service type is identified in the SignalFx UI so that you can get built-in content for it.  For custom JMX integrations, it can be set to whatever you like and metrics will get the special property `sf_hostHasService` set to this value. |
 | `serviceURL` | no | `string` | The JMX connection string.  This is rendered as a Go template and has access to the other values in this config. NOTE: under normal circumstances it is not advised to set this string directly - setting the host and port as specified above is preferred. (**default:** `service:jmx:rmi:///jndi/rmi://{{.Host}}:{{.Port}}/jmxrmi`) |
-| `instancePrefix` | no | `string` | Prefixes the generated plugin instance with prefix. If a second `instancePrefix` is specified in a referenced MBean block, the prefix specified in the Connection block will appear at the beginning of the plugin instance, the prefix specified in the MBean block will be appended to it |
+| `instancePrefix` | no | `string` | Prefixes the generated plugin instance with prefix. If a second `instancePrefix` is specified in a referenced MBean block, the prefix specified in the Connection block will appear at the beginning of the plugin instance, and the prefix specified in the MBean block will be appended to it |
 | `username` | no | `string` | Username to authenticate to the server |
 | `password` | no | `string` | User password to authenticate to the server |
 | `customDimensions` | no | `map of strings` | Takes in key-values pairs of custom dimensions at the connection level. |
@@ -133,7 +133,7 @@ The **nested** `values` config object has the following fields:
 | `table` | no | `bool` | Set this to true if the returned attribute is a composite type. If set to true, the keys within the composite type is appended to the type instance. (**default:** `false`) |
 | `instancePrefix` | no | `string` | Works like the option of the same name directly beneath the MBean block, but sets the type instance instead |
 | `instanceFrom` | no | `list of strings` | Works like the option of the same name directly beneath the MBean block, but sets the type instance instead |
-| `attribute` | no | `string` | Sets the name of the attribute from which to read the value. You can access the keys of composite types by using a dot to concatenate the key name to the attribute name. For example: “attrib0.key42”. If `table` is set to true path must point to a composite type, otherwise it must point to a numeric type. |
+| `attribute` | no | `string` | Sets the name of the attribute from which to read the value. You can access the keys of composite types by using a dot to concatenate the key name to the attribute name. For example: “attrib0.key42”. If `table` is set to true path, must point to a composite type, otherwise it must point to a numeric type. |
 
 
 
