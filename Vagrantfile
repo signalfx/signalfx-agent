@@ -7,7 +7,7 @@
 Vagrant.configure("2") do |config|
   # Use a distro that is as opposite of what we build with as possible so that
   # we get more confidence that we didn't miss any dependencies.
-  config.vm.box = "centos/6"
+  config.vm.box = "ubuntu/xenial64"
 
   # Create a private network, which allows host-only access to the machine
   # using a specific IP.
@@ -16,6 +16,6 @@ Vagrant.configure("2") do |config|
   config.vm.synced_folder ".", "/vagrant", type: "nfs"
 
   config.vm.provider "virtualbox" do |vb|
-    vb.memory = "1024"
+    vb.memory = "8192"
   end
 end

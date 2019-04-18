@@ -12625,6 +12625,132 @@
       "singleInstance": true
     },
     {
+      "monitorType": "collectd/systemd",
+      "sendAll": false,
+      "dimensions": null,
+      "doc": "This [SignalFx Smart Agent](https://github.com/signalfx/signalfx-agent) monitor collects metrics about the state of\nconfigured systemd services using the [collectd-systemd](https://github.com/signalfx/integrations/tree/master/collectd-systemd)\nplugin. A service is in the state that a metric represents if the metric value is 1 and not in the state if the\nmetric value is 0. The name of the service is assigned to dimension `plugin_instance` of the reported metric.\n\nBelow is a sample SignalFx Smart Agent YAML configuration for monitoring the state of `docker` and `ubuntu-fan`\nservices. See [here](https://github.com/signalfx/signalfx-agent#configuration) for SignalFx Smart Agent\nconfiguration details.\n```yaml\nmonitors:\n- type: collectd/systemd\n  intervalSeconds: 10\n  services:\n    - docker\n    - ubuntu-fan\n```\nOnly metric `gauge.substate.running` which indicates whether a service is running or not gets reported by default.\nThe other metrics must be configure explicitly (see below). Also, it is recommended that you include the extra\ndimension `metric_source` with a meaningful value in order to facilitate filtering in the SignalFx app.\n```\nmonitors:\n- type: collectd/systemd\n  intervalSeconds: 10\n  services:\n    - docker\n    - ubuntu-fan\n  extraDimensions:\n    metric_source: collectd/systemd\n```\n",
+      "groups": null,
+      "metrics": [
+        {
+          "name": "gauge.active_state.active",
+          "type": "gauge",
+          "description": "Indicates that the systemd unit/service is active",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "gauge.active_state.inactive",
+          "type": "gauge",
+          "description": "Indicates that the systemd unit/service is inactive and the previous run was successful or no previous run has taken place yet",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "gauge.active_state.activating",
+          "type": "gauge",
+          "description": "Indicates that the systemd unit/service has previously been inactive but is currently in the process of entering an active state",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "gauge.active_state.deactivating",
+          "type": "gauge",
+          "description": "Indicates that the systemd unit/service is currently in the process of deactivation",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "gauge.active_state.reloading",
+          "type": "gauge",
+          "description": "Indicates that the systemd unit/service is active and currently reloading its configuration",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "gauge.active_state.failed",
+          "type": "gauge",
+          "description": "Indicates that the systemd unit/service is inactive the previous run was not successful",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "gauge.substate.running",
+          "type": "gauge",
+          "description": "Indicates that the systemd unit/service is running",
+          "group": null,
+          "included": true
+        },
+        {
+          "name": "gauge.substate.exited",
+          "type": "gauge",
+          "description": "Indicates that the systemd unit/service exited",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "gauge.substate.failed",
+          "type": "gauge",
+          "description": "Indicates that the systemd unit/service failed",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "gauge.substate.dead",
+          "type": "gauge",
+          "description": "Indicates that the systemd unit/service died",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "gauge.load_state.loaded",
+          "type": "gauge",
+          "description": "Indicates that the systemd unit/service configuration was loaded and parsed successfully",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "gauge.load_state.not-found",
+          "type": "gauge",
+          "description": "Indicates that the systemd unit/service configuration was not found",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "gauge.load_state.error",
+          "type": "gauge",
+          "description": "Indicates that the systemd unit/service configuration failed to load",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "gauge.load_state.masked",
+          "type": "gauge",
+          "description": "Indicates that the systemd unit/service is currently masked out (i.e. symlinked to /dev/null etc)",
+          "group": null,
+          "included": false
+        }
+      ],
+      "properties": null,
+      "metricsExhaustive": false,
+      "config": {
+        "name": "Config",
+        "doc": "Config is the monitor-specific config with the generic config embedded",
+        "package": "internal/monitors/collectd/systemd",
+        "fields": [
+          {
+            "yamlName": "services",
+            "doc": "Systemd services to report on",
+            "default": null,
+            "required": true,
+            "type": "slice",
+            "elementKind": "string"
+          }
+        ]
+      },
+      "acceptsEndpoints": true,
+      "singleInstance": false
+    },
+    {
       "monitorType": "collectd/uptime",
       "sendAll": false,
       "dimensions": null,

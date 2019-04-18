@@ -26,7 +26,7 @@ func init() {
 // Config is the monitor-specific config with the generic config embedded
 type Config struct {
 	config.MonitorConfig `yaml:",inline" acceptsEndpoints:"true"`
-	pyConf  *python.Config
+	pyConf               *python.Config
 	// Systemd services to report on
 	Services []string `yaml:"services" validate:"required"`
 }
@@ -48,11 +48,11 @@ func (m *Monitor) Configure(conf *Config) error {
 		services[i] = strings.Trim(conf.Services[i], " ")
 	}
 	conf.pyConf = &python.Config{
-		MonitorConfig:  conf.MonitorConfig,
-		ModuleName:     "collectd_systemd",
-		ModulePaths:    []string{collectd.MakePythonPluginPath("systemd")},
-		TypesDBPaths:   []string{collectd.DefaultTypesDBPath()},
-		PluginConfig:   map[string]interface{}{
+		MonitorConfig: conf.MonitorConfig,
+		ModuleName:    "collectd_systemd",
+		ModulePaths:   []string{collectd.MakePythonPluginPath("systemd")},
+		TypesDBPaths:  []string{collectd.DefaultTypesDBPath()},
+		PluginConfig: map[string]interface{}{
 			"Service":  services,
 			"Interval": conf.IntervalSeconds,
 			"Verbose":  false,

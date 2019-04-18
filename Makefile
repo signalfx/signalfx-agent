@@ -119,9 +119,13 @@ debug:
 
 
 ifneq ($(OS),Windows_NT)
-extra_run_flags = -v /:/hostfs:ro -v /var/run/docker.sock:/var/run/docker.sock:ro -v /tmp/scratch:/tmp/scratch -v /var/run/dbus/system_bus_socket:/var/run/dbus/system_bus_socket:ro
+extra_run_flags = -v /:/hostfs:ro -v /var/run/docker.sock:/var/run/docker.sock:ro -v /tmp/scratch:/tmp/scratch
+ifeq ($(PLATFORM),Linux)
+extra_run_flags += -v /var/run/dbus/system_bus_socket:/var/run/dbus/system_bus_socket:ro
+endif
 docker_env = -e COLUMNS=`tput cols` -e LINES=`tput lines`
 endif
+
 
 .PHONY: run-dev-image
 run-dev-image:
