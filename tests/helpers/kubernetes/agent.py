@@ -8,7 +8,7 @@ import tests.helpers.kubernetes.utils as k8s
 from tests import paths
 from tests.helpers.util import ensure_always, get_unique_localhost
 
-AGENT_YAMLS_DIR = Path(os.environ.get("AGENT_YAMLS_DIR", paths.PROJECT_DIR / "deployments" / "k8s"))
+AGENT_YAMLS_DIR = Path(os.environ.get("AGENT_YAMLS_DIR", paths.REPO_ROOT_DIR / "deployments" / "k8s"))
 AGENT_CLUSTERROLE_PATH = Path(os.environ.get("AGENT_CLUSTERROLE_PATH", AGENT_YAMLS_DIR / "clusterrole.yaml"))
 AGENT_CLUSTERROLEBINDING_PATH = Path(
     os.environ.get("AGENT_CLUSTERROLEBINDING_PATH", AGENT_YAMLS_DIR / "clusterrolebinding.yaml")
