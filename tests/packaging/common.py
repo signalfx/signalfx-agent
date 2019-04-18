@@ -14,7 +14,8 @@ from tests.helpers.util import get_docker_client, get_host_ip, retry, run_contai
 from tests.paths import REPO_ROOT_DIR
 
 PACKAGING_DIR = REPO_ROOT_DIR / "packaging"
-INSTALLER_PATH = REPO_ROOT_DIR / "deployments/installer/install.sh"
+DEPLOYMENTS_DIR = REPO_ROOT_DIR / "deployments"
+INSTALLER_PATH = DEPLOYMENTS_DIR / "installer/install.sh"
 RPM_OUTPUT_DIR = PACKAGING_DIR / "rpm/output/x86_64"
 DEB_OUTPUT_DIR = PACKAGING_DIR / "deb/output"
 DOCKERFILES_DIR = Path(__file__).parent.joinpath("images").resolve()
