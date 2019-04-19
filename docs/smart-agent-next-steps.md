@@ -14,12 +14,12 @@ installation process.
 
 #### Chef
 We offer a Chef cookbook to install and configure the agent.  See [the cookbook
-source](../deployments/chef) and [on the Chef
+source](/deployments/chef) and [on the Chef
 Supermarket](https://supermarket.chef.io/cookbooks/signalfx_agent).
 
 #### Puppet
 We also offer a Puppet manifest to install and configure the agent on Linux.  See [the
-manifest source](../deployments/puppet) and [on the Puppet
+manifest source](././deployments/puppet) and [on the Puppet
 Forge](https://forge.puppet.com/signalfx/signalfx_agent/readme).
 
 #### Ansible
@@ -34,7 +34,7 @@ formula source](https://github.com/signalfx/signalfx-agent/tree/master/deploymen
 See [Docker Deployment](../deployments/docker) for more information.
 
 #### Kubernetes
-See our [Kubernetes setup instructions](./docs/kubernetes-setup.md) and the
+See our [Kubernetes setup instructions](/kubernetes-setup.md) and the
 documentation on [Monitoring
 Kubernetes](https://docs.signalfx.com/en/latest/integrations/kubernetes-quickstart.html)
 for more information.
