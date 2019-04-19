@@ -22,6 +22,12 @@ type MonitorConfig struct {
 	// the monitor type will be created with the same configuration (except
 	// different host/port).
 	DiscoveryRule string `yaml:"discoveryRule" json:"discoveryRule"`
+	// If true, a warning will be emitted if a discovery rule contains
+	// variables that will never possibly match a rule.  If using multiple
+	// observers, it is convenient to set this to false to suppress spurious
+	// errors.  The top-level setting `validateDiscoveryRules` acts as a
+	// default if this isn't set.
+	ValidateDiscoveryRule *bool `yaml:"validateDiscoveryRule"`
 	// A set of extra dimensions (key:value pairs) to include on datapoints emitted by the
 	// monitor(s) created from this configuration. To specify metrics from this
 	// monitor should be high-resolution, add the dimension `sf_hires: 1`
@@ -111,6 +117,15 @@ func (mc *MonitorConfig) ExtraConfig() (map[string]interface{}, error) {
 // autodiscovered services and is manually configured) or dynamic.
 func (mc *MonitorConfig) HasAutoDiscovery() bool {
 	return mc.DiscoveryRule != ""
+}
+
+// ShouldValidateDiscoveryRule return ValidateDiscoveryRule or false if that is
+// nil.
+func (mc *MonitorConfig) ShouldValidateDiscoveryRule() bool {
+	if mc.ValidateDiscoveryRule == nil || !*mc.ValidateDiscoveryRule {
+		return false
+	}
+	return true
 }
 
 // MonitorConfigCore provides a way of getting the MonitorConfig when embedded

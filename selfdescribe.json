@@ -21,6 +21,14 @@
         "elementKind": ""
       },
       {
+        "yamlName": "validateDiscoveryRule",
+        "doc": "If true, a warning will be emitted if a discovery rule contains variables that will never possibly match a rule.  If using multiple observers, it is convenient to set this to false to suppress spurious errors.  The top-level setting `validateDiscoveryRules` acts as a default if this isn't set.",
+        "default": "false",
+        "required": false,
+        "type": "bool",
+        "elementKind": ""
+      },
+      {
         "yamlName": "extraDimensions",
         "doc": "A set of extra dimensions (key:value pairs) to include on datapoints emitted by the monitor(s) created from this configuration. To specify metrics from this monitor should be high-resolution, add the dimension `sf_hires: 1`",
         "default": null,
@@ -28713,6 +28721,14 @@
         "elementKind": ""
       },
       {
+        "yamlName": "validateDiscoveryRules",
+        "doc": "If true, a warning will be emitted if a discovery rule contains variables that will never possibly match a rule.  If using multiple observers, it is convenient to set this to false to suppress spurious errors.",
+        "default": true,
+        "required": false,
+        "type": "bool",
+        "elementKind": ""
+      },
+      {
         "yamlName": "observers",
         "doc": "A list of observers to use (see observer config)",
         "default": "",
@@ -28761,6 +28777,14 @@
               "default": "",
               "required": false,
               "type": "string",
+              "elementKind": ""
+            },
+            {
+              "yamlName": "validateDiscoveryRule",
+              "doc": "If true, a warning will be emitted if a discovery rule contains variables that will never possibly match a rule.  If using multiple observers, it is convenient to set this to false to suppress spurious errors.  The top-level setting `validateDiscoveryRules` acts as a default if this isn't set.",
+              "default": "false",
+              "required": false,
+              "type": "bool",
               "elementKind": ""
             },
             {
