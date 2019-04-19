@@ -73,7 +73,7 @@ def test_bundle(request, base_image):
                 ), "Python metadata datapoint didn't come through"
                 assert wait_for(
                     p(has_datapoint, backend, metric_name="gauge.amq.queue.QueueSize")
-                ), "Didn't get activemq datapoint"
+                ), "Didn't get activemq queue size datapoint"
             finally:
                 print("Agent log:")
                 _, output = cont.exec_run("cat /var/log/signalfx-agent.log")
