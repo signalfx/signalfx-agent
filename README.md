@@ -15,6 +15,10 @@
 
 ### Single Host
 
+Your SignalFx API Token can be obtained from the Organization->Access Token tab in SignalFx.
+
+Certain installation statements include YOUR_SIGNALFX_REALM. If this value is not set, SignalFx assumes your organization is in the us0 realm. To determine if you are in a different realm and need to supply your realm value in those statements, check your profile page in the SignalFx web application.
+
 The Smart Agent for Linux contains a Java JRE runtime and a Python runtime, so there are no
 additional dependency requirements. 
 
@@ -24,7 +28,7 @@ To install the Smart Agent on a single Linux host, enter:
 
 ```sh
 curl -sSL https://dl.signalfx.com/signalfx-agent.sh > /tmp/signalfx-agent.sh
-sudo sh /tmp/signalfx-agent.sh YOUR_SIGNALFX_API_TOKEN
+sudo sh /tmp/signalfx-agent.sh --realm YOUR_SIGNALFX_REALM YOUR_SIGNALFX_API_TOKEN
 ```
 
 The Smart Agent for Windows has these two dependencies:
@@ -34,7 +38,11 @@ The Smart Agent for Windows has these two dependencies:
 
 To install the Smart Agent on a single Windows host, enter:
 
-`& {Set-ExecutionPolicy Bypass -Scope Process -Force; $script = ((New-Object System.Net.WebClient).DownloadString('https://dl.signalfx.com/signalfx-agent.ps1')); $params = @{access_token = "YOUR_SIGNALFX_API_TOKEN"}; Invoke-Command -ScriptBlock ([scriptblock]::Create(". {$script} $(&{$args} @params)"))}`
+```sh
+& {Set-ExecutionPolicy Bypass -Scope Process -Force; $script = ((New-Object System.Net.WebClient).DownloadString('https://dl.signalfx.com/signalfx-agent.ps1')); $params = @{access_token = "YOUR_SIGNALFX_API_TOKEN"}; Invoke-Command -ScriptBlock ([scriptblock]::Create(". {$script} $(&{$args} @params)"))}`
+```
+
+The agent will be installed as a Windows service and will log to the Windows Event Log.
 
 ## Confirmation
 
@@ -54,16 +62,27 @@ something
 
 The response you will see is ---
 
+__Now login to SignalFx to see your data!__
 
 ## Troubleshooting the Installation
 
 To troubleshoot the Linux installation -- 
 
-To troubleshoot the Windows installation -- Is this where the link to "Agent Configuration: Configuring your realm" info should be?
+To troubleshoot the Windows installation -- 
+
+###Realm
+
+By default, the Smart Agent will send data to the us0 realm. If you are not in this realm, you will need to explicitly set the signalFxRealm option in your config like this:
+```sh
+signalFxRealm: YOUR_SIGNALFX_REALM
+```
+To determine if you are in a different realm and need to explicitly set the endpoints, check your profile page in the SignalFx web application.
 
 ## Next Steps
 
-To install Smart Agent on multiple hosts using Configuration Management Tools or Packages, go to the Integrations page, and then click the icon of the tool you want to use. Additional information on Configuration Management tools and Package installations is here.
+To install Smart Agent on multiple hosts using configuration management tools or packages, go to the [Integrations page](https://app.signalfx.com/#/integrations), and then click the icon of the tool you want to use. 
+
+Additional information on configuration management tools and package installations is [here](/docs/smart-agent-next-steps.md).
 
 To configure monitors to use with Smart Agent in your environment, go to [Monitor Configuration](https://docs.signalfx.com/en/latest/integrations/agent/monitor-config.html).
 
