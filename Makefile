@@ -161,7 +161,7 @@ run-dev-image-commands:
 	docker exec -t $(docker_env) signalfx-agent-dev /bin/bash -c '$(RUN_DEV_COMMANDS)'
 
 .PHONY: run-integration-tests
-run-integration-tests: MARKERS ?= not packaging and not installer and not k8s and not windows_only and not deployment and not perf_test
+run-integration-tests: MARKERS ?= not packaging and not bundle and not installer and not kubernetes and not windows_only and not deployment and not perf_test
 run-integration-tests:
 	AGENT_BIN=/bundle/bin/signalfx-agent \
 	pytest \
@@ -173,7 +173,7 @@ run-integration-tests:
 		tests
 
 .PHONY: run-k8s-tests
-run-k8s-tests: MARKERS ?= (k8s or helm) and not collectd
+run-k8s-tests: MARKERS ?= (kubernetes or helm) and not collectd
 run-k8s-tests:
 	pytest \
 		-m "$(MARKERS)" \
