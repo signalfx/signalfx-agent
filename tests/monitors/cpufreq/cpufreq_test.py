@@ -1,6 +1,7 @@
 import time
 
 import pytest
+
 from tests.helpers.agent import Agent
 from tests.helpers.assertions import has_log_message
 

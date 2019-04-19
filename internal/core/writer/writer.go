@@ -192,6 +192,9 @@ func New(conf *config.WriterConfig, dpChan chan *datapoint.Datapoint, eventChan 
 	go sw.listenForEventsAndDimProps()
 	go sw.listenForTraceSpans()
 
+	log.Infof("Sending datapoints to %s", sw.client.DatapointEndpoint)
+	log.Infof("Sending trace spans to %s", sw.client.TraceEndpoint)
+
 	return sw, nil
 }
 

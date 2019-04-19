@@ -1,6 +1,7 @@
 from functools import partial as p
 
 import pytest
+
 from tests.helpers.agent import Agent
 from tests.helpers.assertions import has_datapoint, has_log_message
 from tests.helpers.util import ensure_always, wait_for

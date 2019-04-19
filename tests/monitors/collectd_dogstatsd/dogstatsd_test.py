@@ -4,6 +4,7 @@ import time
 from functools import partial as p
 
 import pytest
+
 from tests.helpers import fake_backend
 from tests.helpers.agent import Agent
 from tests.helpers.assertions import has_datapoint_with_metric_name, regex_search_matches_output, udp_port_open_locally

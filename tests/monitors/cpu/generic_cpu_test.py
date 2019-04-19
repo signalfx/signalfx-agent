@@ -4,6 +4,7 @@ Tests for the cpu monitor
 from functools import partial as p
 
 import pytest
+
 from tests.helpers.agent import Agent
 from tests.helpers.assertions import has_any_metric_or_dim, has_log_message
 from tests.helpers.util import get_monitor_dims_from_selfdescribe, get_monitor_metrics_from_selfdescribe, wait_for

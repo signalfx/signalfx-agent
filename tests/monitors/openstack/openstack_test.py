@@ -2,6 +2,7 @@ from functools import partial as p
 from textwrap import dedent
 
 import pytest
+
 from tests.helpers.agent import Agent
 from tests.helpers.assertions import any_metric_found
 from tests.helpers.util import container_ip, get_monitor_metrics_from_selfdescribe, wait_for

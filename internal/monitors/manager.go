@@ -235,7 +235,7 @@ func (mm *MonitorManager) isEndpointIDMonitoredByConfig(conf config.MonitorCusto
 
 // Returns true is the service did match a rule in this monitor config
 func (mm *MonitorManager) monitorEndpointIfRuleMatches(config config.MonitorCustomConfig, endpoint services.Endpoint) (bool, error) {
-	if config.MonitorConfigCore().DiscoveryRule == "" || !services.DoesServiceMatchRule(endpoint, config.MonitorConfigCore().DiscoveryRule) {
+	if config.MonitorConfigCore().DiscoveryRule == "" || !services.DoesServiceMatchRule(endpoint, config.MonitorConfigCore().DiscoveryRule, config.MonitorConfigCore().ShouldValidateDiscoveryRule()) {
 		return false, nil
 	}
 

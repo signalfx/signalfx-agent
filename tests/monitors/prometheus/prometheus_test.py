@@ -1,16 +1,17 @@
-import os
+from pathlib import Path
 
 import pytest
 
-from tests.helpers.kubernetes.utils import get_discovery_rule, run_k8s_monitors_test
+from tests.helpers.kubernetes.utils import get_discovery_rule, run_k8s_monitors_test, get_metrics
 
 pytestmark = [pytest.mark.prometheus, pytest.mark.monitor_with_endpoints]
 
+SCRIPT_DIR = Path(__file__).parent.resolve()
 
-@pytest.mark.k8s
+
 @pytest.mark.kubernetes
 def test_prometheus_in_k8s(agent_image, minikube, k8s_observer, k8s_test_timeout, k8s_namespace):
-    yaml = os.path.join(os.path.dirname(os.path.realpath(__file__)), "prometheus-k8s.yaml")
+    yaml = SCRIPT_DIR / "prometheus-k8s.yaml"
     monitors = [
         {
             "type": "prometheus-exporter",
@@ -20,8 +21,7 @@ def test_prometheus_in_k8s(agent_image, minikube, k8s_observer, k8s_test_timeout
             "metricPath": "/metrics",
         }
     ]
-    with open(os.path.join(os.path.dirname(os.path.realpath(__file__)), "metrics.txt"), "r") as fd:
-        expected_metrics = {m.strip() for m in fd.readlines() if len(m.strip()) > 0}
+    expected_metrics = get_metrics(SCRIPT_DIR)
     run_k8s_monitors_test(
         agent_image,
         minikube,
