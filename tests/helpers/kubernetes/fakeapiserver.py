@@ -3,8 +3,10 @@ from contextlib import contextmanager
 
 import urllib3.exceptions
 from kubernetes import client
+
 from tests.helpers.assertions import tcp_socket_open
-from tests.helpers.util import REPO_ROOT_DIR, container_ip, run_service, wait_for
+from tests.helpers.util import container_ip, run_service, wait_for
+from tests.paths import REPO_ROOT_DIR
 
 
 @contextmanager

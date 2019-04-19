@@ -194,6 +194,11 @@ To use the bundle:
 
 1) Unarchive it to a directory of your choice on the target system.
 
+2) Go into the unarchived `signalfx-agent` directory and run
+`bin/patch-interpreter $(pwd)`.  This ensures that the binaries in the bundle
+have the right loader set on them since your host's loader may not be
+compatible.
+
 2) Ensure a valid configuration file is available somewhere on the target
 system.  The main thing that the distro packages provide -- but that you will
 have to provide manually with the bundle -- is a run directory for the agent to

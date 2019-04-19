@@ -5,17 +5,19 @@ from contextlib import contextmanager
 
 import yaml
 
+from tests.paths import AGENT_BIN
 from . import fake_backend
 from .formatting import print_dp_or_event
 from .internalmetrics import InternalMetricsClient
 from .profiling import PProfClient
-from .util import AGENT_BIN, get_unique_localhost, print_lines, run_subprocess
+from .util import get_unique_localhost, print_lines, run_subprocess
+
 
 # pylint: disable=too-many-arguments,too-many-instance-attributes
-
-
 class Agent:
-    def __init__(self, run_dir, config, fake_services, debug=True, host=None, env=None, profiling=False):
+    def __init__(
+        self, run_dir, config, fake_services, config_path=None, debug=True, host=None, env=None, profiling=False
+    ):
         assert host is not None
         self.run_dir = run_dir
         self.fake_services = fake_services
@@ -27,7 +29,7 @@ class Agent:
 
         self.env = env
         self.profiling = profiling
-        self.config_path = os.path.join(self.run_dir, "agent.yaml")
+        self.config_path = config_path or os.path.join(self.run_dir, "agent.yaml")
         self.config = yaml.safe_load(config)
 
     def fill_in_config(self):
@@ -39,8 +41,9 @@ class Agent:
         if self.config.get("signalFxAccessToken") is None:
             self.config["signalFxAccessToken"] = "testing123"
 
-        self.config["ingestUrl"] = self.fake_services.ingest_url
-        self.config["apiUrl"] = self.fake_services.api_url
+        if self.fake_services:
+            self.config["ingestUrl"] = self.fake_services.ingest_url
+            self.config["apiUrl"] = self.fake_services.api_url
 
         self.config["internalStatusHost"] = self.host
         self.config["internalStatusPort"] = 8095
@@ -59,10 +62,13 @@ class Agent:
         self.config["configSources"]["file"]["pollRateSeconds"] = 1
 
     def write_config(self):
-        self.fill_in_config()
         with open(self.config_path, "w") as fd:
             print("CONFIG: %s\n%s" % (self.config_path, self.config))
-            fd.write(yaml.dump(self.config))
+            fd.write(self.get_final_config_yaml())
+
+    def get_final_config_yaml(self):
+        self.fill_in_config()
+        return yaml.dump(self.config)
 
     def update_config(self, config_text):
         self.config = yaml.safe_load(config_text)
@@ -79,7 +85,7 @@ class Agent:
     @property
     def current_status_text(self):
         status_proc = subprocess.run(
-            [AGENT_BIN, "status", "-config", self.config_path],
+            [str(AGENT_BIN), "status", "-config", self.config_path],
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,
             encoding="utf-8",

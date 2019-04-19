@@ -3,20 +3,23 @@
 import os
 import tempfile
 from functools import partial as p
+from pathlib import Path
 
 import pytest
 import yaml
+
 from tests.helpers import fake_backend
 from tests.helpers.assertions import has_datapoint_with_dim
 from tests.helpers.kubernetes.utils import create_clusterrolebinding, daemonset_is_ready, deployment_is_ready
 from tests.helpers.util import get_host_ip, wait_for
-from tests.packaging.common import PROJECT_DIR, copy_file_into_container
+from tests.packaging.common import copy_file_into_container, DEPLOYMENTS_DIR
+from tests.paths import PROJECT_DIR
 
-LOCAL_CHART_DIR = os.path.join(PROJECT_DIR, "deployments/k8s/helm/signalfx-agent")
+LOCAL_CHART_DIR = DEPLOYMENTS_DIR / "k8s/helm/signalfx-agent"
 CONTAINER_CHART_DIR = "/opt/deployments/k8s/helm/signalfx-agent"
-CUR_DIR = os.path.abspath(os.path.dirname(__file__))
-NGINX_YAML_PATH = os.path.join(PROJECT_DIR, "tests/monitors/nginx/nginx-k8s.yaml")
-CLUSTERROLEBINDING_YAML_PATH = os.path.join(CUR_DIR, "clusterrolebinding.yaml")
+SCRIPT_DIR = Path(__file__).parent.resolve()
+NGINX_YAML_PATH = PROJECT_DIR / "monitors/nginx/nginx-k8s.yaml"
+CLUSTERROLEBINDING_YAML_PATH = SCRIPT_DIR / "clusterrolebinding.yaml"
 MONITORS_CONFIG = """
     - type: host-metadata
     - type: collectd/nginx

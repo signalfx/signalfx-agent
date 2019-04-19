@@ -1,6 +1,7 @@
 import os
 import re
 from functools import partial as p
+from pathlib import Path
 
 import yaml
 from kubernetes import client as kube_client
@@ -563,3 +564,8 @@ def get_discovery_rule(yaml_file, observer, namespace="", container_index=0):
     if namespace:
         rule += ' && kubernetes_namespace == "%s"' % namespace
     return rule
+
+
+def get_metrics(dir_, name="metrics.txt"):
+    """Returns set of metrics from file"""
+    return {m.strip() for m in (Path(dir_) / name).read_text().splitlines() if len(m.strip()) > 0}
