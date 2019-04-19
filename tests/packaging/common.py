@@ -110,6 +110,7 @@ def socat_https_proxy(container, target_host, target_port, source_host, bind_add
                     ]
                 )
             except docker.errors.APIError:
+                print("socat died, restarting...")
                 time.sleep(0.1)
 
     threading.Thread(target=keep_running_in_container, args=(container, socket_path)).start()
@@ -137,17 +138,24 @@ def socat_https_proxy(container, target_host, target_port, source_host, bind_add
         proc.kill()
 
 
+def copy_file_content_into_container(content, container, target_path):
+    copy_file_object_into_container(
+        BytesIO(content.encode("utf-8")), container, target_path, size=len(content.encode("utf-8"))
+    )
+
+
 # This is more convoluted that it should be but seems to be the simplest way in
 # the face of docker-in-docker environments where volume bind mounting is hard.
-def copy_file_into_container(path, container, target_path):
+def copy_file_object_into_container(fd, container, target_path, size=None):
     tario = BytesIO()
     tar = tarfile.TarFile(fileobj=tario, mode="w")
 
-    with open(path, "rb") as fd:
-        info = tarfile.TarInfo(name=target_path)
-        info.size = os.path.getsize(path)
+    info = tarfile.TarInfo(name=target_path)
+    if size is None:
+        size = os.fstat(fd.fileno()).st_size
+    info.size = size
 
-        tar.addfile(info, fd)
+    tar.addfile(info, fd)
 
     tar.close()
 
@@ -158,6 +166,11 @@ def copy_file_into_container(path, container, target_path):
     time.sleep(2)
 
 
+def copy_file_into_container(path, container, target_path):
+    with open(path, "rb") as fd:
+        copy_file_object_into_container(fd, container, target_path)
+
+
 @contextmanager
 def run_init_system_image(
     base_image,
@@ -166,6 +179,7 @@ def run_init_system_image(
     dockerfile=None,
     ingest_host="ingest.us0.signalfx.com",  # Whatever value is used here needs a self-signed cert in ./images/certs/
     api_host="api.us0.signalfx.com",  # Whatever value is used here needs a self-signed cert in ./images/certs/
+    command=None,
 ):
     image_id = retry(lambda: build_base_image(base_image, path, dockerfile), docker.errors.BuildError)
     print("Image ID: %s" % image_id)
@@ -188,6 +202,10 @@ def run_init_system_image(
                 api_host: backend.api_host,
             },
         }
+
+        if command:
+            container_options["command"] = command
+
         with run_container(image_id, wait_for_ip=True, **container_options) as cont:
             if with_socat:
                 # Proxy the backend calls through a fake HTTPS endpoint so that we

@@ -9,7 +9,7 @@ import pytest
 
 from tests import paths
 from tests.helpers.kubernetes.minikube import Minikube, has_docker_image
-from tests.helpers.util import wait_for, get_docker_client, run_container
+from tests.helpers.util import get_docker_client, run_container, wait_for
 
 K8S_DEFAULT_VERSION = "1.14.0"
 K8S_DEFAULT_TIMEOUT = int(os.environ.get("K8S_TIMEOUT", 300))
@@ -63,6 +63,11 @@ def pytest_addoption(parser):
         "--k8s-skip-teardown",
         action="store_true",
         help="If specified, the minikube container will not be stopped/removed when the tests complete.",
+    )
+    parser.addoption(
+        "--test-bundle-path",
+        action="store",
+        help="Path to a bundle .tar.gz file for testing.  Required for tests that need a bundle.",
     )
 
 
