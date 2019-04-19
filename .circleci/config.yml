@@ -308,7 +308,7 @@ jobs:
       package_type:
         default: "rpm"
         type: enum
-        enum: ["rpm", "deb", "bundle"]
+        enum: ["rpm", "deb"]
     environment:
       PACKAGE_TYPE: "<< parameters.package_type >>"
     steps:
@@ -320,11 +320,7 @@ jobs:
               exit 0
           fi
           export PULL_CACHE=yes
-          if [[ $PACKAGE_TYPE == "bundle" ]]; then
-              AGENT_VERSION=latest make bundle
-          else
-              make << parameters.package_type >>-test-package
-          fi
+          make << parameters.package_type >>-test-package
           # Run non-upgrade tests on node 0, and upgrade tests on node 1
           if [ $CIRCLE_NODE_INDEX -eq 0 ]; then
               echo "export TEST_MARKERS='<< parameters.package_type >> and not upgrade'" >> $BASH_ENV
@@ -332,7 +328,24 @@ jobs:
               echo "export TEST_MARKERS='<< parameters.package_type >> and upgrade'" >> $BASH_ENV
           fi
       - run_pytest:
-          pytest_options: "-n auto -m \"$TEST_MARKERS\" --test-bundle-path ./signalfx-agent-latest.tar.gz"
+          pytest_options: "-n auto -m \"$TEST_MARKERS\""
+          tests_dir: "./tests/packaging"
+
+  bundle_tests:
+    executor: machine_image
+    parallelism: 1
+    steps:
+      - checkout
+      - run: |
+          if ! scripts/changes-include-dir Dockerfile packaging tests/packaging scripts/patch-interpreter scripts/patch-rpath; then
+              echo "packaging code has not changed, skipping tests!"
+              touch ~/.skip
+              exit 0
+          fi
+          export PULL_CACHE=yes
+          AGENT_VERSION=latest make bundle
+      - run_pytest:
+          pytest_options: "-n auto -m \"bundle\" --test-bundle-path=\"./signalfx-agent-latest.tar.gz\""
           tests_dir: "./tests/packaging"
 
   deployment_tests:
@@ -514,6 +527,7 @@ workflows:
       - package_tests:
           name: "deb_package_tests"
           package_type: "deb"
+      - bundle_tests
       - deployment_tests:
           name: "chef_tests"
           deployment_type: "chef"
