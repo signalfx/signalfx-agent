@@ -7,9 +7,6 @@ from functools import partial as p
 
 import pytest
 
-# Import container fixtures. Do not accidentally remove when organizing imports!
-# pylint: disable=unused-wildcard-import,wildcard-import
-from tests.helpers.containers import *
 from tests.helpers.kubernetes.minikube import Minikube, has_docker_image
 from tests.helpers.util import wait_for, get_docker_client, run_container
 
@@ -23,8 +20,6 @@ K8S_SFX_AGENT_BUILD_TIMEOUT = int(os.environ.get("K8S_SFX_AGENT_BUILD_TIMEOUT", 
 
 pytest.register_assert_rewrite("tests.helpers.verify")
 
-# To keep wildcard import from containers fixtures from being removed. Only needs a single reference.
-_ = expvar
 
 # pylint: disable=line-too-long
 def pytest_addoption(parser):
