@@ -34,13 +34,13 @@ formula source](https://github.com/signalfx/signalfx-agent/tree/master/deploymen
 See [Docker Deployment](../deployments/docker) for more information.
 
 #### Kubernetes
-See our [Kubernetes setup instructions](/deployments/kubernetes-setup.md) and the
+See our [Kubernetes setup instructions](/kubernetes-setup.md) and the
 documentation on [Monitoring
 Kubernetes](https://docs.signalfx.com/en/latest/integrations/kubernetes-quickstart.html)
 for more information.
 
 #### AWS Elastic Container Service (ECS)
-See the [ECS directory](./deployments/ecs), which includes a sample
+See the [ECS directory](/deployments/ecs), which includes a sample
 config and task definition for the agent.
 
 ### Packages
