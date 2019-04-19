@@ -2,6 +2,7 @@ from functools import partial as p
 from textwrap import dedent
 
 import pytest
+
 from tests.helpers.agent import Agent
 from tests.helpers.assertions import any_metric_has_any_dim_key, has_datapoint_with_dim, has_log_message, http_status
 from tests.helpers.metadata import Metadata

@@ -7,7 +7,7 @@ extension-pkg-whitelist=signalfx.generated_protocol_buffers.signal_fx_protocol_b
 
 # Add files or directories to the blacklist. They should be base names, not
 # paths.
-ignore=CVS,virtualenv,.git,__pycache__
+ignore=CVS,virtualenv,.git,__pycache__,.idea
 
 # Add files or directories matching the regex patterns to the blacklist. The
 # regex matches against base names, not paths.

@@ -1,21 +1,21 @@
 import os
 from contextlib import contextmanager
+from pathlib import Path
 
 import yaml
+
 import tests.helpers.kubernetes.utils as k8s
+from tests import paths
 from tests.helpers.util import ensure_always, get_unique_localhost
 
-CUR_DIR = os.path.dirname(os.path.realpath(__file__))
-AGENT_YAMLS_DIR = os.environ.get("AGENT_YAMLS_DIR", os.path.realpath(os.path.join(CUR_DIR, "../../../deployments/k8s")))
-AGENT_CLUSTERROLE_PATH = os.environ.get("AGENT_CLUSTERROLE_PATH", os.path.join(AGENT_YAMLS_DIR, "clusterrole.yaml"))
-AGENT_CLUSTERROLEBINDING_PATH = os.environ.get(
-    "AGENT_CLUSTERROLEBINDING_PATH", os.path.join(AGENT_YAMLS_DIR, "clusterrolebinding.yaml")
+AGENT_YAMLS_DIR = Path(os.environ.get("AGENT_YAMLS_DIR", paths.REPO_ROOT_DIR / "deployments" / "k8s"))
+AGENT_CLUSTERROLE_PATH = Path(os.environ.get("AGENT_CLUSTERROLE_PATH", AGENT_YAMLS_DIR / "clusterrole.yaml"))
+AGENT_CLUSTERROLEBINDING_PATH = Path(
+    os.environ.get("AGENT_CLUSTERROLEBINDING_PATH", AGENT_YAMLS_DIR / "clusterrolebinding.yaml")
 )
-AGENT_CONFIGMAP_PATH = os.environ.get("AGENT_CONFIGMAP_PATH", os.path.join(AGENT_YAMLS_DIR, "configmap.yaml"))
-AGENT_DAEMONSET_PATH = os.environ.get("AGENT_DAEMONSET_PATH", os.path.join(AGENT_YAMLS_DIR, "daemonset.yaml"))
-AGENT_SERVICEACCOUNT_PATH = os.environ.get(
-    "AGENT_SERVICEACCOUNT_PATH", os.path.join(AGENT_YAMLS_DIR, "serviceaccount.yaml")
-)
+AGENT_CONFIGMAP_PATH = Path(os.environ.get("AGENT_CONFIGMAP_PATH", AGENT_YAMLS_DIR / "configmap.yaml"))
+AGENT_DAEMONSET_PATH = Path(os.environ.get("AGENT_DAEMONSET_PATH", AGENT_YAMLS_DIR / "daemonset.yaml"))
+AGENT_SERVICEACCOUNT_PATH = Path(os.environ.get("AGENT_SERVICEACCOUNT_PATH", AGENT_YAMLS_DIR / "serviceaccount.yaml"))
 AGENT_STATUS_COMMAND = ["/bin/sh", "-c", "agent-status"]
 
 

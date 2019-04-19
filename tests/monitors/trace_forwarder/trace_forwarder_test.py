@@ -8,6 +8,7 @@ from textwrap import dedent
 
 import pytest
 import requests
+
 from tests.helpers.agent import Agent
 from tests.helpers.assertions import has_trace_span, tcp_port_open_locally
 from tests.helpers.util import wait_for

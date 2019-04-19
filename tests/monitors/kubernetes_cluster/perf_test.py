@@ -5,6 +5,7 @@ from textwrap import dedent
 
 import pytest
 from kubernetes import client
+
 from tests.helpers.agent import Agent
 from tests.helpers.assertions import has_datapoint, has_dim_prop, has_dim_tag
 from tests.helpers.kubernetes.fakeapiserver import fake_k8s_api_server

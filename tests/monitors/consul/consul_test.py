@@ -1,8 +1,9 @@
-import os
 import string
 from functools import partial as p
+from pathlib import Path
 
 import pytest
+
 from tests.helpers.agent import Agent
 from tests.helpers.assertions import has_datapoint_with_metric_name, tcp_socket_open
 from tests.helpers.kubernetes.utils import get_discovery_rule, run_k8s_monitors_test
@@ -16,7 +17,7 @@ from tests.helpers.util import (
 
 pytestmark = [pytest.mark.collectd, pytest.mark.consul, pytest.mark.monitor_with_endpoints]
 
-
+SCRIPT_DIR = Path(__file__).parent.resolve()
 CONSUL_CONFIG = string.Template(
     """
 monitors:
@@ -41,10 +42,9 @@ def test_consul():
             ), "Didn't get consul datapoints"
 
 
-@pytest.mark.k8s
 @pytest.mark.kubernetes
 def test_consul_in_k8s(agent_image, minikube, k8s_observer, k8s_test_timeout, k8s_namespace):
-    yaml = os.path.join(os.path.dirname(os.path.realpath(__file__)), "consul-k8s.yaml")
+    yaml = SCRIPT_DIR / "consul-k8s.yaml"
     monitors = [
         {
             "type": "collectd/consul",

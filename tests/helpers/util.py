@@ -3,7 +3,6 @@ import os
 import re
 import socket
 import subprocess
-import sys
 import threading
 import time
 from contextlib import contextmanager
@@ -13,17 +12,10 @@ import docker
 import netifaces as ni
 import yaml
 
-PROJECT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
-if sys.platform == "win32":
-    AGENT_BIN = os.environ.get("AGENT_BIN", os.path.join(PROJECT_DIR, "..", "signalfx-agent.exe"))
-else:
-    AGENT_BIN = os.environ.get("AGENT_BIN", "/bundle/bin/signalfx-agent")
-REPO_ROOT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "../.."))
-BUNDLE_DIR = os.environ.get("BUNDLE_DIR", "/bundle")
-TEST_SERVICES_DIR = os.environ.get("TEST_SERVICES_DIR", "/test-services")
+from tests.paths import TEST_SERVICES_DIR, SELFDESCRIBE_JSON
+
 DEFAULT_TIMEOUT = os.environ.get("DEFAULT_TIMEOUT", 30)
 DOCKER_API_VERSION = "1.34"
-SELFDESCRIBE_JSON = os.path.join(PROJECT_DIR, "../selfdescribe.json")
 
 
 def get_docker_client():
@@ -112,7 +104,8 @@ get_unique_localhost.counter = 0
 
 @contextmanager
 def run_subprocess(command: List[str], env: Dict[any, any] = None):
-    proc = subprocess.Popen(command, env=env, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    # subprocess on Windows has a bug where it doesn't like Path.
+    proc = subprocess.Popen([str(c) for c in command], env=env, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 
     output = io.BytesIO()
 
@@ -169,7 +162,7 @@ def run_service(service_name, buildargs=None, print_logs=True, path=None, docker
 
     client = get_docker_client()
     image, _ = retry(
-        lambda: client.images.build(path=path, dockerfile=dockerfile, rm=True, forcerm=True, buildargs=buildargs),
+        lambda: client.images.build(path=str(path), dockerfile=dockerfile, rm=True, forcerm=True, buildargs=buildargs),
         docker.errors.BuildError,
     )
     with run_container(image.id, print_logs=print_logs, **kwargs) as cont:

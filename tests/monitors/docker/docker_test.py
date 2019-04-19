@@ -6,7 +6,6 @@ from tests.helpers.util import get_monitor_dims_from_selfdescribe, get_monitor_m
 pytestmark = [pytest.mark.collectd, pytest.mark.docker, pytest.mark.monitor_without_endpoints]
 
 
-@pytest.mark.k8s
 @pytest.mark.kubernetes
 def test_docker_in_k8s(agent_image, minikube, k8s_test_timeout, k8s_namespace):
     monitors = [{"type": "collectd/docker", "dockerURL": "unix:///var/run/docker.sock", "collectNetworkStats": True}]
