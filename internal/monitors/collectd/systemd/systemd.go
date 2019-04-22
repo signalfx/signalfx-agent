@@ -51,32 +51,16 @@ func (c *Config) PythonConfig() *python.Config {
 // GetExtraMetrics returns additional metrics to allow through.
 func (c *Config) GetExtraMetrics() []string {
 	extraMetrics := make([]string, 0)
-	for _, serviceState := range [...]string{activeState, subState, loadState} {
-		for _, metric := range groupMetricsMap[serviceState] {
-			if !includedMetrics[metric] && ((serviceState == activeState && c.SendActiveState) || (serviceState == subState && c.SendSubState) || (serviceState == loadState && c.SendLoadState)) {
-				extraMetrics = append(extraMetrics, metric)
-			}
-		}
-	}
-	return extraMetrics
-}
-
-func (c *Config) services() (services []string) {
-	for _, service := range c.Services {
-		services = append(services, strings.Trim(service, " "))
-	}
-	return
-}
-
-func (c *Config) serviceStates() (serviceStates []string) {
-	serviceStates = append(serviceStates, subState)
 	if c.SendActiveState {
-		serviceStates = append(serviceStates, activeState)
+		extraMetrics = append(extraMetrics, groupMetricsMap[activeState]...)
+	}
+	if c.SendSubState {
+		extraMetrics = append(extraMetrics, groupMetricsMap[subState]...)
 	}
 	if c.SendLoadState {
-		serviceStates = append(serviceStates, loadState)
+		extraMetrics = append(extraMetrics, groupMetricsMap[loadState]...)
 	}
-	return
+	return extraMetrics
 }
 
 // Monitor is the main type that represents the monitor
@@ -86,16 +70,27 @@ type Monitor struct {
 
 // Configure configures and runs the plugin in collectd
 func (m *Monitor) Configure(conf *Config) error {
+	var services []string
+	for _, service := range conf.Services {
+		services = append(services, strings.Trim(service, " "))
+	}
+	serviceStates := []string{subState}
+	if conf.SendActiveState {
+		serviceStates = append(serviceStates, activeState)
+	}
+	if conf.SendLoadState {
+		serviceStates = append(serviceStates, loadState)
+	}
 	conf.pyConf = &python.Config{
 		MonitorConfig: conf.MonitorConfig,
 		ModuleName:    "collectd_systemd",
 		ModulePaths:   []string{collectd.MakePythonPluginPath("systemd")},
 		TypesDBPaths:  []string{collectd.DefaultTypesDBPath()},
 		PluginConfig: map[string]interface{}{
-			"Service":       conf.services(),
+			"Service":       services,
 			"Interval":      conf.IntervalSeconds,
 			"Verbose":       false,
-			"ServiceStates": conf.serviceStates(),
+			"ServiceStates": serviceStates,
 		},
 	}
 	return m.PyMonitor.Configure(conf)

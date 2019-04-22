@@ -44,6 +44,13 @@ monitors:
       sendActiveState
     ```
   sendAll: true
+  groups:
+  - name: ActiveState
+    description: Metrics which indicate whether a service is currently active or not
+  - name: SubState
+    description: Metrics which provide further clarification of a service's active state
+  - name: LoadState
+    description: Metrics which indicate whether a service's unit configuration file has been loaded
   metrics:
   - description: Indicates that the systemd unit/service is active
     included: false

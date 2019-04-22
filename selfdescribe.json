@@ -12638,7 +12638,20 @@
         }
       ],
       "doc": "This [SignalFx Smart Agent](https://github.com/signalfx/signalfx-agent) monitor collects metrics about the state of\nconfigured systemd services using the [collectd-systemd](https://github.com/signalfx/integrations/tree/master/collectd-systemd)\nplugin. A service is in the state that a metric represents if the metric value is 1 and not in that state if the\nmetric value is 0. The name of the service that the metric is reporiting about is assigned to dimension\n`systemd_service`.\n\nThe collectd-systemd plugin reads the status of systemd services from host location `/var/run/dbus/system_bus_socket`.\nThis means that the host location must be mounted to the container in which the SignalFx Smart Agent is running.\nThe agent container must also run in privilege mode. Below is an excerpt of the docker run command.\n```yaml\ndocker run ...\\\n  --privileged \\\n  -v /var/run/dbus/system_bus_socket:/var/run/dbus/system_bus_socket:ro \\\n...\n```\nBelow is a sample SignalFx Smart Agent YAML configuration for monitoring the state of `docker` and `ubuntu-fan`\nservices. See [here](https://github.com/signalfx/signalfx-agent#configuration) for SignalFx Smart Agent\nconfiguration details.\n```yaml\nmonitors:\n- type: collectd/systemd\n  intervalSeconds: 10\n  services:\n    - docker\n    - ubuntu-fan\n```\nOnly the metric `gauge.substate.running`, which indicates whether a service is running or not, gets reported by default.\nThe other metrics must be configure explicitly using the `sendActiveState`, `sendSubState` and `sendLoadState`\nconfiguration flags (see below). The metrics are grouped into `ActiveState`, `SubState` and `LoadState` groups.\n```\nmonitors:\n- type: collectd/systemd\n  intervalSeconds: 10\n  services:\n    - docker\n    - ubuntu-fan\n  sendActiveState\n```\n",
-      "groups": null,
+      "groups": [
+        {
+          "name": "ActiveState",
+          "description": "Metrics which indicate whether a service is currently active or not"
+        },
+        {
+          "name": "SubState",
+          "description": "Metrics which provide further clarification of a service's active state"
+        },
+        {
+          "name": "LoadState",
+          "description": "Metrics which indicate whether a service's unit configuration file has been loaded"
+        }
+      ],
       "metrics": [
         {
           "name": "gauge.active_state.active",
