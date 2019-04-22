@@ -115,7 +115,7 @@ func parseMetrics(raw []string, converters []*converter, prefix string) []*stats
 	for _, m := range raw {
 		colonIdx := strings.Index(m, ":")
 		pipeIdx := strings.Index(m, "|")
-		if pipeIdx >= len(m)-1 || pipeIdx < 0 || colonIdx+1 > len(m) || colonIdx < 0 {
+		if pipeIdx >= len(m)-1 || pipeIdx < 0 || colonIdx-1 > len(m) || colonIdx < 0 {
 			logger.Warnf("Invalid StatsD metric string : %s", m)
 			continue
 		}
