@@ -100,7 +100,7 @@ func (c *Config) serviceStates() (serviceStates []string) {
 	for serviceState := range c.ServiceStates {
 		serviceStates = append(serviceStates, serviceState)
 	}
-	if c.ServiceStates[activeState] == false {
+	if !c.ServiceStates[activeState] {
 		serviceStates = append(serviceStates, activeState)
 	}
 	return
