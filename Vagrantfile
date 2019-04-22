@@ -7,7 +7,10 @@
 Vagrant.configure("2") do |config|
   # Use a distro that is as opposite of what we build with as possible so that
   # we get more confidence that we didn't miss any dependencies.
-  config.vm.box = "ubuntu/xenial64"
+  config.vm.box = "centos/6"
+
+  # Plugin vagrant-disksize required for configuration below.
+  config.disksize.size = "20GB"
 
   # Create a private network, which allows host-only access to the machine
   # using a specific IP.

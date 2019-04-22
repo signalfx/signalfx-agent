@@ -7,6 +7,15 @@ configured systemd services using the [collectd-systemd](https://github.com/sign
 plugin. A service is in the state that a metric represents if the metric value is 1 and not in the state if the
 metric value is 0. The name of the service is assigned to dimension `plugin_instance` of the reported metric.
 
+The collectd-systemd reads the status of systemd services from host location `/var/run/dbus/system_bus_socket`. Thus
+for docker deployment of the SignalFx Smart Agent the host location must be mounted to the agent container using the
+same path. Also, the agent container must run in privilege mode.
+```yaml
+docker run ...\
+  --privileged \
+  -v /var/run/dbus/system_bus_socket:/var/run/dbus/system_bus_socket:ro \
+...
+```
 Below is a sample SignalFx Smart Agent YAML configuration for monitoring the state of `docker` and `ubuntu-fan`
 services. See [here](https://github.com/signalfx/signalfx-agent#configuration) for SignalFx Smart Agent
 configuration details.
@@ -46,6 +55,7 @@ Monitor Type: `collectd/systemd`
 | Config option | Required | Type | Description |
 | --- | --- | --- | --- |
 | `services` | **yes** | `list of strings` | Systemd services to report on |
+| `serviceStates` | no | `map of bools` | Systemd service states. The default state is `ActiveState` and the default metric exported is `gauge.substate.running`. Possible service states are `ActiveState`, `SubState` and `LoadState` |
 
 
 
@@ -72,36 +82,15 @@ The following table lists the metrics available for this monitor. Metrics that a
 | `gauge.load_state.masked` | gauge |  | Indicates that the systemd unit/service is currently masked out (i.e. symlinked to /dev/null etc) |
 
 
-To specify custom metrics you want to monitor, add a `metricsToInclude` filter
-to the agent configuration, as shown in the code snippet below. The snippet
-lists all available custom metrics. You can copy and paste the snippet into
-your configuration file, then delete any custom metrics that you do not want
-sent.
 
-Note that some of the custom metrics require you to set a flag as well as add
-them to the list. Check the monitor configuration file to see if a flag is
-required for gathering additional metrics.
+## Dimensions
 
-```yaml
+The following dimensions may occur on metrics emitted by this monitor.  Some
+dimensions may be specific to certain metrics.
 
-metricsToInclude:
-  - metricNames:
-    - gauge.active_state.active
-    - gauge.active_state.inactive
-    - gauge.active_state.activating
-    - gauge.active_state.deactivating
-    - gauge.active_state.reloading
-    - gauge.active_state.failed
-    - gauge.substate.exited
-    - gauge.substate.failed
-    - gauge.substate.dead
-    - gauge.load_state.loaded
-    - gauge.load_state.not-found
-    - gauge.load_state.error
-    - gauge.load_state.masked
-    monitorType: collectd/systemd
-```
-
+| Name | Description |
+| ---  | ---         |
+| `plugin_instance` | The name of the systemd service that the reported metric applies to |
 
 
 

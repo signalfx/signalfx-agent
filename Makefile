@@ -4,7 +4,7 @@ BUILD_TIME ?= $$(date +%FT%T%z)
 ifeq ($(OS),Windows_NT)
 MONITOR_CODE_GEN := monitor-code-gen.exe
 else
-MONITOR_CODE_GEN := ./monitor-code-gen
+MONITOR_CODE_GEN := monitor-code-gen
 endif
 NUM_CORES ?= $(shell getconf _NPROCESSORS_ONLN)
 
@@ -15,7 +15,6 @@ check: lint vet test
 compileDeps: templates code-gen internal/core/common/constants/versions.go
 
 code-gen: $(MONITOR_CODE_GEN)
-	$(MONITOR_CODE_GEN)
 
 $(MONITOR_CODE_GEN): $(wildcard cmd/monitorcodegen/*.go)
 ifeq ($(OS),Windows_NT)
@@ -116,11 +115,12 @@ endif
 debug:
 	dlv debug ./cmd/agent
 
+ifdef dbus
+dbus_run_flags = --privileged -v /var/run/dbus/system_bus_socket:/var/run/dbus/system_bus_socket:ro
+endif
+
 ifneq ($(OS),Windows_NT)
 extra_run_flags = -v /:/hostfs:ro -v /var/run/docker.sock:/var/run/docker.sock:ro -v /tmp/scratch:/tmp/scratch
-ifeq ($(shell uname -s),Linux)
-extra_run_flags += -v /var/run/dbus/system_bus_socket:/var/run/dbus/system_bus_socket:ro
-endif
 docker_env = -e COLUMNS=`tput cols` -e LINES=`tput lines`
 endif
 
@@ -128,8 +128,7 @@ endif
 run-dev-image:
 	docker exec -it $(docker_env) signalfx-agent-dev /bin/bash -l -i || \
 	  docker run --rm -it \
-		--privileged \
-		$(extra_run_flags) \
+		$(dbus_run_flags) $(extra_run_flags) \
 		--cap-add DAC_READ_SEARCH \
 		--cap-add SYS_PTRACE \
 		-p 6060:6060 \
@@ -146,7 +145,7 @@ run-dev-image:
 run-dev-image-sync:
 	docker exec -it $(docker_env) signalfx-agent-dev-sync /bin/bash -l -i || \
 	  docker run --rm -it \
-		$(extra_run_flags) \
+		$(dbus_run_flags) $(extra_run_flags) \
 		--cap-add DAC_READ_SEARCH \
 		--cap-add SYS_PTRACE \
 		-p 6061:6060 \

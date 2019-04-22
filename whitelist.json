@@ -1010,12 +1010,5 @@
             "gauge.openstack.nova.server.vda_write",
             "gauge.openstack.nova.server.vda_write_req"
         ]
-    },
-    {
-        "monitorType": "collectd/systemd",
-        "negated": true,
-        "metricNames": [
-            "gauge.substate.running"
-        ]
     }
 ]
