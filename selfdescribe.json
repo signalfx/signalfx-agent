@@ -12640,98 +12640,98 @@
           "name": "gauge.active_state.active",
           "type": "gauge",
           "description": "Indicates that the systemd unit/service is active",
-          "group": null,
+          "group": "ActiveState",
           "included": false
         },
         {
           "name": "gauge.active_state.inactive",
           "type": "gauge",
           "description": "Indicates that the systemd unit/service is inactive and the previous run was successful or no previous run has taken place yet",
-          "group": null,
+          "group": "ActiveState",
           "included": false
         },
         {
           "name": "gauge.active_state.activating",
           "type": "gauge",
           "description": "Indicates that the systemd unit/service has previously been inactive but is currently in the process of entering an active state",
-          "group": null,
+          "group": "ActiveState",
           "included": false
         },
         {
           "name": "gauge.active_state.deactivating",
           "type": "gauge",
           "description": "Indicates that the systemd unit/service is currently in the process of deactivation",
-          "group": null,
+          "group": "ActiveState",
           "included": false
         },
         {
           "name": "gauge.active_state.reloading",
           "type": "gauge",
           "description": "Indicates that the systemd unit/service is active and currently reloading its configuration",
-          "group": null,
+          "group": "ActiveState",
           "included": false
         },
         {
           "name": "gauge.active_state.failed",
           "type": "gauge",
           "description": "Indicates that the systemd unit/service is inactive the previous run was not successful",
-          "group": null,
+          "group": "ActiveState",
           "included": false
         },
         {
           "name": "gauge.substate.running",
           "type": "gauge",
           "description": "Indicates that the systemd unit/service is running",
-          "group": null,
+          "group": "SubState",
           "included": true
         },
         {
           "name": "gauge.substate.exited",
           "type": "gauge",
           "description": "Indicates that the systemd unit/service exited",
-          "group": null,
+          "group": "SubState",
           "included": false
         },
         {
           "name": "gauge.substate.failed",
           "type": "gauge",
           "description": "Indicates that the systemd unit/service failed",
-          "group": null,
+          "group": "SubState",
           "included": false
         },
         {
           "name": "gauge.substate.dead",
           "type": "gauge",
           "description": "Indicates that the systemd unit/service died",
-          "group": null,
+          "group": "SubState",
           "included": false
         },
         {
           "name": "gauge.load_state.loaded",
           "type": "gauge",
           "description": "Indicates that the systemd unit/service configuration was loaded and parsed successfully",
-          "group": null,
+          "group": "LoadState",
           "included": false
         },
         {
           "name": "gauge.load_state.not-found",
           "type": "gauge",
           "description": "Indicates that the systemd unit/service configuration was not found",
-          "group": null,
+          "group": "LoadState",
           "included": false
         },
         {
           "name": "gauge.load_state.error",
           "type": "gauge",
           "description": "Indicates that the systemd unit/service configuration failed to load",
-          "group": null,
+          "group": "LoadState",
           "included": false
         },
         {
           "name": "gauge.load_state.masked",
           "type": "gauge",
           "description": "Indicates that the systemd unit/service is currently masked out (i.e. symlinked to /dev/null etc)",
-          "group": null,
+          "group": "LoadState",
           "included": false
         }
       ],

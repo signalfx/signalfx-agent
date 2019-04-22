@@ -47,71 +47,71 @@ monitors:
     included: false
     name: gauge.active_state.active
     type: gauge
-    #group: ActiveState
+    group: ActiveState
   - description: Indicates that the systemd unit/service is inactive and the previous run was successful or no previous run has taken place yet
     included: false
     name: gauge.active_state.inactive
     type: gauge
-    #group: ActiveState
+    group: ActiveState
   - description: Indicates that the systemd unit/service has previously been inactive but is currently in the process of entering an active state
     included: false
     name: gauge.active_state.activating
     type: gauge
-    #group: ActiveState
+    group: ActiveState
   - description: Indicates that the systemd unit/service is currently in the process of deactivation
     included: false
     name: gauge.active_state.deactivating
     type: gauge
-    #group: ActiveState
+    group: ActiveState
   - description: Indicates that the systemd unit/service is active and currently reloading its configuration
     included: false
     name: gauge.active_state.reloading
     type: gauge
-    #group: ActiveState
+    group: ActiveState
   - description: Indicates that the systemd unit/service is inactive the previous run was not successful
     included: false
     name: gauge.active_state.failed
     type: gauge
-    #group: ActiveState
+    group: ActiveState
   - description: Indicates that the systemd unit/service is running
     included: true
     name: gauge.substate.running
     type: gauge
-    #group: SubState
+    group: SubState
   - description: Indicates that the systemd unit/service exited
     included: false
     name: gauge.substate.exited
     type: gauge
-    #group: SubState
+    group: SubState
   - description: Indicates that the systemd unit/service failed
     included: false
     name: gauge.substate.failed
     type: gauge
-    #group: SubState
+    group: SubState
   - description: Indicates that the systemd unit/service died
     included: false
     name: gauge.substate.dead
     type: gauge
-    #group: SubState
+    group: SubState
   - description: Indicates that the systemd unit/service configuration was loaded and parsed successfully
     included: false
     name: gauge.load_state.loaded
     type: gauge
-    #group: LoadState
+    group: LoadState
   - description: Indicates that the systemd unit/service configuration was not found
     included: false
     name: gauge.load_state.not-found
     type: gauge
-    #group: LoadState
+    group: LoadState
   - description: Indicates that the systemd unit/service configuration failed to load
     included: false
     name: gauge.load_state.error
     type: gauge
-    #group: LoadState
+    group: LoadState
   - description: Indicates that the systemd unit/service is currently masked out (i.e. symlinked to /dev/null etc)
     included: false
     name: gauge.load_state.masked
     type: gauge
-    #group: LoadState
+    group: LoadState
   monitorType: collectd/systemd
   properties: null
