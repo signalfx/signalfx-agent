@@ -12629,11 +12629,15 @@
       "sendAll": true,
       "dimensions": [
         {
-          "name": "plugin_instance",
+          "name": "systemd_service",
           "description": "The name of the systemd service that the reported metric applies to"
+        },
+        {
+          "name": "plugin",
+          "description": "The name of the collectd plugin. Facilitates filtering operations in the SignalFx app"
         }
       ],
-      "doc": "This [SignalFx Smart Agent](https://github.com/signalfx/signalfx-agent) monitor collects metrics about the state of\nconfigured systemd services using the [collectd-systemd](https://github.com/signalfx/integrations/tree/master/collectd-systemd)\nplugin. A service is in the state that a metric represents if the metric value is 1 and not in the state if the\nmetric value is 0. The name of the service is assigned to dimension `plugin_instance` of the reported metric.\n\nThe collectd-systemd plugin reads the status of systemd services from host location `/var/run/dbus/system_bus_socket`.\nThe host location must be mounted to the SignalFx Smart Agent container in the docker deployment of the agent. The\nagent container must run in privilege mode. Below is an excerpt of the docker run command.\n```yaml\ndocker run ...\\\n  --privileged \\\n  -v /var/run/dbus/system_bus_socket:/var/run/dbus/system_bus_socket:ro \\\n...\n```\nBelow is a sample SignalFx Smart Agent YAML configuration for monitoring the state of `docker` and `ubuntu-fan`\nservices. See [here](https://github.com/signalfx/signalfx-agent#configuration) for SignalFx Smart Agent\nconfiguration details.\n```yaml\nmonitors:\n- type: collectd/systemd\n  intervalSeconds: 10\n  services:\n    - docker\n    - ubuntu-fan\n```\nOnly metric `gauge.substate.running` which indicates whether a service is running or not gets reported by default.\nThe other metrics must be configure explicitly (see below). Also, it is recommended that you include the extra\ndimension `metric_source` with a meaningful value in order to facilitate filtering in the SignalFx app.\n```\nmonitors:\n- type: collectd/systemd\n  intervalSeconds: 10\n  services:\n    - docker\n    - ubuntu-fan\n  extraDimensions:\n    metric_source: collectd/systemd\n```\n",
+      "doc": "This [SignalFx Smart Agent](https://github.com/signalfx/signalfx-agent) monitor collects metrics about the state of\nconfigured systemd services using the [collectd-systemd](https://github.com/signalfx/integrations/tree/master/collectd-systemd)\nplugin. A service is in the state that a metric represents if the metric value is 1 and not in that state if the\nmetric value is 0. The name of the service that the metric is reporiting about is assigned to dimension\n`systemd_service`.\n\nThe collectd-systemd plugin reads the status of systemd services from host location `/var/run/dbus/system_bus_socket`.\nThis means that the host location must be mounted to the container in which the SignalFx Smart Agent is running.\nThe agent container must also run in privilege mode. Below is an excerpt of the docker run command.\n```yaml\ndocker run ...\\\n  --privileged \\\n  -v /var/run/dbus/system_bus_socket:/var/run/dbus/system_bus_socket:ro \\\n...\n```\nBelow is a sample SignalFx Smart Agent YAML configuration for monitoring the state of `docker` and `ubuntu-fan`\nservices. See [here](https://github.com/signalfx/signalfx-agent#configuration) for SignalFx Smart Agent\nconfiguration details.\n```yaml\nmonitors:\n- type: collectd/systemd\n  intervalSeconds: 10\n  services:\n    - docker\n    - ubuntu-fan\n```\nOnly metric `gauge.substate.running` which indicates whether a service is running or not gets reported by default.\nThe other metrics must be configure explicitly in groups using the `sendActiveState`, `sendSubState` and\n`sendLoadState` configuration flags (see below).\n```\nmonitors:\n- type: collectd/systemd\n  intervalSeconds: 10\n  services:\n    - docker\n    - ubuntu-fan\n  sendActiveState\n```\n",
       "groups": null,
       "metrics": [
         {
@@ -12751,12 +12755,28 @@
             "elementKind": "string"
           },
           {
-            "yamlName": "serviceStates",
-            "doc": "Systemd service states. The default state is `ActiveState` and the default metric exported is `gauge.substate.running`. Possible service states are `ActiveState`, `SubState` and `LoadState`",
-            "default": null,
+            "yamlName": "sendActiveState",
+            "doc": "Flag for sending metrics about the state of systemd services",
+            "default": false,
             "required": false,
-            "type": "map",
-            "elementKind": "bool"
+            "type": "bool",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "sendSubState",
+            "doc": "Flag for sending more detailed metrics about the state of systemd services",
+            "default": false,
+            "required": false,
+            "type": "bool",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "sendLoadState",
+            "doc": "Flag for sending metrics about the load state of systemd services",
+            "default": false,
+            "required": false,
+            "type": "bool",
+            "elementKind": ""
           }
         ]
       },

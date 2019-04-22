@@ -3,7 +3,6 @@
 package systemd
 
 import (
-	"fmt"
 	"strings"
 
 	"github.com/signalfx/signalfx-agent/internal/monitors"
@@ -30,33 +29,18 @@ func init() {
 	}, &Config{})
 }
 
-type stringSet map[string]bool
-
-// UnmarshalYAML is used to unmarshal into stringSet
-func (s *stringSet) UnmarshalYAML(unmarshal func(interface{}) error) error {
-	*s = stringSet{}
-	var (
-		keys []string
-		err  error
-	)
-	if err = unmarshal(&keys); err == nil && len(keys) > 0 {
-		for _, key := range keys {
-			if key = strings.Trim(key, " "); key != "" {
-				(*s)[key] = true
-			}
-		}
-	}
-	return err
-}
-
 // Config is the monitor-specific config with the generic config embedded
 type Config struct {
 	config.MonitorConfig `yaml:",inline" acceptsEndpoints:"true"`
 	pyConf               *python.Config
 	// Systemd services to report on
 	Services []string `yaml:"services" validate:"required"`
-	// Systemd service states. The default state is `ActiveState` and the default metric exported is `gauge.substate.running`. Possible service states are `ActiveState`, `SubState` and `LoadState`
-	ServiceStates stringSet `yaml:"serviceStates"`
+	// Flag for sending metrics about the state of systemd services
+	SendActiveState bool `yaml:"sendActiveState"`
+	// Flag for sending more detailed metrics about the state of systemd services
+	SendSubState bool `yaml:"sendSubState"`
+	// Flag for sending metrics about the load state of systemd services
+	SendLoadState bool `yaml:"sendLoadState"`
 }
 
 // PythonConfig returns the embedded python.Config struct from the interface
@@ -64,24 +48,12 @@ func (c *Config) PythonConfig() *python.Config {
 	return c.pyConf
 }
 
-// Validate validates optional configured `serviceStates`. Possible values are `ActiveState`, `SubState` and `LoadState`
-func (c *Config) Validate() error {
-	for serviceState := range c.ServiceStates {
-		switch serviceState {
-		case activeState, subState, loadState:
-		default:
-			return fmt.Errorf("%s is an invalid service states. Possible service states are %s, %s, %s", serviceState, activeState, subState, loadState)
-		}
-	}
-	return nil
-}
-
 // GetExtraMetrics returns additional metrics to allow through.
 func (c *Config) GetExtraMetrics() []string {
 	extraMetrics := make([]string, 0)
-	for serviceState := range c.ServiceStates {
+	for _, serviceState := range [...]string{activeState, subState, loadState} {
 		for _, metric := range groupMetricsMap[serviceState] {
-			if !includedMetrics[metric] {
+			if !includedMetrics[metric] && ((serviceState == activeState && c.SendActiveState) || (serviceState == subState && c.SendSubState) || (serviceState == loadState && c.SendLoadState)) {
 				extraMetrics = append(extraMetrics, metric)
 			}
 		}
@@ -97,11 +69,12 @@ func (c *Config) services() (services []string) {
 }
 
 func (c *Config) serviceStates() (serviceStates []string) {
-	for serviceState := range c.ServiceStates {
-		serviceStates = append(serviceStates, serviceState)
-	}
-	if !c.ServiceStates[activeState] {
+	serviceStates = append(serviceStates, subState)
+	if c.SendActiveState {
 		serviceStates = append(serviceStates, activeState)
+	}
+	if c.SendLoadState {
+		serviceStates = append(serviceStates, loadState)
 	}
 	return
 }

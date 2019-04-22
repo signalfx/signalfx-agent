@@ -4,12 +4,13 @@
 
 This [SignalFx Smart Agent](https://github.com/signalfx/signalfx-agent) monitor collects metrics about the state of
 configured systemd services using the [collectd-systemd](https://github.com/signalfx/integrations/tree/master/collectd-systemd)
-plugin. A service is in the state that a metric represents if the metric value is 1 and not in the state if the
-metric value is 0. The name of the service is assigned to dimension `plugin_instance` of the reported metric.
+plugin. A service is in the state that a metric represents if the metric value is 1 and not in that state if the
+metric value is 0. The name of the service that the metric is reporiting about is assigned to dimension
+`systemd_service`.
 
 The collectd-systemd plugin reads the status of systemd services from host location `/var/run/dbus/system_bus_socket`.
-The host location must be mounted to the SignalFx Smart Agent container in the docker deployment of the agent. The
-agent container must run in privilege mode. Below is an excerpt of the docker run command.
+This means that the host location must be mounted to the container in which the SignalFx Smart Agent is running.
+The agent container must also run in privilege mode. Below is an excerpt of the docker run command.
 ```yaml
 docker run ...\
   --privileged \
@@ -28,8 +29,8 @@ monitors:
     - ubuntu-fan
 ```
 Only metric `gauge.substate.running` which indicates whether a service is running or not gets reported by default.
-The other metrics must be configure explicitly (see below). Also, it is recommended that you include the extra
-dimension `metric_source` with a meaningful value in order to facilitate filtering in the SignalFx app.
+The other metrics must be configure explicitly in groups using the `sendActiveState`, `sendSubState` and
+`sendLoadState` configuration flags (see below).
 ```
 monitors:
 - type: collectd/systemd
@@ -37,8 +38,7 @@ monitors:
   services:
     - docker
     - ubuntu-fan
-  extraDimensions:
-    metric_source: collectd/systemd
+  sendActiveState
 ```
 
 
@@ -55,7 +55,9 @@ Monitor Type: `collectd/systemd`
 | Config option | Required | Type | Description |
 | --- | --- | --- | --- |
 | `services` | **yes** | `list of strings` | Systemd services to report on |
-| `serviceStates` | no | `map of bools` | Systemd service states. The default state is `ActiveState` and the default metric exported is `gauge.substate.running`. Possible service states are `ActiveState`, `SubState` and `LoadState` |
+| `sendActiveState` | no | `bool` | Flag for sending metrics about the state of systemd services (**default:** `false`) |
+| `sendSubState` | no | `bool` | Flag for sending more detailed metrics about the state of systemd services (**default:** `false`) |
+| `sendLoadState` | no | `bool` | Flag for sending metrics about the load state of systemd services (**default:** `false`) |
 
 
 
@@ -90,7 +92,8 @@ dimensions may be specific to certain metrics.
 
 | Name | Description |
 | ---  | ---         |
-| `plugin_instance` | The name of the systemd service that the reported metric applies to |
+| `systemd_service` | The name of the systemd service that the reported metric applies to |
+| `plugin` | The name of the collectd plugin. Facilitates filtering operations in the SignalFx app |
 
 
 
