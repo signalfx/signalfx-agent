@@ -34,7 +34,7 @@ formula source](https://github.com/signalfx/signalfx-agent/tree/master/deploymen
 See [Docker Deployment](../deployments/docker) for more information.
 
 #### Kubernetes
-See our [Kubernetes setup instructions](/kubernetes-setup.md) and the
+See our [Kubernetes setup instructions](https://docs.signalfx.com/en/latest/integrations/agent/kubernetes-setup.html) and the
 documentation on [Monitoring
 Kubernetes](https://docs.signalfx.com/en/latest/integrations/kubernetes-quickstart.html)
 for more information.
