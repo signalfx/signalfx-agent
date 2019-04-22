@@ -7,9 +7,9 @@ configured systemd services using the [collectd-systemd](https://github.com/sign
 plugin. A service is in the state that a metric represents if the metric value is 1 and not in the state if the
 metric value is 0. The name of the service is assigned to dimension `plugin_instance` of the reported metric.
 
-The collectd-systemd reads the status of systemd services from host location `/var/run/dbus/system_bus_socket`. Thus
-for docker deployment of the SignalFx Smart Agent the host location must be mounted to the agent container using the
-same path. Also, the agent container must run in privilege mode.
+The collectd-systemd plugin reads the status of systemd services from host location `/var/run/dbus/system_bus_socket`.
+The host location must be mounted to the SignalFx Smart Agent container in the docker deployment of the agent. The
+agent container must run in privilege mode. Below is an excerpt of the docker run command.
 ```yaml
 docker run ...\
   --privileged \
