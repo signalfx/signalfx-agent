@@ -14,8 +14,8 @@ check: lint vet test
 .PHONY: compileDeps
 compileDeps: templates code-gen internal/core/common/constants/versions.go
 
+.PHONY: code-gen
 code-gen: $(MONITOR_CODE_GEN)
-	$(MONITOR_CODE_GEN)
 
 $(MONITOR_CODE_GEN): $(wildcard cmd/monitorcodegen/*.go)
 ifeq ($(OS),Windows_NT)
