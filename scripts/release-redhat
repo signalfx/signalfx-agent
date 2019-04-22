@@ -1,0 +1,55 @@
+#!/bin/bash
+
+set -euo pipefail
+set -x
+
+# Updates the ${build_branch} branch on github with the newer version of the
+# agent baked into the Dockerfile.rhel.  We can't use build args or run any
+# scripts on the RHEL build service so we have to have the Dockerfile be as
+# self-contained as possible.
+
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+usage() {
+  echo "$0 <version> <project_id> [redhat_tag]"
+}
+
+if [[ "$#" -lt 2 ]]; then
+  usage
+  exit 1
+fi
+
+version=${1-$(scripts/latest-final-release)}
+project_id=$2
+redhat_tag=${3-$version}
+build_branch="redhat-project"
+
+update_dockerfile() {
+  sed --in-place='' --regexp-extended -e "s/[4-9]+\.[0-9]+\.[0-9]+/$version/g" Dockerfile.rhel
+}
+
+# Reset the ${build_branch} branch to the specified version's tag and ensure the
+# Dockerfile.rhel has the right version on the remote repo for the RHEL builder
+# service to pick up.
+update_branch() {
+  rm -rf /tmp/redhat-project
+  git worktree add -f -B ${build_branch} /tmp/redhat-project v$version
+  pushd /tmp/redhat-project
+
+  update_dockerfile
+  read -n1 -p "Press key"
+
+  git add Dockerfile.rhel
+  git commit -m "Update RHEL Dockerfile version to $version"
+  git push -f origin ${build_branch}
+
+  popd
+  git worktree remove /tmp/redhat-project
+}
+
+trigger_build() {
+  curl -H "Content-Type: application/json" -X POST -d "{\"tag\":\"${redhat_tag}\"}" https://connect.redhat.com/api/v2/projects/${project_id}/build
+}
+
+update_branch
+trigger_build
