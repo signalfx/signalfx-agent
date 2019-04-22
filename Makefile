@@ -4,7 +4,7 @@ BUILD_TIME ?= $$(date +%FT%T%z)
 ifeq ($(OS),Windows_NT)
 MONITOR_CODE_GEN := monitor-code-gen.exe
 else
-MONITOR_CODE_GEN := monitor-code-gen
+MONITOR_CODE_GEN := ./monitor-code-gen
 endif
 NUM_CORES ?= $(shell getconf _NPROCESSORS_ONLN)
 
@@ -15,6 +15,7 @@ check: lint vet test
 compileDeps: templates code-gen internal/core/common/constants/versions.go
 
 code-gen: $(MONITOR_CODE_GEN)
+	$(MONITOR_CODE_GEN)
 
 $(MONITOR_CODE_GEN): $(wildcard cmd/monitorcodegen/*.go)
 ifeq ($(OS),Windows_NT)
