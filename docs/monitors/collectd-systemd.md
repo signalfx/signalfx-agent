@@ -28,9 +28,9 @@ monitors:
     - docker
     - ubuntu-fan
 ```
-Only metric `gauge.substate.running` which indicates whether a service is running or not gets reported by default.
-The other metrics must be configure explicitly in groups using the `sendActiveState`, `sendSubState` and
-`sendLoadState` configuration flags (see below).
+Only the metric `gauge.substate.running`, which indicates whether a service is running or not, gets reported by default.
+The other metrics must be configure explicitly using the `sendActiveState`, `sendSubState` and `sendLoadState`
+configuration flags (see below). The metrics are grouped into `ActiveState`, `SubState` and `LoadState` groups.
 ```
 monitors:
 - type: collectd/systemd
