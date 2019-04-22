@@ -401,6 +401,7 @@ RUN apt update &&\
       net-tools \
       python3-pip \
       socat \
+      sudo \
       vim \
       wget
 
@@ -446,6 +447,12 @@ COPY tests/requirements.txt /tmp/
 RUN pip3 install --upgrade pip==9.0.1 && pip3 install -r /tmp/requirements.txt
 RUN wget -O /usr/bin/gomplate https://github.com/hairyhenderson/gomplate/releases/download/v2.4.0/gomplate_linux-${TARGET_ARCH}-slim &&\
     chmod +x /usr/bin/gomplate
+
+RUN cd /tmp &&\
+    curl -LO https://storage.googleapis.com/kubernetes-release/release/v1.14.1/bin/linux/amd64/kubectl &&\
+    chmod +x ./kubectl &&\
+    mv ./kubectl /usr/bin/kubectl
+
 RUN ln -s /usr/bin/python3 /usr/bin/python &&\
     ln -s /usr/bin/pip3 /usr/bin/pip
 

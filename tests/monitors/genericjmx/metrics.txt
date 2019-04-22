@@ -1,7 +1,0 @@
-gauge.jvm.threads.count
-invocations
-jmx_memory.committed
-jmx_memory.init
-jmx_memory.max
-jmx_memory.used
-total_time_in_ms.collection_time

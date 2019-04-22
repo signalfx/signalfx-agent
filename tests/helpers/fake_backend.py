@@ -105,6 +105,8 @@ def start(ip_addr="127.0.0.1"):
     loop = asyncio.new_event_loop()
 
     async def start_servers():
+        ingest_app.config.REQUEST_TIMEOUT = ingest_app.config.KEEP_ALIVE_TIMEOUT = 1000
+        api_app.config.REQUEST_TIMEOUT = api_app.config.KEEP_ALIVE_TIMEOUT = 1000
         ingest_server = ingest_app.create_server(sock=ingest_sock, access_log=False)
         api_server = api_app.create_server(sock=api_sock, access_log=False)
 

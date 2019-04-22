@@ -1,0 +1,14 @@
+#!/bin/bash
+
+# Build and optionally push the proxy image to the agent dev repo on Quay in
+# case it needs to be updated for some reason.
+
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+IMAGE="quay.io/signalfx/signalfx-agent-dev:fake-backend-proxy"
+
+docker build -t $IMAGE $SCRIPT_DIR
+
+if [[ "$PUSH" == "yes" ]]; then
+  docker push $IMAGE
+fi

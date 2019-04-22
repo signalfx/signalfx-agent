@@ -1,23 +1,12 @@
 from functools import partial as p
-from pathlib import Path
 from textwrap import dedent
 
 import pytest
-
 from tests.helpers.agent import Agent
 from tests.helpers.assertions import container_cmd_exit_0, has_datapoint_with_dim, http_status, tcp_socket_open
-from tests.helpers.kubernetes.utils import get_discovery_rule, run_k8s_monitors_test
-from tests.helpers.util import (
-    container_ip,
-    get_monitor_dims_from_selfdescribe,
-    get_monitor_metrics_from_selfdescribe,
-    run_container,
-    run_service,
-    wait_for,
-)
+from tests.helpers.util import container_ip, run_container, run_service, wait_for
 
 pytestmark = [pytest.mark.collectd, pytest.mark.kong, pytest.mark.monitor_with_endpoints]
-SCRIPT_DIR = Path(__file__).parent.resolve()
 
 
 @pytest.mark.flaky(reruns=2, reruns_delay=5)
@@ -64,25 +53,3 @@ def test_kong(kong_version):  # pylint: disable=redefined-outer-name
                 assert wait_for(
                     p(has_datapoint_with_dim, agent.fake_services, "plugin", "kong")
                 ), "Didn't get Kong data point"
-
-
-@pytest.mark.kubernetes
-@pytest.mark.parametrize("kong_version", ["0.14-centos", "1.0.0-centos"])
-def test_kong_in_k8s(agent_image, minikube, k8s_observer, k8s_test_timeout, k8s_namespace, kong_version):
-    yaml = SCRIPT_DIR / "kong-k8s.yaml"
-    build_opts = {"tag": "kong:k8s-test", "buildargs": {"KONG_VERSION": kong_version}}
-    minikube.build_image("kong", build_opts)
-    monitors = [
-        {"type": "collectd/kong", "discoveryRule": get_discovery_rule(yaml, k8s_observer, namespace=k8s_namespace)}
-    ]
-    run_k8s_monitors_test(
-        agent_image,
-        minikube,
-        monitors,
-        namespace=k8s_namespace,
-        yamls=[yaml],
-        observer=k8s_observer,
-        expected_metrics=get_monitor_metrics_from_selfdescribe(monitors[0]["type"]),
-        expected_dims=get_monitor_dims_from_selfdescribe(monitors[0]["type"]),
-        test_timeout=k8s_test_timeout,
-    )

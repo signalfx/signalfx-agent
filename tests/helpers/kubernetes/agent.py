@@ -3,10 +3,9 @@ from contextlib import contextmanager
 from pathlib import Path
 
 import yaml
-
-import tests.helpers.kubernetes.utils as k8s
+from kubernetes import client as kube_client
 from tests import paths
-from tests.helpers.util import ensure_always, get_unique_localhost
+from tests.helpers.kubernetes import utils
 
 AGENT_YAMLS_DIR = Path(os.environ.get("AGENT_YAMLS_DIR", paths.REPO_ROOT_DIR / "deployments" / "k8s"))
 AGENT_CLUSTERROLE_PATH = Path(os.environ.get("AGENT_CLUSTERROLE_PATH", AGENT_YAMLS_DIR / "clusterrole.yaml"))
@@ -16,193 +15,129 @@ AGENT_CLUSTERROLEBINDING_PATH = Path(
 AGENT_CONFIGMAP_PATH = Path(os.environ.get("AGENT_CONFIGMAP_PATH", AGENT_YAMLS_DIR / "configmap.yaml"))
 AGENT_DAEMONSET_PATH = Path(os.environ.get("AGENT_DAEMONSET_PATH", AGENT_YAMLS_DIR / "daemonset.yaml"))
 AGENT_SERVICEACCOUNT_PATH = Path(os.environ.get("AGENT_SERVICEACCOUNT_PATH", AGENT_YAMLS_DIR / "serviceaccount.yaml"))
-AGENT_STATUS_COMMAND = ["/bin/sh", "-c", "agent-status"]
+AGENT_STATUS_COMMAND = ["/bin/sh", "-c", "agent-status all"]
 
 
-class Agent:  # pylint: disable=too-many-instance-attributes
-    def __init__(self):
-        self.agent_yaml = None
-        self.backend = None
-        self.cluster_name = None
-        self.clusterrole_name = None
-        self.clusterrolebinding_name = None
-        self.configmap_name = None
-        self.daemonset_name = None
-        self.image_name = None
-        self.image_tag = None
-        self.monitors = []
-        self.observer = None
-        self.namespace = None
+def load_resource_yaml(path):
+    with open(path, "r") as fd:
+        return yaml.safe_load(fd.read())
+
+
+class Agent:
+    def __init__(self, agent_image_name, cluster, namespace, fake_services, fake_services_pod_ip):
+        assert cluster, "Agent on K8s must be associated with a cluster"
+        self.cluster = cluster
+
+        self.namespace = namespace
+        self.agent_image_name = agent_image_name
+
+        self.fake_services = fake_services
+        self.fake_services_pod_ip = fake_services_pod_ip
+
         self.pods = []
-        self.serviceaccount_name = None
 
-    def create_agent_secret(self, secret="testing123"):
-        if not k8s.has_secret("signalfx-agent", namespace=self.namespace):
-            print('Creating secret "signalfx-agent" ...')
-            k8s.create_secret("signalfx-agent", "access-token", secret, namespace=self.namespace)
+    def fill_in_configmap(self, configmap, agent_yaml):
+        agent_conf = yaml.safe_load(agent_yaml)
+        agent_conf.setdefault("observers", [])
+        agent_conf.setdefault("monitors", [])
+        agent_conf.setdefault("globalDimensions", {"kubernetes_cluster": self.namespace})
+        agent_conf.setdefault("intervalSeconds", 5)
+        agent_conf.setdefault("ingestUrl", f"http://{self.fake_services_pod_ip}:{self.fake_services.ingest_port}")
+        agent_conf.setdefault("apiUrl", f"http://{self.fake_services_pod_ip}:{self.fake_services.api_port}")
 
-    def create_agent_serviceaccount(self, serviceaccount_path):
-        serviceaccount_yaml = yaml.safe_load(open(serviceaccount_path).read())
-        self.serviceaccount_name = serviceaccount_yaml["metadata"]["name"]
-        if not k8s.has_serviceaccount(self.serviceaccount_name, namespace=self.namespace):
-            print('Creating service account "%s" from %s ...' % (self.serviceaccount_name, serviceaccount_path))
-            k8s.create_serviceaccount(body=serviceaccount_yaml, namespace=self.namespace)
-
-    def create_agent_clusterrole(self, clusterrole_path, clusterrolebinding_path):
-        clusterrole_yaml = yaml.safe_load(open(clusterrole_path).read())
-        self.clusterrole_name = clusterrole_yaml["metadata"]["name"]
-        clusterrolebinding_yaml = yaml.safe_load(open(clusterrolebinding_path).read())
-        self.clusterrolebinding_name = clusterrolebinding_yaml["metadata"]["name"]
-        if self.namespace != "default":
-            self.clusterrole_name = self.clusterrole_name + "-" + self.namespace
-            clusterrole_yaml["metadata"]["name"] = self.clusterrole_name
-            self.clusterrolebinding_name = self.clusterrolebinding_name + "-" + self.namespace
-            clusterrolebinding_yaml["metadata"]["name"] = self.clusterrolebinding_name
-        if clusterrolebinding_yaml["roleRef"]["kind"] == "ClusterRole":
-            clusterrolebinding_yaml["roleRef"]["name"] = self.clusterrole_name
-        for subject in clusterrolebinding_yaml["subjects"]:
-            subject["namespace"] = self.namespace
-        if not k8s.has_clusterrole(self.clusterrole_name):
-            print('Creating cluster role "%s" from %s ...' % (self.clusterrole_name, clusterrole_path))
-            k8s.create_clusterrole(clusterrole_yaml)
-        if not k8s.has_clusterrolebinding(self.clusterrolebinding_name):
-            print(
-                'Creating cluster role binding "%s" from %s ...'
-                % (self.clusterrolebinding_name, clusterrolebinding_path)
-            )
-            k8s.create_clusterrolebinding(clusterrolebinding_yaml)
-
-    def create_agent_configmap(self, configmap_path, agent_yaml=None):
-        configmap_yaml = yaml.safe_load(open(configmap_path).read())
-        self.configmap_name = configmap_yaml["metadata"]["name"]
-        self.delete_agent_configmap()
-        if agent_yaml:
-            self.agent_yaml = yaml.safe_load(agent_yaml)
-            self.observer = self.agent_yaml.setdefault("observers")
-            self.monitors = self.agent_yaml.setdefault("monitors", [])
-            self.agent_yaml.setdefault("globalDimensions", {"kubernetes_cluster": self.cluster_name})
-            self.agent_yaml.setdefault("intervalSeconds", 5)
-            self.agent_yaml.setdefault("sendMachineID", True)
-            self.agent_yaml.setdefault("useFullyQualifiedHost", False)
-            self.agent_yaml.setdefault("internalStatusHost", get_unique_localhost())
-            if self.backend:
-                self.agent_yaml.setdefault(
-                    "ingestUrl", "http://%s:%d" % (self.backend.ingest_host, self.backend.ingest_port)
-                )
-                self.agent_yaml.setdefault("apiUrl", "http://%s:%d" % (self.backend.api_host, self.backend.api_port))
-        else:
-            self.agent_yaml = yaml.safe_load(configmap_yaml["data"]["agent.yaml"])
-            del self.agent_yaml["observers"]
-            if not self.observer and self.agent_yaml.get("observers"):
-                del self.agent_yaml["observers"]
-            elif self.observer == "k8s-api":
-                self.agent_yaml["observers"] = [
-                    {"type": self.observer, "kubernetesAPI": {"authType": "serviceAccount", "skipVerify": False}}
-                ]
-            elif self.observer == "k8s-kubelet":
-                self.agent_yaml["observers"] = [
-                    {"type": self.observer, "kubeletAPI": {"authType": "serviceAccount", "skipVerify": True}}
-                ]
-            elif self.observer == "docker":
-                self.agent_yaml["observers"] = [{"type": self.observer, "dockerURL": "unix:///var/run/docker.sock"}]
-            else:
-                self.agent_yaml["observers"] = [{"type": self.observer}]
-            self.agent_yaml["globalDimensions"]["kubernetes_cluster"] = self.cluster_name
-            self.agent_yaml["intervalSeconds"] = 5
-            self.agent_yaml["sendMachineID"] = True
-            self.agent_yaml["useFullyQualifiedHost"] = False
-            self.agent_yaml["internalStatusHost"] = get_unique_localhost()
-            if self.backend:
-                self.agent_yaml["ingestUrl"] = "http://%s:%d" % (self.backend.ingest_host, self.backend.ingest_port)
-                self.agent_yaml["apiUrl"] = "http://%s:%d" % (self.backend.api_host, self.backend.api_port)
-            if self.agent_yaml.get("metricsToExclude"):
-                del self.agent_yaml["metricsToExclude"]
-            del self.agent_yaml["monitors"]
-            self.agent_yaml["monitors"] = self.monitors
-        configmap_yaml["data"]["agent.yaml"] = yaml.dump(self.agent_yaml)
-        print(
-            "Creating configmap for observer=%s and monitor(s)=%s from %s ..."
-            % (self.observer, ",".join([m["type"] for m in self.monitors]), configmap_path)
-        )
-        k8s.create_configmap(body=configmap_yaml, namespace=self.namespace)
-        print(self.agent_yaml)
-
-    def create_agent_daemonset(self, daemonset_path):
-        daemonset_yaml = yaml.safe_load(open(daemonset_path).read())
-        self.daemonset_name = daemonset_yaml["metadata"]["name"]
-        daemonset_labels = daemonset_yaml["spec"]["selector"]["matchLabels"]
-        self.delete_agent_daemonset()
-        daemonset_yaml["spec"]["template"]["spec"]["containers"][0]["resources"] = {"requests": {"cpu": "100m"}}
-        if self.image_name and self.image_tag:
-            print(
-                'Creating daemonset "%s" for %s:%s from %s ...'
-                % (self.daemonset_name, self.image_name, self.image_tag, daemonset_path)
-            )
-            daemonset_yaml["spec"]["template"]["spec"]["containers"][0]["image"] = (
-                self.image_name + ":" + self.image_tag
-            )
-        else:
-            print('Creating daemonset "%s" from %s ...' % (self.daemonset_name, daemonset_path))
-        k8s.create_daemonset(body=daemonset_yaml, namespace=self.namespace)
-        assert ensure_always(lambda: k8s.daemonset_is_ready(self.daemonset_name, namespace=self.namespace), 5)
-        labels = ",".join(["%s=%s" % keyval for keyval in daemonset_labels.items()])
-        self.pods = k8s.get_pods_by_labels(labels, namespace=self.namespace)
-        assert self.pods, "no agent pods found"
-        assert all([k8s.pod_is_ready(pod.metadata.name, namespace=self.namespace) for pod in self.pods])
+        configmap["data"]["agent.yaml"] = yaml.dump(agent_conf)
 
     @contextmanager
-    def deploy(self, **kwargs):
-        self.observer = kwargs.get("observer")
-        self.monitors = kwargs.get("monitors")
-        self.cluster_name = kwargs.get("cluster_name", "minikube")
-        self.backend = kwargs.get("backend")
-        self.image_name = kwargs.get("image_name")
-        self.image_tag = kwargs.get("image_tag")
-        self.namespace = kwargs.get("namespace", "default")
+    def deploy_unique_rbac_resources(self):
+        """
+        The cluster-wide RBAC resources (clusterrole/clusterroldbinding) are
+        not namespaced, so they have to be handled specially to ensure they are
+        unique amongst potentially multiple deployments of the agent in the
+        same cluster.  Basically just sticks the test namespace as a suffix to
+        the resource names.
+        """
+        corev1 = kube_client.CoreV1Api()
+        rbacv1beta1 = kube_client.RbacAuthorizationV1beta1Api()
 
-        self.create_agent_secret()
-        self.create_agent_serviceaccount(kwargs.get("serviceaccount_path", AGENT_SERVICEACCOUNT_PATH))
-        self.create_agent_clusterrole(
-            kwargs.get("clusterrole_path", AGENT_CLUSTERROLE_PATH),
-            kwargs.get("clusterrolebinding_path", AGENT_CLUSTERROLEBINDING_PATH),
+        serviceaccount = corev1.create_namespaced_service_account(
+            body=load_resource_yaml(AGENT_SERVICEACCOUNT_PATH), namespace=self.namespace
         )
-        self.create_agent_configmap(kwargs.get("configmap_path", AGENT_CONFIGMAP_PATH), kwargs.get("config"))
-        self.create_agent_daemonset(kwargs.get("daemonset_path", AGENT_DAEMONSET_PATH))
+
+        clusterrole_base = load_resource_yaml(AGENT_CLUSTERROLE_PATH)
+        clusterrole_base["metadata"]["name"] = f"signalfx-agent-{self.namespace}"
+        clusterrole = rbacv1beta1.create_cluster_role(body=clusterrole_base)
+
+        crb_base = load_resource_yaml(AGENT_CLUSTERROLEBINDING_PATH)
+        # Make the binding refer to our testing namespace's role and service account
+        crb_base["metadata"]["name"] = f"signalfx-agent-{self.namespace}"
+        crb_base["roleRef"]["name"] = clusterrole.metadata.name
+        crb_base["subjects"][0]["namespace"] = self.namespace
+        crb = rbacv1beta1.create_cluster_role_binding(body=crb_base)
 
         try:
-            yield self
+            yield
         finally:
-            print("\nAgent status:\n%s" % self.get_status())
-            print("\nAgent logs:\n%s" % self.get_logs())
-            self.delete()
-            self.__init__()
+            delete_opts = kube_client.V1DeleteOptions(grace_period_seconds=0, propagation_policy="Background")
 
-    def delete_agent_daemonset(self):
-        if self.daemonset_name and k8s.has_daemonset(self.daemonset_name, namespace=self.namespace):
-            print('Deleting daemonset "%s" ...' % self.daemonset_name)
-            k8s.delete_daemonset(self.daemonset_name, namespace=self.namespace)
+            rbacv1beta1.delete_cluster_role_binding(crb.metadata.name, body=delete_opts)
+            rbacv1beta1.delete_cluster_role(clusterrole.metadata.name, body=delete_opts)
+            corev1.delete_namespaced_service_account(
+                serviceaccount.metadata.name, namespace=self.namespace, body=delete_opts
+            )
+            print("Deleted RBAC resources")
 
-    def delete_agent_configmap(self):
-        if self.configmap_name and k8s.has_configmap(self.configmap_name, namespace=self.namespace):
-            print('Deleting configmap "%s" ...' % self.configmap_name)
-            k8s.delete_configmap(self.configmap_name, namespace=self.namespace)
+    @contextmanager
+    def deploy(self, agent_yaml=None):
+        with self.deploy_unique_rbac_resources():
+            secret = None
+            daemonset = None
+            configmap = None
+            try:
+                secret = utils.create_secret("signalfx-agent", "access-token", "testing123", namespace=self.namespace)
+                print("Created agent secret")
 
-    def delete(self):
-        self.delete_agent_daemonset()
-        self.delete_agent_configmap()
+                configmap_base = load_resource_yaml(AGENT_CONFIGMAP_PATH)
+                self.fill_in_configmap(configmap_base, agent_yaml)
+                configmap = utils.create_configmap(body=configmap_base, namespace=self.namespace)
+                print(f"Created agent configmap:\n{configmap_base}")
+
+                daemonset_base = load_resource_yaml(AGENT_DAEMONSET_PATH)
+                daemonset_base["spec"]["template"]["spec"]["containers"][0]["image"] = self.agent_image_name
+                daemonset_base["spec"]["template"]["spec"]["containers"][0]["resources"] = {"requests": {"cpu": "50m"}}
+                daemonset = utils.create_daemonset(body=daemonset_base, namespace=self.namespace)
+                print(f"Created agent daemonset:\n{daemonset_base}")
+
+                yield
+            finally:
+                print("\nAgent status:\n%s" % self.get_status())
+                print("\nAgent logs:\n%s" % self.get_logs())
+                if daemonset:
+                    utils.delete_daemonset(daemonset.metadata.name, namespace=self.namespace)
+                if configmap:
+                    utils.delete_configmap(configmap.metadata.name, namespace=self.namespace)
+                if secret:
+                    corev1 = kube_client.CoreV1Api()
+                    corev1.delete_namespaced_secret(
+                        name=secret.metadata.name,
+                        body=kube_client.V1DeleteOptions(grace_period_seconds=0, propagation_policy="Background"),
+                        namespace=secret.metadata.namespace,
+                    )
+
+    def get_agent_pods(self):
+        return utils.get_pods_by_labels("app=signalfx-agent", namespace=self.namespace)
 
     def get_status(self, command=None):
         if not command:
             command = AGENT_STATUS_COMMAND
         output = ""
-        for pod in self.pods:
+        for pod in self.get_agent_pods():
             output += "pod/%s:\n" % pod.metadata.name
-            output += k8s.exec_pod_command(pod.metadata.name, command, namespace=self.namespace) + "\n"
+            output += utils.exec_pod_command(pod.metadata.name, command, namespace=self.namespace) + "\n"
         return output.strip()
 
     def get_logs(self):
         output = ""
-        for pod in self.pods:
+        for pod in self.get_agent_pods():
             output += "pod/%s\n" % pod.metadata.name
-            output += k8s.get_pod_logs(pod.metadata.name, namespace=self.namespace) + "\n"
+            output += utils.get_pod_logs(pod.metadata.name, namespace=self.namespace) + "\n"
         return output.strip()

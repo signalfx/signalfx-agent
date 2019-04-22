@@ -36,9 +36,13 @@ spec:
           image: nginx:latest
           ports:
             - containerPort: 80
+              name: http
           volumeMounts:
             - name: nginx-conf
               mountPath: /etc/nginx/conf.d
+          resources:
+            requests:
+              cpu: 100m
           readinessProbe:
             httpGet:
               path: /nginx_status

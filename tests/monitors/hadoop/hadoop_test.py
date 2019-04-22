@@ -3,18 +3,9 @@ from functools import partial as p
 from pathlib import Path
 
 import pytest
-
 from tests.helpers.agent import Agent
 from tests.helpers.assertions import has_datapoint, has_datapoint_with_dim, http_status, tcp_socket_open
-from tests.helpers.kubernetes.utils import get_discovery_rule, run_k8s_monitors_test
-from tests.helpers.util import (
-    container_ip,
-    get_monitor_dims_from_selfdescribe,
-    get_monitor_metrics_from_selfdescribe,
-    print_lines,
-    run_container,
-    wait_for,
-)
+from tests.helpers.util import container_ip, print_lines, run_container, wait_for
 
 pytestmark = [pytest.mark.collectd, pytest.mark.hadoop, pytest.mark.monitor_with_endpoints]
 
@@ -89,23 +80,3 @@ def test_hadoop(version):
                 assert wait_for(
                     p(has_datapoint, agent.fake_services, "gauge.hadoop.cluster.metrics.active_nodes", {}, 1)
                 ), "expected 1 hadoop worker node"
-
-
-@pytest.mark.kubernetes
-def test_hadoop_in_k8s(agent_image, minikube, k8s_observer, k8s_test_timeout, k8s_namespace):
-    yaml = SCRIPT_DIR / "hadoop-k8s.yaml"
-    monitors = [
-        {"type": "collectd/hadoop", "discoveryRule": get_discovery_rule(yaml, k8s_observer, namespace=k8s_namespace)}
-    ]
-    run_k8s_monitors_test(
-        agent_image,
-        minikube,
-        monitors,
-        namespace=k8s_namespace,
-        yamls=[yaml],
-        yamls_timeout=600,
-        observer=k8s_observer,
-        expected_metrics=get_monitor_metrics_from_selfdescribe(monitors[0]["type"]),
-        expected_dims=get_monitor_dims_from_selfdescribe(monitors[0]["type"]),
-        test_timeout=k8s_test_timeout,
-    )

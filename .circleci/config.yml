@@ -126,6 +126,47 @@ commands:
             fi
       - save_test_results
 
+  install_kubectl:
+    parameters:
+      version:
+        type: string
+        default: v1.14.0
+    steps:
+      - restore_cache:
+          key: "v1-kubectl-binary-<< parameters.version >>"
+      - run:
+          name: Install Kubectl
+          command: |
+            [[ -f /usr/local/bin/kubectl ]] && exit 0
+            cd /tmp
+            curl -LO https://storage.googleapis.com/kubernetes-release/release/<< parameters.version >>/bin/linux/amd64/kubectl
+            chmod +x ./kubectl
+            sudo mv ./kubectl /usr/local/bin/kubectl
+      - save_cache:
+          key: "v1-kubectl-binary-<< parameters.version >>"
+          paths:
+            - /usr/local/bin/kubectl
+
+  install_helm:
+    parameters:
+      version:
+        type: string
+        default: v2.13.0
+    steps:
+      - restore_cache:
+          key: "v1-helm-binary-<< parameters.version >>"
+      - run:
+          name: Install Helm
+          command: |
+            [[ -f /usr/local/bin/helm ]] && exit 0
+            wget -O /tmp/helm.tar.gz https://storage.googleapis.com/kubernetes-helm/helm-<< parameters.version >>-linux-amd64.tar.gz
+            tar -zxvf /tmp/helm.tar.gz
+            mv /tmp/linux-amd64/helm /usr/local/bin/helm
+            chmod a+x /usr/local/bin/helm
+      - save_cache:
+          key: "v1-helm-binary-<< parameters.version >>"
+          paths:
+            - /usr/local/bin/helm
 jobs:
   build:
     executor: docker1809
@@ -271,7 +312,7 @@ jobs:
       K8S_MIN_VERSION: "v1.8.0"
       K8S_MAX_VERSION: "v1.14.0"
       K8S_SFX_AGENT: "quay.io/signalfx/signalfx-agent-dev:latest"
-      MARKERS: "kubernetes and not collectd"
+      MARKERS: "kubernetes"
     steps:
       - checkout
       - run:
@@ -279,17 +320,27 @@ jobs:
           command: |
             if [ "$CIRCLE_BRANCH" = "master" ] || scripts/changes-include-dir deployments/k8s tests/deployments/helm; then
                 # Run k8s and helm tests for all K8S versions if branch is master or there are deployment changes
-                echo "MARKERS='(kubernetes or helm) and not collectd'" >> $BASH_ENV
+                echo "MARKERS='kubernetes or helm'" >> $BASH_ENV
             elif ! scripts/changes-include-dir Gopkg.toml $(find . -iname "*k8s*" -o -iname "*kube*" | sed 's|^\./||' | grep -v '^docs/'); then
                 # Only run k8s tests for K8S_MIN_VERSION and K8S_MAX_VERSION if there are no relevant changes.
                 if [[ "$K8S_VERSION" != "$K8S_MIN_VERSION" && "$K8S_VERSION" != "$K8S_MAX_VERSION" ]]; then
                     echo "Skipping K8S $K8S_VERSION integration tests."
                     touch ~/.skip
+                    exit 0
                 fi
             fi
+
+            make run-minikube
+      - install_kubectl
+      - install_helm
       - import_image
+      - run:
+          name: Push image to minikube
+          command: |
+            docker tag quay.io/signalfx/signalfx-agent-dev:latest localhost:5000/signalfx-agent:latest
+            docker push localhost:5000/signalfx-agent:latest
       - run_pytest:
-          pytest_options: "-n4 -m \"$MARKERS\" --exitfirst --k8s-timeout=$K8S_TIMEOUT"
+          pytest_options: "-n4 -m \"$MARKERS\" --exitfirst"
 
   installer_tests:
     executor: machine_image

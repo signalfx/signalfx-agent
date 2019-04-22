@@ -12,9 +12,8 @@ from typing import Dict, List
 import docker
 import netifaces as ni
 import yaml
-
 from tests.helpers.assertions import regex_search_matches_output
-from tests.paths import TEST_SERVICES_DIR, SELFDESCRIBE_JSON
+from tests.paths import SELFDESCRIBE_JSON, TEST_SERVICES_DIR
 
 DEFAULT_TIMEOUT = os.environ.get("DEFAULT_TIMEOUT", 30)
 DOCKER_API_VERSION = "1.34"
@@ -23,6 +22,10 @@ STATSD_RE = re.compile(r"SignalFx StatsD monitor: Listening on host & port udp:\
 
 def get_docker_client():
     return docker.from_env(version=DOCKER_API_VERSION)
+
+
+def has_docker_image(client, name):
+    return name in [t for image in client.images.list() for t in image.tags]
 
 
 def assert_wait_for(test, timeout_seconds=DEFAULT_TIMEOUT, interval_seconds=0.2, on_fail=None):
@@ -110,20 +113,7 @@ def run_subprocess(command: List[str], env: Dict[any, any] = None):
     # subprocess on Windows has a bug where it doesn't like Path.
     proc = subprocess.Popen([str(c) for c in command], env=env, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 
-    output = io.BytesIO()
-
-    def pull_output():
-        while True:
-            # If any output is waiting, grab it.
-            byt = proc.stdout.read(1)
-            if not byt:
-                return
-            output.write(byt)
-
-    def get_output():
-        return output.getvalue().decode("utf-8")
-
-    threading.Thread(target=pull_output).start()
+    get_output = pull_from_reader_in_background(proc.stdout)
 
     try:
         yield [get_output, proc.pid]
@@ -238,3 +228,27 @@ def get_statsd_port(agent):
     assert wait_for(p(regex_search_matches_output, agent.get_output, STATSD_RE.search))
     regex_results = STATSD_RE.search(agent.output)
     return int(regex_results.groups()[0])
+
+
+def pull_from_reader_in_background(reader):
+    output = io.BytesIO()
+
+    def pull_output():
+        while True:
+            # If any output is waiting, grab it.
+            try:
+                byt = reader.read(1)
+            except OSError:
+                return
+            if not byt:
+                return
+            if isinstance(byt, str):
+                byt = byt.encode("utf-8")
+            output.write(byt)
+
+    threading.Thread(target=pull_output).start()
+
+    def get_output():
+        return output.getvalue().decode("utf-8")
+
+    return get_output

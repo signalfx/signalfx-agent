@@ -186,8 +186,37 @@ run-k8s-tests:
 		--html=test_output/k8s_results.html \
 		--self-contained-html \
 		tests || \
-	(docker ps | grep -q minikube && echo "minikube container is left running for debugging purposes"; return 1) && \
-	docker rm -fv minikube
+
+K8S_VERSION ?= latest
+MINIKUBE_VERSION ?= $(shell scripts/determine-compatible-minikube.py $(K8S_VERSION))
+
+.PHONY: run-minikube
+run-minikube:
+	docker build \
+		-t minikube:$(MINIKUBE_VERSION) \
+		--build-arg 'MINIKUBE_VERSION=$(MINIKUBE_VERSION)' \
+		test-services/minikube
+
+	docker rm -fv minikube 2>/dev/null || true
+	docker run -d \
+		--name minikube \
+		--privileged \
+		-e K8S_VERSION=$(K8S_VERSION) \
+		-e TIMEOUT=$(MINIKUBE_TIMEOUT) \
+		-p 5000:5000 \
+		minikube:$(MINIKUBE_VERSION)
+
+	docker exec minikube start-minikube.sh
+
+	echo "Minikube is now running. Push up an agent image to localhost:5000/signalfx-agent:latest or run 'make push-minikube-agent'"
+
+.PHONY: push-minikube-agent
+push-minikube-agent:
+	PUSH_DOCKER_IMAGE=yes \
+	  AGENT_IMAGE_NAME=localhost:5000/signalfx-agent \
+	  AGENT_VERSION=latest \
+	  SKIP_BUILD_PULL=yes \
+	  $(MAKE) image
 
 .PHONY: docs
 docs:
@@ -242,10 +271,5 @@ run-devstack:
 run-chef-tests:
 	pytest -v -n auto -m chef --html=test_output/chef_results.html --self-contained-html tests/deployments
 
-K8S_VERSION ?= latest
-.PHONY: run-minikube
-run-minikube:
-	python -c 'from tests.helpers.kubernetes.minikube import Minikube; mk = Minikube(); mk.deploy("$(K8S_VERSION)")' && \
-	docker exec -it $(docker_env) minikube /bin/bash
 
 FORCE:

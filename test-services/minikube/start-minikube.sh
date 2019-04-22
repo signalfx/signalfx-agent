@@ -45,9 +45,6 @@ MINIKUBE_OPTIONS="--vm-driver=none --bootstrapper=${BOOTSTRAPPER} --kubernetes-v
 KUBEADM_OPTIONS="--feature-gates=CoreDNS=true \
     --extra-config=kubelet.authorization-mode=AlwaysAllow \
     --extra-config=kubelet.anonymous-auth=true"
-if [[ "$K8S_VERSION" =~ ^v1\.11\. ]]; then
-    KUBEADM_OPTIONS="$KUBEADM_OPTIONS --extra-config=kubelet.cadvisor-port=4194"
-fi
 
 if [ "$BOOTSTRAPPER" = "kubeadm" ]; then
     MINIKUBE_OPTIONS="$MINIKUBE_OPTIONS $KUBEADM_OPTIONS"
@@ -75,6 +72,15 @@ function start_minikube() {
         echo "Unsupported bootstrapper \"${BOOTSTRAPPER}\"!"
         exit 1
     fi
+}
+
+function start_registry() {
+    docker run \
+        -e "REGISTRY_HTTP_ADDR=0.0.0.0:5000" \
+        -d \
+        -p 5000:5000 \
+        --name registry \
+        registry:2.7
 }
 
 function cluster_is_ready() {
@@ -115,11 +121,16 @@ mount --make-rshared /
 /usr/local/bin/start-docker.sh
 download_kubectl
 start_minikube
+start_registry
+
+echo '127.0.0.1 minikube-test' >> /etc/hosts
+
 if ! cluster_is_ready; then
     print_logs
     echo "Timed out after $TIMEOUT seconds waiting for the cluster to be ready!"
     exit 1
 fi
+
 kubectl version
 kubectl config view --merge=true --flatten=true > "$KUBECONFIG_PATH"
 exit 0
