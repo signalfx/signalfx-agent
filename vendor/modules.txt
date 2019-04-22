@@ -374,6 +374,11 @@ github.com/opencontainers/go-digest
 # github.com/opencontainers/image-spec v1.0.1
 github.com/opencontainers/image-spec/specs-go/v1
 github.com/opencontainers/image-spec/specs-go
+# github.com/openshift/api v3.9.0+incompatible
+github.com/openshift/api/quota/v1
+# github.com/openshift/client-go v3.9.0+incompatible
+github.com/openshift/client-go/quota/clientset/versioned/typed/quota/v1
+github.com/openshift/client-go/quota/clientset/versioned/scheme
 # github.com/opentracing/opentracing-go v1.0.2
 github.com/opentracing/opentracing-go/ext
 github.com/opentracing/opentracing-go

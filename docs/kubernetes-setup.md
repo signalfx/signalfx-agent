@@ -374,7 +374,7 @@ administrator to do the following):
 
 We need to make the agent run as root in the container:
 
-`oadm policy add-cluster-role-to-user anyuid
+`oc adm policy add-cluster-role-to-user anyuid
 system:serviceaccount:default:signalfx-agent`
 
 Next we need to add this service account to the privileged SCC.  Run `oc edit
