@@ -4,6 +4,7 @@ package core
 
 import (
 	"context"
+	"io"
 	"net/http"
 	"os"
 	"time"
@@ -188,4 +189,15 @@ func Status(configPath string, section string) ([]byte, error) {
 
 	conf := <-configLoads
 	return readStatusInfo(conf.InternalStatusHost, conf.InternalStatusPort, section)
+}
+
+// StreamDatapoints reads the text from the diagnostic socket and returns it if available.
+func StreamDatapoints(configPath string, metric string, dims string) (io.ReadCloser, error) {
+	configLoads, err := config.LoadConfig(context.Background(), configPath)
+	if err != nil {
+		return nil, err
+	}
+
+	conf := <-configLoads
+	return streamDatapoints(conf.InternalStatusHost, conf.InternalStatusPort, metric, dims)
 }
