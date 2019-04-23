@@ -38,7 +38,7 @@ monitors:
   services:
     - docker
     - ubuntu-fan
-  sendActiveState
+  sendActiveState: true
 ```
 
 
