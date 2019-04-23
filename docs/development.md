@@ -206,9 +206,9 @@ For convenience the Makefile in the `scripts/windows/vagrant` directory of this 
 | `win-vagrant-suspend` | Alias for `vagrant suspend` that will suspend the vagrant | `make win-vagrant-suspend` |
 | `win-vagrant-provision` | Alias for `vagrant provision` that will suspend the vagrant | `make win-vagrant-provision` |
 
-By default the makefile uses Windows Server 2008.  If you want to override this, set the environment variable `WINDOWS_VER` to choose a different version.
+By default the makefile uses Windows Server 2008.  If you want to override this, set the environment variable `WIN_VER` to choose a different version.
 
-The following values are supported for `WINDOWS_VER`
+The following values are supported for `WIN_VER`
 
 | Value | Windows Version | Vagrant Base Box Name | Virtual Box VM Name |
 | ----- | --------------- | --------------------- | ------------------- |

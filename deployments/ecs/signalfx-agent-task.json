@@ -43,7 +43,7 @@
             "memory": null,
             "memoryReservation": null,
             "volumesFrom": [],
-            "image": "quay.io/signalfx/signalfx-agent:4.5.1",
+            "image": "quay.io/signalfx/signalfx-agent:4.6.0",
             "disableNetworking": null,
             "healthCheck": null,
             "essential": true,

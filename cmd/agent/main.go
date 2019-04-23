@@ -4,6 +4,7 @@ import (
 	"context"
 	"flag"
 	"fmt"
+	"io"
 	"os"
 	"os/signal"
 	"runtime"
@@ -86,6 +87,29 @@ func doStatus() {
 func doSelfDescribe() {
 	log.SetOutput(os.Stderr)
 	selfdescribe.JSON(os.Stdout)
+}
+
+func doDatapointTap() {
+	set := flag.NewFlagSet("tap-dps", flag.ExitOnError)
+	configPath := set.String("config", getDefaultConfigPath(), "agent config path")
+	metric := set.String("metric", "", "metric filter string")
+	dims := set.String("dims", "", "dimension filter string")
+
+	if err := set.Parse(os.Args[2:]); err != nil {
+		set.Usage()
+		os.Exit(1)
+	}
+
+	stream, err := core.StreamDatapoints(*configPath, *metric, *dims)
+	if err != nil {
+		fmt.Printf("Could not stream datapoints: %v", err)
+		return
+	}
+
+	_, err = io.Copy(os.Stdout, stream)
+	if err != io.EOF && err != nil {
+		fmt.Printf("Error streaming datapoints: %v", err)
+	}
 }
 
 // glog is a transitive dependency of the agent and puts a bunch of flags in
@@ -203,6 +227,8 @@ func main() {
 		doStatus()
 	case "selfdescribe":
 		doSelfDescribe()
+	case "tap-dps":
+		doDatapointTap()
 	default:
 		if firstArg != "" && !strings.HasPrefix(firstArg, "-") {
 			log.Errorf("Unknown subcommand '%s'", firstArg)

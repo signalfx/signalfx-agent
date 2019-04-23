@@ -117,6 +117,9 @@ endif
 debug:
 	dlv debug ./cmd/agent
 
+ifdef dbus
+dbus_run_flags = --privileged -v /var/run/dbus/system_bus_socket:/var/run/dbus/system_bus_socket:ro
+endif
 
 ifneq ($(OS),Windows_NT)
 extra_run_flags = -v /:/hostfs:ro -v /var/run/docker.sock:/var/run/docker.sock:ro -v /tmp/scratch:/tmp/scratch
@@ -127,7 +130,7 @@ endif
 run-dev-image:
 	docker exec -it $(docker_env) signalfx-agent-dev /bin/bash -l -i || \
 	  docker run --rm -it \
-		$(extra_run_flags) \
+		$(dbus_run_flags) $(extra_run_flags) \
 		--cap-add DAC_READ_SEARCH \
 		--cap-add SYS_PTRACE \
 		-p 6060:6060 \
@@ -144,7 +147,7 @@ run-dev-image:
 run-dev-image-sync:
 	docker exec -it $(docker_env) signalfx-agent-dev-sync /bin/bash -l -i || \
 	  docker run --rm -it \
-		$(extra_run_flags) \
+		$(dbus_run_flags) $(extra_run_flags) \
 		--cap-add DAC_READ_SEARCH \
 		--cap-add SYS_PTRACE \
 		-p 6061:6060 \
@@ -161,7 +164,7 @@ run-dev-image-commands:
 	docker exec -t $(docker_env) signalfx-agent-dev /bin/bash -c '$(RUN_DEV_COMMANDS)'
 
 .PHONY: run-integration-tests
-run-integration-tests: MARKERS ?= not packaging and not installer and not k8s and not windows_only and not deployment and not perf_test
+run-integration-tests: MARKERS ?= not packaging and not bundle and not installer and not kubernetes and not windows_only and not deployment and not perf_test
 run-integration-tests:
 	AGENT_BIN=/bundle/bin/signalfx-agent \
 	pytest \
@@ -173,7 +176,7 @@ run-integration-tests:
 		tests
 
 .PHONY: run-k8s-tests
-run-k8s-tests: MARKERS ?= (k8s or helm) and not collectd
+run-k8s-tests: MARKERS ?= (kubernetes or helm) and not collectd
 run-k8s-tests:
 	pytest \
 		-m "$(MARKERS)" \

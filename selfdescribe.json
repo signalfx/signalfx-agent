@@ -221,6 +221,512 @@
   },
   "Monitors": [
     {
+      "monitorType": "appmesh",
+      "sendAll": false,
+      "dimensions": null,
+      "doc": "This monitor starts a StatsD monitor to listen to StatsD metrics emitted\nby AWS AppMesh Envoy Proxy.\n\nTo report AppMesh Envoy metrics, you need to enable Envoy StatsD sink on AppMesh\nand deploy the agent as a sidecar in the services that need to be monitored.\n\n\nSample Envoy StatsD configuration:\n\n```yaml\nstats_sinks:\n -\n  name: \"envoy.statsd\"\n  config:\n   address:\n    socket_address:\n     address: \"127.0.0.1\"\n     port_value: 8125\n     protocol: \"UDP\"\n   prefix: statsd.appmesh\n```\nPlease remember to provide the prefix to the agent monitor configuration.\n\nSee [Envoy API reference](https://www.envoyproxy.io/docs/envoy/latest/api-v2/config/metrics/v2/stats.proto#envoy-api-msg-config-metrics-v2-statsdsink) for more info\n\nSample SignalFx SmartAgent configuration:\n\n```yaml\nmonitors:\n - type: appmesh\n   listenAddress: 0.0.0.0\n   listenPort: 8125\n   metricPrefix: statsd.appmesh\n```\n",
+      "groups": null,
+      "metrics": [
+        {
+          "name": "circuit_breakers.\u003cpriority\u003e.cx_open",
+          "type": "gauge",
+          "description": "Whether the connection circuit breaker is closed (0) or open (1)",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "circuit_breakers.\u003cpriority\u003e.cx_pool_open",
+          "type": "gauge",
+          "description": "Whether the connection pool circuit breaker is closed (0) or open (1)",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "circuit_breakers.\u003cpriority\u003e.rq_pending_open",
+          "type": "gauge",
+          "description": "Whether the pending requests circuit breaker is closed (0) or open (1)",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "circuit_breakers.\u003cpriority\u003e.rq_open",
+          "type": "gauge",
+          "description": "Whether the requests circuit breaker is closed (0) or open (1)",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "circuit_breakers.\u003cpriority\u003e.rq_retry_open",
+          "type": "gauge",
+          "description": "Whether the retry circuit breaker is closed (0) or open (1)",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "circuit_breakers.\u003cpriority\u003e.remaining_cx",
+          "type": "gauge",
+          "description": "Number of remaining connections until the circuit breaker opens",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "circuit_breakers.\u003cpriority\u003e.remaining_pending",
+          "type": "gauge",
+          "description": "Number of remaining pending requests until the circuit breaker opens",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "circuit_breakers.\u003cpriority\u003e.remaining_rq",
+          "type": "gauge",
+          "description": "Number of remaining requests until the circuit breaker opens",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "circuit_breakers.\u003cpriority\u003e.remaining_retries",
+          "type": "gauge",
+          "description": "Number of remaining retries until the circuit breaker opens",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "membership_change",
+          "type": "cumulative",
+          "description": "Total cluster membership changes",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "membership_healthy",
+          "type": "gauge",
+          "description": "Current cluster healthy total (inclusive of both health checking and outlier detection)",
+          "group": null,
+          "included": true
+        },
+        {
+          "name": "membership_degraded",
+          "type": "gauge",
+          "description": "Current cluster degraded total",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "membership_total",
+          "type": "gauge",
+          "description": "Current cluster membership total",
+          "group": null,
+          "included": true
+        },
+        {
+          "name": "upstream_cx_total",
+          "type": "cumulative",
+          "description": "Total connections",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "upstream_cx_active",
+          "type": "gauge",
+          "description": "Total active connections",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "upstream_cx_http1_total",
+          "type": "cumulative",
+          "description": "Total HTTP/1.1 connections",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "upstream_cx_http2_total",
+          "type": "cumulative",
+          "description": "Total HTTP/2 connections",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "upstream_cx_connect_fail",
+          "type": "cumulative",
+          "description": "Total connection failures",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "upstream_cx_connect_timeout",
+          "type": "cumulative",
+          "description": "Total connection connect timeouts",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "upstream_cx_idle_timeout",
+          "type": "cumulative",
+          "description": "Total connection idle timeouts",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "upstream_cx_connect_attempts_exceeded",
+          "type": "cumulative",
+          "description": "Total consecutive connection failures exceeding configured connection attempts",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "upstream_cx_overflow",
+          "type": "cumulative",
+          "description": "Total times that the cluster’s connection circuit breaker overflowed",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "upstream_cx_connect_ms",
+          "type": "gauge",
+          "description": "Connection establishment milliseconds",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "upstream_cx_length_ms",
+          "type": "gauge",
+          "description": "Connection length milliseconds",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "upstream_cx_destroy",
+          "type": "cumulative",
+          "description": "Total destroyed connections",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "upstream_cx_destroy_local",
+          "type": "cumulative",
+          "description": "Total connections destroyed locally",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "upstream_cx_destroy_remote",
+          "type": "cumulative",
+          "description": "Total connections destroyed remotely",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "upstream_cx_destroy_with_active_rq",
+          "type": "cumulative",
+          "description": "Total connections destroyed with 1+ active request",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "upstream_cx_destroy_local_with_active_rq",
+          "type": "cumulative",
+          "description": "Total connections destroyed locally with 1+ active request",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "upstream_cx_destroy_remote_with_active_rq",
+          "type": "cumulative",
+          "description": "Total connections destroyed remotely with 1+ active request",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "upstream_cx_close_notify",
+          "type": "cumulative",
+          "description": "Total connections closed via HTTP/1.1 connection close header or HTTP/2 GOAWAY",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "upstream_cx_rx_bytes_total",
+          "type": "cumulative",
+          "description": "Total received connection bytes",
+          "group": null,
+          "included": true
+        },
+        {
+          "name": "upstream_cx_rx_bytes_buffered",
+          "type": "gauge",
+          "description": "Received connection bytes currently buffered",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "upstream_cx_tx_bytes_total",
+          "type": "cumulative",
+          "description": "Total sent connection bytes",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "upstream_cx_tx_bytes_buffered",
+          "type": "gauge",
+          "description": "Send connection bytes currently buffered",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "upstream_cx_pool_overflow",
+          "type": "cumulative",
+          "description": "Total times that the cluster’s connection pool circuit breaker overflowed",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "upstream_cx_protocol_error",
+          "type": "cumulative",
+          "description": "Total connection protocol errors",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "upstream_cx_max_requests",
+          "type": "cumulative",
+          "description": "Total connections closed due to maximum requests",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "upstream_cx_none_healthy",
+          "type": "cumulative",
+          "description": "Total times connection not established due to no healthy hosts",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "upstream_rq_total",
+          "type": "cumulative",
+          "description": "Total requests",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "upstream_rq_active",
+          "type": "gauge",
+          "description": "Total active requests",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "upstream_rq_pending_total",
+          "type": "cumulative",
+          "description": "Total requests pending a connection pool connection",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "upstream_rq_pending_overflow",
+          "type": "cumulative",
+          "description": "Total requests that overflowed connection pool circuit breaking and were failed",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "upstream_rq_pending_failure_eject",
+          "type": "cumulative",
+          "description": "Total requests that were failed due to a connection pool connection failure",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "upstream_rq_pending_active",
+          "type": "gauge",
+          "description": "Total active requests pending a connection pool connection",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "upstream_rq_cancelled",
+          "type": "cumulative",
+          "description": "Total requests cancelled before obtaining a connection pool connection",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "upstream_rq_maintenance_mode",
+          "type": "cumulative",
+          "description": "Total requests that resulted in an immediate 503 due to maintenance mode",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "upstream_rq_timeout",
+          "type": "cumulative",
+          "description": "Total requests that timed out waiting for a response",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "upstream_rq_per_try_timeout",
+          "type": "cumulative",
+          "description": "Total requests that hit the per try timeout",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "upstream_rq_rx_reset",
+          "type": "cumulative",
+          "description": "Total requests that were reset remotely",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "upstream_rq_tx_reset",
+          "type": "cumulative",
+          "description": "Total requests that were reset locally",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "upstream_rq_retry",
+          "type": "cumulative",
+          "description": "Total request retries",
+          "group": null,
+          "included": true
+        },
+        {
+          "name": "upstream_rq_retry_success",
+          "type": "cumulative",
+          "description": "Total request retry successes",
+          "group": null,
+          "included": true
+        },
+        {
+          "name": "upstream_rq_retry_overflow",
+          "type": "cumulative",
+          "description": "Total requests not retried due to circuit breaking",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "upstream_rq_completed",
+          "type": "cumulative",
+          "description": "Total upstream requests completed",
+          "group": null,
+          "included": true
+        },
+        {
+          "name": "upstream_rq_\u003c_xx\u003e",
+          "type": "cumulative",
+          "description": "Aggregate HTTP response codes (e.g., 2xx, 3xx, etc.)",
+          "group": null,
+          "included": true
+        },
+        {
+          "name": "upstream_rq_\u003c_\u003e",
+          "type": "cumulative",
+          "description": "Specific HTTP response codes (e.g., 201, 302, etc.)",
+          "group": null,
+          "included": true
+        },
+        {
+          "name": "upstream_rq_time",
+          "type": "gauge",
+          "description": "Request time milliseconds",
+          "group": null,
+          "included": true
+        },
+        {
+          "name": "external.upstream_rq_completed",
+          "type": "cumulative",
+          "description": "Total external origin requests completed",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "external.upstream_rq_\u003c_xx\u003e",
+          "type": "cumulative",
+          "description": "External origin aggregate HTTP response codes",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "external.upstream_rq_\u003c_\u003e",
+          "type": "cumulative",
+          "description": "External origin specific HTTP response codes",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "external.upstream_rq_time",
+          "type": "gauge",
+          "description": "External origin request time milliseconds",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "internal.upstream_rq_completed",
+          "type": "cumulative",
+          "description": "Total internal origin requests completed",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "internal.upstream_rq_\u003c_xx\u003e",
+          "type": "cumulative",
+          "description": "Internal origin aggregate HTTP response codes",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "internal.upstream_rq_\u003c_\u003e",
+          "type": "cumulative",
+          "description": "Internal origin specific HTTP response codes",
+          "group": null,
+          "included": false
+        },
+        {
+          "name": "internal.upstream_rq_time",
+          "type": "gauge",
+          "description": "Internal origin request time milliseconds",
+          "group": null,
+          "included": false
+        }
+      ],
+      "properties": null,
+      "metricsExhaustive": false,
+      "config": {
+        "name": "Config",
+        "doc": "Config for this monitor",
+        "package": "internal/monitors/appmesh",
+        "fields": [
+          {
+            "yamlName": "listenAddress",
+            "doc": "The host/address on which to bind the UDP listener that accepts statsd datagrams",
+            "default": "localhost",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "listenPort",
+            "doc": "The port on which to listen for statsd messages",
+            "default": 8125,
+            "required": false,
+            "type": "uint16",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "metricPrefix",
+            "doc": "A prefix in metric names that needs to be removed before metric name conversion",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          }
+        ]
+      },
+      "acceptsEndpoints": false,
+      "singleInstance": false
+    },
+    {
       "monitorType": "aspdotnet",
       "sendAll": true,
       "dimensions": null,
@@ -12641,6 +13147,178 @@
       "singleInstance": true
     },
     {
+      "monitorType": "collectd/systemd",
+      "sendAll": true,
+      "dimensions": [
+        {
+          "name": "systemd_service",
+          "description": "The name of the systemd service that the reported metric applies to"
+        },
+        {
+          "name": "plugin",
+          "description": "The name of the collectd plugin. Facilitates filtering operations in the SignalFx app"
+        }
+      ],
+      "doc": "This [SignalFx Smart Agent](https://github.com/signalfx/signalfx-agent) monitor collects metrics about the state of\nconfigured systemd services using the [collectd-systemd](https://github.com/signalfx/integrations/tree/master/collectd-systemd)\nplugin. A service is in the state that a metric represents if the metric value is 1 and not in that state if the\nmetric value is 0. The name of the service that the metric is reporiting about is assigned to dimension\n`systemd_service`.\n\nThe collectd-systemd plugin reads the status of systemd services from host location `/var/run/dbus/system_bus_socket`.\nThis means that the host location must be mounted to the container in which the SignalFx Smart Agent is running.\nThe agent container must also run in privilege mode. Below is an excerpt of the docker run command.\n```yaml\ndocker run ...\\\n  --privileged \\\n  -v /var/run/dbus/system_bus_socket:/var/run/dbus/system_bus_socket:ro \\\n...\n```\nBelow is a sample SignalFx Smart Agent YAML configuration for monitoring the state of `docker` and `ubuntu-fan`\nservices. See [here](https://github.com/signalfx/signalfx-agent#configuration) for SignalFx Smart Agent\nconfiguration details.\n```yaml\nmonitors:\n- type: collectd/systemd\n  intervalSeconds: 10\n  services:\n    - docker\n    - ubuntu-fan\n```\nOnly the metric `gauge.substate.running`, which indicates whether a service is running or not, gets reported by default.\nThe other metrics must be configure explicitly using the `sendActiveState`, `sendSubState` and `sendLoadState`\nconfiguration flags (see below). The metrics are grouped into `ActiveState`, `SubState` and `LoadState` groups.\n```\nmonitors:\n- type: collectd/systemd\n  intervalSeconds: 10\n  services:\n    - docker\n    - ubuntu-fan\n  sendActiveState: true\n```\n",
+      "groups": [
+        {
+          "name": "ActiveState",
+          "description": "Metrics which indicate whether a service is currently active or not"
+        },
+        {
+          "name": "SubState",
+          "description": "Metrics which provide further clarification of a service's active state"
+        },
+        {
+          "name": "LoadState",
+          "description": "Metrics which indicate whether a service's unit configuration file has been loaded"
+        }
+      ],
+      "metrics": [
+        {
+          "name": "gauge.active_state.active",
+          "type": "gauge",
+          "description": "Indicates that the systemd unit/service is active",
+          "group": "ActiveState",
+          "included": false
+        },
+        {
+          "name": "gauge.active_state.inactive",
+          "type": "gauge",
+          "description": "Indicates that the systemd unit/service is inactive and the previous run was successful or no previous run has taken place yet",
+          "group": "ActiveState",
+          "included": false
+        },
+        {
+          "name": "gauge.active_state.activating",
+          "type": "gauge",
+          "description": "Indicates that the systemd unit/service has previously been inactive but is currently in the process of entering an active state",
+          "group": "ActiveState",
+          "included": false
+        },
+        {
+          "name": "gauge.active_state.deactivating",
+          "type": "gauge",
+          "description": "Indicates that the systemd unit/service is currently in the process of deactivation",
+          "group": "ActiveState",
+          "included": false
+        },
+        {
+          "name": "gauge.active_state.reloading",
+          "type": "gauge",
+          "description": "Indicates that the systemd unit/service is active and currently reloading its configuration",
+          "group": "ActiveState",
+          "included": false
+        },
+        {
+          "name": "gauge.active_state.failed",
+          "type": "gauge",
+          "description": "Indicates that the systemd unit/service is inactive the previous run was not successful",
+          "group": "ActiveState",
+          "included": false
+        },
+        {
+          "name": "gauge.substate.running",
+          "type": "gauge",
+          "description": "Indicates that the systemd unit/service is running",
+          "group": "SubState",
+          "included": true
+        },
+        {
+          "name": "gauge.substate.exited",
+          "type": "gauge",
+          "description": "Indicates that the systemd unit/service exited",
+          "group": "SubState",
+          "included": false
+        },
+        {
+          "name": "gauge.substate.failed",
+          "type": "gauge",
+          "description": "Indicates that the systemd unit/service failed",
+          "group": "SubState",
+          "included": false
+        },
+        {
+          "name": "gauge.substate.dead",
+          "type": "gauge",
+          "description": "Indicates that the systemd unit/service died",
+          "group": "SubState",
+          "included": false
+        },
+        {
+          "name": "gauge.load_state.loaded",
+          "type": "gauge",
+          "description": "Indicates that the systemd unit/service configuration was loaded and parsed successfully",
+          "group": "LoadState",
+          "included": false
+        },
+        {
+          "name": "gauge.load_state.not-found",
+          "type": "gauge",
+          "description": "Indicates that the systemd unit/service configuration was not found",
+          "group": "LoadState",
+          "included": false
+        },
+        {
+          "name": "gauge.load_state.error",
+          "type": "gauge",
+          "description": "Indicates that the systemd unit/service configuration failed to load",
+          "group": "LoadState",
+          "included": false
+        },
+        {
+          "name": "gauge.load_state.masked",
+          "type": "gauge",
+          "description": "Indicates that the systemd unit/service is currently masked out (i.e. symlinked to /dev/null etc)",
+          "group": "LoadState",
+          "included": false
+        }
+      ],
+      "properties": null,
+      "metricsExhaustive": false,
+      "config": {
+        "name": "Config",
+        "doc": "Config is the monitor-specific config with the generic config embedded",
+        "package": "internal/monitors/collectd/systemd",
+        "fields": [
+          {
+            "yamlName": "services",
+            "doc": "Systemd services to report on",
+            "default": null,
+            "required": true,
+            "type": "slice",
+            "elementKind": "string"
+          },
+          {
+            "yamlName": "sendActiveState",
+            "doc": "Flag for sending metrics about the state of systemd services",
+            "default": false,
+            "required": false,
+            "type": "bool",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "sendSubState",
+            "doc": "Flag for sending more detailed metrics about the state of systemd services",
+            "default": false,
+            "required": false,
+            "type": "bool",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "sendLoadState",
+            "doc": "Flag for sending metrics about the load state of systemd services",
+            "default": false,
+            "required": false,
+            "type": "bool",
+            "elementKind": ""
+          }
+        ]
+      },
+      "acceptsEndpoints": true,
+      "singleInstance": false
+    },
+    {
       "monitorType": "collectd/uptime",
       "sendAll": false,
       "dimensions": null,
@@ -24463,6 +25141,80 @@
       "singleInstance": false
     },
     {
+      "monitorType": "statsd",
+      "sendAll": false,
+      "dimensions": null,
+      "doc": "\n\n### USAGE\n\n#### Adding dimensions to StatsD metrics\n\nThe StatsD monitor can parse keywords from a statsd metric name by a set of\nconverters that was configured by user.\n\n```\nconverters:\n  - pattern: \"cluster.cds_{traffic}_{mesh}_{service}-vn_{}.{action}\"\n    ...\n```\n\nThis converter will parse `traffic`, `mesh`, `service` and `action` as dimensions\nfrom a metric name `cluster.cds_egress_ecommerce-demo-mesh_gateway-vn_tcp_8080.update_success`.\nIf a section has only a pair of brackets without a name, it will not capture a dimension.\n\nWhen multiple converters were provided, a metric will be converted by the first converter with a\nmatching pattern to the metric name.\n\n#### Formatting metric name\n\nYou can customize a metric name by providing a format string within the converter configuration.\n\n```\nconverters:\n  - pattern: \"cluster.cds_{traffic}_{mesh}_{service}-vn_{}.{action}\"\n    metric: \"{traffic}.{action}\"\n```\n\nThe metrics which match to the given pattern will be reported to SignalFx as `{traffic}.{action}`.\nFor instance, metric `cluster.cds_egress_ecommerce-demo-mesh_gateway-vn_tcp_8080.update_success`\nwill be reported as `egress.update_success`.\n\n`metric` is required for a converter configuration. A converter will be disabled if `metric` is not provided.\n\n```\n",
+      "groups": null,
+      "metrics": null,
+      "properties": null,
+      "metricsExhaustive": false,
+      "config": {
+        "name": "Config",
+        "doc": "Config for this monitor",
+        "package": "internal/monitors/statsd",
+        "fields": [
+          {
+            "yamlName": "listenAddress",
+            "doc": "The host/address on which to bind the UDP listener that accepts statsd datagrams",
+            "default": "localhost",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "listenPort",
+            "doc": "The port on which to listen for statsd messages",
+            "default": 8125,
+            "required": false,
+            "type": "uint16",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "metricPrefix",
+            "doc": "A prefix in metric names that needs to be removed before metric name conversion",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "converters",
+            "doc": "A list converters to convert StatsD metric names into SignalFx metric names and dimensions",
+            "default": null,
+            "required": false,
+            "type": "slice",
+            "elementKind": "struct",
+            "elementStruct": {
+              "name": "ConverterInput",
+              "doc": "ConverterInput is to receive configs to setup metric converters",
+              "package": "internal/monitors/statsd",
+              "fields": [
+                {
+                  "yamlName": "pattern",
+                  "doc": "A pattern to match against StatsD metric names",
+                  "default": "",
+                  "required": false,
+                  "type": "string",
+                  "elementKind": ""
+                },
+                {
+                  "yamlName": "metricName",
+                  "doc": "A format to compose a metric name to report to SignalFx",
+                  "default": "",
+                  "required": false,
+                  "type": "string",
+                  "elementKind": ""
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "acceptsEndpoints": false,
+      "singleInstance": false
+    },
+    {
       "monitorType": "telegraf/logparser",
       "sendAll": false,
       "dimensions": null,
@@ -27446,7 +28198,7 @@
   "Observers": [
     {
       "name": "Config",
-      "doc": " Queries the Docker Engine API for running containers.  If\nyou are using Kubernetes, you should use the [k8s-api\nobserver](./k8s-api.md) instead of this.\n\nNote that you will need permissions to access the Docker engine API.  For a\nDocker domain socket URL, this means that the agent needs to have read\npermissions on the socket.  We don't currently support authentication for\nHTTP URLs.\n\n## Configuration from Labels\nYou can configure monitors by putting special labels on your Docker\ncontainers.  You can either specify all of the configuration in container\nlabels, or you can use the more traditional agent configuration with\ndiscovery rules and specify configuration overrides with labels.\n\nThe config labels are of the form `agent.signalfx.com.config.\u003cport\nnumber\u003e.\u003cconfig_key\u003e: \u003cconfig value\u003e`.  The `\u003cconfig value\u003e` must be a\nstring in a container label, but it will be deserialized as a YAML value to\nthe most appropriate type when consumed by the agent.  For example, if you\nhave a Redis container and want to monitor it at a higher frequency than\nother Redis containers, you could have an agent config that looks like the\nfollowing:\n\n```\nobservers:\n - type: docker\nmonitors:\n - type: collectd/redis\n   discoveryRule: container_image =~ \"redis\" \u0026\u0026 port == 6379\n   auth: mypassword\n   intervalSeconds: 10\n```\n\nAnd then launch the Redis container with the label:\n\n`agent.signalfx.com.config.6379.intervalSeconds`: `1`\n\nThis would cause the config value for `intervalSeconds` to be overwritten to\nthe more frequent 1 second interval.\n\nYou can also specify the monitor configuration entirely with Docker labels\nand completely omit monitor config from the agent config.  With the agent\nconfig:\n\n```\nobservers:\n - type: docker\n```\n\nYou can then launch a Redis container with the following labels:\n\n - `agent.signalfx.com.monitorType.6379`: `collectd/redis`\n - `agent.signalfx.com.config.6379.auth`: `mypassword`\n\nWhich would configure a Redis monitor with the given authentication\nconfiguration.  No Redis configuration is required in the agent config file.\n\nThe distinction is that the `monitorType` label was added to the Docker\ncontainer.  If a `monitorType` label is present, **no discovery rules will\nbe considered for this endpoint**, and thus, no agent configuration can be\nused anyway.\n\n### Multiple Monitors per Port\nIf you want to configure multiple monitors per port, you can specify the\nport name in the form `\u003cport number\u003e-\u003cport name\u003e` instead of just the port\nnumber.  For example, if you had two different Prometheus exporters running\non the same port, but on different paths in a given container, you could\nprovide labels like the following:\n\n```\n - `agent.signalfx.com.monitorType.8080-app`: `prometheus-exporter`\n - `agent.signalfx.com.config.8080-app.metricPath`: `/appMetrics`\n - `agent.signalfx.com.monitorType.8080-goruntime`: `prometheus-exporter`\n - `agent.signalfx.com.config.8080-goruntime.metricPath`: `/goMetrics`\n```\n\nThe name that is given to the port will populate the `name` field of the\ndiscovered endpoint and can be used in discovery rules as such.  For\nexample, with the following agent config:\n\n```\nobservers:\n - type: docker\nmonitors:\n - type: prometheus-exporter\n   discoveryRule: name == \"app\" \u0026\u0026 port == 8080\n   intervalSeconds: 1\n```\n\nAnd given docker labels as follows (remember that discovery rules are\nirrelevant to endpoints that specify `monitorType` labels):\n\n - `agent.signalfx.com.config.8080-app.metricPath`: `/appMetrics`\n - `agent.signalfx.com.config.8080-goruntime.metricPath`: `/goMetrics`\n\nWould result in the `app` endpoint getting an interval of 1 second and the\n`goruntime` endpoint getting the default interval of the agent.\n",
+      "doc": " Queries the Docker Engine API for running containers.  If\nyou are using Kubernetes, you should use the [k8s-api\nobserver](./k8s-api.md) instead of this.\n\nRequires Docker API version 1.22+.\n\nNote that you will need permissions to access the Docker engine API.  For a\nDocker domain socket URL, this means that the agent needs to have read\npermissions on the socket.  We don't currently support authentication for\nHTTP URLs.\n\n## Configuration from Labels\nYou can configure monitors by putting special labels on your Docker\ncontainers.  You can either specify all of the configuration in container\nlabels, or you can use the more traditional agent configuration with\ndiscovery rules and specify configuration overrides with labels.\n\nThe config labels are of the form `agent.signalfx.com.config.\u003cport\nnumber\u003e.\u003cconfig_key\u003e: \u003cconfig value\u003e`.  The `\u003cconfig value\u003e` must be a\nstring in a container label, but it will be deserialized as a YAML value to\nthe most appropriate type when consumed by the agent.  For example, if you\nhave a Redis container and want to monitor it at a higher frequency than\nother Redis containers, you could have an agent config that looks like the\nfollowing:\n\n```\nobservers:\n - type: docker\nmonitors:\n - type: collectd/redis\n   discoveryRule: container_image =~ \"redis\" \u0026\u0026 port == 6379\n   auth: mypassword\n   intervalSeconds: 10\n```\n\nAnd then launch the Redis container with the label:\n\n`agent.signalfx.com.config.6379.intervalSeconds`: `1`\n\nThis would cause the config value for `intervalSeconds` to be overwritten to\nthe more frequent 1 second interval.\n\nYou can also specify the monitor configuration entirely with Docker labels\nand completely omit monitor config from the agent config.  With the agent\nconfig:\n\n```\nobservers:\n - type: docker\n```\n\nYou can then launch a Redis container with the following labels:\n\n - `agent.signalfx.com.monitorType.6379`: `collectd/redis`\n - `agent.signalfx.com.config.6379.auth`: `mypassword`\n\nWhich would configure a Redis monitor with the given authentication\nconfiguration.  No Redis configuration is required in the agent config file.\n\nThe distinction is that the `monitorType` label was added to the Docker\ncontainer.  If a `monitorType` label is present, **no discovery rules will\nbe considered for this endpoint**, and thus, no agent configuration can be\nused anyway.\n\n### Multiple Monitors per Port\nIf you want to configure multiple monitors per port, you can specify the\nport name in the form `\u003cport number\u003e-\u003cport name\u003e` instead of just the port\nnumber.  For example, if you had two different Prometheus exporters running\non the same port, but on different paths in a given container, you could\nprovide labels like the following:\n\n```\n - `agent.signalfx.com.monitorType.8080-app`: `prometheus-exporter`\n - `agent.signalfx.com.config.8080-app.metricPath`: `/appMetrics`\n - `agent.signalfx.com.monitorType.8080-goruntime`: `prometheus-exporter`\n - `agent.signalfx.com.config.8080-goruntime.metricPath`: `/goMetrics`\n```\n\nThe name that is given to the port will populate the `name` field of the\ndiscovered endpoint and can be used in discovery rules as such.  For\nexample, with the following agent config:\n\n```\nobservers:\n - type: docker\nmonitors:\n - type: prometheus-exporter\n   discoveryRule: name == \"app\" \u0026\u0026 port == 8080\n   intervalSeconds: 1\n```\n\nAnd given docker labels as follows (remember that discovery rules are\nirrelevant to endpoints that specify `monitorType` labels):\n\n - `agent.signalfx.com.config.8080-app.metricPath`: `/appMetrics`\n - `agent.signalfx.com.config.8080-goruntime.metricPath`: `/goMetrics`\n\nWould result in the `app` endpoint getting an interval of 1 second and the\n`goruntime` endpoint getting the default interval of the agent.\n",
       "package": "internal/observers/docker",
       "fields": [
         {

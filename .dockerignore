@@ -10,9 +10,10 @@ internal/monitors/**/template.go
 internal/monitors/collectd/collectd.conf.go
 packaging/*/output
 tests/**/__pycache__
+**/virtualenv
 vendor_orig/**
-python/virtualenv
 **/boxcutter/**
 **/.vagrant/**
 .circleci/**
 .azure-pipelines/**
+monitor-code-gen
