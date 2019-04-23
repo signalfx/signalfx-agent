@@ -41,7 +41,7 @@ monitors:
       services:
         - docker
         - ubuntu-fan
-      sendActiveState
+      sendActiveState: true
     ```
   sendAll: true
   groups:
