@@ -148,6 +148,13 @@ def udp_port_open_locally(port):
     return os.system("cat /proc/net/udp | grep %s" % (hex(port)[2:].upper(),)) == 0
 
 
+def udp_port_open_locally_netstat(port):
+    """
+    Returns true is the given port # is open on the local host
+    """
+    return os.system("netstat -ul | grep %d" % port) == 0
+
+
 def tcp_port_open_locally(port):
     """
     Returns True if the given TCP port is open on the local machine

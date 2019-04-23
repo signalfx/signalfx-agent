@@ -29,6 +29,7 @@ The following config options are common to all monitors:
 
 These are all of the monitors included in the agent, along with their possible configuration options:
 
+- [appmesh](./monitors/appmesh.md)
 - [aspdotnet](./monitors/aspdotnet.md)
 - [cadvisor](./monitors/cadvisor.md)
 - [collectd/activemq](./monitors/collectd-activemq.md)
@@ -111,6 +112,7 @@ These are all of the monitors included in the agent, along with their possible c
 - [prometheus/redis](./monitors/prometheus-redis.md)
 - [python-monitor](./monitors/python-monitor.md)
 - [sql](./monitors/sql.md)
+- [statsd](./monitors/statsd.md)
 - [telegraf/logparser](./monitors/telegraf-logparser.md)
 - [telegraf/procstat](./monitors/telegraf-procstat.md)
 - [telegraf/snmp](./monitors/telegraf-snmp.md)

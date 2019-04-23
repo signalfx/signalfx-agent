@@ -5,6 +5,7 @@ package core
 
 import (
 	// Import everything that isn't referenced anywhere else
+	_ "github.com/signalfx/signalfx-agent/internal/monitors/appmesh"
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/aspdotnet"
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/cadvisor"
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/collectd/consul"
@@ -50,6 +51,7 @@ import (
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/prometheusexporter"
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/pyrunner/signalfx"
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/sql"
+	_ "github.com/signalfx/signalfx-agent/internal/monitors/statsd"
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/telegraf/monitors/mssqlserver"
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/telegraf/monitors/procstat"
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/telegraf/monitors/tail"
