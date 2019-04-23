@@ -9,6 +9,8 @@
 
 set -euo pipefail
 
+exit 0
+
 DIRS=$@
 
 for DIR in $DIRS; do
