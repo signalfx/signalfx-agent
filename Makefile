@@ -117,6 +117,9 @@ endif
 debug:
 	dlv debug ./cmd/agent
 
+ifdef dbus
+dbus_run_flags = --privileged -v /var/run/dbus/system_bus_socket:/var/run/dbus/system_bus_socket:ro
+endif
 
 ifneq ($(OS),Windows_NT)
 extra_run_flags = -v /:/hostfs:ro -v /var/run/docker.sock:/var/run/docker.sock:ro -v /tmp/scratch:/tmp/scratch
@@ -127,7 +130,7 @@ endif
 run-dev-image:
 	docker exec -it $(docker_env) signalfx-agent-dev /bin/bash -l -i || \
 	  docker run --rm -it \
-		$(extra_run_flags) \
+		$(dbus_run_flags) $(extra_run_flags) \
 		--cap-add DAC_READ_SEARCH \
 		--cap-add SYS_PTRACE \
 		-p 6060:6060 \
@@ -144,7 +147,7 @@ run-dev-image:
 run-dev-image-sync:
 	docker exec -it $(docker_env) signalfx-agent-dev-sync /bin/bash -l -i || \
 	  docker run --rm -it \
-		$(extra_run_flags) \
+		$(dbus_run_flags) $(extra_run_flags) \
 		--cap-add DAC_READ_SEARCH \
 		--cap-add SYS_PTRACE \
 		-p 6061:6060 \

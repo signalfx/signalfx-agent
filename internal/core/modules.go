@@ -24,6 +24,7 @@ import (
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/collectd/rabbitmq"
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/collectd/redis"
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/collectd/spark"
+	_ "github.com/signalfx/signalfx-agent/internal/monitors/collectd/systemd"
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/collectd/zookeeper"
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/conviva"
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/cpu"

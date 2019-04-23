@@ -115,7 +115,9 @@ RUN sed -i -e '/^deb-src/d' /etc/apt/sources.list &&\
       python-pip \
       python-virtualenv \
       quilt \
-      zlib1g-dev
+      zlib1g-dev \
+      libdbus-glib-1-dev \
+      libdbus-1-dev
 
 RUN wget https://dev.mysql.com/get/mysql-apt-config_0.8.12-1_all.deb && \
     dpkg -i mysql-apt-config_0.8.12-1_all.deb && \
@@ -237,6 +239,8 @@ COPY scripts/get-collectd-plugins-requirements.txt /opt/
 COPY collectd-plugins.yaml /opt/
 
 RUN pip install -r /opt/get-collectd-plugins-requirements.txt
+
+RUN pip install dbus-python
 
 RUN mkdir -p /opt/collectd-python &&\
     python /opt/scripts/get-collectd-plugins.py /opt/collectd-python
