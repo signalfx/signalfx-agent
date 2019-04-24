@@ -1641,7 +1641,7 @@
                       },
                       {
                         "yamlName": "attribute",
-                        "doc": "Sets the name of the attribute from which to read the value. You can access the keys of composite types by using a dot to concatenate the key name to the attribute name. For example: “attrib0.key42”. If `table` is set to true path, must point to a composite type, otherwise it must point to a numeric type.",
+                        "doc": "Sets the name of the attribute from which to read the value. You can access the keys of composite types by using a dot to concatenate the key name to the attribute name. For example: “attrib0.key42”. If `table` is set to true, path must point to a composite type, otherwise it must point to a numeric type.",
                         "default": "",
                         "required": false,
                         "type": "string",
@@ -2190,7 +2190,7 @@
                       },
                       {
                         "yamlName": "attribute",
-                        "doc": "Sets the name of the attribute from which to read the value. You can access the keys of composite types by using a dot to concatenate the key name to the attribute name. For example: “attrib0.key42”. If `table` is set to true path, must point to a composite type, otherwise it must point to a numeric type.",
+                        "doc": "Sets the name of the attribute from which to read the value. You can access the keys of composite types by using a dot to concatenate the key name to the attribute name. For example: “attrib0.key42”. If `table` is set to true, path must point to a composite type, otherwise it must point to a numeric type.",
                         "default": "",
                         "required": false,
                         "type": "string",
@@ -4669,7 +4669,7 @@
                       },
                       {
                         "yamlName": "attribute",
-                        "doc": "Sets the name of the attribute from which to read the value. You can access the keys of composite types by using a dot to concatenate the key name to the attribute name. For example: “attrib0.key42”. If `table` is set to true path, must point to a composite type, otherwise it must point to a numeric type.",
+                        "doc": "Sets the name of the attribute from which to read the value. You can access the keys of composite types by using a dot to concatenate the key name to the attribute name. For example: “attrib0.key42”. If `table` is set to true, path must point to a composite type, otherwise it must point to a numeric type.",
                         "default": "",
                         "required": false,
                         "type": "string",
@@ -4921,7 +4921,7 @@
                       },
                       {
                         "yamlName": "attribute",
-                        "doc": "Sets the name of the attribute from which to read the value. You can access the keys of composite types by using a dot to concatenate the key name to the attribute name. For example: “attrib0.key42”. If `table` is set to true path, must point to a composite type, otherwise it must point to a numeric type.",
+                        "doc": "Sets the name of the attribute from which to read the value. You can access the keys of composite types by using a dot to concatenate the key name to the attribute name. For example: “attrib0.key42”. If `table` is set to true, path must point to a composite type, otherwise it must point to a numeric type.",
                         "default": "",
                         "required": false,
                         "type": "string",
@@ -6214,7 +6214,7 @@
                       },
                       {
                         "yamlName": "attribute",
-                        "doc": "Sets the name of the attribute from which to read the value. You can access the keys of composite types by using a dot to concatenate the key name to the attribute name. For example: “attrib0.key42”. If `table` is set to true path, must point to a composite type, otherwise it must point to a numeric type.",
+                        "doc": "Sets the name of the attribute from which to read the value. You can access the keys of composite types by using a dot to concatenate the key name to the attribute name. For example: “attrib0.key42”. If `table` is set to true, path must point to a composite type, otherwise it must point to a numeric type.",
                         "default": "",
                         "required": false,
                         "type": "string",
@@ -6467,7 +6467,7 @@
                       },
                       {
                         "yamlName": "attribute",
-                        "doc": "Sets the name of the attribute from which to read the value. You can access the keys of composite types by using a dot to concatenate the key name to the attribute name. For example: “attrib0.key42”. If `table` is set to true path, must point to a composite type, otherwise it must point to a numeric type.",
+                        "doc": "Sets the name of the attribute from which to read the value. You can access the keys of composite types by using a dot to concatenate the key name to the attribute name. For example: “attrib0.key42”. If `table` is set to true, path must point to a composite type, otherwise it must point to a numeric type.",
                         "default": "",
                         "required": false,
                         "type": "string",
@@ -6747,7 +6747,7 @@
                       },
                       {
                         "yamlName": "attribute",
-                        "doc": "Sets the name of the attribute from which to read the value. You can access the keys of composite types by using a dot to concatenate the key name to the attribute name. For example: “attrib0.key42”. If `table` is set to true path, must point to a composite type, otherwise it must point to a numeric type.",
+                        "doc": "Sets the name of the attribute from which to read the value. You can access the keys of composite types by using a dot to concatenate the key name to the attribute name. For example: “attrib0.key42”. If `table` is set to true, path must point to a composite type, otherwise it must point to a numeric type.",
                         "default": "",
                         "required": false,
                         "type": "string",
@@ -17111,6 +17111,22 @@
             "elementKind": ""
           },
           {
+            "yamlName": "username",
+            "doc": "Basic Auth username to use on each request, if any.",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "password",
+            "doc": "Basic Auth password to use on each request, if any.",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
             "yamlName": "useHTTPS",
             "doc": "If true, the agent will connect to the exporter using HTTPS instead of plain HTTP.",
             "default": false,
@@ -17270,6 +17286,22 @@
             "elementKind": ""
           },
           {
+            "yamlName": "username",
+            "doc": "Basic Auth username to use on each request, if any.",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "password",
+            "doc": "Basic Auth password to use on each request, if any.",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
             "yamlName": "useHTTPS",
             "doc": "If true, the agent will connect to the exporter using HTTPS instead of plain HTTP.",
             "default": false,
@@ -17412,6 +17444,22 @@
             "default": null,
             "required": true,
             "type": "uint16",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "username",
+            "doc": "Basic Auth username to use on each request, if any.",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "password",
+            "doc": "Basic Auth password to use on each request, if any.",
+            "default": "",
+            "required": false,
+            "type": "string",
             "elementKind": ""
           },
           {
@@ -17613,6 +17661,22 @@
             "default": null,
             "required": true,
             "type": "uint16",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "username",
+            "doc": "Basic Auth username to use on each request, if any.",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "password",
+            "doc": "Basic Auth password to use on each request, if any.",
+            "default": "",
+            "required": false,
+            "type": "string",
             "elementKind": ""
           },
           {
@@ -17894,6 +17958,22 @@
             "elementKind": ""
           },
           {
+            "yamlName": "username",
+            "doc": "Basic Auth username to use on each request, if any.",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "password",
+            "doc": "Basic Auth password to use on each request, if any.",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
             "yamlName": "useHTTPS",
             "doc": "If true, the agent will connect to the exporter using HTTPS instead of plain HTTP.",
             "default": false,
@@ -18141,6 +18221,22 @@
             "default": null,
             "required": true,
             "type": "uint16",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "username",
+            "doc": "Basic Auth username to use on each request, if any.",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "password",
+            "doc": "Basic Auth password to use on each request, if any.",
+            "default": "",
+            "required": false,
+            "type": "string",
             "elementKind": ""
           },
           {
@@ -19907,6 +20003,22 @@
             "elementKind": ""
           },
           {
+            "yamlName": "username",
+            "doc": "Basic Auth username to use on each request, if any.",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "password",
+            "doc": "Basic Auth password to use on each request, if any.",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
             "yamlName": "useHTTPS",
             "doc": "If true, the agent will connect to the exporter using HTTPS instead of plain HTTP.",
             "default": false,
@@ -20234,6 +20346,22 @@
             "elementKind": ""
           },
           {
+            "yamlName": "username",
+            "doc": "Basic Auth username to use on each request, if any.",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "password",
+            "doc": "Basic Auth password to use on each request, if any.",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
             "yamlName": "useHTTPS",
             "doc": "If true, the agent will connect to the exporter using HTTPS instead of plain HTTP.",
             "default": false,
@@ -20425,6 +20553,22 @@
             "default": null,
             "required": true,
             "type": "uint16",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "username",
+            "doc": "Basic Auth username to use on each request, if any.",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "password",
+            "doc": "Basic Auth password to use on each request, if any.",
+            "default": "",
+            "required": false,
+            "type": "string",
             "elementKind": ""
           },
           {
@@ -21599,6 +21743,22 @@
             "default": null,
             "required": true,
             "type": "uint16",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "username",
+            "doc": "Basic Auth username to use on each request, if any.",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "password",
+            "doc": "Basic Auth password to use on each request, if any.",
+            "default": "",
+            "required": false,
+            "type": "string",
             "elementKind": ""
           },
           {
@@ -23357,6 +23517,22 @@
             "elementKind": ""
           },
           {
+            "yamlName": "username",
+            "doc": "Basic Auth username to use on each request, if any.",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "password",
+            "doc": "Basic Auth password to use on each request, if any.",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
             "yamlName": "useHTTPS",
             "doc": "If true, the agent will connect to the exporter using HTTPS instead of plain HTTP.",
             "default": false,
@@ -24419,6 +24595,22 @@
             "elementKind": ""
           },
           {
+            "yamlName": "username",
+            "doc": "Basic Auth username to use on each request, if any.",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "password",
+            "doc": "Basic Auth password to use on each request, if any.",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
             "yamlName": "useHTTPS",
             "doc": "If true, the agent will connect to the exporter using HTTPS instead of plain HTTP.",
             "default": false,
@@ -24897,6 +25089,22 @@
             "default": null,
             "required": true,
             "type": "uint16",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "username",
+            "doc": "Basic Auth username to use on each request, if any.",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "password",
+            "doc": "Basic Auth password to use on each request, if any.",
+            "default": "",
+            "required": false,
+            "type": "string",
             "elementKind": ""
           },
           {

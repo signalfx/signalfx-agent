@@ -187,10 +187,12 @@ jobs:
       - checkout
       - run: |
           apk add --no-cache git bash
-          [ "$CIRCLE_BRANCH" = "master" ] || git checkout -b $CIRCLE_BRANCH
-          if ! scripts/changes-include-dir deployments/k8s; then
-              echo "No changes in deployments/k8s, skipping check."
-              exit 0
+          if [ "$CIRCLE_BRANCH" != "master" ]; then
+              git checkout -b $CIRCLE_BRANCH
+              if ! scripts/changes-include-dir deployments/k8s; then
+                  echo "No changes in deployments/k8s, skipping check."
+                  exit 0
+              fi
           fi
           bash -ec "./deployments/k8s/generate-from-helm && git diff --exit-code" || \
           (echo 'Helm charts and generated sample K8s resources are out of sync.  Please run "./deployments/k8s/generate-from-helm" in the dev-image and commit the changes.' && exit 1)
@@ -273,8 +275,8 @@ jobs:
       - run:
           name: Setup test environment
           command: |
-            if scripts/changes-include-dir deployments/k8s tests/deployments/helm; then
-                # Run k8s and helm tests for all K8S versions if there are deployment changes
+            if [ "$CIRCLE_BRANCH" = "master" ] || scripts/changes-include-dir deployments/k8s tests/deployments/helm; then
+                # Run k8s and helm tests for all K8S versions if branch is master or there are deployment changes
                 echo "MARKERS='(kubernetes or helm) and not collectd'" >> $BASH_ENV
             elif ! scripts/changes-include-dir Gopkg.toml $(find . -iname "*k8s*" -o -iname "*kube*" | sed 's|^\./||' | grep -v '^docs/'); then
                 # Only run k8s tests for K8S_MIN_VERSION and K8S_MAX_VERSION if there are no relevant changes.
@@ -292,10 +294,12 @@ jobs:
     steps:
       - checkout
       - run: |
-          if ! scripts/changes-include-dir deployments/installer tests/packaging/installer_test.py tests/packaging/common.py tests/packaging/images; then
-              echo "Installer code has not changed, skipping tests!"
-              touch ~/.skip
-              exit 0
+          if [ "$CIRCLE_BRANCH" != "master" ]; then
+              if ! scripts/changes-include-dir deployments/installer tests/packaging/installer_test.py tests/packaging/common.py tests/packaging/images; then
+                  echo "Installer code has not changed, skipping tests!"
+                  touch ~/.skip
+                  exit 0
+              fi
           fi
       - run_pytest:
           pytest_options: "-n auto -m 'installer'"
@@ -314,10 +318,12 @@ jobs:
     steps:
       - checkout
       - run: |
-          if ! scripts/changes-include-dir Dockerfile packaging tests/packaging scripts/patch-interpreter scripts/patch-rpath; then
-              echo "packaging code has not changed, skipping tests!"
-              touch ~/.skip
-              exit 0
+          if [ "$CIRCLE_BRANCH" != "master" ]; then
+              if ! scripts/changes-include-dir Dockerfile packaging tests/packaging scripts/patch-interpreter scripts/patch-rpath; then
+                  echo "packaging code has not changed, skipping tests!"
+                  touch ~/.skip
+                  exit 0
+              fi
           fi
           export PULL_CACHE=yes
           make << parameters.package_type >>-test-package
@@ -337,10 +343,12 @@ jobs:
     steps:
       - checkout
       - run: |
-          if ! scripts/changes-include-dir Dockerfile packaging tests/packaging scripts/patch-interpreter scripts/patch-rpath; then
-              echo "packaging code has not changed, skipping tests!"
-              touch ~/.skip
-              exit 0
+          if [ "$CIRCLE_BRANCH" != "master" ]; then
+              if ! scripts/changes-include-dir Dockerfile packaging tests/packaging scripts/patch-interpreter scripts/patch-rpath; then
+                  echo "packaging code has not changed, skipping tests!"
+                  touch ~/.skip
+                  exit 0
+              fi
           fi
           export PULL_CACHE=yes
           AGENT_VERSION=latest make bundle
@@ -364,10 +372,12 @@ jobs:
           name: Run << parameters.deployment_type >> tests
           command: |
             mkdir -p ~/testresults
-            if ! scripts/changes-include-dir deployments/$DEPLOYMENT tests/deployments/$DEPLOYMENT; then
-                echo "$DEPLOYMENT code has not changed, skipping tests!"
-                touch ~/.skip
-                exit 0
+            if [ "$CIRCLE_BRANCH" != "master" ]; then
+                if ! scripts/changes-include-dir deployments/$DEPLOYMENT tests/deployments/$DEPLOYMENT; then
+                    echo "$DEPLOYMENT code has not changed, skipping tests!"
+                    touch ~/.skip
+                    exit 0
+                fi
             fi
             if [ ! -d tests/deployments/$DEPLOYMENT ]; then
                 # no pytest tests to execute for deployment
@@ -440,9 +450,11 @@ jobs:
           if [ "$TARGET" = "pytest" ]; then
               TARGET_DIR="tests"
           fi
-          if ! scripts/changes-include-dir $TARGET_DIR; then
-              echo "$TARGET code has not changed, skipping pylint/black!"
-              exit 0
+          if [ "$CIRCLE_BRANCH" != "master" ]; then
+              if ! scripts/changes-include-dir $TARGET_DIR; then
+                  echo "$TARGET code has not changed, skipping pylint/black!"
+                  exit 0
+              fi
           fi
           if [ "$TARGET" = "pytest" ]; then
               pip install -q -r tests/requirements.txt

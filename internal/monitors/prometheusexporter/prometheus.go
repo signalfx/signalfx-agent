@@ -34,6 +34,11 @@ type Config struct {
 	// Port of the exporter
 	Port uint16 `yaml:"port" validate:"required"`
 
+	// Basic Auth username to use on each request, if any.
+	Username string `yaml:"username"`
+	// Basic Auth password to use on each request, if any.
+	Password string `yaml:"password" neverLog:"true"`
+
 	// If true, the agent will connect to the exporter using HTTPS instead of
 	// plain HTTP.
 	UseHTTPS bool `yaml:"useHTTPS"`
@@ -113,7 +118,7 @@ func (m *Monitor) Configure(conf *Config) error {
 	var ctx context.Context
 	ctx, m.cancel = context.WithCancel(context.Background())
 	utils.RunOnInterval(ctx, func() {
-		dps, err := fetchPrometheusMetrics(m.client, url)
+		dps, err := fetchPrometheusMetrics(m.client, url, conf.Username, conf.Password)
 		if err != nil {
 			logger.WithError(err).Error("Could not get prometheus metrics")
 			return
@@ -129,8 +134,8 @@ func (m *Monitor) Configure(conf *Config) error {
 	return nil
 }
 
-func fetchPrometheusMetrics(client *http.Client, url string) ([]*datapoint.Datapoint, error) {
-	metricFamilies, err := doFetch(client, url)
+func fetchPrometheusMetrics(client *http.Client, url, username, password string) ([]*datapoint.Datapoint, error) {
+	metricFamilies, err := doFetch(client, url, username, password)
 	if err != nil {
 		return nil, err
 	}
@@ -142,9 +147,17 @@ func fetchPrometheusMetrics(client *http.Client, url string) ([]*datapoint.Datap
 	return dps, nil
 }
 
-func doFetch(client *http.Client, url string) ([]*dto.MetricFamily, error) {
+func doFetch(client *http.Client, url, username, password string) ([]*dto.MetricFamily, error) {
 	// Prometheus 2.0 deprecated protobuf and now only does the text format.
-	resp, err := client.Get(url)
+	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	if username != "" {
+		req.SetBasicAuth(username, password)
+	}
+	resp, err := client.Do(req)
 	if err != nil {
 		return nil, err
 	}
