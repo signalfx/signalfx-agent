@@ -10,134 +10,167 @@ monitors:
     included: false
     name: blkio.io_service_bytes_recursive.async
     type: cumulative
+    group: blkio
   - description: Volume, in bytes, of reads from block devices
     included: true
     name: blkio.io_service_bytes_recursive.read
     type: cumulative
+    group: blkio
   - description: Volume, in bytes, of synchronous block I/O
     included: false
     name: blkio.io_service_bytes_recursive.sync
     type: cumulative
+    group: blkio
   - description: Total volume, in bytes, of all block I/O
     included: false
     name: blkio.io_service_bytes_recursive.total
     type: cumulative
+    group: blkio
   - description: Volume, in bytes, of writes to block devices
     included: true
     name: blkio.io_service_bytes_recursive.write
     type: cumulative
+    group: blkio
   - description: Number of asynchronous block I/O requests
     included: false
     name: blkio.io_serviced_recursive.async
     type: cumulative
+    group: blkio
   - description: Number of reads requests from block devices
     included: false
     name: blkio.io_serviced_recursive.read
     type: cumulative
+    group: blkio
   - description: Number of synchronous block I/O requests
     included: false
     name: blkio.io_serviced_recursive.sync
     type: cumulative
+    group: blkio
   - description: Total number of block I/O requests
     included: false
     name: blkio.io_serviced_recursive.total
     type: cumulative
+    group: blkio
   - description: Number of write requests to block devices
     included: false
     name: blkio.io_serviced_recursive.write
     type: cumulative
+    group: blkio
   - description: CPU usage limit of the container, in ECS vCPU units
     included: false
     name: cpu.limit
     type: gauge
+    group: cpu
   - description: Percentage of host CPU resources used by the container
     included: false
     name: cpu.percent
     type: gauge
+    group: cpu
   - description: Jiffies of CPU time spent by the container, per CPU core
     included: false
     name: cpu.percpu.usage
     type: cumulative
+    group: cpu
   - description: Number of periods
     included: false
     name: cpu.throttling_data.periods
     type: cumulative
+    group: cpu
   - description: Number of periods throttled
     included: false
     name: cpu.throttling_data.throttled_periods
     type: cumulative
+    group: cpu
   - description: Throttling time in nano seconds
     included: false
     name: cpu.throttling_data.throttled_time
     type: cumulative
+    group: cpu
   - description: Jiffies of CPU time spent in kernel mode by the container
     included: false
     name: cpu.usage.kernelmode
     type: cumulative
+    group: cpu
   - description: Jiffies of CPU time used by the system
     included: true
     name: cpu.usage.system
     type: cumulative
+    group: cpu
   - description: Jiffies of CPU time used by the container
     included: true
     name: cpu.usage.total
     type: cumulative
+    group: cpu
   - description: Jiffies of CPU time spent in user mode by the container
     included: false
     name: cpu.usage.usermode
     type: cumulative
+    group: cpu
   - description: Percent of memory (0-100) used by the container relative to its limit
       (excludes page cache usage)
     included: false
     name: memory.percent
     type: gauge
+    group: memory
   - description: Bytes of swap memory used by container
     included: false
     name: memory.stats.swap
     type: gauge
+    group: memory
   - description: Memory usage limit of the container, in bytes
     included: true
     name: memory.usage.limit
     type: gauge
+    group: memory
   - description: Maximum measured memory usage of the container, in bytes
     included: false
     name: memory.usage.max
     type: gauge
+    group: memory
   - description: Bytes of memory used by the container
     included: true
     name: memory.usage.total
     type: gauge
+    group: memory
   - description: Bytes received by the container via its network interface
     included: true
     name: network.usage.rx_bytes
     type: cumulative
+    group: network
   - description: Number of inbound network packets dropped by the container
     included: false
     name: network.usage.rx_dropped
     type: cumulative
+    group: network
   - description: Errors receiving network packets
     included: false
     name: network.usage.rx_errors
     type: cumulative
+    group: network
   - description: Network packets received by the container via its network interface
     included: false
     name: network.usage.rx_packets
     type: cumulative
+    group: network
   - description: Bytes sent by the container via its network interface
     included: true
     name: network.usage.tx_bytes
     type: cumulative
+    group: network
   - description: Number of outbound network packets dropped by the container
     included: false
     name: network.usage.tx_dropped
     type: cumulative
+    group: network
   - description: Errors sending network packets
     included: false
     name: network.usage.tx_errors
     type: cumulative
+    group: network
   - description: Network packets sent by the container via its network interface
     included: false
     name: network.usage.tx_packets
     type: cumulative
+    group: network
   monitorType: ecs-metadata
   properties: null

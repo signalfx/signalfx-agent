@@ -35,7 +35,8 @@ type InjectableMonitor interface {
 
 // MetricInfo contains metadata about a metric.
 type MetricInfo struct {
-	Type datapoint.MetricType
+	Type  datapoint.MetricType
+	Group string
 }
 
 // Metadata describes information about a monitor.
