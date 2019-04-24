@@ -40,7 +40,11 @@ const (
 
 var metricSet = map[string]monitors.MetricInfo {
 {{- range $metric, $info := .metrics}}
-	{{$metric | formatVariable}}: {Type: {{$info.Type | convertMetricType}}},
+	{{- if $info.Group}}
+		{{$metric | formatVariable}}: {Type: {{$info.Type | convertMetricType}}, Group: {{$info.Group | deref | printf "group.%s" | formatVariable}}},
+	{{- else}}
+		{{$metric | formatVariable}}: {Type: {{$info.Type | convertMetricType}}},
+	{{- end}}
 {{- end}}
 }
 
