@@ -2,8 +2,9 @@ package monitors
 
 import (
 	"fmt"
-	"github.com/mitchellh/go-wordwrap"
 	"strings"
+
+	"github.com/mitchellh/go-wordwrap"
 
 	"github.com/signalfx/golib/datapoint"
 	"github.com/signalfx/golib/sfxclient"

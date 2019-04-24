@@ -65,6 +65,19 @@ func (metadata *Metadata) HasGroup(group string) bool {
 	return metadata.Groups[group]
 }
 
+// NonIncludedMetrics returns list of metrics that are non-included.
+// Note that it is not that efficient so cache calls if necessary or change
+// implementation.
+func (metadata *Metadata) NonIncludedMetrics() []string {
+	var metrics []string
+	for metric := range metadata.Metrics {
+		if !metadata.HasIncludedMetric(metric) {
+			metrics = append(metrics, metric)
+		}
+	}
+	return metrics
+}
+
 // Register a new monitor type with the agent.  This is intended to be called
 // from the init function of the module of a specific monitor
 // implementation. configTemplate should be a zero-valued struct that is of the

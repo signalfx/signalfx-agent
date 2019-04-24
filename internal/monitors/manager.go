@@ -314,7 +314,10 @@ func (mm *MonitorManager) findConfigForMonitorAndRun(endpoint services.Endpoint)
 	}
 }
 
-func buildFilterSet(metadata *Metadata, coreConfig *config.MonitorConfig) (*dpfilters.FilterSet, []string, error) {
+func (mm *MonitorManager) buildFilterSet(metadata *Metadata, conf config.MonitorCustomConfig) (
+	*dpfilters.FilterSet, []string, error) {
+	coreConfig := conf.MonitorConfigCore()
+
 	oldFilter, err := coreConfig.OldFilterSet()
 	if err != nil {
 		return nil, nil, err
@@ -326,15 +329,14 @@ func buildFilterSet(metadata *Metadata, coreConfig *config.MonitorConfig) (*dpfi
 	}
 
 	excludeFilters := []dpfilters.DatapointFilter{oldFilter, newFilter}
-	var enabledMetrics []string
 
 	if !metadata.SendAll {
 		// Make a copy of extra metrics from config so we don't alter what the user configured.
 		extraMetrics := append([]string{}, coreConfig.ExtraMetrics...)
 
 		// Monitors can add additional extra metrics to allow through such as based on config flags.
-		if monitorExtra := coreConfig.GetExtraMetrics(); monitorExtra != nil {
-			extraMetrics = append(extraMetrics, monitorExtra...)
+		if monitorExtra, ok := conf.(config.ExtraMetrics); ok {
+			extraMetrics = append(extraMetrics, monitorExtra.GetExtraMetrics()...)
 		}
 
 		includedMetricsFilter, err := newMetricsFilter(metadata, extraMetrics, coreConfig.ExtraGroups)
@@ -344,21 +346,23 @@ func buildFilterSet(metadata *Metadata, coreConfig *config.MonitorConfig) (*dpfi
 
 		// Prepend the included metrics filter.
 		excludeFilters = append([]dpfilters.DatapointFilter{dpfilters.Negate(includedMetricsFilter)}, excludeFilters...)
-		enabledMetrics = includedMetricsFilter.enabledMetrics()
-	} else {
-		// Unfortunately can't use a helper because the map value in metadata.Metrics is a non-pointer struct
-		// so it's not considered an interface.
-		enabledMetrics = make([]string, len(metadata.Metrics))
-		i := 0
-		for metric := range metadata.Metrics {
-			enabledMetrics[i] = metric
-			i++
+	}
+
+	filterSet := &dpfilters.FilterSet{
+		ExcludeFilters: excludeFilters,
+	}
+
+	dp := &datapoint.Datapoint{}
+	var enabledMetrics []string
+
+	for metric := range metadata.Metrics {
+		dp.Metric = metric
+		if !filterSet.Matches(dp) {
+			enabledMetrics = append(enabledMetrics, metric)
 		}
 	}
 
-	return &dpfilters.FilterSet{
-		ExcludeFilters: excludeFilters,
-	}, enabledMetrics, nil
+	return filterSet, enabledMetrics, nil
 }
 
 // endpoint may be nil for static monitors
@@ -383,7 +387,7 @@ func (mm *MonitorManager) createAndConfigureNewMonitor(config config.MonitorCust
 		panic(fmt.Sprintf("could not find monitor metadata of type %s", monitorType))
 	}
 
-	filterSet, enabledMetrics, err := buildFilterSet(metadata, coreConfig)
+	filterSet, enabledMetrics, err := mm.buildFilterSet(metadata, config)
 	if err != nil {
 		return nil
 	}
