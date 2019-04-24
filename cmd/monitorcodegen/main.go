@@ -58,7 +58,11 @@ const (
 
 var metricSet = map[string]monitors.MetricInfo {
 {{- range .metrics}}
-	{{.Name | formatVariable}}: {Type: {{.Type | convertMetricType}}},
+	{{- if .Group}}
+		{{.Name | formatVariable}}: {Type: {{.Type | convertMetricType}}, Group: {{.Group | deref | printf "group.%s" | formatVariable}}},
+	{{- else}}
+		{{.Name | formatVariable}}: {Type: {{.Type | convertMetricType}}},
+	{{- end}}
 {{- end}}
 }
 
@@ -150,6 +154,7 @@ func generate(force bool) error {
 				return "", fmt.Errorf("unknown metric type %s", metricType)
 			}
 		},
+		"deref": func(p *string) string { return *p },
 	}).Parse(tmpl)
 
 	if err != nil {
