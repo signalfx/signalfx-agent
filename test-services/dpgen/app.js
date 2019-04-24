@@ -24,6 +24,10 @@ function extraLabels() {
 }
 
 const requestHandler = (request, response) => {
+  if (process.env.REQUIRE_BASIC_AUTH === "yes" && !request.headers.authorization) {
+	  response.writeHead(401);
+	  return;
+  }
   response.end(makePrometheusMetrics());
 }
 
