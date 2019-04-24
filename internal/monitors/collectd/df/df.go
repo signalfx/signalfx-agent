@@ -49,6 +49,18 @@ type Monitor struct {
 	collectd.MonitorCore
 }
 
+// GetExtraMetrics returns additional metrics to allow through.
+func (c *Config) GetExtraMetrics() []string {
+	var extraMetrics []string
+	if c.ReportInodes {
+		extraMetrics = append(extraMetrics, groupMetricsMap[groupReportInodes]...)
+	}
+	if c.ValuesPercentage {
+		extraMetrics = append(extraMetrics, groupMetricsMap[groupValuesPercentage]...)
+	}
+	return extraMetrics
+}
+
 // Configure configures and runs the plugin in collectd
 func (m *Monitor) Configure(conf *Config) error {
 	return m.SetConfigurationAndRun(conf)
