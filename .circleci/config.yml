@@ -218,14 +218,16 @@ jobs:
             $BUNDLE_DIR/bin/patch-interpreter $BUNDLE_DIR
             docker rm -fv $cid
             [ -f "$AGENT_BIN" ] || (echo "$AGENT_BIN not found!" && exit 1)
-            if ! scripts/changes-include-dir $(find . -iname "*devstack*" -o -iname "*openstack*" | sed 's|^\./||' | grep -v '^docs/'); then
-                MARKERS="$MARKERS and not openstack"
-            fi
-            if ! scripts/changes-include-dir $(find . -iname "*conviva*" | sed 's|^\./||' | grep -v '^docs/'); then
-                MARKERS="$MARKERS and not conviva"
-            fi
-            if ! scripts/changes-include-dir $(find . -iname "*jenkins*" | sed 's|^\./||' | grep -v '^docs/'); then
-                MARKERS="$MARKERS and not jenkins"
+            if [ "$CIRCLE_BRANCH" != "master" ]; then
+                if ! scripts/changes-include-dir $(find . -iname "*devstack*" -o -iname "*openstack*" | sed 's|^\./||' | grep -v '^docs/'); then
+                    MARKERS="$MARKERS and not openstack"
+                fi
+                if ! scripts/changes-include-dir $(find . -iname "*conviva*" | sed 's|^\./||' | grep -v '^docs/'); then
+                    MARKERS="$MARKERS and not conviva"
+                fi
+                if ! scripts/changes-include-dir $(find . -iname "*jenkins*" | sed 's|^\./||' | grep -v '^docs/'); then
+                    MARKERS="$MARKERS and not jenkins"
+                fi
             fi
             echo "export BUNDLE_DIR='$BUNDLE_DIR'" >> $BASH_ENV
             echo "export AGENT_BIN='$AGENT_BIN'" >> $BASH_ENV
