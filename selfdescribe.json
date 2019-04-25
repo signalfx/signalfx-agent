@@ -691,8 +691,8 @@
           },
           {
             "yamlName": "listenPort",
-            "doc": "The port on which to listen for statsd messages",
-            "default": 8125,
+            "doc": "The port on which to listen for statsd messages (**default:** `8125`)",
+            "default": null,
             "required": false,
             "type": "uint16",
             "elementKind": ""
@@ -25356,8 +25356,8 @@
           },
           {
             "yamlName": "listenPort",
-            "doc": "The port on which to listen for statsd messages",
-            "default": 8125,
+            "doc": "The port on which to listen for statsd messages (**default:** `8125`)",
+            "default": null,
             "required": false,
             "type": "uint16",
             "elementKind": ""
