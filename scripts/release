@@ -203,7 +203,7 @@ update_deployment_files() {
       [[ ! "$REPLY" =~ ^[Yy]$ ]] && echo "Not pushing deployment updates" >&2 && return 1
     fi
 
-    git add deployments
+    git add deployments Dockerfile.rhel
     git commit -m"Update deployment versions to ${new_version}"
     git push origin
   fi
