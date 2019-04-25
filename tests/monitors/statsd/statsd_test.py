@@ -7,7 +7,7 @@ import pytest
 
 from tests.helpers.agent import Agent
 from tests.helpers.assertions import has_datapoint, has_datapoint_with_metric_name, udp_port_open_locally_netstat
-from tests.helpers.util import send_udp_message, wait_for
+from tests.helpers.util import get_statsd_port, send_udp_message, wait_for
 
 
 pytestmark = [pytest.mark.collectd, pytest.mark.statsd, pytest.mark.monitor_without_endpoints]
@@ -21,12 +21,13 @@ def test_statsd_monitor():
         """
 monitors:
   - type: statsd
-    listenAddress: localhost
-    listenPort: 8125
+    listenPort: 8111
 """
     ) as agent:
-        assert wait_for(p(udp_port_open_locally_netstat, 8125)), "statsd port never opened!"
-        send_udp_message("localhost", 8125, "statsd.test:1|g")
+        port = get_statsd_port(agent)
+
+        assert wait_for(p(udp_port_open_locally_netstat, port)), "statsd port never opened!"
+        send_udp_message("localhost", port, "statsd.test:1|g")
 
         assert wait_for(
             p(has_datapoint_with_metric_name, agent.fake_services, "statsd.test")
@@ -41,15 +42,16 @@ def test_statsd_monitor_prefix():
         """
 monitors:
   - type: statsd
-    listenAddress: localhost
-    listenPort: 8126
+    listenPort: 0
     metricPrefix: statsd.appmesh
 """
     ) as agent:
-        assert wait_for(p(udp_port_open_locally_netstat, 8126)), "statsd port never opened!"
+        port = get_statsd_port(agent)
+
+        assert wait_for(p(udp_port_open_locally_netstat, port)), "statsd port never opened!"
         send_udp_message(
             "localhost",
-            8126,
+            port,
             "statsd.appmesh.cluster.cds_egress_ecommerce-demo-mesh_gateway-vn_tcp_8080.update_success:8|c",
         )
 
@@ -70,16 +72,17 @@ def test_statsd_monitor_conversion():
         """
 monitors:
   - type: statsd
-    listenAddress: localhost
-    listenPort: 8127
+    listenPort: 0
     converters:
     - pattern: 'cluster.cds_{traffic}_{mesh}_{service}-vn_{}.{action}'
       metricName: '{traffic}.{action}'
 """
     ) as agent:
-        assert wait_for(p(udp_port_open_locally_netstat, 8127)), "statsd port never opened!"
+        port = get_statsd_port(agent)
+
+        assert wait_for(p(udp_port_open_locally_netstat, port)), "statsd port never opened!"
         send_udp_message(
-            "localhost", 8127, "cluster.cds_egress_ecommerce-demo-mesh_gateway-vn_tcp_8080.update_success:8|c"
+            "localhost", port, "cluster.cds_egress_ecommerce-demo-mesh_gateway-vn_tcp_8080.update_success:8|c"
         )
 
         assert wait_for(

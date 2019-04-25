@@ -6,16 +6,19 @@ import subprocess
 import threading
 import time
 from contextlib import contextmanager
+from functools import partial as p
 from typing import Dict, List
 
 import docker
 import netifaces as ni
 import yaml
 
+from tests.helpers.assertions import regex_search_matches_output
 from tests.paths import TEST_SERVICES_DIR, SELFDESCRIBE_JSON
 
 DEFAULT_TIMEOUT = os.environ.get("DEFAULT_TIMEOUT", 30)
 DOCKER_API_VERSION = "1.34"
+STATSD_RE = re.compile(r"SignalFx StatsD monitor: Listening on host & port udp:\[::\]:([0-9]*)")
 
 
 def get_docker_client():
@@ -226,3 +229,12 @@ def retry(function, exception, max_attempts=5, interval_seconds=5):
         except exception as e:
             assert attempt < (max_attempts - 1), "%s failed after %d attempts!\n%s" % (function, max_attempts, str(e))
         time.sleep(interval_seconds)
+
+
+def get_statsd_port(agent):
+    """
+    Discover an open port of running StatsD monitor
+    """
+    assert wait_for(p(regex_search_matches_output, agent.get_output, STATSD_RE.search))
+    regex_results = STATSD_RE.search(agent.output)
+    return int(regex_results.groups()[0])
