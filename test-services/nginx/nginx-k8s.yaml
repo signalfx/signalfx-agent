@@ -28,6 +28,8 @@ spec:
       app: nginx
   template:
     metadata:
+      annotations:
+        allowScraping: "true"
       labels:
         app: nginx
     spec:
