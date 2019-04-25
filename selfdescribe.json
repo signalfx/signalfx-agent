@@ -1118,7 +1118,7 @@
       "monitorType": "collectd/activemq",
       "sendAll": false,
       "dimensions": null,
-      "doc": "Monitors Apache ActiveMQ via the collectd\nGenericJMX plugin.\n",
+      "doc": "SignalFx's integration with ActiveMQ wraps the [Collectd GenericJMX\nmonitor](https://docs.signalfx.com/en/latest/integrations/agent/monitors/collectd-genericjmx.html)\nto monitor ActiveMQ.\n\nUse this monitor to gather the following types of information from ActiveMQ:\n\n* Broker (Totals per broker)\n* Queue (Queue status)\n* Topic (Topic status)\n\nFor more information on the built-in content available for this\nintegration, see [the integration docs](https://docs.signalfx.com/en/latest/integrations/integrations-reference/integrations.activemq.html).\n\nTo monitor the age of messages inside ActiveMQ queues, see [ActiveMQ\nmessage age listener](https://github.com/signalfx/integrations/tree/master/amq-message-age).\n\n## Example config\n\n```yaml\nmonitors:\n - type: collectd/activemq\n   host: localhost\n   # This is the remote JMX port for ActiveMQ\n   port: 1099\n```\n",
       "groups": null,
       "metrics": {
         "counter.amq.TotalConnectionsCount": {
