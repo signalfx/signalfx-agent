@@ -43,6 +43,7 @@ for more information.
 See the [ECS directory](/deployments/ecs), which includes a sample
 config and task definition for the agent.
 
+
 ### Packages
 We offer the agent in the following packages:
 
