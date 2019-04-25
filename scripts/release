@@ -27,6 +27,7 @@ parse_args_and_release() {
   local build_rpm_package=no
   local build_bundle=no
   local build_deployments=no
+  local build_pypi=no
   local push_windows=no
   local force=no
   local allow_uncommitted=no
@@ -83,6 +84,7 @@ parse_args_and_release() {
           bundle) build_bundle=yes build_all=no ;;
           deployments) build_deployments=yes build_all=no ;;
           windows) push_windows=yes build_all=no ;;
+          pypi) build_pypi=yes build_all=no ;;
           *) echo "component "$1" not recognized, quitting" >&2 && exit 1 ;;
         esac
         shift 1
@@ -163,6 +165,13 @@ parse_args_and_release() {
   # versions in the master branch that haven't been released.
   if [[ "$stage" == "final" ]] && ([[ "$build_deployments" == "yes" ]] || [[ "$build_all" == "yes" ]]); then
     update_deployment_files "$new_version" "$force"
+  fi
+
+  if [[ "$build_all" == "yes" ]] || [[ "$build_pypi" == "yes" ]]; then
+    echo "Pushing python extensions to PyPi"
+    if python_code_has_changed "$new_version"; then
+      release_python_to_pypi
+    fi
   fi
 
   echo "Successfully released $new_version"
@@ -326,6 +335,40 @@ push_windows_bundle() {
   else
     echo "Nothing to do"
   fi
+}
+
+latest_pypi_release() {
+  echo -n "curl https://pypi.org/pypi/sfxpython/json | jq -r .info.version" || true
+}
+
+python_code_has_changed() {
+  local new_version=$1
+
+  if ! git diff --exit-code v$(scripts/latest-final-release v${new_version}~) -- $SCRIPT_DIR/../python; then
+    echo "Python code changed since last release"
+
+    last_release=$(latest_pypi_release)
+    current_release=$(python $SCRIPT_DIR/../python/setup.py --version)
+
+    if [[ -n "$last_release" ]] && [[ "$last_release" == "$current_version" ]]; then
+      echo "ERROR: Python release has changed since last agent release but you didn't increment the Python release version from $current_release" >&2
+      exit 7
+    fi
+
+    echo "Last release of Python package was version $last_release"
+  else
+    echo "Python package didn't change since last release"
+    return 1
+  fi
+}
+
+release_python_to_pypi() {
+  pushd $SCRIPT_DIR/../python
+
+  python3 setup.py sdist bdist_wheel
+  python3 -m twine upload dist/*
+
+  popd
 }
 
 parse_args_and_release $@

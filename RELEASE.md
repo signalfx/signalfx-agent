@@ -37,6 +37,19 @@ point but for now the process is manual.
     standalone bundle to it as an asset.  The release script will do both of
     those things automatically.
 
+  6. Install Python tools to update the Python package in the `python/`
+     directory if it has changed since the last release:
+
+      ```sh
+      $ pip install --user keyring twine setuptools wheel
+      ```
+
+      Then set your password for Pypi by running the following command:
+
+      ```sh
+      $ keyring set https://upload.pypi.org/legacy/ your-username
+			```
+
 ## Release Process
 
  1. Make sure everything that go out in the release is in the `master` branch.
@@ -60,8 +73,8 @@ point but for now the process is manual.
     resets to 0), if not a major release (where the first # of a release
     increments and the second and third component reset to 0).  Major releases
     should be reserved for only very major breaking changes that are of high
-    value.  
-    
+    value.
+
     We roughly follow [semver](https://semver.org/), but not terribly
     strictly and with the additional consideration that we are not only
     considering an "API" but also MTSs.  For example, if you are going to make
@@ -73,7 +86,7 @@ point but for now the process is manual.
     form `v<version>` where `<version>` is that version.  E.g. a release of
     2.5.2 would need a tag `v2.5.2`.  Annotated tags are created by passing the
     `-a` flag to `git tag`:
-    
+
     ```sh
       $ git tag -a v2.5.2
     ```
@@ -87,8 +100,8 @@ point but for now the process is manual.
 
      - Did something to the agent
      - Fixed this bug
-    
-    Breaking Changes: 
+
+    Breaking Changes:
 
      - This thing won't work anymore
     ```
@@ -98,7 +111,7 @@ point but for now the process is manual.
     Then push that tag with `git push --tags`.
 
  5. Run the release script:
-    
+
     ```sh
       $ scripts/release --github-user <github username> --github-token <github token>
     ```

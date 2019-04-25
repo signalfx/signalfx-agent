@@ -461,7 +461,7 @@ jobs:
           if [ "$TARGET" = "pytest" ]; then
               pip install -q -r tests/requirements.txt
           else
-              pip install -q -e python
+              pip install --no-use-pep517 -q -e python
               pip install -q -r python/test-requirements.txt
           fi
           (make lint-$TARGET && git diff --exit-code $TARGET_DIR ) || \
