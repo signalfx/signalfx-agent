@@ -1,7 +1,11 @@
 #!/bin/bash
 
 # Determines the last release of the agent, not counting package revision
-# releases.
+# releases or betas.
+
+set -euo pipefail
+
+head=${1-}
 
 strip_v() {
 	sed -e 's/^v//' <<< $1
@@ -11,7 +15,7 @@ strip_pkg() {
   sed -Ee 's/-(deb|rpm)[0-9]+//' <<< $1
 }
 
-tag=$(git describe --abbrev=0 --match 'v[0-9]*' --exclude '*-beta*')
+tag=$(git describe --abbrev=0 --match 'v[0-9]*' --exclude '*-beta*' $head)
 
 if test -z $tag
 then
