@@ -1,211 +1,84 @@
-# SignalFx Smart Agent Quick Install
+# SignalFx Smart Agent 
 
 [![GoDoc](https://godoc.org/github.com/signalfx/signalfx-agent?status.svg)](https://godoc.org/github.com/signalfx/signalfx-agent)
 [![CircleCI](https://circleci.com/gh/signalfx/signalfx-agent.svg?style=shield)](https://circleci.com/gh/signalfx/signalfx-agent)
 
+The SignalFx Smart Agent is a metric agent written in Go for monitoring
+infrastructure and application services in a variety of different environments.
+It is meant as a successor to our previous [collectd
+agent](https://github.com/signalfx/collectd), but still uses that internally on Linux --
+so any existing Python or C-based collectd plugins will still work without
+modification.  On Windows collectd is not included, but the agent is capable of
+running python based collectd plugins without collectd.  C-based collectd plugins
+are not available on Windows.
 
+ - [Components](#components)
  - [Installation](#installation)
- - [Confirmation](#confirmation)
- - [Troubleshooting](#troubleshooting-the-installation)
- - [Next Steps](#next-steps)
- - [Other methods of Installation](#other-methods-of-installation)
- 
+
+## Components
+
+The agent has three main components:
+
+1) _Observers_ that discover applications and services running on the host
+2) _Monitors_ that collect metrics from the host and applications
+3) The _Writer_ that sends the metrics collected by monitors to SignalFx.
+
+### Observers
+
+Observers watch the various environments that we support to discover running
+services and automatically configure the agent to send metrics for those
+services.
+
+For a list of supported observers and their configurations,
+see [Observer Config](./docs/observer-config.md).
+
+### Monitors
+
+Monitors collect metrics from the host system and services.  They are
+configured under the `monitors` list in the agent config.  For
+application-specific monitors, you can define discovery rules in your monitor
+configuration. A separate monitor instance is created for each discovered
+instance of applications that match a discovery rule. See [Auto
+Discovery](./docs/auto-discovery.md) for more information.
+
+Many of the monitors are built around [collectd](https://collectd.org), an open
+source third-party monitor, and use it to collect metrics. Some other monitors
+do not use collectd. However, either type is configured in the same way.
+
+For a list of supported monitors and their configurations, 
+see [Monitor Config](./docs/monitor-config.md).
+
+The agent is primarily intended to monitor services/applications running on the
+same host as the agent.  This is in keeping with the collectd model.  The main
+issue with monitoring services on other hosts is that the `host` dimension that
+collectd sets on all metrics will currently get set to the hostname of the
+machine that the agent is running on.  This allows everything to have a
+consistent `host` dimension so that metrics can be matched to a specific
+machine during metric analysis.
+
+### Writer
+The writer collects metrics emitted by the configured monitors and sends them
+to SignalFx on a regular basis.  There are a few things that can be
+[configured](./docs/config-schema.md#writer) in the writer, but this is generally
+only necessary if you have a very large number of metrics flowing through a
+single agent.
 
 ## Installation
 
-### Single Host
+The agent is available for Linux in both a containerized and standalone form.
+Whatever form you use, the dependencies are completely bundled along with the
+agent, including a Java JRE runtime and a Python runtime, so there are no
+additional dependencies required.  This means that the agent should work on any
+relatively modern Linux distribution (kernel version 2.6+).  
 
-Your SignalFx API Token can be obtained from the Organization->Access Token tab in SignalFx.
+The agent is also available on Windows in standalone form.  It
+contains its own Python runtime, but has an external depencency on the
+[Visual C++ Compiler for Python 2.7](https://www.microsoft.com/EN-US/DOWNLOAD/DETAILS.ASPX?ID=44266)
+in order to operate.  The agent supports Windows Server 2008 and above.
 
-Certain installation statements include YOUR_SIGNALFX_REALM. If this value is not set, SignalFx assumes your organization is in the us0 realm. To determine if you are in a different realm and need to supply your realm value in those statements, check your profile page in the SignalFx web application.
+To get started installing the Smart Agent on a single host, see 
+[Smart Agent Quick Install](./docs/smart-agent-quick-install.md).
 
-The Smart Agent for Linux contains a Java JRE runtime and a Python runtime, so there are no
-additional dependency requirements. 
-
-Uninstall any existing collectd agent before installing SignalFx Smart Agent.  
-
-To install the Smart Agent on a single Linux host, enter:
-
-```sh
-curl -sSL https://dl.signalfx.com/signalfx-agent.sh > /tmp/signalfx-agent.sh
-sudo sh /tmp/signalfx-agent.sh --realm YOUR_SIGNALFX_REALM YOUR_SIGNALFX_API_TOKEN
-```
-
-The Smart Agent for Windows has these two dependencies:
-
-- [.Net Framework 3.5](https://docs.microsoft.com/en-us/dotnet/framework/install/dotnet-35-windows-10) (Windows 8+)
-- [Visual C++ Compiler for Python 2.7](https://www.microsoft.com/EN-US/DOWNLOAD/DETAILS.ASPX?ID=44266)
-
-To install the Smart Agent on a single Windows host, enter:
-
-```sh
-& {Set-ExecutionPolicy Bypass -Scope Process -Force; $script = ((New-Object System.Net.WebClient).DownloadString('https://dl.signalfx.com/signalfx-agent.ps1')); $params = @{access_token = "YOUR_SIGNALFX_API_TOKEN"}; Invoke-Command -ScriptBlock ([scriptblock]::Create(". {$script} $(&{$args} @params)"))}`
-```
-
-The agent will be installed as a Windows service and will log to the Windows Event Log.
-
-## Confirmation
-
-To confirm the SignalFx Smart Agent installation is functional, for Linux enter:
-
-```sh
-sudo signalfx-agent status
-```
-
-The response you will see is --
-
-To confirm the SignalFx Smart Agent installation is functional, for Windows enter:
-
-```sh
-something
-```
-
-The response you will see is ---
-
-__Now login to SignalFx to see your data!__
-
-## Troubleshooting the Installation
-
-To troubleshoot the Linux installation -- 
-
-To troubleshoot the Windows installation -- 
-
-###Realm
-
-By default, the Smart Agent will send data to the us0 realm. If you are not in this realm, you will need to explicitly set the signalFxRealm option in your config like this:
-```sh
-signalFxRealm: YOUR_SIGNALFX_REALM
-```
-To determine if you are in a different realm and need to explicitly set the endpoints, check your profile page in the SignalFx web application.
-
-## Next Steps
-
-To install Smart Agent on multiple hosts using configuration management tools or packages, go to the [Integrations page](https://app.signalfx.com/#/integrations), and then click the icon of the tool you want to use. 
-
-Additional information on configuration management tools and package installations is [here](/docs/smart-agent-next-steps.md).
-
-To configure monitors to use with Smart Agent in your environment, go to [Monitor Configuration](https://docs.signalfx.com/en/latest/integrations/agent/monitor-config.html).
-
-## Other methods of Installation
-
-### Linux Standalone tar.gz
-
-If you don't want to use a distro package, we offer a
-.tar.gz that can be deployed to the target host.  This bundle is available for
-download on the [Github Releases
-Page](https://github.com/signalfx/signalfx-agent/releases) for each new
-release.
-
-To use the bundle:
-
-1) Unarchive it to a directory of your choice on the target system.
-
-2) Ensure a valid configuration file is available somewhere on the target
-system.  The main thing that the distro packages provide -- but that you will
-have to provide manually with the bundle -- is a run directory for the agent to
-use.  Since you aren't installing from a package, there are three config 
-options that you will especially want to consider:
-
- - `internalStatusHost` - This is the host name that
-	 the agent will listen on so that the `signalfx-agent status` command can
-	 read diagnostic information from a running agent.  This is also the host name the
-	 agent will listen on to serve internal metrics about the agent.  These metrics can
-	 can be scraped by the `internal-metrics` monitor.  This will default to `localhost`
-	 if left blank.
-
- - `internalStatusPort` - This is the port that the agent will listen on so that
-	 the `signalfx-agent status` command can read diagnostic information from
-	 a running agent.  This is also the host name the agent will listen on to serve
-	 internal metrics about the agent.  These metrics can can be scraped by the
-	 `internal-metrics` monitor.  This will default to `8095`.
-
- - `collectd.configDir` - This is where the agent writes the managed collectd
-	 config, since collectd can only be configured by files.  Note that **this
-	 entire dir will be wiped by the agent upon startup** so that it doesn't
-	 pick up stale collectd config, so be sure that it is not used for anything
-	 else.  Also note that **these files could have sensitive information in
-	 them** if you have passwords configured for collectd monitors, so you
-	 might want to place this dir on a `tmpfs` mount to avoid credentials 
-	 persisting on disk.
-
-When using the [host observer](./docs/observers/host.md), the agent requires
-the [Linux
-capabilities](http://man7.org/linux/man-pages/man7/capabilities.7.html)
-`DAC_READ_SEARCH` and `SYS_PTRACE`, both of which are necessary to allow the
-agent to determine which processes are listening on network ports on the host.
-Otherwise, there is nothing built into the agent that requires privileges.
-When using a package to install the agent, the agent binary is given those
-capabilities in the package post-install script, but the agent is run as the
-`signalfx-agent` user.  If you are not using the `host` observer, then you can
-strip those capabilities from the agent binary if desired.
-
-You should generally not run the agent as `root` unless you can't use
-capabilities for some reason.
-
-3) Run the agent by invoking the archive path
-`signalfx-agent/bin/signalfx-agent -config <path to config.yaml>`.  By default,
-the agent logs only to stdout/err. If you want to persist logs, you must direct
-the output to a log file or other log management system.  See the
-[signalfx-agent command](./docs/signalfx-agent.1.man) doc for more information on
-supported command flags.
-
-### Windows Standalone .zip
-If you don't want to use the installer script, we offer a
-.zip that can be deployed to the target host.  This bundle is available for
-download on the [Github Releases
-Page](https://github.com/signalfx/signalfx-agent/releases) for each new
-release.
-
-Before proceeding make sure the following requirements are met.
-- [.Net Framework 3.5](https://docs.microsoft.com/en-us/dotnet/framework/install/dotnet-35-windows-10) (Windows 8+)
-- [Visual C++ Compiler for Python 2.7](https://www.microsoft.com/EN-US/DOWNLOAD/DETAILS.ASPX?ID=44266)
-
-On Windows the agent must be installed and run under an administrator account. To use the bundle:
-
-1) Unzip it to a directory of your choice on the target system.
-
-2) Ensure a valid configuration file is available somewhere on the target
-system.  The main thing that the installer script provides -- but that you will
-have to provide manually with the bundle -- is a run directory for the agent to
-use.  Since you aren't installing from a package, there are two config
-options that you will especially want to consider:
-
- - `internalStatusHost` - This is the host name that
-	 the agent will listen on so that the `signalfx-agent status` command can
-	 read diagnostic information from a running agent.  This is also the host name the
-	 agent will listen on to serve internal metrics about the agent.  These metrics can
-	 can be scraped by the `internal-metrics` monitor.  This will default to `localhost`
-	 if left blank.
-
- - `internalStatusPort` - This is the port that the agent will listen on so that
-	 the `signalfx-agent status` command can read diagnostic information from
-	 a running agent.  This is also the host name the agent will listen on to serve
-	 internal metrics about the agent.  These metrics can can be scraped by the
-	 `internal-metrics` monitor.  This will default to `8095`.
-
-3) Run the agent by invoking the agent executable
-`SignalFxAgent\bin\signalfx-agent.exe -config <path to config.yaml>`.  By default,
-the agent logs only to stdout/err. If you want to persist logs, you must direct
-the output to a log file or other log management system.  See the
-[signalfx-agent command](./docs/signalfx-agent.1.man) doc for more information on
-supported command flags.
-
-4) You may optionally install the agent as a Windows service by invoking the
-agent executable and specifying a few command line flags.  The examples below
-show how to do install and start the agent as a Windows service.
-
-- Install Service
-
-		PS> SignalFx\SignalFxAgent\bin\signalfx-agent.exe -service "install" -logEvents -config <path to config file>
-
-- Start Service
-
-		PS> SignalFx\SignalFxAgent\bin\signalfx-agent.exe -service "start"
-
-
-
-
-
-
+To install Smart Agent on multiple hosts using bundles or packages, see [Smart Agent Next Steps](./docs/smart-agent_next_steps.md)
 
 
