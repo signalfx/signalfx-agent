@@ -18,6 +18,8 @@ K8S_SUPPORTED_OBSERVERS = ["k8s-api", "k8s-kubelet"]
 K8S_DEFAULT_OBSERVERS = K8S_SUPPORTED_OBSERVERS
 K8S_SFX_AGENT_BUILD_TIMEOUT = int(os.environ.get("K8S_SFX_AGENT_BUILD_TIMEOUT", 600))
 
+pytest.register_assert_rewrite("tests.helpers.verify")
+
 
 # pylint: disable=line-too-long
 def pytest_addoption(parser):

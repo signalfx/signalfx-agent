@@ -2,6 +2,7 @@ package elasticsearch
 
 import (
 	"fmt"
+
 	"github.com/signalfx/signalfx-agent/internal/core/config"
 	"github.com/signalfx/signalfx-agent/internal/monitors/collectd"
 

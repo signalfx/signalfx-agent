@@ -40,9 +40,10 @@ func TestIncludedMetrics(t *testing.T) {
 	} else {
 		// All included metrics should be sent.
 		for metric := range exhaustiveMetadata.IncludedMetrics {
+			localMetric := metric
 			t.Run(fmt.Sprintf("included metric %s should send", metric), func(t *testing.T) {
 				dp := &datapoint.Datapoint{
-					Metric:     metric,
+					Metric:     localMetric,
 					MetricType: datapoint.Counter,
 				}
 				if !filter.Matches(dp) {
@@ -57,10 +58,8 @@ func TestExtraMetrics(t *testing.T) {
 	t.Run("user specifies already-included metric", func(t *testing.T) {
 		if filter, err := newMetricsFilter(exhaustiveMetadata, []string{"cpu.idle"}, nil); err != nil {
 			t.Error(err)
-		} else {
-			if filter.extraMetrics["cpu.idle"] {
-				t.Error("cpu.idle should not have been in additional metrics because it is already included")
-			}
+		} else if filter.extraMetrics["cpu.idle"] {
+			t.Error("cpu.idle should not have been in additional metrics because it is already included")
 		}
 	})
 
@@ -168,7 +167,9 @@ func Test_newExtraMetricsFilter(t *testing.T) {
 		{"metric glob doesn't match any metric", args{exhaustiveMetadata, []string{"unknown-metric.*"}, nil}, false},
 		{"metric does not exist", args{nonexhaustiveMetadata, []string{"unknown-metric"}, nil}, false},
 	}
-	for _, tt := range tests {
+	for _, test := range tests {
+		tt := test
+
 		t.Run(tt.name, func(t *testing.T) {
 			_, err := newMetricsFilter(tt.args.metadata, tt.args.extraMetrics, tt.args.extraGroups)
 			if (err != nil) != tt.wantErr {

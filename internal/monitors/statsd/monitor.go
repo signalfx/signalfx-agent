@@ -24,7 +24,7 @@ var metricTypeMap = map[string]datapoint.MetricType{
 var logger = utils.NewThrottledLogger(log.WithFields(log.Fields{"monitorType": monitorMetadata.MonitorType}), 30*time.Second)
 
 func init() {
-	monitors.Register(monitorMetadata.MonitorType, func() interface{} { return &Monitor{} }, &Config{})
+	monitors.Register(&monitorMetadata, func() interface{} { return &Monitor{} }, &Config{})
 }
 
 // ConverterInput is to receive configs to setup metric converters
