@@ -171,6 +171,7 @@ The **nested** `logging` config object has the following fields:
 | Config option | Required | Type | Description |
 | --- | --- | --- | --- |
 | `level` | no | string | Valid levels include `debug`, `info`, `warn`, `error`.  Note that `debug` logging may leak sensitive configuration (e.g. passwords) to the agent output. (**default:** `"info"`) |
+| `format` | no | string | The log output format to use.  Valid values are: `text`, `json`. (**default:** `"text"`) |
 
 
 
@@ -398,6 +399,7 @@ where applicable:
     maxTraceSpansInFlight: 100000
   logging: 
     level: "info"
+    format: "text"
   collectd: 
     disableCollectd: false
     timeout: 40

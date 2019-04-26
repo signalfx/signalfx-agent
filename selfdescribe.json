@@ -30086,6 +30086,14 @@
               "required": false,
               "type": "string",
               "elementKind": ""
+            },
+            {
+              "yamlName": "format",
+              "doc": "The log output format to use.  Valid values are: `text`, `json`.",
+              "default": "text",
+              "required": false,
+              "type": "string",
+              "elementKind": ""
             }
           ]
         }

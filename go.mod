@@ -53,8 +53,8 @@ require (
 	github.com/go-ldap/ldap v3.0.2+incompatible // indirect
 	github.com/go-logfmt/logfmt v0.4.0 // indirect
 	github.com/go-ole/go-ole v1.2.1 // indirect
-	github.com/go-playground/locales v0.11.2 // indirect
-	github.com/go-playground/universal-translator v0.16.0 // indirect
+	github.com/go-playground/locales v0.11.2
+	github.com/go-playground/universal-translator v0.16.0
 	github.com/go-sql-driver/mysql v1.4.1
 	github.com/go-stack/stack v1.8.0 // indirect
 	github.com/go-stomp/stomp v2.0.2+incompatible // indirect
@@ -112,6 +112,7 @@ require (
 	github.com/keybase/go-crypto v0.0.0-20190312101036-b475f2ecc1fe // indirect
 	github.com/konsorten/go-windows-terminal-sequences v1.0.2 // indirect
 	github.com/kr/pretty v0.1.0
+	github.com/leodido/go-urn v1.1.0 // indirect
 	github.com/lib/pq v1.0.0
 	github.com/mailru/easyjson v0.0.0-20180606163543-3fdea8d05856
 	github.com/mattbaird/elastigo v0.0.0-20170123220020-2fe47fd29e4b // indirect
@@ -172,7 +173,7 @@ require (
 	gopkg.in/asn1-ber.v1 v1.0.0-20181015200546-f715ec2f112d // indirect
 	gopkg.in/fatih/set.v0 v0.1.0
 	gopkg.in/go-playground/assert.v1 v1.2.1 // indirect
-	gopkg.in/go-playground/validator.v9 v9.9.4
+	gopkg.in/go-playground/validator.v9 v9.28.0
 	gopkg.in/gorethink/gorethink.v4 v4.1.0 // indirect
 	gopkg.in/ini.v1 v1.42.0 // indirect
 	gopkg.in/logfmt.v0 v0.1.0 // indirect

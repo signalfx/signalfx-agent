@@ -5,8 +5,11 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/go-playground/locales/en"
+	ut "github.com/go-playground/universal-translator"
 	"github.com/signalfx/signalfx-agent/internal/utils"
 	validator "gopkg.in/go-playground/validator.v9"
+	en_translations "gopkg.in/go-playground/validator.v9/translations/en"
 )
 
 // Validatable should be implemented by config structs that want to provide
@@ -28,14 +31,19 @@ func ValidateCustomConfig(conf interface{}) error {
 
 // ValidateStruct uses the `validate` struct tags to do standard validation
 func ValidateStruct(confStruct interface{}) error {
+	en := en.New()
+	uni := ut.New(en, en)
+	trans, _ := uni.GetTranslator("en")
+
 	validate := validator.New()
+	validate.RegisterTagNameFunc(utils.YAMLNameOfField)
+	_ = en_translations.RegisterDefaultTranslations(validate, trans)
 	err := validate.Struct(confStruct)
 	if err != nil {
 		if ves, ok := err.(validator.ValidationErrors); ok {
 			var msgs []string
 			for _, e := range ves {
-				fieldName := utils.YAMLNameOfFieldInStruct(e.Field(), confStruct)
-				msgs = append(msgs, fmt.Sprintf("Validation error in field '%s': %s", fieldName, e.Tag()))
+				msgs = append(msgs, fmt.Sprintf("Validation error in field '%s': %s (got '%v')", e.Namespace(), e.Translate(trans), e.Value()))
 			}
 			return errors.New(strings.Join(msgs, "; "))
 		}
