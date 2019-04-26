@@ -58,6 +58,9 @@ func (c *Config) GetExtraMetrics() []string {
 	if c.ValuesPercentage {
 		extraMetrics = append(extraMetrics, groupMetricsMap[groupValuesPercentage]...)
 	}
+	if c.ReportInodes && c.ValuesPercentage {
+		extraMetrics = append(extraMetrics, []string{percentInodesFree, percentInodesReserved, percentInodesUsed}...)
+	}
 	return extraMetrics
 }
 
