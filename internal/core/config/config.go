@@ -16,6 +16,7 @@ import (
 	"github.com/pkg/errors"
 	"github.com/signalfx/signalfx-agent/internal/core/common/constants"
 	"github.com/signalfx/signalfx-agent/internal/core/config/sources"
+	"github.com/signalfx/signalfx-agent/internal/core/config/validation"
 	"github.com/signalfx/signalfx-agent/internal/utils"
 	"github.com/signalfx/signalfx-agent/internal/utils/hostfs"
 	log "github.com/sirupsen/logrus"
@@ -195,6 +196,10 @@ func (c *Config) setupEnvironment() {
 
 // Validate everything that we can about the main config
 func (c *Config) validate() error {
+	if err := validation.ValidateStruct(c); err != nil {
+		return err
+	}
+
 	if _, err := url.Parse(c.IngestURL); err != nil {
 		return errors.WithMessage(err, fmt.Sprintf("%s is not a valid ingest URL", c.IngestURL))
 	}
@@ -251,6 +256,8 @@ type LogConfig struct {
 	// `debug` logging may leak sensitive configuration (e.g. passwords) to the
 	// agent output.
 	Level string `yaml:"level" default:"info"`
+	// The log output format to use.  Valid values are: `text`, `json`.
+	Format string `yaml:"format" validate:"oneof=text json" default:"text"`
 	// TODO: Support log file output and other log targets
 }
 
@@ -268,6 +275,16 @@ func (lc *LogConfig) LogrusLevel() *log.Level {
 		return &level
 	}
 	return nil
+}
+
+// LogrusFormatter returns the formatter to use based on the config
+func (lc *LogConfig) LogrusFormatter() log.Formatter {
+	switch lc.Format {
+	case "json":
+		return &log.JSONFormatter{}
+	default:
+		return &log.TextFormatter{}
+	}
 }
 
 var validCollectdLogLevels = set.NewNonTS("debug", "info", "notice", "warning", "err")
