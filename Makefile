@@ -177,7 +177,7 @@ run-integration-tests:
 
 .PHONY: run-k8s-tests
 run-k8s-tests: MARKERS ?= (kubernetes or helm) and not collectd
-run-k8s-tests:
+run-k8s-tests: run-minikube push-minikube-agent
 	pytest \
 		-m "$(MARKERS)" \
 		-n auto \
@@ -185,7 +185,7 @@ run-k8s-tests:
 		--exitfirst \
 		--html=test_output/k8s_results.html \
 		--self-contained-html \
-		tests || \
+		tests
 
 K8S_VERSION ?= latest
 MINIKUBE_VERSION ?= $(shell scripts/determine-compatible-minikube.py $(K8S_VERSION))
