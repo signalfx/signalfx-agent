@@ -86,7 +86,7 @@ type dockerContainer struct {
 func (m *Monitor) Configure(conf *Config) error {
 	m.logger = logrus.WithFields(logrus.Fields{"monitorType": monitorType})
 
-	enhancedMetricsConfig := EnableExtraGroups(conf.EnhancedMetricsConfig, conf.ExtraGroups, conf.ExtraMetrics)
+	enhancedMetricsConfig := EnableExtraGroups(conf.EnhancedMetricsConfig, conf.EnabledMetrics)
 
 	defaultHeaders := map[string]string{"User-Agent": "signalfx-agent"}
 
@@ -224,20 +224,17 @@ func parseContainerEnvSlice(env []string) map[string]string {
 
 // EnableExtraGroups enables extra metrics that were individually turned on
 // by ExtraMetrics/ExtraGroups configuration
-func EnableExtraGroups(initConf EnhancedMetricsConfig, extraGroups, extraMetrics []string) EnhancedMetricsConfig {
+func EnableExtraGroups(initConf EnhancedMetricsConfig, enabledMetrics []string) EnhancedMetricsConfig {
 	groupEnableMap := map[string]bool{
-		groupBlkio: initConf.EnableExtraBlockIOMetrics,
-		groupCPU: initConf.EnableExtraCPUMetrics,
-		groupMemory: initConf.EnableExtraMemoryMetrics,
+		groupBlkio:   initConf.EnableExtraBlockIOMetrics,
+		groupCPU:     initConf.EnableExtraCPUMetrics,
+		groupMemory:  initConf.EnableExtraMemoryMetrics,
 		groupNetwork: initConf.EnableExtraNetworkMetrics,
 	}
 
-	for _, group := range extraGroups {
-		groupEnableMap[group] = true
-	}
-	for _, metric := range extraMetrics {
-		if metricSet[metric].Group != "" {
-			groupEnableMap[metricSet[metric].Group] = true
+	for _, metric := range enabledMetrics {
+		if metricInfo, ok := metricSet[metric]; ok {
+			groupEnableMap[metricInfo.Group] = true
 		}
 	}
 

@@ -77,6 +77,7 @@ type MonitorConfig struct {
 	BundleDir       string          `yaml:"-" json:"-"`
 	ValidationError string          `yaml:"-" json:"-" hash:"ignore"`
 	MonitorID       types.MonitorID `yaml:"-" hash:"ignore"`
+	EnabledMetrics  []string        `yaml:"-" json:"-" hash:"ignore"`
 }
 
 var _ CustomConfigurable = &MonitorConfig{}
