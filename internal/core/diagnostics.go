@@ -186,17 +186,17 @@ func (a *Agent) datapointTapHandler(rw http.ResponseWriter, req *http.Request) {
 		}
 	}
 
+	var filter dpfilters.DatapointFilter
 	if metricFilter == nil && dimFilter == nil {
-		rw.WriteHeader(400)
-		_, _ = rw.Write([]byte("must specify at least one of 'metric', 'dims'\n"))
-		return
-	}
-
-	filter, err := dpfilters.NewOverridable(metricFilter, dimFilter)
-	if err != nil {
-		rw.WriteHeader(400)
-		_, _ = rw.Write([]byte("could not make filter: " + err.Error()))
-		return
+		filter = &dpfilters.AlwaysMatchFilter{}
+	} else {
+		var err error
+		filter, err = dpfilters.NewOverridable(metricFilter, dimFilter)
+		if err != nil {
+			rw.WriteHeader(400)
+			_, _ = rw.Write([]byte("could not make filter: " + err.Error()))
+			return
+		}
 	}
 
 	rw.WriteHeader(200)
