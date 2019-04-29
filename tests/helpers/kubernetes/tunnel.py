@@ -1,3 +1,4 @@
+import os
 import subprocess
 from contextlib import contextmanager
 from functools import partial as p
@@ -48,6 +49,7 @@ def start_tunneling_fake_service(local_host, local_port, namespace, kube_config_
             "LOCAL_PORT": str(local_port),
             "REMOTE_PORT": str(local_port),
             "NAMESPACE": namespace,
+            "PATH": os.environ.get("PATH"),
         },
         stdout=subprocess.PIPE,
         stderr=subprocess.STDOUT,
