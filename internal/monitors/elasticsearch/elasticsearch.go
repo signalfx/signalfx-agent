@@ -31,6 +31,17 @@ type Config struct {
 	// will override the cluster name fetched from a node and will be used to
 	// populate the plugin_instance dimension
 	Cluster string `yaml:"cluster"`
+	// Enable Index stats. If set to true, by default the a subset of index
+	// stats will be collected (see docs for list of default index metrics collected).
+	EnableIndexStats *bool `yaml:"enableIndexStats" default:"true"`
+	// Indexes to collect stats from (by default stats from all indexes are collected)
+	Indexes []string `yaml:"indexes"`
+	// Interval to report IndexStats on
+	IndexStatsIntervalSeconds int `yaml:"indexStatsIntervalSeconds" default:"60"`
+	// Collect only aggregated index stats across all indexes
+	IndexSummaryOnly bool `yaml:"indexSummaryOnly"`
+	// Collect index stats only from Master node
+	IndexStatsMasterOnly *bool `yaml:"indexStatsMasterOnly" default:"true"`
 	// EnableClusterHealth enables reporting on the cluster health
 	EnableClusterHealth *bool `yaml:"enableClusterHealth" default:"true"`
 	// Whether or not non master nodes should report cluster health
@@ -52,17 +63,6 @@ type Config struct {
 	ThreadPools []string `yaml:"threadPools" default:"[\"search\", \"index\"]"`
 	// Enable Cluster level stats. These stats report only from master Elasticserach nodes
 	EnableEnhancedClusterHealthStats bool `yaml:"enableEnhancedClusterHealthStats"`
-	// Interval to report IndexStats on
-	IndexStatsIntervalSeconds int `yaml:"indexStatsIntervalSeconds" default:"60"`
-	// Collect only aggregated index stats across all indexes
-	IndexSummaryOnly bool `yaml:"indexSummaryOnly"`
-	// Collect index stats only from Master node
-	IndexStatsMasterOnly *bool `yaml:"indexStatsMasterOnly" default:"true"`
-	// Enable Index stats. If set to true, by default the a subset of index
-	// stats will be collected (see docs for list of default index metrics collected).
-	EnableIndexStats *bool `yaml:"enableIndexStats" default:"true"`
-	// Indexes to collect stats from (by default stats from all indexes are collected)
-	Indexes []string `yaml:"indexes"`
 	// Enable enhanced index level index stats groups. A list of index stats groups
 	// for which to collect enhanced stats
 	EnableEnhancedIndexStatsForIndexGroups []string `yaml:"enableEnhancedIndexStatsForIndexGroups"`
