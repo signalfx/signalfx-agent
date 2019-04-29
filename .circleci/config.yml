@@ -133,17 +133,15 @@ commands:
         default: v1.14.0
     steps:
       - restore_cache:
-          key: "v1-kubectl-binary-<< parameters.version >>"
+          key: "v2-kubectl-binary-<< parameters.version >>"
       - run:
           name: Install Kubectl
           command: |
             [[ -f /home/circleci/bin/kubectl ]] && exit 0
-            cd /tmp
-            curl -LO https://storage.googleapis.com/kubernetes-release/release/<< parameters.version >>/bin/linux/amd64/kubectl
-            chmod +x ./kubectl
-            sudo mv ./kubectl /home/circleci/bin/kubectl
+            wget -O /home/circleci/bin/kubectl https://storage.googleapis.com/kubernetes-release/release/<< parameters.version >>/bin/linux/amd64/kubectl
+            chmod a+x /home/circleci/bin/kubectl
       - save_cache:
-          key: "v1-kubectl-binary-<< parameters.version >>"
+          key: "v2-kubectl-binary-<< parameters.version >>"
           paths:
             - /home/circleci/bin/kubectl
 
