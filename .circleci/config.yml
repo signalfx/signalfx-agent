@@ -137,15 +137,15 @@ commands:
       - run:
           name: Install Kubectl
           command: |
-            [[ -f /usr/local/bin/kubectl ]] && exit 0
+            [[ -f /home/circleci/bin/kubectl ]] && exit 0
             cd /tmp
             curl -LO https://storage.googleapis.com/kubernetes-release/release/<< parameters.version >>/bin/linux/amd64/kubectl
             chmod +x ./kubectl
-            sudo mv ./kubectl /usr/local/bin/kubectl
+            sudo mv ./kubectl /home/circleci/bin/kubectl
       - save_cache:
           key: "v1-kubectl-binary-<< parameters.version >>"
           paths:
-            - /usr/local/bin/kubectl
+            - /home/circleci/bin/kubectl
 
   install_helm:
     parameters:
@@ -158,15 +158,15 @@ commands:
       - run:
           name: Install Helm
           command: |
-            [[ -f /usr/local/bin/helm ]] && exit 0
+            [[ -f /home/circleci/bin/helm ]] && exit 0
             wget -O /tmp/helm.tar.gz https://storage.googleapis.com/kubernetes-helm/helm-<< parameters.version >>-linux-amd64.tar.gz
-            tar -zxvf /tmp/helm.tar.gz
-            mv /tmp/linux-amd64/helm /usr/local/bin/helm
-            chmod a+x /usr/local/bin/helm
+            tar -zxvf /tmp/helm.tar.gz -C /tmp
+            mv /tmp/linux-amd64/helm /home/circleci/bin/helm
+            chmod a+x /home/circleci/bin/helm
       - save_cache:
           key: "v1-helm-binary-<< parameters.version >>"
           paths:
-            - /usr/local/bin/helm
+            - /home/circleci/bin/helm
 jobs:
   build:
     executor: docker1809
@@ -331,7 +331,8 @@ jobs:
             fi
 
             make run-minikube
-      - install_kubectl
+      - install_kubectl:
+          version: "<< parameters.k8s_version >>"
       - install_helm
       - import_image
       - run:

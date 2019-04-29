@@ -17,6 +17,8 @@ function cleanup {
 }
 trap cleanup EXIT
 
+chmod 400 $SCRIPT_DIR/id_rsa
+
 while true; do
   kubectl $context_flag --namespace $NAMESPACE port-forward pod/fake-backend :22 > $out_file &
 
