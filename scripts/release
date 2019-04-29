@@ -272,7 +272,7 @@ update_floating_docker_tags() {
   local new_image="$2"
   local image_base="$3"
 
-  major_version=$(echo -n "$new_version" | head -c1)
+  major_version=$(echo -n "$new_version" | cut -d. -f1)
   floating_tag="$image_base:$major_version"
   docker tag "$new_image" "$floating_tag"
   docker push $floating_tag
