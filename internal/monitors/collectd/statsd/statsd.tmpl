@@ -8,6 +8,7 @@ LoadPlugin "statsd"
   {{if .DeleteGauges}}DeleteGauges true{{end}}
   {{with .TimerPercentile}}TimerPercentile {{.}}{{end}}
   {{if .TimerUpper}}TimerUpper true{{end}}
+  {{if .TimerCount}}TimerCount true{{end}}
   {{if .TimerSum}}TimerSum true{{end}}
   {{if .TimerLower}}TimerLower true{{end}}
   {{if .CounterSum }}CounterSum true{{end}}
