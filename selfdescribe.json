@@ -14871,7 +14871,7 @@
           "description": "Name of thread pool (only on thread pool mertics)"
         }
       },
-      "doc": "This monitor collects stats from Elasticsearch. It collects node, cluster\nand index level stats. This monitor is compatible with the current collectd\nplugin found [here] (https://github.com/signalfx/collectd-elasticsearch) in\nterms of metric naming.\n\nThis monitor collects cluster level and index level stats only from the current master\nin an Elasticsearch cluster by default. It is possible to override this with the\n`clusterHealthStatsMasterOnly` and `indexStatsMasterOnly` config options respectively.\n\nA simple configuration that collects only default metrics looks like the following\n\n```\nmonitors:\n- type: elasticsearch\n host: localhost\n port: 9200\n```\n\nBy default thread pool stats from \"search\" and \"index\" thread pools are collected. To collect\nstats from other thread pools follow the below pattern.\n\n```\nmonitors:\n- type: elasticsearch\n host: localhost\n port: 9200\n threadPools:\n\t- bulk\n\t- warmer\n\t- listener\n```\nThe monitor collects a subset of node stats of JVM, process, HTTP, transport, indices and thread\npool stats. It is possible to enable enhanced stats for each group separately. Here's an example:\n\n```\nmonitors:\n- type: elasticsearch\n host: localhost\n port: 9200\n enableEnhancedHTTPStats: true\n enableEnhancedJVMStats: true\n enableEnhancedProcessStats: true\n enableEnhancedThreadPoolStats: true\n enableEnhancedTransportStats: true\n enableEnhancedNodeIndicesStats:\n\t- indexing\n\t- warmer\n - get\n```\n\nThe `enableEnhancedNodeIndicesStats` option takes a list of index stats groups for which enhanced\nstats will be collected. A comprehensive list of all available such groups can be found\n[here] (https://www.elastic.co/guide/en/elasticsearch/reference/current/cluster-nodes-stats.html#node-indices-stats).\n\nNote that the `enableEnhancedIndexStatsForIndexGroups` is similar to `enableEnhancedNodeIndicesStats`,\nbut for index level stats\n\nBy default the monitor collects a subset of index stats of total aggregation type (see docs for details).\nIt is possible to enable index stats of primaries aggregation type too. Total for an index stat\naggregates across all shards. Whereas, Primaries only reflect the stats from primary shards. An example\nconfiguration to enable index stats from Primary shards too\n\n```\nmonitors:\n- type: elasticsearch\n host: localhost\n port: 9200\n enableIndexStatsPrimaries: true\n```\n\nIt is possible to collect index level stats that are aggregated across all indexes, rather than one a per index level\n\n```\nmonitors:\n- type: elasticsearch\n host: localhost\n port: 9200\n IndexSummaryOnly: true\n```\n",
+      "doc": "This monitor collects stats from Elasticsearch. It collects node, cluster\nand index level stats. This monitor is compatible with the current collectd\nplugin found [here] (https://github.com/signalfx/collectd-elasticsearch) in\nterms of metric naming.\n\nThis monitor collects cluster level and index level stats only from the current master\nin an Elasticsearch cluster by default. It is possible to override this with the\n`clusterHealthStatsMasterOnly` and `indexStatsMasterOnly` config options respectively.\n\nA simple configuration that collects only default (non-custom) metrics\nlooks like the following:\n\n```yaml\nmonitors:\n- type: elasticsearch\n  host: localhost\n  port: 9200\n```\n\n## Enhanced (custom) metrics\n\nThe monitor collects a subset of node stats of JVM, process, HTTP,\ntransport, indices and thread pool stats. It is possible to enable\nenhanced stats for each stat group separately.  Note that these metrics\nget categorized under the _custom_ group if you are on host-based\npricing. Here's an example:\n\n```yaml\nmonitors:\n- type: elasticsearch\n  host: localhost\n  port: 9200\n  enableEnhancedHTTPStats: true\n  enableEnhancedJVMStats: true\n  enableEnhancedProcessStats: true\n  enableEnhancedThreadPoolStats: true\n  enableEnhancedTransportStats: true\n  enableEnhancedNodeIndicesStats:\n   - indexing\n   - warmer\n   - get\n\n```\n\nThe `enableEnhancedNodeIndicesStats` option takes a list of index stats groups\nfor which enhanced stats will be collected. A comprehensive list of all\nsuch available groups can be found [here](https://www.elastic.co/guide/en/elasticsearch/reference/current/cluster-nodes-stats.html#node-indices-stats).\n\nNote that the `enableEnhancedIndexStatsForIndexGroups` is similar to\n`enableEnhancedNodeIndicesStats`, but for index level stats.\n\n## Thread Pools\n\nBy default thread pool stats from the \"search\" and \"index\" thread pools are collected. To collect\nstats from other thread pools specify the `threadPools` config option:\n\n```yaml\nmonitors:\n- type: elasticsearch\n  host: localhost\n  port: 9200\n  threadPools:\n  - bulk\n  - warmer\n  - listener\n```\n\nHere is a list of valid thread pools by Elasticsearch version:\n\n| thread pool name | ES 1.x | ES 2.0 | ES 2.1+ |\n|------------------|--------|--------|--------|\n| merge            | \u0026#x2713;      |        |        |\n| optimize         |\u0026#x2713;     |        |        |\n| bulk             |\u0026#x2713;     |\u0026#x2713;     |\u0026#x2713;     |\n| flush            |\u0026#x2713;     |\u0026#x2713;     |\u0026#x2713;     |\n| generic          |\u0026#x2713;     |\u0026#x2713;     |\u0026#x2713;     |\n| get              |\u0026#x2713;     |\u0026#x2713;     |\u0026#x2713;     |\n| snapshot         |\u0026#x2713;     |\u0026#x2713;     |\u0026#x2713;     |\n| warmer           |\u0026#x2713;     |\u0026#x2713;     |\u0026#x2713;     |\n| refresh          |\u0026#x2713;     |\u0026#x2713;     |\u0026#x2713;     |\n| fetch\\_shard\\_started|      |\u0026#x2713;     |\u0026#x2713;     |\n| fetch\\_shard\\_store|        |\u0026#x2713;     |\u0026#x2713;     |\n| listener         |        |\u0026#x2713;     |\u0026#x2713;     |\n| management       |        |\u0026#x2713;     |\u0026#x2713;     |\n| percolate        |        |\u0026#x2713;     |\u0026#x2713;     |\n| suggest          |        |\u0026#x2713;     |\u0026#x2713;     |\n| force\\_merge      |        |        |\u0026#x2713;     |\n\n\n## Collecting index statistics\n\nBy default, the configuration parameter `indexes` is empty, which means\ncollect stats on all indexes. To collect statistics from a subset of\nindexes, set the configuration parameter `indexes` to a list of the index\nnames you want to collect stats for.\n\nThe call to collect index statistics can be CPU-intensive. For this reason\nSignalFx recommends using the `indexStatsIntervalSeconds` configuration\nparameter to decrease the reporting interval for nodes that report index\nstatistics.\n\n### Primaries vs total\nBy default the monitor collects a subset of index stats of total aggregation\ntype (see docs for details). It is possible to enable index stats of primaries\naggregation type too. Total for an index stat aggregates across all shards.\nWhereas, Primaries only reflect the stats from primary shards. An example\nconfiguration to enable index stats from Primary shards too:\n\n```yaml\nmonitors:\n- type: elasticsearch\n  host: localhost\n  port: 9200\n  enableIndexStatsPrimaries: true\n```\n\n## Built-in content\n\nFor more information on the built-in content we have for Elasticsearch,\n[see\nhere](https://github.com/signalfx/integrations/tree/master/elasticsearch)\n",
       "groups": null,
       "metrics": {
         "elasticsearch.cluster.active-primary-shards": {
@@ -15873,6 +15873,46 @@
             "elementKind": ""
           },
           {
+            "yamlName": "enableIndexStats",
+            "doc": "Enable Index stats. If set to true, by default the a subset of index stats will be collected (see docs for list of default index metrics collected).",
+            "default": true,
+            "required": false,
+            "type": "bool",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "indexes",
+            "doc": "Indexes to collect stats from (by default stats from all indexes are collected)",
+            "default": null,
+            "required": false,
+            "type": "slice",
+            "elementKind": "string"
+          },
+          {
+            "yamlName": "indexStatsIntervalSeconds",
+            "doc": "Interval to report IndexStats on",
+            "default": 60,
+            "required": false,
+            "type": "int",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "indexSummaryOnly",
+            "doc": "Collect only aggregated index stats across all indexes",
+            "default": false,
+            "required": false,
+            "type": "bool",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "indexStatsMasterOnly",
+            "doc": "Collect index stats only from Master node",
+            "default": true,
+            "required": false,
+            "type": "bool",
+            "elementKind": ""
+          },
+          {
             "yamlName": "enableClusterHealth",
             "doc": "EnableClusterHealth enables reporting on the cluster health",
             "default": true,
@@ -15954,46 +15994,6 @@
             "required": false,
             "type": "bool",
             "elementKind": ""
-          },
-          {
-            "yamlName": "indexStatsIntervalSeconds",
-            "doc": "Interval to report IndexStats on",
-            "default": 60,
-            "required": false,
-            "type": "int",
-            "elementKind": ""
-          },
-          {
-            "yamlName": "indexSummaryOnly",
-            "doc": "Collect only aggregated index stats across all indexes",
-            "default": false,
-            "required": false,
-            "type": "bool",
-            "elementKind": ""
-          },
-          {
-            "yamlName": "indexStatsMasterOnly",
-            "doc": "Collect index stats only from Master node",
-            "default": true,
-            "required": false,
-            "type": "bool",
-            "elementKind": ""
-          },
-          {
-            "yamlName": "enableIndexStats",
-            "doc": "Enable Index stats. If set to true, by default the a subset of index stats will be collected (see docs for list of default index metrics collected).",
-            "default": true,
-            "required": false,
-            "type": "bool",
-            "elementKind": ""
-          },
-          {
-            "yamlName": "indexes",
-            "doc": "Indexes to collect stats from (by default stats from all indexes are collected)",
-            "default": null,
-            "required": false,
-            "type": "slice",
-            "elementKind": "string"
           },
           {
             "yamlName": "enableEnhancedIndexStatsForIndexGroups",
