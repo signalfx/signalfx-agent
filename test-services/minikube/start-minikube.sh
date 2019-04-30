@@ -87,7 +87,7 @@ function cluster_is_ready() {
     echo "Waiting for the cluster to be ready ..."
     local start_time=`date +%s`
     while [ $(expr `date +%s` - $start_time) -lt $TIMEOUT ]; do
-        if kubectl get all --all-namespaces; then
+        if kubectl get all --all-namespaces && kubectl describe serviceaccount default | grep 'default-token'; then
             return 0
         fi
         sleep 5
