@@ -97,21 +97,9 @@ function cluster_is_ready() {
 
 function print_logs() {
     if [ "$BOOTSTRAPPER" = "localkube" ]; then
-        if [ -f /var/lib/localkube/localkube.out ]; then
-            echo
-            echo "/var/lib/localkube/localkube.out:"
-            cat /var/lib/localkube/localkube.out
-            echo
-        fi
-        if [ -f /var/lib/localkube/localkube.err ]; then
-            echo
-            echo "/var/lib/localkube/localkube.err:"
-            cat /var/lib/localkube/localkube.err
-            echo
-        fi
-    else
+        journalctl --no-pager -u localkube
         echo
-        echo "minikube logs:"
+    else
         minikube logs
         echo
     fi
@@ -122,8 +110,6 @@ mount --make-rshared /
 download_kubectl
 start_minikube
 start_registry
-
-echo '127.0.0.1 minikube-test' >> /etc/hosts
 
 if ! cluster_is_ready; then
     print_logs
