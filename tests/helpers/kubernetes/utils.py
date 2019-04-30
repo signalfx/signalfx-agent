@@ -469,20 +469,20 @@ def get_discovery_rule(yaml_file, observer, namespace="", container_index=0):
     image = None
     ports = []
     labels = []
-    with open(yaml_file, "r") as fd:
-        for doc in yaml.safe_load_all(fd.read()):
-            if doc["kind"] == "Deployment":
-                container = doc["spec"]["template"]["spec"]["containers"][container_index]
-                name = container["name"]
-                image = container["image"]
-                try:
-                    ports = [p["containerPort"] for p in container["ports"]]
-                except KeyError:
-                    ports = []
-                try:
-                    labels = doc["spec"]["template"]["metadata"]["labels"]
-                except KeyError:
-                    labels = []
+    assert os.path.isfile(yaml_file)
+    for doc in yaml.safe_load_all(Path(yaml_file).read_bytes()):
+        if doc["kind"] == "Deployment":
+            container = doc["spec"]["template"]["spec"]["containers"][container_index]
+            name = container["name"]
+            image = container["image"]
+            try:
+                ports = [p["containerPort"] for p in container["ports"]]
+            except KeyError:
+                ports = []
+            try:
+                labels = doc["spec"]["template"]["metadata"]["labels"]
+            except KeyError:
+                labels = []
     assert name, "failed to get container name from %s!" % yaml_file
     assert image, "failed to get container image from %s!" % yaml_file
     rule = 'container_state == "running"'
