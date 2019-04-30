@@ -15,9 +15,11 @@
 
 ### Single Host
 
+The installation statement includes YOUR_\SIGNALFX\_REALM. If this value is not set, SignalFx assumes your organization is in the us0 realm. To determine if you are in a different realm and must supply your realm value in the statement, check your profile page in the SignalFx web application.
+
 Your SignalFx API Token can be obtained from the Organization->Access Token tab in SignalFx.
 
-Certain installation statements include YOUR_SIGNALFX_REALM. If this value is not set, SignalFx assumes your organization is in the us0 realm. To determine if you are in a different realm and need to supply your realm value in those statements, check your profile page in the SignalFx web application.
+#### Linux
 
 The Smart Agent for Linux contains a Java JRE runtime and a Python runtime, so there are no
 additional dependency requirements. 
@@ -30,6 +32,8 @@ To install the Smart Agent on a single Linux host, enter:
 curl -sSL https://dl.signalfx.com/signalfx-agent.sh > /tmp/signalfx-agent.sh
 sudo sh /tmp/signalfx-agent.sh --realm YOUR_SIGNALFX_REALM YOUR_SIGNALFX_API_TOKEN
 ```
+
+#### Windows
 
 The Smart Agent for Windows has these two dependencies:
 
@@ -70,7 +74,7 @@ To troubleshoot the Linux installation --
 
 To troubleshoot the Windows installation -- 
 
-###Realm
+### Realm
 
 By default, the Smart Agent will send data to the us0 realm. If you are not in this realm, you will need to explicitly set the signalFxRealm option in your config like this:
 ```sh
@@ -80,21 +84,23 @@ To determine if you are in a different realm and need to explicitly set the endp
 
 ## Next Steps
 
-To install Smart Agent on multiple hosts using configuration management tools or packages, go to the [Integrations page](https://app.signalfx.com/#/integrations), and then click the icon of the tool you want to use. 
+To familiarize yourself with Smart Agent, you can explore the various topics in [Smart Agent Quick Start](/docs/smart-agent-quick-start.md).
 
-Additional information on configuration management tools and package installations is [here](/docs/smart-agent-next-steps.md).
+To install Smart Agent on multiple hosts using configuration management tools or packages, go to the Smart Agent Next Steps information [here](/docs/smart-agent-next-steps.md).
 
-To configure monitors to use with Smart Agent in your environment, go to [Monitor Configuration](https://docs.signalfx.com/en/latest/integrations/agent/monitor-config.html).
+For Windows, you may want to configure Monitors included in Smart Agent. More information is [here](https://docs.signalfx.com/en/latest/integrations/agent/windows.html).
+
+For Linux, to configure monitors for use with Smart Agent in your environment, go to [Monitor Configuration](https://docs.signalfx.com/en/latest/integrations/agent/monitor-config.html).
 
 ## Other methods of Installation
 
 ### Linux Standalone tar.gz
 
-See the README file for information.
+See the Smart Agent [README](https://github.com/signalfx/signalfx-agent/blob/master/README.md) file for information.
 
 ### Windows Standalone .zip
 
-See the README file for information.
+See the Smart Agent [README](https://github.com/signalfx/signalfx-agent/blob/master/README.md) file for information.
 
 
 
