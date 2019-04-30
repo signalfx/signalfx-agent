@@ -56,6 +56,10 @@
     {
       "name": "puppet",
       "version_requirement": ">= 4.7.0 < 6.0.0"
+    },
+    {
+      "name": "puppetlabs/apt",
+      "version_requirement": ">= 4.1.0 <= 7.0.0"
     }
   ],
   "pdk-version": "1.4.1",
