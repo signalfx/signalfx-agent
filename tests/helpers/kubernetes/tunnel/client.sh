@@ -20,7 +20,7 @@ trap cleanup EXIT
 chmod 400 $SCRIPT_DIR/id_rsa
 
 while true; do
-  kubectl $context_flag --namespace $NAMESPACE port-forward pod/fake-backend :22 > $out_file &
+  kubectl $context_flag --namespace $NAMESPACE port-forward fake-backend :22 > $out_file &
 
   for i in seq 1 5; do
     ssh_port=$(cat $out_file | grep -Eo '127.0.0.1:[0-9]+' | sed -e 's/127.0.0.1://' || true)
