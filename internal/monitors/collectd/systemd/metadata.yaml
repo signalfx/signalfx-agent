@@ -1,9 +1,11 @@
 monitors:
 - dimensions:
-  - description: The name of the systemd service that the reported metric applies to
-    name: systemd_service
-  - description: The name of the collectd plugin. Facilitates filtering operations in the SignalFx app
-    name: plugin
+    systemd_service:
+      description: The name of the systemd service that the reported metric applies
+        to
+    plugin:
+      description: The name of the collectd plugin. Facilitates filtering operations
+        in the SignalFx app
   doc: |
     This [SignalFx Smart Agent](https://github.com/signalfx/signalfx-agent) monitor collects metrics about the state of
     configured systemd services using the [collectd-systemd](https://github.com/signalfx/integrations/tree/master/collectd-systemd)
@@ -45,82 +47,79 @@ monitors:
     ```
   sendAll: true
   groups:
-  - name: ActiveState
-    description: Metrics which indicate whether a service is currently active or not
-  - name: SubState
-    description: Metrics which provide further clarification of a service's active state
-  - name: LoadState
-    description: Metrics which indicate whether a service's unit configuration file has been loaded
+    ActiveState:
+      description: Metrics which indicate whether a service is currently active or
+        not
+    SubState:
+      description: Metrics which provide further clarification of a service's active
+        state
+    LoadState:
+      description: Metrics which indicate whether a service's unit configuration file
+        has been loaded
   metrics:
-  - description: Indicates that the systemd unit/service is active
-    included: false
-    name: gauge.active_state.active
-    type: gauge
-    group: ActiveState
-  - description: Indicates that the systemd unit/service is inactive and the previous run was successful or no previous run has taken place yet
-    included: false
-    name: gauge.active_state.inactive
-    type: gauge
-    group: ActiveState
-  - description: Indicates that the systemd unit/service has previously been inactive but is currently in the process of entering an active state
-    included: false
-    name: gauge.active_state.activating
-    type: gauge
-    group: ActiveState
-  - description: Indicates that the systemd unit/service is currently in the process of deactivation
-    included: false
-    name: gauge.active_state.deactivating
-    type: gauge
-    group: ActiveState
-  - description: Indicates that the systemd unit/service is active and currently reloading its configuration
-    included: false
-    name: gauge.active_state.reloading
-    type: gauge
-    group: ActiveState
-  - description: Indicates that the systemd unit/service is inactive the previous run was not successful
-    included: false
-    name: gauge.active_state.failed
-    type: gauge
-    group: ActiveState
-  - description: Indicates that the systemd unit/service is running
-    included: true
-    name: gauge.substate.running
-    type: gauge
-    group: SubState
-  - description: Indicates that the systemd unit/service exited
-    included: false
-    name: gauge.substate.exited
-    type: gauge
-    group: SubState
-  - description: Indicates that the systemd unit/service failed
-    included: false
-    name: gauge.substate.failed
-    type: gauge
-    group: SubState
-  - description: Indicates that the systemd unit/service died
-    included: false
-    name: gauge.substate.dead
-    type: gauge
-    group: SubState
-  - description: Indicates that the systemd unit/service configuration was loaded and parsed successfully
-    included: false
-    name: gauge.load_state.loaded
-    type: gauge
-    group: LoadState
-  - description: Indicates that the systemd unit/service configuration was not found
-    included: false
-    name: gauge.load_state.not-found
-    type: gauge
-    group: LoadState
-  - description: Indicates that the systemd unit/service configuration failed to load
-    included: false
-    name: gauge.load_state.error
-    type: gauge
-    group: LoadState
-  - description: Indicates that the systemd unit/service is currently masked out (i.e. symlinked to /dev/null etc)
-    included: false
-    name: gauge.load_state.masked
-    type: gauge
-    group: LoadState
+    gauge.active_state.active:
+      description: Indicates that the systemd unit/service is active
+      included: false
+      type: gauge
+    gauge.active_state.inactive:
+      description: Indicates that the systemd unit/service is inactive and the previous
+        run was successful or no previous run has taken place yet
+      included: false
+      type: gauge
+    gauge.active_state.activating:
+      description: Indicates that the systemd unit/service has previously been inactive
+        but is currently in the process of entering an active state
+      included: false
+      type: gauge
+    gauge.active_state.deactivating:
+      description: Indicates that the systemd unit/service is currently in the process
+        of deactivation
+      included: false
+      type: gauge
+    gauge.active_state.reloading:
+      description: Indicates that the systemd unit/service is active and currently
+        reloading its configuration
+      included: false
+      type: gauge
+    gauge.active_state.failed:
+      description: Indicates that the systemd unit/service is inactive the previous
+        run was not successful
+      included: false
+      type: gauge
+    gauge.substate.running:
+      description: Indicates that the systemd unit/service is running
+      included: true
+      type: gauge
+    gauge.substate.exited:
+      description: Indicates that the systemd unit/service exited
+      included: false
+      type: gauge
+    gauge.substate.failed:
+      description: Indicates that the systemd unit/service failed
+      included: false
+      type: gauge
+    gauge.substate.dead:
+      description: Indicates that the systemd unit/service died
+      included: false
+      type: gauge
+    gauge.load_state.loaded:
+      description: Indicates that the systemd unit/service configuration was loaded
+        and parsed successfully
+      included: false
+      type: gauge
+    gauge.load_state.not-found:
+      description: Indicates that the systemd unit/service configuration was not found
+      included: false
+      type: gauge
+    gauge.load_state.error:
+      description: Indicates that the systemd unit/service configuration failed to
+        load
+      included: false
+      type: gauge
+    gauge.load_state.masked:
+      description: Indicates that the systemd unit/service is currently masked out
+        (i.e. symlinked to /dev/null etc)
+      included: false
+      type: gauge
   monitorType: collectd/systemd
-  properties: null
+  properties: {}

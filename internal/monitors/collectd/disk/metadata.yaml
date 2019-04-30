@@ -1,44 +1,44 @@
 monitors:
-- dimensions: null
+- dimensions: {}
   doc: |
     This monitor collects information about the usage of
     physical disks and logical disks (partitions).
 
     See https://collectd.org/wiki/index.php/Plugin:Disk.
   metrics:
-  - description: The number of disk reads merged into single physical disk access
-      operations.
-    included: false
-    name: disk_merged.read
-    type: cumulative
-  - description: The number of disk writes merged into single physical disk access
-      operations.
-    included: false
-    name: disk_merged.write
-    type: cumulative
-  - description: The number of bytes (octets) read from a disk.
-    included: false
-    name: disk_octets.read
-    type: cumulative
-  - description: The number of bytes (octets) written to a disk.
-    included: false
-    name: disk_octets.write
-    type: cumulative
-  - description: The number of disk read operations.
-    included: true
-    name: disk_ops.read
-    type: cumulative
-  - description: The number of disk write operations.
-    included: true
-    name: disk_ops.write
-    type: cumulative
-  - description: The average amount of time it took to do a read operation.
-    included: false
-    name: disk_time.read
-    type: cumulative
-  - description: The average amount of time it took to do a write operation.
-    included: false
-    name: disk_time.write
-    type: cumulative
+    disk_merged.read:
+      description: The number of disk reads merged into single physical disk access
+        operations.
+      included: false
+      type: cumulative
+    disk_merged.write:
+      description: The number of disk writes merged into single physical disk access
+        operations.
+      included: false
+      type: cumulative
+    disk_octets.read:
+      description: The number of bytes (octets) read from a disk.
+      included: false
+      type: cumulative
+    disk_octets.write:
+      description: The number of bytes (octets) written to a disk.
+      included: false
+      type: cumulative
+    disk_ops.read:
+      description: The number of disk read operations.
+      included: true
+      type: cumulative
+    disk_ops.write:
+      description: The number of disk write operations.
+      included: true
+      type: cumulative
+    disk_time.read:
+      description: The average amount of time it took to do a read operation.
+      included: false
+      type: cumulative
+    disk_time.write:
+      description: The average amount of time it took to do a write operation.
+      included: false
+      type: cumulative
   monitorType: collectd/disk
-  properties: null
+  properties: {}

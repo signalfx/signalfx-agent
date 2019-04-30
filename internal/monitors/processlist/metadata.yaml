@@ -1,5 +1,5 @@
 monitors:
-- dimensions: null
+- dimensions: {}
   doc: |
     (Windows Only) This monitor reports processlist
     information for Windows Hosts.
@@ -10,6 +10,6 @@ monitors:
     monitors:
      - type: processlist
     ```
-  metrics: null
+  metrics: {}
   monitorType: processlist
-  properties: null
+  properties: {}

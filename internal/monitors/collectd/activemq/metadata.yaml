@@ -1,142 +1,143 @@
 monitors:
-- dimensions: null
+- dimensions: {}
   doc: |
     Monitors Apache ActiveMQ via the collectd
     GenericJMX plugin.
   metrics:
-  - description: Total connections count per broker
-    included: true
-    name: counter.amq.TotalConnectionsCount
-    type: counter
-  - description: Total number of consumers subscribed to destinations on the broker
-    included: true
-    name: gauge.amq.TotalConsumerCount
-    type: gauge
-  - description: Total number of messages that have been acknowledged from the broker.
-    included: false
-    name: gauge.amq.TotalDequeueCount
-    type: gauge
-  - description: Total number of messages that have been sent to the broker.
-    included: true
-    name: gauge.amq.TotalEnqueueCount
-    type: gauge
-  - description: Total number of unacknowledged messages on the broker
-    included: true
-    name: gauge.amq.TotalMessageCount
-    type: gauge
-  - description: Total number of message producers active on destinations on the broker
-    included: true
-    name: gauge.amq.TotalProducerCount
-    type: gauge
-  - description: Average time (ms) that messages have spent blocked by Flow Control.
-    included: false
-    name: gauge.amq.queue.AverageBlockedTime
-    type: gauge
-  - description: Average time (ms) that messages have been held at this destination
-    included: true
-    name: gauge.amq.queue.AverageEnqueueTime
-    type: gauge
-  - description: Average size of messages in this queue, in bytes.
-    included: false
-    name: gauge.amq.queue.AverageMessageSize
-    type: gauge
-  - description: Number of messages blocked by Flow Control.
-    included: false
-    name: gauge.amq.queue.BlockedSends
-    type: gauge
-  - description: Number of consumers subscribed to this queue.
-    included: true
-    name: gauge.amq.queue.ConsumerCount
-    type: gauge
-  - description: Number of messages that have been acknowledged and removed from the
-      queue.
-    included: true
-    name: gauge.amq.queue.DequeueCount
-    type: gauge
-  - description: Number of messages that have been sent to the queue.
-    included: true
-    name: gauge.amq.queue.EnqueueCount
-    type: gauge
-  - description: Number of messages that have expired from the queue.
-    included: true
-    name: gauge.amq.queue.ExpiredCount
-    type: gauge
-  - description: Number of messages that have been forwarded from this queue to a
-      networked broker.
-    included: false
-    name: gauge.amq.queue.ForwardCount
-    type: gauge
-  - description: The number of messages that have been dispatched to consumers, but
-      not acknowledged.
-    included: true
-    name: gauge.amq.queue.InFlightCount
-    type: gauge
-  - description: Number of producers publishing to this queue
-    included: true
-    name: gauge.amq.queue.ProducerCount
-    type: gauge
-  - description: The number of messages in the queue that have yet to be consumed.
-    included: true
-    name: gauge.amq.queue.QueueSize
-    type: gauge
-  - description: The total time (ms) that messages have spent blocked by Flow Control.
-    included: false
-    name: gauge.amq.queue.TotalBlockedTime
-    type: gauge
-  - description: Average time (ms) that messages have been blocked by Flow Control.
-    included: false
-    name: gauge.amq.topic.AverageBlockedTime
-    type: gauge
-  - description: Average time (ms) that messages have been held at this destination.
-    included: true
-    name: gauge.amq.topic.AverageEnqueueTime
-    type: gauge
-  - description: Average size of messages on this topic, in bytes.
-    included: false
-    name: gauge.amq.topic.AverageMessageSize
-    type: gauge
-  - description: Number of messages blocked by Flow Control
-    included: false
-    name: gauge.amq.topic.BlockedSends
-    type: gauge
-  - description: The number of consumers subscribed to this topic
-    included: true
-    name: gauge.amq.topic.ConsumerCount
-    type: gauge
-  - description: Number of messages that have been acknowledged and removed from the
-      topic.
-    included: false
-    name: gauge.amq.topic.DequeueCount
-    type: gauge
-  - description: The number of messages that have been sent to the topic.
-    included: true
-    name: gauge.amq.topic.EnqueueCount
-    type: gauge
-  - description: The number of messages that have expired from this topic.
-    included: true
-    name: gauge.amq.topic.ExpiredCount
-    type: gauge
-  - description: The number of messages that have been forwarded from this topic to
-      a networked broker.
-    included: false
-    name: gauge.amq.topic.ForwardCount
-    type: gauge
-  - description: The number of messages that have been dispatched to consumers, but
-      have not yet been acknowledged.
-    included: true
-    name: gauge.amq.topic.InFlightCount
-    type: gauge
-  - description: Number of producers publishing to this topic.
-    included: true
-    name: gauge.amq.topic.ProducerCount
-    type: gauge
-  - description: Number of messages in the topic that have yet to be consumed.
-    included: true
-    name: gauge.amq.topic.QueueSize
-    type: gauge
-  - description: The total time (ms) that messages have spent blocked by Flow Control
-    included: false
-    name: gauge.amq.topic.TotalBlockedTime
-    type: gauge
+    counter.amq.TotalConnectionsCount:
+      description: Total connections count per broker
+      included: true
+      type: counter
+    gauge.amq.TotalConsumerCount:
+      description: Total number of consumers subscribed to destinations on the broker
+      included: true
+      type: gauge
+    gauge.amq.TotalDequeueCount:
+      description: Total number of messages that have been acknowledged from the broker.
+      included: false
+      type: gauge
+    gauge.amq.TotalEnqueueCount:
+      description: Total number of messages that have been sent to the broker.
+      included: true
+      type: gauge
+    gauge.amq.TotalMessageCount:
+      description: Total number of unacknowledged messages on the broker
+      included: true
+      type: gauge
+    gauge.amq.TotalProducerCount:
+      description: Total number of message producers active on destinations on the
+        broker
+      included: true
+      type: gauge
+    gauge.amq.queue.AverageBlockedTime:
+      description: Average time (ms) that messages have spent blocked by Flow Control.
+      included: false
+      type: gauge
+    gauge.amq.queue.AverageEnqueueTime:
+      description: Average time (ms) that messages have been held at this destination
+      included: true
+      type: gauge
+    gauge.amq.queue.AverageMessageSize:
+      description: Average size of messages in this queue, in bytes.
+      included: false
+      type: gauge
+    gauge.amq.queue.BlockedSends:
+      description: Number of messages blocked by Flow Control.
+      included: false
+      type: gauge
+    gauge.amq.queue.ConsumerCount:
+      description: Number of consumers subscribed to this queue.
+      included: true
+      type: gauge
+    gauge.amq.queue.DequeueCount:
+      description: Number of messages that have been acknowledged and removed from
+        the queue.
+      included: true
+      type: gauge
+    gauge.amq.queue.EnqueueCount:
+      description: Number of messages that have been sent to the queue.
+      included: true
+      type: gauge
+    gauge.amq.queue.ExpiredCount:
+      description: Number of messages that have expired from the queue.
+      included: true
+      type: gauge
+    gauge.amq.queue.ForwardCount:
+      description: Number of messages that have been forwarded from this queue to
+        a networked broker.
+      included: false
+      type: gauge
+    gauge.amq.queue.InFlightCount:
+      description: The number of messages that have been dispatched to consumers,
+        but not acknowledged.
+      included: true
+      type: gauge
+    gauge.amq.queue.ProducerCount:
+      description: Number of producers publishing to this queue
+      included: true
+      type: gauge
+    gauge.amq.queue.QueueSize:
+      description: The number of messages in the queue that have yet to be consumed.
+      included: true
+      type: gauge
+    gauge.amq.queue.TotalBlockedTime:
+      description: The total time (ms) that messages have spent blocked by Flow Control.
+      included: false
+      type: gauge
+    gauge.amq.topic.AverageBlockedTime:
+      description: Average time (ms) that messages have been blocked by Flow Control.
+      included: false
+      type: gauge
+    gauge.amq.topic.AverageEnqueueTime:
+      description: Average time (ms) that messages have been held at this destination.
+      included: true
+      type: gauge
+    gauge.amq.topic.AverageMessageSize:
+      description: Average size of messages on this topic, in bytes.
+      included: false
+      type: gauge
+    gauge.amq.topic.BlockedSends:
+      description: Number of messages blocked by Flow Control
+      included: false
+      type: gauge
+    gauge.amq.topic.ConsumerCount:
+      description: The number of consumers subscribed to this topic
+      included: true
+      type: gauge
+    gauge.amq.topic.DequeueCount:
+      description: Number of messages that have been acknowledged and removed from
+        the topic.
+      included: false
+      type: gauge
+    gauge.amq.topic.EnqueueCount:
+      description: The number of messages that have been sent to the topic.
+      included: true
+      type: gauge
+    gauge.amq.topic.ExpiredCount:
+      description: The number of messages that have expired from this topic.
+      included: true
+      type: gauge
+    gauge.amq.topic.ForwardCount:
+      description: The number of messages that have been forwarded from this topic
+        to a networked broker.
+      included: false
+      type: gauge
+    gauge.amq.topic.InFlightCount:
+      description: The number of messages that have been dispatched to consumers,
+        but have not yet been acknowledged.
+      included: true
+      type: gauge
+    gauge.amq.topic.ProducerCount:
+      description: Number of producers publishing to this topic.
+      included: true
+      type: gauge
+    gauge.amq.topic.QueueSize:
+      description: Number of messages in the topic that have yet to be consumed.
+      included: true
+      type: gauge
+    gauge.amq.topic.TotalBlockedTime:
+      description: The total time (ms) that messages have spent blocked by Flow Control
+      included: false
+      type: gauge
   monitorType: collectd/activemq
-  properties: null
+  properties: {}

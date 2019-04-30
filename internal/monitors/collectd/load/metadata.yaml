@@ -1,20 +1,20 @@
 monitors:
-- dimensions: null
+- dimensions: {}
   doc: |
     Monitors process load on the host using the collectd
     [Load plugin](https://collectd.org/wiki/index.php/Plugin:Load).
   metrics:
-  - description: Average CPU load per core over the last 15 minutes
-    included: true
-    name: load.longterm
-    type: gauge
-  - description: Average CPU load per core over the last five minutes
-    included: true
-    name: load.midterm
-    type: gauge
-  - description: Average CPU load per core over the last one minute
-    included: true
-    name: load.shortterm
-    type: gauge
+    load.longterm:
+      description: Average CPU load per core over the last 15 minutes
+      included: true
+      type: gauge
+    load.midterm:
+      description: Average CPU load per core over the last five minutes
+      included: true
+      type: gauge
+    load.shortterm:
+      description: Average CPU load per core over the last one minute
+      included: true
+      type: gauge
   monitorType: collectd/load
-  properties: null
+  properties: {}

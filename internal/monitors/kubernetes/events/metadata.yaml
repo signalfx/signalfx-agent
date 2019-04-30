@@ -1,5 +1,5 @@
 monitors:
-- dimensions: null
+- dimensions: {}
   doc: |
     This monitor sends Kubernetes events as SignalFx
     events.  Upon startup, it will send all of the events that K8s has that are
@@ -28,6 +28,6 @@ monitors:
     ```
 
     Event names will match the `reason` name.
-  metrics: null
+  metrics: {}
   monitorType: kubernetes-events
-  properties: null
+  properties: {}

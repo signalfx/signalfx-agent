@@ -53,15 +53,15 @@ The following table lists the metrics available for this monitor. Metrics that a
 | `gitlab_workhorse_builds_register_handler_requests` | cumulative |  | Describes how many requests in different states hit a register handler |
 | `gitlab_workhorse_git_http_sessions_active` | gauge | ✔ | Number of Git HTTP request-response cycles currently being handled by gitlab-workhorse |
 | `gitlab_workhorse_http_in_flight_requests` | gauge |  | A gauge of requests currently being served by workhorse |
-| `gitlab_workhorse_http_request_duration_seconds_bucket` | cumulative |  | A histogram of latencies for requests to workhorse |
 | `gitlab_workhorse_http_request_duration_seconds` | cumulative | ✔ | A histogram of latencies for requests to workhorse |
+| `gitlab_workhorse_http_request_duration_seconds_bucket` | cumulative |  | A histogram of latencies for requests to workhorse |
 | `gitlab_workhorse_http_request_duration_seconds_count` | cumulative | ✔ | A histogram of latencies for requests to workhorse |
-| `gitlab_workhorse_http_request_size_bytes_bucket` | cumulative |  | A histogram of sizes of requests to workhorse |
 | `gitlab_workhorse_http_request_size_bytes` | cumulative | ✔ | A histogram of sizes of requests to workhorse |
+| `gitlab_workhorse_http_request_size_bytes_bucket` | cumulative |  | A histogram of sizes of requests to workhorse |
 | `gitlab_workhorse_http_request_size_bytes_count` | cumulative | ✔ | A histogram of sizes of requests to workhorse |
 | `gitlab_workhorse_http_requests_total` | cumulative |  | A counter for requests to workhorse |
-| `gitlab_workhorse_http_time_to_write_header_seconds_bucket` | cumulative |  | A histogram of request durations until the response headers are written |
 | `gitlab_workhorse_http_time_to_write_header_seconds` | cumulative |  | A histogram of request durations until the response headers are written |
+| `gitlab_workhorse_http_time_to_write_header_seconds_bucket` | cumulative |  | A histogram of request durations until the response headers are written |
 | `gitlab_workhorse_http_time_to_write_header_seconds_count` | cumulative |  | A histogram of request durations until the response headers are written |
 | `gitlab_workhorse_internal_api_failure_response_bytes` | cumulative |  | How many bytes have been returned by upstream GitLab in API failure/rejection response bodies |
 | `gitlab_workhorse_keywatcher_keywatchers` | gauge |  | The number of keys that is being watched by gitlab-workhorse |
@@ -97,8 +97,8 @@ metricsToInclude:
     - gitlab_workhorse_http_request_duration_seconds_bucket
     - gitlab_workhorse_http_request_size_bytes_bucket
     - gitlab_workhorse_http_requests_total
-    - gitlab_workhorse_http_time_to_write_header_seconds_bucket
     - gitlab_workhorse_http_time_to_write_header_seconds
+    - gitlab_workhorse_http_time_to_write_header_seconds_bucket
     - gitlab_workhorse_http_time_to_write_header_seconds_count
     - gitlab_workhorse_internal_api_failure_response_bytes
     - gitlab_workhorse_keywatcher_keywatchers

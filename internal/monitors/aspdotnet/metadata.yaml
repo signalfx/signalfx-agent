@@ -1,5 +1,5 @@
 monitors:
-- dimensions: null
+- dimensions: {}
   doc: |
     (Windows Only) This monitor reports metrics about requests, errors, sessions,
     worker processes for ASP.NET applications.
@@ -22,66 +22,66 @@ monitors:
     ```
   sendAll: true
   metrics:
-  - description: Count of ASP.NET application restarts.
-    included: false
-    name: asp_net.application_restarts
-    type: gauge
-  - description: Number of running ASP.NET applications.
-    included: false
-    name: asp_net.applications_running
-    type: gauge
-  - description: Current number of ASP.NET requests.
-    included: false
-    name: asp_net.requests_current
-    type: gauge
-  - description: Number of queued ASP.NET requests.
-    included: false
-    name: asp_net.requests_queue
-    type: gauge
-  - description: Count of rejected ASP.NET requests.
-    included: false
-    name: asp_net.requests_rejected
-    type: gauge
-  - description: Count of ASP.NET worker process restarts.
-    included: false
-    name: asp_net.worker_process_restarts
-    type: gauge
-  - description: Number of running ASP.NET worker processes.
-    included: false
-    name: asp_net.worker_processes_running
-    type: gauge
-  - description: Count of errors encountered by ASP.NET application durring execution.
-    included: false
-    name: asp_net_applications.errors_during_execution
-    type: gauge
-  - description: Error rate per second for the given ASP.NET application.
-    included: false
-    name: asp_net_applications.errors_total_sec
-    type: gauge
-  - description: Unhandled error rate per second countered while an ASP.NET application
-      is running.
-    included: false
-    name: asp_net_applications.errors_unhandled_during_execution_sec
-    type: gauge
-  - description: Number of instances in the ASP.NET application pipeline.
-    included: false
-    name: asp_net_applications.pipeline_instance_count
-    type: gauge
-  - description: Count of failed requests in the ASP.NET application
-    included: false
-    name: asp_net_applications.requests_failed
-    type: gauge
-  - description: Rate of requests in the ASP.NET application per second.
-    included: false
-    name: asp_net_applications.requests_sec
-    type: gauge
-  - description: Number of connections to microsoft sql server by an ASP.NET application.
-    included: false
-    name: asp_net_applications.session_sql_server_connections_total
-    type: gauge
-  - description: Number of active sessions in the ASP.NET application.
-    included: false
-    name: asp_net_applications.sessions_active
-    type: gauge
+    asp_net.application_restarts:
+      description: Count of ASP.NET application restarts.
+      included: false
+      type: gauge
+    asp_net.applications_running:
+      description: Number of running ASP.NET applications.
+      included: false
+      type: gauge
+    asp_net.requests_current:
+      description: Current number of ASP.NET requests.
+      included: false
+      type: gauge
+    asp_net.requests_queue:
+      description: Number of queued ASP.NET requests.
+      included: false
+      type: gauge
+    asp_net.requests_rejected:
+      description: Count of rejected ASP.NET requests.
+      included: false
+      type: gauge
+    asp_net.worker_process_restarts:
+      description: Count of ASP.NET worker process restarts.
+      included: false
+      type: gauge
+    asp_net.worker_processes_running:
+      description: Number of running ASP.NET worker processes.
+      included: false
+      type: gauge
+    asp_net_applications.errors_during_execution:
+      description: Count of errors encountered by ASP.NET application durring execution.
+      included: false
+      type: gauge
+    asp_net_applications.errors_total_sec:
+      description: Error rate per second for the given ASP.NET application.
+      included: false
+      type: gauge
+    asp_net_applications.errors_unhandled_during_execution_sec:
+      description: Unhandled error rate per second countered while an ASP.NET application
+        is running.
+      included: false
+      type: gauge
+    asp_net_applications.pipeline_instance_count:
+      description: Number of instances in the ASP.NET application pipeline.
+      included: false
+      type: gauge
+    asp_net_applications.requests_failed:
+      description: Count of failed requests in the ASP.NET application
+      included: false
+      type: gauge
+    asp_net_applications.requests_sec:
+      description: Rate of requests in the ASP.NET application per second.
+      included: false
+      type: gauge
+    asp_net_applications.session_sql_server_connections_total:
+      description: Number of connections to microsoft sql server by an ASP.NET application.
+      included: false
+      type: gauge
+    asp_net_applications.sessions_active:
+      description: Number of active sessions in the ASP.NET application.
+      included: false
+      type: gauge
   monitorType: aspdotnet
-  properties: null
+  properties: {}

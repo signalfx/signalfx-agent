@@ -1,5 +1,5 @@
 monitors:
-- dimensions: null
+- dimensions: {}
   doc: |
     This monitor is based on the Telegraf logparser plugin.
     The monitor tails log files. More information about the Telegraf plugin
@@ -19,6 +19,6 @@ monitors:
         - "%{COMMON_LOG_FORMAT}" # specifies the apache common log format
        timezone: UTC
     ```
-  metrics: null
+  metrics: {}
   monitorType: telegraf/logparser
-  properties: null
+  properties: {}

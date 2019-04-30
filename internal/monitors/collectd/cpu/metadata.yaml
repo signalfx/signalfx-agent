@@ -1,5 +1,5 @@
 monitors:
-- dimensions: null
+- dimensions: {}
   doc: |
     This monitor collects cpu usage data using the
     collectd `cpu` plugin.  It aggregates the per-core CPU data into a single
@@ -9,9 +9,9 @@ monitors:
 
     See https://collectd.org/wiki/index.php/Plugin:CPU
   metrics:
-  - description: Percentage of total CPU used within the last metric interval cycle.
-    included: true
-    name: cpu.utilization
-    type: gauge
+    cpu.utilization:
+      description: Percentage of total CPU used within the last metric interval cycle.
+      included: true
+      type: gauge
   monitorType: collectd/cpu
-  properties: null
+  properties: {}

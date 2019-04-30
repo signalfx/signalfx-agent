@@ -68,20 +68,20 @@ The following table lists the metrics available for this monitor. Metrics that a
 
 | Name | Type | Included | Description |
 | ---  | ---  | ---    | ---         |
-| `gauge.active_state.active` | gauge |  | Indicates that the systemd unit/service is active |
-| `gauge.active_state.inactive` | gauge |  | Indicates that the systemd unit/service is inactive and the previous run was successful or no previous run has taken place yet |
 | `gauge.active_state.activating` | gauge |  | Indicates that the systemd unit/service has previously been inactive but is currently in the process of entering an active state |
+| `gauge.active_state.active` | gauge |  | Indicates that the systemd unit/service is active |
 | `gauge.active_state.deactivating` | gauge |  | Indicates that the systemd unit/service is currently in the process of deactivation |
-| `gauge.active_state.reloading` | gauge |  | Indicates that the systemd unit/service is active and currently reloading its configuration |
 | `gauge.active_state.failed` | gauge |  | Indicates that the systemd unit/service is inactive the previous run was not successful |
-| `gauge.substate.running` | gauge | ✔ | Indicates that the systemd unit/service is running |
+| `gauge.active_state.inactive` | gauge |  | Indicates that the systemd unit/service is inactive and the previous run was successful or no previous run has taken place yet |
+| `gauge.active_state.reloading` | gauge |  | Indicates that the systemd unit/service is active and currently reloading its configuration |
+| `gauge.load_state.error` | gauge |  | Indicates that the systemd unit/service configuration failed to load |
+| `gauge.load_state.loaded` | gauge |  | Indicates that the systemd unit/service configuration was loaded and parsed successfully |
+| `gauge.load_state.masked` | gauge |  | Indicates that the systemd unit/service is currently masked out (i.e. symlinked to /dev/null etc) |
+| `gauge.load_state.not-found` | gauge |  | Indicates that the systemd unit/service configuration was not found |
+| `gauge.substate.dead` | gauge |  | Indicates that the systemd unit/service died |
 | `gauge.substate.exited` | gauge |  | Indicates that the systemd unit/service exited |
 | `gauge.substate.failed` | gauge |  | Indicates that the systemd unit/service failed |
-| `gauge.substate.dead` | gauge |  | Indicates that the systemd unit/service died |
-| `gauge.load_state.loaded` | gauge |  | Indicates that the systemd unit/service configuration was loaded and parsed successfully |
-| `gauge.load_state.not-found` | gauge |  | Indicates that the systemd unit/service configuration was not found |
-| `gauge.load_state.error` | gauge |  | Indicates that the systemd unit/service configuration failed to load |
-| `gauge.load_state.masked` | gauge |  | Indicates that the systemd unit/service is currently masked out (i.e. symlinked to /dev/null etc) |
+| `gauge.substate.running` | gauge | ✔ | Indicates that the systemd unit/service is running |
 
 
 
@@ -92,8 +92,8 @@ dimensions may be specific to certain metrics.
 
 | Name | Description |
 | ---  | ---         |
-| `systemd_service` | The name of the systemd service that the reported metric applies to |
 | `plugin` | The name of the collectd plugin. Facilitates filtering operations in the SignalFx app |
+| `systemd_service` | The name of the systemd service that the reported metric applies to |
 
 
 

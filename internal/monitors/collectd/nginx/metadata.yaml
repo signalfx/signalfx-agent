@@ -1,5 +1,5 @@
 monitors:
-- dimensions: null
+- dimensions: {}
   doc: |
     Monitors an nginx instance using our fork of the
     collectd nginx plugin based on the [collectd nginx
@@ -9,33 +9,33 @@ monitors:
     doc](https://github.com/signalfx/integrations/tree/master/collectd-nginx)
     for more information.
   metrics:
-  - description: Connections accepted by Nginx Web Server
-    included: true
-    name: connections.accepted
-    type: cumulative
-  - description: Connections handled by Nginx Web Server
-    included: true
-    name: connections.handled
-    type: cumulative
-  - description: Connections active in Nginx Web Server
-    included: true
-    name: nginx_connections.active
-    type: gauge
-  - description: Connections being read by Nginx Web Server
-    included: true
-    name: nginx_connections.reading
-    type: gauge
-  - description: Connections waited on by Nginx Web Server
-    included: true
-    name: nginx_connections.waiting
-    type: gauge
-  - description: Connections being written by Nginx Web Server
-    included: true
-    name: nginx_connections.writing
-    type: gauge
-  - description: Requests handled by Nginx Web Server
-    included: true
-    name: nginx_requests
-    type: cumulative
+    connections.accepted:
+      description: Connections accepted by Nginx Web Server
+      included: true
+      type: cumulative
+    connections.handled:
+      description: Connections handled by Nginx Web Server
+      included: true
+      type: cumulative
+    nginx_connections.active:
+      description: Connections active in Nginx Web Server
+      included: true
+      type: gauge
+    nginx_connections.reading:
+      description: Connections being read by Nginx Web Server
+      included: true
+      type: gauge
+    nginx_connections.waiting:
+      description: Connections waited on by Nginx Web Server
+      included: true
+      type: gauge
+    nginx_connections.writing:
+      description: Connections being written by Nginx Web Server
+      included: true
+      type: gauge
+    nginx_requests:
+      description: Requests handled by Nginx Web Server
+      included: true
+      type: cumulative
   monitorType: collectd/nginx
-  properties: null
+  properties: {}

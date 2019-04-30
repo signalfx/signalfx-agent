@@ -90,10 +90,12 @@ where applicable:
 {{range $field.elementStruct.fields}}
 {{template "yamlOption" (slice . (add 1 $indent))}}
 {{- end -}}
-{{- else if $field.default | print -}}
-{{$field.default | data.ToJSON}}
 {{- else if eq $field.type "slice" -}}
 []
+{{- /* If it's nil we don't print any value. Don't know of any other way to test for nil. */ -}}
+{{- else if eq ($field.default | conv.ToString) "nil" -}}
+{{- else if $field.default | print -}}
+{{$field.default | data.ToJSON}}
 {{- end -}}
 {{- end }}
 

@@ -1,5 +1,5 @@
 monitors:
-- dimensions: null
+- dimensions: {}
   doc: |
     Collects metrics about a Spark cluster using the
     [collectd Spark Python plugin](https://github.com/signalfx/collectd-spark).
@@ -27,391 +27,394 @@ monitors:
         collectApplicationMetrics: true
     ```
   metrics:
-  - description: Total number of client calls sent to Hive for query processing
-    included: false
-    name: counter.HiveExternalCatalog.counter.HiveClientCalls
-    type: counter
-  - description: Total number of file level cache hits occurred
-    included: false
-    name: counter.HiveExternalCatalog.fileCacheHits
-    type: counter
-  - description: Total number of files discovered
-    included: false
-    name: counter.HiveExternalCatalog.filesDiscovered
-    type: counter
-  - description: Total number of Hive-specific jobs running in parallel
-    included: false
-    name: counter.HiveExternalCatalog.parallelListingJobCount
-    type: counter
-  - description: Total number of partitions fetched
-    included: false
-    name: counter.HiveExternalCatalog.partitionsFetched
-    type: counter
-  - description: Total number of completed tasks in driver mapped to a particular
-      application
-    included: false
-    name: counter.spark.driver.completed_tasks
-    type: counter
-  - description: Amount of disk used by driver mapped to a particular application
-    included: true
-    name: counter.spark.driver.disk_used
-    type: counter
-  - description: Total number of failed tasks in driver mapped to a particular application
-    included: false
-    name: counter.spark.driver.failed_tasks
-    type: counter
-  - description: Amount of memory used by driver mapped to a particular application
-    included: true
-    name: counter.spark.driver.memory_used
-    type: counter
-  - description: Fraction of time spent by driver mapped to a particular application
-    included: false
-    name: counter.spark.driver.total_duration
-    type: counter
-  - description: Number of input bytes in driver mapped to a particular application
-    included: true
-    name: counter.spark.driver.total_input_bytes
-    type: counter
-  - description: Size read during a shuffle in driver mapped to a particular application
-    included: true
-    name: counter.spark.driver.total_shuffle_read
-    type: counter
-  - description: Size written to during a shuffle in driver mapped to a particular
-      application
-    included: true
-    name: counter.spark.driver.total_shuffle_write
-    type: counter
-  - description: Total number of tasks in driver mapped to a particular application
-    included: true
-    name: counter.spark.driver.total_tasks
-    type: counter
-  - description: Completed tasks across executors working for a particular application
-    included: false
-    name: counter.spark.executor.completed_tasks
-    type: counter
-  - description: Amount of disk used across executors working for a particular application
-    included: true
-    name: counter.spark.executor.disk_used
-    type: counter
-  - description: Failed tasks across executors working for a particular application
-    included: false
-    name: counter.spark.executor.failed_tasks
-    type: counter
-  - description: Amount of memory used across executors working for a particular application
-    included: true
-    name: counter.spark.executor.memory_used
-    type: counter
-  - description: Fraction of time spent across executors working for a particular
-      application
-    included: false
-    name: counter.spark.executor.total_duration
-    type: counter
-  - description: Number of input bytes across executors working for a particular application
-    included: true
-    name: counter.spark.executor.total_input_bytes
-    type: counter
-  - description: Size read during a shuffle in a particular application's executors
-    included: true
-    name: counter.spark.executor.total_shuffle_read
-    type: counter
-  - description: Size written to during a shuffle in a particular application's executors
-    included: true
-    name: counter.spark.executor.total_shuffle_write
-    type: counter
-  - description: Total tasks across executors working for a particular application
-    included: false
-    name: counter.spark.executor.total_tasks
-    type: counter
-  - description: Number of processed records in a streaming application
-    included: true
-    name: counter.spark.streaming.num_processed_records
-    type: counter
-  - description: Number of received records in a streaming application
-    included: true
-    name: counter.spark.streaming.num_received_records
-    type: counter
-  - description: Number of batches completed in a streaming application
-    included: true
-    name: counter.spark.streaming.num_total_completed_batches
-    type: counter
-  - description: Garbage collection count
-    included: false
-    name: gauge.jvm.MarkSweepCompact.count
-    type: gauge
-  - description: Garbage collection time
-    included: false
-    name: gauge.jvm.MarkSweepCompact.time
-    type: gauge
-  - description: Amount of committed heap memory (in MB)
-    included: true
-    name: gauge.jvm.heap.committed
-    type: gauge
-  - description: Amount of used heap memory (in MB)
-    included: true
-    name: gauge.jvm.heap.used
-    type: gauge
-  - description: Amount of committed non-heap memory (in MB)
-    included: true
-    name: gauge.jvm.non-heap.committed
-    type: gauge
-  - description: Amount of used non-heap memory (in MB)
-    included: true
-    name: gauge.jvm.non-heap.used
-    type: gauge
-  - description: Amount of memory committed for compilation and storage of native
-      code
-    included: false
-    name: gauge.jvm.pools.Code-Cache.committed
-    type: gauge
-  - description: Amount of memory used to compile and store native code
-    included: false
-    name: gauge.jvm.pools.Code-Cache.used
-    type: gauge
-  - description: Amount of memory committed for compressing a class object
-    included: false
-    name: gauge.jvm.pools.Compressed-Class-Space.committed
-    type: gauge
-  - description: Amount of memory used to compress a class object
-    included: false
-    name: gauge.jvm.pools.Compressed-Class-Space.used
-    type: gauge
-  - description: Amount of memory committed for the initial allocation of objects
-    included: false
-    name: gauge.jvm.pools.Eden-Space.committed
-    type: gauge
-  - description: Amount of memory used for the initial allocation of objects
-    included: false
-    name: gauge.jvm.pools.Eden-Space.used
-    type: gauge
-  - description: Amount of memory committed for storing classes and classloaders
-    included: false
-    name: gauge.jvm.pools.Metaspace.committed
-    type: gauge
-  - description: Amount of memory used to store classes and classloaders
-    included: false
-    name: gauge.jvm.pools.Metaspace.used
-    type: gauge
-  - description: Amount of memory committed specifically for objects that have survived
-      GC of the Eden Space
-    included: false
-    name: gauge.jvm.pools.Survivor-Space.committed
-    type: gauge
-  - description: Amount of memory used for objects that have survived GC of the Eden
-      Space
-    included: false
-    name: gauge.jvm.pools.Survivor-Space.used
-    type: gauge
-  - description: Amount of memory committed to store objects that have lived in the
-      survivor space for a given period of time
-    included: false
-    name: gauge.jvm.pools.Tenured-Gen.committed
-    type: gauge
-  - description: Amount of memory used for objects that have lived in the survivor
-      space for a given period of time
-    included: false
-    name: gauge.jvm.pools.Tenured-Gen.used
-    type: gauge
-  - description: Amount of committed JVM memory (in MB)
-    included: true
-    name: gauge.jvm.total.committed
-    type: gauge
-  - description: Amount of used JVM memory (in MB)
-    included: true
-    name: gauge.jvm.total.used
-    type: gauge
-  - description: Total functioning workers
-    included: true
-    name: gauge.master.aliveWorkers
-    type: gauge
-  - description: Total number of active applications in the spark cluster
-    included: true
-    name: gauge.master.apps
-    type: gauge
-  - description: Total number of waiting applications in the spark cluster
-    included: true
-    name: gauge.master.waitingApps
-    type: gauge
-  - description: Total number of workers in spark cluster
-    included: true
-    name: gauge.master.workers
-    type: gauge
-  - description: Total number of active tasks in driver mapped to a particular application
-    included: false
-    name: gauge.spark.driver.active_tasks
-    type: gauge
-  - description: Maximum memory used by driver mapped to a particular application
-    included: true
-    name: gauge.spark.driver.max_memory
-    type: gauge
-  - description: Number of RDD blocks in the driver mapped to a particular application
-    included: false
-    name: gauge.spark.driver.rdd_blocks
-    type: gauge
-  - description: Total number of active tasks across all executors working for a particular
-      application
-    included: false
-    name: gauge.spark.executor.active_tasks
-    type: gauge
-  - description: Total number of executors performing for an active application in
-      the spark cluster
-    included: true
-    name: gauge.spark.executor.count
-    type: gauge
-  - description: Max memory across all executors working for a particular application
-    included: true
-    name: gauge.spark.executor.max_memory
-    type: gauge
-  - description: Number of RDD blocks across all executors working for a particular
-      application
-    included: false
-    name: gauge.spark.executor.rdd_blocks
-    type: gauge
-  - description: Total number of active stages for an active application in the spark
-      cluster
-    included: true
-    name: gauge.spark.job.num_active_stages
-    type: gauge
-  - description: Total number of active tasks for an active application in the spark
-      cluster
-    included: true
-    name: gauge.spark.job.num_active_tasks
-    type: gauge
-  - description: Total number of completed stages for an active application in the
-      spark cluster
-    included: true
-    name: gauge.spark.job.num_completed_stages
-    type: gauge
-  - description: Total number of completed tasks for an active application in the
-      spark cluster
-    included: true
-    name: gauge.spark.job.num_completed_tasks
-    type: gauge
-  - description: Total number of failed stages for an active application in the spark
-      cluster
-    included: true
-    name: gauge.spark.job.num_failed_stages
-    type: gauge
-  - description: Total number of failed tasks for an active application in the spark
-      cluster
-    included: true
-    name: gauge.spark.job.num_failed_tasks
-    type: gauge
-  - description: Total number of skipped stages for an active application in the spark
-      cluster
-    included: true
-    name: gauge.spark.job.num_skipped_stages
-    type: gauge
-  - description: Total number of skipped tasks for an active application in the spark
-      cluster
-    included: true
-    name: gauge.spark.job.num_skipped_tasks
-    type: gauge
-  - description: Total number of tasks for an active application in the spark cluster
-    included: true
-    name: gauge.spark.job.num_tasks
-    type: gauge
-  - description: Total number of active stages for an active application in the spark
-      cluster
-    included: true
-    name: gauge.spark.num_active_stages
-    type: gauge
-  - description: Total number of running jobs for an active application in the spark
-      cluster
-    included: true
-    name: gauge.spark.num_running_jobs
-    type: gauge
-  - description: Actual size written to disk for an active application in the spark
-      cluster
-    included: true
-    name: gauge.spark.stage.disk_bytes_spilled
-    type: gauge
-  - description: Fraction of time spent by (and averaged across) executors for a particular
-      application
-    included: true
-    name: gauge.spark.stage.executor_run_time
-    type: gauge
-  - description: Input size for a particular application
-    included: true
-    name: gauge.spark.stage.input_bytes
-    type: gauge
-  - description: Input records received for a particular application
-    included: true
-    name: gauge.spark.stage.input_records
-    type: gauge
-  - description: Size spilled to disk from memory for an active application in the
-      spark cluster
-    included: true
-    name: gauge.spark.stage.memory_bytes_spilled
-    type: gauge
-  - description: Output size for a particular application
-    included: true
-    name: gauge.spark.stage.output_bytes
-    type: gauge
-  - description: Output records written to for a particular application
-    included: true
-    name: gauge.spark.stage.output_records
-    type: gauge
-  - description: Read size during shuffle phase for a particular application
-    included: false
-    name: gauge.spark.stage.shuffle_read_bytes
-    type: gauge
-  - description: Number of records read during shuffle phase for a particular application
-    included: false
-    name: gauge.spark.stage.shuffle_read_records
-    type: gauge
-  - description: Size written during shuffle phase for a particular application
-    included: false
-    name: gauge.spark.stage.shuffle_write_bytes
-    type: gauge
-  - description: Number of records written to during shuffle phase for a particular
-      application
-    included: false
-    name: gauge.spark.stage.shuffle_write_records
-    type: gauge
-  - description: Average input rate of records across retained batches in a streaming
-      application
-    included: true
-    name: gauge.spark.streaming.avg_input_rate
-    type: gauge
-  - description: Average processing time in a streaming application
-    included: true
-    name: gauge.spark.streaming.avg_processing_time
-    type: gauge
-  - description: Average scheduling delay in a streaming application
-    included: true
-    name: gauge.spark.streaming.avg_scheduling_delay
-    type: gauge
-  - description: Average total delay in a streaming application
-    included: true
-    name: gauge.spark.streaming.avg_total_delay
-    type: gauge
-  - description: Number of active batches in a streaming application
-    included: true
-    name: gauge.spark.streaming.num_active_batches
-    type: gauge
-  - description: Number of inactive receivers in a streaming application
-    included: true
-    name: gauge.spark.streaming.num_inactive_receivers
-    type: gauge
-  - description: Total cores free for a particular worker process
-    included: true
-    name: gauge.worker.coresFree
-    type: gauge
-  - description: Total cores used by a particular worker process
-    included: true
-    name: gauge.worker.coresUsed
-    type: gauge
-  - description: Total number of executors for a particular worker process
-    included: true
-    name: gauge.worker.executors
-    type: gauge
-  - description: Total memory free for a particular worker process
-    included: true
-    name: gauge.worker.memFree_MB
-    type: gauge
-  - description: Memory used by a particular worker process
-    included: true
-    name: gauge.worker.memUsed_MB
-    type: gauge
+    counter.HiveExternalCatalog.counter.HiveClientCalls:
+      description: Total number of client calls sent to Hive for query processing
+      included: false
+      type: counter
+    counter.HiveExternalCatalog.fileCacheHits:
+      description: Total number of file level cache hits occurred
+      included: false
+      type: counter
+    counter.HiveExternalCatalog.filesDiscovered:
+      description: Total number of files discovered
+      included: false
+      type: counter
+    counter.HiveExternalCatalog.parallelListingJobCount:
+      description: Total number of Hive-specific jobs running in parallel
+      included: false
+      type: counter
+    counter.HiveExternalCatalog.partitionsFetched:
+      description: Total number of partitions fetched
+      included: false
+      type: counter
+    counter.spark.driver.completed_tasks:
+      description: Total number of completed tasks in driver mapped to a particular
+        application
+      included: false
+      type: counter
+    counter.spark.driver.disk_used:
+      description: Amount of disk used by driver mapped to a particular application
+      included: true
+      type: counter
+    counter.spark.driver.failed_tasks:
+      description: Total number of failed tasks in driver mapped to a particular application
+      included: false
+      type: counter
+    counter.spark.driver.memory_used:
+      description: Amount of memory used by driver mapped to a particular application
+      included: true
+      type: counter
+    counter.spark.driver.total_duration:
+      description: Fraction of time spent by driver mapped to a particular application
+      included: false
+      type: counter
+    counter.spark.driver.total_input_bytes:
+      description: Number of input bytes in driver mapped to a particular application
+      included: true
+      type: counter
+    counter.spark.driver.total_shuffle_read:
+      description: Size read during a shuffle in driver mapped to a particular application
+      included: true
+      type: counter
+    counter.spark.driver.total_shuffle_write:
+      description: Size written to during a shuffle in driver mapped to a particular
+        application
+      included: true
+      type: counter
+    counter.spark.driver.total_tasks:
+      description: Total number of tasks in driver mapped to a particular application
+      included: true
+      type: counter
+    counter.spark.executor.completed_tasks:
+      description: Completed tasks across executors working for a particular application
+      included: false
+      type: counter
+    counter.spark.executor.disk_used:
+      description: Amount of disk used across executors working for a particular application
+      included: true
+      type: counter
+    counter.spark.executor.failed_tasks:
+      description: Failed tasks across executors working for a particular application
+      included: false
+      type: counter
+    counter.spark.executor.memory_used:
+      description: Amount of memory used across executors working for a particular
+        application
+      included: true
+      type: counter
+    counter.spark.executor.total_duration:
+      description: Fraction of time spent across executors working for a particular
+        application
+      included: false
+      type: counter
+    counter.spark.executor.total_input_bytes:
+      description: Number of input bytes across executors working for a particular
+        application
+      included: true
+      type: counter
+    counter.spark.executor.total_shuffle_read:
+      description: Size read during a shuffle in a particular application's executors
+      included: true
+      type: counter
+    counter.spark.executor.total_shuffle_write:
+      description: Size written to during a shuffle in a particular application's
+        executors
+      included: true
+      type: counter
+    counter.spark.executor.total_tasks:
+      description: Total tasks across executors working for a particular application
+      included: false
+      type: counter
+    counter.spark.streaming.num_processed_records:
+      description: Number of processed records in a streaming application
+      included: true
+      type: counter
+    counter.spark.streaming.num_received_records:
+      description: Number of received records in a streaming application
+      included: true
+      type: counter
+    counter.spark.streaming.num_total_completed_batches:
+      description: Number of batches completed in a streaming application
+      included: true
+      type: counter
+    gauge.jvm.MarkSweepCompact.count:
+      description: Garbage collection count
+      included: false
+      type: gauge
+    gauge.jvm.MarkSweepCompact.time:
+      description: Garbage collection time
+      included: false
+      type: gauge
+    gauge.jvm.heap.committed:
+      description: Amount of committed heap memory (in MB)
+      included: true
+      type: gauge
+    gauge.jvm.heap.used:
+      description: Amount of used heap memory (in MB)
+      included: true
+      type: gauge
+    gauge.jvm.non-heap.committed:
+      description: Amount of committed non-heap memory (in MB)
+      included: true
+      type: gauge
+    gauge.jvm.non-heap.used:
+      description: Amount of used non-heap memory (in MB)
+      included: true
+      type: gauge
+    gauge.jvm.pools.Code-Cache.committed:
+      description: Amount of memory committed for compilation and storage of native
+        code
+      included: false
+      type: gauge
+    gauge.jvm.pools.Code-Cache.used:
+      description: Amount of memory used to compile and store native code
+      included: false
+      type: gauge
+    gauge.jvm.pools.Compressed-Class-Space.committed:
+      description: Amount of memory committed for compressing a class object
+      included: false
+      type: gauge
+    gauge.jvm.pools.Compressed-Class-Space.used:
+      description: Amount of memory used to compress a class object
+      included: false
+      type: gauge
+    gauge.jvm.pools.Eden-Space.committed:
+      description: Amount of memory committed for the initial allocation of objects
+      included: false
+      type: gauge
+    gauge.jvm.pools.Eden-Space.used:
+      description: Amount of memory used for the initial allocation of objects
+      included: false
+      type: gauge
+    gauge.jvm.pools.Metaspace.committed:
+      description: Amount of memory committed for storing classes and classloaders
+      included: false
+      type: gauge
+    gauge.jvm.pools.Metaspace.used:
+      description: Amount of memory used to store classes and classloaders
+      included: false
+      type: gauge
+    gauge.jvm.pools.Survivor-Space.committed:
+      description: Amount of memory committed specifically for objects that have survived
+        GC of the Eden Space
+      included: false
+      type: gauge
+    gauge.jvm.pools.Survivor-Space.used:
+      description: Amount of memory used for objects that have survived GC of the
+        Eden Space
+      included: false
+      type: gauge
+    gauge.jvm.pools.Tenured-Gen.committed:
+      description: Amount of memory committed to store objects that have lived in
+        the survivor space for a given period of time
+      included: false
+      type: gauge
+    gauge.jvm.pools.Tenured-Gen.used:
+      description: Amount of memory used for objects that have lived in the survivor
+        space for a given period of time
+      included: false
+      type: gauge
+    gauge.jvm.total.committed:
+      description: Amount of committed JVM memory (in MB)
+      included: true
+      type: gauge
+    gauge.jvm.total.used:
+      description: Amount of used JVM memory (in MB)
+      included: true
+      type: gauge
+    gauge.master.aliveWorkers:
+      description: Total functioning workers
+      included: true
+      type: gauge
+    gauge.master.apps:
+      description: Total number of active applications in the spark cluster
+      included: true
+      type: gauge
+    gauge.master.waitingApps:
+      description: Total number of waiting applications in the spark cluster
+      included: true
+      type: gauge
+    gauge.master.workers:
+      description: Total number of workers in spark cluster
+      included: true
+      type: gauge
+    gauge.spark.driver.active_tasks:
+      description: Total number of active tasks in driver mapped to a particular application
+      included: false
+      type: gauge
+    gauge.spark.driver.max_memory:
+      description: Maximum memory used by driver mapped to a particular application
+      included: true
+      type: gauge
+    gauge.spark.driver.rdd_blocks:
+      description: Number of RDD blocks in the driver mapped to a particular application
+      included: false
+      type: gauge
+    gauge.spark.executor.active_tasks:
+      description: Total number of active tasks across all executors working for a
+        particular application
+      included: false
+      type: gauge
+    gauge.spark.executor.count:
+      description: Total number of executors performing for an active application
+        in the spark cluster
+      included: true
+      type: gauge
+    gauge.spark.executor.max_memory:
+      description: Max memory across all executors working for a particular application
+      included: true
+      type: gauge
+    gauge.spark.executor.rdd_blocks:
+      description: Number of RDD blocks across all executors working for a particular
+        application
+      included: false
+      type: gauge
+    gauge.spark.job.num_active_stages:
+      description: Total number of active stages for an active application in the
+        spark cluster
+      included: true
+      type: gauge
+    gauge.spark.job.num_active_tasks:
+      description: Total number of active tasks for an active application in the spark
+        cluster
+      included: true
+      type: gauge
+    gauge.spark.job.num_completed_stages:
+      description: Total number of completed stages for an active application in the
+        spark cluster
+      included: true
+      type: gauge
+    gauge.spark.job.num_completed_tasks:
+      description: Total number of completed tasks for an active application in the
+        spark cluster
+      included: true
+      type: gauge
+    gauge.spark.job.num_failed_stages:
+      description: Total number of failed stages for an active application in the
+        spark cluster
+      included: true
+      type: gauge
+    gauge.spark.job.num_failed_tasks:
+      description: Total number of failed tasks for an active application in the spark
+        cluster
+      included: true
+      type: gauge
+    gauge.spark.job.num_skipped_stages:
+      description: Total number of skipped stages for an active application in the
+        spark cluster
+      included: true
+      type: gauge
+    gauge.spark.job.num_skipped_tasks:
+      description: Total number of skipped tasks for an active application in the
+        spark cluster
+      included: true
+      type: gauge
+    gauge.spark.job.num_tasks:
+      description: Total number of tasks for an active application in the spark cluster
+      included: true
+      type: gauge
+    gauge.spark.num_active_stages:
+      description: Total number of active stages for an active application in the
+        spark cluster
+      included: true
+      type: gauge
+    gauge.spark.num_running_jobs:
+      description: Total number of running jobs for an active application in the spark
+        cluster
+      included: true
+      type: gauge
+    gauge.spark.stage.disk_bytes_spilled:
+      description: Actual size written to disk for an active application in the spark
+        cluster
+      included: true
+      type: gauge
+    gauge.spark.stage.executor_run_time:
+      description: Fraction of time spent by (and averaged across) executors for a
+        particular application
+      included: true
+      type: gauge
+    gauge.spark.stage.input_bytes:
+      description: Input size for a particular application
+      included: true
+      type: gauge
+    gauge.spark.stage.input_records:
+      description: Input records received for a particular application
+      included: true
+      type: gauge
+    gauge.spark.stage.memory_bytes_spilled:
+      description: Size spilled to disk from memory for an active application in the
+        spark cluster
+      included: true
+      type: gauge
+    gauge.spark.stage.output_bytes:
+      description: Output size for a particular application
+      included: true
+      type: gauge
+    gauge.spark.stage.output_records:
+      description: Output records written to for a particular application
+      included: true
+      type: gauge
+    gauge.spark.stage.shuffle_read_bytes:
+      description: Read size during shuffle phase for a particular application
+      included: false
+      type: gauge
+    gauge.spark.stage.shuffle_read_records:
+      description: Number of records read during shuffle phase for a particular application
+      included: false
+      type: gauge
+    gauge.spark.stage.shuffle_write_bytes:
+      description: Size written during shuffle phase for a particular application
+      included: false
+      type: gauge
+    gauge.spark.stage.shuffle_write_records:
+      description: Number of records written to during shuffle phase for a particular
+        application
+      included: false
+      type: gauge
+    gauge.spark.streaming.avg_input_rate:
+      description: Average input rate of records across retained batches in a streaming
+        application
+      included: true
+      type: gauge
+    gauge.spark.streaming.avg_processing_time:
+      description: Average processing time in a streaming application
+      included: true
+      type: gauge
+    gauge.spark.streaming.avg_scheduling_delay:
+      description: Average scheduling delay in a streaming application
+      included: true
+      type: gauge
+    gauge.spark.streaming.avg_total_delay:
+      description: Average total delay in a streaming application
+      included: true
+      type: gauge
+    gauge.spark.streaming.num_active_batches:
+      description: Number of active batches in a streaming application
+      included: true
+      type: gauge
+    gauge.spark.streaming.num_inactive_receivers:
+      description: Number of inactive receivers in a streaming application
+      included: true
+      type: gauge
+    gauge.worker.coresFree:
+      description: Total cores free for a particular worker process
+      included: true
+      type: gauge
+    gauge.worker.coresUsed:
+      description: Total cores used by a particular worker process
+      included: true
+      type: gauge
+    gauge.worker.executors:
+      description: Total number of executors for a particular worker process
+      included: true
+      type: gauge
+    gauge.worker.memFree_MB:
+      description: Total memory free for a particular worker process
+      included: true
+      type: gauge
+    gauge.worker.memUsed_MB:
+      description: Memory used by a particular worker process
+      included: true
+      type: gauge
   monitorType: collectd/spark
-  properties: null
+  properties: {}

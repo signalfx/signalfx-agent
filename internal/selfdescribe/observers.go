@@ -16,9 +16,9 @@ import (
 
 type observerMetadata struct {
 	structMetadata
-	ObserverType      string                 `json:"observerType"`
-	Dimensions        []monitors.DimMetadata `json:"dimensions"`
-	EndpointVariables []endpointVar          `json:"endpointVariables"`
+	ObserverType      string                          `json:"observerType"`
+	Dimensions        map[string]monitors.DimMetadata `json:"dimensions"`
+	EndpointVariables []endpointVar                   `json:"endpointVariables"`
 }
 
 type endpointVar struct {
@@ -102,8 +102,9 @@ func observerDocsInPackage(pkgDoc *doc.Package) map[string]string {
 	return out
 }
 
-func dimensionsFromNotesAndServicesPackage(allDocs []*doc.Package) ([]monitors.DimMetadata, error) {
-	var containerDims []monitors.DimMetadata
+func dimensionsFromNotesAndServicesPackage(allDocs []*doc.Package) (map[string]monitors.DimMetadata, error) {
+	containerDims := map[string]monitors.DimMetadata{}
+
 	if isContainerObserver(allDocs) {
 		servicesDocs, err := nestedPackageDocs("internal/core/services")
 		if err != nil {
@@ -111,16 +112,17 @@ func dimensionsFromNotesAndServicesPackage(allDocs []*doc.Package) ([]monitors.D
 		}
 
 		for _, note := range notesFromDocs(servicesDocs, "CONTAINER_DIMENSION") {
-			containerDims = append(containerDims, monitors.DimMetadata{
-				Name:        note.UID,
+			containerDims[note.UID] = monitors.DimMetadata{
 				Description: commentTextToParagraphs(note.Body),
-			})
+			}
 		}
 	}
 
-	return append(
-		dimensionsFromNotes(allDocs),
-		containerDims...), nil
+	for k, v := range dimensionsFromNotes(allDocs) {
+		containerDims[k] = v
+	}
+
+	return containerDims, nil
 }
 
 func isContainerObserver(obsDocs []*doc.Package) bool {

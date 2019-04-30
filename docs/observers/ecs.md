@@ -148,7 +148,7 @@ rules.
 
 | Name | Description |
 | ---  | ---         |
-| `container_name` | The primary name of the running container -- Docker containers can have multiple names but this will be the first name, if any. |
 | `container_image` | The image name (including tags) of the running container |
+| `container_name` | The primary name of the running container -- Docker containers can have multiple names but this will be the first name, if any. |
 
 

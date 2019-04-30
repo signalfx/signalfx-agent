@@ -1,65 +1,65 @@
 monitors:
-  - monitorType: sql
-    dimensions: null
-    metrics: null
-    doc: |
-      Run arbitrary SQL queries against a relational database and use the results to generate dataponts.
+- monitorType: sql
+  dimensions: {}
+  metrics: {}
+  doc: |
+    Run arbitrary SQL queries against a relational database and use the results to generate dataponts.
 
-      For example, if you had a database table `customers` that looked like:
+    For example, if you had a database table `customers` that looked like:
 
-      | id | name       | country | status   |
-      |----|------------|---------|----------|
-      | 1  | Bill       | USA     | active   |
-      | 2  | Mary       | USA     | inactive |
-      | 3  | Joe        | USA     | active   |
-      | 4  | Elizabeth  | Germany | active   |
+    | id | name       | country | status   |
+    |----|------------|---------|----------|
+    | 1  | Bill       | USA     | active   |
+    | 2  | Mary       | USA     | inactive |
+    | 3  | Joe        | USA     | active   |
+    | 4  | Elizabeth  | Germany | active   |
 
-      You could use the following monitor config to generate metrics about active users and customer counts by country:
+    You could use the following monitor config to generate metrics about active users and customer counts by country:
 
-      ```yaml
-      monitors:
-        - type: sql
-          host: localhost
-          port: 5432
-          dbDriver: postgres
-          params:
-            user: admin
-            password: s3cr3t
-          # The `host` and `port` values from above (or provided through auto-discovery) should be interpolated
-          # to the connection string as appropriate for your database driver.
-          # Also, the values from the `params` config option above can be
-          # interpolated.
-          connectionString: 'host={{.host}} port={{.port}} dbname=main user={{.user}} password={{.password}} sslmode=disabled'
-          queries:
-            - query: 'SELECT COUNT(*) as count, country, status FROM customers GROUP BY country, status;'
-              metrics:
-                - metricName: "customers"
-                  valueColumn: "count"
-                  dimensionColumns: ["country", "status"]
-      ```
+    ```yaml
+    monitors:
+      - type: sql
+        host: localhost
+        port: 5432
+        dbDriver: postgres
+        params:
+          user: admin
+          password: s3cr3t
+        # The `host` and `port` values from above (or provided through auto-discovery) should be interpolated
+        # to the connection string as appropriate for your database driver.
+        # Also, the values from the `params` config option above can be
+        # interpolated.
+        connectionString: 'host={{.host}} port={{.port}} dbname=main user={{.user}} password={{.password}} sslmode=disabled'
+        queries:
+          - query: 'SELECT COUNT(*) as count, country, status FROM customers GROUP BY country, status;'
+            metrics:
+              - metricName: "customers"
+                valueColumn: "count"
+                dimensionColumns: ["country", "status"]
+    ```
 
-      This would generate a series of timeseries, all with the metric name
-      `customers` that includes a `county` and `status` dimension.  The value
-      is the number of customers that belong to that combination of `country`
-      and `status`.  You could also specify multiple `metrics` items to
-      generate more than one metric from a single query.
+    This would generate a series of timeseries, all with the metric name
+    `customers` that includes a `county` and `status` dimension.  The value
+    is the number of customers that belong to that combination of `country`
+    and `status`.  You could also specify multiple `metrics` items to
+    generate more than one metric from a single query.
 
-      ## Supported Drivers
+    ## Supported Drivers
 
-      The `dbDriver` config option must specify the database driver to use.
-      These are equivalent to the name of the Golang SQL driver used in the
-      agent.  The `connectionString` option will be formatted according to the
-      driver that is going to receive it.  Here is a list of the drivers we
-      currently support and documentation on the connection string:
+    The `dbDriver` config option must specify the database driver to use.
+    These are equivalent to the name of the Golang SQL driver used in the
+    agent.  The `connectionString` option will be formatted according to the
+    driver that is going to receive it.  Here is a list of the drivers we
+    currently support and documentation on the connection string:
 
-        - `postgres`: https://godoc.org/github.com/lib/pq#hdr-Connection_String_Parameters
-        - `mysql`: https://github.com/go-sql-driver/mysql#dsn-data-source-name
-        - `mssql`: https://github.com/denisenkom/go-mssqldb#connection-parameters-and-dsn
+      - `postgres`: https://godoc.org/github.com/lib/pq#hdr-Connection_String_Parameters
+      - `mysql`: https://github.com/go-sql-driver/mysql#dsn-data-source-name
+      - `mssql`: https://github.com/denisenkom/go-mssqldb#connection-parameters-and-dsn
 
-      ## Parameterized Connection String
+    ## Parameterized Connection String
 
-      The `connectionString` config option acts as a template with a context
-      consisting of the variables: `host`, `port`, and all the values from
-      the `params` config option map.  You interpolate variables into it
-      with the Go template syntax `{{.varname}}` (see example config
-      above).
+    The `connectionString` config option acts as a template with a context
+    consisting of the variables: `host`, `port`, and all the values from
+    the `params` config option map.  You interpolate variables into it
+    with the Go template syntax `{{.varname}}` (see example config
+    above).

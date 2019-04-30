@@ -1,5 +1,5 @@
 monitors:
-- dimensions: null
+- dimensions: {}
   doc: |
     (Windows Only) This monitor reports metrics for .NET applications.
 
@@ -30,49 +30,49 @@ monitors:
     ```
   sendAll: true
   metrics:
-  - description: The number of exceptions thrown by .NET applications.
-    included: false
-    name: net_clr_exceptions.num_exceps_thrown_sec
-    type: gauge
-  - description: The rate of thread of thread contention per second for .NET applications.
-    included: false
-    name: net_clr_locksandthreads.contention_rate_sec
-    type: gauge
-  - description: The current thread queue length for .NET applications.
-    included: false
-    name: net_clr_locksandthreads.current_queue_length
-    type: gauge
-  - description: The number of current logical threads for .NET applications.
-    included: false
-    name: net_clr_locksandthreads.num_of_current_logical_threads
-    type: gauge
-  - description: The number of current physical threads for .NET applications.
-    included: false
-    name: net_clr_locksandthreads.num_of_current_physical_threads
-    type: gauge
-  - description: The number of bytes in all heaps for .NET applications.
-    included: false
-    name: net_clr_memory.num_bytes_in_all_heaps
-    type: gauge
-  - description: The number of garbage collection handles held by .NET applications.
-    included: false
-    name: net_clr_memory.num_gc_handles
-    type: gauge
-  - description: The number of objects pinned in memory by .NET applications.
-    included: false
-    name: net_clr_memory.num_of_pinned_objects
-    type: gauge
-  - description: The total number of bytes committed to memory by .NET applications.
-    included: false
-    name: net_clr_memory.num_total_committed_bytes
-    type: gauge
-  - description: The total number of bytes reserved by .NET applications.
-    included: false
-    name: net_clr_memory.num_total_reserved_bytes
-    type: gauge
-  - description: The percentage of time spent garbage collecting by .NET applications.
-    included: false
-    name: net_clr_memory.pct_time_in_gc
-    type: gauge
+    net_clr_exceptions.num_exceps_thrown_sec:
+      description: The number of exceptions thrown by .NET applications.
+      included: false
+      type: gauge
+    net_clr_locksandthreads.contention_rate_sec:
+      description: The rate of thread of thread contention per second for .NET applications.
+      included: false
+      type: gauge
+    net_clr_locksandthreads.current_queue_length:
+      description: The current thread queue length for .NET applications.
+      included: false
+      type: gauge
+    net_clr_locksandthreads.num_of_current_logical_threads:
+      description: The number of current logical threads for .NET applications.
+      included: false
+      type: gauge
+    net_clr_locksandthreads.num_of_current_physical_threads:
+      description: The number of current physical threads for .NET applications.
+      included: false
+      type: gauge
+    net_clr_memory.num_bytes_in_all_heaps:
+      description: The number of bytes in all heaps for .NET applications.
+      included: false
+      type: gauge
+    net_clr_memory.num_gc_handles:
+      description: The number of garbage collection handles held by .NET applications.
+      included: false
+      type: gauge
+    net_clr_memory.num_of_pinned_objects:
+      description: The number of objects pinned in memory by .NET applications.
+      included: false
+      type: gauge
+    net_clr_memory.num_total_committed_bytes:
+      description: The total number of bytes committed to memory by .NET applications.
+      included: false
+      type: gauge
+    net_clr_memory.num_total_reserved_bytes:
+      description: The total number of bytes reserved by .NET applications.
+      included: false
+      type: gauge
+    net_clr_memory.pct_time_in_gc:
+      description: The percentage of time spent garbage collecting by .NET applications.
+      included: false
+      type: gauge
   monitorType: dotnet
-  properties: null
+  properties: {}

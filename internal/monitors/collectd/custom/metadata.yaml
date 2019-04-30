@@ -1,5 +1,5 @@
 monitors:
-- dimensions: null
+- dimensions: {}
   doc: |
     This monitor lets you provide custom collectd
     configuration to be run by the managed collectd instance.  You can provide
@@ -43,6 +43,6 @@ monitors:
     directory, where `<AGENT_BUNDLE>` is the root of the filesystem in the
     containerized version, and is normally `/usr/lib/signalfx-agent` in the
     non-containerized agent.
-  metrics: null
+  metrics: {}
   monitorType: collectd/custom
-  properties: null
+  properties: {}

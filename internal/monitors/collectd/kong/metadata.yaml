@@ -1,5 +1,5 @@
 monitors:
-- dimensions: null
+- dimensions: {}
   doc: |
     Monitors a Kong instance using [collectd-kong](https://github.com/signalfx/collectd-kong).
 
@@ -48,65 +48,65 @@ monitors:
           - "*SomeService*"
     ```
   metrics:
-  - description: Total number of all accepted connections.
-    included: false
-    name: counter.kong.connections.accepted
-    type: cumulative
-  - description: Total number of all handled connections (accounting for resource
-      limits).
-    included: false
-    name: counter.kong.connections.handled
-    type: cumulative
-  - description: Time spent in Kong request handling and balancer (ms).
-    included: true
-    name: counter.kong.kong.latency
-    type: cumulative
-  - description: Total number of all requests made to Kong API and proxy server.
-    included: true
-    name: counter.kong.requests.count
-    type: cumulative
-  - description: Time elapsed between the first bytes being read from each client
-      request and the log writes after the last bytes were sent to the clients (ms).
-    included: true
-    name: counter.kong.requests.latency
-    type: cumulative
-  - description: Total bytes received/proxied from client requests.
-    included: true
-    name: counter.kong.requests.size
-    type: cumulative
-  - description: Total number of responses provided to clients.
-    included: true
-    name: counter.kong.responses.count
-    type: cumulative
-  - description: Total bytes sent/proxied to clients.
-    included: true
-    name: counter.kong.responses.size
-    type: cumulative
-  - description: Time spent waiting for upstream response (ms).
-    included: true
-    name: counter.kong.upstream.latency
-    type: cumulative
-  - description: The current number of active client connections (includes waiting).
-    included: true
-    name: gauge.kong.connections.active
-    type: gauge
-  - description: The current number of connections where nginx is reading the request
-      header.
-    included: true
-    name: gauge.kong.connections.reading
-    type: gauge
-  - description: The current number of idle client connections waiting for a request.
-    included: true
-    name: gauge.kong.connections.waiting
-    type: gauge
-  - description: The current number of connections where nginx is writing the response
-      back to the client.
-    included: true
-    name: gauge.kong.connections.writing
-    type: gauge
-  - description: kong.dao:db.reachable() at time of metric query
-    included: true
-    name: gauge.kong.database.reachable
-    type: gauge
+    counter.kong.connections.accepted:
+      description: Total number of all accepted connections.
+      included: false
+      type: cumulative
+    counter.kong.connections.handled:
+      description: Total number of all handled connections (accounting for resource
+        limits).
+      included: false
+      type: cumulative
+    counter.kong.kong.latency:
+      description: Time spent in Kong request handling and balancer (ms).
+      included: true
+      type: cumulative
+    counter.kong.requests.count:
+      description: Total number of all requests made to Kong API and proxy server.
+      included: true
+      type: cumulative
+    counter.kong.requests.latency:
+      description: Time elapsed between the first bytes being read from each client
+        request and the log writes after the last bytes were sent to the clients (ms).
+      included: true
+      type: cumulative
+    counter.kong.requests.size:
+      description: Total bytes received/proxied from client requests.
+      included: true
+      type: cumulative
+    counter.kong.responses.count:
+      description: Total number of responses provided to clients.
+      included: true
+      type: cumulative
+    counter.kong.responses.size:
+      description: Total bytes sent/proxied to clients.
+      included: true
+      type: cumulative
+    counter.kong.upstream.latency:
+      description: Time spent waiting for upstream response (ms).
+      included: true
+      type: cumulative
+    gauge.kong.connections.active:
+      description: The current number of active client connections (includes waiting).
+      included: true
+      type: gauge
+    gauge.kong.connections.reading:
+      description: The current number of connections where nginx is reading the request
+        header.
+      included: true
+      type: gauge
+    gauge.kong.connections.waiting:
+      description: The current number of idle client connections waiting for a request.
+      included: true
+      type: gauge
+    gauge.kong.connections.writing:
+      description: The current number of connections where nginx is writing the response
+        back to the client.
+      included: true
+      type: gauge
+    gauge.kong.database.reachable:
+      description: kong.dao:db.reachable() at time of metric query
+      included: true
+      type: gauge
   monitorType: collectd/kong
-  properties: null
+  properties: {}

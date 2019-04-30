@@ -3,7 +3,7 @@
 | Config option | Required | Type | Description |
 | --- | --- | --- | --- |
 {{ range . -}}
-| `{{.yamlName}}` | {{if .required}}**yes**{{else}}no{{end}} | `{{or (index (ds "monitor").doc_types .type) .type}}{{if (eq .type "struct") }} (see below){{end}}{{if .elementKind}} of {{or (index (ds "monitor").doc_types .elementKind) .elementKind}}{{if ne .elementKind "interface"}}s{{end}}{{if (eq .elementKind "struct") and (ne .elementKind "interface")}} (see below){{end}}{{end}}` | {{.doc | strings.TrimSpace}}{{if .default | print}} (**default:** `{{.default}}`){{end}} |
+| `{{.yamlName}}` | {{if .required}}**yes**{{else}}no{{end}} | `{{or (index (ds "monitor").doc_types .type) .type}}{{if (eq .type "struct") }} (see below){{end}}{{if .elementKind}} of {{or (index (ds "monitor").doc_types .elementKind) .elementKind}}{{if ne .elementKind "interface"}}s{{end}}{{if (eq .elementKind "struct") and (ne .elementKind "interface")}} (see below){{end}}{{end}}` | {{.doc | strings.TrimSpace}}{{if and (.default | conv.ToString) (ne (.default | conv.ToString) "nil")}} (**default:** `{{.default}}`){{end}} |
 {{end}}
 
 {{ range . -}}
@@ -45,8 +45,8 @@ The following table lists the metrics available for this monitor. Metrics that a
 
 | Name | Type | Included | Description |
 | ---  | ---  | ---    | ---         |
-{{ range . -}}
-| `{{.name}}`{{if has . "alias"}}<br>_or_ `{{.alias}}`{{end}} | {{.type}} | {{if .included}}✔{{end}} | {{.description | strings.TrimSpace}} |
+{{ range $metric, $info := . -}}
+| `{{$metric}}`{{if has $info "alias"}}<br>_or_ `{{$info.alias}}`{{end}} | {{$info.type}} | {{if $info.included}}✔{{end}} | {{$info.description | strings.TrimSpace}} |
 {{end}}
 {{end -}}
 
@@ -65,9 +65,9 @@ required for gathering additional metrics.
 
 metricsToInclude:
   - metricNames:
-{{- range .metrics -}}
-{{if not .included}}
-    - {{ .name }}
+{{- range $metric, $info := .metrics -}}
+{{if not $info.included}}
+    - {{ $metric }}
 {{- end -}}
 {{end}}
     monitorType: {{.monitorType}}
@@ -82,8 +82,8 @@ dimensions may be specific to certain metrics.
 
 | Name | Description |
 | ---  | ---         |
-{{ range . -}}
-| `{{.name}}` | {{.description | strings.TrimSpace}} |
+{{ range $dim, $info := . -}}
+| `{{$dim}}` | {{$info.description | strings.TrimSpace}} |
 {{end}}
 {{end -}}
 
@@ -96,8 +96,8 @@ are set on the dimension values of the dimension specified.
 
 | Name | Dimension | Description |
 | ---  | ---       | ---         |
-{{ range . -}}
-| `{{.name}}` | `{{.dimension}}` | {{.description | strings.TrimSpace}} |
+{{ range $prop, $info := . -}}
+| `{{$prop}}` | `{{$info.dimension}}` | {{$info.description | strings.TrimSpace}} |
 {{end}}
 {{end}}
 {{end}}

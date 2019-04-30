@@ -1,126 +1,126 @@
 monitors:
-- dimensions: null
+- dimensions: {}
   doc: |
     Monitors an etcd key/value store.
 
     See https://github.com/signalfx/integrations/tree/master/collectd-etcd and
     https://github.com/signalfx/collectd-etcd
   metrics:
-  - description: Total number of failed rpc requests to with a follower
-    included: true
-    name: counter.etcd.leader.counts.fail
-    type: counter
-  - description: Total number of successful rpc requests to with a follower
-    included: true
-    name: counter.etcd.leader.counts.success
-    type: counter
-  - description: Total number of append requests received by a member
-    included: true
-    name: counter.etcd.self.recvappendreq.cnt
-    type: counter
-  - description: Total number of append requests sent by a member
-    included: true
-    name: counter.etcd.self.sendappendreq.cnt
-    type: counter
-  - description: Total number of failed compare-and-delete operations
-    included: true
-    name: counter.etcd.store.compareanddelete.fail
-    type: counter
-  - description: Total number of successful compare-and-delete operations
-    included: true
-    name: counter.etcd.store.compareanddelete.success
-    type: counter
-  - description: Total number of failed compare-and-swap operations
-    included: true
-    name: counter.etcd.store.compareandswap.fail
-    type: counter
-  - description: Total number of successful compare-and-swap operations
-    included: true
-    name: counter.etcd.store.compareandswap.success
-    type: counter
-  - description: Total number of failed create operations
-    included: true
-    name: counter.etcd.store.create.fail
-    type: counter
-  - description: Total number of successful create operations
-    included: true
-    name: counter.etcd.store.create.success
-    type: counter
-  - description: Total number of failed delete operations
-    included: true
-    name: counter.etcd.store.delete.fail
-    type: counter
-  - description: Total number of successful delete operations
-    included: true
-    name: counter.etcd.store.delete.success
-    type: counter
-  - description: Total number of items expired due to TTL
-    included: true
-    name: counter.etcd.store.expire.count
-    type: counter
-  - description: Total number of failed get operations
-    included: true
-    name: counter.etcd.store.gets.fail
-    type: counter
-  - description: Total number of successful get operations
-    included: true
-    name: counter.etcd.store.gets.success
-    type: counter
-  - description: Total number of failed set operations
-    included: true
-    name: counter.etcd.store.sets.fail
-    type: counter
-  - description: Total number of successful set operations
-    included: true
-    name: counter.etcd.store.sets.success
-    type: counter
-  - description: Total number of failed update operations
-    included: true
-    name: counter.etcd.store.update.fail
-    type: counter
-  - description: Total number of successful update operations
-    included: true
-    name: counter.etcd.store.update.success
-    type: counter
-  - description: Average latency of a follower with respect to the leader
-    included: false
-    name: gauge.etcd.leader.latency.average
-    type: gauge
-  - description: Current latency of a follower with respect to the leader
-    included: true
-    name: gauge.etcd.leader.latency.current
-    type: gauge
-  - description: Max latency of a follower with respect to the leader
-    included: false
-    name: gauge.etcd.leader.latency.max
-    type: gauge
-  - description: Min latency of a follower with respect to the leader
-    included: false
-    name: gauge.etcd.leader.latency.min
-    type: gauge
-  - description: Std dev latency of a follower with respect to the leader
-    included: false
-    name: gauge.etcd.leader.latency.stddev
-    type: gauge
-  - description: Bandwidth rate of a follower
-    included: true
-    name: gauge.etcd.self.recvbandwidth.rate
-    type: gauge
-  - description: Rate at which a follower receives packages
-    included: true
-    name: gauge.etcd.self.recvpkg.rate
-    type: gauge
-  - description: Bandwidth rate of a leader
-    included: true
-    name: gauge.etcd.self.sendbandwidth.rate
-    type: gauge
-  - description: Rate at which a leader sends packages
-    included: true
-    name: gauge.etcd.self.sendpkg.rate
-    type: gauge
-  - description: Number of watchers
-    included: true
-    name: gauge.etcd.store.watchers
-    type: gauge
+    counter.etcd.leader.counts.fail:
+      description: Total number of failed rpc requests to with a follower
+      included: true
+      type: counter
+    counter.etcd.leader.counts.success:
+      description: Total number of successful rpc requests to with a follower
+      included: true
+      type: counter
+    counter.etcd.self.recvappendreq.cnt:
+      description: Total number of append requests received by a member
+      included: true
+      type: counter
+    counter.etcd.self.sendappendreq.cnt:
+      description: Total number of append requests sent by a member
+      included: true
+      type: counter
+    counter.etcd.store.compareanddelete.fail:
+      description: Total number of failed compare-and-delete operations
+      included: true
+      type: counter
+    counter.etcd.store.compareanddelete.success:
+      description: Total number of successful compare-and-delete operations
+      included: true
+      type: counter
+    counter.etcd.store.compareandswap.fail:
+      description: Total number of failed compare-and-swap operations
+      included: true
+      type: counter
+    counter.etcd.store.compareandswap.success:
+      description: Total number of successful compare-and-swap operations
+      included: true
+      type: counter
+    counter.etcd.store.create.fail:
+      description: Total number of failed create operations
+      included: true
+      type: counter
+    counter.etcd.store.create.success:
+      description: Total number of successful create operations
+      included: true
+      type: counter
+    counter.etcd.store.delete.fail:
+      description: Total number of failed delete operations
+      included: true
+      type: counter
+    counter.etcd.store.delete.success:
+      description: Total number of successful delete operations
+      included: true
+      type: counter
+    counter.etcd.store.expire.count:
+      description: Total number of items expired due to TTL
+      included: true
+      type: counter
+    counter.etcd.store.gets.fail:
+      description: Total number of failed get operations
+      included: true
+      type: counter
+    counter.etcd.store.gets.success:
+      description: Total number of successful get operations
+      included: true
+      type: counter
+    counter.etcd.store.sets.fail:
+      description: Total number of failed set operations
+      included: true
+      type: counter
+    counter.etcd.store.sets.success:
+      description: Total number of successful set operations
+      included: true
+      type: counter
+    counter.etcd.store.update.fail:
+      description: Total number of failed update operations
+      included: true
+      type: counter
+    counter.etcd.store.update.success:
+      description: Total number of successful update operations
+      included: true
+      type: counter
+    gauge.etcd.leader.latency.average:
+      description: Average latency of a follower with respect to the leader
+      included: false
+      type: gauge
+    gauge.etcd.leader.latency.current:
+      description: Current latency of a follower with respect to the leader
+      included: true
+      type: gauge
+    gauge.etcd.leader.latency.max:
+      description: Max latency of a follower with respect to the leader
+      included: false
+      type: gauge
+    gauge.etcd.leader.latency.min:
+      description: Min latency of a follower with respect to the leader
+      included: false
+      type: gauge
+    gauge.etcd.leader.latency.stddev:
+      description: Std dev latency of a follower with respect to the leader
+      included: false
+      type: gauge
+    gauge.etcd.self.recvbandwidth.rate:
+      description: Bandwidth rate of a follower
+      included: true
+      type: gauge
+    gauge.etcd.self.recvpkg.rate:
+      description: Rate at which a follower receives packages
+      included: true
+      type: gauge
+    gauge.etcd.self.sendbandwidth.rate:
+      description: Bandwidth rate of a leader
+      included: true
+      type: gauge
+    gauge.etcd.self.sendpkg.rate:
+      description: Rate at which a leader sends packages
+      included: true
+      type: gauge
+    gauge.etcd.store.watchers:
+      description: Number of watchers
+      included: true
+      type: gauge
   monitorType: collectd/etcd
-  properties: null
+  properties: {}
