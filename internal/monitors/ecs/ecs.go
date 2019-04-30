@@ -88,7 +88,7 @@ func (m *Monitor) Configure(conf *Config) error {
 
 	isRegistered := false
 
-	enhancedMetricsConfig := dmonitor.EnableExtraGroups(conf.EnhancedMetricsConfig, conf.ExtraGroups, conf.ExtraMetrics)
+	enhancedMetricsConfig := dmonitor.EnableExtraGroups(conf.EnhancedMetricsConfig, conf.EnabledMetrics)
 
 	utils.RunOnInterval(m.ctx, func() {
 		if !isRegistered {

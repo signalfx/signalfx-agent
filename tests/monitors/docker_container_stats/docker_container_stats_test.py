@@ -12,6 +12,7 @@ from tests.helpers.verify import verify_included_metrics, verify_all_metrics
 pytestmark = [pytest.mark.docker_container_stats, pytest.mark.monitor_without_endpoints]
 
 METADATA = Metadata.from_package("docker")
+METADATA.all_metrics = METADATA.all_metrics - {"memory.stats.swap"}
 
 
 def test_docker_container_stats():

@@ -7,13 +7,9 @@ import pytest
 
 from tests.helpers.agent import Agent
 from tests.helpers.assertions import has_datapoint_with_dim, has_datapoint_with_metric_name
-from tests.helpers.metadata import Metadata
 from tests.helpers.util import container_ip, ensure_always, run_container, run_service, wait_for
-from tests.helpers.verify import verify_included_metrics, verify_all_metrics
 
 pytestmark = [pytest.mark.docker_container_stats, pytest.mark.monitor_without_endpoints]
-
-METADATA = Metadata.from_package("ecs")
 
 
 def test_ecs_container_stats():
@@ -122,38 +118,3 @@ def test_ecs_container_stats_without_container_metadata():
                     "c42fa5a73634bcb6e301dfb7b13ac7ead2af473210be6a15da75a290c283b66c",
                 )
             ), "Didn't get redis datapoints"
-
-
-def test_ecs_included():
-    with run_service("ecsmeta") as ecsmeta, run_container("redis:4-alpine") as redis:
-        ecsmeta_ip = container_ip(ecsmeta)
-        redis_ip = container_ip(redis)
-
-        verify_included_metrics(
-            f"""
-            monitors:
-            - type: ecs-metadata
-              metadataEndpoint: http://{ecsmeta_ip}/metadata_single?redis_ip={redis_ip}
-              statsEndpoint: http://{ecsmeta_ip}/stats
-            """,
-            METADATA,
-        )
-
-
-def test_ecs_enhanced():
-    with run_service("ecsmeta") as ecsmeta, run_container("redis:4-alpine") as redis:
-        ecsmeta_ip = container_ip(ecsmeta)
-        redis_ip = container_ip(redis)
-        verify_all_metrics(
-            f"""
-            monitors:
-            - type: ecs-metadata
-              metadataEndpoint: http://{ecsmeta_ip}/metadata_single?redis_ip={redis_ip}
-              statsEndpoint: http://{ecsmeta_ip}/stats
-              enableExtraBlockIOMetrics: true
-              enableExtraCPUMetrics: true
-              enableExtraMemoryMetrics: true
-              enableExtraNetworkMetrics: true
-            """,
-            METADATA,
-        )
