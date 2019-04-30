@@ -178,6 +178,7 @@ run-integration-tests:
 .PHONY: run-k8s-tests
 run-k8s-tests: MARKERS ?= (kubernetes or helm) and not collectd
 run-k8s-tests: run-minikube push-minikube-agent
+	scripts/get-kubectl
 	pytest \
 		-m "$(MARKERS)" \
 		-n auto \
