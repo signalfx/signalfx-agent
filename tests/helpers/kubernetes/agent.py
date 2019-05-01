@@ -6,6 +6,7 @@ import yaml
 from kubernetes import client as kube_client
 from tests import paths
 from tests.helpers.kubernetes import utils
+from tests.helpers.util import get_unique_localhost
 
 AGENT_YAMLS_DIR = Path(os.environ.get("AGENT_YAMLS_DIR", paths.REPO_ROOT_DIR / "deployments" / "k8s"))
 AGENT_CLUSTERROLE_PATH = Path(os.environ.get("AGENT_CLUSTERROLE_PATH", AGENT_YAMLS_DIR / "clusterrole.yaml"))
@@ -44,6 +45,7 @@ class Agent:
         agent_conf.setdefault("intervalSeconds", 5)
         agent_conf.setdefault("ingestUrl", f"http://{self.fake_services_pod_ip}:{self.fake_services.ingest_port}")
         agent_conf.setdefault("apiUrl", f"http://{self.fake_services_pod_ip}:{self.fake_services.api_port}")
+        agent_conf.setdefault("internalStatusHost", get_unique_localhost())
 
         configmap["data"]["agent.yaml"] = yaml.dump(agent_conf)
 
