@@ -56,9 +56,9 @@ class Cluster:
             args += f" --context {self.kube_context}"
         args += f" {command}"
 
-        proc = subprocess.run(args, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-        assert proc.returncode == 0, f"{args}:\n{proc.stdout.decode('utf-8')}"
-        return proc.stdout.decode("utf-8")
+        proc = subprocess.run(args, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, encoding="utf-8")
+        assert proc.returncode == 0, f"{args}:\n{proc.stdout}"
+        return proc.stdout
 
     def get_cluster_version(self):
         version_yaml = self.exec_kubectl("version --output=yaml")
