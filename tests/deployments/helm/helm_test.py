@@ -64,9 +64,9 @@ def helm_command_prefix(k8s_cluster):
 
 
 def exec_helm(args):
-    proc = subprocess.run(args, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-    assert proc.returncode == 0, f"{args}:\n{proc.stdout.decode('utf-8')}"
-    return proc.stdout.decode("utf-8")
+    proc = subprocess.run(args, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, encoding="utf-8")
+    assert proc.returncode == 0, f"{args}:\n{proc.stdout}"
+    return proc.stdout
 
 
 @contextmanager
