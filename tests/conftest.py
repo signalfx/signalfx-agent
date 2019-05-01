@@ -52,7 +52,7 @@ def pytest_addoption(parser):
     )
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture
 def k8s_cluster(request):
     agent_image_name = request.config.getoption("--agent-image-name")
 
