@@ -108,8 +108,8 @@ parse_args_and_release() {
   fi
 
   if [[ "$stage" != "test" ]] && [[ $(git symbolic-ref HEAD) != "refs/heads/master" ]] && [[ "$force" != "yes" ]]; then
-	echo "You are releasing a beta/final release from a branch other than master, which is not allowed." >&2
-	exit 1
+    echo "You are releasing a beta/final release from a branch other than master, which is not allowed." >&2
+    exit 1
   fi
 
   read -p "This is a $stage release of version $new_version, please confirm: [y/N] "
@@ -133,7 +133,12 @@ parse_args_and_release() {
     build_docker_image "$stage" "$new_version"
     if [[ "$push" == "yes" ]]; then
       echo "Pushing docker image"
-      push_docker_image "$stage" "$new_version"
+      image_base="$(docker_repo_from_stage $stage)"
+      new_image="$image_base:$new_version"
+      docker push $new_image
+      if [[ "$stage" == "final" ]]; then
+        update_floating_docker_tags "$new_version" "$new_image" "$image_base"
+      fi
     fi
   fi
 
@@ -271,10 +276,15 @@ build_docker_image() {
   AGENT_IMAGE_NAME=$image_name make -C $SCRIPT_DIR/.. image
 }
 
-push_docker_image() {
-  local stage="$1"
-  local new_version="$2"
-  docker push $(docker_repo_from_stage $stage):$new_version
+update_floating_docker_tags() {
+  local new_version="$1"
+  local new_image="$2"
+  local image_base="$3"
+
+  major_version=$(echo -n "$new_version" | cut -d. -f1)
+  floating_tag="$image_base:$major_version"
+  docker tag "$new_image" "$floating_tag"
+  docker push $floating_tag
 }
 
 # Deb package build and push
