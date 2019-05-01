@@ -1,13 +1,13 @@
 monitors:
-- dimensions: null
+- dimensions:
   doc: |
     Sends a single metric of the total number of
     seconds the host has been up, using the [collectd uptime
     plugin](https://collectd.org/wiki/index.php/Plugin:Uptime).
   metrics:
-  - description: Seconds since system boot
-    included: true
-    name: uptime
-    type: gauge
+    uptime:
+      description: Seconds since system boot
+      included: true
+      type: gauge
   monitorType: collectd/uptime
-  properties: null
+  properties:

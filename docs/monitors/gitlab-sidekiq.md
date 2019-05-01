@@ -35,25 +35,25 @@ The following table lists the metrics available for this monitor. Metrics that a
 
 | Name | Type | Included | Description |
 | ---  | ---  | ---    | ---         |
-| `gitlab_cache_misses_total` | cumulative |  |  |
+| `gitaly_controller_action_duration_seconds` | cumulative |  |  |
 | `gitaly_controller_action_duration_seconds_bucket` | cumulative |  |  |
 | `gitaly_controller_action_duration_seconds_count` | cumulative |  |  |
-| `gitaly_controller_action_duration_seconds` | cumulative |  |  |
+| `gitlab_cache_misses_total` | cumulative |  |  |
+| `gitlab_cache_operation_duration_seconds` | cumulative |  |  |
 | `gitlab_cache_operation_duration_seconds_bucket` | cumulative |  |  |
 | `gitlab_cache_operation_duration_seconds_count` | cumulative |  |  |
-| `gitlab_cache_operation_duration_seconds` | cumulative |  |  |
+| `gitlab_repository_archive_clean_up_real_duration_seconds` | cumulative |  |  |
 | `gitlab_repository_archive_clean_up_real_duration_seconds_bucket` | cumulative |  |  |
 | `gitlab_repository_archive_clean_up_real_duration_seconds_count` | cumulative |  |  |
-| `gitlab_repository_archive_clean_up_real_duration_seconds` | cumulative |  |  |
+| `gitlab_sql_duration_seconds` | cumulative |  |  |
 | `gitlab_sql_duration_seconds_bucket` | cumulative |  |  |
 | `gitlab_sql_duration_seconds_count` | cumulative |  |  |
-| `gitlab_sql_duration_seconds` | cumulative |  |  |
-| `gitlab_transaction_sidekiq_queue_duration_total` | gauge | ✔ |  |
 | `gitlab_transaction_cache_read_hit_count_total` | cumulative |  |  |
 | `gitlab_transaction_cache_read_miss_count_total` | cumulative |  |  |
+| `gitlab_transaction_duration_seconds` | cumulative |  |  |
 | `gitlab_transaction_duration_seconds_bucket` | cumulative |  |  |
 | `gitlab_transaction_duration_seconds_count` | cumulative |  |  |
-| `gitlab_transaction_duration_seconds` | cumulative |  |  |
+| `gitlab_transaction_sidekiq_queue_duration_total` | gauge | ✔ |  |
 
 
 To specify custom metrics you want to monitor, add a `metricsToInclude` filter
@@ -70,24 +70,24 @@ required for gathering additional metrics.
 
 metricsToInclude:
   - metricNames:
-    - gitlab_cache_misses_total
+    - gitaly_controller_action_duration_seconds
     - gitaly_controller_action_duration_seconds_bucket
     - gitaly_controller_action_duration_seconds_count
-    - gitaly_controller_action_duration_seconds
+    - gitlab_cache_misses_total
+    - gitlab_cache_operation_duration_seconds
     - gitlab_cache_operation_duration_seconds_bucket
     - gitlab_cache_operation_duration_seconds_count
-    - gitlab_cache_operation_duration_seconds
+    - gitlab_repository_archive_clean_up_real_duration_seconds
     - gitlab_repository_archive_clean_up_real_duration_seconds_bucket
     - gitlab_repository_archive_clean_up_real_duration_seconds_count
-    - gitlab_repository_archive_clean_up_real_duration_seconds
+    - gitlab_sql_duration_seconds
     - gitlab_sql_duration_seconds_bucket
     - gitlab_sql_duration_seconds_count
-    - gitlab_sql_duration_seconds
     - gitlab_transaction_cache_read_hit_count_total
     - gitlab_transaction_cache_read_miss_count_total
+    - gitlab_transaction_duration_seconds
     - gitlab_transaction_duration_seconds_bucket
     - gitlab_transaction_duration_seconds_count
-    - gitlab_transaction_duration_seconds
     monitorType: gitlab-sidekiq
 ```
 

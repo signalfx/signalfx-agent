@@ -3,7 +3,7 @@
 | Config option | Required | Type | Description |
 | --- | --- | --- | --- |
 {{ range . -}}
-| `{{.yamlName}}` | {{if .required}}**yes**{{else}}no{{end}} | `{{or (index (ds "observer").doc_types .type) .type}}{{if (eq .type "struct") }} (see below){{end}}{{if .elementKind}} of {{or (index (ds "observer").doc_types .elementKind) .elementKind}}{{if ne .elementKind "interface"}}s{{end}}{{if (eq .elementKind "struct") and (ne .elementKind "interface")}} (see below){{end}}{{end}}` | {{.doc | strings.TrimSpace}}{{if .default | print}} (**default:** `{{.default}}`){{end}} |
+| `{{.yamlName}}` | {{if .required}}**yes**{{else}}no{{end}} | `{{or (index (ds "observer").doc_types .type) .type}}{{if (eq .type "struct") }} (see below){{end}}{{if .elementKind}} of {{or (index (ds "observer").doc_types .elementKind) .elementKind}}{{if ne .elementKind "interface"}}s{{end}}{{if (eq .elementKind "struct") and (ne .elementKind "interface")}} (see below){{end}}{{end}}` | {{.doc | strings.TrimSpace}}{{if and (.default | conv.ToString) (ne (.default | conv.ToString) "nil")}} (**default:** `{{.default}}`){{end}} |
 {{end}}
 
 {{ range . -}}
@@ -55,8 +55,8 @@ rules.
 
 | Name | Description |
 | ---  | ---         |
-{{ range . -}}
-| `{{.name}}` | {{.description | strings.TrimSpace}} |
+{{ range $dim, $info := . -}}
+| `{{$dim}}` | {{$info.description | strings.TrimSpace}} |
 {{end}}
 {{end -}}
 

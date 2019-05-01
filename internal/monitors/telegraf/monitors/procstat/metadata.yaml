@@ -1,5 +1,5 @@
 monitors:
-- dimensions: null
+- dimensions:
   doc: |
     This monitor reports metrics about processes.
     This monitor is based on the Telegraf procstat plugin.  More information about the Telegraf plugin
@@ -22,175 +22,175 @@ monitors:
     ```
   sendAll: true
   metrics:
-  - description: Amount of cpu time consumed by the process.
-    included: false
-    name: procstat.cpu_time
-    type: gauge
-  - description: CPU used by the process.
-    included: false
-    name: procstat.cpu_usage
-    type: gauge
-  - description: Number of involuntary context switches.
-    included: false
-    name: procstat.involuntary_context_switches
-    type: gauge
-  - description: VMData memory used by the process.
-    included: false
-    name: procstat.memory_data
-    type: gauge
-  - description: VMLocked memory used by the process.
-    included: false
-    name: procstat.memory_locked
-    type: gauge
-  - description: VMRSS memory used by the process.
-    included: false
-    name: procstat.memory_rss
-    type: gauge
-  - description: VMStack memory used by the process.
-    included: false
-    name: procstat.memory_stack
-    type: gauge
-  - description: VMSwap memory used by the process.
-    included: false
-    name: procstat.memory_swap
-    type: gauge
-  - description: VMS memory used by the process.
-    included: false
-    name: procstat.memory_vms
-    type: gauge
-  - description: Nice priority number of the process.
-    included: false
-    name: procstat.nice_priority
-    type: gauge
-  - description: Number of file descriptors.  This may require the agent to be running
-      as root.
-    included: false
-    name: procstat.num_fds
-    type: gauge
-  - description: Number of threads used by the process.
-    included: false
-    name: procstat.num_threads
-    type: gauge
-  - description: Number of bytes read by the process.  This may require the agent
-      to be running as root.
-    included: false
-    name: procstat.read_bytes
-    type: gauge
-  - description: Number of read operations by the process.  This may require the agent
-      to be running as root.
-    included: false
-    name: procstat.read_count
-    type: gauge
-  - description: Real time priority of the process.
-    included: false
-    name: procstat.realtime_priority
-    type: gauge
-  - description: The hard cpu rlimit.
-    included: false
-    name: procstat.rlimit_cpu_time_hard
-    type: gauge
-  - description: The soft cpu rlimit.
-    included: false
-    name: procstat.rlimit_cpu_time_soft
-    type: gauge
-  - description: The hard file lock rlimit.
-    included: false
-    name: procstat.rlimit_file_locks_hard
-    type: gauge
-  - description: The soft file lock rlimit.
-    included: false
-    name: procstat.rlimit_file_locks_soft
-    type: gauge
-  - description: The hard data memory rlimit.
-    included: false
-    name: procstat.rlimit_memory_data_hard
-    type: gauge
-  - description: The soft data memory rlimit.
-    included: false
-    name: procstat.rlimit_memory_data_soft
-    type: gauge
-  - description: The hard locked memory rlimit.
-    included: false
-    name: procstat.rlimit_memory_locked_hard
-    type: gauge
-  - description: The soft locked memory rlimit.
-    included: false
-    name: procstat.rlimit_memory_locked_soft
-    type: gauge
-  - description: The hard rss memory rlimit.
-    included: false
-    name: procstat.rlimit_memory_rss_hard
-    type: gauge
-  - description: The soft rss memory rlimit.
-    included: false
-    name: procstat.rlimit_memory_rss_soft
-    type: gauge
-  - description: The hard stack memory rlimit.
-    included: false
-    name: procstat.rlimit_memory_stack_hard
-    type: gauge
-  - description: The soft stack memory rlimit.
-    included: false
-    name: procstat.rlimit_memory_stack_soft
-    type: gauge
-  - description: The hard vms memory rlimit.
-    included: false
-    name: procstat.rlimit_memory_vms_hard
-    type: gauge
-  - description: The soft vms memory rlimit.
-    included: false
-    name: procstat.rlimit_memory_vms_soft
-    type: gauge
-  - description: The hard nice priority rlimit.
-    included: false
-    name: procstat.rlimit_nice_priority_hard
-    type: gauge
-  - description: The soft nice priority rlimit.
-    included: false
-    name: procstat.rlimit_nice_priority_soft
-    type: gauge
-  - description: The hard file descriptor rlimit.
-    included: false
-    name: procstat.rlimit_num_fds_hard
-    type: gauge
-  - description: The soft file descriptor rlimit.
-    included: false
-    name: procstat.rlimit_num_fds_soft
-    type: gauge
-  - description: The hard realtime priority rlimit.
-    included: false
-    name: procstat.rlimit_realtime_priority_hard
-    type: gauge
-  - description: The soft realtime priority rlimit.
-    included: false
-    name: procstat.rlimit_realtime_priority_soft
-    type: gauge
-  - description: The hard pending signal rlimit.
-    included: false
-    name: procstat.rlimit_signals_pending_hard
-    type: gauge
-  - description: The soft pendidng signal rlimit.
-    included: false
-    name: procstat.rlimit_signals_pending_soft
-    type: gauge
-  - description: The number of signals pending.
-    included: false
-    name: procstat.signals_pending
-    type: gauge
-  - description: Number of bytes written by the process.  This may require the agent
-      to be running as root.
-    included: false
-    name: procstat.write_bytes
-    type: gauge
-  - description: Number of write operations by the process.  This may require the
-      agent to be running as root.
-    included: false
-    name: procstat.write_count
-    type: gauge
-  - description: The number of pids. This metric emits with the plugin dimension set
-      to "procstat_lookup".
-    included: false
-    name: procstat_lookup.pid_count
-    type: gauge
+    procstat.cpu_time:
+      description: Amount of cpu time consumed by the process.
+      included: false
+      type: gauge
+    procstat.cpu_usage:
+      description: CPU used by the process.
+      included: false
+      type: gauge
+    procstat.involuntary_context_switches:
+      description: Number of involuntary context switches.
+      included: false
+      type: gauge
+    procstat.memory_data:
+      description: VMData memory used by the process.
+      included: false
+      type: gauge
+    procstat.memory_locked:
+      description: VMLocked memory used by the process.
+      included: false
+      type: gauge
+    procstat.memory_rss:
+      description: VMRSS memory used by the process.
+      included: false
+      type: gauge
+    procstat.memory_stack:
+      description: VMStack memory used by the process.
+      included: false
+      type: gauge
+    procstat.memory_swap:
+      description: VMSwap memory used by the process.
+      included: false
+      type: gauge
+    procstat.memory_vms:
+      description: VMS memory used by the process.
+      included: false
+      type: gauge
+    procstat.nice_priority:
+      description: Nice priority number of the process.
+      included: false
+      type: gauge
+    procstat.num_fds:
+      description: Number of file descriptors.  This may require the agent to be running
+        as root.
+      included: false
+      type: gauge
+    procstat.num_threads:
+      description: Number of threads used by the process.
+      included: false
+      type: gauge
+    procstat.read_bytes:
+      description: Number of bytes read by the process.  This may require the agent
+        to be running as root.
+      included: false
+      type: gauge
+    procstat.read_count:
+      description: Number of read operations by the process.  This may require the
+        agent to be running as root.
+      included: false
+      type: gauge
+    procstat.realtime_priority:
+      description: Real time priority of the process.
+      included: false
+      type: gauge
+    procstat.rlimit_cpu_time_hard:
+      description: The hard cpu rlimit.
+      included: false
+      type: gauge
+    procstat.rlimit_cpu_time_soft:
+      description: The soft cpu rlimit.
+      included: false
+      type: gauge
+    procstat.rlimit_file_locks_hard:
+      description: The hard file lock rlimit.
+      included: false
+      type: gauge
+    procstat.rlimit_file_locks_soft:
+      description: The soft file lock rlimit.
+      included: false
+      type: gauge
+    procstat.rlimit_memory_data_hard:
+      description: The hard data memory rlimit.
+      included: false
+      type: gauge
+    procstat.rlimit_memory_data_soft:
+      description: The soft data memory rlimit.
+      included: false
+      type: gauge
+    procstat.rlimit_memory_locked_hard:
+      description: The hard locked memory rlimit.
+      included: false
+      type: gauge
+    procstat.rlimit_memory_locked_soft:
+      description: The soft locked memory rlimit.
+      included: false
+      type: gauge
+    procstat.rlimit_memory_rss_hard:
+      description: The hard rss memory rlimit.
+      included: false
+      type: gauge
+    procstat.rlimit_memory_rss_soft:
+      description: The soft rss memory rlimit.
+      included: false
+      type: gauge
+    procstat.rlimit_memory_stack_hard:
+      description: The hard stack memory rlimit.
+      included: false
+      type: gauge
+    procstat.rlimit_memory_stack_soft:
+      description: The soft stack memory rlimit.
+      included: false
+      type: gauge
+    procstat.rlimit_memory_vms_hard:
+      description: The hard vms memory rlimit.
+      included: false
+      type: gauge
+    procstat.rlimit_memory_vms_soft:
+      description: The soft vms memory rlimit.
+      included: false
+      type: gauge
+    procstat.rlimit_nice_priority_hard:
+      description: The hard nice priority rlimit.
+      included: false
+      type: gauge
+    procstat.rlimit_nice_priority_soft:
+      description: The soft nice priority rlimit.
+      included: false
+      type: gauge
+    procstat.rlimit_num_fds_hard:
+      description: The hard file descriptor rlimit.
+      included: false
+      type: gauge
+    procstat.rlimit_num_fds_soft:
+      description: The soft file descriptor rlimit.
+      included: false
+      type: gauge
+    procstat.rlimit_realtime_priority_hard:
+      description: The hard realtime priority rlimit.
+      included: false
+      type: gauge
+    procstat.rlimit_realtime_priority_soft:
+      description: The soft realtime priority rlimit.
+      included: false
+      type: gauge
+    procstat.rlimit_signals_pending_hard:
+      description: The hard pending signal rlimit.
+      included: false
+      type: gauge
+    procstat.rlimit_signals_pending_soft:
+      description: The soft pendidng signal rlimit.
+      included: false
+      type: gauge
+    procstat.signals_pending:
+      description: The number of signals pending.
+      included: false
+      type: gauge
+    procstat.write_bytes:
+      description: Number of bytes written by the process.  This may require the agent
+        to be running as root.
+      included: false
+      type: gauge
+    procstat.write_count:
+      description: Number of write operations by the process.  This may require the
+        agent to be running as root.
+      included: false
+      type: gauge
+    procstat_lookup.pid_count:
+      description: The number of pids. This metric emits with the plugin dimension
+        set to "procstat_lookup".
+      included: false
+      type: gauge
   monitorType: telegraf/procstat
-  properties: null
+  properties:

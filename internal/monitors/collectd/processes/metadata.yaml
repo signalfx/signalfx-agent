@@ -1,5 +1,5 @@
 monitors:
-- dimensions: null
+- dimensions:
   doc: |
     Gathers information about processes running on
     the host.  See
@@ -26,6 +26,6 @@ monitors:
     process has made.  Also, all processes that start with `docker` will have
     their process metrics aggregated together and sent with a `plugin_instance`
     value of `docker`.
-  metrics: null
+  metrics:
   monitorType: collectd/processes
-  properties: null
+  properties:

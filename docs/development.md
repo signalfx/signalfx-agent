@@ -63,7 +63,35 @@ Once installed (see below) you run:
 $ docker-sync start
 ```
 
-and use the target `run-dev-image-sync`. Everything else is the same as described in the previous section.
+Then use `docker-compose` to run the container in the background:
+
+```sh
+$ docker-compose up -d shell
+```
+
+You can now run any number of shells inside the container:
+
+```sh
+$ docker-compose exec shell bash
+```
+
+When you want want to rebase against a new `dev-image` run `make dev-image` then update:
+
+```sh
+$ docker-compose up -d shell
+```
+
+To reset containers:
+
+```sh
+$ docker-compose down
+```
+
+To reset everything including volumes:
+
+```sh
+$ docker-compose down --volumes
+```
 
 ### Installing docker-sync
 Install the `docker-sync` gem:

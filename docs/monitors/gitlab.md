@@ -174,20 +174,25 @@ The following table lists the metrics available for this monitor. Metrics that a
 | Name | Type | Included | Description |
 | ---  | ---  | ---    | ---         |
 | `ci_stale_builds` | gauge |  | ci_stale_builds metric |
+| `gitlab_cache_misses_total` | cumulative |  |  |
 | `gitlab_database_rows` | gauge |  |  |
-| `process_memory_bytes` | gauge |  | process_memory_bytes metric |
-| `process_age_seconds` | gauge |  | process_age_seconds metric |
-| `process_count` | gauge | ✔ | process_count metric |
-| `sidekiq_queue_size` | gauge | ✔ | sidekiq_queue_size metric |
-| `sidekiq_queue_latency`<br>_or_ `sidekiq_queue_latency_seconds` | gauge | ✔ | sidekiq_queue_latency metric |
-| `sidekiq_dead_jobs_total` | gauge |  | sidekiq_dead_jobs_total metric |
 | `gitlab_projects_with_jid` | gauge |  |  |
 | `gitlab_projects_without_jid` | gauge |  |  |
 | `gitlab_stuck_import_jobs_worker_runs_total` | cumulative |  |  |
-| `gitlab_cache_misses_total` | cumulative |  |  |
+| `http_request_duration_seconds` | cumulative |  |  |
 | `http_request_duration_seconds_bucket` | cumulative |  |  |
 | `http_request_duration_seconds_count` | cumulative |  |  |
-| `http_request_duration_seconds` | cumulative |  |  |
+| `pg_stat_table_idx_tup_fetch` | gauge | ✔ | pg_stat_table_idx_tup_fetch metric |
+| `pg_stat_table_n_dead_tup` | gauge |  | pg_stat_table_n_dead_tup metric |
+| `pg_stat_table_n_tup_del` | gauge | ✔ | pg_stat_table_n_tup_del metric |
+| `pg_stat_table_n_tup_hot_upd` | gauge |  | pg_stat_table_n_tup_hot_upd metric |
+| `pg_stat_table_n_tup_ins` | gauge | ✔ | pg_stat_table_n_tup_ins metric |
+| `pg_stat_table_n_tup_upd` | gauge | ✔ | pg_stat_table_n_tup_upd metric |
+| `pg_stat_table_seq_scan` | gauge |  | pg_stat_table_seq_scan metric |
+| `pg_stat_table_seq_tup_read` | gauge | ✔ | pg_stat_table_seq_tup_read metric |
+| `process_age_seconds` | gauge |  | process_age_seconds metric |
+| `process_count` | gauge | ✔ | process_count metric |
+| `process_memory_bytes` | gauge |  | process_memory_bytes metric |
 | `ruby_file_descriptors` | gauge |  |  |
 | `ruby_gc_duration_seconds_total` | cumulative |  |  |
 | `ruby_gc_stat_count` | gauge |  |  |
@@ -217,14 +222,9 @@ The following table lists the metrics available for this monitor. Metrics that a
 | `ruby_gc_stat_total_freed_pages` | gauge |  |  |
 | `ruby_memory_bytes` | gauge |  |  |
 | `ruby_sampler_duration_seconds_total` | cumulative |  |  |
-| `pg_stat_table_seq_tup_read`<br>_or_ `gitlab_database_stat_table_seq_tup_read` | gauge | ✔ | pg_stat_table_seq_tup_read metric |
-| `pg_stat_table_idx_tup_fetch`<br>_or_ `gitlab_database_stat_table_idx_tup_fetch` | gauge | ✔ | pg_stat_table_idx_tup_fetch metric |
-| `pg_stat_table_n_tup_ins`<br>_or_ `gitlab_database_stat_table_n_tup_ins` | gauge | ✔ | pg_stat_table_n_tup_ins metric |
-| `pg_stat_table_n_tup_upd`<br>_or_ `gitlab_database_stat_table_n_tup_upd` | gauge | ✔ | pg_stat_table_n_tup_upd metric |
-| `pg_stat_table_n_tup_del`<br>_or_ `gitlab_database_stat_table_n_tup_del` | gauge | ✔ | pg_stat_table_n_tup_del metric |
-| `pg_stat_table_n_tup_hot_upd`<br>_or_ `gitlab_database_stat_table_n_tup_hot_upd` | gauge |  | pg_stat_table_n_tup_hot_upd metric |
-| `pg_stat_table_n_dead_tup`<br>_or_ `gitlab_database_stat_table_n_dead_tup` | gauge |  | pg_stat_table_n_dead_tup metric |
-| `pg_stat_table_seq_scan`<br>_or_ `gitlab_database_stat_table_seq_scan` | gauge |  | pg_stat_table_seq_scan metric |
+| `sidekiq_dead_jobs_total` | gauge |  | sidekiq_dead_jobs_total metric |
+| `sidekiq_queue_latency` | gauge | ✔ | sidekiq_queue_latency metric |
+| `sidekiq_queue_size` | gauge | ✔ | sidekiq_queue_size metric |
 
 
 To specify custom metrics you want to monitor, add a `metricsToInclude` filter
@@ -242,17 +242,19 @@ required for gathering additional metrics.
 metricsToInclude:
   - metricNames:
     - ci_stale_builds
+    - gitlab_cache_misses_total
     - gitlab_database_rows
-    - process_memory_bytes
-    - process_age_seconds
-    - sidekiq_dead_jobs_total
     - gitlab_projects_with_jid
     - gitlab_projects_without_jid
     - gitlab_stuck_import_jobs_worker_runs_total
-    - gitlab_cache_misses_total
+    - http_request_duration_seconds
     - http_request_duration_seconds_bucket
     - http_request_duration_seconds_count
-    - http_request_duration_seconds
+    - pg_stat_table_n_dead_tup
+    - pg_stat_table_n_tup_hot_upd
+    - pg_stat_table_seq_scan
+    - process_age_seconds
+    - process_memory_bytes
     - ruby_file_descriptors
     - ruby_gc_duration_seconds_total
     - ruby_gc_stat_count
@@ -282,9 +284,7 @@ metricsToInclude:
     - ruby_gc_stat_total_freed_pages
     - ruby_memory_bytes
     - ruby_sampler_duration_seconds_total
-    - pg_stat_table_n_tup_hot_upd
-    - pg_stat_table_n_dead_tup
-    - pg_stat_table_seq_scan
+    - sidekiq_dead_jobs_total
     monitorType: gitlab
 ```
 

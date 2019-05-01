@@ -39,6 +39,12 @@ The following table lists the metrics available for this monitor. Metrics that a
 
 | Name | Type | Included | Description |
 | ---  | ---  | ---    | ---         |
+| `net_conntrack_dialer_conn_attempted_total` | cumulative |  | Total number of connections attempted by the given dialer a given name |
+| `net_conntrack_dialer_conn_closed_total` | cumulative |  | Total number of connections closed which originated from the dialer of a given name |
+| `net_conntrack_dialer_conn_established_total` | cumulative |  | Total number of connections successfully established by the given dialer a given name |
+| `net_conntrack_dialer_conn_failed_total` | cumulative |  | Total number of connections failed to dial by the dialer a given name |
+| `net_conntrack_listener_conn_accepted_total` | cumulative |  | Total number of connections opened to the listener of a given name |
+| `net_conntrack_listener_conn_closed_total` | cumulative |  | Total number of connections closed that were made to the listener of a given name |
 | `prometheus_api_remote_read_queries` | gauge |  | The current number of remote read queries being executed or waiting |
 | `prometheus_build_info` | gauge |  | A metric with a constant '1' value labeled by version, revision, branch, and goversion from which prometheus was built |
 | `prometheus_config_last_reload_success_timestamp_seconds` | gauge |  | Timestamp of the last successful configuration reload |
@@ -47,11 +53,11 @@ The following table lists the metrics available for this monitor. Metrics that a
 | `prometheus_engine_queries_concurrent_max` | gauge |  | The max number of concurrent queries |
 | `prometheus_engine_query_duration_seconds` | cumulative |  | Query timings |
 | `prometheus_engine_query_duration_seconds_count` | cumulative |  | Query timings |
-| `prometheus_http_request_duration_seconds_bucket` | cumulative |  | Histogram of latencies for HTTP requests |
 | `prometheus_http_request_duration_seconds` | cumulative |  | Histogram of latencies for HTTP requests |
+| `prometheus_http_request_duration_seconds_bucket` | cumulative |  | Histogram of latencies for HTTP requests |
 | `prometheus_http_request_duration_seconds_count` | cumulative |  | Histogram of latencies for HTTP requests |
-| `prometheus_http_response_size_bytes_bucket` | cumulative |  | Histogram of response size for HTTP requests |
 | `prometheus_http_response_size_bytes` | cumulative |  | Histogram of response size for HTTP requests |
+| `prometheus_http_response_size_bytes_bucket` | cumulative |  | Histogram of response size for HTTP requests |
 | `prometheus_http_response_size_bytes_count` | cumulative |  | Histogram of response size for HTTP requests |
 | `prometheus_notifications_alertmanagers_discovered` | gauge |  | The number of alertmanagers discovered and active |
 | `prometheus_notifications_dropped_total` | cumulative |  | Total number of alerts dropped due to errors when sending to Alertmanager |
@@ -126,17 +132,17 @@ The following table lists the metrics available for this monitor. Metrics that a
 | `prometheus_tsdb_checkpoint_creations_total` | cumulative |  | Total number of checkpoint creations attempted |
 | `prometheus_tsdb_checkpoint_deletions_failed_total` | cumulative |  | Total number of checkpoint deletions that failed |
 | `prometheus_tsdb_checkpoint_deletions_total` | cumulative |  | Total number of checkpoint deletions attempted |
-| `prometheus_tsdb_compaction_chunk_range_seconds_bucket` | cumulative |  | Final time range of chunks on their first compaction |
 | `prometheus_tsdb_compaction_chunk_range_seconds` | cumulative |  | Final time range of chunks on their first compaction |
+| `prometheus_tsdb_compaction_chunk_range_seconds_bucket` | cumulative |  | Final time range of chunks on their first compaction |
 | `prometheus_tsdb_compaction_chunk_range_seconds_count` | cumulative |  | Final time range of chunks on their first compaction |
-| `prometheus_tsdb_compaction_chunk_samples_bucket` | cumulative |  | Final number of samples on their first compaction |
 | `prometheus_tsdb_compaction_chunk_samples` | cumulative |  | Final number of samples on their first compaction |
+| `prometheus_tsdb_compaction_chunk_samples_bucket` | cumulative |  | Final number of samples on their first compaction |
 | `prometheus_tsdb_compaction_chunk_samples_count` | cumulative |  | Final number of samples on their first compaction |
-| `prometheus_tsdb_compaction_chunk_size_bytes_bucket` | cumulative |  | Final size of chunks on their first compaction |
 | `prometheus_tsdb_compaction_chunk_size_bytes` | cumulative |  | Final size of chunks on their first compaction |
+| `prometheus_tsdb_compaction_chunk_size_bytes_bucket` | cumulative |  | Final size of chunks on their first compaction |
 | `prometheus_tsdb_compaction_chunk_size_bytes_count` | cumulative |  | Final size of chunks on their first compaction |
-| `prometheus_tsdb_compaction_duration_seconds_bucket` | cumulative |  | Duration of compaction runs |
 | `prometheus_tsdb_compaction_duration_seconds` | cumulative |  | Duration of compaction runs |
+| `prometheus_tsdb_compaction_duration_seconds_bucket` | cumulative |  | Duration of compaction runs |
 | `prometheus_tsdb_compaction_duration_seconds_count` | cumulative |  | Duration of compaction runs |
 | `prometheus_tsdb_compactions_failed_total` | cumulative |  | Total number of compactions that failed for the partition |
 | `prometheus_tsdb_compactions_total` | cumulative |  | Total number of compactions that were executed for the partition |
@@ -162,8 +168,8 @@ The following table lists the metrics available for this monitor. Metrics that a
 | `prometheus_tsdb_retention_cutoffs_failures_total` | cumulative |  | Number of times the database failed to cut off block data from disk |
 | `prometheus_tsdb_retention_cutoffs_total` | cumulative |  | Number of times the database cut off block data from disk |
 | `prometheus_tsdb_symbol_table_size_bytes` | gauge |  | Size of symbol table on disk (in bytes) |
-| `prometheus_tsdb_tombstone_cleanup_seconds_bucket` | cumulative |  | The time taken to recompact blocks to remove tombstones |
 | `prometheus_tsdb_tombstone_cleanup_seconds` | cumulative |  | The time taken to recompact blocks to remove tombstones |
+| `prometheus_tsdb_tombstone_cleanup_seconds_bucket` | cumulative |  | The time taken to recompact blocks to remove tombstones |
 | `prometheus_tsdb_tombstone_cleanup_seconds_count` | cumulative |  | The time taken to recompact blocks to remove tombstones |
 | `prometheus_tsdb_wal_completed_pages_total` | cumulative |  | Total number of completed pages |
 | `prometheus_tsdb_wal_fsync_duration_seconds` | cumulative |  | Duration of WAL fsync |
@@ -175,12 +181,6 @@ The following table lists the metrics available for this monitor. Metrics that a
 | `prometheus_tsdb_wal_truncations_total` | cumulative |  | Total number of WAL truncations attempted |
 | `promhttp_metric_handler_requests_in_flight` | gauge |  | Current number of scrapes being served |
 | `promhttp_metric_handler_requests_total` | cumulative |  | Total number of scrapes by HTTP status code |
-| `net_conntrack_dialer_conn_attempted_total` | cumulative |  | Total number of connections attempted by the given dialer a given name |
-| `net_conntrack_dialer_conn_closed_total` | cumulative |  | Total number of connections closed which originated from the dialer of a given name |
-| `net_conntrack_dialer_conn_established_total` | cumulative |  | Total number of connections successfully established by the given dialer a given name |
-| `net_conntrack_dialer_conn_failed_total` | cumulative |  | Total number of connections failed to dial by the dialer a given name |
-| `net_conntrack_listener_conn_accepted_total` | cumulative |  | Total number of connections opened to the listener of a given name |
-| `net_conntrack_listener_conn_closed_total` | cumulative |  | Total number of connections closed that were made to the listener of a given name |
 
 
 

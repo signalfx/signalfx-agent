@@ -1,5 +1,5 @@
 monitors:
-- dimensions: null
+- dimensions:
   doc: |
     (Windows Only) This monitor reports metrics for Windows system Performance Counters.
     The metric names are intended to match what was originally reported by
@@ -19,138 +19,139 @@ monitors:
      - type: windows-legacy
     ```
   metrics:
-  - description: The number of bytes read from disk per second.
-    included: false
-    name: logicaldisk.disk_read_bytes_sec
-    type: gauge
-  - description: The number of read operations per second.
-    included: true
-    name: logicaldisk.disk_reads_sec
-    type: gauge
-  - description: The number of transfers per second.
-    included: false
-    name: logicaldisk.disk_transfers_sec
-    type: gauge
-  - description: The number of bytes written to disk per second.
-    included: false
-    name: logicaldisk.disk_write_bytes_sec
-    type: gauge
-  - description: The number of write operations per second.
-    included: true
-    name: logicaldisk.disk_writes_sec
-    type: gauge
-  - description: The number of available megabytes.
-    included: true
-    name: logicaldisk.free_megabytes
-    type: gauge
-  - description: The percentage of free disk space available.
-    included: true
-    name: logicaldisk.pct_free_space
-    type: gauge
-  - description: Unused physical memory (not page file).
-    included: true
-    name: memory.available_mbytes
-    type: gauge
-  - description: Reads from hard disk per second to resolve hard pages.
-    included: true
-    name: memory.pages_input_sec
-    type: gauge
-  - description: Bytes Received/sec is the rate at which bytes are received over each
-      network adapter, including framing characters.
-    included: true
-    name: network_interface.bytes_received_sec
-    type: gauge
-  - description: Bytes Sent/sec is the rate at which bytes are sent over each network
-      adapter, including framing characters.
-    included: true
-    name: network_interface.bytes_sent_sec
-    type: gauge
-  - description: The number of bytes sent and received over a specific network adapter,
-      including framing characters.
-    included: true
-    name: network_interface.bytes_total_sec
-    type: gauge
-  - description: Current Bandwidth is an estimate of the current bandwidth of the
-      network interface in bits per second (BPS).
-    included: false
-    name: network_interface.current_bandwidth
-    type: gauge
-  - description: The number of outbound packets discarded
-    included: false
-    name: network_interface.outbound_discarded
-    type: gauge
-  - description: The number of packets sent that encountered an error.
-    included: true
-    name: network_interface.packets_outbound_errors
-    type: gauge
-  - description: The number of packets received that encountered an error.
-    included: true
-    name: network_interface.packets_received_errors
-    type: gauge
-  - description: Tracking the packets received over time can give you a good indication
-      of the typical use of the system's network.
-    included: false
-    name: network_interface.packets_received_sec
-    type: gauge
-  - description: The number of packets sent per second.
-    included: false
-    name: network_interface.packets_sent_sec
-    type: gauge
-  - description: The number of received packets discarded.
-    included: false
-    name: network_interface.received_discarded
-    type: gauge
-  - description: Amount of Page File in use, which indicates the server is substituting
-      disk space for memory.
-    included: true
-    name: paging_file.pct_usage
-    type: gauge
-  - description: Highest %Usage metric since the last time the server was restarted.
-    included: false
-    name: paging_file.pct_usage_peak
-    type: gauge
-  - description: The average time, in milliseconds, of each read from disk.
-    included: false
-    name: physicaldisk.avg_disk_sec_read
-    type: gauge
-  - description: The average time in milliseconds spent transfering data on disk.
-    included: false
-    name: physicaldisk.avg_disk_sec_transfer
-    type: gauge
-  - description: The average time, in milliseconds, of each write to disk.
-    included: false
-    name: physicaldisk.avg_disk_sec_write
-    type: gauge
-  - description: Rate of processor interrupts per second.
-    included: false
-    name: processor.interrupts_sec
-    type: gauge
-  - description: Percentage of elapsed time the processor spends on privileged tasks.
-    included: false
-    name: processor.pct_privileged_time
-    type: gauge
-  - description: Percentage of elapsed time the processor spends executing non-idle
-      threads.
-    included: true
-    name: processor.pct_processor_time
-    type: gauge
-  - description: Percentage of elapsed time the processor spends executing user threads.
-    included: false
-    name: processor.pct_user_time
-    type: gauge
-  - description: Number of execution contexts switched in the last second, where >6000
-      is poor, <3000 is good, and <1500 is excellent.
-    included: false
-    name: system.context_switches_sec
-    type: gauge
-  - description: Number of threads waiting for CPU cycles, where < 12 per CPU is good/fair,
-      < 8 is better, < 4 is best
-    included: false
-    name: system.processor_queue_length
-    type: gauge
-  - description: The number of system calls being serviced by the CPU per second.
-    included: false
-    name: system.system_calls_sec
-    type: gauge
+    logicaldisk.disk_read_bytes_sec:
+      description: The number of bytes read from disk per second.
+      included: false
+      type: gauge
+    logicaldisk.disk_reads_sec:
+      description: The number of read operations per second.
+      included: true
+      type: gauge
+    logicaldisk.disk_transfers_sec:
+      description: The number of transfers per second.
+      included: false
+      type: gauge
+    logicaldisk.disk_write_bytes_sec:
+      description: The number of bytes written to disk per second.
+      included: false
+      type: gauge
+    logicaldisk.disk_writes_sec:
+      description: The number of write operations per second.
+      included: true
+      type: gauge
+    logicaldisk.free_megabytes:
+      description: The number of available megabytes.
+      included: true
+      type: gauge
+    logicaldisk.pct_free_space:
+      description: The percentage of free disk space available.
+      included: true
+      type: gauge
+    memory.available_mbytes:
+      description: Unused physical memory (not page file).
+      included: true
+      type: gauge
+    memory.pages_input_sec:
+      description: Reads from hard disk per second to resolve hard pages.
+      included: true
+      type: gauge
+    network_interface.bytes_received_sec:
+      description: Bytes Received/sec is the rate at which bytes are received over
+        each network adapter, including framing characters.
+      included: true
+      type: gauge
+    network_interface.bytes_sent_sec:
+      description: Bytes Sent/sec is the rate at which bytes are sent over each network
+        adapter, including framing characters.
+      included: true
+      type: gauge
+    network_interface.bytes_total_sec:
+      description: The number of bytes sent and received over a specific network adapter,
+        including framing characters.
+      included: true
+      type: gauge
+    network_interface.current_bandwidth:
+      description: Current Bandwidth is an estimate of the current bandwidth of the
+        network interface in bits per second (BPS).
+      included: false
+      type: gauge
+    network_interface.outbound_discarded:
+      description: The number of outbound packets discarded
+      included: false
+      type: gauge
+    network_interface.packets_outbound_errors:
+      description: The number of packets sent that encountered an error.
+      included: true
+      type: gauge
+    network_interface.packets_received_errors:
+      description: The number of packets received that encountered an error.
+      included: true
+      type: gauge
+    network_interface.packets_received_sec:
+      description: Tracking the packets received over time can give you a good indication
+        of the typical use of the system's network.
+      included: false
+      type: gauge
+    network_interface.packets_sent_sec:
+      description: The number of packets sent per second.
+      included: false
+      type: gauge
+    network_interface.received_discarded:
+      description: The number of received packets discarded.
+      included: false
+      type: gauge
+    paging_file.pct_usage:
+      description: Amount of Page File in use, which indicates the server is substituting
+        disk space for memory.
+      included: true
+      type: gauge
+    paging_file.pct_usage_peak:
+      description: Highest %Usage metric since the last time the server was restarted.
+      included: false
+      type: gauge
+    physicaldisk.avg_disk_sec_read:
+      description: The average time, in milliseconds, of each read from disk.
+      included: false
+      type: gauge
+    physicaldisk.avg_disk_sec_transfer:
+      description: The average time in milliseconds spent transfering data on disk.
+      included: false
+      type: gauge
+    physicaldisk.avg_disk_sec_write:
+      description: The average time, in milliseconds, of each write to disk.
+      included: false
+      type: gauge
+    processor.interrupts_sec:
+      description: Rate of processor interrupts per second.
+      included: false
+      type: gauge
+    processor.pct_privileged_time:
+      description: Percentage of elapsed time the processor spends on privileged tasks.
+      included: false
+      type: gauge
+    processor.pct_processor_time:
+      description: Percentage of elapsed time the processor spends executing non-idle
+        threads.
+      included: true
+      type: gauge
+    processor.pct_user_time:
+      description: Percentage of elapsed time the processor spends executing user
+        threads.
+      included: false
+      type: gauge
+    system.context_switches_sec:
+      description: Number of execution contexts switched in the last second, where
+        >6000 is poor, <3000 is good, and <1500 is excellent.
+      included: false
+      type: gauge
+    system.processor_queue_length:
+      description: Number of threads waiting for CPU cycles, where < 12 per CPU is
+        good/fair, < 8 is better, < 4 is best
+      included: false
+      type: gauge
+    system.system_calls_sec:
+      description: The number of system calls being serviced by the CPU per second.
+      included: false
+      type: gauge
   monitorType: windows-legacy
-  properties: null
+  properties:

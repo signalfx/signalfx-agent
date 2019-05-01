@@ -73,11 +73,11 @@ rules.
 
 | Name | Description |
 | ---  | ---         |
+| `container_image` | The image name (including tags) of the running container |
+| `container_name` | The primary name of the running container -- Docker containers can have multiple names but this will be the first name, if any. |
 | `container_spec_name` | The short name of the container in the pod spec, **NOT** the running container's name in the Docker engine |
 | `kubernetes_namespace` | The namespace that the discovered service endpoint is running in. |
 | `kubernetes_pod_name` | The name of the running pod that is exposing the discovered endpoint |
 | `kubernetes_pod_uid` | The UID of the pod that is exposing the discovered endpoint |
-| `container_name` | The primary name of the running container -- Docker containers can have multiple names but this will be the first name, if any. |
-| `container_image` | The image name (including tags) of the running container |
 
 

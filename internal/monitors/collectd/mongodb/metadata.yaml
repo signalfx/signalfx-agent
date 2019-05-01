@@ -1,236 +1,236 @@
 monitors:
 - dimensions:
-  - description: Port number of the MongoDB instance
-    name: plugin_instance
+    plugin_instance:
+      description: Port number of the MongoDB instance
   doc: |
     Monitors an instance of MongoDB using the
     [collectd MongoDB Python plugin](https://github.com/signalfx/collectd-mongodb).
 
     Also see https://github.com/signalfx/integrations/tree/master/collectd-mongodb.
   metrics:
-  - description: Number of times the database has been flushed
-    included: true
-    name: counter.backgroundFlushing.flushes
-    type: gauge
-  - description: Number of commands issued for a collection
-    included: false
-    name: counter.collection.commandsCount
-    type: counter
-  - description: Time spent in microseconds processing commands issued for a collection
-    included: false
-    name: counter.collection.commandsTime
-    type: counter
-  - description: Number of getMore requests issued for a collection
-    included: false
-    name: counter.collection.getmoreCount
-    type: counter
-  - description: Time spent in microseconds processing getMore requests for a collection
-    included: false
-    name: counter.collection.getmoreTime
-    type: counter
-  - description: Number of times an index has been used (only on Mongo 3.2+)
-    included: false
-    name: counter.collection.index.accesses.ops
-    type: counter
-  - description: Number of inserts issued for a collection
-    included: false
-    name: counter.collection.insertCount
-    type: counter
-  - description: Time spent in microseconds processing insert requests for a collection
-    included: false
-    name: counter.collection.insertTime
-    type: counter
-  - description: Number of queries issued for a collection
-    included: false
-    name: counter.collection.queriesCount
-    type: counter
-  - description: Time spent in microseconds processing query requests for a collection
-    included: false
-    name: counter.collection.queriesTime
-    type: counter
-  - description: Number of read locks issued for a collection
-    included: false
-    name: counter.collection.readLockCount
-    type: counter
-  - description: Time spent in microseconds processing read locks for a collection
-    included: false
-    name: counter.collection.readLockTime
-    type: counter
-  - description: Number of remove requests issued for a collection
-    included: false
-    name: counter.collection.removeCount
-    type: counter
-  - description: Time spent in microseconds processing remove requests for a collection
-    included: false
-    name: counter.collection.removeTime
-    type: counter
-  - description: Total number of operations issued for a collection
-    included: false
-    name: counter.collection.totalCount
-    type: counter
-  - description: Time spent in microseconds processing all operations for a collection
-    included: false
-    name: counter.collection.totalTime
-    type: counter
-  - description: Number of update requests issued for a collection
-    included: false
-    name: counter.collection.updateCount
-    type: counter
-  - description: Time spent in microseconds processing update requests for a collection
-    included: false
-    name: counter.collection.updateTime
-    type: counter
-  - description: Number of write locks issued for a collection
-    included: false
-    name: counter.collection.writeLockCount
-    type: counter
-  - description: Time spent in microseconds processing write locks for a collection
-    included: false
-    name: counter.collection.writeLockTime
-    type: counter
-  - description: Mongod page faults
-    included: true
-    name: counter.extra_info.page_faults
-    type: gauge
-  - description: Network bytes received by the database server
-    included: true
-    name: counter.network.bytesIn
-    type: gauge
-  - description: Network bytes sent by the database server
-    included: true
-    name: counter.network.bytesOut
-    type: gauge
-  - description: Requests received by the server
-    included: true
-    name: counter.network.numRequests
-    type: cumulative
-  - description: Number of deletes per second
-    included: true
-    name: counter.opcounters.delete
-    type: cumulative
-  - description: Number of inserts per second
-    included: true
-    name: counter.opcounters.insert
-    type: cumulative
-  - description: Number of queries per second
-    included: true
-    name: counter.opcounters.query
-    type: cumulative
-  - description: Number of updates per second
-    included: true
-    name: counter.opcounters.update
-    type: cumulative
-  - description: Average time (ms) to write data to disk
-    included: true
-    name: gauge.backgroundFlushing.average_ms
-    type: gauge
-  - description: Most recent time (ms) spent writing data to disk
-    included: true
-    name: gauge.backgroundFlushing.last_ms
-    type: gauge
-  - description: Mean object/document size of a collection
-    included: false
-    name: gauge.collection.avgObjSize
-    type: gauge
-  - description: Number of objects/documents in a collection
-    included: false
-    name: gauge.collection.count
-    type: gauge
-  - description: Size of a particular index on a collection
-    included: false
-    name: gauge.collection.indexSize
-    type: gauge
-  - description: Maximum number of documents in a capped collection
-    included: false
-    name: gauge.collection.max
-    type: gauge
-  - description: Maximum disk usage of a capped collection
-    included: false
-    name: gauge.collection.maxSize
-    type: gauge
-  - description: Size of a collection in bytes, not including indexes
-    included: false
-    name: gauge.collection.size
-    type: gauge
-  - description: Size of the collection on disk in bytes, never decreases.
-    included: false
-    name: gauge.collection.storageSize
-    type: gauge
-  - description: Number of collections
-    included: false
-    name: gauge.collections
-    type: gauge
-  - description: Number of available incoming connections
-    included: false
-    name: gauge.connections.available
-    type: gauge
-  - description: Number of current client connections
-    included: true
-    name: gauge.connections.current
-    type: gauge
-  - description: Total size of data, in bytes
-    included: true
-    name: gauge.dataSize
-    type: gauge
-  - description: Heap size used by the mongod process, in bytes
-    included: true
-    name: gauge.extra_info.heap_usage_bytes
-    type: gauge
-  - description: Number of active client connections performing reads
-    included: true
-    name: gauge.globalLock.activeClients.readers
-    type: gauge
-  - description: Total number of active client connections
-    included: false
-    name: gauge.globalLock.activeClients.total
-    type: gauge
-  - description: Number of active client connections performing writes
-    included: true
-    name: gauge.globalLock.activeClients.writers
-    type: gauge
-  - description: Read operations currently in queue
-    included: true
-    name: gauge.globalLock.currentQueue.readers
-    type: gauge
-  - description: Total operations currently in queue
-    included: false
-    name: gauge.globalLock.currentQueue.total
-    type: gauge
-  - description: Write operations currently in queue
-    included: true
-    name: gauge.globalLock.currentQueue.writers
-    type: gauge
-  - description: Total size of indexes, in bytes
-    included: true
-    name: gauge.indexSize
-    type: gauge
-  - description: Number of indexes across all collections
-    included: false
-    name: gauge.indexes
-    type: gauge
-  - description: Mongodb mapped memory usage, in MB
-    included: true
-    name: gauge.mem.mapped
-    type: gauge
-  - description: Mongodb resident memory usage, in MB
-    included: true
-    name: gauge.mem.resident
-    type: gauge
-  - description: Mongodb virtual memory usage, in MB
-    included: true
-    name: gauge.mem.virtual
-    type: gauge
-  - description: Number of documents across all collections
-    included: true
-    name: gauge.objects
-    type: gauge
-  - description: Total bytes allocated to collections for document storage
-    included: true
-    name: gauge.storageSize
-    type: gauge
-  - description: Uptime of this server in milliseconds
-    included: true
-    name: gauge.uptime
-    type: counter
+    counter.backgroundFlushing.flushes:
+      description: Number of times the database has been flushed
+      included: true
+      type: gauge
+    counter.collection.commandsCount:
+      description: Number of commands issued for a collection
+      included: false
+      type: counter
+    counter.collection.commandsTime:
+      description: Time spent in microseconds processing commands issued for a collection
+      included: false
+      type: counter
+    counter.collection.getmoreCount:
+      description: Number of getMore requests issued for a collection
+      included: false
+      type: counter
+    counter.collection.getmoreTime:
+      description: Time spent in microseconds processing getMore requests for a collection
+      included: false
+      type: counter
+    counter.collection.index.accesses.ops:
+      description: Number of times an index has been used (only on Mongo 3.2+)
+      included: false
+      type: counter
+    counter.collection.insertCount:
+      description: Number of inserts issued for a collection
+      included: false
+      type: counter
+    counter.collection.insertTime:
+      description: Time spent in microseconds processing insert requests for a collection
+      included: false
+      type: counter
+    counter.collection.queriesCount:
+      description: Number of queries issued for a collection
+      included: false
+      type: counter
+    counter.collection.queriesTime:
+      description: Time spent in microseconds processing query requests for a collection
+      included: false
+      type: counter
+    counter.collection.readLockCount:
+      description: Number of read locks issued for a collection
+      included: false
+      type: counter
+    counter.collection.readLockTime:
+      description: Time spent in microseconds processing read locks for a collection
+      included: false
+      type: counter
+    counter.collection.removeCount:
+      description: Number of remove requests issued for a collection
+      included: false
+      type: counter
+    counter.collection.removeTime:
+      description: Time spent in microseconds processing remove requests for a collection
+      included: false
+      type: counter
+    counter.collection.totalCount:
+      description: Total number of operations issued for a collection
+      included: false
+      type: counter
+    counter.collection.totalTime:
+      description: Time spent in microseconds processing all operations for a collection
+      included: false
+      type: counter
+    counter.collection.updateCount:
+      description: Number of update requests issued for a collection
+      included: false
+      type: counter
+    counter.collection.updateTime:
+      description: Time spent in microseconds processing update requests for a collection
+      included: false
+      type: counter
+    counter.collection.writeLockCount:
+      description: Number of write locks issued for a collection
+      included: false
+      type: counter
+    counter.collection.writeLockTime:
+      description: Time spent in microseconds processing write locks for a collection
+      included: false
+      type: counter
+    counter.extra_info.page_faults:
+      description: Mongod page faults
+      included: true
+      type: gauge
+    counter.network.bytesIn:
+      description: Network bytes received by the database server
+      included: true
+      type: gauge
+    counter.network.bytesOut:
+      description: Network bytes sent by the database server
+      included: true
+      type: gauge
+    counter.network.numRequests:
+      description: Requests received by the server
+      included: true
+      type: cumulative
+    counter.opcounters.delete:
+      description: Number of deletes per second
+      included: true
+      type: cumulative
+    counter.opcounters.insert:
+      description: Number of inserts per second
+      included: true
+      type: cumulative
+    counter.opcounters.query:
+      description: Number of queries per second
+      included: true
+      type: cumulative
+    counter.opcounters.update:
+      description: Number of updates per second
+      included: true
+      type: cumulative
+    gauge.backgroundFlushing.average_ms:
+      description: Average time (ms) to write data to disk
+      included: true
+      type: gauge
+    gauge.backgroundFlushing.last_ms:
+      description: Most recent time (ms) spent writing data to disk
+      included: true
+      type: gauge
+    gauge.collection.avgObjSize:
+      description: Mean object/document size of a collection
+      included: false
+      type: gauge
+    gauge.collection.count:
+      description: Number of objects/documents in a collection
+      included: false
+      type: gauge
+    gauge.collection.indexSize:
+      description: Size of a particular index on a collection
+      included: false
+      type: gauge
+    gauge.collection.max:
+      description: Maximum number of documents in a capped collection
+      included: false
+      type: gauge
+    gauge.collection.maxSize:
+      description: Maximum disk usage of a capped collection
+      included: false
+      type: gauge
+    gauge.collection.size:
+      description: Size of a collection in bytes, not including indexes
+      included: false
+      type: gauge
+    gauge.collection.storageSize:
+      description: Size of the collection on disk in bytes, never decreases.
+      included: false
+      type: gauge
+    gauge.collections:
+      description: Number of collections
+      included: false
+      type: gauge
+    gauge.connections.available:
+      description: Number of available incoming connections
+      included: false
+      type: gauge
+    gauge.connections.current:
+      description: Number of current client connections
+      included: true
+      type: gauge
+    gauge.dataSize:
+      description: Total size of data, in bytes
+      included: true
+      type: gauge
+    gauge.extra_info.heap_usage_bytes:
+      description: Heap size used by the mongod process, in bytes
+      included: true
+      type: gauge
+    gauge.globalLock.activeClients.readers:
+      description: Number of active client connections performing reads
+      included: true
+      type: gauge
+    gauge.globalLock.activeClients.total:
+      description: Total number of active client connections
+      included: false
+      type: gauge
+    gauge.globalLock.activeClients.writers:
+      description: Number of active client connections performing writes
+      included: true
+      type: gauge
+    gauge.globalLock.currentQueue.readers:
+      description: Read operations currently in queue
+      included: true
+      type: gauge
+    gauge.globalLock.currentQueue.total:
+      description: Total operations currently in queue
+      included: false
+      type: gauge
+    gauge.globalLock.currentQueue.writers:
+      description: Write operations currently in queue
+      included: true
+      type: gauge
+    gauge.indexSize:
+      description: Total size of indexes, in bytes
+      included: true
+      type: gauge
+    gauge.indexes:
+      description: Number of indexes across all collections
+      included: false
+      type: gauge
+    gauge.mem.mapped:
+      description: Mongodb mapped memory usage, in MB
+      included: true
+      type: gauge
+    gauge.mem.resident:
+      description: Mongodb resident memory usage, in MB
+      included: true
+      type: gauge
+    gauge.mem.virtual:
+      description: Mongodb virtual memory usage, in MB
+      included: true
+      type: gauge
+    gauge.objects:
+      description: Number of documents across all collections
+      included: true
+      type: gauge
+    gauge.storageSize:
+      description: Total bytes allocated to collections for document storage
+      included: true
+      type: gauge
+    gauge.uptime:
+      description: Uptime of this server in milliseconds
+      included: true
+      type: counter
   monitorType: collectd/mongodb
-  properties: null
+  properties:

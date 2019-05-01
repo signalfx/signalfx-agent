@@ -1,5 +1,5 @@
 monitors:
-- dimensions: null
+- dimensions:
   doc: |
     Gathers metrics about the network protocol
     stacks running on the system by using the [collectd protocols
@@ -9,32 +9,32 @@ monitors:
     doc](https://github.com/signalfx/integrations/tree/master/collectd-protocols)
     for more information.
   metrics:
-  - description: The number of times TCP connections transitioned from the CLOSED
-      state to the SYN-SENT state.
-    included: true
-    name: protocol_counter.ActiveOpens
-    type: cumulative
-  - description: The number of TCP connections currently in either ESTABLISHED or
-      CLOSE-WAIT state.
-    included: false
-    name: protocol_counter.CurrEstab
-    type: cumulative
-  - description: The number of acknowledgements delayed by TCP Delayed Acknowledgement
-    included: false
-    name: protocol_counter.DelayedACKs
-    type: cumulative
-  - description: The number of ICMP Destination Unreachable messages received
-    included: false
-    name: protocol_counter.InDestUnreachs
-    type: cumulative
-  - description: The number of times that a server opened a connection, due to receiving
-      a TCP SYN packet.
-    included: false
-    name: protocol_counter.PassiveOpens
-    type: cumulative
-  - description: The total number of segments retransmitted
-    included: false
-    name: protocol_counter.RetransSegs
-    type: cumulative
+    protocol_counter.ActiveOpens:
+      description: The number of times TCP connections transitioned from the CLOSED
+        state to the SYN-SENT state.
+      included: true
+      type: cumulative
+    protocol_counter.CurrEstab:
+      description: The number of TCP connections currently in either ESTABLISHED or
+        CLOSE-WAIT state.
+      included: false
+      type: cumulative
+    protocol_counter.DelayedACKs:
+      description: The number of acknowledgements delayed by TCP Delayed Acknowledgement
+      included: false
+      type: cumulative
+    protocol_counter.InDestUnreachs:
+      description: The number of ICMP Destination Unreachable messages received
+      included: false
+      type: cumulative
+    protocol_counter.PassiveOpens:
+      description: The number of times that a server opened a connection, due to receiving
+        a TCP SYN packet.
+      included: false
+      type: cumulative
+    protocol_counter.RetransSegs:
+      description: The total number of segments retransmitted
+      included: false
+      type: cumulative
   monitorType: collectd/protocols
-  properties: null
+  properties:
