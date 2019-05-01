@@ -406,8 +406,9 @@ jobs:
                 ;;
             puppet)
                 docker run --rm \
+                    -e "CI_SPEC_OPTIONS=--format RspecJunitFormatter -o ~/testresults/puppetspec.xml" \
                     signalfx-agent-puppet-dev \
-                    rspec spec --format RspecJunitFormatter | tee ~/testresults/puppetspec.xml
+                    rake spec
                 docker run --rm \
                     signalfx-agent-puppet-dev \
                     puppet-lint .
