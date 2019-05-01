@@ -63,6 +63,12 @@ def helm_command_prefix(k8s_cluster):
     )
 
 
+def exec_helm(args):
+    proc = subprocess.run(args, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    assert proc.returncode == 0, f"{args}:\n{proc.stdout.decode('utf-8')}"
+    return proc.stdout.decode("utf-8")
+
+
 @contextmanager
 def tiller_rbac_resources(k8s_cluster):
     print("Creating tiller RBAC resources ...")
@@ -118,8 +124,8 @@ def release_values_yaml(k8s_cluster, proxy_pod_ip, fake_services):
 def init_helm(k8s_cluster):
     init_command = helm_command_prefix(k8s_cluster) + " init --service-account tiller"
     print(f"Executing helm init: {init_command}")
-    output = subprocess.check_output(init_command, shell=True)
-    print(f"Helm init output: {output}")
+    output = exec_helm(init_command)
+    print(f"Helm init output:\n{output}")
 
     print("Waiting for tiller-deployment to be ready ...")
     assert wait_for(
@@ -143,9 +149,8 @@ def get_chart_name_version():
 def get_daemonset_name(k8s_cluster):
     chart_name, chart_version = get_chart_name_version()
     chart_release_name = chart_name + "-" + chart_version
-    output = subprocess.check_output(
-        helm_command_prefix(k8s_cluster) + f" list --namespace={k8s_cluster.test_namespace} --output=yaml", shell=True
-    )
+    list_cmd = helm_command_prefix(k8s_cluster) + f" list --namespace={k8s_cluster.test_namespace} --output=yaml"
+    output = exec_helm(list_cmd)
     release = None
     for rel in yaml.safe_load(output).get("Releases", []):
         if rel.get("Chart") == chart_release_name:
@@ -163,17 +168,14 @@ def install_helm_chart(k8s_cluster, values_path):
         + f" install --values {values_path} --namespace={k8s_cluster.test_namespace} --debug {LOCAL_CHART_DIR}",
     )
     print(f"Running Helm install: {install_cmd}")
-    output = subprocess.check_output(install_cmd, shell=True)
-    print(f"Helm chart install output: {output}")
+    output = exec_helm(install_cmd)
+    print(f"Helm chart install output:\n{output}")
 
-    try:
-        daemonset_name = get_daemonset_name(k8s_cluster)
-        print("Waiting for daemonset %s to be ready ..." % daemonset_name)
-        assert wait_for(
-            p(daemonset_is_ready, daemonset_name, k8s_cluster.test_namespace), timeout_seconds=120, interval_seconds=2
-        ), ("timed out waiting for %s daemonset to be ready!" % daemonset_name)
-    finally:
-        k8s_cluster.exec_kubectl("get all", namespace=k8s_cluster.test_namespace)
+    daemonset_name = get_daemonset_name(k8s_cluster)
+    print("Waiting for daemonset %s to be ready ..." % daemonset_name)
+    assert wait_for(
+        p(daemonset_is_ready, daemonset_name, k8s_cluster.test_namespace), timeout_seconds=120, interval_seconds=2
+    ), ("timed out waiting for %s daemonset to be ready!" % daemonset_name)
 
 
 def test_helm(k8s_cluster):
