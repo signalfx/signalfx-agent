@@ -41,8 +41,8 @@ type Config struct {
 	// The host/address on which to bind the UDP listener that accepts statsd
 	// datagrams
 	ListenAddress string `yaml:"listenAddress" default:"localhost"`
-	// The port on which to listen for statsd messages
-	ListenPort uint16 `yaml:"listenPort" default:"8125"`
+	// The port on which to listen for statsd messages (**default:** `8125`)
+	ListenPort *uint16 `yaml:"listenPort"`
 	// A prefix in metric names that needs to be removed before metric name conversion
 	MetricPrefix string `yaml:"metricPrefix"`
 	// A list converters to convert StatsD metric names into SignalFx metric names and dimensions
@@ -76,6 +76,13 @@ func (m *Monitor) Configure(conf *Config) error {
 	var ctx context.Context
 	ctx, m.cancel = context.WithCancel(context.Background())
 
+	// Give default value to ListenPort if not given by user.
+	// Cannot use yaml default to take also 0 as a valid value.
+	if conf.ListenPort == nil {
+		conf.ListenPort = new(uint16)
+		*conf.ListenPort = 8125
+	}
+
 	m.conf = conf
 
 	var converters []*converter
@@ -91,7 +98,7 @@ func (m *Monitor) Configure(conf *Config) error {
 
 	m.listener = &statsDListener{
 		ipAddr:     conf.ListenAddress,
-		port:       conf.ListenPort,
+		port:       *conf.ListenPort,
 		tcp:        false, // Will be added to Config when TCP is supported
 		prefix:     conf.MetricPrefix,
 		converters: converters,

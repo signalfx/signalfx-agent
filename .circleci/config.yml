@@ -174,8 +174,8 @@ jobs:
       - goexecutor_setup
       - run: |
           apk add --no-cache jq
-          curl -LOk https://github.com/hairyhenderson/gomplate/releases/download/v2.4.0/gomplate_linux-amd64-slim
-          mv gomplate_linux-amd64-slim /usr/bin/gomplate
+          curl -LOk https://github.com/hairyhenderson/gomplate/releases/download/v3.4.0/gomplate_linux-amd64
+          mv gomplate_linux-amd64 /usr/bin/gomplate
           chmod +x /usr/bin/gomplate
           make signalfx-agent
           bash -ec "make docs && git diff --exit-code" || \
@@ -218,14 +218,16 @@ jobs:
             $BUNDLE_DIR/bin/patch-interpreter $BUNDLE_DIR
             docker rm -fv $cid
             [ -f "$AGENT_BIN" ] || (echo "$AGENT_BIN not found!" && exit 1)
-            if ! scripts/changes-include-dir $(find . -iname "*devstack*" -o -iname "*openstack*" | sed 's|^\./||' | grep -v '^docs/'); then
-                MARKERS="$MARKERS and not openstack"
-            fi
-            if ! scripts/changes-include-dir $(find . -iname "*conviva*" | sed 's|^\./||' | grep -v '^docs/'); then
-                MARKERS="$MARKERS and not conviva"
-            fi
-            if ! scripts/changes-include-dir $(find . -iname "*jenkins*" | sed 's|^\./||' | grep -v '^docs/'); then
-                MARKERS="$MARKERS and not jenkins"
+            if [ "$CIRCLE_BRANCH" != "master" ]; then
+                if ! scripts/changes-include-dir $(find . -iname "*devstack*" -o -iname "*openstack*" | sed 's|^\./||' | grep -v '^docs/'); then
+                    MARKERS="$MARKERS and not openstack"
+                fi
+                if ! scripts/changes-include-dir $(find . -iname "*conviva*" | sed 's|^\./||' | grep -v '^docs/'); then
+                    MARKERS="$MARKERS and not conviva"
+                fi
+                if ! scripts/changes-include-dir $(find . -iname "*jenkins*" | sed 's|^\./||' | grep -v '^docs/'); then
+                    MARKERS="$MARKERS and not jenkins"
+                fi
             fi
             echo "export BUNDLE_DIR='$BUNDLE_DIR'" >> $BASH_ENV
             echo "export AGENT_BIN='$AGENT_BIN'" >> $BASH_ENV
@@ -404,8 +406,9 @@ jobs:
                 ;;
             puppet)
                 docker run --rm \
+                    -e "CI_SPEC_OPTIONS=--format RspecJunitFormatter -o ~/testresults/puppetspec.xml" \
                     signalfx-agent-puppet-dev \
-                    rspec spec --format RspecJunitFormatter | tee ~/testresults/puppetspec.xml
+                    rake spec
                 docker run --rm \
                     signalfx-agent-puppet-dev \
                     puppet-lint .
@@ -459,7 +462,7 @@ jobs:
           if [ "$TARGET" = "pytest" ]; then
               pip install -q -r tests/requirements.txt
           else
-              pip install -q -e python
+              pip install --no-use-pep517 -q -e python
               pip install -q -r python/test-requirements.txt
           fi
           (make lint-$TARGET && git diff --exit-code $TARGET_DIR ) || \

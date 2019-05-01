@@ -1,5 +1,5 @@
 monitors:
-- dimensions: null
+- dimensions:
   doc: "Collects metrics about a Hadoop cluster using\nusing collectd's GenericJMX\
     \ plugin.\n\nAlso see\nhttps://github.com/signalfx/integrations/tree/master/collectd-hadoop.\n\
     \n>To enable JMX in Hadoop, add the following JVM options to hadoop-env.sh and\
@@ -24,6 +24,6 @@ monitors:
     ```\n\n\tData Node\n```yaml\nmonitors:\n- type: collectd/hadoopjmx\n  host: 127.0.0.1\n\
     \  port: 5679\n  nodeType: dataNode\n```\n\nYou may also configure the [collectd/hadoop](https://github.com/signalfx/signalfx-agent/tree/master/docs/monitors/collectd/hadoop)\n\
     monitor to collect additional metrics about the hadoop cluster from the REST API\n"
-  metrics: null
+  metrics:
   monitorType: collectd/hadoopjmx
-  properties: null
+  properties:

@@ -1,6 +1,6 @@
 FROM registry.access.redhat.com/rhel7-atomic
 
-ARG AGENT_VERSION="4.5.1"
+ARG AGENT_VERSION="4.6.1"
 LABEL name="SignalFx Smart Agent" \
 	  maintainer="SignalFx, Inc." \
 	  vendor="SignalFx, Inc." \

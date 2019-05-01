@@ -1,5 +1,5 @@
 monitors:
-- dimensions: null
+- dimensions:
   doc: |
     Collects information about the virtual memory
     subsystem of the kernel.
@@ -14,49 +14,49 @@ monitors:
      - type: vmem
     ```
   metrics:
-  - description: (Windows Only)
-    included: false
-    name: vmpage.swap.in_per_second
-    type: gauge
-  - description: (Windows Only)
-    included: false
-    name: vmpage.swap.out_per_second
-    type: gauge
-  - description: (Windows Only)
-    included: false
-    name: vmpage.swap.total.per_second
-    type: gauge
-  - description: (Linux Only) Number of major page faults on the system
-    included: false
-    name: vmpage_faults.majflt
-    type: cumulative
-  - description: (Linux Only) Number of minor page faults on the system
-    included: false
-    name: vmpage_faults.minflt
-    type: cumulative
-  - description: (Linux Only) Page Ins for Memory
-    included: false
-    name: vmpage_io.memory.in
-    type: cumulative
-  - description: (Linux Only) Page Outs for Memory
-    included: false
-    name: vmpage_io.memory.out
-    type: cumulative
-  - description: (Linux Only) Page Ins for Swap
-    included: true
-    name: vmpage_io.swap.in
-    type: cumulative
-  - description: (Linux Only) Page Outs for Swap
-    included: true
-    name: vmpage_io.swap.out
-    type: cumulative
-  - description: (Linux Only) Number of free memory pages
-    included: false
-    name: vmpage_number.free_pages
-    type: cumulative
-  - description: (Linux Only) Number of mapped pages
-    included: false
-    name: vmpage_number.mapped
-    type: cumulative
+    vmpage.swap.in_per_second:
+      description: (Windows Only)
+      included: false
+      type: gauge
+    vmpage.swap.out_per_second:
+      description: (Windows Only)
+      included: false
+      type: gauge
+    vmpage.swap.total.per_second:
+      description: (Windows Only)
+      included: false
+      type: gauge
+    vmpage_faults.majflt:
+      description: (Linux Only) Number of major page faults on the system
+      included: false
+      type: cumulative
+    vmpage_faults.minflt:
+      description: (Linux Only) Number of minor page faults on the system
+      included: false
+      type: cumulative
+    vmpage_io.memory.in:
+      description: (Linux Only) Page Ins for Memory
+      included: false
+      type: cumulative
+    vmpage_io.memory.out:
+      description: (Linux Only) Page Outs for Memory
+      included: false
+      type: cumulative
+    vmpage_io.swap.in:
+      description: (Linux Only) Page Ins for Swap
+      included: true
+      type: cumulative
+    vmpage_io.swap.out:
+      description: (Linux Only) Page Outs for Swap
+      included: true
+      type: cumulative
+    vmpage_number.free_pages:
+      description: (Linux Only) Number of free memory pages
+      included: false
+      type: cumulative
+    vmpage_number.mapped:
+      description: (Linux Only) Number of mapped pages
+      included: false
+      type: cumulative
   monitorType: vmem
-  properties: null
+  properties:

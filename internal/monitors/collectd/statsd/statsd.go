@@ -33,6 +33,7 @@ type Config struct {
 	DeleteGauges    bool    `yaml:"deleteGauges"`
 	TimerPercentile float64 `yaml:"timerPercentile"`
 	TimerUpper      bool    `yaml:"timerUpper"`
+	TimerCount      bool    `yaml:"timerCount"`
 	TimerSum        bool    `yaml:"timerSum"`
 	TimerLower      bool    `yaml:"timerLower"`
 	CounterSum      bool    `yaml:"counterSum"`

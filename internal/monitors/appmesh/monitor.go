@@ -19,8 +19,8 @@ type Config struct {
 	// The host/address on which to bind the UDP listener that accepts statsd
 	// datagrams
 	ListenAddress string `yaml:"listenAddress" default:"localhost"`
-	// The port on which to listen for statsd messages
-	ListenPort uint16 `yaml:"listenPort" default:"8125"`
+	// The port on which to listen for statsd messages (**default:** `8125`)
+	ListenPort *uint16 `yaml:"listenPort"`
 	// A prefix in metric names that needs to be removed before metric name conversion
 	MetricPrefix string `yaml:"metricPrefix"`
 }
@@ -33,6 +33,13 @@ type Monitor struct {
 
 // Configure the monitor and kick off volume metric syncing
 func (m *Monitor) Configure(conf *Config) error {
+	// Give default value to ListenPort if not given by user.
+	// Cannot use yaml default to take also 0 as a valid value.
+	if conf.ListenPort == nil {
+		conf.ListenPort = new(uint16)
+		*conf.ListenPort = 8125
+	}
+
 	var err error
 	m.monitor, err = m.statsDMonitor(conf)
 

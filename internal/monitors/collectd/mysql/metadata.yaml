@@ -1,5 +1,5 @@
 monitors:
-- dimensions: null
+- dimensions:
   doc: |
     Monitors a MySQL database server using collectd's
     [MySQL plugin](https://collectd.org/wiki/index.php/Plugin:MySQL).
@@ -34,694 +34,696 @@ monitors:
        password: passwd
     ```
   metrics:
-  - description: The number of hits on MySQL query cache.
-    included: true
-    name: cache_result.qcache-hits
-    type: cumulative
-  - description: The number of inserts into MySQL query cache.
-    included: true
-    name: cache_result.qcache-inserts
-    type: cumulative
-  - description: MySQL Qcache Size
-    included: false
-    name: cache_results.cache_size
-    type: gauge
-  - description: The number of MySQL queries that were not cacheable or not cached.
-    included: false
-    name: cache_results.qcache-not_cached
-    type: cumulative
-  - description: The number of queries that were pruned from query cache because of
-      low-memory condition.
-    included: false
-    name: cache_results.qcache-prunes
-    type: cumulative
-  - description: The number of queries in MySQL query cache.
-    included: true
-    name: cache_size.qcache
-    type: gauge
-  - description: The number of MySQL ADMIN commands executed
-    included: false
-    name: mysql_commands.admin_commands
-    type: counter
-  - description: The number of MySQL ALTER DB commands executed
-    included: false
-    name: mysql_commands.alter_db
-    type: counter
-  - description: The number of MySQL ALTER DB UPGRADE commands executed
-    included: false
-    name: mysql_commands.alter_db_upgrade
-    type: counter
-  - description: The number of MySQL ALTER EVENT commands executed
-    included: false
-    name: mysql_commands.alter_event
-    type: counter
-  - description: The number of MySQL ALTER FUNCTION commands executed
-    included: false
-    name: mysql_commands.alter_function
-    type: counter
-  - description: The number of MySQL ALTER PROCEDURE commands executed
-    included: false
-    name: mysql_commands.alter_procedure
-    type: counter
-  - description: The number of MySQL ALTER SERVER commands executed
-    included: false
-    name: mysql_commands.alter_server
-    type: counter
-  - description: The number of MySQL ALTER TABLE commands executed
-    included: false
-    name: mysql_commands.alter_table
-    type: counter
-  - description: The number of MySQL ALTER TABLESPACE commands executed
-    included: false
-    name: mysql_commands.alter_tablespace
-    type: counter
-  - description: The number of MySQL ALTER USER commands executed
-    included: false
-    name: mysql_commands.alter_user
-    type: counter
-  - description: The number of MySQL ANALYZE commands executed
-    included: false
-    name: mysql_commands.analyze
-    type: counter
-  - description: The number of MySQL ASSIGN TO KEYCACHE commands executed
-    included: false
-    name: mysql_commands.assign_to_keycache
-    type: counter
-  - description: The number of MySQL BEGIN commands executed
-    included: false
-    name: mysql_commands.begin
-    type: counter
-  - description: The number of MySQL BINLOG commands executed
-    included: false
-    name: mysql_commands.binlog
-    type: counter
-  - description: The number of MySQL CALL PROCEDURE commands executed
-    included: false
-    name: mysql_commands.call_procedure
-    type: counter
-  - description: The number of MySQL CHANGE DB commands executed
-    included: false
-    name: mysql_commands.change_db
-    type: counter
-  - description: The number of MySQL CHANGE MASTER commands executed
-    included: false
-    name: mysql_commands.change_master
-    type: counter
-  - description: The number of MySQL CHECK commands executed
-    included: false
-    name: mysql_commands.check
-    type: counter
-  - description: The number of MySQL CHECKSUM commands executed
-    included: false
-    name: mysql_commands.checksum
-    type: counter
-  - description: The number of MySQL COMMIT commands executed
-    included: false
-    name: mysql_commands.commit
-    type: counter
-  - description: The number of MySQL CREATE DB commands executed
-    included: false
-    name: mysql_commands.create_db
-    type: counter
-  - description: The number of MySQL CREATE EVENT commands executed
-    included: false
-    name: mysql_commands.create_event
-    type: counter
-  - description: The number of MySQL CREATE FUNCTION commands executed
-    included: false
-    name: mysql_commands.create_function
-    type: counter
-  - description: The number of MySQL CREATE INDEX commands executed
-    included: false
-    name: mysql_commands.create_index
-    type: counter
-  - description: The number of MySQL CREATE PROCEDURE commands executed
-    included: false
-    name: mysql_commands.create_procedure
-    type: counter
-  - description: The number of MySQL CREATE SERVER commands executed
-    included: false
-    name: mysql_commands.create_server
-    type: counter
-  - description: The number of MySQL CREATE TABLE commands executed
-    included: false
-    name: mysql_commands.create_table
-    type: counter
-  - description: The number of MySQL CREATE TRIGGER commands executed
-    included: false
-    name: mysql_commands.create_trigger
-    type: counter
-  - description: The number of MySQL CREATE UDF commands executed
-    included: false
-    name: mysql_commands.create_udf
-    type: counter
-  - description: The number of MySQL CREATE USER commands executed
-    included: false
-    name: mysql_commands.create_user
-    type: counter
-  - description: The number of MySQL CREATE VIEW commands executed
-    included: false
-    name: mysql_commands.create_view
-    type: counter
-  - description: The number of MySQL DEALLOC SQL commands executed
-    included: false
-    name: mysql_commands.dealloc_sql
-    type: counter
-  - description: The number of MySQL DELETE commands executed
-    included: true
-    name: mysql_commands.delete
-    type: counter
-  - description: The number of MySQL DELETE MULTI commands executed
-    included: false
-    name: mysql_commands.delete_multi
-    type: counter
-  - description: The number of MySQL DO commands executed
-    included: false
-    name: mysql_commands.do
-    type: counter
-  - description: The number of MySQL DROP DB commands executed
-    included: false
-    name: mysql_commands.drop_db
-    type: counter
-  - description: The number of MySQL DROP EVENT commands executed
-    included: false
-    name: mysql_commands.drop_event
-    type: counter
-  - description: The number of MySQL DROP FUNCTION commands executed
-    included: false
-    name: mysql_commands.drop_function
-    type: counter
-  - description: The number of MySQL DROP INDEX commands executed
-    included: false
-    name: mysql_commands.drop_index
-    type: counter
-  - description: The number of MySQL DROP PROCEDURE commands executed
-    included: false
-    name: mysql_commands.drop_procedure
-    type: counter
-  - description: The number of MySQL DROP SERVER commands executed
-    included: false
-    name: mysql_commands.drop_server
-    type: counter
-  - description: The number of MySQL DROP TABLE commands executed
-    included: false
-    name: mysql_commands.drop_table
-    type: counter
-  - description: The number of MySQL DROP TRIGGER commands executed
-    included: false
-    name: mysql_commands.drop_trigger
-    type: counter
-  - description: The number of MySQL DROP USER commands executed
-    included: false
-    name: mysql_commands.drop_user
-    type: counter
-  - description: The number of MySQL DROP VIEW commands executed
-    included: false
-    name: mysql_commands.drop_view
-    type: counter
-  - description: The number of MySQL EMPTY QUERY commands executed
-    included: false
-    name: mysql_commands.empty_query
-    type: counter
-  - description: The number of MySQL EXECUTE SQL commands executed
-    included: false
-    name: mysql_commands.execute_sql
-    type: counter
-  - description: The number of MySQL FLUSH commands executed
-    included: false
-    name: mysql_commands.flush
-    type: counter
-  - description: The number of MySQL GET DIAGNOSTICS commands executed
-    included: false
-    name: mysql_commands.get_diagnostics
-    type: counter
-  - description: The number of MySQL GRANT commands executed
-    included: false
-    name: mysql_commands.grant
-    type: counter
-  - description: The number of MySQL HA CLOSE commands executed
-    included: false
-    name: mysql_commands.ha_close
-    type: counter
-  - description: The number of MySQL HA OPEN commands executed
-    included: false
-    name: mysql_commands.ha_open
-    type: counter
-  - description: The number of MySQL HA READ commands executed
-    included: false
-    name: mysql_commands.ha_read
-    type: counter
-  - description: The number of MySQL HELP commands executed
-    included: false
-    name: mysql_commands.help
-    type: counter
-  - description: The number of MySQL INSERT commands executed
-    included: true
-    name: mysql_commands.insert
-    type: counter
-  - description: The number of MySQL INSERT SELECT commands executed
-    included: false
-    name: mysql_commands.insert_select
-    type: counter
-  - description: The number of MySQL INSTALL PLUGIN commands executed
-    included: false
-    name: mysql_commands.install_plugin
-    type: counter
-  - description: The number of MySQL KILL commands executed
-    included: false
-    name: mysql_commands.kill
-    type: counter
-  - description: The number of MySQL LOAD commands executed
-    included: false
-    name: mysql_commands.load
-    type: counter
-  - description: The number of MySQL LOCK TABLES commands executed
-    included: false
-    name: mysql_commands.lock_tables
-    type: counter
-  - description: The number of MySQL OPTIMIZE commands executed
-    included: false
-    name: mysql_commands.optimize
-    type: counter
-  - description: The number of MySQL PRELOAD KEYS commands executed
-    included: false
-    name: mysql_commands.preload_keys
-    type: counter
-  - description: The number of MySQL PREPARE SQL commands executed
-    included: false
-    name: mysql_commands.prepare_sql
-    type: counter
-  - description: The number of MySQL PURGE commands executed
-    included: false
-    name: mysql_commands.purge
-    type: counter
-  - description: The number of MySQL PURGE BEFORE DATE commands executed
-    included: false
-    name: mysql_commands.purge_before_date
-    type: counter
-  - description: The number of MySQL RELEASE SAVEPOINT commands executed
-    included: false
-    name: mysql_commands.release_savepoint
-    type: counter
-  - description: The number of MySQL RENAME TABLE commands executed
-    included: false
-    name: mysql_commands.rename_table
-    type: counter
-  - description: The number of MySQL RENAME USER commands executed
-    included: false
-    name: mysql_commands.rename_user
-    type: counter
-  - description: The number of MySQL REPAIR commands executed
-    included: false
-    name: mysql_commands.repair
-    type: counter
-  - description: The number of MySQL REPLACE commands executed
-    included: false
-    name: mysql_commands.replace
-    type: counter
-  - description: The number of MySQL REPLACE SELECT commands executed
-    included: false
-    name: mysql_commands.replace_select
-    type: counter
-  - description: The number of MySQL RESET commands executed
-    included: false
-    name: mysql_commands.reset
-    type: counter
-  - description: The number of MySQL RESIGNAL commands executed
-    included: false
-    name: mysql_commands.resignal
-    type: counter
-  - description: The number of MySQL REVOKE commands executed
-    included: false
-    name: mysql_commands.revoke
-    type: counter
-  - description: The number of MySQL REVOKE ALL commands executed
-    included: false
-    name: mysql_commands.revoke_all
-    type: counter
-  - description: The number of MySQL ROLLBACK commands executed
-    included: false
-    name: mysql_commands.rollback
-    type: counter
-  - description: The number of MySQL ROLLBACK TO SAVEPOINT commands executed
-    included: false
-    name: mysql_commands.rollback_to_savepoint
-    type: counter
-  - description: The number of MySQL SAVEPOINT commands executed
-    included: false
-    name: mysql_commands.savepoint
-    type: counter
-  - description: The number of MySQL SELECT commands executed
-    included: true
-    name: mysql_commands.select
-    type: counter
-  - description: The number of MySQL SET OPTION commands executed
-    included: false
-    name: mysql_commands.set_option
-    type: counter
-  - description: The number of MySQL SHOW BINLOG EVENTS commands executed
-    included: false
-    name: mysql_commands.show_binlog_events
-    type: counter
-  - description: The number of MySQL SHOW BINLOGS commands executed
-    included: false
-    name: mysql_commands.show_binlogs
-    type: counter
-  - description: The number of MySQL SHOW CHARSETS commands executed
-    included: false
-    name: mysql_commands.show_charsets
-    type: counter
-  - description: The number of MySQL SHOW COLLATIONS commands executed
-    included: false
-    name: mysql_commands.show_collations
-    type: counter
-  - description: The number of MySQL SHOW CREATE DB commands executed
-    included: false
-    name: mysql_commands.show_create_db
-    type: counter
-  - description: The number of MySQL SHOW CREATE EVENT commands executed
-    included: false
-    name: mysql_commands.show_create_event
-    type: counter
-  - description: The number of MySQL SHOW CREATE FUNC commands executed
-    included: false
-    name: mysql_commands.show_create_func
-    type: counter
-  - description: The number of MySQL SHOW CREATE PROC commands executed
-    included: false
-    name: mysql_commands.show_create_proc
-    type: counter
-  - description: The number of MySQL SHOW CREATE TABLE commands executed
-    included: false
-    name: mysql_commands.show_create_table
-    type: counter
-  - description: The number of MySQL SHOW CREATE TRIGGER commands executed
-    included: false
-    name: mysql_commands.show_create_trigger
-    type: counter
-  - description: The number of MySQL SHOW DATABASES commands executed
-    included: false
-    name: mysql_commands.show_databases
-    type: counter
-  - description: The number of MySQL SHOW ENGINE LOGS commands executed
-    included: false
-    name: mysql_commands.show_engine_logs
-    type: counter
-  - description: The number of MySQL SHOW ENGINE MUTEX commands executed
-    included: false
-    name: mysql_commands.show_engine_mutex
-    type: counter
-  - description: The number of MySQL SHOW ENGINE STATUS commands executed
-    included: false
-    name: mysql_commands.show_engine_status
-    type: counter
-  - description: The number of MySQL SHOW ERRORS commands executed
-    included: false
-    name: mysql_commands.show_errors
-    type: counter
-  - description: The number of MySQL SHOW EVENTS commands executed
-    included: false
-    name: mysql_commands.show_events
-    type: counter
-  - description: The number of MySQL SHOW FIELDS commands executed
-    included: false
-    name: mysql_commands.show_fields
-    type: counter
-  - description: The number of MySQL SHOW FUNCTION CODE commands executed
-    included: false
-    name: mysql_commands.show_function_code
-    type: counter
-  - description: The number of MySQL SHOW FUNCTION STATUS commands executed
-    included: false
-    name: mysql_commands.show_function_status
-    type: counter
-  - description: The number of MySQL SHOW GRANTS commands executed
-    included: false
-    name: mysql_commands.show_grants
-    type: counter
-  - description: The number of MySQL SHOW KEYS commands executed
-    included: false
-    name: mysql_commands.show_keys
-    type: counter
-  - description: The number of MySQL SHOW MASTER STATUS commands executed
-    included: false
-    name: mysql_commands.show_master_status
-    type: counter
-  - description: The number of MySQL SHOW OPEN TABLES commands executed
-    included: false
-    name: mysql_commands.show_open_tables
-    type: counter
-  - description: The number of MySQL SHOW PLUGINS commands executed
-    included: false
-    name: mysql_commands.show_plugins
-    type: counter
-  - description: The number of MySQL SHOW PRIVILEGES commands executed
-    included: false
-    name: mysql_commands.show_privileges
-    type: counter
-  - description: The number of MySQL SHOW PROCEDURE CODE commands executed
-    included: false
-    name: mysql_commands.show_procedure_code
-    type: counter
-  - description: The number of MySQL SHOW PROCEDURE STATUS commands executed
-    included: false
-    name: mysql_commands.show_procedure_status
-    type: counter
-  - description: The number of MySQL SHOW PROCESSLIST commands executed
-    included: false
-    name: mysql_commands.show_processlist
-    type: counter
-  - description: The number of MySQL SHOW PROFILE commands executed
-    included: false
-    name: mysql_commands.show_profile
-    type: counter
-  - description: The number of MySQL SHOW PROFILES commands executed
-    included: false
-    name: mysql_commands.show_profiles
-    type: counter
-  - description: The number of MySQL SHOW RELAYLOG EVENTS commands executed
-    included: false
-    name: mysql_commands.show_relaylog_events
-    type: counter
-  - description: The number of MySQL SHOW SLAVE HOSTS commands executed
-    included: false
-    name: mysql_commands.show_slave_hosts
-    type: counter
-  - description: The number of MySQL SHOW SLAVE STATUS commands executed
-    included: false
-    name: mysql_commands.show_slave_status
-    type: counter
-  - description: The number of MySQL SHOW STATUS commands executed
-    included: false
-    name: mysql_commands.show_status
-    type: counter
-  - description: The number of MySQL SHOW STORAGE ENGINES commands executed
-    included: false
-    name: mysql_commands.show_storage_engines
-    type: counter
-  - description: The number of MySQL SHOW TABLE STATUS commands executed
-    included: false
-    name: mysql_commands.show_table_status
-    type: counter
-  - description: The number of MySQL SHOW TABLES commands executed
-    included: false
-    name: mysql_commands.show_tables
-    type: counter
-  - description: The number of MySQL SHOW TRIGGERS commands executed
-    included: false
-    name: mysql_commands.show_triggers
-    type: counter
-  - description: The number of MySQL SHOW VARIABLES commands executed
-    included: false
-    name: mysql_commands.show_variables
-    type: counter
-  - description: The number of MySQL SHOW WARNINGS commands executed
-    included: false
-    name: mysql_commands.show_warnings
-    type: counter
-  - description: The number of MySQL SIGNAL commands executed
-    included: false
-    name: mysql_commands.signal
-    type: counter
-  - description: The number of MySQL SLAVE START commands executed
-    included: false
-    name: mysql_commands.slave_start
-    type: counter
-  - description: The number of MySQL SLAVE STOP commands executed
-    included: false
-    name: mysql_commands.slave_stop
-    type: counter
-  - description: The number of MySQL TRUNCATE commands executed
-    included: false
-    name: mysql_commands.truncate
-    type: counter
-  - description: The number of MySQL UNINSTALL PLUGIN commands executed
-    included: false
-    name: mysql_commands.uninstall_plugin
-    type: counter
-  - description: The number of MySQL UNLOCK TABLES commands executed
-    included: false
-    name: mysql_commands.unlock_tables
-    type: counter
-  - description: The number of MySQL UPDATE commands executed
-    included: true
-    name: mysql_commands.update
-    type: counter
-  - description: The number of MySQL UPDATE MULTI commands executed
-    included: false
-    name: mysql_commands.update_multi
-    type: counter
-  - description: The number of MySQL XA COMMIT commands executed
-    included: false
-    name: mysql_commands.xa_commit
-    type: counter
-  - description: The number of MySQL XA END commands executed
-    included: false
-    name: mysql_commands.xa_end
-    type: counter
-  - description: The number of MySQL XA PREPARE commands executed
-    included: false
-    name: mysql_commands.xa_prepare
-    type: counter
-  - description: The number of MySQL XA RECOVER commands executed
-    included: false
-    name: mysql_commands.xa_recover
-    type: counter
-  - description: The number of MySQL XA ROLLBACK commands executed
-    included: false
-    name: mysql_commands.xa_rollback
-    type: counter
-  - description: The number of MySQL XA START commands executed
-    included: false
-    name: mysql_commands.xa_start
-    type: counter
-  - description: The number of internal COMMIT statements.
-    included: false
-    name: mysql_handler.commit
-    type: counter
-  - description: The number of times rows have been deleted from tables.
-    included: false
-    name: mysql_handler.delete
-    type: counter
-  - description: The number of times "Prepare" phase was executed in the two-phase
-      commit operations.
-    included: false
-    name: mysql_handler.prepare
-    type: counter
-  - description: The number of times the first entry in an index was read.
-    included: false
-    name: mysql_handler.read_first
-    type: counter
-  - description: The number of times a row was read based on a key.
-    included: false
-    name: mysql_handler.read_key
-    type: counter
-  - description: The number of requests to read the next row in key order.
-    included: false
-    name: mysql_handler.read_next
-    type: counter
-  - description: The number of requests to read the previous row in key order.
-    included: false
-    name: mysql_handler.read_prev
-    type: counter
-  - description: The number of requests that read a random fixed position in the data
-      file.
-    included: false
-    name: mysql_handler.read_rnd
-    type: counter
-  - description: The number of requests for the next row in the data file.
-    included: false
-    name: mysql_handler.read_rnd_next
-    type: counter
-  - description: The number of requests for a rollback operation on the storage engine.
-    included: false
-    name: mysql_handler.rollback
-    type: counter
-  - description: The number of requests to place a savepoint on the storage engine.  This
-      can be used to roll back later.
-    included: false
-    name: mysql_handler.savepoint
-    type: counter
-  - description: The number of requests to roll back to a savepoint.
-    included: false
-    name: mysql_handler.savepoint_rollback
-    type: counter
-  - description: The number of requests to update a row in a table.
-    included: false
-    name: mysql_handler.update
-    type: counter
-  - description: The number of requests to insert a row in a table.
-    included: false
-    name: mysql_handler.write
-    type: counter
-  - description: The number of MySQL table locks which were granted immediately.
-    included: true
-    name: mysql_locks.immediate
-    type: counter
-  - description: The number of MySQL table locks which had to wait before being granted.
-    included: true
-    name: mysql_locks.waited
-    type: counter
-  - description: The number of bytes received by MySQL server from all clients.
-    included: true
-    name: mysql_octets.rx
-    type: cumulative
-  - description: The number of bytes sent by MySQL server to all clients.
-    included: true
-    name: mysql_octets.tx
-    type: cumulative
-  - description: The number of joins that perform full table scans.
-    included: false
-    name: mysql_select.full_join
-    type: counter
-  - description: The number of joins that used a range search on a reference table.
-    included: false
-    name: mysql_select.full_range_join
-    type: counter
-  - description: The number of joins that used a range on the first table.
-    included: false
-    name: mysql_select.range
-    type: counter
-  - description: The number of joins without keys that check for key usage after each
-      row.
-    included: false
-    name: mysql_select.range_check
-    type: counter
-  - description: The number of merge passes done by the sorting algorithm.
-    included: false
-    name: mysql_sort.merge_passes
-    type: counter
-  - description: The number of sorts that were done using ranges.
-    included: false
-    name: mysql_sort.range
-    type: counter
-  - description: The number of rows that were sorted.
-    included: false
-    name: mysql_sort.rows
-    type: counter
-  - description: The number of sorts that were done by scanning the table.
-    included: false
-    name: mysql_sort.scan
-    type: counter
-  - description: The number of threads cached by MySQL for re-use on a new client
-      connection.  A MySQL thread corresponds to a single MySQL connection.
-    included: true
-    name: threads.cached
-    type: gauge
-  - description: The number of currently open MySQL connections.  A MySQL thread corresponds
-      to a single MySQL connection.
-    included: true
-    name: threads.connected
-    type: gauge
-  - description: The number of MySQL threads that are processing a query.  A MySQL
-      thread corresponds to a single MySQL connection.
-    included: false
-    name: threads.running
-    type: gauge
-  - description: The total number of threads created by MySQL for client connections.  A
-      MySQL thread corresponds to a single MySQL connection.
-    included: false
-    name: total_threads.created
-    type: cumulative
+    cache_result.qcache-hits:
+      description: The number of hits on MySQL query cache.
+      included: true
+      type: cumulative
+    cache_result.qcache-inserts:
+      description: The number of inserts into MySQL query cache.
+      included: true
+      type: cumulative
+    cache_results.cache_size:
+      description: MySQL Qcache Size
+      included: false
+      type: gauge
+    cache_results.qcache-not_cached:
+      description: The number of MySQL queries that were not cacheable or not cached.
+      included: false
+      type: cumulative
+    cache_results.qcache-prunes:
+      description: The number of queries that were pruned from query cache because
+        of low-memory condition.
+      included: false
+      type: cumulative
+    cache_size.qcache:
+      description: The number of queries in MySQL query cache.
+      included: true
+      type: gauge
+    mysql_commands.admin_commands:
+      description: The number of MySQL ADMIN commands executed
+      included: false
+      type: counter
+    mysql_commands.alter_db:
+      description: The number of MySQL ALTER DB commands executed
+      included: false
+      type: counter
+    mysql_commands.alter_db_upgrade:
+      description: The number of MySQL ALTER DB UPGRADE commands executed
+      included: false
+      type: counter
+    mysql_commands.alter_event:
+      description: The number of MySQL ALTER EVENT commands executed
+      included: false
+      type: counter
+    mysql_commands.alter_function:
+      description: The number of MySQL ALTER FUNCTION commands executed
+      included: false
+      type: counter
+    mysql_commands.alter_procedure:
+      description: The number of MySQL ALTER PROCEDURE commands executed
+      included: false
+      type: counter
+    mysql_commands.alter_server:
+      description: The number of MySQL ALTER SERVER commands executed
+      included: false
+      type: counter
+    mysql_commands.alter_table:
+      description: The number of MySQL ALTER TABLE commands executed
+      included: false
+      type: counter
+    mysql_commands.alter_tablespace:
+      description: The number of MySQL ALTER TABLESPACE commands executed
+      included: false
+      type: counter
+    mysql_commands.alter_user:
+      description: The number of MySQL ALTER USER commands executed
+      included: false
+      type: counter
+    mysql_commands.analyze:
+      description: The number of MySQL ANALYZE commands executed
+      included: false
+      type: counter
+    mysql_commands.assign_to_keycache:
+      description: The number of MySQL ASSIGN TO KEYCACHE commands executed
+      included: false
+      type: counter
+    mysql_commands.begin:
+      description: The number of MySQL BEGIN commands executed
+      included: false
+      type: counter
+    mysql_commands.binlog:
+      description: The number of MySQL BINLOG commands executed
+      included: false
+      type: counter
+    mysql_commands.call_procedure:
+      description: The number of MySQL CALL PROCEDURE commands executed
+      included: false
+      type: counter
+    mysql_commands.change_db:
+      description: The number of MySQL CHANGE DB commands executed
+      included: false
+      type: counter
+    mysql_commands.change_master:
+      description: The number of MySQL CHANGE MASTER commands executed
+      included: false
+      type: counter
+    mysql_commands.check:
+      description: The number of MySQL CHECK commands executed
+      included: false
+      type: counter
+    mysql_commands.checksum:
+      description: The number of MySQL CHECKSUM commands executed
+      included: false
+      type: counter
+    mysql_commands.commit:
+      description: The number of MySQL COMMIT commands executed
+      included: false
+      type: counter
+    mysql_commands.create_db:
+      description: The number of MySQL CREATE DB commands executed
+      included: false
+      type: counter
+    mysql_commands.create_event:
+      description: The number of MySQL CREATE EVENT commands executed
+      included: false
+      type: counter
+    mysql_commands.create_function:
+      description: The number of MySQL CREATE FUNCTION commands executed
+      included: false
+      type: counter
+    mysql_commands.create_index:
+      description: The number of MySQL CREATE INDEX commands executed
+      included: false
+      type: counter
+    mysql_commands.create_procedure:
+      description: The number of MySQL CREATE PROCEDURE commands executed
+      included: false
+      type: counter
+    mysql_commands.create_server:
+      description: The number of MySQL CREATE SERVER commands executed
+      included: false
+      type: counter
+    mysql_commands.create_table:
+      description: The number of MySQL CREATE TABLE commands executed
+      included: false
+      type: counter
+    mysql_commands.create_trigger:
+      description: The number of MySQL CREATE TRIGGER commands executed
+      included: false
+      type: counter
+    mysql_commands.create_udf:
+      description: The number of MySQL CREATE UDF commands executed
+      included: false
+      type: counter
+    mysql_commands.create_user:
+      description: The number of MySQL CREATE USER commands executed
+      included: false
+      type: counter
+    mysql_commands.create_view:
+      description: The number of MySQL CREATE VIEW commands executed
+      included: false
+      type: counter
+    mysql_commands.dealloc_sql:
+      description: The number of MySQL DEALLOC SQL commands executed
+      included: false
+      type: counter
+    mysql_commands.delete:
+      description: The number of MySQL DELETE commands executed
+      included: true
+      type: counter
+    mysql_commands.delete_multi:
+      description: The number of MySQL DELETE MULTI commands executed
+      included: false
+      type: counter
+    mysql_commands.do:
+      description: The number of MySQL DO commands executed
+      included: false
+      type: counter
+    mysql_commands.drop_db:
+      description: The number of MySQL DROP DB commands executed
+      included: false
+      type: counter
+    mysql_commands.drop_event:
+      description: The number of MySQL DROP EVENT commands executed
+      included: false
+      type: counter
+    mysql_commands.drop_function:
+      description: The number of MySQL DROP FUNCTION commands executed
+      included: false
+      type: counter
+    mysql_commands.drop_index:
+      description: The number of MySQL DROP INDEX commands executed
+      included: false
+      type: counter
+    mysql_commands.drop_procedure:
+      description: The number of MySQL DROP PROCEDURE commands executed
+      included: false
+      type: counter
+    mysql_commands.drop_server:
+      description: The number of MySQL DROP SERVER commands executed
+      included: false
+      type: counter
+    mysql_commands.drop_table:
+      description: The number of MySQL DROP TABLE commands executed
+      included: false
+      type: counter
+    mysql_commands.drop_trigger:
+      description: The number of MySQL DROP TRIGGER commands executed
+      included: false
+      type: counter
+    mysql_commands.drop_user:
+      description: The number of MySQL DROP USER commands executed
+      included: false
+      type: counter
+    mysql_commands.drop_view:
+      description: The number of MySQL DROP VIEW commands executed
+      included: false
+      type: counter
+    mysql_commands.empty_query:
+      description: The number of MySQL EMPTY QUERY commands executed
+      included: false
+      type: counter
+    mysql_commands.execute_sql:
+      description: The number of MySQL EXECUTE SQL commands executed
+      included: false
+      type: counter
+    mysql_commands.flush:
+      description: The number of MySQL FLUSH commands executed
+      included: false
+      type: counter
+    mysql_commands.get_diagnostics:
+      description: The number of MySQL GET DIAGNOSTICS commands executed
+      included: false
+      type: counter
+    mysql_commands.grant:
+      description: The number of MySQL GRANT commands executed
+      included: false
+      type: counter
+    mysql_commands.ha_close:
+      description: The number of MySQL HA CLOSE commands executed
+      included: false
+      type: counter
+    mysql_commands.ha_open:
+      description: The number of MySQL HA OPEN commands executed
+      included: false
+      type: counter
+    mysql_commands.ha_read:
+      description: The number of MySQL HA READ commands executed
+      included: false
+      type: counter
+    mysql_commands.help:
+      description: The number of MySQL HELP commands executed
+      included: false
+      type: counter
+    mysql_commands.insert:
+      description: The number of MySQL INSERT commands executed
+      included: true
+      type: counter
+    mysql_commands.insert_select:
+      description: The number of MySQL INSERT SELECT commands executed
+      included: false
+      type: counter
+    mysql_commands.install_plugin:
+      description: The number of MySQL INSTALL PLUGIN commands executed
+      included: false
+      type: counter
+    mysql_commands.kill:
+      description: The number of MySQL KILL commands executed
+      included: false
+      type: counter
+    mysql_commands.load:
+      description: The number of MySQL LOAD commands executed
+      included: false
+      type: counter
+    mysql_commands.lock_tables:
+      description: The number of MySQL LOCK TABLES commands executed
+      included: false
+      type: counter
+    mysql_commands.optimize:
+      description: The number of MySQL OPTIMIZE commands executed
+      included: false
+      type: counter
+    mysql_commands.preload_keys:
+      description: The number of MySQL PRELOAD KEYS commands executed
+      included: false
+      type: counter
+    mysql_commands.prepare_sql:
+      description: The number of MySQL PREPARE SQL commands executed
+      included: false
+      type: counter
+    mysql_commands.purge:
+      description: The number of MySQL PURGE commands executed
+      included: false
+      type: counter
+    mysql_commands.purge_before_date:
+      description: The number of MySQL PURGE BEFORE DATE commands executed
+      included: false
+      type: counter
+    mysql_commands.release_savepoint:
+      description: The number of MySQL RELEASE SAVEPOINT commands executed
+      included: false
+      type: counter
+    mysql_commands.rename_table:
+      description: The number of MySQL RENAME TABLE commands executed
+      included: false
+      type: counter
+    mysql_commands.rename_user:
+      description: The number of MySQL RENAME USER commands executed
+      included: false
+      type: counter
+    mysql_commands.repair:
+      description: The number of MySQL REPAIR commands executed
+      included: false
+      type: counter
+    mysql_commands.replace:
+      description: The number of MySQL REPLACE commands executed
+      included: false
+      type: counter
+    mysql_commands.replace_select:
+      description: The number of MySQL REPLACE SELECT commands executed
+      included: false
+      type: counter
+    mysql_commands.reset:
+      description: The number of MySQL RESET commands executed
+      included: false
+      type: counter
+    mysql_commands.resignal:
+      description: The number of MySQL RESIGNAL commands executed
+      included: false
+      type: counter
+    mysql_commands.revoke:
+      description: The number of MySQL REVOKE commands executed
+      included: false
+      type: counter
+    mysql_commands.revoke_all:
+      description: The number of MySQL REVOKE ALL commands executed
+      included: false
+      type: counter
+    mysql_commands.rollback:
+      description: The number of MySQL ROLLBACK commands executed
+      included: false
+      type: counter
+    mysql_commands.rollback_to_savepoint:
+      description: The number of MySQL ROLLBACK TO SAVEPOINT commands executed
+      included: false
+      type: counter
+    mysql_commands.savepoint:
+      description: The number of MySQL SAVEPOINT commands executed
+      included: false
+      type: counter
+    mysql_commands.select:
+      description: The number of MySQL SELECT commands executed
+      included: true
+      type: counter
+    mysql_commands.set_option:
+      description: The number of MySQL SET OPTION commands executed
+      included: false
+      type: counter
+    mysql_commands.show_binlog_events:
+      description: The number of MySQL SHOW BINLOG EVENTS commands executed
+      included: false
+      type: counter
+    mysql_commands.show_binlogs:
+      description: The number of MySQL SHOW BINLOGS commands executed
+      included: false
+      type: counter
+    mysql_commands.show_charsets:
+      description: The number of MySQL SHOW CHARSETS commands executed
+      included: false
+      type: counter
+    mysql_commands.show_collations:
+      description: The number of MySQL SHOW COLLATIONS commands executed
+      included: false
+      type: counter
+    mysql_commands.show_create_db:
+      description: The number of MySQL SHOW CREATE DB commands executed
+      included: false
+      type: counter
+    mysql_commands.show_create_event:
+      description: The number of MySQL SHOW CREATE EVENT commands executed
+      included: false
+      type: counter
+    mysql_commands.show_create_func:
+      description: The number of MySQL SHOW CREATE FUNC commands executed
+      included: false
+      type: counter
+    mysql_commands.show_create_proc:
+      description: The number of MySQL SHOW CREATE PROC commands executed
+      included: false
+      type: counter
+    mysql_commands.show_create_table:
+      description: The number of MySQL SHOW CREATE TABLE commands executed
+      included: false
+      type: counter
+    mysql_commands.show_create_trigger:
+      description: The number of MySQL SHOW CREATE TRIGGER commands executed
+      included: false
+      type: counter
+    mysql_commands.show_databases:
+      description: The number of MySQL SHOW DATABASES commands executed
+      included: false
+      type: counter
+    mysql_commands.show_engine_logs:
+      description: The number of MySQL SHOW ENGINE LOGS commands executed
+      included: false
+      type: counter
+    mysql_commands.show_engine_mutex:
+      description: The number of MySQL SHOW ENGINE MUTEX commands executed
+      included: false
+      type: counter
+    mysql_commands.show_engine_status:
+      description: The number of MySQL SHOW ENGINE STATUS commands executed
+      included: false
+      type: counter
+    mysql_commands.show_errors:
+      description: The number of MySQL SHOW ERRORS commands executed
+      included: false
+      type: counter
+    mysql_commands.show_events:
+      description: The number of MySQL SHOW EVENTS commands executed
+      included: false
+      type: counter
+    mysql_commands.show_fields:
+      description: The number of MySQL SHOW FIELDS commands executed
+      included: false
+      type: counter
+    mysql_commands.show_function_code:
+      description: The number of MySQL SHOW FUNCTION CODE commands executed
+      included: false
+      type: counter
+    mysql_commands.show_function_status:
+      description: The number of MySQL SHOW FUNCTION STATUS commands executed
+      included: false
+      type: counter
+    mysql_commands.show_grants:
+      description: The number of MySQL SHOW GRANTS commands executed
+      included: false
+      type: counter
+    mysql_commands.show_keys:
+      description: The number of MySQL SHOW KEYS commands executed
+      included: false
+      type: counter
+    mysql_commands.show_master_status:
+      description: The number of MySQL SHOW MASTER STATUS commands executed
+      included: false
+      type: counter
+    mysql_commands.show_open_tables:
+      description: The number of MySQL SHOW OPEN TABLES commands executed
+      included: false
+      type: counter
+    mysql_commands.show_plugins:
+      description: The number of MySQL SHOW PLUGINS commands executed
+      included: false
+      type: counter
+    mysql_commands.show_privileges:
+      description: The number of MySQL SHOW PRIVILEGES commands executed
+      included: false
+      type: counter
+    mysql_commands.show_procedure_code:
+      description: The number of MySQL SHOW PROCEDURE CODE commands executed
+      included: false
+      type: counter
+    mysql_commands.show_procedure_status:
+      description: The number of MySQL SHOW PROCEDURE STATUS commands executed
+      included: false
+      type: counter
+    mysql_commands.show_processlist:
+      description: The number of MySQL SHOW PROCESSLIST commands executed
+      included: false
+      type: counter
+    mysql_commands.show_profile:
+      description: The number of MySQL SHOW PROFILE commands executed
+      included: false
+      type: counter
+    mysql_commands.show_profiles:
+      description: The number of MySQL SHOW PROFILES commands executed
+      included: false
+      type: counter
+    mysql_commands.show_relaylog_events:
+      description: The number of MySQL SHOW RELAYLOG EVENTS commands executed
+      included: false
+      type: counter
+    mysql_commands.show_slave_hosts:
+      description: The number of MySQL SHOW SLAVE HOSTS commands executed
+      included: false
+      type: counter
+    mysql_commands.show_slave_status:
+      description: The number of MySQL SHOW SLAVE STATUS commands executed
+      included: false
+      type: counter
+    mysql_commands.show_status:
+      description: The number of MySQL SHOW STATUS commands executed
+      included: false
+      type: counter
+    mysql_commands.show_storage_engines:
+      description: The number of MySQL SHOW STORAGE ENGINES commands executed
+      included: false
+      type: counter
+    mysql_commands.show_table_status:
+      description: The number of MySQL SHOW TABLE STATUS commands executed
+      included: false
+      type: counter
+    mysql_commands.show_tables:
+      description: The number of MySQL SHOW TABLES commands executed
+      included: false
+      type: counter
+    mysql_commands.show_triggers:
+      description: The number of MySQL SHOW TRIGGERS commands executed
+      included: false
+      type: counter
+    mysql_commands.show_variables:
+      description: The number of MySQL SHOW VARIABLES commands executed
+      included: false
+      type: counter
+    mysql_commands.show_warnings:
+      description: The number of MySQL SHOW WARNINGS commands executed
+      included: false
+      type: counter
+    mysql_commands.signal:
+      description: The number of MySQL SIGNAL commands executed
+      included: false
+      type: counter
+    mysql_commands.slave_start:
+      description: The number of MySQL SLAVE START commands executed
+      included: false
+      type: counter
+    mysql_commands.slave_stop:
+      description: The number of MySQL SLAVE STOP commands executed
+      included: false
+      type: counter
+    mysql_commands.truncate:
+      description: The number of MySQL TRUNCATE commands executed
+      included: false
+      type: counter
+    mysql_commands.uninstall_plugin:
+      description: The number of MySQL UNINSTALL PLUGIN commands executed
+      included: false
+      type: counter
+    mysql_commands.unlock_tables:
+      description: The number of MySQL UNLOCK TABLES commands executed
+      included: false
+      type: counter
+    mysql_commands.update:
+      description: The number of MySQL UPDATE commands executed
+      included: true
+      type: counter
+    mysql_commands.update_multi:
+      description: The number of MySQL UPDATE MULTI commands executed
+      included: false
+      type: counter
+    mysql_commands.xa_commit:
+      description: The number of MySQL XA COMMIT commands executed
+      included: false
+      type: counter
+    mysql_commands.xa_end:
+      description: The number of MySQL XA END commands executed
+      included: false
+      type: counter
+    mysql_commands.xa_prepare:
+      description: The number of MySQL XA PREPARE commands executed
+      included: false
+      type: counter
+    mysql_commands.xa_recover:
+      description: The number of MySQL XA RECOVER commands executed
+      included: false
+      type: counter
+    mysql_commands.xa_rollback:
+      description: The number of MySQL XA ROLLBACK commands executed
+      included: false
+      type: counter
+    mysql_commands.xa_start:
+      description: The number of MySQL XA START commands executed
+      included: false
+      type: counter
+    mysql_handler.commit:
+      description: The number of internal COMMIT statements.
+      included: false
+      type: counter
+    mysql_handler.delete:
+      description: The number of times rows have been deleted from tables.
+      included: false
+      type: counter
+    mysql_handler.prepare:
+      description: The number of times "Prepare" phase was executed in the two-phase
+        commit operations.
+      included: false
+      type: counter
+    mysql_handler.read_first:
+      description: The number of times the first entry in an index was read.
+      included: false
+      type: counter
+    mysql_handler.read_key:
+      description: The number of times a row was read based on a key.
+      included: false
+      type: counter
+    mysql_handler.read_next:
+      description: The number of requests to read the next row in key order.
+      included: false
+      type: counter
+    mysql_handler.read_prev:
+      description: The number of requests to read the previous row in key order.
+      included: false
+      type: counter
+    mysql_handler.read_rnd:
+      description: The number of requests that read a random fixed position in the
+        data file.
+      included: false
+      type: counter
+    mysql_handler.read_rnd_next:
+      description: The number of requests for the next row in the data file.
+      included: false
+      type: counter
+    mysql_handler.rollback:
+      description: The number of requests for a rollback operation on the storage
+        engine.
+      included: false
+      type: counter
+    mysql_handler.savepoint:
+      description: The number of requests to place a savepoint on the storage engine.  This
+        can be used to roll back later.
+      included: false
+      type: counter
+    mysql_handler.savepoint_rollback:
+      description: The number of requests to roll back to a savepoint.
+      included: false
+      type: counter
+    mysql_handler.update:
+      description: The number of requests to update a row in a table.
+      included: false
+      type: counter
+    mysql_handler.write:
+      description: The number of requests to insert a row in a table.
+      included: false
+      type: counter
+    mysql_locks.immediate:
+      description: The number of MySQL table locks which were granted immediately.
+      included: true
+      type: counter
+    mysql_locks.waited:
+      description: The number of MySQL table locks which had to wait before being
+        granted.
+      included: true
+      type: counter
+    mysql_octets.rx:
+      description: The number of bytes received by MySQL server from all clients.
+      included: true
+      type: cumulative
+    mysql_octets.tx:
+      description: The number of bytes sent by MySQL server to all clients.
+      included: true
+      type: cumulative
+    mysql_select.full_join:
+      description: The number of joins that perform full table scans.
+      included: false
+      type: counter
+    mysql_select.full_range_join:
+      description: The number of joins that used a range search on a reference table.
+      included: false
+      type: counter
+    mysql_select.range:
+      description: The number of joins that used a range on the first table.
+      included: false
+      type: counter
+    mysql_select.range_check:
+      description: The number of joins without keys that check for key usage after
+        each row.
+      included: false
+      type: counter
+    mysql_sort.merge_passes:
+      description: The number of merge passes done by the sorting algorithm.
+      included: false
+      type: counter
+    mysql_sort.range:
+      description: The number of sorts that were done using ranges.
+      included: false
+      type: counter
+    mysql_sort.rows:
+      description: The number of rows that were sorted.
+      included: false
+      type: counter
+    mysql_sort.scan:
+      description: The number of sorts that were done by scanning the table.
+      included: false
+      type: counter
+    threads.cached:
+      description: The number of threads cached by MySQL for re-use on a new client
+        connection.  A MySQL thread corresponds to a single MySQL connection.
+      included: true
+      type: gauge
+    threads.connected:
+      description: The number of currently open MySQL connections.  A MySQL thread
+        corresponds to a single MySQL connection.
+      included: true
+      type: gauge
+    threads.running:
+      description: The number of MySQL threads that are processing a query.  A MySQL
+        thread corresponds to a single MySQL connection.
+      included: false
+      type: gauge
+    total_threads.created:
+      description: The total number of threads created by MySQL for client connections.  A
+        MySQL thread corresponds to a single MySQL connection.
+      included: false
+      type: cumulative
   monitorType: collectd/mysql
-  properties: null
+  properties:

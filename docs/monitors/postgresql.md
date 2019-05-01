@@ -87,23 +87,23 @@ The following table lists the metrics available for this monitor. Metrics that a
 
 | Name | Type | Included | Description |
 | ---  | ---  | ---    | ---         |
-| `postgres_sessions` | gauge | ✔ | Number of sessions currently on the server instance.  The `state` dimension will specify which which type of session (see `state` row of [pg_stat_activity](https://www.postgresql.org/docs/9.2/monitoring-stats.html#PG-STAT-ACTIVITY-VIEW)). |
 | `postgres_block_hit_ratio` | gauge | ✔ | The proportion (between 0 and 1, inclusive) of block reads that used the cache and did not have to go to the disk.  Is sent for `table`, `index`, and the `database` as a whole. |
 | `postgres_database_size` | gauge | ✔ | Size in bytes of the database on disk |
 | `postgres_deadlocks` | cumulative | ✔ | Total number of deadlocks detected by the system |
+| `postgres_index_scans` | cumulative | ✔ | Total number of index scans on the `table`. |
+| `postgres_live_rows` | gauge | ✔ | Number of rows live (not deleted) in the `table`. |
 | `postgres_query_count` | cumulative | ✔ | Total number of queries executed on the `database`, broken down by
 `user`.  Note that the accuracy of this metric depends on the
 PostgreSQL [pg_stat_statements.max config
 option](https://www.postgresql.org/docs/9.3/pgstatstatements.html#AEN160631)
 being large enough to hold all queries. |
 | `postgres_query_time` | cumulative | ✔ | Total time taken to execute queries on the `database`, broken down by `user`. |
+| `postgres_rows_deleted` | cumulative | ✔ | Number of rows deleted from the `table`. |
 | `postgres_rows_inserted` | cumulative | ✔ | Number of rows inserted into the `table`. |
 | `postgres_rows_updated` | cumulative | ✔ | Number of rows updated in the `table`. |
-| `postgres_rows_deleted` | cumulative | ✔ | Number of rows deleted from the `table`. |
 | `postgres_sequential_scans` | cumulative | ✔ | Total number of sequential scans on the `table`. |
-| `postgres_index_scans` | cumulative | ✔ | Total number of index scans on the `table`. |
+| `postgres_sessions` | gauge | ✔ | Number of sessions currently on the server instance.  The `state` dimension will specify which which type of session (see `state` row of [pg_stat_activity](https://www.postgresql.org/docs/9.2/monitoring-stats.html#PG-STAT-ACTIVITY-VIEW)). |
 | `postgres_table_size` | gauge | ✔ | The size in bytes of the `table` on disk. |
-| `postgres_live_rows` | gauge | ✔ | Number of rows live (not deleted) in the `table`. |
 
 
 To specify custom metrics you want to monitor, add a `metricsToInclude` filter
@@ -131,13 +131,13 @@ dimensions may be specific to certain metrics.
 
 | Name | Description |
 | ---  | ---         |
-| `type` | Whether the object (table, index, function, etc.) belongs to the `system` or `user`. |
-| `table` | The name of the table to which the metric pertains. |
 | `database` | The name of the database within a PostgreSQL server to which the metric pertains. |
-| `schemaname` | The name of the schema within which the object being monitored resides (e.g. `public`). |
 | `index` | For index metrics, the name of the index |
-| `user` | For query metrics, the user name of the user that executed the queries. |
+| `schemaname` | The name of the schema within which the object being monitored resides (e.g. `public`). |
+| `table` | The name of the table to which the metric pertains. |
 | `tablespace` | For table metrics, the tablespace in which the table belongs, if not null. |
+| `type` | Whether the object (table, index, function, etc.) belongs to the `system` or `user`. |
+| `user` | For query metrics, the user name of the user that executed the queries. |
 
 
 

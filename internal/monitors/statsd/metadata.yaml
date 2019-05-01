@@ -1,6 +1,6 @@
 monitors:
-- dimensions: null
-  doc: |
+- dimensions:
+  doc: |2
 
 
     ### USAGE
@@ -26,13 +26,13 @@ monitors:
     #### Formatting metric name
 
     You can customize a metric name by providing a format string within the converter configuration.
-    
+
     ```
     converters:
       - pattern: "cluster.cds_{traffic}_{mesh}_{service}-vn_{}.{action}"
         metric: "{traffic}.{action}"
     ```
-    
+
     The metrics which match to the given pattern will be reported to SignalFx as `{traffic}.{action}`.
     For instance, metric `cluster.cds_egress_ecommerce-demo-mesh_gateway-vn_tcp_8080.update_success`
     will be reported as `egress.update_success`.
@@ -40,6 +40,6 @@ monitors:
     `metric` is required for a converter configuration. A converter will be disabled if `metric` is not provided.
 
     ```
-  metrics: null
+  metrics:
   monitorType: statsd
-  properties: null
+  properties:

@@ -111,6 +111,7 @@ github.com/go-logfmt/logfmt
 github.com/go-ole/go-ole
 github.com/go-ole/go-ole/oleutil
 # github.com/go-playground/locales v0.11.2
+github.com/go-playground/locales/en
 github.com/go-playground/locales
 github.com/go-playground/locales/currency
 # github.com/go-playground/universal-translator v0.16.0
@@ -298,6 +299,8 @@ github.com/kr/logfmt
 github.com/kr/pretty
 # github.com/kr/text v0.1.0
 github.com/kr/text
+# github.com/leodido/go-urn v1.1.0
+github.com/leodido/go-urn
 # github.com/lib/pq v1.0.0
 github.com/lib/pq
 github.com/lib/pq/oid
@@ -605,8 +608,9 @@ google.golang.org/grpc/internal/syscall
 gopkg.in/fatih/set.v0
 # gopkg.in/fsnotify.v1 v1.4.7
 gopkg.in/fsnotify.v1
-# gopkg.in/go-playground/validator.v9 v9.9.4
+# gopkg.in/go-playground/validator.v9 v9.28.0
 gopkg.in/go-playground/validator.v9
+gopkg.in/go-playground/validator.v9/translations/en
 # gopkg.in/inf.v0 v0.9.1
 gopkg.in/inf.v0
 # gopkg.in/logfmt.v0 v0.1.0

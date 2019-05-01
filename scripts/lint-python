@@ -3,10 +3,13 @@
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 RC=0
 
-LC_ALL=C.UTF-8 LANG=C.UTF-8 black --config ${SCRIPT_DIR}/../python/pyproject.toml python/
-(( RC += $? ))
+export LC_ALL=C.UTF-8 LANG=C.UTF-8
 
 cd ${SCRIPT_DIR}/../python
+
+black --config ${SCRIPT_DIR}/../python/pyproject.toml .
+(( RC += $? ))
+
 pylint -j4 `find . -maxdepth 1 -mindepth 1 -type d -o -name "*.py"`
 (( RC += $? ))
 

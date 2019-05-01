@@ -1,5 +1,5 @@
 monitors:
-- dimensions: null
+- dimensions:
   doc: |
     This monitor reports metrics from snmp agents.
     This monitor is based on the Telegraf SNMP plugin.  More information about the Telegraf plugin
@@ -33,6 +33,6 @@ monitors:
          - name: "uptime"
            oid: ".1.3.6.1.2.1.1.3.0"
     ```
-  metrics: null
+  metrics:
   monitorType: telegraf/snmp
-  properties: null
+  properties:

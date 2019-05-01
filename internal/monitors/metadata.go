@@ -13,7 +13,6 @@ const monitorMetadataFile = "metadata.yaml"
 
 // MetricMetadata contains a metric's metadata.
 type MetricMetadata struct {
-	Name        string  `json:"name"`
 	Alias       string  `json:"alias,omitempty"`
 	Type        string  `json:"type"`
 	Description string  `json:"description"`
@@ -23,26 +22,24 @@ type MetricMetadata struct {
 
 // PropMetadata contains a property's metadata.
 type PropMetadata struct {
-	Name        string `json:"name"`
 	Dimension   string `json:"dimension"`
 	Description string `json:"description"`
 }
 
 // GroupMetadata contains a group's metadata.
 type GroupMetadata struct {
-	Name        string `json:"name"`
 	Description string `json:"description"`
 }
 
 // MonitorMetadata contains a monitor's metadata.
 type MonitorMetadata struct {
-	MonitorType string           `json:"monitorType" yaml:"monitorType"`
-	SendAll     bool             `json:"sendAll" yaml:"sendAll"`
-	Dimensions  []DimMetadata    `json:"dimensions"`
-	Doc         string           `json:"doc"`
-	Groups      []GroupMetadata  `json:"groups"`
-	Metrics     []MetricMetadata `json:"metrics"`
-	Properties  []PropMetadata   `json:"properties"`
+	MonitorType string                    `json:"monitorType" yaml:"monitorType"`
+	SendAll     bool                      `json:"sendAll" yaml:"sendAll"`
+	Dimensions  map[string]DimMetadata    `json:"dimensions"`
+	Doc         string                    `json:"doc"`
+	Groups      map[string]GroupMetadata  `json:"groups"`
+	Metrics     map[string]MetricMetadata `json:"metrics"`
+	Properties  map[string]PropMetadata   `json:"properties"`
 	// True if the list of metrics is definitively the set of metrics
 	// this monitor will ever send. This impacts the sendExtraMetrics.
 	MetricsExhaustive bool `json:"metricsExhaustive" yaml:"metricsExhaustive" default:"false"`
@@ -60,7 +57,6 @@ type PackageMetadata struct {
 
 // DimMetadata contains a dimension's metadata.
 type DimMetadata struct {
-	Name        string `json:"name"`
 	Description string `json:"description"`
 }
 

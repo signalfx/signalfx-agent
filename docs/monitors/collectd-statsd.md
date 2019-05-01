@@ -92,6 +92,7 @@ Monitor Type: `collectd/statsd`
 | `deleteGauges` | no | `bool` |  (**default:** `false`) |
 | `timerPercentile` | no | `float64` |  (**default:** `0`) |
 | `timerUpper` | no | `bool` |  (**default:** `false`) |
+| `timerCount` | no | `bool` |  (**default:** `false`) |
 | `timerSum` | no | `bool` |  (**default:** `false`) |
 | `timerLower` | no | `bool` |  (**default:** `false`) |
 | `counterSum` | no | `bool` |  (**default:** `false`) |

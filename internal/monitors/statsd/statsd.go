@@ -43,6 +43,8 @@ func (sl *statsDListener) listenUDP() error {
 		return err
 	}
 
+	logger.Infof("SignalFx StatsD monitor: Listening on host & port %s:%s", conn.LocalAddr().Network(), conn.LocalAddr().String())
+
 	sl.udpConn = conn
 	return nil
 }

@@ -89,11 +89,28 @@ func doSelfDescribe() {
 	selfdescribe.JSON(os.Stdout)
 }
 
+var dpTapUsage = `
+If no filters are specified, all datapoints will be output.
+
+Examples:
+
+  Get all metrics that start with 'ps_' that have a plugin_instance dimension that starts with 'java':
+
+    signalfx-agent tap-dps -metric 'ps_*' -dims '{plugin_instance: java*}'
+
+`
+
 func doDatapointTap() {
 	set := flag.NewFlagSet("tap-dps", flag.ExitOnError)
+	set.Usage = func() {
+		fmt.Fprintf(set.Output(), "Usage of %s tap-dps:\n", os.Args[0])
+		set.PrintDefaults()
+		fmt.Fprint(set.Output(), dpTapUsage)
+	}
+
 	configPath := set.String("config", getDefaultConfigPath(), "agent config path")
-	metric := set.String("metric", "", "metric filter string")
-	dims := set.String("dims", "", "dimension filter string")
+	metric := set.String("metric", "", "metric name filter string -- accepts globs")
+	dims := set.String("dims", "", "dimension filter string in compact YAML map notation -- dimension values can be globbed")
 
 	if err := set.Parse(os.Args[2:]); err != nil {
 		set.Usage()

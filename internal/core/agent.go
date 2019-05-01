@@ -79,10 +79,13 @@ func NewAgent() *Agent {
 }
 
 func (a *Agent) configure(conf *config.Config) {
+	log.SetFormatter(conf.Logging.LogrusFormatter())
+
 	level := conf.Logging.LogrusLevel()
 	if level != nil {
 		log.SetLevel(*level)
 	}
+
 	log.Infof("Using log level %s", log.GetLevel().String())
 
 	if !conf.DisableHostDimensions {

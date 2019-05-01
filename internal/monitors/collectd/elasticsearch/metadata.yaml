@@ -1,5 +1,5 @@
 monitors:
-- dimensions: null
+- dimensions:
   doc: |
     Monitors ElasticSearch instances. We strongly recommend using the
     [elasticsearch](./elasticsearch.md) monitor instead, as it will
@@ -8,181 +8,181 @@ monitors:
     See https://github.com/signalfx/collectd-elasticsearch and
     https://github.com/signalfx/integrations/tree/master/collectd-elasticsearch
   metrics:
-  - description: The total number of get requests since node startup
-    included: true
-    name: counter.indices.get.total
-    type: cumulative
-  - description: The total number of index requests since node startup
-    included: true
-    name: counter.indices.indexing.index-total
-    type: cumulative
-  - description: Total number of merges since node startup
-    included: true
-    name: counter.indices.merges.total
-    type: cumulative
-  - description: Total time spent in search queries (milliseconds)
-    included: true
-    name: counter.indices.search.query-time
-    type: cumulative
-  - description: The total number of search requests since node startup
-    included: true
-    name: counter.indices.search.query-total
-    type: cumulative
-  - description: The total number of index requests per cluster
-    included: true
-    name: counter.indices.total.indexing.index-total
-    type: cumulative
-  - description: Total number of merges per cluster
-    included: true
-    name: counter.indices.total.merges.total
-    type: cumulative
-  - description: The total number of search requests per cluster
-    included: true
-    name: counter.indices.total.search.query-total
-    type: cumulative
-  - description: Total garbage collection time (milliseconds)
-    included: true
-    name: counter.jvm.gc.time
-    type: cumulative
-  - description: Number of rejected bulk requests
-    included: true
-    name: counter.thread_pool.bulk.rejected
-    type: cumulative
-  - description: Number of rejected flush requests
-    included: true
-    name: counter.thread_pool.flush.rejected
-    type: cumulative
-  - description: Number of rejected generic requests
-    included: true
-    name: counter.thread_pool.generic.rejected
-    type: cumulative
-  - description: Number of rejected get requests
-    included: true
-    name: counter.thread_pool.get.rejected
-    type: cumulative
-  - description: Number of rejected index requests
-    included: true
-    name: counter.thread_pool.index.rejected
-    type: cumulative
-  - description: Number of rejected merge requests
-    included: true
-    name: counter.thread_pool.merge.rejected
-    type: cumulative
-  - description: Number of rejected optimize requests
-    included: true
-    name: counter.thread_pool.optimize.rejected
-    type: cumulative
-  - description: Number of rejected refresh requests
-    included: true
-    name: counter.thread_pool.refresh.rejected
-    type: cumulative
-  - description: Number of rejected thread pool requests
-    included: true
-    name: counter.thread_pool.rejected
-    type: cumulative
-  - description: Number of rejected search requests
-    included: true
-    name: counter.thread_pool.search.rejected
-    type: cumulative
-  - description: Number of rejected snapshot requests
-    included: true
-    name: counter.thread_pool.snapshot.rejected
-    type: cumulative
-  - description: The number of active primary shards
-    included: true
-    name: gauge.cluster.active-primary-shards
-    type: gauge
-  - description: The number of active shards
-    included: true
-    name: gauge.cluster.active-shards
-    type: gauge
-  - description: The number of currently initializing shards
-    included: false
-    name: gauge.cluster.initializing-shards
-    type: gauge
-  - description: The current number of data nodes in the cluster
-    included: true
-    name: gauge.cluster.number-of-data_nodes
-    type: gauge
-  - description: Total number of nodes in the cluster
-    included: true
-    name: gauge.cluster.number-of-nodes
-    type: gauge
-  - description: The number of shards that are currently being relocated
-    included: true
-    name: gauge.cluster.relocating-shards
-    type: gauge
-  - description: The health status of the cluster
-    included: false
-    name: gauge.cluster.status
-    type: gauge
-  - description: The number of shards that are currently unassigned
-    included: true
-    name: gauge.cluster.unassigned-shards
-    type: gauge
-  - description: Field data size (bytes)
-    included: true
-    name: gauge.indices.cache.field.size
-    type: gauge
-  - description: Filter cache size (bytes)
-    included: true
-    name: gauge.indices.cache.filter.size
-    type: gauge
-  - description: Number of documents on this node
-    included: true
-    name: gauge.indices.docs.count
-    type: gauge
-  - description: Number of deleted documents on this node
-    included: true
-    name: gauge.indices.docs.deleted
-    type: gauge
-  - description: Number of active merges
-    included: true
-    name: gauge.indices.merges.current
-    type: gauge
-  - description: Number of segments on this node
-    included: true
-    name: gauge.indices.segments.count
-    type: gauge
-  - description: Number of documents in the cluster
-    included: true
-    name: gauge.indices.total.docs.count
-    type: gauge
-  - description: Field data size (bytes)
-    included: true
-    name: gauge.indices.total.fielddata.memory-size
-    type: gauge
-  - description: Filter cache size (bytes)
-    included: true
-    name: gauge.indices.total.filter-cache.memory-size
-    type: gauge
-  - description: Total heap committed by the process (bytes)
-    included: true
-    name: gauge.jvm.mem.heap-committed
-    type: gauge
-  - description: Total heap used (bytes)
-    included: true
-    name: gauge.jvm.mem.heap-used
-    type: gauge
-  - description: Number of currently open file descriptors
-    included: true
-    name: gauge.process.open_file_descriptors
-    type: gauge
-  - description: Number of active threads
-    included: false
-    name: gauge.thread_pool.active
-    type: gauge
-  - description: Highest active threads in thread pool
-    included: false
-    name: gauge.thread_pool.largest
-    type: gauge
-  - description: Number of Tasks in thread pool
-    included: false
-    name: gauge.thread_pool.queue
-    type: gauge
-  - description: Number of Threads in thread pool
-    included: false
-    name: gauge.thread_pool.threads
-    type: gauge
+    counter.indices.get.total:
+      description: The total number of get requests since node startup
+      included: true
+      type: cumulative
+    counter.indices.indexing.index-total:
+      description: The total number of index requests since node startup
+      included: true
+      type: cumulative
+    counter.indices.merges.total:
+      description: Total number of merges since node startup
+      included: true
+      type: cumulative
+    counter.indices.search.query-time:
+      description: Total time spent in search queries (milliseconds)
+      included: true
+      type: cumulative
+    counter.indices.search.query-total:
+      description: The total number of search requests since node startup
+      included: true
+      type: cumulative
+    counter.indices.total.indexing.index-total:
+      description: The total number of index requests per cluster
+      included: true
+      type: cumulative
+    counter.indices.total.merges.total:
+      description: Total number of merges per cluster
+      included: true
+      type: cumulative
+    counter.indices.total.search.query-total:
+      description: The total number of search requests per cluster
+      included: true
+      type: cumulative
+    counter.jvm.gc.time:
+      description: Total garbage collection time (milliseconds)
+      included: true
+      type: cumulative
+    counter.thread_pool.bulk.rejected:
+      description: Number of rejected bulk requests
+      included: true
+      type: cumulative
+    counter.thread_pool.flush.rejected:
+      description: Number of rejected flush requests
+      included: true
+      type: cumulative
+    counter.thread_pool.generic.rejected:
+      description: Number of rejected generic requests
+      included: true
+      type: cumulative
+    counter.thread_pool.get.rejected:
+      description: Number of rejected get requests
+      included: true
+      type: cumulative
+    counter.thread_pool.index.rejected:
+      description: Number of rejected index requests
+      included: true
+      type: cumulative
+    counter.thread_pool.merge.rejected:
+      description: Number of rejected merge requests
+      included: true
+      type: cumulative
+    counter.thread_pool.optimize.rejected:
+      description: Number of rejected optimize requests
+      included: true
+      type: cumulative
+    counter.thread_pool.refresh.rejected:
+      description: Number of rejected refresh requests
+      included: true
+      type: cumulative
+    counter.thread_pool.rejected:
+      description: Number of rejected thread pool requests
+      included: true
+      type: cumulative
+    counter.thread_pool.search.rejected:
+      description: Number of rejected search requests
+      included: true
+      type: cumulative
+    counter.thread_pool.snapshot.rejected:
+      description: Number of rejected snapshot requests
+      included: true
+      type: cumulative
+    gauge.cluster.active-primary-shards:
+      description: The number of active primary shards
+      included: true
+      type: gauge
+    gauge.cluster.active-shards:
+      description: The number of active shards
+      included: true
+      type: gauge
+    gauge.cluster.initializing-shards:
+      description: The number of currently initializing shards
+      included: false
+      type: gauge
+    gauge.cluster.number-of-data_nodes:
+      description: The current number of data nodes in the cluster
+      included: true
+      type: gauge
+    gauge.cluster.number-of-nodes:
+      description: Total number of nodes in the cluster
+      included: true
+      type: gauge
+    gauge.cluster.relocating-shards:
+      description: The number of shards that are currently being relocated
+      included: true
+      type: gauge
+    gauge.cluster.status:
+      description: The health status of the cluster
+      included: false
+      type: gauge
+    gauge.cluster.unassigned-shards:
+      description: The number of shards that are currently unassigned
+      included: true
+      type: gauge
+    gauge.indices.cache.field.size:
+      description: Field data size (bytes)
+      included: true
+      type: gauge
+    gauge.indices.cache.filter.size:
+      description: Filter cache size (bytes)
+      included: true
+      type: gauge
+    gauge.indices.docs.count:
+      description: Number of documents on this node
+      included: true
+      type: gauge
+    gauge.indices.docs.deleted:
+      description: Number of deleted documents on this node
+      included: true
+      type: gauge
+    gauge.indices.merges.current:
+      description: Number of active merges
+      included: true
+      type: gauge
+    gauge.indices.segments.count:
+      description: Number of segments on this node
+      included: true
+      type: gauge
+    gauge.indices.total.docs.count:
+      description: Number of documents in the cluster
+      included: true
+      type: gauge
+    gauge.indices.total.fielddata.memory-size:
+      description: Field data size (bytes)
+      included: true
+      type: gauge
+    gauge.indices.total.filter-cache.memory-size:
+      description: Filter cache size (bytes)
+      included: true
+      type: gauge
+    gauge.jvm.mem.heap-committed:
+      description: Total heap committed by the process (bytes)
+      included: true
+      type: gauge
+    gauge.jvm.mem.heap-used:
+      description: Total heap used (bytes)
+      included: true
+      type: gauge
+    gauge.process.open_file_descriptors:
+      description: Number of currently open file descriptors
+      included: true
+      type: gauge
+    gauge.thread_pool.active:
+      description: Number of active threads
+      included: false
+      type: gauge
+    gauge.thread_pool.largest:
+      description: Highest active threads in thread pool
+      included: false
+      type: gauge
+    gauge.thread_pool.queue:
+      description: Number of Tasks in thread pool
+      included: false
+      type: gauge
+    gauge.thread_pool.threads:
+      description: Number of Threads in thread pool
+      included: false
+      type: gauge
   monitorType: collectd/elasticsearch
-  properties: null
+  properties:

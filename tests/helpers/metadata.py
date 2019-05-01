@@ -44,14 +44,14 @@ def _find_monitor(monitors, mon_type):
 
 
 def _get_monitor_metrics(monitor, included=True):
-    for metric in monitor["metrics"] or []:
-        if metric["included"] == included:
-            yield metric["name"]
+    for metric, info in (monitor.get("metrics") or {}).items():
+        if info["included"] == included:
+            yield metric
 
 
 def _get_monitor_dims(doc, mon_type=None):
     def filter_dims(dimensions):
-        return (dim["name"] for dim in dimensions or [])
+        return (dimensions or {}).keys()
 
     monitors = doc["monitors"]
 

@@ -54,36 +54,36 @@ The following table lists the metrics available for this monitor. Metrics that a
 
 | Name | Type | Included | Description |
 | ---  | ---  | ---    | ---         |
-| `user_session_logins_total` | cumulative |  |  |
-| `unicorn_active_connections` | gauge |  |  |
-| `unicorn_queued_connections` | gauge |  |  |
-| `http_requests_total` | cumulative |  |  |
-| `gitlab_transaction_rails_queue_duration_total` | gauge |  |  |
-| `gitlab_rails_queue_duration_seconds_bucket` | cumulative |  |  |
-| `gitlab_rails_queue_duration_seconds_count` | cumulative |  |  |
-| `gitlab_rails_queue_duration_seconds` | cumulative |  |  |
-| `job_register_attempts_failed_total` | cumulative |  |  |
-| `job_register_attempts_total` | cumulative |  |  |
-| `gitlab_transaction_new_redis_connections_total` | cumulative |  |  |
-| `gitlab_transaction_view_duration_total` | cumulative |  |  |
-| `gitlab_transaction_cache_read_hit_count_total` | cumulative |  |  |
-| `gitlab_transaction_cache_read_miss_count_total` | cumulative |  |  |
 | `gitlab_auth_user_authenticated_total` | cumulative |  |  |
 | `gitlab_auth_user_unauthenticated_total` | cumulative |  |  |
+| `gitlab_banzai_cacheless_render_real_duration_seconds` | cumulative |  |  |
 | `gitlab_banzai_cacheless_render_real_duration_seconds_bucket` | cumulative |  |  |
 | `gitlab_banzai_cacheless_render_real_duration_seconds_count` | cumulative |  |  |
-| `gitlab_banzai_cacheless_render_real_duration_seconds` | cumulative |  |  |
 | `gitlab_cache_misses_total` | cumulative |  |  |
+| `gitlab_cache_operation_duration_seconds` | cumulative |  |  |
 | `gitlab_cache_operation_duration_seconds_bucket` | cumulative |  |  |
 | `gitlab_cache_operation_duration_seconds_count` | cumulative |  |  |
-| `gitlab_cache_operation_duration_seconds` | cumulative |  |  |
+| `gitlab_rails_queue_duration_seconds` | cumulative |  |  |
+| `gitlab_rails_queue_duration_seconds_bucket` | cumulative |  |  |
+| `gitlab_rails_queue_duration_seconds_count` | cumulative |  |  |
+| `gitlab_sql_duration_seconds` | cumulative |  |  |
 | `gitlab_sql_duration_seconds_bucket` | cumulative |  |  |
 | `gitlab_sql_duration_seconds_count` | cumulative |  |  |
-| `gitlab_sql_duration_seconds` | cumulative |  |  |
-| `gitlab_transaction_sidekiq_queue_duration_total` | gauge | ✔ |  |
+| `gitlab_transaction_cache_read_hit_count_total` | cumulative |  |  |
+| `gitlab_transaction_cache_read_miss_count_total` | cumulative |  |  |
+| `gitlab_transaction_duration_seconds` | cumulative |  |  |
 | `gitlab_transaction_duration_seconds_bucket` | cumulative |  |  |
 | `gitlab_transaction_duration_seconds_count` | cumulative |  |  |
-| `gitlab_transaction_duration_seconds` | cumulative |  |  |
+| `gitlab_transaction_new_redis_connections_total` | cumulative |  |  |
+| `gitlab_transaction_rails_queue_duration_total` | gauge |  |  |
+| `gitlab_transaction_sidekiq_queue_duration_total` | gauge | ✔ |  |
+| `gitlab_transaction_view_duration_total` | cumulative |  |  |
+| `http_requests_total` | cumulative |  |  |
+| `job_register_attempts_failed_total` | cumulative |  |  |
+| `job_register_attempts_total` | cumulative |  |  |
+| `unicorn_active_connections` | gauge |  |  |
+| `unicorn_queued_connections` | gauge |  |  |
+| `user_session_logins_total` | cumulative |  |  |
 
 
 To specify custom metrics you want to monitor, add a `metricsToInclude` filter
@@ -100,35 +100,35 @@ required for gathering additional metrics.
 
 metricsToInclude:
   - metricNames:
-    - user_session_logins_total
-    - unicorn_active_connections
-    - unicorn_queued_connections
-    - http_requests_total
-    - gitlab_transaction_rails_queue_duration_total
-    - gitlab_rails_queue_duration_seconds_bucket
-    - gitlab_rails_queue_duration_seconds_count
-    - gitlab_rails_queue_duration_seconds
-    - job_register_attempts_failed_total
-    - job_register_attempts_total
-    - gitlab_transaction_new_redis_connections_total
-    - gitlab_transaction_view_duration_total
-    - gitlab_transaction_cache_read_hit_count_total
-    - gitlab_transaction_cache_read_miss_count_total
     - gitlab_auth_user_authenticated_total
     - gitlab_auth_user_unauthenticated_total
+    - gitlab_banzai_cacheless_render_real_duration_seconds
     - gitlab_banzai_cacheless_render_real_duration_seconds_bucket
     - gitlab_banzai_cacheless_render_real_duration_seconds_count
-    - gitlab_banzai_cacheless_render_real_duration_seconds
     - gitlab_cache_misses_total
+    - gitlab_cache_operation_duration_seconds
     - gitlab_cache_operation_duration_seconds_bucket
     - gitlab_cache_operation_duration_seconds_count
-    - gitlab_cache_operation_duration_seconds
+    - gitlab_rails_queue_duration_seconds
+    - gitlab_rails_queue_duration_seconds_bucket
+    - gitlab_rails_queue_duration_seconds_count
+    - gitlab_sql_duration_seconds
     - gitlab_sql_duration_seconds_bucket
     - gitlab_sql_duration_seconds_count
-    - gitlab_sql_duration_seconds
+    - gitlab_transaction_cache_read_hit_count_total
+    - gitlab_transaction_cache_read_miss_count_total
+    - gitlab_transaction_duration_seconds
     - gitlab_transaction_duration_seconds_bucket
     - gitlab_transaction_duration_seconds_count
-    - gitlab_transaction_duration_seconds
+    - gitlab_transaction_new_redis_connections_total
+    - gitlab_transaction_rails_queue_duration_total
+    - gitlab_transaction_view_duration_total
+    - http_requests_total
+    - job_register_attempts_failed_total
+    - job_register_attempts_total
+    - unicorn_active_connections
+    - unicorn_queued_connections
+    - user_session_logins_total
     monitorType: gitlab-unicorn
 ```
 

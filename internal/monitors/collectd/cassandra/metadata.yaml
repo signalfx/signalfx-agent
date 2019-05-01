@@ -1,100 +1,100 @@
 monitors:
-- dimensions: null
+- dimensions:
   doc: |
     Monitors Cassandra using the GenericJMX collectd
     plugin.
   metrics:
-  - description: Count of range slice operations since server start
-    included: true
-    name: counter.cassandra.ClientRequest.RangeSlice.Latency.Count
-    type: cumulative
-  - description: Count of range slice timeouts since server start
-    included: true
-    name: counter.cassandra.ClientRequest.RangeSlice.Timeouts.Count
-    type: cumulative
-  - description: Count of range slice unavailables since server start
-    included: true
-    name: counter.cassandra.ClientRequest.RangeSlice.Unavailables.Count
-    type: cumulative
-  - description: Count of read operations since server start
-    included: true
-    name: counter.cassandra.ClientRequest.Read.Latency.Count
-    type: cumulative
-  - description: Count of read timeouts since server start
-    included: true
-    name: counter.cassandra.ClientRequest.Read.Timeouts.Count
-    type: cumulative
-  - description: Count of read unavailables since server start
-    included: true
-    name: counter.cassandra.ClientRequest.Read.Unavailables.Count
-    type: cumulative
-  - description: Count of write operations since server start
-    included: true
-    name: counter.cassandra.ClientRequest.Write.Latency.Count
-    type: cumulative
-  - description: Count of write timeouts since server start
-    included: true
-    name: counter.cassandra.ClientRequest.Write.Timeouts.Count
-    type: cumulative
-  - description: Count of write unavailables since server start
-    included: true
-    name: counter.cassandra.ClientRequest.Write.Unavailables.Count
-    type: cumulative
-  - description: Number of compaction operations since node start
-    included: false
-    name: counter.cassandra.Compaction.TotalCompactionsCompleted.Count
-    type: cumulative
-  - description: 50th percentile (median) of Cassandra range slice latency
-    included: false
-    name: gauge.cassandra.ClientRequest.RangeSlice.Latency.50thPercentile
-    type: gauge
-  - description: 99th percentile of Cassandra range slice latency
-    included: true
-    name: gauge.cassandra.ClientRequest.RangeSlice.Latency.99thPercentile
-    type: gauge
-  - description: Maximum Cassandra range slice latency
-    included: false
-    name: gauge.cassandra.ClientRequest.RangeSlice.Latency.Max
-    type: gauge
-  - description: 50th percentile (median) of Cassandra read latency
-    included: true
-    name: gauge.cassandra.ClientRequest.Read.Latency.50thPercentile
-    type: gauge
-  - description: 99th percentile of Cassandra read latency
-    included: true
-    name: gauge.cassandra.ClientRequest.Read.Latency.99thPercentile
-    type: gauge
-  - description: Maximum Cassandra read latency
-    included: true
-    name: gauge.cassandra.ClientRequest.Read.Latency.Max
-    type: gauge
-  - description: 50th percentile (median) of Cassandra write latency
-    included: true
-    name: gauge.cassandra.ClientRequest.Write.Latency.50thPercentile
-    type: gauge
-  - description: 99th percentile of Cassandra write latency
-    included: true
-    name: gauge.cassandra.ClientRequest.Write.Latency.99thPercentile
-    type: gauge
-  - description: Maximum Cassandra write latency
-    included: true
-    name: gauge.cassandra.ClientRequest.Write.Latency.Max
-    type: gauge
-  - description: Number of compaction operations waiting to run
-    included: true
-    name: gauge.cassandra.Compaction.PendingTasks.Value
-    type: gauge
-  - description: Storage used for Cassandra data in bytes
-    included: true
-    name: gauge.cassandra.Storage.Load.Count
-    type: gauge
-  - description: Total hints since node start
-    included: false
-    name: gauge.cassandra.Storage.TotalHints.Count
-    type: gauge
-  - description: Total pending hints
-    included: true
-    name: gauge.cassandra.Storage.TotalHintsInProgress.Count
-    type: gauge
+    counter.cassandra.ClientRequest.RangeSlice.Latency.Count:
+      description: Count of range slice operations since server start
+      included: true
+      type: cumulative
+    counter.cassandra.ClientRequest.RangeSlice.Timeouts.Count:
+      description: Count of range slice timeouts since server start
+      included: true
+      type: cumulative
+    counter.cassandra.ClientRequest.RangeSlice.Unavailables.Count:
+      description: Count of range slice unavailables since server start
+      included: true
+      type: cumulative
+    counter.cassandra.ClientRequest.Read.Latency.Count:
+      description: Count of read operations since server start
+      included: true
+      type: cumulative
+    counter.cassandra.ClientRequest.Read.Timeouts.Count:
+      description: Count of read timeouts since server start
+      included: true
+      type: cumulative
+    counter.cassandra.ClientRequest.Read.Unavailables.Count:
+      description: Count of read unavailables since server start
+      included: true
+      type: cumulative
+    counter.cassandra.ClientRequest.Write.Latency.Count:
+      description: Count of write operations since server start
+      included: true
+      type: cumulative
+    counter.cassandra.ClientRequest.Write.Timeouts.Count:
+      description: Count of write timeouts since server start
+      included: true
+      type: cumulative
+    counter.cassandra.ClientRequest.Write.Unavailables.Count:
+      description: Count of write unavailables since server start
+      included: true
+      type: cumulative
+    counter.cassandra.Compaction.TotalCompactionsCompleted.Count:
+      description: Number of compaction operations since node start
+      included: false
+      type: cumulative
+    gauge.cassandra.ClientRequest.RangeSlice.Latency.50thPercentile:
+      description: 50th percentile (median) of Cassandra range slice latency
+      included: false
+      type: gauge
+    gauge.cassandra.ClientRequest.RangeSlice.Latency.99thPercentile:
+      description: 99th percentile of Cassandra range slice latency
+      included: true
+      type: gauge
+    gauge.cassandra.ClientRequest.RangeSlice.Latency.Max:
+      description: Maximum Cassandra range slice latency
+      included: false
+      type: gauge
+    gauge.cassandra.ClientRequest.Read.Latency.50thPercentile:
+      description: 50th percentile (median) of Cassandra read latency
+      included: true
+      type: gauge
+    gauge.cassandra.ClientRequest.Read.Latency.99thPercentile:
+      description: 99th percentile of Cassandra read latency
+      included: true
+      type: gauge
+    gauge.cassandra.ClientRequest.Read.Latency.Max:
+      description: Maximum Cassandra read latency
+      included: true
+      type: gauge
+    gauge.cassandra.ClientRequest.Write.Latency.50thPercentile:
+      description: 50th percentile (median) of Cassandra write latency
+      included: true
+      type: gauge
+    gauge.cassandra.ClientRequest.Write.Latency.99thPercentile:
+      description: 99th percentile of Cassandra write latency
+      included: true
+      type: gauge
+    gauge.cassandra.ClientRequest.Write.Latency.Max:
+      description: Maximum Cassandra write latency
+      included: true
+      type: gauge
+    gauge.cassandra.Compaction.PendingTasks.Value:
+      description: Number of compaction operations waiting to run
+      included: true
+      type: gauge
+    gauge.cassandra.Storage.Load.Count:
+      description: Storage used for Cassandra data in bytes
+      included: true
+      type: gauge
+    gauge.cassandra.Storage.TotalHints.Count:
+      description: Total hints since node start
+      included: false
+      type: gauge
+    gauge.cassandra.Storage.TotalHintsInProgress.Count:
+      description: Total pending hints
+      included: true
+      type: gauge
   monitorType: collectd/cassandra
-  properties: null
+  properties:

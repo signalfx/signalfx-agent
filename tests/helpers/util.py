@@ -6,16 +6,19 @@ import subprocess
 import threading
 import time
 from contextlib import contextmanager
+from functools import partial as p
 from typing import Dict, List
 
 import docker
 import netifaces as ni
 import yaml
 
+from tests.helpers.assertions import regex_search_matches_output
 from tests.paths import TEST_SERVICES_DIR, SELFDESCRIBE_JSON
 
 DEFAULT_TIMEOUT = os.environ.get("DEFAULT_TIMEOUT", 30)
 DOCKER_API_VERSION = "1.34"
+STATSD_RE = re.compile(r"SignalFx StatsD monitor: Listening on host & port udp:\[::\]:([0-9]*)")
 
 
 def get_docker_client():
@@ -175,7 +178,7 @@ def get_monitor_metrics_from_selfdescribe(monitor, json_path=SELFDESCRIBE_JSON):
         doc = yaml.safe_load(fd.read())
         for mon in doc["Monitors"]:
             if monitor == mon["monitorType"] and "metrics" in mon.keys() and mon["metrics"]:
-                metrics = {metric["name"] for metric in mon["metrics"]}
+                metrics = set(mon["metrics"].keys())
                 break
     return metrics
 
@@ -186,7 +189,7 @@ def get_monitor_dims_from_selfdescribe(monitor, json_path=SELFDESCRIBE_JSON):
         doc = yaml.safe_load(fd.read())
         for mon in doc["Monitors"]:
             if monitor == mon["monitorType"] and "dimensions" in mon.keys() and mon["dimensions"]:
-                dims = {dim["name"] for dim in mon["dimensions"]}
+                dims = set(mon["dimensions"].keys())
                 break
     return dims
 
@@ -197,7 +200,7 @@ def get_observer_dims_from_selfdescribe(observer, json_path=SELFDESCRIBE_JSON):
         doc = yaml.safe_load(fd.read())
         for obs in doc["Observers"]:
             if observer == obs["observerType"] and "dimensions" in obs.keys() and obs["dimensions"]:
-                dims = {dim["name"] for dim in obs["dimensions"]}
+                dims = set(obs["dimensions"].keys())
                 break
     return dims
 
@@ -226,3 +229,12 @@ def retry(function, exception, max_attempts=5, interval_seconds=5):
         except exception as e:
             assert attempt < (max_attempts - 1), "%s failed after %d attempts!\n%s" % (function, max_attempts, str(e))
         time.sleep(interval_seconds)
+
+
+def get_statsd_port(agent):
+    """
+    Discover an open port of running StatsD monitor
+    """
+    assert wait_for(p(regex_search_matches_output, agent.get_output, STATSD_RE.search))
+    regex_results = STATSD_RE.search(agent.output)
+    return int(regex_results.groups()[0])
