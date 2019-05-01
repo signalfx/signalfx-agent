@@ -1,17 +1,12 @@
 # Windows Setup
 
-The agent supports standalone installations on Windows Server 2008 and above.
-
-## Installation
-
-To get started deploying the Smart Agent directly on a Windows host, see the
-[Smart Agent Quickstart](./smart-agent-quickstart.md) guide.
+SignalFx Smart Agent supports standalone installations on Windows Server 2008 and above.
 
 ## Monitor Support
 
-The agent supports all of the python based collectd monitors as well as all
+The agent supports all python-based collectd monitors and all
 Go-based monitors.  C-based collectd monitors are not available on Windows.
-The following monitors are available on Windows.
+The following monitors are supported on SignalFx Smart Agent on Windows.
 
 - [aspdotnet](./monitors/aspdotnet.md)
 - [collectd/consul](./monitors/collectd-consul.md)

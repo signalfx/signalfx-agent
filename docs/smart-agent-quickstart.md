@@ -1,85 +1,49 @@
 # Smart Agent Quick Start
 
-- [Deploy Directly on Host](#deploy-directly-on-host)
+The steps to begin using Smart Agent and links to the content are outlined below.
 
+### Step 1: Download and install the agent on a single host.
 
-## Deploy Directly on Host
+See [Smart Agent Quick Install](#./smart-agent-quick-install.md) for Step 1, 2, & 3.
 
-This tutorial assumes you are starting fresh and have no existing collectd agent running on your instance.
+### Step 2: Confirm the installation is functioning.
 
-Certain installation statements include `YOUR_SIGNALFX_REALM`. If this value is not set, SignalFx assumes your organization is in the us0 realm. To determine if you are in a different realm and need to supply your realm value in those statements, check your profile page in the SignalFx web application. 
+#### Troubleshoot any discrepancies.
 
+### Step 3: Login to SignalFx and discover your data.
 
-#### Step 1: Download and install the agent
+Advanced options
 
-##### Linux
+### Step 4: Deploy Smart Agent on multiple hosts.
 
-```sh
-curl -sSL https://dl.signalfx.com/signalfx-agent.sh > /tmp/signalfx-agent.sh
-sudo sh /tmp/signalfx-agent.sh --realm YOUR_SIGNALFX_REALM YOUR_SIGNALFX_API_TOKEN
-```
+See [Smart Agent Next Steps](#./smart-agent-next-steps.md)
 
-##### Windows
+### Step 5: Configure various monitors to output metrics to Smart Agent. 
 
-Ensure that the folowing dependencies are installed:
-- [.Net Framework 3.5](https://docs.microsoft.com/en-us/dotnet/framework/install/dotnet-35-windows-10) (Windows 8+)
-- [Visual C++ Compiler for Python 2.7](https://www.microsoft.com/EN-US/DOWNLOAD/DETAILS.ASPX?ID=44266)
+- To [add a new monitor](#Monitors)
+- For [Windows monitor configurations](#https://docs.signalfx.com/en/latest/integrations/agent/windows.html)
+- For [Linux monitor configurations](#https://docs.signalfx.com/en/latest/integrations/agent/monitor-config.html)
+- For [common configuration options](#https://docs.signalfx.com/en/latest/integrations/agent/monitor-config.html) 
 
-Once the dependencies have been installed, use the following powershell script
-to install the agent.  The agent will be installed as a Windows service and will
-log to the Windows Event Log.
+#### Configure optional metrics for your monitors.
 
-```sh
-& {Set-ExecutionPolicy Bypass -Scope Process -Force; $script = ((New-Object System.Net.WebClient).DownloadString('https://dl.signalfx.com/signalfx-agent.ps1')); $params = @{access_token = "YOUR_SIGNALFX_API_TOKEN"; ingest_url = "https://ingest.YOUR_SIGNALFX_REALM.signalfx.com"; api_url = "https://api.YOUR_SIGNALFX_REALM.signalfx.com"}; Invoke-Command -ScriptBlock ([scriptblock]::Create(". {$script} $(&{$args} @params)"))}
-```
+See individual monitor pages for you monitor from the lists in Step 5.
 
-Your SignalFx API Token can be obtained from the Organization->Access Token tab in [SignalFx](https://app.signalfx.com).
+### Step 6: Add a new observer to your agent configuration.
 
-More detailed installation steps to install via a config management tool or using a containerized agent can be found [here](../README.md#installation).
+- See [Observers](#observers)
 
-#### Step 2: Configuration
+### Step 7: Explore Dashboards to display and compare data from the various sources.
 
-The default configuration file should be located at `/etc/signalfx/agent.yaml` on Linux
-and `\ProgramData\SignalFxAgent\agent.yaml` on Windows.
-Also, by default, the file containing your SignalFx API token should be located at
-`/etc/signalfx/token` on Linux and `\ProgramData\SignalFxAgent\token` on Windows.
+See [Dashboards](#https://docs.signalfx.com/en/latest/dashboards/index.html)
 
-In the referenced example agent.yaml configuration files below, the default
-location for the token file is used.
+## Some advanced options content
 
-- [Linux Default Configuration File](https://github.com/signalfx/signalfx-agent/blob/master/packaging/etc/agent.yaml)
-
-- [Windows Default Configuration File](https://github.com/signalfx/signalfx-agent/blob/master/packaging/win/agent.yaml)
-
-##### Configure your endpoints
-
-By default, the Smart Agent will send data to the `us0` realm.
-If you are not in this realm, you will need to explicitly set the
-`signalFxRealm` option in your config like this:
-
-```
-signalFxRealm: YOUR_SIGNALFX_REALM
-```
-
-To determine if you are in a different realm and need to
-explicitly set the endpoints, check your profile page in the SignalFx
-web application.
-
-If you want to explicitly set the ingest, API server, and trace endpoint URLs,
-you can set them individually like so:
-
-```
-ingestUrl: "https://ingest.YOUR_SIGNALFX_REALM.signalfx.com"
-apiUrl: "https://api.YOUR_SIGNALFX_REALM.signalfx.com"
-traceEndpointUrl: "https://ingest.YOUR_SIGNALFX_REALM.signalfx.com/v1/trace"
-```
-
-They will default to the endpoints for the realm configured in `signalFxRealm`
-if not set.
+### Monitors 
 
 You can add more [monitors](./monitor-config.md) and configure them as appropriate.
 
-##### Example of adding a new monitor
+#### Example of adding a new monitor
 
 To start collecting apache metrics, you would add the [apache monitor](./monitors/collectd-apache.md) to the agent.yaml file.
 Your monitor list would then look similar to this:
@@ -95,9 +59,11 @@ monitors:
     port: 80
 ```
 
-##### Example of adding a new observer
+### Observers
 
-To start collecting docker container metrics, your first step would be to add a [docker observer](./observers/docker.md).
+#### Example of adding a new observer
+
+To start collecting docker container metrics, first add a [docker observer](./observers/docker.md).
 
 Your observer list would then look similar to this:
 
@@ -107,7 +73,7 @@ observers:
   - type: docker
 ```
 
-Next, you would add a [docker metrics monitor](./monitors/docker-container-stats.md) to the agent.yaml file. Your type list would now include this monitor (docker-container-stats):
+Next, add a [docker metrics monitor](./monitors/docker-container-stats.md) to the agent.yaml file. Your type list would now include this monitor (docker-container-stats) as shown below:
 
 ```
 monitors:
@@ -121,12 +87,5 @@ monitors:
 
 The agent automatically picks up any changes to the configuration file, so a restart is not required.
 
-For troubleshooting, you can also check the status of the agent:
-
-```
-sudo signalfx-agent status
-```
-
-#### Step 3: Log into SignalFx and see your data!
 
 

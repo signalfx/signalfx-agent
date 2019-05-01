@@ -3,6 +3,10 @@
 [![GoDoc](https://godoc.org/github.com/signalfx/signalfx-agent?status.svg)](https://godoc.org/github.com/signalfx/signalfx-agent)
 [![CircleCI](https://circleci.com/gh/signalfx/signalfx-agent.svg?style=shield)](https://circleci.com/gh/signalfx/signalfx-agent)
 
+After you have installed the SignalFx Smart Agent on a single host and discovered some of its capabilities, you may want to install the agent on multiple hosts. Those next steps are discussed below.
+
+You may also want to configure various monitors for your environment. See [Monitor Configuration](#./docs/monitor-configuration) for Linux and [Windows Setup](#./docs/windows-setup) for Windows monitors.
+
  - [Configuration Management Tools](#configuration-management-tools)
  - [Packages](#packages)
 

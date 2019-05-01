@@ -5,15 +5,16 @@
 
 The SignalFx Smart Agent is a successor to our previous [collectd
 agent](https://github.com/signalfx/collectd) that uses collectd internally on Linux.
-Any existing Python or C-based collectd plugins will work without
+Any existing Python or C-based collectd plugins will work with the SignalFx Smart Agent without
 modification.  
 
-On Windows collectd is not included, and C-based collectd plugins
-are not available on Windows. The agent can
+SignalFx Smart Agent for Windows does not include collectd; therefore, C-based collectd plugins
+are not available for Windows. The SignalFx Smart Agent can
 run python-based collectd plugins without collectd.  
 
  - [Components](#components)
  - [Installation](#installation)
+ - [Other methods of agent installation](#other-methods-of-agent-installation)
  - [Configuration](#configuration)
  - [Logging](#logging)
  - [Proxy Support](#proxy-support)
@@ -22,11 +23,11 @@ run python-based collectd plugins without collectd.
 
 ## Components
 
-The agent has three main components:
+SignalFx Smart Agent has three main components:
 
 1) _Observers_ that discover applications and services running on the host
 2) _Monitors_ that collect metrics from the host and applications
-3) The _Writer_ that sends the metrics collected by monitors to SignalFx.
+3) the _Writer_ that sends the metrics collected by monitors to SignalFx
 
 ### Observers
 
@@ -48,12 +49,12 @@ Discovery](./docs/auto-discovery.md) for more information.
 
 Many of the monitors are built around [collectd](https://collectd.org), an open
 source third-party monitor, and use it to collect metrics. Some other monitors
-do not use collectd. However, either type is configured in the same way.
+do not use collectd. All supported monitors are configured the same way.
 
 For a list of supported monitors and their configurations, 
 see [Monitor Config](./docs/monitor-config.md).
 
-The agent is primarily intended to monitor services/applications running on the
+The agent monitors services/applications running on the
 same host as the agent.  This is in keeping with the collectd model.  The main
 issue with monitoring services on other hosts is that the `host` dimension that
 collectd sets on all metrics will currently get set to the hostname of the
@@ -64,15 +65,17 @@ machine during metric analysis.
 ### Writer
 
 The writer collects metrics emitted by the configured monitors and sends them
-to SignalFx.  There are a few things that can be
-[configured](./docs/config-schema.md#writer) in the writer, but this is generally
-only necessary if you have a very large number of metrics flowing through a
+to SignalFx. 
+[Writer configuration](./docs/config-schema.md#writer) is 
+only necessary if a very large number of metrics flows through a
 single agent.
 
 ## Installation
 
 To get started deploying the Smart Agent on a single host for Windows or Linux, see the
-[Smart Agent Quick Install](./docs/smart-agent-quick-install.md) guide.
+[Smart Agent Quick Install](./docs/smart-agent-quick-install.md) guide. Technical details for other methods of agent installation are discussed below.
+
+## Other methods of agent installation
 
 The agent is available for Linux in both a containerized and standalone form.
 In both forms the dependencies are completely bundled along with the
@@ -162,9 +165,9 @@ release.
 When using the [host observer](./docs/observers/host.md), the agent requires
 the [Linux
 capabilities](http://man7.org/linux/man-pages/man7/capabilities.7.html)
-`DAC_READ_SEARCH` and `SYS_PTRACE`, both of which are necessary to allow the
+`DAC_READ_SEARCH` and `SYS_PTRACE`. These are necessary for the
 agent to determine which processes are listening on network ports on the host.
-Otherwise, there is nothing built into the agent that requires privileges.
+Other than that, there is nothing built into the agent that requires privileges.
 When using a package to install the agent, the agent binary is given those
 capabilities in the package post-install script, but the agent is run as the
 `signalfx-agent` user.  If you are not using the `host` observer, then you can
@@ -248,9 +251,6 @@ options that you will especially want to consider:
 	 a running agent.  This is also the host name the agent will listen on to serve
 	 internal metrics about the agent.  These metrics can can be scraped by the
 	 `internal-metrics` monitor.  This will default to `8095`.
-
-See the section on [Privileges](#privileges) for information on the
-capabilities the agent requires.
 
 3) Run the agent by invoking the agent executable
 `SignalFxAgent\bin\signalfx-agent.exe -config <path to config.yaml>`.  By default,
