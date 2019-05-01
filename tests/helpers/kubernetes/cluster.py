@@ -31,12 +31,11 @@ class Cluster:
         print(f"Using kube config file '{kube_config_path}' with context '{kube_context}'")
         print(f"Using agent image '{agent_image_name}'")
 
-        assert (
-            not client.configuration.Configuration._default  # pylint: disable=protected-access
-        ), "Can only use one cluster at a time in a pytest run"
         kconfig.load_kube_config(config_file=kube_config_path, context=kube_context)
 
         utils.create_namespace(self.test_namespace)
+        assert wait_for(p(utils.has_namespace, self.test_namespace))
+        assert wait_for(p(utils.has_serviceaccount, "default", self.test_namespace))
 
     def delete_test_namespace(self):
         """
