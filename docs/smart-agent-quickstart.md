@@ -1,10 +1,10 @@
 # Smart Agent Quick Start
 
-Hello. Get started using Smart Agent using the steps and links below.
+_## Hello. Get started using Smart Agent using the steps and links below.__
 
 ### Step 1: Download and install the agent on a single host.
 
-See [Smart Agent Quick Install](#./docs/smart-agent-quick-install.md) for Steps 1, 2, & 3.
+See [Smart Agent Quick Install](./docs/smart-agent-quick-install.md) for Steps 1, 2, & 3.
 
 ### Step 2: Confirm the installation is functioning.
 
@@ -12,22 +12,22 @@ See [Smart Agent Quick Install](#./docs/smart-agent-quick-install.md) for Steps 
 
 ### Step 3: Login to SignalFx and discover your data.
 
-Advanced options
+## Next Steps
 
 ### Step 4: Deploy Smart Agent on multiple hosts.
 
-See [Smart Agent Next Steps](#./docs/smart-agent-next-steps.md)
+See [Smart Agent Next Steps](./docs/smart-agent-next-steps.md)
 
 ### Step 5: Configure various monitors to output metrics to Smart Agent. 
 
-- To [add a new monitor](#Monitors)
-- For [Windows monitor configurations](https://docs.signalfx.com/en/latest/integrations/agent/windows.md)
-- For [Linux monitor configurations](https://docs.signalfx.com/en/latest/integrations/agent/monitor-config.html)
-- For [common configuration options](https://docs.signalfx.com/en/latest/integrations/agent/monitor-config.md) 
+- To [add a new monitor](#Monitors).
+- For [Windows monitor configurations](https://docs.signalfx.com/en/latest/integrations/agent/windows.md).
+- For [Linux monitor configurations](https://docs.signalfx.com/en/latest/integrations/agent/monitor-config.html.)
+- For [common configuration options](https://docs.signalfx.com/en/latest/integrations/agent/monitor-config.md). 
 
 #### Configure optional metrics for your monitors.
 
-See individual monitor pages for you monitor from the lists in Step 5.
+See individual monitor pages for your monitor from the lists in Step 5.
 
 ### Step 6: Add a new observer to your agent configuration.
 
@@ -37,7 +37,8 @@ See individual monitor pages for you monitor from the lists in Step 5.
 
 See [Dashboards](https://docs.signalfx.com/en/latest/dashboards/index.html)
 
-## Some advanced options content
+
+## Advanced options 
 
 ### Monitors 
 
@@ -45,7 +46,7 @@ You can add more [monitors](https://docs.signalfx.com/en/latest/integrations/age
 
 #### Example of adding a new monitor
 
-To start collecting apache metrics, you would add the [apache monitor](./monitors/collectd-apache.md) to the agent.yaml file.
+To start collecting apache metrics, you would add the [apache monitor](./docs/monitors/collectd-apache.md) to the agent.yaml file.
 Your monitor list would then look similar to this:
 
 ```
