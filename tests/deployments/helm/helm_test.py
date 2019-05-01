@@ -173,7 +173,7 @@ def install_helm_chart(k8s_cluster, values_path):
             p(daemonset_is_ready, daemonset_name, k8s_cluster.test_namespace), timeout_seconds=120, interval_seconds=2
         ), ("timed out waiting for %s daemonset to be ready!" % daemonset_name)
     finally:
-        k8s_cluster.exec_kubectl("get all --all-namespaces")
+        k8s_cluster.exec_kubectl("get all", namespace=k8s_cluster.test_namespace)
 
 
 def test_helm(k8s_cluster):
