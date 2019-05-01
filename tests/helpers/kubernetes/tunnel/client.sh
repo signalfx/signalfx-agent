@@ -22,7 +22,7 @@ chmod 400 $SCRIPT_DIR/id_rsa
 while true; do
   kubectl $context_flag --namespace $NAMESPACE port-forward fake-backend :22 > $out_file &
 
-  for i in seq 1 5; do
+  for i in $(seq 1 10); do
     ssh_port=$(cat $out_file | grep -Eo '127.0.0.1:[0-9]+' | sed -e 's/127.0.0.1://' || true)
     if [[ -n "$ssh_port" ]]; then
       break
