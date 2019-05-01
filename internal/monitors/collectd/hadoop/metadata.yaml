@@ -1,5 +1,5 @@
 monitors:
-- dimensions: {}
+- dimensions:
   doc: |
     Collects metrics about a Hadoop cluster using the
     [collectd Hadoop Python plugin](https://github.com/signalfx/collectd-hadoop).
@@ -26,6 +26,6 @@ monitors:
     If a remote JMX port is exposed in the hadoop cluster, then
     you may also configure the [collectd/hadoopjmx](https://github.com/signalfx/signalfx-agent/tree/master/docs/monitors/collectd/hadoopjmx)
     monitor to collect additional metrics about the hadoop cluster.
-  metrics: {}
+  metrics:
   monitorType: collectd/hadoop
-  properties: {}
+  properties:

@@ -1,5 +1,5 @@
 monitors:
-- dimensions: {}
+- dimensions:
   doc: |
     This monitor reports metrics about free disk space on mounted devices.
 
@@ -61,4 +61,4 @@ monitors:
       included: false
       type: gauge
   monitorType: filesystems
-  properties: {}
+  properties:

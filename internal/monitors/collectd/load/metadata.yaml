@@ -1,5 +1,5 @@
 monitors:
-- dimensions: {}
+- dimensions:
   doc: |
     Monitors process load on the host using the collectd
     [Load plugin](https://collectd.org/wiki/index.php/Plugin:Load).
@@ -17,4 +17,4 @@ monitors:
       included: true
       type: gauge
   monitorType: collectd/load
-  properties: {}
+  properties:

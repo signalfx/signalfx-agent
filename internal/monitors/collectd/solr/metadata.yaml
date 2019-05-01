@@ -1,5 +1,5 @@
 monitors:
-- dimensions: {}
+- dimensions:
   doc: |
     Monitors Solr instances.
 
@@ -200,4 +200,4 @@ monitors:
       included: false
       type: gauge
   monitorType: collectd/solr
-  properties: {}
+  properties:

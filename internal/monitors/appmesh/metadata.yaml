@@ -1,5 +1,5 @@
 monitors:
-- dimensions: {}
+- dimensions:
   doc: |
     This monitor starts a StatsD monitor to listen to StatsD metrics emitted
     by AWS AppMesh Envoy Proxy.
@@ -311,4 +311,4 @@ monitors:
       included: false
       type: gauge
   monitorType: appmesh
-  properties: {}
+  properties:

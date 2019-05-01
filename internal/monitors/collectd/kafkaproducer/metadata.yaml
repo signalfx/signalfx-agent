@@ -1,5 +1,5 @@
 monitors:
-- dimensions: {}
+- dimensions:
   doc: |
     Monitors a Java based Kafka producer using GenericJMX.
 
@@ -72,4 +72,4 @@ monitors:
       included: false
       type: gauge
   monitorType: collectd/kafka_producer
-  properties: {}
+  properties:

@@ -1,5 +1,5 @@
 monitors:
-- dimensions: {}
+- dimensions:
   doc: |
     Monitors a Java based Kafka consumer using GenericJMX.
 
@@ -58,4 +58,4 @@ monitors:
       included: false
       type: gauge
   monitorType: collectd/kafka_consumer
-  properties: {}
+  properties:

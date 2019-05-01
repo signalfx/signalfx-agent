@@ -1,5 +1,5 @@
 monitors:
-- dimensions: {}
+- dimensions:
   doc: |
     Monitors an nginx instance using our fork of the
     collectd nginx plugin based on the [collectd nginx
@@ -38,4 +38,4 @@ monitors:
       included: true
       type: cumulative
   monitorType: collectd/nginx
-  properties: {}
+  properties:

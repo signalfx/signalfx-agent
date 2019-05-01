@@ -1,5 +1,5 @@
 monitors:
-- dimensions: {}
+- dimensions:
   doc: |
     Monitors an HAProxy instance.
 
@@ -339,4 +339,4 @@ monitors:
       included: false
       type: gauge
   monitorType: collectd/haproxy
-  properties: {}
+  properties:

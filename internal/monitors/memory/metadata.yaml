@@ -1,5 +1,5 @@
 monitors:
-- dimensions: {}
+- dimensions:
   doc: |
     This monitor reports memory and memory utilization metrics.
 
@@ -49,4 +49,4 @@ monitors:
       included: true
       type: gauge
   monitorType: memory
-  properties: {}
+  properties:

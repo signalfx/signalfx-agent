@@ -1,5 +1,5 @@
 monitors:
-- dimensions: {}
+- dimensions:
   doc: |
     This monitor reports I/O metrics about network interfaces.
 
@@ -43,4 +43,4 @@ monitors:
       included: true
       type: cumulative
   monitorType: net-io
-  properties: {}
+  properties:

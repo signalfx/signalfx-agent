@@ -1,5 +1,5 @@
 monitors:
-- dimensions: {}
+- dimensions:
   doc: |
     Monitors an Apache Zookeeper instance.
 
@@ -64,4 +64,4 @@ monitors:
       included: true
       type: gauge
   monitorType: collectd/zookeeper
-  properties: {}
+  properties:

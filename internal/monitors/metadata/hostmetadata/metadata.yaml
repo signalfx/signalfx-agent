@@ -43,4 +43,4 @@ monitors:
       included: true
       type: gauge
   monitorType: host-metadata
-  properties: {}
+  properties:

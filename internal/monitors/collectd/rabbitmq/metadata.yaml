@@ -1,5 +1,5 @@
 monitors:
-- dimensions: {}
+- dimensions:
   doc: |
     Monitors an instance of RabbitMQ using the
     [collectd RabbitMQ Python
@@ -506,4 +506,4 @@ monitors:
       included: false
       type: gauge
   monitorType: collectd/rabbitmq
-  properties: {}
+  properties:

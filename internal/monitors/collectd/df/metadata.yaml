@@ -1,5 +1,5 @@
 monitors:
-- dimensions: {}
+- dimensions:
   doc: |
     Tracks free disk space on the host.
   metrics:
@@ -52,4 +52,4 @@ monitors:
       included: false
       type: gauge
   monitorType: collectd/df
-  properties: {}
+  properties:

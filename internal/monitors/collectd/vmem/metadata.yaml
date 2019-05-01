@@ -1,5 +1,5 @@
 monitors:
-- dimensions: {}
+- dimensions:
   doc: |
     Collects information about the virtual memory
     subsystem of the kernel using the [collectd vmem
@@ -39,4 +39,4 @@ monitors:
       included: false
       type: cumulative
   monitorType: collectd/vmem
-  properties: {}
+  properties:

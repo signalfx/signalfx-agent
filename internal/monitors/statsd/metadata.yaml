@@ -1,5 +1,5 @@
 monitors:
-- dimensions: {}
+- dimensions:
   doc: |2
 
 
@@ -40,6 +40,6 @@ monitors:
     `metric` is required for a converter configuration. A converter will be disabled if `metric` is not provided.
 
     ```
-  metrics: {}
+  metrics:
   monitorType: statsd
-  properties: {}
+  properties:

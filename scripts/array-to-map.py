@@ -32,13 +32,13 @@ def main():
                 print(f"""failed to process {monitor["monitorType"]} in {path}""")
                 raise
 
-            if "metrics" in monitor:
+            if monitor.get("metrics"):
                 monitor["metrics"] = metrics_map
-            if "dimensions" in monitor:
+            if monitor.get("dimensions"):
                 monitor["dimensions"] = dim_map
-            if "properties" in monitor:
+            if monitor.get("properties"):
                 monitor["properties"] = prop_map
-            if "groups" in monitor:
+            if monitor.get("groups"):
                 monitor["groups"] = group_map
 
         with open(path, "w") as f:

@@ -1,5 +1,5 @@
 monitors:
-- dimensions: {}
+- dimensions:
   doc: |
     This monitor collects information about the usage of
     physical disks and logical disks (partitions).
@@ -41,4 +41,4 @@ monitors:
       included: false
       type: cumulative
   monitorType: collectd/disk
-  properties: {}
+  properties:

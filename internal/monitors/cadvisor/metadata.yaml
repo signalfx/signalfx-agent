@@ -218,7 +218,7 @@ monitors:
       included: false
       type: counter
   monitorType: cadvisor
-  properties: {}
+  properties:
 - <<: *cadvisor
   doc: |
     This monitor pulls cadvisor metrics through a

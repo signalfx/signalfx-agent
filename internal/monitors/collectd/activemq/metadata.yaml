@@ -1,5 +1,5 @@
 monitors:
-- dimensions: {}
+- dimensions:
   doc: |
     Monitors Apache ActiveMQ via the collectd
     GenericJMX plugin.
@@ -140,4 +140,4 @@ monitors:
       included: false
       type: gauge
   monitorType: collectd/activemq
-  properties: {}
+  properties:

@@ -1,5 +1,5 @@
 monitors:
-- dimensions: {}
+- dimensions:
   doc: |
     Collectd stats about network interfaces on the
     system by using the [collectd interface
@@ -34,4 +34,4 @@ monitors:
       included: false
       type: cumulative
   monitorType: collectd/interface
-  properties: {}
+  properties:

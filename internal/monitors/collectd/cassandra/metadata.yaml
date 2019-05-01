@@ -1,5 +1,5 @@
 monitors:
-- dimensions: {}
+- dimensions:
   doc: |
     Monitors Cassandra using the GenericJMX collectd
     plugin.
@@ -97,4 +97,4 @@ monitors:
       included: true
       type: gauge
   monitorType: collectd/cassandra
-  properties: {}
+  properties:

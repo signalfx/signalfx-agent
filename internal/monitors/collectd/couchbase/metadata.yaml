@@ -1,5 +1,5 @@
 monitors:
-- dimensions: {}
+- dimensions:
   doc: |
     Monitors couchbase by using the
     [couchbase collectd Python
@@ -276,4 +276,4 @@ monitors:
       included: false
       type: gauge
   monitorType: collectd/couchbase
-  properties: {}
+  properties:

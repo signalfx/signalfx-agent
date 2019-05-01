@@ -261,4 +261,4 @@ monitors:
       included: false
       type: gauge
   monitorType: collectd/consul
-  properties: {}
+  properties:

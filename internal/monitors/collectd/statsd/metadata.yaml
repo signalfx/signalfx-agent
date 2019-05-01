@@ -1,5 +1,5 @@
 monitors:
-- dimensions: {}
+- dimensions:
   doc: |
     The StatsD plugin for collectd listens for StatsD
     events, aggregates them and transmits them according to collectd's
@@ -69,6 +69,6 @@ monitors:
        deleteSets: true
        timerPercentile: 90.0
     ```
-  metrics: {}
+  metrics:
   monitorType: collectd/statsd
-  properties: {}
+  properties:

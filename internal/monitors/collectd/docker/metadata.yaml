@@ -1,5 +1,5 @@
 monitors:
-- dimensions: {}
+- dimensions:
   doc: |
     Pulls container stats from the Docker Engine.  We
     strongly recommend using the
@@ -7,6 +7,6 @@ monitors:
     will scale to large number of containers much better.
 
     See https://github.com/signalfx/docker-collectd-plugin.
-  metrics: {}
+  metrics:
   monitorType: collectd/docker
-  properties: {}
+  properties:

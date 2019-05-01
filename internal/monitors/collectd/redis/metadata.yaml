@@ -1,5 +1,5 @@
 monitors:
-- dimensions: {}
+- dimensions:
   doc: |
     Monitors a redis instance using the [collectd
     Python Redis plugin](https://github.com/signalfx/redis-collectd-plugin).
@@ -182,4 +182,4 @@ monitors:
       included: false
       type: gauge
   monitorType: collectd/redis
-  properties: {}
+  properties:

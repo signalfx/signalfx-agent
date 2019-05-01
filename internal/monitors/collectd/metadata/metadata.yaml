@@ -1,5 +1,5 @@
 monitors:
-- dimensions: {}
+- dimensions:
   doc: |
     Collectd Python plugin that aggregates
     various metrics from other collectd plugins.  It also sends host metadata to
@@ -40,4 +40,4 @@ monitors:
       included: true
       type: cumulative
   monitorType: collectd/signalfx-metadata
-  properties: {}
+  properties:

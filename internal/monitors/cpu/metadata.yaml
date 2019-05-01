@@ -1,5 +1,5 @@
 monitors:
-- dimensions: {}
+- dimensions:
   doc: |
     This monitor reports cpu metrics.
 
@@ -24,4 +24,4 @@ monitors:
       included: false
       type: gauge
   monitorType: cpu
-  properties: {}
+  properties:

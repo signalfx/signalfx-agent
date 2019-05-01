@@ -1,5 +1,5 @@
 monitors:
-- dimensions: {}
+- dimensions:
   doc: |
     (Windows Only) This monitor reports metrics for .NET applications.
 
@@ -75,4 +75,4 @@ monitors:
       included: false
       type: gauge
   monitorType: dotnet
-  properties: {}
+  properties:

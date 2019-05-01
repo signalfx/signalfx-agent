@@ -1,5 +1,5 @@
 monitors:
-- dimensions: {}
+- dimensions:
   doc: |
     Monitors a MySQL database server using collectd's
     [MySQL plugin](https://collectd.org/wiki/index.php/Plugin:MySQL).
@@ -726,4 +726,4 @@ monitors:
       included: false
       type: cumulative
   monitorType: collectd/mysql
-  properties: {}
+  properties:

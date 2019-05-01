@@ -1,5 +1,5 @@
 monitors:
-- dimensions: {}
+- dimensions:
   doc: |
     Sends a single metric of the total number of
     seconds the host has been up, using the [collectd uptime
@@ -10,4 +10,4 @@ monitors:
       included: true
       type: gauge
   monitorType: collectd/uptime
-  properties: {}
+  properties:

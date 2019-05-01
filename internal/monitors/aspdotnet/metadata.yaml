@@ -1,5 +1,5 @@
 monitors:
-- dimensions: {}
+- dimensions:
   doc: |
     (Windows Only) This monitor reports metrics about requests, errors, sessions,
     worker processes for ASP.NET applications.
@@ -84,4 +84,4 @@ monitors:
       included: false
       type: gauge
   monitorType: aspdotnet
-  properties: {}
+  properties:

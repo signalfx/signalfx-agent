@@ -1,5 +1,5 @@
 monitors:
-- dimensions: {}
+- dimensions:
   doc: |
     Monitors a Kafka instance using collectd's
     GenericJMX plugin.
@@ -126,4 +126,4 @@ monitors:
       included: false
       type: cumulative
   monitorType: collectd/kafka
-  properties: {}
+  properties:

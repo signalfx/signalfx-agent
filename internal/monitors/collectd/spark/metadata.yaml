@@ -1,5 +1,5 @@
 monitors:
-- dimensions: {}
+- dimensions:
   doc: |
     Collects metrics about a Spark cluster using the
     [collectd Spark Python plugin](https://github.com/signalfx/collectd-spark).
@@ -417,4 +417,4 @@ monitors:
       included: true
       type: gauge
   monitorType: collectd/spark
-  properties: {}
+  properties:

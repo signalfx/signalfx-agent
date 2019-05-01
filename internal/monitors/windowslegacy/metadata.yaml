@@ -1,5 +1,5 @@
 monitors:
-- dimensions: {}
+- dimensions:
   doc: |
     (Windows Only) This monitor reports metrics for Windows system Performance Counters.
     The metric names are intended to match what was originally reported by
@@ -154,4 +154,4 @@ monitors:
       included: false
       type: gauge
   monitorType: windows-legacy
-  properties: {}
+  properties:

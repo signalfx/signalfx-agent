@@ -233,4 +233,4 @@ monitors:
       included: true
       type: counter
   monitorType: collectd/mongodb
-  properties: {}
+  properties:

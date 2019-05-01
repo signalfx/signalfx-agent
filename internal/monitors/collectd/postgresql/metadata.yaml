@@ -1,5 +1,5 @@
 monitors:
-- dimensions: {}
+- dimensions:
   doc: |
     **This monitor is deprecated in favor of the [postgresql monitor](./postgresql.md).**
 
@@ -156,4 +156,4 @@ monitors:
       included: true
       type: gauge
   monitorType: collectd/postgresql
-  properties: {}
+  properties:

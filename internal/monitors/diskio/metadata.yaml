@@ -1,5 +1,5 @@
 monitors:
-- dimensions: {}
+- dimensions:
   doc: |
     This monitor reports I/O metrics about disks.
 
@@ -72,4 +72,4 @@ monitors:
       included: false
       type: cumulative
   monitorType: disk-io
-  properties: {}
+  properties:

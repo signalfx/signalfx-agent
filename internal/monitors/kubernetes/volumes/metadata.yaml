@@ -45,4 +45,4 @@ monitors:
       included: false
       type: gauge
   monitorType: kubernetes-volumes
-  properties: {}
+  properties:

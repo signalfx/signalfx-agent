@@ -1,5 +1,5 @@
 monitors:
-- dimensions: {}
+- dimensions:
   doc: |
     Monitors jenkins by using the
     [jenkins collectd Python
@@ -97,4 +97,4 @@ monitors:
       included: true
       type: gauge
   monitorType: collectd/jenkins
-  properties: {}
+  properties:

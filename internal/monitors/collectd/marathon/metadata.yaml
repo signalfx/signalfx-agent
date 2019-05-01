@@ -1,5 +1,5 @@
 monitors:
-- dimensions: {}
+- dimensions:
   doc: |
     Monitors a Mesos Marathon instance using the
     [collectd Marathon Python plugin](https://github.com/signalfx/collectd-marathon).
@@ -106,4 +106,4 @@ monitors:
       included: false
       type: gauge
   monitorType: collectd/marathon
-  properties: {}
+  properties:

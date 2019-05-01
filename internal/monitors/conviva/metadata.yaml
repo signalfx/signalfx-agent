@@ -1,5 +1,5 @@
 monitors:
-- dimensions: {}
+- dimensions:
   doc: |
     This monitor uses version 2.4 of the Conviva Experience Insights REST APIs to pull
     `Real-Time/Live` video playing experience metrics from Conviva.
@@ -75,6 +75,6 @@ monitors:
      extraDimensions:
        metric_source: conviva
     ```
-  metrics: {}
+  metrics:
   monitorType: conviva
-  properties: {}
+  properties:

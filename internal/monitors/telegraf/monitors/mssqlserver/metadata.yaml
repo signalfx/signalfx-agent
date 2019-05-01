@@ -1,5 +1,5 @@
 monitors:
-- dimensions: {}
+- dimensions:
   doc: |
     This monitor reports metrics about Microsoft SQL servers.
     This monitor is based on the telegraf sqlserver plugin.  More information about the telegraf plugin
@@ -525,4 +525,4 @@ monitors:
       included: false
       type: gauge
   monitorType: telegraf/sqlserver
-  properties: {}
+  properties:

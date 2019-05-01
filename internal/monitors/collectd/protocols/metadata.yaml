@@ -1,5 +1,5 @@
 monitors:
-- dimensions: {}
+- dimensions:
   doc: |
     Gathers metrics about the network protocol
     stacks running on the system by using the [collectd protocols
@@ -37,4 +37,4 @@ monitors:
       included: false
       type: cumulative
   monitorType: collectd/protocols
-  properties: {}
+  properties:

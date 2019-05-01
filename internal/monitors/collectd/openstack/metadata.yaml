@@ -1,5 +1,5 @@
 monitors:
-- dimensions: {}
+- dimensions:
   doc: |
     Monitors Openstack by using the
     [Openstack collectd Python
@@ -171,4 +171,4 @@ monitors:
       included: true
       type: gauge
   monitorType: collectd/openstack
-  properties: {}
+  properties:

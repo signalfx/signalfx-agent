@@ -1,5 +1,5 @@
 monitors:
-- dimensions: {}
+- dimensions:
   doc: |
     Monitors ElasticSearch instances. We strongly recommend using the
     [elasticsearch](./elasticsearch.md) monitor instead, as it will
@@ -185,4 +185,4 @@ monitors:
       included: false
       type: gauge
   monitorType: collectd/elasticsearch
-  properties: {}
+  properties:

@@ -1,5 +1,5 @@
 monitors:
-- dimensions: {}
+- dimensions:
   doc: |
     (Windows Only) This monitor reports metrics about Windows services.
     This monitor is based on the Telegraf win_services plugin.  More information about the Telegraf plugin
@@ -33,4 +33,4 @@ monitors:
       included: false
       type: gauge
   monitorType: telegraf/win_services
-  properties: {}
+  properties:

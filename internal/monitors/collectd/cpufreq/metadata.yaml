@@ -1,5 +1,5 @@
 monitors:
-- dimensions: {}
+- dimensions:
   doc: |
     Monitors the actual clock speed of each CPU on a
     host.  Useful for systems that vary the clock speed to conserve energy.
@@ -13,4 +13,4 @@ monitors:
       included: false
       type: gauge
   monitorType: collectd/cpufreq
-  properties: {}
+  properties:

@@ -1,5 +1,5 @@
 monitors:
-- dimensions: {}
+- dimensions:
   doc: |
     Monitors an etcd key/value store.
 
@@ -123,4 +123,4 @@ monitors:
       included: true
       type: gauge
   monitorType: collectd/etcd
-  properties: {}
+  properties:

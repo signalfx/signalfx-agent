@@ -1,5 +1,5 @@
 monitors:
-- dimensions: {}
+- dimensions:
   doc: |
     Sends memory usage stats for the underlying host.
     See https://collectd.org/wiki/index.php/Plugin:Memory
@@ -31,4 +31,4 @@ monitors:
       included: true
       type: gauge
   monitorType: collectd/memory
-  properties: {}
+  properties:

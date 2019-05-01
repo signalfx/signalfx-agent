@@ -1,5 +1,5 @@
 monitors:
-- dimensions: {}
+- dimensions:
   doc: |
     Monitors a Kong instance using [collectd-kong](https://github.com/signalfx/collectd-kong).
 
@@ -109,4 +109,4 @@ monitors:
       included: true
       type: gauge
   monitorType: collectd/kong
-  properties: {}
+  properties:

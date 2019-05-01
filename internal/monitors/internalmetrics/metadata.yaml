@@ -1,5 +1,5 @@
 monitors:
-- dimensions: {}
+- dimensions:
   doc: |
     Emits metrics about the internal state of the
     agent.  Useful for debugging performance issues with the agent and to ensure
@@ -181,4 +181,4 @@ monitors:
       included: false
       type: gauge
   monitorType: internal-metrics
-  properties: {}
+  properties:
