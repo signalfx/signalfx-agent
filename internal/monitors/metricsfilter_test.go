@@ -13,12 +13,12 @@ func testMetadata(metricsExhaustive bool) *Metadata {
 		MonitorType:     "test-monitor",
 		IncludedMetrics: utils.StringSet("cpu.idle", "cpu.min", "cpu.max", "mem.used"),
 		Metrics: map[string]MetricInfo{
-			"cpu.idle":      {datapoint.Gauge},
-			"cpu.min":       {datapoint.Gauge},
-			"cpu.max":       {datapoint.Gauge},
-			"mem.used":      {datapoint.Counter},
-			"mem.free":      {datapoint.Counter},
-			"mem.available": {datapoint.Counter}},
+			"cpu.idle":      {Type: datapoint.Gauge},
+			"cpu.min":       {Type: datapoint.Gauge},
+			"cpu.max":       {Type: datapoint.Gauge},
+			"mem.used":      {Type: datapoint.Counter},
+			"mem.free":      {Type: datapoint.Counter},
+			"mem.available": {Type: datapoint.Counter}},
 		MetricsExhaustive: metricsExhaustive,
 		Groups:            utils.StringSet("cpu", "mem"),
 		GroupMetricsMap: map[string][]string{

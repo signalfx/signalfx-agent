@@ -7,12 +7,9 @@ from tests.helpers.agent import Agent
 from tests.helpers.assertions import has_datapoint_with_dim, has_datapoint_with_metric_name
 from tests.helpers.metadata import Metadata
 from tests.helpers.util import ensure_always, run_service, wait_for
-from tests.helpers.verify import verify_included_metrics, verify_all_metrics
+from tests.helpers.verify import verify_custom, verify_included_metrics
 
 pytestmark = [pytest.mark.docker_container_stats, pytest.mark.monitor_without_endpoints]
-
-METADATA = Metadata.from_package("docker")
-METADATA.all_metrics = METADATA.all_metrics - {"memory.stats.swap"}
 
 
 def test_docker_container_stats():
@@ -160,6 +157,9 @@ def test_docker_stops_watching_destroyed_containers():
             )
 
 
+METADATA = Metadata.from_package("docker")
+
+
 def test_docker_included():
     verify_included_metrics(
         f"""
@@ -170,8 +170,11 @@ def test_docker_included():
     )
 
 
+ENHANCED_METRICS = METADATA.all_metrics - {"memory.stats.swap"}
+
+
 def test_docker_enhanced():
-    verify_all_metrics(
+    verify_custom(
         f"""
         monitors:
         - type: docker-container-stats
@@ -180,5 +183,5 @@ def test_docker_enhanced():
           enableExtraMemoryMetrics: true
           enableExtraNetworkMetrics: true
         """,
-        METADATA,
+        ENHANCED_METRICS,
     )
