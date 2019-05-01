@@ -13102,6 +13102,14 @@
             "elementKind": ""
           },
           {
+            "yamlName": "timerCount",
+            "doc": "",
+            "default": false,
+            "required": false,
+            "type": "bool",
+            "elementKind": ""
+          },
+          {
             "yamlName": "timerSum",
             "doc": "",
             "default": false,
