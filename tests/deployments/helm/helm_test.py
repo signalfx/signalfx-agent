@@ -12,7 +12,14 @@ import yaml
 from kubernetes import client as kube_client
 from tests.helpers import fake_backend
 from tests.helpers.assertions import has_datapoint
-from tests.helpers.kubernetes.utils import daemonset_is_ready, deployment_is_ready
+from tests.helpers.kubernetes.agent import AGENT_STATUS_COMMAND
+from tests.helpers.kubernetes.utils import (
+    daemonset_is_ready,
+    deployment_is_ready,
+    exec_pod_command,
+    get_pods_by_labels,
+    get_pod_logs,
+)
 from tests.helpers.util import wait_for
 from tests.packaging.common import DEPLOYMENTS_DIR
 from tests.paths import TEST_SERVICES_DIR
@@ -173,9 +180,12 @@ def install_helm_chart(k8s_cluster, values_path):
 
     daemonset_name = get_daemonset_name(k8s_cluster)
     print("Waiting for daemonset %s to be ready ..." % daemonset_name)
-    assert wait_for(
-        p(daemonset_is_ready, daemonset_name, k8s_cluster.test_namespace), timeout_seconds=120, interval_seconds=2
-    ), ("timed out waiting for %s daemonset to be ready!" % daemonset_name)
+    try:
+        assert wait_for(
+            p(daemonset_is_ready, daemonset_name, k8s_cluster.test_namespace), timeout_seconds=120, interval_seconds=2
+        ), ("timed out waiting for %s daemonset to be ready!" % daemonset_name)
+    finally:
+        print(k8s_cluster.exec_kubectl(f"describe daemonset {daemonset_name}", namespace=k8s_cluster.test_namespace))
 
 
 def test_helm(k8s_cluster):
@@ -187,5 +197,15 @@ def test_helm(k8s_cluster):
         with k8s_cluster.run_tunnels(backend) as proxy_pod_ip:
             with release_values_yaml(k8s_cluster, proxy_pod_ip, backend) as values_path:
                 install_helm_chart(k8s_cluster, values_path)
-                assert wait_for(p(has_datapoint, backend, dimensions={"plugin": "nginx"}))
-                assert wait_for(p(has_datapoint, backend, dimensions={"plugin": "signalfx-metadata"}))
+                try:
+                    assert wait_for(p(has_datapoint, backend, dimensions={"plugin": "nginx"}))
+                    assert wait_for(p(has_datapoint, backend, dimensions={"plugin": "signalfx-metadata"}))
+                finally:
+                    for pod in get_pods_by_labels("app=signalfx-agent", namespace=k8s_cluster.test_namespace):
+                        print("pod/%s:" % pod.metadata.name)
+                        status = exec_pod_command(
+                            pod.metadata.name, AGENT_STATUS_COMMAND, namespace=k8s_cluster.test_namespace
+                        )
+                        print("Agent Status:\n%s" % status)
+                        logs = get_pod_logs(pod.metadata.name, namespace=k8s_cluster.test_namespace)
+                        print("Agent Logs:\n%s" % logs)
