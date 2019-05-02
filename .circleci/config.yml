@@ -339,7 +339,7 @@ jobs:
             docker tag quay.io/signalfx/signalfx-agent-dev:latest localhost:5000/signalfx-agent:latest
             docker push localhost:5000/signalfx-agent:latest
       - run_pytest:
-          pytest_options: "-n4 -m \"$MARKERS\" --exitfirst"
+          pytest_options: "-n4 -m \"$MARKERS\""
 
   installer_tests:
     executor: machine_image

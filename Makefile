@@ -183,7 +183,6 @@ run-k8s-tests: run-minikube push-minikube-agent
 		-m "$(MARKERS)" \
 		-n auto \
 		--verbose \
-		--exitfirst \
 		--html=test_output/k8s_results.html \
 		--self-contained-html \
 		tests
