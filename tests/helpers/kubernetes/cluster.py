@@ -36,6 +36,7 @@ class Cluster:
         utils.create_namespace(self.test_namespace)
         assert wait_for(p(utils.has_namespace, self.test_namespace))
         assert wait_for(p(utils.has_serviceaccount, "default", self.test_namespace))
+        assert wait_for(lambda: client.CoreV1Api().list_namespaced_secret(self.test_namespace).items)
 
     def delete_test_namespace(self):
         """
