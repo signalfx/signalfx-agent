@@ -3190,55 +3190,55 @@
         "df_inodes.free": {
           "type": "gauge",
           "description": "Number of inodes that are free.",
-          "group": null,
+          "group": "reportInodes",
           "included": false
         },
         "df_inodes.reserved": {
           "type": "gauge",
           "description": "Number of inodes reserved for the super user.",
-          "group": null,
+          "group": "reportInodes",
           "included": false
         },
         "df_inodes.used": {
           "type": "gauge",
           "description": "Number of inodes that are used.",
-          "group": null,
+          "group": "reportInodes",
           "included": false
         },
         "percent_bytes.free": {
           "type": "gauge",
           "description": "Free disk space on the file system, expressed as a percentage.",
-          "group": null,
+          "group": "valuesPercentage",
           "included": false
         },
         "percent_bytes.reserved": {
           "type": "gauge",
           "description": "Reserved disk space on the filesystem, expressed as a percentage.",
-          "group": null,
+          "group": "valuesPercentage",
           "included": false
         },
         "percent_bytes.used": {
           "type": "gauge",
           "description": "Used disk space on the file system, expressed as a percentage.",
-          "group": null,
+          "group": "valuesPercentage",
           "included": false
         },
         "percent_inodes.free": {
           "type": "gauge",
           "description": "Free inodes on the file system, expressed as a percentage.",
-          "group": null,
+          "group": "valuesPercentage",
           "included": false
         },
         "percent_inodes.reserved": {
           "type": "gauge",
           "description": "Reserved inodes on the file system, expressed as a percentage.",
-          "group": null,
+          "group": "valuesPercentage",
           "included": false
         },
         "percent_inodes.used": {
           "type": "gauge",
           "description": "Used inodes on the file system, expressed as a percentage.",
-          "group": null,
+          "group": "valuesPercentage",
           "included": false
         }
       },
