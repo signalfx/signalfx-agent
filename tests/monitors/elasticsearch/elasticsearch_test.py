@@ -4,9 +4,7 @@ from textwrap import dedent
 import pytest
 
 from tests.helpers.agent import Agent
-from tests.helpers.assertions import any_metric_has_any_dim_key, \
-    has_datapoint_with_dim, \
-    has_log_message, http_status
+from tests.helpers.assertions import any_metric_has_any_dim_key, has_datapoint_with_dim, has_log_message, http_status
 from tests.helpers.metadata import Metadata
 from tests.helpers.util import container_ip, run_service, wait_for
 
@@ -104,7 +102,7 @@ def test_elasticsearch_without_cluster():
 
 
 # TODO: fix this failing test
-#@pytest.mark.flaky(reruns=2)
+# @pytest.mark.flaky(reruns=2)
 # def test_elasticsearch_with_threadpool():
 #     with run_service("elasticsearch/6.4.2", environment={"cluster.name": "testCluster"}) as es_container:
 #         host = container_ip(es_container)
@@ -238,7 +236,8 @@ def test_elasticsearch_with_enhanced_cluster_health_stats():
                 "elasticsearch.cluster.relocating-shards",
                 "elasticsearch.cluster.status",
                 "elasticsearch.cluster.task-max-wait-time",
-                "elasticsearch.cluster.unassigned-shards"}
+                "elasticsearch.cluster.unassigned-shards",
+            }
             wait_for(lambda: len(agent.fake_services.datapoints) > 0)
             got_metrics = frozenset([dp.metric for dp in agent.fake_services.datapoints])
             assert got_metrics == want_metrics
@@ -263,9 +262,7 @@ def test_elasticsearch_with_enhanced_http_stats():
             """
         )
         with Agent.run(config) as agent:
-            want_metrics = DEFAULT_METRICS | {
-                "elasticsearch.http.current_open",
-                "elasticsearch.http.total_open"}
+            want_metrics = DEFAULT_METRICS | {"elasticsearch.http.current_open", "elasticsearch.http.total_open"}
             wait_for(lambda: len(agent.fake_services.datapoints) > 0)
             got_metrics = frozenset([dp.metric for dp in agent.fake_services.datapoints])
             assert got_metrics == want_metrics
@@ -324,7 +321,8 @@ def test_elasticsearch_with_enhanced_jvm_stats():
                 "elasticsearch.jvm.mem.pools.young.used_in_bytes",
                 "elasticsearch.jvm.threads.count",
                 "elasticsearch.jvm.threads.peak",
-                "elasticsearch.jvm.uptime"}
+                "elasticsearch.jvm.uptime",
+            }
             wait_for(lambda: len(agent.fake_services.datapoints) > 0)
             got_metrics = frozenset([dp.metric for dp in agent.fake_services.datapoints])
             assert got_metrics == want_metrics
@@ -354,7 +352,8 @@ def test_elasticsearch_with_enhanced_process_stats():
                 "elasticsearch.process.cpu.time",
                 "elasticsearch.process.max_file_descriptors",
                 "elasticsearch.process.mem.total-virtual-size",
-                "elasticsearch.process.open_file_descriptors"}
+                "elasticsearch.process.open_file_descriptors",
+            }
             wait_for(lambda: len(agent.fake_services.datapoints) > 0)
             got_metrics = frozenset([dp.metric for dp in agent.fake_services.datapoints])
             assert got_metrics == want_metrics
@@ -385,7 +384,8 @@ def test_elasticsearch_with_enhanced_thread_pool_stats():
                 "elasticsearch.thread_pool.largest",
                 "elasticsearch.thread_pool.queue",
                 "elasticsearch.thread_pool.rejected",
-                "elasticsearch.thread_pool.threads"}
+                "elasticsearch.thread_pool.threads",
+            }
             wait_for(lambda: len(agent.fake_services.datapoints) > 0)
             got_metrics = frozenset([dp.metric for dp in agent.fake_services.datapoints])
             assert got_metrics == want_metrics
@@ -415,7 +415,8 @@ def test_elasticsearch_with_enhanced_transport_stats():
                 "elasticsearch.transport.rx.size",
                 "elasticsearch.transport.server_open",
                 "elasticsearch.transport.tx.count",
-                "elasticsearch.transport.tx.size"}
+                "elasticsearch.transport.tx.size",
+            }
             wait_for(lambda: len(agent.fake_services.datapoints) > 0)
             got_metrics = frozenset([dp.metric for dp in agent.fake_services.datapoints])
             assert got_metrics == want_metrics
