@@ -1,13 +1,14 @@
 ARG GO_VERSION=1.12.1
 
 ###### Agent Build Image ########
-FROM ubuntu:16.04 as agent-builder
-
-RUN apt update &&\
-    apt install -y curl wget pkg-config parallel
+ARG DOCKER_ARCH
+FROM ${DOCKER_ARCH}ubuntu:16.04 as agent-builder
 
 ARG GO_VERSION
 ARG TARGET_ARCH
+
+RUN apt update &&\
+    apt install -y curl wget pkg-config parallel
 
 ENV PATH=$PATH:/usr/local/go/bin
 RUN cd /tmp &&\
@@ -38,7 +39,9 @@ RUN AGENT_VERSION=${agent_version} COLLECTD_VERSION=${collectd_version} make sig
     mv signalfx-agent /usr/bin/signalfx-agent
 
 ###### Collectd builder image ######
-FROM ubuntu:16.04 as collectd
+ARG DOCKER_ARCH
+
+FROM ${DOCKER_ARCH}ubuntu:16.04 as collectd
 
 ARG TARGET_ARCH
 
@@ -196,7 +199,9 @@ RUN patchelf --add-needed libm-2.23.so /opt/deps/libvarnishapi.so.1.0.4
 
 
 ###### Python Plugin Image ######
-FROM ubuntu:16.04 as python-plugins
+ARG DOCKER_ARCH
+
+FROM ${DOCKER_ARCH}ubuntu:16.04 as python-plugins
 
 RUN apt update &&\
     apt install -y git python-pip wget curl &&\
@@ -225,7 +230,9 @@ RUN cd /opt/sfxpython && pip install .
 RUN find /usr/lib/python2.7 /usr/local/lib/python2.7/dist-packages -name "*.pyc" | xargs rm
 
 ####### Extra packages that don't make sense to pull down in any other stage ########
-FROM ubuntu:16.04 as extra-packages
+ARG DOCKER_ARCH
+
+FROM ${DOCKER_ARCH}ubuntu:16.04 as extra-packages
 
 ARG TARGET_ARCH
 
@@ -329,7 +336,9 @@ WORKDIR /
 
 # Workaround to utilize the global GO_VERSION argument
 # since "COPY --from" doesn't support variables.
-FROM golang:${GO_VERSION}-stretch as golang-ignore
+ARG DOCKER_ARCH
+
+FROM ${DOCKER_ARCH}golang:${GO_VERSION}-stretch as golang-ignore
 
 
 ####### Dev Image ########
@@ -337,7 +346,9 @@ FROM golang:${GO_VERSION}-stretch as golang-ignore
 # the build tools for building collectd and the go agent, along with some other
 # useful utilities.  The agent image is copied from the final-image stage to
 # the /bundle dir in here and the SIGNALFX_BUNDLE_DIR is set to point to that.
-FROM ubuntu:18.04 as dev-extras
+ARG DOCKER_ARCH
+
+FROM ${DOCKER_ARCH}ubuntu:18.04 as dev-extras
 
 ARG TARGET_ARCH
 
@@ -404,7 +415,9 @@ COPY --from=final-image / /bundle/
 COPY ./ ./
 
 ####### Pandoc Converter ########
-FROM ubuntu:16.04 as pandoc-converter
+ARG DOCKER_ARCH
+
+FROM ${DOCKER_ARCH}ubuntu:16.04 as pandoc-converter
 
 RUN apt update &&\
     apt install -y pandoc
@@ -416,7 +429,9 @@ RUN mkdir /docs &&\
 
 
 ####### Debian Packager #######
-FROM debian:9 as debian-packager
+ARG DOCKER_ARCH
+
+FROM ${DOCKER_ARCH}debian:9 as debian-packager
 
 RUN apt update &&\
     apt install -y dh-make devscripts dh-systemd apt-utils awscli
@@ -444,7 +459,9 @@ RUN rm -rf ./signalfx-agent/etc/signalfx
 
 
 ###### RPM Packager #######
-FROM fedora:27 as rpm-packager
+ARG DOCKER_ARCH
+
+FROM ${DOCKER_ARCH}fedora:27 as rpm-packager
 
 RUN yum install -y rpmdevtools createrepo rpm-sign awscli
 

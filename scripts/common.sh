@@ -18,12 +18,19 @@ do_docker_build() {
   local collectd_version=${COLLECTD_VERSION}
   local cpu_arch="$(uname -m)"
   local target_arch="amd64"
+  local docker_arch=""
   local ldso_bin="/lib64/ld-linux-x86-64.so.2"
   local disable_turbostat=""
-  if [ "$(uname -m)" == "aarch64" ]; then
+  local build_cpus=""
+  if [ "$(uname -m)" == "aarch64" ] || [ "x${BUILD_FOR_ARM64}" == "xyes" ]; then
     target_arch="arm64"
+    docker_arch="arm64v8/"
     ldso_bin="/lib/ld-linux-aarch64.so.1"
     disable_turbostat="--disable-turbostat"
+  fi
+  if [ "x${BUILD_FOR_ARM64}" == "xyes" ]; then
+    cpu_arch="aarch64"
+    build_cpus="--cpuset-cpus=0"
   fi
 
   cache_flags=
@@ -32,6 +39,7 @@ do_docker_build() {
   fi
 
   docker build \
+    $build_cpus \
     -t $image_name:$image_tag \
     -f $MY_SCRIPT_DIR/../Dockerfile \
     --pull \
@@ -39,6 +47,7 @@ do_docker_build() {
     --build-arg GOOS=${operating_system} \
     --build-arg collectd_version=${collectd_version} \
     --build-arg collectd_commit=${collectd_commit} \
+    --build-arg DOCKER_ARCH=${docker_arch} \
     --build-arg TARGET_ARCH=${target_arch} \
     --build-arg CPU_ARCH=${cpu_arch} \
     --build-arg LDSO_BIN=${ldso_bin} \
@@ -47,5 +56,5 @@ do_docker_build() {
     --label agent.version=${agent_version} \
     $(extra_cflags_build_arg) \
     $cache_flags \
-    $MY_SCRIPT_DIR/.. 
+    $MY_SCRIPT_DIR/..
 }

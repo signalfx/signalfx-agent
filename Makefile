@@ -92,6 +92,14 @@ else
 	bash -ec "COLLECTD_VERSION=$(COLLECTD_VERSION) COLLECTD_COMMIT=$(COLLECTD_COMMIT) && source scripts/common.sh && do_docker_build signalfx-agent-dev latest dev-extras"
 endif
 
+.PHONY: armdev-image
+armdev-image:
+ifeq ($(OS),Windows_NT)
+	powershell -Command "& { . $(CURDIR)\scripts\windows\common.ps1; BUILD_FOR_ARM64="yes" do_docker_build signalfx-agent-armdev latest dev-extras }"
+else
+	bash -ec "COLLECTD_VERSION=$(COLLECTD_VERSION) COLLECTD_COMMIT=$(COLLECTD_COMMIT) && source scripts/common.sh && BUILD_FOR_ARM64="yes" do_docker_build signalfx-agent-armdev latest dev-extras"
+endif
+
 .PHONY: debug
 debug:
 	dlv debug ./cmd/agent
@@ -118,6 +126,23 @@ run-dev-image:
 		-v $(CURDIR)/collectd:/usr/src/collectd:cached \
 		-v $(CURDIR)/tmp/pprof:/tmp/pprof \
 		signalfx-agent-dev /bin/bash
+
+.PHONY: run-armdev-image
+run-armdev-image:
+	docker exec -it $(docker_env) signalfx-agent-armdev /bin/bash -l -i || \
+	  docker run --rm -it \
+		$(extra_run_flags) \
+		--cap-add DAC_READ_SEARCH \
+		--cap-add SYS_PTRACE \
+		-p 6060:6060 \
+		-p 9080:9080 \
+		-p 8095:8095 \
+		--name signalfx-agent-dev \
+		-v $(CURDIR)/local-etc:/etc/signalfx \
+		-v $(CURDIR):/usr/src/signalfx-agent:cached \
+		-v $(CURDIR)/collectd:/usr/src/collectd:cached \
+		-v $(CURDIR)/tmp/pprof:/tmp/pprof \
+		signalfx-agent-armdev /bin/bash
 
 .PHONY: run-integration-tests
 run-integration-tests: MARKERS ?= not packaging and not installer and not k8s and not windows_only and not deployment and not perf_test
