@@ -14612,943 +14612,943 @@
         "elasticsearch.cluster.active-primary-shards": {
           "type": "gauge",
           "description": "Number of active primary shards",
-          "group": null,
+          "group": "cluster",
           "included": true
         },
         "elasticsearch.cluster.active-shards": {
           "type": "gauge",
           "description": "Number of active shards",
-          "group": null,
+          "group": "cluster",
           "included": true
         },
         "elasticsearch.cluster.active-shards-percent": {
           "type": "gauge",
           "description": "Percentaage of shards active",
-          "group": null,
+          "group": "cluster",
           "included": false
         },
         "elasticsearch.cluster.delayed-unassigned-shards": {
           "type": "gauge",
           "description": "Number of delayed unassigned shards",
-          "group": null,
+          "group": "cluster",
           "included": false
         },
         "elasticsearch.cluster.in-flight-fetches": {
           "type": "gauge",
           "description": "Number of fetches in-flight",
-          "group": null,
+          "group": "cluster",
           "included": false
         },
         "elasticsearch.cluster.initializing-shards": {
           "type": "gauge",
           "description": "Number of shards being initialized",
-          "group": null,
+          "group": "cluster",
           "included": false
         },
         "elasticsearch.cluster.number-of-data_nodes": {
           "type": "gauge",
           "description": "Number of data nodes",
-          "group": null,
+          "group": "cluster",
           "included": true
         },
         "elasticsearch.cluster.number-of-nodes": {
           "type": "gauge",
           "description": "Number of nodes",
-          "group": null,
+          "group": "cluster",
           "included": true
         },
         "elasticsearch.cluster.pending-tasks": {
           "type": "gauge",
           "description": "Number of pending tasks",
-          "group": null,
+          "group": "cluster",
           "included": false
         },
         "elasticsearch.cluster.relocating-shards": {
           "type": "gauge",
           "description": "Number of shards being relocated",
-          "group": null,
+          "group": "cluster",
           "included": true
         },
         "elasticsearch.cluster.status": {
           "type": "gauge",
           "description": "Cluster stats (0, 1, 2 for green, yellow and red respectively)",
-          "group": null,
+          "group": "cluster",
           "included": false
         },
         "elasticsearch.cluster.task-max-wait-time": {
           "type": "gauge",
           "description": "Max time a task has to wait",
-          "group": null,
+          "group": "cluster",
           "included": false
         },
         "elasticsearch.cluster.unassigned-shards": {
           "type": "gauge",
           "description": "Number of unassigned shards",
-          "group": null,
+          "group": "cluster",
           "included": true
         },
         "elasticsearch.http.current_open": {
           "type": "gauge",
           "description": "Number of currently open HTTP connections",
-          "group": null,
+          "group": "node/http",
           "included": false
         },
         "elasticsearch.http.total_open": {
           "type": "cumulative",
           "description": "Total number of opened HTTP connections",
-          "group": null,
+          "group": "node/http",
           "included": false
         },
         "elasticsearch.indices.completion.size": {
           "type": "gauge",
           "description": "Size used by suggest completion (in bytes)",
-          "group": null,
+          "group": "indices/completion",
           "included": false
         },
         "elasticsearch.indices.docs.count": {
           "type": "gauge",
           "description": "Number of docs",
-          "group": null,
+          "group": "indices/docs",
           "included": true
         },
         "elasticsearch.indices.docs.deleted": {
           "type": "gauge",
           "description": "Number of docs deleted",
-          "group": null,
+          "group": "indices/docs",
           "included": true
         },
         "elasticsearch.indices.fielddata.evictions": {
           "type": "cumulative",
           "description": "Number of evictions from fielddata cache",
-          "group": null,
+          "group": "indices/fielddata",
           "included": false
         },
         "elasticsearch.indices.fielddata.memory-size": {
           "type": "gauge",
           "description": "Size of fielddata cache (in bytes)",
-          "group": null,
+          "group": "indices/fielddata",
           "included": false
         },
         "elasticsearch.indices.filter-cache.evictions": {
           "type": "cumulative",
           "description": "Number of evicttions from filter cache",
-          "group": null,
+          "group": "indices/filter_cache",
           "included": false
         },
         "elasticsearch.indices.filter-cache.memory-size": {
           "type": "gauge",
           "description": "Filter cache size (in bytes)",
-          "group": null,
+          "group": "indices/filter_cache",
           "included": false
         },
         "elasticsearch.indices.flush.periodic": {
           "type": "gauge",
           "description": "How long to wait before triggering a flush regardless of translog size",
-          "group": null,
+          "group": "indices/flush",
           "included": false
         },
         "elasticsearch.indices.flush.time": {
           "type": "cumulative",
           "description": "Time spent flushing the index to disk",
-          "group": null,
+          "group": "indices/flush",
           "included": false
         },
         "elasticsearch.indices.flush.total": {
           "type": "cumulative",
           "description": "Number of index flushes to disk",
-          "group": null,
+          "group": "indices/flush",
           "included": false
         },
         "elasticsearch.indices.get.current": {
           "type": "gauge",
           "description": "Number of get requests running",
-          "group": null,
+          "group": "indices/get",
           "included": false
         },
         "elasticsearch.indices.get.exists-time": {
           "type": "cumulative",
           "description": "Time spent on get requests where the document existed",
-          "group": null,
+          "group": "indices/get",
           "included": false
         },
         "elasticsearch.indices.get.exists-total": {
           "type": "cumulative",
           "description": "Number of get requests where the document existed",
-          "group": null,
+          "group": "indices/get",
           "included": false
         },
         "elasticsearch.indices.get.missing-time": {
           "type": "cumulative",
           "description": "Time spent on get requests where the document was missing",
-          "group": null,
+          "group": "indices/get",
           "included": false
         },
         "elasticsearch.indices.get.missing-total": {
           "type": "cumulative",
           "description": "Number of get requests where the document was missing",
-          "group": null,
+          "group": "indices/get",
           "included": false
         },
         "elasticsearch.indices.get.time": {
           "type": "cumulative",
           "description": "Time spent on get requests",
-          "group": null,
+          "group": "indices/get",
           "included": false
         },
         "elasticsearch.indices.get.total": {
           "type": "cumulative",
           "description": "Total number of get requests",
-          "group": null,
+          "group": "indices/get",
           "included": true
         },
         "elasticsearch.indices.id-cache.memory-size": {
           "type": "gauge",
           "description": "Size of id cache (in bytes)",
-          "group": null,
+          "group": "indices/id_cache",
           "included": false
         },
         "elasticsearch.indices.indexing.delete-current": {
           "type": "gauge",
           "description": "Number of documents currently being deleted from an index",
-          "group": null,
+          "group": "indices/indexing",
           "included": false
         },
         "elasticsearch.indices.indexing.delete-time": {
           "type": "cumulative",
           "description": "Time spent deleting documents from an index",
-          "group": null,
+          "group": "indices/indexing",
           "included": false
         },
         "elasticsearch.indices.indexing.delete-total": {
           "type": "cumulative",
           "description": "Number of documents deleted from an index",
-          "group": null,
+          "group": "indices/indexing",
           "included": false
         },
         "elasticsearch.indices.indexing.index-current": {
           "type": "gauge",
           "description": "Number of documents currently being indexed to an index",
-          "group": null,
+          "group": "indices/indexing",
           "included": false
         },
         "elasticsearch.indices.indexing.index-time": {
           "type": "cumulative",
           "description": "Time spent indexing documents to an index",
-          "group": null,
+          "group": "indices/indexing",
           "included": false
         },
         "elasticsearch.indices.indexing.index-total": {
           "type": "cumulative",
           "description": "Total number of documents indexed to an index",
-          "group": null,
+          "group": "indices/indexing",
           "included": true
         },
         "elasticsearch.indices.merges.auto-throttle-size": {
           "type": "cumulative",
           "description": "Merging throttled due to auto-throttling (in bytes)",
-          "group": null,
+          "group": "indices/merges",
           "included": false
         },
         "elasticsearch.indices.merges.current": {
           "type": "gauge",
           "description": "Number of currently active segment merges",
-          "group": null,
+          "group": "indices/merges",
           "included": true
         },
         "elasticsearch.indices.merges.current-docs": {
           "type": "gauge",
           "description": "Number of docs currently being merged",
-          "group": null,
+          "group": "indices/merges",
           "included": false
         },
         "elasticsearch.indices.merges.current-size": {
           "type": "gauge",
           "description": "Size of the segments currently being merged",
-          "group": null,
+          "group": "indices/merges",
           "included": false
         },
         "elasticsearch.indices.merges.stopped-time": {
           "type": "cumulative",
           "description": "Total time merges were stopped for",
-          "group": null,
+          "group": "indices/merges",
           "included": false
         },
         "elasticsearch.indices.merges.throttle-time": {
           "type": "cumulative",
           "description": "Total time merges spent waiting due to throttling",
-          "group": null,
+          "group": "indices/merges",
           "included": false
         },
         "elasticsearch.indices.merges.time": {
           "type": "cumulative",
           "description": "Total time spent on merging",
-          "group": null,
+          "group": "indices/merges",
           "included": false
         },
         "elasticsearch.indices.merges.total": {
           "type": "cumulative",
           "description": "Number of segment merges",
-          "group": null,
+          "group": "indices/merges",
           "included": true
         },
         "elasticsearch.indices.merges.total-docs": {
           "type": "cumulative",
           "description": "Number of merged docs across merged segments",
-          "group": null,
+          "group": "indices/merges",
           "included": false
         },
         "elasticsearch.indices.merges.total-size": {
           "type": "cumulative",
           "description": "Total size of merged segments",
-          "group": null,
+          "group": "indices/merges",
           "included": false
         },
         "elasticsearch.indices.percolate.current": {
           "type": "gauge",
           "description": "Number of percolator queries currently running",
-          "group": null,
+          "group": "indices/percolate",
           "included": false
         },
         "elasticsearch.indices.percolate.queries": {
           "type": "cumulative",
           "description": "Number of percolator queries",
-          "group": null,
+          "group": "indices/percolate",
           "included": false
         },
         "elasticsearch.indices.percolate.time": {
           "type": "cumulative",
           "description": "Total time spent on percolate requests",
-          "group": null,
+          "group": "indices/percolate",
           "included": false
         },
         "elasticsearch.indices.percolate.total": {
           "type": "cumulative",
           "description": "Total number of suggest requests",
-          "group": null,
+          "group": "indices/percolate",
           "included": false
         },
         "elasticsearch.indices.query-cache.cache-count": {
           "type": "gauge",
           "description": "Number of items in query cache",
-          "group": null,
+          "group": "indices/query_cache",
           "included": false
         },
         "elasticsearch.indices.query-cache.cache-size": {
           "type": "gauge",
           "description": "Size of query cache (in bytes)",
-          "group": null,
+          "group": "indices/query_cache",
           "included": false
         },
         "elasticsearch.indices.query-cache.evictions": {
           "type": "cumulative",
           "description": "Number of query cache evictions",
-          "group": null,
+          "group": "indices/query_cache",
           "included": false
         },
         "elasticsearch.indices.query-cache.hit-count": {
           "type": "cumulative",
           "description": "Number of query cache hits",
-          "group": null,
+          "group": "indices/query_cache",
           "included": false
         },
         "elasticsearch.indices.query-cache.memory-size": {
           "type": "gauge",
           "description": "Size of query cache (in bytes)",
-          "group": null,
+          "group": "indices/query_cache",
           "included": false
         },
         "elasticsearch.indices.query-cache.miss-count": {
           "type": "cumulative",
           "description": "Number of query cache misses",
-          "group": null,
+          "group": "indices/request_cache",
           "included": false
         },
         "elasticsearch.indices.query-cache.total-count": {
           "type": "cumulative",
           "description": "Total number of items in the query cache",
-          "group": null,
+          "group": "indices/query_cache",
           "included": false
         },
         "elasticsearch.indices.recovery.current-as-source": {
           "type": "gauge",
           "description": "Number of ongoing recoveries for which a shard serves as a source",
-          "group": null,
+          "group": "indices/recovery",
           "included": false
         },
         "elasticsearch.indices.recovery.current-as-target": {
           "type": "gauge",
           "description": "Number of ongoing recoveries for which a shard serves as a target",
-          "group": null,
+          "group": "indices/recovery",
           "included": false
         },
         "elasticsearch.indices.recovery.throttle-time": {
           "type": "cumulative",
           "description": "Total time recoveries waited due to throttling",
-          "group": null,
+          "group": "indices/recovery",
           "included": false
         },
         "elasticsearch.indices.refresh.listeners": {
           "type": "gauge",
           "description": "Number of listeners waiting for a refresh",
-          "group": null,
+          "group": "indices/refresh",
           "included": false
         },
         "elasticsearch.indices.refresh.time": {
           "type": "cumulative",
           "description": "Total time spent on index refreshes",
-          "group": null,
+          "group": "indices/refresh",
           "included": false
         },
         "elasticsearch.indices.refresh.total": {
           "type": "cumulative",
           "description": "Number of index refreshes",
-          "group": null,
+          "group": "indices/refresh",
           "included": false
         },
         "elasticsearch.indices.request-cache.evictions": {
           "type": "cumulative",
           "description": "Number of request cache evictions",
-          "group": null,
+          "group": "indices/request_cache",
           "included": false
         },
         "elasticsearch.indices.request-cache.hit-count": {
           "type": "cumulative",
           "description": "Number of request cache hits",
-          "group": null,
+          "group": "indices/request_cache",
           "included": false
         },
         "elasticsearch.indices.request-cache.memory-size": {
           "type": "gauge",
           "description": "Memory used by request cache (in bytes)",
-          "group": null,
+          "group": "indices/request_cache",
           "included": false
         },
         "elasticsearch.indices.request-cache.miss-count": {
           "type": "cumulative",
           "description": "Number of request cache misses",
-          "group": null,
+          "group": "indices/request_cache",
           "included": false
         },
         "elasticsearch.indices.search.fetch-current": {
           "type": "gauge",
           "description": "Number of query fetches currently running",
-          "group": null,
+          "group": "indices/search",
           "included": false
         },
         "elasticsearch.indices.search.fetch-time": {
           "type": "cumulative",
           "description": "Total time spent on query fetches",
-          "group": null,
+          "group": "indices/search",
           "included": false
         },
         "elasticsearch.indices.search.fetch-total": {
           "type": "cumulative",
           "description": "Total number of query feches",
-          "group": null,
+          "group": "indices/search",
           "included": false
         },
         "elasticsearch.indices.search.query-current": {
           "type": "gauge",
           "description": "Number of currently active queries",
-          "group": null,
+          "group": "indices/search",
           "included": false
         },
         "elasticsearch.indices.search.query-time": {
           "type": "cumulative",
           "description": "Total time spent querying on the primary",
-          "group": null,
+          "group": "indices/search",
           "included": true
         },
         "elasticsearch.indices.search.query-total": {
           "type": "cumulative",
           "description": "Total number of queries",
-          "group": null,
+          "group": "indices/search",
           "included": true
         },
         "elasticsearch.indices.search.scroll-current": {
           "type": "gauge",
           "description": "Currently active scroll queries count",
-          "group": null,
+          "group": "indices/search",
           "included": false
         },
         "elasticsearch.indices.search.scroll-time": {
           "type": "cumulative",
           "description": "Total time spent on scroll queries",
-          "group": null,
+          "group": "indices/search",
           "included": false
         },
         "elasticsearch.indices.search.scroll-total": {
           "type": "cumulative",
           "description": "Total number of scroll queries",
-          "group": null,
+          "group": "indices/search",
           "included": false
         },
         "elasticsearch.indices.search.suggest-current": {
           "type": "gauge",
           "description": "Number of suggest requests currently active",
-          "group": null,
+          "group": "indices/search",
           "included": false
         },
         "elasticsearch.indices.search.suggest-time": {
           "type": "cumulative",
           "description": "Total time spent on search suggest",
-          "group": null,
+          "group": "indices/search",
           "included": false
         },
         "elasticsearch.indices.search.suggest-total": {
           "type": "cumulative",
           "description": "Total number of suggest requests",
-          "group": null,
+          "group": "indices/search",
           "included": false
         },
         "elasticsearch.indices.segments.count": {
           "type": "gauge",
           "description": "Number of segments in an index shard",
-          "group": null,
+          "group": "indices/segments",
           "included": true
         },
         "elasticsearch.indices.segments.doc-values-memory-size": {
           "type": "gauge",
           "description": "Memory used by doc values",
-          "group": null,
+          "group": "indices/segments",
           "included": false
         },
         "elasticsearch.indices.segments.fixed-bit-set-memory-size": {
           "type": "gauge",
           "description": "Memory used by fixed bit set",
-          "group": null,
+          "group": "indices/segments",
           "included": false
         },
         "elasticsearch.indices.segments.index-writer-max-size": {
           "type": "gauge",
           "description": "Maximum memory used by the index writer",
-          "group": null,
+          "group": "indices/segments",
           "included": false
         },
         "elasticsearch.indices.segments.index-writer-size": {
           "type": "gauge",
           "description": "Memory used by the index writer",
-          "group": null,
+          "group": "indices/segments",
           "included": false
         },
         "elasticsearch.indices.segments.norms-memory-size": {
           "type": "gauge",
           "description": "Memory used by norms (in bytes)",
-          "group": null,
+          "group": "indices/segments",
           "included": false
         },
         "elasticsearch.indices.segments.points-memory-size": {
           "type": "gauge",
           "description": "Memory used by points",
-          "group": null,
+          "group": "indices/segments",
           "included": false
         },
         "elasticsearch.indices.segments.size": {
           "type": "gauge",
           "description": "Memory used by index segments (in bytes)",
-          "group": null,
+          "group": "indices/segments",
           "included": false
         },
         "elasticsearch.indices.segments.stored-field-memory-size": {
           "type": "gauge",
           "description": "Memory used by stored fields (in bytes)",
-          "group": null,
+          "group": "indices/segments",
           "included": false
         },
         "elasticsearch.indices.segments.term-vectors-memory-size": {
           "type": "gauge",
           "description": "Memory used by term vectors (in bytes)",
-          "group": null,
+          "group": "indices/segments",
           "included": false
         },
         "elasticsearch.indices.segments.terms-memory-size": {
           "type": "gauge",
           "description": "Memory used by terms (in bytes)",
-          "group": null,
+          "group": "indices/segments",
           "included": false
         },
         "elasticsearch.indices.segments.version-map-memory": {
           "type": "gauge",
           "description": "Memory used by segment version map (in bytes)",
-          "group": null,
+          "group": "indices/segments",
           "included": false
         },
         "elasticsearch.indices.store.size": {
           "type": "gauge",
           "description": "Total size (in bytes)",
-          "group": null,
+          "group": "indices/store",
           "included": false
         },
         "elasticsearch.indices.store.throttle-time": {
           "type": "cumulative",
           "description": "Total time requests are throttled for",
-          "group": null,
+          "group": "indices/store",
           "included": false
         },
         "elasticsearch.indices.suggest.current": {
           "type": "gauge",
           "description": "Number of currently active suggest requests",
-          "group": null,
+          "group": "indices/suggest",
           "included": false
         },
         "elasticsearch.indices.suggest.time": {
           "type": "cumulative",
           "description": "Total time spent in suggest requests",
-          "group": null,
+          "group": "indices/suggest",
           "included": false
         },
         "elasticsearch.indices.suggest.total": {
           "type": "cumulative",
           "description": "Total number of suggest requests",
-          "group": null,
+          "group": "indices/suggest",
           "included": false
         },
         "elasticsearch.indices.translog.earliest_last_modified_age": {
           "type": "gauge",
           "description": "Earliest last modified age on transaction logs",
-          "group": null,
+          "group": "indices/translog",
           "included": false
         },
         "elasticsearch.indices.translog.operations": {
           "type": "gauge",
           "description": "Number of operations in the transaction log",
-          "group": null,
+          "group": "indices/translog",
           "included": false
         },
         "elasticsearch.indices.translog.size": {
           "type": "gauge",
           "description": "Size of the transaction log",
-          "group": null,
+          "group": "indices/translog",
           "included": false
         },
         "elasticsearch.indices.translog.uncommitted_operations": {
           "type": "gauge",
           "description": "Number of uncommitted operations in the transaction log",
-          "group": null,
+          "group": "indices/translog",
           "included": false
         },
         "elasticsearch.indices.translog.uncommitted_size_in_bytes": {
           "type": "gauge",
           "description": "Size of uncommitted transaction logs (in bytes)",
-          "group": null,
+          "group": "indices/translog",
           "included": false
         },
         "elasticsearch.indices.warmer.current": {
           "type": "gauge",
           "description": "Number of currently active warmers",
-          "group": null,
+          "group": "indices/warmer",
           "included": false
         },
         "elasticsearch.indices.warmer.total": {
           "type": "cumulative",
           "description": "Total number of warmers",
-          "group": null,
+          "group": "indices/warmer",
           "included": false
         },
         "elasticsearch.indices.warmer.total-time": {
           "type": "cumulative",
           "description": "Total time spent by warmers",
-          "group": null,
+          "group": "indices/warmer",
           "included": false
         },
         "elasticsearch.jvm.classes.current-loaded-count": {
           "type": "gauge",
           "description": "Number of classes currently loaded",
-          "group": null,
+          "group": "node/jvm",
           "included": false
         },
         "elasticsearch.jvm.classes.total-loaded-count": {
           "type": "cumulative",
           "description": "Number of classes loaded",
-          "group": null,
+          "group": "node/jvm",
           "included": false
         },
         "elasticsearch.jvm.classes.total-unloaded-count": {
           "type": "cumulative",
           "description": "Total number of classes unloaded",
-          "group": null,
+          "group": "node/jvm",
           "included": false
         },
         "elasticsearch.jvm.gc.count": {
           "type": "cumulative",
           "description": "Total number of garbage collections",
-          "group": null,
+          "group": "node/jvm",
           "included": false
         },
         "elasticsearch.jvm.gc.old-count": {
           "type": "cumulative",
           "description": "Total number of garbage collections on Old Gen",
-          "group": null,
+          "group": "node/jvm",
           "included": false
         },
         "elasticsearch.jvm.gc.old-time": {
           "type": "cumulative",
           "description": "Total time spent in garbage collections on Old Gen",
-          "group": null,
+          "group": "node/jvm",
           "included": false
         },
         "elasticsearch.jvm.gc.time": {
           "type": "cumulative",
           "description": "Total time spent on GC",
-          "group": null,
+          "group": "node/jvm",
           "included": true
         },
         "elasticsearch.jvm.mem.buffer_pools.direct.count": {
           "type": "gauge",
           "description": "Number of direct buffer pools",
-          "group": null,
+          "group": "node/jvm",
           "included": false
         },
         "elasticsearch.jvm.mem.buffer_pools.direct.total_capacity_in_bytes": {
           "type": "gauge",
           "description": "Total capacity of direct buffer pools",
-          "group": null,
+          "group": "node/jvm",
           "included": false
         },
         "elasticsearch.jvm.mem.buffer_pools.direct.used_in_bytes": {
           "type": "gauge",
           "description": "Memory used by direct buffer pools (in bytes)",
-          "group": null,
+          "group": "node/jvm",
           "included": false
         },
         "elasticsearch.jvm.mem.buffer_pools.mapped.count": {
           "type": "gauge",
           "description": "Number of buffers in the mapped pool",
-          "group": null,
+          "group": "node/jvm",
           "included": false
         },
         "elasticsearch.jvm.mem.buffer_pools.mapped.total_capacity_in_bytes": {
           "type": "gauge",
           "description": "Total capacity of the buffers in the mapped pool",
-          "group": null,
+          "group": "node/jvm",
           "included": false
         },
         "elasticsearch.jvm.mem.buffer_pools.mapped.used_in_bytes": {
           "type": "gauge",
           "description": "Memory used by mapped buffer pools (in bytes)",
-          "group": null,
+          "group": "node/jvm",
           "included": false
         },
         "elasticsearch.jvm.mem.heap-committed": {
           "type": "gauge",
           "description": "Memory guaranteed to be available to JVM heap",
-          "group": null,
+          "group": "node/jvm",
           "included": true
         },
         "elasticsearch.jvm.mem.heap-max": {
           "type": "gauge",
           "description": "Max memory that can be used by JVM heap (in bytes)",
-          "group": null,
+          "group": "node/jvm",
           "included": false
         },
         "elasticsearch.jvm.mem.heap-used": {
           "type": "gauge",
           "description": "Memory current being used by JVM heap (in bytes)",
-          "group": null,
+          "group": "node/jvm",
           "included": true
         },
         "elasticsearch.jvm.mem.heap-used-percent": {
           "type": "gauge",
           "description": "Percent of heap being used",
-          "group": null,
+          "group": "node/jvm",
           "included": false
         },
         "elasticsearch.jvm.mem.non-heap-committed": {
           "type": "gauge",
           "description": "Memory guaranteed to be available to JVM non-heap",
-          "group": null,
+          "group": "node/jvm",
           "included": false
         },
         "elasticsearch.jvm.mem.non-heap-used": {
           "type": "gauge",
           "description": "Memory current being used by JVM non-heap (in bytes)",
-          "group": null,
+          "group": "node/jvm",
           "included": false
         },
         "elasticsearch.jvm.mem.pools.old.max_in_bytes": {
           "type": "gauge",
           "description": "Memory used by Old Gen (in bytes)",
-          "group": null,
+          "group": "node/jvm",
           "included": false
         },
         "elasticsearch.jvm.mem.pools.old.peak_max_in_bytes": {
           "type": "gauge",
           "description": "Memory pool Old Gen peak max (in bytes)",
-          "group": null,
+          "group": "node/jvm",
           "included": false
         },
         "elasticsearch.jvm.mem.pools.old.peak_used_in_bytes": {
           "type": "gauge",
           "description": "Peak memory used by Old Gen (in bytes)",
-          "group": null,
+          "group": "node/jvm",
           "included": false
         },
         "elasticsearch.jvm.mem.pools.old.used_in_bytes": {
           "type": "gauge",
           "description": "Memory being used by Old Gen (in bytes)",
-          "group": null,
+          "group": "node/jvm",
           "included": false
         },
         "elasticsearch.jvm.mem.pools.survivor.max_in_bytes": {
           "type": "gauge",
           "description": "Max memory that can be used by Survivor space (in bytes)",
-          "group": null,
+          "group": "node/jvm",
           "included": false
         },
         "elasticsearch.jvm.mem.pools.survivor.peak_max_in_bytes": {
           "type": "gauge",
           "description": "Memory used by Survivor space (in bytes)",
-          "group": null,
+          "group": "node/jvm",
           "included": false
         },
         "elasticsearch.jvm.mem.pools.survivor.peak_used_in_bytes": {
           "type": "gauge",
           "description": "Peak memory used by Survivor space (in bytes)",
-          "group": null,
+          "group": "node/jvm",
           "included": false
         },
         "elasticsearch.jvm.mem.pools.survivor.used_in_bytes": {
           "type": "gauge",
           "description": "Memory being used currently by Survivor space (in bytes)",
-          "group": null,
+          "group": "node/jvm",
           "included": false
         },
         "elasticsearch.jvm.mem.pools.young.max_in_bytes": {
           "type": "gauge",
           "description": "Max memory (in bytes) that can be used by Young Gen",
-          "group": null,
+          "group": "node/jvm",
           "included": false
         },
         "elasticsearch.jvm.mem.pools.young.peak_max_in_bytes": {
           "type": "gauge",
           "description": "Memory pool Young Gen peak max (in bytes)",
-          "group": null,
+          "group": "node/jvm",
           "included": false
         },
         "elasticsearch.jvm.mem.pools.young.peak_used_in_bytes": {
           "type": "gauge",
           "description": "Memory pool Young Gen peak used (in bytes)",
-          "group": null,
+          "group": "node/jvm",
           "included": false
         },
         "elasticsearch.jvm.mem.pools.young.used_in_bytes": {
           "type": "gauge",
           "description": "Memory used by Young Gen (in bytes)",
-          "group": null,
+          "group": "node/jvm",
           "included": false
         },
         "elasticsearch.jvm.threads.count": {
           "type": "gauge",
           "description": "Number of active threads in the JVM",
-          "group": null,
+          "group": "node/jvm",
           "included": false
         },
         "elasticsearch.jvm.threads.peak": {
           "type": "gauge",
           "description": "Peak number of threads used",
-          "group": null,
+          "group": "node/jvm",
           "included": false
         },
         "elasticsearch.jvm.uptime": {
           "type": "cumulative",
           "description": "Uptime of JVM",
-          "group": null,
+          "group": "node/jvm",
           "included": false
         },
         "elasticsearch.process.cpu.percent": {
           "type": "gauge",
           "description": "CPU usage in percent",
-          "group": null,
+          "group": "node/process",
           "included": false
         },
         "elasticsearch.process.cpu.time": {
           "type": "cumulative",
           "description": "CPU time (in milliseconds) used by the process on which the Java virtual machine is running",
-          "group": null,
+          "group": "node/process",
           "included": false
         },
         "elasticsearch.process.max_file_descriptors": {
           "type": "gauge",
           "description": "Number of opened file descriptors associated with the current process",
-          "group": null,
+          "group": "node/process",
           "included": false
         },
         "elasticsearch.process.mem.total-virtual-size": {
           "type": "cumulative",
           "description": "Size in bytes of virtual memory that is guaranteed to be available to the running process",
-          "group": null,
+          "group": "node/process",
           "included": false
         },
         "elasticsearch.process.open_file_descriptors": {
           "type": "gauge",
           "description": "Number of currently open file descriptors",
-          "group": null,
+          "group": "node/process",
           "included": true
         },
         "elasticsearch.thread_pool.active": {
           "type": "gauge",
           "description": "Number of active threads",
-          "group": null,
+          "group": "node/thread_pool",
           "included": false
         },
         "elasticsearch.thread_pool.completed": {
           "type": "cumulative",
           "description": "Number of threads completed in thread pool",
-          "group": null,
+          "group": "node/thread_pool",
           "included": false
         },
         "elasticsearch.thread_pool.largest": {
           "type": "gauge",
           "description": "Highest active threads in thread pool",
-          "group": null,
+          "group": "node/thread_pool",
           "included": false
         },
         "elasticsearch.thread_pool.queue": {
           "type": "gauge",
           "description": "Number of Tasks in thread pool",
-          "group": null,
+          "group": "node/thread_pool",
           "included": false
         },
         "elasticsearch.thread_pool.rejected": {
           "type": "cumulative",
           "description": "Number of rejected threads in thread pool",
-          "group": null,
+          "group": "node/thread_pool",
           "included": true
         },
         "elasticsearch.thread_pool.threads": {
           "type": "cumulative",
           "description": "Number of Threads in thread pool",
-          "group": null,
+          "group": "node/thread_pool",
           "included": false
         },
         "elasticsearch.transport.rx.count": {
           "type": "cumulative",
           "description": "Total size of data received in cluster communication (in bytes)",
-          "group": null,
+          "group": "node/transport",
           "included": false
         },
         "elasticsearch.transport.rx.size": {
           "type": "cumulative",
           "description": "Total size of data received in cluster communication",
-          "group": null,
+          "group": "node/transport",
           "included": false
         },
         "elasticsearch.transport.server_open": {
           "type": "gauge",
           "description": "Total number of connections opened for cluster communication",
-          "group": null,
+          "group": "node/transport",
           "included": false
         },
         "elasticsearch.transport.tx.count": {
           "type": "cumulative",
           "description": "Total number of packets sent in cluster communication",
-          "group": null,
+          "group": "node/transport",
           "included": false
         },
         "elasticsearch.transport.tx.size": {
           "type": "cumulative",
           "description": "Total size of data sent in cluster communication",
-          "group": null,
+          "group": "node/transport",
           "included": false
         }
       },
