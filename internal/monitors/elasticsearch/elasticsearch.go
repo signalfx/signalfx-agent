@@ -295,7 +295,7 @@ func prepareNodeMetricsDimensions(nodeInfo map[string]client.NodeInfo) (map[stri
 	}
 
 	if nodeID == "" {
-		return nil, errors.New("failed to obtain Elastticsearch node id")
+		return nil, errors.New("failed to obtain Elasticsearch node id")
 	}
 
 	dims := map[string]string{}
@@ -317,6 +317,139 @@ func (m *Monitor) sendDatapoints(dps []*datapoint.Datapoint) {
 		}
 		m.Output.SendDatapoint(dps[i])
 	}
+}
+
+// GetExtraMetrics returns additional metrics to allow through.
+func (c *Config) GetExtraMetrics() []string {
+	var extraMetrics []string
+	if c.EnableEnhancedClusterHealthStats {
+		extraMetrics = append(extraMetrics, groupMetricsMap[groupCluster]...)
+	}
+	if c.EnableEnhancedHTTPStats {
+		extraMetrics = append(extraMetrics, groupMetricsMap[groupNodeHTTP]...)
+	}
+	if c.EnableEnhancedJVMStats {
+		extraMetrics = append(extraMetrics, groupMetricsMap[groupNodeJvm]...)
+	}
+	if c.EnableEnhancedProcessStats {
+		extraMetrics = append(extraMetrics, groupMetricsMap[groupNodeProcess]...)
+	}
+	if c.EnableEnhancedThreadPoolStats {
+		extraMetrics = append(extraMetrics, groupMetricsMap[groupNodeThreadPool]...)
+	}
+	if c.EnableEnhancedTransportStats {
+		extraMetrics = append(extraMetrics, groupMetricsMap[groupNodeTransport]...)
+	}
+	enhancedStatsForIndexGroups := utils.StringSliceToMap(append(c.EnableEnhancedNodeStatsForIndexGroups, c.EnableEnhancedIndexStatsForIndexGroups...))
+	if enhancedStatsForIndexGroups[client.StoreStatsGroup] {
+		extraMetrics = append(extraMetrics, elasticsearchIndicesStoreThrottleTime)
+	}
+	if enhancedStatsForIndexGroups[client.IndexingStatsGroup] {
+		extraMetrics = append(extraMetrics, elasticsearchIndicesIndexingIndexCurrent)
+		extraMetrics = append(extraMetrics, client.IndicesIndexingIndexFailed)
+		extraMetrics = append(extraMetrics, elasticsearchIndicesIndexingDeleteCurrent)
+		extraMetrics = append(extraMetrics, elasticsearchIndicesIndexingDeleteTotal)
+		extraMetrics = append(extraMetrics, elasticsearchIndicesIndexingDeleteTime)
+		extraMetrics = append(extraMetrics, client.IndicesIndexingNoopUpdateTotal)
+		extraMetrics = append(extraMetrics, client.IndicesIndexingThrottledTime)
+	}
+	if enhancedStatsForIndexGroups[client.GetStatsGroup] {
+		extraMetrics = append(extraMetrics, elasticsearchIndicesGetCurrent)
+		extraMetrics = append(extraMetrics, elasticsearchIndicesGetTime)
+		extraMetrics = append(extraMetrics, elasticsearchIndicesGetExistsTotal)
+		extraMetrics = append(extraMetrics, elasticsearchIndicesGetExistsTime)
+		extraMetrics = append(extraMetrics, elasticsearchIndicesGetMissingTotal)
+		extraMetrics = append(extraMetrics, elasticsearchIndicesGetMissingTime)
+	}
+	if enhancedStatsForIndexGroups[client.SearchStatsGroup] {
+		extraMetrics = append(extraMetrics, elasticsearchIndicesSearchQueryCurrent)
+		extraMetrics = append(extraMetrics, elasticsearchIndicesSearchFetchCurrent)
+		extraMetrics = append(extraMetrics, elasticsearchIndicesSearchScrollCurrent)
+		extraMetrics = append(extraMetrics, elasticsearchIndicesSearchSuggestCurrent)
+		extraMetrics = append(extraMetrics, client.IndicesSearchOpenContexts)
+		extraMetrics = append(extraMetrics, elasticsearchIndicesSearchFetchTime)
+		extraMetrics = append(extraMetrics, elasticsearchIndicesSearchFetchTotal)
+		extraMetrics = append(extraMetrics, elasticsearchIndicesSearchScrollTime)
+		extraMetrics = append(extraMetrics, elasticsearchIndicesSearchScrollTotal)
+		extraMetrics = append(extraMetrics, elasticsearchIndicesSearchSuggestTime)
+		extraMetrics = append(extraMetrics, elasticsearchIndicesSearchSuggestTotal)
+	}
+	if enhancedStatsForIndexGroups[client.MergesStatsGroup] {
+		extraMetrics = append(extraMetrics, elasticsearchIndicesMergesCurrentDocs)
+		extraMetrics = append(extraMetrics, client.IndicesMergesCurrentSizeInBytes)
+		extraMetrics = append(extraMetrics, elasticsearchIndicesMergesTotalDocs)
+		extraMetrics = append(extraMetrics, client.IndicesMergesTotalSizeInBytes)
+		extraMetrics = append(extraMetrics, client.IndicesMergesTotalStoppedTime)
+		extraMetrics = append(extraMetrics, client.IndicesMergesTotalThrottledTime)
+		extraMetrics = append(extraMetrics, client.IndicesMergesTotalAutoThrottleInBytes)
+	}
+	if enhancedStatsForIndexGroups[client.RefreshStatsGroup] {
+		extraMetrics = append(extraMetrics, elasticsearchIndicesRefreshListeners)
+		extraMetrics = append(extraMetrics, elasticsearchIndicesRefreshTime)
+		extraMetrics = append(extraMetrics, elasticsearchIndicesRefreshTotal)
+		extraMetrics = append(extraMetrics, client.IndicesRefreshTotalTime)
+	}
+	if enhancedStatsForIndexGroups[client.FlushStatsGroup] {
+		extraMetrics = append(extraMetrics, elasticsearchIndicesFlushPeriodic)
+		extraMetrics = append(extraMetrics, elasticsearchIndicesFlushTotal)
+		extraMetrics = append(extraMetrics, client.IndicesFlushTotalTime)
+	}
+	if enhancedStatsForIndexGroups[client.WarmerStatsGroup] {
+		extraMetrics = append(extraMetrics, elasticsearchIndicesWarmerCurrent)
+		extraMetrics = append(extraMetrics, elasticsearchIndicesWarmerTotal)
+		extraMetrics = append(extraMetrics, elasticsearchIndicesWarmerTotalTime)
+	}
+	if enhancedStatsForIndexGroups[client.QueryCacheStatsGroup] {
+		extraMetrics = append(extraMetrics, client.IndicesQuerycacheCacheSize)
+		extraMetrics = append(extraMetrics, client.IndicesQuerycacheCacheCount)
+		extraMetrics = append(extraMetrics, client.IndicesQuerycacheEvictions)
+		extraMetrics = append(extraMetrics, client.IndicesQuerycacheHitCount)
+		extraMetrics = append(extraMetrics, client.IndicesQuerycacheMissCount)
+		extraMetrics = append(extraMetrics, client.IndicesQuerycacheTotalCount)
+	}
+	if enhancedStatsForIndexGroups[client.FilterCacheStatsGroup] {
+		extraMetrics = append(extraMetrics, elasticsearchIndicesFilterCacheEvictions)
+		extraMetrics = append(extraMetrics, client.IndicesFiltercacheMemorySizeInBytes)
+	}
+	if enhancedStatsForIndexGroups[client.FieldDataStatsGroup] {
+		extraMetrics = append(extraMetrics, elasticsearchIndicesFielddataEvictions)
+		extraMetrics = append(extraMetrics, client.IndicesFielddataMemorySizeInBytes)
+	}
+	if enhancedStatsForIndexGroups[client.CompletionStatsGroup] {
+		extraMetrics = append(extraMetrics, client.IndicesCompletionSizeInBytes)
+	}
+	if enhancedStatsForIndexGroups[client.TranslogStatsGroup] {
+		extraMetrics = append(extraMetrics, elasticsearchIndicesTranslogUncommittedOperations)
+		extraMetrics = append(extraMetrics, elasticsearchIndicesTranslogUncommittedSizeInBytes)
+		extraMetrics = append(extraMetrics, elasticsearchIndicesTranslogEarliestLastModifiedAge)
+		extraMetrics = append(extraMetrics, elasticsearchIndicesTranslogOperations)
+		extraMetrics = append(extraMetrics, elasticsearchIndicesTranslogSize)
+	}
+	if enhancedStatsForIndexGroups[client.RequestCacheStatsGroup] {
+		extraMetrics = append(extraMetrics, client.IndicesRequestcacheEvictions)
+		extraMetrics = append(extraMetrics, client.IndicesRequestcacheHitCount)
+		extraMetrics = append(extraMetrics, client.IndicesRequestcacheMissCount)
+	}
+	if enhancedStatsForIndexGroups[client.RecoveryStatsGroup] {
+		extraMetrics = append(extraMetrics, elasticsearchIndicesRecoveryCurrentAsSource)
+		extraMetrics = append(extraMetrics, elasticsearchIndicesRecoveryCurrentAsTarget)
+		extraMetrics = append(extraMetrics, elasticsearchIndicesRecoveryThrottleTime)
+	}
+	if enhancedStatsForIndexGroups[client.IDCacheStatsGroup] {
+		extraMetrics = append(extraMetrics, client.IndicesIdcacheMemorySizeInBytes)
+	}
+	if enhancedStatsForIndexGroups[client.SuggestStatsGroup] {
+		extraMetrics = append(extraMetrics, elasticsearchIndicesSuggestCurrent)
+		extraMetrics = append(extraMetrics, elasticsearchIndicesSuggestTime)
+		extraMetrics = append(extraMetrics, elasticsearchIndicesSuggestTotal)
+	}
+	if enhancedStatsForIndexGroups[client.PercolateStatsGroup] {
+		extraMetrics = append(extraMetrics, elasticsearchIndicesPercolateCurrent)
+		extraMetrics = append(extraMetrics, elasticsearchIndicesPercolateTotal)
+		extraMetrics = append(extraMetrics, elasticsearchIndicesPercolateQueries)
+		extraMetrics = append(extraMetrics, elasticsearchIndicesPercolateTime)
+	}
+	return extraMetrics
 }
 
 // Shutdown stops the metric sync
