@@ -33,10 +33,9 @@ const (
 func init() {
 	monitors.Register(&monitorMetadata, func() interface{} {
 		return &Monitor{
-			metricTypes:         make(map[*MetricConfig]datapoint.MetricType),
-			metricPathsParts:    make(map[*MetricConfig][]string),
-			dimensionPathsParts: make(map[*DimensionConfig][]string),
-			allMetricConfigs:    []*MetricConfig{},
+			metricPathsParts:    map[*MetricConfig][]string{},
+			dimensionPathsParts: map[*DimensionConfig][]string{},
+			allMetricConfigs:    nil,
 		}
 	}, &Config{})
 }
@@ -49,7 +48,6 @@ type Monitor struct {
 	client              *http.Client
 	url                 *url.URL
 	runInterval         time.Duration
-	metricTypes         map[*MetricConfig]datapoint.MetricType
 	metricPathsParts    map[*MetricConfig][]string
 	dimensionPathsParts map[*DimensionConfig][]string
 	allMetricConfigs    []*MetricConfig
@@ -60,13 +58,10 @@ type Monitor struct {
 func (m *Monitor) Configure(conf *Config) error {
 	m.logger = log.WithFields(log.Fields{"monitorType": monitorType})
 
-	m.addDefaultMetricConfigs(conf.EnhancedMetrics)
-	for _, mConf := range conf.MetricConfigs {
-		if m.metricTypes[mConf] = datapoint.Gauge; strings.TrimSpace(strings.ToLower(mConf.Type)) == cumulative {
-			m.metricTypes[mConf] = datapoint.Counter
-		}
+	m.allMetricConfigs = getMetricConfigs(conf)
+
+	for _, mConf := range m.allMetricConfigs {
 		m.metricPathsParts[mConf] = strings.Split(mConf.JSONPath, ".")
-		m.allMetricConfigs = append(m.allMetricConfigs, mConf)
 	}
 	m.url = &url.URL{
 		Scheme: func() string {
@@ -102,38 +97,37 @@ func (m *Monitor) Configure(conf *Config) error {
 			}
 		}
 	}, m.runInterval)
+
 	return nil
 }
 
-func (m *Monitor) addDefaultMetricConfigs(enhancedMetrics bool) {
+func getMetricConfigs(conf *Config) []*MetricConfig {
+	configs := append([]*MetricConfig{}, conf.MetricConfigs...)
+
 	memstatsMetricPathsGauge := []string{
-		"memstats.HeapAlloc", "memstats.HeapSys", "memstats.HeapIdle", "memstats.HeapInuse", "memstats.HeapReleased",
+		"memstats.HeapAlloc", "memstats.HeapIdle", "memstats.HeapInuse", "memstats.HeapReleased",
 		"memstats.HeapObjects", "memstats.StackInuse", "memstats.StackSys", "memstats.MSpanInuse", "memstats.MSpanSys",
 		"memstats.MCacheInuse", "memstats.MCacheSys", "memstats.BuckHashSys", "memstats.GCSys", "memstats.OtherSys",
 		"memstats.Sys", "memstats.NextGC", "memstats.LastGC", "memstats.GCCPUFraction", "memstats.EnableGC",
-		"memstats.DebugGC", memstatsPauseNsMetricPath, memstatsPauseEndMetricPath,
+		memstatsPauseNsMetricPath, memstatsPauseEndMetricPath,
 	}
 	memstatsMetricPathsCumulative := []string{
 		"memstats.TotalAlloc", "memstats.Lookups", "memstats.Mallocs", "memstats.Frees", "memstats.PauseTotalNs",
 		memstatsNumGCMetricPath, "memstats.NumForcedGC",
 	}
 
-	if enhancedMetrics {
-		memstatsMetricPathsGauge = append(memstatsMetricPathsGauge, "memstats.Alloc")
+	if conf.EnhancedMetrics {
+		memstatsMetricPathsGauge = append(memstatsMetricPathsGauge, "memstats.HeapSys", "memstats.DebugGC", "memstats.Alloc")
 		memstatsMetricPathsCumulative = append(memstatsMetricPathsCumulative, memstatsBySizeSizeMetricPath, memstatsBySizeMallocsMetricPath, memstatsBySizeFreesMetricPath)
 	}
 	for _, path := range memstatsMetricPathsGauge {
-		mConf := &MetricConfig{Name: toSnakeCase(path), JSONPath: path, Type: gauge, DimensionConfigs: []*DimensionConfig{{}}}
-		m.metricTypes[mConf] = datapoint.Gauge
-		m.metricPathsParts[mConf] = strings.Split(path, ".")
-		m.allMetricConfigs = append(m.allMetricConfigs, mConf)
+		configs = append(configs, &MetricConfig{Name: toSnakeCase(path), JSONPath: path, Type: gauge, DimensionConfigs: []*DimensionConfig{{}}})
 	}
 	for _, path := range memstatsMetricPathsCumulative {
-		mConf := &MetricConfig{Name: toSnakeCase(path), JSONPath: path, Type: cumulative, DimensionConfigs: []*DimensionConfig{{}}}
-		m.metricTypes[mConf] = datapoint.Counter
-		m.metricPathsParts[mConf] = strings.Split(path, ".")
-		m.allMetricConfigs = append(m.allMetricConfigs, mConf)
+		configs = append(configs, &MetricConfig{Name: toSnakeCase(path), JSONPath: path, Type: cumulative, DimensionConfigs: []*DimensionConfig{{}}})
 	}
+
+	return configs
 }
 
 func (m *Monitor) fetchMetrics() (map[string][]*datapoint.Datapoint, error) {
@@ -206,7 +200,7 @@ func (m *Monitor) setDatapoints(v interface{}, mc *MetricConfig, dp *datapoint.D
 			m.setDatapoints(value, mc, clone, dpsMap, metricPathIndex)
 		}
 	default:
-		dp.Metric, dp.MetricType = mc.name(), m.metricTypes[mc]
+		dp.Metric, dp.MetricType = mc.name(), mc.metricType
 		for _, dConf := range mc.DimensionConfigs {
 			if strings.TrimSpace(dConf.Name) != "" && strings.TrimSpace(dConf.Value) != "" {
 				dp.Dimensions[dConf.Name] = dConf.Value
@@ -252,10 +246,14 @@ func (m *Monitor) sendDatapoint(dp *datapoint.Datapoint, metricPath string, most
 
 // GetExtraMetrics returns additional metrics to allow through.
 func (c *Config) GetExtraMetrics() []string {
-	if c.EnhancedMetrics {
-		return monitorMetadata.NonIncludedMetrics()
+	configs := getMetricConfigs(c)
+	var metrics []string
+
+	for _, mc := range configs {
+		metrics = append(metrics, mc.name())
 	}
-	return nil
+
+	return metrics
 }
 
 // Shutdown stops the metric sync

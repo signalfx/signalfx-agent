@@ -4,6 +4,10 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/signalfx/signalfx-agent/internal/core/config/validation"
+
+	"github.com/signalfx/golib/datapoint"
+
 	"github.com/signalfx/signalfx-agent/internal/core/config"
 )
 
@@ -33,15 +37,17 @@ type MetricConfig struct {
 	// JSON path of the metric value
 	JSONPath string `yaml:"JSONPath" validate:"required"`
 	// SignalFx metric type. Possible values are "gauge" or "cumulative"
-	Type string `yaml:"type" validate:"required"`
+	Type string `yaml:"type" validate:"required,oneof=gauge cumulative"`
 	// Metric dimensions
 	DimensionConfigs []*DimensionConfig `yaml:"dimensions"`
+
+	metricType datapoint.MetricType
 }
 
 // DimensionConfig for metric dimension configuration
 type DimensionConfig struct {
 	// Dimension name
-	Name string `yaml:"name"`
+	Name string `yaml:"name" validate:"required"`
 	// JSON path of the dimension value
 	JSONPath string `yaml:"JSONPath"`
 	// Dimension value
@@ -52,18 +58,29 @@ type DimensionConfig struct {
 func (conf *Config) Validate() error {
 	if conf.MetricConfigs != nil {
 		for _, mConf := range conf.MetricConfigs {
-			// Validating metric type configuration
-			metricTypeString := strings.TrimSpace(strings.ToLower(mConf.Type))
-			if metricTypeString != gauge && metricTypeString != cumulative {
-				return fmt.Errorf("unsupported metric type %s. Supported metric types are: %s, %s", mConf.Type, gauge, cumulative)
+			if err := validation.ValidateStruct(mConf); err != nil {
+				return err
 			}
+			switch mConf.Type {
+			case cumulative:
+				mConf.metricType = datapoint.Counter
+			case gauge:
+				mConf.metricType = datapoint.Gauge
+			default:
+				panic(fmt.Sprintf("unexpected metric type %s", mConf.Type))
+			}
+
 			// Validating dimension configuration
 			for _, dConf := range mConf.DimensionConfigs {
+				if err := validation.ValidateStruct(dConf); err != nil {
+					return err
+				}
 				switch {
+				// Not sure when this is nil.
 				case dConf == nil:
 					continue
-				case dConf.Name == "" || strings.ReplaceAll(dConf.Name, " ", "") != dConf.Name:
-					return fmt.Errorf("dimension name cannot be blank or have whitespaces")
+				case strings.ContainsRune(dConf.Name, ' '):
+					return fmt.Errorf("dimension name cannot have whitespaces")
 				case dConf.JSONPath != "" && dConf.Value != "":
 					return fmt.Errorf("dimension path %s and dimension value %s cannot be configure simultaneously", dConf.JSONPath, dConf.Value)
 				case dConf.JSONPath != "" && !strings.HasPrefix(mConf.JSONPath, dConf.JSONPath):
