@@ -5,7 +5,9 @@ import pytest
 
 from tests.helpers.agent import Agent
 from tests.helpers.assertions import has_datapoint_with_dim, has_datapoint_with_metric_name
+from tests.helpers.metadata import Metadata
 from tests.helpers.util import ensure_always, run_service, wait_for
+from tests.helpers.verify import verify_custom, verify_included_metrics
 
 pytestmark = [pytest.mark.docker_container_stats, pytest.mark.monitor_without_endpoints]
 
@@ -153,3 +155,33 @@ def test_docker_stops_watching_destroyed_containers():
             assert ensure_always(
                 lambda: not has_datapoint_with_dim(agent.fake_services, "container_id", nginx_container.id)
             )
+
+
+METADATA = Metadata.from_package("docker")
+
+
+def test_docker_included():
+    verify_included_metrics(
+        f"""
+        monitors:
+        - type: docker-container-stats
+        """,
+        METADATA,
+    )
+
+
+ENHANCED_METRICS = METADATA.all_metrics - {"memory.stats.swap"}
+
+
+def test_docker_enhanced():
+    verify_custom(
+        f"""
+        monitors:
+        - type: docker-container-stats
+          enableExtraBlockIOMetrics: true
+          enableExtraCPUMetrics: true
+          enableExtraMemoryMetrics: true
+          enableExtraNetworkMetrics: true
+        """,
+        ENHANCED_METRICS,
+    )

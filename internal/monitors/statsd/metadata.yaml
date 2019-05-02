@@ -40,6 +40,7 @@ monitors:
     `metric` is required for a converter configuration. A converter will be disabled if `metric` is not provided.
 
     ```
-  metrics:
+  metrics: null
+  sendAll: true
   monitorType: statsd
   properties:

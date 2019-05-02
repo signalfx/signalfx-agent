@@ -75,6 +75,7 @@ func generate(templateFile string, force bool) error {
 				return "", fmt.Errorf("unknown metric type %s", metricType)
 			}
 		},
+		"deref": func(p *string) string { return *p },
 	}).ParseFiles(templateFile)
 
 	if err != nil {
