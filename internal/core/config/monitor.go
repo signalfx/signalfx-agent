@@ -22,6 +22,12 @@ type MonitorConfig struct {
 	// the monitor type will be created with the same configuration (except
 	// different host/port).
 	DiscoveryRule string `yaml:"discoveryRule" json:"discoveryRule"`
+	// If true, a warning will be emitted if a discovery rule contains
+	// variables that will never possibly match a rule.  If using multiple
+	// observers, it is convenient to set this to false to suppress spurious
+	// errors.  The top-level setting `validateDiscoveryRules` acts as a
+	// default if this isn't set.
+	ValidateDiscoveryRule *bool `yaml:"validateDiscoveryRule"`
 	// A set of extra dimensions (key:value pairs) to include on datapoints emitted by the
 	// monitor(s) created from this configuration. To specify metrics from this
 	// monitor should be high-resolution, add the dimension `sf_hires: 1`
@@ -38,8 +44,16 @@ type MonitorConfig struct {
 	// If one or more configurations have this set to true, only those
 	// configurations will be considered. This setting can be useful for testing.
 	Solo bool `yaml:"solo" json:"solo"`
-	// A list of metric filters
+	// DEPRECATED in favor of the `datapointsToExclude` option.  That option
+	// handles negation of filter items differently.
 	MetricsToExclude []MetricFilter `yaml:"metricsToExclude" json:"metricsToExclude" default:"[]"`
+	// A list of datapoint filters.  These filters allow you to comprehensively
+	// define which datapoints to exclude by metric name or dimension set, as
+	// well as the ability to define overrides to re-include metrics excluded
+	// by previous patterns within the same filter item.  See [monitor
+	// filtering](https://github.com/signalfx/signalfx-agent/tree/master/docs/filtering.md#monitor-level-filtering)
+	// for examples and more information.
+	DatapointsToExclude []MetricFilter `yaml:"datapointsToExclude" json:"datapointsToExclude" default:"[]"`
 	// Some monitors pull metrics from services not running on the same host
 	// and should not get the host-specific dimensions set on them (e.g.
 	// `host`, `AWSUniqueId`, etc).  Setting this to `true` causes those
@@ -55,24 +69,35 @@ type MonitorConfig struct {
 	OtherConfig map[string]interface{} `yaml:",inline" neverLog:"omit"`
 	// ValidationError is where a message concerning validation issues can go
 	// so that diagnostics can output it.
-	Hostname        string               `yaml:"-" json:"-"`
-	BundleDir       string               `yaml:"-" json:"-"`
-	ValidationError string               `yaml:"-" json:"-" hash:"ignore"`
-	MonitorID       types.MonitorID      `yaml:"-" hash:"ignore"`
-	Filter          *dpfilters.FilterSet `yaml:"-" json:"-" hash:"ignore"`
+	Hostname        string          `yaml:"-" json:"-"`
+	BundleDir       string          `yaml:"-" json:"-"`
+	ValidationError string          `yaml:"-" json:"-" hash:"ignore"`
+	MonitorID       types.MonitorID `yaml:"-" hash:"ignore"`
 }
 
 var _ CustomConfigurable = &MonitorConfig{}
 
-// initialize does basic setup of the config struct and should always be called after
-// deserialization.
-func (mc *MonitorConfig) initialize() error {
+// Validate ensures the config is correct beyond what basic YAML parsing
+// ensures
+func (mc *MonitorConfig) Validate() error {
 	var err error
-	mc.Filter, err = makeFilterSet(mc.MetricsToExclude, nil)
-	if err != nil {
+	if _, err = mc.OldFilterSet(); err != nil {
+		return err
+	}
+	if _, err = mc.NewFilterSet(); err != nil {
 		return err
 	}
 	return nil
+}
+
+// OldFilterSet makes a filter set using the old filter style
+func (mc *MonitorConfig) OldFilterSet() (*dpfilters.FilterSet, error) {
+	return makeOldFilterSet(mc.MetricsToExclude, nil)
+}
+
+// NewFilterSet makes a filter set using the new filter style
+func (mc *MonitorConfig) NewFilterSet() (*dpfilters.FilterSet, error) {
+	return makeNewFilterSet(mc.DatapointsToExclude)
 }
 
 // Equals tests if two monitor configs are sufficiently equal to each other.
@@ -92,6 +117,15 @@ func (mc *MonitorConfig) ExtraConfig() (map[string]interface{}, error) {
 // autodiscovered services and is manually configured) or dynamic.
 func (mc *MonitorConfig) HasAutoDiscovery() bool {
 	return mc.DiscoveryRule != ""
+}
+
+// ShouldValidateDiscoveryRule return ValidateDiscoveryRule or false if that is
+// nil.
+func (mc *MonitorConfig) ShouldValidateDiscoveryRule() bool {
+	if mc.ValidateDiscoveryRule == nil || !*mc.ValidateDiscoveryRule {
+		return false
+	}
+	return true
 }
 
 // MonitorConfigCore provides a way of getting the MonitorConfig when embedded

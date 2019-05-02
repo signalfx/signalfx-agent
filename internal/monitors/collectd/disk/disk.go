@@ -10,22 +10,6 @@ import (
 	"github.com/signalfx/signalfx-agent/internal/monitors/collectd"
 )
 
-const monitorType = "collectd/disk"
-
-// MONITOR(collectd/disk): This monitor collects information about the usage of
-// physical disks and logical disks (partitions).
-//
-// See https://collectd.org/wiki/index.php/Plugin:Disk.
-
-// CUMULATIVE(disk_merged.read): The number of disk reads merged into single physical disk access operations.
-// CUMULATIVE(disk_merged.write): The number of disk writes merged into single physical disk access operations.
-// CUMULATIVE(disk_octets.read): The number of bytes (octets) read from a disk.
-// CUMULATIVE(disk_octets.write): The number of bytes (octets) written to a disk.
-// CUMULATIVE(disk_ops.read): The number of disk read operations.
-// CUMULATIVE(disk_ops.write): The number of disk write operations.
-// CUMULATIVE(disk_time.read): The average amount of time it took to do a read operation.
-// CUMULATIVE(disk_time.write): The average amount of time it took to do a write operation.
-
 func init() {
 	monitors.Register(monitorType, func() interface{} {
 		return &Monitor{

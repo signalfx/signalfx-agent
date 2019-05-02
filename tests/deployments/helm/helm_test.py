@@ -2,22 +2,24 @@
 
 import os
 import tempfile
-
 from functools import partial as p
+from pathlib import Path
 
 import pytest
 import yaml
 
+from tests.helpers import fake_backend
 from tests.helpers.assertions import has_datapoint_with_dim
 from tests.helpers.kubernetes.utils import create_clusterrolebinding, daemonset_is_ready, deployment_is_ready
-from tests.helpers.util import fake_backend, get_host_ip, wait_for
-from tests.packaging.common import copy_file_into_container, PROJECT_DIR
+from tests.helpers.util import get_host_ip, wait_for
+from tests.packaging.common import copy_file_into_container, DEPLOYMENTS_DIR
+from tests.paths import PROJECT_DIR
 
-LOCAL_CHART_DIR = os.path.join(PROJECT_DIR, "deployments/k8s/helm/signalfx-agent")
+LOCAL_CHART_DIR = DEPLOYMENTS_DIR / "k8s/helm/signalfx-agent"
 CONTAINER_CHART_DIR = "/opt/deployments/k8s/helm/signalfx-agent"
-CUR_DIR = os.path.abspath(os.path.dirname(__file__))
-NGINX_YAML_PATH = os.path.join(PROJECT_DIR, "tests/monitors/nginx/nginx-k8s.yaml")
-CLUSTERROLEBINDING_YAML_PATH = os.path.join(CUR_DIR, "clusterrolebinding.yaml")
+SCRIPT_DIR = Path(__file__).parent.resolve()
+NGINX_YAML_PATH = PROJECT_DIR / "monitors/nginx/nginx-k8s.yaml"
+CLUSTERROLEBINDING_YAML_PATH = SCRIPT_DIR / "clusterrolebinding.yaml"
 MONITORS_CONFIG = """
     - type: host-metadata
     - type: collectd/nginx
@@ -29,7 +31,7 @@ pytestmark = [pytest.mark.helm, pytest.mark.deployment]
 
 
 def create_cluster_admin_rolebinding(minikube):
-    clusterrolebinding_yaml = yaml.load(open(CLUSTERROLEBINDING_YAML_PATH).read())
+    clusterrolebinding_yaml = yaml.safe_load(open(CLUSTERROLEBINDING_YAML_PATH).read())
     name = clusterrolebinding_yaml.get("metadata", {}).get("name")
     assert name, "name not found in %s" % CLUSTERROLEBINDING_YAML_PATH
     print("Creating %s cluster role binding ..." % name)
@@ -40,13 +42,13 @@ def create_cluster_admin_rolebinding(minikube):
 def update_values_yaml(minikube, backend, namespace):
     values_yaml = None
     with open(os.path.join(LOCAL_CHART_DIR, "values.yaml")) as fd:
-        values_yaml = yaml.load(fd.read())
+        values_yaml = yaml.safe_load(fd.read())
         values_yaml["signalFxAccessToken"] = "testing123"
         values_yaml["clusterName"] = minikube.cluster_name
         values_yaml["namespace"] = namespace
         values_yaml["ingestUrl"] = "http://%s:%d" % (backend.ingest_host, backend.ingest_port)
         values_yaml["apiUrl"] = "http://%s:%d" % (backend.api_host, backend.api_port)
-        values_yaml["monitors"] = yaml.load(MONITORS_CONFIG)
+        values_yaml["monitors"] = yaml.safe_load(MONITORS_CONFIG)
     with tempfile.NamedTemporaryFile(mode="w") as fd:
         fd.write(yaml.dump(values_yaml))
         fd.flush()
@@ -66,7 +68,7 @@ def get_chart_name_version():
     chart_name = None
     chart_version = None
     with open(chart_path) as fd:
-        chart_yaml = yaml.load(fd.read())
+        chart_yaml = yaml.safe_load(fd.read())
         chart_name = chart_yaml.get("name")
         chart_version = chart_yaml.get("version")
     assert chart_name, "failed to get chart name from %s" % chart_path
@@ -79,7 +81,7 @@ def get_daemonset_name(minikube, namespace):
     chart_release_name = chart_name + "-" + chart_version
     output = minikube.exec_cmd("helm list --namespace=%s --output=yaml" % namespace)
     release = None
-    for rel in yaml.load(output).get("Releases", []):
+    for rel in yaml.safe_load(output).get("Releases", []):
         if rel.get("Chart") == chart_release_name:
             release = rel
             break

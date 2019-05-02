@@ -17,59 +17,9 @@ import (
 	"github.com/signalfx/signalfx-agent/internal/monitors/telegraf/monitors/winperfcounters"
 	"github.com/signalfx/signalfx-agent/internal/monitors/types"
 	"github.com/signalfx/signalfx-agent/internal/utils"
+	"github.com/sirupsen/logrus"
 	log "github.com/sirupsen/logrus"
 )
-
-const monitorType = "telegraf/sqlserver"
-
-// MONITOR(telegraf/sqlserver): This monitor reports metrics about Microsoft SQL servers.
-// This monitor is based on the telegraf sqlserver plugin.  More information about the telegraf plugin
-// can be found [here](https://github.com/influxdata/telegraf/tree/master/plugins/inputs/sqlserver).
-//
-// You will need to create a login on the SQL server for the monitor to use.  You can create this login by
-// executing the following commands in an a SQL client while logged in as an administrator.
-//
-// ```
-// USE master;
-// GO
-// CREATE LOGIN [signalfxagent] WITH PASSWORD = N'<YOUR PASSWORD HERE>';
-// GO
-// GRANT VIEW SERVER STATE TO [signalfxagent];
-// GO
-// GRANT VIEW ANY DEFINITION TO [signalfxagent];
-// GO
-// ```
-//
-// Troubleshooting:
-//
-// On some Windows based SQL server distributions TCP/IP has been disabled by default.  This behavior
-// has been observed on Azure SQL server instances.  You may need to explicitly turn on TCP/IP for the
-// SQL server if you see error messages simillar to the following.
-//
-// ```
-// Cannot read handshake packet: read tcp: wsarecv: An existing connection was forcibly closed by the remote host.
-// ```
-//
-// 1. Verify agent configurations are correct.
-// 2. Ensure TCP/IP is enabled for the SQL server by going to `Start` -> `Administrative Tools` -> `Computer Management`
-// 3. In the `Computer Management` side bar, drill down to `Services and Applications` -> `SQL Server Configuration Manager` -> `SQL Server Network Configuration`
-// 4. Select `Protocols for <YOUR SQL SERVER NAME>`.
-// 5. In the protocol list to the right, right-click on the `TCP/IP` protocol and `enable` it.
-//
-// Sample YAML configuration:
-//
-// ```yaml
-// monitors:
-//  - type: telegraf/sqlserver
-//    host: hostname
-//    port: 1433
-//    userID: sa
-//    password: P@ssw0rd!
-//    appName: signalfxagent
-// ```
-//
-
-var logger = log.WithFields(log.Fields{"monitorType": monitorType})
 
 func init() {
 	monitors.Register(monitorType, func() interface{} { return &Monitor{} }, &Config{})
@@ -103,14 +53,14 @@ type Config struct {
 type Monitor struct {
 	Output types.Output
 	cancel func()
+	logger logrus.FieldLogger
 }
-
-// fetch the factory used to generate the perf counter plugin
-var factory = telegrafInputs.Inputs["sqlserver"]
 
 // Configure the monitor and kick off metric syncing
 func (m *Monitor) Configure(conf *Config) error {
-	plugin := factory().(*telegrafPlugin.SQLServer)
+	m.logger = logrus.WithFields(log.Fields{"monitorType": monitorType})
+
+	plugin := telegrafInputs.Inputs["sqlserver"]().(*telegrafPlugin.SQLServer)
 
 	server := fmt.Sprintf("Server=%s;Port=%d;", conf.Host, conf.Port)
 
@@ -131,7 +81,7 @@ func (m *Monitor) Configure(conf *Config) error {
 	plugin.ExcludeQuery = conf.ExcludeQuery
 
 	// create batch emitter
-	emit := baseemitter.NewEmitter(m.Output, logger)
+	emit := baseemitter.NewEmitter(m.Output, m.logger)
 
 	// Hard code the plugin name because the emitter will parse out the
 	// configured measurement name as plugin and that is confusing.
@@ -157,9 +107,7 @@ func (m *Monitor) Configure(conf *Config) error {
 		})
 
 	// convert the metric name to lower case
-	emit.AddMetricNameTransformation(func(m string) string {
-		return strings.ToLower(m)
-	})
+	emit.AddMetricNameTransformation(strings.ToLower)
 
 	// create the accumulator
 	ac := accumulator.NewAccumulator(emit)
@@ -171,7 +119,7 @@ func (m *Monitor) Configure(conf *Config) error {
 	// gather metrics on the specified interval
 	utils.RunOnInterval(ctx, func() {
 		if err := plugin.Gather(ac); err != nil {
-			logger.WithError(err).Errorf("an error occurred while gathering metrics from the plugin")
+			m.logger.WithError(err).Errorf("an error occurred while gathering metrics from the plugin")
 		}
 
 	}, time.Duration(conf.IntervalSeconds)*time.Second)

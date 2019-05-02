@@ -14,12 +14,6 @@ import (
 	"github.com/signalfx/signalfx-agent/internal/monitors"
 )
 
-const monitorType = "collectd/health-checker"
-
-// MONITOR(collectd/health-checker): A simple Collectd Python-based monitor
-// that hits an endpoint and checks if the configured JSON value is returned in
-// the response body.
-
 func init() {
 	monitors.Register(monitorType, func() interface{} {
 		return &Monitor{
@@ -84,8 +78,8 @@ func (m *Monitor) Configure(conf *Config) error {
 		Host:          conf.Host,
 		Port:          conf.Port,
 		ModuleName:    "health_checker",
-		ModulePaths:   []string{collectd.MakePath("health_checker")},
-		TypesDBPaths:  []string{collectd.MakePath("types.db")},
+		ModulePaths:   []string{collectd.MakePythonPluginPath("health_checker")},
+		TypesDBPaths:  []string{collectd.DefaultTypesDBPath()},
 		PluginConfig: map[string]interface{}{
 			"Instance": conf.Name,
 			"JSONKey":  conf.JSONKey,

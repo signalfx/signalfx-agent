@@ -10,24 +10,6 @@ import (
 	"github.com/signalfx/signalfx-agent/internal/monitors/collectd"
 )
 
-const monitorType = "collectd/nginx"
-
-// MONITOR(collectd/nginx): Monitors an nginx instance using our fork of the
-// collectd nginx plugin based on the [collectd nginx
-// plugin](https://collectd.org/wiki/index.php/Plugin:nginx).
-//
-// See the [integrations
-// doc](https://github.com/signalfx/integrations/tree/master/collectd-nginx)
-// for more information.
-
-// CUMULATIVE(connections.accepted): Connections accepted by Nginx Web Server
-// CUMULATIVE(connections.handled): Connections handled by Nginx Web Server
-// GAUGE(nginx_connections.active): Connections active in Nginx Web Server
-// GAUGE(nginx_connections.reading): Connections being read by Nginx Web Server
-// GAUGE(nginx_connections.waiting): Connections waited on by Nginx Web Server
-// GAUGE(nginx_connections.writing): Connections being written by Nginx Web Server
-// CUMULATIVE(nginx_requests): Requests handled by Nginx Web Server
-
 func init() {
 	monitors.Register(monitorType, func() interface{} {
 		return &Monitor{

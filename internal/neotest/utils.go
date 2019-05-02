@@ -31,7 +31,7 @@ func CloneTestData(t *testing.T) (string, func()) {
 	// Makes me sad.
 	cmd := exec.Command("cp", "-r", ".", dir)
 	cmd.Dir = "testdata"
-	if cmd.Run(); err != nil {
+	if err := cmd.Run(); err != nil {
 		t.Fatal(err)
 	}
 
@@ -45,7 +45,7 @@ func CloneTestData(t *testing.T) (string, func()) {
 	}
 
 	return dir, func() {
-		if os.Chdir(curdir); err != nil {
+		if err := os.Chdir(curdir); err != nil {
 			t.Fatal(err)
 		}
 		if err := os.RemoveAll(dir); err != nil {

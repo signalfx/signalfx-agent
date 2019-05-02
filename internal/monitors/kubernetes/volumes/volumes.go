@@ -18,30 +18,6 @@ import (
 	stats "k8s.io/kubernetes/pkg/kubelet/apis/stats/v1alpha1"
 )
 
-const monitorType = "kubernetes-volumes"
-
-// MONITOR(kubernetes-volumes): This monitor sends usage stats about volumes
-// mounted to Kubernetes pods (e.g. free space/inodes).  This information is
-// gotten from the Kubelet /stats/summary endpoint.  The normal `collectd/df`
-// monitor generally will not report Persistent Volume usage metrics because
-// those volumes are not seen by the agent since they can be mounted
-// dynamically and older versions of K8s don't support mount propagation of
-// those mounts to the agent container.
-//
-// Dimensions that identify the underlying volume source will be added for
-// `awsElasticBlockStore` and `glusterfs` volumes.  Support for more can be
-// easily added as needed.
-
-// DIMENSION(volume): The volume name as given in the pod spec under `volumes`
-// DIMENSION(kubernetes_pod_uid): The UID of the pod that has this volume
-// DIMENSION(kubernetes_pod_name): The name of the pod that has this volume
-// DIMENSION(kubernetes_namespace): The namespace of the pod that has this volume
-
-// GAUGE(kubernetes.volume_available_bytes): The number of available bytes in
-// the volume
-// GAUGE(kubernetes.volume_capacity_bytes): The total capacity in bytes of the
-// volume
-
 var logger = log.WithFields(log.Fields{"monitorType": monitorType})
 
 func init() {

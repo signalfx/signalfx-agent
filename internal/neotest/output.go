@@ -1,12 +1,12 @@
 package neotest
 
 import (
-	"sync"
 	"time"
 
 	"github.com/signalfx/golib/datapoint"
 	"github.com/signalfx/golib/event"
 	"github.com/signalfx/golib/trace"
+	"github.com/signalfx/signalfx-agent/internal/core/dpfilters"
 	"github.com/signalfx/signalfx-agent/internal/monitors/types"
 )
 
@@ -17,10 +17,6 @@ type TestOutput struct {
 	eventChan   chan *event.Event
 	spanChan    chan *trace.Span
 	dimPropChan chan *types.DimProperties
-
-	// Use a lock since monitors are allowed to use output from multiple
-	// threads.
-	lock sync.Mutex
 }
 
 // NewTestOutput creates a new initialized TestOutput instance
@@ -31,6 +27,11 @@ func NewTestOutput() *TestOutput {
 		spanChan:    make(chan *trace.Span, 1000),
 		dimPropChan: make(chan *types.DimProperties, 1000),
 	}
+}
+
+// Copy the output object
+func (to *TestOutput) Copy() types.Output {
+	return to
 }
 
 // SendDatapoint accepts a datapoint and sticks it in a buffered queue
@@ -132,4 +133,8 @@ loop:
 	}
 
 	return dps
+}
+
+// AddDatapointExclusionFilter is a noop here.
+func (to *TestOutput) AddDatapointExclusionFilter(f dpfilters.DatapointFilter) {
 }

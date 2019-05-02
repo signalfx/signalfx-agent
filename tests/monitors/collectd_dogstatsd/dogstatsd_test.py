@@ -4,8 +4,11 @@ import time
 from functools import partial as p
 
 import pytest
+
+from tests.helpers import fake_backend
+from tests.helpers.agent import Agent
 from tests.helpers.assertions import has_datapoint_with_metric_name, regex_search_matches_output, udp_port_open_locally
-from tests.helpers.util import fake_backend, run_agent_with_fake_backend, send_udp_message, wait_for
+from tests.helpers.util import send_udp_message, wait_for
 
 pytestmark = [pytest.mark.collectd, pytest.mark.dogstatsd, pytest.mark.monitor_without_endpoints]
 
@@ -26,17 +29,18 @@ monitors:
 
 
 def test_collectd_dogstatsd():
-    with fake_backend.start() as backend:
+    with fake_backend.start() as fake_services:
         # configure the dogstatsd plugin to send to fake ingest
-        config = DOGSTATSD_CONFIG.substitute(ingestEndpoint=backend.ingest_url)
+        config = DOGSTATSD_CONFIG.substitute(ingestEndpoint=fake_services.ingest_url)
 
         # start the agent with the dogstatsd plugin config
-        with run_agent_with_fake_backend(config, backend) as [get_output, _, _, _]:
+        with Agent.run(config, fake_services=fake_services) as agent:
+
             # wait until the dogstatsd plugin logs the address and port it is listening on
-            assert wait_for(p(regex_search_matches_output, get_output, DOGSTATSD_RE.search))
+            assert wait_for(p(regex_search_matches_output, agent.get_output, DOGSTATSD_RE.search))
 
             # scrape the host and port that the dogstatsd plugin is listening on
-            regex_results = DOGSTATSD_RE.search(get_output())
+            regex_results = DOGSTATSD_RE.search(agent.output)
             host = regex_results.groups()[1]
             port = int(regex_results.groups()[2])
 
@@ -49,4 +53,4 @@ def test_collectd_dogstatsd():
                 time.sleep(1)
 
             # wait for fake ingest to receive the dogstatsd metrics
-            assert wait_for(p(has_datapoint_with_metric_name, backend, "dogstatsd.test.metric"))
+            assert wait_for(p(has_datapoint_with_metric_name, agent.fake_services, "dogstatsd.test.metric"))

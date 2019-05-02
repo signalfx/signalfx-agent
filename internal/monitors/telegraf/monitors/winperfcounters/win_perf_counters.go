@@ -8,36 +8,7 @@ import (
 	"github.com/signalfx/signalfx-agent/internal/core/config"
 	"github.com/signalfx/signalfx-agent/internal/monitors"
 	"github.com/signalfx/signalfx-agent/internal/monitors/types"
-	log "github.com/sirupsen/logrus"
 )
-
-const monitorType = "telegraf/win_perf_counters"
-
-// MONITOR(telegraf/win_perf_counters): This monitor reads Windows performance
-// counters
-//
-// Sample YAML configuration:
-//
-// ```yaml
-// monitors:
-//  - type: telegraf/win_perf_counters
-//    printValid: true
-//    objects:
-//     - objectName: "Processor"
-//       instances:
-//        - "*"
-//       counters:
-//        - "% Idle Time"
-//        - "% Interrupt Time"
-//        - "% Privileged Time"
-//        - "% User Time"
-//        - "% Processor Time"
-//       includeTotal: true
-//       measurement: "win_cpu"
-// ```
-//
-
-var logger = log.WithFields(log.Fields{"monitorType": monitorType})
 
 func init() {
 	monitors.Register(monitorType, func() interface{} { return &Monitor{} }, &Config{})

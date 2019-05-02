@@ -2,17 +2,18 @@ package metrics
 
 import (
 	"errors"
+	"sync"
+
 	"github.com/davecgh/go-spew/spew"
 	"github.com/signalfx/golib/datapoint"
 	k8sutil "github.com/signalfx/signalfx-agent/internal/monitors/kubernetes/utils"
 	atypes "github.com/signalfx/signalfx-agent/internal/monitors/types"
 	log "github.com/sirupsen/logrus"
-	"k8s.io/api/core/v1"
+	v1 "k8s.io/api/core/v1"
 	"k8s.io/api/extensions/v1beta1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/types"
-	"sync"
 )
 
 // ContainerID is some type of unique id for containers
@@ -55,7 +56,7 @@ func keyForObject(obj runtime.Object) (types.UID, error) {
 	var key types.UID
 	oma, ok := obj.(metav1.ObjectMetaAccessor)
 	if !ok || oma.GetObjectMeta() == nil {
-		return key, errors.New("K8s object is not of the expected form")
+		return key, errors.New("kubernetes object is not of the expected form")
 	}
 	key = oma.GetObjectMeta().GetUID()
 	return key, nil

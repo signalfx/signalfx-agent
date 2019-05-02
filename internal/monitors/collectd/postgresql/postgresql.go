@@ -12,69 +12,6 @@ import (
 	"github.com/signalfx/signalfx-agent/internal/monitors/collectd"
 )
 
-const monitorType = "collectd/postgresql"
-
-// MONITOR(collectd/postgresql): Monitors a PostgreSQL database server using collectd's
-// [PostgreSQL plugin](https://collectd.org/wiki/index.php/Plugin:PostgreSQL).
-//
-// You have to specify each database you want to monitor individually under the
-// `databases` key.  If you have a common authentication to all databases being
-// monitored, you can specify that in the top-level `username`/`password`
-// options, otherwise they can be specified at the database level.
-//
-// Sample YAML configuration:
-//
-// ```yaml
-// monitors:
-// - type: collectd/postgresql
-//   host: 127.0.0.1
-//   port: 5432
-//   username: "username1"
-//   password: "password1"
-//   databases:
-//   - name: "testdb"
-//     username: "test_user"
-//     password: "test_pwd"
-// ```
-//
-// Sample YAML configuration with custom query:
-//
-// ```yaml
-// monitors:
-// - type: collectd/postgresql
-//   host: 127.0.0.1
-//   port: 5432
-//   username: "username1"
-//   password: "password1"
-//   queries:
-//   - name: "exampleQuery"
-//     params:
-//     - "hostname"
-//     statement: "Select * From test Where host = $1;"
-//     results:
-//     - type: "gauge"
-//       valuesFrom:
-//       - "test"
-//       instancePrefix: "test"
-//  databases:
-//  - name: "test"
-//    username: "username2"
-//    password: "password2"
-//    queries:
-//    - "exampleQuery"
-//
-//
-//metricsToInclude:
-//    - metricNames:
-//      - gauge.test
-//      monitorType: collectd/postgresql
-// ```
-// Note that the metric names for the additional metrics picked up from the
-// queries provided depend on the type, instancePrefix and/or instancesFrom
-// parameters being passed in.
-// See [PostgreSQL plugin](https://collectd.org/wiki/index.php/Plugin:PostgreSQL)
-// for details.
-
 func init() {
 	monitors.Register(monitorType, func() interface{} {
 		return &Monitor{
@@ -174,12 +111,12 @@ type Config struct {
 // Validate will check the config for correctness.
 func (c *Config) Validate() error {
 	if len(c.Databases) == 0 {
-		return errors.New("You must specify at least one database for PostgreSQL")
+		return errors.New("you must specify at least one database for PostgreSQL")
 	}
 
 	for _, db := range c.Databases {
 		if db.Username == "" && c.Username == "" {
-			return errors.New("Username is required for PostgreSQL monitoring")
+			return errors.New("username is required for PostgreSQL monitoring")
 		}
 	}
 	return nil

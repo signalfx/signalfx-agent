@@ -1,8 +1,9 @@
 import string
 from functools import partial as p
 
+from tests.helpers.agent import Agent
 from tests.helpers.assertions import container_cmd_exit_0, has_datapoint_with_dim, has_event_with_dim
-from tests.helpers.util import container_ip, run_agent, run_container, wait_for
+from tests.helpers.util import container_ip, run_container, wait_for
 
 
 def create_path(container, path, value):
@@ -40,11 +41,11 @@ def test_basic_etcd2_config():
         create_path(etcd, "/monitors/signalfx-metadata", "- type: collectd/signalfx-metadata")
 
         final_conf = CONFIG.substitute(endpoint="%s:2379" % container_ip(etcd))
-        with run_agent(final_conf) as [backend, _, _]:
+        with Agent.run(final_conf) as agent:
             assert wait_for(
-                p(has_datapoint_with_dim, backend, "plugin", "signalfx-metadata")
+                p(has_datapoint_with_dim, agent.fake_services, "plugin", "signalfx-metadata")
             ), "Datapoints didn't come through"
-            assert wait_for(p(has_datapoint_with_dim, backend, "env", "prod")), "dimension wasn't set"
+            assert wait_for(p(has_datapoint_with_dim, agent.fake_services, "env", "prod")), "dimension wasn't set"
 
 
 INTERNAL_GLOB_CONFIG = string.Template(
@@ -67,10 +68,12 @@ def test_interior_globbing():
         create_path(etcd, "/services/signalfx/monitor", "- type: collectd/signalfx-metadata")
 
         final_conf = INTERNAL_GLOB_CONFIG.substitute(endpoint="%s:2379" % container_ip(etcd))
-        with run_agent(final_conf) as [backend, _, _]:
+        with Agent.run(final_conf) as agent:
             assert wait_for(
-                p(has_event_with_dim, backend, "plugin", "signalfx-metadata")
+                p(has_event_with_dim, agent.fake_services, "plugin", "signalfx-metadata")
             ), "Datapoints didn't come through"
 
             create_path(etcd, "/services/uptime/monitor", "- type: collectd/uptime")
-            assert wait_for(p(has_datapoint_with_dim, backend, "plugin", "uptime")), "didn't get uptime datapoints"
+            assert wait_for(
+                p(has_datapoint_with_dim, agent.fake_services, "plugin", "uptime")
+            ), "didn't get uptime datapoints"

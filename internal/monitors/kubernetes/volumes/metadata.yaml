@@ -1,25 +1,27 @@
+monitors:
 - dimensions:
-  - description: (*EBS volumes only*) The EBS volume id of the underlying volume source
-    name: VolumeId
-  - description: (*GlusterFS volumes only*) The endpoint name used for the GlusterFS
-      volume
-    name: endpoints_name
-  - description: (*GlusterFS volumes only*) The GlusterFS volume path
-    name: glusterfs_path
-  - description: The namespace of the pod that has this volume
-    name: kubernetes_namespace
-  - description: The name of the pod that has this volume
-    name: kubernetes_pod_name
-  - description: The UID of the pod that has this volume
-    name: kubernetes_pod_uid
-  - description: (*EBS volumes only*) The partition number of the underlying EBS volume
-      (`0` indicates the entire disk)
-    name: partition
-  - description: The volume name as given in the pod spec under `volumes`
-    name: volume
-  - description: The type of the underlying volume -- this will be the key used in
-      the k8s volume config spec (e.g. awsElasticBlockStore, etc.)
-    name: volume_type
+    VolumeId:
+      description: (*EBS volumes only*) The EBS volume id of the underlying volume
+        source
+    endpoints_name:
+      description: (*GlusterFS volumes only*) The endpoint name used for the GlusterFS
+        volume
+    glusterfs_path:
+      description: (*GlusterFS volumes only*) The GlusterFS volume path
+    kubernetes_namespace:
+      description: The namespace of the pod that has this volume
+    kubernetes_pod_name:
+      description: The name of the pod that has this volume
+    kubernetes_pod_uid:
+      description: The UID of the pod that has this volume
+    partition:
+      description: (*EBS volumes only*) The partition number of the underlying EBS
+        volume (`0` indicates the entire disk)
+    volume:
+      description: The volume name as given in the pod spec under `volumes`
+    volume_type:
+      description: The type of the underlying volume -- this will be the key used
+        in the k8s volume config spec (e.g. awsElasticBlockStore, etc.)
   doc: |
     This monitor sends usage stats about volumes
     mounted to Kubernetes pods (e.g. free space/inodes).  This information is
@@ -34,13 +36,13 @@
     easily added as needed.
   sendAll: true
   metrics:
-  - description: The number of available bytes in the volume
-    included: false
-    name: kubernetes.volume_available_bytes
-    type: gauge
-  - description: The total capacity in bytes of the volume
-    included: false
-    name: kubernetes.volume_capacity_bytes
-    type: gauge
+    kubernetes.volume_available_bytes:
+      description: The number of available bytes in the volume
+      included: false
+      type: gauge
+    kubernetes.volume_capacity_bytes:
+      description: The total capacity in bytes of the volume
+      included: false
+      type: gauge
   monitorType: kubernetes-volumes
-  properties: null
+  properties:

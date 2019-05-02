@@ -24,9 +24,6 @@ const (
 	kubeletStatsType = "kubelet-stats"
 )
 
-// MONITOR(kubelet-stats): This monitor pulls cadvisor metrics through a
-// Kubernetes kubelet instance via the `/stats/container` endpoint.
-
 func init() {
 	monitors.Register(kubeletStatsType, func() interface{} { return &KubeletStatsMonitor{} }, &KubeletStatsConfig{})
 }
@@ -84,26 +81,19 @@ type statsRequest struct {
 }
 
 type kubeletInfoProvider struct {
-	client     *kubelet.Client
-	lastUpdate time.Time
+	client *kubelet.Client
 }
 
 func newKubeletInfoProvider(client *kubelet.Client) *kubeletInfoProvider {
 	return &kubeletInfoProvider{
-		client:     client,
-		lastUpdate: time.Now(),
+		client: client,
 	}
 }
 
 func (kip *kubeletInfoProvider) SubcontainersInfo(containerName string) ([]info.ContainerInfo, error) {
-	curTime := time.Now()
-	containers, err := kip.getAllContainers(kip.lastUpdate, curTime)
+	containers, err := kip.getAllContainersLatestStats()
 	if err != nil {
 		return nil, err
-	}
-
-	if len(containers) > 0 {
-		kip.lastUpdate = curTime
 	}
 
 	return filterPodContainers(containers), nil
@@ -135,7 +125,7 @@ func (kip *kubeletInfoProvider) GetMachineInfo() (*info.MachineInfo, error) {
 	return &machineInfo, nil
 }
 
-func (kip *kubeletInfoProvider) getAllContainers(start, end time.Time) ([]info.ContainerInfo, error) {
+func (kip *kubeletInfoProvider) getAllContainersLatestStats() ([]info.ContainerInfo, error) {
 	// Request data from all subcontainers.
 	request := statsRequest{
 		ContainerName: "/",

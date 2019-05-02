@@ -44,6 +44,7 @@ ARG DOCKER_ARCH
 FROM ${DOCKER_ARCH}ubuntu:16.04 as collectd
 
 ARG TARGET_ARCH
+ARG PYTHON_VERSION=2.7.16
 
 ENV DEBIAN_FRONTEND noninteractive
 
@@ -78,6 +79,8 @@ RUN sed -i -e '/^deb-src/d' /etc/apt/sources.list &&\
       libdbi0-dev \
       libdistro-info-perl \
       libesmtp-dev \
+      libexpat1-dev \
+      libffi-dev \
       libganglia1-dev \
       libgcrypt11-dev \
       libglib2.0-dev \
@@ -88,7 +91,6 @@ RUN sed -i -e '/^deb-src/d' /etc/apt/sources.list &&\
       libmnl-dev \
       libmodbus-dev \
       libnotify-dev \
-      libopenipmi-dev \
       liboping-dev \
       libow-dev \
       libpcap-dev \
@@ -100,6 +102,7 @@ RUN sed -i -e '/^deb-src/d' /etc/apt/sources.list &&\
       librrd-dev \
       libsensors4-dev \
       libsnmp-dev \
+      libssl-dev \
       libtool \
       libudev-dev \
       libvarnishapi-dev \
@@ -114,11 +117,38 @@ RUN sed -i -e '/^deb-src/d' /etc/apt/sources.list &&\
       python-dev \
       python-pip \
       python-virtualenv \
-      quilt
+      quilt \
+      zlib1g-dev \
+      libdbus-glib-1-dev \
+      libdbus-1-dev
 
 RUN wget https://dev.mysql.com/get/mysql-apt-config_0.8.12-1_all.deb && \
     dpkg -i mysql-apt-config_0.8.12-1_all.deb && \
-    apt-get update && apt-get install -y libmysqlclient-dev libcurl4-gnutls-dev patchelf
+    apt-get update && apt-get install -y libmysqlclient-dev libcurl4-gnutls-dev
+
+ENV PYTHONHOME=/opt/python
+RUN wget -O /tmp/Python-${PYTHON_VERSION}.tgz https://www.python.org/ftp/python/${PYTHON_VERSION}/Python-${PYTHON_VERSION}.tgz &&\
+    cd /tmp &&\
+    tar xzf Python-${PYTHON_VERSION}.tgz && \
+    cd Python-${PYTHON_VERSION} && \
+    ./configure --prefix=$PYTHONHOME --enable-shared --enable-ipv6 --enable-unicode=ucs4 --with-system-ffi --with-system-expat && \
+    make && make install
+
+RUN echo "$PYTHONHOME/lib" > /etc/ld.so.conf.d/python.conf && \
+    ldconfig
+ENV PATH=$PYTHONHOME/bin:$PATH
+
+RUN wget -O /tmp/get-pip.py https://bootstrap.pypa.io/get-pip.py && \
+    python /tmp/get-pip.py 'pip==18.0'
+
+# Compile patchelf statically from source
+RUN cd /tmp &&\
+    wget https://nixos.org/releases/patchelf/patchelf-0.10/patchelf-0.10.tar.gz &&\
+    tar -xf patchelf*.tar.gz &&\
+    cd patchelf-0.10 &&\
+    ./configure LDFLAGS="-static" &&\
+    make &&\
+    make install
 
 ARG collectd_version=""
 ARG collectd_commit=""
@@ -139,12 +169,9 @@ ARG extra_cflags="-O2"
 ENV CFLAGS "-Wall -fPIC $extra_cflags"
 ENV CXXFLAGS $CFLAGS
 
-# In the bundle, the java plugin will live in /plugins/collectd and the JVM
+# In the bundle, the java plugin so will live in /lib/collectd and the JVM
 # exists at /jvm
 ENV JAVA_LDFLAGS "-Wl,-rpath -Wl,\$\$\ORIGIN/../../jvm/jre/lib/${TARGET_ARCH}/server"
-
-# turbostat is not supported by ARM, let it be a ARG
-ARG DISABLE_TURBOSTAT
 
 RUN autoreconf -vif &&\
     ./configure \
@@ -168,6 +195,7 @@ RUN autoreconf -vif &&\
         --disable-mqtt \
         --disable-netapp \
         --disable-nut \
+        --disable-ipmi \
         --disable-oracle \
         --disable-pf \
         --disable-redis \
@@ -175,19 +203,19 @@ RUN autoreconf -vif &&\
         --disable-sigrok \
         --disable-tape \
         --disable-tokyotyrant \
-        ${DISABLE_TURBOSTAT} \
+        --disable-turbostat \
         --disable-write_mongodb \
         --disable-write_redis \
         --disable-write_riemann \
         --disable-xmms \
         --disable-zone \
-        --without-included-ltdl \
         --without-libstatgrab \
         --disable-silent-rules \
-        --disable-static
+        --disable-static \
+        PYTHON_CONFIG="$PYTHONHOME/bin/python-config"
 
 # Compile all of collectd first, including plugins
-RUN make -j8 &&\
+RUN make -j`nproc` &&\
     make install
 
 COPY scripts/collect-libs /opt/collect-libs
@@ -196,12 +224,15 @@ RUN /opt/collect-libs /opt/deps /usr/sbin/collectd /usr/lib/collectd/
 # right.
 RUN patchelf --add-needed libm-2.23.so /opt/deps/libvarnishapi.so.1.0.4
 
-
+# Delete all compiled python to save space
+RUN find $PYTHONHOME -name "*.pyc" -o -name "*.pyo" | xargs rm
+# We don't support compiling extension modules so don't need this directory
+RUN rm -rf $PYTHONHOME/lib/python2.7/config-*-linux-gnu
 
 ###### Python Plugin Image ######
 ARG DOCKER_ARCH
 
-FROM ${DOCKER_ARCH}ubuntu:16.04 as python-plugins
+FROM ${DOCKER_ARCH}collectd as python-plugins
 
 RUN apt update &&\
     apt install -y git python-pip wget curl &&\
@@ -211,8 +242,6 @@ RUN pip install yq &&\
     wget -O /usr/bin/jq https://github.com/stedolan/jq/releases/download/jq-1.5/jq-linux64 &&\
     chmod +x /usr/bin/jq
 
-RUN apt install -y libffi-dev libssl-dev build-essential python-dev libcurl4-openssl-dev
-
 # Mirror the same dir structure that exists in the original source
 COPY scripts/get-collectd-plugins.py /opt/scripts/
 COPY scripts/get-collectd-plugins-requirements.txt /opt/
@@ -220,14 +249,20 @@ COPY collectd-plugins.yaml /opt/
 
 RUN pip install -r /opt/get-collectd-plugins-requirements.txt
 
+RUN pip install dbus-python
+
 RUN mkdir -p /opt/collectd-python &&\
     python /opt/scripts/get-collectd-plugins.py /opt/collectd-python
 
 COPY python/ /opt/sfxpython/
 RUN cd /opt/sfxpython && pip install .
 
+RUN pip list
+
 # Delete all compiled python to save space
-RUN find /usr/lib/python2.7 /usr/local/lib/python2.7/dist-packages -name "*.pyc" | xargs rm
+RUN find $PYTHONHOME -name "*.pyc" -o -name "*.pyo" | xargs rm
+# We don't support compiling extension modules so don't need this directory
+RUN rm -rf $PYTHONHOME/lib/python2.7/config-*-linux-gnu
 
 ####### Extra packages that don't make sense to pull down in any other stage ########
 ARG DOCKER_ARCH
@@ -238,17 +273,19 @@ ARG TARGET_ARCH
 
 RUN apt update &&\
     apt install -y \
-	  host \
-	  netcat.openbsd \
-	  netcat \
-	  iproute2 \
 	  curl \
+	  host \
+	  iproute2 \
+	  netcat \
+	  netcat.openbsd \
+	  realpath \
 	  vim
 
 RUN apt install -y openjdk-8-jre-headless &&\
-    cp -rL /usr/lib/jvm/java-8-openjdk-${TARGET_ARCH} /opt/jvm &&\
-	rm -rf /opt/jvm/docs &&\
-	rm -rf /opt/jvm/man
+    mkdir -p /opt/root &&\
+    cp -rL /usr/lib/jvm/java-8-openjdk-${TARGET_ARCH} /opt/root/jvm &&\
+	rm -rf /opt/root/jvm/docs &&\
+	rm -rf /opt/root/jvm/man
 
 RUN curl -Lo /opt/signalfx_types_db https://raw.githubusercontent.com/signalfx/integrations/master/collectd-java/signalfx_types_db
 
@@ -267,7 +304,6 @@ ENV useful_bins=" \
   /bin/mkdir \
   /bin/mount \
   /bin/nc \
-  /bin/nc.openbsd \
   /bin/ps \
   /bin/rm \
   /bin/sh \
@@ -275,14 +311,34 @@ ENV useful_bins=" \
   /bin/umount \
   /usr/bin/curl \
   /usr/bin/dirname \
+  /usr/bin/find \
   /usr/bin/host \
+  /usr/bin/realpath \
   /usr/bin/tail \
   /usr/bin/vim \
   "
-RUN /opt/collect-libs /opt/deps ${useful_bins}
+RUN mkdir -p /opt/root/lib &&\
+    /opt/collect-libs /opt/root/lib ${useful_bins}
 
-RUN mkdir -p /opt/bins &&\
-    cp $useful_bins /opt/bins
+RUN mkdir -p /opt/root/bin &&\
+    cp $useful_bins /opt/root/bin
+
+# Gather all our bins/libs and set rpath on the properly.  Interpreter has to
+# be set at runtime (or in the final docker stage for docker runs).
+COPY --from=collectd /usr/local/bin/patchelf /usr/bin/
+
+# Gather Python dependencies
+COPY --from=python-plugins /opt/python/lib/python2.7 /opt/root/lib/python2.7
+COPY --from=python-plugins /opt/python/lib/libpython2.7.so.1.0 /opt/root/lib
+COPY --from=python-plugins /opt/python/bin/python /opt/root/bin/python
+
+# Gather compiled collectd plugin libraries
+COPY --from=collectd /usr/sbin/collectd /opt/root/bin/collectd
+COPY --from=collectd /opt/deps/ /opt/root/lib/
+COPY --from=collectd /usr/lib/collectd/*.so /opt/root/lib/collectd/
+
+COPY scripts/patch-rpath /usr/bin/
+RUN patch-rpath /opt/root
 
 ###### Final Agent Image #######
 # This build stage is meant as the final target when running the agent in a
@@ -290,38 +346,36 @@ RUN mkdir -p /opt/bins &&\
 # below this are special-purpose.
 FROM scratch as final-image
 
-ARG CPU_ARCH
-ARG LDSO_BIN
-
 CMD ["/bin/signalfx-agent"]
 
 COPY --from=collectd /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt
-
-COPY --from=collectd /usr/sbin/collectd /bin/collectd
-COPY --from=collectd /opt/deps/ /lib
 COPY --from=collectd /etc/nsswitch.conf /etc/nsswitch.conf
+COPY --from=collectd /usr/local/bin/patchelf /bin/
 
-COPY --from=extra-packages /lib/${CPU_ARCH}-linux-gnu/ld-2.23.so ${LDSO_BIN}
-COPY --from=extra-packages /opt/jvm/ /jvm
-COPY --from=extra-packages /opt/signalfx_types_db /plugins/collectd/java/
-COPY --from=extra-packages /opt/deps/ /lib
-COPY --from=extra-packages /opt/bins/ /bin
+# Pull in the Linux dynamic link loader at a fixed path across all
+# architectures.  Binaries will later be patched to use this interpreter
+# natively.
+COPY --from=extra-packages /lib/*-linux-gnu/ld-2.23.so /bin/ld-linux.so
 
-COPY --from=collectd /usr/share/collectd/postgresql_default.conf /plugins/collectd/postgresql_default.conf
-COPY --from=collectd /usr/share/collectd/types.db /plugins/collectd/types.db
-# All the built-in collectd plugins
-COPY --from=collectd /usr/lib/collectd/*.so /plugins/collectd/
-COPY --from=collectd /usr/share/collectd/java/ /plugins/collectd/java/
+# Java dependencies
+COPY --from=extra-packages /opt/root/jvm/ /jvm
 
-# Pull in non-C collectd plugins
-COPY --from=python-plugins /opt/collectd-python/ /plugins/collectd
-# Grab pip dependencies too
-COPY --from=python-plugins /usr/lib/python2.7/ /lib/python2.7
-COPY --from=python-plugins /usr/local/lib/python2.7/ /lib/python2.7
-COPY --from=python-plugins /usr/bin/python /bin/python
+COPY --from=extra-packages /opt/root/lib/ /lib/
+COPY --from=extra-packages /opt/root/bin/ /bin/
+
+# Some extra non-binary collectd resources
+COPY --from=collectd /usr/share/collectd/postgresql_default.conf /postgresql_default.conf
+COPY --from=collectd /usr/share/collectd/types.db /types.db
+COPY --from=collectd /usr/share/collectd/java/ /collectd-java/
+COPY --from=extra-packages /opt/signalfx_types_db /collectd-java/
+
+# Pull in Python collectd plugin scripts
+COPY --from=python-plugins /opt/collectd-python/ /collectd-python/
 
 COPY scripts/umount-hostfs-non-persistent /bin/umount-hostfs-non-persistent
 COPY deployments/docker/agent.yaml /etc/signalfx/agent.yaml
+COPY scripts/patch-interpreter /bin/
+RUN ["/bin/ld-linux.so", "/bin/sh", "/bin/patch-interpreter", "/"]
 
 RUN mkdir -p /run/collectd /var/run/ &&\
     ln -s /var/run/signalfx-agent /run &&\
@@ -397,14 +451,15 @@ RUN curl -fsSL get.docker.com -o /tmp/get-docker.sh &&\
 
 RUN go get -u golang.org/x/lint/golint &&\
     if [ `uname -m` != "aarch64" ]; then go get github.com/derekparker/delve/cmd/dlv; fi &&\
-    go get github.com/tebeka/go2xunit
+    go get github.com/tebeka/go2xunit &&\
+    curl -sfL https://install.goreleaser.com/github.com/golangci/golangci-lint.sh | sh -s -- -b $(go env GOPATH)/bin v1.16.0
 
 # Get integration test deps in here
 COPY python/setup.py /tmp/
 RUN pip3 install -e /tmp/
 COPY tests/requirements.txt /tmp/
 RUN pip3 install --upgrade pip==9.0.1 && pip3 install -r /tmp/requirements.txt
-RUN wget -O /usr/bin/gomplate https://github.com/hairyhenderson/gomplate/releases/download/v2.4.0/gomplate_linux-${TARGET_ARCH}-slim &&\
+RUN wget -O /usr/bin/gomplate https://github.com/hairyhenderson/gomplate/releases/download/v3.4.0/gomplate_linux-${TARGET_ARCH} &&\
     chmod +x /usr/bin/gomplate
 RUN ln -s /usr/bin/python3 /usr/bin/python &&\
     ln -s /usr/bin/pip3 /usr/bin/pip
@@ -413,6 +468,8 @@ COPY --from=final-image /bin/signalfx-agent ./signalfx-agent
 
 COPY --from=final-image / /bundle/
 COPY ./ ./
+
+RUN /bundle/bin/patch-interpreter /bundle
 
 ####### Pandoc Converter ########
 ARG DOCKER_ARCH

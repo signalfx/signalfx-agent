@@ -14,42 +14,13 @@ import (
 	"github.com/signalfx/signalfx-agent/internal/monitors"
 )
 
-const monitorType = "collectd/spark"
-
 type sparkClusterType string
 
 const (
 	sparkStandalone sparkClusterType = "Standalone"
-	sparkMesos                       = "Mesos"
-	sparkYarn                        = "Yarn"
+	sparkMesos      sparkClusterType = "Mesos"
+	sparkYarn       sparkClusterType = "Yarn"
 )
-
-// MONITOR(collectd/spark): Collects metrics about a Spark cluster using the
-// [collectd Spark Python plugin](https://github.com/signalfx/collectd-spark).
-// Also see
-// https://github.com/signalfx/integrations/tree/master/collectd-spark.
-//
-// You have to specify distinct monitor configurations and discovery rules for
-// master and worker processes.  For the master configuration, set `isMaster`
-// to true.
-//
-// We only support HTTP endpoints for now.
-//
-// When running Spark on Apache Hadoop / Yarn, this integration is only capable
-// of reporting application metrics from the master node.  Please use the
-// collectd/hadoop monitor to report on the health of the cluster.
-//
-//An example configuration for monitoring applications on Yarn
-// ```yaml
-// monitors:
-//   - type: collectd/spark
-//     host: 000.000.000.000
-//     port: 8088
-//     clusterType: Yarn
-//     isMaster: true
-//     collectApplicationMetrics: true
-// ```
-//
 
 func init() {
 	monitors.Register(monitorType, func() interface{} {
@@ -85,7 +56,7 @@ func (c *Config) PythonConfig() *python.Config {
 // Validate will check the config for correctness.
 func (c *Config) Validate() error {
 	if c.CollectApplicationMetrics != nil && *c.CollectApplicationMetrics && !c.IsMaster {
-		return errors.New("Cannot collect application metrics from non-master endpoint")
+		return errors.New("cannot collect application metrics from non-master endpoint")
 	}
 	switch c.ClusterType {
 	case sparkYarn, sparkMesos, sparkStandalone:
@@ -107,8 +78,8 @@ func (m *Monitor) Configure(conf *Config) error {
 		Host:          conf.Host,
 		Port:          conf.Port,
 		ModuleName:    "spark_plugin",
-		ModulePaths:   []string{collectd.MakePath("spark")},
-		TypesDBPaths:  []string{collectd.MakePath("types.db")},
+		ModulePaths:   []string{collectd.MakePythonPluginPath("spark")},
+		TypesDBPaths:  []string{collectd.DefaultTypesDBPath()},
 		PluginConfig: map[string]interface{}{
 			"Host":            conf.Host,
 			"Port":            conf.Port,

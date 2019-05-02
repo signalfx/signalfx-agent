@@ -1,14 +1,20 @@
 package config
 
-import "github.com/signalfx/signalfx-agent/internal/core/dpfilters"
+import (
+	"errors"
+	"fmt"
+
+	"github.com/signalfx/signalfx-agent/internal/core/dpfilters"
+)
 
 // MetricFilter describes a set of subtractive filters applied to datapoints
 // right before they are sent.
 type MetricFilter struct {
 	// A map of dimension key/values to match against.  All key/values must
-	// match a datapoint for it to be matched.
-	Dimensions map[string]string `yaml:"dimensions" default:"{}"`
-	// A list of metric names to match against, OR'd together
+	// match a datapoint for it to be matched.  The map values can be either a
+	// single string or a list of strings.
+	Dimensions map[string]interface{} `yaml:"dimensions" default:"{}"`
+	// A list of metric names to match against
 	MetricNames []string `yaml:"metricNames"`
 	// A single metric name to match against
 	MetricName string `yaml:"metricName"`
@@ -17,21 +23,45 @@ type MetricFilter struct {
 	// datapoints not from this monitor type will never match against this
 	// filter.
 	MonitorType string `yaml:"monitorType"`
-	// Negates the result of the match so that it matches all datapoints that
-	// do NOT match the metric name and dimension values given. This does not
-	// negate monitorType, if given.
+	// (**Only applicable for the top level filters**) Negates the result of
+	// the match so that it matches all datapoints that do NOT match the metric
+	// name and dimension values given. This does not negate monitorType, if
+	// given.
 	Negated bool `yaml:"negated"`
+}
+
+// Normalize puts any singular metricName into the metricNames list and also
+// returns a normalized dimension set.
+func (mf *MetricFilter) Normalize() (map[string][]string, error) {
+	if mf.MetricName != "" {
+		mf.MetricNames = append(mf.MetricNames, mf.MetricName)
+	}
+
+	dimSet := map[string][]string{}
+	for k, v := range mf.Dimensions {
+		switch s := v.(type) {
+		case []string:
+			dimSet[k] = s
+		case string:
+			dimSet[k] = []string{s}
+		default:
+			return nil, fmt.Errorf("%v should be either a string or string list", v)
+		}
+	}
+	return dimSet, nil
 }
 
 // MakeFilter returns an actual filter instance from the config
 func (mf *MetricFilter) MakeFilter() (dpfilters.DatapointFilter, error) {
-	if mf.MetricName != "" {
-		mf.MetricNames = append(mf.MetricNames, mf.MetricName)
+	dimSet, err := mf.Normalize()
+	if err != nil {
+		return nil, err
 	}
-	return dpfilters.New(mf.MonitorType, mf.MetricNames, mf.Dimensions, mf.Negated)
+
+	return dpfilters.New(mf.MonitorType, mf.MetricNames, dimSet, mf.Negated)
 }
 
-func makeFilterSet(excludes []MetricFilter, includes []MetricFilter) (*dpfilters.FilterSet, error) {
+func makeOldFilterSet(excludes []MetricFilter, includes []MetricFilter) (*dpfilters.FilterSet, error) {
 	excludeSet := make([]dpfilters.DatapointFilter, 0)
 	includeSet := make([]dpfilters.DatapointFilter, 0)
 	mtes := make([]MetricFilter, 0, len(excludes))
@@ -54,16 +84,47 @@ func makeFilterSet(excludes []MetricFilter, includes []MetricFilter) (*dpfilters
 	}
 
 	for _, mti := range mtis {
-		f, err := mti.MakeFilter()
+		dimSet, err := mti.Normalize()
 		if err != nil {
 			return nil, err
 		}
+
+		f, err := dpfilters.New(mti.MonitorType, mti.MetricNames, dimSet, mti.Negated)
+		if err != nil {
+			return nil, err
+		}
+
 		includeSet = append(includeSet, f)
 	}
 
 	return &dpfilters.FilterSet{
 		ExcludeFilters: excludeSet,
 		IncludeFilters: includeSet,
+	}, nil
+}
+
+// This should be the preferred filter set creator from now on.  It is much
+// simpler to understand.
+func makeNewFilterSet(excludes []MetricFilter) (*dpfilters.FilterSet, error) {
+	var excludeSet []dpfilters.DatapointFilter
+	for _, f := range excludes {
+		if f.Negated {
+			return nil, errors.New("new filters can't be negated")
+		}
+		dimSet, err := f.Normalize()
+		if err != nil {
+			return nil, err
+		}
+
+		dpf, err := dpfilters.NewOverridable(f.MetricNames, dimSet)
+		if err != nil {
+			return nil, err
+		}
+
+		excludeSet = append(excludeSet, dpf)
+	}
+	return &dpfilters.FilterSet{
+		ExcludeFilters: excludeSet,
 	}, nil
 }
 
@@ -83,9 +144,7 @@ func (mf *MetricFilter) MergeWith(mf2 MetricFilter) MetricFilter {
 	if mf2.MetricName != "" {
 		mf2.MetricNames = append(mf2.MetricNames, mf2.MetricName)
 	}
-	for _, metricName := range mf2.MetricNames {
-		mf.MetricNames = append(mf.MetricNames, metricName)
-	}
+	mf.MetricNames = append(mf.MetricNames, mf2.MetricNames...)
 	return *mf
 }
 

@@ -4,9 +4,32 @@
 
 Monitors gather metrics from the host and from running applications.  They are
 configured in a list called `monitors` in the [main agent config
-file](./config-schema.md). These are all of the monitors included in the agent,
-along with their possible configuration options:
+file](./config-schema.md).
 
+## Common Configuration
+
+The following config options are common to all monitors:
+
+| Config option | Default | Required | Type | Description |
+| --- | --- | --- | --- | --- |
+| `type` |  | no | `string` | The type of the monitor |
+| `discoveryRule` |  | no | `string` | The rule used to match up this configuration with a discovered endpoint. If blank, the configuration will be run immediately when the agent is started.  If multiple endpoints match this rule, multiple instances of the monitor type will be created with the same configuration (except different host/port). |
+| `validateDiscoveryRule` | `false` | no | `bool` | If true, a warning will be emitted if a discovery rule contains variables that will never possibly match a rule.  If using multiple observers, it is convenient to set this to false to suppress spurious errors.  The top-level setting `validateDiscoveryRules` acts as a default if this isn't set. |
+| `extraDimensions` |  | no | `map of string` | A set of extra dimensions (key:value pairs) to include on datapoints emitted by the monitor(s) created from this configuration. To specify metrics from this monitor should be high-resolution, add the dimension `sf_hires: 1` |
+| `configEndpointMappings` |  | no | `map of string` | A set of mappings from a configuration option on this monitor to attributes of a discovered endpoint.  The keys are the config option on this monitor and the value can be any valid expression used in discovery rules. |
+| `intervalSeconds` | `0` | no | `integer` | The interval (in seconds) at which to emit datapoints from the monitor(s) created by this configuration.  If not set (or set to 0), the global agent intervalSeconds config option will be used instead. |
+| `solo` | `false` | no | `bool` | If one or more configurations have this set to true, only those configurations will be considered. This setting can be useful for testing. |
+| `metricsToExclude` |  | no | `list of object` | DEPRECATED in favor of the `datapointsToExclude` option.  That option handles negation of filter items differently. |
+| `datapointsToExclude` |  | no | `list of object` | A list of datapoint filters.  These filters allow you to comprehensively define which datapoints to exclude by metric name or dimension set, as well as the ability to define overrides to re-include metrics excluded by previous patterns within the same filter item.  See [monitor filtering](https://github.com/signalfx/signalfx-agent/tree/master/docs/filtering.md#monitor-level-filtering) for examples and more information. |
+| `disableHostDimensions` | `false` | no | `bool` | Some monitors pull metrics from services not running on the same host and should not get the host-specific dimensions set on them (e.g. `host`, `AWSUniqueId`, etc).  Setting this to `true` causes those dimensions to be omitted.  You can disable this globally with the `disableHostDimensions` option on the top level of the config. |
+| `disableEndpointDimensions` | `false` | no | `bool` | This can be set to true if you don't want to include the dimensions that are specific to the endpoint that was discovered by an observer.  This is useful when you have an endpoint whose identity is not particularly important since it acts largely as a proxy or adapter for other metrics. |
+
+
+## Monitor list
+
+These are all of the monitors included in the agent, along with their possible configuration options:
+
+- [appmesh](./monitors/appmesh.md)
 - [aspdotnet](./monitors/aspdotnet.md)
 - [cadvisor](./monitors/cadvisor.md)
 - [collectd/activemq](./monitors/collectd-activemq.md)
@@ -52,6 +75,7 @@ along with their possible configuration options:
 - [collectd/solr](./monitors/collectd-solr.md)
 - [collectd/spark](./monitors/collectd-spark.md)
 - [collectd/statsd](./monitors/collectd-statsd.md)
+- [collectd/systemd](./monitors/collectd-systemd.md)
 - [collectd/uptime](./monitors/collectd-uptime.md)
 - [collectd/vmem](./monitors/collectd-vmem.md)
 - [collectd/zookeeper](./monitors/collectd-zookeeper.md)
@@ -78,6 +102,7 @@ along with their possible configuration options:
 - [kubernetes-volumes](./monitors/kubernetes-volumes.md)
 - [memory](./monitors/memory.md)
 - [net-io](./monitors/net-io.md)
+- [postgresql](./monitors/postgresql.md)
 - [processlist](./monitors/processlist.md)
 - [prometheus-exporter](./monitors/prometheus-exporter.md)
 - [prometheus/go](./monitors/prometheus-go.md)
@@ -87,6 +112,8 @@ along with their possible configuration options:
 - [prometheus/prometheus](./monitors/prometheus-prometheus.md)
 - [prometheus/redis](./monitors/prometheus-redis.md)
 - [python-monitor](./monitors/python-monitor.md)
+- [sql](./monitors/sql.md)
+- [statsd](./monitors/statsd.md)
 - [telegraf/logparser](./monitors/telegraf-logparser.md)
 - [telegraf/procstat](./monitors/telegraf-procstat.md)
 - [telegraf/snmp](./monitors/telegraf-snmp.md)
@@ -100,20 +127,4 @@ along with their possible configuration options:
 - [windows-iis](./monitors/windows-iis.md)
 - [windows-legacy](./monitors/windows-legacy.md)
 
-
-## Common Configuration
-
-The following config options are common to all monitors:
-
-| Config option | Default | Required | Type | Description |
-| --- | --- | --- | --- | --- |
-| `type` |  | no | `string` | The type of the monitor |
-| `discoveryRule` |  | no | `string` | The rule used to match up this configuration with a discovered endpoint. If blank, the configuration will be run immediately when the agent is started.  If multiple endpoints match this rule, multiple instances of the monitor type will be created with the same configuration (except different host/port). |
-| `extraDimensions` |  | no | `map of string` | A set of extra dimensions (key:value pairs) to include on datapoints emitted by the monitor(s) created from this configuration. To specify metrics from this monitor should be high-resolution, add the dimension `sf_hires: 1` |
-| `configEndpointMappings` |  | no | `map of string` | A set of mappings from a configuration option on this monitor to attributes of a discovered endpoint.  The keys are the config option on this monitor and the value can be any valid expression used in discovery rules. |
-| `intervalSeconds` | `0` | no | `integer` | The interval (in seconds) at which to emit datapoints from the monitor(s) created by this configuration.  If not set (or set to 0), the global agent intervalSeconds config option will be used instead. |
-| `solo` | `false` | no | `bool` | If one or more configurations have this set to true, only those configurations will be considered. This setting can be useful for testing. |
-| `metricsToExclude` |  | no | `list of object` | A list of metric filters |
-| `disableHostDimensions` | `false` | no | `bool` | Some monitors pull metrics from services not running on the same host and should not get the host-specific dimensions set on them (e.g. `host`, `AWSUniqueId`, etc).  Setting this to `true` causes those dimensions to be omitted.  You can disable this globally with the `disableHostDimensions` option on the top level of the config. |
-| `disableEndpointDimensions` | `false` | no | `bool` | This can be set to true if you don't want to include the dimensions that are specific to the endpoint that was discovered by an observer.  This is useful when you have an endpoint whose identity is not particularly important since it acts largely as a proxy or adapter for other metrics. |
 

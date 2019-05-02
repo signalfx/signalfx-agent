@@ -30,6 +30,82 @@ You can put agent config in the `local-etc` dir of this repo and it will be
 shared into the container at the default place that the agent looks for config
 (`/etc/signalfx`).  The `local-etc` dir is ignored by git.
 
+## Development Practices
+
+ - Try and do logging at the highest level of the component you are work on as
+   possible.  In the lower-level components, return errors (appropriately
+   wrapped with `fmt.Errorf("context of error: %v", err)` to provide context)
+   and only at the highest level where it doesn't make sense to return errors
+   any more, should you log the error.  E.g. for a monitor, the most approrpriate
+   place to do logging is in the function that gets called on an interval.
+
+ - Try and minimize memory allocations as much as possible.  Allocations result
+   in higher garbage collection CPU usage.  Don't go crazy on trying to avoid
+   allocations in every case where it's possible, but be aware of it.  If
+   your code is signficantly harder to understand then it probably isn't worth
+   doing unless profiling shows a large benefit.
+
+## Profiling the agent
+
+You can profile the agent with the
+[pprof](https://blog.golang.org/profiling-go-programs) tool from Go.  To enable
+a profiling HTTP endpoint in the agent, set `profiling: true` in the agent
+config.  Then you can hit various endpoints on
+`http://localhost:6060/debug/pprof/*` ([where `*` is various profiles
+documented here](https://golang.org/pkg/net/http/pprof/)).
+
+## Improve build times on Mac
+When developing on Mac and building in a Docker Linux container the source directory is shared using Docker volumes. It is relatively slow and increases build times. A quicker method (2-3x faster) is to do syncing of files to the Docker VM so that file access is in the same host as the Linux container. [docker-sync](http://docker-sync.io) will do this automatically once setup.
+
+Once installed (see below) you run:
+
+```sh
+$ docker-sync start
+```
+
+Then use `docker-compose` to run the container in the background:
+
+```sh
+$ docker-compose up -d shell
+```
+
+You can now run any number of shells inside the container:
+
+```sh
+$ docker-compose exec shell bash
+```
+
+When you want want to rebase against a new `dev-image` run `make dev-image` then update:
+
+```sh
+$ docker-compose up -d shell
+```
+
+To reset containers:
+
+```sh
+$ docker-compose down
+```
+
+To reset everything including volumes:
+
+```sh
+$ docker-compose down --volumes
+```
+
+### Installing docker-sync
+Install the `docker-sync` gem:
+
+```sh
+$ gem install --user-install docker-sync
+```
+
+Make sure the user gems bin directory is in your `PATH`, for example:
+
+```sh
+export PATH="${PATH}:$(ruby -r rubygems -e 'puts Gem.user_dir')/bin"
+```
+
 ## Making the Final Docker Image
 To make the final Docker image without all of the development tools, just run
 `make image` (either in or outside of the dev image) and it will make a new
@@ -123,12 +199,12 @@ are known to support the build and test process.
 
 ### Windows
 
-We develop on a [VirtualBox](https://www.virtualbox.org/) Windows Server 2008 
-[Vagrant](https://www.vagrantup.com/).  You might want to develop on Windows 
-Server 2012+ if you're using the evaluation boxes because the Windows Server 
+We develop on a [VirtualBox](https://www.virtualbox.org/) Windows Server 2008
+[Vagrant](https://www.vagrantup.com/).  You might want to develop on Windows
+Server 2012+ if you're using the evaluation boxes because the Windows Server
 2008 evaluation only has a 10 day trial that can be renewed up to 5 times.
-To renew the Windows Server 2008 evaluation you must manually reset the 
-activation period by using the slmgr.vbs script from the command prompt and 
+To renew the Windows Server 2008 evaluation you must manually reset the
+activation period by using the slmgr.vbs script from the command prompt and
 restart the vm.
 
     slmgr.vbs –rearm
@@ -142,8 +218,8 @@ If you do not have a base box, the makefile target `win-vagrant-base-box` will
 checkout the [Windows Boxcutter Project](https://github.com/boxcutter/windows) and build
 the Windows Server base box image using the evaluation copy of Windows.
 
-Please ensure that the requisites for Boxcutter are satisfied, including the 
-installation of [Packer](https://www.packer.io/), 
+Please ensure that the requisites for Boxcutter are satisfied, including the
+installation of [Packer](https://www.packer.io/),
 [VirtualBox](https://www.virtualbox.org/), and [Vagrant](https://www.vagrantup.com/).
 
 #### Make File Targets
@@ -158,9 +234,9 @@ For convenience the Makefile in the `scripts/windows/vagrant` directory of this 
 | `win-vagrant-suspend` | Alias for `vagrant suspend` that will suspend the vagrant | `make win-vagrant-suspend` |
 | `win-vagrant-provision` | Alias for `vagrant provision` that will suspend the vagrant | `make win-vagrant-provision` |
 
-By default the makefile uses Windows Server 2008.  If you want to override this, set the environment variable `WINDOWS_VER` to choose a different version.
+By default the makefile uses Windows Server 2008.  If you want to override this, set the environment variable `WIN_VER` to choose a different version.
 
-The following values are supported for `WINDOWS_VER`
+The following values are supported for `WIN_VER`
 
 | Value | Windows Version | Vagrant Base Box Name | Virtual Box VM Name |
 | ----- | --------------- | --------------------- | ------------------- |
@@ -173,13 +249,13 @@ The following values are supported for `WINDOWS_VER`
 The following snippet will create the vagrant base box, start the vagrant, provision, suspend, and destroy it.
 
     $ cd $GOPATH/src/github.com/signalfx/signalfx-agent/scripts/windows/vagrant
-    $ WIN_VERSION=server_2008 make win-vagrant-base-box
+    $ WIN_VER=server_2008 make win-vagrant-base-box
       ...
-    $ WIN_VERSION=server_2008 make win-vagrant-up
+    $ WIN_VER=server_2008 make win-vagrant-up
       ...
-    $ WIN_VERSION=server_2008 make win-vagrant-suspend
+    $ WIN_VER=server_2008 make win-vagrant-suspend
       ...
-    $ WIN_VERSION=server_2008 make win-vagrant-destroy
+    $ WIN_VER=server_2008 make win-vagrant-destroy
 
 `win-vagrant-base-box`, `win-vagrant-up`, and `win-vagrant-provision`
 can take a significant amount of time to complete and depend on the

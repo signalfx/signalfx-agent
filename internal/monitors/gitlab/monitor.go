@@ -7,24 +7,24 @@ import (
 
 func init() {
 	monitors.Register("gitlab", func() interface{} {
-		return &pe.Monitor{IncludedMetrics: gitlabIncludedMetrics}
+		return &pe.Monitor{IncludedMetrics: includedMetrics}
 	}, &pe.Config{})
 
 	monitors.Register("gitlab-runner", func() interface{} {
-		return &pe.Monitor{IncludedMetrics: gitlabIncludedMetrics}
+		return &pe.Monitor{IncludedMetrics: includedMetrics}
 	}, &pe.Config{})
 
 	monitors.Register("gitlab-gitaly", func() interface{} {
-		return &pe.Monitor{IncludedMetrics: gitlabIncludedMetrics, ExtraDimensions: map[string]string{
+		return &pe.Monitor{IncludedMetrics: includedMetrics, ExtraDimensions: map[string]string{
 			"metric_source": "gitlab-gitaly"}}
 	}, &pe.Config{})
 
 	monitors.Register("gitlab-sidekiq", func() interface{} {
-		return &pe.Monitor{IncludedMetrics: gitlabIncludedMetrics}
+		return &pe.Monitor{IncludedMetrics: includedMetrics}
 	}, &pe.Config{})
 
 	monitors.Register("gitlab-workhorse", func() interface{} {
-		return &pe.Monitor{IncludedMetrics: gitlabIncludedMetrics}
+		return &pe.Monitor{IncludedMetrics: includedMetrics}
 	}, &pe.Config{})
 
 	// Send all unicorn metrics

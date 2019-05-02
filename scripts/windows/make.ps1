@@ -1,10 +1,16 @@
 Set-PSDebug -Trace 1
 $env:CGO_ENABLED = 0
+$ErrorActionPreference = "Stop"
 
 $scriptDir = split-path -parent $MyInvocation.MyCommand.Definition
 . "$scriptDir\common.ps1"
 . "$scriptDir\bundle.ps1"
 
+function compile_deps() {
+    versions_go
+    monitor-code-gen
+    .\monitor-code-gen
+}
 
 function versions_go() {
     if ($AGENT_VERSION -Eq ""){
@@ -21,10 +27,15 @@ function versions_go() {
 }
 
 function signalfx-agent([string]$AGENT_VERSION="", [string]$AGENT_BIN=".\signalfx-agent.exe", [string]$COLLECTD_VERSION="") {
-    versions_go
+    compile_deps
 
     go build -mod vendor -o "$AGENT_BIN" github.com/signalfx/signalfx-agent/cmd/agent
-    if ($lastexitcode -ne 0){ throw }
+}
+
+function monitor-code-gen([string]$AGENT_VERSION="", [string]$CODEGEN_BIN=".\monitor-code-gen.exe", [string]$COLLECTD_VERSION="") {
+    versions_go
+
+    go build -mod vendor -o "$CODEGEN_BIN" github.com/signalfx/signalfx-agent/cmd/monitorcodegen
 }
 
 # make the build bundle
@@ -75,7 +86,6 @@ function bundle (
             throw "$buildDir\$AGENT_NAME\bin\signalfx-agent.exe not found!"
         }
         signtool sign /f "$PFX_PATH" /p $PFX_PASSWORD /tr http://timestamp.digicert.com /fd sha256 /td SHA256 /n "SignalFx, Inc." "$buildDir\$AGENT_NAME\bin\signalfx-agent.exe"
-        if ($lastexitcode -ne 0){ throw }
     }
 
     if (($DOWNLOAD_PYTHON -Or !(Test-Path -Path "$buildDir\python")) -And !$ONLY_BUILD_AGENT) {
@@ -85,8 +95,8 @@ function bundle (
         install_pip -buildDir $buildDir
     }
 
-    if (($DOWNLOAD_COLLECTD_PLUGINS -Or !(Test-Path -Path "$buildDir\plugins")) -And !$ONLY_BUILD_AGENT) {
-        Remove-Item -Recurse -Force "$buildDir\plugins\collectd" -ErrorAction Ignore
+    if (($DOWNLOAD_COLLECTD_PLUGINS -Or !(Test-Path -Path "$buildDir\collectd-python")) -And !$ONLY_BUILD_AGENT) {
+        Remove-Item -Recurse -Force "$buildDir\collectd-python" -ErrorAction Ignore
         bundle_python_runner -buildDir "$buildDir"
         get_collectd_plugins -buildDir "$buildDir"
     }
@@ -104,8 +114,8 @@ function bundle (
     copy_default_config -buildDir "$buildDir" -AGENT_NAME "$AGENT_NAME"
     # copy python into agent directory
     Copy-Item -Path "$buildDir\python" -Destination "$buildDir\$AGENT_NAME\python" -recurse -Force
-    # copy plugins into agent directory
-    Copy-Item -Path "$buildDir\plugins" -Destination "$buildDir\$AGENT_NAME\plugins" -recurse -Force
+    # copy Python plugins into agent directory
+    Copy-Item -Path "$buildDir\collectd-python" -Destination "$buildDir\$AGENT_NAME\collectd-python" -recurse -Force
     # copy types.db file into agent directory
     copy_types_db -collectdCommit $COLLECTD_COMMIT -buildDir "$buildDir" -agentName "$AGENT_NAME"
 
@@ -123,31 +133,25 @@ function bundle (
 }
 
 function lint() {
-    versions_go
-    golint -set_exit_status ./cmd/... ./internal/...
-    if ($lastexitcode -ne 0){ exit $lastexitcode }
+    compile_deps
+    golangci-lint run
 }
 
 function vendor() {
     go mod tidy
     go mod vendor
-    if ($lastexitcode -ne 0){ exit $lastexitcode }
-}
-
-function vet() {
-    versions_go
-    go vet -mod vendor ./... 2>&1 | Select-String -Pattern "\.go" | Select-String -NotMatch -Pattern "_test\.go" -outvariable gofiles
-    if ($gofiles){ Write-Host $gofiles; exit 1 }
 }
 
 function unit_test() {
-    versions_go
+    compile_deps
     go generate -mod vendor ./internal/monitors/...
-    if ($lastexitcode -ne 0){ exit $lastexitcode }
-    $(& go test -mod vendor -v ./... 2>&1; $rc=$lastexitcode) | go2xunit > unit_results.xml
-    return $rc
+    $ErrorActionPreference = "Continue"
+    $output = & go test -mod vendor -v ./... 2>&1
+    if ($lastexitcode -gt 1){ throw $output }
+    Write-Output $output | go2xunit -output unit_results.xml
+    $ErrorActionPreference = "Stop"
 }
 
 function integration_test() {
-    pytest -m 'windows or windows_only' --verbose --junitxml=integration_results.xml --html=integration_results.html --self-contained-html tests
+    pytest -n auto -m 'windows or windows_only' --verbose --junitxml=integration_results.xml --html=integration_results.html --self-contained-html tests
 }

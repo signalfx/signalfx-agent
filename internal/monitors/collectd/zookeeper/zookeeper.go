@@ -10,16 +10,6 @@ import (
 	"github.com/signalfx/signalfx-agent/internal/monitors/pyrunner"
 )
 
-const monitorType = "collectd/zookeeper"
-
-// MONITOR(collectd/zookeeper): Monitors an Apache Zookeeper instance.
-//
-// See the [Python plugin
-// source](https://github.com/signalfx/collectd-zookeeper) and the
-// [integrations repo
-// page](https://github.com/signalfx/integrations/tree/master/collectd-zookeeper)
-// for more information.
-
 func init() {
 	monitors.Register(monitorType, func() interface{} {
 		return &Monitor{
@@ -54,8 +44,8 @@ func (rm *Monitor) Configure(conf *Config) error {
 	conf.pyConf = &python.Config{
 		MonitorConfig: conf.MonitorConfig,
 		ModuleName:    "zk-collectd",
-		ModulePaths:   []string{collectd.MakePath("zookeeper")},
-		TypesDBPaths:  []string{collectd.MakePath("types.db")},
+		ModulePaths:   []string{collectd.MakePythonPluginPath("zookeeper")},
+		TypesDBPaths:  []string{collectd.DefaultTypesDBPath()},
 		Host:          conf.Host,
 		Port:          conf.Port,
 		PluginConfig: map[string]interface{}{

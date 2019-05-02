@@ -9,8 +9,9 @@ from textwrap import dedent
 
 import pytest
 
+from tests.helpers.agent import Agent
 from tests.helpers.assertions import has_datapoint_with_dim
-from tests.helpers.util import ensure_always, run_agent, run_service, wait_for
+from tests.helpers.util import ensure_always, run_service, wait_for
 
 CONFIG = """
 observers:
@@ -45,14 +46,20 @@ monitors:
 
 
 def test_docker_observer():
-    with run_agent(CONFIG) as [backend, _, _]:
+    with Agent.run(CONFIG) as agent:
         with run_service("nginx", name="nginx-discovery", labels={"mylabel": "abc"}):
-            assert wait_for(p(has_datapoint_with_dim, backend, "plugin", "nginx")), "Didn't get nginx datapoints"
-            assert wait_for(p(has_datapoint_with_dim, backend, "mydim", "abc")), "Didn't get custom label dimension"
+            assert wait_for(
+                p(has_datapoint_with_dim, agent.fake_services, "plugin", "nginx")
+            ), "Didn't get nginx datapoints"
+            assert wait_for(
+                p(has_datapoint_with_dim, agent.fake_services, "mydim", "abc")
+            ), "Didn't get custom label dimension"
         # Let nginx be removed by docker observer and collectd restart
         time.sleep(5)
-        backend.reset_datapoints()
-        assert ensure_always(lambda: not has_datapoint_with_dim(backend, "container_name", "nginx-discovery"), 10)
+        agent.fake_services.reset_datapoints()
+        assert ensure_always(
+            lambda: not has_datapoint_with_dim(agent.fake_services, "container_name", "nginx-discovery"), 10
+        )
 
 
 @pytest.mark.skipif(
@@ -66,16 +73,16 @@ def test_docker_observer_use_host_bindings():
             labels={"mylabel": "with-host-binding"},
             ports={"80/tcp": ("127.0.0.1", 0)},
         ) as container_bind:
-            with run_agent(
+            with Agent.run(
                 HOST_BINDING_CONFIG.substitute(
                     port=container_bind.attrs["NetworkSettings"]["Ports"]["80/tcp"][0]["HostPort"]
                 )
-            ) as [backend, _, _]:
+            ) as agent:
                 assert not wait_for(
-                    p(has_datapoint_with_dim, backend, "mydim", "non-host-binding")
+                    p(has_datapoint_with_dim, agent.fake_services, "mydim", "non-host-binding")
                 ), "Didn't get custom label dimension"
                 assert wait_for(
-                    p(has_datapoint_with_dim, backend, "mydim", "with-host-binding")
+                    p(has_datapoint_with_dim, agent.fake_services, "mydim", "with-host-binding")
                 ), "Didn't get custom label dimension"
 
 
@@ -84,14 +91,14 @@ def test_docker_observer_labels():
     Test that docker observer picks up a fully configured endpoint from
     container labels
     """
-    with run_agent(
+    with Agent.run(
         dedent(
             """
         observers:
           - type: docker
     """
         )
-    ) as [backend, _, _]:
+    ) as agent:
         with run_service(
             "nginx",
             name="nginx-disco-full",
@@ -100,11 +107,15 @@ def test_docker_observer_labels():
                 "agent.signalfx.com.config.80.intervalSeconds": "1",
             },
         ):
-            assert wait_for(p(has_datapoint_with_dim, backend, "plugin", "nginx")), "Didn't get nginx datapoints"
+            assert wait_for(
+                p(has_datapoint_with_dim, agent.fake_services, "plugin", "nginx")
+            ), "Didn't get nginx datapoints"
         # Let nginx be removed by docker observer and collectd restart
         time.sleep(5)
-        backend.reset_datapoints()
-        assert ensure_always(lambda: not has_datapoint_with_dim(backend, "container_name", "nginx-disco-full"), 10)
+        agent.fake_services.reset_datapoints()
+        assert ensure_always(
+            lambda: not has_datapoint_with_dim(agent.fake_services, "container_name", "nginx-disco-full"), 10
+        )
 
 
 def test_docker_observer_labels_partial():
@@ -112,7 +123,7 @@ def test_docker_observer_labels_partial():
     Test that docker observer picks up a partially configured endpoint from
     container labels
     """
-    with run_agent(
+    with Agent.run(
         dedent(
             """
         observers:
@@ -122,32 +133,38 @@ def test_docker_observer_labels_partial():
             discoveryRule: container_name =~ "nginx-disco-partial" && port == 80
     """
         )
-    ) as [backend, _, _]:
+    ) as agent:
         with run_service(
             "nginx",
             name="nginx-disco-partial",
             labels={"agent.signalfx.com.config.80.extraDimensions": "{mydim: myvalue}"},
         ):
-            assert wait_for(p(has_datapoint_with_dim, backend, "plugin", "nginx")), "Didn't get nginx datapoints"
-            assert wait_for(p(has_datapoint_with_dim, backend, "mydim", "myvalue")), "Didn't get extra dimension"
+            assert wait_for(
+                p(has_datapoint_with_dim, agent.fake_services, "plugin", "nginx")
+            ), "Didn't get nginx datapoints"
+            assert wait_for(
+                p(has_datapoint_with_dim, agent.fake_services, "mydim", "myvalue")
+            ), "Didn't get extra dimension"
         # Let nginx be removed by docker observer and collectd restart
         time.sleep(5)
-        backend.reset_datapoints()
-        assert ensure_always(lambda: not has_datapoint_with_dim(backend, "container_name", "nginx-disco-partial"), 10)
+        agent.fake_services.reset_datapoints()
+        assert ensure_always(
+            lambda: not has_datapoint_with_dim(agent.fake_services, "container_name", "nginx-disco-partial"), 10
+        )
 
 
 def test_docker_observer_labels_multiple_monitors_per_port():
     """
     Test that we can configure multiple monitors per port using labels
     """
-    with run_agent(
+    with Agent.run(
         dedent(
             """
         observers:
           - type: docker
     """
         )
-    ) as [backend, _, _]:
+    ) as agent:
         with run_service(
             "nginx",
             name="nginx-multi-monitors",
@@ -160,10 +177,14 @@ def test_docker_observer_labels_multiple_monitors_per_port():
                 "agent.signalfx.com.config.80-nginx2.extraDimensions": "{app: other}",
             },
         ):
-            assert wait_for(p(has_datapoint_with_dim, backend, "plugin", "nginx")), "Didn't get nginx datapoints"
-            assert wait_for(p(has_datapoint_with_dim, backend, "app", "nginx")), "Didn't get extra dims"
-            assert wait_for(p(has_datapoint_with_dim, backend, "app", "other")), "Didn't get extra dims"
+            assert wait_for(
+                p(has_datapoint_with_dim, agent.fake_services, "plugin", "nginx")
+            ), "Didn't get nginx datapoints"
+            assert wait_for(p(has_datapoint_with_dim, agent.fake_services, "app", "nginx")), "Didn't get extra dims"
+            assert wait_for(p(has_datapoint_with_dim, agent.fake_services, "app", "other")), "Didn't get extra dims"
         # Let nginx be removed by docker observer and collectd restart
         time.sleep(5)
-        backend.reset_datapoints()
-        assert ensure_always(lambda: not has_datapoint_with_dim(backend, "container_name", "nginx-multi-monitors"), 10)
+        agent.fake_services.reset_datapoints()
+        assert ensure_always(
+            lambda: not has_datapoint_with_dim(agent.fake_services, "container_name", "nginx-multi-monitors"), 10
+        )

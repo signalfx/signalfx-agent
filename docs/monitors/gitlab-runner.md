@@ -30,6 +30,8 @@ Monitor Type: `gitlab-runner`
 | --- | --- | --- | --- |
 | `host` | **yes** | `string` | Host of the exporter |
 | `port` | **yes** | `integer` | Port of the exporter |
+| `username` | no | `string` | Basic Auth username to use on each request, if any. |
+| `password` | no | `string` | Basic Auth password to use on each request, if any. |
 | `useHTTPS` | no | `bool` | If true, the agent will connect to the exporter using HTTPS instead of plain HTTP. (**default:** `false`) |
 | `skipVerify` | no | `bool` | If useHTTPS is true and this option is also true, the exporter's TLS cert will not be verified. (**default:** `false`) |
 | `metricPath` | no | `string` | Path to the metrics endpoint on the exporter server, usually `/metrics` (the default). (**default:** `/metrics`) |
@@ -45,8 +47,8 @@ The following table lists the metrics available for this monitor. Metrics that a
 | Name | Type | Included | Description |
 | ---  | ---  | ---    | ---         |
 | `gitlab_runner_api_request_statuses_total` | cumulative |  | The total number of API requests, partitioned by runner, endpoint and status |
-| `gitlab_runner_autoscaling_machine_creation_duration_seconds_bucket` | cumulative |  | Histogram of machine creation time |
 | `gitlab_runner_autoscaling_machine_creation_duration_seconds` | cumulative |  | Histogram of machine creation time |
+| `gitlab_runner_autoscaling_machine_creation_duration_seconds_bucket` | cumulative |  | Histogram of machine creation time |
 | `gitlab_runner_autoscaling_machine_creation_duration_seconds_count` | cumulative |  | Histogram of machine creation time |
 | `gitlab_runner_autoscaling_machine_states` | gauge |  | The current number of machines per state in this provider |
 | `gitlab_runner_concurrent` | gauge |  | The current value of concurrent setting |
@@ -72,8 +74,8 @@ required for gathering additional metrics.
 metricsToInclude:
   - metricNames:
     - gitlab_runner_api_request_statuses_total
-    - gitlab_runner_autoscaling_machine_creation_duration_seconds_bucket
     - gitlab_runner_autoscaling_machine_creation_duration_seconds
+    - gitlab_runner_autoscaling_machine_creation_duration_seconds_bucket
     - gitlab_runner_autoscaling_machine_creation_duration_seconds_count
     - gitlab_runner_autoscaling_machine_states
     - gitlab_runner_concurrent

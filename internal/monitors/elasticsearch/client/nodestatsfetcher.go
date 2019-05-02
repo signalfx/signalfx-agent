@@ -31,7 +31,7 @@ func getNodeStatsDatapointsHelper(nodeStats NodeStats, defaultDims map[string]st
 	dps = append(dps, nodeStats.Transport.getTransportStats(nodeStatsGroupEnhancedOption[TransportStatsGroup], defaultDims)...)
 	dps = append(dps, nodeStats.HTTP.getHTTPStats(nodeStatsGroupEnhancedOption[HTTPStatsGroup], defaultDims)...)
 	dps = append(dps, fetchThreadPoolStats(nodeStatsGroupEnhancedOption[ThreadpoolStatsGroup], nodeStats.ThreadPool, defaultDims, selectedThreadPools)...)
-	dps = append(dps, nodeStats.Indices.getNodeIndexGroupStats(enhancedStatsForIndexGroups, defaultDims)...)
+	dps = append(dps, nodeStats.Indices.getIndexGroupStats(enhancedStatsForIndexGroups, defaultDims)...)
 
 	return dps
 }
@@ -166,7 +166,7 @@ func (http *HTTP) getHTTPStats(enhanced bool, dims map[string]string) []*datapoi
 	return out
 }
 
-func (indexStatsGroups *IndexStatsGroups) getNodeIndexGroupStats(enhancedStatsForIndexGroups map[string]bool, defaultDims map[string]string) []*datapoint.Datapoint {
+func (indexStatsGroups *IndexStatsGroups) getIndexGroupStats(enhancedStatsForIndexGroups map[string]bool, defaultDims map[string]string) []*datapoint.Datapoint {
 	var out []*datapoint.Datapoint
 
 	out = append(out, indexStatsGroups.Docs.getDocsStats(enhancedStatsForIndexGroups[DocsStatsGroup], defaultDims)...)
@@ -193,7 +193,7 @@ func (indexStatsGroups *IndexStatsGroups) getNodeIndexGroupStats(enhancedStatsFo
 	return out
 }
 
-func (docs *Docs) getDocsStats(enhanced bool, defaultDims map[string]string) []*datapoint.Datapoint {
+func (docs *Docs) getDocsStats(_ bool, defaultDims map[string]string) []*datapoint.Datapoint {
 	var out []*datapoint.Datapoint
 
 	out = append(out, []*datapoint.Datapoint{
@@ -228,7 +228,6 @@ func (indexing Indexing) getIndexingStats(enhanced bool, defaultDims map[string]
 			prepareGaugeHelper(indicesIndexingIndexCurrent, defaultDims, indexing.IndexCurrent),
 			prepareGaugeHelper(indicesIndexingIndexFailed, defaultDims, indexing.IndexFailed),
 			prepareGaugeHelper(indicesIndexingDeleteCurrent, defaultDims, indexing.DeleteCurrent),
-			prepareCumulativeHelper(indicesIndexingIndexTime, defaultDims, indexing.IndexTimeInMillis),
 			prepareCumulativeHelper(indicesIndexingDeleteTotal, defaultDims, indexing.DeleteTotal),
 			prepareCumulativeHelper(indicesIndexingDeleteTime, defaultDims, indexing.DeleteTimeInMillis),
 			prepareCumulativeHelper(indicesIndexingNoopUpdateTotal, defaultDims, indexing.NoopUpdateTotal),
@@ -238,6 +237,7 @@ func (indexing Indexing) getIndexingStats(enhanced bool, defaultDims map[string]
 
 	out = append(out, []*datapoint.Datapoint{
 		prepareCumulativeHelper(indicesIndexingIndexTotal, defaultDims, indexing.IndexTotal),
+		prepareCumulativeHelper(indicesIndexingIndexTime, defaultDims, indexing.IndexTimeInMillis),
 	}...)
 
 	return out
@@ -300,7 +300,6 @@ func (merges *Merges) getMergesStats(enhanced bool, defaultDims map[string]strin
 			prepareGaugeHelper(indicesMergesCurrentSizeInBytes, defaultDims, merges.CurrentSizeInBytes),
 			prepareCumulativeHelper(indicesMergesTotalDocs, defaultDims, merges.TotalDocs),
 			prepareCumulativeHelper(indicesMergesTotalSizeInBytes, defaultDims, merges.TotalSizeInBytes),
-			prepareCumulativeHelper(indicesMergesTotalTime, defaultDims, merges.TotalTimeInMillis),
 			prepareCumulativeHelper(indicesMergesTotalStoppedTime, defaultDims, merges.TotalStoppedTimeInMillis),
 			prepareCumulativeHelper(indicesMergesTotalThrottledTime, defaultDims, merges.TotalThrottledTimeInMillis),
 			prepareCumulativeHelper(indicesMergesTotalAutoThrottleInBytes, defaultDims, merges.TotalAutoThrottleInBytes),
@@ -310,6 +309,7 @@ func (merges *Merges) getMergesStats(enhanced bool, defaultDims map[string]strin
 	out = append(out, []*datapoint.Datapoint{
 		prepareGaugeHelper(indicesMergesCurrent, defaultDims, merges.Current),
 		prepareCumulativeHelper(indicesMergesTotal, defaultDims, merges.Total),
+		prepareCumulativeHelper(indicesMergesTotalTime, defaultDims, merges.TotalTimeInMillis),
 	}...)
 
 	return out
@@ -468,12 +468,13 @@ func (requestCache *RequestCache) getRequestCacheStats(enhanced bool, defaultDim
 
 	if enhanced {
 		out = append(out, []*datapoint.Datapoint{
-			prepareGaugeHelper(indicesRequestcacheMemorySizeInBytes, defaultDims, requestCache.MemorySizeInBytes),
 			prepareCumulativeHelper(indicesRequestcacheEvictions, defaultDims, requestCache.Evictions),
 			prepareCumulativeHelper(indicesRequestcacheHitCount, defaultDims, requestCache.HitCount),
 			prepareCumulativeHelper(indicesRequestcacheMissCount, defaultDims, requestCache.MissCount),
 		}...)
 	}
+
+	out = append(out, prepareGaugeHelper(indicesRequestcacheMemorySizeInBytes, defaultDims, requestCache.MemorySizeInBytes))
 
 	return out
 }

@@ -13,28 +13,12 @@ import (
 	"github.com/signalfx/signalfx-agent/internal/monitors/types"
 	"github.com/signalfx/signalfx-agent/internal/utils"
 	"github.com/signalfx/signalfx-agent/internal/utils/filter"
+	"github.com/sirupsen/logrus"
 	log "github.com/sirupsen/logrus"
 )
 
-const monitorType = "net-io"
-
-// setting net.IOCounters to a package variable for testing purposes
+//nolint:gochecknoglobals setting net.IOCounters to a package variable for testing purposes
 var iOCounters = net.IOCounters
-
-// MONITOR(net-io):
-// This monitor reports I/O metrics about network interfaces.
-//
-// On Linux hosts, this monitor relies on the `/proc` filesystem.
-// If the underlying host's `/proc` file system is mounted somewhere other than
-// /proc please specify the path using the top level configuration `procPath`.
-//
-// ```yaml
-// procPath: /proc
-// monitors:
-//  - type: net-io
-// ```
-
-var logger = log.WithFields(log.Fields{"monitorType": monitorType})
 
 func init() {
 	monitors.Register(monitorType, func() interface{} { return &Monitor{} }, &Config{})
@@ -43,12 +27,12 @@ func init() {
 // Config for this monitor
 type Config struct {
 	config.MonitorConfig `singleInstance:"false" acceptsEndpoints:"false"`
-	// The network interfaces to send metrics about. This is a
-	// [filter set](https://github.com/signalfx/signalfx-agent/blob/master/docs/filtering.md#generic-filters).
+	// The network interfaces to send metrics about. This is an [overridable
+	// set](https://docs.signalfx.com/en/latest/integrations/agent/filtering.html#overridable-filters).
 	Interfaces []string `yaml:"interfaces" default:"[\"*\", \"!/^lo\\\\d*$/\", \"!/^docker.*/\", \"!/^t(un|ap)\\\\d*$/\", \"!/^veth.*$/\", \"!/^Loopback*/\"]"`
 }
 
-// structure for storing sent and recieved values
+// structure for storing sent and received values
 type netio struct {
 	sent uint64
 	recv uint64
@@ -59,9 +43,10 @@ type Monitor struct {
 	Output                 types.Output
 	cancel                 func()
 	conf                   *Config
-	filter                 *filter.ExhaustiveStringFilter
+	filter                 *filter.OverridableStringFilter
 	networkTotal           uint64
 	previousInterfaceStats map[string]*netio
+	logger                 logrus.FieldLogger
 }
 
 func (m *Monitor) updateTotals(pluginInstance string, intf *net.IOCountersStat) {
@@ -94,15 +79,16 @@ func (m *Monitor) EmitDatapoints() {
 	info, err := iOCounters(true)
 	if err != nil {
 		if err == context.DeadlineExceeded {
-			logger.WithField("debug", err).Debugf("failed to load net io counters. if this message repeats frequently there may be a problem")
+			m.logger.WithField("debug", err).Debugf("failed to load net io counters. if this message repeats frequently there may be a problem")
 		} else {
-			logger.WithError(err).Errorf("failed to load net io counters. if this message repeats frequently there may be a problem")
+			m.logger.WithError(err).Errorf("failed to load net io counters. if this message repeats frequently there may be a problem")
 		}
 	}
-	for _, intf := range info {
+	for i := range info {
+		intf := info[i]
 		// skip it if the interface doesn't match
 		if !m.filter.Matches(intf.Name) {
-			logger.Debugf("skipping interface '%s'", intf.Name)
+			m.logger.Debugf("skipping interface '%s'", intf.Name)
 			continue
 		}
 
@@ -138,8 +124,9 @@ func (m *Monitor) EmitDatapoints() {
 // Configure is the main function of the monitor, it will report host metadata
 // on a varied interval
 func (m *Monitor) Configure(conf *Config) error {
+	m.logger = logrus.WithFields(log.Fields{"monitorType": monitorType})
 	if runtime.GOOS != "windows" {
-		logger.Warningf("'%s' monitor is in beta on this platform.  For production environments please use 'collectd/%s'.", monitorType, monitorType)
+		m.logger.Warningf("'%s' monitor is in beta on this platform.  For production environments please use 'collectd/%s'.", monitorType, monitorType)
 	}
 	// create contexts for managing the the plugin loop
 	var ctx context.Context
@@ -154,10 +141,10 @@ func (m *Monitor) Configure(conf *Config) error {
 	// configure filters
 	var err error
 	if len(conf.Interfaces) == 0 {
-		m.filter, err = filter.NewExhaustiveStringFilter([]string{"*"})
-		logger.Debugf("empty interface list, defaulting to '*'")
+		m.filter, err = filter.NewOverridableStringFilter([]string{"*"})
+		m.logger.Debugf("empty interface list, defaulting to '*'")
 	} else {
-		m.filter, err = filter.NewExhaustiveStringFilter(conf.Interfaces)
+		m.filter, err = filter.NewOverridableStringFilter(conf.Interfaces)
 	}
 
 	// return an error if we can't set the filter

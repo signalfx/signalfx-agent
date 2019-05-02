@@ -47,6 +47,12 @@ class accepts the following parameters:
 	 package revision > 1 contain changes to some aspect of the packaging
 	 scripts (e.g. init scripts) but contain the same agent bundle.
 
+## Dependencies
+
+On Debian-based systems, the
+[puppetlabs/apt](https://forge.puppet.com/puppetlabs/apt) module is required to
+manage the SignalFx apt repository.
+
 ## Development
 
 To work on the module in development, you can use the provided dev image to

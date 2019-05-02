@@ -4,9 +4,9 @@ import re
 from functools import partial as p
 
 import pytest
+
 from tests.helpers.assertions import has_datapoint_with_dim
 from tests.helpers.util import print_lines, wait_for
-
 from .common import (
     AGENT_YAML_PATH,
     INIT_SYSTEMD,

@@ -19,42 +19,6 @@ import (
 	"github.com/ulule/deepcopier"
 )
 
-const monitorType = "telegraf/tail"
-
-// MONITOR(telegraf/tail): This monitor is based on the Telegraf tail plugin.  The monitor tails files and
-// named pipes.  The Telegraf parser configured with this monitor extracts metrics in different
-// [formats](https://github.com/influxdata/telegraf/blob/master/docs/DATA_FORMATS_INPUT.md)
-// from the tailed output. More information about the Telegraf plugin
-// can be found [here](https://github.com/influxdata/telegraf/tree/master/plugins/inputs/tail).
-// All metrics emitted from this monitor will have the `plugin` dimension set to `telegraf-tail`
-//
-// Sample YAML configuration:
-//
-// ```yaml
-// monitors:
-//  - type: telegraf/tail
-//    files:
-//     - '/logs/**.log'       # find all .log files in /logs
-//     - '/logs/*/*.log'      # find all .log files who are contained in a directory under /logs/
-//     - '/var/log/agent.log' # tail the specified log file
-//    watchMethod: inotify    # specify the file watch method ("ionotify" or "poll")
-// ```
-//
-// Sample YAML configuration that specifies a parser:
-//
-// ```yaml
-// monitors:
-//  - type: telegraf/tail
-//    files:
-//     - '/logs/**.log'       # find all .log files in /logs
-//     - '/logs/*/*.log'      # find all .log files who are contained in a directory under /logs/
-//     - '/var/log/agent.log' # tail the specified log file
-//    watchMethod: inotify    # specify the file watch method ("inotify" or "poll")
-//    telegrafParser:         # specify a parser
-//      dataFormat: "influx"  # set the parser's dataFormat
-// ```
-//
-
 var logger = log.WithFields(log.Fields{"monitorType": monitorType})
 
 func init() {

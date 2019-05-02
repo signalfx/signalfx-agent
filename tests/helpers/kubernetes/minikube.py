@@ -16,18 +16,12 @@ from kubernetes import config as kube_config
 
 import tests.helpers.kubernetes.utils as k8s
 from tests.helpers.assertions import container_cmd_exit_0, tcp_socket_open
+from tests.helpers.fake_backend import start as start_fake_backend
 from tests.helpers.formatting import print_dp_or_event
 from tests.helpers.kubernetes.agent import Agent
-from tests.helpers.util import (
-    container_ip,
-    fake_backend,
-    get_docker_client,
-    get_host_ip,
-    retry,
-    wait_for,
-    TEST_SERVICES_DIR,
-)
+from tests.helpers.util import container_ip, get_docker_client, get_host_ip, retry, wait_for
 from tests.packaging.common import get_container_file_content
+from tests.paths import TEST_SERVICES_DIR, REPO_ROOT_DIR
 
 MINIKUBE_CONTAINER_NAME = "minikube"
 MINIKUBE_IMAGE_NAME = "minikube"
@@ -40,8 +34,7 @@ K8S_API_PORT = 8443
 K8S_RELEASE_URL = "https://storage.googleapis.com/kubernetes-release/release/stable.txt"
 K8S_MIN_VERSION = "1.7.0"
 K8S_MIN_KUBEADM_VERSION = "1.11.0"
-PROJECT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../.."))
-MINIKUBE_DOCKERFILE_PATH = os.path.join(TEST_SERVICES_DIR, "minikube/Dockerfile")
+MINIKUBE_DOCKERFILE_PATH = TEST_SERVICES_DIR / "minikube/Dockerfile"
 
 
 def get_free_port():
@@ -144,7 +137,7 @@ class Minikube:  # pylint: disable=too-many-instance-attributes
     def get_cluster_version(self):
         version_yaml = self.exec_kubectl("version --output=yaml")
         assert version_yaml, "failed to get kubectl version"
-        cluster_version = yaml.load(version_yaml).get("serverVersion").get("gitVersion")
+        cluster_version = yaml.safe_load(version_yaml).get("serverVersion").get("gitVersion")
         return check_k8s_version(cluster_version)
 
     def get_client(self):
@@ -182,7 +175,7 @@ class Minikube:  # pylint: disable=too-many-instance-attributes
         else:
             self.k8s_version = self.get_cluster_version()
         content = get_container_file_content(self.container, MINIKUBE_KUBECONFIG_PATH)
-        self.kubeconfig = yaml.load(content)
+        self.kubeconfig = yaml.safe_load(content)
         current_context = self.kubeconfig.get("current-context")
         for context in self.kubeconfig.get("contexts"):
             if context.get("name") == current_context:
@@ -234,7 +227,7 @@ class Minikube:  # pylint: disable=too-many-instance-attributes
         build_opts = dict(
             buildargs={"MINIKUBE_VERSION": self.version}, tag=self.image_tag, dockerfile=MINIKUBE_DOCKERFILE_PATH
         )
-        image_id = self.build_image(PROJECT_DIR, build_opts, "unix://var/run/docker.sock")
+        image_id = self.build_image(REPO_ROOT_DIR, build_opts, "unix://var/run/docker.sock")
         print("\nDeploying minikube %s cluster ..." % self.k8s_version)
         self.container = self.host_client.containers.run(image_id, **options)
         self.container_name = self.container.name
@@ -342,7 +335,7 @@ class Minikube:  # pylint: disable=too-many-instance-attributes
         for yaml_file in yamls:
             assert os.path.isfile(yaml_file), '"%s" not found!' % yaml_file
             with open(yaml_file, "r") as fd:
-                for doc in yaml.load_all(fd.read()):
+                for doc in yaml.safe_load_all(fd.read()):
                     kind = doc["kind"]
                     name = doc["metadata"]["name"]
                     nspace = doc["metadata"].setdefault("namespace", namespace)
@@ -380,7 +373,7 @@ class Minikube:  # pylint: disable=too-many-instance-attributes
 
         if not monitors:
             monitors = []
-        with fake_backend.start(ip_addr=get_host_ip()) as backend:
+        with start_fake_backend(ip_addr=get_host_ip()) as backend:
             options = dict(
                 image_name=agent_image["name"],
                 image_tag=agent_image["tag"],

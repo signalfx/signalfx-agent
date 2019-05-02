@@ -1,4 +1,5 @@
-- dimensions: null
+monitors:
+- dimensions:
   doc: |
     This monitor reads Windows performance
     counters
@@ -22,6 +23,6 @@
           includeTotal: true
           measurement: "win_cpu"
     ```
-  metrics: null
+  metrics:
   monitorType: telegraf/win_perf_counters
-  properties: null
+  properties:

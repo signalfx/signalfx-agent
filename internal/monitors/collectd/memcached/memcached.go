@@ -10,16 +10,6 @@ import (
 	"github.com/signalfx/signalfx-agent/internal/monitors/collectd"
 )
 
-const monitorType = "collectd/memcached"
-
-// MONITOR(collectd/memcached): Monitors an instance of memcached using the
-// [collectd memcached
-// plugin](https://collectd.org/wiki/index.php/Plugin:memcached).
-//
-// See the [integrations
-// doc](https://github.com/signalfx/integrations/tree/master/collectd-memcached)
-// for more information.
-
 func init() {
 	monitors.Register(monitorType, func() interface{} {
 		return &Monitor{

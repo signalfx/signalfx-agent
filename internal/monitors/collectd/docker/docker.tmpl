@@ -1,8 +1,8 @@
-TypesDB "{{ pluginRoot }}/docker/dockerplugin.db"
+TypesDB "{{ pythonPluginRoot }}/docker/dockerplugin.db"
 LoadPlugin "python"
 
 <Plugin python>
-  ModulePath "{{ pluginRoot }}/docker"
+  ModulePath "{{ pythonPluginRoot }}/docker"
   Import "dockerplugin"
 
   <Module dockerplugin>

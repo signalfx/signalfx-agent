@@ -1,4 +1,5 @@
-- dimensions: null
+monitors:
+- dimensions:
   doc: |
     Monitors a Kafka instance using collectd's
     GenericJMX plugin.
@@ -18,111 +19,111 @@
 
     See https://github.com/signalfx/integrations/tree/master/collectd-kafka.
   metrics:
-  - description: Number of bytes received per second across all topics
-    included: false
-    name: counter.kafka-all-bytes-in
-    type: cumulative
-  - description: Number of bytes transmitted per second across all topics
-    included: false
-    name: counter.kafka-all-bytes-out
-    type: cumulative
-  - description: Number of log flushes per second
-    included: false
-    name: counter.kafka-log-flushes
-    type: cumulative
-  - description: Number of messages received per second across all topics
-    included: true
-    name: counter.kafka-messages-in
-    type: cumulative
-  - description: Number of fetch requests from consumers per second across all partitions
-    included: true
-    name: counter.kafka.fetch-consumer.total-time.count
-    type: cumulative
-  - description: Number of fetch requests from followers per second across all partitions
-    included: false
-    name: counter.kafka.fetch-follower.total-time.count
-    type: cumulative
-  - description: 99th percentile of time in milliseconds to process produce requests
-    included: false
-    name: counter.kafka.produce.total-time.99th
-    type: gauge
-  - description: Number of producer requests
-    included: true
-    name: counter.kafka.produce.total-time.count
-    type: cumulative
-  - description: Median time it takes to process a produce request
-    included: false
-    name: counter.kafka.produce.total-time.median
-    type: gauge
-  - description: Specifies if the broker an active controller
-    included: true
-    name: gauge.kafka-active-controllers
-    type: gauge
-  - description: Average number of milliseconds to flush a log
-    included: false
-    name: gauge.kafka-log-flush-time-ms
-    type: gauge
-  - description: 95th percentile of log flush time in milliseconds
-    included: false
-    name: gauge.kafka-log-flush-time-ms-p95
-    type: gauge
-  - description: Number of requests in the request queue across all partitions on
-      the broker
-    included: true
-    name: gauge.kafka-request-queue
-    type: gauge
-  - description: Number of underreplicated partitions across all topics on the broker
-    included: true
-    name: gauge.kafka-underreplicated-partitions
-    type: gauge
-  - description: 99th percentile of time in milliseconds to process fetch requests
-      from consumers
-    included: true
-    name: gauge.kafka.fetch-consumer.total-time.99th
-    type: gauge
-  - description: Median time it takes to process a fetch request from consumers
-    included: true
-    name: gauge.kafka.fetch-consumer.total-time.median
-    type: gauge
-  - description: 99th percentile of time in milliseconds to process fetch requests
-      from followers
-    included: true
-    name: gauge.kafka.fetch-follower.total-time.99th
-    type: gauge
-  - description: Median time it takes to process a fetch request from follower
-    included: true
-    name: gauge.kafka.fetch-follower.total-time.median
-    type: gauge
-  - description: When a broker is brought up after a failure, it starts catching up
-      by reading from the leader. Once it is caught up, it gets added back to the
-      ISR.
-    included: false
-    name: kafka-isr-expands
-    type: cumulative
-  - description: When a broker goes down, ISR for some of partitions will shrink.
-      When that broker is up again, ISR will be expanded once the replicas are fully
-      caught up. Other than that, the expected value for both ISR shrink rate and
-      expansion rate is 0.
-    included: false
-    name: kafka-isr-shrinks
-    type: cumulative
-  - description: Number of leader elections
-    included: false
-    name: kafka-leader-election-rate
-    type: cumulative
-  - description: Maximum lag in messages between the follower and leader replicas
-    included: false
-    name: kafka-max-lag
-    type: gauge
-  - description: "Number of partitions that don\u2019t have an active leader and are\
-      \ hence not writable or readable"
-    included: false
-    name: kafka-offline-partitions-count
-    type: gauge
-  - description: Number of unclean leader elections. This happens when a leader goes
-      down and an out-of-sync replica is chosen to be the leader
-    included: false
-    name: kafka-unclean-elections
-    type: cumulative
+    counter.kafka-all-bytes-in:
+      description: Number of bytes received per second across all topics
+      included: false
+      type: cumulative
+    counter.kafka-all-bytes-out:
+      description: Number of bytes transmitted per second across all topics
+      included: false
+      type: cumulative
+    counter.kafka-log-flushes:
+      description: Number of log flushes per second
+      included: false
+      type: cumulative
+    counter.kafka-messages-in:
+      description: Number of messages received per second across all topics
+      included: true
+      type: cumulative
+    counter.kafka.fetch-consumer.total-time.count:
+      description: Number of fetch requests from consumers per second across all partitions
+      included: true
+      type: cumulative
+    counter.kafka.fetch-follower.total-time.count:
+      description: Number of fetch requests from followers per second across all partitions
+      included: false
+      type: cumulative
+    counter.kafka.produce.total-time.99th:
+      description: 99th percentile of time in milliseconds to process produce requests
+      included: false
+      type: gauge
+    counter.kafka.produce.total-time.count:
+      description: Number of producer requests
+      included: true
+      type: cumulative
+    counter.kafka.produce.total-time.median:
+      description: Median time it takes to process a produce request
+      included: false
+      type: gauge
+    gauge.kafka-active-controllers:
+      description: Specifies if the broker an active controller
+      included: true
+      type: gauge
+    gauge.kafka-log-flush-time-ms:
+      description: Average number of milliseconds to flush a log
+      included: false
+      type: gauge
+    gauge.kafka-log-flush-time-ms-p95:
+      description: 95th percentile of log flush time in milliseconds
+      included: false
+      type: gauge
+    gauge.kafka-request-queue:
+      description: Number of requests in the request queue across all partitions on
+        the broker
+      included: true
+      type: gauge
+    gauge.kafka-underreplicated-partitions:
+      description: Number of underreplicated partitions across all topics on the broker
+      included: true
+      type: gauge
+    gauge.kafka.fetch-consumer.total-time.99th:
+      description: 99th percentile of time in milliseconds to process fetch requests
+        from consumers
+      included: true
+      type: gauge
+    gauge.kafka.fetch-consumer.total-time.median:
+      description: Median time it takes to process a fetch request from consumers
+      included: true
+      type: gauge
+    gauge.kafka.fetch-follower.total-time.99th:
+      description: 99th percentile of time in milliseconds to process fetch requests
+        from followers
+      included: true
+      type: gauge
+    gauge.kafka.fetch-follower.total-time.median:
+      description: Median time it takes to process a fetch request from follower
+      included: true
+      type: gauge
+    kafka-isr-expands:
+      description: When a broker is brought up after a failure, it starts catching
+        up by reading from the leader. Once it is caught up, it gets added back to
+        the ISR.
+      included: false
+      type: cumulative
+    kafka-isr-shrinks:
+      description: When a broker goes down, ISR for some of partitions will shrink.
+        When that broker is up again, ISR will be expanded once the replicas are fully
+        caught up. Other than that, the expected value for both ISR shrink rate and
+        expansion rate is 0.
+      included: false
+      type: cumulative
+    kafka-leader-election-rate:
+      description: Number of leader elections
+      included: false
+      type: cumulative
+    kafka-max-lag:
+      description: Maximum lag in messages between the follower and leader replicas
+      included: false
+      type: gauge
+    kafka-offline-partitions-count:
+      description: Number of partitions that don’t have an active leader and are hence
+        not writable or readable
+      included: false
+      type: gauge
+    kafka-unclean-elections:
+      description: Number of unclean leader elections. This happens when a leader
+        goes down and an out-of-sync replica is chosen to be the leader
+      included: false
+      type: cumulative
   monitorType: collectd/kafka
-  properties: null
+  properties:

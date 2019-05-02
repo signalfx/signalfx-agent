@@ -5,6 +5,7 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/olekukonko/tablewriter"
 	"github.com/signalfx/golib/datapoint"
 )
 
@@ -15,12 +16,19 @@ func sortedDimensionString(dims map[string]string) string {
 	}
 	sort.Strings(keys)
 
-	var dimStrs []string
-	for _, k := range keys {
-		dimStrs = append(dimStrs, fmt.Sprintf("%s=%s", k, dims[k]))
-	}
+	tableString := &strings.Builder{}
+	table := tablewriter.NewWriter(tableString)
 
-	return strings.Join(dimStrs, "; ")
+	table.SetHeader(keys)
+	var vals []string
+	for _, k := range keys {
+		vals = append(vals, dims[k])
+	}
+	table.Append(vals)
+	table.SetAutoFormatHeaders(false)
+
+	table.Render()
+	return tableString.String()
 }
 
 func dpTypeToString(t datapoint.MetricType) string {
@@ -41,7 +49,11 @@ func dpTypeToString(t datapoint.MetricType) string {
 // dict so it is consistent so that it is easier to visually scan a large list
 // of datapoints.
 func DatapointToString(dp *datapoint.Datapoint) string {
-	return fmt.Sprintf("\n%s\nValue: %s\n%s\n%s\nDimensions: {%s}\n", dp.Metric, dp.Value, strings.ToUpper(dpTypeToString(dp.MetricType)), dp.Timestamp, sortedDimensionString(dp.Dimensions))
+	var tsStr string
+	if !dp.Timestamp.IsZero() {
+		tsStr = dp.Timestamp.String()
+	}
+	return fmt.Sprintf("%s: %s (%s) %s\n%s\n", dp.Metric, dp.Value, strings.ToUpper(dpTypeToString(dp.MetricType)), tsStr, sortedDimensionString(dp.Dimensions))
 }
 
 // BoolToInt returns 1 if b is true and 0 otherwise.  It is useful for

@@ -12,30 +12,15 @@ import (
 	"github.com/signalfx/signalfx-agent/internal/monitors"
 	"github.com/signalfx/signalfx-agent/internal/monitors/types"
 	"github.com/signalfx/signalfx-agent/internal/utils"
+	"github.com/sirupsen/logrus"
 	log "github.com/sirupsen/logrus"
 )
 
-const monitorType = "cpu"
 const cpuUtilName = "cpu.utilization"
 const percoreMetricName = "cpu.utilization_per_core"
 
 var errorUsedDiffLessThanZero = fmt.Errorf("usedDiff < 0")
 var errorTotalDiffLessThanZero = fmt.Errorf("totalDiff < 0")
-
-// MONITOR(cpu):
-// This monitor reports cpu metrics.
-//
-// On Linux hosts, this monitor relies on the `/proc` filesystem.
-// If the underlying host's `/proc` file system is mounted somewhere other than
-// /proc please specify the path using the top level configuration `procPath`.
-//
-// ```yaml
-// procPath: /proc
-// monitors:
-//  - type: cpu
-// ```
-
-var logger = log.WithFields(log.Fields{"monitorType": monitorType})
 
 func init() {
 	monitors.Register(monitorType, func() interface{} { return &Monitor{} }, &Config{})
@@ -58,19 +43,21 @@ type Monitor struct {
 	conf            *Config
 	previousPerCore map[string]*totalUsed
 	previousTotal   *totalUsed
+	logger          logrus.FieldLogger
 }
 
 func (m *Monitor) emitPerCoreDatapoints() {
 	totals, err := times(true)
 	if err != nil {
 		if err == context.DeadlineExceeded {
-			logger.WithField("debug", err).Debugf("unable to get per core cpu times will try again in the next reporting cycle")
+			m.logger.WithField("debug", err).Debugf("unable to get per core cpu times will try again in the next reporting cycle")
 		} else {
-			logger.WithField("warning", err).Warningf("unable to get per core cpu times will try again in the next reporting cycle")
+			m.logger.WithField("warning", err).Warningf("unable to get per core cpu times will try again in the next reporting cycle")
 		}
 	}
 	// for each core
-	for _, core := range totals {
+	for i := range totals {
+		core := totals[i]
 		// get current times as totalUsed
 		current := cpuTimeStatTototalUsed(&core)
 
@@ -79,7 +66,7 @@ func (m *Monitor) emitPerCoreDatapoints() {
 			utilization, err := getUtilization(prev, current)
 
 			if err != nil {
-				logger.WithError(err).Errorf("failed to calculate utilization for cpu core %s", core.CPU)
+				m.logger.WithError(err).Errorf("failed to calculate utilization for cpu core %s", core.CPU)
 				continue
 			}
 
@@ -103,9 +90,9 @@ func (m *Monitor) emitDatapoints() {
 	total, err := times(false)
 	if err != nil || len(total) == 0 {
 		if err == context.DeadlineExceeded {
-			logger.WithField("debug", err).Debugf("unable to get cpu times will try again in the next reporting cycle")
+			m.logger.WithField("debug", err).Debugf("unable to get cpu times will try again in the next reporting cycle")
 		} else {
-			logger.WithError(err).Errorf("unable to get cpu times will try again in the next reporting cycle")
+			m.logger.WithError(err).Errorf("unable to get cpu times will try again in the next reporting cycle")
 		}
 		return
 	}
@@ -119,9 +106,9 @@ func (m *Monitor) emitDatapoints() {
 		// append errors
 		if err != nil {
 			if err == errorTotalDiffLessThanZero || err == errorUsedDiffLessThanZero {
-				logger.WithField("debug", err).Debugf("failed to calculate utilization for cpu")
+				m.logger.WithField("debug", err).Debugf("failed to calculate utilization for cpu")
 			} else {
-				logger.WithError(err).Errorf("failed to calculate utilization for cpu")
+				m.logger.WithError(err).Errorf("failed to calculate utilization for cpu")
 			}
 			return
 		}
@@ -149,13 +136,14 @@ func getUtilization(prev *totalUsed, current *totalUsed) (utilization float64, e
 
 	usedDiff := current.Used - prev.Used
 	totalDiff := current.Total - prev.Total
-	if usedDiff < 0 {
+	switch {
+	case usedDiff < 0:
 		err = errorUsedDiffLessThanZero
-	} else if totalDiff < 0 {
+	case totalDiff < 0:
 		err = errorTotalDiffLessThanZero
-	} else if (usedDiff == 0 && totalDiff == 0) || totalDiff == 0 {
+	case (usedDiff == 0 && totalDiff == 0) || totalDiff == 0:
 		utilization = 0
-	} else {
+	default:
 		// calculate utilization
 		utilization = usedDiff / totalDiff * 100
 		if utilization < 0 {
@@ -174,7 +162,7 @@ func (m *Monitor) initializeCPUTimes() {
 	var total []cpu.TimesStat
 	var err error
 	if total, err = times(false); err != nil {
-		logger.WithField("debug", err).Debugf("unable to initialize cpu times will try again in the next reporting cycle")
+		m.logger.WithField("debug", err).Debugf("unable to initialize cpu times will try again in the next reporting cycle")
 	}
 	if len(total) > 0 {
 		m.previousTotal = cpuTimeStatTototalUsed(&total[0])
@@ -186,19 +174,20 @@ func (m *Monitor) initializePerCoreCPUTimes() {
 	var totals []cpu.TimesStat
 	var err error
 	if totals, err = times(true); err != nil {
-		logger.WithField("debug", err).Debugf("unable to initialize per core cpu times will try again in the next reporting cycle")
+		m.logger.WithField("debug", err).Debugf("unable to initialize per core cpu times will try again in the next reporting cycle")
 	}
 	m.previousPerCore = make(map[string]*totalUsed, len(totals))
-	for _, core := range totals {
-		m.previousPerCore[core.CPU] = cpuTimeStatTototalUsed(&core)
+	for i := range totals {
+		m.previousPerCore[totals[i].CPU] = cpuTimeStatTototalUsed(&totals[i])
 	}
 }
 
 // Configure is the main function of the monitor, it will report host metadata
 // on a varied interval
 func (m *Monitor) Configure(conf *Config) error {
+	m.logger = logrus.WithFields(log.Fields{"monitorType": monitorType})
 	if runtime.GOOS != "windows" {
-		logger.Warningf("'%s' monitor is in beta on this platform.  For production environments please use 'collectd/%s'.", monitorType, monitorType)
+		m.logger.Warningf("'%s' monitor is in beta on this platform.  For production environments please use 'collectd/%s'.", monitorType, monitorType)
 	}
 
 	// create contexts for managing the the plugin loop

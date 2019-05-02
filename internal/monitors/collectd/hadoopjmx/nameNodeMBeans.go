@@ -1,3 +1,5 @@
+// +build linux
+
 package hadoopjmx
 
 var defaultNameNodeMBeanYAML = `

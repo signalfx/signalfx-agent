@@ -26,9 +26,11 @@ import (
 	"github.com/signalfx/signalfx-agent/internal/core/config"
 	"github.com/signalfx/signalfx-agent/internal/core/dpfilters"
 	"github.com/signalfx/signalfx-agent/internal/core/writer/properties"
+	"github.com/signalfx/signalfx-agent/internal/core/writer/tap"
 	"github.com/signalfx/signalfx-agent/internal/core/writer/tracetracker"
 	"github.com/signalfx/signalfx-agent/internal/monitors/types"
 	"github.com/signalfx/signalfx-agent/internal/utils"
+	"github.com/sirupsen/logrus"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -37,8 +39,6 @@ const (
 	// given time.  This should be big enough for any reasonable use case.
 	eventBufferCapacity = 1000
 )
-
-var logger = utils.NewThrottledLogger(log.WithFields(log.Fields{"component": "writer"}), 20*time.Second)
 
 // SignalFxWriter is what sends events and datapoints to SignalFx ingest.  It
 // receives events/datapoints on two buffered channels and writes them to
@@ -57,6 +57,8 @@ type SignalFxWriter struct {
 	ctx    context.Context
 	cancel context.CancelFunc
 	conf   *config.WriterConfig
+	logger *utils.ThrottledLogger
+	dpTap  *tap.DatapointTap
 
 	// map that holds host-specific ids like AWSUniqueID
 	hostIDDims       map[string]string
@@ -96,6 +98,7 @@ type SignalFxWriter struct {
 // New creates a new un-configured writer
 func New(conf *config.WriterConfig, dpChan chan *datapoint.Datapoint, eventChan chan *event.Event,
 	propertyChan chan *types.DimProperties, spanChan chan *trace.Span) (*SignalFxWriter, error) {
+	logger := utils.NewThrottledLogger(logrus.WithFields(log.Fields{"component": "writer"}), 20*time.Second)
 
 	ctx, cancel := context.WithCancel(context.Background())
 
@@ -109,6 +112,7 @@ func New(conf *config.WriterConfig, dpChan chan *datapoint.Datapoint, eventChan 
 		ctx:           ctx,
 		cancel:        cancel,
 		conf:          conf,
+		logger:        logger,
 		client:        sfxclient.NewHTTPSink(),
 		dimPropClient: dimPropClient,
 		hostIDDims:    conf.HostIDDims,
@@ -124,7 +128,8 @@ func New(conf *config.WriterConfig, dpChan chan *datapoint.Datapoint, eventChan 
 		},
 		spanBufferPool: &sync.Pool{
 			New: func() interface{} {
-				return make([]*trace.Span, 0, conf.TraceSpanMaxBatchSize)
+				buf := make([]*trace.Span, 0, conf.TraceSpanMaxBatchSize)
+				return &buf
 			},
 		},
 	}
@@ -189,6 +194,9 @@ func New(conf *config.WriterConfig, dpChan chan *datapoint.Datapoint, eventChan 
 	go sw.listenForEventsAndDimProps()
 	go sw.listenForTraceSpans()
 
+	log.Infof("Sending datapoints to %s", sw.client.DatapointEndpoint)
+	log.Infof("Sending trace spans to %s", sw.client.TraceEndpoint)
+
 	return sw, nil
 }
 
@@ -222,6 +230,9 @@ func (sw *SignalFxWriter) sendDatapoints(dps []*datapoint.Datapoint) error {
 	}
 	log.Debugf("Sent %d datapoints out of the agent", len(dps))
 
+	// dpTap.Accept handles the receiver being nil
+	sw.dpTap.Accept(dps)
+
 	return nil
 }
 
@@ -252,7 +263,6 @@ func (sw *SignalFxWriter) sendEvents(events []*event.Event) error {
 
 	err := sw.client.AddEvents(context.Background(), events)
 	if err != nil {
-		log.WithError(err).Error("Error shipping events to SignalFx")
 		return err
 	}
 	sw.eventsSent += int64(len(events))
@@ -293,7 +303,7 @@ func (sw *SignalFxWriter) addhostIDFields(fields map[string]string) map[string]s
 // channels and forwards them to SignalFx.
 func (sw *SignalFxWriter) listenForDatapoints() {
 	bufferSize := sw.conf.MaxDatapointsBuffered
-	maxRequests := int64(sw.conf.DatapointMaxRequests)
+	maxRequests := int64(sw.conf.DatapointMaxRequests) //nolint: staticcheck
 	// Ring buffer of datapoints, initialized to its maximum length to avoid
 	// reallocations.
 	dpBuffer := make([]*datapoint.Datapoint, bufferSize)
@@ -340,13 +350,13 @@ func (sw *SignalFxWriter) listenForDatapoints() {
 		sw.dpRequestsActive++
 		go func(low, high int) {
 			dpCount := int64(high - low)
-			atomic.AddInt64(&sw.dpsInFlight, int64(dpCount))
+			atomic.AddInt64(&sw.dpsInFlight, dpCount)
 
 			log.Debugf("Sending dpBuffer[%d:%d]", low, high)
-			sw.sendDatapoints(dpBuffer[low:high])
+			_ = sw.sendDatapoints(dpBuffer[low:high])
 
-			atomic.AddInt64(&sw.dpsInFlight, -int64(dpCount))
-			atomic.AddInt64(&sw.dpsSent, int64(dpCount))
+			atomic.AddInt64(&sw.dpsInFlight, -dpCount)
+			atomic.AddInt64(&sw.dpsSent, dpCount)
 
 			requestDoneCh <- struct{}{}
 		}(lastHighStarted, newHigh)
@@ -390,7 +400,7 @@ func (sw *SignalFxWriter) listenForDatapoints() {
 		}
 
 		if lastHighStarted < nextDatapointIdx && bufferedCircuits > startedCircuits {
-			logger.ThrottledWarning(fmt.Sprintf("Datapoint ring buffer overflowed, some datapoints were dropped. Set writer.maxDatapointsBuffered to something higher (currently %d)", bufferSize))
+			sw.logger.ThrottledWarning(fmt.Sprintf("Datapoint ring buffer overflowed, some datapoints were dropped. Set writer.maxDatapointsBuffered to something higher (currently %d)", bufferSize))
 		}
 		batched++
 
@@ -457,7 +467,12 @@ func (sw *SignalFxWriter) listenForEventsAndDimProps() {
 
 		case <-eventTicker.C:
 			if len(sw.eventBuffer) > 0 {
-				go sw.sendEvents(sw.eventBuffer)
+				go func(buf []*event.Event) {
+					if err := sw.sendEvents(buf); err != nil {
+
+						log.WithError(err).Error("Error shipping events to SignalFx")
+					}
+				}(sw.eventBuffer)
 				initEventBuffer()
 			}
 		case dimProps := <-sw.propertyChan:
@@ -469,6 +484,12 @@ func (sw *SignalFxWriter) listenForEventsAndDimProps() {
 			}
 		}
 	}
+}
+
+// SetTap allows you to set one datapoint tap at a time to inspect datapoints
+// going out of the agent.
+func (sw *SignalFxWriter) SetTap(dpTap *tap.DatapointTap) {
+	sw.dpTap = dpTap
 }
 
 // Shutdown the writer and stop sending datapoints

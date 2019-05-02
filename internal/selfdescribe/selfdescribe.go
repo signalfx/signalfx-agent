@@ -7,6 +7,7 @@ package selfdescribe
 
 import (
 	"encoding/json"
+	"io"
 	"reflect"
 
 	"github.com/signalfx/signalfx-agent/internal/core/config"
@@ -17,18 +18,22 @@ import (
 // various components in the agent.  It is meant to be used as an intermediate
 // form which serves as a data source for automatically generating docs about
 // the agent.
-func JSON() string {
+func JSON(writer io.Writer) {
+	osm, err := observersStructMetadata()
+	if err != nil {
+		panic(err)
+	}
+
 	out, err := json.MarshalIndent(map[string]interface{}{
 		"TopConfig":             getStructMetadata(reflect.TypeOf(config.Config{})),
 		"GenericMonitorConfig":  getStructMetadata(reflect.TypeOf(config.MonitorConfig{})),
 		"GenericObserverConfig": getStructMetadata(reflect.TypeOf(config.ObserverConfig{})),
 		"Monitors":              monitorsStructMetadata(),
-		"Observers":             observersStructMetadata(),
+		"Observers":             osm,
 		"SourceConfig":          getStructMetadata(reflect.TypeOf(sources.SourceConfig{})),
 	}, "", "  ")
 	if err != nil {
 		panic(err)
 	}
-
-	return string(out)
+	_, _ = writer.Write(out)
 }

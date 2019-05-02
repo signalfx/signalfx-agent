@@ -4,7 +4,7 @@ ENV PATH=$PATH:/opt/puppetlabs/bin:/opt/puppetlabs/pdk/bin
 
 WORKDIR /tmp
 RUN apt update &&\
-    apt install -y make wget vim gcc ruby ruby-dev libxml2 libxml2-dev libxslt1-dev &&\
+    apt install -y make wget vim gcc ruby ruby-dev libxml2 libxml2-dev libxslt1-dev git &&\
 	wget https://apt.puppetlabs.com/puppet5-release-xenial.deb &&\
 	dpkg -i puppet5-release-xenial.deb &&\
 	rm *.deb &&\

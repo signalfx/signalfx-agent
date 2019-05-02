@@ -27,6 +27,7 @@ parse_args_and_release() {
   local build_rpm_package=no
   local build_bundle=no
   local build_deployments=no
+  local build_pypi=no
   local push_windows=no
   local force=no
   local allow_uncommitted=no
@@ -83,6 +84,7 @@ parse_args_and_release() {
           bundle) build_bundle=yes build_all=no ;;
           deployments) build_deployments=yes build_all=no ;;
           windows) push_windows=yes build_all=no ;;
+          pypi) build_pypi=yes build_all=no ;;
           *) echo "component "$1" not recognized, quitting" >&2 && exit 1 ;;
         esac
         shift 1
@@ -106,8 +108,8 @@ parse_args_and_release() {
   fi
 
   if [[ "$stage" != "test" ]] && [[ $(git symbolic-ref HEAD) != "refs/heads/master" ]] && [[ "$force" != "yes" ]]; then
-	echo "You are releasing a beta/final release from a branch other than master, which is not allowed." >&2
-	exit 1
+    echo "You are releasing a beta/final release from a branch other than master, which is not allowed." >&2
+    exit 1
   fi
 
   read -p "This is a $stage release of version $new_version, please confirm: [y/N] "
@@ -131,7 +133,12 @@ parse_args_and_release() {
     build_docker_image "$stage" "$new_version"
     if [[ "$push" == "yes" ]]; then
       echo "Pushing docker image"
-      push_docker_image "$stage" "$new_version"
+      image_base="$(docker_repo_from_stage $stage)"
+      new_image="$image_base:$new_version"
+      docker push $new_image
+      if [[ "$stage" == "final" ]]; then
+        update_floating_docker_tags "$new_version" "$new_image" "$image_base"
+      fi
     fi
   fi
 
@@ -163,6 +170,13 @@ parse_args_and_release() {
   # versions in the master branch that haven't been released.
   if [[ "$stage" == "final" ]] && ([[ "$build_deployments" == "yes" ]] || [[ "$build_all" == "yes" ]]); then
     update_deployment_files "$new_version" "$force"
+  fi
+
+  if [[ "$build_all" == "yes" ]] || [[ "$build_pypi" == "yes" ]]; then
+    echo "Pushing python extensions to PyPi"
+    if python_code_has_changed "$new_version"; then
+      release_python_to_pypi
+    fi
   fi
 
   echo "Successfully released $new_version"
@@ -203,7 +217,7 @@ update_deployment_files() {
       [[ ! "$REPLY" =~ ^[Yy]$ ]] && echo "Not pushing deployment updates" >&2 && return 1
     fi
 
-    git add deployments
+    git add deployments Dockerfile.rhel
     git commit -m"Update deployment versions to ${new_version}"
     git push origin
   fi
@@ -262,10 +276,15 @@ build_docker_image() {
   AGENT_IMAGE_NAME=$image_name make -C $SCRIPT_DIR/.. image
 }
 
-push_docker_image() {
-  local stage="$1"
-  local new_version="$2"
-  docker push $(docker_repo_from_stage $stage):$new_version
+update_floating_docker_tags() {
+  local new_version="$1"
+  local new_image="$2"
+  local image_base="$3"
+
+  major_version=$(echo -n "$new_version" | cut -d. -f1)
+  floating_tag="$image_base:$major_version"
+  docker tag "$new_image" "$floating_tag"
+  docker push $floating_tag
 }
 
 # Deb package build and push
@@ -326,6 +345,40 @@ push_windows_bundle() {
   else
     echo "Nothing to do"
   fi
+}
+
+latest_pypi_release() {
+  echo -n "curl https://pypi.org/pypi/sfxpython/json | jq -r .info.version" || true
+}
+
+python_code_has_changed() {
+  local new_version=$1
+
+  if ! git diff --exit-code v$(scripts/latest-final-release v${new_version}~) -- $SCRIPT_DIR/../python; then
+    echo "Python code changed since last release"
+
+    last_release=$(latest_pypi_release)
+    current_release=$(python $SCRIPT_DIR/../python/setup.py --version)
+
+    if [[ -n "$last_release" ]] && [[ "$last_release" == "$current_version" ]]; then
+      echo "ERROR: Python release has changed since last agent release but you didn't increment the Python release version from $current_release" >&2
+      exit 7
+    fi
+
+    echo "Last release of Python package was version $last_release"
+  else
+    echo "Python package didn't change since last release"
+    return 1
+  fi
+}
+
+release_python_to_pypi() {
+  pushd $SCRIPT_DIR/../python
+
+  python3 setup.py sdist bdist_wheel
+  python3 -m twine upload dist/*
+
+  popd
 }
 
 parse_args_and_release $@

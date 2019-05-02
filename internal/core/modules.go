@@ -5,6 +5,7 @@ package core
 
 import (
 	// Import everything that isn't referenced anywhere else
+	_ "github.com/signalfx/signalfx-agent/internal/monitors/appmesh"
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/aspdotnet"
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/cadvisor"
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/collectd/consul"
@@ -23,6 +24,7 @@ import (
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/collectd/rabbitmq"
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/collectd/redis"
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/collectd/spark"
+	_ "github.com/signalfx/signalfx-agent/internal/monitors/collectd/systemd"
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/collectd/zookeeper"
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/conviva"
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/cpu"
@@ -39,6 +41,7 @@ import (
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/memory"
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/metadata/hostmetadata"
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/netio"
+	_ "github.com/signalfx/signalfx-agent/internal/monitors/postgresql"
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/processlist"
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/prometheus/go"
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/prometheus/nginxvts"
@@ -48,6 +51,8 @@ import (
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/prometheus/redis"
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/prometheusexporter"
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/pyrunner/signalfx"
+	_ "github.com/signalfx/signalfx-agent/internal/monitors/sql"
+	_ "github.com/signalfx/signalfx-agent/internal/monitors/statsd"
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/telegraf/monitors/mssqlserver"
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/telegraf/monitors/procstat"
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/telegraf/monitors/tail"

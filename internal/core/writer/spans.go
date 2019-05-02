@@ -28,7 +28,7 @@ func (sw *SignalFxWriter) listenForTraceSpans() {
 			return
 
 		case span := <-sw.spanChan:
-			buf := append(sw.spanBufferPool.Get().([]*trace.Span), span)
+			buf := append(*sw.spanBufferPool.Get().(*[]*trace.Span), span)
 			buf = sw.drainSpanChan(buf)
 
 			for i := range buf {
@@ -59,21 +59,24 @@ func (sw *SignalFxWriter) listenForTraceSpans() {
 
 			atomic.AddInt64(&sw.traceSpansInFlight, int64(len(buf)))
 
-			go func() {
-				defer sw.spanBufferPool.Put(buf[:0])
+			go func(spanBuf []*trace.Span) {
+				defer func() {
+					spanBuf = spanBuf[:0]
+					sw.spanBufferPool.Put(&spanBuf)
+				}()
 
 				// Wait if there are more than the max outstanding requests,
 				// but respond to requests to shed outstandand requests and the
 				// writer shutdown.
 				select {
 				case <-sw.ctx.Done():
-					atomic.AddInt64(&sw.traceSpansInFlight, -int64(len(buf)))
+					atomic.AddInt64(&sw.traceSpansInFlight, -int64(len(spanBuf)))
 					return
 				case <-shedRequests:
-					atomic.AddInt64(&sw.traceSpansDropped, int64(len(buf)))
+					atomic.AddInt64(&sw.traceSpansDropped, int64(len(spanBuf)))
 					log.Warnf("Aborting pending trace span request with %d spans "+
-						"due to excess trace spans in flight", len(buf))
-					atomic.AddInt64(&sw.traceSpansInFlight, -int64(len(buf)))
+						"due to excess trace spans in flight", len(spanBuf))
+					atomic.AddInt64(&sw.traceSpansInFlight, -int64(len(spanBuf)))
 					shedCompleted <- struct{}{}
 					return
 				case reqSema <- struct{}{}:
@@ -82,25 +85,25 @@ func (sw *SignalFxWriter) listenForTraceSpans() {
 
 				// Don't put this above because shed requests need to control
 				// the order that they decrement this and notify completion.
-				defer atomic.AddInt64(&sw.traceSpansInFlight, -int64(len(buf)))
+				defer atomic.AddInt64(&sw.traceSpansInFlight, -int64(len(spanBuf)))
 
 				atomic.AddInt64(&sw.traceSpanRequestsActive, 1)
 				// This sends synchonously
-				err := sw.client.AddSpans(context.Background(), buf)
+				err := sw.client.AddSpans(context.Background(), spanBuf)
 				<-reqSema
 				atomic.AddInt64(&sw.traceSpanRequestsActive, -1)
 
 				if err != nil {
 					log.WithFields(log.Fields{
 						"error": err,
-					}).Errorf("Error shipping %d trace spans to SignalFx", len(buf))
-					atomic.AddInt64(&sw.traceSpansFailedToSend, int64(len(buf)))
+					}).Errorf("Error shipping %d trace spans to SignalFx", len(spanBuf))
+					atomic.AddInt64(&sw.traceSpansFailedToSend, int64(len(spanBuf)))
 					// If there is an error sending spans then just forget about them.
 					return
 				}
-				atomic.AddInt64(&sw.traceSpansSent, int64(len(buf)))
-				log.Debugf("Sent %d trace spans to SignalFx", len(buf))
-			}()
+				atomic.AddInt64(&sw.traceSpansSent, int64(len(spanBuf)))
+				log.Debugf("Sent %d trace spans to SignalFx", len(spanBuf))
+			}(buf)
 		}
 	}
 }

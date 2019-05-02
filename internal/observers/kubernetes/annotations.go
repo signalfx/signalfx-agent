@@ -10,7 +10,7 @@ import (
 	"github.com/signalfx/signalfx-agent/internal/utils"
 	"github.com/signalfx/signalfx-agent/internal/utils/k8sutil"
 	log "github.com/sirupsen/logrus"
-	"k8s.io/api/core/v1"
+	v1 "k8s.io/api/core/v1"
 	k8s "k8s.io/client-go/kubernetes"
 )
 
@@ -52,7 +52,7 @@ func (ac AnnotationConfigs) FilterByPortOrPortName(port int32, portName string) 
 func parseAgentAnnotation(key, value string, pod *v1.Pod) (*AnnotationConfig, error) {
 	groups := annotationConfigRegexp.FindStringSubmatch(key)
 	if groups[0] == "" {
-		return nil, fmt.Errorf("K8s config annotation has invalid agent namespaced key: %s", key)
+		return nil, fmt.Errorf("kubernetes config annotation has invalid agent namespaced key: %s", key)
 	}
 
 	conf := &AnnotationConfig{
@@ -70,13 +70,13 @@ func parseAgentAnnotation(key, value string, pod *v1.Pod) (*AnnotationConfig, er
 	}
 
 	if conf.Type != "monitorType" && len(conf.ConfigKey) == 0 {
-		return nil, fmt.Errorf("K8s config annotation %s is missing a config key", key)
+		return nil, fmt.Errorf("kubernetes config annotation %s is missing a config key", key)
 	}
 	if conf.Port != 0 && k8sutil.PortByNumber(pod, conf.Port) == nil {
-		return nil, fmt.Errorf("K8s config annotation %s references invalid port number %d", key, conf.Port)
+		return nil, fmt.Errorf("kubernetes config annotation %s references invalid port number %d", key, conf.Port)
 	}
 	if conf.PortName != "" && k8sutil.PortByName(pod, conf.PortName) == nil {
-		return nil, fmt.Errorf("K8s config annotation %s references invalid port name %s", key, conf.PortName)
+		return nil, fmt.Errorf("kubernetes config annotation %s references invalid port name %s", key, conf.PortName)
 	}
 
 	return conf, nil

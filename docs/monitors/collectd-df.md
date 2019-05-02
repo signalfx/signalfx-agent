@@ -18,7 +18,7 @@ Monitor Type: `collectd/df`
 | Config option | Required | Type | Description |
 | --- | --- | --- | --- |
 | `hostFSPath` | no | `string` | Path to the root of the host filesystem.  Useful when running in a container and the host filesystem is mounted in some subdirectory under /. |
-| `ignoreSelected` | no | `bool` | If true, the filesystems selected by `fsTypes` and `mountPoints` will be excluded and all others included. (**default:** `false`) |
+| `ignoreSelected` | no | `bool` | If true, the filesystems selected by `fsTypes` and `mountPoints` will be excluded and all others included. (**default:** `true`) |
 | `fsTypes` | no | `list of strings` | The filesystem types to include/exclude. (**default:** `[aufs overlay tmpfs proc sysfs nsfs cgroup devpts selinuxfs devtmpfs debugfs mqueue hugetlbfs securityfs pstore binfmt_misc autofs]`) |
 | `mountPoints` | no | `list of strings` | The mount paths to include/exclude, is interpreted as a regex if surrounded by `/`.  Note that you need to include the full path as the agent will see it, irrespective of the hostFSPath option. (**default:** `[/^/var/lib/docker/containers/ /^/var/lib/rkt/pods/ /^/net// /^/smb//]`) |
 | `reportByDevice` | no | `bool` |  (**default:** `false`) |

@@ -7,10 +7,10 @@ from functools import partial as p
 
 import pytest
 
+from tests import paths
 from tests.helpers.kubernetes.minikube import Minikube, has_docker_image
-from tests.helpers.util import wait_for, get_docker_client, run_container
+from tests.helpers.util import get_docker_client, run_container, wait_for
 
-REPO_ROOT_DIR = os.path.join(os.path.dirname(os.path.realpath(__file__)), "..")
 K8S_DEFAULT_VERSION = "1.14.0"
 K8S_DEFAULT_TIMEOUT = int(os.environ.get("K8S_TIMEOUT", 300))
 K8S_DEFAULT_TEST_TIMEOUT = 60
@@ -63,6 +63,11 @@ def pytest_addoption(parser):
         "--k8s-skip-teardown",
         action="store_true",
         help="If specified, the minikube container will not be stopped/removed when the tests complete.",
+    )
+    parser.addoption(
+        "--test-bundle-path",
+        action="store",
+        help="Path to a bundle .tar.gz file for testing.  Required for tests that need a bundle.",
     )
 
 
@@ -164,7 +169,7 @@ def agent_image(minikube, request, worker_id):  # pylint: disable=redefined-oute
                 env={"PULL_CACHE": "yes", "AGENT_IMAGE_NAME": agent_image_name, "AGENT_VERSION": agent_image_tag},
                 stderr=subprocess.STDOUT,
                 check=True,
-                cwd=REPO_ROOT_DIR,
+                cwd=paths.REPO_ROOT_DIR,
                 timeout=K8S_SFX_AGENT_BUILD_TIMEOUT,
             )
             sfx_agent_image = client.images.get(agent_image_name + ":" + agent_image_tag)

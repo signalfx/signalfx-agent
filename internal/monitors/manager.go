@@ -10,6 +10,7 @@ import (
 	"github.com/signalfx/golib/event"
 	"github.com/signalfx/golib/trace"
 	"github.com/signalfx/signalfx-agent/internal/core/config"
+	"github.com/signalfx/signalfx-agent/internal/core/dpfilters"
 	"github.com/signalfx/signalfx-agent/internal/core/meta"
 	"github.com/signalfx/signalfx-agent/internal/core/services"
 	"github.com/signalfx/signalfx-agent/internal/monitors/collectd"
@@ -168,7 +169,7 @@ func (mm *MonitorManager) handleNewConfig(conf *config.MonitorConfig) (config.Mo
 
 	if configOnlyAllowsSingleInstance(monConfig) {
 		if len(mm.monitorConfigsForType(conf.Type)) > 0 {
-			return nil, fmt.Errorf("Monitor type %s only allows a single instance at a time", conf.Type)
+			return nil, fmt.Errorf("monitor type %s only allows a single instance at a time", conf.Type)
 		}
 	}
 
@@ -198,7 +199,7 @@ func (mm *MonitorManager) makeMonitorsForMatchingEndpoints(conf config.MonitorCu
 		}).Debug("Trying to find config that matches discovered endpoint")
 
 		if mm.isEndpointIDMonitoredByConfig(conf, id) {
-			log.Debug("The monitor is already monitored")
+			log.Debug("The endpoint is already monitored")
 			continue
 		}
 
@@ -224,7 +225,9 @@ func (mm *MonitorManager) makeMonitorsForMatchingEndpoints(conf config.MonitorCu
 func (mm *MonitorManager) isEndpointIDMonitoredByConfig(conf config.MonitorCustomConfig, id services.ID) bool {
 	for _, am := range mm.activeMonitors {
 		if conf.MonitorConfigCore().Hash() == am.configHash {
-			return true
+			if am.endpointID() == id {
+				return true
+			}
 		}
 	}
 	return false
@@ -232,7 +235,7 @@ func (mm *MonitorManager) isEndpointIDMonitoredByConfig(conf config.MonitorCusto
 
 // Returns true is the service did match a rule in this monitor config
 func (mm *MonitorManager) monitorEndpointIfRuleMatches(config config.MonitorCustomConfig, endpoint services.Endpoint) (bool, error) {
-	if config.MonitorConfigCore().DiscoveryRule == "" || !services.DoesServiceMatchRule(endpoint, config.MonitorConfigCore().DiscoveryRule) {
+	if config.MonitorConfigCore().DiscoveryRule == "" || !services.DoesServiceMatchRule(endpoint, config.MonitorConfigCore().DiscoveryRule, config.MonitorConfigCore().ShouldValidateDiscoveryRule()) {
 		return false, nil
 	}
 
@@ -321,26 +324,37 @@ func (mm *MonitorManager) createAndConfigureNewMonitor(config config.MonitorCust
 		"monitorID":     id,
 	}).Info("Creating new monitor")
 
-	instance := newMonitor(config.MonitorConfigCore().Type, id)
+	instance := newMonitor(config.MonitorConfigCore().Type)
 	if instance == nil {
 		return errors.Errorf("Could not create new monitor of type %s", config.MonitorConfigCore().Type)
 	}
 
 	configHash := config.MonitorConfigCore().Hash()
+	oldFilter, err := config.MonitorConfigCore().OldFilterSet()
+	if err != nil {
+		return err
+	}
+
+	newFilter, err := config.MonitorConfigCore().NewFilterSet()
+	if err != nil {
+		return err
+	}
 
 	output := &monitorOutput{
 		monitorType:               config.MonitorConfigCore().Type,
 		monitorID:                 id,
 		notHostSpecific:           config.MonitorConfigCore().DisableHostDimensions,
 		disableEndpointDimensions: config.MonitorConfigCore().DisableEndpointDimensions,
-		filter:                    config.MonitorConfigCore().Filter,
-		configHash:                configHash,
-		endpoint:                  endpoint,
-		dpChan:                    mm.DPs,
-		eventChan:                 mm.Events,
-		dimPropChan:               mm.DimensionProps,
-		spanChan:                  mm.TraceSpans,
-		extraDims:                 map[string]string{},
+		filterSet: &dpfilters.FilterSet{
+			ExcludeFilters: []dpfilters.DatapointFilter{oldFilter, newFilter},
+		},
+		configHash:  configHash,
+		endpoint:    endpoint,
+		dpChan:      mm.DPs,
+		eventChan:   mm.Events,
+		dimPropChan: mm.DimensionProps,
+		spanChan:    mm.TraceSpans,
+		extraDims:   map[string]string{},
 	}
 
 	am := &ActiveMonitor{
@@ -371,16 +385,13 @@ func (mm *MonitorManager) monitorsForEndpointID(id services.ID) (out []*ActiveMo
 
 func (mm *MonitorManager) monitorConfigsForType(monitorType string) []*config.MonitorCustomConfig {
 	var out []*config.MonitorCustomConfig
-	for _, conf := range mm.monitorConfigs {
+	for i := range mm.monitorConfigs {
+		conf := mm.monitorConfigs[i]
 		if conf.MonitorConfigCore().Type == monitorType {
 			out = append(out, &conf)
 		}
 	}
 	return out
-}
-
-func (mm *MonitorManager) isServiceMonitored(id services.ID) bool {
-	return len(mm.monitorsForEndpointID(id)) > 0
 }
 
 // EndpointRemoved should be called by observers when a service endpoint was

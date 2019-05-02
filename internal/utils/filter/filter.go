@@ -6,7 +6,10 @@
 package filter
 
 import (
+	"errors"
 	"regexp"
+
+	"github.com/gobwas/glob"
 )
 
 // StringFilter matches against simple strings
@@ -19,15 +22,12 @@ type StringMapFilter interface {
 	Matches(map[string]string) bool
 }
 
-type regexMatcher struct {
-	re      *regexp.Regexp
-	negated bool
-}
-
 // BasicStringFilter will match if any one of the given strings is a match.
 type BasicStringFilter struct {
-	staticSet map[string]bool
-	regexps   []regexMatcher
+	staticSet        map[string]bool
+	regexps          []regexMatcher
+	globs            []globMatcher
+	anyStaticNegated bool
 }
 
 var _ StringFilter = &BasicStringFilter{}
@@ -35,102 +35,114 @@ var _ StringFilter = &BasicStringFilter{}
 // Matches returns true if any one of the strings in the filter matches the
 // input s
 func (f *BasicStringFilter) Matches(s string) bool {
-	staticMatch := false
-	for val, negated := range f.staticSet {
-		staticMatch = staticMatch || (val == s != negated)
+	negated, matched := f.staticSet[s]
+	if matched {
+		return !negated
+	}
+	if f.anyStaticNegated {
+		return true
 	}
 
-	regexMatch := false
 	for _, reMatch := range f.regexps {
-		regexMatch = regexMatch || (reMatch.re.MatchString(s) != reMatch.negated)
+		if reMatch.re.MatchString(s) != reMatch.negated {
+			return true
+		}
 	}
-	return staticMatch || regexMatch
+
+	for _, globMatch := range f.globs {
+		if globMatch.glob.Match(s) != globMatch.negated {
+			return true
+		}
+	}
+
+	return false
 }
 
 // NewBasicStringFilter returns a filter that can match against the provided items.
 func NewBasicStringFilter(items []string) (*BasicStringFilter, error) {
 	staticSet := make(map[string]bool)
 	var regexps []regexMatcher
+	var globs []globMatcher
+
+	anyStaticNegated := false
 	for _, i := range items {
 		m, negated := stripNegation(i)
-		if isRegex(m) || isGlobbed(m) {
+		switch {
+		case isRegex(m):
 			var re *regexp.Regexp
 			var err error
 
-			if isRegex(m) {
-				reText := stripSlashes(m)
-				re, err = regexp.Compile(reText)
-			} else {
-				re, err = convertGlobToRegexp(m)
-			}
+			reText := stripSlashes(m)
+			re, err = regexp.Compile(reText)
 
 			if err != nil {
 				return nil, err
 			}
 
 			regexps = append(regexps, regexMatcher{re: re, negated: negated})
-		} else {
+		case isGlobbed(m):
+			g, err := glob.Compile(m)
+			if err != nil {
+				return nil, err
+			}
+
+			globs = append(globs, globMatcher{glob: g, negated: negated})
+		default:
 			staticSet[m] = negated
+			if negated {
+				anyStaticNegated = true
+			}
 		}
 	}
 
 	return &BasicStringFilter{
-		staticSet: staticSet,
-		regexps:   regexps,
+		staticSet:        staticSet,
+		regexps:          regexps,
+		globs:            globs,
+		anyStaticNegated: anyStaticNegated,
 	}, nil
 }
 
 // NewStringMapFilter returns a filter that matches against the provided map.
 // All key/value pairs must match the spec given in m for a map to be
 // considered a match.
-func NewStringMapFilter(m map[string]string) (StringMapFilter, error) {
-	staticSet := map[string]string{}
-	regexps := map[string]*regexp.Regexp{}
-	for k, v := range m {
-		if isRegex(v) || isGlobbed(v) {
-			var re *regexp.Regexp
-			var err error
+func NewStringMapFilter(m map[string][]string) (StringMapFilter, error) {
+	filterMap := map[string]*OverridableStringFilter{}
+	for k := range m {
+		if len(m[k]) == 0 {
+			return nil, errors.New("string map value in filter cannot be empty")
+		}
 
-			if isRegex(v) {
-				reText := stripSlashes(v)
-				re, err = regexp.Compile(reText)
-			} else {
-				re, err = convertGlobToRegexp(v)
-			}
-
-			if err != nil {
-				return nil, err
-			}
-
-			regexps[k] = re
-		} else {
-			staticSet[k] = v
+		var err error
+		filterMap[k], err = NewOverridableStringFilter(m[k])
+		if err != nil {
+			return nil, err
 		}
 	}
 
 	return &fullStringMapFilter{
-		staticSet: staticSet,
-		regexps:   regexps,
+		filterMap: filterMap,
 	}, nil
 }
 
 // Each key/value pair must match the filter for the whole map to match.
 type fullStringMapFilter struct {
-	staticSet map[string]string
-	regexps   map[string]*regexp.Regexp
+	filterMap map[string]*OverridableStringFilter
 }
 
 func (f *fullStringMapFilter) Matches(m map[string]string) bool {
-	for k, v := range f.staticSet {
-		if m[k] != v {
-			return false
-		}
+	// Empty map input never matches
+	if len(m) == 0 {
+		return false
 	}
-	for k, re := range f.regexps {
-		if _, present := m[k]; !present {
-			return false
-		}
-		if !re.MatchString(m[k]) {
+
+	for k, filter := range f.filterMap {
+		if v, ok := m[k]; ok {
+			if !filter.Matches(v) {
+				return false
+			}
+		} else {
+			// filter's key isn't in input, so cannot match
 			return false
 		}
 	}

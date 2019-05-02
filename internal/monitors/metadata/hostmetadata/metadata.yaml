@@ -1,16 +1,17 @@
+monitors:
 - dimensions:
-  - description: The version of collectd in the signalfx-agent
-    name: collectd
-  - description: The name of the host kernel.
-    name: kernel_name
-  - description: The release of the host kernel.
-    name: kernel_release
-  - description: The version of the host kernel.
-    name: kernel_version
-  - description: The version of the os on the host.
-    name: os_version
-  - description: The version of the signalfx-agent
-    name: signalfx_agent
+    collectd:
+      description: The version of collectd in the signalfx-agent
+    kernel_name:
+      description: The name of the host kernel.
+    kernel_release:
+      description: The release of the host kernel.
+    kernel_version:
+      description: The version of the host kernel.
+    os_version:
+      description: The version of the os on the host.
+    signalfx_agent:
+      description: The version of the signalfx-agent
   doc: |
     This monitor collects metadata properties about a
     host.  It is required for some views in SignalFx to operate.
@@ -36,10 +37,10 @@
     Setting the `Interval` configuration for this monitor will not affect the
     sparse interval on which metadata is collected.
   metrics:
-  - description: The time the hostmetadata monitor has been running in seconds.  It
-      includes dimensional metadata about the host and agent.
-    included: true
-    name: sfxagent.hostmetadata
-    type: gauge
+    sfxagent.hostmetadata:
+      description: The time the hostmetadata monitor has been running in seconds.  It
+        includes dimensional metadata about the host and agent.
+      included: true
+      type: gauge
   monitorType: host-metadata
-  properties: null
+  properties:

@@ -1,25 +1,29 @@
 """
 Monitor tests for kafka
 """
-import os
 import textwrap
 from contextlib import contextmanager
 from functools import partial as p
+from pathlib import Path
 
 import pytest
+
+from tests.helpers.agent import Agent
 from tests.helpers.assertions import has_datapoint_with_dim, has_datapoint_with_metric_name, tcp_socket_open
 from tests.helpers.kubernetes.utils import get_discovery_rule, run_k8s_monitors_test
 from tests.helpers.util import (
     container_ip,
     get_monitor_dims_from_selfdescribe,
     get_monitor_metrics_from_selfdescribe,
-    run_agent,
     run_container,
     run_service,
     wait_for,
 )
 
 pytestmark = [pytest.mark.collectd, pytest.mark.kafka, pytest.mark.monitor_with_endpoints]
+
+
+SCRIPT_DIR = Path(__file__).parent.resolve()
 
 
 @contextmanager
@@ -45,7 +49,7 @@ def run_kafka(version, **kwargs):
 def test_omitting_kafka_metrics(version="1.0.1"):
     with run_kafka(version) as kafka:
         kafka_host = container_ip(kafka)
-        with run_agent(
+        with Agent.run(
             textwrap.dedent(
                 """
         monitors:
@@ -59,9 +63,10 @@ def test_omitting_kafka_metrics(version="1.0.1"):
                     kafka_host
                 )
             )
-        ) as [backend, _, _]:
+        ) as agent:
             assert not wait_for(
-                p(has_datapoint_with_metric_name, backend, "gauge.kafka-active-controllers"), timeout_seconds=60
+                p(has_datapoint_with_metric_name, agent.fake_services, "gauge.kafka-active-controllers"),
+                timeout_seconds=60,
             ), "Didn't get kafka datapoints"
 
 
@@ -85,7 +90,7 @@ def test_all_kafka_monitors(version):
             ) as kafka_consumer:
                 kafkaconsumerhost = container_ip(kafka_consumer)
                 assert wait_for(p(tcp_socket_open, kafkaconsumerhost, 9099), 60), "kafka consumer jmx didn't start"
-                with run_agent(
+                with Agent.run(
                     textwrap.dedent(
                         """
                 monitors:
@@ -103,25 +108,26 @@ def test_all_kafka_monitors(version):
                             kafka_host, kafkaproducerhost, kafkaconsumerhost
                         )
                     )
-                ) as [backend, _, _]:
+                ) as agent:
                     assert wait_for(
-                        p(has_datapoint_with_metric_name, backend, "gauge.kafka-active-controllers"), timeout_seconds=60
+                        p(has_datapoint_with_metric_name, agent.fake_services, "gauge.kafka-active-controllers"),
+                        timeout_seconds=60,
                     ), "Didn't get kafka datapoints"
                     assert wait_for(
-                        p(has_datapoint_with_dim, backend, "cluster", "testCluster"), timeout_seconds=60
+                        p(has_datapoint_with_dim, agent.fake_services, "cluster", "testCluster"), timeout_seconds=60
                     ), "Didn't get cluster dimension from kafka datapoints"
                     assert wait_for(
-                        p(has_datapoint_with_dim, backend, "client-id", "console-producer"), timeout_seconds=60
+                        p(has_datapoint_with_dim, agent.fake_services, "client-id", "console-producer"),
+                        timeout_seconds=60,
                     ), "Didn't get client-id dimension from kafka_producer datapoints"
                     assert wait_for(
-                        p(has_datapoint_with_dim, backend, "client-id", "consumer-1"), timeout_seconds=60
+                        p(has_datapoint_with_dim, agent.fake_services, "client-id", "consumer-1"), timeout_seconds=60
                     ), "Didn't get client-id dimension from kafka_consumer datapoints"
 
 
-@pytest.mark.k8s
 @pytest.mark.kubernetes
 def test_kafka_in_k8s(agent_image, minikube, k8s_observer, k8s_test_timeout, k8s_namespace):
-    yaml = os.path.join(os.path.dirname(os.path.realpath(__file__)), "kafka-k8s.yaml")
+    yaml = SCRIPT_DIR / "kafka-k8s.yaml"
     monitors = [
         {
             "type": "collectd/kafka",

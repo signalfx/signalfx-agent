@@ -2,14 +2,8 @@ package metrics
 
 import (
 	"github.com/signalfx/golib/datapoint"
-	"k8s.io/api/core/v1"
+	v1 "k8s.io/api/core/v1"
 )
-
-// GAUGE(kubernetes.replication_controller.available): Total number of
-// available pods (ready for at least minReadySeconds) targeted by this
-// replication controller.
-
-// GAUGE(kubernetes.replication_controller.desired): Number of desired pods
 
 func datapointsForReplicationController(rc *v1.ReplicationController) []*datapoint.Datapoint {
 	dimensions := map[string]string{

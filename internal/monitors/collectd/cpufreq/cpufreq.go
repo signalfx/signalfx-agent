@@ -10,16 +10,6 @@ import (
 	"github.com/signalfx/signalfx-agent/internal/monitors/collectd"
 )
 
-const monitorType = "collectd/cpufreq"
-
-// MONITOR(collectd/cpufreq): Monitors the actual clock speed of each CPU on a
-// host.  Useful for systems that vary the clock speed to conserve energy.
-//
-// See https://collectd.org/wiki/index.php/Plugin:CPUFreq
-
-// GAUGE(cpufreq.<N>): The processor frequency in Hertz for the <N>th processor
-// on the system.
-
 func init() {
 	monitors.Register(monitorType, func() interface{} {
 		return &Monitor{

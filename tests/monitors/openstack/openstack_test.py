@@ -1,9 +1,11 @@
 from functools import partial as p
 from textwrap import dedent
+
 import pytest
 
-from tests.helpers.util import container_ip, wait_for, run_agent, get_monitor_metrics_from_selfdescribe
+from tests.helpers.agent import Agent
 from tests.helpers.assertions import any_metric_found
+from tests.helpers.util import container_ip, get_monitor_metrics_from_selfdescribe, wait_for
 
 pytestmark = [pytest.mark.collectd, pytest.mark.openstack, pytest.mark.monitor_without_endpoints]
 
@@ -20,6 +22,8 @@ def test_openstack(devstack):
                 password: testing123
         """
     )
-    with run_agent(config) as [backend, _, _]:
+    with Agent.run(config) as agent:
         expected_metrics = get_monitor_metrics_from_selfdescribe("collectd/openstack")
-        assert wait_for(p(any_metric_found, backend, expected_metrics), 60), "Timed out waiting for openstack metrics"
+        assert wait_for(
+            p(any_metric_found, agent.fake_services, expected_metrics), 60
+        ), "Timed out waiting for openstack metrics"

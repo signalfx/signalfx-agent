@@ -8,8 +8,12 @@ import (
 // for a datapoint to be matched.
 type FilterSet struct {
 	ExcludeFilters []DatapointFilter
+	// IncludeFilters are optional and serve as a top-priority list of matchers
+	// that will cause a datapoint to always be sent
 	IncludeFilters []DatapointFilter
 }
+
+var _ DatapointFilter = &FilterSet{}
 
 // Matches sends a datapoint through each of the filters in the set and returns
 // true if at least one of them matches the datapoint.

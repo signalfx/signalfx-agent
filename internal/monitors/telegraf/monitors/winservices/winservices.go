@@ -6,32 +6,7 @@ import (
 	"github.com/signalfx/signalfx-agent/internal/core/config"
 	"github.com/signalfx/signalfx-agent/internal/monitors"
 	"github.com/signalfx/signalfx-agent/internal/monitors/types"
-	log "github.com/sirupsen/logrus"
 )
-
-const monitorType = "telegraf/win_services"
-
-// MONITOR(telegraf/win_services): (Windows Only) This monitor reports metrics about Windows services.
-// This monitor is based on the Telegraf win_services plugin.  More information about the Telegraf plugin
-// can be found [here](https://github.com/influxdata/telegraf/tree/master/plugins/inputs/win_services).
-//
-//
-// Sample YAML configuration:
-//
-// ```yaml
-// monitors:
-//  - type: telegraf/win_services  # monitor all services
-// ```
-//
-// ```yaml
-// monitors:
-//  - type: telegraf/win_services
-//    serviceNames:
-//      - exampleService1  # only monitor exampleService1
-// ```
-//
-
-var logger = log.WithFields(log.Fields{"monitorType": monitorType})
 
 func init() {
 	monitors.Register(monitorType, func() interface{} { return &Monitor{} }, &Config{})

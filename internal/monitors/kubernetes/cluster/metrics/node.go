@@ -9,25 +9,8 @@ import (
 	"github.com/signalfx/golib/sfxclient"
 	k8sutil "github.com/signalfx/signalfx-agent/internal/monitors/kubernetes/utils"
 	atypes "github.com/signalfx/signalfx-agent/internal/monitors/types"
-	"k8s.io/api/core/v1"
+	v1 "k8s.io/api/core/v1"
 )
-
-// GAUGE(kubernetes.node_ready): Whether this node is ready (1), not ready (0)
-// or in an unknown state (-1)
-
-// DIMENSION(machine_id): The machine ID from /etc/machine-id.  This should be
-// unique across all nodes in your cluster, but some cluster deployment tools
-// don't guarantee this.  This will not be sent if the `useNodeName` config
-// option is set to true.
-
-// DIMENSION(kubernetes_node): The name of the node, as defined by the `name`
-// field of the node resource.
-
-// PROPERTY(machine_id/kubernetes_node:<node label>): All non-blank labels on a
-// given node will be synced as properties to the `machine_id` or
-// `kubernetes_node` dimension value for that node.  Which dimension gets the
-// properties is determined by the `useNodeName` config option.  Any blank
-// values will be synced as tags on that same dimension.
 
 // A map to check for duplicate machine IDs
 var machineIDToNodeNameMap = make(map[string]string)
@@ -114,13 +97,4 @@ func nodeConditionValue(node *v1.Node, condType v1.NodeConditionType) int64 {
 		}
 	}
 	return nodeConditionValues[status]
-}
-
-func firstNodeHostname(node *v1.Node) string {
-	for _, addr := range node.Status.Addresses {
-		if addr.Type == v1.NodeHostName {
-			return addr.Address
-		}
-	}
-	return ""
 }

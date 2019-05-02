@@ -5,6 +5,7 @@ package processlist
 import (
 	"bytes"
 	"fmt"
+	"math"
 
 	"github.com/StackExchange/wmi"
 	"github.com/shirou/gopsutil/mem"
@@ -39,6 +40,14 @@ type PerfProcProcess struct {
 	PercentProcessorTime uint64
 }
 
+// toTime returns the given seconds as a formatted string "min:sec.dec"
+func toTime(secs float64) string {
+	minutes := int(secs) / 60
+	seconds := math.Mod(secs, 60.0)
+	dec := math.Mod(seconds, 1.0) * 100
+	return fmt.Sprintf("%02d:%02.f.%02.f", minutes, seconds, dec)
+}
+
 // getCPUPercentages is set as a package variable so we can mock it during testing
 var getCPUPercentages = func() (cpuPercents map[uint32]uint64, err error) {
 	// Get all process cpu percentages
@@ -61,9 +70,9 @@ var getAllProcesses = func() (ps []Win32Process, err error) {
 var getUsername = func(id uint32) (username string, err error) {
 	// open the process handle and collect any information that requires it
 	var h windows.Handle
-	defer windows.CloseHandle(h)
+	defer func() { _ = windows.CloseHandle(h) }()
 	if h, err = windows.OpenProcess(processQueryLimitedInformation, false, id); err != nil {
-		err = fmt.Errorf("Unable to open process handle. %v", err)
+		err = fmt.Errorf("unable to open process handle. %v", err)
 		return username, err
 	}
 
@@ -73,21 +82,21 @@ var getUsername = func(id uint32) (username string, err error) {
 	defer token.Close()
 	err = windows.OpenProcessToken(h, windows.TOKEN_QUERY, &token)
 	if err != nil {
-		err = fmt.Errorf("Unable to retrieve process token. %v", err)
+		err = fmt.Errorf("unable to retrieve process token. %v", err)
 		return username, err
 	}
 
 	// extract the user from the process token
 	user, err := token.GetTokenUser()
 	if err != nil {
-		err = fmt.Errorf("Unable to get token user. %v", err)
+		err = fmt.Errorf("unable to get token user. %v", err)
 		return username, err
 	}
 
 	// extract the username and domain from the user
 	userid, domain, _, err := user.User.Sid.LookupAccount("")
 	if err != nil {
-		err = fmt.Errorf("Unable to look up user account from Sid %v", err)
+		err = fmt.Errorf("unable to look up user account from Sid %v", err)
 	}
 	username = fmt.Sprintf("%s\\%s", domain, userid)
 

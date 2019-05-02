@@ -34,11 +34,11 @@
   repo: signalfx/collectd-health_checker
 
 - name: jenkins
-  version: v1.0.6
+  version: v1.0.8
   repo: signalfx/collectd-jenkins
 
 - name: kong
-  version: v0.0.2
+  version: v0.0.3
   repo: signalfx/collectd-kong
 
 - name: mesos
@@ -94,6 +94,9 @@
   version: master
   repo: signalfx/vmstat-collectd
 
+- name: systemd
+  version: 4e24e6f9db8ad5c06da3bf3543ce8f9d5bb8be43
+  repo: signalfx/collectd-systemd
 
 #- name: timestats
   #version: latest

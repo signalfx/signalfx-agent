@@ -1,4 +1,5 @@
-- dimensions: null
+monitors:
+- dimensions:
   doc: |
     This monitor reads metrics from a [Prometheus
     exporter](https://prometheus.io/docs/instrumenting/exporters/) endpoint.
@@ -50,6 +51,6 @@
        extraDimensions:
          metric_source: prometheus
     ```
-  metrics: null
+  metrics:
   monitorType: prometheus-exporter
-  properties: null
+  properties:

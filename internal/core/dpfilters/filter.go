@@ -19,7 +19,7 @@ type DatapointFilter interface {
 // BasicDatapointFilter is designed to filter SignalFx datapoint objects.  It
 // can filter based on the monitor type, dimensions, or the metric name.  It
 // supports both static, globbed, and regex patterns for filter values. If
-// dimensions are specifed, they must all match for the datapoint to match. If
+// dimensions are specified, they must all match for the datapoint to match. If
 // multiple metric names are given, only one must match for the datapoint to
 // match the filter since datapoints can only have one metric name.
 type basicDatapointFilter struct {
@@ -30,7 +30,7 @@ type basicDatapointFilter struct {
 }
 
 // New returns a new filter with the given configuration
-func New(monitorType string, metricNames []string, dimensions map[string]string, negated bool) (DatapointFilter, error) {
+func New(monitorType string, metricNames []string, dimensions map[string][]string, negated bool) (DatapointFilter, error) {
 	var dimFilter filter.StringMapFilter
 	if len(dimensions) > 0 {
 		var err error
@@ -66,7 +66,7 @@ func (f *basicDatapointFilter) Matches(dp *datapoint.Datapoint) bool {
 			return false
 		}
 	} else {
-		// If we have a monitorType on the filter but none on the datapont, it
+		// If we have a monitorType on the filter but none on the datapoint, it
 		// can never match.
 		if f.monitorType != "" {
 			return false

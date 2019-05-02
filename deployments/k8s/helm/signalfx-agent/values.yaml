@@ -1,6 +1,6 @@
 # Version of the signalfx-agent to deploy.  This will be the default for the
 # docker image tag if not overridden with imageTag
-agentVersion: 4.4.0
+agentVersion: 4.6.1
 
 # The access token for SignalFx.  REQUIRED
 signalFxAccessToken: ""
@@ -61,7 +61,7 @@ agentConfig:
 # values of `ingestUrl`, `traceEndpointUrl` and `apiUrl` will be automatically
 # set based on this realm value.  If unset, it defaults to the original us0
 # realm in the agent.
-realm:
+signalFxRealm:
 
 # The URL of SignalFx ingest server. Should be overridden if using the SignalFx
 # Gateway. If you want to send trace spans to a different location, set the

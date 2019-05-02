@@ -4,9 +4,10 @@ import (
 	"fmt"
 	"reflect"
 
+	"github.com/signalfx/golib/datapoint"
+
 	"github.com/signalfx/signalfx-agent/internal/core/config"
 	"github.com/signalfx/signalfx-agent/internal/core/services"
-	"github.com/signalfx/signalfx-agent/internal/monitors/types"
 	"github.com/signalfx/signalfx-agent/internal/utils"
 	log "github.com/sirupsen/logrus"
 )
@@ -22,6 +23,9 @@ var MonitorFactories = map[string]MonitorFactory{}
 // for a particular monitor type.
 var ConfigTemplates = map[string]config.MonitorCustomConfig{}
 
+// MonitorMetadatas contains a mapping of monitor type to its metadata.
+var MonitorMetadatas = map[string]*Metadata{}
+
 // InjectableMonitor should be implemented by a dynamic monitor that needs to
 // know when services are added and removed.
 type InjectableMonitor interface {
@@ -29,16 +33,57 @@ type InjectableMonitor interface {
 	RemoveService(services.Endpoint)
 }
 
-// Register a new monitor type with the agent.  This is intended to be called
+// MetricInfo contains metadata about a metric.
+type MetricInfo struct {
+	Type datapoint.MetricType
+}
+
+// Metadata describes information about a monitor.
+type Metadata struct {
+	MonitorType       string
+	SendAll           bool
+	IncludedMetrics   map[string]bool
+	Metrics           map[string]MetricInfo
+	MetricsExhaustive bool
+	Groups            map[string]bool
+	GroupMetricsMap   map[string][]string
+}
+
+// HasMetric returns whether the metric exists at all (custom or included).
+func (metadata *Metadata) HasMetric(metric string) bool {
+	_, ok := metadata.Metrics[metric]
+	return ok
+}
+
+// HasIncludedMetric returns whether the metric is an included metric.
+func (metadata *Metadata) HasIncludedMetric(metric string) bool {
+	return metadata.IncludedMetrics[metric]
+}
+
+// HasGroup returns whether the group exists or not.
+func (metadata *Metadata) HasGroup(group string) bool {
+	return metadata.Groups[group]
+}
+
+// Register is the old register interface.
+// Deprecated: use RegisterWithMetadata.
+func Register(_type string, factory MonitorFactory, configTemplate config.MonitorCustomConfig) {
+	RegisterWithMetadata(&Metadata{MonitorType: _type}, factory, configTemplate)
+}
+
+// RegisterWithMetadata a new monitor type with the agent.  This is intended to be called
 // from the init function of the module of a specific monitor
 // implementation. configTemplate should be a zero-valued struct that is of the
 // same type as the parameter to the Configure method for this monitor type.
-func Register(_type string, factory MonitorFactory, configTemplate config.MonitorCustomConfig) {
-	if _, ok := MonitorFactories[_type]; ok {
-		panic("Monitor type '" + _type + "' already registered")
+//
+// TODO: Rename to Register once all monitors have been updated.
+func RegisterWithMetadata(metadata *Metadata, factory MonitorFactory, configTemplate config.MonitorCustomConfig) {
+	if _, ok := MonitorFactories[metadata.MonitorType]; ok {
+		panic("Monitor type '" + metadata.MonitorType + "' already registered")
 	}
-	MonitorFactories[_type] = factory
-	ConfigTemplates[_type] = configTemplate
+	MonitorFactories[metadata.MonitorType] = factory
+	ConfigTemplates[metadata.MonitorType] = configTemplate
+	MonitorMetadatas[metadata.MonitorType] = metadata
 }
 
 // DeregisterAll unregisters all monitor types.  Primarily intended for testing
@@ -66,7 +111,7 @@ func newUninitializedMonitor(_type string) interface{} {
 
 // Creates a new, unconfigured instance of a monitor of _type.  Returns nil if
 // the monitor type is not registered.
-func newMonitor(_type string, id types.MonitorID) interface{} {
+func newMonitor(_type string) interface{} {
 	mon := newUninitializedMonitor(_type)
 	if initMon, ok := mon.(Initializable); ok {
 		if err := initMon.Init(); err != nil {
@@ -78,7 +123,6 @@ func newMonitor(_type string, id types.MonitorID) interface{} {
 		}
 	}
 	return mon
-
 }
 
 // Initializable represents a monitor that has a distinct InitMonitor method.
@@ -102,7 +146,7 @@ type Shutdownable interface {
 func getCustomConfigForMonitor(conf *config.MonitorConfig) (config.MonitorCustomConfig, error) {
 	confTemplate, ok := ConfigTemplates[conf.Type]
 	if !ok {
-		return nil, fmt.Errorf("Unknown monitor type %s", conf.Type)
+		return nil, fmt.Errorf("unknown monitor type %s", conf.Type)
 	}
 	monConfig := utils.CloneInterface(confTemplate).(config.MonitorCustomConfig)
 

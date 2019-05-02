@@ -5,9 +5,11 @@ from textwrap import dedent
 
 import pytest
 from kubernetes import client
+
+from tests.helpers.agent import Agent
 from tests.helpers.assertions import has_datapoint, has_dim_prop, has_dim_tag
 from tests.helpers.kubernetes.fakeapiserver import fake_k8s_api_server
-from tests.helpers.util import ensure_always, run_agent, wait_for
+from tests.helpers.util import ensure_always, wait_for
 
 pytestmark = [pytest.mark.kubernetes_cluster, pytest.mark.perf_test]
 
@@ -36,7 +38,7 @@ def test_large_kubernetes_clusters():
                 namespace="default",
             )
 
-        with run_agent(
+        with Agent.run(
             dedent(
                 f"""
           writer:
@@ -52,24 +54,27 @@ def test_large_kubernetes_clusters():
                 authType: none
         """
             ),
-            profile=True,
-            internal_metrics=True,
+            profiling=True,
             debug=False,
             extra_env=k8s_envvars,
-        ) as [backend, _, _, pprof_client, internal_metrics]:
-            assert wait_for(p(has_datapoint, backend, dimensions={"kubernetes_pod_name": "pod-0"}))
-            assert wait_for(p(has_datapoint, backend, dimensions={"kubernetes_pod_name": "pod-4999"}))
+        ) as agent:
+            assert wait_for(p(has_datapoint, agent.fake_services, dimensions={"kubernetes_pod_name": "pod-0"}))
+            assert wait_for(p(has_datapoint, agent.fake_services, dimensions={"kubernetes_pod_name": "pod-4999"}))
 
             def has_all_pod_datapoints():
                 for name in pod_names:
-                    if not has_datapoint(backend, dimensions={"kubernetes_pod_name": name}):
+                    if not has_datapoint(agent.fake_services, dimensions={"kubernetes_pod_name": name}):
                         return False
                 return True
 
             def has_all_pod_properties():
                 for uid in uids:
                     if not has_dim_prop(
-                        backend, dim_name="kubernetes_pod_uid", dim_value=uid, prop_name="app", prop_value="my-app"
+                        agent.fake_services,
+                        dim_name="kubernetes_pod_uid",
+                        dim_value=uid,
+                        prop_name="app",
+                        prop_value="my-app",
                     ):
                         return False
                 return True
@@ -78,25 +83,25 @@ def test_large_kubernetes_clusters():
             assert wait_for(has_all_pod_properties, interval_seconds=2)
 
             assert (
-                internal_metrics.get()["sfxagent.dim_updates_completed"] == 5000
+                agent.internal_metrics_client.get()["sfxagent.dim_updates_completed"] == 5000
             ), "Got wrong number of dimension updates"
 
             for name in pod_names:
                 v1_client.delete_namespaced_pod(name=name, namespace="default", body={})
 
             time.sleep(10)
-            backend.reset_datapoints()
+            agent.fake_services.reset_datapoints()
 
             def has_no_pod_datapoints():
                 for name in pod_names:
-                    if has_datapoint(backend, dimensions={"kubernetes_pod_name": name}):
+                    if has_datapoint(agent.fake_services, dimensions={"kubernetes_pod_name": name}):
                         return False
                 return True
 
             assert ensure_always(has_no_pod_datapoints, interval_seconds=2)
 
-            pprof_client.assert_goroutine_count_under(200)
-            pprof_client.assert_heap_alloc_under(200 * 1024 * 1024)
+            agent.pprof_client.assert_goroutine_count_under(200)
+            agent.pprof_client.assert_heap_alloc_under(200 * 1024 * 1024)
 
 
 # pylint: disable=too-many-locals
@@ -140,7 +145,7 @@ def test_service_tag_sync():
                 namespace="default",
             )
 
-        with run_agent(
+        with Agent.run(
             dedent(
                 f"""
           writer:
@@ -157,12 +162,12 @@ def test_service_tag_sync():
                 authType: none
         """
             ),
-            profile=True,
+            profiling=True,
             debug=False,
             extra_env=k8s_envvars,
-        ) as [backend, _, _, pprof_client]:
-            assert wait_for(p(has_datapoint, backend, dimensions={"kubernetes_pod_name": "pod-0"}))
-            assert wait_for(p(has_datapoint, backend, dimensions={"kubernetes_pod_name": "pod-4999"}))
+        ) as agent:
+            assert wait_for(p(has_datapoint, agent.fake_services, dimensions={"kubernetes_pod_name": "pod-0"}))
+            assert wait_for(p(has_datapoint, agent.fake_services, dimensions={"kubernetes_pod_name": "pod-4999"}))
 
             # assert wait_for(missing_service_tags, interval_seconds=2)
 
@@ -170,7 +175,7 @@ def test_service_tag_sync():
                 for uid in uids:
                     for s_name in service_names:
                         if not has_dim_tag(
-                            backend,
+                            agent.fake_services,
                             dim_name="kubernetes_pod_uid",
                             dim_value=uid,
                             tag_value=f"kubernetes_service_{s_name}",
@@ -180,14 +185,18 @@ def test_service_tag_sync():
 
             def has_all_pod_datapoints():
                 for name in pod_names:
-                    if not has_datapoint(backend, dimensions={"kubernetes_pod_name": name}):
+                    if not has_datapoint(agent.fake_services, dimensions={"kubernetes_pod_name": name}):
                         return False
                 return True
 
             def has_all_pod_properties():
                 for uid in uids:
                     if not has_dim_prop(
-                        backend, dim_name="kubernetes_pod_uid", dim_value=uid, prop_name="app", prop_value="my-app"
+                        agent.fake_services,
+                        dim_name="kubernetes_pod_uid",
+                        dim_value=uid,
+                        prop_name="app",
+                        prop_value="my-app",
                     ):
                         return False
                 return True
@@ -204,7 +213,7 @@ def test_service_tag_sync():
                 for uid in uids:
                     for s_name in service_names:
                         if has_dim_tag(
-                            backend,
+                            agent.fake_services,
                             dim_name="kubernetes_pod_uid",
                             dim_value=uid,
                             tag_value=f"kubernetes_service_{s_name}",
@@ -214,8 +223,8 @@ def test_service_tag_sync():
 
             assert wait_for(missing_service_tags, interval_seconds=2, timeout_seconds=60)
 
-            pprof_client.assert_goroutine_count_under(150)
-            pprof_client.assert_heap_alloc_under(200 * 1024 * 1024)
+            agent.pprof_client.assert_goroutine_count_under(150)
+            agent.pprof_client.assert_heap_alloc_under(200 * 1024 * 1024)
 
 
 # pylint: disable=too-many-locals
@@ -282,7 +291,7 @@ def test_large_k8s_cluster_deployment_prop():
                     },
                     namespace="default",
                 )
-        with run_agent(
+        with Agent.run(
             dedent(
                 f"""
           writer:
@@ -298,22 +307,25 @@ def test_large_k8s_cluster_deployment_prop():
                 authType: none
         """
             ),
-            profile=True,
-            internal_metrics=True,
+            profiling=True,
             debug=False,
             extra_env=k8s_envvars,
-        ) as [backend, _, _, pprof_client, internal_metrics]:
-            assert wait_for(p(has_datapoint, backend, dimensions={"kubernetes_pod_name": "pod-dp-0-replicaset-0"}))
-            assert wait_for(p(has_datapoint, backend, dimensions={"kubernetes_pod_name": "pod-dp-49-replicaset-99"}))
+        ) as agent:
+            assert wait_for(
+                p(has_datapoint, agent.fake_services, dimensions={"kubernetes_pod_name": "pod-dp-0-replicaset-0"})
+            )
+            assert wait_for(
+                p(has_datapoint, agent.fake_services, dimensions={"kubernetes_pod_name": "pod-dp-49-replicaset-99"})
+            )
 
             ## get heap usage with 5k pods
-            heap_profile_baseline = pprof_client.get_heap_profile()
+            heap_profile_baseline = agent.pprof_client.get_heap_profile()
 
             def has_all_deployment_props():
                 for _, replica_set in replica_sets.items():
                     for pod_uid in replica_set["pod_uids"]:
                         if not has_dim_prop(
-                            backend,
+                            agent.fake_services,
                             dim_name="kubernetes_pod_uid",
                             dim_value=pod_uid,
                             prop_name="deployment",
@@ -321,7 +333,7 @@ def test_large_k8s_cluster_deployment_prop():
                         ):
                             return False
                         if not has_dim_prop(
-                            backend,
+                            agent.fake_services,
                             dim_name="kubernetes_pod_uid",
                             dim_value=pod_uid,
                             prop_name="deployment_uid",
@@ -334,7 +346,7 @@ def test_large_k8s_cluster_deployment_prop():
                 for _, replica_set in replica_sets.items():
                     for pod_uid in replica_set["pod_uids"]:
                         if not has_dim_prop(
-                            backend,
+                            agent.fake_services,
                             dim_name="kubernetes_pod_uid",
                             dim_value=pod_uid,
                             prop_name="replicaSet",
@@ -342,7 +354,7 @@ def test_large_k8s_cluster_deployment_prop():
                         ):
                             return False
                         if not has_dim_prop(
-                            backend,
+                            agent.fake_services,
                             dim_name="kubernetes_pod_uid",
                             dim_value=pod_uid,
                             prop_name="replicaSet_uid",
@@ -355,7 +367,7 @@ def test_large_k8s_cluster_deployment_prop():
             assert wait_for(has_all_replica_set_props, interval_seconds=2)
 
             assert (
-                internal_metrics.get()["sfxagent.dim_updates_completed"] == 5050
+                agent.internal_metrics_client.get()["sfxagent.dim_updates_completed"] == 5050
             ), "Got wrong number of dimension updates"
 
             for _, replica_set in replica_sets.items():
@@ -363,5 +375,5 @@ def test_large_k8s_cluster_deployment_prop():
                 for pod_name in replica_set["pod_names"]:
                     v1_client.delete_namespaced_pod(name=pod_name, namespace="default", body={})
 
-            pprof_client.assert_goroutine_count_under(200)
-            pprof_client.assert_heap_alloc_under(heap_profile_baseline.total * 1.2)
+            agent.pprof_client.assert_goroutine_count_under(200)
+            agent.pprof_client.assert_heap_alloc_under(heap_profile_baseline.total * 1.2)

@@ -11,13 +11,12 @@ import (
 type PortType string
 
 const (
-	// UDP port type
-	UDP PortType = "UDP"
-	// TCP port type
-	TCP PortType = "TCP"
-	// PRIVATE Port preference
+	UDP     PortType = "UDP"
+	TCP     PortType = "TCP"
+	UNKNOWN PortType = "UNKNOWN"
 )
 
+//nolint:gochecknoglobals
 var ipAddrRegexp = regexp.MustCompile(`\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}`)
 
 var _ config.CustomConfigurable = &EndpointCore{}
@@ -100,7 +99,7 @@ func (e *EndpointCore) IsSelfConfigured() bool {
 
 // Dimensions returns a map of dimensions set on this endpoint
 func (e *EndpointCore) Dimensions() map[string]string {
-	return e.extraDimensions
+	return utils.CloneStringMap(e.extraDimensions)
 }
 
 // AddDimension adds a dimension to this endpoint

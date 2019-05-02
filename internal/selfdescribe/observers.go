@@ -1,12 +1,13 @@
 package selfdescribe
 
 import (
-	"github.com/signalfx/signalfx-agent/internal/monitors"
 	"go/doc"
 	"os"
 	"path/filepath"
 	"reflect"
 	"sort"
+
+	"github.com/signalfx/signalfx-agent/internal/monitors"
 
 	"github.com/signalfx/signalfx-agent/internal/core/services"
 	"github.com/signalfx/signalfx-agent/internal/observers"
@@ -15,9 +16,9 @@ import (
 
 type observerMetadata struct {
 	structMetadata
-	ObserverType      string                 `json:"observerType"`
-	Dimensions        []monitors.DimMetadata `json:"dimensions"`
-	EndpointVariables []endpointVar          `json:"endpointVariables"`
+	ObserverType      string                          `json:"observerType"`
+	Dimensions        map[string]monitors.DimMetadata `json:"dimensions"`
+	EndpointVariables []endpointVar                   `json:"endpointVariables"`
 }
 
 type endpointVar struct {
@@ -27,12 +28,12 @@ type endpointVar struct {
 	Description string `json:"description"`
 }
 
-func observersStructMetadata() []observerMetadata {
+func observersStructMetadata() ([]observerMetadata, error) {
 	sms := []observerMetadata{}
 	// Set to track undocumented observers
 	obsTypesSeen := make(map[string]bool)
 
-	filepath.Walk("internal/observers", func(path string, info os.FileInfo, err error) error {
+	err := filepath.Walk("internal/observers", func(path string, info os.FileInfo, err error) error {
 		if !info.IsDir() || err != nil {
 			return err
 		}
@@ -48,15 +49,26 @@ func observersStructMetadata() []observerMetadata {
 			t := reflect.TypeOf(observers.ConfigTemplates[obsType]).Elem()
 			obsTypesSeen[obsType] = true
 
-			allDocs := nestedPackageDocs(path)
+			allDocs, err := nestedPackageDocs(path)
+			if err != nil {
+				return err
+			}
 
-			dims := dimensionsFromNotesAndServicesPackage(allDocs)
+			dims, err := dimensionsFromNotesAndServicesPackage(allDocs)
+			if err != nil {
+				return err
+			}
+
+			endpointVars, err := endpointVariables(allDocs)
+			if err != nil {
+				return err
+			}
 
 			mmd := observerMetadata{
 				structMetadata:    getStructMetadata(t),
 				ObserverType:      obsType,
 				Dimensions:        dims,
-				EndpointVariables: endpointVariables(allDocs),
+				EndpointVariables: endpointVars,
 			}
 			mmd.Doc = obsDoc
 			mmd.Package = path
@@ -65,6 +77,10 @@ func observersStructMetadata() []observerMetadata {
 		}
 		return nil
 	})
+	if err != nil {
+		return nil, err
+	}
+
 	sort.Slice(sms, func(i, j int) bool {
 		return sms[i].ObserverType < sms[j].ObserverType
 	})
@@ -75,7 +91,7 @@ func observersStructMetadata() []observerMetadata {
 		}
 	}
 
-	return sms
+	return sms, nil
 }
 
 func observerDocsInPackage(pkgDoc *doc.Package) map[string]string {
@@ -86,21 +102,27 @@ func observerDocsInPackage(pkgDoc *doc.Package) map[string]string {
 	return out
 }
 
-func dimensionsFromNotesAndServicesPackage(allDocs []*doc.Package) []monitors.DimMetadata {
-	var containerDims []monitors.DimMetadata
+func dimensionsFromNotesAndServicesPackage(allDocs []*doc.Package) (map[string]monitors.DimMetadata, error) {
+	containerDims := map[string]monitors.DimMetadata{}
+
 	if isContainerObserver(allDocs) {
-		servicesDocs := nestedPackageDocs("internal/core/services")
+		servicesDocs, err := nestedPackageDocs("internal/core/services")
+		if err != nil {
+			return nil, err
+		}
+
 		for _, note := range notesFromDocs(servicesDocs, "CONTAINER_DIMENSION") {
-			containerDims = append(containerDims, monitors.DimMetadata{
-				Name:        note.UID,
+			containerDims[note.UID] = monitors.DimMetadata{
 				Description: commentTextToParagraphs(note.Body),
-			})
+			}
 		}
 	}
 
-	return append(
-		dimensionsFromNotes(allDocs),
-		containerDims...)
+	for k, v := range dimensionsFromNotes(allDocs) {
+		containerDims[k] = v
+	}
+
+	return containerDims, nil
 }
 
 func isContainerObserver(obsDocs []*doc.Package) bool {
@@ -112,8 +134,11 @@ func isContainerObserver(obsDocs []*doc.Package) bool {
 	return false
 }
 
-func endpointVariables(obsDocs []*doc.Package) []endpointVar {
-	servicesDocs := nestedPackageDocs("internal/core/services")
+func endpointVariables(obsDocs []*doc.Package) ([]endpointVar, error) {
+	servicesDocs, err := nestedPackageDocs("internal/core/services")
+	if err != nil {
+		return nil, err
+	}
 
 	var eType reflect.Type
 	isForContainers := isContainerObserver(obsDocs)
@@ -126,7 +151,7 @@ func endpointVariables(obsDocs []*doc.Package) []endpointVar {
 
 	return append(
 		endpointVariablesFromNotes(append(obsDocs, servicesDocs...), isForContainers),
-		endpointVarsFromStructMetadataFields(sm.Fields)...)
+		endpointVarsFromStructMetadataFields(sm.Fields)...), nil
 }
 
 func endpointVarsFromStructMetadataFields(fields []fieldMetadata) []endpointVar {

@@ -4,8 +4,10 @@ package core
 
 import (
 	"context"
+	"io"
 	"net/http"
 	"os"
+	"time"
 
 	log "github.com/sirupsen/logrus"
 
@@ -25,7 +27,7 @@ import (
 const (
 	// Items should stay in these channels only very briefly as there should be
 	// goroutines dedicated to pulling them at all times.  Having the capacity
-	// be non-zero is more an optimization to keep monitors from siezing up
+	// be non-zero is more an optimization to keep monitors from seizing up
 	// under extremely heavy load.
 	datapointChanCapacity = 3000
 	eventChanCapacity     = 100
@@ -47,6 +49,7 @@ type Agent struct {
 
 	diagnosticServer     *http.Server
 	profileServerRunning bool
+	startTime            time.Time
 }
 
 // NewAgent creates an unconfigured agent instance
@@ -56,6 +59,7 @@ func NewAgent() *Agent {
 		eventChan:    make(chan *event.Event, eventChanCapacity),
 		propertyChan: make(chan *types.DimProperties, dimPropChanCapacity),
 		spanChan:     make(chan *trace.Span, traceSpanChanCapacity),
+		startTime:    time.Now(),
 	}
 
 	agent.observers = &observers.ObserverManager{
@@ -75,10 +79,13 @@ func NewAgent() *Agent {
 }
 
 func (a *Agent) configure(conf *config.Config) {
+	log.SetFormatter(conf.Logging.LogrusFormatter())
+
 	level := conf.Logging.LogrusLevel()
 	if level != nil {
 		log.SetLevel(*level)
 	}
+
 	log.Infof("Using log level %s", log.GetLevel().String())
 
 	if !conf.DisableHostDimensions {
@@ -162,9 +169,7 @@ func Startup(configPath string) (context.CancelFunc, <-chan struct{}) {
 				log.Info("Done configuring agent")
 
 				if config.InternalStatusHost != "" {
-					if err := agent.serveDiagnosticInfo(config.InternalStatusHost, config.InternalStatusPort); err != nil {
-						log.WithError(err).Error("Could not start internal status server")
-					}
+					agent.serveDiagnosticInfo(config.InternalStatusHost, config.InternalStatusPort)
 				}
 
 			case <-ctx.Done():
@@ -185,8 +190,17 @@ func Status(configPath string, section string) ([]byte, error) {
 		return nil, err
 	}
 
-	select {
-	case conf := <-configLoads:
-		return readStatusInfo(conf.InternalStatusHost, conf.InternalStatusPort, section)
+	conf := <-configLoads
+	return readStatusInfo(conf.InternalStatusHost, conf.InternalStatusPort, section)
+}
+
+// StreamDatapoints reads the text from the diagnostic socket and returns it if available.
+func StreamDatapoints(configPath string, metric string, dims string) (io.ReadCloser, error) {
+	configLoads, err := config.LoadConfig(context.Background(), configPath)
+	if err != nil {
+		return nil, err
 	}
+
+	conf := <-configLoads
+	return streamDatapoints(conf.InternalStatusHost, conf.InternalStatusPort, metric, dims)
 }

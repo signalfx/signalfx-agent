@@ -13,20 +13,12 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-const monitorType = "trace-forwarder"
-
 var logger = utils.NewThrottledLogger(log.WithFields(log.Fields{"monitorType": monitorType}), 30*time.Second)
 var golibLogger = &utils.LogrusGolibShim{FieldLogger: logger.FieldLogger}
 
 func init() {
 	monitors.Register(monitorType, func() interface{} { return &Monitor{} }, &Config{})
 }
-
-// MONITOR(trace-forwarder): Runs an HTTP server that listens for trace spans
-// and forwards them to SignalFx (or the configured ingest host in the `writer`
-// section of the agent config).  This supports the same span formats that our
-// ingest server supports and at the same path (`/v1/trace`).  By default, the
-// server listens on localhost port 9080 but can be configured to anything.
 
 // Config for this monitor
 type Config struct {

@@ -1,6 +1,7 @@
 import os
 import re
 from functools import partial as p
+from pathlib import Path
 
 import yaml
 from kubernetes import client as kube_client
@@ -55,7 +56,7 @@ def run_k8s_monitors_test(  # pylint: disable=too-many-locals,too-many-arguments
     test_timeout (int):                    Timeout in seconds to wait for metrics/dimensions
     """
     try:
-        monitors = yaml.load(monitors)
+        monitors = yaml.safe_load(monitors)
     except AttributeError:
         pass
     if isinstance(monitors, dict):
@@ -526,7 +527,7 @@ def get_discovery_rule(yaml_file, observer, namespace="", container_index=0):
     ports = []
     labels = []
     with open(yaml_file, "r") as fd:
-        for doc in yaml.load_all(fd.read()):
+        for doc in yaml.safe_load_all(fd.read()):
             if doc["kind"] == "Deployment":
                 container = doc["spec"]["template"]["spec"]["containers"][container_index]
                 name = container["name"]
@@ -563,3 +564,8 @@ def get_discovery_rule(yaml_file, observer, namespace="", container_index=0):
     if namespace:
         rule += ' && kubernetes_namespace == "%s"' % namespace
     return rule
+
+
+def get_metrics(dir_, name="metrics.txt"):
+    """Returns set of metrics from file"""
+    return {m.strip() for m in (Path(dir_) / name).read_text().splitlines() if len(m.strip()) > 0}

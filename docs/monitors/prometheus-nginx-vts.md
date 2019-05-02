@@ -23,6 +23,8 @@ Monitor Type: `prometheus/nginx-vts`
 | --- | --- | --- | --- |
 | `host` | **yes** | `string` | Host of the exporter |
 | `port` | **yes** | `integer` | Port of the exporter |
+| `username` | no | `string` | Basic Auth username to use on each request, if any. |
+| `password` | no | `string` | Basic Auth password to use on each request, if any. |
 | `useHTTPS` | no | `bool` | If true, the agent will connect to the exporter using HTTPS instead of plain HTTP. (**default:** `false`) |
 | `skipVerify` | no | `bool` | If useHTTPS is true and this option is also true, the exporter's TLS cert will not be verified. (**default:** `false`) |
 | `metricPath` | no | `string` | Path to the metrics endpoint on the exporter server, usually `/metrics` (the default). (**default:** `/metrics`) |
@@ -38,23 +40,23 @@ The following table lists the metrics available for this monitor. Metrics that a
 | Name | Type | Included | Description |
 | ---  | ---  | ---    | ---         |
 | `nginx_vts_info` | gauge |  | Nginx info |
-| `nginx_vts_start_time_seconds` | gauge |  | Nginx start time |
 | `nginx_vts_main_connections` | gauge | ✔ | connections |
 | `nginx_vts_main_shm_usage_bytes` | gauge |  | Shared memory [ngx_http_vhost_traffic_status] info |
 | `nginx_vts_server_bytes_total` | cumulative |  | The request/response bytes |
-| `nginx_vts_server_requests_total` | cumulative | ✔ | The requests counter |
-| `nginx_vts_server_request_seconds_total` | cumulative |  | The request processing time in seconds |
 | `nginx_vts_server_cache_total` | cumulative |  | The requests cache counter |
-| `nginx_vts_server_request_seconds` | gauge | ✔ | The average of request processing times in seconds |
 | `nginx_vts_server_request_duration_seconds` | cumulative |  | The histogram of request processing time |
+| `nginx_vts_server_request_seconds` | gauge | ✔ | The average of request processing times in seconds |
+| `nginx_vts_server_request_seconds_total` | cumulative |  | The request processing time in seconds |
+| `nginx_vts_server_requests_total` | cumulative | ✔ | The requests counter |
+| `nginx_vts_start_time_seconds` | gauge |  | Nginx start time |
 | `nginx_vts_upstream_bytes_total` | cumulative |  | The request/response bytes |
-| `nginx_vts_upstream_requests_total` | cumulative |  | The upstream requests counter |
-| `nginx_vts_upstream_request_seconds_total` | cumulative |  | The request Processing time including upstream in seconds |
-| `nginx_vts_upstream_request_seconds` | gauge | ✔ | The average of request processing times including upstream in seconds |
-| `nginx_vts_upstream_response_seconds_total` | cumulative |  | The only upstream response processing time in seconds |
-| `nginx_vts_upstream_response_seconds` | gauge |  | The average of only upstream response processing times in seconds |
 | `nginx_vts_upstream_request_duration_seconds` | cumulative |  | The histogram of request processing time including upstream |
+| `nginx_vts_upstream_request_seconds` | gauge | ✔ | The average of request processing times including upstream in seconds |
+| `nginx_vts_upstream_request_seconds_total` | cumulative |  | The request Processing time including upstream in seconds |
+| `nginx_vts_upstream_requests_total` | cumulative |  | The upstream requests counter |
 | `nginx_vts_upstream_response_duration_seconds` | cumulative |  | The histogram of only upstream response processing time |
+| `nginx_vts_upstream_response_seconds` | gauge |  | The average of only upstream response processing times in seconds |
+| `nginx_vts_upstream_response_seconds_total` | cumulative |  | The only upstream response processing time in seconds |
 
 
 To specify custom metrics you want to monitor, add a `metricsToInclude` filter
@@ -72,19 +74,19 @@ required for gathering additional metrics.
 metricsToInclude:
   - metricNames:
     - nginx_vts_info
-    - nginx_vts_start_time_seconds
     - nginx_vts_main_shm_usage_bytes
     - nginx_vts_server_bytes_total
-    - nginx_vts_server_request_seconds_total
     - nginx_vts_server_cache_total
     - nginx_vts_server_request_duration_seconds
+    - nginx_vts_server_request_seconds_total
+    - nginx_vts_start_time_seconds
     - nginx_vts_upstream_bytes_total
-    - nginx_vts_upstream_requests_total
-    - nginx_vts_upstream_request_seconds_total
-    - nginx_vts_upstream_response_seconds_total
-    - nginx_vts_upstream_response_seconds
     - nginx_vts_upstream_request_duration_seconds
+    - nginx_vts_upstream_request_seconds_total
+    - nginx_vts_upstream_requests_total
     - nginx_vts_upstream_response_duration_seconds
+    - nginx_vts_upstream_response_seconds
+    - nginx_vts_upstream_response_seconds_total
     monitorType: prometheus/nginx-vts
 ```
 

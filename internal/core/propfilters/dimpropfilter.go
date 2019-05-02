@@ -1,6 +1,6 @@
 // Package propfilters has logic describing the filtering of unwanted properties.  Filters
 // are configured from the agent configuration file and is intended to be passed
-// into each monitor for use if it sends propeties on its own.
+// into each monitor for use if it sends properties on its own.
 package propfilters
 
 import (
@@ -82,7 +82,7 @@ func (f *basicDimPropsFilter) FilterDimProps(dimProps *types.DimProperties) *typ
 	if dimProps == nil {
 		return nil
 	}
-	filteredProperties := make(map[string]string, len(dimProps.Properties))
+	var filteredProperties map[string]string
 
 	if f.MatchesDimension(dimProps.Name, dimProps.Value) {
 		filteredProperties = f.FilterProperties(dimProps.Properties)

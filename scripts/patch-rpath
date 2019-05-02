@@ -1,0 +1,17 @@
+#!/bin/bash
+
+# Set the rpath on all binaries to point to the $root/lib directory, using a
+# relative path from $ORIGIN.
+
+set -euo pipefail
+
+root=${1}
+
+echo "Using final root directory of $root"
+
+cd $root
+
+for f in $(find bin lib jvm -type f -executable -or -name "*.so*"); do
+  existing_rpath=$(patchelf --print-rpath $f 2>/dev/null || true)
+  patchelf --set-rpath '$ORIGIN/'$($root/bin/realpath --relative-to $(dirname $f) ${root%/}/lib):$existing_rpath $f 2>/dev/null || true
+done

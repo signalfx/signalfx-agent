@@ -15,29 +15,9 @@ import (
 	"github.com/signalfx/signalfx-agent/internal/utils"
 	"github.com/signalfx/signalfx-agent/internal/utils/filter"
 
+	"github.com/sirupsen/logrus"
 	log "github.com/sirupsen/logrus"
 )
-
-const monitorType = "filesystems"
-
-var part = gopsutil.Partitions
-var usage = gopsutil.Usage
-
-// MONITOR(filesystems):
-// This monitor reports metrics about free disk space on mounted devices.
-//
-// On Linux hosts, this monitor relies on the `/proc` filesystem.
-// If the underlying host's `/proc` file system is mounted somewhere other than
-// /proc please specify the path using the top level configuration `procPath`.
-//
-// ```yaml
-// procPath: /hostfs/proc
-// monitors:
-//  - type: filesystems
-//    hostFSPath: /hostfs
-// ```
-
-var logger = log.WithFields(log.Fields{"monitorType": monitorType})
 
 func init() {
 	monitors.Register(monitorType, func() interface{} { return &Monitor{} }, &Config{})
@@ -52,13 +32,12 @@ type Config struct {
 	// /.
 	HostFSPath string `yaml:"hostFSPath"`
 
-	// The filesystem types to include/exclude.  This is a
-	// [filter set](https://github.com/signalfx/signalfx-agent/blob/master/docs/filtering.md#generic-filters).
+	// The filesystem types to include/exclude.  This is an [overridable
+	// set](https://docs.signalfx.com/en/latest/integrations/agent/filtering.html#overridable-filters).
 	FSTypes []string `yaml:"fsTypes" default:"[\"*\", \"!aufs\", \"!overlay\", \"!tmpfs\", \"!proc\", \"!sysfs\", \"!nsfs\", \"!cgroup\", \"!devpts\", \"!selinuxfs\", \"!devtmpfs\", \"!debugfs\", \"!mqueue\", \"!hugetlbfs\", \"!securityfs\", \"!pstore\", \"!binfmt_misc\", \"!autofs\"]"`
 
-	// The mount paths to include/exclude.
-	// This is a
-	// [filter set](https://github.com/signalfx/signalfx-agent/blob/master/docs/filtering.md#generic-filters).
+	// The mount paths to include/exclude. This is an [overridable
+	// set](https://docs.signalfx.com/en/latest/integrations/agent/filtering.html#overridable-filters).
 	// NOTE: If you are using the hostFSPath option you should not include the
 	// `/hostfs/` mount in the filter.
 	MountPoints []string `yaml:"mountPoints" default:"[\"*\", \"!/^/var/lib/docker/containers/\", \"!/^/var/lib/rkt/pods/\", \"!/^/net//\", \"!/^/smb//\", \"!/^/tmp/scratch/\"]"`
@@ -77,8 +56,9 @@ type Monitor struct {
 	cancel      func()
 	conf        *Config
 	hostFSPath  string
-	fsTypes     *filter.ExhaustiveStringFilter
-	mountPoints *filter.ExhaustiveStringFilter
+	fsTypes     *filter.OverridableStringFilter
+	mountPoints *filter.OverridableStringFilter
+	logger      logrus.FieldLogger
 }
 
 // returns common dimensions map according to reportInodes configuration
@@ -124,21 +104,22 @@ func (m *Monitor) reportPercentBytes(dimensions map[string]string, disk *gopsuti
 
 // emitDatapoints emits a set of memory datapoints
 func (m *Monitor) emitDatapoints() {
-	partitions, err := part(m.conf.IncludeLogical)
+	partitions, err := gopsutil.Partitions(m.conf.IncludeLogical)
 	if err != nil {
 		if err == context.DeadlineExceeded {
-			logger.WithField("debug", err).Debugf("failed to collect list of mountpoints")
+			m.logger.WithField("debug", err).Debugf("failed to collect list of mountpoints")
 		} else {
-			logger.WithError(err).Errorf("failed to collect list of mountpoints")
+			m.logger.WithError(err).Errorf("failed to collect list of mountpoints")
 		}
 	}
 	var used uint64
 	var total uint64
-	for _, partition := range partitions {
+	for i := range partitions {
+		partition := partitions[i]
 
 		// skip it if the filesystem doesn't match
 		if !m.fsTypes.Matches(partition.Fstype) {
-			logger.Debugf("skipping mountpoint `%s` with fs type `%s`", partition.Mountpoint, partition.Fstype)
+			m.logger.Debugf("skipping mountpoint `%s` with fs type `%s`", partition.Mountpoint, partition.Fstype)
 			continue
 		}
 
@@ -151,17 +132,17 @@ func (m *Monitor) emitDatapoints() {
 
 		// skip it if the mountpoint doesn't match
 		if !m.mountPoints.Matches(mount) {
-			logger.Debugf("skipping mountpoint '%s'", partition.Mountpoint)
+			m.logger.Debugf("skipping mountpoint '%s'", partition.Mountpoint)
 			continue
 		}
 
 		// if we can't collect usage stats about the mountpoint then skip it
-		disk, err := usage(partition.Mountpoint)
+		disk, err := gopsutil.Usage(partition.Mountpoint)
 		if err != nil {
 			if err == context.DeadlineExceeded {
-				logger.WithField("debug", err).Debugf("failed to collect usage for mountpoint '%s'", partition.Mountpoint)
+				m.logger.WithField("debug", err).Debugf("failed to collect usage for mountpoint '%s'", partition.Mountpoint)
 			} else {
-				logger.WithError(err).Errorf("failed to collect usage for mountpoint '%s'", partition.Mountpoint)
+				m.logger.WithError(err).Errorf("failed to collect usage for mountpoint '%s'", partition.Mountpoint)
 			}
 			continue
 		}
@@ -193,21 +174,20 @@ func (m *Monitor) emitDatapoints() {
 		total += (disk.Used + disk.Free)
 	}
 
-	if total >= 0 {
-		diskSummary, err := calculateUtil(float64(used), float64(total))
-		if err != nil {
-			logger.WithError(err).Errorf("failed to calculate utilization data")
-			return
-		}
-		m.Output.SendDatapoint(datapoint.New("disk.summary_utilization", map[string]string{"plugin": types.UtilizationMetricPluginName}, datapoint.NewFloatValue(diskSummary), datapoint.Gauge, time.Time{}))
+	diskSummary, err := calculateUtil(float64(used), float64(total))
+	if err != nil {
+		m.logger.WithError(err).Errorf("failed to calculate utilization data")
+		return
 	}
+	m.Output.SendDatapoint(datapoint.New("disk.summary_utilization", map[string]string{"plugin": types.UtilizationMetricPluginName}, datapoint.NewFloatValue(diskSummary), datapoint.Gauge, time.Time{}))
 }
 
 // Configure is the main function of the monitor, it will report host metadata
 // on a varied interval
 func (m *Monitor) Configure(conf *Config) error {
+	m.logger = logrus.WithFields(log.Fields{"monitorType": monitorType})
 	if runtime.GOOS != "windows" {
-		logger.Warningf("'%s' monitor is in beta on this platform.  For production environments please use 'collectd/%s'.", monitorType, monitorType)
+		m.logger.Warningf("'%s' monitor is in beta on this platform.  For production environments please use 'collectd/%s'.", monitorType, monitorType)
 	}
 
 	// create contexts for managing the the plugin loop
@@ -220,10 +200,10 @@ func (m *Monitor) Configure(conf *Config) error {
 	// configure filters
 	var err error
 	if len(m.conf.FSTypes) == 0 {
-		m.fsTypes, err = filter.NewExhaustiveStringFilter([]string{"*"})
-		logger.Debugf("empty fsTypes list, defaulting to '*'")
+		m.fsTypes, err = filter.NewOverridableStringFilter([]string{"*"})
+		m.logger.Debugf("empty fsTypes list, defaulting to '*'")
 	} else {
-		m.fsTypes, err = filter.NewExhaustiveStringFilter(m.conf.FSTypes)
+		m.fsTypes, err = filter.NewOverridableStringFilter(m.conf.FSTypes)
 	}
 
 	// return an error if we can't set the filter
@@ -237,10 +217,10 @@ func (m *Monitor) Configure(conf *Config) error {
 
 	// configure filters
 	if len(m.conf.MountPoints) == 0 {
-		m.mountPoints, err = filter.NewExhaustiveStringFilter([]string{"*"})
-		logger.Debugf("empty mountPoints list, defaulting to '*'")
+		m.mountPoints, err = filter.NewOverridableStringFilter([]string{"*"})
+		m.logger.Debugf("empty mountPoints list, defaulting to '*'")
 	} else {
-		m.mountPoints, err = filter.NewExhaustiveStringFilter(m.conf.MountPoints)
+		m.mountPoints, err = filter.NewOverridableStringFilter(m.conf.MountPoints)
 	}
 
 	// return an error if we can't set the filter

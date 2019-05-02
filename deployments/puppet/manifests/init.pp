@@ -28,17 +28,17 @@ class signalfx_agent (
     }
   }
 
-  package { 'signalfx-agent':
+  -> package { 'signalfx-agent':
     ensure => $version
   }
 
-  file { $config_file_path:
+  -> file { $config_file_path:
     ensure  => 'file',
     content => template('signalfx_agent/agent.yaml.erb'),
     mode    => '0600',
   }
 
-  service { 'signalfx-agent':
+  -> service { 'signalfx-agent':
     ensure => true,
     enable => true,
   }

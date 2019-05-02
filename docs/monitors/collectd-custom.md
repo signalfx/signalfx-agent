@@ -40,9 +40,10 @@ Here is an example of a configuration with a custom Python plugin:
 ```
 
 We have many collectd plugins included in the image that are not exposed as
-monitors.  You can see the plugins in the `<AGENT_BUNDLE>/plugins/collectd`
-directory, where `<AGENT_BUNDLE>` is blank in the containerized version, and
-is normally `/usr/lib/signalfx-agent` in the non-containerized agent.
+monitors.  You can see the plugins in the `<AGENT_BUNDLE>/lib/collectd`
+directory, where `<AGENT_BUNDLE>` is the root of the filesystem in the
+containerized version, and is normally `/usr/lib/signalfx-agent` in the
+non-containerized agent.
 
 
 Monitor Type: `collectd/custom`

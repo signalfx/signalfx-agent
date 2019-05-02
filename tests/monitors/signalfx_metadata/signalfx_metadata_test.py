@@ -1,14 +1,16 @@
 from functools import partial as p
 
 import pytest
+
+from tests.helpers.agent import Agent
 from tests.helpers.assertions import has_datapoint, has_log_message
-from tests.helpers.util import ensure_always, run_agent, wait_for
+from tests.helpers.util import ensure_always, wait_for
 
 pytestmark = [pytest.mark.collectd, pytest.mark.signalfx_metadata, pytest.mark.monitor_without_endpoints]
 
 
 def test_signalfx_metadata():
-    with run_agent(
+    with Agent.run(
         """
     procPath: /proc
     etcPath: /etc
@@ -19,18 +21,18 @@ def test_signalfx_metadata():
       - type: collectd/disk
       - type: collectd/memory
     """
-    ) as [backend, get_output, _]:
-        assert wait_for(p(has_datapoint, backend, "cpu.utilization", {"plugin": "signalfx-metadata"}))
-        assert wait_for(p(has_datapoint, backend, "disk_ops.total", {"plugin": "signalfx-metadata"}))
-        assert wait_for(p(has_datapoint, backend, "memory.utilization", {"plugin": "signalfx-metadata"}))
+    ) as agent:
+        assert wait_for(p(has_datapoint, agent.fake_services, "cpu.utilization", {"plugin": "signalfx-metadata"}))
+        assert wait_for(p(has_datapoint, agent.fake_services, "disk_ops.total", {"plugin": "signalfx-metadata"}))
+        assert wait_for(p(has_datapoint, agent.fake_services, "memory.utilization", {"plugin": "signalfx-metadata"}))
         assert ensure_always(
-            lambda: not has_datapoint(backend, "cpu.utilization_per_core", {"plugin": "signalfx-metadata"})
+            lambda: not has_datapoint(agent.fake_services, "cpu.utilization_per_core", {"plugin": "signalfx-metadata"})
         )
-        assert not has_log_message(get_output().lower(), "error"), "error found in agent output!"
+        assert not has_log_message(agent.output.lower(), "error"), "error found in agent output!"
 
 
 def test_cpu_utilization_per_core():
-    with run_agent(
+    with Agent.run(
         """
     monitors:
       - type: collectd/signalfx-metadata
@@ -44,6 +46,8 @@ def test_cpu_utilization_per_core():
         - cpu.utilization_per_core
         monitorType: collectd/signalfx-metadata
         """
-    ) as [backend, get_output, _]:
-        assert wait_for(p(has_datapoint, backend, "cpu.utilization_per_core", {"plugin": "signalfx-metadata"}))
-        assert not has_log_message(get_output().lower(), "error"), "error found in agent output!"
+    ) as agent:
+        assert wait_for(
+            p(has_datapoint, agent.fake_services, "cpu.utilization_per_core", {"plugin": "signalfx-metadata"})
+        )
+        assert not has_log_message(agent.output.lower(), "error"), "error found in agent output!"

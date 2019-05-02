@@ -4,7 +4,7 @@
 // to SignalFx.  The basic technique is to pull data from the K8s API and keep
 // up-to-date copies of datapoints for each metric that we collect and then
 // ship them off at the end of each reporting interval.  The K8s streaming
-// watch API is used to effeciently maintain the state between read intervals
+// watch API is used to efficiently maintain the state between read intervals
 // (see `clusterstate.go`).
 //
 // This plugin should only be run at one place in the cluster, or else metrics
@@ -23,7 +23,7 @@ import (
 	"time"
 
 	"github.com/pkg/errors"
-	log "github.com/sirupsen/logrus"
+	"github.com/sirupsen/logrus"
 
 	k8s "k8s.io/client-go/kubernetes"
 
@@ -35,43 +35,6 @@ import (
 	"github.com/signalfx/signalfx-agent/internal/monitors/kubernetes/leadership"
 	"github.com/signalfx/signalfx-agent/internal/monitors/types"
 )
-
-const (
-	monitorType = "kubernetes-cluster"
-)
-
-// MONITOR(kubernetes-cluster): Collects cluster-level metrics from the
-// Kubernetes API server.  It uses the _watch_ functionality of the K8s API
-// to listen for updates about the cluster and maintains a cache of metrics
-// that get sent on a regular interval.
-//
-// Since the agent is generally running in multiple places in a K8s cluster and
-// since it is generally more convenient to share the same configuration across
-// all agent instances, this monitor by default makes use of a leader election
-// process to ensure that it is the only agent sending metrics in a cluster.
-// All of the agents running in the same namespace that have this monitor
-// configured will decide amongst themselves which should send metrics for this
-// monitor, and the rest will stand by ready to activate if the leader agent
-// dies.  You can override leader election by setting the config option
-// `alwaysClusterReporter` to true, which will make the monitor always report
-// metrics.
-//
-// This monitor is similar to
-// [kube-state-metrics](https://github.com/kubernetes/kube-state-metrics), and
-// sends many of the same metrics, but in a way that is less verbose and better
-// fitted for the SignalFx backend.
-
-// DIMENSION(kubernetes_namespace): The namespace of the resource that the metric
-// describes
-
-// DIMENSION(kubernetes_pod_uid): The UID of the pod that the metric describes
-
-// DIMENSION(metric_source): This is always set to `kubernetes`
-
-// DIMENSION(kubernetes_name): The name of the resource that the metric
-// describes
-
-var logger = log.WithFields(log.Fields{"monitorType": monitorType})
 
 // Config for the K8s monitor
 type Config struct {
@@ -104,14 +67,14 @@ func (c *Config) Validate() error {
 // Monitor for K8s Cluster Metrics.  Also handles syncing certain properties
 // about pods.
 type Monitor struct {
-	config      *Config
-	Output      types.Output
-	thisPodName string
+	config *Config
+	Output types.Output
 	// Since most datapoints will stay the same or only slightly different
 	// across reporting intervals, reuse them
 	datapointCache *metrics.DatapointCache
 	k8sClient      *k8s.Clientset
 	stop           chan struct{}
+	logger         logrus.FieldLogger
 }
 
 func init() {
@@ -120,6 +83,8 @@ func init() {
 
 // Configure is called by the plugin framework when configuration changes
 func (m *Monitor) Configure(config *Config) error {
+	m.logger = logrus.WithFields(logrus.Fields{"monitorType": monitorType})
+
 	m.config = config
 
 	k8sClient, err := kubernetes.MakeClient(config.KubernetesAPI)
@@ -131,9 +96,7 @@ func (m *Monitor) Configure(config *Config) error {
 	m.datapointCache = metrics.NewDatapointCache(config.UseNodeName, m.config.NodeConditionTypesToReport)
 	m.stop = make(chan struct{})
 
-	m.Start()
-
-	return nil
+	return m.Start()
 }
 
 // Start starts syncing resources and sending datapoints to ingest

@@ -22,6 +22,7 @@ EOH
 
 generate_selfdescribe_json() {
   $AGENT_BIN selfdescribe > $selfdescribe_json
+  echo "" >> $selfdescribe_json
 }
 
 seq_from_len() {

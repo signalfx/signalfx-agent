@@ -18,7 +18,6 @@ def has_event(fake_services, event_dict):
     return False
 
 
-@pytest.mark.k8s
 @pytest.mark.kubernetes
 def test_k8s_events_with_whitelist(agent_image, minikube, k8s_test_timeout, k8s_namespace):
     expected_events = [
@@ -33,16 +32,15 @@ def test_k8s_events_with_whitelist(agent_image, minikube, k8s_test_timeout, k8s_
             "whitelistedEvents": expected_events,
         }
     ]
-    with minikube.run_agent(agent_image, monitors=monitors, namespace=k8s_namespace) as [_, backend]:
+    with minikube.run_agent(agent_image, monitors=monitors, namespace=k8s_namespace) as [_, fake_services]:
         for expected_event in expected_events:
-            assert wait_for(p(has_event, backend, expected_event), k8s_test_timeout), (
+            assert wait_for(p(has_event, fake_services, expected_event), k8s_test_timeout), (
                 "timed out waiting for event '%s'!" % expected_event
             )
 
 
-@pytest.mark.k8s
 @pytest.mark.kubernetes
 def test_k8s_events_without_whitelist(agent_image, minikube, k8s_namespace):
     monitors = [{"type": "kubernetes-events", "kubernetesAPI": {"authType": "serviceAccount"}}]
-    with minikube.run_agent(agent_image, monitors=monitors, namespace=k8s_namespace) as [_, backend]:
-        assert ensure_always(lambda: not backend.events, 30), "event received!"
+    with minikube.run_agent(agent_image, monitors=monitors, namespace=k8s_namespace) as [_, fake_services]:
+        assert ensure_always(lambda: not fake_services.events, 30), "event received!"

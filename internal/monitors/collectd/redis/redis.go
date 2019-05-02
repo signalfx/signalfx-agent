@@ -12,37 +12,6 @@ import (
 	"github.com/signalfx/signalfx-agent/internal/monitors/pyrunner"
 )
 
-const monitorType = "collectd/redis"
-
-// MONITOR(collectd/redis): Monitors a redis instance using the [collectd
-// Python Redis plugin](https://github.com/signalfx/redis-collectd-plugin).
-//
-// See the [integrations
-// doc](https://github.com/signalfx/integrations/tree/master/collectd-redis)
-// for more information.
-//
-// Sample YAML configuration:
-//
-// ```yaml
-// monitors:
-// - type: collectd/redis
-//   host: 127.0.0.1
-//   port: 9100
-// ```
-//
-// Sample YAML configuration with list lengths:
-//
-// ```yaml
-// monitors:
-// - type: collectd/redis
-//   host: 127.0.0.1
-//   port: 9100
-//   sendListLengths:
-//   - databaseIndex: 0
-//     keyPattern: 'mylist*'
-// ```
-//
-
 func init() {
 	monitors.Register(monitorType, func() interface{} {
 		return &Monitor{
@@ -110,8 +79,8 @@ func (rm *Monitor) Configure(conf *Config) error {
 		Host:          conf.Host,
 		Port:          conf.Port,
 		ModuleName:    "redis_info",
-		ModulePaths:   []string{collectd.MakePath("redis")},
-		TypesDBPaths:  []string{collectd.MakePath("types.db")},
+		ModulePaths:   []string{collectd.MakePythonPluginPath("redis")},
+		TypesDBPaths:  []string{collectd.DefaultTypesDBPath()},
 		PluginConfig: map[string]interface{}{
 			"Host":     conf.Host,
 			"Port":     conf.Port,

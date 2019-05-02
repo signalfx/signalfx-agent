@@ -38,11 +38,6 @@ func init() {
 		&Config{})
 }
 
-// MONITOR(my-monitor): Monitors my service
-
-// DIMENSION(env): The environment that the service is running in
-// GAUGE(my-monitor.requests): Number of requests made to my service
-
 // Config for monitor
 type Config struct {
 	config.MonitorConfig `yaml:",inline" acceptsEndpoints:"true"`
@@ -237,31 +232,22 @@ If your monitor's configuration is changed in the agent, the agent will
 shutdown existing monitors dependent on that config and recreate them with the
 new config.
 
+Note that `Shutdown` is **not** called if `Configure` returns an error, so the
+`Configure` method should clean up anything it may have started before
+returning the error.
+
 ## Documentation
 
-To make your monitor show up in the auto-generated docs, you should add a
-comment somewhere in the monitor package of the form:
+To make your monitor show up in the auto-generated docs, you should create a
+`metadata.yaml` file in the same package as your monitor. See an existing
+monitor as an example. The `monitorType` property should match exactly the type
+that you register your monitor as.
 
-`// MONITOR(my-monitor-type): These are the docs for my monitor`
-
-Where `my-monitor-type` should match exactly the type that you register your
-monitor as.  The comment can span multiple lines, and will include all
-continguously commented lines from the beginning comment.
-
-You should also document all metric types that your monitor emits with comments
-of the following form:
-
-`// GAUGE(my-metric): What my metric is`
-
-The metric types you can specify are `GAUGE`, `COUNTER`, `CUMULATIVE`, and
-`TIMESTAMP`.
+You should also document all metrics that your monitor emits. The metric types
+you can specify are `gauge`, `counter`, `cumulative`, and `timestamp`.
 
 You should also document any monitor-specific dimensions that your monitor
-attaches to datapoints that it emits by adding comments of this form anywhere
-in your monitor package (or subpackages of the package where the `MONITOR` doc
-is):
-
-`// DIMENSION(dim-name): Description of the dimension`
+attaches to datapoints that it emits.
 
 ## Best Practices
 

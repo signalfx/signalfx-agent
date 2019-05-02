@@ -8,22 +8,20 @@ import (
 	"fmt"
 	"os"
 	"reflect"
-	"time"
 
+	"github.com/sirupsen/logrus"
 	log "github.com/sirupsen/logrus"
 
 	"github.com/signalfx/signalfx-agent/internal/core/common/kubernetes"
 	"github.com/signalfx/signalfx-agent/internal/core/config"
 	"github.com/signalfx/signalfx-agent/internal/core/services"
 	"github.com/signalfx/signalfx-agent/internal/observers"
-	"k8s.io/api/core/v1"
+	v1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/fields"
 	"k8s.io/apimachinery/pkg/types"
 	k8s "k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/cache"
 )
-
-var now = time.Now
 
 const (
 	observerType = "k8s-api"
@@ -58,8 +56,6 @@ const (
 // DIMENSION(container_spec_name): The short name of the container in the pod spec,
 // **NOT** the running container's name in the Docker engine
 
-var logger = log.WithFields(log.Fields{"observerType": observerType})
-
 func init() {
 	observers.Register(observerType, func(cbs *observers.ServiceCallbacks) interface{} {
 		return &Observer{
@@ -87,7 +83,7 @@ func (c *Config) Validate() error {
 	}
 
 	if os.Getenv(nodeEnvVar) == "" {
-		return fmt.Errorf("K8s node name was not provided in the %s envvar", nodeEnvVar)
+		return fmt.Errorf("kubernetes node name was not provided in the %s envvar", nodeEnvVar)
 	}
 	return nil
 }
@@ -103,10 +99,13 @@ type Observer struct {
 	// removed.
 	endpointsByPodUID map[types.UID][]services.Endpoint
 	stopper           chan struct{}
+	logger            logrus.FieldLogger
 }
 
 // Configure configures and starts watching for endpoints
 func (o *Observer) Configure(config *Config) error {
+	o.logger = logrus.WithFields(log.Fields{"observerType": observerType})
+
 	// There is a bug/limitation in the k8s go client's Controller where
 	// goroutines are leaked even when using the stop channel properly.  So we
 	// should avoid going through a shutdown/startup cycle here if nothing is
@@ -133,7 +132,7 @@ func (o *Observer) Configure(config *Config) error {
 func (o *Observer) watchPods() {
 	o.stopper = make(chan struct{})
 
-	client := o.clientset.Core().RESTClient()
+	client := o.clientset.CoreV1().RESTClient()
 	watchList := cache.NewListWatchFromClient(client, "pods", o.config.Namespace, fields.ParseSelectorOrDie("spec.nodeName="+o.thisNode))
 
 	_, controller := cache.NewInformer(
@@ -174,7 +173,7 @@ func (o *Observer) changeHandler(oldPod *v1.Pod, newPod *v1.Pod) {
 	}
 
 	if newPod != nil {
-		newEndpoints = endpointsInPod(newPod, o.clientset)
+		newEndpoints = o.endpointsInPod(newPod, o.clientset)
 		o.endpointsByPodUID[newPod.UID] = newEndpoints
 	}
 
@@ -196,7 +195,7 @@ func (o *Observer) changeHandler(oldPod *v1.Pod, newPod *v1.Pod) {
 	}
 }
 
-func endpointsInPod(pod *v1.Pod, client *k8s.Clientset) []services.Endpoint {
+func (o *Observer) endpointsInPod(pod *v1.Pod, client *k8s.Clientset) []services.Endpoint {
 	endpoints := make([]services.Endpoint, 0)
 
 	podIP := pod.Status.PodIP
@@ -205,7 +204,7 @@ func endpointsInPod(pod *v1.Pod, client *k8s.Clientset) []services.Endpoint {
 	}
 
 	if len(podIP) == 0 {
-		logger.WithFields(log.Fields{
+		o.logger.WithFields(log.Fields{
 			"podName": pod.Name,
 		}).Warn("Pod does not have an IP Address")
 		return nil

@@ -6,31 +6,7 @@ import (
 	"github.com/signalfx/signalfx-agent/internal/core/config"
 	"github.com/signalfx/signalfx-agent/internal/monitors"
 	"github.com/signalfx/signalfx-agent/internal/monitors/types"
-	log "github.com/sirupsen/logrus"
 )
-
-const monitorType = "windows-legacy"
-
-// MONITOR(windows-legacy):
-// (Windows Only) This monitor reports metrics for Windows system Performance Counters.
-// The metric names are intended to match what was originally reported by
-// the SignalFx [PerfCounterReporter](https://github.com/signalfx/PerfCounterReporter)
-// The metric types are all gauges as originally reported by the PerfCounterReporter.
-//
-// ## Windows Performance Counters
-// The underlying source for these metrics are Windows Performance Counters.
-// Most of the performance counters that we query in this monitor are actually
-// rates per second and percentages that we report as instantaneous Gauge values
-// each collection interval.
-//
-// Sample YAML configuration:
-//
-// ```yaml
-// monitors:
-//  - type: windows-legacy
-// ```
-
-var logger = log.WithFields(log.Fields{"monitorType": monitorType})
 
 func init() {
 	monitors.Register(monitorType, func() interface{} { return &Monitor{} }, &Config{})

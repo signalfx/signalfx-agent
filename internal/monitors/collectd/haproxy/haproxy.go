@@ -14,12 +14,6 @@ import (
 	"github.com/signalfx/signalfx-agent/internal/monitors/pyrunner"
 )
 
-const monitorType = "collectd/haproxy"
-
-// MONITOR(collectd/haproxy): Monitors an HAProxy instance.
-//
-// See https://github.com/signalfx/integrations/tree/master/collectd-haproxy.
-
 func init() {
 	monitors.Register(monitorType, func() interface{} {
 		return &Monitor{
@@ -70,8 +64,8 @@ func (m *Monitor) Configure(conf *Config) error {
 		Host:          conf.Host,
 		Port:          conf.Port,
 		ModuleName:    "haproxy",
-		ModulePaths:   []string{collectd.MakePath("haproxy")},
-		TypesDBPaths:  []string{collectd.MakePath("types.db")},
+		ModulePaths:   []string{collectd.MakePythonPluginPath("haproxy")},
+		TypesDBPaths:  []string{collectd.DefaultTypesDBPath()},
 		PluginConfig: map[string]interface{}{
 			"Socket":          socket,
 			"Interval":        conf.IntervalSeconds,

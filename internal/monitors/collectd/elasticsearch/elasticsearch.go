@@ -10,16 +10,6 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-const monitorType = "collectd/elasticsearch"
-
-// MONITOR(collectd/elasticsearch): Monitors ElasticSearch instances. We
-// strongly recommend using the
-// [elasticsearch](./elasticsearch.md) monitor instead, as it
-// will scale much better.
-//
-// See https://github.com/signalfx/collectd-elasticsearch and
-// https://github.com/signalfx/integrations/tree/master/collectd-elasticsearch
-
 func init() {
 	monitors.Register(monitorType, func() interface{} {
 		return &Monitor{
@@ -85,8 +75,8 @@ func (m *Monitor) Configure(conf *Config) error {
 		Host:          conf.Host,
 		Port:          conf.Port,
 		ModuleName:    "elasticsearch_collectd",
-		ModulePaths:   []string{collectd.MakePath("elasticsearch")},
-		TypesDBPaths:  []string{collectd.MakePath("types.db")},
+		ModulePaths:   []string{collectd.MakePythonPluginPath("elasticsearch")},
+		TypesDBPaths:  []string{collectd.DefaultTypesDBPath()},
 		PluginConfig: map[string]interface{}{
 			"Host":                 conf.Host,
 			"Port":                 conf.Port,

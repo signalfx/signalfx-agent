@@ -101,7 +101,7 @@ and use it on your hosts by running:
 
 ```sh
 curl -sSL https://dl.signalfx.com/signalfx-agent.sh > /tmp/signalfx-agent.sh
-sudo sh /tmp/signalfx-agent.sh YOUR_SIGNALFX_API_TOKEN
+sudo sh /tmp/signalfx-agent.sh YOUR_SIGNALFX_API_TOKEN --realm YOUR_SIGNALFX_REALM
 ```
 
 ##### Windows
@@ -116,7 +116,7 @@ Once the dependencies have been installed, please run the installer script below
 You can [view the source for the installer script](./deployments/installer/install.ps1)
 and use it on your hosts in powershell by running:
 
-`& {Set-ExecutionPolicy Bypass -Scope Process -Force; $script = ((New-Object System.Net.WebClient).DownloadString('https://dl.signalfx.com/signalfx-agent.ps1')); $params = @{access_token = "YOUR_SIGNALFX_API_TOKEN"}; Invoke-Command -ScriptBlock ([scriptblock]::Create(". {$script} $(&{$args} @params)"))}`
+`& {Set-ExecutionPolicy Bypass -Scope Process -Force; $script = ((New-Object System.Net.WebClient).DownloadString('https://dl.signalfx.com/signalfx-agent.ps1')); $params = @{access_token = "YOUR_SIGNALFX_API_TOKEN"; ingest_url = "https://ingest.YOUR_SIGNALFX_REALM.signalfx.com"; api_url = "https://api.YOUR_SIGNALFX_REALM.signalfx.com"}; Invoke-Command -ScriptBlock ([scriptblock]::Create(". {$script} $(&{$args} @params)"))}`
 
 The agent should be installed to `\Program Files\SignalFx\SignalFxAgent`, and the default configuration file
 should be installed at `\ProgramData\SignalFxAgent`.
@@ -193,6 +193,11 @@ release.
 To use the bundle:
 
 1) Unarchive it to a directory of your choice on the target system.
+
+2) Go into the unarchived `signalfx-agent` directory and run
+`bin/patch-interpreter $(pwd)`.  This ensures that the binaries in the bundle
+have the right loader set on them since your host's loader may not be
+compatible.
 
 2) Ensure a valid configuration file is available somewhere on the target
 system.  The main thing that the distro packages provide -- but that you will

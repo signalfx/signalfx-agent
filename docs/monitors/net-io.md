@@ -27,7 +27,7 @@ Monitor Type: `net-io`
 
 | Config option | Required | Type | Description |
 | --- | --- | --- | --- |
-| `interfaces` | no | `list of strings` | The network interfaces to send metrics about. This is a [filter set](https://github.com/signalfx/signalfx-agent/blob/master/docs/filtering.md#generic-filters). (**default:** `[* !/^lo\d*$/ !/^docker.*/ !/^t(un|ap)\d*$/ !/^veth.*$/ !/^Loopback*/]`) |
+| `interfaces` | no | `list of strings` | The network interfaces to send metrics about. This is an [overridable set](https://docs.signalfx.com/en/latest/integrations/agent/filtering.html#overridable-filters). (**default:** `[* !/^lo\d*$/ !/^docker.*/ !/^t(un|ap)\d*$/ !/^veth.*$/ !/^Loopback*/]`) |
 
 
 

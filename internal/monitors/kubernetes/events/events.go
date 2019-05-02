@@ -13,41 +13,11 @@ import (
 	"github.com/signalfx/signalfx-agent/internal/utils"
 
 	log "github.com/sirupsen/logrus"
-	"k8s.io/api/core/v1"
+	v1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/fields"
 	k8s "k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/cache"
 )
-
-const monitorType = "kubernetes-events"
-
-// MONITOR(kubernetes-events): This monitor sends Kubernetes events as SignalFx
-// events.  Upon startup, it will send all of the events that K8s has that are
-// still persisted and then send any new events that come in.  The various
-// agents perform leader election amongst themselves to decide which instance
-// will send events, unless the `alwaysClusterReporter` config option is set to
-// true.
-//
-// To use this monitor, will need to configure which events to send. You can
-// see the types of events happening in your cluster with
-// `kubectl get events -o yaml --all-namespaces`.
-// From the output, you can select which events you would like to send by picking
-// out the Reason (Started, Created, Scheduled...) and
-// Kind (Pod, ReplicaSet, Deployment...) combinations. These are placed in the
-// whitelistedEvents configuration option as a list of events you want to send.
-//
-// Example YAML Configuration
-//
-// ```
-// - type: kubernetes-events
-//   whitelistedEvents:
-//     - reason: Created
-//       involvedObjectKind: Pod
-//     - reason: SuccessfulCreate
-//       invovledObjectKind: ReplicaSet
-//```
-//
-// Event names will match the `reason` name.
 
 var logger = log.WithFields(log.Fields{"monitorType": monitorType})
 

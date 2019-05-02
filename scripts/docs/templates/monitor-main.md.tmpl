@@ -5,12 +5,7 @@
 
 Monitors gather metrics from the host and from running applications.  They are
 configured in a list called `monitors` in the [main agent config
-file](./config-schema.md). These are all of the monitors included in the agent,
-along with their possible configuration options:
-
-{{ range $monitors -}}
-- [{{.monitorType}}](./monitors/{{strings.ReplaceAll "/" "-" (strings.ToLower .monitorType)}}.md)
-{{end}}
+file](./config-schema.md).
 
 ## Common Configuration
 
@@ -19,5 +14,14 @@ The following config options are common to all monitors:
 | Config option | Default | Required | Type | Description |
 | --- | --- | --- | --- | --- |
 {{ range (ds "agent").GenericMonitorConfig.fields -}}
-| `{{.yamlName}}` | {{if .default | print}}`{{.default}}`{{end}} | {{if .required}}**yes**{{else}}no{{end}} | `{{or (index $doc_types .type) .type}}{{if .elementKind}} of {{or (index $doc_types .elementKind) .elementKind}}{{end}}` | {{.doc | strings.TrimSpace}} |
+| `{{.yamlName}}` | {{if and (.default | conv.ToString) (ne (.default | conv.ToString) "nil")}}`{{.default}}`{{end}} | {{if .required}}**yes**{{else}}no{{end}} | `{{or (index $doc_types .type) .type}}{{if .elementKind}} of {{or (index $doc_types .elementKind) .elementKind}}{{end}}` | {{.doc | strings.TrimSpace}} |
 {{end}}
+
+## Monitor list
+
+These are all of the monitors included in the agent, along with their possible configuration options:
+
+{{ range $monitors -}}
+- [{{.monitorType}}](./monitors/{{strings.ReplaceAll "/" "-" (strings.ToLower .monitorType)}}.md)
+{{end}}
+

@@ -1,4 +1,5 @@
-- dimensions: null
+monitors:
+- dimensions:
   doc: |
     This monitor reports metrics about free disk space on mounted devices.
 
@@ -13,51 +14,51 @@
        hostFSPath: /hostfs
     ```
   metrics:
-  - description: Free disk space in bytes
-    included: true
-    name: df_complex.free
-    type: gauge
-  - description: Used disk space in bytes
-    included: true
-    name: df_complex.used
-    type: gauge
-  - description: (Linux Only) Number of inodes that are free.  This is is only reported
-      if the configuration option `reportInodes` is set to `true`.
-    included: false
-    name: df_inodes.free
-    type: gauge
-  - description: (Linux Only) Number of inodes that are used.  This is only reported
-      if the configuration option `reportInodes` is set to `true`.
-    included: false
-    name: df_inodes.used
-    type: gauge
-  - description: Percent of disk space utilized on all volumes on this host. This
-      metric reports with plugin dimension set to "signalfx-metadata".
-    included: true
-    name: disk.summary_utilization
-    type: gauge
-  - description: Percent of disk used on this volume. This metric reports with plugin
-      dimension set to "signalfx-metadata".
-    included: true
-    name: disk.utilization
-    type: gauge
-  - description: Free disk space on the file system, expressed as a percentage.
-    included: false
-    name: percent_bytes.free
-    type: gauge
-  - description: Used disk space on the file system, expressed as a percentage.
-    included: false
-    name: percent_bytes.used
-    type: gauge
-  - description: (Linux Only) Free inodes on the file system, expressed as a percentage.  This
-      is only reported if the configuration option `reportInodes` is set to `true`.
-    included: false
-    name: percent_inodes.free
-    type: gauge
-  - description: (Linux Only) Used inodes on the file system, expressed as a percentage.  This
-      is only reported if the configuration option `reportInodes` is set to `true`.
-    included: false
-    name: percent_inodes.used
-    type: gauge
+    df_complex.free:
+      description: Free disk space in bytes
+      included: true
+      type: gauge
+    df_complex.used:
+      description: Used disk space in bytes
+      included: true
+      type: gauge
+    df_inodes.free:
+      description: (Linux Only) Number of inodes that are free.  This is is only reported
+        if the configuration option `reportInodes` is set to `true`.
+      included: false
+      type: gauge
+    df_inodes.used:
+      description: (Linux Only) Number of inodes that are used.  This is only reported
+        if the configuration option `reportInodes` is set to `true`.
+      included: false
+      type: gauge
+    disk.summary_utilization:
+      description: Percent of disk space utilized on all volumes on this host. This
+        metric reports with plugin dimension set to "signalfx-metadata".
+      included: true
+      type: gauge
+    disk.utilization:
+      description: Percent of disk used on this volume. This metric reports with plugin
+        dimension set to "signalfx-metadata".
+      included: true
+      type: gauge
+    percent_bytes.free:
+      description: Free disk space on the file system, expressed as a percentage.
+      included: false
+      type: gauge
+    percent_bytes.used:
+      description: Used disk space on the file system, expressed as a percentage.
+      included: false
+      type: gauge
+    percent_inodes.free:
+      description: (Linux Only) Free inodes on the file system, expressed as a percentage.  This
+        is only reported if the configuration option `reportInodes` is set to `true`.
+      included: false
+      type: gauge
+    percent_inodes.used:
+      description: (Linux Only) Used inodes on the file system, expressed as a percentage.  This
+        is only reported if the configuration option `reportInodes` is set to `true`.
+      included: false
+      type: gauge
   monitorType: filesystems
-  properties: null
+  properties:

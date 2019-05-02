@@ -14,50 +14,6 @@ import (
 	"github.com/signalfx/signalfx-agent/internal/utils"
 )
 
-const monitorType = "collectd/custom"
-
-// MONITOR(collectd/custom): This monitor lets you provide custom collectd
-// configuration to be run by the managed collectd instance.  You can provide
-// configuration for as many plugins as you want in a single instance of this
-// monitor configuration by either putting multiple `<Plugin>` blocks in a
-// single `template` option, or specifying multiple `templates`.
-//
-// Note that a distinct instance of collectd is run for each instance of this
-// monitor, so it is more efficient to group plugin configurations into a
-// single monitor configuration (either in one big `template` text blob, or
-// split into multiple `templates`).  You should not group configurations if
-// using a discoveryRule since that would result in duplicate config for each
-// instance of the service endpoint discovered.
-//
-// You can also use your own Python plugins in conjunction with the
-// `ModulePath` option in
-// [collectd-python](https://collectd.org/documentation/manpages/collectd-python.5.shtml).
-// If your Python plugin has dependencies of its own, you can specify the path
-// to them by specifying multiple `ModulePath` options with those paths.
-//
-// Here is an example of a configuration with a custom Python plugin:
-//
-// ```yaml
-//   - type: collectd/custom
-//     discoveryRule: container_image =~ "myservice"
-//     template: |
-//       LoadPlugin "python"
-//       <Plugin python>
-//         ModulePath "/usr/lib/python2.7/dist-packages/health_checker"
-//         Import "health_checker"
-//         <Module health_checker>
-//           URL "http://{{.Host}}:{{.Port}}"
-//           JSONKey "isRunning"
-//           JSONVal "1"
-//         </Module>
-//       </Plugin>
-// ```
-//
-// We have many collectd plugins included in the image that are not exposed as
-// monitors.  You can see the plugins in the `<AGENT_BUNDLE>/plugins/collectd`
-// directory, where `<AGENT_BUNDLE>` is blank in the containerized version, and
-// is normally `/usr/lib/signalfx-agent` in the non-containerized agent.
-
 func init() {
 	monitors.Register(monitorType, func() interface{} {
 		return &Monitor{
@@ -152,7 +108,7 @@ func (cm *Monitor) Configure(conf *Config) error {
 
 	// Allow blank template text so that we have a standard config item that
 	// configured the monitor with all of the templates in a possibly
-	// non-existant legacy collectd managed_config dir.
+	// non-existent legacy collectd managed_config dir.
 	if templateTextConcatenated == "" {
 		return nil
 	}

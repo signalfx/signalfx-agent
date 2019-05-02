@@ -1,0 +1,28 @@
+version: "3"
+services:
+  shell:
+    image: signalfx-agent-dev
+    network_mode: bridge
+    command: tail -f /dev/null
+    stop_grace_period: 0s
+    ports:
+    - 6061:6060
+    - 9081:9080
+    - 8096:8095
+    cap_add:
+    - DAC_READ_SEARCH
+    - SYS_PTRACE
+    volumes:
+    - signalfx-agent-sync:/usr/src/signalfx-agent:nocopy
+    - home:/root:nocopy
+    - ./local-etc:/etc/signalfx
+    - ./tmp/pprof:/tmp/pprof
+    - $HOME/.kube:$HOME/.kube
+    - /:/hostfs:ro
+    - /var/run/docker.sock:/var/run/docker.sock:ro
+    - /tmp/scratch:/tmp/scratch
+
+volumes:
+  home:
+  signalfx-agent-sync:
+    external: true

@@ -14,25 +14,7 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-const monitorType = "collectd/signalfx-metadata"
-
 var logger = log.WithFields(log.Fields{"monitorType": monitorType})
-
-// MONITOR(collectd/signalfx-metadata): Collectd Python plugin that aggregates
-// various metrics from other collectd plugins.  It also sends host metadata to
-// SignalFx through specially formatted events, and sends active process
-// ("top") lists on a periodic basis.
-//
-// See [Python plugin code](https://github.com/signalfx/collectd-signalfx/) and
-// [Integrations docs](https://github.com/signalfx/integrations/tree/master/signalfx-metadata).
-
-// GAUGE(cpu.utilization): Percent of CPU used on this host.
-// GAUGE(cpu.utilization_per_core): Percent of CPU used on each core. `perCoreCPUUtil` config must be set to true.
-// GAUGE(disk.summary_utilization): Percent of disk space utilized on all volumes on this host.
-// GAUGE(disk.utilization): Percent of disk used on this volume.
-// CUMULATIVE(disk_ops.total): Total number of disk read and write operations on this host.
-// GAUGE(memory.utilization): Percent of memory in use on this host.
-// CUMULATIVE(network.total): Total amount of inbound and outbound network traffic on this host, in bytes.
 
 func init() {
 	monitors.Register(monitorType, func() interface{} {
@@ -91,10 +73,10 @@ type Config struct {
 // Validate will check the config for correctness.
 func (c *Config) Validate() error {
 	if c.DogStatsDPort != nil && c.Token == "" {
-		return errors.New("You must configure 'token' with your SignalFx access token when running the DogStatsD listener")
+		return errors.New("you must configure 'token' with your SignalFx access token when running the DogStatsD listener")
 	}
 	if c.DogStatsDPort == nil && (c.Token != "" || c.IngestEndpoint != "" || c.DogStatsDIP != "") {
-		return errors.New("Optional DogStatsD configurations have been set, but the DogStatsDPort is not configured")
+		return errors.New("optional DogStatsD configurations have been set, but the DogStatsDPort is not configured")
 	}
 	return nil
 }
@@ -116,7 +98,7 @@ func (m *Monitor) Configure(conf *Config) error {
 	if conf.EtcPath != "" {
 		logger.Warningf("Please set the `etcPath` top level agent configuration instead of the monitor level configuration")
 	} else {
-		// get top level configuraiton for /etc path
+		// get top level configuration for /etc path
 		conf.EtcPath = hostfs.HostEtc()
 	}
 	return m.SetConfigurationAndRun(conf)

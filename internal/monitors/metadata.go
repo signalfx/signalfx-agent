@@ -1,18 +1,18 @@
 package monitors
 
 import (
-	"github.com/pkg/errors"
-	"gopkg.in/yaml.v2"
 	"io/ioutil"
 	"os"
 	"path/filepath"
+
+	"github.com/pkg/errors"
+	"gopkg.in/yaml.v2"
 )
 
 const monitorMetadataFile = "metadata.yaml"
 
 // MetricMetadata contains a metric's metadata.
 type MetricMetadata struct {
-	Name        string  `json:"name"`
 	Alias       string  `json:"alias,omitempty"`
 	Type        string  `json:"type"`
 	Description string  `json:"description"`
@@ -22,38 +22,41 @@ type MetricMetadata struct {
 
 // PropMetadata contains a property's metadata.
 type PropMetadata struct {
-	Name        string `json:"name"`
 	Dimension   string `json:"dimension"`
 	Description string `json:"description"`
 }
 
 // GroupMetadata contains a group's metadata.
 type GroupMetadata struct {
-	Name        string `json:"name"`
 	Description string `json:"description"`
 }
 
 // MonitorMetadata contains a monitor's metadata.
 type MonitorMetadata struct {
-	MonitorType string           `json:"monitorType" yaml:"monitorType"`
-	SendAll     bool             `json:"sendAll" yaml:"sendAll"`
-	Dimensions  []DimMetadata    `json:"dimensions"`
-	Doc         string           `json:"doc"`
-	Groups      []GroupMetadata  `json:"groups"`
-	Metrics     []MetricMetadata `json:"metrics"`
-	Properties  []PropMetadata   `json:"properties"`
+	MonitorType string                    `json:"monitorType" yaml:"monitorType"`
+	SendAll     bool                      `json:"sendAll" yaml:"sendAll"`
+	Dimensions  map[string]DimMetadata    `json:"dimensions"`
+	Doc         string                    `json:"doc"`
+	Groups      map[string]GroupMetadata  `json:"groups"`
+	Metrics     map[string]MetricMetadata `json:"metrics"`
+	Properties  map[string]PropMetadata   `json:"properties"`
+	// True if the list of metrics is definitively the set of metrics
+	// this monitor will ever send. This impacts the additionalMetricsFilter.
+	MetricsExhaustive bool `json:"metricsExhaustive" yaml:"metricsExhaustive" default:"false"`
 }
 
 // PackageMetadata describes a package directory that may have one or more monitors.
 type PackageMetadata struct {
 	Monitors []MonitorMetadata
-	Package  string `yaml:"-"`
-	Path     string `json:"-" yaml:"-"`
+	// Name of the package in go. If not set defaults to the directory name.
+	GoPackage *string `json:"goPackage" yaml:"goPackage"`
+	// Filesystem path to the package directory.
+	PackagePath string `json:"-" yaml:"-"`
+	Path        string `json:"-" yaml:"-"`
 }
 
 // DimMetadata contains a dimension's metadata.
 type DimMetadata struct {
-	Name        string `json:"name"`
 	Description string `json:"description"`
 }
 
@@ -70,19 +73,18 @@ func CollectMetadata(root string) ([]PackageMetadata, error) {
 			return nil
 		}
 
-		var monitorDocs []MonitorMetadata
+		var pkg PackageMetadata
 
 		if bytes, err := ioutil.ReadFile(path); err != nil {
 			return errors.Wrapf(err, "unable to read metadata file %s", path)
-		} else if err := yaml.UnmarshalStrict(bytes, &monitorDocs); err != nil {
+		} else if err := yaml.UnmarshalStrict(bytes, &pkg); err != nil {
 			return errors.Wrapf(err, "unable to unmarshal file %s", path)
 		}
 
-		packages = append(packages, PackageMetadata{
-			Monitors: monitorDocs,
-			Package:  filepath.Dir(path),
-			Path:     path,
-		})
+		pkg.PackagePath = filepath.Dir(path)
+		pkg.Path = path
+
+		packages = append(packages, pkg)
 
 		return nil
 	}); err != nil {

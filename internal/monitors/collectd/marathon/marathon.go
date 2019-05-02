@@ -12,37 +12,6 @@ import (
 	"github.com/signalfx/signalfx-agent/internal/monitors/pyrunner"
 )
 
-const monitorType = "collectd/marathon"
-
-// MONITOR(collectd/marathon): Monitors a Mesos Marathon instance using the
-// [collectd Marathon Python plugin](https://github.com/signalfx/collectd-marathon).
-//
-// See the [integrations
-// doc](https://github.com/signalfx/integrations/tree/master/collectd-marathon)
-// for more information on configuration.
-//
-// Sample YAML configuration:
-//
-// ```yaml
-// monitors:
-//   - type: collectd/marathon
-//     host: 127.0.0.1
-//     port: 8080
-//     scheme: http
-// ```
-//
-// Sample YAML configuration for DC/OS:
-//
-// ```yaml
-// monitors:
-//   - type: collectd/marathon
-//     host: 127.0.0.1
-//     port: 8080
-//     scheme: https
-//     dcosAuthURL: https://leader.mesos/acs/api/v1/auth/login
-// ```
-//
-
 func init() {
 	monitors.Register(monitorType, func() interface{} {
 		return &Monitor{
@@ -81,7 +50,7 @@ func (c *Config) PythonConfig() *python.Config {
 // Validate config issues
 func (c *Config) Validate() error {
 	if c.DCOSAuthURL != "" && c.Scheme != "https" {
-		return errors.New("Scheme must be set to https when using a DCOSAuthURL")
+		return errors.New("scheme must be set to https when using a DCOSAuthURL")
 	}
 	return nil
 }
@@ -98,8 +67,8 @@ func (m *Monitor) Configure(conf *Config) error {
 		Host:          conf.Host,
 		Port:          conf.Port,
 		ModuleName:    "marathon",
-		ModulePaths:   []string{collectd.MakePath("marathon")},
-		TypesDBPaths:  []string{collectd.MakePath("types.db")},
+		ModulePaths:   []string{collectd.MakePythonPluginPath("marathon")},
+		TypesDBPaths:  []string{collectd.DefaultTypesDBPath()},
 		PluginConfig: map[string]interface{}{
 			"verbose": false,
 		},

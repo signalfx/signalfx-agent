@@ -1,22 +1,23 @@
-import os
 from functools import partial as p
+from pathlib import Path
 from textwrap import dedent
 
 import pytest
 
+from tests.helpers.agent import Agent
 from tests.helpers.assertions import has_datapoint_with_dim, http_status, tcp_socket_open
 from tests.helpers.kubernetes.utils import get_discovery_rule, run_k8s_monitors_test
 from tests.helpers.util import (
     container_ip,
     get_monitor_dims_from_selfdescribe,
     get_monitor_metrics_from_selfdescribe,
-    run_agent,
     run_service,
     wait_for,
 )
 
 pytestmark = [pytest.mark.collectd, pytest.mark.jenkins, pytest.mark.monitor_with_endpoints]
 
+SCRIPT_DIR = Path(__file__).parent.resolve()
 METRICS_KEY = "33DD8B2F1FD645B814993275703F_EE1FD4D4E204446D5F3200E0F6-C55AC14E"
 
 
@@ -49,14 +50,15 @@ def test_jenkins(version):
             p(http_status, url=f"http://{host}:8080/metrics/{METRICS_KEY}/ping/", status=[200]), 120
         ), "service didn't start"
 
-        with run_agent(config) as [backend, _, _]:
-            assert wait_for(p(has_datapoint_with_dim, backend, "plugin", "jenkins")), "Didn't get jenkins datapoints"
+        with Agent.run(config) as agent:
+            assert wait_for(
+                p(has_datapoint_with_dim, agent.fake_services, "plugin", "jenkins")
+            ), "Didn't get jenkins datapoints"
 
 
-@pytest.mark.k8s
 @pytest.mark.kubernetes
 def test_jenkins_in_k8s(agent_image, minikube, k8s_observer, k8s_test_timeout, k8s_namespace):
-    yaml = os.path.join(os.path.dirname(os.path.realpath(__file__)), "jenkins-k8s.yaml")
+    yaml = SCRIPT_DIR / "jenkins-k8s.yaml"
     build_opts = {"buildargs": {"JENKINS_VERSION": "2.60.3-alpine", "JENKINS_PORT": "8080"}, "tag": "jenkins:test"}
     minikube.build_image("jenkins", build_opts)
     monitors = [

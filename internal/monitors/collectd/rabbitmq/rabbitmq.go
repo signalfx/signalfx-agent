@@ -11,20 +11,6 @@ import (
 	"github.com/signalfx/signalfx-agent/internal/monitors/pyrunner"
 )
 
-const monitorType = "collectd/rabbitmq"
-
-// MONITOR(collectd/rabbitmq): Monitors an instance of RabbitMQ using the
-// [collectd RabbitMQ Python
-// Plugin](https://github.com/signalfx/collectd-rabbitmq).
-//
-// See the [integration
-// doc](https://github.com/signalfx/integrations/tree/master/collectd-rabbitmq)
-// for more information.
-//
-// **Note that you must individually enable each of the five `collect*` options
-// to get metrics pertaining to those facets of a RabbitMQ instance.  If none
-// of them are enabled, no metrics will be sent.**
-
 func init() {
 	monitors.Register(monitorType, func() interface{} {
 		return &Monitor{
@@ -73,8 +59,8 @@ func (m *Monitor) Configure(conf *Config) error {
 		Host:          conf.Host,
 		Port:          conf.Port,
 		ModuleName:    "rabbitmq",
-		ModulePaths:   []string{collectd.MakePath("rabbitmq")},
-		TypesDBPaths:  []string{collectd.MakePath("types.db")},
+		ModulePaths:   []string{collectd.MakePythonPluginPath("rabbitmq")},
+		TypesDBPaths:  []string{collectd.DefaultTypesDBPath()},
 		PluginConfig: map[string]interface{}{
 			"Host":               conf.Host,
 			"Port":               conf.Port,

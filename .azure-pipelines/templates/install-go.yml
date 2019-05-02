@@ -1,0 +1,22 @@
+parameters:
+  packages: ''
+  version: '1.12.1'
+
+steps:
+- task: GoTool@0
+  inputs:
+    version: ${{ parameters.version }}
+    goPath: '$(GOPATH)'
+    goBin: '$(GOBIN)'
+  displayName: 'Install go'
+- powershell: |
+    mkdir "$(GOBIN)" -ea 0
+    go env
+    $env:PATH += ";$(GOBIN)"
+    echo "##vso[task.setvariable variable=PATH]$env:PATH"
+    echo $env:PATH
+- ${{ if ne(parameters.packages, '') }}:
+  - powershell: |
+      $env:GO111MODULE = "on"
+      go get ${{ parameters.packages }}
+    displayName: 'Install go packages'

@@ -13,26 +13,6 @@ import (
 	"github.com/signalfx/signalfx-agent/internal/monitors"
 )
 
-const monitorType = "collectd/couchbase"
-
-// MONITOR(collectd/couchbase): Monitors couchbase by using the
-// [couchbase collectd Python
-// plugin](https://github.com/signalfx/collectd-couchbase), which collects
-// metrics from couchbase instances
-//
-// Sample YAML configuration with custom query:
-//
-// ```yaml
-// monitors:
-// - type: collectd/couchbase
-//   host: 127.0.0.1
-//   port: 8091
-//   collectTarget: "NODE"
-//   clusterName: "my-cluster"
-//   username: "user"
-//   password: "password"
-// ```
-
 func init() {
 	monitors.Register(monitorType, func() interface{} {
 		return &Monitor{
@@ -93,8 +73,8 @@ func (m *Monitor) Configure(conf *Config) error {
 		Host:          conf.Host,
 		Port:          conf.Port,
 		ModuleName:    "couchbase",
-		ModulePaths:   []string{collectd.MakePath("couchbase")},
-		TypesDBPaths:  []string{collectd.MakePath("types.db")},
+		ModulePaths:   []string{collectd.MakePythonPluginPath("couchbase")},
+		TypesDBPaths:  []string{collectd.DefaultTypesDBPath()},
 		PluginConfig: map[string]interface{}{
 			"Host":          conf.Host,
 			"Port":          conf.Port,

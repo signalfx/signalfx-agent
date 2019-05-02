@@ -26,13 +26,6 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-const monitorType = "ecs-metadata"
-
-// MONITOR(ecs-metadata): This monitor reads container stats from a
-// [ECS Task Metadata Endpoint version 2](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/task-metadata-endpoint-v2.html).
-//
-// This currently does not support CPU share/quota metrics.
-
 var logger = log.WithFields(log.Fields{"monitorType": monitorType})
 
 func init() {
@@ -81,7 +74,7 @@ type Monitor struct {
 // Configure the monitor and kick off volume metric syncing
 func (m *Monitor) Configure(conf *Config) error {
 	var err error
-	m.imageFilter, err = filter.NewExhaustiveStringFilter(conf.ExcludedImages)
+	m.imageFilter, err = filter.NewOverridableStringFilter(conf.ExcludedImages)
 	if err != nil {
 		return errors.Wrapf(err, "Could not load excluded image filter")
 	}
@@ -282,7 +275,7 @@ func getTaskLimitMetrics(container ecs.Container, enhancedMetricsConfig dmonitor
 	var taskLimitDps []*datapoint.Datapoint
 
 	if enhancedMetricsConfig.EnableExtraCPUMetrics {
-		cpuDp := sfxclient.Gauge("cpu.limit", nil, int64(container.Limits.CPU))
+		cpuDp := sfxclient.Gauge("cpu.limit", nil, container.Limits.CPU)
 
 		cpuDp.Dimensions = map[string]string{}
 		cpuDp.Dimensions["plugin"] = "ecs"

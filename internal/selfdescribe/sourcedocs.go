@@ -12,10 +12,14 @@ import (
 	"strings"
 )
 
-var astCache = make(map[string]struct {
+type astCacheEntry struct {
 	fset *token.FileSet
 	pkgs map[string]*ast.Package
-})
+}
+
+//nolint: gochecknoglobals
+// Used to cache the asts parsed from package files
+var astCache = map[string]astCacheEntry{}
 
 // Returns the ast node of the struct itself and the comment group on the
 // struct type.
@@ -34,6 +38,7 @@ func structNodes(packageDir, structName string) (*ast.TypeSpec, *ast.CommentGrou
 		if err != nil {
 			panic(err)
 		}
+		astCache[packageDir] = astCacheEntry{fset: fset, pkgs: pkgs}
 	}
 
 	for _, p := range pkgs {
@@ -43,8 +48,7 @@ func structNodes(packageDir, structName string) (*ast.TypeSpec, *ast.CommentGrou
 			// comment on it or else it won't be found.
 			cmap := ast.NewCommentMap(fset, f, f.Comments)
 			for node := range cmap {
-				switch t := node.(type) {
-				case *ast.GenDecl:
+				if t, ok := node.(*ast.GenDecl); ok {
 					if t.Tok != token.TYPE {
 						continue
 					}
@@ -84,9 +88,9 @@ func packageDoc(packageDir string) *doc.Package {
 	return pkgDoc
 }
 
-func nestedPackageDocs(packageDir string) []*doc.Package {
+func nestedPackageDocs(packageDir string) ([]*doc.Package, error) {
 	var out []*doc.Package
-	filepath.Walk(packageDir, func(path string, info os.FileInfo, err error) error {
+	err := filepath.Walk(packageDir, func(path string, info os.FileInfo, err error) error {
 		if !info.IsDir() || err != nil {
 			return err
 		}
@@ -97,22 +101,20 @@ func nestedPackageDocs(packageDir string) []*doc.Package {
 		}
 		return nil
 	})
-	return out
+	return out, err
 }
 
 func notesFromDocs(docs []*doc.Package, noteType string) []*doc.Note {
 	var notes []*doc.Note
 	for _, pkgDoc := range docs {
-		for _, note := range pkgDoc.Notes[noteType] {
-			notes = append(notes, note)
-		}
+		notes = append(notes, pkgDoc.Notes[noteType]...)
 	}
 	return notes
 }
 
 func structFieldDocs(packageDir, structName string) map[string]string {
 	configStruct, _ := structNodes(packageDir, structName)
-	fieldDocs := make(map[string]string)
+	fieldDocs := map[string]string{}
 	for _, field := range configStruct.Type.(*ast.StructType).Fields.List {
 		if field.Names != nil {
 			fieldDocs[field.Names[0].Name] = commentTextToParagraphs(field.Doc.Text())
@@ -122,6 +124,7 @@ func structFieldDocs(packageDir, structName string) map[string]string {
 	return fieldDocs
 }
 
+//nolint: gochecknoglobals
 var textRE = regexp.MustCompile(`([^\n])\n([^\s])`)
 
 func commentTextToParagraphs(t string) string {

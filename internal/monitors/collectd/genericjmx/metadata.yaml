@@ -1,10 +1,13 @@
-- dimensions: null
+monitors:
+- dimensions:
   doc: |
     Monitors Java services that expose metrics on
     JMX using collectd's GenericJMX plugin.
 
-    See https://github.com/signalfx/integrations/tree/master/collectd-genericjmx
-    and https://collectd.org/documentation/manpages/collectd-java.5.shtml
+    See the following for more information 
+    - https://github.com/signalfx/integrations/tree/master/collectd-genericjmx
+    - https://collectd.org/documentation/manpages/collectd-java.5.shtml
+    - https://collectd.org/wiki/index.php/Plugin:GenericJMX
 
     Example (gets the thread count from a standard JMX MBean available on all
     Java JMX-enabled apps):
@@ -82,6 +85,6 @@
     ## Useful links
 
      - https://realjenius.com/2012/11/21/java7-jmx-tunneling-freedom/
-  metrics: null
+  metrics:
   monitorType: collectd/genericjmx
-  properties: null
+  properties:

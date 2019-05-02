@@ -3,7 +3,7 @@ version: 2.1
 executors:
   machine_image:
     machine:
-      image: circleci/classic:201711-01
+      image: ubuntu-1604:201903-01
 
   goexecutor:
     working_directory: /code
@@ -103,6 +103,7 @@ commands:
             PYTEST_OPTIONS: "--verbose --junitxml=~/testresults/results.xml --html=~/testresults/results.html --self-contained-html"
             TESTS_DIR: "<< parameters.tests_dir >>"
           command: |
+            set -x
             [ -f ~/.skip ] && echo "Found ~/.skip, skipping tests!" && exit 0
             [ -d "$TESTS_DIR" ] || (echo "Directory '$TESTS_DIR' not found!" && exit 1)
             [ -n "$TEST_SERVICES_DIR" ] || export TEST_SERVICES_DIR="$(pwd)/test-services"
@@ -153,41 +154,17 @@ jobs:
           go mod vendor
           git diff --exit-code || (echo 'go modules are not properly vendored. Run `make vendor` and commit the changes.' && exit 1)
 
-  lint: 
-    executor: goexecutor
-    steps:
-      - checkout
-      - goexecutor_setup
-      - run: |
-          (cd /tmp; GO111MODULE=on go get -u golang.org/x/lint/golint)
-          make lint
-
-  vet:
-    executor: goexecutor
-    steps:
-      - checkout
-      - goexecutor_setup
-      - run: |
-          make vet
-
-  gofmt:
-    executor: goexecutor
-    steps:
-      - checkout
-      - goexecutor_setup
-      - run: |
-          make gofmt
-          git diff --exit-code || (echo 'go files need to be reformatted. Run `make gofmt` in the dev image and commit the changes.' && exit 1)
-
   gotests:
     executor: goexecutor
     steps:
       - checkout
       - goexecutor_setup
+      # Limit to 4 cores because CircleCI reports 36 cores which will cause OOM when go test is run and tries
+      # to build many binaries in parallel. `go build` can use a max of 1 GB per invokation.
       - run: |
           mkdir ~/testresults
           (cd /tmp; GO111MODULE=on go get github.com/tebeka/go2xunit)
-          bash -eo pipefail -c "make -s test | tee /dev/stderr | go2xunit" > ~/testresults/unit.xml
+          bash -eo pipefail -c "NUM_CORES=4 make -s test | tee /dev/stderr | go2xunit" > ~/testresults/unit.xml
       - save_test_results
 
   docs_test:
@@ -197,8 +174,8 @@ jobs:
       - goexecutor_setup
       - run: |
           apk add --no-cache jq
-          curl -LOk https://github.com/hairyhenderson/gomplate/releases/download/v2.4.0/gomplate_linux-amd64-slim
-          mv gomplate_linux-amd64-slim /usr/bin/gomplate
+          curl -LOk https://github.com/hairyhenderson/gomplate/releases/download/v3.4.0/gomplate_linux-amd64
+          mv gomplate_linux-amd64 /usr/bin/gomplate
           chmod +x /usr/bin/gomplate
           make signalfx-agent
           bash -ec "make docs && git diff --exit-code" || \
@@ -210,10 +187,12 @@ jobs:
       - checkout
       - run: |
           apk add --no-cache git bash
-          [ "$CIRCLE_BRANCH" = "master" ] || git checkout -b $CIRCLE_BRANCH
-          if ! scripts/changes-include-dir deployments/k8s; then
-              echo "No changes in deployments/k8s, skipping check."
-              exit 0
+          if [ "$CIRCLE_BRANCH" != "master" ]; then
+              git checkout -b $CIRCLE_BRANCH
+              if ! scripts/changes-include-dir deployments/k8s; then
+                  echo "No changes in deployments/k8s, skipping check."
+                  exit 0
+              fi
           fi
           bash -ec "./deployments/k8s/generate-from-helm && git diff --exit-code" || \
           (echo 'Helm charts and generated sample K8s resources are out of sync.  Please run "./deployments/k8s/generate-from-helm" in the dev-image and commit the changes.' && exit 1)
@@ -232,20 +211,23 @@ jobs:
             BUNDLE_DIR="$(pwd)/bundle"
             AGENT_BIN="$BUNDLE_DIR/bin/signalfx-agent"
             TEST_SERVICES_DIR="$(pwd)/test-services"
-            MARKERS="not packaging and not installer and not k8s and not windows_only and not deployment and not perf_test"
+            MARKERS="not packaging and not installer and not kubernetes and not windows_only and not deployment and not perf_test and not bundle"
             mkdir -p "$BUNDLE_DIR"
             cid=$(docker create quay.io/signalfx/signalfx-agent-dev:latest true)
             docker export $cid | tar -C "$BUNDLE_DIR" -xf -
+            $BUNDLE_DIR/bin/patch-interpreter $BUNDLE_DIR
             docker rm -fv $cid
             [ -f "$AGENT_BIN" ] || (echo "$AGENT_BIN not found!" && exit 1)
-            if ! scripts/changes-include-dir $(find . -iname "*devstack*" -o -iname "*openstack*" | sed 's|^\./||' | grep -v '^docs/'); then
-                MARKERS="$MARKERS and not openstack"
-            fi
-            if ! scripts/changes-include-dir $(find . -iname "*conviva*" | sed 's|^\./||' | grep -v '^docs/'); then
-                MARKERS="$MARKERS and not conviva"
-            fi
-            if ! scripts/changes-include-dir $(find . -iname "*jenkins*" | sed 's|^\./||' | grep -v '^docs/'); then
-                MARKERS="$MARKERS and not jenkins"
+            if [ "$CIRCLE_BRANCH" != "master" ]; then
+                if ! scripts/changes-include-dir $(find . -iname "*devstack*" -o -iname "*openstack*" | sed 's|^\./||' | grep -v '^docs/'); then
+                    MARKERS="$MARKERS and not openstack"
+                fi
+                if ! scripts/changes-include-dir $(find . -iname "*conviva*" | sed 's|^\./||' | grep -v '^docs/'); then
+                    MARKERS="$MARKERS and not conviva"
+                fi
+                if ! scripts/changes-include-dir $(find . -iname "*jenkins*" | sed 's|^\./||' | grep -v '^docs/'); then
+                    MARKERS="$MARKERS and not jenkins"
+                fi
             fi
             echo "export BUNDLE_DIR='$BUNDLE_DIR'" >> $BASH_ENV
             echo "export AGENT_BIN='$AGENT_BIN'" >> $BASH_ENV
@@ -269,6 +251,7 @@ jobs:
             mkdir -p "$BUNDLE_DIR"
             cid=$(docker create quay.io/signalfx/signalfx-agent-dev:latest true)
             docker export $cid | tar -C "$BUNDLE_DIR" -xf -
+            $BUNDLE_DIR/bin/patch-interpreter $BUNDLE_DIR
             docker rm -fv $cid
             [ -f "$AGENT_BIN" ] || (echo "$AGENT_BIN not found!" && exit 1)
             echo "export BUNDLE_DIR='$BUNDLE_DIR'" >> $BASH_ENV
@@ -288,15 +271,15 @@ jobs:
       K8S_MIN_VERSION: "v1.8.0"
       K8S_MAX_VERSION: "v1.14.0"
       K8S_SFX_AGENT: "quay.io/signalfx/signalfx-agent-dev:latest"
-      MARKERS: "k8s and not collectd"
+      MARKERS: "kubernetes and not collectd"
     steps:
       - checkout
       - run:
           name: Setup test environment
           command: |
-            if scripts/changes-include-dir deployments/k8s tests/deployments/helm; then
-                # Run k8s and helm tests for all K8S versions if there are deployment changes
-                echo "MARKERS='(k8s or helm) and not collectd'" >> $BASH_ENV
+            if [ "$CIRCLE_BRANCH" = "master" ] || scripts/changes-include-dir deployments/k8s tests/deployments/helm; then
+                # Run k8s and helm tests for all K8S versions if branch is master or there are deployment changes
+                echo "MARKERS='(kubernetes or helm) and not collectd'" >> $BASH_ENV
             elif ! scripts/changes-include-dir Gopkg.toml $(find . -iname "*k8s*" -o -iname "*kube*" | sed 's|^\./||' | grep -v '^docs/'); then
                 # Only run k8s tests for K8S_MIN_VERSION and K8S_MAX_VERSION if there are no relevant changes.
                 if [[ "$K8S_VERSION" != "$K8S_MIN_VERSION" && "$K8S_VERSION" != "$K8S_MAX_VERSION" ]]; then
@@ -313,10 +296,12 @@ jobs:
     steps:
       - checkout
       - run: |
-          if ! scripts/changes-include-dir deployments/installer tests/packaging/installer_test.py tests/packaging/common.py tests/packaging/images; then
-              echo "Installer code has not changed, skipping tests!"
-              touch ~/.skip
-              exit 0
+          if [ "$CIRCLE_BRANCH" != "master" ]; then
+              if ! scripts/changes-include-dir deployments/installer tests/packaging/installer_test.py tests/packaging/common.py tests/packaging/images; then
+                  echo "Installer code has not changed, skipping tests!"
+                  touch ~/.skip
+                  exit 0
+              fi
           fi
       - run_pytest:
           pytest_options: "-n auto -m 'installer'"
@@ -330,13 +315,17 @@ jobs:
         default: "rpm"
         type: enum
         enum: ["rpm", "deb"]
+    environment:
+      PACKAGE_TYPE: "<< parameters.package_type >>"
     steps:
       - checkout
       - run: |
-          if ! scripts/changes-include-dir Dockerfile packaging tests/packaging; then
-              echo "packaging code has not changed, skipping tests!"
-              touch ~/.skip
-              exit 0
+          if [ "$CIRCLE_BRANCH" != "master" ]; then
+              if ! scripts/changes-include-dir Dockerfile packaging tests/packaging scripts/patch-interpreter scripts/patch-rpath; then
+                  echo "packaging code has not changed, skipping tests!"
+                  touch ~/.skip
+                  exit 0
+              fi
           fi
           export PULL_CACHE=yes
           make << parameters.package_type >>-test-package
@@ -348,6 +337,25 @@ jobs:
           fi
       - run_pytest:
           pytest_options: "-n auto -m \"$TEST_MARKERS\""
+          tests_dir: "./tests/packaging"
+
+  bundle_tests:
+    executor: machine_image
+    parallelism: 1
+    steps:
+      - checkout
+      - run: |
+          if [ "$CIRCLE_BRANCH" != "master" ]; then
+              if ! scripts/changes-include-dir Dockerfile packaging tests/packaging scripts/patch-interpreter scripts/patch-rpath; then
+                  echo "packaging code has not changed, skipping tests!"
+                  touch ~/.skip
+                  exit 0
+              fi
+          fi
+          export PULL_CACHE=yes
+          AGENT_VERSION=latest make bundle
+      - run_pytest:
+          pytest_options: "-n auto -m \"bundle\" --test-bundle-path=\"./signalfx-agent-latest.tar.gz\""
           tests_dir: "./tests/packaging"
 
   deployment_tests:
@@ -366,10 +374,12 @@ jobs:
           name: Run << parameters.deployment_type >> tests
           command: |
             mkdir -p ~/testresults
-            if ! scripts/changes-include-dir deployments/$DEPLOYMENT tests/deployments/$DEPLOYMENT; then
-                echo "$DEPLOYMENT code has not changed, skipping tests!"
-                touch ~/.skip
-                exit 0
+            if [ "$CIRCLE_BRANCH" != "master" ]; then
+                if ! scripts/changes-include-dir deployments/$DEPLOYMENT tests/deployments/$DEPLOYMENT; then
+                    echo "$DEPLOYMENT code has not changed, skipping tests!"
+                    touch ~/.skip
+                    exit 0
+                fi
             fi
             if [ ! -d tests/deployments/$DEPLOYMENT ]; then
                 # no pytest tests to execute for deployment
@@ -396,8 +406,9 @@ jobs:
                 ;;
             puppet)
                 docker run --rm \
+                    -e "CI_SPEC_OPTIONS=--format RspecJunitFormatter -o ~/testresults/puppetspec.xml" \
                     signalfx-agent-puppet-dev \
-                    rspec spec --format RspecJunitFormatter | tee ~/testresults/puppetspec.xml
+                    rake spec
                 docker run --rm \
                     signalfx-agent-puppet-dev \
                     puppet-lint .
@@ -442,14 +453,16 @@ jobs:
           if [ "$TARGET" = "pytest" ]; then
               TARGET_DIR="tests"
           fi
-          if ! scripts/changes-include-dir $TARGET_DIR; then
-              echo "$TARGET code has not changed, skipping pylint/black!"
-              exit 0
+          if [ "$CIRCLE_BRANCH" != "master" ]; then
+              if ! scripts/changes-include-dir $TARGET_DIR; then
+                  echo "$TARGET code has not changed, skipping pylint/black!"
+                  exit 0
+              fi
           fi
           if [ "$TARGET" = "pytest" ]; then
               pip install -q -r tests/requirements.txt
           else
-              pip install -q -e python
+              pip install --no-use-pep517 -q -e python
               pip install -q -r python/test-requirements.txt
           fi
           (make lint-$TARGET && git diff --exit-code $TARGET_DIR ) || \
@@ -472,9 +485,6 @@ workflows:
     jobs:
       - build
       - modules
-      - lint
-      - vet
-      - gofmt
       - gotests
       - integration_tests:
           requires:
@@ -532,6 +542,7 @@ workflows:
       - package_tests:
           name: "deb_package_tests"
           package_type: "deb"
+      - bundle_tests
       - deployment_tests:
           name: "chef_tests"
           deployment_type: "chef"

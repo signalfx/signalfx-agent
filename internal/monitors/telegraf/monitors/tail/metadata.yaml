@@ -1,4 +1,5 @@
-- dimensions: null
+monitors:
+- dimensions:
   doc: |
     This monitor is based on the Telegraf tail plugin.  The monitor tails files and
     named pipes.  The Telegraf parser configured with this monitor extracts metrics in different
@@ -32,6 +33,6 @@
        telegrafParser:         # specify a parser
          dataFormat: "influx"  # set the parser's dataFormat
     ```
-  metrics: null
+  metrics:
   monitorType: telegraf/tail
-  properties: null
+  properties:

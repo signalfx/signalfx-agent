@@ -3,25 +3,34 @@ package core
 import (
 	"encoding/json"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"net/http"
+	"net/url"
 	"runtime"
 	"time"
 
 	// Import for side-effect of registering http handler
 	_ "net/http/pprof"
 
+	"github.com/davecgh/go-spew/spew"
 	"github.com/signalfx/golib/datapoint"
 	"github.com/signalfx/golib/sfxclient"
+	"github.com/signalfx/signalfx-agent/internal/core/dpfilters"
+	"github.com/signalfx/signalfx-agent/internal/core/writer/tap"
+	"github.com/signalfx/signalfx-agent/internal/utils"
+	"github.com/sirupsen/logrus"
 	log "github.com/sirupsen/logrus"
+	"gopkg.in/yaml.v2"
 )
 
 // VersionLine should be populated by the startup logic to contain version
 // information that can be reported in diagnostics.
+//nolint: gochecknoglobals
 var VersionLine string
 
 // Serves the diagnostic status on the specified path
-func (a *Agent) serveDiagnosticInfo(host string, port uint16) error {
+func (a *Agent) serveDiagnosticInfo(host string, port uint16) {
 	if a.diagnosticServer != nil {
 		a.diagnosticServer.Close()
 	}
@@ -29,12 +38,13 @@ func (a *Agent) serveDiagnosticInfo(host string, port uint16) error {
 	mux := http.NewServeMux()
 	mux.Handle("/", http.HandlerFunc(a.diagnosticTextHandler))
 	mux.Handle("/metrics", http.HandlerFunc(a.internalMetricsHandler))
+	mux.Handle("/tap-dps", http.HandlerFunc(a.datapointTapHandler))
 
 	a.diagnosticServer = &http.Server{
 		Addr:         fmt.Sprintf("%s:%d", host, port),
 		Handler:      mux,
 		ReadTimeout:  5 * time.Second,
-		WriteTimeout: 5 * time.Second,
+		WriteTimeout: 0, //5 * time.Second,
 	}
 
 	go func() {
@@ -48,8 +58,6 @@ func (a *Agent) serveDiagnosticInfo(host string, port uint16) error {
 			}).Error("Problem with diagnostic server")
 		}
 	}()
-
-	return nil
 }
 
 func readStatusInfo(host string, port uint16, section string) ([]byte, error) {
@@ -67,14 +75,14 @@ func (a *Agent) internalMetricsHandler(rw http.ResponseWriter, req *http.Request
 	if err != nil {
 		log.WithError(err).Error("Could not serialize internal metrics to JSON")
 		rw.WriteHeader(500)
-		rw.Write([]byte(err.Error()))
+		_, _ = rw.Write([]byte(err.Error()))
 		return
 	}
 
 	rw.Header().Add("Content-Type", "application/json")
 	rw.WriteHeader(200)
 
-	rw.Write(jsonOut)
+	_, _ = rw.Write(jsonOut)
 }
 
 // InternalMetrics aggregates internal metrics from subcomponents and returns a
@@ -135,4 +143,85 @@ func (a *Agent) ensureProfileServerRunning(host string, port int) {
 			log.Println(http.ListenAndServe(fmt.Sprintf("%s:%d", host, port), nil))
 		}()
 	}
+}
+
+func (a *Agent) datapointTapHandler(rw http.ResponseWriter, req *http.Request) {
+	metricQuery := utils.DecodeValueGenerically(req.URL.Query().Get("metric"))
+	dimQuery := utils.DecodeValueGenerically(req.URL.Query().Get("dims"))
+
+	var metricFilter []string
+	if metricQuery != "" {
+		switch v := metricQuery.(type) {
+		case string:
+			metricFilter = []string{v}
+		case []string:
+			metricFilter = v
+		default:
+			rw.WriteHeader(400)
+			_, _ = rw.Write([]byte("bad metric query: " + spew.Sdump(v)))
+			return
+		}
+	}
+
+	var dimFilter map[string][]string
+	if dimQuery != "" {
+		switch v := dimQuery.(type) {
+		case yaml.MapSlice:
+			dimFilter = make(map[string][]string)
+			for i := range v {
+				var vals []string
+				switch v2 := v[i].Value.(type) {
+				case []interface{}:
+					vals = utils.InterfaceSliceToStringSlice(v2)
+				default:
+					vals = []string{fmt.Sprintf("%v", v2)}
+				}
+
+				dimFilter[fmt.Sprintf("%v", v[i].Key)] = vals
+			}
+		default:
+			rw.WriteHeader(400)
+			_, _ = rw.Write([]byte("bad dims query: " + spew.Sdump(v)))
+			return
+		}
+	}
+
+	var filter dpfilters.DatapointFilter
+	if metricFilter == nil && dimFilter == nil {
+		filter = &dpfilters.AlwaysMatchFilter{}
+	} else {
+		var err error
+		filter, err = dpfilters.NewOverridable(metricFilter, dimFilter)
+		if err != nil {
+			rw.WriteHeader(400)
+			_, _ = rw.Write([]byte("could not make filter: " + err.Error()))
+			return
+		}
+	}
+
+	rw.WriteHeader(200)
+	dpTap := tap.New(filter, rw)
+
+	logrus.Infof("Datapoint tap started")
+	a.writer.SetTap(dpTap)
+
+	dpTap.Run(req.Context())
+
+	a.writer.SetTap(nil)
+	logrus.Infof("Datapoint tap cleared")
+}
+
+func streamDatapoints(host string, port uint16, metric string, dims string) (io.ReadCloser, error) {
+	c := http.Client{
+		Timeout: 0,
+	}
+	qs := url.Values{}
+	qs.Set("metric", metric)
+	qs.Set("dims", dims)
+	resp, err := c.Get(fmt.Sprintf("http://%s:%d/tap-dps?%s", host, port, qs.Encode()))
+	if err != nil {
+		return nil, err
+	}
+
+	return resp.Body, nil
 }

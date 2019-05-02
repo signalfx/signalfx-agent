@@ -19,59 +19,6 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-const monitorType = "prometheus-exporter"
-
-// MONITOR(prometheus-exporter): This monitor reads metrics from a [Prometheus
-// exporter](https://prometheus.io/docs/instrumenting/exporters/) endpoint.
-//
-// All metric types are supported.  See
-// https://prometheus.io/docs/concepts/metric_types/ for a description of the
-// Prometheus metric types.  The conversion happens as follows:
-//
-//  - Gauges are converted directly to SignalFx gauges
-//  - Counters are converted directly to SignalFx cumulative counters
-//  - Untyped metrics are converted directly to SignalFx gauges
-//  - Summary metrics are converted to three distinct metrics, where
-//    `<basename>` is the root name of the metric:
-//    - The total count gets converted to a cumulative counter called `<basename>_count`
-//    - The total sum gets converted to a cumulative counter called `<basename>`
-//    - Each quantile value is converted to a gauge called
-//      `<basename>_quantile` and will include a dimension called `quantile` that
-//      specifies the quantile.
-//  - Histogram metrics are converted to three distinct metrics, where
-//    `<basename>` is the root name of the metric:
-//    - The total count gets converted to a cumulative counter called `<basename>_count`
-//    - The total sum gets converted to a cumulative counter called `<basename>`
-//    - Each histogram bucket is converted to a cumulative counter called
-//      `<basename>_bucket` and will include a dimension called `upper_bound` that
-//      specifies the maximum value in that bucket.  This metric specifies the
-//      number of events with a value that is less than or equal to the upper
-//      bound.
-//
-// All Prometheus labels will be converted directly to SignalFx dimensions.
-//
-// This supports service discovery so you can set a discovery rule such as:
-//
-// `port >= 9100 && port <= 9500 && containerImage =~ "exporter"`
-//
-// assuming you are running exporters in container images that have the word
-// "exporter" in them and fall within the standard exporter port range.  In
-// K8s, you could also try matching on the container port name as defined in
-// the pod spec, which is the `name` variable in discovery rules for the
-// `k8s-api` observer.
-//
-// Filtering can be very useful here since exporters tend to be fairly verbose.
-//
-// Sample YAML configuration:
-//
-// ```
-// monitors:
-//  - type: prometheus-exporter
-//    discoveryRule: port >= 9100 && port <= 9500 && container_image =~ "exporter"
-//    extraDimensions:
-//      metric_source: prometheus
-// ```
-
 var logger = log.WithFields(log.Fields{"monitorType": monitorType})
 
 func init() {
@@ -86,6 +33,11 @@ type Config struct {
 	Host string `yaml:"host" validate:"required"`
 	// Port of the exporter
 	Port uint16 `yaml:"port" validate:"required"`
+
+	// Basic Auth username to use on each request, if any.
+	Username string `yaml:"username"`
+	// Basic Auth password to use on each request, if any.
+	Password string `yaml:"password" neverLog:"true"`
 
 	// If true, the agent will connect to the exporter using HTTPS instead of
 	// plain HTTP.
@@ -166,7 +118,7 @@ func (m *Monitor) Configure(conf *Config) error {
 	var ctx context.Context
 	ctx, m.cancel = context.WithCancel(context.Background())
 	utils.RunOnInterval(ctx, func() {
-		dps, err := fetchPrometheusMetrics(m.client, url)
+		dps, err := fetchPrometheusMetrics(m.client, url, conf.Username, conf.Password)
 		if err != nil {
 			logger.WithError(err).Error("Could not get prometheus metrics")
 			return
@@ -182,8 +134,8 @@ func (m *Monitor) Configure(conf *Config) error {
 	return nil
 }
 
-func fetchPrometheusMetrics(client *http.Client, url string) ([]*datapoint.Datapoint, error) {
-	metricFamilies, err := doFetch(client, url)
+func fetchPrometheusMetrics(client *http.Client, url, username, password string) ([]*datapoint.Datapoint, error) {
+	metricFamilies, err := doFetch(client, url, username, password)
 	if err != nil {
 		return nil, err
 	}
@@ -195,16 +147,24 @@ func fetchPrometheusMetrics(client *http.Client, url string) ([]*datapoint.Datap
 	return dps, nil
 }
 
-func doFetch(client *http.Client, url string) ([]*dto.MetricFamily, error) {
+func doFetch(client *http.Client, url, username, password string) ([]*dto.MetricFamily, error) {
 	// Prometheus 2.0 deprecated protobuf and now only does the text format.
-	resp, err := client.Get(url)
+	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	if username != "" {
+		req.SetBasicAuth(username, password)
+	}
+	resp, err := client.Do(req)
 	if err != nil {
 		return nil, err
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != 200 {
-		return nil, fmt.Errorf("Prometheus exporter at %s returned status %d", url, resp.StatusCode)
+		return nil, fmt.Errorf("prometheus exporter at %s returned status %d", url, resp.StatusCode)
 	}
 
 	decoder := expfmt.NewDecoder(resp.Body, expfmt.ResponseFormat(resp.Header))

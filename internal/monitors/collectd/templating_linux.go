@@ -9,6 +9,7 @@ import (
 	"path/filepath"
 	"reflect"
 	"runtime"
+	"strconv"
 	"text/template"
 
 	"github.com/davecgh/go-spew/spew"
@@ -40,7 +41,7 @@ func WriteConfFile(content, filePath string) error {
 
 	_, err = f.Write([]byte(content))
 	if err != nil {
-		return errors.Wrapf(err, "Failed to write collectd config file at %s", filePath)
+		return errors.Wrapf(err, "failed to write collectd config file at %s", filePath)
 	}
 
 	log.Debugf("Wrote file %s", filePath)
@@ -58,8 +59,14 @@ func InjectTemplateFuncs(tmpl *template.Template) *template.Template {
 					"Platform": runtime.GOOS,
 				}
 			},
+			"bundleDir": func() string {
+				return MainInstance().BundleDir()
+			},
 			"pluginRoot": func() string {
-				return MainInstance().PluginDir()
+				return filepath.Join(MainInstance().BundleDir(), "lib/collectd")
+			},
+			"pythonPluginRoot": func() string {
+				return filepath.Join(MainInstance().BundleDir(), "collectd-python")
 			},
 			"withDefault": func(value interface{}, def interface{}) interface{} {
 				v := reflect.ValueOf(value)
@@ -102,9 +109,7 @@ func InjectTemplateFuncs(tmpl *template.Template) *template.Template {
 				}
 				return "?" + query.Encode(), nil
 			},
-			"stringsJoin": func(ss []string, joiner string) string {
-				return strings.Join(ss, joiner)
-			},
+			"stringsJoin": strings.Join,
 			"stripTrailingSlash": func(s string) string {
 				return strings.TrimSuffix(s, "/")
 			},
@@ -118,21 +123,21 @@ func InjectTemplateFuncs(tmpl *template.Template) *template.Template {
 			"mergeStringMaps": utils.MergeStringMaps,
 			"toBool": func(v interface{}) (string, error) {
 				if v == nil {
-					return "false", nil
+					return strconv.FormatBool(false), nil
 				}
 				if b, ok := v.(*bool); ok {
 					if *b {
-						return "true", nil
+						return strconv.FormatBool(true), nil
 					}
-					return "false", nil
+					return strconv.FormatBool(false), nil
 				}
 				if b, ok := v.(bool); ok {
 					if b {
-						return "true", nil
+						return strconv.FormatBool(true), nil
 					}
-					return "false", nil
+					return strconv.FormatBool(false), nil
 				}
-				return "", fmt.Errorf("Value %#v cannot be converted to bool", v)
+				return "", fmt.Errorf("value %#v cannot be converted to bool", v)
 			},
 			"toMap": utils.ConvertToMapViaYAML,
 			"toServiceID": func(s string) services.ID {

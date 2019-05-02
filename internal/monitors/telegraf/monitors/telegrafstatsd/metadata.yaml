@@ -1,4 +1,5 @@
-- dimensions: null
+monitors:
+- dimensions:
   doc: |
     This monitor acts as a Telegraf StatsD listener for receiving telegrafstatsd metrics.
     This monitor is based on the Telegraf Statsd input plugin.  More information about the Telegraf plugin
@@ -22,6 +23,6 @@
        parseDataDogTags: true
        metricSeparator: '.'
     ```
-  metrics: null
+  metrics:
   monitorType: telegraf/statsd
-  properties: null
+  properties:

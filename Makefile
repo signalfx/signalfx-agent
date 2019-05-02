@@ -1,19 +1,36 @@
 COLLECTD_VERSION := 5.8.0-sfx0
 COLLECTD_COMMIT := 4da1c1cbbe83f881945088a41063fe86d1682ecb
 BUILD_TIME ?= $$(date +%FT%T%z)
+ifeq ($(OS),Windows_NT)
+MONITOR_CODE_GEN := monitor-code-gen.exe
+else
+MONITOR_CODE_GEN := ./monitor-code-gen
+endif
+NUM_CORES ?= $(shell getconf _NPROCESSORS_ONLN)
 
 .PHONY: check
 check: lint vet test
 
 .PHONY: compileDeps
-compileDeps: templates internal/core/common/constants/versions.go
+compileDeps: templates code-gen internal/core/common/constants/versions.go
+
+.PHONY: code-gen
+code-gen: $(MONITOR_CODE_GEN)
+	$(MONITOR_CODE_GEN)
+
+$(MONITOR_CODE_GEN): $(wildcard cmd/monitorcodegen/*.go)
+ifeq ($(OS),Windows_NT)
+	powershell "& { . $(CURDIR)/scripts/windows/make.ps1; monitor-code-gen }"
+else
+	go build -mod vendor -o $@ ./cmd/monitorcodegen
+endif
 
 .PHONY: test
 test: compileDeps
 ifeq ($(OS),Windows_NT)
 	powershell "& { . $(CURDIR)/scripts/windows/make.ps1; test }"
 else
-	CGO_ENABLED=0 go test -mod vendor ./...
+	CGO_ENABLED=0 go test -mod vendor -p $(NUM_CORES) ./...
 endif
 
 .PHONY: vet
@@ -55,7 +72,11 @@ else
 endif
 
 internal/core/common/constants/versions.go: FORCE
+ifeq ($(OS),Windows_NT)
+	powershell "& { . $(CURDIR)/scripts/windows/make.ps1; versions_go }"
+else
 	AGENT_VERSION=$(AGENT_VERSION) COLLECTD_VERSION=$(COLLECTD_VERSION) BUILD_TIME=$(BUILD_TIME) scripts/make-versions
+endif
 
 signalfx-agent: compileDeps
 	echo "building SignalFx agent for operating system: $(GOOS)"
@@ -104,6 +125,9 @@ endif
 debug:
 	dlv debug ./cmd/agent
 
+ifdef dbus
+dbus_run_flags = --privileged -v /var/run/dbus/system_bus_socket:/var/run/dbus/system_bus_socket:ro
+endif
 
 ifneq ($(OS),Windows_NT)
 extra_run_flags = -v /:/hostfs:ro -v /var/run/docker.sock:/var/run/docker.sock:ro -v /tmp/scratch:/tmp/scratch
@@ -114,7 +138,7 @@ endif
 run-dev-image:
 	docker exec -it $(docker_env) signalfx-agent-dev /bin/bash -l -i || \
 	  docker run --rm -it \
-		$(extra_run_flags) \
+		$(dbus_run_flags) $(extra_run_flags) \
 		--cap-add DAC_READ_SEARCH \
 		--cap-add SYS_PTRACE \
 		-p 6060:6060 \
@@ -122,10 +146,30 @@ run-dev-image:
 		-p 8095:8095 \
 		--name signalfx-agent-dev \
 		-v $(CURDIR)/local-etc:/etc/signalfx \
-		-v $(CURDIR):/usr/src/signalfx-agent:cached \
-		-v $(CURDIR)/collectd:/usr/src/collectd:cached \
+		-v $(CURDIR):/usr/src/signalfx-agent:delegated \
+		-v $(CURDIR)/collectd:/usr/src/collectd:delegated \
 		-v $(CURDIR)/tmp/pprof:/tmp/pprof \
 		signalfx-agent-dev /bin/bash
+
+.PHONY: run-dev-image-sync
+run-dev-image-sync:
+	docker exec -it $(docker_env) signalfx-agent-dev-sync /bin/bash -l -i || \
+	  docker run --rm -it \
+		$(dbus_run_flags) $(extra_run_flags) \
+		--cap-add DAC_READ_SEARCH \
+		--cap-add SYS_PTRACE \
+		-p 6061:6060 \
+		-p 9081:9080 \
+		-p 8096:8095 \
+		--name signalfx-agent-dev-sync \
+		-v signalfx-agent-sync:/usr/src/signalfx-agent:nocopy \
+		-v $(CURDIR)/local-etc:/etc/signalfx \
+		-v $(CURDIR)/tmp/pprof:/tmp/pprof \
+		signalfx-agent-dev /bin/bash
+
+.PHONY: run-dev-image-commands
+run-dev-image-commands:
+	docker exec -t $(docker_env) signalfx-agent-dev /bin/bash -c '$(RUN_DEV_COMMANDS)'
 
 .PHONY: run-armdev-image
 run-armdev-image:
@@ -145,7 +189,7 @@ run-armdev-image:
 		signalfx-agent-armdev /bin/bash
 
 .PHONY: run-integration-tests
-run-integration-tests: MARKERS ?= not packaging and not installer and not k8s and not windows_only and not deployment and not perf_test
+run-integration-tests: MARKERS ?= not packaging and not bundle and not installer and not kubernetes and not windows_only and not deployment and not perf_test
 run-integration-tests:
 	AGENT_BIN=/bundle/bin/signalfx-agent \
 	pytest \
@@ -157,7 +201,7 @@ run-integration-tests:
 		tests
 
 .PHONY: run-k8s-tests
-run-k8s-tests: MARKERS ?= (k8s or helm) and not collectd
+run-k8s-tests: MARKERS ?= (kubernetes or helm) and not collectd
 run-k8s-tests:
 	pytest \
 		-m "$(MARKERS)" \

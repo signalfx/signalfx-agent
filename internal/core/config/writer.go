@@ -30,7 +30,7 @@ type WriterConfig struct {
 	// Deprecated: use `maxRequests` instead.
 	DatapointMaxRequests int `yaml:"datapointMaxRequests"`
 	// The maximum number of concurrent requests to make to a single ingest server
-	// with datapoints/events/trace spans.  This number multipled by
+	// with datapoints/events/trace spans.  This number multiplied by
 	// `datapointMaxBatchSize` is more or less the maximum number of datapoints
 	// that can be "in-flight" at any given time.  Same thing for the
 	// `traceSpanMaxBatchSize` option and trace spans.
@@ -149,7 +149,7 @@ func (wc *WriterConfig) ParsedTraceEndpointURL() *url.URL {
 
 // DatapointFilters creates the filter set for datapoints
 func (wc *WriterConfig) DatapointFilters() (*dpfilters.FilterSet, error) {
-	return makeFilterSet(wc.MetricsToExclude, wc.MetricsToInclude)
+	return makeOldFilterSet(wc.MetricsToExclude, wc.MetricsToInclude)
 }
 
 // PropertyFilters creates the filter set for dimension properties

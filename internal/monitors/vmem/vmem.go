@@ -6,25 +6,8 @@ import (
 	"github.com/signalfx/signalfx-agent/internal/core/config"
 	"github.com/signalfx/signalfx-agent/internal/monitors"
 	"github.com/signalfx/signalfx-agent/internal/monitors/types"
-	log "github.com/sirupsen/logrus"
+	"github.com/sirupsen/logrus"
 )
-
-const monitorType = "vmem"
-
-// MONITOR(vmem): Collects information about the virtual memory
-// subsystem of the kernel.
-//
-// On Linux hosts, this monitor relies on the `/proc` filesystem.
-// If the underlying host's `/proc` file system is mounted somewhere other than
-// /proc please specify the path using the top level configuration `procPath`.
-//
-// ```yaml
-// procPath: /proc
-// monitors:
-//  - type: vmem
-// ```
-
-var logger = log.WithFields(log.Fields{"monitorType": monitorType})
 
 func init() {
 	monitors.Register(monitorType, func() interface{} { return &Monitor{} }, &Config{})
@@ -46,6 +29,7 @@ type Config struct {
 type Monitor struct {
 	Output types.Output
 	cancel func()
+	logger logrus.FieldLogger //nolint: structcheck,unused
 }
 
 // Shutdown stops the metric sync

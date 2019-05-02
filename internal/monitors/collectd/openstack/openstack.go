@@ -9,21 +9,6 @@ import (
 	"github.com/signalfx/signalfx-agent/internal/monitors/pyrunner"
 )
 
-const monitorType = "collectd/openstack"
-
-// MONITOR(collectd/openstack): Monitors Openstack by using the
-// [Openstack collectd Python
-// plugin](https://github.com/signalfx/collectd-openstack), which collects metrics
-// from Openstack instances
-//
-// ```yaml
-// monitors:
-// - type: collectd/openstack
-//   authURL: "http://192.168.11.111/identity/v3"
-//   username: "admin"
-//   password: "secret"
-// ```
-
 func init() {
 	monitors.Register(monitorType, func() interface{} {
 		return &Monitor{
@@ -66,8 +51,8 @@ type Monitor struct {
 func (m *Monitor) Configure(conf *Config) error {
 	conf.pyConf = &python.Config{
 		ModuleName:    "openstack_metrics",
-		ModulePaths:   []string{collectd.MakePath("openstack")},
-		TypesDBPaths:  []string{collectd.MakePath("types.db")},
+		ModulePaths:   []string{collectd.MakePythonPluginPath("openstack")},
+		TypesDBPaths:  []string{collectd.DefaultTypesDBPath()},
 		MonitorConfig: conf.MonitorConfig,
 		PluginConfig: map[string]interface{}{
 			"AuthURL":         conf.AuthURL,

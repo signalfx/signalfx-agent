@@ -16,7 +16,6 @@ do_docker_build() {
   local operating_system=${5:-"linux"}
   local collectd_commit=${COLLECTD_COMMIT}
   local collectd_version=${COLLECTD_VERSION}
-  local cpu_arch="$(uname -m)"
   local target_arch="amd64"
   local docker_arch=""
   local ldso_bin="/lib64/ld-linux-x86-64.so.2"
@@ -49,9 +48,6 @@ do_docker_build() {
     --build-arg collectd_commit=${collectd_commit} \
     --build-arg DOCKER_ARCH=${docker_arch} \
     --build-arg TARGET_ARCH=${target_arch} \
-    --build-arg CPU_ARCH=${cpu_arch} \
-    --build-arg LDSO_BIN=${ldso_bin} \
-    --build-arg DISABLE_TURBOSTAT=${disable_turbostat} \
     --target $target_stage \
     --label agent.version=${agent_version} \
     $(extra_cflags_build_arg) \

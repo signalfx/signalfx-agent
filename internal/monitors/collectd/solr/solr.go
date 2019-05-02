@@ -8,23 +8,6 @@ import (
 	"github.com/signalfx/signalfx-agent/internal/monitors/pyrunner"
 )
 
-const monitorType = "collectd/solr"
-
-// MONITOR(collectd/solr): Monitors Solr instances.
-//
-// See https://github.com/signalfx/collectd-solr and
-// https://github.com/signalfx/integrations/tree/master/collectd-solr
-//
-// Sample YAML configuration:
-//
-// ```yaml
-// monitors:
-// - type: collectd/solr
-//   host: 127.0.0.1
-//   port: 8983
-// ```
-//
-
 func init() {
 	monitors.Register(monitorType, func() interface{} {
 		return &Monitor{
@@ -68,8 +51,8 @@ func (m *Monitor) Configure(conf *Config) error {
 		Host:          conf.Host,
 		Port:          conf.Port,
 		ModuleName:    "solr_collectd",
-		ModulePaths:   []string{collectd.MakePath("solr")},
-		TypesDBPaths:  []string{collectd.MakePath("types.db")},
+		ModulePaths:   []string{collectd.MakePythonPluginPath("solr")},
+		TypesDBPaths:  []string{collectd.DefaultTypesDBPath()},
 		PluginConfig: map[string]interface{}{
 			"Host":            conf.Host,
 			"Port":            conf.Port,

@@ -10,22 +10,6 @@ import (
 	"github.com/signalfx/signalfx-agent/internal/monitors/pyrunner"
 )
 
-const monitorType = "collectd/consul"
-
-// MONITOR(collectd/consul): Monitors the Consul data store by using the
-// [Consul collectd Python
-// plugin](https://github.com/signalfx/collectd-consul), which collects metrics
-// from Consul instances by hitting these endpoints:
-// - [/agent/self](https://www.consul.io/api/agent.html#read-configuration)
-// - [/agent/metrics](https://www.consul.io/api/agent.html#view-metrics)
-// - [/catalog/nodes](https://www.consul.io/api/catalog.html#list-nodes)
-// - [/catalog/node/:node](https://www.consul.io/api/catalog.html#list-services-for-node)
-// - [/status/leader](https://www.consul.io/api/status.html#get-raft-leader)
-// - [/status/peers](https://www.consul.io/api/status.html#list-raft-peers)
-// - [/coordinate/datacenters](https://www.consul.io/api/coordinate.html#read-wan-coordinates)
-// - [/coordinate/nodes](https://www.consul.io/api/coordinate.html#read-lan-coordinates)
-// - [/health/state/any](https://www.consul.io/api/health.html#list-checks-in-state)
-
 func init() {
 	monitors.Register(monitorType, func() interface{} {
 		return &Monitor{
@@ -68,8 +52,8 @@ func (m *Monitor) Configure(conf *Config) error {
 		Host:          conf.Host,
 		Port:          conf.Port,
 		ModuleName:    "consul_plugin",
-		ModulePaths:   []string{collectd.MakePath("consul")},
-		TypesDBPaths:  []string{collectd.MakePath("types.db")},
+		ModulePaths:   []string{collectd.MakePythonPluginPath("consul")},
+		TypesDBPaths:  []string{collectd.DefaultTypesDBPath()},
 		PluginConfig: map[string]interface{}{
 			"ApiHost":           conf.Host,
 			"ApiPort":           conf.Port,

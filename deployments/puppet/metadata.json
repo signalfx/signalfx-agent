@@ -6,6 +6,10 @@
   "license": "Apache-2.0",
   "source": "https://github.com/signalfx/signalfx-agent",
   "dependencies": [
+    {
+      "name": "puppetlabs/apt",
+      "version_requirement": ">= 4.1.0 <= 7.0.0"
+    }
   ],
   "operatingsystem_support": [
     {

@@ -3,9 +3,9 @@
 from functools import partial as p
 
 import pytest
+
 from tests.helpers.assertions import has_datapoint_with_dim
 from tests.helpers.util import print_lines, wait_for
-
 from .common import (
     INIT_SYSTEMD,
     INIT_UPSTART,
@@ -54,7 +54,7 @@ def _run_tests(base_image, init_system, installer_args, **extra_run_kwargs):
 
 
 @pytest.mark.parametrize("base_image,init_system", SUPPORTED_DISTROS)
-def test_intaller_on_all_distros(base_image, init_system):
+def test_installer_on_all_distros(base_image, init_system):
     _run_tests(base_image, init_system, "MYTOKEN")
 
 

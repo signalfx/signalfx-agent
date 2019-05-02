@@ -12,35 +12,6 @@ import (
 	"github.com/signalfx/signalfx-agent/internal/monitors/pyrunner"
 )
 
-const monitorType = "collectd/hadoop"
-
-// MONITOR(collectd/hadoop): Collects metrics about a Hadoop cluster using the
-// [collectd Hadoop Python plugin](https://github.com/signalfx/collectd-hadoop).
-// Also see
-// https://github.com/signalfx/integrations/tree/master/collectd-hadoop.
-//
-// The `collectd/hadoop` monitor will collect metrics from the Resource Manager
-// REST API for the following:
-// - Cluster Metrics
-// - Cluster Scheduler
-// - Cluster Applications
-// - Cluster Nodes
-// - MapReduce Jobs
-//
-// Sample YAML configuration:
-//
-// ```yaml
-// monitors:
-// - type: collectd/hadoop
-//   host: 127.0.0.1
-//   port: 8088
-// ```
-//
-// If a remote JMX port is exposed in the hadoop cluster, then
-// you may also configure the [collectd/hadoopjmx](https://github.com/signalfx/signalfx-agent/tree/master/docs/monitors/collectd/hadoopjmx)
-// monitor to collect additional metrics about the hadoop cluster.
-//
-
 func init() {
 	monitors.Register(monitorType, func() interface{} {
 		return &Monitor{
@@ -80,8 +51,8 @@ func (m *Monitor) Configure(conf *Config) error {
 		Host:          conf.Host,
 		Port:          conf.Port,
 		ModuleName:    "hadoop_plugin",
-		ModulePaths:   []string{collectd.MakePath("hadoop")},
-		TypesDBPaths:  []string{collectd.MakePath("types.db")},
+		ModulePaths:   []string{collectd.MakePythonPluginPath("hadoop")},
+		TypesDBPaths:  []string{collectd.DefaultTypesDBPath()},
 		PluginConfig: map[string]interface{}{
 			"ResourceManagerURL":  fmt.Sprintf("http://%s", conf.Host),
 			"ResourceManagerPort": conf.Port,
