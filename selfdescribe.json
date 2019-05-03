@@ -14951,8 +14951,8 @@
                       {
                         "yamlName": "name",
                         "doc": "Dimension name",
-                        "default": "",
-                        "required": false,
+                        "default": null,
+                        "required": true,
                         "type": "string",
                         "elementKind": ""
                       },
