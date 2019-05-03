@@ -86,7 +86,7 @@ type dockerContainer struct {
 func (m *Monitor) Configure(conf *Config) error {
 	m.logger = logrus.WithFields(logrus.Fields{"monitorType": monitorType})
 
-	enhancedMetricsConfig := EnableExtraGroups(conf.EnhancedMetricsConfig, conf.EnabledMetrics)
+	enhancedMetricsConfig := EnableExtraGroups(conf.EnhancedMetricsConfig, m.Output.EnabledMetrics())
 
 	defaultHeaders := map[string]string{"User-Agent": "signalfx-agent"}
 

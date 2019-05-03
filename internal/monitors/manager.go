@@ -10,7 +10,6 @@ import (
 	"github.com/signalfx/golib/event"
 	"github.com/signalfx/golib/trace"
 	"github.com/signalfx/signalfx-agent/internal/core/config"
-	"github.com/signalfx/signalfx-agent/internal/core/dpfilters"
 	"github.com/signalfx/signalfx-agent/internal/core/meta"
 	"github.com/signalfx/signalfx-agent/internal/core/services"
 	"github.com/signalfx/signalfx-agent/internal/monitors/collectd"
@@ -314,57 +313,6 @@ func (mm *MonitorManager) findConfigForMonitorAndRun(endpoint services.Endpoint)
 	}
 }
 
-func (mm *MonitorManager) buildFilterSet(metadata *Metadata, conf config.MonitorCustomConfig) (
-	*dpfilters.FilterSet, []string, error) {
-	coreConfig := conf.MonitorConfigCore()
-
-	oldFilter, err := coreConfig.OldFilterSet()
-	if err != nil {
-		return nil, nil, err
-	}
-
-	newFilter, err := coreConfig.NewFilterSet()
-	if err != nil {
-		return nil, nil, err
-	}
-
-	excludeFilters := []dpfilters.DatapointFilter{oldFilter, newFilter}
-
-	if !metadata.SendAll {
-		// Make a copy of extra metrics from config so we don't alter what the user configured.
-		extraMetrics := append([]string{}, coreConfig.ExtraMetrics...)
-
-		// Monitors can add additional extra metrics to allow through such as based on config flags.
-		if monitorExtra, ok := conf.(config.ExtraMetrics); ok {
-			extraMetrics = append(extraMetrics, monitorExtra.GetExtraMetrics()...)
-		}
-
-		includedMetricsFilter, err := newMetricsFilter(metadata, extraMetrics, coreConfig.ExtraGroups)
-		if err != nil {
-			return nil, nil, fmt.Errorf("unable to construct extraMetrics filter: %s", err)
-		}
-
-		// Prepend the included metrics filter.
-		excludeFilters = append([]dpfilters.DatapointFilter{dpfilters.Negate(includedMetricsFilter)}, excludeFilters...)
-	}
-
-	filterSet := &dpfilters.FilterSet{
-		ExcludeFilters: excludeFilters,
-	}
-
-	dp := &datapoint.Datapoint{}
-	var enabledMetrics []string
-
-	for metric := range metadata.Metrics {
-		dp.Metric = metric
-		if !filterSet.Matches(dp) {
-			enabledMetrics = append(enabledMetrics, metric)
-		}
-	}
-
-	return filterSet, enabledMetrics, nil
-}
-
 // endpoint may be nil for static monitors
 func (mm *MonitorManager) createAndConfigureNewMonitor(config config.MonitorCustomConfig, endpoint services.Endpoint) error {
 	id := types.MonitorID(mm.idGenerator())
@@ -387,7 +335,7 @@ func (mm *MonitorManager) createAndConfigureNewMonitor(config config.MonitorCust
 		panic(fmt.Sprintf("could not find monitor metadata of type %s", monitorType))
 	}
 
-	filterSet, enabledMetrics, err := mm.buildFilterSet(metadata, config)
+	filterSet, enabledMetrics, err := buildFilterSet(metadata, config)
 	if err != nil {
 		return nil
 	}

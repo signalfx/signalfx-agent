@@ -60,7 +60,6 @@ func (am *ActiveMonitor) configureMonitor(monConfig config.MonitorCustomConfig) 
 
 	am.config = monConfig
 	am.config.MonitorConfigCore().MonitorID = am.id
-	am.config.MonitorConfigCore().EnabledMetrics = am.enabledMetrics
 	// Wipe out the other config that has already been decoded since it is not
 	// redundant.
 	am.config.MonitorConfigCore().OtherConfig = nil

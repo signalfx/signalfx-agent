@@ -18,5 +18,7 @@ type Output interface {
 	SendDimensionProps(*DimProperties)
 	AddExtraDimension(key, value string)
 	RemoveExtraDimension(key string)
+
 	AddDatapointExclusionFilter(filter dpfilters.DatapointFilter)
+	EnabledMetrics() []string
 }
