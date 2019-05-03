@@ -1,9 +1,6 @@
 import pytest
 
-from tests.helpers.agent import Agent
-from tests.helpers.assertions import has_log_message
 from tests.helpers.metadata import Metadata
-from tests.helpers.util import wait_for
 from tests.helpers.verify import verify_custom
 
 pytestmark = [pytest.mark.collectd, pytest.mark.df, pytest.mark.monitor_without_endpoints]
@@ -11,77 +8,98 @@ pytestmark = [pytest.mark.collectd, pytest.mark.df, pytest.mark.monitor_without_
 METADATA = Metadata.from_package("collectd/df")
 
 
-def test_df():
-    with Agent.run(
+def test_df_included_metrics():
+    expected_metrics = METADATA.included_metrics
+    verify_custom(
         """
         monitors:
           - type: collectd/df
             hostFSPath: /
-        """
-    ) as agent:
-        assert wait_for(lambda: agent.fake_services.datapoints_by_metric), "timed out waiting for metrics!"
-        assert set(agent.fake_services.datapoints_by_metric) == METADATA.included_metrics
-        assert not has_log_message(agent.output.lower(), "error"), "error found in agent output!"
+        """,
+        expected_metrics,
+    )
 
 
-def test_df_an_ungrouped_extra_metric():
-    expected_metrics = METADATA.included_metrics | {"df_complex.reserved"}
-    an_ungrouped_extra_metric = "df_complex.reserved"
-    with Agent.run(
+def test_df_extra_metrics():
+    extra_metric_1, extra_metric_2 = "df_complex.reserved", "df_inodes.reserved"
+    expected_metrics = METADATA.included_metrics | {extra_metric_1, extra_metric_2}
+    verify_custom(
         f"""
         monitors:
           - type: collectd/df
             hostFSPath: /
             extraMetrics:
-            - {an_ungrouped_extra_metric}
-        """
-    ) as agent:
-        assert wait_for(lambda: agent.fake_services.datapoints_by_metric), "timed out waiting for metrics!"
-        assert set(agent.fake_services.datapoints_by_metric) == expected_metrics
-        assert not has_log_message(agent.output.lower(), "error"), "error found in agent output!"
-
-
-def test_df_a_grouped_extra_metric1():
-    verify_custom(
-        """
-        monitors:
-          - type: collectd/df
-            hostFSPath: /
-            extraMetrics:
-            - df_inodes.reserved
+            - {extra_metric_1}
+            - {extra_metric_2}
         """,
-        METADATA.included_metrics | {"df_inodes.reserved"},
+        expected_metrics,
     )
 
 
-def test_df_a_grouped_extra_metric2():
+def test_df_percent_prefixed_metrics():
+    expected_metrics = METADATA.included_metrics | {
+        "percent_bytes.free",
+        "percent_bytes.reserved",
+        "percent_bytes.used",
+        "percent_inodes.free",
+        "percent_inodes.reserved",
+        "percent_inodes.used",
+    }
+    percent_prefixed_wildcard = "percent_*"
     verify_custom(
-        """
+        f"""
         monitors:
           - type: collectd/df
             hostFSPath: /
             extraMetrics:
-            - percent_bytes.used
-            - percent_bytes.free
+            - {percent_prefixed_wildcard}
         """,
-        METADATA.included_metrics | {"percent_bytes.used", "percent_bytes.free"},
+        expected_metrics,
+    )
+
+
+def test_df_invalid_extra_metric():
+    expected_metrics = METADATA.included_metrics
+    invalid_extra_metric = "Y2W8OBrdZZ"
+    verify_custom(
+        f"""
+        monitors:
+          - type: collectd/df
+            hostFSPath: /
+            extraMetrics:
+            - {invalid_extra_metric}
+        """,
+        expected_metrics,
+    )
+
+
+# TODO: Fix failing test
+@pytest.mark.skip(reason="failing due to bug")
+def test_df_blank_extra_metric():
+    expected_metrics = METADATA.included_metrics
+    blank_extra_metric = " "
+    verify_custom(
+        f"""
+        monitors:
+          - type: collectd/df
+            hostFSPath: /
+            extraMetrics:
+            - {blank_extra_metric}
+        """,
+        expected_metrics,
     )
 
 
 def test_df_extra_metrics_all():
     expected_metrics = METADATA.all_metrics
-    with Agent.run(
-        """
+    any_wildcard_in_quotes = "'*'"
+    verify_custom(
+        f"""
         monitors:
           - type: collectd/df
             hostFSPath: /
-            valuesPercentage: true
-            reportInodes: true
             extraMetrics:
-            - df_*
-            - percent_*
-        """
-    ) as agent:
-        assert wait_for(lambda: agent.fake_services.datapoints_by_metric), "timed out waiting for metrics!"
-        assert set(agent.fake_services.datapoints_by_metric) == expected_metrics
-        assert not has_log_message(agent.output.lower(), "error"), "error found in agent output!"
+            - {any_wildcard_in_quotes}
+        """,
+        expected_metrics,
+    )

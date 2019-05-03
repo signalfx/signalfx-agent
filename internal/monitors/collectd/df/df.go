@@ -5,14 +5,10 @@ package df
 //go:generate collectd-template-to-go df.tmpl
 
 import (
-	"sync"
-
 	"github.com/signalfx/signalfx-agent/internal/core/config"
 	"github.com/signalfx/signalfx-agent/internal/monitors"
 	"github.com/signalfx/signalfx-agent/internal/monitors/collectd"
 )
-
-var inodesAndPercentMetrics = []string{percentInodesFree, percentInodesReserved, percentInodesUsed}
 
 func init() {
 	monitors.Register(&monitorMetadata, func() interface{} {
@@ -46,7 +42,6 @@ type Config struct {
 
 	// If true percent based metrics will be reported.
 	ValuesPercentage bool `yaml:"valuesPercentage" default:"false"`
-	mutex            sync.RWMutex
 }
 
 // Monitor is the main type that represents the monitor
@@ -55,10 +50,8 @@ type Monitor struct {
 }
 
 // GetExtraMetrics returns additional metrics to allow through.
-// Gets all metrics in group if configured extra metric is part of group
 func (c *Config) GetExtraMetrics() []string {
 	var extraMetrics []string
-
 	if c.ReportInodes {
 		extraMetrics = append(extraMetrics, groupMetricsMap[groupReportInodes]...)
 	}
@@ -66,36 +59,26 @@ func (c *Config) GetExtraMetrics() []string {
 		extraMetrics = append(extraMetrics, groupMetricsMap[groupValuesPercentage]...)
 	}
 	if c.ReportInodes && c.ValuesPercentage {
-		extraMetrics = append(extraMetrics, inodesAndPercentMetrics...)
+		extraMetrics = append(extraMetrics, []string{percentInodesFree, percentInodesReserved, percentInodesUsed}...)
 	}
-
 	return extraMetrics
 }
 
 // Configure configures and runs the plugin in collectd
 func (m *Monitor) Configure(config *Config) error {
+	// conf is a config shallow copy that will be mutated and used to configure monitor
 	conf := *config
-
-	for _, metric := range inodesAndPercentMetrics {
-		if conf.EnabledMetricsSet[metric] {
-			conf.ReportInodes = true
-			conf.ReportInodes = true
-		}
-	}
-
-	groupEnableMap := map[string]bool{
-		groupReportInodes:     conf.ReportInodes,
-		groupValuesPercentage: conf.ValuesPercentage,
-	}
-
+	// Setting group flags in conf for enable extra metrics
 	for _, metric := range conf.EnabledMetrics {
-		if metricInfo, ok := metricSet[metric]; ok {
-			groupEnableMap[metricInfo.Group] = true
+		switch metricSet[metric].Group {
+		case groupReportInodes:
+			conf.ReportInodes = true
+		case groupValuesPercentage:
+			conf.ValuesPercentage = true
+		default:
+			conf.ReportInodes = true
+			conf.ValuesPercentage = true
 		}
 	}
-
-	conf.ReportInodes = groupEnableMap[groupReportInodes]
-	conf.ValuesPercentage = groupEnableMap[groupValuesPercentage]
-
 	return m.SetConfigurationAndRun(&conf)
 }
