@@ -86,4 +86,4 @@ Additional information on configuration management tools and package installatio
 
 ## Other methods of Installation
 
-See the README file [here](#https://github.com/signalfx/signalfx-agent/blob/master/README.md).
+See the README file [here](https://github.com/signalfx/signalfx-agent/blob/master/README.md).

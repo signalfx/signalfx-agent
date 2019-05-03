@@ -1,6 +1,6 @@
-# Smart Agent Quick Start
+# SignalFx Smart Agent Quick Start
 
-_## Hello. Get started using Smart Agent using the steps and links below.__
+# _Hello. Get started using Smart Agent using the steps and links below._
 
 ### Step 1: Download and install the agent on a single host.
 

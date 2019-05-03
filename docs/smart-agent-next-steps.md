@@ -5,8 +5,6 @@
 
 After you have installed the SignalFx Smart Agent on a single host and discovered some of its capabilities, you may want to install the agent on multiple hosts. Those next steps are discussed below.
 
-You may also want to configure various monitors for your environment. See [Monitor Configuration](#./docs/monitor-configuration) for Linux and [Windows Setup](#./docs/windows-setup) for Windows monitors.
-
  - [Configuration Management Tools](#configuration-management-tools)
  - [Packages](#packages)
 
@@ -79,4 +77,6 @@ EOH
 yum install -y signalfx-agent
 ```
 
+
+You may also want to configure various monitors for your environment. See [Monitor Configuration](#https://docs.signalfx.com/en/latest/integrations/agent/monitor-config.html) for Linux and [Windows Setup](#https://docs.signalfx.com/en/latest/integrations/agent/windows.html) for Windows monitors.
 
