@@ -3,6 +3,7 @@ package filesystems
 import (
 	"context"
 	"fmt"
+	"github.com/mitchellh/copystructure"
 	"runtime"
 	"strings"
 	"time"
@@ -82,23 +83,23 @@ func (m *Monitor) getCommonDimensions(partition *gopsutil.PartitionStat) map[str
 }
 
 func (m *Monitor) reportInodeDatapoints(dimensions map[string]string, disk *gopsutil.UsageStat) {
-	m.Output.SendDatapoint(datapoint.New("df_inodes.free", dimensions, datapoint.NewIntValue(int64(disk.InodesFree)), datapoint.Gauge, time.Time{}))
-	m.Output.SendDatapoint(datapoint.New("df_inodes.used", dimensions, datapoint.NewIntValue(int64(disk.InodesUsed)), datapoint.Gauge, time.Time{}))
+	m.Output.SendDatapoint(datapoint.New(dfInodesFree, dimensions, datapoint.NewIntValue(int64(disk.InodesFree)), datapoint.Gauge, time.Time{}))
+	m.Output.SendDatapoint(datapoint.New(dfInodesUsed, dimensions, datapoint.NewIntValue(int64(disk.InodesUsed)), datapoint.Gauge, time.Time{}))
 	// TODO: implement df_inodes.reserved
-	m.Output.SendDatapoint(datapoint.New("percent_inodes.free", dimensions, datapoint.NewIntValue(int64(100-disk.InodesUsedPercent)), datapoint.Gauge, time.Time{}))
-	m.Output.SendDatapoint(datapoint.New("percent_inodes.used", dimensions, datapoint.NewIntValue(int64(disk.InodesUsedPercent)), datapoint.Gauge, time.Time{}))
+	m.Output.SendDatapoint(datapoint.New(percentInodesFree, dimensions, datapoint.NewIntValue(int64(100-disk.InodesUsedPercent)), datapoint.Gauge, time.Time{}))
+	m.Output.SendDatapoint(datapoint.New(percentInodesUsed, dimensions, datapoint.NewIntValue(int64(disk.InodesUsedPercent)), datapoint.Gauge, time.Time{}))
 	// TODO: implement percent_inodes.reserved
 }
 
 func (m *Monitor) reportDFComplex(dimensions map[string]string, disk *gopsutil.UsageStat) {
-	m.Output.SendDatapoint(datapoint.New("df_complex.free", dimensions, datapoint.NewIntValue(int64(disk.Free)), datapoint.Gauge, time.Time{}))
-	m.Output.SendDatapoint(datapoint.New("df_complex.used", dimensions, datapoint.NewIntValue(int64(disk.Used)), datapoint.Gauge, time.Time{}))
+	m.Output.SendDatapoint(datapoint.New(dfComplexFree, dimensions, datapoint.NewIntValue(int64(disk.Free)), datapoint.Gauge, time.Time{}))
+	m.Output.SendDatapoint(datapoint.New(dfComplexUsed, dimensions, datapoint.NewIntValue(int64(disk.Used)), datapoint.Gauge, time.Time{}))
 	// TODO: implement df_complex.reserved
 }
 
 func (m *Monitor) reportPercentBytes(dimensions map[string]string, disk *gopsutil.UsageStat) {
-	m.Output.SendDatapoint(datapoint.New("percent_bytes.free", dimensions, datapoint.NewFloatValue(100-disk.UsedPercent), datapoint.Gauge, time.Time{}))
-	m.Output.SendDatapoint(datapoint.New("percent_bytes.used", dimensions, datapoint.NewFloatValue(disk.UsedPercent), datapoint.Gauge, time.Time{}))
+	m.Output.SendDatapoint(datapoint.New(percentBytesFree, dimensions, datapoint.NewFloatValue(100-disk.UsedPercent), datapoint.Gauge, time.Time{}))
+	m.Output.SendDatapoint(datapoint.New(percentBytesUsed, dimensions, datapoint.NewFloatValue(disk.UsedPercent), datapoint.Gauge, time.Time{}))
 	// TODO: implement percent_bytes.reserved
 }
 
@@ -151,7 +152,7 @@ func (m *Monitor) emitDatapoints() {
 		commonDims := m.getCommonDimensions(&partition)
 
 		// disk utilization
-		m.Output.SendDatapoint(datapoint.New("disk.utilization",
+		m.Output.SendDatapoint(datapoint.New(diskUtilization,
 			utils.MergeStringMaps(map[string]string{"plugin": types.UtilizationMetricPluginName}, commonDims),
 			datapoint.NewFloatValue(disk.UsedPercent),
 			datapoint.Gauge,
@@ -179,7 +180,7 @@ func (m *Monitor) emitDatapoints() {
 		m.logger.WithError(err).Errorf("failed to calculate utilization data")
 		return
 	}
-	m.Output.SendDatapoint(datapoint.New("disk.summary_utilization", map[string]string{"plugin": types.UtilizationMetricPluginName}, datapoint.NewFloatValue(diskSummary), datapoint.Gauge, time.Time{}))
+	m.Output.SendDatapoint(datapoint.New(diskSummaryUtilization, map[string]string{"plugin": types.UtilizationMetricPluginName}, datapoint.NewFloatValue(diskSummary), datapoint.Gauge, time.Time{}))
 }
 
 // Configure is the main function of the monitor, it will report host metadata
@@ -195,7 +196,7 @@ func (m *Monitor) Configure(conf *Config) error {
 	ctx, m.cancel = context.WithCancel(context.Background())
 
 	// save conf to monitor for quick reference
-	m.conf = conf
+	m.conf = newConfigFromEnabledMetrics(conf)
 
 	// configure filters
 	var err error
@@ -234,6 +235,33 @@ func (m *Monitor) Configure(conf *Config) error {
 	}, time.Duration(m.conf.IntervalSeconds)*time.Second)
 
 	return nil
+}
+
+// GetExtraMetrics returns additional metrics that should be allowed through.
+func (c *Config) GetExtraMetrics() []string {
+	var extraMetrics []string
+	if c.IncludeLogical {
+		extraMetrics = append(extraMetrics, groupMetricsMap[groupIncludeLogical]...)
+	}
+	if c.ReportInodes {
+		extraMetrics = append(extraMetrics, groupMetricsMap[groupReportInodes]...)
+	}
+	return  extraMetrics
+}
+
+func newConfigFromEnabledMetrics(conf *Config) *Config {
+	confCopyInterface, err := copystructure.Copy(*conf)
+	if err != nil {
+		panic(err)
+	}
+	confCopy := confCopyInterface.(Config)
+	for _, metric := range conf.EnabledMetrics {
+		switch metricSet[metric].Group {
+		case groupIncludeLogical: confCopy.IncludeLogical = true
+		case groupReportInodes: confCopy.ReportInodes = true
+		}
+	}
+	return &confCopy
 }
 
 // Shutdown stops the metric sync
