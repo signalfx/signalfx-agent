@@ -94,6 +94,14 @@ The following table lists the metrics available for this monitor. Metrics that a
 | `gauge.amq.topic.ProducerCount` | gauge | ✔ | Number of producers publishing to this topic. |
 | `gauge.amq.topic.QueueSize` | gauge | ✔ | Number of messages in the topic that have yet to be consumed. |
 | `gauge.amq.topic.TotalBlockedTime` | gauge |  | The total time (ms) that messages have spent blocked by Flow Control |
+| `gauge.jvm.threads.count` | gauge | ✔ | Number of JVM threads |
+| `gauge.loaded_classes` | gauge | ✔ | Number of classes loaded in the JVM |
+| `invocations` | cumulative | ✔ | Total number of garbage collection events |
+| `jmx_memory.committed` | gauge | ✔ | Amount of memory guaranteed to be available in bytes |
+| `jmx_memory.init` | gauge | ✔ | Amount of initial memory at startup in bytes |
+| `jmx_memory.max` | gauge | ✔ | Maximum amount of memory that can be used in bytes |
+| `jmx_memory.used` | gauge | ✔ | Current memory usage in bytes |
+| `total_time_in_ms.collection_time` | cumulative | ✔ | Amount of time spent garbage collecting in milliseconds |
 
 
 To specify custom metrics you want to monitor, add a `metricsToInclude` filter

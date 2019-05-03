@@ -87,6 +87,7 @@ The following table lists the metrics available for this monitor. Metrics that a
 | `counter.kafka.produce.total-time.99th` | gauge |  | 99th percentile of time in milliseconds to process produce requests |
 | `counter.kafka.produce.total-time.count` | cumulative | ✔ | Number of producer requests |
 | `counter.kafka.produce.total-time.median` | gauge |  | Median time it takes to process a produce request |
+| `gauge.jvm.threads.count` | gauge | ✔ | Number of JVM threads |
 | `gauge.kafka-active-controllers` | gauge | ✔ | Specifies if the broker an active controller |
 | `gauge.kafka-log-flush-time-ms` | gauge |  | Average number of milliseconds to flush a log |
 | `gauge.kafka-log-flush-time-ms-p95` | gauge |  | 95th percentile of log flush time in milliseconds |
@@ -96,12 +97,19 @@ The following table lists the metrics available for this monitor. Metrics that a
 | `gauge.kafka.fetch-consumer.total-time.median` | gauge | ✔ | Median time it takes to process a fetch request from consumers |
 | `gauge.kafka.fetch-follower.total-time.99th` | gauge | ✔ | 99th percentile of time in milliseconds to process fetch requests from followers |
 | `gauge.kafka.fetch-follower.total-time.median` | gauge | ✔ | Median time it takes to process a fetch request from follower |
+| `gauge.loaded_classes` | gauge | ✔ | Number of classes loaded in the JVM |
+| `invocations` | cumulative | ✔ | Total number of garbage collection events |
+| `jmx_memory.committed` | gauge | ✔ | Amount of memory guaranteed to be available in bytes |
+| `jmx_memory.init` | gauge | ✔ | Amount of initial memory at startup in bytes |
+| `jmx_memory.max` | gauge | ✔ | Maximum amount of memory that can be used in bytes |
+| `jmx_memory.used` | gauge | ✔ | Current memory usage in bytes |
 | `kafka-isr-expands` | cumulative |  | When a broker is brought up after a failure, it starts catching up by reading from the leader. Once it is caught up, it gets added back to the ISR. |
 | `kafka-isr-shrinks` | cumulative |  | When a broker goes down, ISR for some of partitions will shrink. When that broker is up again, ISR will be expanded once the replicas are fully caught up. Other than that, the expected value for both ISR shrink rate and expansion rate is 0. |
 | `kafka-leader-election-rate` | cumulative |  | Number of leader elections |
 | `kafka-max-lag` | gauge |  | Maximum lag in messages between the follower and leader replicas |
 | `kafka-offline-partitions-count` | gauge |  | Number of partitions that don’t have an active leader and are hence not writable or readable |
 | `kafka-unclean-elections` | cumulative |  | Number of unclean leader elections. This happens when a leader goes down and an out-of-sync replica is chosen to be the leader |
+| `total_time_in_ms.collection_time` | cumulative | ✔ | Amount of time spent garbage collecting in milliseconds |
 
 
 To specify custom metrics you want to monitor, add a `metricsToInclude` filter

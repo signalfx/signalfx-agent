@@ -32,6 +32,43 @@ Monitor Type: `collectd/docker`
 
 
 
+## Metrics
+
+The following table lists the metrics available for this monitor. Metrics that are marked as Included are standard metrics and are monitored by default.
+
+| Name | Type | Included | Description |
+| ---  | ---  | ---    | ---         |
+| `blkio.io_service_bytes_recursive.read` | cumulative | ✔ |  |
+| `blkio.io_service_bytes_recursive.write` | cumulative | ✔ |  |
+| `cpu.idle` | gauge | ✔ |  |
+| `cpu.usage.system` | gauge | ✔ |  |
+| `cpu.usage.total` | gauge | ✔ |  |
+| `memory.buffered` | gauge | ✔ |  |
+| `memory.cached` | gauge | ✔ |  |
+| `memory.free` | gauge | ✔ |  |
+| `memory.usage.limit` | gauge | ✔ |  |
+| `memory.usage.total` | gauge | ✔ |  |
+| `memory.used` | gauge | ✔ |  |
+| `network.usage.rx_bytes` | cumulative | ✔ |  |
+| `network.usage.tx_bytes` | cumulative | ✔ |  |
+
+
+To specify custom metrics you want to monitor, add a `metricsToInclude` filter
+to the agent configuration, as shown in the code snippet below. The snippet
+lists all available custom metrics. You can copy and paste the snippet into
+your configuration file, then delete any custom metrics that you do not want
+sent.
+
+Note that some of the custom metrics require you to set a flag as well as add
+them to the list. Check the monitor configuration file to see if a flag is
+required for gathering additional metrics.
+
+```yaml
+
+metricsToInclude:
+  - metricNames:
+    monitorType: collectd/docker
+```
 
 
 
