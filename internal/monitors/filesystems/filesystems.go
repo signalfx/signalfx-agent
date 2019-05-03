@@ -3,9 +3,9 @@ package filesystems
 import (
 	"context"
 	"fmt"
-	"github.com/mitchellh/copystructure"
 	"runtime"
 	"strings"
+	"sync"
 	"time"
 
 	gopsutil "github.com/shirou/gopsutil/disk"
@@ -49,6 +49,7 @@ type Config struct {
 	ReportByDevice bool `yaml:"reportByDevice" default:"false"`
 	// (Linux Only) If true metrics will be reported about inodes.
 	ReportInodes bool `yaml:"reportInodes" default:"false"`
+	mutex        sync.RWMutex
 }
 
 // Monitor for Utilization
@@ -186,6 +187,7 @@ func (m *Monitor) emitDatapoints() {
 // Configure is the main function of the monitor, it will report host metadata
 // on a varied interval
 func (m *Monitor) Configure(conf *Config) error {
+	conf.updateGroupFlags()
 	m.logger = logrus.WithFields(log.Fields{"monitorType": monitorType})
 	if runtime.GOOS != "windows" {
 		m.logger.Warningf("'%s' monitor is in beta on this platform.  For production environments please use 'collectd/%s'.", monitorType, monitorType)
@@ -196,7 +198,7 @@ func (m *Monitor) Configure(conf *Config) error {
 	ctx, m.cancel = context.WithCancel(context.Background())
 
 	// save conf to monitor for quick reference
-	m.conf = newConfigFromEnabledMetrics(conf)
+	m.conf = conf
 
 	// configure filters
 	var err error
@@ -238,30 +240,40 @@ func (m *Monitor) Configure(conf *Config) error {
 }
 
 // GetExtraMetrics returns additional metrics that should be allowed through.
+// Gets all metrics in group if configured extra metric is part of the group
 func (c *Config) GetExtraMetrics() []string {
-	var extraMetrics []string
-	if c.IncludeLogical {
-		extraMetrics = append(extraMetrics, groupMetricsMap[groupIncludeLogical]...)
-	}
-	if c.ReportInodes {
-		extraMetrics = append(extraMetrics, groupMetricsMap[groupReportInodes]...)
-	}
-	return  extraMetrics
-}
-
-func newConfigFromEnabledMetrics(conf *Config) *Config {
-	confCopyInterface, err := copystructure.Copy(*conf)
-	if err != nil {
-		panic(err)
-	}
-	confCopy := confCopyInterface.(Config)
-	for _, metric := range conf.EnabledMetrics {
-		switch metricSet[metric].Group {
-		case groupIncludeLogical: confCopy.IncludeLogical = true
-		case groupReportInodes: confCopy.ReportInodes = true
+	includeLogical, reportInodes := c.IncludeLogical, c.ReportInodes
+	for _, metric := range c.ExtraMetrics {
+		group := metricSet[metric].Group
+		switch {
+		case !includeLogical && group == groupIncludeLogical:
+			includeLogical = true
+		case !reportInodes && group == groupReportInodes:
+			reportInodes = true
 		}
 	}
-	return &confCopy
+	var extraMetrics []string
+	if includeLogical {
+		extraMetrics = append(extraMetrics, groupMetricsMap[groupIncludeLogical]...)
+	}
+	if reportInodes {
+		extraMetrics = append(extraMetrics, groupMetricsMap[groupReportInodes]...)
+	}
+	return extraMetrics
+}
+
+func (c *Config) updateGroupFlags() {
+	c.mutex.Lock()
+	defer c.mutex.Unlock()
+	for _, metric := range c.ExtraMetrics {
+		group := metricSet[metric].Group
+		switch {
+		case !c.IncludeLogical && group == groupIncludeLogical:
+			c.IncludeLogical = true
+		case !c.ReportInodes && group == groupReportInodes:
+			c.ReportInodes = true
+		}
+	}
 }
 
 // Shutdown stops the metric sync
