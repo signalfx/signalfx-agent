@@ -72,8 +72,8 @@ func (c *Config) Validate() error {
 			// Validating dimension configuration
 			for _, dConf := range mConf.DimensionConfigs {
 				switch {
-				case dConf.JSONPath != "" && dConf.Value != "":
-					return fmt.Errorf("dimension path %s and dimension value %s cannot be configured simultaneously", dConf.JSONPath, dConf.Value)
+				case (dConf.JSONPath != "") == (dConf.Value != ""):
+					return fmt.Errorf("exactly one of dimension path %s and dimension value %s should be set", dConf.JSONPath, dConf.Value)
 				case dConf.JSONPath != "" && !strings.HasPrefix(mConf.JSONPath, dConf.JSONPath):
 					return fmt.Errorf("dimension path %s must be shorter than metric path %s and start from the same root", dConf.JSONPath, mConf.JSONPath)
 				}
