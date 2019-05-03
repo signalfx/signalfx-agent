@@ -1,68 +1,49 @@
 import os
-import random
-import string
-import subprocess
-import time
-from functools import partial as p
+import tempfile
 
 import pytest
+from tests.helpers.kubernetes.cluster import Cluster
+from tests.helpers.util import get_docker_client, run_container
 
-from tests import paths
-from tests.helpers.kubernetes.minikube import Minikube, has_docker_image
-from tests.helpers.util import get_docker_client, run_container, wait_for
-
-K8S_DEFAULT_VERSION = "1.14.0"
-K8S_DEFAULT_TIMEOUT = int(os.environ.get("K8S_TIMEOUT", 300))
+MINIKUBE_DEFAULT_TIMEOUT = int(os.environ.get("MINIKUBE_TIMEOUT", 300))
 K8S_DEFAULT_TEST_TIMEOUT = 60
-K8S_SUPPORTED_OBSERVERS = ["k8s-api", "k8s-kubelet"]
-K8S_DEFAULT_OBSERVERS = K8S_SUPPORTED_OBSERVERS
-K8S_SFX_AGENT_BUILD_TIMEOUT = int(os.environ.get("K8S_SFX_AGENT_BUILD_TIMEOUT", 600))
-
 
 # pylint: disable=line-too-long
 def pytest_addoption(parser):
     parser.addoption(
-        "--k8s-version",
+        "--agent-image-name",
         action="store",
-        default=K8S_DEFAULT_VERSION,
-        help="K8S cluster version for minikube to deploy (default=%s). This option is ignored if the --k8s-container option also is specified."
-        % K8S_DEFAULT_VERSION,
+        default="",
+        help="SignalFx agent image name:tag to use for K8s tests. Defaults to the agent image built by the `make push-minikube-agent` command if using minikube. "
+        "Must be specified if --use-minikube is false.",
     )
     parser.addoption(
-        "--k8s-observers",
-        action="store",
-        default=",".join(K8S_DEFAULT_OBSERVERS),
-        help="Comma-separated string of observers to test monitors with endpoints for the SignalFx agent (default=%s). Use '--k8s-observers=all' to test all supported observers."
-        % ",".join(K8S_DEFAULT_OBSERVERS),
-    )
-    parser.addoption(
-        "--k8s-timeout",
-        action="store",
-        default=K8S_DEFAULT_TIMEOUT,
-        help="Timeout (in seconds) to wait for the minikube cluster to be ready (default=%d)." % K8S_DEFAULT_TIMEOUT,
-    )
-    parser.addoption(
-        "--k8s-sfx-agent",
+        "--kubeconfig",
         action="store",
         default=None,
-        help="SignalFx agent image name:tag to use for K8S tests. If not specified, the agent image will be built from the local source code.",
+        help="Equivalent to the KUBECONFIG envvar used by kubectl.  Only relevant if --use-minikube=false.",
     )
     parser.addoption(
-        "--k8s-test-timeout",
-        action="store",
-        default=K8S_DEFAULT_TEST_TIMEOUT,
-        help="Timeout (in seconds) for each K8S test (default=%d)." % K8S_DEFAULT_TEST_TIMEOUT,
-    )
-    parser.addoption(
-        "--k8s-container",
+        "--kube-context",
         action="store",
         default=None,
-        help="Name of a running minikube container to use for the tests (the container should not have the agent or any services already running). If not specified, a new minikube container will automatically be deployed.",
+        help="The kubeconfig context to use, only relevant if --use-minikube=false.  Defaults to the current "
+        "context in the configured kube config file.",
     )
     parser.addoption(
-        "--k8s-skip-teardown",
+        "--minikube-container-name",
+        action="store",
+        default="minikube",
+        help="Name of a running minikube container to use for the tests (the container should not have the agent or any services already running).",
+    )
+    parser.addoption(
+        "--no-use-minikube",
         action="store_true",
-        help="If specified, the minikube container will not be stopped/removed when the tests complete.",
+        default=False,
+        help="If provided, the Kubernetes cluster used for the tests must be provided by specifying "
+        "the --kubeconfig (and optionally the --kube-context) option.  Otherwise, a local minikube "
+        "container will be used to run the tests. "
+        "If not provided, you must start minikube before running this test suite by running `make run-minikube`.",
     )
     parser.addoption(
         "--test-bundle-path",
@@ -71,143 +52,37 @@ def pytest_addoption(parser):
     )
 
 
-def pytest_generate_tests(metafunc):
-    if "k8s_observer" in metafunc.fixturenames:
-        k8s_observers = metafunc.config.getoption("--k8s-observers")
-        if not k8s_observers:
-            observers_to_test = K8S_DEFAULT_OBSERVERS
-        elif k8s_observers.lower() == "all":
-            observers_to_test = K8S_SUPPORTED_OBSERVERS
-        else:
-            for obs in k8s_observers.split(","):
-                assert obs in K8S_SUPPORTED_OBSERVERS, 'observer "%s" not supported!' % obs
-            observers_to_test = k8s_observers.split(",")
-        metafunc.parametrize("k8s_observer", observers_to_test, indirect=True)
-
-
-@pytest.fixture(scope="session")
-def minikube(request, worker_id):
-    def teardown():
-        if inst.container and not k8s_skip_teardown:
-            print("Removing %s container ..." % inst.container.name)
-            inst.container.remove(force=True, v=True)
-
-    request.addfinalizer(teardown)
-    k8s_version = os.environ.get("K8S_VERSION")
-    if not k8s_version:
-        k8s_version = request.config.getoption("--k8s-version")
-    k8s_timeout = request.config.getoption("--k8s-timeout")
-    if not k8s_timeout:
-        k8s_timeout = K8S_DEFAULT_TIMEOUT
-    else:
-        k8s_timeout = int(k8s_timeout)
-    k8s_container = request.config.getoption("--k8s-container")
-    k8s_skip_teardown = request.config.getoption("--k8s-skip-teardown")
-    inst = Minikube()
-    if k8s_container:
-        # connect to existing minikube container and cluster
-        k8s_skip_teardown = True
-        inst.connect(name=k8s_container, timeout=k8s_timeout)
-    elif worker_id in ("master", "gw0"):
-        # deploy new minikube container and cluster
-        if int(os.environ.get("PYTEST_XDIST_WORKER_COUNT", 1)) > 1:
-            k8s_skip_teardown = True
-        inst.deploy(k8s_version, timeout=k8s_timeout)
-    else:
-        # connect to minikube container and cluster deployed by gw0 worker
-        time.sleep(10)  # wait for gw0 to clean and initialize the environment
-        k8s_skip_teardown = True
-        inst.connect(k8s_version=k8s_version, timeout=k8s_timeout)
-    return inst
-
-
-@pytest.fixture(scope="session")
-def agent_image(minikube, request, worker_id):  # pylint: disable=redefined-outer-name
-    def teardown():
-        if temp_agent_name and temp_agent_tag:
-            try:
-                client.images.remove("%s:%s" % (temp_agent_name, temp_agent_tag))
-            except:  # noqa pylint: disable=bare-except
-                pass
-
-    request.addfinalizer(teardown)
-    sfx_agent_name = os.environ.get("K8S_SFX_AGENT")
-    if not sfx_agent_name:
-        sfx_agent_name = request.config.getoption("--k8s-sfx-agent")
-    if sfx_agent_name:
-        try:
-            agent_image_name, agent_image_tag = sfx_agent_name.rsplit(":", maxsplit=1)
-        except ValueError:
-            agent_image_name = sfx_agent_name
-            agent_image_tag = "latest"
-    else:
-        agent_image_name = "signalfx-agent"
-        agent_image_tag = "k8s-test"
-    temp_agent_name = None
-    temp_agent_tag = None
-    client = get_docker_client()
-    if worker_id in ("master", "gw0"):
-        if sfx_agent_name and not has_docker_image(client, sfx_agent_name):
-            print('\nAgent image "%s" not found in local registry.' % sfx_agent_name)
-            print("Attempting to pull from remote registry to minikube ...")
-            sfx_agent_image = minikube.pull_agent_image(agent_image_name, agent_image_tag)
-            _, output = minikube.container.exec_run("docker images")
-            print(output.decode("utf-8"))
-            return {"name": agent_image_name, "tag": agent_image_tag, "id": sfx_agent_image.id}
-
-        if sfx_agent_name:
-            print('\nAgent image "%s" found in local registry.' % sfx_agent_name)
-            sfx_agent_image = client.images.get(sfx_agent_name)
-        else:
-            print(
-                '\nBuilding agent image from local source and tagging as "%s:%s" ...'
-                % (agent_image_name, agent_image_tag)
-            )
-            subprocess.run(
-                "make image",
-                shell=True,
-                env={"PULL_CACHE": "yes", "AGENT_IMAGE_NAME": agent_image_name, "AGENT_VERSION": agent_image_tag},
-                stderr=subprocess.STDOUT,
-                check=True,
-                cwd=paths.REPO_ROOT_DIR,
-                timeout=K8S_SFX_AGENT_BUILD_TIMEOUT,
-            )
-            sfx_agent_image = client.images.get(agent_image_name + ":" + agent_image_tag)
-        temp_agent_name = "localhost:%d/signalfx-agent-dev" % minikube.registry_port
-        temp_agent_tag = "latest"
-        print("\nPushing agent image to minikube ...")
-        sfx_agent_image.tag(temp_agent_name, tag=temp_agent_tag)
-        client.images.push(temp_agent_name, tag=temp_agent_tag)
-        sfx_agent_image = minikube.pull_agent_image(temp_agent_name, temp_agent_tag, sfx_agent_image.id)
-        sfx_agent_image.tag(agent_image_name, tag=agent_image_tag)
-        _, output = minikube.container.exec_run("docker images")
-        print(output.decode("utf-8").strip())
-    else:
-        print("\nWaiting for agent image to be built/pulled to minikube ...")
-        assert wait_for(
-            p(has_docker_image, minikube.client, agent_image_name, agent_image_tag),
-            timeout_seconds=K8S_SFX_AGENT_BUILD_TIMEOUT,
-            interval_seconds=2,
-        ), 'timed out waiting for agent image "%s:%s"!' % (agent_image_name, agent_image_tag)
-        sfx_agent_image = minikube.client.images.get(agent_image_name + ":" + agent_image_tag)
-    return {"name": agent_image_name, "tag": agent_image_tag, "id": sfx_agent_image.id}
-
-
 @pytest.fixture
-def k8s_observer(request):
-    return request.param
+def k8s_cluster(request):
+    agent_image_name = request.config.getoption("--agent-image-name")
 
+    kube_context = None
+    if request.config.getoption("--no-use-minikube"):
+        assert agent_image_name, "You must specify the agent image name when not using minikube"
+        kube_config_path = request.config.getoption("--kubeconfig")
+        kube_context = request.config.getoption("--kube-context")
+    else:
+        minikube_container_name = request.config.getoption("--minikube-container-name")
+        dclient = get_docker_client()
+        assert get_docker_client().containers.get(
+            minikube_container_name
+        ), f"You must start the minikube container ({minikube_container_name}) before running pytest by running `make minikube`."
 
-@pytest.fixture
-def k8s_test_timeout(request):
-    return int(request.config.getoption("--k8s-test-timeout"))
+        # Pull the kubeconfig out of the minikube container and make a cluster instance based on it.
+        minikube_cont = dclient.containers.get(minikube_container_name)
+        _, kubeconfig_bytes = minikube_cont.exec_run("cat /kubeconfig")
 
+        _, kube_config_path = tempfile.mkstemp()
+        request.addfinalizer(lambda: os.remove(kube_config_path))
 
-@pytest.fixture
-def k8s_namespace(worker_id):
-    chars = string.ascii_lowercase + string.digits
-    namespace = worker_id + "-" + "".join((random.choice(chars)) for x in range(8))
-    return namespace
+        with open(kube_config_path, "wb") as fd:
+            fd.write(kubeconfig_bytes)
+        if not agent_image_name:
+            agent_image_name = "localhost:5000/signalfx-agent:latest"
+
+    cluster = Cluster(kube_config_path=kube_config_path, kube_context=kube_context, agent_image_name=agent_image_name)
+    request.addfinalizer(cluster.delete_test_namespace)
+    return cluster
 
 
 @pytest.fixture

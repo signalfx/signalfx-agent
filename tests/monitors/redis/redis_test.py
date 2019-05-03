@@ -6,17 +6,9 @@ from textwrap import dedent
 
 import pytest
 import redis
-
 from tests.helpers.agent import Agent
 from tests.helpers.assertions import has_datapoint, tcp_socket_open
-from tests.helpers.kubernetes.utils import get_discovery_rule, run_k8s_monitors_test
-from tests.helpers.util import (
-    container_ip,
-    get_monitor_dims_from_selfdescribe,
-    get_monitor_metrics_from_selfdescribe,
-    run_container,
-    wait_for,
-)
+from tests.helpers.util import container_ip, run_container, wait_for
 
 pytestmark = [pytest.mark.collectd, pytest.mark.redis, pytest.mark.monitor_with_endpoints]
 
@@ -88,22 +80,3 @@ def test_redis_key_lengths():
                     value=2,
                 )
             ), "didn't get datapoints"
-
-
-@pytest.mark.kubernetes
-def test_redis_in_k8s(agent_image, minikube, k8s_observer, k8s_test_timeout, k8s_namespace):
-    yaml = SCRIPT_DIR / "redis-k8s.yaml"
-    monitors = [
-        {"type": "collectd/redis", "discoveryRule": get_discovery_rule(yaml, k8s_observer, namespace=k8s_namespace)}
-    ]
-    run_k8s_monitors_test(
-        agent_image,
-        minikube,
-        monitors,
-        namespace=k8s_namespace,
-        yamls=[yaml],
-        observer=k8s_observer,
-        expected_metrics=get_monitor_metrics_from_selfdescribe(monitors[0]["type"]),
-        expected_dims=get_monitor_dims_from_selfdescribe(monitors[0]["type"]),
-        test_timeout=k8s_test_timeout,
-    )
