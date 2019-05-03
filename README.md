@@ -154,7 +154,7 @@ yum install -y signalfx-agent
 ```
 
 
-#### Linux Standalone tar.gz
+### Linux Standalone tar.gz
 
 If you don't want to use a distro package, we offer a
 .tar.gz that can be deployed to the target host.  This bundle is available for
@@ -215,7 +215,7 @@ the output to a log file or other log management system.  See the
 [signalfx-agent command](./docs/signalfx-agent.1.man) doc for more information on
 supported command flags.
 
-#### Windows Standalone .zip
+### Windows Standalone .zip
 
 If you don't want to use the installer script, we offer a
 .zip that can be deployed to the target host.  This bundle is available for
