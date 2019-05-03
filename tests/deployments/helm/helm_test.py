@@ -1,25 +1,32 @@
 # Tests of the helm chart
 
 import os
+import subprocess
 import tempfile
+from contextlib import contextmanager
 from functools import partial as p
 from pathlib import Path
 
 import pytest
 import yaml
-
+from kubernetes import client as kube_client
 from tests.helpers import fake_backend
-from tests.helpers.assertions import has_datapoint_with_dim
-from tests.helpers.kubernetes.utils import create_clusterrolebinding, daemonset_is_ready, deployment_is_ready
-from tests.helpers.util import get_host_ip, wait_for
-from tests.packaging.common import copy_file_into_container, DEPLOYMENTS_DIR
-from tests.paths import PROJECT_DIR
+from tests.helpers.assertions import has_datapoint
+from tests.helpers.kubernetes.agent import AGENT_STATUS_COMMAND
+from tests.helpers.kubernetes.utils import (
+    daemonset_is_ready,
+    deployment_is_ready,
+    exec_pod_command,
+    get_pods_by_labels,
+    get_pod_logs,
+)
+from tests.helpers.util import wait_for
+from tests.packaging.common import DEPLOYMENTS_DIR
+from tests.paths import TEST_SERVICES_DIR
 
 LOCAL_CHART_DIR = DEPLOYMENTS_DIR / "k8s/helm/signalfx-agent"
-CONTAINER_CHART_DIR = "/opt/deployments/k8s/helm/signalfx-agent"
 SCRIPT_DIR = Path(__file__).parent.resolve()
-NGINX_YAML_PATH = PROJECT_DIR / "monitors/nginx/nginx-k8s.yaml"
-CLUSTERROLEBINDING_YAML_PATH = SCRIPT_DIR / "clusterrolebinding.yaml"
+NGINX_YAML_PATH = TEST_SERVICES_DIR / "nginx/nginx-k8s.yaml"
 MONITORS_CONFIG = """
     - type: host-metadata
     - type: collectd/nginx
@@ -27,39 +34,109 @@ MONITORS_CONFIG = """
       url: "http://{{.Host}}:{{.Port}}/nginx_status"
 """
 
+CLUSTER_ROLEBINDING_YAML = """
+---
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: ClusterRoleBinding
+metadata:
+  name: tiller-binding
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cluster-admin
+subjects:
+- kind: ServiceAccount
+  name: tiller
+  namespace: NAMESPACE
+"""
+
+SERVICE_ACCOUNT_YAML = """
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: tiller
+"""
+
 pytestmark = [pytest.mark.helm, pytest.mark.deployment]
 
 
-def create_cluster_admin_rolebinding(minikube):
-    clusterrolebinding_yaml = yaml.safe_load(open(CLUSTERROLEBINDING_YAML_PATH).read())
-    name = clusterrolebinding_yaml.get("metadata", {}).get("name")
-    assert name, "name not found in %s" % CLUSTERROLEBINDING_YAML_PATH
-    print("Creating %s cluster role binding ..." % name)
-    create_clusterrolebinding(body=clusterrolebinding_yaml)
-    minikube.exec_kubectl("describe clusterrolebinding %s" % name)
+def helm_command_prefix(k8s_cluster):
+    context_flag = ""
+    if k8s_cluster.kube_context:
+        context_flag = f"--kube-context {k8s_cluster.kube_context}"
+    return (
+        f"helm --kubeconfig {k8s_cluster.kube_config_path} {context_flag} "
+        f"--tiller-namespace {k8s_cluster.test_namespace}"
+    )
 
 
-def update_values_yaml(minikube, backend, namespace):
-    values_yaml = None
-    with open(os.path.join(LOCAL_CHART_DIR, "values.yaml")) as fd:
-        values_yaml = yaml.safe_load(fd.read())
-        values_yaml["signalFxAccessToken"] = "testing123"
-        values_yaml["clusterName"] = minikube.cluster_name
-        values_yaml["namespace"] = namespace
-        values_yaml["ingestUrl"] = "http://%s:%d" % (backend.ingest_host, backend.ingest_port)
-        values_yaml["apiUrl"] = "http://%s:%d" % (backend.api_host, backend.api_port)
-        values_yaml["monitors"] = yaml.safe_load(MONITORS_CONFIG)
-    with tempfile.NamedTemporaryFile(mode="w") as fd:
+def exec_helm(args):
+    proc = subprocess.run(args, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, encoding="utf-8")
+    assert proc.returncode == 0, f"{args}:\n{proc.stdout}"
+    return proc.stdout
+
+
+@contextmanager
+def tiller_rbac_resources(k8s_cluster):
+    print("Creating tiller RBAC resources ...")
+
+    corev1 = kube_client.CoreV1Api()
+    serviceaccount = corev1.create_namespaced_service_account(
+        body=yaml.safe_load(SERVICE_ACCOUNT_YAML), namespace=k8s_cluster.test_namespace
+    )
+
+    rbacv1beta1 = kube_client.RbacAuthorizationV1beta1Api()
+
+    clusterrolebinding_yaml = yaml.safe_load(CLUSTER_ROLEBINDING_YAML)
+    clusterrolebinding_yaml["subjects"][0]["namespace"] = k8s_cluster.test_namespace
+    clusterrolebinding_yaml["metadata"]["name"] += f"-{k8s_cluster.test_namespace}"
+    clusterrolebinding = rbacv1beta1.create_cluster_role_binding(body=clusterrolebinding_yaml)
+    try:
+        yield
+    finally:
+        rbacv1beta1.delete_cluster_role_binding(
+            name=clusterrolebinding.metadata.name, body=kube_client.V1DeleteOptions()
+        )
+        corev1.delete_namespaced_service_account(
+            name=serviceaccount.metadata.name,
+            namespace=serviceaccount.metadata.namespace,
+            body=kube_client.V1DeleteOptions(),
+        )
+
+
+@contextmanager
+def release_values_yaml(k8s_cluster, proxy_pod_ip, fake_services):
+    image, tag = k8s_cluster.agent_image_name.rsplit(":", 1)
+    values_yaml = {
+        "signalFxAccessToken": "testing123",
+        "image": {"repository": image, "tag": tag},
+        "clusterName": k8s_cluster.test_namespace,
+        "namespace": k8s_cluster.test_namespace,
+        "ingestUrl": f"http://{proxy_pod_ip}:{fake_services.ingest_port}",
+        "apiUrl": f"http://{proxy_pod_ip}:{fake_services.api_port}",
+        "monitors": yaml.safe_load(MONITORS_CONFIG),
+    }
+
+    values_path = None
+    with tempfile.NamedTemporaryFile(mode="w", delete=False) as fd:
         fd.write(yaml.dump(values_yaml))
-        fd.flush()
-        copy_file_into_container(fd.name, minikube.container, os.path.join(CONTAINER_CHART_DIR, "values.yaml"))
+        values_path = fd.name
+
+    try:
+        yield values_path
+    finally:
+        os.remove(values_path)
 
 
-def init_helm(minikube):
-    minikube.exec_cmd("helm init")
+def init_helm(k8s_cluster):
+    init_command = helm_command_prefix(k8s_cluster) + " init --service-account tiller"
+    print(f"Executing helm init: {init_command}")
+    output = exec_helm(init_command)
+    print(f"Helm init output:\n{output}")
+
     print("Waiting for tiller-deployment to be ready ...")
     assert wait_for(
-        p(deployment_is_ready, "tiller-deploy", "kube-system"), timeout_seconds=30, interval_seconds=2
+        p(deployment_is_ready, "tiller-deploy", k8s_cluster.test_namespace), timeout_seconds=45, interval_seconds=2
     ), "timed out waiting for tiller-deployment to be ready!"
 
 
@@ -76,10 +153,11 @@ def get_chart_name_version():
     return chart_name, chart_version
 
 
-def get_daemonset_name(minikube, namespace):
+def get_daemonset_name(k8s_cluster):
     chart_name, chart_version = get_chart_name_version()
     chart_release_name = chart_name + "-" + chart_version
-    output = minikube.exec_cmd("helm list --namespace=%s --output=yaml" % namespace)
+    list_cmd = helm_command_prefix(k8s_cluster) + f" list --namespace={k8s_cluster.test_namespace} --output=yaml"
+    output = exec_helm(list_cmd)
     release = None
     for rel in yaml.safe_load(output).get("Releases", []):
         if rel.get("Chart") == chart_release_name:
@@ -91,24 +169,43 @@ def get_daemonset_name(minikube, namespace):
     return release_name + "-" + chart_name
 
 
-def install_helm_chart(minikube, namespace):
-    minikube.exec_cmd("helm install --namespace=%s --debug %s" % (namespace, CONTAINER_CHART_DIR))
+def install_helm_chart(k8s_cluster, values_path):
+    install_cmd = (
+        helm_command_prefix(k8s_cluster)
+        + f" install --values {values_path} --namespace={k8s_cluster.test_namespace} --debug {LOCAL_CHART_DIR}",
+    )
+    print(f"Running Helm install: {install_cmd}")
+    output = exec_helm(install_cmd)
+    print(f"Helm chart install output:\n{output}")
+
+    daemonset_name = get_daemonset_name(k8s_cluster)
+    print("Waiting for daemonset %s to be ready ..." % daemonset_name)
     try:
-        daemonset_name = get_daemonset_name(minikube, namespace)
-        print("Waiting for daemonset %s to be ready ..." % daemonset_name)
-        assert wait_for(p(daemonset_is_ready, daemonset_name, namespace), timeout_seconds=120, interval_seconds=2), (
-            "timed out waiting for %s daemonset to be ready!" % daemonset_name
-        )
+        assert wait_for(
+            p(daemonset_is_ready, daemonset_name, k8s_cluster.test_namespace), timeout_seconds=120, interval_seconds=2
+        ), ("timed out waiting for %s daemonset to be ready!" % daemonset_name)
     finally:
-        minikube.exec_kubectl("get all --all-namespaces")
+        print(k8s_cluster.exec_kubectl(f"describe daemonset {daemonset_name}", namespace=k8s_cluster.test_namespace))
 
 
-def test_helm(minikube, k8s_namespace):
-    with minikube.create_resources([NGINX_YAML_PATH], namespace=k8s_namespace):
-        with fake_backend.start(ip_addr=get_host_ip()) as backend:
-            create_cluster_admin_rolebinding(minikube)
-            init_helm(minikube)
-            update_values_yaml(minikube, backend, k8s_namespace)
-            install_helm_chart(minikube, k8s_namespace)
-            assert wait_for(p(has_datapoint_with_dim, backend, "plugin", "nginx"))
-            assert wait_for(p(has_datapoint_with_dim, backend, "plugin", "signalfx-metadata"))
+def test_helm(k8s_cluster):
+    with k8s_cluster.create_resources([NGINX_YAML_PATH]), tiller_rbac_resources(
+        k8s_cluster
+    ), fake_backend.start() as backend:
+        init_helm(k8s_cluster)
+
+        with k8s_cluster.run_tunnels(backend) as proxy_pod_ip:
+            with release_values_yaml(k8s_cluster, proxy_pod_ip, backend) as values_path:
+                install_helm_chart(k8s_cluster, values_path)
+                try:
+                    assert wait_for(p(has_datapoint, backend, dimensions={"plugin": "nginx"}))
+                    assert wait_for(p(has_datapoint, backend, dimensions={"plugin": "signalfx-metadata"}))
+                finally:
+                    for pod in get_pods_by_labels("app=signalfx-agent", namespace=k8s_cluster.test_namespace):
+                        print("pod/%s:" % pod.metadata.name)
+                        status = exec_pod_command(
+                            pod.metadata.name, AGENT_STATUS_COMMAND, namespace=k8s_cluster.test_namespace
+                        )
+                        print("Agent Status:\n%s" % status)
+                        logs = get_pod_logs(pod.metadata.name, namespace=k8s_cluster.test_namespace)
+                        print("Agent Logs:\n%s" % logs)

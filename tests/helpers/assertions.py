@@ -8,6 +8,8 @@ import urllib.request
 from base64 import b64encode
 from http.client import HTTPException
 
+import psutil
+
 
 def has_datapoint_with_metric_name(fake_services, metric_name):
     if hasattr(metric_name, "match"):
@@ -153,6 +155,18 @@ def udp_port_open_locally_netstat(port):
     Returns true is the given port # is open on the local host
     """
     return os.system("netstat -ul | grep %d" % port) == 0
+
+
+def local_tcp_port_has_connection(port):
+    """
+    Returns true is the given port # has an active connection to it
+    """
+    for conn in psutil.net_connections("tcp"):
+        if conn.status != psutil.CONN_ESTABLISHED:
+            continue
+        if conn.raddr and conn.raddr.port == port:
+            return True
+    return False
 
 
 def tcp_port_open_locally(port):

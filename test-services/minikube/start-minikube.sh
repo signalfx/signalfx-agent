@@ -45,9 +45,6 @@ MINIKUBE_OPTIONS="--vm-driver=none --bootstrapper=${BOOTSTRAPPER} --kubernetes-v
 KUBEADM_OPTIONS="--feature-gates=CoreDNS=true \
     --extra-config=kubelet.authorization-mode=AlwaysAllow \
     --extra-config=kubelet.anonymous-auth=true"
-if [[ "$K8S_VERSION" =~ ^v1\.11\. ]]; then
-    KUBEADM_OPTIONS="$KUBEADM_OPTIONS --extra-config=kubelet.cadvisor-port=4194"
-fi
 
 if [ "$BOOTSTRAPPER" = "kubeadm" ]; then
     MINIKUBE_OPTIONS="$MINIKUBE_OPTIONS $KUBEADM_OPTIONS"
@@ -77,11 +74,20 @@ function start_minikube() {
     fi
 }
 
+function start_registry() {
+    docker run \
+        -e "REGISTRY_HTTP_ADDR=0.0.0.0:5000" \
+        -d \
+        -p 5000:5000 \
+        --name registry \
+        registry:2.7
+}
+
 function cluster_is_ready() {
     echo "Waiting for the cluster to be ready ..."
     local start_time=`date +%s`
     while [ $(expr `date +%s` - $start_time) -lt $TIMEOUT ]; do
-        if kubectl get all --all-namespaces; then
+        if kubectl get all --all-namespaces && kubectl describe serviceaccount default | grep 'default-token'; then
             return 0
         fi
         sleep 5
@@ -91,21 +97,9 @@ function cluster_is_ready() {
 
 function print_logs() {
     if [ "$BOOTSTRAPPER" = "localkube" ]; then
-        if [ -f /var/lib/localkube/localkube.out ]; then
-            echo
-            echo "/var/lib/localkube/localkube.out:"
-            cat /var/lib/localkube/localkube.out
-            echo
-        fi
-        if [ -f /var/lib/localkube/localkube.err ]; then
-            echo
-            echo "/var/lib/localkube/localkube.err:"
-            cat /var/lib/localkube/localkube.err
-            echo
-        fi
-    else
+        journalctl --no-pager -u localkube
         echo
-        echo "minikube logs:"
+    else
         minikube logs
         echo
     fi
@@ -115,11 +109,14 @@ mount --make-rshared /
 /usr/local/bin/start-docker.sh
 download_kubectl
 start_minikube
+start_registry
+
 if ! cluster_is_ready; then
     print_logs
     echo "Timed out after $TIMEOUT seconds waiting for the cluster to be ready!"
     exit 1
 fi
+
 kubectl version
 kubectl config view --merge=true --flatten=true > "$KUBECONFIG_PATH"
 exit 0

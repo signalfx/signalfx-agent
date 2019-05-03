@@ -26,10 +26,15 @@ do_docker_build() {
     cache_flags=$($MY_SCRIPT_DIR/docker-cache-from $target_stage)
   fi
 
+  pull_flag="--pull"
+  if [[ "${SKIP_BUILD_PULL-}" == "yes" ]]; then
+	pull_flag=""
+  fi
+
   docker build \
     -t $image_name:$image_tag \
     -f $MY_SCRIPT_DIR/../Dockerfile \
-    --pull \
+    $pull_flag \
     --build-arg agent_version=${agent_version} \
     --build-arg GOOS=${operating_system} \
     --build-arg collectd_version=${collectd_version} \
@@ -39,5 +44,5 @@ do_docker_build() {
     --label agent.version=${agent_version} \
     $(extra_cflags_build_arg) \
     $cache_flags \
-    $MY_SCRIPT_DIR/.. 
+    $MY_SCRIPT_DIR/..
 }

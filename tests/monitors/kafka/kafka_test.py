@@ -4,26 +4,13 @@ Monitor tests for kafka
 import textwrap
 from contextlib import contextmanager
 from functools import partial as p
-from pathlib import Path
 
 import pytest
-
 from tests.helpers.agent import Agent
 from tests.helpers.assertions import has_datapoint_with_dim, has_datapoint_with_metric_name, tcp_socket_open
-from tests.helpers.kubernetes.utils import get_discovery_rule, run_k8s_monitors_test
-from tests.helpers.util import (
-    container_ip,
-    get_monitor_dims_from_selfdescribe,
-    get_monitor_metrics_from_selfdescribe,
-    run_container,
-    run_service,
-    wait_for,
-)
+from tests.helpers.util import container_ip, run_container, run_service, wait_for
 
 pytestmark = [pytest.mark.collectd, pytest.mark.kafka, pytest.mark.monitor_with_endpoints]
-
-
-SCRIPT_DIR = Path(__file__).parent.resolve()
 
 
 @contextmanager
@@ -123,29 +110,3 @@ def test_all_kafka_monitors(version):
                     assert wait_for(
                         p(has_datapoint_with_dim, agent.fake_services, "client-id", "consumer-1"), timeout_seconds=60
                     ), "Didn't get client-id dimension from kafka_consumer datapoints"
-
-
-@pytest.mark.kubernetes
-def test_kafka_in_k8s(agent_image, minikube, k8s_observer, k8s_test_timeout, k8s_namespace):
-    yaml = SCRIPT_DIR / "kafka-k8s.yaml"
-    monitors = [
-        {
-            "type": "collectd/kafka",
-            "discoveryRule": get_discovery_rule(yaml, k8s_observer, namespace=k8s_namespace),
-            "serviceURL": "service:jmx:rmi:///jndi/rmi://{{.Host}}:{{.Port}}/jmxrmi",
-            "username": "testuser",
-            "password": "testing123",
-            "clusterName": "testcluster",
-        }
-    ]
-    run_k8s_monitors_test(
-        agent_image,
-        minikube,
-        monitors,
-        namespace=k8s_namespace,
-        yamls=[yaml],
-        observer=k8s_observer,
-        expected_metrics=get_monitor_metrics_from_selfdescribe(monitors[0]["type"]),
-        expected_dims=get_monitor_dims_from_selfdescribe(monitors[0]["type"]),
-        test_timeout=k8s_test_timeout,
-    )
