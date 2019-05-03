@@ -21,9 +21,9 @@ See [Smart Agent Next Steps](./docs/smart-agent-next-steps.md)
 ### Step 5: Configure various monitors to output metrics to Smart Agent. 
 
 - To [add a new monitor](#Monitors).
+- For [Common configuration options](https://docs.signalfx.com/en/latest/integrations/agent/monitor-config.md). 
 - For [Windows monitor configurations](https://docs.signalfx.com/en/latest/integrations/agent/windows.md).
 - For [Linux monitor configurations](https://docs.signalfx.com/en/latest/integrations/agent/monitor-config.html.)
-- For [common configuration options](https://docs.signalfx.com/en/latest/integrations/agent/monitor-config.md). 
 
 #### Configure optional metrics for your monitors.
 
@@ -38,7 +38,7 @@ See individual monitor pages for your monitor from the lists in Step 5.
 See [Dashboards](https://docs.signalfx.com/en/latest/dashboards/index.html)
 
 
-## Advanced options 
+## Options 
 
 ### Monitors 
 
