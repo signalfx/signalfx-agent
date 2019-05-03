@@ -5,11 +5,14 @@ package df
 //go:generate collectd-template-to-go df.tmpl
 
 import (
+	"sync"
+
 	"github.com/signalfx/signalfx-agent/internal/core/config"
 	"github.com/signalfx/signalfx-agent/internal/monitors"
 	"github.com/signalfx/signalfx-agent/internal/monitors/collectd"
-	"sync"
 )
+
+var inodesAndPercentMetrics = []string{percentInodesFree, percentInodesReserved, percentInodesUsed}
 
 func init() {
 	monitors.Register(&monitorMetadata, func() interface{} {
@@ -54,45 +57,45 @@ type Monitor struct {
 // GetExtraMetrics returns additional metrics to allow through.
 // Gets all metrics in group if configured extra metric is part of group
 func (c *Config) GetExtraMetrics() []string {
-	reportInodes := c.ReportInodes
-	valuesPercentage := c.ValuesPercentage
-	for _, metric := range c.ExtraMetrics {
-		group := metricSet[metric].Group
-		switch {
-		case !reportInodes && group == groupReportInodes:
-			reportInodes = true
-		case !valuesPercentage && group == groupValuesPercentage:
-			valuesPercentage = true
-		}
-	}
 	var extraMetrics []string
-	if reportInodes {
+
+	if c.ReportInodes {
 		extraMetrics = append(extraMetrics, groupMetricsMap[groupReportInodes]...)
 	}
-	if valuesPercentage {
+	if c.ValuesPercentage {
 		extraMetrics = append(extraMetrics, groupMetricsMap[groupValuesPercentage]...)
 	}
-	if reportInodes && valuesPercentage {
-		extraMetrics = append(extraMetrics, []string{percentInodesFree, percentInodesReserved, percentInodesUsed}...)
+	if c.ReportInodes && c.ValuesPercentage {
+		extraMetrics = append(extraMetrics, inodesAndPercentMetrics...)
 	}
+
 	return extraMetrics
 }
 
 // Configure configures and runs the plugin in collectd
-func (m *Monitor) Configure(conf *Config) error {
-	// Thread safe setting of group flag in config if any configured extra metric is part of group
-	func() {
-		conf.mutex.Lock()
-		defer conf.mutex.Unlock()
-		for _, metric := range conf.ExtraMetrics {
-			group := metricSet[metric].Group
-			switch {
-			case !conf.ReportInodes && group == groupReportInodes:
-				conf.ReportInodes = true
-			case !conf.ValuesPercentage && group == groupValuesPercentage:
-				conf.ValuesPercentage = true
-			}
+func (m *Monitor) Configure(config *Config) error {
+	conf := *config
+
+	for _, metric := range inodesAndPercentMetrics {
+		if conf.EnabledMetricsSet[metric] {
+			conf.ReportInodes = true
+			conf.ReportInodes = true
 		}
-	}()
-	return m.SetConfigurationAndRun(conf)
+	}
+
+	groupEnableMap := map[string]bool{
+		groupReportInodes:     conf.ReportInodes,
+		groupValuesPercentage: conf.ValuesPercentage,
+	}
+
+	for _, metric := range conf.EnabledMetrics {
+		if metricInfo, ok := metricSet[metric]; ok {
+			groupEnableMap[metricInfo.Group] = true
+		}
+	}
+
+	conf.ReportInodes = groupEnableMap[groupReportInodes]
+	conf.ValuesPercentage = groupEnableMap[groupValuesPercentage]
+
+	return m.SetConfigurationAndRun(&conf)
 }
