@@ -8,6 +8,7 @@ import (
 	"github.com/signalfx/signalfx-agent/internal/core/config"
 	"github.com/signalfx/signalfx-agent/internal/monitors"
 	"github.com/signalfx/signalfx-agent/internal/monitors/collectd"
+	"sync"
 )
 
 func init() {
@@ -42,6 +43,7 @@ type Config struct {
 
 	// If true percent based metrics will be reported.
 	ValuesPercentage bool `yaml:"valuesPercentage" default:"false"`
+	mutex            sync.RWMutex
 }
 
 // Monitor is the main type that represents the monitor
@@ -50,15 +52,27 @@ type Monitor struct {
 }
 
 // GetExtraMetrics returns additional metrics to allow through.
+// Gets all metrics in group if configured extra metric is part of group
 func (c *Config) GetExtraMetrics() []string {
+	reportInodes := c.ReportInodes
+	valuesPercentage := c.ValuesPercentage
+	for _, metric := range c.ExtraMetrics {
+		group := metricSet[metric].Group
+		switch {
+		case !reportInodes && group == groupReportInodes:
+			reportInodes = true
+		case !valuesPercentage && group == groupValuesPercentage:
+			valuesPercentage = true
+		}
+	}
 	var extraMetrics []string
-	if c.ReportInodes {
+	if reportInodes {
 		extraMetrics = append(extraMetrics, groupMetricsMap[groupReportInodes]...)
 	}
-	if c.ValuesPercentage {
+	if valuesPercentage {
 		extraMetrics = append(extraMetrics, groupMetricsMap[groupValuesPercentage]...)
 	}
-	if c.ReportInodes && c.ValuesPercentage {
+	if reportInodes && valuesPercentage {
 		extraMetrics = append(extraMetrics, []string{percentInodesFree, percentInodesReserved, percentInodesUsed}...)
 	}
 	return extraMetrics
@@ -66,5 +80,19 @@ func (c *Config) GetExtraMetrics() []string {
 
 // Configure configures and runs the plugin in collectd
 func (m *Monitor) Configure(conf *Config) error {
+	// Thread safe setting of group flag in config if any configured extra metric is part of group
+	func() {
+		conf.mutex.Lock()
+		defer conf.mutex.Unlock()
+		for _, metric := range conf.ExtraMetrics {
+			group := metricSet[metric].Group
+			switch {
+			case !conf.ReportInodes && group == groupReportInodes:
+				conf.ReportInodes = true
+			case !conf.ValuesPercentage && group == groupValuesPercentage:
+				conf.ValuesPercentage = true
+			}
+		}
+	}()
 	return m.SetConfigurationAndRun(conf)
 }

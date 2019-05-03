@@ -3226,19 +3226,19 @@
         "percent_inodes.free": {
           "type": "gauge",
           "description": "Free inodes on the file system, expressed as a percentage.",
-          "group": "valuesPercentage",
+          "group": null,
           "included": false
         },
         "percent_inodes.reserved": {
           "type": "gauge",
           "description": "Reserved inodes on the file system, expressed as a percentage.",
-          "group": "valuesPercentage",
+          "group": null,
           "included": false
         },
         "percent_inodes.used": {
           "type": "gauge",
           "description": "Used inodes on the file system, expressed as a percentage.",
-          "group": "valuesPercentage",
+          "group": null,
           "included": false
         }
       },
