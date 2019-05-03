@@ -18,7 +18,7 @@ def test_df():
             hostFSPath: /
         """
     ) as agent:
-        assert wait_for(lambda: len(agent.fake_services.datapoints_by_metric) > 0), "timed out waiting for metrics!"
+        assert wait_for(lambda: agent.fake_services.datapoints_by_metric), "timed out waiting for metrics!"
         assert set(agent.fake_services.datapoints_by_metric) == METADATA.included_metrics
         assert not has_log_message(agent.output.lower(), "error"), "error found in agent output!"
 
@@ -35,7 +35,7 @@ def test_df_an_ungrouped_extra_metric():
             - {an_ungrouped_extra_metric}
         """
     ) as agent:
-        assert wait_for(lambda: len(agent.fake_services.datapoints_by_metric) > 0), "timed out waiting for metrics!"
+        assert wait_for(lambda: agent.fake_services.datapoints_by_metric), "timed out waiting for metrics!"
         assert set(agent.fake_services.datapoints_by_metric) == expected_metrics
         assert not has_log_message(agent.output.lower(), "error"), "error found in agent output!"
 
@@ -44,7 +44,7 @@ def test_df_a_grouped_extra_metric1():
     expected_metrics = METADATA.included_metrics | {"df_inodes.free", "df_inodes.reserved", "df_inodes.used"}
     a_grouped_extra_metric = "df_inodes.reserved"
     with Agent.run(
-            f"""
+        f"""
             monitors:
               - type: collectd/df
                 hostFSPath: /
@@ -52,17 +52,20 @@ def test_df_a_grouped_extra_metric1():
                 - {a_grouped_extra_metric}
             """
     ) as agent:
-        assert wait_for(lambda: len(agent.fake_services.datapoints_by_metric) > 0), "timed out waiting for metrics!"
+        assert wait_for(lambda: agent.fake_services.datapoints_by_metric), "timed out waiting for metrics!"
         assert set(agent.fake_services.datapoints_by_metric) == expected_metrics
         assert not has_log_message(agent.output.lower(), "error"), "error found in agent output!"
 
 
 def test_df_a_grouped_extra_metric2():
-    expected_metrics = METADATA.included_metrics | \
-                       {"percent_bytes.free", "percent_bytes.reserved", "percent_bytes.used"}
+    expected_metrics = METADATA.included_metrics | {
+        "percent_bytes.free",
+        "percent_bytes.reserved",
+        "percent_bytes.used",
+    }
     a_grouped_extra_metric = "percent_bytes.used"
     with Agent.run(
-            f"""
+        f"""
             monitors:
               - type: collectd/df
                 hostFSPath: /
@@ -70,7 +73,7 @@ def test_df_a_grouped_extra_metric2():
                 - {a_grouped_extra_metric}
             """
     ) as agent:
-        assert wait_for(lambda: len(agent.fake_services.datapoints_by_metric) > 0), "timed out waiting for metrics!"
+        assert wait_for(lambda: agent.fake_services.datapoints_by_metric), "timed out waiting for metrics!"
         assert set(agent.fake_services.datapoints_by_metric) == expected_metrics
         assert not has_log_message(agent.output.lower(), "error"), "error found in agent output!"
 
@@ -89,6 +92,6 @@ def test_df_extra_metrics_all():
             - percent_*
         """
     ) as agent:
-        assert wait_for(lambda: len(agent.fake_services.datapoints_by_metric) > 0), "timed out waiting for metrics!"
+        assert wait_for(lambda: agent.fake_services.datapoints_by_metric), "timed out waiting for metrics!"
         assert set(agent.fake_services.datapoints_by_metric) == expected_metrics
         assert not has_log_message(agent.output.lower(), "error"), "error found in agent output!"
