@@ -15,7 +15,7 @@ import yaml
 from tests.helpers.assertions import regex_search_matches_output
 from tests.paths import SELFDESCRIBE_JSON, TEST_SERVICES_DIR
 
-DEFAULT_TIMEOUT = os.environ.get("DEFAULT_TIMEOUT", 30)
+DEFAULT_TIMEOUT = int(os.environ.get("DEFAULT_TIMEOUT", 30))
 DOCKER_API_VERSION = "1.34"
 STATSD_RE = re.compile(r"SignalFx StatsD monitor: Listening on host & port udp:\[::\]:([0-9]*)")
 
