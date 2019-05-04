@@ -27,5 +27,4 @@ monitors:
   - type: collectd/signalfx-metadata
   - type: collectd/vmem
 
-metricsToExclude:
-  - {"#from": "/usr/lib/signalfx-agent/lib/whitelist.json", flatten: true}
+enableBuiltInFiltering: true

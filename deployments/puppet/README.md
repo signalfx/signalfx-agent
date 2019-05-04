@@ -14,6 +14,7 @@ class accepts the following parameters:
     ```ruby
     $config = {
       signalFxAccessToken: "MY_TOKEN",
+	  enableBuiltInFiltering: true,
       monitors: [
         {type: "collectd/cpu"},
         {type: "collectd/cpufreq"},
