@@ -7,3 +7,4 @@ monitors:
   metrics:
   monitorType: collectd/python
   properties:
+  sendAll: true

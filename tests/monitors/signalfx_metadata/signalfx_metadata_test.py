@@ -1,7 +1,6 @@
 from functools import partial as p
 
 import pytest
-
 from tests.helpers.agent import Agent
 from tests.helpers.assertions import has_datapoint, has_log_message
 from tests.helpers.util import ensure_always, wait_for
@@ -40,11 +39,9 @@ def test_cpu_utilization_per_core():
         etcPath: /etc
         persistencePath: /var/run/signalfx-agent
         perCoreCPUUtil: true
-      - type: collectd/cpu
-    metricsToInclude:
-      - metricNames:
+        extraMetrics:
         - cpu.utilization_per_core
-        monitorType: collectd/signalfx-metadata
+      - type: collectd/cpu
         """
     ) as agent:
         assert wait_for(

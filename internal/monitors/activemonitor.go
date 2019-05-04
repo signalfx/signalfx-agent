@@ -23,13 +23,11 @@ type ActiveMonitor struct {
 	id         types.MonitorID
 	configHash uint64
 	agentMeta  *meta.AgentMeta
-	output     types.Output
+	output     types.FilteringOutput
 	config     config.MonitorCustomConfig
 	endpoint   services.Endpoint
 	// Is the monitor marked for deletion?
 	doomed bool
-	// Metrics that have been enabled via the extra metrics filter.
-	enabledMetrics []string
 }
 
 // Does some reflection magic to pass the right type to the Configure method of
@@ -90,7 +88,12 @@ func (am *ActiveMonitor) injectOutputIfNeeded() bool {
 		reflect.TypeOf((*types.Output)(nil)).Elem())
 
 	if !outputValue.IsValid() {
-		return false
+		// Try and find FilteringOutput type
+		outputValue = utils.FindFieldWithEmbeddedStructs(am.instance, "Output",
+			reflect.TypeOf((*types.FilteringOutput)(nil)).Elem())
+		if !outputValue.IsValid() {
+			return false
+		}
 	}
 
 	outputValue.Set(reflect.ValueOf(am.output))

@@ -4,8 +4,8 @@ import tempfile
 from contextlib import contextmanager
 
 import yaml
-
 from tests.paths import AGENT_BIN
+
 from . import fake_backend
 from .formatting import print_dp_or_event
 from .internalmetrics import InternalMetricsClient
@@ -37,6 +37,8 @@ class Agent:
 
         if self.config.get("intervalSeconds") is None:
             self.config["intervalSeconds"] = 3
+
+        self.config.setdefault("enableBuiltInFiltering", True)
 
         if self.config.get("signalFxAccessToken") is None:
             self.config["signalFxAccessToken"] = "testing123"

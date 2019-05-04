@@ -61,7 +61,7 @@ func (c *Config) connStr() (string, error) {
 type Monitor struct {
 	sync.Mutex
 
-	Output types.Output
+	Output types.FilteringOutput
 	ctx    context.Context
 	cancel context.CancelFunc
 	conf   *Config

@@ -12,7 +12,7 @@ import (
 
 // The default implementation of Output
 type monitorOutput struct {
-	monitorFiltering
+	*monitorFiltering
 	monitorType               string
 	monitorID                 types.MonitorID
 	notHostSpecific           bool
@@ -57,7 +57,7 @@ func (mo *monitorOutput) SendDatapoint(dp *datapoint.Datapoint) {
 	dp.Dimensions = utils.MergeStringMaps(dp.Dimensions, mo.extraDims, endpointDims)
 	// Defer filtering until here so we have the full dimension set to match
 	// on.
-	if mo.filterSet.Matches(dp) {
+	if mo.filterSet != nil && mo.filterSet.Matches(dp) {
 		return
 	}
 

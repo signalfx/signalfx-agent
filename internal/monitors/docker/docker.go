@@ -69,7 +69,7 @@ type Config struct {
 
 // Monitor for Docker
 type Monitor struct {
-	Output  types.Output
+	Output  types.FilteringOutput
 	cancel  func()
 	ctx     context.Context
 	client  *docker.Client

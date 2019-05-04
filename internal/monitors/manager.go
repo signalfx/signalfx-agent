@@ -39,8 +39,9 @@ type MonitorManager struct {
 
 	// TODO: AgentMeta is rather hacky so figure out a better way to share agent
 	// metadata with monitors
-	agentMeta       *meta.AgentMeta
-	intervalSeconds int
+	agentMeta              *meta.AgentMeta
+	intervalSeconds        int
+	enableBuiltInFiltering bool
 
 	idGenerator func() string
 }
@@ -60,11 +61,12 @@ func NewMonitorManager(agentMeta *meta.AgentMeta) *MonitorManager {
 // Configure receives a list of monitor configurations.  It will start up any
 // static monitors and watch discovered services to see if any match dynamic
 // monitors.
-func (mm *MonitorManager) Configure(confs []config.MonitorConfig, collectdConf *config.CollectdConfig, intervalSeconds int) {
+func (mm *MonitorManager) Configure(confs []config.MonitorConfig, collectdConf *config.CollectdConfig, intervalSeconds int, enableBuiltInFiltering bool) {
 	mm.lock.Lock()
 	defer mm.lock.Unlock()
 
 	mm.intervalSeconds = intervalSeconds
+	mm.enableBuiltInFiltering = enableBuiltInFiltering
 	for i := range confs {
 		confs[i].IntervalSeconds = utils.FirstNonZero(confs[i].IntervalSeconds, intervalSeconds)
 	}
@@ -335,19 +337,22 @@ func (mm *MonitorManager) createAndConfigureNewMonitor(config config.MonitorCust
 		panic(fmt.Sprintf("could not find monitor metadata of type %s", monitorType))
 	}
 
-	filterSet, enabledMetrics, err := buildFilterSet(metadata, config)
-	if err != nil {
-		return nil
-	}
-
 	configHash := config.MonitorConfigCore().Hash()
+
+	var monFiltering *monitorFiltering
+	if mm.enableBuiltInFiltering {
+		var err error
+		monFiltering, err = newMonitorFiltering(config, metadata)
+		if err != nil {
+			return err
+		}
+	}
 
 	output := &monitorOutput{
 		monitorType:               coreConfig.Type,
 		monitorID:                 id,
 		notHostSpecific:           coreConfig.DisableHostDimensions,
 		disableEndpointDimensions: coreConfig.DisableEndpointDimensions,
-		filterSet:                 filterSet,
 		configHash:                configHash,
 		endpoint:                  endpoint,
 		dpChan:                    mm.DPs,
@@ -355,16 +360,16 @@ func (mm *MonitorManager) createAndConfigureNewMonitor(config config.MonitorCust
 		dimPropChan:               mm.DimensionProps,
 		spanChan:                  mm.TraceSpans,
 		extraDims:                 map[string]string{},
+		monitorFiltering:          monFiltering,
 	}
 
 	am := &ActiveMonitor{
-		id:             id,
-		configHash:     configHash,
-		instance:       instance,
-		endpoint:       endpoint,
-		agentMeta:      mm.agentMeta,
-		output:         output,
-		enabledMetrics: enabledMetrics,
+		id:         id,
+		configHash: configHash,
+		instance:   instance,
+		endpoint:   endpoint,
+		agentMeta:  mm.agentMeta,
+		output:     output,
 	}
 
 	if err := am.configureMonitor(config); err != nil {

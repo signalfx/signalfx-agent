@@ -2,7 +2,6 @@ import time
 from functools import partial as p
 
 import pytest
-
 from tests.helpers.agent import Agent
 from tests.helpers.assertions import has_datapoint_with_dim, has_datapoint_with_metric_name
 from tests.helpers.metadata import Metadata
@@ -161,27 +160,33 @@ METADATA = Metadata.from_package("docker")
 
 
 def test_docker_included():
-    verify_included_metrics(
-        f"""
-        monitors:
-        - type: docker-container-stats
-        """,
-        METADATA,
-    )
+    with run_service(
+        "elasticsearch/6.6.1"
+    ) as _:  # just get a container that does some block io running so we have some stats
+        verify_included_metrics(
+            f"""
+            monitors:
+            - type: docker-container-stats
+            """,
+            METADATA,
+        )
 
 
 ENHANCED_METRICS = METADATA.all_metrics - {"memory.stats.swap"}
 
 
 def test_docker_enhanced():
-    verify_custom(
-        f"""
-        monitors:
-        - type: docker-container-stats
-          enableExtraBlockIOMetrics: true
-          enableExtraCPUMetrics: true
-          enableExtraMemoryMetrics: true
-          enableExtraNetworkMetrics: true
-        """,
-        ENHANCED_METRICS,
-    )
+    with run_service(
+        "elasticsearch/6.6.1"
+    ) as _:  # just get a container that does some block io running so we have some stats
+        verify_custom(
+            f"""
+            monitors:
+            - type: docker-container-stats
+              enableExtraBlockIOMetrics: true
+              enableExtraCPUMetrics: true
+              enableExtraMemoryMetrics: true
+              enableExtraNetworkMetrics: true
+            """,
+            ENHANCED_METRICS,
+        )

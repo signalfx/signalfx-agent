@@ -71,29 +71,19 @@ type Monitor struct {
 	client  *http.Client
 }
 
-type filteringOutput struct {
-	types.Output
-	includedMetrics map[string]bool
-}
-
-var _ types.Output = &filteringOutput{}
-
-func (fo *filteringOutput) SendDatapoint(dp *datapoint.Datapoint) {
-	if !fo.includedMetrics[dp.Metric] {
-		return
+func (m *Monitor) GetExtraMetrics() []string {
+	// Maintain backwards compatibility with the config flag that existing
+	// prior to the new filtering mechanism.
+	if m.SendAll {
+		return []string{"*"}
 	}
-	fo.Output.SendDatapoint(dp)
+	return nil
 }
+
+var _ config.ExtraMetrics = &Monitor{}
 
 // Configure the monitor and kick off volume metric syncing
 func (m *Monitor) Configure(conf *Config) error {
-	// This is a temporary hack until the generic metric filtering/grouping
-	// work is done.  This should be removable once that is done and the logic
-	// lives in the core Output instance.
-	if m.IncludedMetrics != nil && !conf.SendAllMetrics {
-		m.Output = &filteringOutput{Output: m.Output, includedMetrics: m.IncludedMetrics}
-	}
-
 	m.client = &http.Client{
 		Timeout: 10 * time.Second,
 		Transport: &http.Transport{
