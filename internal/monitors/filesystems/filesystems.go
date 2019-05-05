@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"runtime"
 	"strings"
-	"sync"
 	"time"
 
 	gopsutil "github.com/shirou/gopsutil/disk"
@@ -49,7 +48,6 @@ type Config struct {
 	ReportByDevice bool `yaml:"reportByDevice" default:"false"`
 	// (Linux Only) If true metrics will be reported about inodes.
 	ReportInodes bool `yaml:"reportInodes" default:"false"`
-	mutex        sync.RWMutex
 }
 
 // Monitor for Utilization
@@ -187,7 +185,6 @@ func (m *Monitor) emitDatapoints() {
 // Configure is the main function of the monitor, it will report host metadata
 // on a varied interval
 func (m *Monitor) Configure(conf *Config) error {
-	conf.updateGroupFlags()
 	m.logger = logrus.WithFields(log.Fields{"monitorType": monitorType})
 	if runtime.GOOS != "windows" {
 		m.logger.Warningf("'%s' monitor is in beta on this platform.  For production environments please use 'collectd/%s'.", monitorType, monitorType)
@@ -197,8 +194,20 @@ func (m *Monitor) Configure(conf *Config) error {
 	var ctx context.Context
 	ctx, m.cancel = context.WithCancel(context.Background())
 
-	// save conf to monitor for quick reference
-	m.conf = conf
+	// save shallow copy of conf to monitor for quick reference
+	if m.conf == nil {
+		m.conf = &Config{}
+	}
+	*m.conf = *conf
+	// setting metric group flags in the config copy
+	for _, metric := range m.conf.EnabledMetrics {
+		switch metricSet[metric].Group {
+		case groupIncludeLogical:
+			m.conf.IncludeLogical = true
+		case groupReportInodes:
+			m.conf.ReportInodes = true
+		}
+	}
 
 	// configure filters
 	var err error
@@ -240,40 +249,15 @@ func (m *Monitor) Configure(conf *Config) error {
 }
 
 // GetExtraMetrics returns additional metrics that should be allowed through.
-// Gets all metrics in group if configured extra metric is part of the group
 func (c *Config) GetExtraMetrics() []string {
-	includeLogical, reportInodes := c.IncludeLogical, c.ReportInodes
-	for _, metric := range c.ExtraMetrics {
-		group := metricSet[metric].Group
-		switch {
-		case !includeLogical && group == groupIncludeLogical:
-			includeLogical = true
-		case !reportInodes && group == groupReportInodes:
-			reportInodes = true
-		}
-	}
 	var extraMetrics []string
-	if includeLogical {
+	if c.IncludeLogical {
 		extraMetrics = append(extraMetrics, groupMetricsMap[groupIncludeLogical]...)
 	}
-	if reportInodes {
+	if c.ReportInodes {
 		extraMetrics = append(extraMetrics, groupMetricsMap[groupReportInodes]...)
 	}
 	return extraMetrics
-}
-
-func (c *Config) updateGroupFlags() {
-	c.mutex.Lock()
-	defer c.mutex.Unlock()
-	for _, metric := range c.ExtraMetrics {
-		group := metricSet[metric].Group
-		switch {
-		case !c.IncludeLogical && group == groupIncludeLogical:
-			c.IncludeLogical = true
-		case !c.ReportInodes && group == groupReportInodes:
-			c.ReportInodes = true
-		}
-	}
 }
 
 // Shutdown stops the metric sync
