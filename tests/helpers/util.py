@@ -55,6 +55,27 @@ def wait_for(test, timeout_seconds=DEFAULT_TIMEOUT, interval_seconds=0.2):
         time.sleep(interval_seconds)
 
 
+def wait_for_assertion(test, timeout_seconds=DEFAULT_TIMEOUT, interval_seconds=0.2):
+    """
+    Waits for the given `test` function passed in to not raise an
+    AssertionError.  It is is still raising such an error after the
+    timeout_seconds, that exception will be raised by this function itself.
+    """
+    e = None
+
+    def wrap():
+        nonlocal e
+        try:
+            test()
+        except AssertionError as err:
+            e = err
+            return False
+        return True
+
+    if not wait_for(wrap, timeout_seconds, interval_seconds):
+        raise e  # pylint: disable=raising-bad-type
+
+
 def ensure_always(test, timeout_seconds=DEFAULT_TIMEOUT, interval_seconds=0.2):
     """
     Repeatedly calls the given test.  If it ever returns false before the timeout

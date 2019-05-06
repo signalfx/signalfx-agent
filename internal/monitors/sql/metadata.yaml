@@ -2,6 +2,7 @@ monitors:
 - monitorType: sql
   dimensions:
   metrics:
+  sendAll: true
   doc: |
     Run arbitrary SQL queries against a relational database and use the results to generate dataponts.
 

@@ -34,5 +34,4 @@ monitors:
   - type: collectd/vmem
   - type: docker-container-stats
 
-metricsToExclude:
-  - {"#from": "/lib/whitelist.json", flatten: true}
+enableBuiltInFiltering: true

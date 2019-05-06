@@ -109,7 +109,7 @@ Monitored Endpoint ID: %s`,
 			am.config.MonitorConfigCore().MonitorID,
 			am.config.MonitorConfigCore().Type,
 			am.config.MonitorConfigCore().IntervalSeconds,
-			formatEnabledMetrics(am.enabledMetrics, 4),
+			formatEnabledMetrics(am.output.EnabledMetrics(), 4),
 			utils.IndentLines(serviceStats, 4),
 			utils.IndentLines(config.ToString(am.config), 6))
 	}

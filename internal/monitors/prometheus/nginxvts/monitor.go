@@ -7,7 +7,7 @@ import (
 
 func init() {
 	monitors.Register(&monitorMetadata, func() interface{} {
-		return &Monitor{Monitor: prometheusexporter.Monitor{IncludedMetrics: includedMetrics}}
+		return &Monitor{Monitor: prometheusexporter.Monitor{}}
 	}, &Config{})
 }
 

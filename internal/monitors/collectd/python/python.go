@@ -75,7 +75,7 @@ func (c *Config) PythonConfig() *Config {
 type PyMonitor struct {
 	*pyrunner.MonitorCore
 
-	Output types.Output
+	Output types.FilteringOutput
 }
 
 // Configure starts the subprocess and configures the plugin

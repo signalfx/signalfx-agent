@@ -54,6 +54,7 @@ if not set.
 | `writer` | no | [object (see below)](#writer) | Configuration of the datapoint/event writer |
 | `logging` | no | [object (see below)](#logging) | Log configuration |
 | `collectd` | no | [object (see below)](#collectd) | Configuration of the managed collectd subprocess |
+| `enableBuiltInFiltering` | no | bool | If true, the agent will inherently filter non-bundled metrics without having to rely on the `whitelist.json` filter that was previously included under `metricsToExclude`.  Whether a metric is bundled or not is documented in each monitor's documentation.  Now every monitor's default configuration (i.e. the minimum amount of configuration to make it work) will only send bundled metrics, but if you enable certain flags or config options on the monitor, non-bundled metrics will also be sent without having to modify the whitelist via `metricsToInclude`. (**default:** `false`) |
 | `metricsToInclude` | no | [list of objects (see below)](#metricstoinclude) | A list of metric filters that will whitelist/include metrics.  These filters take priority over the filters specified in `metricsToExclude`. |
 | `metricsToExclude` | no | [list of objects (see below)](#metricstoexclude) | A list of metric filters |
 | `propertiesToExclude` | no | [list of objects (see below)](#propertiestoexclude) | A list of properties filters |
@@ -414,6 +415,7 @@ where applicable:
     writeServerIPAddr: "127.9.8.7"
     writeServerPort: 0
     configDir: "/var/run/signalfx-agent/collectd"
+  enableBuiltInFiltering: false
   metricsToInclude: []
   metricsToExclude: []
   propertiesToExclude: []

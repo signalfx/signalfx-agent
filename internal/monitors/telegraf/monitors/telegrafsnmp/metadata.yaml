@@ -36,3 +36,4 @@ monitors:
   metrics:
   monitorType: telegraf/snmp
   properties:
+  sendAll: true

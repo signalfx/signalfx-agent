@@ -18,5 +18,12 @@ type Output interface {
 	SendDimensionProps(*DimProperties)
 	AddExtraDimension(key, value string)
 	RemoveExtraDimension(key string)
+}
+
+// FilteringOutput is Output enhanced with additional filtering mechanisms.
+type FilteringOutput interface {
+	Output
 	AddDatapointExclusionFilter(filter dpfilters.DatapointFilter)
+	EnabledMetrics() []string
+	HasEnabledMetricInGroup(group string) bool
 }

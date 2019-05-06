@@ -117,6 +117,8 @@ data:
       timeout: {{ .Values.timeout | default 40 }}
       logLevel: {{ .Values.logLevel | default "notice" }}
 
+    enableBuiltInFiltering: true
+
     metricsToExclude:
       # The StackDriver metadata-agent pod on GKE restarts every few minutes so
       # ignore its containers

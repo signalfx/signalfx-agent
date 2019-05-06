@@ -56,7 +56,7 @@ type Config struct {
 
 // Monitor for ECS Metadata
 type Monitor struct {
-	Output         types.Output
+	Output         types.FilteringOutput
 	cancel         func()
 	client         *http.Client
 	conf           *Config
@@ -88,7 +88,7 @@ func (m *Monitor) Configure(conf *Config) error {
 
 	isRegistered := false
 
-	enhancedMetricsConfig := dmonitor.EnableExtraGroups(conf.EnhancedMetricsConfig, conf.EnabledMetrics)
+	enhancedMetricsConfig := dmonitor.EnableExtraGroups(conf.EnhancedMetricsConfig, m.Output.EnabledMetrics())
 
 	utils.RunOnInterval(m.ctx, func() {
 		if !isRegistered {

@@ -16,78 +16,97 @@ monitors:
       description: Number of commands issued for a collection
       included: false
       type: counter
+      group: collection-top
     counter.collection.commandsTime:
       description: Time spent in microseconds processing commands issued for a collection
       included: false
       type: counter
+      group: collection-top
     counter.collection.getmoreCount:
       description: Number of getMore requests issued for a collection
       included: false
       type: counter
+      group: collection-top
     counter.collection.getmoreTime:
       description: Time spent in microseconds processing getMore requests for a collection
       included: false
       type: counter
+      group: collection-top
     counter.collection.index.accesses.ops:
       description: Number of times an index has been used (only on Mongo 3.2+)
       included: false
       type: counter
+      group: collection
     counter.collection.insertCount:
       description: Number of inserts issued for a collection
       included: false
       type: counter
+      group: collection-top
     counter.collection.insertTime:
       description: Time spent in microseconds processing insert requests for a collection
       included: false
       type: counter
+      group: collection-top
     counter.collection.queriesCount:
       description: Number of queries issued for a collection
       included: false
       type: counter
+      group: collection-top
     counter.collection.queriesTime:
       description: Time spent in microseconds processing query requests for a collection
       included: false
       type: counter
+      group: collection-top
     counter.collection.readLockCount:
       description: Number of read locks issued for a collection
       included: false
       type: counter
+      group: collection-top
     counter.collection.readLockTime:
       description: Time spent in microseconds processing read locks for a collection
       included: false
       type: counter
+      group: collection-top
     counter.collection.removeCount:
       description: Number of remove requests issued for a collection
       included: false
       type: counter
+      group: collection-top
     counter.collection.removeTime:
       description: Time spent in microseconds processing remove requests for a collection
       included: false
       type: counter
+      group: collection-top
     counter.collection.totalCount:
       description: Total number of operations issued for a collection
       included: false
       type: counter
+      group: collection-top
     counter.collection.totalTime:
       description: Time spent in microseconds processing all operations for a collection
       included: false
       type: counter
+      group: collection-top
     counter.collection.updateCount:
       description: Number of update requests issued for a collection
       included: false
       type: counter
+      group: collection-top
     counter.collection.updateTime:
       description: Time spent in microseconds processing update requests for a collection
       included: false
       type: counter
+      group: collection-top
     counter.collection.writeLockCount:
       description: Number of write locks issued for a collection
       included: false
       type: counter
+      group: collection-top
     counter.collection.writeLockTime:
       description: Time spent in microseconds processing write locks for a collection
       included: false
       type: counter
+      group: collection-top
     counter.extra_info.page_faults:
       description: Mongod page faults
       included: true
@@ -132,14 +151,17 @@ monitors:
       description: Mean object/document size of a collection
       included: false
       type: gauge
+      group: collection
     gauge.collection.count:
       description: Number of objects/documents in a collection
       included: false
       type: gauge
+      group: collection
     gauge.collection.indexSize:
       description: Size of a particular index on a collection
       included: false
       type: gauge
+      group: collection
     gauge.collection.max:
       description: Maximum number of documents in a capped collection
       included: false
@@ -152,10 +174,12 @@ monitors:
       description: Size of a collection in bytes, not including indexes
       included: false
       type: gauge
+      group: collection
     gauge.collection.storageSize:
       description: Size of the collection on disk in bytes, never decreases.
       included: false
       type: gauge
+      group: collection
     gauge.collections:
       description: Number of collections
       included: false

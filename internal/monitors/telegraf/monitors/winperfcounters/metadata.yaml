@@ -26,3 +26,4 @@ monitors:
   metrics:
   monitorType: telegraf/win_perf_counters
   properties:
+  sendAll: true

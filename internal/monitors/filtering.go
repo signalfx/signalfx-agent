@@ -1,22 +1,112 @@
 package monitors
 
-// Filter of datapoints based on included status and user configuration of
-// extraMetrics and extraGroups.
-
 import (
 	"errors"
-
 	"fmt"
 	"strings"
 
 	"github.com/signalfx/golib/datapoint"
+	"github.com/signalfx/signalfx-agent/internal/core/config"
 	"github.com/signalfx/signalfx-agent/internal/core/dpfilters"
 	"github.com/signalfx/signalfx-agent/internal/utils/filter"
 	"github.com/sirupsen/logrus"
 )
 
+type monitorFiltering struct {
+	filterSet *dpfilters.FilterSet
+	metadata  *Metadata
+}
+
+func newMonitorFiltering(conf config.MonitorCustomConfig, metadata *Metadata) (*monitorFiltering, error) {
+	filterSet, err := buildFilterSet(metadata, conf)
+	if err != nil {
+		return nil, err
+	}
+
+	return &monitorFiltering{
+		filterSet: filterSet,
+		metadata:  metadata,
+	}, nil
+}
+
+// AddDatapointExclusionFilter to the monitor's filter set.  Make sure you do this
+// before any datapoints are sent as it is not thread-safe with SendDatapoint.
+func (mf *monitorFiltering) AddDatapointExclusionFilter(filter dpfilters.DatapointFilter) {
+	mf.filterSet.ExcludeFilters = append(mf.filterSet.ExcludeFilters, filter)
+}
+
+func (mf *monitorFiltering) EnabledMetrics() []string {
+	// This can be optimized to cache results on the struct if it is worth it.
+	dp := &datapoint.Datapoint{}
+	var enabledMetrics []string
+
+	for metric := range mf.metadata.Metrics {
+		dp.Metric = metric
+		if !mf.filterSet.Matches(dp) {
+			enabledMetrics = append(enabledMetrics, metric)
+		}
+	}
+
+	return enabledMetrics
+}
+
+// HasEnabledMetricInGroup returns true if there are any metrics enabled that
+// fall into the given group.
+func (mf *monitorFiltering) HasEnabledMetricInGroup(group string) bool {
+	for _, m := range mf.EnabledMetrics() {
+		// TODO: If metric names in metadata.yaml ever support wildcards this
+		// will have to be enhanced.
+		if mf.metadata.Metrics[m].Group == group {
+			return true
+		}
+	}
+	return false
+}
+
+func buildFilterSet(metadata *Metadata, conf config.MonitorCustomConfig) (*dpfilters.FilterSet, error) {
+	coreConfig := conf.MonitorConfigCore()
+
+	oldFilter, err := coreConfig.OldFilterSet()
+	if err != nil {
+		return nil, err
+	}
+
+	newFilter, err := coreConfig.NewFilterSet()
+	if err != nil {
+		return nil, err
+	}
+
+	excludeFilters := []dpfilters.DatapointFilter{oldFilter, newFilter}
+
+	if !metadata.SendAll {
+		// Make a copy of extra metrics from config so we don't alter what the user configured.
+		extraMetrics := append([]string{}, coreConfig.ExtraMetrics...)
+
+		// Monitors can add additional extra metrics to allow through such as based on config flags.
+		if monitorExtra, ok := conf.(config.ExtraMetrics); ok {
+			extraMetrics = append(extraMetrics, monitorExtra.GetExtraMetrics()...)
+		}
+
+		includedMetricsFilter, err := newMetricsFilter(metadata, extraMetrics, coreConfig.ExtraGroups)
+		if err != nil {
+			return nil, fmt.Errorf("unable to construct extraMetrics filter: %s", err)
+		}
+
+		// Prepend the included metrics filter.
+		excludeFilters = append([]dpfilters.DatapointFilter{dpfilters.Negate(includedMetricsFilter)}, excludeFilters...)
+	}
+
+	filterSet := &dpfilters.FilterSet{
+		ExcludeFilters: excludeFilters,
+	}
+
+	return filterSet, nil
+}
+
 var _ dpfilters.DatapointFilter = &extraMetricsFilter{}
 
+// Filter of datapoints based on included status and user configuration of
+// extraMetrics and extraGroups.
 type extraMetricsFilter struct {
 	metadata     *Metadata
 	extraMetrics map[string]bool
@@ -111,8 +201,8 @@ func newMetricsFilter(metadata *Metadata, extraMetrics, extraGroups []string) (*
 }
 
 func (mf *extraMetricsFilter) Matches(dp *datapoint.Datapoint) bool {
-	if mf.metadata.HasIncludedMetric(dp.Metric) {
-		// It's an included metric so send by default.
+	if mf.metadata.HasIncludedMetric(dp.Metric) || !mf.metadata.HasMetric(dp.Metric) {
+		// It's an included metric or is totally unknown so send by default.
 		return true
 	}
 

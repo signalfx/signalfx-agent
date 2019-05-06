@@ -8,7 +8,9 @@ import pytest
 import redis
 from tests.helpers.agent import Agent
 from tests.helpers.assertions import has_datapoint, tcp_socket_open
+from tests.helpers.metadata import Metadata
 from tests.helpers.util import container_ip, run_container, wait_for
+from tests.helpers.verify import verify
 
 pytestmark = [pytest.mark.collectd, pytest.mark.redis, pytest.mark.monitor_with_endpoints]
 
@@ -35,14 +37,15 @@ def run_redis(image="redis:4-alpine"):
         yield [host, redis_client]
 
 
+METADATA = Metadata.from_package("collectd/redis")
+
+
 @pytest.mark.parametrize("image", ["redis:3-alpine", "redis:4-alpine"])
 def test_redis(image):
     with run_redis(image) as [hostname, _]:
         config = MONITOR_CONFIG.substitute(host=hostname)
         with Agent.run(config) as agent:
-            assert wait_for(
-                p(has_datapoint, agent.fake_services, dimensions={"plugin": "redis_info"})
-            ), "didn't get datapoints"
+            verify(agent, METADATA.included_metrics - {"gauge.slave_repl_offset"})
 
 
 def test_redis_key_lengths():

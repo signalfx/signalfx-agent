@@ -27,7 +27,6 @@ monitors:
     collect the MBean referenced by `fetch-size-avg-per-topic`. Here is a
     [list](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/kafkaconsumer/mbeans.go)
     of metrics collected by default
-  sendAll: true
   metrics:
     # Taken from genericjmx monitor. If you want to change them update genericjmx and update
     # all other monitors that use genericjmx with this same notice.

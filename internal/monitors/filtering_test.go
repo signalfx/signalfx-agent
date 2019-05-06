@@ -90,8 +90,9 @@ func TestExtraMetrics(t *testing.T) {
 		for metric, shouldSend := range map[string]bool{
 			"dynamic-metric":                  true,
 			"some-globbed-metric":             true,
-			"unconfigured-and-unknown-metric": false,
+			"unconfigured-and-unknown-metric": true,
 			"mem.used":                        true,
+			"mem.free":                        false,
 		} {
 			dp := &datapoint.Datapoint{Metric: metric, MetricType: datapoint.Counter}
 			sent := filter.Matches(dp)

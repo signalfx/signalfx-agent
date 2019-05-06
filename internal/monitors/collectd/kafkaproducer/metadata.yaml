@@ -19,7 +19,6 @@ monitors:
     ```
 
     Note that this monitor requires Kafka v0.9.0.0 or above and collects metrics from the new producer API.
-  sendAll: true
   metrics:
     # Taken from genericjmx monitor. If you want to change them update genericjmx and update
     # all other monitors that use genericjmx with this same notice.
