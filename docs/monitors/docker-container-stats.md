@@ -77,6 +77,11 @@ The following table lists the metrics available for this monitor. Metrics that a
 | `blkio.io_serviced_recursive.sync` | cumulative |  | Number of synchronous block I/O requests |
 | `blkio.io_serviced_recursive.total` | cumulative |  | Total number of block I/O requests |
 | `blkio.io_serviced_recursive.write` | cumulative |  | Number of write requests to block devices |
+| `blkio.io_time_recursive.async` | cumulative |  |  |
+| `blkio.io_time_recursive.read` | cumulative |  |  |
+| `blkio.io_time_recursive.sync` | cumulative |  |  |
+| `blkio.io_time_recursive.total` | cumulative |  |  |
+| `blkio.io_time_recursive.write` | cumulative |  |  |
 | `blkio.io_wait_time_recursive.async` | cumulative |  |  |
 | `blkio.io_wait_time_recursive.read` | cumulative |  |  |
 | `blkio.io_wait_time_recursive.sync` | cumulative |  |  |
@@ -175,6 +180,11 @@ metricsToInclude:
     - blkio.io_serviced_recursive.sync
     - blkio.io_serviced_recursive.total
     - blkio.io_serviced_recursive.write
+    - blkio.io_time_recursive.async
+    - blkio.io_time_recursive.read
+    - blkio.io_time_recursive.sync
+    - blkio.io_time_recursive.total
+    - blkio.io_time_recursive.write
     - blkio.io_wait_time_recursive.async
     - blkio.io_wait_time_recursive.read
     - blkio.io_wait_time_recursive.sync

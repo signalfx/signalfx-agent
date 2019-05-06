@@ -101,6 +101,28 @@ The following table lists the metrics available for this monitor. Metrics that a
 | `total_time_in_ms.collection_time` | cumulative | ✔ | Amount of time spent garbage collecting in milliseconds |
 
 
+To specify custom metrics you want to monitor, add a `metricsToInclude` filter
+to the agent configuration, as shown in the code snippet below. The snippet
+lists all available custom metrics. You can copy and paste the snippet into
+your configuration file, then delete any custom metrics that you do not want
+sent.
+
+Note that some of the custom metrics require you to set a flag as well as add
+them to the list. Check the monitor configuration file to see if a flag is
+required for gathering additional metrics.
+
+```yaml
+
+metricsToInclude:
+  - metricNames:
+    - kafka.consumer.bytes-consumed-rate
+    - kafka.consumer.fetch-rate
+    - kafka.consumer.fetch-size-avg
+    - kafka.consumer.records-consumed-rate
+    - kafka.consumer.records-lag-max
+    monitorType: collectd/kafka_consumer
+```
+
 
 
 

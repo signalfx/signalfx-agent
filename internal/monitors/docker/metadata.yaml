@@ -138,6 +138,26 @@ monitors:
       included: false
       type: cumulative
       group: blkio
+    blkio.io_time_recursive.async:
+      included: false
+      type: cumulative
+      group: blkio
+    blkio.io_time_recursive.sync:
+      included: false
+      type: cumulative
+      group: blkio
+    blkio.io_time_recursive.read:
+      included: false
+      type: cumulative
+      group: blkio
+    blkio.io_time_recursive.total:
+      included: false
+      type: cumulative
+      group: blkio
+    blkio.io_time_recursive.write:
+      included: false
+      type: cumulative
+      group: blkio
     blkio.io_wait_time_recursive.async:
       included: false
       type: cumulative

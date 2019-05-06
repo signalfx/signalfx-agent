@@ -172,7 +172,15 @@ def test_docker_included():
         )
 
 
-ENHANCED_METRICS = METADATA.all_metrics - {"memory.stats.swap"}
+ENHANCED_METRICS = METADATA.all_metrics - {
+    "memory.stats.swap",
+    # The following metrics are inconsistent across docker versions
+    "blkio.io_time_recursive.async",
+    "blkio.io_time_recursive.sync",
+    "blkio.io_time_recursive.write",
+    "blkio.io_time_recursive.total",
+    "blkio.io_time_recursive.read",
+}
 
 
 def test_docker_enhanced():
