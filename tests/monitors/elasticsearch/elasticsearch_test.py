@@ -7,6 +7,7 @@ from tests.helpers.agent import Agent
 from tests.helpers.assertions import any_metric_has_any_dim_key, has_datapoint_with_dim, has_log_message, http_status
 from tests.helpers.metadata import Metadata
 from tests.helpers.util import container_ip, run_service, wait_for
+from tests.helpers.verify import verify_custom
 
 pytestmark = [pytest.mark.collectd, pytest.mark.elasticsearch, pytest.mark.monitor_with_endpoints]
 
@@ -222,25 +223,22 @@ def test_elasticsearch_with_enhanced_cluster_health_stats():
               enableEnhancedClusterHealthStats: true
             """
         )
-        with Agent.run(config) as agent:
-            want_metrics = DEFAULT_METRICS | {
-                "elasticsearch.cluster.active-primary-shards",
-                "elasticsearch.cluster.active-shards",
-                "elasticsearch.cluster.active-shards-percent",
-                "elasticsearch.cluster.delayed-unassigned-shards",
-                "elasticsearch.cluster.in-flight-fetches",
-                "elasticsearch.cluster.initializing-shards",
-                "elasticsearch.cluster.number-of-data_nodes",
-                "elasticsearch.cluster.number-of-nodes",
-                "elasticsearch.cluster.pending-tasks",
-                "elasticsearch.cluster.relocating-shards",
-                "elasticsearch.cluster.status",
-                "elasticsearch.cluster.task-max-wait-time",
-                "elasticsearch.cluster.unassigned-shards",
-            }
-            wait_for(lambda: len(agent.fake_services.datapoints) > 0)
-            got_metrics = frozenset([dp.metric for dp in agent.fake_services.datapoints])
-            assert got_metrics == want_metrics
+        expected_metrics = DEFAULT_METRICS | {
+            "elasticsearch.cluster.active-primary-shards",
+            "elasticsearch.cluster.active-shards",
+            "elasticsearch.cluster.active-shards-percent",
+            "elasticsearch.cluster.delayed-unassigned-shards",
+            "elasticsearch.cluster.in-flight-fetches",
+            "elasticsearch.cluster.initializing-shards",
+            "elasticsearch.cluster.number-of-data_nodes",
+            "elasticsearch.cluster.number-of-nodes",
+            "elasticsearch.cluster.pending-tasks",
+            "elasticsearch.cluster.relocating-shards",
+            "elasticsearch.cluster.status",
+            "elasticsearch.cluster.task-max-wait-time",
+            "elasticsearch.cluster.unassigned-shards",
+        }
+        verify_custom(config, expected_metrics)
 
 
 @pytest.mark.flaky(reruns=2)
@@ -261,11 +259,8 @@ def test_elasticsearch_with_enhanced_http_stats():
               enableEnhancedHTTPStats: true
             """
         )
-        with Agent.run(config) as agent:
-            want_metrics = DEFAULT_METRICS | {"elasticsearch.http.current_open", "elasticsearch.http.total_open"}
-            wait_for(lambda: len(agent.fake_services.datapoints) > 0)
-            got_metrics = frozenset([dp.metric for dp in agent.fake_services.datapoints])
-            assert got_metrics == want_metrics
+        expected_metrics = DEFAULT_METRICS | {"elasticsearch.http.current_open", "elasticsearch.http.total_open"}
+        verify_custom(config, expected_metrics)
 
 
 @pytest.mark.flaky(reruns=2)
@@ -286,46 +281,43 @@ def test_elasticsearch_with_enhanced_jvm_stats():
               enableEnhancedJVMStats: true
             """
         )
-        with Agent.run(config) as agent:
-            want_metrics = DEFAULT_METRICS | {
-                "elasticsearch.jvm.classes.current-loaded-count",
-                "elasticsearch.jvm.classes.total-loaded-count",
-                "elasticsearch.jvm.classes.total-unloaded-count",
-                "elasticsearch.jvm.gc.count",
-                "elasticsearch.jvm.gc.old-count",
-                "elasticsearch.jvm.gc.old-time",
-                "elasticsearch.jvm.gc.time",
-                "elasticsearch.jvm.mem.buffer_pools.direct.count",
-                "elasticsearch.jvm.mem.buffer_pools.direct.total_capacity_in_bytes",
-                "elasticsearch.jvm.mem.buffer_pools.direct.used_in_bytes",
-                "elasticsearch.jvm.mem.buffer_pools.mapped.count",
-                "elasticsearch.jvm.mem.buffer_pools.mapped.total_capacity_in_bytes",
-                "elasticsearch.jvm.mem.buffer_pools.mapped.used_in_bytes",
-                "elasticsearch.jvm.mem.heap-committed",
-                "elasticsearch.jvm.mem.heap-max",
-                "elasticsearch.jvm.mem.heap-used",
-                "elasticsearch.jvm.mem.heap-used-percent",
-                "elasticsearch.jvm.mem.non-heap-committed",
-                "elasticsearch.jvm.mem.non-heap-used",
-                "elasticsearch.jvm.mem.pools.old.max_in_bytes",
-                "elasticsearch.jvm.mem.pools.old.peak_max_in_bytes",
-                "elasticsearch.jvm.mem.pools.old.peak_used_in_bytes",
-                "elasticsearch.jvm.mem.pools.old.used_in_bytes",
-                "elasticsearch.jvm.mem.pools.survivor.max_in_bytes",
-                "elasticsearch.jvm.mem.pools.survivor.peak_max_in_bytes",
-                "elasticsearch.jvm.mem.pools.survivor.peak_used_in_bytes",
-                "elasticsearch.jvm.mem.pools.survivor.used_in_bytes",
-                "elasticsearch.jvm.mem.pools.young.max_in_bytes",
-                "elasticsearch.jvm.mem.pools.young.peak_max_in_bytes",
-                "elasticsearch.jvm.mem.pools.young.peak_used_in_bytes",
-                "elasticsearch.jvm.mem.pools.young.used_in_bytes",
-                "elasticsearch.jvm.threads.count",
-                "elasticsearch.jvm.threads.peak",
-                "elasticsearch.jvm.uptime",
-            }
-            wait_for(lambda: len(agent.fake_services.datapoints) > 0)
-            got_metrics = frozenset([dp.metric for dp in agent.fake_services.datapoints])
-            assert got_metrics == want_metrics
+        expected_metrics = DEFAULT_METRICS | {
+            "elasticsearch.jvm.classes.current-loaded-count",
+            "elasticsearch.jvm.classes.total-loaded-count",
+            "elasticsearch.jvm.classes.total-unloaded-count",
+            "elasticsearch.jvm.gc.count",
+            "elasticsearch.jvm.gc.old-count",
+            "elasticsearch.jvm.gc.old-time",
+            "elasticsearch.jvm.gc.time",
+            "elasticsearch.jvm.mem.buffer_pools.direct.count",
+            "elasticsearch.jvm.mem.buffer_pools.direct.total_capacity_in_bytes",
+            "elasticsearch.jvm.mem.buffer_pools.direct.used_in_bytes",
+            "elasticsearch.jvm.mem.buffer_pools.mapped.count",
+            "elasticsearch.jvm.mem.buffer_pools.mapped.total_capacity_in_bytes",
+            "elasticsearch.jvm.mem.buffer_pools.mapped.used_in_bytes",
+            "elasticsearch.jvm.mem.heap-committed",
+            "elasticsearch.jvm.mem.heap-max",
+            "elasticsearch.jvm.mem.heap-used",
+            "elasticsearch.jvm.mem.heap-used-percent",
+            "elasticsearch.jvm.mem.non-heap-committed",
+            "elasticsearch.jvm.mem.non-heap-used",
+            "elasticsearch.jvm.mem.pools.old.max_in_bytes",
+            "elasticsearch.jvm.mem.pools.old.peak_max_in_bytes",
+            "elasticsearch.jvm.mem.pools.old.peak_used_in_bytes",
+            "elasticsearch.jvm.mem.pools.old.used_in_bytes",
+            "elasticsearch.jvm.mem.pools.survivor.max_in_bytes",
+            "elasticsearch.jvm.mem.pools.survivor.peak_max_in_bytes",
+            "elasticsearch.jvm.mem.pools.survivor.peak_used_in_bytes",
+            "elasticsearch.jvm.mem.pools.survivor.used_in_bytes",
+            "elasticsearch.jvm.mem.pools.young.max_in_bytes",
+            "elasticsearch.jvm.mem.pools.young.peak_max_in_bytes",
+            "elasticsearch.jvm.mem.pools.young.peak_used_in_bytes",
+            "elasticsearch.jvm.mem.pools.young.used_in_bytes",
+            "elasticsearch.jvm.threads.count",
+            "elasticsearch.jvm.threads.peak",
+            "elasticsearch.jvm.uptime",
+        }
+        verify_custom(config, expected_metrics)
 
 
 @pytest.mark.flaky(reruns=2)
@@ -346,17 +338,14 @@ def test_elasticsearch_with_enhanced_process_stats():
               enableEnhancedProcessStats: true
             """
         )
-        with Agent.run(config) as agent:
-            want_metrics = DEFAULT_METRICS | {
-                "elasticsearch.process.cpu.percent",
-                "elasticsearch.process.cpu.time",
-                "elasticsearch.process.max_file_descriptors",
-                "elasticsearch.process.mem.total-virtual-size",
-                "elasticsearch.process.open_file_descriptors",
-            }
-            wait_for(lambda: len(agent.fake_services.datapoints) > 0)
-            got_metrics = frozenset([dp.metric for dp in agent.fake_services.datapoints])
-            assert got_metrics == want_metrics
+        expected_metrics = DEFAULT_METRICS | {
+            "elasticsearch.process.cpu.percent",
+            "elasticsearch.process.cpu.time",
+            "elasticsearch.process.max_file_descriptors",
+            "elasticsearch.process.mem.total-virtual-size",
+            "elasticsearch.process.open_file_descriptors",
+        }
+        verify_custom(config, expected_metrics)
 
 
 @pytest.mark.flaky(reruns=2)
@@ -377,18 +366,15 @@ def test_elasticsearch_with_enhanced_thread_pool_stats():
               enableEnhancedThreadPoolStats: true
             """
         )
-        with Agent.run(config) as agent:
-            want_metrics = DEFAULT_METRICS | {
-                "elasticsearch.thread_pool.active",
-                "elasticsearch.thread_pool.completed",
-                "elasticsearch.thread_pool.largest",
-                "elasticsearch.thread_pool.queue",
-                "elasticsearch.thread_pool.rejected",
-                "elasticsearch.thread_pool.threads",
-            }
-            wait_for(lambda: len(agent.fake_services.datapoints) > 0)
-            got_metrics = frozenset([dp.metric for dp in agent.fake_services.datapoints])
-            assert got_metrics == want_metrics
+        expected_metrics = DEFAULT_METRICS | {
+            "elasticsearch.thread_pool.active",
+            "elasticsearch.thread_pool.completed",
+            "elasticsearch.thread_pool.largest",
+            "elasticsearch.thread_pool.queue",
+            "elasticsearch.thread_pool.rejected",
+            "elasticsearch.thread_pool.threads",
+        }
+        verify_custom(config, expected_metrics)
 
 
 @pytest.mark.flaky(reruns=2)
@@ -409,17 +395,14 @@ def test_elasticsearch_with_enhanced_transport_stats():
               enableEnhancedTransportStats: true
             """
         )
-        with Agent.run(config) as agent:
-            want_metrics = DEFAULT_METRICS | {
-                "elasticsearch.transport.rx.count",
-                "elasticsearch.transport.rx.size",
-                "elasticsearch.transport.server_open",
-                "elasticsearch.transport.tx.count",
-                "elasticsearch.transport.tx.size",
-            }
-            wait_for(lambda: len(agent.fake_services.datapoints) > 0)
-            got_metrics = frozenset([dp.metric for dp in agent.fake_services.datapoints])
-            assert got_metrics == want_metrics
+        expected_metrics = DEFAULT_METRICS | {
+            "elasticsearch.transport.rx.count",
+            "elasticsearch.transport.rx.size",
+            "elasticsearch.transport.server_open",
+            "elasticsearch.transport.tx.count",
+            "elasticsearch.transport.tx.size",
+        }
+        verify_custom(config, expected_metrics)
 
 
 # TODO: fix this failing test

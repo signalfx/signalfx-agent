@@ -143,8 +143,29 @@ func (sinfo *sharedInfo) getAllSharedInfo() (map[string]string, map[string]strin
 }
 
 // Configure monitor
-func (m *Monitor) Configure(conf *Config) error {
+func (m *Monitor) Configure(c *Config) error {
 	m.logger = utils.NewThrottledLogger(log.WithFields(log.Fields{"monitorType": monitorType}), 20*time.Second)
+
+	// conf is a config shallow copy that will be mutated and used to configure monitor
+	conf := &Config{}
+	*conf = *c
+	// Setting metric group flags in conf for configured extra metrics
+	for _, metric := range conf.EnabledMetrics {
+		switch metricSet[metric].Group {
+		case groupCluster:
+			conf.EnableEnhancedClusterHealthStats = true
+		case groupNodeHTTP:
+			conf.EnableEnhancedHTTPStats = true
+		case groupNodeJvm:
+			conf.EnableEnhancedJVMStats = true
+		case groupNodeProcess:
+			conf.EnableEnhancedProcessStats = true
+		case groupNodeThreadPool:
+			conf.EnableEnhancedThreadPoolStats = true
+		case groupNodeTransport:
+			conf.EnableEnhancedTransportStats = true
+		}
+	}
 
 	esClient := client.NewESClient(conf.Host, conf.Port, conf.UseHTTPS, conf.Username, conf.Password)
 	m.ctx, m.cancel = context.WithCancel(context.Background())

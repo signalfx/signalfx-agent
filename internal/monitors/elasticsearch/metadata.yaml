@@ -385,27 +385,27 @@ monitors:
       description: Number of Tasks in thread pool
       included: false
       type: gauge
-      group: node/thread_pool
+      group: node/thread-pool
     elasticsearch.thread_pool.completed:
       description: Number of threads completed in thread pool
       included: false
       type: cumulative
-      group: node/thread_pool
+      group: node/thread-pool
     elasticsearch.thread_pool.threads:
       description: Number of Threads in thread pool
       included: false
       type: cumulative
-      group: node/thread_pool
+      group: node/thread-pool
     elasticsearch.thread_pool.active:
       description: Number of active threads
       included: false
       type: gauge
-      group: node/thread_pool
+      group: node/thread-pool
     elasticsearch.thread_pool.rejected:
       description: Number of rejected threads in thread pool
       included: true
       type: cumulative
-      group: node/thread_pool
+      group: node/thread-pool
     elasticsearch.indices.merges.current:
       description: Number of currently active segment merges
       included: true
@@ -415,12 +415,12 @@ monitors:
       description: Highest active threads in thread pool
       included: false
       type: gauge
-      group: node/thread_pool
+      group: node/thread-pool
     elasticsearch.indices.query-cache.miss-count:
       description: Number of query cache misses
       included: false
       type: cumulative
-      group: indices/request_cache
+      group: indices/request-cache
     elasticsearch.indices.refresh.time:
       description: Total time spent on index refreshes
       included: false
@@ -435,7 +435,7 @@ monitors:
       description: Number of request cache evictions
       included: false
       type: cumulative
-      group: indices/request_cache
+      group: indices/request-cache
     elasticsearch.indices.search.fetch-time:
       description: Total time spent on query fetches
       included: false
@@ -460,7 +460,7 @@ monitors:
       description: Number of evicttions from filter cache
       included: false
       type: cumulative
-      group: indices/filter_cache
+      group: indices/filter-cache
     elasticsearch.indices.indexing.delete-time:
       description: Time spent deleting documents from an index
       included: false
@@ -545,12 +545,12 @@ monitors:
       description: Size of id cache (in bytes)
       included: false
       type: gauge
-      group: indices/id_cache
+      group: indices/id-cache
     elasticsearch.indices.query-cache.memory-size:
       description: Size of query cache (in bytes)
       included: false
       type: gauge
-      group: indices/query_cache
+      group: indices/query-cache
     elasticsearch.indices.fielddata.evictions:
       description: Number of evictions from fielddata cache
       included: false
@@ -575,12 +575,12 @@ monitors:
       description: Number of query cache evictions
       included: false
       type: cumulative
-      group: indices/query_cache
+      group: indices/query-cache
     elasticsearch.indices.query-cache.total-count:
       description: Total number of items in the query cache
       included: false
       type: cumulative
-      group: indices/query_cache
+      group: indices/query-cache
     elasticsearch.indices.docs.count:
       description: Number of docs
       included: true
@@ -615,7 +615,7 @@ monitors:
       description: Filter cache size (in bytes)
       included: false
       type: gauge
-      group: indices/filter_cache
+      group: indices/filter-cache
     elasticsearch.indices.get.total:
       description: Total number of get requests
       included: true
@@ -645,7 +645,7 @@ monitors:
       description: Memory used by request cache (in bytes)
       included: false
       type: gauge
-      group: indices/request_cache
+      group: indices/request-cache
     elasticsearch.indices.suggest.time:
       description: Total time spent in suggest requests
       included: false
@@ -685,7 +685,7 @@ monitors:
       description: Number of request cache misses
       included: false
       type: cumulative
-      group: indices/request_cache
+      group: indices/request-cache
     elasticsearch.indices.search.query-current:
       description: Number of currently active queries
       included: false
@@ -725,12 +725,12 @@ monitors:
       description: Number of request cache hits
       included: false
       type: cumulative
-      group: indices/request_cache
+      group: indices/request-cache
     elasticsearch.indices.query-cache.cache-count:
       description: Number of items in query cache
       included: false
       type: gauge
-      group: indices/query_cache
+      group: indices/query-cache
     elasticsearch.indices.suggest.total:
       description: Total number of suggest requests
       included: false
@@ -740,7 +740,7 @@ monitors:
       description: Size of query cache (in bytes)
       included: false
       type: gauge
-      group: indices/query_cache
+      group: indices/query-cache
     elasticsearch.indices.segments.points-memory-size:
       description: Memory used by points
       included: false
@@ -810,7 +810,7 @@ monitors:
       description: Number of query cache hits
       included: false
       type: cumulative
-      group: indices/query_cache
+      group: indices/query-cache
     elasticsearch.indices.segments.terms-memory-size:
       description: Memory used by terms (in bytes)
       included: false

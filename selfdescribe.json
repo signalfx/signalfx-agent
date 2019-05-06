@@ -14732,13 +14732,13 @@
         "elasticsearch.indices.filter-cache.evictions": {
           "type": "cumulative",
           "description": "Number of evicttions from filter cache",
-          "group": "indices/filter_cache",
+          "group": "indices/filter-cache",
           "included": false
         },
         "elasticsearch.indices.filter-cache.memory-size": {
           "type": "gauge",
           "description": "Filter cache size (in bytes)",
-          "group": "indices/filter_cache",
+          "group": "indices/filter-cache",
           "included": false
         },
         "elasticsearch.indices.flush.periodic": {
@@ -14804,7 +14804,7 @@
         "elasticsearch.indices.id-cache.memory-size": {
           "type": "gauge",
           "description": "Size of id cache (in bytes)",
-          "group": "indices/id_cache",
+          "group": "indices/id-cache",
           "included": false
         },
         "elasticsearch.indices.indexing.delete-current": {
@@ -14948,43 +14948,43 @@
         "elasticsearch.indices.query-cache.cache-count": {
           "type": "gauge",
           "description": "Number of items in query cache",
-          "group": "indices/query_cache",
+          "group": "indices/query-cache",
           "included": false
         },
         "elasticsearch.indices.query-cache.cache-size": {
           "type": "gauge",
           "description": "Size of query cache (in bytes)",
-          "group": "indices/query_cache",
+          "group": "indices/query-cache",
           "included": false
         },
         "elasticsearch.indices.query-cache.evictions": {
           "type": "cumulative",
           "description": "Number of query cache evictions",
-          "group": "indices/query_cache",
+          "group": "indices/query-cache",
           "included": false
         },
         "elasticsearch.indices.query-cache.hit-count": {
           "type": "cumulative",
           "description": "Number of query cache hits",
-          "group": "indices/query_cache",
+          "group": "indices/query-cache",
           "included": false
         },
         "elasticsearch.indices.query-cache.memory-size": {
           "type": "gauge",
           "description": "Size of query cache (in bytes)",
-          "group": "indices/query_cache",
+          "group": "indices/query-cache",
           "included": false
         },
         "elasticsearch.indices.query-cache.miss-count": {
           "type": "cumulative",
           "description": "Number of query cache misses",
-          "group": "indices/request_cache",
+          "group": "indices/request-cache",
           "included": false
         },
         "elasticsearch.indices.query-cache.total-count": {
           "type": "cumulative",
           "description": "Total number of items in the query cache",
-          "group": "indices/query_cache",
+          "group": "indices/query-cache",
           "included": false
         },
         "elasticsearch.indices.recovery.current-as-source": {
@@ -15026,25 +15026,25 @@
         "elasticsearch.indices.request-cache.evictions": {
           "type": "cumulative",
           "description": "Number of request cache evictions",
-          "group": "indices/request_cache",
+          "group": "indices/request-cache",
           "included": false
         },
         "elasticsearch.indices.request-cache.hit-count": {
           "type": "cumulative",
           "description": "Number of request cache hits",
-          "group": "indices/request_cache",
+          "group": "indices/request-cache",
           "included": false
         },
         "elasticsearch.indices.request-cache.memory-size": {
           "type": "gauge",
           "description": "Memory used by request cache (in bytes)",
-          "group": "indices/request_cache",
+          "group": "indices/request-cache",
           "included": false
         },
         "elasticsearch.indices.request-cache.miss-count": {
           "type": "cumulative",
           "description": "Number of request cache misses",
-          "group": "indices/request_cache",
+          "group": "indices/request-cache",
           "included": false
         },
         "elasticsearch.indices.search.fetch-current": {
@@ -15512,37 +15512,37 @@
         "elasticsearch.thread_pool.active": {
           "type": "gauge",
           "description": "Number of active threads",
-          "group": "node/thread_pool",
+          "group": "node/thread-pool",
           "included": false
         },
         "elasticsearch.thread_pool.completed": {
           "type": "cumulative",
           "description": "Number of threads completed in thread pool",
-          "group": "node/thread_pool",
+          "group": "node/thread-pool",
           "included": false
         },
         "elasticsearch.thread_pool.largest": {
           "type": "gauge",
           "description": "Highest active threads in thread pool",
-          "group": "node/thread_pool",
+          "group": "node/thread-pool",
           "included": false
         },
         "elasticsearch.thread_pool.queue": {
           "type": "gauge",
           "description": "Number of Tasks in thread pool",
-          "group": "node/thread_pool",
+          "group": "node/thread-pool",
           "included": false
         },
         "elasticsearch.thread_pool.rejected": {
           "type": "cumulative",
           "description": "Number of rejected threads in thread pool",
-          "group": "node/thread_pool",
+          "group": "node/thread-pool",
           "included": true
         },
         "elasticsearch.thread_pool.threads": {
           "type": "cumulative",
           "description": "Number of Threads in thread pool",
-          "group": "node/thread_pool",
+          "group": "node/thread-pool",
           "included": false
         },
         "elasticsearch.transport.rx.count": {
