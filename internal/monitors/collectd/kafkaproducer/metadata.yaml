@@ -21,6 +21,41 @@ monitors:
     Note that this monitor requires Kafka v0.9.0.0 or above and collects metrics from the new producer API.
   sendAll: true
   metrics:
+    # Taken from genericjmx monitor. If you want to change them update genericjmx and update
+    # all other monitors that use genericjmx with this same notice.
+    gauge.jvm.threads.count:
+      description: Number of JVM threads
+      included: true
+      type: gauge
+    gauge.loaded_classes:
+      description: Number of classes loaded in the JVM
+      included: true
+      type: gauge
+    invocations:
+      description: Total number of garbage collection events
+      included: true
+      type: cumulative
+    jmx_memory.committed:
+      description: Amount of memory guaranteed to be available in bytes
+      included: true
+      type: gauge
+    jmx_memory.max:
+      description: Maximum amount of memory that can be used in bytes
+      included: true
+      type: gauge
+    jmx_memory.used:
+      description: Current memory usage in bytes
+      included: true
+      type: gauge
+    total_time_in_ms.collection_time:
+      description: Amount of time spent garbage collecting in milliseconds
+      included: true
+      type: cumulative
+    jmx_memory.init:
+      description: Amount of initial memory at startup in bytes
+      included: true
+      type: gauge
+
     kafka.producer.byte-rate:
       description: Average number of bytes sent per second for a topic. This metric
         has client-id and topic dimensions.

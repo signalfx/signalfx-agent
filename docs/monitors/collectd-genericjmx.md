@@ -5,7 +5,7 @@
 Monitors Java services that expose metrics on
 JMX using collectd's GenericJMX plugin.
 
-See the following for more information 
+See the following for more information
 - https://github.com/signalfx/integrations/tree/master/collectd-genericjmx
 - https://collectd.org/documentation/manpages/collectd-java.5.shtml
 - https://collectd.org/wiki/index.php/Plugin:GenericJMX
@@ -138,6 +138,38 @@ The **nested** `values` config object has the following fields:
 
 
 
+## Metrics
+
+The following table lists the metrics available for this monitor. Metrics that are marked as Included are standard metrics and are monitored by default.
+
+| Name | Type | Included | Description |
+| ---  | ---  | ---    | ---         |
+| `gauge.jvm.threads.count` | gauge | ✔ | Number of JVM threads |
+| `gauge.loaded_classes` | gauge | ✔ | Number of classes loaded in the JVM |
+| `invocations` | cumulative | ✔ | Total number of garbage collection events |
+| `jmx_memory.committed` | gauge | ✔ | Amount of memory guaranteed to be available in bytes |
+| `jmx_memory.init` | gauge | ✔ | Amount of initial memory at startup in bytes |
+| `jmx_memory.max` | gauge | ✔ | Maximum amount of memory that can be used in bytes |
+| `jmx_memory.used` | gauge | ✔ | Current memory usage in bytes |
+| `total_time_in_ms.collection_time` | cumulative | ✔ | Amount of time spent garbage collecting in milliseconds |
+
+
+To specify custom metrics you want to monitor, add a `metricsToInclude` filter
+to the agent configuration, as shown in the code snippet below. The snippet
+lists all available custom metrics. You can copy and paste the snippet into
+your configuration file, then delete any custom metrics that you do not want
+sent.
+
+Note that some of the custom metrics require you to set a flag as well as add
+them to the list. Check the monitor configuration file to see if a flag is
+required for gathering additional metrics.
+
+```yaml
+
+metricsToInclude:
+  - metricNames:
+    monitorType: collectd/genericjmx
+```
 
 
 

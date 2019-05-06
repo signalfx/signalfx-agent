@@ -1298,6 +1298,54 @@
           "description": "The total time (ms) that messages have spent blocked by Flow Control",
           "group": null,
           "included": false
+        },
+        "gauge.jvm.threads.count": {
+          "type": "gauge",
+          "description": "Number of JVM threads",
+          "group": null,
+          "included": true
+        },
+        "gauge.loaded_classes": {
+          "type": "gauge",
+          "description": "Number of classes loaded in the JVM",
+          "group": null,
+          "included": true
+        },
+        "invocations": {
+          "type": "cumulative",
+          "description": "Total number of garbage collection events",
+          "group": null,
+          "included": true
+        },
+        "jmx_memory.committed": {
+          "type": "gauge",
+          "description": "Amount of memory guaranteed to be available in bytes",
+          "group": null,
+          "included": true
+        },
+        "jmx_memory.init": {
+          "type": "gauge",
+          "description": "Amount of initial memory at startup in bytes",
+          "group": null,
+          "included": true
+        },
+        "jmx_memory.max": {
+          "type": "gauge",
+          "description": "Maximum amount of memory that can be used in bytes",
+          "group": null,
+          "included": true
+        },
+        "jmx_memory.used": {
+          "type": "gauge",
+          "description": "Current memory usage in bytes",
+          "group": null,
+          "included": true
+        },
+        "total_time_in_ms.collection_time": {
+          "type": "cumulative",
+          "description": "Amount of time spent garbage collecting in milliseconds",
+          "group": null,
+          "included": true
         }
       },
       "properties": null,
@@ -1806,6 +1854,54 @@
         "gauge.cassandra.Storage.TotalHintsInProgress.Count": {
           "type": "gauge",
           "description": "Total pending hints",
+          "group": null,
+          "included": true
+        },
+        "gauge.jvm.threads.count": {
+          "type": "gauge",
+          "description": "Number of JVM threads",
+          "group": null,
+          "included": true
+        },
+        "gauge.loaded_classes": {
+          "type": "gauge",
+          "description": "Number of classes loaded in the JVM",
+          "group": null,
+          "included": true
+        },
+        "invocations": {
+          "type": "cumulative",
+          "description": "Total number of garbage collection events",
+          "group": null,
+          "included": true
+        },
+        "jmx_memory.committed": {
+          "type": "gauge",
+          "description": "Amount of memory guaranteed to be available in bytes",
+          "group": null,
+          "included": true
+        },
+        "jmx_memory.init": {
+          "type": "gauge",
+          "description": "Amount of initial memory at startup in bytes",
+          "group": null,
+          "included": true
+        },
+        "jmx_memory.max": {
+          "type": "gauge",
+          "description": "Maximum amount of memory that can be used in bytes",
+          "group": null,
+          "included": true
+        },
+        "jmx_memory.used": {
+          "type": "gauge",
+          "description": "Current memory usage in bytes",
+          "group": null,
+          "included": true
+        },
+        "total_time_in_ms.collection_time": {
+          "type": "cumulative",
+          "description": "Amount of time spent garbage collecting in milliseconds",
           "group": null,
           "included": true
         }
@@ -3330,7 +3426,86 @@
       "dimensions": null,
       "doc": "Pulls container stats from the Docker Engine.  We\nstrongly recommend using the\n[docker-container-stats](./docker-container-stats.md) monitor instead, as it\nwill scale to large number of containers much better.\n\nSee https://github.com/signalfx/docker-collectd-plugin.\n",
       "groups": null,
-      "metrics": null,
+      "metrics": {
+        "blkio.io_service_bytes_recursive.read": {
+          "type": "cumulative",
+          "description": "",
+          "group": null,
+          "included": true
+        },
+        "blkio.io_service_bytes_recursive.write": {
+          "type": "cumulative",
+          "description": "",
+          "group": null,
+          "included": true
+        },
+        "cpu.idle": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "included": true
+        },
+        "cpu.usage.system": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "included": true
+        },
+        "cpu.usage.total": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "included": true
+        },
+        "memory.buffered": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "included": true
+        },
+        "memory.cached": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "included": true
+        },
+        "memory.free": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "included": true
+        },
+        "memory.usage.limit": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "included": true
+        },
+        "memory.usage.total": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "included": true
+        },
+        "memory.used": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "included": true
+        },
+        "network.usage.rx_bytes": {
+          "type": "cumulative",
+          "description": "",
+          "group": null,
+          "included": true
+        },
+        "network.usage.tx_bytes": {
+          "type": "cumulative",
+          "description": "",
+          "group": null,
+          "included": true
+        }
+      },
       "properties": null,
       "metricsExhaustive": false,
       "config": {
@@ -4070,9 +4245,58 @@
       "monitorType": "collectd/genericjmx",
       "sendAll": false,
       "dimensions": null,
-      "doc": "Monitors Java services that expose metrics on\nJMX using collectd's GenericJMX plugin.\n\nSee the following for more information \n- https://github.com/signalfx/integrations/tree/master/collectd-genericjmx\n- https://collectd.org/documentation/manpages/collectd-java.5.shtml\n- https://collectd.org/wiki/index.php/Plugin:GenericJMX\n\nExample (gets the thread count from a standard JMX MBean available on all\nJava JMX-enabled apps):\n\n```yaml\n\nmonitors:\n - type: collectd/genericjmx\n   host: my-java-app\n   port: 7099\n   mBeanDefinitions:\n     threading:\n       objectName: java.lang:type=Threading\n       values:\n       - type: gauge\n         table: false\n         instancePrefix: jvm.threads.count\n         attribute: ThreadCount\n```\n## Troubleshooting\n\nExposing JMX in your Java application can be a tricky process.  Oracle has a\n[helpful guide for Java\n8](https://docs.oracle.com/javase/8/docs/technotes/guides/management/agent.html)\nthat explains how to expose JMX metrics automatically by setting Java\nproperties on your application.  Here are a set of Java properties that are\nknown to work with Java 7+:\n\n```\njava \\\n  -Dcom.sun.management.jmxremote.port=5000 \\\n  -Dcom.sun.management.jmxremote.authenticate=false \\\n  -Dcom.sun.management.jmxremote.ssl=false \\\n  -Dcom.sun.management.jmxremote.rmi.port=5000 \\\n  ...\n```\n\nThis should work as long as the agent is allowed to access port 5000 on the\nJava app's host (i.e. there is no firewall blocking it).  Note that this\ndoes not enable authentication or encryption, but these can be added if\ndesired.\n\nAssuming you have the `host` config set to `172.17.0.3` and the port set to\n`5000` (this is a totally arbitrary port and your JMX app will probably be\nsomething different), here are some errors you might receive and their\nmeanings:\n\n### Connection Refused\n```\nCreating MBean server connection failed: java.io.IOException: Failed to retrieve RMIServer stub: javax.naming.ServiceUnavailableException [Root exception is java.rmi.ConnectException: Connection refused to host: 172.17.0.3; nested exception is:\n     java.net.ConnectException: Connection refused (Connection refused)]\n```\n\nThis error indicates that the JMX connect port is not open on the specified\nhost.  Confirm (via netstat/ss or some other tool) that this port\nis indeed open on the configured host, and is listening on an appropriate\naddress (i.e. if the agent is running on a remote server then JMX should not\nbe listening on localhost only).\n\n### RMI Connection Issues\n\n```\nCreating MBean server connection failed: java.rmi.ConnectException: Connection refused to host: 172.17.0.3; nested exception is:\n     java.net.ConnectException: Connection timed out (Connection timed out)\n```\n\nThis indicates that the JMX connect port was reached successfully, but the\nRMI port that it was directed to is being blocked, probably by a firewall.\nThe easiest thing to do here is to make sure the\n`com.sun.management.jmxremote.rmi.port` property in your Java app is set to\nthe same port as the JMX connect port.  There may be other variations of\nthis that say `Connection reset` or `Connection refused` but they all\ngeneraly indicate a similar cause.\n\n## Useful links\n\n - https://realjenius.com/2012/11/21/java7-jmx-tunneling-freedom/\n",
+      "doc": "Monitors Java services that expose metrics on\nJMX using collectd's GenericJMX plugin.\n\nSee the following for more information\n- https://github.com/signalfx/integrations/tree/master/collectd-genericjmx\n- https://collectd.org/documentation/manpages/collectd-java.5.shtml\n- https://collectd.org/wiki/index.php/Plugin:GenericJMX\n\nExample (gets the thread count from a standard JMX MBean available on all\nJava JMX-enabled apps):\n\n```yaml\n\nmonitors:\n - type: collectd/genericjmx\n   host: my-java-app\n   port: 7099\n   mBeanDefinitions:\n     threading:\n       objectName: java.lang:type=Threading\n       values:\n       - type: gauge\n         table: false\n         instancePrefix: jvm.threads.count\n         attribute: ThreadCount\n```\n## Troubleshooting\n\nExposing JMX in your Java application can be a tricky process.  Oracle has a\n[helpful guide for Java\n8](https://docs.oracle.com/javase/8/docs/technotes/guides/management/agent.html)\nthat explains how to expose JMX metrics automatically by setting Java\nproperties on your application.  Here are a set of Java properties that are\nknown to work with Java 7+:\n\n```\njava \\\n  -Dcom.sun.management.jmxremote.port=5000 \\\n  -Dcom.sun.management.jmxremote.authenticate=false \\\n  -Dcom.sun.management.jmxremote.ssl=false \\\n  -Dcom.sun.management.jmxremote.rmi.port=5000 \\\n  ...\n```\n\nThis should work as long as the agent is allowed to access port 5000 on the\nJava app's host (i.e. there is no firewall blocking it).  Note that this\ndoes not enable authentication or encryption, but these can be added if\ndesired.\n\nAssuming you have the `host` config set to `172.17.0.3` and the port set to\n`5000` (this is a totally arbitrary port and your JMX app will probably be\nsomething different), here are some errors you might receive and their\nmeanings:\n\n### Connection Refused\n```\nCreating MBean server connection failed: java.io.IOException: Failed to retrieve RMIServer stub: javax.naming.ServiceUnavailableException [Root exception is java.rmi.ConnectException: Connection refused to host: 172.17.0.3; nested exception is:\n     java.net.ConnectException: Connection refused (Connection refused)]\n```\n\nThis error indicates that the JMX connect port is not open on the specified\nhost.  Confirm (via netstat/ss or some other tool) that this port\nis indeed open on the configured host, and is listening on an appropriate\naddress (i.e. if the agent is running on a remote server then JMX should not\nbe listening on localhost only).\n\n### RMI Connection Issues\n\n```\nCreating MBean server connection failed: java.rmi.ConnectException: Connection refused to host: 172.17.0.3; nested exception is:\n     java.net.ConnectException: Connection timed out (Connection timed out)\n```\n\nThis indicates that the JMX connect port was reached successfully, but the\nRMI port that it was directed to is being blocked, probably by a firewall.\nThe easiest thing to do here is to make sure the\n`com.sun.management.jmxremote.rmi.port` property in your Java app is set to\nthe same port as the JMX connect port.  There may be other variations of\nthis that say `Connection reset` or `Connection refused` but they all\ngeneraly indicate a similar cause.\n\n## Useful links\n\n - https://realjenius.com/2012/11/21/java7-jmx-tunneling-freedom/\n",
       "groups": null,
-      "metrics": null,
+      "metrics": {
+        "gauge.jvm.threads.count": {
+          "type": "gauge",
+          "description": "Number of JVM threads",
+          "group": null,
+          "included": true
+        },
+        "gauge.loaded_classes": {
+          "type": "gauge",
+          "description": "Number of classes loaded in the JVM",
+          "group": null,
+          "included": true
+        },
+        "invocations": {
+          "type": "cumulative",
+          "description": "Total number of garbage collection events",
+          "group": null,
+          "included": true
+        },
+        "jmx_memory.committed": {
+          "type": "gauge",
+          "description": "Amount of memory guaranteed to be available in bytes",
+          "group": null,
+          "included": true
+        },
+        "jmx_memory.init": {
+          "type": "gauge",
+          "description": "Amount of initial memory at startup in bytes",
+          "group": null,
+          "included": true
+        },
+        "jmx_memory.max": {
+          "type": "gauge",
+          "description": "Maximum amount of memory that can be used in bytes",
+          "group": null,
+          "included": true
+        },
+        "jmx_memory.used": {
+          "type": "gauge",
+          "description": "Current memory usage in bytes",
+          "group": null,
+          "included": true
+        },
+        "total_time_in_ms.collection_time": {
+          "type": "cumulative",
+          "description": "Amount of time spent garbage collecting in milliseconds",
+          "group": null,
+          "included": true
+        }
+      },
       "properties": null,
       "metricsExhaustive": false,
       "config": {
@@ -4281,7 +4505,206 @@
       "dimensions": null,
       "doc": "Collects metrics about a Hadoop cluster using the\n[collectd Hadoop Python plugin](https://github.com/signalfx/collectd-hadoop).\nAlso see\nhttps://github.com/signalfx/integrations/tree/master/collectd-hadoop.\n\nThe `collectd/hadoop` monitor will collect metrics from the Resource Manager\nREST API for the following:\n- Cluster Metrics\n- Cluster Scheduler\n- Cluster Applications\n- Cluster Nodes\n- MapReduce Jobs\n\nSample YAML configuration:\n\n```yaml\nmonitors:\n- type: collectd/hadoop\n  host: 127.0.0.1\n  port: 8088\n```\n\nIf a remote JMX port is exposed in the hadoop cluster, then\nyou may also configure the [collectd/hadoopjmx](https://github.com/signalfx/signalfx-agent/tree/master/docs/monitors/collectd/hadoopjmx)\nmonitor to collect additional metrics about the hadoop cluster.\n",
       "groups": null,
-      "metrics": null,
+      "metrics": {
+        "gauge.hadoop.cluster.metrics.active_nodes": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "included": true
+        },
+        "gauge.hadoop.cluster.metrics.allocated_mb": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "included": true
+        },
+        "gauge.hadoop.cluster.metrics.allocated_virtual_cores": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "included": true
+        },
+        "gauge.hadoop.cluster.metrics.apps_completed": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "included": true
+        },
+        "gauge.hadoop.cluster.metrics.apps_failed": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "included": true
+        },
+        "gauge.hadoop.cluster.metrics.apps_running": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "included": true
+        },
+        "gauge.hadoop.cluster.metrics.apps_submitted": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "included": true
+        },
+        "gauge.hadoop.cluster.metrics.available_mb": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "included": true
+        },
+        "gauge.hadoop.cluster.metrics.available_virtual_cores": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "included": true
+        },
+        "gauge.hadoop.cluster.metrics.decommissioned_nodes": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "included": true
+        },
+        "gauge.hadoop.cluster.metrics.lost_nodes": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "included": true
+        },
+        "gauge.hadoop.cluster.metrics.rebooted_nodes": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "included": true
+        },
+        "gauge.hadoop.cluster.metrics.reserved_mb": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "included": true
+        },
+        "gauge.hadoop.cluster.metrics.reserved_virtual_cores": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "included": true
+        },
+        "gauge.hadoop.cluster.metrics.total_mb": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "included": true
+        },
+        "gauge.hadoop.cluster.metrics.total_virtual_cores": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "included": true
+        },
+        "gauge.hadoop.cluster.metrics.unhealthy_nodes": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "included": true
+        },
+        "gauge.hadoop.mapreduce.job.elapsedTime": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "included": true
+        },
+        "gauge.hadoop.mapreduce.job.failedMapAttempts": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "included": true
+        },
+        "gauge.hadoop.mapreduce.job.failedReduceAttempts": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "included": true
+        },
+        "gauge.hadoop.mapreduce.job.mapsTotal": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "included": true
+        },
+        "gauge.hadoop.mapreduce.job.successfulMapAttempts": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "included": true
+        },
+        "gauge.hadoop.mapreduce.job.successfulReduceAttempts": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "included": true
+        },
+        "gauge.hadoop.resource.manager.apps.allocatedMB": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "included": true
+        },
+        "gauge.hadoop.resource.manager.apps.allocatedVCores": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "included": true
+        },
+        "gauge.hadoop.resource.manager.apps.clusterUsagePercentage": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "included": true
+        },
+        "gauge.hadoop.resource.manager.apps.memorySeconds": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "included": true
+        },
+        "gauge.hadoop.resource.manager.apps.priority": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "included": true
+        },
+        "gauge.hadoop.resource.manager.apps.progress": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "included": true
+        },
+        "gauge.hadoop.resource.manager.apps.queueUsagePercentage": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "included": true
+        },
+        "gauge.hadoop.resource.manager.apps.runningContainers": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "included": true
+        },
+        "gauge.hadoop.resource.manager.apps.vcoreSeconds": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "included": true
+        },
+        "gauge.hadoop.resource.manager.scheduler.leaf.queue.usedCapacity": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "included": true
+        }
+      },
       "properties": null,
       "metricsExhaustive": false,
       "config": {
@@ -4322,9 +4745,214 @@
       "monitorType": "collectd/hadoopjmx",
       "sendAll": false,
       "dimensions": null,
-      "doc": "Collects metrics about a Hadoop cluster using\nusing collectd's GenericJMX plugin.\n\nAlso see\nhttps://github.com/signalfx/integrations/tree/master/collectd-hadoop.\n\n\u003eTo enable JMX in Hadoop, add the following JVM options to hadoop-env.sh and yarn-env.sh respectively\n\n**hadoop-env.sh:**\n```\nexport HADOOP_NAMENODE_OPTS=\"-Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.port=5677 $HADOOP_NAMENODE_OPTS\"\nexport HADOOP_DATANODE_OPTS=\"-Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.port=5679 $HADOOP_DATANODE_OPTS\"\n```\n\n**yarn-env.sh:**\n```\nexport YARN_NODEMANAGER_OPTS=\"-Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.port=8002 $YARN_NODEMANAGER_OPTS\"\nexport YARN_RESOURCEMANAGER_OPTS=\"-Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.port=5680 $YARN_RESOURCEMANAGER_OPTS\"\n```\n\nThis monitor has a set of built in MBeans configured for:\n- [Name Nodes](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/hadoopjmx/nameNodeMBeans.go)\n- [Resource Manager](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/hadoopjmx/resourceManagerMBeans.go)\n- [Node Manager](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/hadoopjmx/nodeManagerMBeans.go)\n- [Data Nodes](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/hadoopjmx/dataNodeMBeans.go)\n\nSample YAML configuration:\n\n\tName Node\n```yaml\nmonitors:\n- type: collectd/hadoopjmx\n  host: 127.0.0.1\n  port: 5677\n  nodeType: nameNode\n```\n\n\tResource Manager\n```yaml\nmonitors:\n- type: collectd/hadoopjmx\n  host: 127.0.0.1\n  port: 5680\n  nodeType: resourceManager\n```\n\n\tNode Manager\n```yaml\nmonitors:\n- type: collectd/hadoopjmx\n  host: 127.0.0.1\n  port: 8002\n  nodeType: nodeManager\n```\n\n\tData Node\n```yaml\nmonitors:\n- type: collectd/hadoopjmx\n  host: 127.0.0.1\n  port: 5679\n  nodeType: dataNode\n```\n\nYou may also configure the [collectd/hadoop](https://github.com/signalfx/signalfx-agent/tree/master/docs/monitors/collectd/hadoop)\nmonitor to collect additional metrics about the hadoop cluster from the REST API\n",
+      "doc": "Collects metrics about a Hadoop cluster using using collectd's GenericJMX plugin.\n\nAlso see https://github.com/signalfx/integrations/tree/master/collectd-hadoop.\n\nTo enable JMX in Hadoop, add the following JVM options to hadoop-env.sh and yarn-env.sh respectively\n\n**hadoop-env.sh:**\n```sh\nexport HADOOP_NAMENODE_OPTS=\"-Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.port=5677 $HADOOP_NAMENODE_OPTS\"\nexport HADOOP_DATANODE_OPTS=\"-Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.port=5679 $HADOOP_DATANODE_OPTS\"\n```\n\n**yarn-env.sh:**\n```sh\nexport YARN_NODEMANAGER_OPTS=\"-Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.port=8002 $YARN_NODEMANAGER_OPTS\"\nexport YARN_RESOURCEMANAGER_OPTS=\"-Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.port=5680 $YARN_RESOURCEMANAGER_OPTS\"\n```\n\nThis monitor has a set of built in MBeans configured for:\n  - [Name Nodes](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/hadoopjmx/nameNodeMBeans.go)\n  - [Resource Manager](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/hadoopjmx/resourceManagerMBeans.go)\n  - [Node Manager](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/hadoopjmx/nodeManagerMBeans.go)\n  - [Data Nodes](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/hadoopjmx/dataNodeMBeans.go)\n\nSample YAML configuration:\n\nName Node\n```yaml\nmonitors:\n- type: collectd/hadoopjmx\n  host: 127.0.0.1\n  port: 5677\n  nodeType: nameNode\n```\n\nResource Manager\n```yaml\nmonitors:\n- type: collectd/hadoopjmx\n  host: 127.0.0.1\n  port: 5680\n  nodeType: resourceManager\n```\n\nNode Manager\n```yaml\nmonitors:\n- type: collectd/hadoopjmx\n  host: 127.0.0.1\n  port: 8002\n  nodeType: nodeManager\n```\n\nData Node\n```yaml\nmonitors:\n- type: collectd/hadoopjmx\n  host: 127.0.0.1\n  port: 5679\n  nodeType: dataNode\n```\n\nYou may also configure the [collectd/hadoop](https://github.com/signalfx/signalfx-agent/tree/master/docs/monitors/collectd/hadoop)\nmonitor to collect additional metrics about the hadoop cluster from the REST API\n",
       "groups": null,
-      "metrics": null,
+      "metrics": {
+        "counter.hadoop-namenode-gc-count": {
+          "type": "cumulative",
+          "description": "",
+          "group": null,
+          "included": true
+        },
+        "counter.hadoop-namenode-gc-time": {
+          "type": "cumulative",
+          "description": "",
+          "group": null,
+          "included": true
+        },
+        "counter.hadoop-namenode-rpc-total-calls": {
+          "type": "cumulative",
+          "description": "",
+          "group": null,
+          "included": true
+        },
+        "counter.hadoop-namenode-total-load": {
+          "type": "cumulative",
+          "description": "",
+          "group": null,
+          "included": true
+        },
+        "counter.hadoop-namenode-volume-failures": {
+          "type": "cumulative",
+          "description": "",
+          "group": null,
+          "included": true
+        },
+        "gauge.hadoop-datanode-fs-capacity": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "included": true
+        },
+        "gauge.hadoop-datanode-fs-dfs-remaining": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "included": true
+        },
+        "gauge.hadoop-datanode-fs-dfs-used": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "included": true
+        },
+        "gauge.hadoop-datanode-jvm-heap-used": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "included": true
+        },
+        "gauge.hadoop-datanode-rpc-call-queue-length": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "included": true
+        },
+        "gauge.hadoop-datanode-rpc-open-connections": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "included": true
+        },
+        "gauge.hadoop-datanode-rpc-processing-avg": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "included": true
+        },
+        "gauge.hadoop-datanode-rpc-queue-time-avg": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "included": true
+        },
+        "gauge.hadoop-namenode-capacity-total": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "included": true
+        },
+        "gauge.hadoop-namenode-capacity-used": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "included": true
+        },
+        "gauge.hadoop-namenode-current-heap-used": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "included": true
+        },
+        "gauge.hadoop-namenode-dead-datanodes": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "included": true
+        },
+        "gauge.hadoop-namenode-dfs-free": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "included": true
+        },
+        "gauge.hadoop-namenode-live-datanodes": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "included": true
+        },
+        "gauge.hadoop-namenode-max-heap": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "included": true
+        },
+        "gauge.hadoop-namenode-percent-remaining": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "included": true
+        },
+        "gauge.hadoop-namenode-rpc-avg-process-time": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "included": true
+        },
+        "gauge.hadoop-namenode-rpc-avg-queue": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "included": true
+        },
+        "gauge.hadoop-namenode-under-replicated-blocks": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "included": true
+        },
+        "gauge.hadoop-resourceManager-allocated-vcores": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "included": true
+        },
+        "gauge.hadoop-resourceManager-available-vcores": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "included": true
+        },
+        "gauge.jvm.threads.count": {
+          "type": "gauge",
+          "description": "Number of JVM threads",
+          "group": null,
+          "included": true
+        },
+        "gauge.loaded_classes": {
+          "type": "gauge",
+          "description": "Number of classes loaded in the JVM",
+          "group": null,
+          "included": true
+        },
+        "invocations": {
+          "type": "cumulative",
+          "description": "Total number of garbage collection events",
+          "group": null,
+          "included": true
+        },
+        "jmx_memory.committed": {
+          "type": "gauge",
+          "description": "Amount of memory guaranteed to be available in bytes",
+          "group": null,
+          "included": true
+        },
+        "jmx_memory.init": {
+          "type": "gauge",
+          "description": "Amount of initial memory at startup in bytes",
+          "group": null,
+          "included": true
+        },
+        "jmx_memory.max": {
+          "type": "gauge",
+          "description": "Maximum amount of memory that can be used in bytes",
+          "group": null,
+          "included": true
+        },
+        "jmx_memory.used": {
+          "type": "gauge",
+          "description": "Current memory usage in bytes",
+          "group": null,
+          "included": true
+        },
+        "total_time_in_ms.collection_time": {
+          "type": "cumulative",
+          "description": "Amount of time spent garbage collecting in milliseconds",
+          "group": null,
+          "included": true
+        }
+      },
       "properties": null,
       "metricsExhaustive": false,
       "config": {
@@ -5412,6 +6040,12 @@
           "group": null,
           "included": false
         },
+        "gauge.jvm.threads.count": {
+          "type": "gauge",
+          "description": "Number of JVM threads",
+          "group": null,
+          "included": true
+        },
         "gauge.kafka-active-controllers": {
           "type": "gauge",
           "description": "Specifies if the broker an active controller",
@@ -5466,6 +6100,42 @@
           "group": null,
           "included": true
         },
+        "gauge.loaded_classes": {
+          "type": "gauge",
+          "description": "Number of classes loaded in the JVM",
+          "group": null,
+          "included": true
+        },
+        "invocations": {
+          "type": "cumulative",
+          "description": "Total number of garbage collection events",
+          "group": null,
+          "included": true
+        },
+        "jmx_memory.committed": {
+          "type": "gauge",
+          "description": "Amount of memory guaranteed to be available in bytes",
+          "group": null,
+          "included": true
+        },
+        "jmx_memory.init": {
+          "type": "gauge",
+          "description": "Amount of initial memory at startup in bytes",
+          "group": null,
+          "included": true
+        },
+        "jmx_memory.max": {
+          "type": "gauge",
+          "description": "Maximum amount of memory that can be used in bytes",
+          "group": null,
+          "included": true
+        },
+        "jmx_memory.used": {
+          "type": "gauge",
+          "description": "Current memory usage in bytes",
+          "group": null,
+          "included": true
+        },
         "kafka-isr-expands": {
           "type": "cumulative",
           "description": "When a broker is brought up after a failure, it starts catching up by reading from the leader. Once it is caught up, it gets added back to the ISR.",
@@ -5501,6 +6171,12 @@
           "description": "Number of unclean leader elections. This happens when a leader goes down and an out-of-sync replica is chosen to be the leader",
           "group": null,
           "included": false
+        },
+        "total_time_in_ms.collection_time": {
+          "type": "cumulative",
+          "description": "Amount of time spent garbage collecting in milliseconds",
+          "group": null,
+          "included": true
         }
       },
       "properties": null,
@@ -5720,6 +6396,48 @@
       "doc": "Monitors a Java based Kafka consumer using GenericJMX.\n\nSee the [integration documentation](https://github.com/signalfx/integrations/tree/master/collectd-kafka)\nfor more information.\n\nThis monitor has a set of [built in MBeans\nconfigured](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/kafkaconsumer/mbeans.go)\nfor which it pulls metrics from the Kafka consumer's JMX endpoint.\n\nSample YAML configuration:\n```yaml\nmonitors:\n  - type: collectd/kafka_consumer\n    host: localhost\n    port: 9099\n    mBeansToOmit:\n      - fetch-size-avg-per-topic\n```\n\nNote that this monitor requires Kafka v0.9.0.0 or above and collects metrics from the new consumer API.\nAlso, per-topic metrics that are collected by default are not available through the new consumer API in\nv0.9.0.0 which can cause the logs to flood with warnings related to the MBean not being found.\nUse the `mBeansToOmit` config option in such cases. The above example configuration will not attempt to\ncollect the MBean referenced by `fetch-size-avg-per-topic`. Here is a\n[list](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/kafkaconsumer/mbeans.go)\nof metrics collected by default\n",
       "groups": null,
       "metrics": {
+        "gauge.jvm.threads.count": {
+          "type": "gauge",
+          "description": "Number of JVM threads",
+          "group": null,
+          "included": true
+        },
+        "gauge.loaded_classes": {
+          "type": "gauge",
+          "description": "Number of classes loaded in the JVM",
+          "group": null,
+          "included": true
+        },
+        "invocations": {
+          "type": "cumulative",
+          "description": "Total number of garbage collection events",
+          "group": null,
+          "included": true
+        },
+        "jmx_memory.committed": {
+          "type": "gauge",
+          "description": "Amount of memory guaranteed to be available in bytes",
+          "group": null,
+          "included": true
+        },
+        "jmx_memory.init": {
+          "type": "gauge",
+          "description": "Amount of initial memory at startup in bytes",
+          "group": null,
+          "included": true
+        },
+        "jmx_memory.max": {
+          "type": "gauge",
+          "description": "Maximum amount of memory that can be used in bytes",
+          "group": null,
+          "included": true
+        },
+        "jmx_memory.used": {
+          "type": "gauge",
+          "description": "Current memory usage in bytes",
+          "group": null,
+          "included": true
+        },
         "kafka.consumer.bytes-consumed-rate": {
           "type": "gauge",
           "description": "Average number of bytes consumed per second. This metric has either client-id dimension or, both client-id and topic dimensions. The former is an aggregate across all topics of the latter.",
@@ -5749,6 +6467,12 @@
           "description": "Maximum lag in of records for any partition in this window. An increasing value over time is your best indication that the consumer group is not keeping up with the producers.",
           "group": null,
           "included": false
+        },
+        "total_time_in_ms.collection_time": {
+          "type": "cumulative",
+          "description": "Amount of time spent garbage collecting in milliseconds",
+          "group": null,
+          "included": true
         }
       },
       "properties": null,
@@ -5960,6 +6684,48 @@
       "doc": "Monitors a Java based Kafka producer using GenericJMX.\n\nSee the [integration documentation](https://github.com/signalfx/integrations/tree/master/collectd-kafka)\nfor more information.\n\nThis monitor has a set of [built in MBeans\nconfigured](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/kafkaproducer/mbeans.go)\nfor which it pulls metrics from the Kafka producer's JMX endpoint.\n\nSample YAML configuration:\n```yaml\nmonitors:\n  - type: collectd/kafka_producer\n    host: localhost\n    port: 8099\n```\n\nNote that this monitor requires Kafka v0.9.0.0 or above and collects metrics from the new producer API.\n",
       "groups": null,
       "metrics": {
+        "gauge.jvm.threads.count": {
+          "type": "gauge",
+          "description": "Number of JVM threads",
+          "group": null,
+          "included": true
+        },
+        "gauge.loaded_classes": {
+          "type": "gauge",
+          "description": "Number of classes loaded in the JVM",
+          "group": null,
+          "included": true
+        },
+        "invocations": {
+          "type": "cumulative",
+          "description": "Total number of garbage collection events",
+          "group": null,
+          "included": true
+        },
+        "jmx_memory.committed": {
+          "type": "gauge",
+          "description": "Amount of memory guaranteed to be available in bytes",
+          "group": null,
+          "included": true
+        },
+        "jmx_memory.init": {
+          "type": "gauge",
+          "description": "Amount of initial memory at startup in bytes",
+          "group": null,
+          "included": true
+        },
+        "jmx_memory.max": {
+          "type": "gauge",
+          "description": "Maximum amount of memory that can be used in bytes",
+          "group": null,
+          "included": true
+        },
+        "jmx_memory.used": {
+          "type": "gauge",
+          "description": "Current memory usage in bytes",
+          "group": null,
+          "included": true
+        },
         "kafka.producer.byte-rate": {
           "type": "gauge",
           "description": "Average number of bytes sent per second for a topic. This metric has client-id and topic dimensions.",
@@ -6019,6 +6785,12 @@
           "description": "Average number of responses received per second. This metric has client-id dimension.",
           "group": null,
           "included": false
+        },
+        "total_time_in_ms.collection_time": {
+          "type": "cumulative",
+          "description": "Amount of time spent garbage collecting in milliseconds",
+          "group": null,
+          "included": true
         }
       },
       "properties": null,

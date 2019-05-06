@@ -78,6 +78,13 @@ The following table lists the metrics available for this monitor. Metrics that a
 
 | Name | Type | Included | Description |
 | ---  | ---  | ---    | ---         |
+| `gauge.jvm.threads.count` | gauge | ✔ | Number of JVM threads |
+| `gauge.loaded_classes` | gauge | ✔ | Number of classes loaded in the JVM |
+| `invocations` | cumulative | ✔ | Total number of garbage collection events |
+| `jmx_memory.committed` | gauge | ✔ | Amount of memory guaranteed to be available in bytes |
+| `jmx_memory.init` | gauge | ✔ | Amount of initial memory at startup in bytes |
+| `jmx_memory.max` | gauge | ✔ | Maximum amount of memory that can be used in bytes |
+| `jmx_memory.used` | gauge | ✔ | Current memory usage in bytes |
 | `kafka.producer.byte-rate` | gauge |  | Average number of bytes sent per second for a topic. This metric has client-id and topic dimensions. |
 | `kafka.producer.compression-rate` | gauge |  | Average compression rate of record batches for a topic. This metric has client-id and topic dimensions. |
 | `kafka.producer.io-wait-time-ns-avg` | gauge |  | Average length of time the I/O thread spent waiting for a socket ready for reads or writes in nanoseconds. This metric has client-id dimension. |
@@ -88,6 +95,7 @@ The following table lists the metrics available for this monitor. Metrics that a
 | `kafka.producer.request-latency-avg` | gauge |  | Average request latency in ms. Time it takes on average for the producer to get responses from the broker. This metric has client-id dimension. |
 | `kafka.producer.request-rate` | gauge |  | Average number of requests sent per second. This metric has client-id dimension. |
 | `kafka.producer.response-rate` | gauge |  | Average number of responses received per second. This metric has client-id dimension. |
+| `total_time_in_ms.collection_time` | cumulative | ✔ | Amount of time spent garbage collecting in milliseconds |
 
 
 
