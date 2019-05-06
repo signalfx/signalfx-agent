@@ -2,10 +2,13 @@
 
 # openshift-cluster
 
-Collects cluster-level metrics from the
-Kubernetes API server.  It uses the _watch_ functionality of the K8s API
-to listen for updates about the cluster and maintains a cache of metrics
-that get sent on a regular interval.
+This monitor is for use with an OpenShift cluster. It includes all metrics
+from the [`kubernetes-cluster`](kubernetes-cluster.md) monitor with additional
+OpenShift-specific metrics. You only need to use one monitor or the other.
+
+Collects cluster-level metrics from the Kubernetes API server.  It uses the
+_watch_ functionality of the K8s API to listen for updates about the cluster
+and maintains a cache of metrics that get sent on a regular interval.
 
 Since the agent is generally running in multiple places in a K8s cluster and
 since it is generally more convenient to share the same configuration across

@@ -2,10 +2,12 @@
 
 # kubernetes-cluster
 
-Collects cluster-level metrics from the
-Kubernetes API server.  It uses the _watch_ functionality of the K8s API
-to listen for updates about the cluster and maintains a cache of metrics
-that get sent on a regular interval.
+*If you are using OpenShift there is an [`openshift-cluster`](openshift-cluster.md)
+monitor to be used instead of this monitor that contains additional OpenShift metrics.*
+
+Collects cluster-level metrics from the Kubernetes API server.  It uses the
+_watch_ functionality of the K8s API to listen for updates about the cluster
+and maintains a cache of metrics that get sent on a regular interval.
 
 Since the agent is generally running in multiple places in a K8s cluster and
 since it is generally more convenient to share the same configuration across
