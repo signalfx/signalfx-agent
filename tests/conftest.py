@@ -7,6 +7,18 @@ from tests.helpers.util import get_docker_client, run_container
 
 MINIKUBE_DEFAULT_TIMEOUT = int(os.environ.get("MINIKUBE_TIMEOUT", 300))
 K8S_DEFAULT_TEST_TIMEOUT = 60
+NON_INTEGRATION_MARKERS = {"packaging", "installer", "kubernetes", "windows_only", "deployment", "perf_test", "bundle"}
+
+
+def pytest_collection_modifyitems(items):
+    for item in items:
+        if isinstance(item, item.Function):
+            if "k8s_cluster" in item.fixturenames:
+                item.add_marker("kubernetes")
+            markers = {marker.name for marker in item.iter_markers()}
+            if not NON_INTEGRATION_MARKERS.intersection(markers):
+                item.add_marker("integration")
+
 
 # pylint: disable=line-too-long
 def pytest_addoption(parser):
