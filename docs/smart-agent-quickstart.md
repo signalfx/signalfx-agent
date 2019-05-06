@@ -39,6 +39,9 @@ See individual monitor pages for your monitor from the lists in Step 5.
 See [Dashboards](https://docs.signalfx.com/en/latest/dashboards/index.html)
 
 
+If you would like to explore more about using SignalFx Smart Agent, see the [SignalFx 15-Minute Quick Start](https://docs.signalfx.com/en/latest/getting-started/quick-start.html#quick-start).
+
+
 ## Options 
 
 ### Monitors 
