@@ -23,9 +23,9 @@ var resources = []v1.ResourceName{
 
 func datapointsForClusterQuotas(quota *quota.ClusterResourceQuota) []*datapoint.Datapoint {
 	dimensions := map[string]string{
-		"metric_source": "openshift",
-		"uid":           string(quota.UID),
-		"quota_name":    quota.Name,
+		"metric_source":  "openshift",
+		"kubernetes_uid": string(quota.UID),
+		"quota_name":     quota.Name,
 	}
 
 	dps := buildDatapoints("openshift.clusterquota", dimensions, quota.Status.Total.Hard, quota.Status.Total.Used)
