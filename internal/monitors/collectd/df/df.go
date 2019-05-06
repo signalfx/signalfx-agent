@@ -70,12 +70,13 @@ func (m *Monitor) Configure(config *Config) error {
 	conf := *config
 	// Setting group flags in conf for enable extra metrics
 	for _, metric := range conf.EnabledMetrics {
-		switch metricSet[metric].Group {
-		case groupReportInodes:
+		group := metricSet[metric].Group
+		switch {
+		case group == groupReportInodes:
 			conf.ReportInodes = true
-		case groupValuesPercentage:
+		case group == groupValuesPercentage:
 			conf.ValuesPercentage = true
-		default:
+		case metric == percentInodesFree || metric == percentInodesReserved || metric == percentInodesUsed:
 			conf.ReportInodes = true
 			conf.ValuesPercentage = true
 		}
