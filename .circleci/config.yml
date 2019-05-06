@@ -137,7 +137,7 @@ commands:
       - run:
           name: Install Kubectl
           command: |
-            [[ -f /home/circleci/bin/kubectl ]] && exit 0
+            [[ -f /home/circleci/bin/kubectl || -f ~/.skip ]] && exit 0
             wget -O /home/circleci/bin/kubectl https://storage.googleapis.com/kubernetes-release/release/<< parameters.version >>/bin/linux/amd64/kubectl
             chmod a+x /home/circleci/bin/kubectl
       - save_cache:
@@ -156,7 +156,7 @@ commands:
       - run:
           name: Install Helm
           command: |
-            [[ -f /home/circleci/bin/helm ]] && exit 0
+            [[ -f /home/circleci/bin/helm || -f ~/.skip ]] && exit 0
             wget -O /tmp/helm.tar.gz https://storage.googleapis.com/kubernetes-helm/helm-<< parameters.version >>-linux-amd64.tar.gz
             tar -zxvf /tmp/helm.tar.gz -C /tmp
             mv /tmp/linux-amd64/helm /home/circleci/bin/helm
@@ -336,6 +336,7 @@ jobs:
       - run:
           name: Push image to minikube
           command: |
+            [ -f ~/.skip ] && exit 0
             docker tag quay.io/signalfx/signalfx-agent-dev:latest localhost:5000/signalfx-agent:latest
             docker push localhost:5000/signalfx-agent:latest
       - run_pytest:
