@@ -16,13 +16,28 @@ from tests.packaging.common import (
     get_agent_logs,
     is_agent_running_as_non_root,
     run_init_system_image,
-    DEPLOYMENTS_DIR,
 )
 from tests.paths import REPO_ROOT_DIR
 
 pytestmark = [pytest.mark.chef, pytest.mark.deployment]
 
-ATTRIBUTES_PATH = DEPLOYMENTS_DIR / "chef/example_attrs.json"
+ATTRIBUTES_JSON = """
+{"signalfx_agent": {
+  "package_stage": "final",
+  "agent_version": null,
+  "conf": {
+    "signalFxAccessToken": "testing",
+    "ingestUrl": "https://ingest.us0.signalfx.com",
+    "apiUrl": "https://api.us0.signalfx.com",
+    "observers": [
+      {"type": "host"}
+    ],
+    "monitors": [
+      {"type": "host-metadata"}
+    ]
+  }
+}}
+"""
 CHEF_CMD = "chef-client -z -o 'recipe[signalfx_agent::default]' -j {0}"
 SCRIPT_DIR = Path(__file__).parent.resolve()
 DOCKERFILES_DIR = SCRIPT_DIR / "images"
@@ -50,11 +65,8 @@ def get_agent_version(cont):
 
 
 def run_chef_client(cont, agent_version=None):
-    attributes = json.loads(open(ATTRIBUTES_PATH, "r").read())
-    if agent_version:
-        attributes["signalfx_agent"]["agent_version"] = agent_version
-    attributes["signalfx_agent"]["conf"]["ingestUrl"] = "https://ingest.us0.signalfx.com"
-    attributes["signalfx_agent"]["conf"]["apiUrl"] = "https://api.us0.signalfx.com"
+    attributes = json.loads(ATTRIBUTES_JSON)
+    attributes["signalfx_agent"]["agent_version"] = agent_version
     print(attributes)
     with tempfile.NamedTemporaryFile(mode="w", dir="/tmp/scratch") as fd:
         fd.write(json.dumps(attributes))
@@ -76,7 +88,7 @@ def test_chef(base_image, init_system):
             # install latest agent
             run_chef_client(cont)
             assert wait_for(
-                p(has_datapoint_with_dim, backend, "plugin", "signalfx-metadata")
+                p(has_datapoint_with_dim, backend, "plugin", "host-metadata")
             ), "Datapoints didn't come through"
         finally:
             print("Agent log:")
@@ -92,7 +104,7 @@ def test_chef_upgrade_downgrade(base_image, init_system):
             agent_version = run_chef_client(cont, "4.1.1")
             assert agent_version == "4.1.1", "agent version is not 4.1.1: %s" % agent_version
             assert wait_for(
-                p(has_datapoint_with_dim, backend, "plugin", "signalfx-metadata")
+                p(has_datapoint_with_dim, backend, "plugin", "host-metadata")
             ), "Datapoints didn't come through"
 
             # upgrade agent
@@ -100,7 +112,7 @@ def test_chef_upgrade_downgrade(base_image, init_system):
             assert agent_version == "4.2.0", "agent version is not 4.2.0: %s" % agent_version
             backend.reset_datapoints()
             assert wait_for(
-                p(has_datapoint_with_dim, backend, "plugin", "signalfx-metadata")
+                p(has_datapoint_with_dim, backend, "plugin", "host-metadata")
             ), "Datapoints didn't come through"
 
             # downgrade agent for distros that support package downgrades
@@ -109,7 +121,7 @@ def test_chef_upgrade_downgrade(base_image, init_system):
                 assert agent_version == "4.1.0", "agent version is not 4.1.0: %s" % agent_version
                 backend.reset_datapoints()
                 assert wait_for(
-                    p(has_datapoint_with_dim, backend, "plugin", "signalfx-metadata")
+                    p(has_datapoint_with_dim, backend, "plugin", "host-metadata")
                 ), "Datapoints didn't come through"
         finally:
             print("Agent log:")
