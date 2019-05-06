@@ -2,35 +2,33 @@
 
 # collectd/hadoopjmx
 
-Collects metrics about a Hadoop cluster using
-using collectd's GenericJMX plugin.
+Collects metrics about a Hadoop cluster using using collectd's GenericJMX plugin.
 
-Also see
-https://github.com/signalfx/integrations/tree/master/collectd-hadoop.
+Also see https://github.com/signalfx/integrations/tree/master/collectd-hadoop.
 
->To enable JMX in Hadoop, add the following JVM options to hadoop-env.sh and yarn-env.sh respectively
+To enable JMX in Hadoop, add the following JVM options to hadoop-env.sh and yarn-env.sh respectively
 
 **hadoop-env.sh:**
-```
+```sh
 export HADOOP_NAMENODE_OPTS="-Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.port=5677 $HADOOP_NAMENODE_OPTS"
 export HADOOP_DATANODE_OPTS="-Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.port=5679 $HADOOP_DATANODE_OPTS"
 ```
 
 **yarn-env.sh:**
-```
+```sh
 export YARN_NODEMANAGER_OPTS="-Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.port=8002 $YARN_NODEMANAGER_OPTS"
 export YARN_RESOURCEMANAGER_OPTS="-Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.port=5680 $YARN_RESOURCEMANAGER_OPTS"
 ```
 
 This monitor has a set of built in MBeans configured for:
-- [Name Nodes](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/hadoopjmx/nameNodeMBeans.go)
-- [Resource Manager](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/hadoopjmx/resourceManagerMBeans.go)
-- [Node Manager](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/hadoopjmx/nodeManagerMBeans.go)
-- [Data Nodes](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/hadoopjmx/dataNodeMBeans.go)
+  - [Name Nodes](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/hadoopjmx/nameNodeMBeans.go)
+  - [Resource Manager](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/hadoopjmx/resourceManagerMBeans.go)
+  - [Node Manager](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/hadoopjmx/nodeManagerMBeans.go)
+  - [Data Nodes](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/hadoopjmx/dataNodeMBeans.go)
 
 Sample YAML configuration:
 
-	Name Node
+Name Node
 ```yaml
 monitors:
 - type: collectd/hadoopjmx
@@ -39,7 +37,7 @@ monitors:
   nodeType: nameNode
 ```
 
-	Resource Manager
+Resource Manager
 ```yaml
 monitors:
 - type: collectd/hadoopjmx
@@ -48,7 +46,7 @@ monitors:
   nodeType: resourceManager
 ```
 
-	Node Manager
+Node Manager
 ```yaml
 monitors:
 - type: collectd/hadoopjmx
@@ -57,7 +55,7 @@ monitors:
   nodeType: nodeManager
 ```
 
-	Data Node
+Data Node
 ```yaml
 monitors:
 - type: collectd/hadoopjmx
@@ -121,6 +119,64 @@ The **nested** `values` config object has the following fields:
 
 
 
+## Metrics
+
+The following table lists the metrics available for this monitor. Metrics that are marked as Included are standard metrics and are monitored by default.
+
+| Name | Type | Included | Description |
+| ---  | ---  | ---    | ---         |
+| `counter.hadoop-namenode-gc-count` | cumulative | ✔ |  |
+| `counter.hadoop-namenode-gc-time` | cumulative | ✔ |  |
+| `counter.hadoop-namenode-rpc-total-calls` | cumulative | ✔ |  |
+| `counter.hadoop-namenode-total-load` | cumulative | ✔ |  |
+| `counter.hadoop-namenode-volume-failures` | cumulative | ✔ |  |
+| `gauge.hadoop-datanode-fs-capacity` | gauge | ✔ |  |
+| `gauge.hadoop-datanode-fs-dfs-remaining` | gauge | ✔ |  |
+| `gauge.hadoop-datanode-fs-dfs-used` | gauge | ✔ |  |
+| `gauge.hadoop-datanode-jvm-heap-used` | gauge | ✔ |  |
+| `gauge.hadoop-datanode-rpc-call-queue-length` | gauge | ✔ |  |
+| `gauge.hadoop-datanode-rpc-open-connections` | gauge | ✔ |  |
+| `gauge.hadoop-datanode-rpc-processing-avg` | gauge | ✔ |  |
+| `gauge.hadoop-datanode-rpc-queue-time-avg` | gauge | ✔ |  |
+| `gauge.hadoop-namenode-capacity-total` | gauge | ✔ |  |
+| `gauge.hadoop-namenode-capacity-used` | gauge | ✔ |  |
+| `gauge.hadoop-namenode-current-heap-used` | gauge | ✔ |  |
+| `gauge.hadoop-namenode-dead-datanodes` | gauge | ✔ |  |
+| `gauge.hadoop-namenode-dfs-free` | gauge | ✔ |  |
+| `gauge.hadoop-namenode-live-datanodes` | gauge | ✔ |  |
+| `gauge.hadoop-namenode-max-heap` | gauge | ✔ |  |
+| `gauge.hadoop-namenode-percent-remaining` | gauge | ✔ |  |
+| `gauge.hadoop-namenode-rpc-avg-process-time` | gauge | ✔ |  |
+| `gauge.hadoop-namenode-rpc-avg-queue` | gauge | ✔ |  |
+| `gauge.hadoop-namenode-under-replicated-blocks` | gauge | ✔ |  |
+| `gauge.hadoop-resourceManager-allocated-vcores` | gauge | ✔ |  |
+| `gauge.hadoop-resourceManager-available-vcores` | gauge | ✔ |  |
+| `gauge.jvm.threads.count` | gauge | ✔ | Number of JVM threads |
+| `gauge.loaded_classes` | gauge | ✔ | Number of classes loaded in the JVM |
+| `invocations` | cumulative | ✔ | Total number of garbage collection events |
+| `jmx_memory.committed` | gauge | ✔ | Amount of memory guaranteed to be available in bytes |
+| `jmx_memory.init` | gauge | ✔ | Amount of initial memory at startup in bytes |
+| `jmx_memory.max` | gauge | ✔ | Maximum amount of memory that can be used in bytes |
+| `jmx_memory.used` | gauge | ✔ | Current memory usage in bytes |
+| `total_time_in_ms.collection_time` | cumulative | ✔ | Amount of time spent garbage collecting in milliseconds |
+
+
+To specify custom metrics you want to monitor, add a `metricsToInclude` filter
+to the agent configuration, as shown in the code snippet below. The snippet
+lists all available custom metrics. You can copy and paste the snippet into
+your configuration file, then delete any custom metrics that you do not want
+sent.
+
+Note that some of the custom metrics require you to set a flag as well as add
+them to the list. Check the monitor configuration file to see if a flag is
+required for gathering additional metrics.
+
+```yaml
+
+metricsToInclude:
+  - metricNames:
+    monitorType: collectd/hadoopjmx
+```
 
 
 

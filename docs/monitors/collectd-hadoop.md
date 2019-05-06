@@ -48,6 +48,63 @@ Monitor Type: `collectd/hadoop`
 
 
 
+## Metrics
+
+The following table lists the metrics available for this monitor. Metrics that are marked as Included are standard metrics and are monitored by default.
+
+| Name | Type | Included | Description |
+| ---  | ---  | ---    | ---         |
+| `gauge.hadoop.cluster.metrics.active_nodes` | gauge | ✔ |  |
+| `gauge.hadoop.cluster.metrics.allocated_mb` | gauge | ✔ |  |
+| `gauge.hadoop.cluster.metrics.allocated_virtual_cores` | gauge | ✔ |  |
+| `gauge.hadoop.cluster.metrics.apps_completed` | gauge | ✔ |  |
+| `gauge.hadoop.cluster.metrics.apps_failed` | gauge | ✔ |  |
+| `gauge.hadoop.cluster.metrics.apps_running` | gauge | ✔ |  |
+| `gauge.hadoop.cluster.metrics.apps_submitted` | gauge | ✔ |  |
+| `gauge.hadoop.cluster.metrics.available_mb` | gauge | ✔ |  |
+| `gauge.hadoop.cluster.metrics.available_virtual_cores` | gauge | ✔ |  |
+| `gauge.hadoop.cluster.metrics.decommissioned_nodes` | gauge | ✔ |  |
+| `gauge.hadoop.cluster.metrics.lost_nodes` | gauge | ✔ |  |
+| `gauge.hadoop.cluster.metrics.rebooted_nodes` | gauge | ✔ |  |
+| `gauge.hadoop.cluster.metrics.reserved_mb` | gauge | ✔ |  |
+| `gauge.hadoop.cluster.metrics.reserved_virtual_cores` | gauge | ✔ |  |
+| `gauge.hadoop.cluster.metrics.total_mb` | gauge | ✔ |  |
+| `gauge.hadoop.cluster.metrics.total_virtual_cores` | gauge | ✔ |  |
+| `gauge.hadoop.cluster.metrics.unhealthy_nodes` | gauge | ✔ |  |
+| `gauge.hadoop.mapreduce.job.elapsedTime` | gauge | ✔ |  |
+| `gauge.hadoop.mapreduce.job.failedMapAttempts` | gauge | ✔ |  |
+| `gauge.hadoop.mapreduce.job.failedReduceAttempts` | gauge | ✔ |  |
+| `gauge.hadoop.mapreduce.job.mapsTotal` | gauge | ✔ |  |
+| `gauge.hadoop.mapreduce.job.successfulMapAttempts` | gauge | ✔ |  |
+| `gauge.hadoop.mapreduce.job.successfulReduceAttempts` | gauge | ✔ |  |
+| `gauge.hadoop.resource.manager.apps.allocatedMB` | gauge | ✔ |  |
+| `gauge.hadoop.resource.manager.apps.allocatedVCores` | gauge | ✔ |  |
+| `gauge.hadoop.resource.manager.apps.clusterUsagePercentage` | gauge | ✔ |  |
+| `gauge.hadoop.resource.manager.apps.memorySeconds` | gauge | ✔ |  |
+| `gauge.hadoop.resource.manager.apps.priority` | gauge | ✔ |  |
+| `gauge.hadoop.resource.manager.apps.progress` | gauge | ✔ |  |
+| `gauge.hadoop.resource.manager.apps.queueUsagePercentage` | gauge | ✔ |  |
+| `gauge.hadoop.resource.manager.apps.runningContainers` | gauge | ✔ |  |
+| `gauge.hadoop.resource.manager.apps.vcoreSeconds` | gauge | ✔ |  |
+| `gauge.hadoop.resource.manager.scheduler.leaf.queue.usedCapacity` | gauge | ✔ |  |
+
+
+To specify custom metrics you want to monitor, add a `metricsToInclude` filter
+to the agent configuration, as shown in the code snippet below. The snippet
+lists all available custom metrics. You can copy and paste the snippet into
+your configuration file, then delete any custom metrics that you do not want
+sent.
+
+Note that some of the custom metrics require you to set a flag as well as add
+them to the list. Check the monitor configuration file to see if a flag is
+required for gathering additional metrics.
+
+```yaml
+
+metricsToInclude:
+  - metricNames:
+    monitorType: collectd/hadoop
+```
 
 
 

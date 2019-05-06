@@ -27,5 +27,137 @@ monitors:
     you may also configure the [collectd/hadoopjmx](https://github.com/signalfx/signalfx-agent/tree/master/docs/monitors/collectd/hadoopjmx)
     monitor to collect additional metrics about the hadoop cluster.
   metrics:
+    gauge.hadoop.cluster.metrics.active_nodes:
+      description:
+      included: true
+      type: gauge
+    gauge.hadoop.cluster.metrics.allocated_mb:
+      description:
+      included: true
+      type: gauge
+    gauge.hadoop.cluster.metrics.allocated_virtual_cores:
+      description:
+      included: true
+      type: gauge
+    gauge.hadoop.cluster.metrics.apps_completed:
+      description:
+      included: true
+      type: gauge
+    gauge.hadoop.cluster.metrics.apps_failed:
+      description:
+      included: true
+      type: gauge
+    gauge.hadoop.cluster.metrics.apps_running:
+      description:
+      included: true
+      type: gauge
+    gauge.hadoop.cluster.metrics.apps_submitted:
+      description:
+      included: true
+      type: gauge
+    gauge.hadoop.cluster.metrics.available_mb:
+      description:
+      included: true
+      type: gauge
+    gauge.hadoop.cluster.metrics.available_virtual_cores:
+      description:
+      included: true
+      type: gauge
+    gauge.hadoop.cluster.metrics.decommissioned_nodes:
+      description:
+      included: true
+      type: gauge
+    gauge.hadoop.cluster.metrics.lost_nodes:
+      description:
+      included: true
+      type: gauge
+    gauge.hadoop.cluster.metrics.rebooted_nodes:
+      description:
+      included: true
+      type: gauge
+    gauge.hadoop.cluster.metrics.reserved_mb:
+      description:
+      included: true
+      type: gauge
+    gauge.hadoop.cluster.metrics.reserved_virtual_cores:
+      description:
+      included: true
+      type: gauge
+    gauge.hadoop.cluster.metrics.total_mb:
+      description:
+      included: true
+      type: gauge
+    gauge.hadoop.cluster.metrics.total_virtual_cores:
+      description:
+      included: true
+      type: gauge
+    gauge.hadoop.cluster.metrics.unhealthy_nodes:
+      description:
+      included: true
+      type: gauge
+    gauge.hadoop.mapreduce.job.elapsedTime:
+      description:
+      included: true
+      type: gauge
+    gauge.hadoop.mapreduce.job.failedMapAttempts:
+      description:
+      included: true
+      type: gauge
+    gauge.hadoop.mapreduce.job.failedReduceAttempts:
+      description:
+      included: true
+      type: gauge
+    gauge.hadoop.mapreduce.job.mapsTotal:
+      description:
+      included: true
+      type: gauge
+    gauge.hadoop.mapreduce.job.successfulMapAttempts:
+      description:
+      included: true
+      type: gauge
+    gauge.hadoop.mapreduce.job.successfulReduceAttempts:
+      description:
+      included: true
+      type: gauge
+    gauge.hadoop.resource.manager.apps.allocatedMB:
+      description:
+      included: true
+      type: gauge
+    gauge.hadoop.resource.manager.apps.allocatedVCores:
+      description:
+      included: true
+      type: gauge
+    gauge.hadoop.resource.manager.apps.clusterUsagePercentage:
+      description:
+      included: true
+      type: gauge
+    gauge.hadoop.resource.manager.apps.memorySeconds:
+      description:
+      included: true
+      type: gauge
+    gauge.hadoop.resource.manager.apps.priority:
+      description:
+      included: true
+      type: gauge
+    gauge.hadoop.resource.manager.apps.progress:
+      description:
+      included: true
+      type: gauge
+    gauge.hadoop.resource.manager.apps.queueUsagePercentage:
+      description:
+      included: true
+      type: gauge
+    gauge.hadoop.resource.manager.apps.runningContainers:
+      description:
+      included: true
+      type: gauge
+    gauge.hadoop.resource.manager.apps.vcoreSeconds:
+      description:
+      included: true
+      type: gauge
+    gauge.hadoop.resource.manager.scheduler.leaf.queue.usedCapacity:
+      description:
+      included: true
+      type: gauge
   monitorType: collectd/hadoop
   properties:
