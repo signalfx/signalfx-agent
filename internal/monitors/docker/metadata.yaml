@@ -8,6 +8,10 @@ monitors:
 
     This currently does not support CPU share/quota metrics.
 
+    For more information on block IO metrics, see [the Linux cgroup block io
+    controller
+    doc](https://www.kernel.org/doc/Documentation/cgroup-v1/blkio-controller.txt).
+
     If you are running the agent directly on a host (outside of a container
     itself) and you are using the default Docker UNIX socket URL, you will
     probably need to add the `signalfx-agent` user to the `docker` group in
@@ -71,6 +75,86 @@ monitors:
       group: blkio
     blkio.io_serviced_recursive.write:
       description: Number of write requests to block devices
+      included: false
+      type: cumulative
+      group: blkio
+    blkio.io_service_time_recursive.async:
+      included: false
+      type: cumulative
+      group: blkio
+    blkio.io_service_time_recursive.sync:
+      included: false
+      type: cumulative
+      group: blkio
+    blkio.io_service_time_recursive.read:
+      included: false
+      type: cumulative
+      group: blkio
+    blkio.io_service_time_recursive.total:
+      included: false
+      type: cumulative
+      group: blkio
+    blkio.io_service_time_recursive.write:
+      included: false
+      type: cumulative
+      group: blkio
+    blkio.io_queue_recursive.async:
+      included: false
+      type: cumulative
+      group: blkio
+    blkio.io_queue_recursive.sync:
+      included: false
+      type: cumulative
+      group: blkio
+    blkio.io_queue_recursive.read:
+      included: false
+      type: cumulative
+      group: blkio
+    blkio.io_queue_recursive.total:
+      included: false
+      type: cumulative
+      group: blkio
+    blkio.io_queue_recursive.write:
+      included: false
+      type: cumulative
+      group: blkio
+    blkio.io_merged_recursive.async:
+      included: false
+      type: cumulative
+      group: blkio
+    blkio.io_merged_recursive.sync:
+      included: false
+      type: cumulative
+      group: blkio
+    blkio.io_merged_recursive.read:
+      included: false
+      type: cumulative
+      group: blkio
+    blkio.io_merged_recursive.total:
+      included: false
+      type: cumulative
+      group: blkio
+    blkio.io_merged_recursive.write:
+      included: false
+      type: cumulative
+      group: blkio
+    blkio.io_wait_time_recursive.async:
+      included: false
+      type: cumulative
+      group: blkio
+    blkio.io_wait_time_recursive.sync:
+      included: false
+      type: cumulative
+      group: blkio
+    blkio.io_wait_time_recursive.read:
+      included: false
+      type: cumulative
+      group: blkio
+    blkio.io_wait_time_recursive.total:
+      included: false
+      type: cumulative
+      group: blkio
+    blkio.io_wait_time_recursive.write:
       included: false
       type: cumulative
       group: blkio
