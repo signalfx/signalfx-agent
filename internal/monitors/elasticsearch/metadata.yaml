@@ -887,5 +887,27 @@ monitors:
       included: false
       type: gauge
       group: indices/merges
+    elasticsearch.indices.indexing.index-failed:
+      description: Number of failed indices
+      included: false
+      type: gauge
+      group: indices/indexing
+    elasticsearch.indices.indexing.noop-update-total:
+      description: Number of noop updates
+      included: false
+      type: cumulative
+      group: indices/indexing
+    elasticsearch.indices.indexing.throttle-time:
+      description: Throttle time
+      included: false
+      type: cumulative
+      group: indices/indexing
+    elasticsearch.indices.search.open-contexts:
+      description: Number of open contexts
+      included: false
+      type: gauge
+      group: indices/search
   monitorType: elasticsearch
   properties: null
+
+

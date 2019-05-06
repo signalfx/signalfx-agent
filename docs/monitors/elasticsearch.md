@@ -166,8 +166,11 @@ The following table lists the metrics available for this monitor. Metrics that a
 | `elasticsearch.indices.indexing.delete-time` | cumulative |  | Time spent deleting documents from an index |
 | `elasticsearch.indices.indexing.delete-total` | cumulative |  | Number of documents deleted from an index |
 | `elasticsearch.indices.indexing.index-current` | gauge |  | Number of documents currently being indexed to an index |
+| `elasticsearch.indices.indexing.index-failed` | gauge |  | Number of failed indices |
 | `elasticsearch.indices.indexing.index-time` | cumulative |  | Time spent indexing documents to an index |
 | `elasticsearch.indices.indexing.index-total` | cumulative | ✔ | Total number of documents indexed to an index |
+| `elasticsearch.indices.indexing.noop-update-total` | cumulative |  | Number of noop updates |
+| `elasticsearch.indices.indexing.throttle-time` | cumulative |  | Throttle time |
 | `elasticsearch.indices.merges.auto-throttle-size` | cumulative |  | Merging throttled due to auto-throttling (in bytes) |
 | `elasticsearch.indices.merges.current` | gauge | ✔ | Number of currently active segment merges |
 | `elasticsearch.indices.merges.current-docs` | gauge |  | Number of docs currently being merged |
@@ -202,6 +205,7 @@ The following table lists the metrics available for this monitor. Metrics that a
 | `elasticsearch.indices.search.fetch-current` | gauge |  | Number of query fetches currently running |
 | `elasticsearch.indices.search.fetch-time` | cumulative |  | Total time spent on query fetches |
 | `elasticsearch.indices.search.fetch-total` | cumulative |  | Total number of query feches |
+| `elasticsearch.indices.search.open-contexts` | gauge |  | Number of open contexts |
 | `elasticsearch.indices.search.query-current` | gauge |  | Number of currently active queries |
 | `elasticsearch.indices.search.query-time` | cumulative | ✔ | Total time spent querying on the primary |
 | `elasticsearch.indices.search.query-total` | cumulative | ✔ | Total number of queries |
@@ -330,7 +334,10 @@ metricsToInclude:
     - elasticsearch.indices.indexing.delete-time
     - elasticsearch.indices.indexing.delete-total
     - elasticsearch.indices.indexing.index-current
+    - elasticsearch.indices.indexing.index-failed
     - elasticsearch.indices.indexing.index-time
+    - elasticsearch.indices.indexing.noop-update-total
+    - elasticsearch.indices.indexing.throttle-time
     - elasticsearch.indices.merges.auto-throttle-size
     - elasticsearch.indices.merges.current-docs
     - elasticsearch.indices.merges.current-size
@@ -363,6 +370,7 @@ metricsToInclude:
     - elasticsearch.indices.search.fetch-current
     - elasticsearch.indices.search.fetch-time
     - elasticsearch.indices.search.fetch-total
+    - elasticsearch.indices.search.open-contexts
     - elasticsearch.indices.search.query-current
     - elasticsearch.indices.search.scroll-current
     - elasticsearch.indices.search.scroll-time

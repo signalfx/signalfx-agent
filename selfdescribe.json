@@ -14831,6 +14831,12 @@
           "group": "indices/indexing",
           "included": false
         },
+        "elasticsearch.indices.indexing.index-failed": {
+          "type": "gauge",
+          "description": "Number of failed indices",
+          "group": "indices/indexing",
+          "included": false
+        },
         "elasticsearch.indices.indexing.index-time": {
           "type": "cumulative",
           "description": "Time spent indexing documents to an index",
@@ -14842,6 +14848,18 @@
           "description": "Total number of documents indexed to an index",
           "group": "indices/indexing",
           "included": true
+        },
+        "elasticsearch.indices.indexing.noop-update-total": {
+          "type": "cumulative",
+          "description": "Number of noop updates",
+          "group": "indices/indexing",
+          "included": false
+        },
+        "elasticsearch.indices.indexing.throttle-time": {
+          "type": "cumulative",
+          "description": "Throttle time",
+          "group": "indices/indexing",
+          "included": false
         },
         "elasticsearch.indices.merges.auto-throttle-size": {
           "type": "cumulative",
@@ -15044,6 +15062,12 @@
         "elasticsearch.indices.search.fetch-total": {
           "type": "cumulative",
           "description": "Total number of query feches",
+          "group": "indices/search",
+          "included": false
+        },
+        "elasticsearch.indices.search.open-contexts": {
+          "type": "gauge",
+          "description": "Number of open contexts",
           "group": "indices/search",
           "included": false
         },

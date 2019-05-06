@@ -345,109 +345,55 @@ func (c *Config) GetExtraMetrics() []string {
 		extraMetrics = append(extraMetrics, elasticsearchIndicesStoreThrottleTime)
 	}
 	if enhancedStatsForIndexGroups[client.IndexingStatsGroup] {
-		extraMetrics = append(extraMetrics, elasticsearchIndicesIndexingIndexCurrent)
-		extraMetrics = append(extraMetrics, client.IndicesIndexingIndexFailed)
-		extraMetrics = append(extraMetrics, elasticsearchIndicesIndexingDeleteCurrent)
-		extraMetrics = append(extraMetrics, elasticsearchIndicesIndexingDeleteTotal)
-		extraMetrics = append(extraMetrics, elasticsearchIndicesIndexingDeleteTime)
-		extraMetrics = append(extraMetrics, client.IndicesIndexingNoopUpdateTotal)
-		extraMetrics = append(extraMetrics, client.IndicesIndexingThrottledTime)
+		extraMetrics = append(extraMetrics, groupMetricsMap[groupIndicesIndexing]...)
 	}
 	if enhancedStatsForIndexGroups[client.GetStatsGroup] {
-		extraMetrics = append(extraMetrics, elasticsearchIndicesGetCurrent)
-		extraMetrics = append(extraMetrics, elasticsearchIndicesGetTime)
-		extraMetrics = append(extraMetrics, elasticsearchIndicesGetExistsTotal)
-		extraMetrics = append(extraMetrics, elasticsearchIndicesGetExistsTime)
-		extraMetrics = append(extraMetrics, elasticsearchIndicesGetMissingTotal)
-		extraMetrics = append(extraMetrics, elasticsearchIndicesGetMissingTime)
+		extraMetrics = append(extraMetrics, groupMetricsMap[groupIndicesGet]...)
 	}
 	if enhancedStatsForIndexGroups[client.SearchStatsGroup] {
-		extraMetrics = append(extraMetrics, elasticsearchIndicesSearchQueryCurrent)
-		extraMetrics = append(extraMetrics, elasticsearchIndicesSearchFetchCurrent)
-		extraMetrics = append(extraMetrics, elasticsearchIndicesSearchScrollCurrent)
-		extraMetrics = append(extraMetrics, elasticsearchIndicesSearchSuggestCurrent)
-		extraMetrics = append(extraMetrics, client.IndicesSearchOpenContexts)
-		extraMetrics = append(extraMetrics, elasticsearchIndicesSearchFetchTime)
-		extraMetrics = append(extraMetrics, elasticsearchIndicesSearchFetchTotal)
-		extraMetrics = append(extraMetrics, elasticsearchIndicesSearchScrollTime)
-		extraMetrics = append(extraMetrics, elasticsearchIndicesSearchScrollTotal)
-		extraMetrics = append(extraMetrics, elasticsearchIndicesSearchSuggestTime)
-		extraMetrics = append(extraMetrics, elasticsearchIndicesSearchSuggestTotal)
+		extraMetrics = append(extraMetrics, groupMetricsMap[groupIndicesSearch]...)
 	}
 	if enhancedStatsForIndexGroups[client.MergesStatsGroup] {
-		extraMetrics = append(extraMetrics, elasticsearchIndicesMergesCurrentDocs)
-		extraMetrics = append(extraMetrics, client.IndicesMergesCurrentSizeInBytes)
-		extraMetrics = append(extraMetrics, elasticsearchIndicesMergesTotalDocs)
-		extraMetrics = append(extraMetrics, client.IndicesMergesTotalSizeInBytes)
-		extraMetrics = append(extraMetrics, client.IndicesMergesTotalStoppedTime)
-		extraMetrics = append(extraMetrics, client.IndicesMergesTotalThrottledTime)
-		extraMetrics = append(extraMetrics, client.IndicesMergesTotalAutoThrottleInBytes)
+		extraMetrics = append(extraMetrics, groupMetricsMap[groupIndicesMerges]...)
 	}
 	if enhancedStatsForIndexGroups[client.RefreshStatsGroup] {
-		extraMetrics = append(extraMetrics, elasticsearchIndicesRefreshListeners)
-		extraMetrics = append(extraMetrics, elasticsearchIndicesRefreshTime)
-		extraMetrics = append(extraMetrics, elasticsearchIndicesRefreshTotal)
-		extraMetrics = append(extraMetrics, client.IndicesRefreshTotalTime)
+		extraMetrics = append(extraMetrics, groupMetricsMap[groupIndicesRefresh]...)
 	}
 	if enhancedStatsForIndexGroups[client.FlushStatsGroup] {
-		extraMetrics = append(extraMetrics, elasticsearchIndicesFlushPeriodic)
-		extraMetrics = append(extraMetrics, elasticsearchIndicesFlushTotal)
-		extraMetrics = append(extraMetrics, client.IndicesFlushTotalTime)
+		extraMetrics = append(extraMetrics, groupMetricsMap[groupIndicesFlush]...)
 	}
 	if enhancedStatsForIndexGroups[client.WarmerStatsGroup] {
-		extraMetrics = append(extraMetrics, elasticsearchIndicesWarmerCurrent)
-		extraMetrics = append(extraMetrics, elasticsearchIndicesWarmerTotal)
-		extraMetrics = append(extraMetrics, elasticsearchIndicesWarmerTotalTime)
+		extraMetrics = append(extraMetrics, groupMetricsMap[groupIndicesWarmer]...)
 	}
 	if enhancedStatsForIndexGroups[client.QueryCacheStatsGroup] {
-		extraMetrics = append(extraMetrics, client.IndicesQuerycacheCacheSize)
-		extraMetrics = append(extraMetrics, client.IndicesQuerycacheCacheCount)
-		extraMetrics = append(extraMetrics, client.IndicesQuerycacheEvictions)
-		extraMetrics = append(extraMetrics, client.IndicesQuerycacheHitCount)
-		extraMetrics = append(extraMetrics, client.IndicesQuerycacheMissCount)
-		extraMetrics = append(extraMetrics, client.IndicesQuerycacheTotalCount)
+		extraMetrics = append(extraMetrics, groupMetricsMap[groupIndicesQueryCache]...)
 	}
 	if enhancedStatsForIndexGroups[client.FilterCacheStatsGroup] {
-		extraMetrics = append(extraMetrics, elasticsearchIndicesFilterCacheEvictions)
-		extraMetrics = append(extraMetrics, client.IndicesFiltercacheMemorySizeInBytes)
+		extraMetrics = append(extraMetrics, groupMetricsMap[groupIndicesFilterCache]...)
 	}
 	if enhancedStatsForIndexGroups[client.FieldDataStatsGroup] {
-		extraMetrics = append(extraMetrics, elasticsearchIndicesFielddataEvictions)
-		extraMetrics = append(extraMetrics, client.IndicesFielddataMemorySizeInBytes)
+		extraMetrics = append(extraMetrics, groupMetricsMap[groupIndicesFielddata]...)
 	}
 	if enhancedStatsForIndexGroups[client.CompletionStatsGroup] {
-		extraMetrics = append(extraMetrics, client.IndicesCompletionSizeInBytes)
+		extraMetrics = append(extraMetrics, elasticsearchIndicesCompletionSize)
 	}
 	if enhancedStatsForIndexGroups[client.TranslogStatsGroup] {
-		extraMetrics = append(extraMetrics, elasticsearchIndicesTranslogUncommittedOperations)
-		extraMetrics = append(extraMetrics, elasticsearchIndicesTranslogUncommittedSizeInBytes)
-		extraMetrics = append(extraMetrics, elasticsearchIndicesTranslogEarliestLastModifiedAge)
-		extraMetrics = append(extraMetrics, elasticsearchIndicesTranslogOperations)
-		extraMetrics = append(extraMetrics, elasticsearchIndicesTranslogSize)
+		extraMetrics = append(extraMetrics, groupMetricsMap[groupIndicesTranslog]...)
 	}
 	if enhancedStatsForIndexGroups[client.RequestCacheStatsGroup] {
-		extraMetrics = append(extraMetrics, client.IndicesRequestcacheEvictions)
-		extraMetrics = append(extraMetrics, client.IndicesRequestcacheHitCount)
-		extraMetrics = append(extraMetrics, client.IndicesRequestcacheMissCount)
+		extraMetrics = append(extraMetrics, groupMetricsMap[groupIndicesRequestCache]...)
 	}
 	if enhancedStatsForIndexGroups[client.RecoveryStatsGroup] {
-		extraMetrics = append(extraMetrics, elasticsearchIndicesRecoveryCurrentAsSource)
-		extraMetrics = append(extraMetrics, elasticsearchIndicesRecoveryCurrentAsTarget)
-		extraMetrics = append(extraMetrics, elasticsearchIndicesRecoveryThrottleTime)
+		extraMetrics = append(extraMetrics, groupMetricsMap[groupIndicesRecovery]...)
 	}
 	if enhancedStatsForIndexGroups[client.IDCacheStatsGroup] {
-		extraMetrics = append(extraMetrics, client.IndicesIdcacheMemorySizeInBytes)
+		extraMetrics = append(extraMetrics, elasticsearchIndicesIDCacheMemorySize)
 	}
 	if enhancedStatsForIndexGroups[client.SuggestStatsGroup] {
-		extraMetrics = append(extraMetrics, elasticsearchIndicesSuggestCurrent)
-		extraMetrics = append(extraMetrics, elasticsearchIndicesSuggestTime)
-		extraMetrics = append(extraMetrics, elasticsearchIndicesSuggestTotal)
+		extraMetrics = append(extraMetrics, groupMetricsMap[groupIndicesSuggest]...)
 	}
 	if enhancedStatsForIndexGroups[client.PercolateStatsGroup] {
-		extraMetrics = append(extraMetrics, elasticsearchIndicesPercolateCurrent)
-		extraMetrics = append(extraMetrics, elasticsearchIndicesPercolateTotal)
-		extraMetrics = append(extraMetrics, elasticsearchIndicesPercolateQueries)
-		extraMetrics = append(extraMetrics, elasticsearchIndicesPercolateTime)
+		extraMetrics = append(extraMetrics, groupMetricsMap[groupIndicesPercolate]...)
 	}
 	return extraMetrics
 }
