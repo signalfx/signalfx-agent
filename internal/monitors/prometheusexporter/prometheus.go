@@ -57,6 +57,17 @@ type Config struct {
 	SendAllMetrics bool `yaml:"sendAllMetrics"`
 }
 
+func (c *Config) GetExtraMetrics() []string {
+	// Maintain backwards compatibility with the config flag that existing
+	// prior to the new filtering mechanism.
+	if c.SendAllMetrics {
+		return []string{"*"}
+	}
+	return nil
+}
+
+var _ config.ExtraMetrics = &Config{}
+
 // Monitor for prometheus exporter metrics
 type Monitor struct {
 	Output types.Output
@@ -70,17 +81,6 @@ type Monitor struct {
 	cancel  func()
 	client  *http.Client
 }
-
-func (m *Monitor) GetExtraMetrics() []string {
-	// Maintain backwards compatibility with the config flag that existing
-	// prior to the new filtering mechanism.
-	if m.SendAll {
-		return []string{"*"}
-	}
-	return nil
-}
-
-var _ config.ExtraMetrics = &Monitor{}
 
 // Configure the monitor and kick off volume metric syncing
 func (m *Monitor) Configure(conf *Config) error {

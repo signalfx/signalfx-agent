@@ -1,4 +1,4 @@
-package monitors
+package selfdescribe
 
 import (
 	"io/ioutil"

@@ -141,6 +141,7 @@ def test_include_filter_with_monitor_type():
     """
     with Agent.run(
         """
+enableBuiltInFiltering: false
 monitors:
   - type: collectd/disk
   - type: collectd/uptime

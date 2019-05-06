@@ -5,11 +5,14 @@ from textwrap import dedent
 import pytest
 from tests.helpers.agent import Agent
 from tests.helpers.assertions import has_datapoint, tcp_socket_open
+from tests.helpers.metadata import Metadata
 from tests.helpers.util import container_ip, run_container, wait_for
 
 pytestmark = [pytest.mark.collectd, pytest.mark.mongodb, pytest.mark.monitor_with_endpoints]
 
 SCRIPT_DIR = Path(__file__).parent.resolve()
+
+METADATA = Metadata.from_package("collectd/mongodb")
 
 
 def test_mongo():

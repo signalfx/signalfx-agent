@@ -7,8 +7,6 @@ import (
 	"reflect"
 	"sort"
 
-	"github.com/signalfx/signalfx-agent/internal/monitors"
-
 	"github.com/signalfx/signalfx-agent/internal/core/services"
 	"github.com/signalfx/signalfx-agent/internal/observers"
 	log "github.com/sirupsen/logrus"
@@ -16,9 +14,9 @@ import (
 
 type observerMetadata struct {
 	structMetadata
-	ObserverType      string                          `json:"observerType"`
-	Dimensions        map[string]monitors.DimMetadata `json:"dimensions"`
-	EndpointVariables []endpointVar                   `json:"endpointVariables"`
+	ObserverType      string                 `json:"observerType"`
+	Dimensions        map[string]DimMetadata `json:"dimensions"`
+	EndpointVariables []endpointVar          `json:"endpointVariables"`
 }
 
 type endpointVar struct {
@@ -102,8 +100,8 @@ func observerDocsInPackage(pkgDoc *doc.Package) map[string]string {
 	return out
 }
 
-func dimensionsFromNotesAndServicesPackage(allDocs []*doc.Package) (map[string]monitors.DimMetadata, error) {
-	containerDims := map[string]monitors.DimMetadata{}
+func dimensionsFromNotesAndServicesPackage(allDocs []*doc.Package) (map[string]DimMetadata, error) {
+	containerDims := map[string]DimMetadata{}
 
 	if isContainerObserver(allDocs) {
 		servicesDocs, err := nestedPackageDocs("internal/core/services")
@@ -112,7 +110,7 @@ func dimensionsFromNotesAndServicesPackage(allDocs []*doc.Package) (map[string]m
 		}
 
 		for _, note := range notesFromDocs(servicesDocs, "CONTAINER_DIMENSION") {
-			containerDims[note.UID] = monitors.DimMetadata{
+			containerDims[note.UID] = DimMetadata{
 				Description: commentTextToParagraphs(note.Body),
 			}
 		}

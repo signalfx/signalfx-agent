@@ -53,6 +53,13 @@ func (c *Config) PythonConfig() *python.Config {
 	return c.pyConf
 }
 
+func (c *Config) GetExtraMetrics() []string {
+	if len(c.SendListLengths) > 0 {
+		return []string{gaugeKeyLlen}
+	}
+	return nil
+}
+
 func (c *Config) sendListLengthsTuples() [][]interface{} {
 	var out [][]interface{}
 	for _, ll := range c.SendListLengths {

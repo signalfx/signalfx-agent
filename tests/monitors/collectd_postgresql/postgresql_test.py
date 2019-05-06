@@ -12,6 +12,8 @@ CONFIG_TEMP = string.Template(
     """
 monitors:
   - type: collectd/postgresql
+    extraMetrics:
+     - '*'
     host: $host
     port: 5432
     username: "username1"
@@ -51,3 +53,6 @@ def test_postgresql():
                 p(has_datapoint_with_dim, agent.fake_services, "plugin", "postgresql")
             ), "Didn't get postgresql datapoints"
             assert wait_for(p(has_datapoint_with_metric_name, agent.fake_services, "pg_blks.toast_hit"))
+            import time
+
+            time.sleep(5)

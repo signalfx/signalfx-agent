@@ -162,7 +162,7 @@ METADATA = Metadata.from_package("docker")
 def test_docker_included():
     with run_service(
         "elasticsearch/6.6.1"
-    ) as _:  # just get a container that does some block io running so we have some stats
+    ):  # just get a container that does some block io running so we have some stats
         verify_included_metrics(
             f"""
             monitors:
@@ -178,7 +178,7 @@ ENHANCED_METRICS = METADATA.all_metrics - {"memory.stats.swap"}
 def test_docker_enhanced():
     with run_service(
         "elasticsearch/6.6.1"
-    ) as _:  # just get a container that does some block io running so we have some stats
+    ):  # just get a container that does some block io running so we have some stats
         verify_custom(
             f"""
             monitors:

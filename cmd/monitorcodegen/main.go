@@ -12,7 +12,7 @@ import (
 	"path/filepath"
 	"runtime"
 
-	"github.com/signalfx/signalfx-agent/internal/monitors"
+	"github.com/signalfx/signalfx-agent/internal/selfdescribe"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -21,13 +21,13 @@ const (
 	generatedMetadataTemplate = "genmetadata.tmpl"
 )
 
-func buildOutputPath(pkg *monitors.PackageMetadata) string {
+func buildOutputPath(pkg *selfdescribe.PackageMetadata) string {
 	outputDir := pkg.PackagePath
 	return path.Join(outputDir, genMetadata)
 }
 
 // shouldRegenerate determines whether the metadata file needs regenerated based on its existence and timestamps.
-func shouldRegenerate(pkg *monitors.PackageMetadata, outputFile string) (bool, error) {
+func shouldRegenerate(pkg *selfdescribe.PackageMetadata, outputFile string) (bool, error) {
 	var generatorStat os.FileInfo
 	var statMetadataYaml os.FileInfo
 
@@ -55,7 +55,7 @@ func shouldRegenerate(pkg *monitors.PackageMetadata, outputFile string) (bool, e
 }
 
 func generate(templateFile string, force bool) error {
-	pkgs, err := monitors.CollectMetadata("internal/monitors")
+	pkgs, err := selfdescribe.CollectMetadata("internal/monitors")
 
 	if err != nil {
 		return err
@@ -94,7 +94,7 @@ func generate(templateFile string, force bool) error {
 
 		writer := &bytes.Buffer{}
 		groupMetricsMap := map[string][]string{}
-		metrics := map[string]monitors.MetricMetadata{}
+		metrics := map[string]selfdescribe.MetricMetadata{}
 
 		for _, mon := range pkg.Monitors {
 			for metric, metricInfo := range mon.Metrics {

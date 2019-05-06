@@ -3097,7 +3097,7 @@
     },
     {
       "monitorType": "collectd/custom",
-      "sendAll": false,
+      "sendAll": true,
       "dimensions": null,
       "doc": "This monitor lets you provide custom collectd\nconfiguration to be run by the managed collectd instance.  You can provide\nconfiguration for as many plugins as you want in a single instance of this\nmonitor configuration by either putting multiple `\u003cPlugin\u003e` blocks in a\nsingle `template` option, or specifying multiple `templates`.\n\nNote that a distinct instance of collectd is run for each instance of this\nmonitor, so it is more efficient to group plugin configurations into a\nsingle monitor configuration (either in one big `template` text blob, or\nsplit into multiple `templates`).  You should not group configurations if\nusing a discoveryRule since that would result in duplicate config for each\ninstance of the service endpoint discovered.\n\nYou can also use your own Python plugins in conjunction with the\n`ModulePath` option in\n[collectd-python](https://collectd.org/documentation/manpages/collectd-python.5.shtml).\nIf your Python plugin has dependencies of its own, you can specify the path\nto them by specifying multiple `ModulePath` options with those paths.\n\nHere is an example of a configuration with a custom Python plugin:\n\n```yaml\n  - type: collectd/custom\n    discoveryRule: container_image =~ \"myservice\"\n    template: |\n      LoadPlugin \"python\"\n      \u003cPlugin python\u003e\n        ModulePath \"/usr/lib/python2.7/dist-packages/health_checker\"\n        Import \"health_checker\"\n        \u003cModule health_checker\u003e\n          URL \"http://{{.Host}}:{{.Port}}\"\n          JSONKey \"isRunning\"\n          JSONVal \"1\"\n        \u003c/Module\u003e\n      \u003c/Plugin\u003e\n```\n\nWe have many collectd plugins included in the image that are not exposed as\nmonitors.  You can see the plugins in the `\u003cAGENT_BUNDLE\u003e/lib/collectd`\ndirectory, where `\u003cAGENT_BUNDLE\u003e` is the root of the filesystem in the\ncontainerized version, and is normally `/usr/lib/signalfx-agent` in the\nnon-containerized agent.\n",
       "groups": null,
@@ -7881,115 +7881,115 @@
         "counter.collection.commandsCount": {
           "type": "counter",
           "description": "Number of commands issued for a collection",
-          "group": null,
+          "group": "collection-top",
           "included": false
         },
         "counter.collection.commandsTime": {
           "type": "counter",
           "description": "Time spent in microseconds processing commands issued for a collection",
-          "group": null,
+          "group": "collection-top",
           "included": false
         },
         "counter.collection.getmoreCount": {
           "type": "counter",
           "description": "Number of getMore requests issued for a collection",
-          "group": null,
+          "group": "collection-top",
           "included": false
         },
         "counter.collection.getmoreTime": {
           "type": "counter",
           "description": "Time spent in microseconds processing getMore requests for a collection",
-          "group": null,
+          "group": "collection-top",
           "included": false
         },
         "counter.collection.index.accesses.ops": {
           "type": "counter",
           "description": "Number of times an index has been used (only on Mongo 3.2+)",
-          "group": null,
+          "group": "collection",
           "included": false
         },
         "counter.collection.insertCount": {
           "type": "counter",
           "description": "Number of inserts issued for a collection",
-          "group": null,
+          "group": "collection-top",
           "included": false
         },
         "counter.collection.insertTime": {
           "type": "counter",
           "description": "Time spent in microseconds processing insert requests for a collection",
-          "group": null,
+          "group": "collection-top",
           "included": false
         },
         "counter.collection.queriesCount": {
           "type": "counter",
           "description": "Number of queries issued for a collection",
-          "group": null,
+          "group": "collection-top",
           "included": false
         },
         "counter.collection.queriesTime": {
           "type": "counter",
           "description": "Time spent in microseconds processing query requests for a collection",
-          "group": null,
+          "group": "collection-top",
           "included": false
         },
         "counter.collection.readLockCount": {
           "type": "counter",
           "description": "Number of read locks issued for a collection",
-          "group": null,
+          "group": "collection-top",
           "included": false
         },
         "counter.collection.readLockTime": {
           "type": "counter",
           "description": "Time spent in microseconds processing read locks for a collection",
-          "group": null,
+          "group": "collection-top",
           "included": false
         },
         "counter.collection.removeCount": {
           "type": "counter",
           "description": "Number of remove requests issued for a collection",
-          "group": null,
+          "group": "collection-top",
           "included": false
         },
         "counter.collection.removeTime": {
           "type": "counter",
           "description": "Time spent in microseconds processing remove requests for a collection",
-          "group": null,
+          "group": "collection-top",
           "included": false
         },
         "counter.collection.totalCount": {
           "type": "counter",
           "description": "Total number of operations issued for a collection",
-          "group": null,
+          "group": "collection-top",
           "included": false
         },
         "counter.collection.totalTime": {
           "type": "counter",
           "description": "Time spent in microseconds processing all operations for a collection",
-          "group": null,
+          "group": "collection-top",
           "included": false
         },
         "counter.collection.updateCount": {
           "type": "counter",
           "description": "Number of update requests issued for a collection",
-          "group": null,
+          "group": "collection-top",
           "included": false
         },
         "counter.collection.updateTime": {
           "type": "counter",
           "description": "Time spent in microseconds processing update requests for a collection",
-          "group": null,
+          "group": "collection-top",
           "included": false
         },
         "counter.collection.writeLockCount": {
           "type": "counter",
           "description": "Number of write locks issued for a collection",
-          "group": null,
+          "group": "collection-top",
           "included": false
         },
         "counter.collection.writeLockTime": {
           "type": "counter",
           "description": "Time spent in microseconds processing write locks for a collection",
-          "group": null,
+          "group": "collection-top",
           "included": false
         },
         "counter.extra_info.page_faults": {
@@ -8055,19 +8055,19 @@
         "gauge.collection.avgObjSize": {
           "type": "gauge",
           "description": "Mean object/document size of a collection",
-          "group": null,
+          "group": "collection",
           "included": false
         },
         "gauge.collection.count": {
           "type": "gauge",
           "description": "Number of objects/documents in a collection",
-          "group": null,
+          "group": "collection",
           "included": false
         },
         "gauge.collection.indexSize": {
           "type": "gauge",
           "description": "Size of a particular index on a collection",
-          "group": null,
+          "group": "collection",
           "included": false
         },
         "gauge.collection.max": {
@@ -8085,13 +8085,13 @@
         "gauge.collection.size": {
           "type": "gauge",
           "description": "Size of a collection in bytes, not including indexes",
-          "group": null,
+          "group": "collection",
           "included": false
         },
         "gauge.collection.storageSize": {
           "type": "gauge",
           "description": "Size of the collection on disk in bytes, never decreases.",
-          "group": null,
+          "group": "collection",
           "included": false
         },
         "gauge.collections": {
@@ -10359,7 +10359,7 @@
     },
     {
       "monitorType": "collectd/python",
-      "sendAll": false,
+      "sendAll": true,
       "dimensions": null,
       "doc": "This monitor runs arbitrary collectd Python\nplugins directly, apart from collectd.  It implements a mock collectd Python\ninterface that supports most, but not all, of the real collectd.\n",
       "groups": null,
@@ -18880,7 +18880,7 @@
     },
     {
       "monitorType": "prometheus-exporter",
-      "sendAll": false,
+      "sendAll": true,
       "dimensions": null,
       "doc": "This monitor reads metrics from a [Prometheus\nexporter](https://prometheus.io/docs/instrumenting/exporters/) endpoint.\n\nAll metric types are supported.  See\nhttps://prometheus.io/docs/concepts/metric_types/ for a description of the\nPrometheus metric types.  The conversion happens as follows:\n\n - Gauges are converted directly to SignalFx gauges\n - Counters are converted directly to SignalFx cumulative counters\n - Untyped metrics are converted directly to SignalFx gauges\n - Summary metrics are converted to three distinct metrics, where\n   `\u003cbasename\u003e` is the root name of the metric:\n   - The total count gets converted to a cumulative counter called `\u003cbasename\u003e_count`\n   - The total sum gets converted to a cumulative counter called `\u003cbasename\u003e`\n   - Each quantile value is converted to a gauge called\n     `\u003cbasename\u003e_quantile` and will include a dimension called `quantile` that\n     specifies the quantile.\n - Histogram metrics are converted to three distinct metrics, where\n   `\u003cbasename\u003e` is the root name of the metric:\n   - The total count gets converted to a cumulative counter called `\u003cbasename\u003e_count`\n   - The total sum gets converted to a cumulative counter called `\u003cbasename\u003e`\n   - Each histogram bucket is converted to a cumulative counter called\n     `\u003cbasename\u003e_bucket` and will include a dimension called `upper_bound` that\n     specifies the maximum value in that bucket.  This metric specifies the\n     number of events with a value that is less than or equal to the upper\n     bound.\n\nAll Prometheus labels will be converted directly to SignalFx dimensions.\n\nThis supports service discovery so you can set a discovery rule such as:\n\n`port \u003e= 9100 \u0026\u0026 port \u003c= 9500 \u0026\u0026 containerImage =~ \"exporter\"`\n\nassuming you are running exporters in container images that have the word\n\"exporter\" in them and fall within the standard exporter port range.  In\nK8s, you could also try matching on the container port name as defined in\nthe pod spec, which is the `name` variable in discovery rules for the\n`k8s-api` observer.\n\nFiltering can be very useful here since exporters tend to be fairly verbose.\n\nSample YAML configuration:\n\n```\nmonitors:\n - type: prometheus-exporter\n   discoveryRule: port \u003e= 9100 \u0026\u0026 port \u003c= 9500 \u0026\u0026 container_image =~ \"exporter\"\n   extraDimensions:\n     metric_source: prometheus\n```\n",
       "groups": null,
@@ -23397,7 +23397,7 @@
     },
     {
       "monitorType": "python-monitor",
-      "sendAll": false,
+      "sendAll": true,
       "dimensions": null,
       "doc": "This monitor allows you to generate metrics from a Python script.\n\nYour Python code should be Python 2.7+ *AND* 3.0+ compatible.  The Python\nruntime bundled with the agent is currently version 2.7 but this could be\nupgraded at anytime to Python 3.  If you want to use Python 3 at this time,\nyou can specify a custom Python binary with the `pythonBinary` config\noption.\n\n## Module Loading\nThe full file path to the Python script that you want to run should be\nspecified in the `scriptFilePath` config option.  This file will be loaded in\nPython by adding the directory containing the file to the front of the Python\npath (`sys.path`) and then dynamically importing the file as a module.  For\na hypothetical script at `/opt/scripts/mymonitor.py`, this is roughly\nequivalent to the following Python code:\n\n```\nimport sys\nsys.path.insert(0, \"/opt/scripts\")\n\nimport mymodule\n```\n\nThere are two ways you can implement a monitor in Python, a simple way or a\ncomplex, but more powerful way.  \n\n## Simple monitor \nThe simple way is to write a script that has a `run` function in it.  This\nfunction should accept two parameters: `config` and `output`.  The `run`\nfunction will be called on a regular interval, specified by the common\n`intervalSeconds` config option on the monitor config.\n\nHere is [an example of a simple monitor](https://github.com/signalfx/signalfx-agent/tree/master/python/sample/monitor_simple.py).\n\n## Complex monitor\n\nIf you need more power and flexibility in defining your monitor, you can\nuse the complex monitor format.  With this, you define a class called\n`Monitor` in a Python module. Here is [a documented example of a complex\nmonitor](https://github.com/signalfx/signalfx-agent/tree/master/python/sample/monitor_complex.py).\n\n## Auto-discovery\n\nThis monitor works with auto-discovery just like other monitors.  If you\nset a `discoveryRule` on the monitor config, a new instance of the monitor\nwill be created for each matching endpoint and the `host` and `port` config\nfields will be populated with the appropriate values and passed to the\nPython script in the `config` dictionary.\n\n## Example Config\n\nThis shows loading a Python module from the agent repo using a single custom config value (`myconfig`):\n\n```yaml\nmonitors:\n - type: python-monitor\n   # pythonBinary: /usr/bin/python\n   scriptFilePath: /usr/src/signalfx-agent/python/sample/monitor_complex.py\n   myconfig: [1,2,3]\n```\n",
       "groups": null,
@@ -23456,7 +23456,7 @@
     },
     {
       "monitorType": "sql",
-      "sendAll": false,
+      "sendAll": true,
       "dimensions": null,
       "doc": "Run arbitrary SQL queries against a relational database and use the results to generate dataponts.\n\nFor example, if you had a database table `customers` that looked like:\n\n| id | name       | country | status   |\n|----|------------|---------|----------|\n| 1  | Bill       | USA     | active   |\n| 2  | Mary       | USA     | inactive |\n| 3  | Joe        | USA     | active   |\n| 4  | Elizabeth  | Germany | active   |\n\nYou could use the following monitor config to generate metrics about active users and customer counts by country:\n\n```yaml\nmonitors:\n  - type: sql\n    host: localhost\n    port: 5432\n    dbDriver: postgres\n    params:\n      user: admin\n      password: s3cr3t\n    # The `host` and `port` values from above (or provided through auto-discovery) should be interpolated\n    # to the connection string as appropriate for your database driver.\n    # Also, the values from the `params` config option above can be\n    # interpolated.\n    connectionString: 'host={{.host}} port={{.port}} dbname=main user={{.user}} password={{.password}} sslmode=disabled'\n    queries:\n      - query: 'SELECT COUNT(*) as count, country, status FROM customers GROUP BY country, status;'\n        metrics:\n          - metricName: \"customers\"\n            valueColumn: \"count\"\n            dimensionColumns: [\"country\", \"status\"]\n```\n\nThis would generate a series of timeseries, all with the metric name\n`customers` that includes a `county` and `status` dimension.  The value\nis the number of customers that belong to that combination of `country`\nand `status`.  You could also specify multiple `metrics` items to\ngenerate more than one metric from a single query.\n\n## Supported Drivers\n\nThe `dbDriver` config option must specify the database driver to use.\nThese are equivalent to the name of the Golang SQL driver used in the\nagent.  The `connectionString` option will be formatted according to the\ndriver that is going to receive it.  Here is a list of the drivers we\ncurrently support and documentation on the connection string:\n\n  - `postgres`: https://godoc.org/github.com/lib/pq#hdr-Connection_String_Parameters\n  - `mysql`: https://github.com/go-sql-driver/mysql#dsn-data-source-name\n  - `mssql`: https://github.com/denisenkom/go-mssqldb#connection-parameters-and-dsn\n\n## Parameterized Connection String\n\nThe `connectionString` config option acts as a template with a context\nconsisting of the variables: `host`, `port`, and all the values from\nthe `params` config option map.  You interpolate variables into it\nwith the Go template syntax `{{.varname}}` (see example config\nabove).\n",
       "groups": null,
@@ -23675,7 +23675,7 @@
     },
     {
       "monitorType": "telegraf/logparser",
-      "sendAll": false,
+      "sendAll": true,
       "dimensions": null,
       "doc": "This monitor is based on the Telegraf logparser plugin.\nThe monitor tails log files. More information about the Telegraf plugin\ncan be found [here](https://github.com/influxdata/telegraf/tree/master/plugins/inputs/logparser).\nAll metrics emitted from this monitor will have the `plugin` dimension set to `telegraf-logparser`\n\nSample YAML configuration:\n\n```yaml\n - type: telegraf/logparser\n   files:\n    - '$file'\n   watchMethod: poll       # specify the file watch method (\"inotify\" or \"poll\")\n   fromBeginning: true     # specify to read from the beginning\n   measurementName: test-measurement # the metric name prefix\n   patterns:\n    - \"%{COMMON_LOG_FORMAT}\" # specifies the apache common log format\n   timezone: UTC\n```\n",
       "groups": null,
@@ -24104,7 +24104,7 @@
     },
     {
       "monitorType": "telegraf/snmp",
-      "sendAll": false,
+      "sendAll": true,
       "dimensions": null,
       "doc": "This monitor reports metrics from snmp agents.\nThis monitor is based on the Telegraf SNMP plugin.  More information about the Telegraf plugin\ncan be found [here](https://github.com/influxdata/telegraf/tree/master/plugins/inputs/snmp).\n\n**NOTE:** This snmp monitor does not currently support MIB look ups because of a dependency on `net-snmp`\nand specifically the commands `snmptranslate` and `snmptable`.\n\nSample YAML configuration:\n\n```yaml\nmonitors:\n - type: telegraf/snmp\n   agents:\n     - \"127.0.0.1:161\"\n   version: 2\n   community: \"public\"\n   fields:\n     - name: \"uptime\"\n       oid: \".1.3.6.1.2.1.1.3.0\"\n```\n\nUsing a discovery rule to discover and configure for a specific snmp agent\n```yaml\nmonitors:\n - type: telegraf/snmp\n   discoveryRule: container_name =~ \"snmp\" \u0026\u0026 port == 161\n   version: 2\n   community: \"public\"\n   fields:\n     - name: \"uptime\"\n       oid: \".1.3.6.1.2.1.1.3.0\"\n```\n",
       "groups": null,
@@ -25238,7 +25238,7 @@
     },
     {
       "monitorType": "telegraf/statsd",
-      "sendAll": false,
+      "sendAll": true,
       "dimensions": null,
       "doc": "This monitor acts as a Telegraf StatsD listener for receiving telegrafstatsd metrics.\nThis monitor is based on the Telegraf Statsd input plugin.  More information about the Telegraf plugin\ncan be found [here](https://github.com/influxdata/telegraf/tree/master/plugins/inputs/statsd).\n\nSample YAML configuration:\n\n```yaml\nmonitors:\n - type: telegraf/statsd\n   protocol: udp\n   serviceAddress: \":8125\"\n   parseDataDogTags: true\n```\n\n```yaml\nmonitors:\n - type: telegraf/statsd\n   protocol: udp\n   serviceAddress: \"127.0.0.1:0\"\n   parseDataDogTags: true\n   metricSeparator: '.'\n```\n",
       "groups": null,
@@ -25369,7 +25369,7 @@
     },
     {
       "monitorType": "telegraf/tail",
-      "sendAll": false,
+      "sendAll": true,
       "dimensions": null,
       "doc": "This monitor is based on the Telegraf tail plugin.  The monitor tails files and\nnamed pipes.  The Telegraf parser configured with this monitor extracts metrics in different\n[formats](https://github.com/influxdata/telegraf/blob/master/docs/DATA_FORMATS_INPUT.md)\nfrom the tailed output. More information about the Telegraf plugin\ncan be found [here](https://github.com/influxdata/telegraf/tree/master/plugins/inputs/tail).\nAll metrics emitted from this monitor will have the `plugin` dimension set to `telegraf-tail`\n\nSample YAML configuration:\n\n```yaml\nmonitors:\n - type: telegraf/tail\n   files:\n    - '/logs/**.log'       # find all .log files in /logs\n    - '/logs/*/*.log'      # find all .log files who are contained in a directory under /logs/\n    - '/var/log/agent.log' # tail the specified log file\n   watchMethod: inotify    # specify the file watch method (\"ionotify\" or \"poll\")\n```\n\nSample YAML configuration that specifies a parser:\n\n```yaml\nmonitors:\n - type: telegraf/tail\n   files:\n    - '/logs/**.log'       # find all .log files in /logs\n    - '/logs/*/*.log'      # find all .log files who are contained in a directory under /logs/\n    - '/var/log/agent.log' # tail the specified log file\n   watchMethod: inotify    # specify the file watch method (\"inotify\" or \"poll\")\n   telegrafParser:         # specify a parser\n     dataFormat: \"influx\"  # set the parser's dataFormat\n```\n",
       "groups": null,
@@ -25739,7 +25739,7 @@
     },
     {
       "monitorType": "telegraf/win_perf_counters",
-      "sendAll": false,
+      "sendAll": true,
       "dimensions": null,
       "doc": "This monitor reads Windows performance\ncounters\n\nSample YAML configuration:\n\n```yaml\nmonitors:\n - type: telegraf/win_perf_counters\n   printValid: true\n   objects:\n    - objectName: \"Processor\"\n      instances:\n       - \"*\"\n      counters:\n       - \"% Idle Time\"\n       - \"% Interrupt Time\"\n       - \"% Privileged Time\"\n       - \"% User Time\"\n       - \"% Processor Time\"\n      includeTotal: true\n      measurement: \"win_cpu\"\n```\n",
       "groups": null,
@@ -28241,6 +28241,14 @@
             }
           ]
         }
+      },
+      {
+        "yamlName": "enableBuiltInFiltering",
+        "doc": "If true, the agent will inherently filter non-bundled metrics without having to rely on the `whitelist.json` filter that was previously included under `metricsToExclude`.  Whether a metric is bundled or not is documented in each monitor's documentation.  Now every monitor's default configuration (i.e. the minimum amount of configuration to make it work) will only send bundled metrics, but if you enable certain flags or config options on the monitor, non-bundled metrics will also be sent without having to modify the whitelist via `metricsToInclude`.",
+        "default": false,
+        "required": false,
+        "type": "bool",
+        "elementKind": ""
       },
       {
         "yamlName": "metricsToInclude",

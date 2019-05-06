@@ -50,6 +50,19 @@ func (mf *monitorFiltering) EnabledMetrics() []string {
 	return enabledMetrics
 }
 
+// HasEnabledMetricInGroup returns true if there are any metrics enabled that
+// fall into the given group.
+func (mf *monitorFiltering) HasEnabledMetricInGroup(group string) bool {
+	for _, m := range mf.EnabledMetrics() {
+		// TODO: If metric names in metadata.yaml ever support wildcards this
+		// will have to be enhanced.
+		if mf.metadata.Metrics[m].Group == group {
+			return true
+		}
+	}
+	return false
+}
+
 func buildFilterSet(metadata *Metadata, conf config.MonitorCustomConfig) (*dpfilters.FilterSet, error) {
 	coreConfig := conf.MonitorConfigCore()
 
@@ -188,8 +201,8 @@ func newMetricsFilter(metadata *Metadata, extraMetrics, extraGroups []string) (*
 }
 
 func (mf *extraMetricsFilter) Matches(dp *datapoint.Datapoint) bool {
-	if mf.metadata.HasIncludedMetric(dp.Metric) {
-		// It's an included metric so send by default.
+	if mf.metadata.HasIncludedMetric(dp.Metric) || !mf.metadata.HasMetric(dp.Metric) {
+		// It's an included metric or is totally unknown so send by default.
 		return true
 	}
 
