@@ -2,10 +2,12 @@
 
 # kubernetes-cluster
 
-Collects cluster-level metrics from the
-Kubernetes API server.  It uses the _watch_ functionality of the K8s API
-to listen for updates about the cluster and maintains a cache of metrics
-that get sent on a regular interval.
+*If you are using OpenShift there is an [`openshift-cluster`](openshift-cluster.md)
+monitor to be used instead of this monitor that contains additional OpenShift metrics.*
+
+Collects cluster-level metrics from the Kubernetes API server.  It uses the
+_watch_ functionality of the K8s API to listen for updates about the cluster
+and maintains a cache of metrics that get sent on a regular interval.
 
 Since the agent is generally running in multiple places in a K8s cluster and
 since it is generally more convenient to share the same configuration across
@@ -47,7 +49,7 @@ The **nested** `kubernetesAPI` config object has the following fields:
 
 | Config option | Required | Type | Description |
 | --- | --- | --- | --- |
-| `authType` | no | `string` | How to authenticate to the K8s API server.  This can be one of `none` (for no auth), `tls` (to use manually specified TLS client certs, not recommended), or `serviceAccount` (to use the standard service account token provided to the agent pod). (**default:** `serviceAccount`) |
+| `authType` | no | `string` | How to authenticate to the K8s API server.  This can be one of `none` (for no auth), `tls` (to use manually specified TLS client certs, not recommended), `serviceAccount` (to use the standard service account token provided to the agent pod), or `kubeConfig` to use credentials from `~/.kube/config`. (**default:** `serviceAccount`) |
 | `skipVerify` | no | `bool` | Whether to skip verifying the TLS cert from the API server.  Almost never needed. (**default:** `false`) |
 | `clientCertPath` | no | `string` | The path to the TLS client cert on the pod's filesystem, if using `tls` auth. |
 | `clientKeyPath` | no | `string` | The path to the TLS client key on the pod's filesystem, if using `tls` auth. |
