@@ -28,6 +28,12 @@ Then you can install the agent using the chart name `signalfx/signalfx-agent`.
 
 ## Configuration
 
+### Configuring your realm
+By default, the Smart Agent will send data to the `us0` realm. If you are
+not in this realm, you will need to explicitly set the `signalFxRealm` option
+in the agent configuration. To determine if you are in a different realm,
+check your profile page in the SignalFx web application.
+
 See the [values.yaml](./values.yaml) file for more information on how to
 configure releases.
 
@@ -36,13 +42,15 @@ and `clusterName` (if not overridding the agent config template and providing yo
 
 It is also **recommended** that you explicitly specify `agentVersion` when deploying a release so that the agent will not be unintentionally updated based on updates of the helm chart from the repo.
 
-For example a basic command line install setting these three values would be:
+For example, a basic command line install setting these values would be:
 
-`$ helm install --set signalFxAccessToken=<YOUR_ACCESS_TOKEN> --set clusterName=<YOUR_CLUSTER_NAME> --set agentVersion=<VERSION_NUMBER> signalfx/signalfx-agent`
+`$ helm install --set signalFxAccessToken=<YOUR_ACCESS_TOKEN> --set clusterName=<YOUR_CLUSTER_NAME> --set agentVersion=<VERSION_NUMBER> --set signalFxRealm=<YOUR_SIGNALFX_REALM> signalfx/signalfx-agent`
 
 If you want to provide your own agent configuration, you can do so with the
 `agentConfig` value.  Otherwise, you can do a great deal of customization to
 the provided config template using values.
 
 If you are using OpenShift set `kubernetesDistro` to `openshift` to get
-OpenShift-specific functionality.
+OpenShift-specific functionality:
+
+`$ helm install --set signalFxAccessToken=<YOUR_ACCESS_TOKEN> --set clusterName=<YOUR_CLUSTER_NAME> --set agentVersion=<VERSION_NUMBER> --set signalFxRealm=<YOUR_SIGNALFX_REALM> signalfx/signalfx-agent --set kubernetesDistro=openshift`
