@@ -13278,247 +13278,247 @@
           "type": "gauge",
           "description": "Attempts time-series",
           "group": "attempts",
-          "included": false
+          "included": true
         },
         "conviva.audience_metriclens.concurrent_plays": {
           "type": "gauge",
           "description": "Concurrent Plays",
           "group": "audience_metriclens",
-          "included": false
+          "included": true
         },
         "conviva.audience_metriclens.ended_plays": {
           "type": "gauge",
           "description": "Ended Plays",
           "group": "audience_metriclens",
-          "included": false
+          "included": true
         },
         "conviva.audience_metriclens.plays": {
           "type": "gauge",
           "description": "Plays",
           "group": "audience_metriclens",
-          "included": false
+          "included": true
         },
         "conviva.avg_bitrate": {
           "type": "gauge",
           "description": "Average bitrate time-series",
           "group": "avg_bitrate",
-          "included": false
+          "included": true
         },
         "conviva.concurrent_plays": {
           "type": "gauge",
           "description": "Concurrent plays time-series",
           "group": "concurrent_plays",
-          "included": false
+          "included": true
         },
         "conviva.connection_induced_rebuffering_ratio": {
           "type": "gauge",
           "description": "Connection induced rebuffering ratio simple-series",
           "group": "connection_induced_rebuffering_ratio",
-          "included": false
+          "included": true
         },
         "conviva.connection_induced_rebuffering_ratio_timeseries": {
           "type": "gauge",
           "description": "Connection induced rebuffering ratio time-series",
           "group": "connection_induced_rebuffering_ratio_timeseries",
-          "included": false
+          "included": true
         },
         "conviva.duration_connection_induced_rebuffering_ratio_distribution": {
           "type": "gauge",
           "description": "Duration vs. connection induced rebuffering ratio distribution label-series",
           "group": "duration_connection_induced_rebuffering_ratio_distribution",
-          "included": false
+          "included": true
         },
         "conviva.ended_plays": {
           "type": "gauge",
           "description": "Ended plays simple-series",
           "group": "ended_plays",
-          "included": false
+          "included": true
         },
         "conviva.ended_plays_timeseries": {
           "type": "gauge",
           "description": "Ended plays time-series",
           "group": "ended_plays_timeseries",
-          "included": false
+          "included": true
         },
         "conviva.exits_before_video_start": {
           "type": "gauge",
           "description": "Exits before video start time-series",
           "group": "exits_before_video_start",
-          "included": false
+          "included": true
         },
         "conviva.play_bitrate_distribution": {
           "type": "gauge",
           "description": "Play bitrate distribution label-series",
           "group": "play_bitrate_distribution",
-          "included": false
+          "included": true
         },
         "conviva.play_buffering_ratio_distribution": {
           "type": "gauge",
           "description": "Play buffering ratio distribution label-series",
           "group": "play_buffering_ratio_distribution",
-          "included": false
+          "included": true
         },
         "conviva.play_connection_induced_rebuffering_ratio_distribution": {
           "type": "gauge",
           "description": "Play connection induced rebuffering ratio distribution label-series",
           "group": "play_connection_induced_rebuffering_ratio_distribution",
-          "included": false
+          "included": true
         },
         "conviva.plays": {
           "type": "gauge",
           "description": "Plays time-series",
           "group": "plays",
-          "included": false
+          "included": true
         },
         "conviva.quality_metriclens.average_bitrate_kbps": {
           "type": "gauge",
           "description": "Average Bitrate (bps). This metric can be returned in kbps with the ab_units=kbps parameter. Unless this parameter is specified, average bitrate is bps",
           "group": "quality_metriclens",
-          "included": false
+          "included": true
         },
         "conviva.quality_metriclens.connection_induced_rebuffering_ratio_percent": {
           "type": "gauge",
           "description": "Connection Induced ReBuffering Ratio (%)",
           "group": "quality_metriclens",
-          "included": false
+          "included": true
         },
         "conviva.quality_metriclens.ended_plays": {
           "type": "gauge",
           "description": "Ended Plays",
           "group": "quality_metriclens",
-          "included": false
+          "included": true
         },
         "conviva.quality_metriclens.exits_before_video_start_percent": {
           "type": "gauge",
           "description": "Exits Before Video Starts (EBVS) (%)",
           "group": "quality_metriclens",
-          "included": false
+          "included": true
         },
         "conviva.quality_metriclens.plays_percent": {
           "type": "gauge",
           "description": "Plays (%)",
           "group": "quality_metriclens",
-          "included": false
+          "included": true
         },
         "conviva.quality_metriclens.rebuffering_ratio_percent": {
           "type": "gauge",
           "description": "Rebuffering Ratio (%)",
           "group": "quality_metriclens",
-          "included": false
+          "included": true
         },
         "conviva.quality_metriclens.total_attempts": {
           "type": "gauge",
           "description": "Attempts",
           "group": "quality_metriclens",
-          "included": false
+          "included": true
         },
         "conviva.quality_metriclens.video_playback_failures_percent": {
           "type": "gauge",
           "description": "Video Playback Failures (%)",
           "group": "quality_metriclens",
-          "included": false
+          "included": true
         },
         "conviva.quality_metriclens.video_restart_time": {
           "type": "gauge",
           "description": "Video Restart Time",
           "group": "quality_metriclens",
-          "included": false
+          "included": true
         },
         "conviva.quality_metriclens.video_start_failures_percent": {
           "type": "gauge",
           "description": "Video Start Failures(VSF) (%)",
           "group": "quality_metriclens",
-          "included": false
+          "included": true
         },
         "conviva.quality_metriclens.video_startup_time_sec": {
           "type": "gauge",
           "description": "Video Startup Time (sec)",
           "group": "quality_metriclens",
-          "included": false
+          "included": true
         },
         "conviva.quality_summary": {
           "type": "gauge",
           "description": "Quality summary label-series",
           "group": "quality_summary",
-          "included": false
+          "included": true
         },
         "conviva.rebuffered_plays": {
           "type": "gauge",
           "description": "Rebuffered plays time-series",
           "group": "rebuffered_plays",
-          "included": false
+          "included": true
         },
         "conviva.rebuffering_ratio": {
           "type": "gauge",
           "description": "Rebuffering ratio time-series",
           "group": "rebuffering_ratio",
-          "included": false
+          "included": true
         },
         "conviva.top_assets_15_mins": {
           "type": "gauge",
           "description": "Top assets over last 15 minutes simple-table",
           "group": "top_assets_15_mins",
-          "included": false
+          "included": true
         },
         "conviva.top_assets_summary": {
           "type": "gauge",
           "description": "Top assets summary label-series",
           "group": "top_assets_summary",
-          "included": false
+          "included": true
         },
         "conviva.video_playback_failures": {
           "type": "gauge",
           "description": "Video playback failures simple-series",
           "group": "video_playback_failures",
-          "included": false
+          "included": true
         },
         "conviva.video_playback_failures_distribution": {
           "type": "gauge",
           "description": "Video playback failures distribution label-series",
           "group": "video_playback_failures_distribution",
-          "included": false
+          "included": true
         },
         "conviva.video_playback_failures_timeseries": {
           "type": "gauge",
           "description": "Video playback failures time-series",
           "group": "video_playback_failures_timeseries",
-          "included": false
+          "included": true
         },
         "conviva.video_restart_time": {
           "type": "gauge",
           "description": "Video restart time simple-series",
           "group": "video_restart_time",
-          "included": false
+          "included": true
         },
         "conviva.video_restart_time_distribution": {
           "type": "gauge",
           "description": "Video restart time distribution label-series",
           "group": "video_restart_time_distribution",
-          "included": false
+          "included": true
         },
         "conviva.video_restart_time_timeseries": {
           "type": "gauge",
           "description": "Video restart time time-series",
           "group": "video_restart_time_timeseries",
-          "included": false
+          "included": true
         },
         "conviva.video_start_failures": {
           "type": "gauge",
           "description": "Video start failures time-series",
           "group": "video_start_failures",
-          "included": false
+          "included": true
         },
         "conviva.video_start_failures_errornames": {
           "type": "gauge",
           "description": "Video start failures by error names simple-table",
           "group": "video_start_failures_errornames",
-          "included": false
+          "included": true
         },
         "conviva.video_startup_time": {
           "type": "gauge",
           "description": "Video startup time label-series",
           "group": null,
-          "included": false
+          "included": true
         }
       },
       "properties": null,

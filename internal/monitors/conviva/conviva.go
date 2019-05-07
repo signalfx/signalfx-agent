@@ -38,6 +38,7 @@ type Config struct {
 }
 
 // Monitor for conviva metrics
+// This monitor does not implement GetExtraMetrics() in order to get configured extra metrics to allow through because all metrics are included/allowed.
 type Monitor struct {
 	Output  types.Output
 	cancel  context.CancelFunc
@@ -77,15 +78,6 @@ func (m *Monitor) Configure(conf *Config) error {
 		}
 	}, interval)
 	return nil
-}
-
-// GetExtraMetrics returns additional metrics to allow through.
-func (c *Config) GetExtraMetrics() []string {
-	var extraMetrics []string
-	for _, mc := range c.MetricConfigs {
-		extraMetrics = append(extraMetrics, groupMetricsMap[mc.MetricParameter]...)
-	}
-	return extraMetrics
 }
 
 // Shutdown stops the metric sync
