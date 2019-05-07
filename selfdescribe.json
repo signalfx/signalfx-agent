@@ -816,52 +816,58 @@
       "groups": null,
       "metrics": {
         "container_cpu_cfs_periods": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "Total number of elapsed CFS enforcement intervals",
           "group": null,
           "included": false
         },
         "container_cpu_cfs_throttled_periods": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "Total number of times tasks in the cgroup have been throttled",
           "group": null,
           "included": false
         },
         "container_cpu_cfs_throttled_time": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "Total time duration, in nanoseconds, for which tasks in the cgroup have been throttled",
           "group": null,
           "included": false
         },
         "container_cpu_percent": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "Cumulative cpu utilization as a percentage of the total host CPU available.  This metric is equivalent to `container_cpu_utilization` / \u003c# of CPUs/cores on host\u003e.",
           "group": null,
           "included": false
         },
         "container_cpu_system_seconds_total": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "Cumulative system cpu time consumed in nanoseconds",
           "group": null,
           "included": false
         },
         "container_cpu_usage_seconds_total": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "Cumulative cpu time consumed per cpu in nanoseconds",
           "group": null,
           "included": false
         },
         "container_cpu_user_seconds_total": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "Cumulative user cpu time consumed in nanoseconds",
           "group": null,
           "included": false
         },
         "container_cpu_utilization": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "Cumulative cpu utilization in percentages.  This is equivalent to \"centicores\", or hundreths of CPU cores consumed.  This metric is **NOT** normalized by the total # of cores on the system.",
           "group": null,
           "included": true
+        },
+        "container_cpu_utilization_per_core": {
+          "type": "cumulative",
+          "description": "Cumulative cpu utilization in percentages per core",
+          "group": null,
+          "included": false
         },
         "container_fs_io_current": {
           "type": "gauge",
@@ -870,13 +876,13 @@
           "included": false
         },
         "container_fs_io_time_seconds_total": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "Cumulative count of seconds spent doing I/Os",
           "group": null,
           "included": false
         },
         "container_fs_io_time_weighted_seconds_total": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "Cumulative weighted I/O time in seconds",
           "group": null,
           "included": false
@@ -888,31 +894,31 @@
           "included": false
         },
         "container_fs_read_seconds_total": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "Cumulative count of seconds spent reading",
           "group": null,
           "included": false
         },
         "container_fs_reads_merged_total": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "Cumulative count of reads merged",
           "group": null,
           "included": false
         },
         "container_fs_reads_total": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "Cumulative count of reads completed",
           "group": null,
           "included": false
         },
         "container_fs_sector_reads_total": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "Cumulative count of sector reads completed",
           "group": null,
           "included": false
         },
         "container_fs_sector_writes_total": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "Cumulative count of sector writes completed",
           "group": null,
           "included": false
@@ -924,19 +930,19 @@
           "included": false
         },
         "container_fs_write_seconds_total": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "Cumulative count of seconds spent writing",
           "group": null,
           "included": false
         },
         "container_fs_writes_merged_total": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "Cumulative count of writes merged",
           "group": null,
           "included": false
         },
         "container_fs_writes_total": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "Cumulative count of writes completed",
           "group": null,
           "included": false
@@ -948,13 +954,13 @@
           "included": false
         },
         "container_memory_failcnt": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "Number of memory usage hits limits",
           "group": null,
           "included": false
         },
         "container_memory_failures_total": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "Cumulative count of memory allocation failures",
           "group": null,
           "included": true
@@ -1032,49 +1038,49 @@
           "included": true
         },
         "pod_network_receive_bytes_total": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "Cumulative count of bytes received",
           "group": null,
           "included": true
         },
         "pod_network_receive_errors_total": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "Cumulative count of errors encountered while receiving",
           "group": null,
           "included": true
         },
         "pod_network_receive_packets_dropped_total": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "Cumulative count of packets dropped while receiving",
           "group": null,
           "included": false
         },
         "pod_network_receive_packets_total": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "Cumulative count of packets received",
           "group": null,
           "included": false
         },
         "pod_network_transmit_bytes_total": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "Cumulative count of bytes transmitted",
           "group": null,
           "included": true
         },
         "pod_network_transmit_errors_total": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "Cumulative count of errors encountered while transmitting",
           "group": null,
           "included": true
         },
         "pod_network_transmit_packets_dropped_total": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "Cumulative count of packets dropped while transmitting",
           "group": null,
           "included": false
         },
         "pod_network_transmit_packets_total": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "Cumulative count of packets transmitted",
           "group": null,
           "included": false
@@ -10549,7 +10555,152 @@
       "dimensions": null,
       "doc": "Gathers information about processes running on\nthe host.  See\nhttps://collectd.org/documentation/manpages/collectd.conf.5.shtml#plugin_processes\nand https://collectd.org/wiki/index.php/Plugin:Processes for more\ninformation on the configuration options.\n\nExample:\n\n```yaml\n procPath: /proc\n monitors:\n  - type: collectd/processes\n    processes:\n      - mysql\n      - myapp\n    processMatch:\n      docker: \"docker.*\"\n    collectContextSwitch: true\n```\n\nThe above config will send process metrics for processes named *mysql* and\n*myapp*, along with additional metrics on the number of context switches the\nprocess has made.  Also, all processes that start with `docker` will have\ntheir process metrics aggregated together and sent with a `plugin_instance`\nvalue of `docker`.\n",
       "groups": null,
-      "metrics": null,
+      "metrics": {
+        "disk_octets.read": {
+          "type": "cumulative",
+          "description": "",
+          "group": null,
+          "included": false
+        },
+        "disk_octets.write": {
+          "type": "cumulative",
+          "description": "",
+          "group": null,
+          "included": false
+        },
+        "fork_rate": {
+          "type": "cumulative",
+          "description": "",
+          "group": null,
+          "included": false
+        },
+        "io_octets.rx": {
+          "type": "cumulative",
+          "description": "",
+          "group": null,
+          "included": false
+        },
+        "io_octets.tx": {
+          "type": "cumulative",
+          "description": "",
+          "group": null,
+          "included": false
+        },
+        "io_ops.read": {
+          "type": "cumulative",
+          "description": "",
+          "group": null,
+          "included": false
+        },
+        "io_ops.write": {
+          "type": "cumulative",
+          "description": "",
+          "group": null,
+          "included": false
+        },
+        "ps_code": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "included": false
+        },
+        "ps_count.processes": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "included": false
+        },
+        "ps_count.threads": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "included": false
+        },
+        "ps_cputime.syst": {
+          "type": "cumulative",
+          "description": "",
+          "group": null,
+          "included": false
+        },
+        "ps_cputime.user": {
+          "type": "cumulative",
+          "description": "",
+          "group": null,
+          "included": false
+        },
+        "ps_data": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "included": false
+        },
+        "ps_pagefaults.majflt": {
+          "type": "cumulative",
+          "description": "",
+          "group": null,
+          "included": false
+        },
+        "ps_pagefaults.minflt": {
+          "type": "cumulative",
+          "description": "",
+          "group": null,
+          "included": false
+        },
+        "ps_rss": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "included": false
+        },
+        "ps_stacksize": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "included": false
+        },
+        "ps_state.blocked": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "included": false
+        },
+        "ps_state.paging": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "included": false
+        },
+        "ps_state.running": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "included": false
+        },
+        "ps_state.sleeping": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "included": false
+        },
+        "ps_state.stopped": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "included": false
+        },
+        "ps_state.zombies": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "included": false
+        },
+        "ps_vm": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "included": false
+        }
+      },
       "properties": null,
       "metricsExhaustive": false,
       "config": {
@@ -18097,52 +18248,58 @@
       "groups": null,
       "metrics": {
         "container_cpu_cfs_periods": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "Total number of elapsed CFS enforcement intervals",
           "group": null,
           "included": false
         },
         "container_cpu_cfs_throttled_periods": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "Total number of times tasks in the cgroup have been throttled",
           "group": null,
           "included": false
         },
         "container_cpu_cfs_throttled_time": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "Total time duration, in nanoseconds, for which tasks in the cgroup have been throttled",
           "group": null,
           "included": false
         },
         "container_cpu_percent": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "Cumulative cpu utilization as a percentage of the total host CPU available.  This metric is equivalent to `container_cpu_utilization` / \u003c# of CPUs/cores on host\u003e.",
           "group": null,
           "included": false
         },
         "container_cpu_system_seconds_total": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "Cumulative system cpu time consumed in nanoseconds",
           "group": null,
           "included": false
         },
         "container_cpu_usage_seconds_total": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "Cumulative cpu time consumed per cpu in nanoseconds",
           "group": null,
           "included": false
         },
         "container_cpu_user_seconds_total": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "Cumulative user cpu time consumed in nanoseconds",
           "group": null,
           "included": false
         },
         "container_cpu_utilization": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "Cumulative cpu utilization in percentages.  This is equivalent to \"centicores\", or hundreths of CPU cores consumed.  This metric is **NOT** normalized by the total # of cores on the system.",
           "group": null,
           "included": true
+        },
+        "container_cpu_utilization_per_core": {
+          "type": "cumulative",
+          "description": "Cumulative cpu utilization in percentages per core",
+          "group": null,
+          "included": false
         },
         "container_fs_io_current": {
           "type": "gauge",
@@ -18151,13 +18308,13 @@
           "included": false
         },
         "container_fs_io_time_seconds_total": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "Cumulative count of seconds spent doing I/Os",
           "group": null,
           "included": false
         },
         "container_fs_io_time_weighted_seconds_total": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "Cumulative weighted I/O time in seconds",
           "group": null,
           "included": false
@@ -18169,31 +18326,31 @@
           "included": false
         },
         "container_fs_read_seconds_total": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "Cumulative count of seconds spent reading",
           "group": null,
           "included": false
         },
         "container_fs_reads_merged_total": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "Cumulative count of reads merged",
           "group": null,
           "included": false
         },
         "container_fs_reads_total": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "Cumulative count of reads completed",
           "group": null,
           "included": false
         },
         "container_fs_sector_reads_total": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "Cumulative count of sector reads completed",
           "group": null,
           "included": false
         },
         "container_fs_sector_writes_total": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "Cumulative count of sector writes completed",
           "group": null,
           "included": false
@@ -18205,19 +18362,19 @@
           "included": false
         },
         "container_fs_write_seconds_total": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "Cumulative count of seconds spent writing",
           "group": null,
           "included": false
         },
         "container_fs_writes_merged_total": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "Cumulative count of writes merged",
           "group": null,
           "included": false
         },
         "container_fs_writes_total": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "Cumulative count of writes completed",
           "group": null,
           "included": false
@@ -18229,13 +18386,13 @@
           "included": false
         },
         "container_memory_failcnt": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "Number of memory usage hits limits",
           "group": null,
           "included": false
         },
         "container_memory_failures_total": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "Cumulative count of memory allocation failures",
           "group": null,
           "included": true
@@ -18313,49 +18470,49 @@
           "included": true
         },
         "pod_network_receive_bytes_total": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "Cumulative count of bytes received",
           "group": null,
           "included": true
         },
         "pod_network_receive_errors_total": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "Cumulative count of errors encountered while receiving",
           "group": null,
           "included": true
         },
         "pod_network_receive_packets_dropped_total": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "Cumulative count of packets dropped while receiving",
           "group": null,
           "included": false
         },
         "pod_network_receive_packets_total": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "Cumulative count of packets received",
           "group": null,
           "included": false
         },
         "pod_network_transmit_bytes_total": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "Cumulative count of bytes transmitted",
           "group": null,
           "included": true
         },
         "pod_network_transmit_errors_total": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "Cumulative count of errors encountered while transmitting",
           "group": null,
           "included": true
         },
         "pod_network_transmit_packets_dropped_total": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "Cumulative count of packets dropped while transmitting",
           "group": null,
           "included": false
         },
         "pod_network_transmit_packets_total": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "Cumulative count of packets transmitted",
           "group": null,
           "included": false

@@ -49,6 +49,78 @@ Monitor Type: `collectd/processes`
 
 
 
+## Metrics
+
+The following table lists the metrics available for this monitor. Metrics that are marked as Included are standard metrics and are monitored by default.
+
+| Name | Type | Included | Description |
+| ---  | ---  | ---    | ---         |
+| `disk_octets.read` | cumulative |  |  |
+| `disk_octets.write` | cumulative |  |  |
+| `fork_rate` | cumulative |  |  |
+| `io_octets.rx` | cumulative |  |  |
+| `io_octets.tx` | cumulative |  |  |
+| `io_ops.read` | cumulative |  |  |
+| `io_ops.write` | cumulative |  |  |
+| `ps_code` | gauge |  |  |
+| `ps_count.processes` | gauge |  |  |
+| `ps_count.threads` | gauge |  |  |
+| `ps_cputime.syst` | cumulative |  |  |
+| `ps_cputime.user` | cumulative |  |  |
+| `ps_data` | gauge |  |  |
+| `ps_pagefaults.majflt` | cumulative |  |  |
+| `ps_pagefaults.minflt` | cumulative |  |  |
+| `ps_rss` | gauge |  |  |
+| `ps_stacksize` | gauge |  |  |
+| `ps_state.blocked` | gauge |  |  |
+| `ps_state.paging` | gauge |  |  |
+| `ps_state.running` | gauge |  |  |
+| `ps_state.sleeping` | gauge |  |  |
+| `ps_state.stopped` | gauge |  |  |
+| `ps_state.zombies` | gauge |  |  |
+| `ps_vm` | gauge |  |  |
+
+
+To specify custom metrics you want to monitor, add a `metricsToInclude` filter
+to the agent configuration, as shown in the code snippet below. The snippet
+lists all available custom metrics. You can copy and paste the snippet into
+your configuration file, then delete any custom metrics that you do not want
+sent.
+
+Note that some of the custom metrics require you to set a flag as well as add
+them to the list. Check the monitor configuration file to see if a flag is
+required for gathering additional metrics.
+
+```yaml
+
+metricsToInclude:
+  - metricNames:
+    - disk_octets.read
+    - disk_octets.write
+    - fork_rate
+    - io_octets.rx
+    - io_octets.tx
+    - io_ops.read
+    - io_ops.write
+    - ps_code
+    - ps_count.processes
+    - ps_count.threads
+    - ps_cputime.syst
+    - ps_cputime.user
+    - ps_data
+    - ps_pagefaults.majflt
+    - ps_pagefaults.minflt
+    - ps_rss
+    - ps_stacksize
+    - ps_state.blocked
+    - ps_state.paging
+    - ps_state.running
+    - ps_state.sleeping
+    - ps_state.stopped
+    - ps_state.zombies
+    - ps_vm
+    monitorType: collectd/processes
+```
 
 
 
