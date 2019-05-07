@@ -12,8 +12,8 @@ class Metadata:
     def __init__(self, monitor_type, included_metrics, nonincluded_metrics, metric_by_group, dims):
         self.monitor_type = monitor_type
         self.included_metrics = included_metrics
-        self.nonincluded_mertics = nonincluded_metrics
-        self.all_metrics = self.included_metrics | self.nonincluded_mertics
+        self.nonincluded_metrics = nonincluded_metrics
+        self.all_metrics = self.included_metrics | self.nonincluded_metrics
         self.metrics_by_group = metric_by_group
         self.dims = dims
 
