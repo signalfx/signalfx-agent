@@ -10551,7 +10551,7 @@
     },
     {
       "monitorType": "collectd/processes",
-      "sendAll": false,
+      "sendAll": true,
       "dimensions": null,
       "doc": "Gathers information about processes running on\nthe host.  See\nhttps://collectd.org/documentation/manpages/collectd.conf.5.shtml#plugin_processes\nand https://collectd.org/wiki/index.php/Plugin:Processes for more\ninformation on the configuration options.\n\nExample:\n\n```yaml\n procPath: /proc\n monitors:\n  - type: collectd/processes\n    processes:\n      - mysql\n      - myapp\n    processMatch:\n      docker: \"docker.*\"\n    collectContextSwitch: true\n```\n\nThe above config will send process metrics for processes named *mysql* and\n*myapp*, along with additional metrics on the number of context switches the\nprocess has made.  Also, all processes that start with `docker` will have\ntheir process metrics aggregated together and sent with a `plugin_instance`\nvalue of `docker`.\n",
       "groups": null,

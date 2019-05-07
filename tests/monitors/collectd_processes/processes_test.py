@@ -1,25 +1,11 @@
 import pytest
 
 from tests.helpers.metadata import Metadata
-from tests.helpers.verify import verify_all_metrics, verify_included_metrics
+from tests.helpers.verify import verify_all_metrics
 
 pytestmark = [pytest.mark.collectd, pytest.mark.processes, pytest.mark.monitor_without_endpoints]
 
 METADATA = Metadata.from_package("collectd/processes")
-
-
-def test_processes_included():
-    verify_included_metrics(
-        """
-        procPath: /proc
-        monitors:
-          - type: collectd/processes
-            collectContextSwitch: true
-            processMatch:
-              collectd: ".*collectd.*"
-        """,
-        METADATA,
-    )
 
 
 def test_processes_all():
@@ -31,7 +17,6 @@ def test_processes_all():
             collectContextSwitch: true
             processMatch:
               collectd: ".*collectd.*"
-            extraMetrics: ["*"]
         """,
         METADATA,
     )

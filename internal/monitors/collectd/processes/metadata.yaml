@@ -26,6 +26,7 @@ monitors:
     process has made.  Also, all processes that start with `docker` will have
     their process metrics aggregated together and sent with a `plugin_instance`
     value of `docker`.
+  sendAll: true
   metrics:
     disk_octets.read:
       description:
