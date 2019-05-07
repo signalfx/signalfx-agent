@@ -13406,7 +13406,7 @@
     },
     {
       "monitorType": "disk-io",
-      "sendAll": false,
+      "sendAll": true,
       "dimensions": null,
       "doc": "This monitor reports I/O metrics about disks.\n\nOn Linux hosts, this monitor relies on the `/proc` filesystem.\nIf the underlying host's `/proc` file system is mounted somewhere other than\n/proc please specify the path using the top level configuration `procPath`.\n\n```yaml\nprocPath: /proc\nmonitors:\n - type: disk-io\n```\n",
       "groups": null,
