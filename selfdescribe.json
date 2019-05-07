@@ -14897,12 +14897,6 @@
           "group": "indices/merges",
           "included": false
         },
-        "elasticsearch.indices.merges.time": {
-          "type": "cumulative",
-          "description": "Total time spent on merging",
-          "group": "indices/merges",
-          "included": false
-        },
         "elasticsearch.indices.merges.total": {
           "type": "cumulative",
           "description": "Number of segment merges",
@@ -14918,6 +14912,12 @@
         "elasticsearch.indices.merges.total-size": {
           "type": "cumulative",
           "description": "Total size of merged segments",
+          "group": "indices/merges",
+          "included": false
+        },
+        "elasticsearch.indices.merges.total-time": {
+          "type": "cumulative",
+          "description": "Total time spent on merging",
           "group": "indices/merges",
           "included": false
         },

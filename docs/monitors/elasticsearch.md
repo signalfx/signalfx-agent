@@ -177,10 +177,10 @@ The following table lists the metrics available for this monitor. Metrics that a
 | `elasticsearch.indices.merges.current-size` | gauge |  | Size of the segments currently being merged |
 | `elasticsearch.indices.merges.stopped-time` | cumulative |  | Total time merges were stopped for |
 | `elasticsearch.indices.merges.throttle-time` | cumulative |  | Total time merges spent waiting due to throttling |
-| `elasticsearch.indices.merges.time` | cumulative |  | Total time spent on merging |
 | `elasticsearch.indices.merges.total` | cumulative | ✔ | Number of segment merges |
 | `elasticsearch.indices.merges.total-docs` | cumulative |  | Number of merged docs across merged segments |
 | `elasticsearch.indices.merges.total-size` | cumulative |  | Total size of merged segments |
+| `elasticsearch.indices.merges.total-time` | cumulative |  | Total time spent on merging |
 | `elasticsearch.indices.percolate.current` | gauge |  | Number of percolator queries currently running |
 | `elasticsearch.indices.percolate.queries` | cumulative |  | Number of percolator queries |
 | `elasticsearch.indices.percolate.time` | cumulative |  | Total time spent on percolate requests |
@@ -343,9 +343,9 @@ metricsToInclude:
     - elasticsearch.indices.merges.current-size
     - elasticsearch.indices.merges.stopped-time
     - elasticsearch.indices.merges.throttle-time
-    - elasticsearch.indices.merges.time
     - elasticsearch.indices.merges.total-docs
     - elasticsearch.indices.merges.total-size
+    - elasticsearch.indices.merges.total-time
     - elasticsearch.indices.percolate.current
     - elasticsearch.indices.percolate.queries
     - elasticsearch.indices.percolate.time
