@@ -1302,49 +1302,49 @@
         "gauge.jvm.threads.count": {
           "type": "gauge",
           "description": "Number of JVM threads",
-          "group": null,
+          "group": "jvm",
           "included": true
         },
         "gauge.loaded_classes": {
           "type": "gauge",
           "description": "Number of classes loaded in the JVM",
-          "group": null,
+          "group": "jvm",
           "included": true
         },
         "invocations": {
           "type": "cumulative",
           "description": "Total number of garbage collection events",
-          "group": null,
+          "group": "jvm",
           "included": true
         },
         "jmx_memory.committed": {
           "type": "gauge",
           "description": "Amount of memory guaranteed to be available in bytes",
-          "group": null,
+          "group": "jvm",
           "included": true
         },
         "jmx_memory.init": {
           "type": "gauge",
           "description": "Amount of initial memory at startup in bytes",
-          "group": null,
+          "group": "jvm",
           "included": true
         },
         "jmx_memory.max": {
           "type": "gauge",
           "description": "Maximum amount of memory that can be used in bytes",
-          "group": null,
+          "group": "jvm",
           "included": true
         },
         "jmx_memory.used": {
           "type": "gauge",
           "description": "Current memory usage in bytes",
-          "group": null,
+          "group": "jvm",
           "included": true
         },
         "total_time_in_ms.collection_time": {
           "type": "cumulative",
           "description": "Amount of time spent garbage collecting in milliseconds",
-          "group": null,
+          "group": "jvm",
           "included": true
         }
       },
@@ -1860,49 +1860,49 @@
         "gauge.jvm.threads.count": {
           "type": "gauge",
           "description": "Number of JVM threads",
-          "group": null,
+          "group": "jvm",
           "included": true
         },
         "gauge.loaded_classes": {
           "type": "gauge",
           "description": "Number of classes loaded in the JVM",
-          "group": null,
+          "group": "jvm",
           "included": true
         },
         "invocations": {
           "type": "cumulative",
           "description": "Total number of garbage collection events",
-          "group": null,
+          "group": "jvm",
           "included": true
         },
         "jmx_memory.committed": {
           "type": "gauge",
           "description": "Amount of memory guaranteed to be available in bytes",
-          "group": null,
+          "group": "jvm",
           "included": true
         },
         "jmx_memory.init": {
           "type": "gauge",
           "description": "Amount of initial memory at startup in bytes",
-          "group": null,
+          "group": "jvm",
           "included": true
         },
         "jmx_memory.max": {
           "type": "gauge",
           "description": "Maximum amount of memory that can be used in bytes",
-          "group": null,
+          "group": "jvm",
           "included": true
         },
         "jmx_memory.used": {
           "type": "gauge",
           "description": "Current memory usage in bytes",
-          "group": null,
+          "group": "jvm",
           "included": true
         },
         "total_time_in_ms.collection_time": {
           "type": "cumulative",
           "description": "Amount of time spent garbage collecting in milliseconds",
-          "group": null,
+          "group": "jvm",
           "included": true
         }
       },
@@ -4251,49 +4251,49 @@
         "gauge.jvm.threads.count": {
           "type": "gauge",
           "description": "Number of JVM threads",
-          "group": null,
+          "group": "jvm",
           "included": true
         },
         "gauge.loaded_classes": {
           "type": "gauge",
           "description": "Number of classes loaded in the JVM",
-          "group": null,
+          "group": "jvm",
           "included": true
         },
         "invocations": {
           "type": "cumulative",
           "description": "Total number of garbage collection events",
-          "group": null,
+          "group": "jvm",
           "included": true
         },
         "jmx_memory.committed": {
           "type": "gauge",
           "description": "Amount of memory guaranteed to be available in bytes",
-          "group": null,
+          "group": "jvm",
           "included": true
         },
         "jmx_memory.init": {
           "type": "gauge",
           "description": "Amount of initial memory at startup in bytes",
-          "group": null,
+          "group": "jvm",
           "included": true
         },
         "jmx_memory.max": {
           "type": "gauge",
           "description": "Maximum amount of memory that can be used in bytes",
-          "group": null,
+          "group": "jvm",
           "included": true
         },
         "jmx_memory.used": {
           "type": "gauge",
           "description": "Current memory usage in bytes",
-          "group": null,
+          "group": "jvm",
           "included": true
         },
         "total_time_in_ms.collection_time": {
           "type": "cumulative",
           "description": "Amount of time spent garbage collecting in milliseconds",
-          "group": null,
+          "group": "jvm",
           "included": true
         }
       },
@@ -4746,210 +4746,388 @@
       "sendAll": false,
       "dimensions": null,
       "doc": "Collects metrics about a Hadoop cluster using using collectd's GenericJMX plugin.\n\nAlso see https://github.com/signalfx/integrations/tree/master/collectd-hadoop.\n\nTo enable JMX in Hadoop, add the following JVM options to hadoop-env.sh and yarn-env.sh respectively\n\n**hadoop-env.sh:**\n```sh\nexport HADOOP_NAMENODE_OPTS=\"-Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.port=5677 $HADOOP_NAMENODE_OPTS\"\nexport HADOOP_DATANODE_OPTS=\"-Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.port=5679 $HADOOP_DATANODE_OPTS\"\n```\n\n**yarn-env.sh:**\n```sh\nexport YARN_NODEMANAGER_OPTS=\"-Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.port=8002 $YARN_NODEMANAGER_OPTS\"\nexport YARN_RESOURCEMANAGER_OPTS=\"-Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.port=5680 $YARN_RESOURCEMANAGER_OPTS\"\n```\n\nThis monitor has a set of built in MBeans configured for:\n  - [Name Nodes](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/hadoopjmx/nameNodeMBeans.go)\n  - [Resource Manager](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/hadoopjmx/resourceManagerMBeans.go)\n  - [Node Manager](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/hadoopjmx/nodeManagerMBeans.go)\n  - [Data Nodes](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/hadoopjmx/dataNodeMBeans.go)\n\nSample YAML configuration:\n\nName Node\n```yaml\nmonitors:\n- type: collectd/hadoopjmx\n  host: 127.0.0.1\n  port: 5677\n  nodeType: nameNode\n```\n\nResource Manager\n```yaml\nmonitors:\n- type: collectd/hadoopjmx\n  host: 127.0.0.1\n  port: 5680\n  nodeType: resourceManager\n```\n\nNode Manager\n```yaml\nmonitors:\n- type: collectd/hadoopjmx\n  host: 127.0.0.1\n  port: 8002\n  nodeType: nodeManager\n```\n\nData Node\n```yaml\nmonitors:\n- type: collectd/hadoopjmx\n  host: 127.0.0.1\n  port: 5679\n  nodeType: dataNode\n```\n\nYou may also configure the [collectd/hadoop](https://github.com/signalfx/signalfx-agent/tree/master/docs/monitors/collectd/hadoop)\nmonitor to collect additional metrics about the hadoop cluster from the REST API\n",
-      "groups": null,
+      "groups": {
+        "data-node": {
+          "description": "Metrics for DataNodes containing HDFS files"
+        },
+        "jvm": {
+          "description": "JVM metrics"
+        },
+        "name-node": {
+          "description": "Metrics for NameNodes containing HDFS metadata"
+        },
+        "node-manager": {
+          "description": "Metrics for Node Manager"
+        },
+        "resource-manager": {
+          "description": "Metrics for Hadoop resource management"
+        }
+      },
       "metrics": {
+        "counter.hadoop-datanode-blocks-read": {
+          "type": "cumulative",
+          "description": "",
+          "group": "data-node",
+          "included": false
+        },
+        "counter.hadoop-datanode-blocks-written": {
+          "type": "cumulative",
+          "description": "",
+          "group": "data-node",
+          "included": false
+        },
+        "counter.hadoop-datanode-bytes-read": {
+          "type": "cumulative",
+          "description": "",
+          "group": "data-node",
+          "included": false
+        },
+        "counter.hadoop-datanode-bytes-written": {
+          "type": "cumulative",
+          "description": "",
+          "group": "data-node",
+          "included": false
+        },
+        "counter.hadoop-namenode-files-total": {
+          "type": "cumulative",
+          "description": "",
+          "group": "name-node",
+          "included": false
+        },
         "counter.hadoop-namenode-gc-count": {
           "type": "cumulative",
           "description": "",
-          "group": null,
+          "group": "name-node",
           "included": true
         },
         "counter.hadoop-namenode-gc-time": {
           "type": "cumulative",
           "description": "",
-          "group": null,
+          "group": "name-node",
           "included": true
         },
         "counter.hadoop-namenode-rpc-total-calls": {
           "type": "cumulative",
           "description": "",
-          "group": null,
+          "group": "name-node",
           "included": true
         },
         "counter.hadoop-namenode-total-load": {
           "type": "cumulative",
           "description": "",
-          "group": null,
+          "group": "name-node",
           "included": true
         },
         "counter.hadoop-namenode-volume-failures": {
           "type": "cumulative",
           "description": "",
-          "group": null,
+          "group": "name-node",
           "included": true
+        },
+        "counter.hadoop-nodeManager-containers-failed": {
+          "type": "cumulative",
+          "description": "",
+          "group": "node-manager",
+          "included": false
+        },
+        "counter.hadoop-nodeManager-containers-launched": {
+          "type": "cumulative",
+          "description": "",
+          "group": "node-manager",
+          "included": false
         },
         "gauge.hadoop-datanode-fs-capacity": {
           "type": "gauge",
           "description": "",
-          "group": null,
+          "group": "data-node",
           "included": true
         },
         "gauge.hadoop-datanode-fs-dfs-remaining": {
           "type": "gauge",
           "description": "",
-          "group": null,
+          "group": "data-node",
           "included": true
         },
         "gauge.hadoop-datanode-fs-dfs-used": {
           "type": "gauge",
           "description": "",
-          "group": null,
+          "group": "data-node",
           "included": true
+        },
+        "gauge.hadoop-datanode-info-xceiver": {
+          "type": "gauge",
+          "description": "",
+          "group": "data-node",
+          "included": false
         },
         "gauge.hadoop-datanode-jvm-heap-used": {
           "type": "gauge",
           "description": "",
-          "group": null,
+          "group": "data-node",
           "included": true
+        },
+        "gauge.hadoop-datanode-jvm-non-heap-used": {
+          "type": "gauge",
+          "description": "",
+          "group": "data-node",
+          "included": false
         },
         "gauge.hadoop-datanode-rpc-call-queue-length": {
           "type": "gauge",
           "description": "",
-          "group": null,
+          "group": "data-node",
           "included": true
         },
         "gauge.hadoop-datanode-rpc-open-connections": {
           "type": "gauge",
           "description": "",
-          "group": null,
+          "group": "data-node",
           "included": true
         },
         "gauge.hadoop-datanode-rpc-processing-avg": {
           "type": "gauge",
           "description": "",
-          "group": null,
+          "group": "data-node",
           "included": true
         },
         "gauge.hadoop-datanode-rpc-queue-time-avg": {
           "type": "gauge",
           "description": "",
-          "group": null,
+          "group": "data-node",
           "included": true
+        },
+        "gauge.hadoop-namenode-blocks-with-corrupt-replicas": {
+          "type": "gauge",
+          "description": "",
+          "group": "name-node",
+          "included": false
+        },
+        "gauge.hadoop-namenode-capacity-remaining": {
+          "type": "gauge",
+          "description": "",
+          "group": "name-node",
+          "included": false
         },
         "gauge.hadoop-namenode-capacity-total": {
           "type": "gauge",
           "description": "",
-          "group": null,
+          "group": "name-node",
           "included": true
         },
         "gauge.hadoop-namenode-capacity-used": {
           "type": "gauge",
           "description": "",
-          "group": null,
+          "group": "name-node",
           "included": true
+        },
+        "gauge.hadoop-namenode-corrupt-blocks": {
+          "type": "gauge",
+          "description": "",
+          "group": "name-node",
+          "included": false
         },
         "gauge.hadoop-namenode-current-heap-used": {
           "type": "gauge",
           "description": "",
-          "group": null,
+          "group": "name-node",
           "included": true
         },
         "gauge.hadoop-namenode-dead-datanodes": {
           "type": "gauge",
           "description": "",
-          "group": null,
+          "group": "name-node",
           "included": true
         },
         "gauge.hadoop-namenode-dfs-free": {
           "type": "gauge",
           "description": "",
-          "group": null,
+          "group": "name-node",
           "included": true
         },
         "gauge.hadoop-namenode-live-datanodes": {
           "type": "gauge",
           "description": "",
-          "group": null,
+          "group": "name-node",
           "included": true
         },
         "gauge.hadoop-namenode-max-heap": {
           "type": "gauge",
           "description": "",
-          "group": null,
+          "group": "name-node",
           "included": true
+        },
+        "gauge.hadoop-namenode-missing-blocks": {
+          "type": "gauge",
+          "description": "",
+          "group": "name-node",
+          "included": false
+        },
+        "gauge.hadoop-namenode-percent-dfs-used": {
+          "type": "gauge",
+          "description": "",
+          "group": "name-node",
+          "included": false
         },
         "gauge.hadoop-namenode-percent-remaining": {
           "type": "gauge",
           "description": "",
-          "group": null,
+          "group": "name-node",
           "included": true
         },
         "gauge.hadoop-namenode-rpc-avg-process-time": {
           "type": "gauge",
           "description": "",
-          "group": null,
+          "group": "name-node",
           "included": true
         },
         "gauge.hadoop-namenode-rpc-avg-queue": {
           "type": "gauge",
           "description": "",
-          "group": null,
+          "group": "name-node",
           "included": true
+        },
+        "gauge.hadoop-namenode-stale-datanodes": {
+          "type": "gauge",
+          "description": "",
+          "group": "name-node",
+          "included": false
         },
         "gauge.hadoop-namenode-under-replicated-blocks": {
           "type": "gauge",
           "description": "",
-          "group": null,
+          "group": "name-node",
           "included": true
+        },
+        "gauge.hadoop-nodeManager-allocated-memory": {
+          "type": "gauge",
+          "description": "",
+          "group": "node-manager",
+          "included": false
+        },
+        "gauge.hadoop-nodeManager-allocated-vcores": {
+          "type": "gauge",
+          "description": "",
+          "group": "node-manager",
+          "included": false
+        },
+        "gauge.hadoop-nodeManager-available-memory": {
+          "type": "gauge",
+          "description": "",
+          "group": "node-manager",
+          "included": false
+        },
+        "gauge.hadoop-nodeManager-available-vcores": {
+          "type": "gauge",
+          "description": "",
+          "group": "node-manager",
+          "included": false
+        },
+        "gauge.hadoop-resourceManager-active-apps": {
+          "type": "gauge",
+          "description": "",
+          "group": "resource-manager",
+          "included": false
+        },
+        "gauge.hadoop-resourceManager-active-nms": {
+          "type": "gauge",
+          "description": "",
+          "group": "resource-manager",
+          "included": false
+        },
+        "gauge.hadoop-resourceManager-active-users": {
+          "type": "gauge",
+          "description": "",
+          "group": "resource-manager",
+          "included": false
+        },
+        "gauge.hadoop-resourceManager-allocated-containers": {
+          "type": "gauge",
+          "description": "",
+          "group": "resource-manager",
+          "included": false
+        },
+        "gauge.hadoop-resourceManager-allocated-memory": {
+          "type": "gauge",
+          "description": "",
+          "group": "resource-manager",
+          "included": false
         },
         "gauge.hadoop-resourceManager-allocated-vcores": {
           "type": "gauge",
           "description": "",
-          "group": null,
+          "group": "resource-manager",
           "included": true
+        },
+        "gauge.hadoop-resourceManager-available-memory": {
+          "type": "gauge",
+          "description": "",
+          "group": "resource-manager",
+          "included": false
         },
         "gauge.hadoop-resourceManager-available-vcores": {
           "type": "gauge",
           "description": "",
-          "group": null,
+          "group": "resource-manager",
           "included": true
+        },
+        "gauge.hadoop-resourceManager-heap-max": {
+          "type": "gauge",
+          "description": "",
+          "group": "resource-manager",
+          "included": false
+        },
+        "gauge.hadoop-resourceManager-heap-used": {
+          "type": "gauge",
+          "description": "",
+          "group": "resource-manager",
+          "included": false
         },
         "gauge.jvm.threads.count": {
           "type": "gauge",
           "description": "Number of JVM threads",
-          "group": null,
+          "group": "jvm",
           "included": true
         },
         "gauge.loaded_classes": {
           "type": "gauge",
           "description": "Number of classes loaded in the JVM",
-          "group": null,
+          "group": "jvm",
           "included": true
         },
         "invocations": {
           "type": "cumulative",
           "description": "Total number of garbage collection events",
-          "group": null,
+          "group": "jvm",
           "included": true
         },
         "jmx_memory.committed": {
           "type": "gauge",
           "description": "Amount of memory guaranteed to be available in bytes",
-          "group": null,
+          "group": "jvm",
           "included": true
         },
         "jmx_memory.init": {
           "type": "gauge",
           "description": "Amount of initial memory at startup in bytes",
-          "group": null,
+          "group": "jvm",
           "included": true
         },
         "jmx_memory.max": {
           "type": "gauge",
           "description": "Maximum amount of memory that can be used in bytes",
-          "group": null,
+          "group": "jvm",
           "included": true
         },
         "jmx_memory.used": {
           "type": "gauge",
           "description": "Current memory usage in bytes",
-          "group": null,
+          "group": "jvm",
           "included": true
         },
         "total_time_in_ms.collection_time": {
           "type": "cumulative",
           "description": "Amount of time spent garbage collecting in milliseconds",
-          "group": null,
+          "group": "jvm",
           "included": true
         }
       },
@@ -6043,7 +6221,7 @@
         "gauge.jvm.threads.count": {
           "type": "gauge",
           "description": "Number of JVM threads",
-          "group": null,
+          "group": "jvm",
           "included": true
         },
         "gauge.kafka-active-controllers": {
@@ -6103,37 +6281,37 @@
         "gauge.loaded_classes": {
           "type": "gauge",
           "description": "Number of classes loaded in the JVM",
-          "group": null,
+          "group": "jvm",
           "included": true
         },
         "invocations": {
           "type": "cumulative",
           "description": "Total number of garbage collection events",
-          "group": null,
+          "group": "jvm",
           "included": true
         },
         "jmx_memory.committed": {
           "type": "gauge",
           "description": "Amount of memory guaranteed to be available in bytes",
-          "group": null,
+          "group": "jvm",
           "included": true
         },
         "jmx_memory.init": {
           "type": "gauge",
           "description": "Amount of initial memory at startup in bytes",
-          "group": null,
+          "group": "jvm",
           "included": true
         },
         "jmx_memory.max": {
           "type": "gauge",
           "description": "Maximum amount of memory that can be used in bytes",
-          "group": null,
+          "group": "jvm",
           "included": true
         },
         "jmx_memory.used": {
           "type": "gauge",
           "description": "Current memory usage in bytes",
-          "group": null,
+          "group": "jvm",
           "included": true
         },
         "kafka-isr-expands": {
@@ -6175,7 +6353,7 @@
         "total_time_in_ms.collection_time": {
           "type": "cumulative",
           "description": "Amount of time spent garbage collecting in milliseconds",
-          "group": null,
+          "group": "jvm",
           "included": true
         }
       },
@@ -6399,43 +6577,43 @@
         "gauge.jvm.threads.count": {
           "type": "gauge",
           "description": "Number of JVM threads",
-          "group": null,
+          "group": "jvm",
           "included": true
         },
         "gauge.loaded_classes": {
           "type": "gauge",
           "description": "Number of classes loaded in the JVM",
-          "group": null,
+          "group": "jvm",
           "included": true
         },
         "invocations": {
           "type": "cumulative",
           "description": "Total number of garbage collection events",
-          "group": null,
+          "group": "jvm",
           "included": true
         },
         "jmx_memory.committed": {
           "type": "gauge",
           "description": "Amount of memory guaranteed to be available in bytes",
-          "group": null,
+          "group": "jvm",
           "included": true
         },
         "jmx_memory.init": {
           "type": "gauge",
           "description": "Amount of initial memory at startup in bytes",
-          "group": null,
+          "group": "jvm",
           "included": true
         },
         "jmx_memory.max": {
           "type": "gauge",
           "description": "Maximum amount of memory that can be used in bytes",
-          "group": null,
+          "group": "jvm",
           "included": true
         },
         "jmx_memory.used": {
           "type": "gauge",
           "description": "Current memory usage in bytes",
-          "group": null,
+          "group": "jvm",
           "included": true
         },
         "kafka.consumer.bytes-consumed-rate": {
@@ -6471,7 +6649,7 @@
         "total_time_in_ms.collection_time": {
           "type": "cumulative",
           "description": "Amount of time spent garbage collecting in milliseconds",
-          "group": null,
+          "group": "jvm",
           "included": true
         }
       },
@@ -6687,43 +6865,43 @@
         "gauge.jvm.threads.count": {
           "type": "gauge",
           "description": "Number of JVM threads",
-          "group": null,
+          "group": "jvm",
           "included": true
         },
         "gauge.loaded_classes": {
           "type": "gauge",
           "description": "Number of classes loaded in the JVM",
-          "group": null,
+          "group": "jvm",
           "included": true
         },
         "invocations": {
           "type": "cumulative",
           "description": "Total number of garbage collection events",
-          "group": null,
+          "group": "jvm",
           "included": true
         },
         "jmx_memory.committed": {
           "type": "gauge",
           "description": "Amount of memory guaranteed to be available in bytes",
-          "group": null,
+          "group": "jvm",
           "included": true
         },
         "jmx_memory.init": {
           "type": "gauge",
           "description": "Amount of initial memory at startup in bytes",
-          "group": null,
+          "group": "jvm",
           "included": true
         },
         "jmx_memory.max": {
           "type": "gauge",
           "description": "Maximum amount of memory that can be used in bytes",
-          "group": null,
+          "group": "jvm",
           "included": true
         },
         "jmx_memory.used": {
           "type": "gauge",
           "description": "Current memory usage in bytes",
-          "group": null,
+          "group": "jvm",
           "included": true
         },
         "kafka.producer.byte-rate": {
@@ -6789,7 +6967,7 @@
         "total_time_in_ms.collection_time": {
           "type": "cumulative",
           "description": "Amount of time spent garbage collecting in milliseconds",
-          "group": null,
+          "group": "jvm",
           "included": true
         }
       },

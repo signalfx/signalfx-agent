@@ -125,32 +125,59 @@ The following table lists the metrics available for this monitor. Metrics that a
 
 | Name | Type | Included | Description |
 | ---  | ---  | ---    | ---         |
+| `counter.hadoop-datanode-blocks-read` | cumulative |  |  |
+| `counter.hadoop-datanode-blocks-written` | cumulative |  |  |
+| `counter.hadoop-datanode-bytes-read` | cumulative |  |  |
+| `counter.hadoop-datanode-bytes-written` | cumulative |  |  |
+| `counter.hadoop-namenode-files-total` | cumulative |  |  |
 | `counter.hadoop-namenode-gc-count` | cumulative | ✔ |  |
 | `counter.hadoop-namenode-gc-time` | cumulative | ✔ |  |
 | `counter.hadoop-namenode-rpc-total-calls` | cumulative | ✔ |  |
 | `counter.hadoop-namenode-total-load` | cumulative | ✔ |  |
 | `counter.hadoop-namenode-volume-failures` | cumulative | ✔ |  |
+| `counter.hadoop-nodeManager-containers-failed` | cumulative |  |  |
+| `counter.hadoop-nodeManager-containers-launched` | cumulative |  |  |
 | `gauge.hadoop-datanode-fs-capacity` | gauge | ✔ |  |
 | `gauge.hadoop-datanode-fs-dfs-remaining` | gauge | ✔ |  |
 | `gauge.hadoop-datanode-fs-dfs-used` | gauge | ✔ |  |
+| `gauge.hadoop-datanode-info-xceiver` | gauge |  |  |
 | `gauge.hadoop-datanode-jvm-heap-used` | gauge | ✔ |  |
+| `gauge.hadoop-datanode-jvm-non-heap-used` | gauge |  |  |
 | `gauge.hadoop-datanode-rpc-call-queue-length` | gauge | ✔ |  |
 | `gauge.hadoop-datanode-rpc-open-connections` | gauge | ✔ |  |
 | `gauge.hadoop-datanode-rpc-processing-avg` | gauge | ✔ |  |
 | `gauge.hadoop-datanode-rpc-queue-time-avg` | gauge | ✔ |  |
+| `gauge.hadoop-namenode-blocks-with-corrupt-replicas` | gauge |  |  |
+| `gauge.hadoop-namenode-capacity-remaining` | gauge |  |  |
 | `gauge.hadoop-namenode-capacity-total` | gauge | ✔ |  |
 | `gauge.hadoop-namenode-capacity-used` | gauge | ✔ |  |
+| `gauge.hadoop-namenode-corrupt-blocks` | gauge |  |  |
 | `gauge.hadoop-namenode-current-heap-used` | gauge | ✔ |  |
 | `gauge.hadoop-namenode-dead-datanodes` | gauge | ✔ |  |
 | `gauge.hadoop-namenode-dfs-free` | gauge | ✔ |  |
 | `gauge.hadoop-namenode-live-datanodes` | gauge | ✔ |  |
 | `gauge.hadoop-namenode-max-heap` | gauge | ✔ |  |
+| `gauge.hadoop-namenode-missing-blocks` | gauge |  |  |
+| `gauge.hadoop-namenode-percent-dfs-used` | gauge |  |  |
 | `gauge.hadoop-namenode-percent-remaining` | gauge | ✔ |  |
 | `gauge.hadoop-namenode-rpc-avg-process-time` | gauge | ✔ |  |
 | `gauge.hadoop-namenode-rpc-avg-queue` | gauge | ✔ |  |
+| `gauge.hadoop-namenode-stale-datanodes` | gauge |  |  |
 | `gauge.hadoop-namenode-under-replicated-blocks` | gauge | ✔ |  |
+| `gauge.hadoop-nodeManager-allocated-memory` | gauge |  |  |
+| `gauge.hadoop-nodeManager-allocated-vcores` | gauge |  |  |
+| `gauge.hadoop-nodeManager-available-memory` | gauge |  |  |
+| `gauge.hadoop-nodeManager-available-vcores` | gauge |  |  |
+| `gauge.hadoop-resourceManager-active-apps` | gauge |  |  |
+| `gauge.hadoop-resourceManager-active-nms` | gauge |  |  |
+| `gauge.hadoop-resourceManager-active-users` | gauge |  |  |
+| `gauge.hadoop-resourceManager-allocated-containers` | gauge |  |  |
+| `gauge.hadoop-resourceManager-allocated-memory` | gauge |  |  |
 | `gauge.hadoop-resourceManager-allocated-vcores` | gauge | ✔ |  |
+| `gauge.hadoop-resourceManager-available-memory` | gauge |  |  |
 | `gauge.hadoop-resourceManager-available-vcores` | gauge | ✔ |  |
+| `gauge.hadoop-resourceManager-heap-max` | gauge |  |  |
+| `gauge.hadoop-resourceManager-heap-used` | gauge |  |  |
 | `gauge.jvm.threads.count` | gauge | ✔ | Number of JVM threads |
 | `gauge.loaded_classes` | gauge | ✔ | Number of classes loaded in the JVM |
 | `invocations` | cumulative | ✔ | Total number of garbage collection events |
@@ -175,6 +202,33 @@ required for gathering additional metrics.
 
 metricsToInclude:
   - metricNames:
+    - counter.hadoop-datanode-blocks-read
+    - counter.hadoop-datanode-blocks-written
+    - counter.hadoop-datanode-bytes-read
+    - counter.hadoop-datanode-bytes-written
+    - counter.hadoop-namenode-files-total
+    - counter.hadoop-nodeManager-containers-failed
+    - counter.hadoop-nodeManager-containers-launched
+    - gauge.hadoop-datanode-info-xceiver
+    - gauge.hadoop-datanode-jvm-non-heap-used
+    - gauge.hadoop-namenode-blocks-with-corrupt-replicas
+    - gauge.hadoop-namenode-capacity-remaining
+    - gauge.hadoop-namenode-corrupt-blocks
+    - gauge.hadoop-namenode-missing-blocks
+    - gauge.hadoop-namenode-percent-dfs-used
+    - gauge.hadoop-namenode-stale-datanodes
+    - gauge.hadoop-nodeManager-allocated-memory
+    - gauge.hadoop-nodeManager-allocated-vcores
+    - gauge.hadoop-nodeManager-available-memory
+    - gauge.hadoop-nodeManager-available-vcores
+    - gauge.hadoop-resourceManager-active-apps
+    - gauge.hadoop-resourceManager-active-nms
+    - gauge.hadoop-resourceManager-active-users
+    - gauge.hadoop-resourceManager-allocated-containers
+    - gauge.hadoop-resourceManager-allocated-memory
+    - gauge.hadoop-resourceManager-available-memory
+    - gauge.hadoop-resourceManager-heap-max
+    - gauge.hadoop-resourceManager-heap-used
     monitorType: collectd/hadoopjmx
 ```
 

@@ -27,6 +27,9 @@ syncs:
     - Path signalfx-agent
     - Path monitor-code-gen
     - Path scripts/windows/vagrant/boxcutter
+    - Name __pycache__
+    - Name *.exe
+    - Name *.tar.gz
     - Name .idea
     - Name .DS_Store
 

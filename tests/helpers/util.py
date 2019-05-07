@@ -12,6 +12,7 @@ from typing import Dict, List
 import docker
 import netifaces as ni
 import yaml
+
 from tests.helpers.assertions import regex_search_matches_output
 from tests.paths import SELFDESCRIBE_JSON, TEST_SERVICES_DIR
 
