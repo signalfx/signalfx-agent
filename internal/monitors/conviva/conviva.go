@@ -40,7 +40,7 @@ type Config struct {
 // Monitor for conviva metrics
 // This monitor does not implement GetExtraMetrics() in order to get configured extra metrics to allow through because all metrics are included/allowed.
 type Monitor struct {
-	Output  types.Output
+	Output  types.FilteringOutput
 	cancel  context.CancelFunc
 	ctx     context.Context
 	client  httpClient
