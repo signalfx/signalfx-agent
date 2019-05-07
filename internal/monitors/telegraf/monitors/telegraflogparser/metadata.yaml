@@ -20,5 +20,6 @@ monitors:
        timezone: UTC
     ```
   metrics:
+  sendAll: true
   monitorType: telegraf/logparser
   properties:

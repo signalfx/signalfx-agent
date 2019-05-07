@@ -46,3 +46,4 @@ monitors:
   metrics:
   monitorType: collectd/custom
   properties:
+  sendAll: true

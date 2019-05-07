@@ -12,10 +12,11 @@ from typing import Dict, List
 import docker
 import netifaces as ni
 import yaml
+
 from tests.helpers.assertions import regex_search_matches_output
 from tests.paths import SELFDESCRIBE_JSON, TEST_SERVICES_DIR
 
-DEFAULT_TIMEOUT = os.environ.get("DEFAULT_TIMEOUT", 30)
+DEFAULT_TIMEOUT = int(os.environ.get("DEFAULT_TIMEOUT", 30))
 DOCKER_API_VERSION = "1.34"
 STATSD_RE = re.compile(r"SignalFx StatsD monitor: Listening on host & port udp:\[::\]:([0-9]*)")
 
@@ -53,6 +54,27 @@ def wait_for(test, timeout_seconds=DEFAULT_TIMEOUT, interval_seconds=0.2):
         if time.time() - start > timeout_seconds:
             return False
         time.sleep(interval_seconds)
+
+
+def wait_for_assertion(test, timeout_seconds=DEFAULT_TIMEOUT, interval_seconds=0.2):
+    """
+    Waits for the given `test` function passed in to not raise an
+    AssertionError.  It is is still raising such an error after the
+    timeout_seconds, that exception will be raised by this function itself.
+    """
+    e = None
+
+    def wrap():
+        nonlocal e
+        try:
+            test()
+        except AssertionError as err:
+            e = err
+            return False
+        return True
+
+    if not wait_for(wrap, timeout_seconds, interval_seconds):
+        raise e  # pylint: disable=raising-bad-type
 
 
 def ensure_always(test, timeout_seconds=DEFAULT_TIMEOUT, interval_seconds=0.2):

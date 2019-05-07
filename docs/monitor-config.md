@@ -23,6 +23,8 @@ The following config options are common to all monitors:
 | `datapointsToExclude` |  | no | `list of object` | A list of datapoint filters.  These filters allow you to comprehensively define which datapoints to exclude by metric name or dimension set, as well as the ability to define overrides to re-include metrics excluded by previous patterns within the same filter item.  See [monitor filtering](https://github.com/signalfx/signalfx-agent/tree/master/docs/filtering.md#monitor-level-filtering) for examples and more information. |
 | `disableHostDimensions` | `false` | no | `bool` | Some monitors pull metrics from services not running on the same host and should not get the host-specific dimensions set on them (e.g. `host`, `AWSUniqueId`, etc).  Setting this to `true` causes those dimensions to be omitted.  You can disable this globally with the `disableHostDimensions` option on the top level of the config. |
 | `disableEndpointDimensions` | `false` | no | `bool` | This can be set to true if you don't want to include the dimensions that are specific to the endpoint that was discovered by an observer.  This is useful when you have an endpoint whose identity is not particularly important since it acts largely as a proxy or adapter for other metrics. |
+| `extraMetrics` |  | no | `list of string` | Extra metrics to enable besides the default included ones. |
+| `extraGroups` |  | no | `list of string` | Extra metric groups to enable besides the metrics that are included by default. |
 
 
 ## Monitor list

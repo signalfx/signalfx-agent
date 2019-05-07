@@ -20,7 +20,7 @@ import (
 var logger = logrus.WithFields(logrus.Fields{"monitorType": monitorMetadata.MonitorType})
 
 func init() {
-	monitors.Register(monitorMetadata.MonitorType, func() interface{} { return &Monitor{} }, &Config{})
+	monitors.Register(&monitorMetadata, func() interface{} { return &Monitor{} }, &Config{})
 }
 
 // Config for the postgresql monitor
@@ -61,7 +61,7 @@ func (c *Config) connStr() (string, error) {
 type Monitor struct {
 	sync.Mutex
 
-	Output types.Output
+	Output types.FilteringOutput
 	ctx    context.Context
 	cancel context.CancelFunc
 	conf   *Config

@@ -185,6 +185,22 @@
         "required": false,
         "type": "bool",
         "elementKind": ""
+      },
+      {
+        "yamlName": "extraMetrics",
+        "doc": "Extra metrics to enable besides the default included ones.",
+        "default": null,
+        "required": false,
+        "type": "slice",
+        "elementKind": "string"
+      },
+      {
+        "yamlName": "extraGroups",
+        "doc": "Extra metric groups to enable besides the metrics that are included by default.",
+        "default": null,
+        "required": false,
+        "type": "slice",
+        "elementKind": "string"
       }
     ]
   },
@@ -1286,49 +1302,49 @@
         "gauge.jvm.threads.count": {
           "type": "gauge",
           "description": "Number of JVM threads",
-          "group": null,
+          "group": "jvm",
           "included": true
         },
         "gauge.loaded_classes": {
           "type": "gauge",
           "description": "Number of classes loaded in the JVM",
-          "group": null,
+          "group": "jvm",
           "included": true
         },
         "invocations": {
           "type": "cumulative",
           "description": "Total number of garbage collection events",
-          "group": null,
+          "group": "jvm",
           "included": true
         },
         "jmx_memory.committed": {
           "type": "gauge",
           "description": "Amount of memory guaranteed to be available in bytes",
-          "group": null,
+          "group": "jvm",
           "included": true
         },
         "jmx_memory.init": {
           "type": "gauge",
           "description": "Amount of initial memory at startup in bytes",
-          "group": null,
+          "group": "jvm",
           "included": true
         },
         "jmx_memory.max": {
           "type": "gauge",
           "description": "Maximum amount of memory that can be used in bytes",
-          "group": null,
+          "group": "jvm",
           "included": true
         },
         "jmx_memory.used": {
           "type": "gauge",
           "description": "Current memory usage in bytes",
-          "group": null,
+          "group": "jvm",
           "included": true
         },
         "total_time_in_ms.collection_time": {
           "type": "cumulative",
           "description": "Amount of time spent garbage collecting in milliseconds",
-          "group": null,
+          "group": "jvm",
           "included": true
         }
       },
@@ -1844,49 +1860,49 @@
         "gauge.jvm.threads.count": {
           "type": "gauge",
           "description": "Number of JVM threads",
-          "group": null,
+          "group": "jvm",
           "included": true
         },
         "gauge.loaded_classes": {
           "type": "gauge",
           "description": "Number of classes loaded in the JVM",
-          "group": null,
+          "group": "jvm",
           "included": true
         },
         "invocations": {
           "type": "cumulative",
           "description": "Total number of garbage collection events",
-          "group": null,
+          "group": "jvm",
           "included": true
         },
         "jmx_memory.committed": {
           "type": "gauge",
           "description": "Amount of memory guaranteed to be available in bytes",
-          "group": null,
+          "group": "jvm",
           "included": true
         },
         "jmx_memory.init": {
           "type": "gauge",
           "description": "Amount of initial memory at startup in bytes",
-          "group": null,
+          "group": "jvm",
           "included": true
         },
         "jmx_memory.max": {
           "type": "gauge",
           "description": "Maximum amount of memory that can be used in bytes",
-          "group": null,
+          "group": "jvm",
           "included": true
         },
         "jmx_memory.used": {
           "type": "gauge",
           "description": "Current memory usage in bytes",
-          "group": null,
+          "group": "jvm",
           "included": true
         },
         "total_time_in_ms.collection_time": {
           "type": "cumulative",
           "description": "Amount of time spent garbage collecting in milliseconds",
-          "group": null,
+          "group": "jvm",
           "included": true
         }
       },
@@ -3081,7 +3097,7 @@
     },
     {
       "monitorType": "collectd/custom",
-      "sendAll": false,
+      "sendAll": true,
       "dimensions": null,
       "doc": "This monitor lets you provide custom collectd\nconfiguration to be run by the managed collectd instance.  You can provide\nconfiguration for as many plugins as you want in a single instance of this\nmonitor configuration by either putting multiple `\u003cPlugin\u003e` blocks in a\nsingle `template` option, or specifying multiple `templates`.\n\nNote that a distinct instance of collectd is run for each instance of this\nmonitor, so it is more efficient to group plugin configurations into a\nsingle monitor configuration (either in one big `template` text blob, or\nsplit into multiple `templates`).  You should not group configurations if\nusing a discoveryRule since that would result in duplicate config for each\ninstance of the service endpoint discovered.\n\nYou can also use your own Python plugins in conjunction with the\n`ModulePath` option in\n[collectd-python](https://collectd.org/documentation/manpages/collectd-python.5.shtml).\nIf your Python plugin has dependencies of its own, you can specify the path\nto them by specifying multiple `ModulePath` options with those paths.\n\nHere is an example of a configuration with a custom Python plugin:\n\n```yaml\n  - type: collectd/custom\n    discoveryRule: container_image =~ \"myservice\"\n    template: |\n      LoadPlugin \"python\"\n      \u003cPlugin python\u003e\n        ModulePath \"/usr/lib/python2.7/dist-packages/health_checker\"\n        Import \"health_checker\"\n        \u003cModule health_checker\u003e\n          URL \"http://{{.Host}}:{{.Port}}\"\n          JSONKey \"isRunning\"\n          JSONVal \"1\"\n        \u003c/Module\u003e\n      \u003c/Plugin\u003e\n```\n\nWe have many collectd plugins included in the image that are not exposed as\nmonitors.  You can see the plugins in the `\u003cAGENT_BUNDLE\u003e/lib/collectd`\ndirectory, where `\u003cAGENT_BUNDLE\u003e` is the root of the filesystem in the\ncontainerized version, and is normally `/usr/lib/signalfx-agent` in the\nnon-containerized agent.\n",
       "groups": null,
@@ -4235,49 +4251,49 @@
         "gauge.jvm.threads.count": {
           "type": "gauge",
           "description": "Number of JVM threads",
-          "group": null,
+          "group": "jvm",
           "included": true
         },
         "gauge.loaded_classes": {
           "type": "gauge",
           "description": "Number of classes loaded in the JVM",
-          "group": null,
+          "group": "jvm",
           "included": true
         },
         "invocations": {
           "type": "cumulative",
           "description": "Total number of garbage collection events",
-          "group": null,
+          "group": "jvm",
           "included": true
         },
         "jmx_memory.committed": {
           "type": "gauge",
           "description": "Amount of memory guaranteed to be available in bytes",
-          "group": null,
+          "group": "jvm",
           "included": true
         },
         "jmx_memory.init": {
           "type": "gauge",
           "description": "Amount of initial memory at startup in bytes",
-          "group": null,
+          "group": "jvm",
           "included": true
         },
         "jmx_memory.max": {
           "type": "gauge",
           "description": "Maximum amount of memory that can be used in bytes",
-          "group": null,
+          "group": "jvm",
           "included": true
         },
         "jmx_memory.used": {
           "type": "gauge",
           "description": "Current memory usage in bytes",
-          "group": null,
+          "group": "jvm",
           "included": true
         },
         "total_time_in_ms.collection_time": {
           "type": "cumulative",
           "description": "Amount of time spent garbage collecting in milliseconds",
-          "group": null,
+          "group": "jvm",
           "included": true
         }
       },
@@ -4730,210 +4746,388 @@
       "sendAll": false,
       "dimensions": null,
       "doc": "Collects metrics about a Hadoop cluster using using collectd's GenericJMX plugin.\n\nAlso see https://github.com/signalfx/integrations/tree/master/collectd-hadoop.\n\nTo enable JMX in Hadoop, add the following JVM options to hadoop-env.sh and yarn-env.sh respectively\n\n**hadoop-env.sh:**\n```sh\nexport HADOOP_NAMENODE_OPTS=\"-Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.port=5677 $HADOOP_NAMENODE_OPTS\"\nexport HADOOP_DATANODE_OPTS=\"-Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.port=5679 $HADOOP_DATANODE_OPTS\"\n```\n\n**yarn-env.sh:**\n```sh\nexport YARN_NODEMANAGER_OPTS=\"-Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.port=8002 $YARN_NODEMANAGER_OPTS\"\nexport YARN_RESOURCEMANAGER_OPTS=\"-Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.port=5680 $YARN_RESOURCEMANAGER_OPTS\"\n```\n\nThis monitor has a set of built in MBeans configured for:\n  - [Name Nodes](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/hadoopjmx/nameNodeMBeans.go)\n  - [Resource Manager](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/hadoopjmx/resourceManagerMBeans.go)\n  - [Node Manager](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/hadoopjmx/nodeManagerMBeans.go)\n  - [Data Nodes](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/hadoopjmx/dataNodeMBeans.go)\n\nSample YAML configuration:\n\nName Node\n```yaml\nmonitors:\n- type: collectd/hadoopjmx\n  host: 127.0.0.1\n  port: 5677\n  nodeType: nameNode\n```\n\nResource Manager\n```yaml\nmonitors:\n- type: collectd/hadoopjmx\n  host: 127.0.0.1\n  port: 5680\n  nodeType: resourceManager\n```\n\nNode Manager\n```yaml\nmonitors:\n- type: collectd/hadoopjmx\n  host: 127.0.0.1\n  port: 8002\n  nodeType: nodeManager\n```\n\nData Node\n```yaml\nmonitors:\n- type: collectd/hadoopjmx\n  host: 127.0.0.1\n  port: 5679\n  nodeType: dataNode\n```\n\nYou may also configure the [collectd/hadoop](https://github.com/signalfx/signalfx-agent/tree/master/docs/monitors/collectd/hadoop)\nmonitor to collect additional metrics about the hadoop cluster from the REST API\n",
-      "groups": null,
+      "groups": {
+        "data-node": {
+          "description": "Metrics for DataNodes containing HDFS files"
+        },
+        "jvm": {
+          "description": "JVM metrics"
+        },
+        "name-node": {
+          "description": "Metrics for NameNodes containing HDFS metadata"
+        },
+        "node-manager": {
+          "description": "Metrics for Node Manager"
+        },
+        "resource-manager": {
+          "description": "Metrics for Hadoop resource management"
+        }
+      },
       "metrics": {
+        "counter.hadoop-datanode-blocks-read": {
+          "type": "cumulative",
+          "description": "",
+          "group": "data-node",
+          "included": false
+        },
+        "counter.hadoop-datanode-blocks-written": {
+          "type": "cumulative",
+          "description": "",
+          "group": "data-node",
+          "included": false
+        },
+        "counter.hadoop-datanode-bytes-read": {
+          "type": "cumulative",
+          "description": "",
+          "group": "data-node",
+          "included": false
+        },
+        "counter.hadoop-datanode-bytes-written": {
+          "type": "cumulative",
+          "description": "",
+          "group": "data-node",
+          "included": false
+        },
+        "counter.hadoop-namenode-files-total": {
+          "type": "cumulative",
+          "description": "",
+          "group": "name-node",
+          "included": false
+        },
         "counter.hadoop-namenode-gc-count": {
           "type": "cumulative",
           "description": "",
-          "group": null,
+          "group": "name-node",
           "included": true
         },
         "counter.hadoop-namenode-gc-time": {
           "type": "cumulative",
           "description": "",
-          "group": null,
+          "group": "name-node",
           "included": true
         },
         "counter.hadoop-namenode-rpc-total-calls": {
           "type": "cumulative",
           "description": "",
-          "group": null,
+          "group": "name-node",
           "included": true
         },
         "counter.hadoop-namenode-total-load": {
           "type": "cumulative",
           "description": "",
-          "group": null,
+          "group": "name-node",
           "included": true
         },
         "counter.hadoop-namenode-volume-failures": {
           "type": "cumulative",
           "description": "",
-          "group": null,
+          "group": "name-node",
           "included": true
+        },
+        "counter.hadoop-nodeManager-containers-failed": {
+          "type": "cumulative",
+          "description": "",
+          "group": "node-manager",
+          "included": false
+        },
+        "counter.hadoop-nodeManager-containers-launched": {
+          "type": "cumulative",
+          "description": "",
+          "group": "node-manager",
+          "included": false
         },
         "gauge.hadoop-datanode-fs-capacity": {
           "type": "gauge",
           "description": "",
-          "group": null,
+          "group": "data-node",
           "included": true
         },
         "gauge.hadoop-datanode-fs-dfs-remaining": {
           "type": "gauge",
           "description": "",
-          "group": null,
+          "group": "data-node",
           "included": true
         },
         "gauge.hadoop-datanode-fs-dfs-used": {
           "type": "gauge",
           "description": "",
-          "group": null,
+          "group": "data-node",
           "included": true
+        },
+        "gauge.hadoop-datanode-info-xceiver": {
+          "type": "gauge",
+          "description": "",
+          "group": "data-node",
+          "included": false
         },
         "gauge.hadoop-datanode-jvm-heap-used": {
           "type": "gauge",
           "description": "",
-          "group": null,
+          "group": "data-node",
           "included": true
+        },
+        "gauge.hadoop-datanode-jvm-non-heap-used": {
+          "type": "gauge",
+          "description": "",
+          "group": "data-node",
+          "included": false
         },
         "gauge.hadoop-datanode-rpc-call-queue-length": {
           "type": "gauge",
           "description": "",
-          "group": null,
+          "group": "data-node",
           "included": true
         },
         "gauge.hadoop-datanode-rpc-open-connections": {
           "type": "gauge",
           "description": "",
-          "group": null,
+          "group": "data-node",
           "included": true
         },
         "gauge.hadoop-datanode-rpc-processing-avg": {
           "type": "gauge",
           "description": "",
-          "group": null,
+          "group": "data-node",
           "included": true
         },
         "gauge.hadoop-datanode-rpc-queue-time-avg": {
           "type": "gauge",
           "description": "",
-          "group": null,
+          "group": "data-node",
           "included": true
+        },
+        "gauge.hadoop-namenode-blocks-with-corrupt-replicas": {
+          "type": "gauge",
+          "description": "",
+          "group": "name-node",
+          "included": false
+        },
+        "gauge.hadoop-namenode-capacity-remaining": {
+          "type": "gauge",
+          "description": "",
+          "group": "name-node",
+          "included": false
         },
         "gauge.hadoop-namenode-capacity-total": {
           "type": "gauge",
           "description": "",
-          "group": null,
+          "group": "name-node",
           "included": true
         },
         "gauge.hadoop-namenode-capacity-used": {
           "type": "gauge",
           "description": "",
-          "group": null,
+          "group": "name-node",
           "included": true
+        },
+        "gauge.hadoop-namenode-corrupt-blocks": {
+          "type": "gauge",
+          "description": "",
+          "group": "name-node",
+          "included": false
         },
         "gauge.hadoop-namenode-current-heap-used": {
           "type": "gauge",
           "description": "",
-          "group": null,
+          "group": "name-node",
           "included": true
         },
         "gauge.hadoop-namenode-dead-datanodes": {
           "type": "gauge",
           "description": "",
-          "group": null,
+          "group": "name-node",
           "included": true
         },
         "gauge.hadoop-namenode-dfs-free": {
           "type": "gauge",
           "description": "",
-          "group": null,
+          "group": "name-node",
           "included": true
         },
         "gauge.hadoop-namenode-live-datanodes": {
           "type": "gauge",
           "description": "",
-          "group": null,
+          "group": "name-node",
           "included": true
         },
         "gauge.hadoop-namenode-max-heap": {
           "type": "gauge",
           "description": "",
-          "group": null,
+          "group": "name-node",
           "included": true
+        },
+        "gauge.hadoop-namenode-missing-blocks": {
+          "type": "gauge",
+          "description": "",
+          "group": "name-node",
+          "included": false
+        },
+        "gauge.hadoop-namenode-percent-dfs-used": {
+          "type": "gauge",
+          "description": "",
+          "group": "name-node",
+          "included": false
         },
         "gauge.hadoop-namenode-percent-remaining": {
           "type": "gauge",
           "description": "",
-          "group": null,
+          "group": "name-node",
           "included": true
         },
         "gauge.hadoop-namenode-rpc-avg-process-time": {
           "type": "gauge",
           "description": "",
-          "group": null,
+          "group": "name-node",
           "included": true
         },
         "gauge.hadoop-namenode-rpc-avg-queue": {
           "type": "gauge",
           "description": "",
-          "group": null,
+          "group": "name-node",
           "included": true
+        },
+        "gauge.hadoop-namenode-stale-datanodes": {
+          "type": "gauge",
+          "description": "",
+          "group": "name-node",
+          "included": false
         },
         "gauge.hadoop-namenode-under-replicated-blocks": {
           "type": "gauge",
           "description": "",
-          "group": null,
+          "group": "name-node",
           "included": true
+        },
+        "gauge.hadoop-nodeManager-allocated-memory": {
+          "type": "gauge",
+          "description": "",
+          "group": "node-manager",
+          "included": false
+        },
+        "gauge.hadoop-nodeManager-allocated-vcores": {
+          "type": "gauge",
+          "description": "",
+          "group": "node-manager",
+          "included": false
+        },
+        "gauge.hadoop-nodeManager-available-memory": {
+          "type": "gauge",
+          "description": "",
+          "group": "node-manager",
+          "included": false
+        },
+        "gauge.hadoop-nodeManager-available-vcores": {
+          "type": "gauge",
+          "description": "",
+          "group": "node-manager",
+          "included": false
+        },
+        "gauge.hadoop-resourceManager-active-apps": {
+          "type": "gauge",
+          "description": "",
+          "group": "resource-manager",
+          "included": false
+        },
+        "gauge.hadoop-resourceManager-active-nms": {
+          "type": "gauge",
+          "description": "",
+          "group": "resource-manager",
+          "included": false
+        },
+        "gauge.hadoop-resourceManager-active-users": {
+          "type": "gauge",
+          "description": "",
+          "group": "resource-manager",
+          "included": false
+        },
+        "gauge.hadoop-resourceManager-allocated-containers": {
+          "type": "gauge",
+          "description": "",
+          "group": "resource-manager",
+          "included": false
+        },
+        "gauge.hadoop-resourceManager-allocated-memory": {
+          "type": "gauge",
+          "description": "",
+          "group": "resource-manager",
+          "included": false
         },
         "gauge.hadoop-resourceManager-allocated-vcores": {
           "type": "gauge",
           "description": "",
-          "group": null,
+          "group": "resource-manager",
           "included": true
+        },
+        "gauge.hadoop-resourceManager-available-memory": {
+          "type": "gauge",
+          "description": "",
+          "group": "resource-manager",
+          "included": false
         },
         "gauge.hadoop-resourceManager-available-vcores": {
           "type": "gauge",
           "description": "",
-          "group": null,
+          "group": "resource-manager",
           "included": true
+        },
+        "gauge.hadoop-resourceManager-heap-max": {
+          "type": "gauge",
+          "description": "",
+          "group": "resource-manager",
+          "included": false
+        },
+        "gauge.hadoop-resourceManager-heap-used": {
+          "type": "gauge",
+          "description": "",
+          "group": "resource-manager",
+          "included": false
         },
         "gauge.jvm.threads.count": {
           "type": "gauge",
           "description": "Number of JVM threads",
-          "group": null,
+          "group": "jvm",
           "included": true
         },
         "gauge.loaded_classes": {
           "type": "gauge",
           "description": "Number of classes loaded in the JVM",
-          "group": null,
+          "group": "jvm",
           "included": true
         },
         "invocations": {
           "type": "cumulative",
           "description": "Total number of garbage collection events",
-          "group": null,
+          "group": "jvm",
           "included": true
         },
         "jmx_memory.committed": {
           "type": "gauge",
           "description": "Amount of memory guaranteed to be available in bytes",
-          "group": null,
+          "group": "jvm",
           "included": true
         },
         "jmx_memory.init": {
           "type": "gauge",
           "description": "Amount of initial memory at startup in bytes",
-          "group": null,
+          "group": "jvm",
           "included": true
         },
         "jmx_memory.max": {
           "type": "gauge",
           "description": "Maximum amount of memory that can be used in bytes",
-          "group": null,
+          "group": "jvm",
           "included": true
         },
         "jmx_memory.used": {
           "type": "gauge",
           "description": "Current memory usage in bytes",
-          "group": null,
+          "group": "jvm",
           "included": true
         },
         "total_time_in_ms.collection_time": {
           "type": "cumulative",
           "description": "Amount of time spent garbage collecting in milliseconds",
-          "group": null,
+          "group": "jvm",
           "included": true
         }
       },
@@ -6027,7 +6221,7 @@
         "gauge.jvm.threads.count": {
           "type": "gauge",
           "description": "Number of JVM threads",
-          "group": null,
+          "group": "jvm",
           "included": true
         },
         "gauge.kafka-active-controllers": {
@@ -6087,37 +6281,37 @@
         "gauge.loaded_classes": {
           "type": "gauge",
           "description": "Number of classes loaded in the JVM",
-          "group": null,
+          "group": "jvm",
           "included": true
         },
         "invocations": {
           "type": "cumulative",
           "description": "Total number of garbage collection events",
-          "group": null,
+          "group": "jvm",
           "included": true
         },
         "jmx_memory.committed": {
           "type": "gauge",
           "description": "Amount of memory guaranteed to be available in bytes",
-          "group": null,
+          "group": "jvm",
           "included": true
         },
         "jmx_memory.init": {
           "type": "gauge",
           "description": "Amount of initial memory at startup in bytes",
-          "group": null,
+          "group": "jvm",
           "included": true
         },
         "jmx_memory.max": {
           "type": "gauge",
           "description": "Maximum amount of memory that can be used in bytes",
-          "group": null,
+          "group": "jvm",
           "included": true
         },
         "jmx_memory.used": {
           "type": "gauge",
           "description": "Current memory usage in bytes",
-          "group": null,
+          "group": "jvm",
           "included": true
         },
         "kafka-isr-expands": {
@@ -6159,7 +6353,7 @@
         "total_time_in_ms.collection_time": {
           "type": "cumulative",
           "description": "Amount of time spent garbage collecting in milliseconds",
-          "group": null,
+          "group": "jvm",
           "included": true
         }
       },
@@ -6375,7 +6569,7 @@
     },
     {
       "monitorType": "collectd/kafka_consumer",
-      "sendAll": true,
+      "sendAll": false,
       "dimensions": null,
       "doc": "Monitors a Java based Kafka consumer using GenericJMX.\n\nSee the [integration documentation](https://github.com/signalfx/integrations/tree/master/collectd-kafka)\nfor more information.\n\nThis monitor has a set of [built in MBeans\nconfigured](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/kafkaconsumer/mbeans.go)\nfor which it pulls metrics from the Kafka consumer's JMX endpoint.\n\nSample YAML configuration:\n```yaml\nmonitors:\n  - type: collectd/kafka_consumer\n    host: localhost\n    port: 9099\n    mBeansToOmit:\n      - fetch-size-avg-per-topic\n```\n\nNote that this monitor requires Kafka v0.9.0.0 or above and collects metrics from the new consumer API.\nAlso, per-topic metrics that are collected by default are not available through the new consumer API in\nv0.9.0.0 which can cause the logs to flood with warnings related to the MBean not being found.\nUse the `mBeansToOmit` config option in such cases. The above example configuration will not attempt to\ncollect the MBean referenced by `fetch-size-avg-per-topic`. Here is a\n[list](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/kafkaconsumer/mbeans.go)\nof metrics collected by default\n",
       "groups": null,
@@ -6383,43 +6577,43 @@
         "gauge.jvm.threads.count": {
           "type": "gauge",
           "description": "Number of JVM threads",
-          "group": null,
+          "group": "jvm",
           "included": true
         },
         "gauge.loaded_classes": {
           "type": "gauge",
           "description": "Number of classes loaded in the JVM",
-          "group": null,
+          "group": "jvm",
           "included": true
         },
         "invocations": {
           "type": "cumulative",
           "description": "Total number of garbage collection events",
-          "group": null,
+          "group": "jvm",
           "included": true
         },
         "jmx_memory.committed": {
           "type": "gauge",
           "description": "Amount of memory guaranteed to be available in bytes",
-          "group": null,
+          "group": "jvm",
           "included": true
         },
         "jmx_memory.init": {
           "type": "gauge",
           "description": "Amount of initial memory at startup in bytes",
-          "group": null,
+          "group": "jvm",
           "included": true
         },
         "jmx_memory.max": {
           "type": "gauge",
           "description": "Maximum amount of memory that can be used in bytes",
-          "group": null,
+          "group": "jvm",
           "included": true
         },
         "jmx_memory.used": {
           "type": "gauge",
           "description": "Current memory usage in bytes",
-          "group": null,
+          "group": "jvm",
           "included": true
         },
         "kafka.consumer.bytes-consumed-rate": {
@@ -6455,7 +6649,7 @@
         "total_time_in_ms.collection_time": {
           "type": "cumulative",
           "description": "Amount of time spent garbage collecting in milliseconds",
-          "group": null,
+          "group": "jvm",
           "included": true
         }
       },
@@ -6663,7 +6857,7 @@
     },
     {
       "monitorType": "collectd/kafka_producer",
-      "sendAll": true,
+      "sendAll": false,
       "dimensions": null,
       "doc": "Monitors a Java based Kafka producer using GenericJMX.\n\nSee the [integration documentation](https://github.com/signalfx/integrations/tree/master/collectd-kafka)\nfor more information.\n\nThis monitor has a set of [built in MBeans\nconfigured](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/kafkaproducer/mbeans.go)\nfor which it pulls metrics from the Kafka producer's JMX endpoint.\n\nSample YAML configuration:\n```yaml\nmonitors:\n  - type: collectd/kafka_producer\n    host: localhost\n    port: 8099\n```\n\nNote that this monitor requires Kafka v0.9.0.0 or above and collects metrics from the new producer API.\n",
       "groups": null,
@@ -6671,43 +6865,43 @@
         "gauge.jvm.threads.count": {
           "type": "gauge",
           "description": "Number of JVM threads",
-          "group": null,
+          "group": "jvm",
           "included": true
         },
         "gauge.loaded_classes": {
           "type": "gauge",
           "description": "Number of classes loaded in the JVM",
-          "group": null,
+          "group": "jvm",
           "included": true
         },
         "invocations": {
           "type": "cumulative",
           "description": "Total number of garbage collection events",
-          "group": null,
+          "group": "jvm",
           "included": true
         },
         "jmx_memory.committed": {
           "type": "gauge",
           "description": "Amount of memory guaranteed to be available in bytes",
-          "group": null,
+          "group": "jvm",
           "included": true
         },
         "jmx_memory.init": {
           "type": "gauge",
           "description": "Amount of initial memory at startup in bytes",
-          "group": null,
+          "group": "jvm",
           "included": true
         },
         "jmx_memory.max": {
           "type": "gauge",
           "description": "Maximum amount of memory that can be used in bytes",
-          "group": null,
+          "group": "jvm",
           "included": true
         },
         "jmx_memory.used": {
           "type": "gauge",
           "description": "Current memory usage in bytes",
-          "group": null,
+          "group": "jvm",
           "included": true
         },
         "kafka.producer.byte-rate": {
@@ -6773,7 +6967,7 @@
         "total_time_in_ms.collection_time": {
           "type": "cumulative",
           "description": "Amount of time spent garbage collecting in milliseconds",
-          "group": null,
+          "group": "jvm",
           "included": true
         }
       },
@@ -7865,115 +8059,115 @@
         "counter.collection.commandsCount": {
           "type": "counter",
           "description": "Number of commands issued for a collection",
-          "group": null,
+          "group": "collection-top",
           "included": false
         },
         "counter.collection.commandsTime": {
           "type": "counter",
           "description": "Time spent in microseconds processing commands issued for a collection",
-          "group": null,
+          "group": "collection-top",
           "included": false
         },
         "counter.collection.getmoreCount": {
           "type": "counter",
           "description": "Number of getMore requests issued for a collection",
-          "group": null,
+          "group": "collection-top",
           "included": false
         },
         "counter.collection.getmoreTime": {
           "type": "counter",
           "description": "Time spent in microseconds processing getMore requests for a collection",
-          "group": null,
+          "group": "collection-top",
           "included": false
         },
         "counter.collection.index.accesses.ops": {
           "type": "counter",
           "description": "Number of times an index has been used (only on Mongo 3.2+)",
-          "group": null,
+          "group": "collection",
           "included": false
         },
         "counter.collection.insertCount": {
           "type": "counter",
           "description": "Number of inserts issued for a collection",
-          "group": null,
+          "group": "collection-top",
           "included": false
         },
         "counter.collection.insertTime": {
           "type": "counter",
           "description": "Time spent in microseconds processing insert requests for a collection",
-          "group": null,
+          "group": "collection-top",
           "included": false
         },
         "counter.collection.queriesCount": {
           "type": "counter",
           "description": "Number of queries issued for a collection",
-          "group": null,
+          "group": "collection-top",
           "included": false
         },
         "counter.collection.queriesTime": {
           "type": "counter",
           "description": "Time spent in microseconds processing query requests for a collection",
-          "group": null,
+          "group": "collection-top",
           "included": false
         },
         "counter.collection.readLockCount": {
           "type": "counter",
           "description": "Number of read locks issued for a collection",
-          "group": null,
+          "group": "collection-top",
           "included": false
         },
         "counter.collection.readLockTime": {
           "type": "counter",
           "description": "Time spent in microseconds processing read locks for a collection",
-          "group": null,
+          "group": "collection-top",
           "included": false
         },
         "counter.collection.removeCount": {
           "type": "counter",
           "description": "Number of remove requests issued for a collection",
-          "group": null,
+          "group": "collection-top",
           "included": false
         },
         "counter.collection.removeTime": {
           "type": "counter",
           "description": "Time spent in microseconds processing remove requests for a collection",
-          "group": null,
+          "group": "collection-top",
           "included": false
         },
         "counter.collection.totalCount": {
           "type": "counter",
           "description": "Total number of operations issued for a collection",
-          "group": null,
+          "group": "collection-top",
           "included": false
         },
         "counter.collection.totalTime": {
           "type": "counter",
           "description": "Time spent in microseconds processing all operations for a collection",
-          "group": null,
+          "group": "collection-top",
           "included": false
         },
         "counter.collection.updateCount": {
           "type": "counter",
           "description": "Number of update requests issued for a collection",
-          "group": null,
+          "group": "collection-top",
           "included": false
         },
         "counter.collection.updateTime": {
           "type": "counter",
           "description": "Time spent in microseconds processing update requests for a collection",
-          "group": null,
+          "group": "collection-top",
           "included": false
         },
         "counter.collection.writeLockCount": {
           "type": "counter",
           "description": "Number of write locks issued for a collection",
-          "group": null,
+          "group": "collection-top",
           "included": false
         },
         "counter.collection.writeLockTime": {
           "type": "counter",
           "description": "Time spent in microseconds processing write locks for a collection",
-          "group": null,
+          "group": "collection-top",
           "included": false
         },
         "counter.extra_info.page_faults": {
@@ -8039,19 +8233,19 @@
         "gauge.collection.avgObjSize": {
           "type": "gauge",
           "description": "Mean object/document size of a collection",
-          "group": null,
+          "group": "collection",
           "included": false
         },
         "gauge.collection.count": {
           "type": "gauge",
           "description": "Number of objects/documents in a collection",
-          "group": null,
+          "group": "collection",
           "included": false
         },
         "gauge.collection.indexSize": {
           "type": "gauge",
           "description": "Size of a particular index on a collection",
-          "group": null,
+          "group": "collection",
           "included": false
         },
         "gauge.collection.max": {
@@ -8069,13 +8263,13 @@
         "gauge.collection.size": {
           "type": "gauge",
           "description": "Size of a collection in bytes, not including indexes",
-          "group": null,
+          "group": "collection",
           "included": false
         },
         "gauge.collection.storageSize": {
           "type": "gauge",
           "description": "Size of the collection on disk in bytes, never decreases.",
-          "group": null,
+          "group": "collection",
           "included": false
         },
         "gauge.collections": {
@@ -10343,7 +10537,7 @@
     },
     {
       "monitorType": "collectd/python",
-      "sendAll": false,
+      "sendAll": true,
       "dimensions": null,
       "doc": "This monitor runs arbitrary collectd Python\nplugins directly, apart from collectd.  It implements a mock collectd Python\ninterface that supports most, but not all, of the real collectd.\n",
       "groups": null,
@@ -13212,7 +13406,7 @@
     },
     {
       "monitorType": "disk-io",
-      "sendAll": false,
+      "sendAll": true,
       "dimensions": null,
       "doc": "This monitor reports I/O metrics about disks.\n\nOn Linux hosts, this monitor relies on the `/proc` filesystem.\nIf the underlying host's `/proc` file system is mounted somewhere other than\n/proc please specify the path using the top level configuration `procPath`.\n\n```yaml\nprocPath: /proc\nmonitors:\n - type: disk-io\n```\n",
       "groups": null,
@@ -13346,391 +13540,554 @@
       "monitorType": "docker-container-stats",
       "sendAll": false,
       "dimensions": null,
-      "doc": "This monitor reads container stats from a\nDocker API server.  It is meant as a metric-compatible replacement of our\n[docker-collectd](https://github.com/signalfx/docker-collectd-plugin)\nplugin, which scales rather poorly against a large number of containers.\n\nThis currently does not support CPU share/quota metrics.\n\nIf you are running the agent directly on a host (outside of a container\nitself) and you are using the default Docker UNIX socket URL, you will\nprobably need to add the `signalfx-agent` user to the `docker` group in\norder to have permission to access the Docker API via the socket.\n\nRequires Docker API version 1.22+.\n",
-      "groups": null,
+      "doc": "This monitor reads container stats from a\nDocker API server.  It is meant as a metric-compatible replacement of our\n[docker-collectd](https://github.com/signalfx/docker-collectd-plugin)\nplugin, which scales rather poorly against a large number of containers.\n\nThis currently does not support CPU share/quota metrics.\n\nFor more information on block IO metrics, see [the Linux cgroup block io\ncontroller\ndoc](https://www.kernel.org/doc/Documentation/cgroup-v1/blkio-controller.txt).\n\nIf you are running the agent directly on a host (outside of a container\nitself) and you are using the default Docker UNIX socket URL, you will\nprobably need to add the `signalfx-agent` user to the `docker` group in\norder to have permission to access the Docker API via the socket.\n\nRequires Docker API version 1.22+.\n",
+      "groups": {
+        "blkio": {
+          "description": "BlockIO metrics"
+        },
+        "cpu": {
+          "description": "CPU metrics"
+        },
+        "memory": {
+          "description": "Memory metrics"
+        },
+        "network": {
+          "description": "Network metrics"
+        }
+      },
       "metrics": {
+        "blkio.io_merged_recursive.async": {
+          "type": "cumulative",
+          "description": "",
+          "group": "blkio",
+          "included": false
+        },
+        "blkio.io_merged_recursive.read": {
+          "type": "cumulative",
+          "description": "",
+          "group": "blkio",
+          "included": false
+        },
+        "blkio.io_merged_recursive.sync": {
+          "type": "cumulative",
+          "description": "",
+          "group": "blkio",
+          "included": false
+        },
+        "blkio.io_merged_recursive.total": {
+          "type": "cumulative",
+          "description": "",
+          "group": "blkio",
+          "included": false
+        },
+        "blkio.io_merged_recursive.write": {
+          "type": "cumulative",
+          "description": "",
+          "group": "blkio",
+          "included": false
+        },
+        "blkio.io_queue_recursive.async": {
+          "type": "cumulative",
+          "description": "",
+          "group": "blkio",
+          "included": false
+        },
+        "blkio.io_queue_recursive.read": {
+          "type": "cumulative",
+          "description": "",
+          "group": "blkio",
+          "included": false
+        },
+        "blkio.io_queue_recursive.sync": {
+          "type": "cumulative",
+          "description": "",
+          "group": "blkio",
+          "included": false
+        },
+        "blkio.io_queue_recursive.total": {
+          "type": "cumulative",
+          "description": "",
+          "group": "blkio",
+          "included": false
+        },
+        "blkio.io_queue_recursive.write": {
+          "type": "cumulative",
+          "description": "",
+          "group": "blkio",
+          "included": false
+        },
         "blkio.io_service_bytes_recursive.async": {
           "type": "cumulative",
           "description": "Volume, in bytes, of asynchronous block I/O",
-          "group": null,
+          "group": "blkio",
           "included": false
         },
         "blkio.io_service_bytes_recursive.read": {
           "type": "cumulative",
           "description": "Volume, in bytes, of reads from block devices",
-          "group": null,
+          "group": "blkio",
           "included": true
         },
         "blkio.io_service_bytes_recursive.sync": {
           "type": "cumulative",
           "description": "Volume, in bytes, of synchronous block I/O",
-          "group": null,
+          "group": "blkio",
           "included": false
         },
         "blkio.io_service_bytes_recursive.total": {
           "type": "cumulative",
           "description": "Total volume, in bytes, of all block I/O",
-          "group": null,
+          "group": "blkio",
           "included": false
         },
         "blkio.io_service_bytes_recursive.write": {
           "type": "cumulative",
           "description": "Volume, in bytes, of writes to block devices",
-          "group": null,
+          "group": "blkio",
           "included": true
+        },
+        "blkio.io_service_time_recursive.async": {
+          "type": "cumulative",
+          "description": "",
+          "group": "blkio",
+          "included": false
+        },
+        "blkio.io_service_time_recursive.read": {
+          "type": "cumulative",
+          "description": "",
+          "group": "blkio",
+          "included": false
+        },
+        "blkio.io_service_time_recursive.sync": {
+          "type": "cumulative",
+          "description": "",
+          "group": "blkio",
+          "included": false
+        },
+        "blkio.io_service_time_recursive.total": {
+          "type": "cumulative",
+          "description": "",
+          "group": "blkio",
+          "included": false
+        },
+        "blkio.io_service_time_recursive.write": {
+          "type": "cumulative",
+          "description": "",
+          "group": "blkio",
+          "included": false
         },
         "blkio.io_serviced_recursive.async": {
           "type": "cumulative",
           "description": "Number of asynchronous block I/O requests",
-          "group": null,
+          "group": "blkio",
           "included": false
         },
         "blkio.io_serviced_recursive.read": {
           "type": "cumulative",
           "description": "Number of reads requests from block devices",
-          "group": null,
+          "group": "blkio",
           "included": false
         },
         "blkio.io_serviced_recursive.sync": {
           "type": "cumulative",
           "description": "Number of synchronous block I/O requests",
-          "group": null,
+          "group": "blkio",
           "included": false
         },
         "blkio.io_serviced_recursive.total": {
           "type": "cumulative",
           "description": "Total number of block I/O requests",
-          "group": null,
+          "group": "blkio",
           "included": false
         },
         "blkio.io_serviced_recursive.write": {
           "type": "cumulative",
           "description": "Number of write requests to block devices",
-          "group": null,
+          "group": "blkio",
+          "included": false
+        },
+        "blkio.io_time_recursive.async": {
+          "type": "cumulative",
+          "description": "",
+          "group": "blkio",
+          "included": false
+        },
+        "blkio.io_time_recursive.read": {
+          "type": "cumulative",
+          "description": "",
+          "group": "blkio",
+          "included": false
+        },
+        "blkio.io_time_recursive.sync": {
+          "type": "cumulative",
+          "description": "",
+          "group": "blkio",
+          "included": false
+        },
+        "blkio.io_time_recursive.total": {
+          "type": "cumulative",
+          "description": "",
+          "group": "blkio",
+          "included": false
+        },
+        "blkio.io_time_recursive.write": {
+          "type": "cumulative",
+          "description": "",
+          "group": "blkio",
+          "included": false
+        },
+        "blkio.io_wait_time_recursive.async": {
+          "type": "cumulative",
+          "description": "",
+          "group": "blkio",
+          "included": false
+        },
+        "blkio.io_wait_time_recursive.read": {
+          "type": "cumulative",
+          "description": "",
+          "group": "blkio",
+          "included": false
+        },
+        "blkio.io_wait_time_recursive.sync": {
+          "type": "cumulative",
+          "description": "",
+          "group": "blkio",
+          "included": false
+        },
+        "blkio.io_wait_time_recursive.total": {
+          "type": "cumulative",
+          "description": "",
+          "group": "blkio",
+          "included": false
+        },
+        "blkio.io_wait_time_recursive.write": {
+          "type": "cumulative",
+          "description": "",
+          "group": "blkio",
           "included": false
         },
         "cpu.percent": {
           "type": "gauge",
           "description": "Percentage of host CPU resources used by the container",
-          "group": null,
+          "group": "cpu",
           "included": false
         },
         "cpu.percpu.usage": {
           "type": "cumulative",
           "description": "Jiffies of CPU time spent by the container, per CPU core",
-          "group": null,
+          "group": "cpu",
           "included": false
         },
         "cpu.throttling_data.periods": {
           "type": "cumulative",
           "description": "Number of periods",
-          "group": null,
+          "group": "cpu",
           "included": false
         },
         "cpu.throttling_data.throttled_periods": {
           "type": "cumulative",
           "description": "Number of periods throttled",
-          "group": null,
+          "group": "cpu",
           "included": false
         },
         "cpu.throttling_data.throttled_time": {
           "type": "cumulative",
           "description": "Throttling time in nano seconds",
-          "group": null,
+          "group": "cpu",
           "included": false
         },
         "cpu.usage.kernelmode": {
           "type": "cumulative",
           "description": "Jiffies of CPU time spent in kernel mode by the container",
-          "group": null,
+          "group": "cpu",
           "included": false
         },
         "cpu.usage.system": {
           "type": "cumulative",
           "description": "Jiffies of CPU time used by the system",
-          "group": null,
+          "group": "cpu",
           "included": true
         },
         "cpu.usage.total": {
           "type": "cumulative",
           "description": "Jiffies of CPU time used by the container",
-          "group": null,
+          "group": "cpu",
           "included": true
         },
         "cpu.usage.usermode": {
           "type": "cumulative",
           "description": "Jiffies of CPU time spent in user mode by the container",
-          "group": null,
+          "group": "cpu",
           "included": false
         },
         "memory.percent": {
           "type": "gauge",
           "description": "Percent of memory (0-100) used by the container relative to its limit (excludes page cache usage)",
-          "group": null,
+          "group": "memory",
           "included": false
         },
         "memory.stats.active_anon": {
           "type": "gauge",
           "description": "Amount of memory that has been identified as active by the kernel. Anonymous memory is memory that is not linked to disk pages.",
-          "group": null,
+          "group": "memory",
           "included": false
         },
         "memory.stats.active_file": {
           "type": "gauge",
           "description": "Amount of active file cache memory. Cache memory = active_file + inactive_file + tmpfs",
-          "group": null,
+          "group": "memory",
           "included": false
         },
         "memory.stats.cache": {
           "type": "gauge",
           "description": "The amount of memory used by the processes of this control group that can be associated with a block on a block device. Also accounts for memory used by tmpfs.",
-          "group": null,
+          "group": "memory",
           "included": false
         },
         "memory.stats.dirty": {
           "type": "gauge",
           "description": "The amount of memory waiting to get written to disk",
-          "group": null,
+          "group": "memory",
           "included": false
         },
         "memory.stats.hierarchical_memory_limit": {
           "type": "gauge",
           "description": "The memory limit in place by the hierarchy cgroup",
-          "group": null,
+          "group": "memory",
           "included": false
         },
         "memory.stats.hierarchical_memsw_limit": {
           "type": "gauge",
           "description": "The memory+swap limit in place by the hierarchy cgroup",
-          "group": null,
+          "group": "memory",
           "included": false
         },
         "memory.stats.inactive_anon": {
           "type": "gauge",
           "description": "Amount of memory that has been identified as inactive by the kernel. Anonymous memory is memory that is not linked to disk pages.",
-          "group": null,
+          "group": "memory",
           "included": false
         },
         "memory.stats.inactive_file": {
           "type": "gauge",
           "description": "Amount of inactive file cache memory. Cache memory = active_file + inactive_file + tmpfs",
-          "group": null,
+          "group": "memory",
           "included": false
         },
         "memory.stats.mapped_file": {
           "type": "gauge",
           "description": "Indicates the amount of memory mapped by the processes in the control group. It doesn’t give you information about how much memory is used; it rather tells you how it is used.",
-          "group": null,
+          "group": "memory",
           "included": false
         },
         "memory.stats.pgfault": {
           "type": "cumulative",
           "description": "Number of times that a process of the cgroup triggered a page fault. Page faults occur when a process accesses part of its virtual memory space which is nonexistent or protected. See https://docs.docker.com/config/containers/runmetrics for more info.",
-          "group": null,
+          "group": "memory",
           "included": false
         },
         "memory.stats.pgmajfault": {
           "type": "cumulative",
           "description": "Number of times that a process of the cgroup triggered a major page fault. Page faults occur when a process accesses part of its virtual memory space which is nonexistent or protected. See https://docs.docker.com/config/containers/runmetrics for more info.",
-          "group": null,
+          "group": "memory",
           "included": false
         },
         "memory.stats.pgpgin": {
           "type": "cumulative",
           "description": "Number of charging events to the memory cgroup. Charging events happen each time a page is accounted as either mapped anon page(RSS) or cache page to the cgroup.",
-          "group": null,
+          "group": "memory",
           "included": false
         },
         "memory.stats.pgpgout": {
           "type": "cumulative",
           "description": "Number of uncharging events to the memory cgroup. Uncharging events happen each time a page is unaccounted from the cgroup.",
-          "group": null,
+          "group": "memory",
           "included": false
         },
         "memory.stats.rss": {
           "type": "gauge",
           "description": "The amount of memory that doesn’t correspond to anything on disk: stacks, heaps, and anonymous memory maps.",
-          "group": null,
+          "group": "memory",
           "included": false
         },
         "memory.stats.rss_huge": {
           "type": "gauge",
           "description": "Amount of memory due to anonymous transparent hugepages.",
-          "group": null,
+          "group": "memory",
           "included": false
         },
         "memory.stats.swap": {
           "type": "gauge",
           "description": "Bytes of swap memory used by container",
-          "group": null,
+          "group": "memory",
           "included": false
         },
         "memory.stats.total_active_anon": {
           "type": "gauge",
           "description": "Total amount of memory that has been identified as active by the kernel. Anonymous memory is memory that is not linked to disk pages.",
-          "group": null,
+          "group": "memory",
           "included": false
         },
         "memory.stats.total_active_file": {
           "type": "gauge",
           "description": "Total amount of active file cache memory. Cache memory = active_file + inactive_file + tmpfs",
-          "group": null,
+          "group": "memory",
           "included": false
         },
         "memory.stats.total_cache": {
           "type": "gauge",
           "description": "Total amount of memory used by the processes of this control group that can be associated with a block on a block device. Also accounts for memory used by tmpfs.",
-          "group": null,
+          "group": "memory",
           "included": false
         },
         "memory.stats.total_dirty": {
           "type": "gauge",
           "description": "Total amount of memory waiting to get written to disk",
-          "group": null,
+          "group": "memory",
           "included": false
         },
         "memory.stats.total_inactive_anon": {
           "type": "gauge",
           "description": "Total amount of memory that has been identified as inactive by the kernel. Anonymous memory is memory that is not linked to disk pages.",
-          "group": null,
+          "group": "memory",
           "included": false
         },
         "memory.stats.total_inactive_file": {
           "type": "gauge",
           "description": "Total amount of inactive file cache memory. Cache memory = active_file + inactive_file + tmpfs",
-          "group": null,
+          "group": "memory",
           "included": false
         },
         "memory.stats.total_mapped_file": {
           "type": "gauge",
           "description": "Total amount of memory mapped by the processes in the control group. It doesn’t give you information about how much memory is used; it rather tells you how it is used.",
-          "group": null,
+          "group": "memory",
           "included": false
         },
         "memory.stats.total_pgfault": {
           "type": "cumulative",
           "description": "Total number of page faults",
-          "group": null,
+          "group": "memory",
           "included": false
         },
         "memory.stats.total_pgmajfault": {
           "type": "cumulative",
           "description": "Total number of major page faults",
-          "group": null,
+          "group": "memory",
           "included": false
         },
         "memory.stats.total_pgpgin": {
           "type": "cumulative",
           "description": "Total number of charging events",
-          "group": null,
+          "group": "memory",
           "included": false
         },
         "memory.stats.total_pgpgout": {
           "type": "cumulative",
           "description": "Total number of uncharging events",
-          "group": null,
+          "group": "memory",
           "included": false
         },
         "memory.stats.total_rss": {
           "type": "gauge",
           "description": "Total amount of memory that doesn’t correspond to anything on disk: stacks, heaps, and anonymous memory maps.",
-          "group": null,
+          "group": "memory",
           "included": false
         },
         "memory.stats.total_rss_huge": {
           "type": "gauge",
           "description": "Total amount of memory due to anonymous transparent hugepages.",
-          "group": null,
+          "group": "memory",
           "included": false
         },
         "memory.stats.total_unevictable": {
           "type": "gauge",
           "description": "Total amount of memory that can not be reclaimed",
-          "group": null,
+          "group": "memory",
           "included": false
         },
         "memory.stats.total_writeback": {
           "type": "gauge",
           "description": "Total amount of memory from file/anon cache that are queued for syncing to the disk",
-          "group": null,
+          "group": "memory",
           "included": false
         },
         "memory.stats.unevictable": {
           "type": "gauge",
           "description": "The amount of memory that cannot be reclaimed.",
-          "group": null,
+          "group": "memory",
           "included": false
         },
         "memory.stats.writeback": {
           "type": "gauge",
           "description": "The amount of memory from file/anon cache that are queued for syncing to the disk",
-          "group": null,
+          "group": "memory",
           "included": false
         },
         "memory.usage.limit": {
           "type": "gauge",
           "description": "Memory usage limit of the container, in bytes",
-          "group": null,
+          "group": "memory",
           "included": true
         },
         "memory.usage.max": {
           "type": "gauge",
           "description": "Maximum measured memory usage of the container, in bytes",
-          "group": null,
+          "group": "memory",
           "included": false
         },
         "memory.usage.total": {
           "type": "gauge",
           "description": "Bytes of memory used by the container",
-          "group": null,
+          "group": "memory",
           "included": true
         },
         "network.usage.rx_bytes": {
           "type": "cumulative",
           "description": "Bytes received by the container via its network interface",
-          "group": null,
+          "group": "network",
           "included": true
         },
         "network.usage.rx_dropped": {
           "type": "cumulative",
           "description": "Number of inbound network packets dropped by the container",
-          "group": null,
+          "group": "network",
           "included": false
         },
         "network.usage.rx_errors": {
           "type": "cumulative",
           "description": "Errors receiving network packets",
-          "group": null,
+          "group": "network",
           "included": false
         },
         "network.usage.rx_packets": {
           "type": "cumulative",
           "description": "Network packets received by the container via its network interface",
-          "group": null,
+          "group": "network",
           "included": false
         },
         "network.usage.tx_bytes": {
           "type": "cumulative",
           "description": "Bytes sent by the container via its network interface",
-          "group": null,
+          "group": "network",
           "included": true
         },
         "network.usage.tx_dropped": {
           "type": "cumulative",
           "description": "Number of outbound network packets dropped by the container",
-          "group": null,
+          "group": "network",
           "included": false
         },
         "network.usage.tx_errors": {
           "type": "cumulative",
           "description": "Errors sending network packets",
-          "group": null,
+          "group": "network",
           "included": false
         },
         "network.usage.tx_packets": {
           "type": "cumulative",
           "description": "Network packets sent by the container via its network interface",
-          "group": null,
+          "group": "network",
           "included": false
         }
       },
@@ -13925,204 +14282,217 @@
       "sendAll": false,
       "dimensions": null,
       "doc": "This monitor reads container stats from a\n[ECS Task Metadata Endpoint version 2](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/task-metadata-endpoint-v2.html).\n\nThis currently does not support CPU share/quota metrics.\n",
-      "groups": null,
+      "groups": {
+        "blkio": {
+          "description": "BlockIO metrics"
+        },
+        "cpu": {
+          "description": "CPU metrics"
+        },
+        "memory": {
+          "description": "Memory metrics"
+        },
+        "network": {
+          "description": "Network metrics"
+        }
+      },
       "metrics": {
         "blkio.io_service_bytes_recursive.async": {
           "type": "cumulative",
           "description": "Volume, in bytes, of asynchronous block I/O",
-          "group": null,
+          "group": "blkio",
           "included": false
         },
         "blkio.io_service_bytes_recursive.read": {
           "type": "cumulative",
           "description": "Volume, in bytes, of reads from block devices",
-          "group": null,
+          "group": "blkio",
           "included": true
         },
         "blkio.io_service_bytes_recursive.sync": {
           "type": "cumulative",
           "description": "Volume, in bytes, of synchronous block I/O",
-          "group": null,
+          "group": "blkio",
           "included": false
         },
         "blkio.io_service_bytes_recursive.total": {
           "type": "cumulative",
           "description": "Total volume, in bytes, of all block I/O",
-          "group": null,
+          "group": "blkio",
           "included": false
         },
         "blkio.io_service_bytes_recursive.write": {
           "type": "cumulative",
           "description": "Volume, in bytes, of writes to block devices",
-          "group": null,
+          "group": "blkio",
           "included": true
         },
         "blkio.io_serviced_recursive.async": {
           "type": "cumulative",
           "description": "Number of asynchronous block I/O requests",
-          "group": null,
+          "group": "blkio",
           "included": false
         },
         "blkio.io_serviced_recursive.read": {
           "type": "cumulative",
           "description": "Number of reads requests from block devices",
-          "group": null,
+          "group": "blkio",
           "included": false
         },
         "blkio.io_serviced_recursive.sync": {
           "type": "cumulative",
           "description": "Number of synchronous block I/O requests",
-          "group": null,
+          "group": "blkio",
           "included": false
         },
         "blkio.io_serviced_recursive.total": {
           "type": "cumulative",
           "description": "Total number of block I/O requests",
-          "group": null,
+          "group": "blkio",
           "included": false
         },
         "blkio.io_serviced_recursive.write": {
           "type": "cumulative",
           "description": "Number of write requests to block devices",
-          "group": null,
+          "group": "blkio",
           "included": false
         },
         "cpu.limit": {
           "type": "gauge",
           "description": "CPU usage limit of the container, in ECS vCPU units",
-          "group": null,
+          "group": "cpu",
           "included": false
         },
         "cpu.percent": {
           "type": "gauge",
           "description": "Percentage of host CPU resources used by the container",
-          "group": null,
+          "group": "cpu",
           "included": false
         },
         "cpu.percpu.usage": {
           "type": "cumulative",
           "description": "Jiffies of CPU time spent by the container, per CPU core",
-          "group": null,
+          "group": "cpu",
           "included": false
         },
         "cpu.throttling_data.periods": {
           "type": "cumulative",
           "description": "Number of periods",
-          "group": null,
+          "group": "cpu",
           "included": false
         },
         "cpu.throttling_data.throttled_periods": {
           "type": "cumulative",
           "description": "Number of periods throttled",
-          "group": null,
+          "group": "cpu",
           "included": false
         },
         "cpu.throttling_data.throttled_time": {
           "type": "cumulative",
           "description": "Throttling time in nano seconds",
-          "group": null,
+          "group": "cpu",
           "included": false
         },
         "cpu.usage.kernelmode": {
           "type": "cumulative",
           "description": "Jiffies of CPU time spent in kernel mode by the container",
-          "group": null,
+          "group": "cpu",
           "included": false
         },
         "cpu.usage.system": {
           "type": "cumulative",
           "description": "Jiffies of CPU time used by the system",
-          "group": null,
+          "group": "cpu",
           "included": true
         },
         "cpu.usage.total": {
           "type": "cumulative",
           "description": "Jiffies of CPU time used by the container",
-          "group": null,
+          "group": "cpu",
           "included": true
         },
         "cpu.usage.usermode": {
           "type": "cumulative",
           "description": "Jiffies of CPU time spent in user mode by the container",
-          "group": null,
+          "group": "cpu",
           "included": false
         },
         "memory.percent": {
           "type": "gauge",
           "description": "Percent of memory (0-100) used by the container relative to its limit (excludes page cache usage)",
-          "group": null,
+          "group": "memory",
           "included": false
         },
         "memory.stats.swap": {
           "type": "gauge",
           "description": "Bytes of swap memory used by container",
-          "group": null,
+          "group": "memory",
           "included": false
         },
         "memory.usage.limit": {
           "type": "gauge",
           "description": "Memory usage limit of the container, in bytes",
-          "group": null,
+          "group": "memory",
           "included": true
         },
         "memory.usage.max": {
           "type": "gauge",
           "description": "Maximum measured memory usage of the container, in bytes",
-          "group": null,
+          "group": "memory",
           "included": false
         },
         "memory.usage.total": {
           "type": "gauge",
           "description": "Bytes of memory used by the container",
-          "group": null,
+          "group": "memory",
           "included": true
         },
         "network.usage.rx_bytes": {
           "type": "cumulative",
           "description": "Bytes received by the container via its network interface",
-          "group": null,
+          "group": "network",
           "included": true
         },
         "network.usage.rx_dropped": {
           "type": "cumulative",
           "description": "Number of inbound network packets dropped by the container",
-          "group": null,
+          "group": "network",
           "included": false
         },
         "network.usage.rx_errors": {
           "type": "cumulative",
           "description": "Errors receiving network packets",
-          "group": null,
+          "group": "network",
           "included": false
         },
         "network.usage.rx_packets": {
           "type": "cumulative",
           "description": "Network packets received by the container via its network interface",
-          "group": null,
+          "group": "network",
           "included": false
         },
         "network.usage.tx_bytes": {
           "type": "cumulative",
           "description": "Bytes sent by the container via its network interface",
-          "group": null,
+          "group": "network",
           "included": true
         },
         "network.usage.tx_dropped": {
           "type": "cumulative",
           "description": "Number of outbound network packets dropped by the container",
-          "group": null,
+          "group": "network",
           "included": false
         },
         "network.usage.tx_errors": {
           "type": "cumulative",
           "description": "Errors sending network packets",
-          "group": null,
+          "group": "network",
           "included": false
         },
         "network.usage.tx_packets": {
           "type": "cumulative",
           "description": "Network packets sent by the container via its network interface",
-          "group": null,
+          "group": "network",
           "included": false
         }
       },
@@ -15707,8 +16077,8 @@
                       {
                         "yamlName": "name",
                         "doc": "Dimension name",
-                        "default": "",
-                        "required": false,
+                        "default": null,
+                        "required": true,
                         "type": "string",
                         "elementKind": ""
                       },
@@ -19251,7 +19621,7 @@
     },
     {
       "monitorType": "prometheus-exporter",
-      "sendAll": false,
+      "sendAll": true,
       "dimensions": null,
       "doc": "This monitor reads metrics from a [Prometheus\nexporter](https://prometheus.io/docs/instrumenting/exporters/) endpoint.\n\nAll metric types are supported.  See\nhttps://prometheus.io/docs/concepts/metric_types/ for a description of the\nPrometheus metric types.  The conversion happens as follows:\n\n - Gauges are converted directly to SignalFx gauges\n - Counters are converted directly to SignalFx cumulative counters\n - Untyped metrics are converted directly to SignalFx gauges\n - Summary metrics are converted to three distinct metrics, where\n   `\u003cbasename\u003e` is the root name of the metric:\n   - The total count gets converted to a cumulative counter called `\u003cbasename\u003e_count`\n   - The total sum gets converted to a cumulative counter called `\u003cbasename\u003e`\n   - Each quantile value is converted to a gauge called\n     `\u003cbasename\u003e_quantile` and will include a dimension called `quantile` that\n     specifies the quantile.\n - Histogram metrics are converted to three distinct metrics, where\n   `\u003cbasename\u003e` is the root name of the metric:\n   - The total count gets converted to a cumulative counter called `\u003cbasename\u003e_count`\n   - The total sum gets converted to a cumulative counter called `\u003cbasename\u003e`\n   - Each histogram bucket is converted to a cumulative counter called\n     `\u003cbasename\u003e_bucket` and will include a dimension called `upper_bound` that\n     specifies the maximum value in that bucket.  This metric specifies the\n     number of events with a value that is less than or equal to the upper\n     bound.\n\nAll Prometheus labels will be converted directly to SignalFx dimensions.\n\nThis supports service discovery so you can set a discovery rule such as:\n\n`port \u003e= 9100 \u0026\u0026 port \u003c= 9500 \u0026\u0026 containerImage =~ \"exporter\"`\n\nassuming you are running exporters in container images that have the word\n\"exporter\" in them and fall within the standard exporter port range.  In\nK8s, you could also try matching on the container port name as defined in\nthe pod spec, which is the `name` variable in discovery rules for the\n`k8s-api` observer.\n\nFiltering can be very useful here since exporters tend to be fairly verbose.\n\nSample YAML configuration:\n\n```\nmonitors:\n - type: prometheus-exporter\n   discoveryRule: port \u003e= 9100 \u0026\u0026 port \u003c= 9500 \u0026\u0026 container_image =~ \"exporter\"\n   extraDimensions:\n     metric_source: prometheus\n```\n",
       "groups": null,
@@ -23768,7 +24138,7 @@
     },
     {
       "monitorType": "python-monitor",
-      "sendAll": false,
+      "sendAll": true,
       "dimensions": null,
       "doc": "This monitor allows you to generate metrics from a Python script.\n\nYour Python code should be Python 2.7+ *AND* 3.0+ compatible.  The Python\nruntime bundled with the agent is currently version 2.7 but this could be\nupgraded at anytime to Python 3.  If you want to use Python 3 at this time,\nyou can specify a custom Python binary with the `pythonBinary` config\noption.\n\n## Module Loading\nThe full file path to the Python script that you want to run should be\nspecified in the `scriptFilePath` config option.  This file will be loaded in\nPython by adding the directory containing the file to the front of the Python\npath (`sys.path`) and then dynamically importing the file as a module.  For\na hypothetical script at `/opt/scripts/mymonitor.py`, this is roughly\nequivalent to the following Python code:\n\n```\nimport sys\nsys.path.insert(0, \"/opt/scripts\")\n\nimport mymodule\n```\n\nThere are two ways you can implement a monitor in Python, a simple way or a\ncomplex, but more powerful way.  \n\n## Simple monitor \nThe simple way is to write a script that has a `run` function in it.  This\nfunction should accept two parameters: `config` and `output`.  The `run`\nfunction will be called on a regular interval, specified by the common\n`intervalSeconds` config option on the monitor config.\n\nHere is [an example of a simple monitor](https://github.com/signalfx/signalfx-agent/tree/master/python/sample/monitor_simple.py).\n\n## Complex monitor\n\nIf you need more power and flexibility in defining your monitor, you can\nuse the complex monitor format.  With this, you define a class called\n`Monitor` in a Python module. Here is [a documented example of a complex\nmonitor](https://github.com/signalfx/signalfx-agent/tree/master/python/sample/monitor_complex.py).\n\n## Auto-discovery\n\nThis monitor works with auto-discovery just like other monitors.  If you\nset a `discoveryRule` on the monitor config, a new instance of the monitor\nwill be created for each matching endpoint and the `host` and `port` config\nfields will be populated with the appropriate values and passed to the\nPython script in the `config` dictionary.\n\n## Example Config\n\nThis shows loading a Python module from the agent repo using a single custom config value (`myconfig`):\n\n```yaml\nmonitors:\n - type: python-monitor\n   # pythonBinary: /usr/bin/python\n   scriptFilePath: /usr/src/signalfx-agent/python/sample/monitor_complex.py\n   myconfig: [1,2,3]\n```\n",
       "groups": null,
@@ -23827,7 +24197,7 @@
     },
     {
       "monitorType": "sql",
-      "sendAll": false,
+      "sendAll": true,
       "dimensions": null,
       "doc": "Run arbitrary SQL queries against a relational database and use the results to generate dataponts.\n\nFor example, if you had a database table `customers` that looked like:\n\n| id | name       | country | status   |\n|----|------------|---------|----------|\n| 1  | Bill       | USA     | active   |\n| 2  | Mary       | USA     | inactive |\n| 3  | Joe        | USA     | active   |\n| 4  | Elizabeth  | Germany | active   |\n\nYou could use the following monitor config to generate metrics about active users and customer counts by country:\n\n```yaml\nmonitors:\n  - type: sql\n    host: localhost\n    port: 5432\n    dbDriver: postgres\n    params:\n      user: admin\n      password: s3cr3t\n    # The `host` and `port` values from above (or provided through auto-discovery) should be interpolated\n    # to the connection string as appropriate for your database driver.\n    # Also, the values from the `params` config option above can be\n    # interpolated.\n    connectionString: 'host={{.host}} port={{.port}} dbname=main user={{.user}} password={{.password}} sslmode=disabled'\n    queries:\n      - query: 'SELECT COUNT(*) as count, country, status FROM customers GROUP BY country, status;'\n        metrics:\n          - metricName: \"customers\"\n            valueColumn: \"count\"\n            dimensionColumns: [\"country\", \"status\"]\n```\n\nThis would generate a series of timeseries, all with the metric name\n`customers` that includes a `county` and `status` dimension.  The value\nis the number of customers that belong to that combination of `country`\nand `status`.  You could also specify multiple `metrics` items to\ngenerate more than one metric from a single query.\n\n## Supported Drivers\n\nThe `dbDriver` config option must specify the database driver to use.\nThese are equivalent to the name of the Golang SQL driver used in the\nagent.  The `connectionString` option will be formatted according to the\ndriver that is going to receive it.  Here is a list of the drivers we\ncurrently support and documentation on the connection string:\n\n  - `postgres`: https://godoc.org/github.com/lib/pq#hdr-Connection_String_Parameters\n  - `mysql`: https://github.com/go-sql-driver/mysql#dsn-data-source-name\n  - `mssql`: https://github.com/denisenkom/go-mssqldb#connection-parameters-and-dsn\n\n## Parameterized Connection String\n\nThe `connectionString` config option acts as a template with a context\nconsisting of the variables: `host`, `port`, and all the values from\nthe `params` config option map.  You interpolate variables into it\nwith the Go template syntax `{{.varname}}` (see example config\nabove).\n",
       "groups": null,
@@ -23972,7 +24342,7 @@
     },
     {
       "monitorType": "statsd",
-      "sendAll": false,
+      "sendAll": true,
       "dimensions": null,
       "doc": "\n\n### USAGE\n\n#### Adding dimensions to StatsD metrics\n\nThe StatsD monitor can parse keywords from a statsd metric name by a set of\nconverters that was configured by user.\n\n```\nconverters:\n  - pattern: \"cluster.cds_{traffic}_{mesh}_{service}-vn_{}.{action}\"\n    ...\n```\n\nThis converter will parse `traffic`, `mesh`, `service` and `action` as dimensions\nfrom a metric name `cluster.cds_egress_ecommerce-demo-mesh_gateway-vn_tcp_8080.update_success`.\nIf a section has only a pair of brackets without a name, it will not capture a dimension.\n\nWhen multiple converters were provided, a metric will be converted by the first converter with a\nmatching pattern to the metric name.\n\n#### Formatting metric name\n\nYou can customize a metric name by providing a format string within the converter configuration.\n\n```\nconverters:\n  - pattern: \"cluster.cds_{traffic}_{mesh}_{service}-vn_{}.{action}\"\n    metric: \"{traffic}.{action}\"\n```\n\nThe metrics which match to the given pattern will be reported to SignalFx as `{traffic}.{action}`.\nFor instance, metric `cluster.cds_egress_ecommerce-demo-mesh_gateway-vn_tcp_8080.update_success`\nwill be reported as `egress.update_success`.\n\n`metric` is required for a converter configuration. A converter will be disabled if `metric` is not provided.\n\n```\n",
       "groups": null,
@@ -24046,7 +24416,7 @@
     },
     {
       "monitorType": "telegraf/logparser",
-      "sendAll": false,
+      "sendAll": true,
       "dimensions": null,
       "doc": "This monitor is based on the Telegraf logparser plugin.\nThe monitor tails log files. More information about the Telegraf plugin\ncan be found [here](https://github.com/influxdata/telegraf/tree/master/plugins/inputs/logparser).\nAll metrics emitted from this monitor will have the `plugin` dimension set to `telegraf-logparser`\n\nSample YAML configuration:\n\n```yaml\n - type: telegraf/logparser\n   files:\n    - '$file'\n   watchMethod: poll       # specify the file watch method (\"inotify\" or \"poll\")\n   fromBeginning: true     # specify to read from the beginning\n   measurementName: test-measurement # the metric name prefix\n   patterns:\n    - \"%{COMMON_LOG_FORMAT}\" # specifies the apache common log format\n   timezone: UTC\n```\n",
       "groups": null,
@@ -24475,7 +24845,7 @@
     },
     {
       "monitorType": "telegraf/snmp",
-      "sendAll": false,
+      "sendAll": true,
       "dimensions": null,
       "doc": "This monitor reports metrics from snmp agents.\nThis monitor is based on the Telegraf SNMP plugin.  More information about the Telegraf plugin\ncan be found [here](https://github.com/influxdata/telegraf/tree/master/plugins/inputs/snmp).\n\n**NOTE:** This snmp monitor does not currently support MIB look ups because of a dependency on `net-snmp`\nand specifically the commands `snmptranslate` and `snmptable`.\n\nSample YAML configuration:\n\n```yaml\nmonitors:\n - type: telegraf/snmp\n   agents:\n     - \"127.0.0.1:161\"\n   version: 2\n   community: \"public\"\n   fields:\n     - name: \"uptime\"\n       oid: \".1.3.6.1.2.1.1.3.0\"\n```\n\nUsing a discovery rule to discover and configure for a specific snmp agent\n```yaml\nmonitors:\n - type: telegraf/snmp\n   discoveryRule: container_name =~ \"snmp\" \u0026\u0026 port == 161\n   version: 2\n   community: \"public\"\n   fields:\n     - name: \"uptime\"\n       oid: \".1.3.6.1.2.1.1.3.0\"\n```\n",
       "groups": null,
@@ -25609,7 +25979,7 @@
     },
     {
       "monitorType": "telegraf/statsd",
-      "sendAll": false,
+      "sendAll": true,
       "dimensions": null,
       "doc": "This monitor acts as a Telegraf StatsD listener for receiving telegrafstatsd metrics.\nThis monitor is based on the Telegraf Statsd input plugin.  More information about the Telegraf plugin\ncan be found [here](https://github.com/influxdata/telegraf/tree/master/plugins/inputs/statsd).\n\nSample YAML configuration:\n\n```yaml\nmonitors:\n - type: telegraf/statsd\n   protocol: udp\n   serviceAddress: \":8125\"\n   parseDataDogTags: true\n```\n\n```yaml\nmonitors:\n - type: telegraf/statsd\n   protocol: udp\n   serviceAddress: \"127.0.0.1:0\"\n   parseDataDogTags: true\n   metricSeparator: '.'\n```\n",
       "groups": null,
@@ -25740,7 +26110,7 @@
     },
     {
       "monitorType": "telegraf/tail",
-      "sendAll": false,
+      "sendAll": true,
       "dimensions": null,
       "doc": "This monitor is based on the Telegraf tail plugin.  The monitor tails files and\nnamed pipes.  The Telegraf parser configured with this monitor extracts metrics in different\n[formats](https://github.com/influxdata/telegraf/blob/master/docs/DATA_FORMATS_INPUT.md)\nfrom the tailed output. More information about the Telegraf plugin\ncan be found [here](https://github.com/influxdata/telegraf/tree/master/plugins/inputs/tail).\nAll metrics emitted from this monitor will have the `plugin` dimension set to `telegraf-tail`\n\nSample YAML configuration:\n\n```yaml\nmonitors:\n - type: telegraf/tail\n   files:\n    - '/logs/**.log'       # find all .log files in /logs\n    - '/logs/*/*.log'      # find all .log files who are contained in a directory under /logs/\n    - '/var/log/agent.log' # tail the specified log file\n   watchMethod: inotify    # specify the file watch method (\"ionotify\" or \"poll\")\n```\n\nSample YAML configuration that specifies a parser:\n\n```yaml\nmonitors:\n - type: telegraf/tail\n   files:\n    - '/logs/**.log'       # find all .log files in /logs\n    - '/logs/*/*.log'      # find all .log files who are contained in a directory under /logs/\n    - '/var/log/agent.log' # tail the specified log file\n   watchMethod: inotify    # specify the file watch method (\"inotify\" or \"poll\")\n   telegrafParser:         # specify a parser\n     dataFormat: \"influx\"  # set the parser's dataFormat\n```\n",
       "groups": null,
@@ -26110,7 +26480,7 @@
     },
     {
       "monitorType": "telegraf/win_perf_counters",
-      "sendAll": false,
+      "sendAll": true,
       "dimensions": null,
       "doc": "This monitor reads Windows performance\ncounters\n\nSample YAML configuration:\n\n```yaml\nmonitors:\n - type: telegraf/win_perf_counters\n   printValid: true\n   objects:\n    - objectName: \"Processor\"\n      instances:\n       - \"*\"\n      counters:\n       - \"% Idle Time\"\n       - \"% Interrupt Time\"\n       - \"% Privileged Time\"\n       - \"% User Time\"\n       - \"% Processor Time\"\n      includeTotal: true\n      measurement: \"win_cpu\"\n```\n",
       "groups": null,
@@ -28300,6 +28670,22 @@
               "required": false,
               "type": "bool",
               "elementKind": ""
+            },
+            {
+              "yamlName": "extraMetrics",
+              "doc": "Extra metrics to enable besides the default included ones.",
+              "default": null,
+              "required": false,
+              "type": "slice",
+              "elementKind": "string"
+            },
+            {
+              "yamlName": "extraGroups",
+              "doc": "Extra metric groups to enable besides the metrics that are included by default.",
+              "default": null,
+              "required": false,
+              "type": "slice",
+              "elementKind": "string"
             }
           ]
         }
@@ -28596,6 +28982,14 @@
             }
           ]
         }
+      },
+      {
+        "yamlName": "enableBuiltInFiltering",
+        "doc": "If true, the agent will inherently filter non-bundled metrics without having to rely on the `whitelist.json` filter that was previously included under `metricsToExclude`.  Whether a metric is bundled or not is documented in each monitor's documentation.  Now every monitor's default configuration (i.e. the minimum amount of configuration to make it work) will only send bundled metrics, but if you enable certain flags or config options on the monitor, non-bundled metrics will also be sent without having to modify the whitelist via `metricsToInclude`.",
+        "default": false,
+        "required": false,
+        "type": "bool",
+        "elementKind": ""
       },
       {
         "yamlName": "metricsToInclude",

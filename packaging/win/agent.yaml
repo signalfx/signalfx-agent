@@ -25,5 +25,4 @@ monitors:
   - type: net-io
   - type: vmem
 
-metricsToExclude:
-  - {"#from": '\Program Files\SignalFx\SignalFxAgent\lib\whitelist.json', flatten: true}
+enableBuiltInFiltering: true

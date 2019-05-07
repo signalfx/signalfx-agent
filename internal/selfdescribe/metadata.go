@@ -1,4 +1,4 @@
-package monitors
+package selfdescribe
 
 import (
 	"io/ioutil"
@@ -41,7 +41,7 @@ type MonitorMetadata struct {
 	Metrics     map[string]MetricMetadata `json:"metrics"`
 	Properties  map[string]PropMetadata   `json:"properties"`
 	// True if the list of metrics is definitively the set of metrics
-	// this monitor will ever send. This impacts the additionalMetricsFilter.
+	// this monitor will ever send. This impacts the sendExtraMetrics.
 	MetricsExhaustive bool `json:"metricsExhaustive" yaml:"metricsExhaustive" default:"false"`
 }
 

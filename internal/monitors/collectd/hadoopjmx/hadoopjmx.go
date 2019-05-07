@@ -77,7 +77,7 @@ func loadMBeans(mBeanYaml string) genericjmx.MBeanMap {
 }
 
 func init() {
-	monitors.Register(monitorType, func() interface{} {
+	monitors.Register(&monitorMetadata, func() interface{} {
 		return &Monitor{
 			genericjmx.NewJMXMonitorCore(genericjmx.DefaultMBeans, serviceName),
 		}

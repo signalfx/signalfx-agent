@@ -11,7 +11,7 @@ import (
 )
 
 func init() {
-	monitors.Register(monitorType, func() interface{} { return &Monitor{} }, &Config{})
+	monitors.Register(&monitorMetadata, func() interface{} { return &Monitor{} }, &Config{})
 }
 
 // PerfCounterObj represents a windows performance counter object to monitor

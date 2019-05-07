@@ -30,7 +30,7 @@ test: compileDeps
 ifeq ($(OS),Windows_NT)
 	powershell "& { . $(CURDIR)/scripts/windows/make.ps1; test }"
 else
-	CGO_ENABLED=0 go test -mod vendor -p $(NUM_CORES) ./...
+	CGO_ENABLED=0 go test -mod vendor -p $(NUM_CORES) ./... | grep -v '\[no test files\]'
 endif
 
 .PHONY: vet
@@ -150,7 +150,6 @@ run-dev-image-commands:
 .PHONY: run-integration-tests
 run-integration-tests: MARKERS ?= integration
 run-integration-tests:
-	AGENT_BIN=/bundle/bin/signalfx-agent \
 	pytest \
 		-m "$(MARKERS)" \
 		-n auto \

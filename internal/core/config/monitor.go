@@ -65,6 +65,10 @@ type MonitorConfig struct {
 	// is useful when you have an endpoint whose identity is not particularly
 	// important since it acts largely as a proxy or adapter for other metrics.
 	DisableEndpointDimensions bool `yaml:"disableEndpointDimensions" json:"disableEndpointDimensions"`
+	// Extra metrics to enable besides the default included ones.
+	ExtraMetrics []string `yaml:"extraMetrics" json:"extraMetrics"`
+	// Extra metric groups to enable besides the metrics that are included by default.
+	ExtraGroups []string `yaml:"extraGroups" json:"extraGroups"`
 	// OtherConfig is everything else that is custom to a particular monitor
 	OtherConfig map[string]interface{} `yaml:",inline" neverLog:"omit"`
 	// ValidationError is where a message concerning validation issues can go
@@ -148,4 +152,9 @@ func (mc *MonitorConfig) Hash() uint64 {
 // appear in the MonitorConfig struct.
 type MonitorCustomConfig interface {
 	MonitorConfigCore() *MonitorConfig
+}
+
+// ExtraMetrics interface for monitors that support generating additional metrics to allow through.
+type ExtraMetrics interface {
+	GetExtraMetrics() []string
 }

@@ -2,6 +2,7 @@ monitors:
 - dimensions:
   doc: |
     Tracks free disk space on the host.
+  metricsExhaustive: true
   metrics:
     df_complex.free:
       description: Free disk space in bytes

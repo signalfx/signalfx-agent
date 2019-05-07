@@ -12,6 +12,8 @@ CONFIG_TEMP = string.Template(
     """
 monitors:
   - type: collectd/postgresql
+    extraMetrics:
+     - '*'
     host: $host
     port: 5432
     username: "username1"

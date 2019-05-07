@@ -3,6 +3,7 @@ package mongodb
 import (
 	"errors"
 
+	"github.com/signalfx/golib/pointer"
 	"github.com/signalfx/signalfx-agent/internal/monitors/collectd"
 
 	"github.com/signalfx/signalfx-agent/internal/core/config"
@@ -14,7 +15,7 @@ import (
 )
 
 func init() {
-	monitors.Register(monitorType, func() interface{} {
+	monitors.Register(&monitorMetadata, func() interface{} {
 		return &Monitor{
 			python.PyMonitor{
 				MonitorCore: pyrunner.New("sfxcollectd"),
@@ -54,6 +55,19 @@ func (c *Config) Validate() error {
 	return nil
 }
 
+// GetExtraMetrics returns a list of metrics that should be let through the
+// filtering based on config flags.
+func (c *Config) GetExtraMetrics() []string {
+	var out []string
+	if c.SendCollectionMetrics != nil && *c.SendCollectionMetrics {
+		out = append(out, groupMetricsMap[groupCollection]...)
+	}
+	if c.SendCollectionTopMetrics != nil && *c.SendCollectionTopMetrics {
+		out = append(out, groupMetricsMap[groupCollectionTop]...)
+	}
+	return out
+}
+
 // Monitor is the main type that represents the monitor
 type Monitor struct {
 	python.PyMonitor
@@ -61,6 +75,16 @@ type Monitor struct {
 
 // Configure configures and runs the plugin in collectd
 func (m *Monitor) Configure(conf *Config) error {
+	sendCollMetrics := conf.SendCollectionMetrics
+	sendCollTopMetrics := conf.SendCollectionTopMetrics
+
+	if m.Output.HasEnabledMetricInGroup(groupCollection) {
+		sendCollMetrics = pointer.Bool(true)
+	}
+	if m.Output.HasEnabledMetricInGroup(groupCollectionTop) {
+		sendCollTopMetrics = pointer.Bool(true)
+	}
+
 	conf.pyConf = &python.Config{
 		MonitorConfig: conf.MonitorConfig,
 		Host:          conf.Host,
@@ -79,8 +103,8 @@ func (m *Monitor) Configure(conf *Config) error {
 			"TLSClientCert":            conf.TLSClientCert,
 			"TLSClientKey":             conf.TLSClientKey,
 			"TLSClientKeyPassphrase":   conf.TLSClientKeyPassPhrase,
-			"SendCollectionMetrics":    conf.SendCollectionMetrics,
-			"SendCollectionTopMetrics": conf.SendCollectionTopMetrics,
+			"SendCollectionMetrics":    sendCollMetrics,
+			"SendCollectionTopMetrics": sendCollTopMetrics,
 		},
 	}
 

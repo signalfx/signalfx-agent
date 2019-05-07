@@ -1,6 +1,8 @@
 package elasticsearch
 
 import (
+	"fmt"
+
 	"github.com/signalfx/signalfx-agent/internal/core/config"
 	"github.com/signalfx/signalfx-agent/internal/monitors/collectd"
 
@@ -11,7 +13,7 @@ import (
 )
 
 func init() {
-	monitors.Register(monitorType, func() interface{} {
+	monitors.Register(&monitorMetadata, func() interface{} {
 		return &Monitor{
 			python.PyMonitor{
 				MonitorCore: pyrunner.New("sfxcollectd"),
@@ -19,6 +21,8 @@ func init() {
 		}
 	}, &Config{})
 }
+
+var _ config.ExtraMetrics = &Config{}
 
 // Config is the monitor-specific config with the generic config embedded
 type Config struct {
@@ -100,4 +104,32 @@ func (m *Monitor) Configure(conf *Config) error {
 	}
 
 	return m.PyMonitor.Configure(conf)
+}
+
+// GetExtraMetrics returns additional metrics that should be allowed through.
+func (c *Config) GetExtraMetrics() []string {
+	var extraMetrics []string
+
+	for _, metric := range c.AdditionalMetrics {
+		counterType := fmt.Sprintf("counter.%s", metric)
+		gaugeType := fmt.Sprintf("gauge.%s", metric)
+
+		// AdditionalMetrics doesn't specify the full metric name but it's either
+		// a counter or a gauge so just check both.
+		if monitorMetadata.HasMetric(counterType) {
+			extraMetrics = append(extraMetrics, counterType)
+			continue
+		}
+
+		if monitorMetadata.HasMetric(gaugeType) {
+			extraMetrics = append(extraMetrics, gaugeType)
+			continue
+		}
+
+		// We don't know about the metric so just enable both.
+		extraMetrics = append(extraMetrics, counterType)
+		extraMetrics = append(extraMetrics, gaugeType)
+	}
+
+	return extraMetrics
 }

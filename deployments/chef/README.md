@@ -56,9 +56,7 @@ node['signalfx_agent']['conf'] = {
     {type: "collectd/vmem"}
     {type: "host-metadata"},
   ],
-  "metricsToExclude": [
-    {"#from": "/usr/lib/signalfx-agent/lib/whitelist.json", "flatten": true}
-  ]
+  "enableBuiltInFiltering": true
 }
 ```
 

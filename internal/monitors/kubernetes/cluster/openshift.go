@@ -6,6 +6,6 @@ import (
 )
 
 func init() {
-	monitors.Register(meta.OpenshiftClusterMonitorMetadata.MonitorType,
+	monitors.Register(&meta.OpenshiftClusterMonitorMetadata,
 		func() interface{} { return &Monitor{distribution: OpenShift} }, &Config{})
 }

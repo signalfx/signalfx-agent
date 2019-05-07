@@ -18,7 +18,7 @@ func init() {
 		panic("YAML for GenericJMX MBeans is invalid: " + err.Error())
 	}
 
-	monitors.Register(monitorType, func() interface{} {
+	monitors.Register(&monitorMetadata, func() interface{} {
 		return &Monitor{
 			NewJMXMonitorCore(DefaultMBeans, "java"),
 		}

@@ -13,7 +13,7 @@ import (
 )
 
 func init() {
-	monitors.Register(monitorType, func() interface{} {
+	monitors.Register(&monitorMetadata, func() interface{} {
 		return &Monitor{
 			python.PyMonitor{
 				MonitorCore: pyrunner.New("sfxcollectd"),
@@ -51,6 +51,13 @@ type Config struct {
 // PythonConfig returns the embedded python.Config struct from the interface
 func (c *Config) PythonConfig() *python.Config {
 	return c.pyConf
+}
+
+func (c *Config) GetExtraMetrics() []string {
+	if len(c.SendListLengths) > 0 {
+		return []string{gaugeKeyLlen}
+	}
+	return nil
 }
 
 func (c *Config) sendListLengthsTuples() [][]interface{} {
