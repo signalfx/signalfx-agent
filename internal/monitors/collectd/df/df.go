@@ -66,20 +66,27 @@ func (c *Config) GetExtraMetrics() []string {
 
 // Configure configures and runs the plugin in collectd
 func (m *Monitor) Configure(config *Config) error {
-	// conf is a config shallow copy that will be mutated and used to configure monitor
+	// conf is a config shallow copy that will be mutated and used to configure moni tor
 	conf := *config
 	// Setting group flags in conf for enable extra metrics
-	for _, metric := range conf.EnabledMetrics {
-		group := metricSet[metric].Group
-		switch {
-		case group == groupReportInodes:
-			conf.ReportInodes = true
-		case group == groupValuesPercentage:
-			conf.ValuesPercentage = true
-		case metric == percentInodesFree || metric == percentInodesReserved || metric == percentInodesUsed:
-			conf.ReportInodes = true
-			conf.ValuesPercentage = true
-		}
+	if m.Output.HasEnabledMetricInGroup(groupReportInodes) {
+		conf.ReportInodes = true
+	}
+	if m.Output.HasEnabledMetricInGroup(groupValuesPercentage) {
+		conf.ValuesPercentage = true
+	}
+	if m.isReportInodesAndValuesPercentageMetric() {
+		conf.ReportInodes = true
+		conf.ValuesPercentage = true
 	}
 	return m.SetConfigurationAndRun(&conf)
+}
+
+func (m *Monitor) isReportInodesAndValuesPercentageMetric() bool {
+	for _, metric := range m.Output.EnabledMetrics() {
+		if metric == percentInodesFree || metric == percentInodesReserved || metric == percentInodesUsed {
+			return true
+		}
+	}
+	return false
 }
