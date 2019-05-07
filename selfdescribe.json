@@ -15591,7 +15591,7 @@
         "memstats.alloc": {
           "type": "gauge",
           "description": "Bytes of allocated heap objects. Same as memstats.heap_alloc",
-          "group": null,
+          "group": "enhanced",
           "included": false
         },
         "memstats.buck_hash_sys": {
@@ -15603,25 +15603,25 @@
         "memstats.by_size.frees": {
           "type": "counter",
           "description": "Cumulative count of heap objects freed in a class. The class is identified by dimension class and it is as described for metric memstats.by_size.size",
-          "group": null,
+          "group": "enhanced",
           "included": false
         },
         "memstats.by_size.mallocs": {
           "type": "counter",
           "description": "Cumulative count of heap objects allocated in a class. The class is identified by dimension class and it is as described for metric memstats.by_size.size",
-          "group": null,
+          "group": "enhanced",
           "included": false
         },
         "memstats.by_size.size": {
           "type": "counter",
           "description": "The maximum byte size of a class as identified by dimension class. It is the class interval upper limit. The values of dimension class are numbers between 0 and 60 inclusive. Consecutive classes are of consecutive dimension class values. The lower limit of a class is the upper limit of the consecutive class below. Metrics memstats.by_size.size, memstats.by_size.mallocs and memstats.by_size.frees of the same class are related",
-          "group": null,
+          "group": "enhanced",
           "included": false
         },
         "memstats.debug_gc": {
           "type": "gauge",
           "description": "memstats.debug_gc is currently unused",
-          "group": null,
+          "group": "enhanced",
           "included": false
         },
         "memstats.enable_gc": {
@@ -15681,7 +15681,7 @@
         "memstats.heap_sys": {
           "type": "gauge",
           "description": "Bytes of heap memory obtained from the OS",
-          "group": null,
+          "group": "enhanced",
           "included": false
         },
         "memstats.last_gc": {

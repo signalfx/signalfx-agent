@@ -149,6 +149,7 @@ monitors:
     memstats.alloc:
       description: Bytes of allocated heap objects. Same as memstats.heap_alloc
       included: false
+      group: enhanced
       type: gauge
     memstats.heap_alloc:
       description: Bytes of allocated heap objects
@@ -157,6 +158,7 @@ monitors:
     memstats.heap_sys:
       description: Bytes of heap memory obtained from the OS
       included: false
+      group: enhanced
       type: gauge
     memstats.heap_idle:
       description: Bytes in idle (unused) spans
@@ -236,6 +238,7 @@ monitors:
     memstats.debug_gc:
       description: memstats.debug_gc is currently unused
       included: false
+      group: enhanced
       type: gauge
     memstats.most_recent_gc_pause_ns:
       description: Most recent GC stop-the-world pause time in nanoseconds
@@ -284,16 +287,19 @@ monitors:
         class below. Metrics memstats.by_size.size, memstats.by_size.mallocs and memstats.by_size.frees
         of the same class are related
       included: false
+      group: enhanced
       type: counter
     memstats.by_size.mallocs:
       description: Cumulative count of heap objects allocated in a class. The class
         is identified by dimension class and it is as described for metric memstats.by_size.size
       included: false
+      group: enhanced
       type: counter
     memstats.by_size.frees:
       description: Cumulative count of heap objects freed in a class. The class is
         identified by dimension class and it is as described for metric memstats.by_size.size
       included: false
+      group: enhanced
       type: counter
   monitorType: expvar
   properties:

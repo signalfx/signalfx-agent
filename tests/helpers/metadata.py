@@ -1,5 +1,4 @@
 import yaml
-
 from tests.paths import REPO_ROOT_DIR
 
 
@@ -9,8 +8,8 @@ class Metadata:
     def __init__(self, monitor_type, included_metrics, nonincluded_metrics, dims):
         self.monitor_type = monitor_type
         self.included_metrics = included_metrics
-        self.nonincluded_mertics = nonincluded_metrics
-        self.all_metrics = self.included_metrics | self.nonincluded_mertics
+        self.nonincluded_metrics = nonincluded_metrics
+        self.all_metrics = self.included_metrics | self.nonincluded_metrics
         self.dims = dims
 
     @classmethod
