@@ -26,5 +26,5 @@ type FilteringOutput interface {
 	AddDatapointExclusionFilter(filter dpfilters.DatapointFilter)
 	EnabledMetrics() []string
 	HasEnabledMetricInGroup(group string) bool
-	HasAnyNonDefaultMetricEnabled() bool
+	HasAnyExtraMetrics() bool
 }

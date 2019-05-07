@@ -13,8 +13,9 @@ import (
 )
 
 type monitorFiltering struct {
-	filterSet *dpfilters.FilterSet
-	metadata  *Metadata
+	filterSet       *dpfilters.FilterSet
+	metadata        *Metadata
+	hasExtraMetrics bool
 }
 
 func newMonitorFiltering(conf config.MonitorCustomConfig, metadata *Metadata) (*monitorFiltering, error) {
@@ -24,8 +25,9 @@ func newMonitorFiltering(conf config.MonitorCustomConfig, metadata *Metadata) (*
 	}
 
 	return &monitorFiltering{
-		filterSet: filterSet,
-		metadata:  metadata,
+		filterSet:       filterSet,
+		metadata:        metadata,
+		hasExtraMetrics: len(conf.MonitorConfigCore().ExtraMetrics) > 0 || len(conf.MonitorConfigCore().ExtraGroups) > 0,
 	}, nil
 }
 
@@ -63,15 +65,13 @@ func (mf *monitorFiltering) HasEnabledMetricInGroup(group string) bool {
 	return false
 }
 
-// HasAnyNonDefaultMetricEnabled returns true if there is any custom metric
+// HasAnyExtraMetrics returns true if there is any custom metric
 // enabled for this output instance.
-func (mf *monitorFiltering) HasAnyNonDefaultMetricEnabled() bool {
-	for _, m := range mf.EnabledMetrics() {
-		if !mf.metadata.IncludedMetrics[m] {
-			return true
-		}
+func (mf *monitorFiltering) HasAnyExtraMetrics() bool {
+	if mf == nil {
+		return false
 	}
-	return false
+	return mf.hasExtraMetrics
 }
 
 func buildFilterSet(metadata *Metadata, conf config.MonitorCustomConfig) (*dpfilters.FilterSet, error) {
