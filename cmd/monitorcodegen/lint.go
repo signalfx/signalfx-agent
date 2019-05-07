@@ -54,7 +54,7 @@ func formatVariable(s string) (string, error) {
 		return "", errors.New("string cannot be empty")
 	}
 	// Convert various characters to . for strings.Title to operate on.
-	replace := strings.NewReplacer("_", ".", "-", ".", "<", ".", ">", ".", "/", ".")
+	replace := strings.NewReplacer("_", ".", "-", ".", "<", ".", ">", ".", "/", ".", ":", ".")
 	str := replace.Replace(s)
 	str = strings.Title(str)
 	str = strings.ReplaceAll(str, ".", "")

@@ -35,6 +35,14 @@ type Config struct {
 	SignalFxAccessToken  string `yaml:"signalFxAccessToken" neverLog:"true"`
 }
 
+// GetExtraMetrics takes into account the EnhancedMetrics flag
+func (c *Config) GetExtraMetrics() []string {
+	if c.EnhancedMetrics != nil && *c.EnhancedMetrics {
+		return []string{"*"}
+	}
+	return nil
+}
+
 // PythonConfig returns the embedded python.Config struct from the interface
 func (c *Config) PythonConfig() *python.Config {
 	return c.pyConf
