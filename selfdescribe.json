@@ -18181,7 +18181,7 @@
           "description": "The k8s resource that the quota applies to"
         }
       },
-      "doc": "Collects cluster-level metrics from the\nKubernetes API server.  It uses the _watch_ functionality of the K8s API\nto listen for updates about the cluster and maintains a cache of metrics\nthat get sent on a regular interval.\n\nSince the agent is generally running in multiple places in a K8s cluster and\nsince it is generally more convenient to share the same configuration across\nall agent instances, this monitor by default makes use of a leader election\nprocess to ensure that it is the only agent sending metrics in a cluster.\nAll of the agents running in the same namespace that have this monitor\nconfigured will decide amongst themselves which should send metrics for this\nmonitor, and the rest will stand by ready to activate if the leader agent\ndies.  You can override leader election by setting the config option\n`alwaysClusterReporter` to true, which will make the monitor always report\nmetrics.\n\nThis monitor is similar to\n[kube-state-metrics](https://github.com/kubernetes/kube-state-metrics), and\nsends many of the same metrics, but in a way that is less verbose and better\nfitted for the SignalFx backend.\n",
+      "doc": "*If you are using OpenShift there is an [`openshift-cluster`](openshift-cluster.md)\nmonitor to be used instead of this monitor that contains additional OpenShift metrics.*\n\nCollects cluster-level metrics from the Kubernetes API server.  It uses the\n_watch_ functionality of the K8s API to listen for updates about the cluster\nand maintains a cache of metrics that get sent on a regular interval.\n\nSince the agent is generally running in multiple places in a K8s cluster and\nsince it is generally more convenient to share the same configuration across\nall agent instances, this monitor by default makes use of a leader election\nprocess to ensure that it is the only agent sending metrics in a cluster.\nAll of the agents running in the same namespace that have this monitor\nconfigured will decide amongst themselves which should send metrics for this\nmonitor, and the rest will stand by ready to activate if the leader agent\ndies.  You can override leader election by setting the config option\n`alwaysClusterReporter` to true, which will make the monitor always report\nmetrics.\n\nThis monitor is similar to\n[kube-state-metrics](https://github.com/kubernetes/kube-state-metrics), and\nsends many of the same metrics, but in a way that is less verbose and better\nfitted for the SignalFx backend.\n",
       "groups": null,
       "metrics": {
         "kubernetes.container_ready": {
@@ -18341,7 +18341,7 @@
               "fields": [
                 {
                   "yamlName": "authType",
-                  "doc": "How to authenticate to the K8s API server.  This can be one of `none` (for no auth), `tls` (to use manually specified TLS client certs, not recommended), or `serviceAccount` (to use the standard service account token provided to the agent pod).",
+                  "doc": "How to authenticate to the K8s API server.  This can be one of `none` (for no auth), `tls` (to use manually specified TLS client certs, not recommended), `serviceAccount` (to use the standard service account token provided to the agent pod), or `kubeConfig` to use credentials from `~/.kube/config`.",
                   "default": "serviceAccount",
                   "required": false,
                   "type": "string",
@@ -18425,7 +18425,7 @@
               "fields": [
                 {
                   "yamlName": "authType",
-                  "doc": "How to authenticate to the K8s API server.  This can be one of `none` (for no auth), `tls` (to use manually specified TLS client certs, not recommended), or `serviceAccount` (to use the standard service account token provided to the agent pod).",
+                  "doc": "How to authenticate to the K8s API server.  This can be one of `none` (for no auth), `tls` (to use manually specified TLS client certs, not recommended), `serviceAccount` (to use the standard service account token provided to the agent pod), or `kubeConfig` to use credentials from `~/.kube/config`.",
                   "default": "serviceAccount",
                   "required": false,
                   "type": "string",
@@ -18650,7 +18650,7 @@
               "fields": [
                 {
                   "yamlName": "authType",
-                  "doc": "How to authenticate to the K8s API server.  This can be one of `none` (for no auth), `tls` (to use manually specified TLS client certs, not recommended), or `serviceAccount` (to use the standard service account token provided to the agent pod).",
+                  "doc": "How to authenticate to the K8s API server.  This can be one of `none` (for no auth), `tls` (to use manually specified TLS client certs, not recommended), `serviceAccount` (to use the standard service account token provided to the agent pod), or `kubeConfig` to use credentials from `~/.kube/config`.",
                   "default": "serviceAccount",
                   "required": false,
                   "type": "string",
@@ -18830,6 +18830,419 @@
               "!/^t(un|ap)\\d*$/",
               "!/^veth.*$/",
               "!/^Loopback*/"
+            ],
+            "required": false,
+            "type": "slice",
+            "elementKind": "string"
+          }
+        ]
+      },
+      "acceptsEndpoints": false,
+      "singleInstance": false
+    },
+    {
+      "monitorType": "openshift-cluster",
+      "sendAll": true,
+      "dimensions": {
+        "kubernetes_name": {
+          "description": "The name of the resource that the metric describes"
+        },
+        "kubernetes_namespace": {
+          "description": "The namespace of the resource that the metric describes"
+        },
+        "kubernetes_node": {
+          "description": "The name of the node, as defined by the `name` field of the node resource."
+        },
+        "kubernetes_pod_uid": {
+          "description": "The UID of the pod that the metric describes"
+        },
+        "machine_id": {
+          "description": "The machine ID from /etc/machine-id.  This should be unique across all nodes in your cluster, but some cluster deployment tools don't guarantee this.  This will not be sent if the `useNodeName` config option is set to true."
+        },
+        "metric_source": {
+          "description": "This is always set to `openshift`"
+        },
+        "quota_name": {
+          "description": "The name of the k8s ResourceQuota object that the quota is part of"
+        },
+        "resource": {
+          "description": "The k8s resource that the quota applies to"
+        }
+      },
+      "doc": "This monitor is for use with an OpenShift cluster. It includes all metrics\nfrom the [`kubernetes-cluster`](kubernetes-cluster.md) monitor with additional\nOpenShift-specific metrics. You only need to use one monitor or the other.\n\nCollects cluster-level metrics from the Kubernetes API server.  It uses the\n_watch_ functionality of the K8s API to listen for updates about the cluster\nand maintains a cache of metrics that get sent on a regular interval.\n\nSince the agent is generally running in multiple places in a K8s cluster and\nsince it is generally more convenient to share the same configuration across\nall agent instances, this monitor by default makes use of a leader election\nprocess to ensure that it is the only agent sending metrics in a cluster.\nAll of the agents running in the same namespace that have this monitor\nconfigured will decide amongst themselves which should send metrics for this\nmonitor, and the rest will stand by ready to activate if the leader agent\ndies.  You can override leader election by setting the config option\n`alwaysClusterReporter` to true, which will make the monitor always report\nmetrics.\n\nThis monitor is similar to\n[kube-state-metrics](https://github.com/kubernetes/kube-state-metrics), and\nsends many of the same metrics, but in a way that is less verbose and better\nfitted for the SignalFx backend.\n",
+      "groups": null,
+      "metrics": {
+        "kubernetes.container_ready": {
+          "type": "gauge",
+          "description": "Whether a container has passed its readiness probe (0 for no, 1 for yes)",
+          "group": null,
+          "included": true
+        },
+        "kubernetes.container_restart_count": {
+          "type": "gauge",
+          "description": "How many times the container has restarted in the recent past.  This value is pulled directly from [the K8s API](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.11/#containerstatus-v1-core) and the value can go indefinitely high and be reset to 0 at any time depending on how your [kubelet is configured to prune dead containers](https://kubernetes.io/docs/concepts/cluster-administration/kubelet-garbage-collection/). It is best to not depend too much on the exact value but rather look at it as either `== 0`, in which case you can conclude there were no restarts in the recent past, or `\u003e 0`, in which case you can conclude there were restarts in the recent past, and not try and analyze the value beyond that.",
+          "group": null,
+          "included": true
+        },
+        "kubernetes.daemon_set.current_scheduled": {
+          "type": "gauge",
+          "description": "The number of nodes that are running at least 1 daemon pod and are supposed to run the daemon pod",
+          "group": null,
+          "included": true
+        },
+        "kubernetes.daemon_set.desired_scheduled": {
+          "type": "gauge",
+          "description": "The total number of nodes that should be running the daemon pod (including nodes currently running the daemon pod)",
+          "group": null,
+          "included": true
+        },
+        "kubernetes.daemon_set.misscheduled": {
+          "type": "gauge",
+          "description": "The number of nodes that are running the daemon pod, but are not supposed to run the daemon pod",
+          "group": null,
+          "included": true
+        },
+        "kubernetes.daemon_set.ready": {
+          "type": "gauge",
+          "description": "The number of nodes that should be running the daemon pod and have one or more of the daemon pod running and ready",
+          "group": null,
+          "included": true
+        },
+        "kubernetes.deployment.available": {
+          "type": "gauge",
+          "description": "Total number of available pods (ready for at least minReadySeconds) targeted by this deployment.",
+          "group": null,
+          "included": true
+        },
+        "kubernetes.deployment.desired": {
+          "type": "gauge",
+          "description": "Number of desired pods in this deployment",
+          "group": null,
+          "included": true
+        },
+        "kubernetes.namespace_phase": {
+          "type": "gauge",
+          "description": "The current phase of namespaces (`1` for _active_ and `0` for _terminating_)",
+          "group": null,
+          "included": true
+        },
+        "kubernetes.node_ready": {
+          "type": "gauge",
+          "description": "Whether this node is ready (1), not ready (0) or in an unknown state (-1)",
+          "group": null,
+          "included": true
+        },
+        "kubernetes.pod_phase": {
+          "type": "gauge",
+          "description": "Current phase of the pod (1 - Pending, 2 - Running, 3 - Succeeded, 4 - Failed, 5 - Unknown)",
+          "group": null,
+          "included": true
+        },
+        "kubernetes.replica_set.available": {
+          "type": "gauge",
+          "description": "Total number of available pods (ready for at least minReadySeconds) targeted by this replica set",
+          "group": null,
+          "included": true
+        },
+        "kubernetes.replica_set.desired": {
+          "type": "gauge",
+          "description": "Number of desired pods in this replica set",
+          "group": null,
+          "included": true
+        },
+        "kubernetes.replication_controller.available": {
+          "type": "gauge",
+          "description": "Total number of available pods (ready for at least minReadySeconds) targeted by this replication controller.",
+          "group": null,
+          "included": true
+        },
+        "kubernetes.replication_controller.desired": {
+          "type": "gauge",
+          "description": "Number of desired pods",
+          "group": null,
+          "included": true
+        },
+        "kubernetes.resource_quota_hard": {
+          "type": "gauge",
+          "description": "The upper limit for a particular resource in a specific namespace.  Will only be sent if a quota is specified.  CPU requests/limits will be sent as millicores.",
+          "group": null,
+          "included": true
+        },
+        "kubernetes.resource_quota_used": {
+          "type": "gauge",
+          "description": "The usage for a particular resource in a specific namespace.  Will only be sent if a quota is specified.  CPU requests/limits will be sent as millicores.",
+          "group": null,
+          "included": true
+        },
+        "openshift.appliedclusterquota.cpu.hard": {
+          "type": "gauge",
+          "description": "Hard limit for number of cpu by namespace",
+          "group": null,
+          "included": false
+        },
+        "openshift.appliedclusterquota.cpu.used": {
+          "type": "gauge",
+          "description": "Consumed number of cpu by namespace",
+          "group": null,
+          "included": false
+        },
+        "openshift.appliedclusterquota.memory.hard": {
+          "type": "gauge",
+          "description": "Hard limit for amount of memory by namespace",
+          "group": null,
+          "included": false
+        },
+        "openshift.appliedclusterquota.memory.used": {
+          "type": "gauge",
+          "description": "Consumed amount of memory by namespace",
+          "group": null,
+          "included": false
+        },
+        "openshift.appliedclusterquota.persistentvolumeclaims.hard": {
+          "type": "gauge",
+          "description": "Hard limit for number of persistentvolumeclaims by namespace",
+          "group": null,
+          "included": false
+        },
+        "openshift.appliedclusterquota.persistentvolumeclaims.used": {
+          "type": "gauge",
+          "description": "Consumed number of persistentvolumeclaims by namespace",
+          "group": null,
+          "included": false
+        },
+        "openshift.appliedclusterquota.pods.hard": {
+          "type": "gauge",
+          "description": "Hard limit for number of pods by namespace",
+          "group": null,
+          "included": false
+        },
+        "openshift.appliedclusterquota.pods.used": {
+          "type": "gauge",
+          "description": "Consumed number of pods by namespace",
+          "group": null,
+          "included": false
+        },
+        "openshift.appliedclusterquota.services.hard": {
+          "type": "gauge",
+          "description": "Hard limit for number of services by namespace",
+          "group": null,
+          "included": false
+        },
+        "openshift.appliedclusterquota.services.loadbalancers.hard": {
+          "type": "gauge",
+          "description": "Hard limit for number of services.loadbalancers by namespace",
+          "group": null,
+          "included": false
+        },
+        "openshift.appliedclusterquota.services.loadbalancers.used": {
+          "type": "gauge",
+          "description": "Consumed number of services.loadbalancers by namespace",
+          "group": null,
+          "included": false
+        },
+        "openshift.appliedclusterquota.services.nodeports.hard": {
+          "type": "gauge",
+          "description": "Hard limit for number of services.nodeports by namespace",
+          "group": null,
+          "included": false
+        },
+        "openshift.appliedclusterquota.services.nodeports.used": {
+          "type": "gauge",
+          "description": "Consumed number of services.nodeports by namespace",
+          "group": null,
+          "included": false
+        },
+        "openshift.appliedclusterquota.services.used": {
+          "type": "gauge",
+          "description": "Consumed number of services by namespace",
+          "group": null,
+          "included": false
+        },
+        "openshift.clusterquota.cpu.hard": {
+          "type": "gauge",
+          "description": "Hard limit for number of cpu across all namespaces",
+          "group": null,
+          "included": false
+        },
+        "openshift.clusterquota.cpu.used": {
+          "type": "gauge",
+          "description": "Consumed number of cpu across all namespaces",
+          "group": null,
+          "included": false
+        },
+        "openshift.clusterquota.memory.hard": {
+          "type": "gauge",
+          "description": "Hard limit for amount of memory across all namespaces",
+          "group": null,
+          "included": false
+        },
+        "openshift.clusterquota.memory.used": {
+          "type": "gauge",
+          "description": "Consumed amount of memory across all namespaces",
+          "group": null,
+          "included": false
+        },
+        "openshift.clusterquota.persistentvolumeclaims.hard": {
+          "type": "gauge",
+          "description": "Hard limit for number of persistentvolumeclaims across all namespaces",
+          "group": null,
+          "included": false
+        },
+        "openshift.clusterquota.persistentvolumeclaims.used": {
+          "type": "gauge",
+          "description": "Consumed number of persistentvolumeclaims across all namespaces",
+          "group": null,
+          "included": false
+        },
+        "openshift.clusterquota.pods.hard": {
+          "type": "gauge",
+          "description": "Hard limit for number of pods across all namespaces",
+          "group": null,
+          "included": false
+        },
+        "openshift.clusterquota.pods.used": {
+          "type": "gauge",
+          "description": "Consumed number of pods across all namespaces",
+          "group": null,
+          "included": false
+        },
+        "openshift.clusterquota.services.hard": {
+          "type": "gauge",
+          "description": "Hard limit for number of services across all namespaces",
+          "group": null,
+          "included": false
+        },
+        "openshift.clusterquota.services.loadbalancers.hard": {
+          "type": "gauge",
+          "description": "Hard limit for number of services.loadbalancers across all namespaces",
+          "group": null,
+          "included": false
+        },
+        "openshift.clusterquota.services.loadbalancers.used": {
+          "type": "gauge",
+          "description": "Consumed number of services.loadbalancers across all namespaces",
+          "group": null,
+          "included": false
+        },
+        "openshift.clusterquota.services.nodeports.hard": {
+          "type": "gauge",
+          "description": "Hard limit for number of services.nodeports across all namespaces",
+          "group": null,
+          "included": false
+        },
+        "openshift.clusterquota.services.nodeports.used": {
+          "type": "gauge",
+          "description": "Consumed number of services.nodeports across all namespaces",
+          "group": null,
+          "included": false
+        },
+        "openshift.clusterquota.services.used": {
+          "type": "gauge",
+          "description": "Consumed number of services across all namespaces",
+          "group": null,
+          "included": false
+        }
+      },
+      "properties": {
+        "\u003cnode label\u003e": {
+          "dimension": "machine_id/kubernetes_node",
+          "description": "All non-blank labels on a given node will be synced as properties to the `machine_id` or `kubernetes_node` dimension value for that node.  Which dimension gets the properties is determined by the `useNodeName` config option.  Any blank values will be synced as tags on that same dimension."
+        },
+        "\u003cpod label\u003e": {
+          "dimension": "kubernetes_pod_uid",
+          "description": "Any labels with non-blank values on the pod will be synced as properties to the `kubernetes_pod_uid` dimension. Any blank labels will be synced as tags on that same dimension."
+        }
+      },
+      "metricsExhaustive": false,
+      "config": {
+        "name": "Config",
+        "doc": "Config for the K8s monitor",
+        "package": "internal/monitors/kubernetes/cluster",
+        "fields": [
+          {
+            "yamlName": "alwaysClusterReporter",
+            "doc": "If `true`, leader election is skipped and metrics are always reported.",
+            "default": false,
+            "required": false,
+            "type": "bool",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "namespace",
+            "doc": "If specified, only resources within the given namespace will be monitored.  If omitted (blank) all supported resources across all namespaces will be monitored.",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "useNodeName",
+            "doc": "If set to true, the Kubernetes node name will be used as the dimension to which to sync properties about each respective node.  This is necessary if your cluster's machines do not have unique machine-id values, as can happen when machine images are improperly cloned.",
+            "default": false,
+            "required": false,
+            "type": "bool",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "kubernetesAPI",
+            "doc": "Config for the K8s API client",
+            "default": "",
+            "required": false,
+            "type": "struct",
+            "elementKind": "",
+            "elementStruct": {
+              "name": "APIConfig",
+              "doc": "APIConfig contains options relevant to connecting to the K8s API",
+              "package": "internal/core/common/kubernetes",
+              "fields": [
+                {
+                  "yamlName": "authType",
+                  "doc": "How to authenticate to the K8s API server.  This can be one of `none` (for no auth), `tls` (to use manually specified TLS client certs, not recommended), `serviceAccount` (to use the standard service account token provided to the agent pod), or `kubeConfig` to use credentials from `~/.kube/config`.",
+                  "default": "serviceAccount",
+                  "required": false,
+                  "type": "string",
+                  "elementKind": ""
+                },
+                {
+                  "yamlName": "skipVerify",
+                  "doc": "Whether to skip verifying the TLS cert from the API server.  Almost never needed.",
+                  "default": false,
+                  "required": false,
+                  "type": "bool",
+                  "elementKind": ""
+                },
+                {
+                  "yamlName": "clientCertPath",
+                  "doc": "The path to the TLS client cert on the pod's filesystem, if using `tls` auth.",
+                  "default": "",
+                  "required": false,
+                  "type": "string",
+                  "elementKind": ""
+                },
+                {
+                  "yamlName": "clientKeyPath",
+                  "doc": "The path to the TLS client key on the pod's filesystem, if using `tls` auth.",
+                  "default": "",
+                  "required": false,
+                  "type": "string",
+                  "elementKind": ""
+                },
+                {
+                  "yamlName": "caCertPath",
+                  "doc": "Path to a CA certificate to use when verifying the API server's TLS cert.  Generally this is provided by K8s alongside the service account token, which will be picked up automatically, so this should rarely be necessary to specify.",
+                  "default": "",
+                  "required": false,
+                  "type": "string",
+                  "elementKind": ""
+                }
+              ]
+            }
+          },
+          {
+            "yamlName": "nodeConditionTypesToReport",
+            "doc": "A list of node status condition types to report as metrics.  The metrics will be reported as datapoints of the form `kubernetes.node_\u003ctype_snake_cased\u003e` with a value of `0` corresponding to \"False\", `1` to \"True\", and `-1` to \"Unknown\".",
+            "default": [
+              "Ready"
             ],
             "required": false,
             "type": "slice",
@@ -27010,7 +27423,7 @@
             "fields": [
               {
                 "yamlName": "authType",
-                "doc": "How to authenticate to the K8s API server.  This can be one of `none` (for no auth), `tls` (to use manually specified TLS client certs, not recommended), or `serviceAccount` (to use the standard service account token provided to the agent pod).",
+                "doc": "How to authenticate to the K8s API server.  This can be one of `none` (for no auth), `tls` (to use manually specified TLS client certs, not recommended), `serviceAccount` (to use the standard service account token provided to the agent pod), or `kubeConfig` to use credentials from `~/.kube/config`.",
                 "default": "serviceAccount",
                 "required": false,
                 "type": "string",

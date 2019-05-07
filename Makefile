@@ -18,7 +18,7 @@ compileDeps: templates code-gen internal/core/common/constants/versions.go
 code-gen: $(MONITOR_CODE_GEN)
 	$(MONITOR_CODE_GEN)
 
-$(MONITOR_CODE_GEN): $(wildcard cmd/monitorcodegen/*.go)
+$(MONITOR_CODE_GEN): $(wildcard cmd/monitorcodegen/*.go) cmd/monitorcodegen/genmetadata.tmpl
 ifeq ($(OS),Windows_NT)
 	powershell "& { . $(CURDIR)/scripts/windows/make.ps1; monitor-code-gen }"
 else
@@ -143,28 +143,12 @@ run-dev-image:
 		-v $(CURDIR)/tmp/pprof:/tmp/pprof \
 		signalfx-agent-dev /bin/bash
 
-.PHONY: run-dev-image-sync
-run-dev-image-sync:
-	docker exec -it $(docker_env) signalfx-agent-dev-sync /bin/bash -l -i || \
-	  docker run --rm -it \
-		$(dbus_run_flags) $(extra_run_flags) \
-		--cap-add DAC_READ_SEARCH \
-		--cap-add SYS_PTRACE \
-		-p 6061:6060 \
-		-p 9081:9080 \
-		-p 8096:8095 \
-		--name signalfx-agent-dev-sync \
-		-v signalfx-agent-sync:/usr/src/signalfx-agent:nocopy \
-		-v $(CURDIR)/local-etc:/etc/signalfx \
-		-v $(CURDIR)/tmp/pprof:/tmp/pprof \
-		signalfx-agent-dev /bin/bash
-
 .PHONY: run-dev-image-commands
 run-dev-image-commands:
 	docker exec -t $(docker_env) signalfx-agent-dev /bin/bash -c '$(RUN_DEV_COMMANDS)'
 
 .PHONY: run-integration-tests
-run-integration-tests: MARKERS ?= not packaging and not bundle and not installer and not kubernetes and not windows_only and not deployment and not perf_test and not conviva
+run-integration-tests: MARKERS ?= integration
 run-integration-tests:
 	pytest \
 		-m "$(MARKERS)" \

@@ -38,3 +38,6 @@ cluster name).
 If you want to provide your own agent configuration, you can do so with the
 `agentConfig` value.  Otherwise, you can do a great deal of customization to
 the provided config template using values.
+
+If you are using OpenShift set `kubernetesDistro` to `openshift` to get
+OpenShift-specific functionality.
