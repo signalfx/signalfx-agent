@@ -1,19 +1,18 @@
 from collections import defaultdict
 
 import yaml
-
 from tests.paths import REPO_ROOT_DIR
 
 
 class Metadata:
     """Metadata information like metrics and dimensions for a monitor"""
 
-    def __init__(self, monitor_type, included_metrics, nonincluded_metrics, metric_by_group, dims):
+    def __init__(self, monitor_type, included_metrics, nonincluded_metrics, metrics_by_group, dims):
         self.monitor_type = monitor_type
         self.included_metrics = included_metrics
-        self.nonincluded_mertics = nonincluded_metrics
-        self.all_metrics = self.included_metrics | self.nonincluded_mertics
-        self.metrics_by_group = metric_by_group
+        self.nonincluded_metrics = nonincluded_metrics
+        self.all_metrics = self.included_metrics | self.nonincluded_metrics
+        self.metrics_by_group = metrics_by_group
         self.dims = dims
 
     @classmethod
@@ -34,7 +33,7 @@ class Metadata:
                 monitor_type=monitor["monitorType"],
                 included_metrics=frozenset(_get_monitor_metrics(monitor, included=True)),
                 nonincluded_metrics=frozenset(_get_monitor_metrics(monitor, included=False)),
-                metric_by_group=metrics_by_group,
+                metrics_by_group=metrics_by_group,
                 dims=frozenset(_get_monitor_dims(doc)),
             )
 

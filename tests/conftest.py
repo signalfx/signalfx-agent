@@ -2,7 +2,6 @@ import os
 import tempfile
 
 import pytest
-
 from tests.helpers.kubernetes.cluster import Cluster
 from tests.helpers.util import get_docker_client, run_container
 
