@@ -1,3 +1,4 @@
+import sys
 from collections import defaultdict
 
 import yaml
@@ -56,7 +57,10 @@ def _find_monitor(monitors, mon_type):
 def _get_monitor_metrics(monitor, included):
     for metric, info in (monitor.get("metrics") or {}).items():
         if info["included"] == included:
-            yield metric
+            if sys.platform == "win32" and "linux only" not in info["description"].lower():
+                yield metric
+            elif sys.platform != "win32" and "windows only" not in info["description"].lower():
+                yield metric
 
 
 def _get_monitor_dims(doc, mon_type=None):
