@@ -5,6 +5,7 @@ import (
 	"sync"
 
 	"github.com/davecgh/go-spew/spew"
+	quota "github.com/openshift/api/quota/v1"
 	"github.com/signalfx/golib/datapoint"
 	k8sutil "github.com/signalfx/signalfx-agent/internal/monitors/kubernetes/utils"
 	atypes "github.com/signalfx/signalfx-agent/internal/monitors/types"
@@ -131,6 +132,9 @@ func (dc *DatapointCache) HandleAdd(newObj runtime.Object) interface{} {
 	case *v1.Service:
 		dc.handleAddService(o)
 		kind = "Service"
+	case *quota.ClusterResourceQuota:
+		dps = datapointsForClusterQuotas(o)
+		kind = "ClusterResourceQuota"
 	default:
 		log.WithFields(log.Fields{
 			"obj": spew.Sdump(newObj),
