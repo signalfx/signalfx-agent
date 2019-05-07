@@ -2,11 +2,16 @@ package cluster
 
 import (
 	"context"
+	"fmt"
+
+	"k8s.io/client-go/rest"
 
 	"github.com/signalfx/signalfx-agent/internal/monitors/kubernetes/cluster/metrics"
 	"github.com/signalfx/signalfx-agent/internal/utils/k8sutil"
 	log "github.com/sirupsen/logrus"
 
+	quota "github.com/openshift/api/quota/v1"
+	quotav1 "github.com/openshift/client-go/quota/clientset/versioned/typed/quota/v1"
 	v1 "k8s.io/api/core/v1"
 	"k8s.io/api/extensions/v1beta1"
 	"k8s.io/apimachinery/pkg/fields"
@@ -18,21 +23,38 @@ import (
 // State makes use of the K8s client's "reflector" helper to watch the API
 // server for changes and keep the datapoint cache up to date,
 type State struct {
-	clientset  *k8s.Clientset
-	reflectors map[string]*cache.Reflector
-	namespace  string
-	cancel     func()
+	clientset   *k8s.Clientset
+	quotaClient *quotav1.QuotaV1Client
+	reflectors  map[string]*cache.Reflector
+	namespace   string
+	cancel      func()
 
 	metricCache *metrics.DatapointCache
 }
 
-func newState(clientset *k8s.Clientset, metricCache *metrics.DatapointCache, namespace string) *State {
-	return &State{
-		clientset:   clientset,
+func newState(flavor KubernetesDistribution, restConfig *rest.Config, metricCache *metrics.DatapointCache,
+	namespace string) (*State, error) {
+	state := &State{
 		reflectors:  make(map[string]*cache.Reflector),
 		metricCache: metricCache,
 		namespace:   namespace,
 	}
+
+	var err error
+
+	if flavor == OpenShift {
+		state.quotaClient, err = quotav1.NewForConfig(restConfig)
+		if err != nil {
+			return nil, fmt.Errorf("could not create API client for %s: %s", quota.SchemeGroupVersion, err)
+		}
+	}
+
+	state.clientset, err = k8s.NewForConfig(restConfig)
+	if err != nil {
+		return nil, fmt.Errorf("could not create Kubernetes API client: %s", err)
+	}
+
+	return state, nil
 }
 
 // Start starts syncing any resource that isn't already being synced
@@ -44,6 +66,11 @@ func (cs *State) Start() {
 
 	coreClient := cs.clientset.CoreV1().RESTClient()
 	extV1beta1Client := cs.clientset.ExtensionsV1beta1().RESTClient()
+
+	if cs.quotaClient != nil {
+		cs.beginSyncForType(ctx, &quota.ClusterResourceQuota{}, "clusterresourcequotas", v1.NamespaceAll,
+			cs.quotaClient.RESTClient())
+	}
 
 	cs.beginSyncForType(ctx, &v1.Pod{}, "pods", cs.namespace, coreClient)
 	cs.beginSyncForType(ctx, &v1beta1.DaemonSet{}, "daemonsets", cs.namespace, extV1beta1Client)

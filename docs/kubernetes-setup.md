@@ -163,7 +163,7 @@ that we support.  All of these work the same in Kubernetes.
 
 Of particular relevance to Kubernetes are the following monitors:
 
- - [Kubernetes Cluster](./monitors/kubernetes-cluster.md) - Gets cluster level
+ - [Kubernetes Cluster](./monitors/kubernetes-cluster.md) or [OpenShift Cluster](./monitors/openshift-cluster.md) - Gets cluster level
 	 metrics from the K8s API
  - [cAdvisor](./monitors/cadvisor.md) - Gets container metrics directly from
 	 cAdvisor exposed on the same node (**most likely won't work in newer K8s
@@ -374,7 +374,7 @@ administrator to do the following):
 
 We need to make the agent run as root in the container:
 
-`oadm policy add-cluster-role-to-user anyuid
+`oc adm policy add-cluster-role-to-user anyuid
 system:serviceaccount:default:signalfx-agent`
 
 Next we need to add this service account to the privileged SCC.  Run `oc edit

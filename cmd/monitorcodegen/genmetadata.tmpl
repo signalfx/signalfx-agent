@@ -10,7 +10,7 @@ import (
 )
 
 {{if (len .monitors) eq 1 }}
-const monitorType = "{{(index .monitors 0).MonitorType}}"
+const {{"monitorType" | formatVariable}} = "{{(index .monitors 0).MonitorType}}"
 {{end}}
 
 {{with .groupMetricsMap}}
@@ -21,7 +21,7 @@ const (
 )
 {{end}}
 
-var groupSet = map[string]bool {
+var {{"groupSet" | formatVariable}} = map[string]bool {
 {{- range $group, $metrics := .groupMetricsMap}}
 	{{(printf "group.%s" $group) | formatVariable}}: true,
 {{- end}}
@@ -38,7 +38,7 @@ const (
 )
 {{end}}
 
-var metricSet = map[string]monitors.MetricInfo {
+var {{"metricSet" | formatVariable}} = map[string]monitors.MetricInfo {
 {{- range $metric, $info := .metrics}}
 	{{- if $info.Group}}
 		{{$metric | formatVariable}}: {Type: {{$info.Type | convertMetricType}}, Group: {{$info.Group | deref | printf "group.%s" | formatVariable}}},
@@ -48,7 +48,7 @@ var metricSet = map[string]monitors.MetricInfo {
 {{- end}}
 }
 
-var includedMetrics = map[string]bool {
+var {{"includedMetrics" | formatVariable}} = map[string]bool {
 {{- range $metric, $info := .metrics}}
 {{- if $info.Included}}
 	{{$metric | formatVariable}}: true,
@@ -59,7 +59,7 @@ var includedMetrics = map[string]bool {
 {{- end}}
 }
 
-var groupMetricsMap = map[string][]string {
+var {{"groupMetricsMap" | formatVariable}} = map[string][]string {
 {{- range $group, $metrics := .groupMetricsMap}}
 	{{(printf "group.%s" $group) | formatVariable}}: []string {
 		{{- range $metrics}}
@@ -75,11 +75,11 @@ var {{if gt (len $.monitors) 1 -}}
 {{else -}}
 monitorMetadata{{end}} = monitors.Metadata{
 	MonitorType: "{{.MonitorType}}",
-	IncludedMetrics: includedMetrics,
-	Metrics: metricSet,
+	IncludedMetrics: {{"includedMetrics" | formatVariable}},
+	Metrics: {{"metricSet" | formatVariable}},
 	MetricsExhaustive: {{.MetricsExhaustive}},
-	Groups: groupSet,
-	GroupMetricsMap: groupMetricsMap,
+	Groups: {{"groupSet" | formatVariable}},
+	GroupMetricsMap: {{"groupMetricsMap" | formatVariable}},
 	SendAll: {{ .SendAll }},
 }
 {{end}}
