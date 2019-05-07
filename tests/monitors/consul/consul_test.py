@@ -59,7 +59,7 @@ def test_consul_enhanced():
              enhancedMetrics: true
          """
         ) as agent:
-            target_metric = "gauge.consul.runtime.heap_objects"
+            target_metric = "gauge.consul.serf.events.consul:new-leader"
             assert target_metric in METADATA.nonincluded_metrics
 
             def test():
