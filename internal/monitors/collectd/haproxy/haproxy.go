@@ -31,9 +31,22 @@ type Config struct {
 	Host                 string   `yaml:"host" validate:"required"`
 	Port                 uint16   `yaml:"port"`
 	ProxiesToMonitor     []string `yaml:"proxiesToMonitor"`
-	ExcludedMetrics      []string `yaml:"excludedMetrics"`
-	EnhancedMetrics      *bool    `yaml:"enhancedMetrics"`
+	// Deprecated.  Please use `datapointsToExclude` on the monitor config
+	// block instead.
+	ExcludedMetrics []string `yaml:"excludedMetrics"`
+	EnhancedMetrics *bool    `yaml:"enhancedMetrics"`
 }
+
+// GetExtraMetrics accounts for the EnhancedMetrics config
+func (c *Config) GetExtraMetrics() []string {
+	if c.EnhancedMetrics != nil && *c.EnhancedMetrics {
+		// More robust to just allow everything through in this case.
+		return []string{"*"}
+	}
+	return nil
+}
+
+var _ config.ExtraMetrics = &Config{}
 
 // PythonConfig returns the embedded python.Config struct from the interface
 func (c *Config) PythonConfig() *python.Config {
