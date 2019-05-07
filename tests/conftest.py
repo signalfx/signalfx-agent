@@ -2,7 +2,6 @@ import os
 import tempfile
 
 import pytest
-
 from tests.helpers.kubernetes.cluster import Cluster
 from tests.helpers.util import get_docker_client, run_container
 
@@ -20,8 +19,6 @@ def pytest_collection_modifyitems(items):
             if not NON_INTEGRATION_MARKERS.intersection(markers):
                 item.add_marker("integration")
 
-
-pytest.register_assert_rewrite("tests.helpers.verify")
 
 pytest.register_assert_rewrite("tests.helpers.verify")
 

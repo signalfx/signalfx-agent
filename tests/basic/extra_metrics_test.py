@@ -1,5 +1,3 @@
-from textwrap import dedent
-
 from tests.helpers.agent import Agent
 from tests.helpers.metadata import Metadata
 from tests.helpers.verify import verify
@@ -15,8 +13,7 @@ def test_extra_metrics_passthrough():
 
     with run_expvar() as expvar_container_ip:
         with Agent.run(
-            dedent(
-                f"""
+            f"""
                monitors:
                  - type: expvar
                    host: {expvar_container_ip}
@@ -25,7 +22,6 @@ def test_extra_metrics_passthrough():
                    extraMetrics:
                     - memstats.by_size.mallocs
                """
-            )
         ) as agent:
             assert "memstats.by_size.mallocs" in metadata.nonincluded_metrics
             verify(agent, metadata.included_metrics | {"memstats.by_size.mallocs"})

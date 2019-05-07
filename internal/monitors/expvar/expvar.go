@@ -56,7 +56,7 @@ type Monitor struct {
 func (m *Monitor) Configure(conf *Config) error {
 	m.logger = log.WithFields(log.Fields{"monitorType": monitorType})
 
-	if m.Output.HasEnabledMetricInGroup(groupEnhanced) {
+	if m.Output.HasAnyNonDefaultMetricEnabled() {
 		conf.EnhancedMetrics = true
 	}
 
