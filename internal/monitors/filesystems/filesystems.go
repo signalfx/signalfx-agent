@@ -52,7 +52,7 @@ type Config struct {
 
 // Monitor for Utilization
 type Monitor struct {
-	Output      types.Output
+	Output      types.FilteringOutput
 	cancel      func()
 	conf        *Config
 	hostFSPath  string
@@ -199,14 +199,13 @@ func (m *Monitor) Configure(conf *Config) error {
 		m.conf = &Config{}
 	}
 	*m.conf = *conf
+
 	// setting metric group flags in the config copy
-	for _, metric := range m.conf.EnabledMetrics {
-		switch metricSet[metric].Group {
-		case groupIncludeLogical:
-			m.conf.IncludeLogical = true
-		case groupReportInodes:
-			m.conf.ReportInodes = true
-		}
+	if m.Output.HasEnabledMetricInGroup(groupIncludeLogical) {
+		m.conf.IncludeLogical = true
+	}
+	if m.Output.HasEnabledMetricInGroup(groupReportInodes) {
+		m.conf.ReportInodes = true
 	}
 
 	// configure filters
