@@ -122,6 +122,10 @@ func (c *Config) Validate() error {
 	return nil
 }
 
+func (c *Config) GetExtraMetrics() []string {
+	return nil
+}
+
 // Monitor is the main type that represents the monitor
 type Monitor struct {
 	collectd.MonitorCore
