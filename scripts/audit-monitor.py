@@ -1,13 +1,12 @@
 #!/usr/bin/env python3
+import argparse
 import sys
-
+import time
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).parent.parent.resolve()))
-
-import argparse
-import time
 from tests.helpers.agent import Agent
+
+sys.path.insert(0, str(Path(__file__).parent.parent.resolve()))
 
 
 def main(opts):
