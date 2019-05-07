@@ -17,11 +17,6 @@ def verify_expected_is_subset(agent, expected_metrics, timeout=util.DEFAULT_TIME
     wait_for_assertion(test, timeout_seconds=timeout)
 
 
-def verify_custom(config, metrics, timeout=util.DEFAULT_TIMEOUT):
-    with Agent.run(config) as agent:
-        verify(agent, metrics, timeout=timeout)
-
-
 def verify_included_metrics(config, metadata, timeout=util.DEFAULT_TIMEOUT):
     with Agent.run(config) as agent:
         verify(agent, metadata.included_metrics, timeout=timeout)

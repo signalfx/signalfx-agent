@@ -76,5 +76,209 @@ monitors:
        metric_source: conviva
     ```
   metrics:
+    conviva.attempts:
+      description: Attempts time-series
+      included: false
+      type: gauge
+      group: attempts
+    conviva.avg_bitrate:
+      description: Average bitrate time-series
+      included: false
+      type: gauge
+      group: avg_bitrate
+    conviva.concurrent_plays:
+      description: Concurrent plays time-series
+      included: false
+      type: gauge
+      group: concurrent_plays
+    conviva.connection_induced_rebuffering_ratio:
+      description: Connection induced rebuffering ratio simple-series
+      included: false
+      type: gauge
+      group: connection_induced_rebuffering_ratio
+    conviva.connection_induced_rebuffering_ratio_timeseries:
+      description: Connection induced rebuffering ratio time-series
+      included: false
+      type: gauge
+      group: connection_induced_rebuffering_ratio_timeseries
+    conviva.duration_connection_induced_rebuffering_ratio_distribution:
+      description: Duration vs. connection induced rebuffering ratio distribution label-series
+      included: false
+      type: gauge
+      group: duration_connection_induced_rebuffering_ratio_distribution
+    conviva.exits_before_video_start:
+      description: Exits before video start time-series
+      included: false
+      type: gauge
+      group: exits_before_video_start
+    conviva.ended_plays:
+      description: Ended plays simple-series
+      included: false
+      type: gauge
+      group: ended_plays
+    conviva.ended_plays_timeseries:
+      description: Ended plays time-series
+      included: false
+      type: gauge
+      group: ended_plays_timeseries
+    conviva.plays:
+      description: Plays time-series
+      included: false
+      type: gauge
+      group: plays
+    conviva.play_bitrate_distribution:
+      description: Play bitrate distribution label-series
+      included: false
+      type: gauge
+      group: play_bitrate_distribution
+    conviva.play_buffering_ratio_distribution:
+      description: Play buffering ratio distribution label-series
+      included: false
+      type: gauge
+      group: play_buffering_ratio_distribution
+    conviva.play_connection_induced_rebuffering_ratio_distribution:
+      description: Play connection induced rebuffering ratio distribution label-series
+      included: false
+      type: gauge
+      group: play_connection_induced_rebuffering_ratio_distribution
+    conviva.quality_summary:
+      description: Quality summary label-series
+      included: false
+      type: gauge
+      group: quality_summary
+    conviva.rebuffered_plays:
+      description: Rebuffered plays time-series
+      included: false
+      type: gauge
+      group: rebuffered_plays
+    conviva.rebuffering_ratio:
+      description: Rebuffering ratio time-series
+      included: false
+      type: gauge
+      group: rebuffering_ratio
+    conviva.top_assets_15_mins:
+      description: Top assets over last 15 minutes simple-table
+      included: false
+      type: gauge
+      group: top_assets_15_mins
+    conviva.top_assets_summary:
+      description: Top assets summary label-series
+      included: false
+      type: gauge
+      group: top_assets_summary
+    conviva.video_playback_failures:
+      description: Video playback failures simple-series
+      included: false
+      type: gauge
+      group: video_playback_failures
+    conviva.video_playback_failures_timeseries:
+      description: Video playback failures time-series
+      included: false
+      type: gauge
+      group: video_playback_failures_timeseries
+    conviva.video_playback_failures_distribution:
+      description: Video playback failures distribution label-series
+      included: false
+      type: gauge
+      group: video_playback_failures_distribution
+    conviva.video_restart_time:
+      description: Video restart time simple-series
+      included: false
+      type: gauge
+      group: video_restart_time
+    conviva.video_restart_time_timeseries:
+      description: Video restart time time-series
+      included: false
+      type: gauge
+      group: video_restart_time_timeseries
+    conviva.video_restart_time_distribution:
+      description: Video restart time distribution label-series
+      included: false
+      type: gauge
+      group: video_restart_time_distribution
+    conviva.video_start_failures:
+      description: Video start failures time-series
+      included: false
+      type: gauge
+      group: video_start_failures
+    conviva.video_start_failures_errornames:
+      description: Video start failures by error names simple-table
+      included: false
+      type: gauge
+      group: video_start_failures_errornames
+    conviva.video_startup_time:
+      description: Video startup time label-series
+      included: false
+      type: gauge
+    conviva.quality_metriclens.total_attempts:
+      description: Attempts
+      included: false
+      type: gauge
+      group: quality_metriclens
+    conviva.quality_metriclens.video_start_failures_percent:
+      description: Video Start Failures(VSF) (%)
+      included: false
+      type: gauge
+      group: quality_metriclens
+    conviva.quality_metriclens.exits_before_video_start_percent:
+      description: Exits Before Video Starts (EBVS) (%)
+      included: false
+      type: gauge
+      group: quality_metriclens
+    conviva.quality_metriclens.plays_percent:
+      description: Plays (%)
+      included: false
+      type: gauge
+      group: quality_metriclens
+    conviva.quality_metriclens.video_startup_time_sec:
+      description: Video Startup Time (sec)
+      included: false
+      type: gauge
+      group: quality_metriclens
+    conviva.quality_metriclens.rebuffering_ratio_percent:
+      description: Rebuffering Ratio (%)
+      included: false
+      type: gauge
+      group: quality_metriclens
+    conviva.quality_metriclens.average_bitrate_kbps:
+      description: Average Bitrate (bps). This metric can be returned in kbps with the ab_units=kbps parameter. Unless this parameter is specified, average bitrate is bps
+      included: false
+      type: gauge
+      group: quality_metriclens
+    conviva.quality_metriclens.video_playback_failures_percent:
+      description: Video Playback Failures (%)
+      included: false
+      type: gauge
+      group: quality_metriclens
+    conviva.quality_metriclens.ended_plays:
+      description: Ended Plays
+      included: false
+      type: gauge
+      group: quality_metriclens
+    conviva.quality_metriclens.connection_induced_rebuffering_ratio_percent:
+      description: Connection Induced ReBuffering Ratio (%)
+      included: false
+      type: gauge
+      group: quality_metriclens
+    conviva.quality_metriclens.video_restart_time:
+      description: Video Restart Time
+      included: false
+      type: gauge
+      group: quality_metriclens
+    conviva.audience_metriclens.concurrent_plays:
+      description: Concurrent Plays
+      included: false
+      type: gauge
+      group: audience_metriclens
+    conviva.audience_metriclens.plays:
+      description: Plays
+      included: false
+      type: gauge
+      group: audience_metriclens
+    conviva.audience_metriclens.ended_plays:
+      description: Ended Plays
+      included: false
+      type: gauge
+      group: audience_metriclens
   monitorType: conviva
   properties:

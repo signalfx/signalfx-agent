@@ -48,16 +48,12 @@ type Monitor struct {
 }
 
 func init() {
-	monitors.Register(&monitorMetadata, func() interface{} { return &Monitor{} }, &Config{})
+	monitors.Register(&monitorMetadata, func() interface{} { return &Monitor{} }, &Config{MetricConfigs: []*metricConfig{{MetricParameter: "quality_metriclens"}}})
 }
 
 // Configure monitor
 func (m *Monitor) Configure(conf *Config) error {
 	m.logger = logrus.WithFields(log.Fields{"monitorType": monitorType})
-
-	if conf.MetricConfigs == nil {
-		conf.MetricConfigs = []*metricConfig{{MetricParameter: "quality_metriclens"}}
-	}
 	m.timeout = time.Duration(conf.TimeoutSeconds) * time.Second
 	m.client = newConvivaClient(&http.Client{
 		Transport: &http.Transport{
@@ -73,7 +69,6 @@ func (m *Monitor) Configure(conf *Config) error {
 			if err := metricConf.init(service); err != nil {
 				m.logger.WithError(err).Error("Could not initialize metric configuration")
 			}
-
 			if strings.Contains(metricConf.MetricParameter, "metriclens") {
 				m.fetchMetricLensMetrics(interval, semaphore, metricConf)
 			} else {
@@ -82,6 +77,15 @@ func (m *Monitor) Configure(conf *Config) error {
 		}
 	}, interval)
 	return nil
+}
+
+// GetExtraMetrics returns additional metrics to allow through.
+func (c *Config) GetExtraMetrics() []string {
+	var extraMetrics []string
+	for _, mc := range c.MetricConfigs {
+		extraMetrics = append(extraMetrics, groupMetricsMap[mc.MetricParameter]...)
+	}
+	return extraMetrics
 }
 
 // Shutdown stops the metric sync
