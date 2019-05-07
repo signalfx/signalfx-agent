@@ -14,7 +14,7 @@ pytestmark = [pytest.mark.collectd, pytest.mark.elasticsearch, pytest.mark.monit
 METADATA = Metadata.from_package("elasticsearch")
 
 
-@pytest.mark.flaky(reruns=2)
+@pytest.mark.flaky(reruns=0)
 def test_elasticsearch_without_cluster_option():
     with run_service("elasticsearch/6.4.2", environment={"cluster.name": "testCluster"}) as es_container:
         host = container_ip(es_container)
@@ -41,7 +41,7 @@ def test_elasticsearch_without_cluster_option():
             assert not has_log_message(agent.output.lower(), "error"), "error found in agent output!"
 
 
-@pytest.mark.flaky(reruns=2)
+@pytest.mark.flaky(reruns=0)
 def test_elasticsearch_with_cluster_option():
     with run_service("elasticsearch/6.4.2", environment={"cluster.name": "testCluster"}) as es_container:
         host = container_ip(es_container)
@@ -74,7 +74,7 @@ def test_elasticsearch_with_cluster_option():
 
 
 # To mimic the scenario where node is not up
-@pytest.mark.flaky(reruns=2)
+@pytest.mark.flaky(reruns=0)
 def test_elasticsearch_without_cluster():
     # start the ES container without the service
     with run_service(
@@ -103,7 +103,7 @@ def test_elasticsearch_without_cluster():
 
 
 # TODO: fix this failing test
-# @pytest.mark.flaky(reruns=2)
+# @pytest.mark.flaky(reruns=0)
 # def test_elasticsearch_with_threadpool():
 #     with run_service("elasticsearch/6.4.2", environment={"cluster.name": "testCluster"}) as es_container:
 #         host = container_ip(es_container)
@@ -139,7 +139,7 @@ DEFAULT_METRICS = METADATA.included_metrics
 DEFAULT_DIMENSIONS = METADATA.dims
 
 
-@pytest.mark.flaky(reruns=2)
+@pytest.mark.flaky(reruns=0)
 def test_with_default_config_6_6_1():
     with run_service("elasticsearch/6.6.1") as es_container:
         host = container_ip(es_container)
@@ -161,7 +161,7 @@ def test_with_default_config_6_6_1():
             assert not has_log_message(agent.output.lower(), "error"), "error found in agent output!"
 
 
-@pytest.mark.flaky(reruns=2)
+@pytest.mark.flaky(reruns=0)
 def test_with_default_config_2_4_5():
     with run_service("elasticsearch/2.4.5") as es_container:
         host = container_ip(es_container)
@@ -183,7 +183,7 @@ def test_with_default_config_2_4_5():
             assert not has_log_message(agent.output.lower(), "error"), "error found in agent output!"
 
 
-@pytest.mark.flaky(reruns=2)
+@pytest.mark.flaky(reruns=0)
 def test_with_default_config_2_0_2():
     with run_service("elasticsearch/2.0.2") as es_container:
         host = container_ip(es_container)
@@ -205,7 +205,7 @@ def test_with_default_config_2_0_2():
             assert not has_log_message(agent.output.lower(), "error"), "error found in agent output!"
 
 
-@pytest.mark.flaky(reruns=2)
+@pytest.mark.flaky(reruns=0)
 def test_elasticsearch_with_enhanced_cluster_health_stats():
     with run_service("elasticsearch/6.4.2", environment={"cluster.name": "testCluster"}) as es_container:
         host = container_ip(es_container)
@@ -241,7 +241,7 @@ def test_elasticsearch_with_enhanced_cluster_health_stats():
         verify_custom(config, expected_metrics)
 
 
-@pytest.mark.flaky(reruns=2)
+@pytest.mark.flaky(reruns=0)
 def test_elasticsearch_with_enhanced_http_stats():
     with run_service("elasticsearch/6.4.2", environment={"cluster.name": "testCluster"}) as es_container:
         host = container_ip(es_container)
@@ -263,7 +263,7 @@ def test_elasticsearch_with_enhanced_http_stats():
         verify_custom(config, expected_metrics)
 
 
-@pytest.mark.flaky(reruns=2)
+@pytest.mark.flaky(reruns=0)
 def test_elasticsearch_with_enhanced_jvm_stats():
     with run_service("elasticsearch/6.4.2", environment={"cluster.name": "testCluster"}) as es_container:
         host = container_ip(es_container)
@@ -320,7 +320,7 @@ def test_elasticsearch_with_enhanced_jvm_stats():
         verify_custom(config, expected_metrics)
 
 
-@pytest.mark.flaky(reruns=2)
+@pytest.mark.flaky(reruns=0)
 def test_elasticsearch_with_enhanced_process_stats():
     with run_service("elasticsearch/6.4.2", environment={"cluster.name": "testCluster"}) as es_container:
         host = container_ip(es_container)
@@ -348,7 +348,7 @@ def test_elasticsearch_with_enhanced_process_stats():
         verify_custom(config, expected_metrics)
 
 
-@pytest.mark.flaky(reruns=2)
+@pytest.mark.flaky(reruns=0)
 def test_elasticsearch_with_enhanced_thread_pool_stats():
     with run_service("elasticsearch/6.4.2", environment={"cluster.name": "testCluster"}) as es_container:
         host = container_ip(es_container)
@@ -377,7 +377,7 @@ def test_elasticsearch_with_enhanced_thread_pool_stats():
         verify_custom(config, expected_metrics)
 
 
-@pytest.mark.flaky(reruns=2)
+@pytest.mark.flaky(reruns=0)
 def test_elasticsearch_with_enhanced_transport_stats():
     with run_service("elasticsearch/6.4.2", environment={"cluster.name": "testCluster"}) as es_container:
         host = container_ip(es_container)
@@ -406,7 +406,7 @@ def test_elasticsearch_with_enhanced_transport_stats():
 
 
 # TODO: fix this failing test
-# @pytest.mark.flaky(reruns=2)
+# @pytest.mark.flaky(reruns=0)
 # def test_elasticsearch_all_metrics():
 #     with run_service("elasticsearch/6.4.2", environment={"cluster.name": "testCluster"}) as es_container:
 #         host = container_ip(es_container)

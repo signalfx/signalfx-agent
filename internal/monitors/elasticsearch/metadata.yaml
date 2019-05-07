@@ -861,7 +861,7 @@ monitors:
       included: false
       type: cumulative
       group: indices/merges
-    elasticsearch.indices.merges.time:
+    elasticsearch.indices.merges.total-time:
       description: Total time spent on merging
       included: false
       type: cumulative

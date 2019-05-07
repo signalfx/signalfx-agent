@@ -75,7 +75,7 @@ type Config struct {
 
 // Monitor for conviva metrics
 type Monitor struct {
-	Output types.Output
+	Output types.FilteringOutput
 	cancel context.CancelFunc
 	ctx    context.Context
 	logger *utils.ThrottledLogger
@@ -94,7 +94,6 @@ type sharedInfo struct {
 }
 
 func (sinfo *sharedInfo) fetchNodeAndClusterMetadata(esClient client.ESHttpClient, configuredClusterName string) error {
-
 	// Collect info about master for the cluster
 	masterInfoOutput, err := esClient.GetMasterNodeInfo()
 	if err != nil {
@@ -150,21 +149,23 @@ func (m *Monitor) Configure(c *Config) error {
 	conf := &Config{}
 	*conf = *c
 	// Setting metric group flags in conf for configured extra metrics
-	for _, metric := range conf.EnabledMetrics {
-		switch metricSet[metric].Group {
-		case groupCluster:
-			conf.EnableEnhancedClusterHealthStats = true
-		case groupNodeHTTP:
-			conf.EnableEnhancedHTTPStats = true
-		case groupNodeJvm:
-			conf.EnableEnhancedJVMStats = true
-		case groupNodeProcess:
-			conf.EnableEnhancedProcessStats = true
-		case groupNodeThreadPool:
-			conf.EnableEnhancedThreadPoolStats = true
-		case groupNodeTransport:
-			conf.EnableEnhancedTransportStats = true
-		}
+	if m.Output.HasEnabledMetricInGroup(groupCluster) {
+		conf.EnableEnhancedClusterHealthStats = true
+	}
+	if m.Output.HasEnabledMetricInGroup(groupNodeHTTP) {
+		conf.EnableEnhancedHTTPStats = true
+	}
+	if m.Output.HasEnabledMetricInGroup(groupNodeJvm) {
+		conf.EnableEnhancedJVMStats = true
+	}
+	if m.Output.HasEnabledMetricInGroup(groupNodeProcess) {
+		conf.EnableEnhancedProcessStats = true
+	}
+	if m.Output.HasEnabledMetricInGroup(groupNodeThreadPool) {
+		conf.EnableEnhancedThreadPoolStats = true
+	}
+	if m.Output.HasEnabledMetricInGroup(groupNodeTransport) {
+		conf.EnableEnhancedTransportStats = true
 	}
 
 	esClient := client.NewESClient(conf.Host, conf.Port, conf.UseHTTPS, conf.Username, conf.Password)
@@ -191,7 +192,6 @@ func (m *Monitor) Configure(c *Config) error {
 
 		// The first time fetchNodeAndClusterMetadata succeeded the monitor can schedule fetchers for all the other stats
 		if !isInitialized {
-
 			// Collect Node level stats
 			utils.RunOnInterval(m.ctx, func() {
 				_, defaultNodeMetricDimensions, _ := shared.getAllSharedInfo()
@@ -220,11 +220,8 @@ func (m *Monitor) Configure(c *Config) error {
 					}
 				}, time.Duration(conf.IndexStatsIntervalSeconds)*time.Second)
 			}
-
 			isInitialized = true
-
 		}
-
 	}, time.Duration(conf.MetadataRefreshIntervalSeconds)*time.Second)
 
 	return nil
