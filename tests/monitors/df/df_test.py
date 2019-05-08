@@ -32,7 +32,7 @@ def test_df_extra_metrics():
 
 
 def test_df_report_inodes_flag():
-    expected_metrics = METADATA.included_metrics | {"df_inodes.free", "df_inodes.reserved", "df_inodes.used"}
+    expected_metrics = METADATA.included_metrics | METADATA.metrics_by_group["report-inodes"]
     agent_config = f"""
         monitors:
           - type: collectd/df
@@ -43,11 +43,7 @@ def test_df_report_inodes_flag():
 
 
 def test_df_values_percentage_flag():
-    expected_metrics = METADATA.included_metrics | {
-        "percent_bytes.free",
-        "percent_bytes.reserved",
-        "percent_bytes.used",
-    }
+    expected_metrics = METADATA.included_metrics | METADATA.metrics_by_group["values-percentage"]
     agent_config = f"""
         monitors:
           - type: collectd/df
@@ -58,8 +54,7 @@ def test_df_values_percentage_flag():
 
 
 def test_df_report_inodes_and_values_percentage_flags():
-    expected_metrics = set(METADATA.all_metrics)
-    expected_metrics.remove("df_complex.reserved")
+    expected_metrics = METADATA.all_metrics - {"df_complex.reserved"}
     agent_config = f"""
         monitors:
           - type: collectd/df
