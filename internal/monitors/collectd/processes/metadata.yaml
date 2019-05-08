@@ -26,6 +26,127 @@ monitors:
     process has made.  Also, all processes that start with `docker` will have
     their process metrics aggregated together and sent with a `plugin_instance`
     value of `docker`.
+  sendAll: true
   metrics:
+    disk_octets.read:
+      description:
+      group:
+      included: false
+      type: cumulative
+    disk_octets.write:
+      description:
+      group:
+      included: false
+      type: cumulative
+    fork_rate:
+      description:
+      group:
+      included: false
+      type: cumulative
+    io_octets.rx:
+      description:
+      group:
+      included: false
+      type: cumulative
+    io_octets.tx:
+      description:
+      group:
+      included: false
+      type: cumulative
+    io_ops.read:
+      description:
+      group:
+      included: false
+      type: cumulative
+    io_ops.write:
+      description:
+      group:
+      included: false
+      type: cumulative
+    ps_code:
+      description:
+      group:
+      included: false
+      type: gauge
+    ps_count.processes:
+      description:
+      group:
+      included: false
+      type: gauge
+    ps_count.threads:
+      description:
+      group:
+      included: false
+      type: gauge
+    ps_cputime.syst:
+      description:
+      group:
+      included: false
+      type: cumulative
+    ps_cputime.user:
+      description:
+      group:
+      included: false
+      type: cumulative
+    ps_data:
+      description:
+      group:
+      included: false
+      type: gauge
+    ps_pagefaults.majflt:
+      description:
+      group:
+      included: false
+      type: cumulative
+    ps_pagefaults.minflt:
+      description:
+      group:
+      included: false
+      type: cumulative
+    ps_rss:
+      description:
+      group:
+      included: false
+      type: gauge
+    ps_stacksize:
+      description:
+      group:
+      included: false
+      type: gauge
+    ps_state.blocked:
+      description:
+      group:
+      included: false
+      type: gauge
+    ps_state.paging:
+      description:
+      group:
+      included: false
+      type: gauge
+    ps_state.running:
+      description:
+      group:
+      included: false
+      type: gauge
+    ps_state.sleeping:
+      description:
+      group:
+      included: false
+      type: gauge
+    ps_state.stopped:
+      description:
+      group:
+      included: false
+      type: gauge
+    ps_state.zombies:
+      description:
+      group:
+      included: false
+      type: gauge
+    ps_vm:
+      description:
+      group:
+      included: false
+      type: gauge
   monitorType: collectd/processes
   properties:

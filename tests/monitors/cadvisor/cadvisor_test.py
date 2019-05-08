@@ -2,17 +2,20 @@
 Tests for the cadvisor monitor
 """
 from functools import partial as p
-from textwrap import dedent
 
 import pytest
-from tests.helpers.agent import Agent
-from tests.helpers.assertions import any_metric_found, tcp_socket_open
-from tests.helpers.util import container_ip, get_monitor_metrics_from_selfdescribe, run_container, wait_for
+
+from tests.helpers.assertions import tcp_socket_open
+from tests.helpers.metadata import Metadata
+from tests.helpers.util import container_ip, run_container, wait_for
+from tests.helpers.verify import verify_custom
 
 pytestmark = [pytest.mark.cadvisor, pytest.mark.monitor_without_endpoints]
 
+METADATA = Metadata.from_package("cadvisor", mon_type="cadvisor")
 
-def test_cadvisor():
+
+def run(config, metrics):
     cadvisor_opts = dict(
         volumes={
             "/": {"bind": "/rootfs", "mode": "ro"},
@@ -22,18 +25,35 @@ def test_cadvisor():
             "/dev/disk": {"bind": "/dev/disk", "mode": "ro"},
         }
     )
-    with run_container("google/cadvisor:latest", **cadvisor_opts) as cadvisor_container:
+    with run_container("google/cadvisor:latest", **cadvisor_opts) as cadvisor_container, run_container(
+        # Run container to generate memory limit metric.
+        "alpine",
+        command=["tail", "-f", "/dev/null"],
+        mem_limit="64m",
+    ):
         host = container_ip(cadvisor_container)
-        config = dedent(
-            f"""
-            monitors:
-              - type: cadvisor
-                cadvisorURL: http://{host}:8080
-        """
-        )
         assert wait_for(p(tcp_socket_open, host, 8080), 60), "service didn't start"
-        with Agent.run(config) as agent:
-            expected_metrics = get_monitor_metrics_from_selfdescribe("cadvisor")
-            assert wait_for(
-                p(any_metric_found, agent.fake_services, expected_metrics)
-            ), "Didn't get cadvisor datapoints"
+        verify_custom(config.format(host=host), metrics)
+
+
+def test_cadvisor_included():
+    run(
+        """
+        monitors:
+          - type: cadvisor
+            cadvisorURL: http://{host}:8080
+        """,
+        METADATA.included_metrics,
+    )
+
+
+def test_cadvisor_all():
+    run(
+        """
+        monitors:
+          - type: cadvisor
+            cadvisorURL: http://{host}:8080
+            extraMetrics: ["*"]
+        """,
+        METADATA.all_metrics,
+    )
