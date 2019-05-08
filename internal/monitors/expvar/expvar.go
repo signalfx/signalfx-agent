@@ -40,7 +40,7 @@ func init() {
 
 // Monitor for expvar metrics
 type Monitor struct {
-	Output              types.Output
+	Output              types.FilteringOutput
 	cancel              context.CancelFunc
 	ctx                 context.Context
 	client              *http.Client
@@ -55,6 +55,10 @@ type Monitor struct {
 // Configure monitor
 func (m *Monitor) Configure(conf *Config) error {
 	m.logger = log.WithFields(log.Fields{"monitorType": monitorType})
+
+	if m.Output.HasAnyNonDefaultMetricEnabled() {
+		conf.EnhancedMetrics = true
+	}
 
 	m.allMetricConfigs = conf.getAllMetricConfigs()
 
@@ -212,18 +216,6 @@ func (m *Monitor) sendDatapoint(dp *datapoint.Datapoint, metricPath string, most
 	dp.Timestamp = *now
 	m.Output.SendDatapoint(dp)
 	return nil
-}
-
-// GetExtraMetrics returns additional metrics to allow through.
-func (c *Config) GetExtraMetrics() []string {
-	configs := c.getAllMetricConfigs()
-	var metrics []string
-
-	for _, mc := range configs {
-		metrics = append(metrics, mc.name())
-	}
-
-	return metrics
 }
 
 // Shutdown stops the metric sync
