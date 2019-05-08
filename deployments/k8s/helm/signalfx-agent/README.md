@@ -32,8 +32,13 @@ See the [values.yaml](./values.yaml) file for more information on how to
 configure releases.
 
 There are two **required** config options to run this chart: `signalFxAccessToken`
-and `clusterName` (if not overridding the agent config template and providing your own
-cluster name).
+and `clusterName` (if not overridding the agent config template and providing your own cluster name).
+
+It is also **recommended** that you explicitly specify `agentVersion` when deploying a release so that the agent will not be unintentionally updated based on updates of the helm chart from the repo.
+
+For example a basic command line install setting these three values would be:
+
+`$ helm install --set signalFxAccessToken=<YOUR_ACCESS_TOKEN> --set clusterName=<YOUR_CLUSTER_NAME> --set agentVersion=<VERSION_NUMBER> signalfx/signalfx-agent`
 
 If you want to provide your own agent configuration, you can do so with the
 `agentConfig` value.  Otherwise, you can do a great deal of customization to
