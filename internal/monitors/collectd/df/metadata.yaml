@@ -1,5 +1,5 @@
 monitors:
-- dimensions: null
+- dimensions:
   doc: |
     Tracks free disk space on the host.
   metricsExhaustive: true
