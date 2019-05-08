@@ -30,6 +30,18 @@ type Config struct {
 	MetricConfigs []MetricConfig `yaml:"metrics"`
 }
 
+// GetExtraMetrics handles the legacy enhancedMetrics option.
+func (c *Config) GetExtraMetrics() []string {
+	if c.EnhancedMetrics {
+		// Returning everything is more future-proof than trying to enumerate
+		// each one.
+		return []string{"*"}
+	}
+	return nil
+}
+
+var _ config.ExtraMetrics = &Config{}
+
 // MetricConfig for metric configuration
 type MetricConfig struct {
 	// Metric name
