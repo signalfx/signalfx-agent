@@ -29,9 +29,9 @@ def test_filesystems():
     expected_dims = get_monitor_dims_from_selfdescribe("filesystems")
     with Agent.run(
         """
-    monitors:
-      - type: filesystems
-    """
+        monitors:
+          - type: filesystems
+        """
     ) as agent:
         assert wait_for(
             p(has_any_metric_or_dim, agent.fake_services, expected_metrics, expected_dims), timeout_seconds=60
@@ -52,12 +52,12 @@ def test_filesystems_mountpoint_filter():
 
     with Agent.run(
         """
-    procPath: /proc
-    monitors:
-      - type: filesystems
-        mountPoints:
-         - "!*"
-    """
+        procPath: /proc
+        monitors:
+          - type: filesystems
+            mountPoints:
+             - "!*"
+        """
     ) as agent:
         assert wait_for(
             p(has_any_metric_or_dim, agent.fake_services, ["disk.summary_utilization"], []), timeout_seconds=60
@@ -79,12 +79,12 @@ def test_filesystems_fstype_filter():
 
     with Agent.run(
         """
-    procPath: /proc
-    monitors:
-      - type: filesystems
-        fsTypes:
-         - "!*"
-    """
+        procPath: /proc
+        monitors:
+          - type: filesystems
+            fsTypes:
+             - "!*"
+        """
     ) as agent:
         assert wait_for(
             p(has_any_metric_or_dim, agent.fake_services, ["disk.summary_utilization"], []), timeout_seconds=60

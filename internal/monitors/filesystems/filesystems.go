@@ -195,9 +195,7 @@ func (m *Monitor) Configure(conf *Config) error {
 	ctx, m.cancel = context.WithCancel(context.Background())
 
 	// save shallow copy of conf to monitor for quick reference
-	if m.conf == nil {
-		m.conf = &Config{}
-	}
+	m.conf = &Config{}
 	*m.conf = *conf
 
 	// setting metric group flags in the config copy
