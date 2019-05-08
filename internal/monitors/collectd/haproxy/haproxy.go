@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/signalfx/golib/pointer"
 	"github.com/signalfx/signalfx-agent/internal/monitors/collectd"
 
 	"github.com/signalfx/signalfx-agent/internal/core/config"
@@ -68,6 +69,10 @@ type Monitor struct {
 
 // Configure configures and runs the plugin in collectd
 func (m *Monitor) Configure(conf *Config) error {
+	if m.Output.HasAnyNonDefaultMetricEnabled() {
+		conf.EnhancedMetrics = pointer.Bool(true)
+	}
+
 	socket := conf.Host
 	if conf.Port != 0 {
 		socket += fmt.Sprintf(":%d", conf.Port)

@@ -5,7 +5,7 @@ from tests.helpers.agent import Agent
 from tests.helpers.assertions import has_datapoint, tcp_socket_open
 from tests.helpers.metadata import Metadata
 from tests.helpers.util import container_ip, run_container, wait_for, wait_for_assertion
-from tests.helpers.verify import verify, verify_expected_is_subset
+from tests.helpers.verify import verify
 
 pytestmark = [pytest.mark.collectd, pytest.mark.consul, pytest.mark.monitor_with_endpoints]
 

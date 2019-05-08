@@ -2426,6 +2426,12 @@
           "group": null,
           "included": true
         },
+        "gauge.consul.rpc.query": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "included": false
+        },
         "gauge.consul.runtime.alloc_bytes": {
           "type": "gauge",
           "description": "Number of bytes allocated to Consul process on the node",
@@ -2449,6 +2455,12 @@
           "description": "Number of serf events processed",
           "group": null,
           "included": true
+        },
+        "gauge.consul.serf.events.consul:new-leader": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "included": false
         },
         "gauge.consul.serf.member.join": {
           "type": "gauge",
@@ -5690,6 +5702,12 @@
           "group": null,
           "included": false
         },
+        "gauge.queue_time_avg": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "included": false
+        },
         "gauge.request_rate": {
           "type": "gauge",
           "description": "Corresponds to HAProxy's `req_rate` metric -  HTTP requests per second over last elapsed second",
@@ -5699,6 +5717,12 @@
         "gauge.request_rate_max": {
           "type": "gauge",
           "description": "Max number of HTTP requests per second observed. Corresponds to HAProxy's \"req_rate_max\" metric.",
+          "group": null,
+          "included": false
+        },
+        "gauge.response_time_avg": {
+          "type": "gauge",
+          "description": "Average total session time in ms over the last 1024 requests. Corresponds to HAProxy's \"ttime\" metric.",
           "group": null,
           "included": false
         },
@@ -5720,6 +5744,12 @@
           "group": null,
           "included": true
         },
+        "gauge.session_rate_all": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "included": false
+        },
         "gauge.session_rate_limit": {
           "type": "gauge",
           "description": "Configured limit on number of new sessions per second. Corresponds to HAProxy's \"rate_lim\" metric.",
@@ -5735,6 +5765,12 @@
         "gauge.session_time_average": {
           "type": "gauge",
           "description": "Average total session time in ms over the last 1024 requests. Corresponds to HAProxy's \"ttime\" metric.",
+          "group": null,
+          "included": false
+        },
+        "gauge.session_time_avg": {
+          "type": "gauge",
+          "description": "",
           "group": null,
           "included": false
         },
@@ -5808,7 +5844,7 @@
           },
           {
             "yamlName": "excludedMetrics",
-            "doc": "",
+            "doc": "Deprecated.  Please use `datapointsToExclude` on the monitor config block instead.",
             "default": null,
             "required": false,
             "type": "slice",
@@ -5829,7 +5865,7 @@
     },
     {
       "monitorType": "collectd/health-checker",
-      "sendAll": false,
+      "sendAll": true,
       "dimensions": null,
       "doc": "A simple Collectd Python-based monitor\nthat hits an endpoint and checks if the configured JSON value is returned in\nthe response body.\n",
       "groups": null,
