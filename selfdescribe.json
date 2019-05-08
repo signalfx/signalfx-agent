@@ -3190,37 +3190,37 @@
         "df_inodes.free": {
           "type": "gauge",
           "description": "Number of inodes that are free.",
-          "group": "report-inodes",
+          "group": "inodes",
           "included": false
         },
         "df_inodes.reserved": {
           "type": "gauge",
           "description": "Number of inodes reserved for the super user.",
-          "group": "report-inodes",
+          "group": "inodes",
           "included": false
         },
         "df_inodes.used": {
           "type": "gauge",
           "description": "Number of inodes that are used.",
-          "group": "report-inodes",
+          "group": "inodes",
           "included": false
         },
         "percent_bytes.free": {
           "type": "gauge",
           "description": "Free disk space on the file system, expressed as a percentage.",
-          "group": "values-percentage",
+          "group": "percentage",
           "included": false
         },
         "percent_bytes.reserved": {
           "type": "gauge",
           "description": "Reserved disk space on the filesystem, expressed as a percentage.",
-          "group": "values-percentage",
+          "group": "percentage",
           "included": false
         },
         "percent_bytes.used": {
           "type": "gauge",
           "description": "Used disk space on the file system, expressed as a percentage.",
-          "group": "values-percentage",
+          "group": "percentage",
           "included": false
         },
         "percent_inodes.free": {
