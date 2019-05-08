@@ -199,10 +199,10 @@ func (m *Monitor) Configure(conf *Config) error {
 	*m.conf = *conf
 
 	// setting metric group flags in the config copy
-	if m.Output.HasEnabledMetricInGroup(groupIncludeLogical) {
+	if m.Output.HasEnabledMetricInGroup(groupLogical) {
 		m.conf.IncludeLogical = true
 	}
-	if m.Output.HasEnabledMetricInGroup(groupReportInodes) {
+	if m.Output.HasEnabledMetricInGroup(groupInodes) {
 		m.conf.ReportInodes = true
 	}
 
@@ -249,10 +249,10 @@ func (m *Monitor) Configure(conf *Config) error {
 func (c *Config) GetExtraMetrics() []string {
 	var extraMetrics []string
 	if c.IncludeLogical {
-		extraMetrics = append(extraMetrics, groupMetricsMap[groupIncludeLogical]...)
+		extraMetrics = append(extraMetrics, groupMetricsMap[groupLogical]...)
 	}
 	if c.ReportInodes {
-		extraMetrics = append(extraMetrics, groupMetricsMap[groupReportInodes]...)
+		extraMetrics = append(extraMetrics, groupMetricsMap[groupInodes]...)
 	}
 	return extraMetrics
 }

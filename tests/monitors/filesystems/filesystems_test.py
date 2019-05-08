@@ -1,118 +1,87 @@
-import sys
-from functools import partial as p
-
 import pytest
 
-from tests.helpers.agent import Agent
-from tests.helpers.assertions import has_any_metric_or_dim, has_log_message
 from tests.helpers.metadata import Metadata
-from tests.helpers.util import ensure_never, get_monitor_dims_from_selfdescribe, wait_for
-from tests.helpers.verify import verify_custom
+from tests.helpers.verify import verify_custom, verify_included_metrics, verify_all_metrics
 
 pytestmark = [pytest.mark.windows, pytest.mark.filesystems, pytest.mark.monitor_without_endpoints]
 
 METADATA = Metadata.from_package("filesystems")
 
 
-def test_filesystems():
-    # TODO: make the helper that fetches metrics from selfdescribe.json check for platform specificity
-    expected_metrics = [
-        "df_complex.free",
-        "df_complex.used",
-        "percent_bytes.free",
-        "percent_bytes.used",
-        "disk.summary_utilization",
-        "disk.utilization",
-    ]
-    if sys.platform == "linux":
-        expected_metrics.extend(["df_inodes.free", "df_inodes.used", "percent_inodes.free", "percent_inodes.used"])
-    expected_dims = get_monitor_dims_from_selfdescribe("filesystems")
-    with Agent.run(
-        """
-        monitors:
-          - type: filesystems
-        """
-    ) as agent:
-        assert wait_for(
-            p(has_any_metric_or_dim, agent.fake_services, expected_metrics, expected_dims), timeout_seconds=60
-        ), "timed out waiting for metrics and/or dimensions!"
-        assert not has_log_message(agent.output.lower(), "error"), "error found in agent output!"
+def test_filesystems_included_metrics():
+    agent_config = """
+                   monitors:
+                   - type: filesystems
+                   """
+    verify_included_metrics(agent_config, METADATA)
 
 
 def test_filesystems_mountpoint_filter():
-    expected_metrics = [
-        "df_complex.free",
-        "df_complex.used",
-        "percent_bytes.free",
-        "percent_bytes.used",
-        "disk.utilization",
-    ]
-    if sys.platform == "linux":
-        expected_metrics.extend(["df_inodes.free", "df_inodes.used", "percent_inodes.free", "percent_inodes.used"])
-
-    with Agent.run(
-        """
-        procPath: /proc
-        monitors:
-          - type: filesystems
-            mountPoints:
-             - "!*"
-        """
-    ) as agent:
-        assert wait_for(
-            p(has_any_metric_or_dim, agent.fake_services, ["disk.summary_utilization"], []), timeout_seconds=60
-        ), "timed out waiting for metrics and/or dimensions!"
-        assert ensure_never(lambda: has_any_metric_or_dim(agent.fake_services, expected_metrics, []))
-        assert not has_log_message(agent.output.lower(), "error"), "error found in agent output!"
+    expected_metrics = frozenset(["disk.summary_utilization"])
+    agent_config = """
+                   procPath: /proc
+                   monitors:
+                   - type: filesystems
+                     mountPoints:
+                     - "!*"
+                   """
+    verify_custom(agent_config, expected_metrics)
 
 
 def test_filesystems_fstype_filter():
-    expected_metrics = [
-        "df_complex.free",
-        "df_complex.used",
-        "percent_bytes.free",
-        "percent_bytes.used",
-        "disk.utilization",
-    ]
-    if sys.platform == "linux":
-        expected_metrics.extend(["df_inodes.free", "df_inodes.used", "percent_inodes.free", "percent_inodes.used"])
-
-    with Agent.run(
-        """
-        procPath: /proc
-        monitors:
-          - type: filesystems
-            fsTypes:
-             - "!*"
-        """
-    ) as agent:
-        assert wait_for(
-            p(has_any_metric_or_dim, agent.fake_services, ["disk.summary_utilization"], []), timeout_seconds=60
-        ), "timed out waiting for metrics and/or dimensions!"
-        assert ensure_never(lambda: has_any_metric_or_dim(agent.fake_services, expected_metrics, []))
-        assert not has_log_message(agent.output.lower(), "error"), "error found in agent output!"
+    expected_metrics = frozenset(["disk.summary_utilization"])
+    agent_config = """
+                   procPath: /proc
+                   monitors:
+                   - type: filesystems
+                     fsTypes:
+                     - "!*"
+                   """
+    verify_custom(agent_config, expected_metrics)
 
 
 def test_filesystems_extra_metrics():
-    an_extra_metric = "percent_inodes.used"
-    expected_metrics = METADATA.included_metrics | {an_extra_metric}
+    percent_inodes_used, df_inodes_used = "percent_inodes.used", "df_inodes.used"
+    expected_metrics = METADATA.included_metrics | {percent_inodes_used, df_inodes_used}
     agent_config = f"""
                     procPath: /proc
                     monitors:
                     - type: filesystems
                       extraMetrics:
-                      - {an_extra_metric}
+                      - {percent_inodes_used}
+                      - {df_inodes_used}
                     """
     verify_custom(agent_config, expected_metrics)
 
 
-def test_filesystems_extra_metrics_by_group_flag():
-    expected_metrics = METADATA.included_metrics | {"percent_bytes.free", "percent_bytes.used"}
-    a_group_flag = "includeLogical: true"
-    agent_config = f"""
-                    procPath: /proc
-                    monitors:
-                    - type: filesystems
-                      {a_group_flag}
-                    """
+def test_filesystems_logical_flag():
+    expected_metrics = METADATA.included_metrics | METADATA.metrics_by_group["logical"]
+    agent_config = """
+                   procPath: /proc
+                   monitors:
+                   - type: filesystems
+                     includeLogical: true
+                   """
     verify_custom(agent_config, expected_metrics)
+
+
+def test_filesystems_inodes_flag():
+    expected_metrics = METADATA.included_metrics | METADATA.metrics_by_group["inodes"]
+    agent_config = """
+                   procPath: /proc
+                   monitors:
+                   - type: filesystems
+                     reportInodes: true
+                   """
+    verify_custom(agent_config, expected_metrics)
+
+
+def test_filesystems_all_metrics():
+    agent_config = """
+                   procPath: /proc
+                   monitors:
+                   - type: filesystems
+                     includeLogical: true
+                     reportInodes: true
+                   """
+    verify_all_metrics(agent_config, METADATA)
