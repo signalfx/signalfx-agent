@@ -8050,6 +8050,18 @@
       "doc": "Monitors an instance of MongoDB using the\n[collectd MongoDB Python plugin](https://github.com/signalfx/collectd-mongodb).\n\nAlso see https://github.com/signalfx/integrations/tree/master/collectd-mongodb.\n",
       "groups": null,
       "metrics": {
+        "counter.asserts.regular": {
+          "type": "cumulative",
+          "description": "The number of regular assertions raised since the MongoDB process started. Check the log file for more information about these messages.",
+          "group": null,
+          "included": false
+        },
+        "counter.asserts.warning": {
+          "type": "cumulative",
+          "description": "In MongoDB 3.x and earlier, the field returns the number of warnings raised since the MongoDB process started.  In MongodDB 4, this is always 0.",
+          "group": null,
+          "included": false
+        },
         "counter.backgroundFlushing.flushes": {
           "type": "gauge",
           "description": "Number of times the database has been flushed",
@@ -8176,6 +8188,48 @@
           "group": null,
           "included": true
         },
+        "counter.lock.Database.acquireCount.intentExclusive": {
+          "type": "cumulative",
+          "description": "",
+          "group": null,
+          "included": false
+        },
+        "counter.lock.Database.acquireCount.intentShared": {
+          "type": "cumulative",
+          "description": "",
+          "group": null,
+          "included": false
+        },
+        "counter.lock.Database.acquireCount.read": {
+          "type": "cumulative",
+          "description": "",
+          "group": null,
+          "included": false
+        },
+        "counter.lock.Database.acquireCount.write": {
+          "type": "cumulative",
+          "description": "",
+          "group": null,
+          "included": false
+        },
+        "counter.lock.Global.acquireCount.intentExclusive": {
+          "type": "cumulative",
+          "description": "",
+          "group": null,
+          "included": false
+        },
+        "counter.lock.Global.acquireCount.intentShared": {
+          "type": "cumulative",
+          "description": "",
+          "group": null,
+          "included": false
+        },
+        "counter.lock.Global.acquireCount.write": {
+          "type": "cumulative",
+          "description": "",
+          "group": null,
+          "included": false
+        },
         "counter.network.bytesIn": {
           "type": "gauge",
           "description": "Network bytes received by the database server",
@@ -8194,29 +8248,77 @@
           "group": null,
           "included": true
         },
+        "counter.opcounters.command": {
+          "type": "cumulative",
+          "description": "Number of commands since last restart",
+          "group": null,
+          "included": false
+        },
         "counter.opcounters.delete": {
           "type": "cumulative",
-          "description": "Number of deletes per second",
+          "description": "Number of deletes since last restart",
           "group": null,
           "included": true
         },
+        "counter.opcounters.getmore": {
+          "type": "cumulative",
+          "description": "Number of getmore operations since last restart",
+          "group": null,
+          "included": false
+        },
         "counter.opcounters.insert": {
           "type": "cumulative",
-          "description": "Number of inserts per second",
+          "description": "Number of inserts since last restart",
           "group": null,
           "included": true
         },
         "counter.opcounters.query": {
           "type": "cumulative",
-          "description": "Number of queries per second",
+          "description": "Number of queries since last restart",
           "group": null,
           "included": true
         },
         "counter.opcounters.update": {
           "type": "cumulative",
-          "description": "Number of updates per second",
+          "description": "Number of updates since last restart",
           "group": null,
           "included": true
+        },
+        "counter.opcountersRepl.command": {
+          "type": "cumulative",
+          "description": "Number of replicated commands since last restart",
+          "group": null,
+          "included": false
+        },
+        "counter.opcountersRepl.delete": {
+          "type": "cumulative",
+          "description": "Number of replicated deletes since last restart",
+          "group": null,
+          "included": false
+        },
+        "counter.opcountersRepl.getmore": {
+          "type": "cumulative",
+          "description": "Number of replicated getmore operations since last restart",
+          "group": null,
+          "included": false
+        },
+        "counter.opcountersRepl.insert": {
+          "type": "cumulative",
+          "description": "Number of replicated inserts since last restart",
+          "group": null,
+          "included": false
+        },
+        "counter.opcountersRepl.query": {
+          "type": "cumulative",
+          "description": "Number of replicated queries since last restart",
+          "group": null,
+          "included": false
+        },
+        "counter.opcountersRepl.update": {
+          "type": "cumulative",
+          "description": "Number of replicated updates since last restart",
+          "group": null,
+          "included": false
         },
         "gauge.backgroundFlushing.average_ms": {
           "type": "gauge",
@@ -8289,6 +8391,12 @@
           "description": "Number of current client connections",
           "group": null,
           "included": true
+        },
+        "gauge.connections.totalCreated": {
+          "type": "cumulative",
+          "description": "Count of all incoming connections created to the server. This number includes connections that have since closed.",
+          "group": null,
+          "included": false
         },
         "gauge.dataSize": {
           "type": "gauge",
@@ -8367,6 +8475,12 @@
           "description": "Mongodb virtual memory usage, in MB",
           "group": null,
           "included": true
+        },
+        "gauge.numExtents": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "included": false
         },
         "gauge.objects": {
           "type": "gauge",
