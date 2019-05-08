@@ -34,7 +34,7 @@ class Metadata:
                 included_metrics=frozenset(_get_monitor_metrics(monitor, included=True)),
                 nonincluded_metrics=frozenset(_get_monitor_metrics(monitor, included=False)),
                 metrics_by_group=metrics_by_group,
-                dims=frozenset(_get_monitor_dims(doc)),
+                dims=frozenset(_get_monitor_dims(doc, mon_type)),
             )
 
 
